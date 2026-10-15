@@ -7,3 +7,4 @@ golden/probes/
 golden/probes2/session.txt
 _build/
 *.pyc
+thirdparty/
