@@ -1,0 +1,64 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: SAMPLE
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: SAMPLE
+
+   1 a 0000 sample:
+   2 a 0006       procedure options(main); 
+   3 c 0006       declare
+   4 c 0006          c character(10) varying,
+   5 c 0006          i fixed binary(15);
+   6 c 0006 
+   7 c 0006       do;  
+   8 c 0006         put skip list('Input: ');
+   9 c 0022         get list(c);
+  10 c 003C         c = upper(c); /* function reference */
+  11 c 004A         put skip list('Output: ',c);
+  12 c 006F       end;
+  13 c 006F   
+  14 c 006F       begin;  
+  15 d 006F       declare
+  16 d 006F          c float binary(24);
+  17 d 006F 
+  18 d 006F          put skip list('Input: ');
+  19 d 008B          get list(c);
+  20 d 00A9          call output(c); /* subroutine invocation */
+  21 c 00AF       end;
+  22 c 00AF   
+  23 c 00AF       upper:  
+  24 c 00AF            procedure(c) returns(character(10) varying);
+  25 e 00AF            declare
+  26 e 00B9               c character(10) varying;
+  27 e 00B9 
+  28 e 00B9            return(translate(c,'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  29 e 00D7                              'abcdefghijklmnopqrstuvwxyz'));
+  30 c 00D7       end upper;
+  31 c 00D7   
+  32 c 00D7       output:  
+  33 c 00D7             procedure(c);
+  34 e 00D7             declare
+  35 e 00E1                c float binary(24);
+  36 e 00E1 
+  37 e 00E1             put skip edit(c) (column(20),e(10,2));
+  38 c 0104       end output;
+  39 c 0104   
+  40 a 0104 end sample;
+
+CODE SIZE = 0107
+DATA AREA = 0064
+FREE SYMS = 375D
+END  COMPILATION
+

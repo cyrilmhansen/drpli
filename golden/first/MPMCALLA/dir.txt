@@ -1,0 +1,21 @@
+0:
+-rw-rw-rw-     128 Jan 01 1970  dio80.dcl
+-rw-rw-rw-    1664 Jan 01 1970  diomod.dcl
+-rw-rw-rw-     640 Jan 01 1970  fcb.dcl
+-rw-rw-rw-     128 Jan 01 1970  matsize.lib
+-rw-rw-rw-   13184 Jan 01 1970  mpmcalla.pli
+-rw-rw-rw-   16384 Jan 01 1970  mpmcalla.prn
+-rw-rw-rw-    8320 Jan 01 1970  mpmcallb.pli
+-rw-rw-rw-       0 Jan 01 1970  mpmcallb.prn
+-rw-rw-rw-    1152 Jan 01 1970  mpmdio.dcl
+-rw-rw-rw-    8960 Jan 01 1970  network.pli
+-rw-rw-rw-    9088 Jan 01 1970  network.prn
+-rw-rw-rw-    1664 Jan 01 1970  optimist.pli
+-rw-rw-rw-    2560 Jan 01 1970  optimist.prn
+-rwxrwxrwx    8064 Jan 01 1970  pli.com
+-rw-rw-rw-   18048 Jan 01 1970  pli0.ovl
+-rw-rw-rw-   34816 Jan 01 1970  pli1.ovl
+-rw-rw-rw-   33792 Jan 01 1970  pli2.ovl
+-rw-rw-rw-   71808 Jan 01 1970  plilib.irl
+-rw-rw-rw-     384 Jan 01 1970  record.dcl
+-rw-rw-rw-    6016 Jan 01 1970  z80.lib

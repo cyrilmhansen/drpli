@@ -1,0 +1,5 @@
+p002: procedure options(main);
+  declare x float(24);
+  x = 1.5;
+  put list(x);
+end p002;

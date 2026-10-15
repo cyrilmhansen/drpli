@@ -1,0 +1,106 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: ANNUITY
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: ANNUITY
+
+   1   0000 /******************************************************/
+   2   0000 /* This program computes either the present value(PV),*/
+   3   0000 /* the payment(PMT), or the number of periods in an   */
+   4   0000 /* annuity.                                           */
+   5   0000 /******************************************************/
+   6 a 0000 annuity:
+   7 a 0006     procedure options(main);
+   8 c 0006     %replace
+   9 c 000D        clear by '^z',
+  10 c 000D        true  by '1'b;
+  11 c 000D     declare 
+  12 c 000D        PMT fixed decimal(7,2),
+  13 c 000D        PV  fixed decimal(9,2),
+  14 c 000D        IP  fixed decimal(6,6),
+  15 c 000D        x   float binary,
+  16 c 000D        yi  float binary,
+  17 c 000D        i   float binary,
+  18 c 000D        n   fixed;
+  19 c 000D   
+  20 c 000D     declare 
+  21 c 000D        ftc entry(float binary(24)) 
+  22 c 000D            returns(character(17) varying);
+  23 c 000D   
+  24 c 000D     put list (clear,'^i^iO R D I N A R Y   A N N U I T Y');
+  25 c 002F     put skip(2) list
+  26 c 004B     ('^iEnter Known Values, or 0, on Each Iteration');
+  27 c 004B   
+  28 c 004B     on error
+  29 d 0052        begin;
+  30 e 0055          put skip list('^iInvalid Data, Re-enter');
+  31 e 0071          goto retry;
+  32 d 0074        end;
+  33 d 0074   
+  34 c 0074     retry:
+  35 c 007B     do while (true);
+  36 c 007B        put skip(3) list('^iPresent Value ');
+  37 c 0097        get list(PV);
+  38 c 00B6        put list('^iPayment       ');
+  39 c 00CD        get list(PMT);
+  40 c 00EC        put list('^iInterest Rate ');
+  41 c 0103        get list(yi);
+  42 c 0121        i = yi / 1200;
+  43 c 0132        put list('^iPay Periods   ');
+  44 c 0149        get list(n);
+  45 c 0161   
+  46 c 0161        if PV = 0 | PMT = 0 then
+  47 c 0193           x = 1 - 1/(1+i)**n;
+  48 c 01B6   
+  49 c 01B6        /******************************/
+  50 c 01B6        /* compute the present value  */
+  51 c 01B6        /******************************/
+  52 c 01B6        if PV = 0 then
+  53 c 01CC           do;
+  54 c 01CC             PV = PMT * dec(ftc(x/i),15,6);
+  55 c 0200             put edit('^iPresent Value is ',PV)
+  56 c 022F                     (a,p'$$$,$$$,$$$V.99');
+  57 c 022F           end;
+  58 c 022F   
+  59 c 022F        /******************************/         
+  60 c 022F        /*    compute the payment     */
+  61 c 022F        /******************************/
+  62 c 022F         if PMT = 0 then
+  63 c 0245            do;
+  64 c 0245              PMT = PV * dec(ftc(i/x),15,8);
+  65 c 0279              put edit('^iPayment is ',PMT)
+  66 c 02A8                      (a,p'$$,$$$,$$$V.99');
+  67 c 02A8            end;
+  68 c 02A8   
+  69 c 02A8        /*****************************/
+  70 c 02A8        /* compute number of periods */
+  71 c 02A8        /*****************************/
+  72 c 02A8        if n = 0 then
+  73 c 02B1           do;
+  74 c 02B1             IP = ftc(i);
+  75 c 02C4             x = char(PV * IP / PMT);
+  76 c 02F5             n = ceil ( - log(1-x)/log(1+i) );
+  77 c 0320             put edit('^i',n,' Pay Periods')
+  78 c 0356                     (a,p'ZZZ9',a);
+  79 c 0356           end;
+  80 c 0356     end;
+  81 c 0356   
+  82 a 0356 end annuity;
+
+CODE SIZE = 0356
+DATA AREA = 0146
+FREE SYMS = 34B6
+END  COMPILATION
+

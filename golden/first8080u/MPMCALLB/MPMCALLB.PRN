@@ -1,0 +1,380 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: MPMCALLB
+
+D: Disk Print
+L: List Source Program
+
+%include 'mpmdio.dcl';
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: MPMCALLB
+
+   1   0000 /************************************************************
+   2   0000 * Direct MP/M Operating System Call Test Program (Cont'd)   *
+   3   0000 * See comments at the beginning of the MPMCALLA.PLI program.*
+   4   0000 ************************************************************/
+   5   0000 
+   6 a 0000 part2: 
+   7 a 0000 
+   8 a 0000 procedure; /* external MP/M I/O entry points */
+   9 a 0000 
+  10 c 0000 %replace
+  11 c 0007    true   by '1'b,
+  12 c 0007    false  by '0'b;
+  13 c 0007 
+  14+c 0007 declare
+  15+c 0007     amemrq entry   (pointer) returns (bit(1)),
+  16+c 0007     rmemrq entry   (pointer) returns (bit(1)),
+  17+c 0007     memfr  entry   (pointer),
+  18+c 0007     poll   entry   (fixed(7)),
+  19+c 0007     flgwt  entry   (fixed(7)) returns (bit(1)),
+  20+c 0007     flgset entry   (fixed(7)) returns (bit(1)),
+  21+c 0007     makque entry   (pointer),
+  22+c 0007     opnque entry   (pointer) returns (bit(1)),
+  23+c 0007     delque entry   (pointer) returns (bit(1)),
+  24+c 0007     rdque  entry   (pointer),
+  25+c 0007     crdque entry   (pointer) returns (bit(1)),
+  26+c 0007     wrque  entry   (pointer),
+  27+c 0007     cwrque entry   (pointer) returns (bit(1)),
+  28+c 0007     delay  entry   (fixed(15)),
+  29+c 0007     dsptch entry,
+  30+c 0007     term   entry   (bit(16)),
+  31+c 0007     crproc entry   (pointer),
+  32+c 0007     setpri entry   (fixed(7)),
+  33+c 0007     attcon entry,
+  34+c 0007     detcon entry,
+  35+c 0007     setcon entry   (fixed(7)),
+  36+c 0007     asncon entry   (pointer) returns (bit(1)),
+  37+c 0007     sclicd entry   (pointer),
+  38+c 0007     clresp entry   (pointer) returns (bit(16)),
+  39+c 0007     parse  entry   (pointer) returns (pointer),
+  40+c 0007     getcon entry   returns (fixed(7)),
+  41+c 0007     sysdat entry   returns (pointer),
+  42+c 0007     gettod entry   (pointer),
+  43+c 0007     rpdadr entry   returns (pointer),
+  44+c 0007     abtspr entry   (pointer) returns (bit(1)),
+  45 c 0007 
+  46+c 0007     disabl entry,
+  47+c 0007     enable entry;
+  48 c 0007 
+  49 c 0007 declare
+  50 c 0007    sysin file,
+  51 c 0007    oldpriority fixed(7),
+  52 c 0007    v character(254) varying,
+  53 c 0007    i fixed;
+  54 c 0007 
+  55 c 0007 declare
+  56 c 0007    pdadr pointer,
+  57 c 0007    1 pd based (pdadr),
+  58 c 0007      2 link pointer,
+  59 c 0007      2 status fixed(7),
+  60 c 0007      2 priority fixed(7),
+  61 c 0007      2 stkptr pointer,
+  62 c 0007      2 name character(8),
+  63 c 0007      2 console fixed(7),
+  64 c 0007      2 memseg fixed(7),
+  65 c 0007      2 b fixed(15),
+  66 c 0007      2 thread pointer,
+  67 c 0007      2 dmadr pointer,
+  68 c 0007      2 slct bit(8);
+  69 c 0007 /*   2 dcnt fixed(15),
+  70 c 0007      2 searchl fixed(7),
+  71 c 0007      2 searcha pointer,
+  72 c 0007      2 drvact bit(16),
+  73 c 0007      2 registers (20) fixed(7),
+  74 c 0007      2 scratch fixed(15);
+  75 c 0007 */
+  76 c 0007 
+  77 c 0007 pdadr = rpdadr();   /* get current running pd adr */
+  78 c 000D oldpriority = pd.priority;
+  79 c 0017 
+  80 c 0017 declare 
+  81 c 0017    upper character(27) static initial
+  82 c 0017          ('ABCDEFGHIJKLMNOPQRSTUVWXYZ '),
+  83 c 0017    lower character(27) static initial
+  84 c 0017          ('abcdefghijklmnopqrstuvwxyz ');
+  85 c 0017 
+  86 c 0017 
+  87 c 0017 /**********************************
+  88 c 0017 *                                 *
+  89 c 0017 * Local procedures used during    *
+  90 c 0017 *  testing.                       *
+  91 c 0017 *                                 *
+  92 c 0017 **********************************/
+  93 c 0017 
+  94 c 0017 clresptest:
+  95 c 0017 
+  96 c 0017 procedure (stringadr) returns (pointer);
+  97 e 0017 declare 
+  98 e 0021    stringadr pointer,
+  99 e 0021    string based (stringadr) character(27);
+ 100 e 0021 
+ 101 e 0021 put edit ('->STRING proc passed: ',string)
+ 102 e 004D          (skip,a,a(27));
+ 103 e 004D return (addr (lower));
+ 104 c 0051 end clresptest;
+ 105 c 0051 
+ 106 c 0051 
+ 107 c 0051 /**********************************
+ 108 c 0051 *                                 *
+ 109 c 0051 * Delay Test:                     *
+ 110 c 0051 *                                 *
+ 111 c 0051 **********************************/
+ 112 c 0051 
+ 113 c 0051 put skip(2) list ('Delay Test:');
+ 114 c 006D put skip list ('->a dot will be printed each second');
+ 115 c 0089 put list ('for ten seconds ');
+ 116 c 00A0 do i = 1 to 10;
+ 117 c 00B2    call delay (60);
+ 118 c 00B8    put edit ('.') (a);
+ 119 c 00DF end;
+ 120 c 00DF 
+ 121 c 00DF /**********************************
+ 122 c 00DF *                                 *
+ 123 c 00DF * Disptach Test:                  *
+ 124 c 00DF *                                 *
+ 125 c 00DF **********************************/
+ 126 c 00DF 
+ 127 c 00DF put skip(2) list ('Dispatch Test:');
+ 128 c 00FB call dsptch();
+ 129 c 00FE put skip list ('->dispatch successful.');
+ 130 c 011A 
+ 131 c 011A /**********************************
+ 132 c 011A *                                 *
+ 133 c 011A * Console Tests:                  *
+ 134 c 011A *   ATTCON, DETCON already tested *
+ 135 c 011A *   SETCON not tested             *
+ 136 c 011A *   ASNCON tested in send CLI cmd *
+ 137 c 011A *   GETCON                        *
+ 138 c 011A *                                 *
+ 139 c 011A **********************************/
+ 140 c 011A 
+ 141 c 011A put skip(2) list ('Console Test:');
+ 142 c 0136 put edit ('->current console is #',getcon())
+ 143 c 0162          (skip,a,f(2));
+ 144 c 0162 
+ 145 c 0162 /**********************************
+ 146 c 0162 *                                 *
+ 147 c 0162 * Send CLI Command Test:          *
+ 148 c 0162 *   This example shows how to run *
+ 149 c 0162 *   a program in another memory   *
+ 150 c 0162 *   segment and then get the con- *
+ 151 c 0162 *   sole back to the main program.*
+ 152 c 0162 *   E.G. as in a menu-driven      *
+ 153 c 0162 *   application.                  *
+ 154 c 0162 *                                 *
+ 155 c 0162 **********************************/
+ 156 c 0162 declare
+ 157 c 0162    1 clicmd,
+ 158 c 0162      2 dslct bit(8),  /* default disk / user code */
+ 159 c 0162      2 console fixed(7),  /* console number */
+ 160 c 0162      2 line character(128);
+ 161 c 0162 
+ 162 c 0162 declare
+ 163 c 0162    1 apb static,
+ 164 c 0162      2 console fixed(7),
+ 165 c 0162      2 name character(8) initial ('cli     '),
+ 166 c 0162      2 match bit(8) initial ('00'b4);
+ 167 c 0162 
+ 168 c 0162 put skip(2) list ('Send CLI Command Test:');
+ 169 c 017E on endfile (sysin)
+ 170 d 0186    goto clresptst;
+ 171 d 018C 
+ 172 c 018C pdadr = rpdadr();   /* get current running pd adr */
+ 173 c 0192 oldpriority = pd.priority;
+ 174 c 019C clicmd.dslct = pd.slct;
+ 175 c 01A8 clicmd.console = pd.console;
+ 176 c 01B3 apb.console = pd.console;
+ 177 c 01BC do while (true);
+ 178 c 01BC    put skip list ('  Enter CLI Command: ');
+ 179 c 01D8    get edit (clicmd.line) (a);
+ 180 c 01F5    if ~asncon (addr (apb)) then
+ 181 c 0205       do;
+ 182 c 0205         put skip list ('*** Failed to assign Cli the console ***');
+ 183 c 0224       end;
+ 184 c 0224    else
+ 185 c 0224       do;
+ 186 c 0224         call setpri (197);
+ 187 c 0239         call sclicd (addr (clicmd));
+ 188 c 0245         call attcon();
+ 189 c 0248         call setpri (oldpriority);
+ 190 c 0258       end;
+ 191 c 0258    end;
+ 192 c 0258 
+ 193 c 0258 /**********************************
+ 194 c 0258 *                                 *
+ 195 c 0258 * Call Resident System Proc Test: *
+ 196 c 0258 *                                 *
+ 197 c 0258 **********************************/
+ 198 c 0258 declare
+ 199 c 0258    1 cpb,
+ 200 c 0258      2 nameadr pointer,
+ 201 c 0258      2 paramadr pointer;
+ 202 c 0258 
+ 203 c 0258 declare
+ 204 c 0258    aparam pointer;
+ 205 c 0258 
+ 206 c 0258 declare
+ 207 c 0258    procname character(8) static initial ('STRING  ');
+ 208 c 0258 
+ 209 c 0258 declare
+ 210 c 0258    1 stringqcb static,
+ 211 c 0258      2 link fixed(15),
+ 212 c 0258      2 name character(8) initial ('STRING  '),
+ 213 c 0258      2 msglen fixed(15) initial (2),
+ 214 c 0258      2 nmbmsgs fixed(15) initial (1),
+ 215 c 0258      2 dqph pointer,
+ 216 c 0258      2 nqph pointer,
+ 217 c 0258      2 msgin pointer,
+ 218 c 0258      2 msgout pointer,
+ 219 c 0258      2 msgcnt fixed(15),
+ 220 c 0258      2 buffer pointer;
+ 221 c 0258 
+ 222 c 0258 declare
+ 223 c 0258    1 stringuqcb,
+ 224 c 0258      2 pointer pointer,
+ 225 c 0258      2 msgadr pointer;
+ 226 c 0258 
+ 227 c 0258 declare
+ 228 c 0258    stringprocadr entry (fixed) variable returns(pointer);
+ 229 c 0258 
+ 230 c 0258 declare
+ 231 c 0258    rtnstringadr pointer,
+ 232 c 0258    rtnstring based (rtnstringadr) character(27);
+ 233 c 0258 
+ 234 c 0258 clresptst:
+ 235 c 0258 
+ 236 c 0258 get edit (v) (a);  /* clear input buffer */
+ 237 c 0275 put skip(2) list ('Call Resident System Process Test:');
+ 238 c 0291 call makque (addr (stringqcb));
+ 239 c 029D stringuqcb.pointer = addr (stringqcb);
+ 240 c 02A6 stringuqcb.msgadr = addr (stringprocadr);
+ 241 c 02AF stringprocadr = clresptest;
+ 242 c 02B5 call wrque (addr (stringuqcb));
+ 243 c 02C1 cpb.nameadr = addr (procname);
+ 244 c 02CA cpb.paramadr = addr (aparam);
+ 245 c 02D3 aparam = addr (upper);
+ 246 c 02D9 unspec (rtnstringadr) = clresp (addr (cpb));
+ 247 c 02ED 
+ 248 c 02ED put edit ('->STRING proc returned:',rtnstring)
+ 249 c 0315          (skip,a,a(27));
+ 250 c 0315 
+ 251 c 0315 if ~delque (addr (stringqcb)) then
+ 252 c 0325     do;
+ 253 c 0325       put skip list ('*** Unable to delete stringqcb ***');
+ 254 c 0341       call term ('0000'b4);
+ 255 c 0347     end;
+ 256 c 0347 put skip list ('->Call clresp test complete.');
+ 257 c 0363 
+ 258 c 0363 /**********************************
+ 259 c 0363 *                                 *
+ 260 c 0363 * Parse Filename Test:            *
+ 261 c 0363 *                                 *
+ 262 c 0363 **********************************/
+ 263 c 0363 declare
+ 264 c 0363    done bit(1);
+ 265 c 0363 
+ 266 c 0363 declare
+ 267 c 0363    line character(80);
+ 268 c 0363 
+ 269 c 0363 declare
+ 270 c 0363    1 pfcb,
+ 271 c 0363      2 flname pointer,
+ 272 c 0363      2 fcb pointer;
+ 273 c 0363 
+ 274 c 0363 declare
+ 275 c 0363    delimptr pointer,
+ 276 c 0363    delim based (delimptr) character(1);
+ 277 c 0363 
+ 278 c 0363 declare
+ 279 c 0363    oldptr pointer,
+ 280 c 0363    old based (oldptr) character(10);
+ 281 c 0363 
+ 282 c 0363 declare
+ 283 c 0363    1 afcb,
+ 284 c 0363      2 name,
+ 285 c 0363        3 drive fixed(7),
+ 286 c 0363        3 fname character(8),
+ 287 c 0363        3 ftype character(3);
+ 288 c 0363 
+ 289 c 0363 put skip(2) list ('Parse Filename Test:');
+ 290 c 037F on endfile (sysin)
+ 291 d 0387    goto gettodtest;
+ 292 d 038D 
+ 293 c 038D put skip list ('  Enter string of filenames to be parsed,');
+ 294 c 03A9 put list ('separated by commas:');
+ 295 c 03C0 do while (true);
+ 296 c 03C0    put skip list ('->');
+ 297 c 03DC    get edit (line) (a);
+ 298 c 03F9    line = substr (line,1,index (line,' ')-1) || ascii (13);
+ 299 c 0426    pfcb.flname = addr (line);
+ 300 c 042F    pfcb.fcb = addr (afcb);
+ 301 c 0438    oldptr = addr (line);
+ 302 c 043E    done = false;
+ 303 c 0443    pfcb.flname = parse (addr (pfcb));
+ 304 c 0458    do while (~done & (unspec (pfcb.flname) ~= 'ffff'b4));
+ 305 c 0470       oldptr = pfcb.flname;
+ 306 c 047A       put edit ('  ',ascii (afcb.drive+64),': ',
+ 307 c 04D6                 afcb.fname,' ',afcb.ftype)
+ 308 c 04D6                (skip,a,a,a,a(8),a,a(3));
+ 309 c 04D6       if unspec (pfcb.flname) = '0000'b4 then
+ 310 c 04E4          do;
+ 311 c 04E4            done = true;
+ 312 c 04EC          end;
+ 313 c 04EC       else
+ 314 c 04EC          do;
+ 315 c 04EC            delimptr = pfcb.flname;
+ 316 c 04F6            if delim = ',' then
+ 317 c 0506               do;
+ 318 c 0506                 unspec (i) = unspec (pfcb.flname);
+ 319 c 0511                 i = i + 1;
+ 320 c 0518                 unspec (pfcb.flname) = unspec (i);
+ 321 c 0527               end;
+ 322 c 0527               pfcb.flname = parse (addr (pfcb));
+ 323 c 053F          end;
+ 324 c 053F    end;
+ 325 c 053F    if ~done then
+ 326 c 0546        do;
+ 327 c 0546          put skip list ('  *** Bad Entry ***  ->');
+ 328 c 0562          put edit (old) (a(10));
+ 329 c 0589        end;
+ 330 c 0589 end;
+ 331 c 0589 
+ 332 c 0589 /**********************************
+ 333 c 0589 *                                 *
+ 334 c 0589 * Time and Date Test:             *
+ 335 c 0589 *                                 *
+ 336 c 0589 **********************************/
+ 337 c 0589 declare
+ 338 c 0589    1 tod,
+ 339 c 0589      2 date fixed(15),
+ 340 c 0589      2 time,
+ 341 c 0589        3 hour bit(8),
+ 342 c 0589        3 min bit(8),
+ 343 c 0589        3 sec bit(8);
+ 344 c 0589 
+ 345 c 0589 gettodtest:
+ 346 c 0589 
+ 347 c 0589 get edit (v) (a);  /* clear input buffer */
+ 348 c 05A6 put skip(2) list ('Time and Date Test:');
+ 349 c 05C2 call gettod (addr (tod));
+ 350 c 05CE put edit ('-> ',tod.date,'  ',tod.hour,':',tod.min,':',tod.sec)
+ 351 c 063C          (skip,a,f(5),a,b4(2),a,b4(2),a,b4(2));
+ 352 c 063C 
+ 353 c 063C 
+ 354 a 063C end part2;
+ 355 a 063C 
+
+CODE SIZE = 063C
+DATA AREA = 04E5
+FREE SYMS = 2848
+END  COMPILATION
+

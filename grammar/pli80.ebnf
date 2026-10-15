@@ -1,0 +1,215 @@
+(* =====================================================================
+   PL/I-80 grammar draft 0
+   Source of productions: PL/I-80 Language Manual, 2nd printing Dec 1980
+     (manuals/PL1-80_Language_Manual_Dec80.pdf, OCR: extracted/...txt)
+   Target binary under study: PL/I-80 Compiler v1.4 (1983) — the manual
+     predates it; RELNOTES.PRN lists doc errata and 1.3/1.4 changes.
+   Every production carries a provenance tag:
+     [M §x]      stated in the manual, section x
+     [M AppB.x]  manual Appendix B statement x
+     [M AppC.x]  manual Appendix C attribute x
+     [RN]        RELNOTES.PRN (v1.3->v1.4 bug notes)
+     [EX file]   appears in an artefact sample program
+     [PROBE n]   behavior must be pinned down by black-box test n
+   Grammar is not yet verified against the compiler; PROBE markers
+   list exactly what must be established experimentally.
+   ===================================================================== *)
+
+(* ---- Lexical ------------------------------------------------------ *)
+(* Character set: ASCII; source identifiers/literals case-insensitive
+   for keywords? [PROBE 1: keyword case sensitivity — sample files mix
+   DCL/declare, uppercase keywords, lower-case names; assume insensitive] *)
+
+identifier      = letter, { letter | digit } ;          (* length limit?
+                                                           [PROBE 2: max id length, truncation] *)
+label-constant  = identifier ;
+number          = {digit} [ "." {digit} ]
+                [ ( "E" | "D" ) [ "+" | "-" ] {digit} ] ;
+                (* [PROBE 3: lowercase 'e' float exponent — fixed in 1.4 [RN];
+                   'b' suffix on bit strings: 5'b10101 [EX OPTIMIST] *) *)
+bit-literal     = {bit-digit}, "'", ( "B" | "b" ) ;
+char-literal    = "'", { any-char | "''" /* quote escape? */ }, "'" ;
+                (* [PROBE 4: quote escape mechanism, control chars in
+                   string literals (added by PL/I-80) [M §1.3]] *)
+delimiter       = ( "," | ";" | "=" | "(" | ")" | "'" | '"'
+                  | "+" | "-" | "*" | "/" | "|" | ":" | "<" | ">"
+                  | "**" | "^" | "/\" | "[]" | "()" ) ;
+
+(* reserved words [PROBE 5: exact reserved-word table, incl. abbrevs
+   ALLOW? and 2-letter forms: BIN, DEC, CHAR, VAR, INIT, PROC, EN, EX...] *)
+
+(* ---- Program structure -------------------------------------------- *)
+program         = { external-procedure } ;
+external-procedure = [ label-constant ] ":" procedure ;
+                (* exactly one OPTIONS(MAIN) [PROBE 6: multiple/zero main] *)
+
+procedure       = "PROCEDURE" | "PROC" ;
+procedure-stmt  = [ "procedure-name ":" ]
+                  ( "PROCEDURE" | "PROC" )
+                    [ "(" [ "STRUCTURE" | parm { "," parm } ] ")" ]
+                    [ "OPTIONS" "(" options { "," options } ")" ]
+                    [ "RETURNS" "(" type-attrs ")" ]
+                    [ "RECURSIVE" ] ;
+parm            = [ formal-attrs ] identifier ;   (* like DCL without name slot
+                     [PROBE 7: parameter attribute grammar, by-value/by-ref] *)
+options         = "MAIN" | "SINGLE" | "STACK" "(" constant ")" ;
+                     (* STACK from ACKTST.PLI [EX]; others? [PROBE 8] *)
+block           = [ procedure-stmt ] [ declarative-part ]
+                  { statement } "END" [ label ] ;
+group           = "BEGIN" [ declarative-part ] { statement } "END" ;
+declarative-part = { declare-stmt | procedure-stmt-spec | preproc-stmt } ;
+                    (* ordering rules [PROBE 9] *)
+
+(* ---- Preprocessor (2 commands only, global scope) ------------------ *)
+preproc-stmt    = include-stmt | replace-stmt ;
+include-stmt    = "%INCLUDE" string-constant ";" ;   (* [M §2.6]
+                   [PROBE 10: drive/path handling, nesting depth, EOF] *)
+replace-stmt    = "%REPLACE" repname "BY" const-exp
+                    { "," repname "BY" const-exp } ";" ; (* [M §2.6] [EX OPTIMIST,
+                   MATSIZE.LIB]; must be at outer block level [PROBE 11:
+                   what error if nested? textual subst into literals?] *)
+
+(* ---- Statements (Appendix B, complete list = 31) ------------------- *)
+statement       = label-prefix basic-stmt | empty-stmt ;
+empty-stmt      = ";" ;                               (* [M AppB.15]
+basic-stmt       =
+    allocate-stmt | assignment-stmt | begin-stmt | call-stmt
+  | close-stmt | declare-stmt | do-stmt | end-stmt | format-stmt
+  | free-stmt | get-edit-stmt | get-list-stmt | goto-stmt | if-stmt
+  | on-stmt | open-stmt | procedure-stmt | put-edit-stmt | put-list-stmt
+  | read-stream-stmt | read-seq-stmt | read-keyto-stmt | read-key-stmt
+  | return-stmt | revert-stmt | signal-stmt | stop-stmt
+  | write-stream-stmt | write-seq-stmt | write-keyfrom-stmt ;
+
+allocate-stmt   = "ALLOCATE" based-var "SET" "(" ptr-var ")" ; (* [M AppB.1] *)
+assignment-stmt = lvalue "=" exp ";" ;
+                (* lvalue: var | substr-builtin | unspec-builtin [M §7.4] *)
+call-stmt       = "CALL" proc-name [ "(" [ exp { "," exp } ] ")" ] ;
+close-stmt      = "CLOSE" "FILE" "(" file-name { "," file-name } ")" ;
+do-stmt         = "DO" [ "label" ":" ] [ "TO" ] [ iter-spec ]
+                  [ "DO" [ stmt ] ] { stmt } "END" [ label ] ;
+                (* iter-spec forms (order-sensitive!): [M AppB.7]
+                   ident "=" exp [ "TO" exp ] [ "BY" exp ] [ "WHILE" "(" cond ")" ]
+                   ident "=" exp [ "BY" exp ] [ "TO" exp ]   [ "WHILE" "(" cond ")" ]
+                   ident "=" exp [ "REPEAT" "(" exp ")" ]     [ "WHILE" "(" cond ")" ]
+                   "WHILE" "(" cond ")"
+                   [PROBE 12: DO label: / DO WHILE / DO; / iteration
+                   edge semantics (<= vs <), negative steps] *)
+if-stmt         = "IF" cond "THEN" stmt [ "ELSE" [ stmt ] ] ;
+                (* cond: bit-string or "()" boolean [PROBE 13: exact
+                   accepted cond types; 1.4 fix: SUBSTR of bit as cond [RN]] *)
+on-stmt         = "ON" condition on-unit ;              (* [M AppB.16]
+                   condition = name | name "(" file-name ")"
+                   [PROBE 14: ON-unit restricted to single stmt? nesting,
+                   1.4 fix re repeated stacking of ON [RN]] *)
+revert-stmt     = "REVERT" condition { "," condition } ;
+signal-stmt     = "SIGNAL" condition-name ;
+stop-stmt       = "STOP" ;                              (* [PROBE 15:
+                   STOP with code? interplay with $STOP compiler msg] *)
+goto-stmt       = ( "GOTO" | "GO" "TO" ) label [ "(" subscript ")" ] ;
+                (* computed goto LAB(K) [M AppB.13]; [PROBE 16: bounds check] *)
+return-stmt     = "RETURN" [ "(" [ exp ] ")" ] ;
+
+(* ---- DECLARE (the big one) ----------------------------------------- *)
+declare-stmt    = ( "DECLARE" | "DCL" )
+                  [ "(" decl { "," decl } ")" | decl { "," decl } ] ";" ;
+decl            = [ level ] designator
+                  [ constant ]        (* array extents, static only
+                     [PROBE 17: lower bound default, multi-dim, bounds] *)
+                  [ type-attrs ] [ storage-attrs ] ;
+level           = unsigned-int ;      (* structure level, dense rules
+                     [PROBE 18: level increment rules, level 0] *)
+type-attrs      = ( "FIXED" [ "BINARY"|"BINARY"|"DECIMAL"|"DEC" [ "(" p [ "," s ] ")" ] ]
+                  | "FLOAT" [ "BINARY"|"BIN" | "DECIMAL" ] [ "(" p ")" ] )
+                  | ( "CHARACTER"|"CHAR" ) [ "(" n [ "VARYING"|"VAR" ] ")" ]
+                  | ( "BIT"|"B" ) [ "(" n ")" ] [ "ALIGNED" ]
+                  (* [PROBE 19: VARYING placement inside/outside parens —
+                     samples show both CHAR(20) VAR and CHAR(20)VARYING] *)
+                  | "LABEL" | "POINTER"|"PTR" | "FILE" | "ENTRY"
+                    [ "(" [ type-attrs { "," type-attrs } ] ")" ]
+                    [ "RETURNS" "(" type-attrs ")" ]
+                  | "BUILTIN" ;
+storage-attrs   = { "STATIC"|"STATIC" | "AUTOMATIC"|"AUTO"
+                  | "BASED" [ "(" ptr ")" ]
+                  | ( "EXTERNAL"|"EXT" ) [ "(" ext-name-lit ")" ]
+                  | "VARIABLE"
+                  | "INITIAL"|"INIT" "(" init { "," init } ")" } ;
+                (* init: value | n "(" value ")" replication [M AppC.14]
+                   [PROBE 20: default storage by block nesting,
+                   DEFAULT attribute, EXTERNAL linkage naming] *)
+
+(* ---- Expressions (precedence, high→low) [M §7.1.3] ------------------ *)
+primary         = constant | special-register? | identifier
+                  [ substring | bit-substr | unspec-builtin ]
+                | "(" expression ")"
+                | function-reference
+                | built-in-function ;
+unary-op        = "+" | "-" | "**"? ;
+exponentiation  = power ;              (* ** right-assoc? base/limit
+                     [PROBE 21: ** operand restrictions (integer), assoc] *)
+multiplicative  = "*" | "/" ;          (* [PROBE 22: MOD vs REM; 1.4 fix
+                     MOD negative args [RN]] *)
+additive        = "+" | "-" ;
+concatenation   = "||" ;               (* [PROBE 23: LENGTH on concat of
+                     VARYING — 1.4 fix [RN]] *)
+relational      = "=" | "^=" | "<" | "<=" | ">" | ">=" ;
+                (* [PROBE 24: mixed-type compare coercion rules §7.2/7.3] *)
+logical         = ( "^" | "/" "\" | "OR" | "AND" | "NOT"
+                  | "&" | "|" ) ;      (* [M §1.4 delimiters — exact
+                     operator spellings [PROBE 25]] *)
+conditional-exp = "(" cond ")" "(" then-exp "ELSE" else-exp ")" ;
+                     (* PL/I conditional expression [PROBE 26: is it in
+                        the /G subset supported by PL/I-80??] *)
+
+(* ---- Built-in functions (§12) -------------------------------------- *)
+arith-bi        = "ABS" "CEIL" "DIVIDE(a,b,m)" "FLOOR" "MAX" "MIN"
+                  "MOD" "ROUND" "SIGN" "TRUNC" ;
+math-bi         = "ACOS" "ASIN" "ATAN" "ATAND" "COS" "COSD" "COSH" "EXP"
+                  "LOG" "LOG2" "LOG10" "SIN" "SIND" "SINH" "SQRT" "TAN"
+                  "TAND" "TANH" ;
+string-bi       = "LENGTH(x[,unit])" "COLLATE" "INDEX" "SUBSTR"
+                  "TRANSLATE" "VERIFY" ;
+conv-bi         = "ASCII" "BINARY" "BIT" "CHARACTER" "DECIMAL" "FLOAT"
+                  "RANK" "UNSPEC" ;    (* ASCII/RANK are PL/I-80 additions *)
+cond-bi         = "ONCODE" "ONFILE" "ONKEY" ;
+misc-bi         = "ADDR" "DIMENSION" "STKSIZ" "MAXWDS" "ALLWDS" "TOTWDS" ;
+                     (* STKSIZ/MAXWDS/ALLWDS/TOTWDS not in manual TOC —
+                        seen in ACKTST/ALLTST samples [EX]; [PROBE 27:
+                        full v1.4 builtin table — extract from binary] *)
+                (* NOT present (Subset-G cuts): ATANH DATE STRING TIME
+                   VALID [M intro] *)
+
+(* ---- I/O ----------------------------------------------------------- *)
+file-names      = "SYSIN" | "SYSPRINT" | "SYSOUT" | "SYSPRINT" ... ;
+                     (* [PROBE 28: predefined files table §9.7] *)
+open-stmt       = "OPEN" "FILE" "(" f ")" [ "INPUT" | "OUTPUT" | "UPDATE" ] ;
+get-list        = "GET" [ "FILE" "(" f ")" ] [ "SKIP" [ "(" n ")" ] ]
+                  "LIST" "(" io-list ")" ;
+put-list        = "PUT" [ "FILE" "(" f ")" ] [ "SKIP" [ "(" n ")" ] ]
+                  [ "PAGE" [ "(" n ")" ] ] "LIST" "(" io-list ")" ;
+get-edit / put-edit : same + "EDIT" "(" data-list ")" "(" format-list ")" ;
+format-item     = ( "A" | "B" | "O"? | "F" | "E" | "P" | "X" | "R"
+                  | "(" ) [ "(" w [ "," d ] ")" ] ;   (* §10.6-10.8
+                  [PROBE 29: full format table incl. PICTURE (v1.3+,
+                  App D), insertion/drift rules, 1.4 F(w,d) fix [RN]] *)
+read/write      = stream forms READ FILE(f) INTO(v)/WRITE FILE(f) FROM(v)
+                + record forms [KEY|KEYTO|KEYFROM] ;  (* §11 [M AppB.21-31] *)
+
+(* ---- Structure/aggregates (§4) ------------------------------------- *)
+array           = designator constant { constant } ;   (* dim up to? [PROBE 30] *)
+structure       = level-based nested DCL [M AppB.6 example] ;
+                  (* [PROBE 31: levels must be consecutive? gap errors] *)
+
+(* ============ Open global questions (Phase 1 answers these) ========
+   Q1 Does the compiler produce an intermediate ".INT" file that a
+      second stage consumes? (strings: "EOF ON INT FILE", "BAD INT
+      FILE", "RELINTPLI", ".INT/.REL" extension tables)  -> run oracle,
+      watch the filesystem.
+   Q2 Is there any internal IR beyond the generated 8080 code? The
+      PLI2.OVL 3-4 char mnemonic table (LIOB IDCI DDID FIDI ...) is
+      either an RTL entry-point name table or a code-gen template table;
+      IRL here means *Indexed Relocatable* (LIB/PLILIB.IRL), NOT an IR.
+   Q3 Exact symbol/limit table: SYMBOL TABLE OVERFLOW, BLOCK OVERFLOW,
+      EXPRESSION OVERFLOW, AUTOMATIC STORAGE OVERFLOW, NESTED REP$...
+      -> find the real numeric limits by black-box probes.
+   ==================================================================== *)

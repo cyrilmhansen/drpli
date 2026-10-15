@@ -1,0 +1,90 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: UPDATE
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: UPDATE
+
+   1   0000 /******************************************************/
+   2   0000 /* This program allows you to retrieve and update     */
+   3   0000 /* individual records in an employee data base using  */
+   4   0000 /* a keyed file.                                      */
+   5   0000 /******************************************************/
+   6 a 0000 update:
+   7 a 0006     procedure options(main);
+   8 c 0006     declare 
+   9 c 0006         1 employee static,
+  10 c 0006           2 name     character(30) varying,
+  11 c 0006           2 address, 
+  12 c 0006             3 street character(30) varying,
+  13 c 0006             3 city   character(10) varying,
+  14 c 0006             3 state  character(12) varying,
+  15 c 0006             3 zip    fixed decimal(5),
+  16 c 0006           2 age      fixed decimal(3),
+  17 c 0006           2 wage     fixed decimal(5,2),
+  18 c 0006           2 hours    fixed decimal(5,1);
+  19 c 0006     
+  20 c 0006     declare
+  21 c 0006         1 keylist (100),
+  22 c 0006           2 keyname character(30) varying,
+  23 c 0006           2 keyval  fixed binary;
+  24 c 0006 
+  25 c 0006     declare
+  26 c 0006         (i, endlist) fixed,
+  27 c 0006         eolist bit(1) static initial('0'b),
+  28 c 0006         matchname character(30) varying,
+  29 c 0006         (emp, keys) file;
+  30 c 0006 
+  31 c 0006     open file(emp) update direct environment(f(128))
+  32 c 0027          title ('$1.EMP');
+  33 c 0027 
+  34 c 0027     open file(keys) stream environment(b(4000)) 
+  35 c 004B          title('$1.key');
+  36 c 004B 
+  37 c 004B     do i = 1 to 100 while(^eolist);
+  38 c 0063        get file(keys) list(keyname(i),keyval(i));
+  39 c 00AB        eolist = keyname(i) = 'EOF';
+  40 c 00D3     end;
+  41 c 00D3 
+  42 c 00D3     do while('1'b);
+  43 c 00D3        put skip list('Employee: ');
+  44 c 00EF        get list(matchname);
+  45 c 0109        if matchname = 'EOF' then
+  46 c 0117           stop;
+  47 c 011A        do i = 1 to 100;
+  48 c 012C           if matchname = keyname(i) then
+  49 c 0145              do;
+  50 c 0145                read file(emp) into(employee)
+  51 c 0173                     key(keyval(i));
+  52 c 0173                put skip list('Address: ',
+  53 c 01BC                    street, city, state, zip);
+  54 c 01BC                put skip list('         ');
+  55 c 01D8                get list(street, city, state, zip);
+  56 c 0221                put list('Hours:',hours,': ');
+  57 c 0255                get list(hours);
+  58 c 0274                write file(emp) from (employee)
+  59 c 02AF                      keyfrom(keyval(i));
+  60 c 02AF              end;
+  61 c 02AF        end;
+  62 c 02AF     end;
+  63 c 02AF 
+  64 a 02AF end update;
+  65 a 02AF 
+  66 a 02AF 
+
+CODE SIZE = 02AF
+DATA AREA = 0D9C
+FREE SYMS = 367B
+END  COMPILATION
+

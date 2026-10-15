@@ -1,0 +1,65 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: LOAN1
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: LOAN1
+
+   1   0000 /******************************************************/
+   2   0000 /* This program produces a schedule of loan payments  */
+   3   0000 /* using the following algorithm: if P = loan payment,*/
+   4   0000 /* i = interest, and PMT is the monthly payment then  */
+   5   0000 /* P = (P + (i*P) - PMT.                              */
+   6   0000 /******************************************************/
+   7 a 0000 loan1:
+   8 a 0006     procedure options(main);
+   9 c 0006     declare 
+  10 c 0006     m   fixed binary,
+  11 c 0006     y   fixed binary,
+  12 c 0006     P   fixed decimal(11,2),
+  13 c 0006     PMT fixed decimal(6,2),
+  14 c 0006     i   fixed decimal(4,2);
+  15 c 0006   
+  16 c 0006     do while('1'b);
+  17 c 0006        put skip list('Principal ');
+  18 c 0022        get list(P);
+  19 c 0041        put list('Interest  ');
+  20 c 0058        get list(i);
+  21 c 0077        put list('Payment   ');
+  22 c 008E        get list(PMT);
+  23 c 00AD        m = 0;
+  24 c 00B3        y = 0;
+  25 c 00B6        do while (P > 0);
+  26 c 00CC           if mod(m,12) = 0 then
+  27 c 00DF              do;
+  28 c 00DF                y = y + 1;
+  29 c 00E6                put skip list('Year',y);
+  30 c 010D              end;
+  31 c 010D           m = m + 1;
+  32 c 0114           put skip list(m,P);
+  33 c 0142           P = P + round( i * P / 1200, 2);
+  34 c 0182           if P < PMT 
+  35 c 0198              then PMT = P;
+  36 c 01A8           put list(PMT);
+  37 c 01C6           P = P - PMT;
+  38 c 01E7        end;
+  39 c 01E7     end;
+  40 c 01E7   
+  41 a 01E7 end loan1;
+
+CODE SIZE = 01E7
+DATA AREA = 003C
+FREE SYMS = 379B
+END  COMPILATION
+

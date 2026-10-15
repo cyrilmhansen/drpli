@@ -1,0 +1,107 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: MAININVT
+
+D: Disk Print
+L: List Source Program
+
+%include 'matsize.lib';
+  12+b         true  by '1'b,
+SYNTAX            ?
+  16 b               mat(maxrow,maxcol) float binary(24),
+SYNTAX                     ?
+  21 b               ((maxrow,maxcol) float(24), fixed(6), fixed(6));
+SYNTAX                   ?
+    3 ERROR(S) IN PASS 1
+
+  31 d             if n > maxrow ! m > maxcol then
+NO DCL                      ?            ?
+  39 f                     get list((mat(i,j) do j = 1 to n));
+ARG COUNT                                     ?
+  46 f                     get list((mat(i,j) do i = 1 to n));
+ARG COUNT                                     ?
+  53 f                     put edit((mat(i,j) do j = 1 to m-n))
+ARG COUNT                                     ?
+  59 f                     put skip edit((mat(i,j) do j = m-n+1 to m))
+ARG COUNT                                          ?
+    5 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: MAININVT
+
+   1   0000 /******************************************************/
+   2   0000 /* This program is the main module in a program that  */
+   3   0000 /* performs matrix inversion.  It calls the entry     */
+   4   0000 /* constant INVERT which does the actual inversion.   */
+   5   0000 /******************************************************/
+   6 a 0000 maininvt: 
+   7 a 0006     procedure options(main);
+   8 c 0006     %replace
+   9 c 0006         true   by '1'b,
+  10 c 0006         false  by '0'b;
+  11+c 0006     %replace
+  12+c 0006    true  by '1'b,
+  13+c 0006    false by '0'b;
+  14 c 0006 
+  15 c 0006     declare
+  16 c 0006          mat(maxrow,maxcol) float binary(24),
+  17 c 0006          (i,j,n,m) fixed(6),
+  18 c 0006          var character (26) static initial
+  19 c 0006          ('abcdefghijklmnopqrstuvwxyz'),
+  20 c 0006          invert entry
+  21 c 0006          ((maxrow,maxcol) float(24), fixed(6), fixed(6));
+  22 c 0006 
+  23 c 0006     put list('Solution of Simultaneous Equations');
+  24 c 001D     do while(true);
+  25 c 001D        put skip(2) list('Type rows, columns: ');
+  26 c 003B        get list(n);
+  27 c 0056        if n = 0 then
+  28 c 005D           stop;
+  29 c 0060 
+  30 c 0060        get list(m);
+  31 c 007B        if n > maxrow ! m > maxcol then
+  32 c 009D           put skip list('Matrix is Too Large');
+  33 c 00BC        else
+  34 c 00BC           do;
+  35 c 00BC             put skip list('Type Matrix of Coefficients');
+  36 c 00D8             put skip;
+  37 c 00E9             do i = 1 to n;
+  38 c 00FB                put list('Row',i,':');
+  39 c 012C                get list((mat(i,j) do j = 1 to n));
+  40 c 0185             end;
+  41 c 0185 
+  42 c 0185             put skip list('Type Solution Vectors');
+  43 c 01A1             put skip;
+  44 c 01B2             do j = n + 1 to m;
+  45 c 01C6                put list('Variable',substr(var,j-n,1),':');
+  46 c 0202                get list((mat(i,j) do i = 1 to n));
+  47 c 025B             end;
+  48 c 025B 
+  49 c 025B             call invert(mat,n,m);
+  50 c 0261             put skip(2) list('Solutions:');
+  51 c 027F             do i = 1 to n;
+  52 c 0291                put skip list(substr(var,i,1),'=');
+  53 c 02C1                put edit((mat(i,j) do j = 1 to m-n))
+  54 c 031B                        (f(8,2));
+  55 c 031B             end;
+  56 c 031B 
+  57 c 031B             put skip(2) list('Inverse Matrix is');
+  58 c 0339             do i = 1 to n;
+  59 c 034B                put skip edit((mat(i,j) do j = m-n+1 to m))
+  60 c 03B7                             (x(3),6f(8,2),skip);
+  61 c 03B7             end;
+  62 c 03B7           end;
+  63 c 03B7     end;
+  64 c 03B7 
+  65 a 03B7 end maininvt; 
+  66 a 03B7 
+
+CODE SIZE = 03B7
+DATA AREA = 00E4
+FREE SYMS = 355D
+END  COMPILATION
+

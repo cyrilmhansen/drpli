@@ -1,0 +1,24 @@
+0:
+-rw-rw-rw-     128 Jan 01 1970  dio80.dcl
+-rw-rw-rw-    1664 Jan 01 1970  diomod.dcl
+-rw-rw-rw-     640 Jan 01 1970  fcb.dcl
+-rw-rw-rw-     896 Jan 01 1970  labels.pli
+-rw-rw-rw-    1920 Jan 01 1970  labels.prn
+-rw-rw-rw-     384 Jan 01 1970  labels.rel
+-rw-rw-rw-    1280 Jan 01 1970  loan1.pli
+-rw-rw-rw-    2176 Jan 01 1970  loan1.prn
+-rw-rw-rw-    1536 Jan 01 1970  loan1.rel
+-rw-rw-rw-    6400 Jan 01 1970  loan2.pli
+-rw-rw-rw-    9600 Jan 01 1970  loan2.prn
+-rw-rw-rw-    7680 Jan 01 1970  loan2.rel
+-rw-rw-rw-    2048 Jan 01 1970  maininvt.pli
+-rw-rw-rw-    4224 Jan 01 1970  maininvt.prn
+-rw-rw-rw-     128 Jan 01 1970  matsize.lib
+-rw-rw-rw-    1152 Jan 01 1970  mpmdio.dcl
+-rwxrwxrwx    8064 Jan 01 1970  pli.com
+-rw-rw-rw-   18048 Jan 01 1970  pli0.ovl
+-rw-rw-rw-   34816 Jan 01 1970  pli1.ovl
+-rw-rw-rw-   33792 Jan 01 1970  pli2.ovl
+-rw-rw-rw-   71808 Jan 01 1970  plilib.irl
+-rw-rw-rw-     384 Jan 01 1970  record.dcl
+-rw-rw-rw-    6016 Jan 01 1970  z80.lib

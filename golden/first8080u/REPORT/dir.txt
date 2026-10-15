@@ -1,0 +1,26 @@
+0:
+-rw-rw-rw-     128 Jan 01 1970  dio80.dcl
+-rw-rw-rw-    1664 Jan 01 1970  diomod.dcl
+-rw-rw-rw-     640 Jan 01 1970  fcb.dcl
+-rw-rw-rw-     128 Jan 01 1970  matsize.lib
+-rw-rw-rw-    1152 Jan 01 1970  mpmdio.dcl
+-rw-rw-rw-     384 Jan 01 1970  record.dcl
+-rw-rw-rw-    1792 Jan 01 1970  report.pli
+-rw-rw-rw-    2944 Jan 01 1970  report.prn
+-rw-rw-rw-    1408 Jan 01 1970  report.rel
+-rw-rw-rw-    1664 Jan 01 1970  retrieve.pli
+-rw-rw-rw-    3200 Jan 01 1970  retrieve.prn
+-rw-rw-rw-    2048 Jan 01 1970  retrieve.rel
+-rw-rw-rw-    1408 Jan 01 1970  reverse.pli
+-rw-rw-rw-    2560 Jan 01 1970  reverse.prn
+-rw-rw-rw-     896 Jan 01 1970  reverse.rel
+-rw-rw-rw-     768 Jan 01 1970  revert.pli
+-rw-rw-rw-    1664 Jan 01 1970  revert.prn
+-rw-rw-rw-     640 Jan 01 1970  revert.rel
+-rw-rw-rw-     640 Jan 01 1970  rfact.pli
+-rw-rw-rw-    1536 Jan 01 1970  rfact.prn
+-rw-rw-rw-     512 Jan 01 1970  rfact.rel
+-rw-rw-rw-    1024 Jan 01 1970  sample.pli
+-rw-rw-rw-    2048 Jan 01 1970  sample.prn
+-rw-rw-rw-    1024 Jan 01 1970  sample.rel
+-rw-rw-rw-    6016 Jan 01 1970  z80.lib

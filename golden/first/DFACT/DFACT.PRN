@@ -1,0 +1,49 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: DFACT
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: DFACT
+
+   1   0000 /******************************************************/
+   2   0000 /* This program evaluates the Factorial function (n!) */
+   3   0000 /* using recursion and FIXED DECIMAL data.            */
+   4   0000 /******************************************************/
+   5 a 0000 dfact:
+   6 a 0006      procedure options(main);
+   7 c 0006      declare 
+   8 c 0006         i fixed;
+   9 c 0006      do i = 0 repeat(i+1);
+  10 c 000C         put skip list('Factorial(',i,')=',factorial(i));
+  11 c 0058      end;
+  12 c 0058      stop;
+  13 c 0058 
+  14 c 0058      factorial:
+  15 c 0058           procedure(i) returns(fixed decimal(15,0)) 
+  16 c 0058                        recursive;
+  17 e 0058           declare 
+  18 e 0072              i fixed;
+  19 e 0072 
+  20 e 0072           if i = 0 then return (1);
+  21 e 0089           return (decimal(i,15) * factorial(i-1));
+  22 c 00A5      end factorial;
+  23 c 00A5 
+  24 a 00A5 end dfact;
+  25 a 00A5 
+
+CODE SIZE = 00A5
+DATA AREA = 0020
+FREE SYMS = 3804
+END  COMPILATION
+

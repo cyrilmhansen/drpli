@@ -1,0 +1,104 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: COPYLPT
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: COPYLPT
+
+   1   0000 /******************************************************/
+   2   0000 /* This program copies a STREAM file on disk to a     */
+   3   0000 /* PRINT file, and formats the output with a page     */
+   4   0000 /* header, and line numbers.                          */
+   5   0000 /******************************************************/
+   6 a 0000 copy: procedure options(main);
+   7 a 0006 
+   8 c 0006       declare
+   9 c 000D         (sysin, sourcefile, printfile) file,
+  10 c 000D         (pagesize, pagewidth, spaces, linenumber) fixed, 
+  11 c 000D         (line character(14), buff character(254)) varying;
+  12 c 000D 
+  13 c 000D       put list('^z    File to Print Copy Program');
+  14 c 0024 
+  15 c 0024       on endfile(sysin)
+  16 d 002C          go to typeover;
+  17 d 0032 
+  18 c 0032       typeover:
+  19 c 0039          put skip(5) list('How Many Lines Per Page?   ');
+  20 c 0055          get list(pagesize);
+  21 c 006D 
+  22 c 006D          put skip list('How Many Column Positions? ');
+  23 c 0089          get skip list(pagewidth);
+  24 c 00A6 
+  25 c 00A6       on error(1)
+  26 d 00AD          begin;
+  27 e 00B0            put list('Invalid Number, Type Integer');
+  28 e 00C7            go to getnumber;
+  29 d 00CA          end;
+  30 c 00CA       getnumber:
+  31 c 00D1          put skip list('Line Spacing (1=Single)?   ');
+  32 c 00ED          get skip list(spaces);
+  33 c 010A          revert error(1);
+  34 c 0111 
+  35 c 0111       put skip list('Destination  Device/File:  ');
+  36 c 012D       get skip list(line);
+  37 c 014C 
+  38 c 014C       open file(printfile) print pagesize(pagesize)
+  39 c 016D            linesize(pagewidth) title(line);
+  40 c 016D 
+  41 c 016D       on undefinedfile(sourcefile)
+  42 d 0175          begin;
+  43 e 0178            put skip list('"',line,'" isn''t a Valid Name');
+  44 e 01A8            go to retry;
+  45 d 01AB          end;
+  46 c 01AB       retry:
+  47 c 01B2          put skip list('Source File to Print?      ');
+  48 c 01CE          get list(line);
+  49 c 01E8          open file(sourcefile) stream  environment(b(8000)) 
+  50 c 020A               title(line);
+  51 c 020A       on endfile(sourcefile)
+  52 d 0212          begin;
+  53 e 0215            put file(printfile) page;
+  54 e 0227            stop;
+  55 d 022A          end;
+  56 d 022A 
+  57 c 022A       on endfile(printfile)
+  58 d 0232          begin;
+  59 e 0235            put skip list('^g^g^g^g Disk is Full');
+  60 e 0251            stop;
+  61 d 0254          end;
+  62 d 0254 
+  63 c 0254       on endpage(printfile)
+  64 d 025C          begin;
+  65 e 025F            put file(printfile) page skip(2)
+  66 e 0295                list('PAGE',pageno(printfile));
+  67 e 0295            put file(printfile) skip(4);
+  68 d 02A9          end;
+  69 d 02A9 
+  70 c 02A9       signal endpage(printfile);
+  71 c 02B2       do linenumber = 1 repeat(linenumber + 1);
+  72 c 02B8          get file (sourcefile) edit(buff) (a);
+  73 c 02D8          put file (printfile) 
+  74 c 030C              edit(linenumber,'|',buff) (f(5),x(1),a(2),a);
+  75 c 030C          put file (printfile) skip(spaces);
+  76 c 032C       end;
+  77 c 032C 
+  78 a 032C end copy;
+  79 a 032C 
+  80 a 032C 
+
+CODE SIZE = 032C
+DATA AREA = 021A
+FREE SYMS = 3485
+END  COMPILATION
+

@@ -1,0 +1,5 @@
+p004: procedure options(main);
+  declare (a,b) fixed;
+  a = 1; b = 2;
+  put list(a+b);
+end p004;

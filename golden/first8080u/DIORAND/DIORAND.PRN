@@ -1,0 +1,240 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: DIORAND
+
+D: Disk Print
+L: List Source Program
+
+%include 'diomod.dcl';
+%include 'fcb.dcl';
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: DIORAND
+
+   1   0000 /******************************************************/
+   2   0000 /* This program tests random access functions.        */
+   3   0000 /******************************************************/
+   4 a 0000 diorand:
+   5 a 0006     procedure options(main);
+   6 a 0006 
+   7 a 0006     
+   8 a 0006 
+   9+c 0006     declare 
+  10+c 0006         memptr entry returns (pointer),
+  11+c 0006         memsiz entry returns (fixed(15)),
+  12+c 0006         memwds entry returns (fixed(15)),
+  13+c 0006         dfcb0  entry returns (pointer),
+  14+c 0006         dfcb1  entry returns (pointer),
+  15+c 0006         dbuff  entry returns (pointer),
+  16+c 0006         reboot entry,
+  17+c 0006         rdcon  entry returns (character(1)),
+  18+c 0006         wrcon  entry (character(1)),
+  19+c 0006         rdrdr  entry returns (character(1)),
+  20+c 0006         wrpun  entry (character(1)),
+  21+c 0006         wrlst  entry (character(1)),
+  22+c 0006         coninp entry returns (character(1)),
+  23+c 0006         conout entry (character(1)),
+  24+c 0006         rdstat entry returns (bit(1)),
+  25+c 0006         getio  entry returns (bit(8)),
+  26+c 0006         setio  entry (bit(8)),
+  27+c 0006         wrstr  entry (pointer),
+  28+c 0006         rdbuf  entry (pointer),
+  29+c 0006         break  entry returns (bit(1)),
+  30+c 0006         vers   entry returns (bit(16)),
+  31+c 0006         reset  entry,
+  32+c 0006         select entry (fixed(7)),
+  33+c 0006         open   entry (pointer) returns (fixed(7)),
+  34+c 0006         close  entry (pointer) returns (fixed(7)),
+  35+c 0006         sear   entry (pointer) returns (fixed(7)),
+  36+c 0006         searn  entry returns (fixed(7)),
+  37+c 0006         delete entry (pointer),
+  38+c 0006         rdseq  entry (pointer) returns (fixed(7)),
+  39+c 0006         wrseq  entry (pointer) returns (fixed(7)),
+  40+c 0006         make   entry (pointer) returns (fixed(7)),
+  41+c 0006         rename entry (pointer),
+  42+c 0006         logvec entry returns (bit(16)),
+  43+c 0006         curdsk entry returns (fixed(7)),
+  44+c 0006         setdma entry (pointer),
+  45+c 0006         wpdisk entry,
+  46+c 0006         rovec  entry returns (bit(16)),
+  47+c 0006         filatt entry (pointer),
+  48+c 0006         getusr entry returns (fixed(7)),
+  49+c 0006         setusr entry (fixed(7)),
+  50+c 0006         rdran  entry (pointer) returns (fixed(7)),
+  51+c 0006         wrran  entry (pointer) returns (fixed(7)),
+  52+c 0006         filsiz entry (pointer),
+  53+c 0006         setrec entry (pointer),
+  54+c 0006         resdrv entry (bit(16)),
+  55+c 0006         wrranz entry (pointer) returns (fixed(7));
+  56 c 0006  
+  57 c 0006 
+  58 c 0006     declare 
+  59 c 0006        1 database,
+  60+c 0006               2 name1,
+  61+c 0006             3 drive fixed(7),       /* drive number */
+  62+c 0006             3 fname character(8),   /* file name */
+  63+c 0006             3 ftype character(3),   /* file type */
+  64+c 0006             3 fext  fixed(7),       /* file extent */
+  65+c 0006             3 space (3) bit(8),     /* filler */
+  66+c 0006           2 name2,                  /* used in rename */
+  67+c 0006             3 drive2 fixed(7),
+  68+c 0006             3 fname2 character(8),
+  69+c 0006             3 ftype2 character(3),
+  70+c 0006             3 fext2  fixed(7),
+  71+c 0006             3 space2 (3) bit(8),
+  72+c 0006           2 crec  fixed(7),    /* current record */
+  73+c 0006           2 rrec  fixed(15),   /* random record */
+  74+c 0006           2 rovf  fixed(7);    /* random rec overflow */
+  75 c 0006  
+  76 c 0006 
+  77 c 0006     declare
+  78 c 0006        lower character(26) static initial
+  79 c 0006        ('abcdefghijklmnopqrstuvwxyz'),
+  80 c 0006        upper character(26) static initial
+  81 c 0006        ('ABCDEFGHIJKLMNOPQRSTUVWXYZ');
+  82 c 0006 
+  83 c 0006     declare /* simple variables */
+  84 c 0006        i        fixed,
+  85 c 0006        fn       character(20),
+  86 c 0006        c        character(1),
+  87 c 0006        code     fixed(7),
+  88 c 0006        mode     fixed(2),
+  89 c 0006        zerofill bit(1),
+  90 c 0006        version  bit(16);
+  91 c 0006 
+  92 c 0006     declare /* overlays on default buffer */
+  93 c 0006        bitbuf(128) bit(8) based(dbuff()),
+  94 c 0006        buffer character(127) varying based(dbuff());
+  95 c 0006 
+  96 c 0006     put skip list('Random Access Test');
+  97 c 0022 
+  98 c 0022 /* check version number for 2.0 */
+  99 c 0022 
+ 100 c 0022     version = vers();
+ 101 c 0028     if substr(version,9,8) < '20'b4 then
+ 102 c 0031        do;
+ 103 c 0031          put skip list('You Need Version 2');
+ 104 c 004D          stop;
+ 105 c 0050        end;
+ 106 c 0050     put skip list('Zero Record Fill?');
+ 107 c 006C     get list(c);
+ 108 c 0086     zerofill = (c = 'Y' ! c = 'y') &
+ 109 c 00B5                substr(version,9,8) >= '22'b4;
+ 110 c 00B5 
+ 111 c 00B5 /* read and process file name */
+ 112 c 00B5 
+ 113 c 00B5     put skip list('Data Base Name: ');
+ 114 c 00D1     get list(fn);
+ 115 c 00EB     fn = translate(fn,upper,lower);
+ 116 c 0110 
+ 117 c 0110 /* process optional drive prefix */
+ 118 c 0110 
+ 119 c 0110     i = index(fn,':');
+ 120 c 0120     if i = 0 then
+ 121 c 0129        drive = 0;
+ 122 c 0131     else
+ 123 c 0131        if i = 2 then
+ 124 c 013B           do; /* convert character to drive code */
+ 125 c 013B             drive = index(upper,substr(fn,1,1));
+ 126 c 0153             if drive = 0 ! drive > 16 then
+ 127 c 016C                do;
+ 128 c 016C                  put skip list('Bad Drive Name');
+ 129 c 0188                  stop;
+ 130 c 018B                end;
+ 131 c 018B             fn = substr(fn,i+1);
+ 132 c 01A4           end;
+ 133 c 01A4 
+ 134 c 01A4 /* get file name and optional type */
+ 135 c 01A4 
+ 136 c 01A4     i = index(fn,'.');
+ 137 c 01B4     if i = 0 then
+ 138 c 01BD        do; /* no file type specified, use .DAT */
+ 139 c 01BD          fname = fn;
+ 140 c 01CA          ftype = 'DAT';
+ 141 c 01D9        end;
+ 142 c 01D9     else
+ 143 c 01D9        do;
+ 144 c 01D9          fname = substr(fn,1,i-1);
+ 145 c 01F5          ftype = substr(fn,i+1);
+ 146 c 020F        end;
+ 147 c 020F 
+ 148 c 020F /* clear the extent field */
+ 149 c 020F     fext = 0;
+ 150 c 0214 
+ 151 c 0214     if open(addr(database)) = -1 then
+ 152 c 0225        do;
+ 153 c 0225          put skip list('Creating New Database');
+ 154 c 0241          if make(addr(database)) = -1 then
+ 155 c 0252             do;
+ 156 c 0252               put skip list('No Directory Space');
+ 157 c 026E               stop;
+ 158 c 0274             end;
+ 159 c 0274        end;
+ 160 c 0274     else
+ 161 c 0274        do;
+ 162 c 0274          call filsiz(addr(database));
+ 163 c 0280          put skip list('File Size:',rrec,' Records');
+ 164 c 02B2        end;
+ 165 c 02B2 
+ 166 c 02B2 /* main processing loop */
+ 167 c 02B2 
+ 168 c 02B2     do while('1'b);
+ 169 c 02B2        call setrec(addr(database));
+ 170 c 02BE        put skip list('Current Record',rrec);
+ 171 c 02E5        put skip list('Read(0),Write(1),Quit(2)? ');
+ 172 c 0301        get list(mode);
+ 173 c 031A        if mode < 2 then
+ 174 c 0322           do;
+ 175 c 0322             put skip list('Record Number? ');
+ 176 c 033E             get list(rrec);
+ 177 c 035B             rovf = 0;
+ 178 c 0360           end;
+ 179 c 0360           if mode = 0 then
+ 180 c 0367              do;
+ 181 c 0367                code = rdran(addr(database));
+ 182 c 0376                if code = 0 then
+ 183 c 037D                   do;
+ 184 c 037D                     if bitbuf(1) = '00'b4 then
+ 185 c 0386                        put skip list('Zero Record');
+ 186 c 03A5                     else
+ 187 c 03A5                        put skip list(buffer);
+ 188 c 03C2                   end;
+ 189 c 03C2                else
+ 190 c 03C2                   put skip list('Return Code',code);
+ 191 c 03F0              end;
+ 192 c 03F0           else
+ 193 c 03F0              if mode = 1 then
+ 194 c 03F7                 do;
+ 195 c 03F7                   put skip list('Data: ');
+ 196 c 0413                   get list(buffer);
+ 197 c 042F                   if zerofill then
+ 198 c 0436                      code = wrranz(addr(database));
+ 199 c 0448                   else
+ 200 c 0448                      code = wrran (addr(database));
+ 201 c 0457                   if code ^= 0 then
+ 202 c 045E                      put skip list('Return Code',code);
+ 203 c 048C                 end;
+ 204 c 048C              else
+ 205 c 048C                 if mode = 2 then
+ 206 c 0494                    do;
+ 207 c 0494                      if close(addr(database)) = -1 then
+ 208 c 04A5                         put skip list('Read/Only');
+ 209 c 04C1                      stop;
+ 210 c 04C7                    end;
+ 211 c 04C7     end;
+ 212 c 04C7 
+ 213 a 04C7     end diorand;
+ 214 a 04C7 
+
+CODE SIZE = 04C7
+DATA AREA = 0183
+FREE SYMS = 2DEC
+END  COMPILATION
+

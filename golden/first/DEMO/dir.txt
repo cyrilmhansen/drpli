@@ -1,0 +1,25 @@
+0:
+-rw-rw-rw-    1408 Jan 01 1970  create.pli
+-rw-rw-rw-    2816 Jan 01 1970  create.prn
+-rw-rw-rw-    1792 Jan 01 1970  create.rel
+-rw-rw-rw-     896 Jan 01 1970  decpoly.pli
+-rw-rw-rw-    1792 Jan 01 1970  decpoly.prn
+-rw-rw-rw-    1152 Jan 01 1970  decpoly.rel
+-rw-rw-rw-     256 Jan 01 1970  demo.pli
+-rw-rw-rw-    1024 Jan 01 1970  demo.prn
+-rw-rw-rw-     512 Jan 01 1970  demo.rel
+-rw-rw-rw-   10368 Jan 01 1970  deprec.pli
+-rw-rw-rw-   14464 Jan 01 1970  deprec.prn
+-rw-rw-rw-   11520 Jan 01 1970  deprec.rel
+-rw-rw-rw-     128 Jan 01 1970  dio80.dcl
+-rw-rw-rw-    1664 Jan 01 1970  diomod.dcl
+-rw-rw-rw-     640 Jan 01 1970  fcb.dcl
+-rw-rw-rw-     128 Jan 01 1970  matsize.lib
+-rw-rw-rw-    1152 Jan 01 1970  mpmdio.dcl
+-rwxrwxrwx    8064 Jan 01 1970  pli.com
+-rw-rw-rw-   18048 Jan 01 1970  pli0.ovl
+-rw-rw-rw-   34816 Jan 01 1970  pli1.ovl
+-rw-rw-rw-   33792 Jan 01 1970  pli2.ovl
+-rw-rw-rw-   71808 Jan 01 1970  plilib.irl
+-rw-rw-rw-     384 Jan 01 1970  record.dcl
+-rw-rw-rw-    6016 Jan 01 1970  z80.lib

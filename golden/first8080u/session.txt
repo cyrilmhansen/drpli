@@ -1,0 +1,4 @@
+C:
+PLI D:TEST $L$D
+PLI D:UPDATE $L$D
+##HALT

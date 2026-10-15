@@ -1,0 +1,9 @@
+oracle/disks/
+oracle/srctools/
+**/auxin
+**/auxout
+**/auxiliaryout.txt
+golden/probes/
+golden/probes2/session.txt
+_build/
+*.pyc

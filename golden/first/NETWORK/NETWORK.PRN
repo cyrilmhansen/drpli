@@ -1,0 +1,204 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: NETWORK
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: NETWORK
+
+   1   0000 /******************************************************/
+   2   0000 /* This program finds the shortest path between nodes */
+   3   0000 /* in a network.  It has 8 internal procedures:       */
+   4   0000 /* SETUP, CONNECT, FIND, PRINT_ALL, PRINT_PATHS,      */
+   5   0000 /* SHORTEST_DISTANCE, PRINT_ROUTE, and FREE_ALL.      */
+   6   0000 /******************************************************/
+   7 a 0000 network:
+   8 a 0006     procedure options(main);
+   9 c 0006     %replace 
+  10 c 0006         true     by '1'b,
+  11 c 0006         false    by '0'b,
+  12 c 0006         citysize by 20,
+  13 c 0006         infinite by 32767;
+  14 c 0006     declare
+  15 c 0006         sysin file;
+  16 c 0006     declare
+  17 c 0006         1 city_node based,
+  18 c 0006           2 city_name   character(citysize) varying,
+  19 c 0006           2 total_distance  fixed,
+  20 c 0006           2 investigate bit,
+  21 c 0006           2 city_list   pointer,
+  22 c 0006           2 route_head  pointer;
+  23 c 0006     declare
+  24 c 0006         1 route_node based,
+  25 c 0006           2 next_city   pointer,
+  26 c 0006           2 route_distance  fixed,
+  27 c 0006           2 route_list  pointer;
+  28 c 0006     declare
+  29 c 0006         city_head pointer;
+  30 c 0006 
+  31 c 0006     do while(true);
+  32 c 0006        call setup();
+  33 c 0009        if city_head = null then
+  34 c 0011           stop;
+  35 c 0014        call print_all();
+  36 c 0017        call print_paths();
+  37 c 001A        call free_all();
+  38 c 0020     end;
+  39 c 0020 
+  40 c 0020 /******************************************************/
+  41 c 0020 /* This procedure reads two cities and then calls the */
+  42 c 0020 /* procedure CONNECT to establish the connection (in  */
+  43 c 0020 /* both directions) between the cities.               */
+  44 c 0020 /******************************************************/
+  45 c 0020     setup:
+  46 c 0020         procedure;
+  47 e 0020         declare
+  48 e 0027             distance fixed,
+  49 e 0027             (city1, city2) character(citysize) varying;
+  50 e 0027         on endfile(sysin) goto eof;
+  51 e 0035         city_head = null;
+  52 e 003B         put skip list('Type "City1, Dist, City2"');
+  53 e 0057         put skip;
+  54 e 0068         do while(true);
+  55 e 0068            get list(city1, distance, city2);
+  56 e 009C            call connect(city1, distance, city2);
+  57 e 00A2            call connect(city2, distance, city1);
+  58 e 00B6         end;
+  59 e 00B6         eof:
+  60 c 00B6     end setup;
+  61 c 00B6 
+  62 c 00B6 /******************************************************/
+  63 c 00B6 /* This procedure establishes a single route_node to  */
+  64 c 00B6 /* connect the first city to the second city by       */
+  65 c 00B6 /* calling the FIND procedure twice; once for the     */
+  66 c 00B6 /* first city and once for the second city.           */
+  67 c 00B6 /******************************************************/
+  68 c 00B6     connect:
+  69 c 00B6         procedure(source_city, distance, destination_city);
+  70 e 00B6         declare
+  71 e 00C3             source_city character(citysize) varying,
+  72 e 00C3             destination_city character(citysize) varying,
+  73 e 00C3             distance fixed,
+  74 e 00C3             (r, s, d) pointer;
+  75 e 00C3 
+  76 e 00C3         s = find(source_city);
+  77 e 00D2         d = find(destination_city);
+  78 e 00E1         allocate route_node set (r);
+  79 e 00EA         r->route_distance = distance;
+  80 e 00FB         r->next_city  = d;
+  81 e 0106         r->route_list = s->route_head;
+  82 e 011D         s->route_head = r;
+  83 c 012D     end connect;
+  84 c 012D 
+  85 c 012D /******************************************************/
+  86 c 012D /* This procedure searches the list of cities and     */
+  87 c 012D /* returns a pointer to the requested city_node.      */
+  88 c 012D /******************************************************/
+  89 c 012D     find:
+  90 c 012D         procedure(city) returns(pointer);
+  91 e 012D         declare
+  92 e 0134             city character(citysize) varying,
+  93 e 0134             (p, q) pointer;
+  94 e 0134 
+  95 e 0134         do p = city_head
+  96 e 0142            repeat(p->city_list) while(p^=null);
+  97 e 0142            if city = p->city_name then
+  98 e 0150               return(p);
+  99 e 0165         end;
+ 100 e 0165         allocate city_node set(p);
+ 101 e 016E         p->city_name  = city;
+ 102 e 017B         p->city_list  = city_head;
+ 103 e 018A         city_head     = p;
+ 104 e 0190         p->total_distance = infinite;
+ 105 e 019C         p->route_head = null;
+ 106 e 01A9         return(p);
+ 107 c 01AD     end find;
+ 108 c 01AD 
+ 109 c 01AD /******************************************************/
+ 110 c 01AD /* This procedure starts at the city_head and displays*/
+ 111 c 01AD /* all the cities in the city_list.                   */
+ 112 c 01AD /******************************************************/
+ 113 c 01AD     print_all:
+ 114 c 01AD         procedure;
+ 115 e 01AD         declare
+ 116 e 01AD             (p, q) pointer;
+ 117 e 01AD 
+ 118 e 01AD         do p = city_head
+ 119 e 01BB            repeat(p->city_list) while(p^=null);
+ 120 e 01BB            put skip list(p->city_name,':');
+ 121 e 01E0            do q = p->route_head
+ 122 e 01F6               repeat(q->route_list) while(q^=null);
+ 123 e 01F6               put skip list(q->route_distance,'miles to',
+ 124 e 0253                             q->next_city->city_name);
+ 125 e 0253            end;
+ 126 e 0253         end;
+ 127 c 0253     end print_all;
+ 128 c 0253 
+ 129 c 0253 /******************************************************/
+ 130 c 0253 /* This procedure reads a destination city, calls the */
+ 131 c 0253 /* SHORTEST_DISTANCE procedure, and sets the          */
+ 132 c 0253 /* total_distance field in each city_node to the      */
+ 133 c 0253 /* total distance from the destination city.          */
+ 134 c 0253 /******************************************************/
+ 135 c 0253     print_paths:
+ 136 c 0253         procedure;
+ 137 e 0253         declare
+ 138 e 025A             city character(citysize) varying;
+ 139 e 025A 
+ 140 e 025A         on endfile(sysin) goto eof;
+ 141 e 0268         do while(true);
+ 142 e 0268            put skip list('Type Destination ');
+ 143 e 0284            get list(city);
+ 144 e 029E            call shortest_distance(city);
+ 145 e 02A4            on endfile(sysin) goto eol;
+ 146 e 02B2            do while(true);
+ 147 e 02B2               put skip list('Type Start ');
+ 148 e 02CE               get list(city);
+ 149 e 02E8               call print_route(city);
+ 150 e 02F8             end;
+ 151 e 02F8             eol: revert endfile(sysin);
+ 152 e 030E         end;
+ 153 e 030E         eof:
+ 154 c 030E     end print_paths;
+ 155 c 030E 
+ 156 c 030E /******************************************************/
+ 157 c 030E /* This procedure is the heart of the program.  It    */
+ 158 c 030E /* takes an input city (the destination), and computes*/
+ 159 c 030E /* the minimum total distance from every city in the  */
+ 160 c 030E /* network to the destination.  It then records this  */
+ 161 c 030E /* minimum value in the total_distance field of every */
+ 162 c 030E /* city_node.                                         */
+ 163 c 030E /******************************************************/
+ 164 c 030E     shortest_distance:
+ 165 c 030E         procedure(city);
+ 166 e 030E         declare
+ 167 e 0315             city character(citysize) varying;
+ 168 e 0315         declare
+ 169 e 0315             bestp pointer,
+ 170 e 0315             (d, bestd) fixed,
+ 171 e 0315             (p, q, r) pointer;
+ 172 e 0315         do p = city_head
+ 173 e 0323            repeat(p->city_list) while(p^=null);
+ 174 e 0323            p->total_distance  = infinite;
+ 175 e 032F            p->investigate = false;
+ 176 e 0346         end;
+ 177 e 0346         p = find(city);
+ 178 e 0355         p->total_distance  = 0;
+ 179 e 0360         p->investigate = true;
+ 180 e 0368         do while(true);
+ 181 e 0368            bestp = null;
+ 182 e 036E            bestd = infinite;
+ 183 e 0374            do p = city_head
+ 184 e 0382               repeat(p->city_list) while(p^=null);
+ 185 e 0382               if p->investigate then
+DISK FULL

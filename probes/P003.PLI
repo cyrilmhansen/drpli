@@ -1,0 +1,5 @@
+p003: procedure options(main);
+  declare (i,j) fixed binary(6);
+  i = 1; j = 2;
+  put list(i+j);
+end p003;

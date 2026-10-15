@@ -1,0 +1,87 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: RETRIEVE
+
+D: Disk Print
+L: List Source Program
+
+%include 'record.dcl';
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: RETRIEVE
+
+   1   0000 /******************************************************/
+   2   0000 /* This program reads a name and address data file    */
+   3   0000 /* and displays the information on request.           */
+   4   0000 /******************************************************/
+   5 a 0000 retrieve:
+   6 a 0006     procedure options(main);
+   7 a 0006 
+   8+c 0006     dcl
+   9+c 0006         1 record,
+  10+c 0006           2 name  character(30) varying,
+  11+c 0006           2 addr  character(30) varying,
+  12+c 0006           2 city  character(20) varying,
+  13+c 0006           2 state character(10) varying,
+  14+c 0006           2 zip   fixed decimal(6),
+  15+c 0006           2 phone character(12) varying;
+  16 c 0006 %replace
+  17 c 0006     true  by '1'b,
+  18 c 0006     false by '0'b;
+  19 c 0006 
+  20 c 0006     declare
+  21 c 0006         (sysprint, input) file, 
+  22 c 0006         filename character(14) varying,
+  23 c 0006         (lower, upper) character(30) varying,
+  24 c 0006         eofile bit(1);
+  25 c 0006 
+  26 c 0006     open file(sysprint) print title('$con');
+  27 c 0023     put list('Name and Address Retrieval, File Name: ');
+  28 c 003A     get list(filename);
+  29 c 0054 
+  30 c 0054     do while(true);
+  31 c 0054        lower = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+  32 c 0060        upper = 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzz';
+  33 c 006C        put skip(2) list('Type Lower, Upper Bounds: ');
+  34 c 0088        get list(lower,upper);
+  35 c 00B0        if lower = 'EOF' then
+  36 c 00BE           stop;
+  37 c 00C1 
+  38 c 00C1        open file(input) stream input environment(b(1024))
+  39 c 00E3                 title(filename);
+  40 c 00E3        eofile = false;
+  41 c 00E8        do while (^eofile);
+  42 c 00EF           get file(input) list(name);
+  43 c 010C           eofile = (name = 'EOF');
+  44 c 011E           if ^eofile then
+  45 c 0125              do;
+  46 c 0125                get file(input)
+  47 c 017F                list(addr,city,state,zip,phone);
+  48 c 017F                if name >= lower & name <= upper then
+  49 c 019C                   do;
+  50 c 019C                     put page skip(3)list(name);
+  51 c 01B9                     put skip list(addr);
+  52 c 01D3                     put skip list(city,state);
+  53 c 01F6                     put skip list(zip);
+  54 c 0219                     put skip list(phone);
+  55 c 0236                   end;
+  56 c 0236              end;
+  57 c 0236        end;
+  58 c 0236        close file(input);
+  59 c 023F     end;
+  60 c 023F 
+  61 a 023F end retrieve;
+  62 a 023F 
+
+CODE SIZE = 023F
+DATA AREA = 0141
+FREE SYMS = 3641
+END  COMPILATION
+

@@ -1,0 +1,57 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: REVERT
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: REVERT
+
+   1   0000 /******************************************************/
+   2   0000 /* This program is nonfunctional.  Its purpose is to  */
+   3   0000 /* illustrate how PL/I executes the ON and REVERT     */
+   4   0000 /* statements.                                        */
+   5   0000 /******************************************************/
+   6 a 0000 auto_revert:
+   7 a 0006     procedure options(main);
+   8 c 0006     declare 
+   9 c 000D       i fixed,
+  10 c 000D       sysin file;
+  11 c 000D 
+  12 c 000D     do i = 1 to 10000;
+  13 c 001F        call p(i,exit);
+  14 c 003C        exit:
+  15 c 003C     end;
+  16 c 003C 
+  17 c 003C     P:
+  18 c 003C      procedure (index,lab);
+  19 e 003C      declare 
+  20 e 004C        (t, index) fixed,
+  21 e 004C        lab label;
+  22 e 004C 
+  23 e 004C      on endfile(sysin)
+  24 f 0054         goto lab;
+  25 f 005F 
+  26 e 005F      put skip list(index,':');
+  27 e 008A      get list(t);
+  28 e 00A2      if t = index then
+  29 e 00B6     goto lab;
+  30 c 00C2     end P; /* implicit REVERT supplied here */
+  31 c 00C2 
+  32 a 00C2 end auto_revert;
+  33 a 00C5 
+
+CODE SIZE = 00C5
+DATA AREA = 0011
+FREE SYMS = 380F
+END  COMPILATION
+

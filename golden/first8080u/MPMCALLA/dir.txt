@@ -1,0 +1,25 @@
+0:
+-rw-rw-rw-     128 Jan 01 1970  dio80.dcl
+-rw-rw-rw-    1664 Jan 01 1970  diomod.dcl
+-rw-rw-rw-     640 Jan 01 1970  fcb.dcl
+-rw-rw-rw-    6400 Jan 01 1970  loan2.pli
+-rw-rw-rw-    9600 Jan 01 1970  loan2.prn
+-rw-rw-rw-    7680 Jan 01 1970  loan2.rel
+-rw-rw-rw-    2048 Jan 01 1970  maininvt.pli
+-rw-rw-rw-    4224 Jan 01 1970  maininvt.prn
+-rw-rw-rw-     128 Jan 01 1970  matsize.lib
+-rw-rw-rw-   13184 Jan 01 1970  mpmcalla.pli
+-rw-rw-rw-   21632 Jan 01 1970  mpmcalla.prn
+-rw-rw-rw-    8832 Jan 01 1970  mpmcalla.rel
+-rw-rw-rw-    8320 Jan 01 1970  mpmcallb.pli
+-rw-rw-rw-   14208 Jan 01 1970  mpmcallb.prn
+-rw-rw-rw-    5376 Jan 01 1970  mpmcallb.rel
+-rw-rw-rw-    1152 Jan 01 1970  mpmdio.dcl
+-rw-rw-rw-    8960 Jan 01 1970  network.pli
+-rw-rw-rw-   12672 Jan 01 1970  network.prn
+-rw-rw-rw-    3200 Jan 01 1970  network.rel
+-rw-rw-rw-    1664 Jan 01 1970  optimist.pli
+-rw-rw-rw-    2816 Jan 01 1970  optimist.prn
+-rw-rw-rw-    1408 Jan 01 1970  optimist.rel
+-rw-rw-rw-     384 Jan 01 1970  record.dcl
+-rw-rw-rw-    6016 Jan 01 1970  z80.lib

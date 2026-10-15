@@ -1,0 +1,430 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: MPMCALLA
+
+D: Disk Print
+L: List Source Program
+
+%include 'mpmdio.dcl';
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: MPMCALLA
+
+   1   0000 /*
+   2   0000 *******************************************************
+   3   0000 *    Direct MP/M Operating System Call Test Program   *
+   4   0000 *******************************************************
+   5   0000 
+   6   0000 The programs MPMCALLA.PLI and MPMCALLB.PLI demonstrate direct MP/M 
+   7   0000 Operating System calls from PLI.  The following instructions describe
+   8   0000 the steps to assemble, compile, link and execute these programs.
+   9   0000 
+  10   0000    1)  Compile the PLI programs with the commands:
+  11   0000 
+  12   0000        A>pli mpmcalla $pl
+  13   0000        A>pli mpmcallb $pl
+  14   0000 
+  15   0000    2)  Assemble the mpmdio.asm module with the command:
+  16   0000 
+  17   0000        A>rmac mpmdio
+  18   0000 
+  19   0000    3)  Link the mpmcalla, mpmcallb, and mpmdio modules:
+  20   0000 
+  21   0000        A>link mpmcalla,mpmcallb,mpmdio
+  22   0000 
+  23   0000    4)  Gensys your MP/M system as follows:
+  24   0000 
+  25   0000        Top .... = ff
+  26   0000        Number of con..  = 1
+  27   0000        Add system call ...  ? n
+  28   0000        Bank switched mem... ? n
+  29   0000         :0
+  30   0000         :a0
+  31   0000         :ff
+  32   0000 
+  33   0000    5)  Run the program:
+  34   0000 
+  35   0000        A>mpmcalla
+  36   0000 
+  37   0000 
+  38   0000 */
+  39   0000 
+  40   0000 
+  41 a 0000 mpmtest:  /* external MP/M I/O entry points */
+  42 a 0006 
+  43 a 0006 procedure options(main);
+  44 a 0006 
+  45 c 0006 declare
+  46 c 000D    part2 entry;
+  47 c 000D 
+  48 c 000D %replace
+  49 c 000D    true   by '1'b,
+  50 c 000D    false  by '0'b;
+  51 c 000D 
+  52+c 000D declare
+  53+c 000D     amemrq entry   (pointer) returns (bit(1)),
+  54+c 000D     rmemrq entry   (pointer) returns (bit(1)),
+  55+c 000D     memfr  entry   (pointer),
+  56+c 000D     poll   entry   (fixed(7)),
+  57+c 000D     flgwt  entry   (fixed(7)) returns (bit(1)),
+  58+c 000D     flgset entry   (fixed(7)) returns (bit(1)),
+  59+c 000D     makque entry   (pointer),
+  60+c 000D     opnque entry   (pointer) returns (bit(1)),
+  61+c 000D     delque entry   (pointer) returns (bit(1)),
+  62+c 000D     rdque  entry   (pointer),
+  63+c 000D     crdque entry   (pointer) returns (bit(1)),
+  64+c 000D     wrque  entry   (pointer),
+  65+c 000D     cwrque entry   (pointer) returns (bit(1)),
+  66+c 000D     delay  entry   (fixed(15)),
+  67+c 000D     dsptch entry,
+  68+c 000D     term   entry   (bit(16)),
+  69+c 000D     crproc entry   (pointer),
+  70+c 000D     setpri entry   (fixed(7)),
+  71+c 000D     attcon entry,
+  72+c 000D     detcon entry,
+  73+c 000D     setcon entry   (fixed(7)),
+  74+c 000D     asncon entry   (pointer) returns (bit(1)),
+  75+c 000D     sclicd entry   (pointer),
+  76+c 000D     clresp entry   (pointer) returns (bit(16)),
+  77+c 000D     parse  entry   (pointer) returns (pointer),
+  78+c 000D     getcon entry   returns (fixed(7)),
+  79+c 000D     sysdat entry   returns (pointer),
+  80+c 000D     gettod entry   (pointer),
+  81+c 000D     rpdadr entry   returns (pointer),
+  82+c 000D     abtspr entry   (pointer) returns (bit(1)),
+  83 c 000D 
+  84+c 000D     disabl entry,
+  85+c 000D     enable entry;
+  86 c 000D 
+  87 c 000D declare
+  88 c 000D    vers entry returns(bit(16));
+  89 c 000D 
+  90 c 000D declare
+  91 c 000D    sysin file,
+  92 c 000D    version bit(16),
+  93 c 000D    oldpriority fixed(7),
+  94 c 000D    v character(254) var,
+  95 c 000D    i fixed;
+  96 c 000D 
+  97 c 000D declare
+  98 c 000D    pdadr pointer,
+  99 c 000D       1 pd based (pdadr),
+ 100 c 000D         2 link pointer,
+ 101 c 000D     2 status fixed(7),
+ 102 c 000D     2 priority fixed(7),
+ 103 c 000D     2 stkptr pointer,
+ 104 c 000D     2 name character(8),
+ 105 c 000D     2 console fixed(7),
+ 106 c 000D     2 memseg fixed(7),
+ 107 c 000D     2 b fixed(15),
+ 108 c 000D     2 thread pointer,
+ 109 c 000D     2 dmadr pointer,
+ 110 c 000D     2 slct bit(8);
+ 111 c 000D /*  2 dcnt fixed(15),
+ 112 c 000D     2 searchl fixed(7),
+ 113 c 000D     2 searcha pointer,
+ 114 c 000D     2 drvact bit(16),
+ 115 c 000D     2 registers (20) fixed(7),
+ 116 c 000D     2 scratch fixed(15);
+ 117 c 000D     */
+ 118 c 000D 
+ 119 c 000D declare
+ 120 c 000D       1 localpd static,
+ 121 c 000D     2 link pointer,
+ 122 c 000D     2 status fixed(7),
+ 123 c 000D     2 priority fixed(7),
+ 124 c 000D     2 stkptr pointer,
+ 125 c 000D     2 name character(8) initial ('LocalPD '),
+ 126 c 000D     2 console fixed(7),
+ 127 c 000D     2 memseg fixed(7),
+ 128 c 000D     2 b fixed(15),
+ 129 c 000D     2 thread pointer,
+ 130 c 000D     2 dmadr pointer,
+ 131 c 000D     2 slct fixed(7),
+ 132 c 000D     2 dcnt fixed(15),
+ 133 c 000D     2 searchl fixed(7),
+ 134 c 000D     2 searcha pointer,
+ 135 c 000D     2 drvact bit(16),
+ 136 c 000D     2 registers (20) fixed(7),
+ 137 c 000D     2 scratch fixed(15);
+ 138 c 000D 
+ 139 c 000D declare
+ 140 c 000D    localstk (0:255) entry (fixed) variable;
+ 141 c 000D 
+ 142 c 000D declare
+ 143 c 000D    sysdatpgadr pointer,
+ 144 c 000D       1 sysdatpg based (sysdatpgadr),
+ 145 c 000D         2 memtop bit(8),
+ 146 c 000D     2 nmbcns fixed(7),
+ 147 c 000D     2 brkptrst fixed (7),
+ 148 c 000D     2 syscallstks bit(8),
+ 149 c 000D     2 bankswitched bit(8);
+ 150 c 000D /*  2 z80cpu bit(8),
+ 151 c 000D     2 bankedbdos bit(8),
+ 152 c 000D     2 basebankedbdos pointer;
+ 153 c 000D     */
+ 154 c 000D 
+ 155 c 000D declare
+ 156 c 000D    upper character(27) static initial
+ 157 c 000D          ('ABCDEFGHIJKLMNOPQRSTUVWXYZ '),
+ 158 c 000D    lower character(27) static initial
+ 159 c 000D          ('abcdefghijklmnopqrstuvwxyz ');
+ 160 c 000D 
+ 161 c 000D 
+ 162 c 000D /**********************************
+ 163 c 000D *                                 *
+ 164 c 000D * Local procedures used during    *
+ 165 c 000D *  testing.                       *
+ 166 c 000D *                                 *
+ 167 c 000D **********************************/
+ 168 c 000D 
+ 169 c 000D flagtest:
+ 170 c 000D procedure;
+ 171 e 000D declare
+ 172 e 0010    boolean bit(1);
+ 173 e 0010 
+ 174 e 0010 call attcon();
+ 175 e 0013 boolean = flgwt (30);
+ 176 e 001C put skip list ('-> flagtest wait on #30 complete.');
+ 177 e 0038 call detcon();
+ 178 e 003B boolean = flgset (31);
+ 179 e 0044 call term ('ffff'b4);
+ 180 c 004B end flagtest;
+ 181 c 004B 
+ 182 c 004B queuetest:
+ 183 c 004B procedure;
+ 184 e 004B declare
+ 185 e 004E    1 qcbB static,
+ 186 e 004E      2 link fixed(15),
+ 187 e 004E      2 name character(8) initial ('QueueB  '),
+ 188 e 004E      2 msglen fixed(15) initial (10),
+ 189 e 004E      2 nmbmsgs fixed(15) initial (2),
+ 190 e 004E      2 dqph pointer,
+ 191 e 004E      2 nqph pointer,
+ 192 e 004E      2 msgin pointer,
+ 193 e 004E      2 msgout pointer,
+ 194 e 004E      2 msgcnt fixed(15),
+ 195 e 004E      2 buffer (2),
+ 196 e 004E        3 lnk pointer,
+ 197 e 004E        3 character(10);
+ 198 e 004E 
+ 199 e 004E declare
+ 200 e 004E    1 uqcbA static,
+ 201 e 004E      2 pointer pointer,
+ 202 e 004E      2 msgadr pointer,
+ 203 e 004E      2 name character(8) initial ('QueueA  ');
+ 204 e 004E 
+ 205 e 004E declare
+ 206 e 004E    1 uqcbB,
+ 207 e 004E      2 pointer pointer,
+ 208 e 004E      2 msgadr pointer;
+ 209 e 004E 
+ 210 e 004E declare
+ 211 e 004E    msgA character(10),
+ 212 e 004E    msgB character(10);
+ 213 e 004E 
+ 214 e 004E uqcbA.msgadr = addr (msgA);
+ 215 e 0057 uqcbB.pointer = addr (qcbB);
+ 216 e 0060 uqcbB.msgadr = addr (msgB);
+ 217 e 0069 call makque (addr (qcbB));
+ 218 e 0075 do while (~opnque (addr (uqcbA)));
+ 219 e 0085    call delay (1); /* until qcbA created */
+ 220 e 008E end;
+ 221 e 008E do while (true);
+ 222 e 008E    call rdque (addr (uqcbA));
+ 223 e 009A    msgB = translate (msgA,upper,lower);
+ 224 e 00BF    call wrque (addr (uqcbB));
+ 225 e 00CE end;
+ 226 c 00CE end queuetest;
+ 227 c 00CE 
+ 228 c 00CE 
+ 229 c 00CE /**************************************************
+ 230 c 00CE ***************************************************
+ 231 c 00CE ********                                   ********
+ 232 c 00CE ********      M a i n   P r o g r a m      ********
+ 233 c 00CE ********                                   ********
+ 234 c 00CE ***************************************************
+ 235 c 00CE **************************************************/
+ 236 c 00CE 
+ 237 c 00CE 
+ 238 c 00CE /**********************************
+ 239 c 00CE *                                 *
+ 240 c 00CE * Verify Operation Under MP/M     *
+ 241 c 00CE *   Without Banked Memory.        *
+ 242 c 00CE *                                 *
+ 243 c 00CE **********************************/
+ 244 c 00CE 
+ 245 c 00CE version = vers();
+ 246 c 00D4 if substr (version,1,8) = '00'b4 then
+ 247 c 00DD do;
+ 248 c 00DD   put skip list ('Tests cannot run under CP/M.');
+ 249 c 00F9   call term('0000'b4);
+ 250 c 00FF end;
+ 251 c 00FF sysdatpgadr = sysdat ();
+ 252 c 0105 if sysdatpg.bankswitched = 'FF'b4 then
+ 253 c 0112 do;
+ 254 c 0112   put skip list ('Tests cannot run under MP/M');
+ 255 c 012E   put list ('with bank switched memory.');
+ 256 c 0145   call term('0000'b4);
+ 257 c 014B end;
+ 258 c 014B if sysdatpg.syscallstks = 'FF'b4 then
+ 259 c 0157 do;
+ 260 c 0157   put skip list ('Tests cannot run under MP/M');
+ 261 c 0173   put list ('with system call user stacks.');
+ 262 c 018A   call term('0000'b4);
+ 263 c 0190 end;
+ 264 c 0190 pdadr = rpdadr();   /* get current running pd adr */
+ 265 c 0196 oldpriority = pd.priority;
+ 266 c 01A0 
+ 267 c 01A0 /**********************************
+ 268 c 01A0 *                                 *
+ 269 c 01A0 * Memory Management Tests:        *
+ 270 c 01A0 *       AMEMRQ, RMEMRQ, MEMFR     *
+ 271 c 01A0 *                                 *
+ 272 c 01A0 **********************************/
+ 273 c 01A0 declare
+ 274 c 01A0    1 memdscr,
+ 275 c 01A0      2 base fixed (7),     /* base page */
+ 276 c 01A0      2 size fixed (7),     /* # of pages */
+ 277 c 01A0      2 attrib fixed (7),   /* attributes */
+ 278 c 01A0      2 bank fixed (7);     /* bank byte */
+ 279 c 01A0 
+ 280 c 01A0 on endfile (sysin)
+ 281 d 01A8    goto rmemrqtst;
+ 282 c 01AE put skip list ('Memory Management Tests:');
+ 283 c 01CA do while (true);
+ 284 c 01CA    put skip(2) list ('    Absolute Request');
+ 285 c 01E6    put skip list ('        Base (xx in hex) = ');
+ 286 c 0202    i = pd.memseg;  /* save old memseg index */
+ 287 c 0211    get edit (unspec (memdscr.base)) (b4(2));
+ 288 c 022E    if amemrq (addr (memdscr)) then
+ 289 c 023E       do;
+ 290 c 023E         put skip list ('    Absolute Request satisfied.');
+ 291 c 025A         put edit ('      Base = ',unspec (memdscr.base),'H')
+ 292 c 028D                  (skip,a,b4,a);
+ 293 c 028D         put edit ('      Size = ',unspec (memdscr.size),'H')
+ 294 c 02C0                  (skip,a,b4,a);
+ 295 c 02C0         put edit ('      Attr = ',unspec (memdscr.attrib),'H')
+ 296 c 02F3                  (skip,a,b4,a);
+ 297 c 02F3         put edit ('      Bank = ',unspec (memdscr.bank),'H')
+ 298 c 0326                  (skip,a,b4,a);
+ 299 c 0326         call memfr (addr (memdscr));
+ 300 c 0332         pd.memseg = i;  /* restore former memseg index */
+ 301 c 0340       end;
+ 302 c 0340    else
+ 303 c 0340       do;
+ 304 c 0340         put skip list ('    Absolute Request failed.');
+ 305 c 0366       end;
+ 306 c 0366 end;
+ 307 c 0366 
+ 308 c 0366 rmemrqtst:
+ 309 c 0366 
+ 310 c 0366 get edit (v) (a);  /* clear input buffer */
+ 311 c 0383 
+ 312 c 0383 on endfile (sysin)
+ 313 d 038B    goto polltst;
+ 314 c 0391 do while (true);
+ 315 c 0391    put skip(2) list ('    Relocatable Request');
+ 316 c 03AD    put skip list ('        Size (xxh) = ');
+ 317 c 03C9    i = pd.memseg;  /* save old memseg index */
+ 318 c 03D8    get edit (unspec (memdscr.size)) (b4(2));
+ 319 c 03F5    if rmemrq (addr (memdscr)) then
+ 320 c 0405       do;
+ 321 c 0405         put skip list ('    Relocatable Request satisfied.');
+ 322 c 0421         put edit ('      Base = ',unspec (memdscr.base),'H')
+ 323 c 0454                  (skip,a,b4,a);
+ 324 c 0454         put edit ('      Size = ',unspec (memdscr.size),'H')
+ 325 c 0487                  (skip,a,b4,a);
+ 326 c 0487         put edit ('      Attr = ',unspec (memdscr.attrib),'H')
+ 327 c 04BA                  (skip,a,b4,a);
+ 328 c 04BA         put edit ('      Bank = ',unspec (memdscr.bank),'H')
+ 329 c 04ED                  (skip,a,b4,a);
+ 330 c 04ED         call memfr (addr (memdscr));
+ 331 c 04F9         pd.memseg = i;  /* restore former memseg index */
+ 332 c 0507       end;
+ 333 c 0507    else
+ 334 c 0507      do;
+ 335 c 0507        put skip list ('    Relocatable Request failed.');
+ 336 c 052D      end;
+ 337 c 052D end;
+ 338 c 052D 
+ 339 c 052D /**********************************
+ 340 c 052D *                                 *
+ 341 c 052D * Poll Tests:                     *
+ 342 c 052D *  The poll call cannot be tested *
+ 343 c 052D *  unless the poll device table   *
+ 344 c 052D *  in the XIOS is known.          *
+ 345 c 052D *                                 *
+ 346 c 052D **********************************/
+ 347 c 052D 
+ 348 c 052D polltst:
+ 349 c 052D 
+ 350 c 052D get edit (v) (a);  /* clear input buffer */
+ 351 c 054A 
+ 352 c 054A /*  The following code is "commented out"
+ 353 c 054A 
+ 354 c 054A call poll (devicenumber);
+ 355 c 054A put edit ('Device ',devicenumber,'is ready.')
+ 356 c 054A          (skip,a,f,a);
+ 357 c 054A 
+ 358 c 054A End of comment-deleted code  */
+ 359 c 054A 
+ 360 c 054A put skip(2) list ('Poll call not tested.');
+ 361 c 0566 
+ 362 c 0566 /**********************************
+ 363 c 0566 *                                 *
+ 364 c 0566 * Flag Tests:                     *
+ 365 c 0566 *       FLGWT, FLGSET             *
+ 366 c 0566 *                                 *
+ 367 c 0566 *    Note: this test assumes that *
+ 368 c 0566 *    flags 30 & 31 are unused.    *
+ 369 c 0566 *                                 *
+ 370 c 0566 **********************************/
+ 371 c 0566 declare
+ 372 c 0566    flagover bit(1),
+ 373 c 0566    flagunder bit(1);
+ 374 c 0566 
+ 375 c 0566 unspec (localpd.link) = '0000'b4;
+ 376 c 056D localpd.priority = 100;
+ 377 c 0572 localpd.stkptr = addr (localstk(255));
+ 378 c 057E localpd.console = pd.console;
+ 379 c 058A localpd.memseg = pd.memseg;
+ 380 c 0594 localstk(255) = flagtest;
+ 381 c 059D call crproc (addr (localpd));
+ 382 c 05A9 put skip(2) list ('Flag Tests:');
+ 383 c 05C5 call setpri (101);
+ 384 c 05CB call detcon();
+ 385 c 05CE flagover = ~flgset (30);
+ 386 c 05D8 call attcon();
+ 387 c 05DB call setpri (oldpriority);
+ 388 c 05E1 flagunder = ~flgwt (31);
+ 389 c 05EB if flagover then
+ 390 c 05F2    put skip list ('-> flag over-run.');
+ 391 c 060E if flagunder then
+ 392 c 0615    put skip list ('-> flag under-run.');
+ 393 c 0631 put skip list ('-> flag tests successful.');
+ 394 c 064D 
+ 395 c 064D /**********************************
+ 396 c 064D *                                 *
+ 397 c 064D * Queue Management Tests:         *
+ 398 c 064D *    MAKQUE,OPNQUE,DELQUE         *
+ 399 c 064D *    RDQUE,CRDQUE,WRQUE,CWRQUE    *
+ 400 c 064D *                                 *
+ 401 c 064D **********************************/
+ 402 c 064D declare
+ 403 c 064D    1 qcbA static,
+ 404 c 064D      2 link fixed(15),
+ 405 c 064D      2 name character(8) initial ('QueueA  '),
+ 406 c 064D      2 msglen fixed(15) initial (10),
+ 407 c 064D      2 nmbmsgs fixed(15) initial (2),
+ 408 c 064D      2 dqph pointer,
+ 409 c 064D      2 nqph pointer,
+ 410 c 064D      2 msgin pointer,
+ 411 c 064D 

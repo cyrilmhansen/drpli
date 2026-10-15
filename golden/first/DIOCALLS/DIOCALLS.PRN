@@ -1,0 +1,513 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: DIOCALLS
+
+D: Disk Print
+L: List Source Program
+
+%include 'diomod.dcl';
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: DIOCALLS
+
+   1   0000 /**************************************************************
+   2   0000 * This PL/I program tests CP/M operating system entry points. * 
+   3   0000 * Note: The file DIOMOD.DCL contains only those declarations  *
+   4   0000 * for the entry points common to both the 8080 and 8086       *
+   5   0000 * implementations.  If you are running under CP/M 2.2 (or     *
+   6   0000 * newer) you also need to include the file DIO80.DCL.  If you *
+   7   0000 * are running under CP/M-86, you also need to include the     *
+   8   0000 * file DIO86.DCL.                                             *
+   9   0000 ***************************************************************/
+  10 a 0000 diotest:
+  11 a 0006       procedure options(main);
+  12 a 0006 
+  13 a 0006       
+  14 a 0006 
+  15+c 0006     declare 
+  16+c 0006         memptr entry returns (pointer),
+  17+c 0006         memsiz entry returns (fixed(15)),
+  18+c 0006         memwds entry returns (fixed(15)),
+  19+c 0006         dfcb0  entry returns (pointer),
+  20+c 0006         dfcb1  entry returns (pointer),
+  21+c 0006         dbuff  entry returns (pointer),
+  22+c 0006         reboot entry,
+  23+c 0006         rdcon  entry returns (character(1)),
+  24+c 0006         wrcon  entry (character(1)),
+  25+c 0006         rdrdr  entry returns (character(1)),
+  26+c 0006         wrpun  entry (character(1)),
+  27+c 0006         wrlst  entry (character(1)),
+  28+c 0006         coninp entry returns (character(1)),
+  29+c 0006         conout entry (character(1)),
+  30+c 0006         rdstat entry returns (bit(1)),
+  31+c 0006         getio  entry returns (bit(8)),
+  32+c 0006         setio  entry (bit(8)),
+  33+c 0006         wrstr  entry (pointer),
+  34+c 0006         rdbuf  entry (pointer),
+  35+c 0006         break  entry returns (bit(1)),
+  36+c 0006         vers   entry returns (bit(16)),
+  37+c 0006         reset  entry,
+  38+c 0006         select entry (fixed(7)),
+  39+c 0006         open   entry (pointer) returns (fixed(7)),
+  40+c 0006         close  entry (pointer) returns (fixed(7)),
+  41+c 0006         sear   entry (pointer) returns (fixed(7)),
+  42+c 0006         searn  entry returns (fixed(7)),
+  43+c 0006         delete entry (pointer),
+  44+c 0006         rdseq  entry (pointer) returns (fixed(7)),
+  45+c 0006         wrseq  entry (pointer) returns (fixed(7)),
+  46+c 0006         make   entry (pointer) returns (fixed(7)),
+  47+c 0006         rename entry (pointer),
+  48+c 0006         logvec entry returns (bit(16)),
+  49+c 0006         curdsk entry returns (fixed(7)),
+  50+c 0006         setdma entry (pointer),
+  51+c 0006         wpdisk entry,
+  52+c 0006         rovec  entry returns (bit(16)),
+  53+c 0006         filatt entry (pointer),
+  54+c 0006         getusr entry returns (fixed(7)),
+  55+c 0006         setusr entry (fixed(7)),
+  56+c 0006         rdran  entry (pointer) returns (fixed(7)),
+  57+c 0006         wrran  entry (pointer) returns (fixed(7)),
+  58+c 0006         filsiz entry (pointer),
+  59+c 0006         setrec entry (pointer),
+  60+c 0006         resdrv entry (bit(16)),
+  61+c 0006         wrranz entry (pointer) returns (fixed(7));
+  62 c 0006  /* and either 'dio80.dcl' 
+  63 c 0006                               or 'dio86.dcl' */
+  64 c 0006 
+  65 c 0006       declare 
+  66 c 0006          c character(1),
+  67 c 0006          v character(254) varying,
+  68 c 0006          i fixed;
+  69 c 0006 
+  70 c 0006 
+  71 c 0006 /**********************************
+  72 c 0006 *                                 *
+  73 c 0006 *     Fixed Location Tests:       *
+  74 c 0006 *                                 *
+  75 c 0006 *     MEMPTR, MEMSIZ, MEMWDS,     *
+  76 c 0006 *     DFCB0, DFCB1, DBUFF         *
+  77 c 0006 *                                 *
+  78 c 0006 **********************************/
+  79 c 0006 declare 
+  80 c 0006    memptrv pointer,
+  81 c 0006    memsizv fixed,
+  82 c 0006    (dfcb0v, dfcb1v, dbuffv) pointer,
+  83 c 0006    command character(127) varying based (dbuffv),
+  84 c 0006    1 fcb0 based(dfcb0v),
+  85 c 0006      2 drive fixed(7),
+  86 c 0006      2 name  character(8),
+  87 c 0006      2 type  character(3),
+  88 c 0006      2 extnt fixed(7),
+  89 c 0006      2 space (19) bit(8),
+  90 c 0006      2 cr    fixed(7),
+  91 c 0006    memory (0:0) based(memptrv) bit(8);
+  92 c 0006    memptrv = memptr();
+  93 c 000C    memsizv = memsiz();
+  94 c 0012    dfcb0v  = dfcb0();
+  95 c 0018    dfcb1v  = dfcb1();
+  96 c 001E    dbuffv  = dbuff();
+  97 c 0024 
+  98 c 0024    put edit ('Command Tail: ',command) (a);
+  99 c 004A    put edit ('First Default File:',
+ 100 c 008D              fcb0.name,'.',fcb0.type) (skip,4a);
+ 101 c 008D    put edit ('dfcb0 ',unspec(dfcb0v),
+ 102 c 0137              'dfcb1 ',unspec(dfcb1v),
+ 103 c 0137              'dbuff ',unspec(dbuffv),
+ 104 c 0137              'memptr',unspec(memptrv),
+ 105 c 0137              'memsiz',unspec(memsizv),
+ 106 c 0137               'memwds',memwds())
+ 107 c 0137             (5(skip,a(7),b4),skip,a(7),f(6));
+ 108 c 0137    put skip list('Clearing Memory');
+ 109 c 0153 
+ 110 c 0153 /* sample loop to clear memory */
+ 111 c 0153 
+ 112 c 0153 do i = 0 repeat(i+1) while (i^=memsizv-1);
+ 113 c 016A    memory (i) = '00'b4;
+ 114 c 017F end;
+ 115 c 017F 
+ 116 c 017F 
+ 117 c 017F /**********************************
+ 118 c 017F *                                 *
+ 119 c 017F *        REBOOT Test              *
+ 120 c 017F *                                 *
+ 121 c 017F **********************************/
+ 122 c 017F put skip list ('Reboot? (Y/N)');
+ 123 c 019B get list (c);
+ 124 c 01B5 if translate(c,'Y','y') = 'Y' then
+ 125 c 01DD    call reboot();
+ 126 c 01E0 
+ 127 c 01E0 
+ 128 c 01E0 /**********************************
+ 129 c 01E0 *                                 *
+ 130 c 01E0 *       RDCON, WRCON Test         *
+ 131 c 01E0 *                                 *
+ 132 c 01E0 **********************************/
+ 133 c 01E0 put list('Type Input, End with "$" ');
+ 134 c 01F7 v = '^m^j';
+ 135 c 0204 do while (substr(v,length(v)) ^= '$');
+ 136 c 0220    v = v || rdcon();
+ 137 c 022E end;
+ 138 c 022E put skip list('You Typed:');
+ 139 c 024A do i = 1 to length(v);
+ 140 c 0266    call wrcon(substr(v,i,1));
+ 141 c 028E end;
+ 142 c 028E 
+ 143 c 028E 
+ 144 c 028E /**********************************
+ 145 c 028E *                                 *
+ 146 c 028E *       RDRDR and WRPUN Test      *
+ 147 c 028E *                                 *
+ 148 c 028E **********************************/
+ 149 c 028E put skip list('Reader to Punch Test?(Y/N)');
+ 150 c 02AA get list (c);
+ 151 c 02C4 if translate(c,'Y','y') = 'Y' then
+ 152 c 02EC    do;
+ 153 c 02EC      put skip list('Copying RDR to PUN until ctrl-z');
+ 154 c 0308      c = ' ';
+ 155 c 0314      do while (c ^= '^z');
+ 156 c 0323         c = rdrdr();
+ 157 c 032E         if c ^= '^z' then
+ 158 c 033D            call wrpun(c);
+ 159 c 0346      end;
+ 160 c 0346    end;
+ 161 c 0346 
+ 162 c 0346 
+ 163 c 0346 /**********************************
+ 164 c 0346 *                                 *
+ 165 c 0346 *            WRLST Test           *
+ 166 c 0346 *                                 *
+ 167 c 0346 **********************************/
+ 168 c 0346 put list('List Output Test?(Y/N)');
+ 169 c 035D get list(c);
+ 170 c 0377 if translate(c,'Y','y') = 'Y' then
+ 171 c 039F    do i = 1 to length(v);
+ 172 c 03BB       call wrlst(substr(v,i,1));
+ 173 c 03E3    end;
+ 174 c 03E3 
+ 175 c 03E3 
+ 176 c 03E3 /**********************************
+ 177 c 03E3 *                                 *
+ 178 c 03E3 *   Direct I/O, CONOUT, CONINP    *
+ 179 c 03E3 *                                 *
+ 180 c 03E3 **********************************/
+ 181 c 03E3 put list ('Direct I/O, Type Line, End with Line Feed');
+ 182 c 03FA c = ' ';
+ 183 c 0406 do while (c ^= '^j');
+ 184 c 0415    call conout(c);
+ 185 c 041B    c = coninp();
+ 186 c 0429 end;
+ 187 c 0429 
+ 188 c 0429 
+ 189 c 0429 /**********************************
+ 190 c 0429 *                                 *
+ 191 c 0429 *  Direct I/O, Console Status     *
+ 192 c 0429 *             RDSTAT              *
+ 193 c 0429 *                                 *
+ 194 c 0429 **********************************/
+ 195 c 0429 put skip list('Status Test, Type Character');
+ 196 c 0445 do while (^rdstat());
+ 197 c 044F end;
+ 198 c 044F /* clear the character */
+ 199 c 044F c = coninp();
+ 200 c 045A 
+ 201 c 045A 
+ 202 c 045A /**********************************
+ 203 c 045A *                                 *
+ 204 c 045A *       GETIO, SETIO IObyte       *
+ 205 c 045A *                                 *
+ 206 c 045A **********************************/
+ 207 c 045A declare 
+ 208 c 045A    iobyte bit(8);
+ 209 c 045A 
+ 210 c 045A    iobyte = getio();
+ 211 c 0460    put edit ('IObyte is ',iobyte,', New Value: ') 
+ 212 c 0493             (skip,a,b4,a);
+ 213 c 0493    get edit (iobyte) (b4(2));
+ 214 c 04AF    call setio(iobyte);
+ 215 c 04B5 
+ 216 c 04B5 
+ 217 c 04B5 /**********************************
+ 218 c 04B5 *                                 *
+ 219 c 04B5 *   Buffered Write,  WRSTR Test   *
+ 220 c 04B5 *                                 *
+ 221 c 04B5 **********************************/
+ 222 c 04B5 put list('Buffered Output Test:');
+ 223 c 04CC 
+ 224 c 04CC /* "v" was previously filled by RDCON */
+ 225 c 04CC 
+ 226 c 04CC call wrstr(addr(v));
+ 227 c 04D8 
+ 228 c 04D8 
+ 229 c 04D8 /**********************************
+ 230 c 04D8 *                                 *
+ 231 c 04D8 *     Buffered Read RDBUF Test    *
+ 232 c 04D8 *                                 *
+ 233 c 04D8 **********************************/
+ 234 c 04D8 declare 
+ 235 c 04D8    1 inbuff static,
+ 236 c 04D8      2 maxsize bit(8) initial('80'b4),
+ 237 c 04D8      2 inchars character(127) varying;
+ 238 c 04D8 
+ 239 c 04D8 put skip list('Line Input, Type Line, End With Return');
+ 240 c 04F4 put skip;
+ 241 c 0505 call rdbuf(addr(inbuff));
+ 242 c 0511 put skip list('You Typed: ',inchars);
+ 243 c 0536 
+ 244 c 0536 
+ 245 c 0536 /**********************************
+ 246 c 0536 *                                 *
+ 247 c 0536 *      Console BREAK Test         *
+ 248 c 0536 *                                 *
+ 249 c 0536 **********************************/
+ 250 c 0536 put skip list('Console Break Test, Type Character');
+ 251 c 0552 do while(^break());
+ 252 c 055C end;
+ 253 c 055C c = rdcon();
+ 254 c 0567 
+ 255 c 0567 
+ 256 c 0567 /**********************************
+ 257 c 0567 *                                 *
+ 258 c 0567 *     Version Number VERS Test    *
+ 259 c 0567 *                                 *
+ 260 c 0567 **********************************/
+ 261 c 0567 declare 
+ 262 c 0567    version bit(16);
+ 263 c 0567 
+ 264 c 0567 version = vers();
+ 265 c 056D 
+ 266 c 056D if substr(version,1,8) = '00'b4 then
+ 267 c 0576    put skip list('CP/M'); 
+ 268 c 0595 else
+ 269 c 0595    put skip list('MP/M');
+ 270 c 05B1 
+ 271 c 05B1 put edit(' Version ',substr(version,9,4),'.',substr(version,13,4)) 
+ 272 c 05F5         (a,b4,a,b4);
+ 273 c 05F5 
+ 274 c 05F5 
+ 275 c 05F5 /**********************************
+ 276 c 05F5 *                                 *
+ 277 c 05F5 *     Disk System RESET Test      *
+ 278 c 05F5 *                                 *
+ 279 c 05F5 **********************************/
+ 280 c 05F5 put skip list('Resetting Disk System');
+ 281 c 0611 call reset();
+ 282 c 0614 
+ 283 c 0614 
+ 284 c 0614 /**********************************
+ 285 c 0614 *                                 *
+ 286 c 0614 *       Disk SELECT Test          *
+ 287 c 0614 *                                 *
+ 288 c 0614 **********************************/
+ 289 c 0614 put skip list('Select Disk # ');
+ 290 c 0630 get list(i);
+ 291 c 0648 call select(i);
+ 292 c 0654 
+ 293 c 0654 /**********************************
+ 294 c 0654 *                                 *
+ 295 c 0654 * Note:  The OPEN, CLOSE, SEAR,   *
+ 296 c 0654 *        SEARN, DELETE, RDSEQ,    *
+ 297 c 0654 *        WRSEQ, MAKE, and RENAME  *
+ 298 c 0654 *        functions are tested in  *
+ 299 c 0654 *        the DIOCOPY program.     *
+ 300 c 0654 *                                 *
+ 301 c 0654 **********************************/
+ 302 c 0654 
+ 303 c 0654 /**********************************
+ 304 c 0654 *                                 *
+ 305 c 0654 *         LOGVEC and CURDSK       *
+ 306 c 0654 *                                 *
+ 307 c 0654 **********************************/
+ 308 c 0654 put skip list ('Login Vector',logvec(),
+ 309 c 0695               'Current Disk',curdsk());
+ 310 c 0695 
+ 311 c 0695 /**********************************
+ 312 c 0695 *                                 *
+ 313 c 0695 * See DIOCOPY for SETDMA Function *
+ 314 c 0695 *                                 *
+ 315 c 0695 **********************************/
+ 316 c 0695 
+ 317 c 0695 /**********************************
+ 318 c 0695 *                                 *
+ 319 c 0695 *  Allocate Vector ALLVEC Test    *
+ 320 c 0695 *                                 *
+ 321 c 0695 *  Note: This test contains two   *
+ 322 c 0695 *  different versions; one for    *
+ 323 c 0695 *  8080 code, and another for     *
+ 324 c 0695 *  8086 code.  Before compiling   *
+ 325 c 0695 *  you must comment out the       *
+ 326 c 0695 *  version you don't want to use. *
+ 327 c 0695 *                                 *
+ 328 c 0695 **********************************/
+ 329 c 0695 
+ 330 c 0695 /*  8080 version  
+ 331 c 0695     
+ 332 c 0695 declare 
+ 333 c 0695    alloc (0:30) bit(8) based (allvec()),
+ 334 c 0695    allvecp pointer;
+ 335 c 0695 
+ 336 c 0695 allvecp = allvec();
+ 337 c 0695 put edit('Alloc Vector at ',unspec(allvecp),':',
+ 338 c 0695         (alloc(i) do i=0 to 30))
+ 339 c 0695         (skip,a,b4,a,254(skip,4(b,x(1))));       */
+ 340 c 0695 
+ 341 c 0695 
+ 342 c 0695 /*  8086 version
+ 343 c 0695 
+ 344 c 0695 declare
+ 345 c 0695    alloc (0:30) bit(8),
+ 346 c 0695    allvecp(2) pointer;
+ 347 c 0695 
+ 348 c 0695 call allvec(allvecp);
+ 349 c 0695 call movgtl(31,allvecp,addr(alloc));
+ 350 c 0695 put edit('Alloc Vector at offset ', unspec(allvecp(1)),
+ 351 c 0695          ', segment ',unspec(allvecp(2)),':',
+ 352 c 0695         (alloc(i) do i=0 to 30))
+ 353 c 0695         (skip,a,b4,a,b4,a,254(skip,4(b,x(1))));     */
+ 354 c 0695 
+ 355 c 0695 
+ 356 c 0695 /**********************************
+ 357 c 0695 *                                 *
+ 358 c 0695 *  Note:  the following functions *
+ 359 c 0695 *  apply to version 2.0 or newer. *
+ 360 c 0695 *                                 *
+ 361 c 0695 **********************************/
+ 362 c 0695 
+ 363 c 0695 /**********************************
+ 364 c 0695 *                                 *
+ 365 c 0695 *           WPDISK Test           *
+ 366 c 0695 *                                 *
+ 367 c 0695 **********************************/
+ 368 c 0695 put skip list('Write Protect Disk?(Y/N)');
+ 369 c 06B1 get list(c);
+ 370 c 06CB if translate(c,'Y','y') = 'Y' then
+ 371 c 06F3    call wpdisk();
+ 372 c 06F6 
+ 373 c 06F6 /**********************************
+ 374 c 06F6 *                                 *
+ 375 c 06F6 *          ROVEC Test             *
+ 376 c 06F6 *                                 *
+ 377 c 06F6 **********************************/
+ 378 c 06F6 put skip list('Read/Only Vector is',rovec());
+ 379 c 071D 
+ 380 c 071D /**********************************
+ 381 c 071D *                                 *
+ 382 c 071D *  Disk Parameter Block Decoding  *
+ 383 c 071D *          Using GETDPB           *
+ 384 c 071D *                                 *
+ 385 c 071D *  Note: This test contains two   *
+ 386 c 071D *  different versions; one for    *
+ 387 c 071D *  8080 code, and another for     *
+ 388 c 071D *  8086 code.  Before compiling   *
+ 389 c 071D *  you must comment out the       *
+ 390 c 071D *  version you don't want to use. *
+ 391 c 071D *                                 *
+ 392 c 071D **********************************/
+ 393 c 071D 
+ 394 c 071D /*  8080 version
+ 395 c 071D 
+ 396 c 071D declare 
+ 397 c 071D    dpbp pointer,
+ 398 c 071D    1 dpb based (dpbp),
+ 399 c 071D      2 spt fixed(15),
+ 400 c 071D      2 bsh fixed(7),
+ 401 c 071D      2 blm bit(8),
+ 402 c 071D      2 exm bit(8),
+ 403 c 071D      2 dsm bit(16),
+ 404 c 071D      2 drm bit(16),
+ 405 c 071D      2 al0 bit(8),
+ 406 c 071D      2 al1 bit(8),
+ 407 c 071D      2 cks bit(16),
+ 408 c 071D      2 off fixed(15);
+ 409 c 071D 
+ 410 c 071D dpbp = getdpb();
+ 411 c 071D put edit('Disk Parameter Block:',
+ 412 c 071D          'spt',spt,'bsh',bsh,'blm',blm,
+ 413 c 071D          'exm',exm,'dsm',dsm,'drm',drm,
+ 414 c 071D          'al0',al0,'al1',al1,'cks',cks,
+ 415 c 071D          'off',off)
+ 416 c 071D         (skip,a,2(skip,a(4),f(6)),4(skip,a(4),b4),
+ 417 c 071D          skip,2(a(4),b,x(1)),skip,a(4),b4,
+ 418 c 071D          skip,a(4),f(6));                          */
+ 419 c 071D 
+ 420 c 071D 
+ 421 c 071D /*  8086 version
+ 422 c 071D 
+ 423 c 071D declare 
+ 424 c 071D    dpbp(2) pointer, 
+ 425 c 071D    1 dpb,
+ 426 c 071D      2 spt fixed(15),
+ 427 c 071D      2 bsh fixed(7),
+ 428 c 071D      2 blm bit(8),
+ 429 c 071D      2 exm bit(8),
+ 430 c 071D      2 dsm bit(16),
+ 431 c 071D      2 drm bit(16),
+ 432 c 071D      2 al0 bit(8),
+ 433 c 071D      2 al1 bit(8),
+ 434 c 071D      2 cks bit(16),
+ 435 c 071D      2 off fixed(15);
+ 436 c 071D 
+ 437 c 071D call getdpb(dpbp);
+ 438 c 071D call movgtl(15,dpbp,addr(dpb));
+ 439 c 071D put edit('Disk Parameter Block:',
+ 440 c 071D         'spt',spt,'bsh',bsh,'blm',blm,
+ 441 c 071D         'exm',exm,'dsm',dsm,'drm',drm,
+ 442 c 071D         'al0',al0,'al1',al1,'cks',cks,
+ 443 c 071D         'off',off)
+ 444 c 071D         (skip,a,2(skip,a(4),f(6)),
+ 445 c 071D         4(skip,a(4),b4),
+ 446 c 071D         skip,2(a(4),b,x(1)),
+ 447 c 071D         skip,a(4),b4,
+ 448 c 071D         skip,a(4),f(6));                  */
+ 449 c 071D 
+ 450 c 071D             
+ 451 c 071D /**********************************
+ 452 c 071D *                                 *
+ 453 c 071D *      Test Get/Set user Code     *
+ 454 c 071D *          GETUSR, SETUSR         *
+ 455 c 071D *                                 *
+ 456 c 071D **********************************/
+ 457 c 071D put skip list ('User is',getusr(),', New User:');
+ 458 c 0753 get list(i);
+ 459 c 076B call setusr(i);
+ 460 c 0777 
+ 461 c 0777 /**********************************
+ 462 c 0777 *                                 *
+ 463 c 0777 *         FILSIZ, SETREC,         *
+ 464 c 0777 *     RDRAN, WRRAN, WRRANZ are    *
+ 465 c 0777 *        tested in DIORAND        *
+ 466 c 0777 *                                 *
+ 467 c 0777 **********************************/
+ 468 c 0777 
+ 469 c 0777 /**********************************
+ 470 c 0777 *                                 *
+ 471 c 0777 *     Test Drive Reset RESDRV     *
+ 472 c 0777 *      (version 2.2 or newer)     *
+ 473 c 0777 *                                 *
+ 474 c 0777 **********************************/
+ 475 c 0777 declare 
+ 476 c 0777    drvect bit(16);
+ 477 c 0777 
+ 478 c 0777 put list('Drive Reset Vector:');
+ 479 c 078E get list(drvect);
+ 480 c 07A6 call resdrv(drvect);
+ 481 c 07AC 
+ 482 c 07AC /**********************************
+ 483 c 07AC *                                 *
+ 484 c 07AC *                                 *
+ 485 c 07AC **********************************/
+ 486 c 07AC 
+ 487 a 07AC end diotest;
+ 488 a 07AF 
+
+CODE SIZE = 07AF
+DATA AREA = 042A
+FREE SYMS = 29A7
+END  COMPILATION
+
