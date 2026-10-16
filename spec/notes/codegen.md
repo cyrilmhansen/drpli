@@ -177,3 +177,26 @@ CMP/SBB) instead of ?IS22N — operand-class-dependent.
 inner DO-WHILE top-test + JMP back inside outer body; outer TO test
 JP exit lands past outer end via forward-fixup chain; forward refs
 always 0000 + LAD records (LINK-resolved) — $C shows placeholders.
+
+## 9. DATA segment layout (reldump of probe goldens) [C063]
+Data-seg comes FIRST in the stream (SET-LC data). Contents:
+* Uninitialized AUTOMATIC/STATIC variables occupy NO data bytes
+  (P080B: data area = reloc slots only); DATA AREA in $C counts the
+  auto/static frame, not stream bytes.
+* FORMAT descriptors ARE data bytes (this is the *S(k) pool):
+  - F/E item 6B: `80 00 00 dd ss 81` — dd=digits, ss=scale (FF if none)
+    [f(9,2)=80 00 00 09 02 81; f(4)=80 00 00 04 ff 81]
+  - PICTURE item len+7: `80 00 02 cc 00 ll <chars×ll> 81`  [EX
+    p'+++.++' → 80 00 02 04 00 06 2b2b2b2e2b2b 81 (13B); p'999' →
+    ...03 393939 81 (10B)] — the len+7 formula = 6B header + chars +
+    81 terminator; byte[3] = count of digit-class chars?? (04 vs 03)
+    [grid TBD], byte[4] = V/implied-decimal related [TBD].
+  - A item: `03 ww 81`?? (a(4) = '03 04 81' region, P086J) [TBD grid]
+* Pool literals: decimal constants as BCD??/reloc-chained; float =
+  4 raw LE bytes (FX44M loads direct); char strings raw + count.
+* Inline `data` RELOCs appear INSIDE descriptors/control blocks where
+  the descriptor references a variable (e.g. ?DLDOP operand chains).
+TODO(byte-identity): full descriptor grid across picture classes
+($ , + - 9 V . ,), f(w,s)/e(w,s)/a(w)/b(n)/x(n)/skip(n)/page/line(n)/
+r(label), count prefixes — ~6 micro-specimens via $C+reldump, then the
+REL writer can emit data bytes exactly.
