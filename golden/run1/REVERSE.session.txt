@@ -1,0 +1,5 @@
+C:
+D:
+REVERSE
+##SEND \x1a
+##HALT

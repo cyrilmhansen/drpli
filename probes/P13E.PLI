@@ -1,0 +1,6 @@
+p13e: procedure options(main);
+   declare
+       t fixed binary(6);
+   t = 3;
+   put skip list('t=',t);
+end p13e;

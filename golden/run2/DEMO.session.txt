@@ -1,0 +1,6 @@
+C:
+D:
+##SEND DEMO\r
+##SEND John\r
+##WAIT \nD>
+##HALT

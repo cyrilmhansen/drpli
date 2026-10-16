@@ -1,0 +1,5 @@
+P13A	ok	PRN=False REL=True
+P13B	ok	PRN=False REL=True
+P13C	ok	PRN=False REL=False
+P13D	ok	PRN=False REL=False
+P13E	ok	PRN=False REL=True

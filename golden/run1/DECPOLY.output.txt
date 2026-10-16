@@ -1,0 +1,6 @@
+
+DECPOLY
+
+
+
+Type x,y,z: 

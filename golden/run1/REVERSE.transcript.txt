@@ -1,0 +1,38 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> D:
+D:
+D>
+>>> REVERSE
+REVERSE
+
+What's up? 
+>>> A:BYE (halt)
+
+>>> A:BYE (halt)
+^Z
+
+END OF FILE (1), File: SYSIN=CON
+Traceback: 093C 08E7 0148 6B00 # 048F 8082 0148 0109
+D>:BYE
+D>
+D>A:BYE
+I/O ran for 33141 ms, waited for 0 ms
+CPU executed 1513961 t-states in 1 ms
+Clock frequency 1046.27 MHz

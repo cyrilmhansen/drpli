@@ -1,0 +1,17 @@
+                O R D I N A R Y   A N N U I T Y
+
+        Enter Known Values, or 0, on Each Iteration
+
+
+        Present Value 32000
+
+        Payment       0
+
+        Interest Rate 8.75
+
+        Pay Periods   360
+
+        Payment is       $251.74
+
+
+        Present Value ^Z

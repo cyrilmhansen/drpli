@@ -1,0 +1,66 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> LINK D:ALLTST
+LINK D:ALLTST
+LINK 1.31
+
+PLILIB   RQST   ALLTST   0100   TOTWDS   01E7   MAXWDS   01EC   
+ALLWDS   0236   STKSIZ   0242   /SYSIN/  2603   /SYSPRI/ 262A   
+
+ABSOLUTE     0000
+CODE SIZE    2472 (0100-2571)
+DATA SIZE    033A (267D-29B6)
+COMMON SIZE  010B (2572-267C)
+USE FACTOR     77
+
+C>
+>>> LINK D:ANNUITY
+LINK D:ANNUITY
+LINK 1.31
+
+PLILIB   RQST   ANNUIT   0100   FTC      060F   /ERRMSG/ 3BE0   
+/SYSIN/  3C73   /SYSPRI/ 3C9A   
+
+ABSOLUTE     0000
+CODE SIZE    3AD1 (0100-3BD0)
+DATA SIZE    04DF (3CED-41CB)
+COMMON SIZE  011C (3BD1-3CEC)
+USE FACTOR     C1
+
+C>
+>>> LINK D:COPY
+LINK D:COPY
+LINK 1.31
+
+PLILIB   RQST   COPY     0100   /INPUT_/ 19A5   /OUTPUT/ 19D1   
+/SYSIN/  1A62   /SYSPRI/ 1A89   
+
+ABSOLUTE     0000
+CODE SIZE    18A5 (0100-19A4)
+DATA SIZE    032C (1AE4-1E0F)
+COMMON SIZE  013F (19A5-1AE3)
+USE FACTOR     4F
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 8044 ms, waited for 0 ms
+CPU executed 409273885 t-states in 202 ms
+Clock frequency 2024.50 MHz

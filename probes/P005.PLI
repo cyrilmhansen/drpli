@@ -1,0 +1,9 @@
+p005: procedure options(main);
+   /* Minimal reproduction of the INVERT/MAININVT rejection: array
+      bounds that the shipped MATSIZE.LIB never defines. */
+   declare
+       (d, a(maxrow,maxcol)) float binary(24),
+       (i,r,c) fixed binary(6);
+   d = a(1,1);
+   put skip list(d);
+end p005;

@@ -1,0 +1,4 @@
+
+300*300 =     24464
+ERROR (1), Conversion
+Traceback: 21FA 0002 0612 126E 3620 3535 3633

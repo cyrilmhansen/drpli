@@ -1,0 +1,5 @@
+P14A	ok	PRN=False REL=False
+P14B	ok	PRN=False REL=False
+P14C	ok	PRN=False REL=False
+P14D	ok	PRN=False REL=True
+P14E	ok	PRN=False REL=False

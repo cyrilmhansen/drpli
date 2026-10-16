@@ -1,0 +1,9 @@
+C:
+D:
+##SEND LOAN1\r
+##SEND 500\r
+##SEND 14\r
+##SEND 22.10\r
+##SEND \x1a
+##WAIT \nD>
+##HALT

@@ -1,0 +1,21 @@
+p007: procedure options(main);
+   /* What is default FIXED? RFACT showed n! wrapping mod 2^16 with
+      signed display, while LOAN2 raised FIXED OVERFLOW (1).
+      Runtime-computed values defeat constant folding. */
+   declare
+       (a,b) fixed;
+   b = 300;
+   a = b * b;
+   put skip list('300*300 =',a);
+   b = 65536;
+   a = b;
+   put skip list('store 65536 =',a);
+   a = a + 1;
+   put skip list('  +1     =',a);
+   b = 40000;
+   a = b;
+   put skip list('store 40000 =',a);
+   b = 100000;
+   a = b * b;
+   put skip list('1e5*1e5 =',a);
+end p007;

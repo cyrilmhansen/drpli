@@ -1,0 +1,5 @@
+C:
+D:
+ENTER
+##SEND \x1a
+##HALT

@@ -1,0 +1,70 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> D:
+D:
+D>
+>>> FFACT
+FFACT
+
+Factorial(         0 )=  1.0000000E+00
+Factorial(         1 )=  1.0000000E+00
+Factorial(         2 )=  2.0000000E+00
+Factorial(         3 )=  6.0000000E+00
+Factorial(         4 )=  2.4000000E+01
+Factorial(         5 )=  1.2000000E+02
+Factorial(         6 )=  7.2000000E+02
+Factorial(         7 )=  5.0400000E+03
+Factorial(         8 )=  4.0320000E+04
+Factorial(         9 )=  3.6288000E+05
+Factorial(        10 )=  3.6288000E+06
+Factorial(        11 )=  3.9916800E+07
+Factorial(        12 )=  4.7900160E+08
+Factorial(        13 )=  6.2270210E+09
+Factorial(        14 )=  8.7178290E+10
+Factorial(        15 )=  1.3076743E+12
+Factorial(        16 )=  2.0922780E+13
+Factorial(        17 )=  3.5568740E+14
+Factorial(        18 )=  6.4023730E+15
+Factorial(        19 )=  1.2164510E+17
+Factorial(        20 )=  2.4329020E+18
+Factorial(        21 )=  5.1090940E+19
+Factorial(        22 )=  1.1240007E+21
+Factorial(        23 )=  2.5852010E+22
+Factorial(        24 )=  6.2044840E+23
+Factorial(        25 )=  1.5511211E+25
+Factorial(        26 )=  4.0329150E+26
+Factorial(        27 )=  1.0888870E+28
+Factorial(        28 )=  3.0488830E+29
+Factorial(        29 )=  8.8417630E+30
+Factorial(        30 )=  2.6525280E+32
+Factorial(        31 )=  8.2228390E+33
+Factorial(        32 )=  2.6313080E+35
+Factorial(        33 )=  8.6833180E+36
+Factorial(        34 )=
+OVERFLOW (1)
+Traceback: 0046 15FE 019B 0000 8608 0B15 FB51 0141
+D>
+>>> A:BYE (halt)
+^Z
+?
+
+D>A:BYE
+I/O ran for 6033 ms, waited for 0 ms
+CPU executed 10431575 t-states in 6 ms
+Clock frequency 1720.24 MHz

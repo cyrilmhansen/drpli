@@ -1,0 +1,7 @@
+
+ALLTST
+
+
+ 24610 Total Words Available
+ 24610 Maximum Segment Size
+Allocation Size? 

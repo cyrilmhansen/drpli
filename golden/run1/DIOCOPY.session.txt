@@ -1,0 +1,5 @@
+C:
+D:
+DIOCOPY
+##SEND \x1a
+##HALT

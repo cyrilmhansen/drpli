@@ -47,6 +47,7 @@ def main():
             if m:
                 return m
             if not proc.poll() is None:
+                print(f"!! sim exited rc={proc.returncode}", file=sys.stderr)
                 sys.exit(2)
             r, _, _ = select.select([master], [], [], 0.25)
             if r:
@@ -79,16 +80,14 @@ def main():
     for line in lines:
         if line == "##HALT":
             halting = True
-            os.write(master, b"A:BYE\r")
-            print("\n>>> A:BYE (halt)")
-            # drain until sim exits
+            # clear any typeahead, then repeatedly insist until sim exits
             halt_deadline = time.time() + 30
-            while True:
-                if proc.poll() is not None:
-                    break
-                if time.time() > halt_deadline:
-                    print("!! halt timeout", file=sys.stderr)
-                    break
+            last_try = 0.0
+            while time.time() < halt_deadline and proc.poll() is None:
+                if time.time() - last_try > 2.0:
+                    os.write(master, b"\rA:BYE\r")
+                    last_try = time.time()
+                    print("\n>>> A:BYE (halt)")
                 r, _, _ = select.select([master], [], [], 0.5)
                 if r:
                     try:
@@ -111,7 +110,17 @@ def main():
                 ok = False
                 break
         elif line.startswith("##SEND "):
-            os.write(master, line[7:].encode("latin-1"))
+            import codecs
+            payload = codecs.decode(line[7:], "unicode_escape").encode("latin-1")
+            os.write(master, payload)
+        elif line.startswith("##KILLON "):
+            pat = re.compile(line[9:].encode("latin-1"))
+            mark = len(buf)
+            m = read_until(lambda b, p=pat, k=mark: p.search(b, k))
+            show()
+            proc.kill()
+            proc.wait()
+            sys.exit(0 if m else 1)
         else:
             # clear prompt tail so next read starts fresh
             os.write(master, (line + "\r").encode("latin-1"))
@@ -120,6 +129,9 @@ def main():
             mark = len(buf)
             m = read_until(lambda b, k=mark: PROMPT.search(b, k)
                            or re.search(rb"STOP PL/I \(Y/N\)", b[k:]))
+            if m is None:
+                print("\n!!LINE-TIMEOUT: " + line, file=sys.stderr)
+                ok = False
             # small extra window to catch late output
             r, _, _ = select.select([master], [], [], a.prompt_wait)
             if r:

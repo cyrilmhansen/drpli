@@ -1,0 +1,25 @@
+p012: procedure options(main);
+   /* Does declared precision actually control arithmetic width,
+      or is everything 16-bit?  P007: default FIXED wrapped
+      300*300 -> 24464 (90000 mod 2**16) silently; assigning
+      literal 65536 raised ERROR (1), Conversion. */
+   declare
+       d fixed,
+       c fixed binary(31),
+       s fixed binary(15),
+       t fixed binary(15);
+   d = 30000;
+   d = d + d;
+   put skip list('default 30000+30000 =',d);
+   c = 300;
+   c = c * c;
+   put skip list('fb31 300*300 =',c);
+   s = 300;
+   s = s * s;
+   put skip list('fb15 300*300 =',s);
+   t = 10;
+   t = t * t;
+   put skip list('fb6 10*10 =',t);
+   c = d * s;
+   put skip list('c = d * s   =',c);
+end p008;

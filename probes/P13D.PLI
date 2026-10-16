@@ -1,0 +1,9 @@
+p13d: procedure options(main);
+   declare
+       (d,s) fixed binary(15),
+       c fixed binary(31);
+   d = 300;
+   s = 300;
+   c = d + s;
+   put skip list('d+s=',c);
+end p13d;

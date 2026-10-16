@@ -81,7 +81,9 @@ def classify(transcript, name):
         return "incomplete"
     ends = [m.start() for m in re.finditer(r">>> ", transcript) if m.start() > starts[0]]
     seg = transcript[starts[0]:ends[0] if ends else len(transcript)]
-    if re.search(r"NO ERROR\(S\) IN PASS 2", seg):
+    if (re.search(r"NO ERROR\(S\) IN PASS 1", seg)
+            and re.search(r"NO ERROR\(S\) IN PASS 2", seg)
+            and not re.search(r"\b[1-9][0-9]* ERROR\(S\) IN PASS", seg)):
         return "ok"
     if re.search(r"ERROR\(S\) IN PASS", seg):
         return "diag"

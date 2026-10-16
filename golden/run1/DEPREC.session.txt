@@ -1,0 +1,5 @@
+C:
+D:
+DEPREC
+##SEND \x1a
+##HALT

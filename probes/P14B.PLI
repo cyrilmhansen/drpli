@@ -1,0 +1,5 @@
+p14b: procedure options(main);
+   declare c fixed binary(17);
+   c = 1;
+   put skip list(c);
+end p14b;

@@ -1,0 +1,26 @@
+
+DFACT
+
+
+Factorial(         0 )=                  1
+Factorial(         1 )=                  1
+Factorial(         2 )=                  2
+Factorial(         3 )=                  6
+Factorial(         4 )=                 24
+Factorial(         5 )=                120
+Factorial(         6 )=                720
+Factorial(         7 )=               5040
+Factorial(         8 )=              40320
+Factorial(         9 )=             362880
+Factorial(        10 )=            3628800
+Factorial(        11 )=           39916800
+Factorial(        12 )=          479001600
+Factorial(        13 )=         6227020800
+Factorial(        14 )=        87178291200
+Factorial(        15 )=      1307674368000
+Factorial(        16 )=     20922789888000
+Factorial(        17 )=    355687428096000
+Factorial(        18 )=
+FIXED OVERFLOW (1)
+Traceback: 0007 019F 0018 0000 # 2809 6874 0355 0141
+D>

@@ -1,0 +1,15 @@
+C:
+D:
+##SEND LOAN2\r
+##SEND $con\r
+##SEND 3000\r
+##SEND 14\r
+##SEND 144.03\r
+##SEND 0\r
+##SEND 11\r
+##SEND 80\r
+##SEND 12\r
+##SEND 0\r
+##SEND \x1a
+##WAIT \nD>
+##HALT

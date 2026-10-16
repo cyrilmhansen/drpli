@@ -1,0 +1,84 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> LINK D:DIOCALLS
+LINK D:DIOCALLS
+LINK 1.31
+
+PLILIB   RQST   DIOTES   0100   DBUFF    25E9   /SYSIN/  3128   
+/SYSPRI/ 314F   CHKVER   25F2   LCKREC   25FF   ULKREC   2607   
+SECCNT   260F   
+
+UNDEFINED SYMBOLS:
+
+MEMPTR  MEMSIZ  DFCB0   DFCB1   MEMWDS  REBOOT  RDCON   WRCON
+RDRDR   WRPUN   WRLST   CONOUT  CONINP  RDSTAT  GETIO   SETIO
+WRSTR   RDBUF   BREAK   VERS    RESET   SELECT  LOGVEC  CURDSK
+WPDISK  ROVEC   GETUSR  SETUSR  RESDRV  
+
+ABSOLUTE     0000
+CODE SIZE    2F97 (0100-3096)
+DATA SIZE    0701 (31A3-38A3)
+COMMON SIZE  010C (3097-31A2)
+USE FACTOR     A6
+
+C>
+>>> LINK D:DIOCOPY
+LINK D:DIOCOPY
+LINK 1.31
+
+PLILIB   RQST   DIOCOP   0100   /SYSIN/  27AF   /SYSPRI/ 27D6   
+
+UNDEFINED SYMBOLS:
+
+MEMWDS  REBOOT  DFCB0   DFCB1   SEAR    SEARN   DELETE  OPEN
+MAKE    MEMPTR  SETDMA  RDSEQ   WRSEQ   CLOSE   RENAME  
+
+ABSOLUTE     0000
+CODE SIZE    261E (0100-271D)
+DATA SIZE    03B5 (2829-2BDD)
+COMMON SIZE  010B (271E-2828)
+USE FACTOR     82
+
+C>
+>>> LINK D:DIORAND
+LINK D:DIORAND
+LINK 1.31
+
+PLILIB   RQST   DIORAN   0100   DBUFF    17EC   /SYSIN/  2253   
+/SYSPRI/ 227A   CHKVER   17F5   LCKREC   1802   ULKREC   180A   
+SECCNT   1812   
+
+UNDEFINED SYMBOLS:
+
+VERS    OPEN    MAKE    FILSIZ  SETREC  RDRAN   WRRANZ  WRRAN
+CLOSE   
+
+ABSOLUTE     0000
+CODE SIZE    20EF (0100-21EE)
+DATA SIZE    0377 (22D6-264C)
+COMMON SIZE  00E7 (21EF-22D5)
+USE FACTOR     6E
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 8043 ms, waited for 0 ms
+CPU executed 419544306 t-states in 208 ms
+Clock frequency 2015.05 MHz

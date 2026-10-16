@@ -1,0 +1,13 @@
+p16: procedure options(main);
+   /* Fixed-decimal overflow ladder: bin15 wrapped silently (P007),
+      LOAN2 raised FIXED OVERFLOW (1). Where does dec(15) break? */
+   declare
+       g fixed decimal(15,0);
+   g = 300;
+   g = g * g;
+   put skip list('g = 300*300     ->',g);
+   g = g * g;
+   put skip list('g = 90000*90000 ->',g);
+   g = g * g;
+   put skip list('overflow step   ->',g);
+end p16;

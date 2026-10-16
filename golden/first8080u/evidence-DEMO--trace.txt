@@ -1,0 +1,124 @@
+
+Booting...
+
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:DEMO $V$L
+PLI D:DEMO $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: DEMO
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: DEMO
+
+CTL  0251
+   1 a 0000 demo:
+  00 BEG 0 N 0 57 00 31 32
+CTL  0251
+   2 a 0006     procedure options(main);
+   3 a 0006 
+   4 c 0006     declare
+  00 NID 0 N 1 00 00 28 32 DEMO
+  00 ENT 0 N 0 00 00 00 32 #E7E4
+   5 c 0006           name character(20) varying;
+   6 c 0006 
+   7 c 0006 
+   8 c 0006     put skip(2) list('PLEASE ENTER YOUR FIRST NAME: ');
+  00 LIO 0 N 1 00 00 00 32 #0008
+  00 C2  0 N 0 00 00 00 32 #0001
+  00 ILD 1 N 0 01 00 00 32
+  00 C2  0 N 0 00 00 00 32 #0252
+  00 SIO 2 N 0 00 00 00 32
+  00 C2  0 N 0 00 00 00 32 #0002
+  00 ILD 1 N 0 02 00 00 32
+  00 SKP 1 N 0 15 00 28 32
+CTL  0254
+  00 CID 0 N 1 00 00 00 32 * S(0000)
+  00 CLD 1 N 0 30 00 00 32
+  00 PNC 1 N 0 54 00 00 32
+CTL  0254
+CTL  0254
+CTL  0254
+  00 QIO 0 N 0 57 00 00 32
+   9 c 001F     get list(name);
+  00 LIO 0 N 1 00 00 00 32 #0009
+  00 C2  0 N 0 00 00 00 32 #0001
+  00 ILD 1 N 0 01 00 00 32
+  00 C2  0 N 0 00 00 00 32 #0290
+  00 SIO 2 N 0 00 00 00 32
+CTL  0254
+  00 VID 0 N 1 00 00 08 32 NAME A(0036)
+  00 GNV 0 N 0 54 00 05 32
+  00 VAS 2 X 0 20 00 21 32
+  00 ENL 0 N 0 00+00 00 32
+CTL  0254
+CTL  0254
+CTL  0254
+  00 QIO 0 N 0 57 00 00 32
+  10 c 0039     put skip(2) list('HELLO '||name||',  WELCOME TO PL/I');
+  00 LIO 0 N 1 00 00 28 32 #000A
+  00 C2  0 N 0 00 00 31 32 #0001
+  00 ILD 1 N 0 01 00 00 32
+  00 C2  0 N 0 00 00 00 32 #0252
+  00 SIO 2 N 0 00 00 00 32
+  00 C2  0 N 0 00 00 00 32 #0002
+  00 ILD 1 N 0 02 00 00 32
+  00 SKP 1 N 0 15 00 00 32
+CTL  0254
+  00 CID 0 N 1 00 00 00 32 * S(001E)
+  00 CLD 1 N 0 06 00 00 32
+  00 VID 0 N 1 00 00 00 32 NAME A(0036)
+  00 VLD 1 N 0 20 00 00 32
+  00 CCT 2 X 0 26 00 00 32
+  00 CID 0 N 1 00 00 18 32 * S(0024)
+  00 CLD 1 N 0 18 00 44 32
+  00 CCT 2 X 0 44 00 32 32
+  00 PNC 1 N 0 54 00 32 32
+CTL  0254
+CTL  0254
+CTL  0254
+  00 QIO 0 N 0 57 00 87 32
+CTL  0247
+CTL  0252
+  11 c 006A 
+  12 a 006A end demo;
+  00 STP 0 N 0 57 00 69 32
+CTL  0252
+  13 a 006D 
+  14 a 006D 
+CTL  0255
+
+CODE SIZE = 006D
+DATA AREA = 004B
+FREE SYMS = 38A7
+END  COMPILATION
+
+C>

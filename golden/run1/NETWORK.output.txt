@@ -1,0 +1,6 @@
+
+NETWORK
+
+
+Type "City1, Dist, City2"
+

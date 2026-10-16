@@ -1,0 +1,5 @@
+p14e: procedure options(main);
+   declare c fixed decimal(18,0);
+   c = 1;
+   put skip list(c);
+end p14e;

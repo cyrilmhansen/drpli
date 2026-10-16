@@ -1,0 +1,27 @@
+p011: procedure options(main);
+   /* Which fixed precisions does DR PL/I-80 implement?
+      P008: fixed binary(6) was NOT IMP at its declare line. */
+   declare
+       x1 fixed binary(1),
+       x2 fixed binary(2),
+       x3 fixed binary(3),
+       x4 fixed binary(4),
+       x5 fixed binary(5),
+       x6 fixed binary(6),
+       x7 fixed binary(7),
+       x8 fixed binary(8),
+       x9 fixed binary(9),
+       x12 fixed binary(12),
+       x14 fixed binary(14),
+       x15 fixed binary(15),
+       x16 fixed binary(16),
+       x17 fixed binary(17),
+       x31 fixed binary(31),
+       y1 fixed decimal(1),
+       y2 fixed decimal(2,0),
+       y5 fixed decimal(5,0),
+       y9 fixed decimal(9,0),
+       z2 fixed decimal(5,2);
+   x15 = 1;
+   put skip list(x15 + 1);
+end p011;

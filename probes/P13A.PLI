@@ -1,0 +1,7 @@
+p13a: procedure options(main);
+   declare
+       s fixed binary(15);
+   s = 300;
+   s = s * s;
+   put skip list('s*s=',s);
+end p13a;

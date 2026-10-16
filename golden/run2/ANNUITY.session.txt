@@ -1,0 +1,10 @@
+C:
+D:
+##SEND ANNUITY\r
+##SEND 32000\r
+##SEND 0\r
+##SEND 8.75\r
+##SEND 360\r
+##SEND \x1a
+##WAIT \nD>
+##HALT

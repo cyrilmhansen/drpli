@@ -1,0 +1,5 @@
+C:
+D:
+OPTIMIST
+##SEND \x1a
+##HALT

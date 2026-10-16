@@ -1,0 +1,5 @@
+C:
+D:
+RFACT
+##SEND \x1a
+##HALT

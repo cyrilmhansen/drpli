@@ -1,0 +1,5 @@
+C:
+D:
+COPY
+##SEND \x1a
+##HALT

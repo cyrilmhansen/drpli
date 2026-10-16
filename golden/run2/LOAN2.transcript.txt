@@ -1,0 +1,52 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> D:
+D:
+D>LOAN2
+                S U M M A R Y   O F   P A Y M E N T S
+
+                Output File Name $con
+
+
+                Principal      3000
+                Interest       14
+                Payment        144.03
+                %Inflation     0
+                Starting Month 11
+                Starting Year  80
+                Fiscal Month   12
+
+                Display Level  
+                Yr Results : 0 
+                Yr Interest: 1 
+                All Values : 2 0
+
+-------------------------------------------------------------------------------
+|                   L O A N   P A Y M E N T   S U M M A R Y                   |
+-------------------------------------------------------------------------------
+|               Interest Rate 14.00%      Inflation Rate 00.00%               |
+-------------------------------------------------------------------------------
+|Date |  Principal   |Plus  Interest|  Payment  |Principal Paid|Interest Paid |
+-------------------------------------------------------------------------------
+|12/80|$     2,890.97|$        33.73|$    144.03|$       219.33|$        68.73|
+|12/81|$     1,479.02|$        17.26|$    144.03|$     1,647.75|$       368.67|
+|11/82|$         0.25|$         0.00|$      0.25|$     3,000.00|$       456.97|
+-------------------------------------------------------------------------------
+
+                Principal      ^Z
