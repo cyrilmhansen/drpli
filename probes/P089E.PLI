@@ -1,0 +1,8 @@
+pp089e: procedure options(main);
+   declare z fixed, f float;
+   g1 entry(fixed) returns(fixed) external internal;
+   g2 entry(fixed) returns(float) external internal;
+   z = 1;
+   z = g1(z);
+   f = g2(z);
+end pp089e;

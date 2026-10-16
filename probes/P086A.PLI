@@ -1,0 +1,9 @@
+pp086a: procedure options(main);
+   declare a fixed, b fixed, s char(3), t char(3), c1 bit(3);
+   if a = b then a = 1;
+   if s = t then a = 2;
+   if c1 = '101'b then a = 3;
+   if a > 2 then a = 4;
+   if a = 5 then a = 6;
+   else a = 7;
+end pp086a;

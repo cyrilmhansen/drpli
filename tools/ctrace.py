@@ -20,7 +20,7 @@ def programs(files):
     for f in files:
         with open(f, 'rb') as fh:
             text += ANSI.sub(b'', fh.read()).decode('latin1')
-    text = text.replace('\r', '')
+    text = text.replace('\r\n', '\n').replace('\r', '\n')
     # split at COMPILATION OF headers
     parts = re.split(r'COMPILATION OF: (\S+)', text)
     out = []

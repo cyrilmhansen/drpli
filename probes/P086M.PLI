@@ -1,0 +1,6 @@
+pp086m: procedure options(main);
+   declare p pointer, t fixed based(p), q pointer, z fixed;
+   p = null();
+   q = p;
+   z = 1;
+end pp086m;

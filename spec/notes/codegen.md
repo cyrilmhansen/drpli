@@ -82,3 +82,58 @@ constants referenced as `* S(k)` matching the $S dump statics.
    linkage form (JMP vector? LDOS?), 7. recursion/reentrancy handling
    of A/B/Z slots across nested calls, 8. exact ?START context layout
    (with PLILIB disassembly via App listings).
+
+## 7. Sequences decoded from probe54/55/60 batteries [C058]
+### Branches (compare → conditional forward JMP)
+* body emitted after a SKIP-jump; forward targets print as `0000`
+  (LAD fixups applied by LINK at load — backward jumps are absolute!)
+* int eq: `?IS22N` (sub) + `JNZ skip`; rel: sign test `MOV A,H; ORA A/L;
+  JP|JM skip` (≤3 via `DCX/INX H` repeats, else `LXI B,-k; DAD B`).
+* `<>`: NOT form — JZ skip. bit const compare: `LDA + ANI mask + SUI val + JNZ`
+* char: `?SCCCM` (A=src len, B=dst len, HL/DE addrs) → JNZ
+* `&` on conditions = EAGER: both sides computed, sign bytes combined
+  `MOV A / POP B / ANA B`, JP skip. NO short-circuit codegen.
+* DO WHILE: top-test, JMP back to test. DO TO/BY: init; test adds
+  `-(LIMIT+1)` exit JP; increment = BY×`INX H` loop at body end, JMP back.
+* GOTO = plain forward/backward JMP [P072C/P086H].
+### Calls & returns
+* ALL params are ADDRESSES (by reference, procs AND funcs): caller
+  `LXI H,* A(k)` (static arg-block) + `CALL name`; block content =
+  variable frame addresses or compile-time-initialized constant cells —
+  caller emits NO staging code for constant args (data-area prefilled).
+* callee entry copies the arg-pointer block into its param slots
+  (byte loop `LXI D,A(...); MVI C,n; MOV A,M/STAX D` for many args;
+  inline MOV E,M/SHLD for one). Body derefs through the address cell.
+* RETURN value: fixed/bit/pointer → HL; float → RTL stack (`LXI H,dst;
+  CALL ?FX44S`); char → stack (`?SSCFS B=len`). Matches guide §4.4.
+* external entry: identical shape, symbol resolved by LINK (P086D/M, P091E).
+* nested proc bodies are placed right after the ?START prologue, entry
+  preceded by `JMP <main>` forward-fixup [P080L/P086C].
+### Arrays [P086B/P080J]
+* address = base_desc + INDEX×ELEMSIZE (1-based: constant d(2) folds to
+  base+size*(n-1)); elem size 2 → `DAD H`; ≥3 → `LXI D,size; CALL ?IM22N`.
+* loads/stores use the type push/store ops (MVI imm pair for int2,
+  ?DLDOP/?DSTOP A=digits for dec, ?SMCCM A=len for char).
+### Strings [P086G]
+* concat = stack chain: ?SLCTS (load char to stack) / ?SJSCM / ?SJSTS
+  (juxtapose stack+mem / stack+stack), result store ?SSCFS B=dstlen
+  (truncation automatic); substr = ?CS3AD (E=pos-1?, C=len, A=srclen)
+  then SMCCM; PUSH PSW carries length between loads.
+### Edit / I/O [P086J/K, P080N/O/P]
+* put list: `?SYSPR (LXI D,0252; LXI B,0000)` per stmt, then per item:
+  load → type conv with operand codes (int ?QICOP A=09; dec ?QDCOP
+  A=width B=scale; float ?QFCMS; char ?SLCTS) → ?PNVOP/?PNCOP; `?QIOOP` flush.
+* put edit: `?EDITF (LXI H,*S(desc))` installed once, items → ?QDCOP →
+  ?EDTOV, terminate ?QIOOP; FORMAT descriptors ARE the *S(k) pool
+  records — links $S `* FORMAT STATIC` to $C operands ✓✓.
+* file streams: `LXI H,<file sym>; LXI D,0652|0690; LXI B,0; CALL ?SIOOP`
+  (0652=edit-out?, 0690=get/in, 0252=sysout, 0290=sysin — context-page
+  control blocks at 0x0600 base); OPEN/CLOSE = ?OIOOP/?CIOOP with
+  option words pushed on the real stack [P080Q].
+* get list: ?SYSIN + ?GNVOP (+ JP end) + ?SSVFS B=varmax.
+### Odds & ends
+* null() → LXI H,0000 (zero pointer).
+* pointer assign = LHLD P/SHLD plain word copy [P086M].
+* allocate: size immediate `LXI H,n; CALL ?ALLOP` → SHLD pointer-slot.
+* optimizer constant-reuse: after `x=1; SHLD X`, next `y=2` emits
+  `INX H; SHLD Y` (HL kept live!) — byte-identity requires replicating.

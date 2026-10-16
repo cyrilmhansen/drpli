@@ -1,0 +1,6 @@
+pp086b: procedure options(main);
+   declare d(3) fixed decimal(5,2), s(4) char(2), i fixed, z fixed decimal(5,2);
+   d(i) = 1.5;
+   z = d(2);
+   s(i) = 'AB';
+end pp086b;

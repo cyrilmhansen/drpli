@@ -1,0 +1,5 @@
+pp090i: procedure options(main);
+   declare f file, x fixed;
+   on conversion x = 1;
+   on zeroflag x = 2;
+end pp090i;

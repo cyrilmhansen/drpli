@@ -1,0 +1,5 @@
+pp086d: procedure options(main);
+   declare z fixed, e entry(fixed, fixed) external;
+   z = 1;
+   call e(z, 2);
+end pp086d;

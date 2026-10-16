@@ -1,0 +1,9 @@
+pp086h: procedure options(main);
+   declare i fixed, j fixed;
+   do while (i < 3 & j < 5);
+      i = i + 1;
+      goto out;
+   end;
+out:
+   j = 1;
+end pp086h;

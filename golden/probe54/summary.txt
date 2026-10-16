@@ -1,0 +1,6 @@
+P086A	ok	PRN=False REL=True
+P086B	ok	PRN=False REL=True
+P086C	ok	PRN=False REL=True
+P086D	ok	PRN=False REL=True
+P086E	diag	PRN=False REL=True
+P086F	diag	PRN=False REL=True

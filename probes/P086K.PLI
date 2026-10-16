@@ -1,0 +1,6 @@
+pp086k: procedure options(main);
+   declare f file, d fixed decimal(5,2);
+   d = 1.5;
+   put file(f) edit(d)(f(5,1));
+   get file(f) edit(d)(f(5,1));
+end pp086k;

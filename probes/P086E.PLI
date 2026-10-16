@@ -1,0 +1,9 @@
+pp086e: procedure options(main);
+   declare z fixed, f float, s char(4), v char(2) varying, c bit(4);
+   g1 entry returns(fixed) external;
+   g2 entry returns(float) external;
+   g3 entry returns(char(4)) external;
+   z = g1();
+   f = g2();
+   s = g3();
+end pp086e;

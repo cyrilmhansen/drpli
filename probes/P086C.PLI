@@ -1,0 +1,11 @@
+pp086c: procedure options(main);
+   declare x fixed, y fixed;
+   sub: procedure(a, b);
+      declare a fixed, b fixed;
+      a = a + b;
+      return;
+   end;
+   x = 1;
+   y = 2;
+   call sub(x, y);
+end pp086c;

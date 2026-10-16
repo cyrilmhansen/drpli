@@ -1,0 +1,7 @@
+pp089i: procedure options(main);
+   declare f file, x fixed;
+   on conversion(f) x = 1;
+   on endfile(f) x = 2;
+   on undefinedfile(f) x = 3;
+   on key(f) x = 4;
+end pp089i;

@@ -1,0 +1,7 @@
+pp087i: procedure options(main);
+   declare f file, x fixed;
+   on endfile(f) x = 1;
+   on conversion x = 2;
+   on overflow x = 3;
+   on zeroflag x = 4;
+end pp087i;

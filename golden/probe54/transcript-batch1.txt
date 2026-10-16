@@ -1,0 +1,84 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P086E $C
+PLI D:P086E $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P086E
+
+C: Code Trace Only
+
+   3 b         g1 entry returns(fixed) external;
+SYNTAX         ?
+   4 b         g2 entry returns(float) external;
+SYNTAX         ?
+   5 b         g3 entry returns(char(4)) external;
+SYNTAX         ?
+    3 ERROR(S) IN PASS 1
+
+   3 c         g1 entry returns(fixed) external;
+SYNTAX         ?
+   4 c         g2 entry returns(float) external;
+SYNTAX         ?
+   5 c         g3 entry returns(char(4)) external;
+SYNTAX         ?
+   6 c         z = g1();
+NO DCL             ?
+   7 c         f = g2();
+NO DCL             ?
+   8 c         s = g3();
+NO DCL             ?
+    6 ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> PLI D:P086F $C
+PLI D:P086F $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P086F
+
+C: Code Trace Only
+
+   2 b         declare g fixed, h fixed, grp like g;
+SYNTAX                                        ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6031 ms, waited for 0 ms
+CPU executed 15947656 t-states in 9 ms
+Clock frequency 1761.78 MHz

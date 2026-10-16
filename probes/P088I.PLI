@@ -1,0 +1,7 @@
+pp088i: procedure options(main);
+   declare f file, x fixed;
+   on endfile x = 1;
+   on endpage x = 2;
+   on undefinedfile x = 3;
+   on name x = 4;
+end pp088i;

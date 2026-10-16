@@ -1,0 +1,6 @@
+pp086i: procedure options(main);
+   declare x fixed;
+   on error x = 1;
+   on conversion x = 2;
+   on endfile x = 3;
+end pp086i;

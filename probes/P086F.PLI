@@ -1,0 +1,6 @@
+pp086f: procedure options(main);
+   declare g fixed, h fixed, grp like g;
+   declare a fixed, b fixed;
+   a = 1;
+   b = 2;
+end pp086f;

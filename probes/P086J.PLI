@@ -1,0 +1,5 @@
+pp086j: procedure options(main);
+   declare d fixed decimal(7,2);
+   d = 1.5;
+   put edit(d)(f(9,2), a(4));
+end pp086j;

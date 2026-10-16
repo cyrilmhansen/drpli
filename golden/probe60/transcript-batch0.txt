@@ -1,0 +1,93 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P091E $C
+PLI D:P091E $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P091E
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0008
+       0006       LXI  H,0001
+       0009       SHLD Z A(0000)
+; LINE 0009
+       000C       LXI  H,* A(000A)
+       000F       CALL G1
+       0012       SHLD Z A(0000)
+; LINE 0010
+       0015       LXI  H,* A(000C)
+       0018       CALL G2
+       001B       LXI  H,F A(0002)
+       001E       CALL ?FX44S
+; LINE 0011
+       0021       LXI  H,* A(000E)
+       0024       CALL G3
+       0027       LXI  H,S A(0006)
+       002A       MVI  B,04
+       002C       CALL ?SSCFS
+       002F       CALL ?STOPX
+
+CODE SIZE = 0032
+DATA AREA = 0010
+FREE SYMS = 38C9
+END  COMPILATION
+
+C>
+>>> PLI D:P091I $C
+PLI D:P091I $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P091I
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   3 c         on conversion(f) x = 1;
+SYNTAX                ?
+   6 c         on unithink x = 4;
+SYNTAX               ?
+    2 ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6034 ms, waited for 0 ms
+CPU executed 20165964 t-states in 13 ms
+Clock frequency 1475.95 MHz

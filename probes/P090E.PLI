@@ -1,0 +1,7 @@
+pp090e: procedure options(main);
+   declare z fixed, f float, s char(4), g1 entry(fixed) returns(fixed) external, g2 entry(fixed) returns(float) external, g3 entry(fixed) returns(char(4)) external;
+   z = 1;
+   z = g1(z);
+   f = g2(z);
+   s = g3(z);
+end pp090e;

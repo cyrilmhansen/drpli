@@ -1,0 +1,7 @@
+p091i: procedure options(main);
+   declare f file, x fixed;
+   on conversion(f) x = 1;
+   on key(f) x = 2;
+   on endpage(f) x = 3;
+   on unithink x = 4;
+end p091i;
