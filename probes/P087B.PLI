@@ -1,0 +1,9 @@
+pp087b: procedure options(main);
+   declare a fixed, z fixed;
+   z = a + 1;
+   z = a + 2;
+   z = a + 4;
+   z = a + 9;
+   z = a - 3;
+   z = a - 6;
+end pp087b;

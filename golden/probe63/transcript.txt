@@ -1,0 +1,66 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P088B $C
+PLI D:P088B $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P088B
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LHLD A A(0000)
+       0009       LXI  B,0005
+       000C       DAD  B
+       000D       SHLD Z A(0002)
+; LINE 0004
+       0010       LHLD A A(0000)
+       0013       MVI  C,08
+       0015       DAD  B
+       0016       SHLD Z A(0002)
+; LINE 0005
+       0019       LHLD A A(0000)
+       001C       MVI  C,10
+       001E       DAD  B
+       001F       SHLD Z A(0002)
+       0022       CALL ?STOPX
+
+CODE SIZE = 0025
+DATA AREA = 0004
+FREE SYMS = 392F
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 4022 ms, waited for 0 ms
+CPU executed 10057819 t-states in 5 ms
+Clock frequency 1734.70 MHz

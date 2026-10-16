@@ -1,0 +1,6 @@
+p088b: procedure options(main);
+   declare a fixed, z fixed;
+   z = a + 5;
+   z = a + 8;
+   z = a + 16;
+end p088b;

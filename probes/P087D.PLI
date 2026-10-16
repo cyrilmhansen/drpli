@@ -1,0 +1,13 @@
+pp087d: procedure options(main);
+   declare n fixed;
+   rec: procedure(m);
+      declare m fixed;
+      if m > 0 then do;
+         m = m - 1;
+         call rec(m);
+      end;
+   end;
+   n = 3;
+   call rec(n);
+   call rec;
+end pp087d;

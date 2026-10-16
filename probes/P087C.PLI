@@ -1,0 +1,6 @@
+pp087c: procedure options(main);
+   declare 1 g, 2 x fixed, 2 y fixed;
+   declare 1 h, 2 p fixed, 2 q fixed;
+   h = g;
+   g.x = 1;
+end pp087c;

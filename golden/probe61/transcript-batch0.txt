@@ -1,0 +1,251 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P087A $C
+PLI D:P087A $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P087A
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,* S(0000)
+       0009       PUSH H
+       000A       LXI  H,F A(000D)+FFFC
+       000D       PUSH H
+       000E       LHLD I A(0034)
+       0011       DAD  H
+       0012       DAD  H
+       0013       POP  D
+       0014       DAD  D
+       0015       POP  D
+       0016       CALL ?FX44M
+; LINE 0004
+       0019       LXI  H,S A(0019)+FFFC
+       001C       PUSH H
+       001D       LHLD I A(0034)
+       0020       DAD  H
+       0021       DAD  H
+       0022       POP  D
+       0023       DAD  D
+       0024       LXI  D,* S(0004)
+       0027       MVI  A,04
+       0029       MOV  B,A
+       002A       CALL ?SMCCM
+; LINE 0005
+       002D       LXI  H,* S(0008)
+       0030       MVI  A,09
+       0032       CALL ?DLDOP
+       0035       LXI  H,D A(0025)+FFFB
+       0038       PUSH H
+       0039       LHLD I A(0034)
+       003C       LXI  D,0005
+       003F       CALL ?IM22N
+       0042       POP  D
+       0043       DAD  D
+       0044       MVI  A,09
+       0046       CALL ?DSTOP
+       0049       CALL ?STOPX
+
+CODE SIZE = 004C
+DATA AREA = 0036
+FREE SYMS = 38D5
+END  COMPILATION
+
+C>
+>>> PLI D:P087B $C
+PLI D:P087B $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P087B
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LHLD A A(0000)
+       0009       INX  H
+       000A       SHLD Z A(0002)
+; LINE 0004
+       000D       LHLD A A(0000)
+       0010       INX  H
+       0011       INX  H
+       0012       SHLD Z A(0002)
+; LINE 0005
+       0015       LHLD A A(0000)
+       0018       INX  H
+       0019       INX  H
+       001A       INX  H
+       001B       INX  H
+       001C       SHLD Z A(0002)
+; LINE 0006
+       001F       LHLD A A(0000)
+       0022       LXI  B,0009
+       0025       DAD  B
+       0026       SHLD Z A(0002)
+; LINE 0007
+       0029       LHLD A A(0000)
+       002C       DCX  H
+       002D       DCX  H
+       002E       DCX  H
+       002F       SHLD Z A(0002)
+; LINE 0008
+       0032       LHLD A A(0000)
+       0035       LXI  B,FFFA
+       0038       DAD  B
+       0039       SHLD Z A(0002)
+       003C       CALL ?STOPX
+
+CODE SIZE = 003F
+DATA AREA = 0004
+FREE SYMS = 390E
+END  COMPILATION
+
+C>
+>>> PLI D:P087C $C
+PLI D:P087C $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P087C
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0004
+       0006       LXI  H,H A(0004)
+       0009       LXI  D,G A(0000)
+       000C       LXI  B,0004
+       000F       CALL ?NSTOP
+; LINE 0005
+       0012       LXI  H,G A(0000)
+       0015       MVI  M,01
+       0017       INX  H
+       0018       MVI  M,00
+       001A       CALL ?STOPX
+
+CODE SIZE = 001D
+DATA AREA = 0008
+FREE SYMS = 3919
+END  COMPILATION
+
+C>
+>>> PLI D:P087D $C
+PLI D:P087D $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P087D
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+       0006       JMP  0000
+       0009       MOV  E,M
+       000A       INX  H
+       000B       MOV  D,M
+       000C       XCHG 
+       000D       SHLD M A(0004)
+; LINE 0005
+       0010       LHLD M A(0004)
+       0013       XRA  A
+       0014       CMP  M
+       0015       INX  H
+       0016       SBB  M
+       0017       JP   0000
+; LINE 0006
+       001A       LHLD M A(0004)
+       001D       MOV  E,M
+       001E       INX  H
+       001F       MOV  D,M
+       0020       XCHG 
+       0021       DCX  H
+       0022       XCHG 
+       0023       MOV  M,D
+       0024       DCX  H
+       0025       MOV  M,E
+; LINE 0007
+       0026       LHLD M A(0004)
+       0029       SHLD * A(0006)
+       002C       LXI  H,* A(0006)
+       002F       CALL REC
+       0018       ==== 0032
+       0032       RET  
+       0007       ==== 0033
+; LINE 0010
+       0033       LXI  H,0003
+       0036       SHLD N A(0000)
+; LINE 0011
+       0039       LXI  H,* A(0002)
+       003C       CALL REC
+; LINE 0012
+       003F       CALL REC
+       0042       CALL ?STOPX
+
+CODE SIZE = 0045
+DATA AREA = 0008
+FREE SYMS = 38FE
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10057 ms, waited for 0 ms
+CPU executed 47942220 t-states in 29 ms
+Clock frequency 1613.89 MHz

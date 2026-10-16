@@ -1,0 +1,89 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P087F $C
+PLI D:P087F $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P087F
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LHLD C A(0002)
+       0009       PUSH H
+       000A       LXI  H,AAAA
+       000D       POP  D
+       000E       MOV  A,L
+       000F       ANA  E
+       0010       MOV  L,A
+       0011       MOV  A,H
+       0012       ANA  D
+       0013       MOV  H,A
+       0014       SHLD B A(0000)
+; LINE 0004
+       0017       LHLD B A(0000)
+       001A       MOV  A,H
+       001B       CMA  
+       001C       MOV  H,A
+       001D       MOV  A,L
+       001E       CMA  
+       001F       MOV  L,A
+       0020       SHLD C A(0002)
+; LINE 0005
+       0023       MVI  A,80
+       0025       MVI  B,02
+       0027       CALL ?QB08C
+       002A       LXI  H,S A(0004)
+       002D       MVI  B,02
+       002F       CALL ?SSCFS
+; LINE 0006
+       0032       MVI  A,F0
+       0034       MVI  B,04
+       0036       CALL ?QB08I
+       0039       CALL ?QI15D
+       003C       MVI  A,02
+       003E       CALL ?QDDSL
+       0041       LXI  H,D A(0006)
+       0044       MVI  A,05
+       0046       CALL ?DSTOP
+       0049       CALL ?STOPX
+
+CODE SIZE = 004C
+DATA AREA = 0009
+FREE SYMS = 3906
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 4022 ms, waited for 0 ms
+CPU executed 12518726 t-states in 7 ms
+Clock frequency 1635.79 MHz

@@ -137,3 +137,43 @@ constants referenced as `* S(k)` matching the $S dump statics.
 * allocate: size immediate `LXI H,n; CALL ?ALLOP` → SHLD pointer-slot.
 * optimizer constant-reuse: after `x=1; SHLD X`, next `y=2` emits
   `INX H; SHLD Y` (HL kept live!) — byte-identity requires replicating.
+
+## 8. Battery-3 additions (probe61-64) [C058]
+### Integer ±k peephole grid (P087B/P088B/P089B, all z=a+k)
+| k | code |
+|---|---|
+| 1..4 | `INX H` ×k |
+| −1..−4 | `DCX H` ×|k| |
+| first k≥5 or |k|≥5 | `LXI B,k` (16-bit) + `DAD B` |
+| later 8≤k≤255 while B=00 | `MVI C,k; DAD B` (BC scratch reuse!) |
+| k = prev+1..small delta | `INX B ×delta; DAD B` (12 after 10!) |
+⇒ BC doubles as a chained constant accumulator; exact predicate still
+open [byte-identity phase: build full k-sequence grid].
+### Arrays (element multiply)
+size 1 → plain add; size 2 → `DAD H`; size 4 → `DAD H` ×2 (float/char4);
+size 3/5 → `LXI D,size; CALL ?IM22N`; const index folds to base offset
+(1-BASED: addr = desc + (n−1)·size, desc prebiased −size).
+### Strings/structs
+group copy `h = g` → `LXI H,h; LXI D,g; LXI B,len; CALL ?NSTOP`;
+member store = base+const offset + MVI M pair.
+### Bit ops
+bit(16) & → per-byte `ANA D/E`; ^b → `CMA` ×2 — pure inline;
+bit↔char/dec conv: ?QB08C (A=code, B=len) + ?QX8F4/?QF4X8.
+### Decimal divide rescale [P087H]
+`e = d1/d2` (p,s targets): DLDOP(d1) → ?QDDSL A=shift-left (computed by
+compiler: scale + divisor digits…) → DLDOP(d2) → ?DDVOP → ?QDDSR
+A=shift-right → DSTOP(target digits). Rescale amounts are compile-time.
+### Float literals/pool
+4-byte pool records (`*S(k)`, stride 4); load = FX44M (pool→var),
+arith = FA44M/FM44M (PUSH/POP stack form), store = FX44S. e-notation
+and plain both pool-borne (0.25e-2 = S(0004) ✓).
+### Recursion / re-entrancy [P087D]
+arg block = FRAME slot (`SHLD * A(0006)` before self-CALL) — recursion
+safe; `call rec;` no-arg still CALLs with dangling block ref?
+### Compare-to-zero special form
+`m > 0` with DEREFERENCED operand: `XRA A; CMP M; INX H; SBB M` (16-bit
+CMP/SBB) instead of ?IS22N — operand-class-dependent.
+### Nested loops [P087J]
+inner DO-WHILE top-test + JMP back inside outer body; outer TO test
+JP exit lands past outer end via forward-fixup chain; forward refs
+always 0000 + LAD records (LINK-resolved) — $C shows placeholders.

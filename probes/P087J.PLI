@@ -1,0 +1,9 @@
+pp087j: procedure options(main);
+   declare i fixed, j fixed, z fixed;
+   do i = 1 to 5;
+      do while (j < 3);
+         z = i + j;
+         j = j + 1;
+      end;
+   end;
+end pp087j;

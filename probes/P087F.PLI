@@ -1,0 +1,7 @@
+pp087f: procedure options(main);
+   declare b bit(16), c bit(16), s char(2), d fixed decimal(5,2);
+   b = c & '1010101010101010'b;
+   c = ^ b;
+   s = '10'b;
+   d = '1111'b;
+end pp087f;
