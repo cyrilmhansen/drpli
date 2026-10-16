@@ -1,0 +1,9 @@
+(executable
+ (name pli80parse)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))
+
+(executable
+ (name tokdump)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))

@@ -1,0 +1,3 @@
+(library
+ (name pli80)
+ (flags (:standard -warn-error -a)))

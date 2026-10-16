@@ -1,3 +1,25 @@
+(* ===================================================================
+   PARSER-ROUND DELTAS (supersede older inline comments where they
+   conflict; details + evidence pointers in spec/notes/parser-phase.md,
+   claims C040/C041):
+   - idents include '_'; bit literals: 'digits'xN repeat suffix
+   - operators: ~ and ^ both NOT; ~= and >< and <> all NE; ^= XOR
+   - declare synonym: DCL; bare type words DECIMAL/BINARY/PTR/FILE
+   - dcl: type and attribute order interleaves freely; groups
+     (lvl, names...) with per-member dims AND per-member types;
+     attrs LABEL INITIAL VARIABLE VAR RECURSIVE added
+   - entry param lists may contain (group) type items
+   - bare `PUT SKIP;` / `GET SKIP;`; file-options and skip/page/line
+     controls interleave before the kind word
+   - labels may carry subscripts (c(1):) and may precede END
+   - statement head `end` is an identifier when followed by = ( . 
+   - do-loop modifier order FREE: BY TO WHILE REPEAT any permutation;
+     `do i = e by s;` with no bound loops forever
+   - edit parentheses: counted items `4a`, counted groups
+     `2(skip,column(indent),a)`, and item replication
+     `(item do n = f to l)`; format words COLUMN, WIDTH attested
+   =================================================================== *)
+
 (* =====================================================================
    PL/I-80 grammar draft 0
    Source of productions: PL/I-80 Language Manual, 2nd printing Dec 1980
