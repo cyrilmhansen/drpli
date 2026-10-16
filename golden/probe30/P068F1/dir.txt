@@ -1,0 +1,14 @@
+0:
+-rw-rw-rw-     128 Jan 01 1970  dio80.dcl
+-rw-rw-rw-    1664 Jan 01 1970  diomod.dcl
+-rw-rw-rw-     640 Jan 01 1970  fcb.dcl
+-rw-rw-rw-     128 Jan 01 1970  matsize.lib
+-rw-rw-rw-    1152 Jan 01 1970  mpmdio.dcl
+-rw-rw-rw-      92 Jan 01 1970  p068f1.pli
+-rw-rw-rw-      89 Jan 01 1970  p068f2.pli
+-rw-rw-rw-      90 Jan 01 1970  p068f3.pli
+-rw-rw-rw-     128 Jan 01 1970  p068f3.rel
+-rw-rw-rw-      94 Jan 01 1970  p068f4.pli
+-rw-rw-rw-     128 Jan 01 1970  p068f4.rel
+-rw-rw-rw-     384 Jan 01 1970  record.dcl
+-rw-rw-rw-    6016 Jan 01 1970  z80.lib

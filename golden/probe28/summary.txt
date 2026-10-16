@@ -1,0 +1,6 @@
+P068C1	diag	PRN=False REL=False
+P068C2	diag	PRN=False REL=False
+P068C3	diag	PRN=False REL=False
+P068C4	diag	PRN=False REL=False
+P068C5	diag	PRN=False REL=False
+P068C6	diag	PRN=False REL=False

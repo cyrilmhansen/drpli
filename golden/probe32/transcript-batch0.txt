@@ -1,0 +1,152 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P068H1 $L
+PLI D:P068H1 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068H1
+
+L: List Source Program
+
+   2 b         declare z fixed binary(24);
+NOT IMP                                  ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068H1
+
+   1 a 0000 pp068h1: procedure options(main);
+   2 c 0006    declare z fixed binary(24);
+   3 c 0006    
+   4 a 0006 end pp068h1;
+
+CODE SIZE = 0009
+DATA AREA = 0004
+FREE SYMS = 395A
+END  COMPILATION
+
+C>
+>>> PLI D:P068H2 $L
+PLI D:P068H2 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068H2
+
+L: List Source Program
+
+   2 b         declare z fixed binary(16);
+NOT IMP                                  ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068H2
+
+   1 a 0000 pp068h2: procedure options(main);
+   2 c 0006    declare z fixed binary(16);
+   3 c 0006    z = 1;
+   4 a 001D end pp068h2;
+
+CODE SIZE = 0020
+DATA AREA = 0004
+FREE SYMS = 3944
+END  COMPILATION
+
+C>
+>>> PLI D:P068H3 $L
+PLI D:P068H3 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068H3
+
+L: List Source Program
+
+   2 b         declare z fixed binary(24);
+NOT IMP                                  ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068H3
+
+   1 a 0000 pp068h3: procedure options(main);
+   2 c 0006    declare z fixed binary(24);
+   3 c 0006    put list(z);
+   4 a 001D end pp068h3;
+
+CODE SIZE = 0020
+DATA AREA = 0004
+FREE SYMS = 395A
+END  COMPILATION
+
+C>
+>>> PLI D:P068H4 $L
+PLI D:P068H4 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068H4
+
+L: List Source Program
+
+   2 b         declare z fixed binary(24), y fixed binary(15);
+NOT IMP                                                      ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068H4
+
+   1 a 0000 pp068h4: procedure options(main);
+   2 c 0006    declare z fixed binary(24), y fixed binary(15);
+   3 c 0006    z = y;
+   4 a 0015 end pp068h4;
+
+CODE SIZE = 0018
+DATA AREA = 0006
+FREE SYMS = 394F
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10056 ms, waited for 0 ms
+CPU executed 31893037 t-states in 20 ms
+Clock frequency 1561.01 MHz

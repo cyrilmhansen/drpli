@@ -1,0 +1,4 @@
+p068j3: procedure options(main);
+   declare z fixed binary(24), a fixed;
+   a = 1;
+end p068j3;

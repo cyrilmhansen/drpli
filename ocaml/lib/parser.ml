@@ -107,6 +107,7 @@ let ctl_keys = [ "SKIP"; "PAGE"; "LINE" ]
    additive order to be validated against $V traces [PROBE 51]. *)
 let prec_of_punct = function
   | Token.Or -> Some 10
+  | Token.AndThen | Token.OrElse -> Some 12
   | Token.Amp -> Some 20
   | Token.(Eq | Ne | Lt | Le | Gt | Ge | Xor) -> Some 30
   | Token.(CharCat | BitCat) -> Some 40
@@ -123,7 +124,9 @@ let bin_of = function
   | Token.Plus -> Add | Token.Minus -> Sub | Token.Star -> Mul
   | Token.Slash -> Div | Token.StarStar -> Exp | Token.CharCat -> Cat
   | Token.BitCat -> BitCat | Token.Amp -> And | Token.Or -> Or
-  | Token.Xor -> NotB | _ -> assert false
+  | Token.Xor -> NotB
+  | Token.AndThen -> AndThen | Token.OrElse -> OrElse
+  | _ -> assert false
 
 let rec opt_paren_exprs p = if at_punct p Token.LParen then arglist p else []
 
@@ -652,7 +655,10 @@ and parse_stmt_body p q labels =
       in
       Sedit { target; opts }
   | Token.Ident _ ->
-      let e = expr0 p in
+      (* LHS is a REFERENCE chain only (primary + suffixes): '=' must not
+         be eaten as the equality operator here (found via $V alignment on
+         P068E5: `z = 2+3*4` was mis-parsed as a comparison) *)
+      let e = expr p 100 in
       if eat_punct p Token.Eq then Sassign { lhs = e; rhs = expr0 p }
       else Sprocedure_stmt { target = e; args = [] }
   | _ -> err p "expected statement"
@@ -1049,3 +1055,68 @@ let parse_source src =
   let toks = Lexer.tokenize src in
   let p = make toks in
   parse_program p
+
+(* ---------- debug: parenthesized expression trees ---------- *)
+
+let rec pp_e fmt = function
+  | { e = Eident n; _ } -> Format.fprintf fmt "%s" n.orig
+  | { e = Enumber t; _ } -> Format.fprintf fmt "%s" t
+  | { e = Estring s; _ } -> Format.fprintf fmt "'%s'" s
+  | { e = Ebit b; _ } -> Format.fprintf fmt "%sb" b
+  | { e = Eprefix (op, x); _ } ->
+      let s = match op with Plus -> "+" | Minus -> "-" | NegL -> "^" in
+      Format.fprintf fmt "(%s %a)" s pp_e x
+  | { e = Ebinary (op, a, b); _ } ->
+      let s = match op with
+        | Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/" | Exp -> "**"
+        | Cat -> "||" | BitCat -> "!!" | And -> "&" | Or -> "|" | NotB -> "^"
+        | AndThen -> "&:" | OrElse -> "|:" | XorNe -> "^=" | EqR r ->
+            (match r with Eq -> "=" | Ne -> "<>" | Lt -> "<" | Le -> "<="
+                        | Gt -> ">" | Ge -> ">=")
+      in
+      Format.fprintf fmt "(%s %a %a)" s pp_e a pp_e b
+  | { e = Econd x; _ } -> Format.fprintf fmt "(cond %a)" pp_e x
+  | { e = Esuffix (f, args); _ } ->
+      Format.fprintf fmt "(call %a[%a])" pp_e f
+        (Format.pp_print_list ~pp_sep:(fun f () -> Format.fprintf f ", ") pp_e) args
+  | { e = Ebuilt (k, args); _ } ->
+      Format.fprintf fmt "(%s[%a])" (String.lowercase_ascii k)
+        (Format.pp_print_list ~pp_sep:(fun f () -> Format.fprintf f ", ") pp_e) args
+  | { e = Eqstruct (a, n); _ } -> Format.fprintf fmt "(qual %a .%s)" pp_e a n.orig
+  | { e = Eqptr (a, n); _ } -> Format.fprintf fmt "(ptr %a ->%s)" pp_e a n.orig
+  | { e = Eformat_ref n; _ } -> Format.fprintf fmt "(r %s)" n.orig
+  | { e = Epicture s; _ } -> Format.fprintf fmt "(p '%s')" s
+
+let dump_trees src =
+  let toks = Lexer.tokenize src in
+  let p = make toks in
+  let blk = parse_program p in
+  let rec pp_st s =
+    match s.st with
+    | Sdcl items ->
+        List.iter (fun (d : dcl) ->
+            Format.printf "DCL line %d: %s\n" d.dname.pos.Source.line d.dname.orig)
+          items
+    | Sassign { lhs; rhs } ->
+        Format.printf "L%d: ASSIGN %a <- %a\n"
+          s.spos.Source.line pp_e lhs pp_e rhs
+    | Sif { cond; then_; els } ->
+        Format.printf "L%d: IF %a\n" s.spos.Source.line pp_e cond;
+        pp_st then_; Option.iter pp_st els
+    | Sdowhile { cond; body } ->
+        Format.printf "L%d: DO-WHILE %a\n" s.spos.Source.line pp_e cond;
+        pp_st body
+    | Sdoto { from; by; while_; to_; rep; body; _ } ->
+        Format.printf "L%d: DO %a%a%a%a\n" s.spos.Source.line
+          pp_e from
+          (fun f o -> match o with Some x -> Format.fprintf f " BY %a" pp_e x | None -> ()) by
+          (fun f o -> match o with Some x -> Format.fprintf f " WHILE %a" pp_e x | None -> ()) while_
+          (fun f o -> match o with Some x -> Format.fprintf f " TO %a" pp_e x | None -> ()) to_;
+        (match rep with Some r -> Format.printf " REPEAT %a" pp_e r | None -> ());
+        Format.printf "\n%!";
+        pp_st body
+    | Sdobegin ss -> List.iter pp_st ss
+    | Sproc { blk; _ } -> List.iter pp_st blk.bstmts
+    | _ -> ()
+  in
+  List.iter pp_st blk.bstmts

@@ -1,0 +1,299 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P068A $V$L
+PLI D:P068A $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068A
+
+L: List Source Program
+V: Verify Intermediate File
+
+   2 b         declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+NOT IMP                                                                                               ?
+    1 ERROR(S) IN PASS 1
+
+  12 c         c = d &= e;
+SYNTAX                ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068A
+
+CTL  0251
+   1 a 0000 p068a: procedure options(main);
+  00 BEG 0 N 0 83 00 31 00
+CTL  0251
+   2 c 0006    declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+  00 NID 0 N 1 00 00 28 00 P068A
+  00 ENT 0 N 0 00 00 00 00 #E7AF
+   3 c 0006    z = 2 + 3 * 4;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(0007)
+  00 DID 0 N 1 00 00 00 00 * S(0002)
+  00 DLD 1 N 0 03 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0000)
+  00 DLD 1 N 0 01 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0001)
+  00 DLD 1 N 0 01 00 28 00
+  00 DMU 2 B 0 03 00 02 00
+  00 DAD 2 B 0 04 00 00 00
+  00 QDI 1 N 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   4 c 0006    z = 2 * 3 + 4;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 IID 0 N 1 00 00 00 00 Z A(0007)
+  00 DID 0 N 1 00 00 00 00 * S(0004)
+  00 DLD 1 N 0 01 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0000)
+  00 DLD 1 N 0 01 00 08 00
+  00 DMU 2 B 0 03 00 05 00
+  00 DID 0 N 1 00 00 21 00 * S(0005)
+  00 DLD 1 N 0 03 00 00 00
+  00 DAD 2 B 0 04 00 00 00
+  00 QDI 1 N 0 15 00 75 00
+  00 IAS 2 X 0 15 00 31 00
+   5 c 0006    z = 2 ** 3 ** 2;
+  00 LIO 0 N 1 00 00 00 00 #0005
+  00 IID 0 N 1 00 00 00 00 Z A(0007)
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 07 00 00 00
+  00 C2  0 N 0 00 00 00 00 #0003
+  00 ILD 1 N 0 07 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0004)
+  00 DLD 1 N 0 01 00 00 00
+  00 DEX 2 N 0 05 00 00 00
+  00 DEX 2 N 0 11 00 00 00
+  00 QDI 1 N 0 15 00 02 00
+  00 IAS 2 X 0 15 00 02 00
+   6 c 0006    z = 2 ** 3 * 4;
+  00 LIO 0 N 1 00 00 02 00 #0006
+  00 IID 0 N 1 00 00 00 00 Z A(0007)
+  00 C2  0 N 0 00 00 00 00 #0003
+  00 ILD 1 N 0 07 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0004)
+  00 DLD 1 N 0 01 00 00 00
+  00 DEX 2 N 0 05 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0001)
+  00 DLD 1 N 0 01 00 00 00
+  00 DMU 2 B 0 07 00 00 00
+  00 QDI 1 N 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   7 c 0006    z = -2 ** 2;
+  00 LIO 0 N 1 00 00 00 00 #0007
+  00 IID 0 N 1 00 00 00 00 Z A(0007)
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 07 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0004)
+  00 DLD 1 N 0 01 00 00 00
+  00 DEX 2 N 0 03 00 00 00
+  00 DMI 1 N 0 03 00 00 00
+  00 QDI 1 N 0 11 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   8 c 0006    z = w / x * 2;
+  00 LIO 0 N 1 00 00 00 00 #0008
+  00 IID 0 N 1 00 00 00 00 Z A(0007)
+  00 IID 0 N 1 00 00 00 00 W A(000B)
+  00 ILD 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 X A(000F)
+  00 ILD 1 N 0 15 00 00 00
+  00 IDV 2 N 0 15 00 00 00
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 15 00 00 00
+  00 IMU 2 B 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   9 c 0006    z = w / x / 2;
+  00 LIO 0 N 1 00 00 00 00 #0009
+  00 IID 0 N 1 00 00 00 00 Z A(0007)
+  00 IID 0 N 1 00 00 00 00 W A(000B)
+  00 ILD 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 X A(000F)
+  00 ILD 1 N 0 15 00 00 00
+  00 IDV 2 N 0 15 00 00 26
+  00 C2  0 N 0 00 00 00 26 #0002
+  00 ILD 1 N 0 15 00 00 69
+  00 IDV 2 N 0 15 00 00 31
+  00 IAS 2 X 0 15 00 00 00
+  10 c 0006    z = w - x - 2;
+  00 LIO 0 N 1 00 00 00 00 #000A
+  00 IID 0 N 1 00 00 00 09 Z A(0007)
+  00 IID 0 N 1 00 00 00 02 W A(000B)
+  00 ILD 1 N 0 15 00 00 43
+  00 IID 0 N 1 00 00 00 48 X A(000F)
+  00 ILD 1 N 0 15 00 00 31
+  00 ISU 2 N 0 15 00 00 00
+  00 C2  0 N 0 00 00 00 58 #0002
+  00 ILD 1 N 0 15 00 00 31
+  00 ISU 2 N 0 15 00 00 01
+  00 IAS 2 X 0 15 00 00 02
+  11 c 0006    c = d = e;
+  00 LIO 0 N 1 00 00 00 01 #000B
+  00 BID 0 N 1 00 00 00 01 C A(0013)
+  00 BID 0 N 1 00 00 00 26 D A(0014)
+  00 BLD 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 26 E A(0015)
+  00 BLD 1 N 0 01 00 31 00
+  00 BEQ 2 B 0 01 00 28 00
+  00 BAS 2 X 0 01 00 00 00
+  12 c 0006    c = d &= e;
+  00 LIO 0 N 1 00 00 00 00 #000C
+  00 BID 0 N 1 00 00 00 00 C A(0013)
+  00 BID 0 N 1 00 00 00 00 D A(0014)
+  00 BLD 1 N 0 01 00 00 00
+  00 BLD 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 E A(0015)
+  00 BLD 1 N 0 01 00 00 00
+  00 BEQ 2 B 0 01 00 28 00
+  00 BAN 2 B 0 01 00 02 00
+  00 NAS 2 X 0 00+02 00 00
+CTL  0247
+CTL  0252
+  13 c 014C    z = w + x * 2 - 4 / 2;
+  14 a 014C end p068a;
+  00 STP 0 N 0 83 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 014F
+DATA AREA = 0016
+FREE SYMS = 38CB
+END  COMPILATION
+
+C>
+>>> PLI D:P068B $V$L
+PLI D:P068B $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068B
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068B
+
+CTL  0251
+   1 a 0000 p068b: procedure options(main);
+  00 BEG 0 N 0 01 00 31 00
+CTL  0251
+   2 c 0006    declare s character(10), t character(10), u character(10);
+  00 NID 0 N 1 00 00 28 00 P068B
+  00 ENT 0 N 0 00 00 00 00 #E7A4
+   3 c 0006    declare c bit(1), d bit(1), e bit(1);
+   4 c 0006    declare z fixed;
+   5 c 0006    s = t || u || 'x';
+  00 LIO 0 N 1 00 00 00 00 #0005
+  00 CID 0 N 1 00 00 00 00 S A(0005)
+  00 CID 0 N 1 00 00 00 00 T A(000F)
+  00 CLD 1 N 0 10 00 00 00
+  00 CID 0 N 1 00 00 00 00 U A(0019)
+  00 CLD 1 N 0 10 00 00 00
+  00 CCT 2 X 0 20 00 00 00
+  00 CID 0 N 1 00 00 28 00 * S(0000)
+  00 CLD 1 N 0 01 00 00 00
+  00 CCT 2 X 0 21 00 00 00
+  00 CAS 2 X 0 10 00 00 00
+   6 c 0006    c = d | e & '1'b;
+  00 LIO 0 N 1 00 00 00 00 #0006
+  00 BID 0 N 1 00 00 00 00 C A(0023)
+  00 BID 0 N 1 00 00 00 00 D A(0024)
+  00 BLD 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 E A(0025)
+  00 BLD 1 N 0 01 00 00 00
+  00 C2  0 N 0 00 00 08 00 #0080
+  00 BLD 1 N 0 01 00 05 00
+  00 BAN 2 B 0 01 00 21 00
+  00 BOR 2 B 0 01 00 00 00
+  00 BAS 2 X 0 01 00 00 00
+   7 c 0006    c = ^ d & e;
+  00 LIO 0 N 1 00 00 64 00 #0007
+  00 BID 0 N 1 00 00 31 00 C A(0023)
+  00 BID 0 N 1 00 00 00 00 D A(0024)
+  00 BLD 1 N 0 01 00 00 00
+  00 BNG 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 E A(0025)
+  00 BLD 1 N 0 01 00 00 00
+  00 BAN 2 B 0 01 00 00 00
+  00 BAS 2 X 0 01 00 00 00
+   8 c 0006    c = ^ d | e;
+  00 LIO 0 N 1 00 00 00 00 #0008
+  00 BID 0 N 1 00 00 00 00 C A(0023)
+  00 BID 0 N 1 00 00 00 00 D A(0024)
+  00 BLD 1 N 0 01 00 00 00
+  00 BNG 1 N 0 01 00 02 00
+  00 BID 0 N 1 00 00 05 00 E A(0025)
+  00 BLD 1 N 0 01 00 00 00
+  00 BOR 2 B 0 01 00 00 00
+  00 BAS 2 X 0 01 00 00 00
+   9 c 0006    z = 5 ^= 3 + 1;
+  00 LIO 0 N 1 00 00 00 00 #0009
+  00 IID 0 N 1 00 00 00 00 Z A(0026)
+  00 DID 0 N 1 00 00 00 00 * S(0003)
+  00 DLD 1 N 0 02 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0001)
+  00 DLD 1 N 0 01 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0002)
+  00 DLD 1 N 0 01 00 00 00
+  00 DAD 2 B 0 02 00 00 00
+  00 DNE 2 B 0 01 00 00 00
+  00 QBI 1 N 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+  10 c 0006    c = d = e | c;
+  00 LIO 0 N 1 00 00 00 00 #000A
+  00 BID 0 N 1 00 00 00 00 C A(0023)
+  00 BID 0 N 1 00 00 00 00 D A(0024)
+  00 BLD 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 E A(0025)
+  00 BLD 1 N 0 01 00 00 00
+  00 BEQ 2 B 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 C A(0023)
+  00 BLD 1 N 0 01 00 00 00
+  00 BOR 2 B 0 01 00 00 00
+  00 BAS 2 X 0 01 00 00 00
+CTL  0247
+CTL  0252
+  11 a 0098 end p068b;
+  00 STP 0 N 0 01 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 009B
+DATA AREA = 0028
+FREE SYMS = 38B6
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6038 ms, waited for 0 ms
+CPU executed 42956961 t-states in 23 ms
+Clock frequency 1818.20 MHz

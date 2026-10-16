@@ -1,0 +1,64 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P068M $L
+PLI D:P068M $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068M
+
+L: List Source Program
+
+   3 b         c = d &: e;
+SYNTAX           ?
+   4 b         c = d |: e;
+SYNTAX           ?
+    2 ERROR(S) IN PASS 1
+
+   3 c         c = d &: e;
+SYNTAX                  ?
+   4 c         c = d |: e;
+SYNTAX                  ?
+    2 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068M
+
+   1 a 0000 p068m: procedure options(main);
+   2 c 0006    declare c bit(1), d bit(1), e bit(1), z fixed;
+   3 c 0006    c = d &: e;
+   4 c 0006    c = d |: e;
+   5 c 0006    z = 5 + 3;
+   6 a 0028 end p068m;
+
+CODE SIZE = 002B
+DATA AREA = 0007
+FREE SYMS = 390F
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 4021 ms, waited for 0 ms
+CPU executed 9678701 t-states in 5 ms
+Clock frequency 1814.52 MHz

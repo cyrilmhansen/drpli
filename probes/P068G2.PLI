@@ -1,0 +1,4 @@
+pp068g2: procedure options(main);
+   declare zz fixed binary(24);
+   zz = 1;
+end pp068g2;

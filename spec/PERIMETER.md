@@ -51,6 +51,7 @@ becomes a rule in our grammar/binder:
 | `PUT ... FROM (…)`/`TO` in FILE stmts, keyed ISAM suite | works | §10, App E | **[S]** | |
 | POINTER arithmetic (`+=`) | ? | §3.4 says only = and -= defined | probe later | |
 
+| FIXED BINARY(p) with p>15 | **NOT IMP** at dcl (P068 L-series sweep: 15 ok / 16..32 fail) | Subset G §3.2.2 permits (max 31) | **[M]** | DR 16-bit-RTL cut; storage ladder still computed for rejected dcls; P008's lone pass-1 error retro-explained. Reimpl: compiler-track caps at 15 w/ diagnostic; std-track may add soft 32-bit. |
 | identifiers starting $ or _ | **SYNTAX** (P067D) | Subset G §1.1.3 ALLOWS $ and _ start chars | **[M]** minor | lexer keeps alnum; revisit in std mode |
 
 ## Grammar/reimpl policy

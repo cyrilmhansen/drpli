@@ -13,6 +13,8 @@ type punct =
   | CharCat             (** || and // (both in corpus) *)
   | BitCat              (** !! bit concatenation [corpus] *)
   | Amp | Or            (** & ; Or is | or ! *)
+  | AndThen | OrElse    (** &: and |: standard short-circuit forms; DR
+                           SYNTAX on both [P068M probe37 => [M] gap] *)
   | Not                 (** ^  [corpus: if ^ (a = 'Y' ! ...)] *)
   | Eq | Ne             (** = and <> or >< (both in corpus) *)
   | Lt | Le | Gt | Ge
@@ -44,7 +46,7 @@ let punct_list : (punct * string) list =
   ; (LParen, "("); (RParen, ")"); (Comma, ","); (Semi, ";"); (Colon, ":")
   ; (Dot, "."); (Dollar, "$")
   ; (Star, "*"); (Slash, "/"); (Plus, "+"); (Minus, "-")
-  ; (Or, "|"); (Or, "!"); (Amp, "&"); (Not, "^"); (Not, "~")
+  ; (AndThen, "&:"); (OrElse, "|:"); (Or, "|"); (Or, "!"); (Amp, "&"); (Not, "^"); (Not, "~")
   (* ~ seen in MPMCALLA/DIORAND; both ~ and ^ for NOT [corpus] *)
   ; (Eq, "="); (Lt, "<"); (Gt, ">"); (Percent, "%") ]
 
@@ -52,7 +54,8 @@ let show_punct = function
   | LParen -> "(" | RParen -> ")" | Comma -> "," | Semi -> ";" | Colon -> ":"
   | Star -> "*" | Slash -> "/" | Plus -> "+" | Minus -> "-"
   | StarStar -> "**" | CharCat -> "||" | BitCat -> "!!"
-  | Amp -> "&" | Or -> "|" | Not -> "^"
+  | Amp -> "&" | Or -> "|" | Not -> "^" | AndThen -> "&:" | OrElse -> "|:"
+  | AndThen -> "&:" | OrElse -> "|:"
   | Eq -> "=" | Ne -> "<>" | Lt -> "<" | Le -> "<=" | Gt -> ">" | Ge -> ">="
   | Arrow -> "->" | Dot -> "." | Xor -> "^=" | Dollar -> "$"
   | Percent -> "%"

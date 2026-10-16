@@ -1,0 +1,137 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P068J1 $L
+PLI D:P068J1 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068J1
+
+L: List Source Program
+
+  18 b      end p063a;
+NOT IMP     ?
+UNEXPECTED EOF
+C>
+>>> PLI D:P068J2 $L
+PLI D:P068J2 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068J2
+
+L: List Source Program
+
+   3 b               e fixed, f fixed, z fixed binary(24);
+NOT IMP                                                  ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068J2
+
+   1 a 0000 p068j2: procedure options(main);
+   2 c 0006    declare a fixed, b fixed, c fixed, d fixed,
+   3 c 0006          e fixed, f fixed, z fixed binary(24);
+   4 c 0006    z = 1;
+   5 a 001D end p068j2;
+
+CODE SIZE = 0020
+DATA AREA = 0011
+FREE SYMS = 3903
+END  COMPILATION
+
+C>
+>>> PLI D:P068J3 $L
+PLI D:P068J3 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068J3
+
+L: List Source Program
+
+   2 b         declare z fixed binary(24), a fixed;
+NOT IMP                                           ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068J3
+
+   1 a 0000 p068j3: procedure options(main);
+   2 c 0006    declare z fixed binary(24), a fixed;
+   3 c 0006    a = 1;
+   4 a 0015 end p068j3;
+
+CODE SIZE = 0018
+DATA AREA = 0006
+FREE SYMS = 3945
+END  COMPILATION
+
+C>
+>>> PLI D:P068J4 $L
+PLI D:P068J4 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068J4
+
+L: List Source Program
+
+   2 b         declare z fixed binary(24);
+NOT IMP                                  ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068J4
+
+   1 a 0000 p068j4: procedure options(main);
+   2 c 0006    declare z fixed binary(24);
+   3 a 0006 end p068j4;
+
+CODE SIZE = 0009
+DATA AREA = 0004
+FREE SYMS = 395B
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10053 ms, waited for 0 ms
+CPU executed 29423816 t-states in 15 ms
+Clock frequency 1864.15 MHz

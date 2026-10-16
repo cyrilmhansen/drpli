@@ -1,0 +1,4 @@
+P068I1	diag	PRN=False REL=False
+P068I2	diag	PRN=False REL=False
+P068I3	diag	PRN=False REL=False
+P068I4	diag	PRN=False REL=False

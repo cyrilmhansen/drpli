@@ -1,0 +1,4 @@
+p068i4: procedure options(main);
+   declare p24 fixed binary(24), a fixed;
+   p24 = 1;
+end p068i4;

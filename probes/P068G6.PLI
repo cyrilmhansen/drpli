@@ -1,0 +1,4 @@
+pp068g6: procedure options(main);
+   declare c bit(1), z fixed binary(24);
+   z = 1;
+end pp068g6;

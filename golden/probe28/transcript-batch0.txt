@@ -1,0 +1,237 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P068C1 $V$L
+PLI D:P068C1 $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068C1
+
+L: List Source Program
+V: Verify Intermediate File
+
+   2 b         declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+NOT IMP                                                                                               ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068C1
+
+CTL  0251
+   1 a 0000 pp068c1: procedure options(main);
+  00 BEG 0 N 0 05 00 31 00
+CTL  0251
+   2 c 0006    declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+  00 NID 0 N 1 00 00 28 00 PP068C1
+  00 ENT 0 N 0 00 00 00 00 #E7AD
+   3 c 0006    z = -2 ** 2;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(0001)
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 07 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0000)
+  00 DLD 1 N 0 01 00 00 00
+  00 DEX 2 N 0 03 00 00 00
+  00 DMI 1 N 0 03 00 28 00
+  00 QDI 1 N 0 11 00 02 00
+  00 IAS 2 X 0 15 00 00 00
+CTL  0247
+CTL  0252
+   4 a 0025 end pp068c1;
+  00 STP 0 N 0 05 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 0028
+DATA AREA = 0010
+FREE SYMS = 390D
+END  COMPILATION
+
+C>
+>>> PLI D:P068C2 $V$L
+PLI D:P068C2 $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068C2
+
+L: List Source Program
+V: Verify Intermediate File
+
+   2 b         declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+NOT IMP                                                                                               ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068C2
+
+CTL  0251
+   1 a 0000 pp068c2: procedure options(main);
+  00 BEG 0 N 0 05 00 31 00
+CTL  0251
+   2 c 0006    declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+  00 NID 0 N 1 00 00 28 00 PP068C2
+  00 ENT 0 N 0 00 00 00 00 #E7AD
+   3 c 0006    c = d = e;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 BID 0 N 1 00 00 00 00 C A(000C)
+  00 BID 0 N 1 00 00 00 00 D A(000D)
+  00 BLD 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 E A(000E)
+  00 BLD 1 N 0 01 00 00 00
+  00 BEQ 2 B 0 01 00 00 00
+  00 BAS 2 X 0 01 00 28 00
+CTL  0247
+CTL  0252
+   4 a 001B end pp068c2;
+  00 STP 0 N 0 05 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 001E
+DATA AREA = 000F
+FREE SYMS = 3923
+END  COMPILATION
+
+C>
+>>> PLI D:P068C3 $V$L
+PLI D:P068C3 $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068C3
+
+L: List Source Program
+V: Verify Intermediate File
+
+   2 b         declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+NOT IMP                                                                                               ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068C3
+
+CTL  0251
+   1 a 0000 pp068c3: procedure options(main);
+  00 BEG 0 N 0 01 00 31 00
+CTL  0251
+   2 c 0006    declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+  00 NID 0 N 1 00 00 28 00 PP068C3
+  00 ENT 0 N 0 00 00 00 00 #E7AD
+   3 c 0006    z = 2 ** 3 ** 2;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(0001)
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 07 00 00 00
+  00 C2  0 N 0 00 00 00 00 #0003
+  00 ILD 1 N 0 07 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0000)
+  00 DLD 1 N 0 01 00 28 00
+  00 DEX 2 N 0 05 00 02 00
+  00 DEX 2 N 0 11 00 00 00
+  00 QDI 1 N 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+CTL  0247
+CTL  0252
+   4 a 0027 end pp068c3;
+  00 STP 0 N 0 01 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 002A
+DATA AREA = 0010
+FREE SYMS = 390D
+END  COMPILATION
+
+C>
+>>> PLI D:P068C4 $V$L
+PLI D:P068C4 $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P068C4
+
+L: List Source Program
+V: Verify Intermediate File
+
+   2 b         declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+NOT IMP                                                                                               ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P068C4
+
+CTL  0251
+   1 a 0000 pp068c4: procedure options(main);
+  00 BEG 0 N 0 01 00 31 00
+CTL  0251
+   2 c 0006    declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+  00 NID 0 N 1 00 00 28 00 PP068C4
+  00 ENT 0 N 0 00 00 00 00 #E7AD
+   3 c 0006    z = w / x / 2;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(0000)
+  00 IID 0 N 1 00 00 00 00 W A(0004)
+  00 ILD 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 X A(0008)
+  00 ILD 1 N 0 15 00 00 00
+  00 IDV 2 N 0 15 00 00 00
+  00 C2  0 N 0 00 00 28 00 #0002
+  00 ILD 1 N 0 15 00 00 00
+  00 IDV 2 N 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+CTL  0247
+CTL  0252
+   4 a 0025 end pp068c4;
+  00 STP 0 N 0 01 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 0028
+DATA AREA = 000F
+FREE SYMS = 3918
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10053 ms, waited for 0 ms
+CPU executed 42866309 t-states in 24 ms
+Clock frequency 1757.82 MHz

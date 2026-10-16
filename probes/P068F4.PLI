@@ -1,0 +1,4 @@
+pp068f4: procedure options(main);
+   declare z fixed decimal(5,2);
+   z = 1;
+end pp068f4;

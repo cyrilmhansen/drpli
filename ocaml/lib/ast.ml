@@ -15,7 +15,7 @@ type binop =
   | Add | Sub | Mul | Div | Exp          (** + - * / ** *)
   | Cat                                   (** || // (character) *)
   | BitCat                                (** !! bit *)
-  | And | Or | NotB | XorNe                (** & |(!) ^ ; XorNe = ^= : PROVEN
+  | And | Or | NotB | XorNe | AndThen | OrElse                (** & |(!) ^ ; XorNe = ^= : PROVEN
       numeric NE (5^=3->1, 5^=5->0, 3^=1->1, left-assoc) [P052B];
       bit-string ^= ambiguous AND/XOR/NE [PROBE 64] *)
   | EqR of relop                          (** relational inside condition *)

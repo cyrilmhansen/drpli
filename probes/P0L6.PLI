@@ -1,0 +1,3 @@
+pll6: procedure options(main);
+   declare qq fixed binary(32);
+end pll6;

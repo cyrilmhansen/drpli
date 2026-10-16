@@ -1,0 +1,146 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P0L5 $L
+PLI D:P0L5 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P0L5
+
+L: List Source Program
+
+   2 b         declare qq fixed binary(31);
+NOT IMP                                   ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P0L5
+
+   1 a 0000 pll5: procedure options(main);
+   2 c 0006    declare qq fixed binary(31);
+   3 a 0006 end pll5;
+
+CODE SIZE = 0009
+DATA AREA = 0004
+FREE SYMS = 395C
+END  COMPILATION
+
+C>
+>>> PLI D:P0L6 $L
+PLI D:P0L6 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P0L6
+
+L: List Source Program
+
+   2 b         declare qq fixed binary(32);
+NOT IMP                                   ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P0L6
+
+   1 a 0000 pll6: procedure options(main);
+   2 c 0006    declare qq fixed binary(32);
+   3 a 0006 end pll6;
+
+CODE SIZE = 0009
+DATA AREA = 0005
+FREE SYMS = 395C
+END  COMPILATION
+
+C>
+>>> PLI D:P0L7 $L
+PLI D:P0L7 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P0L7
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P0L7
+
+   1 a 0000 pll7: procedure options(main);
+   2 c 0006    declare qq fixed binary(15);
+   3 a 0006 end pll7;
+
+CODE SIZE = 0009
+DATA AREA = 0002
+FREE SYMS = 395C
+END  COMPILATION
+
+C>
+>>> PLI D:P0L8 $L
+PLI D:P0L8 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P0L8
+
+L: List Source Program
+
+   2 b         declare qq fixed binary(30);
+NOT IMP                                   ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P0L8
+
+   1 a 0000 pll8: procedure options(main);
+   2 c 0006    declare qq fixed binary(30);
+   3 a 0006 end pll8;
+
+CODE SIZE = 0009
+DATA AREA = 0004
+FREE SYMS = 395C
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10053 ms, waited for 0 ms
+CPU executed 30826489 t-states in 16 ms
+Clock frequency 1822.32 MHz

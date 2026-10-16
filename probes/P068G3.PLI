@@ -1,0 +1,4 @@
+pp068g3: procedure options(main);
+   declare q fixed binary(24), z fixed;
+   q = 1;
+end pp068g3;

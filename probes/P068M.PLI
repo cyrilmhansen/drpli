@@ -1,0 +1,6 @@
+p068m: procedure options(main);
+   declare c bit(1), d bit(1), e bit(1), z fixed;
+   c = d &: e;
+   c = d |: e;
+   z = 5 + 3;
+end p068m;

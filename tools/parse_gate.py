@@ -20,6 +20,7 @@ EXPECTED_REJECT = {
 }
 
 STANDARD_SUPERSET = {
+    "P068M.PLI": "[M] short-circuit &: / |: (Subset G 6.2.2.5/6): DR p1-SYNTAX",
     "P066C.PLI": "[M] PICTURE declared type (Subset G 3.2.5): DR p1-SYNTAX",
     "P067D.PLI": "[M] $/_ identifier starts (Subset G 1.1.3): DR SYNTAX",
 }

@@ -1,0 +1,5 @@
+p068j2: procedure options(main);
+   declare a fixed, b fixed, c fixed, d fixed,
+         e fixed, f fixed, z fixed binary(24);
+   z = 1;
+end p068j2;

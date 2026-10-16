@@ -1,0 +1,3 @@
+pll2: procedure options(main);
+   declare qq fixed binary(17);
+end pll2;

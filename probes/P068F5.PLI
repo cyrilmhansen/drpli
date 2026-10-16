@@ -1,0 +1,4 @@
+pp068f5: procedure options(main);
+   declare z fixed bin;
+   z = 1;
+end pp068f5;

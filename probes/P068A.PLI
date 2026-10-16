@@ -1,0 +1,14 @@
+p068a: procedure options(main);
+   declare z fixed bin(31), w fixed bin(31), x fixed bin(31), c bit(1), d bit(1), e bit(1);
+   z = 2 + 3 * 4;
+   z = 2 * 3 + 4;
+   z = 2 ** 3 ** 2;
+   z = 2 ** 3 * 4;
+   z = -2 ** 2;
+   z = w / x * 2;
+   z = w / x / 2;
+   z = w - x - 2;
+   c = d = e;
+   c = d &: e;
+   z = w + x * 2 - 4 / 2;
+end p068a;

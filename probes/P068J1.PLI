@@ -1,0 +1,18 @@
+p063a: procedure options(main);
+   declare
+     p1  fixed binary(1),
+     p7  fixed binary(7),
+     p8  fixed binary(8),
+     p9  fixed binary(9),
+     p16 fixed binary(16),
+     p17 fixed binary(17),
+     p24 fixed binary(24),
+     p32 fixed binary(32),
+     pd  fixed,
+     pc  character,
+     pb  bit(1),
+     pv  character(30) varying,
+     p1d fixed decimal(1),
+     p15d fixed decimal(15),
+     pp  pointer;
+end p063a;

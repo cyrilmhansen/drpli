@@ -1,0 +1,4 @@
+pp068f3: procedure options(main);
+   declare z fixed dec(5,2);
+   z = 1;
+end pp068f3;

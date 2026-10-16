@@ -1,0 +1,2 @@
+P068A	diag	PRN=False REL=False
+P068B	ok	PRN=False REL=True

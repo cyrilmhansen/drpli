@@ -1,0 +1,4 @@
+pp068e6: procedure options(main);
+   declare z fixed bin(24), w fixed bin(24), x fixed bin(24), c bit(1), d bit(1), e bit(1);
+   z = w - x - 2;
+end pp068e6;

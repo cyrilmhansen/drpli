@@ -1,0 +1,4 @@
+pp068h3: procedure options(main);
+   declare z fixed binary(24);
+   put list(z);
+end pp068h3;
