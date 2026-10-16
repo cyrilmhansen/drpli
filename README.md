@@ -39,9 +39,11 @@ data, revisited priorities every ~10 turns.
 * Front end (OCaml): lexer → parser (218-file accept/reject parity gate)
   → binder ($S dump **43/43 byte-exact** gate) — DONE through binding.
 * $V IR opcode dictionary: ~90 ops role-decoded (spec/notes/ir-opcodes.md).
-* $C codegen oracle phase: OPENED — 20-specimen battery, pseudo-register
-  model, inline-vs-RTL decisions, PLILIB index + ABI table extracted
-  (spec/notes/codegen.md, tools/ctrace.py, spec/notes/plilib-*.txt).
-* Next: branch/loop/call encodings, array addressing, $C-parity gate
-  wiring, own back-end (IR builder → RTL-call codegen → .REL writer).
+* $C codegen oracle phase: COMPLETE (v1 model) — 34 specimens; branch/
+  loop/call/return/array/string/edit sequences decoded (codegen.md §1-8).
+* .REL object format: FULLY REVERSE-ENGINEERED and machine-verified —
+  round-trip gate reproduces 248/248 golden .REL files BIT-EXACTLY
+  (tools/rel_roundtrip.py, spec/notes/rel-format.md).
+* Next: own back-end — IR builder → codegen → .REL writer; wire the
+  $C/.REL parity gate (byte-identical track officially unlocked).
 

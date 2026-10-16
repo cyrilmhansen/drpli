@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""LINK-80 / Microsoft 8080 REL bitstream decoder (v3).
+
+Format per Nestor80 RelocatableFileFormat.md (matches LINK-80 guide §1.6):
+  * absolute byte      : '0' + 8 bits (MSB-first chars)
+  * relocatable value  : '1' + 2 seg bits (01 code, 10 data, 11 common)
+                         + 16 bits LITTLE-ENDIAN
+  * link item          : '1' + '00' + 4-bit type
+        types 0-4  : symbol field only
+        types 5-7  : relocatable value + symbol field
+        types 8-14 : relocatable value only
+        type 15    : nothing (EOF); type 14 (END-PROGRAM) pads to byte
+        symbol field = 3-bit count + count*8 ASCII bits
+Chain semantics (type 6 CHAIN-EXT / 12 CHAIN-ADDR): value = ADDRESS of
+first chain slot; each slot holds a code-relative link whose 16-bit
+value = address of the NEXT slot (0 terminates). The linker walks the
+chain writing the resolved symbol value at each slot address.
+"""
+import sys
+
+TYPES = {0: 'EXTDEF', 1: 'SEL-COMMON', 2: 'PROG-NAME', 3: 'REQ-LIBRARY',
+         4: 'EXTENSION', 5: 'DEF-COMMON-SIZE', 6: 'CHAIN-EXT',
+         7: 'DEF-PUBLIC', 8: 'EXT-MINUS-OFF', 9: 'EXT-PLUS-OFF',
+         10: 'DEF-DATA-SIZE', 11: 'SET-LC', 12: 'CHAIN-ADDR',
+         13: 'DEF-CODE-SIZE', 14: 'END-PROGRAM', 15: 'END-FILE'}
+SEGS = {1: 'code', 2: 'data', 3: 'common'}
+
+class BR:
+    def __init__(self, d):
+        self.d = d; self.p = 0
+    def bit(self):
+        if self.p // 8 >= len(self.d): raise EOFError
+        b = (self.d[self.p >> 3] >> (7 - (self.p & 7))) & 1
+        self.p += 1; return b
+    def bits(self, n):
+        v = 0
+        for _ in range(n):
+            v = (v << 1) | self.bit()
+        return v
+    def val16(self):
+        lo = self.bits(8); hi = self.bits(8)
+        return hi << 8 | lo
+    def name(self):
+        n = self.bits(3)
+        return ''.join(chr(self.bits(8)) for _ in range(n))
+    def pad(self):
+        self.p = (self.p + 7) & ~7
+
+def decode(path, verbose=True):
+    d = open(path, 'rb').read()
+    br = BR(d)
+    items = []
+    data_bytes = []      # (prog-or-data addr determined by last SET-LC, byte)
+    lc = ('code', 0)
+    addr = 0
+    seg = 'code'
+    try:
+        while True:
+            st = br.p
+            if br.bit() == 0:
+                b = br.bits(8)
+                items.append((st, 'DATA', seg, addr, b))
+                data_bytes.append((seg, addr, b))
+                addr += 1
+                continue
+            cls = br.bits(2)
+            if cls:
+                v = br.val16()
+                items.append((st, 'RELOC', SEGS[cls], None, v))
+                addr += 2
+                continue
+            t = br.bits(4)
+            val = None; nm = None
+            if 5 <= t <= 14:
+                s = br.bits(2)
+                if s == 0:   # absolute-valued field (sizes, LC values)
+                    val = ('abs', br.val16())
+                else:
+                    val = (SEGS[s], br.val16())
+            if 0 <= t <= 7 and t != 4:
+                nm = br.name()
+            elif t == 4:
+                nm = br.name()   # extension: symbol bytes carry ext code
+            if t == 14:
+                br.pad()
+            items.append((st, 'LINK-' + TYPES[t], None, val, nm))
+            if t == 11 and val:
+                seg, addr = val[0], val[1]
+            if t == 15:
+                break
+    except EOFError:
+        items.append((br.p, 'EOF?', None, None, None))
+    if verbose:
+        print(f'===== {path} ({len(d)} bytes, bits consumed {br.p}/{len(d)*8})')
+        for st, kind, s, a, v in items:
+            print(f'  @{st:5} {kind:14} {s if s else ""} {("%04X" % a) if isinstance(a,int) else ""} {v if not isinstance(v,int) else hex(v)}')
+    return items, data_bytes
+
+if __name__ == '__main__':
+    for f in sys.argv[1:]:
+        decode(f)
