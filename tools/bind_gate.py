@@ -14,6 +14,8 @@ KNOWN_GAPS = {
                "[PROBE 62]; function-descriptor lines deferred",
     "FLTPOLY": "nested-function descriptor lines (P FUNCTION / RETURNED / "
                "PARAMETER .*) + PARAMETERS on block header — v2 machinery",
+    "P062A": "inline PUT EDIT emits `* FORMAT STATIC` + 17B unit cost; "
+             "format-descriptor sizing [PROBE 65]",
 }
 
 def find_source(name):
@@ -24,7 +26,8 @@ def find_source(name):
     return None
 
 def main():
-    goldens = sorted(glob.glob(os.path.join(ROOT, "golden/bind*/S/*.s.txt")))
+    goldens = sorted(glob.glob(os.path.join(ROOT, "golden/bind*/S/*.s.txt")) +
+                   glob.glob(os.path.join(ROOT, "golden/probe18/S/*.s.txt")))
     exact = gaps = fails = 0
     for g in goldens:
         name = os.path.basename(g)[:-len(".s.txt")]

@@ -1,0 +1,66 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P062A $L$B
+PLI D:P062A $L$B
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P062A
+
+B: Built-In Subroutine Trace
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P062A
+
+   1 a 0000 p062a: procedure options(main);
+       0006       START
+   2 c 0006    declare x fixed decimal(9,2);
+   3 c 0006    x = 1234.56;
+       000E       DLDOP
+       0016       DSTOP
+   4 c 0016    put edit(x)(p'+++,+++.++');
+       001F       SYSPR
+       0025       EDITF
+       002D       DLDOP
+       0034       QDCOP
+       0037       EDTOV
+       003A       QIOOP
+   5 a 003A end p062a;
+       003D       STOPX
+
+CODE SIZE = 003D
+DATA AREA = 001B
+FREE SYMS = 3934
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 4021 ms, waited for 0 ms
+CPU executed 9986435 t-states in 7 ms
+Clock frequency 1408.12 MHz

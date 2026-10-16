@@ -84,3 +84,5 @@ CREATE/RETRIEVE round-trip captured end-to-end (iofam1).
 One AUTO frame per procedure; nested-block DECLAREs share it
 (X@0 Y@2 W@4); nested PROCs are ENTRY..CONSTANT in parent; inner-block
 storage lines show 'BLOCK AT LINE n, AUTO STORAGE 0'.
+
+RTL/B names seen: EDITF = picture/format edit call (P062A $B at 0025)
