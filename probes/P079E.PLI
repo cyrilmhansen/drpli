@@ -1,0 +1,6 @@
+pp079e: procedure options(main);
+   declare a fixed, bb fixed;
+   do while (a <> 3);
+      bb = 1;
+   end;
+end pp079e;

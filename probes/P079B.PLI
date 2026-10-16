@@ -1,0 +1,6 @@
+pp079b: procedure options(main);
+   declare i entry(fixed) internal;
+   declare x fixed;
+   call i(1);
+   x = 2;
+end pp079b;

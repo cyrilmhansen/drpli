@@ -1,0 +1,7 @@
+pp079d: procedure options(main);
+   declare d fixed decimal(5,2), s char(3), b bit(3), f float;
+   if d <> 1.0 then s = 'a';
+   if s <> 'b' then d = 2;
+   if b <> '101'b then f = 1e0;
+   if f <> 2e0 then b = '000'b;
+end pp079d;

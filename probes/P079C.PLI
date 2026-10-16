@@ -1,0 +1,9 @@
+pp079c: procedure options(main);
+   declare x fixed;
+   on error
+      begin;
+         declare t fixed;
+         t = 1;
+         x = t;
+      end;
+end pp079c;

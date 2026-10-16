@@ -1,0 +1,6 @@
+pp079a: procedure options(main);
+   declare e entry(fixed) external;
+   declare x fixed;
+   call e(1);
+   x = 2;
+end pp079a;

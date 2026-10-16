@@ -301,10 +301,13 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
             match rt with
             | RTfile { internal } -> if internal then "FILE INTERNAL STATIC" else "FILE EXTERNAL STATIC"
             | RTentry { params; external_; ret } ->
-                let fn = external_ || ret <> None in
+                (* FUNCTION word requires RETURNS [EX ftc]; EXTERNAL from
+                   attr OR returns-bearing free dcl [EX P079A: external,
+                   no returns => ENTRY EXTERNAL; P079B: internal =>
+                   ENTRY CONSTANT] *)
                 Printf.sprintf "%s PARAMETERS(%d) %sCONSTANT"
-                  (if fn then "FUNCTION" else "ENTRY") params
-                  (if fn then "EXTERNAL " else "")
+                  (if ret <> None then "FUNCTION" else "ENTRY") params
+                  (if external_ || ret <> None then "EXTERNAL " else "")
             | RTlabel -> "LABEL CONSTANT"
             | RTformat -> "FORMAT STATIC"
             | _ ->
@@ -321,11 +324,14 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
            in a private per-entry area [EX ANNUITY FTC: CHAR(17) VARYING
            RETURNED@0000 (18B), FLOAT PARAMETER@0012] *)
         (match rt with
-         | RTentry { ret = Some rr; ptypes; _ } ->
+         | RTentry { ret; ptypes; _ } ->
              let cur = ref 0 in
-             push { flag = "c"; sname = ".*"
-                  ; disp = rty_str rr ^ " RETURNED"; off = !cur };
-             cur := !cur + bytes_of rr;
+             Option.iter
+               (fun (rr : rt) ->
+                 push { flag = "c"; sname = ".*"
+                      ; disp = rty_str rr ^ " RETURNED"; off = !cur };
+                 cur := !cur + bytes_of rr)
+               ret;
              List.iter
                (fun (pt : rt) ->
                  push { flag = "c"; sname = ".*"
