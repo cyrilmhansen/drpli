@@ -1,0 +1,15 @@
+p022: procedure options(main);
+   /* level struct: group assign, flat refs, qualification? */
+   declare
+     1 grp  static,
+       2 a  fixed,
+       2 b  char(4),
+     1 grp2 static,
+       2 c  fixed,
+       2 d  char(4);
+   c = 7;
+   d = 'WXYZ';
+   grp = grp2;
+   put skip list('a=', a, ' b=', b);
+   put skip list('qual=', grp.a);
+end p022;

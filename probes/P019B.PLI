@@ -1,0 +1,10 @@
+p019b: procedure options(main);
+   declare arr(5) fixed, h fixed, l fixed, pf file;
+   open file(pf) print;
+   l = lbound(arr,1);
+   h = hbound(arr,1);
+   put skip list('l=',l,' h=',h);
+   put file(pf) list('hello');
+   put skip list('lineno=', lineno(pf));
+   put skip list('pageno=', pageno(pf));
+end p019b;

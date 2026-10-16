@@ -1,0 +1,5 @@
+p017a: procedure options(main);
+   declare a float decimal(5);
+   a = 1.5;
+   put skip list(a);
+end p017a;

@@ -1,0 +1,168 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P017A $L
+PLI D:P017A $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P017A
+
+L: List Source Program
+
+   2 b         declare a float decimal(5);
+CONFLICT                          ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P017A
+
+   1 a 0000 p017a: procedure options(main);
+   2 c 0006    declare a float decimal(5);
+   3 c 0006    a = 1.5;
+   4 c 0012    put skip list(a);
+   5 a 002E end p017a;
+
+CODE SIZE = 0031
+DATA AREA = 0008
+FREE SYMS = 3941
+END  COMPILATION
+
+C>
+>>> PLI D:P017B $L
+PLI D:P017B $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P017B
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P017B
+
+   1 a 0000 p017b: procedure options(main);
+   2 c 0006    declare b float;
+   3 c 0006    b = 1.5;
+   4 c 0011    put skip list(b);
+   5 a 002D end p017b;
+
+CODE SIZE = 0030
+DATA AREA = 0008
+FREE SYMS = 3941
+END  COMPILATION
+
+C>
+>>> PLI D:P019A $L
+PLI D:P019A $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P019A
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P019A
+
+   1 a 0000 p019a: procedure options(main);
+   2 c 0006    declare p pointer, x bit(1), y bit(1), f fixed;
+   3 c 0006    x = '1'b;
+   4 c 000B    if p = null then put skip list('init null ok');
+   5 c 002F    p = addr(x);
+   6 c 0035    if p ^= null then put skip list('p nonnull');
+   7 c 0059    y = bool(x, x, '1010'b);
+   8 c 0071    put skip list('bool=', y);
+   9 c 0098    f = divide(7, 2, 5);
+  10 c 00BB    put skip list('divide=', f);
+  11 c 00E2    f = fixed('123');
+  12 c 00E8    put skip list('fixed=', f);
+  13 a 010F end p019a;
+
+CODE SIZE = 0112
+DATA AREA = 002F
+FREE SYMS = 37EE
+END  COMPILATION
+
+C>
+>>> PLI D:P019B $L
+PLI D:P019B $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P019B
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   7 c         put skip list('lineno=', lineno(sysprint));
+NO DCL                                            ?
+TYPES NOT=                                             ?
+   8 c         put skip list('pageno=', pageno(sysprint));
+NO DCL                                            ?
+TYPES NOT=                                             ?
+    4 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P019B
+
+   1 a 0000 p019b: procedure options(main);
+   2 c 0006    declare arr(5) fixed, h fixed, l fixed;
+   3 c 0006    l = lbound(arr,1);
+   4 c 0013    h = hbound(arr,1);
+   5 c 0020    put skip list('l=',l,' h=',h);
+   6 c 005D    put skip edit(1)(f(4));
+   7 c 0086    put skip list('lineno=', lineno(sysprint));
+   8 c 00B0    put skip list('pageno=', pageno(sysprint));
+   9 a 00DA end p019b;
+
+CODE SIZE = 00DD
+DATA AREA = 0030
+FREE SYMS = 3810
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10056 ms, waited for 0 ms
+CPU executed 49997412 t-states in 28 ms
+Clock frequency 1785.17 MHz

@@ -1,0 +1,6 @@
+C:
+D:
+##SEND P020\r
+##SEND \x1a
+##WAIT \nD>
+##HALT

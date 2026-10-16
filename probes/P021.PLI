@@ -1,0 +1,8 @@
+p021: procedure options(main);
+   declare inf file, outf file, pf file;
+   open file(inf) input title('$1.$1');
+   open file(outf) output keyed environment(f(80),b(1024))
+        title('$2.$2');
+   open file(pf) stream print pagesize(60);
+   put file(pf) skip list('hello');
+end p021;

@@ -1,0 +1,10 @@
+p024: procedure options(main);
+   /* pointer forms: bare deref, p->.field, *p style? */
+   declare p pointer, q based(p) fixed, z fixed;
+   z = 42;
+   p = addr(z);
+   q = q + 1;
+   put skip list('q=',q);
+   p->.q = 7;
+   put skip list('z=',z);
+end p024;

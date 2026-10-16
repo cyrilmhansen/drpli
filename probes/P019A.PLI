@@ -1,0 +1,13 @@
+p019a: procedure options(main);
+   declare p pointer, x bit(1), y bit(1), f fixed;
+   x = '1'b;
+   if p = null then put skip list('init null ok');
+   p = addr(x);
+   if p ^= null then put skip list('p nonnull');
+   y = bool(x, x, '1010'b);
+   put skip list('bool=', y);
+   f = divide(7, 2, 5);
+   put skip list('divide=', f);
+   f = fixed('123');
+   put skip list('fixed=', f);
+end p019a;

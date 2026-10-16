@@ -1,0 +1,6 @@
+
+init null ok
+p nonnull
+bool= '0'b
+divide=         3
+fixed=       123

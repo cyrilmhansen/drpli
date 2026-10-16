@@ -26,7 +26,7 @@ label-constant  = identifier ;
 number          = {digit} [ "." {digit} ]
                 [ ( "E" | "D" ) [ "+" | "-" ] {digit} ] ;
                 (* [PROBE 3: lowercase 'e' float exponent — fixed in 1.4 [RN];
-                   'b' suffix on bit strings: 5'b10101 [EX OPTIMIST] *) *)
+                   'b' suffix on bit strings: 5'b10101 [EX OPTIMIST] *)
 bit-literal     = {bit-digit}, "'", ( "B" | "b" ) ;
 char-literal    = "'", { any-char | "''" /* quote escape? */ }, "'" ;
                 (* [PROBE 4: quote escape mechanism, control chars in
@@ -71,7 +71,7 @@ replace-stmt    = "%REPLACE" repname "BY" const-exp
 
 (* ---- Statements (Appendix B, complete list = 31) ------------------- *)
 statement       = label-prefix basic-stmt | empty-stmt ;
-empty-stmt      = ";" ;                               (* [M AppB.15]
+empty-stmt      = ";" ;                               (* [M AppB.15] *)
 basic-stmt       =
     allocate-stmt | assignment-stmt | begin-stmt | call-stmt
   | close-stmt | declare-stmt | do-stmt | end-stmt | format-stmt
@@ -81,9 +81,12 @@ basic-stmt       =
   | return-stmt | revert-stmt | signal-stmt | stop-stmt
   | write-stream-stmt | write-seq-stmt | write-keyfrom-stmt ;
 
-allocate-stmt   = "ALLOCATE" based-var "SET" "(" ptr-var ")" ; (* [M AppB.1] *)
+allocate-stmt   = "ALLOCATE" based-var "SET" "(" ptr-var ")" ; (* [M AppB.1]
+                     [EX ALLTST 2 files] [PROBE 34: ALLOCATE/FREE runtime —
+                     CP/M storage: what does SET do, STKSIZ limits?] *)
 assignment-stmt = lvalue "=" exp ";" ;
-                (* lvalue: var | substr-builtin | unspec-builtin [M §7.4] *)
+                (* lvalue: var | substr-builtin | unspec-builtin [M §7.4]
+                   | GROUP-NAME (whole-record copy [EX ENTER l.48]) *)
 call-stmt       = "CALL" proc-name [ "(" [ exp { "," exp } ] ")" ] ;
 close-stmt      = "CLOSE" "FILE" "(" file-name { "," file-name } ")" ;
 do-stmt         = "DO" [ "label" ":" ] [ "TO" ] [ iter-spec ]
@@ -98,12 +101,26 @@ do-stmt         = "DO" [ "label" ":" ] [ "TO" ] [ iter-spec ]
 if-stmt         = "IF" cond "THEN" stmt [ "ELSE" [ stmt ] ] ;
                 (* cond: bit-string or "()" boolean [PROBE 13: exact
                    accepted cond types; 1.4 fix: SUBSTR of bit as cond [RN]] *)
-on-stmt         = "ON" condition on-unit ;              (* [M AppB.16]
-                   condition = name | name "(" file-name ")"
-                   [PROBE 14: ON-unit restricted to single stmt? nesting,
-                   1.4 fix re repeated stacking of ON [RN]] *)
+on-stmt         = "ON" condition on-unit ;              (* [M §8.5]
+                   condition = cond-name [ "(" ( file-name | code ) ")" ]
+                   cond-name = "ERROR" | "FIXEDOVERFLOW" | "OVERFLOW"
+                             | "UNDERFLOW" | "ZERODIVIDE" | "ENDFILE"
+                             | "ENDPAGE" | "UNDEFINEDFILE" | "KEY"  [M §8.5]
+                             | user-condition-name       (* via SIGNAL only? *)
+                   on-unit   = statement | "BEGIN" { stmt } "END"
+                   [M §8.5: no RETURN exit from on-unit BEGIN; non-local GOTO
+                   allowed; on-units STACK (max 16 active); REVERT pops most
+                   recent; automatic revert on block exit]
+                   [M §8.8 default actions: print message + terminate, EXCEPT
+                   FIXEDOVERFLOW (never raised for BINARY overflow — matches
+                   observed silent 16-bit wrap C024) and ENDPAGE (form feed)]
+                   [PROBE 32: "ON ERROR(1)" numeric designator (seen in
+                   EXPR1/EXPR2 [EX]) — meaning, relation to ONCODE and to the
+                   "(1)"/"(2)" suffix in RTL messages [C020] ] *)
 revert-stmt     = "REVERT" condition { "," condition } ;
-signal-stmt     = "SIGNAL" condition-name ;
+signal-stmt     = "SIGNAL" cond-name [ "(" ( file-name | code ) ")" ] ;
+                (* [M §8.6] plain form; corpus uses SIGNAL ENDPAGE(file),
+                   SIGNAL ERROR(1) [EX COPYLPT/EXPR1] [PROBE 32 covers codes] *)
 stop-stmt       = "STOP" ;                              (* [PROBE 15:
                    STOP with code? interplay with $STOP compiler msg] *)
 goto-stmt       = ( "GOTO" | "GO" "TO" ) label [ "(" subscript ")" ] ;
@@ -117,29 +134,56 @@ decl            = [ level ] designator
                   [ constant ]        (* array extents, static only
                      [PROBE 17: lower bound default, multi-dim, bounds] *)
                   [ type-attrs ] [ storage-attrs ] ;
+                  (* GROUP ITEM: level + name, NO type attrs (ENTER.PLI
+                     "2 address," / "1 default static,") — occupies the
+                     contiguous span of its subitems [EX] *)
 level           = unsigned-int ;      (* structure level, dense rules
                      [PROBE 18: level increment rules, level 0] *)
-type-attrs      = ( "FIXED" [ "BINARY"|"BINARY"|"DECIMAL"|"DEC" [ "(" p [ "," s ] ")" ] ]
+type-attrs      = ( "FIXED" [ "BINARY"|"BIN"|"DECIMAL"|"DEC" [ "(" p [ "," s ] ")" ] ]
                   | "FLOAT" [ "BINARY"|"BIN" | "DECIMAL" ] [ "(" p ")" ] )
+                  (* precision max 15 [C022]; default FIXED = BIN(15) [C021];
+                     FLOAT DECIMAL => pass1 "CONFLICT" diag, no object:
+                     Subset G CUT CONFIRMED [EX P017A]; bare FLOAT ok
+                     [EX P017B] — default float precision TBD via $S *)
                   | ( "CHARACTER"|"CHAR" ) [ "(" n [ "VARYING"|"VAR" ] ")" ]
                   | ( "BIT"|"B" ) [ "(" n ")" ] [ "ALIGNED" ]
                   (* [PROBE 19: VARYING placement inside/outside parens —
                      samples show both CHAR(20) VAR and CHAR(20)VARYING] *)
-                  | "LABEL" | "POINTER"|"PTR" | "FILE" | "ENTRY"
+                  | "LABEL" | "POINTER"|"PTR"
+                  | "FILE" [ file-attrs ]
+                    (* file-attrs (DCL or OPEN position — split TBD):
+                       [ "STREAM" | "RECORD" ] [ "KEYED" ]
+                       [ "ENVIRONMENT" "(" env-list ")" ]
+                       [ "PAGESIZE" "(" n ")" ]
+                       env-list = ( "F" | "B" ) "(" n ")" { "," ... }
+                       [EX "open file(emp) keyed output
+                            environment(f(128),b(4000))" KEYFILE [EX]]
+                       [PROBE 33: which attrs legal where + defaults] *)
+                  | "ENTRY"
                     [ "(" [ type-attrs { "," type-attrs } ] ")" ]
                     [ "RETURNS" "(" type-attrs ")" ]
                   | "BUILTIN" ;
-storage-attrs   = { "STATIC"|"STATIC" | "AUTOMATIC"|"AUTO"
-                  | "BASED" [ "(" ptr ")" ]
+storage-attrs   = { "STATIC" | "AUTOMATIC"|"AUTO"
+                  | "BASED" "(" ptr ")"          (* EX ALLTST/ALLDCL [EX];
+                     BASED(q()) fn-valued variant [M §5.2] *)
                   | ( "EXTERNAL"|"EXT" ) [ "(" ext-name-lit ")" ]
-                  | "VARIABLE"
+                  | "VARIABLE"                   (* with FILE/ENTRY [M §5.2 EX] *)
                   | "INITIAL"|"INIT" "(" init { "," init } ")" } ;
+                (* NOTE: no DEFAULT attribute in corpus — ENTER.PLI
+                   "1 default static" is a GROUP NAMED default [EX];
+                   ANSI DEFAULT attribute support unknown [PROBE 39] *)
                 (* init: value | n "(" value ")" replication [M AppC.14]
                    [PROBE 20: default storage by block nesting,
                    DEFAULT attribute, EXTERNAL linkage naming] *)
 
 (* ---- Expressions (precedence, high→low) [M §7.1.3] ------------------ *)
 primary         = constant | special-register? | identifier
+                  [ "->" designator ]   (* pointer qualification p->f
+                     [M §1.4 l.556, §3.4; EX NETWORK(45), MPMCALLA/B] *)
+                  (* special FREE-only form "FREE P->.A" [M AppB.10];
+                     "->." in assignment = SYNTAX [EX P024]; deref
+                     grammar beyond p->f: bare p->, deref-star style
+                     [PROBE 41] *)
                   [ substring | bit-substr | unspec-builtin ]
                 | "(" expression ")"
                 | function-reference
@@ -154,51 +198,112 @@ concatenation   = "||" ;               (* [PROBE 23: LENGTH on concat of
                      VARYING — 1.4 fix [RN]] *)
 relational      = "=" | "^=" | "<" | "<=" | ">" | ">=" ;
                 (* [PROBE 24: mixed-type compare coercion rules §7.2/7.3] *)
-logical         = ( "^" | "/" "\" | "OR" | "AND" | "NOT"
-                  | "&" | "|" ) ;      (* [M §1.4 delimiters — exact
-                     operator spellings [PROBE 25]] *)
+logical         = ( "^" | AND-OPS | OR-OPS | "OR" | "AND" | "NOT" ) ;
+                (* actual spellings: /\ = AND, \ = OR, ^ = NOT [M §1.4;
+                   samples use &, |, ^ extensively [EX EXPR1/2];
+                   single-char & | also observed in corpus [EX];
+                   operator table [PROBE 25] *)
 conditional-exp = "(" cond ")" "(" then-exp "ELSE" else-exp ")" ;
                      (* PL/I conditional expression [PROBE 26: is it in
                         the /G subset supported by PL/I-80??] *)
 
 (* ---- Built-in functions (§12) -------------------------------------- *)
-arith-bi        = "ABS" "CEIL" "DIVIDE(a,b,m)" "FLOOR" "MAX" "MIN"
+arith-bi        = "ABS" "CEIL" "DIVIDE" "FLOOR" "MAX" "MIN"
                   "MOD" "ROUND" "SIGN" "TRUNC" ;
+                (* DIVIDE(x,y,p[,q]) [M §12.4.6]: 3rd arg INTEGER const, not
+                   bit; EX P019A divide(7,2,5)=3 (3.5 -> 3: mode? [PROBE 42]) *)
 math-bi         = "ACOS" "ASIN" "ATAN" "ATAND" "COS" "COSD" "COSH" "EXP"
                   "LOG" "LOG2" "LOG10" "SIN" "SIND" "SINH" "SQRT" "TAN"
                   "TAND" "TANH" ;
-string-bi       = "LENGTH(x[,unit])" "COLLATE" "INDEX" "SUBSTR"
-                  "TRANSLATE" "VERIFY" ;
-conv-bi         = "ASCII" "BINARY" "BIT" "CHARACTER" "DECIMAL" "FLOAT"
-                  "RANK" "UNSPEC" ;    (* ASCII/RANK are PL/I-80 additions *)
+string-bi       = "BOOL" "COLLATE" "INDEX" "LENGTH" "SUBSTR"
+                  "TRANSLATE" "VERIFY" ;          (* BOOL = 12.3.1 [M]:
+                     BOOL(x,y,'abcd'b) truth-table 3-arg; bool('1'b,'1'b,
+                     '1010'b)='0'b [EX P019A]; 1-arg bool(x) = SYNTAX [P019]
+                     LENGTH(x[,unit]) §12.3.4 *)
+conv-bi         = "ASCII" "BINARY" "BIT" "CHARACTER" "DECIMAL" "DIVIDE"
+                  "FIXED" "FLOAT" "RANK" "UNSPEC" ;
+                (* §12.4: FIXED(x[,p[,k]]) — fixed('123')=123 [EX P019A];
+                   ASCII/RANK = PL/I-80 additions; DIVIDE also listed 12.4 *)
 cond-bi         = "ONCODE" "ONFILE" "ONKEY" ;
-misc-bi         = "ADDR" "DIMENSION" "STKSIZ" "MAXWDS" "ALLWDS" "TOTWDS" ;
-                     (* STKSIZ/MAXWDS/ALLWDS/TOTWDS not in manual TOC —
-                        seen in ACKTST/ALLTST samples [EX]; [PROBE 27:
-                        full v1.4 builtin table — extract from binary] *)
+misc-bi         = "ADDR" "DIMENSION" "HBOUND(x,n)" "LBOUND(x,n)"
+                  "LINENO(file)" "NULL" "PAGENO(file)" ;
+                  (* [M §12.6 decoded: HBOUND/LBOUND/LINENO/NULL/PAGENO]
+                     EX P019B: lbound(arr,1)=1 hbound(arr,1)=5 (STATIC ok);
+                     lineno/pageno take a DECLARED file value — using
+                     sysprint undeclared => pass2 NO DCL + TYPES NOT=;
+                     after open file(pf) print: lineno(pf)=pageno(pf)=1.
+                     undocumented STKSIZ MAXWDS ALLWDS TOTWDS [EX
+                     ACKTST/ALLTST compile clean => REAL v1.4 builtins;
+                     extract table from binary, PROBE 27] *)
+                (* NULL is a BARE VALUE (Format: NULL [M §12.6.6]), not a
+                   call: p = null, q ^= null [EX NETWORK/P019A runs] *)
                 (* NOT present (Subset-G cuts): ATANH DATE STRING TIME
                    VALID [M intro] *)
+                (* condition-info built-ins [M §8.9/§12.5]: ONCODE ONFILE
+                   ONKEY; BOOL [M §12.3.1] is the logical-conversion builtin
+                   fixed in v1.4 RELNOTES; DIVIDE [§12.4.6] & FIXED [§12.4.7]
+                   are CONVERSION built-ins (12.4 list) *)
 
 (* ---- I/O ----------------------------------------------------------- *)
 file-names      = "SYSIN" | "SYSPRINT" | "SYSOUT" | "SYSPRINT" ... ;
                      (* [PROBE 28: predefined files table §9.7] *)
-open-stmt       = "OPEN" "FILE" "(" f ")" [ "INPUT" | "OUTPUT" | "UPDATE" ] ;
+file-names      = "SYSIN" | "SYSPRINT" | "SYSOUT" ;  (* + defaults; also
+                     user-declared file names with TITLE [EX]
+                     [PROBE 28: predefined files table §9.7 — SYSIN/SYSPRINT/
+                     SYSOUT/SYSERROR? + $con title + 'A$1$2' naming] *)
+open-stmt       = "OPEN" [ "FILE" ] "(" f { "," f } ")"
+                  [ [ "INPUT" | "OUTPUT" | "UPDATE" ]
+                  | "PRINT" ]                (* PRINT [M AppB.17 + EX LOAN2] *)
+                  [ "STREAM" ]                (* DR-observed option [EX COPY/COPYLPT]
+                     [PROBE 33: STREAM vs RECORD default; where allowed in DCL; *
+                     combination/legality matrix OPEN/ENVIRONMENT/KEYED] *)
+                  [ "KEYED" ]                 (* [EX KEYFILE/UPDATE/RETRIEVE] *)
+                  [ "ENVIRONMENT" "(" env-item { "," env-item } ")" ]
+                  | "TITLE" "(" string-exp ")"    (* CP/M filename; '$1.$2'
+                     naming, '$con' = console special value [EX LOAN2/CREATE] *)
+                  [ "PAGESIZE" "(" n ")" ] ;      (* [EX] *)
+env-item        = ( "F" | "B" ) "(" n ")" ;
+                (* OPEN option ORDER + which appear in DCL vs OPEN is
+                   [PROBE 33]; predefined file names [PROBE 28] *)
 get-list        = "GET" [ "FILE" "(" f ")" ] [ "SKIP" [ "(" n ")" ] ]
                   "LIST" "(" io-list ")" ;
 put-list        = "PUT" [ "FILE" "(" f ")" ] [ "SKIP" [ "(" n ")" ] ]
                   [ "PAGE" [ "(" n ")" ] ] "LIST" "(" io-list ")" ;
 get-edit / put-edit : same + "EDIT" "(" data-list ")" "(" format-list ")" ;
 format-item     = ( "A" | "B" | "O"? | "F" | "E" | "P" | "X" | "R"
-                  | "(" ) [ "(" w [ "," d ] ")" ] ;   (* §10.6-10.8
-                  [PROBE 29: full format table incl. PICTURE (v1.3+,
-                  App D), insertion/drift rules, 1.4 F(w,d) fix [RN]] *)
+                  | "S" | "K" | "T"? ) [ "(" w [ "," d ] ")" ] ;
+                (* §10.6-10.8. PICTURE = OUTPUT format item P'picspec'
+                   [M AppD, v1.3+]; EX P020 RUNS: p'++,+++.++' of
+                   1234.56 -> '+12.35' — appears value/100 vs manual
+                   example — [PROBE 40: picture scaling].
+                   REMOTE FORMAT: named format referenced as R(label):
+                   put edit(x)(r(money)) [M §10.9; EX P020]; bare (money)
+                   => SYNTAX [P020 round1]. FORMAT stmt requires a label:
+                   "money: FORMAT(list);" [M AppB.9]. 1.4 F(w,d) [RN]. *)
 read/write      = stream forms READ FILE(f) INTO(v)/WRITE FILE(f) FROM(v)
                 + record forms [KEY|KEYTO|KEYFROM] ;  (* §11 [M AppB.21-31] *)
 
 (* ---- Structure/aggregates (§4) ------------------------------------- *)
-array           = designator constant { constant } ;   (* dim up to? [PROBE 30] *)
-structure       = level-based nested DCL [M AppB.6 example] ;
+array           = designator constant { constant } ;   (* dims are compile-time
+                     constants only: undefined name as bound -> SYNTAX at dcl
+                     [C013/P005 confirmed]; dim max? [PROBE 30] *)
+structure       = level-based nested DCL ;  (* [EX ENTER/CREATE/KEYFILE/RETRIEVE]
+                   The ONLY structure mechanism in DR PL/I-80 (ANSI STRUCTURE
+                   [PROBE 35] appears CUT):
+                   - fields referenced FLAT (age,wage) or QUALIFIED grp.a —
+                     both compile AND run [EX P022: qual= 7]
+                   - group->group assignment COPIES the record image
+                     [EX P022 runtime a=7 b=WXYZ after grp=grp2; ENTER]
+                   - levels 1..n; increment rules [PROBE 18]
+                   [PROBE 38: ambiguity flat vs qualified across groups;
+                   STATIC layout order; based-group assign] *)
+                (* [PROBE 39: ANSI DEFAULT attribute — accepted? need ref dcl] *)
                   (* [PROBE 31: levels must be consecutive? gap errors] *)
+
+(* ---- Conditions & ON-unit rules ([M §8.4-8.9] integrated above) ---- *)
+cond-name       = "ERROR" | "FIXEDOVERFLOW" | "OVERFLOW" | "UNDERFLOW"
+                | "ZERODIVIDE" | "ENDFILE" | "ENDPAGE" | "UNDEFINEDFILE"
+                | "KEY" ;
 
 (* ============ Open global questions (Phase 1 answers these) ========
    Q1 Does the compiler produce an intermediate ".INT" file that a

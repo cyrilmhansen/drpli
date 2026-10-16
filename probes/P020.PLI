@@ -1,0 +1,7 @@
+p020: procedure options(main);
+   declare x fixed decimal(8,2);
+   money: format(p'$++,+++.++');
+   x = 1234.56;
+   put skip edit(x) (p'++,+++.++');
+   put skip edit(x) (r(money));
+end p020;

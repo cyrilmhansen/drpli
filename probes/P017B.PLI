@@ -1,0 +1,5 @@
+p017b: procedure options(main);
+   declare b float;
+   b = 1.5;
+   put skip list(b);
+end p017b;

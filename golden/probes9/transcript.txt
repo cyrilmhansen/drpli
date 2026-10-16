@@ -1,0 +1,142 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P020 $L
+PLI D:P020 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P020
+
+L: List Source Program
+
+   4 b         format money(p'$++,+++.++');
+SYNTAX           ?
+   7 b         put skip edit(x) (money);
+SYNTAX                             ?
+    2 ERROR(S) IN PASS 1
+
+   7 c         put skip edit(x) (money);
+NOT FORMAT                  ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P020
+
+   1 a 0000 p020: procedure options(main);
+   2 a 0006    /* FORMAT statement placement + PICTURE item (v1.3+ App D) */
+   3 c 0006    declare x fixed decimal(8,2);
+   4 c 0006    format money(p'$++,+++.++');
+   5 c 0006    x = 1234.56;
+   6 c 0016    put skip edit(x) (p'++,+++.++');
+   7 c 003F    put skip edit(x) (money);
+   8 a 0068 end p020;
+
+CODE SIZE = 006B
+DATA AREA = 000D
+FREE SYMS = 3935
+END  COMPILATION
+
+C>
+>>> PLI D:P021 $L
+PLI D:P021 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P021
+
+L: List Source Program
+
+   4 b                 recf file keyed environment(f(80),b(1024)),
+SYNTAX                             ?
+    1 ERROR(S) IN PASS 1
+
+   5 c                 pf   file print pagesize(60);
+NO DCL                 ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P021
+
+   1 a 0000 p021: procedure options(main);
+   2 a 0006    /* file attr placement matrix: DCL vs OPEN */
+   3 c 0006    declare inf  file,
+   4 c 0006            recf file keyed environment(f(80),b(1024)),
+   5 c 0006            pf   file print pagesize(60);
+   6 c 0006    put skip list('dcl ok');
+   7 a 0022 end p021;
+
+CODE SIZE = 0025
+DATA AREA = 0006
+FREE SYMS = 3921
+END  COMPILATION
+
+C>
+>>> PLI D:P022 $L
+PLI D:P022 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P022
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P022
+
+   1 a 0000 p022: procedure options(main);
+   2 a 0006    /* level struct: group assign, flat refs, qualification? */
+   3 c 0006    declare
+   4 c 0006      1 grp  static,
+   5 c 0006        2 a  fixed,
+   6 c 0006        2 b  char(4),
+   7 c 0006      1 grp2 static,
+   8 c 0006        2 c  fixed,
+   9 c 0006        2 d  char(4);
+  10 c 0006    c = 7;
+  11 c 000E    d = 'WXYZ';
+  12 c 001A    grp = grp2;
+  13 c 0026    put skip list('a=', a, ' b=', b);
+  14 c 0063    put skip list('qual=', grp.a);
+  15 a 008A end p022;
+
+CODE SIZE = 008D
+DATA AREA = 001A
+FREE SYMS = 38AA
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 8044 ms, waited for 0 ms
+CPU executed 34971624 t-states in 22 ms
+Clock frequency 1563.39 MHz

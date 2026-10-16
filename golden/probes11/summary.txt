@@ -1,0 +1,3 @@
+P019B	ok	PRN=False REL=True
+P020	ok	PRN=False REL=True
+P024	diag	PRN=False REL=False

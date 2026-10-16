@@ -1,0 +1,7 @@
+p017: procedure options(main);
+   /* Subset G: FLOAT DECIMAL cut? */
+   declare a float decimal(5), b float;
+   a = 1.5;
+   b = a + 1;
+   put skip list(b);
+end p017;
