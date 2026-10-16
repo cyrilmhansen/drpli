@@ -1,0 +1,191 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P018B $L
+PLI D:P018B $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P018B
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P018B
+
+   1 a 0000 p018b: procedure options(main);
+   2 a 0006    /* handler selection: only a DESIGNATED unit exists */
+   3 c 0006    declare n fixed;
+   4 c 0006    n = 0;
+   5 c 000C    on error(1) begin;
+   6 e 0014       n = n + 10;
+   7 e 001E       put skip list('specific(1) fired, oncode=', oncode());
+   8 d 0045    end;
+   9 c 0045    signal error(1);
+  10 c 004D    put skip list('n after signal=', n);
+  11 c 0074    n = 65536;
+  12 c 0082    put skip list('n after conv=', n);
+  13 a 00A9 end p018b;
+
+CODE SIZE = 00AC
+DATA AREA = 003B
+FREE SYMS = 3852
+END  COMPILATION
+
+C>
+>>> PLI D:P040 $L
+PLI D:P040 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P040
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P040
+
+   1 a 0000 p040: procedure options(main);
+   2 a 0006    /* PICTURE scaling matrix vs F edit of same values */
+   3 c 0006    declare
+   4 c 0006        x fixed decimal(8,2),
+   5 c 0006        y fixed decimal(8,2),
+   6 c 0006        z fixed decimal(5,0);
+   7 c 0006    x = 1234.56;
+   8 c 0016    y = 12.34;
+   9 c 0026    z = 98765;
+  10 c 0036    put skip edit(x) (f(10,2));
+  11 c 005F    put skip edit(x) (p'++,+++.++');
+  12 c 0088    put skip edit(y) (f(10,2));
+  13 c 00B1    put skip edit(y) (p'++,+++.++');
+  14 c 00DA    put skip edit(z) (p'+++++');
+  15 c 0103    put skip edit(x) (p'+++++++.++');
+  16 a 012C end p040;
+
+CODE SIZE = 012F
+DATA AREA = 0063
+FREE SYMS = 38BD
+END  COMPILATION
+
+C>
+>>> PLI D:P041 $L
+PLI D:P041 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P041
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   8 c         p->z = 100;
+BASED REQ           ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P041
+
+   1 a 0000 p041: procedure options(main);
+   2 a 0006    /* based-pointer aliasing grammar */
+   3 c 0006    declare p pointer, q based(p) fixed, z fixed;
+   4 c 0006    z = 42;
+   5 c 0013    p = addr(z);
+   6 c 0019    q = 5;
+   7 c 0026    put skip list('z after q=5:', z, ' q=', q);
+   8 c 0067    p->z = 100;
+   9 c 0076    put skip list('after p->z=100:', z);
+  10 a 009D end p041;
+
+CODE SIZE = 00A0
+DATA AREA = 0022
+FREE SYMS = 3898
+END  COMPILATION
+
+C>
+>>> PLI D:P042 $L
+PLI D:P042 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P042
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+  16 c         f = round(d);
+SYNTAX                    ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P042
+
+   1 a 0000 p042: procedure options(main);
+   2 a 0006    /* DIVIDE precision/rounding + TRUNC/ROUND/FIXED at .5 */
+   3 c 0006    declare
+   4 c 0006        f fixed,
+   5 c 0006        g fixed decimal(9,3),
+   6 c 0006        d float;
+   7 c 0006    f = divide(7, 2, 9);
+   8 c 0032    put skip list('divide(7,2,9)=', f);
+   9 c 0059    f = divide(-7, 2, 9);
+  10 c 0085    put skip list('divide(-7,2,9)=', f);
+  11 c 00AC    g = divide(7, 2, 9, 3);
+  12 c 00D1    put skip list('divide(7,2,9,3)=', g);
+  13 c 00FF    d = 3.5;
+  14 c 010B    f = trunc(d);
+  15 c 0123    put skip list('trunc(3.5)=', f);
+  16 c 014A    f = round(d);
+  17 c 015F    put skip list('round(3.5)=', f);
+  18 c 0186    f = fixed(d);
+  19 c 019B    put skip list('fixed(3.5)=', f);
+  20 a 01C2 end p042;
+
+CODE SIZE = 01C5
+DATA AREA = 0060
+FREE SYMS = 37A4
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10059 ms, waited for 0 ms
+CPU executed 64074366 t-states in 46 ms
+Clock frequency 1384.13 MHz

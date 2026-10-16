@@ -44,6 +44,7 @@ def cp(disk, local, ondisk):
     sh(f"cpmcp -f {FMT} {disk} '{local}' 0:{ondisk}")
 
 def session(script_lines, timeout, tagdir, name):
+    os.makedirs(tagdir, exist_ok=True)
     spath = os.path.join(tagdir, f"{name}.session.txt")
     open(spath, "w").write("\n".join(script_lines) + "\n")
     env = dict(os.environ, CPMSIM_EXTRA="-u")
@@ -118,11 +119,13 @@ def main():
         if a.stage == "link":
             names = sorted(d for d in os.listdir(src)
                            if os.path.exists(os.path.join(src, d, d + ".REL")))
-        else:
+        elif a.stage == "run":
             names = sorted(d[:-4] for d in os.listdir(src)
                            if d.endswith(".COM"))
     else:
         names = a.names
+    if names is None:
+        sys.exit("no names given (use --names or --all)")
     if a.stage == "link":
         link(names, a.tag, a.out, a.batch)
     else:

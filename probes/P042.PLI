@@ -1,0 +1,20 @@
+p042: procedure options(main);
+   /* DIVIDE precision/rounding + TRUNC/ROUND/FIXED at .5 */
+   declare
+       f fixed,
+       g fixed decimal(9,3),
+       d float;
+   f = divide(7, 2, 9);
+   put skip list('divide(7,2,9)=', f);
+   f = divide(-7, 2, 9);
+   put skip list('divide(-7,2,9)=', f);
+   g = divide(7, 2, 9, 3);
+   put skip list('divide(7,2,9,3)=', g);
+   d = 3.5;
+   f = trunc(d);
+   put skip list('trunc(3.5)=', f);
+   f = round(d, 0);
+   put skip list('round(3.5,0)=', f);
+   f = fixed(d);
+   put skip list('fixed(3.5)=', f);
+end p042;

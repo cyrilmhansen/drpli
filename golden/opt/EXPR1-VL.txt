@@ -1,0 +1,376 @@
+>>> PLI D:EXPR1 $V$L
+PLI D:EXPR1 $V$L
+
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: EXPR1
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: EXPR1
+
+CTL  0251
+   1   0000 /******************************************************/
+   2   0000 /* This program evaluates an arithmetic expression    */
+   3   0000 /* using recursion.  It contains two procedures. GNT  */
+   4   0000 /* obtains the input expression consisting of separate*/
+   5   0000 /* tokens, and EXP which performs the recursive       */
+   6   0000 /* evaluation of the tokens in the input line.        */
+   7   0000 /******************************************************/
+   8 a 0000 expression:
+  00 BEG 0 N 0 31 00 31 32
+CTL  0251
+   9 a 0006     procedure options(main);
+  10 c 0006     declare 
+  00 NID 0 N 1 00 00 28 32 EXPRESSION
+  00 ENT 0 N 0 00 00 04 32 #E763
+  11 c 0006        sysin file,
+  12 c 0006        value float,
+  13 c 0006        token character(10) varying;
+  14 c 0006 
+  15 c 0006     on endfile(sysin)
+  00 LIO 0 N 1 00 00 19 32 #000F
+  00 C2  0 N 0 00 00 31 32 #0005
+  00 ILD 1 N 0 03 00 00 32
+  00 NID 0 N 1 00 00 00 32 SYSIN
+  00 ONC 2 N 0 00 00 00 32
+CTL  0251
+  16 d 0015        stop;
+  00 ENC 0 N 0 00 00 00 32 #0000
+  00 LIO 0 N 1 00 00 00 32 #0010
+  00 STP 0 N 0 31 00 28 32
+CTL  0252
+  17 d 001B 
+  18 c 001B     on error(1) /* conversion or signal */
+CTL  0250
+  00 LIO 0 N 1 00 00 00 32 #0012
+  00 C2  0 N 0 00 00 00 32 #0000
+  00 ILD 1 N 0 00 00 00 32
+  00 C2  0 N 0 00 00 00 32 #0001
+  00 ILD 1 N 0 01 00 00 32
+  00 ONC 2 N 0 15 00 00 32
+CTL  0251
+  19 d 0022        begin;
+  00 ENC 0 N 0 00 00 00 32 #0000
+  00 LIO 0 N 1 00 00 00 32 #0013
+CTL  0251
+  20 e 0025          put skip list('Invalid Input at ',token);
+  00 BLK 0 N 0 00 00 00 32 #0000
+  00 LIO 0 N 1 00 00 08 32 #0014
+  00 C2  0 N 0 00 00 05 32 #0001
+  00 ILD 1 N 0 01 00 21 32
+  00 C2  0 N 0 00 00 00 32 #0252
+  00 SIO 2 N 0 00 00 66 32
+  00 C2  0 N 0 00 00 13 32 #0001
+  00 ILD 1 N 0 01 00 31 32
+  00 SKP 1 N 0 05 00 00 32
+CTL  0254
+  00 CID 0 N 1 00 00 00 32 * S(0000)
+  00 CLD 1 N 0 17 00 00 32
+  00 PNC 1 N 0 54 00 00 32
+CTL  0254
+CTL  0254
+  00 VID 0 N 1 00 00 00 32 TOKEN A(0035)
+  00 VLD 1 N 0 10 00 00 32
+  00 PNC 1 N 0 54 00 00 32
+CTL  0254
+CTL  0254
+CTL  0254
+  00 QIO 0 N 0 31 00 00 32
+  21 e 0047          get skip;
+  00 LIO 0 N 1 00 00 02 32 #0015
+  00 C2  0 N 0 00 00 00 32 #0001
+  00 ILD 1 N 0 01 00 00 32
+  00 C2  0 N 0 00 00 02 32 #0290
+  00 SIO 2 N 0 00 00 01 32
+  00 C2  0 N 0 00 00 00 32 #0001
+  00 ILD 1 N 0 01 00 08 32
+  00 SKP 1 N 0 05 00 17 32
+CTL  0254
+  00 QIO 0 N 0 31 00 01 32
+  22 e 0058          goto restart;
+  00 LIO 0 N 1 00 00 32 32 #0016
+  00 NID 0 N 1 00 00 05 32 RESTART
+  00 GTL 1 N 0 00 00 15 32
+CTL  0252
+  23 d 005E        end;
+CTL  0250
+CTL  0252
+  24 d 005E 
+  25 c 005E     restart:
+CTL  0250
+  00 NID 0 N 1 00 00 58 32 RESTART
+  00 DFL 1 N 0 00 00 32 32
+CTL  0254
+  26 c 0065 
+  27 c 0065         do while('1'b);
+  00 LIO 0 N 1 00 00 32 32 #001B
+CTL  0254
+  00 WHL 0 N 0 01 00 32 32
+  00 C2  0 N 0 00 00 32 32 #0080
+  00 BLD 1 N 0 01 00 32 32
+  00 DOW 1 N 0 01 00 32 32
+  28 c 0065            put skip(3) list('Type expression: ');
+  00 LIO 0 N 1 00 00 32 32 #001C
+  00 C2  0 N 0 00 00 32 32 #0001
+  00 ILD 1 N 0 01 00 32 32
+  00 C2  0 N 0 00 00 32 32 #0252
+  00 SIO 2 N 0 00 00 32 32
+  00 C2  0 N 0 00 00 32 32 #0003
+  00 ILD 1 N 0 02 00 32 32
+  00 SKP 1 N 0 15 00 32 32
+CTL  0254
+  00 CID 0 N 1 00 00 32 32 * S(0011)
+  00 CLD 1 N 0 17 00 32 32
+  00 PNC 1 N 0 54 00 32 32
+CTL  0254
+CTL  0254
+CTL  0254
+  00 QIO 0 N 0 31 00 32 32
+  29 c 007E            value = exp();
+  00 LIO 0 N 1 00 00 32 32 #001D
+  00 FID 0 N 1 00 00 32 32 VALUE A(0031)
+  00 NID 0 N 1 00 00 32 32 EXP
+  00 NID 0 N 1 00 00 32 32 
+  00 FUN 2 N 0 24 00 32 32
+  00 FAS 2 X 0 24 00 32 32
+  30 c 007E            put skip list('Value is:',value);
+  00 LIO 0 N 1 00 00 32 32 #001E
+  00 C2  0 N 0 00 00 32 32 #0001
+  00 ILD 1 N 0 01 00 32 32
+  00 C2  0 N 0 00 00 32 32 #0252
+  00 SIO 2 N 0 00 00 32 32
+  00 C2  0 N 0 00 00 32 32 #0001
+  00 ILD 1 N 0 01 00 32 32
+  00 SKP 1 N 0 05 00 32 32
+CTL  0254
+  00 CID 0 N 1 00 00 32 05 * S(0022)
+  00 CLD 1 N 0 09 00 32 30
+  00 PNC 1 N 0 54 00 32 00
+CTL  0254
+CTL  0254
+  00 FID 0 N 1 00 00 32 00 VALUE A(0031)
+  00 FLD 1 N 0 24 00 32 09
+  00 QFC 1 N 0 14 00 32 01
+  00 PNV 1 N 0 54 00 32 43
+CTL  0254
+CTL  0254
+CTL  0254
+  00 QIO 0 N 0 31 00 32 59
+CTL  0250
+CTL  0251
+  31 c 00B4         end;
+  32 c 00B4 
+  33 c 00B4     gnt:
+  34 c 00B4        procedure; 
+  35 e 00B4        get list(token);
+  00 NID 0 N 1 00 00 32 31 GNT
+  00 ENT 0 N 0 00 00 32 00 #E7BB
+  00 LIO 0 N 1 00 00 32 69 #0023
+  00 C2  0 N 0 00 00 32 31 #0001
+  00 ILD 1 N 0 01 00 32 01
+  00 C2  0 N 0 00 00 32 02 #0290
+  00 SIO 2 N 0 00 00 32 01
+CTL  0254
+  00 VID 0 N 1 00 00 32 01 TOKEN A(0035)
+  00 GNV 0 N 0 54 00 32 41
+  00 VAS 2 X 0 10 00 32 26
+  00 ENL 0 N 0 00+00 32 26
+CTL  0254
+CTL  0254
+CTL  0254
+  00 QIO 0 N 0 31 00
+CTL  0247
+CTL  0252
+  36 c 00CF     end gnt;
+CTL  0251
+  37 c 00CF 
+  38 c 00CF     exp:
+  39 c 00CF        procedure returns(float binary) recursive;
+  40 e 00CF        declare x float binary;
+  00 NID 0 N 1 00 00 EXP
+  00 ENT 0 N 0 00 00 #E7C8
+  41 e 00CF        call gnt();
+  00 LIO 0 N 1 00 00 #0029
+  00 NID 0 N 1 00 00 GNT
+  00 NID 0 N 1 00 00 
+  00 CAL 2 N 0 00 00
+  42 e 00CF        if token = '(' then
+  00 LIO 0 N 1 00 00 #002A
+  00 VID 0 N 1 00 00 TOKEN A(0035)
+  00 VLD 1 N 0 10 00
+  00 CID 0 N 1 00 00 * S(002B)
+  00 CLD 1 N 0 01 00
+  00 CEQ 2 B 0 01 00
+  00 IFC 1 N 0 01 00
+  43 e 00CF           do;
+  00 LIO 0 N 1 00 00 #002B
+  44 e 00CF             x  = exp();
+  00 LIO 0 N 1 00 00 #002C
+  00 FID 0 N 1 00 00 X A(0042)
+  00 NID 0 N 1 00 00 EXP
+  00 NID 0 N 1 00 00 
+  00 FUN 2 N 0 24 00
+  00 FAS 2 X 0 24 00
+  45 e 00CF             call gnt();
+  00 LIO 0 N 1 00 00 04 01 #002D
+  00 NID 0 N 1 00 00 03 02 GNT
+  00 NID 0 N 1 00 00 
+  00 CAL 2 N 0 00 00
+  46 e 00CF             if token = '+' then
+  00 LIO 0 N 1 00 00 #002E
+  00 VID 0 N 1 00 00 TOKEN A(0035)
+  00 VLD 1 N 0 10 00
+  00 CID 0 N 1 00 00 * S(002C)
+  00 CLD 1 N 0 01 00
+  00 CEQ 2 B 0 01 00
+  00 IFC 1 N 0 01 00
+  47 e 00CF                x = x + exp();
+  00 LIO 0 N 1 00 00 #002F
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FLD 1 N 0 24 00
+  00 NID 0 N 1 00 00 04 01 EXP
+  00 NID 0 N 1 00 00 03 02 
+  00 FUN 2 N 0 24 00
+  00 FAD 2 B 0 24 00
+  00 FAS 2 X 0 24 00
+CTL  0248
+  48 e 0115             else
+  49 e 0115             if token = '-' then
+  00 LIO 0 N 1 00 00 #0031
+  00 VID 0 N 1 00 00 TOKEN A(0035)
+  00 VLD 1 N 0 10 00
+  00 CID 0 N 1 00 00 * S(002D)
+  00 CLD 1 N 0 01 00
+  00 CEQ 2 B 0 01 00
+  00 IFC 1 N 0 01 00
+  50 e 0115                x = x - exp();
+  00 LIO 0 N 1 00 00 #0032
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FLD 1 N 0 24 00
+  00 NID 0 N 1 00 00 EXP
+  00 NID 0 N 1 00 00 
+  00 FUN 2 N 0 24 00
+  00 FSU 2 N 0 24 00
+  00 FAS 2 X 0 24 00
+CTL  0248
+  51 e 0135             else
+  52 e 0135             if token = '*' then
+  00 LIO 0 N 1 00 00 #0034
+  00 VID 0 N 1 00 00 TOKEN A(0035)
+  00 VLD 1 N 0 10 00
+  00 CID 0 N 1 00 00 * S(002E)
+  00 CLD 1 N 0 01 00
+  00 CEQ 2 B 0 01 00
+  00 IFC 1 N 0 01 00
+  53 e 0135                x = x * exp();
+  00 LIO 0 N 1 00 00 #0035
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FLD 1 N 0 24 00
+  00 NID 0 N 1 00 00 EXP
+  00 NID 0 N 1 00 00 
+  00 FUN 2 N 0 24 00
+  00 FMU 2 B 0 24 00
+  00 FAS 2 X 0 24 00
+CTL  0248
+  54 e 0155             else
+  55 e 0155             if token = '/' then
+  00 LIO 0 N 1 00 00 04 01 #0037
+  00 VID 0 N 1 00 00 03 02 TOKEN A(0035)
+  00 VLD 1 N 0 10 00
+  00 CID 0 N 1 00 00 * S(002F)
+  00 CLD 1 N 0 01 00
+  00 CEQ 2 B 0 01 00
+  00 IFC 1 N 0 01 00
+  56 e 0155                x = x / exp();
+  00 LIO 0 N 1 00 00 #0038
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FLD 1 N 0 24 00
+  00 NID 0 N 1 00 00 EXP
+  00 NID 0 N 1 00 00 
+  00 FUN 2 N 0 24 00
+  00 FDV 2 N 0 24 00
+  00 FAS 2 X 0 24 00
+CTL  0248
+  57 e 0175             else
+  58 e 0175             signal error(1);
+  00 LIO 0 N 1 00 00 #003A
+  00 C2  0 N 0 00 00 #0000
+  00 ILD 1 N 0 00 00
+  00 C2  0 N 0 00 00 #0001
+  00 ILD 1 N 0 01 00
+  00 SIG 2 N 0 15 00
+CTL  0249
+CTL  0249
+CTL  0249
+CTL  0249
+  59 e 017C             call gnt();
+  00 LIO 0 N 1 00 00 #003B
+  00 NID 0 N 1 00 00 GNT
+  00 NID 0 N 1 00 00 
+  00 CAL 2 N 0 00 00
+  60 e 017C             if token ^= ')' then
+  00 LIO 0 N 1 00 00 #003C
+  00 VID 0 N 1 00 00 15 01 TOKEN A(0035)
+  00 VLD 1 N 0 10 00
+  00 CID 0 N 1 00 00 * S(0030)
+  00 CLD 1 N 0 01 00 18 01
+  00 CNE 2 B 0 01 00 12 01
+  00 IFC 1 N 0 01 00
+  61 e 017C                signal error(1);
+  00 LIO 0 N 1 00 00 #003D
+  00 C2  0 N 0 00 00 18 01 #0000
+  00 ILD 1 N 0 00 00
+  00 C2  0 N 0 00 00 #0001
+  00 ILD 1 N 0 01 00
+  00 SIG 2 N 0 15 00
+CTL  0249
+CTL  0248
+  62 e 0197           end;
+  63 e 0197        else
+  64 e 0197           x = token;
+  00 LIO 0 N 1 00 00 #0040
+  00 FID 0 N 1 00 00 X A(0042)
+  00 VID 0 N 1 00 00 TOKEN A(0035)
+  00 VLD 1 N 0 10 00 17 01
+  00 QVC 1 N 0 10 00 17 01
+  00 QCF 1 N 0 53 00 06 01
+  00 FAS 2 X 0 24 00
+CTL  0249
+  65 e 01A9        return(x);
+  00 LIO 0 N 1 00 00 #0041
+  00 FID 0 N 1 00 00 X A(0042)
+  00 FLD 1 N 0 24 00
+  00 FTR 1 N 0 24 00 11 01
+CTL  0247
+CTL  0252
+  66 c 01B5     end exp;
+CTL  0247
+CTL  0252
+  67 c 01B5 
+  68 a 01B5 end expression;
+  00 STP 0 N 0 31 00
+CTL  0252
+  69 a 01B5 
+CTL  0255
+
+CODE SIZE = 01B5
+DATA AREA = 0046
+FREE SYMS = 378B
+END  COMPILATION
+
+C>

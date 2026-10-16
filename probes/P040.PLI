@@ -1,0 +1,16 @@
+p040: procedure options(main);
+   /* PICTURE scaling matrix vs F edit of same values */
+   declare
+       x fixed decimal(8,2),
+       y fixed decimal(8,2),
+       z fixed decimal(5,0);
+   x = 1234.56;
+   y = 12.34;
+   z = 98765;
+   put skip edit(x) (f(10,2));
+   put skip edit(x) (p'++,+++.++');
+   put skip edit(y) (f(10,2));
+   put skip edit(y) (p'++,+++.++');
+   put skip edit(z) (p'+++++');
+   put skip edit(x) (p'+++++++.++');
+end p040;

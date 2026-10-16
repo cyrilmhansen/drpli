@@ -1,0 +1,494 @@
+
+Booting...
+
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P043 $V$E$L
+PLI D:P043 $V$E$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P043
+
+E: Expression Optimizer Trace
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+CTL  0251
+   1 a 0000 p043: procedure options(main);
+  00 BEG 0 N 0 96 00 31 00
+CTL  0251
+  ## P   O C W PR SF CS SZ
+  00 BEG 0 N 0 96 00
+   2 c 0006    declare x fixed;
+  00 NID 0 N 1 00 00 28 00 P043
+  00 ENT 0 N 0 00 00 00 00 #E7E7
+   3 c 0006    x = 2 * 3 + 4 * x;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 X A(0002)
+  00 DID 0 N 1 00 00 00 00 * S(0000)
+  00 DLD 1 N 0 01 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0001)
+  00 DLD 1 N 0 01 00 00 00
+  00 DMU 2 B 0 03 00 00 00
+  00 QDI 1 N 0 11 00 28 00
+  00 C2  0 N 0 00 00 00 00 #0004
+  00 ILD 1 N 0 03 00 00 00
+  00 IID 0 N 1 00 00 00 00 X A(0002)
+  00 ILD 1 N 0 15 00 00 00
+  00 IMU 2 B 0 15 00 00 00
+  00 IAD 2 B 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   4 c 0006    put skip list(x);
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 C2  0 N 0 00 00 00 00 #0001
+  00 ILD 1 N 0 01 00 08 00
+  00 C2  0 N 0 00 00 05 00 #0252
+  00 SIO 2 N 0 00 00 21 00
+  00 C2  0 N 0 00 00 00 00 #0001
+  00 ILD 1 N 0 01 00 00 00
+  00 SKP 1 N 0 05 00 31 00
+CTL  0254
+  ## P   O C W PR SF CS SZ
+  00 NID 0 N 1 00 00 P043
+  01 ENT 0 N 0 00 00 #E7E7
+  ## P   O C W PR SF CS SZ
+  00 LIO 0 N 1 00 00 #0003
+  ## P   O C W PR SF CS SZ
+  00 DID 0 N 1 00 00 * S(0000)
+  01 DLD 1 N 1 01 00
+  02 DID 0 N 1 00 00 * S(0001)
+  03 DLD 1 N 1 01 00
+  04 DMU 2 B 2 03 00
+  05 QDI 1 N 2 11 00
+  06 IID 0 N 1 00 00 06 01 X A(0002)
+  07 ILD 1 N 1 15 00
+  08 C2  0 N 0 00 00 #0004
+  09 ILD 1 N 0 03 00
+  10 IMU 2 B 1 15 00
+  11 IAD 2 B 2 15 00
+  12 IID 0 N 1 00 00 X A(0002)
+  13 IAS 2 X 2 15 00
+  ## P   O C W PR SF CS SZ
+  00 LIO 0 N 1 00 00 #0004
+  ## P   O C W PR SF CS SZ
+  00 C2  0 N 0 00 00 04 01 #0001
+  01 ILD 1 N 0 01 00 03 02
+  02 C2  0 N 0 00 00 #0252
+  03 SIO 2 N 1 00 00
+  ## P   O C W PR SF CS SZ
+  00 C2  0 N 0 00 00 #0001
+  01 ILD 1 N 0 01 00
+  02 SKP 1 N 0 05 00
+  00 IID 0 N 1 00 00 31 00 X A(0002)
+  00 ILD 1 N 0 15 00 00 00
+  00 QIC 1 N 0 09 00 00 00
+  00 PNV 1 N 0 54 00 00 00
+CTL  0254
+  ## P   O C W PR SF CS SZ
+  00 IID 0 N 1 00 00 X A(0002)
+  01 ILD 1 N 1 15 00
+  02 QIC 1 N 1 09 00
+  03 PNV 1 N 1 54 00
+CTL  0254
+CTL  0254
+  00 QIO 0 N 0 96 00 00 00
+CTL  0247
+  ## P   O C W PR SF CS SZ
+  00 QIO 0 N 0 96 00
+CTL  0252
+   5 a 0043 end p043;
+  00 STP 0 N 0 96 00 00 00
+CTL  0252
+  ## P   O C W PR SF CS SZ
+  00 STP 0 N 0 96 00
+CTL  0255
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P043 $L$T
+PLI D:P043 $L$T
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P043
+
+L: List Source Program
+T: Trace Optimizer Actions
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   1 a 0000 p043: procedure options(main);
+  00 BEG 00
+   2 c 0006    declare x fixed;
+  01 ENT 00
+  00 LIO 00
+   3 c 0006    x = 2 * 3 + 4 * x;
+  13 IAS 04
+  11 IAD 00
+  05 QDI 00
+  04 DMU 00
+  01 DLD 00
+  00 DID 00
+  03 DLD 00
+  02 DID 00
+  10 IMU 01
+  07 ILD 01
+  00 LIO 00
+   4 c 0027    put skip list(x);
+  03 SIO 00
+  02 SKP 00
+  01 ILD 00
+  03 PNV 00
+  02 QIC 00
+  01 ILD 01
+  00 QIO 00
+   5 a 0043 end p043;
+  00 STP 00
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P043 $L$M
+PLI D:P043 $L$M
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P043
+
+L: List Source Program
+M: Memory Map
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   1 a 0000 p043: procedure options(main);
+   2 c 0006    declare x fixed;
+   3 c 0006    x = 2 * 3 + 4 * x;
+   4 c 0027    put skip list(x);
+   5 a 0043 end p043;
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P043 $L$A
+PLI D:P043 $L$A
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P043
+
+A: Analysis Trace
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   1 a 0000 p043: procedure options(main);
+   2 c 0006    declare x fixed;
+   3 c 0006    x = 2 * 3 + 4 * x;
+   4 c 0027    put skip list(x);
+   5 a 0043 end p043;
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P043 $L$C
+PLI D:P043 $L$C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P043
+
+C: Code Trace Only
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   1 a 0000 p043: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare x fixed;
+   3 c 0006    x = 2 * 3 + 4 * x;
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,01
+       000B       CALL ?DLDOP
+       000E       LXI  H,* S(0001)
+       0011       MVI  A,01
+       0013       CALL ?DLDOP
+       0016       CALL ?DMUOP
+       0019       CALL ?QDI15
+       001C       PUSH H
+       001D       LHLD X A(0002)
+       0020       DAD  H
+       0021       DAD  H
+       0022       POP  D
+       0023       DAD  D
+       0024       SHLD X A(0002)
+   4 c 0027    put skip list(x);
+       0027       LXI  D,0252
+       002A       LXI  B,0000
+       002D       CALL ?SYSPR
+       0030       MVI  A,01
+       0032       CALL ?SKPOP
+       0035       LHLD X A(0002)
+       0038       MVI  A,09
+       003A       CALL ?QICOP
+       003D       CALL ?PNVOP
+       0040       CALL ?QIOOP
+       002B       ==== 0043
+   5 a 0043 end p043;
+       0043       CALL ?STOPX
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P043 $L$K
+PLI D:P043 $L$K
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   1 a 0000 p043: procedure options(main);
+   2 c 0006    declare x fixed;
+   3 c 0006    x = 2 * 3 + 4 * x;
+   4 c 0027    put skip list(x);
+   5 a 0043 end p043;
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P043 $L$B
+PLI D:P043 $L$B
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P043
+
+B: Built-In Subroutine Trace
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   1 a 0000 p043: procedure options(main);
+       0006       START
+   2 c 0006    declare x fixed;
+   3 c 0006    x = 2 * 3 + 4 * x;
+       000E       DLDOP
+       0016       DLDOP
+       0019       DMUOP
+       001C       QDI15
+   4 c 0027    put skip list(x);
+       0030       SYSPR
+       0035       SKPOP
+       003D       QICOP
+       0040       PNVOP
+       0043       QIOOP
+   5 a 0043 end p043;
+       0046       STOPX
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P043 $L$N
+PLI D:P043 $L$N
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P043
+
+L: List Source Program
+N: Nesting Level Display
+
+   1 b      p043: procedure options(main);
+   2 b         declare x fixed;
+   3 b         x = 2 * 3 + 4 * x;
+   4 b         put skip list(x);
+   5 b      end p043;
+   6 a      
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   1 a 0000 p043: procedure options(main);
+   2 c 0006    declare x fixed;
+   3 c 0006    x = 2 * 3 + 4 * x;
+   4 c 0027    put skip list(x);
+   5 a 0043 end p043;
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P043 $L$P
+PLI D:P043 $L$P
+
+C>
+>>> PLI D:P043 $L$I
+PLI D:P043 $L$I
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P043
+
+I: Interlist Source and Code
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P043
+
+   1 a 0000 p043: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare x fixed;
+   3 c 0006    x = 2 * 3 + 4 * x;
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,01
+       000B       CALL ?DLDOP
+       000E       LXI  H,* S(0001)
+       0011       MVI  A,01
+       0013       CALL ?DLDOP
+       0016       CALL ?DMUOP
+       0019       CALL ?QDI15
+       001C       PUSH H
+       001D       LHLD X A(0002)
+       0020       DAD  H
+       0021       DAD  H
+       0022       POP  D
+       0023       DAD  D
+       0024       SHLD X A(0002)
+   4 c 0027    put skip list(x);
+       0027       LXI  D,0252
+       002A       LXI  B,0000
+       002D       CALL ?SYSPR
+       0030       MVI  A,01
+       0032       CALL ?SKPOP
+       0035       LHLD X A(0002)
+       0038       MVI  A,09
+       003A       CALL ?QICOP
+       003D       CALL ?PNVOP
+       0040       CALL ?QIOOP
+       002B       ==== 0043
+   5 a 0043 end p043;
+       0043       CALL ?STOPX
+
+CODE SIZE = 0046
+DATA AREA = 0004
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+System halted
+
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 22126 ms, waited for 0 ms
+CPU executed 102543623 t-states in 58 ms
+Clock frequency 1767.10 MHz

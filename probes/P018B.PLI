@@ -1,0 +1,13 @@
+p018b: procedure options(main);
+   /* handler selection: only a DESIGNATED unit exists */
+   declare n fixed;
+   n = 0;
+   on error(1) begin;
+      n = n + 10;
+      put skip list('specific(1) fired, oncode=', oncode());
+   end;
+   signal error(1);
+   put skip list('n after signal=', n);
+   n = 65536;
+   put skip list('n after conv=', n);
+end p018b;

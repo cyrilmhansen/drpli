@@ -1,0 +1,8 @@
+
+   1234.56
+   +12.35
+     12.34
+      +12
+
+ERROR (1), Conversion
+Traceback: 0367

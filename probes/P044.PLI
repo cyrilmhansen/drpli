@@ -1,0 +1,8 @@
+p044: procedure options(main);
+   declare x fixed;
+   x = 2 + 4;
+   x = x * 1;
+   x = x + 0;
+   x = 3 * x;
+   put skip list(x);
+end p044;

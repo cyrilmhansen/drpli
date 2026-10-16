@@ -1,0 +1,12 @@
+p018c: procedure options(main);
+   /* does the numeric designator FILTER handler selection? */
+   declare n fixed;
+   n = 0;
+   on error(1) begin;
+      n = n + 10;
+      put skip list('error(1) unit fired, oncode=', oncode());
+      revert error(1);
+   end;
+   signal error(2);
+   put skip list('after signal error(2), n=', n);
+end p018c;

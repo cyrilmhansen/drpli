@@ -1,0 +1,69 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> D:
+D:
+D>ENTER EMPDB
+Employee: 'SMITH JOHN'
+  Age, Wage: 30, 500
+Employee: 'ADAMS ANNE'
+  Age, Wage: 25, 450
+Employee: EOF
+
+D>
+>>> DIR
+DIR
+D: ENTER    COM : KEYFILE  COM : UPDATE   COM : EMPDB    EMP
+D>KEYFILE EMPDB
+
+        0 SMITH JOHN
+        1 ADAMS ANNE
+        2 EOF
+D>
+>>> DIR
+DIR
+D: ENTER    COM : KEYFILE  COM : UPDATE   COM : EMPDB    EMP
+D: EMPDB    KEY
+D>UPDATE EMPDB
+
+Employee: 'SMITH JOHN'
+
+Address:  (no street) (no city) (no state)        0
+         '9 BIRCH', 'TULSA', 'OK', 74114
+Hours:      0.0 : 10
+
+Employee: 'ADAMS ANNE'
+
+Address:  (no street) (no city) (no state)        0
+         '3 ELM', 'DAYTON', 'OH', 45401
+Hours:      0.0 : 20
+
+Employee: EOF
+
+D>
+>>> DIR
+DIR
+D: ENTER    COM : KEYFILE  COM : UPDATE   COM : EMPDB    EMP
+D: EMPDB    KEY
+D>
+>>> A:BYE (halt)
+
+D>A:BYE
+I/O ran for 10056 ms, waited for 0 ms
+CPU executed 6810847 t-states in 6 ms
+Clock frequency 1043.64 MHz

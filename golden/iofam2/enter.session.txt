@@ -1,0 +1,11 @@
+C:
+D:
+##SEND ENTER\r
+##SEND 'SMITH JOHN'\r
+##SEND 30, 500\r
+##SEND 'ADAMS ANNE'\r
+##SEND 25, 450\r
+##SEND EOF\r
+##WAIT \nD>
+DIR
+##HALT

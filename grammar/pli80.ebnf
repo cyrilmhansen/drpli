@@ -258,9 +258,14 @@ open-stmt       = "OPEN" [ "FILE" ] "(" f { "," f } ")"
                      [PROBE 33: STREAM vs RECORD default; where allowed in DCL; *
                      combination/legality matrix OPEN/ENVIRONMENT/KEYED] *)
                   [ "KEYED" ]                 (* [EX KEYFILE/UPDATE/RETRIEVE] *)
+                  [ "DIRECT" ]                (* [EX UPDATE l.31] *)
+                  [ "LINESIZE" "(" n ")" ]    (* [EX KEYFILE l.20] *)
                   [ "ENVIRONMENT" "(" env-item { "," env-item } ")" ]
-                  | "TITLE" "(" string-exp ")"    (* CP/M filename; '$1.$2'
-                     naming, '$con' = console special value [EX LOAN2/CREATE] *)
+                  | "TITLE" "(" string-exp ")"   (* CP/M filename 'd:x.y';
+                     $1/$2 = command-line default names (FCB1/2) [M AppG
+                     §TITLE; EX ENTER 'title($1.EMP)' + arg EMPDB ->
+                     EMPDB.EMP, no arg -> UNDEFINED FILE (1) — C034];
+                     '$con' console device; $LST/$RDR/SPUN stream-only *)
                   [ "PAGESIZE" "(" n ")" ] ;      (* [EX] *)
 env-item        = ( "F" | "B" ) "(" n ")" ;
                 (* OPEN option ORDER + which appear in DCL vs OPEN is
