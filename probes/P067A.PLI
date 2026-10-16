@@ -1,0 +1,8 @@
+p067a: procedure options(main);
+   declare p pointer, x fixed based(p);
+   allocate x set(p);
+   x = 42;
+   put list('alloc x=', x);
+   free p;
+   put list('freed');
+end p067a;

@@ -1,0 +1,6 @@
+p067d: procedure options(main);
+   declare $total fixed, _x fixed;
+   $total = 5;
+   _x = 3;
+   put list($total + _x);
+end p067d;

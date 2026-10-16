@@ -1,0 +1,6 @@
+p067b: procedure options(main);
+   declare (p, r) pointer, q based(r) fixed, z fixed;
+   z = 9;
+   r = addr(z);
+   put list('based=', q, ' p unused ok');
+end p067b;

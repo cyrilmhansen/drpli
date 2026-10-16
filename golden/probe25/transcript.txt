@@ -1,0 +1,123 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P067C $L
+PLI D:P067C $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P067C
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P067C
+
+   1 a 0000 p067c: procedure options(main);
+   2 c 0006    declare p pointer, x fixed based(p);
+   3 c 0006    allocate x set(p);
+   4 c 000F    x = 42;
+   5 c 0017    free x;
+   6 c 001D    put list('freed-by-name ok');
+   7 a 0034 end p067c;
+
+CODE SIZE = 0037
+DATA AREA = 0012
+FREE SYMS = 390C
+END  COMPILATION
+
+C>
+>>> PLI D:P053E $L
+PLI D:P053E $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P053E
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P053E
+
+   1 a 0000 p053e: procedure options(main);
+   2 c 0006    declare b bit(8);
+   3 c 0006    b = '1'b4;
+   4 c 000B    put list('one x4=', b);
+   5 c 002D    b = '10'b2;
+   6 c 0032    put list('ten x2=', b);
+   7 a 0054 end p053e;
+
+CODE SIZE = 0057
+DATA AREA = 000F
+FREE SYMS = 3901
+END  COMPILATION
+
+C>
+>>> PLI D:P052E $L
+PLI D:P052E $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P052E
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P052E
+
+   1 a 0000 p052e: procedure options(main);
+   2 c 0006    declare w bit(4);
+   3 c 0006    w = '1111'b ^= '0110'b;
+   4 c 0012    put list('xor result=', w);
+   5 c 0034    put edit(w)(b(4));
+   6 c 0051    put skip list('end');
+   7 a 006D end p052e;
+
+CODE SIZE = 0070
+DATA AREA = 0014
+FREE SYMS = 38F4
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 8036 ms, waited for 0 ms
+CPU executed 32892521 t-states in 20 ms
+Clock frequency 1638.97 MHz

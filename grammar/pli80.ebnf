@@ -2,8 +2,10 @@
    PARSER-ROUND DELTAS (supersede older inline comments where they
    conflict; details + evidence pointers in spec/notes/parser-phase.md,
    claims C040/C041):
-   - idents include '_'; bit literals: 'digits'xN repeat suffix
-   - operators: ~ and ^ both NOT; ~= and >< and <> all NE; ^= XOR
+   - idents include '_' (DR: NOT leading '$'/'_' — standard allows, DR rejects [M]); bit literals: 'digits'xN repeat suffix
+   - operators: ~ and ^ both NOT; ~= and >< and <> all NE; ^= NOT-EQUAL
+     (standard Subset-G ASCII sub, NOT xor; binary ^ XOR = DR gap [M]);
+     result of ^=/~= comparisons is bit(1), widened by assignment padding
    - builtin words include LOG (and CHAR/DEC appear as compiler-internal
      BUILTIN symbols; see C043)
    - FIXED BINARY storage ladder: p<=8 -> 1B, p<=16 -> 2B, else 4B

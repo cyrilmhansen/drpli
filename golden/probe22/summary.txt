@@ -1,0 +1,2 @@
+P052C	diag	PRN=False REL=False
+P053C	ok	PRN=False REL=True

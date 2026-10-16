@@ -1,0 +1,8 @@
+p066b: procedure options(main);
+   declare x fixed decimal(9,2);
+   declare ftc entry(float binary(24)) returns(character(17) varying);
+   declare (1,pic) picture('+++++++,+++.v+++');
+   x = 1234.56;
+   put skip edit(x) (p'+++,+++.++');
+   put skip edit(x) (pic);
+end p066b;

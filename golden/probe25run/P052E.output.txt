@@ -1,0 +1,2 @@
+xor result= '1000'b1000
+end

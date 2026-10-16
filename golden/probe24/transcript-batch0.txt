@@ -1,0 +1,213 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P067A $L$S
+PLI D:P067A $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P067A
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 P067A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0000 X FIXED BINARY(15,0) BASED(P)
+   NO ERROR(S) IN PASS 1
+
+   6 c         free p;
+BASED REQ            ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P067A
+
+   1 a 0000 p067a: procedure options(main);
+   2 c 0006    declare p pointer, x fixed based(p);
+   3 c 0006    allocate x set(p);
+   4 c 0006    x = 42;
+   5 c 0013    put list('alloc x=', x);
+   6 c 0039    free p;
+   7 c 003F    put list('freed');
+   8 a 0056 end p067a;
+
+CODE SIZE = 0059
+DATA AREA = 000F
+FREE SYMS = 38FE
+END  COMPILATION
+
+C>
+>>> PLI D:P067B $L$S
+PLI D:P067B $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P067B
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 ADDR BUILTIN CONSTANT
+a 0000 P067B ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 6 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0002 R POINTER AUTOMATIC
+c 0000 Q FIXED BINARY(15,0) BASED(R)
+c 0004 Z FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P067B
+
+   1 a 0000 p067b: procedure options(main);
+   2 c 0006    declare (p, r) pointer, q based(r) fixed, z fixed;
+   3 c 0006    z = 9;
+   4 c 000C    r = addr(z);
+   5 c 0012    put list('based=', q, ' p unused ok');
+   6 a 0043 end p067b;
+
+CODE SIZE = 0046
+DATA AREA = 0018
+FREE SYMS = 38D1
+END  COMPILATION
+
+C>
+>>> PLI D:P066B $L$S
+PLI D:P066B $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P066B
+
+L: List Source Program
+S: Symbol Table List
+
+   4 b         declare (1,pic) picture('+++++++,+++.v+++');
+SYNTAX                   ?   ?
+   7 b         put skip edit(x) (pic);
+SYNTAX                            ?
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 20 BYTES
+a 0000 P066B ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 5 BYTES
+c 0000 X FIXED DECIMAL(9,2) AUTOMATIC
+c 0000 FTC FUNCTION PARAMETERS(1) EXTERNAL CONSTANT
+c 0000 .* CHAR(17) VARYING RETURNED
+c 0012 .* FLOAT BINARY(24,0) PARAMETER
+c 0000 * FORMAT STATIC
+c 0011 * FORMAT STATIC
+    2 ERROR(S) IN PASS 1
+
+   4 c         declare (1,pic) picture('+++++++,+++.v+++');
+SYNTAX                   ?   ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P066B
+
+   1 a 0000 p066b: procedure options(main);
+   2 c 0006    declare x fixed decimal(9,2);
+   3 c 0006    declare ftc entry(float binary(24)) returns(character(17) varying);
+   4 c 0006    declare (1,pic) picture('+++++++,+++.v+++');
+   5 c 0006    x = 1234.56;
+   6 c 0016    put skip edit(x) (p'+++,+++.++');
+   7 c 003F    put skip edit(x) (pic);
+   8 a 0068 end p066b;
+
+CODE SIZE = 006B
+DATA AREA = 001E
+FREE SYMS = 390F
+END  COMPILATION
+
+C>
+>>> PLI D:P052D $L$S
+PLI D:P052D $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P052D
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 15 BYTES
+a 0000 P052D ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 1 BYTES
+c 0000 W BIT(4) AUTOMATIC
+c 0000 * FORMAT STATIC
+c 0005 * FORMAT STATIC
+c 000A * FORMAT STATIC
+   NO ERROR(S) IN PASS 1
+
+   9 c         w = '1111'b ^ '0110'b;
+SYNTAX                     ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P052D
+
+   1 a 0000 p052d: procedure options(main);
+   2 c 0006    declare w bit(4);
+   3 c 0006    w = '1111'b ^= '0110'b;
+   4 c 0011    put edit(w)(b(4));
+   5 c 002E    put skip list('');
+   6 c 004A    w = '1100'b ^= '1010'b;
+   7 c 0054    put edit(w)(b(4));
+   8 c 0071    put skip list('');
+   9 c 008D    w = '1111'b ^ '0110'b;
+  10 c 0095    put edit(w)(b(4));
+  11 c 00B2    put skip list('');
+  12 a 00CE end p052d;
+
+CODE SIZE = 00D1
+DATA AREA = 0010
+FREE SYMS = 38D0
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10045 ms, waited for 0 ms
+CPU executed 47279605 t-states in 36 ms
+Clock frequency 1304.48 MHz

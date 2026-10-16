@@ -1,8 +1,11 @@
 exception Lex_error of Source.pos * string
 
 let is_letter c = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
+(* standard identifier chars: '$','_' interior + '$'/'_' start allowed
+   [Subset G 1.1.3]; DR rejects them ([M] gap) — we parse anyway *)
+let is_ident_char c = is_letter c || (c >= '0' && c <= '9') || c = '_' || c = '$'
+let is_ident_start c = is_letter c || c = '_' || c = '$'
 let is_digit c = c >= '0' && c <= '9'
-let is_ident_char c = is_letter c || is_digit c || c = '_' (* underscore [EX input_file] *)
 
 type t = { src : string; mutable i : int; mutable line : int; mutable col : int }
 
@@ -66,17 +69,36 @@ let scan_string t start =
   let value = Buffer.contents buf in
   if peek t = 'b' || peek t = 'B' then begin
     advance t;
-    (* optional repeat count: '20'b4 = (20)x4 [EX DIORAND] *)
+    (* Subset-G 'character-string'Bn [subsetg-cowan 3.4.1.1]: n = BITS
+       PER DIGIT (base 4/8/16 for n=2/3/4; default 1; n>4 rejected by
+       the compiler in pass 2). Each digit becomes its n-bit binary. *)
     let rep = ref 1 in
     while is_digit (peek t) do
       rep := !rep * 10 + (Char.code (peek t) - 48); advance t
     done;
+    let digit_val c =
+      match c with
+      | '0' .. '9' -> Some (Char.code c - 48)
+      | 'a' .. 'f' -> Some (Char.code c - 87)
+      | 'A' .. 'F' -> Some (Char.code c - 55)
+      | _ -> None
+    in
     let v =
       if !rep <= 1 then value
-      else
+      else if !rep > 4 then value       (* keep raw; binding flags it *)
+      else begin
         let b2 = Buffer.create (String.length value * !rep) in
-        for _ = 1 to !rep do Buffer.add_string b2 value done;
+        String.iter
+          (fun c ->
+            match digit_val c with
+            | Some d ->
+                for k = !rep - 1 downto 0 do
+                  Buffer.add_char b2 (if (d lsr k) land 1 = 1 then '1' else '0')
+                done
+            | None -> Buffer.add_char b2 c)
+          value;
         Buffer.contents b2
+      end
     in
     Token.Bit { value = v }
   end
@@ -123,7 +145,7 @@ let scan t =
   if eof t then Token.EOF, start
   else begin
     let c = peek t in
-    if is_letter c then scan_ident t, start
+    if is_ident_start c then scan_ident t, start
     else if is_digit c || (c = '.' && is_digit (peek ~k:1 t)) then scan_number t, start
     else if c = '\'' then scan_string t start, start
     else scan_punct t start, start

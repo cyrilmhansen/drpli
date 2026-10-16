@@ -1,0 +1,9 @@
+p065a: procedure options(main);
+   declare x fixed decimal(9,2), y fixed;
+   x = 1234.56;
+   y = 7;
+   put edit(x)(f(9,2));
+   put edit(y)(f(4));
+   put edit(x)(p'+++.++');
+   put edit(x)(p'999');
+end p065a;

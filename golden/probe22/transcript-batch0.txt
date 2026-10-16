@@ -1,0 +1,101 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P052C $L
+PLI D:P052C $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P052C
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   9 c         w = '0110'b ^ '1010'b;
+SYNTAX                     ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P052C
+
+   1 a 0000 p052c: procedure options(main);
+   2 c 0006    declare w bit(4);
+   3 c 0006    w = '1111'b ^= '0110'b;
+   4 c 0011    put list('xor-op=', w);
+   5 c 0033    w = '1100'b ^= '1010'b;
+   6 c 003D    put list('xor-op2=', w);
+   7 c 005F    w = '1111'b ^= '0000'b;
+   8 c 0069    put list('xor-op3=', w);
+   9 c 008B    w = '0110'b ^ '1010'b;
+  10 c 0093    put list('not-baseline=', w);
+  11 c 00B5    put list('done');
+  12 a 00CC end p052c;
+
+CODE SIZE = 00CF
+DATA AREA = 0029
+FREE SYMS = 3862
+END  COMPILATION
+
+C>
+>>> PLI D:P053C $L
+PLI D:P053C $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P053C
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P053C
+
+   1 a 0000 p053c: procedure options(main);
+   2 c 0006    declare b bit(8), c bit(3);
+   3 c 0006    b = '1'b2;
+   4 c 000B    put list('one x2=', b);
+   5 c 002D    b = '11'b3;
+   6 c 0032    put list('twos x3=', b);
+   7 c 0054    b = '111'b2;
+   8 c 0059    put list('threes x2=', b);
+   9 c 007B    c = '101'b1;
+  10 c 0080    put list('five x1=', c);
+  11 a 00A2 end p053c;
+
+CODE SIZE = 00A5
+DATA AREA = 0023
+FREE SYMS = 388E
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6031 ms, waited for 0 ms
+CPU executed 27427534 t-states in 15 ms
+Clock frequency 1718.62 MHz

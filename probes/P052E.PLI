@@ -1,0 +1,7 @@
+p052e: procedure options(main);
+   declare w bit(4);
+   w = '1111'b ^= '0110'b;
+   put list('xor result=', w);
+   put edit(w)(b(4));
+   put skip list('end');
+end p052e;

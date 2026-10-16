@@ -1,0 +1,4 @@
+p066c: procedure options(main);
+   declare price picture('$999V.99');
+   price = 12.34;
+end p066c;

@@ -1,0 +1,1 @@
+one x2= '01000000'b twos x3= '00100100'b threes x2= '01010100'b five x1= '101'b

@@ -1,0 +1,8 @@
+p066a: procedure options(main);
+   declare x float, d fixed decimal(5,2), s character(20) varying;
+   d = x;
+   s = 'A';
+   x = d;
+   x = log(x);
+   put list('d=', d, ' x=', x, ' s=', s);
+end p066a;

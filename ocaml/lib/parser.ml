@@ -107,9 +107,8 @@ let ctl_keys = [ "SKIP"; "PAGE"; "LINE" ]
    additive order to be validated against $V traces [PROBE 51]. *)
 let prec_of_punct = function
   | Token.Or -> Some 10
-  | Token.Xor -> Some 15
   | Token.Amp -> Some 20
-  | Token.(Eq | Ne | Lt | Le | Gt | Ge) -> Some 30
+  | Token.(Eq | Ne | Lt | Le | Gt | Ge | Xor) -> Some 30
   | Token.(CharCat | BitCat) -> Some 40
   | Token.(Plus | Minus) -> Some 50
   | Token.(Star | Slash) -> Some 60
@@ -154,8 +153,12 @@ and loop p lhs minp =
           let node =
             { e =
                 (match op with
-                 | Token.(Eq | Ne | Lt | Le | Gt | Ge) ->
-                     Ebinary (EqR (relop_of op), lhs, rhs)
+                 | Token.(Eq | Ne | Lt | Le | Gt | Ge | Xor) ->
+                 (* ^= is the Subset-G ASCII spelling of NOT-EQUAL
+                    [subsetg-cowan 1.1.2 table; confirmed semantically:
+                    numeric P052B, bit(1)-padded P052E] *)
+                     let op' = if op = Token.Xor then Token.Ne else op in
+                     Ebinary (EqR (relop_of op'), lhs, rhs)
                  | _ -> Ebinary (bin_of op, lhs, rhs));
               epos = q }
           in

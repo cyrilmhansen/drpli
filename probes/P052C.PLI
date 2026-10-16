@@ -1,0 +1,12 @@
+p052c: procedure options(main);
+   declare w bit(4);
+   w = '1111'b ^= '0110'b;
+   put list('xor-op=', w);
+   w = '1100'b ^= '1010'b;
+   put list('xor-op2=', w);
+   w = '1111'b ^= '0000'b;
+   put list('xor-op3=', w);
+   w = '0110'b ^ '1010'b;
+   put list('not-baseline=', w);
+   put list('done');
+end p052c;

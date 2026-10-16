@@ -1,0 +1,7 @@
+p053d: procedure options(main);
+   declare b bit(8);
+   b = '1'b5;
+   put list('one x5=', b);
+   b = '10'b3;
+   put list('ten x3=', b);
+end p053d;

@@ -1,0 +1,12 @@
+p052d: procedure options(main);
+   declare w bit(4);
+   w = '1111'b ^= '0110'b;
+   put edit(w)(b(4));
+   put skip list('');
+   w = '1100'b ^= '1010'b;
+   put edit(w)(b(4));
+   put skip list('');
+   w = '1111'b ^ '0110'b;
+   put edit(w)(b(4));
+   put skip list('');
+end p052d;

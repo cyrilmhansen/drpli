@@ -1,0 +1,6 @@
+C:
+D:
+##SEND P053C\r
+##SEND \x1a
+##WAIT \nD>
+##HALT
