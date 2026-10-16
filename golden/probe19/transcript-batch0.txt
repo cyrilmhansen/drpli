@@ -1,0 +1,164 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P061A $L
+PLI D:P061A $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P061A
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P061A
+
+   1 a 0000 p061a: procedure options(main);
+   2 c 0006    declare 1 rec, 2 addr character(4), 2 zip fixed;
+   3 c 0006    addr = 'ZZ';
+   4 c 0013    zip = 7;
+   5 c 001B    put list('addr=', addr, ' zip=', zip);
+   6 c 0053    put list('raddr=', rec.addr);
+   7 a 0075 end p061a;
+
+CODE SIZE = 0078
+DATA AREA = 0018
+FREE SYMS = 38B2
+END  COMPILATION
+
+C>
+>>> PLI D:P052A $L
+PLI D:P052A $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P052A
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P052A
+
+   1 a 0000 p052a: procedure options(main);
+   2 c 0006    declare y bit(4);
+   3 c 0006    put list('5 xor 3 =', 5 ^= 3);
+   4 c 003B    put list('5 xor 5 =', 5 ^= 5);
+   5 c 0070    y = '1010'b ^= '1100'b;
+   6 c 007C    put list('bits:', y);
+   7 c 009E    if 5 ^= 5 then put list('cond-nonzero');
+   8 c 00CB    if ^ (5 ^= 5) then put list('cond-negated');
+   9 a 00F8 end p052a;
+
+CODE SIZE = 00FB
+DATA AREA = 0032
+FREE SYMS = 3852
+END  COMPILATION
+
+C>
+>>> PLI D:P055A $L
+PLI D:P055A $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P055A
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P055A
+
+   1 a 0000 p055a: procedure options(main);
+   2 c 0006    declare i fixed, k fixed;
+   3 c 0006    k = 3;
+   4 c 000C    do i = 0 repeat(k);
+   5 c 0010       put list('pass', i);
+   6 c 003B    end;
+   7 c 003B    do i = 5 repeat(i-3);
+   8 c 0041       put list('dyn', i);
+   9 c 006F    end;
+  10 c 006F    put list('after i=', i);
+  11 a 0091 end p055a;
+
+CODE SIZE = 0094
+DATA AREA = 0013
+FREE SYMS = 38D6
+END  COMPILATION
+
+C>
+>>> PLI D:P053A $L
+PLI D:P053A $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P053A
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   5 c         h = '1'b8;
+SYNTAX                 ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P053A
+
+   1 a 0000 p053a: procedure options(main);
+   2 c 0006    declare b bit(16), h bit(8);
+   3 c 0006    b = '10'b4;
+   4 c 0017    put list('rep16:', b);
+   5 c 0039    h = '1'b8;
+   6 c 0042    put list('rep8:', h);
+   7 a 0064 end p053a;
+
+CODE SIZE = 0067
+DATA AREA = 000E
+FREE SYMS = 38FC
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10055 ms, waited for 0 ms
+CPU executed 50960062 t-states in 31 ms
+Clock frequency 1632.60 MHz

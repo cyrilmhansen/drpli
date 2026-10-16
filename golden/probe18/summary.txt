@@ -1,0 +1,7 @@
+P060A	ok	PRN=False REL=True
+P060B	ok	PRN=False REL=True
+P060C	ok	PRN=False REL=True
+P060D	ok	PRN=False REL=True
+P060E	ok	PRN=False REL=True
+P062A	ok	PRN=False REL=True
+P063A	diag	PRN=False REL=False

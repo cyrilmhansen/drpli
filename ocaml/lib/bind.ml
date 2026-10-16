@@ -31,7 +31,8 @@ let is_builtin_name k =
              ; "HBOUND"; "INDEX"; "LBOUND"; "LENGTH"; "LINENO"; "MAXIMUM"
              ; "MINIMUM"; "MOD"; "NULL"; "PAGENO"; "PRESENT"; "RANK"
              ; "ASCII"; "RELATE"; "SIGN"; "SIN"; "SQRT"; "SUMMARY"
-             ; "TRANSLATE"; "TRUNC"; "VSIZE" ]
+             ; "TRANSLATE"; "TRUNC"; "VSIZE"; "ROUND"
+             ; "LOG"; "LOG10"; "CHAR"; "DEC" ]
 
 type rt =
   | RTbin of int | RTdec of int * int | RTfloat of int
@@ -59,9 +60,9 @@ let rty_str = function
       Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d" level members
 
 let bytes_of = function
-  | RTbin p -> if p <= 8 then 1 else if p <= 16 then 2 else 4
-      (* ladder from P008 $S: BIN(6)=1B BIN(15)=2B BIN(31)=4B;
-         boundaries <=8/<=16 [HYPOTHESIS] PROBE 63 *)
+  | RTbin p -> (p + 8) / 8
+      (* PROVEN [P063A $S ladder]: bytes = ceil((p+1)/8) incl. sign bit:
+         1/7->1  8/9/15->2  16/17->3  24->4  32->5 *)
   | RTdec (p, _) -> (p + 2) / 2
   | RTfloat _ -> 4
   | RTchar (n, false) -> n

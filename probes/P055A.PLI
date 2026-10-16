@@ -1,0 +1,11 @@
+p055a: procedure options(main);
+   declare i fixed, k fixed;
+   k = 3;
+   do i = 0 repeat(k);
+      put list('pass', i);
+   end;
+   do i = 5 repeat(i-3);
+      put list('dyn', i);
+   end;
+   put list('after i=', i);
+end p055a;

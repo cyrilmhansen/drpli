@@ -1,0 +1,7 @@
+p061a: procedure options(main);
+   declare 1 rec, 2 addr character(4), 2 zip fixed;
+   addr = 'ZZ';
+   zip = 7;
+   put list('addr=', addr, ' zip=', zip);
+   put list('raddr=', rec.addr);
+end p061a;

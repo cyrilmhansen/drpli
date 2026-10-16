@@ -1,0 +1,5 @@
+p060e: procedure options(main);
+   declare a fixed decimal(5,2), b fixed decimal(5,3), c fixed decimal(5,2);
+   c = a + b;
+   a = c * b;
+end p060e;

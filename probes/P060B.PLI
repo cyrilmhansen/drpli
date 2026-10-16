@@ -1,0 +1,4 @@
+p060b: procedure options(main);
+   declare a fixed decimal(5,2), d fixed;
+   d = a;
+end p060b;

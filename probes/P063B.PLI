@@ -1,0 +1,6 @@
+p063b: procedure options(main);
+   declare p pointer, q based(p) fixed, z fixed;
+   z = 5;
+   p = addr(z);
+   put list('based=', q);
+end p063b;

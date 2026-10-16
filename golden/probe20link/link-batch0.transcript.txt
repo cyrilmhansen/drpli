@@ -1,0 +1,63 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> LINK D:P052B
+LINK D:P052B
+LINK 1.31
+
+PLILIB   RQST   P052B    0100   /SYSIN/  1B19   /SYSPRI/ 1B40   
+
+ABSOLUTE     0000
+CODE SIZE    19B5 (0100-1AB4)
+DATA SIZE    01DF (1B9B-1D79)
+COMMON SIZE  00E6 (1AB5-1B9A)
+USE FACTOR     4F
+
+C>
+>>> LINK D:P053B
+LINK D:P053B
+LINK 1.31
+
+PLILIB   RQST   P053B    0100   /SYSIN/  1942   /SYSPRI/ 1969   
+
+ABSOLUTE     0000
+CODE SIZE    17DE (0100-18DD)
+DATA SIZE    01E2 (19C4-1BA5)
+COMMON SIZE  00E6 (18DE-19C3)
+USE FACTOR     4A
+
+C>
+>>> LINK D:P055B
+LINK D:P055B
+LINK 1.31
+
+PLILIB   RQST   P055B    0100   /SYSIN/  19A3   /SYSPRI/ 19CA   
+
+ABSOLUTE     0000
+CODE SIZE    183F (0100-193E)
+DATA SIZE    01CD (1A25-1BF1)
+COMMON SIZE  00E6 (193F-1A24)
+USE FACTOR     4A
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 8010 ms, waited for 0 ms
+CPU executed 247806840 t-states in 126 ms
+Clock frequency 1963.07 MHz

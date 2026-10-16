@@ -1,0 +1,9 @@
+p052a: procedure options(main);
+   declare y bit(4);
+   put list('5 xor 3 =', 5 ^= 3);
+   put list('5 xor 5 =', 5 ^= 5);
+   y = '1010'b ^= '1100'b;
+   put list('bits:', y);
+   if 5 ^= 5 then put list('cond-nonzero');
+   if ^ (5 ^= 5) then put list('cond-negated');
+end p052a;

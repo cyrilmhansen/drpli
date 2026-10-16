@@ -1,0 +1,7 @@
+p055b: procedure options(main);
+   declare i fixed;
+   do i = 5 repeat(i-3) while(i > 0);
+      put list('i=', i);
+   end;
+   put list('final=', i);
+end p055b;

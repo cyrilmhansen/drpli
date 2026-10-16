@@ -70,3 +70,12 @@ grammar/manual read had MISSED or misstated.
 - CREATE: bare `addr` in `get list(addr)` still registers ADDR BUILTIN —
   builtins bind by token, not call shape; interplay with same-named
   structure fields needs a runtime probe [PROBE 61].
+
+## Probe rounds 52-55/60-63 outcomes (this session)
+- ROUND/CEIL/LOG etc. were NOT auto-injected — LOAN1 calls round()
+  explicitly; parser builtin word list now incl. ROUND LOG LOG10 CHAR DEC.
+- REPEAT(e): i := e after each pass (replace, not add) — P055B 5,2,-1.
+- numeric ^= ≡ NE (bit(1) result). bit ^= unresolved (P052B).
+- BIN ladder ceil((p+1)/8); POINTER 2B; bare pointer = NOT IMP.
+- 'x'bN bit iteration factor: display semantics scrambled vs manual —
+  storage-order probe (64) queued.

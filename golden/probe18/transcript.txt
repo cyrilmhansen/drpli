@@ -1,0 +1,140 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P060D $L$S
+PLI D:P060D $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P060D
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 P060D ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 3 BYTES
+c 0000 A FIXED DECIMAL(5,2) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P060D
+
+   1 a 0000 p060d: procedure options(main);
+   2 c 0006    declare a fixed decimal(5,2);
+   3 c 0006    a = 1.5;
+   4 a 0016 end p060d;
+
+CODE SIZE = 0019
+DATA AREA = 0006
+FREE SYMS = 3942
+END  COMPILATION
+
+C>
+>>> PLI D:P060E $L$S
+PLI D:P060E $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P060E
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 P060E ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 9 BYTES
+c 0000 A FIXED DECIMAL(5,2) AUTOMATIC
+c 0003 B FIXED DECIMAL(5,3) AUTOMATIC
+c 0006 C FIXED DECIMAL(5,2) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P060E
+
+   1 a 0000 p060e: procedure options(main);
+   2 c 0006    declare a fixed decimal(5,2), b fixed decimal(5,3), c fixed decimal(5,2);
+   3 c 0006    c = a + b;
+   4 c 002B    a = c * b;
+   5 a 004B end p060e;
+
+CODE SIZE = 004E
+DATA AREA = 0009
+FREE SYMS = 3946
+END  COMPILATION
+
+C>
+>>> PLI D:P062A $L$S
+PLI D:P062A $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P062A
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 17 BYTES
+a 0000 P062A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 5 BYTES
+c 0000 X FIXED DECIMAL(9,2) AUTOMATIC
+c 0000 * FORMAT STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P062A
+
+   1 a 0000 p062a: procedure options(main);
+   2 c 0006    declare x fixed decimal(9,2);
+   3 c 0006    x = 1234.56;
+   4 c 0016    put edit(x)(p'+++,+++.++');
+   5 a 003A end p062a;
+
+CODE SIZE = 003D
+DATA AREA = 001B
+FREE SYMS = 3934
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 8035 ms, waited for 0 ms
+CPU executed 28949301 t-states in 16 ms
+Clock frequency 1801.67 MHz

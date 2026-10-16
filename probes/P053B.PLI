@@ -1,0 +1,9 @@
+p053b: procedure options(main);
+   declare b bit(16);
+   b = '1'b4;
+   put list('one x4=', b);
+   b = '1111'b2;
+   put list('fours x2=', b);
+   b = '101'b3;
+   put list('five-bits x3=', b);
+end p053b;

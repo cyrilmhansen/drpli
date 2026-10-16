@@ -1,0 +1,7 @@
+p053a: procedure options(main);
+   declare b bit(16), h bit(8);
+   b = '10'b4;
+   put list('rep16:', b);
+   h = '1'b8;
+   put list('rep8:', h);
+end p053a;

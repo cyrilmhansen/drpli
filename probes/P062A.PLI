@@ -1,0 +1,5 @@
+p062a: procedure options(main);
+   declare x fixed decimal(9,2);
+   x = 1234.56;
+   put edit(x)(p'+++,+++.++');
+end p062a;

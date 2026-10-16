@@ -1,0 +1,1 @@
+5 xor 3 = '1'b 5 xor 5 = '0'b bits: '1000'b cond-negated
