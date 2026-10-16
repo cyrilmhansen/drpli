@@ -137,8 +137,10 @@ decl            = [ level ] designator
                   (* GROUP ITEM: level + name, NO type attrs (ENTER.PLI
                      "2 address," / "1 default static,") — occupies the
                      contiguous span of its subitems [EX] *)
-level           = unsigned-int ;      (* structure level, dense rules
-                     [PROBE 18: level increment rules, level 0] *)
+level           = unsigned-int ;      (* RESOLVED [P047B]: level may stay
+                     same or increase by exactly 1; 1 -> 3 = pass1
+                     CONFLICT diagnostic on the offending line. level 0?
+                     still open [PROBE 18b] *)
 type-attrs      = ( "FIXED" [ "BINARY"|"BIN"|"DECIMAL"|"DEC" [ "(" p [ "," s ] ")" ] ]
                   | "FLOAT" [ "BINARY"|"BIN" | "DECIMAL" ] [ "(" p ")" ] )
                   (* precision max 15 [C022]; default FIXED = BIN(15) [C021];
@@ -171,7 +173,8 @@ storage-attrs   = { "STATIC" | "AUTOMATIC"|"AUTO"
                   | "INITIAL"|"INIT" "(" init { "," init } ")" } ;
                 (* NOTE: no DEFAULT attribute in corpus — ENTER.PLI
                    "1 default static" is a GROUP NAMED default [EX];
-                   ANSI DEFAULT attribute support unknown [PROBE 39] *)
+                   ANSI `b fixed default(a)` => pass1 SYNTAX [EX P025]:
+                   DEFAULT(reference) attribute CUT. Confirmed. *)
                 (* init: value | n "(" value ")" replication [M AppC.14]
                    [PROBE 20: default storage by block nesting,
                    DEFAULT attribute, EXTERNAL linkage naming] *)
@@ -278,10 +281,21 @@ get-edit / put-edit : same + "EDIT" "(" data-list ")" "(" format-list ")" ;
 format-item     = ( "A" | "B" | "O"? | "F" | "E" | "P" | "X" | "R"
                   | "S" | "K" | "T"? ) [ "(" w [ "," d ] ")" ] ;
                 (* §10.6-10.8. PICTURE = OUTPUT format item P'picspec'
-                   [M AppD, v1.3+]; EX P020 RUNS: p'++,+++.++' of
-                   1234.56 -> '+12.35' — appears value/100 vs manual
-                   example — [PROBE 40: picture scaling].
-                   REMOTE FORMAT: named format referenced as R(label):
+                   [M AppD, v1.3+]. Char model [EX P045 + AppD read]:
+                   9 = digit slot w/ ZERO fill ('999.99' of 12.34 ->
+                   '000.12' — value integer-truncated to slot count, '.'
+                   is NOT the decimal anchor); V = decimal-point position
+                   ('+++V++' of 12.34 -> '+1234' implied-decimal COBOL
+                   style ✓); , / . are insertion chars; duplicated $ +- S
+                   = DRIFTING = conditional digit positions (leading-zero
+                   suppression: '+++.++' -> '   +12'), single = static.
+                   OPEN anomaly (PROBE 40 continues): '++,+++.++' of
+                   1234.56 -> '   +12.35' — rounding to 2 places with NO
+                   V; '+'-after-'.' behaving as decimal slots. Exact
+                   '+'-picture scale formula TBD.
+                   Picture item paired ONE data item; extra format items
+                   past data are silently skipped [EX P045 round 1].
+                 * REMOTE FORMAT: named format referenced as R(label):
                    put edit(x)(r(money)) [M §10.9; EX P020]; bare (money)
                    => SYNTAX [P020 round1]. FORMAT stmt requires a label:
                    "money: FORMAT(list);" [M AppB.9]. 1.4 F(w,d) [RN]. *)
@@ -294,12 +308,24 @@ array           = designator constant { constant } ;   (* dims are compile-time
                      [C013/P005 confirmed]; dim max? [PROBE 30] *)
 structure       = level-based nested DCL ;  (* [EX ENTER/CREATE/KEYFILE/RETRIEVE]
                    The ONLY structure mechanism in DR PL/I-80 (ANSI STRUCTURE
-                   [PROBE 35] appears CUT):
+                   [PROBE 35] CONFIRMED CUT: "1 s1 structure," silently
+                   derails the dcl — subfields never declared (pass2 NO DCL
+                   on use) [EX P023]):
                    - fields referenced FLAT (age,wage) or QUALIFIED grp.a —
                      both compile AND run [EX P022: qual= 7]
                    - group->group assignment COPIES the record image
                      [EX P022 runtime a=7 b=WXYZ after grp=grp2; ENTER]
-                   - levels 1..n; increment rules [PROBE 18]
+                   - levels 1..n; increment: same or +1 ONLY; skip =>
+                     pass1 CONFLICT [EX P047B]
+                   - duplicate names across groups allowed; qualified
+                     refs disambiguate [EX P047A: g1.dup=5 g2.dup=6 ok];
+                     flat ref of ambiguous name untested [PROBE 38b]
+                   - frame model [EX P046 $S]: ONE auto frame per
+                     procedure — variables declared inside nested DO/BEGIN
+                     blocks share it (X@0 Y@2 W@4, AUTO STORAGE 6);
+                     nested procedures are ENTRY..CONSTANT items in the
+                     parent frame; their own block shows AUTO STORAGE 0
+                     and their STATIC vars flag 'e'
                    [PROBE 38: ambiguity flat vs qualified across groups;
                    STATIC layout order; based-group assign] *)
                 (* [PROBE 39: ANSI DEFAULT attribute — accepted? need ref dcl] *)

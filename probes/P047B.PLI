@@ -1,0 +1,9 @@
+p047b: procedure options(main);
+   /* PROBE 18: level increment rules */
+   declare
+     1 top fixed,
+     3 deep fixed;
+   top = 1;
+   deep = 3;
+   put skip list(top, deep);
+end p047b;

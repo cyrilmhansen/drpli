@@ -1,0 +1,205 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P023 $L
+PLI D:P023 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P023
+
+L: List Source Program
+
+   4 b           1 s1 structure,
+STRUCTURE                 ?
+    1 ERROR(S) IN PASS 1
+
+   5 c             2 a fixed,
+NO DCL               ?
+   6 c             2 b char(3);
+NO DCL               ?
+   7 c         a = 1;
+NO DCL         ?
+   8 c         b = 'XYZ';
+NO DCL         ?
+CONVERT                 ?
+   9 c         put skip list(a,b);
+NO DCL                       ? ?
+    6 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P023
+
+   1 a 0000 p023: procedure options(main);
+   2 a 0006    /* PROBE 35: is the ANSI STRUCTURE keyword implemented? */
+   3 c 0006    declare
+   4 c 0006      1 s1 structure,
+   5 c 0006        2 a fixed,
+   6 c 0006        2 b char(3);
+   7 c 0006    a = 1;
+   8 c 0015    b = 'XYZ';
+   9 c 0023    put skip list(a,b);
+  10 a 004A end p023;
+
+CODE SIZE = 004D
+DATA AREA = 0002
+FREE SYMS = 3911
+END  COMPILATION
+
+C>
+>>> PLI D:P025 $L
+PLI D:P025 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P025
+
+L: List Source Program
+
+   5 b           b fixed default(a);
+SYNTAX                      ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P025
+
+   1 a 0000 p025: procedure options(main);
+   2 a 0006    /* PROBE 39: ANSI DEFAULT(reference) attribute */
+   3 c 0006    declare
+   4 c 0006      a fixed decimal(7,2),
+   5 c 0006      b fixed default(a);
+   6 c 0006    b = 12.5;
+   7 c 0015    put skip list(b);
+   8 a 0031 end p025;
+
+CODE SIZE = 0034
+DATA AREA = 0006
+FREE SYMS = 3944
+END  COMPILATION
+
+C>
+>>> PLI D:P045 $L
+PLI D:P045 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P045
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P045
+
+   1 a 0000 p045: procedure options(main);
+   2 a 0006    /* PROBE 40 round 2: picture scaling formula */
+   3 c 0006    declare
+   4 c 0006      v0 fixed decimal(7,0),
+   5 c 0006      v1 fixed decimal(7,1),
+   6 c 0006      v2 fixed decimal(7,2),
+   7 c 0006      v3 fixed decimal(7,3);
+   8 c 0006    v0 = 1234;
+   9 c 0016    v1 = 123.4;
+  10 c 0026    v2 = 12.34;
+  11 c 0036    v3 = 1.234;
+  12 c 0046    put skip edit(v0) (f(8,0), p'+++++++');
+  13 c 006F    put skip edit(v1) (f(8,1), p'++++++.+');
+  14 c 0098    put skip edit(v2) (f(8,2), p'+++++.++');
+  15 c 00C1    put skip edit(v2) (f(8,2), p'+++++++.');
+  16 c 00EA    put skip edit(v3) (f(8,3), p'++++.+++');
+  17 c 0113    put skip edit(v2) (f(8,2), p'+++.++');
+  18 a 013C end p045;
+
+CODE SIZE = 013F
+DATA AREA = 007D
+FREE SYMS = 38BF
+END  COMPILATION
+
+C>
+>>> PLI D:P046 $L
+PLI D:P046 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P046
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P046
+
+   1 a 0000 p046: procedure options(main);
+   2 a 0006    /* trace closer: nested blocks/procs for $M $N $A */
+   3 c 0006    declare x fixed;
+   4 c 0006    x = 1;
+   5 c 000C    if x = 1 then
+   6 c 0015       do;
+   7 c 0015          declare y fixed;
+   8 c 0015          y = x + 1;
+   9 c 001C          if y = 2 then
+  10 c 0026             do;
+  11 c 0026                declare w fixed;
+  12 c 0026                w = y + x;
+  13 c 0031                put skip list('deep', w);
+  14 c 0058             end;
+  15 c 0058          put skip list(y);
+  16 c 0074       end;
+  17 c 0074    call inner();
+  18 c 0077    put skip list('done');
+  19 c 0093    inner:
+  20 c 0093       procedure;
+  21 e 0093       declare z fixed static;
+  22 e 0096       z = 3;
+  23 e 009C       put skip list(z);
+  24 e 00B8       return;
+  25 c 00B9    end inner;
+  26 a 00B9 end p046;
+
+CODE SIZE = 00BC
+DATA AREA = 0010
+FREE SYMS = 38CE
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10051 ms, waited for 0 ms
+CPU executed 56895074 t-states in 39 ms
+Clock frequency 1456.08 MHz

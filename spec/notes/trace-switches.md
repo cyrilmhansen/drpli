@@ -13,11 +13,11 @@ golden/opt/EXPR1-{VL,EL,VEL}.txt.
 | $D     | Disk Print           | listing to PRN file [C007] |
 | $E     | Expression Optimizer Trace | per-expression node-indexed tree blocks headed `## P O C W PR SF CS SZ` |
 | $I     | Interlist Source and Code  | same disassembly as $C interleaved (diff vs $C TBD — C may suppress source echo) |
-| $K     | (no legend)          | accepted silently; unknown effect |
+| $K     | (no legend)          | **suppresses the 5-line version/serial/copyright banner**; nothing else changes, object byte-identical (P045). Prior harness default `$V$E$T$I$D$K` used it for parsable output ✓ |
 | $L     | List Source Program  | numbered listing |
-| $M     | Memory Map           | nothing extra visible on P043/P044 (test with bigger program) |
-| $N     | Nesting Level Display| nothing on flat program; test nested |
-| $P     | (no legend)          | accepted, no output on P043 (PICTURE-only? or dead) |
+| $M     | Memory Map           | NO extra output on P043 AND nested P046 — mechanism unidentified (needs $D? bigger program? open) |
+| $N     | Nesting Level Display  | second listing pass: attribute column shows nesting flags b/c/e per line, hex offsets omitted [C037] |
+| $P     | (no legend; App Guide v1.0 = "Page Mode Print: FF/60 lines, listing -> printer") | with `$L$P` the ENTIRE compiler output incl. banner is redirected off-console; compile completes, REL written (P045) |
 | $S     | Symbol Table List    | `BLOCK AT LINE n, AUTO STORAGE m BYTES` + attribute/storage dump (see P008/P011 evidence) |
 | $T     | Trace Optimizer Actions | per-statement IR node table `nn OPCODE cc` (tree form) |
 | $V     | Verify Intermediate File | serialized IR stream with CTL words (C004) |
@@ -68,3 +68,19 @@ buffer never cleared), fixed decimal = packed BCD-ish digits.
 PUT FILE ... LIST writes LIST-DIRECTED TEXT: strings quoted, space
 separated, `skip` => CRLF (golden/iofam1/NA.dat, byte-reproducible).
 CREATE/RETRIEVE round-trip captured end-to-end (iofam1).
+
+## PICTURE char model [App D + P045, C036] — supersedes earlier note
+- `9` digit slot, ZERO-filled; `V` implied-decimal position; `,` `.` `/`
+  pure insertions; repeated `$ + - S` drift into conditional digit
+  positions (leading-zero blank); single = static sign/currency.
+- Value integer-truncated into slots when picture has no V:
+  '999.99' of 12.34 => '000.12'. With V: '+++V++' of 12.34 => '+1234'.
+- PICTURE item pairs ONE data item; surplus format items after data
+  exhaustion produce nothing (P045 round-1 'missing' pictures).
+- UNRESOLVED: '+'-heavy picture WITH '.' but no V rounded to 2 places
+  ('++,+++.++' of 1234.56 -> '+12.35'). Round 4 matrix planned.
+
+## Frame model [C038]
+One AUTO frame per procedure; nested-block DECLAREs share it
+(X@0 Y@2 W@4); nested PROCs are ENTRY..CONSTANT in parent; inner-block
+storage lines show 'BLOCK AT LINE n, AUTO STORAGE 0'.

@@ -1,0 +1,10 @@
+p023: procedure options(main);
+   /* PROBE 35: is the ANSI STRUCTURE keyword implemented? */
+   declare
+     1 s1 structure,
+       2 a fixed,
+       2 b char(3);
+   a = 1;
+   b = 'XYZ';
+   put skip list(a,b);
+end p023;

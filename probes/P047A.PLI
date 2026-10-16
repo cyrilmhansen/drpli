@@ -1,0 +1,11 @@
+p047a: procedure options(main);
+   /* PROBE 38: duplicate field names across groups */
+   declare
+     1 g1 static,
+       2 dup fixed,
+     1 g2 static,
+       2 dup fixed;
+   g1.dup = 5;
+   g2.dup = 6;
+   put skip list(g1.dup, g2.dup);
+end p047a;

@@ -1,0 +1,26 @@
+p046: procedure options(main);
+   /* trace closer: nested blocks/procs for $M $N $A */
+   declare x fixed;
+   x = 1;
+   if x = 1 then
+      do;
+         declare y fixed;
+         y = x + 1;
+         if y = 2 then
+            do;
+               declare w fixed;
+               w = y + x;
+               put skip list('deep', w);
+            end;
+         put skip list(y);
+      end;
+   call inner();
+   put skip list('done');
+   inner:
+      procedure;
+      declare z fixed static;
+      z = 3;
+      put skip list(z);
+      return;
+   end inner;
+end p046;

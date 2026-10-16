@@ -1,0 +1,8 @@
+p025: procedure options(main);
+   /* PROBE 39: ANSI DEFAULT(reference) attribute */
+   declare
+     a fixed decimal(7,2),
+     b fixed default(a);
+   b = 12.5;
+   put skip list(b);
+end p025;

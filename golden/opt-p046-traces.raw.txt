@@ -1,0 +1,279 @@
+
+Booting...
+
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P046 $L$M
+PLI D:P046 $L$M
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P046
+
+L: List Source Program
+M: Memory Map
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P046
+
+   1 a 0000 p046: procedure options(main);
+   2 a 0006    /* trace closer: nested blocks/procs for $M $N $A */
+   3 c 0006    declare x fixed;
+   4 c 0006    x = 1;
+   5 c 000C    if x = 1 then
+   6 c 0015       do;
+   7 c 0015          declare y fixed;
+   8 c 0015          y = x + 1;
+   9 c 001C          if y = 2 then
+  10 c 0026             do;
+  11 c 0026                declare w fixed;
+  12 c 0026                w = y + x;
+  13 c 0031                put skip list('deep', w);
+  14 c 0058             end;
+  15 c 0058          put skip list(y);
+  16 c 0074       end;
+  17 c 0074    call inner();
+  18 c 0077    put skip list('done');
+  19 c 0093    inner:
+  20 c 0093       procedure;
+  21 e 0093       declare z fixed static;
+  22 e 0096       z = 3;
+  23 e 009C       put skip list(z);
+  24 e 00B8       return;
+  25 c 00B9    end inner;
+  26 a 00B9 end p046;
+
+CODE SIZE = 00BC
+DATA AREA = 0010
+FREE SYMS = 38CE
+END  COMPILATION
+
+C>
+>>> PLI D:P046 $L$N
+PLI D:P046 $L$N
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P046
+
+L: List Source Program
+N: Nesting Level Display
+
+   1 b      p046: procedure options(main);
+   2 b         /* trace closer: nested blocks/procs for $M $N $A */
+   3 b         declare x fixed;
+   4 b         x = 1;
+   5 b         if x = 1 then
+   6 c            do;
+   7 c               declare y fixed;
+   8 c               y = x + 1;
+   9 c               if y = 2 then
+  10 d                  do;
+  11 d                     declare w fixed;
+  12 d                     w = y + x;
+  13 d                     put skip list('deep', w);
+  14 d                  end;
+  15 c               put skip list(y);
+  16 c            end;
+  17 b         call inner();
+  18 b         put skip list('done');
+  19 b         inner:
+  20 c            procedure;
+  21 c            declare z fixed static;
+  22 c            z = 3;
+  23 c            put skip list(z);
+  24 c            return;
+  25 c         end inner;
+  26 b      end p046;
+  27 a      
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P046
+
+   1 a 0000 p046: procedure options(main);
+   2 a 0006    /* trace closer: nested blocks/procs for $M $N $A */
+   3 c 0006    declare x fixed;
+   4 c 0006    x = 1;
+   5 c 000C    if x = 1 then
+   6 c 0015       do;
+   7 c 0015          declare y fixed;
+   8 c 0015          y = x + 1;
+   9 c 001C          if y = 2 then
+  10 c 0026             do;
+  11 c 0026                declare w fixed;
+  12 c 0026                w = y + x;
+  13 c 0031                put skip list('deep', w);
+  14 c 0058             end;
+  15 c 0058          put skip list(y);
+  16 c 0074       end;
+  17 c 0074    call inner();
+  18 c 0077    put skip list('done');
+  19 c 0093    inner:
+  20 c 0093       procedure;
+  21 e 0093       declare z fixed static;
+  22 e 0096       z = 3;
+  23 e 009C       put skip list(z);
+  24 e 00B8       return;
+  25 c 00B9    end inner;
+  26 a 00B9 end p046;
+
+CODE SIZE = 00BC
+DATA AREA = 0010
+FREE SYMS = 38CE
+END  COMPILATION
+
+C>
+>>> PLI D:P046 $L$A
+PLI D:P046 $L$A
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P046
+
+A: Analysis Trace
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P046
+
+   1 a 0000 p046: procedure options(main);
+   2 a 0006    /* trace closer: nested blocks/procs for $M $N $A */
+   3 c 0006    declare x fixed;
+   4 c 0006    x = 1;
+   5 c 000C    if x = 1 then
+   6 c 0015       do;
+   7 c 0015          declare y fixed;
+   8 c 0015          y = x + 1;
+   9 c 001C          if y = 2 then
+  10 c 0026             do;
+  11 c 0026                declare w fixed;
+  12 c 0026                w = y + x;
+  13 c 0031                put skip list('deep', w);
+  14 c 0058             end;
+  15 c 0058          put skip list(y);
+  16 c 0074       end;
+  17 c 0074    call inner();
+  18 c 0077    put skip list('done');
+  19 c 0093    inner:
+  20 c 0093       procedure;
+  21 e 0093       declare z fixed static;
+  22 e 0096       z = 3;
+  23 e 009C       put skip list(z);
+  24 e 00B8       return;
+  25 c 00B9    end inner;
+  26 a 00B9 end p046;
+
+CODE SIZE = 00BC
+DATA AREA = 0010
+FREE SYMS = 38CE
+END  COMPILATION
+
+C>
+>>> PLI D:P046 $L$S
+PLI D:P046 $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P046
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 2 BYTES
+a 0000 P046 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 6 BYTES
+c 0000 X FIXED BINARY(15,0) AUTOMATIC
+c 0002 Y FIXED BINARY(15,0) AUTOMATIC
+c 0004 W FIXED BINARY(15,0) AUTOMATIC
+c 0000 INNER ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 21, AUTO STORAGE 0 BYTES
+e 0000 Z FIXED BINARY(15,0) STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P046
+
+   1 a 0000 p046: procedure options(main);
+   2 a 0006    /* trace closer: nested blocks/procs for $M $N $A */
+   3 c 0006    declare x fixed;
+   4 c 0006    x = 1;
+   5 c 000C    if x = 1 then
+   6 c 0015       do;
+   7 c 0015          declare y fixed;
+   8 c 0015          y = x + 1;
+   9 c 001C          if y = 2 then
+  10 c 0026             do;
+  11 c 0026                declare w fixed;
+  12 c 0026                w = y + x;
+  13 c 0031                put skip list('deep', w);
+  14 c 0058             end;
+  15 c 0058          put skip list(y);
+  16 c 0074       end;
+  17 c 0074    call inner();
+  18 c 0077    put skip list('done');
+  19 c 0093    inner:
+  20 c 0093       procedure;
+  21 e 0093       declare z fixed static;
+  22 e 0096       z = 3;
+  23 e 009C       put skip list(z);
+  24 e 00B8       return;
+  25 c 00B9    end inner;
+  26 a 00B9 end p046;
+
+CODE SIZE = 00BC
+DATA AREA = 0010
+FREE SYMS = 38CE
+END  COMPILATION
+
+C>
+System halted
+
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10058 ms, waited for 0 ms
+CPU executed 73630709 t-states in 41 ms
+Clock frequency 1761.79 MHz

@@ -1,0 +1,107 @@
+
+Booting...
+
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P045 $L$K
+PLI D:P045 $L$K
+
+PL/I-80 V1.4 COMPILATION OF: P045
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P045
+
+   1 a 0000 p045: procedure options(main);
+   2 a 0006    /* PROBE 40 round 3: isolate picture semantics */
+   3 c 0006    declare
+   4 c 0006      v0 fixed decimal(7,0),
+   5 c 0006      v2 fixed decimal(7,2);
+   6 c 0006    v0 = 1234;
+   7 c 0016    v2 = 12.34;
+   8 c 0026    put skip edit(v2) (p'+++.++');
+   9 c 004F    put skip edit(v2) (p'++,+++.++');
+  10 c 0078    put skip edit(v2) (p'+++V++');
+  11 c 00A1    put skip edit(v2) (p'++,+++V++');
+  12 c 00CA    put skip edit(v2) (p'999.99');
+  13 c 00F3    put skip edit(v0) (p'+++++++');
+  14 c 011C    put skip edit(v2) (p'$$$$$.$$');
+  15 c 0145    put skip edit(v2) (p'+++.++');
+  16 c 016E    put skip edit(v2) (f(8,2));
+  17 a 0197 end p045;
+
+CODE SIZE = 019A
+DATA AREA = 0083
+FREE SYMS = 38DD
+END  COMPILATION
+
+C>
+>>> PLI D:P045 $L
+PLI D:P045 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P045
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P045
+
+   1 a 0000 p045: procedure options(main);
+   2 a 0006    /* PROBE 40 round 3: isolate picture semantics */
+   3 c 0006    declare
+   4 c 0006      v0 fixed decimal(7,0),
+   5 c 0006      v2 fixed decimal(7,2);
+   6 c 0006    v0 = 1234;
+   7 c 0016    v2 = 12.34;
+   8 c 0026    put skip edit(v2) (p'+++.++');
+   9 c 004F    put skip edit(v2) (p'++,+++.++');
+  10 c 0078    put skip edit(v2) (p'+++V++');
+  11 c 00A1    put skip edit(v2) (p'++,+++V++');
+  12 c 00CA    put skip edit(v2) (p'999.99');
+  13 c 00F3    put skip edit(v0) (p'+++++++');
+  14 c 011C    put skip edit(v2) (p'$$$$$.$$');
+  15 c 0145    put skip edit(v2) (p'+++.++');
+  16 c 016E    put skip edit(v2) (f(8,2));
+  17 a 0197 end p045;
+
+CODE SIZE = 019A
+DATA AREA = 0083
+FREE SYMS = 38DD
+END  COMPILATION
+
+C>
+System halted
+
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6024 ms, waited for 0 ms
+CPU executed 42589217 t-states in 26 ms
+Clock frequency 1581.18 MHz

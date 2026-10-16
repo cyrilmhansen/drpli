@@ -1,0 +1,17 @@
+p045: procedure options(main);
+   /* PROBE 40 round 3: isolate picture semantics */
+   declare
+     v0 fixed decimal(7,0),
+     v2 fixed decimal(7,2);
+   v0 = 1234;
+   v2 = 12.34;
+   put skip edit(v2) (p'+++.++');
+   put skip edit(v2) (p'++,+++.++');
+   put skip edit(v2) (p'+++V++');
+   put skip edit(v2) (p'++,+++V++');
+   put skip edit(v2) (p'999.99');
+   put skip edit(v0) (p'+++++++');
+   put skip edit(v2) (p'$$$$$.$$');
+   put skip edit(v2) (p'+++.++');
+   put skip edit(v2) (f(8,2));
+end p045;
