@@ -1,0 +1,5 @@
+pp072f: procedure options(main);
+   declare 1 g1, 2 a fixed, 2 b char(4);
+   declare 1 g2 like g1;
+   g2 = g1;
+end pp072f;

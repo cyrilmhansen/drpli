@@ -1,0 +1,6 @@
+pp072b: procedure options(main);
+   declare i fixed, z fixed;
+   do i = 1 to 10 by 2;
+      z = i;
+   end;
+end pp072b;

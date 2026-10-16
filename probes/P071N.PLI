@@ -1,0 +1,6 @@
+pp071n: procedure options(main);
+   declare s char(20);
+   s = 'HELLO';
+   put skip list(s);
+   put edit(12.5)(f(4,1));
+end pp071n;

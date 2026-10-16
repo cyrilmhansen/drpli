@@ -1,0 +1,5 @@
+pp071b: procedure options(main);
+   declare a fixed, b fixed, z fixed;
+   z = a * b / 3;
+   z = mod(a, b);
+end pp071b;

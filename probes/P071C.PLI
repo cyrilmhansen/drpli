@@ -1,0 +1,5 @@
+pp071c: procedure options(main);
+   declare p fixed decimal(7,2), q fixed decimal(7,2), z fixed decimal(7,2);
+   z = p + q;
+   z = p * q - 1.5;
+end pp071c;

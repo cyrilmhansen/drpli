@@ -1,0 +1,298 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P071I $V$L
+PLI D:P071I $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P071I
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   3 c         z = trip(x);
+ARG COUNT               ?
+   7 e            return y;
+SYNTAX                   ?
+    2 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P071I
+
+CTL  0251
+   1 a 0000 pp071i: procedure options(main);
+  00 BEG 0 N 0 10 00 31 00
+CTL  0251
+   2 c 0006    declare z fixed;
+  00 NID 0 N 1 00 00 28 00 PP071I
+  00 ENT 0 N 0 00 00 00 00 #E7BE
+   3 c 0006    z = trip(x);
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(0000)
+  00 NID 0 N 1 00 00 00 00 TRIP
+  00 IID 0 N 1 00 00 00 00 * A(0000)
+  00 ILD 1 N 0 15 00 00 00
+  00 NID 0 N 1 00 00 00 00 
+  00 FUN 2 N 0 15 00 00 00
+  00 NAS 2 X 0 00+02 28 00
+CTL  0251
+   4 c 0014    trip: procedure returns(fixed);
+   5 e 0014       declare y fixed;
+  00 NID 0 N 1 00 00 00 00 TRIP
+  00 ENT 0 N 0 00 00 00 00 #E7DF
+   6 e 0014       y = 2;
+  00 LIO 0 N 1 00 00 00 00 #0006
+  00 IID 0 N 1 00 00 00 00 Y A(0002)
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   7 e 0014       return y;
+  00 LIO 0 N 1 00 00 00 00 #0007
+  00 IID 0 N 1 00 00 00 00 * A(0000)
+CTL  0247
+CTL  0252
+   8 c 002A    end trip;
+CTL  0247
+CTL  0252
+   9 a 002A end pp071i;
+  00 STP 0 N 0 10 00 08 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 002D
+DATA AREA = 0004
+FREE SYMS = 391E
+END  COMPILATION
+
+C>
+>>> PLI D:P071J $V$L
+PLI D:P071J $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P071J
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P071J
+
+CTL  0251
+   1 a 0000 pp071j: procedure options(main);
+  00 BEG 0 N 0 10 00 31 00
+CTL  0251
+   2 c 0006    declare arr(10) fixed, i fixed, z fixed;
+  00 NID 0 N 1 00 00 28 00 PP071J
+  00 ENT 0 N 0 00 00 00 00 #E7C7
+   3 c 0006    i = 3;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 I A(0014)
+  00 C2  0 N 0 00 00 00 00 #0003
+  00 ILD 1 N 0 02 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   4 c 0006    arr(i) = 7;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 IID 0 N 1 00 00 00 00 ARR A(0000)
+  00 C2  0 N 0 00 00 28 00 #FFFE
+  00 OFF 2 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 I A(0014)
+  00 ILD 1 N 0 15 00 00 00
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 02 00 00 00
+  00 IMU 2 B 0 09 00 00 00
+  00 SB  2 N 0 15 00 00 00
+  00 C2  0 N 0 00 00 00 00 #0007
+  00 ILD 1 N 0 03 00 00 00
+  00 IAS 2 X 0 15 00 08 00
+   5 c 0006    z = arr(i) + arr(1);
+  00 LIO 0 N 1 00 00 05 00 #0005
+  00 IID 0 N 1 00 00 21 00 Z A(0016)
+  00 IID 0 N 1 00 00 00 00 ARR A(0000)
+  00 C2  0 N 0 00 00 00 00 #FFFE
+  00 OFF 2 N 0 15 00 99 00
+  00 IID 0 N 1 00 00 31 00 I A(0014)
+  00 ILD 1 N 0 15 00 00 00
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 02 00 00 00
+  00 IMU 2 B 0 09 00 00 00
+  00 SB  2 N 0 15 00 00 00
+  00 ILD 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 ARR A(0000)
+  00 ILD 1 N 0 15 00 00 00
+  00 IAD 2 B 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+CTL  0247
+CTL  0252
+   6 a 0031 end pp071j;
+  00 STP 0 N 0 10 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 0034
+DATA AREA = 0018
+FREE SYMS = 391C
+END  COMPILATION
+
+C>
+>>> PLI D:P071K $V$L
+PLI D:P071K $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P071K
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P071K
+
+CTL  0251
+   1 a 0000 pp071k: procedure options(main);
+  00 BEG 0 N 0 10 00 31 00
+CTL  0251
+   2 c 0006    declare p pointer, q based(p) fixed, z fixed;
+  00 NID 0 N 1 00 00 28 00 PP071K
+  00 ENT 0 N 0 00 00 00 00 #E7CA
+   3 c 0006    p = addr(z);
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 NID 0 N 1 00 00 00 00 P A(0000)
+  00 IID 0 N 1 00 00 00 00 Z A(0002)
+  00 NAS 2 X 0 00+02 02 00
+   4 c 0006    q = 5;
+  00 LIO 0 N 1 00 00 01 00 #0004
+  00 NID 0 N 1 00 00 00 00 P A(0000)
+  00 ALD 1 N 0 00 00 00 00 #E7FB
+  00 C2  0 N 0 00 00 28 00 #0005
+  00 ILD 1 N 0 03 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   5 c 0006    z = q + 1;
+  00 LIO 0 N 1 00 00 00 00 #0005
+  00 IID 0 N 1 00 00 00 00 Z A(0002)
+  00 NID 0 N 1 00 00 00 00 P A(0000)
+  00 ALD 1 N 0 00 00 00 00 #E7A1
+  00 ILD 1 N 0 15 00 01 00
+  00 C2  0 N 0 00 00 00 00 #0001
+  00 ILD 1 N 0 01 00 00 00
+  00 IAD 2 B 0 15 00 08 00
+  00 IAS 2 X 0 15 00 05 00
+CTL  0247
+CTL  0252
+   6 a 001F end pp071k;
+  00 STP 0 N 0 10 00 21 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 0022
+DATA AREA = 0004
+FREE SYMS = 391C
+END  COMPILATION
+
+C>
+>>> PLI D:P071L $V$L
+PLI D:P071L $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P071L
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P071L
+
+CTL  0251
+   1 a 0000 pp071l: procedure options(main);
+  00 BEG 0 N 0 10 00 31 00
+CTL  0251
+   2 c 0006    declare b bit(4), c bit(4), d bit(1);
+  00 NID 0 N 1 00 00 28 00 PP071L
+  00 ENT 0 N 0 00 00 00 00 #E7CF
+   3 c 0006    b = c & '1010'b;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 BID 0 N 1 00 00 00 00 B A(0000)
+  00 BID 0 N 1 00 00 00 00 C A(0001)
+  00 BLD 1 N 0 04 00 00 00
+  00 C2  0 N 0 00 00 00 00 #00A0
+  00 BLD 1 N 0 04 00 00 00
+  00 BAN 2 B 0 04 00 00 00
+  00 BAS 2 X 0 04 00 28 00
+   4 c 0006    b = c | '0101'b;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 BID 0 N 1 00 00 00 00 B A(0000)
+  00 BID 0 N 1 00 00 00 00 C A(0001)
+  00 BLD 1 N 0 04 00 00 00
+  00 C2  0 N 0 00 00 00 00 #0050
+  00 BLD 1 N 0 04 00 00 00
+  00 BOR 2 B 0 04 00 00 00
+  00 BAS 2 X 0 04 00 00 00
+   5 c 0006    d = ^ c;
+  00 LIO 0 N 1 00 00 00 00 #0005
+  00 BID 0 N 1 00 00 08 00 D A(0002)
+  00 BID 0 N 1 00 00 05 00 C A(0001)
+  00 BLD 1 N 0 04 00 21 00
+  00 BNG 1 N 0 04 00 00 00
+  00 BAS 2 X 0 01 00 00 00
+CTL  0247
+CTL  0252
+   6 a 0023 end pp071l;
+  00 STP 0 N 0 10 00 07 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 0026
+DATA AREA = 0003
+FREE SYMS = 3929
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10017 ms, waited for 0 ms
+CPU executed 48473717 t-states in 28 ms
+Clock frequency 1717.22 MHz

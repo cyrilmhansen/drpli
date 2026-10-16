@@ -1,0 +1,7 @@
+pp071f: procedure options(main);
+   declare z fixed, d fixed decimal(5,2), x float;
+   z = d;
+   d = x;
+   x = z;
+   d = z;
+end pp071f;

@@ -1,0 +1,6 @@
+pp071k: procedure options(main);
+   declare p pointer, q based(p) fixed, z fixed;
+   p = addr(z);
+   q = 5;
+   z = q + 1;
+end pp071k;

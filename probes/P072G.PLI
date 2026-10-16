@@ -1,0 +1,5 @@
+pp072g: procedure options(main);
+   declare s char(20), w char(10) varying;
+   get list(s);
+   put list(w);
+end pp072g;

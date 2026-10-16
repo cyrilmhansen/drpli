@@ -1,0 +1,9 @@
+pp071i: procedure options(main);
+   declare z fixed;
+   z = trip(x);
+   trip: procedure returns(fixed);
+      declare y fixed;
+      y = 2;
+      return y;
+   end trip;
+end pp071i;

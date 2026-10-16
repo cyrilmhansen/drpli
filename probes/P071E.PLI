@@ -1,0 +1,4 @@
+pp071e: procedure options(main);
+   declare x float, y float, f float;
+   f = x * y + 1.5e0;
+end pp071e;

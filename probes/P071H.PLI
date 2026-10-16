@@ -1,0 +1,5 @@
+pp071h: procedure options(main);
+   declare a fixed, b fixed, c bit(1);
+   if a < b then c = '1'b;
+   else c = '0'b;
+end pp071h;

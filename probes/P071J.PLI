@@ -1,0 +1,6 @@
+pp071j: procedure options(main);
+   declare arr(10) fixed, i fixed, z fixed;
+   i = 3;
+   arr(i) = 7;
+   z = arr(i) + arr(1);
+end pp071j;

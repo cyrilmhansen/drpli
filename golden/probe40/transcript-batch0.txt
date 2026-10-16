@@ -1,0 +1,330 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P072A $V$L
+PLI D:P072A $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P072A
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   4 c         if a <> b then c = '1'b;
+SYNTAX               ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P072A
+
+CTL  0251
+   1 a 0000 pp072a: procedure options(main);
+  00 BEG 0 N 0 29 00 31 00
+CTL  0251
+   2 c 0006    declare a fixed, b fixed, c bit(1);
+  00 NID 0 N 1 00 00 28 00 PP072A
+  00 ENT 0 N 0 00 00 00 00 #E7CF
+   3 c 0006    if a = b then c = '1'b;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 A A(0000)
+  00 ILD 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 B A(0002)
+  00 ILD 1 N 0 15 00 00 00
+  00 IEQ 2 B 0 01 00 00 00
+  00 IFC 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 28 00 C A(0004)
+  00 C2  0 N 0 00 00 00 00 #0080
+  00 BLD 1 N 0 01 00 00 00
+  00 BAS 2 X 0 01 00 00 00
+CTL  0249
+   4 c 0021    if a <> b then c = '1'b;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 IID 0 N 1 00 00 00 00 A A(0000)
+  00 ILD 1 N 0 15 00 00 00
+  00 ILD 1 N 0 15 00 00 00
+  00 ILT 2 N 0 01 00 00 00
+  00 QBI 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 08 00 B A(0002)
+  00 ILD 1 N 0 15 00 05 00
+  00 IGT 2 X 0 01 00 21 00
+  00 IFC 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 C A(0004)
+  00 C2  0 N 0 00 00 07 00 #0080
+  00 BLD 1 N 0 01 00 31 00
+  00 BAS 2 X 0 01 00 00 00
+CTL  0249
+   5 c 0049    if a > b then c = '1'b;
+   6 c 0049    if a >= b then c = '1'b;
+  00 LIO 0 N 1 00 00 00 00 #0006
+  00 IID 0 N 1 00 00 00 00 A A(0000)
+  00 ILD 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 B A(0002)
+  00 ILD 1 N 0 15 00 00 00
+  00 IGE 2 N 0 01 00 00 00
+  00 IFC 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 C A(0004)
+  00 C2  0 N 0 00 00 00 00 #0080
+  00 BLD 1 N 0 01 00 00 00
+  00 BAS 2 X 0 01 00 01 00
+CTL  0249
+   7 c 005E    if a <= b then c = '1'b;
+  00 LIO 0 N 1 00 00 28 00 #0007
+  00 IID 0 N 1 00 00 28 00 A A(0000)
+  00 ILD 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 B A(0002)
+  00 ILD 1 N 0 15 00 00 00
+  00 ILE 2 X 0 01 00 00 00
+  00 IFC 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 C A(0004)
+  00 C2  0 N 0 00 00 00 00 #0080
+  00 BLD 1 N 0 01 00 00 00
+  00 BAS 2 X 0 01 00 00 00
+CTL  0249
+   8 c 0073    if a ^= b then c = '1'b;
+  00 LIO 0 N 1 00 00 00 00 #0008
+  00 IID 0 N 1 00 00 00 00 A A(0000)
+  00 ILD 1 N 0 15 00 00 00
+  00 IID 0 N 1 00 00 00 00 B A(0002)
+  00 ILD 1 N 0 15 00 00 00
+  00 INE 2 B 0 01 00 00 00
+  00 IFC 1 N 0 01 00 00 00
+  00 BID 0 N 1 00 00 00 00 C A(0004)
+  00 C2  0 N 0 00 00 00 00 #0080
+  00 BLD 1 N 0 01 00 00 00
+  00 BAS 2 X 0 01 00 00 00
+CTL  0249
+CTL  0247
+CTL  0252
+   9 a 008E end pp072a;
+  00 STP 0 N 0 29 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 0091
+DATA AREA = 0005
+FREE SYMS = 393A
+END  COMPILATION
+
+C>
+>>> PLI D:P072B $V$L
+PLI D:P072B $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P072B
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P072B
+
+CTL  0251
+   1 a 0000 pp072b: procedure options(main);
+  00 BEG 0 N 0 01 00 31 00
+CTL  0251
+   2 c 0006    declare i fixed, z fixed;
+  00 NID 0 N 1 00 00 28 00 PP072B
+  00 ENT 0 N 0 00 00 00 00 #E7DA
+   3 c 0006    do i = 1 to 10 by 2;
+  00 LIO 0 N 1 00 00 00 00 #0003
+CTL  0254
+  00 IID 0 N 1 00 00 00 00 I A(0000)
+  00 C2  0 N 0 00 00 00 00 #0001
+  00 ILD 1 N 0 01 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+  00 WHL 0 N 0 01 00 00 00
+  00 IID 0 N 1 00 00 00 00 I A(0000)
+  00 ILD 1 N 0 15 00 28 00
+  00 C2  0 N 0 00 00 00 00 #000A
+  00 ILD 1 N 0 04 00 00 00
+  00 ILE 2 X 0 01 00 00 00
+  00 DOW 1 N 0 01 00 00 00
+   4 c 0006       z = i;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 IID 0 N 1 00 00 00 00 Z A(0002)
+  00 IID 0 N 1 00 00 00 00 I A(0000)
+  00 ILD 1 N 0 15 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+  00 IID 0 N 1 00 00 08 00 I A(0000)
+  00 IID 0 N 1 00 00 05 00 I A(0000)
+  00 ILD 1 N 0 15 00 21 00
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 02 00 00 00
+  00 IAD 2 B 0 15 00 68 00
+  00 IAS 2 X 0 15 00 31 00
+CTL  0250
+CTL  0247
+CTL  0252
+   5 c 0029    end;
+   6 a 0029 end pp072b;
+  00 STP 0 N 0 01 00 68 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 002C
+DATA AREA = 0004
+FREE SYMS = 392E
+END  COMPILATION
+
+C>
+>>> PLI D:P072C $V$L
+PLI D:P072C $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P072C
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P072C
+
+CTL  0251
+   1 a 0000 pp072c: procedure options(main);
+  00 BEG 0 N 0 01 00 31 00
+CTL  0251
+   2 c 0006    declare z fixed;
+  00 NID 0 N 1 00 00 28 00 PP072C
+  00 ENT 0 N 0 00 00 00 00 #E7D8
+   3 c 0006    z = 1;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(0000)
+  00 C2  0 N 0 00 00 00 00 #0001
+  00 ILD 1 N 0 01 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   4 c 0006    goto two;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 NID 0 N 1 00 00 00 00 TWO
+  00 GTL 1 N 0 00 00 28 00
+   5 c 0006    z = 2;
+  00 LIO 0 N 1 00 00 00 00 #0005
+  00 IID 0 N 1 00 00 00 00 Z A(0000)
+  00 C2  0 N 0 00 00 00 00 #0002
+  00 ILD 1 N 0 02 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+  00 NID 0 N 1 00 00 00 00 TWO
+  00 DFL 1 N 0 00 00 00 00
+CTL  0254
+   6 c 0015 two: z = 3;
+  00 LIO 0 N 1 00 00 00 00 #0006
+  00 IID 0 N 1 00 00 00 00 Z A(0000)
+  00 C2  0 N 0 00 00 08 00 #0003
+  00 ILD 1 N 0 02 00 05 00
+  00 IAS 2 X 0 15 00 21 00
+CTL  0247
+CTL  0252
+   7 a 001B end pp072c;
+  00 STP 0 N 0 01 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 001E
+DATA AREA = 0002
+FREE SYMS = 392D
+END  COMPILATION
+
+C>
+>>> PLI D:P072D $V$L
+PLI D:P072D $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P072D
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P072D
+
+CTL  0251
+   1 a 0000 pp072d: procedure options(main);
+  00 BEG 0 N 0 01 00 31 00
+CTL  0251
+   2 c 0006    declare d fixed decimal(9,2), e fixed decimal(9,2), z fixed decimal(9,2);
+  00 NID 0 N 1 00 00 28 00 PP072D
+  00 ENT 0 N 0 00 00 00 00 #E7CF
+   3 c 0006    z = d / e;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 DID 0 N 1 00 00 00 00 Z A(000C)
+  00 DID 0 N 1 00 00 00 00 D A(0002)
+  00 DLD 1 N 0 09 02 00 00
+  00 QDD 1 N 0 09 08 00 00
+  00 DID 0 N 1 00 00 00 00 E A(0007)
+  00 DLD 1 N 0 09 02 00 00
+  00 DDV 2 N 0 15 06 28 00
+  00 QDD 1 N 0 15 02 00 00
+  00 DAS 2 X 0 09 02 00 00
+   4 c 0006    d = d * 10.0;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 DID 0 N 1 00 00 00 00 D A(0002)
+  00 DID 0 N 1 00 00 00 00 D A(0002)
+  00 DLD 1 N 0 09 02 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0000)
+  00 DLD 1 N 0 03 01 00 00
+  00 DMU 2 B 0 13 03 00 00
+  00 QDD 1 N 0 13 02 08 00
+  00 DAS 2 X 0 09 02 05 00
+CTL  0247
+CTL  0252
+   5 a 004B end pp072d;
+  00 STP 0 N 0 01 00 21 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 004E
+DATA AREA = 0011
+FREE SYMS = 392B
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10053 ms, waited for 0 ms
+CPU executed 52080664 t-states in 28 ms
+Clock frequency 1831.56 MHz

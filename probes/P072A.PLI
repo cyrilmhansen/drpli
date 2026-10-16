@@ -1,0 +1,9 @@
+pp072a: procedure options(main);
+   declare a fixed, b fixed, c bit(1);
+   if a = b then c = '1'b;
+   if a <> b then c = '1'b;
+   if a > b then c = '1'b;
+   if a >= b then c = '1'b;
+   if a <= b then c = '1'b;
+   if a ^= b then c = '1'b;
+end pp072a;

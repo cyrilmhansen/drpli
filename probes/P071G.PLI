@@ -1,0 +1,5 @@
+pp071g: procedure options(main);
+   declare s char(10), t char(10), u char(10);
+   s = t || u;
+   s = substr(t, 2, 3);
+end pp071g;

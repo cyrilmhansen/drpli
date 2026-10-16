@@ -1,0 +1,5 @@
+pp071a: procedure options(main);
+   declare a fixed, b fixed, z fixed;
+   a = 5;
+   z = a + b - 1;
+end pp071a;

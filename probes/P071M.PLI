@@ -1,0 +1,8 @@
+pp071m: procedure options(main);
+   declare i fixed, z fixed;
+   i = 0;
+   do while(i < 10);
+      i = i + 1;
+   end;
+   z = i;
+end pp071m;

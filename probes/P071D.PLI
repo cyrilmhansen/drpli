@@ -1,0 +1,4 @@
+pp071d: procedure options(main);
+   declare z fixed;
+   z = 2 ** 3;
+end pp071d;

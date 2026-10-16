@@ -1,0 +1,7 @@
+pp072c: procedure options(main);
+   declare z fixed;
+   z = 1;
+   goto two;
+   z = 2;
+two: z = 3;
+end pp072c;

@@ -1,0 +1,6 @@
+pp072h: procedure options(main);
+   declare f file, s char(30) varying;
+   open file(f) input;
+   get file(f) list(s);
+   close file(f);
+end pp072h;

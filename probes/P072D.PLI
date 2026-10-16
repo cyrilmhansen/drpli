@@ -1,0 +1,5 @@
+pp072d: procedure options(main);
+   declare d fixed decimal(9,2), e fixed decimal(9,2), z fixed decimal(9,2);
+   z = d / e;
+   d = d * 10.0;
+end pp072d;

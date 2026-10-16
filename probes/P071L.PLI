@@ -1,0 +1,6 @@
+pp071l: procedure options(main);
+   declare b bit(4), c bit(4), d bit(1);
+   b = c & '1010'b;
+   b = c | '0101'b;
+   d = ^ c;
+end pp071l;
