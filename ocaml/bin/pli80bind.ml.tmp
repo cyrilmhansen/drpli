@@ -1,0 +1,86 @@
+(* pli80bind [--inc DIR]... FILE — parse, bind, print $S-format dump.
+   %include is expanded TEXTUALLY like the compiler's preprocessor does
+   (artefact .DCL files are raw fragments spliced mid-declaration). *)
+
+let expand_includes src dirs =
+  let rec loop src =
+    let idx = try Some (String.index_sub "~" src) with _ in
+    ignore idx;
+    (* find "%include '" ... "'" occurrence *)
+    let key = "%include '" in
+    let lower_all = String.lowercase_ascii src in
+    match String.index_opt lower_all key with
+    | None -> src
+    | Some at ->
+        let q_start = at + String.length key in
+        let q_end =
+          try Some (String.index_from (String.lowercase_ascii src) q_start '\'')
+          with Not_found -> None
+        in
+        match q_end with
+        | None -> src
+        | Some qe ->
+            let fname = String.sub src q_start (qe - q_start) in
+            (* statement end ';' after quote *)
+            let semi =
+              try String.index_from src qe ';' with Not_found -> String.length src - 1
+            in
+            (* locate file (case-insensitive) *)
+            let cand =
+              let rec go = function
+                | [] -> None
+                | d :: rest ->
+                    let try_file base =
+                      let p = Filename.concat d base in
+                      if Sys.file_exists p then Some p else None
+                    in
+                    match
+                      try_file fname
+                      |> (fun o -> match o with
+                          | Some _ as x -> x
+                          | None -> try_file (String.uppercase_ascii fname))
+                      |> (fun o -> match o with
+                          | Some _ as x -> x
+                          | None -> try_file (String.capitalize_ascii fname))
+                    with
+                    | Some p -> Some p
+                    | None -> go rest
+              in go dirs
+            in
+            match cand with
+            | None ->
+                Printf.eprintf "pli80bind: %s not found; leaving directive\n%!" fname;
+                src
+            | Some path ->
+                let content =
+                  In_channel.with_open_bin path In_channel.input_all
+                in
+                let content =
+                  String.map (fun c -> if c = '\r' then ' ' else c) content
+                in
+                let before = String.sub src 0 at in
+                let after =
+                  String.sub src (semi + 1) (String.length src - semi - 1)
+                in
+                loop (before ^ "\n" ^ content ^ after)
+  in
+  loop src
+
+let () =
+  let argv = Array.to_list Sys.argv in
+  let (dirs, file) =
+    let rec go dirs rest =
+      match rest with
+      | "--inc" :: d :: tl -> go (d :: dirs) tl
+      | [f] -> (dirs, f)
+      | _ -> eprintf "usage: pli80bind [--inc DIR] FILE\n"; exit 2
+    in go [ Filename.dirname file0 ] argv
+    and file0 = List.nth_last_opt argv 0 |> Option.value ~default:"."
+  in
+  ignore argv;
+  let dirs = "artefacts" :: dirs in
+  let src =
+    In_channel.with_open_bin (List.nth_string argv) In_channel.input_all
+  in
+  let _ = (src, dirs, file) in
+  ()

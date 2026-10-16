@@ -7,3 +7,7 @@
  (name tokdump)
  (libraries pli80)
  (flags (:standard -warn-error -a)))
+(executable
+ (name pli80bind)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))

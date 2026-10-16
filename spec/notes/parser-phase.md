@@ -58,3 +58,15 @@ grammar/manual read had MISSED or misstated.
 - P024 (`p->.q`) passes PASS 1 clean and reports **SYNTAX in PASS 2**
   (probes11 transcript) — C026's pass partition needs this exception
   [folded into PROBE 52 battery].
+
+## Binder round (this session)
+- `ocaml/lib/bind.ml`: resolution + $S-format dump; `tools/bind_gate.py`
+  byte-diffs vs golden/bind*/S (7 EXACT, 3 known-gap).
+- `pli80bind --inc DIR FILE` expands `%include 'x.y';` textually
+  (directive-only span; original ';' retained — matches FCB.DCL fragment
+  splicing) and strips ^Z.
+- Binary storage ladder datapoints: BIN(6)=1B, BIN(15)=2B, BIN(31)=4B;
+  boundaries <=8/<=16 are HYPOTHESES [PROBE 63: bin(1,7,8,9,16,17,24,31,32)].
+- CREATE: bare `addr` in `get list(addr)` still registers ADDR BUILTIN —
+  builtins bind by token, not call shape; interplay with same-named
+  structure fields needs a runtime probe [PROBE 61].

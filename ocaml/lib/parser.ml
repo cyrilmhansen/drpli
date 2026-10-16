@@ -78,7 +78,8 @@ let builtins =
   ; "COPY"; "COS"; "DIVIDE"; "EXP"; "FIXED"; "FLOAT"; "HBOUND"; "INDEX"
   ; "LBOUND"; "LENGTH"; "LINENO"; "MAXIMUM"; "MINIMUM"; "MOD"; "NULL"
   ; "PAGENO"; "PRESENT"; "RANK"; "ASCII"; "RELATE"; "SIGN"; "SIN"; "SQRT"
-  ; "SUMMARY"; "TRANSLATE"; "TRUNC"; "VSIZE"; "UNSUIT" ]
+  ; "SUMMARY"; "TRANSLATE"; "TRUNC"; "VSIZE"; "UNSUIT"; "LOG"; "LOG10"; "CHAR"
+  ; "DEC" ]
 
 let is_builtin k = List.mem k builtins
 

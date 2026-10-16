@@ -4,6 +4,10 @@
    claims C040/C041):
    - idents include '_'; bit literals: 'digits'xN repeat suffix
    - operators: ~ and ^ both NOT; ~= and >< and <> all NE; ^= XOR
+   - builtin words include LOG (and CHAR/DEC appear as compiler-internal
+     BUILTIN symbols; see C043)
+   - FIXED BINARY storage ladder: p<=8 -> 1B, p<=16 -> 2B, else 4B
+     [C042; boundaries PROBE 63]
    - declare synonym: DCL; bare type words DECIMAL/BINARY/PTR/FILE
    - dcl: type and attribute order interleaves freely; groups
      (lvl, names...) with per-member dims AND per-member types;

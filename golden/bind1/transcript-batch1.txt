@@ -1,0 +1,192 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:KEYFILE $L$S
+PLI D:KEYFILE $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: KEYFILE
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 31 BYTES
+a 0000 KEYFILE ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 8, AUTO STORAGE 2 BYTES
+c 0000 EMPLOYEE STRUCTURE LEVEL 1, MEMBERS 1 STATIC
+c 0000 .NAME CHAR(30) VARYING MEMBER
+c 0000 INPUT FILE EXTERNAL STATIC
+c 0000 KEYS FILE EXTERNAL STATIC
+c 0000 K FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: KEYFILE
+
+   1   0000 /******************************************************/
+   2   0000 /* This program reads an employee record file and     */
+   3   0000 /* creates another file of keys to access the records.*/
+   4   0000 /******************************************************/
+   5   0000 
+   6 a 0000 keyfile:
+   7 a 0006     procedure options(main);
+   8 c 0006     declare
+   9 c 0006        1 employee static,
+  10 c 0006          2 name character(30) varying;
+  11 c 0006 
+  12 c 0006     declare
+  13 c 0006        (input, keys) file,
+  14 c 0006        k fixed;
+  15 c 0006 
+  16 c 0006     open file(input) keyed environment(f(128),b(10000)) 
+  17 c 002A          title('$1.emp'); 
+  18 c 002A 
+  19 c 002A     open file(keys) stream output
+  20 c 0049          linesize (60) title('$1.key');
+  21 c 0049 
+  22 c 0049     do while('1');
+  23 c 0049        read file(input) into(employee) keyto(k);
+  24 c 0067        put skip list(k,name);
+  25 c 008C        put file(keys) list(name,k);
+  26 c 00AF        if name = 'EOF' then
+  27 c 00BE           stop;
+  28 c 00C4     end;
+  29 c 00C4 
+  30 a 00C4 end keyfile;
+  31 a 00C4 
+  32 a 00C4  
+
+CODE SIZE = 00C4
+DATA AREA = 0030
+FREE SYMS = 3890
+END  COMPILATION
+
+C>
+>>> PLI D:CREATE $L$S
+PLI D:CREATE $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: CREATE
+
+L: List Source Program
+S: Symbol Table List
+
+%include 'record.dcl';
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 1 BYTES
+a 0000 ADDR BUILTIN CONSTANT
+a 0000 CREATE ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 9, AUTO STORAGE 126 BYTES
+c 0000 RECORD STRUCTURE LEVEL 1, MEMBERS 6 AUTOMATIC
+c 0000 .NAME CHAR(30) VARYING MEMBER
+c 001F .ADDR CHAR(30) VARYING MEMBER
+c 003E .CITY CHAR(20) VARYING MEMBER
+c 0053 .STATE CHAR(10) VARYING MEMBER
+c 005E .ZIP FIXED DECIMAL(6,0) MEMBER
+c 0062 .PHONE CHAR(12) VARYING MEMBER
+c 0000 OUTPUT FILE EXTERNAL STATIC
+c 006F FILENAME CHAR(14) VARYING AUTOMATIC
+c 0000 EOFILE BIT(1) INITIAL STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: CREATE
+
+   1   0000 /*****************************************************/
+   2   0000 /* This program creates a name and address file. The */
+   3   0000 /* data structure for each record is in the %INCLUDE */
+   4   0000 /* file RECORD.DCL.                                  */
+   5   0000 /*****************************************************/
+   6 a 0000 create:
+   7 a 0006       procedure options(main);
+   8 a 0006 
+   9+c 0006     dcl
+  10+c 0006         1 record,
+  11+c 0006           2 name  character(30) varying,
+  12+c 0006           2 addr  character(30) varying,
+  13+c 0006           2 city  character(20) varying,
+  14+c 0006           2 state character(10) varying,
+  15+c 0006           2 zip   fixed decimal(6),
+  16+c 0006           2 phone character(12) varying;
+  17 c 0006 %replace
+  18 c 0006   true by '1'b,
+  19 c 0006   false by '0'b;
+  20 c 0006 
+  21 c 0006     declare 
+  22 c 0006        output file,
+  23 c 0006        filename character(14) varying,
+  24 c 0006        eofile bit(1) static initial(false);
+  25 c 0006 
+  26 c 0006     put list ('Name and Address Creation Program, File Name: ');
+  27 c 001D     get list (filename);
+  28 c 0037 
+  29 c 0037     open file(output) stream output title(filename);
+  30 c 0052 
+  31 c 0052     do while (^eofile);
+  32 c 0059        put skip(3) list('Name: ');
+  33 c 0075        get list(name);
+  34 c 008F        eofile = (name = 'EOF');
+  35 c 00A1        if ^eofile then
+  36 c 00A8           do;
+  37 c 00A8        /* write prompt strings to console */
+  38 c 00A8             put list('Address: ');
+  39 c 00BF             get list(addr);
+  40 c 00D9             put list('City, State, Zip: ');
+  41 c 00F0             get list(city, state, zip);
+  42 c 012B             put list('Phone: ');
+  43 c 0142             get list(phone);
+  44 c 015C 
+  45 c 015C        /* data in memory, write to output file */
+  46 c 015C             put file(output)
+  47 c 01AA                 list(name,addr,city,state,zip,phone);
+  48 c 01AA             put file(output) skip;
+  49 c 01C1           end;
+  50 c 01C1     end;
+  51 c 01C1     put file(output) skip list('EOF');
+  52 c 01E0     put file(output) skip;
+  53 c 01F4 
+  54 a 01F4 end create;
+  55 a 01F7 
+
+CODE SIZE = 01F7
+DATA AREA = 00D8
+FREE SYMS = 3777
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6035 ms, waited for 0 ms
+CPU executed 56580851 t-states in 31 ms
+Clock frequency 1814.30 MHz

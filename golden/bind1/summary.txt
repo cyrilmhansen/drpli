@@ -1,0 +1,6 @@
+ANNUITY	ok	PRN=False REL=True
+CREATE	ok	PRN=False REL=True
+DEMO	ok	PRN=False REL=True
+FLTPOLY	ok	PRN=False REL=True
+KEYFILE	ok	PRN=False REL=True
+LOAN1	ok	PRN=False REL=True
