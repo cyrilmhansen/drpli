@@ -917,7 +917,22 @@ and parse_put p =
   let opts = ref [] and ctl = ref [] in
   let rec consume () =
     let o = parse_io_opts p and c = parse_ctl_items p in
-    if o = [] && c = [] then ()
+    if o = [] && c = [] then begin
+      (* bare file reference: `get f list(x)` / `put f edit(...) ...`
+         — DR accepts the name directly, not only FILE(f) [EX P080Q] *)
+      match peek p with
+      | Token.Ident { key; _ }
+        when not
+               (List.mem key
+                  (ioopt_keys @ ctl_keys
+                  @ [ "LIST"; "EDIT"; "CONST"; "ITEM"; "FROM"; "USING" ])) ->
+          let nm = name_any p in
+          opts := !opts
+                  @ [ { io_key = "FILE"
+                      ; io_val = Some { e = Eident nm; epos = nm.pos } } ];
+          consume ()
+      | _ -> ()
+    end
     else begin
       opts := !opts @ o; ctl := !ctl @ c; consume ()
     end
@@ -950,7 +965,22 @@ and parse_get p =
   let opts = ref [] and ctl = ref [] in
   let rec consume () =
     let o = parse_io_opts p and c = parse_ctl_items p in
-    if o = [] && c = [] then ()
+    if o = [] && c = [] then begin
+      (* bare file reference: `get f list(x)` / `put f edit(...) ...`
+         — DR accepts the name directly, not only FILE(f) [EX P080Q] *)
+      match peek p with
+      | Token.Ident { key; _ }
+        when not
+               (List.mem key
+                  (ioopt_keys @ ctl_keys
+                  @ [ "LIST"; "EDIT"; "CONST"; "ITEM"; "FROM"; "USING" ])) ->
+          let nm = name_any p in
+          opts := !opts
+                  @ [ { io_key = "FILE"
+                      ; io_val = Some { e = Eident nm; epos = nm.pos } } ];
+          consume ()
+      | _ -> ()
+    end
     else begin
       opts := !opts @ o; ctl := !ctl @ c; consume ()
     end
