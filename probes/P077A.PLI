@@ -1,0 +1,15 @@
+pp077a: procedure options(main);
+   declare x fixed;
+   x = 0;
+
+   on error
+      begin;
+         x = 1;
+      end;
+
+   lbl:
+   begin;
+      x = 2;
+   end;
+   x = 3;
+end pp077a;

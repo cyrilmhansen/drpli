@@ -1,0 +1,4 @@
+pp073g: procedure options(main);
+   declare kf file keyed;
+   write file(kf) key from('A');
+end pp073g;

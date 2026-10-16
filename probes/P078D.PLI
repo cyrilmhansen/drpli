@@ -1,0 +1,10 @@
+p078d: procedure options(main);
+   declare x fixed;
+   on error
+      begin;
+         x = 1;
+      end;
+   begin;
+      x = 2;
+   end;
+end p078d;

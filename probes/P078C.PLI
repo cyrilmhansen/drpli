@@ -1,0 +1,12 @@
+p078c: procedure options(main);
+   declare x fixed;
+   begin;
+
+      begin;
+
+         x = 1;
+
+      end;
+
+   end;
+end p078c;

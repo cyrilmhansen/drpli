@@ -1,0 +1,6 @@
+pp073b: procedure options(main);
+   declare s char(10);
+   s = 'ABCDEFG';
+   substr(s,2,1) = 'X';
+   s = length(s);
+end pp073b;

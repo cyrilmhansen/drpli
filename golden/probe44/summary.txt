@@ -1,0 +1,4 @@
+P077A	ok	PRN=False REL=True
+P077B	diag	PRN=False REL=False
+P077C	ok	PRN=False REL=True
+P077D	diag	PRN=False REL=False

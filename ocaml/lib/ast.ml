@@ -149,6 +149,8 @@ and block =
   ; bsuffix : attr list               (** after ')' reentering static ext etc *)
   ; bdecls : dcl list
   ; bstmts : stmt list
-  ; bkind : block_kind }
+  ; bkind : block_kind
+  ; bendpos : Source.pos option   (** END-keyword line; BEGIN frames anchor
+      at first inner stmt, else END line [EX P077B/P078A-D] *) }
 
 and block_kind = Bproc | Bbegin | Bdo

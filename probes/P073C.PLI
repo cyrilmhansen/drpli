@@ -1,0 +1,7 @@
+pp073c: procedure options(main);
+   declare b bit(4), c bit(4), s char(4), t char(4), d fixed decimal(5,2), f float;
+   if b < c then s = 'Y';
+   if s = t then b = '1111'b;
+   if d > 1.5 then t = 'Z';
+   if f = 0e0 then s = 'Q';
+end pp073c;

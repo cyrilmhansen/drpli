@@ -1,0 +1,5 @@
+pp073f: procedure options(main);
+   declare i fixed;
+   i = 1;
+   put edit(i)(2(f(3)), skip(2), page, line(3), column(5));
+end pp073f;

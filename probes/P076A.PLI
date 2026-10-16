@@ -1,0 +1,5 @@
+p076a: procedure options(main);
+   declare x fixed decimal(9,2), b bit(8);
+   put edit(x)(e(12,4),b(8),column(5));
+   put edit(x)(p'+++++');
+end p076a;

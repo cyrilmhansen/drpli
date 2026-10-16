@@ -1,0 +1,176 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P074A $L$S
+PLI D:P074A $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P074A
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 6 BYTES
+a 0000 PP074A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 5 BYTES
+c 0000 X FIXED DECIMAL(9,2) AUTOMATIC
+c 0000 * FORMAT STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P074A
+
+   1 a 0000 pp074a: procedure options(main);
+   2 c 0006    declare x fixed decimal(9,2);
+   3 c 0006    put edit(x)(f(4));
+   4 a 002A end pp074a;
+
+CODE SIZE = 002D
+DATA AREA = 000B
+FREE SYMS = 3953
+END  COMPILATION
+
+C>
+>>> PLI D:P074B $L$S
+PLI D:P074B $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P074B
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 8 BYTES
+a 0000 PP074B ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 5 BYTES
+c 0000 X FIXED DECIMAL(9,2) AUTOMATIC
+c 0000 * FORMAT STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P074B
+
+   1 a 0000 pp074b: procedure options(main);
+   2 c 0006    declare x fixed decimal(9,2);
+   3 c 0006    put edit(x)(p'9');
+   4 a 002A end pp074b;
+
+CODE SIZE = 002D
+DATA AREA = 000D
+FREE SYMS = 3953
+END  COMPILATION
+
+C>
+>>> PLI D:P074C $L$S
+PLI D:P074C $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P074C
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 15 BYTES
+a 0000 PP074C ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 5 BYTES
+c 0000 X FIXED DECIMAL(9,2) AUTOMATIC
+c 0000 * FORMAT STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P074C
+
+   1 a 0000 pp074c: procedure options(main);
+   2 c 0006    declare x fixed decimal(9,2);
+   3 c 0006    put edit(x)(p'99999999');
+   4 a 002A end pp074c;
+
+CODE SIZE = 002D
+DATA AREA = 0014
+FREE SYMS = 3953
+END  COMPILATION
+
+C>
+>>> PLI D:P074D $L$S
+PLI D:P074D $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P074D
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 8 BYTES
+a 0000 PP074D ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 5 BYTES
+c 0000 X FIXED DECIMAL(9,2) AUTOMATIC
+c 0000 * FORMAT STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P074D
+
+   1 a 0000 pp074d: procedure options(main);
+   2 c 0006    declare x fixed decimal(9,2);
+   3 c 0006    put edit(x)(skip,f(4));
+   4 a 002A end pp074d;
+
+CODE SIZE = 002D
+DATA AREA = 000D
+FREE SYMS = 3953
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10054 ms, waited for 0 ms
+CPU executed 37441843 t-states in 20 ms
+Clock frequency 1847.06 MHz

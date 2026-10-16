@@ -745,11 +745,17 @@ and parse_begin_block p q =
     if at_any_ident p && not (at_punct p Token.Semi) then Some (name_any p) else None
   in
   let _attrs = parse_attrs p in
+  (* the `;` in `begin;` is the BEGIN's own terminator, not a null stmt
+     [EX P078A: golden frames anchor at first INNER stmt, our phantom
+     Snull was stealing the anchor] *)
+  expect_punct p Token.Semi;
   let body = parse_body p in
+  let qe = curpos p in
   expect_key p "END";
   eat_end_name p;
   Sproc { blk = { blabel = None; bname = nm; bparams = []; bopts = []
-                ; bsuffix = []; bdecls = []; bstmts = body; bkind = Bbegin }
+                ; bsuffix = []; bdecls = []; bstmts = body; bkind = Bbegin
+                ; bendpos = Some qe }
         ; bpos = q }
 
 and parse_io_opts p =
@@ -1014,10 +1020,12 @@ and parse_proc_block p labels =
   let suffix = parse_attrs p in
   expect_punct p Token.Semi;
   let body = parse_body p in
+  let qe = curpos p in
   expect_key p "END";
   eat_end_name p;
   { blabel = None; bname = Some nm; bparams = params; bopts = opts
-  ; bsuffix = suffix; bdecls = []; bstmts = body; bkind = Bproc }
+  ; bsuffix = suffix; bdecls = []; bstmts = body; bkind = Bproc
+  ; bendpos = Some qe }
 
 (* ---------- program ---------- *)
 

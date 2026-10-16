@@ -1,0 +1,6 @@
+p075a: procedure options(main);
+   declare s char(20) static static;
+   spaces: format(f(5,2));
+   put skip list(x);
+   put edit(1.5)(r(spaces));
+end p075a;

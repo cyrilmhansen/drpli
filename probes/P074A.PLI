@@ -1,0 +1,4 @@
+pp074a: procedure options(main);
+   declare x fixed decimal(9,2);
+   put edit(x)(f(4));
+end pp074a;

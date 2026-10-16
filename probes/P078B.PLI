@@ -1,0 +1,8 @@
+p078b: procedure options(main);
+   declare x fixed;
+
+   on error
+
+      x = 1;
+
+end p078b;

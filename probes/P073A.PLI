@@ -1,0 +1,6 @@
+pp073a: procedure options(main);
+   declare x fixed decimal(7,2);
+   money: format(f(5,2));
+   x = 3.5;
+   put edit(x)(r(money));
+end pp073a;

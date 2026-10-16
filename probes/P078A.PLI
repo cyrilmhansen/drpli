@@ -1,0 +1,13 @@
+p078a: procedure options(main);
+   declare x fixed;
+   x = 0;
+
+   on error
+
+      begin;
+
+         x = 1;
+
+      end;
+
+end p078a;

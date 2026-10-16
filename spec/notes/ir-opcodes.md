@@ -64,7 +64,21 @@ AST grouping ✓ (alignment tool: tools/vtrace.py + pli80tree).
 | QIO QDD | io-conversion; dec→dec rescale (`1 N 0 09 08` w/s) | P072D/G/H |
 | LIKE attribute | `2 b like a` ⇒ compiler REJECT (diag, probe40) — [C] cut re-confirmed at IR level | P072F |
 
-## batch3 (next) targets
+## Batch3 census (P073A-H, probe41)
+| op | meaning | evidence |
+|---|---|---|
+| BLT CEQ DGT FEQ | comparisons are TYPE-SPECIALIZED: {I,B,C,D,F}×{EQ,NE,GT,GE,LT,LE} (ILT/IEQ.. from batch2) | P073C |
+| CAS flag-bit | substr(s,i,n)=e pseudo-assign = CAS with flag 01 (offset+length pushed as ILD) — substr is INLINED, no FUN | P073B |
+| QIC-inline | length(s) folds to constant store — builtin inlining | P073B |
+| ONC ENC BLK SIG REV | ON unit install (cond slot #N), handler ENC + BLK block frame, SIGNAL, REVERT | P073D |
+| AST | ARGUMENT STORE: external-entry call stages args into descriptor+2 slots before FUN [P073H: `* A(0002)`] | P073H |
+| NID lab S(idx) | FORMAT symbol = string-pool record; named formats load by label | P073A |
+| QDC PNV QIO | edit pipeline: SIO→EDF→(type-push,Qconv)→PNV→QIO | P073E/F |
+| picture descriptors | same ops whatever picture length; only pool index/size differ (see binder notes) | P073E |
+
+## Open IR questions (for $C phase)
+- flags column (hi/lo: 28/01/32/54/74) = addressing/type modifiers — decode via $C
+- DO-TO BY-increment folding into DOW flag bytes; ON condition-slot numbering
 relational matrix (= <> > >= < <= + ^= ~=), DO TO loop ops, GOTO, ON
 unit + SIGNAL + REVERT, group COPY (a=b struct), GET LIST, PUT FILE,
 R(label) remote format, decimal DIVIDE, float DIVIDE/SUB, substr

@@ -1,0 +1,7 @@
+p076b: procedure options(main);
+   declare i fixed;
+   do while(i < 3);
+      put edit(i)(f(2));
+   end;
+   put edit(i)(f(3),a);
+end p076b;

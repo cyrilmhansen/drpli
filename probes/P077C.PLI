@@ -1,0 +1,11 @@
+pp077c: procedure options(main);
+   declare x fixed;
+   inner: procedure;
+      declare y fixed;
+      on error begin;
+         y = 1;
+      end;
+      y = x;
+   end;
+   call inner;
+end pp077c;

@@ -1,0 +1,8 @@
+pp073d: procedure options(main);
+   declare e entry external;
+   on error begin;
+      put list('handler');
+   end;
+   signal error;
+   revert error;
+end pp073d;

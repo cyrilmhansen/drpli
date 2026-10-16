@@ -1,0 +1,221 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P077A $L$S
+PLI D:P077A $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P077A
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PP077A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 X FIXED BINARY(15,0) AUTOMATIC
+c 0000 LBL LABEL CONSTANT
+BLOCK AT LINE 6, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 7, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 12, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P077A
+
+   1 a 0000 pp077a: procedure options(main);
+   2 c 0006    declare x fixed;
+   3 c 0006    x = 0;
+   4 c 000C 
+   5 c 000C    on error
+   6 d 0010       begin;
+   7 e 0013          x = 1;
+   8 d 0019       end;
+   9 d 0019 
+  10 c 0019    lbl:
+  11 c 001A    begin;
+  12 d 001A       x = 2;
+  13 c 0020    end;
+  14 c 0020    x = 3;
+  15 a 0024 end pp077a;
+
+CODE SIZE = 0027
+DATA AREA = 0002
+FREE SYMS = 3910
+END  COMPILATION
+
+C>
+>>> PLI D:P077B $L$S
+PLI D:P077B $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P077B
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PP077B ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 X FIXED BINARY(15,0) AUTOMATIC
+BLOCK AT LINE 3, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 4, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 5, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   4 c         on conversion begin;
+SYNTAX                ?
+   6 b      end pp077b;
+SYNTAX       ?
+    2 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P077B
+
+   1 a 0000 pp077b: procedure options(main);
+   2 c 0006    declare x fixed;
+   3 c 0006    on error x = 1;
+   4 c 001D    on conversion begin;
+   5 c 0021    end;
+   6 a 0025 end pp077b;
+
+CODE SIZE = 0025
+DATA AREA = 0002
+FREE SYMS = 393E
+END  COMPILATION
+
+C>
+>>> PLI D:P077C $L$S
+PLI D:P077C $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P077C
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PP077C ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 X FIXED BINARY(15,0) AUTOMATIC
+c 0000 INNER ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 4, AUTO STORAGE 2 BYTES
+e 0000 Y FIXED BINARY(15,0) AUTOMATIC
+BLOCK AT LINE 5, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 6, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P077C
+
+   1 a 0000 pp077c: procedure options(main);
+   2 c 0006    declare x fixed;
+   3 c 0006    inner: procedure;
+   4 e 0006       declare y fixed;
+   5 e 0009       on error begin;
+   6 g 0013          y = 1;
+   7 f 0019       end;
+   8 e 0019       y = x;
+   9 c 0024    end;
+  10 c 0024    call inner;
+  11 a 0027 end pp077c;
+
+CODE SIZE = 002A
+DATA AREA = 0004
+FREE SYMS = 3924
+END  COMPILATION
+
+C>
+>>> PLI D:P077D $L$S
+PLI D:P077D $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P077D
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PP077D ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 X FIXED BINARY(15,0) AUTOMATIC
+BLOCK AT LINE 3, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 4, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 5, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 6, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   5 d            on conversion begin;
+SYNTAX                   ?
+   9 b      end pp077d;
+SYNTAX       ?
+    2 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P077D
+
+   1 a 0000 pp077d: procedure options(main);
+   2 c 0006    declare x fixed;
+   3 c 0006    on error begin;
+   4 e 0010       x = 1;
+   5 e 001D       on conversion begin;
+   6 e 0020          x = 2;
+   7 d 0030       end;
+   8 c 0030    end;
+   9 a 0034 end pp077d;
+
+CODE SIZE = 0034
+DATA AREA = 0002
+FREE SYMS = 392D
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10056 ms, waited for 0 ms
+CPU executed 42250027 t-states in 22 ms
+Clock frequency 1899.38 MHz

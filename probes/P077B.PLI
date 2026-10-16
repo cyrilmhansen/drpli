@@ -1,0 +1,6 @@
+pp077b: procedure options(main);
+   declare x fixed;
+   on error x = 1;
+   on conversion begin;
+   end;
+end pp077b;

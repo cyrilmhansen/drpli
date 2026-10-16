@@ -1,0 +1,191 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P073A $L$S
+PLI D:P073A $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P073A
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 6 BYTES
+a 0000 PP073A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 X FIXED DECIMAL(7,2) AUTOMATIC
+c 0000 MONEY FORMAT STATIC
+c 0000 * FORMAT BASED(MONEY)
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P073A
+
+   1 a 0000 pp073a: procedure options(main);
+   2 c 0006    declare x fixed decimal(7,2);
+   3 c 0006    money: format(f(5,2));
+   4 c 0006    x = 3.5;
+   5 c 0016    put edit(x)(r(money));
+   6 a 003A end pp073a;
+
+CODE SIZE = 003D
+DATA AREA = 000E
+FREE SYMS = 3920
+END  COMPILATION
+
+C>
+>>> PLI D:P075A $L$S
+PLI D:P075A $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P075A
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 26 BYTES
+a 0000 P075A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 0 BYTES
+c 0006 S CHAR(20) STATIC
+c 0000 SPACES FORMAT STATIC
+c 0000 * FORMAT BASED(SPACES)
+   NO ERROR(S) IN PASS 1
+
+   4 c         put skip list(x);
+NO DCL                       ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P075A
+
+   1 a 0000 p075a: procedure options(main);
+   2 c 0006    declare s char(20) static static;
+   3 c 0006    spaces: format(f(5,2));
+   4 c 0006    put skip list(x);
+   5 c 0022    put edit(1.5)(r(spaces));
+   6 a 0046 end p075a;
+
+CODE SIZE = 0049
+DATA AREA = 001C
+FREE SYMS = 3916
+END  COMPILATION
+
+C>
+>>> PLI D:P076A $L$S
+PLI D:P076A $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P076A
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 22 BYTES
+a 0000 P076A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 6 BYTES
+c 0000 X FIXED DECIMAL(9,2) AUTOMATIC
+c 0005 B BIT(8) AUTOMATIC
+c 0000 * FORMAT STATIC
+c 000A * FORMAT STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P076A
+
+   1 a 0000 p076a: procedure options(main);
+   2 c 0006    declare x fixed decimal(9,2), b bit(8);
+   3 c 0006    put edit(x)(e(12,4),b(8),column(5));
+   4 c 002A    put edit(x)(p'+++++');
+   5 a 004E end p076a;
+
+CODE SIZE = 0051
+DATA AREA = 001C
+FREE SYMS = 3941
+END  COMPILATION
+
+C>
+>>> PLI D:P076B $L$S
+PLI D:P076B $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P076B
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 14 BYTES
+a 0000 P076B ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 I FIXED BINARY(15,0) AUTOMATIC
+c 0000 * FORMAT STATIC
+c 0006 * FORMAT STATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P076B
+
+   1 a 0000 p076b: procedure options(main);
+   2 c 0006    declare i fixed;
+   3 c 0006    do while(i < 3);
+   4 c 0011       put edit(i)(f(2));
+   5 c 0031    end;
+   6 c 0031    put edit(i)(f(3),a);
+   7 a 004E end p076b;
+
+CODE SIZE = 0051
+DATA AREA = 0010
+FREE SYMS = 3941
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10013 ms, waited for 0 ms
+CPU executed 42475464 t-states in 19 ms
+Clock frequency 2131.98 MHz

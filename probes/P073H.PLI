@@ -1,0 +1,5 @@
+pp073h: procedure options(main);
+   declare ft entry(fixed) returns(fixed) external internal;
+   z fixed;
+   z = ft(4);
+end pp073h;
