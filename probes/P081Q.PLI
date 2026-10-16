@@ -1,0 +1,6 @@
+pp081q: procedure options(main);
+   declare f file, i fixed;
+   open file(f) input;
+   get file(f) list(i);
+   close file(f);
+end pp081q;

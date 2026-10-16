@@ -1,0 +1,115 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P080S $C
+PLI D:P080S $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080S
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,0000
+       0009       XRA  A
+       000A       CALL ?ONCOP
+       000D       JMP  0000
+       0010       LXI  H,0001
+       0013       SHLD A A(0000)
+       0016       RET  
+       000E       ==== 0017
+; LINE 0004
+       0017       LHLD B A(0002)
+       001A       XCHG 
+       001B       LHLD A A(0000)
+       001E       CALL ?IS22N
+       0021       JP   0000
+; LINE 0005
+       0024       LXI  H,0002
+       0027       SHLD A A(0000)
+       002A       JMP  0000
+       0022       ==== 002D
+; LINE 0007
+       002D       LXI  H,0003
+       0030       SHLD A A(0000)
+       002B       ==== 0033
+       0033       CALL ?STOPX
+
+CODE SIZE = 0036
+DATA AREA = 0004
+FREE SYMS = 3929
+END  COMPILATION
+
+C>
+>>> PLI D:P080T $C
+PLI D:P080T $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080T
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,0001
+       0009       SHLD G A(0004)
+; LINE 0004
+       000C       LXI  H,* S(0002)
+       000F       LXI  D,S S(0000)
+       0012       MVI  B,02
+       0014       MOV  A,B
+       0015       CALL ?SCCCM
+       0018       JNZ  0000
+       001B       LXI  H,0002
+       001E       SHLD G A(0004)
+       0019       ==== 0021
+       0021       CALL ?STOPX
+
+CODE SIZE = 0024
+DATA AREA = 0006
+FREE SYMS = 3922
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6033 ms, waited for 0 ms
+CPU executed 21138360 t-states in 12 ms
+Clock frequency 1737.49 MHz

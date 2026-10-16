@@ -1,0 +1,5 @@
+pp080e: procedure options(main);
+   declare a fixed, x float, z fixed, f float;
+   z = a ** 2;
+   f = x ** 2;
+end pp080e;

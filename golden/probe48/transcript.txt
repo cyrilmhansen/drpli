@@ -1,0 +1,86 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P080I $C
+PLI D:P080I $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080I
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   5 c         g = '123'B;
+CONVERT                  ?
+    1 ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> PLI D:P080J $C
+PLI D:P080J $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080J
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,A A(0000)+FFFE
+       0009       PUSH H
+       000A       LHLD I A(000A)
+       000D       DAD  H
+       000E       POP  D
+       000F       DAD  D
+       0010       MVI  M,01
+       0012       INX  H
+       0013       MVI  M,00
+; LINE 0004
+       0015       LHLD A A(0000)+0002
+       0018       SHLD Z A(000C)
+       001B       CALL ?STOPX
+
+CODE SIZE = 001E
+DATA AREA = 000E
+FREE SYMS = 3929
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6032 ms, waited for 0 ms
+CPU executed 16622339 t-states in 10 ms
+Clock frequency 1573.78 MHz

@@ -1,0 +1,5 @@
+pp080t: procedure options(main);
+   declare s char(2) static init('AB'), g fixed;
+   g = 1;
+   if s = 'AB' then g = 2;
+end pp080t;

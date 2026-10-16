@@ -1,0 +1,5 @@
+pp080j: procedure options(main);
+   declare a(5) fixed, i fixed, z fixed;
+   a(i) = 1;
+   z = a(2);
+end pp080j;

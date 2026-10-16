@@ -1,0 +1,141 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P081I $C
+PLI D:P081I $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P081I
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   3 c         b = '123'B;
+CONVERT                  ?
+    1 ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> PLI D:P081K $C
+PLI D:P081K $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P081K
+
+C: Code Trace Only
+
+   2 b         declare p pointer, t fixed based(p) static, z fixed;
+CONFLICT                                             ?
+    1 ERROR(S) IN PASS 1
+
+   3 c         allocate p;
+BASED REQ               ?
+SYNTAX                   ?
+   6 c         free p;
+BASED REQ            ?
+    3 ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> PLI D:P081K2 $C
+PLI D:P081K2 $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P081K2
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LHLD Q A(0002)
+       0009       SHLD P A(0000)
+; LINE 0004
+       000C       LHLD P A(0000)
+       000F       MOV  E,M
+       0010       INX  H
+       0011       MOV  D,M
+       0012       XCHG 
+       0013       SHLD Z A(0004)
+       0016       CALL ?STOPX
+
+CODE SIZE = 0019
+DATA AREA = 0006
+FREE SYMS = 3934
+END  COMPILATION
+
+C>
+>>> PLI D:P081M $C
+PLI D:P081M $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P081M
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,* A(0004)
+       0009       CALL FNC
+       000C       SHLD Z A(0002)
+       000F       CALL ?STOPX
+
+CODE SIZE = 0012
+DATA AREA = 0006
+FREE SYMS = 391D
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10054 ms, waited for 0 ms
+CPU executed 31761093 t-states in 18 ms
+Clock frequency 1753.01 MHz

@@ -1,0 +1,156 @@
+input value registers and the result registers. A short explanation
+version to version.       Further,  the definitions shown below are for
+general information purposes only, and are subject to change without
+memory addressed by the register pair r, and ST represents a stacked
+im22n    DE    HL     HL        word*word integer multiply
+id22n    DE    HL     HL        word/word integer divide
+is22n    DE    HL     HL        word-word integer subtract
+in20n    HL           HL        -word
+f140m    HL           ST        fp load from M(HL} to stack
+fx44s    ST    HL     M (HL)    fp xfer from stack to M(HL)
+fx44m    DE    HL     M (HL)    fp xfer from M(HL} to M(DE)
+fa44s    ST    ST     ST        fp add stack+stack to stack
+fa44m    DE    HL     ST        fp add M(DE)+M(HL) to stack
+fa441    ST    HL     ST        fp add stack+M(HL} to stack
+fa44r    HL    ST     ST        fp add M(HL)+stack to stack
+fs44s    ST    ST     ST        fp sub stack-stack to stack
+fs44m    DE    HL     ST        fp sub M(DE)-M(HL) to stack
+fs441    ST    HL     ST        fp sub stack-M(HL) to stack
+fs44r    HL    ST     ST        fp sub M(HL)-stack to stack
+fm44s    ST    ST     ST        fp mu1 stack*stack to stack
+fm44m    DE    HL     ST        fp roul M(DE)*M(HL) to stack
+fm441    ST    HL     ST        fp mu1 stack*M(HL) to stack
+fm44r    HL    ST     ST        fp mu1 M(HL)*stack to stack
+fd44s    S'f   ST     ST        fp div stack/STack to stack
+fd44m    DE    HL     ST        fp div M(DE)/M(HL) to stack
+fd441    ST    HL     ST        fp div stack/M(HL) to stack
+fd44r    HL    ST     ST        fp div M(HL)/STack to stack
+fc44s    ST    ST     ST        fp comp stack:stack to stack
+fc44m    DE    HL     ST        fp comp M(DE):M(HL} to stack
+fc441    ST    HL     ST        fp comp stack:M(HL} to stack
+fc44r    HL    ST     ST        fp comp M(HL):stack to stack
+fn40s    ST           ST        fp negate stack
+fn40m    HL           ST        fp load from M(HL) and negate
+fe40s    ST            A        float p extract sign 'from stack
+fe40m    HL            A        float p extract sign from memory
+fmodf    ST    ST     ST        floating point mod(x,y}
+fabsf    ST           ST        floating point abs(x}
+fmaxf    ST    ST     ST        floating point max(x,y)
+fminf    ST    ST     ST        floating point min(x,y)
+froun     ST        A       ST       floating point round(x,k)
+ftrnc     ST                ST       floating point trunc(x)
+fflor     ST                ST       floating point floor(x)
+fceil     ST                ST       floating point ceil(x)
+fexop     ST        A       ST       fp ** k (k pos constant)
+ffxop     ST        ST      ST       x ** y (exp(y*log(x»
+bc12n     D         HL      HL       8/16 bit concatenate, where
+bc22n     DE        HL      HL       16/16 bit concatenate, where
+bsl16     B   HL            HL       bit shift left 16, size in b
+bs108     A   B             A        bit shift left 8, size in b
+bst08     ABC HL            M (HL)   bit substring store bit(8) in
+bst16     B C   DE HL       M (HL)   bit s ub s t ring s tor e bit ( 16 ) in
+bix08     A B D         H   A/HL     bit index, A=source, B=search
+bix16     B C   DE HL       A/HL     bit index, B=len(source),
+boolf     B     DE HL       HL       bool(x,y,b), B = 4-bit mask
+ie12n     A                 HL       sign extend A to HL
+ie20n     HL                A        integer extract sign (16-bit)
+imdop     DE        HL      HL       integer mod (x, y)
+iab07     A                 A        i n t eg e r 7 a bs ( i )
+iab15     HL                HL       integer 15 abs(i)
+imaxf     DE        HL      HL       i n t eg erma x ( x , y)
+iminf     DE        HL      Ht       integer min (x ,y)
+iroun     HL        A       HL       integer round(i,k)
+iexop     HL        A       HL       integer ** k (k p6s constant)
+slvts     HL                A        string load varying to stack
+slcts     A         HL               string load char to stack
+ssvfs     A         B       HL       string store varying from stack
+sscfs     A         B       HL       string store char from stack
+smvvm     A         DE      HL       string move vary t~ vary in memory
+smvcm     A         DE      HL       string move vary to char in memory
+smcvm     A     B   DE      HL       strinq move char to vary in memory
+smccm     A     B   DE      HL       A=target len, B=source len
+sjsts     A         ST      ST'      string juxtapose (catenate) stack
+sjscm     A         8       HL       string juxtapose stack with char memory
+sjsvrn   A            HL     string juxtapose stack with vary memory
+savvm    A       B    HL     string append vary to vary in memory
+sasvm    A       B    HL     string append stack to vary in memory
+sacvm    A       B    HL     string append char to vary in memory
+scccm    A   B   DE   HL     string compare char to char in memory
+sccvm        B   DE   HL     string compare char to vary in memory
+scvcm    A       DE   HL     string compare vary to char in memory
+scvvm            DE   HL     string compare vary to vary in memory
+scscm    A   B        HL     string compare stack to char in memory
+scsvm    A            HL     string compare stack to vary in memory
+seems    A   B        HL     string compare char in mem to stack
+scsts    A                   string compare stack to stack
+pushed psw with len left string,
+cs2ad    A       E    HL     char substr(ex,ei) address
+cs3ad    ACE          HL     char substr (ex,e i, ell add ress
+vs2ad            E    HL     vary substr(ex,ei) address
+vs3ad        C   E    HL     vary substr(ex,ei,el) address
+cxccm    A   B   DE   A/HL   str index char to char in memory
+cxcvm        B   DE   A/HL   str index char to vary in memory
+cxvcm    A       DE   A/HL   str index vary to char in memory
+cxvvm            DE   A/HL   str index vary to vary in memory
+cxscm    A   B        A/HL   str index stack to char in memory
+cxsvm       A                 A/HL   strindex stack to vary in memory
+cxcms       A      B          A/HL   str index char in mem to stack
+cxvms       A                 A/HL   str index vary in mem to stack
+cxsts       A                        str index stack to stack
+ptished psw with len left string,
+verop   A         ST   ST     A/A/HL verify(s,c), A=len(c), st
+colop                         A/ST   collate(), A=128, stack has
+x120p   A         ST   ST     A/ST   t ran sl ate ( s , t), A=1 en ( t) ,
+stack h~s chars(t), s
+x130p   A         ST ST ST    A/ST   t ra n sl ate ( s , t , x) A = 1 en ( x) ,
+stack has chars(x), t, s
+dldop       A          HL     ST     dec imal load to sta:ck, A = prec
+dasop       A          ST     HL     decimal assign, stack to memory
+dadop       ST         ST     ST     decimal add to stack
+dsuop       s'r        s'r    ST     decimal subtract to stack
+dngop       s'r               ST     decimal negate to stack
+dcmop       ST                A      decimal compare operator
+dexop       ST         ST     ST     decimal exponentiate to stack
+dmuop       ST         ST     ST     decimal multiply to stack
+ddvop       ST         ST     ST     decimal divide to stack
+dsiop       ST                A      decimal sign extract
+dmodf       ST         ST     ST     decimal mod(x,y)
+dabsf       ST                ST     dec imal abs (x)
+dmaxf       s'r        ST     ST     decimal max(x,y)
+dminf       ST         ST     ST     decimal min(x,y)
+droun       ST         A      ST     decimal round(x,k)
+dtrnc       ST                ST     dec ima 1 t runc (x)
+dflor       ST                ST     dec imal floor (x)
+dceil       ST                ST     dec imal ce il (x)
+dexop       ST         A      ST     decimal ** k (k pos constant)
+qcdop       A      B   S'I'   ST     convert character to decimal
+qddsl       A          ST     ST     decimal/decimal left shift
+qddsr       A          ST     ST     dec imal/dec imal right shi ft
+qicop       A                 HL     convert integer to char in stack
+qvcop       A/ST              A/ST   convert varying to char
+qi07d       A                 ST     convert fix(7) to decimal
+qilSd       HL                ST     convert fix(lS) to decimal
+qi07f       A                 ST     convert fix(7) to float
+qilSf     HL             ST       convert fix(15) to float
+qfi07     ST             A        convert float to fix(7)
+qfilS     ST             HL       convert float to fix(lS)
+qfcss     A        ST    A/ST     convert float-char stack to stack
+qfcms     A        M(HL) A/ST     convert float-char memory to stack
+qb08c     A        B     ST       convert bit(8) in a, to.string
+qbl6c     HL       B     ST       convert bit(16) in HL to string
+qb08i     A        B     HL       convert bit(8) in A to fixed
+qbl6i     HL       B     HL       convert bit(l6) to fixed
+qi07b     A        B     A        convert fix«8) to bit(8)
+fixed precision in b
+qilSb     HL       B     HL       convert fix«16) to bit(16)
+qdi07     ST             A        convert dec in stack to fix(7)
+qdil5     ST             HL       convert dec in stack to flx(lS)
+qciop     A/ST           HL       convert char in stack to integer
+qcfop     A/ST           ST       convert char in stack to float
+qccop     A    B   ST    A/ST     convert char to char on stack
+return A=b, ST trunc or extend
+nstop     BC DE HL       M(HL)    non-computational store, move
+nc22n     DE       HL        A    double byte non-computational
+ncomp     BC DE HL       M(HL)    non-computational compaie,
+source form on the PL/I-80 diskette.
+various changes to the direct CP/M functions which either remove

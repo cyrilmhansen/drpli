@@ -1,0 +1,6 @@
+pp080a: procedure options(main);
+   declare a fixed, b fixed, z fixed;
+   z = a + 300;
+   z = a * b;
+   z = a / 3;
+end pp080a;

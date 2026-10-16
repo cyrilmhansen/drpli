@@ -1,0 +1,5 @@
+pp080p: procedure options(main);
+   declare d fixed decimal(7,2);
+   d = 12.5;
+   put edit(d)(p'+++,+++.++');
+end pp080p;

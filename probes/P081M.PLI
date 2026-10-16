@@ -1,0 +1,4 @@
+pp081m: procedure options(main);
+   declare z fixed, fnc entry(fixed) returns(fixed) external;
+   z = fnc(2);
+end pp081m;

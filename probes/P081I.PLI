@@ -1,0 +1,5 @@
+pp081i: procedure options(main);
+   declare b bit(8), g bit(8);
+   b = '123'B;
+   g = ^ b;
+end pp081i;

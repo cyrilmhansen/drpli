@@ -1,0 +1,6 @@
+pp080q: procedure options(main);
+   declare f file, i fixed;
+   open f input;
+   get f list(i);
+   close f;
+end pp080q;

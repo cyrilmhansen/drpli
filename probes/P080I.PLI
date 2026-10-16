@@ -1,0 +1,6 @@
+pp080i: procedure options(main);
+   declare s char(5), v char(3) varying, g fixed;
+   s = 'ABCDE';
+   v = s;
+   g = '123'B;
+end pp080i;

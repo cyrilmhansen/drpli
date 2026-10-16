@@ -1,0 +1,9 @@
+pp080r: procedure options(main);
+   declare i fixed, z fixed;
+   do i = 1 to 10 by 3;
+      z = i;
+   end;
+   do while (i < 20);
+      z = z + 1;
+   end;
+end pp080r;

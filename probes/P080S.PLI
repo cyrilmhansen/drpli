@@ -1,0 +1,8 @@
+pp080s: procedure options(main);
+   declare a fixed, b fixed;
+   on error a = 1;
+   if a > b then do;
+      a = 2;
+   end;
+   else a = 3;
+end pp080s;

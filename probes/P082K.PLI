@@ -1,0 +1,7 @@
+pp082k: procedure options(main);
+   declare p pointer, t fixed based(p) static, z fixed;
+   allocate p set(p);
+   p->t = 5;
+   z = p->t;
+   free p;
+end pp082k;

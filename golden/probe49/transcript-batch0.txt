@@ -1,0 +1,202 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P080K $C
+PLI D:P080K $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080K
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   3 c         allocate p;
+BASED REQ               ?
+SYNTAX                   ?
+   6 c         free p;
+BASED REQ            ?
+    3 ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> PLI D:P080L $C
+PLI D:P080L $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080L
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+       0006       JMP  0000
+       0009       MOV  E,M
+       000A       INX  H
+       000B       MOV  D,M
+       000C       XCHG 
+       000D       SHLD X A(0004)
+; LINE 0005
+       0010       LHLD X A(0004)
+       0013       MOV  E,M
+       0014       INX  H
+       0015       MOV  D,M
+       0016       XCHG 
+       0017       INX  H
+       0018       XCHG 
+       0019       MOV  M,D
+       001A       DCX  H
+       001B       MOV  M,E
+       001C       RET  
+       0007       ==== 001D
+; LINE 0007
+       001D       LXI  H,0001
+       0020       SHLD X A(0000)
+; LINE 0008
+       0023       LXI  H,* A(0002)
+       0026       CALL SUB
+       0029       CALL ?STOPX
+
+CODE SIZE = 002C
+DATA AREA = 0006
+FREE SYMS = 391E
+END  COMPILATION
+
+C>
+>>> PLI D:P080M $C
+PLI D:P080M $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080M
+
+C: Code Trace Only
+
+   3 b         fnc entry(fixed) returns(fixed) external;
+SYNTAX          ?
+    1 ERROR(S) IN PASS 1
+
+   3 c         fnc entry(fixed) returns(fixed) external;
+SYNTAX          ?
+   4 c         z = fnc(2);
+NO DCL              ?
+ARG COUNT                ?
+    3 ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> PLI D:P080N $C
+PLI D:P080N $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080N
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,0001
+       0009       SHLD A A(0009)
+; LINE 0004
+       000C       LXI  H,* S(0000)
+       000F       MVI  A,05
+       0011       CALL ?DLDOP
+       0014       LXI  H,D A(000B)
+       0017       MVI  A,05
+       0019       CALL ?DSTOP
+; LINE 0005
+       001C       LXI  H,* S(0003)
+       001F       PUSH H
+       0020       LXI  H,F A(000E)
+       0023       POP  D
+       0024       CALL ?FX44M
+; LINE 0006
+       0027       LXI  H,S A(0012)
+       002A       LXI  D,* S(0007)
+       002D       MVI  A,04
+       002F       MVI  B,02
+       0031       CALL ?SMCCM
+; LINE 0007
+       0034       LXI  D,0252
+       0037       LXI  B,0000
+       003A       CALL ?SYSPR
+       003D       LHLD A A(0009)
+       0040       MVI  A,09
+       0042       CALL ?QICOP
+       0045       CALL ?PNVOP
+       0048       LXI  H,D A(000B)
+       004B       MVI  A,05
+       004D       CALL ?DLDOP
+       0050       MVI  A,08
+       0052       MVI  B,02
+       0054       CALL ?QDCOP
+       0057       CALL ?PNVOP
+       005A       LXI  H,F A(000E)
+       005D       MVI  A,0E
+       005F       CALL ?QFCMS
+       0062       CALL ?PNVOP
+       0065       LXI  H,S A(0012)
+       0068       MVI  A,04
+       006A       CALL ?SLCTS
+       006D       CALL ?PNCOP
+       0070       CALL ?QIOOP
+       0038       ==== 0073
+       0073       CALL ?STOPX
+
+CODE SIZE = 0076
+DATA AREA = 0016
+FREE SYMS = 38E2
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10056 ms, waited for 0 ms
+CPU executed 38712829 t-states in 24 ms
+Clock frequency 1601.68 MHz

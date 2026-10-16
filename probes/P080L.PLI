@@ -1,0 +1,9 @@
+pp080l: procedure options(main);
+   declare x fixed;
+   sub: procedure(x);
+      declare x fixed;
+      x = x + 1;
+   end;
+   x = 1;
+   call sub(x);
+end pp080l;

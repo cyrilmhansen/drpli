@@ -1,0 +1,7 @@
+pp080d: procedure options(main);
+   declare a fixed, d fixed decimal(5,2), f float, z fixed;
+   z = d + a;
+   f = a;
+   z = f;
+   d = f;
+end pp080d;

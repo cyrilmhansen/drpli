@@ -1,0 +1,91 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P082I $C
+PLI D:P082I $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P082I
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,B A(0000)
+       0009       MVI  M,AA
+; LINE 0004
+       000B       LDA  B A(0000)
+       000E       CMA  
+       000F       STA  G A(0001)
+; LINE 0005
+       0012       LDA  G A(0001)
+       0015       PUSH PSW
+       0016       MVI  A,F0
+       0018       POP  B
+       0019       ANA  B
+       001A       STA  B A(0000)
+       001D       CALL ?STOPX
+
+CODE SIZE = 0020
+DATA AREA = 0002
+FREE SYMS = 392C
+END  COMPILATION
+
+C>
+>>> PLI D:P082K $C
+PLI D:P082K $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P082K
+
+C: Code Trace Only
+
+   2 b         declare p pointer, t fixed based(p) static, z fixed;
+CONFLICT                                             ?
+    1 ERROR(S) IN PASS 1
+
+   3 c         allocate p set(p);
+BASED REQ               ?
+   6 c         free p;
+BASED REQ            ?
+    2 ERROR(S) IN PASS 2
+
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6037 ms, waited for 0 ms
+CPU executed 17316664 t-states in 14 ms
+Clock frequency 1203.13 MHz

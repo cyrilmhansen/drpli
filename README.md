@@ -34,3 +34,14 @@ Prior related research (kept deliberately separate — see spec/CLAIMS.md
 for how it is used): `~/pli/lab` ("Runes") and `~/pli/cpm/pli80` (QX-10
 traces). This project is a pragmatic restart: small experiments, bounded
 data, revisited priorities every ~10 turns.
+
+## Current status (rolling)
+* Front end (OCaml): lexer → parser (218-file accept/reject parity gate)
+  → binder ($S dump **43/43 byte-exact** gate) — DONE through binding.
+* $V IR opcode dictionary: ~90 ops role-decoded (spec/notes/ir-opcodes.md).
+* $C codegen oracle phase: OPENED — 20-specimen battery, pseudo-register
+  model, inline-vs-RTL decisions, PLILIB index + ABI table extracted
+  (spec/notes/codegen.md, tools/ctrace.py, spec/notes/plilib-*.txt).
+* Next: branch/loop/call encodings, array addressing, $C-parity gate
+  wiring, own back-end (IR builder → RTL-call codegen → .REL writer).
+

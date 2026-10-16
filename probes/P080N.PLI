@@ -1,0 +1,8 @@
+pp080n: procedure options(main);
+   declare a fixed, d fixed decimal(5,2), f float, s char(4);
+   a = 1;
+   d = 2.5;
+   f = 3e0;
+   s = 'AB';
+   put list(a, d, f, s);
+end pp080n;

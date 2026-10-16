@@ -1,0 +1,250 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P080A $C
+PLI D:P080A $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080A
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LHLD A A(0000)
+       0009       LXI  B,012C
+       000C       DAD  B
+       000D       SHLD Z A(0004)
+; LINE 0004
+       0010       LHLD A A(0000)
+       0013       PUSH H
+       0014       LHLD B A(0002)
+       0017       POP  D
+       0018       CALL ?IM22N
+       001B       SHLD Z A(0004)
+; LINE 0005
+       001E       LHLD A A(0000)
+       0021       MVI  A,03
+       0023       PUSH H
+       0024       MOV  L,A
+       0025       ADD  A
+       0026       SBB  A
+       0027       MOV  H,A
+       0028       POP  D
+       0029       CALL ?ID22N
+       002C       SHLD Z A(0004)
+       002F       CALL ?STOPX
+
+CODE SIZE = 0032
+DATA AREA = 0006
+FREE SYMS = 392D
+END  COMPILATION
+
+C>
+>>> PLI D:P080B $C
+PLI D:P080B $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080B
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,D1 A(0000)
+       0009       MVI  A,05
+       000B       CALL ?DLDOP
+       000E       LXI  H,D2 A(0003)
+       0011       MVI  A,05
+       0013       CALL ?DLDOP
+       0016       CALL ?DADOP
+       0019       MVI  A,01
+       001B       CALL ?QDDSL
+       001E       LXI  H,E A(0006)
+       0021       MVI  A,07
+       0023       CALL ?DSTOP
+; LINE 0004
+       0026       LXI  H,D1 A(0000)
+       0029       MVI  A,05
+       002B       CALL ?DLDOP
+       002E       LXI  H,D2 A(0003)
+       0031       MVI  A,05
+       0033       CALL ?DLDOP
+       0036       CALL ?DMUOP
+       0039       MVI  A,01
+       003B       CALL ?QDDSR
+       003E       LXI  H,E A(0006)
+       0041       MVI  A,07
+       0043       CALL ?DSTOP
+; LINE 0005
+       0046       LXI  H,D1 A(0000)
+       0049       MVI  A,05
+       004B       CALL ?DLDOP
+       004E       MVI  A,0A
+       0050       CALL ?QDDSL
+       0053       LXI  H,D2 A(0003)
+       0056       MVI  A,05
+       0058       CALL ?DLDOP
+       005B       CALL ?DDVOP
+       005E       MVI  A,07
+       0060       CALL ?QDDSR
+       0063       LXI  H,E A(0006)
+       0066       MVI  A,07
+       0068       CALL ?DSTOP
+       006B       CALL ?STOPX
+
+CODE SIZE = 006E
+DATA AREA = 000A
+FREE SYMS = 3943
+END  COMPILATION
+
+C>
+>>> PLI D:P080C $C
+PLI D:P080C $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080C
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,X A(0000)
+       0009       PUSH H
+       000A       LXI  H,Y A(0004)
+       000D       POP  D
+       000E       CALL ?FA44M
+       0011       LXI  H,F A(0008)
+       0014       CALL ?FX44S
+; LINE 0004
+       0017       LXI  H,X A(0000)
+       001A       PUSH H
+       001B       LXI  H,Y A(0004)
+       001E       POP  D
+       001F       CALL ?FM44M
+       0022       LXI  H,F A(0008)
+       0025       CALL ?FX44S
+; LINE 0005
+       0028       LXI  H,X A(0000)
+       002B       PUSH H
+       002C       LXI  H,Y A(0004)
+       002F       POP  D
+       0030       CALL ?FD44M
+       0033       LXI  H,F A(0008)
+       0036       CALL ?FX44S
+       0039       CALL ?STOPX
+
+CODE SIZE = 003C
+DATA AREA = 000C
+FREE SYMS = 3945
+END  COMPILATION
+
+C>
+>>> PLI D:P080D $C
+PLI D:P080D $C
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P080D
+
+C: Code Trace Only
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+       0000       LXI  B,0200
+       0003       CALL ?START
+; LINE 0003
+       0006       LXI  H,D A(0002)
+       0009       MVI  A,05
+       000B       CALL ?DLDOP
+       000E       MVI  A,02
+       0010       CALL ?QDDSR
+       0013       CALL ?QDI15
+       0016       XCHG 
+       0017       LHLD A A(0000)
+       001A       DAD  D
+       001B       SHLD Z A(0009)
+; LINE 0004
+       001E       LHLD A A(0000)
+       0021       CALL ?QI15F
+       0024       LXI  H,F A(0005)
+       0027       CALL ?FX44S
+; LINE 0005
+       002A       LXI  H,F A(0005)
+       002D       CALL ?FL40M
+       0030       CALL ?QFI15
+       0033       SHLD Z A(0009)
+; LINE 0006
+       0036       LXI  H,F A(0005)
+       0039       MVI  A,0E
+       003B       CALL ?QFCMS
+       003E       MVI  B,02
+       0040       CALL ?QCDOP
+       0043       LXI  H,D A(0002)
+       0046       MVI  A,05
+       0048       CALL ?DSTOP
+       004B       CALL ?STOPX
+
+CODE SIZE = 004E
+DATA AREA = 000B
+FREE SYMS = 393A
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10047 ms, waited for 0 ms
+CPU executed 46049179 t-states in 26 ms
+Clock frequency 1707.29 MHz

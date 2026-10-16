@@ -1,0 +1,7 @@
+pp080h: procedure options(main);
+   declare a fixed, b fixed, d fixed decimal(5,2), f float, s char(3);
+   if a < b then a = 1;
+   if d >= 1.5 then a = 2;
+   if f <= 2e0 then a = 3;
+   if s > 'ab' then a = 4;
+end pp080h;

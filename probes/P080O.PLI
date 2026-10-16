@@ -1,0 +1,4 @@
+pp080o: procedure options(main);
+   declare s char(20) varying;
+   get list(s);
+end pp080o;

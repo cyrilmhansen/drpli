@@ -1,0 +1,6 @@
+pp080b: procedure options(main);
+   declare d1 fixed decimal(5,2), d2 fixed decimal(5,2), e fixed decimal(7,3);
+   e = d1 + d2;
+   e = d1 * d2;
+   e = d1 / d2;
+end pp080b;

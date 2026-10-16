@@ -1,0 +1,7 @@
+p083k: procedure options(main);
+   declare p pointer, t fixed based(p), z fixed;
+   allocate t set(p);
+   p->t = 5;
+   z = p->t;
+   free p;
+end p083k;

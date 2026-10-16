@@ -1,0 +1,5 @@
+P081I	diag	PRN=False REL=True
+P081K	diag	PRN=False REL=True
+P081K2	ok	PRN=False REL=True
+P081M	ok	PRN=False REL=True
+P081Q	ok	PRN=False REL=True

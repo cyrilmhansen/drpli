@@ -1,0 +1,5 @@
+pp081k2: procedure options(main);
+   declare p pointer, q pointer, w fixed based(p), z fixed;
+   p = q;
+   z = w;
+end pp081k2;
