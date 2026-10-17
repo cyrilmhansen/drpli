@@ -22,6 +22,8 @@ OUT = os.path.join(ROOT, "build", "e2e")
 SPECIMENS = {
     "P071A": ("probes/P071A.PLI", "golden/probe38/P071A/P071A.REL"),
     "P071B": ("probes/P071B.PLI", "golden/probe38/P071B/P071B.REL"),
+    # variable-base exponentiation -> integer RTL ?IEXOP (no pool):
+    "G102": ("probes/G102.PLI", "golden/e2eexp/G102/G102.REL"),
 }
 
 

@@ -75,28 +75,42 @@ let rec lower_hl st (e : Ast.expr) =
   | Ast.Ebinary (Ast.Add, l, r) ->
       (* DR: HL=left ; XCHG ; HL=right ; DAD D  (=> HL = right+left) [P071A] *)
       lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d
-  | Ast.Ebinary ((Ast.Mul | Ast.Div | Ast.Exp) as op, l, r) ->
-      (* var OP var (and expr OP const) share the by-reference RTL pattern:
-         DE=left, HL=right. DR [P071B/P080A]:
-           MUL a*b  : LHLD a ; PUSH H ; LHLD b ; POP D ; CALL ?IM22N
-           DIV a/3  : <lhs in HL> ; MVI A,3 ; PUSH H ; MOV L,A ; ADD A ;
-                      SBB A ; MOV H,A ; POP D ; CALL ?ID22N
-           (const right operand -> zero-extend via ADD A/SBB A idiom)
-         MUL/ID22N are proven; DIV by VARIABLE is not in any golden ->
-         reject (no speculative lowering). *)
-      (match (op, r) with
-       | Ast.Mul, _ ->
-           lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d;
-           call_ext st "?IM22N"
-       | Ast.Div, Ast.{ e = Ast.Enumber c; _ } ->
-           let n = int_of_string (String.concat "" (String.split_on_char '_' c)) in
-           lower_hl st l;
+  | Ast.Ebinary (Ast.Mul, l, r) ->
+      (* var/expr OP var: DE=left HL=right, CALL ?IM22N [P071B/P080A] *)
+      lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d;
+      call_ext st "?IM22N"
+  | Ast.Ebinary (Ast.Div, l, r) ->
+      (* DIV by CONSTANT only [P071B/P080A]: zero-extend const into HL via
+         MVI A/PUSH/POP idiom, DE=lhs. DIV by variable = no golden -> reject.*)
+      (match r.Ast.e with
+       | Ast.Enumber c ->
+           let n =
+             int_of_string (String.concat "" (String.split_on_char '_' c))
+           in
            if n = 0 then failwith "codegen: division by zero";
+           lower_hl st l;
            d st op_mvi_a; d st (n land 0xff);
            d st op_push_h; d st op_mov_l_a; d st op_add_a; d st op_sbb_a;
            d st op_mov_h_a; d st op_pop_d; call_ext st "?ID22N"
-       | Ast.Div, _ -> failwith "codegen: DIV by non-constant [TBD]"
-       | Ast.Exp, _ -> failwith "codegen: ** handled separately [TBD]")
+       | _ -> failwith "codegen: DIV by non-constant [TBD]")
+  | Ast.Ebinary (Ast.Exp, l, r) ->
+      (* EXPONENTIATION has two DISTINCT DR lowerings (probe e2eexp):
+         - VARIABLE base:   a ** n  => LHLD a; MVI A,n; CALL ?IEXOP  [G102]
+         - LITERAL base:    k ** n  => decimal POOL path
+           (LXI H,*S; MVI A,p; DLDOP; MVI A,n; DEXOP; QDI15) which needs
+           DATA-segment + BCD pool emission (P071D/G101/G103).
+         Only the ?IEXOP integer form is implemented here; the literal-base
+         pool path is rejected pending the decimal-pool milestone. *)
+      (match (l.Ast.e, r.Ast.e) with
+       | (Ast.Eident _, Ast.Enumber c) ->
+           let n =
+             int_of_string (String.concat "" (String.split_on_char '_' c))
+           in
+           lower_hl st l; d st op_mvi_a; d st (n land 0xff);
+           call_ext st "?IEXOP"
+       | (Ast.Eident _, _) -> failwith "codegen: ** non-constant exponent [TBD]"
+       | _ -> failwith
+               "codegen: ** literal base needs decimal pool [TBD — next]")
   | Ast.Ebinary (Ast.Sub, x, Ast.{ e = Ast.Enumber c; _ }) ->
       lower_hl st x; const_sub st (int_of_string c)
   | Ast.Ebuilt ("MOD", [l; r]) ->

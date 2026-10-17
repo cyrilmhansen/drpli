@@ -1,0 +1,4 @@
+pg102: procedure options(main);
+   declare a fixed, z fixed;
+   z = a ** 2;
+end pg102;

@@ -1,0 +1,4 @@
+pg103: procedure options(main);
+   declare z fixed;
+   z = 2 ** 5;
+end pg103;
