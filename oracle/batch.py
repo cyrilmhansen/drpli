@@ -34,8 +34,18 @@ COMPILER = ["PLI.COM", "PLI0.OVL", "PLI1.OVL", "PLI2.OVL", "PLILIB.IRL"]
 CONTEXT  = ["RECORD.DCL", "FCB.DCL", "DIO80.DCL", "DIOMOD.DCL",
             "MPMDIO.DCL", "MATSIZE.LIB", "Z80.LIB"]
 BOOT_SEEDS = {"a": "drivea.dsk", "b": "driveb.dsk"}
-SIM = os.environ.get("CPMSIM",
-        os.path.expanduser("~/pli/cpm/z80pack/cpmsim/cpmsim"))
+def _default_sim():
+    """$CPMSIM override > mainline thirdparty/z80pack > legacy ~/pli build."""
+    env = os.environ.get("CPMSIM")
+    if env:
+        return env
+    cand = os.path.join(os.path.dirname(ROOT), "thirdparty",
+                        "z80pack", "cpmsim", "cpmsim")
+    if os.path.exists(cand):
+        return cand
+    return os.path.expanduser("~/pli/cpm/z80pack/cpmsim/cpmsim")
+
+SIM = _default_sim()
 
 
 def build_disk(run, names):

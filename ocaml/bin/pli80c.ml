@@ -17,6 +17,13 @@ let () =
   match pos with
   | [ src; dst ] ->
       let text = In_channel.with_open_bin src In_channel.input_all in
+      (* CP/M EOF convention: everything from the first ^Z (0x1A) on is
+         file padding, not source. Same convention as pli80parse.exe. *)
+      let text =
+        match String.index_opt text '\026' with
+        | Some i -> String.sub text 0 i
+        | None -> text
+      in
       let blk = Pli80.Parser.parse_source text in
       let prog, data_size, vars = Pli80.Codegen.rows_of blk in
       let (items, code_len) =

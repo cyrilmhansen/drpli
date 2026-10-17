@@ -15,12 +15,24 @@ import argparse, os, pty, re, select, signal, subprocess, sys, time
 
 PROMPT = re.compile(rb"[A-P]>")
 
+def _default_sim():
+    """cpmsim resolution order: $CPMSIM env override > mainline
+    thirdparty/z80pack checkout > legacy ~/pli/cpm/z80pack build."""
+    env = os.environ.get("CPMSIM")
+    if env:
+        return env
+    here = os.path.dirname(os.path.abspath(__file__))
+    cand = os.path.join(os.path.dirname(here), "thirdparty",
+                        "z80pack", "cpmsim", "cpmsim")
+    if os.path.exists(cand):
+        return cand
+    return os.path.expanduser("~/pli/cpm/z80pack/cpmsim/cpmsim")
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--disks", required=True)
     ap.add_argument("--cpu", default="-8")
-    ap.add_argument("--sim", default=os.environ.get("CPMSIM",
-        os.path.expanduser("~/pli/cpm/z80pack/cpmsim/cpmsim")))
+    ap.add_argument("--sim", default=_default_sim())
     ap.add_argument("--timeout", type=float, default=60.0)
     ap.add_argument("--prompt-wait", type=float, default=2.0)
     ap.add_argument("script")
@@ -31,9 +43,13 @@ def main():
     def pre():
         os.setsid()
         fcntl.ioctl(slave, 0x540E, 0)  # TIOCSCTTY: pty becomes ctty
-    proc = subprocess.Popen([a.sim, a.cpu, "-d", a.disks]
-                            + os.environ.get("CPMSIM_EXTRA", "").split(),
+    # cpmsim resolves ./srctools/cpmrecv and drops auxiliaryout.txt
+    # CWD-RELATIVE; pin cwd to the oracle dir so any launcher works.
+    cmd = ([a.sim, a.cpu, "-d", a.disks]
+           + os.environ.get("CPMSIM_EXTRA", "").split())
+    proc = subprocess.Popen(cmd,
                             stdin=slave, stdout=slave, stderr=sys.stderr,
+                            cwd=os.path.dirname(os.path.abspath(__file__)),
                             preexec_fn=pre)
     os.close(slave)
     buf = b""

@@ -232,7 +232,12 @@ let emit_program (progname : string) (auto_bytes : int)
     (fun (s : Ast.stmt) ->
       match s.Ast.st with
       | Ast.Sassign { lhs; rhs } -> lower_assign st lhs rhs
-      | _ -> ())
+      | Ast.Sdcl _ -> ()   (* declarations emit no code (binder owns layout) *)
+      | Ast.Snull _ -> ()  (* empty statement: no code *)
+      | _ -> failwith
+             (Printf.sprintf
+                "codegen: statement kind not in supported subset [TBD] \
+                 (line %d)" s.Ast.spos.Source.line))
     stmts;
   d st op_call;
   let stop_slot = st.lc in
@@ -278,7 +283,15 @@ let rows_of (b : Ast.block) =
       (fun (nm, rt, off, _auto) ->
         match rt with
         | Bind.RTbin _ -> Some (nm, { off; size = Bind.bytes_of rt })
-        | _ -> None)          (* int-only subset: non-bin vars excluded *)
+        (* Symbolic/non-storage kinds legitimately carry no lowering yet.
+           Storage kinds outside the int subset must FAIL LOUD (C067
+           policy: never silently drop constructs). *)
+        | Bind.RTentry _ | Bind.RTlabel | Bind.RTformat
+        | Bind.RTbuiltin | Bind.RTstruct _ -> None
+        | _ -> failwith
+                 (Printf.sprintf
+                    "codegen: declared variable kind not in supported \
+                     subset [TBD]: %s" (Bind.rty_str rt)))
       rows
   in
   let auto_bytes =

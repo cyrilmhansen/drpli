@@ -79,3 +79,23 @@ Two realpath-validated, symlink-free zones; **fail closed** everywhere.
   - boot-seed sha256 unchanged across all of the above.
 * All gates still green: parse 279/0 FAIL, bind **47 exact**/0 FAIL,
   rel-roundtrip 250/0 fail, ir 2 exact/8 known-gap/0 FAIL.
+
+## Addendum 2026-10-17 — self-containment of the cpmsim spawn path
+* Symptom: batch compile from any cwd except `oracle/` produced an
+  EMPTY transcript, "incomplete" status — cpmsim died at startup.
+* Root cause: cpmsim's `init_io()` forks a child exec-ing
+  `./srctools/cpmrecv` (CWD-relative) or PATH `cpmrecv`; on failure the
+  child `kill(0, SIGQUIT)`. The dependency existed only as an
+  UNTRACKED symlink into ~/pli/cpm/z80pack, plus e2e_gate.py happened
+  to spawn with `cwd=oracle/` (the one directory where the relative
+  path resolved). Undocumented cwd-dependency = reproducibility defect.
+* Fix: (1) vendored `cpmrecv.c` + built `cpmrecv` ELF in
+  `oracle/srctools/` (see README-provenance.md there); (2) `run.py`
+  pins cpmsim `cwd` to the oracle dir regardless of launcher;
+  (3) cpmsim resolution order is now `$CPMSIM` > in-mainline
+  `thirdparty/z80pack/cpmsim/cpmsim` (git HEAD 91fd28e, same source as
+  the legacy ~/pli build) > legacy ~/pli path.
+* Verified this session: batch P071A via thirdparty binary → .REL
+  sha256-equal to `golden/probe38/P071A/P071A.REL`
+  (`golden/smoketp4/`); `e2e_gate.py --link-run` 9/9 byte-exact, all
+  link+run rc=0 through the fixed path.

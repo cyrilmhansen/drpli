@@ -364,16 +364,39 @@ cond-name       = "ERROR" | "FIXEDOVERFLOW" | "OVERFLOW" | "UNDERFLOW"
                 | "ZERODIVIDE" | "ENDFILE" | "ENDPAGE" | "UNDEFINEDFILE"
                 | "KEY" ;
 
-(* ============ Open global questions (Phase 1 answers these) ========
-   Q1 Does the compiler produce an intermediate ".INT" file that a
-      second stage consumes? (strings: "EOF ON INT FILE", "BAD INT
-      FILE", "RELINTPLI", ".INT/.REL" extension tables)  -> run oracle,
-      watch the filesystem.
-   Q2 Is there any internal IR beyond the generated 8080 code? The
-      PLI2.OVL 3-4 char mnemonic table (LIOB IDCI DDID FIDI ...) is
-      either an RTL entry-point name table or a code-gen template table;
-      IRL here means *Indexed Relocatable* (LIB/PLILIB.IRL), NOT an IR.
-   Q3 Exact symbol/limit table: SYMBOL TABLE OVERFLOW, BLOCK OVERFLOW,
-      EXPRESSION OVERFLOW, AUTOMATIC STORAGE OVERFLOW, NESTED REP$...
-      -> find the real numeric limits by black-box probes.
+(* ============ Global architecture facts (RESOLVED) ==================
+   Q1 RESOLVED: the compiler writes an on-disk intermediate .INT file
+      carrying its IR between passes (strings "EOF ON INT FILE", "BAD
+      INT FILE", ext table "REL INT PLI"). Overlay sequence = pass
+      sequence (user-confirmed + oracle evidence): PLI.COM+PLI0 pass 1
+      (parse/declare), PLI1 pass 2 (IR build/verify + expression
+      optimizer), PLI2 = end of pass 2 + pass 3 codegen -> .REL.
+      Listing prints "NO ERROR(S) IN PASS 1/2"; $V = "Verify
+      Intermediate File" trace, $E = "Expression Optimizer Trace".
+      The IR is opcode-per-node; names table PLI2.OVL:2353h, record
+      descriptors PLI.COM:1B4Bh, optimizer classes PLI2.OVL:2274h, sem.
+      handler table PLI2.OVL:3DDDh; draft metadata in
+      ~/pli/cpm/pli80/pli80-ir-opcodes-v01.json and spec/notes/
+      ir-opcodes.md (e.g. BEG NID ENT LIO IID ILD C2 IAD IAS STP).
+      NOTE: IRL (PLILIB.IRL, LIB/LINK) = "Indexed Relocatable Library"
+      object format (LINK-80 manual) — a DIFFERENT thing from .INT IR.
+   Q2 (superseded by Q1 above) — PLI2 mnemonic table decoded as IR
+      opcodes, not RTL names.
+   Static finding 2026-10-15: NO Z80-only instructions (no IX/IY, ED/CB
+      Z80 ops, block ops) across all four annotated images
+      (~/pli/lab/research/annotated-assembly/*.asm) -> compiler is pure
+      8080-encoded. Oracle already runs cpmsim -8 (pure-8080 mode).
+      Remaining risk: Z80-in-8080-mode vs Intel 8080 divergences on
+      UNDOCUMENTED opcodes/flags — differential check later (MAME/QX-10
+      is Z80 hardware, so it cannot falsify this; need real-8080
+      semantics: Runes core or 8080 exercisers).
+   Q3 STILL OPEN — exact symbol/limit table: SYMBOL TABLE OVERFLOW,
+      BLOCK OVERFLOW, EXPRESSION OVERFLOW, AUTOMATIC STORAGE OVERFLOW,
+      NESTED REP$... -> find the real numeric limits by black-box probes
+      (pass1-limit.tsv exists in ~/pli/cpm/pli80 — partial answer).
+   Q4 [PROBE 80: `proc` synonym] our parser rejects
+      `t: proc options(main);` ("expected PROCEDURE after label") while
+      manual AppB.18 shows PROC as a synonym; UNVERIFIED whether DR v1.4
+      itself accepts it — run under oracle before touching the keyword
+      table.
    ==================================================================== *)

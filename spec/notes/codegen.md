@@ -200,3 +200,16 @@ TODO(byte-identity): full descriptor grid across picture classes
 ($ , + - 9 V . ,), f(w,s)/e(w,s)/a(w)/b(n)/x(n)/skip(n)/page/line(n)/
 r(label), count prefixes — ~6 micro-specimens via $C+reldump, then the
 REL writer can emit data bytes exactly.
+
+## Addendum 2026-10-17 — fail-loud restored (found while mapping DEMO)
+* `emit_program` had `| _ -> ()` for statements and `rows_of` had
+  `| _ -> None` for variables: out-of-subset constructs were SILENTLY
+  DROPPED. DEMO.PLI "compiled" to a 128-byte REL with code=9 (empty
+  program!) instead of raising. Both defaults now failwith
+  `codegen: ... [TBD]` (C067 policy). All e2e specimens regression-green.
+* `pli80c.exe` did not strip CP/M ^Z padding (pli80parse did) — now
+  same convention (cut at first 0x1A).
+* KNOWN-COSMETIC: the new statement-kind error reports a stale line
+  number ("line 2" for a line-4 PUT/GET): Sput/Sget `spos` appears to
+  take the enclosing construct's position; fix alongside the I/O
+  lowering slice.
