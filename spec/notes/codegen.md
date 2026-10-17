@@ -213,3 +213,18 @@ REL writer can emit data bytes exactly.
   number ("line 2" for a line-4 PUT/GET): Sput/Sget `spos` appears to
   take the enclosing construct's position; fix alongside the I/O
   lowering slice.
+
+
+## PUT LIST slice (E2E-3a, G107/G108 $C-verified)
+Sequence + backpatch as CLAIMS C071. Pool: char literals enter the
+SAME constant pool as decimal literals (raw ASCII bytes, no sign
+nibble), allocated in emission order; auto vars remain above pool_total.
+OPEN (deliberate, [TBD]): multiple pending backpatch triples ORDER is
+unproven (single-put specimens only; List.rev = source order as
+independent guess pending a 2-put probe); PUT to explicit FILE, PAGE,
+multi-item LIST, expressions (concat/varying vars) all refused.
+Tree-dumper + pli80c ^Z + discard-invariant fixes this slice (see
+e2e-milestone addendum). Statement-position quirk: multi-line
+`label:/ procedure` headers report the header LINE, not the stmt line
+(G10x match DR numbering; t2-style files do not) -> fix before
+listing-parity phases; DEMO uses the multi-line form.

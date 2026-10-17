@@ -70,3 +70,25 @@ See claims C067–C070 and f6/C066 (f6 has zero effect on code/reloc).
 e2e: 6 byte-exact (+ link rc=0). parse 303/0 FAIL. bind 47/47.
 rel-roundtrip 276/276. ir 2 byte-exact / 3 struct / 5 gap / 0 FAIL.
 test_safety 28/28.
+
+# E2E-3a — PUT LIST char-literal output (milestone, 2026-10-17)
+
+G107 `put list('OK');` and G108 `put skip(1) list('OK');` (DR syntax
+experimentally confirmed: both compile clean on the oracle, e2eput2)
+lower to .REL **BYTE-IDENTICAL** to DR; linked .COM vs real PLILIB
+**byte-identical** to the DR-linked .COM; and the RAW console output
+regions are **byte-equal including whitespace/line-endings**:
+`OK\r` (G107), `\r\nOK\r` (G108) — skip(1)'s leading CRLF is real
+evidence, rc=0 alone never is.
+
+DR lowering (verified from $C + reldump, spec/notes/codegen.md §PUT):
+LXI D,0252 ; LXI B,0000 ; CALL ?SYSPR ; [MVI A,n ; CALL ?SKPOP] ;
+LXI H,*S(pool) ; MVI A,len ; CALL ?SLCTS ; CALL ?PNCOP ; CALL ?QIOOP ;
+then a deferred backpatch triple (SET-LC operand-slot / RELOC code /
+SET-LC resume) AFTER the last statement, patching the LXI B operand to
+the ?STOPX epilogue address (the ?QIOOP continuation).
+
+Slice guards (negative panel N1..N5 in e2e_gate): GET LIST, DO-wrapping,
+PAGE, variable skip count, multi-item LIST — all refuse with [TBD];
+plus the DISCARD INVARIANT counter (every non-decl/non-null statement at
+any nesting depth must be accounted for by a lowering step).

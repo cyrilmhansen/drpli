@@ -1155,6 +1155,23 @@ let dump_trees src =
         pp_st body
     | Sdobegin ss -> List.iter pp_st ss
     | Sproc { blk; _ } -> List.iter pp_st blk.bstmts
-    | _ -> ()
+    | Sput { kind = k; items; on_opts; stream; _ } ->
+        Format.printf "L%d: PUT kind=%s items=%d opts=%d%s\n%!"
+          s.spos.Source.line
+          (match k with
+           | List_ -> "LIST" | Edit -> "EDIT" | Item -> "ITEM"
+           | Editsk n -> "EDITSK(" ^
+               (match n with Some x -> string_of_int x | None -> "-") ^ ")")
+          (List.length items) (List.length on_opts)
+          (if stream = None then "" else " FILEREF")
+    | Sget { kind = k; items; on_opts; stream; _ } ->
+        Format.printf "L%d: GET kind=%s items=%d opts=%d%s\n%!"
+          s.spos.Source.line
+          (match k with List_ -> "LIST" | Edit -> "EDIT" | Const_ -> "CONST")
+          (List.length items) (List.length on_opts)
+          (if stream = None then "" else " FILEREF")
+    | _ ->
+        (* fail-loud observability: never silently elide a statement kind *)
+        Format.printf "L%d: [STMT-KIND-NOT-PRINTED]\n%!" s.spos.Source.line
   in
   List.iter pp_st blk.bstmts

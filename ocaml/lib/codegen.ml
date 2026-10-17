@@ -20,9 +20,13 @@ type st =
   { vars : (string * var_info) list   (* lowername -> info *)
   ; base : int                        (* pool base = total pool bytes *)
   ; mutable items : rel_item list
-  ; mutable pool : (int * int) list   (* (data-addr, byte) decimal pool *)
+  ; mutable pool : (int * int) list   (* (data-addr, byte) constant pool *)
   ; mutable pool_next : int           (* next free pool offset *)
-  ; mutable lc : int }                (* code location counter *)
+  ; mutable lc : int                  (* code location counter *)
+  ; mutable patches : int list        (* LXI-B operand slots to patch with
+                                         epilogue address [E2E-3a G107/G108] *)
+  ; mutable lowered : int }           (* statements actually lowered
+                                         (discard-invariant witness) *)
 
 let push st it = st.items <- st.items @ [it]
 let d st v = push st (Data (v land 0xff)); st.lc <- st.lc + 1
@@ -39,6 +43,7 @@ let pool_alloc st (bytes : int array) =
 
 (* ---- opcodes (8080) : all cross-checked against DR .REL bytes ---- *)
 let op_lxi_b = 0x01
+let op_lxi_d = 0x11
 let op_lxi_h = 0x21
 let op_lhld = 0x2a
 let op_shld = 0x22
@@ -120,13 +125,80 @@ let rec prescan_expr (e : Ast.expr) =
   | Ast.Ebuilt (_, es) -> List.fold_left (fun a x -> a + prescan_expr x) 0 es
   | _ -> 0
 
+(* accepted shape for the slice (None = fail-loud [TBD] at lowering) *)
+let match_put_list_lit (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sput { stream = None; on_opts = []; kind = Ast.List_; items } ->
+      (match items with
+       | [ Ast.Pi_data { Ast.e = Ast.Estring v; _ } ] -> Some (None, v)
+       | [ Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ });
+           Ast.Pi_data { Ast.e = Ast.Estring v; _ } ] -> Some (Some c, v)
+       | _ -> None)
+  | _ -> None
+
 let prescan_pool (stmts : Ast.stmt list) =
   List.fold_left
     (fun acc (s : Ast.stmt) ->
       match s.Ast.st with
       | Ast.Sassign { rhs; _ } -> acc + prescan_expr rhs
+      | Ast.Sput _ ->
+          (match match_put_list_lit s with
+           | Some (_, v) -> acc + String.length v
+           | None -> acc)   (* out-of-slice forms raise at lowering *)
       | _ -> acc)
     0 stmts
+
+(* ---- E2E-3a: PUT LIST '<char literal>' [G107/G108 $C-verified] ------
+   Supported shape ONLY (match_put_list_lit); anything else fails loud.
+   DR sequence (e2eput2 goldens, reldump + $C):
+     LXI D,0252 ; LXI B,0000 ; CALL ?SYSPR
+     [skip: MVI A,n ; CALL ?SKPOP]        (G108; SKPOP BEFORE data emit)
+     LXI H,*S(pool) ; MVI A,len ; CALL ?SLCTS ; CALL ?PNCOP ; CALL ?QIOOP
+   then a deferred backpatch triple per statement —
+     SET-LC(code,bslot) ; RELOC(code,epi_addr) ; SET-LC(code,epi_addr) —
+   emitted after the LAST statement, before the ?STOPX epilogue CALL:
+   the LXI B operand receives the epilogue (continuation) address. *)
+let lower_put_lit st (skipn : string option) (v : string) =
+  d st op_lxi_d; d st 0x52; d st 0x02;
+  d st op_lxi_b;
+  let bslot = st.lc in
+  d st 0; d st 0;
+  call_ext st "?SYSPR";
+  (match skipn with
+   | Some c ->
+       let n = int_of_string (String.concat "" (String.split_on_char '_' c)) in
+       if n <= 0 || n > 255 then
+         failwith "codegen: skip count out of MVI range [TBD]";
+       d st op_mvi_a; d st n; call_ext st "?SKPOP"
+   | None -> ());
+  let bytes =
+    Array.init (String.length v) (fun i -> Char.code (String.get v i))
+  in
+  let addr = pool_alloc st bytes in
+  d st op_lxi_h; reloc st Data addr;
+  d st op_mvi_a; d st (String.length v land 0xff);
+  call_ext st "?SLCTS"; call_ext st "?PNCOP"; call_ext st "?QIOOP";
+  st.patches <- bslot :: st.patches
+
+(* count statements that MUST be accounted for by lowering (everything
+   except declarations and empty statements). The counter + per-stmt
+   `lowered` increments make silent discarding — including from future
+   container statements — a hard failure. *)
+let rec count_required (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sdcl _ | Ast.Snull _ -> 0
+  | Ast.Sdobegin ss ->
+      1 + List.fold_left (fun a x -> a + count_required x) 0 ss
+  | Ast.Sif { then_; els; _ } ->
+      1 + count_required then_
+        + (match els with Some e -> count_required e | None -> 0)
+  | Ast.Sdowhile { body; _ } -> 1 + count_required body
+  | Ast.Sdoto { body; _ } -> 1 + count_required body
+  | Ast.Sdoforever body -> 1 + count_required body
+  | Ast.Sproc b ->
+      1 + List.fold_left (fun a x -> a + count_required x) 0
+          b.Ast.blk.Ast.bstmts
+  | _ -> 1
 
 (* assemble: header ; [SET-LC data + pool bytes] ; DEF-DATA-SIZE ;
    SET-LC code ; prologue ; body ; epilogue ; tail.  Body is lowered
@@ -220,7 +292,7 @@ let emit_program (progname : string) (auto_bytes : int)
   let pool_total = prescan_pool stmts in
   let st =
     { vars = rows; base = pool_total; items = []; pool = []
-    ; pool_next = 0; lc = 0 }
+    ; pool_next = 0; lc = 0; patches = []; lowered = 0 }
   in
   (* lower prologue + body + epilogue into st.items (code segment) *)
   d st op_lxi_b; d st 0x00; d st 0x02;
@@ -231,7 +303,16 @@ let emit_program (progname : string) (auto_bytes : int)
   List.iter
     (fun (s : Ast.stmt) ->
       match s.Ast.st with
-      | Ast.Sassign { lhs; rhs } -> lower_assign st lhs rhs
+      | Ast.Sassign { lhs; rhs } ->
+          st.lowered <- st.lowered + 1; lower_assign st lhs rhs
+      | Ast.Sput _ ->
+          (match match_put_list_lit s with
+           | Some (skipn, v) ->
+               st.lowered <- st.lowered + 1; lower_put_lit st skipn v
+           | None -> failwith
+                 (Printf.sprintf
+                    "codegen: PUT form not in E2E-3a subset [TBD] \
+                     (line %d)" s.Ast.spos.Source.line))
       | Ast.Sdcl _ -> ()   (* declarations emit no code (binder owns layout) *)
       | Ast.Snull _ -> ()  (* empty statement: no code *)
       | _ -> failwith
@@ -239,6 +320,22 @@ let emit_program (progname : string) (auto_bytes : int)
                 "codegen: statement kind not in supported subset [TBD] \
                  (line %d)" s.Ast.spos.Source.line))
     stmts;
+  (* DISCARD INVARIANT: every non-decl/non-null statement (at any
+     nesting depth) must be accounted for by a lowering step. *)
+  let req = List.fold_left (fun a s -> a + count_required s) 0 stmts in
+  if req <> st.lowered then
+    failwith
+      (Printf.sprintf "codegen: DISCARD INVARIANT violated (%d required, \
+                       %d lowered)" req st.lowered);
+  (* deferred backpatch triple [G107/G108]: emitted after the last stmt,
+     before the epilogue; patches LXI B operand := epilogue address. *)
+  let epi = st.lc in
+  List.iter
+    (fun slot ->
+      link st t_set_lc (Some (Code, slot)) None;
+      push st (Reloc (Code, epi));
+      link st t_set_lc (Some (Code, epi)) None)
+    (List.rev st.patches);
   d st op_call;
   let stop_slot = st.lc in
   d st 0; d st 0;
