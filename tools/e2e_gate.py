@@ -53,6 +53,10 @@ SPECIMENS = {
     # E2E-3d: string concatenation in PUT LIST [W101/W102]
     "W101": ("probes/W101.PLI", "golden/e2e3d/W101/W101.REL"),
     "W102": ("probes/W102.PLI", "golden/e2e3d/W102/W102.REL"),
+    # E2E-3e: GET LIST + the historic DEMO corpus file itself
+    "X201": ("probes/X201.PLI", "golden/e2e3e/X201/X201.REL"),
+    "X202": ("probes/X202.PLI", "golden/e2e3e/X202/X202.REL"),
+    "DEMO": ("artefacts/DEMO.PLI", "golden/first8080u/DEMO/DEMO.REL"),
 }
 
 # specimens whose RAW console output must equal DR's (all have at
@@ -60,7 +64,8 @@ SPECIMENS = {
 # V108's '' output is legitimately empty, accepted via anchor logic)
 OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "G115", "G116", "V101", "V102", "V103", "V104",
-                "V105", "V106", "V108", "W101", "W102"}
+                "V105", "V106", "V108", "W101", "W102",
+                "X201", "X202", "DEMO"}
 
 
 def compile_one(name, src):
@@ -78,7 +83,7 @@ def compile_one(name, src):
 # construct may be silently discarded, incl. nested inside containers).
 REJECTS = {
     "N1_GET": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
-               "  get list(a);\nend t;\n", "statement kind"),
+               "  get list(a);\nend t;\n", "non-varying"),
     "N2_DO_PUT": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
                   "  do a = 1 to 3;\n    put list('X');\n  end;\nend t;\n",
                   "statement kind"),
@@ -116,6 +121,13 @@ REJECTS = {
     "N15_CAT4": ("t:\n  procedure options(main);\n  dcl n char(6) varying;\n"
                  "  n = 'Q';\n  put list('A' || n || 'B' || 'C');\nend t;\n",
                  "PUT form"),
+    "N17_GETINT": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
+                   "  get list(i);\n  put list('X');\nend t;\n",
+                   "non-varying"),
+    "N18_GET2": ("t:\n  procedure options(main);\n"
+                 "  dcl a char(4) varying;\n  dcl b char(4) varying;\n"
+                 "  get list(a, b);\n  put list('X');\nend t;\n",
+                 "GET form"),
     "N16_CATASSIGN": ("t:\n  procedure options(main);\n"
                       "  dcl n char(6) varying;\n  dcl m char(6) varying;\n"
                       "  n = 'Q';\n  m = 'Z' || n;\nend t;\n",

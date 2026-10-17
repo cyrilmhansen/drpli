@@ -1,0 +1,6 @@
+px202: procedure options(main);
+   dcl n char(5) varying;
+   get list(n);
+   put list(n);
+end px202;
+

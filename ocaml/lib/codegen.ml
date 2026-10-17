@@ -76,6 +76,10 @@ let op_mvi_b = 0x06
 let op_mov_b_a = 0x47   (* [V102/V103] len==cap store peephole *)
 let op_mvi_m = 0x36     (* [V104] MVI M,00: empty-varying store *)
 let op_push_psw = 0xf5  (* [W102] PSW guard before nested SLVTS *)
+let op_jp = 0xf2      (* [X201/X202] GET skip byte; $C prints "JP";
+                          REL byte is F2 = JPE (same family as the ^=
+                          CA/"JZ" quirk [C072]); operand patched by a
+                          deferred triple to the QIOOP call [X202] *)
 let op_mov_l_a = 0x6f
 let op_mov_h_a = 0x67
 let op_add_a = 0x87
@@ -226,6 +230,16 @@ let match_put_list_lit (s : Ast.stmt) =
             | None -> Pnone)
        | _ -> Pnone)
   | _ -> Pnone
+
+(* GET LIST (varying);) — single varying data item, default stream,
+   no ON opts, no edit. Shapes beyond this raise [TBD] at lowering
+   [X201/X202]. *)
+let match_get_list_var (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sget { stream = None; on_opts = []; kind = Ast.List_;
+              items = [ Ast.Pi_data { Ast.e = Ast.Eident n; _ } ] } ->
+      Some n.Ast.orig
+  | _ -> None
 
 (* pool demand: RECURSIVE over container bodies (G114: puts live inside
    IF arms; a flat scan under-counts the pool and shifts DATA) *)
@@ -568,6 +582,36 @@ let lower_put_var st (skipn : string option) (x : Ast.expr) =
   call_ext st "?PNCOP"; call_ext st "?QIOOP";
   emit_triple st bslot st.lc
 
+(* GET LIST(n);) n char-varying [X201/X202]: input descriptor 0290
+   (vs 0252 for print); SYSIN attaches, GNVOP reads item(s) onto the
+   RTL stack; JP(F2) operand triple-patched to the QIOOP call start
+   (EOF/error skip); SSVFS stores stack->var with B = capacity;
+   QIOOP completes I/O; LXI B continuation triple -> next stmt.
+   Triple ORDER on the record stream (X202 dump): after SSVFS chain
+   comes the JP triple, QIOOP data, then the continuation triple. *)
+let lower_get st (nm : string) =
+  let cap = match vk_of st nm with
+            | Vvar c -> if c > 255 then failwith "codegen: cap > 255 [TBD]"
+                        else c
+            | _ -> failwith
+                "codegen: GET LIST of non-varying var unproven [TBD]"
+  in
+  d st op_lxi_d; d st 0x90; d st 0x02;   (* LXI D,0290 input desc *)
+  d st op_lxi_b;
+  let bslot = st.lc in
+  d st 0; d st 0;
+  call_ext st "?SYSIN";
+  call_ext st "?GNVOP";
+  d st op_jp;
+  let jpslot = st.lc in
+  d st 0; d st 0;
+  d st op_lxi_h; reloc st Data (addr_of st nm);
+  d st op_mvi_b; d st cap;
+  call_ext st "?SSVFS";
+  emit_triple st jpslot st.lc;          (* JP -> QIOOP call start [X202] *)
+  call_ext st "?QIOOP";
+  emit_triple st bslot st.lc             (* continuation = next stmt *)
+
 (* PUT LIST with || chain: DR evaluates RIGHT-to-LEFT while the
    pool is allocated LEFT-to-RIGHT in source order [W102 hex:
    HELLO@5, BYE@0x0B]. C2: SLVTS(right var; empty stack -> no PUSH
@@ -650,6 +694,14 @@ let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
        | Pnone -> failwith
              (Printf.sprintf
                 "codegen: PUT form not in E2E-3a subset [TBD] \
+                 (line %d)" s.Ast.spos.Source.line))
+  | Ast.Sget _ ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (match match_get_list_var s with
+       | Some nm -> lower_get st nm
+       | None -> failwith
+             (Printf.sprintf
+                "codegen: GET form not in E2E-3e subset [TBD] \
                  (line %d)" s.Ast.spos.Source.line))
   | Ast.Sif { cond; then_; els } ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;

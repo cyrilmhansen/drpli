@@ -271,3 +271,10 @@ SLVTS; SJSCM(lefthand,B); SJSTS; then common PNCOP/QIOOP/triple tail.
 Only [lit;varying] and [lit;varying;lit]; all else [TBD].
 NOTE OCAML PITFALL: a dedented `; tail` after a match's last branch
 stays INSIDE that branch — paren-wrap match when a shared tail follows.
+
+
+## E2E-3e: GET LIST + DEMO acceptance [X201/X202, C075/C076]
+GET chain: LXI D,0290; LXI B,0000; SYSIN; GNVOP; JP(F2)->QIOOP-start
+(triple after SSVFS chain); LXI H,var; MVI B,cap; SSVFS; QIOOP; cont.
+DEMO.PLI -> golden 1980 DEMO.REL byte-identical; .COM + console equal
+vs fresh DR AND banked run2. Gate 30/30 + NEG 18/18.

@@ -34,6 +34,7 @@ TOOLS = ["LINK.COM", "LIB.COM", "RMAC.COM", "PLILIB.IRL"]
 
 INPUTS = {
     "DEMO":       ["John\\r"],
+    "X201":       ["WORLD\\r"],
     "DECPOLY":    ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
     "FLTPOLY":    ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
     "FLTPOLY2":   ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],

@@ -123,3 +123,13 @@ right-to-left over a source-allocated pool; PUSH PSW guards the SLVTS
 only when a stack entry is already live. .REL + .COM + console all
 byte-equal. Gate: 27/27, 17 console arms, NEG 16/16.
 DEMO put2 shape = C3 exactly. Remaining for DEMO: GET LIST (3e).
+
+# E2E-3e — GET LIST & FULL DEMO ACCEPTANCE (milestone, 2026-10-17)
+
+GET LIST lowered from X201/X202 to byte parity first-try [C075].
+DEMO.PLI (original corpus source) -> DEMO.REL byte-identical to the
+1980 golden; .COM identical vs fresh DR link; console byte-equal vs
+both the fresh DR arm and the banked run2 baseline [C076]. THE
+HISTORICAL GOAL IS MET for DEMO. Gate: 30/30, 20 console arms,
+NEG 18/18. Next: DO loops; then COPY (file ops = new territory);
+broader corpus; $L listing-position fidelity remains cosmetic-only.
