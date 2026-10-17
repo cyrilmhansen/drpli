@@ -1,0 +1,6 @@
+pv107: procedure options(main);
+   dcl c char(3) varying;
+   dcl i fixed;
+   i = 5;
+end pv107;
+

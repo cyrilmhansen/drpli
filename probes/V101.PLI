@@ -1,0 +1,6 @@
+pv101: procedure options(main);
+   dcl c char(20) varying;
+   c = 'OK';
+   put list(c);
+end pv101;
+

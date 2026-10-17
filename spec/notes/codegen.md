@@ -251,3 +251,14 @@ listing-parity phases; DEMO uses the multi-line form.
   L,H; delta 1..4 down -> DCX repeats; delta 1..4 up -> INX repeats;
   else fresh LXI H. Any HL-clobbering stmt (PUT/IF/GOTO) resets the
   tracker.
+
+
+## E2E-3c: CHAR VARYING + fixed char (V101-V108 [C073])
+Representation: [len@0][data@1..n]; base = pool + declared offset.
+Stores: varying ?SMCVM(A=cap,B=len; MOV B,A iff len==cap; len=0 -> bare
+MVI M,00; len>cap passed through, RTL truncates); fixed ?SMCCM (pads).
+Prints: varying ?SLVTS (H=base); fixed ?SLCTS with MVI A,cap; literals
+unchanged MVI A,len. Pool: one BLOCK per string literal incl. zero-size
+('' registers block -> SET-LC(data,0) emitted with no bytes); blocks
+emitted SET-LC per block (addr>0). Numeric-var PUT and unproven fixed
+store shapes remain [TBD].

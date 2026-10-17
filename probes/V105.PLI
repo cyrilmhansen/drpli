@@ -1,0 +1,6 @@
+pv105: procedure options(main);
+   dcl c char(3) varying;
+   c = 'ABCDEFG';
+   put list(c);
+end pv105;
+

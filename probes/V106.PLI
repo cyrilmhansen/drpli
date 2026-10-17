@@ -1,0 +1,6 @@
+pv106: procedure options(main);
+   dcl f char(4);
+   f = 'AB';
+   put list(f);
+end pv106;
+

@@ -106,3 +106,12 @@ Deferred per user directive: DO loops (Sdoto/Sdowhile -> [TBD]),
 computed GOTO goto lab(i) -> [TBD] (N6), multi forward-goto-per-label
 -> [TBD] (N7, chain form unproven), non-probe-proven comparison forms
 (N8/N9). Negative panel now 9/9.
+
+# E2E-3c — CHAR VARYING representation & codegen (milestone, 2026-10-17)
+
+8 probes (V101-V108) answer the representation questions with
+byte-parity + runtime console equality [C073]. Length byte at offset 0
+(V104 decisive). RTL truncation (V105) and fixed-char padding (V106)
+observed on DR-executing bytes, never assumed. Pool-block rule
+refined: zero-size literals open the DATA segment (V104/V108 vs V107).
+Gate now 25/25 byte-exact, 15 console-checked arms; negative panel 12/12.

@@ -41,7 +41,23 @@ SPECIMENS = {
     "G114C": ("probes/G114C.PLI", "golden/e2e3b/G114C/G114C.REL"),
     "G115": ("probes/G115.PLI", "golden/e2e3b/G115/G115.REL"),
     "G116": ("probes/G116.PLI", "golden/e2e3b/G116/G116.REL"),
+    # E2E-3c: CHAR VARYING representation + codegen [V101-V108]
+    "V101": ("probes/V101.PLI", "golden/e2e3c/V101/V101.REL"),
+    "V102": ("probes/V102.PLI", "golden/e2e3c/V102/V102.REL"),
+    "V103": ("probes/V103.PLI", "golden/e2e3c/V103/V103.REL"),
+    "V104": ("probes/V104.PLI", "golden/e2e3c/V104/V104.REL"),
+    "V105": ("probes/V105.PLI", "golden/e2e3c/V105/V105.REL"),
+    "V106": ("probes/V106.PLI", "golden/e2e3c/V106/V106.REL"),
+    "V107": ("probes/V107.PLI", "golden/e2e3c/V107/V107.REL"),
+    "V108": ("probes/V108.PLI", "golden/e2e3c/V108/V108.REL"),
 }
+
+# specimens whose RAW console output must equal DR's (all have at
+# least one observable PUT; V107/V108 exercise no-console paths —
+# V108's '' output is legitimately empty, accepted via anchor logic)
+OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
+                "G115", "G116", "V101", "V102", "V103", "V104",
+                "V105", "V106", "V108"}
 
 
 def compile_one(name, src):
@@ -81,6 +97,13 @@ REJECTS = {
     "N9_GTZERO": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
                   "  if a > 0 then put list('X');\nend t;\n",
                   "unproven"),
+    "N10_PUTINT": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
+                   "  a = 1;\n  put list(a);\nend t;\n",
+                   "numeric variable"),
+    "N11_STROVR": ("t:\n  procedure options(main);\n  dcl c char(4);\n"
+                   "  c = 'ABCD';\nend t;\n", "fixed store len==cap"),
+    "N12_EMPTYFIX": ("t:\n  procedure options(main);\n  dcl c char(4);\n"
+                     "  c = '';\nend t;\n", "fixed-char store form"),
 }
 
 
@@ -141,9 +164,7 @@ def main():
             bad += 1
         if a.link_run and exact:
             link_run(name, gp,
-                       output_check=(name in ("G107", "G108", "G113",
-                                              "G114", "G114B", "G114C",
-                                              "G115", "G116")))
+                       output_check=(name in OUTPUT_CHECK))
 
     print(f"e2e gate: {ok} byte-exact / {bad} fail of {len(SPECIMENS)}")
     nbad = run_negatives()
@@ -212,7 +233,7 @@ def link_run(name, dr_rel, output_check=False):
             om, od = prog_out("e2erun"), prog_out("e2erundr")
             if om is None or od is None:
                 print(f"  run  :    {name}: MISSING TRANSCRIPT")
-            elif om != "" and om == od:
+            elif om == od:  # anchor verified both runs reached D>
                 print(f"  run  :    {name}: console BYTE-EQUAL "
                       f"({len(om)} raw bytes): {om!r}")
             else:
