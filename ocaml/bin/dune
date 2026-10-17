@@ -21,3 +21,13 @@
  (libraries pli80)
  (flags (:standard -warn-error -a)))
 
+
+(executable
+ (name reltest)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))
+
+(executable
+ (name pli80c)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))
