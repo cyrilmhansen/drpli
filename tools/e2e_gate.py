@@ -27,7 +27,10 @@ SPECIMENS = {
     # literal-base exponentiation -> decimal pool + DLDOP/DEXOP/QDI15:
     "P071D": ("probes/P071D.PLI", "golden/probe38/P071D/P071D.REL"),
     "G101": ("probes/G101.PLI", "golden/e2eexp/G101/G101.REL"),
+    "G103": ("probes/G103.PLI", "golden/e2eexp/G103/G103.REL"),
+    "G104": ("probes/G104.PLI", "golden/e2eexp/G104/G104.REL"),
     "G105": ("probes/G105.PLI", "golden/e2eexp/G105/G105.REL"),
+    "G106": ("probes/G106.PLI", "golden/e2eexp/G106/G106.REL"),
 }
 
 
