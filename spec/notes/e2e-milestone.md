@@ -92,3 +92,17 @@ Slice guards (negative panel N1..N5 in e2e_gate): GET LIST, DO-wrapping,
 PAGE, variable skip count, multi-item LIST — all refuse with [TBD];
 plus the DISCARD INVARIANT counter (every non-decl/non-null statement at
 any nesting depth must be accounted for by a lowering step).
+
+# E2E-3b — comparisons, IF/ELSE, GOTO+labels (milestone, 2026-10-17)
+
+Six probes (G113, G114, G114B, G114C, G115, G116): .REL byte-exact,
+.linked .COM byte-identical vs DR, RAW console output byte-equal
+('A B\r', 'G N >\r', 'L N l <\r', 'N Z\r', 'X X X END\r',
+'BIG !\r'). G115 runs a backward-GOTO loop with 3 iterations -> branch
+relocation (inline RELOC back / CHAIN-ADDR fwd / deferred triples)
+proven on executing code, not just static bytes.
+
+Deferred per user directive: DO loops (Sdoto/Sdowhile -> [TBD]),
+computed GOTO goto lab(i) -> [TBD] (N6), multi forward-goto-per-label
+-> [TBD] (N7, chain form unproven), non-probe-proven comparison forms
+(N8/N9). Negative panel now 9/9.

@@ -34,6 +34,13 @@ SPECIMENS = {
     # E2E-3a: PUT LIST literal char output (e2eput2 goldens, $C-verified):
     "G107": ("probes/G107.PLI", "golden/e2eput2/G107/G107.REL"),
     "G108": ("probes/G108.PLI", "golden/e2eput2/G108/G108.REL"),
+    # E2E-3b: multi-put order, comparisons/IF-ELSE, GOTO+labels [C072]
+    "G113": ("probes/G113.PLI", "golden/e2e3b/G113/G113.REL"),
+    "G114": ("probes/G114.PLI", "golden/e2e3b/G114/G114.REL"),
+    "G114B": ("probes/G114B.PLI", "golden/e2e3b/G114B/G114B.REL"),
+    "G114C": ("probes/G114C.PLI", "golden/e2e3b/G114C/G114C.REL"),
+    "G115": ("probes/G115.PLI", "golden/e2e3b/G115/G115.REL"),
+    "G116": ("probes/G116.PLI", "golden/e2e3b/G116/G116.REL"),
 }
 
 
@@ -62,6 +69,18 @@ REJECTS = {
                    "  put skip(a) list('X');\nend t;\n", "PUT form"),
     "N5_TWOITEM": ("t:\n  procedure options(main);\n"
                    "  put list('A','B');\nend t;\n", "PUT form"),
+    "N6_COMPUTED_GOTO": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
+                         "l:\n  i = i + 1;\n  goto l(i);\nend t;\n",
+                         "computed GOTO"),
+    "N7_MULTI_FWD": ("t:\n  procedure options(main);\n"
+                     "  goto l;\n  goto l;\nl:\n  put list('X');\nend t;\n",
+                     "[TBD]"),
+    "N8_CONDFORM": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
+                    "  if a < 3 then put list('X');\nend t;\n",
+                    "condition form"),
+    "N9_GTZERO": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
+                  "  if a > 0 then put list('X');\nend t;\n",
+                  "unproven"),
 }
 
 
@@ -122,14 +141,17 @@ def main():
             bad += 1
         if a.link_run and exact:
             link_run(name, gp,
-                       output_check=(name in ("G107", "G108")))
+                       output_check=(name in ("G107", "G108", "G113",
+                                              "G114", "G114B", "G114C",
+                                              "G115", "G116")))
 
     print(f"e2e gate: {ok} byte-exact / {bad} fail of {len(SPECIMENS)}")
     nbad = run_negatives()
     if nbad:
         print(f"e2e gate: NEGATIVE PANEL {nbad} fail")
         return 1
-    print("e2e gate: negative panel clean (5/5 refused)")
+    print("e2e gate: negative panel clean (%d/%d refused)"
+          % (len(REJECTS), len(REJECTS)))
     return 1 if bad else 0
 
 

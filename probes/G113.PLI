@@ -1,0 +1,5 @@
+pg113: procedure options(main);
+   put list('A');
+   put list('B');
+end pg113;
+

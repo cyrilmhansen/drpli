@@ -1,0 +1,18 @@
+pg116: procedure options(main);
+   dcl n fixed, s fixed;
+   n = 4;
+   s = 0;
+top:
+   if n = 0 then goto fin;
+   s = s + n;
+   n = n - 1;
+   goto top;
+fin:
+   if s > 6 then put list('BIG');
+   else put list('SML');
+   goto fin2;
+   put list('DEAD');
+fin2:
+   put list('!');
+end pg116;
+

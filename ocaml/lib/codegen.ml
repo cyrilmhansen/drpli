@@ -20,13 +20,18 @@ type st =
   { vars : (string * var_info) list   (* lowername -> info *)
   ; base : int                        (* pool base = total pool bytes *)
   ; mutable items : rel_item list
-  ; mutable pool : (int * int) list   (* (data-addr, byte) constant pool *)
+  ; mutable pool : (int * int list) list  (* (data-addr, bytes) literal blocks *)
   ; mutable pool_next : int           (* next free pool offset *)
   ; mutable lc : int                  (* code location counter *)
-  ; mutable patches : int list        (* LXI-B operand slots to patch with
-                                         epilogue address [E2E-3a G107/G108] *)
+  ; mutable last_imm : int option     (* HL still holds this constant?
+                                         [G114 b=3 folded from a=5] *)
   ; mutable lowered : int }           (* statements actually lowered
                                          (discard-invariant witness) *)
+(* label bookkeeping for GOTO resolution [G115/G116]:
+   emitted-labels assoc (lowername -> lc); pending forward refs
+   (lowername -> operand slot). *)
+type lblstate = { mutable labs : (string * int) list
+                ; mutable fwd : (string * int) list }
 
 let push st it = st.items <- st.items @ [it]
 let d st v = push st (Data (v land 0xff)); st.lc <- st.lc + 1
@@ -34,10 +39,14 @@ let reloc st seg v =
   push st (Reloc (seg, v)); st.lc <- st.lc + 2          (* inline: 2 bytes *)
 let link st t valu name = push st (Link (t, valu, name))
 
-(* allocate a decimal pool entry, return its data-segment address *)
+(* allocate a constant-pool entry (ONE block per literal), returning its
+   data-segment address. G113 evidence: DR emits a SET-LC(data,addr) per
+   POOL BLOCK (string/dec literal allocation), not one flat byte run —
+   single-block programs like G107/G106/P071D cannot distinguish, two
+   strings prove it. *)
 let pool_alloc st (bytes : int array) =
   let addr = st.pool_next in
-  Array.iteri (fun i b -> st.pool <- st.pool @ [(addr + i, b land 0xff)]) bytes;
+  st.pool <- st.pool @ [(addr, Array.to_list bytes)];
   st.pool_next <- addr + Array.length bytes;
   addr
 
@@ -77,6 +86,24 @@ let call_ext st name =
   let slot = st.lc in
   d st 0; d st 0;
   link st t_chain_ext (Some (Code, slot)) (Some name)
+
+let op_jmp  = 0xc3
+let op_jnz  = 0xc2
+let op_jz   = 0xc4
+let op_jp   = 0xf2
+let op_jm   = 0xfa
+let op_mov_a_m = 0x7e
+let op_ora_m   = 0xb6
+let op_mov_a_h = 0x7c
+let op_ora_a   = 0xb7
+
+(* deferred forward-fixup triple [C062/G107/G113/G114]: placeholder
+   already emitted at SLOT; now that target VALUE is known write
+   SET-LC(code,slot) / RELOC(code,value) / SET-LC(code,value). *)
+let emit_triple st slot value =
+  link st t_set_lc (Some (Code, slot)) None;
+  push st (Reloc (Code, value));
+  link st t_set_lc (Some (Code, value)) None
 
 (* ---- decimal constant POOL (DATA segment) ----
    PL/I-80 stores a literal-base `k ** n` base as a DECIMAL pool entry
@@ -136,17 +163,28 @@ let match_put_list_lit (s : Ast.stmt) =
        | _ -> None)
   | _ -> None
 
+(* pool demand: RECURSIVE over container bodies (G114: puts live inside
+   IF arms; a flat scan under-counts the pool and shifts DATA) *)
+let rec prescan_stmt (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sassign { rhs; _ } -> prescan_expr rhs
+  | Ast.Sput _ ->
+      (match match_put_list_lit s with
+       | Some (_, v) -> String.length v
+       | None -> 0)          (* out-of-slice forms raise at lowering *)
+  | Ast.Sif { then_; els; _ } ->
+      prescan_stmt then_
+        + (match els with Some e -> prescan_stmt e | None -> 0)
+  | Ast.Sdobegin ss -> List.fold_left (fun a x -> a + prescan_stmt x) 0 ss
+  | Ast.Sdowhile { body; _ } -> prescan_stmt body
+  | Ast.Sdoto { body; _ } -> prescan_stmt body
+  | Ast.Sdoforever body -> prescan_stmt body
+  | Ast.Sproc b ->
+      List.fold_left (fun a x -> a + prescan_stmt x) 0 b.Ast.blk.Ast.bstmts
+  | _ -> 0
+
 let prescan_pool (stmts : Ast.stmt list) =
-  List.fold_left
-    (fun acc (s : Ast.stmt) ->
-      match s.Ast.st with
-      | Ast.Sassign { rhs; _ } -> acc + prescan_expr rhs
-      | Ast.Sput _ ->
-          (match match_put_list_lit s with
-           | Some (_, v) -> acc + String.length v
-           | None -> acc)   (* out-of-slice forms raise at lowering *)
-      | _ -> acc)
-    0 stmts
+  List.fold_left (fun acc s -> acc + prescan_stmt s) 0 stmts
 
 (* ---- E2E-3a: PUT LIST '<char literal>' [G107/G108 $C-verified] ------
    Supported shape ONLY (match_put_list_lit); anything else fails loud.
@@ -178,7 +216,11 @@ let lower_put_lit st (skipn : string option) (v : string) =
   d st op_lxi_h; reloc st Data addr;
   d st op_mvi_a; d st (String.length v land 0xff);
   call_ext st "?SLCTS"; call_ext st "?PNCOP"; call_ext st "?QIOOP";
-  st.patches <- bslot :: st.patches
+  (* G113: the backpatch triple is emitted INLINE after each put; the
+     LXI B operand receives the CONTINUATION address (LC right after
+     this statement), not an epilogue. [G107/G108: continuation == the
+     ?STOPX call, so both models coincided.] *)
+  emit_triple st bslot st.lc
 
 (* count statements that MUST be accounted for by lowering (everything
    except declarations and empty statements). The counter + per-stmt
@@ -200,10 +242,62 @@ let rec count_required (s : Ast.stmt) =
           b.Ast.blk.Ast.bstmts
   | _ -> 1
 
+
 (* assemble: header ; [SET-LC data + pool bytes] ; DEF-DATA-SIZE ;
    SET-LC code ; prologue ; body ; epilogue ; tail.  Body is lowered
    into a scratch state (collecting code items + pool bytes), then
    re-emitted in segment order. *)
+
+let parse_int_const (s : string) =
+  int_of_string (String.concat "" (String.split_on_char '_' s))
+
+let is_ident (e : Ast.expr) =
+  match e.Ast.e with Ast.Eident _ -> true | _ -> false
+
+let lower_test_skip st (c : Ast.expr) =
+  match c.Ast.e with
+  | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
+                 { Ast.e = Ast.Enumber "0"; _ }) ->
+      d st op_lxi_h; reloc st Data (addr_of st v.Ast.orig);
+      d st op_mov_a_m; d st op_inx_h; d st op_ora_m;
+      d st op_jnz; let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR Ast.Gt, { Ast.e = Ast.Eident v; _ },
+                 { Ast.e = Ast.Enumber k; _ }) ->
+      let kk = parse_int_const k in
+      if kk < 1 then failwith "codegen: compare > k<=0 form unproven [TBD]";
+      d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
+      let m = (-(kk + 1)) land 0xffff in
+      d st op_lxi_b; d st (m land 0xff); d st ((m lsr 8) land 0xff);
+      d st op_dad_b; d st op_mov_a_h; d st op_ora_a;
+      d st op_jm; let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR r, l, rr) when is_ident l && is_ident rr ->
+      let ident = fun x ->
+        match x.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> assert false
+      in
+      (match r with
+       | Ast.Lt | Ast.Ge ->
+           d st op_lhld; reloc st Data (addr_of st (ident l));
+           d st op_xchg;
+           d st op_lhld; reloc st Data (addr_of st (ident rr));
+           call_ext st "?IS22N";
+           d st (if r = Ast.Lt then op_jp else op_jm)
+       | Ast.Gt | Ast.Le ->
+           d st op_lhld; reloc st Data (addr_of st (ident rr));
+           d st op_xchg;
+           d st op_lhld; reloc st Data (addr_of st (ident l));
+           call_ext st "?IS22N";
+           d st (if r = Ast.Gt then op_jp else op_jm)
+       | Ast.Eq | Ast.Ne ->
+           d st op_lhld; reloc st Data (addr_of st (ident l));
+           d st op_push_h;
+           d st op_lhld; reloc st Data (addr_of st (ident rr));
+           d st op_pop_d;
+           call_ext st "?IS22N";
+           d st op_mov_a_h; d st 0xb5;  (* ORA L *)
+           d st (if r = Ast.Eq then op_jnz else 0xca));  (* DR: ^= skip = JPE, not JZ: parity-defect [C072] *)
+      let slot = st.lc in d st 0; d st 0; slot
+  | _ -> failwith "codegen: condition form not in E2E-3b subset [TBD]"
+
 
 (* evaluate an integer expression, leaving the 16-bit value in HL *)
 let rec lower_hl st (e : Ast.expr) =
@@ -283,16 +377,110 @@ and const_sub st n =
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
   match lhs.Ast.e with
   | Ast.Eident n ->
-      lower_hl st rhs;
+      (* HL-REUSE PEEPHOLE [G114 $C]: `a = 5; b = 3;` lowers the second
+         constant as 2x DCX H on the HL=5 still live after SHLD A, not a
+         fresh LXI H. Only the delta 1..4 (DCX repeat) form is proven;
+         larger deltas and INX directions stay [TBD]-free by falling
+         back to the ordinary fresh-load path. *)
+      (match rhs.Ast.e with
+       | Ast.Enumber s ->
+           let k = parse_int_const s in
+           (match st.last_imm with
+            (* [G116] k=0 with previous H byte = 0: MOV L,H zeroes HL *)
+            | Some p when k = 0 && p land 0xff00 = 0 ->
+                st.last_imm <- Some k; d st 0x6c (* MOV L,H *)
+            (* [G114] small positive delta: DCX H repeats *)
+            | Some p when p - k >= 1 && p - k <= 4 ->
+                st.last_imm <- Some k;
+                const_sub st (p - k)
+            (* [G114B] small negative delta: INX H repeats *)
+            | Some p when k - p >= 1 && k - p <= 4 ->
+                st.last_imm <- Some k;
+                for _ = 1 to k - p do d st op_inx_h done
+            | _ ->
+                st.last_imm <- Some k;
+                d st op_lxi_h; d st (k land 0xff); d st ((k lsr 8) land 0xff))
+       | _ ->
+           st.last_imm <- None;
+           lower_hl st rhs);
       d st op_shld; reloc st Data (addr_of st n.Ast.orig)
   | _ -> failwith "codegen: non-simple assignment lhs [TBD]"
+
+(* ---- E2E-3b: comparisons ----  ALL forms transcribed from $C traces
+   golden/e2e3b (G114/G115/G116) — see spec/notes/codegen.md:
+   var OP var: relational = load pair XCHG-form + ?IS22N + sign-test
+     conditional skip (Gt/Le evaluate RIGHT-left with JP/JM; Lt/Ge
+     evaluate LEFT-right); equality = PUSH/POP form + MOV A,H; ORA L
+     zero test + JNZ/JZ. var = 0: memory zero test (LXI H; MOV A,M;
+     INX H; ORA M; JNZ). var > k (k>=1): LHLD; LXI B,-(k+1); DAD B;
+     MOV A,H; ORA A; JM. Each returns the forward conditional-jump
+     operand SLOT (fixed later by emit_triple at the skip target). *)
+
+(* statement lowering with label/goto resolution *)
+let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
+  (* label prefixes resolve at the STATEMENT's LC [G115 loop:/done:] *)
+  List.iter
+    (fun (l : Ast.name) ->
+      let nm = String.lowercase_ascii l.Ast.orig in
+      ls.labs <- (nm, st.lc) :: ls.labs;
+      let slots = List.filter (fun (k, _) -> k = nm) ls.fwd |> List.map snd in
+      ls.fwd <- List.filter (fun (k, _) -> k <> nm) ls.fwd;
+      match slots with
+      | [] -> ()
+      | [ one ] ->
+          (* forward GOTO resolution: CHAIN-ADDR at label position [G115] *)
+          link st t_chain_addr (Some (Code, one)) None
+      | _ -> failwith "codegen: multiple forward GOTO per label chain                        unproven [TBD]")
+    s.Ast.slabels;
+  match s.Ast.st with
+  | Ast.Sassign { lhs; rhs } ->
+      st.lowered <- st.lowered + 1; lower_assign st lhs rhs
+  | Ast.Sput _ ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (match match_put_list_lit s with
+       | Some (skipn, v) -> lower_put_lit st skipn v
+       | None -> failwith
+             (Printf.sprintf
+                "codegen: PUT form not in E2E-3a subset [TBD] \
+                 (line %d)" s.Ast.spos.Source.line))
+  | Ast.Sif { cond; then_; els } ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      let skip = lower_test_skip st cond in
+      lower_stmt st ls then_;
+      (match els with
+       | None -> emit_triple st skip st.lc
+       | Some e ->
+           d st op_jmp;
+           let exit_slot = st.lc in
+           d st 0; d st 0;
+           emit_triple st skip st.lc;      (* skip -> else start [G114] *)
+           lower_stmt st ls e;
+           emit_triple st exit_slot st.lc) (* fall-around else -> exit *)
+  | Ast.Sgoto { tgt; subscript = [] } ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      let nm = String.lowercase_ascii tgt.Ast.orig in
+      (match List.assoc_opt nm ls.labs with
+       | Some a -> d st op_jmp; reloc st Code a        (* backward [G115] *)
+       | None ->
+           d st op_jmp;
+           let slot = st.lc in
+           d st 0; d st 0;
+           ls.fwd <- (nm, slot) :: ls.fwd)              (* forward [G115] *)
+  | Ast.Sgoto _ ->
+      failwith "codegen: computed GOTO deferred [TBD]"
+  | Ast.Sdcl _ -> ()
+  | Ast.Snull _ -> ()
+  | _ -> failwith
+         (Printf.sprintf "codegen: statement kind not in supported subset \
+                          [TBD] (line %d)" s.Ast.spos.Source.line)
+
 
 let emit_program (progname : string) (auto_bytes : int)
     (rows : (string * var_info) list) (stmts : Ast.stmt list) =
   let pool_total = prescan_pool stmts in
   let st =
     { vars = rows; base = pool_total; items = []; pool = []
-    ; pool_next = 0; lc = 0; patches = []; lowered = 0 }
+    ; pool_next = 0; lc = 0; last_imm = None; lowered = 0 }
   in
   (* lower prologue + body + epilogue into st.items (code segment) *)
   d st op_lxi_b; d st 0x00; d st 0x02;
@@ -300,26 +488,14 @@ let emit_program (progname : string) (auto_bytes : int)
   let start_slot = st.lc in
   d st 0; d st 0;
   link st t_chain_ext (Some (Code, start_slot)) (Some "?START");
-  List.iter
-    (fun (s : Ast.stmt) ->
-      match s.Ast.st with
-      | Ast.Sassign { lhs; rhs } ->
-          st.lowered <- st.lowered + 1; lower_assign st lhs rhs
-      | Ast.Sput _ ->
-          (match match_put_list_lit s with
-           | Some (skipn, v) ->
-               st.lowered <- st.lowered + 1; lower_put_lit st skipn v
-           | None -> failwith
-                 (Printf.sprintf
-                    "codegen: PUT form not in E2E-3a subset [TBD] \
-                     (line %d)" s.Ast.spos.Source.line))
-      | Ast.Sdcl _ -> ()   (* declarations emit no code (binder owns layout) *)
-      | Ast.Snull _ -> ()  (* empty statement: no code *)
-      | _ -> failwith
-             (Printf.sprintf
-                "codegen: statement kind not in supported subset [TBD] \
-                 (line %d)" s.Ast.spos.Source.line))
-    stmts;
+  let ls = { labs = []; fwd = [] } in
+  List.iter (fun (s : Ast.stmt) -> lower_stmt st ls s) stmts;
+  (match ls.fwd with
+   | [] -> ()
+   | (nm, _) :: _ ->
+       failwith (Printf.sprintf
+                   "codegen: GOTO to undefined/unresolvable label %s \
+                    [TBD: DR pass-2 UNDEF diag]" nm));
   (* DISCARD INVARIANT: every non-decl/non-null statement (at any
      nesting depth) must be accounted for by a lowering step. *)
   let req = List.fold_left (fun a s -> a + count_required s) 0 stmts in
@@ -327,15 +503,6 @@ let emit_program (progname : string) (auto_bytes : int)
     failwith
       (Printf.sprintf "codegen: DISCARD INVARIANT violated (%d required, \
                        %d lowered)" req st.lowered);
-  (* deferred backpatch triple [G107/G108]: emitted after the last stmt,
-     before the epilogue; patches LXI B operand := epilogue address. *)
-  let epi = st.lc in
-  List.iter
-    (fun slot ->
-      link st t_set_lc (Some (Code, slot)) None;
-      push st (Reloc (Code, epi));
-      link st t_set_lc (Some (Code, epi)) None)
-    (List.rev st.patches);
   d st op_call;
   let stop_slot = st.lc in
   d st 0; d st 0;
@@ -352,10 +519,16 @@ let emit_program (progname : string) (auto_bytes : int)
   let data_seg =
     if pool_total > 0 then
       Link (t_set_lc, Some (Data, 0), None)
-      :: List.map (fun (a, v) -> Data v)
-           (let sorted = List.sort compare st.pool in
-            (* data bytes must be in address order; each Data advances LC *)
-            sorted)
+      ::
+      (let sorted =
+         List.sort (fun (a, _) (b, _) -> compare a b) st.pool in
+       (* each pool block: SET-LC(data,addr) for addr>0 then its bytes;
+          block 0 rides the header SET-LC(data,0) [G113] *)
+       List.concat_map
+         (fun (addr, bs) ->
+           (if addr > 0 then [Link (t_set_lc, Some (Data, addr), None)]
+            else [])
+           @ List.map (fun v -> Data (v land 0xff)) bs) sorted)
     else []
   in
   let bridge =

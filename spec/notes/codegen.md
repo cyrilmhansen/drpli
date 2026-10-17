@@ -228,3 +228,26 @@ e2e-milestone addendum). Statement-position quirk: multi-line
 `label:/ procedure` headers report the header LINE, not the stmt line
 (G10x match DR numbering; t2-style files do not) -> fix before
 listing-parity phases; DEMO uses the multi-line form.
+
+
+## E2E-3b: comparisons, IF/ELSE, GOTO, HL-reuse (G113-G116 [C072])
+* skip/exit fixups are the SAME deferred triple as the put continuation
+  (C062), emitted INLINE at the point the target LC is reached;
+  G113 corrected the C071 wording: LXI-B gets the NEXT-statement
+  continuation, not an epilogue (single-put programs were ambiguous).
+* relational (var OP var): Lt/Ge evaluate LEFT-RIGHT (XCHG form),
+  Gt/Le evaluate RIGHT-LEFT, CALL ?IS22N then sign test JP/JM only
+  (MOV A,H; ORA A for zero-adjacent forms; NO L-byte test);
+  equality (Eq/Ne): PUSH H/POP D form + MOV A,H; ORA L (0xB5) + JNZ /
+  0xCA(!). $C prints JZ for the Ne case while the REL byte is 0xCA
+  ($C mnemonic-table vs emitted-byte mismatch; runtime semantics left
+  OPEN — G114C counterexample executed 'N' on DR's own linked .COM).
+* var = 0: direct memory test (LXI H + inline DATA reloc, MOV A,M,
+  INX H, ORA M, JNZ). var > k>=1: LHLD; LXI B, -(k+1); DAD B; sign JM.
+  All other const-position/operator combos remain [TBD] (N8/N9).
+* label resolution: forward goto -> CHAIN-ADDR(type 12, value=operand
+  slot) at the label's LC; backward goto -> inline RELOC(code,target).
+* HL constant-reuse ladder (across SHLD!): k=0 & prev H-byte=0 -> MOV
+  L,H; delta 1..4 down -> DCX repeats; delta 1..4 up -> INX repeats;
+  else fresh LXI H. Any HL-clobbering stmt (PUT/IF/GOTO) resets the
+  tracker.

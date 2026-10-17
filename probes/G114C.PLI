@@ -1,0 +1,8 @@
+pg114c: procedure options(main);
+   dcl a fixed, b fixed;
+   a = 775;
+   b = 4;
+   if a ^= b then put list('N');
+   put list('Z');
+end pg114c;
+

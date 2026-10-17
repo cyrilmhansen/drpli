@@ -1,0 +1,13 @@
+pg114b: procedure options(main);
+   dcl a fixed, b fixed;
+   a = 3;
+   b = 5;
+   if a > b then put list('G');
+   else put list('L');
+   if a = b then put list('E');
+   if a ^= b then put list('N');
+   if a < b then put list('l');
+   if a >= b then put list('>');
+   if a <= b then put list('<');
+end pg114b;
+

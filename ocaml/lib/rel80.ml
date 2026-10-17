@@ -79,3 +79,4 @@ let t_set_lc = 11
 let t_def_code_size = 13
 let t_end_program = 14
 let t_end_file = 15
+let t_chain_addr = 12

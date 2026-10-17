@@ -1,0 +1,12 @@
+pg115: procedure options(main);
+   dcl i fixed;
+   i = 3;
+loop:
+   if i = 0 then goto done;
+   put list('X');
+   i = i - 1;
+   goto loop;
+done:
+   put list('END');
+end pg115;
+
