@@ -1,0 +1,8 @@
+pn302: procedure options(main);
+   dcl i fixed;
+   i = 3;
+   put skip list('X');
+   put skip(2) list('Y');
+   put skip list(i);
+end pn302;
+

@@ -295,3 +295,10 @@ exit triple after tail JMP. Lt-vs-const: DCX*k; MOV A,H; ORA A; JP.
 '1'b cond = forever (no test). REPEAT(ind+1): tail-increment, no test.
 BARE DO; = BLOCK (no back edge!). x=x+1 -> LHLD/INX/SHLD.
 Const-store reuse: |d|<=2 ladders; same-H |d|>=3 -> MVI L; else LXI.
+
+
+## E2E-5b: numeric/mixed console output [N301-N308 [C079]]
+Item chain: PIlit=SLCTS+PNCOP; numeric=HL,+width,QICOP,PNVOP; ONE
+QIOOP tail. width=min(9,digits(2^p-1)+4). 1-byte vars: LDA/32-store
+(0x32 literal!), MUL RHS interleave. bare SKIP = skip(1). Econd on
+parenthesized items. bin(p>15) = DR NOT-IMP mirror reject.

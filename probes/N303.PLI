@@ -1,0 +1,9 @@
+pn303: procedure options(main);
+   dcl a fixed, b fixed bin(7);
+   a = 2;
+   b = 3;
+   put list(a + b, a * b);
+   put list(b);
+   put list(a ** 2);
+end pn303;
+

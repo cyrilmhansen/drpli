@@ -1,0 +1,7 @@
+pn306: procedure options(main);
+   dcl e fixed bin(3);
+   e = 0 - 2;
+   put list(e);
+   put list('V', e, '');
+end pn306;
+

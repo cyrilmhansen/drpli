@@ -1,0 +1,70 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: N302
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: N302
+
+   1 a 0000 pn302: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl i fixed;
+   3 c 0006    i = 3;
+       0006       LXI  H,0003
+       0009       SHLD I A(0002)
+   4 c 000C    put skip list('X');
+       000C       LXI  D,0252
+       000F       LXI  B,0000
+       0012       CALL ?SYSPR
+       0015       MVI  A,01
+       0017       CALL ?SKPOP
+       001A       LXI  H,* S(0000)
+       001D       MVI  A,01
+       001F       CALL ?SLCTS
+       0022       CALL ?PNCOP
+       0025       CALL ?QIOOP
+       0010       ==== 0028
+   5 c 0028    put skip(2) list('Y');
+       0028       LXI  D,0252
+       002B       LXI  B,0000
+       002E       CALL ?SYSPR
+       0031       MVI  A,02
+       0033       CALL ?SKPOP
+       0036       LXI  H,* S(0001)
+       0039       MVI  A,01
+       003B       CALL ?SLCTS
+       003E       CALL ?PNCOP
+       0041       CALL ?QIOOP
+       002C       ==== 0044
+   6 c 0044    put skip list(i);
+       0044       LXI  D,0252
+       0047       LXI  B,0000
+       004A       CALL ?SYSPR
+       004D       MVI  A,01
+       004F       CALL ?SKPOP
+       0052       LHLD I A(0002)
+       0055       MVI  A,09
+       0057       CALL ?QICOP
+       005A       CALL ?PNVOP
+       005D       CALL ?QIOOP
+       0048       ==== 0060
+   7 a 0060 end pn302;
+       0060       CALL ?STOPX
+
+CODE SIZE = 0063
+DATA AREA = 0004
+FREE SYMS = 389A
+END  COMPILATION
+

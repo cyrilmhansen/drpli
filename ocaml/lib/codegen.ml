@@ -18,7 +18,17 @@ type vkind = Vint | Vfix of int | Vvar of int
    (* fixed/varying char capacity. Varying representation PROVEN
       [V101-V104]: length byte at offset 0, data at +1..+n, total
       n+1 bytes (binder authority Bind.bytes_of). *)
-type var_info = { off : int; size : int; vk : vkind }
+type var_info = { off : int; size : int; vk : vkind; w : int }
+(* print width for FIXED BIN: min(9, digits(2^p-1)+4) -- banded rule
+   matching ALL 16 probed points p=1..15,16,24 + default15 [N301-N308;
+   C079]. NOT a linear formula. *)
+let bin_digits10 n =
+  let rec go x acc = if x < 10 then acc + 1 else go (x / 10) (acc + 1) in
+  go n 0
+let binw p = min 9 (bin_digits10 ((1 lsl p) - 1) + 4)
+let dec_digits k =
+  let k = abs k in
+  if k = 0 then 1 else bin_digits10 k
 
 type st =
   { vars : (string * var_info) list   (* lowername -> info *)
@@ -172,6 +182,15 @@ let rec prescan_expr (e : Ast.expr) =
         | _ -> 0
       in
       prescan_expr l + prescan_expr r + extra
+  | Ast.Ebinary (Ast.Sub, { Ast.e = Ast.Enumber a; _ },
+                 { Ast.e = Ast.Enumber b; _ }) ->
+      (* [N301/N306] const-minus-const DLDOP operands each take a
+         dec pool entry *)
+      let pint s =
+        int_of_string (String.concat "" (String.split_on_char '_' s))
+      in
+      dec_pool_bytes (dec_digits (pint a))
+      + dec_pool_bytes (dec_digits (pint b))
   | Ast.Ebinary (_, l, r) -> prescan_expr l + prescan_expr r
   | Ast.Eprefix (_, x) -> prescan_expr x
   | Ast.Ebuilt (_, es) -> List.fold_left (fun a x -> a + prescan_expr x) 0 es
@@ -179,9 +198,11 @@ let rec prescan_expr (e : Ast.expr) =
 
 type chain = C2 of string * string * string   (* lit || var [W101] *)
            | C3 of string * string * string   (* lit || var || lit [W102] *)
+type pitem = PIlit of string | PIvar of Ast.name | PInum of Ast.expr
 type put_shape = Pnone | Plit of string option * string
                | Pvar of string option * Ast.expr
                | Pcat of string option * chain
+               | Pitems of string option * pitem list
 
 (* flatten a (left-assoc per our parser) || chain to operands
    left-to-right; only the proven shapes C2 [lit;varying] and
@@ -209,30 +230,66 @@ let flatten_cat (e : Ast.expr) =
        | _ -> None)
   | None -> None
 
+(* item classification (syntax-only; char-vs-numeric resolved at
+   lowering where the binder's vk is known). Numeric CONSTANTS alone
+   have no DR evidence -> reject. [N301-N306] *)
+let classify_item (x : Ast.expr) =
+  match x.Ast.e with
+  | Ast.Estring v -> Some (PIlit v)
+  | Ast.Eident n -> Some (PIvar n)
+  | Ast.Ebinary _ | Ast.Eprefix _ -> Some (PInum x)
+  | Ast.Econd inner -> Some (PInum inner)  (* parens grouping [N304] *)
+  | _ -> None
+
+let match_skip_ctl (items : Ast.put_item list) =
+  match items with
+  | Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ }) :: tl ->
+      Some (Some c, tl)
+  | Ast.Pi_ctl ("SKIP", None) :: tl ->
+      Some (Some "1", tl)   (* bare SKIP = 1 [N302: MVI A,01] *)
+  | _ -> None
+
 (* accepted shapes: literal [G107/G108/G113] or a SINGLE char/varying
    variable [V101/V106]; optional SKIP(const). Pnone -> [TBD]. *)
+let all_data (items : Ast.put_item list) =
+  let rec go acc = function
+    | [] -> Some (List.rev acc)
+    | Ast.Pi_data x :: tl -> go (x :: acc) tl
+    | _ -> None
+  in
+  go [] items
+
 let match_put_list_lit (s : Ast.stmt) =
   match s.Ast.st with
   | Ast.Sput { stream = None; on_opts = []; kind = Ast.List_; items } ->
-      (match items with
-       | [ Ast.Pi_data { Ast.e = Ast.Estring v; _ } ] -> Plit (None, v)
-       | [ Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ });
-           Ast.Pi_data { Ast.e = Ast.Estring v; _ } ] -> Plit (Some c, v)
-       | [ Ast.Pi_data ({ Ast.e = Ast.Eident _; _ } as x) ] ->
-           Pvar (None, x)
-       | [ Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ });
-           Ast.Pi_data ({ Ast.e = Ast.Eident _; _ } as x) ] ->
-           Pvar (Some c, x)
-       | [ Ast.Pi_data x ] ->
-           (match flatten_cat x with
-            | Some ch -> Pcat (None, ch)
-            | None -> Pnone)
-       | [ Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ });
-           Ast.Pi_data x ] ->
-           (match flatten_cat x with
-            | Some ch -> Pcat (Some c, ch)
-            | None -> Pnone)
-       | _ -> Pnone)
+      let (sk, rest) =
+        match match_skip_ctl items with
+        | Some x -> x
+        | None -> (None, items)
+      in
+      let one x = match classify_item x with
+                   | Some i -> [i] | None -> []
+      in
+      match rest with
+      | [ Ast.Pi_data ({ Ast.e = Ast.Estring v; _ } as x) ] ->
+          ignore x; Plit (sk, v)          (* byte-frozen 3a path *)
+      | [ Ast.Pi_data x ] ->
+          (match flatten_cat x with
+           | Some ch -> Pcat (sk, ch)     (* proven concat shapes *)
+           | None ->
+               (match one x with
+                | [ it ] -> Pitems (sk, [it])
+                | _ -> Pnone))
+      | _ when List.length rest >= 2 ->
+          (match all_data rest with
+           | Some xs ->
+               let its = List.map classify_item xs in
+               if List.for_all (fun o -> o <> None) its then
+                 Pitems (sk, List.map
+                   (function Some i -> i | None -> assert false) its)
+               else Pnone
+           | None -> Pnone)
+      | _ -> Pnone
   | _ -> Pnone
 
 (* GET LIST (varying);) — single varying data item, default stream,
@@ -260,6 +317,12 @@ let rec prescan_stmt (s : Ast.stmt) =
        | Plit (_, v) -> String.length v
        | Pcat (_, C2 (l, _, _)) -> String.length l
        | Pcat (_, C3 (l, _, r)) -> String.length l + String.length r
+       | Pitems (_, its) ->
+           List.fold_left
+             (fun a it -> match it with
+              | PIlit v -> a + String.length v
+              | PInum x -> a + prescan_expr x
+              | PIvar _ -> a) 0 its
        | _ -> 0)             (* var-puts consume no pool [V101] *)
   | Ast.Sif { then_; els; _ } ->
       prescan_stmt then_
@@ -426,13 +489,46 @@ let rec lower_hl st (e : Ast.expr) =
       (match vk_of st n.Ast.orig with
        | Vint -> ()
        | _ -> failwith "codegen: arithmetic on char variable [TBD]");
-      d st op_lhld; reloc st Data (addr_of st n.Ast.orig)
+      let vi = List.assoc (String.lowercase_ascii n.Ast.orig) st.vars in
+      if vi.size = 1 then begin
+        (* [N306/N303] 1-byte FIXED BIN: LD A,dir (3A+RELOC) then
+           sign-extend into HL: MOV L,A; ADD A; SBB A; MOV H,A *)
+        st.last_imm <- None;
+        d st 0x3a; reloc st Data (addr_of st n.Ast.orig);
+        d st op_mov_l_a; d st op_add_a; d st op_sbb_a; d st op_mov_h_a
+      end
+      else begin
+        d st op_lhld; reloc st Data (addr_of st n.Ast.orig);
+        st.last_imm <- None   (* runtime value; not a const *)
+      end
+
+  | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber "1"; _ }) ->
+      (* [(a+1) N304] +1 lowers to INX H on the 2-byte path; other
+         additions keep the general ladder *)
+      lower_hl st l; d st op_inx_h; st.last_imm <- None
   | Ast.Ebinary (Ast.Add, l, r) ->
       (* DR: HL=left ; XCHG ; HL=right ; DAD D  (=> HL = right+left) [P071A] *)
       lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d
   | Ast.Ebinary (Ast.Mul, l, r) ->
-      (* var/expr OP var: DE=left HL=right, CALL ?IM22N [P071B/P080A] *)
-      lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d;
+      (* var/expr OP var: DE=left HL=right, CALL ?IM22N [P071B/P080A].
+         [N303] when the RHS is a 1-byte var DR interleaves: raw
+         LDA, PUSH H (save left), THEN sign-extend in HL, POP D. *)
+      lower_hl st l;
+      (match r.Ast.e with
+       | Ast.Eident rn ->
+           let rvi =
+             List.assoc (String.lowercase_ascii rn.Ast.orig) st.vars
+           in
+           if rvi.vk = Vint && rvi.size = 1 then begin
+             d st 0x3a; reloc st Data (rvi.off + st.base);
+             d st op_push_h;
+             d st op_mov_l_a; d st op_add_a; d st op_sbb_a;
+             d st op_mov_h_a;
+             d st op_pop_d
+           end else begin
+             d st op_push_h; lower_hl st r; d st op_pop_d
+           end
+       | _ -> d st op_push_h; lower_hl st r; d st op_pop_d);
       call_ext st "?IM22N"
   | Ast.Ebinary (Ast.Div, l, r) ->
       (* DIV by CONSTANT only [P071B/P080A]: zero-extend const into HL via
@@ -477,13 +573,32 @@ let rec lower_hl st (e : Ast.expr) =
            d st op_mvi_a; d st (e land 0xff); call_ext st "?DEXOP";
            call_ext st "?QDI15"
        | _ -> failwith "codegen: ** non-constant exponent [TBD]")
+  | Ast.Ebinary (Ast.Sub, { Ast.e = Ast.Enumber ls; _ },
+                 { Ast.e = Ast.Enumber rs; _ }) ->
+      (* [N301/N306] const-minus-const: DEC pool chain (operands
+         allocated SOURCE order; A = decimal digit count each),
+         result 16-bit in HL via ?QDI15. The store tail (SHLD or
+         MOV A,L;STA) is added by the assignment path. *)
+      let l = parse_int_const ls in
+      let r = parse_int_const rs in
+      let dl = dec_digits l and dr = dec_digits r in
+      let al = pool_alloc st (bcd_pack l dl) in
+      let ar = pool_alloc st (bcd_pack r dr) in
+      d st op_lxi_h; reloc st Data al;
+      d st op_mvi_a; d st dl; call_ext st "?DLDOP";
+      d st op_lxi_h; reloc st Data ar;
+      d st op_mvi_a; d st dr; call_ext st "?DLDOP";
+      call_ext st "?DSUOP"; call_ext st "?QDI15";
+      st.last_imm <- None
   | Ast.Ebinary (Ast.Sub, x, Ast.{ e = Ast.Enumber c; _ }) ->
       lower_hl st x; const_sub st (int_of_string c)
   | Ast.Ebuilt ("MOD", [l; r]) ->
       (* mod(a,b) -> DE=a, HL=b, CALL ?IMDOP [P071B L4] *)
       lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d;
       call_ext st "?IMDOP"
-  | Ast.Eprefix (Ast.Minus, _) -> failwith "codegen: negation [TBD]"
+  | Ast.Eprefix (Ast.Minus, x) ->
+      (* [N304] -x: evaluate to HL, then ?IN20N (16-bit negate) *)
+      lower_hl st x; call_ext st "?IN20N"; st.last_imm <- None
   | Ast.Ebinary _ -> failwith "codegen: operator not in int subset [TBD]"
   | _ -> failwith "codegen: expression form not in int subset [TBD]"
 
@@ -534,8 +649,32 @@ let store_char st name (k : vkind) (v : string) =
       end
   | Vint -> failwith "codegen: char store to numeric var [TBD]"
 
+let is_small_int st (n : Ast.name) =
+  let li = String.lowercase_ascii n.Ast.orig in
+  match List.assoc_opt li st.vars with
+  | Some vi -> vi.vk = Vint && vi.size = 1
+  | None -> false
+
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
   match lhs.Ast.e with
+  | Ast.Eident n when is_small_int st n ->
+      (* [N306/N308] 1-byte FIXED BIN store: value in A then
+         STA dir (3C + RELOC). Consts: MVI A,lo. Expressions:
+         evaluate to HL, MOV A,L (6A). The const-reuse ladders are
+         2-byte-only in DR evidence; not attempted here. *)
+      st.last_imm <- None;
+      (match rhs.Ast.e with
+       | Ast.Enumber s ->
+           let k = parse_int_const s in
+           if k < 0 || k > 255 then
+             failwith "codegen: 1-byte const store range [TBD]";
+           d st op_mvi_a; d st k
+       | _ -> lower_hl st rhs; d st 0x7d (* MOV A,L *)) ;
+      (* 1-byte store: DR emits opcode 0x32 with the inline-reloc
+         16-bit address ($C prints 'STA'; byte replicated literally
+         [N303/N306/N308], same family of byte-vs-mnemonic quirks
+         as CA/F2 — runtime identity comes from byte-identical COM) *)
+      d st 0x32; reloc st Data (addr_of st n.Ast.orig)
   | Ast.Eident n when vk_of st n.Ast.orig <> Vint ->
       (* char/varying store path [V101-V106]; HL clobbered *)
       st.last_imm <- None;
@@ -601,45 +740,13 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
      MOV A,H; ORA A; JM. Each returns the forward conditional-jump
      operand SLOT (fixed later by emit_triple at the skip target). *)
 
-(* PUT LIST (c);) c = varying [V101: ?SLVTS] / fixed [V106: MVI A,cap
-   + ?SLCTS]; identical ?SYSPR preamble + skip + continuation triple. *)
-let lower_put_var st (skipn : string option) (x : Ast.expr) =
-  let nm = match x.Ast.e with
-           | Ast.Eident n -> n.Ast.orig
-           | _ -> assert false
-  in
-  d st op_lxi_d; d st 0x52; d st 0x02;
-  d st op_lxi_b;
-  let bslot = st.lc in
-  d st 0; d st 0;
-  call_ext st "?SYSPR";
-  (match skipn with
-   | Some c ->
-       let n = parse_int_const c in
-       if n <= 0 || n > 255 then
-         failwith "codegen: skip count out of MVI range [TBD]";
-       d st op_mvi_a; d st n; call_ext st "?SKPOP"
-   | None -> ());
-  (match vk_of st nm with
-   | Vvar _cap ->
-       d st op_lxi_h; reloc st Data (addr_of st nm);
-       call_ext st "?SLVTS"
-   | Vfix cap ->
-       if cap > 255 then failwith "codegen: char cap > 255 [TBD]";
-       d st op_lxi_h; reloc st Data (addr_of st nm);
-       d st op_mvi_a; d st cap; call_ext st "?SLCTS"
-   | Vint ->
-       failwith "codegen: PUT LIST of numeric variable unproven [TBD]");
-  call_ext st "?PNCOP"; call_ext st "?QIOOP";
-  emit_triple st bslot st.lc
-
 (* GET LIST(n);) n char-varying [X201/X202]: input descriptor 0290
    (vs 0252 for print); SYSIN attaches, GNVOP reads item(s) onto the
    RTL stack; JP(F2) operand triple-patched to the QIOOP call start
-   (EOF/error skip); SSVFS stores stack->var with B = capacity;
-   QIOOP completes I/O; LXI B continuation triple -> next stmt.
-   Triple ORDER on the record stream (X202 dump): after SSVFS chain
-   comes the JP triple, QIOOP data, then the continuation triple. *)
+   (EOF/error skips the store, NOT the QIOOP); SSVFS stores stack->var
+   with B = capacity; QIOOP completes I/O; LXI B continuation triple ->
+   next stmt. Record-stream order (X202 dump): after the SSVFS chain
+   comes the JP triple, then QIOOP data, then the continuation triple. *)
 let lower_get st (nm : string) =
   let cap = match vk_of st nm with
             | Vvar c -> if c > 255 then failwith "codegen: cap > 255 [TBD]"
@@ -659,9 +766,9 @@ let lower_get st (nm : string) =
   d st op_lxi_h; reloc st Data (addr_of st nm);
   d st op_mvi_b; d st cap;
   call_ext st "?SSVFS";
-  emit_triple st jpslot st.lc;          (* JP -> QIOOP call start [X202] *)
+  emit_triple st jpslot st.lc;          (* JP -> QIOOP call start *)
   call_ext st "?QIOOP";
-  emit_triple st bslot st.lc             (* continuation = next stmt *)
+  emit_triple st bslot st.lc            (* continuation = next stmt *)
 
 (* PUT LIST with || chain: DR evaluates RIGHT-to-LEFT while the
    pool is allocated LEFT-to-RIGHT in source order [W102 hex:
@@ -829,6 +936,93 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
   st.last_imm <- None
   end
 
+(* numeric item print width: max of IDENT-leaf widths [N301-N305];
+   constant-only expressions have no DR evidence -> [TBD] *)
+let num_width st (x : Ast.expr) =
+  let rec w e =
+    match e.Ast.e with
+    | Ast.Eident n ->
+        (match vk_of st n.Ast.orig with
+         | Vint ->
+             (List.assoc (String.lowercase_ascii n.Ast.orig) st.vars).w
+         | _ -> failwith "codegen: char var in numeric PUT item [TBD]")
+    | Ast.Ebinary (_, l, r) -> max (w l) (w r)
+    | Ast.Eprefix (_, x) -> w x
+    | Ast.Enumber _ -> 0
+    | _ -> failwith "codegen: PUT numeric item form unproven [TBD]"
+  in
+  let r = w x in
+  if r = 0 then
+    failwith "codegen: constant-only PUT numeric item unproven [TBD]"
+  else r
+
+(* General PUT LIST item chain [N301-N306]: preamble; optional skip
+   (bare = 1, skip(n)); per item: literal = LXI H,*S; MVI A,len;
+   SLCTS; PNCOP; numeric (var/expr) = <HL>; MVI A,width; QICOP;
+   PNVOP; single char/varying var = the V101/V106 chain (multi-item
+   char vars UNPROVEN -> [TBD]); then ONE QIOOP + continuation. *)
+let lower_put_items st (skipn : string option) (items : pitem list) =
+  let char_var_ok =
+    List.length items = 1 ||
+    not (List.exists (function PIvar n ->
+                        (match vk_of st n.Ast.orig with
+                         | Vint -> false | _ -> true)
+                      | _ -> false) items)
+  in
+  if not char_var_ok then
+    failwith "codegen: char var in multi-item PUT unproven [TBD]";
+  d st op_lxi_d; d st 0x52; d st 0x02;
+  d st op_lxi_b;
+  let bslot = st.lc in
+  d st 0; d st 0;
+  call_ext st "?SYSPR";
+  (match skipn with
+   | Some c ->
+       let n = parse_int_const c in
+       if n <= 0 || n > 255 then
+         failwith "codegen: skip count out of MVI range [TBD]";
+       d st op_mvi_a; d st n; call_ext st "?SKPOP"
+   | None -> ());
+  List.iter
+    (fun it ->
+      match it with
+      | PIlit v ->
+          let len = String.length v in
+          if len > 255 then failwith "codegen: literal > 255 [TBD]";
+          let addr = pool_alloc st (pool_bytes v) in
+          d st op_lxi_h; reloc st Data addr;
+          d st op_mvi_a; d st len;
+          call_ext st "?SLCTS"; call_ext st "?PNCOP"
+      | PIvar n ->
+          (match vk_of st n.Ast.orig with
+           | Vint ->
+               let vi =
+                 List.assoc (String.lowercase_ascii n.Ast.orig) st.vars
+               in
+               lower_hl st { Ast.e = Ast.Eident n;
+                             Ast.epos = n.Ast.pos };
+               d st op_mvi_a; d st vi.w;
+               call_ext st "?QICOP"; call_ext st "?PNVOP"
+           | vk ->
+               (* single-item char var = the banked V101/V106 chain *)
+               (match vk with
+                | Vvar _ ->
+                    d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+                    call_ext st "?SLVTS"
+                | Vfix cap ->
+                    if cap > 255 then failwith "codegen: cap > 255 [TBD]";
+                    d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+                    d st op_mvi_a; d st cap; call_ext st "?SLCTS"
+                | Vint -> assert false);
+               call_ext st "?PNCOP")
+      | PInum x ->
+          lower_hl st x;
+          d st op_mvi_a; d st (num_width st x);
+          call_ext st "?QICOP"; call_ext st "?PNVOP")
+    items;
+  call_ext st "?QIOOP";
+  emit_triple st bslot st.lc
+
 (* statement lowering with label/goto resolution *)
 let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   (* label prefixes resolve at the STATEMENT's LC [G115 loop:/done:] *)
@@ -852,8 +1046,8 @@ let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (match match_put_list_lit s with
        | Plit (skipn, v) -> lower_put_lit st skipn v
-       | Pvar (skipn, x) -> lower_put_var st skipn x
        | Pcat (skipn, ch) -> lower_cat st skipn ch
+       | Pitems (sk, its) -> lower_put_items st sk its
        | Pnone -> failwith
              (Printf.sprintf
                 "codegen: PUT form not in E2E-3a subset [TBD] \
@@ -1007,12 +1201,21 @@ let rows_of (b : Ast.block) =
     List.filter_map
       (fun (nm, rt, off, _auto) ->
         match rt with
-        | Bind.RTbin _ ->
-            Some (nm, { off; size = Bind.bytes_of rt; vk = Vint })
+        | Bind.RTbin p ->
+            if p > 15 then
+              (* DR pass-1 rejects these outright ('NOT IMP',
+                 N24/N305/N307: no .REL emitted) -- mirror the
+                 perimeter boundary rather than compile what DR
+                 cannot [C079] *)
+              failwith
+                (Printf.sprintf
+                   "codegen: FIXED BIN(%d) NOT IMP on DR [TBD]" p);
+            Some (nm, { off; size = Bind.bytes_of rt; vk = Vint;
+                        w = binw (if p <= 0 then 15 else p) })
         | Bind.RTchar (n, false) ->
-            Some (nm, { off; size = Bind.bytes_of rt; vk = Vfix n })
+            Some (nm, { off; size = Bind.bytes_of rt; vk = Vfix n; w = 0 })
         | Bind.RTchar (n, true) ->
-            Some (nm, { off; size = Bind.bytes_of rt; vk = Vvar n })
+            Some (nm, { off; size = Bind.bytes_of rt; vk = Vvar n; w = 0 })
         (* Symbolic/non-storage kinds legitimately carry no lowering yet.
            Storage kinds outside the int subset must FAIL LOUD (C067
            policy: never silently drop constructs). *)

@@ -1,0 +1,9 @@
+pn301: procedure options(main);
+   dcl i fixed, j fixed;
+   i = 0;
+   j = 0 - 7;
+   put list(i);
+   put list(j);
+   put list('A=', i, ', B=', j);
+end pn301;
+

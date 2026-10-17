@@ -1,0 +1,18 @@
+pn308: procedure options(main);
+   dcl p1 fixed bin(1);
+   dcl p2 fixed bin(2);
+   dcl p6 fixed bin(6);
+   dcl p8 fixed bin(8);
+   dcl p10 fixed bin(10);
+   dcl p12 fixed bin(12);
+   dcl p14 fixed bin(14);
+   p1 = 1;
+   put list(p1);
+   put list(p2);
+   put list(p6);
+   put list(p8);
+   put list(p10);
+   put list(p12);
+   put list(p14);
+end pn308;
+

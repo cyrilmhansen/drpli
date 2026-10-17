@@ -71,6 +71,15 @@ SPECIMENS = {
     "Z405": ("probes/Z405.PLI", "golden/e2e5a/Z405/Z405.REL"),
     "Z406": ("probes/Z406.PLI", "golden/e2e5a/Z406/Z406.REL"),
     "Z407": ("probes/Z407.PLI", "golden/e2e5a/Z407/Z407.REL"),
+    # E2E-5b: numeric + mixed console output
+    "N301": ("probes/N301.PLI", "golden/e2e5b/N301/N301.REL"),
+    "N302": ("probes/N302.PLI", "golden/e2e5b/N302/N302.REL"),
+    "N303": ("probes/N303.PLI", "golden/e2e5b/N303/N303.REL"),
+    "N304": ("probes/N304.PLI", "golden/e2e5b/N304/N304.REL"),
+    "N306": ("probes/N306.PLI", "golden/e2e5b/N306/N306.REL"),
+    "N308": ("probes/N308.PLI", "golden/e2e5b/N308/N308.REL"),
+    "G117": ("probes/G117.PLI", "golden/e2e5b/G117/G117.REL"),
+    "G118": ("probes/G118.PLI", "golden/e2e5b/G118/G118.REL"),
 }
 
 # specimens whose RAW console output must equal DR's (all have at
@@ -81,7 +90,8 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "V105", "V106", "V108", "W101", "W102",
                 "X201", "X202", "DEMO", "Y301", "Y302", "Y303",
                 "Y304", "Y306", "Z401", "Z402", "Z403", "Z404",
-                "Z405", "Z406", "Z407"}
+                "Z405", "Z406", "Z407", "N301", "N302", "N303",
+                "N304", "N306", "N308", "G117", "G118"}
 
 
 def compile_one(name, src):
@@ -104,8 +114,6 @@ REJECTS = {
                 "  put page list('X');\nend t;\n", "PUT form"),
     "N4_SKIPVAR": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
                    "  put skip(a) list('X');\nend t;\n", "PUT form"),
-    "N5_TWOITEM": ("t:\n  procedure options(main);\n"
-                   "  put list('A','B');\nend t;\n", "PUT form"),
     "N6_COMPUTED_GOTO": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
                          "l:\n  i = i + 1;\n  goto l(i);\nend t;\n",
                          "computed GOTO"),
@@ -115,9 +123,6 @@ REJECTS = {
     "N9_GTZERO": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
                   "  if a > 0 then put list('X');\nend t;\n",
                   "unproven"),
-    "N10_PUTINT": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
-                   "  a = 1;\n  put list(a);\nend t;\n",
-                   "numeric variable"),
     "N11_STROVR": ("t:\n  procedure options(main);\n  dcl c char(4);\n"
                    "  c = 'ABCD';\nend t;\n", "fixed store len==cap"),
     "N12_EMPTYFIX": ("t:\n  procedure options(main);\n  dcl c char(4);\n"
@@ -130,7 +135,7 @@ REJECTS = {
                    "concat operand not char varying"),
     "N15_CAT4": ("t:\n  procedure options(main);\n  dcl n char(6) varying;\n"
                  "  n = 'Q';\n  put list('A' || n || 'B' || 'C');\nend t;\n",
-                 "PUT form"),
+                 "int subset"),
     "N17_GETINT": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
                    "  get list(i);\n  put list('X');\nend t;\n",
                    "non-varying"),
@@ -147,6 +152,16 @@ REJECTS = {
     "N21_DOIDX": ("t:\n  procedure options(main);\n  dcl c char(4) varying;\n"
                   "  do c = 'A' to 'Z';\n    put list('X');\n  end;\n"
                   "end t;\n", "non-constant FROM"),
+    "N22_FPUT": ("t:\n  procedure options(main);\n"
+                  "  put list(42);\nend t;\n", "PUT form"),
+    "N23_CHARVAR_MULTI": ("t:\n  procedure options(main);\n"
+                          "  dcl c char(4) varying;\n  dcl i fixed;\n"
+                          "  c = 'Q';\n  i = 1;\n"
+                          "  put list(c, i);\nend t;\n",
+                          "char var in multi-item"),
+    "N24_BIGIN": ("t:\n  procedure options(main);\n"
+                  "  dcl c fixed bin(16);\n  c = 1;\n"
+                  "  put list(c);\nend t;\n", "NOT IMP"),
     "N16_CATASSIGN": ("t:\n  procedure options(main);\n"
                       "  dcl n char(6) varying;\n  dcl m char(6) varying;\n"
                       "  n = 'Q';\n  m = 'Z' || n;\nend t;\n",

@@ -150,3 +150,13 @@ semantic correction: bare DO; is a COMPOUND BLOCK in DR's codegen
 forms all banked. Post-sweep: RFACT/DFACT cluster closest (needs
 5b numeric PUT + recursion); FILE cluster (12) still behind COPY;
 OPTIMIST needs `true`-ident cond + substr/translate (far).
+
+# E2E-5b — numeric + mixed console output (milestone slice, 2026-10-17)
+
+6 probes + 2 promoted ex-negatives; 50/50 byte-exact, 40 console arms
+(C079). Formatting evidence captured verbatim (9-wide default fields,
+5-wide bin(3), sign inside field). Fail-loud maintained for constants
+alone, char-var multi-items, 4-chord concat.
+Next: 5c CALL/RETURN assessment (probes needed; SVBLK/RSBLK pattern
+hypothesized from corpus .REL inventory: 1 SVBLK per nested proc,
+1 RSBLK per RETURN path, direct inline-RELOC calls).

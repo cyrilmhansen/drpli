@@ -1,0 +1,9 @@
+pn305: procedure options(main);
+   dcl c fixed bin(11), d fixed bin(31);
+   c = 5;
+   d = 6;
+   put list(c);
+   put list(d);
+   put list(c + d);
+end pn305;
+

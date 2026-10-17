@@ -1,0 +1,5 @@
+t:
+  procedure options(main);
+  put list('A','B');
+end t;
+

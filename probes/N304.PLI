@@ -1,0 +1,7 @@
+pn304: procedure options(main);
+   dcl a fixed;
+   a = 2;
+   put list(-a);
+   put list((a + 1));
+end pn304;
+

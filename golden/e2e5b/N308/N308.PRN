@@ -1,0 +1,122 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: N308
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: N308
+
+   1 a 0000 pn308: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl p1 fixed bin(1);
+   3 c 0006    dcl p2 fixed bin(2);
+   4 c 0006    dcl p6 fixed bin(6);
+   5 c 0006    dcl p8 fixed bin(8);
+   6 c 0006    dcl p10 fixed bin(10);
+   7 c 0006    dcl p12 fixed bin(12);
+   8 c 0006    dcl p14 fixed bin(14);
+   9 c 0006    p1 = 1;
+       0006       MVI  A,01
+       0008       STA  P1 A(0000)
+  10 c 000B    put list(p1);
+       000B       LXI  D,0252
+       000E       LXI  B,0000
+       0011       CALL ?SYSPR
+       0014       LDA  P1 A(0000)
+       0017       MOV  L,A
+       0018       ADD  A
+       0019       SBB  A
+       001A       MOV  H,A
+       001B       MVI  A,05
+       001D       CALL ?QICOP
+       0020       CALL ?PNVOP
+       0023       CALL ?QIOOP
+       000F       ==== 0026
+  11 c 0026    put list(p2);
+       0026       LXI  D,0252
+       0029       LXI  B,0000
+       002C       CALL ?SYSPR
+       002F       LDA  P2 A(0001)
+       0032       MOV  L,A
+       0033       ADD  A
+       0034       SBB  A
+       0035       MOV  H,A
+       0036       MVI  A,05
+       0038       CALL ?QICOP
+       003B       CALL ?PNVOP
+       003E       CALL ?QIOOP
+       002A       ==== 0041
+  12 c 0041    put list(p6);
+       0041       LXI  D,0252
+       0044       LXI  B,0000
+       0047       CALL ?SYSPR
+       004A       LDA  P6 A(0002)
+       004D       MOV  L,A
+       004E       ADD  A
+       004F       SBB  A
+       0050       MOV  H,A
+       0051       MVI  A,06
+       0053       CALL ?QICOP
+       0056       CALL ?PNVOP
+       0059       CALL ?QIOOP
+       0045       ==== 005C
+  13 c 005C    put list(p8);
+       005C       LXI  D,0252
+       005F       LXI  B,0000
+       0062       CALL ?SYSPR
+       0065       LHLD P8 A(0003)
+       0068       MVI  A,07
+       006A       CALL ?QICOP
+       006D       CALL ?PNVOP
+       0070       CALL ?QIOOP
+       0060       ==== 0073
+  14 c 0073    put list(p10);
+       0073       LXI  D,0252
+       0076       LXI  B,0000
+       0079       CALL ?SYSPR
+       007C       LHLD P10 A(0005)
+       007F       MVI  A,08
+       0081       CALL ?QICOP
+       0084       CALL ?PNVOP
+       0087       CALL ?QIOOP
+       0077       ==== 008A
+  15 c 008A    put list(p12);
+       008A       LXI  D,0252
+       008D       LXI  B,0000
+       0090       CALL ?SYSPR
+       0093       LHLD P12 A(0007)
+       0096       MVI  A,08
+       0098       CALL ?QICOP
+       009B       CALL ?PNVOP
+       009E       CALL ?QIOOP
+       008E       ==== 00A1
+  16 c 00A1    put list(p14);
+       00A1       LXI  D,0252
+       00A4       LXI  B,0000
+       00A7       CALL ?SYSPR
+       00AA       LHLD P14 A(0009)
+       00AD       MVI  A,09
+       00AF       CALL ?QICOP
+       00B2       CALL ?PNVOP
+       00B5       CALL ?QIOOP
+       00A5       ==== 00B8
+  17 a 00B8 end pn308;
+       00B8       CALL ?STOPX
+
+CODE SIZE = 00BB
+DATA AREA = 000B
+FREE SYMS = 3885
+END  COMPILATION
+

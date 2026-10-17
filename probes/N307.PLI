@@ -1,0 +1,13 @@
+pn307: procedure options(main);
+   dcl p4 fixed bin(4), p5 fixed bin(5),
+   p9 fixed bin(9), p13 fixed bin(13),
+   p16 fixed bin(16), p24 fixed bin(24);
+   p4 = 1;
+   put list(p4);
+   put list(p5);
+   put list(p9);
+   put list(p13);
+   put list(p16);
+   put list(p24);
+end pn307;
+
