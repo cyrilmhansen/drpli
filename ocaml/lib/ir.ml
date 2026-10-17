@@ -150,24 +150,88 @@ let op_name fam op =
   | 'F', Ast.Div -> "FDV" | 'F', Ast.Exp -> "FEX"
   | _ -> failwith "ir: op/type unsupported"
 
-let rec lower ?(root = false) (env : env) (e : Ast.expr) =
+(* pure type inference (no emission) *)
+let rec infer (env : env) (e : Ast.expr) : ty =
+  match e.Ast.e with
+  | Ast.Eident n ->
+      (match lookup env n.Ast.orig with Some (_, t) -> t | None -> Tbin 15)
+  | Ast.Enumber t -> num_ty t
+  | Ast.Eprefix (m, x) ->
+      let t = infer env x in
+      (match m with Ast.Minus | Ast.Plus -> t | _ -> Tbin 15)
+  | Ast.Ebinary (op, l, r) -> arith_result op (infer env l) (infer env r)
+  | _ -> Tbin 15
+
+and num_ty (t : string) : ty =
+  let digits = String.concat "" (String.split_on_char '_' t) in
+  if not (String.contains digits '.') then Tbin 15
+  else
+    let best = ref max_int in
+    String.iteri (fun i c -> if c = 'e' || c = 'E' then best := min !best i)
+      digits;
+    if !best <> max_int then Tflt
+    else
+      let dot = Option.get (String.index_opt digits '.') in
+      let ipd = ref 0 and fps = ref 0 in
+      String.iter (fun c -> if c >= '0' && c <= '9' then incr ipd)
+        (String.sub digits 0 dot);
+      for i = dot + 1 to String.length digits - 1 do
+        if digits.[i] >= '0' && digits.[i] <= '9' then incr fps
+      done;
+      if !fps = 0 then Tbin 15
+      else if !ipd + !fps <= 15 then Tdec (!ipd + !fps, !fps)
+      else if !ipd <= 15 then Tdec (15, !fps)
+      else Tdec (!ipd, 0)
+
+(* decimal literal emitted under an alignment-requiring op (+,-) gets
+   PRE-RESCALED at compile time into a pool BCD entry of the target
+   (p,s) [EX P071C '1.5' under (p*q)- : DID *S(0000) DLD 15 04, pool
+   8B]. '*'/'/' keep the literal's natural type [P072D '10.0' (3,1)]. *)
+let emit_pool_dec env (txt : string) (p : int) (s : int) =
+  let off = !(env.pool) in
+  env.pool := off + (p + 2) / 2;
+  emit env (Printf.sprintf "DID 0 N 1 00 00 28 00 * S(%04X)" off);
+  emit env (Printf.sprintf "DLD 1 N 0 %02d %02d 00 00" p s);
+  Tdec (p, s)
+
+let rec lower ?(root = false) ?(dctx : (int * int) option) (env : env)
+    (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Eident n -> lower_var env n.Ast.orig
-  | Ast.Enumber t -> lower_num env t
+  | Ast.Enumber t ->
+      let digits = String.concat "" (String.split_on_char '_' t) in
+      let is_plain_dec =
+        String.contains digits '.'
+        &&
+        let best = ref max_int in
+        String.iteri (fun i c -> if c = 'e' || c = 'E' then best := min !best i)
+          digits;
+        !best = max_int
+      in
+      (match dctx with
+       | Some (p, s) when is_plain_dec -> emit_pool_dec env digits p s
+       | _ -> lower_num env t)
   | Ast.Ebinary (op, l, r) ->
-      let lt = lower env l in
-      let rt = lower env r in
+      (* operand/result types inferred WITHOUT emission first so that
+         alignment-requiring ops can constant-fold dec literals *)
+      let lt = infer env l in
+      let rt = infer env r in
       let res = arith_result op lt rt in
       let (p, s) = tp_fields res in
-      (* letters [P071A-E, P072E, P071B]: op-class rule — {Add,Mul} -> B ;
-         {Sub,Div,Exp} (and mod) -> N. Fits every golden so far;
-         the root flag no longer participates. *)
+      let dctx =
+        match op with
+        | Ast.Add | Ast.Sub when (match res with Tdec _ -> true | _ -> false) ->
+            Some (p, s)
+        | _ -> None
+      in
       let letter =
         match op with
         | Ast.Add | Ast.Mul -> "B"
         | Ast.Sub | Ast.Div | Ast.Exp -> "N"
         | _ -> "B"
       in
+      let _ = lower ?dctx env l in
+      let _ = lower ?dctx env r in
       emit env (Printf.sprintf "%s 2 %s 0 %02d %02d 00 00"
                   (op_name (ty_prefix res) op) letter p s);
       res

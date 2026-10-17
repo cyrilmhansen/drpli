@@ -9,17 +9,29 @@ Layout: C: = LINK.COM (+LIB/RMAC) + PLILIB.IRL; D: = .REL/.COM + data.
 Link results land next to the source REL (to verify). Run sessions are
 one-program-per-session so a hung program cannot poison the rest.
 Default program stdin script: one EOF (^Z); override in INPUTS below.
+
+Filesystem safety: identical guarantees to batch.py -- see cpmwork.py.
+Boot seeds are copied per-run (never the originals touched); scratch disks
+are freshly mkfs'd in a per-run workspace subdir; all tool calls are
+shell=False argv lists with validated CP/M names; golden outputs are not
+clobbered unless --reuse.
 """
-import argparse, os, re, subprocess, sys, shutil
+import argparse, os, re, sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, ROOT)
+import cpmwork
+from cpmwork import Workspace, Output, SafetyError, check_name
+
 PROJ = os.path.dirname(ROOT)
 ORIG = os.path.join(PROJ, "artefacts")
-DISKS = os.path.join(ROOT, "disks")
-FMT = "ibm-3740"
+SEEDS = os.path.join(ROOT, "disks")
+WORKSPACE = os.environ.get("PLI80_WORKSPACE", os.path.join(ROOT, "workspace"))
+BOOT_SEEDS = {"a": "drivea.dsk", "b": "driveb.dsk"}
+SIM = os.environ.get("CPMSIM",
+        os.path.expanduser("~/pli/cpm/z80pack/cpmsim/cpmsim"))
 TOOLS = ["LINK.COM", "LIB.COM", "RMAC.COM", "PLILIB.IRL"]
 
-# per-program console input lines (raw, escape-decoded by run.py ##SEND)
 INPUTS = {
     "DEMO":       ["John\\r"],
     "DECPOLY":    ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
@@ -33,77 +45,80 @@ INPUTS = {
 }
 DEFAULT_INPUT = ["\\x1a"]
 
-def sh(cmd):
-    return subprocess.run(cmd, shell=True, check=True,
-                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-def newdisk(path):
-    sh(f"rm -f {path} && mkfs.cpm -f {FMT} {path}")
+def new_run(ws, tag):
+    run = cpmwork.Run(ws, tag)
+    for d, seed in BOOT_SEEDS.items():
+        run.seed(d, seed)
+    return run
 
-def cp(disk, local, ondisk):
-    sh(f"cpmcp -f {FMT} {disk} '{local}' 0:{ondisk}")
 
-def session(script_lines, timeout, tagdir, name):
-    os.makedirs(tagdir, exist_ok=True)
-    spath = os.path.join(tagdir, f"{name}.session.txt")
-    open(spath, "w").write("\n".join(script_lines) + "\n")
-    env = dict(os.environ, CPMSIM_EXTRA="-u")
-    r = subprocess.run([sys.executable, os.path.join(ROOT, "run.py"),
-                        "--disks", DISKS, "--timeout", str(timeout), spath],
-                       capture_output=True, env=env)
-    tr = r.stdout.decode("latin-1")
+def session(run, script_lines, timeout, out, name):
+    script = os.path.join(run.dir, f"{name}.session.txt")
+    with open(script, "w") as f:
+        f.write("\n".join(script_lines) + "\n")
+    rc, tr = run.run_sim(SIM, script, timeout, {"CPMSIM_EXTRA": "-u"})
     tr = re.sub(r"\x1b\[[0-9;]*[a-zA-Z]", "", tr)
-    open(os.path.join(tagdir, f"{name}.transcript.txt"), "w").write(tr)
-    return r.returncode, tr
+    out.write(".", f"{name}.transcript.txt", tr)
+    return rc, tr
 
-def link(names, intag, outtag, batch=3):
-    gdir = os.path.join(PROJ, "golden", outtag)
-    os.makedirs(gdir, exist_ok=True)
+
+def link(ws, names, intag, outtag, batch, reuse):
+    out = Output(os.path.join(PROJ, "golden"), outtag, allow_reuse=reuse)
+    src_rel = os.path.join(PROJ, "golden", intag)
     for i in range(0, len(names), batch):
-        batchn = names[i:i+batch]
-        newdisk(f"{DISKS}/drivec.dsk"); newdisk(f"{DISKS}/drived.dsk")
-        for t in TOOLS:
-            cp(f"{DISKS}/drivec.dsk", os.path.join(ORIG, t), t)
-        for n in batchn:
-            rel = os.path.join(PROJ, "golden", intag, n, f"{n}.REL")
-            if os.path.exists(rel):
-                cp(f"{DISKS}/drived.dsk", rel, f"{n}.REL")
-        lines = ["C:"] + [f"LINK D:{n}" for n in batchn] + ["##HALT"]
-        rc, tr = session(lines, 40, gdir, f"link-batch{i//batch}")
-        for n in batchn:
-            ok = False
-            r = subprocess.run(f"cpmcp -f {FMT} {DISKS}/drived.dsk "
-                               f"0:{n}.COM {gdir}/{n}.COM 2>/dev/null",
-                               shell=True, capture_output=True)
-            ok = r.returncode == 0 and os.path.getsize(f"{gdir}/{n}.COM") > 0
-            if not ok and os.path.exists(f"{gdir}/{n}.COM"):
-                os.remove(f"{gdir}/{n}.COM")
-            seg = re.search(rf">>> LINK D:{n}(.*?)(?=>>> |\Z)", tr, re.S)
-            msg = re.sub(r"\r+\n", " | ", seg.group(1).strip())[:120] if seg else ""
-            print(f"   {n}: COM={ok} {msg}", flush=True)
-        shutil.copy(os.path.join(gdir, f"link-batch{i//batch}.transcript.txt"),
-                    os.path.join(gdir, f"link-batch{i//batch}.transcript.keep.txt"))
+        batchn = names[i:i + batch]
+        run = new_run(ws, f"link-{outtag}-{i // batch}")
+        try:
+            run.mkfs("c")
+            run.mkfs("d")
+            for t in TOOLS:
+                p = os.path.join(ORIG, t)
+                if os.path.exists(p):
+                    run.import_local("c", p, t)
+            for n in batchn:
+                rel = os.path.join(src_rel, n, f"{n}.REL")
+                if os.path.exists(rel):
+                    run.import_local("d", rel, f"{n}.REL")
+            lines = ["C:"] + [f"LINK D:{n}" for n in batchn] + ["##HALT"]
+            rc, tr = session(run, lines, 40, out, f"link-batch{i // batch}")
+            for n in batchn:
+                ok = run.export("d", f"{n}.COM", out.dir,
+                                allow_clobber=reuse)
+                seg = re.search(rf">>> LINK D:{re.escape(n)}(.*?)(?=>>> |\Z)",
+                                tr, re.S)
+                msg = re.sub(r"\r+\n", " | ", seg.group(1).strip())[:120] if seg else ""
+                print(f"   {n}: COM={ok} {msg}", flush=True)
+        finally:
+            run.cleanup()
 
-def run(names, intag, outtag, timeout=40):
-    gdir = os.path.join(PROJ, "golden", outtag)
-    os.makedirs(gdir, exist_ok=True)
+
+def run_programs(ws, names, intag, outtag, timeout, reuse):
+    out = Output(os.path.join(PROJ, "golden"), outtag, allow_reuse=reuse)
+    src_com = os.path.join(PROJ, "golden", intag)
     for n in names:
-        com = os.path.join(PROJ, "golden", intag, f"{n}.COM")
+        com = os.path.join(src_com, f"{n}.COM")
         if not os.path.exists(com):
             continue
-        newdisk(f"{DISKS}/drivec.dsk"); newdisk(f"{DISKS}/drived.dsk")
-        cp(f"{DISKS}/drived.dsk", com, f"{n}.COM")
-        sess = (["C:", "D:", f"##SEND {n}\\r"]
-                + [f"##SEND {i}" for i in INPUTS.get(n, DEFAULT_INPUT)]
-                + ["##WAIT \\nD>", "##HALT"])
-        rc, tr = session(sess, timeout, gdir, n)
-        clean = re.sub(r">>> [^\n]*\n", "", tr)
-        seg = re.search(rf"{n}\r\r\n(.*?)(?=\nD>|I/O ran|\Z)", clean, re.S)
-        out = seg.group(1) if seg else ""
-        status = "done" if rc == 0 else "timeout-or-hang"
-        open(os.path.join(gdir, f"{n}.output.txt"), "w").write(
-            re.sub(r"\r\n?", "\n", out))
-        print(f"   {n}: rc={rc} {status}", flush=True)
+        r = new_run(ws, f"run-{outtag}-{n}")
+        try:
+            r.mkfs("c")
+            r.mkfs("d")
+            r.import_local("d", com, f"{n}.COM")
+            sess = (["C:", "D:", f"##SEND {n}\\r"]
+                    + [f"##SEND {i}" for i in INPUTS.get(n, DEFAULT_INPUT)]
+                    + ["##WAIT \\nD>", "##HALT"])
+            rc, tr = session(r, sess, timeout, out, n)
+            clean = re.sub(r">>> [^\n]*\n", "", tr)
+            seg = re.search(rf"{re.escape(n)}\r\r\n(.*?)(?=\nD>|I/O ran|\Z)",
+                            clean, re.S)
+            o = seg.group(1) if seg else ""
+            status = "done" if rc == 0 else "timeout-or-hang"
+            out.write(".", f"{n}.output.txt", re.sub(r"\r\n?", "\n", o))
+            print(f"   {n}: rc={rc} {status}", flush=True)
+        finally:
+            r.cleanup()
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -113,24 +128,32 @@ def main():
     ap.add_argument("--names", nargs="*")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--batch", type=int, default=3)
+    ap.add_argument("--timeout", type=float, default=40)
+    ap.add_argument("--reuse", action="store_true",
+                    help="allow overwriting an existing golden out tag")
     a = ap.parse_args()
+    ws = Workspace(WORKSPACE, SEEDS)
     src = os.path.join(PROJ, "golden", a.tag)
     if a.all:
         if a.stage == "link":
-            names = sorted(d for d in os.listdir(src)
+            names = sorted(check_name(d) for d in os.listdir(src)
                            if os.path.exists(os.path.join(src, d, d + ".REL")))
-        elif a.stage == "run":
-            names = sorted(d[:-4] for d in os.listdir(src)
+        else:
+            names = sorted(check_name(d[:-4]) for d in os.listdir(src)
                            if d.endswith(".COM"))
     else:
-        names = a.names
-    if names is None:
+        names = [check_name(n) for n in a.names] if a.names else None
+    if not names:
         sys.exit("no names given (use --names or --all)")
     if a.stage == "link":
-        link(names, a.tag, a.out, a.batch)
+        link(ws, names, a.tag, a.out, a.batch, a.reuse)
     else:
-        run(names, a.tag, a.out)
+        run_programs(ws, names, a.tag, a.out, a.timeout, a.reuse)
+
 
 if __name__ == "__main__":
-    main()
-    # end
+    try:
+        main()
+    except SafetyError as e:
+        print(f"SAFETY: {e}", file=sys.stderr)
+        sys.exit(3)
