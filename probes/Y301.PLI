@@ -1,0 +1,7 @@
+py301: procedure options(main);
+   dcl i fixed;
+   do i = 1 to 3;
+      put list('X');
+   end;
+end py301;
+

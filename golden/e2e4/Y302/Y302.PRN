@@ -1,0 +1,78 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: Y302
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PY302 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 I FIXED BINARY(15,0) AUTOMATIC
+c 0002 N FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: Y302
+
+   1 a 0000 py302: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl i fixed, n fixed;
+   3 c 0006    n = 0;
+       0006       LXI  H,0000
+       0009       SHLD N A(0004)
+   4 c 000C    do i = 1 to n;
+       000C       INX  H
+       000D       SHLD I A(0002)
+       0010       LHLD N A(0004)
+       0013       SHLD * A(0006)
+       0016       LHLD * A(0006)
+       0019       XCHG 
+       001A       LHLD I A(0002)
+       001D       CALL ?IS22N
+       0020       JM   0000
+   5 c 0023       put list('X');
+       0023       LXI  D,0252
+       0026       LXI  B,0000
+       0029       CALL ?SYSPR
+       002C       LXI  H,* S(0000)
+       002F       MVI  A,01
+       0031       CALL ?SLCTS
+       0034       CALL ?PNCOP
+       0037       CALL ?QIOOP
+       0027       ==== 003A
+       003A       LHLD I A(0002)
+       003D       INX  H
+       003E       SHLD I A(0002)
+       0041       JMP  0016
+       0021       ==== 0044
+   6 c 0044    end;
+   7 c 0044    put list('E');
+       0044       LXI  D,0252
+       0047       LXI  B,0000
+       004A       CALL ?SYSPR
+       004D       LXI  H,* S(0001)
+       0050       MVI  A,01
+       0052       CALL ?SLCTS
+       0055       CALL ?PNCOP
+       0058       CALL ?QIOOP
+       0048       ==== 005B
+   8 a 005B end py302;
+       005B       CALL ?STOPX
+
+CODE SIZE = 005E
+DATA AREA = 0008
+FREE SYMS = 3885
+END  COMPILATION
+

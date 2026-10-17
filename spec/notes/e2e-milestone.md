@@ -133,3 +133,11 @@ both the fresh DR arm and the banked run2 baseline [C076]. THE
 HISTORICAL GOAL IS MET for DEMO. Gate: 30/30, 20 console arms,
 NEG 18/18. Next: DO loops; then COPY (file ops = new territory);
 broader corpus; $L listing-position fidelity remains cosmetic-only.
+
+# E2E-4 — iterative DO loops (milestone, 2026-10-17)
+
+5 probes (Y301-Y304,Y306; Y305 compile-only numeric-PUT evidence).
+Static/dynamic bound forms, HL-reuse init, temp bound slots, Sdobegin
+bodies, ^=const DCX ladders — all byte-exact first day; runtime
+console equality on 5 new arms (25 total). Gate 35/35, NEG 20/20.
+Lesson: raw-cmp everything (reldump hides SET-LC addr fields).

@@ -1,0 +1,9 @@
+py302: procedure options(main);
+   dcl i fixed, n fixed;
+   n = 0;
+   do i = 1 to n;
+      put list('X');
+   end;
+   put list('E');
+end py302;
+

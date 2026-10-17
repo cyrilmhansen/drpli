@@ -1,0 +1,7 @@
+py303: procedure options(main);
+   dcl i fixed;
+   do i = 1 to 3;
+      if i ^= 2 then put list('Y');
+   end;
+end py303;
+

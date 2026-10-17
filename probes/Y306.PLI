@@ -1,0 +1,8 @@
+py306: procedure options(main);
+   dcl i fixed;
+   do i = 1 to 3;
+      if i ^= 1 then put list('A');
+      if i ^= 3 then put list('B');
+   end;
+end py306;
+

@@ -1,0 +1,9 @@
+py305: procedure options(main);
+   dcl i fixed, n fixed;
+   n = 3;
+   put list('Q');
+   do i = 1 to n;
+      put list(i);
+   end;
+end py305;
+

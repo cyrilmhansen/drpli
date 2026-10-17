@@ -57,6 +57,12 @@ SPECIMENS = {
     "X201": ("probes/X201.PLI", "golden/e2e3e/X201/X201.REL"),
     "X202": ("probes/X202.PLI", "golden/e2e3e/X202/X202.REL"),
     "DEMO": ("artefacts/DEMO.PLI", "golden/first8080u/DEMO/DEMO.REL"),
+    # E2E-4: iterative DO loops
+    "Y301": ("probes/Y301.PLI", "golden/e2e4/Y301/Y301.REL"),
+    "Y302": ("probes/Y302.PLI", "golden/e2e4/Y302/Y302.REL"),
+    "Y303": ("probes/Y303.PLI", "golden/e2e4/Y303/Y303.REL"),
+    "Y304": ("probes/Y304.PLI", "golden/e2e4/Y304/Y304.REL"),
+    "Y306": ("probes/Y306.PLI", "golden/e2e4/Y306/Y306.REL"),
 }
 
 # specimens whose RAW console output must equal DR's (all have at
@@ -65,7 +71,8 @@ SPECIMENS = {
 OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "G115", "G116", "V101", "V102", "V103", "V104",
                 "V105", "V106", "V108", "W101", "W102",
-                "X201", "X202", "DEMO"}
+                "X201", "X202", "DEMO", "Y301", "Y302", "Y303",
+                "Y304", "Y306"}
 
 
 def compile_one(name, src):
@@ -84,9 +91,6 @@ def compile_one(name, src):
 REJECTS = {
     "N1_GET": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
                "  get list(a);\nend t;\n", "non-varying"),
-    "N2_DO_PUT": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
-                  "  do a = 1 to 3;\n    put list('X');\n  end;\nend t;\n",
-                  "statement kind"),
     "N3_PAGE": ("t:\n  procedure options(main);\n"
                 "  put page list('X');\nend t;\n", "PUT form"),
     "N4_SKIPVAR": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
@@ -128,6 +132,15 @@ REJECTS = {
                  "  dcl a char(4) varying;\n  dcl b char(4) varying;\n"
                  "  get list(a, b);\n  put list('X');\nend t;\n",
                  "GET form"),
+    "N19_DOBY": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
+                 "  do i = 1 to 4 by 2;\n    put list('X');\n  end;\n"
+                 "end t;\n", "DO step"),
+    "N20_DOWILE": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
+                   "  do while (i < 2);\n    put list('X');\n  end;\n"
+                   "end t;\n", "statement kind"),
+    "N21_DOIDX": ("t:\n  procedure options(main);\n  dcl c char(4) varying;\n"
+                  "  do c = 'A' to 'Z';\n    put list('X');\n  end;\n"
+                  "end t;\n", "non-constant FROM"),
     "N16_CATASSIGN": ("t:\n  procedure options(main);\n"
                       "  dcl n char(6) varying;\n  dcl m char(6) varying;\n"
                       "  n = 'Q';\n  m = 'Z' || n;\nend t;\n",

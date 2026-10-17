@@ -29,6 +29,10 @@ type st =
   ; mutable lc : int                  (* code location counter *)
   ; mutable last_imm : int option     (* HL still holds this constant?
                                          [G114 b=3 folded from a=5] *)
+  ; mutable temps : int               (* dynamic-DO bound temp slots
+                                         (2 bytes each, AFTER declared
+                                         area [Y302: temp@6 = pool2+4;
+                                         Y305: temp@5 = pool1+4]) *)
   ; mutable lowered : int }           (* statements actually lowered
                                          (discard-invariant witness) *)
 (* label bookkeeping for GOTO resolution [G115/G116]:
@@ -355,6 +359,20 @@ let lower_test_skip st (c : Ast.expr) =
       d st op_lxi_b; d st (m land 0xff); d st ((m lsr 8) land 0xff);
       d st op_dad_b; d st op_mov_a_h; d st op_ora_a;
       d st op_jm; let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR Ast.Ne, { Ast.e = Ast.Eident v; _ },
+                 { Ast.e = Ast.Enumber k; _ }) ->
+      (* [Y303/Y306] i ^= kk -> LHLD; (DCX H)*kk; MOV A,H; ORA L;
+         skip-when-equal = CA (the ^= skip byte quirk [C072]).
+         DR's switch to a cheaper ladder for large kk unproven:
+         cap 8, above -> [TBD] *)
+      let kk = parse_int_const k in
+      if kk < 1 || kk > 8 then
+        failwith "codegen: ^= const range unproven [TBD]";
+      d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
+      for _ = 1 to kk do d st op_dcx_h done;
+      d st op_mov_a_h; d st 0xb5;      (* ORA L *)
+      d st 0xca;
+      let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR r, l, rr) when is_ident l && is_ident rr ->
       let ident = fun x ->
         match x.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> assert false
@@ -666,6 +684,95 @@ let lower_cat st (skipn : string option) (ch : chain) =
   call_ext st "?PNCOP"; call_ext st "?QIOOP";
   emit_triple st bslot st.lc
 
+(* DO ind = from TO bound [BY 1];) E2E-4 slice, [Y301-Y305] bytes:
+   init reuses HL when last_imm = from-1 (INX H [Y302]) else LXI H.
+   STATIC bound b: head = LHLD i; LXI B,-(b+1); DAD B; MOV A,H;
+   ORA A; JP(F2) -> exit (deferred triple AFTER the loop's JMP on the
+   record stream [Y301 dump]). DYNAMIC simple-int bound: LHLD bound;
+   SHLD temp(base+auto_end+2k); head = LHLD temp; XCHG; LHLD i;
+   CALL ?IS22N; JM(FA) -> exit. Increment shared: LHLD i; INX H;
+   SHLD i; JMP head (inline backward RELOC). Body continuation
+   triples land on the increment start automatically [Y301: put
+   cont -> 0x2F]. BY must be absent or literal 1 [Y304]; WHILE/
+   REPEAT/no-TO/complex bounds/steps/index types all [TBD]. *)
+let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
+    (ind : Ast.name) (from : Ast.expr)
+    (by : Ast.expr option) (to_ : Ast.expr option)
+    (while_ : Ast.expr option) (rep : Ast.expr option)
+    (body : Ast.stmt) =
+  if while_ <> None || rep <> None then
+    failwith "codegen: DO WHILE/UNTIL/REPEAT deferred [TBD]";
+  (match by with
+   | None -> ()
+   | Some { Ast.e = Ast.Enumber "1"; _ } -> ()
+   | _ -> failwith "codegen: DO step unproven [TBD]");
+  let fromv =
+    match from with
+    | { Ast.e = Ast.Enumber c; _ } -> parse_int_const c
+    | _ -> failwith "codegen: DO non-constant FROM unproven [TBD]"
+  in
+  let iaddr =
+    match vk_of st ind.Ast.orig with
+    | Vint -> addr_of st ind.Ast.orig
+    | _ -> failwith "codegen: DO index not fixed-bin [TBD]"
+  in
+  (* init *)
+  (if st.last_imm = Some (fromv - 1) then
+     (d st op_inx_h; st.last_imm <- Some fromv)
+   else
+     (d st op_lxi_h; d st (fromv land 0xff);
+      d st ((fromv lsr 8) land 0xff);
+      st.last_imm <- Some fromv));
+  d st op_shld; reloc st Data iaddr;
+  let head, jpslot =
+    match to_ with
+    | Some { Ast.e = Ast.Enumber c; _ } ->
+        let b = parse_int_const c in
+        let head = st.lc in
+        d st op_lhld; reloc st Data iaddr;
+        let neg = -(b + 1) in
+        d st op_lxi_b; d st (neg land 0xff);
+        d st ((neg lsr 8) land 0xff);
+        d st op_dad_b; d st op_mov_a_h; d st op_ora_a;
+        d st op_jp;
+        let slot = st.lc in          (* OPERAND pos [Y301: 0x16] *)
+        d st 0; d st 0;
+        (head, slot)
+    | Some { Ast.e = Ast.Eident bn; _ } ->
+        (match vk_of st bn.Ast.orig with
+         | Vint -> ()
+         | _ -> failwith "codegen: DO bound not fixed-bin [TBD]");
+        let auto_end =
+          List.fold_left
+            (fun a (_, (vi : var_info)) -> max a (vi.off + vi.size))
+            0 st.vars
+        in
+        let temp = st.base + auto_end + 2 * st.temps in
+        st.temps <- st.temps + 1;
+        d st op_lhld; reloc st Data (addr_of st bn.Ast.orig);
+        d st op_shld; reloc st Data temp;
+        let head = st.lc in
+        d st op_lhld; reloc st Data temp;
+        d st op_xchg;
+        d st op_lhld; reloc st Data iaddr;
+        call_ext st "?IS22N";
+        d st op_jm;
+        let slot = st.lc in          (* OPERAND pos [Y302] *)
+        d st 0; d st 0;
+        (head, slot)
+    | Some _ -> failwith "codegen: DO complex bound unproven [TBD]"
+    | None -> failwith "codegen: DO without TO deferred [TBD]"
+  in
+  lo st ls body;
+  d st op_lhld; reloc st Data iaddr;
+  d st op_inx_h;
+  d st op_shld; reloc st Data iaddr;
+  d st op_jmp;
+  reloc st Code head;   (* helper advances LC over the
+                           implicit 2 operand bytes [Y301] *)
+  emit_triple st jpslot st.lc;
+  st.last_imm <- None
+
 (* statement lowering with label/goto resolution *)
 let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   (* label prefixes resolve at the STATEMENT's LC [G115 loop:/done:] *)
@@ -703,6 +810,10 @@ let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
              (Printf.sprintf
                 "codegen: GET form not in E2E-3e subset [TBD] \
                  (line %d)" s.Ast.spos.Source.line))
+  | Ast.Sdoto { ind; from; by; to_; while_; rep; body } ->
+      st.lowered <- st.lowered + 1;
+      lower_doto st ls (fun st ls s -> lower_stmt st ls s)
+        ind from by to_ while_ rep body
   | Ast.Sif { cond; then_; els } ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       let skip = lower_test_skip st cond in
@@ -728,6 +839,9 @@ let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
            ls.fwd <- (nm, slot) :: ls.fwd)              (* forward [G115] *)
   | Ast.Sgoto _ ->
       failwith "codegen: computed GOTO deferred [TBD]"
+  | Ast.Sdobegin ss ->
+      st.lowered <- st.lowered + 1;
+      List.iter (fun x -> lower_stmt st ls x) ss
   | Ast.Sdcl _ -> ()
   | Ast.Snull _ -> ()
   | _ -> failwith
@@ -740,7 +854,7 @@ let emit_program (progname : string) (auto_bytes : int)
   let pool_total = prescan_pool stmts in
   let st =
     { vars = rows; base = pool_total; items = []; pool = []
-    ; pool_next = 0; lc = 0; last_imm = None; lowered = 0 }
+    ; pool_next = 0; lc = 0; last_imm = None; lowered = 0; temps = 0 }
   in
   (* lower prologue + body + epilogue into st.items (code segment) *)
   d st op_lxi_b; d st 0x00; d st 0x02;
@@ -769,7 +883,7 @@ let emit_program (progname : string) (auto_bytes : int)
   link st t_chain_ext (Some (Code, stop_slot)) (Some "?STOPX");
   let code_items = st.items in
   (* now build the ordered full item list *)
-  let data_size = pool_total + auto_bytes in
+  let data_size = pool_total + auto_bytes + 2 * st.temps in
   let header =
     [ Link (t_progname, None, Some progname)
     ; Link (t_req_library, None, Some "PLILIB")

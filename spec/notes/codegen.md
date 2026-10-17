@@ -278,3 +278,12 @@ GET chain: LXI D,0290; LXI B,0000; SYSIN; GNVOP; JP(F2)->QIOOP-start
 (triple after SSVFS chain); LXI H,var; MVI B,cap; SSVFS; QIOOP; cont.
 DEMO.PLI -> golden 1980 DEMO.REL byte-identical; .COM + console equal
 vs fresh DR AND banked run2. Gate 30/30 + NEG 18/18.
+
+
+## E2E-4: DO i = a TO b [Y301-Y306 [C077]]
+Static: LHLD;LXI B,-(b+1);DAD;MOV A,H;ORA;JP(F2)->exit. Dynamic: temp
+store after init; head LHLD temp;XCHG;LHLD i;IS22N;JM(FA)->exit.
+Temp slot = pool+auto+2k. INX-H init reuse when last_imm=from-1.
+DO..END body arrives as Sdobegin (now lowered inline). ^=const kk ->
+(DCX H)*kk ladder, CA skip. PITFALL: reldump masks SET-LC addr —
+always raw-cmp, never trust a truncated grep of dumps.
