@@ -21,6 +21,7 @@ OUT = os.path.join(ROOT, "build", "e2e")
 # name -> (source, DR golden .REL)
 SPECIMENS = {
     "P071A": ("probes/P071A.PLI", "golden/probe38/P071A/P071A.REL"),
+    "P071B": ("probes/P071B.PLI", "golden/probe38/P071B/P071B.REL"),
 }
 
 

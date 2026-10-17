@@ -1,0 +1,2 @@
+P071B	ok	PRN=False REL=True
+P071D	ok	PRN=False REL=True

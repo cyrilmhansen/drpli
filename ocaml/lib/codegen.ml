@@ -14,7 +14,7 @@
 
 open Rel80
 
-type var_info = { off : int; vt : Ir.ty }
+type var_info = { off : int; size : int }
 
 type st =
   { vars : (string * var_info) list   (* lowername -> info *)
@@ -28,16 +28,24 @@ let reloc st seg v =
   push st (Reloc (seg, v)); st.lc <- st.lc + 2          (* inline: 2 bytes *)
 let link st t valu name = push st (Link (t, valu, name))
 
-(* ---- opcodes (8080), all observed in DR $C for this construct ---- *)
+(* ---- opcodes (8080) : all cross-checked against DR .REL bytes ---- *)
 let op_lxi_b = 0x01
 let op_lxi_h = 0x21
 let op_lhld = 0x2a
 let op_shld = 0x22
 let op_dad_d = 0x19
+let op_dad_b = 0x09
 let op_dcx_h = 0x2b
 let op_inx_h = 0x23
 let op_xchg = 0xeb
 let op_call = 0xcd
+let op_push_h = 0xe5
+let op_pop_d = 0xd1
+let op_mvi_a = 0x3e
+let op_mov_l_a = 0x6f
+let op_mov_h_a = 0x67
+let op_add_a = 0x87
+let op_sbb_a = 0x9f
 
 (* variable data-segment address = pool base + declared auto offset.
    [int subset has no pool => base 0; matches DR SHLD/LHLD operands] *)
@@ -46,6 +54,15 @@ let addr_of st name =
   match List.assoc_opt li st.vars with
   | Some vi -> vi.off + st.base
   | None -> failwith ("codegen: undeclared " ^ name)
+
+let call_ext st name =
+  (* CALL <external RTL>: operand slot = cd 00 00, immediately followed by
+     LINK-CHAIN-EXT at the operand address [DR emits CHAIN-EXT per call site]
+     — matches ?START/?STOPX/?IM22N/?ID22N/?IMDOP record streams *)
+  d st op_call;
+  let slot = st.lc in
+  d st 0; d st 0;
+  link st t_chain_ext (Some (Code, slot)) (Some name)
 
 (* evaluate an integer expression, leaving the 16-bit value in HL *)
 let rec lower_hl st (e : Ast.expr) =
@@ -58,9 +75,35 @@ let rec lower_hl st (e : Ast.expr) =
   | Ast.Ebinary (Ast.Add, l, r) ->
       (* DR: HL=left ; XCHG ; HL=right ; DAD D  (=> HL = right+left) [P071A] *)
       lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d
+  | Ast.Ebinary ((Ast.Mul | Ast.Div | Ast.Exp) as op, l, r) ->
+      (* var OP var (and expr OP const) share the by-reference RTL pattern:
+         DE=left, HL=right. DR [P071B/P080A]:
+           MUL a*b  : LHLD a ; PUSH H ; LHLD b ; POP D ; CALL ?IM22N
+           DIV a/3  : <lhs in HL> ; MVI A,3 ; PUSH H ; MOV L,A ; ADD A ;
+                      SBB A ; MOV H,A ; POP D ; CALL ?ID22N
+           (const right operand -> zero-extend via ADD A/SBB A idiom)
+         MUL/ID22N are proven; DIV by VARIABLE is not in any golden ->
+         reject (no speculative lowering). *)
+      (match (op, r) with
+       | Ast.Mul, _ ->
+           lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d;
+           call_ext st "?IM22N"
+       | Ast.Div, Ast.{ e = Ast.Enumber c; _ } ->
+           let n = int_of_string (String.concat "" (String.split_on_char '_' c)) in
+           lower_hl st l;
+           if n = 0 then failwith "codegen: division by zero";
+           d st op_mvi_a; d st (n land 0xff);
+           d st op_push_h; d st op_mov_l_a; d st op_add_a; d st op_sbb_a;
+           d st op_mov_h_a; d st op_pop_d; call_ext st "?ID22N"
+       | Ast.Div, _ -> failwith "codegen: DIV by non-constant [TBD]"
+       | Ast.Exp, _ -> failwith "codegen: ** handled separately [TBD]")
   | Ast.Ebinary (Ast.Sub, x, Ast.{ e = Ast.Enumber c; _ }) ->
       lower_hl st x; const_sub st (int_of_string c)
-  | Ast.Eprefix (Ast.Minus, x) -> failwith "codegen: negation [TBD]"
+  | Ast.Ebuilt ("MOD", [l; r]) ->
+      (* mod(a,b) -> DE=a, HL=b, CALL ?IMDOP [P071B L4] *)
+      lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d;
+      call_ext st "?IMDOP"
+  | Ast.Eprefix (Ast.Minus, _) -> failwith "codegen: negation [TBD]"
   | Ast.Ebinary _ -> failwith "codegen: operator not in int subset [TBD]"
   | _ -> failwith "codegen: expression form not in int subset [TBD]"
 
@@ -113,39 +156,22 @@ let emit_program (progname : string) (data_size : int)
   link st t_end_file None None;
   (st.items, st.lc)
 
-(* build var_info rows from binder rows, keeping only fixed-bin scalars *)
+(* build var_info rows from binder rows, keeping only fixed-bin scalars.
+   NOTE: storage byte-size comes ONLY from Bind.bytes_of (the binder is the
+   single authority on layout) — codegen does not re-derive it. *)
 let rows_of (b : Ast.block) =
-  let size = function
-    | Ir.Tbin p -> (p + 8) / 8
-    | Ir.Tdec (p, _) -> (p + 2) / 2
-    | Ir.Tflt -> 4
-    | Ir.Tchr (n, _) -> n
-    | Ir.Tbit n -> (n + 7) / 8
-  in
-  let irty = function
-    | Bind.RTbin p -> Some (Ir.Tbin p)
-    | Bind.RTdec (p, s) -> Some (Ir.Tdec (p, s))
-    | Bind.RTfloat _ -> Some Ir.Tflt
-    | Bind.RTchar (n, v) -> Some (Ir.Tchr (n, v))
-    | Bind.RTbit n -> Some (Ir.Tbit n)
-    | _ -> None
-  in
   let rows = Bind.bind_rows b in
   let vars =
     List.filter_map
       (fun (nm, rt, off, _auto) ->
-        match irty rt with
-        | Some t -> Some (nm, { off; vt = t })
-        | None -> None)
+        match rt with
+        | Bind.RTbin _ -> Some (nm, { off; size = Bind.bytes_of rt })
+        | _ -> None)          (* int-only subset: non-bin vars excluded *)
       rows
   in
   (* data size = highest (offset+size) over auto vars (== DR AUTO STORAGE) *)
   let data_size =
-    List.fold_left
-      (fun acc (nm, vi) ->
-        let _ = nm in
-        max acc (vi.off + size vi.vt))
-      0 vars
+    List.fold_left (fun acc (_, vi) -> max acc (vi.off + vi.size)) 0 vars
   in
   let prog =
     match b.Ast.bname with Some n -> String.uppercase_ascii n.Ast.orig
