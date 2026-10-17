@@ -50,19 +50,23 @@ f6 demonstrably has zero effect on generated code or relocation. Byte
 parity here is therefore NOT dependent on f6 and was NOT force-matched.
 
 ## Supported subset (narrow by design) & remaining differences
-IN: single main procedure; fixed-BINARY scalar locals; assignment of
-integer literals (loaded inline `LXI H`, no pool), variable copies, `+`,
-`- <small const>` (1..4 via DCX H). Everything else RAISES
-`[codegen: ... [TBD]]` rather than guessing:
-- integer `* / mod **` and RTL-call sequences (?IM22N/ID22N/…) — not needed
-  by P071A; add when a specimen requires them.
-- decimal / float / char / bit, conversions, pool constants (`* S(k)`),
-  nested data offsets, control flow (if/goto/do), PUT/GET/OPEN — all TBD.
-- multi-procedure / EXTERNAL linkage, real forward-branch CHAIN-ADDR,
-  SET-LC data-segment emission.
-These are deliberate scope cuts for E2E-1, not known-bugs.
+IN (all byte-identical to DR, link+run rc=0): single main procedure;
+fixed-BINARY scalar locals; assignment of integer literals (LXI H,imm),
+var copies, `+` (inline DAD/XCHG or LXI B/DAD B), `- <const 1..4>` (DCX H),
+`*`/`mod` (by-reference RTL ?IM22N/?IMDOP), `/ <const>` (RTL ?ID22N
+divisor zero-extend idiom), `a ** <const>` (integer RTL ?IEXOP), and
+`<int-literal> ** <const>` (decimal pool: DLDOP/DEXOP/QDI15 + DATA segment,
+BCD ceil((p+1)/2), vars shifted by pool total). Gate specimens: P071A,
+P071B, P071D, G101/G102/G103/G104/G105/G106.
+Still RAISES `[codegen: ... [TBD]]` (deliberate scope cuts, not bugs):
+- integer `/ <var>` (no golden evidence).
+- decimal / float / char / bit operands, explicit conversions (Q* chains),
+  standalone decimal/float literals (pool only built for `**` base today).
+- control flow (if/goto/do), PUT/GET/OPEN, arrays, based/struct, nested
+  procedures/EXTERNAL linkage, forward-branch CHAIN-ADDR.
+See claims C067–C070 and f6/C066 (f6 has zero effect on code/reloc).
 
 ## Gates after this milestone
-e2e: 1 byte-exact (+ link rc=0). parse 297/0 FAIL. bind 47/47.
-rel-roundtrip 268/268. ir 2 byte-exact / 3 struct / 5 gap / 0 FAIL.
+e2e: 6 byte-exact (+ link rc=0). parse 303/0 FAIL. bind 47/47.
+rel-roundtrip 276/276. ir 2 byte-exact / 3 struct / 5 gap / 0 FAIL.
 test_safety 28/28.
