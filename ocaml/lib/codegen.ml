@@ -54,6 +54,9 @@ let pool_alloc st (bytes : int array) =
   st.pool_next <- addr + Array.length bytes;
   addr
 
+let pool_bytes (s : string) =
+  Array.init (String.length s) (fun i -> Char.code (String.get s i))
+
 (* ---- opcodes (8080) : all cross-checked against DR .REL bytes ---- *)
 let op_lxi_b = 0x01
 let op_lxi_d = 0x11
@@ -72,6 +75,7 @@ let op_mvi_a = 0x3e
 let op_mvi_b = 0x06
 let op_mov_b_a = 0x47   (* [V102/V103] len==cap store peephole *)
 let op_mvi_m = 0x36     (* [V104] MVI M,00: empty-varying store *)
+let op_push_psw = 0xf5  (* [W102] PSW guard before nested SLVTS *)
 let op_mov_l_a = 0x6f
 let op_mov_h_a = 0x67
 let op_add_a = 0x87
@@ -165,10 +169,40 @@ let rec prescan_expr (e : Ast.expr) =
   | Ast.Ebuilt (_, es) -> List.fold_left (fun a x -> a + prescan_expr x) 0 es
   | _ -> 0
 
-(* accepted shapes: literal [G107/G108/G113] or a SINGLE char/varying
-   variable [V101/V106]; optional SKIP(const). Pnone -> [TBD]. *)
+type chain = C2 of string * string * string   (* lit || var [W101] *)
+           | C3 of string * string * string   (* lit || var || lit [W102] *)
 type put_shape = Pnone | Plit of string option * string
                | Pvar of string option * Ast.expr
+               | Pcat of string option * chain
+
+(* flatten a (left-assoc per our parser) || chain to operands
+   left-to-right; only the proven shapes C2 [lit;varying] and
+   C3 [lit;varying;lit] survive; anything else -> None -> [TBD]
+   at lowering [W101/W102] *)
+let flatten_cat (e : Ast.expr) =
+  let rec leaves2 x acc =
+    match x.Ast.e with
+    | Ast.Ebinary (Ast.Cat, l, r) ->
+        (* prepend accumulator => recurse RIGHT first to end up with
+           SOURCE order left-to-right *)
+        (match leaves2 r acc with
+         | Some a -> leaves2 l a
+         | None -> None)
+    | Ast.Estring s -> Some (("STR", s) :: acc)
+    | Ast.Eident n -> Some (("VAR", n.Ast.orig) :: acc)
+    | _ -> None
+  in
+  match leaves2 e [] with
+  | Some ls ->
+      (match ls with
+       | [ ("STR", l); ("VAR", v) ] -> Some (C2 (l, v, ""))
+       | [ ("STR", l); ("VAR", v); ("STR", r2) ] ->
+           Some (C3 (l, v, r2))
+       | _ -> None)
+  | None -> None
+
+(* accepted shapes: literal [G107/G108/G113] or a SINGLE char/varying
+   variable [V101/V106]; optional SKIP(const). Pnone -> [TBD]. *)
 let match_put_list_lit (s : Ast.stmt) =
   match s.Ast.st with
   | Ast.Sput { stream = None; on_opts = []; kind = Ast.List_; items } ->
@@ -181,6 +215,15 @@ let match_put_list_lit (s : Ast.stmt) =
        | [ Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ });
            Ast.Pi_data ({ Ast.e = Ast.Eident _; _ } as x) ] ->
            Pvar (Some c, x)
+       | [ Ast.Pi_data x ] ->
+           (match flatten_cat x with
+            | Some ch -> Pcat (None, ch)
+            | None -> Pnone)
+       | [ Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ });
+           Ast.Pi_data x ] ->
+           (match flatten_cat x with
+            | Some ch -> Pcat (Some c, ch)
+            | None -> Pnone)
        | _ -> Pnone)
   | _ -> Pnone
 
@@ -197,6 +240,8 @@ let rec prescan_stmt (s : Ast.stmt) =
   | Ast.Sput _ ->
       (match match_put_list_lit s with
        | Plit (_, v) -> String.length v
+       | Pcat (_, C2 (l, _, _)) -> String.length l
+       | Pcat (_, C3 (l, _, r)) -> String.length l + String.length r
        | _ -> 0)             (* var-puts consume no pool [V101] *)
   | Ast.Sif { then_; els; _ } ->
       prescan_stmt then_
@@ -523,6 +568,60 @@ let lower_put_var st (skipn : string option) (x : Ast.expr) =
   call_ext st "?PNCOP"; call_ext st "?QIOOP";
   emit_triple st bslot st.lc
 
+(* PUT LIST with || chain: DR evaluates RIGHT-to-LEFT while the
+   pool is allocated LEFT-to-RIGHT in source order [W102 hex:
+   HELLO@5, BYE@0x0B]. C2: SLVTS(right var; empty stack -> no PUSH
+   PSW) then SJSCM(lit in B). C3: SLCTS(right lit in A); PUSH PSW;
+   SLVTS(var); SJSCM(left lit in B); SJSTS. Tail = the standard
+   PNCOP/QIOOP + continuation triple [W101/W102]. *)
+let lower_cat st (skipn : string option) (ch : chain) =
+  let maxlit = match ch with C2 (l, _, _) -> String.length l
+               | C3 (l, _, r) -> max (String.length l) (String.length r) in
+  if maxlit > 255 then failwith "codegen: lit > 255 [TBD]";
+  d st op_lxi_d; d st 0x52; d st 0x02;
+  d st op_lxi_b;
+  let bslot = st.lc in
+  d st 0; d st 0;
+  call_ext st "?SYSPR";
+  (match skipn with
+   | Some c ->
+       let n = parse_int_const c in
+       if n <= 0 || n > 255 then
+         failwith "codegen: skip count out of MVI range [TBD]";
+       d st op_mvi_a; d st n; call_ext st "?SKPOP"
+   | None -> ());
+  let vk_guard nm =
+    match vk_of st nm with
+    | Vvar _ -> ()
+    | _ -> failwith "codegen: concat operand not char varying [TBD]"
+  in
+  (match ch with
+  | C2 (l, v, _) ->
+      let al = pool_alloc st (pool_bytes l) in
+      vk_guard v;
+      d st op_lxi_h; reloc st Data (addr_of st v);   (* rightmost first *)
+      call_ext st "?SLVTS";
+      d st op_lxi_h; reloc st Data al;
+      d st op_mvi_b; d st (String.length l);
+      call_ext st "?SJSCM"
+  | C3 (l, v, r) ->
+      (* [W102] pool allocation = SOURCE order (HELLO@5, BYE@0x0B) *)
+      let al = pool_alloc st (pool_bytes l) in
+      let ar = pool_alloc st (pool_bytes r) in
+      vk_guard v;
+      d st op_lxi_h; reloc st Data ar;
+      d st op_mvi_a; d st (String.length r);
+      call_ext st "?SLCTS";                          (* rightmost *)
+      d st op_lxi_h; reloc st Data (addr_of st v);
+      d st op_push_psw;        (* [W102] AFTER LXI H, before SLVTS *)
+      call_ext st "?SLVTS";
+      d st op_lxi_h; reloc st Data al;
+      d st op_mvi_b; d st (String.length l);
+      call_ext st "?SJSCM";
+      call_ext st "?SJSTS");
+  call_ext st "?PNCOP"; call_ext st "?QIOOP";
+  emit_triple st bslot st.lc
+
 (* statement lowering with label/goto resolution *)
 let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   (* label prefixes resolve at the STATEMENT's LC [G115 loop:/done:] *)
@@ -547,6 +646,7 @@ let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       (match match_put_list_lit s with
        | Plit (skipn, v) -> lower_put_lit st skipn v
        | Pvar (skipn, x) -> lower_put_var st skipn x
+       | Pcat (skipn, ch) -> lower_cat st skipn ch
        | Pnone -> failwith
              (Printf.sprintf
                 "codegen: PUT form not in E2E-3a subset [TBD] \

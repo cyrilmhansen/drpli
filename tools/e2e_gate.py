@@ -50,6 +50,9 @@ SPECIMENS = {
     "V106": ("probes/V106.PLI", "golden/e2e3c/V106/V106.REL"),
     "V107": ("probes/V107.PLI", "golden/e2e3c/V107/V107.REL"),
     "V108": ("probes/V108.PLI", "golden/e2e3c/V108/V108.REL"),
+    # E2E-3d: string concatenation in PUT LIST [W101/W102]
+    "W101": ("probes/W101.PLI", "golden/e2e3d/W101/W101.REL"),
+    "W102": ("probes/W102.PLI", "golden/e2e3d/W102/W102.REL"),
 }
 
 # specimens whose RAW console output must equal DR's (all have at
@@ -57,7 +60,7 @@ SPECIMENS = {
 # V108's '' output is legitimately empty, accepted via anchor logic)
 OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "G115", "G116", "V101", "V102", "V103", "V104",
-                "V105", "V106", "V108"}
+                "V105", "V106", "V108", "W101", "W102"}
 
 
 def compile_one(name, src):
@@ -104,6 +107,19 @@ REJECTS = {
                    "  c = 'ABCD';\nend t;\n", "fixed store len==cap"),
     "N12_EMPTYFIX": ("t:\n  procedure options(main);\n  dcl c char(4);\n"
                      "  c = '';\nend t;\n", "fixed-char store form"),
+    "N13_CATLIT": ("t:\n  procedure options(main);\n"
+                   "  put list('A' || 'B');\nend t;\n",
+                   "[TBD]"),
+    "N14_CATFIX": ("t:\n  procedure options(main);\n  dcl c char(4);\n"
+                   "  c = 'AB';\n  put list('X' || c);\nend t;\n",
+                   "concat operand not char varying"),
+    "N15_CAT4": ("t:\n  procedure options(main);\n  dcl n char(6) varying;\n"
+                 "  n = 'Q';\n  put list('A' || n || 'B' || 'C');\nend t;\n",
+                 "PUT form"),
+    "N16_CATASSIGN": ("t:\n  procedure options(main);\n"
+                      "  dcl n char(6) varying;\n  dcl m char(6) varying;\n"
+                      "  n = 'Q';\n  m = 'Z' || n;\nend t;\n",
+                      "char store from non-literal"),
 }
 
 

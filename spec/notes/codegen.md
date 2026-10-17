@@ -262,3 +262,12 @@ unchanged MVI A,len. Pool: one BLOCK per string literal incl. zero-size
 ('' registers block -> SET-LC(data,0) emitted with no bytes); blocks
 emitted SET-LC per block (addr>0). Numeric-var PUT and unproven fixed
 store shapes remain [TBD].
+
+
+## E2E-3d: || in PUT LIST (W101/W102 [C074])
+Right-to-left emission over left-to-right pool allocation. C2: SLVTS
+then SJSCM(lit,B). C3 (DEMO): SLCTS(righthand,A); LXI H,var; PUSH PSW;
+SLVTS; SJSCM(lefthand,B); SJSTS; then common PNCOP/QIOOP/triple tail.
+Only [lit;varying] and [lit;varying;lit]; all else [TBD].
+NOTE OCAML PITFALL: a dedented `; tail` after a match's last branch
+stays INSIDE that branch — paren-wrap match when a shared tail follows.

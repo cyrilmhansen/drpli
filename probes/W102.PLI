@@ -1,0 +1,6 @@
+pw102: procedure options(main);
+   dcl n char(20) varying;
+   n = 'WORLD';
+   put list('HELLO ' || n || ', BYE');
+end pw102;
+

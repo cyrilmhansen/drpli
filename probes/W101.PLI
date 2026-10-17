@@ -1,0 +1,6 @@
+pw101: procedure options(main);
+   dcl n char(20) varying;
+   n = 'WORLD';
+   put list('HI ' || n);
+end pw101;
+

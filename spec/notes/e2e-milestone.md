@@ -115,3 +115,11 @@ byte-parity + runtime console equality [C073]. Length byte at offset 0
 observed on DR-executing bytes, never assumed. Pool-block rule
 refined: zero-size literals open the DATA segment (V104/V108 vs V107).
 Gate now 25/25 byte-exact, 15 console-checked arms; negative panel 12/12.
+
+# E2E-3d — string concatenation in PUT LIST (milestone, 2026-10-17)
+
+2 probes answered everything the DEMO shape needs [C074]. Chain emits
+right-to-left over a source-allocated pool; PUSH PSW guards the SLVTS
+only when a stack entry is already live. .REL + .COM + console all
+byte-equal. Gate: 27/27, 17 console arms, NEG 16/16.
+DEMO put2 shape = C3 exactly. Remaining for DEMO: GET LIST (3e).
