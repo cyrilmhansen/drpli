@@ -185,6 +185,8 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
   let soff = ref soff_start in
   let syms = ref [] in
   let statics = ref 0 in
+  (* structured rows for the IR builder: (lower name, rt, offset, auto) *)
+  let rows = ref [] in
   let push s = syms := s :: !syms in
   let head = ref None in   (* Some (level, offset) *)
   let members = ref [] in
@@ -279,6 +281,8 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
           flush ();
           let o = !off in
           off := !off + 2;
+          rows := (String.lowercase_ascii item.dname.orig, rt, o, true)
+                  :: !rows;
           push { flag = "c"; sname = upper item.dname.orig
                ; disp = rty_str rt ^ " PARAMETER"; off = o }
         end
@@ -316,6 +320,8 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
                      (if stc then "INITIAL STATIC" else "INITIAL AUTOMATIC")
                    else if stc then "STATIC" else "AUTOMATIC")
           in
+          rows := (String.lowercase_ascii item.dname.orig, rt, o,
+                   not stc) :: !rows;
           push { flag = "c"; sname = upper item.dname.orig; disp = tail; off = o }
         end;
         (* entry dcl WITH returns ⇒ this is an external FUNCTION: DR emits
@@ -342,7 +348,7 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
       )
     items;
   flush ();
-  (!off, List.rev !syms, !statics)
+  (!off, List.rev !syms, !statics, List.rev !rows)
 
 (* ---------- format descriptors & labels (binder v2) [C052] ---------- *)
 (* sizes: F/E items 6B, A 2B, controls(SKIP/PAGE/LINE) 2B, count prefix +3B,
@@ -543,7 +549,7 @@ let rec bind_and_dump (blk : block) =
   let blocks : (int * int * string * sym list) list ref = ref [] in
   List.iter
     (fun (b, ln, fl) ->
-      let auto, syms, statics =
+      let auto, syms, statics, _rows =
         layout ~soff_start:fmt_total ~isfn:(returns_attr b <> None) b
       in
       (* unit-block storage totals ALL statics program-wide, incl. nested
@@ -736,3 +742,8 @@ and collect_builtins (blk : block) =
        !acc)
 
 let dump_s = bind_and_dump
+
+(* structured view for the IR builder: first (frame) block's rows *)
+let bind_rows (blk : block) =
+  let (_auto, _syms, _statics, rows) = layout blk in
+  rows

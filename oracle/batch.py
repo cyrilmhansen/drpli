@@ -24,6 +24,9 @@ CONTEXT  = ["RECORD.DCL", "FCB.DCL", "DIO80.DCL", "DIOMOD.DCL",
             "MPMDIO.DCL", "MATSIZE.LIB", "Z80.LIB"]
 FMT = "ibm-3740"
 
+MKFS = "/usr/bin/mkfs.cpm" if os.path.exists("/usr/bin/mkfs.cpm") else "mkfs.cpm"
+CPMCP = "/usr/bin/cpmcp" if os.path.exists("/usr/bin/cpmcp") else "cpmcp"
+
 def sh(cmd, **kw):
     return subprocess.run(cmd, shell=isinstance(cmd, str), check=True,
                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -32,18 +35,18 @@ def sh(cmd, **kw):
 def build_disk(names):
     # C: compiler + context (fixed), D: fresh work disk (sources+outputs)
     for d in ("c", "d"):
-        sh(f"rm -f {DISKS}/drive{d}.dsk && mkfs.cpm -f {FMT} {DISKS}/drive{d}.dsk")
+        sh(f"rm -f {DISKS}/drive{d}.dsk && {MKFS} -f {FMT} {DISKS}/drive{d}.dsk")
     for f in COMPILER + CONTEXT:
         src = os.path.join(ORIG, f)
         if os.path.exists(src):
-            sh(f"cpmcp -f {FMT} {DISKS}/drivec.dsk {src} 0:{f}")
+            sh(f"{CPMCP} -f {FMT} {DISKS}/drivec.dsk {src} 0:{f}")
     for n in names:
-        sh(f"cpmcp -f {FMT} {DISKS}/drived.dsk {os.path.join(ART, n+'.PLI')} 0:{n}.PLI")
+        sh(f"{CPMCP} -f {FMT} {DISKS}/drived.dsk {os.path.join(ART, n+'.PLI')} 0:{n}.PLI")
     # %INCLUDE resolves to the SOURCE drive (manual 2.6, confirmed C014)
     for f in CONTEXT:
         src = os.path.join(ORIG, f)
         if os.path.exists(src):
-            sh(f"cpmcp -f {FMT} {DISKS}/drived.dsk {src} 0:{f}")
+            sh(f"{CPMCP} -f {FMT} {DISKS}/drived.dsk {src} 0:{f}")
 
 def run_session(names, switches, outdir):
     script = os.path.join(outdir, "session.txt")

@@ -1,0 +1,182 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:P071C $L$S
+PLI D:P071C $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P071C
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PP071C ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 12 BYTES
+c 0000 P FIXED DECIMAL(7,2) AUTOMATIC
+c 0004 Q FIXED DECIMAL(7,2) AUTOMATIC
+c 0008 Z FIXED DECIMAL(7,2) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P071C
+
+   1 a 0000 pp071c: procedure options(main);
+   2 c 0006    declare p fixed decimal(7,2), q fixed decimal(7,2), z fixed decimal(7,2);
+   3 c 0006    z = p + q;
+   4 c 0021    z = p * q - 1.5;
+   5 a 004C end pp071c;
+
+CODE SIZE = 004F
+DATA AREA = 0014
+FREE SYMS = 3926
+END  COMPILATION
+
+C>
+>>> PLI D:P071D $L$S
+PLI D:P071D $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P071D
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PP071D ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 Z FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P071D
+
+   1 a 0000 pp071d: procedure options(main);
+   2 c 0006    declare z fixed;
+   3 c 0006    z = 2 ** 3;
+   4 a 0019 end pp071d;
+
+CODE SIZE = 001C
+DATA AREA = 0003
+FREE SYMS = 3945
+END  COMPILATION
+
+C>
+>>> PLI D:P071E $L$S
+PLI D:P071E $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P071E
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PP071E ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 12 BYTES
+c 0000 X FLOAT BINARY(24,0) AUTOMATIC
+c 0004 Y FLOAT BINARY(24,0) AUTOMATIC
+c 0008 F FLOAT BINARY(24,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P071E
+
+   1 a 0000 pp071e: procedure options(main);
+   2 c 0006    declare x float, y float, f float;
+   3 c 0006    f = x * y + 1.5e0;
+   4 a 001D end pp071e;
+
+CODE SIZE = 0020
+DATA AREA = 0010
+FREE SYMS = 3928
+END  COMPILATION
+
+C>
+>>> PLI D:P071F $L$S
+PLI D:P071F $L$S
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P071F
+
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PP071F ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 9 BYTES
+c 0000 Z FIXED BINARY(15,0) AUTOMATIC
+c 0002 D FIXED DECIMAL(5,2) AUTOMATIC
+c 0005 X FLOAT BINARY(24,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P071F
+
+   1 a 0000 pp071f: procedure options(main);
+   2 c 0006    declare z fixed, d fixed decimal(5,2), x float;
+   3 c 0006    z = d;
+   4 c 0019    d = x;
+   5 c 002E    x = z;
+   6 c 003A    d = z;
+   7 a 004D end pp071f;
+
+CODE SIZE = 0050
+DATA AREA = 0009
+FREE SYMS = 3945
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10055 ms, waited for 0 ms
+CPU executed 41267360 t-states in 18 ms
+Clock frequency 2273.55 MHz

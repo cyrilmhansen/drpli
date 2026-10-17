@@ -3,7 +3,7 @@
 transcripts. Usage: vtrace.py <transcript-file...> [--name P068E5]"""
 import re, sys
 
-OP_RE = re.compile(r'^\s*\d{2}\s+([A-Z]{2,4})\s+(.*)$')
+OP_RE = re.compile(r'^\s*\d{2}\s+([A-Z][A-Z0-9]{1,3})\s+(.*)$')
 SRC_RE = re.compile(r'^\s*(\d+)\s+[a-e]\s+([0-9A-F]{4})\s+(.*)$')
 
 def parse(path):

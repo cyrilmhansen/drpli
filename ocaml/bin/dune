@@ -15,3 +15,9 @@
  (name pli80tree)
  (libraries pli80)
  (flags (:standard -warn-error -a)))
+
+(executable
+ (name pli80ir)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))
+

@@ -1,0 +1,4 @@
+P071C	ok	PRN=False REL=True
+P071D	ok	PRN=False REL=True
+P071E	ok	PRN=False REL=False
+P071F	ok	PRN=False REL=False
