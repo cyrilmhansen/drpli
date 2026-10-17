@@ -1,0 +1,4 @@
+G001	ok	PRN=False REL=True
+G002	ok	PRN=False REL=True
+G003	ok	PRN=False REL=True
+G004	ok	PRN=False REL=True

@@ -1,0 +1,244 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:G001 $V$L
+PLI D:G001 $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: G001
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: G001
+
+CTL  0251
+   1 a 0000 pg001: procedure options(main);
+  00 BEG 0 N 0 50 00 31 00
+CTL  0251
+   2 c 0006    declare x float, y float, f float;
+  00 NID 0 N 1 00 00 28 00 PG001
+  00 ENT 0 N 0 00 00 00 00 #E7D0
+   3 c 0006    f = x / y;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 FID 0 N 1 00 00 00 00 F A(0008)
+  00 FID 0 N 1 00 00 00 00 X A(0000)
+  00 FLD 1 N 0 24 00 00 00
+  00 FID 0 N 1 00 00 00 00 Y A(0004)
+  00 FLD 1 N 0 24 00 00 00
+  00 FDV 2 N 0 24 00 00 00
+  00 FAS 2 X 0 24 00 28 00
+CTL  0247
+CTL  0252
+   4 a 0017 end pg001;
+  00 STP 0 N 0 50 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 001A
+DATA AREA = 000C
+FREE SYMS = 3946
+END  COMPILATION
+
+C>
+>>> PLI D:G002 $V$L
+PLI D:G002 $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: G002
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: G002
+
+CTL  0251
+   1 a 0000 pg002: procedure options(main);
+  00 BEG 0 N 0 50 00 31 00
+CTL  0251
+   2 c 0006    declare x float, y float, f float, z fixed;
+  00 NID 0 N 1 00 00 28 00 PG002
+  00 ENT 0 N 0 00 00 00 00 #E7C5
+   3 c 0006    z = 1;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(000C)
+  00 C2  0 N 0 00 00 00 00 #0001
+  00 ILD 1 N 0 01 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   4 c 0006    f = x / y;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 FID 0 N 1 00 00 00 00 F A(0008)
+  00 FID 0 N 1 00 00 28 00 X A(0000)
+  00 FLD 1 N 0 24 00 00 00
+  00 FID 0 N 1 00 00 00 00 Y A(0004)
+  00 FLD 1 N 0 24 00 00 00
+  00 FDV 2 N 0 24 00 00 00
+  00 FAS 2 X 0 24 00 00 00
+CTL  0247
+CTL  0252
+   5 a 001D end pg002;
+  00 STP 0 N 0 50 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 0020
+DATA AREA = 000E
+FREE SYMS = 3930
+END  COMPILATION
+
+C>
+>>> PLI D:G003 $V$L
+PLI D:G003 $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: G003
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: G003
+
+CTL  0251
+   1 a 0000 pg003: procedure options(main);
+  00 BEG 0 N 0 50 00 31 00
+CTL  0251
+   2 c 0006    declare x float, y float, f float, z fixed;
+  00 NID 0 N 1 00 00 28 00 PG003
+  00 ENT 0 N 0 00 00 00 00 #E7C5
+   3 c 0006    z = 1;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(000C)
+  00 C2  0 N 0 00 00 00 00 #0001
+  00 ILD 1 N 0 01 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   4 c 0006    z = 2;
+  00 LIO 0 N 1 00 00 00 00 #0004
+  00 IID 0 N 1 00 00 00 00 Z A(000C)
+  00 C2  0 N 0 00 00 28 00 #0002
+  00 ILD 1 N 0 02 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   5 c 0006    z = 3;
+  00 LIO 0 N 1 00 00 00 00 #0005
+  00 IID 0 N 1 00 00 00 00 Z A(000C)
+  00 C2  0 N 0 00 00 00 00 #0003
+  00 ILD 1 N 0 02 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+   6 c 0006    f = x / y;
+  00 LIO 0 N 1 00 00 00 00 #0006
+  00 FID 0 N 1 00 00 00 00 F A(0008)
+  00 FID 0 N 1 00 00 08 00 X A(0000)
+  00 FLD 1 N 0 24 00 05 00
+  00 FID 0 N 1 00 00 21 00 Y A(0004)
+  00 FLD 1 N 0 24 00 00 00
+  00 FDV 2 N 0 24 00 00 00
+  00 FAS 2 X 0 24 00 97 00
+CTL  0247
+CTL  0252
+   7 a 0025 end pg003;
+  00 STP 0 N 0 50 00 31 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 0028
+DATA AREA = 000E
+FREE SYMS = 391A
+END  COMPILATION
+
+C>
+>>> PLI D:G004 $V$L
+PLI D:G004 $V$L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: G004
+
+L: List Source Program
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: G004
+
+CTL  0251
+   1 a 0000 pg004: procedure options(main);
+  00 BEG 0 N 0 50 00 31 00
+CTL  0251
+   2 c 0006    declare x float, y float, f float, q1 fixed, q2 fixed, q3 fixed, q4 fixed;
+  00 NID 0 N 1 00 00 28 00 PG004
+  00 ENT 0 N 0 00 00 00 00 #E7A0
+   3 c 0006    f = x / y;
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 FID 0 N 1 00 00 00 00 F A(0008)
+  00 FID 0 N 1 00 00 00 00 X A(0000)
+  00 FLD 1 N 0 24 00 00 00
+  00 FID 0 N 1 00 00 00 00 Y A(0004)
+  00 FLD 1 N 0 24 00 00 00
+  00 FDV 2 N 0 24 00 00 00
+  00 FAS 2 X 0 24 00 28 00
+CTL  0247
+CTL  0252
+   4 a 0017 end pg004;
+  00 STP 0 N 0 50 00 00 00
+CTL  0252
+CTL  0255
+
+CODE SIZE = 001A
+DATA AREA = 0014
+FREE SYMS = 3916
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10051 ms, waited for 0 ms
+CPU executed 42569183 t-states in 24 ms
+Clock frequency 1710.08 MHz

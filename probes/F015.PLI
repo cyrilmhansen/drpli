@@ -1,0 +1,5 @@
+pf015: procedure options(main);
+   declare x float, y float, f float, g float;
+   f = x + y;
+   g = x + y;
+end pf015;

@@ -1,0 +1,4 @@
+pf010: procedure options(main);
+   declare a fixed, b fixed, z fixed;
+   z = mod(a, b);
+end pf010;

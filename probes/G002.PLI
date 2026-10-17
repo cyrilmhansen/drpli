@@ -1,0 +1,5 @@
+pg002: procedure options(main);
+   declare x float, y float, f float, z fixed;
+   z = 1;
+   f = x / y;
+end pg002;

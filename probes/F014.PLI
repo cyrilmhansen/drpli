@@ -1,0 +1,5 @@
+pf014: procedure options(main);
+   declare p fixed decimal(7,2), q fixed decimal(7,2), d fixed decimal(7,2);
+   d = p + q;
+   d = p + q;
+end pf014;

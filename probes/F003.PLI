@@ -1,0 +1,4 @@
+pf003: procedure options(main);
+   declare x float, y float, f float;
+   f = x + y;
+end pf003;

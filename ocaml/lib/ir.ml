@@ -104,12 +104,11 @@ let lower_num (env : env) (txt : string) =
                    String.length before_e - i - 1)
       | None -> (String.length digits, 0)
     in
-    (* DR decimal literals [P071C '1.5' -> DLD 15 4 pool 8B; P060A
-       '123'->*S(0006) DLD 05 02?!?]: integer part p15/s=fps-ish; v1
-       model: p = 15 when fractional digits exist?? else pool BCD of
-       the number. SIZE = ceil((p+1)/2) BCD. [rule partially TBD —
-       gate-driven] *)
-    let (p, s) = if fps > 0 then (15, 4) else (ipd, 0) in
+    (* NATURAL decimal literal type = dec(ipd+fps, fps) [P072D '10.0' ->
+       DLD 03 01]. A literal under an alignment op (Add/Sub) instead goes
+       through emit_pool_dec with the RESCALED target (p,s) [P071C '1.5'
+       -> DLD 15 04, 8-byte pool] — that is the dctx path, not this one. *)
+    let (p, s) = if fps > 0 then (ipd + fps, fps) else (ipd, 0) in
     let off = !(env.pool) in
     env.pool := off + (if is_float then 4 else (p + 2) / 2 + (if s > 0 then 1 else 0));
     if is_float then begin
@@ -117,7 +116,9 @@ let lower_num (env : env) (txt : string) =
       emit env "FLD 1 N 0 24 00 00 00";
       Tflt
     end else begin
-      emit env (Printf.sprintf "DID 0 N 1 00 00 28 00 * S(%04X)" off);
+      (* DEC pool-constant ref carries f6=00 [P071C/P072D DID *S], unlike
+         the FLOAT pool ref (28) [P071E] — observed distinction. *)
+      emit env (Printf.sprintf "DID 0 N 1 00 00 00 00 * S(%04X)" off);
       emit env (Printf.sprintf "DLD 1 N 0 %02d %02d 00 00" p s);
       Tdec (p, s)
     end
@@ -132,10 +133,15 @@ let lower_num (env : env) (txt : string) =
 let arith_result op lt rt =
   match (lt, rt, op) with
   | Tbin _, Tbin _, _ -> Tbin 15
-  | Tdec (p1, s1), Tdec (p2, s2), Ast.Mul -> Tdec (p1 + p2 + 1, s1 + s2)
+  (* PL/I-80 caps decimal precision at 15 (max FIXED DECIMAL). All the
+     +1 / sum rules below are clamped to 15 [P071C L4 (15,4)-(2,1) ->
+     max+1=16 capped to 15; L3 (7,2)+(7,2) -> 8 (<15) unclamped]. *)
+  | Tdec (p1, s1), Tdec (p2, s2), Ast.Mul ->
+      Tdec (min 15 (p1 + p2 + 1), s1 + s2)
   | Tdec (p1, s1), Tdec (p2, s2), (Ast.Add | Ast.Sub) ->
-      Tdec (max p1 p2 + 1, max s1 s2)
-  | Tdec (p1, s1), Tdec (_, s2), Ast.Div -> Tdec (p1 + s2 + 1, p1 + s2)
+      Tdec (min 15 (max p1 p2 + 1), max s1 s2)
+  | Tdec (p1, s1), Tdec (_, s2), Ast.Div ->
+      Tdec (min 15 (p1 + s2 + 1), p1 + s2)
       (* [HYPOTHESIS from P087H rescale chain; needs gate confirm] *)
   | (Tflt, Tflt, _) -> Tflt
   | _ -> failwith "ir: mixed-type arithmetic [TBD conversions]"
@@ -242,6 +248,43 @@ let rec lower ?(root = false) ?(dctx : (int * int) option) (env : env)
       lower env x
   | _ -> failwith "ir: expression form not yet lowered"
 
+(* assignment RHS-type -> dest-type conversion chain.
+   Emitted AFTER the RHS value is on the stack, BEFORE the store node.
+   Chains transcribed from P071F/P072D goldens:
+     dec(p,s)->bin  : QDD(p,0) ; QDI(15,0)          [P071F L3 z=d]
+     float->dec(p,s): QFC(14,0) ; QCD(15,s)          [P071F L4 d=x]
+     bin->float     : QIF(15,0)                      [P071F L5 x=z]
+     bin->dec(p,s)  : QFD(pd+1,0) ; QDD(pd+1,s)      [P071F L6 d=z p=6
+                       for dec(5,2); pd+1 rule OBSERVED on one sample =
+                       [TBD] precision, not asserted]
+   Conversion-op f6/f7 are the internal/positional fields shown opaque by
+   the F/G battery -> emitted 00 (honest default), masked in the gate's
+   structural comparison. *)
+let convert (env : env) (src : ty) (dst : ty) =
+  if src = dst then ()
+  else
+    match (src, dst) with
+    | Tdec (ps, ss), Tdec (_, sd) ->
+        (* dec->dec: only a SCALE change needs an explicit rescale node;
+           QDD keeps the source precision, retargets scale [P071C L4
+           (15,4)->store(7,2) emits QDD(15,2)]; a pure precision change
+           truncates implicitly at the store [P071C L3 (8,2)->(7,2) none]. *)
+        if ss <> sd then emit env (Printf.sprintf "QDD 1 N 0 %02d %02d 00 00" ps sd)
+    | Tdec (p, _), Tbin _ ->
+        emit env (Printf.sprintf "QDD 1 N 0 %02d 00 00 00" p);
+        emit env "QDI 1 N 0 15 00 00 00"
+    | Tflt, Tdec (_, s) ->
+        emit env "QFC 1 N 0 14 00 00 00";
+        emit env (Printf.sprintf "QCD 1 N 0 15 %02d 00 00" s)
+    | Tbin _, Tflt ->
+        emit env "QIF 1 N 0 15 00 00 00"
+    | Tbin _, Tdec (pd, sd) ->
+        let q = pd + 1 in   (* [TBD] from P071F L6: dec(5,2) -> p=6 *)
+        emit env (Printf.sprintf "QFD 1 N 0 %02d 00 00 00" q);
+        emit env (Printf.sprintf "QDD 1 N 0 %02d %02d 00 00" q sd)
+    | (Tchr _, _) | (_, Tchr _) -> ()   (* [TBD] char conversions *)
+    | _ -> failwith ("ir: conversion [TBD] " ^ pp_ty src ^ " -> " ^ pp_ty dst)
+
 (* statements v1: only plain assignment to a simple variable.
    LIO #<source line> [P071x: #NNNN = source line number]. TARGET addr
    prints f6=00 even if previously assigned; AFTER the statement the
@@ -257,12 +300,12 @@ let lower_assign (env : env) (tgt : string) (rhs : Ast.expr) (line : int) =
         t
     | None -> failwith ("ir: assign to undeclared " ^ tgt)
   in
-  ignore (lower ~root:true env rhs);
+  let rt = lower ~root:true env rhs in
+  convert env rt tt;
   let (p, s) = tp_fields tt in
-  (* DEC stores print f6=28 [P071C both stmts; float/int stores 00 —
-     rule [HYPOTHESIS], refine on P071F/P072D/P060A] *)
-  let f6 = match tt with Tdec _ -> 28 | _ -> 0 in
-  emit env (Printf.sprintf "%s 2 X 0 %02d %02d %02d 00" (store_op tt) p s f6);
+  (* store f6 is the opaque/positional internal field (F/G battery) ->
+     honest default 00; never forced to match byte parity. *)
+  emit env (Printf.sprintf "%s 2 X 0 %02d %02d 00 00" (store_op tt) p s);
   let k = String.lowercase_ascii tgt in
   if not (List.mem k env.assigned) then
     env.assigned <- k :: env.assigned

@@ -1,0 +1,5 @@
+pf012: procedure options(main);
+   declare x float, y float, f float;
+   f = x / y;
+   f = x / y;
+end pf012;

@@ -1,0 +1,4 @@
+pf006: procedure options(main);
+   declare a fixed, b fixed, z fixed;
+   z = a * b;
+end pf006;
