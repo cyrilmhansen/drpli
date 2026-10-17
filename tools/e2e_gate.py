@@ -24,6 +24,10 @@ SPECIMENS = {
     "P071B": ("probes/P071B.PLI", "golden/probe38/P071B/P071B.REL"),
     # variable-base exponentiation -> integer RTL ?IEXOP (no pool):
     "G102": ("probes/G102.PLI", "golden/e2eexp/G102/G102.REL"),
+    # literal-base exponentiation -> decimal pool + DLDOP/DEXOP/QDI15:
+    "P071D": ("probes/P071D.PLI", "golden/probe38/P071D/P071D.REL"),
+    "G101": ("probes/G101.PLI", "golden/e2eexp/G101/G101.REL"),
+    "G105": ("probes/G105.PLI", "golden/e2eexp/G105/G105.REL"),
 }
 
 

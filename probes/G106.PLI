@@ -1,0 +1,5 @@
+pg106: procedure options(main);
+   declare z fixed, q fixed;
+   q = 1;
+   z = 7 ** 2;
+end pg106;

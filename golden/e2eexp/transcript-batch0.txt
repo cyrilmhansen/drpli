@@ -16,8 +16,8 @@ CPU speed is unlimited, CPU executes undocumented instructions
 
 A>C:
 C>
->>> PLI D:G101 $C$V$S
-PLI D:G101 $C$V$S
+>>> PLI D:G104 $C$V
+PLI D:G104 $C$V
 
 --------------------------------------------------
 PL/I-80 Compiler                       Version 1.4
@@ -25,49 +25,97 @@ Serial No. 3032-0000-001130    All Rights Reserved
 Copyright (c) 1980-1982     Digital Research, Inc.
 --------------------------------------------------
 
-COMPILATION OF: G101
+COMPILATION OF: G104
 
 C: Code Trace Only
-S: Symbol Table List
 V: Verify Intermediate File
 
-  SYMBOLS:
-
-BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
-a 0000 PG101 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
-BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
-c 0000 Z FIXED BINARY(15,0) AUTOMATIC
    NO ERROR(S) IN PASS 1
 
    NO ERROR(S) IN PASS 2
 
 CTL  0251
-  00 BEG 0 N 0 35 00 31 00
+  00 BEG 0 N 0 13 00 31 00
 CTL  0251
        0000       LXI  B,0200
        0003       CALL ?START
-  00 NID 0 N 1 00 00 28 00 PG101
+  00 NID 0 N 1 00 00 28 00 PG104
   00 ENT 0 N 0 00 00 00 00 #E7E6
   00 LIO 0 N 1 00 00 00 00 #0003
   00 IID 0 N 1 00 00 00 00 Z A(0002)
   00 C2  0 N 0 00 00 00 00 #0002
   00 ILD 1 N 0 02 00 00 00
   00 DID 0 N 1 00 00 00 00 * S(0000)
-  00 DLD 1 N 0 02 00 00 00
-  00 DEX 2 N 0 05 00 00 00
+  00 DLD 1 N 0 03 00 00 00
+  00 DEX 2 N 0 07 00 00 00
   00 QDI 1 N 0 15 00 28 00
   00 IAS 2 X 0 15 00 02 00
 CTL  0247
 ; LINE 0003
        0006       LXI  H,* S(0000)
-       0009       MVI  A,02
+       0009       MVI  A,03
        000B       CALL ?DLDOP
        000E       MVI  A,02
        0010       CALL ?DEXOP
        0013       CALL ?QDI15
        0016       SHLD Z A(0002)
 CTL  0252
-  00 STP 0 N 0 35 00 00 00
+  00 STP 0 N 0 13 00 00 00
+CTL  0252
+       0019       CALL ?STOPX
+CTL  0255
+
+CODE SIZE = 001C
+DATA AREA = 0004
+FREE SYMS = 3943
+END  COMPILATION
+
+C>
+>>> PLI D:G105 $C$V
+PLI D:G105 $C$V
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: G105
+
+C: Code Trace Only
+V: Verify Intermediate File
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+CTL  0251
+  00 BEG 0 N 0 13 00 31 00
+CTL  0251
+       0000       LXI  B,0200
+       0003       CALL ?START
+  00 NID 0 N 1 00 00 28 00 PG105
+  00 ENT 0 N 0 00 00 00 00 #E7E6
+  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Z A(0002)
+  00 C2  0 N 0 00 00 00 00 #0003
+  00 ILD 1 N 0 02 00 00 00
+  00 DID 0 N 1 00 00 00 00 * S(0000)
+  00 DLD 1 N 0 02 00 00 00
+  00 DEX 2 N 0 08 00 00 00
+  00 QDI 1 N 0 15 00 28 00
+  00 IAS 2 X 0 15 00 03 00
+CTL  0247
+; LINE 0003
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,02
+       000B       CALL ?DLDOP
+       000E       MVI  A,03
+       0010       CALL ?DEXOP
+       0013       CALL ?QDI15
+       0016       SHLD Z A(0002)
+CTL  0252
+  00 STP 0 N 0 13 00 00 00
 CTL  0252
        0019       CALL ?STOPX
 CTL  0255
@@ -78,8 +126,8 @@ FREE SYMS = 3944
 END  COMPILATION
 
 C>
->>> PLI D:G102 $C$V$S
-PLI D:G102 $C$V$S
+>>> PLI D:G106 $C$V
+PLI D:G106 $C$V
 
 --------------------------------------------------
 PL/I-80 Compiler                       Version 1.4
@@ -87,121 +135,63 @@ Serial No. 3032-0000-001130    All Rights Reserved
 Copyright (c) 1980-1982     Digital Research, Inc.
 --------------------------------------------------
 
-COMPILATION OF: G102
+COMPILATION OF: G106
 
 C: Code Trace Only
-S: Symbol Table List
 V: Verify Intermediate File
 
-  SYMBOLS:
-
-BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
-a 0000 PG102 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
-BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
-c 0000 A FIXED BINARY(15,0) AUTOMATIC
-c 0002 Z FIXED BINARY(15,0) AUTOMATIC
    NO ERROR(S) IN PASS 1
 
    NO ERROR(S) IN PASS 2
 
 CTL  0251
-  00 BEG 0 N 0 35 00 31 00
+  00 BEG 0 N 0 13 00 31 00
 CTL  0251
        0000       LXI  B,0200
        0003       CALL ?START
-  00 NID 0 N 1 00 00 28 00 PG102
+  00 NID 0 N 1 00 00 28 00 PG106
   00 ENT 0 N 0 00 00 00 00 #E7DB
   00 LIO 0 N 1 00 00 00 00 #0003
-  00 IID 0 N 1 00 00 00 00 Z A(0002)
-  00 C2  0 N 0 00 00 00 00 #0002
-  00 ILD 1 N 0 02 00 00 00
-  00 IID 0 N 1 00 00 00 00 A A(0000)
-  00 ILD 1 N 0 15 00 00 00
-  00 IEX 2 N 0 15 00 00 00
-  00 IAS 2 X 0 15 00 28 00
-CTL  0247
-; LINE 0003
-       0006       LHLD A A(0000)
-       0009       MVI  A,02
-       000B       CALL ?IEXOP
-       000E       SHLD Z A(0002)
-CTL  0252
-  00 STP 0 N 0 35 00 02 00
-CTL  0252
-       0011       CALL ?STOPX
-CTL  0255
-
-CODE SIZE = 0014
-DATA AREA = 0004
-FREE SYMS = 3951
-END  COMPILATION
-
-C>
->>> PLI D:G103 $C$V$S
-PLI D:G103 $C$V$S
-
---------------------------------------------------
-PL/I-80 Compiler                       Version 1.4
-Serial No. 3032-0000-001130    All Rights Reserved
-Copyright (c) 1980-1982     Digital Research, Inc.
---------------------------------------------------
-
-COMPILATION OF: G103
-
-C: Code Trace Only
-S: Symbol Table List
-V: Verify Intermediate File
-
-  SYMBOLS:
-
-BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
-a 0000 PG103 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
-BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
-c 0000 Z FIXED BINARY(15,0) AUTOMATIC
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-CTL  0251
-  00 BEG 0 N 0 35 00 31 00
-CTL  0251
-       0000       LXI  B,0200
-       0003       CALL ?START
-  00 NID 0 N 1 00 00 28 00 PG103
-  00 ENT 0 N 0 00 00 00 00 #E7E6
-  00 LIO 0 N 1 00 00 00 00 #0003
+  00 IID 0 N 1 00 00 00 00 Q A(0003)
+  00 C2  0 N 0 00 00 00 00 #0001
+  00 ILD 1 N 0 01 00 00 00
+  00 IAS 2 X 0 15 00 00 00
+  00 LIO 0 N 1 00 00 00 00 #0004
   00 IID 0 N 1 00 00 00 00 Z A(0001)
-  00 C2  0 N 0 00 00 00 00 #0005
-  00 ILD 1 N 0 03 00 00 00
+  00 C2  0 N 0 00 00 28 00 #0002
+  00 ILD 1 N 0 02 00 02 00
   00 DID 0 N 1 00 00 00 00 * S(0000)
   00 DLD 1 N 0 01 00 00 00
-  00 DEX 2 N 0 09 00 00 00
-  00 QDI 1 N 0 15 00 28 00
-  00 IAS 2 X 0 15 00 05 00
+  00 DEX 2 N 0 03 00 00 00
+  00 QDI 1 N 0 11 00 00 00
+  00 IAS 2 X 0 15 00 00 00
 CTL  0247
 ; LINE 0003
-       0006       LXI  H,* S(0000)
-       0009       MVI  A,01
-       000B       CALL ?DLDOP
-       000E       MVI  A,05
-       0010       CALL ?DEXOP
-       0013       CALL ?QDI15
-       0016       SHLD Z A(0001)
+       0006       LXI  H,0001
+       0009       SHLD Q A(0003)
+; LINE 0004
+       000C       LXI  H,* S(0000)
+       000F       MVI  A,01
+       0011       CALL ?DLDOP
+       0014       MVI  A,02
+       0016       CALL ?DEXOP
+       0019       CALL ?QDI15
+       001C       SHLD Z A(0001)
 CTL  0252
-  00 STP 0 N 0 35 00 00 00
+  00 STP 0 N 0 13 00 00 00
 CTL  0252
-       0019       CALL ?STOPX
+       001F       CALL ?STOPX
 CTL  0255
 
-CODE SIZE = 001C
-DATA AREA = 0003
-FREE SYMS = 3946
+CODE SIZE = 0022
+DATA AREA = 0005
+FREE SYMS = 3930
 END  COMPILATION
 
 C>
 >>> A:BYE (halt)
 
 C>A:BYE
-I/O ran for 8012 ms, waited for 0 ms
-CPU executed 30286745 t-states in 15 ms
-Clock frequency 1912.40 MHz
+I/O ran for 8041 ms, waited for 0 ms
+CPU executed 30405782 t-states in 17 ms
+Clock frequency 1731.53 MHz

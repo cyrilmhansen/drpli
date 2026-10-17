@@ -1,0 +1,4 @@
+pg105: procedure options(main);
+   declare z fixed;
+   z = 25 ** 3;
+end pg105;

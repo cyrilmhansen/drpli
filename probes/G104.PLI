@@ -1,0 +1,4 @@
+pg104: procedure options(main);
+   declare z fixed;
+   z = 100 ** 2;
+end pg104;
