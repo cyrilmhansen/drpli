@@ -141,3 +141,12 @@ Static/dynamic bound forms, HL-reuse init, temp bound slots, Sdobegin
 bodies, ^=const DCX ladders — all byte-exact first day; runtime
 console equality on 5 new arms (25 total). Gate 35/35, NEG 20/20.
 Lesson: raw-cmp everything (reldump hides SET-LC addr fields).
+
+# E2E-5a — extended DO forms (milestone slice, 2026-10-17)
+
+7 bounded probes, 7/7 byte-exact + console equality [C078]. Key
+semantic correction: bare DO; is a COMPOUND BLOCK in DR's codegen
+(no back edge, proven by Z403 bytes+console). REPEAT/WHILE/'1'b
+forms all banked. Post-sweep: RFACT/DFACT cluster closest (needs
+5b numeric PUT + recursion); FILE cluster (12) still behind COPY;
+OPTIMIST needs `true`-ident cond + substr/translate (far).

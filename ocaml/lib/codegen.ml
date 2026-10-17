@@ -373,6 +373,20 @@ let lower_test_skip st (c : Ast.expr) =
       d st op_mov_a_h; d st 0xb5;      (* ORA L *)
       d st 0xca;
       let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR Ast.Lt, { Ast.e = Ast.Eident v; _ },
+                 { Ast.e = Ast.Enumber k; _ }) ->
+      (* [Z401/Z405] i < kk: LHLD; (DCX H)*kk; MOV A,H; ORA A;
+         JP(F2) -> skip. NOTE ORA A here vs ORA L in the ^= form.
+         DR's switch point to a cheaper ladder for large kk
+         unproven: cap 8, above -> [TBD] *)
+      let kk = parse_int_const k in
+      if kk < 1 || kk > 8 then
+        failwith "codegen: < const range unproven [TBD]";
+      d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
+      for _ = 1 to kk do d st op_dcx_h done;
+      d st op_mov_a_h; d st op_ora_a;
+      d st op_jp;
+      let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR r, l, rr) when is_ident l && is_ident rr ->
       let ident = fun x ->
         match x.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> assert false
@@ -399,7 +413,7 @@ let lower_test_skip st (c : Ast.expr) =
            d st op_mov_a_h; d st 0xb5;  (* ORA L *)
            d st (if r = Ast.Eq then op_jnz else 0xca));  (* DR: ^= skip = JPE, not JZ: parity-defect [C072] *)
       let slot = st.lc in d st 0; d st 0; slot
-  | _ -> failwith "codegen: condition form not in E2E-3b subset [TBD]"
+  | _ -> failwith (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c)
 
 
 (* evaluate an integer expression, leaving the 16-bit value in HL *)
@@ -542,16 +556,35 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
             | Some p when k = 0 && p land 0xff00 = 0 ->
                 st.last_imm <- Some k; d st 0x6c (* MOV L,H *)
             (* [G114] small positive delta: DCX H repeats *)
-            | Some p when p - k >= 1 && p - k <= 4 ->
+            | Some p when p - k >= 1 && p - k <= 2 ->
                 st.last_imm <- Some k;
                 const_sub st (p - k)
             (* [G114B] small negative delta: INX H repeats *)
-            | Some p when k - p >= 1 && k - p <= 4 ->
+            | Some p when k - p >= 1 && k - p <= 2 ->
                 st.last_imm <- Some k;
                 for _ = 1 to k - p do d st op_inx_h done
+            (* [Z401 delta 3, Z406 delta 4] same high byte, |delta|>=3:
+               MVI L,lo (2 bytes beats any ladder). G114C (delta 771,
+               differing high) stays on the fresh-LXI fallback. *)
+            | Some p when p land 0xff00 = k land 0xff00
+                          && (p - k >= 3 || k - p >= 3) ->
+                st.last_imm <- Some k;
+                d st 0x2e (* MVI L *) ; d st (k land 0xff)
             | _ ->
                 st.last_imm <- Some k;
                 d st op_lxi_h; d st (k land 0xff); d st ((k lsr 8) land 0xff))
+       | Ast.Ebinary (Ast.Add, { Ast.e = Ast.Eident m; _ },
+                      { Ast.e = Ast.Enumber "1"; _ })
+         when String.lowercase_ascii m.Ast.orig
+              = String.lowercase_ascii n.Ast.orig ->
+           (* [Z401/Z403/Z404] x = x + 1 -> LHLD; INX H; SHLD.
+              HL holds a RUNTIME value afterwards: last_imm is
+              constant-tracking only -> None. -1/INX-variant forms
+              unproven, stay on the generic path. *)
+           st.last_imm <- None;
+           d st op_lhld; reloc st Data (addr_of st n.Ast.orig);
+           d st op_inx_h
+           (* final SHLD comes from the common tail *)
        | _ ->
            st.last_imm <- None;
            lower_hl st rhs);
@@ -700,8 +733,20 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     (by : Ast.expr option) (to_ : Ast.expr option)
     (while_ : Ast.expr option) (rep : Ast.expr option)
     (body : Ast.stmt) =
-  if while_ <> None || rep <> None then
-    failwith "codegen: DO WHILE/UNTIL/REPEAT deferred [TBD]";
+  (* proven REPEAT form [Z402/DFACT]: DO ind = c REPEAT(ind+1), no
+     TO/WHILE/BY. Everything else about REPEAT/WHILE combos is
+     unevidenced and stays [TBD]. *)
+  let proven_repeat =
+    match rep, to_, while_ with
+    | Some { Ast.e = Ast.Ebinary (Ast.Add,
+             { Ast.e = Ast.Eident ri; _ },
+             { Ast.e = Ast.Enumber "1"; _ }); _ }, None, None
+      when String.lowercase_ascii ri.Ast.orig =
+           String.lowercase_ascii ind.Ast.orig -> true
+    | _ -> false
+  in
+  if while_ <> None || (rep <> None && not proven_repeat) then
+    failwith "codegen: DO WHILE/REPEAT combo/UNTIL deferred [TBD]";
   (match by with
    | None -> ()
    | Some { Ast.e = Ast.Enumber "1"; _ } -> ()
@@ -716,7 +761,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     | Vint -> addr_of st ind.Ast.orig
     | _ -> failwith "codegen: DO index not fixed-bin [TBD]"
   in
-  (* init *)
+  (* init [Y302: INX H reuse when last_imm = from-1] *)
   (if st.last_imm = Some (fromv - 1) then
      (d st op_inx_h; st.last_imm <- Some fromv)
    else
@@ -724,6 +769,17 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
       d st ((fromv lsr 8) land 0xff);
       st.last_imm <- Some fromv));
   d st op_shld; reloc st Data iaddr;
+  if proven_repeat then begin
+    (* [Z402] body-head is the FIRST BODY instruction (not the
+       init); tail increment LHLD/INX/SHLD; JMP back; no test. *)
+    let head = st.lc in
+    lo st ls body;
+    d st op_lhld; reloc st Data iaddr;
+    d st op_inx_h;
+    d st op_shld; reloc st Data iaddr;
+    d st op_jmp; reloc st Code head;
+    st.last_imm <- None
+  end else begin
   let head, jpslot =
     match to_ with
     | Some { Ast.e = Ast.Enumber c; _ } ->
@@ -768,10 +824,10 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
   d st op_inx_h;
   d st op_shld; reloc st Data iaddr;
   d st op_jmp;
-  reloc st Code head;   (* helper advances LC over the
-                           implicit 2 operand bytes [Y301] *)
+  reloc st Code head;   (* helper advances LC [Y301] *)
   emit_triple st jpslot st.lc;
   st.last_imm <- None
+  end
 
 (* statement lowering with label/goto resolution *)
 let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
@@ -810,6 +866,31 @@ let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
              (Printf.sprintf
                 "codegen: GET form not in E2E-3e subset [TBD] \
                  (line %d)" s.Ast.spos.Source.line))
+  | Ast.Sdowhile { cond; body } ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (* while(...) conditions arrive Econd-wrapped (IF conds don't) *)
+      let cond = match cond.Ast.e with
+                 | Ast.Econd x -> x
+                 | _ -> cond
+      in
+      let head = st.lc in
+      if cond.Ast.e = Ast.Ebit "1" then begin
+        (* constant-true bit condition = pure forever, NO test
+           [Z404: COPY's DO WHILE('1'B)] *)
+        lower_stmt st ls body;
+        d st op_jmp; reloc st Code head
+      end else begin
+        let slot = lower_test_skip st cond in
+        lower_stmt st ls body;
+        d st op_jmp; reloc st Code head;
+        emit_triple st slot st.lc            (* [Z401: after JMP] *)
+      end
+  | Ast.Sdoforever body ->
+      (* bare DO; .. END; [Z403] body then unconditional JMP back *)
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      let head = st.lc in
+      lower_stmt st ls body;
+      d st op_jmp; reloc st Code head
   | Ast.Sdoto { ind; from; by; to_; while_; rep; body } ->
       st.lowered <- st.lowered + 1;
       lower_doto st ls (fun st ls s -> lower_stmt st ls s)

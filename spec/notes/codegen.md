@@ -287,3 +287,11 @@ Temp slot = pool+auto+2k. INX-H init reuse when last_imm=from-1.
 DO..END body arrives as Sdobegin (now lowered inline). ^=const kk ->
 (DCX H)*kk ladder, CA skip. PITFALL: reldump masks SET-LC addr —
 always raw-cmp, never trust a truncated grep of dumps.
+
+
+## E2E-5a: DO WHILE / REPEAT / bare-DO block [Z401-Z407 [C078]]
+WHILE: head=test insn; ladder from lower_test_skip (Econd unwrap);
+exit triple after tail JMP. Lt-vs-const: DCX*k; MOV A,H; ORA A; JP.
+'1'b cond = forever (no test). REPEAT(ind+1): tail-increment, no test.
+BARE DO; = BLOCK (no back edge!). x=x+1 -> LHLD/INX/SHLD.
+Const-store reuse: |d|<=2 ladders; same-H |d|>=3 -> MVI L; else LXI.

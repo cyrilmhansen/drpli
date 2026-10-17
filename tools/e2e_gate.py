@@ -63,6 +63,14 @@ SPECIMENS = {
     "Y303": ("probes/Y303.PLI", "golden/e2e4/Y303/Y303.REL"),
     "Y304": ("probes/Y304.PLI", "golden/e2e4/Y304/Y304.REL"),
     "Y306": ("probes/Y306.PLI", "golden/e2e4/Y306/Y306.REL"),
+    # E2E-5a: extended DO forms
+    "Z401": ("probes/Z401.PLI", "golden/e2e5a/Z401/Z401.REL"),
+    "Z402": ("probes/Z402.PLI", "golden/e2e5a/Z402/Z402.REL"),
+    "Z403": ("probes/Z403.PLI", "golden/e2e5a/Z403/Z403.REL"),
+    "Z404": ("probes/Z404.PLI", "golden/e2e5a/Z404/Z404.REL"),
+    "Z405": ("probes/Z405.PLI", "golden/e2e5a/Z405/Z405.REL"),
+    "Z406": ("probes/Z406.PLI", "golden/e2e5a/Z406/Z406.REL"),
+    "Z407": ("probes/Z407.PLI", "golden/e2e5a/Z407/Z407.REL"),
 }
 
 # specimens whose RAW console output must equal DR's (all have at
@@ -72,7 +80,8 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "G115", "G116", "V101", "V102", "V103", "V104",
                 "V105", "V106", "V108", "W101", "W102",
                 "X201", "X202", "DEMO", "Y301", "Y302", "Y303",
-                "Y304", "Y306"}
+                "Y304", "Y306", "Z401", "Z402", "Z403", "Z404",
+                "Z405", "Z406", "Z407"}
 
 
 def compile_one(name, src):
@@ -103,9 +112,6 @@ REJECTS = {
     "N7_MULTI_FWD": ("t:\n  procedure options(main);\n"
                      "  goto l;\n  goto l;\nl:\n  put list('X');\nend t;\n",
                      "[TBD]"),
-    "N8_CONDFORM": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
-                    "  if a < 3 then put list('X');\nend t;\n",
-                    "condition form"),
     "N9_GTZERO": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
                   "  if a > 0 then put list('X');\nend t;\n",
                   "unproven"),
@@ -134,10 +140,10 @@ REJECTS = {
                  "GET form"),
     "N19_DOBY": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
                  "  do i = 1 to 4 by 2;\n    put list('X');\n  end;\n"
-                 "end t;\n", "DO step"),
+                 "end t;\n", "DO step unproven"),
     "N20_DOWILE": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
-                   "  do while (i < 2);\n    put list('X');\n  end;\n"
-                   "end t;\n", "statement kind"),
+                   "  do while (i < 30);\n    put list('X');\n  end;\n"
+                   "end t;\n", "range unproven"),
     "N21_DOIDX": ("t:\n  procedure options(main);\n  dcl c char(4) varying;\n"
                   "  do c = 'A' to 'Z';\n    put list('X');\n  end;\n"
                   "end t;\n", "non-constant FROM"),

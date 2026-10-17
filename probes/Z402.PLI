@@ -1,0 +1,10 @@
+pz402: procedure options(main);
+   dcl i fixed;
+   do i = 0 repeat(i+1);
+      put list('R');
+      if i ^= 2 then goto d2;
+   end;
+d2:
+   put list('E');
+end pz402;
+

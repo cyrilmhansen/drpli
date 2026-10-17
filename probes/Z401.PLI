@@ -1,0 +1,13 @@
+pz401: procedure options(main);
+   dcl i fixed, j fixed;
+   i = 0;
+   j = 3;
+   do while (i < 3);
+      i = i + 1;
+      put list('W');
+   end;
+   do while (j < 2);
+      put list('N');
+   end;
+end pz401;
+

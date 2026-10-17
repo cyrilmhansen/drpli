@@ -1,0 +1,12 @@
+pz403: procedure options(main);
+   dcl i fixed;
+   i = 0;
+   do;
+      put list('B');
+      i = i + 1;
+      if i ^= 2 then goto out;
+   end;
+out:
+   put list('Z');
+end pz403;
+

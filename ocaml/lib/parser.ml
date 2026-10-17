@@ -686,6 +686,9 @@ and parse_if p =
 
 and parse_do p =
   if eat_punct p Token.Semi then
+    (* bare `DO;` = COMPOUND BLOCK (like BEGIN..END), NOT forever —
+       proven by DR codegen [Z403: no back edge emitted]. Forever
+       loops are written DO WHILE('1'b) [COPY] / DO WHILE(TRUE). *)
     Sdobegin (parse_group_until_end p)
   else if eat_key p "WHILE" then begin
     let cond = expr0 p in

@@ -1,0 +1,7 @@
+pz405: procedure options(main);
+   dcl i fixed;
+   i = 1;
+   if i < 3 then put list('L');
+   put list('D');
+end pz405;
+

@@ -1,0 +1,12 @@
+pz404: procedure options(main);
+   dcl i fixed;
+   i = 0;
+   do while('1'b);
+      put list('T');
+      i = i + 1;
+      if i ^= 2 then goto o;
+   end;
+o:
+   put list('K');
+end pz404;
+

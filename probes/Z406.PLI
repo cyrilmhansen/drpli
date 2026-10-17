@@ -1,0 +1,7 @@
+pz406: procedure options(main);
+   dcl a fixed, b fixed;
+   a = 0;
+   b = 4;
+   put list('X');
+end pz406;
+
