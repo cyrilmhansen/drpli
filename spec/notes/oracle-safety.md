@@ -90,7 +90,8 @@ Two realpath-validated, symlink-free zones; **fail closed** everywhere.
   to spawn with `cwd=oracle/` (the one directory where the relative
   path resolved). Undocumented cwd-dependency = reproducibility defect.
 * Fix: (1) vendored `cpmrecv.c` + built `cpmrecv` ELF in
-  `oracle/srctools/` (see README-provenance.md there); (2) `run.py`
+  `oracle/srctools/` (gitignored — untracked local build, same status as
+  thirdparty/; rebuild cmd + z80pack HEAD in that README); (2) `run.py`
   pins cpmsim `cwd` to the oracle dir regardless of launcher;
   (3) cpmsim resolution order is now `$CPMSIM` > in-mainline
   `thirdparty/z80pack/cpmsim/cpmsim` (git HEAD 91fd28e, same source as
