@@ -80,6 +80,8 @@ SPECIMENS = {
     "N308": ("probes/N308.PLI", "golden/e2e5b/N308/N308.REL"),
     "G117": ("probes/G117.PLI", "golden/e2e5b/G117/G117.REL"),
     "G118": ("probes/G118.PLI", "golden/e2e5b/G118/G118.REL"),
+    # E2E-5c slice 1: non-recursive internal call
+    "P401": ("probes/P401.PLI", "golden/e2e5c/P401/P401.REL"),
 }
 
 # specimens whose RAW console output must equal DR's (all have at
@@ -91,7 +93,7 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "X201", "X202", "DEMO", "Y301", "Y302", "Y303",
                 "Y304", "Y306", "Z401", "Z402", "Z403", "Z404",
                 "Z405", "Z406", "Z407", "N301", "N302", "N303",
-                "N304", "N306", "N308", "G117", "G118"}
+                "N304", "N306", "N308", "G117", "G118", "P401"}
 
 
 def compile_one(name, src):

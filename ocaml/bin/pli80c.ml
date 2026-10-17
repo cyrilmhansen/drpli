@@ -27,7 +27,8 @@ let () =
       let blk = Pli80.Parser.parse_source text in
       let prog, data_size, vars = Pli80.Codegen.rows_of blk in
       let (items, code_len) =
-        Pli80.Codegen.emit_program prog data_size vars blk.Pli80.Ast.bstmts
+        Pli80.Codegen.emit_program prog data_size vars
+          blk.Pli80.Ast.bstmts blk
       in
       let rel = Pli80.Rel80.encode items in
       (* pad to 128-byte sector like DR *)

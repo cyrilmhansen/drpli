@@ -302,3 +302,20 @@ Item chain: PIlit=SLCTS+PNCOP; numeric=HL,+width,QICOP,PNVOP; ONE
 QIOOP tail. width=min(9,digits(2^p-1)+4). 1-byte vars: LDA/32-store
 (0x32 literal!), MUL RHS interleave. bare SKIP = skip(1). Econd on
 parenthesized items. bin(p>15) = DR NOT-IMP mirror reject.
+
+## E2E-5c slice 1 — internal procedure calls (non-recursive) [C080]
+- `Bind.bind_program blk`: additive whole-program DFS layout view
+  (call PARAM cells after caller named autos, callee ptr cells first
+  then shifted dcl rows, formal-dcl dedup iff non-recursive, shadow
+  value cell iff recursive, expr-arg temp after its slot). $S path
+  untouched. Validated against P401/P402/RFACT DATA AREA totals.
+- Codegen: st gains scope-chain vars (swapped per proc body),
+  deref set, call FIFO (consumed in exactly the prescan DFS order —
+  name assert catches drift), entries, fcalls (CHAIN-ADDR resolved
+  at callee entry byte), stop_seen (epilogue suppression), floor
+  (DO temp placement above call cells).
+- Call lowering = deferred triple + LXI H,*A(slot) + CALL (forward
+  chain / backward inline reloc); callee prologue 5E 23 56 EB 22+r;
+  formal load adds deref ladder; ADD w/ deref operand = PUSH H…POP D
+  form; RETURN = <expr>→HL + C9; stop; = ?STOPX inline, no epilogue.
+- Constant call args: 16-bit LE pool cells, counted in pool prescan.

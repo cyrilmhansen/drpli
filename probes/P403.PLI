@@ -1,0 +1,12 @@
+pp403: procedure options(main);
+   dcl x fixed, y fixed;
+   x = dbl(2);
+   y = dbl(3);
+   put skip list(x, y);
+   stop;
+   dbl: procedure(i) returns(fixed);
+      dcl i fixed;
+      return (i + i);
+   end dbl;
+end pp403;
+

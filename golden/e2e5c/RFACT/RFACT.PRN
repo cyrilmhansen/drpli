@@ -1,0 +1,127 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: RFACT
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 RFACT ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 7, AUTO STORAGE 2 BYTES
+c 0000 I FIXED BINARY(15,0) AUTOMATIC
+c 0000 FACTORIAL FUNCTION PARAMETERS(1) RECURSIVE CONSTANT
+c 0000 .* FIXED BINARY(15,0) RETURNED
+c 0002 .* FIXED BINARY(15,0) PARAMETER
+BLOCK AT LINE 16, AUTO STORAGE 4 BYTES, PARAMETERS I
+e 0000 I FIXED BINARY(15,0) PARAMETER
+e 0002 I FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: RFACT
+
+   1   0000 /******************************************************/
+   2   0000 /* This program evaluates the Factorial function (n!) */
+   3   0000 /* using recursion.                                   */
+   4   0000 /******************************************************/
+   5 a 0000 rfact:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   6 a 0006      procedure options(main);
+   7 c 0006      declare 
+   8 c 0006         i fixed;
+   9 c 0006      do i = 0 repeat(i+1);
+       0006       LXI  H,0000
+       0009       SHLD I A(000C)
+  10 c 000C         put skip list('factorial(',i,')=',factorial(i));
+       000C       LXI  D,0252
+       000F       LXI  B,0000
+       0012       CALL ?SYSPR
+       0015       MVI  A,01
+       0017       CALL ?SKPOP
+       001A       LXI  H,* S(0000)
+       001D       MVI  A,0A
+       001F       CALL ?SLCTS
+       0022       CALL ?PNCOP
+       0025       LHLD I A(000C)
+       0028       MVI  A,09
+       002A       CALL ?QICOP
+       002D       CALL ?PNVOP
+       0030       LXI  H,* S(000A)
+       0033       MVI  A,02
+       0035       CALL ?SLCTS
+       0038       CALL ?PNCOP
+       003B       LXI  H,* A(000E)
+       003E       CALL 0000
+       0041       MVI  A,09
+       0043       CALL ?QICOP
+       0046       CALL ?PNVOP
+       0049       CALL ?QIOOP
+       0010       ==== 004C
+       004C       LHLD I A(000C)
+       004F       INX  H
+       0050       SHLD I A(000C)
+       0053       JMP  000C
+  11 c 0056      end;
+  12 c 0056      stop;
+  13 c 0056 
+  14 c 0056      factorial:
+  15 c 0056           procedure(i) returns(fixed) recursive;
+  16 e 0056           declare 
+       0056       LXI  B,0008
+       0059       LXI  D,0010
+       005C       CALL ?SVBLK
+       005F       MOV  E,M
+       0060       INX  H
+       0061       MOV  D,M
+       0062       XCHG 
+       0063       SHLD I A(0010)
+       0066       LHLD I A(0010)
+       0069       MOV  E,M
+       006A       INX  H
+       006B       MOV  D,M
+       006C       XCHG 
+       006D       SHLD I A(0012)
+  17 e 0070              i fixed;
+  18 e 0070           if i = 0 then return (1);
+       0070       LXI  H,I A(0012)
+       0073       MOV  A,M
+       0074       INX  H
+       0075       ORA  M
+       0076       JNZ  0000
+       0079       LXI  H,0001
+       007C       CALL ?RSBLK
+       007F       RET  
+       0077       ==== 0080
+  19 e 0080           return (i * factorial(i-1));
+       0080       LHLD I A(0012)
+       0083       DCX  H
+       0084       SHLD * A(0016)
+       0087       LXI  H,* A(0014)
+       008A       CALL FACTORIAL
+       008D       PUSH H
+       008E       LHLD I A(0012)
+       0091       POP  D
+       0092       CALL ?IM22N
+       0095       CALL ?RSBLK
+       0098       RET  
+  20 c 0099      end factorial;
+  21 c 0099 
+  22 a 0099 end rfact;
+  23 a 0099 
+
+CODE SIZE = 0099
+DATA AREA = 0018
+FREE SYMS = 3827
+END  COMPILATION
+

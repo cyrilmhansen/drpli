@@ -31,8 +31,7 @@ let dec_digits k =
   if k = 0 then 1 else bin_digits10 k
 
 type st =
-  { vars : (string * var_info) list   (* lowername -> info *)
-  ; base : int                        (* pool base = total pool bytes *)
+  { base : int                        (* pool base = total pool bytes *)
   ; mutable items : rel_item list
   ; mutable pool : (int * int list) list  (* (data-addr, bytes) literal blocks *)
   ; mutable pool_next : int           (* next free pool offset *)
@@ -43,8 +42,21 @@ type st =
                                          (2 bytes each, AFTER declared
                                          area [Y302: temp@6 = pool2+4;
                                          Y305: temp@5 = pool1+4]) *)
-  ; mutable lowered : int }           (* statements actually lowered
+  ; mutable lowered : int             (* statements actually lowered
                                          (discard-invariant witness) *)
+  (* ---- E2E-5c call state [P401/P402/RFACT bytes] ---- *)
+  ; mutable stop_seen : bool          (* explicit stop; suppresses the
+                                         epilogue CALL ?STOPX [P401: no
+                                         second STOPX after dbl code] *)
+  ; mutable calls : Bind.call_site list   (* prescan FIFO, DFS order *)
+  ; mutable procs : (string * Bind.proc_layout) list
+  ; mutable entries : (string * int) list (* lowered proc -> entry lc *)
+  ; mutable fcalls : (string * int) list  (* pending forward CALL slots *)
+  ; mutable deref : string list           (* ptr-formal names, cur scope *)
+  ; mutable floor : int                   (* layout total (cells+procs) *)
+  ; mutable vars : (string * var_info) list
+      (* scope chain head (lowername -> info); swapped per procedure
+         body [PL/I nesting: inner declarations shadow outer] *) }
 (* label bookkeeping for GOTO resolution [G115/G116]:
    emitted-labels assoc (lowername -> lc); pending forward refs
    (lowername -> operand slot). *)
@@ -480,16 +492,76 @@ let lower_test_skip st (c : Ast.expr) =
 
 
 (* evaluate an integer expression, leaving the 16-bit value in HL *)
+(* does evaluating e touch a pointer formal (deref ladder)? *)
+let rec hl_operand_deref st (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Eident n -> List.mem (String.lowercase_ascii n.Ast.orig) st.deref
+  | Ast.Ebinary (_, a, b) -> hl_operand_deref st a || hl_operand_deref st b
+  | Ast.Econd a | Ast.Eprefix (_, a) -> hl_operand_deref st a
+  | _ -> false
+
 let rec lower_hl st (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Enumber s ->
       let v = int_of_string (String.concat "" (String.split_on_char '_' s)) in
       d st op_lxi_h; d st (v land 0xff); d st ((v lsr 8) land 0xff)
+  | Ast.Esuffix (hd, args) ->
+      (* [E2E-5c P401] single-argument internal procedure call.
+         Deferred pointer pair + LXI H,*A(cell) + CALL; forward entry
+         via CHAIN-ADDR resolved at the procedure's first byte, known
+         entry via inline RELOC(code,entry) [P402 backward pattern] *)
+      begin match hd.Ast.e, args with
+      | Ast.Eident h, [ arg ] ->
+          let nm = String.lowercase_ascii h.Ast.orig in
+          if not (List.mem_assoc nm st.procs) then
+            failwith
+              (Printf.sprintf "codegen: call to unknown %s [TBD]" nm);
+          (match st.calls with
+           | (cs :: rest) when cs.Bind.cs_proc = nm ->
+               st.calls <- rest;
+               let target =
+                 match cs.Bind.cs_arg.Ast.e with
+                 | Ast.Enumber k ->
+                     let kv =
+                       int_of_string
+                         (String.concat "" (String.split_on_char '_' k))
+                     in
+                     pool_alloc st
+                       [| kv land 0xff; (kv lsr 8) land 0xff |]
+                 | Ast.Eident v ->
+                     let vn = String.lowercase_ascii v.Ast.orig in
+                     if List.mem vn st.deref then
+                       failwith
+                         "codegen: pointer-formal call argument \
+                          unproven [TBD]";
+                     addr_of st v.Ast.orig
+                 | _ ->
+                     failwith
+                       "codegen: expression call argument deferred [TBD]"
+               in
+               let slot = cs.Bind.cs_slot + st.base in
+               link st t_set_lc (Some (Data, slot)) None;
+               push st (Reloc (Data, target));
+               link st t_set_lc (Some (Code, st.lc)) None;
+               d st op_lxi_h; reloc st Data slot;
+               d st op_call;
+               let oslot = st.lc in
+               d st 0; d st 0;
+               (match List.assoc_opt nm st.entries with
+                | Some a -> reloc st Code a
+                | None -> st.fcalls <- (nm, oslot) :: st.fcalls);
+               st.last_imm <- None
+           | _ -> failwith "codegen: call-site queue mismatch [TBD]")
+      | _ -> failwith "codegen: multi-arg call deferred [TBD]"
+      end
   | Ast.Eident n ->
       (match vk_of st n.Ast.orig with
        | Vint -> ()
        | _ -> failwith "codegen: arithmetic on char variable [TBD]");
       let vi = List.assoc (String.lowercase_ascii n.Ast.orig) st.vars in
+      if vi.size = 1
+         && List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
+        failwith "codegen: 1-byte pointer formal unproven [TBD]";
       if vi.size = 1 then begin
         (* [N306/N303] 1-byte FIXED BIN: LD A,dir (3A+RELOC) then
            sign-extend into HL: MOV L,A; ADD A; SBB A; MOV H,A *)
@@ -499,16 +571,36 @@ let rec lower_hl st (e : Ast.expr) =
       end
       else begin
         d st op_lhld; reloc st Data (addr_of st n.Ast.orig);
+        if List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
+          (* pointer formal: dereference the passed address [P401 dbl:
+             LHLD i; MOV E,M; INX H; MOV D,M; XCHG -> HL = value] *)
+          (d st 0x5e; d st 0x23; d st 0x56; d st 0xeb);
         st.last_imm <- None   (* runtime value; not a const *)
       end
 
+  | Ast.Econd x ->
+      (* parentheses around an arithmetic expression arrive Econd-wrapped
+         (RETURN(expr), item positions). DR lowers them EXACTLY like the
+         unwrapped expression [P401 dbl body: (i+i) -> standard Add
+         ladder], so unwrap transparently. *)
+      lower_hl st x
   | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber "1"; _ }) ->
       (* [(a+1) N304] +1 lowers to INX H on the 2-byte path; other
          additions keep the general ladder *)
       lower_hl st l; d st op_inx_h; st.last_imm <- None
   | Ast.Ebinary (Ast.Add, l, r) ->
-      (* DR: HL=left ; XCHG ; HL=right ; DAD D  (=> HL = right+left) [P071A] *)
-      lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d
+      (* DR: HL=left ; XCHG ; HL=right ; DAD D  (=> HL = right+left)
+         [P071A]. WITH POINTER-DEREF OPERANDS the ladder is
+         left ; PUSH H ; right ; POP D ; DAD D [P401 dbl (i+i):
+         E5 @37, D1 @3F] — forced by mechanics: the deref ladder's own
+         XCHG (EB) clobbers DE, so the XCHG form cannot preserve the
+         left value across a second deref. *)
+      if hl_operand_deref st l || hl_operand_deref st r then begin
+        lower_hl st l; d st 0xe5;                    (* PUSH H *)
+        lower_hl st r; d st 0xd1; d st op_dad_d      (* POP D; DAD D *)
+      end else begin
+        lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d
+      end
   | Ast.Ebinary (Ast.Mul, l, r) ->
       (* var/expr OP var: DE=left HL=right, CALL ?IM22N [P071B/P080A].
          [N303] when the RHS is a 1-byte var DR interleaves: raw
@@ -611,6 +703,8 @@ and const_sub st n =
 
 (* store a char literal into a char/varying variable [V101-V105] *)
 let store_char st name (k : vkind) (v : string) =
+  if List.mem (String.lowercase_ascii name) st.deref then
+    failwith "codegen: store to pointer formal unproven [TBD]";
   let len = String.length v in
   if len > 255 then failwith "codegen: literal len > 255 [TBD]";
   d st op_lxi_h; reloc st Data (addr_of st name);
@@ -656,6 +750,12 @@ let is_small_int st (n : Ast.name) =
   | None -> false
 
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
+  (match lhs.Ast.e with
+   | Ast.Eident n ->
+       if List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
+         failwith
+           "codegen: store to pointer formal unproven [TBD]"
+   | _ -> ());
   match lhs.Ast.e with
   | Ast.Eident n when is_small_int st n ->
       (* [N306/N308] 1-byte FIXED BIN store: value in A then
@@ -748,6 +848,8 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
    next stmt. Record-stream order (X202 dump): after the SSVFS chain
    comes the JP triple, then QIOOP data, then the continuation triple. *)
 let lower_get st (nm : string) =
+  if List.mem (String.lowercase_ascii nm) st.deref then
+    failwith "codegen: GET into pointer formal unproven [TBD]";
   let cap = match vk_of st nm with
             | Vvar c -> if c > 255 then failwith "codegen: cap > 255 [TBD]"
                         else c
@@ -863,6 +965,8 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     | { Ast.e = Ast.Enumber c; _ } -> parse_int_const c
     | _ -> failwith "codegen: DO non-constant FROM unproven [TBD]"
   in
+  if List.mem (String.lowercase_ascii ind.Ast.orig) st.deref then
+    failwith "codegen: DO control is a pointer formal [TBD]";
   let iaddr =
     match vk_of st ind.Ast.orig with
     | Vint -> addr_of st ind.Ast.orig
@@ -910,7 +1014,9 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
             (fun a (_, (vi : var_info)) -> max a (vi.off + vi.size))
             0 st.vars
         in
-        let temp = st.base + auto_end + 2 * st.temps in
+        let temp =
+          st.base + max auto_end st.floor + 2 * st.temps
+        in
         st.temps <- st.temps + 1;
         d st op_lhld; reloc st Data (addr_of st bn.Ast.orig);
         d st op_shld; reloc st Data temp;
@@ -948,6 +1054,17 @@ let num_width st (x : Ast.expr) =
          | _ -> failwith "codegen: char var in numeric PUT item [TBD]")
     | Ast.Ebinary (_, l, r) -> max (w l) (w r)
     | Ast.Eprefix (_, x) -> w x
+    | Ast.Esuffix (hd, [ _ ]) ->
+        let hn =
+          match hd.Ast.e with
+          | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
+          | _ -> ""
+        in
+        if List.mem_assoc hn st.procs then
+          (* result of a RETURNS FIXED procedure: default bin(15)
+             width [HYPOTHESIS for returns BIN(p): no evidence yet] *)
+          9
+        else failwith "codegen: PUT numeric item form unproven [TBD]"
     | Ast.Enumber _ -> 0
     | _ -> failwith "codegen: PUT numeric item form unproven [TBD]"
   in
@@ -1024,7 +1141,76 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
   emit_triple st bslot st.lc
 
 (* statement lowering with label/goto resolution *)
-let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
+(* [E2E-5c P401] internal procedure block: forward-call resolution,
+   deref prologue, scoped body lowering. Recursive procedures and
+   bare-BEGIN blocks stay [TBD]. *)
+let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
+  let pb = bs.Ast.blk in
+  let nm =
+    match pb.Ast.bname with
+    | Some n -> String.lowercase_ascii n.Ast.orig
+    | None -> failwith "codegen: procedure without name [TBD]"
+  in
+  let pl =
+    match List.assoc_opt nm st.procs with
+    | Some p -> p
+    | None ->
+        failwith "codegen: BEGIN-block/procedure lowering deferred [TBD]"
+  in
+  (* entry label [P401 'dbl:' — blabel from parse_proc_block] *)
+  (match pl.Bind.pl_lbl with
+   | Some l ->
+       ls.labs <- (l, st.lc) :: ls.labs;
+       let slots =
+         List.filter (fun (k, _) -> k = l) ls.fwd |> List.map snd
+       in
+       ls.fwd <- List.filter (fun (k, _) -> k <> l) ls.fwd;
+       (match slots with
+        | [] -> ()
+        | [ one ] -> link st t_chain_addr (Some (Code, one)) None
+        | _ ->
+            failwith
+              "codegen: multiple forward GOTO per label chain \
+               unproven [TBD]")
+   | None -> ());
+  (* resolve pending forward CALLs at the entry byte [P401 @1285] *)
+  let hits = List.filter (fun (k, _) -> k = nm) st.fcalls in
+  st.fcalls <- List.filter (fun (k, _) -> k <> nm) st.fcalls;
+  (match hits with
+   | [] -> ()
+   | [ (_, one) ] -> link st t_chain_addr (Some (Code, one)) None
+   | _ ->
+       failwith "codegen: multiple forward CALL chain unproven [TBD]");
+  st.entries <- (nm, st.lc) :: st.entries;
+  if pl.Bind.pl_rec then
+    failwith "codegen: recursive procedure deferred [TBD]";
+  (match pl.Bind.pl_ptrs with
+   | [ (_f, ptr) ] ->
+       (* callee prologue [P401 dbl @29]: arg address arrives in HL *)
+       d st 0x5e; d st 0x23; d st 0x56; d st 0xeb;
+       d st op_shld; reloc st Data (ptr + st.base)
+   | [] -> ()
+   | _ -> failwith "codegen: multi-formal prologue deferred [TBD]");
+  let saved = st.vars and savedd = st.deref in
+  st.vars <-
+    List.map
+      (fun (n, rt, o) ->
+        (n,
+         match rt with
+         | Bind.RTbin p ->
+             if p > 15 then
+               failwith "codegen: FIXED BIN(>15) NOT IMP [TBD]"
+             else
+               { off = o; size = Bind.bytes_of rt; vk = Vint;
+                 w = binw (if p <= 0 then 15 else p) }
+         | _ ->
+             failwith "codegen: non fixed-bin procedure local [TBD]"))
+      pl.Bind.pl_rows @ saved;
+  st.deref <- List.map fst pl.Bind.pl_ptrs;
+  List.iter (fun x -> lower_stmt st ls x) pl.Bind.pl_body;
+  st.vars <- saved;
+  st.deref <- savedd
+and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   (* label prefixes resolve at the STATEMENT's LC [G115 loop:/done:] *)
   List.iter
     (fun (l : Ast.name) ->
@@ -1117,6 +1303,24 @@ let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   | Ast.Sdobegin ss ->
       st.lowered <- st.lowered + 1;
       List.iter (fun x -> lower_stmt st ls x) ss
+  | Ast.Sproc bs ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      lower_proc st ls bs
+  | Ast.Sreturn eo ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (match eo with
+       | Some e -> lower_hl st e
+       | None -> failwith "codegen: RETURN without value [TBD]");
+      d st 0xc9                              (* RET [P401 code@41] *)
+  | Ast.Sstop eo ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (match eo with
+       | Some _ -> failwith "codegen: STOP(code) deferred [TBD]"
+       | None -> ());
+      call_ext st "?STOPX";
+      st.stop_seen <- true
+  | Ast.Sprocedure_stmt _ ->
+      failwith "codegen: CALL statement deferred [TBD]"
   | Ast.Sdcl _ -> ()
   | Ast.Snull _ -> ()
   | _ -> failwith
@@ -1125,11 +1329,31 @@ let rec lower_stmt st (ls : lblstate) (s : Ast.stmt) =
 
 
 let emit_program (progname : string) (auto_bytes : int)
-    (rows : (string * var_info) list) (stmts : Ast.stmt list) =
-  let pool_total = prescan_pool stmts in
+    (rows : (string * var_info) list) (stmts : Ast.stmt list)
+    (blk : Ast.block) =
+  let layout = Bind.bind_program blk in
+  (* constant call arguments allocate 2B little-endian pool cells
+     [P401: '2' at data@0]; included in the pool prescan total so
+     pool-relative layout matches the lowering-time allocation run *)
+  let const_cells =
+    List.fold_left
+      (fun a (c : Bind.call_site) ->
+        match c.cs_arg.Ast.e with
+        | Ast.Enumber _ -> a + 2
+        | _ -> a)
+      0 layout.pl_calls
+  in
+  let pool_total = prescan_pool stmts + const_cells in
   let st =
-    { vars = rows; base = pool_total; items = []; pool = []
-    ; pool_next = 0; lc = 0; last_imm = None; lowered = 0; temps = 0 }
+    { base = pool_total; items = []; pool = []
+    ; pool_next = 0; lc = 0; last_imm = None; lowered = 0; temps = 0
+    ; stop_seen = false; calls = layout.pl_calls
+    ; procs =
+        List.map
+          (fun (p : Bind.proc_layout) -> (p.pl_name, p))
+          layout.pl_procs
+    ; entries = []; fcalls = []; deref = []
+    ; floor = layout.pl_total; vars = rows }
   in
   (* lower prologue + body + epilogue into st.items (code segment) *)
   d st op_lxi_b; d st 0x00; d st 0x02;
@@ -1145,6 +1369,13 @@ let emit_program (progname : string) (auto_bytes : int)
        failwith (Printf.sprintf
                    "codegen: GOTO to undefined/unresolvable label %s \
                     [TBD: DR pass-2 UNDEF diag]" nm));
+  (match st.fcalls with
+   | [] -> ()
+   | (nm, _) :: _ ->
+       failwith (Printf.sprintf
+                   "codegen: unresolved forward CALL to %s [TBD]" nm));
+  if st.calls <> [] then
+    failwith "codegen: unconsumed call-site cells [TBD]";
   (* DISCARD INVARIANT: every non-decl/non-null statement (at any
      nesting depth) must be accounted for by a lowering step. *)
   let req = List.fold_left (fun a s -> a + count_required s) 0 stmts in
@@ -1152,13 +1383,20 @@ let emit_program (progname : string) (auto_bytes : int)
     failwith
       (Printf.sprintf "codegen: DISCARD INVARIANT violated (%d required, \
                        %d lowered)" req st.lowered);
-  d st op_call;
-  let stop_slot = st.lc in
-  d st 0; d st 0;
-  link st t_chain_ext (Some (Code, stop_slot)) (Some "?STOPX");
+  (* explicit stop; inside the body REPLACES the epilogue CALL
+     [P401: STOPX @26 emitted at the statement; no trailing call;
+     programs without stop; keep the epilogue — 42 prior goldens] *)
+  if not st.stop_seen then begin
+    d st op_call;
+    let stop_slot = st.lc in
+    d st 0; d st 0;
+    link st t_chain_ext (Some (Code, stop_slot)) (Some "?STOPX")
+  end;
   let code_items = st.items in
   (* now build the ordered full item list *)
-  let data_size = pool_total + auto_bytes + 2 * st.temps in
+  let data_size =
+    pool_total + max auto_bytes layout.pl_total + 2 * st.temps
+  in
   let header =
     [ Link (t_progname, None, Some progname)
     ; Link (t_req_library, None, Some "PLILIB")

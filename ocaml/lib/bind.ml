@@ -747,3 +747,228 @@ let dump_s = bind_and_dump
 let bind_rows (blk : block) =
   let (_auto, _syms, _statics, rows) = layout blk in
   rows
+
+(* ---------- [E2E-5c] whole-program call layout (additive view) ----------
+   Rules extracted from DR bytes, P401/P402/RFACT ($S + $C + .REL
+   deferred-pair records) [C080]:
+     - caller block: named autos, then per call site in flow order one
+     2B PARAM cell; an expression argument adds a 2B value temp right
+     after its cell [P402: slot@A temp@C].
+     - callee blocks follow their caller's cells (DFS, declaration
+       order): first one 2B pointer cell per formal, then the block's
+       named dcl rows (offsets keep bind_rows packing, shifted after
+       the ptrs). A RECURSIVE callee's formal dcl cell IS the value
+       'shadow' [P402: n@6 ptr, n@8 value]; a NON-recursive callee
+       DEDUPS its formal dcl onto the ptr cell [P401 dbl: i@6 only].
+     - nested-procedure RETURNED cells occupy no storage (result in
+       HL) [P401 DATA=8; P402 DATA=0x0E].
+   Additive view for codegen; the $S byte path is untouched. *)
+type call_site =
+  { cs_proc : string; cs_slot : int; cs_arg : Ast.expr
+  ; cs_temp : int option }        (* Some addr iff arg is an expression *)
+
+type proc_layout =
+  { pl_name : string; pl_lbl : string option; pl_rec : bool
+  ; pl_ptrs : (string * int) list             (* formal -> ptr cell *)
+  ; pl_rows : (string * rt * int) list        (* body-visible rows *)
+  ; pl_body : Ast.stmt list }
+
+type prog_layout =
+  { pl_calls : call_site list     (* DFS order, POOL-EXCLUSIVE offsets *)
+  ; pl_procs : proc_layout list   (* DFS: parents before children *)
+  ; pl_total : int }              (* non-pool data bytes *)
+
+let pl_l (n : Ast.name) = String.lowercase_ascii n.Ast.orig
+
+(* direct subexpressions, source order *)
+let rec pl_kids (e : Ast.expr) : Ast.expr list =
+  match e.Ast.e with
+  | Ast.Esuffix (h, es) -> h :: es
+  | Ast.Ebinary (_, a, b) -> [ a; b ]
+  | Ast.Econd a | Ast.Eprefix (_, a) -> [ a ]
+  | Ast.Eqstruct (a, _) | Ast.Eqptr (a, _) -> [ a ]
+  | Ast.Ebuilt (_, es) -> es
+  | _ -> []
+
+(* calls to procs matching nm_of inside one expression (flow order).
+   NOTE: the callee-operand position of Esuffix is a name, not a call,
+   so `dbl(dbl(1))` would register only the inner [HYPOTHESIS corner;
+   nested calls fail loud later at codegen pop-name assert]. *)
+let pl_expr_calls nm_of (e : Ast.expr) =
+  let out = ref ([] : (string * Ast.expr * Source.pos) list) in
+  let rec go x =
+    match x.Ast.e with
+    | Ast.Esuffix (hd, args) -> begin
+        match hd.Ast.e with
+        | Ast.Eident h when nm_of (pl_l h) -> begin
+            match args with
+            | [ arg ] ->
+                out := !out @ [(pl_l h, arg, x.Ast.epos)]; go arg
+            | _ ->
+                failwith
+                  (Printf.sprintf
+                     "bind: multi-arg call at line %d deferred [TBD]"
+                     x.Ast.epos.Source.line)
+          end
+        | _ -> List.iter go (pl_kids x)
+      end
+    | _ -> List.iter go (pl_kids x)
+  in
+  go e; !out
+
+let rec pl_stmt_calls (nm_of : string -> bool) (s : Ast.stmt) =
+  let w e = pl_expr_calls nm_of e in
+  let own =
+    match s.Ast.st with
+    | Ast.Sassign { lhs; rhs } -> w lhs @ w rhs
+    | Ast.Sif { cond; _ } -> w cond
+    | Ast.Sdowhile { cond; _ } -> w cond
+    | Ast.Sdoto { from; by; to_; while_; rep; _ } ->
+        w from @ (match by with Some b -> w b | None -> [])
+        @ (match to_ with Some b -> w b | None -> [])
+        @ (match while_ with Some b -> w b | None -> [])
+        @ (match rep with Some b -> w b | None -> [])
+    | Ast.Sreturn (Some e) | Ast.Sstop (Some e) -> w e
+    | Ast.Sgoto { subscript; _ } -> List.concat_map w subscript
+    | Ast.Sput { items; _ } | Ast.Sget { items; _ } ->
+        List.concat_map
+          (fun it ->
+            match it with
+            | Ast.Pi_fmt { fargs; fcount; _ } ->
+                List.concat_map w fargs
+                @ (match fcount with Some c -> w c | None -> [])
+            | Ast.Pi_rep (a, b) -> w a @ w b
+            | Ast.Pi_repgrp (a, _) -> w a
+            | Ast.Pi_data e -> w e
+            | Ast.Pi_ctl (_, Some e) -> w e
+            | _ -> [])
+          items
+    | _ -> []
+  in
+  let kids =
+    match s.Ast.st with
+    | Ast.Sproc _ -> []      (* child blocks: separate DFS phase *)
+    | Ast.Sif { then_; els; _ } ->
+        pl_stmt_calls nm_of then_
+        @ (match els with Some e -> pl_stmt_calls nm_of e | None -> [])
+    | Ast.Sdobegin ss -> List.concat_map (pl_stmt_calls nm_of) ss
+    | Ast.Sdowhile { body; _ } -> pl_stmt_calls nm_of body
+    | Ast.Sdoforever body -> pl_stmt_calls nm_of body
+    | Ast.Sdoto { body; _ } -> pl_stmt_calls nm_of body
+    | _ -> []
+  in
+  own @ kids
+
+let bind_program (blk : Ast.block) : prog_layout =
+  let named_of (b : Ast.block) =
+    List.map (fun (nm, rt, off, _a) -> (nm, rt, off)) (bind_rows b)
+  in
+  let rt_bytes rt = match rt with RTentry _ -> 0 | _ -> bytes_of rt in
+  (* recursion: any call to `nm` anywhere inside block b's subtree *)
+  let rec is_rec (nm : string) (b : Ast.block) =
+    List.exists (fun s -> pl_stmt_calls (fun x -> x = nm) s <> [])
+      b.bstmts
+    || List.exists
+         (fun s ->
+           match s.Ast.st with
+           | Ast.Sproc bs -> is_rec nm bs.Ast.blk
+           | _ -> false)
+         b.bstmts
+  in
+  let calls = ref ([] : call_site list) in
+  let pls = ref ([] : proc_layout list) in
+  (* two-phase: registry first so call matching sees real procedures;
+     the first pass above is superseded by section2. *)
+  let reg = ref ([] : (string * Ast.block * bool * string list) list) in
+  let rec collect b =
+    List.iter
+      (fun (s : Ast.stmt) ->
+        match s.Ast.st with
+        | Ast.Sproc bs ->
+            let pb = bs.Ast.blk in
+            if pb.bkind = Ast.Bproc then begin
+              let nm = pl_l (Option.get pb.bname) in
+              let fm = List.map pl_l pb.bparams in
+              if fm = [] then
+                failwith (Printf.sprintf
+                            "bind: procedure %s without formals [TBD]" nm);
+              reg := !reg @ [(nm, pb, is_rec nm pb, fm)];
+              collect pb
+            end else collect pb
+        | _ -> ())
+      b.bstmts
+  in
+  collect blk;
+  calls := []; pls := [];
+  let names = List.map (fun (n, _, _, _) -> n) !reg in
+  let is_proc nm = List.mem nm names in
+  let rec section2 b base formals recf nm =
+    let nf = List.length formals in
+    if nm <> None && nf > 1 then
+      failwith "bind: multi-formal procedures deferred [TBD]";
+    let nr = named_of b in
+    let dedup x =
+      nf > 0 && List.mem x formals && nm <> None && not recf
+    in
+    let span =
+      List.fold_left
+        (fun m (x, rt, o) -> if dedup x then m else max m (o + rt_bytes rt))
+        0 nr
+    in
+    let named_base = base + (if nm <> None then 2 * nf else 0) in
+    let rows =
+      List.map
+        (fun (x, rt, o) ->
+          if dedup x then
+            let gi =
+              match List.find_index (fun f -> f = x) formals with
+              | Some i -> i | None -> 0
+            in
+            (x, rt, base + 2 * gi)
+          else (x, rt, named_base + o))
+        nr
+    in
+    let cur = ref (named_base + span) in
+    let sites =
+      List.map
+        (fun (p, arg, _pos) ->
+          let slot = !cur in
+          cur := !cur + 2;
+          let temp =
+            match arg.Ast.e with
+            | Ast.Enumber _ | Ast.Eident _ -> None
+            | _ -> let t = !cur in cur := !cur + 2; Some t
+          in
+          { cs_proc = p; cs_slot = slot; cs_arg = arg; cs_temp = temp })
+        (List.concat_map (fun s -> pl_stmt_calls is_proc s) b.bstmts)
+    in
+    calls := !calls @ sites;
+    let after = !cur in
+    (match nm with
+     | Some pn ->
+         pls := !pls
+                @ [ { pl_name = pn
+                    ; pl_lbl = (match b.blabel with
+                                | Some l -> Some (pl_l l) | None -> None)
+                    ; pl_rec = recf
+                    ; pl_ptrs =
+                        List.mapi (fun i f -> (f, base + 2 * i)) formals
+                    ; pl_rows = rows
+                    ; pl_body = b.bstmts } ]
+     | None -> ());
+    List.fold_left
+      (fun acc (s : Ast.stmt) ->
+        match s.Ast.st with
+        | Ast.Sproc bs ->
+            let pb = bs.Ast.blk in
+            if pb.bkind = Ast.Bproc then begin
+              let cn = pl_l (Option.get pb.bname) in
+              match List.find_opt (fun (n, _, _, _) -> n = cn) !reg with
+              | Some (_, _, r, fm) -> section2 pb acc fm r (Some cn)
+              | None -> acc
+            end else section2 pb acc [] false None
+        | _ -> acc)
+      after b.bstmts
+  in
+  let total = section2 blk 0 [] false None in
+  { pl_calls = !calls; pl_procs = !pls; pl_total = total }

@@ -103,3 +103,26 @@ RETAINED, re-scoped to i<30 (outside the proven DCX-k<=8 band), so
 the fail-loud boundary keeps its negative test; net 19 with zero
 dropped invariants. 5b then promoted N5->G117, N10->G118 (fresh DR
 goldens, byte+console exact) and added N22-N24: panel now 20/20.
+
+## SLICE 1 RESULT (implemented + accepted, this checkpoint)
+P401 (non-recursive call) byte-exact .REL/.COM/console (x=dbl(2) ->
+'        4\r'), gates 51/51 + 41 console arms. All C080 bullets above
+now live in codegen.ml/bind.ml (bind_program = additive DFS layout
+view; $S path untouched, still 47/47). The DFS cell/shadow model was
+FALSIFICATION-TESTED against P402's and RFACT's own DATA AREA values
+(0x0E, 0x18) BEFORE recursion code existed — both match exactly,
+strongly de-risking slice 2's layout (already known: SVBLK sizes,
+shadow usage, self-call backward RELOC, deferred expr-arg temp).
+
+## SLICE 2 REMAINING (recursion + RFACT acceptance) — next consultation
+- SVBLK/RSBLK emission (sizes/dest from layout: P402 LXI B,8 ; LXI D,6)
+- recursive prologue (deref + SHADOW copy) + value-cell body access
+- expression call arguments (slot+temp + runtime SHLD, deferred pair
+  slot->temp) [P402]
+- call-expression as PUT LIST item [RFACT: factorial(i) printed]
+- conditional RETURN / RSBLK-then-RET paths (skip-triple reuse)
+- RFACT.REL byte-exact + .COM identical + bounded finite-twin console
+  verification (per user directive: complete-records prefix from a
+  minimal finite twin exercising the same recursion, NOT timeout
+  truncation; small inputs avoiding FIXED BIN(15) overflow)
+- multi-forward-call chain records [P403 goldens banked; ACK slice]
