@@ -1,0 +1,11 @@
+pp401: procedure options(main);
+   dcl x fixed;
+   x = dbl(2);
+   put list(x);
+   stop;
+   dbl: procedure(i) returns(fixed);
+      dcl i fixed;
+      return (i + i);
+   end dbl;
+end pp401;
+

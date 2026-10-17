@@ -1,0 +1,4 @@
+DR-linked corpus RFACT.COM executed on oracle 2026-10-17, 60s bounded
+run (rc=timeout by design: forever program). Transcript tail shows
+program start ('D>0'); full-output equality impossible; acceptance
+will use deterministic transcript PREFIX.

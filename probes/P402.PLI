@@ -1,0 +1,12 @@
+pp402: procedure options(main);
+   dcl r fixed;
+   r = f(4);
+   put list(r);
+   stop;
+   f: procedure(n) returns(fixed) recursive;
+      dcl n fixed;
+      if n > 0 then return (n * f(n - 1));
+      return (1);
+   end f;
+end pp402;
+
