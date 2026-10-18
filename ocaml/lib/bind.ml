@@ -782,12 +782,14 @@ type prog_layout =
          = block base..end-of-section incl. its own call cells;
          P402: LXI B,8 ; LXI D,6 — two specimens; ACK/EXPR/DFACT
          corpus RELs carry more] *)
-  ; pl_total : int                (* non-pool data bytes *)
-  ; pl_tail_exit : bool }         (* last executable MAIN stmt before
-                                   appended procs can exit: TO/WHILE
-                                   loop or non-loop = true; no-exit
-                                   loop = false [R411/R431 vs
-                                   R429/R432 guard gate] *)
+  ; pl_total : int }              (* non-pool data bytes *)
+(* NOTE: an earlier iteration added a pl_tail_exit field ("can the last
+   MAIN tail loop exit?") as the guard gate. The 37-specimen matrix
+   REFUTES it: P404/R432/R406 guard straight-line tails with no loop at
+   all, and the real discriminator is whether the epilogue CALL ?STOPX
+   is displaced behind appended procedure code (window CLOSED and no
+   stop printed in place). The field is therefore gone; see the
+   guard_slots comment in codegen.ml. *)
 
 let pl_l (n : Ast.name) = String.lowercase_ascii n.Ast.orig
 
@@ -990,32 +992,5 @@ let bind_program (blk : Ast.block) : prog_layout =
       after b.bstmts
   in
   let total = section2 blk 0 [] false None in
-  let tail_exit =
-    match
-      List.rev
-        (List.filter
-           (fun (s : Ast.stmt) ->
-             match s.Ast.st with
-             | Ast.Sdcl _ | Ast.Snull _ -> false
-             | _ -> true)
-           blk.Ast.bstmts)
-    with
-    | [] -> true
-    | s :: _ ->
-        (match s.Ast.st with
-         | Ast.Sdoto { to_; while_; rep; body = _ } ->
-             (* no-exit loop = window: no TO, no WHILE, or a
-                constant-true WHILE('1'B) [R408; Z404] *)
-             let w1b =
-               match while_ with
-               | Some { Ast.e = Ast.Ebit "1"; _ } -> true
-               | Some { Ast.e = Ast.Econd { Ast.e = Ast.Ebit "1"; _ }; _ }
-                   -> true
-               | _ -> false
-             in
-             to_ <> None || (while_ <> None && not w1b)
-             || (w1b && false)
-         | _ -> true)
-  in
   { pl_calls = !calls; pl_procs = !pls; pl_secs = !secs;
-    pl_total = total; pl_tail_exit = tail_exit }
+    pl_total = total }

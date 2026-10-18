@@ -57,30 +57,44 @@ type st =
   ; mutable vars : (string * var_info) list
       (* scope chain head (lowername -> info); swapped per procedure
          body [PL/I nesting: inner declarations shadow outer] *)
-  ; mutable guards : int      (* tail-guard JMPs emitted [R404/R405/
-                                 R406/R423]: a no-stop main tail with
-                                 the suppression window OPEN appends
-                                 JMP<epilogue> + forward triple at
-                                 the append address before the first
-                                 proc prologue (CHAIN-ADDR -> the
-                                 epilogue CALL's operand slot); the
-                                 other 31 specimens have no such
-                                 shape (stop printed / window closed)
-                                 and show no guard *)
-  ; mutable guard_open : bool (* guard fired this stmt: a stop at
-                                 the guarded address prints NOTHING
-                                 but the epilogue survives [R423] *)
-  ; mutable tail_stop_dead : bool (* stop seen suppressed at an open
-                                 tail (guard or not) *)
-  ; mutable tail_addr : int   (* epilogue/proc-append region start =
-                                 max 0x03+len(epilogue chains), last
-                                 main-loop back-edge addr [RFACT 0x4C]
-                                 [HYPOTHESIS pending R426/R427] *)
+  ; mutable guards : int      (* tail-guard JMPs emitted (max one) *)
+  ; mutable appended : bool   (* a TOP-LEVEL procedure body has been
+                                 appended at the tail address. Every
+                                 golden lowers ALL procedures AFTER
+                                 every main-block statement; a live
+                                 main statement following an appended
+                                 proc is an unobserved DR layout, so
+                                 it fails loud instead of guessing. *)
+  ; mutable guard_slots : int list
+      (* [R404/R405/R406/R423/R429/R432/P404] tail-guard operand slots.
+         TAIL GUARD (bytes, 37-specimen matrix): when a top-level
+         PROCEDURE body is appended at the address control reaches from
+         the MAIN tail (fall-through OR a forward reference such as a
+         DO-loop exit jump) AND the epilogue CALL ?STOPX is emitted
+         AFTER that appended code, DR emits 3 bytes at the append
+         address, BEFORE the entry label / forward-call CHAIN-ADDR /
+         prologue:
+             C3 00 00            JMP <epilogue CALL address>
+         resolved by the usual deferred triple (SET-LC(code,slot),
+         RELOC(code,epi), SET-LC(code,epi)) emitted immediately BEFORE
+         the epilogue CALL bytes themselves [R404: JMP operand @29 ->
+         44 = the CD of the epilogue CALL ?STOPX; R405 @29 -> 6E;
+         P404 @10 -> 2B; R423 @34 -> 57; R432 @0D -> 28]. NOTE the
+         target is the epilogue CALL INSTRUCTION, not its operand slot
+         -- the same continuation mechanism as the PUT/LXI-B triples
+         [G113/P401]. CORRECTION to the earlier note in this file: the
+         discriminator is NOT "can the main tail loop exit" but
+         "is the epilogue displaced past appended proc code", i.e.
+         (no explicit stop printed in place) AND (suppression window
+         CLOSED at the proc entry). Open-window tails emit an
+         unconditional back edge and LOSE the epilogue => no guard
+         [RFACT/R407/R408/R410/R411/R414/R421/R422/R424/R425/R426/
+         R427/R431]; stop-in-place tails need no jump either [P401/
+         R409/R416/R417/R430/R433]. *)
   ; mutable in_proc : bool    (* lowering a procedure body *)
   ; mutable in_rec : bool     (* lowering a RECURSIVE proc body *)
   ; mutable after_forever : bool  (* last MAIN stmt = no-exit loop/stop *)
   ; mutable secs : (string * int * int) list (* proc -> base,size excl pool *)
-  ; mutable tail_exit : bool      (* main tail loop can exit [bind] *)
   ; mutable last_loop_edge : int }
 (* label bookkeeping for GOTO resolution [G115/G116]:
    emitted-labels assoc (lowername -> lc); pending forward refs
@@ -1249,6 +1263,27 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     | None ->
         failwith "codegen: BEGIN-block/procedure lowering deferred [TBD]"
   in
+  (* [R404/R405/R406/R423/R429/R432/P404] TAIL GUARD: emitted at the
+     append address BEFORE the entry label / forward-call chain /
+     prologue; see the guard_slots field comment for the full rule.
+     Evaluated once per program (the first appended proc). *)
+  if (not st.in_proc) && not st.stop_seen && not st.after_forever
+  then begin
+    if st.guards = 0 then begin
+      st.guards <- st.guards + 1;
+      d st op_jmp;
+      st.guard_slots <- st.lc :: st.guard_slots;
+      d st 0; d st 0
+    end
+    else
+      (* A SECOND appended proc in a guarded shape is unproven: no
+         golden has two top-level procedures. Refuse rather than
+         extrapolate DR's behavior. *)
+      failwith
+        "codegen: second appended procedure after a tail guard \
+         [TBD: unproven, no multi-procedure golden]"
+  end;
+  if not st.in_proc then st.appended <- true;
   (* entry label [P401 'dbl:' — blabel from parse_proc_block] *)
   (match pl.Bind.pl_lbl with
    | Some l ->
@@ -1340,36 +1375,12 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     (* recursive bodies read the SHADOW value cell with plain ladders
        [RFACT @80: LHLD I(12); DCX H — no deref] *)
     (if pl.Bind.pl_rec then [] else List.map fst pl.Bind.pl_ptrs);
-  let savedt = st.tail_addr and savedp = st.in_proc
-      and savedr = st.in_rec in
-  (* [R404/R405/R406/R423] tail guard: window open + no explicit
-     stop printed -> JMP + forward triple chained to the epilogue
-     slot, emitted once at the first appended proc entry *)
-  if (not st.in_proc) && st.after_forever && not st.stop_seen
-     && st.tail_exit
-  then begin
-    (* FOREVER-loop windows (no TO/WHILE exit) displace the epilogue
-       into the loop's back edge: NO guard [R411/R431 vs R429/R432];
-       a terminating tail (TO loop / straight-line code) keeps the
-       epilogue and gets a guard JMP at the first appended proc
-       entry [R404/R405/R406/R423/R429/R432] *)
-    if st.tail_exit then begin
-    st.guard_open <- true;
-    st.guards <- st.guards + 1;
-    d st op_jmp;
-    let gs = st.lc in
-    d st 0; d st 0;
-    link st t_chain_addr (Some (Code, gs)) None
-    end
-  end;
-  st.tail_addr <- st.lc;   (* tail form never fires inside procs
-                              [P401 dbl XCHG @30] *)
+  let savedp = st.in_proc and savedr = st.in_rec in
   st.in_proc <- true;
   st.in_rec <- pl.Bind.pl_rec;
   List.iter (fun x -> lower_stmt st ls x) pl.Bind.pl_body;
   st.in_rec <- savedr;
   st.in_proc <- savedp;
-  st.tail_addr <- savedt;
   st.vars <- saved;
   st.deref <- savedd
 and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
@@ -1547,8 +1558,8 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       (* stop; at an open window emits NOTHING: RFACT prints the
          statement at the append address (0056) with no code;
          R415/R418/R414/R426 confirm across proc/no-proc *)
-      let at_tail = st.after_forever || st.guard_open in
-      if at_tail then st.tail_stop_dead <- true
+      let at_tail = st.after_forever in
+      if at_tail then ()
       else begin
         call_ext st "?STOPX";
         st.stop_seen <- true;
@@ -1591,10 +1602,9 @@ let emit_program (progname : string) (auto_bytes : int)
           layout.pl_procs
     ; entries = []; fcalls = []; deref = []
     ; floor = layout.pl_total; vars = rows
-    ; tail_addr = 3; in_proc = false; in_rec = false
-    ; after_forever = false; guards = 0; guard_open = false
-    ; tail_stop_dead = false; secs = layout.Bind.pl_secs
-    ; tail_exit = layout.Bind.pl_tail_exit
+    ; in_proc = false; in_rec = false
+    ; after_forever = false; guards = 0; guard_slots = []
+    ; appended = false; secs = layout.Bind.pl_secs
     ; last_loop_edge = 0 }
   in
   (* lower prologue + body + epilogue into st.items (code segment) *)
@@ -1606,6 +1616,15 @@ let emit_program (progname : string) (auto_bytes : int)
   let ls = { labs = []; fwd = [] } in
   List.iter
     (fun (s : Ast.stmt) ->
+      (* [R423/ALL goldens] every procedure body is appended AFTER
+         every main-block statement; DR layout with a live statement
+         following an appended proc is unobserved -> fail loud *)
+      if st.appended && not st.in_proc then
+        (match s.Ast.st with
+         | Ast.Sproc _ | Ast.Sdcl _ | Ast.Snull _ -> ()
+         | _ -> failwith
+                "codegen: main-block statement after an appended \
+                 procedure [TBD: unproven DR append layout]");
       (* [R401/R414/R419/R420/R423] any main-block statement other
          than a no-exit loop or the trailing stop anchors the
          epilogue region and closes the suppression window; the
@@ -1656,14 +1675,27 @@ let emit_program (progname : string) (auto_bytes : int)
      not change the window state, it just sits between the window
      address and the epilogue slot *)
   (* [R423] a guarded tail keeps the epilogue CALL (the guard JMP
-     targets its operand slot); plain open windows drop it *)
-  let tail_displaced = st.after_forever && not st.tail_stop_dead in
+     targets the CALL itself); plain open windows drop it *)
+  let tail_displaced = st.after_forever in
   if not st.stop_seen && not tail_displaced then begin
+    (* backpatch the tail-guard JMP operand(s) to THIS epilogue
+       address [R404: @29 -> 0x44; P404: @10 -> 0x2B], immediately
+       before the CALL bytes, then emit CALL ?STOPX *)
+    List.iter (fun gs -> emit_triple st gs st.lc)
+      (List.rev st.guard_slots);
+    st.guard_slots <- [];
     d st op_call;
     let stop_slot = st.lc in
     d st 0; d st 0;
     link st t_chain_ext (Some (Code, stop_slot)) (Some "?STOPX")
   end;
+  (* a guard whose JMP operand never got an epilogue to point at is
+     an unobserved shape: fail loud rather than emit 3 dangling bytes *)
+  if st.guard_slots <> [] then
+    failwith
+      "codegen: tail guard emitted without an epilogue CALL to chain \
+       to [TBD: unproven DR shape (no-exit main tail AFTER an \
+       appended procedure)]";
   let code_items = st.items in
   (* now build the ordered full item list *)
   let data_size =

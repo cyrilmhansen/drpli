@@ -213,3 +213,107 @@ formula before coding.
 the session ends before TODO 8, commit the best-green state with an
 honest message and leave the DIFFing probes unregistered (fail-loud only
 in the panel, never silently).
+
+---
+
+# RESOLUTION (same day, slice-2 completion) — TAIL GUARD RULE CORRECTED
+
+## The pre-existing model was wrong on three counts (raw bytes, 37 goldens)
+
+1. **Guard polarity.** The WIP gate `after_forever && not stop_seen &&
+   tail_exit` required the suppression window to be OPEN. DR guards
+   exactly when the window is CLOSED. R404/R429 (`DO i=1 TO 3`, never
+   opens a window) guard; R410/R411/R414/R426/R427/R431/RFACT (window
+   open) do NOT. The old rule produced a guard INSIDE RFACT's recursive
+   body (@70) and no guard where DR emits one.
+2. **Guard target + encoding.** There is NO CHAIN-ADDR on the guard.
+   DR emits `C3 00 00` (absolute zeros) and patches the 2-byte operand
+   with the ordinary deferred backpatch triple
+   `SET-LC(code,slot) ; RELOC(code,epi) ; SET-LC(code,epi)` placed
+   IMMEDIATELY BEFORE the epilogue CALL bytes. The resolved target is
+   the epilogue `CALL ?STOPX` INSTRUCTION (its CD byte), not the
+   ?STOPX operand slot. Verified slot->target pairs:
+   R404 29->44, R405 29->6E, R406 10->55, R423 34->57, R429 29->44,
+   R432 0D->28, P404 10->2B (CODE SIZE = epi+3 in every case).
+   This is the same mechanism as the PUT/LXI-B continuation triples
+   [G113/P401] — no new machinery was needed.
+3. **`tail_exit` is refuted.** P404 / R432 / R406 have NO loop in the
+   main tail at all (straight-line `x = dbl(2);` / `x = 5;` /
+   `x = f(3);`) and DR guards them. The "does the tail loop have an
+   exit" analysis was the wrong axis. `pl_tail_exit` (bind.ml) and
+   `st.tail_exit`/`st.guard_open`/`st.tail_stop_dead`/`st.tail_addr`
+   (codegen.ml) are DELETED.
+
+## The confirmed rule (one condition, all 37 rows)
+
+    guard  <=>  (lowering the FIRST top-level procedure append)
+                && not stop_seen        (no CALL ?STOPX printed in place)
+                && not after_forever    (suppression window CLOSED)
+
+    epilogue CALL ?STOPX  <=>  not stop_seen && not after_forever
+
+i.e. **the guard exists exactly when the epilogue CALL is displaced
+behind appended procedure code and the main tail can still reach that
+address** (by fall-through OR by a forward reference such as a DO-TO
+loop's exit `JP`, which targets the append address = the guard's own
+C3 byte). Same condition, same moment, two consequences.
+
+Row-by-row check (all reproduce): A R429/R404/R405/R432/R406 guard ✓;
+D R423 guard ✓ WITHOUT any special case (its forever+suppressed-stop+
+label-anchor sequence closes the window via the existing anchor rule,
+so the general condition fires — no `tail_stop_dead` OR-term needed);
+B R430/R433/R417/R416/R409/P401/NFACT/R403/R420 no guard (stop printed
+in place ⇒ stop_seen) ✓; C RFACT/R407/R408/R410/R411/R414/R418/R421/
+R422/R424/R425/R426/R427/R431/R412/R415/R419/R428/P402 no guard ✓
+(window open at the append, or no appended proc).
+
+Ordering inside the append byte was also proven from P404/R406: guard
+bytes FIRST, then the forward-call CHAIN-ADDR, then the prologue.
+
+## Fail-loud boundaries added instead of extrapolation
+- a SECOND appended top-level procedure in a guarded shape ⇒ [TBD]
+  (no golden has two top-level procedures).
+- guard emitted but no epilogue CALL emitted ⇒ [TBD]
+  (unobserved interleaving: a no-exit loop after the procedures).
+
+## Matrix result after the fix (raw cmp, not reldump)
+e2e gate 83 byte-exact / 0 fail of 83 (37 R4xx/P4xx/NFACT/RFACT guard
+rows + all 46 pre-existing specimens unchanged), NEG panel 20/20,
+parse 385/6/0, bind 47/47, rel round-trip 354/354, ir 0 FAIL,
+safety 28/28.
+RFACT: .REL == corpus golden (sha 130ce85e01) AND linked .COM == DR's
+(7552 B). NFACT: .REL + .COM identical, console BYTE-EQUAL and the
+factorials are mathematically correct (1,1,2,6,24,120,720,5040).
+
+## Runtime verification (final)
+
+`tools/prefix_check.py` implements the bounded protocol; `oracle/linkrun.py`
+gained a prompt-sync (send a lone CR, wait for the FRESH `D>`) plus an
+optional `--killon REGEX`. The prompt-sync was needed because the stale
+drive-switch prompt could satisfy the later `##WAIT \nD>` and abort
+long-output programs before they printed anything -- that (not the
+program) was the cause of the empty RFACT transcripts.
+
+Results: NFACT .COM identical + console byte-equal + factorials verified
+against math.factorial (f(0..7) = 1,1,2,6,24,120,720,5040). RFACT .COM
+identical (7552 B); PHASE-B bounded capture at the same program-derived
+record boundary gives 13 COMPLETE records on both arms, first 12
+byte-equal, and 8 records independently match math.factorial. R401/R412/
+R419 .COM identical (no console region exists to compare -- their tails
+never reach a PUT).
+
+## Runtime limitation recorded, not papered over
+RFACT was believed non-terminating. It is not: run under cpmsim it
+prints factorials up to `factorial(       249 )=` and then dies with
+the DR runtime diagnostic `Free Space Overwrite` (the recursive SVBLK
+stack collides with free space) and returns to `D>`. So RFACT has a
+COMPLETE, terminating transcript. `tools/prefix_check.py` implements
+the bounded complete-record prefix protocol anyway (it discards any
+trailing partial record and refuses to call a truncated capture a
+pass); the cpmsim console capture for RFACT came back EMPTY in most
+attempts (mine/dr flaky at 10-240 s windows), so the console arm for
+RFACT stays INCONCLUSIVE-CAPTURE by that tool. The load-bearing
+runtime proof for RFACT is byte-identical .COM (7552 B) vs DR — the
+executed image is literally the same bytes, so its behaviour is DR's
+by identity. RFACT/R401/R412/R419 are removed from the e2e_gate
+console arm rather than being "verified" by timeout truncation.

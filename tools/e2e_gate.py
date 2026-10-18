@@ -108,8 +108,23 @@ SPECIMENS = {
     "R426": ("probes/R426.PLI", "golden/e2e5c/R426/R426.REL"),
     "R427": ("probes/R427.PLI", "golden/e2e5c/R427/R427.REL"),
     "R428": ("probes/R428.PLI", "golden/e2e5c/R428/R428.REL"),
+    # E2E-5c slice 2 TAIL-Guard matrix rows (all byte-exact)
+    "R423": ("probes/R423.PLI", "golden/e2e5c/R423/R423.REL"),
+    "R429": ("probes/R429.PLI", "golden/e2e5c/R429/R429.REL"),
+    "R430": ("probes/R430.PLI", "golden/e2e5c/R430/R430.REL"),
+    "R431": ("probes/R431.PLI", "golden/e2e5c/R431/R431.REL"),
+    "R432": ("probes/R432.PLI", "golden/e2e5c/R432/R432.REL"),
+    "R433": ("probes/R433.PLI", "golden/e2e5c/R433/R433.REL"),
     "P404": ("probes/P404.PLI", "golden/e2e5c/P404/P404.REL"),
 }
+
+# NOT registered (fail-loud / no golden) -- kept visible as research
+# evidence, never as accepted parity:
+#   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
+#   P403  two forward CALLs to one proc -> multiple CHAIN-ADDR [TBD]
+#         (deferred to the ACK slice)
+#   R425  procedure WITHOUT formals -> bind [TBD]
+#   R402/R413/R420  no DR .REL golden (oracle produced .PRN only)
 
 # specimens whose RAW console output must equal DR's (all have at
 # least one observable PUT; V107/V108 exercise no-console paths —
@@ -121,7 +136,17 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "Y304", "Y306", "Z401", "Z402", "Z403", "Z404",
                 "Z405", "Z406", "Z407", "N301", "N302", "N303",
                 "N304", "N306", "N308", "G117", "G118", "P401",
-                "RFACT", "NFACT", "R401", "R412", "R419"}
+                "NFACT"}
+
+# RFACT/R401/R412/R419 were removed from the console arm: they end in a
+# NO-EXIT main tail, so a timeout-truncated transcript is never a
+# semantic oracle (R401/R412/R419 print nothing at all before the tail
+# loop; RFACT's capture proved unreliable under truncation). Their proof
+# stays at raw .REL byte parity plus byte-identical linked .COM, which
+# tools/prefix_check.py verifies. A bounded COMPLETE-RECORD prefix
+# protocol is implemented in tools/prefix_check.py (--console); for
+# RFACT the cpmsim capture came back empty in most attempts, so that
+# arm reports INCONCLUSIVE-CAPTURE rather than pretending to pass.
 
 
 def compile_one(name, src):
@@ -228,6 +253,9 @@ def run_negatives():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--link-run", action="store_true")
+    ap.add_argument("--only", nargs="*", metavar="NAME",
+                    help="restrict the --link-run arm to these specimens "
+                         "(byte-parity compile still runs for all)")
     a = ap.parse_args()
     ok = bad = 0
     for name, (src, gold) in SPECIMENS.items():
@@ -254,9 +282,11 @@ def main():
             print(f"DIFF      {name}: first differing byte {d} "
                   f"(mine={len(mine)}B dr={len(dr)}B)")
             bad += 1
-        if a.link_run and exact:
+        if a.link_run and exact and (a.only is None or name in a.only):
             link_run(name, gp,
                        output_check=(name in OUTPUT_CHECK))
+        elif a.link_run and exact:
+            print(f"  link :    {name}: skipped (--only filter)")
 
     print(f"e2e gate: {ok} byte-exact / {bad} fail of {len(SPECIMENS)}")
     nbad = run_negatives()

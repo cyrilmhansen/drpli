@@ -45,3 +45,110 @@ multi-formal, expression call arguments, CALL statements, pointer-
 formal stores/GETs/DO-controls, 1-byte formals, forward-CALL chains
 with >=2 refs [P403 mechanism banked but unimplemented], returns
 precision other than default FIXED width.
+
+## C081 — Recursive internal procedure ABI (E2E-5c slice 2)
+STATUS: CONFIRMED & IMPLEMENTED for the experimentally verified scope
+(single FIXED formal, expression args, self/backward/forward calls).
+Evidence: RFACT .REL byte-identical vs the historic corpus golden
+(sha 130ce85e01, CODE=0099 DATA=0018) AND its linked .COM byte-identical
+vs DR's (7552 B); NFACT byte-identical .REL + .COM + RAW console
+equality, and the console values are independently correct
+f(0)=1,f(1)=1,f(2)=2,f(3)=6,f(4)=24,f(5)=120,f(6)=720,f(7)=5040;
+R405/R406/R407/R408/R411/R417/R421/R423/R429 .REL byte-identical.
+Mechanism (DR bytes):
+- RECURSIVE attribute (or a self-call) => activation save: prologue
+  `LXI B,<section size>; LXI D,<block base + reloc(data)>; CALL ?SVBLK`
+  [RFACT @56: LXI B,8; LXI D,10], then the formal-pointer deref ladder
+  `MOV E,M; INX H; MOV D,M; XCHG; SHLD <ptr cell>` followed by a SECOND
+  deref that stores the VALUE into the dedicated SHADOW cell
+  (`SHLD shadow`) [RFACT @5F-6D; P402 same shape].
+- Recursive bodies read the shadow cell with plain ladders (LHLD), NOT
+  the deref ladder [RFACT @80].
+- EVERY exit of a recursive body: `CALL ?RSBLK; RET` — base case AND
+  recursive case [RFACT @95/@98, @7C region].
+- Self/backward CALL operand = inline RELOC(code,entry); forward CALL
+  operand = zero DATA slot + LINK-CHAIN-ADDR at the callee's first byte.
+- Expression call argument: evaluate to HL, `SHLD <prescan temp cell>`,
+  the deferred pointer pair then links slot -> temp [RFACT @80-84].
+- Call expression as a PUT LIST item: Esuffix->PInum descriptor pair,
+  then LXI H,*A(cell) + CALL [NFACT @47-4A].
+- `i * f(i-1)` (call on the RIGHT of MUL) evaluates RIGHT FIRST:
+  arg -> SHLD -> CALL -> PUSH H -> LHLD left -> POP D -> ?IM22N
+  [RFACT @8D-9C].
+- RECURSIVE is an ATTRIBUTE, not a call graph property: R411 declares
+  `f: procedure(i) returns(fixed) recursive` with NO call anywhere and
+  still gets the full SVBLK/shadow/RSBLK machinery (byte-identical).
+  bind.ml ORs the attribute with call-derived recursion.
+Limitations: multi-formal, POINTER/BASED formals, no-formal procedures
+[R425], CALL statements and >=2 forward refs to one procedure [P403]
+remain fail-loud [TBD].
+
+## C082 — Epilogue displacement window and TAIL GUARD (E2E-5c slice 2)
+STATUS: CONFIRMED for all 37 specimens of the guard matrix; the rule is
+a SINGLE condition with no loop-classification heuristic.
+- Suppression window: a main-block no-exit loop (`DO i=c REPEAT(...)`
+  with no TO/WHILE, or `DO WHILE('1'B')`) leaves the window OPEN. While
+  it is open, a `stop;` at the window address prints NO code and the
+  epilogue `CALL ?STOPX` is DROPPED (final LC == last back edge or the
+  appended proc code) [RFACT/R407/R408/R410/R411/R414/R415/R418/
+  R421/R422/R424/R425/R426/R427/R431]. Any other executable main-block
+  statement ANCHORS (emits code) and CLOSES the window [R401/R409/
+  R412/R419/R423/R428]. Procedure blocks do not close it [RFACT/R410].
+- TAIL GUARD (the correction of the pre-existing hypothesis): when the
+  FIRST top-level procedure body is appended AND the epilogue CALL
+  will be emitted after it — i.e. NO explicit stop was printed in place
+  AND the window is CLOSED at that proc entry — DR emits 3 bytes at the
+  APPEND address, before the entry label / forward-call CHAIN-ADDR /
+  prologue:  `C3 00 00`  (JMP <epilogue CALL address>). The operand is
+  resolved by the ordinary deferred backpatch triple
+  `SET-LC(code,slot) ; RELOC(code,epi) ; SET-LC(code,epi)` emitted
+  immediately BEFORE the epilogue CALL bytes.
+  Evidence (slot -> target, all == the CD of `CALL ?STOPX`):
+  R404 0x29->0x44, R405 0x29->0x6E, R406 0x10->0x55, R423 0x34->0x57,
+  R429 0x29->0x44, R432 0x0D->0x28, P404 0x10->0x2B.
+  The guard is NOT chained (no CHAIN-ADDR) and its target is NOT the
+  ?STOPX operand slot. It is the same continuation mechanism as the
+  PUT/LXI-B triples [G113/P401].
+- CORRECTION: the earlier candidate rule ("guard iff window OPEN and
+  the tail loop CAN exit, i.e. has TO/WHILE") is REFUTED — P404/R432/
+  R406 have NO loop in the main tail at all, and R414/R426/R427
+  (window open) are byte-exact only with NO guard. `pl_tail_exit` has
+  been removed from bind.ml as an unnecessary and wrong predicate.
+- R423 needs NO special case: its forever loop + suppressed stop +
+  label-anchor `t: put list('K')` closes the window, so the general
+  rule fires. Recorded here because it was previously classified as an
+  exception requiring a separate `tail_stop_dead` OR-condition.
+- Verified-unproven boundary: a SECOND appended procedure in a guarded
+  shape (no golden has two top-level procedures) fails loud [TBD]; so
+  does an unguarded-then-guarded reordering. R430/R433/R417/R416/
+  R409/R402/R432-vs-R433 pairs bound the rule from both sides.
+
+## C083 — Runtime verification of the recursive/loop specimens (E2E-5c slice 2)
+STATUS: CONFIRMED (byte-identical images + bounded complete-record console
+prefixes + an independent arithmetic oracle)
+- NFACT: .REL byte-exact, linked .COM IDENTICAL vs DR (7552 B), RAW
+  console BYTE-EQUAL (217 B), and the factorial table is independently
+  correct: f(0)=1 f(1)=1 f(2)=2 f(3)=6 f(4)=24 f(5)=120 f(6)=720
+  f(7)=5040 (= math.factorial).
+- RFACT (no-exit main tail): .REL byte-exact, linked .COM IDENTICAL vs
+  DR (7552 B). Console compared through the BOUNDED PREFIX PROTOCOL
+  (tools/prefix_check.py): both arms re-run under the harness with
+  `--killon` at the SAME program-derived record boundary (never a
+  timeout cutoff), and the first 12 COMPLETE records are byte-equal; the
+  first 8 factorial records match math.factorial independently.
+  RFACT's main loop never exits, but the run itself ENDS: at
+  factorial(249) the DR runtime reports `Free Space Overwrite` (SVBLK
+  stack grows into free space) and returns to `D>`. So DR's own runtime
+  terminates this "non-terminating" program; nothing about that verdict
+  is claimed beyond the observed bytes.
+- R401 / R412 / R419 (no-exit tail, no console output before the tail):
+  linked .COM IDENTICAL vs DR (6784 / 640 / 6784 B); runtime verdict =
+  byte-identical image (they produce no console region to compare).
+- Harness fix (oracle/linkrun.py): the run session now sends a lone CR
+  and waits for the FRESH `D>` prompt before typing the program name.
+  Without that sync the stale drive-switch prompt could satisfy the
+  later `##WAIT \nD>`, aborting long-output programs before they printed
+  anything (observed as empty transcripts for RFACT). The extra bytes
+  land before the program's own console region, so transcript extraction
+  (anchored on `NAME\r\r\n`) and all previous console comparisons are
+  unaffected; a new optional `--killon REGEX` gives the bounded prefix.

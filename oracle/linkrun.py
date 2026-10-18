@@ -94,7 +94,7 @@ def link(ws, names, intag, outtag, batch, reuse):
             run.cleanup()
 
 
-def run_programs(ws, names, intag, outtag, timeout, reuse):
+def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None):
     out = Output(os.path.join(PROJ, "golden"), outtag, allow_reuse=reuse)
     src_com = os.path.join(PROJ, "golden", intag)
     for n in names:
@@ -106,9 +106,19 @@ def run_programs(ws, names, intag, outtag, timeout, reuse):
             r.mkfs("c")
             r.mkfs("d")
             r.import_local("d", com, f"{n}.COM")
-            sess = (["C:", "D:", f"##SEND {n}\\r"]
+            # PROMPT SYNC: after the D: switch the stale 'D>' echo can
+            # satisfy a later ##WAIT, which used to abort long-running or
+            # non-terminating programs before they produced anything.
+            # Sending a lone CR and waiting for the FRESH prompt it
+            # echoes makes the sync explicit. The extra bytes land
+            # BEFORE the program's own console region, so transcript
+            # extraction (anchored on 'NAME\r\r\n') is unaffected.
+            tail = ([f"##KILLON {killon}"] if killon
+                    else ["##WAIT \\nD>"])
+            sess = (["C:", "D:", "##SEND \\r", "##WAIT \\nD>",
+                     f"##SEND {n}\\r"]
                     + [f"##SEND {i}" for i in INPUTS.get(n, DEFAULT_INPUT)]
-                    + ["##WAIT \\nD>", "##HALT"])
+                    + tail + ["##HALT"])
             rc, tr = session(r, sess, timeout, out, n)
             clean = re.sub(r">>> [^\n]*\n", "", tr)
             seg = re.search(rf"{re.escape(n)}\r\r\n(.*?)(?=\nD>|I/O ran|\Z)",
@@ -132,6 +142,12 @@ def main():
     ap.add_argument("--timeout", type=float, default=40)
     ap.add_argument("--reuse", action="store_true",
                     help="allow overwriting an existing golden out tag")
+    ap.add_argument("--killon", default=None, metavar="REGEX",
+                    help="run stage: STOP (kill) the program as soon as this "
+                         "regex matches its console output instead of waiting "
+                         "for the D> prompt -- gives a BOUNDED transcript "
+                         "prefix for non-terminating programs (E2E-5c slice "
+                         "2). The transcript is still written.")
     a = ap.parse_args()
     ws = Workspace(WORKSPACE, SEEDS)
     src = os.path.join(PROJ, "golden", a.tag)
@@ -149,7 +165,7 @@ def main():
     if a.stage == "link":
         link(ws, names, a.tag, a.out, a.batch, a.reuse)
     else:
-        run_programs(ws, names, a.tag, a.out, a.timeout, a.reuse)
+        run_programs(ws, names, a.tag, a.out, a.timeout, a.reuse, a.killon)
 
 
 if __name__ == "__main__":

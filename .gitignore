@@ -10,3 +10,17 @@ _build/
 thirdparty/
 oracle/workspace/
 build/
+oracle/work/
+
+# transient harness tags created by tools/e2e_gate.py --link-run and
+# tools/prefix_check.py (removed by the tools themselves; ignored so a
+# running job never looks like working-tree dirt). NEVER used for real
+# goldens -- those are golden/<corpus-or-experiment>/NAME/NAME.REL.
+golden/e2elink*/
+golden/e2elinkdr*/
+golden/e2erun*/
+golden/e2erundr*/
+golden/e2estage*/
+golden/e2epfx*/
+golden/e2etmp*/
+golden/e2echk*/
