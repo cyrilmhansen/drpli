@@ -1,0 +1,177 @@
+# E2E-5c-slice-2 corpus audit DATA APPENDIX -- generated 2026-10-18 -- ANALYSIS ONLY, no oracle probes were run for this audit.
+# Inputs: 44 artefacts/*.PLI sources; 41 DR .REL + 44 .PRN in golden/first8080u;
+#         my compiler ocaml/_build/default/bin/pli80c.exe (HEAD, post slice 2);
+#         emitted-routine baseline = union of LINK-CHAIN-EXT names over the 83
+#         byte-exact registered goldens in tools/e2e_gate.py.
+
+[1] CURRENT FIRST-BLOCKER SWEEP (pli80c, post E2E-5c slice 2)
+prog     golden mineB  cmp   newR   blocker / note
+A        yes                 2      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
+ACK      yes                 3      Failure("bind: multi-arg call at line 17 deferred [TBD]")
+ACKTST   yes                 6      Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(6,0)")
+ALLTST   yes                 5      Failure("codegen: declared variable kind not in supported subset [TBD]: POINTER")
+ANNUITY  yes                 26     Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(7,2)")
+CALL     NO                  -      Pli80.Parser.Parse_error(_, "expected statement")
+COPY     yes                 4      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+COPYLPT  yes                 11     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+CREATE   yes                 6      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+DECPOLY  yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(15,4)")
+DEMO     yes    512    EXACT 0      512
+DEPREC   yes                 17     Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(8,2)")
+DFACT    yes                 4      Failure("codegen: multi-arg call deferred [TBD]")
+DIOCALLS yes                 16     Failure("codegen: declared variable kind not in supported subset [TBD]: POINTER")
+DIOCOPY  yes                 5      Failure("codegen: declared variable kind not in supported subset [TBD]: POINTER")
+DIORAND  yes                 7      Failure("codegen: declared variable kind not in supported subset [TBD]: BIT(1)")
+DTEST    yes                 2      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
+ENTER    yes                 7      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+EXPR1    yes                 14     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+EXPR2    yes                 21     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+FDTEST   yes                 1      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
+FFACT    yes    512    DIFF  5      512
+FLTPOLY  yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
+FLTPOLY2 yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
+FSCAN    yes                 8      Failure("bind: procedure gnt without formals [TBD]")
+IFACT    yes                 2      File "lib/codegen.ml", line 321, characters 2-7: Pattern matching failed
+INVERT   NO                  -      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
+KEYFILE  yes                 5      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+LABELS   yes                 1      Failure("codegen: undeclared x")
+LOAN1    yes                 10     Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(11,2)")
+LOAN2    yes                 20     Failure("codegen: declared variable kind not in supported subset [TBD]: BIT(1)")
+MAININVT NO                  -      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
+MPMCALLA yes                 10     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+MPMCALLB yes                 12     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+NETWORK  yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+OPTIMIST yes                 7      File "lib/codegen.ml", line 321, characters 2-7: Pattern matching failed
+REPORT   yes                 12     Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(7,2)")
+RETRIEVE yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+REVERSE  yes                 4      Failure("codegen: declared variable kind not in supported subset [TBD]: POINTER")
+REVERT   yes                 4      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
+RFACT    yes    512    EXACT 0      512
+SAMPLE   yes                 8      File "lib/codegen.ml", line 321, characters 2-7: Pattern matching failed
+TEST     yes                 8      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
+UPDATE   yes                 11     Failure("codegen: declared variable kind not in supported subset [TBD]: BIT(1)")
+[2] DR PLILIB ROUTINE SURFACE NOT YET EMITTED (per program, ascending)
+  DEMO       0  
+  RFACT      0  
+  FDTEST     1  ?QFCSS
+  LABELS     1  ?RECOV
+  A          2  ?FD44M ?FPRET
+  DTEST      2  ?FX44M ?QFCMS
+  IFACT      2  ?EDITF ?EDTOV
+  ACK        3  ?QCIOP ?QDCOP ?QI15D
+  COPY       4  ?OIOOP ?RNIOP ?SIOOP ?WNIOP
+  DFACT      4  ?DCRET ?DMUOP ?QDCOP ?QI15D
+  REVERSE    4  ?ALLOP ?FREOP ?SCVCM ?SMVVM
+  REVERT     4  ?OFCOP ?ONCOP ?QCIOP ?RECOV
+  ALLTST     5  ?EDITF ?EDTOB ?EDTOV ?QB16C ?QCIOP
+  DIOCOPY    5  ?EDITF ?EDTOV ?NSTOP ?SCCCM ?SSCFS
+  FFACT      5  ?FL40M ?FM44S ?FPRET ?QFCSS ?QI15F
+  KEYFILE    5  ?KEYTO ?OIOOP ?RNIOP ?SCVCM ?SIOOP
+  ACKTST     6  ?DADOP ?DSTOP ?EDITF ?EDTOV ?QCIOP ?QDCOP
+  CREATE     6  ?DSTOP ?OIOOP ?QCDOP ?QDCOP ?SCVCM ?SIOOP
+  DIORAND    7  ?CS2AD ?CS3AD ?CXCCM ?QCIOP ?SCCCM ?SSCFS ?XL3OP
+  ENTER      7  ?DSTOP ?NSTOP ?OIOOP ?QCDOP ?SCVCM ?SIOOP ?WNIOP
+  OPTIMIST   7  ?CXVVM ?SCCCM ?SJSVM ?VEROP ?VS2AD ?VS3AD ?XL3OP
+  FSCAN      8  ?EDITF ?EDTIV ?EDTOV ?SCVCM ?SMVVM ?VEROP ?VS2AD ?VS3AD
+  SAMPLE     8  ?EDITF ?EDTOV ?FX44S ?QCXOP ?QFCMS ?QX8F4 ?VCRET ?XL3OP
+  TEST       8  ?FC44M ?FL40M ?FPRET ?FX44M ?FX44S ?QCXOP ?QFCSS ?QX8F4
+  DECPOLY    9  ?DADOP ?DCMOP ?DCRET ?DMUOP ?DSTOP ?QCDOP ?QDCOP ?QDDSL ?QDDSR
+  FLTPOLY    9  ?FA44L ?FA44S ?FC44M ?FM44M ?FPRET ?FX44S ?QCXOP ?QFCSS ?QX8F4
+  FLTPOLY2   9  ?FA44L ?FA44S ?FM44M ?FPRET ?FX44S ?ONCOP ?QCXOP ?QFCSS ?QX8F4
+  NETWORK    9  ?ALLOP ?FREOP ?OFCOP ?ONCOP ?QCIOP ?RECOV ?REVOP ?SCVVM ?SMVVM
+  RETRIEVE   9  ?CIOOP ?DSTOP ?OIOOP ?PAGOP ?QCDOP ?QDCOP ?SCVCM ?SCVVM ?SIOOP
+  LOAN1     10  ?DADOP ?DCMOP ?DDVOP ?DMUOP ?DROUN ?DSTOP ?QCDOP ?QDCOP ?QDDSL ?QDDSR
+  MPMCALLA  10  ?EDITF ?EDTIV ?EDTOB ?EDTOV ?ONCOP ?QB08C ?QCB16 ?RECOV ?SSCFS ?XL3OP
+  COPYLPT   11  ?EDITF ?EDTIV ?EDTOV ?OIOOP ?ONCOP ?PAGOP ?QCIOP ?RECOV ?REVOP ?SIGOP ?SIOOP
+  UPDATE    11  ?DSTOP ?KEYOP ?OIOOP ?QCDOP ?QCIOP ?QDCOP ?RNIOP ?SCVCM ?SCVVM ?SIOOP ?WNIOP
+  MPMCALLB  12  ?CS3AD ?CXCCM ?EDITF ?EDTIV ?EDTOB ?EDTOV ?OFCOP ?ONCOP ?QB08C ?RECOV ?SCCCM ?SSCFS
+  REPORT    12  ?CS3AD ?DMUOP ?DSTOP ?OIOOP ?QDCOP ?QDDSR ?RNIOP ?SCCCM ?SCVCM ?SIOOP ?VS3AD ?WNIOP
+  EXPR1     14  ?FA44L ?FD44R ?FL40M ?FM44L ?FPRET ?FS44R ?FX44S ?ONCOP ?QCXOP ?QFCMS ?QX8F4 ?RECOV ?SCVCM ?SIGOP
+  DIOCALLS  16  ?EDITF ?EDTIV ?EDTOB ?EDTOV ?PNBOP ?QB08C ?QB16C ?QCB16 ?QCIOP ?SASVM ?SCCCM ?SCSCM ?SSCFS ?VS2AD ?VS3AD ?XL3OP
+  DEPREC    17  ?CXCCM ?DADOP ?DCMOP ?DDVOP ?DMUOP ?DSTOP ?EDITF ?EDTOV ?OIOOP ?QCDOP ?QDCOP ?QDDSL ?QDDSR ?QI15D ?SCCCM ?SIOOP ?SSCFS
+  LOAN2     20  ?DADOP ?DCMOP ?DDVOP ?DMUOP ?DROUN ?DSTOP ?EDITF ?EDTOV ?OIOOP ?ONCOP ?PAGOP ?QCDOP ?QCIOP ?QDCOP ?QDDSL ?QDDSR ?RECOV ?SCVCM ?SIGOP ?SIOOP
+  EXPR2     21  ?EDITF ?EDTIV ?EDTOV ?FA44L ?FD44R ?FL40M ?FM44L ?FPRET ?FS44R ?FX44S ?ONCOP ?QCXOP ?QFCMS ?QX8F4 ?RECOV ?SCVCM ?SIGOP ?SMVVM ?VEROP ?VS2AD ?VS3AD
+  ANNUITY   26  ?DCMOP ?DDVOP ?DMUOP ?DSTOP ?EDITF ?EDTOV ?FA44M ?FCEIL ?FD44M ?FD44R ?FD44S ?FEX15 ?FN40S ?FS44M ?FS44R ?FX44S ?LOG ?ONCOP ?QCDOP ?QCIOP ?QCXOP ?QDCOP ?QDDSR ?QFI15 ?QX8F4 ?RECOV
+
+[3] DR LAYOUT EVIDENCE FROM .PRN LISTINGS (CODE SIZE / DATA AREA, hex)
+  A         CODE=0015   DATA=0006  
+  ACK       CODE=01AB   DATA=004A  
+  ACKTST    CODE=01E8   DATA=0084  
+  ALLTST    CODE=00E7   DATA=0078  
+  ANNUITY   CODE=0356   DATA=0146  
+  CALL      CODE=00FF   DATA=0023  
+  COPY      CODE=0081   DATA=0109  
+  COPYLPT   CODE=032C   DATA=021A  
+  CREATE    CODE=01F7   DATA=00D8  
+  DECPOLY   CODE=0153   DATA=0054  
+  DEMO      CODE=006D   DATA=004B  
+  DEPREC    CODE=0E15   DATA=0514  
+  DFACT     CODE=00A5   DATA=0020  
+  DIOCALLS  CODE=07AF   DATA=042A  
+  DIOCOPY   CODE=02BD   DATA=00EF  
+  DIORAND   CODE=04C7   DATA=0183  
+  DTEST     CODE=0063   DATA=0018  
+  ENTER     CODE=00F4   DATA=00BE  
+  EXPR1     CODE=01B5   DATA=0046  
+  EXPR2     CODE=027D   DATA=00B5  
+  FDTEST    CODE=0055   DATA=0018  
+  FFACT     CODE=00A1   DATA=001C  
+  FLTPOLY   CODE=0112   DATA=0047  
+  FLTPOLY2  CODE=00F7   DATA=0044  
+  FSCAN     CODE=0127   DATA=00BD  
+  IFACT     CODE=0081   DATA=0021  
+  INVERT    CODE=0204   DATA=0010  
+  KEYFILE   CODE=00C4   DATA=0030  
+  LABELS    CODE=00B0   DATA=001A  
+  LOAN1     CODE=01E7   DATA=003C  
+  LOAN2     CODE=09A0   DATA=035A  
+  MAININVT  CODE=03B7   DATA=00E4  
+  MPMCALLA  CODE=0A07   DATA=08C2  
+  MPMCALLB  CODE=063C   DATA=04E5  
+  NETWORK   CODE=05B0   DATA=00EB  
+  OPTIMIST  CODE=0193   DATA=01F2  
+  REPORT    CODE=01D0   DATA=00C2  
+  RETRIEVE  CODE=023F   DATA=0141  
+  REVERSE   CODE=0110   DATA=003B  
+  REVERT    CODE=00C5   DATA=0011  
+  RFACT     CODE=0099   DATA=0018  
+  SAMPLE    CODE=0107   DATA=0064  
+  TEST      CODE=00FF   DATA=0044  
+  UPDATE    CODE=02AF   DATA=0D9C  
+
+[4] DEFECT INVENTORY (locally reproduced, no oracle needed)
+ D1 codegen.ml:321 match_put_list_lit has no fallthrough clause for
+    put_kind Edit/Item/Editsk and for bare 'put skip;' -> OCaml
+    Match_failure CRASH instead of fail-loud [TBD]. Reproduced with
+    'put edit(i)(f(3));', 'put item(i);', 'put skip;'.
+    Corpus programs containing these forms: 17
+      ACKTST ALLTST ANNUITY DEPREC DIOCALLS DIOCOPY EXPR2 FSCAN IFACT
+      LOAN2 MAININVT MPMCALLA MPMCALLB NETWORK OPTIMIST REVERSE SAMPLE
+    Currently crashing at compile time: IFACT, OPTIMIST, SAMPLE
+ D2 '%replace' directives are PARSED but never APPLIED: macro names
+    reach bind as undeclared identifiers / unsupported condition forms
+    (reproduced: '%replace one by 1;' -> 'codegen: undeclared one';
+    '%replace true by 1b1;' + 'do while(true)' -> condition-form [TBD]).
+    Loud, but misattributed in the REV 1 audit. 17 programs affected:
+      ANNUITY CREATE DECPOLY DEPREC DIOCOPY ENTER EXPR2 FLTPOLY
+      FLTPOLY2 FSCAN LOAN2 MAININVT MPMCALLA MPMCALLB NETWORK OPTIMIST RETRIEVE
+    Macro bodies are trivial name->token maps ('true' by 1b1 in 16 files,
+    'false' by 1b0 in 11, plus numeric and '^z' literals).
+ D3 FAIL-SILENT: block options other than 'main' are accepted and
+    IGNORED (reproduced: options(main,stack(2000)) and
+    options(main,stack(2000),segments) compile with no warning and no
+    effect). Affects ACK, ACKTST (both stack(2000)). Layout-affecting
+    option -> any ACK .REL produced today would be untrustworthy.
+ D4 FAIL-SILENT: the returns(<type>) attribute is never validated:
+    'returns(float)' and 'returns(fixed decimal(15,0))' are lowered as
+    if they returned FIXED (reproduced both; FFACT compiles to a
+    plausible-but-wrong 512-byte .REL, first divergence at byte 48).
+    14 programs affected: A ANNUITY CALL DECPOLY DFACT EXPR1 EXPR2
+    FDTEST FFACT FLTPOLY FLTPOLY2 MPMCALLA SAMPLE TEST
+
+[5] RUNTIME STATUS OF THE NON-TERMINATING / LONG specimens (slice 2)
+  RFACT .REL EXACT, .COM identical (7552 B), bounded console prefix
+        30 COMPLETE records byte-equal + 8 records vs math.factorial
+  NFACT .REL EXACT, .COM identical, console byte-equal (217 B)
+  P401  .REL EXACT, .COM identical, console byte-equal ('        4\r')
+  R401/R412/R419 .COM identical (no console region exists)
