@@ -137,8 +137,35 @@ def own_digits(t):
     return len(t.replace(".", "").lstrip("0") or "0")
 
 
+def split_round(t):
+    """`round(a, 2)' -> ('a', 2), else None.  [E2E-7A slice 3]"""
+    t = strip_paren(t)
+    if not re.match(r"round\s*\(", t, re.I):
+        return None
+    inner = t[t.index("(") + 1:t.rindex(")")]
+    depth = 0
+    for i, c in enumerate(inner):
+        if c == "(":
+            depth += 1
+        elif c == ")":
+            depth -= 1
+        elif c == "," and depth == 0:
+            a, b = inner[:i], inner[i + 1:]
+            b = b.strip()
+            if not re.fullmatch(r"\d+", b):
+                raise AssertionError(
+                    "decmodel: ROUND whose digit count is not a literal")
+            return a.strip(), int(b)
+    raise AssertionError("decmodel: one-argument ROUND (DR rejects it [R808])")
+
+
 def is_compound(t):
     t = strip_paren(t)
+    r = split_round(t)
+    if r:
+        # LOAN1/R807: a round whose ARGUMENT is compound behaves compound;
+        # a simple-argument round in an operand position has no sample at all.
+        return is_compound(r[0])
     return any(split_top(t, o) for o in "+-*/")
 
 
@@ -217,6 +244,9 @@ class Model:
             return self.decl[t]
         if re.fullmatch(r"[\d.]+", t):
             return None
+        r_ = split_round(t) if re.match(r"round\s*\(", t, re.I) else None
+        if r_:
+            return self.probe(r_[0], role)
         if is_compound(t):
             return None
         return None
@@ -251,12 +281,48 @@ class Model:
                 raise AssertionError("literal scale exceeds the role scale")
             log.append(("DLDOP", p))
             return V(p, s, m * 10 ** (s - ls))
+        r_ = split_round(t)
+        if r_:
+            inner, n = r_
+            if role[0] == "mul":
+                raise AssertionError(
+                    "decmodel: ROUND in a multiplicative position (unpinned)")
+            v = self.ev(inner, ("nop",), log)   # arg pushes with NO fix
+            k = v.s - n
+            assert k >= 0, "decmodel: ROUND n above entry scale"
+            log.append(("DROUN", k))
+            return self.consumer_fix(self.round_val(v, n), role, log)
         for level in ("+-", "*/"):             # lowest precedence first
             r = split_level(t, level)
             if r:
                 op, lt, rt = r
                 return self.ev_bin(op, lt, rt, role, log)
         raise AssertionError(f"decmodel: cannot evaluate {txt!r}")
+
+    def consumer_fix(self, res, role, log):
+        """L5: the CONSUMER decides the final scale of a computed value."""
+        if role[0] == "store":
+            tp, ts = role[1]
+            if res.s < ts:
+                log.append(("QDDSL", ts - res.s))
+                res = shift_l(res, ts - res.s)
+            elif res.s > ts:
+                log.append(("QDDSR", res.s - ts))
+                res = shift_r(res, res.s - ts)
+        return res
+
+    def round_val(self, v, n):
+        """?DROUN: HALF-UP and AWAY FROM ZERO at n places, scale RETAINED.
+        DR's runtime evidence [R802/R803/R806]: 2.125->2.13, 2.135->2.14,
+        2.145->2.15, 2.155->2.16, -2.125->-2.13, 2.5->3.  Nothing here is
+        assumed: HALF-EVEN would have given 2.12 / 2.14 / 2.14 / 2.16."""
+        k = v.s - n
+        assert k >= 0, "decmodel: ROUND n above the entry scale [R805 wrapped]"
+        f = 10 ** k
+        q, rem = divmod(abs(v.m), f)
+        if 2 * rem >= f:
+            q += 1
+        return V(v.p, v.s, q * f * (1 if v.m >= 0 else -1))
 
     def ev_bin(self, op, l, r, role, log):
         rl = self.role_for(op, r, l)
@@ -311,15 +377,7 @@ class Model:
             if s < 0:
                 raise AssertionError("divide: negative quotient scale")
             res = V(None, s, m)
-        if role[0] == "store":
-            tp, ts = role[1]
-            if res.s < ts:
-                log.append(("QDDSL", ts - res.s))
-                res = shift_l(res, ts - res.s)
-            elif res.s > ts:
-                log.append(("QDDSR", res.s - ts))
-                res = shift_r(res, res.s - ts)
-        return res
+        return self.consumer_fix(res, role, log)
 
     def run(self):
         log = []
@@ -372,7 +430,7 @@ def dr_tokens(prn_path):
             pend = int(m.group(1), 16)
             continue
         m = re.match(
-            r"\s+[0-9A-F]{4}\s+CALL \?(DLDOP|DSTOP|DADOP|DSUOP|DMUOP|DDVOP|QDDSL|QDDSR|DCMOP)\b",
+            r"\s+[0-9A-F]{4}\s+CALL \?(DLDOP|DSTOP|DADOP|DSUOP|DMUOP|DDVOP|QDDSL|QDDSR|DCMOP|DROUN|IROUN)\b",
             line)
         if m:
             out.append((m.group(1), pend))
@@ -420,7 +478,7 @@ def main():
             continue
         name = os.path.basename(path).split(".")[0]
         prn = None
-        for tag in ("e2e8", "e2e7", "e2e6"):
+        for tag in ("e2e9", "e2e8", "e2e7", "e2e6"):
             cand = f"golden/{tag}/{name}/{name}.PRN"
             if os.path.exists(cand):
                 prn = cand
@@ -445,7 +503,7 @@ def main():
         # numeric cross-check against a captured console transcript
         num = "no-transcript"
         exp = expected_put_line(mdl)
-        for tagdir in ("e2e8run", "e2erundr", "e2e7run", "e2e6run"):
+        for tagdir in ("e2e9run", "e2e8run", "e2erundr", "e2e7run", "e2e6run"):
             c = f"golden/{tagdir}/{name}.output.txt"
             if exp is not None and os.path.exists(c) and os.path.getsize(c):
                 raw = open(c, errors="replace").read().replace("\r\n", "\n")

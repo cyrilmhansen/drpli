@@ -367,6 +367,12 @@ let rec pdec_operand_bytes (cx : pdec_ctx) (e : Ast.expr) =
       ignore op; side l r + side r l
   | Ast.Ebinary (_, l, r) -> pdec_operand_bytes cx l + pdec_operand_bytes cx r
   | Ast.Eprefix (_, x) -> pdec_operand_bytes cx x
+  (* [E2E-7A slice 3] ROUND(a,n): the ARGUMENT's literals need pool cells like
+     any other DEC operand -- LOAN1's `round(i*P/1200, 2)` puts the 1200 cell
+     inside the call, and under-counting it moves the AUTO base (R813 caught
+     that: my first build sized the pool 3 bytes short).  The digit count n is
+     an IMMEDIATE byte (it becomes MVI A, s-n), never a pool cell. *)
+  | Ast.Ebuilt ("ROUND", [ a; _ ]) -> pdec_operand_bytes cx a
   | Ast.Ebuilt ("DECIMAL", _) -> 0   (* integer argument: no DEC cell *)
   | _ -> 0
 
@@ -1247,7 +1253,8 @@ type dv = { pv : int option; sc : int }
 type dctx =
   { c_tgt : (int * int) option   (* store/RETURN target: fixes the scale *)
   ; c_lit : (int * int) option   (* DEC partner of an additive/compare literal *)
-  ; c_mult : bool }              (* multiplicative operand position *)
+  ; c_mult : bool                (* multiplicative operand position *)
+  ; c_round : bool }             (* [slice 3] argument of a ROUND [R811] *)
 
 let unwrap_e (e : Ast.expr) =
   match e.Ast.e with Ast.Econd x -> x | _ -> e
@@ -1255,9 +1262,19 @@ let unwrap_e (e : Ast.expr) =
 let dsl st n = d st op_mvi_a; d st n; call_ext st "?QDDSL"
 let dsr st n = d st op_mvi_a; d st n; call_ext st "?QDDSR"
 
-(* an operand that costs more than one decimal-stack emission *)
+(* an operand that costs more than one decimal-stack emission.  [E2E-7A
+   slice 3] ROUND joins it: LOAN1 and R807 both push `X + round(a/b,n)` with
+   the round SUBTREE FIRST even though it sits on the right, which is exactly
+   the right-compound/left-simple rule L7 -- so a round node with a compound
+   argument behaves like a compound operand.  A round node whose argument is
+   SIMPLE is NOT claimed to be compound: no sample shows which side DR pushes
+   first for `p + round(a,2)`, and that shape refuses in dpush. *)
 let dcompound _st (e : Ast.expr) =
-  match (unwrap_e e).Ast.e with Ast.Ebinary _ | Ast.Esuffix _ -> true | _ -> false
+  match (unwrap_e e).Ast.e with
+  | Ast.Ebinary _ | Ast.Esuffix _ -> true
+  | Ast.Ebuilt ("ROUND", [ a; _ ]) ->
+      (match (unwrap_e a).Ast.e with Ast.Ebinary _ -> true | _ -> false)
+  | _ -> false
 
 (* the (p,s) an additive/compare integer literal aligns to: only a DEC
    variable or a DEC function call is evidenced [R608, R507/R607] *)
@@ -1267,17 +1284,99 @@ let dpartner st (e : Ast.expr) : (int * int) option =
   | Ast.Esuffix _ -> Some (dec_edit_pt st e)
   | _ -> None
 
-let nop_cx = { c_tgt = None; c_lit = None; c_mult = false }
+let nop_cx = { c_tgt = None; c_lit = None; c_mult = false; c_round = false }
+let round_arg_cx = { c_tgt = None; c_lit = None; c_mult = false; c_round = true }
+
+(* ------------------------------------------------------------------ *
+ * ROUND(expr, n)  ->  MVI A, k ; CALL ?DROUN        [E2E-7A slice 3]  *
+ *                                                                    *
+ * DR's convention, from R801-R812 + LOAN1:                           *
+ *   the rounded value stays ON TOP of the decimal stack; ?DROUN takes *
+ *   ONE byte argument, k = (scale of the entry) - n, i.e. the number  *
+ *   of fractional digits to drop, NOT the target scale n.  Observed   *
+ *   bytes: dec(9,3) round 2 -> A=01 [R801/R802/R803]; 2/3 at scale 6  *
+ *   round 2 -> A=04 [R804/R807]; LOAN1 product+divide at scale 4      *
+ *   round 2 -> A=02; dec(9,3) round 0 -> A=03 [R806]; nested          *
+ *   round(round(a,3),2) -> A=00 then A=01 [R811] (k=0 IS emitted, it   *
+ *   is not elided the way the divide pre-shift is at N=0).            *
+ *   The entry KEEPS its scale: after DROUN the consumer fix and the   *
+ *   enclosing +/- alignment are computed from the ORIGINAL scale,      *
+ *   which is what makes R801's `MVI A,02; CALL ?QDDSR`, R807's         *
+ *   `QDDSL 4` before DADOP and LOAN1's `QDDSL 2`/`QDDSR 2` all follow  *
+ *   laws L1/L5 already banked in C086 -- ROUND adds no shift of its    *
+ *   own.  Rounding is HALF-UP and away from zero (DR runtime: 2.125 -> *
+ *   2.13, 2.135 -> 2.14, 2.145 -> 2.15, 2.155 -> 2.16, -2.125 ->       *
+ *   -2.13, 2.5 -> 3), and it sees the PRE-STORE stack value, not a     *
+ *   truncated copy (R804 prints 0.67 next to x = 2/3's stored 0.66).   *
+ *   My compiler emits bytes only -- the arithmetic is DR's ?DROUN --   *
+ *   so the mode is evidence for the model, not a rule I implement.     *
+ * ------------------------------------------------------------------ *)
+let round_split args =
+  match args with
+  | [ x; nn ] -> (unwrap_e x, nn)
+  | [ _ ] ->
+      failwith
+        "codegen: one-argument ROUND is unproven [TBD] (DR rejects `y = round(a);` \
+         itself, with pass-2 `SYNTAX ?` and no .REL [R808])"
+  | _ -> failwith "codegen: ROUND arity [TBD]"
+
+let round_n nn =
+  match (unwrap_e nn).Ast.e with
+  | Ast.Enumber k ->
+      let (v, _own, lsc) = dec_lit_value k in
+      if lsc <> 0 then
+        failwith "codegen: ROUND with a fractional digit count [TBD]";
+      if v < 0 then failwith "codegen: ROUND with a negative digit count [TBD]";
+      v
+  | _ ->
+      failwith
+        "codegen: ROUND whose digit count is not an integer literal is unproven \
+         [TBD] (DR computes it at RUNTIME as LHLD/MOV A,L/SUI 04/CMA [R812]; \
+         the static form is the only one LOAN1 needs)"
+
+(* validate the ROUND shape and return (n, argument descriptor) *)
+(* everything about a ROUND node that needs no value descriptor: arity, the
+   digit-count literal, and the argument shape.  The scale-vs-n check lives
+   in dv_of, which is the only place that can see the entry scale. *)
+let round_shape st args =
+  let (x, nn) = round_split args in
+  let n = round_n nn in
+  begin
+    match (unwrap_e x).Ast.e with
+    | Ast.Eident n ->
+        (match vk_dec_opt st n with
+         | Some _ -> ()
+         | None ->
+             failwith
+               "codegen: ROUND of a non-DECIMAL (integer) argument is unproven \
+                [TBD] (DR rounds the INTEGER with a separate route, ?IROUN, \
+                then converts via ?QI15D and emits NO ?DROUN at all [R810]; \
+                LOAN1 never rounds an integer expression)")
+    | Ast.Ebinary _ | Ast.Esuffix _ | Ast.Ebuilt ("ROUND", _) -> ()
+    | Ast.Enumber _ ->
+        failwith
+          "codegen: ROUND of a bare literal is unproven [TBD] (R809 shows DR \
+           pushing the literal with its OWN digit count AND own scale, \
+           A=04 for 2.125 -- a third literal role with one sample only)"
+    | _ ->
+        failwith
+          "codegen: ROUND of a non-decimal argument is unproven [TBD] (an \
+           INTEGER argument takes DR's separate ?IROUN route, then ?QI15D \
+           with no ?DROUN at all [R810])"
+  end;
+  (x, n)
 
 (* context for a BINARY operand: a direct integer literal takes its
    partner's precision in an additive/compare position and its own digit
    count in a multiplicative one; anything else inherits nothing *)
 let dchild_cx _st op partner x =
   match op with
-  | Ast.Mul | Ast.Div -> { c_tgt = None; c_lit = None; c_mult = true }
+  | Ast.Mul | Ast.Div ->
+      { c_tgt = None; c_lit = None; c_mult = true; c_round = false }
   | _ ->
       (match (unwrap_e x).Ast.e with
-       | Ast.Enumber _ -> { c_tgt = None; c_lit = partner; c_mult = false }
+       | Ast.Enumber _ ->
+           { c_tgt = None; c_lit = partner; c_mult = false; c_round = false }
        | _ -> nop_cx)
 
 let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
@@ -1296,6 +1395,21 @@ let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
       (match cx.c_tgt with
        | Some (p, s) -> { pv = Some p; sc = s }
        | None -> { pv = Some 15; sc = 0 })
+  | Ast.Ebuilt ("ROUND", args) ->
+      let (x, n) = round_shape st args in
+      let da = dv_of st round_arg_cx x in
+      if da.sc < n then
+        failwith
+          "codegen: ROUND with a digit count ABOVE the operand scale is \
+           unproven [TBD] (R805: dec(9,3) round 5 makes DR emit the WRAPPED \
+           byte 3-5 = 0xFE; the value came back unchanged, but one sample \
+           does not pin the rule and LOAN1 never asks for it)";
+      (* SCALE AND PRECISION ARE RETAINED: R801/R804/R807 show the consumer
+         fix and the enclosing +/- alignment still computed from the operand's
+         original scale after DROUN.  pv is inherited; nothing exposes a
+         rounded value's precision, so a ROUND result used where p matters
+         refuses below (same family as the quotient-precision gap). *)
+      { pv = da.pv; sc = da.sc }
   | Ast.Esuffix _ ->
       let (p, s) = dec_edit_pt st e in
       { pv = Some p; sc = s }
@@ -1335,6 +1449,13 @@ let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
                  | _ -> None);
               sc = dl.sc + dr.sc }
         | Ast.Div ->
+          (match (unwrap_e l).Ast.e with
+           | Ast.Ebuilt ("ROUND", _) ->
+               failwith
+                 "codegen: ROUND result as a DECIMAL divide dividend is unproven \
+                  [TBD] (the pre-shift wants 15 - p of the ROUNDED entry; no \
+                  sample shows what p a rounded value carries)"
+           | _ -> ());
           let n =
             match dl.pv with
             | Some p -> 15 - p
@@ -1365,7 +1486,11 @@ let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
 let rec dpush st (cx : dctx) (e : Ast.expr) : dv =
   let vd = dv_of st cx e in
   match (unwrap_e e).Ast.e with
-  | Ast.Eident _ | Ast.Ebuilt _ | Ast.Esuffix _ | Ast.Enumber _ ->
+  (* [E2E-7A slice 3] ROUND must NOT be swallowed by the simple-operand arm:
+     it pushes its argument, then ?DROUN, then takes the ordinary consumer
+     fix.  Unknown builtins never reach here anyway -- dv_of, which runs
+     first, refuses them. *)
+  | Ast.Eident _ | Ast.Ebuilt ("DECIMAL", _) | Ast.Esuffix _ | Ast.Enumber _ ->
       dpush_simple st cx e vd;
       (match cx.c_tgt with
        (* A simple operand whose own scale differs from the store target is
@@ -1393,6 +1518,12 @@ let rec dpush st (cx : dctx) (e : Ast.expr) : dv =
                    "codegen: DECIMAL divide with a literal dividend is \
                     unproven [TBD] (every sample divides a variable, a call \
                     result or a computed value)"
+             | _ -> ());
+            (match (unwrap_e r).Ast.e with
+             | Ast.Ebuilt ("ROUND", _) ->
+                 failwith
+                   "codegen: ROUND result as a DECIMAL divide divisor is unproven \
+                    [TBD] (only `a / b` operands are sampled)"
              | _ -> ());
             ignore (dpush st cl l);
             let n =
@@ -1438,6 +1569,40 @@ let rec dpush st (cx : dctx) (e : Ast.expr) : dv =
        | Some (_, ts) when ts < vd.sc -> dsr st (vd.sc - ts)
        | _ -> ());
       vd
+  | Ast.Ebuilt ("ROUND", args) ->
+      let (x, n) = round_shape st args in
+      (* position legality, from the samples that exist: whole-RHS / return
+         [R801-R806, R811] and an additive operand whose argument is COMPOUND
+         [R807, LOAN1].  A simple-argument round on either side of +/- has no
+         push-order sample, and one in a multiplicative position has none
+         either. *)
+      begin
+        match cx with
+        | { c_tgt = Some _; _ } -> ()
+        | { c_round = true; _ } -> ()   (* nested round [R811] *)
+        | { c_mult = true; _ } ->
+            failwith
+              "codegen: ROUND in a multiplicative DECIMAL position is unproven \
+               [TBD] (no sample multiplies or divides by a rounded value)"
+        | _ ->
+            if not (dcompound st e) then
+              failwith
+                "codegen: ROUND with a SIMPLE argument inside +/- is unproven \
+                 [TBD] (R807/LOAN1 pin the order only when the rounded \
+                 subtree is compound, so which side DR pushes first here is \
+                 unknown)"
+      end;
+      ignore (dpush st round_arg_cx x);
+      d st op_mvi_a;
+      d st (vd.sc - n);
+      call_ext st "?DROUN";
+      (* the rounded entry keeps its scale, so the SAME consumer rule as any
+         other computed value decides the shift afterwards [R801, R804, R806] *)
+      (match cx.c_tgt with
+       | Some (_, ts) when ts > vd.sc -> dsl st (ts - vd.sc)
+       | Some (_, ts) when ts < vd.sc -> dsr st (vd.sc - ts)
+       | _ -> ());
+      vd
   | _ ->
       failwith
         (Printf.sprintf "codegen: decimal push of expression shape %s is not \
@@ -1467,7 +1632,9 @@ and dpush_simple st (_cx : dctx) (e : Ast.expr) (vd : dv) =
 
 (* compatibility wrapper used by the store/PUT/compare paths *)
 let dec_push st (tgt : (int * int) option) (e : Ast.expr) : int * int =
-  let d = dpush st { c_tgt = tgt; c_lit = None; c_mult = false } e in
+  let d =
+    dpush st { c_tgt = tgt; c_lit = None; c_mult = false; c_round = false } e
+  in
   (match d.pv with Some p -> (p, d.sc) | None -> (0, d.sc))
 
 (* ---- [E2E-7A slice 1] helpers for DECIMAL comparison -------------- *)

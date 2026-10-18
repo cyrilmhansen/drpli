@@ -1,0 +1,104 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R807
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 ROUND BUILTIN CONSTANT
+a 0000 L807 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 15 BYTES
+c 0000 P FIXED DECIMAL(9,2) AUTOMATIC
+c 0005 SEVEN FIXED DECIMAL(9,2) AUTOMATIC
+c 000A THREE FIXED DECIMAL(9,2) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R807
+
+   1 a 0000 l807:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl p fixed dec(9,2);
+   4 c 0006    dcl seven fixed dec(9,2);
+   5 c 0006    dcl three fixed dec(9,2);
+   6 c 0006    p = 100;
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,09
+       000B       CALL ?DLDOP
+       000E       LXI  H,P A(000F)
+       0011       MVI  A,09
+       0013       CALL ?DSTOP
+   7 c 0016    seven = 7;
+       0016       LXI  H,* S(0005)
+       0019       MVI  A,09
+       001B       CALL ?DLDOP
+       001E       LXI  H,SEVEN A(0014)
+       0021       MVI  A,09
+       0023       CALL ?DSTOP
+   8 c 0026    three = 3;
+       0026       LXI  H,* S(000A)
+       0029       MVI  A,09
+       002B       CALL ?DLDOP
+       002E       LXI  H,THREE A(0019)
+       0031       MVI  A,09
+       0033       CALL ?DSTOP
+   9 c 0036    p = p + round(seven / three, 2);
+       0036       LXI  H,SEVEN A(0014)
+       0039       MVI  A,09
+       003B       CALL ?DLDOP
+       003E       MVI  A,06
+       0040       CALL ?QDDSL
+       0043       LXI  H,THREE A(0019)
+       0046       MVI  A,09
+       0048       CALL ?DLDOP
+       004B       CALL ?DDVOP
+       004E       MVI  A,04
+       0050       CALL ?DROUN
+       0053       LXI  H,P A(000F)
+       0056       MVI  A,09
+       0058       CALL ?DLDOP
+       005B       MVI  A,04
+       005D       CALL ?QDDSL
+       0060       CALL ?DADOP
+       0063       MVI  A,04
+       0065       CALL ?QDDSR
+       0068       LXI  H,P A(000F)
+       006B       MVI  A,09
+       006D       CALL ?DSTOP
+  10 c 0070    put skip list(p);
+       0070       LXI  D,0252
+       0073       LXI  B,0000
+       0076       CALL ?SYSPR
+       0079       MVI  A,01
+       007B       CALL ?SKPOP
+       007E       LXI  H,P A(000F)
+       0081       MVI  A,09
+       0083       CALL ?DLDOP
+       0086       MVI  A,0C
+       0088       MVI  B,02
+       008A       CALL ?QDCOP
+       008D       CALL ?PNVOP
+       0090       CALL ?QIOOP
+       0074       ==== 0093
+  11 c 0093  stop;
+       0093       CALL ?STOPX
+  12 a 0096 end l807;
+
+CODE SIZE = 0096
+DATA AREA = 001E
+FREE SYMS = 3855
+END  COMPILATION
+

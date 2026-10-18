@@ -192,3 +192,23 @@ touch LOAN1 (no procedures), but it does gate DECPOLY and any program with a
 decimal parameter, so the ranking in section 10 should count it as a
 third decimal work package (formal-parameter passing) distinct from
 round()/GET.
+
+## 9. POST-SLICE-3 STATUS
+
+ROUND is landed (C087): `?DROUN` takes `k = entry_scale - n`, the entry keeps
+its scale, and LOAN1's own line `P = P + round(i*P/1200, 2)` is byte-exact in
+isolation as R813, printing 505.83 (its month-1 balance). The tie rule is
+settled at DR's runtime level: HALF-UP, AWAY FROM ZERO (2.125->2.13,
+2.145->2.15, -2.125->-2.13, 2.5->3), which LOAN1's schedule could never have
+shown because it contains no half-cent month.
+
+LOAN1's remaining blockers, in order of appearance:
+
+| # | blocker | routes needed | note |
+|---|---|---|---|
+| 1 | `get list(P)` / `get list(i)` / `get list(m)` | `?QCDOP` (+ the GNVOP/JP input template) | NOW THE ONLY decimal-adjacent gap, and not decimal work |
+| 2 | `if P < PMT then PMT = P;` | none | done (slices 1 + 2) |
+| 3 | `p = p + round(...)`, `p = p - pmt`, PUT LIST | none | done (slices 1-3); MOD-in-condition is the one non-decimal leftover in `if mod(...)`, which LOAN1 does not use |
+
+Unseen-route count for LOAN1: 1 of 23 (?QCDOP). The `?EDITF/?EDTOV` family
+(PUT EDIT) is not needed by LOAN1 at all -- its puts are all PUT LIST.

@@ -1,0 +1,14 @@
+l804:
+ procedure options(main);
+   dcl two fixed dec(9,2);
+   dcl three fixed dec(9,2);
+   dcl x fixed dec(9,2);
+   dcl y fixed dec(9,2);
+   two = 2;
+   three = 3;
+   x = two / three;
+   y = round(two / three, 2);
+   put skip list(x, y);
+ stop;
+end l804;
+

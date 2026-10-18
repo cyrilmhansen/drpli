@@ -1,0 +1,71 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R810
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 ROUND BUILTIN CONSTANT
+a 0000 L810 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 7 BYTES
+c 0000 I FIXED BINARY(15,0) AUTOMATIC
+c 0002 Y FIXED DECIMAL(9,2) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R810
+
+   1 a 0000 l810:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl i fixed;
+   4 c 0006    dcl y fixed dec(9,2);
+   5 c 0006    i = 7;
+       0006       LXI  H,0007
+       0009       SHLD I A(0000)
+   6 c 000C    y = round(i, 2);
+       000C       LHLD I A(0000)
+       000F       MVI  A,02
+       0011       CALL ?IROUN
+       0014       CALL ?QI15D
+       0017       MVI  A,02
+       0019       CALL ?QDDSL
+       001C       LXI  H,Y A(0002)
+       001F       MVI  A,09
+       0021       CALL ?DSTOP
+   7 c 0024    put skip list(y);
+       0024       LXI  D,0252
+       0027       LXI  B,0000
+       002A       CALL ?SYSPR
+       002D       MVI  A,01
+       002F       CALL ?SKPOP
+       0032       LXI  H,Y A(0002)
+       0035       MVI  A,09
+       0037       CALL ?DLDOP
+       003A       MVI  A,0C
+       003C       MVI  B,02
+       003E       CALL ?QDCOP
+       0041       CALL ?PNVOP
+       0044       CALL ?QIOOP
+       0028       ==== 0047
+   8 c 0047  stop;
+       0047       CALL ?STOPX
+   9 a 004A end l810;
+
+CODE SIZE = 004A
+DATA AREA = 0007
+FREE SYMS = 38AD
+END  COMPILATION
+

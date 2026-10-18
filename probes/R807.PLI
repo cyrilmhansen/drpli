@@ -1,0 +1,13 @@
+l807:
+ procedure options(main);
+   dcl p fixed dec(9,2);
+   dcl seven fixed dec(9,2);
+   dcl three fixed dec(9,2);
+   p = 100;
+   seven = 7;
+   three = 3;
+   p = p + round(seven / three, 2);
+   put skip list(p);
+ stop;
+end l807;
+

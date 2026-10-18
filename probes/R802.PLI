@@ -1,0 +1,22 @@
+l802:
+ procedure options(main);
+   dcl a1 fixed dec(9,3);
+   dcl q1 fixed dec(9,2);
+   dcl a2 fixed dec(9,3);
+   dcl q2 fixed dec(9,2);
+   dcl a3 fixed dec(9,3);
+   dcl q3 fixed dec(9,2);
+   dcl a4 fixed dec(9,3);
+   dcl q4 fixed dec(9,2);
+   a1 = 2.125;
+   a2 = 2.135;
+   a3 = 2.145;
+   a4 = 2.155;
+   q1 = round(a1, 2);
+   q2 = round(a2, 2);
+   q3 = round(a3, 2);
+   q4 = round(a4, 2);
+   put skip list(q1, q2, q3, q4);
+ stop;
+end l802;
+

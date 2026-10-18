@@ -1,0 +1,12 @@
+l803:
+ procedure options(main);
+   dcl a fixed dec(9,3);
+   dcl b fixed dec(9,3);
+   dcl q fixed dec(9,2);
+   a = 2.125;
+   b = a - a - a;
+   q = round(b, 2);
+   put skip list(b, q);
+ stop;
+end l803;
+

@@ -1,0 +1,10 @@
+l806:
+ procedure options(main);
+   dcl a fixed dec(9,3);
+   dcl y fixed dec(9,0);
+   a = 2.5;
+   y = round(a, 0);
+   put skip list(a, y);
+ stop;
+end l806;
+

@@ -486,3 +486,100 @@ way, so they are PRE-EXISTING diagnostic-wording debt, not slice-2
 regressions; they are recorded here instead of being counted as "0 crashes",
 which would have been false on a strict reading. LOAN1 now refuses at GET
 (its comparison and `p = p - pmt` forms are byte-exact).
+
+## C087 — FIXED DECIMAL ROUND (?DROUN) + the tie rule (E2E-7A slice 3)
+
+STATUS: ACCEPTED. 13 probes generated and DR-compiled (R801-R813,
+`$L$D$C$S`, golden/e2e9/); 8 registered byte-exact positives (gate 143/143),
+each also linked-.COM identical to DR and console byte-equal (all terminate
+with `stop;` -> COMPLETE transcripts, no bounded-prefix protocol); 5 refused
+by design with their DR goldens kept as evidence; 8 new tested negatives
+(N36-N43), panel 38/38.
+
+?DROUN CONVENTION (every byte observed, none extrapolated):
+`MVI A,k; CALL ?DROUN` with **k = (scale of the stack entry) - n**, i.e. the
+number of fractional digits to DROP, not the requested scale n. Samples:
+s=3,n=2 -> 01 [R801,R802,R803,R811]; s=6,n=2 -> 04 [R804,R807]; s=4,n=2 -> 02
+[LOAN1,R813]; s=3,n=0 -> 03 [R806]; s=3,n=3 -> 00 [R811 inner]. k=0 IS
+EMITTED (unlike the divide pre-shift, which vanishes at N=0 [L3]).
+
+THE ENTRY KEEPS ITS SCALE -- proven three independent ways: R801 still needs
+`QDDSR 1` to store into a dec(9,2) target (if DROUN set s=2 the shift would be
+zero and absent); R804/R807 need the same `QDDSR 4` the shift-only case needs;
+and R807/LOAN1/R813 show the enclosing `+` lifting the OTHER operand up to the
+rounded entry's ORIGINAL scale (6 in R807, 4 in LOAN1) via `QDDSL`. So ROUND
+adds no new shift machinery: L1 (align shorter up) and L5 (consumer fixes the
+scale) apply verbatim, computed from the pre-round scale. My compiler emits
+push(argument) -> MVI A,s-n -> ?DROUN -> ordinary consumer fix, and inherits
+all arithmetic from DR's ?DROUN at run time.
+
+PUSH ORDER: `X + round(<compound>, n)` pushes the ROUND subtree FIRST [LOAN1
+0142-0162 before P at 0165; R813 0026-0046 before P at 0049] -- law L7 once a
+round node with a compound argument counts as compound. Simple-argument round
+inside +/- has no sample -> refuses [N41].
+
+TIE RULE = HALF-UP, AWAY FROM ZERO, established from DR's own printed values
+(this is DR's runtime, not my code, so it is evidence about the machine):
+round(2.125,2)->2.13, round(2.135,2)->2.14, round(2.145,2)->2.15,
+round(2.155,2)->2.16, round(-2.125,2)->-2.13, round(2.5,0)->3. 2.125 and
+2.145 falsify HALF-EVEN (2.12 / 2.14); -2.13 falsifies toward-+infinity.
+This CLOSES the open question in C084/C086 ("rounding mode untested, because
+division truncates and never ties"). LOAN1's schedule still does not settle
+it -- no half-cent month -- so the mode came from these dedicated probes.
+
+ROUND SEES THE PRE-STORE STACK VALUE, not a truncated copy: with two=2,
+three=3 (dec(9,2) each), `x = two/three` prints 0.66 while
+`y = round(two/three,2)` prints 0.67 [R804]; `p = p + round(seven/three,2)`
+prints 102.33, not 102.32 [R807].
+
+LOAN1 SHAPES NOW BYTE-EXACT: R813 is LOAN1's line `P = P + round(i*P/1200,2)`
+with LOAN1's own declarations; its instruction stream matches LOAN1's
+0142-017F exactly and it prints 505.83 = LOAN1's month-1 balance.
+
+CORRECTIONS / UPDATES TO BANKED TEXT:
+- C084/C086 listed "rounding" in the fail-loud perimeter as a decimal gap.
+  2-arg ROUND of a DEC expression is now PROVEN and implemented; the
+  perimeter was replaced by the 8 narrower negatives below, not deleted.
+- C086's "the DECIMAL rounding MODE (half-up vs half-even) remains UNTESTED
+  for round()" is superseded: half-up, away from zero, from six printed
+  values.
+- C086's DEC ABI route list grows to 13 (?DROUN added). The count of routes
+  LOAN1 needs that my build has never emitted drops to 1 (?QCDOP for numeric
+  GET); ?IROUN is newly OBSERVED in a DR listing but is not LOAN1's.
+
+DEFECT CAUGHT BEFORE SHIPPING (not a shipped regression): my first R813 build
+compiled but differed from DR in 11 bytes, because the DEC-literal pool
+prescan (`pdec_operand_bytes`) had no ROUND case, so the 1200 cell inside
+`round(i*P/1200, 2)` went uncounted, the pool came out 3 bytes short and
+every AUTO base after it moved. Layout-wrong output with no diagnostic -- the
+fail-silent shape -- caught by raw byte comparison against a fresh DR golden
+before registration. The digit count n contributes nothing to the pool by
+design: it becomes an immediate byte.
+
+FAIL-LOUD PERIMETER AFTER SLICE 3 (panel 38/38, each tested):
+one-argument ROUND [N36] (DR itself rejects it: `SYNTAX ?`, no .REL [R808]);
+ROUND of a bare literal [N37] (R809 shows a THIRD literal role -- own digit
+count AND own scale, A=04 for 2.125 -- one sample); ROUND of an integer
+argument [N38] (DR uses a separate route ?IROUN then ?QI15D with no ?DROUN at
+all [R810]); ROUND with a non-literal digit count [N39] (R812 computes
+k = 3-n at run time as LHLD/MOV A,L/SUI 04/CMA -- template known, not
+implemented); ROUND with n ABOVE the operand scale [N40] (R805 emits the
+WRAPPED byte 0xFE; value unchanged in that one sample, rule unpinned);
+simple-argument ROUND inside +/- [N41]; ROUND in a multiplicative position
+[N42]; ROUND result as a divide dividend or divisor [N43] (a rounded entry's
+precision is not observable -- same family as L4). Unchanged from C084-C086:
+DEC formal parameters [N33], scaled compare literals [N25], decimal(x,p) in a
+relation [N30], DEC(>15) [N27], fractional literal into scale 0 [N28], mixed
+DEC/INT arithmetic [N29], PUT EDIT, numeric GET.
+
+GATES AFTER SLICE 3: e2e 143 byte-exact / 0 fail of 143 (was 135); negative
+panel 38/38 (was 30); parse 445 ok / 6 parity-rejects / 0 FAIL of 451; bind
+47/47; rel round-trip 421/421 -- that is EVERY .REL on disk, which
+is 409 tracked goldens plus 12 .REL copies sitting in the gitignored link/run
+scratch tags (e2e7link/e2e8link/e2e9run); the number therefore moves with
+harness state and is reported with that explanation, not as a fixed count; ir 0 FAIL; safety 28/28; clean-build warnings
+63 -> 63 with none inside new code (measured against the 3636eec baseline).
+Independent model: 57 SCHED MATCH / 0 DIFFER, 30 VALUE-MATCH / 0 VALUE-DIFF
+over the whole DEC corpus, with 9 named model-side refusals; its DROUN token
+initially missed because dr_tokens()' CALL alternation lacked DROUN/IROUND --
+a harness bug fixed before the result was read.

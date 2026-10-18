@@ -133,6 +133,20 @@ SPECIMENS = {
     "R612": ("probes/R612.PLI", "golden/e2e7/R612/R612.REL"),
     "R613": ("probes/R613.PLI", "golden/e2e7/R613/R613.REL"),
     "R614": ("probes/R614.PLI", "golden/e2e7/R614/R614.REL"),
+    # [E2E-7A slice 3] FIXED DECIMAL ROUND (?DROUN): 8 byte-exact
+    # specimens.  R813 is LOAN1's own `P = P + round(i*P/1200, 2)` line with
+    # LOAN1's own declarations, isolated so the ROUND law is verified in the
+    # exact shape LOAN1 needs even though GET still blocks LOAN1 itself.
+    # R805/R808/R809/R810/R812 have DR goldens but REFUSE here by design
+    # (see the ROUND perimeter in REJECTS) and are deliberately unregistered.
+    "R801": ("probes/R801.PLI", "golden/e2e9/R801/R801.REL"),
+    "R802": ("probes/R802.PLI", "golden/e2e9/R802/R802.REL"),
+    "R803": ("probes/R803.PLI", "golden/e2e9/R803/R803.REL"),
+    "R804": ("probes/R804.PLI", "golden/e2e9/R804/R804.REL"),
+    "R806": ("probes/R806.PLI", "golden/e2e9/R806/R806.REL"),
+    "R807": ("probes/R807.PLI", "golden/e2e9/R807/R807.REL"),
+    "R811": ("probes/R811.PLI", "golden/e2e9/R811/R811.REL"),
+    "R813": ("probes/R813.PLI", "golden/e2e9/R813/R813.REL"),
     "R701": ("probes/R701.PLI", "golden/e2e8/R701/R701.REL"),
     "R702": ("probes/R702.PLI", "golden/e2e8/R702/R702.REL"),
     "R703": ("probes/R703.PLI", "golden/e2e8/R703/R703.REL"),
@@ -240,7 +254,10 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "R721",
                 "R722",
                 "R723",
-                "R724"}
+                "R724",
+                # [E2E-7A slice 3] ROUND specimens: all terminate with stop;
+                "R801", "R802", "R803", "R804", "R806", "R807", "R811",
+                "R813"}
 
 
 # RFACT/R401/R412/R419 were removed from the console arm: they end in a
@@ -268,6 +285,46 @@ def compile_one(name, src):
 # exit nonzero with an explicit [TBD] refusal (fail-loud invariant: no
 # construct may be silently discarded, incl. nested inside containers).
 REJECTS = {
+    # ------------------------------------------------------------------
+    # [E2E-7A slice 3] ROUND perimeter.  Each marker is specific enough to
+    # notice if the refusal REASON changes, and each shape has a DR golden
+    # (golden/e2e9/) except where DR itself rejects the source.
+    # ------------------------------------------------------------------
+    "N36_ROUND_ONEARG": (
+        "t:\n  procedure options(main);\n  dcl a fixed dec(9,3);\n"
+        "  dcl y fixed dec(9,2);\n  a = 2.125;\n  y = round(a);\n"
+        "  stop;\nend t;\n", "one-argument ROUND"),
+    "N37_ROUND_LITERAL": (
+        "t:\n  procedure options(main);\n  dcl y fixed dec(9,2);\n"
+        "  y = round(2.125, 2);\n  stop;\nend t;\n",
+        "ROUND of a bare literal"),
+    "N38_ROUND_INTARG": (
+        "t:\n  procedure options(main);\n  dcl i fixed;\n"
+        "  dcl y fixed dec(9,2);\n  i = 7;\n  y = round(i, 2);\n"
+        "  stop;\nend t;\n", "ROUND of a non-DECIMAL"),
+    "N39_ROUND_DYNSCALE": (
+        "t:\n  procedure options(main);\n  dcl a fixed dec(9,3);\n"
+        "  dcl y fixed dec(9,2);\n  dcl n fixed;\n  a = 2.125;\n  n = 2;\n"
+        "  y = round(a, n);\n  stop;\nend t;\n", "not an integer literal"),
+    "N40_ROUND_SCALE_ABOVE": (
+        "t:\n  procedure options(main);\n  dcl a fixed dec(9,3);\n"
+        "  dcl y fixed dec(9,6);\n  a = 2.125;\n  y = round(a, 5);\n"
+        "  stop;\nend t;\n", "digit count ABOVE the operand scale"),
+    "N41_ROUND_SIMPLE_INADD": (
+        "t:\n  procedure options(main);\n  dcl p fixed dec(9,2);\n"
+        "  dcl a fixed dec(9,3);\n  p = 1;\n  a = 2.125;\n"
+        "  p = p + round(a, 2);\n  stop;\nend t;\n",
+        "ROUND with a SIMPLE argument inside"),
+    "N42_ROUND_INMUL": (
+        "t:\n  procedure options(main);\n  dcl p fixed dec(9,2);\n"
+        "  dcl a fixed dec(9,3);\n  p = 1;\n  a = 2.125;\n"
+        "  p = p * round(a, 2);\n  stop;\nend t;\n",
+        "ROUND in a multiplicative"),
+    "N43_ROUND_AS_DIVIDEND": (
+        "t:\n  procedure options(main);\n  dcl p fixed dec(9,2);\n"
+        "  dcl a fixed dec(9,3);\n  dcl b fixed dec(9,2);\n  p = 1;\n"
+        "  a = 2.125;\n  b = 2;\n  p = round(a, 2) / b;\n  stop;\nend t;\n",
+        "ROUND result as a DECIMAL divide"),
     "N1_GET": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
                "  get list(a);\nend t;\n", "non-varying"),
     "N3_PAGE": ("t:\n  procedure options(main);\n"

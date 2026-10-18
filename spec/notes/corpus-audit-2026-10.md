@@ -576,3 +576,39 @@ loudly with a nonzero exit but WITHOUT the literal [TBD] tag (parser
 behaves identically on both, so they are pre-existing diagnostic-wording
 debt rather than new crashes; earlier "0 crashes / all loud [TBD]" lines are
 read as "0 crashes, 39 tagged refusals, 2 untagged-but-loud refusals".
+
+## 13. SLICE-3 NOTE (E2E-7A FIXED DECIMAL ROUND, 2026-10-19)
+
+C087 banks ?DROUN from 13 fresh DR specimens (R801-R813): the single byte
+argument is k = entry_scale - n (DIGITS TO DROP, not the requested scale),
+k=0 is still emitted, and the rounded entry KEEPS its scale -- which is why
+R801's store still needs QDDSR 1 and LOAN1/R813's enclosing + still lifts the
+other operand with QDDSL. ROUND therefore needed no new shift machinery: it
+reuses the C086 alignment/consumer laws verbatim.
+
+The rounding MODE question that C084/C086 deliberately left open is now
+closed by DR's own runtime: HALF-UP, AWAY FROM ZERO, falsified against
+HALF-EVEN by 2.125 -> 2.13 and 2.145 -> 2.15, and against toward-+infinity by
+-2.125 -> -2.13; round(2.5,0) -> 3. ROUND also acts on the PRE-STORE stack
+value (R804 prints 0.67 for round(2/3,2) beside 0.66 for the stored
+quotient), which is the difference between "correct" and "looks like the
+1970s compiler" in a payment schedule.
+
+LOAN1's own ROUND line is byte-exact in isolation (R813 = `P = P +
+round(i*P/1200, 2)` with LOAN1's declarations, printing 505.83), so the
+schedule generator is now complete except for numeric GET: unseen routes for
+LOAN1 are down to 1 of 23 (?QCDOP). MOD-in-condition, which the ranking
+counted as a LOAN1 blocker, is not one -- LOAN1 contains no MOD.
+
+Process note worth keeping: my first R813 build produced layout-WRONG bytes
+silently (the pool prescan had no ROUND case, so the literal 1200 cell inside
+the call went uncounted and the AUTO base shifted 3 bytes). Generating the
+LOAN1-shaped probe BEFORE writing the implementation is what caught it; the
+simpler probes R801-R807, whose round arguments contain no literals, would
+have passed regardless. Fail-silent defects hide in the interaction between a
+new construct and an old accounting rule, not in the new construct alone.
+
+Gate state: e2e 143/143 byte-exact, negative panel 38/38 (N36-N43 added, each
+with a refusal-reason marker), parse 445 ok / 6 parity-rejects / 0 FAIL of
+451, bind 47/47, rel round-trip 423/423, ir 0 FAIL, safety 28/28, corpus
+unchanged at 3/41 byte-exact / 0 divergent.
