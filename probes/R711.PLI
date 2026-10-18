@@ -1,0 +1,14 @@
+l711:
+ procedure options(main);
+   dcl a fixed dec(9,2);
+   dcl b fixed dec(9,2);
+   dcl c fixed dec(9,4);
+   dcl d fixed dec(9,4);
+   a = 1;
+   b = 2;
+   c = a + b;
+   d = a * b;
+   put skip list(c, d);
+   stop;
+end l711;
+

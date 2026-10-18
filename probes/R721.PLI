@@ -1,0 +1,14 @@
+l721:
+ procedure options(main);
+   dcl a fixed dec(9,2);
+   dcl b fixed dec(9,2);
+   dcl d fixed dec(9,2);
+   dcl c fixed dec(9,2);
+   a = 7;
+   b = 3;
+   d = 2;
+   c = (a / b) + d;
+   put skip list(c);
+   stop;
+end l721;
+

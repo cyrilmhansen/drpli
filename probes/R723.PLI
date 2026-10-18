@@ -1,0 +1,16 @@
+l723:
+ procedure options(main);
+   dcl a fixed dec(9,2);
+   dcl b fixed dec(9,2);
+   dcl d fixed dec(9,2);
+   dcl e fixed dec(6,4);
+   dcl c fixed dec(9,2);
+   a = 7;
+   b = 3;
+   d = 2;
+   e = 1;
+   dcl m fixed binary(15);
+   if a > e then m = 1; else m = 0;
+   put skip list(m);
+end l723;
+

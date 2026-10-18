@@ -530,3 +530,49 @@ round slices are 3 of the 5 packages. The published LOAN1 schedule
 (Applications Guide) was reproduced independently with Decimal arithmetic
 before any LOAN1 code existed, so the acceptance oracle is already
 validated.
+
+## 12. SLICE-2 NOTE (E2E-7A decimal divide + scale law, 2026-10-18)
+
+C086 banks ?DDVOP/?QDDSL/?QDDSR and a single unified model of DR's decimal
+stack: entries carry (p digits, s scale), QDDSL/QDDSR shift the CURRENT TOP
+(their position in the sequence identifies which operand is being adjusted),
+and the value's final scale is decided by its CONSUMER, not its producer.
+Division pre-shifts the dividend by N = 15 - p_dividend (omitted at N=0,
+which is why LOAN1's `i*P/1200` shows no pair) and TRUNCATES; the quotient's
+own precision is never observable, so it stays [TBD].
+
+Corrections to previously banked claims (all recorded in C086, not silently):
+C084's "ADD/SUB never carry a rescale" was incomplete (unequal scales do),
+C084's post-multiply rescale formula was wrong (amount = result_scale -
+consumer_scale, not target_scale), and C085's HL-reuse peephole is
+straight-line only (R723 reloads `LXI H,0000` inside an else branch).
+
+One FAIL-SILENT defect found and closed: a FIXED DECIMAL formal parameter is
+passed by reference into a 2-BYTE pointer cell (prologue SHLD of the caller's
+address, reads via LHLD + ?DLDOP). My build sized it as a full BCD cell and
+pushed LXI H instead -- wrong AUTO storage AND wrong address, with no
+diagnostic. It now refuses [N33_DEC_FORMAL]. This is a THIRD decimal work
+package (formal-parameter passing) for the ranking, distinct from round()
+and GET; it gates DECPOLY but not LOAN1, whose remaining unseen routes are
+now only ?QCDOP and ?DROUN (2 of 23).
+
+Verification standard held: 135/135 byte-exact (23 new divide specimens, plus R512
+promoted from old divide-refusal evidence to positive), 30/30 negative panel,
+and for all 23 new specimens linked .COM identity + COMPLETE console-transcript
+byte-equality (every one terminates with `stop;`, so no bounded-prefix
+protocol was needed). Additionally tools/decmodel.py -- an independent
+Python simulator of the stack that emits both the token schedule and the
+printed field -- matches DR's schedule on 49/49 decodable DEC probes (0
+differences) and DR's console values on 22/22 decimal-printing ones; it
+declines 4 DEC-*call* shapes by design (R506/R509/R709/R725), which are
+model limits, named rather than averaged away. It surfaced that a decimal
+divide is computed at 15 working digits then PADDED (R716 prints
+2.33333300, not 2.33333333).
+
+Sweep-wording correction recorded with the slice-2 data: the corpus has 44
+sources (41 with DR goldens), and 2 of them -- CALL and LABELS -- fail
+loudly with a nonzero exit but WITHOUT the literal [TBD] tag (parser
+"expected statement" / codegen "undeclared x"). A clean build of 3636eec
+behaves identically on both, so they are pre-existing diagnostic-wording
+debt rather than new crashes; earlier "0 crashes / all loud [TBD]" lines are
+read as "0 crashes, 39 tagged refusals, 2 untagged-but-loud refusals".

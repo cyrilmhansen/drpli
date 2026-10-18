@@ -1,0 +1,18 @@
+l715:
+ procedure options(main);
+   dcl a fixed dec(9,4);
+   dcl b fixed dec(6,2);
+   dcl c fixed dec(9,4);
+   dcl e fixed dec(9,2);
+   dcl f fixed dec(6,4);
+   dcl g fixed dec(9,2);
+   a = 1;
+   b = 2;
+   c = a - b;
+   e = 1;
+   f = 2;
+   g = e - f;
+   put skip list(c, g);
+   stop;
+end l715;
+

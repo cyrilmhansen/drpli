@@ -100,6 +100,11 @@ SPECIMENS = {
     "R509": ("probes/R509.PLI", "golden/e2e6/R509/R509.REL"),
     "R510": ("probes/R510.PLI", "golden/e2e6/R510/R510.REL"),
     "R511": ("probes/R511.PLI", "golden/e2e6/R511/R511.REL"),
+    # [E2E-7A slice 2] R512 (`c = a / 2`) was E2E-6-era evidence for a
+    # DIVIDE refusal. Divide is now proven for this shape, so it is a
+    # POSITIVE specimen instead -- and the retired negative N26_DECDIV
+    # ("decimal divide deferred") now has a byte-exact positive twin.
+    "R512": ("probes/R512.PLI", "golden/e2e6/R512/R512.REL"),
     # cell-size law completion: p=1/3/4 close the extrapolation gap below
     # p=5, so ceil((p+1)/2) is now DIRECTLY observed across the whole
     # accepted band p = 1,3,4,5,7,9,15 (and DR says NOT IMP at 31 [R504]).
@@ -128,6 +133,30 @@ SPECIMENS = {
     "R612": ("probes/R612.PLI", "golden/e2e7/R612/R612.REL"),
     "R613": ("probes/R613.PLI", "golden/e2e7/R613/R613.REL"),
     "R614": ("probes/R614.PLI", "golden/e2e7/R614/R614.REL"),
+    "R701": ("probes/R701.PLI", "golden/e2e8/R701/R701.REL"),
+    "R702": ("probes/R702.PLI", "golden/e2e8/R702/R702.REL"),
+    "R703": ("probes/R703.PLI", "golden/e2e8/R703/R703.REL"),
+    "R704": ("probes/R704.PLI", "golden/e2e8/R704/R704.REL"),
+    "R705": ("probes/R705.PLI", "golden/e2e8/R705/R705.REL"),
+    "R706": ("probes/R706.PLI", "golden/e2e8/R706/R706.REL"),
+    "R707": ("probes/R707.PLI", "golden/e2e8/R707/R707.REL"),
+    "R708": ("probes/R708.PLI", "golden/e2e8/R708/R708.REL"),
+    # R709 NOT REGISTERED: DECIMAL formal parameter [TBD] (see N33)
+    "R710": ("probes/R710.PLI", "golden/e2e8/R710/R710.REL"),
+    "R711": ("probes/R711.PLI", "golden/e2e8/R711/R711.REL"),
+    "R712": ("probes/R712.PLI", "golden/e2e8/R712/R712.REL"),
+    "R713": ("probes/R713.PLI", "golden/e2e8/R713/R713.REL"),
+    "R714": ("probes/R714.PLI", "golden/e2e8/R714/R714.REL"),
+    "R715": ("probes/R715.PLI", "golden/e2e8/R715/R715.REL"),
+    "R716": ("probes/R716.PLI", "golden/e2e8/R716/R716.REL"),
+    "R717": ("probes/R717.PLI", "golden/e2e8/R717/R717.REL"),
+    "R718": ("probes/R718.PLI", "golden/e2e8/R718/R718.REL"),
+    "R719": ("probes/R719.PLI", "golden/e2e8/R719/R719.REL"),
+    "R720": ("probes/R720.PLI", "golden/e2e8/R720/R720.REL"),
+    "R721": ("probes/R721.PLI", "golden/e2e8/R721/R721.REL"),
+    "R722": ("probes/R722.PLI", "golden/e2e8/R722/R722.REL"),
+    "R723": ("probes/R723.PLI", "golden/e2e8/R723/R723.REL"),
+    "R724": ("probes/R724.PLI", "golden/e2e8/R724/R724.REL"),
     "R401": ("probes/R401.PLI", "golden/e2e5c/R401/R401.REL"),
     "R403": ("probes/R403.PLI", "golden/e2e5c/R403/R403.REL"),
     "R404": ("probes/R404.PLI", "golden/e2e5c/R404/R404.REL"),
@@ -182,10 +211,37 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "NFACT",
                 "R501", "R502", "R503", "R505", "R506",
                 "R508", "R509", "R510", "R511",
-                "R513", "R514", "R515",
+                "R512", "R513", "R514", "R515",
                 "R507", "R601", "R602", "R603", "R604", "R605", "R606",
                 "R607", "R608", "R609", "R610", "R611", "R612", "R613",
-                "R614"}
+                "R614",
+                # [E2E-7A slice 2] decimal divide/scale specimens: all
+                # terminate with `stop;`, so the transcript is COMPLETE
+                # and needs no bounded-prefix protocol.
+                "R701",
+                "R702",
+                "R703",
+                "R704",
+                "R705",
+                "R706",
+                "R707",
+                "R708",
+                "R710",
+                "R711",
+                "R712",
+                "R713",
+                "R714",
+                "R715",
+                "R716",
+                "R717",
+                "R718",
+                "R719",
+                "R720",
+                "R721",
+                "R722",
+                "R723",
+                "R724"}
+
 
 # RFACT/R401/R412/R419 were removed from the console arm: they end in a
 # NO-EXIT main tail, so a timeout-truncated transcript is never a
@@ -266,6 +322,42 @@ REJECTS = {
     "N24_BIGIN": ("t:\n  procedure options(main);\n"
                   "  dcl c fixed bin(16);\n  c = 1;\n"
                   "  put list(c);\nend t;\n", "NOT IMP"),
+    # ---- [E2E-7A slice 2] DECIMAL divide perimeter.  Divide itself is now
+    # implemented (R701-R724 byte-exact), so N26_DECDIV retires; the shapes
+    # below are the ones NO sample pins and each must stay a loud refusal.
+    "N31_DIV_LITERAL_NUMERATOR":
+        ("t:\n  procedure options(main);\n"
+         "  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,2);\n"
+         "  a = 6;\n  c = 1200 / a;\n  put list(c);\nend t;\n",
+         "literal dividend is"),
+    "N32_DIV_CHAINED":
+        ("t:\n  procedure options(main);\n"
+         "  dcl a fixed dec(9,2);\n  dcl b fixed dec(9,2);\n"
+         "  dcl c fixed dec(9,2);\n  a = 6; b = 2;\n"
+         "  c = a / b / 2;\n  put list(c);\nend t;\n",
+         "unpinned dividend precision"),
+    "N33_DEC_FORMAL":
+        ("t:\n  procedure options(main);\n"
+         "  dcl r fixed dec(9,2);\n  r = g(1);\n  put list(r);\n  stop;\n"
+         "  g: procedure(x) returns(fixed dec(9,2));\n"
+         "     dcl x fixed dec(9,2);\n     return (x);\n  end g;\n"
+         "end t;\n",
+         "DECIMAL formal parameter"),
+    # s_r > s_l + N, i.e. a quotient scale BELOW zero.  R712 proves s_r >
+    # s_l is fine when the result stays >= 0 (dividend scale 2, divisor
+    # product scale 4, N 6 -> scale 4), so the refused region is exactly the
+    # negative one, which no sample reaches.
+    "N34_DEC_NEGSCALE_DIV":
+        ("t:\n  procedure options(main);\n"
+         "  dcl a fixed dec(9,0);\n  dcl b fixed dec(9,8);\n"
+         "  dcl c fixed dec(9,0);\n  a = 6; b = 2;\n"
+         "  c = a / b;\n  put list(c);\nend t;\n",
+         "negative scale"),
+    "N35_DEC_STORE_SCALE_DRIFT":
+        ("t:\n  procedure options(main);\n"
+         "  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,4);\n"
+         "  a = 6;\n  c = a;\n  put list(c);\nend t;\n",
+         "differing scales is"),
     # ---- E2E-6 DECIMAL perimeter: these MUST refuse, never guess ----
     # [E2E-7A slice 1] the six relations themselves are now implemented
     # (R507/R601-R609 byte-exact), so the comparison perimeter shrinks to
@@ -285,10 +377,10 @@ REJECTS = {
          "  dcl d fixed dec(9,2);\n  d = 1; i = 2;\n"
          "  if decimal(i,9) > d then put list(d);\nend t;\n",
          "not in the proven DEC subset"),
-    "N26_DECDIV": ("t:\n  procedure options(main);\n"
-                   "  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,2);\n"
-                   "  c = a / 2;\n  put list(c);\nend t;\n",
-                   "decimal operator not in the DEC subset"),
+    # [E2E-7A slice 2] RETIRED: N26_DECDIV (`c = a / 2`) is now PROVEN --
+    # R512's own shape compiles byte-exact, so it is registered as a
+    # positive specimen instead of a refusal target.  The perimeter it used
+    # to guard is now covered by N31/N32/N34/N35 above.
     "N27_DECBIGP": ("t:\n  procedure options(main);\n"
                     "  dcl d fixed dec(20,0);\n  d = 1;\nend t;\n",
                     "outside the probed DEC band"),

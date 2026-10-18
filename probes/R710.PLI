@@ -1,0 +1,10 @@
+l710:
+ procedure options(main);
+   dcl a fixed dec(11,3);
+   dcl c fixed dec(11,3);
+   a = 5;
+   c = a / 8;
+   put skip list(c);
+   stop;
+end l710;
+

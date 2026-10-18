@@ -1,0 +1,12 @@
+l705:
+ procedure options(main);
+   dcl a fixed dec(9,2);
+   dcl b fixed dec(6,4);
+   dcl c fixed dec(9,2);
+   a = 1;
+   b = 1;
+   c = a + b;
+   put skip list(c);
+   stop;
+end l705;
+

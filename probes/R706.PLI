@@ -1,0 +1,22 @@
+l706:
+ procedure options(main);
+   dcl x fixed dec(9,2);
+   dcl y fixed dec(9,2);
+   dcl z fixed dec(9,2);
+   dcl u fixed dec(11,4);
+   dcl two fixed dec(4,0);
+   dcl three fixed dec(4,0);
+   dcl eight fixed dec(4,0);
+   dcl six fixed dec(4,0);
+   two = 2;
+   three = 3;
+   eight = 8;
+   six = 6;
+   x = two / three;
+   y = two / eight;
+   z = two / six;
+   u = two / three;
+   put skip list(x, y, z, u);
+   stop;
+end l706;
+

@@ -168,3 +168,27 @@ with 3-4 maximum-separation probes plus runtime quotient checks against
 `Decimal`. Slices 4 (numeric GET) and 5 (MOD-in-condition) are the
 long pole for LOAN1 acceptance and are *not* decimal work; they should be
 scheduled explicitly rather than assumed to fall out of the DEC family.
+
+## 8. POST-SLICE-2 STATUS (same day)
+
+Decimal DIVIDE + the whole QDDSL/QDDSR scale law are landed and banked
+(C086), which also retro-fixed two wrong formulas in C084 and one
+over-broad peephole from C085. LOAN1's remaining blockers, in order of
+appearance now:
+
+| # | blocker | routes needed | note |
+|---|---|---|---|
+| 1 | `get list(P)` (and `get list(m)` elsewhere) | `?QCDOP` (+ the GNVOP/JP input template) | FIRST blocker today; not decimal-specific |
+| 2 | `round(i * P / 1200, 2)` | `?DROUN` | slice 3; tie mode still open (LOAN1 has no half-cent month) |
+| 3 | `if P < PMT then PMT = P;` | none | DONE since slice 1 (compare) + E2E-6 (DEC->DEC store across precisions; LOAN1 keeps scales equal) |
+| 4 | `p = p + round(...)` add across scales | none | DONE since slice 2 (L1/L5 alignment) |
+| 5 | `p = p - pmt`, `put skip list(m,P)`, `put list(PMT)` | none | already byte-exact |
+
+The unseen-route count for LOAN1 is now 2 (?QCDOP, ?DROUN) out of 23.
+A side effect worth recording: slice 2 also proved that a DECIMAL FORMAL
+PARAMETER is passed by reference into a 2-byte pointer cell, which my build
+had been compiling SILENTLY WRONG; it now refuses [N33]. That gap does not
+touch LOAN1 (no procedures), but it does gate DECPOLY and any program with a
+decimal parameter, so the ranking in section 10 should count it as a
+third decimal work package (formal-parameter passing) distinct from
+round()/GET.

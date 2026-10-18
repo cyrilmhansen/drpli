@@ -1,0 +1,11 @@
+l704:
+ procedure options(main);
+   dcl p fixed dec(11,2);
+   dcl i fixed dec(4,2);
+   p = 500;
+   i = 14;
+   p = p + i * p / 1200;
+   put skip list(p);
+   stop;
+end l704;
+

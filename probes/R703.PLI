@@ -1,0 +1,10 @@
+l703:
+ procedure options(main);
+   dcl a fixed dec(9,0);
+   dcl c fixed dec(9,0);
+   a = 9;
+   c = a / 2;
+   put skip list(c);
+   stop;
+end l703;
+

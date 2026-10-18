@@ -1,0 +1,79 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R710
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 L710 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 12 BYTES
+c 0000 A FIXED DECIMAL(11,3) AUTOMATIC
+c 0006 C FIXED DECIMAL(11,3) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R710
+
+   1 a 0000 l710:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl a fixed dec(11,3);
+   4 c 0006    dcl c fixed dec(11,3);
+   5 c 0006    a = 5;
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,0B
+       000B       CALL ?DLDOP
+       000E       LXI  H,A A(0007)
+       0011       MVI  A,0B
+       0013       CALL ?DSTOP
+   6 c 0016    c = a / 8;
+       0016       LXI  H,A A(0007)
+       0019       MVI  A,0B
+       001B       CALL ?DLDOP
+       001E       MVI  A,04
+       0020       CALL ?QDDSL
+       0023       LXI  H,* S(0006)
+       0026       MVI  A,01
+       0028       CALL ?DLDOP
+       002B       CALL ?DDVOP
+       002E       MVI  A,04
+       0030       CALL ?QDDSR
+       0033       LXI  H,C A(000D)
+       0036       MVI  A,0B
+       0038       CALL ?DSTOP
+   7 c 003B    put skip list(c);
+       003B       LXI  D,0252
+       003E       LXI  B,0000
+       0041       CALL ?SYSPR
+       0044       MVI  A,01
+       0046       CALL ?SKPOP
+       0049       LXI  H,C A(000D)
+       004C       MVI  A,0B
+       004E       CALL ?DLDOP
+       0051       MVI  A,0E
+       0053       MVI  B,03
+       0055       CALL ?QDCOP
+       0058       CALL ?PNVOP
+       005B       CALL ?QIOOP
+       003F       ==== 005E
+   8 c 005E    stop;
+       005E       CALL ?STOPX
+   9 a 0061 end l710;
+
+CODE SIZE = 0061
+DATA AREA = 0013
+FREE SYMS = 38A1
+END  COMPILATION
+

@@ -164,13 +164,18 @@ verified by cmp BEFORE either was registered -- the $C trace is the new
 information) + golden/first8080u/DFACT/DFACT.REL (acceptance).
 
 STORAGE (bind authority, now DR-proven rather than inferred):
-- bytes(FIXED DEC(p,s)) = ceil((p+1)/2), INDEPENDENT of scale, directly
-  observed at SEVEN precisions: p=1 -> 1 [R514], p=3 -> 2 [R513],
-  p=4 -> 3 [R515], p=5 -> 3 [R503], p=7 -> 4 [R508], p=9 -> 5
-  [R502/R505], p=15 -> 8 [R501/DFACT]. This is exactly Bind.bytes_of
-  `RTdec (p,_) = (p+2)/2`, which was carried as a hypothesis; it is now
-  confirmed across the entire accepted band, so accepting p<=15 involves
-  NO extrapolation. DR itself stops at p=31 (`NOT IMP`, no .REL [R504]).
+- bytes(FIXED DEC(p,s)) = ceil((p+1)/2), INDEPENDENT of scale, DIRECTLY
+  OBSERVED at NINE precisions: p=1 -> 1 [R514], p=3 -> 2 [R513],
+  p=4 -> 3 [R515], p=5 -> 3 [R503], p=6 -> 4 [LOAN1 $S], p=7 -> 4 [R508],
+  p=9 -> 5 [R502/R505/R512], p=11 -> 6 [LOAN1 $S], p=15 -> 8
+  [R501/DFACT]. This is exactly Bind.bytes_of `RTdec (p,_) = (p+2)/2`,
+  which was carried as a hypothesis; nine sampled points spanning the band
+  make it far more than a fit, but it is NOT a per-value verification: the
+  six unsampled precisions p = 2, 8, 10, 12, 13, 14 are LAW-PREDICTED, not
+  observed, and a p-parity bug confined to one of them would not be caught
+  by any current specimen. (Amended by C086, which read p=6/p=11 out of
+  LOAN1's $S instead of trusting the formula.) DR itself stops at p=31
+  (`NOT IMP`, no .REL [R504]).
 - packing = little-endian packed BCD, two digits per byte as
   (hi<<4|lo), sign nibble in the TOP nibble of the last byte (0 = +).
   Byte-for-byte against DR: 3@p15 -> `03 00 00 00 00 00 00 00` [R501];
@@ -361,3 +366,123 @@ GATES AFTER E2E-7A SLICE 1: e2e 111 byte-exact / 0 fail of 111 (was 96);
 negative panel 26/26 refused (N25 replaced by two narrower unpinned
 shapes); parse 412 ok / 6 parity-rejects / 0 FAIL of 418; bind 47/47
 exact; rel round-trip 385/385; ir gate 0 FAIL; safety 28/28.
+
+## C086 — FIXED DECIMAL divide + the unified scale-shift law (E2E-7A slice 2)
+
+STATUS: ACCEPTED. 25 probes generated and DR-compiled (R701-R725); 23
+registered byte-exact positive specimens (135/135 gate total), each also
+linked-.COM identical to DR and console byte-equal; R709/R725 excluded from
+the positive panel because they evidence a REFUSAL (see DEFECT below); and
+R512 (`c = a / 2`) promoted from old divide-refusal evidence to POSITIVE,
+which is why its negative N26_DECDIV is retired rather than kept as a twin. plus an
+independent Python simulator (tools/decmodel.py) that reproduces DR's
+emitted decimal-stack token schedule for all 49 DEC probes it can parse
+(0 differences) and declines 4 DEC-*call* shapes by design.
+
+NEW ROUTES: ?DDVOP ?QDDSL ?QDDSR (the latter two were already emitted by
+slice 1's multiply rule in one shape only). DEC ABI surface is now 12
+routes; LOAN1 needs 23, so 4 remain unseen (?QCDOP ?DROUN ?EDITF/?EDTOV
+are not LOAN1's -- LOAN1's remaining set is ?QCDOP ?DROUN + GET-path
+routes, see spec/notes/e2e7-loan1-dependencies.md).
+
+THE MODEL: a decimal-stack entry carries (p = digits, s = scale), value
+m/10**s. ?QDDSL n shifts the CURRENT TOP left (m *= 10**n, s += n, value
+preserved); ?QDDSR n shifts it right (m //= 10**n, s -= n, value
+preserved, TRUNCATING). Because the shift acts on the top, its POSITION
+between/after the two operand pushes identifies which value is adjusted --
+that is what makes the traces decodable, and it is why one shift pair looks
+like two different laws until you notice the stack.
+
+L1 +/- align the SHORTER operand UP to max(s_l,s_r); equal scales emit
+   nothing; both directions proven for SUBTRACT, not inherited from ADD
+   [R705 shift-between-pushes, R707 shift-after-both, R715 both directions
+   of -, R505/LOAN1 equal-scale, R608 literal pre-aligned so no shift].
+L2 * performs NO alignment; result scale = s_l + s_r [R711 `d = a*b` into
+   dec(9,4) emits nothing at all; R719/R720 product scale 4 into a dec(9,2)
+   target gets exactly one ?QDDSR 2].
+L3 / pre-shifts the DIVIDEND by N = 15 - p_dividend and omits the pair
+   entirely when N = 0 [p=9 -> 6: R512,R701,R703,R708,R712,R713,R714,R717,
+   R718; p=11 -> 4: R710, so N is not a constant; R702 dividend dec(9,2)
+   against a dec(13,2) TARGET still gets 6, so N tracks the DIVIDEND;
+   LOAN1/R704 dividend = 15-digit product -> N=0 -> no pair].
+L4 quotient scale = s_l + N - s_r (N>0) else s_l - s_r. The quotient's
+   PRECISION is unpinned -- no trace ever exposes it -- so a quotient used
+   where N is needed refuses [N32_DIV_CHAINED].
+L5 the CONSUMER fixes the scale: store/return shifts DOWN (?QDDSR) or UP
+   (?QDDSL); an enclosing +/- aligns its own operands instead and adds no
+   fix [R701 down 4, R713 down 2, R716 UP 2 into dec(13,8), R711 up 2,
+   R505 down 2, R721/R722 quotient carries scale 6 into the add untouched].
+L6 result precision is observable only through the next division's N:
+   +/- -> min(15, min(p_l,p_r)+1) [R714 (9,9)->10, R717 (9,6)->7, R718 sub
+   (5,5)->6]; * -> min(15, p_l+p_r+1) [R718 (5,5)->11; LOAN1/R704
+   4+11+1 -> 15 cap -> N=0].
+L7 push order: RIGHT first iff it is compound and the left is simple
+   [DFACT, R704, R719, R722]; left first otherwise, both-compound [R720,
+   R724] and both-simple [R505, R705, R707] included. / ALWAYS pushes the
+   dividend first, even against a compound divisor [R712], because the N
+   pre-shift has to act on the top.
+L8 integer literals: store/return role -> target (p,s); additive/compare
+   role -> DEC PARTNER (p,s); multiplicative role -> own digit count with
+   scale 0 [R509 *2 A=01, R511 *1234 A=04, R512/R703/R710 /2 /8 A=01,
+   LOAN1 /1200 A=04 from a 3-byte cell S(0028)].
+L9 DIVISION TRUNCATES, it does not round: R706 printed 2/3 into dec(9,2)
+   as 0.66 (half-up would be 0.67) and 9/2 into dec(9,0) as 4; R703/R712
+   (7/(3*2) = 1.16) agree. This is the shift-right truncation of L1-L5,
+   not a separate rounding rule.
+
+CORRECTIONS TO BANKED CLAIMS:
+- C084 "ADD/SUB never carry a rescale" is INCOMPLETE: true only for equal
+  scales; unequal scales get the L1/L5 pair [R705, R707, R715].
+- C084 "the post-multiply rescale amount is target_scale" is the WRONG
+  FORMULA (right answer on its one sample by coincidence): the amount is
+  result_scale - consumer_scale = (s_l+s_r) - s_t. R711 (product scale 4
+  into dec(9,4)) emits nothing, which the old rule got wrong.
+- C085's HL-constant-reuse law D6 is a STRAIGHT-LINE peephole: R723 shows
+  `if a > e then m = 1; else m = 0;` reloading `LXI H,0000` in the else
+  branch instead of reusing HL through the [G116] MOV L,H trick. My
+  unqualified rule fired across the branch boundary (2 bytes short) and
+  this was caught by byte-comparison, not by inspection. The tracking
+  state now dies on every jump emission.
+- L9 also means the DECIMAL rounding MODE (half-up vs half-even) remains
+  UNTESTED for `round()`, because division never rounds. That question is
+  still open for slice 3; LOAN1's published schedule does not settle it
+  (no half-cent month).
+
+DEFECT FOUND AND CLOSED (was fail-silent, is now fail-loud). Sampling
+honesty: C084's cell law is directly observed at NINE precisions
+(p=1,3,4,5,6,7,9,11,15), NOT at all fifteen -- p=2,8,10,12,13,14 remain
+law-predicted (C084 bullet amended accordingly by this claim).
+R709/R725 (DEC call as a divide operand) exposed a pre-existing wrong-code
+path: DR passes a FIXED DECIMAL formal BY REFERENCE -- the formal gets a
+2-BYTE cell holding the caller's address (prologue `MOV E,M; INX H;
+MOV D,M; XCHG; SHLD J`, reads `LHLD J; MVI A,digits; CALL ?DLDOP`). My
+build gave the formal a full BCD cell (mis-sizing AUTO storage) and pushed
+`LXI H,J` (address, not pointer) -- and COMPILED WITHOUT COMPLAINT. It now
+refuses: "FIXED DECIMAL formal parameter j is unproven [TBD]" [N33].
+DFACT/R509/R510 are UNAFFECTED: DR resolves a bare `dcl i fixed` as FIXED
+BINARY(15,0), and those formals are the by-value 2-byte copy already proven
+byte-exact.
+
+FAIL-LOUD PERIMETER AFTER SLICE 2 (panel 30/30, each a tested negative):
+literal dividend in a divide [N31]; quotient consumed where its precision
+is needed [N32]; DEC formal parameter [N33]; divide whose quotient scale
+would be NEGATIVE (s_r > s_l + N) [N34]; direct DEC operand stored into a
+different SCALE (only computed values are pinned as needing a fix, and
+LOAN1's PMT = P crosses precisions but not scales) [N35]; unchanged from
+C084/C085: scaled compare literal [N25], decimal(x,p) inside a relation
+[N30], DEC(>15) [N27], fractional literal into scale 0 [N28], mixed
+DEC/INT arithmetic [N29], PUT EDIT, rounding, GET of numerics.
+
+GATES AFTER SLICE 2: e2e 135 byte-exact / 0 fail of 135 (was 111 at 3636eec);
+negative panel 30/30 (N26_DECDIV retired -- `c = a / 2` is now PROVEN --
+and N31-N35/N33 added); parse 436 ok / 6 parity-rejects / 0 FAIL of 442;
+bind 47/47; rel round-trip 411/411; ir 0 FAIL; safety 28/28. Corpus sweep
+(44 sources in artefacts/, 41 with DR goldens): 3 byte-exact (DEMO, RFACT,
+DFACT), 0 divergent, 39 refusing with an explicit [TBD], and 2 that fail
+LOUDLY but WITHOUT the [TBD] word -- CALL (parser: "expected statement", no
+DR golden) and LABELS (codegen: "undeclared x", has a golden). Both were
+re-tested against a clean build of 3636eec and behave BYTE-FOR-BYTE the same
+way, so they are PRE-EXISTING diagnostic-wording debt, not slice-2
+regressions; they are recorded here instead of being counted as "0 crashes",
+which would have been false on a strict reading. LOAN1 now refuses at GET
+(its comparison and `p = p - pmt` forms are byte-exact).

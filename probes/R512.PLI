@@ -1,0 +1,8 @@
+r512: procedure options(main);
+   dcl a fixed dec(9,2);
+   dcl c fixed dec(9,2);
+   c = a / 2;
+   put skip list(c);
+   stop;
+end r512;
+

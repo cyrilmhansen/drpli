@@ -1,0 +1,178 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R706
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 L706 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 33 BYTES
+c 0000 X FIXED DECIMAL(9,2) AUTOMATIC
+c 0005 Y FIXED DECIMAL(9,2) AUTOMATIC
+c 000A Z FIXED DECIMAL(9,2) AUTOMATIC
+c 000F U FIXED DECIMAL(11,4) AUTOMATIC
+c 0015 TWO FIXED DECIMAL(4,0) AUTOMATIC
+c 0018 THREE FIXED DECIMAL(4,0) AUTOMATIC
+c 001B EIGHT FIXED DECIMAL(4,0) AUTOMATIC
+c 001E SIX FIXED DECIMAL(4,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R706
+
+   1 a 0000 l706:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl x fixed dec(9,2);
+   4 c 0006    dcl y fixed dec(9,2);
+   5 c 0006    dcl z fixed dec(9,2);
+   6 c 0006    dcl u fixed dec(11,4);
+   7 c 0006    dcl two fixed dec(4,0);
+   8 c 0006    dcl three fixed dec(4,0);
+   9 c 0006    dcl eight fixed dec(4,0);
+  10 c 0006    dcl six fixed dec(4,0);
+  11 c 0006    two = 2;
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,04
+       000B       CALL ?DLDOP
+       000E       LXI  H,TWO A(0021)
+       0011       MVI  A,04
+       0013       CALL ?DSTOP
+  12 c 0016    three = 3;
+       0016       LXI  H,* S(0003)
+       0019       MVI  A,04
+       001B       CALL ?DLDOP
+       001E       LXI  H,THREE A(0024)
+       0021       MVI  A,04
+       0023       CALL ?DSTOP
+  13 c 0026    eight = 8;
+       0026       LXI  H,* S(0006)
+       0029       MVI  A,04
+       002B       CALL ?DLDOP
+       002E       LXI  H,EIGHT A(0027)
+       0031       MVI  A,04
+       0033       CALL ?DSTOP
+  14 c 0036    six = 6;
+       0036       LXI  H,* S(0009)
+       0039       MVI  A,04
+       003B       CALL ?DLDOP
+       003E       LXI  H,SIX A(002A)
+       0041       MVI  A,04
+       0043       CALL ?DSTOP
+  15 c 0046    x = two / three;
+       0046       LXI  H,TWO A(0021)
+       0049       MVI  A,04
+       004B       CALL ?DLDOP
+       004E       MVI  A,0B
+       0050       CALL ?QDDSL
+       0053       LXI  H,THREE A(0024)
+       0056       MVI  A,04
+       0058       CALL ?DLDOP
+       005B       CALL ?DDVOP
+       005E       MVI  A,09
+       0060       CALL ?QDDSR
+       0063       LXI  H,X A(000C)
+       0066       MVI  A,09
+       0068       CALL ?DSTOP
+  16 c 006B    y = two / eight;
+       006B       LXI  H,TWO A(0021)
+       006E       MVI  A,04
+       0070       CALL ?DLDOP
+       0073       MVI  A,0B
+       0075       CALL ?QDDSL
+       0078       LXI  H,EIGHT A(0027)
+       007B       MVI  A,04
+       007D       CALL ?DLDOP
+       0080       CALL ?DDVOP
+       0083       MVI  A,09
+       0085       CALL ?QDDSR
+       0088       LXI  H,Y A(0011)
+       008B       MVI  A,09
+       008D       CALL ?DSTOP
+  17 c 0090    z = two / six;
+       0090       LXI  H,TWO A(0021)
+       0093       MVI  A,04
+       0095       CALL ?DLDOP
+       0098       MVI  A,0B
+       009A       CALL ?QDDSL
+       009D       LXI  H,SIX A(002A)
+       00A0       MVI  A,04
+       00A2       CALL ?DLDOP
+       00A5       CALL ?DDVOP
+       00A8       MVI  A,09
+       00AA       CALL ?QDDSR
+       00AD       LXI  H,Z A(0016)
+       00B0       MVI  A,09
+       00B2       CALL ?DSTOP
+  18 c 00B5    u = two / three;
+       00B5       LXI  H,TWO A(0021)
+       00B8       MVI  A,04
+       00BA       CALL ?DLDOP
+       00BD       MVI  A,0B
+       00BF       CALL ?QDDSL
+       00C2       LXI  H,THREE A(0024)
+       00C5       MVI  A,04
+       00C7       CALL ?DLDOP
+       00CA       CALL ?DDVOP
+       00CD       MVI  A,07
+       00CF       CALL ?QDDSR
+       00D2       LXI  H,U A(001B)
+       00D5       MVI  A,0B
+       00D7       CALL ?DSTOP
+  19 c 00DA    put skip list(x, y, z, u);
+       00DA       LXI  D,0252
+       00DD       LXI  B,0000
+       00E0       CALL ?SYSPR
+       00E3       MVI  A,01
+       00E5       CALL ?SKPOP
+       00E8       LXI  H,X A(000C)
+       00EB       MVI  A,09
+       00ED       CALL ?DLDOP
+       00F0       MVI  A,0C
+       00F2       MVI  B,02
+       00F4       CALL ?QDCOP
+       00F7       CALL ?PNVOP
+       00FA       LXI  H,Y A(0011)
+       00FD       MVI  A,09
+       00FF       CALL ?DLDOP
+       0102       MVI  A,0C
+       0104       MVI  B,02
+       0106       CALL ?QDCOP
+       0109       CALL ?PNVOP
+       010C       LXI  H,Z A(0016)
+       010F       MVI  A,09
+       0111       CALL ?DLDOP
+       0114       MVI  A,0C
+       0116       MVI  B,02
+       0118       CALL ?QDCOP
+       011B       CALL ?PNVOP
+       011E       LXI  H,U A(001B)
+       0121       MVI  A,0B
+       0123       CALL ?DLDOP
+       0126       MVI  A,0E
+       0128       MVI  B,04
+       012A       CALL ?QDCOP
+       012D       CALL ?PNVOP
+       0130       CALL ?QIOOP
+       00DE       ==== 0133
+  20 c 0133    stop;
+       0133       CALL ?STOPX
+  21 a 0136 end l706;
+
+CODE SIZE = 0136
+DATA AREA = 002D
+FREE SYMS = 3824
+END  COMPILATION
+

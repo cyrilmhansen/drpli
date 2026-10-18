@@ -1191,144 +1191,287 @@ let dec_edit_pt st (e : Ast.expr) : int * int =
       failwith "codegen: PUT LIST decimal editing of this expression is \
                 unproven [TBD]"
 
-(* push a DEC value on the decimal stack; tgt = Some(p,s) when the value
-   is being produced for a DEC assignment/return (bare literals then take
-   the TARGET's digits+scale), None in operand position (literals keep
-   their own digit count).  Returns the pushed value's (p,s). *)
-let rec dec_push st (tgt : (int * int) option) (e : Ast.expr) : int * int =
-  (* parenthesised expressions arrive Econd-wrapped [N304 precedent: PUT
-     items and RETURN (..) do this]; the parens carry no codegen meaning *)
-  match (match e.Ast.e with Ast.Econd x -> x.Ast.e | k -> k) with
-  | Ast.Eident n ->
-      (match vk_dec_opt st n with
-       | Some (p, s) ->
-           d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
-           d st op_mvi_a; d st p; call_ext st "?DLDOP"; (p, s)
-       | None ->
-           failwith (Printf.sprintf
-                       "codegen: decimal operation on non-decimal operand %s \
-                        [TBD]" n.Ast.orig))
-  | Ast.Ebuilt ("DECIMAL", args) ->
-      (* decimal(x,p): DR IGNORES p [R506: decimal(i,15) and decimal(i,7)
-         compile to the identical LHLD/?QI15D pair]; x stays an integer
-         expression and ?QI15D converts the HL value *)
-      (match args with
-       | [ x ] | [ x; _ ] -> lower_hl st x; call_ext st "?QI15D"
-       | _ -> failwith "codegen: DECIMAL builtin arity [TBD]") ;
-      (match tgt with Some ps -> ps | None -> (15, 0))
-  | Ast.Esuffix _ ->
-      (* DEC function call: identical call-site bytes to the FIXED ABI
-         [DFACT @003B-LX I H,*A(001C); CALL], but ?DCRET leaves the result
-         on the decimal stack instead of HL *)
-      lower_hl st e;
-      dec_edit_pt st e
-  | Ast.Ebinary (op, l, r) ->
-      let opn =
-        match op with
-        | Ast.Mul -> "?DMUOP"
-        | Ast.Add -> "?DADOP"
-        | Ast.Sub -> "?DSUOP"
-        | _ ->
-            failwith
-              "codegen: decimal operator not in the DEC subset [TBD] \
-               (divide/compare/mod/exp not pinned)"
-      in
-      (* operand push order: right-first only in the observed case where
-         the right operand is itself a DEC call [DFACT] *)
-      let right_first =
-        match r.Ast.e with Ast.Esuffix _ -> true | _ -> false
-      in
-      (* [R608] ADD/SUB ALIGN SCALES: `p = p - 1` against a dec(9,2)
-         variable pushes the literal as a 9-DIGIT cell holding 1.00
-         (pool S(000A) = 00 01 00 00 00, MVI A,09) -- NOT the own-digit,
-         scale-0 form that MULTIPLY/DIVIDE use [R509 `*2` A=01, R511
-         `*1234` A=04, LOAN1 `/1200` A=04 (2-byte cell S(0028) = 00 12)].
-         So an additive literal is pre-scaled to its DEC PARTNER's
-         (p,s).  Only that partner-driven case is pinned: when the partner
-         precision is unknown, or the store target disagrees with the
-         partner, no sample says which wins, so it refuses. *)
-      let additive = match op with Ast.Add | Ast.Sub -> true | _ -> false in
-      let static_ps x =
-        match (match x.Ast.e with Ast.Econd y -> (y : Ast.expr) | _ -> x).Ast.e with
-        | Ast.Eident n -> vk_dec_opt st n
-        | Ast.Esuffix (b, _) ->
-            (match b.Ast.e with
-             | Ast.Eident n ->
-                 (match List.assoc_opt (String.lowercase_ascii n.Ast.orig)
-                          st.procs with
-                  | Some pl ->
-                      (match pl.Bind.pl_ret with
-                       | Some (Bind.RTdec (a1, a2)) -> Some (a1, a2)
-                       | _ -> None)
-                  | None -> None)
-             | _ -> None)
-        | _ -> None
-      in
-      let push_operand partner x =
-        let ux = match x.Ast.e with Ast.Econd y -> y | _ -> x in
-        if additive && match ux.Ast.e with Ast.Enumber _ -> true | _ -> false
-        then
-          match partner with
-          | None ->
-              failwith
-                "codegen: decimal +/- literal precision source unproven                  [TBD] (partner is not a DEC variable or DEC function                  call; only the partner-aligned form is pinned [R608])"
-          | Some ps ->
-              (match tgt with
-               | None -> ()
-               | Some t when t <> ps ->
-                   failwith
-                     "codegen: decimal +/- literal: partner and store target                       precisions differ [TBD] (no sample says which one DR                       aligns the literal to)"
-               | Some _ -> ());
-              ignore (dec_push st (Some ps) ux)
-        else ignore (dec_push st None ux)
-      in
-      let push_pair () =
-        if right_first then begin
-          let rp = static_ps r in
-          push_operand (static_ps l) r; push_operand rp l
-        end else begin
-          let lp = static_ps l in
-          push_operand (static_ps r) l; push_operand lp r
-        end
-      in
-      push_pair ();
-      call_ext st opn;
-      (* multiply rescales to the TARGET scale, and only when that scale
-         is non-zero [R505 vs R510/DFACT] *)
-      (match op, tgt with
-       | Ast.Mul, Some (_, s) when s > 0 ->
-           d st op_mvi_a; d st s; call_ext st "?QDDSR"
-       | _ -> ());
-      (match tgt with Some ps -> ps | None -> (15, 0))
-  | Ast.Enumber s ->
-      let (v, own_digits, lscale) = dec_lit_value s in
-      let (p, sc) =
-        match tgt with
-        | Some (tp, ts) -> (tp, ts)
-        (* operand position: the literal's own digit count, scale 0
-           [R509 *2 -> MVI A,01; R511 *1234 -> MVI A,04] *)
-        | None -> (own_digits, 0)
-      in
-      ignore (v, lscale);
-      (* literal scale <= target scale is scaled up by dec_pool: `a = 1`
-         into dec(9,2) becomes the cell 100 [R505 bytes 00 01 00 00 00],
-         and d = 123.45 into dec(7,2) stays 12345 [R508].  ls > sc would
-         lose digits -- refused inside dec_pool. *)
-      if lscale > 0 && tgt = None then
-        failwith "codegen: fractional DEC literal in operand position [TBD]";
-      let addr = dec_pool st ~prec:p ~scale:sc ~text:s in
-      d st op_lxi_h; reloc st Data addr;
-      d st op_mvi_a; d st p; call_ext st "?DLDOP"; (p, sc)
-  | _ ->
-      failwith (Printf.sprintf
-                  "codegen: decimal expression shape %s not in the DEC \
-                   subset [TBD]"
-                  (expr_kind_name e.Ast.e))
+(* ---- [E2E-7A slice 2] DECIMAL value model ---------------------------
+   A value on DR's decimal stack carries (p = digits, s = scale).  dv_of
+   computes that descriptor WITHOUT emitting anything; dpush emits the
+   instruction sequence the descriptor implies, so the LAWS live in exactly
+   one place and the emitter cannot drift from them.
 
-(* ---- [E2E-7A slice 1] helpers for DECIMAL comparison -------------- *)
+   * QDDSL / QDDSR shift the CURRENT TOP OF STACK, and their POSITION in
+     the sequence identifies which value is being shifted: between the two
+     operand pushes it is the first-pushed operand, after both pushes it is
+     the second-pushed one.  That is what makes the pair readable:
+        a(9,2)+b(6,4): push a, QDDSL 2, push b, DADOP, QDDSR 2   [R705]
+        a(9,4)+b(6,2): push a, push b, QDDSL 2, DADOP            [R707]
+        e(9,2)-f(6,4): push e, QDDSL 2, push f, DSUOP, QDDSR 2   [R715]
+        a(9,2)>e(6,4): push e, push a, QDDSL 2, DCMOP            [R723]
+   * +/- and compare ALIGN to max(s_l,s_r) by shifting the SHORTER operand
+     up; equal scales emit nothing [R505, LOAN1 `p = p - pmt`].  R715 pins
+     both directions for subtraction, so the law is evidenced for - and not
+     merely inherited from +.
+   * * needs NO alignment: result scale = s_l + s_r [R711 `d = a*b` into
+     dec(9,4) emits no shift whatsoever; R719/R720 product scale 4 into a
+     dec(9,2) target gets QDDSR 2].
+   * / pre-shifts the DIVIDEND up by N = 15 - p_dividend (omitted when the
+     dividend already has 15 digits) so the quotient is computed at 15
+     working digits; quotient scale = s_l + N - s_r, or s_l - s_r when
+     N = 0.  Evidence: R512/R701/R703/R708 (p=9 -> 6), R710 (p=11 -> 4, so
+     N is not a constant), R702 (dividend dec(9,2) with a dec(13,2) TARGET
+     still gets 6, so N tracks the DIVIDEND, not the target), R714 (N=5 ->
+     add-result precision 10), R717 (N=8 -> 7), R718 (N=4 -> mul 11; N=9 ->
+     sub 6), LOAN1/R704 (dividend is a 15-digit product -> N=0 -> no pair).
+     Division TRUNCATES: R706 ran 2/3 -> 0.66 and 9/2 into dec(9,0) -> 4.
+   * the CONSUMER fixes a value's scale: DOWN with QDDSR, UP with QDDSL.
+     store/return target [R701 down 4, R713 down 2, R716 UP 2 to dec(13,8),
+     R711 UP 2 for an add into dec(9,4), R505 down 2 after a multiply]; an
+     enclosing +/- aligns instead and adds no fix, so a quotient carries its
+     scale straight in [R721, R722].
+   * result precision is observable ONLY through the next division's N:
+        add/sub: min(p_l,p_r)+1     [R714, R717, R718]
+        mul:     min(15,p_l+p_r+1)  [R718, LOAN1/R704 via N=0]
+        div:     UNPINNED -- no sample exposes a quotient's precision, so a
+                 quotient used where p is required refuses [TBD].
+   * push order: the RIGHT operand is pushed first iff it is compound and
+     the left is simple [DFACT `decimal(i,15) * factorial(i-1)`, R704,
+     R719, R722]; otherwise LEFT first -- both compound [R720, R724] and
+     both simple [R505, R705, R707] included.  Division always pushes the
+     dividend first, even against a compound divisor [R712], because the N
+     pre-shift has to act on the dividend while it is still the top.
+   * integer literals: additive/compare positions align to the DEC partner
+     [R608, R507/R607]; multiplicative positions take their own digit count
+     with scale 0 [R509 *2 A=01, R511 *1234 A=04, R512/R703/R710 /2 /8 A=01,
+     LOAN1 /1200 A=04]; store/return positions take the target (p,s) [C084].
+*)
+type dv = { pv : int option; sc : int }
+
+type dctx =
+  { c_tgt : (int * int) option   (* store/RETURN target: fixes the scale *)
+  ; c_lit : (int * int) option   (* DEC partner of an additive/compare literal *)
+  ; c_mult : bool }              (* multiplicative operand position *)
+
 let unwrap_e (e : Ast.expr) =
   match e.Ast.e with Ast.Econd x -> x | _ -> e
 
+let dsl st n = d st op_mvi_a; d st n; call_ext st "?QDDSL"
+let dsr st n = d st op_mvi_a; d st n; call_ext st "?QDDSR"
+
+(* an operand that costs more than one decimal-stack emission *)
+let dcompound _st (e : Ast.expr) =
+  match (unwrap_e e).Ast.e with Ast.Ebinary _ | Ast.Esuffix _ -> true | _ -> false
+
+(* the (p,s) an additive/compare integer literal aligns to: only a DEC
+   variable or a DEC function call is evidenced [R608, R507/R607] *)
+let dpartner st (e : Ast.expr) : (int * int) option =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident n -> vk_dec_opt st n
+  | Ast.Esuffix _ -> Some (dec_edit_pt st e)
+  | _ -> None
+
+let nop_cx = { c_tgt = None; c_lit = None; c_mult = false }
+
+(* context for a BINARY operand: a direct integer literal takes its
+   partner's precision in an additive/compare position and its own digit
+   count in a multiplicative one; anything else inherits nothing *)
+let dchild_cx _st op partner x =
+  match op with
+  | Ast.Mul | Ast.Div -> { c_tgt = None; c_lit = None; c_mult = true }
+  | _ ->
+      (match (unwrap_e x).Ast.e with
+       | Ast.Enumber _ -> { c_tgt = None; c_lit = partner; c_mult = false }
+       | _ -> nop_cx)
+
+let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident n ->
+      (match vk_dec_opt st n with
+       | Some (p, s) -> { pv = Some p; sc = s }
+       | None ->
+           failwith
+             (Printf.sprintf
+                "codegen: decimal operation on non-decimal operand %s [TBD]"
+                n.Ast.orig))
+  | Ast.Ebuilt ("DECIMAL", _) ->
+      (* decimal(x,p): the precision ARGUMENT is ignored [R506], so the
+         result descriptor comes from context, exactly as in C084 *)
+      (match cx.c_tgt with
+       | Some (p, s) -> { pv = Some p; sc = s }
+       | None -> { pv = Some 15; sc = 0 })
+  | Ast.Esuffix _ ->
+      let (p, s) = dec_edit_pt st e in
+      { pv = Some p; sc = s }
+  | Ast.Enumber k ->
+      let (_v, own, lsc) = dec_lit_value k in
+      (match cx.c_tgt, cx.c_lit with
+       | Some (tp, ts), _ -> { pv = Some tp; sc = ts }
+       | None, Some (pp, ps) ->
+           if lsc > 0 then
+             failwith
+               "codegen: fractional DEC literal aligned to a decimal partner \
+                [TBD] (only an integral literal is pinned in additive or \
+                compare position [R608/R507])";
+           { pv = Some pp; sc = ps }
+       | None, None ->
+           if lsc > 0 then
+             failwith
+               "codegen: fractional DEC literal in multiplicative operand \
+                position [TBD]";
+           { pv = Some own; sc = 0 })
+  | Ast.Ebinary (op, l, r) ->
+      let cl = dchild_cx st op (dpartner st r) l in
+      let cr = dchild_cx st op (dpartner st l) r in
+      let dl = dv_of st cl l and dr = dv_of st cr r in
+      begin
+        match op with
+        | Ast.Add | Ast.Sub ->
+          { pv =
+              (match (dl.pv, dr.pv) with
+               | Some a, Some b -> Some (min 15 (1 + min a b))
+               | _ -> None);
+            sc = max dl.sc dr.sc }
+        | Ast.Mul ->
+            { pv =
+                (match (dl.pv, dr.pv) with
+                 | Some a, Some b -> Some (min 15 (a + b + 1))
+                 | _ -> None);
+              sc = dl.sc + dr.sc }
+        | Ast.Div ->
+          let n =
+            match dl.pv with
+            | Some p -> 15 - p
+            | None ->
+                failwith
+                  "codegen: DECIMAL divide with an unpinned dividend \
+                   precision [TBD] (a quotient's precision is not \
+                   observable in any sample)"
+          in
+          let sc = if n > 0 then dl.sc + n - dr.sc else dl.sc - dr.sc in
+          if sc < 0 then
+            failwith
+              "codegen: DECIMAL divide yielding a negative scale [TBD] \
+               (no sample puts more fractional digits in the divisor than \
+               in the dividend)";
+          { pv = None; sc }
+        | _ ->
+            failwith
+              "codegen: decimal operator not in the DEC subset [TBD] \
+               (mod/exp/shift on the decimal stack are unpinned)"
+      end
+  | _ ->
+      failwith
+        (Printf.sprintf "codegen: decimal expression shape %s not in the DEC \
+                         subset [TBD]" (expr_kind_name (unwrap_e e).Ast.e))
+
+(* push one DEC value; emits exactly what dv_of says the descriptor needs *)
+let rec dpush st (cx : dctx) (e : Ast.expr) : dv =
+  let vd = dv_of st cx e in
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident _ | Ast.Ebuilt _ | Ast.Esuffix _ | Ast.Enumber _ ->
+      dpush_simple st cx e vd;
+      (match cx.c_tgt with
+       (* A simple operand whose own scale differs from the store target is
+          UNPROVEN: every sample that needed a scale fix had a computed
+          value [R711, R713, R716], and LOAN1's `PMT = P` crosses
+          PRECISIONS but not scales, which ?DSTOP's A argument already
+          covers.  Refuse rather than assume DSTOP rescales. *)
+       | Some (_, ts) when ts <> vd.sc ->
+           failwith
+             "codegen: DECIMAL assignment between differing scales is \
+              unproven [TBD] (only computed results are pinned as needing a \
+              QDDSL/QDDSR fix; a direct DEC operand store always had equal \
+              scales in the samples)"
+       | _ -> ());
+      vd
+  | Ast.Ebinary (op, l, r) ->
+      let cl = dchild_cx st op (dpartner st r) l in
+      let cr = dchild_cx st op (dpartner st l) r in
+      begin
+        match op with
+        | Ast.Div ->
+            (match (unwrap_e l).Ast.e with
+             | Ast.Enumber _ ->
+                 failwith
+                   "codegen: DECIMAL divide with a literal dividend is \
+                    unproven [TBD] (every sample divides a variable, a call \
+                    result or a computed value)"
+             | _ -> ());
+            ignore (dpush st cl l);
+            let n =
+              match (dv_of st cl l).pv with
+              | Some p -> 15 - p
+              | None ->
+                  failwith
+                    "codegen: DECIMAL divide with an unpinned dividend \
+                     precision [TBD]"
+            in
+            if n > 0 then dsl st n;
+            ignore (dpush st cr r);
+            call_ext st "?DDVOP"
+        | (Ast.Add | Ast.Sub | Ast.Mul) as opn ->
+            let align =
+              match opn with Ast.Mul -> false | _ -> true
+            in
+            let rf = dcompound st r && not (dcompound st l) in
+            let (ef, ex, cxf, cxo, df, dx) =
+              if rf
+              then (r, l, cr, cl, dv_of st cr r, dv_of st cl l)
+              else (l, r, cl, cr, dv_of st cl l, dv_of st cr r)
+            in
+            ignore (dpush st cxf ef);
+            if align && df.sc < dx.sc then dsl st (dx.sc - df.sc);
+            ignore (dpush st cxo ex);
+            if align && dx.sc < df.sc then dsl st (df.sc - dx.sc);
+            call_ext st
+              (match opn with
+               | Ast.Add -> "?DADOP"
+               | Ast.Sub -> "?DSUOP"
+               | _ -> "?DMUOP")
+        | _ ->
+            failwith
+              "codegen: decimal operator not in the DEC subset [TBD] \
+               (mod/exp/shift on the decimal stack are unpinned)"
+      end;
+      (* the consumer fixes the scale of a COMPUTED value [R701, R711,
+         R713, R716, R721, R722]; an enclosing +/- aligns its operands
+         instead, so an operand-context value gets no fix here *)
+      (match cx.c_tgt with
+       | Some (_, ts) when ts > vd.sc -> dsl st (ts - vd.sc)
+       | Some (_, ts) when ts < vd.sc -> dsr st (vd.sc - ts)
+       | _ -> ());
+      vd
+  | _ ->
+      failwith
+        (Printf.sprintf "codegen: decimal push of expression shape %s is not \
+                         in the DEC subset [TBD]"
+           (expr_kind_name (unwrap_e e).Ast.e))
+and dpush_simple st (_cx : dctx) (e : Ast.expr) (vd : dv) =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident n ->
+      let p = Option.get vd.pv in
+      d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+      d st op_mvi_a; d st p; call_ext st "?DLDOP"
+  | Ast.Ebuilt ("DECIMAL", args) ->
+      (match args with
+       | [ x ] | [ x; _ ] -> lower_hl st x; call_ext st "?QI15D"
+       | _ -> failwith "codegen: DECIMAL builtin arity [TBD]")
+  | Ast.Esuffix _ -> lower_hl st e
+  | Ast.Enumber k ->
+      let (p, sc) = (Option.get vd.pv, vd.sc) in
+      let addr = dec_pool st ~prec:p ~scale:sc ~text:k in
+      d st op_lxi_h; reloc st Data addr;
+      d st op_mvi_a; d st p; call_ext st "?DLDOP"
+  | _ ->
+      failwith
+        (Printf.sprintf "codegen: decimal push of this operand shape is not \
+                         in the DEC subset [TBD] (%s)"
+           (expr_kind_name (unwrap_e e).Ast.e))
+
+(* compatibility wrapper used by the store/PUT/compare paths *)
+let dec_push st (tgt : (int * int) option) (e : Ast.expr) : int * int =
+  let d = dpush st { c_tgt = tgt; c_lit = None; c_mult = false } e in
+  (match d.pv with Some p -> (p, d.sc) | None -> (0, d.sc))
+
+(* ---- [E2E-7A slice 1] helpers for DECIMAL comparison -------------- *)
+(* unwrap_e is defined with the DECIMAL value model above *)
 (* a comparison operand is DEC-typed if it is a DEC variable or a DEC
    function call [R601-R606 var/var, LOAN1 P<PMT]; decimal(x,p) in a
    relation is NOT pinned, so it stays refused *)
@@ -1404,7 +1547,7 @@ let dec_cmp_push st (e : Ast.expr) ((p, s, lit) : int * int * string option) =
       ignore (dec_push st (Some (p, s)) (unwrap_e e))
   | None -> ignore (dec_push st None e)
 
-let lower_test_skip st (c : Ast.expr) =
+let lower_test_skip0 st (c : Ast.expr) =
   match c.Ast.e with
   (* ---- [E2E-7A slice 1] FIXED DECIMAL comparison --------------------
      ?DCMOP takes NO relation argument: it pops two decimals and leaves a
@@ -1439,6 +1582,25 @@ let lower_test_skip st (c : Ast.expr) =
       if right_first
       then (dec_cmp_push st b pb; dec_cmp_push st a pa)
       else (dec_cmp_push st a pa; dec_cmp_push st b pb);
+      (* [R723] the SAME alignment law +/- use applies to a relation: when
+         the two operands have different scales DR shifts the SHORTER one
+         up to the longer before ?DCMOP.  Because the relation fixes the
+         push order [C085], only the case where the TOP (second-pushed)
+         operand is the short one is reachable with a proven mechanism --
+         QDDSL acts on the top of the stack, and shifting the DEEPER value
+         would need a pop-and-restore sequence no sample shows, so that
+         shape refuses rather than guessing. *)
+      let sc_of (_, x, _) = x in
+      let (s_top, s_deep) =
+        if right_first then (sc_of pa, sc_of pb) else (sc_of pb, sc_of pa)
+      in
+      if s_top < s_deep then dsl st (s_deep - s_top)
+      else if s_deep < s_top then
+        failwith
+          "codegen: decimal comparison alignment on the deeper operand is \
+           unproven [TBD] (DR aligns by shifting the TOP of the decimal stack \
+           up [R723]; the relation fixes the push order, so this pair would \
+           need the lower value shifted)";
       call_ext st "?DCMOP";
       d st opc;
       let slot = st.lc in d st 0; d st 0; slot
@@ -1511,6 +1673,17 @@ let lower_test_skip st (c : Ast.expr) =
            d st (if r = Ast.Eq then op_jnz else 0xca));  (* DR: ^= skip = JPE, not JZ: parity-defect [C072] *)
       let slot = st.lc in d st 0; d st 0; slot
   | _ -> failwith (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c)
+
+(* [R723] DR's HL-CONSTANT REUSE is a straight-line peephole: after a
+   conditional skip jump the loaded constant belongs to a DIFFERENT basic
+   block, so the tracking state must die with the jump.  R723 proves it --
+   `if a > e then m = 1; else m = 0;` reloads `LXI H,0000` in the else
+   branch instead of reusing HL=1 through the MOV L,H trick [G116], which
+   the unqualified rule would have fired. *)
+let lower_test_skip st (c : Ast.expr) =
+  let slot = lower_test_skip0 st c in
+  st.last_imm <- None;
+  slot
 
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
   (match lhs.Ast.e with
@@ -1805,7 +1978,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
          for _ = 1 to k do d st op_inx_h done
      | _ -> failwith "codegen: REPEAT increment form [TBD]");
     d st op_shld; reloc st Data iaddr;
-    d st op_jmp; reloc st Code head;
+    (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head;
     st.last_imm <- None
   end else begin
   let head, jpslot =
@@ -1853,7 +2026,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
   d st op_lhld; reloc st Data iaddr;
   d st op_inx_h;
   d st op_shld; reloc st Data iaddr;
-  d st op_jmp;
+  (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
   reloc st Code head;   (* helper advances LC [Y301] *)
   emit_triple st jpslot st.lc;
   st.last_imm <- None
@@ -1999,7 +2172,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   then begin
     if st.guards = 0 then begin
       st.guards <- st.guards + 1;
-      d st op_jmp;
+      (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
       st.guard_slots <- st.lc :: st.guard_slots;
       d st 0; d st 0
     end
@@ -2102,6 +2275,24 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
                  (Printf.sprintf
                     "codegen: procedure-local FIXED DEC(%d,%d) outside the \
                      probed DEC band [TBD]" p s)
+             else if
+               List.mem_assoc (String.lowercase_ascii n) pl.Bind.pl_ptrs
+             then
+               (* [R709/R725] DR passes a FIXED DECIMAL formal BY REFERENCE:
+                  the formal gets a 2-BYTE cell (not ceil((p+1)/2)) holding
+                  the caller's address -- prologue `MOV E,M; INX H; MOV D,M;
+                  XCHG; SHLD J`, then every read is `LHLD J` followed by
+                  `MVI A,digits; CALL ?DLDOP`, i.e. HL is the ADDRESS.  My
+                  DEC model gives every DEC name a full BCD cell, which
+                  silently mis-sizes AUTO storage and mis-addresses the
+                  value.  The DEC-formal sub-model is its own slice; refuse
+                  rather than emit layout-wrong bytes. *)
+               failwith
+                 (Printf.sprintf
+                    "codegen: FIXED DECIMAL formal parameter %s is unproven \
+                     [TBD] (DR allocates a 2-byte by-reference pointer cell \
+                     for it [R709/R725]; the DEC storage model implemented \
+                     so far only covers AUTOMATIC decimal cells)" n)
              else
                { off = o; size = Bind.bytes_of rt; vk = Vdec (p, s);
                  w = p + 3 }
@@ -2174,7 +2365,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
         (* constant-true bit condition = pure forever, NO test
            [Z404: COPY's DO WHILE('1'B)] *)
         lower_stmt st ls body;
-        d st op_jmp; reloc st Code head;
+        (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head;
         if not st.in_proc then begin
           (* WHILE('1'B): no test insn; tail address = the JMP
              operand address [head+4] [R408] *)
@@ -2184,7 +2375,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       end else begin
         let slot = lower_test_skip st cond in
         lower_stmt st ls body;
-        d st op_jmp; reloc st Code head;
+        (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head;
         emit_triple st slot st.lc            (* [Z401: after JMP] *)
       end
   | Ast.Sdoforever body ->
@@ -2192,7 +2383,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       let head = st.lc in
       lower_stmt st ls body;
-      d st op_jmp; reloc st Code head
+      (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head
   | Ast.Sdoto { ind; from; by; to_; while_; rep; body } ->
       st.lowered <- st.lowered + 1;
       (* open the suppression window at the TAIL ADDRESS before the
@@ -2246,7 +2437,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       (match els with
        | None -> emit_triple st skip st.lc
        | Some e ->
-           d st op_jmp;
+           (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
            let exit_slot = st.lc in
            d st 0; d st 0;
            emit_triple st skip st.lc;      (* skip -> else start [G114] *)
@@ -2256,9 +2447,9 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       let nm = String.lowercase_ascii tgt.Ast.orig in
       (match List.assoc_opt nm ls.labs with
-       | Some a -> d st op_jmp; reloc st Code a        (* backward [G115] *)
+       | Some a -> (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code a        (* backward [G115] *)
        | None ->
-           d st op_jmp;
+           (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
            let slot = st.lc in
            d st 0; d st 0;
            ls.fwd <- (nm, slot) :: ls.fwd)              (* forward [G115] *)
@@ -2283,7 +2474,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
             | Some e -> ignore (dec_push st (Some ps) e)
             | None -> failwith "codegen: RETURN without value [TBD]");
            if st.in_rec then call_ext st "?RSBLK";
-           d st op_jmp;
+           (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
            let slot = st.lc in
            d st 0; d st 0;
            link st t_chain_ext (Some (Code, slot)) (Some "?DCRET")
