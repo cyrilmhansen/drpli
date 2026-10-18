@@ -942,9 +942,26 @@ and parse_put p =
   in consume ();
   let opts = !opts and ctl = !ctl in
   let ctl_items = List.map (fun o -> Pi_ctl (o.io_key, o.io_val)) ctl in
+  let trail lead it =
+    (* PL/I allows a trailing control item (`put list(x) skip;`).  Our
+       parser would leave SKIP/PAGE/LINE to be read as a SEPARATE
+       statement, which reaches codegen as a phantom CALL (corpus audit
+       REV 2, defect D5) - a wrong AST that would become silently wrong
+       the day CALL is implemented.  Refuse it loudly here instead; the
+       leading form `put skip list(...)` [N301-N306, G107/G108] is the
+       shape this compiler is byte-exact on. *)
+    (match peek p with
+     | Token.Ident { key; _ } when List.mem key ctl_keys ->
+         err p "%s"
+           (Printf.sprintf
+              "trailing %s control item before ';' is not supported [TBD] \
+               (write it first: %s)" key lead);
+     | _ -> ());
+    it
+  in
   if eat_key p "LIST" then
     Sput { stream = None; on_opts = opts; kind = List_;
-           items = ctl_items @ data_items p }
+           items = ctl_items @ trail "put skip list(...)" (data_items p) }
   else if eat_key p "EDIT" then begin
     let d = data_items p in
     let f = parse_fmt_items p in
@@ -953,10 +970,10 @@ and parse_put p =
   end
   else if eat_key p "ITEM" then
     Sput { stream = None; on_opts = opts; kind = Item;
-           items = ctl_items @ data_items p }
+           items = ctl_items @ trail "put skip item(...)" (data_items p) }
   else if eat_key p "FROM" then
     Sput { stream = None; on_opts = opts; kind = List_;
-           items = ctl_items @ data_items p }
+           items = ctl_items @ trail "put skip from(...)" (data_items p) }
   else if ctl_items <> [] && at_punct p Token.Semi then
     (* PUT SKIP; / PUT PAGE; newline-only controls [EX CREATE] *)
     Sput { stream = None; on_opts = opts; kind = Item; items = ctl_items }
@@ -990,9 +1007,21 @@ and parse_get p =
   in consume ();
   let opts = !opts and ctl = !ctl in
   let ctl_items = List.map (fun o -> Pi_ctl (o.io_key, o.io_val)) ctl in
+  let trail lead it =
+    (* same D5 guard as PUT: a trailing control item would otherwise be
+       read as a separate statement (phantom CALL) instead of a refusal *)
+    (match peek p with
+     | Token.Ident { key; _ } when List.mem key ctl_keys ->
+         err p "%s"
+           (Printf.sprintf
+              "trailing %s control item before ';' is not supported [TBD] \
+               (write it first: %s)" key lead);
+     | _ -> ());
+    it
+  in
   if eat_key p "LIST" then
     Sget { stream = None; on_opts = opts; kind = List_;
-           items = ctl_items @ data_items p }
+           items = ctl_items @ trail "get skip list(...)" (data_items p) }
   else if eat_key p "EDIT" then begin
     let d = data_items p in
     let f = parse_fmt_items p in

@@ -317,8 +317,27 @@ let all_data (items : Ast.put_item list) =
   in
   go [] items
 
+(* PUT forms other than PUT LIST are NOT implemented.  Corpus audit REV
+   2 defect D1: PUT EDIT / PUT ITEM / bare PUT SKIP used to escape as an
+   uncaught Match_failure from this function during the pool prescan
+   (IFACT, OPTIMIST, SAMPLE).  They are refused by name now, which is
+   the project's fail-loud contract; the implemented subset is PUT LIST
+   with optional leading SKIP control item [G107/G108/N301-N306]. *)
+let put_kind_str (k : Ast.put_kind) =
+  match k with
+  | Ast.List_ -> "LIST"
+  | Ast.Edit -> "EDIT"
+  | Ast.Item -> "ITEM (also the parse form of bare PUT SKIP;/PAGE;)"
+  | Ast.Editsk _ -> "SKIP(n) without LIST"
+
 let match_put_list_lit (s : Ast.stmt) =
   match s.Ast.st with
+  | Ast.Sput { kind = (Ast.Edit | Ast.Item | Ast.Editsk _) as k; _ } ->
+      failwith (Printf.sprintf
+                  "codegen: PUT %s deferred [TBD] (line %d; only PUT LIST \
+                   is implemented; format/picture editing needs the \
+                   ?EDITF/?EDTOV/?QDDSL route family)"
+                  (put_kind_str k) s.Ast.spos.Source.line)
   | Ast.Sput { stream = None; on_opts = []; kind = Ast.List_; items } ->
       let (sk, rest) =
         match match_skip_ctl items with
@@ -1579,6 +1598,90 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
 let emit_program (progname : string) (auto_bytes : int)
     (rows : (string * var_info) list) (stmts : Ast.stmt list)
     (blk : Ast.block) =
+  (* ---- Step-0 semantic-safety gate (corpus audit REV 2, D3 + D4) ----
+     Two FAIL-SILENT holes were found by the 44-program sweep: block
+     options other than OPTIONS(MAIN) (ACK: OPTIONS(MAIN,STACK(2000)))
+     were parsed, stored and then dropped, and RETURNS(<non-FIXED type>)
+     was mapped by Bind.rt_of_basic and then ignored by lowering (FFACT:
+     RETURNS(FLOAT) emitted FIXED-shaped code, diverging at byte 48).
+     Both are refused here, before a single byte is emitted.
+     Whitelist is evidence-bounded, not convenience-bounded: all 83
+     registered byte-exact specimens use exactly OPTIONS(MAIN) and
+     RETURNS(FIXED) (verified over tools/e2e_gate.py's source list), so
+     nothing already proven is affected.  *)
+  let rt_is_fixed_bin (r : Bind.rt) =
+    match r with Bind.RTbin _ -> true | _ -> false
+  in
+  let check_returns (what : string) (line : int) (attrs : Ast.attr list) =
+    match
+      List.find_opt (fun (a : Ast.attr) -> String.equal a.akey "RETURNS")
+        attrs
+    with
+    | Some a when a.Ast.atypes <> [] ->
+        let r = Bind.rt_of_basic (List.hd a.Ast.atypes) in
+        if not (rt_is_fixed_bin r) then
+          failwith
+            ("codegen: " ^ what ^ " returns(" ^ Bind.rty_str r
+             ^ ") deferred [TBD] (line " ^ string_of_int line
+             ^ "; the only return type emitted today is FIXED, on 26 "
+             ^ "byte-exact specimens; DEC/FLOAT/CHAR/BIT/POINTER/ENTRY "
+             ^ "each need their own ABI evidence)")
+    | _ -> ()
+  in
+  let check_bopts (line : int) (opts : (string * Ast.expr list) list) =
+    List.iter
+      (fun (k, args) ->
+        if not (String.equal (String.lowercase_ascii k) "main"
+                && args = []) then
+          failwith (Printf.sprintf
+                      "codegen: block option %s%s deferred [TBD] (line %d; \
+                       only OPTIONS(MAIN) is modelled; STACK/SEGMENTS and \
+                       friends move code or data and no golden pins them)"
+                      k (if args = [] then "" else "(...)") line))
+      opts
+  in
+  let line_of_block (b : Ast.block) fb =
+    match b.Ast.blabel with
+    | Some n -> n.Ast.pos.Source.line
+    | None -> (match b.Ast.bstmts with
+               | s :: _ -> s.Ast.spos.Source.line
+               | [] -> fb)
+  in
+  let rec check_block (b : Ast.block) (fb : int) =
+    let ln = line_of_block b fb in
+    check_bopts ln b.Ast.bopts;
+    check_returns
+      (match b.Ast.bname with
+       | Some n -> "procedure " ^ n.Ast.orig
+       | None -> "block") ln b.Ast.bsuffix;
+    List.iter
+      (fun (d : Ast.dcl) ->
+        check_returns ("declaration " ^ d.Ast.dname.Ast.orig)
+          d.Ast.dname.Ast.pos.Source.line d.Ast.dattrs)
+      b.Ast.bdecls;
+    List.iter (check_stmt ln) b.Ast.bstmts
+  and check_stmt fb s =
+    match s.Ast.st with
+    | Ast.Sdcl ds ->
+        List.iter
+          (fun (d : Ast.dcl) ->
+            check_returns ("declaration " ^ d.Ast.dname.Ast.orig)
+              d.Ast.dname.Ast.pos.Source.line d.Ast.dattrs)
+          ds
+    | Ast.Sif { then_; els; _ } ->
+        check_stmt fb then_;
+        (match els with Some e -> check_stmt fb e | None -> ())
+    | Ast.Sdobegin ss -> List.iter (check_stmt fb) ss
+    | Ast.Sdoto { body; _ } -> check_stmt fb body
+    | Ast.Sdowhile { body; _ } -> check_stmt fb body
+    | Ast.Sdoforever b -> check_stmt fb b
+    | Ast.Son { handler; _ } -> check_stmt fb handler
+    | Ast.Selse b -> check_stmt fb b
+    | Ast.Sproc bs -> check_block bs.Ast.blk bs.Ast.bpos.Source.line
+    | _ -> ()
+  in
+  check_block blk 0;
+  List.iter (check_stmt 0) stmts;
   let layout = Bind.bind_program blk in
   (* constant call arguments allocate 2B little-endian pool cells
      [P401: '2' at data@0]; included in the pool prescan total so
