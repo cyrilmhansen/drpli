@@ -1,0 +1,8 @@
+pr428: procedure options(main);
+   dcl i fixed;
+   do i = 0 repeat(i+1);
+      i = i + 1;
+   end;
+   i = i + 1;
+end pr428;
+

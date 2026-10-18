@@ -776,7 +776,18 @@ type proc_layout =
 type prog_layout =
   { pl_calls : call_site list     (* DFS order, POOL-EXCLUSIVE offsets *)
   ; pl_procs : proc_layout list   (* DFS: parents before children *)
-  ; pl_total : int }              (* non-pool data bytes *)
+  ; pl_secs : (string * int * int) list
+      (* proc name -> (block base, section size) POOL-EXCLUSIVE.
+         RECURSIVE prologue SVBLK operands [RFACT: LXI B,8 ; LXI D,10
+         = block base..end-of-section incl. its own call cells;
+         P402: LXI B,8 ; LXI D,6 — two specimens; ACK/EXPR/DFACT
+         corpus RELs carry more] *)
+  ; pl_total : int                (* non-pool data bytes *)
+  ; pl_tail_exit : bool }         (* last executable MAIN stmt before
+                                   appended procs can exit: TO/WHILE
+                                   loop or non-loop = true; no-exit
+                                   loop = false [R411/R431 vs
+                                   R429/R432 guard gate] *)
 
 let pl_l (n : Ast.name) = String.lowercase_ascii n.Ast.orig
 
@@ -877,6 +888,7 @@ let bind_program (blk : Ast.block) : prog_layout =
   in
   let calls = ref ([] : call_site list) in
   let pls = ref ([] : proc_layout list) in
+  let secs = ref ([] : (string * int * int) list) in
   (* two-phase: registry first so call matching sees real procedures;
      the first pass above is superseded by section2. *)
   let reg = ref ([] : (string * Ast.block * bool * string list) list) in
@@ -892,7 +904,13 @@ let bind_program (blk : Ast.block) : prog_layout =
               if fm = [] then
                 failwith (Printf.sprintf
                             "bind: procedure %s without formals [TBD]" nm);
-              reg := !reg @ [(nm, pb, is_rec nm pb, fm)];
+              (* [R411] the RECURSIVE attribute IS the trigger for
+                 SVBLK + the shadow value cell (no self-call yet the
+                 full machinery); call-derivation OR-ed as fallback
+                 [HYPOTHESIS from attributed P402/RFACT/NFACT] *)
+              reg := !reg @ [(nm, pb,
+                  has_attr pb.Ast.bsuffix "RECURSIVE"
+                  || is_rec nm pb, fm)];
               collect pb
             end else collect pb
         | _ -> ())
@@ -946,6 +964,7 @@ let bind_program (blk : Ast.block) : prog_layout =
     let after = !cur in
     (match nm with
      | Some pn ->
+         secs := !secs @ [(pn, base, after - base)];
          pls := !pls
                 @ [ { pl_name = pn
                     ; pl_lbl = (match b.blabel with
@@ -971,4 +990,32 @@ let bind_program (blk : Ast.block) : prog_layout =
       after b.bstmts
   in
   let total = section2 blk 0 [] false None in
-  { pl_calls = !calls; pl_procs = !pls; pl_total = total }
+  let tail_exit =
+    match
+      List.rev
+        (List.filter
+           (fun (s : Ast.stmt) ->
+             match s.Ast.st with
+             | Ast.Sdcl _ | Ast.Snull _ -> false
+             | _ -> true)
+           blk.Ast.bstmts)
+    with
+    | [] -> true
+    | s :: _ ->
+        (match s.Ast.st with
+         | Ast.Sdoto { to_; while_; rep; body = _ } ->
+             (* no-exit loop = window: no TO, no WHILE, or a
+                constant-true WHILE('1'B) [R408; Z404] *)
+             let w1b =
+               match while_ with
+               | Some { Ast.e = Ast.Ebit "1"; _ } -> true
+               | Some { Ast.e = Ast.Econd { Ast.e = Ast.Ebit "1"; _ }; _ }
+                   -> true
+               | _ -> false
+             in
+             to_ <> None || (while_ <> None && not w1b)
+             || (w1b && false)
+         | _ -> true)
+  in
+  { pl_calls = !calls; pl_procs = !pls; pl_secs = !secs;
+    pl_total = total; pl_tail_exit = tail_exit }

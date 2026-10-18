@@ -1,0 +1,14 @@
+pr409: procedure options(main);
+   dcl i fixed;
+   dcl x fixed;
+   do i = 0 repeat(i+1);
+      x = i;
+   end;
+   x = 7;
+   stop;
+   f: procedure(i) returns(fixed) recursive;
+      dcl i fixed;
+      return (i);
+   end f;
+end pr409;
+

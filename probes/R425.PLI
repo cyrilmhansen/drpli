@@ -1,0 +1,12 @@
+pr425: procedure options(main);
+   dcl i fixed;
+   dcl x fixed;
+   do i = 0 repeat(i+1);
+      x = i;
+   end;
+   stop;
+   p: procedure;
+      x = 9;
+   end p;
+end pr425;
+

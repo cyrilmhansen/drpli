@@ -82,6 +82,33 @@ SPECIMENS = {
     "G118": ("probes/G118.PLI", "golden/e2e5b/G118/G118.REL"),
     # E2E-5c slice 1: non-recursive internal call
     "P401": ("probes/P401.PLI", "golden/e2e5c/P401/P401.REL"),
+    # E2E-5c slice 2: recursion, expression args, tail-displacement
+    "RFACT": ("artefacts/RFACT.PLI", "golden/first8080u/RFACT/RFACT.REL"),
+    "NFACT": ("probes/NFACT.PLI", "golden/e2e5c/NFACT/NFACT.REL"),
+    "R401": ("probes/R401.PLI", "golden/e2e5c/R401/R401.REL"),
+    "R403": ("probes/R403.PLI", "golden/e2e5c/R403/R403.REL"),
+    "R404": ("probes/R404.PLI", "golden/e2e5c/R404/R404.REL"),
+    "R405": ("probes/R405.PLI", "golden/e2e5c/R405/R405.REL"),
+    "R406": ("probes/R406.PLI", "golden/e2e5c/R406/R406.REL"),
+    "R407": ("probes/R407.PLI", "golden/e2e5c/R407/R407.REL"),
+    "R408": ("probes/R408.PLI", "golden/e2e5c/R408/R408.REL"),
+    "R409": ("probes/R409.PLI", "golden/e2e5c/R409/R409.REL"),
+    "R410": ("probes/R410.PLI", "golden/e2e5c/R410/R410.REL"),
+    "R411": ("probes/R411.PLI", "golden/e2e5c/R411/R411.REL"),
+    "R412": ("probes/R412.PLI", "golden/e2e5c/R412/R412.REL"),
+    "R414": ("probes/R414.PLI", "golden/e2e5c/R414/R414.REL"),
+    "R415": ("probes/R415.PLI", "golden/e2e5c/R415/R415.REL"),
+    "R416": ("probes/R416.PLI", "golden/e2e5c/R416/R416.REL"),
+    "R417": ("probes/R417.PLI", "golden/e2e5c/R417/R417.REL"),
+    "R418": ("probes/R418.PLI", "golden/e2e5c/R418/R418.REL"),
+    "R419": ("probes/R419.PLI", "golden/e2e5c/R419/R419.REL"),
+    "R421": ("probes/R421.PLI", "golden/e2e5c/R421/R421.REL"),
+    "R422": ("probes/R422.PLI", "golden/e2e5c/R422/R422.REL"),
+    "R424": ("probes/R424.PLI", "golden/e2e5c/R424/R424.REL"),
+    "R426": ("probes/R426.PLI", "golden/e2e5c/R426/R426.REL"),
+    "R427": ("probes/R427.PLI", "golden/e2e5c/R427/R427.REL"),
+    "R428": ("probes/R428.PLI", "golden/e2e5c/R428/R428.REL"),
+    "P404": ("probes/P404.PLI", "golden/e2e5c/P404/P404.REL"),
 }
 
 # specimens whose RAW console output must equal DR's (all have at
@@ -93,7 +120,8 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "X201", "X202", "DEMO", "Y301", "Y302", "Y303",
                 "Y304", "Y306", "Z401", "Z402", "Z403", "Z404",
                 "Z405", "Z406", "Z407", "N301", "N302", "N303",
-                "N304", "N306", "N308", "G117", "G118", "P401"}
+                "N304", "N306", "N308", "G117", "G118", "P401",
+                "RFACT", "NFACT", "R401", "R412", "R419"}
 
 
 def compile_one(name, src):

@@ -1,0 +1,14 @@
+pr424: procedure options(main);
+   dcl i fixed;
+   dcl f fixed;
+   f = dbl(3);
+   do i = 0 repeat(i+1);
+      put skip list('f(',i,')=',f);
+   end;
+   stop;
+   dbl: procedure(i) returns(fixed);
+      dcl i fixed;
+      return (i + i);
+   end dbl;
+end pr424;
+

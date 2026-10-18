@@ -1,0 +1,13 @@
+pr407: procedure options(main);
+   dcl i fixed;
+   do i = 0 repeat(i+1);
+      put skip list('f(',i,')=',i);
+   end;
+   stop;
+   factorial: procedure(i) returns(fixed) recursive;
+      dcl i fixed;
+      if i = 0 then return (1);
+      return (i * factorial(i - 1));
+   end factorial;
+end pr407;
+

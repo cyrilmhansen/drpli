@@ -1,0 +1,10 @@
+pr406: procedure options(main);
+   dcl x fixed;
+   x = f(3);
+   f: procedure(i) returns(fixed) recursive;
+      dcl i fixed;
+      if i = 0 then return (1);
+      return (i * f(i - 1));
+   end f;
+end pr406;
+

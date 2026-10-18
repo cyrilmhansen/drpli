@@ -1,0 +1,9 @@
+pr420: procedure options(main);
+   dcl i fixed;
+   do i = 0 repeat(i+1);
+      x = i;
+   end;
+   put skip list(i);
+   stop;
+end pr420;
+

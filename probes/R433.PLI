@@ -1,0 +1,11 @@
+prXXX: procedure options(main);
+   dcl i fixed;
+   dcl x fixed;
+   x = 5;
+   stop;
+   dbl: procedure(i) returns(fixed);
+      dcl i fixed;
+      return (i + i);
+   end dbl;
+end prXXX;
+

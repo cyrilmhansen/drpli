@@ -1,0 +1,9 @@
+pp404: procedure options(main);
+   dcl x fixed;
+   x = dbl(2);
+   dbl: procedure(i) returns(fixed);
+      dcl i fixed;
+      return (i + i);
+   end dbl;
+end pp404;
+

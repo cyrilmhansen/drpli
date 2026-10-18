@@ -1,0 +1,102 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R407
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R407
+
+   1 a 0000 pr407: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl i fixed;
+   3 c 0006    do i = 0 repeat(i+1);
+       0006       LXI  H,0000
+       0009       SHLD I A(0004)
+   4 c 000C       put skip list('f(',i,')=',i);
+       000C       LXI  D,0252
+       000F       LXI  B,0000
+       0012       CALL ?SYSPR
+       0015       MVI  A,01
+       0017       CALL ?SKPOP
+       001A       LXI  H,* S(0000)
+       001D       MVI  A,02
+       001F       CALL ?SLCTS
+       0022       CALL ?PNCOP
+       0025       LHLD I A(0004)
+       0028       MVI  A,09
+       002A       CALL ?QICOP
+       002D       CALL ?PNVOP
+       0030       LXI  H,* S(0002)
+       0033       MVI  A,02
+       0035       CALL ?SLCTS
+       0038       CALL ?PNCOP
+       003B       LHLD I A(0004)
+       003E       MVI  A,09
+       0040       CALL ?QICOP
+       0043       CALL ?PNVOP
+       0046       CALL ?QIOOP
+       0010       ==== 0049
+       0049       LHLD I A(0004)
+       004C       INX  H
+       004D       SHLD I A(0004)
+       0050       JMP  000C
+   5 c 0053    end;
+   6 c 0053    stop;
+   7 c 0053    factorial: procedure(i) returns(fixed) recursive;
+   8 e 0053       dcl i fixed;
+       0053       LXI  B,0008
+       0056       LXI  D,0006
+       0059       CALL ?SVBLK
+       005C       MOV  E,M
+       005D       INX  H
+       005E       MOV  D,M
+       005F       XCHG 
+       0060       SHLD I A(0006)
+       0063       LHLD I A(0006)
+       0066       MOV  E,M
+       0067       INX  H
+       0068       MOV  D,M
+       0069       XCHG 
+       006A       SHLD I A(0008)
+   9 e 006D       if i = 0 then return (1);
+       006D       LXI  H,I A(0008)
+       0070       MOV  A,M
+       0071       INX  H
+       0072       ORA  M
+       0073       JNZ  0000
+       0076       LXI  H,0001
+       0079       CALL ?RSBLK
+       007C       RET  
+       0074       ==== 007D
+  10 e 007D       return (i * factorial(i - 1));
+       007D       LHLD I A(0008)
+       0080       DCX  H
+       0081       SHLD * A(000C)
+       0084       LXI  H,* A(000A)
+       0087       CALL FACTORIAL
+       008A       PUSH H
+       008B       LHLD I A(0008)
+       008E       POP  D
+       008F       CALL ?IM22N
+       0092       CALL ?RSBLK
+       0095       RET  
+  11 c 0096    end factorial;
+  12 a 0096 end pr407;
+
+CODE SIZE = 0096
+DATA AREA = 000E
+FREE SYMS = 3841
+END  COMPILATION
+

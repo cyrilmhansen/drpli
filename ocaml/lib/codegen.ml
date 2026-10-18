@@ -56,7 +56,32 @@ type st =
   ; mutable floor : int                   (* layout total (cells+procs) *)
   ; mutable vars : (string * var_info) list
       (* scope chain head (lowername -> info); swapped per procedure
-         body [PL/I nesting: inner declarations shadow outer] *) }
+         body [PL/I nesting: inner declarations shadow outer] *)
+  ; mutable guards : int      (* tail-guard JMPs emitted [R404/R405/
+                                 R406/R423]: a no-stop main tail with
+                                 the suppression window OPEN appends
+                                 JMP<epilogue> + forward triple at
+                                 the append address before the first
+                                 proc prologue (CHAIN-ADDR -> the
+                                 epilogue CALL's operand slot); the
+                                 other 31 specimens have no such
+                                 shape (stop printed / window closed)
+                                 and show no guard *)
+  ; mutable guard_open : bool (* guard fired this stmt: a stop at
+                                 the guarded address prints NOTHING
+                                 but the epilogue survives [R423] *)
+  ; mutable tail_stop_dead : bool (* stop seen suppressed at an open
+                                 tail (guard or not) *)
+  ; mutable tail_addr : int   (* epilogue/proc-append region start =
+                                 max 0x03+len(epilogue chains), last
+                                 main-loop back-edge addr [RFACT 0x4C]
+                                 [HYPOTHESIS pending R426/R427] *)
+  ; mutable in_proc : bool    (* lowering a procedure body *)
+  ; mutable in_rec : bool     (* lowering a RECURSIVE proc body *)
+  ; mutable after_forever : bool  (* last MAIN stmt = no-exit loop/stop *)
+  ; mutable secs : (string * int * int) list (* proc -> base,size excl pool *)
+  ; mutable tail_exit : bool      (* main tail loop can exit [bind] *)
+  ; mutable last_loop_edge : int }
 (* label bookkeeping for GOTO resolution [G115/G116]:
    emitted-labels assoc (lowername -> lc); pending forward refs
    (lowername -> operand slot). *)
@@ -251,6 +276,13 @@ let classify_item (x : Ast.expr) =
   | Ast.Eident n -> Some (PIvar n)
   | Ast.Ebinary _ | Ast.Eprefix _ -> Some (PInum x)
   | Ast.Econd inner -> Some (PInum inner)  (* parens grouping [N304] *)
+  | Ast.Esuffix (hd, [ _ ]) ->
+      (* [RFACT @3B-46] function-call item: pair + LXI H,*A(slot) +
+         CALL; the result already sits in HL when the numeric chain
+         reads it (MVI A,9; QICOP follows the CALL directly) *)
+      (match hd.Ast.e with
+       | Ast.Eident _ -> Some (PInum x)
+       | _ -> None)
   | _ -> None
 
 let match_skip_ctl (items : Ast.put_item list) =
@@ -500,6 +532,12 @@ let rec hl_operand_deref st (e : Ast.expr) =
   | Ast.Econd a | Ast.Eprefix (_, a) -> hl_operand_deref st a
   | _ -> false
 
+(* [E2E-5c slice 2] tail = the continuation address that follows the
+   MAIN block (tail_addr in emit_program). DR routes an ADD through
+   PUSH H/POP D when the instruction at the evaluation position IS
+   the tail position itself (RFACT's main increment at 0x4C:
+   LHLD;INX H;SHLD) and uses the plain XCHG form elsewhere (dbl body
+   at 0x30: MOV A,M / ORA M) [P401/P402/RFACT byte differentials]. *)
 let rec lower_hl st (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Enumber s ->
@@ -520,24 +558,38 @@ let rec lower_hl st (e : Ast.expr) =
            | (cs :: rest) when cs.Bind.cs_proc = nm ->
                st.calls <- rest;
                let target =
-                 match cs.Bind.cs_arg.Ast.e with
-                 | Ast.Enumber k ->
-                     let kv =
-                       int_of_string
-                         (String.concat "" (String.split_on_char '_' k))
-                     in
-                     pool_alloc st
-                       [| kv land 0xff; (kv lsr 8) land 0xff |]
-                 | Ast.Eident v ->
-                     let vn = String.lowercase_ascii v.Ast.orig in
-                     if List.mem vn st.deref then
-                       failwith
-                         "codegen: pointer-formal call argument \
-                          unproven [TBD]";
-                     addr_of st v.Ast.orig
-                 | _ ->
-                     failwith
-                       "codegen: expression call argument deferred [TBD]"
+                 match cs.Bind.cs_temp with
+                 | Some t ->
+                     (* expression argument [RFACT @80-84, P402
+                        @4D-51]: evaluate to HL, runtime SHLD into the
+                        prescan-paired temp cell; the deferred pair
+                        then links slot -> temp *)
+                     lower_hl st cs.Bind.cs_arg;
+                     d st op_shld;
+                     reloc st Data (t + st.base);
+                     t + st.base
+                 | None -> begin
+                     match cs.Bind.cs_arg.Ast.e with
+                     | Ast.Enumber k ->
+                         let kv =
+                           int_of_string
+                             (String.concat ""
+                                (String.split_on_char '_' k))
+                         in
+                         pool_alloc st
+                           [| kv land 0xff; (kv lsr 8) land 0xff |]
+                     | Ast.Eident v ->
+                         let vn = String.lowercase_ascii v.Ast.orig in
+                         if List.mem vn st.deref then
+                           failwith
+                             "codegen: pointer-formal call argument \
+                              unproven [TBD]";
+                         addr_of st v.Ast.orig
+                     | _ ->
+                         failwith
+                           "codegen: expression call argument \
+                            deferred [TBD]"
+                   end
                in
                let slot = cs.Bind.cs_slot + st.base in
                link st t_set_lc (Some (Data, slot)) None;
@@ -545,11 +597,19 @@ let rec lower_hl st (e : Ast.expr) =
                link st t_set_lc (Some (Code, st.lc)) None;
                d st op_lxi_h; reloc st Data slot;
                d st op_call;
-               let oslot = st.lc in
-               d st 0; d st 0;
                (match List.assoc_opt nm st.entries with
-                | Some a -> reloc st Code a
-                | None -> st.fcalls <- (nm, oslot) :: st.fcalls);
+                | Some a ->
+                    (* known entry (backward/self): the CALL operand is
+                       a single INLINE relocatable reference
+                       [RFACT @8A cd+RELOC code 56; NFACT @99] *)
+                    reloc st Code a
+                | None ->
+                    (* forward: two placeholder DATA bytes; resolved by
+                       CHAIN-ADDR at the callee's entry byte
+                       [P401 @9-000B + chain @1285] *)
+                    let oslot = st.lc in
+                    d st 0; d st 0;
+                    st.fcalls <- (nm, oslot) :: st.fcalls);
                st.last_imm <- None
            | _ -> failwith "codegen: call-site queue mismatch [TBD]")
       | _ -> failwith "codegen: multi-arg call deferred [TBD]"
@@ -588,7 +648,7 @@ let rec lower_hl st (e : Ast.expr) =
       (* [(a+1) N304] +1 lowers to INX H on the 2-byte path; other
          additions keep the general ladder *)
       lower_hl st l; d st op_inx_h; st.last_imm <- None
-  | Ast.Ebinary (Ast.Add, l, r) ->
+    | Ast.Ebinary (Ast.Add, l, r) ->
       (* DR: HL=left ; XCHG ; HL=right ; DAD D  (=> HL = right+left)
          [P071A]. WITH POINTER-DEREF OPERANDS the ladder is
          left ; PUSH H ; right ; POP D ; DAD D [P401 dbl (i+i):
@@ -604,7 +664,17 @@ let rec lower_hl st (e : Ast.expr) =
   | Ast.Ebinary (Ast.Mul, l, r) ->
       (* var/expr OP var: DE=left HL=right, CALL ?IM22N [P071B/P080A].
          [N303] when the RHS is a 1-byte var DR interleaves: raw
-         LDA, PUSH H (save left), THEN sign-extend in HL, POP D. *)
+         LDA, PUSH H (save left), THEN sign-extend in HL, POP D.
+         [RFACT/NFACT @8D/@9C] when the RIGHT operand is a CALL the
+         whole right side runs FIRST (arg eval, pair, LXI, CALL,
+         PUSH H, LHLD left, POP D) — left-first ordering is only
+         evidenced for plain operands [P080A]. *)
+      if (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false)
+         && not (match l.Ast.e with Ast.Esuffix _ -> true | _ -> false)
+      then begin
+        lower_hl st r; d st 0xe5;                  (* PUSH H *)
+        lower_hl st l; d st 0xd1                   (* POP D *)
+      end else begin
       lower_hl st l;
       (match r.Ast.e with
        | Ast.Eident rn ->
@@ -620,7 +690,8 @@ let rec lower_hl st (e : Ast.expr) =
            end else begin
              d st op_push_h; lower_hl st r; d st op_pop_d
            end
-       | _ -> d st op_push_h; lower_hl st r; d st op_pop_d);
+       | _ -> d st op_push_h; lower_hl st r; d st op_pop_d)
+      end;
       call_ext st "?IM22N"
   | Ast.Ebinary (Ast.Div, l, r) ->
       (* DIV by CONSTANT only [P071B/P080A]: zero-extend const into HL via
@@ -954,7 +1025,14 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
            String.lowercase_ascii ind.Ast.orig -> true
     | _ -> false
   in
-  if while_ <> None || (rep <> None && not proven_repeat) then
+  let forever_repeat =
+    match (to_, while_, rep) with
+    | (None, None, Some _) -> true
+    | _ -> false
+  in
+  if while_ <> None
+     || (to_ <> None && rep <> None)
+     || (rep <> None && not proven_repeat && not forever_repeat) then
     failwith "codegen: DO WHILE/REPEAT combo/UNTIL deferred [TBD]";
   (match by with
    | None -> ()
@@ -980,13 +1058,27 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
       d st ((fromv lsr 8) land 0xff);
       st.last_imm <- Some fromv));
   d st op_shld; reloc st Data iaddr;
-  if proven_repeat then begin
+  if proven_repeat || forever_repeat then begin
     (* [Z402] body-head is the FIRST BODY instruction (not the
-       init); tail increment LHLD/INX/SHLD; JMP back; no test. *)
+       init); tail increment LHLD/INX/SHLD; JMP back; no test.
+       [R414/R426] at the window address the increment is
+       LHLD; LXI H,const; DAD D; SHLD; JMP instead. *)
     let head = st.lc in
     lo st ls body;
     d st op_lhld; reloc st Data iaddr;
-    d st op_inx_h;
+    (* [Z402 k=1; R427 k=2] REPEAT(ind+k) = k INX H rungs;
+       k>2 / other shapes unproven -> [TBD] *)
+    (match rep with
+     | Some { Ast.e = Ast.Ebinary (Ast.Add,
+              { Ast.e = Ast.Eident ri; _ },
+              { Ast.e = Ast.Enumber ck; _ }); _ }
+       when String.lowercase_ascii ri.Ast.orig =
+            String.lowercase_ascii ind.Ast.orig ->
+         let k = parse_int_const ck in
+         if k < 1 || k > 2 then
+           failwith "codegen: REPEAT increment const [TBD]";
+         for _ = 1 to k do d st op_inx_h done
+     | _ -> failwith "codegen: REPEAT increment form [TBD]");
     d st op_shld; reloc st Data iaddr;
     d st op_jmp; reloc st Code head;
     st.last_imm <- None
@@ -1182,13 +1274,51 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
    | _ ->
        failwith "codegen: multiple forward CALL chain unproven [TBD]");
   st.entries <- (nm, st.lc) :: st.entries;
-  if pl.Bind.pl_rec then
-    failwith "codegen: recursive procedure deferred [TBD]";
   (match pl.Bind.pl_ptrs with
    | [ (_f, ptr) ] ->
-       (* callee prologue [P401 dbl @29]: arg address arrives in HL *)
-       d st 0x5e; d st 0x23; d st 0x56; d st 0xeb;
-       d st op_shld; reloc st Data (ptr + st.base)
+       if pl.Bind.pl_rec then begin
+         (* recursive activation [RFACT @56-6D: LXI B,8; LXI D,10;
+            CALL ?SVBLK; deref; SHLD ptr@10; LHLD ptr; deref;
+            SHLD shadow@12. P402 @2C-40 identical shape with
+            B=8,D=6. Sizes from the layout section (4 cells x 2B
+            incl. the self-call slot+temp) [R427 re-check] *)
+         let (bb, bsz) =
+           match
+             List.filter_map
+               (fun (n, b, sz) -> if n = nm then Some (b, sz) else None)
+               st.secs
+           with
+           | [ x ] -> x
+           | _ -> failwith "codegen: proc section missing [TBD]"
+         in
+         d st op_lxi_b; d st (bsz land 0xff);
+         d st ((bsz lsr 8) land 0xff);
+         d st op_lxi_d;
+         reloc st Data (bb + st.base);
+         call_ext st "?SVBLK";
+         d st 0x5e; d st 0x23; d st 0x56; d st 0xeb;
+         d st op_shld; reloc st Data (ptr + st.base);
+         d st op_lhld; reloc st Data (ptr + st.base);
+         d st 0x5e; d st 0x23; d st 0x56; d st 0xeb;
+         let shad_off =
+           match
+             List.find_opt
+               (fun (k, _rt, _o) ->
+                 k = String.lowercase_ascii (fst (List.hd pl.Bind.pl_ptrs)))
+               pl.Bind.pl_rows
+           with
+           | Some (_k, _rt, o) -> o
+           | None ->
+               failwith "codegen: recursive formal without dcl [TBD]"
+         in
+         d st op_shld; reloc st Data (shad_off + st.base)
+       end else begin
+         (* callee prologue [P401 dbl @29]: arg address arrives in HL *)
+         d st 0x5e; d st 0x23; d st 0x56; d st 0xeb;
+         d st op_shld; reloc st Data (ptr + st.base)
+       end
+   | [] when pl.Bind.pl_rec ->
+       failwith "codegen: recursive procedure without formals [TBD]"
    | [] -> ()
    | _ -> failwith "codegen: multi-formal prologue deferred [TBD]");
   let saved = st.vars and savedd = st.deref in
@@ -1206,8 +1336,40 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
          | _ ->
              failwith "codegen: non fixed-bin procedure local [TBD]"))
       pl.Bind.pl_rows @ saved;
-  st.deref <- List.map fst pl.Bind.pl_ptrs;
+  st.deref <-
+    (* recursive bodies read the SHADOW value cell with plain ladders
+       [RFACT @80: LHLD I(12); DCX H — no deref] *)
+    (if pl.Bind.pl_rec then [] else List.map fst pl.Bind.pl_ptrs);
+  let savedt = st.tail_addr and savedp = st.in_proc
+      and savedr = st.in_rec in
+  (* [R404/R405/R406/R423] tail guard: window open + no explicit
+     stop printed -> JMP + forward triple chained to the epilogue
+     slot, emitted once at the first appended proc entry *)
+  if (not st.in_proc) && st.after_forever && not st.stop_seen
+     && st.tail_exit
+  then begin
+    (* FOREVER-loop windows (no TO/WHILE exit) displace the epilogue
+       into the loop's back edge: NO guard [R411/R431 vs R429/R432];
+       a terminating tail (TO loop / straight-line code) keeps the
+       epilogue and gets a guard JMP at the first appended proc
+       entry [R404/R405/R406/R423/R429/R432] *)
+    if st.tail_exit then begin
+    st.guard_open <- true;
+    st.guards <- st.guards + 1;
+    d st op_jmp;
+    let gs = st.lc in
+    d st 0; d st 0;
+    link st t_chain_addr (Some (Code, gs)) None
+    end
+  end;
+  st.tail_addr <- st.lc;   (* tail form never fires inside procs
+                              [P401 dbl XCHG @30] *)
+  st.in_proc <- true;
+  st.in_rec <- pl.Bind.pl_rec;
   List.iter (fun x -> lower_stmt st ls x) pl.Bind.pl_body;
+  st.in_rec <- savedr;
+  st.in_proc <- savedp;
+  st.tail_addr <- savedt;
   st.vars <- saved;
   st.deref <- savedd
 and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
@@ -1258,7 +1420,13 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
         (* constant-true bit condition = pure forever, NO test
            [Z404: COPY's DO WHILE('1'B)] *)
         lower_stmt st ls body;
-        d st op_jmp; reloc st Code head
+        d st op_jmp; reloc st Code head;
+        if not st.in_proc then begin
+          (* WHILE('1'B): no test insn; tail address = the JMP
+             operand address [head+4] [R408] *)
+          st.after_forever <- true;
+          st.last_loop_edge <- head + 4
+        end
       end else begin
         let slot = lower_test_skip st cond in
         lower_stmt st ls body;
@@ -1273,6 +1441,48 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       d st op_jmp; reloc st Code head
   | Ast.Sdoto { ind; from; by; to_; while_; rep; body } ->
       st.lowered <- st.lowered + 1;
+      (* open the suppression window at the TAIL ADDRESS before the
+         loop lowers, so the increment's own evaluation position is
+         visible [R414/R426: const-ident tail rungs] *)
+      let window_open =
+        st.after_forever && not st.in_proc
+        && st.lc = st.last_loop_edge
+      in
+      let forever =
+        match (to_, while_, rep) with
+        | (None, None, Some _) -> true
+        | _ -> false
+      in
+      if forever && not st.in_proc then begin
+        (* suppression window: tail address = where the loop's
+           back-edge will end — the loop emits its 3-byte
+           (LHLD + operand | LXI + imm) increment first, so the
+           edge = lc after the increment [RFACT 0x4C, R414/R426
+           0x1C, R401 0x1C, R427 0x1D] *)
+        if not window_open then st.after_forever <- true;
+        let inc_sz =
+          match (by, to_) with
+          | (None, None) -> 2 + 2 + 2   (* static bound triple *)
+          | _ -> 19 / 8 land 0xff * 0 + 5
+        in
+        let inc_sz =
+          match to_ with
+          | Some { Ast.e = Ast.Enumber _; _ } -> 2 + 2 + 2
+          | Some _ -> 5 + 2               (* dynamic: LHLD+SHLD temp *)
+          | None -> 3 + 2                 (* increment LHLD + INX H
+                                             (+INX for k=2: +1) *)
+        in
+        let k =
+          match rep with
+          | Some { Ast.e = Ast.Ebinary (Ast.Add, _,
+                     { Ast.e = Ast.Enumber ck; _ }); _ } ->
+              (try int_of_string (String.concat ""
+                    (String.split_on_char '_' ck))
+               with _ -> 1)
+          | _ -> 1
+        in
+        st.last_loop_edge <- st.lc + 9 + 2 * k
+      end;
       lower_doto st ls (fun st ls s -> lower_stmt st ls s)
         ind from by to_ while_ rep body
   | Ast.Sif { cond; then_; els } ->
@@ -1311,14 +1521,41 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       (match eo with
        | Some e -> lower_hl st e
        | None -> failwith "codegen: RETURN without value [TBD]");
+      (* every exit of a RECURSIVE activation restores its saved
+         block first [RFACT: RSBLK @7C base-case AND @95 recursive] *)
+      if st.in_rec then call_ext st "?RSBLK";
       d st 0xc9                              (* RET [P401 code@41] *)
   | Ast.Sstop eo ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (match eo with
        | Some _ -> failwith "codegen: STOP(code) deferred [TBD]"
        | None -> ());
-      call_ext st "?STOPX";
-      st.stop_seen <- true
+      (* stop; sitting at the epilogue/proc append address (immediately
+         after a no-exit loop, RFACT @0056) is NOT emitted when
+         procedure code follows: the CALL ?STOPX cannot fit below
+         appended procs [RFACT/R407/R408/R411/R415?? R415 HAS no
+         procs -> emitted ✓; R401/R414/R419/R420/R423 anchored by
+         intervening live stmts -> emitted ✓; R410/R421/R422/R424/
+         R425 any proc (rec or not, call or not) -> suppressed ✓] *)
+      (* [R415/R418/R414/R426 vs R401/R419/R423/R412] the suppression
+         window is opened by a no-exit loop (REPEAT-without-WHILE,
+         WHILE('1'B)) and closed by any other executable statement
+         (put/assign/...); stop; lowering INSIDE the window emits
+         NOTHING (its CALL cannot survive at the epilogue/proc
+         append address); explicit stop; emitted in place also
+         suppresses the epilogue CALL (stop_seen) [P401/R401]. *)
+      (* stop; at an open window emits NOTHING: RFACT prints the
+         statement at the append address (0056) with no code;
+         R415/R418/R414/R426 confirm across proc/no-proc *)
+      let at_tail = st.after_forever || st.guard_open in
+      if at_tail then st.tail_stop_dead <- true
+      else begin
+        call_ext st "?STOPX";
+        st.stop_seen <- true;
+        if not st.in_proc then st.after_forever <- false
+      end
+      (* suppressed stop: window stays OPEN — trailing procedure
+         code then displaces the epilogue entirely [RFACT] *)
   | Ast.Sprocedure_stmt _ ->
       failwith "codegen: CALL statement deferred [TBD]"
   | Ast.Sdcl _ -> ()
@@ -1353,7 +1590,12 @@ let emit_program (progname : string) (auto_bytes : int)
           (fun (p : Bind.proc_layout) -> (p.pl_name, p))
           layout.pl_procs
     ; entries = []; fcalls = []; deref = []
-    ; floor = layout.pl_total; vars = rows }
+    ; floor = layout.pl_total; vars = rows
+    ; tail_addr = 3; in_proc = false; in_rec = false
+    ; after_forever = false; guards = 0; guard_open = false
+    ; tail_stop_dead = false; secs = layout.Bind.pl_secs
+    ; tail_exit = layout.Bind.pl_tail_exit
+    ; last_loop_edge = 0 }
   in
   (* lower prologue + body + epilogue into st.items (code segment) *)
   d st op_lxi_b; d st 0x00; d st 0x02;
@@ -1362,7 +1604,24 @@ let emit_program (progname : string) (auto_bytes : int)
   d st 0; d st 0;
   link st t_chain_ext (Some (Code, start_slot)) (Some "?START");
   let ls = { labs = []; fwd = [] } in
-  List.iter (fun (s : Ast.stmt) -> lower_stmt st ls s) stmts;
+  List.iter
+    (fun (s : Ast.stmt) ->
+      (* [R401/R414/R419/R420/R423] any main-block statement other
+         than a no-exit loop or the trailing stop anchors the
+         epilogue region and closes the suppression window; the
+         append address advances past it *)
+      if st.after_forever && not st.in_proc then begin
+        (* append address advances while window open; ANCHORS
+           (any stmt except loops/stop;/proc blocks) CLOSE it;
+           Sproc does NOT [RFACT/R410/R425] *)
+        (match s.Ast.st with
+         | Ast.Sdoto _ | Ast.Sdowhile _ | Ast.Sdoforever _
+         | Ast.Sstop _ | Ast.Sproc _ | Ast.Snull _ | Ast.Sdcl _ -> ()
+         | _ -> st.after_forever <- false);
+        st.last_loop_edge <- st.lc
+      end;
+      lower_stmt st ls s)
+    stmts;
   (match ls.fwd with
    | [] -> ()
    | (nm, _) :: _ ->
@@ -1386,7 +1645,20 @@ let emit_program (progname : string) (auto_bytes : int)
   (* explicit stop; inside the body REPLACES the epilogue CALL
      [P401: STOPX @26 emitted at the statement; no trailing call;
      programs without stop; keep the epilogue — 42 prior goldens] *)
-  if not st.stop_seen then begin
+  (* epilogue suppressed when the main block ends at a no-exit loop
+     (RFACT/R410/R418: edge == final LC; procs or none [R418 proves
+     the displacement alone suffices]) and whenever an explicit
+     stop; was emitted in place (P401/R401) *)
+  (* [RFACT/R407/R410/R411/R418/R425/R426/R427 vs R401/R412/R419/
+     R423/R428/P404] the epilogue CALL is dropped exactly when the
+     suppression window is still open at main-block end (trailing
+     no-exit loop, no anchor after it) — procedure code BELOW does
+     not change the window state, it just sits between the window
+     address and the epilogue slot *)
+  (* [R423] a guarded tail keeps the epilogue CALL (the guard JMP
+     targets its operand slot); plain open windows drop it *)
+  let tail_displaced = st.after_forever && not st.tail_stop_dead in
+  if not st.stop_seen && not tail_displaced then begin
     d st op_call;
     let stop_slot = st.lc in
     d st 0; d st 0;

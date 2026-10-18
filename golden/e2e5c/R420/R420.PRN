@@ -1,0 +1,71 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R420
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   4 d            x = i;
+NO DCL            ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R420
+
+   1 a 0000 pr420: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl i fixed;
+   3 c 0006    do i = 0 repeat(i+1);
+       0006       LXI  H,I A(0000)
+       0009       MOV  L,A
+       000A       ADD  A
+       000B       SBB  A
+       000C       MOV  H,A
+       000D       XRA  A
+       000E       XCHG 
+       000F       MOV  M,E
+       0010       INX  H
+       0011       MOV  M,D
+   4 c 0012       x = i;
+       0012       LXI  H,* A(0000)
+       0015       MOV  L,A
+       0016       ADD  A
+       0017       SBB  A
+       0018       MOV  H,A
+       0019       PUSH H
+       001A       LHLD I A(0000)
+       001D       POP  D
+       001E       MOV  M,E
+       001F       INX  H
+       0020       MOV  M,D
+       0021       JMP  0012
+   5 c 0024    end;
+   6 c 0024    put skip list(i);
+       0024       LXI  D,0252
+       0027       LXI  B,0000
+       002A       CALL ?SYSPR
+       002D       MVI  A,01
+       002F       CALL ?SKPOP
+       0032       LHLD I A(0000)
+       0035       MVI  A,09
+       0037       CALL ?QICOP
+       003A       CALL ?PNVOP
+       003D       CALL ?QIOOP
+       0028       ==== 0040
+   7 c 0040    stop;
+       0040       CALL ?STOPX
+   8 a 0043 end pr420;
+
+CODE SIZE = 0043
+DATA AREA = 0002
+FREE SYMS = 38BB
+END  COMPILATION
+

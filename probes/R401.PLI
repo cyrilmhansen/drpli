@@ -1,0 +1,10 @@
+pr401: procedure options(main);
+   dcl i fixed;
+   dcl x fixed;
+   do i = 0 repeat(i+1);
+      x = i;
+   end;
+   put list('K');
+   stop;
+end pr401;
+

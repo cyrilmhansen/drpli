@@ -1,0 +1,14 @@
+pr423: procedure options(main);
+   dcl i fixed;
+   dcl x fixed;
+   do i = 0 repeat(i+1);
+      x = i;
+   end;
+   stop;
+t: put list('K');
+   f: procedure(i) returns(fixed) recursive;
+      dcl i fixed;
+      return (i);
+   end f;
+end pr423;
+

@@ -1,0 +1,14 @@
+nfact: procedure options(main);
+   dcl i fixed;
+   do i = 0 to 7;
+      put skip list('f(',i,')=',factorial(i));
+   end;
+   stop;
+   factorial:
+        procedure(i) returns(fixed) recursive;
+        dcl i fixed;
+        if i = 0 then return (1);
+        return (i * factorial(i-1));
+   end factorial;
+end nfact;
+

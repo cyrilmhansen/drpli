@@ -1,0 +1,14 @@
+pr408: procedure options(main);
+   dcl i fixed;
+   i = 0;
+   do while('1'b);
+      i = i + 1;
+   end;
+   stop;
+   f: procedure(i) returns(fixed) recursive;
+      dcl i fixed;
+      if i = 0 then return (1);
+      return (i * f(i - 1));
+   end f;
+end pr408;
+

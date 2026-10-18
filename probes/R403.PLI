@@ -1,0 +1,9 @@
+pr403: procedure options(main);
+   dcl x fixed;
+   x = 1;
+   goto l;
+   put list('K');
+l: put list('Z');
+   stop;
+end pr403;
+

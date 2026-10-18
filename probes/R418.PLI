@@ -1,0 +1,8 @@
+pr418: procedure options(main);
+   dcl i fixed;
+   dcl x fixed;
+   do i = 0 repeat(i+1);
+      x = i;
+   end;
+end pr418;
+

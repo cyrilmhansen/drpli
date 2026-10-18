@@ -1,0 +1,13 @@
+pr426: procedure options(main);
+   dcl i fixed;
+   dcl r fixed;
+   do i = 0 repeat(i+1);
+      r = i + 1;
+   end;
+   stop;
+   dbl: procedure(i) returns(fixed);
+      dcl i fixed;
+      return (i + i);
+   end dbl;
+end pr426;
+
