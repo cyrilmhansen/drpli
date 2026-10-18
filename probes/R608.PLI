@@ -1,0 +1,13 @@
+l608:
+ procedure options(main);
+   dcl p fixed dec(9,2);
+   dcl m fixed bin;
+   p = 3; m = 0;
+   do while (p > 0);
+      p = p - 1;
+      m = m + 1;
+   end;
+   put skip list(m, p);
+   stop;
+end l608;
+

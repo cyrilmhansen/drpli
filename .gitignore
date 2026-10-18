@@ -24,3 +24,10 @@ golden/e2estage*/
 golden/e2epfx*/
 golden/e2etmp*/
 golden/e2echk*/
+
+# derived link/run artifacts (linked .COM + cpmsim transcripts) are not
+# goldens: the semantic content is transcribed into spec/CLAIMS.md.
+# [E2E-7A] tags like e2e7link / e2e7run are DR-arm verification output.
+golden/e2e*link*/
+golden/e2e*run*/
+golden/e2e*pfx*/

@@ -1,0 +1,13 @@
+l601:
+ procedure options(main);
+   dcl p fixed dec(9,2);
+   dcl q fixed dec(9,2);
+   dcl s fixed bin;
+   dcl t fixed bin;
+   p = 5; q = 3; s = 0; t = 0;
+   if p > q then s = 1;
+   if q > p then t = 1;
+   put skip list(s, t);
+   stop;
+end l601;
+

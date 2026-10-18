@@ -263,3 +263,101 @@ IDENTICAL vs DR (8192 B); first 12 COMPLETE records byte-equal; 16
 complete factorial records independently correct against
 math.factorial -- DEC(15,0) carries the table to i=15 where RFACT's
 FIXED BIN(15) overflowed at i=8.
+
+## C085 — FIXED DECIMAL comparison + two general DR codegen laws (E2E-7A slice 1)
+STATUS: CONFIRMED (15 specimens .REL byte-identical; DR-side runtime
+semantics observed for all nine comparison shapes; own-arm link/console
+parity verified for the same set)
+Evidence: golden/e2e7/R601..R614 (fresh DR compiles, $L$D$C$S) +
+golden/e2e6/R507 (now implemented, was refusal evidence) +
+golden/e2e7/LOAN1 (LOAN1 re-compiled with $C: .REL BYTE-IDENTICAL to the
+curated golden golden/first8080u/LOAN1/LOAN1.REL, so the trace IS the
+listing of the accepted program) + DR run transcripts (branch outcomes).
+
+?DCMOP TAKES NO RELATION ARGUMENT. It pops two decimals and leaves a
+three-way result in the 8080 flags; DR therefore encodes the relation in
+the PUSH ORDER plus the choice of SKIP jump (taken iff the condition is
+FALSE). Derived from 9 byte-level samples, then confirmed by running every
+one of them under DR and checking which branch executed:
+
+    CY = (top <= bottom)   Z = (top = bottom)   S = (top > bottom)
+    (top = the SECOND operand pushed)
+
+    A >  B  push B,A  JP  (F2)     A <  B  push A,B  JP  (F2)
+    A >= B  push A,B  JM  (FA)     A <= B  push B,A  JM  (FA)
+    A =  B  push A,B  JNZ (C2)     A ^= B  push A,B  JZ  (CA)
+
+Runtime truth [golden/e2e7run, p=5 q=3, both operand orders in one
+program, s=1 means the branch was taken]:
+    R601 `>`   s=1 t=0    R602 `<`  s=0 t=1    R603 `=`  s=0 t=0
+    R604 `>=`  s=1 t=0    R605 `<=` s=0 t=1    R606 `^=` s=1 t=1
+    R607 `0 < p` -> s=1   R608 do while (p>0) -> m=3, p=0.00 (three
+         subtractions, loop exited through the JP -> 0057 back edge)
+    R609 nested-DO then-block executed (printed 1)
+  All nine match the table above. Nothing here is inferred from DR's
+  disassembly labels alone.
+- "JZ" is opcode CA = JPE, i.e. the SAME mnemonic/opcode skew already
+  banked for integer `^=` [C072]; one opcode table serves both families.
+- The skip-jump operand is backpatched by the ordinary SET-LC/RELOC
+  continuation triple -- no new mechanism. Recovered targets: [R507]
+  JP -> 004F = the CALL ?STOPX; [R608] JP -> 0057 = first address after
+  the loop; [LOAN1] JP -> 01E4 (inner-while exit, = the outer back edge),
+  JP -> 01A8 (past `PMT = P`), and the three GET JPs -> the statement's
+  own trailing CALL ?QIOOP (003E/0074/00AA) i.e. input failure skips the
+  conversion+store. LOAN1's `if mod(m,12) = 0` JNZ -> 010D.
+- Compare LITERALS take the DEC partner's precision [R507/R607: `0`
+  pushed MVI A,09 against dec(9,2); LOAN1: `0` -> 6-byte cell S(001E)
+  with MVI A,0B against dec(11,2) P].
+
+TWO GENERAL (NOT DECIMAL-SPECIFIC) LAWS FOUND WHILE VALIDATING THIS:
+- D6 HL-CONSTANT REUSE, delta 0: consecutive assignments of the SAME
+  integer literal emit ONE `LXI H,k` and one store per variable --
+  `x = 0; y = 0;` -> LXI H,0000; SHLD X; SHLD Y [R610, and LOAN1's
+  `m = 0; y = 0;` at 00AD-00B3]; `x = 5; y = 5;` behaves identically, so
+  it is value equality, not a zero special case [R611]. Boundary cases:
+  an intervening statement that writes HL restores the fresh load [R612:
+  `x = 0; put...; y = 0;` re-emits LXI H,0000]; and DR does NOT track
+  values that came from MEMORY -- `y = x; z = x;` re-emits `LHLD X` both
+  times [R613]. This joins the existing G114/G116 reuse family (DCX/INX
+  ladders for |delta|<=2, MOV L,H for k=0, MVI L for same-high-byte).
+  Without it LOAN1 could never be byte-exact.
+- D7 DECIMAL POOL REUSE: identical DEC literal cells are shared --
+  `d = 3; e = 3;` (both dec(9,2)) emits `LXI H,* S(0000)` twice from ONE
+  5-byte cell [R614]. This CORRECTS C084's statement that DEC cells are
+  never deduplicated: that was inferred from R505, whose two literals
+  have DIFFERENT values and so say nothing about reuse. Keyed on the
+  packed byte image (precision, scale, magnitude), so a differing
+  precision or scale still gets its own cell. Pool DEMAND in the prescan
+  had to be made distinct-key too, or every variable address after the
+  pool shifts.
+
+CORRECTION TO C084's LITERAL-PRECISION LAW (it was only half right):
+- C084 said "a literal as an ARITHMETIC OPERAND takes its own digit
+  count with scale 0". That holds for MULTIPLY and DIVIDE [R509 `*2`
+  -> A=01; R511 `*1234` -> A=04 3-byte cell; LOAN1 `/1200` -> A=04
+  2-byte cell S(0028)], but ADD and SUBTRACT instead ALIGN the literal
+  to the DEC partner: R608's `p = p - 1` against dec(9,2) pushes
+  `MVI A,09` from a 5-byte cell holding 1.00 (pool bytes 00 01 00 00 00)
+  [R608 $C + .REL data dump]. Same rule as the compare literals. My
+  compiler previously used own-digits for +/- too, which was SILENTLY
+  WRONG for `dec_var +/- int_literal` -- no registered specimen exercised
+  that shape, so nothing caught it until R608. Now implemented, with the
+  two unresolved cases refused: partner precision unknown, and partner
+  (p,s) disagreeing with the store target (no sample says which wins).
+
+FAIL-LOUD PERIMETER AFTER SLICE 1 (each a tested negative, panel 26/26):
+- compare literal with a SCALE against a scaled variable (`d > 3` with
+  dec(9,2)): the two candidate encodings (3 vs 300) are not distinguished
+  by any sample [N25_DECCMP_SCALE].
+- `decimal(x,p)` as a relational operand: [R506] pins DECIMAL only as the
+  INT->DEC doorway in an assignment [R607's DECIMAL-free form and
+  R601-R606 var/var + var/0], never inside a relation [N30_DECCMP_BUILTIN].
+- DEC divide / round / scale-carrying literal pools / DEC arrays / DEC in
+  GET / PUT EDIT pictures: unchanged from C084, all still [TBD].
+- +/- literal where the partner is not a statically-typed DEC variable or
+  DEC function call: refused rather than sized by a guess.
+
+GATES AFTER E2E-7A SLICE 1: e2e 111 byte-exact / 0 fail of 111 (was 96);
+negative panel 26/26 refused (N25 replaced by two narrower unpinned
+shapes); parse 412 ok / 6 parity-rejects / 0 FAIL of 418; bind 47/47
+exact; rel round-trip 385/385; ir gate 0 FAIL; safety 28/28.

@@ -514,3 +514,19 @@ RFACT      codegen: PUT form not in E2E-3a subset [TBD] (line 10)")
 SAMPLE     codegen: PUT form not in E2E-3a subset [TBD] (line 8)")
 TEST       FLOAT BINARY(24,0)
 UPDATE     codegen: declared variable kind not in supported subset [TBD]: BIT(1)")
+
+## 11. SLICE-1 NOTE (E2E-7A decimal comparison landed, same day)
+Decimal comparison is implemented and banked as C085 (111 specimens
+byte-exact; 15 new comparison/peephole specimens also .COM-identical and
+console byte-equal). Two general DR laws came out of it and were needed
+for LOAN1 anyway: the HL-constant-reuse elision and DECIMAL pool reuse
+(the latter CORRECTS a claim in C084), plus a correction to C084's
+literal-precision law (additive `+`/`-` literals align to the DEC
+partner; multiplicative ones keep own digits/scale 0).
+LOAN1's remaining work is assessed in spec/notes/e2e7-loan1-dependencies.md:
+the routine-surface distance of 5 is accurate but incomplete -- numeric
+GET and MOD-in-condition need ZERO new routines, and the compare/divide/
+round slices are 3 of the 5 packages. The published LOAN1 schedule
+(Applications Guide) was reproduced independently with Decimal arithmetic
+before any LOAN1 code existed, so the acceptance oracle is already
+validated.

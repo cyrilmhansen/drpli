@@ -1,0 +1,10 @@
+l610:
+ procedure options(main);
+   dcl x fixed bin;
+   dcl y fixed bin;
+   x = 0;
+   y = 0;
+   put skip list(x, y);
+   stop;
+end l610;
+

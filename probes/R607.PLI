@@ -1,0 +1,10 @@
+l607:
+ procedure options(main);
+   dcl p fixed dec(9,2);
+   dcl s fixed bin;
+   p = 5; s = 0;
+   if 0 < p then s = 1;
+   put skip list(s);
+   stop;
+end l607;
+

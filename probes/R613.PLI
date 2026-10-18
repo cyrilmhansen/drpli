@@ -1,0 +1,12 @@
+l613:
+ procedure options(main);
+   dcl x fixed bin;
+   dcl y fixed bin;
+   dcl z fixed bin;
+   x = 7;
+   y = x;
+   z = x;
+   put skip list(y, z);
+   stop;
+end l613;
+

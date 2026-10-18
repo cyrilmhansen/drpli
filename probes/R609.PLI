@@ -1,0 +1,14 @@
+l609:
+ procedure options(main);
+   dcl p fixed dec(9,2);
+   dcl q fixed dec(9,2);
+   dcl m fixed bin;
+   p = 5; q = 3; m = 0;
+   if p > q then
+      do;
+         m = m + 1;
+         put skip list(m);
+      end;
+   stop;
+end l609;
+

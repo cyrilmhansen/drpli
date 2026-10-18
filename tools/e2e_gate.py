@@ -106,6 +106,28 @@ SPECIMENS = {
     "R513": ("probes/R513.PLI", "golden/e2e6/R513/R513.REL"),
     "R514": ("probes/R514.PLI", "golden/e2e6/R514/R514.REL"),
     "R515": ("probes/R515.PLI", "golden/e2e6/R515/R515.REL"),
+    # [E2E-7A slice 1] FIXED DECIMAL COMPARISON: R507 is the E2E-6-era
+    # compare sample that used to be evidence for a refusal; R601-R606 are
+    # the six relations (each with mirrored operands so one run shows both
+    # the taken and the not-taken branch); R607 pins a constant on the LEFT
+    # of the relation; R608/R609 pin the WHILE-condition and nested-DO-BLOCK
+    # shapes; R610-R613 pin DR's HL-constant-reuse peephole (which LOAN1's
+    # `m = 0; y = 0;` depends on) and R614 pins DECIMAL pool REUSE.
+    "R507": ("probes/R507.PLI", "golden/e2e6/R507/R507.REL"),
+    "R601": ("probes/R601.PLI", "golden/e2e7/R601/R601.REL"),
+    "R602": ("probes/R602.PLI", "golden/e2e7/R602/R602.REL"),
+    "R603": ("probes/R603.PLI", "golden/e2e7/R603/R603.REL"),
+    "R604": ("probes/R604.PLI", "golden/e2e7/R604/R604.REL"),
+    "R605": ("probes/R605.PLI", "golden/e2e7/R605/R605.REL"),
+    "R606": ("probes/R606.PLI", "golden/e2e7/R606/R606.REL"),
+    "R607": ("probes/R607.PLI", "golden/e2e7/R607/R607.REL"),
+    "R608": ("probes/R608.PLI", "golden/e2e7/R608/R608.REL"),
+    "R609": ("probes/R609.PLI", "golden/e2e7/R609/R609.REL"),
+    "R610": ("probes/R610.PLI", "golden/e2e7/R610/R610.REL"),
+    "R611": ("probes/R611.PLI", "golden/e2e7/R611/R611.REL"),
+    "R612": ("probes/R612.PLI", "golden/e2e7/R612/R612.REL"),
+    "R613": ("probes/R613.PLI", "golden/e2e7/R613/R613.REL"),
+    "R614": ("probes/R614.PLI", "golden/e2e7/R614/R614.REL"),
     "R401": ("probes/R401.PLI", "golden/e2e5c/R401/R401.REL"),
     "R403": ("probes/R403.PLI", "golden/e2e5c/R403/R403.REL"),
     "R404": ("probes/R404.PLI", "golden/e2e5c/R404/R404.REL"),
@@ -160,7 +182,10 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "NFACT",
                 "R501", "R502", "R503", "R505", "R506",
                 "R508", "R509", "R510", "R511",
-                "R513", "R514", "R515"}
+                "R513", "R514", "R515",
+                "R507", "R601", "R602", "R603", "R604", "R605", "R606",
+                "R607", "R608", "R609", "R610", "R611", "R612", "R613",
+                "R614"}
 
 # RFACT/R401/R412/R419 were removed from the console arm: they end in a
 # NO-EXIT main tail, so a timeout-truncated transcript is never a
@@ -242,9 +267,24 @@ REJECTS = {
                   "  dcl c fixed bin(16);\n  c = 1;\n"
                   "  put list(c);\nend t;\n", "NOT IMP"),
     # ---- E2E-6 DECIMAL perimeter: these MUST refuse, never guess ----
-    "N25_DECCMP": ("t:\n  procedure options(main);\n  dcl d fixed dec(9,2);\n"
-                   "  d = 3;\n  if d > 0 then put list(d);\nend t;\n",
-                   "decimal comparison unproven"),
+    # [E2E-7A slice 1] the six relations themselves are now implemented
+    # (R507/R601-R609 byte-exact), so the comparison perimeter shrinks to
+    # the two shapes NO sample pins:
+    #  * a scale-carrying / non-zero literal against a SCALED decimal
+    #    variable: DR's pinned compare literal is 0 [R507/R607], and the
+    #    two candidate encodings of `3` (3 at scale 0 vs 300 at scale 2)
+    #    are not distinguished by any existing sample.
+    "N25_DECCMP_SCALE":
+        ("t:\n  procedure options(main);\n  dcl d fixed dec(9,2);\n"
+         "  d = 3;\n  if d > 3 then put list(d);\nend t;\n",
+         "decimal comparison literal scale unproven"),
+    #  * decimal(x,p) as a relational operand: [R506] pins DECIMAL only as
+    #    the INT->DEC doorway in an assignment, never inside a relation.
+    "N30_DECCMP_BUILTIN":
+        ("t:\n  procedure options(main);\n  dcl i fixed bin;\n"
+         "  dcl d fixed dec(9,2);\n  d = 1; i = 2;\n"
+         "  if decimal(i,9) > d then put list(d);\nend t;\n",
+         "not in the proven DEC subset"),
     "N26_DECDIV": ("t:\n  procedure options(main);\n"
                    "  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,2);\n"
                    "  c = a / 2;\n  put list(c);\nend t;\n",

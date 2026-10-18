@@ -1,0 +1,10 @@
+l614:
+ procedure options(main);
+   dcl d fixed dec(9,2);
+   dcl e fixed dec(9,2);
+   d = 3;
+   e = 3;
+   put skip list(d, e);
+   stop;
+end l614;
+

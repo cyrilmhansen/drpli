@@ -1,0 +1,7 @@
+r507: procedure options(main);
+   dcl d fixed dec(9,2);
+   d = 3;
+   if d > 0 then put skip list(d);
+   stop;
+end r507;
+
