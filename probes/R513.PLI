@@ -1,0 +1,7 @@
+r513: procedure options(main);
+   dcl d fixed dec(3,0);
+   d = 12;
+   put skip list(d);
+   stop;
+end r513;
+

@@ -25,10 +25,14 @@ Verdict hierarchy implemented here:
     attempt captures anything, report INCONCLUSIVE-CAPTURE and fall back
     to image identity -- never claim a console pass.
  4. --facts K: INDEPENDENT semantic oracle for the factorial specimens.
-    Compares the first K complete 'factorial( i )= v' records of MY OWN
-    run against math.factorial(i) computed in Python (valid while the
-    value fits FIXED BIN(15), i <= 7), so the recursion is verified
-    against arithmetic, not only against DR.
+    Compares the first K complete 'factorial( i )= v' records (case- and
+    width-tolerant, decimal point ignored) of MY OWN run against
+    math.factorial(i) computed in Python, so the recursion is verified
+    against arithmetic, not only against DR.  Only records whose true
+    value fits the specimen's declared arithmetic count (--maxvalue:
+    32767 = FIXED BIN(15) -> i<=7 for RFACT [slice 2]; 10^15-1 =
+    FIXED DEC(15,0) -> i<=17 for DFACT [E2E-6]); records beyond that are
+    reported as skipped because DR's own overflow is not an oracle.
 
 Usage: prefix_check.py NAME SRC GOLDEN.REL [--console|--facts K]
                                            [--records K] [--window SECS]
@@ -115,6 +119,12 @@ def main():
     ap.add_argument("name"); ap.add_argument("src"); ap.add_argument("gold")
     ap.add_argument("--console", action="store_true",
                     help="also compare the bounded complete-record prefix")
+    ap.add_argument("--maxvalue", type=int, default=32767, metavar="N",
+                    help="largest arithmetically representable expected "
+                         "value for this specimen (FIXED BIN(15) = 32767 "
+                         "[RFACT]; FIXED DEC(15,0) = 999999999999999 "
+                         "[DFACT]); records whose true factorial exceeds it "
+                         "are skipped, never counted as a pass")
     ap.add_argument("--facts", type=int, default=0, metavar="K",
                     help="check K complete factorial records against "
                          "math.factorial (independent oracle)")
@@ -261,14 +271,27 @@ def main():
             print(f"{name}: NOTE using the DR-arm capture (mine arm "
                   f"uncaptured); the two .COM images are byte-identical, "
                   f"and the oracle below is external arithmetic")
-        recs, seen, bad = records(cons[src_lbl]), 0, []
+        recs, seen, bad, skipped = records(cons[src_lbl]), 0, [], 0
         for rec in recs:
-            m = re.search(r"factorial\(\s*(-?\d+)\s*\)=\s*(-?\d+)", rec)
+            # 'factorial(' / 'Factorial(' both occur in the corpus
+            m = re.search(r"factorial\(\s*(-?\d+)\s*\)=\s*(-?[\d.]+)",
+                          rec, re.I)
             if not m:
                 continue
-            i, v = int(m.group(1)), int(m.group(2))
-            if i <= 7 and v != math.factorial(i):
-                bad.append((i, v, math.factorial(i)))
+            i = int(m.group(1))
+            v = int(m.group(2).replace(".", ""))
+            exp = math.factorial(i)
+            # Only values that FIT the specimen's declared arithmetic are
+            # oracle-able: RFACT is FIXED BIN(15) (max 32767, so i <= 7),
+            # DFACT is FIXED DEC(15,0) (max 10^15-1, so i <= 17).  Beyond
+            # that DR itself overflows, and comparing garbage against
+            # garbage would prove nothing -- those records are reported as
+            # skipped, never as a pass.
+            if exp > a.maxvalue:
+                skipped += 1
+                continue
+            if v != exp:
+                bad.append((i, v, exp))
             seen += 1
             if seen >= a.facts:
                 break
@@ -278,9 +301,11 @@ def main():
             return 0
         if bad:
             print(f"{name}: FACTS-DIFF {bad}"); return 1
+        tail = (f" ({skipped} record(s) beyond --maxvalue="
+                f"{a.maxvalue} not counted)" if skipped else "")
         print(f"{name}: FACTS-OK {seen} complete factorial records match "
               f"math.factorial independently "
-              f"{[math.factorial(i) for i in range(min(seen, 8))]}")
+              f"{[math.factorial(i) for i in range(min(seen, 8))]}{tail}")
         return 0
     print(f"{name}: runtime verdict = byte-identical image")
     return 0

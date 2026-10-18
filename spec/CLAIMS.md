@@ -152,3 +152,114 @@ prefixes + an independent arithmetic oracle)
   land before the program's own console region, so transcript extraction
   (anchored on `NAME\r\r\n`) and all previous console comparisons are
   unaffected; a new optional `--killon REGEX` gives the bounded prefix.
+
+## C084 — FIXED DECIMAL core: storage, literals, arithmetic, ABI, returns (E2E-6)
+STATUS: CONFIRMED (12 specimens .REL byte-identical + .COM identical +
+console byte-equal; acceptance specimen DFACT byte-identical to the
+curated corpus golden, plus runtime prefix + independent arithmetic)
+Evidence: golden/e2e6/R501,R502,R503,R505,R506,R508,R509,R510,R511,
+R513,R514,R515 (fresh DR compiles, $L$D$C$S) + golden/e2e6/DFACT (re-run of the corpus
+source; its .REL is byte-identical to golden/first8080u/DFACT/DFACT.REL,
+verified by cmp BEFORE either was registered -- the $C trace is the new
+information) + golden/first8080u/DFACT/DFACT.REL (acceptance).
+
+STORAGE (bind authority, now DR-proven rather than inferred):
+- bytes(FIXED DEC(p,s)) = ceil((p+1)/2), INDEPENDENT of scale, directly
+  observed at SEVEN precisions: p=1 -> 1 [R514], p=3 -> 2 [R513],
+  p=4 -> 3 [R515], p=5 -> 3 [R503], p=7 -> 4 [R508], p=9 -> 5
+  [R502/R505], p=15 -> 8 [R501/DFACT]. This is exactly Bind.bytes_of
+  `RTdec (p,_) = (p+2)/2`, which was carried as a hypothesis; it is now
+  confirmed across the entire accepted band, so accepting p<=15 involves
+  NO extrapolation. DR itself stops at p=31 (`NOT IMP`, no .REL [R504]).
+- packing = little-endian packed BCD, two digits per byte as
+  (hi<<4|lo), sign nibble in the TOP nibble of the last byte (0 = +).
+  Byte-for-byte against DR: 3@p15 -> `03 00 00 00 00 00 00 00` [R501];
+  123.45@p7s2 -> `45 23 01 00` [R508]; 1@p9s2 -> `00 01 00 00 00`
+  [= 100, i.e. the literal pre-scaled to the TARGET scale] [R505];
+  1234@p4 -> `34 12 00` [R511]; 1@p15s0 -> `01 00 ...` [DFACT @S(000C)].
+- DEC pool cells are NOT deduplicated and are allocated in flow order
+  (R505: 1 at S(0000), 2 at S(0005)), same regime as character literals.
+
+EVALUATION MODEL -- DR runs a decimal STACK, not an accumulator register:
+- ?DLDOP pushes (HL = cell address, A = digits); ?QI15D pushes the DEC
+  image of the INT(15) value already in HL; a DEC function call pushes
+  its result (callee exits `JMP ?DCRET`); ?DADOP/?DSUOP/?DMUOP pop two
+  and push one; ?DSTOP pops into a cell (HL = addr, A = TARGET digits);
+  ?QDCOP pops and edits into the print buffer (A = width, B = scale).
+- push ORDER: left operand first [R505 a+b, c-a, a*b; R511]; the one
+  observed case whose RIGHT operand is a DEC call evaluates that call
+  first, then reloads the left operand [DFACT: CALL, LHLD i, ?QI15D,
+  ?DMUOP] -- mirroring the fixed-bin "right-first when RHS is a call".
+- ?QDDSR (rescale to A) appears after ?DMUOP iff the STORE TARGET has
+  scale > 0 [R505 dec(9,2) emits MVI A,02; R510 and DFACT dec(*,0)
+  emit none]. ADD/SUB never carry a rescale [R505].
+- DEC default print WIDTH = p + 3 and B = s, on all TEN edited samples
+  (15/0 -> 18/0, 9/2 -> 12/2, 9/0 -> 12/0, 5/0 -> 8/0, 7/2 -> 10/2,
+  4/2 -> 7/2, 3/0 -> 6/0, 1/0 -> 4/0). Confirmed at RUNTIME by the field
+  contents (R501 '                 3', R508 '    123.45',
+  R513 '    12', R514 '   1', R515 '   1.25').
+
+LITERAL PRECISION RULE (two-position, both directly observed):
+- bare literal in assignment / RETURN position takes the TARGET's
+  digits and scale [R501 d=3 -> A=15; R505 a=1 -> A=9; DFACT
+  return(1) -> A=15, 8-byte cell];
+- literal as an ARITHMETIC OPERAND takes its OWN digit count with
+  scale 0 [R509 *2 -> A=1, 1-byte cell; R511 *1234 -> A=4, 3-byte cell].
+
+CONVERSIONS AND BUILTIN:
+- DECIMAL is a DR BUILTIN symbol (`a 0000 DECIMAL BUILTIN CONSTANT`
+  [R506/R509]), not a procedure: added to the parser's builtin table, so
+  `decimal(i,15)` no longer reaches bind as a 2-argument CALL.
+- decimal(x,p) IGNORES p: decimal(i,15) and decimal(i,7) compile to the
+  identical `LHLD x ; CALL ?QI15D` pair [R506]. DEC precision comes from
+  the context (assignment target / return cell), never from the builtin.
+- DEC -> INT: DLDOP(source digits) ; ?QDI15 ; SHLD [R506 `i = d`].
+- DEC function exits via `CALL ?RSBLK ; JMP ?DCRET` when RECURSIVE and
+  plain `JMP ?DCRET` when not [DFACT @0086/@00A2, R509 @0056]; the
+  caller side of the call site is byte-identical to the FIXED ABI
+  (`LXI H,*A(slot) ; CALL f`) -- ?DCRET hands the value back on the
+  decimal stack, so the caller stores with ?DSTOP [R509] or prints with
+  ?QDCOP [DFACT]. FUNCTION descriptor cell = bytes_of(returns type)
+  (`.* FIXED DECIMAL(15,0) RETURNED` then PARAMETER at +8 [R509]).
+
+FAIL-LOUD PERIMETER (each member is a tested negative, NEG panel 25/25):
+- DEC COMPARISON unimplemented. DR lowers `if d > 0` as
+  DLDOP(const),DLDOP(d),?DCMOP,JP [R507], but the operand ORDER for the
+  non-commutative relations is unpinned -> refusing beats guessing an
+  order that could silently invert the test [N25].
+- DEC DIVISION unimplemented. Observed shape is DLDOP, `MVI A,06
+  ?QDDSL`, DLDOP, ?DDVOP, `MVI A,06 ?QDDSR`, `MVI A,02 ?QDDSR` [R512];
+  the meaning of the two 06s (target p - s - 1?) is a single sample ->
+  [N26].
+- p outside 1..15: DR itself says `NOT IMP` at p=31 with NO .REL [R504],
+  and 16..30 is unpinned, so the band boundary is mirrored as a refusal
+  [N27] rather than extrapolated into a cell size.
+- literal scale > target scale (digit loss) [N28]; fractional literals
+  in OPERAND position; negative DEC literals (sign nibble unpinned).
+- mixed DEC/INT arithmetic: the DEC->INT conversion is pinned only for a
+  DIRECT decimal operand (`i = d`), so mixed trees refuse [N29].
+- DEC arrays/structures, DEC in GET, PUT EDIT pictures (?QDDSL/QDDSR
+  picture family), DEC ENTRY-external returns: all still [TBD].
+
+PROCESS NOTE (defect hygiene came first): Step 0 (commit 64da8f9) closed
+the audit's D1 crash, D3 silently-ignored block options and D4
+silently-FIXED return types BEFORE any DEC byte existed. FFACT moving
+from a plausible-but-wrong .REL to a deliberate [TBD] refusal is the
+intended outcome, and DFACT's first refusal was `returns(FIXED
+DECIMAL(15,0))` -- the gate that this claim now opens for p<=15.
+
+GATES AFTER E2E-6 DEC CORE: e2e 96 byte-exact / 0 fail (was 83);
+negative panel 25/25 refused; every DEC specimen ALSO has .COM IDENTICAL
+and console BYTE-EQUAL (R501 '                 3', R502 '        3.00',
+R503 '       3', R505 '        2.00', R506 '                 5         5',
+R508 '    123.45', R509 '                 6', R510 '           2',
+R511 '        1234', R513 '    12', R514 '   1', R515 '   1.25');
+parse 397 ok / 6 parity-rejects / 0 FAIL; bind 47/47 exact;
+rel round-trip 369/369; ir gate 0 FAIL; safety 28/28.
+CORPUS: DFACT accepted -> 3/41 attainable programs byte-exact (DEMO,
+RFACT, DFACT), 0 divergent compiles, 0 crashes, 41 loud [TBD] refusals.
+DFACT RUNTIME (non-terminating main tail, bounded protocol): .COM
+IDENTICAL vs DR (8192 B); first 12 COMPLETE records byte-equal; 16
+complete factorial records independently correct against
+math.factorial -- DEC(15,0) carries the table to i=15 where RFACT's
+FIXED BIN(15) overflowed at i=8.

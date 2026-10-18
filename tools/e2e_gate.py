@@ -85,6 +85,27 @@ SPECIMENS = {
     # E2E-5c slice 2: recursion, expression args, tail-displacement
     "RFACT": ("artefacts/RFACT.PLI", "golden/first8080u/RFACT/RFACT.REL"),
     "NFACT": ("probes/NFACT.PLI", "golden/e2e5c/NFACT/NFACT.REL"),
+    # ---- E2E-6: FIXED DECIMAL core (audit REV 2 / DFACT milestone) ----
+    # DFACT is the corpus acceptance specimen; its golden is the curated
+    # corpus .REL. R5xx are the bounded DEC probes whose goldens came from
+    # my own DR re-runs (golden/e2e6/*, DFACT's re-run being byte-identical
+    # to the corpus copy -- verified with cmp before either was registered).
+    "DFACT": ("artefacts/DFACT.PLI", "golden/first8080u/DFACT/DFACT.REL"),
+    "R501": ("probes/R501.PLI", "golden/e2e6/R501/R501.REL"),
+    "R502": ("probes/R502.PLI", "golden/e2e6/R502/R502.REL"),
+    "R503": ("probes/R503.PLI", "golden/e2e6/R503/R503.REL"),
+    "R505": ("probes/R505.PLI", "golden/e2e6/R505/R505.REL"),
+    "R506": ("probes/R506.PLI", "golden/e2e6/R506/R506.REL"),
+    "R508": ("probes/R508.PLI", "golden/e2e6/R508/R508.REL"),
+    "R509": ("probes/R509.PLI", "golden/e2e6/R509/R509.REL"),
+    "R510": ("probes/R510.PLI", "golden/e2e6/R510/R510.REL"),
+    "R511": ("probes/R511.PLI", "golden/e2e6/R511/R511.REL"),
+    # cell-size law completion: p=1/3/4 close the extrapolation gap below
+    # p=5, so ceil((p+1)/2) is now DIRECTLY observed across the whole
+    # accepted band p = 1,3,4,5,7,9,15 (and DR says NOT IMP at 31 [R504]).
+    "R513": ("probes/R513.PLI", "golden/e2e6/R513/R513.REL"),
+    "R514": ("probes/R514.PLI", "golden/e2e6/R514/R514.REL"),
+    "R515": ("probes/R515.PLI", "golden/e2e6/R515/R515.REL"),
     "R401": ("probes/R401.PLI", "golden/e2e5c/R401/R401.REL"),
     "R403": ("probes/R403.PLI", "golden/e2e5c/R403/R403.REL"),
     "R404": ("probes/R404.PLI", "golden/e2e5c/R404/R404.REL"),
@@ -136,7 +157,10 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "Y304", "Y306", "Z401", "Z402", "Z403", "Z404",
                 "Z405", "Z406", "Z407", "N301", "N302", "N303",
                 "N304", "N306", "N308", "G117", "G118", "P401",
-                "NFACT"}
+                "NFACT",
+                "R501", "R502", "R503", "R505", "R506",
+                "R508", "R509", "R510", "R511",
+                "R513", "R514", "R515"}
 
 # RFACT/R401/R412/R419 were removed from the console arm: they end in a
 # NO-EXIT main tail, so a timeout-truncated transcript is never a
@@ -217,6 +241,24 @@ REJECTS = {
     "N24_BIGIN": ("t:\n  procedure options(main);\n"
                   "  dcl c fixed bin(16);\n  c = 1;\n"
                   "  put list(c);\nend t;\n", "NOT IMP"),
+    # ---- E2E-6 DECIMAL perimeter: these MUST refuse, never guess ----
+    "N25_DECCMP": ("t:\n  procedure options(main);\n  dcl d fixed dec(9,2);\n"
+                   "  d = 3;\n  if d > 0 then put list(d);\nend t;\n",
+                   "decimal comparison unproven"),
+    "N26_DECDIV": ("t:\n  procedure options(main);\n"
+                   "  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,2);\n"
+                   "  c = a / 2;\n  put list(c);\nend t;\n",
+                   "decimal operator not in the DEC subset"),
+    "N27_DECBIGP": ("t:\n  procedure options(main);\n"
+                    "  dcl d fixed dec(20,0);\n  d = 1;\nend t;\n",
+                    "outside the probed DEC band"),
+    "N28_DECLITFRAC": ("t:\n  procedure options(main);\n"
+                       "  dcl d fixed dec(7,0);\n  d = 1.25;\nend t;\n",
+                       "into scale 0 [TBD]"),
+    "N29_DECININT": ("t:\n  procedure options(main);\n"
+                     "  dcl d fixed dec(9,0);\n  dcl i fixed;\n"
+                     "  i = 1;\n  i = i + d;\nend t;\n",
+                     "mixed decimal/integer arithmetic unproven"),
     "N16_CATASSIGN": ("t:\n  procedure options(main);\n"
                       "  dcl n char(6) varying;\n  dcl m char(6) varying;\n"
                       "  n = 'Q';\n  m = 'Z' || n;\nend t;\n",

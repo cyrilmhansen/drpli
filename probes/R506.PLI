@@ -1,0 +1,11 @@
+r506: procedure options(main);
+   dcl i fixed;
+   dcl d fixed dec(15,0);
+   i = 5;
+   d = decimal(i,15);
+   i = d;
+   d = decimal(i,7);
+   put skip list(d,i);
+   stop;
+end r506;
+

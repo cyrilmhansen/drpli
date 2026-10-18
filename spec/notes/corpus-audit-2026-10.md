@@ -11,6 +11,12 @@ PLILIB-route counting from the goldens. Full machine-readable tables
 banked in `corpus-audit-2026-10-18-data.txt` (same directory).
 
 ## 1. Headline status
+
+> **SUPERSEDED IN PART the same day:** DEC core landed and **DFACT is
+> byte-exact, so the score below (2/41) is now 3/41**; see section 10 for the
+> refreshed distances, the re-ranked next three programs, and the new
+> emitted-routine baseline (29 -> 36 entrypoints). The tables in sections
+> 1-8 are kept as the REV 2 record.
 | metric | REV 1 (post-E2E-4) | REV 2 (now) |
 |---|---|---|
 | corpus sources | 44 | 44 |
@@ -293,6 +299,58 @@ first slice.
 * Checkpoint convention honoured: this audit is analysis + 2 document
   files; no code lines were added, and implementation pauses here for
   approval.
+
+## 10. POST-DFACT ADDENDUM (E2E-6 DEC core accepted, same day)
+DFACT is byte-exact, so the corpus score is **3/41 (DEMO, RFACT, DFACT)**
+with 0 divergent compiles and 0 crashes. Nothing else in this audit's
+structure changes; only the numbers move, and the ranking shift is small
+but real. Updated without any new dashboard or infrastructure.
+
+* Emitted PLILIB baseline: 29 -> **36** entrypoints (7 new DEC routes:
+  ?DADOP ?DSUOP ?DMUOP ?DSTOP ?QDCOP ?QDDSR ?QI15D ?DCRET -- ?DLDOP,
+  ?QDI15 and ?DSUOP already came from the N301/N306 constant-fold path).
+* DEC-core unlock arithmetic was CORRECT: it bought exactly one program
+  (DFACT). No other corpus program became byte-exact from DEC storage /
+  arithmetic / return / default-editing alone.
+* Distances fell as predicted, and the metric earned its keep:
+  | program | REV 2 unseen | now | remaining |
+  |---|---|---|---|
+  | DFACT | 4 | **0** | accepted, byte-exact |
+  | ACK | 3 | **1** | ?QCIOP + multi-arg + GET-num + stack-option + rep-gen |
+  | LOAN1 | 10 | **5** | ?DCMOP ?DDVOP ?DROUN ?QCDOP ?QDDSL (compare, divide, round, GET-of-DEC, scale-shift) |
+  | DECPOLY | 9 | **3** | ?DCMOP ?QCDOP ?QDDSL + multi-arg + %replace |
+  | IFACT | 2 | 2 | unchanged (?EDITF ?EDTOV) -- DEC work touched nothing on its path |
+  | COPY | 4 | 4 | unchanged (?OIOOP ?SIOOP ?RNIOP ?WNIOP) |
+  | FFACT | 5 | 5 | unchanged (FLOAT) |
+* Re-ranked next three original corpus programs:
+  1. **IFACT** -- still #1: 2 unseen routes, the EDIT cluster is a
+     prerequisite of 17 programs, and it is the cleanest editing
+     specimen (no procedure, no stop, 384 B). Now blocked behind a
+     *correct* refusal (D1 closed) rather than a crash.
+  2. **LOAN1 (DEC completion)** -- newly #2, promoted by this milestone:
+     it halved its distance and what is left is entirely INSIDE the
+     model just proven (the decimal stack): ?DCMOP compare, ?DDVOP
+     divide, ?DROUN round, ?QCDOP DEC-input, ?QDDSL scale-shift. Risk
+     per route is low because each already has a readable DR trace from
+     R507/R512; the open questions are the non-commutative compare
+     operand order and the meaning of the two `MVI A,06`s around DDVOP,
+     both resolvable with ~4 targeted probes. It pays for DECPOLY/ACK/
+     ACKTST/ANNUITY/REPORT/UPDATE/CREATE/RETRIEVE/LOAN2 as well.
+  3. **COPY** -- still #3 (4 routes, largest cluster, needs the
+     file-staging infrastructure decision before runtime proof).
+  Downgraded: **ACK** is now only 1 route away in the RTL sense, but it
+  needs OPTIONS(STACK(n)) *modelled*, not just refused (defect D3), and
+  multi-arg + GET-num + the REPSPEC/Pi_rep family; it stays the
+  multi-arg capstone, not a standalone milestone.
+* Fail-loud perimeter after E2E-6 (each a tested negative): DEC compare,
+  DEC divide, DEC precision outside 1..15 (DR's own NOT IMP at 31),
+  literal-scale loss, mixed DEC/INT arithmetic, PUT EDIT/ITEM/bare SKIP,
+  non-MAIN block options, non-{FIXED, DEC<=15} return types.
+* Process note: the audit's defect list was closed BEFORE the feature
+  work (commit 64da8f9), which paid for itself immediately -- DFACT's
+  first refusal was `returns(FIXED DECIMAL(15,0))`, the exact gate C084
+  now opens on evidence, and FFACT's plausible-but-wrong .REL became a
+  loud refusal instead of a false pass.
 
 ---
 

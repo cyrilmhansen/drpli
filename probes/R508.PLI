@@ -1,0 +1,7 @@
+r508: procedure options(main);
+   dcl d fixed dec(7,2);
+   d = 123.45;
+   put skip list(d);
+   stop;
+end r508;
+

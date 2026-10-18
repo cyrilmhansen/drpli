@@ -1,0 +1,9 @@
+r511: procedure options(main);
+   dcl a fixed dec(9,0);
+   dcl c fixed dec(9,0);
+   a = 1;
+   c = a * 1234;
+   put skip list(c);
+   stop;
+end r511;
+

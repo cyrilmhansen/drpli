@@ -769,6 +769,7 @@ type call_site =
 
 type proc_layout =
   { pl_name : string; pl_lbl : string option; pl_rec : bool
+  ; pl_ret : rt option                      (* RETURNS(<type>), [E2E-6] *)
   ; pl_ptrs : (string * int) list             (* formal -> ptr cell *)
   ; pl_rows : (string * rt * int) list        (* body-visible rows *)
   ; pl_body : Ast.stmt list }
@@ -972,6 +973,7 @@ let bind_program (blk : Ast.block) : prog_layout =
                     ; pl_lbl = (match b.blabel with
                                 | Some l -> Some (pl_l l) | None -> None)
                     ; pl_rec = recf
+                    ; pl_ret = returns_attr b
                     ; pl_ptrs =
                         List.mapi (fun i f -> (f, base + 2 * i)) formals
                     ; pl_rows = rows

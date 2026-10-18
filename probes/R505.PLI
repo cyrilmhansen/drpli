@@ -1,0 +1,13 @@
+r505: procedure options(main);
+   dcl a fixed dec(9,2);
+   dcl b fixed dec(9,2);
+   dcl c fixed dec(9,2);
+   a = 1;
+   b = 2;
+   c = a + b;
+   c = c - a;
+   c = a * b;
+   put skip list(c);
+   stop;
+end r505;
+

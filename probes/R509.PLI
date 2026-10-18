@@ -1,0 +1,11 @@
+r509: procedure options(main);
+   dcl r fixed dec(15,0);
+   r = f(3);
+   put skip list(r);
+   stop;
+   f: procedure(i) returns(fixed dec(15,0));
+      dcl i fixed;
+      return (decimal(i,15) * 2);
+   end f;
+end r509;
+

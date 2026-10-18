@@ -1,55 +1,71 @@
-# E2E-5c-slice-2 corpus audit DATA APPENDIX -- generated 2026-10-18 -- ANALYSIS ONLY, no oracle probes were run for this audit.
+# E2E-5c-slice-2 / E2E-6 corpus audit DATA APPENDIX -- generated 2026-10-18, OVERLAID same day after DEC core landed.
 # Inputs: 44 artefacts/*.PLI sources; 41 DR .REL + 44 .PRN in golden/first8080u;
 #         my compiler ocaml/_build/default/bin/pli80c.exe (HEAD, post slice 2);
 #         emitted-routine baseline = union of LINK-CHAIN-EXT names over the 83
 #         byte-exact registered goldens in tools/e2e_gate.py.
+#
+# POST-DFACT OVERLAY (E2E-6 DEC core accepted, later on 2026-10-18):
+#   corpus byte-exact 3/41 (DEMO, RFACT, DFACT); specimen register 96
+#   byte-exact / 0 fail of 96; negative panel 25/25 refused; emitted
+#   PLILIB entrypoints 36 (was 29) -- added ?DADOP ?DSUOP ?DMUOP ?DSTOP
+#   ?QDCOP ?QDDSR ?QI15D ?DCRET.  The 12 DEC specimens R501-R503,
+#   R505-R506, R508-R511, R513-R515 are .REL byte-exact, .COM identical
+#   and console byte-equal; DFACT is .REL + .COM identical, its first 12
+#   COMPLETE console records are byte-equal under the bounded protocol,
+#   and 16 factorial records are independently correct against
+#   math.factorial.  Section (1) below is REFRESHED; sections (2)-(7)
+#   remain the REV 2 snapshot, kept unmodified.
+#   NOTE: unlike the REV 2 snapshot, this milestone DID run oracle
+#   probes (R501-R515) -- the appendix header above describes only the
+#   analysis-only audit phase.
 
 [1] CURRENT FIRST-BLOCKER SWEEP (pli80c, post E2E-5c slice 2)
 prog     golden mineB  cmp   newR   blocker / note
-A        yes                 2      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
-ACK      yes                 3      Failure("bind: multi-arg call at line 17 deferred [TBD]")
-ACKTST   yes                 6      Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(6,0)")
-ALLTST   yes                 5      Failure("codegen: declared variable kind not in supported subset [TBD]: POINTER")
-ANNUITY  yes                 26     Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(7,2)")
-CALL     NO                  -      Pli80.Parser.Parse_error(_, "expected statement")
-COPY     yes                 4      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-COPYLPT  yes                 11     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-CREATE   yes                 6      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-DECPOLY  yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(15,4)")
-DEMO     yes    512    EXACT 0      512
-DEPREC   yes                 17     Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(8,2)")
-DFACT    yes                 4      Failure("codegen: multi-arg call deferred [TBD]")
-DIOCALLS yes                 16     Failure("codegen: declared variable kind not in supported subset [TBD]: POINTER")
-DIOCOPY  yes                 5      Failure("codegen: declared variable kind not in supported subset [TBD]: POINTER")
-DIORAND  yes                 7      Failure("codegen: declared variable kind not in supported subset [TBD]: BIT(1)")
-DTEST    yes                 2      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
-ENTER    yes                 7      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-EXPR1    yes                 14     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-EXPR2    yes                 21     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-FDTEST   yes                 1      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
-FFACT    yes    512    DIFF  5      512
-FLTPOLY  yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
-FLTPOLY2 yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
-FSCAN    yes                 8      Failure("bind: procedure gnt without formals [TBD]")
-IFACT    yes                 2      File "lib/codegen.ml", line 321, characters 2-7: Pattern matching failed
-INVERT   NO                  -      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
-KEYFILE  yes                 5      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-LABELS   yes                 1      Failure("codegen: undeclared x")
-LOAN1    yes                 10     Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(11,2)")
-LOAN2    yes                 20     Failure("codegen: declared variable kind not in supported subset [TBD]: BIT(1)")
-MAININVT NO                  -      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
-MPMCALLA yes                 10     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-MPMCALLB yes                 12     Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-NETWORK  yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-OPTIMIST yes                 7      File "lib/codegen.ml", line 321, characters 2-7: Pattern matching failed
-REPORT   yes                 12     Failure("codegen: declared variable kind not in supported subset [TBD]: FIXED DECIMAL(7,2)")
-RETRIEVE yes                 9      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-REVERSE  yes                 4      Failure("codegen: declared variable kind not in supported subset [TBD]: POINTER")
-REVERT   yes                 4      Failure("codegen: declared variable kind not in supported subset [TBD]: FILE")
-RFACT    yes    512    EXACT 0      512
-SAMPLE   yes                 8      File "lib/codegen.ml", line 321, characters 2-7: Pattern matching failed
-TEST     yes                 8      Failure("codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)")
-UPDATE   yes                 11     Failure("codegen: declared variable kind not in supported subset [TBD]: BIT(1)")
+A        yes    -      -      2    codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+ACK      yes    -      -      1    codegen: block option STACK(...) deferred [TBD] (line 8; only OPTIONS(MAIN) is modelled;
+ACKTST   yes    -      -      3    codegen: block option STACK(...) deferred [TBD] (line 7; only OPTIONS(MAIN) is modelled;
+ALLTST   yes    -      -      5    codegen: declared variable kind not in supported subset [TBD]: POINTER
+ANNUITY  yes    -      -      22   codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+CALL     NO     -      -           Fatal error: exception Parse: _, "expected statement
+COPY     yes    -      -      4    codegen: declared variable kind not in supported subset [TBD]: FILE
+COPYLPT  yes    -      -      11   codegen: declared variable kind not in supported subset [TBD]: FILE
+CREATE   yes    -      -      4    codegen: declared variable kind not in supported subset [TBD]: FILE
+DECPOLY  yes    -      -      3    bind: multi-arg call at line 21 deferred [TBD]
+DEMO     yes    512    EXACT  -      ACCEPTED (byte-identical .REL)
+DEPREC   yes    -      -      11   codegen: declared variable kind not in supported subset [TBD]: FILE
+DFACT    yes    512    EXACT  -      ACCEPTED (byte-identical .REL)
+DIOCALLS yes    -      -      16   codegen: declared variable kind not in supported subset [TBD]: POINTER
+DIOCOPY  yes    -      -      5    codegen: declared variable kind not in supported subset [TBD]: POINTER
+DIORAND  yes    -      -      7    codegen: declared variable kind not in supported subset [TBD]: BIT(1)
+DTEST    yes    -      -      2    codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+ENTER    yes    -      -      6    codegen: declared variable kind not in supported subset [TBD]: FILE
+EXPR1    yes    -      -      14   codegen: declared variable kind not in supported subset [TBD]: FILE
+EXPR2    yes    -      -      21   codegen: declared variable kind not in supported subset [TBD]: FILE
+FDTEST   yes    -      -      1    codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+FFACT    yes    -      -      5    codegen: procedure factorial returns(FLOAT BINARY(24,0)) deferred [TBD] (line 16; return
+FLTPOLY  yes    -      -      9    codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+FLTPOLY2 yes    -      -      9    codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+FSCAN    yes    -      -      8    bind: procedure gnt without formals [TBD]
+IFACT    yes    -      -      2    codegen: PUT EDIT deferred [TBD] (line 15; only PUT LIST is implemented; format/picture 
+INVERT   NO     -      -           codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+KEYFILE  yes    -      -      5    codegen: declared variable kind not in supported subset [TBD]: FILE
+LABELS   yes    -      -      1    codegen: undeclared x
+LOAN1    yes    -      -      5    codegen: GET LIST of non-varying var unproven [TBD]
+LOAN2    yes    -      -      15   codegen: declared variable kind not in supported subset [TBD]: BIT(1)
+MAININVT NO     -      -           codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+MPMCALLA yes    -      -      10   codegen: declared variable kind not in supported subset [TBD]: FILE
+MPMCALLB yes    -      -      12   codegen: declared variable kind not in supported subset [TBD]: FILE
+NETWORK  yes    -      -      9    codegen: declared variable kind not in supported subset [TBD]: FILE
+OPTIMIST yes    -      -      7    codegen: PUT ITEM (also the parse form of bare PUT SKIP;/PAGE;) deferred [TBD] (line 44;
+REPORT   yes    -      -      8    codegen: declared variable kind not in supported subset [TBD]: FILE
+RETRIEVE yes    -      -      7    codegen: declared variable kind not in supported subset [TBD]: FILE
+REVERSE  yes    -      -      4    codegen: declared variable kind not in supported subset [TBD]: POINTER
+REVERT   yes    -      -      4    codegen: declared variable kind not in supported subset [TBD]: FILE
+RFACT    yes    512    EXACT  -      ACCEPTED (byte-identical .REL)
+SAMPLE   yes    -      -      8    codegen: procedure upper returns(CHAR(10) VARYING) deferred [TBD] (line 25; return types
+TEST     yes    -      -      8    codegen: declared variable kind not in supported subset [TBD]: FLOAT BINARY(24,0)
+UPDATE   yes    -      -      9    codegen: declared variable kind not in supported subset [TBD]: BIT(1)
+
 [2] DR PLILIB ROUTINE SURFACE NOT YET EMITTED (per program, ascending)
   DEMO       0  
   RFACT      0  

@@ -14,10 +14,16 @@
 
 open Rel80
 
-type vkind = Vint | Vfix of int | Vvar of int
+type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int
    (* fixed/varying char capacity. Varying representation PROVEN
       [V101-V104]: length byte at offset 0, data at +1..+n, total
-      n+1 bytes (binder authority Bind.bytes_of). *)
+      n+1 bytes (binder authority Bind.bytes_of).
+      [E2E-6] Vdec(p,s) = FIXED DECIMAL(p,s); storage bytes =
+      ceil((p+1)/2) little-endian packed BCD with the sign nibble in
+      the top nibble of the last byte -- confirmed on FOUR independent
+      precisions: p=5 -> 3, p=7 -> 4, p=9 -> 5, p=15 -> 8
+      [R503/R508/R502/R501 + DFACT], which is exactly Bind.bytes_of
+      RTdec; codegen never re-derives sizes. *)
 type var_info = { off : int; size : int; vk : vkind; w : int }
 (* print width for FIXED BIN: min(9, digits(2^p-1)+4) -- banded rule
    matching ALL 16 probed points p=1..15,16,24 + default15 [N301-N308;
@@ -57,6 +63,10 @@ type st =
   ; mutable vars : (string * var_info) list
       (* scope chain head (lowername -> info); swapped per procedure
          body [PL/I nesting: inner declarations shadow outer] *)
+  ; mutable dec_ret : (int * int) option
+      (* [E2E-6] Some(p,s) while lowering the body of a procedure whose
+         RETURNS type is FIXED DECIMAL(p,s): selects the ?DLDOP/
+         ?DSTOP/JMP ?DCRET path for RETURN [DFACT @007B, R509 @0041] *)
   ; mutable guards : int      (* tail-guard JMPs emitted (max one) *)
   ; mutable appended : bool   (* a TOP-LEVEL procedure body has been
                                  appended at the tail address. Every
@@ -208,6 +218,36 @@ let emit_triple st slot value =
 *)
 let dec_pool_bytes p = (p + 1 + 1) / 2   (* ceil((p+1)/2) *)
 
+let dec_digits_of k =
+  let k = abs k in
+  let rec go x acc = if x < 10 then acc + 1 else go (x / 10) (acc + 1) in
+  if k = 0 then 1 else go k 0
+
+(* literal text -> (magnitude of ALL digits, own digit count, number of
+   fractional digits): "123.45" -> (12345,5,2), "1234" -> (1234,4,0) *)
+let dec_lit_value (s : string) : int * int * int =
+  let t = String.concat "" (String.split_on_char '_' s) in
+  match String.split_on_char '.' t with
+  | [ ip ] ->
+      if ip = "" then failwith "codegen: malformed numeric literal [TBD]";
+      (int_of_string ip, String.length ip, 0)
+  | [ ip; fp ] ->
+      let all = ip ^ fp in
+      let mag = if all = "" then 0 else int_of_string all in
+      (mag, dec_digits_of mag, String.length fp)
+  | _ -> failwith "codegen: malformed decimal literal [TBD]"
+
+let expr_kind_name (k : Ast.expr_kind) =
+  match k with
+  | Ast.Eident _ -> "ident"        | Ast.Eqstruct _ -> "qualified name"
+  | Ast.Eqptr _ -> "pointer designator" | Ast.Enumber _ -> "numeric literal"
+  | Ast.Estring _ -> "character literal" | Ast.Ebit _ -> "bit string"
+  | Ast.Eprefix _ -> "prefix operator"  | Ast.Ebinary _ -> "binary operator"
+  | Ast.Econd _ -> "condition"          | Ast.Esuffix _ -> "call/index"
+  | Ast.Ebuilt _ -> "builtin"           | Ast.Eformat_ref _ -> "format ref"
+  | Ast.Epicture _ -> "picture"
+
+
 let bcd_pack (k : int) (p : int) =
   let nbytes = dec_pool_bytes p in
   let digs =
@@ -222,7 +262,63 @@ let bcd_pack (k : int) (p : int) =
 
 (* sum of decimal-pool bytes required by literal-base ** over all stmts
    (pure pre-scan, no side effects; mirrors pool_alloc ordering). *)
-let rec prescan_expr (e : Ast.expr) =
+
+(* [E2E-6] prescan needs the same DEC-literal byte counts the lowering
+   run will allocate.  Literal cells are TARGET-precision in bare
+   assignment/RETURN position [R501/R505/DFACT] and OWN-digit-count as
+   arithmetic operands [R509/R511].  cx carries every block's variable
+   kinds and the current procedure's DEC return type; the map is built
+   over the whole program, so a name declared with two DIFFERENT types
+   is refused instead of silently mis-sizing the pool. *)
+type pdec_ctx =
+  { pd_vars : (string * vkind) list
+  ; pd_procs : (string * (int * int) option) list
+  ; pd_ret : (int * int) option }
+
+(* parenthesised expressions arrive Econd-wrapped [N304]; prescan must
+   see through them exactly like lowering does *)
+let pdec_unwrap (e : Ast.expr) =
+  match e.Ast.e with Ast.Econd x -> x | _ -> e
+
+let pdec_own_digits s =
+  (* the literal's OWN digit count -- same rule the lowering run uses
+     for operand-position DEC literals [R509 *2 -> 1 digit; R511 *1234
+     -> 4 digits -> 3-byte cell] *)
+  let (_mag, own, _ls) = dec_lit_value s in
+  own
+
+let rec pdec_operand_bytes (cx : pdec_ctx) (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Econd x -> pdec_operand_bytes cx x
+  | Ast.Enumber s -> dec_pool_bytes (pdec_own_digits s)
+  | Ast.Ebinary (_, l, r) ->
+      pdec_operand_bytes cx l + pdec_operand_bytes cx r
+  | Ast.Eprefix (_, x) -> pdec_operand_bytes cx x
+  | Ast.Ebuilt ("DECIMAL", _) -> 0   (* integer argument: no DEC cell *)
+  | _ -> 0
+
+(* is this expression DEC-typed at prescan time? (mirrors codegen's
+   is_dec_expr but reads the prescan context instead of st) *)
+let rec pdec_is_dec (cx : pdec_ctx) (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Econd x -> pdec_is_dec cx x
+  | Ast.Eident n ->
+      (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) cx.pd_vars
+       with Some (Vdec _) -> true | _ -> false)
+  | Ast.Ebuilt ("DECIMAL", _) -> true
+  | Ast.Esuffix (b, _) ->
+      (match b.Ast.e with
+       | Ast.Eident n ->
+           (match List.assoc_opt (String.lowercase_ascii n.Ast.orig)
+                    cx.pd_procs with
+            | Some (Some _) -> true
+            | _ -> false)
+       | _ -> false)
+  | Ast.Ebinary (_, l, r) -> pdec_is_dec cx l || pdec_is_dec cx r
+  | Ast.Eprefix (_, x) -> pdec_is_dec cx x
+  | _ -> false
+
+let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Ebinary (Ast.Exp, l, r) ->
       let extra =
@@ -232,7 +328,7 @@ let rec prescan_expr (e : Ast.expr) =
             dec_pool_bytes (String.length k)
         | _ -> 0
       in
-      prescan_expr l + prescan_expr r + extra
+      prescan_expr cx l + prescan_expr cx r + extra
   | Ast.Ebinary (Ast.Sub, { Ast.e = Ast.Enumber a; _ },
                  { Ast.e = Ast.Enumber b; _ }) ->
       (* [N301/N306] const-minus-const DLDOP operands each take a
@@ -242,9 +338,10 @@ let rec prescan_expr (e : Ast.expr) =
       in
       dec_pool_bytes (dec_digits (pint a))
       + dec_pool_bytes (dec_digits (pint b))
-  | Ast.Ebinary (_, l, r) -> prescan_expr l + prescan_expr r
-  | Ast.Eprefix (_, x) -> prescan_expr x
-  | Ast.Ebuilt (_, es) -> List.fold_left (fun a x -> a + prescan_expr x) 0 es
+  | Ast.Ebinary (_, l, r) -> prescan_expr cx l + prescan_expr cx r
+  | Ast.Eprefix (_, x) -> prescan_expr cx x
+  | Ast.Ebuilt (_, es) ->
+      List.fold_left (fun a x -> a + prescan_expr cx x) 0 es
   | _ -> 0
 
 type chain = C2 of string * string * string   (* lit || var [W101] *)
@@ -381,14 +478,43 @@ let match_get_list_var (s : Ast.stmt) =
 
 (* pool demand: RECURSIVE over container bodies (G114: puts live inside
    IF arms; a flat scan under-counts the pool and shifts DATA) *)
-let rec prescan_stmt (s : Ast.stmt) =
+let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
   match s.Ast.st with
-  | Ast.Sassign { rhs; _ } ->
-      (match rhs.Ast.e with
-       | Ast.Estring v -> String.length v
-           (* char-store pool demand [V101-V103/V105]; '' reserves 0
-              [V104]; type-mismatched uses RAISE at lowering *)
-       | _ -> prescan_expr rhs)
+  | Ast.Sassign { lhs; rhs } ->
+      (* [E2E-6] a DEC store of a bare literal allocates one TARGET-
+         precision cell; a DEC arithmetic expression allocates one cell
+         per literal at the literal's own digit count [R501/R505/R511] *)
+      let dec_store_bytes =
+        match lhs.Ast.e with
+        | Ast.Eident n ->
+            (match List.assoc_opt (String.lowercase_ascii n.Ast.orig)
+                     cx.pd_vars with
+             | Some (Vdec (p, _)) ->
+                 let rhs = pdec_unwrap rhs in
+                 (match rhs.Ast.e with
+                  | Ast.Enumber _ -> dec_pool_bytes p
+                  | _ -> if pdec_is_dec cx rhs
+                         then pdec_operand_bytes cx rhs else 0)
+             | _ -> 0)
+        | _ -> 0
+      in
+      dec_store_bytes
+      + (match rhs.Ast.e with
+         | Ast.Estring v -> String.length v
+             (* char-store pool demand [V101-V103/V105]; '' reserves 0
+                [V104]; type-mismatched uses RAISE at lowering *)
+         | _ -> prescan_expr cx rhs)
+  | Ast.Sreturn (Some e0) ->
+      (* [E2E-6] a bare literal RETURNed from a DEC function takes a
+         TARGET-precision pool cell [DFACT return(1) = 8 bytes at
+         S(000C)]; DEC arithmetic literals take their own digit cells *)
+      (match cx.pd_ret with
+       | Some (p, _) ->
+           let e = pdec_unwrap e0 in
+           (match e.Ast.e with
+            | Ast.Enumber _ -> dec_pool_bytes p
+            | _ -> if pdec_is_dec cx e then pdec_operand_bytes cx e else 0)
+       | None -> 0)
   | Ast.Sput _ ->
       (match match_put_list_lit s with
        | Plit (_, v) -> String.length v
@@ -398,22 +524,34 @@ let rec prescan_stmt (s : Ast.stmt) =
            List.fold_left
              (fun a it -> match it with
               | PIlit v -> a + String.length v
-              | PInum x -> a + prescan_expr x
+              | PInum x -> a + prescan_expr cx x
               | PIvar _ -> a) 0 its
        | _ -> 0)             (* var-puts consume no pool [V101] *)
   | Ast.Sif { then_; els; _ } ->
-      prescan_stmt then_
-        + (match els with Some e -> prescan_stmt e | None -> 0)
-  | Ast.Sdobegin ss -> List.fold_left (fun a x -> a + prescan_stmt x) 0 ss
-  | Ast.Sdowhile { body; _ } -> prescan_stmt body
-  | Ast.Sdoto { body; _ } -> prescan_stmt body
-  | Ast.Sdoforever body -> prescan_stmt body
+      prescan_stmt cx then_
+        + (match els with Some e -> prescan_stmt cx e | None -> 0)
+  | Ast.Sdobegin ss -> List.fold_left (fun a x -> a + prescan_stmt cx x) 0 ss
+  | Ast.Sdowhile { body; _ } -> prescan_stmt cx body
+  | Ast.Sdoto { body; _ } -> prescan_stmt cx body
+  | Ast.Sdoforever body -> prescan_stmt cx body
   | Ast.Sproc b ->
-      List.fold_left (fun a x -> a + prescan_stmt x) 0 b.Ast.blk.Ast.bstmts
+      (* descending into a procedure: RETURN literals take THAT
+         procedure's decimal return precision [DFACT] *)
+      let pn =
+        match b.Ast.blk.Ast.bname with
+        | Some n -> String.lowercase_ascii n.Ast.orig
+        | None -> ""
+      in
+      let ret =
+        match List.assoc_opt pn cx.pd_procs with Some r -> r | None -> None
+      in
+      List.fold_left
+        (fun a x -> a + prescan_stmt { cx with pd_ret = ret } x) 0
+        b.Ast.blk.Ast.bstmts
   | _ -> 0
 
-let prescan_pool (stmts : Ast.stmt list) =
-  List.fold_left (fun acc s -> acc + prescan_stmt s) 0 stmts
+let prescan_pool (cx : pdec_ctx) (stmts : Ast.stmt list) =
+  List.fold_left (fun acc s -> acc + prescan_stmt cx s) 0 stmts
 
 (* ---- E2E-3a: PUT LIST '<char literal>' [G107/G108 $C-verified] ------
    Supported shape ONLY (match_put_list_lit); anything else fails loud.
@@ -484,6 +622,35 @@ let is_ident (e : Ast.expr) =
   match e.Ast.e with Ast.Eident _ -> true | _ -> false
 
 let lower_test_skip st (c : Ast.expr) =
+  (* [E2E-6 perimeter] DECIMAL relational operands are NOT implemented.
+     DR compiles `if d > 0` as DLDOP,DLDOP,?DCMOP,JP [R507 $C], but the
+     operand-ORDER rule for the non-commutative relations is unpinned,
+     so the whole decimal-comparison family refuses loudly instead of
+     guessing an order that would silently invert the test. *)
+  let is_dec e =
+    match e.Ast.e with
+    | Ast.Econd x -> (match x.Ast.e with
+        | Ast.Eident n ->
+            (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars
+             with Some vi -> (match vi.vk with Vdec _ -> true | _ -> false)
+             | None -> false)
+        | Ast.Ebuilt ("DECIMAL", _) -> true
+        | _ -> false)
+    | Ast.Eident n ->
+        (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
+         | Some vi -> (match vi.vk with Vdec _ -> true | _ -> false)
+         | None -> false)
+    | Ast.Ebuilt ("DECIMAL", _) -> true
+    | _ -> false
+  in
+  (match c.Ast.e with
+   | Ast.Ebinary (Ast.EqR _, a, b) ->
+       if is_dec a || is_dec b then
+         failwith
+           ("codegen: decimal comparison unproven [TBD] (DR route: "
+            ^ "DLDOP,DLDOP,?DCMOP + conditional jump [R507]; the operand "
+            ^ "order for non-commutative relations is unpinned)")
+   | _ -> ());
   match c.Ast.e with
   | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber "0"; _ }) ->
@@ -650,7 +817,11 @@ let rec lower_hl st (e : Ast.expr) =
   | Ast.Eident n ->
       (match vk_of st n.Ast.orig with
        | Vint -> ()
-       | _ -> failwith "codegen: arithmetic on char variable [TBD]");
+       | Vdec _ ->
+           failwith
+             "codegen: decimal operand inside an integer expression [TBD] \
+              (mixed-mode routes are unpinned)"
+      | _ -> failwith "codegen: arithmetic on char variable [TBD]");
       let vi = List.assoc (String.lowercase_ascii n.Ast.orig) st.vars in
       if vi.size = 1
          && List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
@@ -853,6 +1024,237 @@ let is_small_int st (n : Ast.name) =
   | Some vi -> vi.vk = Vint && vi.size = 1
   | None -> false
 
+(* ================= [E2E-6] FIXED DECIMAL evaluation ================== *
+   DR's decimal machine, read straight off the $C traces of R501-R512
+   (golden/e2e6) and DFACT (golden/first8080u/DFACT + its re-probe):
+
+     ?DLDOP  PUSH a DEC value:  HL = cell address, A = digits
+     ?QI15D  PUSH: INT(15) value already in HL -> DEC
+     <call>  a DEC function call leaves its result on the DEC stack --
+             the callee exits with JMP ?DCRET instead of RET
+             [DFACT @003E/@0093, R509 @0009]
+     ?DADOP ?DSUOP ?DMUOP  pop two, push one.  Operands are pushed LEFT
+             first [R505 a+b, c-a, a*b; R511 a*1234]; the one observed
+             case where the RIGHT operand is a DEC call pushes it first,
+             because the call has to run before the left operand is
+             reloaded [DFACT: call, then LHLD i + ?QI15D, then ?DMUOP]
+     ?QDDSR  rescale the top to the scale in A -- observed ONLY after
+             ?DMUOP and ONLY when the store target has scale > 0
+             [R505 dec(9,2) -> MVI A,02; R510 dec(9,0) -> none;
+             DFACT dec(15,0) -> none].  ADD/SUB carry no rescale [R505].
+             DIVISION (?QDDSL before / ?DDVOP / TWO ?QDDSR after)
+             is NOT implemented -- unpinned, stays [TBD] [R512].
+     ?DSTOP  POP into a DEC cell: HL = address, A = target digits
+             [R501/R502/R503/R505/R508/R510/R511]
+     ?QDCOP  POP and edit into the print buffer: A = width = p+3,
+             B = scale [R501 18/0, R502 12/2, R503 8/0, R508 10/2,
+             R510 12/0, R511 12/0, DFACT 18/0 -- p+3 on every sample]
+     ?DCRET  DEC function exit: hand the top DEC value back to the
+             caller [DFACT @0086/@00A2, R509 @0056]
+
+   DEC LITERAL cells (pool, little-endian packed BCD, sign nibble in the
+   top nibble of the last byte -- byte-for-byte verified against DR:
+   3@p15 -> 01? no: 03 00 00 00 00 00 00 00 [R501]; 123.45@p7s2 ->
+   45 23 01 00 [R508]; 1@p9s2 -> 00 01 00 00 00 [R505]; 1234@p4 ->
+   34 12 [R511]; 1@p15s0 -> 01 00 .. [DFACT]):
+     bare literal in assignment/RETURN position -> the TARGET's digits
+     and scale [R501 d=3 p15; R505 a=1 p9 s2; DFACT return(1) p15]
+     literal as an ARITHMETIC OPERAND -> its OWN digit count, scale 0
+     [R509 *2 -> 1 byte/MVI A,01; R511 *1234 -> 2 bytes/MVI A,04]
+   Negative literals, fractional literals in operand position, DEC
+   comparisons and DEC arrays/structs are outside this evidence and are
+   refused loudly. *)
+
+(* little-endian packed BCD of the ALREADY-SCALED magnitude v *)
+let bcd_pack_scaled (v : int) (p : int) =
+  let nbytes = dec_pool_bytes p in
+  let ds = string_of_int v in
+  if String.length ds > p then
+    failwith "codegen: DEC literal does not fit its precision [TBD]";
+  let digs =
+    Array.init p (fun i ->
+      let j = i - (p - String.length ds) in
+      if j >= 0 then Char.code (String.get ds j) - 48 else 0)
+  in
+  let lsf = Array.to_list digs |> List.rev in
+  let nib i = try List.nth lsf i with _ -> 0 in
+  Array.init nbytes (fun b -> ((nib (2 * b + 1)) lsl 4) lor (nib (2 * b)))
+
+let dec_pool st ~prec ~scale ~text =
+  let (mag, _own, ls) = dec_lit_value text in
+  if mag < 0 || ls > scale then
+    failwith
+      (Printf.sprintf
+         "codegen: DEC literal %s into scale %d [TBD] (only same-or-less \
+          fractional digits are pinned; negative DEC literals are unpinned)"
+         text scale);
+  let rec mul10 v n = if n = 0 then v else mul10 (v * 10) (n - 1) in
+  pool_alloc st (bcd_pack_scaled (mul10 mag (scale - ls)) prec)
+
+let vk_dec vk = match vk with Vdec (p, s) -> Some (p, s) | _ -> None
+
+let vk_dec_opt st (n : Ast.name) =
+  match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
+  | Some vi -> vk_dec vi.vk
+  | None -> None
+
+(* is this expression DEC-typed on the proven routes? *)
+let rec is_dec_expr st (e : Ast.expr) : bool =
+  match e.Ast.e with
+  | Ast.Econd x -> is_dec_expr st x
+  | Ast.Eident n -> vk_dec_opt st n <> None
+  | Ast.Ebuilt ("DECIMAL", _) -> true
+  | Ast.Esuffix (b, _) ->
+      (match b.Ast.e with
+       | Ast.Eident n ->
+           (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.procs
+            with
+            | Some pl ->
+                (match pl.Bind.pl_ret with
+                 | Some (Bind.RTdec _) -> true
+                 | _ -> false)
+            | None -> false)
+       | _ -> false)
+  | Ast.Ebinary (_, l, r) -> is_dec_expr st l || is_dec_expr st r
+  | Ast.Eprefix (_, x) -> is_dec_expr st x
+  | _ -> false
+
+(* true iff every leaf of this DEC-typed expression is itself decimal:
+   mixed DEC/INT arithmetic has NO golden evidence at all, so the DEC
+   paths accept only pure decimal trees and refuse the mix loudly.
+   (decimal(x,p) is the sanctioned INT->DEC doorway [R506/R509/DFACT];
+   a DEC->INT conversion is proven only for a DIRECT decimal operand.) *)
+let rec dec_pure st (e : Ast.expr) : bool =
+  match e.Ast.e with
+  | Ast.Econd x -> dec_pure st x
+  | Ast.Eident n -> vk_dec_opt st n <> None
+  | Ast.Ebuilt ("DECIMAL", _) -> true
+  | Ast.Esuffix _ -> true                 (* DEC function result [DFACT] *)
+  | Ast.Enumber _ -> true                 (* decimal literal cell *)
+  | Ast.Ebinary (_, l, r) -> dec_pure st l && dec_pure st r
+  | Ast.Eprefix (_, x) -> dec_pure st x
+  | _ -> false
+
+(* (precision, scale) to use when EDITING a DEC expression on output.
+   Only the two directly observed shapes are allowed: a DEC variable
+   [R501-R511] and a DEC function call [DFACT].  Printing the result of
+   decimal() or of a DEC arithmetic expression directly is unpinned. *)
+let dec_edit_pt st (e : Ast.expr) : int * int =
+  match e.Ast.e with
+  | Ast.Eident n ->
+      (match vk_dec_opt st n with
+       | Some ps -> ps
+       | None ->
+           failwith (Printf.sprintf
+                       "codegen: PUT LIST decimal item on non-decimal \
+                        variable %s [TBD]" n.Ast.orig))
+  | Ast.Esuffix (b, _) ->
+      (match b.Ast.e with
+       | Ast.Eident n ->
+           (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.procs
+            with
+            | Some pl ->
+                (match pl.Bind.pl_ret with
+                 | Some (Bind.RTdec (p, s)) -> (p, s)
+                 | _ ->
+                     failwith
+                       "codegen: PUT LIST item is not a decimal function \
+                        [TBD]")
+            | None ->
+                failwith "codegen: PUT LIST decimal item call unresolved [TBD]")
+       | _ -> failwith "codegen: PUT LIST decimal item shape [TBD]")
+  | _ ->
+      failwith "codegen: PUT LIST decimal editing of this expression is \
+                unproven [TBD]"
+
+(* push a DEC value on the decimal stack; tgt = Some(p,s) when the value
+   is being produced for a DEC assignment/return (bare literals then take
+   the TARGET's digits+scale), None in operand position (literals keep
+   their own digit count).  Returns the pushed value's (p,s). *)
+let rec dec_push st (tgt : (int * int) option) (e : Ast.expr) : int * int =
+  (* parenthesised expressions arrive Econd-wrapped [N304 precedent: PUT
+     items and RETURN (..) do this]; the parens carry no codegen meaning *)
+  match (match e.Ast.e with Ast.Econd x -> x.Ast.e | k -> k) with
+  | Ast.Eident n ->
+      (match vk_dec_opt st n with
+       | Some (p, s) ->
+           d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+           d st op_mvi_a; d st p; call_ext st "?DLDOP"; (p, s)
+       | None ->
+           failwith (Printf.sprintf
+                       "codegen: decimal operation on non-decimal operand %s \
+                        [TBD]" n.Ast.orig))
+  | Ast.Ebuilt ("DECIMAL", args) ->
+      (* decimal(x,p): DR IGNORES p [R506: decimal(i,15) and decimal(i,7)
+         compile to the identical LHLD/?QI15D pair]; x stays an integer
+         expression and ?QI15D converts the HL value *)
+      (match args with
+       | [ x ] | [ x; _ ] -> lower_hl st x; call_ext st "?QI15D"
+       | _ -> failwith "codegen: DECIMAL builtin arity [TBD]") ;
+      (match tgt with Some ps -> ps | None -> (15, 0))
+  | Ast.Esuffix _ ->
+      (* DEC function call: identical call-site bytes to the FIXED ABI
+         [DFACT @003B-LX I H,*A(001C); CALL], but ?DCRET leaves the result
+         on the decimal stack instead of HL *)
+      lower_hl st e;
+      dec_edit_pt st e
+  | Ast.Ebinary (op, l, r) ->
+      let opn =
+        match op with
+        | Ast.Mul -> "?DMUOP"
+        | Ast.Add -> "?DADOP"
+        | Ast.Sub -> "?DSUOP"
+        | _ ->
+            failwith
+              "codegen: decimal operator not in the DEC subset [TBD] \
+               (divide/compare/mod/exp not pinned)"
+      in
+      (* operand push order: right-first only in the observed case where
+         the right operand is itself a DEC call [DFACT] *)
+      let right_first =
+        match r.Ast.e with Ast.Esuffix _ -> true | _ -> false
+      in
+      let push_pair () =
+        if right_first then begin
+          ignore (dec_push st None r); ignore (dec_push st None l)
+        end else begin
+          ignore (dec_push st None l); ignore (dec_push st None r)
+        end
+      in
+      push_pair ();
+      call_ext st opn;
+      (* multiply rescales to the TARGET scale, and only when that scale
+         is non-zero [R505 vs R510/DFACT] *)
+      (match op, tgt with
+       | Ast.Mul, Some (_, s) when s > 0 ->
+           d st op_mvi_a; d st s; call_ext st "?QDDSR"
+       | _ -> ());
+      (match tgt with Some ps -> ps | None -> (15, 0))
+  | Ast.Enumber s ->
+      let (v, own_digits, lscale) = dec_lit_value s in
+      let (p, sc) =
+        match tgt with
+        | Some (tp, ts) -> (tp, ts)
+        (* operand position: the literal's own digit count, scale 0
+           [R509 *2 -> MVI A,01; R511 *1234 -> MVI A,04] *)
+        | None -> (own_digits, 0)
+      in
+      ignore (v, lscale);
+      (* literal scale <= target scale is scaled up by dec_pool: `a = 1`
+         into dec(9,2) becomes the cell 100 [R505 bytes 00 01 00 00 00],
+         and d = 123.45 into dec(7,2) stays 12345 [R508].  ls > sc would
+         lose digits -- refused inside dec_pool. *)
+      if lscale > 0 && tgt = None then
+        failwith "codegen: fractional DEC literal in operand position [TBD]";
+      let addr = dec_pool st ~prec:p ~scale:sc ~text:s in
+      d st op_lxi_h; reloc st Data addr;
+      d st op_mvi_a; d st p; call_ext st "?DLDOP"; (p, sc)
+  | _ ->
+      failwith (Printf.sprintf
+                  "codegen: decimal expression shape %s not in the DEC \
+                   subset [TBD]"
+                  (expr_kind_name e.Ast.e))
+
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
   (match lhs.Ast.e with
    | Ast.Eident n ->
@@ -861,6 +1263,15 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
            "codegen: store to pointer formal unproven [TBD]"
    | _ -> ());
   match lhs.Ast.e with
+  | Ast.Eident n when vk_dec_opt st n <> None ->
+      (* [E2E-6] FIXED DECIMAL store: push the DEC value (with the target's
+         precision as the literal context), then ?DSTOP pops it into the
+         cell [R501/R502/R503/R505/R508/R510/R511] *)
+      st.last_imm <- None;
+      let (p, _s) = Option.get (vk_dec_opt st n) in
+      ignore (dec_push st (Some (p, _s)) rhs);
+      d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+      d st op_mvi_a; d st p; call_ext st "?DSTOP"
   | Ast.Eident n when is_small_int st n ->
       (* [N306/N308] 1-byte FIXED BIN store: value in A then
          STA dir (3C + RELOC). Consts: MVI A,lo. Expressions:
@@ -879,6 +1290,24 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
          [N303/N306/N308], same family of byte-vs-mnemonic quirks
          as CA/F2 — runtime identity comes from byte-identical COM) *)
       d st 0x32; reloc st Data (addr_of st n.Ast.orig)
+  | Ast.Eident n when is_dec_expr st rhs ->
+      (* [E2E-6/R506] DEC -> INT: push the decimal value, convert with
+         ?QDI15 (16-bit result in HL), then the ordinary integer store.
+         R506 line 6 exactly: LXI H,D A(0002) ; MVI A,0F ; CALL ?DLDOP ;
+         CALL ?QDI15 ; SHLD I A(0000).  The DLDOP precision is the
+         SOURCE decimal's, not the target's. *)
+      let vi = List.assoc (String.lowercase_ascii n.Ast.orig) st.vars in
+      if not (dec_pure st rhs) then
+        failwith
+          "codegen: mixed decimal/integer arithmetic unproven [TBD]            (the DEC->INT conversion is pinned only for a direct decimal             operand: i = d [R506])";
+      if vi.size <> 2 then
+        failwith
+          "codegen: DEC->INT store into a 1-byte FIXED target [TBD] \
+           (only the FIXED BIN(15) conversion is pinned by R506)";
+      st.last_imm <- None;
+      ignore (dec_push st None rhs);
+      call_ext st "?QDI15";
+      d st op_shld; reloc st Data (addr_of st n.Ast.orig)
   | Ast.Eident n when vk_of st n.Ast.orig <> Vint ->
       (* char/varying store path [V101-V106]; HL clobbered *)
       st.last_imm <- None;
@@ -1208,7 +1637,7 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
     List.length items = 1 ||
     not (List.exists (function PIvar n ->
                         (match vk_of st n.Ast.orig with
-                         | Vint -> false | _ -> true)
+                         | Vint -> false | Vdec _ -> false | _ -> true)
                       | _ -> false) items)
   in
   if not char_var_ok then
@@ -1237,6 +1666,14 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
           call_ext st "?SLCTS"; call_ext st "?PNCOP"
       | PIvar n ->
           (match vk_of st n.Ast.orig with
+           | Vdec (p, s) ->
+               (* [R501/R502/R503/R508/R510/R511] DEC variable item = DLDOP
+                  then QDCOP(width=p+3, scale=s); R506 proves a DEC var in a
+                  MULTI-item list next to an INT var *)
+               d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+               d st op_mvi_a; d st p; call_ext st "?DLDOP";
+               d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st s;
+               call_ext st "?QDCOP"; call_ext st "?PNVOP"
            | Vint ->
                let vi =
                  List.assoc (String.lowercase_ascii n.Ast.orig) st.vars
@@ -1258,9 +1695,18 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
                 | Vint -> assert false);
                call_ext st "?PNCOP")
       | PInum x ->
-          lower_hl st x;
-          d st op_mvi_a; d st (num_width st x);
-          call_ext st "?QICOP"; call_ext st "?PNVOP")
+          if is_dec_expr st x then begin
+            (* [DFACT] a DEC function-call item leaves its result on the
+               decimal stack; the edit pair follows directly *)
+            let (p, s) = dec_edit_pt st x in
+            ignore (dec_push st None x);
+            d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st s;
+            call_ext st "?QDCOP"; call_ext st "?PNVOP"
+          end else begin
+            lower_hl st x;
+            d st op_mvi_a; d st (num_width st x);
+            call_ext st "?QICOP"; call_ext st "?PNVOP"
+          end)
     items;
   call_ext st "?QIOOP";
   emit_triple st bslot st.lc
@@ -1387,6 +1833,15 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
              else
                { off = o; size = Bind.bytes_of rt; vk = Vint;
                  w = binw (if p <= 0 then 15 else p) }
+         | Bind.RTdec (p, s) ->
+             if p > 15 || p < 1 || s < 0 || s > p then
+               failwith
+                 (Printf.sprintf
+                    "codegen: procedure-local FIXED DEC(%d,%d) outside the \
+                     probed DEC band [TBD]" p s)
+             else
+               { off = o; size = Bind.bytes_of rt; vk = Vdec (p, s);
+                 w = p + 3 }
          | _ ->
              failwith "codegen: non fixed-bin procedure local [TBD]"))
       pl.Bind.pl_rows @ saved;
@@ -1394,10 +1849,16 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     (* recursive bodies read the SHADOW value cell with plain ladders
        [RFACT @80: LHLD I(12); DCX H — no deref] *)
     (if pl.Bind.pl_rec then [] else List.map fst pl.Bind.pl_ptrs);
-  let savedp = st.in_proc and savedr = st.in_rec in
+  let savedp = st.in_proc and savedr = st.in_rec
+      and saveddr = st.dec_ret in
+  st.dec_ret <-
+    (match pl.Bind.pl_ret with
+     | Some (Bind.RTdec (p, s)) -> Some (p, s)
+     | _ -> None);
   st.in_proc <- true;
   st.in_rec <- pl.Bind.pl_rec;
   List.iter (fun x -> lower_stmt st ls x) pl.Bind.pl_body;
+  st.dec_ret <- saveddr;
   st.in_rec <- savedr;
   st.in_proc <- savedp;
   st.vars <- saved;
@@ -1548,13 +2009,29 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       lower_proc st ls bs
   | Ast.Sreturn eo ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
-      (match eo with
-       | Some e -> lower_hl st e
-       | None -> failwith "codegen: RETURN without value [TBD]");
-      (* every exit of a RECURSIVE activation restores its saved
-         block first [RFACT: RSBLK @7C base-case AND @95 recursive] *)
-      if st.in_rec then call_ext st "?RSBLK";
-      d st 0xc9                              (* RET [P401 code@41] *)
+      (match st.dec_ret with
+       | Some ((_p, _s) as ps) ->
+           (* [E2E-6/DFACT, R509] a DEC function returns the top of the
+              decimal stack via JMP ?DCRET (not RET).  Base case of DFACT:
+              LXI H,*S(000C); MVI A,0F; CALL ?DLDOP; CALL ?RSBLK;
+              JMP ?DCRET -- the target-precision literal is exactly the
+              dec_push rule used for assignments *)
+           (match eo with
+            | Some e -> ignore (dec_push st (Some ps) e)
+            | None -> failwith "codegen: RETURN without value [TBD]");
+           if st.in_rec then call_ext st "?RSBLK";
+           d st op_jmp;
+           let slot = st.lc in
+           d st 0; d st 0;
+           link st t_chain_ext (Some (Code, slot)) (Some "?DCRET")
+       | None ->
+           (match eo with
+            | Some e -> lower_hl st e
+            | None -> failwith "codegen: RETURN without value [TBD]");
+           (* every exit of a RECURSIVE activation restores its saved
+              block first [RFACT: RSBLK @7C base-case AND @95 recursive] *)
+           if st.in_rec then call_ext st "?RSBLK";
+           d st 0xc9 (* RET [P401 code@41] *) )
   | Ast.Sstop eo ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (match eo with
@@ -1609,8 +2086,15 @@ let emit_program (progname : string) (auto_bytes : int)
      registered byte-exact specimens use exactly OPTIONS(MAIN) and
      RETURNS(FIXED) (verified over tools/e2e_gate.py's source list), so
      nothing already proven is affected.  *)
-  let rt_is_fixed_bin (r : Bind.rt) =
-    match r with Bind.RTbin _ -> true | _ -> false
+  let rt_is_implemented (r : Bind.rt) =
+    match r with
+    (* FIXED: 26 byte-exact specimens. FIXED DECIMAL(p,s) with p<=15:
+       E2E-6 DEC core -- DEC(15,0) is pinned by DFACT's own $C trace and
+       p=5/7/9/15 storage by R501-R512; DR itself says NOT IMP at p=31
+       [R504], so anything wider stays refused. *)
+    | Bind.RTbin _ -> true
+    | Bind.RTdec (p, s) -> p >= 1 && p <= 15 && s >= 0 && s <= p
+    | _ -> false
   in
   let check_returns (what : string) (line : int) (attrs : Ast.attr list) =
     match
@@ -1619,12 +2103,12 @@ let emit_program (progname : string) (auto_bytes : int)
     with
     | Some a when a.Ast.atypes <> [] ->
         let r = Bind.rt_of_basic (List.hd a.Ast.atypes) in
-        if not (rt_is_fixed_bin r) then
+        if not (rt_is_implemented r) then
           failwith
             ("codegen: " ^ what ^ " returns(" ^ Bind.rty_str r
              ^ ") deferred [TBD] (line " ^ string_of_int line
-             ^ "; the only return type emitted today is FIXED, on 26 "
-             ^ "byte-exact specimens; DEC/FLOAT/CHAR/BIT/POINTER/ENTRY "
+             ^ "; return types emitted today are FIXED [26 specimens] and "
+             ^ "FIXED DECIMAL(p<=15) [E2E-6]; FLOAT/CHAR/BIT/POINTER/ENTRY "
              ^ "each need their own ABI evidence)")
     | _ -> ()
   in
@@ -1694,7 +2178,51 @@ let emit_program (progname : string) (auto_bytes : int)
         | _ -> a)
       0 layout.pl_calls
   in
-  let pool_total = prescan_pool stmts + const_cells in
+  (* [E2E-6] prescan context for decimal literal cells: every block's
+     variable kinds plus each procedure's decimal return type.  A name
+     declared with two different types anywhere in the program would make
+     a single global map ambiguous (and could mis-size the pool), so it is
+     refused rather than guessed. *)
+  let rt_to_vk (rt : Bind.rt) =
+    match rt with
+    | Bind.RTdec (p, s) -> Vdec (p, s)
+    | Bind.RTchar (n, false) -> Vfix n
+    | Bind.RTchar (n, true) -> Vvar n
+    | _ -> Vint
+  in
+  let proc_vk_rows =
+    List.concat_map
+      (fun (p : Bind.proc_layout) ->
+        List.map (fun (n, rt, _o) -> (n, rt_to_vk rt)) p.Bind.pl_rows)
+      layout.pl_procs
+  in
+  let pd_vars =
+    let acc = ref ([] : (string * vkind) list) in
+    List.iter
+      (fun (n, vk) ->
+        match List.assoc_opt n !acc with
+        | Some v when v <> vk ->
+            failwith
+              (Printf.sprintf
+                 "codegen: variable %s declared with conflicting kinds; \
+                  decimal pool prescan needs one unambiguous type map [TBD]"
+                 n)
+        | _ -> acc := (n, vk) :: !acc)
+      (proc_vk_rows @ List.map (fun (n, vi) -> (n, vi.vk)) rows);
+    !acc
+  in
+  let pd_procs =
+    List.map
+      (fun (p : Bind.proc_layout) ->
+        (p.Bind.pl_name,
+         match p.Bind.pl_ret with
+         | Some (Bind.RTdec (pp, ps)) -> Some (pp, ps)
+         | _ -> None))
+      layout.pl_procs
+  in
+  let pool_total =
+    prescan_pool { pd_vars; pd_procs; pd_ret = None } stmts + const_cells
+  in
   let st =
     { base = pool_total; items = []; pool = []
     ; pool_next = 0; lc = 0; last_imm = None; lowered = 0; temps = 0
@@ -1705,6 +2233,7 @@ let emit_program (progname : string) (auto_bytes : int)
           layout.pl_procs
     ; entries = []; fcalls = []; deref = []
     ; floor = layout.pl_total; vars = rows
+    ; dec_ret = None
     ; in_proc = false; in_rec = false
     ; after_forever = false; guards = 0; guard_slots = []
     ; appended = false; secs = layout.Bind.pl_secs
@@ -1857,6 +2386,19 @@ let rows_of (b : Ast.block) =
                    "codegen: FIXED BIN(%d) NOT IMP on DR [TBD]" p);
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vint;
                         w = binw (if p <= 0 then 15 else p) })
+        | Bind.RTdec (p, s) ->
+            (* DR accepts FIXED DECIMAL up to p=15 [R501-R512, DFACT];
+               p=31 is DR's own pass-1 'NOT IMP' [R504: no .REL].  The
+               band 16..30 is unpinned, so it stays a loud refusal
+               rather than an extrapolated cell size. *)
+            if p > 15 || p < 1 || s < 0 || s > p then
+              failwith
+                (Printf.sprintf
+                   "codegen: FIXED DEC(%d,%d) outside the probed DEC band \
+                    [TBD] (DR: NOT IMP at p=31 [R504]; exact 16..30 unknown)"
+                   p s);
+            Some (nm, { off; size = Bind.bytes_of rt; vk = Vdec (p, s)
+                      ; w = p + 3 })
         | Bind.RTchar (n, false) ->
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vfix n; w = 0 })
         | Bind.RTchar (n, true) ->
