@@ -16,41 +16,41 @@ CPU speed is unlimited, CPU executes undocumented instructions
 
 A>C:
 C>
->>> PLI D:R3022 $L$C$D
-PLI D:R3022 $L$C$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:R3023 $L$C$D
-PLI D:R3023 $L$C$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:R3024 $L$C$D
-PLI D:R3024 $L$C$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:R3025 $L$C$D
-PLI D:R3025 $L$C$D
+>>> PLI D:R3047 $L$C$D
+PLI D:R3047 $L$C$D
 
    NO ERROR(S) IN PASS 1
 
     1 ERROR(S) IN PASS 2
 
 C>
+>>> PLI D:R3048 $L$C$D
+PLI D:R3048 $L$C$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:R3049 $L$C$D
+PLI D:R3049 $L$C$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:R3050 $L$C$D
+PLI D:R3050 $L$C$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
 >>> A:BYE (halt)
 
 C>A:BYE
-I/O ran for 10053 ms, waited for 0 ms
-CPU executed 42092230 t-states in 24 ms
-Clock frequency 1722.40 MHz
+I/O ran for 10051 ms, waited for 0 ms
+CPU executed 50281680 t-states in 27 ms
+Clock frequency 1839.46 MHz

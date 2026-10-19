@@ -82,6 +82,18 @@ def encode(x, tie="away"):
     e = k + BIAS
     if e < 0 or e > 255:
         raise RangeError("magnitude 2**%d outside DR float range" % k)
+    if e == 0 and n == 0 and sign_bit == 0:
+        # EXPLICIT MODEL GUARD, not a representation claim: the exact lower
+        # bound 1.0 * 2**-129 would encode to 00 00 00 00, which DR uses for
+        # ZERO (observed, R3007).  DR's behaviour for a literal that ROUNDS to
+        # that magnitude is not established by any accepted sample -- 2E-39
+        # (1.361 * 2**-129, fraction nonzero) is the only exp-byte-0 value ever
+        # observed.  Refuse loudly rather than silently emitting the zero cell;
+        # see spec/notes/e2e10-step1-float-model.md and probes R3026-R3028.
+        raise RangeError(
+            "magnitude exactly 2**-129 collides with DR's zero encoding "
+            "(00 00 00 00); DR's lower-bound behaviour at that one magnitude "
+            "is UNRESOLVED, so the model refuses to guess")
     return bytes([n & 0xFF, (n >> 8) & 0xFF,
                   ((n >> 16) & 0x7F) | sign_bit, e & 0xFF])
 
@@ -265,6 +277,19 @@ def selftest():
             raise AssertionError("%s should be out of range" % lit)
         except RangeError:
             ok += 1
+    # --- the 2**-129 / zero encoding collision: the model REFUSES rather than
+    #     emitting 00 00 00 00 for a nonzero magnitude.  Tested both through a
+    #     literal that rounds to it and directly through encode().
+    try:
+        encode(F(1, 2 ** 129))
+        raise AssertionError("2**-129 must raise, not collide with zero")
+    except RangeError:
+        ok += 1
+    try:
+        encode(F(3, 2 ** 130))          # 1.5 * 2**-129: fraction nonzero -> fine
+        ok += 1
+    except RangeError as ex:
+        raise AssertionError("1.5*2**-129 must encode: %s" % ex)
     # --- decode round-trips every observed cell exactly back to a value DR
     #     prints as the literal (sanity, not a DR comparison)
     for lit in ("1.5", "2", "2.5", "-1.5", "0", "0.5", "0.9375", "0.1", "1E38",

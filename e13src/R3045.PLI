@@ -1,0 +1,13 @@
+r3045:
+ procedure options(main);
+   dcl (a,b,c) float;
+   dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   if a < b then d1 = a;
+   if a = b then d2 = b;
+   if a >= b then d3 = a;
+   if a > 2.5 then d4 = a;
+   if 2.5 < a then d5 = b;
+   put skip list(d1,d2,d3);
+   stop;
+end r3045;
+

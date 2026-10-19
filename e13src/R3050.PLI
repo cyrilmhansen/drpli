@@ -1,0 +1,8 @@
+r3050:
+ procedure options(main);
+   dcl a float;
+   a = 1.46914848885253E-20;
+   put skip list(a);
+   stop;
+end r3050;
+

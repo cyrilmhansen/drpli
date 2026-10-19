@@ -282,6 +282,44 @@ SPECIMENS = {
     # AND-conjunction lowering; LONGNAME pins DR's 6-character external name.
     "DECPOLY": ("artefacts/DECPOLY.PLI",
                 "golden/first8080u/DECPOLY/DECPOLY.REL"),
+
+    # ---- [E2E-10 step 2] FLOAT BINARY(24) value + lowering surface ----
+    # FFACT is the 7th historical corpus program accepted at RAW .REL byte
+    # parity (after DEMO, RFACT, DFACT, LOAN1, IFACT, DECPOLY); its .COM and
+    # 1415-byte console transcript are also byte-identical to DR's.  R30xx pin
+    # the float format, literal conversion, ?FX44* operand-mode suffixes,
+    # ?FN40* negation, ?FL40M/?FPRET return path and the recursive float call.
+    # See C100-C103.
+    "FFACT": ("artefacts/FFACT.PLI", "golden/first8080u/FFACT/FFACT.REL"),
+    "R3001": ("e13src/R3001.PLI", "golden/e2e13r/R3001/R3001.REL"),
+    "R3003": ("e13src/R3003.PLI", "golden/e2e13r/R3003/R3003.REL"),
+    "R3006": ("e13src/R3006.PLI", "golden/e2e13r/R3006/R3006.REL"),
+    "R3007": ("e13src/R3007.PLI", "golden/e2e13r/R3007/R3007.REL"),
+    "R3008": ("e13src/R3008.PLI", "golden/e2e13r/R3008/R3008.REL"),
+    "R3009": ("e13src/R3009.PLI", "golden/e2e13r/R3009/R3009.REL"),
+    "R3010": ("e13src/R3010.PLI", "golden/e2e13r/R3010/R3010.REL"),
+    "R3011": ("e13src/R3011.PLI", "golden/e2e13r/R3011/R3011.REL"),
+    "R3018": ("e13src/R3018.PLI", "golden/e2e13r/R3018/R3018.REL"),
+    "R3019": ("e13src/R3019.PLI", "golden/e2e13r/R3019/R3019.REL"),
+    "R3020": ("e13src/R3020.PLI", "golden/e2e13r/R3020/R3020.REL"),
+    "R3021": ("e13src/R3021.PLI", "golden/e2e13r/R3021/R3021.REL"),
+    "R3022": ("e13src/R3022.PLI", "golden/e2e13r/R3022/R3022.REL"),
+    "R3023": ("e13src/R3023.PLI", "golden/e2e13r/R3023/R3023.REL"),
+    "R3024": ("e13src/R3024.PLI", "golden/e2e13r/R3024/R3024.REL"),
+    "R3027": ("e13src/R3027.PLI", "golden/e2e13r/R3027/R3027.REL"),
+    "R3030": ("e13src/R3030.PLI", "golden/e2e13r/R3030/R3030.REL"),
+    "R3031": ("e13src/R3031.PLI", "golden/e2e13r/R3031/R3031.REL"),
+    "R3032": ("e13src/R3032.PLI", "golden/e2e13r/R3032/R3032.REL"),
+    "R3033": ("e13src/R3033.PLI", "golden/e2e13r/R3033/R3033.REL"),
+    "R3034": ("e13src/R3034.PLI", "golden/e2e13r/R3034/R3034.REL"),
+    "R3036": ("e13src/R3036.PLI", "golden/e2e13r/R3036/R3036.REL"),
+    "R3042": ("e13src/R3042.PLI", "golden/e2e13r/R3042/R3042.REL"),
+    "R3043": ("e13src/R3043.PLI", "golden/e2e13r/R3043/R3043.REL"),
+    "R3046": ("e13src/R3046.PLI", "golden/e2e13r/R3046/R3046.REL"),
+    "R3051": ("e13src/R3051.PLI", "golden/e2e13r/R3051/R3051.REL"),
+    "R3052": ("e13src/R3052.PLI", "golden/e2e13r/R3052/R3052.REL"),
+    "R3053": ("e13src/R3053.PLI", "golden/e2e13r/R3053/R3053.REL"),
+    "R3054": ("e13src/R3054.PLI", "golden/e2e13r/R3054/R3054.REL"),
     "R2023": ("probes/R2023.PLI", "golden/e2e12/R2023/R2023.REL"),
     "R2024": ("probes/R2024.PLI", "golden/e2e12/R2024/R2024.REL"),
     "R2025": ("probes/R2025.PLI", "golden/e2e12/R2025/R2025.REL"),
@@ -661,6 +699,65 @@ REJECTS = {
         "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
         "  x = 3 * x;\n  stop;\nend t;\n",
         "LITERAL on the LEFT is commuted"),
+    # ---- [E2E-10 step 2] FLOAT perimeter: every UNSAMPLED behaviour is a
+    # tested negative, so a future edit cannot quietly start emitting bytes
+    # for a shape DR has never shown me.
+    "N61_FLOAT_TO_FIXED": (
+        "t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n"
+        "  a = 1.5;\n  i = a;\n  stop;\nend t;\n",
+        "storing a FLOAT value into a non-float variable"),
+    "N62_FLOAT_BINARY14": (
+        "t:\n  procedure options(main);\n  dcl g float binary(14);\n"
+        "  g = 1.5;\n  stop;\nend t;\n",
+        "FLOAT BINARY(14) precision unsupported"),
+    "N63_FLOAT_COMPARE_COND": (
+        "t:\n  procedure options(main);\n  dcl (a,b) float;\n  dcl d1 float;\n"
+        "  a = 1.5;\n  b = 2.5;\n  if a > b then d1 = a;\n  stop;\nend t;\n",
+        "FLOAT comparison in a condition"),
+    "N64_FLOAT_CONV_IN_COND": (
+        "t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n"
+        "  dcl d1 float;\n  a = 1.5;\n  i = 3;\n  if a > 2.5 then d1 = a;\n"
+        "  stop;\nend t;\n",
+        "FLOAT comparison in a condition"),
+    # [E2E-10 step 2] DR pins cell+cell [R3030-R3033] and formal+formal
+    # [R3038] FLOAT operand pairs; a MIX of the two has no sample, so the
+    # lowering must refuse rather than borrow the DEC pattern.  The call is
+    # fixed-argument-free (a float variable argument, [R3061]) so the refusal
+    # really comes from the operand pair inside the callee.
+    "N65_FLOAT_CELL_FORMAL_MIX": (
+        "t:\n  procedure options(main);\n  dcl (a,x) float;\n"
+        "  dcl d1 float;\n  a = 1.5;\n  x = 2.5;\n  d1 = g(x);\n  stop;\n"
+        "  g: procedure(q) returns(float);\n     dcl q float;\n"
+        "     dcl r float;\n     r = q * a;\n     return (r);\n"
+        "  end g;\nend t;\n",
+        "mixing a plain cell with a pointer formal"),
+    "N66_FLOAT_GET": (
+        "t:\n  procedure options(main);\n  dcl a float;\n"
+        "  get list(a);\n  stop;\nend t;\n",
+        "GET LIST into a FLOAT variable"),
+    "N67_NEGATE_CONVERTED": (
+        "t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n"
+        "  dcl d1 float;\n  a = 1.5;\n  i = 3;\n  d1 = a * -i;\n"
+        "  stop;\nend t;\n",
+        "negating a ?QI15F conversion result"),
+    "N68_FLOAT_BINARY_RETURN": (
+        "t:\n  procedure options(main);\n  dcl d1 float;\n"
+        "  d1 = g(3);\n  stop;\n"
+        "  g: procedure(n) returns(fixed);\n     dcl n fixed;\n"
+        "     return (n);\n  end g;\nend t;\n",
+        "used as a FLOAT operand"),
+    "N69_FIXED_ARG_FLOAT_FORMAL": (
+        "t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n"
+        "  dcl d1 float;\n  a = 1.5;\n  i = 3;\n  d1 = g(i);\n  stop;\n"
+        "  g: procedure(p) returns(float);\n     dcl p float;\n"
+        "     return (p + p);\n  end g;\nend t;\n",
+        "non-float-variable argument against a FLOAT formal"),
+    "N70_FLOAT_ARG_FIXED_FORMAL": (
+        "t:\n  procedure options(main);\n  dcl (a,x) float;\n"
+        "  dcl d1 float;\n  a = 1.5;\n  x = 2.5;\n  d1 = g(x);\n  stop;\n"
+        "  g: procedure(p) returns(fixed);\n     dcl p float;\n"
+        "     dcl i fixed;\n     i = 1;\n     return (i);\n  end g;\nend t;\n",
+        "used as a FLOAT operand"),
     "N47_MODGT": ("t:\n  procedure options(main);\n  dcl i fixed binary;\n"
         "  i = 25;\n  if mod(i,12) > 0 then i = 1;\nend t;\n",
         "condition form not in E2E-3b subset")

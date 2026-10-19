@@ -14,7 +14,7 @@
 
 open Rel80
 
-type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int
+type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt
    (* fixed/varying char capacity. Varying representation PROVEN
       [V101-V104]: length byte at offset 0, data at +1..+n, total
       n+1 bytes (binder authority Bind.bytes_of).
@@ -49,6 +49,13 @@ type st =
          then both literals) and R1022 (a table inside a DO body still comes
          before the top-level literal).  Tables keep source/depth-first order
          among themselves, literals among themselves. *)
+  ; mutable float_ret : bool
+      (* [E2E-10] the current procedure RETURNS FLOAT: `return (e)` has to
+         leave the value on DR's float stack and exit through JMP ?FPRET,
+         plus ?RSBLK when the activation is recursive [R3038, FFACT] *)
+  ; mutable fl_cells : (int * int list) list
+      (* [E2E-10] float literal cells already allocated, for DEDUPLICATION by
+         identical bytes [C101: R3007/R3010/R3012/R3013 share cells] *)
   ; mutable dec_cells : (int list * int) list
                                         (* [R614] DEC literal cells are
                                            DEDUPLICATED by byte content:
@@ -294,11 +301,260 @@ let bcd_pack (k : int) (p : int) =
    kinds and the current procedure's DEC return type; the map is built
    over the whole program, so a name declared with two DIFFERENT types
    is refused instead of silently mis-sizing the pool. *)
+exception Fl_range of string
+
+(* --- exact decimal-string helpers: no int64 magnitude limits ---------- *)
+let ds_trim (s : string) : string =
+  let t = String.trim s in
+  let i = ref 0 in
+  while !i < String.length t - 1 && t.[!i] = '0' do incr i done;
+  if !i > 0 then String.sub t !i (String.length t - !i) else t
+
+let ds_cmp (a : string) (b : string) : int =
+  let a = ds_trim a and b = ds_trim b in
+  if String.length a <> String.length b then
+    compare (String.length a) (String.length b)
+  else compare a b
+
+let ds_double (s : string) : string =
+  let carry = ref 0 in
+  let out = Bytes.make (String.length s + 1) '0' in
+  for i = String.length s - 1 downto 0 do
+    let v = (Char.code s.[i] - 48) * 2 + !carry in
+    Bytes.set out (i + 1) (Char.unsafe_chr (48 + v mod 10));
+    carry := v / 10
+  done;
+  Bytes.set out 0 (Char.unsafe_chr (48 + !carry));
+  ds_trim (Bytes.to_string out)
+
+let ds_pow10 (n : int) : string = "1" ^ String.make n '0'
+
+let ds_two_pow24 = "16777216"               (* 2^24: hidden bit plus 23 stored *)
+let ds_two_pow23 = "8388608"
+
+(* literal text -> (negative, magnitude digits, decimal scale), where
+   value = digits * 10^(-scale).  Handles "1.5", "3E7", "-0.1", "1E-20",
+   "1.4691E-39".  More than 18 significant digits is refused: DR garbles
+   long tiny literals (R3029/R3041 compile to cells unrelated to their
+   value), so that band cannot be reproduced byte-exactly by anything. *)
+let fl_lit_split (text : string) : bool * string * int =
+  let t0 = String.concat "" (String.split_on_char '_' text) in
+  let t = String.map (fun c ->
+      if c = 'd' || c = 'D' || c = 'e' then 'E' else c) t0 in
+  let (neg, t) =
+    if String.length t > 0 && t.[0] = '-' then
+      (true, String.sub t 1 (String.length t - 1))
+    else if String.length t > 0 && t.[0] = '+' then
+      (false, String.sub t 1 (String.length t - 1))
+    else (false, t)
+  in
+  let (mant, expo) =
+    match String.index_opt t 'E' with
+    | Some i ->
+        let ex = String.sub t (i + 1) (String.length t - i - 1) in
+        if ex = "" then failwith "codegen: malformed float literal [TBD]";
+        (String.sub t 0 i, int_of_string ex)
+    | None -> (t, 0)
+  in
+  let (ip, fp) =
+    match String.split_on_char '.' mant with
+    | [ a ] -> (a, "")
+    | [ a; b ] -> (a, b)
+    | _ -> failwith "codegen: malformed float literal [TBD]"
+  in
+  if String.length ip + String.length fp > 400 then
+    failwith "codegen: absurdly long numeric literal [TBD]";
+  let raw = ds_trim (ip ^ fp) in
+  let rec go d sc =
+    let l = String.length d in
+    if l > 0 && d.[l - 1] = '0' then
+      go (String.sub d 0 (l - 1)) (sc - 1)
+    else (d, sc)
+  in
+  let (digits, scale) = go raw (String.length fp - expo) in
+  let digits = if digits = "" then "0" else digits in
+  if digits = "0" then (neg, "0", 0)
+  else begin
+    if String.length digits > 18 then
+      failwith
+        (Printf.sprintf
+           "codegen: float literal %s has %d significant digits, beyond the band DR converts exactly [TBD] (R3029/R3041: long tiny literals compile to unrelated bytes)"
+           text (String.length digits));
+    (neg, digits, scale)
+  end
+
+(* single decimal digit division: divide string `a` by the single digit `dv`,
+   returning (quotient, remainder) *)
+let ds_div1 (a : string) (dv : int) : string * int =
+  let q = Bytes.make (String.length a) '0' in
+  let rem = ref 0 in
+  for i = 0 to String.length a - 1 do
+    let cur = !rem * 10 + (Char.code a.[i] - 48) in
+    Bytes.set q i (Char.unsafe_chr (48 + cur / dv));
+    rem := cur mod dv
+  done;
+  (ds_trim (Bytes.to_string q), !rem)
+
+(* subtract non-negative decimal strings, a >= b *)
+and ds_sub_small (a : string) (b : string) : string =
+  let la = String.length a and lb = String.length b in
+  let out = Bytes.make la '0' in
+  let borrow = ref 0 in
+  for i = la - 1 downto 0 do
+    let x = Char.code a.[i] - 48 - !borrow
+            - (if i - (la - lb) >= 0 then Char.code b.[i - (la - lb)] - 48 else 0) in
+    if x < 0 then begin Bytes.set out i (Char.unsafe_chr (x + 58)); borrow := 1 end
+    else begin Bytes.set out i (Char.unsafe_chr (x + 48)); borrow := 0 end
+  done;
+  if !borrow <> 0 then failwith "codegen: internal: negative remainder in float model";
+  ds_trim (Bytes.to_string out)
+
+(* long division of two non-negative decimal strings: (quotient, remainder).
+   Schoolbook, one dividend digit at a time, with the running remainder kept
+   as a STRING -- DR's float range reaches 2**127, i.e. ~39 decimal digits,
+   which no machine integer holds. *)
+let ds_divmod (a : string) (dv : string) : string * string =
+  let dv = ds_trim dv in
+  if dv = "0" then failwith "codegen: internal: zero divisor in float model";
+  if ds_cmp a dv < 0 then ("0", ds_trim a)
+  else if dv = "1" then (ds_trim a, "0")
+  else begin
+    (* dv's digit count is implied by the long-division walk *)
+    let qbuf = Buffer.create (String.length a) in
+    let remb = ref "" in
+    for i = 0 to String.length a - 1 do
+      remb := ds_trim (!remb ^ String.make 1 a.[i]);
+      let c = ref 0 in
+      while ds_cmp !remb dv >= 0 do
+        remb := ds_sub_small !remb dv;
+        incr c
+      done;
+      Buffer.add_char qbuf (Char.unsafe_chr (48 + !c))
+    done;
+    (ds_trim (Buffer.contents qbuf), ds_trim !remb)
+  end
+
+(* floor(digits * 10^(-scale) * 2^p) as a decimal string, plus the exact
+   discarded remainder and its denominator, so the caller can decide a tie
+   WITHOUT any floating-point.  p may be negative (values >= 2^24 need a
+   right shift), which is why the denominator is a string, not a "how many
+   digits were dropped" count. *)
+let fl_shift (digits : string) (scale : int) (p : int)
+    : string * string * string =
+  (* numerator = digits * 10^(max(-scale,0)) * 2^(max(p,0)) *)
+  let num = ref (digits ^ String.make (max (-scale) 0) '0') in
+  for _ = 1 to max p 0 do num := ds_double !num done;
+  (* denominator = 10^(max(scale,0)) * 2^(max(-p,0)) *)
+  let den = ref (ds_pow10 (max scale 0)) in
+  for _ = 1 to max (-p) 0 do den := ds_double !den done;
+  let (q, r) = ds_divmod !num !den in
+  (q, r, !den)
+
+(* the binary exponent k with 2^k <= value < 2^(k+1).  A double estimate
+   starts the search; every step is DECIDED BY EXACT COMPARISON, so float
+   round-off cannot choose the exponent.  t(k) = floor(value * 2^24 / 2^k)
+   is >= 2^24 exactly when value >= 2^k. *)
+let fl_k (digits : string) (scale : int) : int =
+  let dv =
+    try float_of_string digits with _ ->
+      failwith "codegen: cannot read float literal magnitude [TBD]"
+  in
+  (* this OCaml has no Float.log2: derive it, and note the estimate is only a
+     STARTING POINT -- fl_k's loop decides every step by exact comparison *)
+  let ln2 = Float.log 2.0 in
+  let flog2 x = Float.log x /. ln2 in
+  let est =
+    try
+      if scale >= 0 then
+        int_of_float (Float.floor (flog2 dv -. float_of_int scale *. flog2 10.))
+      else
+        int_of_float
+          (Float.floor (flog2 (dv *. (10. ** float_of_int (-scale)))))
+    with _ -> 0
+  in
+  let est = if est <> est then 0 else est in
+  let rec go k tries =
+    if tries > 4000 then
+      failwith
+        "codegen: float literal exponent search did not converge [TBD]";
+    (* t(k) = floor(value * 2^(23-k)) is >= 2^24 exactly when value >= 2^(k+1),
+       and < 2^23 exactly when value < 2^k, so these two comparisons pin k *)
+    let (tq, _, _) = fl_shift digits scale (23 - k) in
+    if ds_cmp tq ds_two_pow24 >= 0 then go (k + 1) (tries + 1)
+    else if tq = "0" || ds_cmp tq ds_two_pow23 < 0 then go (k - 1) (tries + 1)
+    else k
+  in
+  go est 0
+
+(* literal text -> DR's 4 bytes. *)
+let mbf_encode (text : string) : bytes =
+  let (neg, digits, scale) = fl_lit_split text in
+  if digits = "0" then Bytes.of_string "\000\000\000\000"
+  (* DR has NO negative zero: `-0.0` shares the all-zero cell [R3007] *)
+  else begin
+    let k = fl_k digits scale in
+    let (tq, rem, den) = fl_shift digits scale (23 - k) in
+    let t = int_of_string tq in   (* tq is in [2^23,2^24), so this is safe *)
+    (* t is in [2^23, 2^24): the hidden bit sits at 2^23 and the 23 stored
+       fraction bits below it.  Nearest, ties away from zero [R3020], the same
+       tie direction the DECIMAL ROUND law C087 reached independently. *)
+    (* nearest, ties away from zero: the discarded fraction is rem/den, so it
+       rounds up exactly when 2*rem >= den [R3020] *)
+    let up =
+      if rem = "0" || rem = "" then false
+      else ds_cmp (ds_double rem) den >= 0
+    in
+    let (t, k) =
+      if up then
+        let t = t + 1 in
+        if t >= 1 lsl 24 then (1 lsl 23, k + 1) else (t, k)
+      else (t, k)
+    in
+    let e = k + 129 in
+    if e > 255 then
+      raise
+        (Fl_range
+           (Printf.sprintf
+              "magnitude 2**%d exceeds DR's float upper bound 2**127 [TBD] (DR pass-2 CONVERT rejects it: R3016/R3025)"
+              k));
+    if e < 0 then
+      raise
+        (Fl_range
+           (Printf.sprintf
+              "magnitude 2**%d is below DR's float lower bound 2**-129 [TBD] (DR rejects the deep cases with pass-2 CONVERT [R3015-R3017, R3026, R3028, R3047] but its SHALLOW-underflow band compiles to unrelated bytes [R3029/R3048]; I reproduce neither)"
+              k));
+    if e = 0 && t = 1 lsl 23 then
+      raise
+        (Fl_range
+           "magnitude exactly 2**-129 collides with DR's zero encoding (bytes 00 00 00 00) [TBD]; the only exponent-byte-0 value ever observed is 2E-39, which has a NONZERO fraction [R3023]");
+    let frac = t - (1 lsl 23) in
+    Bytes.of_string
+      (String.make 1 (Char.unsafe_chr (frac land 0xff))
+      ^ String.make 1 (Char.unsafe_chr ((frac lsr 8) land 0xff))
+      ^ String.make 1
+          (Char.unsafe_chr (((frac lsr 16) land 0x7f)
+                            lor (if neg then 0x80 else 0)))
+      ^ String.make 1 (Char.unsafe_chr e))
+  end
+
 type pdec_ctx =
   { pd_vars : (string * vkind) list
   ; pd_procs : (string * (int * int) option) list
   ; pd_ret : (int * int) option
   ; pd_dec : (int * int * int) list ref
+  ; pd_fl : int list list ref
+      (* [E2E-10] float literal cell byte-images already counted, so pool
+         DEMAND counts each distinct 4-byte cell once (DR deduplicates them
+         [C101, R3007/R3010/R3012/R3013]) *)
+  ; pd_fl_ret : bool
+      (* [E2E-10] the block being prescanned RETURNS FLOAT, so its literal
+         operands become float cells rather than DEC/FIXED values *)
+  ; pd_fl_procs : string list
+      (* [E2E-10] names (lower-cased) of procedures whose RETURNS type is
+         FLOAT BINARY(24).  pd_procs carries DEC precisions only and
+         pd_vars holds VARIABLES, so float-returning callees need their own
+         list -- without it the pool demand missed FFACT's return literal and
+         every data address after the pool shifted down 4 bytes. *)
       (* [R614] distinct DEC literal cells already counted.  DR REUSES a
          decimal pool cell whose byte image is identical -- `d = 3; e = 3;`
          (both dec(9,2)) emits LXI H,* S(0000) twice against ONE 5-byte cell
@@ -324,6 +580,56 @@ let pdec_dec_cell cx (p : int) (sc : int) (text : string) : int =
 
 (* parenthesised expressions arrive Econd-wrapped [N304]; prescan must
    see through them exactly like lowering does *)
+(* [E2E-10] count the pool bytes for one FLOAT literal occurrence: 4 if the
+   byte image is new, 0 if that identical cell was already counted.  The
+   bytes come from the SAME encoder the lowering uses, so demand and layout
+   cannot drift apart.  A literal the encoder refuses (out of range, the
+   2**-129 collision, >18 digits) still counts 4 bytes: such a program is
+   refused by the lowering and never emits a .REL, so the total is moot. *)
+let pdec_fl_cell (cx : pdec_ctx) (text : string) : int =
+  let key =
+    try
+      let b = mbf_encode text in
+      List.init (Bytes.length b) (fun i -> Char.code (Bytes.get b i))
+    with _ -> [ 0; 0; 0; 4 ]
+  in
+  if List.mem key !(cx.pd_fl) then 0
+  else begin
+    cx.pd_fl := key :: !(cx.pd_fl);
+    4
+  end
+
+(* [E2E-10] float literals inside a float expression, in evaluation order.
+   Fixed operands contribute nothing (they are converted at run time by
+   ?QI15F) and a float call's arguments are frame temporaries, not pool. *)
+let rec pdec_fl_expr (cx : pdec_ctx) (e : Ast.expr) : int =
+  (* inlined: pdec_unwrap/unwrap_e are both defined below this point *)
+  let e = match e.Ast.e with Ast.Econd x -> x | _ -> e in
+  match e.Ast.e with
+  | Ast.Enumber t -> pdec_fl_cell cx t
+  | Ast.Ebinary (_, l, r) -> pdec_fl_expr cx l + pdec_fl_expr cx r
+  | Ast.Eprefix (p, x) ->
+      (match (match x.Ast.e with Ast.Econd y -> y | _ -> x).Ast.e with
+       | Ast.Enumber k when p = Ast.Minus -> pdec_fl_cell cx ("-" ^ k)
+       | _ -> pdec_fl_expr cx x)
+  | Ast.Econd inner -> pdec_fl_expr cx inner
+  | Ast.Esuffix (_hd, args) ->
+      (* A FLOAT call argument that is a LITERAL needs its pool cell demanded
+         here: DR passes it by address through the descriptor [R3062:
+         `LXI H,*A(0010)`, the slot pointing at the 4-byte literal cell], so
+         the cell exists before the variable area is based.  Without this the
+         prescan sized the pool 2 bytes short, the variables overlapped the
+         literal cell, and every downstream address shifted.  A VARIABLE
+         argument needs no demand (its cell is a declared variable); a general
+         expression argument has no DR sample and the lowering refuses it. *)
+      List.fold_left
+        (fun acc a ->
+          match (match a.Ast.e with Ast.Econd x -> x | _ -> a).Ast.e with
+          | Ast.Enumber t -> acc + pdec_fl_cell cx t
+          | _ -> acc)
+        0 args
+  | _ -> 0
+
 let pdec_unwrap (e : Ast.expr) =
   match e.Ast.e with Ast.Econd x -> x | _ -> e
 
@@ -748,6 +1054,20 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
              | _ -> 0)
         | _ -> 0
       in
+      (* [E2E-10] a FLOAT target store takes FLOAT cells for its literals
+         (R3036 `d7 = a * 2` makes `2` a 4-byte float cell, not a DEC one),
+         so the DEC demand path must be skipped entirely for that statement *)
+      let fl_target =
+        match lhs.Ast.e with
+        | Ast.Eident n ->
+            (match List.assoc_opt (String.lowercase_ascii n.Ast.orig)
+                     cx.pd_vars with
+             | Some Vflt -> true
+             | _ -> false)
+        | _ -> false
+      in
+      if fl_target then pdec_fl_expr cx rhs
+      else
       dec_store_bytes
       + (match rhs.Ast.e with
          | Ast.Estring v -> String.length v
@@ -755,6 +1075,10 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
                 [V104]; type-mismatched uses RAISE at lowering *)
          | _ -> prescan_expr cx rhs)
   | Ast.Sreturn (Some e0) ->
+      (* [E2E-10] a FLOAT function's literal becomes a float cell: FFACT's
+         `return (1)` is the 4-byte cell at *S(000C), which sits AFTER the
+         main block's two character cells, matching first-use order *)
+      if cx.pd_fl_ret then pdec_fl_expr cx e0 else
       (* [E2E-6] a bare literal RETURNed from a DEC function takes a
          TARGET-precision pool cell [DFACT return(1) = 8 bytes at
          S(000C)]; DEC arithmetic literals take their own digit cells *)
@@ -818,7 +1142,12 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
         match List.assoc_opt pn cx.pd_procs with Some r -> r | None -> None
       in
       List.fold_left
-        (fun a x -> a + prescan_stmt { cx with pd_ret = ret } x) 0
+        (* pd_procs carries DEC return types only, so floatness comes from
+           the kind map (a float-returning procedure appears there as Vflt) *)
+        (fun a x ->
+          a + prescan_stmt { cx with pd_ret = ret
+                                   ; pd_fl_ret =
+                                       (List.mem pn cx.pd_fl_procs) } x) 0
         b.Ast.blk.Ast.bstmts
   | _ -> 0
 
@@ -890,6 +1219,21 @@ let rec count_required (s : Ast.stmt) =
 (* is this name an AUTOMATIC-or-formal FIXED DECIMAL variable?  Defined up
    here (not via vk_dec_opt, which lives in the DEC block below) so the CALL
    lowering can mode-check decimal arguments. *)
+(* moved above the call lowering: a FLOAT call argument passes the address
+   of its pool cell [R3062], so the descriptor path needs fl_pool too *)
+(* float literal cells live in the SHARED pool (byte-packed, first-use
+   order, deduplicated by identical bytes [C101]) but are tracked apart from
+   DEC and character cells, so a coincidental byte match can never alias a
+   string literal onto a float operand or the other way round. *)
+let fl_pool st (b : bytes) =
+  let l = List.init (Bytes.length b) (fun i -> Char.code (Bytes.get b i)) in
+  match List.find_opt (fun (_addr, bs) -> bs = l) st.fl_cells with
+  | Some (addr, _) -> addr
+  | None ->
+      let addr = pool_alloc st (Array.of_list l) in
+      st.fl_cells <- st.fl_cells @ [ (addr, l) ];
+      addr
+
 let vk_is_dec st (n : Ast.name) =
   match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
   | Some vi -> (match vi.vk with Vdec _ -> true | _ -> false)
@@ -1016,6 +1360,25 @@ let rec lower_hl st (e : Ast.expr) =
                   argument route is by-reference from an AUTOMATIC decimal
                   variable [DECPOLY, R2037/R2038, R725]. *)
                let pl = List.assoc nm st.procs in
+               (* the callee's formal type at a position, used for MODE
+                  checking; None = some other type or no re-declaration *)
+               let formal_rt i =
+                 match List.nth_opt pl.Bind.pl_ptrs i with
+                 | Some (fn, _) ->
+                     List.find_opt (fun (k, _rt, _o) -> k = fn)
+                       pl.Bind.pl_rows
+                 | None -> None
+               in
+               let formal_is_float i =
+                 match formal_rt i with
+                 | Some (_, Bind.RTfloat 24, _) -> true
+                 | Some (_, Bind.RTfloat p, _) ->
+                     failwith
+                       ("codegen: FLOAT BINARY(" ^ string_of_int p
+                        ^ ") formal is unsupported [TBD] (only BINARY(24) is "
+                        ^ "characterized; C100/C101)")
+                 | _ -> false
+               in
                let formal_is_dec i =
                  match List.nth_opt pl.Bind.pl_ptrs i with
                  | Some (fn, _) ->
@@ -1042,6 +1405,28 @@ let rec lower_hl st (e : Ast.expr) =
                       (a real DECPOLY byte failure -- the descriptor
                       constants vanished), so the guard must be sealed. *)
                    let () =
+                     if formal_is_float i then
+                       begin match (unwrap_e arg).Ast.e with
+                       | Ast.Eident v when vk_of st v.Ast.orig = Vflt -> ()
+                       | Ast.Eident v when List.mem
+                             (String.lowercase_ascii v.Ast.orig) st.deref -> ()
+                       | Ast.Enumber _ -> ()
+                       | _ ->
+                         failwith
+                           ("codegen: non-float-variable argument against a "
+                            ^ "FLOAT formal is unsampled [TBD] (DR's pinned "
+                            ^ "float argument routes are a plain float "
+                            ^ "variable or a float literal, both passed by "
+                            ^ "address through the descriptor [R3061, R3062]; "
+                            ^ "a FIXED argument takes a convert-into-temp-cell "
+                            ^ "route [R3064: ?QI15F then ?FX44S into an "
+                            ^ "anonymous float cell] which is understood but "
+                            ^ "not yet implemented, and a general expression "
+                            ^ "has no sample at all. Line "
+                            ^ string_of_int arg.Ast.epos.Source.line ^ ")")
+                       end
+                   in
+                   let () =
                      if formal_is_dec i then
                        begin match (unwrap_e arg).Ast.e with
                        | Ast.Eident v when vk_is_dec st v -> ()
@@ -1067,9 +1452,23 @@ let rec lower_hl st (e : Ast.expr) =
                      | None -> begin
                          match arg.Ast.e with
                          | Ast.Enumber k ->
-                             let kv = parse_int_const k in
-                             pool_alloc st
-                               [| kv land 0xff; (kv lsr 8) land 0xff |]
+                             if formal_is_float i then
+                               (* a FLOAT literal argument is passed by address
+                                  of its POOL cell [R3062: LXI H,*A(0010) with
+                                  the descriptor pointing at the 4-byte cell],
+                                  so the target is the float cell, not the
+                                  2-byte integer cell the fixed route builds. *)
+                               (match mbf_encode k with
+                                | b -> fl_pool st b
+                                | exception Fl_range msg ->
+                                    failwith
+                                      ("codegen: float literal argument "
+                                       ^ k ^ " " ^ msg))
+                             else begin
+                               let kv = parse_int_const k in
+                               pool_alloc st
+                                 [| kv land 0xff; (kv lsr 8) land 0xff |]
+                             end
                          | Ast.Eident v ->
                              let vn =
                                String.lowercase_ascii v.Ast.orig
@@ -1115,6 +1514,9 @@ let rec lower_hl st (e : Ast.expr) =
            failwith
              "codegen: decimal operand inside an integer expression [TBD] \
               (mixed-mode routes are unpinned)"
+       | Vflt ->
+           failwith
+             "codegen: FLOAT value used where a FIXED value is expected [TBD] (the float-to-fixed route ?FL40M/?QFI15 appears only inside FFACT's prologue, so no standalone conversion or mixed-mode arithmetic is sampled)"
       | _ -> failwith "codegen: arithmetic on char variable [TBD]");
       let vi = List.assoc (String.lowercase_ascii n.Ast.orig) st.vars in
       if vi.size = 1
@@ -2104,6 +2506,334 @@ let dec_cmp_rel st (rop : Ast.relop) (a : Ast.expr) (b : Ast.expr) =
    compare against 0 (cell-OR test).  Other relations in a conjunction
    refuse [TBD]: DR's boolean-materialization ladder for >, <, >=, <=, ^=
    is unsampled. *)
+let vk_name (vk : vkind) : string =
+  match vk with
+  | Vint -> "fixed-binary" | Vfix n -> "char(" ^ string_of_int n ^ ")"
+  | Vvar n -> "varying(" ^ string_of_int n ^ ")"
+  | Vdec (p, s) -> "dec(" ^ string_of_int p ^ "," ^ string_of_int s ^ ")"
+  | Vflt -> "float"
+
+(* ==================================================================
+   [E2E-10 step 2] FLOAT BINARY(24): value model + operand-mode lowering.
+
+   Representation (C100, every byte observed in golden/e2e13): 4 bytes,
+       b0 = fraction bits 7..0,  b1 = 15..8,  b2 = sign<<7 | bits 22..16,
+       b3 = characteristic (bias 129), value = (-1)^s (1+frac/2^23) 2^(b3-129)
+   with an IMPLIED leading one (24 significant bits, which is what
+   `float binary(24)` names), zero = all four bytes 0 (no negative zero
+   [R3007]), literal rounding nearest with TIES AWAY FROM ZERO [R3020],
+   magnitude range 2^-129 .. 2^127 exclusive of the top [R3019/R3024 vs
+   R3015-R3017/R3025], and pool cells deduplicated by identical bytes,
+   allocated in first-use order ahead of the variables (C101 -- the same
+   rules the DEC pool follows).  tools/floatmodel.py is the INDEPENDENT
+   oracle for this encoder: it reproduces 60/60 DR literal cells
+   byte-exactly, and the e2e gate checks this OCaml path against the
+   same cells.
+
+   Operand modes (C102).  The suffix tells the runtime where the operands
+   live; it comes from DR traces, not from the DEC analogue:
+     mem,mem      LXI H,l / PUSH H / LXI H,r / POP D / CALL ?FX44M   [R3030]
+     deref,deref  LHLD c1 / PUSH H / LHLD c2 / POP D / CALL ?FX44M   [R3038]
+     stack,mem    LXI H,r / CALL ?FX44L                              [R3030]
+     stack,deref  LHLD r  / CALL ?FX44L                              [R3038]
+     mem,stack    LXI H,l / CALL ?FX44R                              [R3036/42]
+     stack,stack  CALL ?FX44S                                        [R3034]
+   where F is followed by A(plus), S(sub), M(mul) or D(iv) and X44 is the
+   fixed 44 in those names.  ?FX44R exists because DR preserves operand
+   ORDER when the left side is a plain cell and the right side is computed:
+   `d1 = a - b * c` is FM44M over b,c then `LXI H,A / FS44R`, i.e. a minus
+   the product, so L means (accumulator op cell) and R means (cell op
+   accumulator).  DR is semantically CORRECT there, which is precisely why
+   I probed instead of assuming from the DEC path [R3042].
+   Every form leaves its result on DR's float stack; a store pops it with
+   ?FX44S (a stack/cell transfer with HL = the cell), plain cell-to-cell
+   copies use ?FX44M [R3001, R3037].  Unary minus is ?FN40M for a memory
+   operand and ?FN40S for a stack operand [R3035, R3046].  A FIXED operand
+   inside a float expression is evaluated to HL then converted with
+   ?QI15F [R3036].  A float function exits through JMP ?FPRET, plus ?RSBLK
+   when the activation is recursive [R3038 non-recursive vs FFACT
+   recursive].  PUT of a float variable is MVI A,0E / ?QFCMS and of a stack
+   value MVI A,0E / ?QFCSS -- the width byte is the CONSTANT 14, not a
+   precision [R3030, R3037, FFACT].
+
+   REFUSED on purpose, because no DR sample decides them: float comparison
+   (the JP/JM/JZ pairing of `>` in R3037/R3045 implies `>=`, the same
+   C083-style irregularity that needed a RUNTIME probe to settle for DEC),
+   GET of a float (observed in R3004, unimplemented), float-to-fixed store
+   (?FL40M / ?QFI15 appear only inside FFACT's prologue), storing to or
+   bare-returning a float FORMAL, mixed cell/deref operand pairs, float
+   binary(p) with p different from 24, whole-literal float expressions (DR
+   evaluates those in the DEC runtime and converts with ?QX8F4 [R3044]),
+   and literals outside the characterized range -- including the exact
+   2^-129 magnitude, whose encoding collides with DR's zero cell.
+   ================================================================== *)
+
+
+(* --- expression lowering --------------------------------------------- *)
+type fmode =
+  | Fmem of int     (* address of a 4-byte float cell *)
+  | Fderef of int   (* address of a pointer cell holding that address *)
+  | Fstack          (* the value sits on DR's float stack *)
+  | Fbin of string  (* accumulator holds the result of a binary FLOAT op; the
+                       string is the op letter (A/S/M/D), kept only to name the
+                       evidence in refusals *)
+  | Fconv           (* accumulator holds a ?QI15F conversion result *)
+  | Fneg            (* accumulator holds a ?FN40M / ?FN40S negation result *)
+
+let fl_addr st (m : fmode) =
+  match m with
+  | Fmem a -> d st op_lxi_h; reloc st Data a
+  | Fderef a -> d st op_lhld; reloc st Data a
+  | (Fstack | Fconv | Fbin _ | Fneg) ->
+      failwith "codegen: internal: computed float operand has no address"
+
+let fl_proc_ret st (nm : string) =
+  match List.assoc_opt (String.lowercase_ascii nm) st.procs with
+  | Some pl -> pl.Bind.pl_ret
+  | None -> None
+
+let rec is_float_expr st (e : Ast.expr) : bool =
+  let e = unwrap_e e in
+  match e.Ast.e with
+  | Ast.Eident n -> vk_of st n.Ast.orig = Vflt
+  | Ast.Ebinary (_, l, r) -> is_float_expr st l || is_float_expr st r
+  | Ast.Eprefix (_, x) -> is_float_expr st x
+  | Ast.Econd inner -> is_float_expr st inner
+  | Ast.Esuffix (hd, args) when args <> [] ->
+      (match hd.Ast.e with
+       | Ast.Eident n ->
+           (match fl_proc_ret st n.Ast.orig with
+            | Some (Bind.RTfloat _) -> true
+            | _ -> false)
+       | _ -> false)
+  | _ -> false
+
+and fl_push st (e0 : Ast.expr) : fmode =
+  let e = unwrap_e e0 in
+  match e.Ast.e with
+  | Ast.Ebinary (op, l, r) -> fl_bin st op l r
+  | Ast.Enumber k ->
+      (* an integer or decimal literal in a FLOAT context becomes a float
+         pool cell: `d7 = a * 2` [R3036] and FFACT's `return (1)` *)
+      let b =
+        try mbf_encode k with Fl_range msg ->
+          failwith ("codegen: float literal " ^ k ^ " " ^ msg)
+      in
+      Fmem (fl_pool st b)
+  | Ast.Eident n ->
+      let nm = String.lowercase_ascii n.Ast.orig in
+      begin match vk_of st n.Ast.orig with
+      | Vflt ->
+          if List.mem nm st.deref then Fderef (addr_of st n.Ast.orig)
+          else Fmem (addr_of st n.Ast.orig)
+      | Vint ->
+          (* fixed operand inside a float expression: evaluate to HL, then
+             ?QI15F converts it into the accumulator [R3036].  The result is
+             Fconv, NOT Fstack: DR's suffix choice separates a conversion from
+             a binary-op result (`a + i` -> ?FA44R vs `a + (b+c)` -> ?FA44L
+             [R3036, R3052]), and a negation may only be applied to a binary
+             result [R3035, R3038, R3046], never to a conversion. *)
+          lower_hl st e;
+          call_ext st "?QI15F";
+          Fconv
+      | vk ->
+          failwith
+            (Printf.sprintf
+               "codegen: mixing %s into a FLOAT expression is unsampled [TBD] (no DR sample mixes decimal or character values into one float expression; line %d)"
+               (vk_name vk) e.Ast.epos.Source.line)
+      end
+  | Ast.Eprefix (Ast.Minus, x) -> (
+      (* NEGATIVE LITERALS ARE FOLDED, not negated at run time: R3007/R3018/
+         R3020 show DR's pool holding `00 00 c0 81` for -1.5 and `01 00 80 99`
+         for -16777217, with NO ?FN40M anywhere in those statements.  A minus
+         over a COMPUTED value is different and does use ?FN40M / ?FN40S
+         [R3035, R3046].  A minus over a parenthesised literal has no sample,
+         so it is refused rather than assumed to fold the same way. *)
+      match (unwrap_e x).Ast.e with
+      | Ast.Enumber k when (match x.Ast.e with Ast.Econd _ -> false
+                                   | _ -> true) ->
+          let b =
+            try mbf_encode ("-" ^ k) with Fl_range msg ->
+              failwith ("codegen: float literal -" ^ k ^ " " ^ msg)
+          in
+          Fmem (fl_pool st b)
+      | Ast.Enumber _ ->
+          failwith
+            "codegen: FLOAT minus over a PARENTHESISED literal is unsampled [TBD] (R3007-R3020 fold a bare literal; `-(1.5)` has no sample)"
+      | _ ->
+          (match fl_push st x with
+           | Fmem a ->
+               (* ?FN40M negates the value ADDRESSED BY HL into the accumulator;
+                  it does not write the cell.  R3046 reads `a` and `-a` in
+                  consecutive statements, so an in-place negate would corrupt
+                  the variable -- the DR evidence itself rules that reading out. *)
+               d st op_lxi_h; reloc st Data a; call_ext st "?FN40M"; Fneg
+           | Fderef a ->
+               d st op_lhld; reloc st Data a; call_ext st "?FN40M"; Fneg
+           | (Fstack | Fbin _) ->
+               (* ?FN40S negates the accumulator in place [R3035 `d4 = -(a+b)`,
+                  R3038 `(p+q) * -1`].  The result occupies the same slot as any
+                  other negation, so it is Fneg, not Fstack: R3046 shows a
+                  negation on either side of `*` taking L/R and two of them
+                  taking S. *)
+               call_ext st "?FN40S"; Fneg
+           | Fconv ->
+               failwith
+                 "codegen: negating a ?QI15F conversion result inside a FLOAT operand is unsampled [TBD] (R3035/R3038 sample ?FN40S only on an arithmetic result; R3046 samples ?FN40S only after a second ?FN40M)"
+           | Fneg ->
+               failwith
+                 "codegen: DOUBLE negation of a FLOAT value is unsampled [TBD] (no DR sample applies ?FN40S to a ?FN40M/?FN40S result; `-(-a)` and `--a` have no evidence, and a partial match here is how the R3046 operand-mode bug hid)"))
+  | Ast.Eprefix (Ast.Plus, x) -> fl_push st x
+  | Ast.Econd inner -> fl_push st inner
+  | Ast.Eprefix (op, _) ->
+      failwith
+        (Printf.sprintf "codegen: FLOAT prefix operator %s is unsampled [TBD] (line %d)"
+           (if op = Ast.NegL then "^" else "+/-") e.Ast.epos.Source.line)
+  | Ast.Esuffix (hd, args) when args <> [] ->
+      (* a float function leaves its result on the float stack; the call
+         itself is the ordinary descriptor route [R3005, FFACT] *)
+      (match hd.Ast.e with
+       | Ast.Eident n ->
+           (match fl_proc_ret st n.Ast.orig with
+            | Some (Bind.RTfloat 24) -> ignore (args); lower_hl st e; Fstack
+            | Some (Bind.RTfloat p) ->
+                failwith
+                  (Printf.sprintf
+                     "codegen: FLOAT BINARY(%d) return precision is unsupported [TBD] (only BINARY(24) is characterized; R3013 proves the CELL is 4 bytes but not the computed precision)"
+                     p)
+            | _ ->
+                failwith
+                  (Printf.sprintf
+                     "codegen: non-float call %s used as a FLOAT operand [TBD] (line %d)"
+                     n.Ast.orig e.Ast.epos.Source.line))
+       | _ -> failwith "codegen: indirect call target [TBD]")
+  | _ ->
+      failwith
+        (Printf.sprintf
+           "codegen: FLOAT expression shape %s is unsampled [TBD] (line %d)"
+           (expr_kind_name e.Ast.e) e.Ast.epos.Source.line)
+
+and fl_bin st (op : Ast.binop) (l : Ast.expr) (r : Ast.expr) : fmode =
+  (* NOTE (a real byte-level bug I hit here): an UNPARENTHESISED `match` in a
+     preceding arm body swallows every following `|` arm, because OCaml has no
+     terminator for it.  fl_push's Eprefix arm is parenthesized for that
+     reason.  Same family of trap as the DECPOLY `if`/then-branch absorption. *)  let nm =
+    match op with
+    | Ast.Add -> "A"
+    | Ast.Sub -> "S"
+    | Ast.Mul -> "M"
+    | Ast.Div -> "D"
+    | _ ->
+        failwith
+          "codegen: FLOAT operand of an operator other than + - * / is unsampled [TBD] (no DR sample exponentiates, concatenates, or does bit/logical arithmetic on floats)"
+  in
+  (* EVALUATION ORDER: when the RIGHT operand is a CALL, DR runs the whole
+     right side FIRST and only then materialises the left -- FFACT's
+     `i * factorial(i - 1)` is descriptor, CALL, LHLD i, ?QI15F, ?FM44S.
+     This is the same rule the FIXED path learned from RFACT/NFACT, and it is
+     forced by the stack discipline: the value pushed first ends up deeper, so
+     a left operand that needs code would otherwise sit BELOW the call result.
+     When the right is not a call, left goes first [R3034 `a * b + c * a`]. *)
+  let right_is_call =
+    match (unwrap_e r).Ast.e with
+    | Ast.Esuffix (hd, args) -> args <> [] &&
+        (match hd.Ast.e with Ast.Eident _ -> true | _ -> false)
+    | _ -> false
+  in
+  let (lk, rk) =
+    if right_is_call then begin
+      let rr = fl_push st r in
+      let ll = fl_push st l in
+      (ll, rr)
+    end
+    else begin
+      let ll = fl_push st l in
+      let rr = fl_push st r in
+      (ll, rr)
+    end
+  in
+  (* only these six combinations have a DR sample; the mixed cell/deref
+     pairs and a deref left of a stack value do not, so they stay refused
+     instead of borrowing the DEC pattern. *)
+  (* classify once, then dispatch on the pair -- `as` bindings over
+     or-patterns bind to the enclosing tuple, which would misname the
+     operands, so no `as` is used here *)
+  let cell m = match m with Fmem _ | Fderef _ -> true | _ -> false in
+  (* Fneg belongs in this list: R3046 `d1 = -a * b` takes ?FM44L and `d2 = a * -b` takes ?FM44R, so a negation result is a computed accumulator operand, not a cell.  Leaving it out routed both to ?FM44S silently. *)
+  let comp m = match m with Fstack | Fconv | Fbin _ | Fneg -> true | _ -> false in
+  let deref m = match m with Fderef _ -> true | _ -> false in
+  if cell lk && cell rk then begin
+    if deref lk <> deref rk then
+      failwith
+        "codegen: FLOAT operand mixing a plain cell with a pointer formal is unsampled [TBD] (R3030-R3033 pin cell+cell, R3038 pins formal+formal; `q * 1.5` has no sample)";
+    fl_addr st lk; d st op_push_h; fl_addr st rk; d st op_pop_d;
+    call_ext st ("?F" ^ nm ^ "44M");
+    Fbin nm
+  end else if comp lk && cell rk then begin
+    (* accumulator/pushed value LEFT, named cell right [R3034 `a*b + c`,
+       R3035 `-a + b`, R3036 `i + a` / `i * a` / `i / a`, R3042 `a/b * c`,
+       R3043 `(a-b)/c`] *)
+    fl_addr st rk; call_ext st ("?F" ^ nm ^ "44L"); Fbin nm
+  end else if cell lk && comp rk then begin
+    if deref lk then
+      failwith
+        "codegen: FLOAT pointer-formal operand followed by a computed operand is unsampled [TBD] (R3036/R3042/R3051-R3053 sample only the plain-cell left side of the R and L forms)";
+    (* L is available only when the operator commutes AND the right value is an
+       arithmetic result, i.e. when DR may read the expression with the operands
+       exchanged at no cost [R3034, R3051, R3052].  A ?QI15F conversion result
+       is NOT that: DR takes R there [R3036 `a + i`, `a * i`, `a / i`], as it
+       must for the non-commutative `-` and `/` [R3042, R3043, R3053]. *)
+    (* R3046 pins the three computed kinds apart: `-a * b` -> ?FM44L,
+       `a * -b` -> ?FM44R, `-(a) * -(b)` -> ?FM44S.  So DR exchanges the
+       operands of a commutative op ONLY when the right side is itself a
+       binary-op result [R3034 `a + b*c` -> ?FA44L, R3051 `a*(b+c)` -> ?FM44L,
+       R3052 `a + (b+c)` -> ?FA44L]; around a negation [R3035 `a + -b` ->
+       ?FA44R, R3046 `a * -b` -> ?FM44R] or a conversion [R3036 `a + i` ->
+       ?FA44R, `a * i` -> ?FM44R] it keeps the written order, and for the
+       non-commutative `-` and `/` it must [R3042, R3043, R3053]. *)
+    let use_l =
+      match op with
+      | Ast.Add | Ast.Mul -> (match rk with Fbin _ -> true | _ -> false)
+      | _ -> false
+    in
+    fl_addr st lk;
+    call_ext st ("?F" ^ nm ^ (if use_l then "44L" else "44R"));
+    Fbin nm
+  end else
+    (* both operands computed [R3034 `(a+b)*(a-b)`, R3044 `i + j`] *)
+    (call_ext st ("?F" ^ nm ^ "44S"); Fbin nm)
+
+(* store a float value into a variable's cell *)
+let fl_store_var st (addr : int) (m : fmode) =
+  match m with
+  | Fmem a ->
+      d st op_lxi_h; reloc st Data a; d st op_push_h;
+      d st op_lxi_h; reloc st Data addr; d st op_pop_d;
+      call_ext st "?FX44M"
+  | (Fstack | Fconv | Fbin _ | Fneg) ->
+      (* every computed float kind is popped off the accumulator into the cell
+         with ?FX44S [R3030-R3034, and R3035's `d1 = -a` which negates into the
+         accumulator with ?FN40M and then stores with ?FX44S] *)
+      d st op_lxi_h; reloc st Data addr; call_ext st "?FX44S"
+  | Fderef _ ->
+      failwith
+        "codegen: assigning a FLOAT formal to a variable is unsampled [TBD] (R3037 samples cell-to-cell ?FX44M and stack-to-cell ?FX44S only; reading a float formal inside an expression IS sampled [R3038])"
+
+(* prepare a float value for RETURN: it must end on the float stack.
+   A cell is LOADED with ?FL40M -- FFACT's `return (1)` is exactly
+   `LXI H,*S(000C); CALL ?FL40M; CALL ?RSBLK; JMP ?FPRET`.  ?FX44S is the
+   STORE direction and must not be used here. *)
+let fl_return_push st (m : fmode) =
+  match m with
+  | Fmem a -> d st op_lxi_h; reloc st Data a; call_ext st "?FL40M"
+  | (Fstack | Fbin _) -> ()
+  | (Fconv | Fneg) ->
+      failwith
+        "codegen: RETURN of a converted or negated FLOAT value is unsampled [TBD] (FFACT returns a literal via ?FL40M and a product via the stack; R3038 returns a product -- none of them returns a bare ?QI15F or ?FN40 result)"
+  | Fderef _ ->
+      failwith
+        "codegen: RETURN of a bare FLOAT formal is unsampled [TBD] (R3038 returns an expression, FFACT a literal and a product)"
+
 let op_sui = 0xd6
 let op_pop_b = 0xc1
 let op_ana_b = 0xa0
@@ -2200,6 +2930,15 @@ let rec lower_bool st (c : Ast.expr) =
          "relations have no DR sample)")
 
 let lower_test_skip0 st (c : Ast.expr) =
+  (* [E2E-10] every shape handled below is FIXED or DECIMAL.  A FLOAT
+     operand must refuse here: reading `2.5` as an integer constant crashed
+     (R3045), and a float variable pair silently took the FIXED compare
+     ladder and produced wrong bytes (R3037).  DR's float compare is
+     ?FC44M plus JP/JM/JZ [R3037, R3045], and its `>` pairing implies `>=`,
+     so it needs a runtime discriminator before it can be implemented. *)
+  (if is_float_expr st c then
+     failwith
+       "codegen: FLOAT comparison in a condition is unsampled [TBD] (DR uses ?FC44M with JP/JM/JZ; R3037/R3045 show `>` guarding the ELSE branch, which implies `>=`, so the flag convention needs a runtime probe -- same shape of problem the DEC path settled at runtime for C083)");
   match c.Ast.e with
   (* a conjunction lowers as ONE boolean expression + ONE skip jump *)
   | Ast.Ebinary (Ast.And, _, _) ->
@@ -2368,6 +3107,17 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
          [N303/N306/N308], same family of byte-vs-mnemonic quirks
          as CA/F2 — runtime identity comes from byte-identical COM) *)
       d st 0x32; reloc st Data (addr_of st n.Ast.orig)
+  | Ast.Eident n when vk_of st n.Ast.orig = Vflt ->
+      (* [E2E-10] store into a FLOAT variable: a literal or plain-cell source
+         copies cell-to-cell with ?FX44M [R3001, R3037]; a computed value is
+         popped off the float stack with ?FX44S [R3030-R3034] *)
+      st.last_imm <- None;
+      fl_store_var st (addr_of st n.Ast.orig) (fl_push st rhs)
+  | Ast.Eident _n when is_float_expr st rhs ->
+      failwith
+        (Printf.sprintf
+           "codegen: storing a FLOAT value into a non-float variable is unsampled [TBD] (line %d; ?FL40M/?QFI15 has no standalone sample)"
+           rhs.Ast.epos.Source.line)
   | Ast.Eident n when is_dec_expr st rhs ->
       (* [E2E-6/R506] DEC -> INT: push the decimal value, convert with
          ?QDI15 (16-bit result in HL), then the ordinary integer store.
@@ -2519,6 +3269,13 @@ let lower_get st (items : Ast.name list) =
                d st op_mvi_a;
                d st p; (* A = TARGET DIGITS [LOAN1 0B, R906 0F] *)
                call_ext st "?DSTOP"
+           | Vflt ->
+               (* R3004 OBSERVES DR's float GET route (?QFADS, ?FNCVS, ...)
+                  but it is not implemented here, so refuse instead of
+                  guessing: no target program of this milestone reads a
+                  float (FLTPOLY's GET feeds DECIMAL variables). *)
+               failwith
+                 "codegen: GET LIST into a FLOAT variable is observed on DR [R3004] but unimplemented [TBD]"
            | Vint when vi.size = 2 ->
                call_ext st "?QCIOP";
                d st op_shld; reloc st Data (addr_of st n.Ast.orig)
@@ -2886,7 +3643,8 @@ let lower_put_items_gen st (edit_tbl : int option)
     is_edit || List.length items = 1 ||
     not (List.exists (function PIvar n ->
                         (match vk_of st n.Ast.orig with
-                         | Vint -> false | Vdec _ -> false | _ -> true)
+                         | Vint -> false | Vdec _ -> false | Vflt -> false
+                         | _ -> true)
                       | _ -> false) items)
   in
   if not char_var_ok then
@@ -2921,6 +3679,19 @@ let lower_put_items_gen st (edit_tbl : int option)
           call_ext st "?SLCTS"; tail true ()
       | PIvar n ->
           (match vk_of st n.Ast.orig with
+           | Vflt ->
+               (* [E2E-10] float variable item: LXI H,var; MVI A,0E; ?QFCMS.
+                  0E = 14 is a CONSTANT width in every sample, not a
+                  precision [R3030, R3037, R3045: three float vars in one
+                  PUT LIST, each with MVI A,0E] *)
+               if is_edit then
+                 failwith
+                   "codegen: PUT EDIT of a FLOAT item is unsampled [TBD] (no DR sample puts a float through an edit list)";
+               if List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
+                 failwith
+                   "codegen: PUT LIST of a FLOAT formal is unsampled [TBD] (R3038 reads a float formal inside an expression, never prints it through its pointer cell)";
+               d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+               d st op_mvi_a; d st 14; call_ext st "?QFCMS"; tail false ()
            | Vdec (p, s) ->
                if List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
                  failwith
@@ -2959,7 +3730,18 @@ let lower_put_items_gen st (edit_tbl : int option)
                 | Vint -> assert false);
                tail true ())
       | PInum x ->
-          if is_dec_expr st x then begin
+          if is_float_expr st x then begin
+            (* [E2E-10/FFACT] a float call item leaves its result on the
+               float stack and the edit pair MVI A,0E / ?QFCSS follows the
+               CALL directly.  Other float shapes have no PUT sample. *)
+            (match (unwrap_e x).Ast.e with
+             | Ast.Esuffix _ -> ()
+             | _ ->
+                 failwith
+                   "codegen: PUT LIST of a computed FLOAT expression is unsampled [TBD] (FFACT pins only a float CALL result: descriptor, CALL, MVI A,0E, ?QFCSS)");
+            ignore (fl_push st x);
+            d st op_mvi_a; d st 14; call_ext st "?QFCSS"; tail false ()
+          end else if is_dec_expr st x then begin
             (* [DFACT] a DEC function-call item leaves its result on the
                decimal stack; the edit pair follows directly *)
             let (p, s) = dec_edit_pt st x in
@@ -3165,6 +3947,22 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
              else
                { off = o; size = Bind.bytes_of rt; vk = Vdec (p, s);
                  w = p + 3 }
+         | Bind.RTfloat p ->
+             if p <> 24 then
+               failwith
+                 (Printf.sprintf
+                    "codegen: procedure-local FLOAT BINARY(%d) precision unsupported [TBD] (only BINARY(24) is characterized)" p)
+             else if
+               List.mem_assoc (String.lowercase_ascii n) pl.Bind.pl_ptrs
+             then
+               (* [E2E-10/R3038] a FLOAT formal is passed BY REFERENCE exactly
+                  like a decimal one: a 2-byte pointer cell, and every read is
+                  `LHLD <cell>` used directly as the operand address
+                  [R3038: LHLD Q A(0032) / PUSH H / LHLD Q A(0032) / POP D /
+                  CALL ?FM44M].  Writes have no sample. *)
+               { off = o; size = 2; vk = Vflt; w = 0 }
+             else
+               { off = o; size = Bind.bytes_of rt; vk = Vflt; w = 0 }
          | _ ->
              failwith "codegen: non fixed-bin procedure local [TBD]"))
       pl.Bind.pl_rows @ saved;
@@ -3173,15 +3971,19 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
        [RFACT @80: LHLD I(12); DCX H — no deref] *)
     (if pl.Bind.pl_rec then [] else List.map fst pl.Bind.pl_ptrs);
   let savedp = st.in_proc and savedr = st.in_rec
-      and saveddr = st.dec_ret in
+      and saveddr = st.dec_ret and savedfr = st.float_ret in
   st.dec_ret <-
     (match pl.Bind.pl_ret with
      | Some (Bind.RTdec (p, s)) -> Some (p, s)
      | _ -> None);
+  (* [E2E-10] RETURNS FLOAT selects the ?FPRET exit [R3038, FFACT] *)
+  st.float_ret <-
+    (match pl.Bind.pl_ret with Some (Bind.RTfloat _) -> true | _ -> false);
   st.in_proc <- true;
   st.in_rec <- pl.Bind.pl_rec;
   List.iter (fun x -> lower_stmt st ls x) pl.Bind.pl_body;
   st.dec_ret <- saveddr;
+  st.float_ret <- savedfr;
   st.in_rec <- savedr;
   st.in_proc <- savedp;
   st.vars <- saved;
@@ -3344,6 +4146,22 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       lower_proc st ls bs
   | Ast.Sreturn eo ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
+      if st.float_ret then begin
+        (* [E2E-10] a FLOAT function's exit.  A literal or cell result is
+           pushed onto the float stack with ?FX44S; a computed one is already
+           there.  Then ?RSBLK when the activation is recursive, then
+           JMP ?FPRET.  Both halves are sampled: R3038 (nested, NOT
+           recursive: no RSBLK) and FFACT (recursive: RSBLK on both exits). *)
+        (match eo with
+         | Some e -> fl_return_push st (fl_push st e)
+         | None -> failwith "codegen: RETURN without value [TBD]");
+        if st.in_rec then call_ext st "?RSBLK";
+        d st op_jmp;
+        st.last_imm <- None;
+        let slot = st.lc in
+        d st 0; d st 0;
+        link st t_chain_ext (Some (Code, slot)) (Some "?FPRET")
+      end else
       (match st.dec_ret with
        | Some ((_p, _s) as ps) ->
            (* [E2E-6/DFACT, R509] a DEC function returns the top of the
@@ -3429,6 +4247,10 @@ let emit_program (progname : string) (auto_bytes : int)
        [R504], so anything wider stays refused. *)
     | Bind.RTbin _ -> true
     | Bind.RTdec (p, s) -> p >= 1 && p <= 15 && s >= 0 && s <= p
+    (* [E2E-10] FLOAT BINARY(24) returns are implemented: the value is left on
+       DR's float stack and the exit is JMP ?FPRET (+ ?RSBLK when recursive),
+       proven by R3038 and FFACT.  Other precisions stay refused. *)
+    | Bind.RTfloat 24 -> true
     | _ -> false
   in
   let check_returns (what : string) (line : int) (attrs : Ast.attr list) =
@@ -3442,9 +4264,9 @@ let emit_program (progname : string) (auto_bytes : int)
           failwith
             ("codegen: " ^ what ^ " returns(" ^ Bind.rty_str r
              ^ ") deferred [TBD] (line " ^ string_of_int line
-             ^ "; return types emitted today are FIXED [26 specimens] and "
-             ^ "FIXED DECIMAL(p<=15) [E2E-6]; FLOAT/CHAR/BIT/POINTER/ENTRY "
-             ^ "each need their own ABI evidence)")
+             ^ "; return types emitted today are FIXED [26 specimens], "
+             ^ "FIXED DECIMAL(p<=15) [E2E-6] and FLOAT BINARY(24) [E2E-10]; "
+             ^ "CHAR/BIT/POINTER/ENTRY each need their own ABI evidence)")
     | _ -> ()
   in
   let check_bopts (line : int) (opts : (string * Ast.expr list) list) =
@@ -3505,6 +4327,25 @@ let emit_program (progname : string) (auto_bytes : int)
   (* constant call arguments allocate 2B little-endian pool cells
      [P401: '2' at data@0]; included in the pool prescan total so
      pool-relative layout matches the lowering-time allocation run *)
+  (* does callee `pn` have a FLOAT BINARY(24) formal at position i?  Used to
+     size a numeric call argument's cell: a fixed formal takes the 2-byte
+     integer pool cell, a FLOAT formal takes the 4-byte float pool cell that
+     prescan_pool already demands through pdec_fl_expr [R3062].  Counting 2
+     bytes for a float formal double-charged the literal and shifted every
+     variable address in the program by 2. *)
+  let formal_float_at pn i =
+    match List.find_opt (fun (p : Bind.proc_layout) -> p.Bind.pl_name = pn)
+            layout.pl_procs with
+    | None -> false
+    | Some pl ->
+        (match List.nth_opt pl.Bind.pl_ptrs i with
+         | Some (fn, _) ->
+             (match List.find_opt (fun (k, _rt, _o) -> k = fn) pl.Bind.pl_rows
+              with
+              | Some (_, Bind.RTfloat 24, _) -> true
+              | _ -> false)
+         | None -> false)
+  in
   let const_cells =
     List.fold_left
       (fun a (c : Bind.call_site) ->
@@ -3512,13 +4353,14 @@ let emit_program (progname : string) (auto_bytes : int)
         | [] -> a
         | args ->
             List.fold_left
-              (fun acc arg ->
+              (fun acc (i, arg) ->
                 match arg.Ast.e with
-                | Ast.Enumber _ -> acc + 2
+                | Ast.Enumber _ when not (formal_float_at c.cs_proc i) -> acc + 2
                 | _ -> acc)
-              a args        (* ACCUMULATE from the outer total: starting at 0
-                               silently dropped every call site but the last
-                               [regression caught by R406/R421 byte parity] *)
+              a (List.mapi (fun i x -> (i, x)) args)
+                  (* ACCUMULATE from the outer total: starting at 0 silently
+                     dropped every call site but the last [regression caught by
+                     R406/R421 byte parity] *)
       ) 0 layout.pl_calls
   in
   (* [E2E-6] prescan context for decimal literal cells: every block's
@@ -3531,6 +4373,7 @@ let emit_program (progname : string) (auto_bytes : int)
     | Bind.RTdec (p, s) -> Vdec (p, s)
     | Bind.RTchar (n, false) -> Vfix n
     | Bind.RTchar (n, true) -> Vvar n
+    | Bind.RTfloat 24 -> Vflt
     | _ -> Vint
   in
   let proc_vk_rows =
@@ -3563,9 +4406,19 @@ let emit_program (progname : string) (auto_bytes : int)
          | _ -> None))
       layout.pl_procs
   in
+  let pd_fl_procs =
+    List.filter_map
+      (fun (p : Bind.proc_layout) ->
+        match p.Bind.pl_ret with
+        | Some (Bind.RTfloat 24) -> Some p.Bind.pl_name
+        | _ -> None)
+      layout.pl_procs
+  in
   let pool_total =
     prescan_pool { pd_vars; pd_procs; pd_ret = None
-                    ; pd_dec = ref [] } stmts + const_cells
+                    ; pd_dec = ref []; pd_fl = ref []; pd_fl_ret = false
+                    ; pd_fl_procs }
+                    stmts + const_cells
   in
   let st =
     { base = pool_total; items = []; pool = []
@@ -3578,6 +4431,8 @@ let emit_program (progname : string) (auto_bytes : int)
     ; entries = []; fcalls = []; deref = []
     ; floor = layout.pl_total; vars = rows
     ; dec_ret = None
+  ; float_ret = false
+  ; fl_cells = []
     ; in_proc = false; in_rec = false
     ; after_forever = false; guards = 0; guard_slots = []
     ; appended = false; secs = layout.Bind.pl_secs
@@ -3762,6 +4617,18 @@ let rows_of (b : Ast.block) =
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vfix n; w = 0 })
         | Bind.RTchar (n, true) ->
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vvar n; w = 0 })
+        | Bind.RTfloat p ->
+            (* [E2E-10] the CELL is 4 bytes for every precision DR stores
+               (R3001/R3013), but only binary(24) has a characterized value
+               model, and plain `float` IS float binary(24) [R3001].  Other
+               precisions stay refused so a binary(14) program can never
+               silently get 24-bit arithmetic. *)
+            if p <> 24 then
+              failwith
+                (Printf.sprintf
+                   "codegen: FLOAT BINARY(%d) precision unsupported [TBD] (only BINARY(24) is characterized; R3013 proves the CELL is 4 bytes but not the computed precision)"
+                   p);
+            Some (nm, { off; size = Bind.bytes_of rt; vk = Vflt; w = 0 })
         (* Symbolic/non-storage kinds legitimately carry no lowering yet.
            Storage kinds outside the int subset must FAIL LOUD (C067
            policy: never silently drop constructs). *)

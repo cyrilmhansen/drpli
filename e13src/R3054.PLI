@@ -1,0 +1,9 @@
+r3054:
+ procedure options(main);
+   dcl (a,b,c) float;
+   dcl (d1,d2,d3) float;
+   d1 = a * b + 2.5;
+   put skip list(d1);
+   stop;
+end r3054;
+

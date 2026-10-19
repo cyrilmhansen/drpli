@@ -1,0 +1,121 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3037
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3037
+
+   1 a 0000 r3037:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    dcl i fixed;
+   6 c 0006    dcl j fixed;
+   7 c 0006    i = 1;
+       0006       LXI  H,0001
+       0009       SHLD I A(0028)
+   8 c 000C    d1 = i;
+       000C       LHLD I A(0028)
+       000F       CALL ?QI15F
+       0012       LXI  H,D1 A(000C)
+       0015       CALL ?FX44S
+   9 c 0018    d2 = a;
+       0018       LXI  H,A A(0000)
+       001B       PUSH H
+       001C       LXI  H,D2 A(0010)
+       001F       POP  D
+       0020       CALL ?FX44M
+  10 c 0023    a = b;
+       0023       LXI  H,B A(0004)
+       0026       PUSH H
+       0027       LXI  H,A A(0000)
+       002A       POP  D
+       002B       CALL ?FX44M
+  11 c 002E    d3 = a;
+       002E       LXI  H,A A(0000)
+       0031       PUSH H
+       0032       LXI  H,D3 A(0014)
+       0035       POP  D
+       0036       CALL ?FX44M
+  12 c 0039    if a > b then d4 = a;
+       0039       LXI  H,B A(0004)
+       003C       PUSH H
+       003D       LXI  H,A A(0000)
+       0040       POP  D
+       0041       CALL ?FC44M
+       0044       JP   0000
+       0047       LXI  H,A A(0000)
+       004A       PUSH H
+       004B       LXI  H,D4 A(0018)
+       004E       POP  D
+       004F       CALL ?FX44M
+       0045       ==== 0052
+  13 c 0052    if a <= b then d5 = b;
+       0052       LXI  H,B A(0004)
+       0055       PUSH H
+       0056       LXI  H,A A(0000)
+       0059       POP  D
+       005A       CALL ?FC44M
+       005D       JM   0000
+       0060       LXI  H,B A(0004)
+       0063       PUSH H
+       0064       LXI  H,D5 A(001C)
+       0067       POP  D
+       0068       CALL ?FX44M
+       005E       ==== 006B
+  14 c 006B    if a ^= b then d6 = a;
+       006B       LXI  H,A A(0000)
+       006E       PUSH H
+       006F       LXI  H,B A(0004)
+       0072       POP  D
+       0073       CALL ?FC44M
+       0076       JZ   0000
+       0079       LXI  H,A A(0000)
+       007C       PUSH H
+       007D       LXI  H,D6 A(0020)
+       0080       POP  D
+       0081       CALL ?FX44M
+       0077       ==== 0084
+  15 c 0084    put skip list(d1,d2,d3);
+       0084       LXI  D,0252
+       0087       LXI  B,0000
+       008A       CALL ?SYSPR
+       008D       MVI  A,01
+       008F       CALL ?SKPOP
+       0092       LXI  H,D1 A(000C)
+       0095       MVI  A,0E
+       0097       CALL ?QFCMS
+       009A       CALL ?PNVOP
+       009D       LXI  H,D2 A(0010)
+       00A0       MVI  A,0E
+       00A2       CALL ?QFCMS
+       00A5       CALL ?PNVOP
+       00A8       LXI  H,D3 A(0014)
+       00AB       MVI  A,0E
+       00AD       CALL ?QFCMS
+       00B0       CALL ?PNVOP
+       00B3       CALL ?QIOOP
+       0088       ==== 00B6
+  16 c 00B6    stop;
+       00B6       CALL ?STOPX
+  17 a 00B9 end r3037;
+
+CODE SIZE = 00B9
+DATA AREA = 002C
+FREE SYMS = 3851
+END  COMPILATION
+

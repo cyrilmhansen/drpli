@@ -1,0 +1,8 @@
+r3041:
+ procedure options(main);
+   dcl a float;
+   a = 1.46914848885253329473733415765835E-39;
+   put skip list(a);
+   stop;
+end r3041;
+

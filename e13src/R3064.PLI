@@ -1,0 +1,17 @@
+r3064:
+ procedure options(main);
+   dcl (a,b) float;
+   dcl d1 float;
+   d1 = f(i);
+   put skip list(d1);
+   stop;
+   dcl i fixed;
+   i = 3;
+   f: procedure(p) returns(float);
+      dcl p float;
+      dcl i fixed;
+      i = 2;
+      return (p * i);
+   end f;
+end r3064;
+

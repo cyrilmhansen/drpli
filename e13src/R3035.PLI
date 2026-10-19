@@ -1,0 +1,14 @@
+r3035:
+ procedure options(main);
+   dcl (a,b,c) float;
+   dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   dcl i fixed;
+   dcl j fixed;
+   d1 = -a;
+   d2 = -a + b;
+   d3 = a + -b;
+   d4 = -(a + b);
+   put skip list(d1,d2,d3);
+   stop;
+end r3035;
+

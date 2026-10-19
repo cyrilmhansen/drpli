@@ -1,0 +1,9 @@
+r3051:
+ procedure options(main);
+   dcl (a,b,c) float;
+   dcl (d1,d2,d3) float;
+   d1 = a * (b + c);
+   put skip list(d1);
+   stop;
+end r3051;
+

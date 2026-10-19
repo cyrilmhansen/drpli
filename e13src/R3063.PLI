@@ -1,0 +1,13 @@
+r3063:
+ procedure options(main);
+   dcl (a,b) float;
+   dcl d1 float;
+   d1 = f(a, b);
+   put skip list(d1);
+   stop;
+   f: procedure(p, q) returns(float);
+      dcl (p, q) float;
+      return (p * q);
+   end f;
+end r3063;
+

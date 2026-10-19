@@ -1,0 +1,338 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:R3035 $L
+PLI D:R3035 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3035
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3035
+
+   1 a 0000 r3035:
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    dcl i fixed;
+   6 c 0006    dcl j fixed;
+   7 c 0006    d1 = -a;
+   8 c 0012    d2 = -a + b;
+   9 c 0024    d3 = a + -b;
+  10 c 0036    d4 = -(a + b);
+  11 c 004A    put skip list(d1,d2,d3);
+  12 c 007C    stop;
+  13 a 007F end r3035;
+
+CODE SIZE = 007F
+DATA AREA = 002C
+FREE SYMS = 38DC
+END  COMPILATION
+
+C>
+>>> PLI D:R3036 $L
+PLI D:R3036 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3036
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3036
+
+   1 a 0000 r3036:
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    dcl i fixed;
+   6 c 0006    dcl j fixed;
+   7 c 0006    i = 3;
+   8 c 000C    d1 = a + i;
+   9 c 001E    d2 = i + a;
+  10 c 0030    d3 = i * a;
+  11 c 0042    d4 = a * i;
+  12 c 0054    d5 = i / a;
+  13 c 0066    d6 = a / i;
+  14 c 0078    d7 = a * 2;
+  15 c 0089    put skip list(d1,d2,d3);
+  16 c 00BB    stop;
+  17 a 00BE end r3036;
+
+CODE SIZE = 00BE
+DATA AREA = 0030
+FREE SYMS = 38B8
+END  COMPILATION
+
+C>
+>>> PLI D:R3037 $L
+PLI D:R3037 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3037
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3037
+
+   1 a 0000 r3037:
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    dcl i fixed;
+   6 c 0006    dcl j fixed;
+   7 c 0006    i = 1;
+   8 c 000C    d1 = i;
+   9 c 0018    d2 = a;
+  10 c 0023    a = b;
+  11 c 002E    d3 = a;
+  12 c 0039    if a > b then d4 = a;
+  13 c 0052    if a <= b then d5 = b;
+  14 c 006B    if a ^= b then d6 = a;
+  15 c 0084    put skip list(d1,d2,d3);
+  16 c 00B6    stop;
+  17 a 00B9 end r3037;
+
+CODE SIZE = 00B9
+DATA AREA = 002C
+FREE SYMS = 38D1
+END  COMPILATION
+
+C>
+>>> PLI D:R3038 $L
+PLI D:R3038 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3038
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3038
+
+   1 a 0000 r3038:
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    dcl i fixed;
+   6 c 0006    dcl j fixed;
+   7 c 0006    dcl r float;
+   8 c 0006    r = g(a);
+   9 c 0012    put skip list(r);
+  10 c 002E    stop;
+  11 c 0031    g: procedure(q) returns(float);
+  12 e 0031       dcl q float;
+  13 e 0038       return (q * q + q);
+  14 c 004C    end g;
+  15 c 004C    put skip list(d1,d2,d3);
+  16 c 007E    stop;
+  17 a 0081 end r3038;
+
+CODE SIZE = 0081
+DATA AREA = 0034
+FREE SYMS = 3899
+END  COMPILATION
+
+C>
+>>> PLI D:R3042 $L
+PLI D:R3042 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3042
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3042
+
+   1 a 0000 r3042:
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    d1 = a - b * c;
+   6 c 001D    d2 = a / b * c;
+   7 c 0034    d3 = a * b / c;
+   8 c 004B    put skip list(d1,d2,d3);
+   9 c 007D    stop;
+  10 a 0080 end r3042;
+
+CODE SIZE = 0080
+DATA AREA = 0028
+FREE SYMS = 38F2
+END  COMPILATION
+
+C>
+>>> PLI D:R3043 $L
+PLI D:R3043 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3043
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3043
+
+   1 a 0000 r3043:
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    d1 = a - (b - c);
+   6 c 001D    d2 = a / (b * c);
+   7 c 0034    d3 = (a - b) / c;
+   8 c 004B    put skip list(d1,d2,d3);
+   9 c 007D    stop;
+  10 a 0080 end r3043;
+
+CODE SIZE = 0080
+DATA AREA = 0028
+FREE SYMS = 38F2
+END  COMPILATION
+
+C>
+>>> PLI D:R3045 $L
+PLI D:R3045 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3045
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3045
+
+   1 a 0000 r3045:
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    if a < b then d1 = a;
+   6 c 001F    if a = b then d2 = b;
+   7 c 0038    if a >= b then d3 = a;
+   8 c 0051    if a > 2.5 then d4 = a;
+   9 c 006A    if 2.5 < a then d5 = b;
+  10 c 0083    put skip list(d1,d2,d3);
+  11 c 00B5    stop;
+  12 a 00B8 end r3045;
+
+CODE SIZE = 00B8
+DATA AREA = 002C
+FREE SYMS = 38D7
+END  COMPILATION
+
+C>
+>>> PLI D:R3046 $L
+PLI D:R3046 $L
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3046
+
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3046
+
+   1 a 0000 r3046:
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   5 c 0006    d1 = -a * b;
+   6 c 0018    d2 = a * -b;
+   7 c 002A    d3 = -(a) * -(b);
+   8 c 003F    put skip list(d1,d2,d3);
+   9 c 0071    stop;
+  10 a 0074 end r3046;
+
+CODE SIZE = 0074
+DATA AREA = 0028
+FREE SYMS = 38F2
+END  COMPILATION
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 18084 ms, waited for 0 ms
+CPU executed 113094827 t-states in 74 ms
+Clock frequency 1514.10 MHz

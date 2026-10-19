@@ -1268,3 +1268,41 @@ UNRESOLVED AFTER STEP 1 (deliberately not guessed):
   declaration kind: `declared variable kind not in supported subset [TBD]:
   BIT(1)`, ahead of its `POINTER`/`BASED`, `VARYING`, `FILE`, `ON`/`SIGNAL`,
   array and `FLOAT` members.
+
+## C103 — DR FLOAT operand-mode suffix law: L/R/M/S is chosen by accumulator SLOT, and three computed kinds are distinct (E2E-10 step 2)
+
+For a FLOAT binary operator X (`?FX44?`, X in A/S/M/D for + - * /) the suffix is
+determined by where each operand physically is, and `L`/`R` say which SIDE the
+accumulator is on: **L = accumulator value OP HL**, **R = HL OP accumulator**.
+
+| left operand | right operand | DR suffix | samples |
+|---|---|---|---|
+| cell | cell | `M` (HL, then `PUSH H`/`POP D`) | R3030-R3033, R3036 `a * 2`, R3037 |
+| computed | cell | `L` | R3034 `a*b + c`, R3035 `-a + b`, R3036 `i + a`/`i * a`/`i / a`, R3042 `a/b * c`, R3043 `(a-b)/c`, R3046 `-a * b` |
+| cell | computed **binary result** | `L` if op is `+` or `*`; `R` if `-` or `/` | R3034 `a + b*c` -> `A44L`, R3051 `a*(b+c)` -> `M44L`, R3052 -> `A44L`; R3042 `a - b*c` -> `S44R`, R3043 `a/(b*c)` -> `D44R`, R3053 -> `D44R` |
+| cell | computed **?QI15F conversion** | `R` | R3036 `a + i` -> `A44R`, `a * i` -> `M44R`, `a / i` -> `D44R` |
+| cell | computed **negation** | `R` | R3035 `a + -b` -> `A44R`, R3046 `a * -b` -> `M44R` |
+| computed | computed | `S` | R3034 `(a+b)*(a-b)` -> `M44S`, `a*b + c*a` -> `A44S`, R3046 `-(a)*-(b)` -> `M44S`, R3044 `i + j` |
+
+* The step-1 prediction that this was a two-way cell-vs-stack rule is
+  **refuted**: three kinds of accumulator value behave differently.  R3046 is
+  the decisive specimen -- `-a * b` -> `?FM44L`, `a * -b` -> `?FM44R`,
+  `-(a) * -(b)` -> `?FM44S` in one program, which no structural rule over
+  {cell, non-cell} can express.
+* DR exchanges the operands of a COMMUTATIVE op at no cost, and demonstrably
+  does so when the right operand is itself a binary result [R3034, R3051,
+  R3052]; it keeps the written order around a negation [R3035, R3046] or a
+  conversion [R3036], and must for `-` and `/` [R3042, R3043, R3053].  Where
+  order is free, the observed choice is what pins the rule -- the semantic
+  result would be identical, so byte identity is the only witness.
+* `?FN40M` does NOT write the addressed cell.  R3046 reads `a` in `d1 = -a * b`
+  and again in `d2 = a * -b`; an in-place negate would corrupt the variable, so
+  the DR evidence itself rules that reading out.  `?FN40M`/`?FN40S` produce into
+  the accumulator.
+* Negative LITERALS never take `?FN40`: the sign is folded into the pool cell at
+  compile time [R3007, R3018, R3020], consistent with C101/C100.
+* Still refused, not inferred (no DR sample): mixing a plain-cell operand with a
+  pointer-formal operand in one op [R3030-R3033 vs R3038 pin only the uniform
+  cases], and negating a `?QI15F` conversion result.
+* Implemented state: 29 of 36 float probes byte-identical to DR, 0 differing,
+  7 refused (each a named perimeter member); `FFACT` byte-identical.

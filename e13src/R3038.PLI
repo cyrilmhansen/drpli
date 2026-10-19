@@ -1,0 +1,18 @@
+r3038:
+ procedure options(main);
+   dcl (a,b,c) float;
+   dcl (d1,d2,d3,d4,d5,d6,d7) float;
+   dcl i fixed;
+   dcl j fixed;
+   dcl r float;
+   r = g(a);
+   put skip list(r);
+   stop;
+   g: procedure(q) returns(float);
+      dcl q float;
+      return (q * q + q);
+   end g;
+   put skip list(d1,d2,d3);
+   stop;
+end r3038;
+

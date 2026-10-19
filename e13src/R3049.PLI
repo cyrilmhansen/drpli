@@ -1,0 +1,8 @@
+r3049:
+ procedure options(main);
+   dcl a float;
+   a = 12345678.901234E-30;
+   put skip list(a);
+   stop;
+end r3049;
+
