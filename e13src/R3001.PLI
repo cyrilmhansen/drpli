@@ -1,0 +1,11 @@
+r3001:
+ procedure options(main);
+   dcl f float;
+   dcl g float binary(24);
+   f = 1.5;
+   g = 2;
+   put skip list(f);
+   put skip list(g);
+   stop;
+end r3001;
+

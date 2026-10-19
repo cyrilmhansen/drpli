@@ -1,0 +1,16 @@
+r3003:
+ procedure options(main);
+   dcl (a,b,c) float;
+   a = 1.5;
+   b = 2.5;
+   c = a + b;
+   put skip list(c);
+   c = a - b;
+   put skip list(c);
+   c = a * b;
+   put skip list(c);
+   c = a / b;
+   put skip list(c);
+   stop;
+end r3003;
+

@@ -1,0 +1,91 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3004
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3004
+
+   1 a 0000 r3004:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b) float;
+   4 c 0006    get list(a,b);
+       0006       LXI  D,0290
+       0009       LXI  B,0000
+       000C       CALL ?SYSIN
+       000F       CALL ?GNVOP
+       0012       JP   0000
+       0015       CALL ?QCXOP
+       0018       CALL ?QX8F4
+       001B       LXI  H,A A(0004)
+       001E       CALL ?FX44S
+       0013       ==== 0021
+       0021       CALL ?GNVOP
+       0024       JP   0000
+       0027       CALL ?QCXOP
+       002A       CALL ?QX8F4
+       002D       LXI  H,B A(0008)
+       0030       CALL ?FX44S
+       0025       ==== 0033
+       0033       CALL ?QIOOP
+       000A       ==== 0036
+   5 c 0036    if a > b then put skip list('GT');
+       0036       LXI  H,B A(0008)
+       0039       PUSH H
+       003A       LXI  H,A A(0004)
+       003D       POP  D
+       003E       CALL ?FC44M
+       0041       JP   0000
+       0044       LXI  D,0252
+       0047       LXI  B,0000
+       004A       CALL ?SYSPR
+       004D       MVI  A,01
+       004F       CALL ?SKPOP
+       0052       LXI  H,* S(0000)
+       0055       MVI  A,02
+       0057       CALL ?SLCTS
+       005A       CALL ?PNCOP
+       005D       CALL ?QIOOP
+       0048       ==== 0060
+       0042       ==== 0060
+   6 c 0060    if a = b then put skip list('EQ');
+       0060       LXI  H,A A(0004)
+       0063       PUSH H
+       0064       LXI  H,B A(0008)
+       0067       POP  D
+       0068       CALL ?FC44M
+       006B       JNZ  0000
+       006E       LXI  D,0252
+       0071       LXI  B,0000
+       0074       CALL ?SYSPR
+       0077       MVI  A,01
+       0079       CALL ?SKPOP
+       007C       LXI  H,* S(0002)
+       007F       MVI  A,02
+       0081       CALL ?SLCTS
+       0084       CALL ?PNCOP
+       0087       CALL ?QIOOP
+       0072       ==== 008A
+       006C       ==== 008A
+   7 c 008A    stop;
+       008A       CALL ?STOPX
+   8 a 008D end r3004;
+
+CODE SIZE = 008D
+DATA AREA = 000C
+FREE SYMS = 38A1
+END  COMPILATION
+

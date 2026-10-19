@@ -1,0 +1,14 @@
+r3005:
+ procedure options(main);
+   dcl a float;
+   dcl r float;
+   a = 1.5;
+   r = g(a);
+   put skip list(r);
+   stop;
+   g: procedure(q) returns(float);
+      dcl q float;
+      return (q * 2);
+   end g;
+end r3005;
+

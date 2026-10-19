@@ -1,0 +1,11 @@
+r3002:
+ procedure options(main);
+   dcl f float;
+   dcl i fixed;
+   i = 7;
+   f = i;
+   i = f;
+   put skip list(f);
+   stop;
+end r3002;
+

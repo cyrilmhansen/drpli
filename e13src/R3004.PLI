@@ -1,0 +1,9 @@
+r3004:
+ procedure options(main);
+   dcl (a,b) float;
+   get list(a,b);
+   if a > b then put skip list('GT');
+   if a = b then put skip list('EQ');
+   stop;
+end r3004;
+

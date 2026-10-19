@@ -1,0 +1,125 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3003
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3003
+
+   1 a 0000 r3003:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c) float;
+   4 c 0006    a = 1.5;
+       0006       LXI  H,* S(0000)
+       0009       PUSH H
+       000A       LXI  H,A A(0008)
+       000D       POP  D
+       000E       CALL ?FX44M
+   5 c 0011    b = 2.5;
+       0011       LXI  H,* S(0004)
+       0014       PUSH H
+       0015       LXI  H,B A(000C)
+       0018       POP  D
+       0019       CALL ?FX44M
+   6 c 001C    c = a + b;
+       001C       LXI  H,A A(0008)
+       001F       PUSH H
+       0020       LXI  H,B A(000C)
+       0023       POP  D
+       0024       CALL ?FA44M
+       0027       LXI  H,C A(0010)
+       002A       CALL ?FX44S
+   7 c 002D    put skip list(c);
+       002D       LXI  D,0252
+       0030       LXI  B,0000
+       0033       CALL ?SYSPR
+       0036       MVI  A,01
+       0038       CALL ?SKPOP
+       003B       LXI  H,C A(0010)
+       003E       MVI  A,0E
+       0040       CALL ?QFCMS
+       0043       CALL ?PNVOP
+       0046       CALL ?QIOOP
+       0031       ==== 0049
+   8 c 0049    c = a - b;
+       0049       LXI  H,A A(0008)
+       004C       PUSH H
+       004D       LXI  H,B A(000C)
+       0050       POP  D
+       0051       CALL ?FS44M
+       0054       LXI  H,C A(0010)
+       0057       CALL ?FX44S
+   9 c 005A    put skip list(c);
+       005A       LXI  D,0252
+       005D       LXI  B,0000
+       0060       CALL ?SYSPR
+       0063       MVI  A,01
+       0065       CALL ?SKPOP
+       0068       LXI  H,C A(0010)
+       006B       MVI  A,0E
+       006D       CALL ?QFCMS
+       0070       CALL ?PNVOP
+       0073       CALL ?QIOOP
+       005E       ==== 0076
+  10 c 0076    c = a * b;
+       0076       LXI  H,A A(0008)
+       0079       PUSH H
+       007A       LXI  H,B A(000C)
+       007D       POP  D
+       007E       CALL ?FM44M
+       0081       LXI  H,C A(0010)
+       0084       CALL ?FX44S
+  11 c 0087    put skip list(c);
+       0087       LXI  D,0252
+       008A       LXI  B,0000
+       008D       CALL ?SYSPR
+       0090       MVI  A,01
+       0092       CALL ?SKPOP
+       0095       LXI  H,C A(0010)
+       0098       MVI  A,0E
+       009A       CALL ?QFCMS
+       009D       CALL ?PNVOP
+       00A0       CALL ?QIOOP
+       008B       ==== 00A3
+  12 c 00A3    c = a / b;
+       00A3       LXI  H,A A(0008)
+       00A6       PUSH H
+       00A7       LXI  H,B A(000C)
+       00AA       POP  D
+       00AB       CALL ?FD44M
+       00AE       LXI  H,C A(0010)
+       00B1       CALL ?FX44S
+  13 c 00B4    put skip list(c);
+       00B4       LXI  D,0252
+       00B7       LXI  B,0000
+       00BA       CALL ?SYSPR
+       00BD       MVI  A,01
+       00BF       CALL ?SKPOP
+       00C2       LXI  H,C A(0010)
+       00C5       MVI  A,0E
+       00C7       CALL ?QFCMS
+       00CA       CALL ?PNVOP
+       00CD       CALL ?QIOOP
+       00B8       ==== 00D0
+  14 c 00D0    stop;
+       00D0       CALL ?STOPX
+  15 a 00D3 end r3003;
+
+CODE SIZE = 00D3
+DATA AREA = 0014
+FREE SYMS = 3890
+END  COMPILATION
+

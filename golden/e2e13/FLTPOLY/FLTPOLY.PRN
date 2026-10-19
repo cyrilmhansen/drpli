@@ -1,0 +1,176 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: FLTPOLY
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: FLTPOLY
+
+   1   0000 /*****************************************************/
+   2   0000 /* This program evaluates a polynomial expression    */
+   3   0000 /* using FLOAT BINARY data.                          */
+   4   0000 /*****************************************************/
+   5 a 0000 fltpoly: 
+       0000       LXI  B,0200
+       0003       CALL ?START
+   6 a 0006     procedure options(main);
+   7 a 0006 
+   8 c 0006     %replace
+   9 c 0006         true  by '1'b;
+  10 c 0006     declare 
+  11 c 0006         (x,y,z) float binary(24);
+  12 c 0006 
+  13 c 0006     do while(true);
+  14 c 0006        put skip(2) list('Type x,y,z: ');
+       0006       LXI  D,0252
+       0009       LXI  B,0000
+       000C       CALL ?SYSPR
+       000F       MVI  A,02
+       0011       CALL ?SKPOP
+       0014       LXI  H,* S(0000)
+       0017       MVI  A,0C
+       0019       CALL ?SLCTS
+       001C       CALL ?PNCOP
+       001F       CALL ?QIOOP
+       000A       ==== 0022
+  15 c 0022        get list(x,y,z);
+       0022       LXI  D,0290
+       0025       LXI  B,0000
+       0028       CALL ?SYSIN
+       002B       CALL ?GNVOP
+       002E       JP   0000
+       0031       CALL ?QCXOP
+       0034       CALL ?QX8F4
+       0037       LXI  H,X A(002F)
+       003A       CALL ?FX44S
+       002F       ==== 003D
+       003D       CALL ?GNVOP
+       0040       JP   0000
+       0043       CALL ?QCXOP
+       0046       CALL ?QX8F4
+       0049       LXI  H,Y A(0033)
+       004C       CALL ?FX44S
+       0041       ==== 004F
+       004F       CALL ?GNVOP
+       0052       JP   0000
+       0055       CALL ?QCXOP
+       0058       CALL ?QX8F4
+       005B       LXI  H,Z A(0037)
+       005E       CALL ?FX44S
+       0053       ==== 0061
+       0061       CALL ?QIOOP
+       0026       ==== 0064
+  16 c 0064 
+  17 c 0064        if x=0 & y=0 & z=0 then
+       0064       LXI  H,X A(002F)
+       0067       PUSH H
+       0068       LXI  H,* S(000C)
+       006B       POP  D
+       006C       CALL ?FC44M
+       006F       SUI  01
+       0071       SBB  A
+       0072       LXI  H,Y A(0033)
+       0075       PUSH PSW
+       0076       PUSH H
+       0077       LXI  H,* S(000C)
+       007A       POP  D
+       007B       CALL ?FC44M
+       007E       SUI  01
+       0080       SBB  A
+       0081       POP  B
+       0082       ANA  B
+       0083       LXI  H,Z A(0037)
+       0086       PUSH PSW
+       0087       PUSH H
+       0088       LXI  H,* S(000C)
+       008B       POP  D
+       008C       CALL ?FC44M
+       008F       SUI  01
+       0091       SBB  A
+       0092       POP  B
+       0093       ANA  B
+       0094       JP   0000
+  18 c 0097           stop;
+       0097       CALL ?STOPX
+       0095       ==== 009A
+  19 c 009A 
+  20 c 009A        put skip list('       2');
+       009A       LXI  D,0252
+       009D       LXI  B,0000
+       00A0       CALL ?SYSPR
+       00A3       MVI  A,01
+       00A5       CALL ?SKPOP
+       00A8       LXI  H,* S(0010)
+       00AB       MVI  A,08
+       00AD       CALL ?SLCTS
+       00B0       CALL ?PNCOP
+       00B3       CALL ?QIOOP
+       009E       ==== 00B6
+  21 c 00B6        put skip list('      x  + 2y + z =',P(x,y,z));
+       00B6       LXI  D,0252
+       00B9       LXI  B,0000
+       00BC       CALL ?SYSPR
+       00BF       MVI  A,01
+       00C1       CALL ?SKPOP
+       00C4       LXI  H,* S(0018)
+       00C7       MVI  A,13
+       00C9       CALL ?SLCTS
+       00CC       CALL ?PNCOP
+       00CF       LXI  H,* A(003B)
+       00D2       CALL 0000
+       00D5       MVI  A,0E
+       00D7       CALL ?QFCSS
+       00DA       CALL ?PNVOP
+       00DD       CALL ?QIOOP
+       00BA       ==== 00E0
+       00E0       JMP  0006
+  22 c 00E3     end;
+  23 c 00E3 
+  24 c 00E3     P:
+  25 c 00E3       procedure (x,y,z) returns (float binary(24));
+  26 e 00E3       declare 
+       00E3       LXI  D,X A(0041)
+       00E6       MVI  C,06
+       00E8       MOV  A,M
+       00E9       INX  H
+       00EA       STAX D
+       00EB       INX  D
+       00EC       DCR  C
+       00ED       JNZ  00E8
+  27 e 00F0             (x,y,z) float binary;
+  28 e 00F0       return (x * x + 2 * y + z);
+       00F0       LHLD X A(0041)
+       00F3       PUSH H
+       00F4       LHLD X A(0041)
+       00F7       POP  D
+       00F8       CALL ?FM44M
+       00FB       LXI  H,* S(002B)
+       00FE       PUSH H
+       00FF       LHLD Y A(0043)
+       0102       POP  D
+       0103       CALL ?FM44M
+       0106       CALL ?FA44S
+       0109       LHLD Z A(0045)
+       010C       CALL ?FA44L
+       010F       JMP  ?FPRET
+  29 c 0112     end P;
+  30 c 0112 
+  31 a 0112 end fltpoly;
+  32 a 0112 
+
+CODE SIZE = 0112
+DATA AREA = 0047
+FREE SYMS = 377D
+END  COMPILATION
+
