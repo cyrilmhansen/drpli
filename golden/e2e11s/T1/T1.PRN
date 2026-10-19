@@ -1,0 +1,46 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: T1
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   8 a      $
+SYNTAX      ?
+    1 ERROR(S) IN PASS 1
+
+   8 b      $
+SYNTAX      ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: T1
+
+   1 a 0000 pT1:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006   procedure options(main);
+   3 c 0006   dcl f bit(1) static initial('1'b);
+   4 c 0006   dcl g bit(1);
+   5 c 0006   g = f;
+       0006       LXI  H,G A(0001)
+       0009       MOV  A,H
+       000A       PUSH PSW
+       000B       LDA  F S(0000)
+       000E       POP  PSW
+       000F       MOV  M,A
+   6 c 0010   stop;
+       0010       CALL ?STOPX
+   7 a 0013 end pT1;
+   8 a 0013 $
+
+CODE SIZE = 0013
+DATA AREA = 0002
+FREE SYMS = 38D3
+END  COMPILATION
+

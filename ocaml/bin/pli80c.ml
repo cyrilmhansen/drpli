@@ -25,9 +25,9 @@ let () =
         | None -> text
       in
       let blk = Pli80.Parser.parse_source text in
-      let prog, data_size, vars = Pli80.Codegen.rows_of blk in
+      let prog, data_size, vars, statics = Pli80.Codegen.rows_of blk in
       let (items, code_len) =
-        Pli80.Codegen.emit_program prog data_size vars
+        Pli80.Codegen.emit_program prog data_size vars statics
           blk.Pli80.Ast.bstmts blk
       in
       let rel = Pli80.Rel80.encode items in

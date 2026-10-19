@@ -416,6 +416,23 @@ SPECIMENS = {
     "E20A": ("e13src/E20A.PLI", "golden/e2e11l/E20A/E20A.REL"),
     "E21A": ("e13src/E21A.PLI", "golden/e2e11m/E21A/E21A.REL"),
     "E21B": ("e13src/E21B.PLI", "golden/e2e11m/E21B/E21B.REL"),
+    # [E2E-11 step 1a-ii] STATIC cells + INITIAL values: DR's single DATA area is
+    # [statics][literal pool][automatics] (C114).  E11D is the strongest of these:
+    # twelve static bit cells interleaved with automatics and both comparison forms.
+    "E20B": ("e13src/E20B.PLI", "golden/e2e11l/E20B/E20B.REL"),
+    "E20D": ("e13src/E20D.PLI", "golden/e2e11l/E20D/E20D.REL"),
+    "E20E": ("e13src/E20E.PLI", "golden/e2e11l/E20E/E20E.REL"),
+    "E11D": ("e13src/E11D.PLI", "golden/e2e11g/E11D/E11D.REL"),
+    # [E2E-11 step 1a] DR's zero-elision law (see the N56 retirement note): a
+    # literal 0 added or subtracted against a variable disappears, leaving a copy.
+    "T5": ("e13src/T5.PLI", "golden/e2e11v/T5/T5.REL"),
+    "T6": ("e13src/T6.PLI", "golden/e2e11v/T6/T6.REL"),
+    "T7": ("e13src/T7.PLI", "golden/e2e11w/T7/T7.REL"),
+    "T8": ("e13src/T8.PLI", "golden/e2e11w/T8/T8.REL"),
+    "T9": ("e13src/T9.PLI", "golden/e2e11x/T9/T9.REL"),
+    "T10": ("e13src/T10.PLI", "golden/e2e11x/T10/T10.REL"),
+    "T12": ("e13src/T12.PLI", "golden/e2e11y/T12/T12.REL"),
+    "T13": ("e13src/T13.PLI", "golden/e2e11y/T13/T13.REL"),
     "R3004": ("e13src/R3004.PLI", "golden/e2e13/R3004/R3004.REL"),
     "R3012": ("e13src/R3012.PLI", "golden/e2e13/R3012/R3012.REL"),
     "R3014": ("e13src/R3014.PLI", "golden/e2e13/R3014/R3014.REL"),
@@ -795,10 +812,15 @@ REJECTS = {
     # [E2E-9 slice 6] DR's fixed-bin peephole set (P044 / R2045 / R2046 goldens
     # in golden/e2e12c).  My lowering diverges on all four; each shape now
     # fails loud instead of emitting plausible-but-wrong bytes.
-    "N56_ADD_ZERO_LIT": (
-        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
-        "  x = x + 0;\n  stop;\nend t;\n",
-        "RIGHT operand is the literal 0"),
+    # [E2E-11 step 1a] RETIRED N56_ADD_ZERO_LIT (`x = x + 0'): DR ELIDES an added
+    # or subtracted literal zero against a variable and emits a plain copy --
+    # `a = a + 0' is LHLD A / SHLD A, byte-identical to `a = a' [golden/e2e11v/T5,
+    # T6, e2e11w/T7], and `b = a + 0' / `b = 0 + a' / `b = a - 0' are all
+    # LHLD A / SHLD B [e2e11x/T9, e2e11y/T12, T13], nested forms included
+    # [e2e11w/T8, e2e11x/T10].  Those eight are now POSITIVE specimens.  What DR
+    # does NOT elide is zero against a LITERAL: `b = 5 + 0' takes the decimal
+    # pool path (?DLDOP/?DADOP/?QDI15) [e2e11x/T11], which stays refused --
+    # the same no-constant-folding rule as `3 + 2' [R2045, P044 line 3].
     "N57_ADD_LIT_LIT": (
         "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 3 + 2;\n"
         "  stop;\nend t;\n",
@@ -874,6 +896,35 @@ REJECTS = {
         "t:\n  procedure options(main);\n  dcl a fixed bin(31);\n  a = 1;\n"
         "  put list(a);\nend t;\n",
         "exceeds DR's FIXED precision limit"),
+    # [E2E-11 step 1a] BIT(1)/STATIC refusals.  N78 agrees with DR's own language
+    # rule (E20C passes pass 1, then DR's pass 2 prints NOT STATIC and emits no
+    # .REL).  N74-N77 are PERIMETER refusals: all four were compiled by DR itself
+    # (golden/e2e11u/T1..T4, real .REL), so each marks capability I have not
+    # implemented yet -- they are pinned here so a future slice cannot regress
+    # silently by dropping the refusal, and their goldens are the acceptance test.
+    "N74_BIT_TO_BIT_COPY": (
+        "PT1:\n  procedure options(main);\n"
+        "  dcl f bit(1) static initial('1'b);\n  dcl g bit(1);\n"
+        "  g = f;\n  stop;\nend PT1;\n",
+        "store into BIT(1) from ident is unsampled"),
+    "N75_BIT_WIDER_THAN_ONE": (
+        "PT2:\n  procedure options(main);\n  dcl (b,c) bit(5);\n"
+        "  b = c;\n  stop;\nend PT2;\n",
+        "BIT(5) has no byte-level DR sample"),
+    "N76_STATIC_INITIAL_FIXED": (
+        "PT3:\n  procedure options(main);\n"
+        "  dcl s fixed static initial(5);\n  s = s + 1;\n  stop;\nend PT3;\n",
+        "STATIC on FIXED BINARY(15,0) is unsampled"),
+    "N77_BIT_BARE_CONDITION": (
+        "PT4:\n  procedure options(main);\n"
+        "  dcl f bit(1) static initial('1'b);\n  dcl s fixed;\n"
+        "  if f then s = 1;\n  stop;\nend PT4;\n",
+        "condition form not in E2E-3b subset"),
+    "N78_INITIAL_WITHOUT_STATIC": (
+        "E20C:\n  procedure options(main);\n"
+        "  dcl f bit(1) initial('1'b);\n  if f = '1'b then n = 1;\n"
+        "  dcl n fixed;\n  stop;\nend E20C;\n",
+        "without STATIC is rejected by DR"),
     "N73_FIXED_DEC_GT15": (
         "t:\n  procedure options(main);\n  dcl a fixed dec(16);\n  a = 1;\n"
         "  put list(a);\nend t;\n",

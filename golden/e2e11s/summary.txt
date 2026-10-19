@@ -1,0 +1,3 @@
+T1	diag	PRN=True REL=False
+T2	diag	PRN=True REL=False
+T3	diag	PRN=True REL=False

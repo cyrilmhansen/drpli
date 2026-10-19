@@ -77,10 +77,17 @@ Full evidence in `spec/notes/e2e11-step0-step1-endfile.md`, claims C109-C113.
 | `get file(f) list(x)` | `LXI H,<cb>` / `LXI D,0690` / `LXI B,0` / `CALL ?SIOOP` then the shared DEC reader | refuses | E17A, C111 |
 | `get list(x)` (SYSIN) | `LXI D,0290` / `LXI B,0` / `CALL ?SYSIN` then the same DEC reader | refuses | E11E, C111 |
 | `open file(f) stream title(t)` | `?SLCTS`(t) + 6-word push block + `LXI H,<cb>` + `CALL ?OIOOP` | refuses | E17A, C111 |
-| `bit(1)` storage | **1 byte, high-bit justified**: `'1'b`→`0x80`; store `LXI H,c`/`MVI M,80`; test `LDA c`/`ANI 80`/`JNZ` | refuses | E11C, E11D, E17A, C112 |
-| `STATIC INITIAL` on `bit(1)` | initialises at entry, independent of any FILE use (E11D has no FILE at all and runs) | refuses | E11D, C112 |
+| `bit(1)` storage | **1 byte, high-bit justified**: `'1'b`→`0x80`; store `LXI H,c`/`MVI M,80`; test `LDA c`/`ANI 80`/`JNZ` | **byte-exact** | E20A, E21A, E21B, E11D, C112, C115 |
+| `STATIC` / `STATIC INITIAL` on `bit(1)` | one DATA area `[statics][pool][autos]`; `'0'b`→00, `'1'b`→80 | **byte-exact** | E20B, E20D, E20E, E11D, C114, C115 |
+| `INITIAL` without `STATIC` | pass 1 clean, pass 2 `NOT STATIC`, **no .REL** | refuses (agrees) | E20C, N78, C114 |
 | `CALL p(args);` as a **statement** | (not yet probed for lowering shape) | refuses | **23 corpus programs** — #1 payoff, E2E-11 step 4 |
-| `bit(16)` and wide bit strings | unknown | refuses | unprobed |
+| bit-to-bit copy `g = f;` | DR compiles | refuses (perimeter) | T1, N74, golden/e2e11u/T1 |
+| `bit(5)` cell + copy `b = c;` | DR compiles | refuses (perimeter) | T2, N75, .../T2 |
+| bare `if f then` on a bit | DR compiles | refuses (perimeter) | T4, N77, .../T4 |
+| `STATIC INITIAL` on FIXED | DR compiles | refuses (perimeter — initialiser encoding unpinned) | T3, N76, .../T3 |
+| multi-bit literal `'10101'b` | **DR SYNTAX error, no .REL** | refuses | C117 |
+| `x = x + 0` / `b = a + 0` / `b = 0 + a` / `b = a - 0` | literal 0 against a **variable** elides to a plain copy (`LHLD/SHLD`) | **byte-exact** | T5-T10, T12, T13, C119 |
+| `b = 5 + 0` (zero against a **literal**) | decimal pool path `?DLDOP/?DADOP/?QDI15`, NOT elided | refuses (agrees with the no-fold rule) | T11, C119 |
 
 ## Grammar/reimpl policy
 1. Grammar accepts [S] exactly as the compiler does (byte-parity track
@@ -91,6 +98,12 @@ Full evidence in `spec/notes/e2e11-step0-step1-endfile.md`, claims C109-C113.
 3. [C] items: not parsed by default (future `--std` mode may accept).
 
 ## Corrections this session found to earlier notes
+- **DR compiles `x = x + 0` and `x = x`** — a refusal message and negative N56 both
+  asserted DR rejected them. It elides the zero to a copy [C119]; N56 retired, eight
+  positives added.
+- **`Ast.block.bdecls` is always empty** [C116] — declarations live in `bstmts` as
+  `Sdcl`. A rule wired to `bdecls` does nothing silently, which is how E20C compiled
+  instead of refusing.
 - PICTURE is NOT a dcl attribute (no `picture(...)` dcl form in working
   samples; P066B confirms SYNTAX) — grammar updated.
 - ROUND/CEIL/LOG are ordinary builtin calls (earlier "auto-injection"

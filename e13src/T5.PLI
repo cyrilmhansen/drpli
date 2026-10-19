@@ -1,0 +1,9 @@
+PT5:
+  procedure options(main);
+  dcl a fixed;
+  a = 5;
+  a = a + 0;
+  stop;
+end PT5;
+
+

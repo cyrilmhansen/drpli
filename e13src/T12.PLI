@@ -1,0 +1,9 @@
+PT12:
+  procedure options(main);
+  dcl (a,b) fixed;
+  a = 5;
+  b = a - 0;
+  stop;
+end PT12;
+
+

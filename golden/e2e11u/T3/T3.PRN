@@ -1,0 +1,38 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: T3
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: T3
+
+   1 a 0000 PT3:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006   procedure options(main);
+   3 c 0006   dcl s fixed static initial(5);
+   4 c 0006   s = s + 1;
+       0006       LHLD S S(0000)
+       0009       INX  H
+       000A       SHLD S S(0000)
+   5 c 000D   stop;
+       000D       CALL ?STOPX
+   6 a 0010 end PT3;
+   7 a 0010 
+
+CODE SIZE = 0010
+DATA AREA = 0002
+FREE SYMS = 38D3
+END  COMPILATION
+

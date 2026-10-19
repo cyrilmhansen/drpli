@@ -1625,3 +1625,112 @@ store `'1'b` = `MVI M,80`, store `'0'b` = `MVI M,00`; test `= '0'b` =
 zero-test shape).  `INITIAL` on a bit string **requires** `STATIC`: DR's pass 2
 reports `NOT STATIC` and emits no `.REL` for `dcl f bit(1) initial('1'b);`
 [E20C], so that form must refuse, not degrade.
+
+## C115 — STATIC cells need only a pool-base shift; bind already keeps a separate static offset (E2E-11 step 1a-ii)
+
+Implementing C114 turned out to require no layout model of my own. `bind.ml`
+maintains `soff`, a static offset counter independent of the automatic counter,
+and returns `(name, rt, offset, auto)` with `auto = not stc` [bind.ml:329-361],
+so static cells already arrive numbered 0,1,2... exactly as DR's `S(...)`
+column shows them, and automatics arrive packed among themselves exactly as
+DR's `A(...)` column shows them. Codegen's whole job was
+`base = static_total + pool_total` plus seeding the initialiser bytes as data
+blocks at their absolute addresses — the existing per-block
+`SET-LC(data,addr)` emission [G113] then produces DR's shape unchanged.
+
+Verified byte-exact: E20B (1 static + literal + auto), E20D, E20E (two statics
+at S(0000)/S(0001) with autos above a 2-byte pool), E11D — the strongest of
+them, with twelve static bit cells interleaved with four automatics, both bit
+comparison forms, a two-way `if/else` and a `n = n + 2` store, DATA AREA 0015
+in both compilers. `statics` here is scoped to explicit `STATIC` on `BIT(1)`;
+`STATIC` on any other kind refuses, because C114 pins the ORDERING of static
+bytes but nothing pins the ENCODING of a multi-byte initialiser (T3 shows DR
+does compile `dcl s fixed static initial(5);`, so this is a capability gap, not
+a language limit).
+
+One trap worth recording: bind's `stc` is broader than the `STATIC` attribute —
+FILE, FORMAT and ENTRY rows are static-classified and consume `soff` bytes.
+A `STATIC BIT(1)` declared alongside a FORMAT would therefore land after that
+cell, a combination DR has never shown me; that mixture refuses rather than
+reordering by analogy.
+
+## C116 — the parser never fills `bdecls`; declarations arrive as `Sdcl` STATEMENTS (E2E-11 step 1a-ii)
+
+`Ast.block.bdecls` exists and is read by `pli80deps`, but `parser.ml` sets
+`bdecls = []` at both block constructors [parser.ml:760, parser.ml:1089] and
+routes every declaration into `bstmts` as an `Sdcl` item. Any code that wants
+"the declarations of a block" must therefore collect the `Sdcl` statements —
+reading `bdecls` silently yields an empty list, which fails nothing and looks
+correct.
+
+This is how `E20C` compiled instead of refusing. I wrote the INITIAL-without-
+STATIC rule, wired it to `b.bdecls`, saw the program build cleanly, and the
+rule never fired because the attribute list it consulted was always empty. The
+same mistake in `pli80deps.ml`'s `walk_block` was harmless only because
+`walk_stmt` independently handles `Sdcl`, so the blocker audit stayed right.
+
+Consequence for the audit: its declaration findings come from statement
+walking, not `bdecls`. Consequence for anyone adding an attribute-driven rule:
+grep the parser for where the field is actually assigned before trusting it.
+
+## C117 — DR rejects multi-bit bit-string literals; wider BIT is a storage question, not a literal one (E2E-11 step 1a)
+
+`dcl b bit(5);` alone is fine [golden/e2e11u/T2: DR compiled it and emitted a
+`.REL`], and `b = c;` between two bit(5) variables is fine [same]. But
+`b = '10101'b;` is a **SYNTAX error in DR's own pass 1** with no `.REL`
+emitted [golden/e2e11r/T2 hand-written variant, superseded by T2 above which
+avoids the literal]. So `'0'b` / `'1'b` are the only bit literals this compiler
+has evidence for, and the `BIT(n) n>1` perimeter is about cell layout and copy
+lowering, not about literal syntax. Related refusals that DR proves are only
+perimeter gaps, pinned as negatives with their own DR goldens: bit-to-bit copy
+[N74 ← golden/e2e11u/T1], `bit(5)` copy [N75 ← .../T2], `STATIC INITIAL` on
+FIXED [N76 ← .../T3], bare `if f` on a bit variable [N77 ← .../T4].
+
+## C118 — probe source formatting: CRLF throughout, `;` then `\r\n\x1a`, and NO trailing `$` line (E2E-11 step 1a)
+
+Three ways to make a valid-looking probe fail for reasons that have nothing to
+do with the feature under test, all hit in this slice:
+
+* LF-only line endings make DR report `UNEXPECTED EOF` and emit no `.REL`
+  [golden/e2e11r/T1-T3 and e2e11s/T1-T3 -- two attempts, same cause].  CRLF
+  throughout is what DR's lexer expects; every real corpus source is CRLF.
+* A trailing `$` on its own line is a **DR syntax error** [e2e11t/T1-T3, after
+  fixing the line endings: `SYNTAX` in pass 1, no `.REL`]. Statement-terminator `$` is not required at the
+  end of a source, and adding one breaks compilation. My parser also rejects
+  it (`trailing garbage after final END`), so both sides agree here — but the
+  convention must be stated or probes keep failing mysteriously.
+* EOF must be `...;\r\n\x1a`: the `^Z` needs its own preceding CRLF [E2E-9
+  rule, restated].
+
+The working convention, matching `e13src/E20A.PLI` byte-for-byte in shape:
+CRLF body, final line `end <NAME>;\r\n`, then `\x1a`, no `$`.
+
+## C119 — DR elides a literal zero added/subtracted against a VARIABLE, not against a literal (E2E-11 step 1a)
+
+Twelve probes over four batches pin this exactly. Against a variable the term
+vanishes and DR emits a plain copy:
+
+```
+a = a + 0;      LHLD A / SHLD A     [T5]   -- byte-identical .REL to `a = a' [T6]
+a = a - 0;      LHLD A / SHLD A     [T7]
+a = a + 0 + 0;  LHLD A / SHLD A     [T8]   (nested elision, innermost collapses too)
+b = a + 0;      LHLD A / SHLD B     [T9]
+b = a + 0 + 0;  LHLD A / SHLD B     [T10]
+b = a - 0;      LHLD A / SHLD B     [T12]
+b = 0 + a;      LHLD A / SHLD B     [T13]  (zero on the LEFT elides as well)
+```
+
+Against a literal it does NOT: `b = 5 + 0;` takes DR's decimal pool path —
+`LXI H,*S / MVI A,01 / CALL ?DLDOP / LXI H,*S / MVI A,01 / CALL ?DLDOP / CALL
+?DADOP / CALL ?QDI15` [T11] — the same no-constant-folding rule already recorded
+for `3 + 2` [R2045, P044 line 3]. And a zero MINUEND is not droppable at all:
+`0 - a` is a negation, so the rule is asymmetric on `Sub`.
+
+`fp_add_guard`'s older note in this tree described `x = x + 0` as a bare
+`LHLD X ; SHLD X` pair — that was right all along — while the refusal wired to
+it (N56) turned a *capability gap* into what read like a language boundary. The
+gap is now closed by an AST-level elision (`elide_fixed_zero`, gated on every
+identifier in the kept expression being a 2-byte FIXED cell) plus a `k = 0` rung
+of the constant-bias ladder, which emits no bias instructions and so reproduces
+the copy shape with no new lowering. DEC and FLOAT zero-elision remain unprobed
+and keep their existing paths.

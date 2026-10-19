@@ -1,0 +1,9 @@
+PT4:
+  procedure options(main);
+  dcl f bit(1) static initial('1'b);
+  if f then s = 1;
+  dcl s fixed;
+  stop;
+end PT4;
+
+

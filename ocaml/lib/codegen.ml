@@ -45,6 +45,15 @@ type st =
   ; mutable items : rel_item list
   ; mutable pool : (int * int list) list  (* (data-addr, bytes) literal blocks *)
   ; mutable pool_next : int           (* next free pool offset *)
+  (* [E2E-11 step 1a-ii] STATIC cells.  DR's DATA area is ONE block ordered
+     [statics][literal pool][automatics] (C114, verified against E11D/E20D/E20E
+     byte totals); `S(...)' and `A(...)' in the listing are naming classes, not
+     sections, and the .REL carries plain Data-segment relocations for both.
+     A static cell therefore has an ABSOLUTE data address (it sits below the
+     pool base), while an automatic is still `declared offset + base', so
+     addr_of needs to know which table a name lives in. *)
+  ; mutable stat_addrs : (string * int) list
+  ; mutable stat_total : int
   ; mutable fmtq : int list
       (* [E2E-8] FIFO of pre-allocated PUT EDIT format-table addresses.  DR
          allocates EVERY format table in a block BEFORE any other pool item --
@@ -198,9 +207,15 @@ let op_sbb_a = 0x9f
    [int subset has no pool => base 0; matches DR SHLD/LHLD operands] *)
 let addr_of st name =
   let li = String.lowercase_ascii name in
-  match List.assoc_opt li st.vars with
-  | Some vi -> vi.off + st.base
-  | None -> failwith ("codegen: undeclared " ^ name)
+  (* STATIC cells come first: their offset is already an absolute DATA address
+     (they live BELOW the pool base), so adding st.base would overshoot by
+     exactly static_total + pool_total [C114, E20B/E20D/E20E] *)
+  match List.assoc_opt li st.stat_addrs with
+  | Some a -> a
+  | None ->
+      (match List.assoc_opt li st.vars with
+       | Some vi -> vi.off + st.base
+       | None -> failwith ("codegen: undeclared " ^ name))
 
 let vk_of st name =
   let li = String.lowercase_ascii name in
@@ -1308,13 +1323,67 @@ let lit_int (e : Ast.expr) =
   | Ast.Enumber t -> (try Some (parse_int_const t) with _ -> None)
   | _ -> None
 
+(* [E2E-11 step 1a, T5-T13] DR ELIDES an added/subtracted literal ZERO whenever
+   the other side is variable-bearing: `b = a + 0', `b = 0 + a' and `b = a - 0'
+   all lower to `LHLD A / SHLD B', and `a = a + 0 + 0' / `b = a + 0 + 0' to the
+   same single copy [golden/e2e11v/T5-T7, e2e11w/T8, e2e11x/T9-T11, e2e11y/T12-13].
+   It does NOT elide when BOTH sides are literals -- `b = 5 + 0' takes the
+   decimal pool path (?DLDOP / ?DADOP / ?QDI15) [T11], the same no-constant-folding
+   rule already recorded for `3 + 2' [R2045, P044 line 3].  A zero MINUEND is not
+   droppable either (`0 - a' is a negation, not a copy).
+   Gated on every variable in the kept expression being a plain 2-byte FIXED
+   (Vint): DEC and FLOAT elision are unprobed, so those keep their existing path
+   and whatever it refuses. *)
+let rec elide_fixed_zero st (e : Ast.expr) =
+  let is_zero_lit x =
+    match x.Ast.e with
+    | Ast.Enumber s -> (try parse_int_const s = 0 with _ -> false)
+    | _ -> false
+  in
+  let rec only_literals x =   (* recursive: must be let rec, or the reference
+                                inside its own body is unbound and the build
+                                fails -- which it did silently while I read
+                                warnings-only output as success *)
+    match x.Ast.e with
+    | Ast.Enumber _ -> true
+    | Ast.Ebinary (_, a, b) -> only_literals a && only_literals b
+    | _ -> false
+  in
+  match e.Ast.e with
+  | Ast.Ebinary (op, l, r) ->
+      if is_zero_lit r && not (only_literals l) && elide_ok st l then
+        elide_fixed_zero st l
+      else if op = Ast.Add && is_zero_lit l && not (only_literals r)
+              && elide_ok st r then
+        elide_fixed_zero st r
+      else
+        { e with
+          Ast.e = Ast.Ebinary (op, elide_fixed_zero st l, elide_fixed_zero st r) }
+  | _ -> e
+
+and elide_ok st (e : Ast.expr) =
+  (* every identifier reachable from e must be a plain FIXED BINARY cell *)
+  let ok = ref true in
+  let rec walk (y : Ast.expr) =
+    match y.Ast.e with
+    | Ast.Eident n -> if vk_of st n.Ast.orig <> Vint then ok := false
+    | Ast.Ebinary (_, a, b) -> walk a; walk b
+    | Ast.Eprefix (_, a) -> walk a
+    | _ -> ()
+  in
+  walk e; !ok
+
 let fp_add_guard (l : Ast.expr) (r : Ast.expr) =
+  (* [E2E-11 step 1a] a literal-0 operand reaching here means elide_fixed_zero
+     declined it -- a non-Vint operand somewhere in the expression, or both
+     sides literal.  The two-literal case below still refuses, which is right:
+     `b = 5 + 0' takes DR's DECIMAL pool path (?DLDOP / ?DADOP / ?QDI15) [T11],
+     it is NOT elided.  The old refusal here fired on `x = x + 0', which DR
+     lowers as a 6-byte self-copy [T5, byte-identical to `x = x' [T6]]; that
+     gap is closed by elide_fixed_zero + the k = 0 rung of the bias ladder, so
+     N56_ADD_ZERO_LIT is retired (a negative whose subject DR compiles documents
+     MY gap, not a language rule). *)
   match lit_int r with
-  | Some 0 ->
-      failwith
-        ("codegen: fixed-bin ADD whose RIGHT operand is the literal 0 is "
-         ^ "elided by DR to a bare `LHLD X ; SHLD X` pair [P044 line 5 "
-         ^ "`x = x + 0`]; my general ladder is not that shape [TBD]")
   | _ ->
       (match lit_int l, lit_int r with
        | Some _, Some _ ->
@@ -3440,6 +3509,10 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
        | Ast.Estring v -> store_char st n.Ast.orig (vk_of st n.Ast.orig) v
        | _ -> failwith "codegen: char store from non-literal [TBD]")
   | Ast.Eident n ->
+      (* [E2E-11 step 1a] DR's zero-elision pass, before any shape matching:
+         this is what turns `a = a + 0' into a 6-byte self-copy instead of an
+         ADD, and `b = a + 0 + 0' into one copy of `a' [T5, T8, T9, T13]. *)
+      let rhs = elide_fixed_zero st rhs in
       (* HL-REUSE PEEPHOLE [G114 $C]: `a = 5; b = 3;` lowers the second
          constant as 2x DCX H on the HL=5 still live after SHLD A, not a
          fresh LXI H. Only the delta 1..4 (DCX repeat) form is proven;
@@ -3486,7 +3559,7 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                  parse_int_const calls int_of_string on "2.5" and the failure is
                  an uncaught exception instead of a [TBD] -- exactly the R3045
                  crash class, re-introduced by widening the pattern. *)
-              && ks <> "0" && is_int_literal ks ->
+              && is_int_literal ks ->
            (* [E2E-11 step 1a] DR's SELF-ADD / SELF-SUB LADDER, now measured
               across the whole small-k range instead of inferred from one point.
               A program per k (golden/e2e11n, E22A02..E22A16, E22B01..E22B08),
@@ -3503,9 +3576,17 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
               they are now).  My generic path lowered `n = n + 2' as
               LHLD/XCHG/LXI H,2/DAD D, which computes the right VALUE and the
               wrong BYTES; that is the class of divergence byte-parity exists to
-              catch, and E21A found it by accident.  k = 0 has no sample, and a
-              1-byte target has none either (it would need the STA form), so both
-              keep refusing. *)
+              catch, and E21A found it by accident.
+                 k = 0          LHLD v ;                       SHLD v
+              is now sampled too: DR reduces `a = a + 0' and `a = a - 0' to the
+              bare self-copy, and its .REL for the two is BYTE-IDENTICAL to the
+              one for `a = a' [golden/e2e11v/T5, T6, e2e11w/T7 -- 21 bytes of
+              code each].  hl_bias already emits nothing for a zero bias, so
+              allowing k = 0 through the same arm reproduces DR with no extra
+              code; the previous `ks <> "0" guard sent it to the generic path,
+              which produced LXI H/SHLD/LHLD/XCHG/LXI H,0/DAD D -- right value,
+              wrong bytes.  A 1-byte target still has no sample (it would need
+              the STA form), so that keeps refusing. *)
            let k0 = parse_int_const ks in
            let k = if op = Ast.Sub then -k0 else k0 in
            let vi =
@@ -4570,9 +4651,46 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                           [TBD] (line %d)" s.Ast.spos.Source.line)
 
 
+type statics =
+  { sy_total : int                 (* bytes occupied below the pool *)
+  ; sy_addrs : (string * int) list  (* lowercase name -> absolute data addr *)
+  ; sy_cells : (int * int list) list (* (addr, init bytes) for the DATA segment *) }
+
+let empty_statics = { sy_total = 0; sy_addrs = []; sy_cells = [] }
+
+let bit1_init (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Ebit "1" -> Some 0x80
+  | Ast.Ebit "0" -> Some 0x00
+  | _ -> None
+
+(* The parser puts every declaration into bstmts as an Sdcl item and leaves
+   blk.bdecls = [] unconditionally [parser.ml:760, parser.ml:1089], so
+   "declarations of a block" means "the Sdcl statements in order".  Reading
+   bdecls instead silently yields an empty list -- which is exactly how E20C
+   (INITIAL without STATIC, DR's own pass-2 NOT STATIC) compiled here instead of
+   refusing: the attribute was simply never seen. *)
+let block_dcls (blk : Ast.block) : Ast.dcl list =
+  List.concat_map
+    (fun (st : Ast.stmt) ->
+      match st.Ast.st with Ast.Sdcl ds -> ds | _ -> [])
+    blk.Ast.bstmts
+
+(* STATIC / INITIAL attributes on one declaration (keys arrive in source case) *)
+let dcl_static (d : Ast.dcl) =
+  List.exists (fun (a : Ast.attr) -> String.lowercase_ascii a.Ast.akey = "static")
+    d.Ast.dattrs
+let dcl_initial (d : Ast.dcl) =
+  match
+    List.find_opt (fun (a : Ast.attr) ->
+      String.lowercase_ascii a.Ast.akey = "initial") d.Ast.dattrs
+  with
+  | Some a -> (match a.Ast.aargs with [e] -> Some e | _ -> None)
+  | None -> None
+
 let emit_program (progname : string) (auto_bytes : int)
-    (rows : (string * var_info) list) (stmts : Ast.stmt list)
-    (blk : Ast.block) =
+    (rows : (string * var_info) list) (statics : statics)
+    (stmts : Ast.stmt list) (blk : Ast.block) =
   (* ---- Step-0 semantic-safety gate (corpus audit REV 2, D3 + D4) ----
      Two FAIL-SILENT holes were found by the 44-program sweep: block
      options other than OPTIONS(MAIN) (ACK: OPTIONS(MAIN,STACK(2000)))
@@ -4767,8 +4885,18 @@ let emit_program (progname : string) (auto_bytes : int)
                     stmts + const_cells
   in
   let st =
-    { base = pool_total; items = []; pool = []
-    ; pool_next = 0; fmtq = []; dec_cells = []; lc = 0; last_imm = None; lowered = 0; temps = 0
+    (* [E2E-11 step 1a-ii] the pool base sits ABOVE the static cells, and the
+       pool allocator starts there too, so DATA is one block laid out
+       [statics][pool][automatics] exactly as DR does it [C114].  Static
+       initialiser bytes are pre-seeded as pool blocks at their absolute
+       addresses, which reuses the existing per-block SET-LC(data,addr)
+       emission [G113] -- DR emits a SET-LC per data block, not one flat run,
+       and E20B's .REL shows exactly that for a static cell followed by a
+       string literal. *)
+    { base = statics.sy_total + pool_total; items = []; pool = statics.sy_cells
+    ; pool_next = statics.sy_total; fmtq = []; dec_cells = []; lc = 0
+    ; last_imm = None; lowered = 0; temps = 0
+    ; stat_addrs = statics.sy_addrs; stat_total = statics.sy_total
     ; stop_seen = false; calls = layout.pl_calls
     ; procs =
         List.map
@@ -4880,7 +5008,8 @@ let emit_program (progname : string) (auto_bytes : int)
   let code_items = st.items in
   (* now build the ordered full item list *)
   let data_size =
-    pool_total + max auto_bytes layout.pl_total + 2 * st.temps
+    statics.sy_total + pool_total + max auto_bytes layout.pl_total
+    + 2 * st.temps
   in
   (* [E2E-9, DECPOLY / LONGNAME] DR emits the program's external name in
      PROG-NAME / EXTDEF / DEF-PUBLIC TRUNCATED TO SIX CHARACTERS: the 7-char
@@ -4928,12 +5057,141 @@ let emit_program (progname : string) (auto_bytes : int)
 (* build var_info rows from binder rows, keeping only fixed-bin scalars.
    NOTE: storage byte-size comes ONLY from Bind.bytes_of (the binder is the
    single authority on layout) — codegen does not re-derive it.  Returns
-   (progname, AUTO_BYTES excluding pool, vars). *)
+   (progname, AUTO_BYTES excluding pool, vars, statics).
+
+   [E2E-11 step 1a-ii] STATIC / INITIAL.  What DR allows here is deliberately
+   narrow, and every widening is a measured probe, not an inference:
+     * placement: one DATA area, [statics][pool][automatics] (C114).  Bind
+       packs statics INTO the auto offsets, so each automatic is corrected by
+       subtracting the bytes of every static declared BEFORE it -- the same
+       `drops` subtraction style proven for float formals in E2E-10 step 3b.
+     * initialiser VALUES: pinned only for bit(1) ('0'b -> 0x00, '1'b -> 0x80)
+       by E20A/E20B/E20D/E20E.  `initial' on any other kind is refused rather
+       than guessed, because an ignored initialiser is a silent VALUE divergence,
+       the worst class in this project.
+     * DR REQUIRES STATIC for an INITIALised bit string: E20C
+       (`dcl f bit(1) initial('1'b);`) passes pass 1, then fails pass 2 with
+       DR's own diagnostic `NOT STATIC' and emits no .REL.  That is a language
+       rule, so it refuses here instead of degrading.
+     * statics inside a NESTED procedure are unmeasured (the interaction with
+       bind's per-proc layout and with re-entry is unknown), so they refuse. *)
 let rows_of (b : Ast.block) =
   let rows = Bind.bind_rows b in
+  (* [E2E-11 step 1a-ii] Which declared names carry an EXPLICIT STATIC, and what
+     their INITIAL value is.  bind already keeps a separate static offset
+     counter (`soff'), giving static cells 0,1,2... and automatics their own
+     packing [bind.ml:329-340], which is exactly DR's [statics][pool][autos]
+     single DATA area once codegen adds the static total to the pool base
+     [C114].  So codegen re-derives NOTHING about placement -- it reads bind's
+     offset and only has to decide what it is allowed to lower.
+     Scope, deliberately narrow:
+       * explicit STATIC is accepted on BIT(1) only.  Static FIXED/DEC/CHAR/
+         FLOAT cells are a placement DR has not shown me here, and guessing the
+         initialiser encoding is a silent-value divergence -- the worst kind.
+       * a static-class row that is NOT an explicit static (FORMAT, FILE, ENTRY
+         -- bind's `stc' is broader than the attribute) would have consumed
+         `soff' bytes before my bit cell, shifting it.  DR's listing for that
+         mixture is unprobed, so it refuses instead of silently reordering.
+       * INITIAL without STATIC is DR's own pass-2 error `NOT STATIC' [E20C].
+       * statics are collected from the MAIN block's Sdcl statements; a name
+         declared static in a nested procedure is not in that map and refuses. *)
+  let static_dcls =
+    let one (d : Ast.dcl) =
+      ( String.lowercase_ascii d.dname.Ast.orig
+      , (dcl_static d, dcl_initial d, d.dname.Ast.pos.Source.line) )
+    in
+    List.map one (block_dcls b)
+  in
+  let has_static_class rt =
+    match rt with
+    | Bind.RTfile _ | Bind.RTformat | Bind.RTentry _ -> true
+    | _ -> false
+  in
+  let conflicting =
+    List.filter
+      (fun (nm, rt, _o, auto) ->
+        not (List.mem_assoc nm static_dcls)
+        && (match rt with
+            | Bind.RTbit 1 -> false
+            | _ -> auto = false && has_static_class rt))
+      rows
+  in
+  let sy_addrs = ref [] and sy_cells = ref [] and sy_total = ref 0 in
+  List.iter
+    (fun (nm, rt, off, auto) ->
+      let li = String.lowercase_ascii nm in
+      let flags = List.assoc_opt li static_dcls in
+      let explicit = match flags with Some (st, _i, _l) -> st | None -> false in
+      let init_opt = match flags with Some (_s, i, _l) -> i | None -> None in
+      let line = match flags with Some (_s, _i, l) -> l | None -> 0 in
+      if explicit then begin
+        if conflicting <> [] then
+          failwith
+            (Printf.sprintf
+               "codegen: STATIC mixed with a %s declaration is unsampled [TBD] (bind's static offset would place the bit cell after it; DR has not shown that combination)"
+               (match List.hd conflicting with
+                | (_, Bind.RTformat, _, _) -> "FORMAT"
+                | (n2, Bind.RTfile _, _, _) -> "FILE " ^ n2
+                | _ -> "static-class"));
+        match rt with
+        | Bind.RTbit 1 ->
+            sy_addrs := !sy_addrs @ [(li, off)];
+            sy_total := max !sy_total (off + 1);
+            (match init_opt with
+             | None -> ()
+             | Some e ->
+                 (match bit1_init e with
+                  | Some v -> sy_cells := !sy_cells @ [(off, [v])]
+                  | None ->
+                      failwith
+                        (Printf.sprintf
+                           "codegen: STATIC INITIAL value %s on BIT(1) is unsampled [TBD] (only the '0'b and '1'b literals have DR bytes [E20B/E20D]; anything else would be a silently wrong initialiser)"
+                           (Format.asprintf "%a" Parser.pp_e e))))
+        | _ ->
+            failwith
+              (Printf.sprintf
+                 "codegen: STATIC on %s is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are measured; line %d)"
+                 (Bind.rty_str rt) line)
+      end
+      else
+        match init_opt with
+        | Some _e ->
+            (* DR pass 2: `NOT STATIC', and no .REL is emitted [E20C] *)
+            failwith
+              (Printf.sprintf
+                 "codegen: INITIAL on %s without STATIC is rejected by DR \
+                  (pass 2 says NOT STATIC, no .REL) [TBD] (line %d)"
+                 (Bind.rty_str rt) line)
+        | None -> ())
+    rows;
+  (* INITIAL without STATIC on a name bind did not even place as a storage row
+     (e.g. an implicit-FLOAT name) is caught above only when the row exists; the
+     attribute check is repeated here so a declaration whose type refuses
+     elsewhere cannot quietly skip it. *)
+  let row_names = List.map (fun (n, _rt, _o, _a) -> (n, 0)) rows in
+  List.iter
+    (fun (li, (st, io, line)) ->
+      if not st && io <> None
+         && not (List.mem_assoc li row_names) then
+        failwith
+          (Printf.sprintf
+             "codegen: INITIAL without STATIC is rejected by DR (NOT STATIC) \
+              [TBD] (line %d)"
+             line))
+    static_dcls;
+  let statics =
+    { sy_total = !sy_total; sy_addrs = !sy_addrs; sy_cells = !sy_cells }
+  in
+  let sy_total = !sy_total in
+  let stat_set = !sy_addrs in
   let vars =
     List.filter_map
       (fun (nm, rt, off, _auto) ->
+        (* a static cell's address comes from st.stat_addrs via addr_of, so its
+           var_info offset is irrelevant here; automatics keep bind's packing
+           untouched, which is what leaves the 336 existing specimens
+           bit-for-bit unaffected. *)
+        let _ = stat_set in
         match rt with
         | Bind.RTbin p ->
             if p > 15 then
@@ -4998,10 +5256,14 @@ let rows_of (b : Ast.block) =
       rows
   in
   let auto_bytes =
-    List.fold_left (fun acc (_, vi) -> max acc (vi.off + vi.size)) 0 vars
+    List.fold_left
+      (fun acc (nm, vi) ->
+        if List.mem_assoc (String.lowercase_ascii nm) stat_set then acc
+        else max acc (vi.off + vi.size))
+      0 vars
   in
   let prog =
     match b.Ast.bname with Some n -> String.uppercase_ascii n.Ast.orig
                          | None -> failwith "codegen: main has no name"
   in
-  (prog, auto_bytes, vars)
+  (prog, auto_bytes, vars, statics)
