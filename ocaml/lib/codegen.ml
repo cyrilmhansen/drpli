@@ -14,7 +14,11 @@
 
 open Rel80
 
-type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt
+(* [E2E-11 step 1a] Vbit1 is the ONE bit-string kind DR behaviour is pinned for:
+   bit(1) is a single byte, significant in bit 7 ('1'b -> 0x80, '0'b -> 0x00)
+   [E20A/E20B/E20D/E20E, C112].  Wide bit(n) has no byte-level sample at all, so
+   it keeps refusing rather than borrowing this shape. *)
+type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
    (* fixed/varying char capacity. Varying representation PROVEN
       [V101-V104]: length byte at offset 0, data at +1..+n, total
       n+1 bytes (binder authority Bind.bytes_of).
@@ -865,6 +869,13 @@ let match_put_list_lit (s : Ast.stmt) =
 
 let parse_int_const (s : string) =
   int_of_string (String.concat "" (String.split_on_char '_' s))
+
+(* true iff the literal text is an integer (PL/I float literals like "2.5" and
+   "1.5e3" are not).  Used to keep numeric-literal arms out of float text. *)
+let is_int_literal (s : string) =
+  match int_of_string_opt (String.concat "" (String.split_on_char '_' s)) with
+  | Some _ -> true
+  | None -> false
 
 (* ---- [E2E-8] PUT EDIT: the compiled format list --------------------
    Decoded byte-wise from 11 DR tables (golden/e2e11/ R1001-R1010,
@@ -2543,7 +2554,7 @@ let vk_name (vk : vkind) : string =
   | Vint -> "fixed-binary" | Vfix n -> "char(" ^ string_of_int n ^ ")"
   | Vvar n -> "varying(" ^ string_of_int n ^ ")"
   | Vdec (p, s) -> "dec(" ^ string_of_int p ^ "," ^ string_of_int s ^ ")"
-  | Vflt -> "float"
+  | Vflt -> "float" | Vbit1 -> "bit(1)"
 
 (* ==================================================================
    [E2E-10 step 2] FLOAT BINARY(24): value model + operand-mode lowering.
@@ -3112,6 +3123,32 @@ let rec lower_bool st (c : Ast.expr) =
          "as boolean-materializing operands [DECPOLY, R2025]; other " ^
          "relations have no DR sample)")
 
+(* [E2E-11 step 1a] DR's 8080 CONSTANT-BIAS LADDER, measured over three
+   separate contexts rather than guessed from one.  To add a signed value B to
+   HL, DR repeats the 1-byte pointer instruction while it is cheap and switches
+   to `LXI B,two's-complement(B) / DAD B' (4 bytes) from |B| = 4 up, with no
+   upper bound observed:
+        v = v + 1/2/3   -> LHLD v ; (INX H)*k           ; SHLD v   [E22A02,A03]
+        v = v + 4..200  -> LHLD v ; LXI B,k ; DAD B     ; SHLD v   [E22A04..A16,A200]
+        v = v - 1/2/3   -> LHLD v ; (DCX H)*k           ; SHLD v   [E22B01..B03]
+        v = v - 4/5/8   -> LHLD v ; LXI B,FFFC/FFFB/FFF8 ; DAD B   [E22B04..B08]
+        if v > k        bias k+1:  DCX repeat of (k+1) for k<=2, LXI B otherwise  [E23G1..G8,G200]
+        if v < k        bias k  :  DCX repeat of k    for k<=3, LXI B otherwise  [E23L1..L8,L200]
+        if v ^= k       bias k  :  DCX repeat of k    for k<=3, LXI B otherwise  [E23N1..N8,N200]
+   One cost model explains all of them, which is why it replaces the three
+   hand-capped arms below (they refused or mis-lowered at k >= 4).  |B| = 4 is a
+   TIE by byte count and DR takes the LXI B side, so the threshold is inclusive
+   on the repeat side at 3 only. *)
+let hl_bias st (b : int) =
+  let ab = abs b in
+  if ab = 0 then ()
+  else if ab <= 3 then
+    for _ = 1 to ab do d st (if b > 0 then op_inx_h else op_dcx_h) done
+  else begin
+    let w = b land 0xffff in
+    d st op_lxi_b; d st (w land 0xff); d st ((w lsr 8) land 0xff); d st op_dad_b
+  end
+
 let lower_test_skip0 st (c : Ast.expr) =
   (* [E2E-10] every shape handled below is FIXED or DECIMAL.  A FLOAT
      operand must refuse here: reading `2.5` as an integer constant crashed
@@ -3127,6 +3164,37 @@ let lower_test_skip0 st (c : Ast.expr) =
      condition falls through to the catch-all refusal, so nothing is emitted
      for a shape DR has not shown. *)
   match c.Ast.e with
+  (* [E2E-11 step 1a] BIT(1) equality against a bit literal, matched BEFORE the
+     fixed/decimal ladders on purpose: a bit cell is 1 byte, and the generic
+     1-byte-zero test below would read it with LHLD (two bytes) -- a cell-length
+     error that could produce self-consistent but wrong bytes.  DR, from E11D /
+     E20B / E20D / E20E:
+        if f = '0'b ..   LDA f ; ANI 80 ; JNZ skip
+        if f = '1'b ..   LDA f ; ANI 80 ; SUI 80 ; JNZ skip
+     The extra SUI 80 appears ONLY on the '1'b side, the same normalizing trick
+     as the fixed-bin zero test: after ANI 80 the cell is 0x80 or 0x00, so
+     SUI 80 leaves zero exactly when it matched '1'b.  Other relations, the
+     reversed operand order, and bit-vs-bit comparison are unsampled: they fall
+     through to the catch-all refusal. *)
+  | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
+                 { Ast.e = Ast.Ebit b; _ })
+    when vk_of st v.Ast.orig = Vbit1 ->
+      let want1 =
+        match b with
+        | "1" -> true | "0" -> false
+        | _ -> failwith "codegen: BIT(1) compared against a wide bit literal [TBD]"
+      in
+      d st 0x3a (* LDA dir *); reloc st Data (addr_of st v.Ast.orig);
+      d st 0xe6 (* ANI *); d st 0x80;
+      if want1 then (d st 0xd6 (* SUI *); d st 0x80);
+      d st op_jnz; let slot = st.lc in d st 0; d st 0; slot
+  (* [E2E-10 step 3] FLOAT relations, restored here after an edit that
+     accidentally REPLACED this arm instead of inserting above it -- which is
+     why R3045/R3077/R3098 began dying in int_of_string on "2.5": with this arm
+     gone, `if a > 2.5' on floats fell through to the FIXED `> const' ladder
+     below.  Placed first on purpose: a float relation must never be captured by
+     the FIXED EqR Gt/Eident/Enumber ladder (R3037) or by parse_int_const
+     (R3045), and any other FLOAT condition falls through to the catch-all. *)
   | Ast.Ebinary (Ast.EqR rop, a, b)
     when is_float_expr st a || is_float_expr st b ->
       let opc = fl_cmp_rel st rop a b in
@@ -3171,38 +3239,41 @@ let lower_test_skip0 st (c : Ast.expr) =
       d st op_jnz; let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR Ast.Gt, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber k; _ }) ->
+      (* [E23G1..G8, G200] DR biases by k+1 and tests the high byte: the
+         bias goes through the shared ladder, so `> 1'/`> 2' use DCX repeats
+         and `> 3' upward use LXI B/DAD B.  `> 0' is unprobed (it would be a
+         bare DCX), so it still refuses. *)
       let kk = parse_int_const k in
       if kk < 1 then failwith "codegen: compare > k<=0 form unproven [TBD]";
       d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
-      let m = (-(kk + 1)) land 0xffff in
-      d st op_lxi_b; d st (m land 0xff); d st ((m lsr 8) land 0xff);
-      d st op_dad_b; d st op_mov_a_h; d st op_ora_a;
+      hl_bias st (-(kk + 1));
+      d st op_mov_a_h; d st op_ora_a;
       d st op_jm; let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR Ast.Ne, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber k; _ }) ->
-      (* [Y303/Y306] i ^= kk -> LHLD; (DCX H)*kk; MOV A,H; ORA L;
-         skip-when-equal = CA (the ^= skip byte quirk [C072]).
-         DR's switch to a cheaper ladder for large kk unproven:
-         cap 8, above -> [TBD] *)
+      (* [Y303/Y306 + E23N1..N8, N200] i ^= kk -> LHLD; <bias ladder for -kk>;
+         MOV A,H; ORA L; skip-when-equal = CA (the ^= skip byte quirk [C072]).
+         The old hand-written DCX-repeat form with a cap of 8 was WRONG from
+         kk=4 up -- DR switches to LXI B/DAD B there -- and the cap turned a
+         correct refusal into a silently wrong byte stream at 4..8 is not a
+         concern (it refused), but 1..3 now share the ladder and >=4 is exact. *)
       let kk = parse_int_const k in
-      if kk < 1 || kk > 8 then
-        failwith "codegen: ^= const range unproven [TBD]";
+      if kk < 1 then failwith "codegen: ^= 0 / negative const form unproven [TBD]";
       d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
-      for _ = 1 to kk do d st op_dcx_h done;
+      hl_bias st (-kk);
       d st op_mov_a_h; d st 0xb5;      (* ORA L *)
       d st 0xca;
       let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR Ast.Lt, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber k; _ }) ->
-      (* [Z401/Z405] i < kk: LHLD; (DCX H)*kk; MOV A,H; ORA A;
-         JP(F2) -> skip. NOTE ORA A here vs ORA L in the ^= form.
-         DR's switch point to a cheaper ladder for large kk
-         unproven: cap 8, above -> [TBD] *)
+      (* [Z401/Z405 + E23L1..L8, L200] i < kk: LHLD; <bias ladder for -kk>;
+         MOV A,H; ORA A; JP(F2) -> skip.  NOTE ORA A here vs ORA L in the ^=
+         form.  The cap of 8 was a hedge at the same switch point the ladder
+         now explains: kk <= 3 repeats DCX H, kk >= 4 takes LXI B/DAD B. *)
       let kk = parse_int_const k in
-      if kk < 1 || kk > 8 then
-        failwith "codegen: < const range unproven [TBD]";
+      if kk < 1 then failwith "codegen: < 0 / negative const form unproven [TBD]";
       d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
-      for _ = 1 to kk do d st op_dcx_h done;
+      hl_bias st (-kk);
       d st op_mov_a_h; d st op_ora_a;
       d st op_jp;
       let slot = st.lc in d st 0; d st 0; slot
@@ -3305,6 +3376,27 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
          popped off the float stack with ?FX44S [R3030-R3034] *)
       st.last_imm <- None;
       fl_store_var st (addr_of st n.Ast.orig) (fl_push st rhs)
+  | Ast.Eident n when vk_of st n.Ast.orig = Vbit1 ->
+      (* [E2E-11 step 1a] DR's whole BIT(1) store, from E20A:
+            LXI  H,F A(0002) ; MVI  M,80      ('1'b)
+            LXI  H,F A(0002) ; MVI  M,00      ('0'b)
+         A 4-byte address form plus a 2-byte memory immediate -- no accumulator,
+         no runtime call.  Only a 1-character bit LITERAL is accepted: copying
+         bit to bit, assigning from an expression, or storing a character/number
+         into a bit cell are all unsampled, so they keep refusing. *)
+      st.last_imm <- None;
+      let byte =
+        match rhs.Ast.e with
+        | Ast.Ebit "1" -> 0x80
+        | Ast.Ebit "0" -> 0x00
+        | _ ->
+            failwith
+              (Printf.sprintf
+                 "codegen: store into BIT(1) from %s is unsampled [TBD]                   (only the '1'b/'0'b literals are pinned by E20A)"
+                 (expr_kind_name rhs.Ast.e))
+      in
+      d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+      d st 0x36 (* MVI M,d *) (* ; DR: MVI M,80 / MVI M,00 [E20A] *); d st byte
   | Ast.Eident _n when is_float_expr st rhs ->
       failwith
         (Printf.sprintf
@@ -3384,17 +3476,49 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
             | _ ->
                 st.last_imm <- Some k;
                 d st op_lxi_h; d st (k land 0xff); d st ((k lsr 8) land 0xff))
-       | Ast.Ebinary (Ast.Add, { Ast.e = Ast.Eident m; _ },
-                      { Ast.e = Ast.Enumber "1"; _ })
+       | Ast.Ebinary ((Ast.Add | Ast.Sub as op), { Ast.e = Ast.Eident m; _ },
+                      { Ast.e = Ast.Enumber ks; _ })
          when String.lowercase_ascii m.Ast.orig
-              = String.lowercase_ascii n.Ast.orig ->
-           (* [Z401/Z403/Z404] x = x + 1 -> LHLD; INX H; SHLD.
-              HL holds a RUNTIME value afterwards: last_imm is
-              constant-tracking only -> None. -1/INX-variant forms
-              unproven, stay on the generic path. *)
+              = String.lowercase_ascii n.Ast.orig
+              (* the arm is for INTEGER literals only: a float literal written
+                 against a fixed variable (`x = x + 2.5') must fall through to
+                 the generic path, which refuses it.  Without this guard
+                 parse_int_const calls int_of_string on "2.5" and the failure is
+                 an uncaught exception instead of a [TBD] -- exactly the R3045
+                 crash class, re-introduced by widening the pattern. *)
+              && ks <> "0" && is_int_literal ks ->
+           (* [E2E-11 step 1a] DR's SELF-ADD / SELF-SUB LADDER, now measured
+              across the whole small-k range instead of inferred from one point.
+              A program per k (golden/e2e11n, E22A02..E22A16, E22B01..E22B08),
+              each preceded by `n = 100;' so the preceding HL cannot be blamed
+              for the choice:
+                 k = 1,2,3        LHLD v ; (INX H)*k          ; SHLD v
+                 k = 4..16        LHLD v ; LXI B,k ; DAD B     ; SHLD v
+                 k = -1,-2,-3     LHLD v ; (DCX H)*|k|         ; SHLD v
+                 k = -4,-5,-8     LHLD v ; LXI B,FFFC/FFFB/FFF8 ; DAD B ; SHLD v
+              so the break-even point is |k| = 4 in BOTH directions, with the
+              negative side carrying the two's-complement value in LXI B.  This
+              extends the Z401/Z403/Z404 `x = x + 1' rule that used to live here
+              alone (its comment said -1 and the INX repeats were unproven --
+              they are now).  My generic path lowered `n = n + 2' as
+              LHLD/XCHG/LXI H,2/DAD D, which computes the right VALUE and the
+              wrong BYTES; that is the class of divergence byte-parity exists to
+              catch, and E21A found it by accident.  k = 0 has no sample, and a
+              1-byte target has none either (it would need the STA form), so both
+              keep refusing. *)
+           let k0 = parse_int_const ks in
+           let k = if op = Ast.Sub then -k0 else k0 in
+           let vi =
+             match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars
+             with Some v -> v
+             | None -> failwith "codegen: undeclared self-add target [TBD]"
+           in
+           if vi.size <> 2 then
+             failwith
+               "codegen: self add/sub on a 1-byte FIXED target is unsampled [TBD] (E22 ladder is the 2-byte LHLD/SHLD form only)";
            st.last_imm <- None;
            d st op_lhld; reloc st Data (addr_of st n.Ast.orig);
-           d st op_inx_h
+           hl_bias st k;
            (* final SHLD comes from the common tail *)
        | _ ->
            st.last_imm <- None;
@@ -3930,7 +4054,14 @@ let lower_put_items_gen st (edit_tbl : int option)
                     if cap > 255 then failwith "codegen: cap > 255 [TBD]";
                     d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                     d st op_mvi_a; d st cap; call_ext st "?SLCTS"
-                | Vint -> assert false);
+                | Vint -> assert false
+                (* [E2E-11 step 1a] a BIT(1) variable in a PUT list: DR has no
+                   sample here (E20A/E20B/E20D/E20E never print a bit cell), and
+                   falling into the inner match would raise Match_failure
+                   instead of a readable refusal.  Refuse explicitly. *)
+                | Vbit1 ->
+                    failwith
+                      "codegen: PUT of a BIT(1) variable is unsampled [TBD]                        (no DR sample puts a bit string; the bit-list output                         edit form is E2E-11 step 3 territory)");
                tail true ())
       | PInum x ->
           if is_float_expr st x then begin
@@ -4844,6 +4975,17 @@ let rows_of (b : Ast.block) =
                    "codegen: FLOAT BINARY(%d) precision unsupported [TBD] (only BINARY(24) is characterized; R3013 proves the CELL is 4 bytes but not the computed precision)"
                    p);
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vflt; w = 0 })
+        | Bind.RTbit 1 ->
+            (* [E2E-11 step 1a] BIT(1) = one byte, high-bit justified
+               [E20A/E20B/E20D/E20E: `dcl s1 bit(1) static initial('1'b)` lands
+               at S(0000), `f = '1'b' emits MVI M,80 and `f = '0'b' MVI M,00].
+               Bind already sizes bit(n) as (n+7)/8, which gives 1 here; the
+               VALUE encoding (bit 7, not bit 0) is what the probes add. *)
+            Some (nm, { off; size = 1; vk = Vbit1; w = 0 })
+        | Bind.RTbit n ->
+            failwith
+              (Printf.sprintf
+                 "codegen: BIT(%d) has no byte-level DR sample [TBD] (only                   BIT(1) is characterized: 1 byte, value in bit 7)" n)
         (* Symbolic/non-storage kinds legitimately carry no lowering yet.
            Storage kinds outside the int subset must FAIL LOUD (C067
            policy: never silently drop constructs). *)

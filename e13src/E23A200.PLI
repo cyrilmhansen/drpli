@@ -1,0 +1,7 @@
+e23a200: procedure options(main);
+ dcl n fixed bin(15);
+ n = 100;
+ n = n + 200;
+ put list('N=', n);
+ end e23a200;
+

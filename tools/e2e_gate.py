@@ -368,6 +368,54 @@ SPECIMENS = {
     "R3073": ("e13src/R3073.PLI", "golden/e2e13d/R3073/R3073.REL"),
     "R3005": ("e13src/R3005.PLI", "golden/e2e13r/R3005/R3005.REL"),
     "R3045": ("e13src/R3045.PLI", "golden/e2e13r/R3045/R3045.REL"),
+    # [E2E-11 step 1a] retired N20_DOWILE, verbatim source (see REJECTS note)
+    "R3105": ("e13src/R3105.PLI", "golden/e2e11q/R3105/R3105.REL"),
+    "E22A02": ("e13src/E22A02.PLI", "golden/e2e11n/E22A02/E22A02.REL"),
+    "E22A03": ("e13src/E22A03.PLI", "golden/e2e11n/E22A03/E22A03.REL"),
+    "E22A04": ("e13src/E22A04.PLI", "golden/e2e11n/E22A04/E22A04.REL"),
+    "E22A05": ("e13src/E22A05.PLI", "golden/e2e11n/E22A05/E22A05.REL"),
+    "E22A06": ("e13src/E22A06.PLI", "golden/e2e11n/E22A06/E22A06.REL"),
+    "E22A07": ("e13src/E22A07.PLI", "golden/e2e11n/E22A07/E22A07.REL"),
+    "E22A08": ("e13src/E22A08.PLI", "golden/e2e11n/E22A08/E22A08.REL"),
+    "E22A09": ("e13src/E22A09.PLI", "golden/e2e11n/E22A09/E22A09.REL"),
+    "E22A12": ("e13src/E22A12.PLI", "golden/e2e11n/E22A12/E22A12.REL"),
+    "E22A16": ("e13src/E22A16.PLI", "golden/e2e11n/E22A16/E22A16.REL"),
+    "E22B01": ("e13src/E22B01.PLI", "golden/e2e11n/E22B01/E22B01.REL"),
+    "E22B02": ("e13src/E22B02.PLI", "golden/e2e11n/E22B02/E22B02.REL"),
+    "E22B03": ("e13src/E22B03.PLI", "golden/e2e11n/E22B03/E22B03.REL"),
+    "E22B04": ("e13src/E22B04.PLI", "golden/e2e11n/E22B04/E22B04.REL"),
+    "E22B05": ("e13src/E22B05.PLI", "golden/e2e11n/E22B05/E22B05.REL"),
+    "E22B08": ("e13src/E22B08.PLI", "golden/e2e11n/E22B08/E22B08.REL"),
+    "E23A200": ("e13src/E23A200.PLI", "golden/e2e11p/E23A200/E23A200.REL"),
+    "E23G1": ("e13src/E23G1.PLI", "golden/e2e11o/E23G1/E23G1.REL"),
+    "E23G2": ("e13src/E23G2.PLI", "golden/e2e11o/E23G2/E23G2.REL"),
+    "E23G200": ("e13src/E23G200.PLI", "golden/e2e11p/E23G200/E23G200.REL"),
+    "E23G3": ("e13src/E23G3.PLI", "golden/e2e11o/E23G3/E23G3.REL"),
+    "E23G4": ("e13src/E23G4.PLI", "golden/e2e11o/E23G4/E23G4.REL"),
+    "E23G5": ("e13src/E23G5.PLI", "golden/e2e11o/E23G5/E23G5.REL"),
+    "E23G6": ("e13src/E23G6.PLI", "golden/e2e11o/E23G6/E23G6.REL"),
+    "E23G7": ("e13src/E23G7.PLI", "golden/e2e11o/E23G7/E23G7.REL"),
+    "E23G8": ("e13src/E23G8.PLI", "golden/e2e11o/E23G8/E23G8.REL"),
+    "E23L1": ("e13src/E23L1.PLI", "golden/e2e11o/E23L1/E23L1.REL"),
+    "E23L2": ("e13src/E23L2.PLI", "golden/e2e11o/E23L2/E23L2.REL"),
+    "E23L200": ("e13src/E23L200.PLI", "golden/e2e11p/E23L200/E23L200.REL"),
+    "E23L3": ("e13src/E23L3.PLI", "golden/e2e11o/E23L3/E23L3.REL"),
+    "E23L4": ("e13src/E23L4.PLI", "golden/e2e11o/E23L4/E23L4.REL"),
+    "E23L5": ("e13src/E23L5.PLI", "golden/e2e11o/E23L5/E23L5.REL"),
+    "E23L6": ("e13src/E23L6.PLI", "golden/e2e11o/E23L6/E23L6.REL"),
+    "E23L7": ("e13src/E23L7.PLI", "golden/e2e11o/E23L7/E23L7.REL"),
+    "E23L8": ("e13src/E23L8.PLI", "golden/e2e11o/E23L8/E23L8.REL"),
+    "E23N1": ("e13src/E23N1.PLI", "golden/e2e11p/E23N1/E23N1.REL"),
+    "E23N2": ("e13src/E23N2.PLI", "golden/e2e11p/E23N2/E23N2.REL"),
+    "E23N200": ("e13src/E23N200.PLI", "golden/e2e11p/E23N200/E23N200.REL"),
+    "E23N3": ("e13src/E23N3.PLI", "golden/e2e11p/E23N3/E23N3.REL"),
+    "E23N4": ("e13src/E23N4.PLI", "golden/e2e11p/E23N4/E23N4.REL"),
+    "E23N5": ("e13src/E23N5.PLI", "golden/e2e11p/E23N5/E23N5.REL"),
+    "E23N6": ("e13src/E23N6.PLI", "golden/e2e11p/E23N6/E23N6.REL"),
+    "E23N8": ("e13src/E23N8.PLI", "golden/e2e11p/E23N8/E23N8.REL"),
+    "E20A": ("e13src/E20A.PLI", "golden/e2e11l/E20A/E20A.REL"),
+    "E21A": ("e13src/E21A.PLI", "golden/e2e11m/E21A/E21A.REL"),
+    "E21B": ("e13src/E21B.PLI", "golden/e2e11m/E21B/E21B.REL"),
     "R3004": ("e13src/R3004.PLI", "golden/e2e13/R3004/R3004.REL"),
     "R3012": ("e13src/R3012.PLI", "golden/e2e13/R3012/R3012.REL"),
     "R3014": ("e13src/R3014.PLI", "golden/e2e13/R3014/R3014.REL"),
@@ -566,9 +614,16 @@ REJECTS = {
     # N19_DOBY REMOVED [E2E-8]: `DO i = 1 TO 4 BY 2' is now PROVEN (R1011,
     # R1018, R1037 byte-exact vs fresh DR).  Its perimeter moved to N51
     # (step magnitude above 2, still unsampled).
-    "N20_DOWILE": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
-                   "  do while (i < 30);\n    put list('X');\n  end;\n"
-                   "end t;\n", "range unproven"),
+    # [E2E-11 step 1a] N20_DOWILE RETIRED: it existed because the `< const' arm
+    # capped its DCX-repeat ladder at 8 and refused above.  Measuring DR's
+    # constant-bias ladder (E23L1..L8/L200, E23G, E23N, E22A/B) showed the real
+    # rule -- |bias|<=3 repeats DCX H, >=4 takes LXI B,two's-complement / DAD B,
+    # with no upper bound -- so `i < 30' lowers as LHLD/LXI B,FFE2/DAD B exactly
+    # as DR emits it.  Its verbatim source is now positive specimen R3105
+    # (golden/e2e11q), byte-identical.  Same policy as N63-N66: a negative that
+    # DR proves compilable is a bug in my refusal, not a perimeter member.
+    # R3105 is compile-tier only: the program never assigns i, so its loop is
+    # infinite, which is a runtime property with no bearing on .REL parity.
     "N21_DOIDX": ("t:\n  procedure options(main);\n  dcl c char(4) varying;\n"
                   "  do c = 'A' to 'Z';\n    put list('X');\n  end;\n"
                   "end t;\n", "DO FROM form unproven"),

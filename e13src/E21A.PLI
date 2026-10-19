@@ -1,0 +1,13 @@
+e21a: procedure options(main);
+ dcl f bit(1);
+ dcl n fixed bin(15);
+ f = '1'b;
+ f = '0'b;
+ if f = '0'b then n = 1;
+ if f = '1'b then n = n + 2;
+ f = '1'b;
+ if f = '0'b then n = n + 4;
+ if f = '1'b then n = n + 8;
+ put list('N=', n);
+ end e21a;
+

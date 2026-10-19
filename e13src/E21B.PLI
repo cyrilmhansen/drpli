@@ -1,0 +1,11 @@
+e21b: procedure options(main);
+ dcl f bit(1);
+ dcl n fixed bin(15);
+ n = 0;
+ do while(f = '0'b);
+   n = n + 1;
+   if n > 2 then f = '1'b;
+ end;
+ put list('N=', n);
+ end e21b;
+

@@ -1,0 +1,8 @@
+t:
+  procedure options(main);
+  dcl i fixed;
+  do while (i < 30);
+    put list('X');
+  end;
+end t;
+
