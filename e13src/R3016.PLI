@@ -1,0 +1,8 @@
+r3016:
+ procedure options(main);
+   dcl a float;
+   a = 1E39;
+   put skip list(a);
+   stop;
+end r3016;
+

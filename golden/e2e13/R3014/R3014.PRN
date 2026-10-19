@@ -1,0 +1,91 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3014
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3014
+
+   1 a 0000 r3014:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b,c,d,e) float;
+   4 c 0006    a = 33554433;
+       0006       LXI  H,* S(0000)
+       0009       PUSH H
+       000A       LXI  H,A A(0014)
+       000D       POP  D
+       000E       CALL ?FX44M
+   5 c 0011    b = 0.50000002980232;
+       0011       LXI  H,* S(0004)
+       0014       PUSH H
+       0015       LXI  H,B A(0018)
+       0018       POP  D
+       0019       CALL ?FX44M
+   6 c 001C    c = 1.50000005960464;
+       001C       LXI  H,* S(0008)
+       001F       PUSH H
+       0020       LXI  H,C A(001C)
+       0023       POP  D
+       0024       CALL ?FX44M
+   7 c 0027    d = 2.50000005960464;
+       0027       LXI  H,* S(000C)
+       002A       PUSH H
+       002B       LXI  H,D A(0020)
+       002E       POP  D
+       002F       CALL ?FX44M
+   8 c 0032    e = -1.00000005960464;
+       0032       LXI  H,* S(0010)
+       0035       PUSH H
+       0036       LXI  H,E A(0024)
+       0039       POP  D
+       003A       CALL ?FX44M
+   9 c 003D    put skip list(a,b,c,d,e);
+       003D       LXI  D,0252
+       0040       LXI  B,0000
+       0043       CALL ?SYSPR
+       0046       MVI  A,01
+       0048       CALL ?SKPOP
+       004B       LXI  H,A A(0014)
+       004E       MVI  A,0E
+       0050       CALL ?QFCMS
+       0053       CALL ?PNVOP
+       0056       LXI  H,B A(0018)
+       0059       MVI  A,0E
+       005B       CALL ?QFCMS
+       005E       CALL ?PNVOP
+       0061       LXI  H,C A(001C)
+       0064       MVI  A,0E
+       0066       CALL ?QFCMS
+       0069       CALL ?PNVOP
+       006C       LXI  H,D A(0020)
+       006F       MVI  A,0E
+       0071       CALL ?QFCMS
+       0074       CALL ?PNVOP
+       0077       LXI  H,E A(0024)
+       007A       MVI  A,0E
+       007C       CALL ?QFCMS
+       007F       CALL ?PNVOP
+       0082       CALL ?QIOOP
+       0041       ==== 0085
+  10 c 0085    stop;
+       0085       CALL ?STOPX
+  11 a 0088 end r3014;
+
+CODE SIZE = 0088
+DATA AREA = 0028
+FREE SYMS = 37F0
+END  COMPILATION
+

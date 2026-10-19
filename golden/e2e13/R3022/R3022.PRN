@@ -1,0 +1,51 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3022
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3022
+
+   1 a 0000 r3022:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl a float;
+   4 c 0006    a = 3E-39;
+       0006       LXI  H,* S(0000)
+       0009       PUSH H
+       000A       LXI  H,A A(0004)
+       000D       POP  D
+       000E       CALL ?FX44M
+   5 c 0011    put skip list(a);
+       0011       LXI  D,0252
+       0014       LXI  B,0000
+       0017       CALL ?SYSPR
+       001A       MVI  A,01
+       001C       CALL ?SKPOP
+       001F       LXI  H,A A(0004)
+       0022       MVI  A,0E
+       0024       CALL ?QFCMS
+       0027       CALL ?PNVOP
+       002A       CALL ?QIOOP
+       0015       ==== 002D
+   6 c 002D    stop;
+       002D       CALL ?STOPX
+   7 a 0030 end r3022;
+
+CODE SIZE = 0030
+DATA AREA = 0008
+FREE SYMS = 38BF
+END  COMPILATION
+

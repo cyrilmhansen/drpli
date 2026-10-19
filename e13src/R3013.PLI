@@ -1,0 +1,10 @@
+r3013:
+ procedure options(main);
+   dcl f float binary(14);
+   dcl g float binary(24);
+   f = 1.5;
+   g = 1.5;
+   put skip list(f,g);
+   stop;
+end r3013;
+

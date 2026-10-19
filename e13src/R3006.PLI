@@ -1,0 +1,10 @@
+r3006:
+ procedure options(main);
+   dcl (a,b,c) float;
+   a = 1.00001525878906;
+   b = 1.00000011920929;
+   c = 1.00000005960464;
+   put skip list(a,b,c);
+   stop;
+end r3006;
+

@@ -67,22 +67,26 @@ already deferred; (c) a realistic FLOAT target is **FFACT, FLTPOLY, TEST**.
   | 2 | `00 00 00 82` | 128·2^(130−136) = 2 |
   | 2.5 | `00 00 20 82` | 160·2^(130−136) = 2.5 |
 
-  **LAW (fitted, 3 samples — and only 3):** byte 2 is the top fraction byte
-  with an IMPLIED leading one at 0x80 (so the significand is
-  `(0x80|m2)/128 + m1/32768 + m0/8388608`, i.e. `1.frac(23)`), byte 3 is the
-  exponent with bias 129:
-  `value = significand × 2^(e − 129)`.
-  Check: 1.5 = 0xC0/128 × 2^0 ✓ 2 = 0x80/128 × 2^1 ✓ 2.5 = 0xA0/128 × 2^1 ✓.
-  It is an MBF-style format, not IEEE-754 (`struct.unpack('<f', ...)` gives
-  garbage).  **The order of the two LOW fraction bytes (m1 vs m0) is
-  UNSAMPLED** — all three samples have both at 0x00 — so the byte order below
-  the top 7 fraction bits is a guess and must be pinned by one probe whose
-  literal needs 23 bits (e.g. `f = 1.0000153`).
-* **UNSAMPLED, must be pinned before implementing (6-8 probes):** the sign bit
-  (likely the exponent byte's MSB, MBF convention — unproven), zero, exponents
-  outside the sampled range, and the rounding of a decimal literal whose value
-  is not exactly representable (e.g. `0.1`, `1/3`).  Byte identity depends on
-  all of these; this is data-level work, not lowering work.
+  **SUPERSEDED BY STEP 1** (`e2e10-step1-float-model.md`, CLAIMS C100/C101).
+  What step 1 established, with 60/60 pool cells reproduced byte-exactly by
+  `tools/floatmodel.py`: little-endian 23-bit fraction in bytes 0..2 with an
+  IMPLIED leading one, **sign in byte 2 bit 7** (not the exponent byte),
+  characteristic in byte 3 with bias 129, `value = (-1)^s (1 + frac/2**23)
+  2**(byte3-129)`; zero = all four bytes 0 and exponent byte 0 is a legal NORMAL
+  characteristic (so zero is a special case, not exp 0); range |v| in
+  [2**-129, 2**127) with anything outside rejected in pass 2 with `CONVERT`
+  (1E39, 1.8E38, 1E-45, 1E-60 rejected; 1E38, 1.6E38, 3E-39, 2E-39 accepted);
+  no subnormals; no negative zero (`-0.0` shares the zero cell); literal rounding
+  = nearest with **ties away from zero**, pinned by exact integer ties
+  (16777217->16777218, 16777219->16777220, and both negatives), which EXCLUDES
+  round-half-even and round-toward-+inf; literals are taken exactly and DR reads
+  >=16 significant digits; literal cells precede variables in the data area, are
+  allocated in first-use order and deduplicated by identical bytes; every float
+  variable is 4 bytes including `float binary(14)`.
+  The byte-order caveat above is resolved: `0.1` -> `cd cc 4c 7d` exercises all
+  three fraction bytes at once, and 2**-16 / 2**-23 land in byte 0 as predicted.
+  What step 1 did NOT settle is listed in C101's UNRESOLVED block (operand-mode
+  suffix rule, binary(14) computed precision, runtime tie direction).
 
 ### 2.2 Lowering — the DEC machinery transfers surprisingly well
 

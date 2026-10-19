@@ -16,8 +16,32 @@ CPU speed is unlimited, CPU executes undocumented instructions
 
 A>C:
 C>
->>> PLI D:R3005 $L$C$D
-PLI D:R3005 $L$C$D
+>>> PLI D:R3010 $L$C$D
+PLI D:R3010 $L$C$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:R3011 $L$C$D
+PLI D:R3011 $L$C$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:R3012 $L$C$D
+PLI D:R3012 $L$C$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:R3013 $L$C$D
+PLI D:R3013 $L$C$D
 
    NO ERROR(S) IN PASS 1
 
@@ -27,6 +51,6 @@ C>
 >>> A:BYE (halt)
 
 C>A:BYE
-I/O ran for 4021 ms, waited for 0 ms
-CPU executed 13221184 t-states in 9 ms
-Clock frequency 1427.77 MHz
+I/O ran for 10047 ms, waited for 0 ms
+CPU executed 53346192 t-states in 32 ms
+Clock frequency 1621.61 MHz

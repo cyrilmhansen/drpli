@@ -1,0 +1,12 @@
+r3011:
+ procedure options(main);
+   dcl (a,b,c,d,e) float;
+   a = 0.1;
+   b = 0.2;
+   c = 1.1;
+   d = 3.14159;
+   e = 12345.678;
+   put skip list(a,b,c,d,e);
+   stop;
+end r3011;
+

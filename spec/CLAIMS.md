@@ -1124,3 +1124,111 @@ Next slice, in order: implement rules 1, 3, 4, 5 (each needs 1-2 more probes --
 `x - y` with literals, `x * 4`, `1 * x`, `x + 0` inside a condition, pool-cell
 ordering for two 1-digit decimal literals), then un-refuse N56-N60 and register
 P044/R2043/R2045/R2046 as positives.
+
+## C100 — DR FLOAT BINARY(24) representation: the 4-byte format (E2E-10 step 1, RESEARCH ONLY)
+
+Nothing in this claim or C101 changed the compiler: `git diff --stat -- ocaml/
+tools/ oracle/` at the previous commit was empty and step 1 touched only
+`tools/floatmodel.py`, `e13src/` probe sources and `golden/e2e13/` oracle
+output.  Evidence is 20 DR specimens compiled with `$L$C$D` (code traces plus
+`.REL`), including two corpus programs (FLTPOLY, FFACT) and eighteen probes
+R3001-R3025.  **`tools/floatmodel.py` reproduces 60/60 float-literal pool cells
+byte-exactly with 0 mismatches, plus 43 internal assertions**; three further
+pool cells are correctly excluded as STRING literals (FLTPOLY's `'       2'`
+shares the literal pool: `20 20 20 20`, `'Type'`: `54 79 70 65`).
+
+FORMAT, all bytes DIRECTLY OBSERVED:
+
+    byte 0  fraction bits  7..0     (little-endian)
+    byte 1  fraction bits 15..8
+    byte 2  bits 6..0 = fraction bits 22..16 ; bit 7 = SIGN (set = negative)
+    byte 3  characteristic: value = 2**(byte3 - 129)
+
+    value = (-1)^sign * (1 + fraction/2**23) * 2**(byte3 - 129)
+
+* Implied leading one, 23 stored fraction bits -- 24 significant bits, which is
+  exactly what `float binary(24)` names.  Byte order is little-endian across ALL
+  THREE fraction bytes: `1.00001525878906` (1+2**-16) -> `80 00 00 81` puts the
+  bit in byte 0, `1.00000011920929` (1+2**-23) -> `01 00 00 81` also byte 0, and
+  `0.1` -> `cd cc 4c 7d` exercises bytes 0,1,2 simultaneously.  This resolves the
+  "order of the two low fraction bytes is a guess" caveat I recorded in the
+  E2E-10 assessment (`e2e10-float-perimeter-assessment.md` 2.1): it is no longer
+  a guess.  It is NOT IEEE-754 (`struct.unpack('<f', ...)` yields garbage).
+* Sign lives in the fraction's top byte, not the exponent byte: `1.75` ->
+  `00 00 60 81`, `-1.75` -> `00 00 e0 81`; `-127.5` -> `00 00 ff 87` shows bit 7
+  set while bits 6..0 stay 0x7F.  [R3018]
+* ZERO is the all-four-bytes-zero pattern; exponent byte 0 is a legal NORMAL
+  characteristic (`2E-39` -> `7e 39 2e 00` = 1.361 * 2**-129 [R3023]), so zero is
+  a special case, not "exp 0".  `0`, `0.0` and `-0.0` all collapse to the single
+  cell `00 00 00 00` [R3007]: DR has NO negative zero.  Side effect worth
+  recording: 1.0 * 2**-129 would also be `00 00 00 00`, so the encoding is
+  technically ambiguous at that one magnitude -- unreachable from any decimal
+  literal DR accepts, and harmless, but it means "exp byte 0" alone must never be
+  used to test zero.
+* Magnitude range: exponent byte 0..255, i.e. |v| in [2**-129, 2**127).  DR
+  rejects anything outside it in PASS 2 with the diagnostic `CONVERT` and
+  produces NO .REL: rejected -- `1E39`, `1.8E38` (> 2**127), `1E-45`, `1E-60`
+  (< 2**-129); accepted -- `1E38` -> `99 76 16 ff` (byte 255), `1.6E38`,
+  `3E-39` (byte 1), `2E-39` (byte 0), `1E-20` -> `08 e5 3c 3e` (byte 62).
+  Boundary behaviour is therefore a COMPILE-TIME property my future float
+  support must reproduce (refuse, not silently saturate).
+* No subnormals were observed at any magnitude in range.
+
+## C101 — DR's literal-to-float conversion: rounding, range check, pool rules (E2E-10 step 1)
+
+* ROUNDING: nearest, **TIES AWAY FROM ZERO** -- the same tie direction as the
+  DECIMAL ROUND law C087, arrived at independently.  Pinned by EXACT integer
+  ties (a tie is only a tie when the literal is exact, so I used integers at the
+  mantissa-capacity boundary, where my first attempt with 14-digit decimals was
+  NOT a tie at all -- 1.00000005960464 is strictly below 1+2**-25 and rounds down
+  for a different reason):
+
+  | literal | exact position | DR bytes | DR value |
+  |---|---|---|---|
+  | `16777217` | half-way between 16777216 and 16777218 | `01 00 00 99` | 16777218 (UP) |
+  | `16777219` | half-way between 16777218 and 16777220 | `02 00 00 99` | 16777220 (UP) |
+  | `-16777217` | half-way | `01 00 80 99` | -16777218 (away from 0) |
+  | `-16777219` | half-way | `02 00 80 99` | -16777220 (away from 0) |
+  | `50331649` | quarter ulp | `00 00 40 9a` | 50331648 (nearest) |
+
+  Round-half-to-EVEN is EXCLUDED: it would have given 16777216 and -16777216.
+  "Toward +infinity" is EXCLUDED: the negative ties moved away from zero.
+* The decimal literal is taken to its EXACT value before rounding -- a single
+  `nearest/exact` model reproduces all 60 cells, including `0.1` (`.6` of an
+  ulp -> up), `12345.678`, `3E7`, `1E-20`.  No intermediate 9-digit decimal
+  rounding was needed to fit any sample, and DR reads at least 16 significant
+  digits (`1.0000000596046448` rounded UP, `1.00000005960464` rounded DOWN --
+  both correct only if the extra digits are seen) [R3006, R3021].
+* Pool rules, observed and consistent with the DEC rules of C084/C090:
+  float literal cells occupy the data area BEFORE the variables (R3013: cell at
+  A(0000), f at A(0004), g at A(0008); R3001: cells 0/4, vars 8/C), cells are
+  allocated in FIRST-USE order, and cells are DEDUPLICATED by identical bytes
+  (R3007's four zero literals share one cell; R3010's `16777217` and
+  `16777218` share one; R3012's `1.00000005960464` and `1.00000004470348` share
+  one; R3013's `float binary(14)` and `float binary(24)` share the `1.5` cell).
+* Every float VARIABLE occupies exactly 4 bytes, regardless of declared
+  precision: `dcl f float binary(14)` and `dcl g float binary(24)` are 4 bytes
+  apart [R3013], and `float` == `float binary(24)` [R3001].  STRIPPED
+  ARITHMETIC PRECISION for binary(14) is NOT established -- see unresolved.
+* Literal -> cell store form (compile-time layout only): the literal address and
+  the variable address are both materialised and handed to the runtime --
+  `LXI H,*S(cell) / PUSH H / LXI H,<var> / POP D / CALL ?FX44M` [R3001, R3007,
+  R3013].  Float-to-float variable copy uses the same `?FX44M` with two
+  variable addresses; PUT of a variable is `LXI H,<var> / MVI A,0E / CALL
+  ?QFCMS` (width byte is the CONSTANT 14, not a precision) and PUT of a stack
+  value (e.g. a call result) is `?QFCSS`.
+
+UNRESOLVED AFTER STEP 1 (deliberately not guessed):
+
+1. `float binary(14)`/long float: storage is 4 bytes, but is the *computed*
+   precision truncated (which would change runtime digits and console bytes)?
+   Untested; my planned subset is binary(24)-only with a guard.
+2. Whether DR's runtime arithmetic (`?FA44M`, `?FM44M`, ...) uses the same tie
+   direction as its literal converter.  Irrelevant for `.REL` byte identity;
+   relevant only to console equality, which comes from linking the same PLILIB.
+3. The operand-mode suffix rule (`?FA44M` vs `?FA44S` vs `?FA44L`, `?FD44R`,
+   `?FS44M`) -- the genuinely new lowering law, and the expected centre of
+   step 2/3 work.  Step 1 says nothing about it.
+4. Subnormals: none observed; whether the runtime ever produces one is unknown.
+5. The exp-byte-0/zero encoding ambiguity noted above: unreachable from source,
+   but recorded so nobody "fixes" it later.
