@@ -1,0 +1,81 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E11F
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E11F
+
+   1 a 0000 e11f: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl sysin file;
+       0006       LXI  H,0000
+       0009       DAD  SP
+       000A       SHLD * A(000B)
+   3 c 000D  dcl a fixed bin(15);
+   4 c 000D  on endfile(sysin) goto out;
+       000D       LXI  H,SYSIN
+       0010       MVI  A,05
+       0012       CALL ?ONCOP
+       0015       JMP  0000
+       0018       JMP  0000
+   5 c 001B out:
+       0016       ==== 001B
+       001B       LHLD * A(000B)
+       001E       SPHL 
+       001F       CALL ?RECOV
+   6 c 0022  get list(a);
+       0022       LXI  D,0290
+       0025       LXI  B,0000
+       0028       CALL ?SYSIN
+       002B       CALL ?GNVOP
+       002E       JP   0000
+       0031       CALL ?QCIOP
+       0034       SHLD A A(0009)
+       002F       ==== 0037
+       0037       CALL ?QIOOP
+       0026       ==== 003A
+   7 c 003A  put list('A=', a);
+       003A       LXI  D,0252
+       003D       LXI  B,0000
+       0040       CALL ?SYSPR
+       0043       LXI  H,* S(0000)
+       0046       MVI  A,02
+       0048       CALL ?SLCTS
+       004B       CALL ?PNCOP
+       004E       LHLD A A(0009)
+       0051       MVI  A,09
+       0053       CALL ?QICOP
+       0056       CALL ?PNVOP
+       0059       CALL ?QIOOP
+       003E       ==== 005C
+   8 c 005C  put list('THROUGH');
+       005C       LXI  D,0252
+       005F       LXI  B,0000
+       0062       CALL ?SYSPR
+       0065       LXI  H,* S(0002)
+       0068       MVI  A,07
+       006A       CALL ?SLCTS
+       006D       CALL ?PNCOP
+       0070       CALL ?QIOOP
+       0060       ==== 0073
+   9 a 0073  end;
+       0073       CALL ?STOPX
+
+CODE SIZE = 0076
+DATA AREA = 000D
+FREE SYMS = 3877
+END  COMPILATION
+

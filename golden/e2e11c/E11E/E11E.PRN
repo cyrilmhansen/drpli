@@ -1,0 +1,78 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E11E
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   3 b       dcl a fixed bin(31);
+NOT IMP                         ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E11E
+
+   1 a 0000 e11e: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl sysin file;
+   3 c 0006  dcl a fixed bin(31);
+   4 c 0006  get list(a);
+       0006       LXI  D,0290
+       0009       LXI  B,0000
+       000C       CALL ?SYSIN
+       000F       LXI  H,A A(0009)
+       0012       MOV  L,A
+       0013       ADD  A
+       0014       SBB  A
+       0015       MOV  H,A
+       0016       PUSH H
+       0017       CALL ?GNVOP
+       001A       JP   0000
+       001D       CALL ?QCIOP
+       0020       POP  D
+       0021       MOV  M,E
+       0022       INX  H
+       0023       MOV  M,D
+       001B       ==== 0024
+       0024       CALL ?QIOOP
+       000A       ==== 0027
+   5 c 0027  put list('A=', a);
+       0027       LXI  D,0252
+       002A       LXI  B,0000
+       002D       CALL ?SYSPR
+       0030       LXI  H,* S(0000)
+       0033       MVI  A,02
+       0035       CALL ?SLCTS
+       0038       CALL ?PNCOP
+       003B       LHLD A A(0009)
+       003E       MVI  A,09
+       0040       CALL ?QICOP
+       0043       CALL ?PNVOP
+       0046       CALL ?QIOOP
+       002B       ==== 0049
+   6 c 0049  put list('REACHED');
+       0049       LXI  D,0252
+       004C       LXI  B,0000
+       004F       CALL ?SYSPR
+       0052       LXI  H,* S(0002)
+       0055       MVI  A,07
+       0057       CALL ?SLCTS
+       005A       CALL ?PNCOP
+       005D       CALL ?QIOOP
+       004D       ==== 0060
+   7 a 0060  end;
+       0060       CALL ?STOPX
+
+CODE SIZE = 0063
+DATA AREA = 000D
+FREE SYMS = 3894
+END  COMPILATION
+

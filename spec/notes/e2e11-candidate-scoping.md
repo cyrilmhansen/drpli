@@ -1,4 +1,27 @@
-# E2E-11 candidate scoping — what actually gates the remaining 32 corpus programs
+# E2E-11 candidate scoping — SUPERSEDED by `e2e11-step0-step1-endfile.md`
+
+> **Read the newer note instead.**  This draft ranked candidates by the FIRST
+> refusal my compiler reports, which the user correctly rejected: most remaining
+> programs need several kinds at once, so a first-blocker ranking systematically
+> over-states the payoff of whatever happens to be checked first.  Two concrete
+> errors it made, both corrected by the full dependency audit
+> (`ocaml/bin/pli80deps.exe` + `tools/blocker_audit.py`):
+>
+> * it reported **FILE as gating 14 programs**, which was a first-blocker artefact;
+>   the complete sets show FILE travels with `ON ENDFILE` (8/8 in this corpus) and
+>   with `open` (10/17), and **no program is closable by FILE alone**;
+> * it **missed `CALL` as a statement entirely**, which is the single largest
+>   blocker in the corpus (23 programs) and is unimplemented
+>   (`codegen.ml: Ast.Sprocedure_stmt -> failwith`).
+>
+> `FLTPOLY2` survives as the near-term target, now with a *measured* requirement
+> set — exactly `{BIT(1) + STATIC INITIAL}` and `{FILE + ON ENDFILE}` — instead of
+> a guess, and `REVERT` is confirmed unsuitable (it also needs LABEL-as-data and
+> `GOTO`).  Keeping this file for the record rather than deleting it, because the
+> mistake it documents is the mistake the audit exists to prevent.
+
+---
+
 
 Date: 2026-10-20, immediately after E2E-10 closed (FFACT, FLTPOLY, TEST
 accepted; corpus 9/41 EXACT, 0 DIFFERS, 32 REFUSED; gate 285 byte-exact /

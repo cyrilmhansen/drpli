@@ -1,0 +1,8 @@
+e11k: procedure options(main);
+%replace false by '0'b;
+ dcl f bit(1) static initial(false);
+ dcl n fixed bin(31);
+ if f = false then n = 5;
+ put list('N=', n);
+ end;
+

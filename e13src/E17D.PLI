@@ -1,0 +1,9 @@
+e17d: procedure options(main);
+ dcl outf file;
+ open file(outf) stream output title('$1.$1');
+ put file(outf) list('HELLO');
+ put file(outf) list(42);
+ close file(outf);
+ put list('WROTE');
+ end e17d;
+

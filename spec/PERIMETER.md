@@ -57,8 +57,30 @@ becomes a rule in our grammar/binder:
 | `PUT ... FROM (…)`/`TO` in FILE stmts, keyed ISAM suite | works | §10, App E | **[S]** | |
 | POINTER arithmetic (`+=`) | ? | §3.4 says only = and -= defined | probe later | |
 
-| FIXED BINARY(p) with p>15 | **NOT IMP** at dcl (P068 L-series sweep: 15 ok / 16..32 fail) | Subset G §3.2.2 permits (max 31) | **[M]** | DR 16-bit-RTL cut; storage ladder still computed for rejected dcls; P008's lone pass-1 error retro-explained. Reimpl: compiler-track caps at 15 w/ diagnostic; std-track may add soft 32-bit. |
+| FIXED BINARY(p) / FIXED DECIMAL(p) with p>15 | **NOT IMP** at dcl; **no `.REL` emitted** (E1415/E1416..E1432, E15D09/E15D16/E15D31 — golden/e2e11f) | Subset G §3.2.2 permits (max 31) | **[M]** | DR 16-bit-RTL cut. **Evidence refresh:** this row previously cited a "P068 L-series sweep" whose artefacts no longer exist (every `golden/probe2*/P068*/` holds only `dir.txt`). Re-established live. Enforcement moved from a partial codegen arm to `bind.check_fixed_prec` (unconditional, earliest point known); storage ladder re-derived from E19A, and the old `P063A` citation — which described 16/24/32-bit storage for types DR cannot compile — removed. N24/N27/N72/N73 pin it. |
 | identifiers starting $ or _ | **SYNTAX** (P067D) | Subset G §1.1.3 ALLOWS $ and _ start chars | **[M]** minor | lexer keeps alnum; revisit in std mode |
+
+## E2E-11 frontier — measured from DR, NOT yet implemented by my build
+
+These rows record what the oracle says about constructs I currently refuse.  All
+are **[S]** (the compiler accepts them, so the byte-parity track must eventually
+reproduce them); none is supported by my build yet, and each refusal is loud.
+Full evidence in `spec/notes/e2e11-step0-step1-endfile.md`, claims C109-C113.
+
+| construct | DR behaviour (observed) | my build | evidence |
+|---|---|---|---|
+| `dcl f file;` (SYSIN) | no data storage; PLILIB control block at TPA `0x0290` | refuses | E11E, C109 |
+| `dcl f file;` (user file) | own control block in the program's data area | refuses | E17A, C109 |
+| `ON ENDFILE(f) <unit>;` | `LXI H,<cb>` / `MVI A,05` / `CALL ?ONCOP` / `JMP` over / inline unit / `RET`; 6 bytes data | refuses | E11A, E11C, E17A, C109 |
+| ENDFILE, **handled** | unit runs once; interrupted GET **completes unassigned**; next statement runs; no re-entry, no termination | n/a | E18B, E17A, E11A, E11C, C110 |
+| ENDFILE, **unhandled** | TERMINAL: `END OF FILE (1), File: <var>=<name>` + traceback | n/a | E18A, C110 |
+| `get file(f) list(x)` | `LXI H,<cb>` / `LXI D,0690` / `LXI B,0` / `CALL ?SIOOP` then the shared DEC reader | refuses | E17A, C111 |
+| `get list(x)` (SYSIN) | `LXI D,0290` / `LXI B,0` / `CALL ?SYSIN` then the same DEC reader | refuses | E11E, C111 |
+| `open file(f) stream title(t)` | `?SLCTS`(t) + 6-word push block + `LXI H,<cb>` + `CALL ?OIOOP` | refuses | E17A, C111 |
+| `bit(1)` storage | **1 byte, high-bit justified**: `'1'b`→`0x80`; store `LXI H,c`/`MVI M,80`; test `LDA c`/`ANI 80`/`JNZ` | refuses | E11C, E11D, E17A, C112 |
+| `STATIC INITIAL` on `bit(1)` | initialises at entry, independent of any FILE use (E11D has no FILE at all and runs) | refuses | E11D, C112 |
+| `CALL p(args);` as a **statement** | (not yet probed for lowering shape) | refuses | **23 corpus programs** — #1 payoff, E2E-11 step 4 |
+| `bit(16)` and wide bit strings | unknown | refuses | unprobed |
 
 ## Grammar/reimpl policy
 1. Grammar accepts [S] exactly as the compiler does (byte-parity track

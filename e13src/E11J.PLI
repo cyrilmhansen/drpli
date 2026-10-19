@@ -1,0 +1,7 @@
+e11j: procedure options(main);
+ dcl f bit(1) initial('0'b);
+ dcl n fixed bin(31);
+ if f = '0'b then n = 4;
+ put list('N=', n);
+ end;
+

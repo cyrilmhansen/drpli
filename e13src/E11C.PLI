@@ -1,0 +1,14 @@
+e11c: procedure options(main);
+ dcl sysin file;
+ dcl efile bit(1) static initial('0'b);
+ dcl x fixed bin(15);
+ on endfile(sysin) begin;
+   efile = '1'b;
+ end;
+ do while(efile = '0'b);
+   get list(x);
+   put list('X=', x);
+ end;
+ put list('DONE');
+ end;
+

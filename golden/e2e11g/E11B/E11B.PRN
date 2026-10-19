@@ -1,0 +1,109 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E11B
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E11B
+
+   1 a 0000 e11b: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl sysin file;
+   3 c 0006  dcl a fixed bin(15);
+   4 c 0006  dcl b fixed bin(15);
+   5 c 0006  on endfile(sysin) put list('SECOND');
+       0006       LXI  H,SYSIN
+       0009       MVI  A,05
+       000B       CALL ?ONCOP
+       000E       JMP  0000
+       0011       LXI  D,0252
+       0014       LXI  B,0000
+       0017       CALL ?SYSPR
+       001A       LXI  H,* S(0000)
+       001D       MVI  A,06
+       001F       CALL ?SLCTS
+       0022       CALL ?PNCOP
+       0025       CALL ?QIOOP
+       0015       ==== 0028
+   6 c 0028  get list(a);
+       0028       RET  
+       000F       ==== 0029
+       0029       LXI  D,0290
+       002C       LXI  B,0000
+       002F       CALL ?SYSIN
+       0032       CALL ?GNVOP
+       0035       JP   0000
+       0038       CALL ?QCIOP
+       003B       SHLD A A(000D)
+       0036       ==== 003E
+       003E       CALL ?QIOOP
+       002D       ==== 0041
+   7 c 0041  put list('A=', a);
+       0041       LXI  D,0252
+       0044       LXI  B,0000
+       0047       CALL ?SYSPR
+       004A       LXI  H,* S(0006)
+       004D       MVI  A,02
+       004F       CALL ?SLCTS
+       0052       CALL ?PNCOP
+       0055       LHLD A A(000D)
+       0058       MVI  A,09
+       005A       CALL ?QICOP
+       005D       CALL ?PNVOP
+       0060       CALL ?QIOOP
+       0045       ==== 0063
+   8 c 0063  get list(b);
+       0063       LXI  D,0290
+       0066       LXI  B,0000
+       0069       CALL ?SYSIN
+       006C       CALL ?GNVOP
+       006F       JP   0000
+       0072       CALL ?QCIOP
+       0075       SHLD B A(000F)
+       0070       ==== 0078
+       0078       CALL ?QIOOP
+       0067       ==== 007B
+   9 c 007B  put list('B=', b);
+       007B       LXI  D,0252
+       007E       LXI  B,0000
+       0081       CALL ?SYSPR
+       0084       LXI  H,* S(0008)
+       0087       MVI  A,02
+       0089       CALL ?SLCTS
+       008C       CALL ?PNCOP
+       008F       LHLD B A(000F)
+       0092       MVI  A,09
+       0094       CALL ?QICOP
+       0097       CALL ?PNVOP
+       009A       CALL ?QIOOP
+       007F       ==== 009D
+  10 c 009D  put list('END');
+       009D       LXI  D,0252
+       00A0       LXI  B,0000
+       00A3       CALL ?SYSPR
+       00A6       LXI  H,* S(000A)
+       00A9       MVI  A,03
+       00AB       CALL ?SLCTS
+       00AE       CALL ?PNCOP
+       00B1       CALL ?QIOOP
+       00A1       ==== 00B4
+  11 a 00B4  end;
+       00B4       CALL ?STOPX
+
+CODE SIZE = 00B7
+DATA AREA = 0011
+FREE SYMS = 3853
+END  COMPILATION
+

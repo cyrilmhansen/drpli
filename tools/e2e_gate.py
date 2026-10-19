@@ -581,7 +581,11 @@ REJECTS = {
                           "char var in multi-item"),
     "N24_BIGIN": ("t:\n  procedure options(main);\n"
                   "  dcl c fixed bin(16);\n  c = 1;\n"
-                  "  put list(c);\nend t;\n", "NOT IMP"),
+                  # [E2E-11 step 0] marker updated: the refusal now happens in
+                  # bind (earliest point the precision is known, and uncondi-
+                  # tional -- the old codegen arm only fired on some use paths)
+                  # with DR's own wording quoted.  Same policy, better message.
+                  "  put list(c);\nend t;\n", "exceeds DR's FIXED precision limit"),
     # ---- [E2E-7A slice 2] DECIMAL divide perimeter.  Divide itself is now
     # implemented (R701-R724 byte-exact), so N26_DECDIV retires; the shapes
     # below are the ones NO sample pins and each must stay a loud refusal.
@@ -643,7 +647,7 @@ REJECTS = {
     # to guard is now covered by N31/N32/N34/N35 above.
     "N27_DECBIGP": ("t:\n  procedure options(main);\n"
                     "  dcl d fixed dec(20,0);\n  d = 1;\nend t;\n",
-                    "outside the probed DEC band"),
+                    "exceeds DR's FIXED precision limit"),
     "N28_DECLITFRAC": ("t:\n  procedure options(main);\n"
                        "  dcl d fixed dec(7,0);\n  d = 1.25;\nend t;\n",
                        "into scale 0 [TBD]"),
@@ -811,6 +815,14 @@ REJECTS = {
         "  g: procedure(p) returns(fixed);\n     dcl p float;\n"
         "     dcl i fixed;\n     i = 1;\n     return (i);\n  end g;\nend t;\n",
         "used as a FLOAT operand"),
+    "N72_FIXED_BIN_GT15": (
+        "t:\n  procedure options(main);\n  dcl a fixed bin(31);\n  a = 1;\n"
+        "  put list(a);\nend t;\n",
+        "exceeds DR's FIXED precision limit"),
+    "N73_FIXED_DEC_GT15": (
+        "t:\n  procedure options(main);\n  dcl a fixed dec(16);\n  a = 1;\n"
+        "  put list(a);\nend t;\n",
+        "exceeds DR's FIXED precision limit"),
     "N47_MODGT": ("t:\n  procedure options(main);\n  dcl i fixed binary;\n"
         "  i = 25;\n  if mod(i,12) > 0 then i = 1;\nend t;\n",
         "condition form not in E2E-3b subset")

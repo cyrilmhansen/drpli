@@ -1,0 +1,116 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E11D
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   4 b       dcl n fixed bin(31);
+NOT IMP                         ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E11D
+
+   1 a 0000 e11d: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl f bit(1) static initial('0'b);
+   3 c 0006  dcl g bit(1);
+   4 c 0006  dcl n fixed bin(31);
+   5 c 0006  if f = '0'b then n = 1;
+       0006       LDA  F S(0000)
+       0009       ANI  80
+       000B       JNZ  0000
+       000E       LXI  H,N A(0005)
+       0011       MOV  L,A
+       0012       ADD  A
+       0013       SBB  A
+       0014       MOV  H,A
+       0015       PUSH H
+       0016       LXI  H,* S(0001)
+       0019       MVI  A,01
+       001B       CALL ?DLDOP
+       001E       CALL ?QDI07
+       0021       POP  D
+       0022       MOV  M,E
+       0023       INX  H
+       0024       MOV  M,D
+       000C       ==== 0025
+   6 c 0025  g = '1'b;
+       0025       LXI  H,G A(0004)
+       0028       ADI  FF
+       002A       SBB  A
+       002B       PUSH PSW
+       002C       MVI  A,80
+       002E       POP  PSW
+       002F       MOV  M,A
+   7 c 0030  if g = '1'b then n = n + 2;
+       0030       LDA  G A(0004)
+       0033       ANI  80
+       0035       SUI  80
+       0037       JNZ  0000
+       003A       LXI  H,N A(0005)
+       003D       MOV  L,A
+       003E       ADD  A
+       003F       SBB  A
+       0040       MOV  H,A
+       0041       PUSH H
+       0042       LHLD N A(0005)
+       0045       INX  H
+       0046       INX  H
+       0047       POP  D
+       0048       MOV  M,E
+       0049       INX  H
+       004A       MOV  M,D
+       0038       ==== 004B
+   8 c 004B  if f = '1'b then n = n + 4;
+       004B       LDA  F S(0000)
+       004E       ANI  80
+       0050       SUI  80
+       0052       JNZ  0000
+       0055       LXI  H,N A(0005)
+       0058       MOV  L,A
+       0059       ADD  A
+       005A       SBB  A
+       005B       MOV  H,A
+       005C       PUSH H
+       005D       LHLD N A(0005)
+       0060       INX  H
+       0061       INX  H
+       0062       INX  H
+       0063       INX  H
+       0064       POP  D
+       0065       MOV  M,E
+       0066       INX  H
+       0067       MOV  M,D
+       0053       ==== 0068
+   9 c 0068  put list('N=', n);
+       0068       LXI  D,0252
+       006B       LXI  B,0000
+       006E       CALL ?SYSPR
+       0071       LXI  H,* S(0002)
+       0074       MVI  A,02
+       0076       CALL ?SLCTS
+       0079       CALL ?PNCOP
+       007C       LHLD N A(0005)
+       007F       MVI  A,09
+       0081       CALL ?QICOP
+       0084       CALL ?PNVOP
+       0087       CALL ?QIOOP
+       006C       ==== 008A
+  10 a 008A  end;
+       008A       CALL ?STOPX
+
+CODE SIZE = 008D
+DATA AREA = 0009
+FREE SYMS = 386D
+END  COMPILATION
+

@@ -1,0 +1,48 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E1415
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E1415
+
+   1 a 0000 e1415: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl d fixed bin(15);
+   3 c 0006  d = 3;
+       0006       LXI  H,0003
+       0009       SHLD D A(0000)
+   4 c 000C  d = d + 1;
+       000C       LHLD D A(0000)
+       000F       INX  H
+       0010       SHLD D A(0000)
+   5 c 0013  put list(d);
+       0013       LXI  D,0252
+       0016       LXI  B,0000
+       0019       CALL ?SYSPR
+       001C       LHLD D A(0000)
+       001F       MVI  A,09
+       0021       CALL ?QICOP
+       0024       CALL ?PNVOP
+       0027       CALL ?QIOOP
+       0017       ==== 002A
+   6 a 002A  end e1415;
+       002A       CALL ?STOPX
+
+CODE SIZE = 002D
+DATA AREA = 0002
+FREE SYMS = 38C6
+END  COMPILATION
+

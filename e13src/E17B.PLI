@@ -1,0 +1,11 @@
+e17b: procedure options(main);
+ dcl inf file;
+ dcl x fixed bin(15);
+ open file(inf) stream title('$1.$1');
+ get file(inf) list(x);
+ put list('X=', x);
+ get file(inf) list(x);
+ put list('REACHED');
+ put list('SECOND');
+ end e17b;
+

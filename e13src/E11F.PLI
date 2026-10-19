@@ -1,0 +1,10 @@
+e11f: procedure options(main);
+ dcl sysin file;
+ dcl a fixed bin(15);
+ on endfile(sysin) goto out;
+out:
+ get list(a);
+ put list('A=', a);
+ put list('THROUGH');
+ end;
+

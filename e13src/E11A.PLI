@@ -1,0 +1,9 @@
+e11a: procedure options(main);
+ dcl sysin file;
+ dcl a fixed bin(15);
+ on endfile(sysin) put list('HANDLED');
+ get list(a);
+ put list('A=', a);
+ put list('AFTER');
+ end;
+

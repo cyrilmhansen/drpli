@@ -1,0 +1,200 @@
+E2E-11 STEP 0 -- BLOCKER-SET AUDIT
+corpus programs with a DR .REL : 41
+reproduced byte-exactly today   : 9  (DECPOLY DEMO DFACT FFACT FLTPOLY IFACT LOAN1 RFACT TEST)
+capability baseline tags        : 27
+
+== per-program COMPLETE blocker sets (not first-blocker) ==
+  A          0  
+  FDTEST     1  ENTRY_DECL
+  ACK        2  BLOCK_OPT:stack, PUT_GENERATED_ITEM
+  DTEST      2  CALL_STMT, ENTRY_DECL
+  ACKTST     3  BLOCK_OPT:stack, ENTRY_DECL, PUT_COUNTED_GROUP
+  LABELS     4  ARRAY_DIM, CALL_STMT, GOTO_LABEL_PARAM, LABEL_AS_DATA
+  REVERT     4  CALL_STMT, FILE_DECL, LABEL_AS_DATA, ON_COND:endfile
+  SAMPLE     4  BUILTIN:translate, CALL_STMT, FORMAT_SPEC:column, FORMAT_SPEC:e
+  FLTPOLY2   5  BIT_DECL, FILE_DECL, INITIAL_ATTR, ON_COND:endfile, STATIC_ATTR
+  ALLTST     6  ARRAY_DIM, BASED_ATTR, BIT_DECL, ENTRY_DECL, POINTER_DECL, PUT_COUNTED_GROUP
+  EXPR1      6  BUILTIN:exp, CALL_STMT, FILE_DECL, ON_COND:endfile, ON_COND:error, SIGNAL_COND:error
+  ANNUITY    7  BUILTIN:ceil, BUILTIN:char, BUILTIN:dec, BUILTIN:log, ENTRY_DECL, ON_COND:error, PICTURE_LITERAL
+  FSCAN      7  BIT_CONCAT, BUILTIN:length, CALL_STMT, FORMAT_SPEC:x, GET_EDIT, INITIAL_ATTR, STATIC_ATTR
+  ENTER      8  CALL_STMT, FILE_DECL, FILE_STMT:open, FILE_STMT:write, INITIAL_ATTR, IO_OPT:file, STATIC_ATTR, STRUCTURE_LEVEL
+  OPTIMIST   8  ARRAY_DIM, BIT_CONCAT, BUILTIN:index, BUILTIN:length, BUILTIN:translate, INITIAL_ATTR, PUT_ITEM, STATIC_ATTR
+  REVERSE    8  ALLOCATE, BASED_ATTR, CALL_STMT, FREE, POINTER_DECL, POINTER_DEREF, PUT_ITEM, STRUCTURE_LEVEL
+  KEYFILE    9  CALL_STMT, FILE_DECL, FILE_STMT:open, FILE_STMT:read, IO_OPT:file, IO_OPT:output, IO_OPT:stream, STATIC_ATTR, STRUCTURE_LEVEL
+  COPY      10  CALL_STMT, FILE_DECL, FILE_STMT:open, FILE_STMT:read, FILE_STMT:write, IO_OPT:environment, IO_OPT:file, IO_OPT:output, IO_OPT:stream, IO_OPT:title
+  DIOCOPY   11  ARRAY_DIM, BASED_ATTR, BIT_DECL, BIT_NOT_PREFIX, BUILTIN:addr, BUILTIN:divide, CALL_STMT, POINTER_DECL, PREPROC_IN_DCL, QUALIFIED_REF, STRUCTURE_LEVEL
+  DIORAND   11  ARRAY_DIM, BASED_ATTR, BIT_DECL, BUILTIN:addr, BUILTIN:index, BUILTIN:translate, CALL_STMT, INITIAL_ATTR, PREPROC_IN_DCL, STATIC_ATTR, STRUCTURE_LEVEL
+  EXPR2     11  BUILTIN:exp, BUILTIN:length, CALL_STMT, FILE_DECL, GET_EDIT, INITIAL_ATTR, ON_COND:endfile, ON_COND:error, OTHER_ATTR:varying, SIGNAL_COND:error, STATIC_ATTR
+  NETWORK   11  ALLOCATE, BASED_ATTR, BIT_DECL, CALL_STMT, FILE_DECL, FREE, ON_COND:endfile, POINTER_DECL, POINTER_DEREF, PUT_ITEM, STRUCTURE_LEVEL
+  CREATE    12  BIT_DECL, BIT_NOT_PREFIX, FILE_DECL, FILE_STMT:open, INITIAL_ATTR, IO_OPT:file, IO_OPT:output, IO_OPT:stream, IO_OPT:title, PREPROC_IN_DCL, PUT_ITEM, STATIC_ATTR
+  REPORT    12  BIT_CONCAT, CALL_STMT, FILE_DECL, FILE_STMT:open, FILE_STMT:read, FILE_STMT:write, INITIAL_ATTR, IO_OPT:file, IO_OPT:stream, PUT_ITEM, STATIC_ATTR, STRUCTURE_LEVEL
+  RETRIEVE  12  BIT_DECL, BIT_NOT_PREFIX, CALL_STMT, FILE_DECL, FILE_STMT:close, FILE_STMT:open, IO_OPT:environment, IO_OPT:file, IO_OPT:input, IO_OPT:stream, IO_OPT:title, PREPROC_IN_DCL
+  DEPREC    16  ARRAY_DIM, BUILTIN:index, BUILTIN:summary, CALL_STMT, ENTRY_DECL, FILE_DECL, FILE_STMT:open, FORMAT_SPEC:column, FORMAT_SPEC:x, INITIAL_ATTR, IO_OPT:file, IO_OPT:stream, OTHER_ATTR:variable, PICTURE_LITERAL, PUT_COUNTED_GROUP, STATIC_ATTR
+  UPDATE    16  ARRAY_DIM, BIT_DECL, BIT_NOT_PREFIX, CALL_STMT, FILE_DECL, FILE_STMT:open, FILE_STMT:read, FILE_STMT:write, INITIAL_ATTR, IO_OPT:environment, IO_OPT:file, IO_OPT:stream, IO_OPT:title, IO_OPT:update, STATIC_ATTR, STRUCTURE_LEVEL
+  COPYLPT   17  BUILTIN:pageno, CALL_STMT, FILE_DECL, FILE_STMT:open, FORMAT_SPEC:x, GET_EDIT, IO_OPT:environment, IO_OPT:file, IO_OPT:stream, IO_OPT:title, ON_COND:endfile, ON_COND:endpage, ON_COND:error, ON_COND:undefinedfile, OTHER_ATTR:varying, PUT_ITEM, SIGNAL_COND:endpage
+  DIOCALLS  17  ARRAY_DIM, BASED_ATTR, BIT_DECL, BIT_NOT_PREFIX, BUILTIN:addr, BUILTIN:length, BUILTIN:translate, CALL_STMT, GET_EDIT, INITIAL_ATTR, POINTER_DECL, PREPROC_IN_DCL, PUT_COUNTED_GROUP, PUT_ITEM, QUALIFIED_REF, STATIC_ATTR, STRUCTURE_LEVEL
+  LOAN2     18  BIT_DECL, BIT_NOT_PREFIX, BUILTIN:summary, CALL_STMT, FILE_DECL, FILE_STMT:open, FORMAT_SPEC:x, INITIAL_ATTR, IO_OPT:file, IO_OPT:title, ON_COND:error, ON_COND:undefinedfile, PICTURE_LITERAL, PUT_COUNTED_GROUP, PUT_GENERATED_ITEM, PUT_ITEM, SIGNAL_COND:error, STATIC_ATTR
+  MPMCALLB  18  BASED_ATTR, BIT_DECL, BIT_NOT_PREFIX, BUILTIN:addr, BUILTIN:ascii, BUILTIN:index, CALL_STMT, ENTRY_DECL, FILE_DECL, GET_EDIT, INITIAL_ATTR, ON_COND:endfile, OTHER_ATTR:variable, POINTER_DECL, PREPROC_IN_DCL, QUALIFIED_REF, STATIC_ATTR, STRUCTURE_LEVEL
+  MPMCALLA  19  ARRAY_DIM, BASED_ATTR, BIT_DECL, BIT_NOT_PREFIX, BUILTIN:addr, BUILTIN:translate, CALL_STMT, ENTRY_DECL, FILE_DECL, GET_EDIT, INITIAL_ATTR, ON_COND:endfile, OTHER_ATTR:var, OTHER_ATTR:variable, POINTER_DECL, PREPROC_IN_DCL, QUALIFIED_REF, STATIC_ATTR, STRUCTURE_LEVEL
+
+== feature -> programs needing it (payoff ranking) ==
+  CALL_STMT                    23  COPY COPYLPT DEPREC DIOCALLS DIOCOPY DIORAND DTEST ENTER EXPR1 EXPR2 FSCAN KEYFILE LABELS LOAN2 MPMCALLA MPMCALLB NETWORK REPORT RETRIEVE REVERSE REVERT SAMPLE UPDATE
+  FILE_DECL                    17  COPY COPYLPT CREATE DEPREC ENTER EXPR1 EXPR2 FLTPOLY2 KEYFILE LOAN2 MPMCALLA MPMCALLB NETWORK REPORT RETRIEVE REVERT UPDATE
+  STATIC_ATTR                  15  CREATE DEPREC DIOCALLS DIORAND ENTER EXPR2 FLTPOLY2 FSCAN KEYFILE LOAN2 MPMCALLA MPMCALLB OPTIMIST REPORT UPDATE
+  INITIAL_ATTR                 14  CREATE DEPREC DIOCALLS DIORAND ENTER EXPR2 FLTPOLY2 FSCAN LOAN2 MPMCALLA MPMCALLB OPTIMIST REPORT UPDATE
+  BIT_DECL                     12  ALLTST CREATE DIOCALLS DIOCOPY DIORAND FLTPOLY2 LOAN2 MPMCALLA MPMCALLB NETWORK RETRIEVE UPDATE
+  STRUCTURE_LEVEL              11  DIOCALLS DIOCOPY DIORAND ENTER KEYFILE MPMCALLA MPMCALLB NETWORK REPORT REVERSE UPDATE
+  FILE_STMT:open               10  COPY COPYLPT CREATE DEPREC ENTER KEYFILE LOAN2 REPORT RETRIEVE UPDATE
+  IO_OPT:file                  10  COPY COPYLPT CREATE DEPREC ENTER KEYFILE LOAN2 REPORT RETRIEVE UPDATE
+  ARRAY_DIM                     9  ALLTST DEPREC DIOCALLS DIOCOPY DIORAND LABELS MPMCALLA OPTIMIST UPDATE
+  BASED_ATTR                    8  ALLTST DIOCALLS DIOCOPY DIORAND MPMCALLA MPMCALLB NETWORK REVERSE
+  BIT_NOT_PREFIX                8  CREATE DIOCALLS DIOCOPY LOAN2 MPMCALLA MPMCALLB RETRIEVE UPDATE
+  ENTRY_DECL                    8  ACKTST ALLTST ANNUITY DEPREC DTEST FDTEST MPMCALLA MPMCALLB
+  IO_OPT:stream                 8  COPY COPYLPT CREATE DEPREC KEYFILE REPORT RETRIEVE UPDATE
+  ON_COND:endfile               8  COPYLPT EXPR1 EXPR2 FLTPOLY2 MPMCALLA MPMCALLB NETWORK REVERT
+  PUT_ITEM                      8  COPYLPT CREATE DIOCALLS LOAN2 NETWORK OPTIMIST REPORT REVERSE
+  POINTER_DECL                  7  ALLTST DIOCALLS DIOCOPY MPMCALLA MPMCALLB NETWORK REVERSE
+  PREPROC_IN_DCL                7  CREATE DIOCALLS DIOCOPY DIORAND MPMCALLA MPMCALLB RETRIEVE
+  GET_EDIT                      6  COPYLPT DIOCALLS EXPR2 FSCAN MPMCALLA MPMCALLB
+  IO_OPT:title                  6  COPY COPYLPT CREATE LOAN2 RETRIEVE UPDATE
+  BUILTIN:addr                  5  DIOCALLS DIOCOPY DIORAND MPMCALLA MPMCALLB
+  BUILTIN:translate             5  DIOCALLS DIORAND MPMCALLA OPTIMIST SAMPLE
+  ON_COND:error                 5  ANNUITY COPYLPT EXPR1 EXPR2 LOAN2
+  PUT_COUNTED_GROUP             5  ACKTST ALLTST DEPREC DIOCALLS LOAN2
+  BUILTIN:index                 4  DEPREC DIORAND MPMCALLB OPTIMIST
+  BUILTIN:length                4  DIOCALLS EXPR2 FSCAN OPTIMIST
+  FILE_STMT:read                4  COPY KEYFILE REPORT UPDATE
+  FILE_STMT:write               4  COPY ENTER REPORT UPDATE
+  FORMAT_SPEC:x                 4  COPYLPT DEPREC FSCAN LOAN2
+  IO_OPT:environment            4  COPY COPYLPT RETRIEVE UPDATE
+  QUALIFIED_REF                 4  DIOCALLS DIOCOPY MPMCALLA MPMCALLB
+  BIT_CONCAT                    3  FSCAN OPTIMIST REPORT
+  IO_OPT:output                 3  COPY CREATE KEYFILE
+  OTHER_ATTR:variable           3  DEPREC MPMCALLA MPMCALLB
+  PICTURE_LITERAL               3  ANNUITY DEPREC LOAN2
+  SIGNAL_COND:error             3  EXPR1 EXPR2 LOAN2
+  ALLOCATE                      2  NETWORK REVERSE
+  BLOCK_OPT:stack               2  ACK ACKTST
+  BUILTIN:exp                   2  EXPR1 EXPR2
+  BUILTIN:summary               2  DEPREC LOAN2
+  FORMAT_SPEC:column            2  DEPREC SAMPLE
+  FREE                          2  NETWORK REVERSE
+  LABEL_AS_DATA                 2  LABELS REVERT
+  ON_COND:undefinedfile         2  COPYLPT LOAN2
+  OTHER_ATTR:varying            2  COPYLPT EXPR2
+  POINTER_DEREF                 2  NETWORK REVERSE
+  PUT_GENERATED_ITEM            2  ACK LOAN2
+  BUILTIN:ascii                 1  MPMCALLB
+  BUILTIN:ceil                  1  ANNUITY
+  BUILTIN:char                  1  ANNUITY
+  BUILTIN:dec                   1  ANNUITY
+  BUILTIN:divide                1  DIOCOPY
+  BUILTIN:log                   1  ANNUITY
+  BUILTIN:pageno                1  COPYLPT
+  FILE_STMT:close               1  RETRIEVE
+  FORMAT_SPEC:e                 1  SAMPLE
+  GOTO_LABEL_PARAM              1  LABELS
+  IO_OPT:input                  1  RETRIEVE
+  IO_OPT:update                 1  UPDATE
+  ON_COND:endpage               1  COPYLPT
+  OTHER_ATTR:var                1  MPMCALLA
+  SIGNAL_COND:endpage           1  COPYLPT
+
+== closable by implementing exactly ONE feature ==
+  FDTEST    needs only: ENTRY_DECL
+
+== closable by TWO features (candidate milestone scope) ==
+  ACK       BLOCK_OPT:stack + PUT_GENERATED_ITEM
+  DTEST     CALL_STMT + ENTRY_DECL
+
+== co-occurrence: which unknown features always travel together ==
+  CALL_STMT                  + FILE_DECL                  15
+  INITIAL_ATTR               + STATIC_ATTR                14
+  CALL_STMT                  + STATIC_ATTR                12
+  FILE_DECL                  + STATIC_ATTR                11
+  CALL_STMT                  + INITIAL_ATTR               11
+  CALL_STMT                  + STRUCTURE_LEVEL            11
+  FILE_DECL                  + FILE_STMT:open             10
+  FILE_DECL                  + IO_OPT:file                10
+  FILE_STMT:open             + IO_OPT:file                10
+  FILE_DECL                  + INITIAL_ATTR               10
+  CALL_STMT                  + FILE_STMT:open             9
+  CALL_STMT                  + IO_OPT:file                9
+  BIT_DECL                   + CALL_STMT                  9
+  FILE_DECL                  + IO_OPT:stream              8
+  FILE_STMT:open             + IO_OPT:stream              8
+  IO_OPT:file                + IO_OPT:stream              8
+  FILE_DECL                  + ON_COND:endfile            8
+  BIT_DECL                   + BIT_NOT_PREFIX             8
+  BIT_DECL                   + FILE_DECL                  8
+  BIT_DECL                   + INITIAL_ATTR               8
+
+== cross-check: blocker SET vs my compiler's first REFUSAL ==
+   (a set that disagrees with the refusal means the tag walk is blind
+    to a route-level gap -- conversions and peepholes carry no tag)
+  A         set=EMPTY                                      refuse=codegen: FLOAT value used where a FIXED value is expec  <-- TAG-BLIND
+  ACK       set=BLOCK_OPT:stack,PUT_GENERATED_ITEM         refuse=codegen: block option STACK(...) deferred [TBD] (line 
+  ACKTST    set=BLOCK_OPT:stack,ENTRY_DECL,PUT_COUNTED_GRO refuse=codegen: block option STACK(...) deferred [TBD] (line 
+  ALLTST    set=ARRAY_DIM,BASED_ATTR,BIT_DECL,ENTRY_DECL,P refuse=codegen: declared variable kind not in supported subse
+  ANNUITY   set=BUILTIN:ceil,BUILTIN:char,BUILTIN:dec,BUIL refuse=codegen: declaration ftc returns(CHAR(17) VARYING) def
+  COPY      set=CALL_STMT,FILE_DECL,FILE_STMT:open,FILE_ST refuse=codegen: declared variable kind not in supported subse
+  COPYLPT   set=BUILTIN:pageno,CALL_STMT,FILE_DECL,FILE_ST refuse=codegen: declared variable kind not in supported subse
+  CREATE    set=BIT_DECL,BIT_NOT_PREFIX,FILE_DECL,FILE_STM refuse=codegen: declared variable kind not in supported subse
+  DEPREC    set=ARRAY_DIM,BUILTIN:index,BUILTIN:summary,CA refuse=codegen: declared variable kind not in supported subse
+  DIOCALLS  set=ARRAY_DIM,BASED_ATTR,BIT_DECL,BIT_NOT_PREF refuse=codegen: declared variable kind not in supported subse
+  DIOCOPY   set=ARRAY_DIM,BASED_ATTR,BIT_DECL,BIT_NOT_PREF refuse=codegen: declared variable kind not in supported subse
+  DIORAND   set=ARRAY_DIM,BASED_ATTR,BIT_DECL,BUILTIN:addr refuse=codegen: declared variable kind not in supported subse
+  DTEST     set=CALL_STMT,ENTRY_DECL                       refuse=codegen: CALL statement deferred [TBD]
+  ENTER     set=CALL_STMT,FILE_DECL,FILE_STMT:open,FILE_ST refuse=codegen: declared variable kind not in supported subse
+  EXPR1     set=BUILTIN:exp,CALL_STMT,FILE_DECL,ON_COND:en refuse=codegen: declared variable kind not in supported subse
+  EXPR2     set=BUILTIN:exp,BUILTIN:length,CALL_STMT,FILE_ refuse=codegen: declared variable kind not in supported subse
+  FDTEST    set=ENTRY_DECL                                 refuse=codegen: call to unknown fdiv2 [TBD]
+  FLTPOLY2  set=BIT_DECL,FILE_DECL,INITIAL_ATTR,ON_COND:en refuse=codegen: declared variable kind not in supported subse
+  FSCAN     set=BIT_CONCAT,BUILTIN:length,CALL_STMT,FORMAT refuse=bind: procedure gnt without formals [TBD]
+  KEYFILE   set=CALL_STMT,FILE_DECL,FILE_STMT:open,FILE_ST refuse=codegen: declared variable kind not in supported subse
+  LABELS    set=ARRAY_DIM,CALL_STMT,GOTO_LABEL_PARAM,LABEL refuse=codegen: undeclared x
+  LOAN2     set=BIT_DECL,BIT_NOT_PREFIX,BUILTIN:summary,CA refuse=codegen: declared variable kind not in supported subse
+  MPMCALLA  set=ARRAY_DIM,BASED_ATTR,BIT_DECL,BIT_NOT_PREF refuse=codegen: declared variable kind not in supported subse
+  MPMCALLB  set=BASED_ATTR,BIT_DECL,BIT_NOT_PREFIX,BUILTIN refuse=codegen: declared variable kind not in supported subse
+  NETWORK   set=ALLOCATE,BASED_ATTR,BIT_DECL,CALL_STMT,FIL refuse=codegen: declared variable kind not in supported subse
+  OPTIMIST  set=ARRAY_DIM,BIT_CONCAT,BUILTIN:index,BUILTIN refuse=codegen: PUT ITEM (also the parse form of bare PUT SKI
+  REPORT    set=BIT_CONCAT,CALL_STMT,FILE_DECL,FILE_STMT:o refuse=codegen: declared variable kind not in supported subse
+  RETRIEVE  set=BIT_DECL,BIT_NOT_PREFIX,CALL_STMT,FILE_DEC refuse=codegen: declared variable kind not in supported subse
+  REVERSE   set=ALLOCATE,BASED_ATTR,CALL_STMT,FREE,POINTER refuse=codegen: declared variable kind not in supported subse
+  REVERT    set=CALL_STMT,FILE_DECL,LABEL_AS_DATA,ON_COND: refuse=codegen: declared variable kind not in supported subse
+  SAMPLE    set=BUILTIN:translate,CALL_STMT,FORMAT_SPEC:co refuse=codegen: procedure upper returns(CHAR(10) VARYING) def
+  UPDATE    set=ARRAY_DIM,BIT_DECL,BIT_NOT_PREFIX,CALL_STM refuse=codegen: declared variable kind not in supported subse
+
+== parse/bind status for the refused set (front-end health) ==
+  A         parse+bind ok
+  ACK       parse+bind ok
+  ACKTST    parse+bind ok
+  ALLTST    parse+bind ok
+  ANNUITY   parse+bind ok
+  COPY      parse+bind ok
+  COPYLPT   parse+bind ok
+  CREATE    parse+bind ok
+  DEPREC    parse+bind ok
+  DIOCALLS  parse+bind ok
+  DIOCOPY   parse+bind ok
+  DIORAND   parse+bind ok
+  DTEST     parse+bind ok
+  ENTER     parse+bind ok
+  EXPR1     parse+bind ok
+  EXPR2     parse+bind ok
+  FDTEST    parse+bind ok
+  FLTPOLY2  parse+bind ok
+  FSCAN     parse+bind ok
+  KEYFILE   parse+bind ok
+  LABELS    parse+bind ok
+  LOAN2     parse+bind ok
+  MPMCALLA  parse+bind ok
+  MPMCALLB  parse+bind ok
+  NETWORK   parse+bind ok
+  OPTIMIST  parse+bind ok
+  REPORT    parse+bind ok
+  RETRIEVE  parse+bind ok
+  REVERSE   parse+bind ok
+  REVERT    parse+bind ok
+  SAMPLE    parse+bind ok
+  UPDATE    parse+bind ok

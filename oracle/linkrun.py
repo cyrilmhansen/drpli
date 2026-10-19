@@ -58,8 +58,70 @@ INPUTS = {
     "ANNUITY":    ["32000\\r", "0\\r", "8.75\\r", "360\\r", "\\x1a"],
     "ACK":        ["\\x1a"],
     "COPY":       ["\\x1a"],
+    # [E2E-11 step 1] ON ENDFILE(SYSIN) semantics probes.  Each script is
+    # chosen so the transcript distinguishes handler-return / handler-re-enter
+    # / handler-terminal on its own, without me assuming C102's arithmetic
+    # behaviour carries over.
+    "E11A":       ["\\x1a\\r"],
+    "E11B":       ["7\\r", "\\x1a"],
+    "E11C":       ["7\\r", "8\\r", "\\x1a\\r"],
+    "E11D":       ["\\x1a"],
+    "E11E":       ["\\x1a"],
+    "E11F":       ["\\x1a"],
+    "E12D":       ["\\x1a"],
+    "E15D09":     ["\\x1a"],
 }
 DEFAULT_INPUT = ["\\x1a"]
+
+# [E2E-11 step 1] DATA-FILE STAGING and OUTPUT-FILE CAPTURE.
+#
+# Why this exists: a SYSIN endfile cannot be OBSERVED through console scripting.
+# The session script's trailing ^Z is consumed by CP/M's own command-line read,
+# and once the script buffer is exhausted a program's CONIN simply blocks -- so
+# E11A/E11C/E11E/E11F all reached the timeout with no handler output at all,
+# which tells me nothing about ENDFILE semantics (only that the harness cannot
+# ask the question).  A named disk file CAN deliver a real EOF, so the ENDFILE
+# probes open a staged file instead.  This is also the answer to the
+# "what does the harness need for real FILE work" question: per-run input-file
+# staging (import_local, already present) plus post-run output-file export
+# (export, already present) -- the gap was only that the run stage never used
+# them.  Output .REL comparison stays byte-exact; output-DATA comparison uses
+# the same cmp-of-raw-bytes rule, against files exported here, not transcripts.
+STAGE_IN = {
+    # DR ignores title('E16IN DAT') and builds the FCB from the FILE variable's
+    # OWN name: the runtime asked for "INF=NUL".  So the staged file must be
+    # named INF.DAT.  (Recorded as evidence, not worked around silently.)
+    "E16A": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
+    "E16B": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
+    "E16C": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
+}
+# Command tail per program: DR's stream files name themselves from $1/$2 in
+# the invocation tail (COPY.KJM's own pattern), so the tail IS the staging API.
+ARGS = {
+    # Measured, not guessed: DR's title('$1.$1') splits the command tail at the
+    # first SPACE into name/ext, so 'E17D OUT DAT' created a CP/M file literally
+    # named "out" (no extension) and 'INF DAT' never found INF.DAT -- the
+    # runtime reported "File: INF=NUL".  A single dotted token is what works.
+    "E17A": "INF.DAT",
+    "E17B": "INF.DAT",
+    "E17C": "INF.DAT",
+    "E17D": "OUT.DAT",
+    "E18A": "INF.DAT",
+    "E18B": "INF.DAT",
+}
+STAGE_IN.update({
+    "E17A": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
+    "E17B": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
+    "E17C": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
+    "E18A": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
+    "E18B": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
+})
+EXPORT_OUT = {
+    # same default-naming rule: an output FILE named OUTF
+    # lands as OUTF.DAT, not E16OUT.DAT
+    "E16D": ["OUTF.DAT", "E16OUT.DAT"],
+    "E17D": ["OUT.DAT", "OUT"],
+}
 
 
 def new_run(ws, tag):
@@ -121,6 +183,9 @@ def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None):
             r.mkfs("c")
             r.mkfs("d")
             r.import_local("d", com, f"{n}.COM")
+            for drive, on_disk, local in STAGE_IN.get(n, []):
+                if os.path.isfile(local):
+                    r.import_local(drive, local, on_disk)
             # PROMPT SYNC: after the D: switch the stale 'D>' echo can
             # satisfy a later ##WAIT, which used to abort long-running or
             # non-terminating programs before they produced anything.
@@ -131,17 +196,34 @@ def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None):
             tail = ([f"##KILLON {killon}"] if killon
                     else ["##WAIT \\nD>"])
             sess = (["C:", "D:", "##SEND \\r", "##WAIT \\nD>",
-                     f"##SEND {n}\\r"]
+                     f"##SEND {n + (' ' + ARGS[n] if n in ARGS else '')}\\r"]
                     + [f"##SEND {i}" for i in INPUTS.get(n, DEFAULT_INPUT)]
                     + tail + ["##HALT"])
             rc, tr = session(r, sess, timeout, out, n)
             clean = re.sub(r">>> [^\n]*\n", "", tr)
-            seg = re.search(rf"{re.escape(n)}\r\r\n(.*?)(?=\nD>|I/O ran|\Z)",
+            # [E2E-11] ARGS puts a command tail on the invocation line, so the
+            # old anchor ('NAME\r\r\n') no longer matched and every tailed run
+            # produced an empty output file -- a silent failure that looks
+            # exactly like a program that printed nothing.  Accept the tail.
+            seg = re.search(rf"{re.escape(n)}[^\n]*\r\r\n(.*?)(?=\nD>|I/O ran|\Z)",
                             clean, re.S)
             o = seg.group(1) if seg else ""
             status = "done" if rc == 0 else "timeout-or-hang"
             out.write(".", f"{n}.output.txt", re.sub(r"\r\n?", "\n", o))
-            print(f"   {n}: rc={rc} {status}", flush=True)
+            captured = []
+            for fn in EXPORT_OUT.get(n, []):
+                fdir = os.path.join(out.dir, n)
+                os.makedirs(fdir, exist_ok=True)
+                got = r.export("d", fn, fdir, allow_clobber=reuse)
+                captured.append(f"{fn}={'yes' if got else 'no'}")
+            if EXPORT_OUT.get(n) and not any("=yes" in c for c in captured):
+                # never guess where a file went -- show the directory
+                try:
+                    captured.append("D:=" + " ".join(sorted(r.ls("d"))))
+                except Exception as e:
+                    captured.append(f"ls failed: {e}")
+            print(f"   {n}: rc={rc} {status} {' '.join(captured)}".rstrip(),
+                  flush=True)
         finally:
             r.cleanup()
 

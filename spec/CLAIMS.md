@@ -1430,3 +1430,165 @@ R3100 minimal].  No `MVI A/B` width or scale operands appear anywhere in the
 tail, unlike the DEC branch's `?QCDOP`/`?DSTOP` pair [LOAN1, R906].  Value-model
 consequence: a runtime-read float does not pass through C101's literal conversion
 and its rounding law must not be assumed identical to a literal's.
+
+## C108 — PL/I-80 V1.4 refuses FIXED precision above 15; my build must too (E2E-11 step 0)
+
+One specimen per precision, `fixed bin(p)` with an assignment and a PUT, plus the
+decimal equivalent [golden/e2e11f: E1415..E1432, E15D09..E15D31]:
+
+```
+FIXED BINARY :  p <= 15 compiles      p = 16,17,23,24,30,31,32 -> "NOT IMP", NO .REL
+FIXED DECIMAL:  p <= 15 compiles      p = 16,31                -> "NOT IMP", NO .REL
+```
+
+`NOT IMP` is fatal: DR emits no relocatable output at all.  **This restates a
+limit PERIMETER already recorded from a "P068 L-series sweep", but that sweep's
+artefacts are gone** — every `golden/probe2*/P068*/` directory holds only a
+`dir.txt`, with no listing and no `.REL`, and none is gate-referenced.  So the
+claim had decayed to an assertion; E14xx/E15Dxx re-establish it from primary
+evidence, and the enforcement gap below is what actually changed.  Nothing in the corpus
+or in any of the 289 goldens declares FIXED above 15 (the only >15 precisions in
+existence here are `FLOAT BINARY(24)`, a different type), so this was not a
+regression — it was a latent false capability, since my compiler accepted
+`bin(31)`/`dec(31)` and would have emitted bytes for programs DR refuses
+outright, with no golden possible to contradict it.  Enforced at the earliest
+point the precision is known (`bind.check_fixed_prec`), unconditionally, so no
+use-path can slip past it; the earlier codegen-arm version only fired on some
+paths.  Pinned by N24 (`bin(16)`), N27 (`dec(20)`), N72 (`bin(31)`), N73
+(`dec(16)`).
+
+**Storage ladder, re-derived live** [E19A, golden/e2e11k — 30 declarations of
+`fixed bin(1..15)` and `fixed dec(1..15)`, DR's own store offsets]:
+`FIXED BINARY`: p≤7 → 1 byte (stored with `STA`), 8≤p≤15 → 2 bytes (`SHLD`) =
+`(p+8)/8`.  `FIXED DECIMAL`: 1→1, 2-3→2, 4-5→3, 6-7→4, 8-9→5, 10-11→6,
+12-13→7, 14-15→8 = `(p+2)/2`.  The previous citation for the binary ladder was
+`P063A`, whose golden directory holds a `.PLI` entry but **no `.REL`** and whose
+source no longer exists; its `16/17→3, 24→4, 32→5` rows described precisions DR
+cannot compile and were extrapolation.  Values above 15 bits are therefore
+unclaimable, not merely unprobed.
+
+## C109 — `ON condition(file)` lowers to `?ONCOP` + an inline handler terminated by `RET` (E2E-11 step 1)
+
+```
+on endfile(sysin) <unit>;
+   LXI  H,<file control block>      ; relocated SYSIN / INF symbol
+   MVI  A,05                        ; condition number 5 = ENDFILE
+   CALL ?ONCOP
+   JMP  <past the unit>             ; operand patched via the listing's '==== '
+<unit body, emitted inline>
+   RET                              ; the ON-unit IS a subroutine
+```
+
+Identical for a simple-statement body [E11A] and a `BEGIN`-block body
+[E11C, E17A], so the body's form is irrelevant to the registration.  The
+registration costs **6 bytes of data area** [E11C: `DATA AREA = 0009` =
+6 (ON block) + 1 (`bit(1)` flag) + 2 (`fixed bin(15)`), the only decomposition
+available so far — two conditions, or `ON ERROR` alongside `ON ENDFILE`, are
+unprobed and may not be 6+6].
+
+`dcl <name> file;` itself occupies **no storage when the file is SYSIN** — its
+control block is PLILIB's shared object at TPA `0x0290` [E11E: `dcl sysin file;
+dcl a fixed bin(15);` puts `a` at 0x0009 with no gap].  A user file
+(`dcl inf file;`) **does** get a control block in the program's own data area
+(`LXI H,INF` relocates against a local symbol) [E17A].
+
+## C110 — ENDFILE semantics: handler runs once, the GET then COMPLETES unassigned, control goes to the NEXT statement (E2E-11 step 1)
+
+Established by observation, deliberately not by extending C102, and separately
+for a named file and for SYSIN.  Three GETs' worth of data in the staged file,
+FOUR GETs in the program, so endfile is actually reached:
+
+```
+E18A  no ON unit            X1=7 X2=8 X3=9 / END OF FILE (1), File: INF=INF.DAT
+                            / Traceback ...            -> UNHANDLED ENDFILE IS TERMINAL
+E18B  ON unit = put only    X1=7 X2=8 X3=9 HANDLED X4=9 END
+                            -> handler once, GET completes WITHOUT assigning,
+                               next statement runs, NO re-entry, NO termination
+E17A  ON unit sets a flag   X=7 X=8 X=9 X=9 DONE       -> same, seen through a loop
+E11A  SYSIN, ON unit        ^Z -> HANDLED A=0 AFTER    -> identical for SYSIN
+E11C  SYSIN, flag+loop      7→X=7, 8→X=8, ^Z→X=8 DONE -> identical for SYSIN
+```
+
+Consequences that are load-bearing for implementation:
+
+* The terminal outcome agrees with C102's arithmetic conditions, but the
+  **diagnostic is file-specific** (`END OF FILE (1), File: <variable>=<resolved
+  name>`), so it is not C102's path and must not be implemented as such.
+* An interrupted GET **returns normally** — it does not re-execute and does not
+  abandon the enclosing statement's successors.  My GET lowering must fall
+  through to the next statement with the list items untouched; a re-entry or
+  skip-the-PUT shape can easily produce byte-matching code with wrong behaviour.
+* **Unassigned locals read as zero** (`A=0` in E11A), consistent with the
+  zero-filled data area already assumed by pool/static layout.
+* Direct corpus consequence: `FLTPOLY2`'s `do while(efile = '0'b)` loop exits
+  correctly **and prints its final value twice** [E11C is that shape].  Any
+  FLTPOLY2 acceptance must reproduce the duplicate, not "fix" it.
+* `do while(cond)` tests as `LDA cell / ANI 80 / JNZ <exit>` — DR's
+  negated-condition, matching the pattern already in use [E11C, E17A].
+
+## C111 — SYSIN GET, named-file GET and `open` sequences (E2E-11 step 1)
+
+```
+get list(x);            (SYSIN)      get file(inf) list(x);  (named stream)
+   LXI D,0290  SYSIN cb                LXI H,INF       this file's own cb
+   LXI B,0000  options                 LXI D,0690      its attribute block
+   CALL ?SYSIN                         LXI B,0000      options
+   CALL ?GNVOP                         CALL ?SIOOP     stream io op
+   JP <fail>                           CALL ?GNVOP     <-- identical below
+   CALL ?QCIOP                         JP <fail>
+   SHLD x                              CALL ?QCIOP / SHLD x / <fail>: CALL ?QIOOP
+```
+
+The DEC reader from `?GNVOP` down is shared with the plain numeric GET of E2E-7A
+slice 4 [R901-R917], so a file GET differs only in how the stream is attached
+(E11E, E17A).  `open file(inf) stream title('$1.$1')` = `?SLCTS` on the title
+literal (`LXI H,* S(n) / MVI A,len / CALL ?SLCTS`), then a fixed push-block
+(`MOV B,A / PUSH B / INX SP / LXI H,0E90 / PUSH H` ×6), then `LXI H,INF` +
+**`CALL ?OIOOP`** [E17A].  `?OIOOP`/`?SIOOP`/`?SYSIN`/`?ONCOP` are PLILIB
+externals, i.e. name-resolution targets, not code I generate.
+
+## C112 — `BIT(1)` is one byte, high-bit justified; `STATIC INITIAL` is independent of FILE (E2E-11 step 1)
+
+`E11D` uses `bit(1)`, `static initial('0'b)`, bit literals and bit comparisons,
+and **no FILE, stream or ON construct at all**; DR compiles it, LINK produces a
+`.COM`, and the program runs to `N=         3`, which requires that `f` was
+`'0'b` at entry (branch taken), `g = '1'b` worked, and `f = '1'b` did not fire.
+So these are their own small capability, not part of the FILE work [E11D, and
+the same lowering inside E11C/E17A].
+
+```
+dcl efile bit(1) static initial('0'b);   ; 1 byte, value 0x00
+efile = '1'b;      LXI H,EOFLAG S(0000) / MVI M,80      ; '1'b -> 0x80
+efile = '0'b       LDA  EOFLAG S(0000) / ANI 80 / JNZ…  ; test = mask bit 7
+```
+
+Assignment goes through `LXI H,cell` + `MVI M,80`; testing goes through
+`LDA cell` + `ANI 80`.  Whether DR uses `MVI M` versus `MVI A/STA` in other
+contexts (arrays, structures, subscripted or wide `bit(n)`, n>1) is unprobed —
+`bit(16)` remains unsupported and unclaimed.
+
+## C113 — harness: real SYSIN EOF, file staging and output-file capture (E2E-11 step 1)
+
+* **Console EOF must be `^Z` + CR.**  A bare `\x1a` in a session script is eaten
+  by CP/M's own command-line read; the program then blocks on CONIN and the run
+  times out having produced nothing — indistinguishable from a silent program.
+  With `\x1a\r`, E11A/E11C behave as designed.  No prior specimen establishes
+  that a bare-`\x1a` run ever terminated cleanly (`R907`, my only immediate-EOF
+  GET probe, exists in the compile tier only).
+* **Staging/capture already existed in `cpmwork` (`import_local`, `export`,
+  `cpmtools`); the run stage simply never used them.**  Added: `STAGE_IN`,
+  `EXPORT_OUT` (with a directory dump on a failed capture, so absence is never
+  mistaken for no output), and `ARGS` for command tails, plus a transcript
+  anchor that tolerates a tail — without it every tailed run wrote an empty
+  output file.
+* **Stream-file naming is DR's, not PL/I's.**  `title('E16IN DAT')` is ignored:
+  DR builds the FCB from the FILE **variable's own name** and reports
+  `File: INF=NUL`.  `title('$1.$1')` reads the command tail but splits it at the
+  first **space** into name/extension, so `E17D OUT DAT` created a file literally
+  named `out`, and a single **dotted** token (`E17A INF.DAT`) is required — then
+  DR reports `File: INF=INF.DAT`.
+* **Output files are record-padded.**  E17D's captured `OUT.DAT` is 128 bytes:
+  `'HELLO'    42` + `^Z` fill.  List-directed output quotes character constants
+  and right-justifies numerics; the length is a whole record, not the payload.
+  Byte-exact output-DATA comparison is therefore a distinct evidence class from
+  `.REL` parity and from console-transcript matching, with its own rules.

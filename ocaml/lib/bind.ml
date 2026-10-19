@@ -65,11 +65,31 @@ let num_arg0 = function
   | Some { e = Enumber t; _ } -> (try Some (int_of_string t) with _ -> None)
   | _ -> None
 
+(* [E2E-11 step 0] DR's own ceiling on FIXED precision, established by direct
+   observation (E1415..E1432 / E15D09..E15D31, golden/e2e11f): PL/I-80 V1.4
+   reports "NOT IMP" and emits NO .REL for any FIXED BINARY(p) or FIXED
+   DECIMAL(p) with p > 15.  bin(15) and dec(15) compile; bin(16) does not.
+   Before this check my compiler happily accepted bin(31) -- a false capability
+   on the permissive side, which is the dangerous direction: it would have
+   emitted bytes for a program DR refuses outright, and nothing in the corpus
+   would ever have compared them.  Refuse loudly instead. *)
+let dr_max_fixed_prec = 15
+
+let check_fixed_prec (dec : bool) (p : int) =
+  if p > dr_max_fixed_prec then
+    failwith
+      (Printf.sprintf
+         "bind: FIXED %s(%d) exceeds DR's FIXED precision limit 15 \
+          (PL/I-80 V1.4 says NOT IMP) [TBD]"
+         (if dec then "DECIMAL" else "BINARY") p)
+  else p
+
 (* basic_type → rt for RETURNS/entry-param lists *)
 let rec rt_of_basic (t : Ast.basic_type) : rt =
   match t with
   | Ast.Tfixed { dec; prec; scale } ->
-      let q = match num_arg0 prec with Some x -> x | None -> 15 in
+      let q = check_fixed_prec dec
+                  (match num_arg0 prec with Some x -> x | None -> 15) in
       if dec then RTdec (q, match num_arg0 scale with Some x -> x | None -> 0)
       else RTbin q
   | Ast.Tfloat { prec } ->
@@ -86,8 +106,20 @@ let rec rt_of_basic (t : Ast.basic_type) : rt =
 
 and bytes_of = function
   | RTbin p -> (p + 8) / 8
-      (* PROVEN [P063A $S ladder]: bytes = ceil((p+1)/8) incl. sign bit:
-         1/7->1  8/9/15->2  16/17->3  24->4  32->5 *)
+      (* RE-DERIVED LIVE [E19A, golden/e2e11k].  The previous citation was to
+         "P063A", whose golden directory holds a .PLI entry but NO .REL, and
+         whose source is gone -- an unverifiable claim, and its p>15 rows
+         (16/17->3, 24->4, 32->5) were extrapolation, not measurement: DR
+         refuses to compile those precisions at all.
+         E19A declares fixed bin(1)..bin(15) in order and stores to each; the
+         listing offsets give the exact ladder:
+            b01..b07 -> 0x24,25,26,27,28,29,2A   (1 byte each, stored with STA)
+            b08      -> 0x2B, b09 -> 0x2D        (2 bytes, stored with SHLD)
+         so p<=7 -> 1 byte, 8<=p<=15 -> 2 bytes, which is (p+8)/8 for p<=15.
+         Cross-checked on the decimal side by the same specimen:
+            dec(1)->1  2,3->2  4,5->3  6,7->4  8,9->5  10,11->6  12,13->7
+            14,15->8   = (p+2)/2 exactly, confirmed independently.
+         Beyond p=15 nothing is claimable because nothing is compilable. *)
   | RTdec (p, _) -> (p + 2) / 2
   | RTfloat _ -> 4
   | RTchar (n, false) -> n
@@ -112,7 +144,8 @@ let num_arg = function
 let resolve_type (d : dcl) : rt =
   match d.dtype with
   | Some (Tfixed { dec; prec; scale }) ->
-      let p = match num_arg prec with Some p -> p | None -> 15 in
+      let p = check_fixed_prec dec
+                  (match num_arg prec with Some p -> p | None -> 15) in
       if dec then RTdec (p, match num_arg scale with Some s -> s | None -> 0)
       else RTbin p
   | Some (Tfloat { prec }) ->

@@ -1,0 +1,16 @@
+e18b: procedure options(main);
+ dcl inf file;
+ dcl x fixed bin(15);
+ on endfile(inf) put list('HANDLED');
+ open file(inf) stream title('$1.$1');
+ get file(inf) list(x);
+ put list('X1=', x);
+ get file(inf) list(x);
+ put list('X2=', x);
+ get file(inf) list(x);
+ put list('X3=', x);
+ get file(inf) list(x);
+ put list('X4=', x);
+ put list('END');
+ end e18b;
+

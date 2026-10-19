@@ -1,0 +1,10 @@
+e16c: procedure options(main);
+ dcl inf file;
+ dcl x fixed bin(15);
+ open file(inf) stream title('E16IN DAT');
+ get file(inf) list(x);
+ put list('X=', x);
+ get file(inf) list(x);
+ put list('REACHED');
+ end e16c;
+

@@ -1,0 +1,217 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E19A
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E19A
+
+   1 a 0000 e19a: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl b01 fixed bin(1);
+   3 c 0006  dcl b02 fixed bin(2);
+   4 c 0006  dcl b03 fixed bin(3);
+   5 c 0006  dcl b04 fixed bin(4);
+   6 c 0006  dcl b05 fixed bin(5);
+   7 c 0006  dcl b06 fixed bin(6);
+   8 c 0006  dcl b07 fixed bin(7);
+   9 c 0006  dcl b08 fixed bin(8);
+  10 c 0006  dcl b09 fixed bin(9);
+  11 c 0006  dcl b10 fixed bin(10);
+  12 c 0006  dcl b11 fixed bin(11);
+  13 c 0006  dcl b12 fixed bin(12);
+  14 c 0006  dcl b13 fixed bin(13);
+  15 c 0006  dcl b14 fixed bin(14);
+  16 c 0006  dcl b15 fixed bin(15);
+  17 c 0006  dcl c01 fixed dec(1);
+  18 c 0006  dcl c02 fixed dec(2);
+  19 c 0006  dcl c03 fixed dec(3);
+  20 c 0006  dcl c04 fixed dec(4);
+  21 c 0006  dcl c05 fixed dec(5);
+  22 c 0006  dcl c06 fixed dec(6);
+  23 c 0006  dcl c07 fixed dec(7);
+  24 c 0006  dcl c08 fixed dec(8);
+  25 c 0006  dcl c09 fixed dec(9);
+  26 c 0006  dcl c10 fixed dec(10);
+  27 c 0006  dcl c11 fixed dec(11);
+  28 c 0006  dcl c12 fixed dec(12);
+  29 c 0006  dcl c13 fixed dec(13);
+  30 c 0006  dcl c14 fixed dec(14);
+  31 c 0006  dcl c15 fixed dec(15);
+  32 c 0006  b01 = 1; b02 = 1; b03 = 1; b04 = 1; b05 = 1; b06 = 1; b07 = 1; b08 = 1;
+       0006       MVI  A,01
+       0008       STA  B01 A(0024)
+       000B       STA  B02 A(0025)
+       000E       STA  B03 A(0026)
+       0011       STA  B04 A(0027)
+       0014       STA  B05 A(0028)
+       0017       STA  B06 A(0029)
+       001A       STA  B07 A(002A)
+       001D       LXI  H,0001
+       0020       SHLD B08 A(002B)
+  33 c 0023  b09 = 1; b10 = 1; b11 = 1; b12 = 1; b13 = 1; b14 = 1; b15 = 1;
+       0023       SHLD B09 A(002D)
+       0026       SHLD B10 A(002F)
+       0029       SHLD B11 A(0031)
+       002C       SHLD B12 A(0033)
+       002F       SHLD B13 A(0035)
+       0032       SHLD B14 A(0037)
+       0035       SHLD B15 A(0039)
+  34 c 0038  c01 = 1;
+       0038       LXI  H,* S(0000)
+       003B       CALL ?DLDOP
+       003E       LXI  H,C01 A(003B)
+       0041       MVI  A,01
+       0043       CALL ?DSTOP
+  35 c 0046  c02 = 1;
+       0046       LXI  H,* S(0001)
+       0049       MVI  A,02
+       004B       CALL ?DLDOP
+       004E       LXI  H,C02 A(003C)
+       0051       MVI  A,02
+       0053       CALL ?DSTOP
+  36 c 0056  c03 = 1;
+       0056       LXI  H,* S(0001)
+       0059       MVI  A,03
+       005B       CALL ?DLDOP
+       005E       LXI  H,C03 A(003E)
+       0061       MVI  A,03
+       0063       CALL ?DSTOP
+  37 c 0066  c04 = 1;
+       0066       LXI  H,* S(0003)
+       0069       MVI  A,04
+       006B       CALL ?DLDOP
+       006E       LXI  H,C04 A(0040)
+       0071       MVI  A,04
+       0073       CALL ?DSTOP
+  38 c 0076  c05 = 1;
+       0076       LXI  H,* S(0003)
+       0079       MVI  A,05
+       007B       CALL ?DLDOP
+       007E       LXI  H,C05 A(0043)
+       0081       MVI  A,05
+       0083       CALL ?DSTOP
+  39 c 0086  c06 = 1;
+       0086       LXI  H,* S(0006)
+       0089       MVI  A,06
+       008B       CALL ?DLDOP
+       008E       LXI  H,C06 A(0046)
+       0091       MVI  A,06
+       0093       CALL ?DSTOP
+  40 c 0096  c07 = 1;
+       0096       LXI  H,* S(0006)
+       0099       MVI  A,07
+       009B       CALL ?DLDOP
+       009E       LXI  H,C07 A(004A)
+       00A1       MVI  A,07
+       00A3       CALL ?DSTOP
+  41 c 00A6  c08 = 1;
+       00A6       LXI  H,* S(000A)
+       00A9       MVI  A,08
+       00AB       CALL ?DLDOP
+       00AE       LXI  H,C08 A(004E)
+       00B1       MVI  A,08
+       00B3       CALL ?DSTOP
+  42 c 00B6  c09 = 1;
+       00B6       LXI  H,* S(000A)
+       00B9       MVI  A,09
+       00BB       CALL ?DLDOP
+       00BE       LXI  H,C09 A(0053)
+       00C1       MVI  A,09
+       00C3       CALL ?DSTOP
+  43 c 00C6  c10 = 1;
+       00C6       LXI  H,* S(000F)
+       00C9       MVI  A,0A
+       00CB       CALL ?DLDOP
+       00CE       LXI  H,C10 A(0058)
+       00D1       MVI  A,0A
+       00D3       CALL ?DSTOP
+  44 c 00D6  c11 = 1;
+       00D6       LXI  H,* S(000F)
+       00D9       MVI  A,0B
+       00DB       CALL ?DLDOP
+       00DE       LXI  H,C11 A(005E)
+       00E1       MVI  A,0B
+       00E3       CALL ?DSTOP
+  45 c 00E6  c12 = 1;
+       00E6       LXI  H,* S(0015)
+       00E9       MVI  A,0C
+       00EB       CALL ?DLDOP
+       00EE       LXI  H,C12 A(0064)
+       00F1       MVI  A,0C
+       00F3       CALL ?DSTOP
+  46 c 00F6  c13 = 1;
+       00F6       LXI  H,* S(0015)
+       00F9       MVI  A,0D
+       00FB       CALL ?DLDOP
+       00FE       LXI  H,C13 A(006B)
+       0101       MVI  A,0D
+       0103       CALL ?DSTOP
+  47 c 0106  c14 = 1;
+       0106       LXI  H,* S(001C)
+       0109       MVI  A,0E
+       010B       CALL ?DLDOP
+       010E       LXI  H,C14 A(0072)
+       0111       MVI  A,0E
+       0113       CALL ?DSTOP
+  48 c 0116  c15 = 1;
+       0116       LXI  H,* S(001C)
+       0119       MVI  A,0F
+       011B       CALL ?DLDOP
+       011E       LXI  H,C15 A(007A)
+       0121       MVI  A,0F
+       0123       CALL ?DSTOP
+  49 c 0126  put list(b01 + b15 + c01 + c15);
+       0126       LXI  D,0252
+       0129       LXI  B,0000
+       012C       CALL ?SYSPR
+       012F       LDA  B01 A(0024)
+       0132       MOV  E,A
+       0133       ADD  A
+       0134       SBB  A
+       0135       MOV  D,A
+       0136       LHLD B15 A(0039)
+       0139       DAD  D
+       013A       PUSH H
+       013B       LXI  H,C01 A(003B)
+       013E       MVI  A,01
+       0140       CALL ?DLDOP
+       0143       CALL ?QDI07
+       0146       MOV  L,A
+       0147       ADD  A
+       0148       SBB  A
+       0149       MOV  H,A
+       014A       POP  D
+       014B       DAD  D
+       014C       PUSH H
+       014D       LXI  H,C15 A(007A)
+       0150       MVI  A,0F
+       0152       CALL ?DLDOP
+       0155       CALL ?QDI15
+       0158       POP  D
+       0159       DAD  D
+       015A       MVI  A,09
+       015C       CALL ?QICOP
+       015F       CALL ?PNVOP
+       0162       CALL ?QIOOP
+       012A       ==== 0165
+  50 a 0165  end e19a;
+       0165       CALL ?STOPX
+
+CODE SIZE = 0168
+DATA AREA = 0082
+FREE SYMS = 36E3
+END  COMPILATION
+

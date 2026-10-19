@@ -31,3 +31,8 @@
  (name pli80c)
  (libraries pli80)
  (flags (:standard -warn-error -a)))
+
+(executable
+ (name pli80deps)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))

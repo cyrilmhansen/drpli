@@ -1,0 +1,15 @@
+e16a: procedure options(main);
+ dcl inf file;
+ dcl eoflag bit(1) static initial('0'b);
+ dcl x fixed bin(15);
+ on endfile(inf) begin;
+   eoflag = '1'b;
+ end;
+ open file(inf) stream title('E16IN DAT');
+ do while(eoflag = '0'b);
+   get file(inf) list(x);
+   put list('X=', x);
+ end;
+ put list('DONE');
+ end e16a;
+

@@ -1,0 +1,12 @@
+e11b: procedure options(main);
+ dcl sysin file;
+ dcl a fixed bin(15);
+ dcl b fixed bin(15);
+ on endfile(sysin) put list('SECOND');
+ get list(a);
+ put list('A=', a);
+ get list(b);
+ put list('B=', b);
+ put list('END');
+ end;
+

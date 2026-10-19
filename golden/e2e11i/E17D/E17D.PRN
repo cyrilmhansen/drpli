@@ -1,0 +1,86 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E17D
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E17D
+
+   1 a 0000 e17d: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl outf file;
+   3 c 0006  open file(outf) stream output title('$1.$1');
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,05
+       000B       CALL ?SLCTS
+       000E       MOV  B,A
+       000F       PUSH B
+       0010       INX  SP
+       0011       LXI  H,0E50
+       0014       PUSH H
+       0015       LXI  H,0000
+       0018       PUSH H
+       0019       PUSH H
+       001A       PUSH H
+       001B       PUSH H
+       001C       PUSH H
+       001D       LXI  H,OUTF
+       0020       CALL ?OIOOP
+   4 c 0023  put file(outf) list('HELLO');
+       0023       LXI  H,OUTF
+       0026       LXI  D,0652
+       0029       LXI  B,0000
+       002C       CALL ?SIOOP
+       002F       LXI  H,* S(0005)
+       0032       MVI  A,05
+       0034       CALL ?SLCTS
+       0037       CALL ?PNCOP
+       003A       CALL ?QIOOP
+       002A       ==== 003D
+   5 c 003D  put file(outf) list(42);
+       003D       LXI  H,OUTF
+       0040       LXI  D,0652
+       0043       LXI  B,0000
+       0046       CALL ?SIOOP
+       0049       LXI  H,* S(000A)
+       004C       MVI  A,02
+       004E       CALL ?DLDOP
+       0051       MVI  A,05
+       0053       MVI  B,00
+       0055       CALL ?QDCOP
+       0058       CALL ?PNVOP
+       005B       CALL ?QIOOP
+       0044       ==== 005E
+   6 c 005E  close file(outf);
+       005E       LXI  H,OUTF
+       0061       CALL ?CIOOP
+   7 c 0064  put list('WROTE');
+       0064       LXI  D,0252
+       0067       LXI  B,0000
+       006A       CALL ?SYSPR
+       006D       LXI  H,* S(000C)
+       0070       MVI  A,05
+       0072       CALL ?SLCTS
+       0075       CALL ?PNCOP
+       0078       CALL ?QIOOP
+       0068       ==== 007B
+   8 a 007B  end e17d;
+       007B       CALL ?STOPX
+
+CODE SIZE = 007E
+DATA AREA = 0011
+FREE SYMS = 3868
+END  COMPILATION
+

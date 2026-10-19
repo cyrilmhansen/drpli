@@ -1,0 +1,7 @@
+E12A	diag	PRN=True REL=False
+E12B	diag	PRN=True REL=False
+E12C	diag	PRN=True REL=False
+E12D	ok	PRN=True REL=True
+E12E	diag	PRN=True REL=False
+E12F	ok	PRN=True REL=True
+E12G	diag	PRN=True REL=False

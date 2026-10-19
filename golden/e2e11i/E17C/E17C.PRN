@@ -1,0 +1,127 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E17C
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E17C
+
+   1 a 0000 e17c: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl inf file;
+   3 c 0006  dcl x fixed bin(15);
+   4 c 0006  on endfile(inf) put list('HANDLED');
+       0006       LXI  H,INF
+       0009       MVI  A,05
+       000B       CALL ?ONCOP
+       000E       JMP  0000
+       0011       LXI  D,0252
+       0014       LXI  B,0000
+       0017       CALL ?SYSPR
+       001A       LXI  H,* S(0000)
+       001D       MVI  A,07
+       001F       CALL ?SLCTS
+       0022       CALL ?PNCOP
+       0025       CALL ?QIOOP
+       0015       ==== 0028
+   5 c 0028  open file(inf) stream title('$1.$1');
+       0028       RET  
+       000F       ==== 0029
+       0029       LXI  H,* S(0007)
+       002C       MVI  A,05
+       002E       CALL ?SLCTS
+       0031       MOV  B,A
+       0032       PUSH B
+       0033       INX  SP
+       0034       LXI  H,0E90
+       0037       PUSH H
+       0038       LXI  H,0000
+       003B       PUSH H
+       003C       PUSH H
+       003D       PUSH H
+       003E       PUSH H
+       003F       PUSH H
+       0040       LXI  H,INF
+       0043       CALL ?OIOOP
+   6 c 0046  get file(inf) list(x);
+       0046       LXI  H,INF
+       0049       LXI  D,0690
+       004C       LXI  B,0000
+       004F       CALL ?SIOOP
+       0052       CALL ?GNVOP
+       0055       JP   0000
+       0058       CALL ?QCIOP
+       005B       SHLD X A(0019)
+       0056       ==== 005E
+       005E       CALL ?QIOOP
+       004D       ==== 0061
+   7 c 0061  put list('X1=', x);
+       0061       LXI  D,0252
+       0064       LXI  B,0000
+       0067       CALL ?SYSPR
+       006A       LXI  H,* S(000C)
+       006D       MVI  A,03
+       006F       CALL ?SLCTS
+       0072       CALL ?PNCOP
+       0075       LHLD X A(0019)
+       0078       MVI  A,09
+       007A       CALL ?QICOP
+       007D       CALL ?PNVOP
+       0080       CALL ?QIOOP
+       0065       ==== 0083
+   8 c 0083  get file(inf) list(x);
+       0083       LXI  H,INF
+       0086       LXI  D,0690
+       0089       LXI  B,0000
+       008C       CALL ?SIOOP
+       008F       CALL ?GNVOP
+       0092       JP   0000
+       0095       CALL ?QCIOP
+       0098       SHLD X A(0019)
+       0093       ==== 009B
+       009B       CALL ?QIOOP
+       008A       ==== 009E
+   9 c 009E  put list('X2=', x);
+       009E       LXI  D,0252
+       00A1       LXI  B,0000
+       00A4       CALL ?SYSPR
+       00A7       LXI  H,* S(000F)
+       00AA       MVI  A,03
+       00AC       CALL ?SLCTS
+       00AF       CALL ?PNCOP
+       00B2       LHLD X A(0019)
+       00B5       MVI  A,09
+       00B7       CALL ?QICOP
+       00BA       CALL ?PNVOP
+       00BD       CALL ?QIOOP
+       00A2       ==== 00C0
+  10 c 00C0  put list('THROUGH');
+       00C0       LXI  D,0252
+       00C3       LXI  B,0000
+       00C6       CALL ?SYSPR
+       00C9       LXI  H,* S(0012)
+       00CC       MVI  A,07
+       00CE       CALL ?SLCTS
+       00D1       CALL ?PNCOP
+       00D4       CALL ?QIOOP
+       00C4       ==== 00D7
+  11 a 00D7  end e17c;
+       00D7       CALL ?STOPX
+
+CODE SIZE = 00DA
+DATA AREA = 001B
+FREE SYMS = 3834
+END  COMPILATION
+
