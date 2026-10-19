@@ -1,0 +1,11 @@
+e20d: procedure options(main);
+%replace true  by '1'b;
+%replace false by '0'b;
+ dcl f bit(1) static initial(false);
+ dcl n fixed bin(15);
+ f = true;
+ if f = true then n = 1;
+ if f = false then n = n + 2;
+ put list('N=', n);
+ end e20d;
+

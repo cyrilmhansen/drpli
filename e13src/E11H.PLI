@@ -1,8 +1,0 @@
-e11h: procedure options(main);
- dcl f bit(1);
- dcl n fixed bin(31);
- f = '1'b;
- if f = '1'b then n = 2;
- put list('N=', n);
- end;
-

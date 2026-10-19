@@ -1,0 +1,65 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E20C
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   2 c       dcl f bit(1) initial('1'b);
+NOT STATIC       ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E20C
+
+   1 a 0000 e20c: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006  dcl f bit(1) initial('1'b);
+   3 c 0006  dcl n fixed bin(15);
+   4 c 0006  if f = '1'b then n = 1;
+       0006       LDA  F A(0002)
+       0009       ANI  80
+       000B       SUI  80
+       000D       JNZ  0000
+       0010       LXI  H,N A(0003)
+       0013       MOV  L,A
+       0014       ADD  A
+       0015       SBB  A
+       0016       MOV  H,A
+       0017       PUSH H
+       0018       LXI  H,0001
+       001B       POP  D
+       001C       MOV  M,E
+       001D       INX  H
+       001E       MOV  M,D
+       000E       ==== 001F
+   5 c 001F  put list('N=', n);
+       001F       LXI  D,0252
+       0022       LXI  B,0000
+       0025       CALL ?SYSPR
+       0028       LXI  H,* S(0000)
+       002B       MVI  A,02
+       002D       CALL ?SLCTS
+       0030       CALL ?PNCOP
+       0033       LHLD N A(0003)
+       0036       MVI  A,09
+       0038       CALL ?QICOP
+       003B       CALL ?PNVOP
+       003E       CALL ?QIOOP
+       0023       ==== 0041
+   6 a 0041  end e20c;
+       0041       CALL ?STOPX
+
+CODE SIZE = 0044
+DATA AREA = 0005
+FREE SYMS = 38A4
+END  COMPILATION
+

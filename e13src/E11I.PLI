@@ -1,7 +1,0 @@
-e11i: procedure options(main);
- dcl f bit(1) static initial('0'b);
- dcl n fixed bin(31);
- if f = '0'b then n = 3;
- put list('N=', n);
- end;
-

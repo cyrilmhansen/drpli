@@ -438,3 +438,40 @@ scripts), `ocaml/lib/bind.ml` (`check_fixed_prec`, corrected ladder comment),
 `tools/e2e_gate.py` (`N72`, `N73`, unified markers).
 
 Raw audit output is banked at `spec/notes/e2e11-step0-blocker-audit-data.txt`.
+
+---
+
+## 9. Step 1a design, settled before writing any code
+
+`E20A-E20E` (golden/e2e11l) were compiled specifically to remove the guesswork
+from bit(1) + STATIC INITIAL, and they did:
+
+* **Storage layout law (C114).**  DR has ONE data area, ordered
+  `[statics][literal pool][automatics]`.  The `S(...)`/`A(...)` split in the
+  listing is a relocation-class distinction, not two sections — three specimens
+  add up to their `DATA AREA` exactly under the single-block reading.  Because my
+  model already puts the pool at offset 0 with autos above and already
+  reproduces `* S(off)` byte-exactly, statics are a **pool-base shift**, the same
+  mechanism proven in E2E-10 step 3b, not an architectural change.
+* **Stores.**  `f = '1'b` → `LXI H,f / MVI M,80`; `f = '0'b` → `LXI H,f /
+  MVI M,00` [E20A].  One byte, high-bit justified.
+* **Tests.**  `= '0'b` → `LDA / ANI 80 / JNZ skip`; `= '1'b` → `LDA / ANI 80 /
+  SUI 80 / JNZ skip` [E11D, E20B, E20D, E20E].  The `SUI 80` only on the `'1'b`
+  side is the same shape as my fixed-bin zero test, so it slots into
+  `lower_test_skip0` rather than needing a new comparison path.
+* **`INITIAL` without `STATIC` is a DR error.**  E20C (`dcl f bit(1)
+  initial('1'b);`) fails DR **pass 2** with its own diagnostic `NOT STATIC` and
+  emits no `.REL`.  So this is a language rule to reproduce as a refusal, not a
+  gap to fill — worth remembering because pass-1-clean/pass-2-fail shapes are
+  exactly where a permissive front end silently diverges.
+* **FLTPOLY2's idiom is verified end-to-end.**  E20D uses
+  `%replace true by '1'b; %replace false by '0'b;` + `static initial(false)` +
+  `if f = true` and compiles clean, so the preprocessor substitution and the
+  bit-test lowering FLTPOLY2 needs are both characterized.
+
+Sequence inside step 1a, cheapest evidence first: (i) bit(1) cells + store +
+test, accepted against E20A/E20E byte-exactly; (ii) statics + initialiser bytes +
+pool-base shift, accepted against E11D/E20B/E20D/E20E and then E11C/E17A (which
+combine statics, literals, bit tests and the ON-block — E11C is a 9-byte data
+area, a good end-to-end check of C114); (iii) `bit(1)` in `PUT`/edit output is
+NOT needed by any of these and stays refused.

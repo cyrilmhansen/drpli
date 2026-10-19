@@ -1,0 +1,14 @@
+e20e: procedure options(main);
+ dcl s1 bit(1) static initial('1'b);
+ dcl w1 fixed bin(15);
+ dcl s2 bit(1) static initial('0'b);
+ dcl a1 bit(1);
+ dcl w2 fixed bin(9);
+ a1 = '1'b;
+ w1 = 7;
+ w2 = 5;
+ if s1 = '1'b then w1 = w1 + 1;
+ if s2 = '0'b then w2 = w2 + 1;
+ put list('W=', w1, w2);
+ end e20e;
+

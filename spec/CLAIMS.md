@@ -1592,3 +1592,36 @@ contexts (arrays, structures, subscripted or wide `bit(n)`, n>1) is unprobed —
   and right-justifies numerics; the length is a whole record, not the payload.
   Byte-exact output-DATA comparison is therefore a distinct evidence class from
   `.REL` parity and from console-transcript matching, with its own rules.
+
+## C114 — DR's data area is ONE block ordered [statics][literal pool][automatics] (E2E-11 step 1a design)
+
+DR's listing prints two relocation *classes* — `NAME S(off)` for statics and pool
+literals, `NAME A(off)` for automatics — which invites the reading that there are
+two sections.  There is not.  Three specimens decompose `DATA AREA` exactly:
+
+```
+E11D  F  S(0000)  'N=' S(0001..0002)  G A(0003)  N A(0004..0005)   DATA = 0006
+E20D  F  S(0000)  'N=' S(0001..0002)  N A(0003..0004)              DATA = 0005
+E20E  s1 S(0000) s2 S(0001) 'W=' S(0002..0003) w1 A(0004..0005)
+      a1 A(0006) w2 A(0007..0008)                                  DATA = 0009
+```
+
+So one contiguous block: **static cells first (declaration order), then the
+string/decimal literal pool, then the automatics**, with S and A indexing the
+same addresses.  `S`/`A` are naming/relocation classes, not separate storage.
+
+Implementation consequence, and why this is a layout change rather than an
+architectural fork: my model already places the pool at data offset 0 and
+automatics above it, and already reproduces `* S(off)` pool references
+byte-exactly.  Adding STATIC therefore means *only* reserving the static bytes
+below the pool and shifting the pool base — the same `span`/`rows` shifting
+mechanism proven for float formals in E2E-10 step 3b — plus emitting the
+initialiser bytes into the data segment.
+
+Related bit(1) facts from the same specimens [E20A, E20B, E20D, E20E, C112]:
+store `'1'b` = `MVI M,80`, store `'0'b` = `MVI M,00`; test `= '0'b` =
+`LDA c / ANI 80 / JNZ skip`; test `= '1'b` = `LDA c / ANI 80 / SUI 80 / JNZ skip`
+(the `SUI 80` appears only for the `'1'b` comparison, mirroring the fixed-bin
+zero-test shape).  `INITIAL` on a bit string **requires** `STATIC`: DR's pass 2
+reports `NOT STATIC` and emits no `.REL` for `dcl f bit(1) initial('1'b);`
+[E20C], so that form must refuse, not degrade.

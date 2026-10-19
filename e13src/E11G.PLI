@@ -1,6 +1,0 @@
-e11g: procedure options(main);
- dcl n fixed bin(31);
- n = 1;
- put list('N=', n);
- end;
-

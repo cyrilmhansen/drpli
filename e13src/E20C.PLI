@@ -1,0 +1,7 @@
+e20c: procedure options(main);
+ dcl f bit(1) initial('1'b);
+ dcl n fixed bin(15);
+ if f = '1'b then n = 1;
+ put list('N=', n);
+ end e20c;
+

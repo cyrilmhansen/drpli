@@ -1,0 +1,9 @@
+e20a: procedure options(main);
+ dcl f bit(1);
+ dcl n fixed bin(15);
+ f = '1'b;
+ f = '0'b;
+ n = 1;
+ put list('N=', n);
+ end e20a;
+

@@ -1,0 +1,5 @@
+E20A	ok	PRN=True REL=True
+E20B	ok	PRN=True REL=True
+E20C	diag	PRN=True REL=False
+E20D	ok	PRN=True REL=True
+E20E	ok	PRN=True REL=True
