@@ -1,0 +1,95 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R2026
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 LR2026 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 24 BYTES
+c 0000 X FIXED DECIMAL(15,4) AUTOMATIC
+c 0008 Y FIXED DECIMAL(15,4) AUTOMATIC
+c 0010 Z FIXED DECIMAL(15,4) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R2026
+
+   1 a 0000 lR2026:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (x,y,z) fixed dec(15,4);
+   4 c 0006    if x = 0 & y = 0 & z = 0 then stop;
+       0006       LXI  H,X A(0008)
+       0009       MVI  A,0F
+       000B       CALL ?DLDOP
+       000E       LXI  H,* S(0000)
+       0011       MVI  A,0F
+       0013       CALL ?DLDOP
+       0016       CALL ?DCMOP
+       0019       SUI  01
+       001B       SBB  A
+       001C       LXI  H,Y A(0010)
+       001F       PUSH PSW
+       0020       MVI  A,0F
+       0022       CALL ?DLDOP
+       0025       LXI  H,* S(0000)
+       0028       MVI  A,0F
+       002A       CALL ?DLDOP
+       002D       CALL ?DCMOP
+       0030       SUI  01
+       0032       SBB  A
+       0033       POP  B
+       0034       ANA  B
+       0035       LXI  H,Z A(0018)
+       0038       PUSH PSW
+       0039       MVI  A,0F
+       003B       CALL ?DLDOP
+       003E       LXI  H,* S(0000)
+       0041       MVI  A,0F
+       0043       CALL ?DLDOP
+       0046       CALL ?DCMOP
+       0049       SUI  01
+       004B       SBB  A
+       004C       POP  B
+       004D       ANA  B
+       004E       JP   0000
+       0051       CALL ?STOPX
+       004F       ==== 0054
+   5 c 0054    put skip list(z);
+       0054       LXI  D,0252
+       0057       LXI  B,0000
+       005A       CALL ?SYSPR
+       005D       MVI  A,01
+       005F       CALL ?SKPOP
+       0062       LXI  H,Z A(0018)
+       0065       MVI  A,0F
+       0067       CALL ?DLDOP
+       006A       MVI  A,12
+       006C       MVI  B,04
+       006E       CALL ?QDCOP
+       0071       CALL ?PNVOP
+       0074       CALL ?QIOOP
+       0058       ==== 0077
+   6 c 0077 
+   7 c 0077    stop;
+       0077       CALL ?STOPX
+   8 a 007A end lR2026;
+
+CODE SIZE = 007A
+DATA AREA = 0020
+FREE SYMS = 38A8
+END  COMPILATION
+

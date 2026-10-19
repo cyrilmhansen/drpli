@@ -274,6 +274,30 @@ SPECIMENS = {
     "R432": ("probes/R432.PLI", "golden/e2e5c/R432/R432.REL"),
     "R433": ("probes/R433.PLI", "golden/e2e5c/R433/R433.REL"),
     "P404": ("probes/P404.PLI", "golden/e2e5c/P404/P404.REL"),
+    # ---- [E2E-9 slice 6] multi-argument internal ABI, DEC formals, & ----
+    # DECPOLY is the 6th historical corpus program accepted at RAW .REL byte
+    # parity (after DEMO, RFACT, DFACT, LOAN1, IFACT).  R2030-R2038 pin the
+    # arity-1..4 descriptor-block ABI and FIXED DECIMAL by-reference formals;
+    # R2023-R2027 pin counted SKIP, %replace + DO WHILE('1'B) and the
+    # AND-conjunction lowering; LONGNAME pins DR's 6-character external name.
+    "DECPOLY": ("artefacts/DECPOLY.PLI",
+                "golden/first8080u/DECPOLY/DECPOLY.REL"),
+    "R2023": ("probes/R2023.PLI", "golden/e2e12/R2023/R2023.REL"),
+    "R2024": ("probes/R2024.PLI", "golden/e2e12/R2024/R2024.REL"),
+    "R2025": ("probes/R2025.PLI", "golden/e2e12/R2025/R2025.REL"),
+    "R2026": ("probes/R2026.PLI", "golden/e2e12/R2026/R2026.REL"),
+    "R2027": ("probes/R2027.PLI", "golden/e2e12/R2027/R2027.REL"),
+    "R2030": ("probes/R2030.PLI", "golden/e2e12/R2030/R2030.REL"),
+    "R2031": ("probes/R2031.PLI", "golden/e2e12/R2031/R2031.REL"),
+    "R2032": ("probes/R2032.PLI", "golden/e2e12/R2032/R2032.REL"),
+    "R2033": ("probes/R2033.PLI", "golden/e2e12/R2033/R2033.REL"),
+    "R2034": ("probes/R2034.PLI", "golden/e2e12/R2034/R2034.REL"),
+    "R2035": ("probes/R2035.PLI", "golden/e2e12/R2035/R2035.REL"),
+    "R2036": ("probes/R2036.PLI", "golden/e2e12/R2036/R2036.REL"),
+    "R2037": ("probes/R2037.PLI", "golden/e2e12/R2037/R2037.REL"),
+    "R2038": ("probes/R2038.PLI", "golden/e2e12/R2038/R2038.REL"),
+    "R725": ("probes/R725.PLI", "golden/e2e8/R725/R725.REL"),
+    "LONGNAME": ("probes/LONGNAME.PLI", "golden/e2e12/LONGNAME/LONGNAME.REL"),
 }
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -483,7 +507,7 @@ REJECTS = {
          "  g: procedure(x) returns(fixed dec(9,2));\n"
          "     dcl x fixed dec(9,2);\n     return (x);\n  end g;\n"
          "end t;\n",
-         "DECIMAL formal parameter"),
+         "FIXED DECIMAL formal is unproven"),
     # s_r > s_l + N, i.e. a quotient scale BELOW zero.  R712 proves s_r >
     # s_l is fine when the result stays >= 0 (dividend scale 2, divisor
     # product scale 4, N 6 -> scale 4), so the refused region is exactly the
@@ -581,6 +605,62 @@ REJECTS = {
                     "  do i = 1 to 9 by 3;\n    s = s + i;\n  end;\n"
                     "  stop;\nend t;\n",
                     "DO BY magnitude > 2 unproven"),
+    # [E2E-9 slice 6] perimeter of the multi-arg / DEC-formal subset.  Each
+    # is a tested negative: my build must refuse with [TBD], never guess bytes.
+    "N52_DEC_FORMAL_PUT": (
+        "t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n"
+        "  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  r = g(x);\n  stop;\n"
+        "  g: procedure(q) returns(fixed dec(9,2));\n"
+        "     dcl q fixed dec(9,2);\n     put skip list(q);\n"
+        "     return (q);\n  end g;\nend t;\n",
+        "PUT LIST of a FIXED DECIMAL formal is unsampled"),
+    "N53_DEC_FORMAL_CONJ": (
+        "t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n"
+        "  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  y = 2.5;\n"
+        "  r = g(x, y);\n  stop;\n"
+        "  g: procedure(q,w) returns(fixed dec(9,2));\n"
+        "     dcl (q,w) fixed dec(9,2);\n     if q = 0 & w = 0 then stop;\n"
+        "     return (q);\n  end g;\nend t;\n",
+        "FIXED DECIMAL formal as a conjunction operand is unproven"),
+    "N54_FORMAL_PASSTHRU": (
+        "t:\n  procedure options(main);\n  dcl r fixed;\n  r = mid(3, 5);\n"
+        "  put skip list(r);\n  stop;\n"
+        "  f2: procedure (a,b) returns(fixed);\n     dcl (a,b) fixed;\n"
+        "     return (a + b);\n  end f2;\n"
+        "  mid: procedure (p,q) returns(fixed);\n     dcl (p,q) fixed;\n"
+        "     return (f2(q, p));\n  end mid;\nend t;\n",
+        "pointer-formal call argument unproven"),
+    "N55_FORMAL_STORE": (
+        "t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n"
+        "  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  y = 2.5;\n"
+        "  r = g(x);\n  stop;\n"
+        "  g: procedure(q) returns(fixed dec(9,2));\n"
+        "     dcl q fixed dec(9,2);\n     q = y;\n     return (q);\n"
+        "  end g;\nend t;\n",
+        "store to pointer formal unproven"),
+    # [E2E-9 slice 6] DR's fixed-bin peephole set (P044 / R2045 / R2046 goldens
+    # in golden/e2e12c).  My lowering diverges on all four; each shape now
+    # fails loud instead of emitting plausible-but-wrong bytes.
+    "N56_ADD_ZERO_LIT": (
+        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
+        "  x = x + 0;\n  stop;\nend t;\n",
+        "RIGHT operand is the literal 0"),
+    "N57_ADD_LIT_LIT": (
+        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 3 + 2;\n"
+        "  stop;\nend t;\n",
+        "ADD between TWO INTEGER LITERALS"),
+    "N58_MUL_TWO": (
+        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
+        "  x = x * 2;\n  stop;\nend t;\n",
+        "MULTIPLY by literal 2 is strength-reduced"),
+    "N59_MUL_ONE": (
+        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
+        "  x = x * 1;\n  stop;\nend t;\n",
+        "MULTIPLY by literal 1 is strength-reduced"),
+    "N60_MUL_LITERAL_LEFT": (
+        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
+        "  x = 3 * x;\n  stop;\nend t;\n",
+        "LITERAL on the LEFT is commuted"),
     "N47_MODGT": ("t:\n  procedure options(main);\n  dcl i fixed binary;\n"
         "  i = 25;\n  if mod(i,12) > 0 then i = 1;\nend t;\n",
         "condition form not in E2E-3b subset")

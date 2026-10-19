@@ -855,3 +855,243 @@ Implementation lines since the `4bc9af8` checkpoint, over `ocaml/`, `tools/` and
 `oracle/`: +503 / -102 = **605 gross** (of which `ocaml/` alone is +366 / -51)
 -- inside the ~2,000-line consultation threshold, so no mid-slice pause was
 needed.
+
+## C093 — multi-argument internal call: a DESCRIPTOR BLOCK of address constants, one shared prologue (E2E-9 slice 6)
+
+DECPOLY was the last blocked program whose first blocker was the BINDER, not a
+missing runtime routine.  Its call graph is `main -> P`, 3 fixed-decimal
+formals, and the accepted `.REL` (1152 B, code=339 data=24) is now byte-exact.
+The ABI law, from R2030-R2038 (arity 1..4, expression args, literal args, two
+procedures, DEC formals) plus R725 and DECPOLY:
+
+* The CALLER allocates one 2-byte POINTER CELL per argument, contiguously, at
+  the tail of its own section: `*A(slot), *A(slot+2), *A(slot+4), ...`  The
+  cell count per call SITE is `2 * number-of-arguments` [R2034 3-formal callee
+  -> cells at A(0054)/0056/0058, R2035 4-formal -> A(004A) 8 bytes].
+* Each cell's CONTENT is a link-time address constant, never a runtime store:
+  `SET-LC(data, slot+2i)` + `RELOC(data, target cell)` + `SET-LC(code, ...)`
+  [R2031, R2034, R2035, R2037, R2038, DECPOLY].  Because a constant operand is
+  two bytes, the whole descriptor fits in 2-byte cells regardless of operand
+  width -- this is what makes `1` and `1.4` both legal arguments.
+* Emission is **interleaved per argument** (materialise argument i, then write
+  its descriptor constant, then argument i+1), NOT batched.  R2032 proves it:
+  the `RELOC(&i)` constant lands BEFORE the `j + 1` temporary is computed, the
+  `RELOC(&temp)` constant AFTER `SHLD temp`.  So the per-argument descriptor
+  pair must live inside the argument lowering, not in one pass at the end.
+* The CALLER'S OWN value for a decimal argument is an `LXI H,*A(pool cell)`
+  pair: a decimal LITERAL argument takes a 2-byte pool cell and the descriptor
+  points at that cell, and in the 3-arg case the last descriptor is the caller's
+  own cell (DECPOLY `*A(005A) = 5.67`, R2038 same shape).
+* The CALL SITE itself is unchanged from the 1-formal case: ONE
+  `LXI H,*A(descriptor-slot)` + `CALL 0000` for the whole block [R2031, R2034,
+  DECPOLY @146].
+* The CALLEE entry depends on ARITY:
+  - arity 1 keeps the peeled dereference prologue
+    `MOV E,M / INX H / MOV D,M / XCHG / SHLD <ptr cell>`;
+  - arity >= 2 is one contiguous BLOCK COPY of the entire descriptor:
+    `LXI D,<first ptr cell> / MVI C,2N / loop: MOV A,M / INX H / STAX D /
+     INX D / DCR C / JNZ loop` [R2031 2N=4, R2034 2N=6, R2035 2N=8,
+     R2037/R2038/DECPOLY].
+  `DCR C` is opcode `0x0D`; the first byte-diff against DR on R2031 was exactly
+  `0x05` (DCR B) vs `0x0D` (DCR C).
+* Formals are passed BY REFERENCE, so writing a formal writes the caller's
+  variable [R2011 runtime: `mid` received `a` and 3 became 5].  My build refuses
+  stores to a formal (`store to pointer formal unproven`) because no accepted
+  corpus program performs one; that refusal is a tested negative (N55).
+
+## C094 — a FIXED DECIMAL formal is a 2-byte pointer cell read through ?DLDOP (E2E-9 slice 6)
+
+LAW: `dcl q fixed decimal(p,s)` inside a procedure whose q is a FORMAL gives q a
+2-byte cell, not the `(p+8)/9` BCD cell the same declaration gives a local
+[DECPOLY: P's A(004E)/A(0050)/A(0052) are 2 B each while main's x/y/z are 6 B
+each; R725 @135 the same shape at arity 1].  Reading it is
+`LHLD <ptr cell>` + `MVI A,<p>` + `CALL ?DLDOP` -- i.e. the ordinary decimal
+load ladder with `LXI H,<cell>` replaced by `LHLD`, which is exactly why the
+same ?DLDOP primitive needs no new mode.
+
+Corollary (this is the law that DECPOLY's own listing proves): because the
+callee re-declares its formals (`dcl (x,y,z) fixed decimal(15,4);`), the
+*precision byte* it emits is the re-declaration's, and DR's own object module
+uses a DIFFERENT precision for the callee's copy of the same literal (`MVI
+A,0F` / 15,4 in P against `MVI A,0B` / 11,2 in main) -- which is a second reason
+the mode check below had to be a real check and not an assumption.
+
+MODE CHECK (new refusal site, one tested negative): an argument against a FIXED
+DECIMAL formal must be a decimal VARIABLE.  Passing a decimal literal or a
+decimal expression (`q = g(1.5)`) has no DR sample -- DR would have to place the
+literal in some cell and decide its precision -- so the compiler fails loud:
+`non-variable argument against a FIXED DECIMAL formal is unproven [TBD]`
+[N33, re-pinned from the old arity-1 "DECIMAL formal parameter" refusal].  All
+accepted specimens pass variables (DECPOLY x/y/z, R725 a/b, R2037, R2038).
+
+## C095 — `&` in a condition materialises booleans and ANDs them; ONE skip jump (E2E-9 slice 6)
+
+LAW: for `if A & B then S`, DR does NOT chain two conditional jumps.  Each
+operand is evaluated to a boolean BYTE in A -- 0xFF for true, 0x00 for false --
+by the flag trick `SUI 01 / SBB A` (NC-true => 0xFF, C-false => 0x00), the left
+byte is parked with `PUSH PSW`, the right byte is combined with
+`POP B / ANA B`, and the whole conjunction gets a single `JP <target>` skip jump
+[DECPOLY @266 3-way `x = 0 & y = 0 & z = 0`, R2021, R2026, R2027].
+
+Consequence for HL-hoisting: neither PUSH PSW nor POP touches HL, so the leading
+address load of the NEXT operand is emitted ABOVE its `PUSH PSW`, and the
+operand's value-fetch sequence ends up split across the stack push.  Observed
+for both operand forms:
+  fixed-bin cell-OR  `LXI H,<Y>` ... `PUSH PSW` ... `MOV A,M / INX H / ORA M`
+                      [R2021, R2025];
+  decimal compare    `LXI H,<X>` ... `PUSH PSW` ... `MVI A,p / CALL ?DLDOP /
+                      push right / CALL ?DCMOP` [DECPOLY, R2026].
+A DECIMAL operand in a conjunction also means the compare's `?DCMOP` result byte
+is consumed as a flag, not as a value -- no `STA/POP` of the compare cell, and
+therefore no per-operand skip jump.
+
+Untested shapes, all refused (N52/N53): a PUT of, or a bare read of, a DECIMAL
+FORMAL inside a conjunction -- the `LHLD` hoist above `PUSH PSW` has no sample.
+
+## C096 — DR writes external names truncated to 6 characters (E2E-9 slice 6)
+
+LAW: PROG-NAME, LINK-EXTDEF, DEF-PUBLIC and the `EXT:` symbol all carry the
+FIRST SIX characters of the program name: DECPOLY -> `DECPOL`, and LONGNAME
+(`dcl longprogram ...`, 9 characters) -> `LONGNA` [both .RELs byte-exact].  The
+10-character program name `REPLACEP` -> `REPLAC` [R2024].  Internal procedure
+names NEVER become external symbols -- DR's NTEST1/NTEST2 objects contain no
+`COMPUTEVAL`/`COMPUTEA`/`COMPUTEB` entry at all, so two internals colliding on
+their first six characters is legal [NTEST1/NTEST2 .REL: only the program name,
+?START/?SYSPR/?SKPOP/?QICOP/?PNVOP/?QIOOP].  My binder had been emitting the
+untruncated name, which is why DECPOLY could not match before this.
+
+## C097 — `%replace` is a pass-1 TEXTUAL macro, expanded outside literals (E2E-9 slice 6)
+
+LAW: `%replace <name> by <value>;` vanishes from the object entirely and every
+later whole-identifier use of `<name>` becomes `<value>` textually [R2024:
+`%replace true by '1'b;` then `do while(true);` compiles to
+`JP L1 / ... / CALL ?PRPOP / JMP L0` -- the SAME fold as a literal `'1'b`
+condition (Z404), with the `PUSH PSW / ... / POP B / ANA B` residue the
+literal `'1'b` shape leaves [Z408]].  Because the expansion is textual, the
+replacement inherits whatever context the identifier appeared in; my lexer
+implements it as a source-level substitution outside string and comment
+literals, and refuses (a) a `%replace` clause whose replacement is not an
+integer, bit-string or short identifier token [DIOCOPY hits this refusal today],
+and (b) any macro name appearing inside a literal or comment, where DR's
+scanner behaviour has no sample.  Directive lines are blanked rather than
+deleted so recorded line numbers stay put; `by` and `end` are not reserved.
+
+## C098 — multiply with a dereferenced formal on the left loads the literal straight into DE (E2E-9 slice 6, defect repair)
+
+LAW: in `a * 3` where `a` is a POINTER formal (fixed-bin), the dereference ladder
+ends in `XCHG`, which already leaves the operand in DE, so DR does not perform
+the usual `PUSH H / LXI D,const / POP D` rotation and instead emits
+`LXI D,<const>` directly: `LHLD a / MOV A,M / INX H / MOV H,M / MOV L,A / XCHG /
+LXI D,0003 / CALL ?IM22N / RET` [R2036 g1 body, byte-exact].  My build had been
+rotating DE through the stack, which is dead code but not byte-equal.  This is
+an optimisation the compiler applies whenever DE is already free after the left
+operand -- it does NOT apply when the left operand is an ordinary cell.
+
+GATES AFTER SLICE 6: e2e **211 byte-exact / 0 fail of 211** (was 194; +14
+multi-arg/conjunction/%replace probes R2023-R2027 + R2030-R2038, +R725 which was
+written in slice 4 but refused by the arity-1 binder, +LONGNAME for the 6-char
+name law, +DECPOLY as the 6th corpus specimen); negative panel **51/51 refused**
+(42 -> 46: N33 re-pinned from "DECIMAL formal parameter" to the mode-checked
+"FIXED DECIMAL formal is unproven", +N52 PUT of a DECIMAL formal, +N53 DECIMAL
+formal as a conjunction operand, +N54 fixed-bin formal passed through to another
+call, +N55 store through a formal; then +5 more for the fixed-bin peephole
+perimeter discovered at the end of the slice -- N56 `x + 0`, N57 `lit + lit`,
+N58 `x * 2`, N59 `x * 1`, N60 `3 * x`, see C099).  Corpus sweep (all 41 DR programs through the
+current build, `tools/sweep_corpus.py`): **6 EXACT / 0 DIFFERS / 35 REFUSED** --
+DEMO, RFACT, DFACT, LOAN1, IFACT, DECPOLY.  Zero divergent programs: every
+unaccepted corpus program stops in a named `[TBD]`, never with wrong bytes.
+Tier-2 targeted link + console for this slice: 17 specimens (DECPOLY, LONGNAME,
+R725, R2023-R2027, R2030-R2038) -> 17/17 linked `.COM` byte-identical to DR and
+17/17 raw console transcripts byte-identical, each with a non-trivial value
+printed (8, 3, 11, 6, 24, "6 / 11", 3.7000, 12.2300, 2.33, 1, and the empty
+transcript of the conjunction-that-stops probes).  DECPOLY additionally:
+`.COM` 1152-byte module -> byte-identical image, console byte-identical over its
+REAL input script (`1.4, 2.3, 5.67` then `0,0,0`), and the simulator's own
+`CPU executed 1773926 t-states` count is IDENTICAL for both images (the two
+transcripts differ only in the simulator's wall-clock/clock-frequency lines).
+Numeric verification: `x*x + 2*y + z` for (1.4, 2.3, 5.67) = 1.96 + 4.6 + 5.67 =
+12.23, printed `12.2300` at scale 4 -- correct arithmetic, not just matching
+bytes.  DECPOLY's `P(x,y,z)` call prints `2` instead of `12.2300`; that is DR's
+own behaviour (its callee re-declares the formals at 15,4 against the caller's
+11,2) and the accepted object reproduces it exactly -- a documented DR semantic
+defect, not a source-level misread on my side.
+THREE REAL DEFECTS were found and fixed by this slice's byte-diffing, each with
+a probe that pins it: (1) `bind.ml`'s call-site fold restarted its accumulator at
+`0`, silently dropping every call site but the last -- multi-arg calls lost their
+descriptors; (2) `bind.ml`'s attribute lookup was case-sensitive, so the
+lowercase `recursive` written in R2023/R2024 did not match, changing the SVBLK
+layout; (3) an `if ... then match ...` guard in `codegen.ml` swallowed the rest
+of its enclosing iteration body into the match's last arm, so the descriptor
+constants disappeared for exactly the arguments the guard was meant to CHECK --
+this one was caught only because the .REL stopped matching, and the fix is a
+sealed `let () = if ... then begin match ... end in` binding with a comment
+explaining the hazard.  A fourth hygiene repair: an assignment to a name with no
+declaration raised bare `Not_found` out of `List.assoc`; it now fails loud.
+A fourth specimen family came out of the `%replace` validation probes and is
+banked as a DISCOVERY rather than a feature: DR strength-reduces fixed-bin
+constant arithmetic (`x + 0`, `x * 1` elided; `x * 2` -> `DAD H`; `3 * x`
+commuted; `3 + 2` evaluated in the DECIMAL runtime through 1-byte pool cells),
+and my lowering does none of that -- see C099.  Those shapes now fail loud
+(N56-N60), which is why the corpus still reports 0 DIFFERS.
+
+Clean-build warnings 63 -> **61** (W27 unused-variable 8 -> 6 as dead bindings
+went away; every other kind unchanged) -- a decrease, verified by
+`rm -rf _build` rebuilds.  Implementation lines since the `4bc9af8` checkpoint,
+over `ocaml/`, `tools/` and `oracle/`: +1350 / -228 = **1578 gross** -- still under the ~2,000-line consultation threshold, but
+close, so the next slice starts with a user consultation.
+
+## C099 — DR's FIXED BINARY arithmetic peephole set (E2E-9 slice 6, DISCOVERED, not implemented)
+
+Three probes written to validate the multi-clause `%replace` lexer fix instead
+exposed a route family that no accepted specimen had ever exercised: DR
+strength-reduces small constant factors and summands, and it evaluates
+`literal + literal` in the DECIMAL runtime.  All three specimens are DR goldens
+in `golden/e2e12c/` (P044, R2045, R2046, compiled with `$L$C$D` so the listing
+carries the code trace).  **None is a gate positive: my build now refuses each
+shape (N56-N60) rather than emitting the wrong bytes.**
+
+P044 lines 3-6, verbatim from DR's listing:
+
+    x = 2 + 4;   LXI H,*S(0000) ; MVI A,01 ; CALL ?DLDOP
+                 LXI H,*S(0001) ; MVI A,01 ; CALL ?DLDOP
+                 CALL ?DADOP ; CALL ?QDI15 ; SHLD X A(0002)
+    x = x * 1;   LHLD X A(0002) ; SHLD X A(0002)
+    x = x + 0;   LHLD X A(0002) ; SHLD X A(0002)
+    x = 3 * x;   LHLD X A(0002) ; LXI D,0003 ; CALL ?IM22N ; SHLD X A(0002)
+
+R2046 line 11, `n = n * step` where `%replace step by 2`:
+
+    LHLD n A(0000) ; DAD H ; SHLD n A(0000)
+
+Laws read off this evidence, stated only as far as they go:
+
+1. `left + right` where BOTH are integer literals is NOT folded: DR allocates
+   one 1-digit (1-byte) decimal pool cell per literal, pushes both through
+   `?DLDOP` with `MVI A,01`, adds with `?DADOP`, and converts the decimal
+   result to binary with `?QDI15` before the store.  The DATA AREA of R2045 is
+   6 bytes for `dcl i fixed; dcl r fixed;` + two 1-byte literal cells -- four
+   bytes of variables, two of constants [R2045, P044].
+2. `x - <literal>` DOES take the immediate path: `j = 0 - 7` [N301] and
+   `e = 0 - 2` [N306] are byte-exact against my folding.  So rule 1 is
+   ADD-specific on the samples available; whether `7 - 2` folds is UNSAMPLED
+   (both samples have 0 as the left operand).
+3. `x * 1` and `x + 0` elide to a load/store pair of the same cell.
+4. `x * 2` becomes `DAD H`.  Together with the ±1/±2 INX/DCX ladder of C091
+   this says DR recognises a small family of constant multiplicative/additive
+   identities and never calls the runtime for them.
+5. `3 * x` (literal left, value right) commutes: DR loads the VARIABLE into HL
+   and the literal into DE with `LXI D,<const>`, no stack rotation.  This is the
+   general form of C098 -- C098's pointer-formal case was a special instance.
+
+Implementation consequence: my `lower_hl` Add/Mul arms gained three narrow
+guards (`fp_add_guard`, `fp_mul_guard`) that fail loud with the DR trace quoted
+in the message.  The guard is deliberately narrow -- it fires only on the shapes
+DR is known to rewrite, so `x * 3`, `x / 2`, var-op-var and every accepted
+specimen keep their existing byte-exact paths (gate went 211/211 with the
+guards in place after one over-broad first attempt that broke N301/N306, which
+is itself recorded above as evidence for rule 2).
+
+Next slice, in order: implement rules 1, 3, 4, 5 (each needs 1-2 more probes --
+`x - y` with literals, `x * 4`, `1 * x`, `x + 0` inside a condition, pool-cell
+ordering for two 1-digit decimal literals), then un-refuse N56-N60 and register
+P044/R2043/R2045/R2046 as positives.

@@ -1,0 +1,16 @@
+r2043:
+ procedure options(main);
+   %replace
+      three  by 3,   /* a count */
+      two    by 2,
+      big    by 100;
+   dcl i fixed;
+   dcl r fixed;
+   r = three + two;
+   do i = 1 to three;
+      r = r + two;
+   end;
+   put skip list(r);
+   stop;
+end r2043;
+

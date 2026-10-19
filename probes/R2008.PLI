@@ -1,0 +1,19 @@
+R2008:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl k fixed;
+   dcl r fixed;
+   i = 4;
+   j = 1;
+   r = rec(i, j);
+   put skip list(r);
+
+   rec: procedure (a,b) returns (fixed);
+      declare (a,b) fixed;
+      if a <= 0 then return (b);
+      return (rec(a - 1, b + 1));
+   end rec;
+   stop;
+end R2008;
+

@@ -797,3 +797,73 @@ The 28-program declaration wall is now unambiguously the largest single lever:
 kind* (FLOAT, FILE, POINTER/BASED, BIT(1)). Small isolated output/loop
 perimeters (PUT ITEM for OPTIMIST, CHAR-varying RETURN for SAMPLE) each unlock
 at most one program and then hit a bigger wall behind it.
+
+## 16. SLICE-6 NOTE (E2E-9 multi-argument ABI + DEC formals, DECPOLY accepted, 2026-10-20)
+
+DECPOLY is the 6th corpus program accepted at raw `.REL` byte parity
+(1152 B, code=339 data=24), and the corpus stand now reads
+**6 EXACT / 0 DIFFERS / 35 REFUSED of 41** (`tools/sweep_corpus.py`).
+
+Prediction vs. outcome for this slice, stated honestly:
+
+* My slice-5 note said the remaining DECPOLY work was "a contained binder task"
+  of ~5 lowering laws.  It was 5 laws plus 6 codegen routes; the count of
+  *mechanisms* was right, the count of *surfaces inside them* was not.
+* I predicted "no new runtime routine should be required".  That held -- the
+  entire slice added ZERO new `?` symbols.  DECPOLY's external set is exactly
+  `?START ?SYSPR ?SKPOP ?QCDOP ?QCIOP ?DLDOP ?DSTOP ?DADOP ?DSUOP ?DMUOP
+  ?DCMOP ?QDDSR ?QDCOP ?PNVOP ?QIOOP ?DCRET`, all of which were already in my
+  runtime set.
+* The correction I flagged last slice -- that a "seen" ROUTE can hide an unseen
+  RULE -- is what this slice was made of.  DEC was "seen" through 72 probes and
+  calls through 17 specimens; what was missing was the *interaction*: the
+  precision byte a callee emits for its own re-declared formal (15,4 against the
+  caller's 11,2), and the fact that a DEC formal's cell is 2 bytes, not a BCD
+  cell.
+
+What actually cost the time was not the laws but three latent defects that the
+byte-diff exposed (call-site fold dropping all but the last site, a
+case-sensitive `recursive` attribute test, and an `if ... then match ...` that
+silently swallowed the descriptor-constant emission for exactly the arguments it
+was checking).  The third is the instructive one: the guard was correct, its
+delimiters were not, and the only reason it surfaced at all is that acceptance is
+byte identity -- a semantic test would have kept printing the right numbers.
+
+DECPOLY as a specimen is also the first accepted corpus program where DR's own
+output is arithmetically WRONG for one of its statements: `P(x,y,z)` prints `2`
+while the caller's identical expression prints `12.2300`.  The acceptance target
+is byte identity of `.REL`, `.COM` and console; the value `2` is reproduced
+exactly and recorded as a DR semantic defect, not smoothed over.
+
+Remaining DECPOLY-class perimeter (tested negatives): PUT of a DECIMAL formal
+(N52), DECIMAL formal as a conjunction operand (N53), a formal passed through to
+another call (N54 -- this blocks R2013's shape and, through it, CHAIN-ADDR-style
+layouts), store through a formal (N55), decimal literal/expression argument
+against a DECIMAL formal (N33), and the trailing-`stop` layout that puts a
+main-block statement after an appended procedure (which is what NTEST1/NTEST2
+still refuse on; their long-internal-name law is pinned from DR's objects
+instead, see C096).
+
+Largest lever unchanged: 28 of the 35 refusals are a single unsupported
+DECLARATION KIND (FLOAT, FILE, POINTER/BASED, BIT(1)).  This slice proved again
+that new declaration kinds drag new runtime surface with them, so it is the
+expensive direction; the cheap direction is the 5-6 programs whose only blocker
+is a small output/loop perimeter.
+
+### 16.1 Addendum -- the fixed-bin peephole family (found while validating `%replace`)
+
+Validation probes R2043/R2045/R2046 plus the old P044 battery turned up four
+fixed-bin rewrites DR performs and my compiler does not: `x + 0` and `x * 1`
+elided, `x * 2` -> `DAD H`, `3 * x` commuted into `LHLD/LXI D/?IM22N`, and
+`lit + lit` evaluated through the decimal runtime (`?DLDOP`, `?DADOP`,
+`?QDI15`) with one-byte pool cells.  None of the 41 corpus programs uses any of
+them, and none of my 211 registered goldens did either -- the route survived
+nine slices purely because no specimen I chose had that shape.  All four are now
+tested refusals (N56-N60) with DR's trace quoted in the message; the corpus
+still reports 0 DIFFERS.  See CLAIMS C099.
+
+The `%replace` question the probes were actually asking is answered cleanly:
+R2043 (macro form) and R2045 (inline-literal control) have IDENTICAL DR code
+traces, so replacement is textual, and my lexer's multi-clause/comment handling
+is right -- it just could not be proven by a registered positive until the
+peephole family is implemented.

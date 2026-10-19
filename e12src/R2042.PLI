@@ -1,0 +1,17 @@
+lR2042:
+ procedure options(main);
+   dcl r fixed;
+   r = factor1(2) + factor2(3);
+   put skip list(r);
+
+   factor1: procedure(q) returns(fixed);
+      dcl q fixed;
+      return (q * 2);
+   end factor1;
+   factor2: procedure(q) returns(fixed);
+      dcl q fixed;
+      return (q * 3);
+   end factor2;
+   stop;
+end R2042;
+

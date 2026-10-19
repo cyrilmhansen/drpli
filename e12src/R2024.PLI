@@ -1,0 +1,13 @@
+lr2020:
+ procedure options(main);
+   dcl x fixed;
+   %replace
+      true by '1'b;
+   x = 1;
+   do while(true);
+      x = x + 1;
+      if x > 3 then stop;
+   end;
+   stop;
+end lr2020;
+

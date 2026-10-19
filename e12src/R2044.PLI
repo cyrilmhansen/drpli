@@ -1,0 +1,11 @@
+r2044:
+ procedure options(main);
+   %replace rate by 1.25, units by 4; /* one line, two clauses */
+   dcl a fixed dec(9,2);
+   dcl i fixed;
+   i = units;
+   a = rate * i;
+   put skip list(a);
+   stop;
+end r2044;
+

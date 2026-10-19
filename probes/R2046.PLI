@@ -1,0 +1,16 @@
+r2046:
+ procedure options(main);
+   %replace
+      units by 4,   /* count */
+      step  by 2,
+      flag  by '1'b;
+   dcl n fixed;
+   dcl k fixed;
+   n = units;
+   do k = 1 to step;
+      n = n * step;
+   end;
+   put skip list(n);
+   stop;
+end r2046;
+

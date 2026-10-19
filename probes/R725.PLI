@@ -1,0 +1,16 @@
+l725:
+ procedure options(main);
+   dcl r fixed dec(9,2);
+   dcl b fixed dec(9,2);
+   dcl n fixed dec(9,2);
+   b = 3;
+   n = 7;
+   r = g(n) / b;
+   put skip list(r);
+   stop;
+   g: procedure(j) returns(fixed dec(9,2));
+      dcl j fixed dec(9,2);
+      return (j);
+   end g;
+end l725;
+

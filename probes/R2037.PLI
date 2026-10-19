@@ -1,0 +1,16 @@
+lR2037:
+ procedure options(main);
+   dcl (x,y,z) fixed decimal(15,4);
+   dcl p fixed decimal(15,4);
+   x = 1.4;
+   y = 2.3;
+   p = q2(x, y);
+   put skip list(p);
+   stop;
+   q2: procedure (u,v) returns (fixed decimal(15,4));
+      declare (u,v) fixed decimal(15,4);
+      return (u + v);
+   end q2;
+
+end lR2037;
+

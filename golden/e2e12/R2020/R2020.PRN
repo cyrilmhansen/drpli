@@ -1,0 +1,101 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R2020
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 LR2020 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 2 BYTES
+c 0000 X FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   5 d         do while(true);
+NO DCL                   ?
+BIT REQ                      ?
+    2 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R2020
+
+   1 a 0000 lR2020:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl x fixed;
+   4 c 0006    x = 1;
+       0006       LXI  H,X A(0000)
+       0009       MOV  L,A
+       000A       ADD  A
+       000B       SBB  A
+       000C       MOV  H,A
+       000D       MVI  A,01
+       000F       XCHG 
+       0010       MOV  M,E
+       0011       INX  H
+       0012       MOV  M,D
+   5 c 0013    do while(true);
+       0013       LHLD * A(0000)
+       0016       MVI  B,0F
+       0018       CALL ?QI15B
+       001B       MOV  A,L
+       001C       ANI  FE
+       001E       ORA  H
+       001F       JZ   0000
+   6 c 0022       put skip list(x);
+       0022       LXI  D,0252
+       0025       LXI  B,0000
+       0028       CALL ?SYSPR
+       002B       MVI  A,01
+       002D       CALL ?SKPOP
+       0030       LHLD X A(0000)
+       0033       MVI  A,09
+       0035       CALL ?QICOP
+       0038       CALL ?PNVOP
+       003B       CALL ?QIOOP
+       0026       ==== 003E
+   7 c 003E       x = x + 1;
+       003E       LXI  H,X A(0000)
+       0041       MOV  L,A
+       0042       ADD  A
+       0043       SBB  A
+       0044       MOV  H,A
+       0045       PUSH H
+       0046       LHLD X A(0000)
+       0049       INX  H
+       004A       POP  D
+       004B       MOV  M,E
+       004C       INX  H
+       004D       MOV  M,D
+   8 c 004E       if x > 3 then stop;
+       004E       LHLD X A(0000)
+       0051       DCX  H
+       0052       DCX  H
+       0053       DCX  H
+       0054       MOV  A,H
+       0055       ORA  A
+       0056       JP   0000
+       0059       CALL ?STOPX
+       0057       ==== 005C
+       005C       JMP  0013
+       0020       ==== 005F
+   9 c 005F    end;
+  10 c 005F 
+  11 c 005F    stop;
+       005F       CALL ?STOPX
+  12 a 0062 end lR2020;
+
+CODE SIZE = 0062
+DATA AREA = 0002
+FREE SYMS = 38B7
+END  COMPILATION
+

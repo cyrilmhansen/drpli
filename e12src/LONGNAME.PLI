@@ -1,0 +1,9 @@
+longname:
+ procedure options(main);
+   dcl r fixed;
+   r = 1;
+   put skip list(r);
+
+   stop;
+end longname;
+

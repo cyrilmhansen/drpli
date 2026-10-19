@@ -1,0 +1,17 @@
+lR2038:
+ procedure options(main);
+   dcl (x,y,z) fixed decimal(15,4);
+   dcl p fixed decimal(15,4);
+   x = 1.4;
+   y = 2.3;
+   z = 5.67;
+   p = q3(x, y, z);
+   put skip list(p);
+   stop;
+   q3: procedure (u,v,w) returns (fixed decimal(15,4));
+      declare (u,v,w) fixed decimal(15,4);
+      return (u * u + 2 * v + w);
+   end q3;
+
+end lR2038;
+

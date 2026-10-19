@@ -1,0 +1,24 @@
+lR2036:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl k fixed;
+   dcl r fixed;
+   dcl s fixed;
+   i = 2;
+   j = 9;
+   r = g1(i);
+   s = g2(j, i);
+   put skip list(r, s);
+   stop;
+   g1: procedure (a) returns (fixed);
+      declare a fixed;
+      return (a * 3);
+   end g1;
+   g2: procedure (a,b) returns (fixed);
+      declare (a,b) fixed;
+      return (a + b);
+   end g2;
+
+end lR2036;
+

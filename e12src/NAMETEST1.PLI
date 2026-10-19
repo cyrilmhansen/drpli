@@ -1,0 +1,13 @@
+nametest1:
+ procedure options(main);
+   dcl r fixed;
+   r = computeval(3);
+   put skip list(r);
+   computeval: procedure(q) returns(fixed);
+      dcl q fixed;
+      return (q + 1);
+   end computeval;
+
+   stop;
+end nametest1;
+

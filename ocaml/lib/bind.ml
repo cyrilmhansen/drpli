@@ -99,7 +99,11 @@ and bytes_of = function
 
 let upper = String.uppercase_ascii
 
-let has_attr (ds : attr list) k = List.exists (fun a -> String.equal a.akey k) ds
+(* attribute keys arrive in SOURCE case (R406 writes `recursive`, RFACT too),
+   so the comparison must be case-insensitive -- [E2E-9] this is what made
+   the RECURSIVE-attribute law silently depend on the call-graph fallback. *)
+let has_attr (ds : attr list) k =
+  List.exists (fun a -> String.uppercase_ascii a.akey = k) ds
 
 let num_arg = function
   | Some { e = Enumber t; _ } -> (try Some (int_of_string t) with _ -> None)
@@ -788,11 +792,12 @@ let bind_rows (blk : block) =
        HL) [P401 DATA=8; P402 DATA=0x0E].
    Additive view for codegen; the $S byte path is untouched. *)
 type call_site =
-  { cs_proc : string; cs_slot : int; cs_arg : Ast.expr
-  ; cs_temp : int option }        (* Some addr iff arg is an expression *)
+  { cs_proc : string; cs_slot : int; cs_args : Ast.expr list
+  ; cs_temps : int option list }  (* Some addr iff that arg is an expression *)
 
 type proc_layout =
   { pl_name : string; pl_lbl : string option; pl_rec : bool
+  ; pl_attr_rec : bool      (* RECURSIVE literally written in the source *)
   ; pl_ret : rt option                      (* RETURNS(<type>), [E2E-6] *)
   ; pl_ptrs : (string * int) list             (* formal -> ptr cell *)
   ; pl_rows : (string * rt * int) list        (* body-visible rows *)
@@ -833,20 +838,25 @@ let rec pl_kids (e : Ast.expr) : Ast.expr list =
    so `dbl(dbl(1))` would register only the inner [HYPOTHESIS corner;
    nested calls fail loud later at codegen pop-name assert]. *)
 let pl_expr_calls nm_of (e : Ast.expr) =
-  let out = ref ([] : (string * Ast.expr * Source.pos) list) in
+  let out = ref ([] : (string * Ast.expr list * Source.pos) list) in
   let rec go x =
     match x.Ast.e with
     | Ast.Esuffix (hd, args) -> begin
         match hd.Ast.e with
         | Ast.Eident h when nm_of (pl_l h) -> begin
             match args with
-            | [ arg ] ->
-                out := !out @ [(pl_l h, arg, x.Ast.epos)]; go arg
-            | _ ->
+            | [] ->
                 failwith
                   (Printf.sprintf
-                     "bind: multi-arg call at line %d deferred [TBD]"
+                     "bind: zero-argument call at line %d deferred [TBD]"
                      x.Ast.epos.Source.line)
+            | _ ->
+                (* [E2E-9] multi-arg calls register ONE site carrying the
+                   whole argument list; DR allocates one 2-byte pointer cell
+                   per argument in a single contiguous block [R2001-R2005, 
+                   R2012, DECPOLY] *)
+                out := !out @ [(pl_l h, args, x.Ast.epos)];
+                List.iter go args
           end
         | _ -> List.iter go (pl_kids x)
       end
@@ -923,7 +933,8 @@ let bind_program (blk : Ast.block) : prog_layout =
   let secs = ref ([] : (string * int * int) list) in
   (* two-phase: registry first so call matching sees real procedures;
      the first pass above is superseded by section2. *)
-  let reg = ref ([] : (string * Ast.block * bool * string list) list) in
+  let reg =
+    ref ([] : (string * Ast.block * bool * bool * string list) list) in
   let rec collect b =
     List.iter
       (fun (s : Ast.stmt) ->
@@ -942,7 +953,8 @@ let bind_program (blk : Ast.block) : prog_layout =
                  [HYPOTHESIS from attributed P402/RFACT/NFACT] *)
               reg := !reg @ [(nm, pb,
                   has_attr pb.Ast.bsuffix "RECURSIVE"
-                  || is_rec nm pb, fm)];
+                  || is_rec nm pb,
+                  has_attr pb.Ast.bsuffix "RECURSIVE", fm)];
               collect pb
             end else collect pb
         | _ -> ())
@@ -950,15 +962,18 @@ let bind_program (blk : Ast.block) : prog_layout =
   in
   collect blk;
   calls := []; pls := [];
-  let names = List.map (fun (n, _, _, _) -> n) !reg in
+  let names = List.map (fun (n, _, _, _, _) -> n) !reg in
   let is_proc nm = List.mem nm names in
-  let rec section2 b base formals recf nm =
+  let rec section2 b base formals recf attrf nm =
     let nf = List.length formals in
-    if nm <> None && nf > 1 then
-      failwith "bind: multi-formal procedures deferred [TBD]";
+    if nf > 8 then
+      failwith (Printf.sprintf "bind: %d-formal procedure unproven [TBD]" nf);
     let nr = named_of b in
+    (* [E2E-9] the SHADOW-cell trigger is the written RECURSIVE attribute,
+       not derived self-recursion: R2008's unattributed recursive rec(a,b)
+       reads its POINTER cells directly (LHLD A A(000C)) with no shadow. *)
     let dedup x =
-      nf > 0 && List.mem x formals && nm <> None && not recf
+      nf > 0 && List.mem x formals && nm <> None && not attrf
     in
     let span =
       List.fold_left
@@ -981,15 +996,22 @@ let bind_program (blk : Ast.block) : prog_layout =
     let cur = ref (named_base + span) in
     let sites =
       List.map
-        (fun (p, arg, _pos) ->
+        (fun (p, args, _pos) ->
+          (* one contiguous 2-byte pointer cell per argument [R2001: desc
+             block A(0008)+A(000A), R2012: two 4-byte blocks back to back],
+             then the expression-argument value cells [R2003: temp A(000C)
+             after both desc cells] *)
           let slot = !cur in
-          cur := !cur + 2;
-          let temp =
-            match arg.Ast.e with
-            | Ast.Enumber _ | Ast.Eident _ -> None
-            | _ -> let t = !cur in cur := !cur + 2; Some t
+          cur := !cur + 2 * List.length args;
+          let temps =
+            List.map
+              (fun arg ->
+                match arg.Ast.e with
+                | Ast.Enumber _ | Ast.Eident _ -> None
+                | _ -> let t = !cur in cur := !cur + 2; Some t)
+              args
           in
-          { cs_proc = p; cs_slot = slot; cs_arg = arg; cs_temp = temp })
+          { cs_proc = p; cs_slot = slot; cs_args = args; cs_temps = temps })
         (List.concat_map (fun s -> pl_stmt_calls is_proc s) b.bstmts)
     in
     calls := !calls @ sites;
@@ -1002,6 +1024,7 @@ let bind_program (blk : Ast.block) : prog_layout =
                     ; pl_lbl = (match b.blabel with
                                 | Some l -> Some (pl_l l) | None -> None)
                     ; pl_rec = recf
+                    ; pl_attr_rec = attrf
                     ; pl_ret = returns_attr b
                     ; pl_ptrs =
                         List.mapi (fun i f -> (f, base + 2 * i)) formals
@@ -1015,13 +1038,14 @@ let bind_program (blk : Ast.block) : prog_layout =
             let pb = bs.Ast.blk in
             if pb.bkind = Ast.Bproc then begin
               let cn = pl_l (Option.get pb.bname) in
-              match List.find_opt (fun (n, _, _, _) -> n = cn) !reg with
-              | Some (_, _, r, fm) -> section2 pb acc fm r (Some cn)
+              match List.find_opt (fun (n, _, _, _, _) -> n = cn) !reg with
+              | Some (_, _, r, ar, fm) ->
+                  section2 pb acc fm r ar (Some cn)
               | None -> acc
-            end else section2 pb acc [] false None
+            end else section2 pb acc [] false false None
         | _ -> acc)
       after b.bstmts
   in
-  let total = section2 blk 0 [] false None in
+  let total = section2 blk 0 [] false false None in
   { pl_calls = !calls; pl_procs = !pls; pl_secs = !secs;
     pl_total = total }

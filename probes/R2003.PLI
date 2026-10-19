@@ -1,0 +1,18 @@
+R2003:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl k fixed;
+   dcl r fixed;
+   i = 1;
+   j = 2;
+   r = f2(i, j + 1);
+   put skip list(r);
+
+   f2: procedure (a,b) returns (fixed);
+      declare (a,b) fixed;
+      return (a * b);
+   end f2;
+   stop;
+end R2003;
+

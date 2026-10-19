@@ -1,0 +1,13 @@
+lR2020:
+ procedure options(main);
+   dcl x fixed;
+   x = 1;
+   do while(true);
+      put skip list(x);
+      x = x + 1;
+      if x > 3 then stop;
+   end;
+
+   stop;
+end lR2020;
+

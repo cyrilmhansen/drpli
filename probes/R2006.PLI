@@ -1,0 +1,18 @@
+R2006:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl k fixed;
+   dcl r fixed;
+   i = 6;
+   j = 2;
+   call p2(i, j);
+   put skip list(i);
+
+   p2: procedure (a,b);
+      declare (a,b) fixed;
+      a = a + b;
+   end p2;
+   stop;
+end R2006;
+

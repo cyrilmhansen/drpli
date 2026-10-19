@@ -1,0 +1,17 @@
+R2004:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl k fixed;
+   dcl r fixed;
+   i = 4;
+   r = f2(i, 7);
+   put skip list(r);
+
+   f2: procedure (a,b) returns (fixed);
+      declare (a,b) fixed;
+      return (a - b);
+   end f2;
+   stop;
+end R2004;
+

@@ -1,0 +1,9 @@
+lR2040ABCD:
+ procedure options(main);
+   dcl r fixed;
+   r = 1;
+   put skip list(r);
+
+   stop;
+end R2040;
+

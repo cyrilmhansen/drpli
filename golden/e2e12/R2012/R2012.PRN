@@ -1,0 +1,123 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R2012
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 LR2012 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 10 BYTES
+c 0000 I FIXED BINARY(15,0) AUTOMATIC
+c 0002 J FIXED BINARY(15,0) AUTOMATIC
+c 0004 K FIXED BINARY(15,0) AUTOMATIC
+c 0006 R FIXED BINARY(15,0) AUTOMATIC
+c 0008 S FIXED BINARY(15,0) AUTOMATIC
+c 0000 F2 FUNCTION PARAMETERS(2) CONSTANT
+c 0000 .* FIXED BINARY(15,0) RETURNED
+c 0002 .* FIXED BINARY(15,0) PARAMETER
+c 0004 .* FIXED BINARY(15,0) PARAMETER
+BLOCK AT LINE 16, AUTO STORAGE 4 BYTES, PARAMETERS A, B
+e 0000 A FIXED BINARY(15,0) PARAMETER
+e 0002 B FIXED BINARY(15,0) PARAMETER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R2012
+
+   1 a 0000 lR2012:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl i fixed;
+   4 c 0006    dcl j fixed;
+   5 c 0006    dcl k fixed;
+   6 c 0006    dcl r fixed;
+   7 c 0006    dcl s fixed;
+   8 c 0006    i = 3;
+       0006       LXI  H,0003
+       0009       SHLD I A(0000)
+   9 c 000C    j = 5;
+       000C       INX  H
+       000D       INX  H
+       000E       SHLD J A(0002)
+  10 c 0011    r = f2(i, j);
+       0011       LXI  H,* A(000A)
+       0014       CALL 0000
+       0017       SHLD R A(0006)
+  11 c 001A    s = f2(j, i);
+       001A       LXI  H,* A(000E)
+       001D       CALL F2
+       0020       SHLD S A(0008)
+  12 c 0023    put skip list(r);
+       0023       LXI  D,0252
+       0026       LXI  B,0000
+       0029       CALL ?SYSPR
+       002C       MVI  A,01
+       002E       CALL ?SKPOP
+       0031       LHLD R A(0006)
+       0034       MVI  A,09
+       0036       CALL ?QICOP
+       0039       CALL ?PNVOP
+       003C       CALL ?QIOOP
+       0027       ==== 003F
+  13 c 003F    put skip list(s);
+       003F       LXI  D,0252
+       0042       LXI  B,0000
+       0045       CALL ?SYSPR
+       0048       MVI  A,01
+       004A       CALL ?SKPOP
+       004D       LHLD S A(0008)
+       0050       MVI  A,09
+       0052       CALL ?QICOP
+       0055       CALL ?PNVOP
+       0058       CALL ?QIOOP
+       0043       ==== 005B
+  14 c 005B 
+  15 c 005B    f2: procedure (a,b) returns (fixed);
+  16 e 005B       declare (a,b) fixed;
+       005B       JMP  0000
+       005E       LXI  D,A A(0012)
+       0061       MVI  C,04
+       0063       MOV  A,M
+       0064       INX  H
+       0065       STAX D
+       0066       INX  D
+       0067       DCR  C
+       0068       JNZ  0063
+  17 e 006B       return (a - b);
+       006B       LHLD A A(0012)
+       006E       MOV  E,M
+       006F       INX  H
+       0070       MOV  D,M
+       0071       XCHG 
+       0072       PUSH H
+       0073       LHLD B A(0014)
+       0076       MOV  E,M
+       0077       INX  H
+       0078       MOV  D,M
+       0079       XCHG 
+       007A       POP  D
+       007B       CALL ?IS22N
+       007E       RET  
+       005C       ==== 007F
+  18 c 007F    end f2;
+  19 c 007F    stop;
+       007F       CALL ?STOPX
+  20 a 0082 end lR2012;
+
+CODE SIZE = 0082
+DATA AREA = 0016
+FREE SYMS = 382D
+END  COMPILATION
+

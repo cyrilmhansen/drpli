@@ -1,0 +1,9 @@
+lR2021:
+ procedure options(main);
+   dcl x,y,z fixed dec(15,4);
+   if x = 0 & y = 0 then stop;
+   put skip list(z);
+
+   stop;
+end lR2021;
+

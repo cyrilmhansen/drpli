@@ -1,0 +1,11 @@
+lR2027:
+ procedure options(main);
+   dcl (x,y) fixed dec(15,4);
+   dcl s fixed dec(15,4);
+   s = 1.5;
+   if x = 0 & y = 0 then put skip list(s);
+   put skip list(x);
+
+   stop;
+end lR2027;
+

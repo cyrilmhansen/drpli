@@ -213,6 +213,7 @@ let op_jp   = 0xf2
 let op_jm   = 0xfa
 let op_mov_a_m = 0x7e
 let op_ora_m   = 0xb6
+let op_dcr_c = 0x0d      (* DCR C (counted-copy loop) [R2031]; 0x05 = DCR B *)
 let op_mov_a_h = 0x7c
 let op_ora_a   = 0xb7
 
@@ -474,10 +475,13 @@ let classify_item (x : Ast.expr) =
   | Ast.Eident n -> Some (PIvar n)
   | Ast.Ebinary _ | Ast.Eprefix _ -> Some (PInum x)
   | Ast.Econd inner -> Some (PInum inner)  (* parens grouping [N304] *)
-  | Ast.Esuffix (hd, [ _ ]) ->
+  | Ast.Esuffix (hd, args) when args <> [] ->
       (* [RFACT @3B-46] function-call item: pair + LXI H,*A(slot) +
          CALL; the result already sits in HL when the numeric chain
-         reads it (MVI A,9; QICOP follows the CALL directly) *)
+         reads it (MVI A,9; QICOP follows the CALL directly).
+         [E2E-9/DECPOLY] the arity restriction is gone -- DR treats a
+         3-argument decimal call item exactly like a 1-argument integer
+         one (`LXI H,*A(0048) / CALL P / MVI A,12 / MVI B,04 / ?QDCOP`). *)
       (match hd.Ast.e with
        | Ast.Eident _ -> Some (PInum x)
        | _ -> None)
@@ -883,6 +887,20 @@ let rec count_required (s : Ast.stmt) =
    into a scratch state (collecting code items + pool bytes), then
    re-emitted in segment order. *)
 
+(* is this name an AUTOMATIC-or-formal FIXED DECIMAL variable?  Defined up
+   here (not via vk_dec_opt, which lives in the DEC block below) so the CALL
+   lowering can mode-check decimal arguments. *)
+let vk_is_dec st (n : Ast.name) =
+  match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
+  | Some vi -> (match vi.vk with Vdec _ -> true | _ -> false)
+  | None -> false
+
+(* strip a parenthesised-condition wrapper: DR lowers (c) exactly like c
+   [P401 dbl body: (i+i)], and Econd also wraps while-conditions.  Moved up
+   from the DEC model block so the CALL lowering can mode-check arguments. *)
+let unwrap_e (e : Ast.expr) =
+  match e.Ast.e with Ast.Econd x -> x | _ -> e
+
 let is_ident (e : Ast.expr) =
   match e.Ast.e with Ast.Eident _ -> true | _ -> false
 
@@ -903,6 +921,61 @@ let rec hl_operand_deref st (e : Ast.expr) =
    the tail position itself (RFACT's main increment at 0x4C:
    LHLD;INX H;SHLD) and uses the plain XCHG form elsewhere (dbl body
    at 0x30: MOV A,M / ORA M) [P401/P402/RFACT byte differentials]. *)
+(* [E2E-9 slice 6] DR's FIXED BINARY peephole set, newly sampled by R2045,
+   R2046 and P044.  All four shapes below are ones MY lowering gets WRONG --
+   it emits a plausible instruction sequence instead of DR's -- so they fail
+   loud here until the peepholes are implemented.  Every message carries the
+   DR evidence that proves the divergence. *)
+let lit_int (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Enumber t -> (try Some (parse_int_const t) with _ -> None)
+  | _ -> None
+
+let fp_add_guard (l : Ast.expr) (r : Ast.expr) =
+  match lit_int r with
+  | Some 0 ->
+      failwith
+        ("codegen: fixed-bin ADD whose RIGHT operand is the literal 0 is "
+         ^ "elided by DR to a bare `LHLD X ; SHLD X` pair [P044 line 5 "
+         ^ "`x = x + 0`]; my general ladder is not that shape [TBD]")
+  | _ ->
+      (match lit_int l, lit_int r with
+       | Some _, Some _ ->
+           failwith
+             ("codegen: fixed-bin ADD between TWO INTEGER LITERALS is not "
+              ^ "constant-folded by DR: it emits the DECIMAL pool path "
+              ^ "`LXI H,*S / MVI A,01 / CALL ?DLDOP / LXI H,*S / MVI A,01 / "
+              ^ "CALL ?DLDOP / CALL ?DADOP / CALL ?QDI15` with one-byte "
+              ^ "1-digit cells [R2045 `r = 3 + 2`, P044 line 3 `x = 2 + 4`]; "
+              ^ "my immediate folding is not byte-equal [TBD].  Note this is "
+              ^ "ADD-specific: `j = 0 - 7` [N301] and `e = 0 - 2` [N306] DO "
+              ^ "fold to an immediate in DR, both byte-exact here.")
+       | _ -> false)
+
+let fp_mul_guard (l : Ast.expr) (r : Ast.expr) =
+  match lit_int l, lit_int r with
+  | _, (Some 1 | Some 2 as k) ->
+      failwith
+        ("codegen: fixed-bin MULTIPLY by literal "
+         ^ string_of_int (match k with Some x -> x | None -> 0)
+         ^ " is strength-reduced by DR, not sent to ?IM22N: `x * 1` ELIDES "
+         ^ "to `LHLD X ; SHLD X` [P044 line 4] and `n * 2` becomes `LHLD n ; "
+         ^ "DAD H ; SHLD n` [R2046 line 11]; my build emits the ?IM22N "
+         ^ "rotation instead [TBD]")
+  | Some _, Some _ ->
+      failwith
+        ("codegen: fixed-bin MULTIPLY between two integer literals is "
+         ^ "unsampled -- no accepted DR object contains one [TBD]")
+  | _ ->
+      (match lit_int l, r.Ast.e with
+       | Some _, (Ast.Eident _ | Ast.Ebinary (_, _, _) | Ast.Esuffix _) ->
+           failwith
+             ("codegen: fixed-bin multiply with the LITERAL on the LEFT is commuted "
+         ^ "by DR into `LHLD <right> ; LXI D,<left> ; CALL ?IM22N` with no "
+           ^ "stack rotation [P044 line 6 `x = 3 * x`]; my PUSH H / LXI H / "
+           ^ "POP D ladder is not byte-equal [TBD]")
+       | _ -> false)
+
 let rec lower_hl st (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Enumber s ->
@@ -914,7 +987,7 @@ let rec lower_hl st (e : Ast.expr) =
          via CHAIN-ADDR resolved at the procedure's first byte, known
          entry via inline RELOC(code,entry) [P402 backward pattern] *)
       begin match hd.Ast.e, args with
-      | Ast.Eident h, [ arg ] ->
+      | Ast.Eident h, args when args <> [] ->
           let nm = String.lowercase_ascii h.Ast.orig in
           if not (List.mem_assoc nm st.procs) then
             failwith
@@ -922,44 +995,100 @@ let rec lower_hl st (e : Ast.expr) =
           (match st.calls with
            | (cs :: rest) when cs.Bind.cs_proc = nm ->
                st.calls <- rest;
-               let target =
-                 match cs.Bind.cs_temp with
-                 | Some t ->
-                     (* expression argument [RFACT @80-84, P402
-                        @4D-51]: evaluate to HL, runtime SHLD into the
-                        prescan-paired temp cell; the deferred pair
-                        then links slot -> temp *)
-                     lower_hl st cs.Bind.cs_arg;
-                     d st op_shld;
-                     reloc st Data (t + st.base);
-                     t + st.base
-                 | None -> begin
-                     match cs.Bind.cs_arg.Ast.e with
-                     | Ast.Enumber k ->
-                         let kv =
-                           int_of_string
-                             (String.concat ""
-                                (String.split_on_char '_' k))
-                         in
-                         pool_alloc st
-                           [| kv land 0xff; (kv lsr 8) land 0xff |]
-                     | Ast.Eident v ->
-                         let vn = String.lowercase_ascii v.Ast.orig in
-                         if List.mem vn st.deref then
-                           failwith
-                             "codegen: pointer-formal call argument \
-                              unproven [TBD]";
-                         addr_of st v.Ast.orig
-                     | _ ->
-                         failwith
-                           "codegen: expression call argument \
-                            deferred [TBD]"
-                   end
-               in
+               if List.length cs.Bind.cs_args <> List.length args then
+                 failwith "codegen: call-site arity mismatch [TBD]";
+               (* [E2E-9] multi-argument internal call.  PER ARGUMENT, in
+                  source order, DR does: (1) if the argument is an
+                  EXPRESSION, evaluate it and SHLD the value into that
+                  argument's value cell; (2) emit the descriptor address
+                  constant for that argument's cell.  The two steps are
+                  INTERLEAVED, not batched [R2032: RELOC(&i) lands BEFORE
+                  the `j + 1` temp store, RELOC(&temp) AFTER it].  Then ONE
+                  `LXI H,*A(slot)` + CALL for the whole block -- DR does NOT
+                  emit one push per argument [R2001 two, R2034 three, R2035
+                  four, DECPOLY three decimals]. *)
                let slot = cs.Bind.cs_slot + st.base in
-               link st t_set_lc (Some (Data, slot)) None;
-               push st (Reloc (Data, target));
-               link st t_set_lc (Some (Code, st.lc)) None;
+               let pairs =
+                 List.combine cs.Bind.cs_args cs.Bind.cs_temps
+               in
+               (* the callee's formal type at each position, so an argument
+                  can be MODE-CHECKED [E2E-9]: DR's only pinned decimal
+                  argument route is by-reference from an AUTOMATIC decimal
+                  variable [DECPOLY, R2037/R2038, R725]. *)
+               let pl = List.assoc nm st.procs in
+               let formal_is_dec i =
+                 match List.nth_opt pl.Bind.pl_ptrs i with
+                 | Some (fn, _) ->
+                     let frt =
+                       List.find_opt (fun (k, _rt, _o) -> k = fn)
+                         pl.Bind.pl_rows
+                     in
+                     begin match frt with
+                     | Some (_, Bind.RTdec _, _) -> true
+                     | Some _ -> false
+                     | None ->
+                         failwith
+                           ("codegen: call argument against a formal with no "
+                            ^ "declaration [TBD] (DR requires the callee to "
+                            ^ "redeclare its formals [R2007])")
+                     end
+                 | None -> false
+               in
+               List.iteri
+                 (fun i (arg, tmp) ->
+                   (* [E2E-9] mode check.  Bound as `let () = ... in` on
+                      purpose: an `if` whose THEN branch is a MATCH swallows
+                      every following expression into the match's last arm
+                      (a real DECPOLY byte failure -- the descriptor
+                      constants vanished), so the guard must be sealed. *)
+                   let () =
+                     if formal_is_dec i then
+                       begin match (unwrap_e arg).Ast.e with
+                       | Ast.Eident v when vk_is_dec st v -> ()
+                       | _ ->
+                         failwith
+                           ("codegen: non-variable argument against a FIXED "
+                            ^ "DECIMAL formal is unproven [TBD] (DR passes an "
+                            ^ "automatic decimal BY REFERENCE -- the "
+                            ^ "descriptor holds LXI H,*A(cell); a literal or "
+                            ^ "expression decimal argument has no sample "
+                            ^ "[DECPOLY, R2037/R2038/R725]. Line "
+                            ^ string_of_int arg.Ast.epos.Source.line ^ ")")
+                     end
+                   in
+                   (match tmp with
+                    | Some t ->
+                        lower_hl st arg;
+                        d st op_shld; reloc st Data (t + st.base)
+                    | None -> ());
+                   let target =
+                     match tmp with
+                     | Some t -> t + st.base
+                     | None -> begin
+                         match arg.Ast.e with
+                         | Ast.Enumber k ->
+                             let kv = parse_int_const k in
+                             pool_alloc st
+                               [| kv land 0xff; (kv lsr 8) land 0xff |]
+                         | Ast.Eident v ->
+                             let vn =
+                               String.lowercase_ascii v.Ast.orig
+                             in
+                             if List.mem vn st.deref then
+                               failwith
+                                 ("codegen: pointer-formal call argument " ^
+                                  "unproven [TBD]");
+                             addr_of st v.Ast.orig
+                         | _ ->
+                             failwith
+                               ("codegen: expression call argument " ^
+                                "deferred [TBD]")
+                       end
+                   in
+                   link st t_set_lc (Some (Data, slot + 2 * i)) None;
+                   push st (Reloc (Data, target));
+                   link st t_set_lc (Some (Code, st.lc)) None)
+                 pairs;
                d st op_lxi_h; reloc st Data slot;
                d st op_call;
                (match List.assoc_opt nm st.entries with
@@ -977,7 +1106,7 @@ let rec lower_hl st (e : Ast.expr) =
                     st.fcalls <- (nm, oslot) :: st.fcalls);
                st.last_imm <- None
            | _ -> failwith "codegen: call-site queue mismatch [TBD]")
-      | _ -> failwith "codegen: multi-arg call deferred [TBD]"
+      | _ -> failwith "codegen: zero-arg / non-identifier call deferred [TBD]"
       end
   | Ast.Eident n ->
       (match vk_of st n.Ast.orig with
@@ -1013,6 +1142,8 @@ let rec lower_hl st (e : Ast.expr) =
          unwrapped expression [P401 dbl body: (i+i) -> standard Add
          ladder], so unwrap transparently. *)
       lower_hl st x
+  | Ast.Ebinary (Ast.Add, l, r) when fp_add_guard l r ->
+      failwith "codegen: internal: fp_add_guard raised no message"
   | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber "1"; _ }) ->
       (* [(a+1) N304] +1 lowers to INX H on the 2-byte path; other
          additions keep the general ladder *)
@@ -1030,6 +1161,8 @@ let rec lower_hl st (e : Ast.expr) =
       end else begin
         lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d
       end
+  | Ast.Ebinary (Ast.Mul, l, r) when fp_mul_guard l r ->
+      failwith "codegen: internal: fp_mul_guard raised no message"
   | Ast.Ebinary (Ast.Mul, l, r) ->
       (* var/expr OP var: DE=left HL=right, CALL ?IM22N [P071B/P080A].
          [N303] when the RHS is a 1-byte var DR interleaves: raw
@@ -1043,6 +1176,25 @@ let rec lower_hl st (e : Ast.expr) =
       then begin
         lower_hl st r; d st 0xe5;                  (* PUSH H *)
         lower_hl st l; d st 0xd1                   (* POP D *)
+      end else if hl_operand_deref st l
+                  && (match r.Ast.e with
+                      | Ast.Enumber _ -> true | _ -> false)
+      then begin
+        (* [E2E-9 R2036 g1] when the LEFT operand is a pointer formal, its
+           deref ladder ends in XCHG -- value in HL, DE dead -- and DR then
+           skips the PUSH H / LXI H / POP D rotation entirely, loading the
+           literal straight into DE:
+               LHLD a ; MOV E,M ; INX H ; MOV D,M ; XCHG
+               LXI D,0003 ; CALL ?IM22N ; RET
+           Legal because ?IM22N multiplies DE x HL, so the operand-to-register
+           assignment is free.  The non-deref left case keeps the proven
+           PUSH/POP shape [P071B/P080A byte-exact]. *)
+        lower_hl st l;
+        let rv =
+          parse_int_const
+            (match r.Ast.e with Ast.Enumber k -> k | _ -> "")
+        in
+        d st op_lxi_d; d st (rv land 0xff); d st ((rv lsr 8) land 0xff)
       end else begin
       lower_hl st l;
       (match r.Ast.e with
@@ -1436,9 +1588,6 @@ type dctx =
   ; c_mult : bool                (* multiplicative operand position *)
   ; c_round : bool }             (* [slice 3] argument of a ROUND [R811] *)
 
-let unwrap_e (e : Ast.expr) =
-  match e.Ast.e with Ast.Econd x -> x | _ -> e
-
 let dsl st n = d st op_mvi_a; d st n; call_ext st "?QDDSL"
 let dsr st n = d st op_mvi_a; d st n; call_ext st "?QDDSR"
 
@@ -1792,7 +1941,13 @@ and dpush_simple st (_cx : dctx) (e : Ast.expr) (vd : dv) =
   match (unwrap_e e).Ast.e with
   | Ast.Eident n ->
       let p = Option.get vd.pv in
-      d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+      (* a DEC FORMAL is a by-reference pointer cell, so the address must be
+         LOADED, not used inline [DECPOLY @10D-112, R709/R725] *)
+      if List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
+        d st op_lhld
+      else
+        d st op_lxi_h;
+      reloc st Data (addr_of st n.Ast.orig);
       d st op_mvi_a; d st p; call_ext st "?DLDOP"
   | Ast.Ebuilt ("DECIMAL", args) ->
       (match args with
@@ -1894,8 +2049,164 @@ let dec_cmp_push st (e : Ast.expr) ((p, s, lit) : int * int * string option) =
       ignore (dec_push st (Some (p, s)) (unwrap_e e))
   | None -> ignore (dec_push st None e)
 
+(* emit a FIXED DECIMAL relation: the push pair (order fixed by the
+   relation [C085]), any scale alignment [R723], then ?DCMOP.  Returns the
+   SKIP-jump opcode that encodes the relation, so both the single-condition
+   arm (backpatch a jump) and the conjunction arm (materialize a boolean
+   byte) share ONE lowering of the relation. *)
+let dec_cmp_rel st (rop : Ast.relop) (a : Ast.expr) (b : Ast.expr) =
+  let (pa, pb) = dec_cmp_pt st a b in
+  let (right_first, opc) =
+    match rop with
+    | Ast.Gt -> (true, op_jp)   | Ast.Lt -> (false, op_jp)
+    | Ast.Ge -> (false, op_jm)  | Ast.Le -> (true, op_jm)
+    | Ast.Eq -> (false, op_jnz) | Ast.Ne -> (false, 0xca)
+  in
+  if right_first
+  then (dec_cmp_push st b pb; dec_cmp_push st a pa)
+  else (dec_cmp_push st a pa; dec_cmp_push st b pb);
+  (* [R723] the SAME alignment law +/- use applies to a relation: when
+     the two operands have different scales DR shifts the SHORTER one
+     up to the longer before ?DCMOP.  Because the relation fixes the
+     push order [C085], only the case where the TOP (second-pushed)
+     operand is the short one is reachable with a proven mechanism --
+     QDDSL acts on the top of the stack, and shifting the DEEPER value
+     would need a pop-and-restore sequence no sample shows, so that
+     shape refuses rather than guessing. *)
+  let sc_of (_, x, _) = x in
+  let (s_top, s_deep) =
+    if right_first then (sc_of pa, sc_of pb) else (sc_of pb, sc_of pa)
+  in
+  if s_top < s_deep then dsl st (s_deep - s_top)
+  else if s_deep < s_top then
+    failwith
+      ("codegen: decimal comparison alignment on the deeper operand is " ^
+       "unproven [TBD] (DR aligns by shifting the TOP of the decimal stack " ^
+       "up [R723]; the relation fixes the push order, so this pair would " ^
+       "need the lower value shifted)");
+  call_ext st "?DCMOP";
+  opc
+
+(* ---------- [&] AND-conjunction [E2E-9 slice 6] ----------
+   Inside a conjunction DR does NOT emit a per-operand skip jump.  Each
+   operand is materialized as a boolean BYTE in A through the flag trick
+   `SUI 01 / SBB A` (A := 0FF iff the relation holds, 00 otherwise), the
+   operands are combined with `PUSH PSW ... POP B / ANA B` (0FF AND 0FF is
+   0FF, so AND-ing on those values IS logical AND), and the WHOLE
+   conjunction gets one skip jump, opcode JP (F2): A=0FF -> S=1 -> fall into
+   the THEN; A=00 -> S=0 -> skip it.  Left-associative `&` nesting maps onto
+   nested PUSH/POP pairs, so `a & b & c` lowers as
+     a; PUSH PSW; b; POP B; ANA B; PUSH PSW; c; POP B; ANA B; JP skip
+   [DECPOLY `if x=0 & y=0 & z=0`, R2021 fixed-bin `x=0 & y=0`].
+
+   Only the two operand shapes those goldens pin are implemented: a FIXED
+   DECIMAL equality (?DLDOP push pair + ?DCMOP) and a 2-byte FIXED BINARY
+   compare against 0 (cell-OR test).  Other relations in a conjunction
+   refuse [TBD]: DR's boolean-materialization ladder for >, <, >=, <=, ^=
+   is unsampled. *)
+let op_sui = 0xd6
+let op_pop_b = 0xc1
+let op_ana_b = 0xa0
+
+(* a 2-byte fixed-bin `var = 0` operand, or None *)
+let conj_bin_zero st (e : Ast.expr) =
+  match (unwrap_e e).Ast.e with
+  | Ast.Ebinary (Ast.EqR Ast.Eq, a, { Ast.e = Ast.Enumber "0"; _ })
+    when (match (unwrap_e a).Ast.e with
+          | Ast.Eident _ -> not (is_dec_operand st a)
+          | _ -> false) ->
+      (match (unwrap_e a).Ast.e with Ast.Eident v -> Some v | _ -> None)
+  | _ -> None
+
+let bin_zero_tail st =
+  d st op_mov_a_m; d st op_inx_h; d st op_ora_m;
+  d st op_sui; d st 0x01; d st op_sbb_a
+
+(* FIXED DECIMAL equality lowered as a boolean operand, SPLIT into the two
+   pieces a conjunction needs.  [R2026/DECPOLY] DR hoists the leading
+   `LXI H,<cell>` above the PUSH PSW exactly as it does for a fixed-bin
+   operand (PUSH/POP leave HL alone), then emits `MVI A,p / ?DLDOP`, the
+   right-hand push, `?DCMOP` and the flag trick.  Only a DEC VARIABLE on the
+   left, both sides at the same scale, is pinned; anything else refuses
+   rather than guessing an unsampled split. *)
+let dec_eq_bool_parts st (a : Ast.expr) (b : Ast.expr) =
+  let (pa, pb) = dec_cmp_pt st a b in
+  let (ple, sle, lita) = pa in
+  let (_plb, slb, _) = pb in
+  if sle <> slb then
+    failwith
+      ("codegen: DEC conjunction scale alignment unproven [TBD] (only " ^
+       "equal-scale operand pairs are pinned as boolean operands)");
+  match (unwrap_e a).Ast.e, lita with
+  | Ast.Eident v, None ->
+      if List.mem (String.lowercase_ascii v.Ast.orig) st.deref then
+        failwith
+          ("codegen: FIXED DECIMAL formal as a conjunction operand is " ^
+           "unproven [TBD] (the LXI-H hoist above PUSH PSW is pinned only " ^
+           "for automatic decimal cells [DECPOLY, R2026]; a formal's LHLD " ^
+           "hoist has no DR sample)");
+      let addr = addr_of st v.Ast.orig in
+      let pre () = d st op_lxi_h; reloc st Data addr in
+      let post () =
+        d st op_mvi_a; d st ple; call_ext st "?DLDOP";
+        dec_cmp_push st b pb;
+        call_ext st "?DCMOP";
+        d st op_sui; d st 0x01; d st op_sbb_a
+      in
+      Some (pre, post)
+  | _ -> None
+
+let rec lower_bool st (c : Ast.expr) =
+  let c = unwrap_e c in
+  match c.Ast.e with
+  | Ast.Ebinary (Ast.And, l, r) ->
+      lower_bool st l;
+      let saved =
+        match conj_bin_zero st r with
+        | Some v ->
+            (* [R2025] fixed-bin operand: address load hoisted above PUSH *)
+            d st op_lxi_h; reloc st Data (addr_of st v.Ast.orig);
+            d st op_push_psw; bin_zero_tail st
+        | None ->
+            (match (unwrap_e r).Ast.e with
+             | Ast.Ebinary (Ast.EqR Ast.Eq, a, b)
+               when is_dec_operand st a || is_dec_operand st b ->
+                 (match dec_eq_bool_parts st a b with
+                  | Some (pre, post) ->
+                      (* [DECPOLY/R2026] DEC operand: same hoist *)
+                      pre (); d st op_push_psw; post ()
+                  | None ->
+                      d st op_push_psw; lower_bool st r)
+             | _ -> d st op_push_psw; lower_bool st r)
+      in
+      ignore saved;
+      d st op_pop_b; d st op_ana_b; st.last_imm <- None
+  | Ast.Ebinary (Ast.EqR Ast.Eq, a, b) when is_dec_operand st a
+                                            || is_dec_operand st b ->
+      (* first operand of a conjunction: pre and post run consecutively,
+         which is exactly DR's single-condition push pair + flag trick *)
+      (match dec_eq_bool_parts st a b with
+       | Some (pre, post) -> pre (); post ()
+       | None ->
+           ignore (dec_cmp_rel st Ast.Eq a b);
+           d st op_sui; d st 0x01; d st op_sbb_a)  | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
+                 { Ast.e = Ast.Enumber "0"; _ }) ->
+      d st op_lxi_h; reloc st Data (addr_of st v.Ast.orig); bin_zero_tail st
+  | _ ->
+      failwith
+        ("codegen: conjunction operand not in the proven subset [TBD] (only " ^
+         "a FIXED DECIMAL `= 0` and a 2-byte FIXED BINARY `= 0` are pinned " ^
+         "as boolean-materializing operands [DECPOLY, R2025]; other " ^
+         "relations have no DR sample)")
+
 let lower_test_skip0 st (c : Ast.expr) =
   match c.Ast.e with
+  (* a conjunction lowers as ONE boolean expression + ONE skip jump *)
+  | Ast.Ebinary (Ast.And, _, _) ->
+      lower_bool st c;
+      d st op_jp;
+      let slot = st.lc in d st 0; d st 0; slot
+
   (* ---- [E2E-7A slice 1] FIXED DECIMAL comparison --------------------
      ?DCMOP takes NO relation argument: it pops two decimals and leaves a
      three-way result in the 8080 flags, so DR encodes the relation in the
@@ -1919,36 +2230,7 @@ let lower_test_skip0 st (c : Ast.expr) =
      then-assignment). *)
   | Ast.Ebinary (Ast.EqR rop, a, b) when is_dec_operand st a
                                           || is_dec_operand st b ->
-      let (pa, pb) = dec_cmp_pt st a b in
-      let (right_first, opc) =
-        match rop with
-        | Ast.Gt -> (true, op_jp)   | Ast.Lt -> (false, op_jp)
-        | Ast.Ge -> (false, op_jm)  | Ast.Le -> (true, op_jm)
-        | Ast.Eq -> (false, op_jnz) | Ast.Ne -> (false, 0xca)
-      in
-      if right_first
-      then (dec_cmp_push st b pb; dec_cmp_push st a pa)
-      else (dec_cmp_push st a pa; dec_cmp_push st b pb);
-      (* [R723] the SAME alignment law +/- use applies to a relation: when
-         the two operands have different scales DR shifts the SHORTER one
-         up to the longer before ?DCMOP.  Because the relation fixes the
-         push order [C085], only the case where the TOP (second-pushed)
-         operand is the short one is reachable with a proven mechanism --
-         QDDSL acts on the top of the stack, and shifting the DEEPER value
-         would need a pop-and-restore sequence no sample shows, so that
-         shape refuses rather than guessing. *)
-      let sc_of (_, x, _) = x in
-      let (s_top, s_deep) =
-        if right_first then (sc_of pa, sc_of pb) else (sc_of pb, sc_of pa)
-      in
-      if s_top < s_deep then dsl st (s_deep - s_top)
-      else if s_deep < s_top then
-        failwith
-          "codegen: decimal comparison alignment on the deeper operand is \
-           unproven [TBD] (DR aligns by shifting the TOP of the decimal stack \
-           up [R723]; the relation fixes the push order, so this pair would \
-           need the lower value shifted)";
-      call_ext st "?DCMOP";
+      let opc = dec_cmp_rel st rop a b in
       d st opc;
       let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
@@ -2092,7 +2374,20 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
          R506 line 6 exactly: LXI H,D A(0002) ; MVI A,0F ; CALL ?DLDOP ;
          CALL ?QDI15 ; SHLD I A(0000).  The DLDOP precision is the
          SOURCE decimal's, not the target's. *)
-      let vi = List.assoc (String.lowercase_ascii n.Ast.orig) st.vars in
+      let vi =
+        match
+          List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars
+        with
+        (* an undeclared name reaches here as PL/I's implicit FLOAT, which
+           this compiler does not model; fail loud instead of raising
+           Not_found out of List.assoc [E2E-9 hygiene] *)
+        | Some v -> v
+        | None ->
+            failwith
+              ("codegen: assignment target " ^ n.Ast.orig
+               ^ " has no declaration in scope [TBD] (implicit FLOAT is"
+               ^ " NOT IMP)")
+      in
       if not (dec_pure st rhs) then
         failwith
           "codegen: mixed decimal/integer arithmetic unproven [TBD]            (the DEC->INT conversion is pinned only for a direct decimal             operand: i = d [R506])";
@@ -2627,6 +2922,11 @@ let lower_put_items_gen st (edit_tbl : int option)
       | PIvar n ->
           (match vk_of st n.Ast.orig with
            | Vdec (p, s) ->
+               if List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
+                 failwith
+                   ("codegen: PUT LIST of a FIXED DECIMAL formal is unsampled "
+                    ^ "[TBD] (no DR sample outputs a decimal through its "
+                    ^ "pointer cell)");
                (* [R501/R502/R503/R508/R510/R511] DEC variable item = DLDOP
                   then QDCOP(width=p+3, scale=s); R506 proves a DEC var in a
                   MULTI-item list next to an INT var *)
@@ -2799,7 +3099,39 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
    | [] when pl.Bind.pl_rec ->
        failwith "codegen: recursive procedure without formals [TBD]"
    | [] -> ()
-   | _ -> failwith "codegen: multi-formal prologue deferred [TBD]");
+   | ((f0, ptr0) :: rest) ->
+       (* [E2E-9] MULTI-argument callee.  DR copies the whole descriptor
+          block into the callee's contiguous pointer cells with a counted
+          byte loop, HL = the descriptor address the caller left there:
+              LXI D,<first ptr cell>     (destination, 2N bytes wide)
+              MVI C,2N
+          loop: MOV A,M / INX H / STAX D / INX D / DCR C / JNZ loop
+          The back edge is an INLINE RELOC(code,loop) [R2001 @1606 -> 003E,
+          R2012 JNZ 0063].  Sampled byte-exactly with 2, 3 and 4 formals
+          [R2001/R2002/R2005/R2008/R2012/R2013] and with FIXED DECIMAL
+          formals [DECPOLY, MVI C,06].
+
+          NO ?SVBLK appears here even for a RECURSIVE multi-formal procedure
+          [R2008 rec(a,b) self-calls with a plain block copy], so the
+          SVBLK trigger stays the written RECURSIVE ATTRIBUTE plus arity 1;
+          attributed multi-formal recursion has no golden and refuses. *)
+       let n = 1 + List.length rest in
+       ignore f0;
+       if pl.Bind.pl_attr_rec then
+         failwith
+           ("codegen: attributed RECURSIVE multi-formal activation unproven " ^
+            "[TBD] (only unattributed recursion is sampled at arity >1 " ^
+            "[R2008]; DR's SVBLK shape there has no golden)");
+       d st op_lxi_d;
+       reloc st Data (ptr0 + st.base);
+       d st 0x0e; d st (2 * n);          (* MVI C,2N *)
+       let loop = st.lc in
+       d st 0x7e;                          (* MOV A,M *)
+       d st 0x23;                          (* INX H   *)
+       d st 0x12;                          (* STAX D  *)
+       d st 0x13;                          (* INX D   *)
+       d st 0x0d;                          (* DCR C   (0x05 would be DCR B) *)
+       d st op_jnz; reloc st Code loop);
   let saved = st.vars and savedd = st.deref in
   st.vars <-
     List.map
@@ -2821,21 +3153,15 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
              else if
                List.mem_assoc (String.lowercase_ascii n) pl.Bind.pl_ptrs
              then
-               (* [R709/R725] DR passes a FIXED DECIMAL formal BY REFERENCE:
-                  the formal gets a 2-BYTE cell (not ceil((p+1)/2)) holding
-                  the caller's address -- prologue `MOV E,M; INX H; MOV D,M;
-                  XCHG; SHLD J`, then every read is `LHLD J` followed by
-                  `MVI A,digits; CALL ?DLDOP`, i.e. HL is the ADDRESS.  My
-                  DEC model gives every DEC name a full BCD cell, which
-                  silently mis-sizes AUTO storage and mis-addresses the
-                  value.  The DEC-formal sub-model is its own slice; refuse
-                  rather than emit layout-wrong bytes. *)
-               failwith
-                 (Printf.sprintf
-                    "codegen: FIXED DECIMAL formal parameter %s is unproven \
-                     [TBD] (DR allocates a 2-byte by-reference pointer cell \
-                     for it [R709/R725]; the DEC storage model implemented \
-                     so far only covers AUTOMATIC decimal cells)" n)
+               (* [R709/R725, DECPOLY, R2037/R2038] DR passes a FIXED
+                  DECIMAL formal BY REFERENCE: the formal owns a 2-BYTE
+                  pointer cell (not the ceil((p+1)/2) BCD cell), and every
+                  READ is `LHLD <ptr> ; MVI A,digits ; CALL ?DLDOP`, i.e. HL
+                  arrives at ?DLDOP as the ADDRESS of the caller's decimal
+                  [DECPOLY @10D: LHLD X A(004E) / MVI A,0F / CALL ?DLDOP].
+                  Writes to a decimal formal have no golden and refuse in
+                  lower_assign / the GET / PUT-EDIT paths. *)
+               { off = o; size = 2; vk = Vdec (p, s); w = p + 3 }
              else
                { off = o; size = Bind.bytes_of rt; vk = Vdec (p, s);
                  w = p + 3 }
@@ -3182,10 +3508,18 @@ let emit_program (progname : string) (auto_bytes : int)
   let const_cells =
     List.fold_left
       (fun a (c : Bind.call_site) ->
-        match c.cs_arg.Ast.e with
-        | Ast.Enumber _ -> a + 2
-        | _ -> a)
-      0 layout.pl_calls
+        match c.cs_args with
+        | [] -> a
+        | args ->
+            List.fold_left
+              (fun acc arg ->
+                match arg.Ast.e with
+                | Ast.Enumber _ -> acc + 2
+                | _ -> acc)
+              a args        (* ACCUMULATE from the outer total: starting at 0
+                               silently dropped every call site but the last
+                               [regression caught by R406/R421 byte parity] *)
+      ) 0 layout.pl_calls
   in
   (* [E2E-6] prescan context for decimal literal cells: every block's
      variable kinds plus each procedure's decimal return type.  A name
@@ -3347,11 +3681,22 @@ let emit_program (progname : string) (auto_bytes : int)
   let data_size =
     pool_total + max auto_bytes layout.pl_total + 2 * st.temps
   in
+  (* [E2E-9, DECPOLY / LONGNAME] DR emits the program's external name in
+     PROG-NAME / EXTDEF / DEF-PUBLIC TRUNCATED TO SIX CHARACTERS: the 7-char
+     corpus program DECPOLY carries the symbol "DECPOL", and the 8-char
+     probe label LONGNAME carries "LONGNA".  Internal procedure names never
+     become symbols [NTEST1: `computeval` appears nowhere in the .REL], so
+     two internals colliding on their first six characters is NOT an error
+     [NTEST2: factor1/factor2 compile clean]. *)
+  let extname =
+    let u = String.uppercase_ascii progname in
+    if String.length u > 6 then String.sub u 0 6 else u
+  in
   let header =
-    [ Link (t_progname, None, Some progname)
+    [ Link (t_progname, None, Some extname)
     ; Link (t_req_library, None, Some "PLILIB")
-    ; Link (t_extdef, None, Some progname)
-    ; Link (t_def_public, Some (Code, 0), Some progname) ]
+    ; Link (t_extdef, None, Some extname)
+    ; Link (t_def_public, Some (Code, 0), Some extname) ]
   in
   let data_seg =
     if st.pool <> [] then

@@ -1,0 +1,7 @@
+lR2023:
+ procedure options(main);
+   put skip(2) list('AB');
+
+   stop;
+end lR2023;
+

@@ -1,0 +1,23 @@
+R2013:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl k fixed;
+   dcl r fixed;
+   dcl s fixed;
+   i = 3;
+   j = 5;
+   r = mid(i, j);
+   put skip list(r);
+
+   f2: procedure (a,b) returns (fixed);
+      declare (a,b) fixed;
+      return (a - b);
+   end f2;
+   mid: procedure (p,q) returns (fixed);
+      declare (p,q) fixed;
+      return (f2(q, p));
+   end mid;
+   stop;
+end R2013;
+

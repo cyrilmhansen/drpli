@@ -1,0 +1,12 @@
+lR2025:
+ procedure options(main);
+   dcl (a,b) fixed;
+   dcl r fixed;
+   a = 0;
+   b = 0;
+   if a = 0 & b = 0 then r = 1;
+   put skip list(r);
+
+   stop;
+end lR2025;
+

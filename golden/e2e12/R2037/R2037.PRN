@@ -1,0 +1,107 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R2037
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 LR2037 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 32 BYTES
+c 0000 X FIXED DECIMAL(15,4) AUTOMATIC
+c 0008 Y FIXED DECIMAL(15,4) AUTOMATIC
+c 0010 Z FIXED DECIMAL(15,4) AUTOMATIC
+c 0018 P FIXED DECIMAL(15,4) AUTOMATIC
+c 0000 Q2 FUNCTION PARAMETERS(2) CONSTANT
+c 0000 .* FIXED DECIMAL(15,4) RETURNED
+c 0008 .* FIXED DECIMAL(15,4) PARAMETER
+c 0010 .* FIXED DECIMAL(15,4) PARAMETER
+BLOCK AT LINE 11, AUTO STORAGE 4 BYTES, PARAMETERS U, V
+e 0000 U FIXED DECIMAL(15,4) PARAMETER
+e 0002 V FIXED DECIMAL(15,4) PARAMETER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R2037
+
+   1 a 0000 lR2037:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (x,y,z) fixed decimal(15,4);
+   4 c 0006    dcl p fixed decimal(15,4);
+   5 c 0006    x = 1.4;
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,0F
+       000B       CALL ?DLDOP
+       000E       LXI  H,X A(0010)
+       0011       MVI  A,0F
+       0013       CALL ?DSTOP
+   6 c 0016    y = 2.3;
+       0016       LXI  H,* S(0008)
+       0019       MVI  A,0F
+       001B       CALL ?DLDOP
+       001E       LXI  H,Y A(0018)
+       0021       MVI  A,0F
+       0023       CALL ?DSTOP
+   7 c 0026    p = q2(x, y);
+       0026       LXI  H,* A(0030)
+       0029       CALL 0000
+       002C       LXI  H,P A(0028)
+       002F       MVI  A,0F
+       0031       CALL ?DSTOP
+   8 c 0034    put skip list(p);
+       0034       LXI  D,0252
+       0037       LXI  B,0000
+       003A       CALL ?SYSPR
+       003D       MVI  A,01
+       003F       CALL ?SKPOP
+       0042       LXI  H,P A(0028)
+       0045       MVI  A,0F
+       0047       CALL ?DLDOP
+       004A       MVI  A,12
+       004C       MVI  B,04
+       004E       CALL ?QDCOP
+       0051       CALL ?PNVOP
+       0054       CALL ?QIOOP
+       0038       ==== 0057
+   9 c 0057    stop;
+       0057       CALL ?STOPX
+  10 c 005A    q2: procedure (u,v) returns (fixed decimal(15,4));
+  11 e 005A       declare (u,v) fixed decimal(15,4);
+       005A       LXI  D,U A(0034)
+       005D       MVI  C,04
+       005F       MOV  A,M
+       0060       INX  H
+       0061       STAX D
+       0062       INX  D
+       0063       DCR  C
+       0064       JNZ  005F
+  12 e 0067       return (u + v);
+       0067       LHLD U A(0034)
+       006A       MVI  A,0F
+       006C       CALL ?DLDOP
+       006F       LHLD V A(0036)
+       0072       MVI  A,0F
+       0074       CALL ?DLDOP
+       0077       CALL ?DADOP
+       007A       JMP  ?DCRET
+  13 c 007D    end q2;
+  14 c 007D 
+  15 a 007D end lR2037;
+
+CODE SIZE = 007D
+DATA AREA = 0038
+FREE SYMS = 3824
+END  COMPILATION
+

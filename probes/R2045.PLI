@@ -1,0 +1,12 @@
+r2045:
+ procedure options(main);
+   dcl i fixed;
+   dcl r fixed;
+   r = 3 + 2;
+   do i = 1 to 3;
+      r = r + 2;
+   end;
+   put skip list(r);
+   stop;
+end r2045;
+
