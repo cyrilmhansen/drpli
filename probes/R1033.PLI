@@ -1,0 +1,13 @@
+l1033:
+ procedure options(main);
+   dcl i fixed;
+   dcl s fixed;
+   s = 20;
+   do i = 5 by -1;
+      s = s - i;
+      if s < 1 then go to fin;
+   end;
+   fin:
+   put skip list(s);
+   stop;
+end l1033;

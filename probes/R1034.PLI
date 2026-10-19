@@ -1,0 +1,11 @@
+l1034:
+ procedure options(main);
+   dcl i fixed;
+   dcl s fixed;
+   s = 0;
+   do i = 1 to 9 by 3;
+      s = s + i;
+   end;
+   put skip list(s);
+   stop;
+end l1034;

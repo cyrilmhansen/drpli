@@ -117,7 +117,8 @@ same failure mode as the slice-3 ROUND pool-prescan defect.
 
     do i = a to b by k,  k >= 1  (RISING, R1011 to 5 by 2, R1015 to 3 by 1)
         <init i = a>                        LXI H,a (or a peephole form) / SHLD i
-      head: LHLD i / LXI B,-(b+1) / DAD B   HL = i - (b+1)
+      head: LHLD i / <subtract b+1> / DAD B HL = i - (b+1)   [see CORRECTION below:
+            the subtraction is DCX H x (b+1) when b+1 <= 3, else LXI B,-(b+1)]
             MOV A,H / ORA A / JP skip       skip when i-(b+1) >= 0, i.e. i > b
         <body>
         LHLD i / (INX H) * k / SHLD i       k rungs
@@ -126,8 +127,9 @@ same failure mode as the slice-3 ROUND pool-prescan defect.
 
     do i = a to b by -k,  k >= 1  (FALLING, R1012 to 1 by -1, R1013 to 3 by -2)
         <init i = a>
-      head: LHLD i / (DCX H) * b / MOV A,H / ORA A / JM skip
-                                                skip when i-b < 0, i.e. i < b
+      head: LHLD i / <subtract b> / MOV A,H / ORA A / JM skip
+            skip when i-b < 0, i.e. i < b       [CORRECTION: (DCX H) x b only for
+            b <= 3; R1027 (`to 20 by -1`) uses LXI B,-20 / DAD B / JM]
         <body>
         LHLD i / (DCX H) * k / SHLD i
         JMP head
@@ -217,3 +219,42 @@ specimens)"**. Neither will be described as full runtime validation.
   ~2,000-line checkpoint. The main risk is the pool-prescan interaction
   (section 3), which is why the table length must be counted in the same pass
   that counts item literals.
+
+---
+
+## 9. POST-IMPLEMENTATION CORRECTIONS TO THIS ASSESSMENT (same day, slice 5)
+
+The assessment was written from rounds 1-2 (R1001-R1020). Landing the code
+needed a third and fourth round (R1021-R1037), and four of its statements were
+incomplete or superseded:
+
+1. **"The falling test subtracts the bound, not the step" stays TRUE**, but the
+   instruction that does it is peeled by size: `DCX H` x c for c <= 3, `LXI
+   B,-c / DAD B` for c >= 4 (rising c = b+1, falling c = b). The assessment
+   recorded only `LXI B` for rising and only rungs for falling, because its
+   samples happened to sit on opposite sides of the crossover. R1023-R1028 pin
+   both directions on both sides.
+2. **The init was described as "LXI H,a (or a peephole form)". It is a
+   4-level byte-cost ladder** (SHLD alone / INX H / MVI L,from / LXI H,from)
+   driven by the value already known to be in HL, and that knowledge is
+   **control-flow sensitive**: IFACT's `F = 1`, the first statement of a loop
+   body whose init had just executed `LXI H,0000`, still gets a full `LXI H,0001`.
+   None of this was visible in rounds 1-2.
+3. **A new form was discovered that the assessment does not mention**: an
+   indexed DO with FROM but NO BY/TO/WHILE/REPEAT is not a loop at all -- DR
+   stores FROM, runs the body once, and falls through (no increment, no test, no
+   back edge) [R1032]. The assessment's "forever" row assumed `no TO` always
+   meant `body / increment / JMP`, which is only true when BY is present.
+4. **Estimate was 200-260 gross lines; actual was 605 gross (+503/-102) over
+   `ocaml/`, `tools/` and `oracle/`.** The overrun is not the two routes
+   themselves: it is the pool-ordering law (which forced a pre-allocation pass),
+   the init ladder and rung peephole (unimagined before round 3), the AST change
+   to preserve the data/format boundary (plus the `flatten_items` repair it
+   forced in the binder), 4 extra negative panel members, and two harness
+   defects (a vacuous `--console --facts` path, and probe files that were
+   malformed and had to be re-oracled). Still inside the 2,000-line checkpoint.
+
+Everything else in sections 1-8 held: the table encoding, the `?EDITF`/`?EDTOV`
+placement, the `?PNCOP`/`?PNVOP` -> `?EDTOV` convergence, the pool order
+(tables first), and `R1016 == R1015` showing DR rewrites `while (index <
+literal)` into the bounded form.

@@ -1,0 +1,8 @@
+l1031:
+ procedure options(main);
+   dcl i fixed;
+   dcl s fixed;
+   i = 3;
+   s = i;
+   stop;
+end l1031;

@@ -717,3 +717,141 @@ Implementation lines since the `3636eec` checkpoint, over `ocaml/`, `tools/` and
 pause was needed. (The "+1,190/-162" reported at the end of slice 3 recomputes
 to +1,168/-140 on the same path set; the discrepancy is a pre-commit measurement
 and the recomputed figures are the ones quoted here.)
+
+---
+
+## C090 — PUT EDIT: the format list compiles to a pool byte table; ?EDITF/?EDTOV (E2E-8 slice 5)
+
+STATUS: ACCEPTED. 14 byte-exact positives (R1001-R1010, R1018-R1022 and R1009,
+which is IFACT's own PUT EDIT statement lifted out with two binary variables),
+gate 194/194, all linked to `.COM` images byte-identical to DR's with byte-equal
+console output.  PUT EDIT is IFACT's last unbanked route and IFACT itself is
+`cmp`-identical to `golden/first8080u/IFACT/IFACT.REL` (384 B): the 5th of 41
+corpus programs.
+
+SHAPE (statement skeleton): identical to PUT LIST except that the format list is
+compiled into a byte table in the `*S` pool, loaded with `LXI H,*S(table) /
+CALL ?EDITF` immediately after `?SYSPR` (and after a leading `skip n`), and that
+EVERY item's output tail is `CALL ?EDTOV` instead of the `?PNCOP`/`?PNVOP`
+choice.  Character and numeric items converge on one routine: R1003 (`a` + char
+varying) and R1001 (`f(3)` + binary) both end in `?EDTOV`.
+
+TABLE ENCODING (every row directly observed):
+`table = 80 00 | records... | 81`, with `f(w) = 00 w FF`, `f(w,d) = 00 w d`,
+`a = 03 FF`, `a(w) = 03 w`, `skip = 0C FF`, `page = 0F FF`.  `FF` is the
+"no word argument" filler; a spec's argument byte takes that slot.  IFACT's
+`(skip, a, f(2), a, f(7))` -> `80 00 | 0C FF | 03 FF | 00 02 FF | 03 FF |
+00 07 FF | 81` (15 bytes at `*S(0000)`; controls and A are 2-byte records, F is
+3-byte), which is what the corpus golden carries.
+
+POOL LAW (new, and not local to the statement): **all format tables are
+allocated before all other pool items**; tables keep source/depth-first order
+among themselves, other literals keep source order among themselves.  R1003 is
+the decisive sample -- the table of line 7 sits at `*S(0000)` while the `'AB'`
+literal needed by the EARLIER statement (`c = 'AB'`, line 6) sits at `*S(0005)`.
+R1021 (two tables, then both literals) and R1022 (a table inside a `DO` body
+still precedes a top-level literal) confirm it.  Implemented as
+`prealloc_fmt_tables`/`edit_stmts` (depth-first walk before any lowering) with
+addresses consumed from `st.fmtq` in the same order.
+
+PERIMETER (tested refusals): a FIXED DECIMAL data item in an EDIT list (no DR
+sample pushes a DEC item through an edit list); `put skip edit(...)` (leading
+control item: table position unknown); counted SKIP/PAGE (only the bare form's
+`FF` filler is observed); control/replication/picture items mixed into the DATA
+half.
+
+NEW ROUTINES: `?EDITF`, `?EDTOV` (project emitted-entrypoint count +2).
+
+## C091 — DO control statements: FROM init cost ladder, exit-test peephole, forever vs degenerate forms (E2E-8 slice 5)
+
+STATUS: ACCEPTED. 17 byte-exact positives (R1011-R1015, R1023-R1028, R1030-R1033,
+R1037) plus IFACT, whose outer loop is a no-test forever form and whose inner
+loop is a variable-FROM descending loop.
+
+LAWS:
+1. **Init.** FROM may be a fixed-bin VARIABLE (`LHLD src / SHLD index`
+   [IFACT 000C-000F, R1014]).  A constant FROM is loaded by the cheapest
+   instruction that produces it given HL's known value: HL already equal ->
+   `SHLD` alone [R1015, R1022, R1032]; HL = from-1 -> `INX H` [R1011, Y302];
+   H known 0 and from <= 255 -> `MVI L,from` [R1012, R1013, R1030]; else
+   `LXI H,from` [Y302, IFACT].  Cost 0/1/2/3 -- strictly the byte-minimal
+   choice in every observed case.
+2. **The reuse is control-flow sensitive.**  IFACT line 11 (`F = 1`, the first
+   statement of a loop body) gets a full `LXI H,0001` although the loop init
+   just executed `LXI H,0000`: at a branch target HL holds what the back edge
+   left there.  My `last_imm` tracker is therefore cleared at every loop-body
+   head and after every `LHLD`.
+3. **Exit test.** `LHLD i / <subtract c> / MOV A,H / ORA A / JP skip` rising
+   with `c = bound + 1`, and `... / JM skip` falling with `c = bound` -- the
+   falling test subtracts the BOUND, never the step [R1013 `to 3 by -2` -> 3
+   rungs].  The subtraction is peeled by size: `DCX H` x c for c <= 3
+   [R1012/R1023/R1024/R1028], `LXI B,-c / DAD B` for c >= 4 [R1025 (c=4),
+   R1026, R1011, R1027 (c=20)] -- the crossover is exactly where rungs stop
+   being cheaper than the 4-byte constant form.
+4. **Increment.** `LHLD i / (INX H | DCX H) x |step| / SHLD i`, direction from
+   the sign [R1011, R1013, R1012, R1033].  A step must be an integer LITERAL
+   (an expression step cannot lower to rungs at all); |step| <= 2 sampled.
+5. **Two different "no TO" shapes.**  `do i = c by k;` is a no-exit forever
+   loop: body, increment, `JMP` back, NO test [IFACT, R1014, R1030], and it
+   opens the epilogue-suppression window like the REPEAT forms.  `do i = c;`
+   with no BY/TO/WHILE/REPEAT is DEGENERATE: DR stores FROM, runs the body once
+   and falls through -- no increment, no test, no back edge, no window [R1032].
+   Whether `by 1` (semantically redundant) appears decides if the statement is
+   a loop at all.
+
+PERIMETER (tested): DO..WHILE (DR rewrites `while (index < c)` into the bounded
+form -- R1016 is byte-identical to R1015 -- a rewrite my build does not model)
+[N48/N49]; bound < 1, where DR switches to a general signed compare
+`XRA A / CMP M / INX H / SBB M / JM` [R1029] [N50]; |step| >= 3 [N51]; pointer
+formal / DEC / non-fixed-bin index (unchanged).
+
+## C092 — fixed-bin var - var goes through ?IS22N, not DAD (E2E-8 slice 5, defect repair)
+
+STATUS: ACCEPTED, as a DEFECT FIX.  Until this slice my build refused
+`s = s - i` with both operands variables ("operator not in int subset"),
+although E2E-2 claims fixed-bin arithmetic; `s - <literal>` worked.  Nothing in
+the accepted corpus needed it (LOAN1 subtracts in FIXED DECIMAL via `?DSUOP`,
+RFACT/NFACT multiply), so the hole survived four slices and was exposed by
+DO/BY probing (R1033).
+
+LAW: `left - right` with neither side a literal is the ADDITION pair ladder
+with the add replaced by the subtract call -- `LHLD left / XCHG / LHLD right /
+CALL ?IS22N`, result in HL [R1035 `s = s - i`, R1036 `s = i - i`, both
+byte-exact and both link to identical `.COM` with byte-equal console].  That is
+the same primitive my condition lowering already used for `var OP var`
+relational tests, so nothing new enters the runtime; only the arithmetic arm
+was missing.  Pointer-deref operands in this route are unsampled and refused.
+
+GATES AFTER SLICE 5: e2e **194 byte-exact / 0 fail of 194** (was 160; +32
+format/DO probes, +R1035/R1036 subtraction, +R1037, +IFACT as the 5th corpus
+specimen); negative panel **42/42** (N19_DOBY removed -- `DO i = 1 TO 4 BY 2` is
+now proven, re-ORACLED as R1037; +4 tested refusals N48 DO..WHILE-with-BY,
+N49 DO..WHILE-only, N50 DO bound < 1, N51 DO |step| >= 3); bind **47 exact / 0
+known-gap / 0 FAIL** (after repairing the regression this slice's AST change
+caused -- see below); parse 498 ok / 6 parity-rejects / 0 FAIL of 504; ir 0
+FAIL; rel round-trip 480/480; decmodel unchanged at 68 SCHED MATCH / 0 DIFFER,
+30 VALUE-MATCH / 0 VALUE-DIFF, 8 MODEL-REFUSED (this slice adds no DEC route);
+clean-build warnings 63 -> 63 with an IDENTICAL per-kind histogram, verified
+against freshly built `4bc9af8` and current worktrees (`rm -rf _build` each
+time); the measurement worktree was removed afterwards.
+Tier-2 targeted link + console: 32 new specimens + 5 regression names (LOAN1,
+DEMO, NFACT, R901, R813) -> 37 linked `.COM` byte-identical to DR and 37 raw
+console transcripts byte-equal, 0 divergences (17 names in 4m43s, then 20 names
+in 6m52s).  R1030 is deliberately outside the console arm: it never terminates
+and prints nothing.  IFACT (non-terminating) verified by the bounded
+complete-record prefix protocol: `.COM` 9600 B IDENTICAL, first 12 COMPLETE
+records byte-equal, `FACTS-OK` on 6 factorial records re-derived from
+`math.factorial` (records above FIXED BIN(15) range skipped, never counted as
+passes).
+Two harness defects were found and fixed here, not papered over:
+(1) `tools/prefix_check.py --console --facts` returned from the `--console` arm
+before the `--facts` block, so the arithmetic oracle never ran -- my first
+IFACT "pass" was vacuous; the oracle is now a function both arms call, and both
+IFACT and RFACT were re-run to prove it.  (2) Adding `Ast.Pi_fmtlist` made three
+binder matches non-exhaustive and `bind_gate` fell to 13 FAIL because the
+FORMAT-descriptor size fold saw one wrapper instead of N items; `flatten_items`
+at all four binder item consumers restored `$S` byte parity exactly.
+Implementation lines since the `4bc9af8` checkpoint, over `ocaml/`, `tools/` and
+`oracle/`: +503 / -102 = **605 gross** (of which `ocaml/` alone is +366 / -51)
+-- inside the ~2,000-line consultation threshold, so no mid-slice pause was
+needed.

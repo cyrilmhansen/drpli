@@ -1,0 +1,8 @@
+l1018:
+ procedure options(main);
+   dcl i fixed;
+   dcl c char(6) varying;
+   i = 42;
+   put edit(i)(f(6,2));
+   stop;
+end l1018;

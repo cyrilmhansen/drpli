@@ -1,0 +1,10 @@
+l1011:
+ procedure options(main);
+   dcl i fixed; dcl s fixed;
+   s = 0;
+   do i = 1 to 5 by 2;
+      s = s + i;
+   end;
+   put skip list(s);
+   stop;
+end l1011;

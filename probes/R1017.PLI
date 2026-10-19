@@ -1,0 +1,10 @@
+l1017:
+ procedure options(main);
+   dcl i fixed; dcl s fixed;
+   s = 0;
+   do i = 0 while (i < 4);
+      s = s + i;
+   end;
+   put skip list(s);
+   stop;
+end l1017;

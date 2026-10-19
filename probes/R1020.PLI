@@ -1,0 +1,9 @@
+l1020:
+ procedure options(main);
+   dcl i fixed;
+   dcl c char(6) varying;
+   c = 'AB';
+   i = 7;
+   put edit(c, i)(a(3), f(2,1), skip);
+   stop;
+end l1020;

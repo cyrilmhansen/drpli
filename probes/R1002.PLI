@@ -1,0 +1,9 @@
+l1002:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl c char(6) varying;
+   i = 42;
+   put edit(i)(f(12));
+   stop;
+end l1002;

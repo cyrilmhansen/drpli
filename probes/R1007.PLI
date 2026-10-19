@@ -1,0 +1,9 @@
+l1007:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl c char(6) varying;
+   i = 42;
+   put edit(i)(page, f(3));
+   stop;
+end l1007;

@@ -966,7 +966,7 @@ and parse_put p =
     let d = data_items p in
     let f = parse_fmt_items p in
     Sput { stream = None; on_opts = opts; kind = Edit;
-           items = ctl_items @ d @ f }
+           items = ctl_items @ d @ [Pi_fmtlist f] }
   end
   else if eat_key p "ITEM" then
     Sput { stream = None; on_opts = opts; kind = Item;

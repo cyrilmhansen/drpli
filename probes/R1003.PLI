@@ -1,0 +1,9 @@
+l1003:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl c char(6) varying;
+   c = 'AB';
+   put edit(c)(a);
+   stop;
+end l1003;

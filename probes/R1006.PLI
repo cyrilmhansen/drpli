@@ -1,0 +1,10 @@
+l1006:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl c char(6) varying;
+   i = 42;
+   j = 7;
+   put edit(i, j)(f(3), f(4));
+   stop;
+end l1006;

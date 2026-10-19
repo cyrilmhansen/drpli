@@ -1,3 +1,1 @@
-R1018	ok	PRN=True REL=True
-R1019	ok	PRN=True REL=True
-R1020	ok	PRN=True REL=True
+R1037	ok	PRN=True REL=True

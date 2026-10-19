@@ -34,7 +34,7 @@ Verdict hierarchy implemented here:
     FIXED DEC(15,0) -> i<=17 for DFACT [E2E-6]); records beyond that are
     reported as skipped because DR's own overflow is not an oracle.
 
-Usage: prefix_check.py NAME SRC GOLDEN.REL [--console|--facts K]
+Usage: prefix_check.py NAME SRC GOLDEN.REL [--console] [--facts K]
                                            [--records K] [--window SECS]
                                            [--retries N]
 """
@@ -112,6 +112,54 @@ def cleanup():
     for d in sorted(os.listdir(GOLD)):
         if PFX.match(d):
             shutil.rmtree(os.path.join(GOLD, d), ignore_errors=True)
+
+
+def facts_check(name, cons, maxvalue, want):
+    """[E2E-8] INDEPENDENT arithmetic oracle for the factorial specimens:
+    parse `factorial(i)=v' records and compare v against math.factorial(i).
+    Values above MAXVALUE (the specimen's declared arithmetic range) are
+    SKIPPED, never counted as a pass; comparing DR overflow garbage against
+    my overflow garbage would prove nothing.  Returns 0 (OK / inconclusive)
+    or 1 (FACTS-DIFF)."""
+    src_lbl = "mine" if cons.get("mine") else (
+        "dr" if cons.get("dr") else None)
+    if src_lbl is None:
+        print(f"{name}: INCONCLUSIVE-CAPTURE for --facts")
+        return 0
+    if src_lbl != "mine":
+        print(f"{name}: NOTE using the DR-arm capture (mine arm uncaptured); "
+              f"the two .COM images are byte-identical, and the oracle below "
+              f"is external arithmetic")
+    recs, seen, bad, skipped = records(cons[src_lbl]), 0, [], 0
+    for rec in recs:
+        m = re.search(r"factorial\(\s*(-?\d+)\s*\)=\s*(-?[\d.]+)",
+                      rec, re.I)
+        if not m:
+            continue
+        i = int(m.group(1))
+        v = int(m.group(2).replace(".", ""))
+        exp = math.factorial(i)
+        if exp > maxvalue:
+            skipped += 1
+            continue
+        if v != exp:
+            bad.append((i, v, exp))
+        seen += 1
+        if seen >= want:
+            break
+    if seen < want:
+        print(f"{name}: INCONCLUSIVE-CAPTURE --facts ({seen}/{want} "
+              f"factorial records captured)")
+        return 0
+    if bad:
+        print(f"{name}: FACTS-DIFF {bad}")
+        return 1
+    tail = (f" ({skipped} record(s) beyond --maxvalue={maxvalue} not "
+            f"counted)" if skipped else "")
+    print(f"{name}: FACTS-OK {seen} complete factorial records match "
+          f"math.factorial independently "
+          f"{[math.factorial(i) for i in range(min(seen, 8))]}{tail}")
+    return 0
 
 
 def main():
@@ -260,53 +308,13 @@ def main():
         print(f"{name}: PREFIX-OK first {n} COMPLETE records byte-equal"
               f"{note}")
         print(f"   sample: {rm[:min(3, n)]}")
+        if a.facts:
+            # [E2E-8] both verifications run; an earlier version returned
+            # here, which made `--console --facts' a VACUOUS pass.
+            return facts_check(name, cons, a.maxvalue, a.facts)
         return 0
     if a.facts:
-        src_lbl = "mine" if cons.get("mine") else (
-            "dr" if cons.get("dr") else None)
-        if src_lbl is None:
-            print(f"{name}: INCONCLUSIVE-CAPTURE for --facts")
-            return 0
-        if src_lbl != "mine":
-            print(f"{name}: NOTE using the DR-arm capture (mine arm "
-                  f"uncaptured); the two .COM images are byte-identical, "
-                  f"and the oracle below is external arithmetic")
-        recs, seen, bad, skipped = records(cons[src_lbl]), 0, [], 0
-        for rec in recs:
-            # 'factorial(' / 'Factorial(' both occur in the corpus
-            m = re.search(r"factorial\(\s*(-?\d+)\s*\)=\s*(-?[\d.]+)",
-                          rec, re.I)
-            if not m:
-                continue
-            i = int(m.group(1))
-            v = int(m.group(2).replace(".", ""))
-            exp = math.factorial(i)
-            # Only values that FIT the specimen's declared arithmetic are
-            # oracle-able: RFACT is FIXED BIN(15) (max 32767, so i <= 7),
-            # DFACT is FIXED DEC(15,0) (max 10^15-1, so i <= 17).  Beyond
-            # that DR itself overflows, and comparing garbage against
-            # garbage would prove nothing -- those records are reported as
-            # skipped, never as a pass.
-            if exp > a.maxvalue:
-                skipped += 1
-                continue
-            if v != exp:
-                bad.append((i, v, exp))
-            seen += 1
-            if seen >= a.facts:
-                break
-        if seen < a.facts:
-            print(f"{name}: INCONCLUSIVE-CAPTURE --facts ({seen}/{a.facts} "
-                  f"factorial records captured)")
-            return 0
-        if bad:
-            print(f"{name}: FACTS-DIFF {bad}"); return 1
-        tail = (f" ({skipped} record(s) beyond --maxvalue="
-                f"{a.maxvalue} not counted)" if skipped else "")
-        print(f"{name}: FACTS-OK {seen} complete factorial records match "
-              f"math.factorial independently "
-              f"{[math.factorial(i) for i in range(min(seen, 8))]}{tail}")
-        return 0
+        return facts_check(name, cons, a.maxvalue, a.facts)
     print(f"{name}: runtime verdict = byte-identical image")
     return 0
 

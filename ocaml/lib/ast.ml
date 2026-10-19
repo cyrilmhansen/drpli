@@ -133,6 +133,11 @@ and put_item =
   | Pi_pic of string                                 (** P'picspec' [EX] *)
   | Pi_remote of name                                (** R(label) [EX P020] *)
   | Pi_group of put_item list                        (** nested (..) *)
+  | Pi_fmtlist of put_item list
+      (** [E2E-8] the FORMAT half of `put edit(items)(specs)'.  A distinct
+          constructor keeps the item/format boundary, which the old merged
+          `d @ f' list lost: at lowering a format spec and a data item were
+          indistinguishable. *)
 
 and get_kind = List_ | Edit | Const_
 

@@ -1,0 +1,11 @@
+l1009:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl c char(6) varying;
+   i = 3;
+   j = 120;
+   put edit('factorial(',i,')=',j)
+       (skip, a,f(2), a, f(7));
+   stop;
+end l1009;

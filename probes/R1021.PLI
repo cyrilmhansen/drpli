@@ -1,0 +1,9 @@
+l1021:
+ procedure options(main);
+   dcl i fixed;
+   dcl c char(6) varying;
+   i = 1;
+   put edit('AB')(a);
+   put edit('CD')(f(3));
+   stop;
+end l1021;

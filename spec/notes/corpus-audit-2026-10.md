@@ -21,6 +21,13 @@ banked in `corpus-audit-2026-10-18-data.txt` (same directory).
 > **SUPERSEDED AGAIN, 2026-10-19 (E2E-7A slice 4): LOAN1 is byte-exact, so the
 > corpus score is 4/41 (DEMO, RFACT, DFACT, LOAN1)** -- see section 14, which
 > also corrects a false statement that section 13 made about LOAN1 and MOD.
+>
+> **SUPERSEDED AGAIN, 2026-10-19 (E2E-8 slice 5): IFACT is byte-exact, so the
+> corpus score is 5/41 (DEMO, RFACT, DFACT, LOAN1, IFACT)** -- see section 15,
+> which adds PUT EDIT (?EDITF/?EDTOV) with its format-table pool law, the DO/BY
+> lowering laws, a fixed-bin subtraction defect repair, and a fresh full-corpus
+> first-blocker sweep that changes the ranking of the next milestone (DECPOLY is
+> now blocked by the BINDER, not by DEC formal passing).
 | metric | REV 1 (post-E2E-4) | REV 2 (now) |
 |---|---|---|
 | corpus sources | 44 | 44 |
@@ -718,3 +725,75 @@ FLOAT families.
   worktree was created for the measurement and removed afterwards.
 * rel round-trip **438 / 438** (421 baseline + 17 new `golden/e2e10/` goldens;
   the count moves with harness scratch state, as documented in section 13).
+
+---
+
+## 15. SLICE-5 NOTE (E2E-8 PUT EDIT + DO/BY, IFACT accepted, 2026-10-19)
+
+**Corpus score: 5/41 byte-exact, 0 divergent** — DEMO, RFACT, DFACT, LOAN1 and
+now **IFACT**. Verified on raw bytes, not masked listings: `cmp` clean against
+`golden/first8080u/IFACT/IFACT.REL` (384 B); linked `.COM` 9600 B identical to
+the image built from DR's own `.REL`; console verified by the bounded
+complete-record prefix protocol (IFACT's outer `do i = 0 by 1;` never
+terminates, so a truncated capture is never used as the oracle) — first 12
+records byte-equal, plus 6 factorial records re-derived independently from
+`math.factorial`.
+
+What this slice banked (see `spec/CLAIMS.md` C090-C092 and
+`spec/notes/e2e8-slice5-put-edit-do.md`):
+
+| route / law | specimens |
+|---|---|
+| PUT EDIT: `80 00 \| records \| 81` table encoding, `?EDITF` + `?EDTOV` | R1001-R1010, R1018-R1022 |
+| **pool law**: every format table allocated before every other pool item | R1003, R1021, R1022 |
+| DO init cost ladder (SHLD / INX H / MVI L / LXI H) + control-flow sensitivity | R1012-R1015, R1030-R1032 |
+| DO exit test (rising `b+1`/JP, falling `b`/JM; rungs <= 3 vs `LXI B,-c` >= 4) | R1011-R1013, R1023-R1028 |
+| DO increment `LHLD / rungs x \|step\| / SHLD`; literal steps only | R1011, R1013, R1018, R1033 |
+| forever WITH BY (no test at all) vs **degenerate** DO without BY (no loop) | R1014, R1030, R1032, IFACT |
+| fixed-bin `a - b` via `?IS22N` (defect repair, see C092) | R1035, R1036, R1033 |
+
+Emitted-routine surface: +2 new entrypoints (`?EDITF`, `?EDTOV`).  Two existing
+opcodes reached a second syntactic role (`MVI L,imm`; `?IS22N`, previously
+condition-only).  IFACT's own requirement was 12 entrypoints and my build emits
+12 of 12.
+
+### 15.1 Two things this slice corrected in the record
+
+1. **The E2E-8 assessment (section 3 of `e2e8-ifact-assessment.md`) attributed
+   variable-FROM evidence to R1019 and R1020.** Those probe numbers were reused
+   for PUT-EDIT shapes in the second round of generation, so the two rows
+   described DO probes that do not exist. The variable-FROM law
+   (`LHLD src / SHLD index`) is nonetheless solid — it is re-observed on R1014
+   and directly in IFACT's own golden — and the assessment file now says so.
+2. **The audit's first-blocker table row "DO WHILE/REPEAT/no-TO (DFACT FFACT
+   IFACT RFACT)" is stale.** Three of those four are now accepted, and the
+   remaining one (FFACT) is blocked by its `FLOAT` return type, not by DO/BY.
+
+### 15.2 Fresh full-corpus sweep (this build, raw `.REL` compare)
+
+41 corpus programs with a DR `.REL`: **5 EXACT / 0 divergent / 36 refused**.
+First refusal, grouped:
+
+| first refusal | count | programs |
+|---|---|---|
+| declared variable kind not in supported subset (FLOAT / FILE / POINTER / BIT(1) / BASED) | **28** | A ALLTST ANNUITY COPY COPYLPT CREATE DEPREC DIOCALLS DIOCOPY DIORAND DTEST ENTER EXPR1 EXPR2 FDTEST FLTPOLY FLTPOLY2 KEYFILE LOAN2 MPMCALLA MPMCALLB NETWORK REPORT RETRIEVE REVERSE REVERT TEST UPDATE |
+| `block option STACK(...) deferred` | 2 | ACK, ACKTST |
+| binder: `multi-arg call at line 21 deferred` | 1 | **DECPOLY** |
+| binder: `procedure gnt without formals` (R425 family) | 1 | FSCAN |
+| `returns(FLOAT BINARY(24,0))` | 1 | FFACT |
+| `returns(CHAR(10) VARYING)` | 1 | SAMPLE |
+| `PUT ITEM` output form | 1 | OPTIMIST |
+| undeclared identifier / parse-class | 1 | LABELS |
+
+**Strategic consequence, and it changes the ranking I proposed before:
+DECPOLY's first blocker is now the BINDER (`multi-arg call`), not DEC formal
+passing.** Implementing DEC-formal-by-reference in codegen alone would still
+leave DECPOLY refusing, because `bind` rejects the 3-argument call site before
+codegen is reached. Either the binder's multi-arg call-descriptor work comes
+first, or the two land together.
+
+The 28-program declaration wall is now unambiguously the largest single lever:
+36 blocked programs, 28 of them stopped by a single unsupported *declaration
+kind* (FLOAT, FILE, POINTER/BASED, BIT(1)). Small isolated output/loop
+perimeters (PUT ITEM for OPTIMIST, CHAR-varying RETURN for SAMPLE) each unlock
+at most one program and then hit a bigger wall behind it.

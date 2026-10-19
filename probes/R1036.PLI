@@ -1,0 +1,10 @@
+lT3:
+ procedure options(main);
+   dcl i fixed;
+   dcl s fixed;
+   i = 3;
+   s = 20;
+   s = i - i;
+   put skip list(s);
+   stop;
+end lT3;

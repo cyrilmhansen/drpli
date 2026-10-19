@@ -1,0 +1,8 @@
+l1010:
+ procedure options(main);
+   dcl i fixed;
+   dcl j fixed;
+   dcl c char(6) varying;
+   put edit('XY')(skip, a);
+   stop;
+end l1010;

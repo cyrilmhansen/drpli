@@ -355,6 +355,19 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
    PICTURE = len(picspec)+7; data parentheses contribute NOTHING (only the
    format parens compile to a descriptor). Evidence: P065A/P074A-G grids,
    ANNUITY offsets 0000/0018/002F. *)
+(* [E2E-8] the parser now keeps a PUT/GET EDIT statement's FORMAT half in its
+   own node (Ast.Pi_fmtlist) so codegen can tell the DATA list from the FORMAT
+   list.  The binder's descriptor model predates that boundary and counted the
+   two halves as one flat item list [P062A/P065A/P074A-G FORMAT grids, $S byte
+   parity], so every binder-side consumer of a statement's items flattens it
+   back first -- otherwise FORMAT sizes would silently change. *)
+let rec flatten_items is =
+  List.concat_map
+    (function
+      | Ast.Pi_fmtlist inner -> flatten_items inner
+      | i -> [ i ])
+    is
+
 let rec fmt_sz items = List.fold_left (fun acc i -> acc + item_sz i) 0 items
 and item_sz it =
   match it with
@@ -373,6 +386,13 @@ and item_sz it =
   | Pi_rep (_, _) -> 0 (* rep of data item: no format bytes [verify] *)
   | Pi_repgrp (c, is) -> 3 + fmt_sz is + (match c with { e = Eprefix _; _ } -> 0 | _ -> 0)
   | Pi_data _ -> 0
+  (* [E2E-8] Ast.Pi_fmtlist is the PUT-statement wrapper that keeps the DATA
+     half separate from the FORMAT half.  It never appears inside a FORMAT
+     STATIC descriptor, and there is no DR sample of what its descriptor size
+     would be, so refuse rather than invent a size. *)
+  | Pi_fmtlist _ ->
+      failwith "bind: nested FORMAT LIST inside a FORMAT STATIC descriptor \
+                unproven [TBD]" 
 
 (* symbol lines for a block in statement order [(name, disp, size, _)].
    RULES [C052]:
@@ -405,6 +425,7 @@ let fmt_and_labels (b : block) =
          in
          push nm "FORMAT STATIC" (fmt_sz items)
      | Sput { kind = Edit; items; _ } | Sget { kind = Edit; items; _ } ->
+         let items = flatten_items items in
          let fsz =
            List.fold_left
              (fun acc i -> match i with Pi_data _ -> acc | _ -> acc + item_sz i)
@@ -687,6 +708,9 @@ and collect_builtins (blk : block) =
         | Pi_rep (a, b) -> e a; e b
         | Pi_repgrp (_, is) -> fmtitems is
         | Pi_group is -> fmtitems is
+        (* [E2E-8] the PUT EDIT format half: walk it like a group so no
+           replication/skip expression inside it goes uncollected *)
+        | Pi_fmtlist is -> fmtitems is
         | Pi_ctl (_, Some x) -> e x
         | _ -> ())
       is
@@ -715,8 +739,8 @@ and collect_builtins (blk : block) =
     | Sdowhile { cond; body } -> e cond; st body
     | Sdobegin ss -> List.iter st ss
     | Sproc { blk = inner } -> walk inner
-    | Sput { on_opts; items; _ } -> opts on_opts; fmtitems items
-    | Sget { on_opts; items; _ } -> opts on_opts; fmtitems items
+    | Sput { on_opts; items; _ } -> opts on_opts; fmtitems (flatten_items items)
+    | Sget { on_opts; items; _ } -> opts on_opts; fmtitems (flatten_items items)
     | Sfilestmt { opts = os; _ } -> opts os
     | Sedit { target; opts = os } -> e target; opts os
     | Sreadwv { to_ = x; _ } -> e x
@@ -845,18 +869,23 @@ let rec pl_stmt_calls (nm_of : string -> bool) (s : Ast.stmt) =
     | Ast.Sreturn (Some e) | Ast.Sstop (Some e) -> w e
     | Ast.Sgoto { subscript; _ } -> List.concat_map w subscript
     | Ast.Sput { items; _ } | Ast.Sget { items; _ } ->
-        List.concat_map
-          (fun it ->
-            match it with
-            | Ast.Pi_fmt { fargs; fcount; _ } ->
-                List.concat_map w fargs
-                @ (match fcount with Some c -> w c | None -> [])
-            | Ast.Pi_rep (a, b) -> w a @ w b
-            | Ast.Pi_repgrp (a, _) -> w a
-            | Ast.Pi_data e -> w e
-            | Ast.Pi_ctl (_, Some e) -> w e
-            | _ -> [])
-          items
+        let items = flatten_items items in
+        (* [E2E-8] named so the PUT EDIT FORMAT half (Ast.Pi_fmtlist) can be
+         walked recursively instead of being dropped: a call inside a
+         replication or skip count must still reach the call collector. *)
+      let rec wi it =
+        match it with
+        | Ast.Pi_fmt { fargs; fcount; _ } ->
+            List.concat_map w fargs
+            @ (match fcount with Some c -> w c | None -> [])
+        | Ast.Pi_rep (a, b) -> w a @ w b
+        | Ast.Pi_repgrp (a, _) -> w a
+        | Ast.Pi_data e -> w e
+        | Ast.Pi_ctl (_, Some e) -> w e
+        | Ast.Pi_fmtlist is -> List.concat_map wi is
+        | _ -> []
+      in
+      List.concat_map wi items
     | _ -> []
   in
   let kids =

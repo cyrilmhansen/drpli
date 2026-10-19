@@ -1,0 +1,11 @@
+l1037:
+ procedure options(main);
+  dcl i fixed;
+  dcl c char(4) varying;
+  c = 'X';
+  do i = 1 to 4 by 2;
+    put skip list(c);
+  end;
+  stop;
+end l1037;
+

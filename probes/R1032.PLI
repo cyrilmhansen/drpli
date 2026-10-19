@@ -1,0 +1,12 @@
+l1032:
+ procedure options(main);
+   dcl i fixed;
+   dcl s fixed;
+   s = 0;
+   i = 0;
+   do i = 3;
+      s = s + i;
+   end;
+   put skip list(s);
+   stop;
+end l1032;

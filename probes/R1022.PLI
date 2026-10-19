@@ -1,0 +1,12 @@
+l1022:
+ procedure options(main);
+   dcl i fixed;
+   dcl c char(6) varying;
+   c = 'AB';
+   i = 1;
+   do i = 1 to 2;
+      put edit('XY',i)(a, f(4));
+   end;
+   put edit('ZW')(a);
+   stop;
+end l1022;

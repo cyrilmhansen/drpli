@@ -158,6 +158,51 @@ SPECIMENS = {
     # this slice (fixed, fixed binary, char-varying + numeric mixed, and a
     # two-char-varying list).  R916 (GET into FIXED char, which DR stores
     # with ?SSCFS) stays a refusal [N44]; its DR golden is kept as evidence.
+    # ------------------------------------------------------------------
+    # [E2E-8] PUT EDIT (compiled format lists, ?EDITF/?EDTOV) and DO/BY.
+    # R1001-R1010, R1018-R1022: format-table shapes (f/a/skip/page, widths,
+    #   replication, pool ordering).  R1011-R1015, R1023-R1028, R1030-R1033:
+    #   DO index init/test/increment peepholes (rung ladder vs LXI B, rising
+    #   vs falling, forever WITH and WITHOUT BY, variable FROM).  R1035/R1036:
+    #   fixed-bin var-minus-var (?IS22N), a hole in the E2E-2 int subset that
+    #   this slice's probing exposed.  R1037: the promoted N19_DOBY shape.
+    # ------------------------------------------------------------------
+    "R1001": ("probes/R1001.PLI", "golden/e2e11/R1001/R1001.REL"),
+    "R1002": ("probes/R1002.PLI", "golden/e2e11/R1002/R1002.REL"),
+    "R1003": ("probes/R1003.PLI", "golden/e2e11/R1003/R1003.REL"),
+    "R1004": ("probes/R1004.PLI", "golden/e2e11/R1004/R1004.REL"),
+    "R1005": ("probes/R1005.PLI", "golden/e2e11/R1005/R1005.REL"),
+    "R1006": ("probes/R1006.PLI", "golden/e2e11/R1006/R1006.REL"),
+    "R1007": ("probes/R1007.PLI", "golden/e2e11/R1007/R1007.REL"),
+    "R1008": ("probes/R1008.PLI", "golden/e2e11/R1008/R1008.REL"),
+    "R1009": ("probes/R1009.PLI", "golden/e2e11/R1009/R1009.REL"),
+    "R1010": ("probes/R1010.PLI", "golden/e2e11/R1010/R1010.REL"),
+    "R1011": ("probes/R1011.PLI", "golden/e2e11/R1011/R1011.REL"),
+    "R1012": ("probes/R1012.PLI", "golden/e2e11/R1012/R1012.REL"),
+    "R1013": ("probes/R1013.PLI", "golden/e2e11/R1013/R1013.REL"),
+    "R1014": ("probes/R1014.PLI", "golden/e2e11/R1014/R1014.REL"),
+    "R1015": ("probes/R1015.PLI", "golden/e2e11/R1015/R1015.REL"),
+    "R1018": ("probes/R1018.PLI", "golden/e2e11/R1018/R1018.REL"),
+    "R1019": ("probes/R1019.PLI", "golden/e2e11/R1019/R1019.REL"),
+    "R1020": ("probes/R1020.PLI", "golden/e2e11/R1020/R1020.REL"),
+    "R1021": ("probes/R1021.PLI", "golden/e2e11/R1021/R1021.REL"),
+    "R1022": ("probes/R1022.PLI", "golden/e2e11/R1022/R1022.REL"),
+    "R1023": ("probes/R1023.PLI", "golden/e2e11/R1023/R1023.REL"),
+    "R1024": ("probes/R1024.PLI", "golden/e2e11/R1024/R1024.REL"),
+    "R1025": ("probes/R1025.PLI", "golden/e2e11/R1025/R1025.REL"),
+    "R1026": ("probes/R1026.PLI", "golden/e2e11/R1026/R1026.REL"),
+    "R1027": ("probes/R1027.PLI", "golden/e2e11/R1027/R1027.REL"),
+    "R1028": ("probes/R1028.PLI", "golden/e2e11/R1028/R1028.REL"),
+    "R1030": ("probes/R1030.PLI", "golden/e2e11/R1030/R1030.REL"),
+    "R1031": ("probes/R1031.PLI", "golden/e2e11/R1031/R1031.REL"),
+    "R1032": ("probes/R1032.PLI", "golden/e2e11/R1032/R1032.REL"),
+    "R1033": ("probes/R1033.PLI", "golden/e2e11/R1033/R1033.REL"),
+    "R1035": ("probes/R1035.PLI", "golden/e2e11/R1035/R1035.REL"),
+    "R1036": ("probes/R1036.PLI", "golden/e2e11/R1036/R1036.REL"),
+    "R1037": ("probes/R1037.PLI", "golden/e2e11/R1037/R1037.REL"),
+    # [E2E-8] the 5th historical corpus program: PUT EDIT + forever-with-BY
+    # outer loop + variable-FROM descending inner loop.  Byte-exact.
+    "IFACT": ("artefacts/IFACT.PLI", "golden/first8080u/IFACT/IFACT.REL"),
     "R901": ("probes/R901.PLI", "golden/e2e10/R901/R901.REL"),
     "R902": ("probes/R902.PLI", "golden/e2e10/R902/R902.REL"),
     "R903": ("probes/R903.PLI", "golden/e2e10/R903/R903.REL"),
@@ -296,7 +341,16 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 # its complete 27-row schedule, prompts included, and it
                 # terminates on the scripted EOF, so console bytes are a real
                 # oracle (no bounded-prefix protocol needed).
-                "LOAN1"}
+                "LOAN1",
+                # [E2E-8] PUT EDIT + DO/BY specimens.  All of these end in
+                # `stop;' and therefore have a COMPLETE transcript, except
+                # R1030 (forever BY with no exit: its PUT is unreachable, so
+                # it prints nothing and is left out of the console arm) and
+                # IFACT (no-exit outer loop: verified instead through
+                # tools/prefix_check.py --console --facts, a bounded
+                # complete-record prefix checked against math.factorial --
+                # truncation is never treated as an oracle).
+                "R1001", "R1002", "R1003", "R1004", "R1005", "R1006", "R1007", "R1008", "R1009", "R1010", "R1011", "R1012", "R1013", "R1014", "R1015", "R1018", "R1019", "R1020", "R1021", "R1022", "R1023", "R1024", "R1025", "R1026", "R1027", "R1028", "R1031", "R1032", "R1033", "R1035", "R1036", "R1037"}
 
 
 # RFACT/R401/R412/R419 were removed from the console arm: they end in a
@@ -390,15 +444,15 @@ REJECTS = {
     "N15_CAT4": ("t:\n  procedure options(main);\n  dcl n char(6) varying;\n"
                  "  n = 'Q';\n  put list('A' || n || 'B' || 'C');\nend t;\n",
                  "int subset"),
-    "N19_DOBY": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
-                 "  do i = 1 to 4 by 2;\n    put list('X');\n  end;\n"
-                 "end t;\n", "DO step unproven"),
+    # N19_DOBY REMOVED [E2E-8]: `DO i = 1 TO 4 BY 2' is now PROVEN (R1011,
+    # R1018, R1037 byte-exact vs fresh DR).  Its perimeter moved to N51
+    # (step magnitude above 2, still unsampled).
     "N20_DOWILE": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
                    "  do while (i < 30);\n    put list('X');\n  end;\n"
                    "end t;\n", "range unproven"),
     "N21_DOIDX": ("t:\n  procedure options(main);\n  dcl c char(4) varying;\n"
                   "  do c = 'A' to 'Z';\n    put list('X');\n  end;\n"
-                  "end t;\n", "non-constant FROM"),
+                  "end t;\n", "DO FROM form unproven"),
     "N22_FPUT": ("t:\n  procedure options(main);\n"
                   "  put list(42);\nend t;\n", "PUT form"),
     "N23_CHARVAR_MULTI": ("t:\n  procedure options(main);\n"
@@ -503,6 +557,30 @@ REJECTS = {
         "1-byte FIXED BINARY target"),
     # MOD-in-condition is proven ONLY as `= 0' / `^= 0' [R908-R912]: the
     # bare HL-zero test cannot express `> 0': must refuse.
+    # ------------------------------------------------------------------
+    # [E2E-8] DO/BY perimeter: shapes DR handles by a lowering my build has
+    # no sample for.  Each is a TESTED refusal.
+    # ------------------------------------------------------------------
+    "N48_DOWHILE_CONST": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
+                          "  dcl s fixed;\n  s = 0;\n"
+                          "  do i = 0 by 1 while (i < 4);\n"
+                          "    s = s + i;\n  end;\n  stop;\nend t;\n",
+                          "DO WHILE/REPEAT combo"),
+    "N49_DOWHILE_ONLY": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
+                         "  dcl s fixed;\n  s = 0;\n"
+                         "  do i = 0 while (i < 4);\n"
+                         "    s = s + i;\n  end;\n  stop;\nend t;\n",
+                         "DO WHILE/REPEAT combo"),
+    "N50_DOZEROBOUND": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
+                        "  dcl s fixed;\n  s = 0;\n"
+                        "  do i = 1 to 0;\n    s = s + i;\n  end;\n"
+                        "  stop;\nend t;\n",
+                        "DO TO bound below 1 unproven"),
+    "N51_DOSTEP3": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
+                    "  dcl s fixed;\n  s = 0;\n"
+                    "  do i = 1 to 9 by 3;\n    s = s + i;\n  end;\n"
+                    "  stop;\nend t;\n",
+                    "DO BY magnitude > 2 unproven"),
     "N47_MODGT": ("t:\n  procedure options(main);\n  dcl i fixed binary;\n"
         "  i = 25;\n  if mod(i,12) > 0 then i = 1;\nend t;\n",
         "condition form not in E2E-3b subset")

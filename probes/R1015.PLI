@@ -1,0 +1,10 @@
+l1015:
+ procedure options(main);
+   dcl i fixed; dcl s fixed;
+   s = 0;
+   do i = 0 to 3 by 1;
+      s = s + i;
+   end;
+   put skip list(s);
+   stop;
+end l1015;

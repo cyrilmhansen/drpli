@@ -41,6 +41,14 @@ type st =
   ; mutable items : rel_item list
   ; mutable pool : (int * int list) list  (* (data-addr, bytes) literal blocks *)
   ; mutable pool_next : int           (* next free pool offset *)
+  ; mutable fmtq : int list
+      (* [E2E-8] FIFO of pre-allocated PUT EDIT format-table addresses.  DR
+         allocates EVERY format table in a block BEFORE any other pool item --
+         proven by R1003 (table at *S(0000) while the 'AB' literal used by the
+         EARLIER statement `c = 'AB'` sits at *S(0005)), R1021 (two tables,
+         then both literals) and R1022 (a table inside a DO body still comes
+         before the top-level literal).  Tables keep source/depth-first order
+         among themselves, literals among themselves. *)
   ; mutable dec_cells : (int list * int) list
                                         (* [R614] DEC literal cells are
                                            DEDUPLICATED by byte content:
@@ -545,6 +553,121 @@ let match_put_list_lit (s : Ast.stmt) =
       | _ -> Pnone
   | _ -> Pnone
 
+let parse_int_const (s : string) =
+  int_of_string (String.concat "" (String.split_on_char '_' s))
+
+(* ---- [E2E-8] PUT EDIT: the compiled format list --------------------
+   Decoded byte-wise from 11 DR tables (golden/e2e11/ R1001-R1010,
+   R1018-R1020, IFACT).  A format table is a DATA pool item:
+
+       80 00 | record record ... record | 81
+
+   and record length is FIXED PER OPCODE (that is what R1018 vs R1019 vs
+   R1020 pin down):
+       f(w)    -> 00 w FF   [R1001 f(3), R1002 f(12), R1019 f(1), IFACT f(2)/f(7)]
+       f(w,d)  -> 00 w d    [R1018 f(6,2) -> 00 06 02]
+       a       -> 03 FF     [R1003, R1010, IFACT]
+       a(w)    -> 03 w      [R1008 a(5), R1020 a(3)]
+       skip    -> 0C FF     [R1004, R1005, R1010, IFACT]
+       page    -> 0F FF     [R1007]
+   UNPINNED and therefore not modelled: the header's second byte (0x00 in all
+   11 samples), counted skip/page (skip(n) is unsampled), and every other edit
+   operator (x/b/e/v/i/n/m/c/p/picture/remote/rep-group).  Those refuse.
+*)
+let fmt_w (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Enumber t ->
+      let v = parse_int_const t in
+      if v < 0 || v > 255 then
+        failwith "codegen: PUT EDIT width outside 0..255 [TBD]";
+      v
+  | _ -> failwith "codegen: PUT EDIT non-constant width [TBD] \
+                   (only literal widths are sampled)"
+
+let fmt_spec (it : Ast.put_item) : int list =
+  match it with
+  | Ast.Pi_ctl (k, None) when k = "SKIP" -> [ 0x0c; 0xff ]
+  | Ast.Pi_ctl (k, None) when k = "PAGE" -> [ 0x0f; 0xff ]
+  | Ast.Pi_ctl (_, Some _) ->
+      failwith "codegen: PUT EDIT counted SKIP/PAGE is unsampled [TBD] \
+                (only the bare form's second byte 0xFF has been observed)"
+  | Ast.Pi_fmt { fkey = "F"; fargs = [ w ]; fcount = None } ->
+      [ 0x00; fmt_w w; 0xff ]
+  | Ast.Pi_fmt { fkey = "F"; fargs = [ w; d ]; fcount = None } ->
+      [ 0x00; fmt_w w; fmt_w d ]
+  | Ast.Pi_fmt { fkey = "A"; fargs = []; fcount = None } -> [ 0x03; 0xff ]
+  | Ast.Pi_fmt { fkey = "A"; fargs = [ w ]; fcount = None } -> [ 0x03; fmt_w w ]
+  | Ast.Pi_fmt { fkey = k; _ } ->
+      failwith (Printf.sprintf
+                  "codegen: PUT EDIT operator %s is unsampled [TBD] \
+                   (only F and A formats are decoded from DR tables)" k)
+  | _ ->
+      failwith "codegen: PUT EDIT format item form unsampled [TBD] \
+                (counted, grouped, picture, remote and rep-group formats \
+                 are not decoded)"
+
+let fmt_table_bytes (specs : Ast.put_item list) =
+  if specs = [] then failwith "codegen: PUT EDIT with an empty format list [TBD]";
+  Array.of_list (([ 0x80; 0x00 ] @ List.concat_map fmt_spec specs) @ [ 0x81 ])
+
+(* `put edit(items)(specs);' -- default stream, no ON options, no leading
+   SKIP/PAGE control item (that combination is unsampled: in every EDIT probe
+   the skip lives INSIDE the format list).  Items accept exactly what PUT LIST
+   prepares -- char literal, fixed-bin variable/expression, char varying --
+   because [R1001/R1003/R1010/IFACT] show DR reusing the same value preparation
+   with ?EDTOV in place of ?PNCOP/?PNVOP.  FIXED DECIMAL items are refused at
+   lowering: no DR sample puts a DEC item through an edit list. *)
+let match_put_edit (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sput { stream = None; on_opts = []; kind = Ast.Edit; items } ->
+      let rec data acc = function
+        | [] -> None                     (* no format list: not an EDIT shape *)
+        | Ast.Pi_fmtlist specs :: tl ->
+            if tl <> [] || acc = [] then None
+            else Some (List.rev acc, specs)
+        | Ast.Pi_data x :: tl -> data (x :: acc) tl
+        (* a control/rep/picture/remote item in the DATA half of an EDIT list
+           is unsampled: refuse rather than guess where it belongs *)
+        | _ -> None
+      in
+      (match data [] items with
+       | Some (ds, specs) ->
+           let its = List.map classify_item ds in
+           if List.for_all (fun o -> o <> None) its then
+             Some (List.map (function Some i -> i | None -> assert false) its,
+                   specs)
+           else None
+       | None -> None)
+  | _ -> None
+
+(* [E2E-8] depth-first source-order walk: every accepted PUT EDIT statement
+   in the order lowering will reach it.  Used to pre-allocate the format
+   tables at the front of the pool, which is where DR puts them. *)
+let rec edit_stmts (ss : Ast.stmt list) : Ast.stmt list =
+  List.concat_map
+    (fun s ->
+      match s.Ast.st with
+      | Ast.Sput _ ->
+          if match_put_edit s <> None then [ s ] else []
+      | Ast.Sdobegin body -> edit_stmts body
+      | Ast.Sif { then_; els; _ } ->
+          then_ :: (match els with Some e -> [ e ] | None -> [])
+          |> edit_stmts
+      | Ast.Sdowhile { body; _ } | Ast.Sdoforever body | Ast.Sdoto { body; _ } ->
+          edit_stmts [ body ]
+      | Ast.Sproc b -> edit_stmts b.Ast.blk.Ast.bstmts
+      | _ -> [])
+    ss
+
+let prealloc_fmt_tables st (ss : Ast.stmt list) =
+  st.fmtq
+    <- List.map
+         (fun s ->
+           match match_put_edit s with
+           | Some (_, specs) -> pool_alloc st (fmt_table_bytes specs)
+           | None -> assert false)
+         (edit_stmts ss)
+
 (* GET LIST (varying);) — single varying data item, default stream,
    no ON opts, no edit. Shapes beyond this raise [TBD] at lowering
    [X201/X202]. *)
@@ -639,6 +762,20 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
             | _ -> if pdec_is_dec cx e then pdec_operand_bytes cx e else 0)
        | None -> 0)
   | Ast.Sput _ ->
+      (* [E2E-8] a PUT EDIT statement consumes pool space for the compiled
+         FORMAT TABLE plus its item literals, and the table is allocated
+         BEFORE the literals [*S(0000) in all 11 samples].  Missing it would
+         shift every later data address silently -- the exact failure mode of
+         the slice-3 ROUND prescan bug. *)
+      (match match_put_edit s with
+       | Some (its, specs) ->
+           Array.length (fmt_table_bytes specs)
+           + List.fold_left
+               (fun a it -> match it with
+                | PIlit v -> a + String.length v
+                | PInum x -> a + prescan_expr cx x
+                | PIvar _ -> a) 0 its
+       | None ->
       (match match_put_list_lit s with
        | Plit (_, v) -> String.length v
        | Pcat (_, C2 (l, _, _)) -> String.length l
@@ -649,7 +786,7 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
               | PIlit v -> a + String.length v
               | PInum x -> a + prescan_expr cx x
               | PIvar _ -> a) 0 its
-       | _ -> 0)             (* var-puts consume no pool [V101] *)
+       | _ -> 0)             (* var-puts consume no pool [V101] *))
   | Ast.Sif { cond; then_; els; _ } ->
       prescan_cond cx cond
         + prescan_stmt cx then_
@@ -745,9 +882,6 @@ let rec count_required (s : Ast.stmt) =
    SET-LC code ; prologue ; body ; epilogue ; tail.  Body is lowered
    into a scratch state (collecting code items + pool bytes), then
    re-emitted in segment order. *)
-
-let parse_int_const (s : string) =
-  int_of_string (String.concat "" (String.split_on_char '_' s))
 
 let is_ident (e : Ast.expr) =
   match e.Ast.e with Ast.Eident _ -> true | _ -> false
@@ -1021,6 +1155,20 @@ let rec lower_hl st (e : Ast.expr) =
   | Ast.Eprefix (Ast.Minus, x) ->
       (* [N304] -x: evaluate to HL, then ?IN20N (16-bit negate) *)
       lower_hl st x; call_ext st "?IN20N"; st.last_imm <- None
+    | Ast.Ebinary (Ast.Sub, l, r) ->
+      (* [E2E-8 T1/T3] var - var (neither side a literal, which the arm above
+         handles): DR loads the left value, XCHGs, loads the right value and
+         calls ?IS22N, which computes DE - HL into HL -- the Add pair-ladder
+         with the add replaced by the subtract-call
+         [`s = s - i': LHLD S / XCHG / LHLD I / CALL ?IS22N / SHLD S;
+           `s = i - i' identical].  POINTER-DEREF operands have no DR sample in
+         this route and stay refused. *)
+      if hl_operand_deref st l || hl_operand_deref st r then
+        failwith "codegen: fixed-bin subtraction with a pointer formal \
+                  operand unproven [TBD]";
+      lower_hl st l; d st op_xchg; lower_hl st r;
+      call_ext st "?IS22N";
+      st.last_imm <- None
   | Ast.Ebinary _ -> failwith "codegen: operator not in int subset [TBD]"
   | _ -> failwith "codegen: expression form not in int subset [TBD]"
 
@@ -2189,20 +2337,44 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
   let forever_repeat =
     match (to_, while_, rep) with
     | (None, None, Some _) -> true
+    (* [E2E-8] `do i = 0 by 1;' indexes the loop but gives no bound and no
+       REPEAT expression: DR emits NO exit test at all (the increment is the
+       whole continuation) [IFACT, R1014, R1030-R1033] *)
+    | (None, None, None) -> true
     | _ -> false
   in
   if while_ <> None
      || (to_ <> None && rep <> None)
      || (rep <> None && not proven_repeat && not forever_repeat) then
     failwith "codegen: DO WHILE/REPEAT combo/UNTIL deferred [TBD]";
-  (match by with
-   | None -> ()
-   | Some { Ast.e = Ast.Enumber "1"; _ } -> ()
-   | _ -> failwith "codegen: DO step unproven [TBD]");
-  let fromv =
+  (* [E2E-8] DO ... BY step.  A step is an INTEGER LITERAL: DR's increment is
+     |step| rung instructions, so an expression step cannot be lowered that
+     way at all [N36 stays refused; DR also rejects a non-integer step at
+     compile time].  Magnitudes above 2 are unprobed. *)
+  let step =
+    match by with
+    | None -> 1
+    | Some { Ast.e = Ast.Enumber c; _ } -> parse_int_const c
+    (* a negative literal step arrives as Eprefix(Minus, Enumber) *)
+    | Some { Ast.e = Ast.Eprefix (Ast.Minus,
+             { Ast.e = Ast.Enumber c; _ }); _ } ->
+        -(parse_int_const c)
+    | Some _ -> failwith "codegen: DO BY expression step unproven [TBD]"
+  in
+  if step = 0 then failwith "codegen: DO BY 0 [TBD]";
+  let ak = abs step in
+  if ak > 2 then failwith "codegen: DO BY magnitude > 2 unproven [TBD]";
+  (* [E2E-8] FROM may be a constant (LXI H,imm) or a fixed-bin VARIABLE
+     (LHLD v / SHLD index -- IFACT's `do n = i to 1 by -1') *)
+  let fromc, fromvar =
     match from with
-    | { Ast.e = Ast.Enumber c; _ } -> parse_int_const c
-    | _ -> failwith "codegen: DO non-constant FROM unproven [TBD]"
+    | { Ast.e = Ast.Enumber c; _ } -> (Some (parse_int_const c), None)
+    | { Ast.e = Ast.Eident nm; _ } ->
+        (None,
+         match vk_of st nm.Ast.orig with
+         | Vint -> Some (addr_of st nm.Ast.orig)
+         | _ -> failwith "codegen: DO FROM of non fixed-bin type unproven [TBD]")
+    | _ -> failwith "codegen: DO FROM form unproven [TBD]"
   in
   if List.mem (String.lowercase_ascii ind.Ast.orig) st.deref then
     failwith "codegen: DO control is a pointer formal [TBD]";
@@ -2211,20 +2383,54 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     | Vint -> addr_of st ind.Ast.orig
     | _ -> failwith "codegen: DO index not fixed-bin [TBD]"
   in
-  (* init [Y302: INX H reuse when last_imm = from-1] *)
-  (if st.last_imm = Some (fromv - 1) then
-     (d st op_inx_h; st.last_imm <- Some fromv)
-   else
-     (d st op_lxi_h; d st (fromv land 0xff);
-      d st ((fromv lsr 8) land 0xff);
-      st.last_imm <- Some fromv));
-  d st op_shld; reloc st Data iaddr;
-  if proven_repeat || forever_repeat then begin
+  (* [E2E-8] init: DR loads the FROM constant with the CHEAPEST instruction
+     that achieves it given the value already in HL (st.last_imm tracks that
+     exact value; LXI H/imm and INX H set it, LHLD / branches / loop-body
+     entry clear it):
+       HL already = from       -> SHLD only          (0 load bytes) [R1015,R1022,R1032]
+       HL already = from - 1   -> INX H ; SHLD       (1 byte)       [R1011, Y302]
+       H known 0, from <= 255  -> MVI L,from ; SHLD  (2 bytes)      [R1012,R1013,R1030]
+       otherwise               -> LXI H,from ; SHLD  (3 bytes)      [Y302, IFACT outer]
+     MVI L is only safe when H is known 0, which is exactly the
+     last_imm < 256 case. *)
+  (match fromc with
+   | Some fromv ->
+       (match st.last_imm with
+        | Some v when v = fromv -> ()
+        | Some v when v + 1 = fromv -> d st op_inx_h
+        | Some v when v >= 0 && v < 256 && fromv >= 0 && fromv < 256 ->
+            d st 0x2e; d st fromv        (* MVI L,from *)
+        | _ ->
+            d st op_lxi_h; d st (fromv land 0xff);
+            d st ((fromv lsr 8) land 0xff));
+       st.last_imm <- Some (fromv land 0xffff);
+       d st op_shld; reloc st Data iaddr
+   | None ->
+       (* variable FROM: load the source cell, store the index cell
+          [IFACT 000C-000F: LHLD I / SHLD N] *)
+       (match fromvar with
+        | Some a -> d st op_lhld; reloc st Data a
+        | None -> failwith "codegen: DO FROM [TBD]");
+       d st op_shld; reloc st Data iaddr;
+       st.last_imm <- None);
+  if to_ = None && while_ = None && rep = None && by = None then begin
+    (* [E2E-8 R1032] an indexed DO that specifies NOTHING (no TO, no WHILE,
+       no REPEAT, no BY) degenerates: DR stores the FROM value, runs the body
+       ONCE and falls through -- no increment, no exit test, no back-edge JMP.
+       It is therefore not a no-exit loop and does not open the epilogue
+       suppression window (DR's PUT after it lowers normally). *)
+    lo st ls body;
+    st.last_imm <- None
+  end else if proven_repeat || forever_repeat then begin
     (* [Z402] body-head is the FIRST BODY instruction (not the
        init); tail increment LHLD/INX/SHLD; JMP back; no test.
        [R414/R426] at the window address the increment is
        LHLD; LXI H,const; DAD D; SHLD; JMP instead. *)
+    (* [E2E-8] with no REPEAT expression the increment is the BY step:
+       LHLD / (INX H)x|step| (or (DCX H)x|step| when step < 0) / SHLD / JMP
+       [IFACT outer loop, R1014 k=1, R1018 k=2, R1033 k=-1]. *)
     let head = st.lc in
+    st.last_imm <- None;   (* [E2E-8] body head is a branch target: HL unknown *)
     lo st ls body;
     d st op_lhld; reloc st Data iaddr;
     (* [Z402 k=1; R427 k=2] REPEAT(ind+k) = k INX H rungs;
@@ -2239,6 +2445,10 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
          if k < 1 || k > 2 then
            failwith "codegen: REPEAT increment const [TBD]";
          for _ = 1 to k do d st op_inx_h done
+     | None ->
+         for _ = 1 to ak do
+           d st (if step > 0 then op_inx_h else op_dcx_h)
+         done
      | _ -> failwith "codegen: REPEAT increment form [TBD]");
     d st op_shld; reloc st Data iaddr;
     (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head;
@@ -2248,13 +2458,38 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     match to_ with
     | Some { Ast.e = Ast.Enumber c; _ } ->
         let b = parse_int_const c in
+        if b < 1 then
+          failwith
+            ("codegen: DO TO bound below 1 unproven [TBD] (DR switches to a \
+             general XRA A/CMP M/INX H/SBB M signed compare for `to 0' \
+             [R1029], which is not in the banked subset)");
         let head = st.lc in
         d st op_lhld; reloc st Data iaddr;
-        let neg = -(b + 1) in
-        d st op_lxi_b; d st (neg land 0xff);
-        d st ((neg lsr 8) land 0xff);
-        d st op_dad_b; d st op_mov_a_h; d st op_ora_a;
-        d st op_jp;
+        st.last_imm <- None;   (* LHLD clobbers HL *)
+        (* [E2E-8] the body is re-entered by the back-edge, so HL knowledge from
+     the init/test is dead at body entry: DR's constant-store reuse is
+     control-flow sensitive [IFACT line 11 `F = 1' gets LXI H,0001 even though
+     the loop init executed LXI H,0000 just before] *)
+  st.last_imm <- None;
+  (* [E2E-8] the exit test compares the index against a constant:
+           rising  -> c = bound + 1, skip when index >= bound+1  (JP)
+           falling -> c = bound,     skip when index <  bound    (JM)
+           [R1011 to 5 by 2 -> LXI B,FFFA; R1012/R1013 by -1/-2 -> DCX rungs;
+            R1023/R1024 rising bound 1/2 -> 2/3 DCX rungs; R1025/R1026 rising
+            bound 3/4 -> LXI B,-(b+1); R1027 to 20 by -1 -> LXI B,-20 + JM]
+           The subtraction is peeled by size: c rung instructions when the
+           ladder is strictly cheaper than LXI B + DAD B (4 bytes), i.e. c<=3. *)
+        let cc = if step > 0 then b + 1 else b in
+        if cc <= 3 then
+          for _ = 1 to cc do d st op_dcx_h done
+        else begin
+          let neg = -cc in
+          d st op_lxi_b; d st (neg land 0xff);
+          d st ((neg lsr 8) land 0xff);
+          d st op_dad_b
+        end;
+        d st op_mov_a_h; d st op_ora_a;
+        d st (if step > 0 then op_jp else op_jm);
         let slot = st.lc in          (* OPERAND pos [Y301: 0x16] *)
         d st 0; d st 0;
         (head, slot)
@@ -2287,7 +2522,9 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
   in
   lo st ls body;
   d st op_lhld; reloc st Data iaddr;
-  d st op_inx_h;
+  (* [E2E-8] |step| rungs in the step's direction [R1011 by 2 -> 2 INX H;
+     R1013 by -2 -> 2 DCX H; R1012/R1033 by -1 -> 1 DCX H] *)
+  for _ = 1 to ak do d st (if step > 0 then op_inx_h else op_dcx_h) done;
   d st op_shld; reloc st Data iaddr;
   (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
   reloc st Code head;   (* helper advances LC [Y301] *)
@@ -2331,9 +2568,27 @@ let num_width st (x : Ast.expr) =
    SLCTS; PNCOP; numeric (var/expr) = <HL>; MVI A,width; QICOP;
    PNVOP; single char/varying var = the V101/V106 chain (multi-item
    char vars UNPROVEN -> [TBD]); then ONE QIOOP + continuation. *)
-let lower_put_items st (skipn : string option) (items : pitem list) =
+let lower_put_items_gen st (edit_tbl : int option)
+    (skipn : string option) (items : pitem list) =
+  (* [E2E-8] `~edit_tbl' turns the same per-item value preparation into PUT
+     EDIT: the table is loaded and ?EDITF called right after ?SYSPR, and every
+     item's output tail becomes ?EDTOV instead of ?PNCOP/?PNVOP [IFACT,
+     R1001-R1020].  PUT LIST keeps the byte-frozen path (edit_tbl = None). *)
+  let is_edit = edit_tbl <> None in
+  (* `tail keep_going ()': keep_going = true selects ?PNCOP (character item,
+     cursor continues), false selects ?PNVOP (numeric); for PUT EDIT every
+     tail is ?EDTOV regardless [R1001-R1020]. *)
+  let tail keep_going () =
+    call_ext st (if is_edit then "?EDTOV"
+                 else if keep_going then "?PNCOP" else "?PNVOP")
+  in
+  (* [G112/N18-era perimeter] a char-varying item in a MULTI-item PUT LIST is
+     unsampled and stays refused.  [E2E-8] PUT EDIT DOES sample it --
+     R1020 `put edit(c, i)(a(3), f(2,1), skip)' puts varying+barying ... i.e.
+     char varying next to a binary variable -- so the guard applies to the LIST
+     path only. *)
   let char_var_ok =
-    List.length items = 1 ||
+    is_edit || List.length items = 1 ||
     not (List.exists (function PIvar n ->
                         (match vk_of st n.Ast.orig with
                          | Vint -> false | Vdec _ -> false | _ -> true)
@@ -2353,6 +2608,12 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
          failwith "codegen: skip count out of MVI range [TBD]";
        d st op_mvi_a; d st n; call_ext st "?SKPOP"
    | None -> ());
+  (match edit_tbl with
+   | Some addr ->
+       (* the table was allocated by prealloc_fmt_tables, ahead of every
+          non-table pool item [R1003/R1021/R1022] *)
+       d st op_lxi_h; reloc st Data addr; call_ext st "?EDITF"
+   | None -> ());
   List.iter
     (fun it ->
       match it with
@@ -2362,7 +2623,7 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
           let addr = pool_alloc st (pool_bytes v) in
           d st op_lxi_h; reloc st Data addr;
           d st op_mvi_a; d st len;
-          call_ext st "?SLCTS"; call_ext st "?PNCOP"
+          call_ext st "?SLCTS"; tail true ()
       | PIvar n ->
           (match vk_of st n.Ast.orig with
            | Vdec (p, s) ->
@@ -2371,8 +2632,12 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
                   MULTI-item list next to an INT var *)
                d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                d st op_mvi_a; d st p; call_ext st "?DLDOP";
+               if is_edit then
+                 failwith "codegen: PUT EDIT of a FIXED DECIMAL item is \
+                           unsampled [TBD] (no DR sample passes a DEC item \
+                           through an edit list)";
                d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st s;
-               call_ext st "?QDCOP"; call_ext st "?PNVOP"
+               call_ext st "?QDCOP"; tail false ()
            | Vint ->
                let vi =
                  List.assoc (String.lowercase_ascii n.Ast.orig) st.vars
@@ -2380,7 +2645,7 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
                lower_hl st { Ast.e = Ast.Eident n;
                              Ast.epos = n.Ast.pos };
                d st op_mvi_a; d st vi.w;
-               call_ext st "?QICOP"; call_ext st "?PNVOP"
+               call_ext st "?QICOP"; tail false ()
            | vk ->
                (* single-item char var = the banked V101/V106 chain *)
                (match vk with
@@ -2392,23 +2657,38 @@ let lower_put_items st (skipn : string option) (items : pitem list) =
                     d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                     d st op_mvi_a; d st cap; call_ext st "?SLCTS"
                 | Vint -> assert false);
-               call_ext st "?PNCOP")
+               tail true ())
       | PInum x ->
           if is_dec_expr st x then begin
             (* [DFACT] a DEC function-call item leaves its result on the
                decimal stack; the edit pair follows directly *)
             let (p, s) = dec_edit_pt st x in
             ignore (dec_push st None x);
+            if is_edit then
+              failwith "codegen: PUT EDIT of a FIXED DECIMAL item is unsampled \
+                        [TBD] (no DR sample passes a DEC item through an edit \
+                        list)";
             d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st s;
-            call_ext st "?QDCOP"; call_ext st "?PNVOP"
+            call_ext st "?QDCOP"; tail false ()
           end else begin
             lower_hl st x;
             d st op_mvi_a; d st (num_width st x);
-            call_ext st "?QICOP"; call_ext st "?PNVOP"
+            call_ext st "?QICOP"; tail false ()
           end)
     items;
   call_ext st "?QIOOP";
   emit_triple st bslot st.lc
+
+(* the byte-frozen PUT LIST entry point: no format table, so every item's
+   output tail is ?PNCOP/?PNVOP as before [G107/G108, N301-N306, R506]. *)
+let lower_put_items st (skipn : string option) (items : pitem list) =
+  lower_put_items_gen st None skipn items
+
+(* pop the next pre-allocated format-table address [E2E-8] *)
+let take_fmt_addr st =
+  match st.fmtq with
+  | a :: rest -> st.fmtq <- rest; a
+  | [] -> failwith "codegen: PUT EDIT format table not pre-allocated [TBD]" 
 
 (* statement lowering with label/goto resolution *)
 (* [E2E-5c P401] internal procedure block: forward-call resolution,
@@ -2600,6 +2880,13 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       st.lowered <- st.lowered + 1; lower_assign st lhs rhs
   | Ast.Sput _ ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (match match_put_edit s with
+       | Some (its, specs) ->
+           (* [E2E-8] PUT EDIT: the PUT LIST machinery plus the compiled format
+              table (?EDITF) and ?EDTOV after every item [IFACT, R1001-R1020]. *)
+           ignore specs;
+           lower_put_items_gen st (Some (take_fmt_addr st)) None its
+       | None ->
       (match match_put_list_lit s with
        | Plit (skipn, v) -> lower_put_lit st skipn v
        | Pcat (skipn, ch) -> lower_cat st skipn ch
@@ -2607,7 +2894,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
        | Pnone -> failwith
              (Printf.sprintf
                 "codegen: PUT form not in E2E-3a subset [TBD] \
-                 (line %d)" s.Ast.spos.Source.line))
+                 (line %d)" s.Ast.spos.Source.line)))
   | Ast.Sget _ ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (match match_get_list_var s with
@@ -2624,6 +2911,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                  | _ -> cond
       in
       let head = st.lc in
+      st.last_imm <- None;   (* [E2E-8] branch target => HL unknown *)
       if cond.Ast.e = Ast.Ebit "1" then begin
         (* constant-true bit condition = pure forever, NO test
            [Z404: COPY's DO WHILE('1'B)] *)
@@ -2637,6 +2925,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
         end
       end else begin
         let slot = lower_test_skip st cond in
+        st.last_imm <- None;   (* [E2E-8] branch target => HL unknown *)
         lower_stmt st ls body;
         (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head;
         emit_triple st slot st.lc            (* [Z401: after JMP] *)
@@ -2657,8 +2946,11 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
         && st.lc = st.last_loop_edge
       in
       let forever =
-        match (to_, while_, rep) with
-        | (None, None, Some _) -> true
+        match (to_, while_, rep, by) with
+        | (None, None, Some _, _) -> true
+        (* [E2E-8] DO index = c BY k; -- forever WITH a step [IFACT].  WITHOUT
+           a step there is no loop at all [R1032], so no window. *)
+        | (None, None, None, Some _) -> true
         | _ -> false
       in
       if forever && not st.in_proc then begin
@@ -2943,7 +3235,7 @@ let emit_program (progname : string) (auto_bytes : int)
   in
   let st =
     { base = pool_total; items = []; pool = []
-    ; pool_next = 0; dec_cells = []; lc = 0; last_imm = None; lowered = 0; temps = 0
+    ; pool_next = 0; fmtq = []; dec_cells = []; lc = 0; last_imm = None; lowered = 0; temps = 0
     ; stop_seen = false; calls = layout.pl_calls
     ; procs =
         List.map
@@ -2957,6 +3249,10 @@ let emit_program (progname : string) (auto_bytes : int)
     ; appended = false; secs = layout.Bind.pl_secs
     ; last_loop_edge = 0 }
   in
+  (* [E2E-8] DR allocates every PUT EDIT format table ahead of all other pool
+     items [R1003/R1021/R1022], so the tables are reserved BEFORE any
+     statement lowers. *)
+  prealloc_fmt_tables st stmts;
   (* lower prologue + body + epilogue into st.items (code segment) *)
   d st op_lxi_b; d st 0x00; d st 0x02;
   d st op_call;
