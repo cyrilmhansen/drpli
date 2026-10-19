@@ -1,0 +1,11 @@
+l909:
+ procedure options(main);
+   dcl i fixed binary;
+   dcl d fixed binary;
+   dcl q fixed binary;
+   i = 25;
+   d = 12;
+   if mod(i,d) = 0 then q = 1; else q = 2;
+   put skip list(q);
+end l909;
+

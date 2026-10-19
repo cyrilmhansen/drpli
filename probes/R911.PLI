@@ -1,0 +1,10 @@
+l911:
+ procedure options(main);
+   dcl i fixed binary;
+   dcl y fixed binary;
+   i = 12;
+   y = 0;
+   if mod(i,12) = 0 then do; y = y + 1; end;
+   put skip list(y);
+end l911;
+

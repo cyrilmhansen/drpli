@@ -173,6 +173,7 @@ class Model:
     def __init__(self, src):
         self.decl, self.stmts, self.puts = {}, [], None
         self.puts_cond = False   # put reached only inside an IF arm
+        self.has_get = False     # [slice 4] at least one GET LIST item
         src = src.replace("\r", "")
         cur = None
         for line in src.splitlines():
@@ -221,6 +222,15 @@ class Model:
                         # NO `continue` here: [R507] puts an IF arm on the
                         # same source line as its condition, and that arm's
                         # `put ... list(dec_var)` still pushes a ?DLDOP.
+            # [E2E-7A slice 4] GET LIST items: the model tracks them so the
+            # DEC ones contribute their QCDOP/DSTOP tokens, and so the value
+            # cross-check knows the variables come from INPUT, not from the
+            # program's own arithmetic (see main(): NUM n/a(get)).
+            m = re.match(r"get\s+list\((.*)\);", s)
+            if m:
+                self.has_get = True
+                for it in m.group(1).split(","):
+                    self.stmts.append(("__get__", strip_paren(it)))
             m = re.match(r"put\s+(skip\s+)?list\((.*)\);", s)
             cond = False
             if not m:
@@ -413,6 +423,16 @@ class Model:
                     raise AssertionError("compare: deeper operand is the short one")
                 log.append(("DCMOP", None))
                 continue
+            if name == "__get__":
+                # [C088] numeric GET: a FIXED DEC target converts the scanned
+                # field straight to the TARGET SCALE (B=s) and stores with the
+                # TARGET DIGITS (A=p); a FIXED BIN / CHAR target contributes no
+                # DEC token at all (DR uses ?QCIOP / ?SSVFS / ?SSCFS) [R901-R915].
+                ps = self.decl.get(rhs)
+                if ps:
+                    log.append(("QCDOP", ps[1]))
+                    log.append(("DSTOP", ps[0]))
+                continue
             ps = self.decl.get(name)
             if not ps:
                 continue
@@ -423,20 +443,27 @@ class Model:
 
 
 def dr_tokens(prn_path):
-    out, pend = [], None
+    # two pending immediate registers: DEC routes take the digit count in A,
+    # but numeric GET's ?QCDOP takes the TARGET SCALE in B [C088], so both are
+    # tracked and each CALL consumes its own.
+    out, pend, pendb = [], None, None
     for line in open(prn_path, errors="replace").read().replace("\r", "").splitlines():
         m = re.match(r"\s+[0-9A-F]{4}\s+MVI\s+A,([0-9A-F]{2})\s*$", line)
         if m:
             pend = int(m.group(1), 16)
             continue
+        m = re.match(r"\s+[0-9A-F]{4}\s+MVI\s+B,([0-9A-F]{2})\s*$", line)
+        if m:
+            pendb = int(m.group(1), 16)
+            continue
         m = re.match(
-            r"\s+[0-9A-F]{4}\s+CALL \?(DLDOP|DSTOP|DADOP|DSUOP|DMUOP|DDVOP|QDDSL|QDDSR|DCMOP|DROUN|IROUN)\b",
+            r"\s+[0-9A-F]{4}\s+CALL \?(DLDOP|DSTOP|DADOP|DSUOP|DMUOP|DDVOP|QDDSL|QDDSR|DCMOP|DROUN|IROUN|QCDOP)\b",
             line)
         if m:
-            out.append((m.group(1), pend))
-            pend = None
+            out.append((m.group(1), pendb if m.group(1) == "QCDOP" else pend))
+            pend = pendb = None
             continue
-        pend = None
+        pend = pendb = None
     return out
 
 
@@ -478,7 +505,7 @@ def main():
             continue
         name = os.path.basename(path).split(".")[0]
         prn = None
-        for tag in ("e2e9", "e2e8", "e2e7", "e2e6"):
+        for tag in ("e2e10", "e2e9", "e2e8", "e2e7", "e2e6"):
             cand = f"golden/{tag}/{name}/{name}.PRN"
             if os.path.exists(cand):
                 prn = cand
@@ -503,7 +530,17 @@ def main():
         # numeric cross-check against a captured console transcript
         num = "no-transcript"
         exp = expected_put_line(mdl)
-        for tagdir in ("e2e9run", "e2e8run", "e2erundr", "e2e7run", "e2e6run"):
+        if mdl.has_get:
+            # a GET-fed variable holds what the INPUT script supplied, which
+            # this model does not read; reporting its arithmetic as a value
+            # check would be a fiction, so the arm says n/a and the SCHEDULE
+            # (which includes QCDOP's scale and DSTOP's digit count) is the
+            # assertion that is actually made.  LOAN1's numeric values are
+            # verified independently by tools/loan1_verify.py instead.
+            exp = None
+            num = "n/a(get)" 
+        for tagdir in ("e2e10run", "e2e9run", "e2e8run", "e2erundr",
+                       "e2e7run", "e2e6run"):
             c = f"golden/{tagdir}/{name}.output.txt"
             if exp is not None and os.path.exists(c) and os.path.getsize(c):
                 raw = open(c, errors="replace").read().replace("\r\n", "\n")

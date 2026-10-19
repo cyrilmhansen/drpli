@@ -1,0 +1,9 @@
+l914:
+ procedure options(main);
+   dcl i fixed binary;
+   i = 0;
+   get list(i);
+   put skip list(i);
+   stop;
+end l914;
+

@@ -91,6 +91,11 @@ SPECIMENS = {
     # my own DR re-runs (golden/e2e6/*, DFACT's re-run being byte-identical
     # to the corpus copy -- verified with cmp before either was registered).
     "DFACT": ("artefacts/DFACT.PLI", "golden/first8080u/DFACT/DFACT.REL"),
+    # [E2E-7A slice 4] LOAN1: the 4th historical corpus program accepted at
+    # RAW .REL byte parity (after DEMO, RFACT, DFACT).  It is the milestone the
+    # whole E2E-7 effort was aimed at: PUT SKIP, DEC +/-. */ ÷ comparison, ROUND
+    # and numeric GET are all exercised by its own text.
+    "LOAN1": ("artefacts/LOAN1.PLI", "golden/first8080u/LOAN1/LOAN1.REL"),
     "R501": ("probes/R501.PLI", "golden/e2e6/R501/R501.REL"),
     "R502": ("probes/R502.PLI", "golden/e2e6/R502/R502.REL"),
     "R503": ("probes/R503.PLI", "golden/e2e6/R503/R503.REL"),
@@ -147,6 +152,28 @@ SPECIMENS = {
     "R807": ("probes/R807.PLI", "golden/e2e9/R807/R807.REL"),
     "R811": ("probes/R811.PLI", "golden/e2e9/R811/R811.REL"),
     "R813": ("probes/R813.PLI", "golden/e2e9/R813/R813.REL"),
+    # [E2E-7A slice 4] numeric GET (?QCDOP / ?QCIOP) and MOD-in-condition
+    # (?IMDOP zero test).  R901-R907 = GET shapes, R908-R912 = MOD conditions,
+    # R913/R914/R915/R917 = GET forms that were negative-panel members until
+    # this slice (fixed, fixed binary, char-varying + numeric mixed, and a
+    # two-char-varying list).  R916 (GET into FIXED char, which DR stores
+    # with ?SSCFS) stays a refusal [N44]; its DR golden is kept as evidence.
+    "R901": ("probes/R901.PLI", "golden/e2e10/R901/R901.REL"),
+    "R902": ("probes/R902.PLI", "golden/e2e10/R902/R902.REL"),
+    "R903": ("probes/R903.PLI", "golden/e2e10/R903/R903.REL"),
+    "R904": ("probes/R904.PLI", "golden/e2e10/R904/R904.REL"),
+    "R905": ("probes/R905.PLI", "golden/e2e10/R905/R905.REL"),
+    "R906": ("probes/R906.PLI", "golden/e2e10/R906/R906.REL"),
+    "R907": ("probes/R907.PLI", "golden/e2e10/R907/R907.REL"),
+    "R908": ("probes/R908.PLI", "golden/e2e10/R908/R908.REL"),
+    "R909": ("probes/R909.PLI", "golden/e2e10/R909/R909.REL"),
+    "R910": ("probes/R910.PLI", "golden/e2e10/R910/R910.REL"),
+    "R911": ("probes/R911.PLI", "golden/e2e10/R911/R911.REL"),
+    "R912": ("probes/R912.PLI", "golden/e2e10/R912/R912.REL"),
+    "R913": ("probes/R913.PLI", "golden/e2e10/R913/R913.REL"),
+    "R914": ("probes/R914.PLI", "golden/e2e10/R914/R914.REL"),
+    "R915": ("probes/R915.PLI", "golden/e2e10/R915/R915.REL"),
+    "R917": ("probes/R917.PLI", "golden/e2e10/R917/R917.REL"),
     "R701": ("probes/R701.PLI", "golden/e2e8/R701/R701.REL"),
     "R702": ("probes/R702.PLI", "golden/e2e8/R702/R702.REL"),
     "R703": ("probes/R703.PLI", "golden/e2e8/R703/R703.REL"),
@@ -257,7 +284,19 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 "R724",
                 # [E2E-7A slice 3] ROUND specimens: all terminate with stop;
                 "R801", "R802", "R803", "R804", "R806", "R807", "R811",
-                "R813"}
+                "R813",
+                # [E2E-7A slice 4] every GET/MOD specimen ends in `stop;',
+                # so its console transcript is COMPLETE and is compared
+                # byte-for-byte: scripted echo, CR/LF and EOF behaviour all
+                # included.
+                "R901", "R902", "R903", "R904", "R905", "R906", "R907",
+                "R908", "R909", "R910", "R911", "R912", "R913", "R914",
+                "R915", "R917",
+                # [E2E-7A slice 4] the corpus milestone: LOAN1's transcript is
+                # its complete 27-row schedule, prompts included, and it
+                # terminates on the scripted EOF, so console bytes are a real
+                # oracle (no bounded-prefix protocol needed).
+                "LOAN1"}
 
 
 # RFACT/R401/R412/R419 were removed from the console arm: they end in a
@@ -325,8 +364,6 @@ REJECTS = {
         "  dcl a fixed dec(9,3);\n  dcl b fixed dec(9,2);\n  p = 1;\n"
         "  a = 2.125;\n  b = 2;\n  p = round(a, 2) / b;\n  stop;\nend t;\n",
         "ROUND result as a DECIMAL divide"),
-    "N1_GET": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
-               "  get list(a);\nend t;\n", "non-varying"),
     "N3_PAGE": ("t:\n  procedure options(main);\n"
                 "  put page list('X');\nend t;\n", "PUT form"),
     "N4_SKIPVAR": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
@@ -353,13 +390,6 @@ REJECTS = {
     "N15_CAT4": ("t:\n  procedure options(main);\n  dcl n char(6) varying;\n"
                  "  n = 'Q';\n  put list('A' || n || 'B' || 'C');\nend t;\n",
                  "int subset"),
-    "N17_GETINT": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
-                   "  get list(i);\n  put list('X');\nend t;\n",
-                   "non-varying"),
-    "N18_GET2": ("t:\n  procedure options(main);\n"
-                 "  dcl a char(4) varying;\n  dcl b char(4) varying;\n"
-                 "  get list(a, b);\n  put list('X');\nend t;\n",
-                 "GET form"),
     "N19_DOBY": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
                  "  do i = 1 to 4 by 2;\n    put list('X');\n  end;\n"
                  "end t;\n", "DO step unproven"),
@@ -452,6 +482,30 @@ REJECTS = {
                       "  dcl n char(6) varying;\n  dcl m char(6) varying;\n"
                       "  n = 'Q';\n  m = 'Z' || n;\nend t;\n",
                       "char store from non-literal"),
+    # [E2E-7A slice 4] GET / MOD-in-condition perimeter.  The three GET
+    # negatives this slice superseded (N1_GET `dcl a fixed', N17_GETINT
+    # `dcl i fixed binary', N18_GET2 two char-varying items) are now
+    # byte-exact POSITIVES R913/R914/R917 -- numeric GET is proven for those
+    # shapes, so they no longer belong in this panel.
+    "N44_GETFIXCHAR": ("t:\n  procedure options(main);\n  dcl a char(4);\n"
+        "  dcl i fixed binary;\n  get list(a, i);\nend t;\n",
+        "GET LIST of this target kind"),
+    # DR stores a FIXED-char GET item through ?SSCFS [golden/e2e10/R916
+    # route]; only ?SSVFS (char VARYING) is implemented: must refuse.
+    "N45_GETSUB": ("t:\n  procedure options(main);\n  dcl x char(4);\n"
+        "  dcl i fixed binary;\n  get list(x(1));\nend t;\n",
+        "GET form not in E2E-3e subset"),
+    # [C079] a 1-byte FIXED BIN cell takes the 0x32/STA store form; no
+    # numeric-GET sample shows such a target: must refuse.
+    "N46_GET1BYTEBIN": ("t:\n  procedure options(main);\n  dcl b fixed bin(1);\n"
+        "  dcl q fixed binary;\n  b = 7;\n  q = b;\n  get list(b);\n"
+        "end t;\n",
+        "1-byte FIXED BINARY target"),
+    # MOD-in-condition is proven ONLY as `= 0' / `^= 0' [R908-R912]: the
+    # bare HL-zero test cannot express `> 0': must refuse.
+    "N47_MODGT": ("t:\n  procedure options(main);\n  dcl i fixed binary;\n"
+        "  i = 25;\n  if mod(i,12) > 0 then i = 1;\nend t;\n",
+        "condition form not in E2E-3b subset")
 }
 
 

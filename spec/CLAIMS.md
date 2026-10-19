@@ -583,3 +583,137 @@ Independent model: 57 SCHED MATCH / 0 DIFFER, 30 VALUE-MATCH / 0 VALUE-DIFF
 over the whole DEC corpus, with 9 named model-side refusals; its DROUN token
 initially missed because dr_tokens()' CALL alternation lacked DROUN/IROUND --
 a harness bug fixed before the result was read.
+
+---
+
+## C088 — numeric GET LIST: one input skeleton, per-kind conversion tail (E2E-7A slice 4)
+
+STATUS: ACCEPTED. 17 probes generated and DR-compiled `$L$D$C$S`
+(`golden/e2e10/`, sources `probes/R90*.PLI`/`R91*.PLI`); 16 registered
+byte-exact positives (R901-R915, R917), 1 designed refusal whose DR golden is
+kept as route evidence (R916, fixed-char GET -> `?SSCFS`, unimplemented
+[N44]). All 16 positives additionally link to a `.COM` byte-identical to DR's
+and produce byte-equal console transcripts (§6 of
+`spec/notes/e2e7a-slice4-get.md`).
+
+THE SKELETON IS SHARED BY EVERY TARGET KIND. X201/X202 (char varying) had
+already pinned it; R901-R917 show numeric GET is the SAME template with a
+different per-item tail: `LXI D,0290` (the INPUT descriptor -- 0252 is print's,
+and the input one is never relocated), `LXI B,0000` whose operand is
+triple-patched to the next statement, `CALL ?SYSIN`, then per item
+`CALL ?GNVOP` / `JP <skip>` / conversion+store, and ONE `CALL ?QIOOP` for the
+whole statement.
+
+ONE GNVOP/JP PAIR PER ITEM, IN SOURCE ORDER. Item k's JP operand is patched to
+whatever follows that item's store -- the NEXT item's `?GNVOP` [R904
+0013 ==== 001B, R915, R917] or, for the last item, the closing `?QIOOP` [R907,
+X202]. A skip therefore abandons the REST of the list while still completing
+the I/O call. R907 (`p = 7;` then `get list(p)`, script = EOF) pins this
+byte-exactly: its JP target is the `?QIOOP` call (0023 ==== 0032), so the
+`?QCDOP`/`?DSTOP` chain is bypassed. What is NOT claimable is the variable's
+aftermath: R907's transcript is 2 bytes (the echoed `^Z`) in both arms, and
+LOAN1's output likewise stops at `Principal ^Z`, so nothing after an EOF is
+ever printed -- "the target keeps its previous value" is a structural
+inference from the skipped store chain, not an observed runtime fact.
+
+PER-ITEM CONVERSION BY DECLARED KIND:
+
+    FIXED DEC(p,s) : MVI B,s ; CALL ?QCDOP ; LXI H,var ; MVI A,p ; CALL ?DSTOP
+    FIXED BINARY   : CALL ?QCIOP ; SHLD var            (2-byte cell; no MVI)
+    CHAR VARYING   : LXI H,var ; MVI B,cap ; CALL ?SSVFS
+    CHAR(n) fixed  : LXI H,var ; MVI B,cap ; CALL ?SSCFS   [R916, NOT implemented]
+
+B IS THE TARGET SCALE AND IS UNCONDITIONAL. 02 for `dec(11,2)`/`dec(9,2)`
+[R901, R902, R904, R907, LOAN1], 04 for `dec(6,4)` [R902], 03 for `dec(15,3)`
+[R906] -- and `MVI B,00` is STILL EMITTED for `dec(9,0)` [R905], so the byte is
+not a scale-specialization. A is the target digit count (0B for LOAN1's
+`dec(11,2)`, 0F for `dec(15,3)`), and the store is the ordinary `?DSTOP` of
+C084.
+
+GET IS THE ONE DEC CONTEXT WHERE THE PRODUCER FIXES THE SCALE. No `?QDDSL` or
+`?QDDSR` appears anywhere in a GET [R901-R906, R913]: `?QCDOP` delivers the
+scanned field already at the target scale, which is why C086's consumer-fixes-
+scale law inverts here -- there was no prior scale to align to. Six GET shapes
+sampled (`dec(11,2)`, `dec(9,2)`, `dec(6,4)`, `dec(9,0)`, `dec(15,3)`, and
+LOAN1's three targets); no claim is made about precision values no GET probe
+touched.
+
+DEFECTS AND LIMITS. (a) The 1-byte FIXED BINARY target is unsampled -- the
+`?QCIOP`/`SHLD` form is proven only for 2-byte cells, and a 1-byte cell takes
+the 0x32/`STA` store form [C079], so that shape refuses [N46]. (b) Subscripted,
+stream, `get data/EDIT/STRING` items and based/pointer/float/bit targets refuse
+[N45 + the existing perimeter]. (c) `?SSCFS` for fixed char is observed but not
+implemented [N44]. (d) The console arm nearly lied: four probes initially ran
+with the harness's DEFAULT input because my harness edits silently no-matched,
+which made "console BYTE-EQUAL" an equality between two nothing-outputs; the
+scripts were re-applied with an assertion and the four re-verified. Successful
+execution, or equal-but-empty output, is never accepted as proof.
+
+## C089 — MOD as a condition: `= 0` / `^= 0`, and MOD's two divisor forms (E2E-7A slice 4)
+
+STATUS: ACCEPTED. Five byte-exact positives (R908-R912, gate 160/160) covering
+LOAN1's year-boundary test in every shape it appears in (constant divisor,
+variable divisor, `^=`, THEN-block without ELSE, and wrapped in
+`do while (dec > 0)`), each linked to a `.COM` byte-identical to DR's with
+byte-equal console output whose branch outcome is correct (R908 prints 1 =
+THEN, R909 prints 2 = ELSE, R910 prints 3, R912 prints `2 1`). ZERO new
+routines: `?IMDOP` was banked in P071B.
+
+SHAPE: evaluate the dividend into HL, park it in DE across the divisor's
+evaluation, `CALL ?IMDOP` (remainder returns in HL), then the plain HL-zero
+test `MOV A,H / ORA L`, then `JNZ` for `= 0` and `0xCA` for `^= 0` -- DR's
+universal `<>` skip byte, which `$C` PRINTS as `JZ` at R910 code 001C while the
+.REL byte is 0xca. That extends the C072 parity-defect family (integer
+var-literal `^=`, DEC `^=` [C085]) to a third context: the byte, not the
+mnemonic, is the oracle.
+
+MOD'S DIVISOR HAS TWO FORMS, and P071B could not see it because its divisor was
+a variable. Variable divisor: `PUSH H / LHLD d / POP D` [R909 = P071B's proven
+path]. Literal divisor: `MVI A,k / PUSH H / MOV L,A / ADD A / SBB A / MOV H,A /
+POP D` [R908, R910, R911, R912, LOAN1 00CF-00D6] -- C079's sign-extend ladder,
+with the `MVI A` before the push and the push inside the ladder. The `LXI H,imm`
+store form [D6] is NOT used for a divisor. A constant divisor outside 0..255
+refuses (only the `MVI A,k` form is sampled).
+
+ONLY `= 0` AND `^= 0`. Other relations against a MOD (`> 0`, `<> k`,
+`mod = mod`, non-zero right side) refuse [N47]. This was not a theoretical
+caution: my first draft matched any relation and `if mod(i,12) > 0 then`
+compiled SILENTLY into a bare HL-zero test carrying the `^=` skip byte -- code
+that is simply wrong for `> 0`. Probing the shape I thought was refused is what
+exposed it; the pattern is now narrowed to `Eq | Ne`.
+
+LOAN1's own comment header states the algorithm as `P = (P + (i*P) - PMT`,
+which its code does not implement (it accrues `round(i*P/1200, 2)` monthly).
+The comment is wrong, the program is not: 27 rows independently re-computed in
+Python `decimal` match DR's transcript exactly (§7.4 of the slice-4 note), and
+the same check shows the transcript is inconsistent with truncating the
+division at 2 decimals before ROUND (23 of 27 rows differ) but consistent with
+full-precision or 5-digit truncation -- independent confirmation that C086's
+scale law survives inside ROUND's operand.
+
+GATES AFTER SLICE 4: e2e **160 byte-exact / 0 fail of 160** (was 143; +16 GET/MOD
+positives R901-R915/R917 and LOAN1 itself as the 4th corpus specimen); negative
+panel **39/39** (3 GET negatives promoted to positives, 4 tested negatives added:
+N44 fixed-char GET, N45 subscripted GET item, N46 1-byte FIXED BIN GET target,
+N47 MOD with a relation other than `= 0`/`^= 0`); parse 461 ok / 6 parity-rejects
+/ 0 FAIL of 467; bind 47/47; rel round-trip 438/438 (goldens only once the
+transient harness tags were cleaned -- the number moves with harness state, as
+stated in C087); ir 0 FAIL; safety 28/28; clean-build warnings 63 -> 63 with an
+IDENTICAL per-file and per-kind histogram, verified against a freshly built
+`3636eec` worktree that was removed afterwards.
+Full `--link-run` regression over all 160 positives: 118/118 linked `.COM`
+byte-identical to DR and 118/118 raw console transcripts byte-equal on the
+console arm, 0 divergences anywhere; the other 42 specimens are the mine-only
+non-terminating/no-output set by design (see corpus audit section 14.1).
+Independent model: 68 SCHED MATCH / 0 DIFFER and 30 VALUE-MATCH / 0 VALUE-DIFF
+over `probes/R5*-R9*`, 8 MODEL-REFUSED (5 = the new MOD-condition specimens,
+which the decimal-stack model does not cover). LOAN1: .REL 1536 B byte-exact,
+.COM 9984 B identical, 27 complete console records byte-equal under the bounded
+`--killon` prefix protocol, schedule re-computed independently in Python
+`decimal` (all 27 rows; truncate-at-2-before-ROUND rejected in 23 rows).
+Implementation lines since the `3636eec` checkpoint, over `ocaml/`, `tools/` and
+`oracle/`: +1,408 / -180 = **1,588 gross**, of which this slice is +248 / -48 =
+296 gross -- inside the ~2,000-line consultation threshold, so no mid-slice
+pause was needed. (The "+1,190/-162" reported at the end of slice 3 recomputes
+to +1,168/-140 on the same path set; the discrepancy is a pre-commit measurement
+and the recomputed figures are the ones quoted here.)

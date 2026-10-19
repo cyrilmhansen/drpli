@@ -1,0 +1,8 @@
+l903:
+ procedure options(main);
+   dcl i fixed binary;
+   get list(i);
+   put skip list(i);
+   stop;
+end l903;
+

@@ -212,3 +212,43 @@ LOAN1's remaining blockers, in order of appearance:
 
 Unseen-route count for LOAN1: 1 of 23 (?QCDOP). The `?EDITF/?EDTOV` family
 (PUT EDIT) is not needed by LOAN1 at all -- its puts are all PUT LIST.
+
+---
+
+## 10. POST-SLICE-4 STATUS — **LOAN1 ACCEPTED** (2026-10-19)
+
+LOAN1 (`artefacts/LOAN1.PLI`, original unmodified text) now meets all four
+acceptance criteria: raw `.REL` byte identity against the historical corpus
+golden (1536 bytes, CODE 487 / DATA 60 / 17 pool items), `.COM` byte identity
+after linking against PLILIB (9984 bytes), byte-equal console output under the
+bounded complete-record prefix protocol (27 complete records, kill point
+derived from my own run), and independent re-computation of its 27-row loan
+schedule in Python `decimal`. Evidence and method:
+`spec/notes/e2e7a-slice4-get.md`, claims C088 (numeric GET) and C089
+(MOD-in-condition). Corpus score is 4/41 (DEMO, RFACT, DFACT, LOAN1).
+
+Two statements in section 9 were wrong and are corrected here rather than
+silently edited:
+
+1. **"MOD-in-condition ... is the one non-decimal leftover in `if mod(...)`
+   which LOAN1 does not use"** -- false. LOAN1 uses it on line 26
+   (`if mod(m,12) = 0 then`, DR code 00CC) and it was the *second* thing
+   slice 4 had to implement. The route count was not misleading (`?IMDOP` is
+   one of the 23 and was already emitted as an expression), but a route can be
+   "seen" in one syntactic role and still be missing in another, so
+   "unseen routes: 1 of 23" under-counted LOAN1's blockers as 1 when they were
+   2: the GET template *and* the MOD-condition lowering.
+2. **"get list(m)"** in blocker #1 -- LOAN1's three GETs target `P`, `i` and
+   `PMT`; `m` is computed (`m = m + 1`), never read from input.
+
+Also worth recording: the *last* thing LOAN1 needed was not decimal work at
+all, and one near-miss on the runtime side -- four slice-4 probes initially
+"passed" their console arm with the harness's default EOF script, which made
+the comparison an equality between two empty outputs. Re-running them with
+real input scripts is what made the GET verification mean anything.
+
+What LOAN1 does not exercise (next targets unchanged): PUT EDIT
+(`?EDITF`/`?EDTOV`, needed by IFACT), DEC formal parameter passing [N33]
+(DECPOLY), FILE/stream I/O, FLOAT, POINTER/BASED, ENTRY and multi-module
+work, fixed-char GET (`?SSCFS`) [N44], 1-byte binary GET [N46], and MOD
+relations other than `= 0` / `^= 0` [N47].

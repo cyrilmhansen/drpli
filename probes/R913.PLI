@@ -1,0 +1,8 @@
+l913:
+ procedure options(main);
+   dcl a fixed;
+   get list(a);
+   put skip list(a);
+   stop;
+end l913;
+

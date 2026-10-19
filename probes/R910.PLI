@@ -1,0 +1,9 @@
+l910:
+ procedure options(main);
+   dcl i fixed binary;
+   dcl q fixed binary;
+   i = 25;
+   if mod(i,12) ^= 0 then q = 3; else q = 4;
+   put skip list(q);
+end l910;
+

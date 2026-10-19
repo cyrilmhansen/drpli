@@ -1,0 +1,8 @@
+l905:
+ procedure options(main);
+   dcl d fixed dec(9,0);
+   get list(d);
+   put skip list(d);
+   stop;
+end l905;
+

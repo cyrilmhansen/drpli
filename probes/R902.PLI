@@ -1,0 +1,10 @@
+l902:
+ procedure options(main);
+   dcl a fixed dec(9,2);
+   dcl b fixed dec(6,4);
+   get list(a);
+   get list(b);
+   put skip list(a, b);
+   stop;
+end l902;
+

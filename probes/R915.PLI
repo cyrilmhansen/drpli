@@ -1,0 +1,11 @@
+l915:
+ procedure options(main);
+   dcl a char(4) varying;
+   dcl i fixed binary;
+   i = 0;
+   get list(a, i);
+   put skip list(i);
+   put skip list(a);
+   stop;
+end l915;
+

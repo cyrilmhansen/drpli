@@ -1,0 +1,10 @@
+l917:
+ procedure options(main);
+   dcl a char(4) varying;
+   dcl b char(4) varying;
+   get list(a, b);
+   put skip list(a);
+   put skip list(b);
+   stop;
+end l917;
+

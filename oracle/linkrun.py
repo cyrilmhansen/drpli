@@ -38,6 +38,21 @@ INPUTS = {
     "DECPOLY":    ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
     "FLTPOLY":    ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
     "FLTPOLY2":   ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
+    # [E2E-7A slice 4] numeric GET probes (input script per program)
+    "R901":       ["500\\r"],
+    "R902":       ["1.25\\r", "3.1416\\r"],
+    "R903":       ["42\\r"],
+    "R904":       ["42,7.50\\r"],
+    "R905":       ["17\\r"],
+    "R906":       ["1.234\\r"],
+    "R907":       ["\\x1a"],
+    # [E2E-7A slice 4, second pass] the promoted GET shapes (R913/R914/R915/
+    # R917) need real scripts: without them the harness default EOF makes the
+    # transcript a 2-byte nothing-equal-to-nothing, which is NOT proof.
+    "R913":       ["31\\r"],
+    "R914":       ["77\\r"],
+    "R915":       ["HELLO,42\\r"],
+    "R917":       ["ABCD,EFGH\\r"],
     "LOAN1":      ["500\\r", "14\\r", "22.10\\r", "\\x1a"],
     "LOAN2":      ["$con\\r", "3000\\r", "14\\r", "144.03\\r", "0\\r", "11\\r", "80\\r", "12\\r", "0\\r", "\\x1a"],
     "ANNUITY":    ["32000\\r", "0\\r", "8.75\\r", "360\\r", "\\x1a"],

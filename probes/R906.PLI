@@ -1,0 +1,8 @@
+l906:
+ procedure options(main);
+   dcl x fixed dec(15,3);
+   get list(x);
+   put skip list(x);
+   stop;
+end l906;
+

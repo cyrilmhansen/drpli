@@ -17,6 +17,10 @@ banked in `corpus-audit-2026-10-18-data.txt` (same directory).
 > refreshed distances, the re-ranked next three programs, and the new
 > emitted-routine baseline (29 -> 36 entrypoints). The tables in sections
 > 1-8 are kept as the REV 2 record.
+>
+> **SUPERSEDED AGAIN, 2026-10-19 (E2E-7A slice 4): LOAN1 is byte-exact, so the
+> corpus score is 4/41 (DEMO, RFACT, DFACT, LOAN1)** -- see section 14, which
+> also corrects a false statement that section 13 made about LOAN1 and MOD.
 | metric | REV 1 (post-E2E-4) | REV 2 (now) |
 |---|---|---|
 | corpus sources | 44 | 44 |
@@ -600,6 +604,12 @@ schedule generator is now complete except for numeric GET: unseen routes for
 LOAN1 are down to 1 of 23 (?QCDOP). MOD-in-condition, which the ranking
 counted as a LOAN1 blocker, is not one -- LOAN1 contains no MOD.
 
+> **THIS PARAGRAPH'S LAST SENTENCE IS FALSE -- corrected in section 14.**
+> LOAN1 does contain MOD (`if mod(m,12) = 0 then`, line 26, DR code 00CC), and
+> that condition form was the second thing slice 4 had to implement. Kept
+> verbatim above because the error and its correction are both part of the
+> record.
+
 Process note worth keeping: my first R813 build produced layout-WRONG bytes
 silently (the pool prescan had no ROUND case, so the literal 1200 cell inside
 the call went uncounted and the AUTO base shifted 3 bytes). Generating the
@@ -612,3 +622,99 @@ Gate state: e2e 143/143 byte-exact, negative panel 38/38 (N36-N43 added, each
 with a refusal-reason marker), parse 445 ok / 6 parity-rejects / 0 FAIL of
 451, bind 47/47, rel round-trip 423/423, ir 0 FAIL, safety 28/28, corpus
 unchanged at 3/41 byte-exact / 0 divergent.
+
+## 14. SLICE-4 NOTE (E2E-7A numeric GET + MOD-in-condition, LOAN1 accepted, 2026-10-19)
+
+**Corpus score: 4/41 byte-exact, 0 divergent** -- DEMO, RFACT, DFACT and now
+**LOAN1**, the 4th historical corpus program accepted at raw byte parity.
+LOAN1's `.REL` (1536 B) is `cmp`-identical to `golden/first8080u/LOAN1/LOAN1.REL`,
+its linked `.COM` (9984 B) is identical to the .COM built from DR's own .REL
+against the same PLILIB, and its console output is byte-equal over the first 27
+complete records under the bounded-prefix protocol (LOAN1's outer
+`do while('1'b)` does not terminate on the scripted input, so a
+timeout-truncated capture is not used as the oracle). Its financial schedule
+was re-computed independently in Python `decimal` and matches all 27 rows.
+
+Emitted-routine surface: LOAN1 needs **23** PLILIB entrypoints and my build now
+emits **23 of 23**; the project's emitted set grew by 3 with this slice
+(`?QCDOP`, `?QCIOP`, plus `?IMDOP` reaching a second syntactic role -- it was
+already emitted as an expression, so the entrypoint count is unchanged for it).
+The decimal-adjacent gap that had sat at "1 of 23" after slice 3 was in fact
+**two** blockers, and the mismatch is the lesson of this slice:
+
+> **Route counting measures WHICH routines a program needs, not the number of
+> lowering rules.** `?IMDOP` was already emitted (as `r = mod(a, b)`), yet
+> `if mod(m,12) = 0 then` still refused, because DR lowers a MOD in a CONDITION
+> with a bare HL-zero test and a divisor form that differs from the expression
+> form. A "seen" route can hide an unseen rule. Conversely the routine-surface
+> metric remains a ranking device, not an effort estimate -- this slice was
+> advertised as "numeric GET" and needed 16 probes, 2 lowering rules and 1
+> non-decimal condition form to close.
+
+Two rules landed (C088, C089). The GET law is worth repeating here because it
+inverts the decimal scale law the previous slices banked: in arithmetic, the
+CONSUMER fixes the scale (C086's `?QDDSL`/`?QDDSR` shifts), but in GET the
+PRODUCER does -- `?QCDOP` takes the target scale in B and delivers a value
+already at that scale, so no shift instruction appears in any GET, and `MVI B`
+is emitted even for scale 0 [R905]. Six GET precisions/scales sampled; no claim
+about unsampled ones.
+
+Two near-misses, both caught before shipping, both of the kind this project has
+now seen three times (fail-silent interaction, not fail-silent novelty):
+
+1. **An over-broad pattern.** The new condition arm matched `Ast.EqR r` with r
+   unrestricted, so `if mod(i,12) > 0 then` compiled silently into a bare
+   HL-zero test carrying DR's `<>` skip byte -- semantically wrong code that no
+   byte comparison against an existing golden would have flagged, because no
+   golden had that shape. Fixed by narrowing to `Eq | Ne` and turning the shape
+   into a tested negative [N47]. Lesson: when adding a matcher, probe the shapes
+   you intend to REFUSE, not only the ones you intend to accept.
+2. **A vacuous console arm.** Harness edits to `oracle/linkrun.py` used
+   `str.replace()` without asserting, so four probes never got their input
+   scripts, ran on default EOF, printed 2 bytes, and "passed" byte-equality
+   against DR's equally-empty capture. Lesson: assert on every harness edit, and
+   read the transcript content, not just the verdict word.
+
+Gate state: e2e **160/160** byte-exact (was 143; +16 GET/MOD positives + LOAN1),
+negative panel **39/39** (3 GET negatives promoted to positives -- they were
+refusing only because numeric GET did not exist; 4 new tested negatives N44-N47),
+parse 461 ok / 6 parity-rejects / 0 FAIL of 467, bind 47/47, rel round-trip
+440/440, ir 0 FAIL, safety 28/28, corpus **4/41 byte-exact / 0 divergent**.
+Clean-build warnings unchanged against the `3636eec` baseline. Full link+console
+regression over every registered positive: reported in section 14.1 below once
+the run completes.
+
+Remaining blockers for the next programs are unchanged in kind: PUT EDIT for
+IFACT, DEC formal parameter passing [N33] for DECPOLY, FILE/stream sequences for
+COPY, and the deferred POINTER/BASED, label-variable, ENTRY/multi-module and
+FLOAT families.
+
+### 14.1 Full link + console regression after slice 4 (same day)
+
+`python3 tools/e2e_gate.py --link-run` over every registered positive
+(160 specimens), DR corpus goldens linked against the same PLILIB:
+
+* `.REL` byte parity: **160 / 160**, 0 fail.
+* Linked **`.COM` byte-identical to DR's**: **118 / 118** on the
+  console-whitelist arm (the programs whose transcripts are complete and
+  trustworthy). Zero `.COM` divergences.
+* **Raw console transcripts byte-equal to DR's**: **118 / 118** (echo, prompts,
+  CR/LF and field widths compared as raw bytes, never normalized).
+* Remaining 42 specimens ran the mine-only link+execute arm by design (older
+  non-terminating or no-output programs whose proof stays at .REL byte parity
+  plus the bounded-prefix protocol in `tools/prefix_check.py`); they are not
+  counted as console passes and nothing in this slice changed their lowering.
+* LOAN1 specifically: `.COM` identical (9984 B) and, via the bounded complete-
+  record protocol, 27 records byte-equal -- see section 14 and
+  `spec/notes/e2e7a-slice4-get.md` §7.
+* Independent model (`tools/decmodel.py`, probes R5-R9): 68 SCHED MATCH /
+  0 DIFFER, 30 VALUE-MATCH / 0 VALUE-DIFF, 8 MODEL-REFUSED (5 of them the new
+  MOD-condition specimens, which the decimal-stack model deliberately does not
+  model). The slice-3 note's "9 model-side refusals" did not reproduce and is
+  superseded by this command-line-scoped figure.
+* Clean-build warnings: 63 -> **63**, with an identical per-file histogram
+  against a freshly built `3636eec` worktree (bind 20, codegen 18, parser 12,
+  ir 8, token 4, bin/pli80bind 1) and an identical kind histogram. The baseline
+  worktree was created for the measurement and removed afterwards.
+* rel round-trip **438 / 438** (421 baseline + 17 new `golden/e2e10/` goldens;
+  the count moves with harness scratch state, as documented in section 13).

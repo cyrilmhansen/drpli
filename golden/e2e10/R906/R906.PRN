@@ -1,0 +1,69 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R906
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 L906 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 8 BYTES
+c 0000 X FIXED DECIMAL(15,3) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R906
+
+   1 a 0000 l906:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl x fixed dec(15,3);
+   4 c 0006    get list(x);
+       0006       LXI  D,0290
+       0009       LXI  B,0000
+       000C       CALL ?SYSIN
+       000F       CALL ?GNVOP
+       0012       JP   0000
+       0015       MVI  B,03
+       0017       CALL ?QCDOP
+       001A       LXI  H,X A(0000)
+       001D       MVI  A,0F
+       001F       CALL ?DSTOP
+       0013       ==== 0022
+       0022       CALL ?QIOOP
+       000A       ==== 0025
+   5 c 0025    put skip list(x);
+       0025       LXI  D,0252
+       0028       LXI  B,0000
+       002B       CALL ?SYSPR
+       002E       MVI  A,01
+       0030       CALL ?SKPOP
+       0033       LXI  H,X A(0000)
+       0036       MVI  A,0F
+       0038       CALL ?DLDOP
+       003B       MVI  A,12
+       003D       MVI  B,03
+       003F       CALL ?QDCOP
+       0042       CALL ?PNVOP
+       0045       CALL ?QIOOP
+       0029       ==== 0048
+   6 c 0048    stop;
+       0048       CALL ?STOPX
+   7 a 004B end l906;
+
+CODE SIZE = 004B
+DATA AREA = 0008
+FREE SYMS = 38DD
+END  COMPILATION
+

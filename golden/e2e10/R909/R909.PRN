@@ -1,0 +1,78 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R909
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 MOD BUILTIN CONSTANT
+a 0000 L909 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 6 BYTES
+c 0000 I FIXED BINARY(15,0) AUTOMATIC
+c 0002 D FIXED BINARY(15,0) AUTOMATIC
+c 0004 Q FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R909
+
+   1 a 0000 l909:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl i fixed binary;
+   4 c 0006    dcl d fixed binary;
+   5 c 0006    dcl q fixed binary;
+   6 c 0006    i = 25;
+       0006       LXI  H,0019
+       0009       SHLD I A(0000)
+   7 c 000C    d = 12;
+       000C       MVI  L,0C
+       000E       SHLD D A(0002)
+   8 c 0011    if mod(i,d) = 0 then q = 1; else q = 2;
+       0011       LHLD I A(0000)
+       0014       PUSH H
+       0015       LHLD D A(0002)
+       0018       POP  D
+       0019       CALL ?IMDOP
+       001C       MOV  A,H
+       001D       ORA  L
+       001E       JNZ  0000
+       0021       LXI  H,0001
+       0024       SHLD Q A(0004)
+       0027       JMP  0000
+       001F       ==== 002A
+       002A       LXI  H,0002
+       002D       SHLD Q A(0004)
+       0028       ==== 0030
+   9 c 0030    put skip list(q);
+       0030       LXI  D,0252
+       0033       LXI  B,0000
+       0036       CALL ?SYSPR
+       0039       MVI  A,01
+       003B       CALL ?SKPOP
+       003E       LHLD Q A(0004)
+       0041       MVI  A,09
+       0043       CALL ?QICOP
+       0046       CALL ?PNVOP
+       0049       CALL ?QIOOP
+       0034       ==== 004C
+  10 a 004C end l909;
+       004C       CALL ?STOPX
+
+CODE SIZE = 004F
+DATA AREA = 0006
+FREE SYMS = 3881
+END  COMPILATION
+

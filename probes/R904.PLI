@@ -1,0 +1,9 @@
+l904:
+ procedure options(main);
+   dcl i fixed binary;
+   dcl a fixed dec(9,2);
+   get list(i, a);
+   put skip list(i, a);
+   stop;
+end l904;
+

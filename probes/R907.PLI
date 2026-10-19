@@ -1,0 +1,9 @@
+l907:
+ procedure options(main);
+   dcl p fixed dec(9,2);
+   p = 7;
+ get list(p);
+   put skip list(p);
+   stop;
+end l907;
+

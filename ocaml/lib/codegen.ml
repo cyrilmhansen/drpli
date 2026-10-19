@@ -550,9 +550,17 @@ let match_put_list_lit (s : Ast.stmt) =
    [X201/X202]. *)
 let match_get_list_var (s : Ast.stmt) =
   match s.Ast.st with
-  | Ast.Sget { stream = None; on_opts = []; kind = Ast.List_;
-              items = [ Ast.Pi_data { Ast.e = Ast.Eident n; _ } ] } ->
-      Some n.Ast.orig
+  (* [E2E-7A slice 4] GET LIST accepts ANY number of simple name items
+     [R904 pins the multi-item lowering order].  Every other item shape
+     (subscripted, expression, EDIT/STRING form, file options, stream) still
+     falls through to the [TBD] refusal at the call site. *)
+  | Ast.Sget { stream = None; on_opts = []; kind = Ast.List_; items } ->
+      let rec names acc = function
+        | [] -> if acc = [] then None else Some (List.rev acc)
+        | Ast.Pi_data { Ast.e = Ast.Eident n; _ } :: tl -> names (n :: acc) tl
+        | _ -> None
+      in
+      names [] items
   | _ -> None
 
 (* pool demand: RECURSIVE over container bodies (G114: puts live inside
@@ -983,9 +991,33 @@ let rec lower_hl st (e : Ast.expr) =
   | Ast.Ebinary (Ast.Sub, x, Ast.{ e = Ast.Enumber c; _ }) ->
       lower_hl st x; const_sub st (int_of_string c)
   | Ast.Ebuilt ("MOD", [l; r]) ->
-      (* mod(a,b) -> DE=a, HL=b, CALL ?IMDOP [P071B L4] *)
-      lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d;
-      call_ext st "?IMDOP"
+      (* mod(a,b) -> DE=dividend, HL=divisor, CALL ?IMDOP; the REMAINDER comes
+         back in HL [P071B L4, and re-verified by R909 for a VARIABLE divisor].
+         [E2E-7A slice 4] a CONSTANT divisor takes a different form: DR loads
+         it into A and runs the sign-extend ladder (MOV L,A; ADD A; SBB A;
+         MOV H,A), with PUSH H slotted between the MVI and the ladder, NOT the
+         LXI H,imm form used for stores [R908/R910/R911/R912, LOAN1
+         `if mod(m,12) = 0`: 000F MVI A,0C / 0011 PUSH H / 0012-0015 ladder /
+         0016 POP D].  P071B only exercises the variable form, so this
+         distinction was invisible until now. *)
+      (match r.Ast.e with
+       | Ast.Econd { Ast.e = Ast.Enumber k; _ } | Ast.Enumber k ->
+           let kk = parse_int_const k in
+           if kk < 0 || kk > 255 then
+             failwith
+              "codegen: MOD with a constant divisor outside 0..255 [TBD] \
+               (only the MVI A,k form is sampled)";
+           lower_hl st l;
+           d st op_mvi_a; d st kk;
+           d st op_push_h;
+           d st 0x6f; (* MOV L,A *)
+           d st 0x87; (* ADD A *)
+           d st 0x9f; (* SBB A *)
+           d st 0x67; (* MOV H,A *)
+           d st op_pop_d
+       | _ -> lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d);
+      call_ext st "?IMDOP";
+      st.last_imm <- None
   | Ast.Eprefix (Ast.Minus, x) ->
       (* [N304] -x: evaluate to HL, then ?IN20N (16-bit negate) *)
       lower_hl st x; call_ext st "?IN20N"; st.last_imm <- None
@@ -1839,6 +1871,25 @@ let lower_test_skip0 st (c : Ast.expr) =
            d st op_mov_a_h; d st 0xb5;  (* ORA L *)
            d st (if r = Ast.Eq then op_jnz else 0xca));  (* DR: ^= skip = JPE, not JZ: parity-defect [C072] *)
       let slot = st.lc in d st 0; d st 0; slot
+  (* [E2E-7A slice 4] `if mod(x,y) = 0' and `^= 0' -- LOAN1's year-boundary
+     test.  Zero new routines: the remainder already lands in HL from the
+     existing ?IMDOP lowering, and DR's test is the plain HL-zero form
+     (MOV A,H; ORA L) followed by JNZ for `= 0' [R908/R911/R912, LOAN1 00DC]
+     and, for `^= 0', DR's usual `^=' skip byte CA -- $C PRINTS it as `JZ' at
+     001C but the .REL byte is 0xca [R910], which extends the C072 parity-defect
+     family (integer var-literal ^=, DEC ^=) to a third context.  Other
+     relations against a mod (`> k', `mod = mod', non-zero right side) are
+     unsampled: the relation is narrowed to Eq/Ne below so they keep refusing
+     (a bare HL-zero test CANNOT express `> 0', it would silently mis-lower). *)
+  | Ast.Ebinary
+      ( Ast.EqR ((Ast.Eq | Ast.Ne) as r),
+        ({ Ast.e = Ast.Ebuilt ("MOD", [ _; _ ]); _ } as xmod),
+        { Ast.e = Ast.Enumber "0"; _ } ) ->
+      lower_hl st xmod;
+      d st op_mov_a_h; d st 0xb5; (* ORA L *)
+      d st (if r = Ast.Eq then 0xc2 else 0xca);  (* DR's ^= skip byte is CA everywhere [C072, R910] *)
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
   | _ -> failwith (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c)
 
 (* [R723] DR's HL-CONSTANT REUSE is a straight-line peephole: after a
@@ -1976,37 +2027,82 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
      MOV A,H; ORA A; JM. Each returns the forward conditional-jump
      operand SLOT (fixed later by emit_triple at the skip target). *)
 
-(* GET LIST(n);) n char-varying [X201/X202]: input descriptor 0290
-   (vs 0252 for print); SYSIN attaches, GNVOP reads item(s) onto the
-   RTL stack; JP(F2) operand triple-patched to the QIOOP call start
-   (EOF/error skips the store, NOT the QIOOP); SSVFS stores stack->var
-   with B = capacity; QIOOP completes I/O; LXI B continuation triple ->
-   next stmt. Record-stream order (X202 dump): after the SSVFS chain
-   comes the JP triple, then QIOOP data, then the continuation triple. *)
-let lower_get st (nm : string) =
-  if List.mem (String.lowercase_ascii nm) st.deref then
-    failwith "codegen: GET into pointer formal unproven [TBD]";
-  let cap = match vk_of st nm with
-            | Vvar c -> if c > 255 then failwith "codegen: cap > 255 [TBD]"
-                        else c
-            | _ -> failwith
-                "codegen: GET LIST of non-varying var unproven [TBD]"
-  in
+(* GET LIST(n1, n2, ...).  The statement SKELETON is shared by every target
+   kind [X201/X202 char-varying, R901-R907 numeric]: LXI D,0290 input
+   descriptor (vs 0252 for print, never relocated); LXI B,0000 whose operand
+   is triple-patched to the NEXT statement; ?SYSIN; then ONE `?GNVOP ; JP`
+   PAIR PER ITEM in source order.  Item k's JP operand is patched to whatever
+   follows that item's store -- the NEXT item's GNVOP [R904: 0013 ==== 001B]
+   or the closing ?QIOOP for the last item [X202] -- so a skip (EOF / no
+   value) abandons the remaining items, not the statement.  One ?QIOOP closes
+   the whole statement.
+
+   PER-ITEM CONVERSION, by destination kind [R901-R907]:
+     FIXED DEC(p,s) : MVI B,s ; ?QCDOP ; LXI H,var ; MVI A,p ; ?DSTOP
+        B is the TARGET SCALE -- 02 for dec(11,2)/dec(9,2), 04 for dec(6,4),
+        03 for dec(15,3) -- and is EMITTED even at s=0 [R905 `MVI B,00`]; A is
+        the TARGET DIGITS [LOAN1 P=0B, R906 x=0F].  So ?QCDOP converts the
+        scanned field straight to scale s and ?DSTOP stores it like any other
+        DEC store -- which is why no QDDSL/QDDSR appears here at all.
+     FIXED BIN(2b)  : ?QCIOP ; SHLD var                [R903, R904: no MVI]
+     CHAR VAR(cap)  : LXI H,var ; MVI B,cap ; ?SSVFS   [X201/X202]
+*)
+let lower_get st (items : Ast.name list) =
+  if
+    List.exists
+      (fun n -> List.mem (String.lowercase_ascii n.Ast.orig) st.deref)
+      items
+  then failwith "codegen: GET into pointer formal unproven [TBD]";
   d st op_lxi_d; d st 0x90; d st 0x02;   (* LXI D,0290 input desc *)
   d st op_lxi_b;
   let bslot = st.lc in
   d st 0; d st 0;
   call_ext st "?SYSIN";
-  call_ext st "?GNVOP";
-  d st op_jp;
-  let jpslot = st.lc in
-  d st 0; d st 0;
-  d st op_lxi_h; reloc st Data (addr_of st nm);
-  d st op_mvi_b; d st cap;
-  call_ext st "?SSVFS";
-  emit_triple st jpslot st.lc;          (* JP -> QIOOP call start *)
+  List.iter
+    (fun n ->
+      call_ext st "?GNVOP";
+      d st op_jp;
+      let jpslot = st.lc in
+      d st 0; d st 0;
+      (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
+       | Some vi -> (
+           match vi.vk with
+           | Vdec (p, s) ->
+               d st op_mvi_b;
+               d st s; (* B = TARGET SCALE, emitted even at 0 [R905] *)
+               call_ext st "?QCDOP";
+               d st op_lxi_h;
+               reloc st Data (addr_of st n.Ast.orig);
+               d st op_mvi_a;
+               d st p; (* A = TARGET DIGITS [LOAN1 0B, R906 0F] *)
+               call_ext st "?DSTOP"
+           | Vint when vi.size = 2 ->
+               call_ext st "?QCIOP";
+               d st op_shld; reloc st Data (addr_of st n.Ast.orig)
+           | Vint ->
+               (* a 1-byte FIXED BIN store is the 0x32/`STA` form [C079] and
+                  no numeric-GET sample has one: refuse rather than guess. *)
+               failwith
+                 "codegen: numeric GET into a 1-byte FIXED BINARY target is unproven [TBD] (R903/R904 sample only the 2-byte ?QCIOP/SHLD form)"
+           | Vvar c ->
+               if c > 255 then failwith "codegen: cap > 255 [TBD]";
+               d st op_lxi_h;
+               reloc st Data (addr_of st n.Ast.orig);
+               d st op_mvi_b;
+               d st c;
+               call_ext st "?SSVFS"
+           | _ ->
+               failwith
+                 "codegen: GET LIST of this target kind is unproven [TBD] (based, pointer, float and bit targets are unsampled)")
+       | None ->
+           failwith
+             (Printf.sprintf "codegen: GET LIST of unknown variable %s [TBD]"
+                n.Ast.orig));
+      (* the skip lands on whatever comes next [R904, X202] *)
+      emit_triple st jpslot st.lc)
+    items;
   call_ext st "?QIOOP";
-  emit_triple st bslot st.lc            (* continuation = next stmt *)
+  emit_triple st bslot st.lc           (* continuation = next stmt *)
 
 (* PUT LIST with || chain: DR evaluates RIGHT-to-LEFT while the
    pool is allocated LEFT-to-RIGHT in source order [W102 hex:

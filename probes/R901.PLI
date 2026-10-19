@@ -1,0 +1,8 @@
+l901:
+ procedure options(main);
+   dcl p fixed dec(11,2);
+   get list(p);
+   put skip list(p);
+   stop;
+end l901;
+
