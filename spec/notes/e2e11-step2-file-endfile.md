@@ -18,6 +18,24 @@ comparison of output but a count of instructions executed, so an ENDFILE path th
 diverged in control flow (re-entering the handler, skipping the PUT, terminating
 instead of completing the GET) would almost certainly move it.
 
+Runtime equality was also checked for the ON probes themselves, not just FLTPOLY2.
+Linking and running my `.REL` through the same CP/M pipeline as DR's, with the same
+input script (`e13src/E11A.PLI` fed `^Z`+CR), gives **output byte-identical to DR's**
+for E11A (31 bytes), E11B (17) and E11E (2) [golden/e2e11gs/E11A.output.txt vs
+golden/e2e120r/E11A.output.txt, and e2e11gr for E11B/E11E].  E11A's bytes are the
+behavioural proof of C110:
+
+```
+^Z
+HANDLED A=         0 AFTER
+```
+
+the handler ran, the interrupted GET completed with `a` UNASSIGNED (so it reads 0),
+and control reached the statement after the ON -- not a re-entry, not a skipped PUT,
+not a termination.  The harness reports `timeout-or-hang` on E11B/E11E because it
+waits for a `D>` prompt those runs never emit, but DR's own step-1 runs of the same
+programs did the identical thing, so the capture is comparable and the outputs match.
+
 Oracle provenance got a second confirmation here: my fresh `$L$C$D` compile of a
 CRLF-normalised probe copy produced a `.REL` byte-identical to `golden/first` and
 `golden/first8080u`, which came from independent earlier runs.  DR is deterministic
