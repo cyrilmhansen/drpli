@@ -975,24 +975,24 @@ let bind_program (blk : Ast.block) : prog_layout =
     let dedup x =
       nf > 0 && List.mem x formals && nm <> None && not attrf
     in
-    (* [E2E-10 step 3] a declared FLOAT formal of an internal procedure
-       occupies NO storage of its own: its address is the 2-byte pointer cell,
-       which is exactly why the float lowering reads it with LHLD.  R3095/R3096/
-       R3093 pin the size law directly -- a local declared after the formals sits
-       4/8/12 bytes LOWER than a model that charges the 4-byte float cell for 1/2/3
-       float formals, at Q=A(0014)/A(0018)/A(001C) with X=A(0012)/A(0014)/A(0016),
-       i.e. DR charges nothing per float formal.  FIXED formals are different and
-       this is kept intact: FFACT's `dcl i fixed bin(31)` then `dcl f ...` needs
-       the declared cell counted or f's address shifts (FFACT is byte-exact today).
-       So the correction subtracts only the dedup'd FLOAT rows seen so far. *)
-    let is_fl rt = match rt with RTfloat _ -> true | _ -> false in
+    (* [E2E-10 step 3 / 3b, C106] a formal dcl that DEDUPS onto its 2-byte
+       pointer cell consumes NO storage -- for FLOAT and FIXED alike.  Six
+       probes bracket the law by formal count: with 1/2/3 FLOAT formals DR's
+       later local sits at A(0014)/A(0018)/A(001C) [R3095/R3096/R3093] and with
+       1/2/3 FIXED formals at A(000C)/A(0010)/A(0014) [R3094/R3101/R3102], in
+       every case immediately after the pointer cells, while a model that charges
+       the declared cell is +4/+8/+12 (float) and +2/+4/+6 (fixed) too high.
+       The exception is the written RECURSIVE attribute, where dedup does not
+       apply at all: there the declared cell IS the shadow value cell and is
+       really allocated, which is what keeps P401/NFACT/FFACT/R3104 byte-exact.
+       So the subtraction is keyed on `dedup`, exactly like the row's address. *)
     let drops =
-      (* cumulative float-formal bytes to subtract, in declaration order *)
+      (* cumulative dedup'd-formal bytes to subtract, in declaration order *)
       let rec go rest acc =
         match rest with
         | [] -> []
         | (x, rt, _) :: t ->
-            let d = if dedup x && is_fl rt then rt_bytes rt else 0 in
+            let d = if dedup x then rt_bytes rt else 0 in
             (x, acc) :: go t (acc + d)
       in
       go nr 0

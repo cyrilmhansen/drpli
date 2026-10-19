@@ -1376,21 +1376,50 @@ materialisation, and the conjunction's terminal `JP` reads the AND's sign.
 `<`, `>=`, `<=` in a conjunction and any non-`=` relation on the RIGHT side of
 one have no DR sample and refuse.
 
-## C106 — a declared FLOAT formal of an internal procedure occupies NO storage; a FIXED formal does (E2E-10 step 3)
+## C106 — a deduplicating callee's declared formal cell occupies NO storage; a RECURSIVE callee's does (E2E-10 step 3 + 3b)
 
-Three probes bracket the size law by formal count.  The local `q` declared after
-the formals sits at DR `A(0014)` / `A(0018)` / `A(001C)` for 1 / 2 / 3 float
-formals, while a model that charges the declared 4-byte float cell puts it at
-`0018` / `0020` / `0028` — exactly 4/8/12 bytes too high, with the 2-byte pointer
-cells themselves at DR's address in every case [R3095, R3096, R3093].  So the
-float formal's address IS its pointer cell (which is why the float lowering reads
-it with `LHLD`), and a `dcl (x,y,z) float` naming formals adds nothing.  FIXED
-formals are genuinely different: FFACT's `dcl i fixed bin(31)` followed by
-`dcl f fixed bin(31)` needs the declared cell counted or `f`'s address shifts,
-and FFACT is byte-exact.  Pre-existing bind-level defect, exposed only by a
-float program with a local after the formals; no accepted program had that shape
-so the gate never caught it (this is the third time layout accounting for a new
-declaration kind has been found this way — cf. C086's DEC shadow-cell note).
+The law is about the *dedup* relation, not the declaration type.  When a
+procedure's formal dcl dedups onto its 2-byte pointer cell, the declared cell
+consumes zero bytes; a local declared after the formals sits immediately after
+the pointer cells.  Six probes bracket it by formal count, both types:
+
+```
+FLOAT, non-recursive  1/2/3 formals   DR local Q = A(0014)/A(0018)/A(001C)
+                                      a charging model says 0018/0020/0028 (+4/+8/+12)
+FIXED, non-recursive  1/2/3 formals   DR local Q = A(000C)/A(0010)/A(0014)
+                                      a charging model says 000E/0012/0016 (+2/+4/+6)
+```
+
+with the pointer cells themselves at DR's address in every case [R3095, R3096,
+R3093, R3094, R3101, R3102].  The float formal's address IS its pointer cell,
+which is exactly why the float lowering reads it with `LHLD`.
+
+The exception is the written RECURSIVE attribute, where the declared cell IS the
+shadow value cell and really is allocated — `P401`, `NFACT` and `R3104`
+(`p: procedure(x) returns(fixed) recursive; dcl (x,q) fixed;` with `q` after `x`)
+are byte-exact only when it is charged, and turning the rule off for them shifts
+addresses.  So `dedup` (which requires `not attrf`) and "consumes no storage" are
+the same condition, and `bind.ml`'s existing note about the shadow cell was
+pointing at this all along.
+
+Two further facts fell out of the same shape:
+
+* A RECURSIVE callee with a FLOAT formal additionally COPIES the caller's value
+  into that declared cell at body entry — R3103's `$C` listing shows
+  `LXI H,X A(0010) / PUSH H / LHLD X A(000E) / XCHG / POP H / LXI B,0004 / CALL
+  <copy>`.  Every DATA address matches mine and only this prologue is missing,
+  which is the most dangerous kind of near-miss, so the case refuses (N71).
+* `fixed bin(31)` is DR `NOT IMP` even for a procedure-local declaration (R3094's
+  first draft got `NOT IMP` on five separate lines), re-confirming C079 outside
+  the main block.
+
+Process error worth keeping: while deciding between "type-discriminated" and
+"recursion-discriminated", an ad-hoc shell loop compared `P401`/`NFACT` against a
+golden PATH THAT DID NOT EXIST, reported `differs`, and nearly made me abandon the
+correct unified rule (and add a refusal for a shape DR has since shown to be
+simple).  The real gate — which resolves paths itself — said 286/286 the whole
+time.  Ad-hoc comparison loops must take their paths from the gate, not from a
+`find | head -1`.
 
 ## C107 — numeric GET into a FLOAT variable goes through the DECIMAL reader (E2E-10 step 3)
 

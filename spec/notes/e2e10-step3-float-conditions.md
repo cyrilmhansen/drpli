@@ -91,28 +91,51 @@ exist for suffix selection.  `fl_bin`'s and `fl_cmp_rel`'s mixed refusals are
 deleted; `fmode` keeps `Fderef` because it chooses the *load instruction*, not
 the suffix.
 
-## 5. Declared FLOAT formals occupy no storage (C106)
+## 5. A deduplicating callee's declared formal cell occupies no storage (C106)
 
 `TEST` and the R3079-R3096 family differed from DR only in the address of a
-local declared *after* the formals of an internal procedure.  Three probes pin
-the size law exactly:
+local declared *after* the formals of an internal procedure.  Six probes bracket
+the size law by formal count, and the law is about DEDUP, not about the type:
 
 ```
-float formals   DR's local Q   mine (before)   overcharge
-1               0014           0018            +4
-2               0018           0020            +8
-3               001C           0028            +12
+float formals   DR local Q       charging model     1/2/3 fixed formals  DR Q   charging model
+1               0014             0018  (+4)         1                      000C   000E  (+2)
+2               0018             0020  (+8)         2                      0010   0012  (+4)
+3               001C             0028  (+12)        3                      0014   0016  (+6)
 ```
 
-i.e. 4 bytes per declared float formal charged that DR does not charge: the
-formal's address IS the 2-byte pointer cell, which is precisely why the float
-lowering reads it with `LHLD`.  FIXED formals are different — `FFACT`'s
-`dcl i fixed bin(31)` followed by `dcl f fixed bin(31)` needs the declared cell
-counted, and FFACT is byte-exact, so the correction subtracts only dedup'd
-*float* rows (`ocaml/lib/bind.ml`, `section2`).  This was a pre-existing
-bind-level defect, invisible until a float program put a local after the
-formals; it never produced a wrong accepted program because no accepted program
-had that shape (0 DIFFERS on the gate throughout).
+with the 2-byte pointer cells themselves at DR's address in every case [R3095,
+R3096, R3093, R3094, R3101, R3102].  So a formal dcl that dedups onto its pointer
+cell adds nothing — for FLOAT and FIXED alike — and the correction in `bind.ml`
+is keyed on `dedup`, exactly like the row's address.
+
+The exception is the written RECURSIVE attribute, where dedup does not apply: the
+declared cell IS the shadow value cell and DR allocates it (P401, NFACT, and
+`R3104` = `p: procedure(x) returns(fixed) recursive; dcl (x,q) fixed;` are
+byte-exact only with it charged).  One further fact came from the same shape: a
+RECURSIVE callee with a FLOAT formal also COPIES the caller's value into that
+declared cell at body entry [R3103: `LXI H,X A(0010) / PUSH H / LHLD X A(000E) /
+XCHG / POP H / LXI B,0004 / CALL <copy>`].  R3103's DATA addresses all match mine
+and only that prologue is missing, so that case refuses (N71) rather than shipping
+a silent near-miss.
+
+This was a pre-existing bind-level defect, invisible until a program put a local
+after the formals; no accepted program had that shape, so the gate never caught it
+(third declaration-kind layout surprise of the milestone series, cf. C086).
+
+### 5a. The wrong turn I made here (kept because it is the instructive part)
+
+I first concluded from FFACT alone that FIXED formals were charged, and only had
+that refuted after sampling R3094/R3101/R3102 — FFACT declares `dcl i fixed;` with
+NO variable after it, so it says nothing about the matter, and my C106 draft quoted
+it (and quoted `fixed bin(31)`, which DR rejects outright as `NOT IMP` [C079], as
+if it were in FFACT).  Then a shell loop that compared P401/NFACT against a golden
+PATH THAT DOES NOT EXIST reported them as `differs`, which nearly made me keep the
+type-discriminated rule and add a refusal for the fixed shape.  The real gate —
+which resolves its own paths — had said 286/286 the entire time.  Two lessons:
+check what a cited program actually contains before promoting it to evidence, and
+never decide a layout question from an ad-hoc comparison loop whose paths are
+guessed.
 
 ## 6. GET of a float (C107)
 

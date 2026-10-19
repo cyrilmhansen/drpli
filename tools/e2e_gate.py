@@ -347,6 +347,12 @@ SPECIMENS = {
     # [E2E-10 step 3] a float expression may reference a variable declared LATER
     # in the same block; DR accepts it and mine matches [R3055].
     "R3055": ("e13src/R3055.PLI", "golden/e2e13e/R3055/R3055.REL"),
+    # [E2E-10 step 3b] the formal-storage size law, 1/2/3 formals, FIXED and
+    # FLOAT, recursive and not -- the specimens behind C106's correction.
+    "R3104": ("e13src/R3104.PLI", "golden/e2e13e/R3104/R3104.REL"),
+    "R3094": ("e13src/R3094.PLI", "golden/e2e13e/R3094/R3094.REL"),
+    "R3101": ("e13src/R3101.PLI", "golden/e2e13e/R3101/R3101.REL"),
+    "R3102": ("e13src/R3102.PLI", "golden/e2e13e/R3102/R3102.REL"),
     "R3098": ("e13src/R3098.PLI", "golden/e2e13e/R3098/R3098.REL"),
     "R3099": ("e13src/R3099.PLI", "golden/e2e13e/R3099/R3099.REL"),
     "R3100": ("e13src/R3100.PLI", "golden/e2e13e/R3100/R3100.REL"),
@@ -770,6 +776,18 @@ REJECTS = {
     # really comes from the operand pair inside the callee.
     # RETIRED N65_FLOAT_CELL_FORMAL_MIX: a cell mixed with a pointer formal is ordinary address-mode and byte-exact [R3099, R3082-R3086] -- it now belongs to the positive panel.
     # RETIRED N66_FLOAT_GET: GET LIST into a FLOAT variable is supported and byte-exact [R3100, R3065/R3066/R3004] -- it now belongs to the positive panel.
+    # [E2E-10 step 3b] a FLOAT formal of a RECURSIVE procedure: DR copies the
+    # caller's float into the callee's declared cell at body entry [R3103
+    # `LXI H,X A(0010) / PUSH H / LHLD X A(000E) / XCHG / POP H / LXI B,0004 /
+    # CALL <copy>`].  My lowering has no sample of that copy, and every DATA
+    # address in R3103 matches while only the prologue is missing -- the most
+    # dangerous kind of near-miss, so it refuses.
+    "N71_RECURSIVE_FLOAT_FORMAL": (
+        "t:\n  procedure options(main);\n  dcl a float;\n  dcl m float;\n"
+        "  a = 1.5;\n  m = p(a);\n  put skip list(m);\n  stop;\n"
+        "  p: procedure(x) returns(float binary(24)) recursive;\n"
+        "     dcl (x,q) float;\n  q = x;\n     return (q);\n  end p;\nend t;\n",
+        "a FLOAT formal of a RECURSIVE procedure"),
     "N67_NEGATE_CONVERTED": (
         "t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n"
         "  dcl d1 float;\n  a = 1.5;\n  i = 3;\n  d1 = a * -i;\n"

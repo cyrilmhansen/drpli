@@ -1,0 +1,79 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3101
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3101
+
+   1 a 0000 r3101: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl (a,b,c) fixed;
+   3 c 0006    dcl m fixed;
+   4 c 0006    a = b;
+       0006       LHLD B A(0002)
+       0009       SHLD A A(0000)
+   5 c 000C    b = c;
+       000C       LHLD C A(0004)
+       000F       SHLD B A(0002)
+   6 c 0012    c = a;
+       0012       LHLD A A(0000)
+       0015       SHLD C A(0004)
+   7 c 0018    m = p(a,b);
+       0018       LXI  H,* A(0008)
+       001B       CALL 0000
+       001E       SHLD M A(0006)
+   8 c 0021    put skip list(m);
+       0021       LXI  D,0252
+       0024       LXI  B,0000
+       0027       CALL ?SYSPR
+       002A       MVI  A,01
+       002C       CALL ?SKPOP
+       002F       LHLD M A(0006)
+       0032       MVI  A,09
+       0034       CALL ?QICOP
+       0037       CALL ?PNVOP
+       003A       CALL ?QIOOP
+       0025       ==== 003D
+   9 c 003D    stop;
+       003D       CALL ?STOPX
+  10 c 0040    p: procedure(x,y) returns(fixed);
+  11 e 0040       dcl (x,y,q) fixed;
+       0040       LXI  D,X A(000C)
+       0043       MVI  C,04
+       0045       MOV  A,M
+       0046       INX  H
+       0047       STAX D
+       0048       INX  D
+       0049       DCR  C
+       004A       JNZ  0045
+  12 e 004D       q = x;
+       004D       LHLD X A(000C)
+       0050       MOV  E,M
+       0051       INX  H
+       0052       MOV  D,M
+       0053       XCHG 
+       0054       SHLD Q A(0010)
+  13 e 0057       return (q);
+       0057       LHLD Q A(0010)
+       005A       RET  
+  14 c 005B    end p;
+  15 a 005B end r3101;
+
+CODE SIZE = 005B
+DATA AREA = 0012
+FREE SYMS = 3859
+END  COMPILATION
+

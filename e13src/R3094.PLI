@@ -1,14 +1,16 @@
 r3094: procedure options(main);
-   dcl (a,b,c) fixed bin(31);
-   dcl m fixed bin(31);
-   a = b; b = c;
-   m = p(a,b,c);
-   put skip edit(m) (a(9));
+   dcl (a,b,c) fixed;
+   dcl m fixed;
+   a = b;
+   b = c;
+   c = a;
+   m = p(a);
+   put skip list(m);
    stop;
-   p: procedure(x,y,z) returns(fixed bin(31));
-      dcl (x,y,z) fixed bin(31);
-   dcl q fixed bin(31);
-      q = x; return (q);
+   p: procedure(x) returns(fixed);
+      dcl (x,q) fixed;
+      q = x;
+      return (q);
    end p;
 end r3094;
 

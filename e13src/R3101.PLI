@@ -1,0 +1,16 @@
+r3101: procedure options(main);
+   dcl (a,b,c) fixed;
+   dcl m fixed;
+   a = b;
+   b = c;
+   c = a;
+   m = p(a,b);
+   put skip list(m);
+   stop;
+   p: procedure(x,y) returns(fixed);
+      dcl (x,y,q) fixed;
+      q = x;
+      return (q);
+   end p;
+end r3101;
+

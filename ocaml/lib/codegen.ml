@@ -4169,6 +4169,17 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
          | _ ->
              failwith "codegen: non fixed-bin procedure local [TBD]"))
       pl.Bind.pl_rows @ saved;
+  (if pl.Bind.pl_rec
+     && List.exists
+          (fun (n, rt, _) ->
+            match rt with
+            | Bind.RTfloat _ ->
+                List.mem_assoc (String.lowercase_ascii n) pl.Bind.pl_ptrs
+            | _ -> false)
+          pl.Bind.pl_rows
+   then
+     failwith
+       "codegen: a FLOAT formal of a RECURSIVE procedure is unsampled [TBD] (R3103 shows DR copying the caller's 4-byte float into the callee's DECLARED formal cell at body entry -- `LXI H,X A(0010) / PUSH H / LHLD X A(000E) / XCHG / POP H / LXI B,0004 / CALL <copy>` -- the recursive shadow-value path the FIXED formals already use [P402, and R3104 is byte-exact for the fixed case].  My recursive lowering has no sample of that float copy, and emitting the non-recursive LHLD deref instead would be silently wrong: R3103's addresses all match and only this prologue is missing, which is exactly the kind of near-miss that must refuse)");
   st.deref <-
     (* recursive bodies read the SHADOW value cell with plain ladders
        [RFACT @80: LHLD I(12); DCX H — no deref] *)

@@ -1,0 +1,14 @@
+r3104: procedure options(main);
+   dcl a fixed;
+   dcl m fixed;
+   a = 3;
+   m = p(a);
+   put skip list(m);
+   stop;
+   p: procedure(x) returns(fixed) recursive;
+      dcl (x,q) fixed;
+   q = x;
+      return (q);
+   end p;
+end r3104;
+
