@@ -1229,6 +1229,42 @@ UNRESOLVED AFTER STEP 1 (deliberately not guessed):
 3. The operand-mode suffix rule (`?FA44M` vs `?FA44S` vs `?FA44L`, `?FD44R`,
    `?FS44M`) -- the genuinely new lowering law, and the expected centre of
    step 2/3 work.  Step 1 says nothing about it.
+   **RESOLVED in C103** (step 2, probes R3030-R3036, R3042-R3044, R3046,
+   R3051-R3054).  The answer was NOT the structural cell-vs-stack rule this
+   note assumed; a negation and a conversion are separate operand modes.
 4. Subnormals: none observed; whether the runtime ever produces one is unknown.
 5. The exp-byte-0/zero encoding ambiguity noted above: unreachable from source,
    but recorded so nobody "fixes" it later.
+
+## C102 — PL/I-80 arithmetic-exception ON-units are TERMINAL; the tutorial dialect difference (LEARN validation, 2026-10-19)
+
+* Evidence: original DR PL/I-80 1.4 + LINK 1.31 on `LEARN.PLI` (the
+  learnxinyminutes PL/I-80 tutorial program, retrieved byte-identical from
+  `cyrilmhansen/learnxinyminutes-docs@b2d6f16`, saved as CP/M text: CRLF + `^Z`,
+  program characters untouched).  Compiler reported `NO ERROR(S) IN PASS 1` /
+  `PASS 2`, `CODE SIZE = 041A`, `DATA AREA = 012B`; LINK reported no
+  diagnostics (`CODE SIZE 30B9`, `DATA SIZE 045B`, `COMMON SIZE 0144`); the
+  `.COM` ran and printed every statement's expected output, then
+  `ZERO DIVIDE (0)` / `Traceback: 0498` and returned to `D>`.
+  Full transcripts: `golden/learn/`, note `spec/notes/learn-tutorial-dri-validation.md`.
+* The abort is **documented compiler behavior, not a defect**.  Applications
+  Guide §7.5 (printed page 65, local scan, checksum verified) states verbatim:
+  *"Note, however, that all arithmetic faults are considered terminal. That is,
+  if an ON condition is set for an arithmetic exception, then the on-body must
+  contain a transfer to a global label. Otherwise, the program is terminated
+  upon return from the ON unit."*
+* The tutorial's `ON ZERODIVIDE PUT SKIP LIST(...);` has no `GO TO`, so
+  termination on return from the ON-unit is REQUIRED behavior for PL/I-80.
+  Iron Spring PL/I 1.4.1 resumes after the handler instead, on the same source.
+  That is a **language-semantics dialect difference** between the two
+  implementations, and the divergence was predicted by DR documentation before
+  the run rather than reverse-engineered from the crash.
+* Consequence for this reimplementation, if `ON`/arithmetic exceptions are ever
+  implemented: reproduce the TERMINAL semantics (return from an arithmetic
+  exception ON-unit ends the program).  `golden/learn/LEARN.PLI` is the
+  standing specimen for that rule; it is NOT part of the 41-program DR corpus
+  and does not count toward the corpus score.
+* Current build refuses the specimen fail-loud at the first unsupported
+  declaration kind: `declared variable kind not in supported subset [TBD]:
+  BIT(1)`, ahead of its `POINTER`/`BASED`, `VARYING`, `FILE`, `ON`/`SIGNAL`,
+  array and `FLOAT` members.

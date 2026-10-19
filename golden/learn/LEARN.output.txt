@@ -1,0 +1,23 @@
+
+Hello, world!
+Total:        10
+Half:  5.0000000E-01
+  13.75
+PL/I on CP/M      12
+PL/I
+Ready
+        1         1
+        2         4
+        3         9
+        4        16
+Even:         2
+Even:         4
+Even:         6
+Square root:  3.0000000E+00
+Heap:        42
+Ada                          2
+From procedure:        10
+5 factorial:       120
+Division by zero signalled
+ZERO DIVIDE (0)
+Traceback: 0498

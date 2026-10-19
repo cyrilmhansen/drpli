@@ -1,0 +1,124 @@
+/* Comments start with slash-star and end with star-slash.
+   PL/I is case-insensitive, free-format, and uses semicolons. */
+
+LEARN: PROCEDURE OPTIONS(MAIN);
+    /* PL/I-80 adds a simple compile-time substitution facility. */
+    %REPLACE LIMIT BY 4;
+
+    /* DCL is short for DECLARE. Data must be declared explicitly. */
+    DECLARE I FIXED BINARY(15);
+    /* PL/I-80 requires STATIC for declarations using INITIAL. */
+    DECLARE TOTAL FIXED BINARY(15) STATIC INITIAL(0);
+    DECLARE AMOUNT FIXED DECIMAL(7,2) STATIC INITIAL(12.50);
+    DECLARE HALF FLOAT BINARY(24) STATIC INITIAL(0.5);
+    DECLARE READY BIT(1) STATIC INITIAL('1'B);
+    DECLARE LABEL_TEXT CHARACTER(12) STATIC INITIAL('hello');
+    DECLARE MESSAGE CHARACTER(40) VARYING;
+    DECLARE NUMBERS(LIMIT) FIXED BINARY(15);
+    DECLARE GRID(0:2,1:3) FLOAT BINARY(24);
+    DECLARE HEAP_PTR POINTER;
+    DECLARE HEAP_VALUE FIXED BINARY(15) BASED(HEAP_PTR);
+    DECLARE OUTPUT FILE;
+
+    /* A structure uses numeric nesting levels, like a record. */
+    DECLARE 1 PERSON,
+              2 PERSON_NAME CHARACTER(20),
+              2 VISITS FIXED BINARY(15);
+
+    /* PUT outputs to the console (SYSPRINT) by default. */
+    PUT SKIP LIST('Hello, world!');
+
+    /* = assigns a value. ** is exponentiation. */
+    I = 2 ** 3;                  /* 8 */
+    TOTAL = I + 2;               /* 10 */
+    AMOUNT = AMOUNT + 1.25;      /* 13.75 */
+
+    PUT SKIP LIST('Total:', TOTAL);
+    PUT SKIP LIST('Half:', HALF);
+
+    /* EDIT offers formatted output: F(width, decimal places). */
+    PUT SKIP EDIT(AMOUNT) (F(7,2));
+
+    /* Fixed-length strings are padded with spaces. */
+    LABEL_TEXT = 'hi';
+
+    /* VARYING strings keep their current length. */
+    MESSAGE = 'PL/I' || ' on CP/M';  /* || concatenates */
+    PUT SKIP LIST(MESSAGE, LENGTH(MESSAGE));
+    PUT SKIP LIST(SUBSTR(MESSAGE, 1, 4));
+    SUBSTR(MESSAGE, 1, 4) = 'PL/1';
+
+    /* Comparisons yield BIT(1); & means AND, | means OR. */
+    IF (TOTAL >= 10) & READY THEN DO;
+        PUT SKIP LIST('Ready');
+    END;
+    ELSE DO;
+        PUT SKIP LIST('Not ready');
+    END;
+
+    /* Arrays default to one-based indexing. */
+    DO I = 1 TO LIMIT;
+        NUMBERS(I) = I * I;
+    END;
+
+    DO I = 1 TO LIMIT;
+        PUT SKIP LIST(I, NUMBERS(I));
+    END;
+
+    /* Alternative loop forms: BY and WHILE. */
+    DO I = 2 TO 6 BY 2;
+        PUT SKIP LIST('Even:', I);
+    END;
+
+    I = 3;
+    DO WHILE (I > 0);
+        I = I - 1;
+    END;
+
+    /* FORTRAN-like numerical arrays and mathematical functions. */
+    GRID(0,1) = SQRT(9.0);
+    PUT SKIP LIST('Square root:', GRID(0,1));
+
+    /* Pointer-based storage can outlive the creating block. */
+    ALLOCATE HEAP_VALUE SET(HEAP_PTR);
+    HEAP_VALUE = 42;
+    PUT SKIP LIST('Heap:', HEAP_PTR -> HEAP_VALUE);
+    FREE HEAP_VALUE;
+    HEAP_PTR = NULL();
+
+    PERSON.PERSON_NAME = 'Ada';
+    PERSON.VISITS = 2;
+    PUT SKIP LIST(PERSON.PERSON_NAME, PERSON.VISITS);
+
+    /* CALL invokes a procedure; a function returns a value. */
+    CALL SHOW_NUMBER(TOTAL);
+    PUT SKIP LIST('5 factorial:', FACT(5));
+
+    /* ON installs an exception handler; SIGNAL raises a condition. */
+    ON ZERODIVIDE PUT SKIP LIST('Division by zero signalled');
+    SIGNAL ZERODIVIDE;
+    REVERT ZERODIVIDE;
+
+    /* Input from the console would be: GET LIST(I); */
+
+    /* Stream file I/O on CP/M (uncomment to write OUTPUT.DAT):
+       OPEN FILE(OUTPUT) STREAM OUTPUT;
+       PUT FILE(OUTPUT) SKIP LIST('A line in a disk file');
+       CLOSE FILE(OUTPUT);
+    */
+
+    STOP; /* Do not fall through into the procedure bodies. */
+
+    SHOW_NUMBER: PROCEDURE(VALUE);
+        DECLARE VALUE FIXED BINARY(15);
+        PUT SKIP LIST('From procedure:', VALUE);
+    END SHOW_NUMBER;
+
+    /* Recursive procedures must explicitly say RECURSIVE. */
+    FACT: PROCEDURE(N) RETURNS(FIXED BINARY(15)) RECURSIVE;
+        DECLARE N FIXED BINARY(15);
+        IF N <= 1 THEN RETURN(1);
+        RETURN(N * FACT(N - 1));
+    END FACT;
+END LEARN;
+
