@@ -1,0 +1,10 @@
+r3066:
+ procedure options(main);
+   dcl a float;
+   dcl i fixed;
+   dcl d fixed dec(5,2);
+   get list(a, i, d);
+   put skip list(a);
+   stop;
+end r3066;
+

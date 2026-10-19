@@ -1,0 +1,8 @@
+r3067:
+ procedure options(main);
+   dcl (a,b,c) float;
+   get list(a, b, c);
+   put edit(a) (f(12,4));
+   stop;
+end r3067;
+

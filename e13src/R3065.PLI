@@ -1,0 +1,8 @@
+r3065:
+ procedure options(main);
+   dcl a float;
+   get list(a);
+   put skip list(a);
+   stop;
+end r3065;
+

@@ -1,0 +1,10 @@
+t:
+  procedure options(main);
+  dcl (a,b) float;
+  dcl d1 float;
+  a = 1.5;
+  b = 2.5;
+  if a > b then d1 = a;
+  stop;
+end t;
+

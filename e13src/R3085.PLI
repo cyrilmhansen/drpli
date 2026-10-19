@@ -1,0 +1,15 @@
+r3085: procedure options(main);
+   dcl (a,b,c) float;
+   dcl m float;
+   a = 1.5;
+   b = 2.5;
+   c = 3.5;
+   m = p(a,b,c);
+   put skip list(m);
+   stop;
+   p: procedure(x,y,z) returns(float binary(24));
+      dcl (x,y,z) float;
+      return (2 + y);
+   end p;
+end r3085;
+

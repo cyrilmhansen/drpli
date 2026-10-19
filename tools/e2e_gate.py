@@ -320,6 +320,57 @@ SPECIMENS = {
     "R3052": ("e13src/R3052.PLI", "golden/e2e13r/R3052/R3052.REL"),
     "R3053": ("e13src/R3053.PLI", "golden/e2e13r/R3053/R3053.REL"),
     "R3054": ("e13src/R3054.PLI", "golden/e2e13r/R3054/R3054.REL"),
+    # [E2E-10 step 3] FLOAT conditions, GET, conjunctions and the
+    # cell/pointer-formal operand pairs, promoted to byte-exact gate
+    # positives (each was refused or wrong before step 3):
+    "R3074": ("e13src/R3074.PLI", "golden/e2e13e/R3074/R3074.REL"),
+    "R3076": ("e13src/R3076.PLI", "golden/e2e13e/R3076/R3076.REL"),
+    "R3077": ("e13src/R3077.PLI", "golden/e2e13e/R3077/R3077.REL"),
+    "R3078": ("e13src/R3078.PLI", "golden/e2e13e/R3078/R3078.REL"),
+    "R3079": ("e13src/R3079.PLI", "golden/e2e13e/R3079/R3079.REL"),
+    "R3080": ("e13src/R3080.PLI", "golden/e2e13e/R3080/R3080.REL"),
+    "R3081": ("e13src/R3081.PLI", "golden/e2e13e/R3081/R3081.REL"),
+    "R3082": ("e13src/R3082.PLI", "golden/e2e13e/R3082/R3082.REL"),
+    "R3083": ("e13src/R3083.PLI", "golden/e2e13e/R3083/R3083.REL"),
+    "R3084": ("e13src/R3084.PLI", "golden/e2e13e/R3084/R3084.REL"),
+    "R3085": ("e13src/R3085.PLI", "golden/e2e13e/R3085/R3085.REL"),
+    "R3086": ("e13src/R3086.PLI", "golden/e2e13e/R3086/R3086.REL"),
+    "R3087": ("e13src/R3087.PLI", "golden/e2e13e/R3087/R3087.REL"),
+    "R3088": ("e13src/R3088.PLI", "golden/e2e13e/R3088/R3088.REL"),
+    "R3089": ("e13src/R3089.PLI", "golden/e2e13e/R3089/R3089.REL"),
+    "R3090": ("e13src/R3090.PLI", "golden/e2e13e/R3090/R3090.REL"),
+    "R3091": ("e13src/R3091.PLI", "golden/e2e13e/R3091/R3091.REL"),
+    "R3093": ("e13src/R3093.PLI", "golden/e2e13e/R3093/R3093.REL"),
+    "R3095": ("e13src/R3095.PLI", "golden/e2e13e/R3095/R3095.REL"),
+    "R3096": ("e13src/R3096.PLI", "golden/e2e13e/R3096/R3096.REL"),
+    "R3097": ("e13src/R3097.PLI", "golden/e2e13e/R3097/R3097.REL"),
+    # [E2E-10 step 3] a float expression may reference a variable declared LATER
+    # in the same block; DR accepts it and mine matches [R3055].
+    "R3055": ("e13src/R3055.PLI", "golden/e2e13e/R3055/R3055.REL"),
+    "R3098": ("e13src/R3098.PLI", "golden/e2e13e/R3098/R3098.REL"),
+    "R3099": ("e13src/R3099.PLI", "golden/e2e13e/R3099/R3099.REL"),
+    "R3100": ("e13src/R3100.PLI", "golden/e2e13e/R3100/R3100.REL"),
+    "R3035": ("e13src/R3035.PLI", "golden/e2e13d/R3035/R3035.REL"),
+    "R3061": ("e13src/R3061.PLI", "golden/e2e13d/R3061/R3061.REL"),
+    "R3062": ("e13src/R3062.PLI", "golden/e2e13d/R3062/R3062.REL"),
+    "R3063": ("e13src/R3063.PLI", "golden/e2e13d/R3063/R3063.REL"),
+    "R3065": ("e13src/R3065.PLI", "golden/e2e13d/R3065/R3065.REL"),
+    "R3066": ("e13src/R3066.PLI", "golden/e2e13d/R3066/R3066.REL"),
+    "R3070": ("e13src/R3070.PLI", "golden/e2e13d/R3070/R3070.REL"),
+    "R3071": ("e13src/R3071.PLI", "golden/e2e13d/R3071/R3071.REL"),
+    "R3072": ("e13src/R3072.PLI", "golden/e2e13d/R3072/R3072.REL"),
+    "R3073": ("e13src/R3073.PLI", "golden/e2e13d/R3073/R3073.REL"),
+    "R3005": ("e13src/R3005.PLI", "golden/e2e13r/R3005/R3005.REL"),
+    "R3045": ("e13src/R3045.PLI", "golden/e2e13r/R3045/R3045.REL"),
+    "R3004": ("e13src/R3004.PLI", "golden/e2e13/R3004/R3004.REL"),
+    "R3012": ("e13src/R3012.PLI", "golden/e2e13/R3012/R3012.REL"),
+    "R3014": ("e13src/R3014.PLI", "golden/e2e13/R3014/R3014.REL"),
+    "R3049": ("e13src/R3049.PLI", "golden/e2e13/R3049/R3049.REL"),
+    "R3050": ("e13src/R3050.PLI", "golden/e2e13/R3050/R3050.REL"),
+    # [E2E-10 step 3] the 8th and 9th historical corpus programs, both
+    # FLOAT: accepted at RAW .REL byte equality against DR PL/I-80 v1.4.
+    "FLTPOLY": ("artefacts/FLTPOLY.PLI", "golden/first8080u/FLTPOLY/FLTPOLY.REL"),
+    "TEST": ("artefacts/TEST.PLI", "golden/first8080u/TEST/TEST.REL"),
     "R2023": ("probes/R2023.PLI", "golden/e2e12/R2023/R2023.REL"),
     "R2024": ("probes/R2024.PLI", "golden/e2e12/R2024/R2024.REL"),
     "R2025": ("probes/R2025.PLI", "golden/e2e12/R2025/R2025.REL"),
@@ -710,31 +761,15 @@ REJECTS = {
         "t:\n  procedure options(main);\n  dcl g float binary(14);\n"
         "  g = 1.5;\n  stop;\nend t;\n",
         "FLOAT BINARY(14) precision unsupported"),
-    "N63_FLOAT_COMPARE_COND": (
-        "t:\n  procedure options(main);\n  dcl (a,b) float;\n  dcl d1 float;\n"
-        "  a = 1.5;\n  b = 2.5;\n  if a > b then d1 = a;\n  stop;\nend t;\n",
-        "FLOAT comparison in a condition"),
-    "N64_FLOAT_CONV_IN_COND": (
-        "t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n"
-        "  dcl d1 float;\n  a = 1.5;\n  i = 3;\n  if a > 2.5 then d1 = a;\n"
-        "  stop;\nend t;\n",
-        "FLOAT comparison in a condition"),
+    # RETIRED N63_FLOAT_COMPARE_COND: FLOAT `>` in an if-condition is supported and byte-exact [R3097, R3070-R3074] -- it now belongs to the positive panel.
+    # RETIRED N64_FLOAT_CONV_IN_COND: `a > 2.5` in an if-condition is supported and byte-exact [R3098, R3077] -- it now belongs to the positive panel.
     # [E2E-10 step 2] DR pins cell+cell [R3030-R3033] and formal+formal
     # [R3038] FLOAT operand pairs; a MIX of the two has no sample, so the
     # lowering must refuse rather than borrow the DEC pattern.  The call is
     # fixed-argument-free (a float variable argument, [R3061]) so the refusal
     # really comes from the operand pair inside the callee.
-    "N65_FLOAT_CELL_FORMAL_MIX": (
-        "t:\n  procedure options(main);\n  dcl (a,x) float;\n"
-        "  dcl d1 float;\n  a = 1.5;\n  x = 2.5;\n  d1 = g(x);\n  stop;\n"
-        "  g: procedure(q) returns(float);\n     dcl q float;\n"
-        "     dcl r float;\n     r = q * a;\n     return (r);\n"
-        "  end g;\nend t;\n",
-        "mixing a plain cell with a pointer formal"),
-    "N66_FLOAT_GET": (
-        "t:\n  procedure options(main);\n  dcl a float;\n"
-        "  get list(a);\n  stop;\nend t;\n",
-        "GET LIST into a FLOAT variable"),
+    # RETIRED N65_FLOAT_CELL_FORMAL_MIX: a cell mixed with a pointer formal is ordinary address-mode and byte-exact [R3099, R3082-R3086] -- it now belongs to the positive panel.
+    # RETIRED N66_FLOAT_GET: GET LIST into a FLOAT variable is supported and byte-exact [R3100, R3065/R3066/R3004] -- it now belongs to the positive panel.
     "N67_NEGATE_CONVERTED": (
         "t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n"
         "  dcl d1 float;\n  a = 1.5;\n  i = 3;\n  d1 = a * -i;\n"

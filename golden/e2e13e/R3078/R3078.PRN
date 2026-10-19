@@ -1,0 +1,57 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3078
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3078
+
+   1 a 0000 r3078:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006  procedure options(main);
+   3 c 0006    dcl (a,b) float;
+   4 c 0006    dcl d1 float;
+   5 c 0006    if a > b & a = 0 then d1 = a;
+       0006       LXI  H,B A(0008)
+       0009       PUSH H
+       000A       LXI  H,A A(0004)
+       000D       POP  D
+       000E       CALL ?FC44M
+       0011       LXI  H,A A(0004)
+       0014       PUSH PSW
+       0015       PUSH H
+       0016       LXI  H,* S(0000)
+       0019       POP  D
+       001A       CALL ?FC44M
+       001D       SUI  01
+       001F       SBB  A
+       0020       POP  B
+       0021       ANA  B
+       0022       JP   0000
+       0025       LXI  H,A A(0004)
+       0028       PUSH H
+       0029       LXI  H,D1 A(000C)
+       002C       POP  D
+       002D       CALL ?FX44M
+       0023       ==== 0030
+   6 c 0030    stop;
+       0030       CALL ?STOPX
+   7 a 0033 end r3078;
+
+CODE SIZE = 0033
+DATA AREA = 0010
+FREE SYMS = 38AC
+END  COMPILATION
+

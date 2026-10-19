@@ -1,0 +1,8 @@
+r3076:
+ procedure options(main);
+   dcl (a,b) float;
+   dcl d1 float;
+   if a = 0 then d1 = a;
+   stop;
+end r3076;
+

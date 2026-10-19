@@ -1301,8 +1301,103 @@ accumulator is on: **L = accumulator value OP HL**, **R = HL OP accumulator**.
   the accumulator.
 * Negative LITERALS never take `?FN40`: the sign is folded into the pool cell at
   compile time [R3007, R3018, R3020], consistent with C101/C100.
-* Still refused, not inferred (no DR sample): mixing a plain-cell operand with a
-  pointer-formal operand in one op [R3030-R3033 vs R3038 pin only the uniform
-  cases], and negating a `?QI15F` conversion result.
-* Implemented state: 29 of 36 float probes byte-identical to DR, 0 differing,
-  7 refused (each a named perimeter member); `FFACT` byte-identical.
+* ~~Still refused, not inferred (no DR sample): mixing a plain-cell operand with
+  a pointer-formal operand in one op.~~  **CORRECTED in step 3** — see C103a.
+  The cell/formal distinction does not exist for suffix selection at all; the
+  real cut is address-mode vs computed, and a pointer formal is address-mode.
+* Implemented state (step 2): 29 of 36 float probes byte-identical.  Step 3
+  supersedes it: see C103a and the note `e2e10-step3-float-conditions.md`.
+
+## C103a — the suffix law's real cut is ADDRESS-MODE vs COMPUTED; a FLOAT pointer formal is address-mode (E2E-10 step 3)
+
+Step 2 recorded `cell` vs `computed` and refused the mix as unsampled.  Ten new
+byte-identical probes refute both the refusal and the terminology: an operand is
+**address-mode** when DR can push a pointer to its value cheaply, which covers a
+plain variable cell (`LXI H,*S`), a float literal pool cell, **and** a FLOAT
+pointer formal (`LHLD ptr`); it is **computed** when the value must be produced
+into the accumulator (`?QI15F` conversion, `?FN40` negation, an arithmetic
+result).  Address-mode pairs take `M` in WRITTEN order with no commute —
+there is nothing to materialise:
+
+| shape | DR code | sample |
+|---|---|---|
+| literal cell * formal | `LXI H,*S / PUSH H / LHLD Y / POP D / ?FM44M` | R3082 |
+| formal * literal cell | `LHLD Y / PUSH H / LXI H,*S / POP D / ?FM44M` | R3083 |
+| formal + literal cell | `?FA44M`, written order | R3084 |
+| formal * formal | `LHLD X / PUSH H / LHLD Y / POP D / ?FM44M` | R3086 |
+| `(x*x + 2*y) + z` (z formal) | `?FA44S`, then `LHLD Z / ?FA44L` | R3087 |
+| `z + x*y` (formal left, binary right) | x*y first, `LHLD Z / ?FA44L` (commuted) | R3089 |
+| `z / (x+y)` | x+y first, `LHLD Z / ?FD44R` (order kept) | R3090 |
+
+The commute rule inside the computed half is unchanged: DR exchanges a
+commutative operator's operands only when the right side is itself a binary
+result, and keeps the written order around a negation or a conversion.  R3005,
+the probe step 2 read as a mixed pair, was never one.  `Fderef` still earns its
+place in the mode type because it selects the LOAD INSTRUCTION; it must never
+select the suffix.  Implemented state after step 3: 111 float probes
+byte-identical, 0 differing, 17 refused (named perimeter members).
+
+## C104 — DR FLOAT relation lowering in a condition; `<>` is not accepted by DR itself (E2E-10 step 3)
+
+Every sampled float relation is `?FC44M` on the two operand addresses followed by
+exactly one conditional jump; the push ORDER is what makes the wanted sign come
+out positive or negative:
+
+| condition | first pushed | jump | sample |
+|---|---|---|---|
+| `a > b` | right (b) | `JP` | R3070 (also R3037's shape, whose jump guards the ELSE branch, so `a > b` on floats is really testing `>=` semantics through JP) |
+| `a < b` | left (a) | `JP` | R3071 |
+| `a >= b` | left (a) | `JM` | R3072 |
+| `a <= b` | right (b) | `JM` | R3073 |
+| `a = b` | left (a) | `JNZ` (skip) | R3074 — `?FC44M` leaves `A = 0` when equal |
+| `a <> b` | — | — | R3075: **DR rejects it**.  PASS 1 clean, `1 ERROR(S) IN PASS 2`, no `.REL` emitted.  DEC `<>` gets JZ [C085]; the float reader offers no such form, so there is nothing to reproduce and the lowering refuses. |
+
+Two consequences that only the bytes showed:
+
+* A comparison LITERAL (`a = 0`, `a > 2.5`) becomes a 4-byte float POOL cell
+  (written-order `M`), never a runtime `?QI15F`/`?QX8F4` conversion [R3076,
+  R3077].  So a condition consumes pool space, and the pool prescan has to walk
+  conditions — otherwise the cell collides with address 0 and every later data
+  address shifts silently (real bug, fixed).
+* Mixed cell/formal comparisons behave like address-mode pairs [R3079:
+  `LHLD X / PUSH H / LHLD Y / POP D / ?FC44M / JP`], per C103a.
+
+## C105 — FLOAT operand of an `&` conjunction: PSW-accumulated booleans, with `>` contributing its raw compare byte (E2E-10 step 3)
+
+`if x=0 & y=0 & z=0` (FLTPOLY) lowers exactly like the DEC conjunction [R2026]:
+first operand's boolean byte into A via `?FC44M / SUI 01 / SBB A`; each later
+operand's FIRST ADDRESS LOAD hoisted above `PUSH PSW`, then `PUSH H`, then its
+own compare+materialisation; each later operand combined by `POP B / ANA B`;
+terminal `JP <skip>` on the ANDed sign.  R3078 pins the asymmetry that a purely
+structural rule would miss: when the operand is `>` rather than `=`, DR emits
+the compare and then NOTHING — `?FC44M`'s signed-comparison byte already has the
+sign bit set exactly when "greater" holds, so the boolean needs no
+materialisation, and the conjunction's terminal `JP` reads the AND's sign.
+`<`, `>=`, `<=` in a conjunction and any non-`=` relation on the RIGHT side of
+one have no DR sample and refuse.
+
+## C106 — a declared FLOAT formal of an internal procedure occupies NO storage; a FIXED formal does (E2E-10 step 3)
+
+Three probes bracket the size law by formal count.  The local `q` declared after
+the formals sits at DR `A(0014)` / `A(0018)` / `A(001C)` for 1 / 2 / 3 float
+formals, while a model that charges the declared 4-byte float cell puts it at
+`0018` / `0020` / `0028` — exactly 4/8/12 bytes too high, with the 2-byte pointer
+cells themselves at DR's address in every case [R3095, R3096, R3093].  So the
+float formal's address IS its pointer cell (which is why the float lowering reads
+it with `LHLD`), and a `dcl (x,y,z) float` naming formals adds nothing.  FIXED
+formals are genuinely different: FFACT's `dcl i fixed bin(31)` followed by
+`dcl f fixed bin(31)` needs the declared cell counted or `f`'s address shifts,
+and FFACT is byte-exact.  Pre-existing bind-level defect, exposed only by a
+float program with a local after the formals; no accepted program had that shape
+so the gate never caught it (this is the third time layout accounting for a new
+declaration kind has been found this way — cf. C086's DEC shadow-cell note).
+
+## C107 — numeric GET into a FLOAT variable goes through the DECIMAL reader (E2E-10 step 3)
+
+`get list(x)` for a float is `?GNVOP` / `JP` (skip) then `?QCXOP` (clean the
+decimal) / `?QX8F4` (decimal → 4-byte float into the accumulator) / `LXI H,var`
+/ `?FX44S` [R3065 one item, R3066 mixed float+fixed list, R3004 two items,
+R3100 minimal].  No `MVI A/B` width or scale operands appear anywhere in the
+tail, unlike the DEC branch's `?QCDOP`/`?DSTOP` pair [LOAN1, R906].  Value-model
+consequence: a runtime-read float does not pass through C101's literal conversion
+and its rounding law must not be assumed identical to a literal's.

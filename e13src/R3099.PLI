@@ -1,0 +1,16 @@
+t:
+  procedure options(main);
+  dcl (a,x) float;
+  dcl d1 float;
+  a = 1.5;
+  x = 2.5;
+  d1 = g(x);
+  stop;
+  g: procedure(q) returns(float);
+     dcl q float;
+     dcl r float;
+     r = q * a;
+     return (r);
+  end g;
+end t;
+

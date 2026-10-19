@@ -1022,7 +1022,29 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
     | _ -> None
   in
   let litof e = match (unwrap e).Ast.e with Ast.Enumber k -> Some k | _ -> None in
+  (* a FLOAT operand of a comparison: a float variable (or float formal) or a
+     call that returns float.  Used to route a literal partner to the FLOAT
+     pool cell instead of a DEC cell [R3076 `a = 0`, R3077 `a > 2.5`]. *)
+  let is_fl e =
+    match (unwrap e).Ast.e with
+    | Ast.Eident n ->
+        (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) cx.pd_vars
+         with Some Vflt -> true | _ -> false)
+    | Ast.Esuffix (b, _) ->
+        (match b.Ast.e with
+         | Ast.Eident n ->
+             List.mem (String.lowercase_ascii n.Ast.orig) cx.pd_fl_procs
+         | _ -> false)
+    | _ -> false
+  in
   match (unwrap c).Ast.e with
+  | Ast.Ebinary (Ast.EqR _, a, b) when is_fl a || is_fl b ->
+      (* [E2E-10 step 3] the comparison literal becomes a 4-byte float cell, so
+         the pool must be sized for it NOW: the condition is lowered before the
+         first later variable store, and an unsized cell made the literal and a
+         variable share address 0, shifting every subsequent data address. *)
+      (match litof a with Some k -> pdec_fl_cell cx k | None -> 0)
+      + (match litof b with Some k -> pdec_fl_cell cx k | None -> 0)
   | Ast.Ebinary (Ast.EqR _, a, b) ->
       let one side other =
         match litof side, prec_of other with
@@ -2489,6 +2511,16 @@ let dec_cmp_rel st (rop : Ast.relop) (a : Ast.expr) (b : Ast.expr) =
   call_ext st "?DCMOP";
   opc
 
+type fmode =
+  | Fmem of int     (* address of a 4-byte float cell *)
+  | Fderef of int   (* address of a pointer cell holding that address *)
+  | Fstack          (* the value sits on DR's float stack *)
+  | Fbin of string  (* accumulator holds the result of a binary FLOAT op; the
+                       string is the op letter (A/S/M/D), kept only to name the
+                       evidence in refusals *)
+  | Fconv           (* accumulator holds a ?QI15F conversion result *)
+  | Fneg            (* accumulator holds a ?FN40M / ?FN40S negation result *)
+
 (* ---------- [&] AND-conjunction [E2E-9 slice 6] ----------
    Inside a conjunction DR does NOT emit a per-operand skip jump.  Each
    operand is materialized as a boolean BYTE in A through the flag trick
@@ -2570,15 +2602,23 @@ let vk_name (vk : vkind) : string =
 
 
 (* --- expression lowering --------------------------------------------- *)
-type fmode =
-  | Fmem of int     (* address of a 4-byte float cell *)
-  | Fderef of int   (* address of a pointer cell holding that address *)
-  | Fstack          (* the value sits on DR's float stack *)
-  | Fbin of string  (* accumulator holds the result of a binary FLOAT op; the
-                       string is the op letter (A/S/M/D), kept only to name the
-                       evidence in refusals *)
-  | Fconv           (* accumulator holds a ?QI15F conversion result *)
-  | Fneg            (* accumulator holds a ?FN40M / ?FN40S negation result *)
+
+(* [E2E-10 step 3] an expression with no identifier anywhere in it.  DR does
+   NOT evaluate a whole-literal FLOAT expression with the float runtime: R3044's
+   `d1 = 1.5 + 2.5` compiles to the DEC runtime (?DLDOP of each literal's DEC
+   pool cell, ?DADOP, then ?QDCOP/?QCXOP/?QX8F4 to convert the DEC result, then
+   ?FX44S), and `d2 = 1.5 * 2` likewise uses ?DMUOP.  Emitting ?FA44M instead is
+   not merely different bytes -- it computes through the 24-bit float runtime
+   rather than DR's decimal one, so the value can differ too.  Until that path
+   is implemented this refuses loudly instead of silently diverging. *)
+let rec fl_all_literals (e : Ast.expr) =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident _ -> false
+  | Ast.Ebinary (_, l, r) -> fl_all_literals l && fl_all_literals r
+  | Ast.Eprefix (_, x) -> fl_all_literals x
+  | Ast.Esuffix (hd, args) ->
+      fl_all_literals hd && List.for_all fl_all_literals args
+  | _ -> true
 
 let fl_addr st (m : fmode) =
   match m with
@@ -2717,7 +2757,10 @@ and fl_bin st (op : Ast.binop) (l : Ast.expr) (r : Ast.expr) : fmode =
   (* NOTE (a real byte-level bug I hit here): an UNPARENTHESISED `match` in a
      preceding arm body swallows every following `|` arm, because OCaml has no
      terminator for it.  fl_push's Eprefix arm is parenthesized for that
-     reason.  Same family of trap as the DECPOLY `if`/then-branch absorption. *)  let nm =
+     reason.  Same family of trap as the DECPOLY `if`/then-branch absorption. *)  (if fl_all_literals l && fl_all_literals r then
+     failwith
+       "codegen: a FLOAT arithmetic expression made only of literals is unsampled [TBD] (DR evaluates it in the DEC runtime -- ?DLDOP per literal pool cell, ?DADOP/?DMUOP/?DSUOP, then ?QDCOP/?QCXOP/?QX8F4 to convert the decimal result and ?FX44S to store it [R3044]; emitting the float runtime instead would change both the bytes and the arithmetic)");
+  let nm =
     match op with
     | Ast.Add -> "A"
     | Ast.Sub -> "S"
@@ -2761,23 +2804,29 @@ and fl_bin st (op : Ast.binop) (l : Ast.expr) (r : Ast.expr) : fmode =
   let cell m = match m with Fmem _ | Fderef _ -> true | _ -> false in
   (* Fneg belongs in this list: R3046 `d1 = -a * b` takes ?FM44L and `d2 = a * -b` takes ?FM44R, so a negation result is a computed accumulator operand, not a cell.  Leaving it out routed both to ?FM44S silently. *)
   let comp m = match m with Fstack | Fconv | Fbin _ | Fneg -> true | _ -> false in
-  let deref m = match m with Fderef _ -> true | _ -> false in
   if cell lk && cell rk then begin
-    if deref lk <> deref rk then
-      failwith
-        "codegen: FLOAT operand mixing a plain cell with a pointer formal is unsampled [TBD] (R3030-R3033 pin cell+cell, R3038 pins formal+formal; `q * 1.5` has no sample)";
+    (* WRITTEN order, M-form.  R3082 `2 * y`, R3083 `y * 2`, R3084 `y + 2`,
+       R3086 `x * y` and R3012 `a / b` pin that a literal pool cell, a plain
+       cell and a pointer-formal deref are all just address pushes: DR does NOT
+       commute a `+`/`*` here (there is nothing to materialize), and mixing a
+       cell with a formal is an ordinary M-form, which is exactly what
+       FLTPOLY's `return (x * x + 2 * y + z)` needs.  The earlier assessment
+       that R3005's mixed pair was an unknown exotic shape was wrong -- it was
+       never a mixed pair. *)
     fl_addr st lk; d st op_push_h; fl_addr st rk; d st op_pop_d;
     call_ext st ("?F" ^ nm ^ "44M");
     Fbin nm
   end else if comp lk && cell rk then begin
+    (* accumulator/pushed value LEFT, ADDRESS-MODE right.  A plain cell and a
+       pointer formal are interchangeable here: R3087 `(x*x + 2*y) + z` and
+       R3089 `z + x*y` take ?FA44L exactly as the cell forms R3034/R3051 do, and
+       R3090 `z / (x + y)` takes ?FD44R exactly as R3042/R3043 do.  Only the load
+       instruction differs (LXI H vs LHLD), which is fl_addr's job [C103]. *)
     (* accumulator/pushed value LEFT, named cell right [R3034 `a*b + c`,
        R3035 `-a + b`, R3036 `i + a` / `i * a` / `i / a`, R3042 `a/b * c`,
        R3043 `(a-b)/c`] *)
     fl_addr st rk; call_ext st ("?F" ^ nm ^ "44L"); Fbin nm
   end else if cell lk && comp rk then begin
-    if deref lk then
-      failwith
-        "codegen: FLOAT pointer-formal operand followed by a computed operand is unsampled [TBD] (R3036/R3042/R3051-R3053 sample only the plain-cell left side of the R and L forms)";
     (* L is available only when the operator commutes AND the right value is an
        arithmetic result, i.e. when DR may read the expression with the operands
        exchanged at no cost [R3034, R3051, R3052].  A ?QI15F conversion result
@@ -2815,9 +2864,13 @@ let fl_store_var st (addr : int) (m : fmode) =
          with ?FX44S [R3030-R3034, and R3035's `d1 = -a` which negates into the
          accumulator with ?FN40M and then stores with ?FX44S] *)
       d st op_lxi_h; reloc st Data addr; call_ext st "?FX44S"
-  | Fderef _ ->
-      failwith
-        "codegen: assigning a FLOAT formal to a variable is unsampled [TBD] (R3037 samples cell-to-cell ?FX44M and stack-to-cell ?FX44S only; reading a float formal inside an expression IS sampled [R3038])"
+  | Fderef a ->
+      (* [R3079] `w = x` where x is a float FORMAL: dereference the formal's
+         pointer cell to get its address, then the ordinary cell-to-cell copy.
+         Same ladder the arithmetic uses; DR keeps ?FX44M either way. *)
+      d st op_lhld; reloc st Data a; d st op_push_h;
+      d st op_lxi_h; reloc st Data addr; d st op_pop_d;
+      call_ext st "?FX44M"
 
 (* prepare a float value for RETURN: it must end on the float stack.
    A cell is LOADED with ?FL40M -- FFACT's `return (1)` is exactly
@@ -2833,6 +2886,103 @@ let fl_return_push st (m : fmode) =
   | Fderef _ ->
       failwith
         "codegen: RETURN of a bare FLOAT formal is unsampled [TBD] (R3038 returns an expression, FFACT a literal and a product)"
+
+(* [E2E-10 step 3] FLOAT relation lowering.  DR compares two float cells by
+   pushing their ADDRESSES (right-first or left-first per relation, exactly the
+   polarity the DEC table uses), calling ?FC44M, and then testing a flag.  ?FC44M
+   leaves A as a SIGNED COMPARISON CODE of (pushed operand) - (named operand):
+   A < 0 when pushed < named, A = 0 when equal, A > 0 when pushed > named.  That
+   reading is what makes the observed opcode table coherent:
+
+   | relation | pushed first | skip jump | sample |
+   |---|---|---|---|
+   | `a > b`  | b | JP | R3070, R3077, R3004 |
+   | `a < b`  | a | JP | R3071 |
+   | `a >= b` | a | JM | R3072 |
+   | `a <= b` | b | JM | R3073 |
+   | `a = b`  | a | JNZ | R3074, R3076, R3004, FLTPOLY |
+   | `a <> b` | -- | -- | R3075: DR ITSELF rejects this, `1 ERROR(S) IN PASS 2` |
+
+   Same table as `dec_cmp_rel`, which is why one opcode pair covers both numeric
+   models -- but `<>` is accepted for DEC and REJECTED by the compiler for FLOAT
+   [R3075], so the float table has a hole that is DR's, not mine.  A literal
+   operand is addressed as its float POOL cell [R3076 `= 0` uses *S(0000),
+   deduplicated with other zero cells per C101]. *)
+(* save_psw=true reproduces DR's CONJUNCTION form, where the first address
+   load is hoisted above `PUSH PSW` so the previous operand's boolean byte
+   survives [FLTPOLY, and the identical DECPOLY/R2026 DEC hoist].  It is only
+   legal for plain cells: a pointer-formal deref in that position has no
+   sample, so the mixed/refused cases stay loud. *)
+let fl_cmp_rel ?(save_psw = false) st (rop : Ast.relop)
+               (a : Ast.expr) (b : Ast.expr) =
+  let (right_first, opc) =
+    match rop with
+    | Ast.Gt -> (true, op_jp)
+    | Ast.Lt -> (false, op_jp)
+    | Ast.Ge -> (false, op_jm)
+    | Ast.Le -> (true, op_jm)
+    | Ast.Eq -> (false, op_jnz)
+    | Ast.Ne ->
+        failwith
+          "codegen: FLOAT `<>` is not accepted by DR itself [TBD] (R3075: `if a <> b` on two float variables compiles clean in PASS 1 and fails `1 ERROR(S) IN PASS 2`, so no `.REL` exists to reproduce; DEC `<>` works via JZ [C085] but the float reader does not offer it)"
+    (* Ast.relop has exactly these six constructors, so no catch-all is needed
+       -- adding one draws Warning 11 and the baseline warning count is a
+       regression gate of its own. *)
+  in
+  (* operands must be ADDRESSABLE: only cells (variable or pool literal) and
+     pointer-formal derefs have a DR sample [R3070-R3077, R3079, FLTPOLY].  A
+     computed value on the float stack has none, so refuse BEFORE emitting,
+     not after half a statement is out. *)
+  let addr_mode (e : Ast.expr) : fmode =
+    let e = unwrap_e e in
+    match e.Ast.e with
+    | Ast.Enumber k ->
+        (match mbf_encode k with
+         | b -> Fmem (fl_pool st b)
+         | exception Fl_range msg ->
+             failwith ("codegen: float literal " ^ k ^ " in a comparison " ^ msg))
+    | Ast.Eident n ->
+        let nm = String.lowercase_ascii n.Ast.orig in
+        (match vk_of st n.Ast.orig with
+         | Vflt ->
+             if List.mem nm st.deref then Fderef (addr_of st n.Ast.orig)
+             else Fmem (addr_of st n.Ast.orig)
+         | _ ->
+             failwith
+               "codegen: mixing a non-FLOAT operand into a FLOAT comparison is unsampled [TBD] (no DR sample compares a float against a fixed or decimal value without going through the float pool cell form [R3076 pins the INTEGER LITERAL case, which becomes a float cell])")
+    | _ ->
+        fl_push st e |> function
+        | Fmem _ | Fderef _ as m -> m
+        | _ ->
+            failwith
+              "codegen: computed FLOAT operand in a comparison is unsampled [TBD] (every DR float compare sample addresses two cells or two formal derefs [R3070-R3077, R3079, FLTPOLY]; a comparison against an accumulator value has none -- so nothing is emitted before this refusal)"
+  in
+  let ma = addr_mode a in
+  let mb = addr_mode b in
+  if (match ma with Fderef _ -> true | _ -> false)
+     <> (match mb with Fderef _ -> true | _ -> false) then
+    failwith
+      "codegen: FLOAT comparison mixing a plain cell with a pointer formal is unsampled [TBD] (R3070-R3077/R3076 pin cell+cell and cell+pool-cell, R3079 pins formal+formal; the mixed pair has no DR sample -- same boundary the arithmetic lowering keeps)";
+  (if right_first then (mb, ma) else (ma, mb))
+  |> fun (first, second) ->
+  if save_psw then begin
+    (match first, second with
+     | (Fmem _ | Fconv), (Fmem _ | Fconv) -> ()
+     | _ ->
+         failwith
+           "codegen: FLOAT pointer formal or computed operand in a conjunction is unsampled [TBD] (FLTPOLY pins only the plain-cell `=` form with the PUSH PSW hoist)");
+    (* the hoist loads the FIRST operand's address, then saves the previous
+       boolean byte, then continues the normal push pair *)
+    (if right_first then fl_addr st mb else fl_addr st ma);
+    d st op_push_psw; d st op_push_h;
+    (if right_first then fl_addr st ma else fl_addr st mb);
+    d st op_pop_d
+  end
+  else begin
+    fl_addr st first; d st op_push_h; fl_addr st second; d st op_pop_d
+  end;
+  call_ext st "?FC44M";
+  opc
 
 let op_sui = 0xd6
 let op_pop_b = 0xc1
@@ -2891,7 +3041,31 @@ let rec lower_bool st (c : Ast.expr) =
   match c.Ast.e with
   | Ast.Ebinary (Ast.And, l, r) ->
       lower_bool st l;
+      (* [E2E-10 step 3] FLOAT `=` on the RIGHT of a conjunction has to be
+         tested BEFORE conj_bin_zero: that helper claims any `ident = 0` whose
+         operand is not DEC, which floats are, and would silently emit the
+         2-byte fixed-bin boolean form (this is what made FLTPOLY's second and
+         third conjunction operands differ from DR).  FLTPOLY pins the float
+         form: the first address load is HOISTED above PUSH PSW exactly as
+         DECPOLY's DEC form does, then PUSH H / LXI H,*S(zero) / POP D /
+         ?FC44M / SUI 01 / SBB A materializes the boolean byte (?FC44M leaves
+         A = 0 when EQUAL, which is the `=` case).  R3078 pins `>` only as the
+         FIRST operand, where DR uses ?FC44M's raw signed-comparison byte as the
+         boolean and emits nothing more; a `>` on the right has no sample, so it
+         refuses. *)
       let saved =
+        match (unwrap_e r).Ast.e with
+        | Ast.Ebinary (Ast.EqR rop, a, b)
+          when (match rop with Ast.Eq | Ast.Gt -> true | _ -> false)
+               && (is_float_expr st a || is_float_expr st b) ->
+            (match rop with
+             | Ast.Eq ->
+                 ignore (fl_cmp_rel ~save_psw:true st Ast.Eq a b);
+                 d st op_sui; d st 0x01; d st op_sbb_a
+             | _ ->
+                 failwith
+                   "codegen: FLOAT relation other than `=` as the RIGHT operand of a conjunction is unsampled [TBD]")
+        | _ ->
         match conj_bin_zero st r with
         | Some v ->
             (* [R2025] fixed-bin operand: address load hoisted above PUSH *)
@@ -2911,6 +3085,15 @@ let rec lower_bool st (c : Ast.expr) =
       in
       ignore saved;
       d st op_pop_b; d st op_ana_b; st.last_imm <- None
+  | Ast.Ebinary (Ast.EqR rop, a, b)
+    when (match rop with Ast.Eq | Ast.Gt -> true | _ -> false)
+         && (is_float_expr st a || is_float_expr st b) ->
+      (* first operand of a FLOAT conjunction operand [FLTPOLY `=`, R3078 `>`] *)
+      (match rop with
+       | Ast.Eq ->
+           ignore (fl_cmp_rel st Ast.Eq a b);
+           d st op_sui; d st 0x01; d st op_sbb_a
+       | _ -> ignore (fl_cmp_rel st rop a b))
   | Ast.Ebinary (Ast.EqR Ast.Eq, a, b) when is_dec_operand st a
                                             || is_dec_operand st b ->
       (* first operand of a conjunction: pre and post run consecutively,
@@ -2936,10 +3119,19 @@ let lower_test_skip0 st (c : Ast.expr) =
      ladder and produced wrong bytes (R3037).  DR's float compare is
      ?FC44M plus JP/JM/JZ [R3037, R3045], and its `>` pairing implies `>=`,
      so it needs a runtime discriminator before it can be implemented. *)
-  (if is_float_expr st c then
-     failwith
-       "codegen: FLOAT comparison in a condition is unsampled [TBD] (DR uses ?FC44M with JP/JM/JZ; R3037/R3045 show `>` guarding the ELSE branch, which implies `>=`, so the flag convention needs a runtime probe -- same shape of problem the DEC path settled at runtime for C083)");
+  (* [E2E-10 step 3] FLOAT relations ARE handled now, but only through the
+     arm below, which is placed FIRST on purpose: `if a > b` on floats would
+     otherwise be captured by the FIXED `EqR Gt, Eident, Enumber` ladder below
+     and produce wrong bytes (that is exactly what R3037 did), and `if a > 2.5`
+     would make parse_int_const read "2.5" and crash (R3045).  Any other FLOAT
+     condition falls through to the catch-all refusal, so nothing is emitted
+     for a shape DR has not shown. *)
   match c.Ast.e with
+  | Ast.Ebinary (Ast.EqR rop, a, b)
+    when is_float_expr st a || is_float_expr st b ->
+      let opc = fl_cmp_rel st rop a b in
+      d st opc;
+      let slot = st.lc in d st 0; d st 0; slot
   (* a conjunction lowers as ONE boolean expression + ONE skip jump *)
   | Ast.Ebinary (Ast.And, _, _) ->
       lower_bool st c;
@@ -3270,12 +3462,23 @@ let lower_get st (items : Ast.name list) =
                d st p; (* A = TARGET DIGITS [LOAN1 0B, R906 0F] *)
                call_ext st "?DSTOP"
            | Vflt ->
-               (* R3004 OBSERVES DR's float GET route (?QFADS, ?FNCVS, ...)
-                  but it is not implemented here, so refuse instead of
-                  guessing: no target program of this milestone reads a
-                  float (FLTPOLY's GET feeds DECIMAL variables). *)
-               failwith
-                 "codegen: GET LIST into a FLOAT variable is observed on DR [R3004] but unimplemented [TBD]"
+               (* [E2E-10 step 3] DR reads the token as DECIMAL and then
+                  converts: ?QCXOP (clean the decimal), ?QX8F4 (decimal ->
+                  4-byte float into the accumulator), then the ordinary
+                  float store ?FX44S into the variable's cell [R3004, two
+                  items; R3065/R3066 pin one item and a mixed float+fixed
+                  list].  Note what this means for the value model: an
+                  input float goes through the DECIMAL reader, so C101's
+                  literal-conversion rounding law is NOT the path a runtime
+                  read takes -- it reuses ?GNVOP's decimal scan, which is
+                  why the width/scale MVIs the DEC branch emits are absent
+                  here.  Nothing in this tail is invented: no MVI A/B
+                  operands appear in any DR sample. *)
+               call_ext st "?QCXOP";
+               call_ext st "?QX8F4";
+               d st op_lxi_h;
+               reloc st Data (addr_of st n.Ast.orig);
+               call_ext st "?FX44S"
            | Vint when vi.size = 2 ->
                call_ext st "?QCIOP";
                d st op_shld; reloc st Data (addr_of st n.Ast.orig)
@@ -4414,6 +4617,7 @@ let emit_program (progname : string) (auto_bytes : int)
         | _ -> None)
       layout.pl_procs
   in
+
   let pool_total =
     prescan_pool { pd_vars; pd_procs; pd_ret = None
                     ; pd_dec = ref []; pd_fl = ref []; pd_fl_ret = false

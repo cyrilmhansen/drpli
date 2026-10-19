@@ -1,0 +1,123 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3094
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   2 b         dcl (a,b,c) fixed bin(31);
+NOT IMP                                 ?
+   3 b         dcl m fixed bin(31);
+NOT IMP                           ?
+   8 c         p: procedure(x,y,z) returns(fixed bin(31));
+NOT IMP                                                 ?
+   9 c            dcl (x,y,z) fixed bin(31);
+NOT IMP                                    ?
+  10 c         dcl q fixed bin(31);
+NOT IMP                           ?
+    5 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3094
+
+   1 a 0000 r3094: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl (a,b,c) fixed bin(31);
+   3 c 0006    dcl m fixed bin(31);
+   4 c 0006    a = b; b = c;
+       0006       LXI  H,A A(0005)
+       0009       MOV  L,A
+       000A       ADD  A
+       000B       SBB  A
+       000C       MOV  H,A
+       000D       PUSH H
+       000E       LHLD B A(0009)
+       0011       POP  D
+       0012       MOV  M,E
+       0013       INX  H
+       0014       MOV  M,D
+       0015       LXI  H,B A(0009)
+       0018       MOV  L,A
+       0019       ADD  A
+       001A       SBB  A
+       001B       MOV  H,A
+       001C       PUSH H
+       001D       LHLD C A(000D)
+       0020       POP  D
+       0021       MOV  M,E
+       0022       INX  H
+       0023       MOV  M,D
+   5 c 0024    m = p(a,b,c);
+       0024       LXI  H,M A(0011)
+       0027       MOV  L,A
+       0028       ADD  A
+       0029       SBB  A
+       002A       MOV  H,A
+       002B       PUSH H
+       002C       LXI  H,* A(0015)
+       002F       CALL 0000
+       0032       POP  D
+       0033       MOV  M,E
+       0034       INX  H
+       0035       MOV  M,D
+   6 c 0036    put skip edit(m) (a(9));
+       0036       LXI  D,0252
+       0039       LXI  B,0000
+       003C       CALL ?SYSPR
+       003F       MVI  A,01
+       0041       CALL ?SKPOP
+       0044       LXI  H,* S(0000)
+       0047       CALL ?EDITF
+       004A       LHLD M A(0011)
+       004D       MVI  A,09
+       004F       CALL ?QICOP
+       0052       CALL ?EDTOV
+       0055       CALL ?QIOOP
+       003A       ==== 0058
+   7 c 0058    stop;
+       0058       CALL ?STOPX
+   8 c 005B    p: procedure(x,y,z) returns(fixed bin(31));
+   9 e 005B       dcl (x,y,z) fixed bin(31);
+       005B       LXI  D,X A(001B)
+       005E       MVI  C,06
+       0060       MOV  A,M
+       0061       INX  H
+       0062       STAX D
+       0063       INX  D
+       0064       DCR  C
+       0065       JNZ  0060
+  10 e 0068    dcl q fixed bin(31);
+  11 e 0068       q = x; return (q);
+       0068       LXI  H,Q A(0021)
+       006B       MOV  L,A
+       006C       ADD  A
+       006D       SBB  A
+       006E       MOV  H,A
+       006F       PUSH H
+       0070       LHLD X A(001B)
+       0073       MOV  E,M
+       0074       INX  H
+       0075       MOV  D,M
+       0076       XCHG 
+       0077       POP  D
+       0078       MOV  M,E
+       0079       INX  H
+       007A       MOV  M,D
+       007B       LHLD Q A(0021)
+       007E       RET  
+  12 c 007F    end p;
+  13 a 007F end r3094;
+
+CODE SIZE = 007F
+DATA AREA = 0025
+FREE SYMS = 3832
+END  COMPILATION
+

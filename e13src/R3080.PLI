@@ -1,0 +1,18 @@
+r3080:
+ procedure options(main);
+   dcl (a,b,c) float;
+   dcl m float;
+   b = 1.5;
+   a = b;
+   c = b;
+   m = mx(a,b,c);
+   put skip list(m);
+   stop;
+   mx: procedure(x,y,z) returns(float binary(24));
+      dcl (x,y,z,w) float;
+      w = y;
+      if x > y then w = x;
+      return (w);
+   end mx;
+end r3080;
+

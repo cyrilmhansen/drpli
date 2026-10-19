@@ -1,0 +1,8 @@
+r3070:
+ procedure options(main);
+   dcl (a,b) float;
+   dcl d1 float;
+   if a > b then d1 = a;
+   stop;
+end r3070;
+

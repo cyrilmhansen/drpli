@@ -1,0 +1,86 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3088
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3088
+
+   1 a 0000 r3088: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl (a,b,c) float;
+   3 c 0006    dcl m float;
+   4 c 0006    a = 1.5;
+       0006       LXI  H,* S(0000)
+       0009       PUSH H
+       000A       LXI  H,A A(0010)
+       000D       POP  D
+       000E       CALL ?FX44M
+   5 c 0011    b = 2.5;
+       0011       LXI  H,* S(0004)
+       0014       PUSH H
+       0015       LXI  H,B A(0014)
+       0018       POP  D
+       0019       CALL ?FX44M
+   6 c 001C    c = 3.5;
+       001C       LXI  H,* S(0008)
+       001F       PUSH H
+       0020       LXI  H,C A(0018)
+       0023       POP  D
+       0024       CALL ?FX44M
+   7 c 0027    m = p(a,b,c);
+       0027       LXI  H,* A(0020)
+       002A       CALL 0000
+       002D       LXI  H,M A(001C)
+       0030       CALL ?FX44S
+   8 c 0033    put skip list(m);
+       0033       LXI  D,0252
+       0036       LXI  B,0000
+       0039       CALL ?SYSPR
+       003C       MVI  A,01
+       003E       CALL ?SKPOP
+       0041       LXI  H,M A(001C)
+       0044       MVI  A,0E
+       0046       CALL ?QFCMS
+       0049       CALL ?PNVOP
+       004C       CALL ?QIOOP
+       0037       ==== 004F
+   9 c 004F    stop;
+       004F       CALL ?STOPX
+  10 c 0052    p: procedure(x,y,z) returns(float binary(24));
+  11 e 0052       dcl (x,y,z) float;
+       0052       LXI  D,X A(0026)
+       0055       MVI  C,06
+       0057       MOV  A,M
+       0058       INX  H
+       0059       STAX D
+       005A       INX  D
+       005B       DCR  C
+       005C       JNZ  0057
+  12 e 005F       return (y / 2);
+       005F       LHLD Y A(0028)
+       0062       PUSH H
+       0063       LXI  H,* S(000C)
+       0066       POP  D
+       0067       CALL ?FD44M
+       006A       JMP  ?FPRET
+  13 c 006D    end p;
+  14 a 006D end r3088;
+
+CODE SIZE = 006D
+DATA AREA = 002C
+FREE SYMS = 37DB
+END  COMPILATION
+

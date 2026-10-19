@@ -975,9 +975,33 @@ let bind_program (blk : Ast.block) : prog_layout =
     let dedup x =
       nf > 0 && List.mem x formals && nm <> None && not attrf
     in
+    (* [E2E-10 step 3] a declared FLOAT formal of an internal procedure
+       occupies NO storage of its own: its address is the 2-byte pointer cell,
+       which is exactly why the float lowering reads it with LHLD.  R3095/R3096/
+       R3093 pin the size law directly -- a local declared after the formals sits
+       4/8/12 bytes LOWER than a model that charges the 4-byte float cell for 1/2/3
+       float formals, at Q=A(0014)/A(0018)/A(001C) with X=A(0012)/A(0014)/A(0016),
+       i.e. DR charges nothing per float formal.  FIXED formals are different and
+       this is kept intact: FFACT's `dcl i fixed bin(31)` then `dcl f ...` needs
+       the declared cell counted or f's address shifts (FFACT is byte-exact today).
+       So the correction subtracts only the dedup'd FLOAT rows seen so far. *)
+    let is_fl rt = match rt with RTfloat _ -> true | _ -> false in
+    let drops =
+      (* cumulative float-formal bytes to subtract, in declaration order *)
+      let rec go rest acc =
+        match rest with
+        | [] -> []
+        | (x, rt, _) :: t ->
+            let d = if dedup x && is_fl rt then rt_bytes rt else 0 in
+            (x, acc) :: go t (acc + d)
+      in
+      go nr 0
+    in
+    let drop_of x = match List.assoc_opt x drops with Some d -> d | None -> 0 in
     let span =
       List.fold_left
-        (fun m (x, rt, o) -> if dedup x then m else max m (o + rt_bytes rt))
+        (fun m (x, rt, o) ->
+          if dedup x then m else max m (o - drop_of x + rt_bytes rt))
         0 nr
     in
     let named_base = base + (if nm <> None then 2 * nf else 0) in
@@ -990,7 +1014,7 @@ let bind_program (blk : Ast.block) : prog_layout =
               | Some i -> i | None -> 0
             in
             (x, rt, base + 2 * gi)
-          else (x, rt, named_base + o))
+          else (x, rt, named_base + (o - drop_of x)))
         nr
     in
     let cur = ref (named_base + span) in

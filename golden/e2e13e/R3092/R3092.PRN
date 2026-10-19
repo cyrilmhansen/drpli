@@ -1,0 +1,93 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: R3092
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+  11 e            q = x;
+NO DCL            ?
+  12 e            return (q);
+NO DCL                    ?
+    2 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: R3092
+
+   1 a 0000 r3092: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    dcl (a,b,c) float;
+   3 c 0006    dcl m float;
+   4 c 0006    a = b;
+       0006       LXI  H,A A(0000)
+       0009       LXI  H,B A(0004)
+       000C       CALL ?FL40M
+       000F       CALL ?FX44S
+   5 c 0012    b = c;
+       0012       LXI  H,B A(0004)
+       0015       LXI  H,C A(0008)
+       0018       CALL ?FL40M
+       001B       CALL ?FX44S
+   6 c 001E    m = p(a,b);
+       001E       LXI  H,M A(000C)
+       0021       LXI  H,* A(0010)
+       0024       CALL 0000
+       0027       CALL ?FX44S
+   7 c 002A    put skip list(m);
+       002A       LXI  D,0252
+       002D       LXI  B,0000
+       0030       CALL ?SYSPR
+       0033       MVI  A,01
+       0035       CALL ?SKPOP
+       0038       LXI  H,M A(000C)
+       003B       MVI  A,0E
+       003D       CALL ?QFCMS
+       0040       CALL ?PNVOP
+       0043       CALL ?QIOOP
+       002E       ==== 0046
+   8 c 0046    stop;
+       0046       CALL ?STOPX
+   9 c 0049    p: procedure(x,y) returns(float binary(24));
+  10 e 0049       dcl (x,y,z) float;
+       0049       LXI  D,X A(0014)
+       004C       MVI  C,04
+       004E       MOV  A,M
+       004F       INX  H
+       0050       STAX D
+       0051       INX  D
+       0052       DCR  C
+       0053       JNZ  004E
+  11 e 0056       q = x;
+       0056       LXI  H,* A(0000)
+       0059       MOV  L,A
+       005A       ADD  A
+       005B       SBB  A
+       005C       MOV  H,A
+       005D       PUSH H
+       005E       LHLD X A(0014)
+       0061       CALL ?FL40M
+       0064       CALL ?QFI15
+       0067       POP  D
+       0068       MOV  M,E
+       0069       INX  H
+       006A       MOV  M,D
+  12 e 006B       return (q);
+       006B       LHLD * A(0000)
+       006E       CALL ?QI15F
+       0071       JMP  ?FPRET
+  13 c 0074    end p;
+  14 a 0074 end r3092;
+
+CODE SIZE = 0074
+DATA AREA = 001C
+FREE SYMS = 384E
+END  COMPILATION
+

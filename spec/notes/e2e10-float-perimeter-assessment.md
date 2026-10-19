@@ -204,3 +204,26 @@ work in a fresh window.
 **Per user instruction, C099 stays as tested fail-loud refusals** (N56-N60) —
 no fixed-bin peephole is implemented, and the corpus is unaffected because no
 corpus program uses those shapes.
+
+---
+
+## STATUS UPDATE, end of step 3 (2026-10-20)
+
+This assessment's step-2 conclusions hold, with two corrections that were only
+visible once the corpus programs themselves were attempted:
+
+1. **The "mixed cell / pointer-formal operand pair" perimeter member never
+   existed.**  It was an artifact of classifying by storage mechanism instead of
+   by operand mode.  Ten probes (R3082-R3091) show a pointer formal behaves
+   exactly like a plain cell for suffix selection, which is what unblocked
+   FLTPOLY.  See C103a.
+2. **The float formal's declared storage is zero bytes** (C106), which is what
+   unblocked TEST.  `R3005` and `R3038` remain in the corpus of evidence but no
+   longer mark a boundary.
+
+Steps 0-4 of the plan are complete: FFACT, FLTPOLY and TEST are all
+byte-identical, so the E2E-10 corpus objective (FLOAT programs 7/41 -> 9/41) is
+closed.  What this assessment predicted would be expensive — GET, conditions,
+conjunctions, calls with float args — turned out to be a few hundred lines and
+nine probe batches; the expensive parts remain the ones it flagged as outside
+the perimeter (FILE, VARYING, POINTER/BASED, ENTRY, `FLOAT BINARY(p)` p != 24).

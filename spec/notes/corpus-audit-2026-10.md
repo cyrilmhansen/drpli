@@ -872,3 +872,42 @@ R2043 (macro form) and R2045 (inline-literal control) have IDENTICAL DR code
 traces, so replacement is textual, and my lexer's multi-clause/comment handling
 is right -- it just could not be proven by a registered positive until the
 peephole family is implemented.
+
+## 17. SLICE-7 NOTE (E2E-10 steps 1-3, FFACT + FLTPOLY + TEST accepted, 2026-10-20)
+
+Corpus score moves **7/41 -> 9/41 EXACT, 0 DIFFERS, 32 REFUSED**.  The three
+accepted programs are all FLOAT BINARY(24): `FFACT` (recursive float-returning
+procedure, arithmetic, PUT), `FLTPOLY` (GET of floats, float relations in an
+`&` conjunction, `do while(true)`, PUT of a float call result, a nested
+float-returning procedure) and `TEST` (nested float procedure whose formals are
+compared and copied).  FLTPOLY's `e2e13e` golden re-captured this step is
+byte-identical to the `e2e13` golden captured at E2E-10's opening, so the
+program text and the oracle are doubly confirmed.
+
+What the step actually bought, in ranking terms:
+
+* The float perimeter grew from "assignment + arithmetic + calls" to
+  "conditions, conjunctions and numeric GET" without touching FILE, VARYING,
+  POINTER/BASED or ENTRY — i.e. the remaining 32 refusals are still blocked by
+  the SAME four declaration/feature kinds identified in section 16, not by
+  float support.
+* Two of the 32 refusals were retired as *known-supported* rather than deleted:
+  N63/N64/N65/N66 were compiled through DR verbatim (R3097-R3100), matched
+  byte-for-byte, and were re-registered on the positive panel.  A negative that
+  DR proves compilable is a bug in my refusal, not a perimeter member.
+* C103's operand-mode law was REFUTED and replaced (C103a): the cut is
+  address-mode vs computed, and a FLOAT pointer formal is address-mode.  The
+  practical effect is that `2 * y` — FLTPOLY's blocker — is an ordinary `M` form.
+* C106 found a pre-existing bind layout defect: declared FLOAT formals were
+  charged 4 bytes each, pushing any local after them 4/8/12 bytes too high
+  [R3095/R3096/R3093].  FIXED formals really are charged (FFACT would shift),
+  so the correction is kind-specific.  This is the third declaration-kind layout
+  surprise of the milestone series.
+* Gate grew 241 -> 284 byte-exact positives (41 newly registered float probes +
+  FLTPOLY + TEST), negative panel 61 -> 57 (4 promotions), warnings steady at 61,
+  `floatmodel.py` at 45 assertions + 73/73 pool cells with 0 mismatch.
+
+Still open on float, none of it corpus-blocking: whole-literal float arithmetic
+through DR's DEC runtime [R3044, now a loud refusal instead of silently wrong
+bytes], `<>` (DR itself rejects it [R3075]), non-`=` relations inside
+conjunctions, float->fixed stores, `FLOAT BINARY(p)` p != 24.
