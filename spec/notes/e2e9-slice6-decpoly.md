@@ -57,8 +57,17 @@ slice.
 * DECPOLY specifics: console byte-identical over a REAL two-line input script;
   simulator `CPU executed 1773926 t-states` identical for both images;
   `x*x + 2*y + z` for (1.4, 2.3, 5.67) = 12.23 printed as `12.2300` ✓.
-* DECPOLY's `P(x,y,z)` -> `2` is DR's own semantic defect (callee formal
-  re-declared at 15,4 vs caller 11,2); reproduced exactly, recorded, not hidden.
+* RETRACTED after commit, on the user's challenge: I wrote that DECPOLY's
+  `P(x,y,z)` returns `2` because of a caller-side 11,2 declaration and called it
+  a DR semantic defect.  Both halves are false.  `artefacts/DECPOLY.PLI` declares
+  `(x,y,z) fixed decimal(15,4)` at line 11 AND line 27 (DR's listing shows both
+  verbatim); the `2` in the transcript is the program's own string literal
+  `put skip list('       2');` at line 20, and `P(x,y,z)` returns 12.2300, which
+  is arithmetically correct.  DECPOLY has no defect, in DR or in my build.  Full
+  retraction recorded in CLAIMS C094.  Lesson kept: the claim was inferable from
+  two `grep`s of the source I had already compiled byte-exactly, and I did not do
+  them.  Any future "DR is wrong here" assertion requires the source line quoted
+  in the same breath.
 
 ## 5. Deliberately out of scope (perimeter negatives in force)
 

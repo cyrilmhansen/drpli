@@ -817,9 +817,9 @@ Prediction vs. outcome for this slice, stated honestly:
 * The correction I flagged last slice -- that a "seen" ROUTE can hide an unseen
   RULE -- is what this slice was made of.  DEC was "seen" through 72 probes and
   calls through 17 specimens; what was missing was the *interaction*: the
-  precision byte a callee emits for its own re-declared formal (15,4 against the
-  caller's 11,2), and the fact that a DEC formal's cell is 2 bytes, not a BCD
-  cell.
+  the fact that a DEC formal's cell is 2 bytes, not a BCD cell, and that the
+  multiplicative literal law (`MVI A,1` for the `2` of `2 * y`) operates on a
+  formal read through `LHLD`.
 
 What actually cost the time was not the laws but three latent defects that the
 byte-diff exposed (call-site fold dropping all but the last site, a
@@ -829,11 +829,16 @@ was checking).  The third is the instructive one: the guard was correct, its
 delimiters were not, and the only reason it surfaced at all is that acceptance is
 byte identity -- a semantic test would have kept printing the right numbers.
 
-DECPOLY as a specimen is also the first accepted corpus program where DR's own
-output is arithmetically WRONG for one of its statements: `P(x,y,z)` prints `2`
-while the caller's identical expression prints `12.2300`.  The acceptance target
-is byte identity of `.REL`, `.COM` and console; the value `2` is reproduced
-exactly and recorded as a DR semantic defect, not smoothed over.
+RETRACTION (written into this note on the user's challenge, same day).  I had
+claimed DECPOLY was the first accepted corpus program whose DR output is
+arithmetically wrong, because `P(x,y,z)` "prints 2".  It does not: the `2` is
+source line 20's own string literal `put skip list('       2');` -- a stray
+header line in the historical program -- and P's value prints 12.2300, exactly
+`1.4*1.4 + 2*2.3 + 5.67`.  The "caller-side 11,2" I invented belongs to LOAN1.
+DECPOLY declares decimal(15,4) on both sides (source lines 11 and 27) and both
+DR and my build are correct.  The acceptance conclusion is unchanged (byte
+identity of `.REL`, `.COM` and console, plus now-confirmed arithmetic identity),
+but the defect label is withdrawn; see CLAIMS C094 for the full record.
 
 Remaining DECPOLY-class perimeter (tested negatives): PUT of a DECIMAL formal
 (N52), DECIMAL formal as a conjunction operand (N53), a formal passed through to

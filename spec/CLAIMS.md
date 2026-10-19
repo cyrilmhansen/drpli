@@ -909,12 +909,16 @@ each; R725 @135 the same shape at arity 1].  Reading it is
 load ladder with `LXI H,<cell>` replaced by `LHLD`, which is exactly why the
 same ?DLDOP primitive needs no new mode.
 
-Corollary (this is the law that DECPOLY's own listing proves): because the
-callee re-declares its formals (`dcl (x,y,z) fixed decimal(15,4);`), the
-*precision byte* it emits is the re-declaration's, and DR's own object module
-uses a DIFFERENT precision for the callee's copy of the same literal (`MVI
-A,0F` / 15,4 in P against `MVI A,0B` / 11,2 in main) -- which is a second reason
-the mode check below had to be a real check and not an assumption.
+Corollary, RESTATED AFTER A RETRACTION (see the RETRACTED block below):
+because the callee re-declares its formals (`declare (x,y,z) fixed
+decimal(15,4);` inside P), the precision byte it emits is the one derived from
+ITS OWN re-declaration -- and in DECPOLY both declarations are 15,4, so the
+object carries `MVI A,0F` (15) on both sides: main's sites are at 0039, 004C,
+005F, 006A, 0072, 0081, 0089, 009A, 00A2 and P's body at 0110, 0118, 012B,
+013E (counted in the accepted .REL).  The only smaller precisions in DECPOLY
+are the multiplicative-literal law at work -- `MVI A,1` for the literal `2` of
+`2 * y` at 00BE, 00DA, 0123 -- and scale bytes (`4` = the target scale of
+decimal(15,4)) at 0133/0143/014B.  There is no 11,2 anywhere in DECPOLY.
 
 MODE CHECK (new refusal site, one tested negative): an argument against a FIXED
 DECIMAL formal must be a decimal VARIABLE.  Passing a decimal literal or a
@@ -923,6 +927,29 @@ literal in some cell and decide its precision -- so the compiler fails loud:
 `non-variable argument against a FIXED DECIMAL formal is unproven [TBD]`
 [N33, re-pinned from the old arity-1 "DECIMAL formal parameter" refusal].  All
 accepted specimens pass variables (DECPOLY x/y/z, R725 a/b, R2037, R2038).
+
+RETRACTED CLAIM (recorded so the ledger stays auditable).  When this slice was
+committed (`07ff3ce`) I asserted two things that are FALSE and that the user
+caught: (a) that DECPOLY's caller declares `fixed decimal(11,2)` while P
+re-declares 15,4, and (b) that DECPOLY therefore prints `2` for `P(x,y,z)` and
+so exhibits "DR's own semantic defect".  Both were misreadings, never checked
+against the source:
+
+* `artefacts/DECPOLY.PLI` line 11 and line 27 BOTH read
+  `(x,y,z) fixed decimal(15,4)` (DR's listing of the published source confirms
+  it verbatim at its lines 11 and 24-27).  The 11,2 came from LOAN1, not here.
+* The `2` in the transcript is the STRING LITERAL of line 20,
+  `put skip list('       2');` -- seven spaces and a two, a stray header line in
+  the historical program.  The console bytes are
+  `'\n       2\n      x  + 2y + z =            12.2300\n'`, and 12.2300 is
+  exactly `1.4*1.4 + 2*2.3 + 5.67`.  **DR's multi-argument FIXED DECIMAL passing
+  in DECPOLY is arithmetically CORRECT, and so is my build's.**
+
+Consequence for this ledger: DECPOLY carries no defect disclaimer.  The
+`2 * y` literal sites (00BE/00DA/0123, `MVI A,1`) are the C084 multiplicative
+literal law operating on a decimal FORMAL read through `LHLD`, which is positive
+evidence that the formal-by-reference model composes correctly with literal
+precision rules -- the opposite of what I originally wrote.
 
 ## C095 — `&` in a condition materialises booleans and ANDs them; ONE skip jump (E2E-9 slice 6)
 
@@ -1011,10 +1038,12 @@ REAL input script (`1.4, 2.3, 5.67` then `0,0,0`), and the simulator's own
 transcripts differ only in the simulator's wall-clock/clock-frequency lines).
 Numeric verification: `x*x + 2*y + z` for (1.4, 2.3, 5.67) = 1.96 + 4.6 + 5.67 =
 12.23, printed `12.2300` at scale 4 -- correct arithmetic, not just matching
-bytes.  DECPOLY's `P(x,y,z)` call prints `2` instead of `12.2300`; that is DR's
-own behaviour (its callee re-declares the formals at 15,4 against the caller's
-11,2) and the accepted object reproduces it exactly -- a documented DR semantic
-defect, not a source-level misread on my side.
+bytes.  (Corrected after the commit: DECPOLY has NO semantic defect.  The
+`2` line is the program's own string literal `put skip list('       2')` at
+source line 20, and `P(x,y,z)` returns the arithmetically correct 12.2300; the
+earlier "caller 11,2 / DR prints 2 / documented DR defect" wording in this block
+and in C094 was a misreading and is retracted there.  See C094's RETRACTED
+CLAIM block.)
 THREE REAL DEFECTS were found and fixed by this slice's byte-diffing, each with
 a probe that pins it: (1) `bind.ml`'s call-site fold restarted its accumulator at
 `0`, silently dropping every call site but the last -- multi-arg calls lost their
