@@ -70,6 +70,18 @@ let encode items =
 
 (* LINK item type codes (LINK-80 guide / reldump TYPES) *)
 let t_extdef = 0
+(* [E2E-11 step 2] FILE control blocks.  DR puts a `dcl f file;' variable in a
+   NAMED COMMON group, not in DATA:  DEF-COMMON-SIZE(f, 34 + len f) establishes
+   the group and its size, SEL-COMMON(f) makes it the active group for the
+   relocations that follow (DR re-selects it before EVERY reloc into it, e.g.
+   before the `LXI H,SYSIN' operand of an ON registration).  Both ride the
+   generic LINK encoding -- type 1 carries no value, type 5 carries an ABS 16-bit
+   size -- so no bit-layout work was needed, only the codes.
+   Verified: SYSIN -> 39 bytes [FLTPOLY2, E11A, E11C, E11E, E11F],
+             INF    -> 37 bytes [E17A].  Contents are 33 zero bytes, then the
+             name LENGTH as a byte, then the name. *)
+let t_sel_common = 1
+let t_def_common_size = 5
 let t_progname = 2
 let t_req_library = 3
 let t_chain_ext = 6

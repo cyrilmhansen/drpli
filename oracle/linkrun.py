@@ -37,7 +37,13 @@ INPUTS = {
     "X201":       ["WORLD\\r"],
     "DECPOLY":    ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
     "FLTPOLY":    ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
-    "FLTPOLY2":   ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
+    # [E2E-11 step 2] FLTPOLY2 is the ENDFILE acceptance target, so its script
+    # MUST end with an explicit ^Z: two computed rows, then EOF, so the handler
+    # fires and the transcript distinguishes C110's three outcomes.  Relying on
+    # the harness default EOF would make "nothing printed" equal "nothing
+    # printed" -- which the R913-R917 note in this table already warns is not
+    # evidence.  The ^Z needs its own preceding CR [C113].
+    "FLTPOLY2":   ["1.4, 2.3, 5.67\\r", "2,3,4\\r", "\\x1a\\r"],
     # [E2E-7A slice 4] numeric GET probes (input script per program)
     "R901":       ["500\\r"],
     "R902":       ["1.25\\r", "3.1416\\r"],

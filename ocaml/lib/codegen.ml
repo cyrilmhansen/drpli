@@ -54,6 +54,7 @@ type st =
      addr_of needs to know which table a name lives in. *)
   ; mutable stat_addrs : (string * int) list
   ; mutable stat_total : int
+  ; mutable files : string list   (* [E2E-11 step 2] uppercased FILE names *)
   ; mutable fmtq : int list
       (* [E2E-8] FIFO of pre-allocated PUT EDIT format-table addresses.  DR
          allocates EVERY format table in a block BEFORE any other pool item --
@@ -992,6 +993,10 @@ let rec edit_stmts (ss : Ast.stmt list) : Ast.stmt list =
       | Ast.Sdowhile { body; _ } | Ast.Sdoforever body | Ast.Sdoto { body; _ } ->
           edit_stmts [ body ]
       | Ast.Sproc b -> edit_stmts b.Ast.blk.Ast.bstmts
+      (* [E2E-11 step 2] same reason as prescan_stmt: an ON handler is inline
+         code, and a PUT EDIT in one must be in the FIFO or prealloc_fmt_tables
+         hits `assert false' at lowering time. *)
+      | Ast.Son { handler; _ } -> edit_stmts [ handler ]
       | _ -> [])
     ss
 
@@ -1197,6 +1202,12 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
                                    ; pd_fl_ret =
                                        (List.mem pn cx.pd_fl_procs) } x) 0
         b.Ast.blk.Ast.bstmts
+  (* [E2E-11 step 2] an ON handler is inline CODE, so any literal it uses takes a
+     pool cell in DR's allocation order.  Missing this made E11A's prescan count
+     only 'HANDLED' (7 bytes) and set the pool base there instead of 14, so the
+     two relocations of variable `a' (DR: A(000E)) came out as data 0x7 -- right
+     code shape, wrong addresses, and byte-identical DATA bytes that hid it. *)
+  | Ast.Son { handler; _ } -> prescan_stmt cx handler
   | _ -> 0
 
 let prescan_pool (cx : pdec_ctx) (stmts : Ast.stmt list) =
@@ -1256,6 +1267,13 @@ let rec count_required (s : Ast.stmt) =
   | Ast.Sproc b ->
       1 + List.fold_left (fun a x -> a + count_required x) 0
           b.Ast.blk.Ast.bstmts
+  (* [E2E-11 step 2] the ON registration is an emitted sequence and the handler
+     is inline code that lowers too, so both count.  Without this case the
+     default gave 1 for the ON and 0 for the handler, which FLTPOLY2 happened to
+     satisfy only because its handler is a single statement -- the numbers agreed
+     for the wrong reason.  Made explicit so a two-statement handler is correct
+     rather than an invariant failure. *)
+  | Ast.Son { handler; _ } -> 1 + count_required handler
   | _ -> 1
 
 
@@ -3233,6 +3251,19 @@ let lower_test_skip0 st (c : Ast.expr) =
      condition falls through to the catch-all refusal, so nothing is emitted
      for a shape DR has not shown. *)
   match c.Ast.e with
+  (* [E2E-11 step 2, T4 + FLTPOLY2] a BARE bit variable as a condition is NOT the
+     zero test: DR loads the cell and doubles it into itself, then takes the
+     jump-if-POSITIVE branch, i.e. it tests bit 7 through the sign flag.
+        if f then ..     LDA f ; ORA A ; JP skip
+     Placed first so a bit condition can never be captured by the fixed/decimal
+     ident-zero ladder further down.  `JP' (0xF2), not `JNZ': after ORA A the
+     zero flag says nothing about bit 7 of an arbitrary byte, and DR's own bytes
+     at code 0x79 in FLTPOLY2 are f2. *)
+  | Ast.Eident v when vk_of st v.Ast.orig = Vbit1 ->
+      d st 0x3a (* LDA dir *); reloc st Data (addr_of st v.Ast.orig);
+      d st op_ora_a;
+      d st op_jp;
+      let slot = st.lc in d st 0; d st 0; slot
   (* [E2E-11 step 1a] BIT(1) equality against a bit literal, matched BEFORE the
      fixed/decimal ladders on purpose: a bit cell is 1 byte, and the generic
      1-byte-zero test below would read it with LHLD (two bytes) -- a cell-length
@@ -4642,6 +4673,95 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       end
       (* suppressed stop: window stays OPEN — trailing procedure
          code then displaces the epilogue entirely [RFACT] *)
+  | Ast.Son { cond; cargs; handler } ->
+      (* [E2E-11 step 2] ON <conditional-name>(<file>) <unit>.  Shape is from
+         four DR specimens (E11A / E11C / E17A / FLTPOLY2, claim C109) and the
+         control-block addressing from C120:
+
+             LXI  H,<FILE>        <- SEL-COMMON re-selects the named group, then
+                                     a COMMON relocation at offset 0
+             MVI  A,05            <- the conditional-name code; ENDFILE = 5
+             CALL ?ONCOP
+             JMP  over
+             <handler unit, inline>
+             RET
+
+         The handler is emitted INLINE, immediately after the JMP, and the next
+         statement follows the RET -- which is what DR's runtime contract needs
+         (C110): on EOF the unit runs ONCE, the interrupted GET then COMPLETES
+         with its items unassigned, and control reaches the statement after the
+         ON.  My GET already satisfies that: each item's ?GNVOP is followed by a
+         JP that skips the conversion and lands on the next item, so an EOF
+         mid-list leaves every remaining target untouched and falls through to
+         ?QIOOP and the continuation -- no re-entry, no skip of the following
+         statement.  FLTPOLY2 is the program that has to prove that.
+         Only ENDFILE-on-a-declared-FILE is accepted; ON ERROR, SIGNAL and any
+         other conditional name refuse, as do handlers whose own shape is
+         unproven (they lower through the ordinary statement dispatcher, which
+         refuses what it cannot do).
+
+         Both the ON and its handler are counted (see count_required): the ON is
+         the emitted registration/RET sequence, the handler lowers separately. *)
+      st.lowered <- st.lowered + 1;
+      st.last_imm <- None;
+      (match String.lowercase_ascii cond, cargs with
+       | "endfile", [ { Ast.e = Ast.Eident f; _ } ] ->
+           let fu = String.uppercase_ascii f.Ast.orig in
+           if not (List.mem fu st.files) then
+             failwith
+               (Printf.sprintf
+                  "codegen: ON ENDFILE(%s) names something that is not a declared FILE [TBD] (line %d)"
+                  f.Ast.orig s.Ast.spos.Source.line);
+           (* [E2E-11 step 2] A GOTO out of an ON handler is a DIFFERENT mechanism.
+              DR emits, at the TARGET LABEL:  LHLD * A(<2 hidden bytes>) / SPHL /
+              CALL ?RECOV  [golden/e2e11g/E11F, code 0x1B] -- a stack unwind, because
+              the handler runs inside the runtime's call context and jumping past it
+              must discard that frame.  A plain GOTO emits no such thing [G115's
+              labels have zero ?RECOV, and it is byte-exact], so this is specific to
+              the handler crossing.  My label lowering has no RECOV path at all, and
+              guessing the hidden cell would change both the AUTO area and the code.
+              Refuse rather than emit E11F's 335 divergent bytes. *)
+           (let rec has_goto (x : Ast.stmt) =
+             match x.Ast.st with
+             | Ast.Sgoto _ -> true
+             | Ast.Sdobegin ss -> List.exists has_goto ss
+             | Ast.Sif { then_; els; _ } ->
+                 has_goto then_
+                 || (match els with Some e -> has_goto e | None -> false)
+             | Ast.Sdowhile { body; _ } | Ast.Sdoto { body; _ }
+             | Ast.Sdoforever body -> has_goto body
+             | Ast.Sproc b -> List.exists has_goto b.Ast.blk.Ast.bstmts
+             | Ast.Son { handler; _ } -> has_goto handler
+             | _ -> false
+           in
+           if has_goto handler then
+             failwith
+               (Printf.sprintf
+                  "codegen: an ON handler containing GOTO needs DR's ?RECOV label \
+                   prologue (LHLD */SPHL/CALL ?RECOV + a 2-byte hidden cell) [TBD] \
+                   (line %d; E11F shows the shape, G115 proves plain GOTO has none)"
+                  s.Ast.spos.Source.line));
+           d st op_lxi_h;
+           link st t_sel_common None (Some fu);
+           reloc st Common 0;
+           d st op_mvi_a; d st 0x05;
+           call_ext st "?ONCOP";
+           d st 0xc3 (* JMP *);
+           let jmp_slot = st.lc in
+           d st 0; d st 0;
+           lower_stmt st ls handler;
+           d st 0xc9 (* RET: terminates the inline handler unit [C109] *);
+           emit_triple st jmp_slot st.lc
+       | ("endfile", _) ->
+           failwith
+             (Printf.sprintf
+                "codegen: ON ENDFILE with %d argument(s) or a non-identifier argument is unsampled [TBD] (line %d)"
+                (List.length cargs) s.Ast.spos.Source.line)
+       | _ ->
+           failwith
+             (Printf.sprintf
+                "codegen: ON %s is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line %d)"
+                cond s.Ast.spos.Source.line))
   | Ast.Sprocedure_stmt _ ->
       failwith "codegen: CALL statement deferred [TBD]"
   | Ast.Sdcl _ -> ()
@@ -4654,9 +4774,19 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
 type statics =
   { sy_total : int                 (* bytes occupied below the pool *)
   ; sy_addrs : (string * int) list  (* lowercase name -> absolute data addr *)
-  ; sy_cells : (int * int list) list (* (addr, init bytes) for the DATA segment *) }
+  ; sy_cells : (int * int list) list (* (addr, init bytes) for the DATA segment *)
+  ; sy_files : string list          (* [E2E-11 step 2] uppercased FILE names:
+                                       each becomes its own NAMED COMMON group of
+                                       34 + len bytes [C120], occupying NO DATA *) }
 
-let empty_statics = { sy_total = 0; sy_addrs = []; sy_cells = [] }
+let empty_statics =
+  { sy_total = 0; sy_addrs = []; sy_cells = []; sy_files = [] }
+
+(* DR's FILE control block, measured on two different names [C120]:
+   33 zero bytes | 1 byte = name length | the name.  SYSIN 39, INF 37. *)
+let file_cb_bytes (name : string) =
+  List.init 33 (fun _ -> 0) @ [String.length name]
+  @ List.init (String.length name) (fun i -> Char.code name.[i])
 
 let bit1_init (e : Ast.expr) =
   match e.Ast.e with
@@ -4897,6 +5027,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; pool_next = statics.sy_total; fmtq = []; dec_cells = []; lc = 0
     ; last_imm = None; lowered = 0; temps = 0
     ; stat_addrs = statics.sy_addrs; stat_total = statics.sy_total
+    ; files = statics.sy_files
     ; stop_seen = false; calls = layout.pl_calls
     ; procs =
         List.map
@@ -5028,8 +5159,23 @@ let emit_program (progname : string) (auto_bytes : int)
     ; Link (t_extdef, None, Some extname)
     ; Link (t_def_public, Some (Code, 0), Some extname) ]
   in
+  (* [E2E-11 step 2] one NAMED COMMON group per FILE variable, emitted AFTER the
+     header links and BEFORE the DATA segment -- DR's own item order [FLTPOLY2:
+     PROG-NAME / REQ-LIBRARY / EXTDEF / DEF-PUBLIC / DEF-COMMON-SIZE SYSIN /
+     SEL-COMMON SYSIN / SET-LC(common,0) / 39 bytes / SET-LC(data,0) / ...].
+     The size is 34 + len(name) and the contents are 33 zeros, the name length,
+     then the name [C120]. *)
+  let common_seg =
+    List.concat_map
+      (fun (nm : string) ->
+        [ Link (t_def_common_size, Some (Abs, 34 + String.length nm), Some nm)
+        ; Link (t_sel_common, None, Some nm)
+        ; Link (t_set_lc, Some (Common, 0), None) ]
+        @ List.map (fun v -> Data v) (file_cb_bytes nm))
+      statics.sy_files
+  in
   let data_seg =
-    if st.pool <> [] then
+    if st.pool <> [] || statics.sy_files <> [] then
       Link (t_set_lc, Some (Data, 0), None)
       ::
       (let sorted =
@@ -5052,7 +5198,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; Link (t_end_program, Some (Code, 0), None)
     ; Link (t_end_file, None, None) ]
   in
-  (header @ data_seg @ bridge @ code_items @ tail, st.lc)
+  (header @ common_seg @ data_seg @ bridge @ code_items @ tail, st.lc)
 
 (* build var_info rows from binder rows, keeping only fixed-bin scalars.
    NOTE: storage byte-size comes ONLY from Bind.bytes_of (the binder is the
@@ -5116,7 +5262,8 @@ let rows_of (b : Ast.block) =
             | _ -> auto = false && has_static_class rt))
       rows
   in
-  let sy_addrs = ref [] and sy_cells = ref [] and sy_total = ref 0 in
+  let sy_addrs = ref [] and sy_cells = ref [] and sy_total = ref 0
+  and sy_files = ref [] in
   List.iter
     (fun (nm, rt, off, auto) ->
       let li = String.lowercase_ascii nm in
@@ -5179,9 +5326,6 @@ let rows_of (b : Ast.block) =
               [TBD] (line %d)"
              line))
     static_dcls;
-  let statics =
-    { sy_total = !sy_total; sy_addrs = !sy_addrs; sy_cells = !sy_cells }
-  in
   let sy_total = !sy_total in
   let stat_set = !sy_addrs in
   let vars =
@@ -5217,6 +5361,25 @@ let rows_of (b : Ast.block) =
                    p s);
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vdec (p, s)
                       ; w = p + 3 })
+        | Bind.RTfile _ ->
+            (* [E2E-11 step 2] a FILE variable takes NO DATA cell: DR gives it a
+               named COMMON group instead [C120, verified for SYSIN and INF].  bind
+               classifies it static-class, so it never reaches the static-bit path
+               above; here it is recorded for the COMMON emission and contributes
+               nothing to the DATA area.  The `internal' flag turned out NOT to
+               distinguish SYSIN from a user stream (FLTPOLY2's `dcl sysin file'
+               binds as FILE EXTERNAL STATIC), and both get the same block shape --
+               so this arm does not branch on it.  A name longer than 6 chars is
+               refused: DR's 6-character truncation law is measured for program
+               and entry names [DECPOLY, LONGNAME], never for a COMMON symbol. *)
+            let up = String.uppercase_ascii nm in
+            if String.length up > 6 then
+              failwith
+                (Printf.sprintf
+                   "codegen: FILE name %s (%d chars) exceeds 6 [TBD] (COMMON-symbol truncation for FILE control blocks is unmeasured; SYSIN/INF are 5/3)"
+                   up (String.length up));
+            sy_files := !sy_files @ [up];
+            None
         | Bind.RTchar (n, false) ->
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vfix n; w = 0 })
         | Bind.RTchar (n, true) ->
@@ -5254,6 +5417,14 @@ let rows_of (b : Ast.block) =
                     "codegen: declared variable kind not in supported \
                      subset [TBD]: %s" (Bind.rty_str rt)))
       rows
+  in
+  (* NOTE: built after `vars' -- the FILE names are collected as a side effect of
+     that fold, so reading sy_files before it produced an empty list and ON
+     ENDFILE then refused a perfectly well-declared FILE. *)
+  let statics =
+    { sy_total; sy_addrs = !sy_addrs; sy_cells = !sy_cells
+    ; sy_files = !sy_files }   (* sy_total is the plain int bound just above; the
+                                   ref of the same name is shadowed by then *)
   in
   let auto_bytes =
     List.fold_left

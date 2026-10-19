@@ -596,8 +596,8 @@ and parse_stmt_body p q labels =
       advance p;
       let cond = if at_num p then num_text p else (name_any p).key in
       (* conditional-name arguments: ON ENDFILE(sysin) [EX EXPR1] *)
-      let _cargs = opt_paren_exprs p in
-      Son { cond; handler = parse_stmt p }
+      let cargs = opt_paren_exprs p in
+      Son { cond; cargs; handler = parse_stmt p }
   | Token.Ident { key = "SIGNAL"; _ } ->
       advance p;
       let cond = if at_num p then num_text p else (name_any p).key in

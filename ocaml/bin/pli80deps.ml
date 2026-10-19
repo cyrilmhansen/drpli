@@ -256,7 +256,7 @@ let rec walk_stmt (s : Ast.stmt) =
    | Ast.Sreturn eo -> Option.iter walk_expr eo
    | Ast.Sstop eo -> Option.iter walk_expr eo
    | Ast.Sexit _ -> tag "EXIT" line
-   | Ast.Son { cond; handler } ->
+   | Ast.Son { cond; cargs = _; handler } ->
        tag ~detail:("ON " ^ cond) ("ON_COND:" ^ lower cond) line;
        walk_stmt handler
    | Ast.Ssignal { cond; target } ->

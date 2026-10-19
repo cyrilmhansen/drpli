@@ -433,6 +433,22 @@ SPECIMENS = {
     "T10": ("e13src/T10.PLI", "golden/e2e11x/T10/T10.REL"),
     "T12": ("e13src/T12.PLI", "golden/e2e11y/T12/T12.REL"),
     "T13": ("e13src/T13.PLI", "golden/e2e11y/T13/T13.REL"),
+    "T4": ("e13src/T4.PLI", "golden/e2e11u/T4/T4.REL"),
+    # [E2E-11 step 2] FILE + ON ENDFILE (SYSIN).  FLTPOLY2 is the 10th corpus
+    # program and the first that needs a FILE declaration at all; it exercises
+    # bit(1) + STATIC INITIAL + %replace + ON ENDFILE + a bare bit condition +
+    # SYSIN GET of three float binary(24) items + a PUT LIST + a RETURNS(FLOAT)
+    # call, all in one.  golden/first8080u and golden/first hold the same bytes
+    # from two independent DR runs, and my fresh e2e11z recompile of the probe
+    # copy matched them exactly, so the oracle itself is stable here.
+    "FLTPOLY2": ("artefacts/FLTPOLY2.PLI",
+                 "golden/first8080u/FLTPOLY2/FLTPOLY2.REL"),
+    # the ON-registration probes, now byte-exact: E11A (handler = PUT LIST),
+    # E11B (handler = assignment), E11E (plain SYSIN GET, no ON at all -- it is
+    # the GET-only control for the same addressing).
+    "E11A": ("e13src/E11A.PLI", "golden/e2e11g/E11A/E11A.REL"),
+    "E11B": ("e13src/E11B.PLI", "golden/e2e11g/E11B/E11B.REL"),
+    "E11E": ("e13src/E11E.PLI", "golden/e2e11g/E11E/E11E.REL"),
     "R3004": ("e13src/R3004.PLI", "golden/e2e13/R3004/R3004.REL"),
     "R3012": ("e13src/R3012.PLI", "golden/e2e13/R3012/R3012.REL"),
     "R3014": ("e13src/R3014.PLI", "golden/e2e13/R3014/R3014.REL"),
@@ -915,11 +931,27 @@ REJECTS = {
         "PT3:\n  procedure options(main);\n"
         "  dcl s fixed static initial(5);\n  s = s + 1;\n  stop;\nend PT3;\n",
         "STATIC on FIXED BINARY(15,0) is unsampled"),
-    "N77_BIT_BARE_CONDITION": (
-        "PT4:\n  procedure options(main);\n"
-        "  dcl f bit(1) static initial('1'b);\n  dcl s fixed;\n"
-        "  if f then s = 1;\n  stop;\nend PT4;\n",
-        "condition form not in E2E-3b subset"),
+    # [E2E-11 step 2] RETIRED N77_BIT_BARE_CONDITION: the bare `if f then' on a
+    # BIT(1) variable is now implemented and byte-exact.  DR tests it through the
+    # SIGN flag, not zero -- LDA f / ORA A / JP skip (opcode f2, "jump if positive",
+    # i.e. bit 7 clear) [T4, FLTPOLY2 code 0x75-0x7A].  That is a different shape
+    # from the comparison form (LDA/ANI 80/JNZ) and from the fixed-bin ident test,
+    # which is why it needs its own arm, placed first so a bit condition can never
+    # be captured by the fixed ladder.  T4 is a POSITIVE specimen now.
+    # [E2E-11 step 2] PERIMETER refusals around ON/FILE.  All three subjects are
+    # programs DR compiles, so these record capability I have not built, not
+    # language limits -- and each has a DR golden to be measured against later.
+    "N79_ON_HANDLER_GOTO": (
+        "e11f:\n  procedure options(main);\n  dcl sysin file;\n"
+        "  dcl a fixed bin(15);\n  on endfile(sysin) goto out;\n"
+        "out:\n  get list(a);\n  stop;\nend e11f;\n",
+        "needs DR's ?RECOV label prologue"),
+    "N80_ON_HANDLER_BEGIN": (
+        "e11c:\n  procedure options(main);\n  dcl sysin file;\n"
+        "  dcl efile bit(1) static initial('0'b);\n"
+        "  dcl x fixed bin(15);\n  on endfile(sysin) begin;\n"
+        "    efile = '1'b;\n  end;\n  get list(x);\n  stop;\nend e11c;\n",
+        "procedure without name"),
     "N78_INITIAL_WITHOUT_STATIC": (
         "E20C:\n  procedure options(main);\n"
         "  dcl f bit(1) initial('1'b);\n  if f = '1'b then n = 1;\n"

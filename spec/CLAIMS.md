@@ -1480,17 +1480,25 @@ on endfile(sysin) <unit>;
 ```
 
 Identical for a simple-statement body [E11A] and a `BEGIN`-block body
-[E11C, E17A], so the body's form is irrelevant to the registration.  The
-registration costs **6 bytes of data area** [E11C: `DATA AREA = 0009` =
-6 (ON block) + 1 (`bit(1)` flag) + 2 (`fixed bin(15)`), the only decomposition
-available so far — two conditions, or `ON ERROR` alongside `ON ENDFILE`, are
-unprobed and may not be 6+6].
+[E11C, E17A], so the body's form is irrelevant to the registration.
 
-`dcl <name> file;` itself occupies **no storage when the file is SYSIN** — its
-control block is PLILIB's shared object at TPA `0x0290` [E11E: `dcl sysin file;
-dcl a fixed bin(15);` puts `a` at 0x0009 with no gap].  A user file
-(`dcl inf file;`) **does** get a control block in the program's own data area
-(`LXI H,INF` relocates against a local symbol) [E17A].
+**RETRACTION (step 2).** I wrote here that "the registration costs 6 bytes of
+data area", decomposing E11C's `DATA AREA = 0009` as 6 (ON) + 1 (bit flag) + 2
+(fixed).  That was a coincidence, not a measurement.  E11C's actual nine bytes are
+`00` (the `bit(1) static initial('0'b)` cell) | `58 3d` = "X=" | `44 4f 4e 45` =
+"DONE" | 2 bytes for `x` — i.e. 1 static + 6 LITERAL POOL + 2 automatic, and the
+"6" is two string literals I had not looked up.  `ON ENDFILE` costs ZERO data
+bytes: FLTPOLY2 is byte-exact with no allocation for it, and had I reserved six
+bytes on the strength of this claim every FILE program would have come out wrong.
+Lesson kept: a decomposition that happens to sum correctly is not evidence — the
+bytes have to be identified individually.
+
+Also corrected here: the control block the `LXI H,<file>` operand points at is NOT
+PLILIB's object at 0x0290 and not "in the program's own data area" for named files.
+It is a per-variable **named COMMON group** [C120], identical in shape for SYSIN and
+for a user stream.  What 0x0290 actually is, is the *input descriptor* the GET's
+`LXI D,0290` loads — a different object, as the relocations make clear (`LXI D,0290`
+carries no relocation at all; `LXI H,SYSIN` carries a COMMON-segment one).
 
 ## C110 — ENDFILE semantics: handler runs once, the GET then COMPLETES unassigned, control goes to the NEXT statement (E2E-11 step 1)
 
@@ -1734,3 +1742,58 @@ identifier in the kept expression being a 2-byte FIXED cell) plus a `k = 0` rung
 of the constant-bias ladder, which emits no bias instructions and so reproduces
 the copy shape with no new lowering. DEC and FLOAT zero-elision remain unprobed
 and keep their existing paths.
+
+## C120 — `dcl <name> file;` becomes a NAMED COMMON group of 34 + len(name) bytes (E2E-11 step 2)
+
+A FILE variable takes no DATA cell.  DR emits, per file:
+
+```
+LINK  DEF-COMMON-SIZE  (abs, 34 + len NAME)  NAME
+LINK  SEL-COMMON                             NAME
+LINK  SET-LC           (common, 0)
+      33 zero bytes | 1 byte = len NAME | the NAME bytes          <- 34 + len total
+```
+
+measured on two names of different length: `SYSIN` → 39 bytes, byte 33 = 0x05,
+bytes 34-38 = "SYSIN" [FLTPOLY2, E11A, E11C, E11E, E11F]; `INF` → 37 bytes, byte
+33 = 0x03, "INF" [E17A].  So the length byte is the name's own length and the
+leading 33 bytes are zero-filled control fields, not garbage.
+
+Two mechanical consequences that are easy to get wrong:
+
+* The block is emitted AFTER the header links (PROG-NAME / REQ-LIBRARY / EXTDEF /
+  DEF-PUBLIC) and BEFORE `SET-LC(data,0)`, so DATA-segment addresses are
+  unaffected: FLTPOLY2's `eofile` still sits at data 0x0000 and its pool base is
+  0x0038 with the literal pool above the single static byte.
+* `SEL-COMMON NAME` is re-emitted before EVERY relocation into that group, not
+  just once — DR's item sequence has a second `SEL-COMMON SYSIN` immediately
+  before the `LXI H,SYSIN` operand deep in the code segment.  Emitting it only at
+  the definition would leave that relocation pointing at whatever group happened
+  to be active.
+
+No new bit-layout was needed: `rel80.ml`'s generic LINK encoder already handles
+type 1 (no value, name) and type 5 (ABS 16-bit value, name).  Only the type codes
+were missing.
+
+## C121 — a GOTO out of an ON handler makes DR put a `?RECOV` prologue at the TARGET label (E2E-11 step 2)
+
+`on endfile(sysin) goto out;` lowers as [golden/e2e11g/E11F, code 0x18]:
+
+```
+0018   JMP  <out>            ; the handler body is just the jump
+001B   out: LHLD * A(000B)   ; 2 hidden automatic bytes
+       001E   SPHL
+       001F   CALL ?RECOV    ; discard the handler's runtime frame
+```
+
+The label itself grows a stack-unwind prologue, because the handler executes
+inside PLILIB's call context and jumping past it must drop that frame.  A plain
+GOTO has no such thing — G115's labels contain zero `?RECOV` and are byte-exact —
+so this is specific to the handler crossing, and it is a property of the TARGET
+label rather than of the goto statement, which makes it non-local.
+
+My label lowering has no RECOV path and no hidden-cell allocation, so emitting it
+would change the AUTO area as well as the code: E11F came out with 335 divergent
+bytes when I let it through.  It now refuses [N79].  Unprobed: whether `SIGNAL`,
+`ON ERROR` + goto, or a label reached by BOTH a plain goto and a handler goto take
+the same prologue.

@@ -108,7 +108,15 @@ and stmt_kind =
   | Sreturn of expr option
   | Sstop of expr option
   | Sexit of name option
-  | Son of { cond : string; handler : stmt }       (* ON con stmt; *)
+  | Son of {
+      cond : string
+    ; cargs : expr list   (* [E2E-11 step 2] the conditional-name argument list:
+                             ON ENDFILE(SYSIN) -> [Eident sysin].  DR keys the
+                             registration on this -- `LXI H,SYSIN` loads the FILE's
+                             own COMMON control block, so dropping it (as this field
+                             used to, bound to `_cargs' in the parser) makes an
+                             ON ENDFILE impossible to lower correctly. *)
+    ; handler : stmt }       (* ON con stmt; *)
   | Ssignal of { cond : string; target : expr option }
   | Selse of stmt                                  (* orphan ELSE *)
   | Sdeclare_fail of pos                           (* DECLARED/NOT>RESERVED *)
