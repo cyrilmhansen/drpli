@@ -1,0 +1,139 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E29F
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E29F
+
+   1 a 0000 e29f:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main);
+   3 c 0006     declare x float, y float;
+   4 c 0006     declare a entry(float) returns(float);
+   5 c 0006     y = a(3.5);
+       0006       LXI  H,* A(0044)
+       0009       CALL A
+       000C       LXI  H,Y A(0040)
+       000F       CALL ?FX44S
+   6 c 0012     put skip list('a(3.5) =', y);
+       0012       LXI  D,0252
+       0015       LXI  B,0000
+       0018       CALL ?SYSPR
+       001B       MVI  A,01
+       001D       CALL ?SKPOP
+       0020       LXI  H,* S(0004)
+       0023       MVI  A,08
+       0025       CALL ?SLCTS
+       0028       CALL ?PNCOP
+       002B       LXI  H,Y A(0040)
+       002E       MVI  A,0E
+       0030       CALL ?QFCMS
+       0033       CALL ?PNVOP
+       0036       CALL ?QIOOP
+       0016       ==== 0039
+   7 c 0039     y = a(1.25);
+       0039       LXI  H,* A(0046)
+       003C       CALL A
+       003F       LXI  H,Y A(0040)
+       0042       CALL ?FX44S
+   8 c 0045     put skip list('a(1.25) =', y);
+       0045       LXI  D,0252
+       0048       LXI  B,0000
+       004B       CALL ?SYSPR
+       004E       MVI  A,01
+       0050       CALL ?SKPOP
+       0053       LXI  H,* S(0010)
+       0056       MVI  A,09
+       0058       CALL ?SLCTS
+       005B       CALL ?PNCOP
+       005E       LXI  H,Y A(0040)
+       0061       MVI  A,0E
+       0063       CALL ?QFCMS
+       0066       CALL ?PNVOP
+       0069       CALL ?QIOOP
+       0049       ==== 006C
+   9 c 006C     y = a(256.0);
+       006C       LXI  H,* A(0048)
+       006F       CALL A
+       0072       LXI  H,Y A(0040)
+       0075       CALL ?FX44S
+  10 c 0078     put skip list('a(256) =', y);
+       0078       LXI  D,0252
+       007B       LXI  B,0000
+       007E       CALL ?SYSPR
+       0081       MVI  A,01
+       0083       CALL ?SKPOP
+       0086       LXI  H,* S(001D)
+       0089       MVI  A,08
+       008B       CALL ?SLCTS
+       008E       CALL ?PNCOP
+       0091       LXI  H,Y A(0040)
+       0094       MVI  A,0E
+       0096       CALL ?QFCMS
+       0099       CALL ?PNVOP
+       009C       CALL ?QIOOP
+       007C       ==== 009F
+  11 c 009F     y = a(0.5);
+       009F       LXI  H,* A(004A)
+       00A2       CALL A
+       00A5       LXI  H,Y A(0040)
+       00A8       CALL ?FX44S
+  12 c 00AB     put skip list('a(0.5) =', y);
+       00AB       LXI  D,0252
+       00AE       LXI  B,0000
+       00B1       CALL ?SYSPR
+       00B4       MVI  A,01
+       00B6       CALL ?SKPOP
+       00B9       LXI  H,* S(0029)
+       00BC       MVI  A,08
+       00BE       CALL ?SLCTS
+       00C1       CALL ?PNCOP
+       00C4       LXI  H,Y A(0040)
+       00C7       MVI  A,0E
+       00C9       CALL ?QFCMS
+       00CC       CALL ?PNVOP
+       00CF       CALL ?QIOOP
+       00AF       ==== 00D2
+  13 c 00D2     y = a(40.0);
+       00D2       LXI  H,* A(004C)
+       00D5       CALL A
+       00D8       LXI  H,Y A(0040)
+       00DB       CALL ?FX44S
+  14 c 00DE     put skip list('a(40) =', y);
+       00DE       LXI  D,0252
+       00E1       LXI  B,0000
+       00E4       CALL ?SYSPR
+       00E7       MVI  A,01
+       00E9       CALL ?SKPOP
+       00EC       LXI  H,* S(0035)
+       00EF       MVI  A,07
+       00F1       CALL ?SLCTS
+       00F4       CALL ?PNCOP
+       00F7       LXI  H,Y A(0040)
+       00FA       MVI  A,0E
+       00FC       CALL ?QFCMS
+       00FF       CALL ?PNVOP
+       0102       CALL ?QIOOP
+       00E2       ==== 0105
+  15 c 0105     stop;
+       0105       CALL ?STOPX
+  16 a 0108 end e29f;
+
+CODE SIZE = 0108
+DATA AREA = 004E
+FREE SYMS = 3746
+END  COMPILATION
+

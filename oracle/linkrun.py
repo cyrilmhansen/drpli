@@ -153,6 +153,28 @@ def session(run, script_lines, timeout, out, name):
     return rc, tr
 
 
+# [E2E-11 step 5] multi-module PL/I programs: the corpus ships pairs such as
+# CALL.PLI (main, declares `a entry(float) returns(float)') + A.PLI (the
+# procedure-only module that defines a), and DR's own instructions for the
+# MPMCALLA/MPMCALLB pair say  `link mpmcalla,mpmcallb,mpmdio'  -- every object is
+# NAMED on the LINK command line.  Merely having the companion .REL present on
+# D: is NOT the same operation: with `LINK D:E29G' alone, LINK resolves the
+# EXTREF by auto-loading whatever module carries the symbol, and the resulting
+# .COM dies at the first cross-module call WITHOUT printing anything (measured on
+# both DR-built and my byte-identical objects, so this is not a codegen
+# difference).  Same-tag companions, unlike EXTRA_REL's cross-tag assembly
+# modules: they come from the very tag being linked, so a DR-built side and a
+# mine-built side each link their own objects.
+SAME_TAG_OBJS = {
+    "E29F": ["A"], "E29G": ["A"], "E29J": ["A"], "E29I": ["B"],
+}
+# Set LINK_NO_EXTRA=1 to link WITHOUT naming companion objects, i.e. reproduce the
+# auto-search form.  Needed to MEASURE what LINK actually reports there instead of
+# reasoning about it -- the per-name status line is capped at 120 characters, which
+# is exactly what hid whether an UNDEFINED SYMBOLS list was empty or truncated.
+NO_EXTRA = bool(os.environ.get("LINK_NO_EXTRA"))
+
+
 def link(ws, names, intag, outtag, batch, reuse):
     out = Output(os.path.join(PROJ, "golden"), outtag, allow_reuse=reuse)
     src_rel = os.path.join(PROJ, "golden", intag)
@@ -173,12 +195,18 @@ def link(ws, names, intag, outtag, batch, reuse):
                 # [E2E-11 step 3e] programs whose arguments name an EXTERNAL
                 # assembly routine need that module present, or LINK reports it
                 # missing and the .COM is not built.
+                for e2 in ([] if NO_EXTRA else SAME_TAG_OBJS.get(n, [])):
+                    p3 = os.path.join(src_rel, e2, f"{e2}.REL")
+                    if os.path.exists(p3):
+                        run.import_local("d", p3, f"{e2}.REL")
                 for extra in EXTRA_REL.get(n, []):
                     p2 = os.path.join(PROJ, "golden", extra[1], f"{extra[0]}.REL")
                     if os.path.exists(p2):
                         run.import_local("d", p2, f"{extra[0]}.REL")
             def linkcmd(n):
-                mods = ",".join(f"D:{e[0]}" for e in EXTRA_REL.get(n, []))
+                mods = ",".join(([f"D:{e2}" for e2 in SAME_TAG_OBJS.get(n, [])]
+                                if not NO_EXTRA else [])
+                                + [f"D:{e[0]}" for e in EXTRA_REL.get(n, [])])
                 return f"LINK D:{n}" + (f",{mods}" if mods else "")
             lines = ["C:"] + [linkcmd(n) for n in batchn] + ["##HALT"]
             rc, tr = session(run, lines, 40, out, f"link-batch{i // batch}")
@@ -187,8 +215,33 @@ def link(ws, names, intag, outtag, batch, reuse):
                                 allow_clobber=reuse)
                 seg = re.search(rf">>> LINK D:{re.escape(n)}(.*?)(?=>>> |\Z)",
                                 tr, re.S)
-                msg = re.sub(r"\r+\n", " | ", seg.group(1).strip())[:120] if seg else ""
-                print(f"   {n}: COM={ok} {msg}", flush=True)
+                # [E2E-11 step 5] LINK 1.31 does NOT resolve a cross-module PL/I
+                # reference by searching D: -- the companion object has to be NAMED
+                # on the command line (`link mpmcalla,mpmcallb,mpmdio', exactly as
+                # the corpus instructions say).  What it does instead is the trap:
+                # it prints `UNDEFINED SYMBOLS:` followed by the name, and STILL
+                # WRITES A .COM.  That .COM runs with the reference unresolved, dies
+                # at the first cross-module call, prints nothing, and returns rc=0 --
+                # so a link stage that only checks "did a .COM appear" accepts a
+                # broken program.  Measured: E29F+A unnamed = 7808-byte .COM, silent
+                # exit; named = 8320-byte .COM, correct output.  Extract the list
+                # from the FULL segment text and surface it, because the display
+                # message is capped and the cap is what nearly misled me here.
+                full = re.sub(r"\r+\n", "\n", seg.group(1)) if seg else ""
+                um = re.search(r"UNDEFINED SYMBOLS:\s*\n(.*?)(?:\n\s*ABSOLUTE|\Z)",
+                               full, re.S)
+                undef = re.findall(r"[A-Za-z][A-Za-z0-9$.]{0,7}",
+                                   um.group(1)) if um else []
+                # [E2E-11 step 5] cap raised from 120 to 400: the old cap cut LINK's report off
+                # right after "UNDEFINED SYMBOLS:", which is precisely the part that
+                # mattered.  Never let a display limit hide a diagnostic.
+                msg = re.sub(r"\r+\n", " | ", seg.group(1).strip())[:400] if seg else ""
+                if undef:
+                    print(f"   LINK-FAIL {n}: COM={ok} but UNDEFINED SYMBOLS: "
+                          f"{' '.join(undef)} -- the .COM is unusable; name every "
+                          f"object on the LINK command line", flush=True)
+                else:
+                    print(f"   {n}: COM={ok} {msg}", flush=True)
         finally:
             run.cleanup()
 
