@@ -99,7 +99,7 @@ The audit's blocker sets are only as complete as the detector that wrote them:
 its label vocabulary is a closed list of constructs I chose to look for, so "0
 blockers" means "nothing my scanner knows about", not "nothing required".
 
-**Case A — the audit's blind spot and my compiler's, in one program.** `A` is
+**Case A — my compiler's blind spot, plus mine.** `A` is
 scored 0 blockers, is not in my accepted list, and DR compiles it as 21 bytes:
 
 ```
@@ -113,10 +113,26 @@ float-to-fixed route ?FL40M/?QFI15 appears only inside FFACT's prologue"*. Two
 errors in that one sentence: DR uses **`?FD44M`**, not `?FL40M`/`?QFI15`; and no
 `.REL` I have byte-matched (mine or DR's FFACT) contains `?QFI15` at all, so the
 "appears inside FFACT's prologue" premise is false as stated. `?FD44M` is
-something this build **already emits** (R3033, byte-exact). Conclusion: the
-cheapest remaining corpus acceptance, diagnosed wrongly by my own refusal message
-and invisibly to the blocker audit — and the only authority that settled it was
-DR's listing for the program itself.
+something this build **already emits** (4 accepted goldens: R3003, R3033, R3042,
+R3088; `?FPRET` appears in 25). Conclusion: the cheapest remaining corpus
+acceptance, diagnosed wrongly by my own refusal message — and the only authority
+that settled what `A` needs was DR's own listing for the program.
+
+**Correction, and it is about me, not about `A`.** I also wrote that this was
+"invisibly to the blocker audit", and recommended in §5 that `blocker_audit.py`
+"gain a first refusal (my compiler) column". It already has one: its last section
+prints `A ... set=EMPTY ... refuse=codegen: FLOAT value used where a FIXED value is
+expected ...  <-- TAG-BLIND`. I chose the milestone from the payoff rankings at the
+top of that output and then characterized the whole tool from them, without running
+it — the same failure mode as citing a program without checking what it contains,
+already recorded in this project more than once. What was actually broken is
+narrower and real: the by-one and by-two loops test `len(bs) == 1` and `== 2`, so a
+program with an *empty* blocker set appears in no ranking at all, and `A` — the only
+zero-tag refusal in the corpus — sat in that hole. Fixed by adding a
+`refusals with ZERO tags` section to the ranking page, where the decisions get made.
+Lesson kept: a correct warning three sections below the recommendation table is a
+warning that does not get read, and an instrument's behavior is established by
+running it, not by remembering what I meant it to do.
 
 **Case REVERT — a predicted second route.** `REVERT` is scored 1 blocker
 (`LABEL_AS_DATA`: `call p(i, exit)` passes a label as an actual). But its source
@@ -183,9 +199,11 @@ program closes on them).
 
 ## 5. What I would change in the instruments (not doing it to production code)
 
-- `blocker_audit.py`: add a `first refusal (my compiler)` column, captured by
-  actually compiling each corpus program. This converts it from a vocabulary-bound
-  scan into an empirical one and would have surfaced `A` in step 3.
+- `blocker_audit.py`: it ALREADY records each program's first refusal from my
+  compiler and flags `set=EMPTY` as TAG-BLIND (see the correction in §3). The fix
+  that was actually missing — and which is now applied — is to surface zero-tag
+  refusals on the ranking page, where empty sets previously vanished between the
+  `len==1` and `len==2` filters.
 - `neg_triage.py`: emit the family column mechanically instead of my hand map,
   once families are declared somewhere queryable (§ ARCH-0 §10 table).
 - Every refusal message that makes a claim about DR should cite the artifact that

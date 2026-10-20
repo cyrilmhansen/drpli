@@ -193,6 +193,26 @@ def main():
         if len(bs) == 2:
             print("  %-9s %s" % (name, " + ".join(sorted(bs))))
     print()
+    # [E2E-11 step 5] programs the tag walk finds NO blocker for, yet my compiler
+    # still refuses.  These used to vanish from every ranking on this page: the
+    # by-one loop wants len==1 and the by-two loop wants len==2, so an empty set
+    # is mentioned nowhere -- and `A' (the cheapest remaining corpus acceptance,
+    # 21 bytes, needing only an existing mixed-mode divide route) sat in exactly
+    # that hole.  The cross-check section at the bottom did flag it as TAG-BLIND,
+    # but the cross-check is not where milestone scope gets chosen, and I chose
+    # from the rankings -- then wrote a note recommending that the audit "gain a
+    # first-refusal column" that it already had.  Two lessons, both already
+    # recorded elsewhere in this project and still worth repeating: characterize a
+    # tool by running it, and make the blind spot show up in the place where
+    # decisions are actually made rather than in a footnote three sections down.
+    print("== refusals with ZERO tags (audit blind spots -- read the refusal) ==")
+    blind = [n for n in sorted(blocker_sets) if not blocker_sets[n]]
+    if not blind:
+        print("  (none: every refused program is tagged)")
+    for name in blind:
+        print("  %-9s first refusal: %s"
+              % (name, (refusals.get(name) or "?")[:74]))
+    print()
     print("== co-occurrence: which unknown features always travel together ==")
     pairs = collections.Counter()
     for name in blocker_sets:
