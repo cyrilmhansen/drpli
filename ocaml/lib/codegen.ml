@@ -147,6 +147,14 @@ type st =
          R409/R416/R417/R430/R433]. *)
   ; mutable in_proc : bool    (* lowering a procedure body *)
   ; mutable in_rec : bool     (* lowering a RECURSIVE proc body *)
+  ; mutable call_stmt : string option
+      (* [E2E-11/CALL, C122] set while lowering the DIRECT callee of a CALL
+         statement.  DR keeps the two call forms disjoint: `CALL p;` against a
+         value-returning p is NOT PROC (E24D fixed, E24H float), and a
+         no-RETURNS p used in an expression is TYPES NOT= (E24I).  Naming the
+         exact callee rather than using a depth counter means an expression
+         call nested inside a CALL statement's argument list is still checked
+         against the expression rule. *)
   ; mutable after_forever : bool  (* last MAIN stmt = no-exit loop/stop *)
   ; mutable secs : (string * int * int) list (* proc -> base,size excl pool *)
   ; mutable last_loop_edge : int }
@@ -1451,11 +1459,40 @@ let rec lower_hl st (e : Ast.expr) =
          via CHAIN-ADDR resolved at the procedure's first byte, known
          entry via inline RELOC(code,entry) [P402 backward pattern] *)
       begin match hd.Ast.e, args with
-      | Ast.Eident h, args when args <> [] ->
+      | Ast.Eident h, args ->
           let nm = String.lowercase_ascii h.Ast.orig in
           if not (List.mem_assoc nm st.procs) then
             failwith
-              (Printf.sprintf "codegen: call to unknown %s [TBD]" nm);
+              ("codegen: call to unknown " ^ nm
+                 ^ " [TBD] (an EXTERNAL ENTRY's CALL statement lowers to "
+                 ^ "`LXI H,*A(desc) / CALL <NAME>` plus a LINK-CHAIN-EXT for the "
+                 ^ "symbol [E24G], so the object file is reachable -- but "
+                 ^ "external ENTRY linkage is being assessed separately, because "
+                 ^ "linking and running also need the historical assembly "
+                 ^ "module, which would make object-file identity not the same "
+                 ^ "thing as executable acceptance. Line "
+                 ^ string_of_int h.Ast.pos.Source.line ^ ")");
+          (* [E2E-11/CALL, C122] the two disjoint procedure kinds, both from DR
+             pass 2 with NO .REL emitted: see st.call_stmt's comment. *)
+          let returns_some =
+            match List.assoc nm st.procs with pl -> pl.Bind.pl_ret <> None
+          in
+          let is_stmt = st.call_stmt = Some nm in
+          if is_stmt then st.call_stmt <- None;
+          if is_stmt && returns_some then
+            failwith
+              ("codegen: [TBD] CALL of " ^ nm
+                 ^ ": DR rejects this -- NOT PROC (a value-returning procedure has "
+                 ^ "no subroutine form; use it in an expression instead "
+                 ^ "[E24D, E24H]. Line "
+                 ^ string_of_int hd.Ast.epos.Source.line ^ ")")
+          else if (not is_stmt) && not returns_some then
+            failwith
+              ("codegen: [TBD] " ^ nm
+                 ^ "() in an expression: DR rejects this -- TYPES NOT= (a procedure "
+                 ^ "with no RETURNS has no value to yield; invoke it with a CALL "
+                 ^ "statement [E24I]. Line "
+                 ^ string_of_int hd.Ast.epos.Source.line ^ ")");
           (match st.calls with
            | (cs :: rest) when cs.Bind.cs_proc = nm ->
                st.calls <- rest;
@@ -1608,7 +1645,15 @@ let rec lower_hl st (e : Ast.expr) =
                    push st (Reloc (Data, target));
                    link st t_set_lc (Some (Code, st.lc)) None)
                  pairs;
-               d st op_lxi_h; reloc st Data slot;
+               (* [E2E-11/CALL, E24A/E24J] a zero-argument call has NO
+                  descriptor and no `LXI H` at all -- `call q;` and `n = f();`
+                  are both a bare `CALL <q>` (three bytes), and the enclosing
+                  block's auto area is untouched (main's a/b/c stay at 0/2/4
+                  with three zero-arg sites between them).  bind already
+                  allocates a 2*0-byte slot, so the queue stays aligned. *)
+               if args <> [] then begin
+                 d st op_lxi_h; reloc st Data slot;
+               end;
                d st op_call;
                (match List.assoc_opt nm st.entries with
                 | Some a ->
@@ -1621,11 +1666,30 @@ let rec lower_hl st (e : Ast.expr) =
                        CHAIN-ADDR at the callee's entry byte
                        [P401 @9-000B + chain @1285] *)
                     let oslot = st.lc in
-                    d st 0; d st 0;
-                    st.fcalls <- (nm, oslot) :: st.fcalls);
+                    (* [E2E-11/CALL, E25F, C123] the SECOND (and later) forward
+                       call to the same not-yet-emitted procedure does NOT get
+                       its own chain.  DR relocates its operand RELATIVE TO THE
+                       FIRST CALL SITE'S OWN OPERAND WORD: E25F emits
+                       `CALL 0000` at 0013 (operand stored at 0014, later
+                       CHAIN-ADDR'd to the entry) and then, at the second site
+                       0019, the record RELOC(CODE, 0014) -- which the listing
+                       prints as `CALL S`.  At link time 001A receives the
+                       contents of 0014, i.e. the callee's entry address, so the
+                       indirection is semantically a copy of the first patch.
+                       That is why one CHAIN-ADDR serves arbitrarily many sites,
+                       and why emitting a second chain would be wrong: E25F has
+                       exactly ONE chain record for two forward calls. *)
+                    (match List.filter (fun (k, _) -> k = nm) st.fcalls with
+                     | (_, first_slot) :: _ ->
+                         (* no placeholder bytes: the operand word IS the
+                            inline RELOC(CODE, first_slot) record *)
+                         reloc st Code first_slot
+                     | [] ->
+                         d st 0; d st 0;
+                         st.fcalls <- (nm, oslot) :: st.fcalls));
                st.last_imm <- None
            | _ -> failwith "codegen: call-site queue mismatch [TBD]")
-      | _ -> failwith "codegen: zero-arg / non-identifier call deferred [TBD]"
+      | _ -> failwith "codegen: non-identifier call target deferred [TBD]"
       end
   | Ast.Eident n ->
       (match vk_of st n.Ast.orig with
@@ -4439,6 +4503,19 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   st.in_proc <- true;
   st.in_rec <- pl.Bind.pl_rec;
   List.iter (fun x -> lower_stmt st ls x) pl.Bind.pl_body;
+  (* [E2E-11/CALL] a procedure with NO RETURNS gets an implicit `RET` after its
+     body.  Eight probes pin this and none of them contradict it: E25A (empty
+     body -> RET is the body's ONLY instruction), E24A/E24F/E25H (assignment or
+     call last), E25G (label then assignment), E25B/E25E (body ends inside an
+     IF / a DO WHILE, RET follows the branch), E25D (the subroutine s1 gets it
+     while the value-returning f, which already exited through RETURN's own
+     RET, gets no second one).  So the trigger is the absence of RETURNS, not
+     the shape of the last statement.  Value-returning procedures are NOT given
+     one: their exits are RETURN's RET / JMP ?FPRET / JMP ?DCRET. *)
+  if pl.Bind.pl_ret = None then begin
+    d st 0xc9; (* RET *)
+    st.last_imm <- None
+  end;
   st.dec_ret <- saveddr;
   st.float_ret <- savedfr;
   st.in_rec <- savedr;
@@ -4460,6 +4537,17 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
           link st t_chain_addr (Some (Code, one)) None
       | _ -> failwith "codegen: multiple forward GOTO per label chain                        unproven [TBD]")
     s.Ast.slabels;
+  (* [E2E-11/CALL, E25G] a LABEL definition also ends HL-CONSTANT REUSE.  In
+     E25G `t = 1; jmp: t = 2;` stores 1 with LXI H,0001/SHLD T, and AFTER the
+     label DR reloads `LXI H,0002` rather than reusing HL with one INX H --
+     mine reused and came out 3 bytes short of DR's SHLD.  This is the same
+     boundary rule as [R723] (a branch kills the loaded constant), and a label
+     is exactly where a GOTO can land, so HL is not known there.
+
+     Gated on `slabels <> []`: this reset used to be unconditional, which
+     silently disabled HL-constant reuse for EVERY statement and broke E24J
+     (byte-identical DATA, one relocation record shifted). *)
+  if s.Ast.slabels <> [] then st.last_imm <- None;
   match s.Ast.st with
   | Ast.Sassign { lhs; rhs } ->
       st.lowered <- st.lowered + 1; lower_assign st lhs rhs
@@ -4762,8 +4850,43 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
              (Printf.sprintf
                 "codegen: ON %s is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line %d)"
                 cond s.Ast.spos.Source.line))
-  | Ast.Sprocedure_stmt _ ->
-      failwith "codegen: CALL statement deferred [TBD]"
+  | Ast.Sprocedure_stmt { target; args } ->
+      (* [E2E-11/CALL] a CALL statement is the SAME lowering as an expression
+         call -- `LXI H,*A(desc)` (omitted when there are no arguments) then
+         `CALL <entry>` -- and differs only in that the returned value, if any,
+         is dropped [E24A: `call q;` = CALL; `n = f();` = CALL + SHLD N].  So
+         this handler does not reimplement the descriptor: it marks the callee,
+         funnels through the identical Esuffix path, and fails loudly if the
+         mark was never consumed (which would mean the target did not resolve
+         to an internal procedure and something else got lowered). *)
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (* Esuffix's head is an `expr`, not an `expr_kind` [ast.ml:35], so a bare
+         name in statement position is wrapped, and a parenthesised call is
+         already in the form lower_hl consumes. *)
+      let call_e =
+        match args, target.Ast.e with
+        | [], (Ast.Eident _) -> { target with Ast.e = Ast.Esuffix(target, []) }
+        | [], (Ast.Esuffix _) -> target
+        | _ -> { target with Ast.e = Ast.Esuffix(target, args) }
+      in
+      let callee =
+        match call_e.Ast.e with
+        | Ast.Esuffix ({ Ast.e = Ast.Eident h; _ }, _) ->
+            String.lowercase_ascii h.Ast.orig
+        | _ ->
+            failwith
+              ("codegen: CALL target is not a simple procedure name [TBD] "
+                 ^ "(only `CALL id` / `CALL id(args)` / bare `id;` have a DR "
+                 ^ "lowering sampled; line "
+                 ^ string_of_int s.Ast.spos.Source.line ^ ")")
+      in
+      st.call_stmt <- Some callee;
+      lower_hl st call_e;
+      if st.call_stmt <> None then
+        failwith
+          (Printf.sprintf
+             "codegen: CALL %s did not reach the internal-call lowering [TBD]"
+             callee)
   | Ast.Sdcl _ -> ()
   | Ast.Snull _ -> ()
   | _ -> failwith
@@ -5038,7 +5161,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; dec_ret = None
   ; float_ret = false
   ; fl_cells = []
-    ; in_proc = false; in_rec = false
+    ; in_proc = false; in_rec = false; call_stmt = None
     ; after_forever = false; guards = 0; guard_slots = []
     ; appended = false; secs = layout.Bind.pl_secs
     ; last_loop_edge = 0 }

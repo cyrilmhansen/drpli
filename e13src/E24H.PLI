@@ -1,0 +1,13 @@
+e24h:
+    procedure options(main);
+    declare (a, n) fixed;
+    a = 2;
+    call hf(a);
+    stop;
+    hf: procedure (v) returns(float);
+       declare v fixed;
+       return (v * 1.5);
+    end hf;
+end e24h;
+
+

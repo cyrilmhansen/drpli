@@ -1,0 +1,17 @@
+e25e:
+    procedure options(main);
+    declare (n, k) fixed;
+    k = 3;
+    call s2(k);
+    n = 1;
+    stop;
+    s2: procedure (x);
+       declare (x, i) fixed;
+       i = 0;
+       do while(i < x);
+          i = i + 1;
+       end;
+    end s2;
+end e25e;
+
+

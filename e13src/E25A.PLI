@@ -1,0 +1,11 @@
+e25a:
+    procedure options(main);
+    declare n fixed;
+    call q;
+    n = 1;
+    stop;
+    q: procedure;
+    end q;
+end e25a;
+
+

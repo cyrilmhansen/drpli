@@ -1,0 +1,16 @@
+e25h:
+    procedure options(main);
+    declare n fixed;
+    call a1;
+    n = 1;
+    stop;
+    a1: procedure;
+       call a2;
+    end a1;
+    a2: procedure;
+       declare z fixed;
+       z = 3;
+    end a2;
+end e25h;
+
+

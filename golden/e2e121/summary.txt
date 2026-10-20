@@ -1,0 +1,7 @@
+E24A	ok	PRN=True REL=True
+E24B	ok	PRN=True REL=True
+E24C	ok	PRN=True REL=True
+E24D	diag	PRN=True REL=False
+E24E	ok	PRN=True REL=True
+E24F	ok	PRN=True REL=True
+E24G	ok	PRN=True REL=True

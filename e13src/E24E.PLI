@@ -1,0 +1,13 @@
+e24e:
+    procedure options(main);
+    declare n fixed;
+    call lit(5);
+    n = 1;
+    stop;
+    lit: procedure (p);
+       declare p fixed;
+       p = p + p;
+    end lit;
+end e24e;
+
+

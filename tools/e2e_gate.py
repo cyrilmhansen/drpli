@@ -446,6 +446,21 @@ SPECIMENS = {
     # the ON-registration probes, now byte-exact: E11A (handler = PUT LIST),
     # E11B (handler = assignment), E11E (plain SYSIN GET, no ON at all -- it is
     # the GET-only control for the same addressing).
+    # [E2E-11 step 3] CALL as a STATEMENT, internal procedures.  E24A/E24F/E24J
+    # pin the zero-argument form (`call q;` is a bare 3-byte CALL, no descriptor,
+    # no auto cell) and the implicit RET that closes every procedure without
+    # RETURNS (E25A: an EMPTY body is nothing but that RET).  E25C/E25D/E25G/E25H
+    # pin where that RET goes when the body ends in a PUT / another procedure's
+    # RETURN / a label / a nested call, and E25G is the one that proves a LABEL
+    # definition ends DR's HL-constant reuse.
+    "E24A": ("e13src/E24A.PLI", "golden/e2e121/E24A/E24A.REL"),
+    "E24F": ("e13src/E24F.PLI", "golden/e2e121/E24F/E24F.REL"),
+    "E24J": ("e13src/E24J.PLI", "golden/e2e122/E24J/E24J.REL"),
+    "E25A": ("e13src/E25A.PLI", "golden/e2e123/E25A/E25A.REL"),
+    "E25C": ("e13src/E25C.PLI", "golden/e2e123/E25C/E25C.REL"),
+    "E25D": ("e13src/E25D.PLI", "golden/e2e123/E25D/E25D.REL"),
+    "E25G": ("e13src/E25G.PLI", "golden/e2e124/E25G/E25G.REL"),
+    "E25H": ("e13src/E25H.PLI", "golden/e2e124/E25H/E25H.REL"),
     "E11A": ("e13src/E11A.PLI", "golden/e2e11g/E11A/E11A.REL"),
     "E11B": ("e13src/E11B.PLI", "golden/e2e11g/E11B/E11B.REL"),
     "E11E": ("e13src/E11E.PLI", "golden/e2e11g/E11E/E11E.REL"),
@@ -957,6 +972,37 @@ REJECTS = {
         "  dcl f bit(1) initial('1'b);\n  if f = '1'b then n = 1;\n"
         "  dcl n fixed;\n  stop;\nend E20C;\n",
         "without STATIC is rejected by DR"),
+    # [E2E-11 step 3] the two halves of DR's NOT PROC / TYPES NOT= split, plus
+    # external ENTRY linkage.  All three are DR pass-2 diagnostics with NO .REL
+    # emitted (golden/e2e121/E24D, golden/e2e122/E24H, golden/e2e122/E24I), so
+    # refusing them is conformance, not a gap.  E24G is different in kind: DR
+    # COMPILES it, and I refuse it on purpose -- the object-file shape is known
+    # (`LXI H,*A(desc) / CALL <NAME>` + LINK-CHAIN-EXT), but linking and running
+    # need the historical assembly module, so accepting it would let object-file
+    # identity masquerade as executable acceptance.
+    "N81_CALL_OF_VALUE_RETURNING": (
+        "E24D:\n  procedure options(main);\n  declare (n, s) fixed;\n"
+        "  s = 4;\n  call acc(s);\n  n = acc(s) + 1;\n  stop;\n"
+        "  acc: procedure (v) returns(fixed);\n  declare v fixed;\n"
+        "  return (v + 10);\n  end acc;\nend E24D;\n",
+        "NOT PROC"),
+    "N82_CALL_OF_FLOAT_RETURNING": (
+        "E24H:\n  procedure options(main);\n  declare (a, n) fixed;\n"
+        "  a = 2;\n  call hf(a);\n  stop;\n"
+        "  hf: procedure (v) returns(float);\n  declare v fixed;\n"
+        "  return (v * 1.5);\n  end hf;\nend E24H;\n",
+        "NOT PROC"),
+    "N83_EXPR_OF_NO_RETURNS": (
+        "E24I:\n  procedure options(main);\n  declare (a, n) fixed;\n"
+        "  a = 2;\n  n = gs(a);\n  stop;\n"
+        "  gs: procedure (v);\n  declare v fixed;\n  v = v + 1;\n"
+        "  end gs;\nend E24I;\n",
+        "TYPES NOT="),
+    "N84_EXTERNAL_ENTRY_CALL": (
+        "E24G:\n  procedure options(main);\n  declare a fixed;\n"
+        "  declare ex entry(fixed) external;\n  a = 1;\n  call ex(a);\n"
+        "  stop;\nend E24G;\n",
+        "external ENTRY linkage is being assessed separately"),
     "N73_FIXED_DEC_GT15": (
         "t:\n  procedure options(main);\n  dcl a fixed dec(16);\n  a = 1;\n"
         "  put list(a);\nend t;\n",

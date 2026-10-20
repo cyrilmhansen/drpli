@@ -1,0 +1,17 @@
+e24f:
+    procedure options(main);
+    declare (i, n) fixed;
+    i = 0;
+    do while(i < 2);
+       call bump;
+       i = i + 1;
+    end;
+    n = 1;
+    stop;
+    bump: procedure;
+       declare t fixed;
+       t = 9;
+    end bump;
+end e24f;
+
+

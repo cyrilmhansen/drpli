@@ -1,0 +1,13 @@
+e24i:
+    procedure options(main);
+    declare (a, n) fixed;
+    a = 2;
+    n = gs(a);
+    stop;
+    gs: procedure (v);
+       declare v fixed;
+       v = v + 1;
+    end gs;
+end e24i;
+
+

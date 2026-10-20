@@ -1,0 +1,71 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E24C
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E24C
+
+   1 a 0000 e24c:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main);
+   3 c 0006     declare (a) fixed;
+   4 c 0006     declare (b) float binary(24);
+   5 c 0006     a = 3;
+       0006       LXI  H,0003
+       0009       SHLD A A(0004)
+   6 c 000C     b = 1.5;
+       000C       LXI  H,* S(0000)
+       000F       PUSH H
+       0010       LXI  H,B A(0006)
+       0013       POP  D
+       0014       CALL ?FX44M
+   7 c 0017     call k2(a, b);
+       0017       LXI  H,* A(000A)
+       001A       CALL 0000
+   8 c 001D     stop;
+       001D       CALL ?STOPX
+   9 c 0020     k2: procedure (p, q);
+  10 e 0020        declare p fixed;
+       0020       LXI  D,P A(000E)
+       0023       MVI  C,04
+       0025       MOV  A,M
+       0026       INX  H
+       0027       STAX D
+       0028       INX  D
+       0029       DCR  C
+       002A       JNZ  0025
+  11 e 002D        declare q float binary(24);
+  12 e 002D        p = p + 1;
+       002D       LHLD P A(000E)
+       0030       MOV  E,M
+       0031       INX  H
+       0032       MOV  D,M
+       0033       XCHG 
+       0034       INX  H
+       0035       XCHG 
+       0036       MOV  M,D
+       0037       DCX  H
+       0038       MOV  M,E
+       0039       RET  
+  13 c 003A     end k2;
+  14 a 003A end e24c;
+  15 a 003A 
+
+CODE SIZE = 003A
+DATA AREA = 0012
+FREE SYMS = 3851
+END  COMPILATION
+

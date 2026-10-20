@@ -1,0 +1,15 @@
+e25b:
+    procedure options(main);
+    declare (n, m) fixed;
+    m = 1;
+    call q(m);
+    n = 2;
+    stop;
+    q: procedure (x);
+       declare x fixed;
+       if x > 0 then
+          x = 3;
+    end q;
+end e25b;
+
+

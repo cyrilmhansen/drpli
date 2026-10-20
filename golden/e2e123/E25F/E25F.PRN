@@ -1,0 +1,66 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E25F
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E25F
+
+   1 a 0000 e25f:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main);
+   3 c 0006     declare (a, b) fixed;
+   4 c 0006     a = 1;
+       0006       LXI  H,0001
+       0009       SHLD A A(0000)
+   5 c 000C     b = 2;
+       000C       INX  H
+       000D       SHLD B A(0002)
+   6 c 0010     call s(a);
+       0010       LXI  H,* A(0004)
+       0013       CALL 0000
+   7 c 0016     call s(b);
+       0016       LXI  H,* A(0006)
+       0019       CALL S
+   8 c 001C     stop;
+       001C       CALL ?STOPX
+   9 c 001F     s: procedure (x);
+  10 e 001F        declare x fixed;
+       001F       MOV  E,M
+       0020       INX  H
+       0021       MOV  D,M
+       0022       XCHG 
+       0023       SHLD X A(0008)
+  11 e 0026        x = x + 1;
+       0026       LHLD X A(0008)
+       0029       MOV  E,M
+       002A       INX  H
+       002B       MOV  D,M
+       002C       XCHG 
+       002D       INX  H
+       002E       XCHG 
+       002F       MOV  M,D
+       0030       DCX  H
+       0031       MOV  M,E
+       0032       RET  
+  12 c 0033     end s;
+  13 a 0033 end e25f;
+  14 a 0033 
+
+CODE SIZE = 0033
+DATA AREA = 000A
+FREE SYMS = 3882
+END  COMPILATION
+

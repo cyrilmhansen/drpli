@@ -1,0 +1,15 @@
+e25g:
+    procedure options(main);
+    declare n fixed;
+    call s;
+    n = 1;
+    stop;
+    s: procedure;
+       declare t fixed;
+       t = 1;
+       jmp:
+       t = 2;
+    end s;
+end e25g;
+
+

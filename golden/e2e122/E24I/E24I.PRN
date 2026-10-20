@@ -1,0 +1,88 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E24I
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   5 c          n = gs(a);
+TYPES NOT=               ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E24I
+
+   1 a 0000 e24i:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main);
+   3 c 0006     declare (a, n) fixed;
+   4 c 0006     a = 2;
+       0006       LXI  H,A A(0000)
+       0009       MOV  L,A
+       000A       ADD  A
+       000B       SBB  A
+       000C       MOV  H,A
+       000D       MVI  A,02
+       000F       XCHG 
+       0010       MOV  M,E
+       0011       INX  H
+       0012       MOV  M,D
+   5 c 0013     n = gs(a);
+       0013       LXI  H,* A(0004)
+       0016       CALL 0000
+       0019       LXI  H,N A(0002)
+       001C       MOV  L,A
+       001D       ADD  A
+       001E       SBB  A
+       001F       MOV  H,A
+       0020       PUSH H
+       0021       LXI  H,* A(0004)
+       0024       CALL GS
+       0027       POP  D
+       0028       MOV  M,E
+       0029       INX  H
+       002A       MOV  M,D
+   6 c 002B     stop;
+       002B       CALL ?STOPX
+   7 c 002E     gs: procedure (v);
+   8 e 002E        declare v fixed;
+       002E       MOV  E,M
+       002F       INX  H
+       0030       MOV  D,M
+       0031       XCHG 
+       0032       SHLD V A(0006)
+   9 e 0035        v = v + 1;
+       0035       LHLD V A(0006)
+       0038       MOV  L,A
+       0039       ADD  A
+       003A       SBB  A
+       003B       MOV  H,A
+       003C       PUSH H
+       003D       LHLD V A(0006)
+       0040       MOV  E,M
+       0041       INX  H
+       0042       MOV  D,M
+       0043       XCHG 
+       0044       INX  H
+       0045       POP  D
+       0046       MOV  M,E
+       0047       INX  H
+       0048       MOV  M,D
+       0049       RET  
+  10 c 004A     end gs;
+  11 a 004A end e24i;
+  12 a 004A 
+
+CODE SIZE = 004A
+DATA AREA = 0008
+FREE SYMS = 388B
+END  COMPILATION
+

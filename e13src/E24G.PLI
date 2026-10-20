@@ -1,0 +1,10 @@
+e24g:
+    procedure options(main);
+    declare a fixed;
+    declare ex entry(fixed) external;
+    a = 1;
+    call ex(a);
+    stop;
+end e24g;
+
+

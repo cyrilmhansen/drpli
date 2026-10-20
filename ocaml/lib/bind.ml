@@ -879,10 +879,15 @@ let pl_expr_calls nm_of (e : Ast.expr) =
         | Ast.Eident h when nm_of (pl_l h) -> begin
             match args with
             | [] ->
-                failwith
-                  (Printf.sprintf
-                     "bind: zero-argument call at line %d deferred [TBD]"
-                     x.Ast.epos.Source.line)
+                (* [E2E-11/CALL, E24A/E24J] a zero-argument call IS a call site:
+                   DR registers it (the queue must stay aligned with codegen's
+                   pop order) but allocates NO descriptor cell -- `cur` advances
+                   by 2*0, and codegen emits a bare `CALL <entry>` with no
+                   `LXI H`.  Three such sites in E24J left main's a/b/c at
+                   0/2/4, which is the check that the slot really is zero-sized.
+                   The old refusal here was a capability gap: it existed only
+                   because no probe had pinned the zero-arg layout before. *)
+                out := !out @ [(pl_l h, [], x.Ast.epos)]
             | _ ->
                 (* [E2E-9] multi-arg calls register ONE site carrying the
                    whole argument list; DR allocates one 2-byte pointer cell
@@ -899,6 +904,22 @@ let pl_expr_calls nm_of (e : Ast.expr) =
 
 let rec pl_stmt_calls (nm_of : string -> bool) (s : Ast.stmt) =
   let w e = pl_expr_calls nm_of e in
+  (* an I/O option's value is optional: FILE(f) carries an expression, SKIP
+     carries none *)
+  let wo o = match o.Ast.io_val with Some e -> w e | None -> [] in
+  (* [E2E-8] hoisted out of the PUT/GET arm so FORMAT statements can reuse it: 
+     a call inside a replication or a skip count must still reach the collector *)
+  let rec wi it =
+    match it with
+    | Ast.Pi_fmt { fargs; fcount; _ } ->
+        List.concat_map w fargs @ (match fcount with Some c -> w c | None -> [])
+    | Ast.Pi_rep (a, b) -> w a @ w b
+    | Ast.Pi_repgrp (a, _) -> w a
+    | Ast.Pi_data e -> w e
+    | Ast.Pi_ctl (_, Some e) -> w e
+    | Ast.Pi_fmtlist is -> List.concat_map wi is
+    | _ -> []
+  in
   let own =
     match s.Ast.st with
     | Ast.Sassign { lhs; rhs } -> w lhs @ w rhs
@@ -909,28 +930,58 @@ let rec pl_stmt_calls (nm_of : string -> bool) (s : Ast.stmt) =
         @ (match to_ with Some b -> w b | None -> [])
         @ (match while_ with Some b -> w b | None -> [])
         @ (match rep with Some b -> w b | None -> [])
-    | Ast.Sreturn (Some e) | Ast.Sstop (Some e) -> w e
+    | Ast.Sreturn eo | Ast.Sstop eo ->
+        (match eo with Some e -> w e | None -> [])
+    (* [E2E-11/CALL] a CALL STATEMENT's arguments are call sites exactly like
+       expression calls and get descriptor cells in the same source order:
+       E24B allocates A(0004) for `call g(a);` then A(0006) for `n = h(a);`.
+       The parser puts the arguments inside `target` as an Esuffix, so w alone
+       would find them -- but walking `args` too keeps the collector correct if
+       that ever changes, and costs nothing while args is []. *)
+    | Ast.Sprocedure_stmt { target; args } ->
+        (* a bare `call q;` / `q;` has NO Esuffix around its target -- the
+           parser hands back a plain Eident -- so the expression walker would
+           register no site and codegen's pop would land one short.  A
+           zero-argument call still has to be IN the queue, because DR keeps the
+           sites in source order (E24A: `call q` then `n = f();`). *)
+        (match target.Ast.e with
+         | Ast.Eident h when args = [] && nm_of (pl_l h) ->
+             [ (pl_l h, [], target.Ast.epos) ]
+         | _ -> [])
+        @ w target @ List.concat_map w args
     | Ast.Sgoto { subscript; _ } -> List.concat_map w subscript
-    | Ast.Sput { items; _ } | Ast.Sget { items; _ } ->
+    | Ast.Sput { items; stream; on_opts; _ } | Ast.Sget { items; stream; on_opts; _ } ->
         let items = flatten_items items in
-        (* [E2E-8] named so the PUT EDIT FORMAT half (Ast.Pi_fmtlist) can be
-         walked recursively instead of being dropped: a call inside a
-         replication or skip count must still reach the call collector. *)
-      let rec wi it =
-        match it with
-        | Ast.Pi_fmt { fargs; fcount; _ } ->
-            List.concat_map w fargs
-            @ (match fcount with Some c -> w c | None -> [])
-        | Ast.Pi_rep (a, b) -> w a @ w b
-        | Ast.Pi_repgrp (a, _) -> w a
-        | Ast.Pi_data e -> w e
-        | Ast.Pi_ctl (_, Some e) -> w e
-        | Ast.Pi_fmtlist is -> List.concat_map wi is
-        | _ -> []
-      in
-      List.concat_map wi items
-    | _ -> []
+      (match stream with Some e -> w e | None -> [])
+      @ List.concat_map wo on_opts
+      @ List.concat_map wi items
+    (* [E2E-11/CALL] full statement coverage.  This collector omitted ON
+       handlers, EDIT, FORMAT, file-statement and READ/WRITE-VARYING subjects,
+       plus PUT/GET stream and option expressions -- exactly the omission that
+       made E11A relocate wrongly in step 2.  A missed call site is not a
+       diagnostic, it is a silently shifted descriptor queue, so every arm of
+       Ast.stmt_kind is now accounted for.  Sproc's child block is handled by
+       the separate DFS phase; Snull/Sdcl/Sexit/Spicturestmt/Spreproc/
+       Sdeclare_fail carry no expressions. *)
+    | Ast.Son { cargs; _ } -> List.concat_map w cargs
+    | Ast.Sedit { target; opts } -> w target @ List.concat_map wo opts
+    | Ast.Sfilestmt { file; opts } ->
+        (match file with Some e -> w e | None -> [])
+        @ List.concat_map wo opts
+    | Ast.Sreadwv { file; to_ } -> w file @ w to_
+    | Ast.Sformat items -> List.concat_map wi (flatten_items items)
+    | Ast.Sassign_label { to_; _ } -> w to_
+    | Ast.Snull _ | Ast.Sdcl _ | Ast.Sexit _ | Ast.Spicturestmt _
+    | Ast.Spreproc _ | Ast.Sdeclare_fail _ | Ast.Ssignal _ -> []
+    (* statements whose ONLY expressions live in sub-blocks: `own` is a separate
+       pass from `kids` over the same statement, so these must still be matched
+       here or the exhaustive-by-construction intent collapses into a
+       Match_failure at runtime (E24B: `do while` had no `own` arm). *)
+    | Ast.Sproc _ | Ast.Sdobegin _ | Ast.Sdoforever _ | Ast.Selse _ -> []
   in
+  (* Sub-blocks.  Enumerated rather than catch-all on purpose: a catch-all here
+     is what let step 2's walkers silently drop ON handlers, and a missed call
+     site shifts the whole descriptor queue without ever failing a check. *)
   let kids =
     match s.Ast.st with
     | Ast.Sproc _ -> []      (* child blocks: separate DFS phase *)
@@ -941,7 +992,13 @@ let rec pl_stmt_calls (nm_of : string -> bool) (s : Ast.stmt) =
     | Ast.Sdowhile { body; _ } -> pl_stmt_calls nm_of body
     | Ast.Sdoforever body -> pl_stmt_calls nm_of body
     | Ast.Sdoto { body; _ } -> pl_stmt_calls nm_of body
-    | _ -> []
+    | Ast.Son { handler; _ } | Ast.Selse handler -> pl_stmt_calls nm_of handler
+    | Ast.Snull _ | Ast.Sdcl _ | Ast.Sassign _ | Ast.Sgoto _
+    | Ast.Sput _ | Ast.Sget _ | Ast.Sfilestmt _ | Ast.Sedit _
+    | Ast.Sreadwv _ | Ast.Sreturn _ | Ast.Sstop _ | Ast.Sexit _
+    | Ast.Ssignal _ | Ast.Sdeclare_fail _ | Ast.Sprocedure_stmt _
+    | Ast.Salloc _ | Ast.Sfree _ | Ast.Sassign_label _ | Ast.Sformat _
+    | Ast.Spicturestmt _ | Ast.Spreproc _ -> []
   in
   own @ kids
 
@@ -977,9 +1034,13 @@ let bind_program (blk : Ast.block) : prog_layout =
             if pb.bkind = Ast.Bproc then begin
               let nm = pl_l (Option.get pb.bname) in
               let fm = List.map pl_l pb.bparams in
-              if fm = [] then
-                failwith (Printf.sprintf
-                            "bind: procedure %s without formals [TBD]" nm);
+              (* [E2E-11/CALL, E24A] a procedure with NO formals is ordinary
+                 DR: `call q;` lowers to a bare `CALL <q>` with no descriptor
+                 cell at all, and the body starts directly (`q`'s own `k fixed`
+                 follows main's `n` in the auto area, no shadow, no SVBLK).
+                 The old refusal here was a capability gap, not a language
+                 limit -- the zero-formal case needed no new layout rule, just
+                 nf = 0 (which the existing formulas already carry). *)
               (* [R411] the RECURSIVE attribute IS the trigger for
                  SVBLK + the shadow value cell (no self-call yet the
                  full machinery); call-derivation OR-ed as fallback

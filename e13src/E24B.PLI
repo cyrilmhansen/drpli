@@ -1,0 +1,18 @@
+e24b:
+    procedure options(main);
+    declare (a, n) fixed;
+    a = 7;
+    call g(a);
+    n = h(a);
+    stop;
+    g: procedure (x);
+       declare x fixed;
+       x = x + 1;
+    end g;
+    h: procedure (y) returns(fixed);
+       declare y fixed;
+       return (y + 1);
+    end h;
+end e24b;
+
+
