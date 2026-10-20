@@ -113,3 +113,44 @@ than a type error, which is precisely why the collectors are enumerated now.
 
 One stale-binary near-miss was caught by `ls -la` on the executable showing the old
 timestamp after a build that looked like it printed only warnings.
+
+## Post-slice: the corpus map changed shape (audit re-run)
+
+With the CALL baseline tags in the capability set, `tools/blocker_audit.py`
+re-ranks and the #1 blocker disappears from the payoff table entirely (baseline 32
+-> 33 tags). Corpus stays 10/41 exactly as predicted -- CALL alone closes nothing,
+because every one of the 23 CALL programs has a second blocker -- but three
+programs moved to "closable by implementing exactly ONE feature":
+
+| program | now needs only |
+|---|---|
+| DTEST | `ENTRY_DECL` (external assembly `div2`) |
+| FDTEST | `ENTRY_DECL` (external `fdiv2`, in expression position) |
+| REVERT | `LABEL_AS_DATA` |
+
+and ACK remains the only two-feature candidate (`BLOCK_OPT:stack` +
+`PUT_GENERATED_ITEM`). The new #1 payoffs are STRUCTURE_LEVEL (11 programs) and
+FILE/open (10).
+
+**Decisive for the next step: the external modules exist.**
+`artefacts/pli80-v14-reference/DISK2/DIV2.ASM` and `FDIV2.ASM` are in the reference
+corpus (also under pli80-v10), so external-ENTRY work is verifiable end to end
+rather than only at the object-file level -- provided an assembler path is found or
+built. That changes the cost comparison the instruction asked for: external ENTRY
+now has a *full executable acceptance* route for two programs (DTEST, FDTEST),
+whereas named sequential FILE I/O needs `?OIOOP`/`?SIOOP`/`?SLCTS` and stream
+FCB mechanics with no comparable shortcut.
+
+## Still open in this feature area
+
+- **Bare-identifier call arguments: 10 of 41 corpus programs** do it (DEPREC,
+  DIOCALLS, DTEST, LABELS, MAININVT, MPMCALLA, MPMCALLB, NETWORK, REVERT, SAMPLE),
+  and E27B shows what DR does when the identifier is *itself a pointer formal* --
+  `LHLD Y / SHLD <desc cell>`, i.e. it forwards the address without materialising
+  anything. My compiler refuses that case. This is the cheapest remaining CALL-work
+  with real corpus leverage, and E27B's `.REL` is already pinned as a golden.
+  I started a byte+reloc-annotated dump for it and stopped when `tools/reldump.py`
+  turned out not to expose the parser under the name I assumed; the right next move
+  is to extend `tools/relreloc.py` (which does have `parse`) rather than re-derive it.
+- DEC/FLOAT formal stores (E26J/E26K goldens pinned, DR lowerings recorded in C128).
+- E26I's `x = 0 - x` negate-through-pointer.
