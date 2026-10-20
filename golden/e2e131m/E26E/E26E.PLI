@@ -1,0 +1,14 @@
+e26e:
+    procedure options(main);
+    declare a fixed;
+    a = 4;
+    call p2(a);
+    stop;
+    p2: procedure (x);
+       declare x fixed;
+       x = x + 1;
+       x = 9;
+    end p2;
+end e26e;
+
+

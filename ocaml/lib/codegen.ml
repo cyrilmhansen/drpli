@@ -1679,11 +1679,28 @@ let rec lower_hl st (e : Ast.expr) =
                        That is why one CHAIN-ADDR serves arbitrarily many sites,
                        and why emitting a second chain would be wrong: E25F has
                        exactly ONE chain record for two forward calls. *)
+                    (* st.fcalls is PREPENDED, so the head is the most recently
+                       emitted site for this procedure.  E27A (three forward
+                       calls to one procedure) pins the chain: site 1's operand
+                       at 0018 is two zero DATA bytes, site 2's operand at 001E
+                       is RELOC(CODE, 0018), site 3's operand at 0024 is
+                       RELOC(CODE, 001E) -- each later site is relocated against
+                       the IMMEDIATELY PRECEDING site, not against the first.
+                       E25F agrees (one later site against 0014).  Then ONE
+                       LINK-CHAIN-ADDRESS record targets the LAST site's operand
+                       (E27A: 0024; E25F: 001A), and the linker's chain walk
+                       propagates the entry address back through the RELOC links:
+                       verified by linking my own .REL and comparing the resolved
+                       operands against DR's .COM. *)
                     (match List.filter (fun (k, _) -> k = nm) st.fcalls with
-                     | (_, first_slot) :: _ ->
-                         (* no placeholder bytes: the operand word IS the
-                            inline RELOC(CODE, first_slot) record *)
-                         reloc st Code first_slot
+                     | (_, prev_slot) :: _ ->
+                         reloc st Code prev_slot;
+                         (* the site just emitted becomes the anchor for the next
+                            one [E27A: 0018 <- 001E <- 0024].  Forgetting this is
+                            what made site 3 chain against site 1 -- the .REL
+                            differed in exactly one field and E25F (two sites)
+                            still matched, so a two-site test cannot catch it. *)
+                         st.fcalls <- (nm, oslot) :: st.fcalls
                      | [] ->
                          d st 0; d st 0;
                          st.fcalls <- (nm, oslot) :: st.fcalls));
@@ -1741,7 +1758,17 @@ let rec lower_hl st (e : Ast.expr) =
          E5 @37, D1 @3F] — forced by mechanics: the deref ladder's own
          XCHG (EB) clobbers DE, so the XCHG form cannot preserve the
          left value across a second deref. *)
-      if hl_operand_deref st l || hl_operand_deref st r then begin
+      (* [E2E-11 step 3b, E26H `x = x + p`] the PUSH route is forced only by a
+         RIGHT operand that derefs.  When the LEFT is the pointer formal and the
+         right is a plain cell, DR takes the ordinary XCHG route: the deref
+         ladder leaves HL=value / DE=ptr+1, XCHG flips them so DE carries the
+         value across `LHLD p` (the stale ptr+1 in HL is dead the moment the
+         right operand loads), then DAD D adds.  Byte-for-byte:
+             LHLD X ; MOV E,M ; INX H ; MOV D,M ; XCHG
+             XCHG ; LHLD P ; DAD D
+         My old test treated any deref on either side as PUSH, which added a
+         spurious PUSH H/POP D pair here. *)
+      if hl_operand_deref st r then begin
         lower_hl st l; d st 0xe5;                    (* PUSH H *)
         lower_hl st r; d st 0xd1; d st op_dad_d      (* POP D; DAD D *)
       end else begin
@@ -3300,6 +3327,52 @@ let hl_bias st (b : int) =
     d st op_lxi_b; d st (w land 0xff); d st ((w lsr 8) land 0xff); d st op_dad_b
   end
 
+(* [E2E-11 step 3b, C128] a POINTER formal on the left of a constant compare:
+   DR loads the pointer, derefs it into HL, and then runs the ORDINARY bias
+   ladder -- E26G `if x > 4`:
+       LHLD X ; MOV E,M ; INX H ; MOV D,M ; XCHG
+       LXI B,FFFB ; DAD B ; MOV A,H ; ORA A ; JM skip
+   so only the 4-byte deref is added; the ladder itself is unchanged. *)
+let cmp_load_deref st (nm : string) =
+  d st op_lhld; reloc st Data (addr_of st nm);
+  if List.mem (String.lowercase_ascii nm) st.deref then
+    (d st 0x5e; d st 0x23; d st 0x56; d st op_xchg)
+
+(* [E2E-11 step 3b, C128] the two-operand fixed compare, with POINTER-formal
+   support.  Without a deref it is DR's ordinary pair-up:
+       LHLD first ; XCHG ; LHLD second ; CALL ?IS22N ; <skip byte>
+   When the SECOND operand is a pointer formal the deref ladder ends in its own
+   XCHG, which would clobber the pushed value in DE, so DR is forced onto the
+   stack form -- E26F `if i < x' and E26G `if x > i' both emit
+       LHLD I ; PUSH H ; LHLD X ; MOV E,M ; INX H ; MOV D,M ; XCHG
+       POP D ; CALL ?IS22N ; JP skip
+   and note DR orders PLAIN-first / POINTER-second in BOTH relations, which my
+   arms already do (Lt/Ge take l first, Gt/Le take rr first).  A deref on the
+   FIRST side, or on both sides, has no DR sample and refuses: emitting the
+   XCHG form there would be a guess, and the addresses would still line up. *)
+let cmp_pair st first second skip =
+  let fd = List.mem (String.lowercase_ascii first) st.deref in
+  let sd = List.mem (String.lowercase_ascii second) st.deref in
+  if fd then
+    failwith
+      ("codegen: [TBD] pointer formal as the FIRST operand of a two-variable \
+        compare is unsampled (DR always loads the plain operand first [E26F, \
+        E26G]; both-deref has no sample at all)")
+  else if sd then begin
+    d st op_lhld; reloc st Data (addr_of st first);
+    d st op_push_h;
+    cmp_load_deref st second;
+    d st op_pop_d;
+    call_ext st "?IS22N";
+    d st skip
+  end else begin
+    d st op_lhld; reloc st Data (addr_of st first);
+    d st op_xchg;
+    d st op_lhld; reloc st Data (addr_of st second);
+    call_ext st "?IS22N";
+    d st skip
+  end
+
 let lower_test_skip0 st (c : Ast.expr) =
   (* [E2E-10] every shape handled below is FIXED or DECIMAL.  A FLOAT
      operand must refuse here: reading `2.5` as an integer constant crashed
@@ -3408,11 +3481,25 @@ let lower_test_skip0 st (c : Ast.expr) =
          and `> 3' upward use LXI B/DAD B.  `> 0' is unprobed (it would be a
          bare DCX), so it still refuses. *)
       let kk = parse_int_const k in
-      if kk < 1 then failwith "codegen: compare > k<=0 form unproven [TBD]";
-      d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
-      hl_bias st (-(kk + 1));
-      d st op_mov_a_h; d st op_ora_a;
-      d st op_jm; let slot = st.lc in d st 0; d st 0; slot
+      if kk = 0 && List.mem (String.lowercase_ascii v.Ast.orig) st.deref then
+        (* [E25B, C128] `x > 0' through a POINTER formal does not use the bias
+           ladder at all (there is nothing to bias by): DR subtracts the
+           pointed-to 2-byte value from A=0 in memory and jumps on the sign --
+               LHLD X ; XRA A ; CMP M ; INX H ; SBB M ; JP skip
+           which is why the plain-variable `> 0' case stays refused: the memory
+           form only exists because HL already holds an address. *)
+        begin
+          d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
+          d st 0xaf; d st 0xbe; d st 0x23; d st 0x9e;
+          d st op_jp; let slot = st.lc in d st 0; d st 0; slot
+        end
+      else if kk < 1 then failwith "codegen: compare > k<=0 form unproven [TBD]"
+      else begin
+        cmp_load_deref st v.Ast.orig;
+        hl_bias st (-(kk + 1));
+        d st op_mov_a_h; d st op_ora_a;
+        d st op_jm; let slot = st.lc in d st 0; d st 0; slot
+      end
   | Ast.Ebinary (Ast.EqR Ast.Ne, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber k; _ }) ->
       (* [Y303/Y306 + E23N1..N8, N200] i ^= kk -> LHLD; <bias ladder for -kk>;
@@ -3423,7 +3510,7 @@ let lower_test_skip0 st (c : Ast.expr) =
          concern (it refused), but 1..3 now share the ladder and >=4 is exact. *)
       let kk = parse_int_const k in
       if kk < 1 then failwith "codegen: ^= 0 / negative const form unproven [TBD]";
-      d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
+      cmp_load_deref st v.Ast.orig;
       hl_bias st (-kk);
       d st op_mov_a_h; d st 0xb5;      (* ORA L *)
       d st 0xca;
@@ -3436,7 +3523,7 @@ let lower_test_skip0 st (c : Ast.expr) =
          now explains: kk <= 3 repeats DCX H, kk >= 4 takes LXI B/DAD B. *)
       let kk = parse_int_const k in
       if kk < 1 then failwith "codegen: < 0 / negative const form unproven [TBD]";
-      d st op_lhld; reloc st Data (addr_of st v.Ast.orig);
+      cmp_load_deref st v.Ast.orig;
       hl_bias st (-kk);
       d st op_mov_a_h; d st op_ora_a;
       d st op_jp;
@@ -3447,17 +3534,9 @@ let lower_test_skip0 st (c : Ast.expr) =
       in
       (match r with
        | Ast.Lt | Ast.Ge ->
-           d st op_lhld; reloc st Data (addr_of st (ident l));
-           d st op_xchg;
-           d st op_lhld; reloc st Data (addr_of st (ident rr));
-           call_ext st "?IS22N";
-           d st (if r = Ast.Lt then op_jp else op_jm)
+           cmp_pair st (ident l) (ident rr) (if r = Ast.Lt then op_jp else op_jm)
        | Ast.Gt | Ast.Le ->
-           d st op_lhld; reloc st Data (addr_of st (ident rr));
-           d st op_xchg;
-           d st op_lhld; reloc st Data (addr_of st (ident l));
-           call_ext st "?IS22N";
-           d st (if r = Ast.Gt then op_jp else op_jm)
+           cmp_pair st (ident rr) (ident l) (if r = Ast.Gt then op_jp else op_jm)
        | Ast.Eq | Ast.Ne ->
            d st op_lhld; reloc st Data (addr_of st (ident l));
            d st op_push_h;
@@ -3499,14 +3578,86 @@ let lower_test_skip st (c : Ast.expr) =
   st.last_imm <- None;
   slot
 
+(* [E2E-11 step 3b, C127] storing through a POINTER formal.  In a
+   non-recursive procedure the formal cell holds the ADDRESS of the caller's
+   variable, so a store must go through it -- and DR uses three different
+   byte orders depending on whether the pointer survives the right-hand side:
+     constant  : LHLD X / (XRA A / MOV M,A / INX H / MOV M,A | MVI M,lo /
+                 INX H / MVI M,hi)      [E26A x=0, x=255; E25B x=3;
+                 E26E x=9; E26H x=300 -- the same two-byte form past 255]
+     x +- lit  : LHLD X / deref / bias / XCHG / MOV M,D / DCX H / MOV M,E
+                 [E25F x=x+1; E26B x=x+256 (LXI B/DAD B), z=z-1;
+                 E26I x=x-3 = three DCX H] -- HIGH byte first, because DE
+                 still holds ptr+1 from the deref read
+     anything  : <eval rhs> / PUSH H / LHLD X / POP D / MOV M,E / INX H /
+                 MOV M,D                [E26C x=y; E26D x=x and x=x*y;
+                 E26H x=q and x=x+p; E26I x=0-x] -- LOW byte first, with the
+                 pointer reloaded.  DR takes this route whenever the pointer
+                 is not live in DE at store time, which is why "the bias" is
+                 keyed on the RHS SHAPE and not on the value.
+   Only FIXED BINARY formals are covered: a DECIMAL or FLOAT formal passed by
+   reference has no sample here. *)
+let lower_store_ptr st (lhs_orig : string) (rhs : Ast.expr) =
+  let pa = addr_of st lhs_orig in
+  let lhld_ptr () = d st op_lhld; reloc st Data pa in
+  let deref_read () = (d st 0x5e; d st 0x23; d st 0x56; d st op_xchg) in
+  (* store HL through the pointer held in DE as ptr+1 *)
+  let store_via_de () =
+    (d st op_xchg; d st 0x72; d st op_dcx_h; d st 0x73)
+  in
+  (* store HL through the pointer, reloading it from the formal cell *)
+  let store_reload () =
+    (d st op_push_h; lhld_ptr (); d st op_pop_d;
+     d st 0x73; d st 0x23; d st 0x72)
+  in
+  st.last_imm <- None;
+  match (unwrap_e rhs).Ast.e with
+  | Ast.Enumber k ->
+      let v = parse_int_const k in
+      lhld_ptr ();
+      if v = 0 then (d st 0xaf; d st 0x77; d st 0x23; d st 0x77)
+      else if v > 0 && v <= 0xffff then
+        (d st op_mvi_m; d st (v land 0xff); d st 0x23;
+         d st op_mvi_m; d st ((v lsr 8) land 0xff))
+      else
+        failwith "codegen: pointer store of a constant > 65535 unproven [TBD]"
+  | Ast.Ebinary ((Add | Sub) as op, l, r) ->
+      begin match (unwrap_e l).Ast.e, (unwrap_e r).Ast.e with
+      | Ast.Eident n, Ast.Enumber k
+        when String.lowercase_ascii n.Ast.orig
+             = String.lowercase_ascii lhs_orig ->
+          let v = parse_int_const k in
+          if v = 0 then
+            failwith
+              ("codegen: [TBD] `x = x + 0` through a pointer formal is not                 sampled -- C119's zero-elision was established for ordinary                 cells (LHLD/SHLD only), and dropping the bias would also drop                 the store, so the shape has no evidence. Line "
+              ^ string_of_int rhs.Ast.epos.Source.line)
+          else begin
+            lhld_ptr (); deref_read ();
+            hl_bias st (if op = Add then v else -v);
+            store_via_de ()
+          end
+      | _ -> lower_hl st rhs; store_reload ()
+      end
+  | _ -> lower_hl st rhs; store_reload ()
+
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
-  (match lhs.Ast.e with
-   | Ast.Eident n ->
-       if List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
-         failwith
-           "codegen: store to pointer formal unproven [TBD]"
-   | _ -> ());
   match lhs.Ast.e with
+  | Ast.Eident n when List.mem (String.lowercase_ascii n.Ast.orig) st.deref ->
+      (* [E2E-11 step 3b, C127] a first ARM, not a pre-pass: an earlier version
+         called lower_store_ptr from a side-effecting guard above and then fell
+         through to the ordinary store, emitting the assignment TWICE (E26E came
+         out with both a store-through-pointer and an SHLD of the same value).
+         Only FIXED BINARY is proven: DEC travels the decimal stack and FLOAT the
+         float stack, and neither has a store-through-pointer sample [E26A-E26I]. *)
+      (match vk_of st n.Ast.orig with
+       | Vint -> ()
+       | _ ->
+           failwith
+             ("codegen: [TBD] store through a non-FIXED-BINARY pointer formal is "
+              ^ "unsampled (DEC and FLOAT pass-by-reference have no DR lowering "
+              ^ "here; line "
+              ^ string_of_int lhs.Ast.epos.Source.line ^ ")"));
+      lower_store_ptr st n.Ast.orig rhs
   | Ast.Eident n when vk_dec_opt st n <> None ->
       (* [E2E-6] FIXED DECIMAL store: push the DEC value (with the target's
          precision as the literal context), then ?DSTOP pops it into the
@@ -4339,11 +4490,17 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   (* resolve pending forward CALLs at the entry byte [P401 @1285] *)
   let hits = List.filter (fun (k, _) -> k = nm) st.fcalls in
   st.fcalls <- List.filter (fun (k, _) -> k <> nm) st.fcalls;
+  (* [E2E-11/CALL, C123] ONE chain record per procedure regardless of how many
+     forward sites it has, targeting the LAST site's operand word [E27A: three
+     sites at 0018/001E/0024 -> chain on 0024; E25F: two -> chain on 001A; and
+     with a single site the last IS that site, which is the shape every accepted
+     specimen before this used].  The earlier sites reach the entry through the
+     RELOC chain emitted at each call site. *)
   (match hits with
    | [] -> ()
-   | [ (_, one) ] -> link st t_chain_addr (Some (Code, one)) None
    | _ ->
-       failwith "codegen: multiple forward CALL chain unproven [TBD]");
+       let last = List.fold_left (fun m (_, a) -> max m a) 0 hits in
+       link st t_chain_addr (Some (Code, last)) None);
   st.entries <- (nm, st.lc) :: st.entries;
   (match pl.Bind.pl_ptrs with
    | [ (_f, ptr) ] ->

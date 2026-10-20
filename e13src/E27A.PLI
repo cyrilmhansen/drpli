@@ -1,0 +1,17 @@
+e27a:
+    procedure options(main);
+    declare (a, b, c) fixed;
+    a = 1;
+    b = 2;
+    c = 3;
+    call s(a);
+    call s(b);
+    call s(c);
+    stop;
+    s: procedure (x);
+       declare x fixed;
+       x = x + 1;
+    end s;
+end e27a;
+
+

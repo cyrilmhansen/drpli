@@ -453,7 +453,28 @@ SPECIMENS = {
     # pin where that RET goes when the body ends in a PUT / another procedure's
     # RETURN / a label / a nested call, and E25G is the one that proves a LABEL
     # definition ends DR's HL-constant reuse.
-    "E24A": ("e13src/E24A.PLI", "golden/e2e121/E24A/E24A.REL"),
+    "E24A": ("e13src/E24A.PLI", "golden/e2e121/E24A/E24A.REL"),    # [E2E-11 step 3b] pointer-formal stores, comparisons, and the forward-CALL
+    # chain.  E25F/E27A are the multi-site chain (2 and 3 forward calls to one
+    # procedure): their .REL is byte-exact AND my own linked .COM came out
+    # byte-identical to DR's with every operand resolving to the callee entry,
+    # which is the check that the RELOC chain -- not just the bits -- is right.
+    "E24B": ("e13src/E24B.PLI", "golden/e2e121/E24B/E24B.REL"),
+    "E24C": ("e13src/E24C.PLI", "golden/e2e121/E24C/E24C.REL"),
+    "E24E": ("e13src/E24E.PLI", "golden/e2e121/E24E/E24E.REL"),
+    "E25B": ("e13src/E25B.PLI", "golden/e2e123/E25B/E25B.REL"),
+    "E25E": ("e13src/E25E.PLI", "golden/e2e123/E25E/E25E.REL"),
+    "E25F": ("e13src/E25F.PLI", "golden/e2e123/E25F/E25F.REL"),
+    "E26A": ("e13src/E26A.PLI", "golden/e2e125/E26A/E26A.REL"),
+    "E26B": ("e13src/E26B.PLI", "golden/e2e125/E26B/E26B.REL"),
+    "E26C": ("e13src/E26C.PLI", "golden/e2e125/E26C/E26C.REL"),
+    "E26D": ("e13src/E26D.PLI", "golden/e2e125/E26D/E26D.REL"),
+    "E26E": ("e13src/E26E.PLI", "golden/e2e125/E26E/E26E.REL"),
+    "E26F": ("e13src/E26F.PLI", "golden/e2e125/E26F/E26F.REL"),
+    "E26G": ("e13src/E26G.PLI", "golden/e2e125/E26G/E26G.REL"),
+    "E26H": ("e13src/E26H.PLI", "golden/e2e126/E26H/E26H.REL"),
+    "E27A": ("e13src/E27A.PLI", "golden/e2e129/E27A/E27A.REL"),
+    "E27C": ("e13src/E27C.PLI", "golden/e2e129/E27C/E27C.REL"),
+
     "E24F": ("e13src/E24F.PLI", "golden/e2e121/E24F/E24F.REL"),
     "E24J": ("e13src/E24J.PLI", "golden/e2e122/E24J/E24J.REL"),
     "E25A": ("e13src/E25A.PLI", "golden/e2e123/E25A/E25A.REL"),
@@ -839,7 +860,13 @@ REJECTS = {
         "  g: procedure(q) returns(fixed dec(9,2));\n"
         "     dcl q fixed dec(9,2);\n     q = y;\n     return (q);\n"
         "  end g;\nend t;\n",
-        "store to pointer formal unproven"),
+        # [E2E-11 step 3b] the marker changed with the lowering: FIXED BINARY
+        # stores through a pointer formal are now PROVEN (E24B/E25F/E26A-E26H are
+        # byte-exact), and this case refuses because it is a DECIMAL formal --
+        # the decimal stack has no store-through-pointer sample.  N55 remains a
+        # capability gap, not a DR rule: DR compiles this program (see
+        # golden/e2e127/E26J, which is the DEC case with .REL emitted).
+        "non-FIXED-BINARY pointer formal"),
     # [E2E-9 slice 6] DR's fixed-bin peephole set (P044 / R2045 / R2046 goldens
     # in golden/e2e12c).  My lowering diverges on all four; each shape now
     # fails loud instead of emitting plausible-but-wrong bytes.

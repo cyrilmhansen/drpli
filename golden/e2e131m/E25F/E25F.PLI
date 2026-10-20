@@ -1,0 +1,15 @@
+e25f:
+    procedure options(main);
+    declare (a, b) fixed;
+    a = 1;
+    b = 2;
+    call s(a);
+    call s(b);
+    stop;
+    s: procedure (x);
+       declare x fixed;
+       x = x + 1;
+    end s;
+end e25f;
+
+

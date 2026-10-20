@@ -1,0 +1,18 @@
+e26g:
+    procedure options(main);
+    declare (a, n) fixed;
+    a = 5;
+    call cmp2(a);
+    n = 1;
+    stop;
+    cmp2: procedure (x);
+       declare (x, i) fixed;
+       i = 2;
+       if x > i then
+          i = 3;
+       if x > 4 then
+          i = 4;
+    end cmp2;
+end e26g;
+
+

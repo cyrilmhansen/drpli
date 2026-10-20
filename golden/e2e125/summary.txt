@@ -1,0 +1,7 @@
+E26A	ok	PRN=True REL=True
+E26B	ok	PRN=True REL=True
+E26C	ok	PRN=True REL=True
+E26D	ok	PRN=True REL=True
+E26E	ok	PRN=True REL=True
+E26F	ok	PRN=True REL=True
+E26G	ok	PRN=True REL=True

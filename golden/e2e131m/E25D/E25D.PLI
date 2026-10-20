@@ -1,0 +1,18 @@
+e25d:
+    procedure options(main);
+    declare (n, a) fixed;
+    a = 1;
+    call s1;
+    n = f(a);
+    stop;
+    s1: procedure;
+       declare t fixed;
+       t = 5;
+    end s1;
+    f: procedure (v) returns(fixed);
+       declare v fixed;
+       return (v);
+    end f;
+end e25d;
+
+

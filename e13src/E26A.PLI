@@ -1,0 +1,19 @@
+e26a:
+    procedure options(main);
+    declare (a, b) fixed;
+    a = 1;
+    call s(a);
+    b = 2;
+    call t(b);
+    stop;
+    s: procedure (x);
+       declare x fixed;
+       x = 0;
+    end s;
+    t: procedure (y);
+       declare y fixed;
+       y = 255;
+    end t;
+end e26a;
+
+

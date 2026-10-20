@@ -1797,3 +1797,209 @@ would change the AUTO area as well as the code: E11F came out with 335 divergent
 bytes when I let it through.  It now refuses [N79].  Unprobed: whether `SIGNAL`,
 `ON ERROR` + goto, or a label reached by BOTH a plain goto and a handler goto take
 the same prologue.
+
+## C122 — statement-position CALL uses the SAME lowering as an expression call; and DR's two procedure kinds are disjoint (E2E-11 step 3)
+
+**Statement.** `CALL p(args);` and `x = p(args)` are the same three-part
+sequence -- per-argument descriptor pointer cells, then `LXI H,*A(slot)`, then
+`CALL <entry>` -- and they differ ONLY in the post-call store of the result.  The
+milestone instruction explicitly forbade assuming this, so E24A/E24B put both
+forms in one program and the listings decided:
+
+```
+call g(a);      000C  LXI  H,* A(0004)      <- descriptor, then CALL
+                  000F  CALL 0000
+n = h(a);       0012  LXI  H,* A(0006)      <- same shape, different slot
+                  0015  CALL 0000
+                  0018  SHLD N A(0002)      <- the only extra work
+```
+
+Reuse is therefore correct, and my implementation funnels CALL statements through
+the existing `Esuffix` path rather than duplicating it.
+
+Two further halves of the same rule, all DR pass-2 diagnostics with NO `.REL`
+emitted, so refusing them is conformance rather than a gap:
+
+| program | construct | DR |
+|---|---|---|
+| E24D | `call acc(s);` where acc `returns(fixed)` | `NOT PROC` |
+| E24H | `call hf(a);` where hf `returns(float)` | `NOT PROC` |
+| E24I | `n = gs(a);` where gs has no RETURNS | `TYPES NOT=` |
+
+So the procedure kinds are disjoint: a value-returning procedure has no
+subroutine form, and a subroutine has no value.  My compiler marks the direct
+callee of a CALL statement (`st.call_stmt`) and checks both directions.  The mark
+names the exact callee rather than being a depth flag, because an expression call
+nested inside a CALL statement's argument list must still be checked against the
+expression rule.
+
+**Wrong path.** My first attempt at the mark was a boolean flag, which would have
+let `call f(g());` skip the check on `g()`.
+
+## C123 — one CHAIN-ADDRESS serves many forward CALL sites, chained site-to-site (E2E-11 step 3)
+
+**Statement.** When a procedure is called before it is emitted, DR does NOT put a
+chain record at each site.  It emits one chain record targeting the LAST site's
+operand word, and each later site's operand is an inline `RELOC(CODE, <the
+immediately preceding site's operand address>)`.  E27A (three forward calls to `s`)
+is the decisive specimen:
+
+```
+site 1  0017 CALL 0000     operand 0018 <- two literal zero DATA bytes
+site 2  001D CALL S        operand 001E <- RELOC(CODE, 0018)
+site 3  0023 CALL S        operand 0024 <- RELOC(CODE, 001E)   NOT 0018
+        LINK-CHAIN-ADDRESS, address-to-load = 0024             the LAST site
+```
+
+E25F (two sites) agrees: chain on 001A, second site relocated against 0014.  With
+a single site -- every accepted specimen before this -- "last" is "that one", so
+the old behaviour is a special case of the new rule, not a contradiction of it.
+
+**Verified beyond the bits.** This claim was earned the hard way.  My first
+version chained every later site against the FIRST slot, and E25F came out
+byte-identical -- a two-site program cannot distinguish "against the first" from
+"against the previous".  It was also byte-identical at the record level while
+linking to a WRONG address: `reldump` showed matching records, but DR's LINK put
+011F in both operand words and my link put 0114 in the second.  So the check that
+matters is not the `.REL` bytes but the resolved operands: E25F and E27A were
+linked through DR's LINK from my own `.REL`, and the resulting `.COM` files are
+byte-identical to DR's (640 B each, every CALL operand = the callee entry), then
+run under cpmsim to rc=0.
+
+**Consequence.** Corroborated; matters directly for the corpus -- ENTER calls
+`write_it` twice and REVERSE calls `read_it`/`write_it` repeatedly.
+
+## C124 — a zero-argument call has no descriptor and no LXI H at all (E2E-11 step 3)
+
+**Statement.** `call q;` and `n = f();` for zero-parameter procedures are a bare
+3-byte `CALL <entry>`.  There is no `LXI H` and NO storage: three such sites in
+E24J leave main's `a`, `b`, `c` at A(0000), A(0002), A(0004) with nothing between
+them, which is the check that the descriptor slot really is zero-sized rather than
+merely unreferenced.  bind registers the site anyway, because DR keeps call sites
+in source order (E24A: `call q` then `n = f();`).
+
+**Wrong path.** My `Esuffix` arm had `args <> []` in its guard, so zero-argument
+calls fell to a refusal that read "zero-arg / non-identifier call deferred".  That
+was a capability gap, not a DR limit; the same shape also blocked procedures with
+no formals in bind (`procedure q without formals [TBD]`), which E24A/E25A prove is
+ordinary DR -- and which needed no new layout rule, only `nf = 0`, which the
+existing offset formulas already carried.
+
+## C125 — a procedure without RETURNS gets an implicit RET after its body (E2E-11 step 3)
+
+**Statement.** The trigger is the absence of `RETURNS`, not the shape of the last
+statement.  Seven different endings all get the same one-byte exit:
+
+| specimen | body ends with | DR |
+|---|---|---|
+| E25A | nothing (empty body) | `RET` is the body's ONLY instruction |
+| E24A / E24F / E25H | an assignment / a DO WHILE / another CALL | `RET` |
+| E25G | a label, then an assignment | `RET` |
+| E25B | inside an `IF` (branch skips it) | `RET` after the branch |
+| E25E | a DO WHILE | `RET` after the loop's backward JMP |
+
+Value-returning procedures get none: E25D's `f` exits through RETURN's own `RET`
+and nothing is appended, while the sibling subroutine `s1` in the same program does
+get one.  So the rule is a property of the declaration.
+
+**Wrong path.** None -- this was found because E24A's `.REL` was 3 bytes short of
+DR's at exactly the byte where `q` ends.  Every procedure in my corpus goldens so
+far ended in `RETURN`, so the fall-through case simply had no coverage.
+
+## C126 — a LABEL definition ends HL-constant reuse (E2E-11 step 3)
+
+**Statement.** DR's straight-line HL-constant reuse does not survive a label
+definition.  E25G: `t = 1; jmp: t = 2;` emits `LXI H,0001 / SHLD T / LXI H,0002 /
+SHLD T` -- a full reload, where the same pair without the label reuses HL with one
+`INX H`.  This is the boundary rule already established for branches [R723], and
+the reason is the same: a label is somewhere a GOTO can land, so HL's contents are
+not known there.
+
+**Wrong path.** I implemented the reset unconditionally after the label loop rather
+than gated on `slabels <> []`.  That silently disabled HL-constant reuse for EVERY
+statement.  E24J -- already byte-exact in this session -- went from identical to
+one shifted relocation, with identical DATA bytes: the same "addresses all match,
+one thing is missing" signature as C116's `bdecls` and C118's missing statement
+arms.
+
+## C127 — storing through a pointer formal: three shapes, two byte orders (E2E-11 step 3b)
+
+**Statement.** In a non-recursive procedure the formal cell holds the ADDRESS of
+the caller's variable, so every store goes through it.  Which shape DR uses depends
+on whether the pointer survives the right-hand side, and the byte ORDER flips with
+it:
+
+| RHS shape | lowering | specimens |
+|---|---|---|
+| constant | `LHLD X / XRA A / MOV M,A / INX H / MOV M,A` (0), else `LHLD X / MVI M,lo / INX H / MVI M,hi` | E26A (0, 255), E25B (3), E26E (9), E26H (300 -- same two-byte form past 255) |
+| `x +- literal` | `LHLD X / deref / bias / XCHG / MOV M,D / DCX H / MOV M,E` -- HIGH byte first | E25F (+1), E26B (+256 via LXI B/DAD B, -1, and +1000), E26I (-3 = three DCX H) |
+| anything else | `<eval rhs> / PUSH H / LHLD X / POP D / MOV M,E / INX H / MOV M,D` -- LOW byte first, pointer reloaded | E26C (x=y), E26D (x=x, x=x*y), E26H (x=q, x=x+p), E26I (x=0-x) |
+
+The bias case stores high-first only because `DE` still holds `ptr+1` left over
+from the deref read; when the pointer is dead, DR reloads it and stores low-first.
+So the route is keyed on the RHS **shape**, not on the value -- and E26H `x = x + p`
+shows the same thing in the expression itself: with the LEFT operand a deref'd
+formal and the right a plain cell, DR keeps the value in DE across `LHLD p` via a
+second `XCHG` instead of pushing.
+
+**Wrong path.** I first wired `lower_store_ptr` in as a side-effecting guard
+*before* the big `match` in `lower_assign`, so the pointer store ran and then the
+ordinary store ran too.  E26E emitted both a store-through-pointer and an SHLD of
+the same value.  A guard that emits code is a trap; it is now a first arm of the
+match.  The same bug in the `Add` route -- treating any deref as forcing the PUSH
+form -- added a spurious PUSH H/POP D pair for `x + p`.
+
+## C128 — comparison against a pointer formal (E2E-11 step 3b)
+
+**Statement.** DR's two-variable fixed compare normally pairs with `XCHG`
+(`LHLD first / XCHG / LHLD second / CALL ?IS22N / <skip>`).  When the SECOND loaded
+operand is a pointer formal the deref ladder ends in its own `XCHG`, which would
+destroy the value held in DE, so DR is forced onto the stack:
+
+```
+if i < x       LHLD I / PUSH H / LHLD X / MOV E,M / INX H / MOV D,M / XCHG
+               POP D / CALL ?IS22N / JP skip            [E26F]
+if x > i       LHLD I / PUSH H / LHLD X / deref / POP D / CALL ?IS22N / JP skip
+if i < x (DO WHILE)                                      [E26G, E25E]  byte-identical
+```
+
+i.e. the operand order is chosen by which side derefs (plain first, pointer
+second) and NOT by the relation -- `x > i` and `i < x` compile to the same
+instructions.  Against a literal, the deref is simply prefixed to the ordinary
+bias ladder: `if x > 4` is `LHLD X / deref / LXI B,FFFB / DAD B / MOV A,H /
+ORA A / JM` [E26G].  The `> 0` case has no bias to apply and instead uses a memory
+form: `LHLD X / XRA A / CMP M / INX H / SBB M / JP` [E25B] -- which is why the
+plain-variable `> 0` stays refused; that form exists only because HL already holds
+an address.  (Its `CMP M`/`SBB M` are 0xBE/0x9E, not the 0xB6/0x96 I first wrote;
+byte-exactness caught it, a mnemonic guess would not have.)
+
+**Unserved, refused rather than guessed.** a pointer formal as the FIRST operand of
+a two-variable compare, and both operands pointers: DR always orders plain-first,
+and the deref-first pairing has no sample.
+
+**Also found, not yet implemented.** DECIMAL and FLOAT formals passed by reference
+DO have DR lowerings -- E26J loads through the pointer with `LXI H,R / MVI A,09 /
+CALL ?DLDOP` then stores with `LHLD Q / MVI A,09 / CALL ?DSTOP`, and E26K moves a
+float with `LXI H,*S / PUSH H / LHLD Q / POP D / CALL ?FX44M`.  This is the fifth
+occurrence of the N56/N63-N66/N77 pattern: N55_FORMAL_STORE is a negative whose
+subject DR compiles.  It stays in the panel because my compiler genuinely refuses
+it, but it is now correctly labelled a capability gap, and its marker matches the
+narrower refusal (non-FIXED-BINARY formals) rather than the old blanket one.
+
+## C129 — every AST walker must enumerate every statement kind (E2E-11 step 3, third occurrence)
+
+**Statement.** `bind`'s call-site collector had no arm for `Sprocedure_stmt` at all,
+so CALL statements allocated no descriptor cells, and it also omitted ON handlers,
+EDIT, FORMAT, file statements, READ/WRITE VARYING subjects, and PUT/GET stream and
+option expressions.  It is now exhaustive by enumeration in BOTH of its passes
+(`own` and `kids`) over `Ast.stmt_kind`.
+
+**Why enumeration rather than a catch-all.** A missed call site is not a
+diagnostic; it is a silently shifted descriptor queue, which is the same failure
+class as C116 (`bdecls` always empty) and step 2's `prescan_pool`/`edit_stmts`
+(`Son` missing).  With a `| _ -> []` catch-all, adding a statement kind to the AST
+compiles cleanly and drops call sites at runtime; without one it is a compile
+error.  Removing a catch-all turned out to bite immediately in the other direction:
+`own` and `kids` are separate matches over the same statement, so `Sdobegin`,
+`Sstop None` and friends fell through to `Match_failure` -- a runtime crash, not a
+type error, and the fix is to list the sub-block-only statements in both matches.

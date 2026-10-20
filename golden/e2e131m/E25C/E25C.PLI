@@ -1,0 +1,14 @@
+e25c:
+    procedure options(main);
+    declare (n, m) fixed;
+    m = 1;
+    call q(m);
+    n = 2;
+    stop;
+    q: procedure (x);
+       declare x fixed;
+       put skip list('x');
+    end q;
+end e25c;
+
+

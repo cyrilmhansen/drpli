@@ -1,0 +1,19 @@
+e27c:
+    procedure options(main);
+    declare (a, b) fixed;
+    a = 1;
+    b = 2;
+    call p1(a);
+    call p2(b);
+    stop;
+    p1: procedure (x);
+       declare x fixed;
+       x = x + 1;
+    end p1;
+    p2: procedure (y);
+       declare y fixed;
+       y = y + 2;
+    end p2;
+end e27c;
+
+

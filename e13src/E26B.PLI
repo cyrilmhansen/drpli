@@ -1,0 +1,17 @@
+e26b:
+    procedure options(main);
+    declare (a, b, c) fixed;
+    a = 1;
+    b = 2;
+    c = 3;
+    call u(a, b, c);
+    stop;
+    u: procedure (x, y, z);
+       declare (x, y, z) fixed;
+       x = x + 256;
+       y = y + 1000;
+       z = z - 1;
+    end u;
+end e26b;
+
+

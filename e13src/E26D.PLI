@@ -1,0 +1,15 @@
+e26d:
+    procedure options(main);
+    declare (a, b) fixed;
+    a = 7;
+    b = 3;
+    call v(a, b);
+    stop;
+    v: procedure (x, y);
+       declare (x, y) fixed;
+       x = x;
+       x = x * y;
+    end v;
+end e26d;
+
+

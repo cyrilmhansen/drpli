@@ -1,0 +1,16 @@
+e24c:
+    procedure options(main);
+    declare (a) fixed;
+    declare (b) float binary(24);
+    a = 3;
+    b = 1.5;
+    call k2(a, b);
+    stop;
+    k2: procedure (p, q);
+       declare p fixed;
+       declare q float binary(24);
+       p = p + 1;
+    end k2;
+end e24c;
+
+

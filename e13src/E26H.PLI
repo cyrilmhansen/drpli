@@ -1,0 +1,17 @@
+e26h:
+    procedure options(main);
+    declare (a, p) fixed;
+    a = 1;
+    p = 42;
+    call big(a, p);
+    stop;
+    big: procedure (x, q);
+       declare x fixed;
+       declare q fixed bin(15);
+       x = 300;
+       x = q;
+       x = x + p;
+    end big;
+end e26h;
+
+

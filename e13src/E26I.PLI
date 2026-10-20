@@ -1,0 +1,14 @@
+e26i:
+    procedure options(main);
+    declare a fixed;
+    a = 6;
+    call neg(a);
+    stop;
+    neg: procedure (x);
+       declare x fixed;
+       x = 0 - x;
+       x = x - 3;
+    end neg;
+end e26i;
+
+

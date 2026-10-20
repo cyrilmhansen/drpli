@@ -1,0 +1,16 @@
+e26f:
+    procedure options(main);
+    declare (a, n) fixed;
+    a = 5;
+    call cmp1(a);
+    n = 1;
+    stop;
+    cmp1: procedure (x);
+       declare (x, i) fixed;
+       i = 2;
+       if i < x then
+          i = 3;
+    end cmp1;
+end e26f;
+
+

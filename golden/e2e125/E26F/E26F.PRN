@@ -1,0 +1,70 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E26F
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E26F
+
+   1 a 0000 e26f:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main);
+   3 c 0006     declare (a, n) fixed;
+   4 c 0006     a = 5;
+       0006       LXI  H,0005
+       0009       SHLD A A(0000)
+   5 c 000C     call cmp1(a);
+       000C       LXI  H,* A(0004)
+       000F       CALL 0000
+   6 c 0012     n = 1;
+       0012       LXI  H,0001
+       0015       SHLD N A(0002)
+   7 c 0018     stop;
+       0018       CALL ?STOPX
+   8 c 001B     cmp1: procedure (x);
+   9 e 001B        declare (x, i) fixed;
+       001B       MOV  E,M
+       001C       INX  H
+       001D       MOV  D,M
+       001E       XCHG 
+       001F       SHLD X A(0006)
+  10 e 0022        i = 2;
+       0022       LXI  H,0002
+       0025       SHLD I A(0008)
+  11 e 0028        if i < x then
+       0028       LHLD I A(0008)
+       002B       PUSH H
+       002C       LHLD X A(0006)
+       002F       MOV  E,M
+       0030       INX  H
+       0031       MOV  D,M
+       0032       XCHG 
+       0033       POP  D
+       0034       CALL ?IS22N
+       0037       JP   0000
+  12 e 003A           i = 3;
+       003A       LXI  H,0003
+       003D       SHLD I A(0008)
+       0038       ==== 0040
+       0040       RET  
+  13 c 0041     end cmp1;
+  14 a 0041 end e26f;
+  15 a 0041 
+
+CODE SIZE = 0041
+DATA AREA = 000A
+FREE SYMS = 3868
+END  COMPILATION
+
