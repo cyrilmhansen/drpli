@@ -486,7 +486,15 @@ SPECIMENS = {
     # levels down through a forwarded pointer, so 3 proves the descriptor reaches
     # the ORIGINAL caller's cell (2 would mean the forwarding silently copied).
     "E28B": ("e13src/E28B.PLI", "golden/e2e135/E28B/E28B.REL"),
-    "E28C": ("e13src/E28C.PLI", "golden/e2e135/E28C/E28C.REL"),
+    "E28C": ("e13src/E28C.PLI", "golden/e2e135/E28C/E28C.REL"),    # [E2E-11 step 3d] DEC/FLOAT stores through a pointer formal: DR's whole
+    # change from the ordinary route is the DESTINATION OPCODE -- LXI H becomes
+    # LHLD -- because ?DSTOP and ?FX44M already take the address in a register.
+    # E26K gf2 is `u = v' with BOTH operands pointer formals.  E28D/E28E are
+    # ex-N55 (see the retirement note above).
+    "E26J": ("e13src/E26J.PLI", "golden/e2e127/E26J/E26J.REL"),
+    "E26K": ("e13src/E26K.PLI", "golden/e2e127/E26K/E26K.REL"),
+    "E28D": ("e13src/E28D.PLI", "golden/e2e137/E28D/E28D.REL"),
+    "E28E": ("e13src/E28E.PLI", "golden/e2e138/E28E/E28E.REL"),
 
     "E24F": ("e13src/E24F.PLI", "golden/e2e121/E24F/E24F.REL"),
     "E24J": ("e13src/E24J.PLI", "golden/e2e122/E24J/E24J.REL"),
@@ -864,32 +872,13 @@ REJECTS = {
     # "negative whose subject DR compiles" pattern (N56, N63-N66, N77, N55).  The
     # source is now a POSITIVE specimen, E28A, byte-exact, and the forwarding
     # lowering it needed is E27B's.
-    "N55_FORMAL_STORE": (
-        "t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n"
-        "  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  y = 2.5;\n"
-        "  r = g(x);\n  stop;\n"
-        "  g: procedure(q) returns(fixed dec(9,2));\n"
-        "     dcl q fixed dec(9,2);\n     q = y;\n     return (q);\n"
-        "  end g;\nend t;\n",
-        # [E2E-11 step 3b] the marker changed with the lowering: FIXED BINARY
-        # stores through a pointer formal are now PROVEN (E24B/E25F/E26A-E26H are
-        # byte-exact), and this case refuses because it is a DECIMAL formal --
-        # the decimal stack has no store-through-pointer sample.  N55 remains a
-        # capability gap, not a DR rule: DR compiles this program (see
-        # golden/e2e127/E26J, which is the DEC case with .REL emitted).
-        "non-FIXED-BINARY pointer formal"),
-    # [E2E-9 slice 6] DR's fixed-bin peephole set (P044 / R2045 / R2046 goldens
-    # in golden/e2e12c).  My lowering diverges on all four; each shape now
-    # fails loud instead of emitting plausible-but-wrong bytes.
-    # [E2E-11 step 1a] RETIRED N56_ADD_ZERO_LIT (`x = x + 0'): DR ELIDES an added
-    # or subtracted literal zero against a variable and emits a plain copy --
-    # `a = a + 0' is LHLD A / SHLD A, byte-identical to `a = a' [golden/e2e11v/T5,
-    # T6, e2e11w/T7], and `b = a + 0' / `b = 0 + a' / `b = a - 0' are all
-    # LHLD A / SHLD B [e2e11x/T9, e2e11y/T12, T13], nested forms included
-    # [e2e11w/T8, e2e11x/T10].  Those eight are now POSITIVE specimens.  What DR
-    # does NOT elide is zero against a LITERAL: `b = 5 + 0' takes the decimal
-    # pool path (?DLDOP/?DADOP/?QDI15) [e2e11x/T11], which stays refused --
-    # the same no-constant-folding rule as `3 + 2' [R2045, P044 line 3].
+    # [E2E-11 step 3d] N55_FORMAL_STORE RETIRED -- DR compiles it.  Its source is
+    # now positive specimen E28D (byte-exact), and E28E adds the semantic witness:
+    # g(q) does `q = y' with y = 2.5 and is called as r = g(x), so the program
+    # prints "2.50 2.50" -- the caller's own x was overwritten through the
+    # pointer.  Seventh instance of the "negative whose subject DR compiles"
+    # pattern (N56, N63-N66, N77, and N54 one step earlier).
+
     "N57_ADD_LIT_LIT": (
         "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 3 + 2;\n"
         "  stop;\nend t;\n",

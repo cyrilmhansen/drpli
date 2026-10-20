@@ -1,0 +1,19 @@
+e26k:
+    procedure options(main);
+    declare (f, g) float binary(24);
+    f = 1.5;
+    call gf(f);
+    g = 2.5;
+    call gf2(g, f);
+    stop;
+    gf: procedure (q);
+       declare q float binary(24);
+       q = 3.25;
+    end gf;
+    gf2: procedure (u, v);
+       declare (u, v) float binary(24);
+       u = v;
+    end gf2;
+end e26k;
+
+

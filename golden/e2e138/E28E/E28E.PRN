@@ -1,0 +1,96 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E28E
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E28E
+
+   1 a 0000 t:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006   procedure options(main);
+   3 c 0006   dcl r fixed dec(9,2);
+   4 c 0006   dcl (x,y) fixed dec(9,2);
+   5 c 0006   x = 1.5;
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,09
+       000B       CALL ?DLDOP
+       000E       LXI  H,X A(000F)
+       0011       MVI  A,09
+       0013       CALL ?DSTOP
+   6 c 0016   y = 2.5;
+       0016       LXI  H,* S(0005)
+       0019       MVI  A,09
+       001B       CALL ?DLDOP
+       001E       LXI  H,Y A(0014)
+       0021       MVI  A,09
+       0023       CALL ?DSTOP
+   7 c 0026   r = g(x);
+       0026       LXI  H,* A(0019)
+       0029       CALL 0000
+       002C       LXI  H,R A(000A)
+       002F       MVI  A,09
+       0031       CALL ?DSTOP
+   8 c 0034   put skip list(r, x);
+       0034       LXI  D,0252
+       0037       LXI  B,0000
+       003A       CALL ?SYSPR
+       003D       MVI  A,01
+       003F       CALL ?SKPOP
+       0042       LXI  H,R A(000A)
+       0045       MVI  A,09
+       0047       CALL ?DLDOP
+       004A       MVI  A,0C
+       004C       MVI  B,02
+       004E       CALL ?QDCOP
+       0051       CALL ?PNVOP
+       0054       LXI  H,X A(000F)
+       0057       MVI  A,09
+       0059       CALL ?DLDOP
+       005C       MVI  A,0C
+       005E       MVI  B,02
+       0060       CALL ?QDCOP
+       0063       CALL ?PNVOP
+       0066       CALL ?QIOOP
+       0038       ==== 0069
+   9 c 0069   stop;
+       0069       CALL ?STOPX
+  10 c 006C   g: procedure(q) returns(fixed dec(9,2));
+  11 e 006C      dcl q fixed dec(9,2);
+       006C       MOV  E,M
+       006D       INX  H
+       006E       MOV  D,M
+       006F       XCHG 
+       0070       SHLD Q A(001B)
+  12 e 0073      q = y;
+       0073       LXI  H,Y A(0014)
+       0076       MVI  A,09
+       0078       CALL ?DLDOP
+       007B       LHLD Q A(001B)
+       007E       MVI  A,09
+       0080       CALL ?DSTOP
+  13 e 0083      return (q);
+       0083       LHLD Q A(001B)
+       0086       MVI  A,09
+       0088       CALL ?DLDOP
+       008B       JMP  ?DCRET
+  14 c 008E   end g;
+  15 a 008E end t;
+
+CODE SIZE = 008E
+DATA AREA = 001D
+FREE SYMS = 385A
+END  COMPILATION
+

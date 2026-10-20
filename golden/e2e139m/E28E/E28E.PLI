@@ -1,0 +1,16 @@
+t:
+  procedure options(main);
+  dcl r fixed dec(9,2);
+  dcl (x,y) fixed dec(9,2);
+  x = 1.5;
+  y = 2.5;
+  r = g(x);
+  put skip list(r, x);
+  stop;
+  g: procedure(q) returns(fixed dec(9,2));
+     dcl q fixed dec(9,2);
+     q = y;
+     return (q);
+  end g;
+end t;
+

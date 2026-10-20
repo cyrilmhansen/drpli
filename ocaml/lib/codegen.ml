@@ -3077,23 +3077,41 @@ and fl_bin st (op : Ast.binop) (l : Ast.expr) (r : Ast.expr) : fmode =
     (call_ext st ("?F" ^ nm ^ "44S"); Fbin nm)
 
 (* store a float value into a variable's cell *)
-let fl_store_var st (addr : int) (m : fmode) =
+let fl_store_var st ?(dst_ptr = false) (addr : int) (m : fmode) =
   match m with
   | Fmem a ->
+      (* [E2E-11 step 3d, E26K] when the DESTINATION is a pointer formal, DR
+         loads the formal cell instead of taking its address -- the destination
+         opcode is the ONLY change, `LXI H,*S(0008) / PUSH H / LHLD Q A(001A) /
+         POP D / CALL ?FX44M`: ?FX44M copies 4 bytes from (HL) to (DE), and DE
+         already holds the callee-visible address. *)
       d st op_lxi_h; reloc st Data a; d st op_push_h;
-      d st op_lxi_h; reloc st Data addr; d st op_pop_d;
+      d st (if dst_ptr then op_lhld else op_lxi_h); reloc st Data addr;
+      d st op_pop_d;
       call_ext st "?FX44M"
   | (Fstack | Fconv | Fbin _ | Fneg) ->
       (* every computed float kind is popped off the accumulator into the cell
          with ?FX44S [R3030-R3034, and R3035's `d1 = -a` which negates into the
          accumulator with ?FN40M and then stores with ?FX44S] *)
+      if dst_ptr then
+        failwith
+          "codegen: [TBD] FLOAT pointer-formal destination with a COMPUTED source \
+           is unsampled (E26K pins only the cell-to-cell ?FX44M route; the ?FX44S \
+           pop-into-cell route has no pointer sample)";
       d st op_lxi_h; reloc st Data addr; call_ext st "?FX44S"
   | Fderef a ->
       (* [R3079] `w = x` where x is a float FORMAL: dereference the formal's
          pointer cell to get its address, then the ordinary cell-to-cell copy.
          Same ladder the arithmetic uses; DR keeps ?FX44M either way. *)
       d st op_lhld; reloc st Data a; d st op_push_h;
-      d st op_lxi_h; reloc st Data addr; d st op_pop_d;
+      (* [E26K gf2] `u = v' where BOTH are pointer formals: DR derefs the source
+         AND loads the destination through its cell --
+             LXI D,U A(001C) ; MVI C,04 ; ... ; LHLD V A(001E) ; PUSH H
+             LHLD U A(001C)  ; POP D    ; CALL ?FX44M
+         so dst_ptr must be honoured here too; the earlier version kept the
+         LXI H and differed from DR in exactly one opcode byte. *)
+      d st (if dst_ptr then op_lhld else op_lxi_h); reloc st Data addr;
+      d st op_pop_d;
       call_ext st "?FX44M"
 
 (* prepare a float value for RETURN: it must end on the float stack.
@@ -3685,14 +3703,33 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
          Only FIXED BINARY is proven: DEC travels the decimal stack and FLOAT the
          float stack, and neither has a store-through-pointer sample [E26A-E26I]. *)
       (match vk_of st n.Ast.orig with
-       | Vint -> ()
-       | _ ->
+       | Vint -> lower_store_ptr st n.Ast.orig rhs
+       | Vdec _ ->
+           (* [E2E-11 step 3d, E26J] DECIMAL store through a pointer formal:
+               LXI H,R A(000F) ; MVI A,09 ; CALL ?DLDOP     <- source, as usual
+               LHLD Q A(0016)  ; MVI A,09 ; CALL ?DSTOP     <- dest LOADS the cell
+           i.e. DR's ordinary decimal store with the destination's `LXI H'
+           replaced by `LHLD'.  Nothing else changes -- same precision byte, same
+           ?DSTOP -- which is why this is a 1-opcode route, not a new mechanism. *)
+           let (p, sc) = Option.get (vk_dec_opt st n) in
+           st.last_imm <- None;
+           ignore (dec_push st (Some (p, sc)) rhs);
+           d st op_lhld; reloc st Data (addr_of st n.Ast.orig);
+           d st op_mvi_a; d st p; call_ext st "?DSTOP"
+       | Vflt ->
+           (* [E26K] FLOAT: cell-to-cell move whose destination is loaded through
+              the pointer; see fl_store_var's dst_ptr branch. *)
+           st.last_imm <- None;
+           fl_store_var st ~dst_ptr:true (addr_of st n.Ast.orig)
+             (fl_push st rhs)
+       | k ->
            failwith
-             ("codegen: [TBD] store through a non-FIXED-BINARY pointer formal is "
-              ^ "unsampled (DEC and FLOAT pass-by-reference have no DR lowering "
-              ^ "here; line "
-              ^ string_of_int lhs.Ast.epos.Source.line ^ ")"));
-      lower_store_ptr st n.Ast.orig rhs
+             ("codegen: [TBD] store through a pointer formal of type "
+              ^ vk_name k
+              ^ " is unsampled (FIXED BINARY [E26A-E26I], FIXED DECIMAL [E26J] "
+              ^ "and FLOAT [E26K] are pinned; BIT(1)/CHAR through a pointer has "
+              ^ "no DR sample; line "
+              ^ string_of_int lhs.Ast.epos.Source.line ^ ")"))
   | Ast.Eident n when vk_dec_opt st n <> None ->
       (* [E2E-6] FIXED DECIMAL store: push the DEC value (with the target's
          precision as the literal context), then ?DSTOP pops it into the

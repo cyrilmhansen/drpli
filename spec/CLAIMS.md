@@ -2063,3 +2063,40 @@ N77, N55): it was a capability-gap negative whose subject DR compiles.  I checke
 DR's verdict before touching it -- `golden/e2e133/E28A` exists and my output is
 byte-identical -- and only then converted the source into a positive specimen.  The
 negative panel goes 68 -> 67 with 379 -> 381 positives.
+
+## C131 — DEC and FLOAT stores through a pointer formal differ from the ordinary route by ONE OPCODE (E2E-11 step 3d)
+
+**Statement.** Both non-binary pass-by-reference stores are DR's normal lowering
+with the destination's address-taking instruction replaced by a cell load:
+
+```
+gd: procedure (q) ...  q = r;          (q POINTER/param FIXED DEC(9,2))
+      LXI H,R A(000F) ; MVI A,09 ; CALL ?DLDOP     <- source: unchanged
+      LHLD Q A(0016)  ; MVI A,09 ; CALL ?DSTOP     <- destination: LHLD, not LXI H
+
+gf: procedure (q) ...  q = 3.25;       (q FLOAT param)
+      LXI H,* S(0008) ; PUSH H ; LHLD Q A(001A) ; POP D ; CALL ?FX44M
+gf2: (u,v) ...  u = v;   BOTH pointer formals
+      LHLD V A(001E) ; PUSH H ; LHLD U A(001C) ; POP D ; CALL ?FX44M
+```
+
+The reason is structural, not a coincidence: `?DSTOP` and `?FX44M` already receive
+the destination *in a register* (HL and DE respectively), so handing them a
+pointer's value instead of a cell address changes only how that register is
+loaded.  This is why the feature was cheap once E26J/E26K were probed, and why my
+earlier refusal claimed a missing "decimal/float stack store-through-pointer path"
+-- there was never a stack mechanism to build, only an opcode to swap.
+
+`LHLD <formal cell>` also means the relocation still points at the formal's own
+DATA cell (the pointer), which is why the record stream is otherwise unchanged.
+
+**Scope, kept narrow by refusal.** A FLOAT destination that is a pointer formal with
+a *computed* source (the `?FX44S` pop-into-cell route) has no DR sample and still
+refuses; so does any other type through a pointer (BIT(1), CHAR).
+
+**N55_FORMAL_STORE retired** (7th instance of the pattern): DR compiles the source,
+E28D reproduces it byte-exactly, and E28E is the semantic witness -- `r = g(x)`
+where `g` does `q = y` with `y = 2.5` prints `2.50 2.50`, so the caller's own `x`
+was overwritten through the pointer rather than a copy being made.  All four
+specimens are byte-exact at `.REL`, byte-identical at linked `.COM`, and E28E's
+console output is byte-identical to DR's own run.

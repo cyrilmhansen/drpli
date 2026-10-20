@@ -1,0 +1,14 @@
+e26j:
+    procedure options(main);
+    declare (x, r) fixed dec(9,2);
+    x = 1.5;
+    call gd(x);
+    r = 2.5;
+    stop;
+    gd: procedure (q);
+       declare q fixed dec(9,2);
+       q = r;
+    end gd;
+end e26j;
+
+
