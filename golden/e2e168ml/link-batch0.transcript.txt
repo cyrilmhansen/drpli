@@ -1,0 +1,76 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> LINK D:V3
+LINK D:V3
+LINK 1.31
+
+PLILIB   RQST   A        0100   /SYSIN/  1BDA   /SYSPRI/ 1C01   
+
+ABSOLUTE     0000
+CODE SIZE    1A76 (0100-1B75)
+DATA SIZE    0201 (1C5C-1E5C)
+COMMON SIZE  00E6 (1B76-1C5B)
+USE FACTOR     53
+
+C>
+>>> LINK D:V4
+LINK D:V4
+LINK 1.31
+
+PLILIB   RQST   A        0100   /SYSIN/  1BDA   /SYSPRI/ 1C01   
+
+ABSOLUTE     0000
+CODE SIZE    1A76 (0100-1B75)
+DATA SIZE    0201 (1C5C-1E5C)
+COMMON SIZE  00E6 (1B76-1C5B)
+USE FACTOR     53
+
+C>
+>>> LINK D:V5
+LINK D:V5
+LINK 1.31
+
+PLILIB   RQST   A        0100   /SYSIN/  1BDA   /SYSPRI/ 1C01   
+
+ABSOLUTE     0000
+CODE SIZE    1A76 (0100-1B75)
+DATA SIZE    0202 (1C5C-1E5D)
+COMMON SIZE  00E6 (1B76-1C5B)
+USE FACTOR     53
+
+C>
+>>> LINK D:V6
+LINK D:V6
+LINK 1.31
+
+PLILIB   RQST   A        0100   /SYSIN/  1BDA   /SYSPRI/ 1C01   
+
+ABSOLUTE     0000
+CODE SIZE    1A76 (0100-1B75)
+DATA SIZE    0201 (1C5C-1E5C)
+COMMON SIZE  00E6 (1B76-1C5B)
+USE FACTOR     53
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10014 ms, waited for 0 ms
+CPU executed 356321783 t-states in 173 ms
+Clock frequency 2052.07 MHz
