@@ -1,0 +1,2 @@
+DTEST	ok	PRN=True REL=True
+FDTEST	ok	PRN=True REL=True

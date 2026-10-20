@@ -2100,3 +2100,67 @@ where `g` does `q = y` with `y = 2.5` prints `2.50 2.50`, so the caller's own `x
 was overwritten through the pointer rather than a copy being made.  All four
 specimens are byte-exact at `.REL`, byte-identical at linked `.COM`, and E28E's
 console output is byte-identical to DR's own run.
+
+## C132 — external ENTRY has a complete executable acceptance route: DR's own assembly modules assemble and link (E2E-11 step 3e)
+
+**Statement.** The historical `DIV2.ASM` and `FDIV2.ASM` are in the reference
+corpus (`DISK2`, also `pli80-v10`), and the CP/M distribution disk my oracle
+already uses carries **RMAC.COM** -- Microsoft MAC-80 relocatable assembler --
+which is the tool those sources are written for.  They assemble cleanly with
+period software:
+
+```
+RMAC D:DIV2.ASM=D:DIV2.REL/L
+CP/M RMAC ASSEM 1.1 | 002A | 000H USE FACTOR | END OF ASSEMBLY
+```
+
+`000H USE FACTOR` means zero unresolved externals, and the resulting `DIV2.REL` /
+`FDIV2.REL` link with DR's LINK-80 and PLILIB.IRL.  Driven end to end, DR's own
+`DTEST` and `FDTEST` now **execute**: `LINK D:DTEST,D:DIV2` produces a 7808-byte
+`.COM`, and running it prints `100 / 2 ** 0 = 1.0000000E+02`, `... = 5.0000000E+01`,
+`... 2.5000000E+01`, i.e. the correct halving sequence computed by the external
+assembly routine through the PL/I call descriptor.
+
+**Dialect matters and is not interchangeable.** The sources use `title 'name'`,
+`public div2`, `extrn ?signal` and `;` comments -- MAC-80 syntax, not DR ASSEMBLE
+syntax (`NAME`/`ENTRY`/`EXTERNAL`, `&` comments).  Using `ASM.COM`, or hand
+translating, would make the object file evidence about my transcription rather
+than about DR's module, and would quietly downgrade every downstream comparison.
+
+**Independent witness.** The expected values are arithmetic, not a byte match:
+`100/2**k` for k=0..22 with 7 significant digits.  DTEST (external CALL statement,
+`div2` a subroutine) and FDTEST (external ENTRY in expression position, `fdiv2`
+returning float) print **identical** tables, which is itself a check that the two
+call forms reach the same descriptor.
+
+**ABI confirmed from the historical source, not inferred.** `DIV2.ASM` opens
+```
+div2:            ;HL = .low(.p1)
+        mov     e,m       ;low(.p1)
+        inx     h         ;HL = .high(.p1)
+        mov     d,m       ;DE = .p1
+        inx     h         ;HL = .low(p2)
+        ldax    d         ;a = p1 (power of two)
+```
+so the callee receives **HL = the address of the descriptor**, and each descriptor
+entry is the address of an argument, which is exactly the `LXI H,*A(desc) / CALL`
+shape my compiler already emits for internal calls [C122].  The header comments
+also pin the contract: `p1 -> fixed(7)`, `p2 -> floating point number`, and for
+`div2` the *exit* says `p2 -> p2 / (2**p1)` (a subroutine writing through its
+argument, cf. C127/C131), while `fdiv2` says `p1/p2 -> (unchanged); stack: p2 /
+(2 ** p1)` -- a value-returning entry leaves its result on the stack that
+`?RSBLK`/`?FPRET` consume.
+
+**Object-file vs executable acceptance, now unambiguous.** Previously the
+external-ENTRY feature could only ever be tested at `.REL` level, so byte-identical
+object files would have been the strongest available claim.  That limitation is
+gone: for any program that calls an external entry I can now compare `.REL`,
+compare the `.COM` linked by DR's LINK-80 against the same RMAC-built module, and
+compare executed output.  `oracle/linkrun.py asm` is the new stage
+(`EXTRA_REL` maps DTEST->DIV2, FDTEST->FDIV2 for the link stage).
+
+**Status.** The route is established; my compiler still refuses external ENTRY
+[C122-adjacent, N84].  What remains is to make bind's `RTentry` visible to codegen
+(`st.vars` carries `vkind`, which has no entry case) and emit
+`call_ext <SYMBOL>` in place of the forward/internal resolution, which the
+E24G/DTEST/FDTEST goldens make checkable in one step.

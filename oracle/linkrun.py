@@ -32,6 +32,12 @@ SIM = os.environ.get("CPMSIM",
         os.path.expanduser("~/pli/cpm/z80pack/cpmsim/cpmsim"))
 TOOLS = ["LINK.COM", "LIB.COM", "RMAC.COM", "PLILIB.IRL"]
 
+# [E2E-11 step 3e] extra .REL modules a program must be linked against, as
+# (module, golden-tag-containing-it).  DIV2/FDIV2 are DR's own assembly sources
+# assembled by RMAC from the distribution disk -- see assemble() below.
+EXTRA_REL = {"DTEST": [("DIV2", "e2e140asm")],
+             "FDTEST": [("FDIV2", "e2e140asm")]}
+
 INPUTS = {
     "DEMO":       ["John\\r"],
     "X201":       ["WORLD\\r"],
@@ -164,7 +170,17 @@ def link(ws, names, intag, outtag, batch, reuse):
                 rel = os.path.join(src_rel, n, f"{n}.REL")
                 if os.path.exists(rel):
                     run.import_local("d", rel, f"{n}.REL")
-            lines = ["C:"] + [f"LINK D:{n}" for n in batchn] + ["##HALT"]
+                # [E2E-11 step 3e] programs whose arguments name an EXTERNAL
+                # assembly routine need that module present, or LINK reports it
+                # missing and the .COM is not built.
+                for extra in EXTRA_REL.get(n, []):
+                    p2 = os.path.join(PROJ, "golden", extra[1], f"{extra[0]}.REL")
+                    if os.path.exists(p2):
+                        run.import_local("d", p2, f"{extra[0]}.REL")
+            def linkcmd(n):
+                mods = ",".join(f"D:{e[0]}" for e in EXTRA_REL.get(n, []))
+                return f"LINK D:{n}" + (f",{mods}" if mods else "")
+            lines = ["C:"] + [linkcmd(n) for n in batchn] + ["##HALT"]
             rc, tr = session(run, lines, 40, out, f"link-batch{i // batch}")
             for n in batchn:
                 ok = run.export("d", f"{n}.COM", out.dir,
@@ -175,6 +191,71 @@ def link(ws, names, intag, outtag, batch, reuse):
                 print(f"   {n}: COM={ok} {msg}", flush=True)
         finally:
             run.cleanup()
+
+
+def assemble(ws, names, outtag, batch, reuse):
+    """[E2E-11 step 3e] Assemble a historical DR assembly module with the REAL
+    tool from the distribution disk, and return its .REL to golden/<outtag>/.
+
+    Why RMAC rather than a translation: DIV2.ASM and FDIV2.ASM are written in
+    Microsoft MAC-80 dialect -- `title 'division by power of two'`, `public
+    div2`, `extrn ?signal`, `;` comments -- not DR ASSEMBLE syntax (NAME/
+    ENTRY/EXTERNAL, `&` comments), so ASM.COM is the wrong tool and any
+    "close enough" rewrite would make the resulting .REL evidence about my
+    rewrite instead of about DR's module.  RMAC.COM is already staged by the
+    link stage, so this uses machinery the harness has been using all along.
+
+    Why it matters: external-ENTRY acceptance needs a DIV2.REL built from DR's
+    own source through period software, so a linked DTEST.COM is a test of MY
+    compiler's ENTRY lowering rather than of my assembly transcription.
+    """
+    out = Output(os.path.join(PROJ, "golden"), outtag, allow_reuse=reuse)
+    for i in range(0, len(names), batch):
+        batchn = names[i:i + batch]
+        run = new_run(ws, f"asm-{outtag}-{i // batch}")
+        try:
+            run.mkfs("c")
+            run.mkfs("d")
+            for t in TOOLS:
+                p = os.path.join(ORIG, t)
+                if os.path.exists(p):
+                    run.import_local("c", p, t)
+            missing = []
+            for n in batchn:
+                src = None
+                for cand in (os.path.join(ORIG, n + ".ASM"),
+                             os.path.join(PROJ, "artefacts", n + ".ASM")):
+                    if os.path.exists(cand):
+                        src = cand
+                        break
+                if src is None:
+                    missing.append(n)
+                    continue
+                with open(src, "rb") as f:
+                    raw = f.read()
+                tmp = os.path.join(out.dir, n + ".CRLF.ASM")
+                crlf = raw.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+                if not crlf.endswith(b"\x1a"):
+                    crlf += b"\x1a"
+                with open(tmp, "wb") as f:
+                    f.write(crlf)
+                run.import_local("d", tmp, n + ".ASM")
+            for n in missing:
+                print(f"   {n}: SOURCE .ASM MISSING", flush=True)
+            present = [n for n in batchn if n not in missing]
+            if not present:
+                continue
+            lines = ["C:"] + [f"RMAC D:{b}.ASM=D:{b}.REL/L" for b in present] + ["##HALT"]
+            rc, tr = session(run, lines, 40, out, f"asm-batch{i // batch}")
+            for b in present:
+                ok = run.export("d", f"{b}.REL", out.dir, allow_clobber=reuse)
+                seg = re.search(r">>> RMAC D:" + re.escape(b) + r"(.*?)(?=>>> |\Z)",
+                                tr, re.S)
+                msg = re.sub(r"\r+\n", " | ", seg.group(1).strip())[:140] if seg else ""
+                print(f"   {b}: REL={ok} {msg}", flush=True)
+        finally:
+            run.cleanup()
+
 
 
 def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None):
@@ -236,7 +317,7 @@ def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=["link", "run"])
+    ap.add_argument("stage", choices=["link", "run", "asm"])
     ap.add_argument("--tag", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--names", nargs="*")
@@ -265,7 +346,9 @@ def main():
         names = [check_name(n) for n in a.names] if a.names else None
     if not names:
         sys.exit("no names given (use --names or --all)")
-    if a.stage == "link":
+    if a.stage == "asm":
+        assemble(ws, names, a.out, a.batch, a.reuse)
+    elif a.stage == "link":
         link(ws, names, a.tag, a.out, a.batch, a.reuse)
     else:
         run_programs(ws, names, a.tag, a.out, a.timeout, a.reuse, a.killon)
