@@ -237,3 +237,26 @@ program closes on them).
   established it (a `.PRN` path), so stale claims are detectable by `grep` when
   the artifact is checked. `A`'s message cited FFACT's prologue and was wrong;
   a path would have been checkable in one command.
+
+---
+
+## 7. Closure note (same step, after implementation)
+
+`A` is accepted — byte-exact `.REL` **and** link+run integration — and the procedure-only
+entry route is implemented. Full record: `spec/notes/e2e11-step5-procedure-only-modules.md`,
+claims C136 / C136b / C137. Corpus 12/41 -> 13/41, gate 390 -> 405 specimens, negatives
+65 -> 66 (Q8, my-gap: FIXED->DEC conversion).
+
+Two things from the ranking above deserve to be marked as *wrong in hindsight*, since
+the point of keeping this note is the method, not the conclusion:
+
+* §4's "expected work: replace one refusal arm with an existing route" understated the
+  task in one direction and overstated it in another. The arithmetic arm was already
+  correct (Q4, byte-exact before I touched anything), while the entry route needed a
+  binder change, a prescan-context change, three main-only framings suppressed and one
+  header-field difference (END-PROGRAM's segment). Cost was ~2 hours, not a message swap.
+* The ranking treated "byte-exact REL" as the acceptance event for a corpus program. For
+  `A` that criterion was satisfiable while `A` could not run inside any program at all:
+  the link stage silently produced a .COM with an unresolved `A` reference (C137), which
+  is invisible to every REL/COM/transcript-parity check I had. Payoff estimates based on
+  REL parity are upper bounds on *compilability*, not on runnability.

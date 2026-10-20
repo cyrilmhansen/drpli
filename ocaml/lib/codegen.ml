@@ -101,6 +101,13 @@ type st =
                                          second STOPX after dbl code] *)
   ; mutable calls : Bind.call_site list   (* prescan FIFO, DFS order *)
   ; mutable procs : (string * Bind.proc_layout) list
+  ; (* [E2E-11 step 5] true while lowering a procedure-only MODULE (no
+       OPTIONS(MAIN), C136).  lower_proc's tail-guard and `appended' logic key on
+       `not st.in_proc' because they describe a procedure appended AFTER a main
+       block; a top-level module IS the whole file, so DR emits no JMP guard and
+       no append address at all (golden/first/A starts at its copy-in ladder).
+       Without this flag the module path would inherit main-only bookkeeping. *)
+     mutable top_proc : bool
   ; mutable exts : (string * (int * bool * Bind.rt option * Bind.rt list)) list
       (* [E2E-11 step 4] EXTERNAL ENTRY targets from Bind.pl_exts: name ->
          (params, external_, RETURNS type, formal types).  Kept SEPARATE from
@@ -4812,7 +4819,8 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      append address BEFORE the entry label / forward-call chain /
      prologue; see the guard_slots field comment for the full rule.
      Evaluated once per program (the first appended proc). *)
-  if (not st.in_proc) && not st.stop_seen && not st.after_forever
+  if (not st.in_proc) && not st.top_proc && not st.stop_seen
+       && not st.after_forever
   then begin
     if st.guards = 0 then begin
       st.guards <- st.guards + 1;
@@ -4828,7 +4836,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
         "codegen: second appended procedure after a tail guard \
          [TBD: unproven, no multi-procedure golden]"
   end;
-  if not st.in_proc then st.appended <- true;
+  if not st.in_proc && not st.top_proc then st.appended <- true;
   (* entry label [P401 'dbl:' — blabel from parse_proc_block] *)
   (match pl.Bind.pl_lbl with
    | Some l ->
@@ -5027,10 +5035,21 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      RET, gets no second one).  So the trigger is the absence of RETURNS, not
      the shape of the last statement.  Value-returning procedures are NOT given
      one: their exits are RETURN's RET / JMP ?FPRET / JMP ?DCRET. *)
-  if pl.Bind.pl_ret = None then begin
+  if pl.Bind.pl_ret = None && not (st.top_proc && st.stop_seen) then begin
     d st 0xc9; (* RET *)
     st.last_imm <- None
-  end;
+  end else
+    (* [E2E-11 step 5 / Q6, golden/e2e148] a procedure-only MODULE whose body
+       ends in STOP gets NO trailing RET: DR's Q6 is
+         ... INX H / XCHG / MOV M,D / DCX H / MOV M,E / CALL ?STOPX
+       and DEF-CODE-SIZE 0016 lands right on the CALL operand's second byte --
+       one byte less than my unconditional implicit RET produced.  The eight
+       no-RETURNS probes above (E25A/E24A/E25D ...) contain no STOP, so this is
+       a NEW condition, and it is deliberately scoped to the module shape that
+       Q6 pins: whether a NESTED procedure ending in STOP also loses its RET is
+       unprobed, so nested lowering keeps the byte it has always emitted. *)
+    ()
+  ;
   st.dec_ret <- saveddr;
   st.float_ret <- savedfr;
   st.in_rec <- savedr;
@@ -5555,6 +5574,21 @@ let emit_program (progname : string) (auto_bytes : int)
   check_block blk 0;
   List.iter (check_stmt 0) stmts;
   let layout = Bind.bind_program blk in
+  (* [E2E-11 step 5] a procedure-only module (C136): DR gives it the ordinary
+     procedure entry -- copy-in ladder, no ?START prologue, no append/tail-guard
+     bookkeeping, and the RETURNS-driven exit -- while the header still carries
+     EXTDEF + DEF-PUBLIC code 0000 with the SIX-CHARACTER-truncated module name
+     [golden/first/A].  Perimeter: the shapes DR has shown me are no-RETURNS
+     (Q2), RETURNS(FIXED) (Q3) and RETURNS(FLOAT) (Q1/A).  A DEC-returning
+     module would take lower_proc's DEC exit, whose top-level shape has no DR
+     sample, so it refuses here rather than assuming nested-proc bytes carry over. *)
+  let top_pl = layout.Bind.pl_top in
+  let is_top_proc = top_pl <> None in
+  (* RETURNS(DECIMAL) on a module is ACCEPTED.  DR's Q8 (golden/e2e148) shows the
+     module DEC exit is the same family the nested DEC path already emits --
+     CALL ?QI15D / MVI A,<scale> / CALL ?QDDSL / JMP ?DCRET -- and Q8 comes out byte
+     identical here, which is the evidence that mattered.  My earlier refusal assumed
+     the nested DEC exit might not carry to a top-level module; it does, unchanged. *)
   (* constant call arguments allocate 2B little-endian pool cells
      [P401: '2' at data@0]; included in the pool prescan total so
      pool-relative layout matches the lowering-time allocation run *)
@@ -5643,9 +5677,36 @@ let emit_program (progname : string) (auto_bytes : int)
       layout.pl_procs
   in
 
+  (* [E2E-11 step 5] for a FLOAT-returning module the top-level statements ARE
+     the procedure body, so the prescan must see the same return type the
+     lowering will: FFACT's `return (1)' allocates its 4-byte float cell through
+     pdec_fl_expr only when pd_fl_ret is set (see the Sreturn arm of prescan).
+     Left false, A's `return (x/2)' would prescan as a bare integer return and
+     its MBF cell (data 0000-0003, `00 00 00 82' in DR's golden) would be charged
+     under a different rule than the one that lowers it -- the pool/offset half of
+     the C134 "one question, two owners" failure. *)
+  let top_fl_ret =
+    match top_pl with
+    | Some (tp : Bind.proc_layout) ->
+        (match tp.Bind.pl_ret with Some (Bind.RTfloat 24) -> true | _ -> false)
+    | None -> false
+  in
+  (* [E2E-11 step 5] the DEC half of the same one-owner argument: a DEC-returning
+     module's `return (1)' takes a target-precision pool cell [DFACT], and prescan
+     charges that only through cx.pd_ret.  For a MAIN block this stays None exactly
+     as before (a main block has no return type); for a module it must be the
+     module's own RETURNS, or the pool would be sized under one model and lowered
+     under another -- the C134 failure class, not a style preference. *)
+  let top_dec_ret =
+    match top_pl with
+    | Some (tp : Bind.proc_layout) ->
+        (match tp.Bind.pl_ret with Some (Bind.RTdec (pp, ps)) -> Some (pp, ps)
+                                 | _ -> None)
+    | None -> None
+  in
   let pool_total =
-    prescan_pool { pd_vars; pd_procs; pd_ret = None
-                    ; pd_dec = ref []; pd_fl = ref []; pd_fl_ret = false
+    prescan_pool { pd_vars; pd_procs; pd_ret = top_dec_ret
+                    ; pd_dec = ref []; pd_fl = ref []; pd_fl_ret = top_fl_ret
                     ; pd_fl_procs
                     ; pd_callee_rt =
                         (fun nm i -> callee_formal_rt_l layout nm i) }
@@ -5676,7 +5737,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; dec_ret = None
   ; float_ret = false
   ; fl_cells = []
-    ; in_proc = false; in_rec = false; call_stmt = None
+    ; in_proc = false; in_rec = false; top_proc = false; call_stmt = None
     ; after_forever = false; guards = 0; guard_slots = []
     ; appended = false; secs = layout.Bind.pl_secs
     ; last_loop_edge = 0 }
@@ -5686,12 +5747,32 @@ let emit_program (progname : string) (auto_bytes : int)
      statement lowers. *)
   prealloc_fmt_tables st stmts;
   (* lower prologue + body + epilogue into st.items (code segment) *)
+  let ls = { labs = []; fwd = [] } in
+  if is_top_proc then begin
+    (* [E2E-11 step 5 / C136] NO `LXI B,0200 / CALL ?START': DR's procedure-only
+       module begins with the formal copy-in ladder itself.  The body is lowered
+       by lower_proc, the SAME routine used for nested procedures, which supplies
+       the copy-in ladder, the deref/pointer-formal ABI, the RETURNS-driven exit
+       (?FPRET for FLOAT, implicit RET for no-RETURNS) and forward-CALL resolution
+       at the entry byte.  Reusing it rather than writing a second entry sequence
+       is the point: the two shapes are byte-identical in DR -- A's code
+       0000-0006 is E27C p1's code 001F-0023. *)
+    st.top_proc <- true;
+    let bpos =
+      match blk.Ast.blabel with
+      | Some n -> n.Ast.pos
+      | None ->
+          (match blk.Ast.bstmts with
+           | s :: _ -> s.Ast.spos
+           | [] -> { Source.line = 0; col = 0 })
+    in
+    lower_proc st ls { Ast.blk = blk; bpos }
+  end else begin
   d st op_lxi_b; d st 0x00; d st 0x02;
   d st op_call;
   let start_slot = st.lc in
   d st 0; d st 0;
   link st t_chain_ext (Some (Code, start_slot)) (Some "?START");
-  let ls = { labs = []; fwd = [] } in
   List.iter
     (fun (s : Ast.stmt) ->
       (* [R423/ALL goldens] every procedure body is appended AFTER
@@ -5719,6 +5800,7 @@ let emit_program (progname : string) (auto_bytes : int)
       end;
       lower_stmt st ls s)
     stmts;
+  end;
   (match ls.fwd with
    | [] -> ()
    | (nm, _) :: _ ->
@@ -5755,7 +5837,19 @@ let emit_program (progname : string) (auto_bytes : int)
   (* [R423] a guarded tail keeps the epilogue CALL (the guard JMP
      targets the CALL itself); plain open windows drop it *)
   let tail_displaced = st.after_forever in
-  if not st.stop_seen && not tail_displaced then begin
+  (* [E2E-11 step 5 / C136] a procedure-only module has NO epilogue: DR's A ends
+     at the `JMP ?FPRET' of the RETURN and DEF-CODE-SIZE 0015 follows immediately
+     -- no CALL ?STOPX anywhere in the file, because the module is not the program
+     entry point and does not terminate it.  What a module CONTAINING `stop;'
+     does is unprobed (Q6 is that probe), so the statement refuses instead of
+     quietly dropping the epilogue it would have needed. *)
+  (* STOP inside a module IS allowed: Q6 (golden/e2e148) shows DR lowering the
+     statement to an in-place `CALL ?STOPX' (CD 00 00 + CHAIN-EXT at code 0014)
+     and STILL emitting no epilogue CALL -- DEF-CODE-SIZE 0016 follows the
+     statement's own bytes.  That is exactly the existing Sstop lowering plus the
+     is_top_proc gate below, so no new rule is needed here; the earlier refusal
+     was a capability gap that DR's own golden has now closed. *)
+  if not is_top_proc && not st.stop_seen && not tail_displaced then begin
     (* backpatch the tail-guard JMP operand(s) to THIS epilogue
        address [R404: @29 -> 0x44; P404: @10 -> 0x2B], immediately
        before the CALL bytes, then emit CALL ?STOPX *)
@@ -5831,9 +5925,17 @@ let emit_program (progname : string) (auto_bytes : int)
     [ Link (t_def_data_size, Some (Abs, data_size), None)
     ; Link (t_set_lc, Some (Code, 0), None) ]
   in
+  (* [E2E-11 step 5 / C136] END-PROGRAM's operand SEGMENT distinguishes the two
+     file kinds in DR's own output: every MAIN specimen ends with
+     `LINK-END-PROGRAM code 0000' (390 byte-exact specimens), while A -- a
+     procedure-only module -- ends with `LINK-END-PROGRAM abs 0000'.  That is the
+     only place in the record stream where the module shape differs in a header
+     field, and it is exactly what a code-path guess would have missed: the value
+     is 0 either way, so only the segment type byte tells them apart. *)
+  let end_prog_op = if is_top_proc then (Abs, 0) else (Code, 0) in
   let tail =
     [ Link (t_def_code_size, Some (Code, st.lc), None)
-    ; Link (t_end_program, Some (Code, 0), None)
+    ; Link (t_end_program, Some end_prog_op, None)
     ; Link (t_end_file, None, None) ]
   in
   (header @ common_seg @ data_seg @ bridge @ code_items @ tail, st.lc)
@@ -5860,7 +5962,44 @@ let emit_program (progname : string) (auto_bytes : int)
      * statics inside a NESTED procedure are unmeasured (the interaction with
        bind's per-proc layout and with re-entry is unknown), so they refuse. *)
 let rows_of (b : Ast.block) =
-  let rows = Bind.bind_rows b in
+  (* [E2E-11 step 5 / C136] Two layout authorities exist in bind, and which one
+     describes the OUTERMOST block depends on the file kind: bind_rows lays out a
+     MAIN block (no formal pointer cells at all), while bind_program's section2
+     pass lays out a CALLEE (2-byte pointer cell per formal, the declared formal
+     dcl DEDUPED onto it, locals shifted after the pointer cells).  A
+     procedure-only module is the second kind -- DR's A has DATA AREA 0006 =
+     4-byte MBF pool cell + x's 2-byte pointer cell, NOT 4+4 -- so taking the
+     auto area from bind_rows over-charges the formal by its declared size and
+     would place a second local two bytes too high.  Using the section layout
+     here keeps ONE authority per file kind, and any declaration bind_rows sees
+     that section2 did not place (STATIC / FILE / FORMAT in a module) is a
+     mixture with no DR sample, so it refuses instead of silently keeping the
+     wrong offsets. *)
+  let bind_all = Bind.bind_program b in
+  let rows =
+    match bind_all.Bind.pl_top with
+    | Some tp ->
+        let br = Bind.bind_rows b in
+        let missing =
+          List.filter
+            (fun (n, _rt, _o, _a) ->
+              not
+                (List.exists
+                   (fun (x, _rt, _o) ->
+                     String.equal x (String.lowercase_ascii n))
+                   tp.Bind.pl_rows))
+            br
+        in
+        if missing <> [] then
+          failwith
+            (Printf.sprintf
+               "codegen: [TBD] declaration %s in a procedure-only module is \
+                outside the section layout DR has sampled [C136 covers formals \
+                and ordinary locals only]"
+               (match List.hd missing with n2, _rt, _o, _a -> n2));
+        List.map (fun (n, rt, o) -> (n, rt, o, true)) tp.Bind.pl_rows
+    | None -> Bind.bind_rows b
+  in
   (* [E2E-11 step 1a-ii] Which declared names carry an EXPLICIT STATIC, and what
      their INITIAL value is.  bind already keeps a separate static offset
      counter (`soff'), giving static cells 0,1,2... and automatics their own
@@ -6065,11 +6204,17 @@ let rows_of (b : Ast.block) =
                                    ref of the same name is shadowed by then *)
   in
   let auto_bytes =
-    List.fold_left
-      (fun acc (nm, vi) ->
-        if List.mem_assoc (String.lowercase_ascii nm) stat_set then acc
-        else max acc (vi.off + vi.size))
-      0 vars
+    let from_rows =
+      List.fold_left
+        (fun acc (nm, vi) ->
+          if List.mem_assoc (String.lowercase_ascii nm) stat_set then acc
+          else max acc (vi.off + vi.size))
+        0 vars
+    in
+    (* A deduped formal's DECLARED size is not its COST, so for a module the
+       section total -- not max(off+size) over rows -- is the authority [C136]. *)
+    match bind_all.Bind.pl_top with Some _ -> bind_all.Bind.pl_total
+                                  | None -> from_rows
   in
   let prog =
     match b.Ast.bname with Some n -> String.uppercase_ascii n.Ast.orig

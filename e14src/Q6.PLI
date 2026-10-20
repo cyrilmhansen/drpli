@@ -1,0 +1,7 @@
+a:
+  procedure(x);
+  declare x fixed;
+  x = x + 1;
+  stop;
+end a;
+

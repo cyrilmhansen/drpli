@@ -1,0 +1,17 @@
+e29f:
+    procedure options(main);
+    declare x float, y float;
+    declare a entry(float) returns(float);
+    y = a(3.5);
+    put skip list('a(3.5) =', y);
+    y = a(1.25);
+    put skip list('a(1.25) =', y);
+    y = a(256.0);
+    put skip list('a(256) =', y);
+    y = a(0.5);
+    put skip list('a(0.5) =', y);
+    y = a(40.0);
+    put skip list('a(40) =', y);
+    stop;
+end e29f;
+

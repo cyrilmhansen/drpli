@@ -545,6 +545,32 @@ SPECIMENS = {
     "LONGNAME": ("probes/LONGNAME.PLI", "golden/e2e12/LONGNAME/LONGNAME.REL"),
 }
 
+# [E2E-11 step 5] procedure-only modules (no OPTIONS(MAIN)) -- C136/C137.  Each
+# of these is a file whose OUTERMOST block is a procedure that is not the program
+# entry point, which DR compiles as an ordinary callable module: no LXI B,0200 /
+# CALL ?START, no epilogue CALL ?STOPX, DEF-PUBLIC still present, and
+# END-PROGRAM carrying an ABS operand instead of CODE.  Q1-Q9 are the shapes I
+# probed with (batch golden/e2e147/e2e148/e2e149); E29*/B are the cross-module
+# pairs that give link+run evidence (golden/e2e150d..e2e152d).  Q4/E29H are MAIN
+# programs included as controls for the same expressions.
+SPECIMENS.update({
+    "A":      ("artefacts/A.PLI",       "golden/first/A/A.REL"),
+    "Q1":     ("e14src/Q1.PLI",         "golden/e2e148/Q1/Q1.REL"),
+    "Q2":     ("e14src/Q2.PLI",         "golden/e2e148/Q2/Q2.REL"),
+    "Q3":     ("e14src/Q3.PLI",         "golden/e2e148/Q3/Q3.REL"),
+    "Q4":     ("e14src/Q4.PLI",         "golden/e2e147/Q4/Q4.REL"),
+    "Q5":     ("e14src/Q5.PLI",         "golden/e2e148/Q5/Q5.REL"),
+    "Q6":     ("e14src/Q6.PLI",         "golden/e2e148/Q6/Q6.REL"),
+    "Q7":     ("e14src/Q7.PLI",         "golden/e2e148/Q7/Q7.REL"),
+    "Q9":     ("e14src/Q9.PLI",         "golden/e2e149/Q9/Q9.REL"),
+    "B":      ("e14src/B.PLI",          "golden/e2e152d/B/B.REL"),
+    "E29F":   ("e14src/E29F.PLI",       "golden/e2e150d/E29F/E29F.REL"),
+    "E29G":   ("e14src/E29G.PLI",       "golden/e2e151d/E29G/E29G.REL"),
+    "E29H":   ("e14src/E29H.PLI",       "golden/e2e151d/E29H/E29H.REL"),
+    "E29I":   ("e14src/E29I.PLI",       "golden/e2e152d/E29I/E29I.REL"),
+    "E29J":   ("e14src/E29J.PLI",       "golden/e2e152d/E29J/E29J.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -1091,7 +1117,21 @@ REJECTS = {
 # Generated from golden/negpanel1/ (DR's transcripts) rather than transcribed by
 # hand, so the dict cannot drift from the evidence it summarizes; re-run
 # build/mk_neg_panel.py + oracle/batch.py --tag negpanel1 to regenerate.
+# [E2E-11 step 5] Q8: a procedure-only module returning FIXED DEC whose FORMAL is
+# plain FIXED -- `return (x)' needs DR's FIXED->DEC conversion (CALL ?QI15D).  DR
+# compiles it cleanly (golden/e2e148/Q8/Q8.REL), so this is MY gap, not a language
+# limit; it is registered as a negative only because the gate must see a [TBD]
+# refusal rather than a silently wrong cell.  The MODULE shape itself is fine --
+# Q9 (a DEC-returning module whose formal is already DEC(5,2)) is byte-exact --
+# which is what makes this a conversion gap rather than an entry-structure gap.
+REJECTS["Q8"] = (open("e14src/Q8.PLI", "rb").read().replace(b"\r\n", b"\n")
+                 .rstrip(b"\x1a").decode(), "non-decimal operand")
+
 NEG_META = {
+    "Q8": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted with CALL ?QI15D "
+     "(golden/e2e148/Q8/Q8.REL) -- missing route is FIXED -> DEC conversion, "
+     "not the module entry shape [Q9 is byte-exact]"),
     "N3_PAGE": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG25/NG25.REL)"),
     "N4_SKIPVAR": ("my-gap",

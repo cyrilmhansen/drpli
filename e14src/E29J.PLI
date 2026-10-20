@@ -1,0 +1,10 @@
+e29j:
+    procedure options(main);
+    declare y float;
+    declare a entry(float) returns(float) external;
+    put skip list('before call');
+    y = a(3.5);
+    put skip list('after call y =', y);
+    stop;
+end e29j;
+

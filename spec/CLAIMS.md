@@ -2323,3 +2323,69 @@ loudly with `[TBD]` naming the literal and the cause.  Blast radius of the event
 fix is exactly zero for existing work: **no gate specimen lacks `options(main)` (0 of
 390)**, and the corpus population is 25 files with main and 4 without -- `A`, `ACK`,
 `ACKTST`, `MPMCALLB` -- none of which is accepted, all four of which need this route.
+
+---
+
+## C136b — what else the procedure-only-module goldens pin (E2E-11 step 5)
+
+Added to C136 after implementing the route, because nine DR objects disagreed with
+three of my assumptions and each disagreement is now a byte-exact specimen:
+
+1. **END-PROGRAM's operand SEGMENT is the only header field that tells the two file
+   kinds apart.** Every MAIN specimen ends `LINK-END-PROGRAM code 0000`; a
+   procedure-only module ends `LINK-END-PROGRAM abs 0000`. The *value* is 0 in both
+   cases, so nothing else in the stream would reveal it -- a code-path guess about
+   "which address END-PROGRAM names" would have been invisible to every other check.
+2. **`stop;` inside a module emits its in-place `CALL ?STOPX` and STILL gets no
+   epilogue CALL** [Q6, `golden/e2e148/Q6`]: DEF-CODE-SIZE 0016 lands on the second
+   byte of the statement's own CALL operand. So the epilogue suppression is about
+   the file kind, not about `stop_seen`.
+3. **A module body ending in STOP gets NO trailing implicit RET** [Q6 vs Q2]. Q2
+   (no RETURNS, assignment last) does get one. The eight earlier no-RETURNS probes
+   (E25A/E24A/E25D/...) contain no STOP, so this is a new condition, and I scoped it
+   to the shape DR actually pinned: whether a *nested* procedure ending in STOP also
+   loses its RET remains unprobed, and nested lowering keeps the byte it always
+   emitted.
+4. **RETURNS(FIXED DEC) on a module uses the same exit family as a nested DEC
+   procedure** [Q9, `golden/e2e149/Q9`]: `CALL ?QI15D / MVI A,<scale> / CALL ?QDDSL
+   / JMP ?DCRET`. My earlier refusal assumed the nested exit might not carry to a
+   top-level module. It carries unchanged. Q8 -- the same shape with a *plain FIXED*
+   formal -- also compiles under DR but needs FIXED->DEC conversion my lowering does
+   not have, so it stays a `[TBD]` refusal registered in the negative panel as
+   my-gap.
+5. **A deduped formal's declared size is not its cost, for the outermost block too.**
+   DR's A has DATA AREA 0006 = a 4-byte MBF pool cell + `x`'s **2-byte pointer cell**,
+   not `declare x float`'s 4-byte cell. Q5 (formal + extra local) and Q7 (two formals)
+   pin that locals land immediately after the pointer cells. Charging the declared
+   cell gives +2 (fixed) / +4 (float) and shifts every later address, which is the
+   silent-shift failure class of C129, not a size-report nuisance.
+
+## C137 — LINK 1.31 does not search for cross-module PL/I references; it writes a .COM anyway (toolchain, E2E-11 step 5)
+
+**Statement.** With `A.REL` and `E29F.REL` both present on `D:`, `LINK D:E29F`
+(companion NOT named) reports
+
+```
+UNDEFINED SYMBOLS:
+A
+ABSOLUTE 0000 / CODE SIZE 1B13 / ...
+```
+
+and **still writes E29F.COM** (7808 bytes). That .COM runs, prints nothing, and
+exits rc=0. `LINK D:E29F,D:A` resolves `A 0208` and produces a *different* 8320-byte
+.COM that runs correctly. This is why DR's own corpus instructions for the
+MPMCALLA/MPMCALLB pair read `link mpmcalla,mpmcallb,mpmdio` -- every object is
+named. It is a toolchain rule, not a code-generation rule.
+
+**Evidence.** `golden/e2e153_l/link-batch0.transcript.txt` (unnamed, UNDEFINED
+SYMBOLS: A), `golden/e2e153_l4/link-batch0.transcript.txt` (named, `A 0208`), and the
+paired run outputs `golden/e2e150dr/E29F.output.txt` (1 byte, silent) vs
+`golden/e2e151dr/E29G.output.txt` (correct value after the link form was fixed).
+
+**Why it nearly misled me.** `oracle/linkrun.py` printed its per-name status from a
+`[:120]` slice of the link segment, which cut the report off immediately after
+`UNDEFINED SYMBOLS:` -- so the harness displayed a link that looked clean while it
+was naming an unresolved reference. A display limit is not evidence: the cap is now
+400 and the full segment is parsed for the undefined list, which prints
+`LINK-FAIL <n>: COM=True but UNDEFINED SYMBOLS: ...`. Any link-stage acceptance that
+checks only "did a .COM appear" accepts a broken program.

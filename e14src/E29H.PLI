@@ -1,0 +1,10 @@
+e29h:
+    procedure options(main);
+    declare y float;
+    y = 1.75;
+    put skip list('literal float =', y);
+    y = y / 2;
+    put skip list('half =', y);
+    stop;
+end e29h;
+

@@ -1,0 +1,11 @@
+e29i:
+    procedure options(main);
+    declare i fixed, j fixed;
+    declare b entry(fixed) returns(fixed) external;
+    do i = 0 to 4;
+       j = b(i);
+       put skip list('b(',i,') =',j);
+    end;
+    stop;
+end e29i;
+

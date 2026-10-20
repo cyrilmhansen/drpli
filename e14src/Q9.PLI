@@ -1,0 +1,6 @@
+a:
+  procedure(x) returns (fixed dec(5,2));
+  declare x fixed dec(5,2);
+  return (x);
+end a;
+

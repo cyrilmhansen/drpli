@@ -824,6 +824,31 @@ let bind_rows (blk : block) =
      - nested-procedure RETURNED cells occupy no storage (result in
        HL) [P401 DATA=8; P402 DATA=0x0E].
    Additive view for codegen; the $S byte path is untouched. *)
+(* [E2E-11 step 5] Does the OUTERMOST block name a procedure that is NOT the
+   program entry point?  DR compiles such a file as a plain callable module:
+   corpus program `A' (a: procedure(x) returns (float)) has no `LXI B,0200 /
+   CALL ?START' prologue at all, still carries LINK-DEF-PUBLIC code 0000 A, and
+   its entry sequence is the ordinary procedure copy-in (`5E 23 56 EB' + SHLD of
+   the incoming pointer) followed by `JMP' + CHAIN-EXT ?FPRET for the FLOAT
+   return [C136, golden/first/A].  The distinguishing feature is the ABSENCE of
+   OPTIONS(MAIN), not the absence of a name: every accepted specimen's outermost
+   block is a named procedure too, it just says options(main).
+
+   This is exported as ONE predicate because both layout passes have to agree
+   about it -- codegen's rows_of (auto-area size + variable offsets) and
+   bind_program (per-section pointer cells).  Two copies of the question is
+   exactly the C134 failure mode: if one said "procedure" and the other said
+   "main", the DATA size and the offsets would come from different models and
+   the addresses would disagree quietly. *)
+let top_is_proc (b : Ast.block) : bool =
+  b.Ast.bkind = Ast.Bproc
+  && b.Ast.bname <> None
+  && not
+       (List.exists
+          (fun (k, args) ->
+            String.equal (String.lowercase_ascii k) "main" && args = [])
+          b.Ast.bopts)
+
 type call_site =
   { cs_proc : string; cs_slot : int; cs_args : Ast.expr list
   ; cs_temps : int option list }  (* Some addr iff that arg is an expression *)
@@ -846,6 +871,17 @@ type prog_layout =
          P402: LXI B,8 ; LXI D,6 — two specimens; ACK/EXPR/DFACT
          corpus RELs carry more] *)
   ; pl_total : int                (* non-pool data bytes *)
+  ; (* [E2E-11 step 5] the OUTERMOST block, when it is a procedure-only module
+       (see top_is_proc / C136), laid out by the SAME section2 pass that handles
+       nested callees -- pointer cell per formal, declared formal dcl deduped
+       onto it, locals shifted after the pointer cells.  Some for such a module,
+       None for a MAIN program, so every existing consumer that treats the
+       outermost block as the main block is untouched.  It is ALSO a member of
+       pl_procs (so procedure lowering, prescan contexts and callee formal
+       lookup find it through the channels that already exist), and this field
+       exists so codegen's rows_of can ask "which layout authority applies to
+       my automatic area" without re-deriving the predicate. *)
+     pl_top : proc_layout option
   ; (* [E2E-11 step 4] EXTERNAL/ENTRY declarations, name -> (params, external_,
        returns, formal types).  bind already classifies these as RTentry, which
        is the classification DR's own $V symbol table prints (bind.ml:22 records
@@ -1188,7 +1224,30 @@ let bind_program (blk : Ast.block) : prog_layout =
         | _ -> acc)
       after b.bstmts
   in
-  let total = section2 blk 0 [] false false None in
+  (* [E2E-11 step 5] for a procedure-only module the outermost block is laid out
+     exactly as a callee is: formals from bparams, nm = Some name (which is what
+     turns on the formal-pointer cells AND the dedup of the declared formal dcl
+     onto them -- section2's `dedup' tests `nm <> None', so passing None would
+     silently charge A 4 bytes for `declare x float' where DR charges 2 for the
+     pointer cell, and its DATA area would come out 8 against DR's 6).
+     Deliberately refused here rather than guessed: a RECURSIVE or
+     RECURSIVE-attributed procedure-only module, because the shadow-cell +
+     SVBLK shape for a top-level module has no DR sample; and a module with more
+     than one entry-visible name whose dedup status would change the span, which
+     is not something the section formulas have been checked against. *)
+  let top_pl = ref None in
+  let total =
+    if top_is_proc blk then begin
+      let tn = pl_l (Option.get blk.Ast.bname) in
+      if has_attr blk.Ast.bsuffix "RECURSIVE" || is_rec tn blk then
+        failwith
+          (Printf.sprintf
+             "bind: procedure-only module %s is RECURSIVE [TBD: DR has no sample               of a shadow-cell/SVBLK prologue for a top-level module               (C136 covers non-recursive A only)]" tn);
+      let t = section2 blk 0 (List.map pl_l blk.bparams) false false (Some tn) in
+      top_pl := List.find_opt (fun (p : proc_layout) -> p.pl_name = tn) !pls;
+      t
+    end else section2 blk 0 [] false false None
+  in
   { pl_calls = !calls; pl_procs = !pls; pl_secs = !secs;
     pl_total = total
-  ; pl_exts = exts }
+  ; pl_exts = exts; pl_top = !top_pl }

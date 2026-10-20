@@ -1,0 +1,6 @@
+a:
+  procedure(x, y);
+  declare x fixed, y fixed;
+  x = y;
+end a;
+

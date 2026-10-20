@@ -1,0 +1,8 @@
+a:
+  procedure(x) returns (float);
+  declare x float;
+  declare y fixed;
+  y = 3;
+  return (x/2);
+end a;
+
