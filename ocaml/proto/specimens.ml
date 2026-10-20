@@ -161,3 +161,84 @@ let e25f : program =
           ins1 "ret" ret;
         ];
   }
+
+
+(* ---------------------------------------------------------------- E27C ----
+   TWO concurrent forward chains -- the case that decides whether the
+   resolution-point rule (C135) is per-chain or per-site.  DR emits:
+     code 0013: cd 00 00     call p1(a)   <- first (only) site of chain p1
+     code 0019: cd 00 00     call p2(b)   <- first (only) site of chain p2
+     ... CALL ?STOPX + CHAIN-EXT 001D ...
+     LINK-CHAIN-ADDR code 0014   <- p1's header, immediately before p1's body
+     <p1 body 001F-0032>
+     LINK-CHAIN-ADDR code 001A   <- p2's header, immediately before p2's body
+     <p2 body 0033-0047>
+   So: one header per CHAIN (each chain here has a single site), placed at each
+   chain's own resolution point, and the two are NOT emitted together at the end.
+   This is also why E25F (two sites, one target) produced one header whose second
+   site carried a RELOC CODE word instead of zeros -- the newest site is the head.
+ *)
+let e27c : program =
+  {
+    name = "E27C";
+    code_size = 0x48;
+    pub = true;
+    events =
+      hdr "E27C"
+      @ [
+          link_at t_def_data_size (Some (Abs, 0x0c));
+          set_lc Code 0;
+          ins2 "lxi b,200" lxi_b (I16 0x0200);
+          ins2 "call ?START" cd (CallSym "?START");
+          ins2 "lxi h,1" lxi_h (I16 1);
+          ins2 "shld a" shld (Rel (Data, 0));
+          ins1 "inx h" inx_h;
+          ins2 "shld b" shld (Rel (Data, 2));
+          DataWord (4, Rel (Data, 0));
+          set_lc Code 0x10;
+          ins2 "lxi h,*a(0004)" lxi_h (Rel (Data, 4));
+          ins2 "call p1" cd (CallFwd "p1");
+          DataWord (6, Rel (Data, 2));
+          set_lc Code 0x16;
+          ins2 "lxi h,*a(0006)" lxi_h (Rel (Data, 6));
+          ins2 "call p2" cd (CallFwd "p2");
+          ins2 "call ?STOPX" cd (CallSym "?STOPX");
+          Resolves "p1";
+          (* p1 body: x = x + 1 *)
+          ins1 "mov e,m" 0x5e;
+          ins1 "inx h" inx_h;
+          ins1 "mov l,m" 0x56;
+          ins1 "xchg" xchg;
+          ins2 "shld x" shld (Rel (Data, 8));
+          ins2 "lhld x" lhld (Rel (Data, 8));
+          ins1 "mov e,m" 0x5e;
+          ins1 "inx h" inx_h;
+          ins1 "mov l,m" 0x56;
+          ins1 "xchg" xchg;
+          ins1 "inx h" inx_h;
+          ins1 "xchg" xchg;
+          ins1 "mov m,d" mov_m_l;
+          ins1 "dcx h" dcx_h;
+          ins1 "mov m,e" 0x73;
+          ins1 "ret" ret;
+          Resolves "p2";
+          (* p2 body: y = y + 2 -- note 23 23, two INX H, not a runtime add *)
+          ins1 "mov e,m" 0x5e;
+          ins1 "inx h" inx_h;
+          ins1 "mov d,m" 0x56;
+          ins1 "xchg" xchg;
+          ins2 "shld y" shld (Rel (Data, 0x0a));
+          ins2 "lhld y" lhld (Rel (Data, 0x0a));
+          ins1 "mov e,m" 0x5e;
+          ins1 "inx h" inx_h;
+          ins1 "mov d,m" 0x56;
+          ins1 "xchg" xchg;
+          ins1 "inx h" inx_h;
+          ins1 "inx h" inx_h;
+          ins1 "xchg" xchg;
+          ins1 "mov m,d" mov_m_l;
+          ins1 "dcx h" dcx_h;
+          ins1 "mov m,e" 0x73;
+          ins1 "ret" ret;
+        ];
+  }

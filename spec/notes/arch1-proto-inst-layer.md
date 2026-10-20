@@ -109,11 +109,17 @@ That conclusion was wrong, and correcting it is the prototype's best result. Ask
   without ever saying so.
 
 So the model became two derived constructs (`CallFwd name`, `Resolves name`) and the
-`ChainItem` escape hatch was deleted. Final state:
+`ChainItem` escape hatch was deleted. The follow-up measurement this note asked for is
+also done: **E27C** — two concurrent forward chains (`call p1(a)`, `call p2(b)`, two
+procedures) — re-encodes byte-identically with zero hand-placed items, each header
+emitted at its own chain's resolution point rather than both at the end. That confirms
+`Resolves` is keyed per chain name and that C135's rule is not an artifact of the
+single-chain case. Final state for all three specimens:
 
 ```
-E29A   BYTE-IDENTICAL (128 bytes)  [chain items derived from operand class: 2 ; placed by hand: 0]
-E25F   BYTE-IDENTICAL (256 bytes)  [chain items derived from operand class: 2 ; placed by hand: 0]
+E29A   BYTE-IDENTICAL (128 bytes)  [fixups derived from operand class / chain rule: 2 ; placed by hand: 0]
+E25F   BYTE-IDENTICAL (256 bytes)  [fixups derived from operand class / chain rule: 5 ; placed by hand: 0]
+E27C   BYTE-IDENTICAL (256 bytes)  [fixups derived from operand class / chain rule: 6 ; placed by hand: 0]
 ```
 
 Everything in both files — including the record order of chain fixups — now comes from

@@ -99,8 +99,14 @@ let run (nm : string) (p : Inst80.program) (golden : string) =
         match ev with
         | Inst80.Ins i ->
             (match i.Inst80.arg with
-             | Some (Inst80.CallSym _) -> (d + 1, pl)
+             (* CallFwd sites also derive: they decide between absolute zeros
+                and a RELOC CODE chain link.  Counting only CallSym understated
+                what the representation is actually producing. *)
+             | Some (Inst80.CallSym _ | Inst80.CallFwd _) -> (d + 1, pl)
              | _ -> (d, pl))
+        | Inst80.Resolves _ ->
+            (* a CHAIN-ADDR header derived from the resolution-point rule *)
+            (d + 1, pl)
         | Inst80.ChainItem _ -> (d, pl + 1)
         | _ -> (d, pl))
       (0, 0) p.events
@@ -112,8 +118,8 @@ let run (nm : string) (p : Inst80.program) (golden : string) =
     match first_diff want got with
     | None ->
         Printf.printf
-          "%-6s BYTE-IDENTICAL (%d bytes)  [chain items derived from operand \
-           class: %d ; placed by hand: %d]%s\n"
+          "%-6s BYTE-IDENTICAL (%d bytes)  [fixups derived from operand \
+           class / chain rule: %d ; placed by hand: %d]%s\n"
           nm (Bytes.length want) derived placed
           (if placed > 0 then
              "   <-- the plan needed an escape hatch; see report below"
@@ -145,6 +151,8 @@ let () =
        Filename.concat root "golden/e2e143/E29A/E29A.REL");
       ("E25F", Specimens.e25f,
        Filename.concat root "golden/e2e123/E25F/E25F.REL");
+      ("E27C", Specimens.e27c,
+       Filename.concat root "golden/e2e129/E27C/E27C.REL");
     ];
   Printf.printf "\nNothing here writes a file; the goldens are read-only \
                  inputs.\n"
