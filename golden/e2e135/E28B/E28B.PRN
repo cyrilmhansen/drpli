@@ -1,0 +1,96 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E28B
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E28B
+
+   1 a 0000 t:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006   procedure options(main);
+   3 c 0006   dcl r fixed;
+   4 c 0006   r = mid(3, 5);
+       0006       LXI  H,* A(0006)
+       0009       CALL 0000
+       000C       SHLD R A(0004)
+   5 c 000F   put skip list(r);
+       000F       LXI  D,0252
+       0012       LXI  B,0000
+       0015       CALL ?SYSPR
+       0018       MVI  A,01
+       001A       CALL ?SKPOP
+       001D       LHLD R A(0004)
+       0020       MVI  A,09
+       0022       CALL ?QICOP
+       0025       CALL ?PNVOP
+       0028       CALL ?QIOOP
+       0013       ==== 002B
+   6 c 002B   stop;
+       002B       CALL ?STOPX
+   7 c 002E   f2: procedure (a,b) returns(fixed);
+   8 e 002E      dcl (a,b) fixed;
+       002E       LXI  D,A A(000A)
+       0031       MVI  C,04
+       0033       MOV  A,M
+       0034       INX  H
+       0035       STAX D
+       0036       INX  D
+       0037       DCR  C
+       0038       JNZ  0033
+   9 e 003B      return (a * 10 + b);
+       003B       LHLD A A(000A)
+       003E       MOV  E,M
+       003F       INX  H
+       0040       MOV  D,M
+       0041       XCHG 
+       0042       LXI  D,000A
+       0045       CALL ?IM22N
+       0048       PUSH H
+       0049       LHLD B A(000C)
+       004C       MOV  E,M
+       004D       INX  H
+       004E       MOV  D,M
+       004F       XCHG 
+       0050       POP  D
+       0051       DAD  D
+       0052       RET  
+  10 c 0053   end f2;
+  11 c 0053   mid: procedure (p,q) returns(fixed);
+  12 e 0053      dcl (p,q) fixed;
+       0053       LXI  D,P A(000E)
+       0056       MVI  C,04
+       0058       MOV  A,M
+       0059       INX  H
+       005A       STAX D
+       005B       INX  D
+       005C       DCR  C
+       005D       JNZ  0058
+  13 e 0060      return (f2(q, p));
+       0060       LHLD Q A(0010)
+       0063       SHLD * A(0012)
+       0066       LHLD P A(000E)
+       0069       SHLD * A(0014)
+       006C       LXI  H,* A(0012)
+       006F       CALL F2
+       0072       RET  
+  14 c 0073   end mid;
+  15 a 0073 end t;
+
+CODE SIZE = 0073
+DATA AREA = 0016
+FREE SYMS = 37F5
+END  COMPILATION
+

@@ -37,20 +37,30 @@ confirmed reuse rather than an assumption.
 | compare against a pointer formal | E25B, E25E, E26F, E26G | C128 |
 | exhaustive statement walkers | all | C129 |
 
-## Verification beyond `.REL` byte identity
+## Verification beyond `.REL` byte identity -- including a retraction
 
-C123 is the reason this matters. My first chained every later forward site against
-the FIRST slot; E25F (two sites) was byte-identical and *still linked to a wrong
-address* — `reldump` showed matching records, DR's LINK put 011F in both operand
-words, mine put 0114 in the second. E27A (three sites) is what exposed the actual
-rule: each later site relocates against the *immediately preceding* site.
+C123 is the reason this matters, and my first write-up of it was wrong in a way
+worth keeping on the record.  I claimed my wrong anchoring rule produced a
+byte-identical E25F that nevertheless linked to a wrong address, and that a
+two-site program cannot distinguish "against the first" from "against the
+previous".  That sentence is self-contradictory: identical raw `.REL` linked under
+identical conditions cannot yield different `.COM`.  The `.COM` difference was
+proof that the `.REL` differed, so "byte-identical" was the error.
 
-So for the 16 CALL specimens I ran the full protocol: compile (`.REL` byte-exact
-against DR) → link my own `.REL` with DR's LINK-80 → compare the resulting `.COM`
-byte-for-byte (**16/16 identical**, sizes 640–7680 B) → execute under cpmsim
-(**16/16 rc=0**). Spot-checked the one program with visible output: E25C's
-`put skip list('x')` from inside the callee produced `0a 78 0a`.
+Reproduced in a throwaway worktree by removing only the re-anchoring line: E25F
+differs at byte 105 (`LINK-CHAIN-ADDR` target `0014` vs DR's `001A`), E27A at
+bytes 109/124/125.  Two sites discriminate perfectly.  The reason I believed
+otherwise is that `tools/reldump.py` printed LINK records' address field only for
+`int` values, while they are `(SEGMENT, ADDRESS)` tuples -- so the one number that
+identifies the chain target was silently omitted and `LINK-CHAIN-ADDR  None` looked
+the same in both files.  Fixed in the tool, and the diff now shows it directly.
 
+Generalized lesson: **a decoded dump is a claim about what matters.**  Comparing
+through my own decoder rather than against raw bytes let a suppressed field define
+the notion of "same".  Byte identity via `cmp` stays the criterion; decoded dumps
+are for understanding a difference, never for asserting absence of one.
+
+The rule itself was right and is corroborated the way I originally described:
 Because the `.COM` bytes match, output equality against DR is implied rather than
 demonstrated separately; I note that explicitly instead of claiming a second
 evidence class I did not produce.

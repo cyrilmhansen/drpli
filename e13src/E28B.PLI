@@ -1,0 +1,16 @@
+t:
+  procedure options(main);
+  dcl r fixed;
+  r = mid(3, 5);
+  put skip list(r);
+  stop;
+  f2: procedure (a,b) returns(fixed);
+     dcl (a,b) fixed;
+     return (a * 10 + b);
+  end f2;
+  mid: procedure (p,q) returns(fixed);
+     dcl (p,q) fixed;
+     return (f2(q, p));
+  end mid;
+end t;
+

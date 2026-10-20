@@ -1855,19 +1855,37 @@ E25F (two sites) agrees: chain on 001A, second site relocated against 0014.  Wit
 a single site -- every accepted specimen before this -- "last" is "that one", so
 the old behaviour is a special case of the new rule, not a contradiction of it.
 
-**Verified beyond the bits.** This claim was earned the hard way.  My first
-version chained every later site against the FIRST slot, and E25F came out
-byte-identical -- a two-site program cannot distinguish "against the first" from
-"against the previous".  It was also byte-identical at the record level while
-linking to a WRONG address: `reldump` showed matching records, but DR's LINK put
-011F in both operand words and my link put 0114 in the second.  So the check that
-matters is not the `.REL` bytes but the resolved operands: E25F and E27A were
-linked through DR's LINK from my own `.REL`, and the resulting `.COM` files are
-byte-identical to DR's (640 B each, every CALL operand = the callee entry), then
-run under cpmsim to rc=0.
+**Verified beyond the bits, and one statement of mine that was false.** I
+originally wrote that my wrong version "was byte-identical at the record level
+while linking to a WRONG address", and that "a two-site program cannot distinguish
+'against the first' from 'against the previous'".  Both halves were wrong, and the
+first is self-contradictory: two identical raw `.REL` files linked under identical
+conditions cannot produce different `.COM` images, so a `.COM` difference *proved*
+the `.REL` differed and my "byte-identical" was the mistake.
 
-**Consequence.** Corroborated; matters directly for the corpus -- ENTER calls
-`write_it` twice and REVERSE calls `read_it`/`write_it` repeatedly.
+I reproduced it by reverting just the re-anchoring line in a throwaway worktree and
+comparing against the pinned goldens with the wrong rule in place:
+
+| specimen | sites | raw bytes vs DR | where |
+|---|---|---|---|
+| E25F | 2 | **DIFFERS** (byte 105) | `LINK-CHAIN-ADDR` target `0014` instead of `001A` |
+| E27A | 3 | **DIFFERS** (bytes 109, 124, 125) | chain target, plus one code `RELOC` constant `0x18` vs `0x1e` |
+
+So E25F alone *did* discriminate.  What made the difference invisible was my own
+tool: `tools/reldump.py` formats a record's address field only when it is an `int`,
+and every LINK record carries a `(SEGMENT, ADDRESS)` **tuple** -- so
+`LINK-CHAIN-ADDRESS` printed as `LINK-CHAIN-ADDR  None` with the one number that
+identifies the chain target suppressed.  Two files whose chain targets differed
+printed identically, and I trusted the dump over `cmp`.  The formatter now prints
+tuple address fields (and re-running the diff shows `code 0014` vs `code 001A`
+directly), which is the actual fix: a decoder that hides the discriminating field
+turns a passing `cmp` into a false "looks the same".
+
+The rule itself is unchanged and stands as stated above, corroborated by linking my
+own `.REL` for E25F/E27A and comparing the resolved `.COM` operands with DR.  What
+changes is the provenance: the linker comparison was a *second* witness, not the
+first, and the reason the bug survived my first look was tool blindness, not
+insufficient test coverage.
 
 ## C124 — a zero-argument call has no descriptor and no LXI H at all (E2E-11 step 3)
 
@@ -2003,3 +2021,45 @@ error.  Removing a catch-all turned out to bite immediately in the other directi
 `own` and `kids` are separate matches over the same statement, so `Sdobegin`,
 `Sstop None` and friends fell through to `Match_failure` -- a runtime crash, not a
 type error, and the fix is to list the sub-block-only statements in both matches.
+
+## C130 — forwarding a pointer formal as an actual writes the descriptor at RUNTIME (E2E-11 step 3c)
+
+**Statement.** When the actual argument of a CALL is itself a pointer formal of the
+calling procedure, DR cannot emit a static descriptor word: the value the callee
+needs is the address the formal already holds, which is dynamic.  So the 2-byte
+descriptor operand is *replaced* by three instructions plus a store, and the
+descriptor pointer is unchanged:
+
+```
+t1: procedure (y) ...  call s(y);
+      003A LHLD Y A(000A)     <- the formal's VALUE, not the address of Y
+      003D SHLD A(0012)       <- into the descriptor cell, at runtime
+      0040 LXI H, A(0012)     <- unchanged: the call still points at the block
+      0043 CALL S
+```
+
+Two consequences that mattered.  First, the forwarding route carries **no
+`SET-LC` records**, where the static route wraps each operand in a `SET-LC` pair --
+so the difference is not just "load instead of constant" but a different record
+shape.  Second, `slot` in this path is already an absolute DATA address: my first
+version added `st.base` to it, which wrote the descriptor cells 4 bytes past the
+block my own `LXI H` pointed at, and the file was internally inconsistent in a way
+no comparison with DR could excuse.
+
+Statement and expression position behave the same as everywhere else in C122:
+E27B (`call s(y);`) and E28A (`return (f2(q, p));`) both forward.
+
+**Semantic witnesses, not just bytes.** E28A's `f2` returns `a + b`, which is
+commutative and therefore *cannot* detect a swapped argument order -- so I wrote
+E28B, where `f2` returns `a * 10 + b`: the linked program prints **53**, and a swap
+would print 35.  E28C checks the other failure mode: `b = 2; call t1(b);` where
+`t1` forwards `y` into `s`, which does `x = x + 1`; the program prints **3**, so the
+mutation reaches the original caller's cell two levels up, where a silently
+*copying* forwarding would leave 2.  Both `.REL` byte-exact against DR, both `.COM`
+byte-identical, both run rc=0.
+
+**N54_FORMAL_PASSTHRU retired** (6th instance of the pattern after N56, N63-N66,
+N77, N55): it was a capability-gap negative whose subject DR compiles.  I checked
+DR's verdict before touching it -- `golden/e2e133/E28A` exists and my output is
+byte-identical -- and only then converted the source into a positive specimen.  The
+negative panel goes 68 -> 67 with 379 -> 381 positives.

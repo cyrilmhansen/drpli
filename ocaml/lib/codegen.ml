@@ -1512,6 +1512,10 @@ let rec lower_hl st (e : Ast.expr) =
                let pairs =
                  List.combine cs.Bind.cs_args cs.Bind.cs_temps
                in
+               (* set per argument when the actual is a pointer formal of the
+                  CALLING scope, i.e. the descriptor word needs DR's dynamic
+                  forwarding store [E27B] instead of a static address operand *)
+               let fwd = ref (None : string option) in
                (* the callee's formal type at each position, so an argument
                   can be MODE-CHECKED [E2E-9]: DR's only pinned decimal
                   argument route is by-reference from an AUTOMATIC decimal
@@ -1603,6 +1607,7 @@ let rec lower_hl st (e : Ast.expr) =
                         lower_hl st arg;
                         d st op_shld; reloc st Data (t + st.base)
                     | None -> ());
+                   fwd := None;
                    let target =
                      match tmp with
                      | Some t -> t + st.base
@@ -1630,20 +1635,50 @@ let rec lower_hl st (e : Ast.expr) =
                              let vn =
                                String.lowercase_ascii v.Ast.orig
                              in
-                             if List.mem vn st.deref then
-                               failwith
-                                 ("codegen: pointer-formal call argument " ^
-                                  "unproven [TBD]");
-                             addr_of st v.Ast.orig
+                             if List.mem vn st.deref then begin
+                               (* [E2E-11 step 3c, E27B] forwarding a pointer
+                                  formal as an actual: DR writes the descriptor
+                                  word at RUNTIME, because what the caller must
+                                  hand over is the ADDRESS THE FORMAL ALREADY
+                                  HOLDS (the original variable), which is not
+                                  statically known.  E27B inside t(y):
+                                      003A LHLD Y A(000A)   <- the value, not &y
+                                      003D SHLD * A(000C)   <- into the desc cell
+                                      0040 LXI H,* A(000C)
+                                      0043 CALL S
+                                  so the static 2-byte operand is REPLACED by
+                                  those three code bytes.  Marked through the
+                                  ref below; target is unused in that case. *)
+                               fwd := Some vn;
+                               0
+                             end else addr_of st v.Ast.orig
                          | _ ->
                              failwith
                                ("codegen: expression call argument " ^
                                 "deferred [TBD]")
                        end
                    in
-                   link st t_set_lc (Some (Data, slot + 2 * i)) None;
-                   push st (Reloc (Data, target));
-                   link st t_set_lc (Some (Code, st.lc)) None)
+                   match !fwd with
+                   | Some fv ->
+                       (* [E27B] and NO SET-LC records on either side: the .REL
+                          shows a bare RELOC(DATA,000C) for the SHLD and another
+                          for the following LXI H, where the static route wraps
+                          its operand in SET-LC pairs.  Line 003D..0040 of
+                          E27B.PRN / the record stream is the evidence. *)
+                       d st op_lhld; reloc st Data (addr_of st fv);
+                       (* `slot' is ALREADY an absolute DATA address here -- the
+                          LXI H operand below relocates against it unshifted --
+                          so adding st.base double-counted the pool base and my
+                          stores wrote cells 4 bytes past the descriptor my own
+                          LXI H pointed at.  E28A caught it only because the two
+                          SHLD operands and the LXI H operand are three views of
+                          one address: mine disagreed with themselves, which no
+                          comparison against DR could ever have to forgive. *)
+                       d st op_shld; reloc st Data (slot + 2 * i)
+                   | None ->
+                       link st t_set_lc (Some (Data, slot + 2 * i)) None;
+                       push st (Reloc (Data, target));
+                       link st t_set_lc (Some (Code, st.lc)) None)
                  pairs;
                (* [E2E-11/CALL, E24A/E24J] a zero-argument call has NO
                   descriptor and no `LXI H` at all -- `call q;` and `n = f();`

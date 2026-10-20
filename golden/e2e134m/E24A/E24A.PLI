@@ -1,0 +1,18 @@
+e24a:
+    procedure options(main);
+    declare n fixed;
+    call q;
+    n = f();
+    stop;
+    q: procedure;
+       declare k fixed;
+       k = 1;
+    end q;
+    f: procedure returns(fixed);
+       declare j fixed;
+       j = 2;
+       return (j);
+    end f;
+end e24a;
+
+

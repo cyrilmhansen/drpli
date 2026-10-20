@@ -1,0 +1,14 @@
+e26c:
+    procedure options(main);
+    declare (a, b) fixed;
+    a = 7;
+    b = 9;
+    call w(a, b);
+    stop;
+    w: procedure (x, y);
+       declare (x, y) fixed;
+       x = y;
+    end w;
+end e26c;
+
+

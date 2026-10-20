@@ -96,6 +96,7 @@ claims C119-C121.
 | compare vs a **pointer formal** | deref prefixed to the bias ladder; `>0` uses memory `XRA A/CMP M/INX H/SBB M/JP`; two-variable pairs plain-first with `PUSH H`/`POP D` | **byte-exact** | E25B, E25E, E26F, E26G, C128 |
 | DEC/FLOAT formal store (`q = r;` on a pass-by-ref formal) | DEC `?DLDOP`/`?DSTOP` through the pointer; FLOAT `PUSH H/POP D/CALL ?FX44M` | refuses (**my gap — DR compiles it**) | E26J, E26K, N55 (5th instance of the negative-subject-DR-compiles pattern) |
 | label definition | **ends HL-constant reuse** (next constant reloads with LXI H) | **byte-exact** | E25G, C126 |
+| **forwarding a pointer formal** as an actual (`call s(y)` in `t(y)`) | descriptor word written at RUNTIME: `LHLD Y / SHLD desc / LXI H,desc / CALL`, **no SET-LC pair**, no static operand | **byte-exact + .COM-identical + semantically checked** | E27B, E28A, E28B (order), E28C (mutation), C130 |
 | bit-to-bit copy `g = f;` | DR compiles | refuses (perimeter) | T1, N74, golden/e2e11u/T1 |
 | `bit(5)` cell + copy `b = c;` | DR compiles | refuses (perimeter) | T2, N75, .../T2 |
 | bare `if f then` on a bit | DR compiles | refuses (perimeter) | T4, N77, .../T4 |

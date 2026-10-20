@@ -93,7 +93,23 @@ def decode(path, verbose=True):
     if verbose:
         print(f'===== {path} ({len(d)} bytes, bits consumed {br.p}/{len(d)*8})')
         for st, kind, s, a, v in items:
-            print(f'  @{st:5} {kind:14} {s if s else ""} {("%04X" % a) if isinstance(a,int) else ""} {v if not isinstance(v,int) else hex(v)}')
+            # [E2E-11 step 3b fix] the `a' slot holds a (SEGMENT, ADDRESS) tuple
+            # for every LINK record whose payload is an address -- including
+            # LINK-CHAIN-ADDRESS, whose target word is the ONLY thing that says
+            # which forward CALL site the chain hangs from.  The old formatter
+            # tested isinstance(a, int), so a tuple printed as nothing at all and
+            # two files whose chain targets differed looked IDENTICAL in this
+            # dump while `cmp` said they differed.  That blind spot is what made
+            # me write down a false claim about E25F (see CLAIMS C123).
+            if isinstance(a, tuple):
+                af = "%s %04X" % (str(a[0]), a[1])
+            elif isinstance(a, int):
+                af = "%04X" % a
+            elif a is None:
+                af = ""
+            else:
+                af = str(a)
+            print(f'  @{st:5} {kind:14} {s if s else ""} {af} {v if not isinstance(v,int) else hex(v)}')
     return items, data_bytes
 
 if __name__ == '__main__':

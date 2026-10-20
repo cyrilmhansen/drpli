@@ -1,0 +1,17 @@
+t:
+  procedure options(main);
+  dcl b fixed;
+  b = 2;
+  call t1(b);
+  put skip list(b);
+  stop;
+  s: procedure (x);
+     dcl x fixed;
+     x = x + 1;
+  end s;
+  t1: procedure (y);
+     dcl y fixed;
+     call s(y);
+  end t1;
+end t;
+

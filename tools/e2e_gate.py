@@ -473,7 +473,20 @@ SPECIMENS = {
     "E26G": ("e13src/E26G.PLI", "golden/e2e125/E26G/E26G.REL"),
     "E26H": ("e13src/E26H.PLI", "golden/e2e126/E26H/E26H.REL"),
     "E27A": ("e13src/E27A.PLI", "golden/e2e129/E27A/E27A.REL"),
-    "E27C": ("e13src/E27C.PLI", "golden/e2e129/E27C/E27C.REL"),
+    "E27C": ("e13src/E27C.PLI", "golden/e2e129/E27C/E27C.REL"),    # [E2E-11 step 3c] forwarding a pointer formal as an actual.  DR writes the
+    # descriptor word at RUNTIME (LHLD formal / SHLD descriptor) because the value
+    # handed to the callee is the address the formal already holds.  E27B is the
+    # statement form, E28A the expression form (ex-N54) -- and E28A has an
+    # independently computable answer: mid(3,5) = f2(5,3) = 8, so its runtime
+    # output checks the forwarding rather than merely matching DR's bytes.
+    "E27B": ("e13src/E27B.PLI", "golden/e2e129/E27B/E27B.REL"),
+    "E28A": ("e13src/E28A.PLI", "golden/e2e133/E28A/E28A.REL"),    # [E2E-11 step 3c] the two SEMANTIC witnesses for forwarding, both run:
+    # E28B's f2 returns a*10+b, so 53 proves the forwarded argument ORDER (a swap
+    # gives 35, and E28A's a+b cannot distinguish them at all); E28C mutates b two
+    # levels down through a forwarded pointer, so 3 proves the descriptor reaches
+    # the ORIGINAL caller's cell (2 would mean the forwarding silently copied).
+    "E28B": ("e13src/E28B.PLI", "golden/e2e135/E28B/E28B.REL"),
+    "E28C": ("e13src/E28C.PLI", "golden/e2e135/E28C/E28C.REL"),
 
     "E24F": ("e13src/E24F.PLI", "golden/e2e121/E24F/E24F.REL"),
     "E24J": ("e13src/E24J.PLI", "golden/e2e122/E24J/E24J.REL"),
@@ -845,14 +858,12 @@ REJECTS = {
         "     dcl (q,w) fixed dec(9,2);\n     if q = 0 & w = 0 then stop;\n"
         "     return (q);\n  end g;\nend t;\n",
         "FIXED DECIMAL formal as a conjunction operand is unproven"),
-    "N54_FORMAL_PASSTHRU": (
-        "t:\n  procedure options(main);\n  dcl r fixed;\n  r = mid(3, 5);\n"
-        "  put skip list(r);\n  stop;\n"
-        "  f2: procedure (a,b) returns(fixed);\n     dcl (a,b) fixed;\n"
-        "     return (a + b);\n  end f2;\n"
-        "  mid: procedure (p,q) returns(fixed);\n     dcl (p,q) fixed;\n"
-        "     return (f2(q, p));\n  end mid;\nend t;\n",
-        "pointer-formal call argument unproven"),
+    # [E2E-11 step 3c] N54_FORMAL_PASSTHRU RETIRED.  It was a capability-gap
+    # negative: DR compiles `return (f2(q, p));' -- passing pointer formals on as
+    # actuals -- and emits a .REL (golden/e2e133/E28A).  Sixth instance of the
+    # "negative whose subject DR compiles" pattern (N56, N63-N66, N77, N55).  The
+    # source is now a POSITIVE specimen, E28A, byte-exact, and the forwarding
+    # lowering it needed is E27B's.
     "N55_FORMAL_STORE": (
         "t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n"
         "  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  y = 2.5;\n"
