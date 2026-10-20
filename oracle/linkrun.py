@@ -175,6 +175,78 @@ SAME_TAG_OBJS = {
 NO_EXTRA = bool(os.environ.get("LINK_NO_EXTRA"))
 
 
+def parse_undefined(seg_text):
+    """[E2E-12/C137] The undefined-symbol list LINK 1.31 prints for one program's
+    link segment, or [] if it reported none.  Extracted from link() so the
+    detection has a pinned regression test: LINK writes a .COM even when a
+    cross-module reference is UNRESOLVED, so 'a .COM appeared' is not a pass, and
+    the one signal that distinguishes success from a broken program is this list.
+    seg_text must be the FULL segment (carriage returns already normalised), not
+    the truncated display string -- a [:120] slice of the real transcript ends
+    exactly at 'UNDEFINED SYMBOLS:' and therefore reads as clean."""
+    m = re.search(r"UNDEFINED SYMBOLS:\s*\n(.*?)(?:\n\s*ABSOLUTE|\Z)",
+                  seg_text, re.S)
+    return re.findall(r"[A-Za-z][A-Za-z0-9$.]{0,7}", m.group(1)) if m else []
+
+
+def selftest():
+    """C137 regression, pinned to the two stored link transcripts (golden/e2e153_l3
+    = companion NOT named, golden/e2e153_l4 = companion named).  Both produced a
+    .COM; only one is usable.  If the detection ever stops separating them, the
+    link stage would silently accept a program that dies at runtime -- which is
+    exactly what happened here before the list was parsed."""
+    cases = [
+        ("golden/e2e153_l3/link-batch0.transcript.txt", "E29F", ["A"],
+         "companion NOT named on the LINK command line"),
+        ("golden/e2e153_l4/link-batch0.transcript.txt", "E29F", [],
+         "companion named (LINK D:E29F,D:A)"),
+    ]
+    bad = 0
+    for path, name, expect, why in cases:
+        full = os.path.join(PROJ, path)
+        if not os.path.exists(full):
+            print(f"UNDEF-SELFTEST FAIL: missing pinned transcript {path}")
+            bad += 1
+            continue
+        tr = open(full, encoding="utf-8", errors="replace").read()
+        seg = re.search(rf">>> LINK D:{re.escape(name)}(.*?)(?=>>> |\Z)",
+                        tr, re.S)
+        if not seg:
+            print(f"UNDEF-SELFTEST FAIL: no link segment for {name} in {path}")
+            bad += 1
+            continue
+        got = parse_undefined(re.sub(r"\r+\n", "\n", seg.group(1)))
+        ok = got == expect
+        print(f"{'OK  ' if ok else 'FAIL'} undefined_symbols({os.path.basename(os.path.dirname(full))})"
+              f" = {got or '[]'}  expected {expect or '[]'}  [{why}]")
+        if not ok:
+            bad += 1
+    # The detector must not depend on what the DISPLAY shows.  This is the actual
+    # lesson, and it is stronger than the one I first wrote down: I claimed the old
+    # [:120] status cap hid the symbol name, but the transcript that produced that
+    # reading (the first e2e150dl link) was OVERWRITTEN when I re-linked with
+    # --reuse, and the surviving broken-link transcript puts `A' at character 110 --
+    # INSIDE the old cap.  So that mechanism is not pinned by any artifact I still
+    # have, and asserting it here would have been me testing a story instead of
+    # testing the code.  What is verifiable, and what matters, is that the parser is
+    # independent of presentation: a segment whose header line is long enough to push
+    # the symbol past any display window must still be detected.
+    synth = ("LINK D:X\n\nLINK 1.31\n\nPLILIB   RQST   X     0100   "
+             + ("/SYSIN/  1C77   " * 12)
+             + "\n\nUNDEFINED SYMBOLS:\n\nQ       \n\nABSOLUTE     0000\n")
+    found = parse_undefined(synth)
+    visible = "Q" in synth[:120].split("UNDEFINED SYMBOLS")[-1] if False else \
+        bool(re.search(r"\bQ\b", synth[:120].split("UNDEFINED SYMBOLS")[-1]))
+    ok = found == ["Q"] and not visible
+    print(f"{'OK  ' if ok else 'FAIL'} display-independence: symbol at char "
+          f"{synth.index(chr(10) + 'Q')} is beyond the old 120-char status window "
+          f"and parse_undefined still returns {found}")
+    if not ok:
+        bad += 1
+
+    return bad
+
+
 def link(ws, names, intag, outtag, batch, reuse):
     out = Output(os.path.join(PROJ, "golden"), outtag, allow_reuse=reuse)
     src_rel = os.path.join(PROJ, "golden", intag)
@@ -369,8 +441,13 @@ def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None):
 
 
 def main():
+    # [E2E-12/C137] The selftest reads pinned transcripts only: no emulator, no
+    # workspace, no tag.  It therefore has to be dispatched BEFORE argparse, whose
+    # --tag/--out are required for the stages that do need them.
+    if len(sys.argv) > 1 and sys.argv[1] == "selftest":
+        sys.exit(1 if selftest() else 0)
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=["link", "run", "asm"])
+    ap.add_argument("stage", choices=["link", "run", "asm", "selftest"])
     ap.add_argument("--tag", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--names", nargs="*")

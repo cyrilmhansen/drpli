@@ -1,0 +1,14 @@
+a:
+    procedure options(main);
+    declare r fixed, q fixed;
+    q = 3;
+    r = g(q);
+    put skip list(r);
+    stop;
+
+    g: procedure(n) returns(fixed);
+    declare n fixed;
+    return (n + 3);
+    end g;
+end a;
+

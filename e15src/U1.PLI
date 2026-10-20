@@ -1,0 +1,14 @@
+a:
+    procedure options(main,stack(2000));
+    declare r fixed;
+    r = sum(100);
+    put skip list('sum(100) =', r);
+    stop;
+
+    sum: procedure(n) returns(fixed) recursive;
+    declare n fixed, t fixed;
+    if n = 0 then return (0);
+    t = n;
+    return (t + sum(n - 1));
+    end sum;
+end a;

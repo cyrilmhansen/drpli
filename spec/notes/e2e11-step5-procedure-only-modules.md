@@ -164,12 +164,28 @@ specimens untouched — measured before implementing: 0 of 390 lacked `OPTIONS(M
 | file | status | first refusal |
 |---|---|---|
 | A | **accepted** (REL + integration) | — |
-| ACK | refused | `OPTIONS(STACK(...))` on the outer block — moves code/data, no golden pins it |
-| ACKTST | refused | same |
 | MPMCALLB | refused | `STATIC on CHAR(27)` — C114 places statics below the pool but only BIT(1) initialiser bytes are measured |
 
-So the entry route was a shared prerequisite, and it is now through; each of the
-remaining three has its own independent blocker, none of which is the entry structure.
+**CORRECTION (E2E-12).** The two rows this note gave for `ACK` and `ACKTST` --
+"`OPTIONS(STACK(...))` on the outer block", and the earlier claim in
+`e2e11-step5-gap-ranking.md` that four corpus files (A, ACK, ACKTST, MPMCALLB) are
+procedure-only and all four need the entry route -- were **wrong**, and wrong for a
+mechanical reason: I classified files with `'options(main)' in text`.  Both ACK and
+ACKTST actually read
+
+```
+procedure options(main,stack(2000));
+```
+
+which **does** contain OPTIONS(MAIN); the substring test just cannot see a multi-option
+list.  So the procedure-only population of the corpus is **2 files, not 4** -- A (accepted)
+and MPMCALLB -- and the entry route was never a prerequisite for ACK/ACKTST.  After STACK
+was implemented (C138) their first refusals moved to PUT forms: ACK needs the generate
+form inside PUT LIST (`put skip list('   ', (decimal(n,4) do n=0 to maxn));`), ACKTST
+needs a counted format group (`put edit(...)(skip,a,2(f(2),a),f(6),...)`).  Neither is
+close.  Lesson kept: string-matching on source text is not a parser, and "first refusal"
+is an artifact of *check ordering* -- my block-option check runs before statement
+lowering, which hid two deeper blockers behind a shallow one.
 `CALL.PLI` is the corpus program that pairs with `A` (`declare a entry(float)
 returns(float)` plus an internal `b`, through a `f(3) entry(...) variable` function
 array) — that array form is a separate unprobed lowering, and E29F/E29G were written as

@@ -2382,10 +2382,128 @@ SYMBOLS: A), `golden/e2e153_l4/link-batch0.transcript.txt` (named, `A 0208`), an
 paired run outputs `golden/e2e150dr/E29F.output.txt` (1 byte, silent) vs
 `golden/e2e151dr/E29G.output.txt` (correct value after the link form was fixed).
 
-**Why it nearly misled me.** `oracle/linkrun.py` printed its per-name status from a
-`[:120]` slice of the link segment, which cut the report off immediately after
-`UNDEFINED SYMBOLS:` -- so the harness displayed a link that looked clean while it
-was naming an unresolved reference. A display limit is not evidence: the cap is now
-400 and the full segment is parsed for the undefined list, which prints
-`LINK-FAIL <n>: COM=True but UNDEFINED SYMBOLS: ...`. Any link-stage acceptance that
-checks only "did a .COM appear" accepts a broken program.
+**What the harness got wrong, stated accurately (E2E-12 correction).**  I first wrote
+that the `[:120]` status slice "cut the report off immediately after `UNDEFINED
+SYMBOLS:', so the link looked clean.  That is not supportable: the surviving broken-link
+transcript (`golden/e2e153_l3`) puts the symbol name at character 110 -- INSIDE the old
+cap -- and the transcript that produced my original reading was overwritten when I
+re-linked with `--reuse`.  What I observed was real (a status line that appeared clean
+while LINK was reporting an unresolved reference), but the mechanism I attributed it to
+is not pinned by any surviving artifact.  The claim that stands is the operational one:
+**the harness's verdict must not depend on how much of LINK's report it chooses to
+display.**  `parse_undefined()` therefore reads the FULL segment, the display cap is
+400, and `oracle/linkrun.py selftest` pins both -- including a synthetic segment whose
+symbol sits at character 263, beyond any display window.  Any link-stage acceptance that
+checks only "did a .COM appear" accepts a broken program; that part was, and remains,
+the actual defect.
+---
+
+## C138 — OPTIONS(STACK(n)) is exactly one 16-bit operand in the MAIN prologue, and it is the runtime stack (E2E-12)
+
+**Statement.** For a block carrying `OPTIONS(STACK(n))`, DR emits the main prologue
+`LXI B,dade` with `dade` = n (little-endian), where the no-option default is `0200`
+(512).  Nothing else in the record stream changes.  Measured over twelve DR objects:
+
+| probe | option | prologue |
+|---|---|---|
+| ST1 | `options(main)` | `01 00 02` = 512 |
+| ST2 | `main,stack(2000)` | `01 d0 07` = 2000 |
+| ST3 | `main,stack(100)` | `01 64 00` = 100 (leading zero byte is real) |
+| ST12 | `main,stack(1)` | `01 01 00` = 1 |
+| ST4 | `main,stack(65535)` | `01 ff ff` = 65535, **accepted** |
+| ST6 | `main,stack(0)` | `01 00 02` = **the default, not 0** |
+| ST9 | `options(stack(2000),main)` | same as ST2 (order-independent) |
+| ST15 | + nested RECURSIVE procedure | same operand; shadow/SVBLK untouched |
+| ST7 | procedure-only **module**, `options(stack(2000))` | **no trace at all** |
+| ST5 | `stack(65536)` | DR pass-1 ERROR, **no .REL** |
+| ST10 | `stack(2*1000)` | DR pass-1 ERROR, **no .REL** |
+
+ST7 vs ST11 (the same module with no STACK) are **byte-identical**: on a file with no
+main prologue DR silently drops the option -- it is not an error, and there is no other
+field where the value can hide.
+
+**It is the runtime stack, measured semantically.** Same source, only the option
+differs, recursion depth varied (`f(n) = n * f(n-1)`, RFACT's shape):
+
+| probe | stack | depth | result |
+|---|---|---|---|
+| V3 | default 512 | 400 | `Free Space Overwrite` |
+| V6 | 600 | 400 | `Free Space Overwrite` |
+| V4 | **2000** | 400 | completes, prints |
+| V5 | 2000 | 1200 | `Free Space Overwrite` |
+| U6 | default 512 | 300 (U-shape) | `Free Space Overwrite` |
+| U1/U5 | 2000 | 100 / 300 | completes |
+
+`Free Space Overwrite` is DR's own runtime diagnostic (PLILIB), i.e. the stack grew into
+free space.  So the operand selects a runtime allocation limit, and choosing it wrongly
+changes whether a program runs -- which is why byte parity on this operand matters beyond
+appearance.  Depth 400 of this frame shape needs >600 and <=2000 bytes.
+
+**My status.** Implemented as one operand selection plus DR's validation boundary
+(>65535 and non-literal refuse, mirroring "no .REL"; 0 means default).  ST1-ST4, ST6-ST9,
+ST11, ST12, ST15 are byte-exact (13 specimens), and V1-V6 are byte-exact with the
+mine-built .COM byte-identical to DR-built and identical runtime output.
+
+## C139 — SILENT MIS-COMPILE: FIXED ADD with a call on the right and a value to preserve on the left (E2E-12)
+
+**Statement.** `return (t + sum(n-1))` -- a FIXED addition whose right operand is a
+procedure call and whose left operand reads a variable that must survive the call --
+is compiled by my lowering into a sequence that **runs and computes the wrong number**.
+This is not a representation difference:
+
+```
+U1  t = n; return (t + sum(n-1));   sum: procedure(n) returns(fixed) recursive
+      DR-built  : sum(100) =  5050     (correct: 100*101/2)
+      mine-built: sum(100) = 12488     (WRONG, exit rc=0, no diagnostic)
+```
+
+Byte-level the divergence is small and consistent: mine emits an extra
+`XCHG / LHLD <cell>` (with a RELOC DATA word) and uses `LXI H,imm` where DR uses `LHLD`,
+i.e. my lowering reloads the left operand from a cell that does not hold the per-
+activation value DR uses.  DR evidently keeps the left value where the recursive
+activation cannot clobber it; I do not know where, and guessing is what produced 12488.
+
+**Controls -- the guard is narrow, not general.** All three of these are byte-exact, so
+the defect is specific to ADD-with-call-on-the-right:
+
+* `return (n * f(n-1))` -- MUL, call on the right -- byte-exact [RFACT, FFACT, V1-V6].
+* `return (f(n-1) + t)` -- ADD, call on the **left** -- byte-exact [W5].
+* `dummy = f(n-1); return (t + 1)` -- the local read only after the call result is
+  stored -- byte-exact [W6].
+* `t = 1; return (t + f(n-1))` -- diverges [W3], which rules out "copying the parameter
+  is what went wrong": a literal-assigned local fails identically.
+
+**Action taken.** The shape now refuses with `[TBD]` and the evidence (guard in
+`lower_hl`'s general ADD arm; U1/W1/W2/W3 registered as my-gap negatives), because
+emitting a plausible sequence with a wrong value is the worst failure class in this
+project and had no diagnostic at all.  Correct lowering is an open milestone.  SUB with
+a call on the right is **not** covered: my first evidence for it (S1/S6) turned out to be
+confounded by C140, so it needs a clean control before a rule is written.
+
+---
+
+## C140 — DR strength-reduces `x + 2` to `INX H / INX H`; my peephole refusal does not cover that position, so the divergence passes silently (E2E-12)
+
+**Statement.** Adding the literal 2 to a FIXED value lowers to two `INX H` (0x23 0x23),
+not to an arithmetic ladder.  Independently visible twice this session:
+
+```
+E27C  p2 body (n = n + 2):   ... 23 23 eb 72 2b 73 c9      [already pinned]
+C1    g body (return n + 2): ... 23 23 c9                   [golden/e2e172/C1]
+                              mine:  eb 21 02 00 19 c9      (XCHG / LXI D,2 / DAD D / RET)
+```
+
+Both sequences compute the same number, so this is a **representation** divergence --
+value-correct, byte-wrong.  My compiler has a documented set of DR peepholes it refuses
+rather than approximates ([E2E-9 step 6]: "all four shapes below are ones MY lowering
+gets WRONG ... so they fail loud here"), and `+1` is handled (`INX H`, N304).  What is
+missing is **coverage**: the `+2` case inside a nested procedure's `RETURN` expression
+fell through the refusal and emitted the general ladder.
+
+**Why it matters more than the byte count.** Every S/C probe I wrote used a callee with
+body `return (n + 2)`, so all six "differ" -- and for a while that looked like evidence
+that ADD-with-call-on-the-right was not the trigger (C139).  It was this peephole, and a
+control (C4: same shape, callee body `return (n * fq(n-1))`, byte-exact) is what
+separated the two.  Recorded as its own claim so the confound cannot be re-read as a
+finding: **a divergence must be attributed to one cause before it is cited as evidence
+for another.**

@@ -1994,6 +1994,52 @@ let rec lower_hl st (e : Ast.expr) =
       (* [(a+1) N304] +1 lowers to INX H on the 2-byte path; other
          additions keep the general ladder *)
       lower_hl st l; d st op_inx_h; st.last_imm <- None
+    | Ast.Ebinary (Ast.Add, l, r)
+      when (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false)
+           && (match l.Ast.e with
+               | Ast.Eident _ | Ast.Ebinary _ -> true
+               | _ -> false) ->
+        (* [E2E-12] SILENT MIS-COMPILE, found while testing STACK and NOT part of
+           that route.  When the RIGHT operand of a FIXED ADD is a procedure CALL
+           and the LEFT operand reads a variable, my lowering computes the wrong
+           number -- it is not a cosmetic divergence:
+
+             U1  t = n; return (t + sum(n-1));   sum: recursive
+                 DR-built  : sum(100) =  5050    (correct)
+                 mine-built: sum(100) = 12488    (WRONG, and it runs silently)
+
+           Byte-level, U1/W1/W2/W3/W6 diverge by a 3-byte `XCHG / LHLD cell'
+           sequence plus a `21'-vs-`2a' form where DR keeps the left value in the
+           shadow cell of the activation [golden/e2e165/U1, e2e170/W1-W3, W6].
+           The controls say this is narrow, not general:
+             * `return (n * f(n-1))'  -- MUL, call on the right -- BYTE-EXACT
+               [RFACT, FFACT, and V1-V6 of batch golden/e2e167/e2e168 here];
+             * `return (f(n-1) + t)'  -- ADD, call on the LEFT -- BYTE-EXACT [W5];
+             * `dummy = f(n-1); return (t + 1)' -- read the local only after the
+               call has completed and been stored -- BYTE-EXACT [W6].
+           So the defect is ADD specifically with a call on the right and a value
+           that must survive the call on the left.  The correct lowering is unknown:
+           DR evidently does NOT reload the left value from the declared cell, and
+           guessing which cell/register it lives in is exactly what produced the
+           wrong answer above.  Refusing is the only honest option: emitting a
+           plausible sequence that computes 12488 instead of 5050 is the worst
+           failure class in this project, and until now this shape fell through
+           without either parity or a diagnostic.
+
+           SUB with a call on the right is deliberately NOT covered by this guard:
+           S1/S6 (batch golden/e2e171) differ, but their callees return `n + 2',
+           so the difference is explained by the small-literal strength-reduction
+           gap instead and is NOT evidence about SUB.  Same for C1/C2/C3/C5.  It
+           needs its own clean control before a rule can be written. *)
+        failwith
+          ("codegen: [TBD] FIXED ADD whose right operand is a procedure call, with "
+           ^ (match l.Ast.e with Ast.Eident n -> "a variable (" ^ n.Ast.orig ^ ")"
+              | _ -> "a sub-expression")
+           ^ " on the left, computes the wrong value in my lowering: DR's U1 gives "
+           ^ "sum(100)=5050, mine gives 12488 [golden/e2e169dr/U1 vs e2e169mr/U1]. "
+           ^ "MUL with a call on the right and ADD with a call on the LEFT are both "
+           ^ "byte-exact [RFACT/FFACT/V1-V6, W5], so this is a narrow lowering defect "
+           ^ "in the add-across-a-call path, not a language limit")
     | Ast.Ebinary (Ast.Add, l, r) ->
       (* DR: HL=left ; XCHG ; HL=right ; DAD D  (=> HL = right+left)
          [P071A]. WITH POINTER-DEREF OPERANDS the ladder is
@@ -4834,7 +4880,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
          extrapolate DR's behavior. *)
       failwith
         "codegen: second appended procedure after a tail guard \
-         [TBD: unproven, no multi-procedure golden]"
+         [TBD] unproven, no multi-procedure golden]"
   end;
   if not st.in_proc && not st.top_proc then st.appended <- true;
   (* entry label [P401 'dbl:' — blabel from parse_proc_block] *)
@@ -5522,8 +5568,12 @@ let emit_program (progname : string) (auto_bytes : int)
   let check_bopts (line : int) (opts : (string * Ast.expr list) list) =
     List.iter
       (fun (k, args) ->
-        if not (String.equal (String.lowercase_ascii k) "main"
-                && args = []) then
+        (* [E2E-12] STACK(n) is modelled now (see stack_operand below), so it is
+           not refused here; its ARGUMENT is validated there, which is where the
+           evidence lives.  Everything else still refuses. *)
+        let kl = String.lowercase_ascii k in
+        if not ((String.equal kl "main" && args = [])
+                || String.equal kl "stack") then
           failwith (Printf.sprintf
                       "codegen: block option %s%s deferred [TBD] (line %d; \
                        only OPTIONS(MAIN) is modelled; STACK/SEGMENTS and \
@@ -5573,6 +5623,57 @@ let emit_program (progname : string) (auto_bytes : int)
   in
   check_block blk 0;
   List.iter (check_stmt 0) stmts;
+  (* ---- [E2E-12] OPTIONS(STACK(n)) ---------------------------------------
+     The whole rule, from eleven DR objects (batches golden/e2e160, e2e161):
+       T1  no STACK                      -> LXI B,0200        (default 512)
+       T2  stack(2000)                   -> LXI B,07D0        (the value itself)
+       T3  stack(100)                    -> LXI B,0064        (little-endian,
+                                                 leading zero byte is real)
+       T12 stack(1)                      -> LXI B,0001        (lower end)
+       T4  stack(65535)                  -> LXI B,FFFF        (upper end, ACCEPTED)
+       T5  stack(65536)                  -> DR pass-1 ERROR, NO .REL  -> refuse
+       T10 stack(2*1000)                 -> DR pass-1 ERROR, NO .REL  -> refuse
+       T6  stack(0)                      -> LXI B,0200  !!  ZERO MEANS DEFAULT,
+                                           not zero.  This is the one probe that
+                                           would have been guessed wrong: the
+                                           obvious reading of "stack(0)" is a
+                                           0x0000 operand.
+       T9  options(stack(2000),main)      -> same as T2  (order-independent)
+       T8  + a nested RECURSIVE procedure -> same operand; the SVBLK/ shadow
+                                           machinery is untouched by STACK
+       T7  procedure-only MODULE + stack(2000) -> BYTE-IDENTICAL to T11 (the same
+                                           module with NO STACK at all).  A
+                                           module has no main prologue and DR
+                                           drops the option entirely -- it is NOT
+                                           an error, and there is no other place
+                                           in the record stream where the value
+                                           appears (DATA/CODE sizes identical).
+     So STACK is exactly ONE bit-packed 16-bit operand in the main prologue.  In
+     the raw file it straddles a byte boundary, which is why T1 vs T2 differ in
+     THREE file bytes while only TWO code bytes change -- a reminder that raw
+     `cmp' and a decoded view count different things, and both were needed here. *)
+  let stack_operand =
+    let def = 0x0200 in
+    let acc = ref def in
+    List.iter
+      (fun (k, args) ->
+        if String.equal (String.lowercase_ascii k) "stack" then
+          match args with
+          | [ { Ast.e = Ast.Enumber t; _ } ] when is_int_literal t ->
+              let v = parse_int_const t in
+              if v > 0xffff then
+                failwith
+                  (Printf.sprintf
+                     "codegen: [TBD] OPTIONS(STACK(%d)) exceeds 65535 and is                       rejected by DR in pass 1 with NO .REL emitted (T5,                       golden/e2e160/T5/T5.PRN: `1 ERROR(S) IN PASS 1');                       mirroring DR's perimeter rather than truncating to 16 bits"
+                     v)
+              else if v > 0 then acc := v
+              (* v = 0: DR emits the DEFAULT operand, measured by T6 *)
+          | _ ->
+              failwith
+                "codegen: [TBD] OPTIONS(STACK(...)) with a non-integer-literal                  argument is rejected by DR in pass 1 with NO .REL emitted                  (T10 `stack(2*1000)' golden/e2e160/T10/T10.PRN); the operand                  is a compile-time 16-bit value, not an expression")
+      blk.Ast.bopts;
+    !acc
+  in
   let layout = Bind.bind_program blk in
   (* [E2E-11 step 5] a procedure-only module (C136): DR gives it the ordinary
      procedure entry -- copy-in ladder, no ?START prologue, no append/tail-guard
@@ -5768,7 +5869,9 @@ let emit_program (progname : string) (auto_bytes : int)
     in
     lower_proc st ls { Ast.blk = blk; bpos }
   end else begin
-  d st op_lxi_b; d st 0x00; d st 0x02;
+  d st op_lxi_b;
+  d st (stack_operand land 0xff);
+  d st ((stack_operand lsr 8) land 0xff);
   d st op_call;
   let start_slot = st.lc in
   d st 0; d st 0;
@@ -5783,7 +5886,7 @@ let emit_program (progname : string) (auto_bytes : int)
          | Ast.Sproc _ | Ast.Sdcl _ | Ast.Snull _ -> ()
          | _ -> failwith
                 "codegen: main-block statement after an appended \
-                 procedure [TBD: unproven DR append layout]");
+                 procedure [TBD] (unproven DR append layout)");
       (* [R401/R414/R419/R420/R423] any main-block statement other
          than a no-exit loop or the trailing stop anchors the
          epilogue region and closes the suppression window; the
@@ -5806,7 +5909,7 @@ let emit_program (progname : string) (auto_bytes : int)
    | (nm, _) :: _ ->
        failwith (Printf.sprintf
                    "codegen: GOTO to undefined/unresolvable label %s \
-                    [TBD: DR pass-2 UNDEF diag]" nm));
+                    [TBD] DR pass-2 UNDEF diag" nm));
   (match st.fcalls with
    | [] -> ()
    | (nm, _) :: _ ->
@@ -5866,7 +5969,7 @@ let emit_program (progname : string) (auto_bytes : int)
   if st.guard_slots <> [] then
     failwith
       "codegen: tail guard emitted without an epilogue CALL to chain \
-       to [TBD: unproven DR shape (no-exit main tail AFTER an \
+       to [TBD] unproven DR shape (no-exit main tail AFTER an \
        appended procedure)]";
   let code_items = st.items in
   (* now build the ordered full item list *)

@@ -1,0 +1,17 @@
+a:
+    procedure options(main);
+    declare r fixed;
+    r = f(8);
+    put skip list('f(8) =', r);
+    stop;
+
+    f: procedure(n) returns(fixed) recursive;
+    declare n fixed, t fixed;
+    if n = 0 then return (0);
+    t = n;
+    declare dummy fixed;
+    dummy = f(n-1);
+
+    return (t + 1);
+    end f;
+end a;

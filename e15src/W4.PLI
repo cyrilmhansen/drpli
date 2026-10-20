@@ -1,0 +1,19 @@
+a:
+    procedure options(main);
+    declare r fixed;
+    r = f(8);
+    put skip list('f(8) =', r);
+    stop;
+
+    g: procedure(n) returns(fixed);
+    declare n fixed;
+    return (n + 1);
+    end g;
+
+    f: procedure(n) returns(fixed);
+    declare n fixed, t fixed;
+    if n = 0 then return (0);
+    t = n;
+    return (t + g(n));
+    end f;
+end a;

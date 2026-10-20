@@ -1,0 +1,6 @@
+a:
+    procedure options(stack(2000));
+    declare i fixed;
+    i = 1;
+end a;
+

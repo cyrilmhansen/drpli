@@ -260,3 +260,29 @@ the point of keeping this note is the method, not the conclusion:
   the link stage silently produced a .COM with an unresolved `A` reference (C137), which
   is invisible to every REL/COM/transcript-parity check I had. Payoff estimates based on
   REL parity are upper bounds on *compilability*, not on runnability.
+
+---
+
+## 8. Correction (E2E-12): the "4 procedure-only files" claim was a string-matching artifact
+
+Sections above say the corpus has four procedure-only files (A, ACK, ACKTST, MPMCALLB)
+and that ACK/ACKTST are closable by modelling OPTIONS(STACK(n)) -- "2 programs closable by
+2 routes each".  Both statements are wrong.
+
+* `ACK` and `ACKTST` write `procedure options(main,stack(2000));`.  My classifier was
+  `'options(main)' in text`, which cannot see a multi-option list, so it reported them as
+  lacking MAIN.  The corpus population of procedure-only files is **2** (A, MPMCALLB), not 4.
+* STACK is now implemented (C138) and neither program compiles: after the option, ACK
+  refuses on the **generate form inside PUT LIST** and ACKTST on a **counted PUT EDIT
+  format group** `2(f(2),a)`.  Each is its own lowering milestone.
+
+Two generalizations worth keeping from the mistake:
+
+1. **Classify with the parser, not with `grep`.** Where the binder already parses block
+   options into `(key, args)`, a substring test on the source is strictly weaker and fails
+   silently in exactly the direction that misleads a cost estimate.
+2. **A "first refusal" is an artifact of check ordering, not a measure of difficulty.**
+   My block-option check runs before statement lowering, so one shallow blocker masked two
+   deep ones and made the programs look nearly-free.  Payoff estimates should be based on
+   the *full* set of constructs a program uses, which is what `tools/blocker_audit.py`'s
+   tag sets do -- and which I bypassed by reading the ranking tables instead (see §6).

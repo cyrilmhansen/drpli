@@ -1,0 +1,11 @@
+a:
+    procedure options(main);
+    declare i fixed;
+    i = 1;
+    q: procedure(n);
+    declare n fixed;
+    n = n + 1;
+    end q;
+    stop;
+end a;
+

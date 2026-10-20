@@ -16,7 +16,15 @@ import argparse, os, subprocess, sys, shutil
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CC = os.path.join(ROOT, "ocaml/_build/default/bin/pli80c.exe")
-OUT = os.path.join(ROOT, "build", "e2e")
+# [E2E-12] Per-PID scratch directory.  This was a fixed path (build/e2e), so two
+# overlapping gate runs wrote the SAME <name>.REL / <name>.PLI files and each could
+# compare a golden against the other run's freshly-compiled output -- the failure mode
+# is a plausible-looking byte-parity result that describes neither run.  I created
+# exactly that race by starting a second gate while the first was still in its
+# output-check phase, and killed both rather than read their numbers.  A per-PID
+# directory makes concurrent runs independent; stale directories are inert scratch, and
+# raw `cmp' against the goldens is unaffected.
+OUT = os.path.join(ROOT, "build", "e2e-%d" % os.getpid())
 
 # name -> (source, DR golden .REL)
 SPECIMENS = {
@@ -569,6 +577,48 @@ SPECIMENS.update({
     "E29H":   ("e14src/E29H.PLI",       "golden/e2e151d/E29H/E29H.REL"),
     "E29I":   ("e14src/E29I.PLI",       "golden/e2e152d/E29I/E29I.REL"),
     "E29J":   ("e14src/E29J.PLI",       "golden/e2e152d/E29J/E29J.REL"),
+})
+
+# [E2E-12] OPTIONS(STACK(n)): the option is ONE bit-packed 16-bit operand in the MAIN
+# prologue (`LXI B,dade'), default 0x0200.  Bracketed by eleven DR objects in batches
+# golden/e2e160, e2e161, e2e163: the value itself (T2 2000, T3 100, T12 1, T4 65535),
+# the DEFAULT when the value is zero (T6 -> 0x0200, not 0), option order (T9), no
+# interaction with a nested RECURSIVE procedure's shadow/SVBLK machinery (T15), and
+# STACK on a procedure-only MODULE being byte-identical to the same module without it
+# (ST7 vs ST11 -- DR drops the option silently, it is not an error).
+# KEY NOTE: registered as ST1..ST15, NOT T1..T15.  T4/T6/T7/T9/T12 are already
+# specimens from the e2e11u..e2e11y probe series, and a first version of this block
+# used the T names: dict.update() silently REPLACED those five entries, so the gate
+# would have gone on printing a clean total while five proven byte-parity checks had
+# quietly disappeared.  The DR-side artifacts in golden/e2e160..163 keep their original
+# T* directory names, so the mapping here is STn -> golden/.../Tn on purpose.
+SPECIMENS.update({
+    "ST1":     ("e15src/ST1.PLI",  "golden/e2e160/T1/T1.REL"),
+    "ST2":     ("e15src/ST2.PLI",  "golden/e2e160/T2/T2.REL"),
+    "ST3":     ("e15src/ST3.PLI",  "golden/e2e160/T3/T3.REL"),
+    "ST4":     ("e15src/ST4.PLI",  "golden/e2e160/T4/T4.REL"),
+    "ST6":     ("e15src/ST6.PLI",  "golden/e2e160/T6/T6.REL"),
+    "ST7":     ("e15src/ST7.PLI",  "golden/e2e160/T7/T7.REL"),
+    "ST9":     ("e15src/ST9.PLI",  "golden/e2e160/T9/T9.REL"),
+    "ST11":    ("e15src/ST11.PLI", "golden/e2e161/T11/T11.REL"),
+    "ST12":    ("e15src/ST12.PLI", "golden/e2e161/T12/T12.REL"),
+    "ST15":    ("e15src/ST15.PLI", "golden/e2e163/T15/T15.REL"),
+    # [E2E-12] V1-V6: the SAME recursive shape as the U probes, but the one whose
+    # lowering IS byte-exact (`return (n * f(n-1))', MUL with the call on the right).
+    # These carry the RUNTIME evidence that STACK's operand really is the stack: V3
+    # (default 512, depth 400) and V6 (stack(600), depth 400) die with DR's
+    # `Free Space Overwrite', while V4 (stack(2000), depth 400) completes -- sources
+    # identical except the option, mine-built .COM byte-identical to DR-built.
+    "V1":     ("e15src/V1.PLI",  "golden/e2e167/V1/V1.REL"),
+    "V2":     ("e15src/V2.PLI",  "golden/e2e167/V2/V2.REL"),
+    "V3":     ("e15src/V3.PLI",  "golden/e2e168/V3/V3.REL"),
+    "V4":     ("e15src/V4.PLI",  "golden/e2e168/V4/V4.REL"),
+    "V5":     ("e15src/V5.PLI",  "golden/e2e168/V5/V5.REL"),
+    "V6":     ("e15src/V6.PLI",  "golden/e2e168/V6/V6.REL"),
+    # Controls for the C139 call-operand guard: both byte-exact, both would have been
+    # swept up by a sloppier predicate.
+    "W5":     ("e15src/W5.PLI",  "golden/e2e170/W5/W5.REL"),
+    "W6":     ("e15src/W6.PLI",  "golden/e2e170/W6/W6.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -1127,7 +1177,60 @@ REJECTS = {
 REJECTS["Q8"] = (open("e14src/Q8.PLI", "rb").read().replace(b"\r\n", b"\n")
                  .rstrip(b"\x1a").decode(), "non-decimal operand")
 
+# [E2E-12] STACK boundary probes DR itself refuses (T5, T10 -- pass-1 error, NO .REL,
+# so mirroring them is perimeter parity, not a gap), and three DR-COMPILES shapes that
+# expose a DIFFERENT pre-existing gap: DR places a main-block statement that follows an
+# appended procedure at the epilogue address (T14: proc body code 0010-0022, then
+# SET-LC code 0023 for the CALL ?STOPX), which my R423-era rule still refuses.
+# [E2E-12/C139] Four shapes DR compiles and that MY lowering computes WRONG (not
+# merely differently): U1's sum(100) came out 12488 instead of 5050.  Registered here
+# so the gate insists on a [TBD] refusal -- a silent mis-compile is worse than a
+# refusal, and before the guard these shapes fell through with neither parity nor a
+# diagnostic.
+for _n in ("U1", "W1", "W2", "W3"):
+    REJECTS[_n] = (open("e15src/%s.PLI" % _n, "rb")
+                   .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                   "right operand is a procedure call")
+for _n, _m in (("ST5", "exceeds 65535"), ("ST10", "non-integer-literal"),
+               ("ST8", "after an appended procedure"),
+               ("ST13", "after an appended procedure"),
+               ("ST14", "after an appended procedure")):
+    REJECTS[_n] = (open("e15src/%s.PLI" % _n, "rb")
+                   .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), _m)
+
 NEG_META = {
+    "U1": ("my-gap",
+     "DR COMPILES IT and its .COM RUNS CORRECTLY: sum(100) = 5050 "
+     "(golden/e2e169dr/U1.output.txt).  My build printed 12488 "
+     "(golden/e2e169mr/U1.output.txt) -- a WRONG VALUE, silently.  Now refused by the "
+     "C139 guard; the correct add-across-a-call lowering is unknown [TBD]"),
+    "W1": ("my-gap",
+     "DR COMPILES IT: .REL emitted (golden/e2e170/W1/W1.REL) -- `return (n + f(n-1))' "
+     "in a RECURSIVE procedure; same add-across-a-call defect as U1 [C139]"),
+    "W2": ("my-gap",
+     "DR COMPILES IT: .REL emitted (golden/e2e170/W2/W2.REL) -- local assigned then "
+     "read after a recursive call; the U1 shape at depth 8 [C139]"),
+    "W3": ("my-gap",
+     "DR COMPILES IT: .REL emitted (golden/e2e170/W3/W3.REL) -- same, but the local is "
+     "set to a LITERAL, which rules out 'copying n is what went wrong' [C139]"),
+    "ST5": ("dr-refuses",
+     "DR REFUSES: 1 ERROR(S) IN PASS 1, NO .REL emitted (golden/e2e160/T5/T5.PRN) "
+     "-- stack(65536) does not fit the 16-bit LXI B operand [C138]"),
+    "ST10": ("dr-refuses",
+     "DR REFUSES: 1 ERROR(S) IN PASS 1, NO .REL emitted (golden/e2e160/T10/T10.PRN) "
+     "-- STACK's operand must be an integer literal, not an expression [C138]"),
+    "ST8": ("my-gap",
+     "DR COMPILES IT: .REL emitted (golden/e2e160/T8/T8.REL) -- stack(2000) + a nested "
+     "RECURSIVE procedure + `stop;' AFTER the appended procedure.  The STACK part works "
+     "(T15 pins it); the refusal is the R423 append-order rule, unrelated to E2E-12"),
+    "ST13": ("my-gap",
+     "DR COMPILES IT: .REL emitted (golden/e2e162/T13/T13.REL) -- same append-order "
+     "gap as T14, with STACK(2000) present"),
+    "ST14": ("my-gap",
+     "DR COMPILES IT: .REL emitted (golden/e2e162/T14/T14.REL) -- main-block `stop;' "
+     "following an appended procedure: DR emits the CALL ?STOPX at code 0023, AFTER "
+     "q's body at 0010-0022.  My rule still refuses it [R423 window was never pinned "
+     "against this shape]; candidate next milestone, and a likely ACK/ACKTST blocker"),
     "Q8": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted with CALL ?QI15D "
      "(golden/e2e148/Q8/Q8.REL) -- missing route is FIXED -> DEC conversion, "
@@ -1301,7 +1404,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--link-run", action="store_true")
     ap.add_argument("--skip-selftest", action="store_true",
-                    help="do not run the reldump field-visibility selftest "
+                    help="do not run the pre-flight selftests (reldump "
+                         "field-visibility + linkrun C137 undefined-symbol) "
                          "first (debug only -- a real gate run must not use it)")
     ap.add_argument("--only", nargs="*", metavar="NAME",
                     help="restrict the --link-run arm to these specimens "
@@ -1314,6 +1418,24 @@ def main():
     # from inside its own output, so it is checked before any specimen is compiled;
     # raw `cmp` on .REL bytes remains the acceptance criterion either way.
     if not a.skip_selftest:
+        # [E2E-12/C137] the link-stage undefined-symbol detector gets the same
+        # treatment as reldump's field-visibility check: it is the thing standing
+        # between "a .COM appeared" and "the program can actually run", and it fails
+        # silently in exactly the direction that matters (a broken link reads as
+        # clean).  Pinned to golden/e2e153_l3 / _l4 plus a synthetic segment whose
+        # symbol sits beyond any display window, so presentation can never again be
+        # mistaken for detection.
+        r = subprocess.run([sys.executable, os.path.join(ROOT, "oracle",
+                                                          "linkrun.py"),
+                            "selftest"], capture_output=True, text=True)
+        for line in (r.stdout or "").strip().splitlines():
+            print("  linkrun: " + line)
+        if r.returncode != 0:
+            print("e2e gate: ABORTED -- linkrun selftest failed "
+                  "(C137 undefined-symbol detection)")
+            if r.stderr:
+                print(r.stderr.strip()[-400:])
+            sys.exit(2)
         st = subprocess.run([sys.executable, os.path.join(ROOT, "tools",
                             "reldump.py"), "--selftest"], capture_output=True,
                             text=True)

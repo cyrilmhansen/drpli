@@ -1,0 +1,15 @@
+a:
+    procedure options(main);
+    declare r fixed, q fixed;
+    q = 3;
+    r = fq(q);
+    put skip list('r =', r);
+    stop;
+
+    fq: procedure(n) returns(fixed) recursive;
+    declare n fixed;
+    if n = 0 then return (1);
+    return (n * fq(n-1));
+    end fq;
+end a;
+

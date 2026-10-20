@@ -1,0 +1,13 @@
+a:
+    procedure options(main,stack(2000));
+    declare r fixed;
+    r = f(1200);
+    put skip list('depth 1200 ok, r =', r);
+    stop;
+
+    f: procedure(n) returns(fixed) recursive;
+    declare n fixed;
+    if n = 0 then return (1);
+    return (n * f(n-1));
+    end f;
+end a;
