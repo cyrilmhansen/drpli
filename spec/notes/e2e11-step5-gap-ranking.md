@@ -171,6 +171,33 @@ Ranked on cost, dependency depth, and payoff — with the evidence above:
    `A` claimed was the route, appears in none. Expected work: replace one refusal arm with an existing
    route, plus whatever the no-`main` procedure-only shape needs (that part is
    unprobed — the honest uncertainty in this estimate).
+   **Cost correction, measured after I wrote the estimate above.**  My first read
+   ("replace one refusal arm with an existing route") was wrong about which part
+   is hard, and four probes through DR (batch `golden/e2e147`, all four compile
+   cleanly -- nothing here is a language limit) plus my own build say:
+
+   | probe | shape | DR | my build |
+   |---|---|---|---|
+   | Q4 | main + `y = x/2` (fixed literal in a float divide) | compiles | **BYTE-EXACT** |
+   | Q1 | no-main, `returns (float)`, `return (2.0)` | compiles | crashed in `int_of_string`; now refuses `[TBD]` |
+   | Q2 | no-main, no RETURNS, formal + assignment | compiles | differs (main prologue present) |
+   | Q3 | no-main, `returns (fixed)`, `return (x)` | compiles | differs (main prologue present) |
+
+   So the arithmetic route is NOT the gap (Q4 proves it), and the gap is the
+   **entry structure**: `emit_program` always emits `LXI B,0200 / CALL ?START` and
+   never sets `st.float_ret`/`st.dec_ret` -- only `lower_proc` does -- while DR
+   compiles a procedure-only file as a plain callable routine (no prologue,
+   `DEF-PUBLIC` still, copy-in ladder, `JMP ?FPRET`, fixed literal widened to an
+   MBF cell).  Recorded as **C136**.  That is a real but *contained* change, and
+   its blast radius measures zero: **no gate specimen lacks `options(main)` (0 of
+   390)**, and the corpus has exactly **4 procedure-only files -- `A`, `ACK`,
+   `ACKTST`, `MPMCALLB` -- none accepted, all four needing this route**.  Which
+   makes it the rare thing in this project: a structural fix with no regression
+   surface, a shared prerequisite for four programs, and complete DR evidence
+   already in hand.  I stopped short of implementing it this session because it
+   touches the top-level entry path and I would rather do it with a clear head
+   and the gate as the first test, not the last.
+
    **Acceptance beyond byte-parity**, and this is the part worth doing: `A` is
    declared an *external* procedure, so it can be linked against a caller. Write
    a probe `E29F` that calls `a` via the step-4 external-ENTRY machinery, compile

@@ -1,0 +1,6 @@
+a:
+  procedure(x) returns (fixed);
+  declare x fixed;
+  return (x);
+end a;
+

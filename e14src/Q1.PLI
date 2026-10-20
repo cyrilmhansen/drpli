@@ -1,0 +1,6 @@
+a:
+  procedure(x) returns (float);
+  declare x float;
+  return (2.0);
+end a;
+

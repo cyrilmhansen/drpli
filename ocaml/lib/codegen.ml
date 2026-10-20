@@ -755,6 +755,35 @@ let rec pdec_is_dec (cx : pdec_ctx) (e : Ast.expr) =
   | Ast.Eprefix (_, x) -> pdec_is_dec cx x
   | _ -> false
 
+let parse_int_const (s : string) =
+  (* [E2E-11 step 5] every caller reaches this only after some arm has already
+     decided the literal is an INTEGER.  A FLOAT literal arriving here means that
+     classification went wrong upstream, and until now the failure was a bare
+     OCaml `int_of_string' exception: Q1 (`a: procedure(x) returns (float) ...
+     return (2.0)' with NO options(main)) died with `Fatal error: exception
+     Failure("int_of_string")', naming neither the construct nor the cause.
+     That is also a fail-loud protocol violation in this project's own terms --
+     run_negatives() greps stderr for the literal string "[TBD]", so a crash
+     would register as "wrong refusal" and hide the reason.  The real defect is
+     structural (emit_program never sets st.float_ret, because only lower_proc
+     does, so a top-level value-returning FLOAT procedure takes the integer
+     return path entirely), and that is deliberately NOT fixed in this commit:
+     it changes the entry structure that all 390 specimens depend on.  This only
+     turns the crash into a refusal that says what is missing. *)
+  let t = String.concat "" (String.split_on_char '_' s) in
+  match int_of_string_opt t with
+  | Some v -> v
+  | None ->
+      failwith
+        ("codegen: [TBD] non-integer literal '" ^ s
+         ^ "' reached the FIXED path -- expression-domain misrouting, not a "
+         ^ "syntax error.  For a top-level procedure this is the known missing "
+         ^ "no-options(main) path: emit_program selects the main prologue and "
+         ^ "the return convention unconditionally, so st.float_ret is never set "
+         ^ "for a file whose outermost block is a value-returning procedure "
+         ^ "(Q1/Q3 probes, spec/notes/e2e11-step5-gap-ranking.md)")
+
+
 let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Ebinary (Ast.Exp, l, r) ->
@@ -771,7 +800,7 @@ let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
       (* [N301/N306] const-minus-const DLDOP operands each take a
          dec pool entry *)
       let pint s =
-        int_of_string (String.concat "" (String.split_on_char '_' s))
+        parse_int_const s
       in
       dec_pool_bytes (dec_digits (pint a))
       + dec_pool_bytes (dec_digits (pint b))
@@ -941,9 +970,6 @@ let match_put_list_lit (s : Ast.stmt) =
            | None -> Pnone)
       | _ -> Pnone
   | _ -> Pnone
-
-let parse_int_const (s : string) =
-  int_of_string (String.concat "" (String.split_on_char '_' s))
 
 (* true iff the literal text is an integer (PL/I float literals like "2.5" and
    "1.5e3" are not).  Used to keep numeric-literal arms out of float text. *)
@@ -1290,7 +1316,7 @@ let lower_put_lit st (skipn : string option) (v : string) =
   call_ext st "?SYSPR";
   (match skipn with
    | Some c ->
-       let n = int_of_string (String.concat "" (String.split_on_char '_' c)) in
+       let n = parse_int_const c in
        if n <= 0 || n > 255 then
          failwith "codegen: skip count out of MVI range [TBD]";
        d st op_mvi_a; d st n; call_ext st "?SKPOP"
@@ -1547,7 +1573,7 @@ let fp_mul_guard (l : Ast.expr) (r : Ast.expr) =
 let rec lower_hl st (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Enumber s ->
-      let v = int_of_string (String.concat "" (String.split_on_char '_' s)) in
+      let v = parse_int_const s in
       d st op_lxi_h; d st (v land 0xff); d st ((v lsr 8) land 0xff)
   | Ast.Esuffix (hd, args) ->
       (* [E2E-5c P401] single-argument internal procedure call.
@@ -2043,7 +2069,7 @@ let rec lower_hl st (e : Ast.expr) =
       (match r.Ast.e with
        | Ast.Enumber c ->
            let n =
-             int_of_string (String.concat "" (String.split_on_char '_' c))
+             parse_int_const c
            in
            if n = 0 then failwith "codegen: division by zero";
            lower_hl st l;
@@ -2061,17 +2087,17 @@ let rec lower_hl st (e : Ast.expr) =
       (match (l.Ast.e, r.Ast.e) with
        | (Ast.Eident _, Ast.Enumber c) ->
            let n =
-             int_of_string (String.concat "" (String.split_on_char '_' c))
+             parse_int_const c
            in
            lower_hl st l; d st op_mvi_a; d st (n land 0xff);
            call_ext st "?IEXOP"
        | (Ast.Eident _, _) -> failwith "codegen: ** non-constant exponent [TBD]"
        | (Ast.Enumber bs, Ast.Enumber cs) ->
            let k =
-             int_of_string (String.concat "" (String.split_on_char '_' bs))
+             parse_int_const bs
            in
            let e =
-             int_of_string (String.concat "" (String.split_on_char '_' cs))
+             parse_int_const cs
            in
            let p = String.length (string_of_int k) in
            let addr = pool_alloc st (bcd_pack k p) in

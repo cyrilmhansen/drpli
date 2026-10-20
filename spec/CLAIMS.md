@@ -2287,3 +2287,39 @@ spec/notes/arch1-proto-inst-layer.md §4.
 procedures. Whether an *external* symbol resolution (`LINK-CHAIN-EXT`) has an analogous
 header is a different question: externals get their fixup at the reference site (C133),
 and the two mechanisms were never conflated here.
+
+---
+
+## C136 — a file whose outermost block has NO `options(main)` is a plain procedure: no `?START` prologue, but still PUBLIC (E2E-11 step 5)
+
+**Statement.** DR compiles a procedure-only source file -- e.g. corpus program `A`:
+
+```
+a: procedure(x) returns (float);   CODE SIZE 0015   DATA AREA 0006
+  declare x float;                 no LXI B,0200 and no CALL ?START at all
+  return (x/2);                    LINK-DEF-PUBLIC code 0000 A  IS still emitted
+```
+
+The body is entered as a callable routine: the incoming formal is copied into its
+declared cell by the same 2-byte copy ladder seen in nested procedures (`5E 23 56 EB`
++ `SHLD`), the value-returning exit is `JMP` + `LINK-CHAIN-EXT ?FPRET` (not `CALL`, not
+`RET`), and a fixed literal divisor becomes a **4-byte MBF pool cell** at `*A(0000)`
+(`00 00 00 82`) with `?FD44M` doing a float/float divide -- DR does NOT insert a
+runtime ?QI15F conversion.  So the file is externally visible (PUBLIC + EXTDEF) without
+being a program entry point.
+
+**Evidence.** `golden/first/A/A.REL` + `A.PRN` (DR's own listing), and four probes run
+through DR in batch `golden/e2e147`: Q1 (`returns (float)`, float literal), Q2
+(no RETURNS, formal + assignment), Q3 (`returns (fixed)`), Q4 (main + `y = x/2`) --
+**all four compile cleanly**, i.e. nothing here is a language limit.
+
+**My status.** Q4 is BYTE-EXACT against DR, which settles the important part: the
+mixed-mode float/fixed literal arithmetic route already exists and is correct.  What is
+missing is structural -- `emit_program` unconditionally emits the main prologue and
+never sets `st.float_ret`/`st.dec_ret` (only `lower_proc` does), so a procedure-only
+file gets the main-block entry shape and a FLOAT-returning one is misrouted into the
+integer path.  Q1 previously died with a bare `Failure("int_of_string")`; it now refuses
+loudly with `[TBD]` naming the literal and the cause.  Blast radius of the eventual
+fix is exactly zero for existing work: **no gate specimen lacks `options(main)` (0 of
+390)**, and the corpus population is 25 files with main and 4 without -- `A`, `ACK`,
+`ACKTST`, `MPMCALLB` -- none of which is accepted, all four of which need this route.
