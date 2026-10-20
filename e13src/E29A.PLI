@@ -1,0 +1,7 @@
+e29a:
+    procedure options(main);
+    declare i fixed(7), f float;
+    i = 1;
+    stop;
+end e29a;
+

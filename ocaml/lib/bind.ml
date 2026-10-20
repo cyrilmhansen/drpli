@@ -845,7 +845,18 @@ type prog_layout =
          = block base..end-of-section incl. its own call cells;
          P402: LXI B,8 ; LXI D,6 — two specimens; ACK/EXPR/DFACT
          corpus RELs carry more] *)
-  ; pl_total : int }              (* non-pool data bytes *)
+  ; pl_total : int                (* non-pool data bytes *)
+  ; (* [E2E-11 step 4] EXTERNAL/ENTRY declarations, name -> (params, external_,
+       returns, formal types).  bind already classifies these as RTentry, which
+       is the classification DR's own $V symbol table prints (bind.ml:22 records
+       that correspondence: "external entry dcl => FUNCTION PARAMETERS(k)
+       EXTERNAL CONSTANT").  Codegen used to DROP those rows (its outer-scope map
+       returns None for RTentry), so an external entry was literally invisible
+       and a CALL to it failed the `call to unknown' check -- an information
+       loss, not a language limit.  ptypes is carried here precisely so argument
+       MODE decisions survive: FIXED/DECIMAL/FLOAT formals take different
+       descriptor routes, and without ptypes codegen could only guess. *)
+    pl_exts : (string * (int * bool * rt option * rt list)) list }
 (* NOTE: an earlier iteration added a pl_tail_exit field ("can the last
    MAIN tail loop exit?") as the guard gate. The 37-specimen matrix
    REFUTES it: P404/R432/R406 guard straight-line tails with no loop at
@@ -1057,7 +1068,20 @@ let bind_program (blk : Ast.block) : prog_layout =
   collect blk;
   calls := []; pls := [];
   let names = List.map (fun (n, _, _, _, _) -> n) !reg in
-  let is_proc nm = List.mem nm names in
+  let exts =
+    List.filter_map
+      (fun (nm, rt, _o, _a) ->
+        match rt with
+        | RTentry { params; external_; ret; ptypes } ->
+            Some (nm, (params, external_, ret, ptypes))
+        | _ -> None)
+      (bind_rows blk)
+  in
+  (* an EXTERNAL ENTRY is a callable target: without this its call sites never
+     reach `calls', so no descriptor cells get allocated for them and the pool
+     layout of every LATER call site shifts -- the silent-shift failure class of
+     C116/C129, not a diagnostic. *)
+  let is_proc nm = List.mem nm names || List.mem_assoc nm exts in
   let rec section2 b base formals recf attrf nm =
     let nf = List.length formals in
     if nf > 8 then
@@ -1166,4 +1190,5 @@ let bind_program (blk : Ast.block) : prog_layout =
   in
   let total = section2 blk 0 [] false false None in
   { pl_calls = !calls; pl_procs = !pls; pl_secs = !secs;
-    pl_total = total }
+    pl_total = total
+  ; pl_exts = exts }

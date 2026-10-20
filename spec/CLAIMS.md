@@ -2164,3 +2164,86 @@ compare executed output.  `oracle/linkrun.py asm` is the new stage
 (`st.vars` carries `vkind`, which has no entry case) and emit
 `call_ext <SYMBOL>` in place of the forward/internal resolution, which the
 E24G/DTEST/FDTEST goldens make checkable in one step.
+
+**Status update (step 4).** Superseded for the implementation half: codegen now sees
+external entries and DTEST/FDTEST are accepted end to end -- see C133.  The toolchain
+finding above stands unchanged.
+
+---
+
+## C133 — an external ENTRY call site is `CALL * L(sym)` plus one LINK-CHAIN-EXT, and nothing else (E2E-11 step 4)
+
+**Statement.** `declare <name> entry(<formals>) external [returns(<t>)];` compiled in a
+caller that does not define the entry produces, per call site:
+
+```
+LXI H,* A(desc) ; CALL * L(<NAME>)        <- + LINK-CHAIN-EXT code <call+1> <NAME>
+```
+
+No `LINK-DEF-EXT` group, no inline `RELOC` on the CALL, no `LINK-CHAIN-ADDR`.
+`returns(float)` additionally routes the result through the float-stack convention, so
+an expression-position external call prints and assigns like an internal float function.
+
+**Evidence.** `artefacts/DTEST.PLI` and `artefacts/FDTEST.PLI` (corpus) versus
+`golden/e2e141*`: `.REL` 384 bytes byte-identical; linked `.COM` byte-identical to DR's
+(7808 bytes, against RMAC-assembled DIV2/FDIV2 per C132); executed output
+byte-identical to DR's own run; 135/135 printed values verified numerically outside the
+emulator, including the signed wrap of a 1-byte index cell
+(`100 / 2 ** -128 = 3.4028235E+38`). Both runs end in DR's diagnostic
+`UNDERFLOW (128), Underflow in Divide by Two / Traceback: p c`, emitted by the external
+module's `extrn ?signal`; the final PUT record is incomplete in both, identically.
+`golden/e2e143/E29A`, `e2e144/E29C`, `e2e145/E29E` pin the three negative-space claims:
+E29A (caller only, 1 record) vs E29E (caller + defining program, 4 records) shows
+DEF-EXT comes from the definition, not the reference; E29B (inline RELOC) linked to a
+file that executed to a traceback -- a CALL to address 0; E29D (CHAIN-ADDR on the
+symbol) got 0 bits consumed and `NOT IMP`.
+
+**Why the record asymmetry matters.** `LINK-CHAIN-EXT` carries a symbol name and no
+address field; `LINK-CHAIN-ADDR` carries an address and no name. My first attempt used
+the ADDR form because that is what internal forward calls need (C123), and DR's
+assembler rejects it -- the two forms are not interchangeable, which is the point of
+having two.
+
+**Corollary (accepted shapes).** A 1-byte FIXED index cell is initialized with
+`XRA A ; STA` and incremented with `LXI H,c ; INR M ; JMP` -- in-memory, not
+`LHLD/INX H/SHLD`. Zero stores use `XRA A` rather than `MVI A,00` wherever DR has
+evidence for it (DO init in DTEST, plain assignment in E29A/E29D); non-zero constants
+keep `MVI A,lo` (N306/N308). Had I kept the register ladder, the loop would have
+incremented a copy: values printed would have stayed correct for `i = 0`, so only the
+byte compare, not the output compare, would have caught it.
+
+---
+
+## C134 — pool cells for call-literal arguments have TWO owners, and the base is computed before either runs (E2E-11 step 4)
+
+**Statement.** `base = statics_total + pool_total` is fixed from the prescan, before
+lowering allocates a single cell. Therefore every pool cell must be *demanded* by a
+prescan walker, and literal call arguments are demanded by whichever walker happens to
+cover that expression position: `pdec_fl_expr` for a float-target assignment (which had
+an Esuffix arm, so R3062 was always exact) and `prescan_expr` for everything else (which
+had no Esuffix arm, so FDTEST's `fdiv2(i, 100)` inside a PUT item demanded nothing). The
+byte size of a literal argument cell is a property of the FORMAL, not of the literal's
+spelling -- FDTEST passes `100` against a float formal and DR allocates 4 MBF bytes.
+
+**Evidence.** FDTEST's first symptom was `LINK-DEF-DATA-SIZE` mine 0016 vs DR 0018; the
+2-byte shortfall put automatic `i` at 000d, inside the float constant 100.0 occupying
+000b-000e, so `STA I` would have overwritten the constant while every address in a
+decoded dump remained plausible. Counting the cell in `const_cells` instead made FDTEST
+exact and broke R3062 (mine 0018 vs DR 0014) -- a double count. With the prescan arm in
+place, `formal_float_at` (used by `const_cells`) still resolved callees only through
+`pl_ptrs`, answered "not float" for the external entry, and added its 2-byte FIXED cell
+on top: FDTEST 001A vs 0018. One accessor (`callee_formal_rt_l`) for all three consumers
+resolved it; final: gate 390/390, FDTEST and R3062 both byte-exact.
+
+**Method.** A double count and a missing count are the same symptom class -- a small
+DEF-DATA-SIZE disagreement -- so the size delta does not discriminate. The discriminator
+is which *previously exact* specimen breaks when you ADD bytes: R3062 broke on adding,
+therefore the bytes already had an owner, therefore "missing" was the wrong story and
+"two owners" was the right one.
+
+**Architecture.** Three functions answered "is argument i of this callee FLOAT?", each
+correct for the case it was written for and each wrong for the new one. This is C129's
+pattern with a callee type instead of a statement kind: adding one variant to a
+semantic relation fans out across every independently-written consumer. No hard case
+was involved -- external ENTRY is the same descriptor ABI as internal calls (C127-C131).
+See spec/notes/e2e11-step4-external-entry.md §4.

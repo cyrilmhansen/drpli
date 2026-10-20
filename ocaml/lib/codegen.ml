@@ -56,6 +56,7 @@ type st =
   ; mutable stat_total : int
   ; mutable files : string list   (* [E2E-11 step 2] uppercased FILE names *)
   ; mutable fmtq : int list
+
       (* [E2E-8] FIFO of pre-allocated PUT EDIT format-table addresses.  DR
          allocates EVERY format table in a block BEFORE any other pool item --
          proven by R1003 (table at *S(0000) while the 'AB' literal used by the
@@ -100,6 +101,13 @@ type st =
                                          second STOPX after dbl code] *)
   ; mutable calls : Bind.call_site list   (* prescan FIFO, DFS order *)
   ; mutable procs : (string * Bind.proc_layout) list
+  ; mutable exts : (string * (int * bool * Bind.rt option * Bind.rt list)) list
+      (* [E2E-11 step 4] EXTERNAL ENTRY targets from Bind.pl_exts: name ->
+         (params, external_, RETURNS type, formal types).  Kept SEPARATE from
+         `procs' on purpose -- an entry has no block, no body, no formal CELLS
+         and no entry address of its own, and mixing it into procs would make
+         the forward/internal CALL resolution take the CHAIN-ADDR branch and
+         silently emit the wrong relocation. *)
   ; mutable entries : (string * int) list (* lowered proc -> entry lc *)
   ; mutable fcalls : (string * int) list  (* pending forward CALL slots *)
   ; mutable deref : string list           (* ptr-formal names, cur scope *)
@@ -578,6 +586,13 @@ type pdec_ctx =
       (* [E2E-10] the block being prescanned RETURNS FLOAT, so its literal
          operands become float cells rather than DEC/FIXED values *)
   ; pd_fl_procs : string list
+  ; pd_callee_rt : string -> int -> Bind.rt option
+      (* [E2E-11 step 4] is argument i of call `nm' a FLOAT formal?  The pool
+         cell size of a literal argument depends on the FORMAL, so the prescan
+         cannot decide from the literal's spelling (FDTEST passes `100' against
+         a float formal and DR still allocates 4 MBF bytes).  A function field
+         because the two walkers run at different times: prescan has only
+         bind's layout, lowering has st. *)
       (* [E2E-10] names (lower-cased) of procedures whose RETURNS type is
          FLOAT BINARY(24).  pd_procs carries DEC precisions only and
          pd_vars holds VARIABLES, so float-returning callees need their own
@@ -764,6 +779,42 @@ let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
   | Ast.Eprefix (_, x) -> prescan_expr cx x
   | Ast.Ebuilt (_, es) ->
       List.fold_left (fun a x -> a + prescan_expr cx x) 0 es
+  | Ast.Esuffix (hd, args) ->
+      (* [E2E-11 step 4, FDTEST] a FLOAT-literal call argument needs its 4-byte
+         MBF cell demanded in EVERY expression position.  The
+         Sassign-with-float-target path already did this through pdec_fl_expr
+         [R3062], which is exactly why R3062 stayed byte-exact while FDTEST did
+         not: FDTEST's call sits inside a PUT item, and PUT items are counted
+         through prescan_expr, which had no Esuffix arm at all.  The result was
+         a pool base 2 bytes short, so the first automatic variable landed on
+         top of the constant's low half -- FDTEST referenced the literal 100.0
+         at 000b-000e and the index `i' at 000d, and `STA I' would have
+         trampled the constant while every address in the dump still looked
+         plausible.
+         FIXED literal arguments are deliberately NOT counted here: const_cells
+         owns them, and counting them in both places is the regression this
+         replaces (adding 4 bytes in const_cells moved R3062 from exact to
+         0018 vs DR's 0014).  Dedup goes through cx.pd_fl, the same bookkeeping
+         pdec_fl_expr uses, so a literal demanded twice contributes once. *)
+      let tl =
+        match hd.Ast.e with
+        | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
+        | _ -> ""
+      in
+      List.fold_left
+        (fun acc (i, a) ->
+          match (match a.Ast.e with Ast.Econd x -> x | _ -> a).Ast.e with
+          | Ast.Enumber t ->
+              (match cx.pd_callee_rt tl i with
+               | Some (Bind.RTfloat 24) -> acc + pdec_fl_cell cx t
+               | Some (Bind.RTfloat p) ->
+                   failwith
+                     ("codegen: FLOAT BINARY(" ^ string_of_int p
+                      ^ ") formal is unsupported [TBD] (only BINARY(24) is "
+                      ^ "characterized; C100/C101)")
+               | _ -> acc)
+          | _ -> acc)
+        0 (List.mapi (fun i x -> (i, x)) args)
   | _ -> 0
 
 type chain = C2 of string * string * string   (* lit || var [W101] *)
@@ -1299,6 +1350,51 @@ let rec count_required (s : Ast.stmt) =
    order, deduplicated by identical bytes [C101]) but are tracked apart from
    DEC and character cells, so a coincidental byte match can never alias a
    string literal onto a float operand or the other way round. *)
+(* [E2E-11 step 4] the callee's formal type at a position, uniform over internal
+   procedures and EXTERNAL ENTRIES, and available to BOTH the prescan and the
+   lowering.  It used to be a closure inside the CALL lowering, which is why the
+   prescan could not answer "is argument i a float?" -- and not answering it is
+   what let a float literal argument cell be allocated after the pool base was
+   fixed, putting it on top of the automatic variables (see
+   prealloc_call_arg_cells). *)
+(* the two inputs are the lists bind produced, so this is usable BEFORE the
+   codegen state exists (pool sizing) and after (lowering) -- that is the whole
+   reason it is a separate function rather than a closure inside lower_hl. *)
+let callee_formal_rt_l (layout : Bind.prog_layout) (nm : string)
+    (i : int) : Bind.rt option =
+  let li = String.lowercase_ascii nm in
+  match List.assoc_opt li layout.Bind.pl_exts with
+  | Some (_p, _e, _ret, pt) -> List.nth_opt pt i
+  | None ->
+      (match
+         List.find_opt
+           (fun (p : Bind.proc_layout) -> p.Bind.pl_name = li)
+           layout.Bind.pl_procs
+       with
+       | Some pl ->
+           (match List.nth_opt pl.Bind.pl_ptrs i with
+            | Some (fn, _) ->
+                List.find_map
+                  (fun (k, rt, _o) -> if k = fn then Some rt else None)
+                  pl.Bind.pl_rows
+            | None -> None)
+       | None -> None)
+
+let callee_formal_rt st (nm : string) (i : int) : Bind.rt option =
+  let li = String.lowercase_ascii nm in
+  match List.assoc_opt li st.exts with
+  | Some (_p, _e, _ret, pt) -> List.nth_opt pt i
+  | None ->
+      (match List.assoc_opt li st.procs with
+       | Some pl ->
+           (match List.nth_opt pl.Bind.pl_ptrs i with
+            | Some (fn, _) ->
+                List.find_map
+                  (fun (k, rt, _o) -> if k = fn then Some rt else None)
+                  pl.Bind.pl_rows
+            | None -> None)
+       | None -> None)
+
 let fl_pool st (b : bytes) =
   let l = List.init (Bytes.length b) (fun i -> Char.code (Bytes.get b i)) in
   match List.find_opt (fun (_addr, bs) -> bs = l) st.fl_cells with
@@ -1461,21 +1557,30 @@ let rec lower_hl st (e : Ast.expr) =
       begin match hd.Ast.e, args with
       | Ast.Eident h, args ->
           let nm = String.lowercase_ascii h.Ast.orig in
-          if not (List.mem_assoc nm st.procs) then
+          if
+            not (List.mem_assoc nm st.procs || List.mem_assoc nm st.exts)
+          then
             failwith
               ("codegen: call to unknown " ^ nm
-                 ^ " [TBD] (an EXTERNAL ENTRY's CALL statement lowers to "
-                 ^ "`LXI H,*A(desc) / CALL <NAME>` plus a LINK-CHAIN-EXT for the "
-                 ^ "symbol [E24G], so the object file is reachable -- but "
-                 ^ "external ENTRY linkage is being assessed separately, because "
-                 ^ "linking and running also need the historical assembly "
-                 ^ "module, which would make object-file identity not the same "
-                 ^ "thing as executable acceptance. Line "
+                 ^ " [TBD] (not a procedure in scope and not an ENTRY "
+                 ^ "declaration; line "
                  ^ string_of_int h.Ast.pos.Source.line ^ ")");
+          (* [E2E-11 step 4] the external-entry record, threaded through this
+             whole arm: it drives the formal-TYPE lookups (there are no formal
+             CELLS for an entry), the CALL operand shape (CHAIN-EXT), and the
+             NOT PROC / TYPES NOT= checks via RETURNS. *)
+          let ext = List.assoc_opt nm st.exts in
           (* [E2E-11/CALL, C122] the two disjoint procedure kinds, both from DR
-             pass 2 with NO .REL emitted: see st.call_stmt's comment. *)
+             pass 2 with NO .REL emitted: see st.call_stmt's comment.  An
+             EXTERNAL ENTRY participates in the same rule: `declare ex
+             entry(fixed) external;' has no RETURNS, so `call ex(a);' is legal
+             (E24G) and `n = ex(a);' would be DR's TYPES NOT= [C122]. *)
           let returns_some =
-            match List.assoc nm st.procs with pl -> pl.Bind.pl_ret <> None
+            match List.assoc_opt nm st.exts with
+            | Some (_p, _e, ret, _pt) -> ret <> None
+            | None ->
+                (match List.assoc nm st.procs with
+                 pl -> pl.Bind.pl_ret <> None)
           in
           let is_stmt = st.call_stmt = Some nm in
           if is_stmt then st.call_stmt <- None;
@@ -1520,20 +1625,42 @@ let rec lower_hl st (e : Ast.expr) =
                   can be MODE-CHECKED [E2E-9]: DR's only pinned decimal
                   argument route is by-reference from an AUTOMATIC decimal
                   variable [DECPOLY, R2037/R2038, R725]. *)
-               let pl = List.assoc nm st.procs in
-               (* the callee's formal type at a position, used for MODE
-                  checking; None = some other type or no re-declaration *)
+               (* [E2E-11 step 4] the callee's formal TYPE at a position,
+                  uniform over internal procedures and EXTERNAL ENTRIES.
+                  For an internal procedure this is the existing lookup: only
+                  POINTER formals have a row, and a formal that is not a
+                  pointer formal yields None (the value-formal route).  For an
+                  external entry there are no formal cells at all -- DR passes
+                  every argument BY DESCRIPTOR, which DIV2.ASM demonstrates
+                  directly (`div2: ;HL = .low(.p1)` then it loads .p1 out of the
+                  descriptor), so bind's recorded ptypes are the whole story.
+                  Keeping ONE accessor is deliberate: two parallel code paths
+                  here is how a mode rule would drift between internal and
+                  external calls without either failing. *)
+               let pl_opt =
+                 match ext with
+                 | Some _ -> None
+                 | None -> Some (List.assoc nm st.procs)
+               in
+               let formal_rt_at i : Bind.rt option =
+                 callee_formal_rt st nm i
+               in
+               (* the callee's formal row at a position, internal shape only *)
                let formal_rt i =
-                 match List.nth_opt pl.Bind.pl_ptrs i with
-                 | Some (fn, _) ->
-                     List.find_opt (fun (k, _rt, _o) -> k = fn)
-                       pl.Bind.pl_rows
-                 | None -> None
+                 match ext with
+                 | Some _ -> None
+                 | None ->
+                     let pl = Option.get pl_opt in
+                     (match List.nth_opt pl.Bind.pl_ptrs i with
+                      | Some (fn, _) ->
+                          List.find_opt (fun (k, _rt, _o) -> k = fn)
+                            pl.Bind.pl_rows
+                      | None -> None)
                in
                let formal_is_float i =
-                 match formal_rt i with
-                 | Some (_, Bind.RTfloat 24, _) -> true
-                 | Some (_, Bind.RTfloat p, _) ->
+                 match formal_rt_at i with
+                 | Some (Bind.RTfloat 24) -> true
+                 | Some (Bind.RTfloat p) ->
                      failwith
                        ("codegen: FLOAT BINARY(" ^ string_of_int p
                         ^ ") formal is unsupported [TBD] (only BINARY(24) is "
@@ -1541,25 +1668,57 @@ let rec lower_hl st (e : Ast.expr) =
                  | _ -> false
                in
                let formal_is_dec i =
-                 match List.nth_opt pl.Bind.pl_ptrs i with
-                 | Some (fn, _) ->
-                     let frt =
-                       List.find_opt (fun (k, _rt, _o) -> k = fn)
-                         pl.Bind.pl_rows
-                     in
-                     begin match frt with
-                     | Some (_, Bind.RTdec _, _) -> true
-                     | Some _ -> false
-                     | None ->
-                         failwith
-                           ("codegen: call argument against a formal with no "
-                            ^ "declaration [TBD] (DR requires the callee to "
-                            ^ "redeclare its formals [R2007])")
-                     end
-                 | None -> false
+                 match formal_rt_at i with
+                 | Some (Bind.RTdec _) -> true
+                 | Some _ -> false
+                 | None ->
+                     (* an external entry with no ptype at i is a bind-side bug,
+                        not an unsampled shape; an internal non-pointer formal
+                        legitimately has no row [value-formal route] *)
+                     (match ext with
+                      | Some _ ->
+                          failwith
+                            ("codegen: call argument with no recorded formal type "
+                             ^ "against an EXTERNAL ENTRY [TBD] (bind's RTentry "
+                             ^ "carries ptypes; arity is checked separately)")
+                      | None -> false)
                in
                List.iteri
                  (fun i (arg, tmp) ->
+                   (* [E2E-11 step 4, E29C] width-mismatched argument: an actual
+                      whose cell is NARROWER than the formal's declared FIXED type
+                      cannot be passed by reference -- the callee would read past
+                      it.  DR widens: E29C `ff(i, j)' with `dcl (i,j) fixed(7)'
+                      against `entry(fixed(7),fixed)' emits
+                          LDA J ; <sign-extend to HL> ; SHLD * A(0006)
+                          LXI H,* A(0002) ; CALL FF
+                      i.e. it copies j's value into an ANONYMOUS 2-byte cell and
+                      hands out that cell's address (which is also why DR's data
+                      area is 2 bytes bigger than mine was).  My pass-by-reference
+                      route would silently let the callee read one byte of j plus
+                      whatever follows, so it refuses until implemented. *)
+                   let () =
+                     match (unwrap_e arg).Ast.e with
+                     | Ast.Eident v ->
+                         let aw =
+                           match List.assoc_opt (String.lowercase_ascii v.Ast.orig) st.vars with
+                           | Some vi -> vi.size
+                           | None -> 2
+                         in
+                         (match callee_formal_rt st nm i with
+                          | Some (Bind.RTbin p) ->
+                              let fw = Bind.bytes_of (Bind.RTbin p) in
+                              if fw <> aw then
+                                failwith
+                                  ("codegen: [TBD] fixed(" ^ string_of_int p
+                                     ^ ") formal against an actual with a "
+                                     ^ string_of_int aw
+                                     ^ "-byte cell is unimplemented (DR widens "
+                                     ^ "through an anonymous cell [E29C]; line "
+                                     ^ string_of_int arg.Ast.epos.Source.line ^ ")")
+                          | _ -> ())
+                     | _ -> ()
+                   in
                    (* [E2E-9] mode check.  Bound as `let () = ... in` on
                       purpose: an `if` whose THEN branch is a MATCH swallows
                       every following expression into the match's last arm
@@ -1690,56 +1849,72 @@ let rec lower_hl st (e : Ast.expr) =
                  d st op_lxi_h; reloc st Data slot;
                end;
                d st op_call;
-               (match List.assoc_opt nm st.entries with
-                | Some a ->
-                    (* known entry (backward/self): the CALL operand is
-                       a single INLINE relocatable reference
-                       [RFACT @8A cd+RELOC code 56; NFACT @99] *)
-                    reloc st Code a
+               (match ext with
+                | Some (_p, _e, _ret, _pt) ->
+                    (* [E2E-11 step 4, E24G/DTEST] an EXTERNAL ENTRY's CALL operand
+                       is a LINK-CHAIN-EXT naming the symbol -- exactly the shape the
+                       RTL references use, and NOT a CHAIN-ADDR (the target lives in
+                       another module) and NOT an inline RELOC (there is no address
+                       in THIS program to point at).  DR emits it per call site
+                       (E24G: CHAIN-EXT EX at code 0010; DTEST: CHAIN-EXT DIV2 at
+                       code 0019) and does NOT EXTDEF the symbol: E24G's only EXTDEF
+                       is the program name [C132].  The name is the declared spelling
+                       uppercased, matching how DR names its own symbols. *)
+                    let slotx = st.lc in
+                    d st 0; d st 0;
+                    link st t_chain_ext (Some (Code, slotx))
+                      (Some (String.uppercase_ascii h.Ast.orig))
                 | None ->
-                    (* forward: two placeholder DATA bytes; resolved by
-                       CHAIN-ADDR at the callee's entry byte
-                       [P401 @9-000B + chain @1285] *)
-                    let oslot = st.lc in
-                    (* [E2E-11/CALL, E25F, C123] the SECOND (and later) forward
-                       call to the same not-yet-emitted procedure does NOT get
-                       its own chain.  DR relocates its operand RELATIVE TO THE
-                       FIRST CALL SITE'S OWN OPERAND WORD: E25F emits
-                       `CALL 0000` at 0013 (operand stored at 0014, later
-                       CHAIN-ADDR'd to the entry) and then, at the second site
-                       0019, the record RELOC(CODE, 0014) -- which the listing
-                       prints as `CALL S`.  At link time 001A receives the
-                       contents of 0014, i.e. the callee's entry address, so the
-                       indirection is semantically a copy of the first patch.
-                       That is why one CHAIN-ADDR serves arbitrarily many sites,
-                       and why emitting a second chain would be wrong: E25F has
-                       exactly ONE chain record for two forward calls. *)
-                    (* st.fcalls is PREPENDED, so the head is the most recently
-                       emitted site for this procedure.  E27A (three forward
-                       calls to one procedure) pins the chain: site 1's operand
-                       at 0018 is two zero DATA bytes, site 2's operand at 001E
-                       is RELOC(CODE, 0018), site 3's operand at 0024 is
-                       RELOC(CODE, 001E) -- each later site is relocated against
-                       the IMMEDIATELY PRECEDING site, not against the first.
-                       E25F agrees (one later site against 0014).  Then ONE
-                       LINK-CHAIN-ADDRESS record targets the LAST site's operand
-                       (E27A: 0024; E25F: 001A), and the linker's chain walk
-                       propagates the entry address back through the RELOC links:
-                       verified by linking my own .REL and comparing the resolved
-                       operands against DR's .COM. *)
-                    (match List.filter (fun (k, _) -> k = nm) st.fcalls with
-                     | (_, prev_slot) :: _ ->
-                         reloc st Code prev_slot;
-                         (* the site just emitted becomes the anchor for the next
-                            one [E27A: 0018 <- 001E <- 0024].  Forgetting this is
-                            what made site 3 chain against site 1 -- the .REL
-                            differed in exactly one field and E25F (two sites)
-                            still matched, so a two-site test cannot catch it. *)
-                         st.fcalls <- (nm, oslot) :: st.fcalls
-                     | [] ->
-                         d st 0; d st 0;
-                         st.fcalls <- (nm, oslot) :: st.fcalls));
-               st.last_imm <- None
+                   (match List.assoc_opt nm st.entries with
+                    | Some a ->
+                        (* known entry (backward/self): the CALL operand is
+                           a single INLINE relocatable reference
+                           [RFACT @8A cd+RELOC code 56; NFACT @99] *)
+                        reloc st Code a
+                    | None ->
+                        (* forward: two placeholder DATA bytes; resolved by
+                           CHAIN-ADDR at the callee's entry byte
+                           [P401 @9-000B + chain @1285] *)
+                        let oslot = st.lc in
+                        (* [E2E-11/CALL, E25F, C123] the SECOND (and later) forward
+                           call to the same not-yet-emitted procedure does NOT get
+                           its own chain.  DR relocates its operand RELATIVE TO THE
+                           FIRST CALL SITE'S OWN OPERAND WORD: E25F emits
+                           `CALL 0000` at 0013 (operand stored at 0014, later
+                           CHAIN-ADDR'd to the entry) and then, at the second site
+                           0019, the record RELOC(CODE, 0014) -- which the listing
+                           prints as `CALL S`.  At link time 001A receives the
+                           contents of 0014, i.e. the callee's entry address, so the
+                           indirection is semantically a copy of the first patch.
+                           That is why one CHAIN-ADDR serves arbitrarily many sites,
+                           and why emitting a second chain would be wrong: E25F has
+                           exactly ONE chain record for two forward calls. *)
+                        (* st.fcalls is PREPENDED, so the head is the most recently
+                           emitted site for this procedure.  E27A (three forward
+                           calls to one procedure) pins the chain: site 1's operand
+                           at 0018 is two zero DATA bytes, site 2's operand at 001E
+                           is RELOC(CODE, 0018), site 3's operand at 0024 is
+                           RELOC(CODE, 001E) -- each later site is relocated against
+                           the IMMEDIATELY PRECEDING site, not against the first.
+                           E25F agrees (one later site against 0014).  Then ONE
+                           LINK-CHAIN-ADDRESS record targets the LAST site's operand
+                           (E27A: 0024; E25F: 001A), and the linker's chain walk
+                           propagates the entry address back through the RELOC links:
+                           verified by linking my own .REL and comparing the resolved
+                           operands against DR's .COM. *)
+                        (match List.filter (fun (k, _) -> k = nm) st.fcalls with
+                         | (_, prev_slot) :: _ ->
+                             reloc st Code prev_slot;
+                             (* the site just emitted becomes the anchor for the next
+                                one [E27A: 0018 <- 001E <- 0024].  Forgetting this is
+                                what made site 3 chain against site 1 -- the .REL
+                                differed in exactly one field and E25F (two sites)
+                                still matched, so a two-site test cannot catch it. *)
+                             st.fcalls <- (nm, oslot) :: st.fcalls
+                         | [] ->
+                             d st 0; d st 0;
+                             st.fcalls <- (nm, oslot) :: st.fcalls)))
+               ; st.last_imm <- None
            | _ -> failwith "codegen: call-site queue mismatch [TBD]")
       | _ -> failwith "codegen: non-identifier call target deferred [TBD]"
       end
@@ -2852,9 +3027,20 @@ let fl_addr st (m : fmode) =
       failwith "codegen: internal: computed float operand has no address"
 
 let fl_proc_ret st (nm : string) =
-  match List.assoc_opt (String.lowercase_ascii nm) st.procs with
-  | Some pl -> pl.Bind.pl_ret
-  | None -> None
+  (* [E2E-11 step 4, FDTEST] an EXTERNAL ENTRY with RETURNS is a callable value
+     source too: FDTEST's `put skip list(...,fdiv2(i,100))' is a float-valued
+     PUT item whose type can only be resolved through bind's pl_exts, since an
+     entry has no proc_layout.  Without this, is_float_expr said "not a float
+     expression" and the item fell through to the generic refusal.  Only the
+     FLOAT case is sampled by FDTEST; a DECIMAL-returning external entry keeps
+     resolving to None and refuses, because DR has no such sample here. *)
+  let li = String.lowercase_ascii nm in
+  match List.assoc_opt li st.exts with
+  | Some (_p, _e, ret, _pt) -> ret
+  | None ->
+      (match List.assoc_opt li st.procs with
+       | Some pl -> pl.Bind.pl_ret
+       | None -> None)
 
 let rec is_float_expr st (e : Ast.expr) : bool =
   let e = unwrap_e e in
@@ -3739,6 +3925,22 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
       ignore (dec_push st (Some (p, _s)) rhs);
       d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
       d st op_mvi_a; d st p; call_ext st "?DSTOP"
+  | Ast.Eident n
+    when is_small_int st n && is_float_expr st rhs ->
+      (* [E2E-11 step 4, E29B/E29E] `i = ff(i, 101.5);' where ff RETURNS FLOAT
+         and i is FIXED: DR converts the float result with `CALL ?QFI15' before
+         storing (E29B: CALL FF / CALL ?QFI15 / STA I).  Without that step the
+         ordinary integer path takes MOV A,L of whatever HL holds -- i.e. one
+         mantissa byte of a float -- and the program still compiles, links and
+         RUNS with a plausible-looking number.  Refusing is the only acceptable
+         behavior: my dump was 13 bytes SHORTER than DR's, which is how I found
+         it, but a short file is not a safety net for the general case. *)
+      failwith
+        ("codegen: [TBD] assignment of a FLOAT-valued expression into a FIXED "
+         ^ "variable is unimplemented (DR converts with ?QFI15 first [E29B, "
+         ^ "E29E]; lowering it without the conversion silently truncates a "
+         ^ "mantissa byte into the integer cell; line "
+         ^ string_of_int rhs.Ast.epos.Source.line ^ ")")
   | Ast.Eident n when is_small_int st n ->
       (* [N306/N308] 1-byte FIXED BIN store: value in A then
          STA dir (3C + RELOC). Consts: MVI A,lo. Expressions:
@@ -3750,7 +3952,15 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
            let k = parse_int_const s in
            if k < 0 || k > 255 then
              failwith "codegen: 1-byte const store range [TBD]";
-           d st op_mvi_a; d st k
+           (* [E2E-11 step 4, E29B/E29D/E29E + DTEST] zero is stored by CLEARING
+              the accumulator, not by loading an immediate: DR emits `XRA A'
+              (1 byte) where the general constant path uses `MVI A,00' (2).  Same
+              economy as C119's zero elision and the DO-init form, and E29D's
+              `i = 0;' pinned it independently of DTEST's loop initialization.
+              Non-zero constants keep MVI A,lo, which N306/N308 pin. *)
+           if k = 0 then d st 0xaf else begin
+             d st op_mvi_a; d st k
+           end
        | _ -> lower_hl st rhs; d st 0x7d (* MOV A,L *)) ;
       (* 1-byte store: DR emits opcode 0x32 with the inline-reloc
          16-bit address ($C prints 'STA'; byte replicated literally
@@ -4173,6 +4383,30 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
      last_imm < 256 case. *)
   (match fromc with
    | Some fromv ->
+       if is_small_int st ind then
+         (* [E2E-11 step 4, DTEST] a 1-byte index cell (fixed(7) needs one byte)
+            cannot be initialized through the HL ladder at all: DR clears the
+            ACCUMULATOR and stores it directly --
+                0006  XRA  A
+                0007  STA  I A(000F)
+            `XRA A' rather than `MVI A,00' because clearing A is 1 byte and MVI
+            is 2, which is the same cheap-zero economy as C119's zero elision.
+            Only from = 0 is sampled: for from = 5 there is no DR evidence
+            whether it is `MVI A,05 / STA', a reload through LXI H + MOV A,L, or
+            something else, and inventing it would change DTEST-shaped programs
+            silently.  HL-constant reuse is NOT claimed here: this store never
+            puts the value in HL, so last_imm is cleared instead of set. *)
+         begin
+         if fromv <> 0 then
+            failwith
+              ("codegen: [TBD] DO index = " ^ string_of_int fromv
+                 ^ " into a 1-byte index cell is unsampled (DTEST pins only 0, "
+                 ^ "lowered as XRA A / STA <index>; line "
+                 ^ string_of_int from.Ast.epos.Source.line ^ ")");
+         st.last_imm <- None;
+         d st 0xaf; d st 0x32; reloc st Data iaddr
+       end
+       else begin
        (match st.last_imm with
         | Some v when v = fromv -> ()
         | Some v when v + 1 = fromv -> d st op_inx_h
@@ -4183,6 +4417,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
             d st ((fromv lsr 8) land 0xff));
        st.last_imm <- Some (fromv land 0xffff);
        d st op_shld; reloc st Data iaddr
+       end
    | None ->
        (* variable FROM: load the source cell, store the index cell
           [IFACT 000C-000F: LHLD I / SHLD N] *)
@@ -4210,6 +4445,30 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     let head = st.lc in
     st.last_imm <- None;   (* [E2E-8] body head is a branch target: HL unknown *)
     lo st ls body;
+    if is_small_int st ind && rep = None && step = 1 then begin
+      (* [E2E-11 step 4, DTEST] a 1-byte index cell is incremented IN PLACE
+         through a pointer, not loaded/bumped/stored:
+             005C  LXI  H,I A(000F)
+             005F  INR  M
+             0060  JMP  000A
+         DR's 2-byte ladder (LHLD / INX H / SHLD) needs 7 bytes; this is 4, and
+         the difference is 3 bytes of code -- which is why DTEST's whole tail
+         shifted before this branch existed.  `by -1' and `by 2' on a 1-byte
+         cell have no DR sample (DTEST is step 1), so they fall through to the
+         refusal below rather than reusing DCR M on a guess. *)
+      d st op_lxi_h; reloc st Data iaddr;
+      d st 0x34;                          (* INR M *)
+      d st op_jmp;
+      st.last_imm <- None (* [R723] branch boundary *);
+      reloc st Code head;
+      st.last_imm <- None
+    end
+    else if is_small_int st ind then
+      failwith
+        ("codegen: [TBD] 1-byte index cell with step " ^ string_of_int step
+           ^ " / REPEAT is unsampled (DTEST pins only `by 1', lowered as "
+           ^ "LXI H,<index> / INR M)")
+    else begin
     d st op_lhld; reloc st Data iaddr;
     (* [Z402 k=1; R427 k=2] REPEAT(ind+k) = k INX H rungs;
        k>2 / other shapes unproven -> [TBD] *)
@@ -4231,6 +4490,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     d st op_shld; reloc st Data iaddr;
     (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head;
     st.last_imm <- None
+    end
   end else begin
   let head, jpslot =
     match to_ with
@@ -5278,18 +5538,16 @@ let emit_program (progname : string) (auto_bytes : int)
      prescan_pool already demands through pdec_fl_expr [R3062].  Counting 2
      bytes for a float formal double-charged the literal and shifted every
      variable address in the program by 2. *)
+  (* [E2E-11 step 4] this used to resolve the callee only through pl_procs, so
+     for an EXTERNAL ENTRY it answered "not a float formal" and const_cells added
+     its 2-byte FIXED cell on top of the 4-byte float cell the prescan had just
+     demanded -- FDTEST's data area came out 0x1A against DR's 0x18.  Now it
+     delegates to the same accessor the lowering and the prescan use, so there is
+     ONE answer to "is argument i FLOAT". *)
   let formal_float_at pn i =
-    match List.find_opt (fun (p : Bind.proc_layout) -> p.Bind.pl_name = pn)
-            layout.pl_procs with
-    | None -> false
-    | Some pl ->
-        (match List.nth_opt pl.Bind.pl_ptrs i with
-         | Some (fn, _) ->
-             (match List.find_opt (fun (k, _rt, _o) -> k = fn) pl.Bind.pl_rows
-              with
-              | Some (_, Bind.RTfloat 24, _) -> true
-              | _ -> false)
-         | None -> false)
+    match callee_formal_rt_l layout pn i with
+    | Some (Bind.RTfloat 24) -> true
+    | _ -> false
   in
   let const_cells =
     List.fold_left
@@ -5304,8 +5562,7 @@ let emit_program (progname : string) (auto_bytes : int)
                 | _ -> acc)
               a (List.mapi (fun i x -> (i, x)) args)
                   (* ACCUMULATE from the outer total: starting at 0 silently
-                     dropped every call site but the last [regression caught by
-                     R406/R421 byte parity] *)
+                     dropped every call site but the last [R406/R421 parity] *)
       ) 0 layout.pl_calls
   in
   (* [E2E-6] prescan context for decimal literal cells: every block's
@@ -5363,7 +5620,9 @@ let emit_program (progname : string) (auto_bytes : int)
   let pool_total =
     prescan_pool { pd_vars; pd_procs; pd_ret = None
                     ; pd_dec = ref []; pd_fl = ref []; pd_fl_ret = false
-                    ; pd_fl_procs }
+                    ; pd_fl_procs
+                    ; pd_callee_rt =
+                        (fun nm i -> callee_formal_rt_l layout nm i) }
                     stmts + const_cells
   in
   let st =
@@ -5385,6 +5644,7 @@ let emit_program (progname : string) (auto_bytes : int)
         List.map
           (fun (p : Bind.proc_layout) -> (p.pl_name, p))
           layout.pl_procs
+    ; exts = layout.Bind.pl_exts
     ; entries = []; fcalls = []; deref = []
     ; floor = layout.pl_total; vars = rows
     ; dec_ret = None

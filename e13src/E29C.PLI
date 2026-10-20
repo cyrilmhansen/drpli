@@ -1,0 +1,10 @@
+e29c:
+    procedure options(main);
+    declare (i, j) fixed(7);
+    declare ff entry(fixed(7),fixed) returns(fixed);
+    i = 0;
+    j = 1;
+    i = ff(i, j);
+    stop;
+end e29c;
+

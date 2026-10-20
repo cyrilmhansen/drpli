@@ -112,6 +112,75 @@ def decode(path, verbose=True):
             print(f'  @{st:5} {kind:14} {s if s else ""} {af} {v if not isinstance(v,int) else hex(v)}')
     return items, data_bytes
 
+
+
+# ---------------------------------------------------------------------------
+# Regression test for THIS tool.  [E2E-11 step 3b] the formatter hid every
+# (SEGMENT, ADDRESS) tuple payload, so two files whose LINK-CHAIN-ADDRESS
+# targets differed printed as IDENTICAL here, and I recorded a false byte-parity
+# claim about E25F on the strength of that dump (retracted in CLAIMS C123).  The
+# lesson is not "be careful with dumps" -- it is that a decoder's omission is
+# invisible inside its own output, so the omission needs an external check.
+#
+# These expectations are field-level (what decode() returns) AND textual (what a
+# human reads), because the bug was in the human-facing layer while the parsed
+# data was already correct.  Pinned against DR goldens, not my own output, so
+# the test cannot pass by both producer and consumer drifting together.
+# ---------------------------------------------------------------------------
+SELFTEST = [
+    # path, record type, occurrence, expected address field, why it matters
+    ("golden/e2e129/E27C/E27C.REL", "LINK-CHAIN-ADDR", 0, ("code", 0x0014),
+     "forward CALL site #1 in the pointer-forwarding probe"),
+    ("golden/e2e129/E27C/E27C.REL", "LINK-CHAIN-ADDR", 1, ("code", 0x001A),
+     "site #2 -- hiding this is what produced the false 'identical' reading"),
+    ("golden/e2e129/E27C/E27C.REL", "LINK-DEF-DATA-SIZE", 0, ("abs", 0x000C),
+     "size fields are absolute-valued; a regression here would mean the "
+     "absolute/relocatable split moved"),
+    ("golden/e2e143/E29A/E29A.REL", "LINK-CHAIN-EXT", 1, ("code", 0x000C),
+     "external ENTRY chain slot; CHAIN-EXT carries no name field, so its "
+     "symbol slot must read ?STOPX"),
+]
+
+
+def selftest():
+    """Returns 0 iff every pinned field decodes as expected."""
+    bad = []
+    for path, kind, occ, want, why in SELFTEST:
+        try:
+            items, _ = decode(path, verbose=False)
+        except Exception as e:                       # noqa: BLE001
+            bad.append(f"{path}: unreadable ({e})")
+            continue
+        got = [it for it in items if it[1] == kind]
+        if len(got) <= occ:
+            bad.append(f"{path}: {kind}#{occ} missing "
+                       f"(found {len(got)}) -- {why}")
+            continue
+        have = got[occ][3]
+        if have != want:
+            bad.append(f"{path}: {kind}#{occ} field decoded as {have!r}, "
+                       f"expected {want!r} -- {why}")
+        # the value must also be VISIBLE in what a human is shown
+        import io
+        import contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            decode(path)
+        line = [l for l in buf.getvalue().splitlines() if kind in l]
+        word = "%04X" % want[1]
+        if not any(word in l for l in line):
+            bad.append(f"{path}: {kind}#{occ} value {word} absent from the "
+                       f"printed dump (formatter hiding a field again) -- {why}")
+    if bad:
+        print("reldump SELFTEST FAILED:")
+        for b in bad:
+            print("  " + b)
+        return 1
+    print(f"reldump selftest: {len(SELFTEST)} pinned fields OK")
+    return 0
+
 if __name__ == '__main__':
+    if sys.argv[1:2] == ['--selftest']:
+        sys.exit(selftest())
     for f in sys.argv[1:]:
         decode(f)

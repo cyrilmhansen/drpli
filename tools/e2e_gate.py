@@ -494,7 +494,19 @@ SPECIMENS = {
     "E26J": ("e13src/E26J.PLI", "golden/e2e127/E26J/E26J.REL"),
     "E26K": ("e13src/E26K.PLI", "golden/e2e127/E26K/E26K.REL"),
     "E28D": ("e13src/E28D.PLI", "golden/e2e137/E28D/E28D.REL"),
-    "E28E": ("e13src/E28E.PLI", "golden/e2e138/E28E/E28E.REL"),
+    "E28E": ("e13src/E28E.PLI", "golden/e2e138/E28E/E28E.REL"),    # [E2E-11 step 4] EXTERNAL ENTRY.  E24G is the minimal statement-position
+    # call of an external entry (CHAIN-EXT on the symbol, no EXTDEF, no
+    # CHAIN-ADDR); DTEST/FDTEST are the corpus programs, whose acceptance goes
+    # further than this panel: linked .COM byte-identity against DR using the
+    # RMAC-assembled DIV2/FDIV2 modules, plus executed output (see
+    # spec/notes/e2e11-step4-external-entry.md).
+    "E24G": ("e13src/E24G.PLI", "golden/e2e121/E24G/E24G.REL"),
+    "DTEST": ("artefacts/DTEST.PLI", "golden/e2e141/DTEST/DTEST.REL"),
+    "FDTEST": ("artefacts/FDTEST.PLI", "golden/e2e141/FDTEST/FDTEST.REL"),
+    # the 1-byte index cell shapes DTEST forced out: XRA A / STA for a zero store
+    # (E29A, E29D) and the DO-init form; plus the external-entry statement form.
+    "E29A": ("e13src/E29A.PLI", "golden/e2e143/E29A/E29A.REL"),
+    "E29D": ("e13src/E29D.PLI", "golden/e2e144/E29D/E29D.REL"),
 
     "E24F": ("e13src/E24F.PLI", "golden/e2e121/E24F/E24F.REL"),
     "E24J": ("e13src/E24J.PLI", "golden/e2e122/E24J/E24J.REL"),
@@ -1025,11 +1037,13 @@ REJECTS = {
         "  gs: procedure (v);\n  declare v fixed;\n  v = v + 1;\n"
         "  end gs;\nend E24I;\n",
         "TYPES NOT="),
-    "N84_EXTERNAL_ENTRY_CALL": (
-        "E24G:\n  procedure options(main);\n  declare a fixed;\n"
-        "  declare ex entry(fixed) external;\n  a = 1;\n  call ex(a);\n"
-        "  stop;\nend E24G;\n",
-        "external ENTRY linkage is being assessed separately"),
+    # [E2E-11 step 4] N84_EXTERNAL_ENTRY_CALL RETIRED: it was MY deliberate
+    # perimeter refusal, not a DR rule -- DR compiles `call ex(a);' against
+    # `declare ex entry(fixed) external;' and emits E24G.REL.  The feature is now
+    # implemented; E24G is a positive specimen below.  Eighth instance of the
+    # "negative whose subject DR compiles" pattern.  Kept as a comment so the
+    # history stays visible next to the panel.
+
     "N73_FIXED_DEC_GT15": (
         "t:\n  procedure options(main);\n  dcl a fixed dec(16);\n  a = 1;\n"
         "  put list(a);\nend t;\n",
@@ -1069,10 +1083,27 @@ def run_negatives():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--link-run", action="store_true")
+    ap.add_argument("--skip-selftest", action="store_true",
+                    help="do not run the reldump field-visibility selftest "
+                         "first (debug only -- a real gate run must not use it)")
     ap.add_argument("--only", nargs="*", metavar="NAME",
                     help="restrict the --link-run arm to these specimens "
                          "(byte-parity compile still runs for all)")
     a = ap.parse_args()
+    # [E2E-11 step 4] the decoder this gate's DIAGNOSTICS rely on is itself under
+    # test.  reldump.py once hid every (SEGMENT,ADDRESS) payload, so two files whose
+    # LINK-CHAIN-ADDRESS targets differed printed as identical and I recorded a
+    # false byte-parity claim (C123 retraction).  A tool's blind spot is invisible
+    # from inside its own output, so it is checked before any specimen is compiled;
+    # raw `cmp` on .REL bytes remains the acceptance criterion either way.
+    if not a.skip_selftest:
+        st = subprocess.run([sys.executable, os.path.join(ROOT, "tools",
+                            "reldump.py"), "--selftest"], capture_output=True,
+                            text=True)
+        if st.returncode != 0:
+            print(st.stdout.strip() or st.stderr.strip())
+            print("e2e gate: ABORTED -- reldump selftest failed")
+            return 2
     ok = bad = 0
     for name, (src, gold) in SPECIMENS.items():
         gp = os.path.join(ROOT, gold)

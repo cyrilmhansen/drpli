@@ -1,0 +1,9 @@
+e29e:
+    procedure options(main);
+    declare i fixed(7);
+    declare ff entry(fixed(7),float) returns(float);
+    i = 0;
+    i = ff(i, 101);
+    stop;
+end e29e;
+
