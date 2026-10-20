@@ -1,0 +1,15 @@
+; ARCH-1 PROTOTYPE.  Isolated: nothing in ../lib or ../bin depends on these
+; targets, and pli80c does not link this library, so building the production
+; compiler is unaffected by anything here.
+(library
+ (name proto80)
+ (wrapped false)
+ (modules inst80 specimens)
+ (libraries pli80)
+ (flags (:standard -warn-error -a)))
+
+(executable
+ (name arch1)
+ (modules arch1)
+ (libraries proto80 pli80)
+ (flags (:standard -warn-error -a)))

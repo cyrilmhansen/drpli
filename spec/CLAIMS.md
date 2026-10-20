@@ -2247,3 +2247,43 @@ pattern with a callee type instead of a statement kind: adding one variant to a
 semantic relation fans out across every independently-written consumer. No hard case
 was involved -- external ENTRY is the same descriptor ABI as internal calls (C127-C131).
 See spec/notes/e2e11-step4-external-entry.md §4.
+
+---
+
+## C135 — a forward-reference chain gets ONE LINK-CHAIN-ADDR header, emitted at its RESOLUTION point (ARCH-1 prototype)
+
+**Statement.** For a CALL whose target is not yet defined, DR's `.REL` contains:
+
+* the FIRST referencing site writes two **absolute zero** bytes as its target word
+  and becomes the chain head;
+* every LATER site writes one **relocatable CODE word holding the current head**, and
+  becomes the new head (so the newest site is the head, and each link points at the
+  immediately preceding site — this is C123's forward-chain rule seen from the other
+  end);
+* exactly **one `LINK-CHAIN-ADDR` header per chain**, naming that head slot, emitted
+  at the **resolution point** — immediately before the first byte of the definition
+  that resolves the reference — *not* next to the reference, and *regardless of how
+  many sites there were*.
+
+**Evidence.** Counted across the chain-bearing goldens (20 specimens): E25C has 8 CALLs
+and 7 CHAIN-EXT but ONE header; E26J has 9/8 and one; E25F has 4 CALLs and one;
+E25D/E25H/E26A/E26K/E27A/E27B/E27C have two targets and exactly two headers. Placement:
+E25F's header sits at bit 826, immediately preceding `s`'s body at code 001F; E27C's two
+headers at bits 825 and 1032 immediately precede the bodies of `p1` (code 001F) and `p2`
+(code 0033). Production already satisfies this rule — all of those specimens are
+byte-exact gate members — but it implements it through `fcalls` being *prepended*, i.e.
+a list-direction side effect rather than a stated rule.
+
+**How it was found.** The ARCH-1 prototype (`ocaml/proto/`) initially needed one
+hand-placed `ChainItem` for E25F, because no *local* rule over the instruction stream
+reproduces DR's placement — the header belongs to a site emitted two instructions
+earlier but appears after the following statement's external chain fixup. Treating that
+as a permanent escape hatch would have been the wrong conclusion; asking instead "where
+does it *always* appear?" produced the resolution-point rule, after which the prototype
+reproduces **E29A and E25F byte-identically with zero hand-placed items**. Recorded in
+spec/notes/arch1-proto-inst-layer.md §4.
+
+**Caveat.** One per chain, at the definition — established from labels and internal
+procedures. Whether an *external* symbol resolution (`LINK-CHAIN-EXT`) has an analogous
+header is a different question: externals get their fixup at the reference site (C133),
+and the two mechanisms were never conflated here.
