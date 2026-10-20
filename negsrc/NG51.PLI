@@ -1,0 +1,16 @@
+t:
+  procedure options(main);
+  dcl (a,x) float;
+  dcl d1 float;
+  a = 1.5;
+  x = 2.5;
+  d1 = g(x);
+  stop;
+  g: procedure(p) returns(fixed);
+     dcl p float;
+     dcl i fixed;
+     i = 1;
+     return (i);
+  end g;
+end t;
+

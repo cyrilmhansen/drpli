@@ -1,0 +1,7 @@
+PT2:
+  procedure options(main);
+  dcl (b,c) bit(5);
+  b = c;
+  stop;
+end PT2;
+

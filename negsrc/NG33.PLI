@@ -1,0 +1,7 @@
+t:
+  procedure options(main);
+  dcl i fixed binary;
+  i = 25;
+  if mod(i,12) > 0 then i = 1;
+end t;
+

@@ -1054,11 +1054,187 @@ REJECTS = {
 }
 
 
+
+
+# ---------------------------------------------------------------------------
+# NEGATIVE-PANEL TAXONOMY  [E2E-11 step 4, DR verdict pass `negpanel1`]
+#
+# Every REJECTS source was handed to DR verbatim (CRLF + ^Z, $L$C$D, 65 programs
+# in one batch) and DR's own verdict recorded here, because for most of the
+# panel the interesting question is not "does my compiler refuse" -- it always
+# refuses, which is trivially true -- but "does DR refuse too".  Without that
+# column the panel conflates two completely different facts, and I have been
+# bitten eight times by the conflation: N56, N63-N66, N77, N54, N55, N84 all
+# asserted a perimeter DR happily compiled through.
+#
+# The result is lopsided and it matters:
+#
+#   DR REFUSES        11  -- language rules, DR's verbatim diagnostic recorded.
+#                            These are the panel's actual semantic evidence.
+#   DR COMPILES IT    54  -- MY capability gap.  The panel proves only that my
+#                            build is conservative; it says nothing about DR.
+#                            Each of the 54 now has a DR .REL in
+#                            golden/negpanel1/<NGxx>/, i.e. a byte-exact target
+#                            that already exists, so the panel doubles as a
+#                            ranked implementation backlog.
+#
+# Two consequences held to going forward:
+#   * a new negative must be classified here, and the gate fails if it is not;
+#   * before touching a negative, ask DR.  Eight times in a row the answer was
+#     "DR compiles it", and the ninth could easily be a tenth.
+#
+# Categories:
+#   dr-refuses   DR's own compiler rejects the source (language rule / syntax /
+#                implementation limit OF THE COMPILER, with DR's word attached)
+#   my-gap       DR compiles the source and emits a .REL; my build refuses
+#
+# Generated from golden/negpanel1/ (DR's transcripts) rather than transcribed by
+# hand, so the dict cannot drift from the evidence it summarizes; re-run
+# build/mk_neg_panel.py + oracle/batch.py --tag negpanel1 to regenerate.
+NEG_META = {
+    "N3_PAGE": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG25/NG25.REL)"),
+    "N4_SKIPVAR": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG36/NG36.REL)"),
+    "N6_COMPUTED_GOTO": ("dr-refuses",
+     "DR REFUSES: ARG COUNT (golden/negpanel1/NG50/NG50.PRN)"),
+    "N7_MULTI_FWD": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG60/NG60.REL)"),
+    "N9_GTZERO": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG65/NG65.REL)"),
+    "N11_STROVR": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG01/NG01.REL)"),
+    "N12_EMPTYFIX": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG02/NG02.REL)"),
+    "N13_CATLIT": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG03/NG03.REL)"),
+    "N14_CATFIX": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG04/NG04.REL)"),
+    "N15_CAT4": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG05/NG05.REL)"),
+    "N16_CATASSIGN": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG06/NG06.REL)"),
+    "N21_DOIDX": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG07/NG07.REL)"),
+    "N22_FPUT": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG08/NG08.REL)"),
+    "N23_CHARVAR_MULTI": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG09/NG09.REL)"),
+    "N24_BIGIN": ("dr-refuses",
+     "DR REFUSES: NOT IMP (golden/negpanel1/NG10/NG10.PRN)"),
+    "N25_DECCMP_SCALE": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG11/NG11.REL)"),
+    "N27_DECBIGP": ("dr-refuses",
+     "DR REFUSES: NOT IMP (golden/negpanel1/NG12/NG12.PRN)"),
+    "N28_DECLITFRAC": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG13/NG13.REL)"),
+    "N29_DECININT": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG14/NG14.REL)"),
+    "N30_DECCMP_BUILTIN": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG15/NG15.REL)"),
+    "N31_DIV_LITERAL_NUMERATOR": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG16/NG16.REL)"),
+    "N32_DIV_CHAINED": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG17/NG17.REL)"),
+    "N33_DEC_FORMAL": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG18/NG18.REL)"),
+    "N34_DEC_NEGSCALE_DIV": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG19/NG19.REL)"),
+    "N35_DEC_STORE_SCALE_DRIFT": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG20/NG20.REL)"),
+    "N36_ROUND_ONEARG": ("dr-refuses",
+     "DR REFUSES: SYNTAX (golden/negpanel1/NG21/NG21.PRN)"),
+    "N37_ROUND_LITERAL": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG22/NG22.REL)"),
+    "N38_ROUND_INTARG": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG23/NG23.REL)"),
+    "N39_ROUND_DYNSCALE": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG24/NG24.REL)"),
+    "N40_ROUND_SCALE_ABOVE": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG26/NG26.REL)"),
+    "N41_ROUND_SIMPLE_INADD": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG27/NG27.REL)"),
+    "N42_ROUND_INMUL": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG28/NG28.REL)"),
+    "N43_ROUND_AS_DIVIDEND": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG29/NG29.REL)"),
+    "N44_GETFIXCHAR": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG30/NG30.REL)"),
+    "N45_GETSUB": ("dr-refuses",
+     "DR REFUSES: ARG COUNT (golden/negpanel1/NG31/NG31.PRN)"),
+    "N46_GET1BYTEBIN": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG32/NG32.REL)"),
+    "N47_MODGT": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG33/NG33.REL)"),
+    "N48_DOWHILE_CONST": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG34/NG34.REL)"),
+    "N49_DOWHILE_ONLY": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG35/NG35.REL)"),
+    "N50_DOZEROBOUND": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG37/NG37.REL)"),
+    "N51_DOSTEP3": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG38/NG38.REL)"),
+    "N52_DEC_FORMAL_PUT": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG39/NG39.REL)"),
+    "N53_DEC_FORMAL_CONJ": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG40/NG40.REL)"),
+    "N57_ADD_LIT_LIT": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG41/NG41.REL)"),
+    "N58_MUL_TWO": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG42/NG42.REL)"),
+    "N59_MUL_ONE": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG43/NG43.REL)"),
+    "N60_MUL_LITERAL_LEFT": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG44/NG44.REL)"),
+    "N61_FLOAT_TO_FIXED": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG45/NG45.REL)"),
+    "N62_FLOAT_BINARY14": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG46/NG46.REL)"),
+    "N67_NEGATE_CONVERTED": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG47/NG47.REL)"),
+    "N68_FLOAT_BINARY_RETURN": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG48/NG48.REL)"),
+    "N69_FIXED_ARG_FLOAT_FORMAL": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG49/NG49.REL)"),
+    "N70_FLOAT_ARG_FIXED_FORMAL": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG51/NG51.REL)"),
+    "N71_RECURSIVE_FLOAT_FORMAL": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG52/NG52.REL)"),
+    "N72_FIXED_BIN_GT15": ("dr-refuses",
+     "DR REFUSES: NOT IMP (golden/negpanel1/NG53/NG53.PRN)"),
+    "N73_FIXED_DEC_GT15": ("dr-refuses",
+     "DR REFUSES: NOT IMP (golden/negpanel1/NG54/NG54.PRN)"),
+    "N74_BIT_TO_BIT_COPY": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG55/NG55.REL)"),
+    "N75_BIT_WIDER_THAN_ONE": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG56/NG56.REL)"),
+    "N76_STATIC_INITIAL_FIXED": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG57/NG57.REL)"),
+    "N78_INITIAL_WITHOUT_STATIC": ("dr-refuses",
+     "DR REFUSES: NOT STATIC (golden/negpanel1/NG58/NG58.PRN)"),
+    "N79_ON_HANDLER_GOTO": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG59/NG59.REL)"),
+    "N80_ON_HANDLER_BEGIN": ("my-gap",
+     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG61/NG61.REL)"),
+    "N81_CALL_OF_VALUE_RETURNING": ("dr-refuses",
+     "DR REFUSES: NOT PROC (golden/negpanel1/NG62/NG62.PRN)"),
+    "N82_CALL_OF_FLOAT_RETURNING": ("dr-refuses",
+     "DR REFUSES: NOT PROC (golden/negpanel1/NG63/NG63.PRN)"),
+    "N83_EXPR_OF_NO_RETURNS": ("dr-refuses",
+     "DR REFUSES: TYPES NOT= (golden/negpanel1/NG64/NG64.PRN)"),
+}
+
+
 def run_negatives():
     """Each REJECTS source must FAIL with a [TBD] refusal (never silently
     emit a REL). Returns count of failures-of-purpose (0 = healthy)."""
     os.makedirs(OUT, exist_ok=True)
     bad = 0
+    unclassified = sorted(set(REJECTS) - set(NEG_META))
+    for name in unclassified:
+        print(f"NEG-FAIL {name}: no NEG_META entry -- classify it (dr-refuses "
+              f"or my-gap) and record DR's verdict")
+    bad += len(unclassified)
     for name, (src, marker) in REJECTS.items():
         plipath = os.path.join(OUT, name + ".PLI")
         with open(plipath, "wb") as f:
@@ -1076,7 +1252,8 @@ def run_negatives():
             print(f"NEG-FAIL {name}: wrong refusal: {msg.strip()[-100:]}")
             bad += 1
         else:
-            print(f"NEG-OK   {name}: refused [TBD] ({marker})")
+            cat, _dv = NEG_META.get(name, ("UNCLASSIFIED", ""))
+            print(f"NEG-OK   {name}: refused [TBD] ({marker})  [{cat}]")
     return bad
 
 

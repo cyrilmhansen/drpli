@@ -1,0 +1,11 @@
+t:
+  procedure options(main);
+  dcl a fixed dec(9,3);
+  dcl y fixed dec(9,2);
+  dcl n fixed;
+  a = 2.125;
+  n = 2;
+  y = round(a, n);
+  stop;
+end t;
+

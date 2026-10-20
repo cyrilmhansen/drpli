@@ -1,0 +1,8 @@
+t:
+  procedure options(main);
+  dcl c char(4) varying;
+  do c = 'A' to 'Z';
+    put list('X');
+  end;
+end t;
+

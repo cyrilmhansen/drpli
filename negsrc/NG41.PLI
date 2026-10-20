@@ -1,0 +1,7 @@
+t:
+  procedure options(main);
+  dcl x fixed;
+  x = 3 + 2;
+  stop;
+end t;
+

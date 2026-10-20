@@ -1,0 +1,7 @@
+t:
+  procedure options(main);
+  dcl n char(6) varying;
+  n = 'Q';
+  put list('A' || n || 'B' || 'C');
+end t;
+

@@ -1,0 +1,8 @@
+t:
+  procedure options(main);
+  dcl n char(6) varying;
+  dcl m char(6) varying;
+  n = 'Q';
+  m = 'Z' || n;
+end t;
+

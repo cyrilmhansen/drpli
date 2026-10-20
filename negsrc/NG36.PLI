@@ -1,0 +1,6 @@
+t:
+  procedure options(main);
+  dcl a fixed;
+  put skip(a) list('X');
+end t;
+

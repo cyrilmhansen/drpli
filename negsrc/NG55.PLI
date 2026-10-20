@@ -1,0 +1,8 @@
+PT1:
+  procedure options(main);
+  dcl f bit(1) static initial('1'b);
+  dcl g bit(1);
+  g = f;
+  stop;
+end PT1;
+

@@ -1,0 +1,9 @@
+t:
+  procedure options(main);
+  dcl b fixed bin(1);
+  dcl q fixed binary;
+  b = 7;
+  q = b;
+  get list(b);
+end t;
+

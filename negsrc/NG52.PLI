@@ -1,0 +1,15 @@
+t:
+  procedure options(main);
+  dcl a float;
+  dcl m float;
+  a = 1.5;
+  m = p(a);
+  put skip list(m);
+  stop;
+  p: procedure(x) returns(float binary(24)) recursive;
+     dcl (x,q) float;
+  q = x;
+     return (q);
+  end p;
+end t;
+

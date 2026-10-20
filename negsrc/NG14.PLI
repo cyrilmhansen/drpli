@@ -1,0 +1,8 @@
+t:
+  procedure options(main);
+  dcl d fixed dec(9,0);
+  dcl i fixed;
+  i = 1;
+  i = i + d;
+end t;
+

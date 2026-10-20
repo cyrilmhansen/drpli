@@ -1,0 +1,57 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: NG61
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: NG61
+
+   1 a 0000 e11c:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006   procedure options(main);
+   3 c 0006   dcl sysin file;
+   4 c 0006   dcl efile bit(1) static initial('0'b);
+   5 c 0006   dcl x fixed bin(15);
+   6 c 0006   on endfile(sysin) begin;
+       0006       LXI  H,SYSIN
+       0009       MVI  A,05
+       000B       CALL ?ONCOP
+       000E       JMP  0000
+   7 e 0011     efile = '1'b;
+       0011       LXI  H,EFILE S(0000)
+       0014       MVI  M,80
+   8 d 0016   end;
+   9 c 0016   get list(x);
+       0016       RET  
+       000F       ==== 0017
+       0017       LXI  D,0290
+       001A       LXI  B,0000
+       001D       CALL ?SYSIN
+       0020       CALL ?GNVOP
+       0023       JP   0000
+       0026       CALL ?QCIOP
+       0029       SHLD X A(0001)
+       0024       ==== 002C
+       002C       CALL ?QIOOP
+       001B       ==== 002F
+  10 c 002F   stop;
+       002F       CALL ?STOPX
+  11 a 0032 end e11c;
+
+CODE SIZE = 0032
+DATA AREA = 0003
+FREE SYMS = 38A8
+END  COMPILATION
+

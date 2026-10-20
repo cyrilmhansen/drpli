@@ -1,0 +1,6 @@
+t:
+  procedure options(main);
+  dcl d fixed dec(7,0);
+  d = 1.25;
+end t;
+

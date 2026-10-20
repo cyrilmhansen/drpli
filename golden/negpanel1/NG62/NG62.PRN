@@ -1,0 +1,78 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: NG62
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   5 c        call acc(s);
+NOT PROC                 ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: NG62
+
+   1 a 0000 E24D:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006   procedure options(main);
+   3 c 0006   declare (n, s) fixed;
+   4 c 0006   s = 4;
+       0006       LXI  H,S A(0002)
+       0009       MOV  L,A
+       000A       ADD  A
+       000B       SBB  A
+       000C       MOV  H,A
+       000D       MVI  A,04
+       000F       XCHG 
+       0010       MOV  M,E
+       0011       INX  H
+       0012       MOV  M,D
+   5 c 0013   call acc(s);
+   6 c 0013   n = acc(s) + 1;
+       0013       LXI  H,N A(0000)
+       0016       MOV  L,A
+       0017       ADD  A
+       0018       SBB  A
+       0019       MOV  H,A
+       001A       PUSH H
+       001B       LXI  H,* A(0006)
+       001E       CALL 0000
+       0021       INX  H
+       0022       POP  D
+       0023       MOV  M,E
+       0024       INX  H
+       0025       MOV  M,D
+   7 c 0026   stop;
+       0026       CALL ?STOPX
+   8 c 0029   acc: procedure (v) returns(fixed);
+   9 e 0029   declare v fixed;
+       0029       MOV  E,M
+       002A       INX  H
+       002B       MOV  D,M
+       002C       XCHG 
+       002D       SHLD V A(0008)
+  10 e 0030   return (v + 10);
+       0030       LHLD V A(0008)
+       0033       MOV  E,M
+       0034       INX  H
+       0035       MOV  D,M
+       0036       XCHG 
+       0037       LXI  B,000A
+       003A       DAD  B
+       003B       RET  
+  11 c 003C   end acc;
+  12 a 003C end E24D;
+
+CODE SIZE = 003C
+DATA AREA = 000A
+FREE SYMS = 386C
+END  COMPILATION
+

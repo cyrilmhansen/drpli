@@ -1,0 +1,9 @@
+t:
+  procedure options(main);
+  dcl a float;
+  dcl i fixed;
+  a = 1.5;
+  i = a;
+  stop;
+end t;
+

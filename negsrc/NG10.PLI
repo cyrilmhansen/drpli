@@ -1,0 +1,7 @@
+t:
+  procedure options(main);
+  dcl c fixed bin(16);
+  c = 1;
+  put list(c);
+end t;
+

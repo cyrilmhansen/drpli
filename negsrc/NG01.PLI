@@ -1,0 +1,6 @@
+t:
+  procedure options(main);
+  dcl c char(4);
+  c = 'ABCD';
+end t;
+

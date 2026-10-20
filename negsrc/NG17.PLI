@@ -1,0 +1,10 @@
+t:
+  procedure options(main);
+  dcl a fixed dec(9,2);
+  dcl b fixed dec(9,2);
+  dcl c fixed dec(9,2);
+  a = 6; b = 2;
+  c = a / b / 2;
+  put list(c);
+end t;
+

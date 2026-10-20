@@ -1,0 +1,15 @@
+t:
+  procedure options(main);
+  dcl r fixed dec(9,2);
+  dcl (x,y) fixed dec(9,2);
+  x = 1.5;
+  y = 2.5;
+  r = g(x, y);
+  stop;
+  g: procedure(q,w) returns(fixed dec(9,2));
+     dcl (q,w) fixed dec(9,2);
+     if q = 0 & w = 0 then stop;
+     return (q);
+  end g;
+end t;
+

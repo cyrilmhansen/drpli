@@ -1,0 +1,13 @@
+E24D:
+  procedure options(main);
+  declare (n, s) fixed;
+  s = 4;
+  call acc(s);
+  n = acc(s) + 1;
+  stop;
+  acc: procedure (v) returns(fixed);
+  declare v fixed;
+  return (v + 10);
+  end acc;
+end E24D;
+

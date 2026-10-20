@@ -1,0 +1,5 @@
+t:
+  procedure options(main);
+  put page list('X');
+end t;
+

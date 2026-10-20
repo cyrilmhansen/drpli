@@ -1,0 +1,10 @@
+t:
+  procedure options(main);
+  dcl p fixed dec(9,2);
+  dcl a fixed dec(9,3);
+  p = 1;
+  a = 2.125;
+  p = p * round(a, 2);
+  stop;
+end t;
+

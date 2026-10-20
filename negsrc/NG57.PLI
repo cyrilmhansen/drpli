@@ -1,0 +1,7 @@
+PT3:
+  procedure options(main);
+  dcl s fixed static initial(5);
+  s = s + 1;
+  stop;
+end PT3;
+

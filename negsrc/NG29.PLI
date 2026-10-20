@@ -1,0 +1,12 @@
+t:
+  procedure options(main);
+  dcl p fixed dec(9,2);
+  dcl a fixed dec(9,3);
+  dcl b fixed dec(9,2);
+  p = 1;
+  a = 2.125;
+  b = 2;
+  p = round(a, 2) / b;
+  stop;
+end t;
+

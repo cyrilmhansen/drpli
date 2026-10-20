@@ -1,0 +1,7 @@
+t:
+  procedure options(main);
+  dcl g float binary(14);
+  g = 1.5;
+  stop;
+end t;
+

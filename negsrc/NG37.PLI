@@ -1,0 +1,11 @@
+t:
+  procedure options(main);
+  dcl i fixed;
+  dcl s fixed;
+  s = 0;
+  do i = 1 to 0;
+    s = s + i;
+  end;
+  stop;
+end t;
+

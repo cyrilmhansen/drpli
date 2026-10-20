@@ -1,0 +1,5 @@
+t:
+  procedure options(main);
+  put list(42);
+end t;
+

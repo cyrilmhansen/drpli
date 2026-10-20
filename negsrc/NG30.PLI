@@ -1,0 +1,7 @@
+t:
+  procedure options(main);
+  dcl a char(4);
+  dcl i fixed binary;
+  get list(a, i);
+end t;
+

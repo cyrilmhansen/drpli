@@ -1,0 +1,8 @@
+t:
+  procedure options(main);
+  dcl i fixed;
+l:
+  i = i + 1;
+  goto l(i);
+end t;
+

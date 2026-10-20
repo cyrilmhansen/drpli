@@ -1,0 +1,11 @@
+t:
+  procedure options(main);
+  dcl d1 float;
+  d1 = g(3);
+  stop;
+  g: procedure(n) returns(fixed);
+     dcl n fixed;
+     return (n);
+  end g;
+end t;
+

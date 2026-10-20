@@ -1,0 +1,7 @@
+t:
+  procedure options(main);
+  dcl d fixed dec(9,2);
+  d = 3;
+  if d > 3 then put list(d);
+end t;
+

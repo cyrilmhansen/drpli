@@ -1,0 +1,6 @@
+t:
+  procedure options(main);
+  dcl a fixed;
+  if a > 0 then put list('X');
+end t;
+

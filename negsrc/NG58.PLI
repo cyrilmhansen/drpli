@@ -1,0 +1,8 @@
+E20C:
+  procedure options(main);
+  dcl f bit(1) initial('1'b);
+  if f = '1'b then n = 1;
+  dcl n fixed;
+  stop;
+end E20C;
+
