@@ -2446,6 +2446,12 @@ mine-built .COM byte-identical to DR-built and identical runtime output.
 
 ## C139 — SILENT MIS-COMPILE: FIXED ADD with a call on the right and a value to preserve on the left (E2E-12)
 
+> **RESOLVED by C141 (E2E-13).**  The rule below ("the correct lowering is unknown", "DR
+> evidently does not reload the left value from the declared cell") is superseded: DR loads
+> the left operand AFTER the call, from its own activation's shadow cell, and my defect was
+> parking the value in DE with `XCHG`.  Implemented; U1 now prints 5050.  Where this entry
+> says "unknown", read C141.  The wrong-value artifacts are kept as evidence.
+
 **Statement.** `return (t + sum(n-1))` -- a FIXED addition whose right operand is a
 procedure call and whose left operand reads a variable that must survive the call --
 is compiled by my lowering into a sequence that **runs and computes the wrong number**.
@@ -2478,7 +2484,9 @@ the defect is specific to ADD-with-call-on-the-right:
 emitting a plausible sequence with a wrong value is the worst failure class in this
 project and had no diagnostic at all.  Correct lowering is an open milestone.  SUB with
 a call on the right is **not** covered: my first evidence for it (S1/S6) turned out to be
-confounded by C140, so it needs a clean control before a rule is written.
+confounded by C140, so it needs a clean control before a rule is written.  **Update (E2E-13):** the clean control was P6, which showed DR's route is PUSH H / POP D
+  (C141) and that my XCHG route was conditionally wrong, not just byte-different; P6 is
+  refused for record-order reasons (C142).
 
 ---
 
@@ -2507,3 +2515,138 @@ control (C4: same shape, callee body `return (n * fq(n-1))`, byte-exact) is what
 separated the two.  Recorded as its own claim so the confound cannot be re-read as a
 finding: **a divergence must be attributed to one cause before it is cited as evidence
 for another.**
+
+---
+
+## C141 — RESOLVES C139: DR never parks a value in a register across a call (E2E-13)
+
+**Statement.** For FIXED arithmetic whose operand list contains a procedure call, DR has
+exactly three ways to get the other operand's value into the add/sub/mul, and none of them
+is "keep it in DE".  Established from six `$L$C$D` listings (batch `golden/e2e174`,
+tools/linecode.py) and confirmed by 47 byte-exact objects, not inferred from output:
+
+| shape | DR's instruction sequence | probes |
+|---|---|---|
+| `var + call` | `<arg eval ; LXI H,result ; CALL> ; XCHG ; LHLD var ; DAD D` | P1, P2, P3, P10, P11 |
+| `lit + call` | `<call> ; (INX H)*lit` — commutes AND strength-reduces | P4 |
+| `(a+b) + call` | `<left> ; PUSH H ; <call> ; POP D ; DAD D` | P5 |
+| `call + call` | `<first call> ; PUSH H ; <second call> ; POP D ; DAD D` | P12 |
+| `var - call` | `LHLD var ; PUSH H ; <call> ; POP D ; CALL ?IS22N` | P6 |
+| `call - var` | `<call> ; XCHG ; LHLD var ; CALL ?IS22N` | P7 |
+| `var * call` | `<call> ; PUSH H ; LHLD var ; POP D ; CALL ?IM22N` | P8 |
+
+The load-after-call case is *sound*, not merely different: a recursive procedure's locals
+live in that activation's own `?SVBLK` shadow block and `?RSBLK` restores them, so
+re-reading `LHLD T` after the nested call yields this activation's `t`.  DR does not push
+the value because the read is cheap; it pushes when there is nothing left to re-read (a
+compound expression, or a second call), and for SUB it pushes because `?IS22N` computes
+`DE - HL`, so the **minuend** must be in DE once the call is done -- there is no later load
+to defer the value into.  That is why ADD and SUB differ on the same shape.
+
+**My defect, precisely.** `lower_hl`'s general ADD arm did
+`<load left> ; XCHG ; <call> ; DAD D` -- DE carries the left value across the call.  Every
+DR-compiled callee destroys DE: its prologue runs `LXI D,<shadow>` and the pointer-formal
+copy ladder is `MOV E,M / INX H / MOV D,M / XCHG` (both visible in my own object at
+code 013C-0150 of `golden/e2e169ml/U1.COM`).  Hence the silent 12488.
+
+**Correction of my build, as executed.** U1 (`t = n; return (t + sum(n-1));`, recursive):
+
+```
+mine-built, before : sum(100) = 12488   (golden/e2e169mr/U1.output.txt, kept as evidence)
+mine-built, after  : sum(100) =  5050   (golden/e2e180r/U1.output.txt) == DR-built  5050
+independent witness: 100*101/2 = 5050
+W1 f(8)=36  W2 f(8)=36  W3 f(8)=8   (36 = 8*9/2; W3 sets t=1 per level so f(8)=8) == expected
+```
+
+P-series witnesses (mine == DR == independent arithmetic, all 12):
+P1 5050 (=100·101/2) · P2 55 (=10·11/2) · P3 109 (=100+3·3) · P4 10 (=1+9) ·
+P7 -91 (=9-100, signed) · P8 900 (=100·9) · P10 21 (=9+12) · P11 17 (=7+10) ·
+and P5/P6/P9/P12 -- 21/91/113/21 -- which match too even though those four still refuse
+on .REL record order (C142).
+
+**Status.** ADD-with-call-right where the left is a simple variable, a literal, or a
+parenthesized one is implemented and byte-exact; U1/W1/W2/W3 (previously loud refusals) are
+now SPECIMENS.  P5/P12 (left needs parking) and P6 (SUB) are still refused -- see C142.
+SUB-with-call-right is a special case of the hazard worth naming: my *previous* route was
+not merely byte-different, it was conditionally wrong, because any callee that touches DE
+corrupts the parked minuend.  P6 shows a value-correct instance (91) with a callee that
+happens not to disturb the arithmetic, which is exactly the kind of case that must not be
+mistaken for a working route.
+
+## C142 — DR plans an expression's anonymous cells BEFORE emitting any of its code (E2E-13)
+
+**Statement.** For a call inside an arithmetic expression, DR's bit-packed stream places
+the cell-allocation records (`LINK-SET-LC data` + the operand `RELOC`) ahead of the code
+records of the *whole expression*, and numbers cells in plan order.  I allocate at the point
+of use.  Consequence: identical instruction bytes, different .REL.
+
+Four probes demonstrate it, each with code bytes IDENTICAL to DR and the correct executed
+value (`golden/e2e180r` vs `golden/e2e181r`), refused rather than passed:
+
+* **P5 `(t+u)+g(3)`, P6 `t-g(3)`, P12 `g(3)+g(4)`** -- record order.  DR's stream around
+  code 0051: `LINK-SET-LC data 0009 ; RELOC data 0x1 ; LINK-SET-LC code 0051 ; DATA 2a...`
+  Mine emits the same records but after `DATA 2a / RELOC data 0x7 / DATA e5` [reldump diff].
+* **P9 `t + g(h(2))`** -- cell numbering.  DR: outer call's result 000B, inner call's result
+  000D, outer argument 000F; mine has 000D and 000F interchanged.  Read off the listings:
+  `LXI H,* A(000D) / CALL H / SHLD * A(000F) / LXI H,* A(000B) / CALL G` -- the outer result
+  cell is smallest, so result cells are planned outer-first and argument cells come later.
+  So the rule is: **allocate a call's result cell, then descend into its arguments.**
+
+**Evidence class, stated plainly.** This milestone made me separate four properties that
+`cmp` had been bundling: (1) semantic correctness of the executed value, (2) DR
+instruction-selection identity (the code bytes), (3) .REL serialization identity (record
+order + cell numbering), (4) link/runtime validity.  P5/P6/P9/P12 are (1)+(2)+pass, (3)-fail.
+The acceptance criterion is (3), so they refuse.  The fix is to plan cells before emitting --
+a change in the pool/dedup order, which ARCH-0 identified as the riskiest property in the
+program and which I did not attempt here; 477 byte-exact specimens depend on that order.
+
+## C143 — DR's small-constant arithmetic: `INX H`/`DCX H` repeated, with TWO thresholds depending on the route (E2E-13)
+
+**Statement.** Adding constant k to a 16-bit value held in HL lowers to repeated
+single-byte increments up to a threshold, then to `LXI B,k ; DAD B`.  The threshold is
+route-dependent, which is only visible because both routes were probed at k=4:
+
+| route | repeat while | then | evidence |
+|---|---|---|---|
+| self-update `v = v + k` (hl_bias path) | k <= 3 | `LXI B,k ; DAD B` | K1-K4, X1, S5-S8, E22A02-A16 |
+| any other context (result returned or stored elsewhere) | k <= 4 | `LXI B,k ; DAD B` | R4/R5, T2/T4/T8, X2/X3, N7 |
+| subtraction, self-update | k <= 3 | `LXI B,two's-complement ; DAD B` | K6, E22B01-B08 |
+| subtraction, other | k <= 4 | same | M1-M4, N4/N5, M6/M16 |
+
+Corollaries, each measured:
+* `k = 0` emits nothing at all (M0: load ladder then RET) -- so `n + 0` is not `INX H`.
+* Literal on the left commutes: `return (2 + n)` is byte-identical to `return (n + 2)` (K9 vs K5).
+* The reduction is applied **per operator, not netted**: `return (n - 2 + 3)` emits
+  `DCX H DCX H INX H INX H INX H` (M7), not one `INX H`.
+* It is not restricted to nested procedures or RETURN expressions: main-level `r = x + 4`
+  gives `LHLD X / (INX H)*4 / SHLD R` (T4) and after a call, `return (g(n) + 4)` gives
+  `CALL / (INX H)*4` (N7).  This supersedes C140's framing -- the `+2` sequence was never
+  about nested procedures.
+
+**My status.** Implemented (`hl_bias_free` for the non-self route, `hl_bias` unchanged for
+self-update, `const_sub` extended past 4 to DR's two's-complement `LXI B` form).  All 32
+constant probes are byte-exact, including C1/C4/C7 from the previous batch, which DIFFERED
+before this milestone: C140's "value-correct but byte-different fallback" is gone -- there
+is no fallback left for these shapes, and the guard that used to catch some of them is gone
+too.
+
+## C144 — Retracted: "DR's 16-bit zero test uses XRA" was my disassembler's bug, not DR's (E2E-13)
+
+**Statement.** While reading U1 I found byte `B6` where DR's listing prints `ORA M`, and my
+hand-written 8080 table decoded `B6` as XRA -- which would have made DR's `if n = 0` test
+wrong for every value whose two bytes are equal (257, 514, ...).  I did not run that
+conclusion past evidence, and it was false: DR's own listings, cross-checked against linked
+images over 60 programs, print `ORA` for 0xB6 and `XRA` for 0xAF, which agrees with this
+project's parity-derived rules (`CMP M = 0xBE`, `SBB M = 0x9E`, `0xAF = XRA A`).  The ALU
+family order is ADD 0x80, ADC 0x88, SUB 0x90, SBB 0x98, ANA 0xA0, **XRA 0xA8, ORA 0xB0**,
+CMP 0xB8; I had ORA and XRA transposed.
+
+**Method adopted after this, and it is the reason the error died in one step.** The
+disassembler's table is now *learned* from DR rather than written from memory: parse each
+program's `$C` code lines, take the byte at (file offset == code address) in its linked
+.COM, and record opcode -> printed mnemonic and opcode -> address delta.  Candidate image
+offsets are accepted only if every `LXI` line's byte is one of 01/11/21/31 and every `CALL`
+line's byte is a CALL opcode -- two facts pinned independently by byte-exact goldens.  The
+result is 43 opcodes with **zero** printed under two mnemonics, and anything unobserved
+prints as `DB nn` instead of being guessed.  DR's zero test is correct; the only defect in
+this story was mine.

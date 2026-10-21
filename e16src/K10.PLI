@@ -1,0 +1,10 @@
+a:
+    procedure options(main);
+    declare r fixed, x fixed;
+    x = 10;
+    x = x + 2;
+    r = x;
+    put skip list('W', r);
+    stop;
+end a;
+

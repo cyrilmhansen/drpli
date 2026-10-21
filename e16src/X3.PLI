@@ -1,0 +1,13 @@
+a:
+    procedure options(main);
+    declare r fixed;
+    r = f(100);
+    put skip list('W', r);
+    stop;
+    f: procedure(n) returns(fixed);
+    declare n fixed, t fixed;
+    t = n + 3;
+    return (t);
+    end f;
+end a;
+

@@ -1,0 +1,16 @@
+a:
+    procedure options(main);
+    declare r fixed, x fixed;
+    x = 0;
+    r = s(100);
+    put skip list('W', r);
+    stop;
+    s: procedure(n) returns(fixed) recursive;
+    declare n fixed;
+    declare t fixed;
+    if n = 0 then return (0);
+    t = n;
+    return (t + s(n - 1));
+    end s;
+end a;
+

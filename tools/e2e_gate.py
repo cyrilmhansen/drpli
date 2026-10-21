@@ -1187,10 +1187,18 @@ REJECTS["Q8"] = (open("e14src/Q8.PLI", "rb").read().replace(b"\r\n", b"\n")
 # so the gate insists on a [TBD] refusal -- a silent mis-compile is worse than a
 # refusal, and before the guard these shapes fell through with neither parity nor a
 # diagnostic.
-for _n in ("U1", "W1", "W2", "W3"):
-    REJECTS[_n] = (open("e15src/%s.PLI" % _n, "rb")
-                   .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-                   "right operand is a procedure call")
+# [E2E-13/C141] U1 and W1-W3 were REJECTS: my ADD-with-call-on-the-right lowering parked
+# the left operand in DE across the call, so sum(100) printed 12488 instead of 5050.  DR
+# defers the load until AFTER the call (CALL ; XCHG ; LHLD left ; DAD D), which is sound
+# because a recursive activation's locals live in its own SVBLK shadow block restored by
+# ?RSBLK.  Implemented from the six $C listings in golden/e2e174; all four are now
+# byte-exact AND run to the correct independently computed values (5050, 36, 36, 8).
+# The historical wrong-value artifacts stay committed: golden/e2e169mr/U1.output.txt.
+for _n, _g in (("U1", "golden/e2e169d/U1/U1.REL"),
+               ("W1", "golden/e2e170/W1/W1.REL"),
+               ("W2", "golden/e2e170/W2/W2.REL"),
+               ("W3", "golden/e2e170/W3/W3.REL")):
+    SPECIMENS[_n] = ("e15src/%s.PLI" % _n, _g)
 for _n, _m in (("ST5", "exceeds 65535"), ("ST10", "non-integer-literal"),
                ("ST8", "after an appended procedure"),
                ("ST13", "after an appended procedure"),
@@ -1198,21 +1206,84 @@ for _n, _m in (("ST5", "exceeds 65535"), ("ST10", "non-integer-literal"),
     REJECTS[_n] = (open("e15src/%s.PLI" % _n, "rb")
                    .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), _m)
 
+
+# ---------------------------------------------------------------------------
+# [E2E-13] C141: the operand-preservation and small-constant-arithmetic panels.
+# Sources in e16src/, DR goldens in golden/e2e174 (P/K/M/S/T/X + e2e175 M/N,
+# e2e176 N, e2e177 R, e2e179 X).  47 byte-exact, 4 refused because the .REL
+# RECORD ORDER (not the instruction stream) still diverges -- see
+# spec/notes/e2e13-operand-preservation-and-constants.md.
+# ---------------------------------------------------------------------------
+_E13_TAG = {"P1": "e2e174", "P2": "e2e174", "P3": "e2e174", "P4": "e2e174",
+            "P7": "e2e174", "P8": "e2e174", "P10": "e2e174", "P11": "e2e174",
+            "K1": "e2e174", "K2": "e2e174", "K3": "e2e174", "K4": "e2e174",
+            "K5": "e2e174", "K6": "e2e174", "K7": "e2e174", "K8": "e2e174",
+            "K9": "e2e174", "K10": "e2e174", "K11": "e2e174",
+            "M0": "e2e175", "M1": "e2e175", "M2": "e2e175", "M3": "e2e175",
+            "M4": "e2e175", "M6": "e2e175", "M7": "e2e175", "M16": "e2e175",
+            "N4": "e2e176", "N5": "e2e176", "N6": "e2e176", "N7": "e2e176",
+            "N8": "e2e176",
+            "R4": "e2e177", "R5": "e2e177", "R6": "e2e177", "R8": "e2e177",
+            "R10": "e2e177", "R12": "e2e177", "S5": "e2e177", "S6": "e2e177",
+            "S8": "e2e177",
+            # [E2E-13] keyed Y2/Y4/Y8, NOT T2/T4/T8: the file names keep DR's artifact
+            # names (golden/e2e177/T4/...) and the keys avoid a COLLISION -- T4 and T8 are
+            # long-standing specimens from the e2e11 series, and registering by name would
+            # have replaced them.  This is the second time a regression-list key collision
+            # showed up here (see the ST*/T* note above), so it is pinned with a comment.
+            "Y2": "e2e177", "Y4": "e2e177", "Y8": "e2e177",
+            "X1": "e2e179", "X2": "e2e179", "X3": "e2e179"}
+# key -> source/artifact base name (differs for Y2/Y4/Y8, whose DR artifacts live in
+# golden/e2e177/T2|T4|T8 -- keys avoid the T4/T8 collision, names stay canonical)
+_E13_BASE = {"Y2": "T2", "Y4": "T4", "Y8": "T8"}
+for _n, _t in _E13_TAG.items():
+    _b = _E13_BASE.get(_n, _n)
+    SPECIMENS[_n] = ("e16src/%s.PLI" % _b, "golden/%s/%s/%s.REL" % (_t, _b, _b))
+# The C140 family that DIFFERED before this milestone and is now byte-exact.
+SPECIMENS["C1"] = ("e15src/C1.PLI", "golden/e2e172/C1/C1.REL")
+SPECIMENS["C4"] = ("e15src/C4.PLI", "golden/e2e172/C4/C4.REL")
+SPECIMENS["C7"] = ("e15src/C7.PLI", "golden/e2e173/C7/C7.REL")
+# Four shapes DR compiles that I refuse: instruction bytes identical to DR, executed
+# value correct, but the .REL record stream differs (DR plans a call's anonymous cells
+# before emitting any of the expression's code; I allocate at point of use).
+for _n in ("P5", "P6", "P9", "P12"):
+    REJECTS[_n] = (open("e16src/%s.PLI" % _n, "rb")
+                   .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                   {"P5": "left operand must be parked across a call",
+                    "P6": "right operand is a procedure call",
+                    "P9": "contains a nested call",
+                    "P12": "left operand must be parked across a call"}[_n])
+NEG_META_E13 = {
+    "P5": ("my-gap",
+     "DR COMPILES IT (golden/e2e174/P5) and my CODE BYTES ARE IDENTICAL to DR's -- I "
+     "emit its own PUSH H/POP D route and both builds print 21 (golden/e2e180r/P5 = "
+     "golden/e2e181r/P5).  The .REL still differs: DR writes the call's anonymous-cell "
+     "LINK-SET-LC/RELOC records BEFORE the left operand's code records, I write them at "
+     "point of use.  Record order is part of byte identity [C141/C142]"),
+    "P12": ("my-gap",
+     "DR COMPILES IT (golden/e2e174/P12); same cause as P5 -- `g(3)+g(4)' needs the left "
+     "call on the stack, my instruction stream matches DR byte for byte and both print "
+     "21, but the cell-allocation records serialize later than DR's [C141/C142]"),
+    "P6": ("my-gap",
+     "DR COMPILES IT (golden/e2e174/P6).  Route now known (PUSH H the minuend, POP D, "
+     "?IS22N) and my code bytes match DR exactly; both print 91.  Refused for the same "
+     "record-order reason.  IMPORTANT: my PREVIOUS route (XCHG) parked DE across the call, "
+     "which any callee touching DE corrupts -- refusing is strictly safer than what ran "
+     "before [C141]"),
+    "P9": ("my-gap",
+     "DR COMPILES IT (golden/e2e174/P9); `t + g(h(2))' -- my code bytes match and both "
+     "print 113, but DR numbers the anonymous cells the other way round (inner call's "
+     "result 000D before the outer argument 000F; I allocate 000D as the argument).  "
+     "Cell numbering is part of byte identity [C142]"),
+}
+
+# Names whose console output is compared against the DR arm under --link-run (their
+# DR .RELs are the SPECIMENS goldens, so the harness can link both sides).
+for _n in ("U1", "W1", "W2", "W3", "P1", "P2", "P3", "P4", "P7", "P8", "P10", "P11",
+           "K4", "R4", "R5", "X1", "M4", "Y8"):
+    OUTPUT_CHECK.add(_n)
+
 NEG_META = {
-    "U1": ("my-gap",
-     "DR COMPILES IT and its .COM RUNS CORRECTLY: sum(100) = 5050 "
-     "(golden/e2e169dr/U1.output.txt).  My build printed 12488 "
-     "(golden/e2e169mr/U1.output.txt) -- a WRONG VALUE, silently.  Now refused by the "
-     "C139 guard; the correct add-across-a-call lowering is unknown [TBD]"),
-    "W1": ("my-gap",
-     "DR COMPILES IT: .REL emitted (golden/e2e170/W1/W1.REL) -- `return (n + f(n-1))' "
-     "in a RECURSIVE procedure; same add-across-a-call defect as U1 [C139]"),
-    "W2": ("my-gap",
-     "DR COMPILES IT: .REL emitted (golden/e2e170/W2/W2.REL) -- local assigned then "
-     "read after a recursive call; the U1 shape at depth 8 [C139]"),
-    "W3": ("my-gap",
-     "DR COMPILES IT: .REL emitted (golden/e2e170/W3/W3.REL) -- same, but the local is "
-     "set to a LITERAL, which rules out 'copying n is what went wrong' [C139]"),
     "ST5": ("dr-refuses",
      "DR REFUSES: 1 ERROR(S) IN PASS 1, NO .REL emitted (golden/e2e160/T5/T5.PRN) "
      "-- stack(65536) does not fit the 16-bit LXI B operand [C138]"),
@@ -1366,6 +1437,9 @@ NEG_META = {
     "N83_EXPR_OF_NO_RETURNS": ("dr-refuses",
      "DR REFUSES: TYPES NOT= (golden/negpanel1/NG64/NG64.PRN)"),
 }
+# [E2E-13] merged after the literal so the E13 block can sit above it.
+NEG_META.update(NEG_META_E13)
+
 
 
 def run_negatives():

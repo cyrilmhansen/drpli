@@ -227,6 +227,67 @@ let op_mov_h_a = 0x67
 let op_add_a = 0x87
 let op_sbb_a = 0x9f
 
+(* [E2E-13/C141] the same strength reduction OUTSIDE a self-update.  The
+   threshold is one higher than hl_bias's: DR repeats the single-byte
+   increment while k <= 4 and only then switches to `LXI B,k / DAD B' (4 bytes).
+   Five probes pin the k=4 boundary, and the discriminator between the two
+   thresholds is WHICH ROUTE the assignment takes, not the surrounding code:
+       n = n + 4  [K4, self-update, hl_bias]  -> XCHG ; LXI B,0004 ; DAD B
+       x = x + 4  [X1, self-update, hl_bias]  -> LXI B,0004 ; DAD B
+       t = n + 4  [X2, result into another v]  -> (INX H)*4
+       r = x + 4  [T4, result into another v]  -> LHLD X ; (INX H)*4 ; SHLD R
+       return (n + 4) [R4]                     -> (INX H)*4
+       return (n + 5) [R5] / (x + 8) [T8]      -> LXI B,k ; DAD B
+   Subtraction mirrors it: M1..M4 (n-1..n-4) repeat DCX H, N5/M6 (n-5, n-6) use
+   `LXI B,two's-complement ; DAD B'.  WHY the tie at |B|=4 breaks two different
+   ways is not established; both are reproduced from DR's bytes, and the
+   cost reading (INX=1 byte vs LXI B+DAD B=4 bytes) is interpretation, not claim. *)
+(* [E2E-13/C141] does the LEFT operand of an ADD have to be parked across a call?
+   DR defers the load of a simple variable -- `CALL ; XCHG ; LHLD T ; DAD D' [P1,P2,P3,
+   P9,P10,P11] -- because reading it after the call yields the same per-activation value:
+   a recursive procedure's locals live in that activation's SVBLK shadow block and ?RSBLK
+   restores them.  It cannot do that for a compound expression or a second call, whose
+   value no longer exists anywhere to be re-read, so those go on the stack [P5,P12].
+   Econd is just a parenthesis, which lower_hl already unwraps transparently [P401 dbl]. *)
+(* [E2E-13] does this subexpression contain a procedure call?  Used to tell a call
+   operand from one that NESTS another call, whose anonymous-cell numbering DR plans in a
+   different order than I do [P9].  Esuffix is a call/index; Econd is a parenthesis. *)
+let rec expr_contains_call e =
+  (* TRUE for a call itself, and for anything that has one inside it.  A call
+     OPERAND's nesting question is asked by call_operand_is_nested, which looks at the
+     callee position and the argument list -- NOT at the operand as a whole, because
+     the operand IS a call and asking it trivially answers yes.  (That is exactly the
+     bug an earlier version of this function had: it returned false for a bare
+     Esuffix, so `g(h(2))' looked unnested and P9 emitted instead of refusing.) *)
+  match e.Ast.e with
+  | Ast.Esuffix _ -> true
+  | Ast.Econd x -> expr_contains_call x
+  | Ast.Ebinary (_, l, r) -> expr_contains_call l || expr_contains_call r
+  | Ast.Eprefix (_, x) -> expr_contains_call x
+  | _ -> false
+
+let call_operand_is_nested r =
+  match r.Ast.e with
+  | Ast.Esuffix (f, args) ->
+      expr_contains_call f || List.exists expr_contains_call args
+  | _ -> false
+
+let rec add_left_needs_push e =
+  match e.Ast.e with
+  | Ast.Econd x -> add_left_needs_push x
+  | Ast.Ebinary _ | Ast.Esuffix _ -> true
+  | _ -> false
+
+let hl_bias_free st (b : int) =
+  let ab = abs b in
+  if ab = 0 then ()
+  else if ab <= 4 then
+    for _ = 1 to ab do d st (if b > 0 then op_inx_h else op_dcx_h) done
+  else
+    let w = b land 0xffff in
+    d st op_lxi_b; d st (w land 0xff); d st ((w lsr 8) land 0xff); d st op_dad_b
+
+
 (* variable data-segment address = pool base + declared auto offset.
    [int subset has no pool => base 0; matches DR SHLD/LHLD operands] *)
 let addr_of st name =
@@ -1994,52 +2055,65 @@ let rec lower_hl st (e : Ast.expr) =
       (* [(a+1) N304] +1 lowers to INX H on the 2-byte path; other
          additions keep the general ladder *)
       lower_hl st l; d st op_inx_h; st.last_imm <- None
+    | Ast.Ebinary (Ast.Add, { Ast.e = Ast.Enumber ks; _ }, r) ->
+      (* [E2E-13/C141] LITERAL on the left of an ADD: DR commutes the operand and
+         adds the constant to the value instead of loading an immediate and pairing
+         it.  Two independent DR samples:
+            P4  `return (1 + g(3))'  ->  LXI H,* ; CALL G ; INX H ; RET
+            K9  `return (2 + n)'     ->  ... ; XCHG ; INX H ; INX H ; RET
+         and K9 is BYTE-IDENTICAL to K5 (`return (n + 2)'), which proves the commute
+         rather than merely suggesting it.  This replaces the general ladder, which
+         loaded 1/2 into HL, XCHG'd it into DE and did DAD D -- right value, wrong
+         bytes, and on the call-right shape it parked DE across the call (C139). *)
+      let k = parse_int_const ks in
+      lower_hl st r; hl_bias_free st k; st.last_imm <- None
+    | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber ks; _ }) ->
+      (* [E2E-13/C141] non-self constant add: strength-reduce the same way, on the
+         left value.  k<=4 -> (INX H)*k, k>=5 -> LXI B,k ; DAD B  [R4,R5,R6,R8,R10,
+         R12,T2,T4,T8].  Magnitude 1 lands in the arm above and gives the same byte. *)
+      let k = parse_int_const ks in
+      lower_hl st l; hl_bias_free st k; st.last_imm <- None
     | Ast.Ebinary (Ast.Add, l, r)
-      when (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false)
-           && (match l.Ast.e with
-               | Ast.Eident _ | Ast.Ebinary _ -> true
-               | _ -> false) ->
-        (* [E2E-12] SILENT MIS-COMPILE, found while testing STACK and NOT part of
-           that route.  When the RIGHT operand of a FIXED ADD is a procedure CALL
-           and the LEFT operand reads a variable, my lowering computes the wrong
-           number -- it is not a cosmetic divergence:
+      when (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false) ->
+        (* [E2E-13/C141] THE C139 CORRECTION.  FIXED ADD with a procedure CALL on
+           the right.  DR never parks a value in a register across a call: it either
+           defers the load until after the call, or pushes onto the runtime stack.
+           My old lowering did neither -- it loaded the left operand BEFORE the call
+           and XCHG'd it into DE, which the nested activation's own prologue destroys
+           (`LXI D,shadow' plus the MOV E,M/INX H/MOV D,M/XCHG copy ladder, visible at
+           my code 013C-0150 in golden/e2e169ml/U1.COM).  Hence sum(100)=12488.
 
-             U1  t = n; return (t + sum(n-1));   sum: recursive
-                 DR-built  : sum(100) =  5050    (correct)
-                 mine-built: sum(100) = 12488    (WRONG, and it runs silently)
+           Two DR shapes, from six listings (batch golden/e2e174, $L$C$D):
 
-           Byte-level, U1/W1/W2/W3/W6 diverge by a 3-byte `XCHG / LHLD cell'
-           sequence plus a `21'-vs-`2a' form where DR keeps the left value in the
-           shadow cell of the activation [golden/e2e165/U1, e2e170/W1-W3, W6].
-           The controls say this is narrow, not general:
-             * `return (n * f(n-1))'  -- MUL, call on the right -- BYTE-EXACT
-               [RFACT, FFACT, and V1-V6 of batch golden/e2e167/e2e168 here];
-             * `return (f(n-1) + t)'  -- ADD, call on the LEFT -- BYTE-EXACT [W5];
-             * `dummy = f(n-1); return (t + 1)' -- read the local only after the
-               call has completed and been stored -- BYTE-EXACT [W6].
-           So the defect is ADD specifically with a call on the right and a value
-           that must survive the call on the left.  The correct lowering is unknown:
-           DR evidently does NOT reload the left value from the declared cell, and
-           guessing which cell/register it lives in is exactly what produced the
-           wrong answer above.  Refusing is the only honest option: emitting a
-           plausible sequence that computes 12488 instead of 5050 is the worst
-           failure class in this project, and until now this shape fell through
-           without either parity or a diagnostic.
+             left is a simple variable  [P1,P2,P3,P9,P10,P11]
+                 <right: arg eval, LXI H,result, CALL> ; XCHG ; <load left> ; DAD D
+                 e.g. P1  LXI H,* A(000F) / CALL S / XCHG / LHLD T A(000D) / DAD D
+                 The left is re-read AFTER the call, which is sound because a
+                 recursive activation's locals live in its own SVBLK shadow block and
+                 ?RSBLK restores them -- not because anything is preserved.
 
-           SUB with a call on the right is deliberately NOT covered by this guard:
-           S1/S6 (batch golden/e2e171) differ, but their callees return `n + 2',
-           so the difference is explained by the small-literal strength-reduction
-           gap instead and is NOT evidence about SUB.  Same for C1/C2/C3/C5.  It
-           needs its own clean control before a rule can be written. *)
-        failwith
-          ("codegen: [TBD] FIXED ADD whose right operand is a procedure call, with "
-           ^ (match l.Ast.e with Ast.Eident n -> "a variable (" ^ n.Ast.orig ^ ")"
-              | _ -> "a sub-expression")
-           ^ " on the left, computes the wrong value in my lowering: DR's U1 gives "
-           ^ "sum(100)=5050, mine gives 12488 [golden/e2e169dr/U1 vs e2e169mr/U1]. "
-           ^ "MUL with a call on the right and ADD with a call on the LEFT are both "
-           ^ "byte-exact [RFACT/FFACT/V1-V6, W5], so this is a narrow lowering defect "
-           ^ "in the add-across-a-call path, not a language limit")
+             left is a compound expression  [P5 `t+u+g(3)', P12 `g(3)+g(4)']
+                 <left> ; PUSH H ; <right> ; POP D ; DAD D
+                 e.g. P5  LHLD T / XCHG / LHLD U / DAD D / PUSH H / LXI H,* / CALL G
+                        / POP D / DAD D
+
+           The literal-left case lives in the arm above [P4]; MUL and call-on-left
+           keep their existing (byte-exact) routes untouched. *)
+        (* [E2E-13] Two shapes DR compiles that I must not emit yet.  Both produce
+           code BYTES IDENTICAL to DR and run to the right number; the divergence is
+           in the .REL record stream, which is a third evidence class and is what the
+           byte-identity criterion actually checks (see the note for the mechanism):
+           the anonymous call cells are PLANNED by DR before any of the expression's
+           code is written, while my emitter allocates them at the point of use. *)
+        if call_operand_is_nested r then
+          failwith
+            ("codegen: [TBD] ADD whose call operand itself contains a nested call.  My code bytes are identical to DR's and the executed value is right (P9 `return (t + g(h(2)))' prints 113 = DR, golden/e2e180r/P9), but the anonymous cell NUMBERS differ: DR plans the inner call's result cell before the outer call's argument cell (000D result, 000F arg) whereas I allocate them the other way round [golden/e2e174/P9 vs my build].  Numbering is part of byte identity, so this refuses until the plan-before-emit order is implemented");
+        if add_left_needs_push l then
+          failwith
+            ("codegen: [TBD] ADD whose left operand must be parked across a call (a compound expression or a second call).  DR uses PUSH H / POP D and I now emit that sequence with code bytes IDENTICAL to DR's -- P5 `(t+u)+g(3)' and P12 `g(3)+g(4)' both run to DR's value (21, 21; golden/e2e180r) -- but DR writes the call's anonymous-cell allocation RECORDS (LINK-SET-LC data / RELOC) before the left operand's code records, while I write them at point of use, so the bit-packed streams differ.  The deferred single-variable case IS implemented and byte-exact [P1-P4, P7-P11]");
+        lower_hl st r; d st op_xchg;
+        lower_hl st l; d st op_dad_d;
+        st.last_imm <- None
     | Ast.Ebinary (Ast.Add, l, r) ->
       (* DR: HL=left ; XCHG ; HL=right ; DAD D  (=> HL = right+left)
          [P071A]. WITH POINTER-DEREF OPERANDS the ladder is
@@ -2220,8 +2294,19 @@ let rec lower_hl st (e : Ast.expr) =
       if hl_operand_deref st l || hl_operand_deref st r then
         failwith "codegen: fixed-bin subtraction with a pointer formal \
                   operand unproven [TBD]";
-      lower_hl st l; d st op_xchg; lower_hl st r;
-      call_ext st "?IS22N";
+      (* [E2E-13/C141] SUB with a CALL on the right takes the PUSH route even when the
+         left operand is a simple variable -- P6 `return (t - g(3))':
+             LHLD T A(0007) ; PUSH H ; LXI H,* A(0009) ; CALL G ; POP D ; CALL ?IS22N
+         because ?IS22N computes DE - HL, so the MINUEND has to be in DE when the call
+         finishes; there is no later load to defer the value INTO, unlike ADD [P1-P3].
+         My general XCHG route parks DE across the call -- the same C139 defect the ADD
+         arm just fixed.  Call on the LEFT keeps the XCHG route, byte-exact [P7]. *)
+      (match r.Ast.e with
+       | Ast.Esuffix _ ->
+           failwith
+             ("codegen: [TBD] SUB whose right operand is a procedure call.  The route is now known -- DR parks the MINUEND on the runtime stack, because ?IS22N computes DE - HL and the call has destroyed DE by then: `LHLD T / PUSH H / LXI H,* / CALL G / POP D / CALL ?IS22N' [P6, golden/e2e174/P6/P6.PRN].  I emit that sequence and my code bytes are IDENTICAL to DR's and the result is right (P6 prints 91 = DR, golden/e2e180r/P6), but DR emits the call's anonymous-cell allocation records before the left operand's code records while I emit them at point of use, so the .REL streams differ.  NOTE: my previous XCHG route was worse than a byte difference -- it parks the minuend in DE across the call, which any callee that touches DE (every shadowed/recursive one) silently corrupts.  Call on the LEFT is byte-exact and unchanged [P7].")
+       | _ ->
+           lower_hl st l; d st op_xchg; lower_hl st r; call_ext st "?IS22N");
       st.last_imm <- None
   | Ast.Ebinary _ -> failwith "codegen: operator not in int subset [TBD]"
   | _ -> failwith "codegen: expression form not in int subset [TBD]"
@@ -2229,8 +2314,15 @@ let rec lower_hl st (e : Ast.expr) =
 (* subtract an integer constant: DR folds 1 -> DCX H, small n -> repeated
    DCX H (<=4 observed); anything larger is out of this subset. *)
 and const_sub st n =
-  if n = 1 then d st op_dcx_h
-  else if n > 1 && n <= 4 then for _ = 1 to n do d st op_dcx_h done
+  (* [E2E-13] extended past 4: DR uses `LXI B,two's-complement(-n) / DAD B' --
+     n-5 -> FFFB [N5], n-6 -> FFFA [M6], n-16 -> FFF0 [M16].  Previously this
+     refused, which was honest; refusing a shape DR compiles is a gap, so it is
+     now covered by the measured route. *)
+  if n <= 4 && n >= 1 then
+    for _ = 1 to n do d st op_dcx_h done
+  else if n > 4 then
+    let w = (-n) land 0xffff in
+    d st op_lxi_b; d st (w land 0xff); d st ((w lsr 8) land 0xff); d st op_dad_b
   else failwith "codegen: constant sub magnitude [TBD]"
 
 (* store a char literal into a char/varying variable [V101-V105] *)
