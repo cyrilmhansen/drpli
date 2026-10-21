@@ -1,0 +1,4 @@
+MZ1	ok	PRN=True REL=True
+MZ2	ok	PRN=True REL=True
+PL23	ok	PRN=True REL=True
+PL24	ok	PRN=True REL=True

@@ -1265,12 +1265,14 @@ for _n, _t in _E15_TAG.items():
 # programs (x = x*2, x = x*1, x = 3*x) are now byte-identical specimens MB44/MB45/MB46.  A
 # negative is removed only when its behaviour has a golden of its own -- never merely because
 # it stopped firing, which is how a real regression could hide [C154].
+# [E2E-16/C152 RESOLVED] MB12 / MB38 / MB39 / MB40 retired from the negative panel WITH their
+# own DR goldens: the cause was prescan DEMAND summing String.length per OCCURRENCE while
+# pool_str deduplicated by CONTENT, so the pool was reserved twice and written once.  All four
+# are now byte-identical specimens in _E16_TAG below.  MB7/MB8 (* 0, DR's own suspicious
+# MOV L,H), MB13 (condition form) and MB23/MB31 (k >= 32768) stay refused.
 for _n, _m in (("MB7", "multiply by literal 0"), ("MB8", "multiply by literal 0"),
-               ("MB12", "repeated string literal"), ("MB13", "condition form"),
-               ("MB23", "32768"), ("MB31", "32768"),
-               ("MB38", "repeated string literal"),
-               ("MB39", "repeated string literal"),
-               ("MB40", "repeated string literal")):
+               ("MB13", "condition form"),
+               ("MB23", "32768"), ("MB31", "32768")):
     REJECTS[_n] = (open("e18src/%s.PLI" % _n, "rb")
                    .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), _m)
 NEG_META_E15 = {
@@ -1282,20 +1284,6 @@ NEG_META_E15 = {
     "MB8": ("my-gap", "The other operand order of MB7: DR emits `MOV L,H' for `0 * n' "
         "[golden/e2e186/MB8], byte-identical to its `n * 0' output, confirming the constant "
         "commutes for DR irrespective of route [C148]"),
-    "MB12": ("my-gap", "DR COMPILES IT (golden/e2e186/MB12). The cause is NOT the multiply: two "
-        "PUT statements share the string literal 'W', DR pools it ONCE (data size 7) while mine "
-        "emits a data area one byte too big (8) with every automatic shifted. My dedup removed "
-        "the duplicate WRITE but not the residual size difference, so the pool layout rule is "
-        "still uncharacterised and I refuse rather than emit [C152]"),
-    "MB38": ("my-gap", "DR COMPILES IT (golden/e2e191/MB38): the same repeated-string pool "
-        "layout gap as MB12/MB40, reached via `n + m' as the second PUT item [C152]"),
-    "MB39": ("my-gap", "DR COMPILES IT (golden/e2e191/MB39): the same repeated-string pool "
-        "layout gap, reached via `n * 3' -- which is byte-exact on its own [MB3] [C152]"),
-    "MB40": ("my-gap", "DR COMPILES IT (golden/e2e191/MB40) and this is the CLEAN discriminator: "
-        "`put skip list('W', n);' twice with PLAIN VARIABLES only -- no multiply, no call, no "
-        "expression -- yet mine emits DEF-DATA-SIZE 8 against DR's 7 and relocates the first "
-        "automatic at 2 instead of 1. It localises C152 to pool layout, not to any arithmetic "
-        "route, and it was reachable at HEAD 424eaa2 (i.e. pre-existing, silent) [C152]"),
     "MB13": ("my-gap", "DR COMPILES IT (golden/e2e186/MB13): `if n * 2 > 8' lowers to the multiply "
         "then `LXI B,FFF7 / DAD B / MOV A,H / ORA A / JM'. The multiply half is byte-exact here "
         "[MB1/MB24]; what refuses is my condition subset, which carries no relational test whose "
@@ -1308,6 +1296,60 @@ NEG_META_E15 = {
         "uses `LXI D,7FFF' [MB30, byte-exact] while k=32768 switches to the decimal pool path. "
         "The constant-multiply rule therefore has a signed-16-bit ceiling, not a digit-count "
         "one [C148]"),
+}
+
+# ---------------------------------------------------------------------------
+# [E2E-16/C152] The literal-pool layout rule, measured on 19 DR probes in e19src/.
+# DR keeps ONE cell per distinct string CONTENT, allocated at first use, contiguous from
+# data 0; a repeat reuses the address and costs no bytes; the empty literal is the one
+# exception in the RECORD stream -- it registers a zero-length SET-LC block per occurrence
+# [PL17: two SET-LC(data,0000), no DATA bytes].  PL14 (repeated literal in a PUT EDIT) and
+# PL15 (repeated literal in a concat) produced NO DR object (diag/NOT IMP) and are absent:
+# no golden, no verdict, and concat therefore keeps its per-occurrence behaviour on BOTH
+# sides of demand/layout rather than an extrapolated dedup.
+# ---------------------------------------------------------------------------
+_E16_TAG = {
+    "PL1": "e2e199", "PL2": "e2e199", "PL3": "e2e199", "PL4": "e2e199",
+    "PL5": "e2e199", "PL6": "e2e199", "PL7": "e2e199", "PL8": "e2e199",
+    "PL8": "e2e200", "PL9": "e2e200", "PL12": "e2e200", "PL13": "e2e200",
+    "PL17": "e2e201", "PL18": "e2e202", "PL19": "e2e202", "PL20": "e2e202",
+    # PL25/PL26 are the ALIASING probes for content dedup: two different variables store the
+    # same literal (PL25) and a variable is re-stored after a shared literal is put (PL26).
+    # Both are byte-identical AND execute to identical output in mine and DR [e16ali_mr/e16ali_dr],
+    # which is what shows the shared pool cell is read-only rather than silently aliased.
+    "PL25": "e2e211", "PL26": "e2e211",
+    # the four retired C152 refusals, promoted with the goldens they already had
+    "MB40": "e2e191", "MB12": "e2e186", "MB38": "e2e191", "MB39": "e2e191",
+}
+for _n, _t in _E16_TAG.items():
+    _d = "golden/%s/%s/%s.REL" % (_t, _n, _n)
+    _src = ("e19src/%s.PLI" % _n) if _n.startswith("PL") else ("e18src/%s.PLI" % _n)
+    SPECIMENS[_n] = (_src, _d)
+# Char-store shapes that refuse for a PRE-EXISTING reason unrelated to C152 -- the
+# `char(1)' len==cap store and the empty store into a FIXED char.  DR compiles all four
+# (goldens exist), so these are my-gap refusals, and they are exactly the probes that would
+# have verified the empty-block rule through the store path instead of through PUT.
+for _n, _m in (("PL10", "fixed store len==cap"), ("PL11", "fixed store len==cap"),
+               ("PL16", "fixed-char store form unproven"),
+               ("PL21", "fixed-char store form unproven")):
+    REJECTS[_n] = (open("e19src/%s.PLI" % _n, "rb")
+                   .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), _m)
+NEG_META_E16 = {
+    "PL10": ("my-gap", "DR COMPILES IT (golden/e2e200/PL10).  The refusal is NOT the pool rule: "
+        "`c char(1)' with `c = \'W\'' is len==cap, a store form my emitter has never measured "
+        "[V102/V103 cover a DIFFERENT capacity shape], so it declines before reaching the pool. "
+        "PL18-PL20 measure the same dedup rule through char(3) and are byte-identical [C152]"),
+    "PL11": ("my-gap", "DR COMPILES IT (golden/e2e200/PL11) and it is the probe that MEASURES "
+        "char-store dedup -- two stores of 'W' pool ONE byte -- but mine refuses on the unproven "
+        "len==cap `char(1)' form, not on the pool.  Recorded as evidence for the rule and as an "
+        "open my-gap for the store form [C152]"),
+    "PL16": ("my-gap", "DR COMPILES IT (golden/e2e201/PL16): `c = \'\'; c = \'\';' into a "
+        "FIXED char(1) -- my V104 evidence covers the empty store into a VARYING char only, so "
+        "the fixed-width empty form is unproven and refuses.  The empty-literal BLOCK-REGISTRATION "
+        "rule it would have tested is instead verified by PL17, which is byte-identical [C152]"),
+    "PL21": ("my-gap", "DR COMPILES IT (golden/e2e202/PL21) with THREE empty stores into fixed "
+        "chars; same unproven fixed-empty form as PL16.  Kept refused so the fixed-width empty "
+        "store is never claimed on the strength of the varying-width evidence [C152]"),
 }
 # Three shapes DR compiles that I still refuse: instruction bytes identical to DR,
 # executed value correct, but the .REL RECORD PLACEMENT differs -- DR writes a call's
@@ -1497,6 +1539,7 @@ NEG_META = {
 # [E2E-13] merged after the literal so the E13 block can sit above it.
 NEG_META.update(NEG_META_E13)
 NEG_META.update(NEG_META_E15)
+NEG_META.update(NEG_META_E16)
 
 
 
@@ -1600,6 +1643,98 @@ def registration_audit(path, specimens, rejects, negmeta):
     return len(specimens) + len(rejects)
 
 
+INVENTORY = os.path.join(ROOT, "spec", "INVENTORY.txt")
+
+
+def rows_of(specimens):
+    return list(specimens.items())
+
+
+def esc(t):
+    """One row per entry: a refusal's source is multi-line PL/I, and an unescaped newline
+    there silently turns one inventory row into twenty, which the reader rejects as
+    malformed.  Round-trips through the parser below."""
+    return t.replace("\\", "\\\\").replace("\n", "\\n")
+
+
+def unesc(t):
+    out, i = [], 0
+    while i < len(t):
+        if t[i] == "\\" and i + 1 < len(t):
+            nxt = t[i + 1]
+            out.append("\n" if nxt == "n" else ("\\" if nxt == "\\" else nxt))
+            i += 2
+        else:
+            out.append(t[i]); i += 1
+    return "".join(out)
+
+
+def inventory_snapshot(specimens, rejects, negmeta):
+    """Canonical (name, kind, source, golden-or-refusal-tag) rows for the whole panel.
+    A specimen's two paths ARE its identity; a refusal is keyed by its reason tag so a
+    changed explanation shows up as a substitution too."""
+    rows = {}
+    for n, (src, gold) in specimens.items():
+        rows[n] = ("specimen", src, gold)
+    for n in rejects:
+        rows[n] = ("refusal", rejects[n][0], negmeta.get(n, ("", ""))[1])
+    return rows
+
+
+def inventory_check(path, rows, write=False):
+    """Mechanically checked inventory of regression identities [E2E-16/P3].
+
+    C154 (registration_audit) compares keys WITHIN the live panel, so it can see a duplicate
+    write but NOT a REMOVAL, and not a SUBSTITUTION -- and every failure this project has had
+    in this area is one of those two:
+      E2E-12  five long-standing specimens silently replaced by colliding keys -- the panel
+              kept the same shape while testing something else;
+      E2E-15  P9 dropped entirely while "simplifying" its registration -- a removal, invisible
+              to a key-collision check, which is why I only noticed a total of 509.
+    A count cannot catch either: removing one specimen and adding another leaves the total
+    identical while the panel's coverage changes.  So this compares the exact SET of
+    (name, kind, source, golden) tuples against a COMMITTED file and requires an intentional,
+    reviewed `--update-inventory` whenever a specimen is added, retired or repointed.
+    Exit 2 with the precise diff on any change, so an unreviewed edit cannot pass the gate.
+    """
+    if write:
+        with open(path, "w") as fh:
+            fh.write("# DR PL/I-80 e2e regression inventory -- MACHINE-MAINTAINED FILE\n")
+            fh.write("# One row per panel entry: name\tkind\tsource\tgolden-or-refusal-reason\n")
+            fh.write("# Add/retire/repoint a specimen with: python3 tools/e2e_gate.py --update-inventory\n")
+            fh.write("# The gate aborts if this file and the live panel disagree (E2E-16/P3).\n")
+            for n in sorted(rows):
+                k, a, b = rows[n]
+                fh.write("%s\t%s\t%s\t%s\n" % (n, k, esc(a), esc(b)))
+        return []
+    if not os.path.exists(path):
+        return ["inventory file %s does not exist -- run --update-inventory" % path]
+    old = {}
+    for line in open(path):
+        if line.startswith("#") or not line.strip():
+            continue
+        parts = line.rstrip("\n").split("\t")
+        if len(parts) != 4:
+            return ["inventory file is malformed at: %r" % line[:60]]
+        old[parts[0]] = tuple(unesc(x) for x in parts[1:])
+    errs = []
+    removed = sorted(set(old) - set(rows))
+    added = sorted(set(rows) - set(old))
+    subst = sorted(n for n in set(old) & set(rows) if old[n] != rows[n])
+    if removed:
+        errs.append("%d entr%s REMOVED from the panel without an inventory update: %s"
+                    % (len(removed), "y" if len(removed) == 1 else "ies", removed[:12]))
+    if added:
+        errs.append("%d entr%s ADDED without an inventory update: %s"
+                    % (len(added), "y" if len(added) == 1 else "ies", added[:12]))
+    if subst:
+        errs.append("%d entr%s SUBSTITUTED (same name, different reference -- a count cannot "
+                    "see this): %s" % (len(subst), "y" if len(subst) == 1 else "ies", subst[:12]))
+        for n in subst[:4]:
+            errs.append("    %s: inventory=%s  panel=%s" % (n, old[n], rows[n]))
+    return errs
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--link-run", action="store_true")
@@ -1607,6 +1742,9 @@ def main():
                     help="do not run the pre-flight selftests (reldump "
                          "field-visibility + linkrun C137 undefined-symbol) "
                          "first (debug only -- a real gate run must not use it)")
+    ap.add_argument("--update-inventory", action="store_true",
+                    help="rewrite spec/INVENTORY.txt from the live panel, then exit -- the "
+                         "only sanctioned way to add/retire/repoint a specimen [E2E-16/P3]")
     ap.add_argument("--only", nargs="*", metavar="NAME",
                     help="restrict the --link-run arm to these specimens "
                          "(byte-parity compile still runs for all)")
@@ -1621,6 +1759,18 @@ def main():
         # [E2E-15/C154] regression-list collisions have produced false confidence three
         # times, and a dict overwrite leaves no trace in the output -- check the panel's own
         # bookkeeping before compiling anything against it.
+        inv_errs = inventory_check(INVENTORY, inventory_snapshot(SPECIMENS, REJECTS, NEG_META),
+                                   write=a.update_inventory)
+        if a.update_inventory:
+            print("e2e gate: inventory rewritten (%d entries) -- review `git diff "
+                  "spec/INVENTORY.txt' as part of this change" % len(inv_errs or rows_of(SPECIMENS)))
+            return 0
+        if inv_errs:
+            for e in inv_errs:
+                print("e2e gate: INVENTORY: %s" % e)
+            print("e2e gate: ABORTED -- panel and committed inventory disagree; if the change "
+                  "is intentional, run --update-inventory and commit the diff")
+            return 2
         try:
             registration_audit(os.path.join(ROOT, "tools", "e2e_gate.py"),
                                SPECIMENS, REJECTS, NEG_META)
@@ -1657,7 +1807,10 @@ def main():
     for name, (src, gold) in SPECIMENS.items():
         gp = os.path.join(ROOT, gold)
         if not os.path.exists(gp):
-            print(f"SKIP    {name}: no golden {gold}")
+            print(f"GOLDEN-MISSING {name}: registered specimen has no DR object at {gold}")
+            print(f"               (a SKIP is NOT a pass -- 'verify DR actually produced each "
+                  f"reference object'; mistagging a probe used to hide here, E2E-16)")
+            bad += 1
             continue
         rel, rc, err = compile_one(name, src)
         if rc != 0:

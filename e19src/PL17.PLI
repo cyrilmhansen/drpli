@@ -1,0 +1,8 @@
+a:
+    procedure options(main);
+    declare n fixed, m fixed, q fixed, c char(1);    declare x char(3), d char(6);
+    put skip list('', n);
+    put skip list('', m);
+    stop;
+end a;
+

@@ -1,0 +1,11 @@
+a:
+    procedure options(main);
+    declare n fixed, m fixed, k fixed;
+    declare c char(3), e char(4);
+    n = 7;
+    c = 'W';
+    e = 'W';
+    put skip list(c, e, n);
+    stop;
+end a;
+

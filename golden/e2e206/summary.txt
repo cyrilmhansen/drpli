@@ -1,0 +1,5 @@
+MZ3	ok	PRN=True REL=True
+MZ4	ok	PRN=True REL=True
+MZ5	ok	PRN=True REL=True
+MZ6	ok	PRN=True REL=True
+MZ7	diag	PRN=True REL=False

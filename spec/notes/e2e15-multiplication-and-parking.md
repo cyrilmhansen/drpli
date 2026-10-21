@@ -1,7 +1,15 @@
 # E2E-15 — multiplication family, the parking rule, and what it cost to find them
 
-Baseline HEAD 8c849f9 (478/478, 74/74, 13/41). Final: **478 -> 509 byte-exact specimens, 74 -> 80
-negatives, corpus unchanged** -- see the gate log.
+Baseline HEAD 8c849f9 (478/478, 74/74, 13/41). Final: **478 -> 510 byte-exact specimens, 74 -> 80
+negatives, corpus unchanged (13/41 EXACT, 0 DIFFERS)** -- verified by the full gate run.
+
+> CORRECTION [E2E-16/P3]: the body of this note and my first post-milestone summary quoted **509**.
+> That number was WRONG, and it was the symptom of the error described in section 6 -- while
+> "simplifying" P9's registration I deleted a verified specimen, so the panel had 509 entries and
+> P9 was silently untested.  The correct verified total at the end of E2E-15 is **510 byte-exact**
+> (477 inherited + P9 + 32 new MB probes), re-established in E2E-16 by restoring
+> `SPECIMENS["P9"]` and re-running the full panel.  A total is not a check: 509 and 510 differ by
+> one line of output nobody read, which is why `spec/INVENTORY.txt` now names every entry.
 
 ## 1. The multiplication result is not the interesting part
 
@@ -82,3 +90,13 @@ the same as "the mechanism is understood".
 * Probe hygiene: batch runners must not be pointed at an existing golden tag (the safety rule fires
   and reports 0 ok, which looks like DR refusing). MB41-43 and the first MB44-46 runs were exactly
   that, and `golden/e2e182/D2` debris from E2E-14 is the same class of error. No golden, no verdict.
+
+## 6. (added by E2E-16) the count that was wrong
+
+Section 4's claim about P9 was right and my registration was not. E2E-16's Priority 3 turned that
+into an instrument: `spec/INVENTORY.txt` commits one row per panel entry (name, kind, source,
+golden), and the gate aborts unless the live panel matches it exactly. It detects three things a
+count cannot: a REMOVAL (my P9 case), an ADDITION, and a SUBSTITUTION -- same name, repointed
+golden, identical total. The substitution case is not hypothetical: E2E-12's collision replaced
+five specimens while keeping the panel's shape, and in E2E-16 the inventory fired on PL8/PL9
+being repointed between golden tags, where the entry count did not move at all.

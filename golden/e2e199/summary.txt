@@ -1,0 +1,7 @@
+PL1	ok	PRN=True REL=True
+PL2	ok	PRN=True REL=True
+PL3	ok	PRN=True REL=True
+PL4	ok	PRN=True REL=True
+PL5	ok	PRN=True REL=True
+PL6	ok	PRN=True REL=True
+PL7	ok	PRN=True REL=True

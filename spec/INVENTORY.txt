@@ -1,0 +1,615 @@
+# DR PL/I-80 e2e regression inventory -- MACHINE-MAINTAINED FILE
+# One row per panel entry: name	kind	source	golden-or-refusal-reason
+# Add/retire/repoint a specimen with: python3 tools/e2e_gate.py --update-inventory
+# The gate aborts if this file and the live panel disagree (E2E-16/P3).
+A	specimen	artefacts/A.PLI	golden/first/A/A.REL
+B	specimen	e14src/B.PLI	golden/e2e152d/B/B.REL
+C1	specimen	e15src/C1.PLI	golden/e2e172/C1/C1.REL
+C4	specimen	e15src/C4.PLI	golden/e2e172/C4/C4.REL
+C7	specimen	e15src/C7.PLI	golden/e2e173/C7/C7.REL
+DECPOLY	specimen	artefacts/DECPOLY.PLI	golden/first8080u/DECPOLY/DECPOLY.REL
+DEMO	specimen	artefacts/DEMO.PLI	golden/first8080u/DEMO/DEMO.REL
+DFACT	specimen	artefacts/DFACT.PLI	golden/first8080u/DFACT/DFACT.REL
+DTEST	specimen	artefacts/DTEST.PLI	golden/e2e141/DTEST/DTEST.REL
+E11A	specimen	e13src/E11A.PLI	golden/e2e11g/E11A/E11A.REL
+E11B	specimen	e13src/E11B.PLI	golden/e2e11g/E11B/E11B.REL
+E11D	specimen	e13src/E11D.PLI	golden/e2e11g/E11D/E11D.REL
+E11E	specimen	e13src/E11E.PLI	golden/e2e11g/E11E/E11E.REL
+E20A	specimen	e13src/E20A.PLI	golden/e2e11l/E20A/E20A.REL
+E20B	specimen	e13src/E20B.PLI	golden/e2e11l/E20B/E20B.REL
+E20D	specimen	e13src/E20D.PLI	golden/e2e11l/E20D/E20D.REL
+E20E	specimen	e13src/E20E.PLI	golden/e2e11l/E20E/E20E.REL
+E21A	specimen	e13src/E21A.PLI	golden/e2e11m/E21A/E21A.REL
+E21B	specimen	e13src/E21B.PLI	golden/e2e11m/E21B/E21B.REL
+E22A02	specimen	e13src/E22A02.PLI	golden/e2e11n/E22A02/E22A02.REL
+E22A03	specimen	e13src/E22A03.PLI	golden/e2e11n/E22A03/E22A03.REL
+E22A04	specimen	e13src/E22A04.PLI	golden/e2e11n/E22A04/E22A04.REL
+E22A05	specimen	e13src/E22A05.PLI	golden/e2e11n/E22A05/E22A05.REL
+E22A06	specimen	e13src/E22A06.PLI	golden/e2e11n/E22A06/E22A06.REL
+E22A07	specimen	e13src/E22A07.PLI	golden/e2e11n/E22A07/E22A07.REL
+E22A08	specimen	e13src/E22A08.PLI	golden/e2e11n/E22A08/E22A08.REL
+E22A09	specimen	e13src/E22A09.PLI	golden/e2e11n/E22A09/E22A09.REL
+E22A12	specimen	e13src/E22A12.PLI	golden/e2e11n/E22A12/E22A12.REL
+E22A16	specimen	e13src/E22A16.PLI	golden/e2e11n/E22A16/E22A16.REL
+E22B01	specimen	e13src/E22B01.PLI	golden/e2e11n/E22B01/E22B01.REL
+E22B02	specimen	e13src/E22B02.PLI	golden/e2e11n/E22B02/E22B02.REL
+E22B03	specimen	e13src/E22B03.PLI	golden/e2e11n/E22B03/E22B03.REL
+E22B04	specimen	e13src/E22B04.PLI	golden/e2e11n/E22B04/E22B04.REL
+E22B05	specimen	e13src/E22B05.PLI	golden/e2e11n/E22B05/E22B05.REL
+E22B08	specimen	e13src/E22B08.PLI	golden/e2e11n/E22B08/E22B08.REL
+E23A200	specimen	e13src/E23A200.PLI	golden/e2e11p/E23A200/E23A200.REL
+E23G1	specimen	e13src/E23G1.PLI	golden/e2e11o/E23G1/E23G1.REL
+E23G2	specimen	e13src/E23G2.PLI	golden/e2e11o/E23G2/E23G2.REL
+E23G200	specimen	e13src/E23G200.PLI	golden/e2e11p/E23G200/E23G200.REL
+E23G3	specimen	e13src/E23G3.PLI	golden/e2e11o/E23G3/E23G3.REL
+E23G4	specimen	e13src/E23G4.PLI	golden/e2e11o/E23G4/E23G4.REL
+E23G5	specimen	e13src/E23G5.PLI	golden/e2e11o/E23G5/E23G5.REL
+E23G6	specimen	e13src/E23G6.PLI	golden/e2e11o/E23G6/E23G6.REL
+E23G7	specimen	e13src/E23G7.PLI	golden/e2e11o/E23G7/E23G7.REL
+E23G8	specimen	e13src/E23G8.PLI	golden/e2e11o/E23G8/E23G8.REL
+E23L1	specimen	e13src/E23L1.PLI	golden/e2e11o/E23L1/E23L1.REL
+E23L2	specimen	e13src/E23L2.PLI	golden/e2e11o/E23L2/E23L2.REL
+E23L200	specimen	e13src/E23L200.PLI	golden/e2e11p/E23L200/E23L200.REL
+E23L3	specimen	e13src/E23L3.PLI	golden/e2e11o/E23L3/E23L3.REL
+E23L4	specimen	e13src/E23L4.PLI	golden/e2e11o/E23L4/E23L4.REL
+E23L5	specimen	e13src/E23L5.PLI	golden/e2e11o/E23L5/E23L5.REL
+E23L6	specimen	e13src/E23L6.PLI	golden/e2e11o/E23L6/E23L6.REL
+E23L7	specimen	e13src/E23L7.PLI	golden/e2e11o/E23L7/E23L7.REL
+E23L8	specimen	e13src/E23L8.PLI	golden/e2e11o/E23L8/E23L8.REL
+E23N1	specimen	e13src/E23N1.PLI	golden/e2e11p/E23N1/E23N1.REL
+E23N2	specimen	e13src/E23N2.PLI	golden/e2e11p/E23N2/E23N2.REL
+E23N200	specimen	e13src/E23N200.PLI	golden/e2e11p/E23N200/E23N200.REL
+E23N3	specimen	e13src/E23N3.PLI	golden/e2e11p/E23N3/E23N3.REL
+E23N4	specimen	e13src/E23N4.PLI	golden/e2e11p/E23N4/E23N4.REL
+E23N5	specimen	e13src/E23N5.PLI	golden/e2e11p/E23N5/E23N5.REL
+E23N6	specimen	e13src/E23N6.PLI	golden/e2e11p/E23N6/E23N6.REL
+E23N8	specimen	e13src/E23N8.PLI	golden/e2e11p/E23N8/E23N8.REL
+E24A	specimen	e13src/E24A.PLI	golden/e2e121/E24A/E24A.REL
+E24B	specimen	e13src/E24B.PLI	golden/e2e121/E24B/E24B.REL
+E24C	specimen	e13src/E24C.PLI	golden/e2e121/E24C/E24C.REL
+E24E	specimen	e13src/E24E.PLI	golden/e2e121/E24E/E24E.REL
+E24F	specimen	e13src/E24F.PLI	golden/e2e121/E24F/E24F.REL
+E24G	specimen	e13src/E24G.PLI	golden/e2e121/E24G/E24G.REL
+E24J	specimen	e13src/E24J.PLI	golden/e2e122/E24J/E24J.REL
+E25A	specimen	e13src/E25A.PLI	golden/e2e123/E25A/E25A.REL
+E25B	specimen	e13src/E25B.PLI	golden/e2e123/E25B/E25B.REL
+E25C	specimen	e13src/E25C.PLI	golden/e2e123/E25C/E25C.REL
+E25D	specimen	e13src/E25D.PLI	golden/e2e123/E25D/E25D.REL
+E25E	specimen	e13src/E25E.PLI	golden/e2e123/E25E/E25E.REL
+E25F	specimen	e13src/E25F.PLI	golden/e2e123/E25F/E25F.REL
+E25G	specimen	e13src/E25G.PLI	golden/e2e124/E25G/E25G.REL
+E25H	specimen	e13src/E25H.PLI	golden/e2e124/E25H/E25H.REL
+E26A	specimen	e13src/E26A.PLI	golden/e2e125/E26A/E26A.REL
+E26B	specimen	e13src/E26B.PLI	golden/e2e125/E26B/E26B.REL
+E26C	specimen	e13src/E26C.PLI	golden/e2e125/E26C/E26C.REL
+E26D	specimen	e13src/E26D.PLI	golden/e2e125/E26D/E26D.REL
+E26E	specimen	e13src/E26E.PLI	golden/e2e125/E26E/E26E.REL
+E26F	specimen	e13src/E26F.PLI	golden/e2e125/E26F/E26F.REL
+E26G	specimen	e13src/E26G.PLI	golden/e2e125/E26G/E26G.REL
+E26H	specimen	e13src/E26H.PLI	golden/e2e126/E26H/E26H.REL
+E26J	specimen	e13src/E26J.PLI	golden/e2e127/E26J/E26J.REL
+E26K	specimen	e13src/E26K.PLI	golden/e2e127/E26K/E26K.REL
+E27A	specimen	e13src/E27A.PLI	golden/e2e129/E27A/E27A.REL
+E27B	specimen	e13src/E27B.PLI	golden/e2e129/E27B/E27B.REL
+E27C	specimen	e13src/E27C.PLI	golden/e2e129/E27C/E27C.REL
+E28A	specimen	e13src/E28A.PLI	golden/e2e133/E28A/E28A.REL
+E28B	specimen	e13src/E28B.PLI	golden/e2e135/E28B/E28B.REL
+E28C	specimen	e13src/E28C.PLI	golden/e2e135/E28C/E28C.REL
+E28D	specimen	e13src/E28D.PLI	golden/e2e137/E28D/E28D.REL
+E28E	specimen	e13src/E28E.PLI	golden/e2e138/E28E/E28E.REL
+E29A	specimen	e13src/E29A.PLI	golden/e2e143/E29A/E29A.REL
+E29D	specimen	e13src/E29D.PLI	golden/e2e144/E29D/E29D.REL
+E29F	specimen	e14src/E29F.PLI	golden/e2e150d/E29F/E29F.REL
+E29G	specimen	e14src/E29G.PLI	golden/e2e151d/E29G/E29G.REL
+E29H	specimen	e14src/E29H.PLI	golden/e2e151d/E29H/E29H.REL
+E29I	specimen	e14src/E29I.PLI	golden/e2e152d/E29I/E29I.REL
+E29J	specimen	e14src/E29J.PLI	golden/e2e152d/E29J/E29J.REL
+FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL
+FFACT	specimen	artefacts/FFACT.PLI	golden/first8080u/FFACT/FFACT.REL
+FLTPOLY	specimen	artefacts/FLTPOLY.PLI	golden/first8080u/FLTPOLY/FLTPOLY.REL
+FLTPOLY2	specimen	artefacts/FLTPOLY2.PLI	golden/first8080u/FLTPOLY2/FLTPOLY2.REL
+G101	specimen	probes/G101.PLI	golden/e2eexp/G101/G101.REL
+G102	specimen	probes/G102.PLI	golden/e2eexp/G102/G102.REL
+G103	specimen	probes/G103.PLI	golden/e2eexp/G103/G103.REL
+G104	specimen	probes/G104.PLI	golden/e2eexp/G104/G104.REL
+G105	specimen	probes/G105.PLI	golden/e2eexp/G105/G105.REL
+G106	specimen	probes/G106.PLI	golden/e2eexp/G106/G106.REL
+G107	specimen	probes/G107.PLI	golden/e2eput2/G107/G107.REL
+G108	specimen	probes/G108.PLI	golden/e2eput2/G108/G108.REL
+G113	specimen	probes/G113.PLI	golden/e2e3b/G113/G113.REL
+G114	specimen	probes/G114.PLI	golden/e2e3b/G114/G114.REL
+G114B	specimen	probes/G114B.PLI	golden/e2e3b/G114B/G114B.REL
+G114C	specimen	probes/G114C.PLI	golden/e2e3b/G114C/G114C.REL
+G115	specimen	probes/G115.PLI	golden/e2e3b/G115/G115.REL
+G116	specimen	probes/G116.PLI	golden/e2e3b/G116/G116.REL
+G117	specimen	probes/G117.PLI	golden/e2e5b/G117/G117.REL
+G118	specimen	probes/G118.PLI	golden/e2e5b/G118/G118.REL
+IFACT	specimen	artefacts/IFACT.PLI	golden/first8080u/IFACT/IFACT.REL
+K1	specimen	e16src/K1.PLI	golden/e2e174/K1/K1.REL
+K10	specimen	e16src/K10.PLI	golden/e2e174/K10/K10.REL
+K11	specimen	e16src/K11.PLI	golden/e2e174/K11/K11.REL
+K2	specimen	e16src/K2.PLI	golden/e2e174/K2/K2.REL
+K3	specimen	e16src/K3.PLI	golden/e2e174/K3/K3.REL
+K4	specimen	e16src/K4.PLI	golden/e2e174/K4/K4.REL
+K5	specimen	e16src/K5.PLI	golden/e2e174/K5/K5.REL
+K6	specimen	e16src/K6.PLI	golden/e2e174/K6/K6.REL
+K7	specimen	e16src/K7.PLI	golden/e2e174/K7/K7.REL
+K8	specimen	e16src/K8.PLI	golden/e2e174/K8/K8.REL
+K9	specimen	e16src/K9.PLI	golden/e2e174/K9/K9.REL
+LOAN1	specimen	artefacts/LOAN1.PLI	golden/first8080u/LOAN1/LOAN1.REL
+LONGNAME	specimen	probes/LONGNAME.PLI	golden/e2e12/LONGNAME/LONGNAME.REL
+M0	specimen	e16src/M0.PLI	golden/e2e175/M0/M0.REL
+M1	specimen	e16src/M1.PLI	golden/e2e175/M1/M1.REL
+M16	specimen	e16src/M16.PLI	golden/e2e175/M16/M16.REL
+M2	specimen	e16src/M2.PLI	golden/e2e175/M2/M2.REL
+M3	specimen	e16src/M3.PLI	golden/e2e175/M3/M3.REL
+M4	specimen	e16src/M4.PLI	golden/e2e175/M4/M4.REL
+M6	specimen	e16src/M6.PLI	golden/e2e175/M6/M6.REL
+M7	specimen	e16src/M7.PLI	golden/e2e175/M7/M7.REL
+MB1	specimen	e18src/MB1.PLI	golden/e2e186/MB1/MB1.REL
+MB10	specimen	e18src/MB10.PLI	golden/e2e186/MB10/MB10.REL
+MB11	specimen	e18src/MB11.PLI	golden/e2e186/MB11/MB11.REL
+MB12	specimen	e18src/MB12.PLI	golden/e2e186/MB12/MB12.REL
+MB13	refusal	a: \n    procedure options(main); \n    declare n fixed, m fixed; \n    n = 7; \n    m = 3; \n    if n * 2 > 8 then m = 1; \n    put skip list('W', m); \n    stop; \n    f: procedure(j) returns(fixed); \n    declare j fixed; \n    return (j + 1); \n    end f; \nend a; \n	DR COMPILES IT (golden/e2e186/MB13): `if n * 2 > 8' lowers to the multiply then `LXI B,FFF7 / DAD B / MOV A,H / ORA A / JM'. The multiply half is byte-exact here [MB1/MB24]; what refuses is my condition subset, which carries no relational test whose left operand is a constant multiply. MY gap, not a language rule [C148/C150]
+MB14	specimen	e18src/MB14.PLI	golden/e2e186/MB14/MB14.REL
+MB15	specimen	e18src/MB15.PLI	golden/e2e186/MB15/MB15.REL
+MB16	specimen	e18src/MB16.PLI	golden/e2e186/MB16/MB16.REL
+MB17	specimen	e18src/MB17.PLI	golden/e2e186/MB17/MB17.REL
+MB18	specimen	e18src/MB18.PLI	golden/e2e186/MB18/MB18.REL
+MB19	specimen	e18src/MB19.PLI	golden/e2e187/MB19/MB19.REL
+MB2	specimen	e18src/MB2.PLI	golden/e2e186/MB2/MB2.REL
+MB20	specimen	e18src/MB20.PLI	golden/e2e187/MB20/MB20.REL
+MB21	specimen	e18src/MB21.PLI	golden/e2e187/MB21/MB21.REL
+MB22	specimen	e18src/MB22.PLI	golden/e2e187/MB22/MB22.REL
+MB23	refusal	a: \n    procedure options(main); \n    declare n fixed, m fixed; \n    n = 7; \n    m = 3; \n    m = n * 65535; \n    put skip list('W', m); \n    stop; \n    f: procedure(j) returns(fixed); \n    declare j fixed; \n    return (j + 1); \n    end f; \nend a; \n	DR COMPILES IT (golden/e2e186/MB23): k=65535 leaves the 16-bit register route and is loaded through the DECIMAL POOL (`PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / POP D / ?IM22N'). My `LXI D,k' would silently truncate the operand, so refusing is a correctness requirement, not caution [C148]
+MB24	specimen	e18src/MB24.PLI	golden/e2e187/MB24/MB24.REL
+MB25	specimen	e18src/MB25.PLI	golden/e2e187/MB25/MB25.REL
+MB26	specimen	e18src/MB26.PLI	golden/e2e188/MB26/MB26.REL
+MB27	specimen	e18src/MB27.PLI	golden/e2e188/MB27/MB27.REL
+MB28	specimen	e18src/MB28.PLI	golden/e2e188/MB28/MB28.REL
+MB29	specimen	e18src/MB29.PLI	golden/e2e189/MB29/MB29.REL
+MB3	specimen	e18src/MB3.PLI	golden/e2e186/MB3/MB3.REL
+MB30	specimen	e18src/MB30.PLI	golden/e2e189/MB30/MB30.REL
+MB31	refusal	a: \n    procedure options(main); \n    declare n fixed, m fixed; \n    n = 7; \n    m = 3; \n    m = n * 32768; \n    put skip list('W', m); \n    stop; \n    f: procedure(j) returns(fixed); \n    declare j fixed; \n    return (j + 1); \n    end f; \nend a; \n	DR COMPILES IT (golden/e2e189/MB31) and pins the BOUNDARY exactly: k=32767 uses `LXI D,7FFF' [MB30, byte-exact] while k=32768 switches to the decimal pool path. The constant-multiply rule therefore has a signed-16-bit ceiling, not a digit-count one [C148]
+MB34	specimen	e18src/MB34.PLI	golden/e2e190/MB34/MB34.REL
+MB35	specimen	e18src/MB35.PLI	golden/e2e190/MB35/MB35.REL
+MB36	specimen	e18src/MB36.PLI	golden/e2e190/MB36/MB36.REL
+MB37	specimen	e18src/MB37.PLI	golden/e2e190/MB37/MB37.REL
+MB38	specimen	e18src/MB38.PLI	golden/e2e191/MB38/MB38.REL
+MB39	specimen	e18src/MB39.PLI	golden/e2e191/MB39/MB39.REL
+MB4	specimen	e18src/MB4.PLI	golden/e2e186/MB4/MB4.REL
+MB40	specimen	e18src/MB40.PLI	golden/e2e191/MB40/MB40.REL
+MB44	specimen	e18src/MB44.PLI	golden/e2e195b/MB44/MB44.REL
+MB45	specimen	e18src/MB45.PLI	golden/e2e197b/MB45/MB45.REL
+MB46	specimen	e18src/MB46.PLI	golden/e2e198b/MB46/MB46.REL
+MB5	specimen	e18src/MB5.PLI	golden/e2e186/MB5/MB5.REL
+MB6	specimen	e18src/MB6.PLI	golden/e2e186/MB6/MB6.REL
+MB7	refusal	a: \n    procedure options(main); \n    declare n fixed, m fixed; \n    n = 7; \n    m = 3; \n    m = n * 0; \n    put skip list('W', m); \n    stop; \n    f: procedure(j) returns(fixed); \n    declare j fixed; \n    return (j + 1); \n    end f; \nend a; \n	DR COMPILES IT (golden/e2e186/MB7) and lowers BOTH `n * 0' and `0 * n' to `MOV L,H', which copies H into L and does NOT produce zero -- a probable DR defect [MB8 emits byte-identical code]. I reproduce neither it (unverified) nor my old ?IM22N-by-0 path (not byte-equal). Note elide_fixed_zero previously rewrote `x * 0' into `x' outright, a silent mis-compile fixed under C151 [C148]
+MB8	refusal	a: \n    procedure options(main); \n    declare n fixed, m fixed; \n    n = 7; \n    m = 3; \n    m = 0 * n; \n    put skip list('W', m); \n    stop; \n    f: procedure(j) returns(fixed); \n    declare j fixed; \n    return (j + 1); \n    end f; \nend a; \n	The other operand order of MB7: DR emits `MOV L,H' for `0 * n' [golden/e2e186/MB8], byte-identical to its `n * 0' output, confirming the constant commutes for DR irrespective of route [C148]
+MB9	specimen	e18src/MB9.PLI	golden/e2e186/MB9/MB9.REL
+N11_STROVR	refusal	t:\n  procedure options(main);\n  dcl c char(4);\n  c = 'ABCD';\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG01/NG01.REL)
+N12_EMPTYFIX	refusal	t:\n  procedure options(main);\n  dcl c char(4);\n  c = '';\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG02/NG02.REL)
+N13_CATLIT	refusal	t:\n  procedure options(main);\n  put list('A' || 'B');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG03/NG03.REL)
+N14_CATFIX	refusal	t:\n  procedure options(main);\n  dcl c char(4);\n  c = 'AB';\n  put list('X' || c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG04/NG04.REL)
+N15_CAT4	refusal	t:\n  procedure options(main);\n  dcl n char(6) varying;\n  n = 'Q';\n  put list('A' || n || 'B' || 'C');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG05/NG05.REL)
+N16_CATASSIGN	refusal	t:\n  procedure options(main);\n  dcl n char(6) varying;\n  dcl m char(6) varying;\n  n = 'Q';\n  m = 'Z' || n;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG06/NG06.REL)
+N21_DOIDX	refusal	t:\n  procedure options(main);\n  dcl c char(4) varying;\n  do c = 'A' to 'Z';\n    put list('X');\n  end;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG07/NG07.REL)
+N22_FPUT	refusal	t:\n  procedure options(main);\n  put list(42);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG08/NG08.REL)
+N23_CHARVAR_MULTI	refusal	t:\n  procedure options(main);\n  dcl c char(4) varying;\n  dcl i fixed;\n  c = 'Q';\n  i = 1;\n  put list(c, i);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG09/NG09.REL)
+N24_BIGIN	refusal	t:\n  procedure options(main);\n  dcl c fixed bin(16);\n  c = 1;\n  put list(c);\nend t;\n	DR REFUSES: NOT IMP (golden/negpanel1/NG10/NG10.PRN)
+N25_DECCMP_SCALE	refusal	t:\n  procedure options(main);\n  dcl d fixed dec(9,2);\n  d = 3;\n  if d > 3 then put list(d);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG11/NG11.REL)
+N27_DECBIGP	refusal	t:\n  procedure options(main);\n  dcl d fixed dec(20,0);\n  d = 1;\nend t;\n	DR REFUSES: NOT IMP (golden/negpanel1/NG12/NG12.PRN)
+N28_DECLITFRAC	refusal	t:\n  procedure options(main);\n  dcl d fixed dec(7,0);\n  d = 1.25;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG13/NG13.REL)
+N29_DECININT	refusal	t:\n  procedure options(main);\n  dcl d fixed dec(9,0);\n  dcl i fixed;\n  i = 1;\n  i = i + d;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG14/NG14.REL)
+N301	specimen	probes/N301.PLI	golden/e2e5b/N301/N301.REL
+N302	specimen	probes/N302.PLI	golden/e2e5b/N302/N302.REL
+N303	specimen	probes/N303.PLI	golden/e2e5b/N303/N303.REL
+N304	specimen	probes/N304.PLI	golden/e2e5b/N304/N304.REL
+N306	specimen	probes/N306.PLI	golden/e2e5b/N306/N306.REL
+N308	specimen	probes/N308.PLI	golden/e2e5b/N308/N308.REL
+N30_DECCMP_BUILTIN	refusal	t:\n  procedure options(main);\n  dcl i fixed bin;\n  dcl d fixed dec(9,2);\n  d = 1; i = 2;\n  if decimal(i,9) > d then put list(d);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG15/NG15.REL)
+N31_DIV_LITERAL_NUMERATOR	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,2);\n  a = 6;\n  c = 1200 / a;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG16/NG16.REL)
+N32_DIV_CHAINED	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,2);\n  dcl b fixed dec(9,2);\n  dcl c fixed dec(9,2);\n  a = 6; b = 2;\n  c = a / b / 2;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG17/NG17.REL)
+N33_DEC_FORMAL	refusal	t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n  r = g(1);\n  put list(r);\n  stop;\n  g: procedure(x) returns(fixed dec(9,2));\n     dcl x fixed dec(9,2);\n     return (x);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG18/NG18.REL)
+N34_DEC_NEGSCALE_DIV	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,0);\n  dcl b fixed dec(9,8);\n  dcl c fixed dec(9,0);\n  a = 6; b = 2;\n  c = a / b;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG19/NG19.REL)
+N35_DEC_STORE_SCALE_DRIFT	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,2);\n  dcl c fixed dec(9,4);\n  a = 6;\n  c = a;\n  put list(c);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG20/NG20.REL)
+N36_ROUND_ONEARG	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,3);\n  dcl y fixed dec(9,2);\n  a = 2.125;\n  y = round(a);\n  stop;\nend t;\n	DR REFUSES: SYNTAX (golden/negpanel1/NG21/NG21.PRN)
+N37_ROUND_LITERAL	refusal	t:\n  procedure options(main);\n  dcl y fixed dec(9,2);\n  y = round(2.125, 2);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG22/NG22.REL)
+N38_ROUND_INTARG	refusal	t:\n  procedure options(main);\n  dcl i fixed;\n  dcl y fixed dec(9,2);\n  i = 7;\n  y = round(i, 2);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG23/NG23.REL)
+N39_ROUND_DYNSCALE	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,3);\n  dcl y fixed dec(9,2);\n  dcl n fixed;\n  a = 2.125;\n  n = 2;\n  y = round(a, n);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG24/NG24.REL)
+N3_PAGE	refusal	t:\n  procedure options(main);\n  put page list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG25/NG25.REL)
+N4	specimen	e16src/N4.PLI	golden/e2e176/N4/N4.REL
+N40_ROUND_SCALE_ABOVE	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(9,3);\n  dcl y fixed dec(9,6);\n  a = 2.125;\n  y = round(a, 5);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG26/NG26.REL)
+N41_ROUND_SIMPLE_INADD	refusal	t:\n  procedure options(main);\n  dcl p fixed dec(9,2);\n  dcl a fixed dec(9,3);\n  p = 1;\n  a = 2.125;\n  p = p + round(a, 2);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG27/NG27.REL)
+N42_ROUND_INMUL	refusal	t:\n  procedure options(main);\n  dcl p fixed dec(9,2);\n  dcl a fixed dec(9,3);\n  p = 1;\n  a = 2.125;\n  p = p * round(a, 2);\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG28/NG28.REL)
+N43_ROUND_AS_DIVIDEND	refusal	t:\n  procedure options(main);\n  dcl p fixed dec(9,2);\n  dcl a fixed dec(9,3);\n  dcl b fixed dec(9,2);\n  p = 1;\n  a = 2.125;\n  b = 2;\n  p = round(a, 2) / b;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG29/NG29.REL)
+N44_GETFIXCHAR	refusal	t:\n  procedure options(main);\n  dcl a char(4);\n  dcl i fixed binary;\n  get list(a, i);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG30/NG30.REL)
+N45_GETSUB	refusal	t:\n  procedure options(main);\n  dcl x char(4);\n  dcl i fixed binary;\n  get list(x(1));\nend t;\n	DR REFUSES: ARG COUNT (golden/negpanel1/NG31/NG31.PRN)
+N46_GET1BYTEBIN	refusal	t:\n  procedure options(main);\n  dcl b fixed bin(1);\n  dcl q fixed binary;\n  b = 7;\n  q = b;\n  get list(b);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG32/NG32.REL)
+N47_MODGT	refusal	t:\n  procedure options(main);\n  dcl i fixed binary;\n  i = 25;\n  if mod(i,12) > 0 then i = 1;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG33/NG33.REL)
+N48_DOWHILE_CONST	refusal	t:\n  procedure options(main);\n  dcl i fixed;\n  dcl s fixed;\n  s = 0;\n  do i = 0 by 1 while (i < 4);\n    s = s + i;\n  end;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG34/NG34.REL)
+N49_DOWHILE_ONLY	refusal	t:\n  procedure options(main);\n  dcl i fixed;\n  dcl s fixed;\n  s = 0;\n  do i = 0 while (i < 4);\n    s = s + i;\n  end;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG35/NG35.REL)
+N4_SKIPVAR	refusal	t:\n  procedure options(main);\n  dcl a fixed;\n  put skip(a) list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG36/NG36.REL)
+N5	specimen	e16src/N5.PLI	golden/e2e176/N5/N5.REL
+N50_DOZEROBOUND	refusal	t:\n  procedure options(main);\n  dcl i fixed;\n  dcl s fixed;\n  s = 0;\n  do i = 1 to 0;\n    s = s + i;\n  end;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG37/NG37.REL)
+N51_DOSTEP3	refusal	t:\n  procedure options(main);\n  dcl i fixed;\n  dcl s fixed;\n  s = 0;\n  do i = 1 to 9 by 3;\n    s = s + i;\n  end;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG38/NG38.REL)
+N52_DEC_FORMAL_PUT	refusal	t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  r = g(x);\n  stop;\n  g: procedure(q) returns(fixed dec(9,2));\n     dcl q fixed dec(9,2);\n     put skip list(q);\n     return (q);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG39/NG39.REL)
+N53_DEC_FORMAL_CONJ	refusal	t:\n  procedure options(main);\n  dcl r fixed dec(9,2);\n  dcl (x,y) fixed dec(9,2);\n  x = 1.5;\n  y = 2.5;\n  r = g(x, y);\n  stop;\n  g: procedure(q,w) returns(fixed dec(9,2));\n     dcl (q,w) fixed dec(9,2);\n     if q = 0 & w = 0 then stop;\n     return (q);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG40/NG40.REL)
+N57_ADD_LIT_LIT	refusal	t:\n  procedure options(main);\n  dcl x fixed;\n  x = 3 + 2;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG41/NG41.REL)
+N6	specimen	e16src/N6.PLI	golden/e2e176/N6/N6.REL
+N61_FLOAT_TO_FIXED	refusal	t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n  a = 1.5;\n  i = a;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG45/NG45.REL)
+N62_FLOAT_BINARY14	refusal	t:\n  procedure options(main);\n  dcl g float binary(14);\n  g = 1.5;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG46/NG46.REL)
+N67_NEGATE_CONVERTED	refusal	t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n  dcl d1 float;\n  a = 1.5;\n  i = 3;\n  d1 = a * -i;\n  stop;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG47/NG47.REL)
+N68_FLOAT_BINARY_RETURN	refusal	t:\n  procedure options(main);\n  dcl d1 float;\n  d1 = g(3);\n  stop;\n  g: procedure(n) returns(fixed);\n     dcl n fixed;\n     return (n);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG48/NG48.REL)
+N69_FIXED_ARG_FLOAT_FORMAL	refusal	t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n  dcl d1 float;\n  a = 1.5;\n  i = 3;\n  d1 = g(i);\n  stop;\n  g: procedure(p) returns(float);\n     dcl p float;\n     return (p + p);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG49/NG49.REL)
+N6_COMPUTED_GOTO	refusal	t:\n  procedure options(main);\n  dcl i fixed;\nl:\n  i = i + 1;\n  goto l(i);\nend t;\n	DR REFUSES: ARG COUNT (golden/negpanel1/NG50/NG50.PRN)
+N7	specimen	e16src/N7.PLI	golden/e2e176/N7/N7.REL
+N70_FLOAT_ARG_FIXED_FORMAL	refusal	t:\n  procedure options(main);\n  dcl (a,x) float;\n  dcl d1 float;\n  a = 1.5;\n  x = 2.5;\n  d1 = g(x);\n  stop;\n  g: procedure(p) returns(fixed);\n     dcl p float;\n     dcl i fixed;\n     i = 1;\n     return (i);\n  end g;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG51/NG51.REL)
+N71_RECURSIVE_FLOAT_FORMAL	refusal	t:\n  procedure options(main);\n  dcl a float;\n  dcl m float;\n  a = 1.5;\n  m = p(a);\n  put skip list(m);\n  stop;\n  p: procedure(x) returns(float binary(24)) recursive;\n     dcl (x,q) float;\n  q = x;\n     return (q);\n  end p;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG52/NG52.REL)
+N72_FIXED_BIN_GT15	refusal	t:\n  procedure options(main);\n  dcl a fixed bin(31);\n  a = 1;\n  put list(a);\nend t;\n	DR REFUSES: NOT IMP (golden/negpanel1/NG53/NG53.PRN)
+N73_FIXED_DEC_GT15	refusal	t:\n  procedure options(main);\n  dcl a fixed dec(16);\n  a = 1;\n  put list(a);\nend t;\n	DR REFUSES: NOT IMP (golden/negpanel1/NG54/NG54.PRN)
+N74_BIT_TO_BIT_COPY	refusal	PT1:\n  procedure options(main);\n  dcl f bit(1) static initial('1'b);\n  dcl g bit(1);\n  g = f;\n  stop;\nend PT1;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG55/NG55.REL)
+N75_BIT_WIDER_THAN_ONE	refusal	PT2:\n  procedure options(main);\n  dcl (b,c) bit(5);\n  b = c;\n  stop;\nend PT2;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG56/NG56.REL)
+N76_STATIC_INITIAL_FIXED	refusal	PT3:\n  procedure options(main);\n  dcl s fixed static initial(5);\n  s = s + 1;\n  stop;\nend PT3;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG57/NG57.REL)
+N78_INITIAL_WITHOUT_STATIC	refusal	E20C:\n  procedure options(main);\n  dcl f bit(1) initial('1'b);\n  if f = '1'b then n = 1;\n  dcl n fixed;\n  stop;\nend E20C;\n	DR REFUSES: NOT STATIC (golden/negpanel1/NG58/NG58.PRN)
+N79_ON_HANDLER_GOTO	refusal	e11f:\n  procedure options(main);\n  dcl sysin file;\n  dcl a fixed bin(15);\n  on endfile(sysin) goto out;\nout:\n  get list(a);\n  stop;\nend e11f;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG59/NG59.REL)
+N7_MULTI_FWD	refusal	t:\n  procedure options(main);\n  goto l;\n  goto l;\nl:\n  put list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG60/NG60.REL)
+N8	specimen	e16src/N8.PLI	golden/e2e176/N8/N8.REL
+N80_ON_HANDLER_BEGIN	refusal	e11c:\n  procedure options(main);\n  dcl sysin file;\n  dcl efile bit(1) static initial('0'b);\n  dcl x fixed bin(15);\n  on endfile(sysin) begin;\n    efile = '1'b;\n  end;\n  get list(x);\n  stop;\nend e11c;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG61/NG61.REL)
+N81_CALL_OF_VALUE_RETURNING	refusal	E24D:\n  procedure options(main);\n  declare (n, s) fixed;\n  s = 4;\n  call acc(s);\n  n = acc(s) + 1;\n  stop;\n  acc: procedure (v) returns(fixed);\n  declare v fixed;\n  return (v + 10);\n  end acc;\nend E24D;\n	DR REFUSES: NOT PROC (golden/negpanel1/NG62/NG62.PRN)
+N82_CALL_OF_FLOAT_RETURNING	refusal	E24H:\n  procedure options(main);\n  declare (a, n) fixed;\n  a = 2;\n  call hf(a);\n  stop;\n  hf: procedure (v) returns(float);\n  declare v fixed;\n  return (v * 1.5);\n  end hf;\nend E24H;\n	DR REFUSES: NOT PROC (golden/negpanel1/NG63/NG63.PRN)
+N83_EXPR_OF_NO_RETURNS	refusal	E24I:\n  procedure options(main);\n  declare (a, n) fixed;\n  a = 2;\n  n = gs(a);\n  stop;\n  gs: procedure (v);\n  declare v fixed;\n  v = v + 1;\n  end gs;\nend E24I;\n	DR REFUSES: TYPES NOT= (golden/negpanel1/NG64/NG64.PRN)
+N9_GTZERO	refusal	t:\n  procedure options(main);\n  dcl a fixed;\n  if a > 0 then put list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG65/NG65.REL)
+NFACT	specimen	probes/NFACT.PLI	golden/e2e5c/NFACT/NFACT.REL
+P071A	specimen	probes/P071A.PLI	golden/probe38/P071A/P071A.REL
+P071B	specimen	probes/P071B.PLI	golden/probe38/P071B/P071B.REL
+P071D	specimen	probes/P071D.PLI	golden/probe38/P071D/P071D.REL
+P1	specimen	e16src/P1.PLI	golden/e2e174/P1/P1.REL
+P10	specimen	e16src/P10.PLI	golden/e2e174/P10/P10.REL
+P11	specimen	e16src/P11.PLI	golden/e2e174/P11/P11.REL
+P12	refusal	a:\n    procedure options(main);\n    declare r fixed;\n    r = f();\n    put skip list('W', r);\n    stop;\n    g: procedure(n) returns(fixed);\n    declare n fixed;\n    return (n * 3);\n    end g;\n    f: procedure returns(fixed);\n    declare t fixed;\n    t = 100;\n    return (g(3) + g(4));\n    end f;\nend a;\n	DR COMPILES IT (golden/e2e174/P12); same cause as P5 -- `g(3)+g(4)' needs the left call on the stack, my instruction stream matches DR byte for byte and both print 21, but the cell-allocation records serialize later than DR's [C141/C142]
+P2	specimen	e16src/P2.PLI	golden/e2e174/P2/P2.REL
+P3	specimen	e16src/P3.PLI	golden/e2e174/P3/P3.REL
+P4	specimen	e16src/P4.PLI	golden/e2e174/P4/P4.REL
+P401	specimen	probes/P401.PLI	golden/e2e5c/P401/P401.REL
+P404	specimen	probes/P404.PLI	golden/e2e5c/P404/P404.REL
+P5	refusal	a:\n    procedure options(main);\n    declare r fixed;\n    r = f();\n    put skip list('W', r);\n    stop;\n    g: procedure(n) returns(fixed);\n    declare n fixed;\n    return (n * 3);\n    end g;\n    f: procedure returns(fixed);\n    declare t fixed, u fixed;\n    t = 5;\n    u = 7;\n    return (t + u + g(3));\n    end f;\nend a;\n	DR COMPILES IT (golden/e2e174/P5) and my CODE BYTES ARE IDENTICAL to DR's -- I emit its own PUSH H/POP D route and both builds print 21 (golden/e2e180r/P5 = golden/e2e181r/P5).  The .REL still differs: DR writes the call's anonymous-cell LINK-SET-LC/RELOC records BEFORE the left operand's code records, I write them at point of use.  Record order is part of byte identity [C141/C142]
+P6	refusal	a:\n    procedure options(main);\n    declare r fixed;\n    r = f();\n    put skip list('W', r);\n    stop;\n    g: procedure(n) returns(fixed);\n    declare n fixed;\n    return (n * 3);\n    end g;\n    f: procedure returns(fixed);\n    declare t fixed;\n    t = 100;\n    return (t - g(3));\n    end f;\nend a;\n	DR COMPILES IT (golden/e2e174/P6).  Route now known (PUSH H the minuend, POP D, ?IS22N) and my code bytes match DR exactly; both print 91.  Refused for the same record-order reason.  IMPORTANT: my PREVIOUS route (XCHG) parked DE across the call, which any callee touching DE corrupts -- refusing is strictly safer than what ran before [C141]
+P7	specimen	e16src/P7.PLI	golden/e2e174/P7/P7.REL
+P8	specimen	e16src/P8.PLI	golden/e2e174/P8/P8.REL
+P9	specimen	e16src/P9.PLI	golden/e2e174/P9/P9.REL
+PL1	specimen	e19src/PL1.PLI	golden/e2e199/PL1/PL1.REL
+PL10	refusal	a:\n    procedure options(main);\n    declare n fixed, m fixed, q fixed, c char(1);\n    n = 7;\n    m = 3;\n    q = 11;\n    c = 'W';\n    c = 'W';\n    put skip list('W', n);\n    stop;\n    f: procedure(j) returns(fixed);\n    declare j fixed;\n    return (j + 1);\n    end f;\nend a;\n	DR COMPILES IT (golden/e2e200/PL10).  The refusal is NOT the pool rule: `c char(1)' with `c = 'W'' is len==cap, a store form my emitter has never measured [V102/V103 cover a DIFFERENT capacity shape], so it declines before reaching the pool. PL18-PL20 measure the same dedup rule through char(3) and are byte-identical [C152]
+PL11	refusal	a:\n    procedure options(main);\n    declare n fixed, m fixed, q fixed, c char(1);\n    n = 7;\n    m = 3;\n    q = 11;\n    c = 'W';\n    c = 'W';\n    stop;\n    f: procedure(j) returns(fixed);\n    declare j fixed;\n    return (j + 1);\n    end f;\nend a;\n	DR COMPILES IT (golden/e2e200/PL11) and it is the probe that MEASURES char-store dedup -- two stores of 'W' pool ONE byte -- but mine refuses on the unproven len==cap `char(1)' form, not on the pool.  Recorded as evidence for the rule and as an open my-gap for the store form [C152]
+PL12	specimen	e19src/PL12.PLI	golden/e2e200/PL12/PL12.REL
+PL13	specimen	e19src/PL13.PLI	golden/e2e200/PL13/PL13.REL
+PL16	refusal	a:\n    procedure options(main);\n    declare n fixed, m fixed, q fixed, c char(1);    declare x char(3), d char(6);\n    c = '';\n    c = '';\n    stop;\nend a;\n	DR COMPILES IT (golden/e2e201/PL16): `c = ''; c = '';' into a FIXED char(1) -- my V104 evidence covers the empty store into a VARYING char only, so the fixed-width empty form is unproven and refuses.  The empty-literal BLOCK-REGISTRATION rule it would have tested is instead verified by PL17, which is byte-identical [C152]
+PL17	specimen	e19src/PL17.PLI	golden/e2e201/PL17/PL17.REL
+PL18	specimen	e19src/PL18.PLI	golden/e2e202/PL18/PL18.REL
+PL19	specimen	e19src/PL19.PLI	golden/e2e202/PL19/PL19.REL
+PL2	specimen	e19src/PL2.PLI	golden/e2e199/PL2/PL2.REL
+PL20	specimen	e19src/PL20.PLI	golden/e2e202/PL20/PL20.REL
+PL21	refusal	a:\n    procedure options(main);\n    declare n fixed, m fixed;\n    declare c char(3), e char(4);\n    n = 7;\n    m = 3;\n\n     c = '';\n    e = '';\n    c = '';\n\n    stop;\nend a;\n	DR COMPILES IT (golden/e2e202/PL21) with THREE empty stores into fixed chars; same unproven fixed-empty form as PL16.  Kept refused so the fixed-width empty store is never claimed on the strength of the varying-width evidence [C152]
+PL25	specimen	e19src/PL25.PLI	golden/e2e211/PL25/PL25.REL
+PL26	specimen	e19src/PL26.PLI	golden/e2e211/PL26/PL26.REL
+PL3	specimen	e19src/PL3.PLI	golden/e2e199/PL3/PL3.REL
+PL4	specimen	e19src/PL4.PLI	golden/e2e199/PL4/PL4.REL
+PL5	specimen	e19src/PL5.PLI	golden/e2e199/PL5/PL5.REL
+PL6	specimen	e19src/PL6.PLI	golden/e2e199/PL6/PL6.REL
+PL7	specimen	e19src/PL7.PLI	golden/e2e199/PL7/PL7.REL
+PL8	specimen	e19src/PL8.PLI	golden/e2e200/PL8/PL8.REL
+PL9	specimen	e19src/PL9.PLI	golden/e2e200/PL9/PL9.REL
+Q1	specimen	e14src/Q1.PLI	golden/e2e148/Q1/Q1.REL
+Q2	specimen	e14src/Q2.PLI	golden/e2e148/Q2/Q2.REL
+Q3	specimen	e14src/Q3.PLI	golden/e2e148/Q3/Q3.REL
+Q4	specimen	e14src/Q4.PLI	golden/e2e147/Q4/Q4.REL
+Q5	specimen	e14src/Q5.PLI	golden/e2e148/Q5/Q5.REL
+Q6	specimen	e14src/Q6.PLI	golden/e2e148/Q6/Q6.REL
+Q7	specimen	e14src/Q7.PLI	golden/e2e148/Q7/Q7.REL
+Q8	refusal	a:\n  procedure(x) returns (fixed dec(5,2));\n  declare x fixed;\n  return (x);\nend a;\n	DR COMPILES IT: no errors in either pass, .REL emitted with CALL ?QI15D (golden/e2e148/Q8/Q8.REL) -- missing route is FIXED -> DEC conversion, not the module entry shape [Q9 is byte-exact]
+Q9	specimen	e14src/Q9.PLI	golden/e2e149/Q9/Q9.REL
+R10	specimen	e16src/R10.PLI	golden/e2e177/R10/R10.REL
+R1001	specimen	probes/R1001.PLI	golden/e2e11/R1001/R1001.REL
+R1002	specimen	probes/R1002.PLI	golden/e2e11/R1002/R1002.REL
+R1003	specimen	probes/R1003.PLI	golden/e2e11/R1003/R1003.REL
+R1004	specimen	probes/R1004.PLI	golden/e2e11/R1004/R1004.REL
+R1005	specimen	probes/R1005.PLI	golden/e2e11/R1005/R1005.REL
+R1006	specimen	probes/R1006.PLI	golden/e2e11/R1006/R1006.REL
+R1007	specimen	probes/R1007.PLI	golden/e2e11/R1007/R1007.REL
+R1008	specimen	probes/R1008.PLI	golden/e2e11/R1008/R1008.REL
+R1009	specimen	probes/R1009.PLI	golden/e2e11/R1009/R1009.REL
+R1010	specimen	probes/R1010.PLI	golden/e2e11/R1010/R1010.REL
+R1011	specimen	probes/R1011.PLI	golden/e2e11/R1011/R1011.REL
+R1012	specimen	probes/R1012.PLI	golden/e2e11/R1012/R1012.REL
+R1013	specimen	probes/R1013.PLI	golden/e2e11/R1013/R1013.REL
+R1014	specimen	probes/R1014.PLI	golden/e2e11/R1014/R1014.REL
+R1015	specimen	probes/R1015.PLI	golden/e2e11/R1015/R1015.REL
+R1018	specimen	probes/R1018.PLI	golden/e2e11/R1018/R1018.REL
+R1019	specimen	probes/R1019.PLI	golden/e2e11/R1019/R1019.REL
+R1020	specimen	probes/R1020.PLI	golden/e2e11/R1020/R1020.REL
+R1021	specimen	probes/R1021.PLI	golden/e2e11/R1021/R1021.REL
+R1022	specimen	probes/R1022.PLI	golden/e2e11/R1022/R1022.REL
+R1023	specimen	probes/R1023.PLI	golden/e2e11/R1023/R1023.REL
+R1024	specimen	probes/R1024.PLI	golden/e2e11/R1024/R1024.REL
+R1025	specimen	probes/R1025.PLI	golden/e2e11/R1025/R1025.REL
+R1026	specimen	probes/R1026.PLI	golden/e2e11/R1026/R1026.REL
+R1027	specimen	probes/R1027.PLI	golden/e2e11/R1027/R1027.REL
+R1028	specimen	probes/R1028.PLI	golden/e2e11/R1028/R1028.REL
+R1030	specimen	probes/R1030.PLI	golden/e2e11/R1030/R1030.REL
+R1031	specimen	probes/R1031.PLI	golden/e2e11/R1031/R1031.REL
+R1032	specimen	probes/R1032.PLI	golden/e2e11/R1032/R1032.REL
+R1033	specimen	probes/R1033.PLI	golden/e2e11/R1033/R1033.REL
+R1035	specimen	probes/R1035.PLI	golden/e2e11/R1035/R1035.REL
+R1036	specimen	probes/R1036.PLI	golden/e2e11/R1036/R1036.REL
+R1037	specimen	probes/R1037.PLI	golden/e2e11/R1037/R1037.REL
+R12	specimen	e16src/R12.PLI	golden/e2e177/R12/R12.REL
+R2023	specimen	probes/R2023.PLI	golden/e2e12/R2023/R2023.REL
+R2024	specimen	probes/R2024.PLI	golden/e2e12/R2024/R2024.REL
+R2025	specimen	probes/R2025.PLI	golden/e2e12/R2025/R2025.REL
+R2026	specimen	probes/R2026.PLI	golden/e2e12/R2026/R2026.REL
+R2027	specimen	probes/R2027.PLI	golden/e2e12/R2027/R2027.REL
+R2030	specimen	probes/R2030.PLI	golden/e2e12/R2030/R2030.REL
+R2031	specimen	probes/R2031.PLI	golden/e2e12/R2031/R2031.REL
+R2032	specimen	probes/R2032.PLI	golden/e2e12/R2032/R2032.REL
+R2033	specimen	probes/R2033.PLI	golden/e2e12/R2033/R2033.REL
+R2034	specimen	probes/R2034.PLI	golden/e2e12/R2034/R2034.REL
+R2035	specimen	probes/R2035.PLI	golden/e2e12/R2035/R2035.REL
+R2036	specimen	probes/R2036.PLI	golden/e2e12/R2036/R2036.REL
+R2037	specimen	probes/R2037.PLI	golden/e2e12/R2037/R2037.REL
+R2038	specimen	probes/R2038.PLI	golden/e2e12/R2038/R2038.REL
+R3001	specimen	e13src/R3001.PLI	golden/e2e13r/R3001/R3001.REL
+R3003	specimen	e13src/R3003.PLI	golden/e2e13r/R3003/R3003.REL
+R3004	specimen	e13src/R3004.PLI	golden/e2e13/R3004/R3004.REL
+R3005	specimen	e13src/R3005.PLI	golden/e2e13r/R3005/R3005.REL
+R3006	specimen	e13src/R3006.PLI	golden/e2e13r/R3006/R3006.REL
+R3007	specimen	e13src/R3007.PLI	golden/e2e13r/R3007/R3007.REL
+R3008	specimen	e13src/R3008.PLI	golden/e2e13r/R3008/R3008.REL
+R3009	specimen	e13src/R3009.PLI	golden/e2e13r/R3009/R3009.REL
+R3010	specimen	e13src/R3010.PLI	golden/e2e13r/R3010/R3010.REL
+R3011	specimen	e13src/R3011.PLI	golden/e2e13r/R3011/R3011.REL
+R3012	specimen	e13src/R3012.PLI	golden/e2e13/R3012/R3012.REL
+R3014	specimen	e13src/R3014.PLI	golden/e2e13/R3014/R3014.REL
+R3018	specimen	e13src/R3018.PLI	golden/e2e13r/R3018/R3018.REL
+R3019	specimen	e13src/R3019.PLI	golden/e2e13r/R3019/R3019.REL
+R3020	specimen	e13src/R3020.PLI	golden/e2e13r/R3020/R3020.REL
+R3021	specimen	e13src/R3021.PLI	golden/e2e13r/R3021/R3021.REL
+R3022	specimen	e13src/R3022.PLI	golden/e2e13r/R3022/R3022.REL
+R3023	specimen	e13src/R3023.PLI	golden/e2e13r/R3023/R3023.REL
+R3024	specimen	e13src/R3024.PLI	golden/e2e13r/R3024/R3024.REL
+R3027	specimen	e13src/R3027.PLI	golden/e2e13r/R3027/R3027.REL
+R3030	specimen	e13src/R3030.PLI	golden/e2e13r/R3030/R3030.REL
+R3031	specimen	e13src/R3031.PLI	golden/e2e13r/R3031/R3031.REL
+R3032	specimen	e13src/R3032.PLI	golden/e2e13r/R3032/R3032.REL
+R3033	specimen	e13src/R3033.PLI	golden/e2e13r/R3033/R3033.REL
+R3034	specimen	e13src/R3034.PLI	golden/e2e13r/R3034/R3034.REL
+R3035	specimen	e13src/R3035.PLI	golden/e2e13d/R3035/R3035.REL
+R3036	specimen	e13src/R3036.PLI	golden/e2e13r/R3036/R3036.REL
+R3042	specimen	e13src/R3042.PLI	golden/e2e13r/R3042/R3042.REL
+R3043	specimen	e13src/R3043.PLI	golden/e2e13r/R3043/R3043.REL
+R3045	specimen	e13src/R3045.PLI	golden/e2e13r/R3045/R3045.REL
+R3046	specimen	e13src/R3046.PLI	golden/e2e13r/R3046/R3046.REL
+R3049	specimen	e13src/R3049.PLI	golden/e2e13/R3049/R3049.REL
+R3050	specimen	e13src/R3050.PLI	golden/e2e13/R3050/R3050.REL
+R3051	specimen	e13src/R3051.PLI	golden/e2e13r/R3051/R3051.REL
+R3052	specimen	e13src/R3052.PLI	golden/e2e13r/R3052/R3052.REL
+R3053	specimen	e13src/R3053.PLI	golden/e2e13r/R3053/R3053.REL
+R3054	specimen	e13src/R3054.PLI	golden/e2e13r/R3054/R3054.REL
+R3055	specimen	e13src/R3055.PLI	golden/e2e13e/R3055/R3055.REL
+R3061	specimen	e13src/R3061.PLI	golden/e2e13d/R3061/R3061.REL
+R3062	specimen	e13src/R3062.PLI	golden/e2e13d/R3062/R3062.REL
+R3063	specimen	e13src/R3063.PLI	golden/e2e13d/R3063/R3063.REL
+R3065	specimen	e13src/R3065.PLI	golden/e2e13d/R3065/R3065.REL
+R3066	specimen	e13src/R3066.PLI	golden/e2e13d/R3066/R3066.REL
+R3070	specimen	e13src/R3070.PLI	golden/e2e13d/R3070/R3070.REL
+R3071	specimen	e13src/R3071.PLI	golden/e2e13d/R3071/R3071.REL
+R3072	specimen	e13src/R3072.PLI	golden/e2e13d/R3072/R3072.REL
+R3073	specimen	e13src/R3073.PLI	golden/e2e13d/R3073/R3073.REL
+R3074	specimen	e13src/R3074.PLI	golden/e2e13e/R3074/R3074.REL
+R3076	specimen	e13src/R3076.PLI	golden/e2e13e/R3076/R3076.REL
+R3077	specimen	e13src/R3077.PLI	golden/e2e13e/R3077/R3077.REL
+R3078	specimen	e13src/R3078.PLI	golden/e2e13e/R3078/R3078.REL
+R3079	specimen	e13src/R3079.PLI	golden/e2e13e/R3079/R3079.REL
+R3080	specimen	e13src/R3080.PLI	golden/e2e13e/R3080/R3080.REL
+R3081	specimen	e13src/R3081.PLI	golden/e2e13e/R3081/R3081.REL
+R3082	specimen	e13src/R3082.PLI	golden/e2e13e/R3082/R3082.REL
+R3083	specimen	e13src/R3083.PLI	golden/e2e13e/R3083/R3083.REL
+R3084	specimen	e13src/R3084.PLI	golden/e2e13e/R3084/R3084.REL
+R3085	specimen	e13src/R3085.PLI	golden/e2e13e/R3085/R3085.REL
+R3086	specimen	e13src/R3086.PLI	golden/e2e13e/R3086/R3086.REL
+R3087	specimen	e13src/R3087.PLI	golden/e2e13e/R3087/R3087.REL
+R3088	specimen	e13src/R3088.PLI	golden/e2e13e/R3088/R3088.REL
+R3089	specimen	e13src/R3089.PLI	golden/e2e13e/R3089/R3089.REL
+R3090	specimen	e13src/R3090.PLI	golden/e2e13e/R3090/R3090.REL
+R3091	specimen	e13src/R3091.PLI	golden/e2e13e/R3091/R3091.REL
+R3093	specimen	e13src/R3093.PLI	golden/e2e13e/R3093/R3093.REL
+R3094	specimen	e13src/R3094.PLI	golden/e2e13e/R3094/R3094.REL
+R3095	specimen	e13src/R3095.PLI	golden/e2e13e/R3095/R3095.REL
+R3096	specimen	e13src/R3096.PLI	golden/e2e13e/R3096/R3096.REL
+R3097	specimen	e13src/R3097.PLI	golden/e2e13e/R3097/R3097.REL
+R3098	specimen	e13src/R3098.PLI	golden/e2e13e/R3098/R3098.REL
+R3099	specimen	e13src/R3099.PLI	golden/e2e13e/R3099/R3099.REL
+R3100	specimen	e13src/R3100.PLI	golden/e2e13e/R3100/R3100.REL
+R3101	specimen	e13src/R3101.PLI	golden/e2e13e/R3101/R3101.REL
+R3102	specimen	e13src/R3102.PLI	golden/e2e13e/R3102/R3102.REL
+R3104	specimen	e13src/R3104.PLI	golden/e2e13e/R3104/R3104.REL
+R3105	specimen	e13src/R3105.PLI	golden/e2e11q/R3105/R3105.REL
+R4	specimen	e16src/R4.PLI	golden/e2e177/R4/R4.REL
+R401	specimen	probes/R401.PLI	golden/e2e5c/R401/R401.REL
+R403	specimen	probes/R403.PLI	golden/e2e5c/R403/R403.REL
+R404	specimen	probes/R404.PLI	golden/e2e5c/R404/R404.REL
+R405	specimen	probes/R405.PLI	golden/e2e5c/R405/R405.REL
+R406	specimen	probes/R406.PLI	golden/e2e5c/R406/R406.REL
+R407	specimen	probes/R407.PLI	golden/e2e5c/R407/R407.REL
+R408	specimen	probes/R408.PLI	golden/e2e5c/R408/R408.REL
+R409	specimen	probes/R409.PLI	golden/e2e5c/R409/R409.REL
+R410	specimen	probes/R410.PLI	golden/e2e5c/R410/R410.REL
+R411	specimen	probes/R411.PLI	golden/e2e5c/R411/R411.REL
+R412	specimen	probes/R412.PLI	golden/e2e5c/R412/R412.REL
+R414	specimen	probes/R414.PLI	golden/e2e5c/R414/R414.REL
+R415	specimen	probes/R415.PLI	golden/e2e5c/R415/R415.REL
+R416	specimen	probes/R416.PLI	golden/e2e5c/R416/R416.REL
+R417	specimen	probes/R417.PLI	golden/e2e5c/R417/R417.REL
+R418	specimen	probes/R418.PLI	golden/e2e5c/R418/R418.REL
+R419	specimen	probes/R419.PLI	golden/e2e5c/R419/R419.REL
+R421	specimen	probes/R421.PLI	golden/e2e5c/R421/R421.REL
+R422	specimen	probes/R422.PLI	golden/e2e5c/R422/R422.REL
+R423	specimen	probes/R423.PLI	golden/e2e5c/R423/R423.REL
+R424	specimen	probes/R424.PLI	golden/e2e5c/R424/R424.REL
+R426	specimen	probes/R426.PLI	golden/e2e5c/R426/R426.REL
+R427	specimen	probes/R427.PLI	golden/e2e5c/R427/R427.REL
+R428	specimen	probes/R428.PLI	golden/e2e5c/R428/R428.REL
+R429	specimen	probes/R429.PLI	golden/e2e5c/R429/R429.REL
+R430	specimen	probes/R430.PLI	golden/e2e5c/R430/R430.REL
+R431	specimen	probes/R431.PLI	golden/e2e5c/R431/R431.REL
+R432	specimen	probes/R432.PLI	golden/e2e5c/R432/R432.REL
+R433	specimen	probes/R433.PLI	golden/e2e5c/R433/R433.REL
+R5	specimen	e16src/R5.PLI	golden/e2e177/R5/R5.REL
+R501	specimen	probes/R501.PLI	golden/e2e6/R501/R501.REL
+R502	specimen	probes/R502.PLI	golden/e2e6/R502/R502.REL
+R503	specimen	probes/R503.PLI	golden/e2e6/R503/R503.REL
+R505	specimen	probes/R505.PLI	golden/e2e6/R505/R505.REL
+R506	specimen	probes/R506.PLI	golden/e2e6/R506/R506.REL
+R507	specimen	probes/R507.PLI	golden/e2e6/R507/R507.REL
+R508	specimen	probes/R508.PLI	golden/e2e6/R508/R508.REL
+R509	specimen	probes/R509.PLI	golden/e2e6/R509/R509.REL
+R510	specimen	probes/R510.PLI	golden/e2e6/R510/R510.REL
+R511	specimen	probes/R511.PLI	golden/e2e6/R511/R511.REL
+R512	specimen	probes/R512.PLI	golden/e2e6/R512/R512.REL
+R513	specimen	probes/R513.PLI	golden/e2e6/R513/R513.REL
+R514	specimen	probes/R514.PLI	golden/e2e6/R514/R514.REL
+R515	specimen	probes/R515.PLI	golden/e2e6/R515/R515.REL
+R6	specimen	e16src/R6.PLI	golden/e2e177/R6/R6.REL
+R601	specimen	probes/R601.PLI	golden/e2e7/R601/R601.REL
+R602	specimen	probes/R602.PLI	golden/e2e7/R602/R602.REL
+R603	specimen	probes/R603.PLI	golden/e2e7/R603/R603.REL
+R604	specimen	probes/R604.PLI	golden/e2e7/R604/R604.REL
+R605	specimen	probes/R605.PLI	golden/e2e7/R605/R605.REL
+R606	specimen	probes/R606.PLI	golden/e2e7/R606/R606.REL
+R607	specimen	probes/R607.PLI	golden/e2e7/R607/R607.REL
+R608	specimen	probes/R608.PLI	golden/e2e7/R608/R608.REL
+R609	specimen	probes/R609.PLI	golden/e2e7/R609/R609.REL
+R610	specimen	probes/R610.PLI	golden/e2e7/R610/R610.REL
+R611	specimen	probes/R611.PLI	golden/e2e7/R611/R611.REL
+R612	specimen	probes/R612.PLI	golden/e2e7/R612/R612.REL
+R613	specimen	probes/R613.PLI	golden/e2e7/R613/R613.REL
+R614	specimen	probes/R614.PLI	golden/e2e7/R614/R614.REL
+R701	specimen	probes/R701.PLI	golden/e2e8/R701/R701.REL
+R702	specimen	probes/R702.PLI	golden/e2e8/R702/R702.REL
+R703	specimen	probes/R703.PLI	golden/e2e8/R703/R703.REL
+R704	specimen	probes/R704.PLI	golden/e2e8/R704/R704.REL
+R705	specimen	probes/R705.PLI	golden/e2e8/R705/R705.REL
+R706	specimen	probes/R706.PLI	golden/e2e8/R706/R706.REL
+R707	specimen	probes/R707.PLI	golden/e2e8/R707/R707.REL
+R708	specimen	probes/R708.PLI	golden/e2e8/R708/R708.REL
+R710	specimen	probes/R710.PLI	golden/e2e8/R710/R710.REL
+R711	specimen	probes/R711.PLI	golden/e2e8/R711/R711.REL
+R712	specimen	probes/R712.PLI	golden/e2e8/R712/R712.REL
+R713	specimen	probes/R713.PLI	golden/e2e8/R713/R713.REL
+R714	specimen	probes/R714.PLI	golden/e2e8/R714/R714.REL
+R715	specimen	probes/R715.PLI	golden/e2e8/R715/R715.REL
+R716	specimen	probes/R716.PLI	golden/e2e8/R716/R716.REL
+R717	specimen	probes/R717.PLI	golden/e2e8/R717/R717.REL
+R718	specimen	probes/R718.PLI	golden/e2e8/R718/R718.REL
+R719	specimen	probes/R719.PLI	golden/e2e8/R719/R719.REL
+R720	specimen	probes/R720.PLI	golden/e2e8/R720/R720.REL
+R721	specimen	probes/R721.PLI	golden/e2e8/R721/R721.REL
+R722	specimen	probes/R722.PLI	golden/e2e8/R722/R722.REL
+R723	specimen	probes/R723.PLI	golden/e2e8/R723/R723.REL
+R724	specimen	probes/R724.PLI	golden/e2e8/R724/R724.REL
+R725	specimen	probes/R725.PLI	golden/e2e8/R725/R725.REL
+R8	specimen	e16src/R8.PLI	golden/e2e177/R8/R8.REL
+R801	specimen	probes/R801.PLI	golden/e2e9/R801/R801.REL
+R802	specimen	probes/R802.PLI	golden/e2e9/R802/R802.REL
+R803	specimen	probes/R803.PLI	golden/e2e9/R803/R803.REL
+R804	specimen	probes/R804.PLI	golden/e2e9/R804/R804.REL
+R806	specimen	probes/R806.PLI	golden/e2e9/R806/R806.REL
+R807	specimen	probes/R807.PLI	golden/e2e9/R807/R807.REL
+R811	specimen	probes/R811.PLI	golden/e2e9/R811/R811.REL
+R813	specimen	probes/R813.PLI	golden/e2e9/R813/R813.REL
+R901	specimen	probes/R901.PLI	golden/e2e10/R901/R901.REL
+R902	specimen	probes/R902.PLI	golden/e2e10/R902/R902.REL
+R903	specimen	probes/R903.PLI	golden/e2e10/R903/R903.REL
+R904	specimen	probes/R904.PLI	golden/e2e10/R904/R904.REL
+R905	specimen	probes/R905.PLI	golden/e2e10/R905/R905.REL
+R906	specimen	probes/R906.PLI	golden/e2e10/R906/R906.REL
+R907	specimen	probes/R907.PLI	golden/e2e10/R907/R907.REL
+R908	specimen	probes/R908.PLI	golden/e2e10/R908/R908.REL
+R909	specimen	probes/R909.PLI	golden/e2e10/R909/R909.REL
+R910	specimen	probes/R910.PLI	golden/e2e10/R910/R910.REL
+R911	specimen	probes/R911.PLI	golden/e2e10/R911/R911.REL
+R912	specimen	probes/R912.PLI	golden/e2e10/R912/R912.REL
+R913	specimen	probes/R913.PLI	golden/e2e10/R913/R913.REL
+R914	specimen	probes/R914.PLI	golden/e2e10/R914/R914.REL
+R915	specimen	probes/R915.PLI	golden/e2e10/R915/R915.REL
+R917	specimen	probes/R917.PLI	golden/e2e10/R917/R917.REL
+RFACT	specimen	artefacts/RFACT.PLI	golden/first8080u/RFACT/RFACT.REL
+S5	specimen	e16src/S5.PLI	golden/e2e177/S5/S5.REL
+S6	specimen	e16src/S6.PLI	golden/e2e177/S6/S6.REL
+S8	specimen	e16src/S8.PLI	golden/e2e177/S8/S8.REL
+ST1	specimen	e15src/ST1.PLI	golden/e2e160/T1/T1.REL
+ST10	refusal	a:\n    procedure options(main,stack(2*1000));\n    declare i fixed;\n    i = 1;\n    stop;\nend a;\n	DR REFUSES: 1 ERROR(S) IN PASS 1, NO .REL emitted (golden/e2e160/T10/T10.PRN) -- STACK's operand must be an integer literal, not an expression [C138]
+ST11	specimen	e15src/ST11.PLI	golden/e2e161/T11/T11.REL
+ST12	specimen	e15src/ST12.PLI	golden/e2e161/T12/T12.REL
+ST13	refusal	a:\n    procedure options(main,stack(2000));\n    declare i fixed;\n    i = 1;\n    q: procedure(n);\n    declare n fixed;\n    n = n + 1;\n    end q;\n    stop;\nend a;\n	DR COMPILES IT: .REL emitted (golden/e2e162/T13/T13.REL) -- same append-order gap as T14, with STACK(2000) present
+ST14	refusal	a:\n    procedure options(main);\n    declare i fixed;\n    i = 1;\n    q: procedure(n);\n    declare n fixed;\n    n = n + 1;\n    end q;\n    stop;\nend a;\n	DR COMPILES IT: .REL emitted (golden/e2e162/T14/T14.REL) -- main-block `stop;' following an appended procedure: DR emits the CALL ?STOPX at code 0023, AFTER q's body at 0010-0022.  My rule still refuses it [R423 window was never pinned against this shape]; candidate next milestone, and a likely ACK/ACKTST blocker
+ST15	specimen	e15src/ST15.PLI	golden/e2e163/T15/T15.REL
+ST2	specimen	e15src/ST2.PLI	golden/e2e160/T2/T2.REL
+ST3	specimen	e15src/ST3.PLI	golden/e2e160/T3/T3.REL
+ST4	specimen	e15src/ST4.PLI	golden/e2e160/T4/T4.REL
+ST5	refusal	a:\n    procedure options(main,stack(65536));\n    declare i fixed;\n    i = 1;\n    stop;\nend a;\n	DR REFUSES: 1 ERROR(S) IN PASS 1, NO .REL emitted (golden/e2e160/T5/T5.PRN) -- stack(65536) does not fit the 16-bit LXI B operand [C138]
+ST6	specimen	e15src/ST6.PLI	golden/e2e160/T6/T6.REL
+ST7	specimen	e15src/ST7.PLI	golden/e2e160/T7/T7.REL
+ST8	refusal	a:\n    procedure options(main,stack(2000));\n    declare i fixed;\n    i = 1;\n    r: procedure(n) returns(fixed) recursive;\n    declare n fixed;\n    if n = 0 then return (1);\n    return (n * r(n-1));\n    end r;\n    stop;\nend a;\n	DR COMPILES IT: .REL emitted (golden/e2e160/T8/T8.REL) -- stack(2000) + a nested RECURSIVE procedure + `stop;' AFTER the appended procedure.  The STACK part works (T15 pins it); the refusal is the R423 append-order rule, unrelated to E2E-12
+ST9	specimen	e15src/ST9.PLI	golden/e2e160/T9/T9.REL
+T10	specimen	e13src/T10.PLI	golden/e2e11x/T10/T10.REL
+T12	specimen	e13src/T12.PLI	golden/e2e11y/T12/T12.REL
+T13	specimen	e13src/T13.PLI	golden/e2e11y/T13/T13.REL
+T4	specimen	e13src/T4.PLI	golden/e2e11u/T4/T4.REL
+T5	specimen	e13src/T5.PLI	golden/e2e11v/T5/T5.REL
+T6	specimen	e13src/T6.PLI	golden/e2e11v/T6/T6.REL
+T7	specimen	e13src/T7.PLI	golden/e2e11w/T7/T7.REL
+T8	specimen	e13src/T8.PLI	golden/e2e11w/T8/T8.REL
+T9	specimen	e13src/T9.PLI	golden/e2e11x/T9/T9.REL
+TEST	specimen	artefacts/TEST.PLI	golden/first8080u/TEST/TEST.REL
+U1	specimen	e15src/U1.PLI	golden/e2e169d/U1/U1.REL
+V1	specimen	e15src/V1.PLI	golden/e2e167/V1/V1.REL
+V101	specimen	probes/V101.PLI	golden/e2e3c/V101/V101.REL
+V102	specimen	probes/V102.PLI	golden/e2e3c/V102/V102.REL
+V103	specimen	probes/V103.PLI	golden/e2e3c/V103/V103.REL
+V104	specimen	probes/V104.PLI	golden/e2e3c/V104/V104.REL
+V105	specimen	probes/V105.PLI	golden/e2e3c/V105/V105.REL
+V106	specimen	probes/V106.PLI	golden/e2e3c/V106/V106.REL
+V107	specimen	probes/V107.PLI	golden/e2e3c/V107/V107.REL
+V108	specimen	probes/V108.PLI	golden/e2e3c/V108/V108.REL
+V2	specimen	e15src/V2.PLI	golden/e2e167/V2/V2.REL
+V3	specimen	e15src/V3.PLI	golden/e2e168/V3/V3.REL
+V4	specimen	e15src/V4.PLI	golden/e2e168/V4/V4.REL
+V5	specimen	e15src/V5.PLI	golden/e2e168/V5/V5.REL
+V6	specimen	e15src/V6.PLI	golden/e2e168/V6/V6.REL
+W1	specimen	e15src/W1.PLI	golden/e2e170/W1/W1.REL
+W101	specimen	probes/W101.PLI	golden/e2e3d/W101/W101.REL
+W102	specimen	probes/W102.PLI	golden/e2e3d/W102/W102.REL
+W2	specimen	e15src/W2.PLI	golden/e2e170/W2/W2.REL
+W3	specimen	e15src/W3.PLI	golden/e2e170/W3/W3.REL
+W5	specimen	e15src/W5.PLI	golden/e2e170/W5/W5.REL
+W6	specimen	e15src/W6.PLI	golden/e2e170/W6/W6.REL
+X1	specimen	e16src/X1.PLI	golden/e2e179/X1/X1.REL
+X2	specimen	e16src/X2.PLI	golden/e2e179/X2/X2.REL
+X201	specimen	probes/X201.PLI	golden/e2e3e/X201/X201.REL
+X202	specimen	probes/X202.PLI	golden/e2e3e/X202/X202.REL
+X3	specimen	e16src/X3.PLI	golden/e2e179/X3/X3.REL
+Y2	specimen	e16src/T2.PLI	golden/e2e177/T2/T2.REL
+Y301	specimen	probes/Y301.PLI	golden/e2e4/Y301/Y301.REL
+Y302	specimen	probes/Y302.PLI	golden/e2e4/Y302/Y302.REL
+Y303	specimen	probes/Y303.PLI	golden/e2e4/Y303/Y303.REL
+Y304	specimen	probes/Y304.PLI	golden/e2e4/Y304/Y304.REL
+Y306	specimen	probes/Y306.PLI	golden/e2e4/Y306/Y306.REL
+Y4	specimen	e16src/T4.PLI	golden/e2e177/T4/T4.REL
+Y8	specimen	e16src/T8.PLI	golden/e2e177/T8/T8.REL
+Z401	specimen	probes/Z401.PLI	golden/e2e5a/Z401/Z401.REL
+Z402	specimen	probes/Z402.PLI	golden/e2e5a/Z402/Z402.REL
+Z403	specimen	probes/Z403.PLI	golden/e2e5a/Z403/Z403.REL
+Z404	specimen	probes/Z404.PLI	golden/e2e5a/Z404/Z404.REL
+Z405	specimen	probes/Z405.PLI	golden/e2e5a/Z405/Z405.REL
+Z406	specimen	probes/Z406.PLI	golden/e2e5a/Z406/Z406.REL
+Z407	specimen	probes/Z407.PLI	golden/e2e5a/Z407/Z407.REL

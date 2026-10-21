@@ -1,0 +1,9 @@
+a:
+    procedure options(main);
+    declare n fixed, m fixed, q fixed, c char(1);    declare x char(3), d char(6);
+    x = 'AB';
+    d = 'AB' // x;
+    d = 'AB' // x;
+    stop;
+end a;
+

@@ -197,29 +197,30 @@ let pool_alloc st (bytes : int array) =
   st.pool_next <- addr + Array.length bytes;
   addr
 
-(* [E2E-15/C152] string literals are pooled ONCE and reused, exactly as fl_pool above already
-   does for float cells.  Without this, `put skip list('W', n); ... put skip list('W', m);'
-   allocated TWO 0x57 cells, so DEF-DATA-SIZE came out one byte too big and every automatic
-   variable shifted -- measured on MB40 (`put' twice, PLAIN VARIABLES, no multiply involved):
-   141 records where DR emits 139 [golden/e2e191/MB40 vs my build].  The defect is pre-existing
-   and unrelated to the constant-multiply work; the probes only exposed it.  Keyed by CONTENT
-   with first-use address order preserved, which is the rule fl_pool already established. *)
+(* [E2E-16/C152] FIXED RULE, measured on 15 DR probes (e19src/PL1-PL13, PL16-PL17).
+   The literal pool holds ONE cell per DISTINCT string content, allocated at first use,
+   contiguous from data address 0.  A repeated content reuses the earlier address and
+   consumes NO further pool bytes.  Verified at byte level, not by totals: PL3 'W','V' ->
+   bytes 57 56; PL4 'WW','WW' -> 57 57 (one 2-byte cell); PL5 'W','WW' -> 57 57 57;
+   PL6 'WW','W','WW' -> first-use order 0000:WW 0001:W and the repeat costs nothing;
+   PL13 'AB','A' -> 41 42 41, so the key is EXACT CONTENT and not a prefix.  Cross-context
+   too: PL10 (char store + PUT sharing 'W') and PL11 (two char stores) each pool ONE byte.
+   DEF-DATA-SIZE for all of these is exactly unique-pool-bytes + automatics (including a
+   nested procedure's own j) + call-descriptor cells -- e.g. PL1 8 = 1 + (n,m,q,c = 8?) ...
+   see the table in spec/notes/e2e16-c152-pool-layout.md; MB40's 7 = 'W'(1) + n,m,j (6),
+   which is the byte my OLD prescan demand double-counted.
+
+   THE EMPTY LITERAL IS DIFFERENT AND THAT IS MEASURED: PL16 (`c = ''; c = '';') and PL17
+   (two PUT lists containing '') each emit a SECOND SET-LC(data,0000) record with no DATA
+   bytes, i.e. DR registers a zero-length pool BLOCK per occurrence even though the address
+   is shared.  A non-empty repeat registers NO second block [PL11, one SET-LC + one DATA].
+   So dedup applies to the ADDRESS, not to the empty-block registration. *)
 let pool_str st (bytes : int array) =
   let l = Array.to_list bytes in
   match List.find_opt (fun (_addr, bs) -> bs = l) st.str_cells with
   | Some (addr, _) ->
-      (* [E2E-15/C152] DR DOES reuse one cell (its MB40 data area writes 0x57 once), and
-         deduplicating my write removed the duplicate record -- but my data area still comes
-         out ONE BYTE TOO BIG (DEF-DATA-SIZE 8 vs DR's 7, first automatic at 2 vs 1), so the
-         residual difference is somewhere else in my pool layout and I have NOT characterised
-         it.  Refusing is the honest action: silently emitting bytes I know differ -- or worse,
-         shifting every automatic variable -- is exactly the C139/C150 failure mode.  The
-         probes that reach here (MB12/MB38/MB39/MB40) all have two PUT statements sharing one
-         string literal; MB41-43, which would have localised it, did not produce DR objects. *)
-      failwith
-        ("codegen: [TBD] repeated string literal in one program: DR pools it ONCE and reuses "
-         ^ "the cell, and my dedup'd write is not sufficient -- my data area ends up one byte "
-         ^ "larger and every automatic shifts by 1 [MB40, golden/e2e191/MB40] (C152)")
+      if l = [] then st.pool <- st.pool @ [ (addr, []) ];
+      addr
   | None ->
       let addr = pool_alloc st bytes in
       st.str_cells <- st.str_cells @ [ (addr, l) ];
@@ -709,6 +710,7 @@ type pdec_ctx =
   ; pd_procs : (string * (int * int) option) list
   ; pd_ret : (int * int) option
   ; pd_dec : (int * int * int) list ref
+  ; pd_str : string list ref            (* [E2E-16/C152] string contents already demanded *)
   ; pd_fl : int list list ref
       (* [E2E-10] float literal cell byte-images already counted, so pool
          DEMAND counts each distinct 4-byte cell once (DR deduplicates them
@@ -737,6 +739,16 @@ type pdec_ctx =
          byte content the lowering run compares in dec_pool. This replaces
          the E2E-6 assumption that DEC cells are never deduplicated, which
          was inferred from R505 (two literals, DIFFERENT values). *) }
+
+(* [E2E-16/C152] pool DEMAND for one string-literal occurrence: 0 if that exact content was
+   already demanded, else its byte length.  This mirrors pool_str at lowering time, and the
+   mismatch between the two WAS C152: the demand summed String.length per OCCURRENCE while the
+   allocator deduplicated by CONTENT, so `put skip list('W', n); ... put skip list('W', m);'
+   reserved two cells and wrote one -- DEF-DATA-SIZE 8 against DR's 7 and every automatic
+   shifted up one byte [MB40, golden/e2e191/MB40].  Keyed by exact content like PL13 proves. *)
+let pdec_str_cell cx (v : string) : int =
+  if List.mem v !(cx.pd_str) then 0
+  else (cx.pd_str := v :: !(cx.pd_str); String.length v)
 
 let pdec_pow10 n =
   let rec go v k = if k = 0 then v else go (v * 10) (k - 1) in go 1 n
@@ -1339,9 +1351,11 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
       else
       dec_store_bytes
       + (match rhs.Ast.e with
-         | Ast.Estring v -> String.length v
+         | Ast.Estring v -> pdec_str_cell cx v
              (* char-store pool demand [V101-V103/V105]; '' reserves 0
-                [V104]; type-mismatched uses RAISE at lowering *)
+                [V104]; type-mismatched uses RAISE at lowering.  [E2E-16/C152] dedup'd by
+                CONTENT, which PL11 (`c = 'W' twice -> one cell) and PL10 (char store and PUT
+                sharing one cell) both measure; '' still registers a block at lowering. *)
          | _ -> prescan_expr cx rhs)
   | Ast.Sreturn (Some e0) ->
       (* [E2E-10] a FLOAT function's literal becomes a float cell: FFACT's
@@ -1369,18 +1383,18 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
            Array.length (fmt_table_bytes specs)
            + List.fold_left
                (fun a it -> match it with
-                | PIlit v -> a + String.length v
+                | PIlit v -> a + pdec_str_cell cx v
                 | PInum x -> a + prescan_expr cx x
                 | PIvar _ -> a) 0 its
        | None ->
       (match match_put_list_lit s with
-       | Plit (_, v) -> String.length v
+       | Plit (_, v) -> pdec_str_cell cx v
        | Pcat (_, C2 (l, _, _)) -> String.length l
        | Pcat (_, C3 (l, _, r)) -> String.length l + String.length r
        | Pitems (_, its) ->
            List.fold_left
              (fun a it -> match it with
-              | PIlit v -> a + String.length v
+              | PIlit v -> a + pdec_str_cell cx v
               | PInum x -> a + prescan_expr cx x
               | PIvar _ -> a) 0 its
        | _ -> 0)             (* var-puts consume no pool [V101] *))
@@ -2522,7 +2536,8 @@ let store_char st name (k : vkind) (v : string) =
       let bytes =
         Array.init len (fun i -> Char.code (String.get v i))
       in
-      let addr = pool_alloc st bytes in
+      (* [E2E-16/C152] dedup'd like the PUT path: PL11 (`c = 'W'; c = 'W';') pools ONE byte. *)
+      let addr = pool_str st bytes in
       if len = 0 then (d st op_mvi_m; d st 0)     (* [V104] *)
       else begin
         d st op_lxi_d; reloc st Data addr;         (* LXI D,*S [V101] *)
@@ -2542,7 +2557,7 @@ let store_char st name (k : vkind) (v : string) =
         let bytes =
           Array.init len (fun i -> Char.code (String.get v i))
         in
-        let addr = pool_alloc st bytes in
+        let addr = pool_str st bytes in   (* [E2E-16/C152] content dedup [PL10/PL11] *)
         d st op_lxi_d; reloc st Data addr;
         d st op_mvi_a; d st cap;
         d st op_mvi_b; d st len;
@@ -6083,7 +6098,7 @@ let emit_program (progname : string) (auto_bytes : int)
   in
   let pool_total =
     prescan_pool { pd_vars; pd_procs; pd_ret = top_dec_ret
-                    ; pd_dec = ref []; pd_fl = ref []; pd_fl_ret = top_fl_ret
+                    ; pd_dec = ref []; pd_str = ref []; pd_fl = ref []; pd_fl_ret = top_fl_ret
                     ; pd_fl_procs
                     ; pd_callee_rt =
                         (fun nm i -> callee_formal_rt_l layout nm i) }
@@ -6250,6 +6265,18 @@ let emit_program (progname : string) (auto_bytes : int)
        appended procedure)]";
   let code_items = st.items in
   (* now build the ordered full item list *)
+  (* [E2E-16] DEMAND/LAYOUT INVARIANT.  st.base is the pool size the prescan demanded and
+     st.pool_next is what lowering actually allocated.  They MUST agree: if lowering used more
+     than was demanded, automatic variables land ON TOP of pool bytes -- the FDTEST failure,
+     where the index `i' aliased a float constant and every address in the dump still looked
+     plausible -- and if it used less, the data area is oversized and every automatic shifts
+     (that is exactly what C152 was).  Before this check the mismatch produced WRONG BYTES with
+     no diagnostic at all, so the whole regression panel doubles as a demand/layout test. *)
+  if st.pool_next <> st.base then
+    failwith
+      ("codegen: [TBD] pool demand/layout mismatch: prescan demanded " ^ string_of_int st.base
+       ^ " pool bytes, lowering allocated " ^ string_of_int st.pool_next
+       ^ " -- the data area size or the automatic offsets would be wrong (C152)");
   let data_size =
     statics.sy_total + pool_total + max auto_bytes layout.pl_total
     + 2 * st.temps
@@ -6295,10 +6322,14 @@ let emit_program (progname : string) (auto_bytes : int)
        (* each pool block: SET-LC(data,addr) for addr>0 then its bytes;
           block 0 rides the header SET-LC(data,0) [G113] *)
        List.concat_map
-         (fun (addr, bs) ->
-           (if addr > 0 then [Link (t_set_lc, Some (Data, addr), None)]
+         (fun (i, (addr, bs)) ->
+           (* [E2E-16/C152] only the FIRST block rides the header's SET-LC(data,0).  A later
+              block at address 0 -- which happens exactly when an empty literal is stored twice
+              [PL16/PL17: two SET-LC(data,0000), zero DATA bytes] -- gets its own record. *)
+           (if addr > 0 || i > 0 then [Link (t_set_lc, Some (Data, addr), None)]
             else [])
-           @ List.map (fun v -> Data (v land 0xff)) bs) sorted)
+           @ List.map (fun v -> Data (v land 0xff)) bs)
+         (List.mapi (fun i x -> (i, x)) sorted))
     else []
   in
   let bridge =

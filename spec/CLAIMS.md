@@ -2801,3 +2801,90 @@ later (P5's `SET-LC data 000B' at bit 1892 precedes code 0056). So the migration
 record-timing change, not an instruction-order change. It still needs a capture/replay path
 through `reloc`/`link` (ARCH-1 class) and is still NOT attempted; P5/P6/P12/D1/D11/D12 keep
 refusing with reasons named.
+
+## E2E-16 (C155-C158): C152 resolved, and C148's "*0 is a DR defect" claim refuted
+
+C155. **THE LITERAL-POOL RULE, ESTABLISHED AND IMPLEMENTED -- C152 IS CLOSED.** DR keeps ONE
+pool cell per DISTINCT string CONTENT, allocated at first use, contiguous from data address 0;
+a repeated content reuses the earlier address and consumes no further bytes.  Measured on 19 DR
+probes (e19src/PL1-PL13, PL16-PL21, goldens golden/e2e199-e2e202) at BYTE level, not by totals:
+  PL3  'W','V'          -> 57 56              (two cells)
+  PL4  'WW','WW'        -> 57 57 at 0000      (ONE 2-byte cell, not two 1-byte cells)
+  PL5  'W','WW'         -> 57 57 57           (three bytes, contents differ)
+  PL6  'WW','W','WW'    -> 0000:WW 0001:W, the repeat of the FIRST cell costs nothing
+  PL13 'AB','A'         -> 41 42 41           (key is EXACT CONTENT; a shared PREFIX does not merge)
+  PL10, PL11, PL18-PL20 -> char stores share the same table as PUT items (cross-context dedup)
+  PL7, PL9, PL12        -> three occurrences / identical statements / repeats inside ONE put list
+                           all pool a single byte
+THE CAUSE of C152 was not the allocator -- `pool_str' already deduplicated by content. It was the
+prescan DEMAND (`prescan_stmt`'s Sput/char-store arms), which summed `String.length v' per
+OCCURRENCE. Demand reserved two cells, lowering wrote one, so the data area was oversized by the
+duplicate byte and every automatic variable shifted up by one. MB40's 7 decomposes exactly:
+'W' (1) + n, m and nested f's j (6). Fixed by adding `pdec_str_cell cx v`, which returns 0 for a
+content already demanded -- the same shape `pdec_dec_cell` [R614] and `pdec_fl_expr` already use,
+so all three literal classes now dedup identically at demand and layout.
+THE EMPTY LITERAL IS A GENUINE EXCEPTION, measured not inferred: PL17 (two PUT lists containing
+'') emits a SECOND `SET-LC(data,0000)` record with NO DATA bytes -- DR registers a zero-length
+pool BLOCK per occurrence even though the address is shared -- while PL11 (two non-empty stores)
+registers ONE block. My data-area writer therefore emits an explicit SET-LC for any block after
+the first, including one at address 0 (previously only `addr > 0' got a record).
+NOT extrapolated: PL15 (a literal repeated inside a CONCATENATION) and PL14 (a repeated literal
+in a PUT EDIT) produced NO DR object (diag/NOT IMP), so concat keeps its per-occurrence behaviour
+on BOTH sides -- demand and lowering -- rather than a dedup I cannot verify. Mixing dedup'd demand
+with non-dedup'd lowering is precisely the drift that caused C152, and it would have been invisible.
+MB12/MB38/MB39/MB40 are retired from the negative panel with their own goldens and are now
+byte-identical specimens. A demand/layout INVARIANT now aborts codegen if prescan bytes !=
+lowering bytes (see C158).
+
+C156. **C148's "`MOV L,H` does not produce zero, probable DR defect" is REFUTED.** DR's
+multiply-by-zero is CONSTANT-PROPAGATED, and the emitted instruction depends on the literal value
+it already knows is live in HL. Executed DR-built programs (golden/e16mzr) return ZERO for every
+value tested -- 7, 0, 256, 257, -5, and `0 * n' -- against the mathematical expectation, which I
+wrote down before reading the outputs. The measured instruction table for `m = n * 0;' with n
+assigned a literal:
+    HL == 0000            -> NOTHING, just `SHLD M'                    [MZ2 n=0]
+    high byte == 0        -> `MOV L,H'  (0x6C)                         [MZ1 n=7, MZ6 0*n, MB7/MB8]
+    high byte == 1        -> `DCR H'    (0x25)                         [MZ3 n=256]
+    high byte > 1, low == 0 -> `MOV H,L' (0x64)                        [MZ8 n=512]
+    both bytes non-zero   -> `LXI H,0000'                              [MZ4 257, MZ9 516, MZ5 -5, MZ10 65535]
+n=512 is the discriminator that forces the propagation reading: a structural peephole could not
+choose `DCR H' for 0100 and `MOV H,L' for 0200 -- both zero HL, but only one is correct without
+knowing H's value. And the propagation is SHALLOW: MZ11 (`k = f(n); m = k * 0;') and MZ12
+(`k = n; m = k * 0;') both get `LXI H,0000', so DR does NOT track a value through a variable copy
+or a call -- only through the literal load that immediately precedes. The rule commutes [MZ6].
+**The refusal is PRESERVED, not because DR is wrong but because reproducing DR here requires a
+constant-propagation pass my compiler does not have**: I always `LHLD' the variable, so my bytes
+differ for every propagated case and emitting a generic `LXI H,0000' would match only MZ4/MZ5/
+MZ9/MZ10/MZ11/MZ12 and silently differ on MZ1/MZ2/MZ3/MZ8. That is a byte-identity decision for
+the project owner, not a change to slide in under a "found a bug" story.
+
+C157. **Content-dedup'd pool cells are READ-ONLY: no aliasing corruption, verified at runtime.**
+PL25 stores 'W' into two DIFFERENT variables and prints each separately; PL26 stores 'W', puts the
+literal 'W' with a variable, then re-stores the SAME variable with 'WW' and prints it. Both are
+byte-identical to DR and both produce identical executed output in mine and DR (W/W and `W 7'/WW),
+so sharing one cell cannot make a later store corrupt an earlier print. Without this check, C155
+would have been a plausible-looking way to break values while keeping REL parity [C137].
+
+C158. **Two instruments, both of which fired during their own milestone.** (a) `spec/INVENTORY.txt`
+commits one row per panel entry -- name, kind, source, golden (or refusal source + reason) -- and
+the gate aborts with a precise diff unless the live panel matches it; changes require an
+intentional `--update-inventory` and a reviewed diff. It catches REMOVAL (my P9 case), ADDITION and
+SUBSTITUTION (same name, repointed reference) -- the last being invisible to any count, and not
+hypothetical: E2E-12's collision kept the panel's shape while replacing five specimens. It fired
+live in this milestone on PL8/PL9 being repointed between golden tags, where the total did not move.
+(b) a registered specimen with NO golden file is now FATAL (`GOLDEN-MISSING'), not SKIP: two
+probes I mistagged were silently scoring as neither pass nor fail, which is how "verify DR actually
+produced each reference object" gets violated without anyone noticing.
+
+### Retractions in this milestone
+
+R3. The "478 -> 509" totals in the E2E-15 note are corrected to the verified **510**: 509 was the
+symptom of removing P9 from the panel, not a smaller milestone. `spec/notes/e2e15-multiplication-
+and-parking.md` carries the correction inline rather than being quietly rewritten.
+
+R4. C148's characterization of DR's `x * 0` as a probable DR defect is WITHDRAWN (see C156). I
+read one instruction out of context -- `MOV L,H` -- and concluded the computation was wrong, when
+the sequence is a value-selected zeroing idiom whose output is correct for every input I executed.
+This is the C144 failure mode (learn DR's semantics from DR's artifacts) repeated in the opposite
+direction, and the check that caught it was running DR's program instead of reasoning about its
+assembly.

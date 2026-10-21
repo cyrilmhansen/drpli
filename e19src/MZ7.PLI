@@ -1,0 +1,10 @@
+a:
+    procedure options(main);
+    declare n fixed, m fixed;
+    n = 7;
+    m = n * 0;
+    k = m + 100;
+    put skip list(m, k);
+    stop;
+end a;
+

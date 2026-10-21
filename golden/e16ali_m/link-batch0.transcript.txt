@@ -1,0 +1,50 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> LINK D:PL25
+LINK D:PL25
+LINK 1.31
+
+PLILIB   RQST   A        0100   /SYSIN/  19F5   /SYSPRI/ 1A1C   
+
+ABSOLUTE     0000
+CODE SIZE    1891 (0100-1990)
+DATA SIZE    01EE (1A77-1C64)
+COMMON SIZE  00E6 (1991-1A76)
+USE FACTOR     4E
+
+C>
+>>> LINK D:PL26
+LINK D:PL26
+LINK 1.31
+
+PLILIB   RQST   A        0100   /SYSIN/  1A98   /SYSPRI/ 1ABF   
+
+ABSOLUTE     0000
+CODE SIZE    1934 (0100-1A33)
+DATA SIZE    01F0 (1B1A-1D09)
+COMMON SIZE  00E6 (1A34-1B19)
+USE FACTOR     4F
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6033 ms, waited for 0 ms
+CPU executed 168642433 t-states in 87 ms
+Clock frequency 1930.58 MHz
