@@ -3269,3 +3269,74 @@ expected-context argument (integer vs decimal) threaded from the statement throu
 which `is_dec_expr` currently derives by itself and gets wrong for mixed expressions.  Adding a
 second parameter to `lower_hl` is the change; the resolution work here neither requires it nor
 implements it, and the CB-family refusals are unchanged.
+
+
+---
+
+## E2E-21 step 1 (C170, C171): safety/evidence corrections, and DR's variable-subscript ladder measured
+
+C170. **Five corpus programs refused with a BARE exception -- rc != 0 and no `[TBD]` -- and the
+sweep counted all of them as REFUSED.** `REFUSED` is defined as rc != 0, so it silently absorbs
+crashes; this is the exact hole the negative panel's `[TBD]` grep exists to close, and the corpus
+instrument did not have it. The count went from 5 to 0 (re-measured by
+`grep -E '^REFUSED' sweep-output | grep -vc TBD`). Three distinct causes, none of them array or
+new-feature work:
+  - `bind.ml`'s statement walker `w` is deliberately exhaustive-by-construction with NO catch-all,
+    and had no `Salloc`/`Sfree` arms -- so any program containing ALLOCATE or FREE died inside
+    `bind` BEFORE codegen could refuse it (REVERSE, NETWORK; the compiler already warns about this
+    match at build time, `not matched: (Salloc _|Sfree _)`). Fixed by traversing their operand
+    expressions, which implements nothing: codegen still refuses with `[TBD]: POINTER`.
+  - `codegen.ml`'s `match_put_list_lit` outer match was exhaustive only for a stream-less,
+    ON-less `put [skip] list(...)`; a named-file PUT (KEYFILE) or a PUT with ON options (CREATE)
+    fell off the end. Fixed with two refusing arms placed BEFORE the plain case, plus a catch-all
+    so no other statement kind can reach a Match_failure there. Discovery worth keeping: the
+    PARSER records `put file(f) list(x)` as an ON OPTION, not as a `stream` -- PU1 shows which
+    arm actually fires.
+  - Two `failwith ("codegen: undeclared " ^ name)` sites (addr_of/vk_of) produced a message with
+    no `[TBD]` (REVERT: `call p(i,exit)`, a label used as a value). Only the wording was wrong;
+    the verdict was already a refusal.
+Registered as tested negatives via three space-indented probes (AV1 = ALLOCATE/FREE, PU1 =
+named-file PUT, markers pinned to the new reasons). The five CORPUS programs are deliberately NOT
+panel entries: their sources contain TAB characters and the committed inventory is tab-separated,
+so registering them produced a malformed row. The gate caught that by aborting rather than by
+accepting a corrupt file -- which is the instrument working, and the reason I switched to minimal
+probes instead of changing the inventory schema mid-milestone. Two of my own probe rewrites
+(PU2, EX1) turned out to be invalid PL/I (bare Parse_error) and were DROPPED rather than
+registered, since a parse error is outside the `[TBD]` contract [E2E-17 lesson]. [AV1 PU1,
+golden/e2e214 sweep, corpus/REVERSE NETWORK CREATE KEYFILE REVERT]
+
+C171. **AB19, AB21 and RT1 now have a third, mechanically checked panel** (`spec/DIVERGENT.txt` +
+`divergence_check()` in the gate). They compile but are not byte-exact, so they belong to neither
+existing panel: registering them as negatives would assert a `[TBD]` that never happens, and as
+specimens they would fail. Each row pins the source, the golden, my code-record count, DR's, both
+DATA areas, and the differing-byte count; the check requires that each program still BUILDS, still
+DIFFERS, and still diverges in exactly the recorded shape. Becoming byte-exact is a FAILURE
+("promote it"), and so is starting to refuse. The measured facts [the numbers in my first draft
+were invented and had to be replaced by reldump output -- worth stating, because the same mistake
+in a report would have been a false claim]:
+  - AB19: mine 65 code records vs DR 61, DATA 8 == 8. DR collapses three constant stores to
+    `LXI H,1 / SHLD / INX H / SHLD / INX H / SHLD`.
+  - AB21: mine 65 vs DR 63, DATA 8 == 8. DR uses `MVI L,k` when the high byte is already correct.
+  - RT1: mine 110 vs DR 108, DATA 12 == 12. Short HL-reuse form at code 000C.
+  The DATA area agrees in every case, so the C167 sizing fix is cross-checked by programs that
+  were written to expose something else entirely. [C168]
+
+E2E-21 P1 prerequisite -- DR's VARIABLE-subscript ladder, measured from AB2 before implementing
+[golden/e2e216/AB2/AB2.REL, $L$C$D]. Address generation is IDENTICAL for a read and for a store,
+13 bytes, and the operand of `LXI H` is a 2-byte DATA relocation:
+```
+LXI H, <reloc: array_base + (lb-1)*(-2)>   ; 21 lo hi   (pre-biased base, ONE reloc)
+PUSH H                                     ; E5
+LHLD <reloc: index_variable>               ; 2A lo hi
+DAD H                                      ; 29
+POP D                                      ; D1
+DAD D                                      ; 19       -> HL = element address
+```
+then the store of a literal continues `MVI M,lo / INX H / MVI M,hi` (36 .. 23 36 ..) and the read
+continues `MOV E,M / INX H / MOV D,M` (5E 23 56). Two consequences for the implementation: no
+extra `LXI H` is emitted after the ladder (HL already holds the address, so E2E-20's forms 2 and 3
+must NOT be reused verbatim for a computed address), and the ladder's own `PUSH H` is the only
+parking involved -- which is consistent with C141 because nothing lives in a register across the
+`LHLD` of the index cell. The negative bias `(lb-1)*(-2)` is carried by the relocation arithmetic,
+not by a separate offset field, so the operand value must be verified against AB8/AB10 (which use
+different bounds) before wiring it up.

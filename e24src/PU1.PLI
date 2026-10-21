@@ -1,0 +1,7 @@
+a: procedure options(main);
+  dcl f file, x fixed;
+  x = 2;
+  put file(f) list(x);
+stop;
+end a;
+

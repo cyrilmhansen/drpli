@@ -1,0 +1,11 @@
+a: procedure options(main);
+  dcl p proc, x fixed;
+  x = 4;
+  call p(z);
+  put skip list(x);
+stop;
+  p: procedure(arg);
+    dcl arg fixed;
+  end p;
+end a;
+

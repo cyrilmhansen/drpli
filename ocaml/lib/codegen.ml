@@ -414,8 +414,14 @@ let addr_of_raw st name =
   | None ->
       (match List.assoc_opt li st.vars with
        | Some vi -> vi.off + st.base
-       | None -> failwith ("codegen: undeclared " ^ name))
-
+       | None ->
+           (* [E20-21/P0] was a bare message, so the negative panel could not tell a
+              reasoned refusal from a crash.  REVERT (`call p(i,exit)') reaches here with
+              name="exit": a LABEL used as a value, which DR rejects in pass 2 rather than
+              treating as an implicit FLOAT.  No semantics claimed -- only the wording fixed. *)
+           failwith
+             ("codegen: [TBD] undeclared " ^ name
+                ^ " (no declaration in scope; PL/I would make it implicit FLOAT, but no                   DR sample shows such a name used as a call actual -- REVERSE/REVERT-class,                                     a label used as a value is TYPES territory"))
 
 let addr_of st name =
   match whole_array_msg st name with
@@ -430,7 +436,12 @@ let vk_of st name =
   let li = String.lowercase_ascii name in
   match List.assoc_opt li st.vars with
   | Some vi -> vi.vk
-  | None -> failwith ("codegen: undeclared " ^ name)
+  | None ->
+      (* same fix as above [E20-21/P0]: the message must contain [TBD] so a refusal is
+         distinguishable from a crash by the panel, not by reading the trace. *)
+      failwith
+        ("codegen: [TBD] undeclared " ^ name
+           ^ " (no declaration in scope)")
 
 (* [E2E-20/Priority 2] ONE authoritative resolution of a subscripted name.
 
@@ -1211,6 +1222,22 @@ let match_put_list_lit (s : Ast.stmt) =
                    is implemented; format/picture editing needs the \
                    ?EDITF/?EDTOV/?QDDSL route family)"
                   (put_kind_str k) s.Ast.spos.Source.line)
+  (* [E20-21/P0] BEFORE the plain case, so an unadorned `put [skip] list(...)' still matches
+     above.  These two arms replace a BARE Match_failure with a reasoned refusal: a PUT naming a
+     FILE stream (corpus KEYFILE `put file(keys) list(name,k)') or carrying ON options (corpus
+     CREATE) fell off the end of this match and crashed inside bind/codegen prescan, which is
+     outside this project's refusal contract -- rc!=0 is not evidence, `[TBD]` is.  The blocker is
+     the ?OIOOP/?SIOOP file-I/O route, the same one that already stops the seven
+     named-sequential-FILE corpus programs; it is NOT an array gap, and nothing here implements
+     file I/O -- it only names what is missing. *)
+  | Ast.Sput { kind = Ast.List_; stream = Some _; _ } ->
+      failwith
+        (Printf.sprintf
+           "codegen: [TBD] PUT LIST naming a FILE stream (line %d): `put file(...) list(...)'             needs the ?OIOOP/?SIOOP file-I/O route -- same blocker as the named-sequential FILE             programs, not an array gap" s.Ast.spos.Source.line)
+  | Ast.Sput { kind = Ast.List_; on_opts = _ :: _; _ } ->
+      failwith
+        (Printf.sprintf
+           "codegen: [TBD] PUT LIST with ON options (line %d): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array gap" s.Ast.spos.Source.line)
   | Ast.Sput { stream = None; on_opts = []; kind = Ast.List_; items } ->
       let (sk, rest) =
         match match_skip_ctl items with

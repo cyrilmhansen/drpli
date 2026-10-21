@@ -34,6 +34,7 @@ AR3	specimen	e23src/AR3.PLI	golden/e2e223/AR3/AR3.REL
 AR4	specimen	e23src/AR4.PLI	golden/e2e223/AR4/AR4.REL
 AR5	specimen	e23src/AR5.PLI	golden/e2e223/AR5/AR5.REL
 ARRAY	refusal	array:\n\n   proc options (main);\n\n   dcl nums(10)        bin(15);\n\n   dcl I               bin(15);\n   dcl J               bin(15);\n   dcl one             bin(15);\n   dcl temp            bin(15);\n\n   one = 1;\n\n   do I = 1 to 10;\n\n      nums(I) = 0;\n\n      temp = nums(I); \n\n      call reveal (temp); \n\n   end;\n\n   do I = 1 to 10;\n\n      nums(I) = I;\n\n      temp = nums(I); \n\n      call reveal (temp); \n\n   end;\n\nreveal:\n\n   proc (val);\n\n   dcl val         bin(15);\n\n   do J = 1 to val;\n\n      put skip(one) list('Ive been called');\n\n   end;\n\n   put skip(one) list('Im leaving.');\n\n   end;\n\n\n\nend;\n \n	DR COMPILES IT with NO ERROR(S) IN PASS 1/2 [golden/e2e214,e2e216-e2e218]; this is a MY GAP, not a language rule.  DR's array model is now fully characterized [C159]: declare a(n) fixed = n 2-byte cells laid out contiguously in the automatic area (a(5) occupies data 0000-0009, b lands at 000A), constant subscript -> a DIRECT reference with offset (sub-lb)*2 (`LHLD A+0008'), zero-offset stores use SHLD and non-zero-offset stores use `LXI H,A+off / MVI M,lo / INX H / MVI M,hi', variable subscript -> `LXI H,A+(lb-1)*size / PUSH H / LHLD i / DAD H / POP D / DAD D' (element size by DAD H), 2-D is ROW-MAJOR with the LAST subscript fastest [AB13 m(2:4,1:3), m(1,2) -> FFFC = ((1-2)*3+(2-1))*2], NO bounds check is emitted, and an element passed as an actual stores the element ADDRESS into the call descriptor [AB7, PASSARAY].  My parser has no array declaration form and bind has no array sizing, so this needs front-end + layout work, not just lowering.  [E2E-20 marker updated: the route moved, so the pinned reason now names 'runtime-variable array subscript']
+AV1	refusal	a: procedure options(main);\n  dcl p ptr, q fixed;\n  q = 1;\n  p = allocate(10);\n  free p;\n  put skip list(q);\nstop;\nend a;\n	Was a BARE crash (rc!=0, no [TBD]), which the corpus sweep counted as REFUSED and thus hid. Now a reasoned refusal; the underlying gap (TBD]: POINTER) remains. [E2E-21/P0]
 B	specimen	e14src/B.PLI	golden/e2e152d/B/B.REL
 C1	specimen	e15src/C1.PLI	golden/e2e172/C1/C1.REL
 C162W1	specimen	e22src/W1.PLI	golden/e2e221/W1/W1.REL
@@ -354,6 +355,7 @@ PL6	specimen	e19src/PL6.PLI	golden/e2e199/PL6/PL6.REL
 PL7	specimen	e19src/PL7.PLI	golden/e2e199/PL7/PL7.REL
 PL8	specimen	e19src/PL8.PLI	golden/e2e200/PL8/PL8.REL
 PL9	specimen	e19src/PL9.PLI	golden/e2e200/PL9/PL9.REL
+PU1	refusal	a: procedure options(main);\n  dcl f file, x fixed;\n  x = 2;\n  put file(f) list(x);\nstop;\nend a;\n	Was a BARE crash (rc!=0, no [TBD]), which the corpus sweep counted as REFUSED and thus hid. Now a reasoned refusal; the underlying gap (PUT LIST with ON options) remains. [E2E-21/P0]
 Q1	specimen	e14src/Q1.PLI	golden/e2e148/Q1/Q1.REL
 Q2	specimen	e14src/Q2.PLI	golden/e2e148/Q2/Q2.REL
 Q3	specimen	e14src/Q3.PLI	golden/e2e148/Q3/Q3.REL

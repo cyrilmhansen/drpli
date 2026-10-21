@@ -1103,6 +1103,18 @@ let rec pl_stmt_calls (nm_of : string -> bool) (s : Ast.stmt) =
     | Ast.Sassign_label { to_; _ } -> w to_
     | Ast.Snull _ | Ast.Sdcl _ | Ast.Sexit _ | Ast.Spicturestmt _
     | Ast.Spreproc _ | Ast.Sdeclare_fail _ | Ast.Ssignal _ -> []
+    (* [E20-21/P0] ALLOCATE/FREE carry REAL expressions (the pointer, the
+       based-on operand, the freed names).  This walker has no catch-all on
+       purpose -- "exhaustive by construction" -- so omitting these two arms made
+       every program containing ALLOCATE or FREE die in a bare Match_failure
+       inside bind BEFORE codegen could refuse it (corpus NETWORK and REVERSE,
+       both rc!=0 but with NO [TBD], which is exactly what the negative panel
+       exists to catch).  Traversing the operands is not implementing the
+       statement: codegen still refuses ALLOCATE/FREE with [TBD], and this only
+       restores the contract that a refusal is REASONED. *)
+    | Ast.Salloc { ptr; based } ->
+        w ptr @ (match based with Some x -> w x | None -> [])
+    | Ast.Sfree xs -> List.concat (List.map w xs)
     (* statements whose ONLY expressions live in sub-blocks: `own` is a separate
        pass from `kids` over the same statement, so these must still be matched
        here or the exhaustive-by-construction intent collapses into a

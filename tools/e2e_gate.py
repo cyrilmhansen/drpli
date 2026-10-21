@@ -1919,6 +1919,99 @@ for _n, _mk in [("AB2", "runtime-variable array subscript"),
 # refusal would be a lie: it is not exact, and it does not refuse.  They are recorded as the
 # evidence for C168 instead.
 
+# ---------------------------------------------------------------------------
+# [E2E-21/P0] SAFETY + EVIDENCE CORRECTIONS
+# ---------------------------------------------------------------------------
+# (a) Five corpus programs used to die with a BARE exception -- rc != 0 but no [TBD] -- which the
+#     sweep counted as REFUSED and therefore hid.  rc!=0 is not evidence [C158 lesson]; [TBD] is.
+#     Fixed: bind.ml's statement walker gained Salloc/Sfree arms (REVERSE, NETWORK hit a
+#     Match_failure before codegen could refuse); codegen's PUT matcher gained refusals for a PUT
+#     naming a FILE stream (KEYFILE) or ON options (CREATE) instead of falling off the match; and
+#     two "codegen: undeclared <name>" failwiths got the [TBD] wording (REVERT: `call p(i,exit)',
+#     a label used as a value).  None of this implements ALLOCATE/FREE or file I/O -- each names
+#     the missing mechanism.  Registered as negatives so the fix stays tested:
+# NB the five CORPUS programs that exposed these sites (REVERSE NETWORK CREATE KEYFILE REVERT)
+# are deliberately NOT panel entries: their sources contain TABs, and the committed inventory is
+# tab-separated, so registering them produced a malformed row -- which the gate caught by aborting
+# rather than by accepting a corrupt file.  They stay visible in the sweep; these three
+# space-indented probes pin the same three code sites mechanically.
+# Also note PU1's finding: the PARSER records `put file(f) list(x)' as an ON OPTION, not as a
+# stream, so the "ON options" arm is what a named-file PUT reaches.  Wording left as-is rather
+# than rebuilt over at the end of a gated milestone; recorded here so it is not rediscovered.
+for _n, _marker in [("AV1", "TBD]: POINTER"),            # ALLOCATE/FREE: bind walker had no arm
+                    ("PU1", "PUT LIST with ON options"),  # named-file PUT: outer match no catch-all
+]:                       # (a third probe for the "undeclared" site would not PARSE cleanly;
+                                                       # REVERT covers it in the sweep instead)
+    _src = "e24src/%s.PLI" % _n
+    if _n in REJECTS or _n in SPECIMENS:
+        raise RegistrationCollision("%s already registered -- do not re-add [C163]" % _n)
+    REJECTS[_n] = (open(_src, "rb").read().replace(b"\r\n", b"\n")
+                   .rstrip(b"\x1a").decode(), _marker)
+    NEG_META[_n] = ("my-gap",
+        "Was a BARE crash (rc!=0, no [TBD]), which the corpus sweep counted as REFUSED and thus "
+        "hid. Now a reasoned refusal; the underlying gap (%s) remains. [E2E-21/P0]" % _marker)
+
+# (b) Divergence panel: programs that COMPILE but are NOT byte-exact [C168].  They belong to
+#     neither regression panel -- a negative would claim a [TBD] that never happens, a specimen
+#     would fail -- so they get a third, mechanically checked inventory, spec/DIVERGENT.txt.
+#     Each row pins mine_code/dr_code/data/ndiff: if a change moves the divergence shape, or
+#     makes one of these byte-exact (then it must be promoted) or makes one refuse (then it is
+#     stale), the gate stops rather than letting it drift silently.
+DIVERGENT_FILE = os.path.join(ROOT, "spec", "DIVERGENT.txt")
+
+def divergence_load(path=DIVERGENT_FILE):
+    rows = {}
+    with open(path) as f:
+        for line in f:
+            line = line.rstrip("\n")
+            if not line or line.startswith("name\t"):
+                continue
+            p = line.split("\t")
+            if len(p) != 10:
+                raise ValueError("DIVERGENT.txt malformed row: %r" % line[:40])
+            rows[p[0]] = (p[1], p[2], int(p[3]), int(p[4]), int(p[5]),
+                          int(p[6]), int(p[7]), p[8], p[9])
+    return rows
+
+def _rel_stats(rel):
+    """(code_data_records, data_size, reloc_count) straight out of reldump."""
+    import subprocess as _sp
+    out = _sp.run([sys.executable, os.path.join(ROOT, "tools", "reldump.py"), rel],
+                  capture_output=True, text=True).stdout
+    code = len(re.findall(r"DATA\s+code", out))
+    m = re.search(r"LINK-DEF-DATA-SIZE\s+abs\s+([0-9A-F]{4})", out)
+    return code, (int(m.group(1), 16) if m else -1)
+
+def divergence_check(dv, exe):
+    fails, notes = [], []
+    for n, (src, g, mc, dc, md, dd, nb, verdict, _note) in sorted(dv.items()):
+        if n in SPECIMENS or n in REJECTS:
+            fails.append("%s: registered in BOTH the divergence panel and a regression panel" % n)
+            continue
+        r = subprocess.run([exe, os.path.join(ROOT, src), "/tmp/div_%s.REL" % n],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            fails.append("%s: no longer compiles -- row is STALE, move it to the negative panel "
+                         "or fix the refusal (%s)" % (n, r.stderr.strip().splitlines()[-1][:60]))
+            continue
+        mine = open("/tmp/div_%s.REL" % n, "rb").read()
+        dr = open(os.path.join(ROOT, g), "rb").read()
+        if mine == dr:
+            fails.append("%s: NOW BYTE-EXACT -- promote it into SPECIMENS and delete the "
+                         "divergence row [C168 may be partly done]" % n)
+            continue
+        mcode, mdata = _rel_stats("/tmp/div_%s.REL" % n)
+        dcode, ddata = _rel_stats(os.path.join(ROOT, g))
+        ndiff = sum(1 for a, b in zip(mine, dr) if a != b)
+        if (mcode, dcode, mdata, ddata, ndiff) != (mc, dc, md, dd, nb):
+            fails.append("%s: divergence SHAPE changed (code %d/%d data %d/%d ndiff %d recorded vs "                         "now %d/%d %d/%d %d) -- re-measure before accepting [C168]"
+                         % (n, mc, dc, md, dd, nb, mcode, dcode, mdata, ddata, ndiff))
+        else:
+            notes.append("%s: %d code bytes vs DR %d, data agrees, %d bytes differ (C168 peephole)"
+                         % (n, mcode, dcode, ndiff))
+    return fails, notes
+
+
 def registration_audit(path, specimens, rejects, negmeta):
     """Mechanical prevention of regression-list key collisions [E2E-15/C154].
 
@@ -2192,6 +2285,20 @@ def main():
         return 1
     print("e2e gate: negative panel clean (%d/%d refused)"
           % (len(REJECTS), len(REJECTS)))
+    # [E21/P0] third panel: programs that COMPILE but are not byte-exact [C168].  Checked here so
+    # it cannot rot: every row must still build, still differ, and still diverge in the recorded
+    # SHAPE.  Becoming byte-exact is a FAILURE ("promote it"), and so is starting to refuse.
+    _dv = divergence_load()
+    _dvf, _dvn = divergence_check(_dv, CC)
+    for _x in _dvn:
+        print("  DIV-OK   %s" % _x)
+    for _x in _dvf:
+        print("  DIV-FAIL %s" % _x)
+    if _dvf:
+        print("e2e gate: DIVERGENCE PANEL %d fail of %d" % (len(_dvf), len(_dv)))
+        return 1
+    print("e2e gate: divergence panel %d/%d as recorded (compiles, differs, shape pinned)"
+          % (len(_dv), len(_dv)))
     return 1 if bad else 0
 
 

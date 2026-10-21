@@ -1,0 +1,9 @@
+a: procedure options(main);
+  dcl p ptr, q fixed;
+  q = 1;
+  p = allocate(10);
+  free p;
+  put skip list(q);
+stop;
+end a;
+
