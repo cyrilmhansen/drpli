@@ -1172,25 +1172,41 @@ let bind_program (blk : Ast.block) : prog_layout =
         nr
     in
     let cur = ref (named_base + span) in
-    let sites =
-      List.map
-        (fun (p, args, _pos) ->
-          (* one contiguous 2-byte pointer cell per argument [R2001: desc
-             block A(0008)+A(000A), R2012: two 4-byte blocks back to back],
-             then the expression-argument value cells [R2003: temp A(000C)
-             after both desc cells] *)
-          let slot = !cur in
-          cur := !cur + 2 * List.length args;
-          let temps =
+    let () = () in
+    (* one contiguous 2-byte pointer cell per argument [R2001: desc
+       block A(0008)+A(000A), R2012: two 4-byte blocks back to back],
+       then the expression-argument value cells [R2003: temp A(000C)
+       after both desc cells] *)
+    (* [E2E-14/C142 prototype, model A] TWO PHASES, not one per site:
+             phase 1 numbers every site's DESCRIPTOR slots (2 bytes per argument,
+             pre-order over call sites), phase 2 numbers the EXPRESSION-argument value
+             cells.  DR's D3 `t + g(h(k(2)))' numbers descriptors 0013(g),0015(h),
+             0017(k) and only then the value cells 0019, 001B; P9 `t + g(h(2))' numbers
+             g.slot 000B, h.slot 000D, then g's arg cell 000F -- whereas the single-pass
+             version interleaves (slot,temps) per site and puts g's arg cell at 000D
+             ahead of h's descriptor.  This is the only difference between the two
+             orderings, so it is decided by byte parity over the whole call corpus. *)
+          let sites0 =
             List.map
-              (fun arg ->
-                match arg.Ast.e with
-                | Ast.Enumber _ | Ast.Eident _ -> None
-                | _ -> let t = !cur in cur := !cur + 2; Some t)
-              args
+              (fun (p, args, _pos) ->
+                let slot = !cur in
+                cur := !cur + 2 * List.length args;
+                (p, args, slot))
+              (List.concat_map (fun s -> pl_stmt_calls is_proc s) b.bstmts)
           in
-          { cs_proc = p; cs_slot = slot; cs_args = args; cs_temps = temps })
-        (List.concat_map (fun s -> pl_stmt_calls is_proc s) b.bstmts)
+          let sites =
+            List.map
+              (fun (p, args, slot) ->
+                let temps =
+                  List.map
+                    (fun arg ->
+                      match arg.Ast.e with
+                      | Ast.Enumber _ | Ast.Eident _ -> None
+                      | _ -> let t = !cur in cur := !cur + 2; Some t)
+                    args
+                in
+                { cs_proc = p; cs_slot = slot; cs_args = args; cs_temps = temps })
+              sites0
     in
     calls := !calls @ sites;
     let after = !cur in

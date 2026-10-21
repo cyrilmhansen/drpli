@@ -2650,3 +2650,52 @@ line's byte is a CALL opcode -- two facts pinned independently by byte-exact gol
 result is 43 opcodes with **zero** printed under two mnemonics, and anything unobserved
 prints as `DB nn` instead of being guessed.  DR's zero test is correct; the only defect in
 this story was mine.
+
+## E2E-14 (C145-C146): where DR puts anonymous call cells, measured record by record
+
+C145. **DR numbers a procedure section's anonymous call cells in TWO PHASES: every call
+site's DESCRIPTOR slots first (2 bytes per argument, in pre-order over the sites), and only
+then the EXPRESSION-argument VALUE cells.** Evidence [19 DR programs, `$L$C$D` listings +
+raw `.REL` record bits]: D3 `t + g(h(k(2)))` numbers descriptors 0013(g) < 0015(h) <
+0017(k), then the value cells 0019, 001B; P9 `t + g(h(2))` numbers g.slot 000B, h.slot
+000D, then g's argument value cell 000F. My `bind.ml` allocated `(slot, temps)` per site in
+a single pass, so `g`'s argument cell landed at 000D *ahead* of `h`'s descriptor -- a pure
+numbering inversion, with identical record positions. Fixing the numbering makes **P9
+byte-identical to DR** with nothing else changed, and P1/P3/P11 stay byte-identical; the
+whole 477-specimen corpus passes with the change applied in an isolated `git worktree`
+before it was adopted [golden/e2e174/P9]. Lesson: a divergence in *addresses* and a
+divergence in *record order* look identical in a diff and are fixed in completely different
+places -- I nearly shipped a stream-reordering mechanism for what was an eight-line
+allocation-order change [E2E-13's own diagnosis of P9 was wrong on this point].
+
+C146. **DR writes a call's descriptor record when its CONTENT becomes knowable, which for a
+literal-or-declared actual is at plan time -- before the enclosing expression's code -- while
+I write it at point of use; this is NOT yet fixed and the shapes that need it stay refused.**
+Measured over the same corpus: P6 `t - g(3)` DR@bit 1846 vs mine@1883 (same cell number,
+reference at code 0055 in both); P12's second call 1958 vs 2023; D1 `t - u - g(3)` 2031 vs
+2208; D11's 2nd/3rd calls 2186/2255 vs 2250/2384. For the DEFER route the call's code *is*
+the expression's first code, so plan-time and at-reference coincide and my at-ref emission
+is byte-exact [P1-P4, P7-P11, D3, D9] -- which is why the divergence surfaced only in PUSH
+routes and multi-call chains. Discriminating probe pair: P3 vs P6 share the identical
+alloc bit 1846 [D3 trace], so DR's placement is anchored to the expression's first code
+record, not to the `LXI H`. What remains unresolved and is therefore NOT claimed: whether
+expression-argument VALUE cells are numbered in pre-order over sites or at the producing
+store (D3's numbers are consistent with both; D4/D5, which would discriminate, hit an
+unrelated refusal -- MUL by literal 2 in a RETURN/expression context -- first). Migration
+proposal (not attempted): emit the descriptor word (`SET-LC data slot+2i` / RELOC word /
+`SET-LC code`) in the PUSH-route arms before lowering the left operand, or equivalently
+lower the right operand with code bytes captured and data/link records live, then replay.
+Both are confined to arms currently behind `[TBD]` guards, so they carry no regression risk
+by construction -- but they need a capture/replay path through `reloc` and `link`, which is
+the same mechanism class as ARCH-1, so it is proposed rather than done.
+
+C147. **A gate that passes is not a gate that tests what you changed.** Applying only the
+numbering fix kept 477/477 green -- because no accepted shape has two call sites in one
+section where the old and new orders differ, i.e. the corpus was silent on exactly the
+property I was editing. The property only became observable once P9 was retired from the
+negative panel, which is why P9's byte-identity (not the green gate) is the evidence, and
+why the green gate is the *non-regression* evidence rather than the *correctness* evidence
+for the change. Corollary: my narrowing of the nested-call guard to "all actuals are
+literals" silently over-refused U1/W1-W3 (`sum(n-1)` has NO nested call at all), which the
+gate caught as COMPILE-FAIL within 90 seconds -- the condition had to be `nested AND
+not-literal-chain`, not `not-literal-chain`.

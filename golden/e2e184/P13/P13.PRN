@@ -1,0 +1,40 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P13
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   1 a          program nesting-with-variable-actual;   [E2E-14/C145: g(h(i)) in the DEFER route,
+SYNTAX                     ?
+    1 ERROR(S) IN PASS 1
+
+   1 a          program nesting-with-variable-actual;   [E2E-14/C145: g(h(i)) in the DEFER route,
+SYNTAX                     ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P13
+
+   1 a 0000     program nesting-with-variable-actual;   [E2E-14/C145: g(h(i)) in the DEFER route,
+   2 a 0000         with a variable actual, so every argument value cell pre-exists]
+   3 a 0000         fixed i, t;
+   4 a 0000         procedure g returns fixed;   fixed j;
+   5 a 0000             begin g = j + 100; end;
+   6 a 0000         procedure h returns fixed;   fixed k;
+   7 a 0000             begin h = k + 3; end;
+   8 a 0000         begin
+   9 a 0000             i = 5; t = 7;
+  10 a 0000             put fixed(4) (t + g(h(i)));
+  11 a 0000         end.
+
+CODE SIZE = 0000
+DATA AREA = 0000
+FREE SYMS = 36E5
+END  COMPILATION
+

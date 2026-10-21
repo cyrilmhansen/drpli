@@ -1,0 +1,12 @@
+	program nesting-with-variable-actual;   [E2E-14/C145: g(h(i)) in the DEFER route,
+		with a variable actual, so every argument value cell pre-exists]
+		fixed i, t;
+		procedure g returns fixed;   fixed j;
+			begin g = j + 100; end;
+		procedure h returns fixed;   fixed k;
+			begin h = k + 3; end;
+		begin
+			i = 5; t = 7;
+			put fixed(4) (t + g(h(i)));
+		end.
+

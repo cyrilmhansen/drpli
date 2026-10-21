@@ -1,0 +1,108 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: D9
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: D9
+
+   1 a 0000 a:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main);
+   3 c 0006     declare r fixed, x fixed, y fixed;
+   4 c 0006     x = 100;
+       0006       LXI  H,0064
+       0009       SHLD X A(0007)
+   5 c 000C     y = 7;
+       000C       MVI  L,07
+       000E       SHLD Y A(0009)
+   6 c 0011     r = f(5);
+       0011       LXI  H,* A(000B)
+       0014       CALL 0000
+       0017       SHLD R A(0005)
+   7 c 001A     put skip list('W', r);
+       001A       LXI  D,0252
+       001D       LXI  B,0000
+       0020       CALL ?SYSPR
+       0023       MVI  A,01
+       0025       CALL ?SKPOP
+       0028       LXI  H,* S(0002)
+       002B       MVI  A,01
+       002D       CALL ?SLCTS
+       0030       CALL ?PNCOP
+       0033       LHLD R A(0005)
+       0036       MVI  A,09
+       0038       CALL ?QICOP
+       003B       CALL ?PNVOP
+       003E       CALL ?QIOOP
+       001E       ==== 0041
+   8 c 0041     stop;
+       0041       CALL ?STOPX
+   9 c 0044     f: procedure(n) returns(fixed);
+  10 e 0044     declare n fixed, t fixed, u fixed;
+       0044       MOV  E,M
+       0045       INX  H
+       0046       MOV  D,M
+       0047       XCHG 
+       0048       SHLD N A(000D)
+  11 e 004B     t = n;
+       004B       LHLD N A(000D)
+       004E       MOV  E,M
+       004F       INX  H
+       0050       MOV  D,M
+       0051       XCHG 
+       0052       SHLD T A(000F)
+  12 e 0055     u = n + 2;
+       0055       LHLD N A(000D)
+       0058       MOV  E,M
+       0059       INX  H
+       005A       MOV  D,M
+       005B       XCHG 
+       005C       INX  H
+       005D       INX  H
+       005E       SHLD U A(0011)
+  13 e 0061     return (t + g(3) * 2);
+       0061       LXI  H,* A(0013)
+       0064       CALL 0000
+       0067       DAD  H
+       0068       XCHG 
+       0069       LHLD T A(000F)
+       006C       DAD  D
+       006D       RET  
+  14 c 006E     end f;
+  15 c 006E     g: procedure(n) returns(fixed);
+  16 e 006E     declare n fixed;
+       006E       MOV  E,M
+       006F       INX  H
+       0070       MOV  D,M
+       0071       XCHG 
+       0072       SHLD N A(0015)
+  17 e 0075     return (n * 3);
+       0075       LHLD N A(0015)
+       0078       MOV  E,M
+       0079       INX  H
+       007A       MOV  D,M
+       007B       XCHG 
+       007C       LXI  D,0003
+       007F       CALL ?IM22N
+       0082       RET  
+  18 c 0083     end g;
+  19 a 0083 end a;
+
+CODE SIZE = 0083
+DATA AREA = 0017
+FREE SYMS = 37DD
+END  COMPILATION
+

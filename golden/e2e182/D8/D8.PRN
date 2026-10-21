@@ -1,0 +1,83 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: D8
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: D8
+
+   1 a 0000 a:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main);
+   3 c 0006     declare r fixed, x fixed, y fixed;
+   4 c 0006     x = 100;
+       0006       LXI  H,0064
+       0009       SHLD X A(0005)
+   5 c 000C     y = 7;
+       000C       MVI  L,07
+       000E       SHLD Y A(0007)
+   6 c 0011     r = x + y + g(3);
+       0011       LHLD X A(0005)
+       0014       XCHG 
+       0015       LHLD Y A(0007)
+       0018       DAD  D
+       0019       PUSH H
+       001A       LXI  H,* A(0009)
+       001D       CALL 0000
+       0020       POP  D
+       0021       DAD  D
+       0022       SHLD R A(0003)
+   7 c 0025     put skip list('W', r);
+       0025       LXI  D,0252
+       0028       LXI  B,0000
+       002B       CALL ?SYSPR
+       002E       MVI  A,01
+       0030       CALL ?SKPOP
+       0033       LXI  H,* S(0002)
+       0036       MVI  A,01
+       0038       CALL ?SLCTS
+       003B       CALL ?PNCOP
+       003E       LHLD R A(0003)
+       0041       MVI  A,09
+       0043       CALL ?QICOP
+       0046       CALL ?PNVOP
+       0049       CALL ?QIOOP
+       0029       ==== 004C
+   8 c 004C     stop;
+       004C       CALL ?STOPX
+   9 c 004F     g: procedure(n) returns(fixed);
+  10 e 004F     declare n fixed;
+       004F       MOV  E,M
+       0050       INX  H
+       0051       MOV  D,M
+       0052       XCHG 
+       0053       SHLD N A(000B)
+  11 e 0056     return (n * 3);
+       0056       LHLD N A(000B)
+       0059       MOV  E,M
+       005A       INX  H
+       005B       MOV  D,M
+       005C       XCHG 
+       005D       LXI  D,0003
+       0060       CALL ?IM22N
+       0063       RET  
+  12 c 0064     end g;
+  13 a 0064 end a;
+
+CODE SIZE = 0064
+DATA AREA = 000D
+FREE SYMS = 384D
+END  COMPILATION
+

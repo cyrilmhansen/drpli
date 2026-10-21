@@ -1243,15 +1243,18 @@ for _n, _t in _E13_TAG.items():
 SPECIMENS["C1"] = ("e15src/C1.PLI", "golden/e2e172/C1/C1.REL")
 SPECIMENS["C4"] = ("e15src/C4.PLI", "golden/e2e172/C4/C4.REL")
 SPECIMENS["C7"] = ("e15src/C7.PLI", "golden/e2e173/C7/C7.REL")
-# Four shapes DR compiles that I refuse: instruction bytes identical to DR, executed
-# value correct, but the .REL record stream differs (DR plans a call's anonymous cells
-# before emitting any of the expression's code; I allocate at point of use).
-for _n in ("P5", "P6", "P9", "P12"):
+SPECIMENS["P9"] = ("e16src/P9.PLI", "golden/e2e174/P9/P9.REL")   # E2E-14/C145
+# Three shapes DR compiles that I still refuse: instruction bytes identical to DR,
+# executed value correct, but the .REL RECORD PLACEMENT differs -- DR writes a call's
+# descriptor record at plan time (before the left operand's code when the PUSH route puts
+# other instructions first), I write it at point of use [C146].  P9 is GONE from this list:
+# its divergence was anonymous-cell NUMBERING, which the two-phase numbering in bind.ml
+# fixed, and it is now a byte-identical specimen [C145].
+for _n in ("P5", "P6", "P12"):
     REJECTS[_n] = (open("e16src/%s.PLI" % _n, "rb")
                    .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                    {"P5": "left operand must be parked across a call",
                     "P6": "right operand is a procedure call",
-                    "P9": "contains a nested call",
                     "P12": "left operand must be parked across a call"}[_n])
 NEG_META_E13 = {
     "P5": ("my-gap",
@@ -1270,17 +1273,12 @@ NEG_META_E13 = {
      "record-order reason.  IMPORTANT: my PREVIOUS route (XCHG) parked DE across the call, "
      "which any callee touching DE corrupts -- refusing is strictly safer than what ran "
      "before [C141]"),
-    "P9": ("my-gap",
-     "DR COMPILES IT (golden/e2e174/P9); `t + g(h(2))' -- my code bytes match and both "
-     "print 113, but DR numbers the anonymous cells the other way round (inner call's "
-     "result 000D before the outer argument 000F; I allocate 000D as the argument).  "
-     "Cell numbering is part of byte identity [C142]"),
 }
 
 # Names whose console output is compared against the DR arm under --link-run (their
 # DR .RELs are the SPECIMENS goldens, so the harness can link both sides).
 for _n in ("U1", "W1", "W2", "W3", "P1", "P2", "P3", "P4", "P7", "P8", "P10", "P11",
-           "K4", "R4", "R5", "X1", "M4", "Y8"):
+           "K4", "R4", "R5", "X1", "M4", "Y8", "P9"):
     OUTPUT_CHECK.add(_n)
 
 NEG_META = {

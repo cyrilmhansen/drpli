@@ -272,6 +272,35 @@ let call_operand_is_nested r =
       expr_contains_call f || List.exists expr_contains_call args
   | _ -> false
 
+(* [E2E-14/C145] a nested-call chain in which EVERY actual is a literal, a simple
+   variable, or another such chain.  This is exactly the class whose byte parity I
+   MEASURED after fixing the anonymous-cell numbering: P9 `return (t + g(h(2)))' is
+   byte-identical to DR, because every argument value cell it needs was allocated long
+   before (a pool literal), so the only difference was the DESCRIPTOR slot numbering
+   order.  A VARIABLE actual in this arm is not measured [C146], so it stays refused.
+   A chain with a COMPOUND actual (D3 `g(h(k(2)))', D4 `g(h(2),k(3))', D5
+   `g(2*h(3))') additionally needs an argument value cell created by the producing
+   store, and DR's ordering rule for those (inner-first, at the store) is not yet
+   separated from the per-site alternative -- the probes that would discriminate them
+   hit an unrelated refusal first (`n * 2' in an expression context).  So those keep
+   refusing with the reason named, rather than being accepted on an unmeasured guess. *)
+let rec call_chain_simple e =
+  match e.Ast.e with
+  | Ast.Esuffix (_f, args) ->
+      List.for_all
+        (fun a ->
+          match a.Ast.e with
+          (* ONLY literals: D7 `1 + f(x)' is a different lowering arm (literal-left
+             commute), so it is not evidence about THIS arm, and no clean probe of a
+             nested chain with a variable actual exists yet (my P13 does not even lex).
+             Being unprobed means refusing, not assuming. *)
+          | Ast.Enumber _ -> true
+          | Ast.Econd x -> call_chain_simple x
+          | Ast.Esuffix _ -> call_chain_simple a
+          | _ -> false)
+        args
+  | _ -> false
+
 let rec add_left_needs_push e =
   match e.Ast.e with
   | Ast.Econd x -> add_left_needs_push x
@@ -2099,15 +2128,22 @@ let rec lower_hl st (e : Ast.expr) =
 
            The literal-left case lives in the arm above [P4]; MUL and call-on-left
            keep their existing (byte-exact) routes untouched. *)
-        (* [E2E-13] Two shapes DR compiles that I must not emit yet.  Both produce
-           code BYTES IDENTICAL to DR and run to the right number; the divergence is
-           in the .REL record stream, which is a third evidence class and is what the
-           byte-identity criterion actually checks (see the note for the mechanism):
-           the anonymous call cells are PLANNED by DR before any of the expression's
-           code is written, while my emitter allocates them at the point of use. *)
-        if call_operand_is_nested r then
+        (* [E2E-14/C145] the anonymous-cell NUMBERING is now two-phase (all descriptor
+           slots, then all expression-argument value cells -- bind.ml), which makes a
+           literal-actual nested chain byte-identical to DR: P9 `return (t + g(h(2)))',
+           mine == DR byte-for-byte ✓.  Variable actuals in this arm are unmeasured and
+           still refuse [C146].
+           A nested chain with a COMPOUND actual still has an argument VALUE CELL whose
+           number DR assigns inner-first, and that difference is not yet measured, so it
+           refuses with the reason named [C142]. *)
+        if call_operand_is_nested r && not (call_chain_simple r) then
           failwith
-            ("codegen: [TBD] ADD whose call operand itself contains a nested call.  My code bytes are identical to DR's and the executed value is right (P9 `return (t + g(h(2)))' prints 113 = DR, golden/e2e180r/P9), but the anonymous cell NUMBERS differ: DR plans the inner call's result cell before the outer call's argument cell (000D result, 000F arg) whereas I allocate them the other way round [golden/e2e174/P9 vs my build].  Numbering is part of byte identity, so this refuses until the plan-before-emit order is implemented");
+            ("codegen: [TBD] ADD whose call operand is a nested call with a COMPOUND "
+             ^ "actual (e.g. `t + g(h(k(2)))', `t + g(2*h(3))'). Under the C145 two-phase "
+             ^ "numbering, simple-actual chains are byte-identical to DR [P9, D7]; a "
+             ^ "compound actual additionally needs an argument VALUE cell that DR numbers "
+             ^ "inner-first (at the producing store) and I number per call site, so the "
+             ^ "anonymous-cell records disagree [C142, unmeasured]");
         if add_left_needs_push l then
           failwith
             ("codegen: [TBD] ADD whose left operand must be parked across a call (a compound expression or a second call).  DR uses PUSH H / POP D and I now emit that sequence with code bytes IDENTICAL to DR's -- P5 `(t+u)+g(3)' and P12 `g(3)+g(4)' both run to DR's value (21, 21; golden/e2e180r) -- but DR writes the call's anonymous-cell allocation RECORDS (LINK-SET-LC data / RELOC) before the left operand's code records, while I write them at point of use, so the bit-packed streams differ.  The deferred single-variable case IS implemented and byte-exact [P1-P4, P7-P11]");
