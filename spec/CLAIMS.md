@@ -3122,3 +3122,25 @@ Every file rewrite in this repo now goes: build the string, `assert isinstance(s
 minimum length, write to `p + '.new'`, then `os.replace`.  Note the same class bit me twice in two
 milestones (E2E-17's `write()` of a non-string left a file truncated too) -- the prevention has to
 be the write pattern, not care.
+
+C165 addendum -- precise crash diagnosis for the next milestone (reproducible, with a saved patch).
+The array READ branch itself is correct: for RD1 (`put skip list(a(3))' with `dcl a(5) fixed')
+instrumentation shows the binder metadata arriving intact at the lowering site
+(`arrays=1 [a] exts=false procs=false') and DR's expected form is exactly
+`LHLD A(0000)+off' -- RD3's listing confirms first element `LHLD A A(0000)' and last element
+`LHLD A A(0000)+0008', i.e. my offset arithmetic (sub-lb)*2 matches DR for both ends.
+Nevertheless the compiler dies with a BARE `Fatal error: exception Not_found' raised at
+`List.assoc nm st.procs` inside lower_hl's CALL path, on a name that instrumentation has just
+proved is in neither st.procs nor st.exts.  The trace puts the caller at
+`lower_put_items_gen ... (fun) ... line 5155` -- so the PUT-item path reaches lower_hl with the same
+Esuffix, and the call site that raises is reached without my array guard having held there.  In
+short: at least two distinct resolutions of `a(3)' happen for one source expression, and only one of
+them sees st.arrays.  A one-line patch cannot fix that; the real requirement is to resolve an
+Esuffix ONCE against the bound declaration and pass the resolved meaning (element vs call) down,
+rather than re-deriving it at every consumer -- the same structural fact C161 ran into from the
+other direction (lower_hl has no type context).  This is the "genuinely broader architectural
+dependency" case, so the code was isolated rather than landed:
+spec/patches/e19-array-read-attempt.patch reproduces it (apply on d9001fa, build, run
+e23src/RD1.PLI).  Verified safe facts from that patch, worth keeping: the read-only build does NOT
+crash on store-shaped refusals (ST1 `a(3) = 5' refuses cleanly as a non-simple assignment lhs), so
+landings can be ordered read-first once the double-resolution is fixed.

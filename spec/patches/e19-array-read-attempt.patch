@@ -1,0 +1,44 @@
+diff --git a/ocaml/lib/codegen.ml b/ocaml/lib/codegen.ml
+index 1e7b3a4..9c3f5d3 100644
+--- a/ocaml/lib/codegen.ml
++++ b/ocaml/lib/codegen.ml
+@@ -121,6 +121,7 @@ type st =
+   ; mutable deref : string list           (* ptr-formal names, cur scope *)
+   ; mutable floor : int                   (* layout total (cells+procs) *)
+   ; mutable vars : (string * var_info) list
++  ; mutable arrays : (string * int * int * int) list
+       (* scope chain head (lowername -> info); swapped per procedure
+          body [PL/I nesting: inner declarations shadow outer] *)
+   ; mutable dec_ret : (int * int) option
+@@ -1830,7 +1831,22 @@ let rec lower_hl st (e : Ast.expr) =
+       begin match hd.Ast.e, args with
+       | Ast.Eident h, args ->
+           let nm = String.lowercase_ascii h.Ast.orig in
+-          if
++          if List.exists (fun (n,_,_,_) -> String.equal n nm) st.arrays then begin
++            prerr_endline ("DBG READONLY nm=" ^ nm ^ " arrays="
++              ^ string_of_int (List.length st.arrays)
++              ^ " [" ^ String.concat "," (List.map (fun (n,_,_,_) -> n) st.arrays) ^ "]"
++              ^ " exts=" ^ string_of_bool (List.mem_assoc nm st.exts)
++              ^ " procs=" ^ string_of_bool (List.mem_assoc nm st.procs));
++            (match args with
++             | [{ Ast.e = Ast.Enumber t; _ }] ->
++                 let sub = match int_of_string_opt t with Some v -> v | None -> failwith "[TBD] non-literal subscript" in
++                 let (lb,_ub,esz) = match List.find_opt (fun (n,_,_,_) -> String.equal n nm) st.arrays with Some (_,a,b,c2) -> (a,b,c2) | None -> assert false in
++                 let vi = List.assoc nm st.vars in
++                 let addr = (vi.off + st.base + (sub - lb) * esz) land 0xffff in
++                 d st op_lhld; reloc st Data addr; st.last_imm <- None
++             | _ -> failwith "codegen: [TBD] subscript form not implemented")
++          end
++          else if
+             not (List.mem_assoc nm st.procs || List.mem_assoc nm st.exts)
+           then
+             failwith
+@@ -6150,6 +6166,7 @@ let emit_program (progname : string) (auto_bytes : int)
+     ; exts = layout.Bind.pl_exts
+     ; entries = []; fcalls = []; deref = []
+     ; floor = layout.pl_total; vars = rows
++    ; arrays = Bind.bind_arrays blk
+     ; dec_ret = None
+   ; float_ret = false
+   ; fl_cells = []
