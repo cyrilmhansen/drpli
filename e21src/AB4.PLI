@@ -1,0 +1,8 @@
+a:
+    procedure options(main);
+    declare a(0:3) fixed, b fixed, i fixed;
+    a(0) = 5;
+    put skip list(a(0));
+    stop;
+end a;
+

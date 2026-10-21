@@ -23,6 +23,15 @@ let at_eof p = match peek p with Token.EOF -> true | _ -> false
 let at_punct p x = match peek p with Token.Punct y -> y = x | _ -> false
 let at_key p k =
   match peek p with Token.Ident { key; _ } -> String.equal key k | _ -> false
+let at_key_any p keys = List.exists (fun k -> at_key p k) keys
+(* PL/I standard abbreviations, DR-verified [C160]: PROC == PROCEDURE, DCL == DECLARE.  All
+   four PLI-2000 originals (thirdparty/PLI-2000/pl1/{ARRAY,PASSARAY,CONV,DECY}.PL1) use
+   `proc options (main)' and DR compiles every one with NO ERROR(S) IN PASS 1/2
+   [golden/e2e214]; probe AB17 is DR-byte-identical to AB16, which spells the same program with
+   DECLARE/PROCEDURE -- so the abbreviation is a pure spelling variant with no semantic effect.
+   DCL was already handled by the keyword alternatives at the DECLARE site; PROC was not, which
+   is why every one of those four programs died in MY parser on "expected PROCEDURE after
+   label" -- a front-end gap, not a code-generation one. *)
 let at_any_ident p = match peek p with Token.Ident _ -> true | _ -> false
 let at_num p = match peek p with Token.Num _ -> true | _ -> false
 
@@ -568,7 +577,7 @@ and parse_stmt_body p q labels =
     (* LABEL: before END — label on the terminating point [EX REVERT
        `exit:` before `end;`] modeled as labeled null statement *)
     Snull q
-  else if labels <> [] && at_key p "PROCEDURE" then
+  else if labels <> [] && at_key_any p ["PROCEDURE"; "PROC"] then
     Sproc { blk = parse_proc_block p labels; bpos = q }
   else if labels <> [] && at_key p "FORMAT" then begin
     if Sys.getenv_opt "PLI80_TR" <> None then Format.eprintf "labeled FORMAT hit@.";
@@ -1054,7 +1063,8 @@ and parse_group_until_end p =
 
 and parse_proc_block p labels =
   let nm = List.hd labels in
-  expect_key p "PROCEDURE";
+  (* [C160] PROC is DR-accepted wherever PROCEDURE is (PLI-2000 originals and AB17) *)
+  if at_key p "PROC" then advance p else expect_key p "PROCEDURE";
   let params =
     if at_punct p Token.LParen then begin
       advance p;
@@ -1102,7 +1112,7 @@ and parse_program p =
   if labels = [] then err p "expected outer procedure label:"
   else begin
     let blk =
-      if at_key p "PROCEDURE" then parse_proc_block p labels
+      if at_key_any p ["PROCEDURE"; "PROC"] then parse_proc_block p labels
       else if at_key p "BEGIN" then begin
         let Sproc b = parse_begin_block p (curpos p) in b.blk
       end

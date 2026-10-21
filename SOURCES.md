@@ -36,3 +36,20 @@
 - https://winworldpc.com/product/digital-research-pl-i-compiler/1x (manual archive and older compiler images)
 
 No historical CP/M disk image, commercial ROM or compiler binary is included with this bundle. Obtain such disks from collections you are entitled to use. The listed sources are archival scans of copyrighted manuals; consult their notices before redistributing copies.
+
+## Independent test corpus (added 2026-10, E2E-17)
+
+**Steadsoft/PLI-2000** -- https://github.com/Steadsoft/PLI-2000 (shallow clone kept at
+`thirdparty/PLI-2000/`, untracked).  Its `pl1/` directory is a large body of PL/I test programs
+written for a *different* PL/I compiler (PLI-2000 for CP/M-86/Windows), which is exactly what makes
+it useful here: it is an independent source of language-coverage ideas rather than something I
+selected to match my own perimeter.
+
+Used in E2E-17 for `pl1/ARRAY.PL1`, `pl1/PASSARAY.PL1`, `pl1/CONV.PL1`, `pl1/DECY.PL1`.  These are
+**not** DR-compatible goldens in the historical-corpus sense: they are LF-only and `CONV.PL1` has no
+CP/M EOF byte, so DR needs a mechanical line-ending/EOF normalization before it will read them.  The
+copies we compile are `e20src/{ARRAY,PASSARAY,CONV,DECY}.PLI` (normalization only -- the language
+text is asserted byte-identical to the original by the conversion script), and DR's own output for
+them is tracked as `golden/e2e214`.  DR compiled all four with no errors, so every divergence
+recorded in spec/CLAIMS.md C159-C161 is ours, not the dialect's.
+

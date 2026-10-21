@@ -1,0 +1,8 @@
+a:
+    procedure options(main);
+    declare a(5) fixed, b fixed, i fixed;
+    a(1) = 3;
+    if a(1) > 2 then put skip list(999);
+    stop;
+end a;
+

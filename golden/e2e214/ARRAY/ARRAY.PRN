@@ -1,0 +1,206 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: ARRAY
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: ARRAY
+
+   1 a 0000 array:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006 
+   3 a 0006    proc options (main);
+   4 a 0006 
+   5 c 0006    dcl nums(10)        bin(15);
+   6 c 0006 
+   7 c 0006    dcl I               bin(15);
+   8 c 0006    dcl J               bin(15);
+   9 c 0006    dcl one             bin(15);
+  10 c 0006    dcl temp            bin(15);
+  11 c 0006 
+  12 c 0006    one = 1;
+       0006       LXI  H,0001
+       0009       SHLD ONE A(0032)
+  13 c 000C 
+  14 c 000C    do I = 1 to 10;
+       000C       SHLD I A(002E)
+       000F       LHLD I A(002E)
+       0012       LXI  B,FFF5
+       0015       DAD  B
+       0016       MOV  A,H
+       0017       ORA  A
+       0018       JP   0000
+  15 c 001B 
+  16 c 001B       nums(I) = 0;
+       001B       LXI  H,NUMS A(001A)+FFFE
+       001E       PUSH H
+       001F       LHLD I A(002E)
+       0022       DAD  H
+       0023       POP  D
+       0024       DAD  D
+       0025       XRA  A
+       0026       MOV  M,A
+       0027       INX  H
+       0028       MOV  M,A
+  17 c 0029 
+  18 c 0029       temp = nums(I); 
+       0029       LXI  H,NUMS A(001A)+FFFE
+       002C       PUSH H
+       002D       LHLD I A(002E)
+       0030       DAD  H
+       0031       POP  D
+       0032       DAD  D
+       0033       MOV  E,M
+       0034       INX  H
+       0035       MOV  D,M
+       0036       XCHG 
+       0037       SHLD TEMP A(0034)
+  19 c 003A 
+  20 c 003A       call reveal (temp); 
+       003A       LXI  H,* A(0036)
+       003D       CALL 0000
+       0040       LHLD I A(002E)
+       0043       INX  H
+       0044       SHLD I A(002E)
+       0047       JMP  000F
+       0019       ==== 004A
+  21 c 004A 
+  22 c 004A    end;
+  23 c 004A 
+  24 c 004A    do I = 1 to 10;
+       004A       LXI  H,0001
+       004D       SHLD I A(002E)
+       0050       LHLD I A(002E)
+       0053       LXI  B,FFF5
+       0056       DAD  B
+       0057       MOV  A,H
+       0058       ORA  A
+       0059       JP   0000
+  25 c 005C 
+  26 c 005C       nums(I) = I;
+       005C       LHLD I A(002E)
+       005F       PUSH H
+       0060       LXI  H,NUMS A(001A)+FFFE
+       0063       PUSH H
+       0064       LHLD I A(002E)
+       0067       DAD  H
+       0068       POP  D
+       0069       DAD  D
+       006A       POP  D
+       006B       MOV  M,E
+       006C       INX  H
+       006D       MOV  M,D
+  27 c 006E 
+  28 c 006E       temp = nums(I); 
+       006E       LXI  H,NUMS A(001A)+FFFE
+       0071       PUSH H
+       0072       LHLD I A(002E)
+       0075       DAD  H
+       0076       POP  D
+       0077       DAD  D
+       0078       MOV  E,M
+       0079       INX  H
+       007A       MOV  D,M
+       007B       XCHG 
+       007C       SHLD TEMP A(0034)
+  29 c 007F 
+  30 c 007F       call reveal (temp); 
+       007F       LXI  H,* A(0038)
+       0082       CALL REVEAL
+       0085       LHLD I A(002E)
+       0088       INX  H
+       0089       SHLD I A(002E)
+       008C       JMP  0050
+       005A       ==== 008F
+  31 c 008F 
+  32 c 008F    end;
+  33 c 008F 
+  34 c 008F reveal:
+  35 c 008F 
+  36 c 008F    proc (val);
+  37 c 008F 
+  38 e 008F    dcl val         bin(15);
+       008F       JMP  0000
+       0092       MOV  E,M
+       0093       INX  H
+       0094       MOV  D,M
+       0095       XCHG 
+       0096       SHLD VAL A(003A)
+  39 e 0099 
+  40 e 0099    do J = 1 to val;
+       0099       LXI  H,0001
+       009C       SHLD J A(0030)
+       009F       LHLD VAL A(003A)
+       00A2       MOV  E,M
+       00A3       INX  H
+       00A4       MOV  D,M
+       00A5       XCHG 
+       00A6       SHLD * A(003C)
+       00A9       LHLD * A(003C)
+       00AC       XCHG 
+       00AD       LHLD J A(0030)
+       00B0       CALL ?IS22N
+       00B3       JM   0000
+  41 e 00B6 
+  42 e 00B6       put skip(one) list('Ive been called');
+       00B6       LXI  D,0252
+       00B9       LXI  B,0000
+       00BC       CALL ?SYSPR
+       00BF       LHLD ONE A(0032)
+       00C2       MOV  A,L
+       00C3       CALL ?SKPOP
+       00C6       LXI  H,* S(0000)
+       00C9       MVI  A,0F
+       00CB       CALL ?SLCTS
+       00CE       CALL ?PNCOP
+       00D1       CALL ?QIOOP
+       00BA       ==== 00D4
+       00D4       LHLD J A(0030)
+       00D7       INX  H
+       00D8       SHLD J A(0030)
+       00DB       JMP  00A9
+       00B4       ==== 00DE
+  43 e 00DE 
+  44 e 00DE    end;
+  45 e 00DE 
+  46 e 00DE    put skip(one) list('Im leaving.');
+       00DE       LXI  D,0252
+       00E1       LXI  B,0000
+       00E4       CALL ?SYSPR
+       00E7       LHLD ONE A(0032)
+       00EA       MOV  A,L
+       00EB       CALL ?SKPOP
+       00EE       LXI  H,* S(000F)
+       00F1       MVI  A,0B
+       00F3       CALL ?SLCTS
+       00F6       CALL ?PNCOP
+       00F9       CALL ?QIOOP
+       00E2       ==== 00FC
+       00FC       RET  
+       0090       ==== 00FD
+  47 e 00FD 
+  48 c 00FD    end;
+  49 c 00FD 
+  50 c 00FD 
+  51 c 00FD 
+  52 a 00FD end;
+       00FD       CALL ?STOPX
+  53 a 0100  
+
+CODE SIZE = 0100
+DATA AREA = 003E
+FREE SYMS = 37D9
+END  COMPILATION
+

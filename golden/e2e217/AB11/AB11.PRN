@@ -1,0 +1,59 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: AB11
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: AB11
+
+   1 a 0000 a:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main);
+   3 c 0006     declare a(5) fixed, b fixed, i fixed;
+   4 c 0006     a(1) = 3;
+       0006       LXI  H,0003
+       0009       SHLD A A(0002)
+   5 c 000C     if a(1) > 2 then put skip list(999);
+       000C       LHLD A A(0002)
+       000F       DCX  H
+       0010       DCX  H
+       0011       DCX  H
+       0012       MOV  A,H
+       0013       ORA  A
+       0014       JM   0000
+       0017       LXI  D,0252
+       001A       LXI  B,0000
+       001D       CALL ?SYSPR
+       0020       MVI  A,01
+       0022       CALL ?SKPOP
+       0025       LXI  H,* S(0000)
+       0028       MVI  A,03
+       002A       CALL ?DLDOP
+       002D       MVI  A,06
+       002F       MVI  B,00
+       0031       CALL ?QDCOP
+       0034       CALL ?PNVOP
+       0037       CALL ?QIOOP
+       001B       ==== 003A
+       0015       ==== 003A
+   6 c 003A     stop;
+       003A       CALL ?STOPX
+   7 a 003D end a;
+
+CODE SIZE = 003D
+DATA AREA = 0010
+FREE SYMS = 388A
+END  COMPILATION
+

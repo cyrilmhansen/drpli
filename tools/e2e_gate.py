@@ -1351,6 +1351,118 @@ NEG_META_E16 = {
         "chars; same unproven fixed-empty form as PL16.  Kept refused so the fixed-width empty "
         "store is never claimed on the strength of the varying-width evidence [C152]"),
 }
+
+# ---------------------------------------------------------------------------
+# [E2E-17] Independent-coverage probes from the PLI-2000 test suite
+# (thirdparty/PLI-2000/pl1/{ARRAY,PASSARAY,CONV,DECY}.PL1) and the minimal DR
+# probes they motivated (e21src/AB*, e21src/CB*).  DR compiles EVERY ONE of them
+# with "NO ERROR(S) IN PASS 1/2" [golden/e2e214, e2e216, e2e217, e2e218, e2e219,
+# e2e220], so all of these are MY gaps, never language rules.  They are registered
+# as refusals because the rules are characterized but not yet implemented: arrays
+# [C159], the PROC/DCL abbreviation front-end [C160], mixed DEC/BIN arithmetic
+# [C161], and a pre-existing pool under-count found by the E2E-16 demand/layout
+# invariant [C162].  CB6 is the one shape already implemented (R506 direct DEC->INT)
+# and is registered as a byte-exact SPECIMEN below.
+# ---------------------------------------------------------------------------
+_E17_REFS = {
+    "ARRAY": ("e20src", "e2e214"), "PASSARAY": ("e20src", "e2e214"),
+    "CONV": ("e20src", "e2e214"), "DECY": ("e20src", "e2e214"),
+}
+for _n in ["AB%d" % i for i in range(1, 18)]:
+    _E17_REFS[_n] = ("e21src", "e2e216" if int(_n[2:]) <= 7 else
+                     ("e2e217" if int(_n[2:]) <= 13 else "e2e218"))
+for _n in ["CB%d" % i for i in range(1, 11)]:
+    _E17_REFS[_n] = ("e21src", "e2e219" if int(_n[2:]) <= 5 else "e2e220")
+# markers: substrings that MUST appear in my [TBD] message, so a changed route is noticed
+_E17_MARKER = {
+    "ARRAY": "non-simple assignment lhs", "PASSARAY": "non-simple assignment lhs",
+    "CONV": "mixed decimal/integer arithmetic unproven",
+    "DECY": "mixed decimal/integer arithmetic unproven",
+    "AB5": "STATIC on FIXED BINARY(15,0) is unsampled",
+    "AB15": "STATIC on FIXED BINARY(15,0) is unsampled",
+    "AB6": "ADD whose left operand must be parked across a call",
+    "CB9": "pool demand/layout mismatch",
+    "CB10": "decimal operation on non-decimal operand",
+}
+for _n, (_d, _t) in _E17_REFS.items():
+    _f = "%s/%s.PLI" % (_d, _n)
+    if _n == "CB6":
+        SPECIMENS["CB6"] = (_f, "golden/%s/CB6/CB6.REL" % _t)
+        continue
+    REJECTS[_n] = (open(_f, "rb").read().replace(b"\r\n", b"\n")
+                   .rstrip(b"\x1a").decode(),
+                   _E17_MARKER.get(_n, "non-simple assignment lhs" if _n.startswith("AB")
+                                   else "mixed decimal/integer arithmetic unproven"))
+_ARR = ("DR COMPILES IT with NO ERROR(S) IN PASS 1/2 [golden/e2e214,e2e216-e2e218]; this is a "
+        "MY GAP, not a language rule.  DR's array model is now fully characterized [C159]: "
+        "declare a(n) fixed = n 2-byte cells laid out contiguously in the automatic area (a(5) "
+        "occupies data 0000-0009, b lands at 000A), constant subscript -> a DIRECT reference "
+        "with offset (sub-lb)*2 (`LHLD A+0008'), zero-offset stores use SHLD and non-zero-offset "
+        "stores use `LXI H,A+off / MVI M,lo / INX H / MVI M,hi', variable subscript -> "
+        "`LXI H,A+(lb-1)*size / PUSH H / LHLD i / DAD H / POP D / DAD D' (element size by DAD H), "
+        "2-D is ROW-MAJOR with the LAST subscript fastest [AB13 m(2:4,1:3), m(1,2) -> FFFC = "
+        "((1-2)*3+(2-1))*2], NO bounds check is emitted, and an element passed as an actual "
+        "stores the element ADDRESS into the call descriptor [AB7, PASSARAY].  My parser has no "
+        "array declaration form and bind has no array sizing, so this needs front-end + layout "
+        "work, not just lowering.")
+_DEC = ("DR COMPILES IT [golden/e2e214, e2e219, e2e220]; MY GAP [C161].  DR converts the DEC "
+        "operand IN PLACE -- `LXI H,d / MVI A,p / CALL ?DLDOP / CALL ?QDI15' gives the 16-bit "
+        "value in HL, with p the SOURCE precision (03 for dec(3), 05 for dec(5)) -- and then runs "
+        "its ordinary binary lowering.  The parking rule is C150 unchanged: DEC on the LEFT takes "
+        "XCHG [CB1 d+b, CB3 d-b], DEC on the RIGHT takes PUSH H/POP D [CB2 b+d, CB4 b-d] because "
+        "the conversion's own CALLs destroy DE.  My compiler refuses because is_dec_expr routes a "
+        "mixed expression into the pure-DEC path and lower_hl has no integer-context flag, so a "
+        "DEC operand cannot be distinguished from a DEC expression without an explicit marker node.")
+for _n in _E17_REFS:
+    if _n == "CB6":
+        continue
+    _base = _E17_REFS[_n][0]
+    if _n.startswith("AB") or _n in ("ARRAY", "PASSARAY"):
+        NEG_META_E17 if False else None
+DEC_NOTE = "see _E17 above"
+NEG_META_E17 = {}
+for _n in _E17_REFS:
+    if _n == "CB6":
+        continue
+    if _n.startswith("AB") or _n in ("ARRAY", "PASSARAY"):
+        NEG_META_E17[_n] = ("my-gap", _ARR)
+    else:
+        NEG_META_E17[_n] = ("my-gap", _DEC)
+NEG_META_E17["CB9"] = ("my-gap",
+    "PRE-EXISTING LATENT DEFECT, surfaced by the E2E-16 demand/layout invariant, NOT by anything "
+    "in this milestone: `b = d + 2' with d fixed dec(3) needs TWO decimal pool cells (the `d = 3' "
+    "store's literal and the operand literal 2, 2 bytes each for dec(3)), DR's own code references "
+    "*S(0000) and *S(0002) [golden/e2e220/CB9/CB9.PRN], but my prescan demands only 2 bytes while "
+    "lowering allocates 4.  Under-counting the pool is the WORST direction: the pool base is where "
+    "automatic variables start, so variables would land ON the decimal cells -- the FDTEST failure "
+    "mode, where a variable stored over a live constant and every address in the dump still looked "
+    "plausible.  Before E2E-16 nothing compared the two numbers, so this emitted wrong bytes "
+    "silently; now it refuses.  The precise reason the demand misses a cell is not yet traced [C162].")
+NEG_META_E17["CB10"] = ("my-gap",
+    "DR COMPILES IT [golden/e2e220/CB10]: `e = b + d' with e dec(5) adds in BINARY and then "
+    "converts the result BACK with `CALL ?QI15D' before ?DSTOP stores it into e.  That is the "
+    "FIXED->DEC doorway already recorded as an open gap (Q8) -- DEC->INT is implemented [CB6/R506] "
+    "and INT->DEC via decimal(x,p) exists [R506/R509], but a mixed expression stored into a DEC "
+    "variable does neither.  Refused, not approximated [C161].")
+NEG_META_E17["AB5"] = ("my-gap", _ARR + "  Separately: `declare a(5) fixed static' ALSO trips the "
+    "pre-existing STATIC-on-fixed-bin guard (C114 places static cells BELOW the pool), so AB5 "
+    "carries two independent gaps [golden/e2e216/AB5].")
+NEG_META_E17["AB15"] = NEG_META_E17["AB5"]
+NEG_META_E17["AB6"] = ("my-gap", _ARR + "  AB6 `b = a(2) + a(3)' additionally hits the C146 "
+    "descriptor-placement class once the elements become computed references: DR parks the left "
+    "with `PUSH H / POP D' [golden/e2e216/AB6], which is C150-consistent.")
+NEG_META_E17["CONV"] = ("my-gap", _DEC + "  CONV.PL1 is one of the four independent PLI-2000 suite "
+    "programs; its whole content is this one mixed-mode statement [golden/e2e214/CONV].")
+NEG_META_E17["DECY"] = ("my-gap", _DEC + "  DECY.PL1 additionally has NO options(main) -- DR compiles "
+    "it as a procedure-only module [C136] -- and reads `a' before it is set, so its value is "
+    "garbage but its CODE is deterministic and byte-reproducible [golden/e2e214/DECY].")
+# A NEG_META value must be (category, verdict).  A bare string here used to survive until deep
+# inside run_negatives(), where `cat, _dv = ...` aborted the whole panel with a TypeError-shaped
+# ValueError and 79 already-checked negatives lost their report [E2E-17].  Fail at import instead.
+_bad = sorted(k for k, v in NEG_META_E17.items() if not (isinstance(v, tuple) and len(v) == 2))
+if _bad:
+    raise ValueError("NEG_META_E17 values must be (category, verdict) 2-tuples: %s" % _bad)
+
 # Three shapes DR compiles that I still refuse: instruction bytes identical to DR,
 # executed value correct, but the .REL RECORD PLACEMENT differs -- DR writes a call's
 # descriptor record at plan time (before the left operand's code when the PUSH route puts
@@ -1540,6 +1652,7 @@ NEG_META = {
 NEG_META.update(NEG_META_E13)
 NEG_META.update(NEG_META_E15)
 NEG_META.update(NEG_META_E16)
+NEG_META.update(NEG_META_E17)
 
 
 
@@ -1635,6 +1748,14 @@ def registration_audit(path, specimens, rejects, negmeta):
     if ov:
         raise RegistrationCollision(
             "registered as BOTH a byte-exact specimen and a refusal: %s" % sorted(ov))
+    bad = sorted(k for k, v in negmeta.items()
+                 if not (isinstance(v, tuple) and len(v) == 2))
+    if bad:
+        raise RegistrationCollision(
+            "NEG_META values must be (category, verdict) 2-tuples; malformed: %s -- with a bare "
+            "string the panel's `cat, _dv = ...' aborts, and inventory_snapshot's v[1] silently "
+            "yields ONE CHARACTER instead of the verdict, which then gets COMMITTED as if it were "
+            "evidence [E2E-17, CONV/DECY]" % bad[:6])
     if set(rejects) != set(negmeta):
         raise RegistrationCollision(
             "REJECTS/NEG_META asymmetric, verdict evidence lost: rejects-only=%s "

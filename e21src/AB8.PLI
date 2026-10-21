@@ -1,0 +1,9 @@
+a:
+    procedure options(main);
+    declare a(5) fixed, i fixed;
+    i = 2;
+    a(i+1) = i * 2;
+    put skip list(a(i+1));
+    stop;
+end a;
+

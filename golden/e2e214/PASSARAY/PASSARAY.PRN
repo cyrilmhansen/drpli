@@ -1,0 +1,188 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: PASSARAY
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: PASSARAY
+
+   1 a 0000 passaray:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006 
+   3 a 0006    proc options(main);
+   4 a 0006 
+   5 a 0006 
+   6 a 0006 /***************************************************************************/
+   7 a 0006 /* This program is for testing the compilers ability to pass array members */
+   8 a 0006 /* as arguments to subroutines.                                            */
+   9 a 0006 /***************************************************************************/
+  10 a 0006 
+  11 c 0006    dcl argument(10)        bin(15);
+  12 c 0006    dcl I                   bin(15);
+  13 c 0006    dcl J                   bin(15);
+  14 c 0006    dcl one                 bin(15);
+  15 c 0006 
+  16 c 0006    one = 1;
+       0006       LXI  H,0001
+       0009       SHLD ONE A(0059)
+  17 c 000C 
+  18 c 000C    do I = 1 to 10;
+       000C       SHLD I A(0055)
+       000F       LHLD I A(0055)
+       0012       LXI  B,FFF5
+       0015       DAD  B
+       0016       MOV  A,H
+       0017       ORA  A
+       0018       JP   0000
+  19 c 001B 
+  20 c 001B       argument(I) = I;
+       001B       LHLD I A(0055)
+       001E       PUSH H
+       001F       LXI  H,ARGUMENT A(0041)+FFFE
+       0022       PUSH H
+       0023       LHLD I A(0055)
+       0026       DAD  H
+       0027       POP  D
+       0028       DAD  D
+       0029       POP  D
+       002A       MOV  M,E
+       002B       INX  H
+       002C       MOV  M,D
+       002D       LHLD I A(0055)
+       0030       INX  H
+       0031       SHLD I A(0055)
+       0034       JMP  000F
+       0019       ==== 0037
+  21 c 0037 
+  22 c 0037    end;
+  23 c 0037 
+  24 c 0037    do I = 1 to 10;
+       0037       LXI  H,0001
+       003A       SHLD I A(0055)
+       003D       LHLD I A(0055)
+       0040       LXI  B,FFF5
+       0043       DAD  B
+       0044       MOV  A,H
+       0045       ORA  A
+       0046       JP   0000
+  25 c 0049 
+  26 c 0049       call inner (argument(I));
+       0049       LXI  H,ARGUMENT A(0041)+FFFE
+       004C       PUSH H
+       004D       LHLD I A(0055)
+       0050       DAD  H
+       0051       POP  D
+       0052       DAD  D
+       0053       SHLD * A(005B)
+       0056       LXI  H,* A(005B)
+       0059       CALL 0000
+       005C       LHLD I A(0055)
+       005F       INX  H
+       0060       SHLD I A(0055)
+       0063       JMP  003D
+       0047       ==== 0066
+  27 c 0066 
+  28 c 0066    end;
+  29 c 0066 
+  30 c 0066 inner:
+  31 c 0066 
+  32 c 0066    proc (val);
+  33 c 0066 
+  34 e 0066    dcl val         bin(15);
+       0066       JMP  0000
+       0069       MOV  E,M
+       006A       INX  H
+       006B       MOV  D,M
+       006C       XCHG 
+       006D       SHLD VAL A(005D)
+  35 e 0070 
+  36 e 0070    put skip(one) list ('Ive just been called to loop.');
+       0070       LXI  D,0252
+       0073       LXI  B,0000
+       0076       CALL ?SYSPR
+       0079       LHLD ONE A(0059)
+       007C       MOV  A,L
+       007D       CALL ?SKPOP
+       0080       LXI  H,* S(0000)
+       0083       MVI  A,1D
+       0085       CALL ?SLCTS
+       0088       CALL ?PNCOP
+       008B       CALL ?QIOOP
+       0074       ==== 008E
+  37 e 008E 
+  38 e 008E    do J = 1 to val;
+       008E       LXI  H,0001
+       0091       SHLD J A(0057)
+       0094       LHLD VAL A(005D)
+       0097       MOV  E,M
+       0098       INX  H
+       0099       MOV  D,M
+       009A       XCHG 
+       009B       SHLD * A(005F)
+       009E       LHLD * A(005F)
+       00A1       XCHG 
+       00A2       LHLD J A(0057)
+       00A5       CALL ?IS22N
+       00A8       JM   0000
+  39 e 00AB 
+  40 e 00AB       put skip (one) list ('Ive been called.');
+       00AB       LXI  D,0252
+       00AE       LXI  B,0000
+       00B1       CALL ?SYSPR
+       00B4       LHLD ONE A(0059)
+       00B7       MOV  A,L
+       00B8       CALL ?SKPOP
+       00BB       LXI  H,* S(001D)
+       00BE       MVI  A,10
+       00C0       CALL ?SLCTS
+       00C3       CALL ?PNCOP
+       00C6       CALL ?QIOOP
+       00AF       ==== 00C9
+       00C9       LHLD J A(0057)
+       00CC       INX  H
+       00CD       SHLD J A(0057)
+       00D0       JMP  009E
+       00A9       ==== 00D3
+  41 e 00D3 
+  42 e 00D3    end;
+  43 e 00D3 
+  44 e 00D3    put skip (one) list ('Im finished for now.');
+       00D3       LXI  D,0252
+       00D6       LXI  B,0000
+       00D9       CALL ?SYSPR
+       00DC       LHLD ONE A(0059)
+       00DF       MOV  A,L
+       00E0       CALL ?SKPOP
+       00E3       LXI  H,* S(002D)
+       00E6       MVI  A,14
+       00E8       CALL ?SLCTS
+       00EB       CALL ?PNCOP
+       00EE       CALL ?QIOOP
+       00D7       ==== 00F1
+       00F1       RET  
+       0067       ==== 00F2
+  45 e 00F2 
+  46 c 00F2    end;
+  47 c 00F2 
+  48 a 00F2 end;
+       00F2       CALL ?STOPX
+  49 a 00F5   
+  50 a 00F5    
+
+CODE SIZE = 00F5
+DATA AREA = 0061
+FREE SYMS = 3794
+END  COMPILATION
+

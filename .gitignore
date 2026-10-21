@@ -31,3 +31,8 @@ golden/e2echk*/
 golden/e2e*link*/
 golden/e2e*run*/
 golden/e2e*pfx*/
+
+# Independent test corpus: shallow clone of https://github.com/Steadsoft/PLI-2000 (see SOURCES.md).
+# Kept untracked -- it is a nested git repo, not vendored source, and its tests are inputs,
+# not goldens.  Copies we DO track: e20src/*.PLI (line-ending-normalized) and golden/e2e214.
+thirdparty/PLI-2000/

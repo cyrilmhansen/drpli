@@ -1,0 +1,5 @@
+CB1	ok	PRN=True REL=True
+CB2	ok	PRN=True REL=True
+CB3	ok	PRN=True REL=True
+CB4	ok	PRN=True REL=True
+CB5	ok	PRN=True REL=True

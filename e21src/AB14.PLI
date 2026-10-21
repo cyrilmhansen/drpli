@@ -1,0 +1,12 @@
+a:
+    procedure options(main);
+    declare a(5) fixed, b fixed, i fixed;
+    a(2) = 7;
+    put skip list(a(2));
+    f: procedure(y);
+    declare y fixed;
+    y = 1;
+    end f;
+    stop;
+end a;
+

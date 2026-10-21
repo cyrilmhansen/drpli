@@ -1,0 +1,4 @@
+ARRAY	ok	PRN=True REL=True
+CONV	ok	PRN=True REL=True
+DECY	ok	PRN=True REL=True
+PASSARAY	ok	PRN=True REL=True

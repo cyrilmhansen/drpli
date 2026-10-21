@@ -1,0 +1,8 @@
+ab17:
+    proc options(main);
+    dcl q(3) fixed;
+    q(1) = 2;
+    put skip list(q(1));
+    stop;
+end ab17;
+

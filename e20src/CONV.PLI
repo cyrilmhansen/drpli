@@ -1,0 +1,13 @@
+conv:
+
+   proc options (main);
+
+   dcl b      bin(15);
+   dcl d      dec(3);
+
+   b = d + b;
+
+   end;
+
+    
+

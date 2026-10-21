@@ -2888,3 +2888,106 @@ the sequence is a value-selected zeroing idiom whose output is correct for every
 This is the C144 failure mode (learn DR's semantics from DR's artifacts) repeated in the opposite
 direction, and the check that caught it was running DR's program instead of reasoning about its
 assembly.
+
+## E2E-17 (C159-C162): independent PLI-2000 probes -- arrays characterized, mixed DEC/BIN mapped, and a latent pool under-count found
+
+C159. **DR's 1-D/2-D FIXED BINARY array model, fully characterized from 17 minimal probes
+(AB1-AB17, golden/e2e216-e2e218) plus the independent PLI-2000 suite programs ARRAY.PL1 and
+PASSARAY.PL1 (golden/e2e214).  DR compiles all of them with "NO ERROR(S) IN PASS 1/2"; NONE of
+them compile in my compiler, which has no array declaration form at all.**  The rules:
+  * `declare a(n) fixed` = n contiguous 2-byte cells in the automatic area.  AB1: `a(5)` occupies
+    data 0000-0009 and the next variable `b` lands at 000A, so DEF-DATA-SIZE counts the whole
+    array -- the array is NOT a pointer and there is no descriptor.
+  * **Constant subscript -> a DIRECT reference with compile-time offset (sub - lb) * 2.**  AB3
+    `a(3)` on `a(1:5)` is `LHLD A A(0000)+0004`; AB9 `a(5)` is `+0008`; AB4 `a(0)` on `a(0:3)` is
+    offset 0.  Loads carry the offset in the instruction (`LHLD A+off`) -- no address arithmetic.
+  * **Stores split by offset**: offset 0 uses the ordinary scalar store `LXI H,val / SHLD A`
+    [AB1, AB4, AB11, AB12, AB15]; NON-zero offset uses `LXI H,A+off / MVI M,lo / INX H / MVI M,hi`
+    [AB3, AB5, AB9, AB14] -- byte stores, little-endian.  So DR's scalar store path handles only the
+    base cell and the general computed-address path takes over above it.
+  * **Variable subscript -> computed address**: `LXI H,A+(lb-1)*size / PUSH H / LHLD i / DAD H /
+    POP D / DAD D`, i.e. the element size is applied by `DAD H` (doubling) and the pre-bias is
+    folded into the relocatable operand.  AB2/AB10/ARRAY.PL1 all agree.  The reloc is emitted as
+    the *target address itself* (NUMS-2 -> `RELOC data 0x18` for A(001A)): DR expresses the negative
+    offset by relocating against a lower address, there is no offset field in the record.
+  * Read through a computed address is `MOV E,M / INX H / MOV D,M`; write is `MVI M,lo / INX H /
+    MVI M,hi` (AB2 both directions).
+  * Subscript EXPRESSIONS are evaluated in place: AB8 `a(i+1)` gives `LHLD I / INX H` inside the
+    same ladder -- the C143 `+1 -> INX H` peephole applied to the subscript, not the value.
+  * **2-D is ROW-MAJOR with the LAST subscript fastest**: AB13 `m(2:4,1:3)`, `m(1,2)` -> `+FFFC`
+    = ((1-2)*3 + (2-1)) * 2 exactly.
+  * **No bounds checking is emitted anywhere.** AB13's `m(1,2)` is out of range (first dimension
+    starts at 2) and DR compiles it to a negative offset without a word -- and ARRAY.PL1 writes
+    `nums(I)` over 1..10 with no check either.  Subscript validation is therefore NOT part of the
+    generated code, which is a fact about the target, not an omission of mine.
+  * **An array element passed as an actual is passed BY ADDRESS through the call descriptor**:
+    AB7 `call p(a(4))` emits `LXI H,A+0006 / SHLD * A(000E) / LXI H,* A(000E) / CALL p`, and the
+    callee's `x = x + 100` writes through -- so the descriptor cell holds the element ADDRESS, not
+    the value, which is the same pointer-formal mechanism as C130, reached by a different route.
+  * `static` arrays: AB5 places the array in the static area (`LHLD A S(0000)+0002`, an `S` cell,
+    not an `A` automatic), confirming C114's `[statics][pool][automatics]` layout applies to whole
+    arrays.
+  * One element of a `char` array and arrays of FLOAT/DEC were NOT probed -- out of scope.
+  NOT IMPLEMENTED.  Landing this needs a parser declaration form, bind-side sizing (an array's
+  `size` must move the automatic offsets, which is exactly the layout code every accepted specimen
+  depends on), and lowering for three address shapes.  The front-end risk is that `a(i)` ALREADY
+  parses as a procedure CALL, so arrays and calls are distinguished only by what the name is
+  declared as -- a bind-time decision, not a syntactic one.  That is real work and it is the right
+  next feature, not a last-hour change.
+
+C160. **`PROC` and `DCL` are DR-accepted abbreviations with no semantic content, and my parser was
+missing `PROC`.** All four PLI-2000 originals write `proc options (main);` and DR compiles every
+one [golden/e2e214]; probe AB17 (`proc`/`dcl`) is DR-byte-identical to AB16 (same program spelled
+`procedure`/`declare`) [golden/e2e218].  `DCL` was already handled by the keyword alternatives at
+the DECLARE site; `PROC` was not, so all four independent-corpus programs died with
+`expected PROCEDURE after label` -- a parse crash, not a `[TBD]`.  Fixed as an alias in the keyword
+test (`at_key_any`, plus the `expect_key` site) rather than a lexer rewrite, so `PROC` cannot drift
+from `PROCEDURE` in some positions and not others.  Effect: those programs now reach codegen and
+refuse loudly with the actual missing capability named [C159/C161], instead of failing before the
+refusal discipline applies.  A parse error is outside the negative panel's contract, which requires
+`[TBD]`; converting crashes into reasoned refusals is itself a coverage improvement.
+
+C161. **DR's mixed FIXED DECIMAL / FIXED BINARY arithmetic converts the DEC operand IN PLACE and
+then uses ordinary binary lowering -- mapped over 10 probes (CB1-CB10, golden/e2e219-e2e220), all
+compiled by DR, and this is genuinely new: what I already had is DEC->INT for a DIRECT operand
+(`i = d`, R506) and pure-DEC arithmetic (E2E-6/E2E-7A), neither of which covers `d + b`.**
+    conversion:  LXI H,d ; MVI A,p ; CALL ?DLDOP ; CALL ?QDI15   -> HL = 16-bit value
+    p is the SOURCE decimal's precision: 03 for dec(3), 05 for dec(5) [CB1 vs CB7]
+    DEC on the LEFT  -> XCHG route   [CB1 d+b, CB3 d-b]           (C150: right operand simple)
+    DEC on the RIGHT -> PUSH H/POP D [CB2 b+d, CB4 b-d]           (C150: right operand compound)
+    MUL with a DEC operand -> DR parks the LEFT with PUSH H even though the right operand is a
+        plain `LHLD b` and XCHG would be mechanically sound [CB8 `b = d * b`], so MUL does NOT
+        share ADD/SUB's parking rule.  I have exactly one MUL sample and will not generalize from
+        it: mixed MUL stays refused.
+    result into a DEC variable -> `CALL ?QI15D` before ?DSTOP [CB10 `e = b + d`] -- the FIXED->DEC
+        doorway already recorded as open (Q8), unchanged by this milestone.
+    DEC + integer LITERAL -> both operands loaded DEC and combined by ?DADOP [CB9], i.e. DR does
+        NOT convert the literal; that is my existing pure-DEC route.
+Direct DEC->INT (`b = d`) is implemented and now has its own DR golden: CB6 byte-identical [C161].
+Why the route is not implemented yet: `is_dec_expr` classifies a MIXED expression as a DEC
+expression, so the assignment takes the pure-DEC path and refuses with "decimal operation on
+non-decimal operand"; and `lower_hl` has no notion of the target's type context, so giving its
+`Eident` arm a DEC case would also fire inside pure-DEC expressions.  An attempt that did exactly
+that was built and tested in an isolated worktree: it made CB1-CB5/CB7 route correctly but made
+CB9 (a pure-DEC case) double-convert -- and my own new invariant caught it (C162).  The clean fix
+needs an explicit integer-context marker (a node or a context parameter) threaded through lowering,
+which is a structural change and is deliberately not attempted at the end of a milestone.
+
+C162. **A PRE-EXISTING pool DEMAND under-count for decimal literals, caught by the E2E-16
+demand/layout invariant within hours of that invariant existing.** CB9 (`b = d + 2` with
+`d fixed dec(3)`) needs two decimal cells -- the `d = 3` store's literal and the operand literal --
+and DR references both (`*S(0000)` and `*S(0002)`).  My prescan demands 2 pool bytes while lowering
+allocates 4.  Under-counting is the dangerous direction: the pool base is where automatic variables
+start, so with a 2-byte shortfall `b` would have been placed ON the decimal cells and a later
+assignment would have overwritten a live constant -- the FDTEST failure mode, with every address in
+a dump still looking plausible.  This reproduces on the released binary with codegen UNMODIFIED, so
+it is not introduced by this milestone; before E2E-16 nothing compared the two numbers and it emitted
+wrong bytes silently.  Now it refuses loudly.  The exact reason the demand misses a cell is not yet
+traced, and it is the first thing I would chase: it is a correctness bug in an already-accepted
+feature area, not a missing language feature.
+
+### New refusals and one new specimen from this milestone
+
+30 probes registered as my-gap refusals (AB1-AB17, CB1-CB10 minus CB6, ARRAY, PASSARAY, CONV,
+DECY) with markers pinned to the specific refusal text, and CB6 registered as a byte-exact
+specimen.  Every one has a DR golden proving DR compiled it, so none of them is a language rule.

@@ -1,0 +1,10 @@
+a:
+    procedure options(main);
+    declare b fixed bin(15), d fixed dec(3), e fixed dec(5), z fixed;
+    b = 5;
+    d = 3;
+    b = d - b;
+    put skip list(b);
+    stop;
+end a;
+

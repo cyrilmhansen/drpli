@@ -1,0 +1,13 @@
+a:
+    procedure options(main);
+    declare a(5) fixed, b fixed, i fixed;
+    a(4) = 6;
+    call p(a(4));
+    put skip list(a(4));
+    p: procedure(x);
+    declare x fixed;
+    x = x + 100;
+    end p;
+    stop;
+end a;
+

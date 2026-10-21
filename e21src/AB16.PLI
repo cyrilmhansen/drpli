@@ -1,0 +1,8 @@
+a:
+    procedure options(main);
+    dcl q(3) fixed;
+    q(1) = 2;
+    put skip list(q(1));
+    stop;
+end a;
+

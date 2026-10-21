@@ -1,0 +1,10 @@
+a:
+    procedure options(main);
+    declare a(5) fixed, b fixed, i fixed;
+    do i = 1 to 5;
+      a(i) = i;
+      put list(a(i));
+    end;
+    stop;
+end a;
+

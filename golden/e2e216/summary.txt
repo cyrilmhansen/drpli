@@ -1,0 +1,7 @@
+AB1	ok	PRN=True REL=True
+AB2	ok	PRN=True REL=True
+AB3	ok	PRN=True REL=True
+AB4	ok	PRN=True REL=True
+AB5	ok	PRN=True REL=True
+AB6	ok	PRN=True REL=True
+AB7	ok	PRN=True REL=True
