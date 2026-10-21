@@ -1451,6 +1451,22 @@ for _n in ["AC1", "AC2", "AC3", "AC4", "AC5"]:
                    # longer matches the binary being tested.
                    "non-simple assignment lhs")
     NEG_META_E19[_n] = ("my-gap", _AC)
+# [E2E-19] RD1-RD3 are element-READ probes (DR-compiled, golden/e2e225).  They refuse in
+# production as an unknown-call because the store/read lowering is not landed; the read FORM is
+# verified against DR (RD3: first element LHLD A(0000), last LHLD A(0000)+0008) and the blocker is
+# the double-resolution of one Esuffix [C165 addendum, spec/patches/e19-array-read-attempt.patch].
+_RD = ("DR COMPILES IT [golden/e2e225]; MY GAP, and a narrow one: 1-D array STORAGE is correct "
+       "[C164, verified by AR1-AR5] and DR's element-READ instruction form is confirmed to match "
+       "mine in isolation, but the read is not landed because one Esuffix expression is resolved "
+       "more than once (once in lower_hl's own arm, again via lower_put_items_gen) and only the "
+       "first resolution sees the array metadata -- so the second falls into the call path and "
+       "dies on List.assoc.  Fix is to resolve subscripted names ONCE against the bound "
+       "declaration [C165 addendum].")
+for _n in ["RD1", "RD2", "RD3"]:
+    REJECTS[_n] = (open("e23src/%s.PLI" % _n, "rb").read()
+                   .replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                   "call to unknown")
+    NEG_META_E19[_n] = ("my-gap", _RD)
 
 
 # [E2E-17] Independent-coverage probes from the PLI-2000 test suite
