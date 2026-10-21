@@ -1,0 +1,10 @@
+a:
+    procedure options(main);
+        dcl a(3) fixed, b fixed;
+        b = 100;
+        a(1) = b * 2;
+        put skip list(a(1));
+    stop;
+end a;
+
+

@@ -3048,3 +3048,77 @@ highest-blast-radius layout code in the tree, with 541 byte-exact specimens rest
 is not a change to make at the end of a context.  The full design, including the sizing rule and
 the three lowering shapes with their exact instruction sequences, is in
 spec/notes/e2e18-c162-and-array-design.md so the next milestone starts from a plan and not from zero.
+
+## E2E-19 (C164, C165, C166): 1-D array STORAGE landed in the binder; element ACCESS characterized but reverted
+
+C164. **DR's 1-D FIXED BINARY(15) array STORAGE rule is implemented and byte-verified.**  A
+declaration with one dimension and literal bounds occupies `2 * (ub - lb + 1)` bytes in the
+automatic area and shifts every following automatic variable by that amount, exactly as DR does it.
+Five controls (e23src/AR1-AR5, golden/e2e223) are RAW-BYTE-IDENTICAL to DR and each pins a distinct
+part of the rule:
+  * AR1 `dcl a(5) fixed, b fixed' -- `b' lands at A(000A): the array takes 0000-0009.
+  * AR2 scalar before AND after the array -- `b' at 0000, `c' at 000A, so the array shifts only what
+    comes after it (declaration order, not alphabetical).
+  * AR3 `dcl a(1:5)' -- same size as AR1, which pins the LOWER:UPPER orientation.
+  * AR4 `dcl a(0:3)' -- FOUR elements, `b' at 0008, which pins the arithmetic (4*2, not 5*2).
+  * AR5 `dcl a(5) fixed bin(15)' -- explicit type spelling behaves like typeless FIXED.
+Implementation shape: `bind.layout` still owns every offset (it remains the single storage
+authority -- nothing in codegen re-derives a size), and the array metadata travels in a NEW explicit
+field `proc_layout.pl_arrays : (string * int * int * int) list` rather than by widening `pl_rows`,
+whose 3-tuple is read at 7 codegen sites.  `layout` now returns a 5-tuple; both consumers were
+updated.  Unsupported array declarations refuse at the binder instead of sizing on a guess:
+multi-dimensional and assumed-size dimensions, non-constant bounds, an upper bound below the lower
+bound, and any element whose size is not 2 bytes (so DECIMAL/FLOAT/BIT/CHARACTER arrays).  STATIC
+arrays also refuse: DR places them below the pool, and the interaction with the pre-existing
+STATIC-on-fixed-bin guard (C114) is unsampled.
+  HOW THE ORIENTATION BUG WAS FOUND: AR3 and AR4 refused with "upper bound below lower bound" -- the
+parser stores `a(1:5)' as Dim_bound(first, Some second) and I had assumed the reverse.  The probes
+caught it; nothing was inferred from the PL/I manual.
+
+C165. **Constant-subscript element access is fully characterized but NOT shipped.**  I implemented
+the read and all four store forms; they emitted correctly (AB1's `b = a(1)` produced the LHLD with
+the right address, confirmed by instrumentation) and then a bare `Fatal error: exception Not_found`
+followed from `List.assoc nm st.procs` in the call path of `lower_hl`, on a name that was neither a
+procedure nor an entry -- i.e. the array branch and the call branch both ran for the same source
+expression, so an `Esuffix` is evidently visited by a second path I did not account for.  Because a
+non-`[TBD]` crash is a failure under this project's own contract (the negative panel greps for the
+literal `[TBD]`), I reverted the codegen change and shipped only the binder half.
+
+What the four forms are, from DR's own objects (all newly measured this milestone):
+    offset 0, ANY value          LHLD/LXI H,val ... ; SHLD A(base)        [AB1 AB12 AB16 AC5]
+    offset <> 0, LITERAL value   LXI H,A+off ; MVI M,lo ; INX H ; MVI M,hi [AB3 AB9 AB14 AC3]
+    offset <> 0, COMPUTED value  PUSH H ; LXI H,A+off ; POP D ; MOV M,E ;
+                                 INX H ; MOV M,D                          [AC1 AC2 AC3]
+    SAME element on BOTH sides   LHLD A+off ; <bias ladder> ; SHLD A+off   [AB12 off 0, AC4 off 2]
+The fourth row is why "literal vs computed" is not DR's rule: AC1 `a(3) = b' parks on the stack
+(C141 discipline -- LXI H must destroy HL) while AC4 `a(2) = a(2) + 5' needs no parking at all,
+because the element address is an immediate operand of both the load and the store.  AC3 also pins
+that a constant subscript BELOW the lower bound is emitted as a negative 16-bit operand
+(`LXI H,A+FFFE' for `a(0)' on `dcl a(4) fixed'), so the offset is `(sub-lb)*2' with no clamp and no
+bounds check -- consistent with C159's finding that DR never checks.
+
+Two further decisions taken while implementing, both scope-based rather than textual:
+  * **The array binding must win over a same-named callable.**  AB1/AB3/AB9 all write
+    `a: procedure options(main)' with `dcl a(5) fixed' inside that block, so the program label `a'
+    is bound as callable while `a' is also an array.  My first guard required
+    `array AND not procedure', which silently routed element reads into the call path -- that is
+    precisely what produced the Not_found.  PL/I scoping says the inner declaration shadows the outer
+    program name, and DR compiles all these probes, so the declaration wins.  No accepted specimen
+    declares an array, so this priority cannot change any existing call site.
+  * **Whole-array uses refuse instead of reading 2 bytes.**  `b = a' and `a = 3' raise [TBD] from
+    vk_of and from the assignment path.  Reading the base cell of an array as a scalar would be a
+    wrong-value mis-compile in the C139/C150/C151 class, which is the worst thing this compiler can
+    do.
+
+AC1-AC5 stay as my-gap refusals with pinned markers.  AB2/AB8/AB10 (runtime-variable subscripts),
+AB13 (2-D), AB5/AB15 (STATIC), AB6/AC3 (parked-ADD class) continue to refuse.
+
+C166. **A tooling hazard that destroyed a file: `open(p,'w')` truncates BEFORE `write()` validates
+its argument.**  While editing the gate I built the new content with a conditional expression that
+evaluated to `None`, called `write(None)`, and the `TypeError` arrived AFTER the file had already
+been opened for writing -- leaving tools/e2e_gate.py at 0 bytes (the whole 127 KB regression panel).
+Recovery was trivial because it was committed, which is the only reason this was not a disaster.
+Every file rewrite in this repo now goes: build the string, `assert isinstance(s, str)` plus a
+minimum length, write to `p + '.new'`, then `os.replace`.  Note the same class bit me twice in two
+milestones (E2E-17's `write()` of a non-string left a file truncated too) -- the prevention has to
+be the write pattern, not care.

@@ -1,0 +1,5 @@
+AR1	ok	PRN=True REL=True
+AR2	ok	PRN=True REL=True
+AR3	ok	PRN=True REL=True
+AR4	ok	PRN=True REL=True
+AR5	ok	PRN=True REL=True

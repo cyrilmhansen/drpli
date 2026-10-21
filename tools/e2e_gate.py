@@ -1410,6 +1410,49 @@ for _n in ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"]:
                                                     _n, _n)))
 
 
+# ---------------------------------------------------------------------------
+# [E2E-19/Priority 1] ONE-DIMENSIONAL ARRAY STORAGE IN THE BINDER -- LANDED.
+# AR1-AR5 declare an array and use ONLY the neighbouring scalars, which isolates
+# SIZING and the shift of following variables from element access (not landed).
+# All five are RAW-BYTE-IDENTICAL to DR and they bracket the rule:
+#   AR1 `dcl a(5) fixed, b fixed'          -> b at A(000A)  (a occupies 0000-0009)
+#   AR2 scalar BEFORE and AFTER the array  -> b at 0000, c at 000A
+#   AR3 explicit `a(1:5)'                  -> same size as a(5): pins LOWER:UPPER order
+#   AR4 `a(0:3)'                           -> FOUR elements, b lands at 0008 (not 000A)
+#   AR5 `dcl a(5) fixed bin(15)'           -> explicit type spelling, not only typeless
+# AR4 pins the bound arithmetic (4*2=8), and AR3 is the probe that caught my first
+# attempt having the Dim_bound orientation reversed -- it refused with "upper bound
+# below lower bound", which is how the bug was found instead of papered over.
+#
+# AC1-AC5 are DR-compiled ELEMENT probes (nonzero-offset literal store, computed store,
+# negative constant offset, self-update, element inside an expression) whose lowering is
+# characterized but NOT landed [C165]: the first implementation crashed after the read
+# path emitted, so it was reverted rather than shipped.  Loud refusals.
+for _n in ["AR1", "AR2", "AR3", "AR4", "AR5"]:
+    add_spec(_n, ("e23src/%s.PLI" % _n, "golden/e2e223/%s/%s.REL" % (_n, _n)))
+_AC = ("DR COMPILES IT with NO ERROR(S) IN PASS 1/2 [golden/e2e224]; this is a MY GAP.  "
+       "ARRAY STORAGE is correct now [C164: bind sizes a 1-D FIXED BINARY(15) array at "
+       "2*(ub-lb+1) bytes and shifts every following automatic -- verified byte-exactly by "
+       "AR1-AR5], but CONSTANT-SUBSCRIPT ELEMENT ACCESS is not landed: an element on the left "
+       "still refuses as a non-simple assignment lhs, and on the right it resolves as a call.  "
+       "DR's four store forms are measured (offset 0 -> SHLD; nonzero offset + literal -> "
+       "LXI H,addr / MVI M,lo / INX H / MVI M,hi; nonzero offset + computed -> PUSH H / "
+       "LXI H,addr / POP D / MOV M,E / INX H / MOV M,D; SAME element on both sides -> "
+       "LHLD addr / bias / SHLD addr), so the lowering is fully specified.  See C165 for why "
+       "the first attempt was reverted.")
+NEG_META_E19 = {}
+for _n in ["AC1", "AC2", "AC3", "AC4", "AC5"]:
+    REJECTS[_n] = (open("e23src/%s.PLI" % _n, "rb").read()
+                   .replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                   # AC3 was first classified with the array CODEGEN still in the tree, where it
+                   # reached the parked-ADD guard.  With only the binder landed, its array stores
+                   # hit the non-simple-lhs refusal FIRST -- so all five AC probes share one marker
+                   # now.  This is the marker doing its job: it refused to accept a reason that no
+                   # longer matches the binary being tested.
+                   "non-simple assignment lhs")
+    NEG_META_E19[_n] = ("my-gap", _AC)
+
+
 # [E2E-17] Independent-coverage probes from the PLI-2000 test suite
 # (thirdparty/PLI-2000/pl1/{ARRAY,PASSARAY,CONV,DECY}.PL1) and the minimal DR
 # probes they motivated (e21src/AB*, e21src/CB*).  DR compiles EVERY ONE of them
@@ -1435,8 +1478,13 @@ _E17_MARKER = {
     "ARRAY": "non-simple assignment lhs", "PASSARAY": "non-simple assignment lhs",
     "CONV": "mixed decimal/integer arithmetic unproven",
     "DECY": "mixed decimal/integer arithmetic unproven",
-    "AB5": "STATIC on FIXED BINARY(15,0) is unsampled",
-    "AB15": "STATIC on FIXED BINARY(15,0) is unsampled",
+    # [E2E-19] AB5/AB13/AB15 now refuse EARLIER and more precisely: the binder itself
+    # rejects STATIC and multi-dimensional arrays instead of falling through to a
+    # scalar-sizing guess.  Markers updated to the new reason -- a pinned marker
+    # exists to notice a route change, not to hide it.
+    "AB5": "STATIC array is not independently characterized",
+    "AB15": "STATIC array is not independently characterized",
+    "AB13": "multi-dimensional or assumed-size array",
     "AB6": "ADD whose left operand must be parked across a call",
     "CB9": "pool demand/layout mismatch",
     "CB10": "decimal operation on non-decimal operand",
@@ -1503,9 +1551,12 @@ NEG_META_E17["CB10"] = ("my-gap",
     "FIXED->DEC doorway already recorded as an open gap (Q8) -- DEC->INT is implemented [CB6/R506] "
     "and INT->DEC via decimal(x,p) exists [R506/R509], but a mixed expression stored into a DEC "
     "variable does neither.  Refused, not approximated [C161].")
-NEG_META_E17["AB5"] = ("my-gap", _ARR + "  Separately: `declare a(5) fixed static' ALSO trips the "
-    "pre-existing STATIC-on-fixed-bin guard (C114 places static cells BELOW the pool), so AB5 "
-    "carries two independent gaps [golden/e2e216/AB5].")
+NEG_META_E17["AB5"] = ("my-gap", _ARR + "  [E2E-19] ARRAY STORAGE is now implemented in the "
+    "binder [C164], but AB5's array is STATIC: DR places a static array BELOW the pool, whose "
+    "interaction with the pre-existing STATIC-on-fixed-bin guard (C114) is unsampled, so the "
+    "binder refuses STATIC arrays deliberately rather than routing them through the "
+    "automatic-area code that AB1-AB4 prove.  AB5 still carries two independent gaps. "
+    "Element ACCESS is also still missing [C165] [golden/e2e216/AB5].")
 NEG_META_E17["AB15"] = NEG_META_E17["AB5"]
 NEG_META_E17["AB6"] = ("my-gap", _ARR + "  AB6 `b = a(2) + a(3)' additionally hits the C146 "
     "descriptor-placement class once the elements become computed references: DR parks the left "
@@ -1712,6 +1763,7 @@ NEG_META.update(NEG_META_E13)
 NEG_META.update(NEG_META_E15)
 NEG_META.update(NEG_META_E16)
 NEG_META.update(NEG_META_E17)
+NEG_META.update(NEG_META_E19)
 
 
 

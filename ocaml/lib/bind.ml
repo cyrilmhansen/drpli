@@ -224,6 +224,13 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
   let statics = ref 0 in
   (* structured rows for the IR builder: (lower name, rt, offset, auto) *)
   let rows = ref [] in
+  (* [E2E-19] 1-D array metadata: (lower name, lower bound, upper bound,
+     element bytes).  Filled by the SAME walk that computes offsets, so
+     layout stays the single authority on storage: the only thing this adds
+     is the element count, and the offset advance below uses it.  It is a
+     separate list rather than a wider `rows' tuple because pl_rows is read
+     at 7 sites in codegen.ml, none of which needs array info. *)
+  let arrays = ref [] in
   let push s = syms := s :: !syms in
   let head = ref None in   (* Some (level, offset) *)
   let members = ref [] in
@@ -328,7 +335,71 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
           let entryy = match rt with RTentry _ -> true | _ -> false in
           let stc = explicit_static || filey || entryy
                     || (is_init_attr item && has_attr item.dattrs "STATIC") in
-          let sz = bytes_of rt in
+          (* [E2E-19/Priority 1] ONE-DIMENSIONAL ARRAY SIZING.
+             DR's measured rule (AB1: `dcl a(5) fixed' occupies data 0000-0009
+             and the NEXT scalar lands at 000A):
+                 storage = element_bytes * (ub - lb + 1),  default lb = 1
+             Everything outside the characterized subset refuses loudly instead
+             of sizing on a guess -- an under-sized array silently overlaps the
+             next variable, which is exactly the C162 failure class. *)
+          let elem_sz = bytes_of rt in
+          let nelem, lb, ub =
+            match item.ddims with
+            | [] -> (1, 1, 1)
+            | [Ast.Dim_bound (lo_e, hi_opt)] ->
+                (* `a(5)' is ONE bound meaning upper, with lb defaulting to 1;
+                   `a(0:3)' is LOWER:UPPER.  The parser stores the first
+                   expression as the bound-before-the-colon, so a single
+                   dimension is (ub, None) and an explicit pair is (lb, Some ub)
+                   -- AR3 `a(1:5)' vs AR4 `a(0:3)' pin this against DR. *)
+                let cint x =
+                  match x.Ast.e with
+                  | Ast.Enumber t ->
+                      (match int_of_string_opt
+                             (String.concat "" (String.split_on_char '_' t)) with
+                       | Some v -> v
+                       | None ->
+                           failwith
+                             ("codegen: [TBD] array bound '" ^ t
+                              ^ "' is not a decimal literal [C159]"))
+                  | _ ->
+                      failwith
+                        "codegen: [TBD] non-constant array dimension [C159] \
+                         (only literal bounds are sizeable at bind time)"
+                in
+                let ubv = match hi_opt with
+                          | Some x -> cint x
+                          | None -> cint lo_e
+                in
+                let lbv = match hi_opt with
+                          | Some _ -> cint lo_e
+                          | None -> 1
+                in
+                if ubv < lbv then
+                  failwith "codegen: [TBD] array upper bound below lower bound";
+                (ubv - lbv + 1, lbv, ubv)
+            | _ ->
+                failwith
+                  "codegen: [TBD] multi-dimensional or assumed-size array \
+                   [C159] (DR's 2-D is row-major, last subscript fastest -- \
+                   characterized, not implemented)"
+          in
+          if nelem > 1 then begin
+            if elem_sz <> 2 then
+              failwith
+                ("codegen: [TBD] array of " ^ string_of_int elem_sz
+                 ^ "-byte elements [C159] (only FIXED BINARY(15) / typeless \
+                    FIXED, i.e. 2-byte elements, are measured; DECIMAL, FLOAT, \
+                    BIT and CHARACTER arrays refuse)");
+            if stc then
+              failwith
+                "codegen: [TBD] STATIC array is not independently characterized \
+                 [C159/AB5] (AB5 shows DR places it below the pool, but that probe \
+                 also carries the pre-existing STATIC-on-fixed-bin refusal)";
+            arrays := (String.lowercase_ascii item.dname.orig, lb, ub, elem_sz)
+                      :: !arrays
+          end;
+          let sz = elem_sz * nelem in
           let o =
             if stc then begin
               if sz > 0 && not filey && not entryy then begin
@@ -385,7 +456,7 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
       )
     items;
   flush ();
-  (!off, List.rev !syms, !statics, List.rev !rows)
+  (!off, List.rev !syms, !statics, List.rev !rows, List.rev !arrays)
 
 (* ---------- format descriptors & labels (binder v2) [C052] ---------- *)
 (* sizes: F/E items 6B, A 2B, controls(SKIP/PAGE/LINE) 2B, count prefix +3B,
@@ -607,7 +678,7 @@ let rec bind_and_dump (blk : block) =
   let blocks : (int * int * string * sym list) list ref = ref [] in
   List.iter
     (fun (b, ln, fl) ->
-      let auto, syms, statics, _rows =
+      let auto, syms, statics, _rows, _arrays =
         layout ~soff_start:fmt_total ~isfn:(returns_attr b <> None) b
       in
       (* unit-block storage totals ALL statics program-wide, incl. nested
@@ -806,8 +877,15 @@ let dump_s = bind_and_dump
 
 (* structured view for the IR builder: first (frame) block's rows *)
 let bind_rows (blk : block) =
-  let (_auto, _syms, _statics, rows) = layout blk in
+  let (_auto, _syms, _statics, rows, _arrays) = layout blk in
   rows
+
+(* [E2E-19] array metadata for a block, from the SAME `layout' walk that
+   computes every offset.  Re-running layout is not a second allocator: it is
+   one function, called twice, producing two views of one model. *)
+let bind_arrays (blk : block) =
+  let (_auto, _syms, _statics, _rows, arrays) = layout blk in
+  arrays
 
 (* ---------- [E2E-5c] whole-program call layout (additive view) ----------
    Rules extracted from DR bytes, P401/P402/RFACT ($S + $C + .REL
@@ -859,6 +937,11 @@ type proc_layout =
   ; pl_ret : rt option                      (* RETURNS(<type>), [E2E-6] *)
   ; pl_ptrs : (string * int) list             (* formal -> ptr cell *)
   ; pl_rows : (string * rt * int) list        (* body-visible rows *)
+  ; pl_arrays : (string * int * int * int) list
+    (* [E2E-19] (lower name, lower bound, upper bound, element bytes) for the
+       1-D arrays declared in THIS block.  Explicit addition rather than a
+       wider pl_rows tuple, so the 7 codegen consumers of pl_rows -- and every
+       scalar offset they produce -- are untouched. *)
   ; pl_body : Ast.stmt list }
 
 type prog_layout =
@@ -1223,6 +1306,7 @@ let bind_program (blk : Ast.block) : prog_layout =
                     ; pl_ptrs =
                         List.mapi (fun i f -> (f, base + 2 * i)) formals
                     ; pl_rows = rows
+                    ; pl_arrays = bind_arrays b
                     ; pl_body = b.bstmts } ]
      | None -> ());
     List.fold_left
