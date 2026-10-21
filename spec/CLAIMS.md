@@ -2991,3 +2991,60 @@ feature area, not a missing language feature.
 30 probes registered as my-gap refusals (AB1-AB17, CB1-CB10 minus CB6, ARRAY, PASSARAY, CONV,
 DECY) with markers pinned to the specific refusal text, and CB6 registered as a byte-exact
 specimen.  Every one has a DR golden proving DR compiled it, so none of them is a language rule.
+
+## E2E-18 (C162 RESOLVED, C163): the decimal-pool under-count was a target-keyed demand rule
+
+C162 RESOLVED. **Root cause: `prescan_stmt` keys its DECIMAL pool demand on the type of the
+assignment TARGET, never on the DEC content of the expression itself.**  For a Vdec target a bare
+literal demands a target-precision cell and a complex DEC-typed rhs goes through
+`pdec_operand_bytes`; for a FLOAT target the whole statement goes through `pdec_fl_expr`; but for
+any OTHER target (a FIXED BINARY variable, which is CB9's `b = d + 2') the statement fell through to
+`prescan_expr`, and `prescan_expr` has NO `Enumber` arm at all -- so the operand literal's decimal
+cell was never sized, while lowering allocated it.  Demand 2 bytes, allocation 4.  This is the same
+structural mistake as C152 (demand and allocation computed independently) reached from the other
+side: C152 was demand over-occurring per use, this is demand missing per TARGET TYPE.
+
+Fix (consistent rule, not a +2 adjustment): for a target that is neither DEC nor FLOAT, if the rhs
+is a COMPLEX DEC-typed expression, demand it through `pdec_operand_bytes` -- exactly the call the
+Vdec branch already makes.  A bare literal or bare identifier is excluded, because under a BIN
+target those allocate nothing at lowering (`LXI H,immediate` / direct `LHLD`), and including them
+would double-count against `prescan_expr`'s Exp / const-minus-const literal arms.
+
+Evidence: eight new controls W1-W8 (e22src, golden/e2e221 + e2e222) cover DEC store alone, DEC store
++ mixed ADD, mixed ADD with no prior store, DEC+DEC, DEC*literal, literal+DEC (commuted), two DEC
+stores, and direct DEC->INT.  **All eight compile, are RAW-BYTE-IDENTICAL to DR, and all eight
+link and run to identical values in mine and in DR, matching hand-computed expectations (5,5,5,7,6,
+5,5,3).**  W5 (`b = d * 2') confirms the MUL case where demand and allocation legitimately differ in
+SIZE from the ADD case -- DR gives the literal its OWN digit count for `*' and ALIGNED precision for
+`+', so a flat +2 would have broken W5 while the real rule gets it right.  CB9 itself is now
+byte-identical and promoted from refusal to specimen.  Mixed DEC/BIN ADD/SUB with a DEC variable on
+the OTHER side (CB1-CB5, CB7, CB8, CB10) still refuses unchanged, so C161 is untouched by this fix
+-- verified, not assumed: 25 of the 30 E2E-17 refusals still refuse.
+
+Two process lessons:
+  * **W2's golden was recompiled rather than reused.**  My first probe generation wrote
+    `b = 5' twice and dropped `d = 3', so golden/e2e221/W2 no longer described its source.
+    Comparing against it would have been a comparison against a different program.  A golden
+    must come from the exact bytes it is compared with, so W2 went through DR again as e2e222.
+  * **C163: I silently replaced five accepted specimens, and my own committed inventory would
+    have ratified it.**  I registered the new controls under the names W1..W8 -- `W1'..`W6' are
+    E2E-15's stack family, already byte-exact specimens -- and dict assignment replaced five of
+    them.  The panel total went to 536 instead of 541; because I ran `--update-inventory' BEFORE
+    reading its diff, the committed record would have absorbed the substitution and reported
+    green.  Fixed mechanically: `SPECIMENS`/`REJECTS` are now a `NoOverwriteDict` that raises at
+    import time on ANY re-registration (literal, loop or `.update()`), loop-driven registrations
+    go through `add_spec()`, and the keys became `C162W*`.  Registration order is irrelevant now,
+    which is the point -- `registration_audit()` reads source text and cannot see a loop
+    assignment that lands on an existing key.  Discipline attached: review
+    `git diff spec/INVENTORY.txt' BEFORE accepting an inventory rewrite; a removal line is
+    intentional only if you can name it (here: exactly one, CB9's refusal row).
+
+Arrays (Step 2) were attempted and deliberately NOT landed.  The parser already captures dimensions
+(`ddims`, `Dim_bound(lo, Some hi)`), so the work is entirely in binding and lowering; but carrying
+array info to codegen requires `layout` to return it -- `layout` currently hands back a 4-tuple
+`(auto, syms, statics, rows)` consumed at bind.ml:648, bind.ml:847 and the `proc_layout` builder,
+and `pl_rows` is a 3-tuple read at 7 sites in codegen.ml.  That is a signature change across the
+highest-blast-radius layout code in the tree, with 541 byte-exact specimens resting on it, and it
+is not a change to make at the end of a context.  The full design, including the sizing rule and
+the three lowering shapes with their exact instruction sequences, is in
+spec/notes/e2e18-c162-and-array-design.md so the next milestone starts from a plan and not from zero.

@@ -1347,9 +1347,33 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
              | _ -> false)
         | _ -> false
       in
+      (* [E2E-18/C162] a BIN target with a DEC-TYPED rhs is the mixed case DR
+         lowers through the DEC route (DLDOP...QDI15) -- CB9 `b = d + 2'.  The
+         DEC demand above is keyed on the TARGET's type, so it returned 0 here
+         and prescan_expr, which has no Enumber arm, never sized the operand's
+         cell: prescan demanded 2 bytes, lowering allocated 4, putting `b' on
+         top of the decimal cell.  Mirroring the Vdec branch's own condition
+         (complex DEC-typed expression -> pdec_operand_bytes) is the consistent
+         rule; a bare literal or identifier under this target type allocates
+         nothing at lowering (LXI H,immediate / direct LHLD), so it is excluded
+         to avoid double-counting with prescan_expr's Exp/Sub literal arms. *)
+      let dec_rhs_in_int_target =
+        match lhs.Ast.e with
+        | Ast.Eident n ->
+            (match List.assoc_opt (String.lowercase_ascii n.Ast.orig)
+                     cx.pd_vars with
+             | Some (Vdec _) | Some Vflt -> 0
+             | _ ->
+                 let r = pdec_unwrap rhs in
+                 match r.Ast.e with
+                 | Ast.Enumber _ | Ast.Eident _ -> 0
+                 | _ -> if pdec_is_dec cx r then pdec_operand_bytes cx r else 0)
+        | _ -> 0
+      in
       if fl_target then pdec_fl_expr cx rhs
       else
       dec_store_bytes
+      + dec_rhs_in_int_target
       + (match rhs.Ast.e with
          | Ast.Estring v -> pdec_str_cell cx v
              (* char-store pool demand [V101-V103/V105]; '' reserves 0

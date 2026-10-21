@@ -1159,6 +1159,49 @@ REJECTS = {
 # refusal rather than a silently wrong cell.  The MODULE shape itself is fine --
 # Q9 (a DEC-returning module whose formal is already DEC(5,2)) is byte-exact --
 # which is what makes this a conversion gap rather than an entry-structure gap.
+class NoOverwriteDict(dict):
+    """[C163] A panel dict that refuses silent SUBSTITUTION.
+
+    E2E-18 registered eight C162 controls as W1..W8 -- names ALREADY used by five accepted
+    E2E-15 specimens from e15src -- and plain dict assignment replaced them without a word.
+    The panel total read 536 where it should have read 541: a removal is visible, a
+    replacement that keeps the name is not, and equal counts conceal it [C158].  Worse, the
+    inventory was regenerated before its diff was read, so the committed record would have
+    ratified the loss.  Both halves are now closed: every registration path (literal, loop,
+    update) raises at import time, and add_spec() gives loop registrations a named guard.
+    Retiring a specimen deliberately still works -- pop() first, then register.
+    """
+
+    def _guard(self, k):
+        if k in self:
+            raise ValueError(
+                "panel SUBSTITUTION refused: %r is already registered as %r.  A name that is "
+                "taken is a COLLISION, not an update: namespace the new key, or pop() the old "
+                "one deliberately if it is really being retired [E2E-18/C163]"
+                % (k, self[k]))
+
+    def __setitem__(self, k, v):
+        self._guard(k)
+        dict.__setitem__(self, k, v)
+
+    def update(self, *a, **kw):
+        for src in a:
+            for k in (src.keys() if hasattr(src, "keys") else [k for k, _ in src]):
+                self._guard(k)
+        for k in kw:
+            self._guard(k)
+        dict.update(self, *a, **kw)
+
+
+SPECIMENS = NoOverwriteDict(SPECIMENS)
+REJECTS = NoOverwriteDict(REJECTS)
+
+
+def add_spec(key, ref):
+    """Register a byte-exact specimen through the substitution guard [C163]."""
+    SPECIMENS[key] = ref
+
+
 REJECTS["Q8"] = (open("e14src/Q8.PLI", "rb").read().replace(b"\r\n", b"\n")
                  .rstrip(b"\x1a").decode(), "non-decimal operand")
 
@@ -1353,6 +1396,20 @@ NEG_META_E16 = {
 }
 
 # ---------------------------------------------------------------------------
+# [E2E-18/C162] the controls that pinned the decimal-pool under-count.  Each is byte-identical
+# to DR AND all eight run to identical values in mine and in DR, matching hand-computed
+# expectations (W1 5, W2 5, W3 5, W4 7, W5 6, W6 5, W7 5, W8 3)
+# [golden/e18mine_link/e18mine_run vs golden/e2e221_link/e2e221_run + e2e222_link/e2e222_run].
+# W2's golden needed a RE-COMPILE: the first probe generation wrote `b = 5' twice and dropped
+# `d = 3', so golden/e2e221/W2 no longer described its source.  It was recompiled as e2e222
+# rather than being compared against a stale object [a golden must come from the exact bytes].
+# KEYS ARE "C162W*", NOT "W*": the bare W1..W6 names belong to the E2E-15 stack family.
+for _n in ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8"]:
+    add_spec("C162" + _n, ("e22src/%s.PLI" % _n,
+                           "golden/%s/%s/%s.REL" % ("e2e222" if _n == "W2" else "e2e221",
+                                                    _n, _n)))
+
+
 # [E2E-17] Independent-coverage probes from the PLI-2000 test suite
 # (thirdparty/PLI-2000/pl1/{ARRAY,PASSARAY,CONV,DECY}.PL1) and the minimal DR
 # probes they motivated (e21src/AB*, e21src/CB*).  DR compiles EVERY ONE of them
@@ -1386,8 +1443,10 @@ _E17_MARKER = {
 }
 for _n, (_d, _t) in _E17_REFS.items():
     _f = "%s/%s.PLI" % (_d, _n)
-    if _n == "CB6":
-        SPECIMENS["CB6"] = (_f, "golden/%s/CB6/CB6.REL" % _t)
+    if _n in ("CB6", "CB9"):
+        # CB6: direct DEC->INT, promoted in E2E-17.  CB9: promoted by the C162 demand fix
+        # [E2E-18] -- it was a refusal only because the prescan under-counted the pool.
+        add_spec(_n, (_f, "golden/%s/%s/%s.REL" % (_t, _n, _n)))
         continue
     REJECTS[_n] = (open(_f, "rb").read().replace(b"\r\n", b"\n")
                    .rstrip(b"\x1a").decode(),
@@ -1414,7 +1473,7 @@ _DEC = ("DR COMPILES IT [golden/e2e214, e2e219, e2e220]; MY GAP [C161].  DR conv
         "mixed expression into the pure-DEC path and lower_hl has no integer-context flag, so a "
         "DEC operand cannot be distinguished from a DEC expression without an explicit marker node.")
 for _n in _E17_REFS:
-    if _n == "CB6":
+    if _n in ("CB6", "CB9"):
         continue
     _base = _E17_REFS[_n][0]
     if _n.startswith("AB") or _n in ("ARRAY", "PASSARAY"):
@@ -1422,22 +1481,22 @@ for _n in _E17_REFS:
 DEC_NOTE = "see _E17 above"
 NEG_META_E17 = {}
 for _n in _E17_REFS:
-    if _n == "CB6":
+    if _n in ("CB6", "CB9"):
         continue
     if _n.startswith("AB") or _n in ("ARRAY", "PASSARAY"):
         NEG_META_E17[_n] = ("my-gap", _ARR)
     else:
         NEG_META_E17[_n] = ("my-gap", _DEC)
-NEG_META_E17["CB9"] = ("my-gap",
-    "PRE-EXISTING LATENT DEFECT, surfaced by the E2E-16 demand/layout invariant, NOT by anything "
-    "in this milestone: `b = d + 2' with d fixed dec(3) needs TWO decimal pool cells (the `d = 3' "
-    "store's literal and the operand literal 2, 2 bytes each for dec(3)), DR's own code references "
-    "*S(0000) and *S(0002) [golden/e2e220/CB9/CB9.PRN], but my prescan demands only 2 bytes while "
-    "lowering allocates 4.  Under-counting the pool is the WORST direction: the pool base is where "
-    "automatic variables start, so variables would land ON the decimal cells -- the FDTEST failure "
-    "mode, where a variable stored over a live constant and every address in the dump still looked "
-    "plausible.  Before E2E-16 nothing compared the two numbers, so this emitted wrong bytes "
-    "silently; now it refuses.  The precise reason the demand misses a cell is not yet traced [C162].")
+# NEG_META_E17["CB9"] is GONE [E2E-18/C162 RESOLVED]: the refusal was a prescan bug, not a
+# language gap.  Root cause -- prescan_stmt keys its DEC demand on the TARGET's type, so a BIN
+# target with a DEC-typed rhs (`b = d + 2') fell through to prescan_expr, which has no Enumber
+# arm and never sized the operand's cell: demand 2 bytes, lowering 4.  Under-counting is the
+# dangerous direction (the pool base is where automatics start, so `b' lands on the decimal
+# cells -- the FDTEST failure mode).  Fixed by mirroring the Vdec branch's own condition for
+# non-DEC/non-FLOAT targets; CB9 is now byte-identical to DR [golden/e2e220/CB9] and is a
+# SPECIMEN.  The eight W1..W8 controls [registered as C162W1..C162W8, see C163] prove the fix
+# is a consistent demand RULE and not a +2 adjustment: they build, match DR byte-for-byte, and
+# run to hand-computed values in BOTH compilers.
 NEG_META_E17["CB10"] = ("my-gap",
     "DR COMPILES IT [golden/e2e220/CB10]: `e = b + d' with e dec(5) adds in BINARY and then "
     "converts the result BACK with `CALL ?QI15D' before ?DSTOP stores it into e.  That is the "
