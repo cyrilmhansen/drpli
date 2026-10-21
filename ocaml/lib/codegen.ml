@@ -121,6 +121,9 @@ type st =
   ; mutable deref : string list           (* ptr-formal names, cur scope *)
   ; mutable floor : int                   (* layout total (cells+procs) *)
   ; mutable vars : (string * var_info) list
+  ; mutable arrays : (string * int * int * int) list
+    (* [E2E-20] (name, lb, ub, elem bytes) copied straight out of Bind.bind_arrays --
+       bind.layout remains the ONLY storage authority; codegen derives nothing. *)
       (* scope chain head (lowername -> info); swapped per procedure
          body [PL/I nesting: inner declarations shadow outer] *)
   ; mutable dec_ret : (int * int) option
@@ -283,7 +286,35 @@ let op_sbb_a = 0x9f
 (* [E2E-13] does this subexpression contain a procedure call?  Used to tell a call
    operand from one that NESTS another call, whose anonymous-cell numbering DR plans in a
    different order than I do [P9].  Esuffix is a call/index; Econd is a parenthesis. *)
-let rec expr_contains_call e =
+(* [E2E-20/Priority 2] an Esuffix is NOT necessarily a call.  `a(5)' and `f(5)' parse to the
+   SAME node shape, so the classification has to consult the bound declaration -- here the
+   binder's own array list (st.arrays, copied from Bind.bind_arrays; codegen computes no layout
+   of its own).  Before this, the check was purely syntactic (`| Ast.Esuffix _ -> true'), and
+   that is the whole of AB9's divergence: `b = a(5) * 3' looked as if it contained a call, which
+   vetoes mul_const_form, so I parked the operand (PUSH H / LXI H / POP D) where DR loads the
+   literal straight into DE (`LHLD A+0008 / LXI D,0003 / ?IM22N', and AB23 pins the scalar
+   analogue `LHLD x / LXI D,0003').  This is the SAME misclassification that had to be fixed for
+   the element read and write routes, so there is one authority and one answer.
+   NB: an element's SUBSCRIPT is still inspected, so `a(f(1))' counts as containing a call. *)
+(* [E2E-20/Priority 2] ONE place answers "does this expression reference an array element?".
+   It is a TOTAL function (no refusal, no lowering, no side effects) so every consumer can ask it:
+   the classifier below, the read route, the four store forms, the PUT item width, the
+   element-as-actual guard.  The answer comes from the binder's per-block array list, never from
+   the source text.  Having one predicate is the point: AB6, AB9 and AC3 each failed for a
+   different syntactic Esuffix test written independently, and each fix had to be found twice. *)
+let hd_is_element arrays hd =
+  match hd.Ast.e with
+  | Ast.Eident h ->
+      List.exists
+        (fun (n, _lb, _ub, _ez) ->
+          String.equal n (String.lowercase_ascii h.Ast.orig))
+        arrays
+  | _ -> false
+
+let suf_is_element_arr arrays e =
+  match e.Ast.e with Ast.Esuffix (hd, _) -> hd_is_element arrays hd | _ -> false
+
+let rec expr_contains_call arrays e =
   (* TRUE for a call itself, and for anything that has one inside it.  A call
      OPERAND's nesting question is asked by call_operand_is_nested, which looks at the
      callee position and the argument list -- NOT at the operand as a whole, because
@@ -291,16 +322,21 @@ let rec expr_contains_call e =
      bug an earlier version of this function had: it returned false for a bare
      Esuffix, so `g(h(2))' looked unnested and P9 emitted instead of refusing.) *)
   match e.Ast.e with
-  | Ast.Esuffix _ -> true
-  | Ast.Econd x -> expr_contains_call x
-  | Ast.Ebinary (_, l, r) -> expr_contains_call l || expr_contains_call r
-  | Ast.Eprefix (_, x) -> expr_contains_call x
+  | Ast.Esuffix (hd, args) ->
+      (not (hd_is_element arrays hd))
+      || expr_contains_call arrays hd
+      || List.exists (fun a -> expr_contains_call arrays a) args
+  | Ast.Econd x -> expr_contains_call arrays x
+  | Ast.Ebinary (_, l, r) ->
+      expr_contains_call arrays l || expr_contains_call arrays r
+  | Ast.Eprefix (_, x) -> expr_contains_call arrays x
   | _ -> false
 
-let call_operand_is_nested r =
+let call_operand_is_nested arrays r =
   match r.Ast.e with
   | Ast.Esuffix (f, args) ->
-      expr_contains_call f || List.exists expr_contains_call args
+      expr_contains_call arrays f
+      || List.exists (fun a -> expr_contains_call arrays a) args
   | _ -> false
 
 (* [E2E-14/C145] a nested-call chain in which EVERY actual is a literal, a simple
@@ -350,7 +386,25 @@ let hl_bias_free st (b : int) =
 
 (* variable data-segment address = pool base + declared auto offset.
    [int subset has no pool => base 0; matches DR SHLD/LHLD operands] *)
-let addr_of st name =
+(* [E2E-20/Priority 2] WHOLE-ARRAY REFUSAL.  An array name appearing WITHOUT a subscript is not
+   a value.  DR parses it (pass 1 clean) and rejects it in pass 2 with `TYPES NOT=' [GW1 `b = a',
+   GW2 `a = 3', GW3 `put skip list(a)' -- golden/e2e230, all three: NO .REL emitted], and my
+   compiler previously ACCEPTED all three and emitted a scalar load/store of the array's BASE
+   CELL -- a silent wrong-value miscompile in the C139/C150/C162 class, now refused.
+   addr_of is the single point through which every un-subscripted data reference flows, so the
+   guard lives here rather than at the ~10 call sites.  resolve_suffix needs the base WITHOUT
+   the guard, so it uses addr_of_raw (identical lookup, no refusal). *)
+let whole_array_msg st name =
+  if List.exists (fun (n, _lb, _ub, _ez) -> String.equal n (String.lowercase_ascii name))
+       st.arrays then
+    Some ("codegen: [TBD] whole-array reference to `" ^ name
+            ^ "' used as a value [C159].  DR parses it and rejects it in pass 2 with "
+            ^ "`TYPES NOT=' (GW1 `b = a', GW2 `a = 3', GW3 `put skip list(a)'; "
+            ^ "golden/e2e230 -- DR emits NO .REL).  Reading or writing the base cell would "
+            ^ "be a wrong-value miscompile, not a byte difference, so it refuses.")
+  else None
+
+let addr_of_raw st name =
   let li = String.lowercase_ascii name in
   (* STATIC cells come first: their offset is already an absolute DATA address
      (they live BELOW the pool base), so adding st.base would overshoot by
@@ -362,11 +416,85 @@ let addr_of st name =
        | Some vi -> vi.off + st.base
        | None -> failwith ("codegen: undeclared " ^ name))
 
+
+let addr_of st name =
+  match whole_array_msg st name with
+  | Some msg -> failwith msg
+  | None -> addr_of_raw st name
+
 let vk_of st name =
+  (* [E2E-20] classification must refuse an un-subscripted array too, not just lowering: prescan
+     asks vk_of to decide DEC/FLOAT demand, and answering Vint would size the pool around a
+     reference that DR rejects.  See addr_of / GW1-GW3 [C159]. *)
+  (match whole_array_msg st name with Some msg -> failwith msg | None -> ());
   let li = String.lowercase_ascii name in
   match List.assoc_opt li st.vars with
   | Some vi -> vi.vk
   | None -> failwith ("codegen: undeclared " ^ name)
+
+(* [E2E-20/Priority 2] ONE authoritative resolution of a subscripted name.
+
+   `a(3)' parses to the same Esuffix node as `f(3)', so the meaning must come from the BOUND
+   DECLARATION in the current scope -- never from text.  This function is the only place that
+   decides, and every consumer branches on its result.  The E2E-19 attempt did not have this: it
+   put an `if arr then <emit load>' inside lower_hl's existing arm, whose body continues
+   UNCONDITIONALLY with `let ext = ...' and the whole call machinery.  An `if' with unit branches
+   does not stop the following code, so the element emitted its LHLD and then the call route ALSO
+   ran and died in `List.assoc nm st.procs' -- a control-flow error in my patch, not the
+   "Esuffix resolved twice" story recorded in C165 [proven by a reach-through probe, E2E-20].
+   Returning a discriminated result here makes fall-through impossible by construction. *)
+let suf_is_element st e = suf_is_element_arr st.arrays e
+
+type suffix_ref =
+  | Suf_element of int          (* array element; payload = relocated data address *)
+  | Suf_call of string * Ast.expr list
+
+let resolve_suffix st (hd : Ast.expr) (args : Ast.expr list) =
+  match hd.Ast.e with
+  | Ast.Eident h ->
+      let nm = String.lowercase_ascii h.Ast.orig in
+      let is_arr =
+        List.find_opt (fun (n, _lb, _ub, _ez) -> String.equal n nm) st.arrays
+      in
+      (match is_arr with
+       | Some (name, lb, _ub, ez) ->
+           (* the block-local ARRAY declaration wins over a same-named callable: AB1/AB3/RD1 all
+              write `a: procedure options(main)' with `dcl a(5) fixed' INSIDE that block, so the
+              declaration shadows the enclosing program label -- PL/I scoping, and DR compiles all
+              of them.  This is scope-based shadowing, NOT a global array-over-procedure rule: a
+              name bound as a procedure in THIS scope and declared as an array elsewhere is still a
+              call, because we consult st.arrays, which is per-block. *)
+           (match args with
+            | [ a ] ->
+                let ae = match a.Ast.e with Ast.Econd x -> x.Ast.e | _ -> a.Ast.e in
+                (match ae with
+                 | Ast.Enumber t ->
+                     (match int_of_string_opt
+                              (String.concat "" (String.split_on_char '_' t)) with
+                      | Some sub ->
+                          (* the element's relocated address: base cell of the array
+                             + (sub - lb) * element bytes [C159], computed from the
+                             RAW base because addr_of refuses un-subscripted array
+                             names by design [GW1-GW3]. *)
+                          Suf_element
+                            ((addr_of_raw st name
+                              + (sub - lb) * ez) land 0xffff)
+                      | None ->
+                          failwith
+                            ("codegen: [TBD] array subscript '" ^ t
+                             ^ "' is not a decimal literal [C159]"))
+                 | _ ->
+                     failwith
+                       "codegen: [TBD] runtime-variable array subscript [C159] (DR's                         ladder is `LXI H,A+(lb-1)*size / PUSH H / LHLD i / DAD H / POP D                         / DAD D' -- characterized, NOT implemented; refused rather than                         approximated)")
+            | [] ->
+                failwith
+                  ("codegen: [TBD] whole-array reference to `" ^ h.Ast.orig
+                   ^ "' [C159] (no array-valued expression is implemented)")
+            | _ ->
+                failwith
+                  "codegen: [TBD] multi-dimensional array subscript [C159] (row-major                    with the last subscript fastest is characterized, not implemented)")
+       | None -> Suf_call (nm, args))
+  | _ -> Suf_call ("", [ hd ])   (* non-identifier target: existing code refuses it *)
 
 let call_ext st name =
   (* CALL <external RTL>: operand slot = cd 00 00, immediately followed by
@@ -1748,7 +1876,7 @@ type mul_form =
   | Mul_dadh of Ast.expr * int       (* other operand, then m copies of DAD H *)
   | Mul_im22 of Ast.expr * int       (* other operand, then LXI D,k + ?IM22N *)
 
-let mul_const_form (l : Ast.expr) (r : Ast.expr) =
+let mul_const_form arrays (l : Ast.expr) (r : Ast.expr) =
   let both_lit x y =
     match x.Ast.e, y.Ast.e with
     | Ast.Enumber _, Ast.Enumber _ -> true
@@ -1766,22 +1894,23 @@ let mul_const_form (l : Ast.expr) (r : Ast.expr) =
      rules across a call are C141/C146 territory and are NOT measured for the constant forms,
      so `f(1) * 2' keeps the existing route/refusal rather than borrowing this evidence. *)
   match pick with
-  | Some (k, other) when k >= 2 && not (expr_contains_call other) ->
+  | Some (k, other) when k >= 2 && not (expr_contains_call arrays other) ->
       if (k land (k - 1)) = 0 && k <= 32767 then
         let rec log2 x m = if x = 1 then m else log2 (x lsr 1) (m + 1) in
         Some (Mul_dadh (other, log2 k 0))
       else if k <= 32767 then Some (Mul_im22 (other, k))
       else None
-  | Some (1, other) when not (both_lit l r) && not (expr_contains_call other) ->
+  | Some (1, other) when not (both_lit l r)
+        && not (expr_contains_call arrays other) ->
       Some (Mul_elide other)
   | _ -> None
 
-let fp_mul_guard (l : Ast.expr) (r : Ast.expr) =
+let fp_mul_guard arrays (l : Ast.expr) (r : Ast.expr) =
   (* [E2E-15] mul_const_form is the single source for every CONSTANT-multiply shape DR has a
      measured route for, so the guard must not fire on those.  What is left refused here is
      exactly what the classifier declines: literal 0, literals >= 32768 (DR's decimal-pool
      path), two literals, and literal-left shapes whose other operand contains a call. *)
-  if mul_const_form l r <> None then false
+  if mul_const_form arrays l r <> None then false
   else match lit_int l, lit_int r with
   | (Some 0), _ | _, (Some 0) ->
       failwith
@@ -1828,6 +1957,25 @@ let rec lower_hl st (e : Ast.expr) =
          via CHAIN-ADDR resolved at the procedure's first byte, known
          entry via inline RELOC(code,entry) [P402 backward pattern] *)
       begin match hd.Ast.e, args with
+      | Ast.Eident h, args
+        when List.exists
+               (fun (n, _lb, _ub, _ez) ->
+                 String.equal n (String.lowercase_ascii h.Ast.orig))
+               st.arrays ->
+          (* [E2E-20/Priority 3] ARRAY ELEMENT READ.  This is a GUARDED match case, not an
+             `if' inside the existing arm: the arm's body continues unconditionally into the
+             call-setup code, which is exactly how E2E-19's implementation emitted a correct
+             LHLD and then crashed in `List.assoc nm st.procs' [C165 corrected].  A guarded
+             case makes fall-through structurally impossible.
+             DR's form is a direct relocated load with the offset folded into the operand:
+             RD3 first element `LHLD A A(0000)', last element `LHLD A A(0000)+0008'; AB1
+             `b = a(1)' is `LHLD A A(0000)'.  In .REL that is an ordinary 2-byte DATA reloc at
+             (base + (sub-lb)*2), the SAME machinery a scalar reference uses -- no new record
+             format.  STORES are deliberately not enabled here [C164/Priority 4]. *)
+          (match resolve_suffix st hd args with
+           | Suf_element addr ->
+               d st op_lhld; reloc st Data addr; st.last_imm <- None
+           | Suf_call _ -> assert false)
       | Ast.Eident h, args ->
           let nm = String.lowercase_ascii h.Ast.orig in
           if
@@ -1842,6 +1990,31 @@ let rec lower_hl st (e : Ast.expr) =
              whole arm: it drives the formal-TYPE lookups (there are no formal
              CELLS for an entry), the CALL operand shape (CHAIN-EXT), and the
              NOT PROC / TYPES NOT= checks via RETURNS. *)
+          (* [E2E-20/Priority 6] an ARRAY ELEMENT passed as an actual is NOT a value read.
+             C159/AB7 show DR puts the element's ADDRESS into the call descriptor
+             (`LXI H,A+0006 / SHLD * / LXI H,* / CALL p'), which is a different lowering again
+             and is deliberately not landed here.  Without this guard the existing argument
+             path would silently lower the element as a VALUE -- right-ish semantics, wrong
+             bytes, the exact C139/C150 class -- so it refuses loudly instead. *)
+          (let bad =
+             List.exists
+               (fun a ->
+                 let a = match a.Ast.e with Ast.Econd x -> x | _ -> a in
+                 match a.Ast.e with
+                 | Ast.Esuffix (hd2, [_]) ->
+                     List.exists
+                       (fun (n, _l, _u, _e) ->
+                         String.equal n
+                           (match hd2.Ast.e with
+                            | Ast.Eident h2 -> String.lowercase_ascii h2.Ast.orig
+                            | _ -> "?"))
+                       st.arrays
+                 | _ -> false)
+               args
+           in
+           if bad then
+             failwith
+               "codegen: [TBD] array element passed as a procedure argument [C159] (DR                 stores the element ADDRESS in the call descriptor -- pointer-formal style,                 not a value read; characterized, not implemented)");
           let ext = List.assoc_opt nm st.exts in
           (* [E2E-11/CALL, C122] the two disjoint procedure kinds, both from DR
              pass 2 with NO .REL emitted: see st.call_stmt's comment.  An
@@ -2253,7 +2426,9 @@ let rec lower_hl st (e : Ast.expr) =
       let k = parse_int_const ks in
       lower_hl st l; hl_bias_free st k; st.last_imm <- None
     | Ast.Ebinary (Ast.Add, l, r)
-      when (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false) ->
+      when (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false)
+           && not (suf_is_element st r)
+      ->
         (* [E2E-13/C141] THE C139 CORRECTION.  FIXED ADD with a procedure CALL on
            the right.  DR never parks a value in a register across a call: it either
            defers the load until after the call, or pushes onto the runtime stack.
@@ -2286,7 +2461,9 @@ let rec lower_hl st (e : Ast.expr) =
            A nested chain with a COMPOUND actual still has an argument VALUE CELL whose
            number DR assigns inner-first, and that difference is not yet measured, so it
            refuses with the reason named [C142]. *)
-        if call_operand_is_nested r && not (call_chain_simple 1 r) then
+        if call_operand_is_nested st.arrays r
+         && not (call_chain_simple 1 r)
+     then
           failwith
             ("codegen: [TBD] ADD whose call operand is a nested call with a COMPOUND "
              ^ "actual (e.g. `t + g(h(k(2)))', `t + g(2*h(3))'). Under the C145 two-phase "
@@ -2338,13 +2515,16 @@ let rec lower_hl st (e : Ast.expr) =
         end else
           (lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d)
       end
-  | Ast.Ebinary (Ast.Mul, l, r) when fp_mul_guard l r ->
+  | Ast.Ebinary (Ast.Mul, l, r) when fp_mul_guard st.arrays l r ->
       failwith "codegen: internal: fp_mul_guard raised no message"
   | Ast.Ebinary (Ast.Mul, l, r) when
-      (match mul_const_form l r with Some _ -> true | None -> false) ->
+      (match mul_const_form st.arrays l r with
+       | Some _ -> true
+       | None -> false)
+      ->
       (* [E2E-15/C148] DR's constant-multiply family: elide / DAD H / LXI D.  See
          mul_const_form for the measurement. *)
-      (match mul_const_form l r with
+      (match mul_const_form st.arrays l r with
        | Some (Mul_elide x) -> lower_hl st x
        | Some (Mul_dadh (x, m)) ->
            lower_hl st x;
@@ -4526,6 +4706,113 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
            st.last_imm <- None;
            lower_hl st rhs);
       d st op_shld; reloc st Data (addr_of st n.Ast.orig)
+  | Ast.Esuffix (hd, args)
+    when hd_is_element st.arrays hd ->
+      (* [E2E-20/Priority 4] ELEMENT STORE -- DR's four measured forms.  Again a GUARDED
+         case, so it cannot fall through into any other assignment route.
+           1. offset 0, any value            ... ; SHLD A(base)      [AB1 AB16 AC5 AB12]
+           2. offset <> 0, LITERAL value     LXI H,A+off ; MVI M,lo ; INX H ; MVI M,hi
+                                                                      [AB3 AB9 AB14 AC3]
+           3. offset <> 0, COMPUTED value    PUSH H ; LXI H,A+off ; POP D ;
+                                             MOV M,E ; INX H ; MOV M,D [AC1 AC2 AC3]
+           4. SAME element on both sides     LHLD A+off ; <bias> ; SHLD A+off
+                                                                 [AB12 off 0, AC4 off 2]
+         The ORDER matters and is what C165 established: "literal vs computed" is NOT DR's
+         discriminator -- AC1 (`a(3) = b') parks on the stack because LXI H must destroy HL,
+         while AC4 (`a(2) = a(2) + 5') needs no parking because the element address is an
+         immediate operand of BOTH the load and the store.  Form 4 is therefore tested
+         BEFORE form 3.  Anything outside the four refuses. *)
+      let (addr, off) =
+        match resolve_suffix st hd args with
+        | Suf_element a ->
+            let (lb, _ub, ez) =
+              match
+                List.find_opt
+                  (fun (n, _l, _u, _e) ->
+                    String.equal n
+                      (match hd.Ast.e with
+                       | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
+                       | _ -> "?"))
+                  st.arrays
+              with
+              | Some (_n, l, u, e) -> (l, u, e)
+              | None -> assert false
+            in
+            let sub =
+              match (unwrap_e (List.hd args)).Ast.e with
+              | Ast.Enumber t -> int_of_string (String.concat "" (String.split_on_char '_' t))
+              | _ -> assert false
+            in
+            (a, (sub - lb) * ez)
+        | Suf_call _ -> assert false
+      in
+      (* form 4: self-update on the very same element with a literal bias *)
+      let self_k =
+        match (unwrap_e rhs).Ast.e with
+        | Ast.Ebinary ((Ast.Add | Ast.Sub) as op, l, r) ->
+            (match (unwrap_e l).Ast.e, (unwrap_e r).Ast.e with
+             | Ast.Esuffix (lh, largs), Ast.Enumber ks ->
+                 (match (try Some (resolve_suffix st lh largs) with _ -> None) with
+                  | Some (Suf_element laddr) ->
+                      if laddr = addr then
+                        let k0 = int_of_string
+                          (String.concat "" (String.split_on_char '_' ks)) in
+                        Some (if op = Ast.Sub then -k0 else k0)
+                      else None
+                  | _ -> None)
+             | _ -> None)
+        | _ -> None
+      in
+      match self_k with
+      | Some k ->
+          st.last_imm <- None;
+          d st op_lhld; reloc st Data addr;
+          hl_bias st k;
+          d st op_shld; reloc st Data addr
+      | None ->
+          let litv =
+            match (unwrap_e rhs).Ast.e with
+            | Ast.Enumber t ->
+                Some (int_of_string
+                        (String.concat "" (String.split_on_char '_' t)))
+            | _ -> None
+          in
+          if off = 0 then begin
+            (* form 1: DR's ordinary scalar store -- value in HL, one SHLD.
+               AB16 `q(1) = 2' gives `LXI H,0002 / SHLD Q A(0000)' and AC5
+               `a(1) = b * 2' gives `LHLD B / DAD H / SHLD A A(0000)', so the
+               value route is whatever lower_hl already does. *)
+            st.last_imm <- None;
+            lower_hl st rhs;
+            d st op_shld; reloc st Data addr
+          end
+          else
+            match litv with
+            | Some v ->
+                (* form 2 *)
+                let w = v land 0xffff in
+                st.last_imm <- None;
+                d st op_lxi_h; reloc st Data addr;
+                d st op_mvi_m; d st (w land 0xff);
+                d st op_inx_h;
+                d st op_mvi_m; d st ((w lsr 8) land 0xff)
+            | None -> begin
+                (* form 3: park the value on the stack, then byte-store from DE.
+                   Only the LITERAL-bias self-update (form 4) and these four are
+                   measured; a 1-byte element never reaches here (bind refuses). *)
+                st.last_imm <- None;
+                lower_hl st rhs;
+                d st op_push_h;
+                d st op_lxi_h; reloc st Data addr;
+                d st op_pop_d;
+                (* NB: 0x73 = MOV M,E and 0x72 = MOV M,D -- E (low byte) goes to the LOW
+                   address first, then D (high) after INX H, exactly as DR's AC1 shows
+                   (`MOV M,E / INX H / MOV M,D').  An earlier draft had these swapped
+                   because the opcode comments were wrong; AC1/AC2 caught it [E2E-20]. *)
+                d st 0x73; (* MOV M,E *)
+                d st op_inx_h;
+                d st 0x72  (* MOV M,D *)
+              end
   | _ -> failwith "codegen: non-simple assignment lhs [TBD]"
 
 (* ---- E2E-3b: comparisons ----  ALL forms transcribed from $C traces
@@ -4975,17 +5262,34 @@ let num_width st (x : Ast.expr) =
          | _ -> failwith "codegen: char var in numeric PUT item [TBD]")
     | Ast.Ebinary (_, l, r) -> max (w l) (w r)
     | Ast.Eprefix (_, x) -> w x
+    (* [E2E-20] an ARRAY ELEMENT in a PUT item: DR's form is the ordinary scalar one with
+       the element address, RD1 `put skip list(a(3))' -> `LHLD A A(0000)+0004 / MVI A,09 /
+       ?QICOP / ?PNVOP / ?QIOOP' [golden/e2e225/RD1] -- identical to a scalar PUT except for
+       the operand, which my guarded read case already produces.  The WIDTH is the array
+       row's own declared width (2-byte FIXED => 9), taken from the binder row rather than
+       assumed.  Resolution still goes through resolve_suffix, so there is one authority. *)
     | Ast.Esuffix (hd, [ _ ]) ->
         let hn =
           match hd.Ast.e with
           | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
           | _ -> ""
         in
-        if List.mem_assoc hn st.procs then
+        (match hd.Ast.e with
+         | Ast.Eident h
+           when List.exists
+                  (fun (n, _lb, _ub, _ez) ->
+                    String.equal n (String.lowercase_ascii h.Ast.orig))
+                  st.arrays ->
+             (try (List.assoc (String.lowercase_ascii h.Ast.orig) st.vars).w
+                  with Not_found ->
+                    failwith
+                      "codegen: [TBD] array element PUT item: array row missing [C164]")
+         | _ ->
+             if List.mem_assoc hn st.procs then
           (* result of a RETURNS FIXED procedure: default bin(15)
              width [HYPOTHESIS for returns BIN(p): no evidence yet] *)
-          9
-        else failwith "codegen: PUT numeric item form unproven [TBD]"
+             9
+             else failwith "codegen: PUT numeric item form unproven [TBD]")
     | Ast.Enumber _ -> 0
     | _ -> failwith "codegen: PUT numeric item form unproven [TBD]"
   in
@@ -5309,6 +5613,14 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
        d st 0x0d;                          (* DCR C   (0x05 would be DCR B) *)
        d st op_jnz; reloc st Code loop);
   let saved = st.vars and savedd = st.deref in
+  (* [E2E-20] the callee's OWN array metadata must replace the caller's for the duration of
+     this scope, exactly as st.vars does.  Without it a subscripted name inside a procedure is
+     resolved against the CALLER's block: the name may be absent (so an element falls into the
+     call route or a [TBD] refusal) or, worse, PRESENT with a different lb/ub/element size, in
+     which case the relocated operand would be a silent wrong address -- the C139/C162/C167
+     class.  The list comes from the same proc_layout record that supplies pl_rows, so there is
+     still one sizing authority (Bind). *)
+  let saveda = st.arrays in
   st.vars <-
     List.map
       (fun (n, rt, o) ->
@@ -5360,6 +5672,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
          | _ ->
              failwith "codegen: non fixed-bin procedure local [TBD]"))
       pl.Bind.pl_rows @ saved;
+  st.arrays <- pl.Bind.pl_arrays @ saveda;
   (if pl.Bind.pl_rec
      && List.exists
           (fun (n, rt, _) ->
@@ -5416,7 +5729,8 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   st.in_rec <- savedr;
   st.in_proc <- savedp;
   st.vars <- saved;
-  st.deref <- savedd
+  st.deref <- savedd;
+  st.arrays <- saveda
 and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   (* label prefixes resolve at the STATEMENT's LC [G115 loop:/done:] *)
   List.iter
@@ -6150,6 +6464,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; exts = layout.Bind.pl_exts
     ; entries = []; fcalls = []; deref = []
     ; floor = layout.pl_total; vars = rows
+    ; arrays = Bind.bind_arrays blk
     ; dec_ret = None
   ; float_ret = false
   ; fl_cells = []

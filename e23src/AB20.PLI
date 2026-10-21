@@ -1,0 +1,15 @@
+a: procedure options(main);
+  dcl p proc, r fixed, q(2) fixed;
+  r = 1;
+  q(2) = 5;
+  call p;
+  put skip list(q(2), r);
+stop;
+  p: procedure;
+    dcl m fixed, z(2) fixed;
+    m = 2;
+    z(1) = 7;
+    put skip list(z(1), m);
+  end p;
+end a;
+

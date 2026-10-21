@@ -1,0 +1,4 @@
+RT1	ok	PRN=True REL=True
+RT2	ok	PRN=True REL=True
+RT3	ok	PRN=True REL=True
+RT4	ok	PRN=True REL=True

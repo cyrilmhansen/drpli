@@ -1235,10 +1235,32 @@ let bind_program (blk : Ast.block) : prog_layout =
       go nr 0
     in
     let drop_of x = match List.assoc_opt x drops with Some d -> d | None -> 0 in
+    (* [E2E-20/C167] the span must use a row's REAL storage extent, not `rt_bytes'.
+       bind_rows already ADVANCES offsets by the array's full extent (so with
+       `dcl q(3) fixed, s fixed' the scalar correctly lands at 000A -- AR1 pins it),
+       but rt_bytes knows only the element size: an array row contributes 2 here.
+       That is harmless while some later row's offset pushes the max past the array
+       (accidental correctness -- which is why AR1-AR5, all array-FIRST, are exact),
+       and wrong as soon as the array is last or middle:
+         `dcl s fixed, q(3) fixed'  -> mine span 4, DR DATA AREA = 0008 [AB18]
+         `dcl x fixed, q(2) fixed, y fixed' -> DR 0008 [AB19]
+       An under-sized span silently truncates the module's DATA area (LINK-DEF-DATA-SIZE
+       0002 vs DR 0006 in AB16), which is the C162 overlap class again, arrived at from
+       the third direction: not over-demand, not under-demand, but under-extent.
+       The extent comes from Bind.bind_arrays -- the SAME walk, so there is exactly one
+       sizing rule; codegen never recomputes it.  Re-running the walk here follows the
+       existing `named_of' precedent immediately above rather than adding a new
+       recursion class. *)
+    let arrs = bind_arrays b in
+    let row_sz (x, rt, _o) =
+      match List.find_opt (fun (n, _lb, _ub, _ez) -> String.equal n x) arrs with
+      | Some (_n, lb, ub, ez) -> (ub - lb + 1) * ez
+      | None -> rt_bytes rt
+    in
     let span =
       List.fold_left
         (fun m (x, rt, o) ->
-          if dedup x then m else max m (o - drop_of x + rt_bytes rt))
+          if dedup x then m else max m (o - drop_of x + row_sz (x, rt, o)))
         0 nr
     in
     let named_base = base + (if nm <> None then 2 * nf else 0) in

@@ -1,0 +1,3 @@
+AB18	ok	PRN=True REL=True
+AB19	ok	PRN=True REL=True
+AB20	incomplete	PRN=False REL=False

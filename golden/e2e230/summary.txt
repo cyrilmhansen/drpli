@@ -1,0 +1,3 @@
+GW1	diag	PRN=True REL=False
+GW2	diag	PRN=True REL=False
+GW3	diag	PRN=True REL=False

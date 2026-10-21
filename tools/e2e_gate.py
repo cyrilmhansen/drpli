@@ -1462,11 +1462,16 @@ _RD = ("DR COMPILES IT [golden/e2e225]; MY GAP, and a narrow one: 1-D array STOR
        "first resolution sees the array metadata -- so the second falls into the call path and "
        "dies on List.assoc.  Fix is to resolve subscripted names ONCE against the bound "
        "declaration [C165 addendum].")
+# [E2E-20/Priority 3] RD1/RD2/RD3 RETIRED as refusals -- their own DR goldens turned
+# byte-exact, which is the only sanctioned way to remove a negative [C154].  They are now
+# constant-subscript element-READ SPECIMENS:
+#   RD1  put skip list(a(3))            -> LHLD A(0000)+0004 + the ordinary scalar PUT tail
+#   RD2  a(0:3), put skip list(a(2))    -> non-default lower bound
+#   RD3  b = a(1); c = a(5)             -> FIRST and LAST element inside expressions
 for _n in ["RD1", "RD2", "RD3"]:
-    REJECTS[_n] = (open("e23src/%s.PLI" % _n, "rb").read()
-                   .replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-                   "call to unknown")
-    NEG_META_E19[_n] = ("my-gap", _RD)
+    REJECTS.pop(_n, None)
+    NEG_META_E19.pop(_n, None)
+    add_spec(_n, ("e23src/%s.PLI" % _n, "golden/e2e225/%s/%s.REL" % (_n, _n)))
 
 
 # [E2E-17] Independent-coverage probes from the PLI-2000 test suite
@@ -1818,6 +1823,101 @@ def run_negatives():
 class RegistrationCollision(Exception):
     pass
 
+
+# [E2E-20/Priorities 2-4] constant-subscript array ELEMENT ACCESS.
+# These AB/AC probes were E2E-19's my-gap refusals; each one is retired only because ITS OWN
+# registered DR golden turned byte-exact [C154], and each names the DR form it now reproduces:
+#   AB1/AB16/AC5  offset 0            -> <value route> ; SHLD base          [form 1]
+#   AB3/AB18      offset<>0, literal  -> LXI H,base+off ; MVI M,lo ; INX H ; MVI M,hi [form 2]
+#   AC1/AC2       offset<>0, computed -> PUSH H ; LXI H ; POP D ; MOV M,E ; INX H ; MOV M,D [form 3]
+#   AB12/AC4      same element both sides -> LHLD ; <bias> ; SHLD           [form 4]
+#   AB4/AB17      explicit spelling/orientation controls
+#   AB9           `b = a(5) * 3'      -- constant-multiply route, see C169
+#   AB6           `b = a(2) + a(3)'   -- DR PARKS a subscripted left operand (C150 syntactic rule)
+#   AB22          array LAST in a NESTED procedure's dcl (span fix C167, form 2 in a callee)
+#   AB23          scalar control `b = x * 3' -- proves AB9's fix did not move scalar behaviour
+_E20_PROMOTE = [
+    ("AB1", "e2e216"), ("AB3", "e2e216"), ("AB4", "e2e216"), ("AB6", "e2e216"),
+    ("AB9", "e2e217"), ("AB12", "e2e217"), ("AB16", "e2e218"), ("AB17", "e2e218"),
+    ("AC1", "e2e224"), ("AC2", "e2e224"), ("AC3", "e2e224"), ("AC4", "e2e224"),
+    ("AC5", "e2e224"),
+]
+# a retired negative must vanish from REJECTS *and* from whichever per-milestone meta dict
+# recorded it, or the REJECTS/NEG_META symmetry audit (E2E-16) fires and the verdict evidence
+# is silently orphaned.  AB*/AC* were recorded by E2E-19 and by E2E-17, so pop every map.
+for _n, _tag in _E20_PROMOTE:
+    REJECTS.pop(_n, None)
+    for _md in (NEG_META_E15, NEG_META_E16, NEG_META_E17, NEG_META_E19, NEG_META):
+        _md.pop(_n, None)
+    src = "e23src/%s.PLI" % _n if os.path.exists("e23src/%s.PLI" % _n) else "e21src/%s.PLI" % _n
+    add_spec(_n, (src, "golden/%s/%s/%s.REL" % (_tag, _n, _n)))
+# brand-new E2E-20 probes (never refusals -- they were written to pin the span fix and the
+# multiply route), each with a DR golden from golden/e2e227 and golden/e2e228.
+for _n, _tag in [("AB18", "e2e227"), ("AB22", "e2e228"), ("AB23", "e2e228")]:
+    add_spec(_n, ("e23src/%s.PLI" % _n, "golden/%s/%s/%s.REL" % (_tag, _n, _n)))
+# [E2E-20/Priority 5] runtime-witnessed array programs.  All three are byte-identical to DR
+# AND link+run to output IDENTICAL to DR's own .COM (golden/e20mine_r vs golden/e229_r), and to
+# the values I computed by hand before running:
+#   RT2  dcl a(0:3) fixed, t fixed  -> "1027 1283 1539 1795 5"
+#        (explicit lower bound respected; the scalar AFTER the array is untouched)
+#   RT3  outer w(3) + inner w(2), same NAME in two scopes, with a call in between
+#        -> "1031 1287 13" then "259 515 771 9"
+#        (the discriminating witness for the callee scope-swap: if the inner block resolved
+#        against the caller's extents, w(1)/w(2) would land on the outer array and these
+#        eight numbers could not come out right -- and the outer values would be clobbered)
+#   RT4  a(2)=b (form 3) ; a(2)=a(2)+5 (form 4) ; a(4)=b+1 (form 3) ; c=a(2)+a(4) (park route)
+#        -> "22 18 40"   (17 -> 22 via self-update, 18, sum 40)
+for _n in ["RT2", "RT3", "RT4"]:
+    add_spec(_n, ("e23src/%s.PLI" % _n, "golden/e2e229/%s/%s.REL" % (_n, _n)))
+
+# [E2E-20/Priority 2] WHOLE-ARRAY USE -- class dr-refuses: DR itself emits no .REL for these
+# (pass 1 clean, pass 2 `TYPES NOT=' -- golden/e2e230), and before this milestone MY compiler
+# ACCEPTED all three and stored/loaded the array's BASE CELL as a scalar value.  That is a
+# wrong-value miscompile, so the refusal is required for compatibility, not merely for hygiene.
+for _n in ["GW1", "GW2", "GW3"]:
+    REJECTS[_n] = (open("e23src/%s.PLI" % _n, "rb").read()
+                   .replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                   "whole-array reference")
+NEG_META["GW1"] = ("dr-refuses",
+    "DR rejects `b = a' in pass 2 with TYPES NOT= (golden/e2e230/GW1, NO .REL) [C159]. "
+    "Mine previously ACCEPTED it and read the array's base cell as a scalar -- wrong value, "
+    "not wrong bytes.  Now refuses via addr_of/vk_of, which is where every un-subscripted "
+    "data reference flows [E2E-20 Priority 2 negative witness].")
+NEG_META["GW2"] = ("dr-refuses",
+    "DR rejects `a = 3' the same way (golden/e2e230/GW2, NO .REL).  Same guard, opposite "
+    "direction: a store through an array name with no subscript.")
+NEG_META["GW3"] = ("dr-refuses",
+    "DR rejects `put skip list(a)' (golden/e2e230/GW3, NO .REL): 1 ERROR IN PASS 2.  Covers "
+    "the PUT-item route, which asks vk_of and would otherwise print 2 bytes of element 1.")
+# AB11 now refuses inside the CONDITION classifier rather than the assignment route, so its
+# pinned marker moves to the new reason.  NB the condition path's message still RENDERS the
+# subscripted name as `call a[1]' -- a diagnostic wart, not a behaviour claim: the element is
+# resolved correctly everywhere the bytes are decided [C169].
+for _n, _mk in [("AB2", "runtime-variable array subscript"),
+                ("AB8", "runtime-variable array subscript"),
+                ("AB10", "runtime-variable array subscript"),
+                ("ARRAY", "runtime-variable array subscript"),
+                ("PASSARAY", "runtime-variable array subscript"),
+                ("AB7", "array element passed as a procedure argument"),
+                ("AB14", "main-block statement after an appended procedure"),
+                ("AB11", "(> ")]:
+    if _n in REJECTS:
+        # pop FIRST, deliberately: NoOverwriteDict refuses in-place assignment because a taken
+        # name is normally a COLLISION [C163].  Here the source text is unchanged and only the
+        # pinned marker moves to the new refusal reason, which is exactly the case the guard
+        # names as a deliberate retirement -- so it is spelled as one.
+        _src, _old = REJECTS.pop(_n)
+        REJECTS[_n] = (_src, _mk)
+        if _n in NEG_META:
+            _cls, _note = NEG_META.pop(_n)
+            NEG_META[_n] = (_cls, _note + "  [E2E-20 marker updated: the route moved, "
+                            "so the pinned reason now names %r]" % _mk)
+
+# AB19 / AB21 are deliberately registered NOWHERE: they compile but are not byte-exact, because
+# DR applies cross-statement constant-reuse peepholes I do not implement (`LXI H,v ; SHLD ;
+# INX H ; SHLD' and `MVI L,k').  Registering a known-diverging program as either a specimen or a
+# refusal would be a lie: it is not exact, and it does not refuse.  They are recorded as the
+# evidence for C168 instead.
 
 def registration_audit(path, specimens, rejects, negmeta):
     """Mechanical prevention of regression-list key collisions [E2E-15/C154].

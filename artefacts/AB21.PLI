@@ -1,0 +1,9 @@
+a: procedure options(main);
+  dcl x fixed, q(2) fixed, y fixed;
+  x = 1;
+  q(1) = 5;
+  y = 9;
+  put skip list(q(1), x, y);
+stop;
+end a;
+

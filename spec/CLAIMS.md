@@ -3144,3 +3144,128 @@ spec/patches/e19-array-read-attempt.patch reproduces it (apply on d9001fa, build
 e23src/RD1.PLI).  Verified safe facts from that patch, worth keeping: the read-only build does NOT
 crash on store-shaped refusals (ST1 `a(3) = 5' refuses cleanly as a non-simple assignment lhs), so
 landings can be ordered read-first once the double-resolution is fixed.
+
+
+---
+
+## E2E-20 (C165 corrected, C167, C168, C169): indexed-reference resolution, element reads and the four store forms
+
+C165 CORRECTION [E2E-20]. **The "Esuffix resolved twice" diagnosis was wrong, and there was no
+architectural dependency.**  Reproducing `spec/patches/e19-array-read-attempt.patch` in a worktree
+and instrumenting it shows exactly ONE resolution per source expression: `DBG READONLY nm=a
+arrays=1 [a] exts=false procs=false` prints once, then a second probe placed on the *following*
+statement of the same arm prints `DBG REACH-THROUGH into call setup for nm=a`, and only then does
+`List.assoc nm st.procs` raise.  The mechanism is elementary OCaml: E2E-19's patch inserted
+`if is_array then begin <emit LHLD> end else if not-callable then failwith ...` into the body of
+lower_hl's existing `Ast.Eident h, args ->` arm, whose body CONTINUES with `let ext = ...` and the
+whole call machinery.  An `if` whose branches are `unit` does not terminate the surrounding
+sequence, so the element emitted a correct load and the call route then ran on it anyway.  Nothing
+was resolved twice; nothing was resolved in the wrong scope.  Two consequences that matter:
+(i) E2E-19's recommendation to build a resolution architecture first was based on a misread
+crash, and (ii) the real requirement was a *return*, which a guarded match case supplies for free.
+Discipline note: the crash trace named `lower_hl`, and the plausible story about PUT re-lowering
+the expression was accepted because it fitted C161's unrelated structural gap.  A line number is
+not a causal explanation -- a second probe placed after the suspect branch is. [reproduced twice,
+E2E-19 and E2E-20, same patch, same two lines of stderr]
+
+C167. **An array's storage EXTENT was missing from the module span; it was correct only in the
+declaration order that hid the bug.**  `bind.ml`'s `section2` computed
+`span = max(off - drop + rt_bytes rt)` over the named rows, but `rt_bytes` returns the ELEMENT
+size (2) for an array -- the row builder advances offsets by `elem_sz * nelem` separately.  So:
+`dcl q(3) fixed, s fixed` gave the right 8 (because `s` at offset 6 pushes the max past the
+array) while `dcl s fixed, q(3) fixed` gave 4 and array-only `q(3)` gave 2.  DR pins the rule
+directly: AB18 (scalar then array) and AB19 (array in the middle) both report
+`DATA AREA = 0008` [golden/e2e227], and AB16's DR .REL says `LINK-DEF-DATA-SIZE abs 0006` where
+mine said `0002` -- a one-byte difference in the whole file, which is how it was found.
+Fixed by taking the extent from `Bind.bind_arrays` (`(ub-lb+1)*esz`) inside `section2`, so there
+is ONE sizing rule and codegen still computes no layout of its own.  AR1-AR5 were and remain
+byte-exact: they are all array-FIRST, which is the orientation that accidentally worked.
+This is the third arrival at the same structural mistake as C152 (demand over-count) and C162
+(demand under-count): a size derived in one place and consumed in another.  The lesson is
+sharper than those two -- **a rule verified only in the orientation that conceals its bug is not
+verified**; E2E-19 tested five array layouts and every one of them happened to be insensitive to
+the defect. [AB16 AB17 AB18 AB22, golden/e2e223, e2e227, e2e228]
+
+C168. **DR applies cross-statement constant-reuse peepholes that I do not implement, and they are
+not array features.**  Three probes compile in both compilers and differ only for this reason:
+AB19 (`x=1; q(1)=2; y=3`) lowers in DR to `LXI H,0001 / SHLD / INX H / SHLD / INX H / SHLD` -- the
+three separate LXI H loads collapse to INX H; AB21 (`x=1; q(1)=5; y=9`) lowers to
+`LXI H,0001 / SHLD / MVI L,05 / SHLD / MVI L,09 / SHLD` -- with H already 0, DR rewrites the low
+byte only; RT1 (six literal stores) shows DR using `DCX H` and emitting 2 fewer DATA bytes than
+mine.  Each of these is a value-preserving register reuse across statement boundaries.  Mine
+emits the straightforward `LXI H,v` per store, so the values are always right and the bytes are
+not.  Consequence for the panel: AB19/AB21/RT1 are registered as NEITHER specimen NOR refusal,
+deliberately -- they do not refuse, so registering them as negatives would claim a [TBD] that does
+not happen, and they are not byte-exact, so registering them as specimens would fail the gate.
+They are kept out of the panel and documented here instead; if the peephole is ever implemented
+they become byte-exact specimens with existing goldens (golden/e2e227, e2e228, e2e229).
+Note the relationship to C156 (`* 0` elision) and C143's route-dependent thresholds: this is the
+same DR optimizer family, arriving from the store side. [AB19 AB21 RT1]
+
+C169. **One authoritative indexed-reference resolution replaced three independent syntactic
+guesses, and each one turned out to be blocking a different program.**  The mechanism is small:
+`hd_is_element`/`suf_is_element` (a TOTAL predicate over the binder's per-block array list -- it
+never refuses, never lowers, never allocates) plus `resolve_suffix`, which returns
+`Suf_element of int` (the relocated element address) or `Suf_call`, and is consumed by exactly
+one guarded match case per site.  Guarded cases matter: they make the fall-through that caused
+C165's crash structurally impossible rather than impossible by care.  What it fixed, one row per
+misclassification:
+  - `expr_contains_call` was `| Ast.Esuffix _ -> true`, so `a(5) * 3` "contained a call", which
+    vetoes `mul_const_form`; AB9 therefore parked (PUSH H / LXI H,3 / POP D) where DR loads the
+    literal straight into DE (`LHLD A+0008 / LXI D,0003 / ?IM22N`).  AB23 (`b = x * 3`, scalar)
+    pins DR's form independently and is byte-exact both before and after -- the control that
+    proves the fix moved only the element case.
+  - lower_hl's ADD arm selected "call on the right" for `a(2) + a(3)`, which routed AB6/AC3 into
+    the deferred-load path and its refusal.  With the arm guard consulting the resolution they
+    fall to the ordinary ADD arm, whose C150 syntactic rule (`add_left_needs_push`) parks the
+    left operand -- and DR's AB6 golden is exactly `LHLD / PUSH H / LHLD / POP D / DAD D`.  So the
+    existing rule was RIGHT and only the routing was wrong: DR does park for a subscripted
+    operand even though no call exists, which re-confirms C150's syntactic reading from a new
+    direction.
+  - `num_width` (PUT item width) refused any non-procedure Esuffix; RD1/RD2 now take the array
+    row's own declared width and DR's form is the scalar one with the element address
+    (`LHLD A(0000)+0004 / MVI A,09 / ?QICOP / ?PNVOP / ?QIOOP`).
+  - the callee scope: `lower_proc` saved and restored `st.vars` but NOT `st.arrays`, so a nested
+    procedure resolved subscripts against its CALLER's block.  AB22 (array last inside `p`)
+    crashed with a match failure before the swap and is byte-exact after; RT3 is the runtime
+    witness -- outer `w(3)` and inner `w(2)` share a name with different extents, and the eight
+    printed values (`1031 1287 13` then `259 515 771 9`) are only reachable if each block uses its
+    own extents.  Note this is NOT an array rule: it is the same per-block scope fact as C142.
+  - WHOLE-ARRAY USE refuses, and DR refuses too: `b = a`, `a = 3`, `put skip list(a)` all get
+    `TYPES NOT=` in pass 2 with NO .REL emitted [golden/e2e230], while mine previously ACCEPTED
+    all three and loaded/stored the array's base cell as a scalar.  The guard sits in `addr_of`
+    and `vk_of` -- the two points every un-subscripted data reference flows through -- rather
+    than at ten call sites, and `resolve_suffix` uses `addr_of_raw` for its base so a subscripted
+    reference is unaffected.  `vk_of` is guarded as well as `addr_of` because prescan asks it for
+    DEC/FLOAT demand; answering `Vint` there would size the pool around a reference DR rejects.
+    Panel class: `dr-refuses`, the strongest kind -- refusing is required for compatibility.
+Priority-2's shadowing requirement is satisfied by scope, not by priority: the array list is the
+BLOCK's own (`st.arrays` from `Bind.bind_arrays blk`, swapped per callee), so AB1's
+`dcl a(5) fixed` inside `a: procedure options(main)` shadows the outer program name because the
+inner block's list is what is consulted there.  There is no global "arrays beat procedures"
+rule, and a name bound as a callable in the block that references it is still a call. [AB1 AB22
+AB23 RT3 GW1-GW3, golden/e2e228, e2e229, e2e230]
+
+C165 status (was: blocked). **Constant-subscript element access is LANDED** -- reads and the four
+measured store forms.  Read: `LHLD` + 2-byte DATA reloc at `base + (sub-lb)*esz`, including the
+PUT-item context (RD1/RD2) and expression context (RD3/AB1/AB9/AC3/RT4).  Stores: (1) offset 0 ->
+value route + `SHLD base` [AB1 AB16 AC5 AB12]; (2) offset<>0 with literal ->
+`LXI H,base+off / MVI M,lo / INX H / MVI M,hi` [AB3 AB9 AB18 AB22]; (3) offset<>0 with computed
+value -> `PUSH H / LXI H / POP D / MOV M,E / INX H / MOV M,D` [AC1 AC2 AC3 RT4]; (4) same element
+on both sides -> `LHLD / <bias> / SHLD`, tested BEFORE (3) because AC4 proves parking is not
+selected by literal-vs-computed.  One implementation bug worth recording: 0x72 is `MOV M,D` and
+0x73 is `MOV M,E`; my first draft had the comments reversed and therefore the bytes reversed, and
+AC1/AC2 caught it as a byte difference rather than as a plausible-looking dump.
+Boundaries kept: variable subscripts [AB2 AB8 AB10 ARRAY PASSARAY], multi-dimensional [AB13],
+STATIC [AB5 AB15], element-as-actual [AB7 -- DR stores the element ADDRESS in the descriptor],
+condition-context element tests [AB11], whole-array [GW1-GW3], non-2-byte elements and
+non-constant bounds [refused in the binder].  C161 mixed DEC/BIN was NOT touched. [C159 C164 C167]
+
+C161 design observation (documentation only, NOT a deliverable). `resolve_suffix` is the shape
+that a context-sensitive DEC/BIN lowering would need: it is the one place that turns a source
+node into a meaning using the bound declaration, and `Suf_element` shows the pattern for carrying
+information *out* of resolution.  A DEC/BIN fix wants the mirror image -- an inbound
+expected-context argument (integer vs decimal) threaded from the statement through `lower_hl`,
+which `is_dec_expr` currently derives by itself and gets wrong for mixed expressions.  Adding a
+second parameter to `lower_hl` is the change; the resolution work here neither requires it nor
+implements it, and the CB-family refusals are unchanged.

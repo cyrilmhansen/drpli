@@ -1,0 +1,18 @@
+a: procedure options(main);
+  dcl w(3) fixed, r fixed;
+  r = 9;
+  w(1) = 259;
+  w(2) = 515;
+  w(3) = 771;
+  call q;
+  put skip list(w(1), w(2), w(3), r);
+stop;
+  q: procedure;
+    dcl w(2) fixed, s fixed;
+    w(1) = 1031;
+    w(2) = 1287;
+    s = 13;
+    put skip list(w(1), w(2), s);
+  end q;
+end a;
+

@@ -1,0 +1,8 @@
+a: procedure options(main);
+  dcl x fixed, b fixed;
+  x = 6;
+  b = x * 3;
+  put skip list(b);
+stop;
+end a;
+

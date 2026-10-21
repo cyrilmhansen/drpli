@@ -1,0 +1,12 @@
+a: procedure options(main);
+  dcl s1 fixed, a(4) fixed, s2 fixed;
+  s1 = 257;
+  a(1) = 513;
+  a(2) = 769;
+  a(3) = 1025;
+  a(4) = 1281;
+  s2 = 1537;
+  put skip list(s1, a(1), a(2), a(3), a(4), s2);
+stop;
+end a;
+
