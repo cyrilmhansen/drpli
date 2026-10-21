@@ -1,0 +1,14 @@
+a: 
+    procedure options(main); 
+    declare n fixed, m fixed; 
+    n = 7; 
+    m = 3; 
+    m = n * n; 
+    put skip list('W', m); 
+    stop; 
+    f: procedure(j) returns(fixed); 
+    declare j fixed; 
+    return (j + 1); 
+    end f; 
+end a; 
+

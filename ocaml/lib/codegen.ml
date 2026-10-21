@@ -69,6 +69,7 @@ type st =
          leave the value on DR's float stack and exit through JMP ?FPRET,
          plus ?RSBLK when the activation is recursive [R3038, FFACT] *)
   ; mutable fl_cells : (int * int list) list
+  ; mutable str_cells : (int * int list) list
       (* [E2E-10] float literal cells already allocated, for DEDUPLICATION by
          identical bytes [C101: R3007/R3010/R3012/R3013 share cells] *)
   ; mutable dec_cells : (int list * int) list
@@ -196,6 +197,34 @@ let pool_alloc st (bytes : int array) =
   st.pool_next <- addr + Array.length bytes;
   addr
 
+(* [E2E-15/C152] string literals are pooled ONCE and reused, exactly as fl_pool above already
+   does for float cells.  Without this, `put skip list('W', n); ... put skip list('W', m);'
+   allocated TWO 0x57 cells, so DEF-DATA-SIZE came out one byte too big and every automatic
+   variable shifted -- measured on MB40 (`put' twice, PLAIN VARIABLES, no multiply involved):
+   141 records where DR emits 139 [golden/e2e191/MB40 vs my build].  The defect is pre-existing
+   and unrelated to the constant-multiply work; the probes only exposed it.  Keyed by CONTENT
+   with first-use address order preserved, which is the rule fl_pool already established. *)
+let pool_str st (bytes : int array) =
+  let l = Array.to_list bytes in
+  match List.find_opt (fun (_addr, bs) -> bs = l) st.str_cells with
+  | Some (addr, _) ->
+      (* [E2E-15/C152] DR DOES reuse one cell (its MB40 data area writes 0x57 once), and
+         deduplicating my write removed the duplicate record -- but my data area still comes
+         out ONE BYTE TOO BIG (DEF-DATA-SIZE 8 vs DR's 7, first automatic at 2 vs 1), so the
+         residual difference is somewhere else in my pool layout and I have NOT characterised
+         it.  Refusing is the honest action: silently emitting bytes I know differ -- or worse,
+         shifting every automatic variable -- is exactly the C139/C150 failure mode.  The
+         probes that reach here (MB12/MB38/MB39/MB40) all have two PUT statements sharing one
+         string literal; MB41-43, which would have localised it, did not produce DR objects. *)
+      failwith
+        ("codegen: [TBD] repeated string literal in one program: DR pools it ONCE and reuses "
+         ^ "the cell, and my dedup'd write is not sufficient -- my data area ends up one byte "
+         ^ "larger and every automatic shifts by 1 [MB40, golden/e2e191/MB40] (C152)")
+  | None ->
+      let addr = pool_alloc st bytes in
+      st.str_cells <- st.str_cells @ [ (addr, l) ];
+      addr
+
 let pool_bytes (s : string) =
   Array.init (String.length s) (fun i -> Char.code (String.get s i))
 
@@ -206,6 +235,7 @@ let op_lxi_h = 0x21
 let op_lhld = 0x2a
 let op_shld = 0x22
 let op_dad_d = 0x19
+let op_dad_h = 0x29   (* DAD H -- DR's doubling step [E2E-15/C148] *)
 let op_dad_b = 0x09
 let op_dcx_h = 0x2b
 let op_inx_h = 0x23
@@ -284,21 +314,21 @@ let call_operand_is_nested r =
    separated from the per-site alternative -- the probes that would discriminate them
    hit an unrelated refusal first (`n * 2' in an expression context).  So those keep
    refusing with the reason named, rather than being accepted on an unmeasured guess. *)
-let rec call_chain_simple e =
+(* [E2E-15/C153] measured class only.  Now that the constant-multiply route exists (C148),
+   the D-series probes could actually be BUILT -- and they told me the C145 allowance was
+   too broad: D3 `g(h(k(2)))' (depth 3) and D4 `g(h(2),k(3))' (two nested calls) compile and
+   produce bytes that DIFFER from DR, while P9 `g(h(2))' and P1's inner chain are byte-identical.
+   So the accepted shape is exactly: ONE nested call, at depth <= 2, every actual a literal,
+   every call single-argument.  Anything deeper or wider refuses with the reason named --
+   emitting a program I know differs in bytes is not acceptable even when it runs correctly. *)
+let rec call_chain_simple depth e =
   match e.Ast.e with
-  | Ast.Esuffix (_f, args) ->
-      List.for_all
-        (fun a ->
-          match a.Ast.e with
-          (* ONLY literals: D7 `1 + f(x)' is a different lowering arm (literal-left
-             commute), so it is not evidence about THIS arm, and no clean probe of a
-             nested chain with a variable actual exists yet (my P13 does not even lex).
-             Being unprobed means refusing, not assuming. *)
-          | Ast.Enumber _ -> true
-          | Ast.Econd x -> call_chain_simple x
-          | Ast.Esuffix _ -> call_chain_simple a
-          | _ -> false)
-        args
+  | Ast.Esuffix (_f, [ a ]) when depth <= 2 ->
+      (match a.Ast.e with
+       | Ast.Enumber _ -> true
+       | Ast.Econd x -> call_chain_simple (depth + 1) x
+       | Ast.Esuffix _ -> call_chain_simple (depth + 1) a
+       | _ -> false)
   | _ -> false
 
 let rec add_left_needs_push e =
@@ -348,7 +378,11 @@ let call_ext st name =
 
 let op_jmp  = 0xc3
 let op_jnz  = 0xc2
-let op_jz   = 0xc4
+(* [E2E-15/C149] `op_jz = 0xc4` DELETED: it was never referenced, and 0xC4 is CNZ,
+   not JZ (JZ is 0xCA).  The 0xCA bytes the skip/condition sites emit stay RAW literals on
+   purpose -- [C072]/[R910] record that DR's listing LABELS that byte JPE while the .REL
+   byte is CA, so naming the constant `op_jz` would assert a meaning the evidence explicitly
+   declines to settle.  A wrong-but-unused name is worse than a raw byte with a comment. *)
 let op_jp   = 0xf2
 let op_jm   = 0xfa
 let op_mov_a_m = 0x7e
@@ -1421,7 +1455,7 @@ let lower_put_lit st (skipn : string option) (v : string) =
   let bytes =
     Array.init (String.length v) (fun i -> Char.code (String.get v i))
   in
-  let addr = pool_alloc st bytes in
+  let addr = pool_str st bytes in
   d st op_lxi_h; reloc st Data addr;
   d st op_mvi_a; d st (String.length v land 0xff);
   call_ext st "?SLCTS"; call_ext st "?PNCOP"; call_ext st "?QIOOP";
@@ -1596,7 +1630,15 @@ let rec elide_fixed_zero st (e : Ast.expr) =
   in
   match e.Ast.e with
   | Ast.Ebinary (op, l, r) ->
-      if is_zero_lit r && not (only_literals l) && elide_ok st l then
+      (* [E2E-15/C151] the rewrite `x op 0 -> x' is valid ONLY for + and -.  This
+         predicate used to test the zero literal without testing the operator, so
+         `m = n * 0' silently became a copy of n (measured: MB7 emitted `LHLD n /
+         SHLD m', 81 code bytes, and printed 7 for n=7 -- while DR emits `MOV L,H /
+         SHLD m' [golden/e2e186/MB7]).  `m = n / 0' was worse still: it never reached
+         the division-by-zero refusal below, it became a copy of n.  Both now fall
+         through to the arm that handles (or loudly refuses) the real operator. *)
+      if is_zero_lit r && (op = Ast.Add || op = Ast.Sub)
+         && not (only_literals l) && elide_ok st l then
         elide_fixed_zero st l
       else if op = Ast.Add && is_zero_lit l && not (only_literals r)
               && elide_ok st r then
@@ -1643,8 +1685,78 @@ let fp_add_guard (l : Ast.expr) (r : Ast.expr) =
               ^ "fold to an immediate in DR, both byte-exact here.")
        | _ -> false)
 
+(* [E2E-15/C148] DR's FIXED-BINARY multiply by an integer CONSTANT.  Measured over 24
+   probes (e18src/MB1-MB31, golden/e2e186-e2e189) and CONTEXT-FREE -- the identical form
+   appears in an assignment [MB1], a self-update [MB9], a compound operand [MB10/MB26], a
+   PUT-LIST item [MB12], an IF condition [MB13], a call argument [MB14], a chained multiply
+   [MB17], a width-converting store [MB18] and a RETURN over a pointer-deref formal
+   [MB16]:
+       k = 1        -> nothing at all: the operand alone  (`x * 1` elides  [P044])
+       k = 2^m,m>=1 -> m copies of `DAD H`   (2:[MB1] 4:[MB4] 8:[MB19] 16:[MB21])
+       2 <= k <= 32767, not a power of two
+                    -> `LXI D,k ; CALL ?IM22N`   (3:[MB3] 5:[MB5] 6:[MB20] 7:[MB22]
+                                                  1000:[MB29] 32767:[MB30])
+       k = 32768+   -> DECIMAL POOL path (`PUSH H / LXI H,*S / MVI A,p / ?DLDOP /
+                       ?QDI15 / POP D / ?IM22N`) [MB31 k=32768, MB23 k=65535] -- refused
+       k = 0        -> DR emits `MOV L,H` [MB7 `n * 0`, MB8 `0 * n`], which does NOT
+                       produce zero (it copies H into L): REFUSED, see C148's note on
+                       DR's own defect.  My build previously emitted ?IM22N by 0 here.
+   The operand-to-register assignment is free because ?IM22N multiplies DE x HL, so the
+   literal commutes to either side with byte-identical output [MB2 vs MB1, MB27 vs MB3,
+   MB11 vs MB10].  This classifier is the SINGLE source of the rule; the emitter below and
+   the refusal guard both consult it, so they cannot drift. *)
+type mul_form =
+  | Mul_elide of Ast.expr            (* emit only the other operand *)
+  | Mul_dadh of Ast.expr * int       (* other operand, then m copies of DAD H *)
+  | Mul_im22 of Ast.expr * int       (* other operand, then LXI D,k + ?IM22N *)
+
+let mul_const_form (l : Ast.expr) (r : Ast.expr) =
+  let both_lit x y =
+    match x.Ast.e, y.Ast.e with
+    | Ast.Enumber _, Ast.Enumber _ -> true
+    | _ -> false
+  in
+  let pick =
+    match lit_int l with
+    | Some k when not (both_lit l r) -> Some (k, r)
+    | _ ->
+        (match lit_int r with
+         | Some k when not (both_lit l r) -> Some (k, l)
+         | _ -> None)
+  in
+  (* A CALL anywhere in the other operand stays out of this route: DR's operand-preservation
+     rules across a call are C141/C146 territory and are NOT measured for the constant forms,
+     so `f(1) * 2' keeps the existing route/refusal rather than borrowing this evidence. *)
+  match pick with
+  | Some (k, other) when k >= 2 && not (expr_contains_call other) ->
+      if (k land (k - 1)) = 0 && k <= 32767 then
+        let rec log2 x m = if x = 1 then m else log2 (x lsr 1) (m + 1) in
+        Some (Mul_dadh (other, log2 k 0))
+      else if k <= 32767 then Some (Mul_im22 (other, k))
+      else None
+  | Some (1, other) when not (both_lit l r) && not (expr_contains_call other) ->
+      Some (Mul_elide other)
+  | _ -> None
+
 let fp_mul_guard (l : Ast.expr) (r : Ast.expr) =
-  match lit_int l, lit_int r with
+  (* [E2E-15] mul_const_form is the single source for every CONSTANT-multiply shape DR has a
+     measured route for, so the guard must not fire on those.  What is left refused here is
+     exactly what the classifier declines: literal 0, literals >= 32768 (DR's decimal-pool
+     path), two literals, and literal-left shapes whose other operand contains a call. *)
+  if mul_const_form l r <> None then false
+  else match lit_int l, lit_int r with
+  | (Some 0), _ | _, (Some 0) ->
+      failwith
+        ("codegen: [TBD] FIXED multiply by literal 0.  DR emits `MOV L,H' for BOTH `n * 0' "
+         ^ "and `0 * n' [MB7, MB8, golden/e2e186] -- that instruction copies H into L and "
+         ^ "does NOT produce zero, so DR's own lowering looks defective.  I reproduce neither "
+         ^ "it (unverified) nor my old ?IM22N-by-0 path (not byte-equal) [C148].")
+  | (Some k), _ | _, (Some k) when k > 32767 ->
+      failwith
+        ("codegen: [TBD] FIXED multiply by literal " ^ string_of_int k
+         ^ " >= 32768: DR leaves the 16-bit register route and loads the literal through the "
+         ^ "DECIMAL POOL (`PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / POP D / ?IM22N') "
+         ^ "[MB31 k=32768, MB23 k=65535].  My LXI D form would truncate it [C148].")
   | _, (Some 1 | Some 2 as k) ->
       failwith
         ("codegen: fixed-bin MULTIPLY by literal "
@@ -2136,7 +2248,7 @@ let rec lower_hl st (e : Ast.expr) =
            A nested chain with a COMPOUND actual still has an argument VALUE CELL whose
            number DR assigns inner-first, and that difference is not yet measured, so it
            refuses with the reason named [C142]. *)
-        if call_operand_is_nested r && not (call_chain_simple r) then
+        if call_operand_is_nested r && not (call_chain_simple 1 r) then
           failwith
             ("codegen: [TBD] ADD whose call operand is a nested call with a COMPOUND "
              ^ "actual (e.g. `t + g(h(k(2)))', `t + g(2*h(3))'). Under the C145 two-phase "
@@ -2171,10 +2283,41 @@ let rec lower_hl st (e : Ast.expr) =
         lower_hl st l; d st 0xe5;                    (* PUSH H *)
         lower_hl st r; d st 0xd1; d st op_dad_d      (* POP D; DAD D *)
       end else begin
-        lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d
+        (* [E2E-15/C150] DR's rule is SYNTACTIC, not register-analytic: whenever the RIGHT
+           operand is compound (more than one instruction) the LEFT is parked on the runtime
+           stack, and when it is simple XCHG is used -- MB34 `n + (n*3)' and MB35
+           `(n+1) + (n*3)' take PUSH H/POP D, MB36 `(n*3) + n' takes XCHG, and MB28
+           `n*3 + n*2' takes PUSH H even though its right operand (`DAD H') would NOT have
+           destroyed DE, which is what rules out a liveness-based reading.  My old unconditional
+           XCHG was a MIS-COMPILE, not a byte preference: `?IM22N' overwrites DE, so the left
+           value was gone and the expression returned only the RIGHT operand -- measured at
+           HEAD, mine printed 21 where DR prints 28 for `n + (n*3)', 21 vs 35 for
+           `n*2 + n*3', -21 vs -14 for `n - (n*3)' [golden/e2e195r vs e2e196r].  That path was
+           reachable BEFORE this milestone (via `*3', which the mul guard never refused), so the
+           defect is pre-existing, not introduced by C148. *)
+        if add_left_needs_push r then begin
+          lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d; d st op_dad_d
+        end else
+          (lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d)
       end
   | Ast.Ebinary (Ast.Mul, l, r) when fp_mul_guard l r ->
       failwith "codegen: internal: fp_mul_guard raised no message"
+  | Ast.Ebinary (Ast.Mul, l, r) when
+      (match mul_const_form l r with Some _ -> true | None -> false) ->
+      (* [E2E-15/C148] DR's constant-multiply family: elide / DAD H / LXI D.  See
+         mul_const_form for the measurement. *)
+      (match mul_const_form l r with
+       | Some (Mul_elide x) -> lower_hl st x
+       | Some (Mul_dadh (x, m)) ->
+           lower_hl st x;
+           for _ = 1 to m do
+             d st op_dad_h
+           done
+       | Some (Mul_im22 (x, k)) ->
+           lower_hl st x; d st op_lxi_d; d st (k land 0xff);
+           d st ((k lsr 8) land 0xff);
+           call_ext st "?IM22N"
+       | None -> assert false)
   | Ast.Ebinary (Ast.Mul, l, r) ->
       (* var/expr OP var: DE=left HL=right, CALL ?IM22N [P071B/P080A].
          [N303] when the RHS is a 1-byte var DR interleaves: raw
@@ -2342,7 +2485,11 @@ let rec lower_hl st (e : Ast.expr) =
            failwith
              ("codegen: [TBD] SUB whose right operand is a procedure call.  The route is now known -- DR parks the MINUEND on the runtime stack, because ?IS22N computes DE - HL and the call has destroyed DE by then: `LHLD T / PUSH H / LXI H,* / CALL G / POP D / CALL ?IS22N' [P6, golden/e2e174/P6/P6.PRN].  I emit that sequence and my code bytes are IDENTICAL to DR's and the result is right (P6 prints 91 = DR, golden/e2e180r/P6), but DR emits the call's anonymous-cell allocation records before the left operand's code records while I emit them at point of use, so the .REL streams differ.  NOTE: my previous XCHG route was worse than a byte difference -- it parks the minuend in DE across the call, which any callee that touches DE (every shadowed/recursive one) silently corrupts.  Call on the LEFT is byte-exact and unchanged [P7].")
        | _ ->
-           lower_hl st l; d st op_xchg; lower_hl st r; call_ext st "?IS22N");
+           (if add_left_needs_push r then
+              (lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d
+               ; call_ext st "?IS22N")
+            else
+              (lower_hl st l; d st op_xchg; lower_hl st r; call_ext st "?IS22N")));
       st.last_imm <- None
   | Ast.Ebinary _ -> failwith "codegen: operator not in int subset [TBD]"
   | _ -> failwith "codegen: expression form not in int subset [TBD]"
@@ -4866,7 +5013,8 @@ let lower_put_items_gen st (edit_tbl : int option)
       | PIlit v ->
           let len = String.length v in
           if len > 255 then failwith "codegen: literal > 255 [TBD]";
-          let addr = pool_alloc st (pool_bytes v) in
+          (* [E2E-15/C152] the PUT-LIST literal path -- the one MB40 actually exercises. *)
+          let addr = pool_str st (pool_bytes v) in
           d st op_lxi_h; reloc st Data addr;
           d st op_mvi_a; d st len;
           call_ext st "?SLCTS"; tail true ()
@@ -5966,6 +6114,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; dec_ret = None
   ; float_ret = false
   ; fl_cells = []
+  ; str_cells = []
     ; in_proc = false; in_rec = false; top_proc = false; call_stmt = None
     ; after_forever = false; guards = 0; guard_slots = []
     ; appended = false; secs = layout.Bind.pl_secs

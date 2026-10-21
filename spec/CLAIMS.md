@@ -2699,3 +2699,105 @@ for the change. Corollary: my narrowing of the nested-call guard to "all actuals
 literals" silently over-refused U1/W1-W3 (`sum(n-1)` has NO nested call at all), which the
 gate caught as COMPILE-FAIL within 90 seconds -- the condition had to be `nested AND
 not-literal-chain`, not `not-literal-chain`.
+
+## E2E-15 (C148-C154): small-constant multiplication, and two silent mis-compiles found
+
+C148. **DR's FIXED-BINARY multiply by an integer constant is strength-reduced by VALUE, and
+the rule is context-free.** Measured over 32 probes (e18src/MB1-MB46,
+golden/e2e186-e2e198b):
+    k = 1          -> the operand alone (`x * 1' elides; [MB6, P044])
+    k = 2^m, m>=1  -> m copies of `DAD H'   (2 [MB1], 4 [MB4], 8 [MB19], 16 [MB21])
+    2 <= k <= 32767, not a power of two
+                   -> `LXI D,k ; CALL ?IM22N' (3,5,6,7,1000,32767 [MB3/5/20/22/29/30])
+    k >= 32768     -> DECIMAL POOL path (`PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 /
+                      POP D / ?IM22N') [MB31 k=32768 vs MB30 k=32767 -- the boundary is the
+                      signed-16-bit range, NOT a digit count]
+    k = 0          -> `MOV L,H' [MB7 `n * 0', MB8 `0 * n', byte-identical to each other]
+The identical form appears in an assignment [MB1], a self-update [MB9], a compound operand
+[MB10/MB26], a PUT-LIST item [MB12], an IF condition [MB13], a CALL ARGUMENT [MB14], a
+chained multiply [MB17 `n*2*2' -> two DAD H, not folded], a width-converting store [MB18]
+and a RETURN over a pointer-deref formal [MB16, where the deref prologue `MOV E,M / INX H /
+MOV D,M / XCHG' precedes the same `DAD H']. The constant commutes: `2 * n' and `n * 2' are
+byte-identical [MB2 vs MB1], as are `3 * n' and `n * 3' [MB27 vs MB3].
+**My previous emitter used `PUSH H / LXI H,k / POP D / CALL ?IM22N' (5 bytes) for a literal
+right operand where DR uses `LXI D,k' (3 bytes)** -- the two extra bytes were measured at
+code 0014: mine E5 21 03 00 D1, DR 11 03 00 [MB3 record stream]. `?IM22N' multiplies DE x HL,
+so the operand-to-register assignment is free, which is why DR skips the rotation. 29 of these
+probes are now byte-identical specimens. C148 also records that **DR's own `* 0' lowering is
+suspicious**: `MOV L,H' copies H into L and does not produce zero, so I refuse rather than
+copy an unverified result.
+
+C149. `op_jz = 0xc4` DELETED from codegen.ml: it was referenced nowhere, and 0xC4 is CNZ
+while JZ is 0xCA. The 0xCA bytes at the skip sites stay RAW literals on purpose -- [C072]/
+[R910] record that DR's listing LABELS that byte JPE while the .REL byte is CA, so naming the
+constant `op_jz` would assert a meaning the evidence explicitly declines to settle. A wrong
+but unused name is worse than a raw byte with a comment.
+
+C150. **DR's ADD/SUB operand-parking rule is SYNTACTIC, not register-analytic: whenever the
+RIGHT operand is compound, the LEFT is parked with `PUSH H ... POP D`; when the right is
+simple, `XCHG` is used.** [MB34 `n + (n*3)`, MB35 `(n+1) + (n*3)`, MB37 `n - (n*3)` -> PUSH
+H/POP D; MB36 `(n*3) + n` -> XCHG]. Decisively, MB28 `n*3 + n*2` takes PUSH H even though its
+right operand (`DAD H') would NOT have destroyed DE, which rules out a liveness-based reading.
+**My unconditional XCHG was a MIS-COMPILE, not a byte preference**: `?IM22N' overwrites DE, so
+the parked left value was gone and the expression returned only the RIGHT operand. Measured at
+HEAD 8c849f9: mine printed 21 where DR prints 28 for `n + (n*3)', 21 vs 35 for `n*2 + n*3',
+-21 vs -14 for `n - (n*3)' [golden/e2e195r vs golden/e2e196r, per-name output files read
+verbatim]. This path was reachable BEFORE this milestone via `*3', which the multiply guard
+never refused -- the defect is pre-existing, and it is the third instance of the C139 family
+(a value left in a register across an operation that destroys it).
+
+C151. **`elide_fixed_zero` rewrote `x op 0 -> x' without testing the operator**, so
+`m = n * 0' silently became a copy of n (MB7 emitted `LHLD n / SHLD m' and printed 7 for
+n=7) and `m = n / 0' never reached the division-by-zero refusal at all -- it became a copy of
+n. Now restricted to ADD and Sub, which is what the evidence supports (`x - 0 = x' [T5/T6],
+`x + 0 = x' [N56]). This is a fourth silent defect found by probing an adjacent feature: I
+only saw it because MB7 was expected to refuse.
+
+C152. **A string literal repeated in one program is pooled ONCE by DR and my emitter does not
+produce a matching data area even after dedup'ing the write; the shape refuses.** MB40 is the
+clean discriminator: `put skip list('W', n);' twice with PLAIN VARIABLES only -- no multiply,
+no call, no expression -- and mine emits DEF-DATA-SIZE 8 against DR's 7, relocating the first
+automatic at 2 instead of 1 (every subsequent variable shifts by one byte). Adding
+content-keyed string dedup (mirroring the `fl_pool`/`dec_cells` precedent already in the file)
+removed the duplicate WRITE (141 -> 139 records, matching DR's count) but NOT the size
+difference, so the residual rule is uncharacterised and I refuse rather than emit. The defect
+is PRE-EXISTING (reachable at 424eaa2) and was newly exposed only because the probes reached
+it; MB12/MB38/MB39 hit the same cause through different items, which is what proves the cause
+is the pool and not the arithmetic. MB41-MB43, which would have localised it further,
+produced no DR object at all and therefore carry no verdict.
+
+C153. **The C145 nested-call allowance was too broad and is tightened to the measured class.**
+With multiplication working, the D-series could finally be BUILT: D3 `g(h(k(2)))' and D4
+`g(h(2),k(3))' compile and produce bytes that DIFFER from DR, while D5 `t + g(2*h(3))' and P9
+`t + g(h(2))' are byte-identical. So the accepted shape is exactly ONE nested call, depth <=
+2, every actual a literal, every call single-argument; anything deeper or wider refuses with
+its reason named. Emitting a program I know differs in bytes is not acceptable even when it
+runs to the right number -- and the previous refusal was justified but imprecise, which is why
+it hid the fact that my allowance covered shapes I had never measured.
+
+C154. **Registration-list collisions are now prevented mechanically, in the gate's own
+pre-flight.** `registration_audit()` statically flags any key written twice inside one
+dict-literal/`.update()` block (the E2E-12 shape, where five long-standing specimens were
+silently replaced) and at runtime forbids a name being both a byte-exact SPECIMENS entry and
+a REJECTS entry (the E2E-14 shape, P9 anchored into the wrong block) and requires
+REJECTS/NEG_META symmetry (so a verdict explanation can never be orphaned). It was
+negative-tested against all three induced shapes before being wired in, and it correctly stays
+silent on the clean file -- an instrument that always passes is not an instrument.
+
+### Retractions and corrections in this milestone
+
+R1. **E2E-14's "P5 has a distinct code-address mismatch" is RETRACTED as a production
+finding.** DR compiles `return (t + u + g(3))' as `LHLD T / XCHG / LHLD U / DAD D / PUSH H /
+LXI H,*A(000B) / CALL G / POP D / DAD D' [golden/e2e174/P5/P5.PRN] -- the call's LXI at 005F.
+My measurement showed 0056 because the measurement bypass replaced `add_left_needs_push' with
+`false', which sent the expression down the DEFER route (call first). The mismatch was an
+artifact of my own instrumentation, not a second defect. A bypass that changes routing is a
+change of subject, and I read it as a finding.
+
+R2. This also SHARPENS C146: with the code routes confirmed identical for P5/P6/P12, the only
+remaining divergence is WHEN the descriptor record is written -- DR writes a call's descriptor
+before the enclosing expression's first code record even when the descriptor is referenced
+later (P5's `SET-LC data 000B' at bit 1892 precedes code 0056). So the migration is a
+record-timing change, not an instruction-order change. It still needs a capture/replay path
+through `reloc`/`link` (ARCH-1 class) and is still NOT attempted; P5/P6/P12/D1/D11/D12 keep
+refusing with reasons named.

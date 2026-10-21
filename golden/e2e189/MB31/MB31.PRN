@@ -1,0 +1,81 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: MB31
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: MB31
+
+   1 a 0000 a: 
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main); 
+   3 c 0006     declare n fixed, m fixed; 
+   4 c 0006     n = 7; 
+       0006       LXI  H,0007
+       0009       SHLD N A(0004)
+   5 c 000C     m = 3; 
+       000C       MVI  L,03
+       000E       SHLD M A(0006)
+   6 c 0011     m = n * 32768; 
+       0011       LHLD N A(0004)
+       0014       PUSH H
+       0015       LXI  H,* S(0000)
+       0018       MVI  A,05
+       001A       CALL ?DLDOP
+       001D       CALL ?QDI15
+       0020       POP  D
+       0021       CALL ?IM22N
+       0024       SHLD M A(0006)
+   7 c 0027     put skip list('W', m); 
+       0027       LXI  D,0252
+       002A       LXI  B,0000
+       002D       CALL ?SYSPR
+       0030       MVI  A,01
+       0032       CALL ?SKPOP
+       0035       LXI  H,* S(0003)
+       0038       MVI  A,01
+       003A       CALL ?SLCTS
+       003D       CALL ?PNCOP
+       0040       LHLD M A(0006)
+       0043       MVI  A,09
+       0045       CALL ?QICOP
+       0048       CALL ?PNVOP
+       004B       CALL ?QIOOP
+       002B       ==== 004E
+   8 c 004E     stop; 
+       004E       CALL ?STOPX
+   9 c 0051     f: procedure(j) returns(fixed); 
+  10 e 0051     declare j fixed; 
+       0051       MOV  E,M
+       0052       INX  H
+       0053       MOV  D,M
+       0054       XCHG 
+       0055       SHLD J A(0008)
+  11 e 0058     return (j + 1); 
+       0058       LHLD J A(0008)
+       005B       MOV  E,M
+       005C       INX  H
+       005D       MOV  D,M
+       005E       XCHG 
+       005F       INX  H
+       0060       RET  
+  12 c 0061     end f; 
+  13 a 0061 end a; 
+
+CODE SIZE = 0061
+DATA AREA = 000A
+FREE SYMS = 3854
+END  COMPILATION
+

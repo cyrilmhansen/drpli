@@ -1,0 +1,56 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: MB44
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: MB44
+
+   1 a 0000 t: 
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main); 
+   3 c 0006     declare x fixed; 
+   4 c 0006     x = 5; 
+       0006       LXI  H,0005
+       0009       SHLD X A(0001)
+   5 c 000C     x = x * 2; 
+       000C       LHLD X A(0001)
+       000F       DAD  H
+       0010       SHLD X A(0001)
+   6 c 0013     put skip list('V', x); 
+       0013       LXI  D,0252
+       0016       LXI  B,0000
+       0019       CALL ?SYSPR
+       001C       MVI  A,01
+       001E       CALL ?SKPOP
+       0021       LXI  H,* S(0000)
+       0024       MVI  A,01
+       0026       CALL ?SLCTS
+       0029       CALL ?PNCOP
+       002C       LHLD X A(0001)
+       002F       MVI  A,09
+       0031       CALL ?QICOP
+       0034       CALL ?PNVOP
+       0037       CALL ?QIOOP
+       0017       ==== 003A
+   7 c 003A     stop; 
+       003A       CALL ?STOPX
+   8 a 003D end t; 
+
+CODE SIZE = 003D
+DATA AREA = 0003
+FREE SYMS = 38B4
+END  COMPILATION
+

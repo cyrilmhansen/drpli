@@ -1,0 +1,75 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: MB2
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: MB2
+
+   1 a 0000 a: 
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 a 0006     procedure options(main); 
+   3 c 0006     declare n fixed, m fixed; 
+   4 c 0006     n = 7; 
+       0006       LXI  H,0007
+       0009       SHLD N A(0001)
+   5 c 000C     m = 3; 
+       000C       MVI  L,03
+       000E       SHLD M A(0003)
+   6 c 0011     m = 2 * n; 
+       0011       LHLD N A(0001)
+       0014       DAD  H
+       0015       SHLD M A(0003)
+   7 c 0018     put skip list('W', m); 
+       0018       LXI  D,0252
+       001B       LXI  B,0000
+       001E       CALL ?SYSPR
+       0021       MVI  A,01
+       0023       CALL ?SKPOP
+       0026       LXI  H,* S(0000)
+       0029       MVI  A,01
+       002B       CALL ?SLCTS
+       002E       CALL ?PNCOP
+       0031       LHLD M A(0003)
+       0034       MVI  A,09
+       0036       CALL ?QICOP
+       0039       CALL ?PNVOP
+       003C       CALL ?QIOOP
+       001C       ==== 003F
+   8 c 003F     stop; 
+       003F       CALL ?STOPX
+   9 c 0042     f: procedure(j) returns(fixed); 
+  10 e 0042     declare j fixed; 
+       0042       MOV  E,M
+       0043       INX  H
+       0044       MOV  D,M
+       0045       XCHG 
+       0046       SHLD J A(0005)
+  11 e 0049     return (j + 1); 
+       0049       LHLD J A(0005)
+       004C       MOV  E,M
+       004D       INX  H
+       004E       MOV  D,M
+       004F       XCHG 
+       0050       INX  H
+       0051       RET  
+  12 c 0052     end f; 
+  13 a 0052 end a; 
+
+CODE SIZE = 0052
+DATA AREA = 0007
+FREE SYMS = 3865
+END  COMPILATION
+

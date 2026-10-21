@@ -1,0 +1,9 @@
+t: 
+    procedure options(main); 
+    declare x fixed; 
+    x = 5; 
+    x = 3 * x; 
+    put skip list('V', x); 
+    stop; 
+end t; 
+

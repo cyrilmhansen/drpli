@@ -12,7 +12,7 @@ proof of semantic equivalence (same executable bytes => same execution).
 the isolated CP/M oracle through the hardened (shell=False, per-run
 workspace) harness.
 """
-import argparse, os, subprocess, sys, shutil
+import argparse, os, subprocess, sys, shutil, re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CC = os.path.join(ROOT, "ocaml/_build/default/bin/pli80c.exe")
@@ -971,21 +971,6 @@ REJECTS = {
         "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 3 + 2;\n"
         "  stop;\nend t;\n",
         "ADD between TWO INTEGER LITERALS"),
-    "N58_MUL_TWO": (
-        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
-        "  x = x * 2;\n  stop;\nend t;\n",
-        "MULTIPLY by literal 2 is strength-reduced"),
-    "N59_MUL_ONE": (
-        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
-        "  x = x * 1;\n  stop;\nend t;\n",
-        "MULTIPLY by literal 1 is strength-reduced"),
-    "N60_MUL_LITERAL_LEFT": (
-        "t:\n  procedure options(main);\n  dcl x fixed;\n  x = 5;\n"
-        "  x = 3 * x;\n  stop;\nend t;\n",
-        "LITERAL on the LEFT is commuted"),
-    # ---- [E2E-10 step 2] FLOAT perimeter: every UNSAMPLED behaviour is a
-    # tested negative, so a future edit cannot quietly start emitting bytes
-    # for a shape DR has never shown me.
     "N61_FLOAT_TO_FIXED": (
         "t:\n  procedure options(main);\n  dcl a float;\n  dcl i fixed;\n"
         "  a = 1.5;\n  i = a;\n  stop;\nend t;\n",
@@ -1243,7 +1228,87 @@ for _n, _t in _E13_TAG.items():
 SPECIMENS["C1"] = ("e15src/C1.PLI", "golden/e2e172/C1/C1.REL")
 SPECIMENS["C4"] = ("e15src/C4.PLI", "golden/e2e172/C4/C4.REL")
 SPECIMENS["C7"] = ("e15src/C7.PLI", "golden/e2e173/C7/C7.REL")
-SPECIMENS["P9"] = ("e16src/P9.PLI", "golden/e2e174/P9/P9.REL")   # E2E-14/C145
+# [E2E-14/C145] P9: nested literal-actual call chain, byte-identical after the two-phase
+# anonymous-cell numbering.  It is NOT in _E13_TAG -- when E2E-14 retired P9 from the negative
+# panel I first anchored its registration into REJECTS, then "simplified" it away on the
+# mistaken belief the tag loop already covered it, which silently DROPPED a verified specimen
+# (509 instead of 478+32).  Restored explicitly; registration_audit() cannot see a removal,
+# so the count is cross-checked by hand whenever the panel changes [C154].
+SPECIMENS["P9"] = ("e16src/P9.PLI", "golden/e2e174/P9/P9.REL")
+
+# ---------------------------------------------------------------------------
+# [E2E-15] C148/C150/C151: DR's small-constant FIXED multiplication family, the
+# operand-parking rule for compound right operands, and the *0 / >=32768 refusals.
+# Sources in e18src/, DR goldens in golden/e2e186 (MB1-MB18), e2e187 (MB19-MB25),
+# e2e188 (MB26-MB28), e2e189 (MB29-MB31), e2e190 (MB34-MB37), e2e195b/e2e197b/
+# e2e198b (MB44-MB46, the retired N58/N59/N60 subjects).  32 byte-identical; 9 refused.
+# MB41-MB43 produced NO DR object (batch not-ok) and are deliberately ABSENT: a residual
+# .REL file is not evidence that DR compiled a program.
+# ---------------------------------------------------------------------------
+_E15_TAG = {
+    "MB1": "e2e186", "MB2": "e2e186", "MB3": "e2e186", "MB4": "e2e186",
+    "MB5": "e2e186", "MB6": "e2e186", "MB9": "e2e186", "MB10": "e2e186",
+    "MB11": "e2e186", "MB14": "e2e186", "MB15": "e2e186", "MB16": "e2e186",
+    "MB17": "e2e186", "MB18": "e2e186",
+    "MB19": "e2e187", "MB20": "e2e187", "MB21": "e2e187", "MB22": "e2e187",
+    "MB24": "e2e187", "MB25": "e2e187",
+    "MB26": "e2e188", "MB27": "e2e188", "MB28": "e2e188",
+    "MB29": "e2e189", "MB30": "e2e189",
+    "MB34": "e2e190", "MB35": "e2e190", "MB36": "e2e190", "MB37": "e2e190",
+    "MB44": "e2e195b", "MB45": "e2e197b", "MB46": "e2e198b",
+}
+for _n, _t in _E15_TAG.items():
+    SPECIMENS[_n] = ("e18src/%s.PLI" % _n,
+                     "golden/%s/%s/%s.REL" % (_t, _n, _n))
+# [E2E-15/C148] N58_MUL_TWO / N59_MUL_ONE / N60_MUL_LITERAL_LEFT retired from the negative
+# panel WITH their own goldens: C148 implemented exactly those routes and the same three
+# programs (x = x*2, x = x*1, x = 3*x) are now byte-identical specimens MB44/MB45/MB46.  A
+# negative is removed only when its behaviour has a golden of its own -- never merely because
+# it stopped firing, which is how a real regression could hide [C154].
+for _n, _m in (("MB7", "multiply by literal 0"), ("MB8", "multiply by literal 0"),
+               ("MB12", "repeated string literal"), ("MB13", "condition form"),
+               ("MB23", "32768"), ("MB31", "32768"),
+               ("MB38", "repeated string literal"),
+               ("MB39", "repeated string literal"),
+               ("MB40", "repeated string literal")):
+    REJECTS[_n] = (open("e18src/%s.PLI" % _n, "rb")
+                   .read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), _m)
+NEG_META_E15 = {
+    "MB7": ("my-gap", "DR COMPILES IT (golden/e2e186/MB7) and lowers BOTH `n * 0' and `0 * n' "
+        "to `MOV L,H', which copies H into L and does NOT produce zero -- a probable DR defect "
+        "[MB8 emits byte-identical code]. I reproduce neither it (unverified) nor my old "
+        "?IM22N-by-0 path (not byte-equal). Note elide_fixed_zero previously rewrote `x * 0' "
+        "into `x' outright, a silent mis-compile fixed under C151 [C148]"),
+    "MB8": ("my-gap", "The other operand order of MB7: DR emits `MOV L,H' for `0 * n' "
+        "[golden/e2e186/MB8], byte-identical to its `n * 0' output, confirming the constant "
+        "commutes for DR irrespective of route [C148]"),
+    "MB12": ("my-gap", "DR COMPILES IT (golden/e2e186/MB12). The cause is NOT the multiply: two "
+        "PUT statements share the string literal 'W', DR pools it ONCE (data size 7) while mine "
+        "emits a data area one byte too big (8) with every automatic shifted. My dedup removed "
+        "the duplicate WRITE but not the residual size difference, so the pool layout rule is "
+        "still uncharacterised and I refuse rather than emit [C152]"),
+    "MB38": ("my-gap", "DR COMPILES IT (golden/e2e191/MB38): the same repeated-string pool "
+        "layout gap as MB12/MB40, reached via `n + m' as the second PUT item [C152]"),
+    "MB39": ("my-gap", "DR COMPILES IT (golden/e2e191/MB39): the same repeated-string pool "
+        "layout gap, reached via `n * 3' -- which is byte-exact on its own [MB3] [C152]"),
+    "MB40": ("my-gap", "DR COMPILES IT (golden/e2e191/MB40) and this is the CLEAN discriminator: "
+        "`put skip list('W', n);' twice with PLAIN VARIABLES only -- no multiply, no call, no "
+        "expression -- yet mine emits DEF-DATA-SIZE 8 against DR's 7 and relocates the first "
+        "automatic at 2 instead of 1. It localises C152 to pool layout, not to any arithmetic "
+        "route, and it was reachable at HEAD 424eaa2 (i.e. pre-existing, silent) [C152]"),
+    "MB13": ("my-gap", "DR COMPILES IT (golden/e2e186/MB13): `if n * 2 > 8' lowers to the multiply "
+        "then `LXI B,FFF7 / DAD B / MOV A,H / ORA A / JM'. The multiply half is byte-exact here "
+        "[MB1/MB24]; what refuses is my condition subset, which carries no relational test whose "
+        "left operand is a constant multiply. MY gap, not a language rule [C148/C150]"),
+    "MB23": ("my-gap", "DR COMPILES IT (golden/e2e186/MB23): k=65535 leaves the 16-bit register "
+        "route and is loaded through the DECIMAL POOL (`PUSH H / LXI H,*S / MVI A,p / ?DLDOP / "
+        "?QDI15 / POP D / ?IM22N'). My `LXI D,k' would silently truncate the operand, so "
+        "refusing is a correctness requirement, not caution [C148]"),
+    "MB31": ("my-gap", "DR COMPILES IT (golden/e2e189/MB31) and pins the BOUNDARY exactly: k=32767 "
+        "uses `LXI D,7FFF' [MB30, byte-exact] while k=32768 switches to the decimal pool path. "
+        "The constant-multiply rule therefore has a signed-16-bit ceiling, not a digit-count "
+        "one [C148]"),
+}
 # Three shapes DR compiles that I still refuse: instruction bytes identical to DR,
 # executed value correct, but the .REL RECORD PLACEMENT differs -- DR writes a call's
 # descriptor record at plan time (before the left operand's code when the PUSH route puts
@@ -1392,12 +1457,6 @@ NEG_META = {
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG40/NG40.REL)"),
     "N57_ADD_LIT_LIT": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG41/NG41.REL)"),
-    "N58_MUL_TWO": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG42/NG42.REL)"),
-    "N59_MUL_ONE": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG43/NG43.REL)"),
-    "N60_MUL_LITERAL_LEFT": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG44/NG44.REL)"),
     "N61_FLOAT_TO_FIXED": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG45/NG45.REL)"),
     "N62_FLOAT_BINARY14": ("my-gap",
@@ -1437,6 +1496,7 @@ NEG_META = {
 }
 # [E2E-13] merged after the literal so the E13 block can sit above it.
 NEG_META.update(NEG_META_E13)
+NEG_META.update(NEG_META_E15)
 
 
 
@@ -1472,6 +1532,74 @@ def run_negatives():
     return bad
 
 
+class RegistrationCollision(Exception):
+    pass
+
+
+def registration_audit(path, specimens, rejects, negmeta):
+    """Mechanical prevention of regression-list key collisions [E2E-15/C154].
+
+    This file has suffered key collisions three times: E2E-12 (a SPECIMENS.update() block
+    silently replaced five long-standing specimens), E2E-13 (T4/T8 keys would have replaced
+    existing ones) and E2E-14 (P9 was anchored into REJECTS while also being a specimen).
+    Python dicts overwrite WITHOUT an error, so a collision is invisible from the panel
+    output -- the gate quietly tests a smaller set than it reports.
+
+    Two checks, each aimed at one failure mode:
+      (1) STATIC, per dict-literal / .update() block: a key written twice INSIDE one
+          registration block is an overwrite -- the E2E-12 shape.  A key that appears once
+          per block in different blocks (REJECTS and NEG_META deliberately share names) is
+          not flagged.
+      (2) RUNTIME over the built dicts: no name may be both a byte-exact SPECIMENS entry and
+          a REJECTS entry [the E2E-14 shape], and REJECTS/NEG_META must stay symmetric so a
+          verdict explanation can never be lost.
+    Negative-tested against all three induced shapes before it was wired in.
+    """
+    lines = open(path).read().splitlines()
+    dupes = []
+    k = 0
+    while k < len(lines):
+        ln = lines[k]
+        m = re.match(r'([A-Za-z_][A-Za-z0-9_]*)\s*(?:\.update\s*)?\([^)]*\{', ln)
+        if not m:
+            k += 1
+            continue
+        name = m.group(1)
+        keys = []
+        depth = 1
+        j2 = k          # keys can sit on the opening line itself
+        first = True
+        while j2 < len(lines) and depth:
+            l2 = lines[j2]
+            if not first:
+                depth += l2.count('{') - l2.count('}')
+            first = False
+            for m2 in re.finditer(r'(?:^|[{,])\s*"([A-Za-z0-9_]+)"\s*:', l2):
+                keys.append((m2.group(1), j2 + 1))
+            j2 += 1
+        once = {}
+        for key, lineno in keys:
+            if key in once:
+                dupes.append((name, key, once[key], lineno))
+            else:
+                once[key] = lineno
+        k = j2
+    if dupes:
+        raise RegistrationCollision(
+            "duplicate key inside one registration block (silently overwrites): %s"
+            % ", ".join("%s[%s] lines %d and %d" % d for d in dupes))
+    ov = set(specimens) & set(rejects)
+    if ov:
+        raise RegistrationCollision(
+            "registered as BOTH a byte-exact specimen and a refusal: %s" % sorted(ov))
+    if set(rejects) != set(negmeta):
+        raise RegistrationCollision(
+            "REJECTS/NEG_META asymmetric, verdict evidence lost: rejects-only=%s "
+            "negmeta-only=%s"
+            % (sorted(set(rejects) - set(negmeta)), sorted(set(negmeta) - set(rejects))))
+    return len(specimens) + len(rejects)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--link-run", action="store_true")
@@ -1489,6 +1617,16 @@ def main():
     # false byte-parity claim (C123 retraction).  A tool's blind spot is invisible
     # from inside its own output, so it is checked before any specimen is compiled;
     # raw `cmp` on .REL bytes remains the acceptance criterion either way.
+    if not a.skip_selftest:
+        # [E2E-15/C154] regression-list collisions have produced false confidence three
+        # times, and a dict overwrite leaves no trace in the output -- check the panel's own
+        # bookkeeping before compiling anything against it.
+        try:
+            registration_audit(os.path.join(ROOT, "tools", "e2e_gate.py"),
+                               SPECIMENS, REJECTS, NEG_META)
+        except RegistrationCollision as e:
+            print("e2e gate: ABORTED -- registration collision: %s" % e)
+            return 2
     if not a.skip_selftest:
         # [E2E-12/C137] the link-stage undefined-symbol detector gets the same
         # treatment as reldump's field-visibility check: it is the thing standing
