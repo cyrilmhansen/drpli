@@ -3618,3 +3618,40 @@ plus a marker fragment taken from the compiler's ACTUAL stderr.
   found nothing because DR prints `CALL ?ALLOP` with no address column, which is what made FREE look
   unimplemented. Before a conclusion is drawn from an absence, show that the same instrument detects
   the thing where it is known to be present.
+
+- **C185** *(E2E-27 P1-P3, based-structure layout and ABI -- and the overturning of E2E-26's P4)*
+  A level-numbered BASED structure (`declare 1 s based(p), 2 m fixed, 2 nx pointer`) is real in DR and
+  has a measured address model. Members are **contiguous from offset 0 with no alignment padding** --
+  ST6 puts bit(1) at 2 and the next fixed at 3, with allocation size 5 -- the structure contributes
+  **zero AUTO STORAGE** (ST1's block is the pointer alone), a CHARACTER member is `len+1` bytes, and a
+  nested head inside a based record does NOT extend the record (ST12: the inner head becomes plain
+  automatic storage). `allocate s set(q)` is `LXI H,<record size> / CALL ?ALLOP / SHLD <q>` and works
+  through ANY pointer, not only the declared one (ST3, LN1); `free s` and `free p->s` are byte-identical
+  (ST8 vs ST1), so they are one lowering with two address sources; qualified access takes its address
+  from the QUALIFIER, never from the declared pointer; and reading a POINTER member yields the stored
+  ADDRESS, which is what makes following a list one read instead of an add (ST9, LN1). Byte-exact:
+  ST1, ST3, ST8, ST9, ST10, LN1 -- LN1 additionally LINKed from my own .REL and from DR's and executed,
+  both printing `first=        11  linked=        22  after=        33  z=        22`; `z` staying 22
+  while `after` reports 33 is what proves the link read produced the target's address and that the
+  earlier read was an independent value copy.
+  **This claim exists to delete a false one.** E2E-26 recorded "based structures rejected by DR itself
+  (PB10/PB16/PB17)" and treated P4 as blocked on the oracle. Wrong: REVERSE.PLI and NETWORK.PLI were in
+  artefacts/ for every milestone of this project, both declare based structures, and DR compiles both
+  with a .REL. Those probes failed on declaration SPELLING -- ST11 re-runs PB16's
+  `declare nb based(pn) nd` in isolation and DR still rejects THAT, so one spelling is genuinely absent
+  while the feature is present. Based char/bit/dec members remain MY gap, refused only after the layout
+  has bound their offsets correctly (ST5/ST6/ST7).
+
+- **C186** *(E2E-27, evidence hygiene: sampling and instruments)* Two ways to look at a fact and still
+  read it backwards. **(a)** Three refusals of three spellings I invented became "the language does not
+  support this", while two working programs sat in the corpus I had been citing for three milestones.
+  A negative about a language feature needs the feature's own documentation or a working program as its
+  control; probes I chose are evidence about my sampling. **(b)** An invariant checked with an aggregate
+  over a filesystem walk is not an invariant: my ARCH-1 check was
+  `find ocaml/proto -type f | xargs md5sum | md5sum`, which sweeps untracked build artifacts, so its
+  input set drifted from 13 files to 4 and the hash "changed" with no source modification -- and the
+  constant I was comparing against, `e67a6868...`, is arch1.ml's own md5, not an aggregate at all. Check
+  baseline invariants with `git diff <baseline> -- <path>`, which answers the question actually asked.
+  **(c)** Equal counts and near-miss names conceal substitutions: my structure probes were first written
+  as S1-S13/W1, which are already panel keys from E2E-15/E2E-16, and the only reason that surfaced was
+  the inventory guard refusing -- a count would have shown the expected number of entries.
