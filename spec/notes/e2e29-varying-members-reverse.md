@@ -116,6 +116,18 @@ produced byte-identical console output on both scenarios —
 (`"\nWhat's up? hello world .\n\n\nActually,  world hello .\n\nWhat's up? a b c .\n\n\nActually,  c b
 a .\n\nWhat's up? .\n\n\n"`) [golden/e29dr_run{A,B}, golden/e29my_run{A,B}]. The link was confirmed
 genuine: 0 unresolved externals, 2866 bytes of PLILIB runtime absorbed, entry at 0100h.
+
+**The runtime comparison is circular and has to be read as such [C137].** Each pair of .REL files is
+byte-identical and LINK 1.31 is deterministic, so DR's `.COM` and mine are the same bytes — `cmp
+golden/e29dr_l/REVERSE.COM golden/e29my_l/REVERSE.COM` reports identical at 7808 B, and the same holds
+for the nine E29 pairs. Running "both" is running one file twice: identical output is guaranteed by the
+byte-exactness rather than adding independent evidence to it. What the runs genuinely establish is
+(i) that the byte-exact artifact I emit executes under CP/M, terminates cleanly, and is not a
+plausible-looking-but-dead image, and (ii) what DR's own linked runtime does — capacity truncation to
+`Actual`, `c1=1`/`c11=0` and `x8`/`x9` covering both outcomes of a compare and of a null test. That is
+evidence about the oracle and about runnability. The evidence that my lowering is right remains
+byte-exactness against DR goldens; the runtime shows those bytes describe a working program.
+
 One observed oddity, recorded rather than explained: the transcript of *both* objects reverses the last
 input word (`world hello`, `c b a`) while REVERSE's own comment says `olleh dlrow` — this is identical
 on both sides and needs a separate reading before I cite it [C150].
