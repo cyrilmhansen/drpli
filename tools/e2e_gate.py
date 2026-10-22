@@ -1893,11 +1893,12 @@ NEG_META["GW3"] = ("dr-refuses",
 # pinned marker moves to the new reason.  NB the condition path's message still RENDERS the
 # subscripted name as `call a[1]' -- a diagnostic wart, not a behaviour claim: the element is
 # resolved correctly everywhere the bytes are decided [C169].
-for _n, _mk in [("AB2", "runtime-variable array subscript"),
-                ("AB8", "runtime-variable array subscript"),
-                ("AB10", "runtime-variable array subscript"),
-                ("ARRAY", "runtime-variable array subscript"),
-                ("PASSARAY", "runtime-variable array subscript"),
+# [E2E-22] AB2/AB8/AB10 are REMOVED from this list: they compile byte-exact now and were
+# promoted to specimens below, which is the only sanctioned way to retire a negative [C154].
+# ARRAY and PASSARAY keep their slot but their pinned reason moves -- the variable-subscript gap
+# closed, so each now stops on its own NEXT missing mechanism (PUT EDIT, element-as-actual).
+for _n, _mk in [("ARRAY", "PUT form not in E2E-3a subset"),
+                ("PASSARAY", "array element passed as a procedure argument"),
                 ("AB7", "array element passed as a procedure argument"),
                 ("AB14", "main-block statement after an appended procedure"),
                 ("AB11", "(> ")]:
@@ -1912,6 +1913,47 @@ for _n, _mk in [("AB2", "runtime-variable array subscript"),
             _cls, _note = NEG_META.pop(_n)
             NEG_META[_n] = (_cls, _note + "  [E2E-20 marker updated: the route moved, "
                             "so the pinned reason now names %r]" % _mk)
+
+# ---------------------------------------------------------------------------
+# [E2E-22/P1+P2] VARIABLE-INDEX ARRAY ADDRESSING -- byte-exact
+# ---------------------------------------------------------------------------
+# DR's address ladder, measured on AB2/AB8/AB10 + two new probes VB1/VB2 that exist ONLY to
+# discriminate the lower-bound operand and the two ladder forms:
+#   operand = base - lower_bound * element_size
+#     VB1 lb=0 -> addend 0x0000     VB2 lb=2 -> addend 0xFFFC     AB2 lb=1 -> addend 0xFFFE
+#   which RULES OUT the [C159] wording `base + (lb-1)*(-sz)' -- three goldens, three different
+#   bounds, one arithmetic fact.
+# Two forms, selected by whether the operand is the plain base:
+#   bias 0  (VB1): LHLD idx ; DAD H ; LXI D,<base> ; DAD D                (no stack traffic)
+#   bias<>0 (AB2 VB2 AB8 AB10):
+#            LXI H,<biased> ; PUSH H ; LHLD idx ; DAD H ; POP D ; DAD D    (C141 parking)
+# Index expressions: AB8 `a(i+1)' emits `LHLD i / INX H / DAD H', i.e. DR adjusts the INDEX VALUE
+# before doubling, so +1 moves exactly one element.  Only +1 is measured; `i+k' and every other
+# expression form still refuses [C159].
+# Read tail `MOV E,M / INX H / MOV D,M' lands the value in DE; the DR continuations (AB2 `XCHG /
+# SHLD b', AB8/AB10 `XCHG / MVI A,09' PUT tail) show DR normalizing to HL with XCHG, which is what
+# lets every existing consumer work unchanged.  Store tails: literal `MVI M,lo / INX H / MVI M,hi'
+# (AB2 VB1 VB2); computed `PUSH H / <ladder> / POP D / MOV M,E / INX H / MOV M,D' (AB8 AB10),
+# where the ladder's own parking pair nests inside the value's parking pair.
+for _n in ["AB2", "AB8", "AB10"]:
+    REJECTS.pop(_n, None)
+    NEG_META.pop(_n, None)
+    NEG_META_E19.pop(_n, None)
+    _d, _t = _E17_REFS[_n]
+    add_spec(_n, ("%s/%s.PLI" % (_d, _n), "golden/%s/%s/%s.REL" % (_t, _n, _n)))
+for _n in ("VB1", "VB2"):
+    add_spec(_n, ("e24src/%s.PLI" % _n, "golden/e2e231/%s/%s.REL" % (_n, _n)))
+# NB: specimens get NO NEG_META row -- that dict is negative evidence only, and the registration
+# guard refuses a REJECTS/NEG_META asymmetry because an unmatched entry silently changes what a
+# verdict means [C163-class bug; caught by the guard, not by review].
+NEG_META["ARRAY"] = ("my-gap",
+    "DR compiles it [golden/e2e214/ARRAY]. The variable-subscript gap is CLOSED [E2E-22]; ARRAY "
+    "now stops on PUT EDIT (`put edit(...)' at line 42), which is outside the E2E-3a PUT subset. "
+    "Recorded as a refusal so the next route change is noticed [C154].")
+NEG_META["PASSARAY"] = ("my-gap",
+    "DR compiles it [golden/e2e214/PASSARAY]. It now stops ONLY on passing an array element as an "
+    "actual argument (`call pass(b(2))'), which AB7 shows DR handling by storing the element "
+    "ADDRESS into the call descriptor [C159] -- Priority 3, not implemented yet.")
 
 # AB19 / AB21 are deliberately registered NOWHERE: they compile but are not byte-exact, because
 # DR applies cross-statement constant-reuse peepholes I do not implement (`LXI H,v ; SHLD ;

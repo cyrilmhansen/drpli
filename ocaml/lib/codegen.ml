@@ -456,8 +456,29 @@ let vk_of st name =
    Returning a discriminated result here makes fall-through impossible by construction. *)
 let suf_is_element st e = suf_is_element_arr st.arrays e
 
+
+
+(* [E2E-22] payload of Suf_element_dyn: everything needed to build DR's address ladder, and
+   nothing else. `dyn_bias' is -lower_bound*element_size, so the relocated operand is
+   (dyn_base + dyn_bias) -- AB2 addend 0xFFFE (lb=1), VB2 0xFFFC (lb=2), VB1 0x0000 (lb=0), which
+   is what rules out C159's recorded `base + (lb-1)*(-sz)'. *)
+type dyn_ref =
+  { dyn_base : int
+  ; dyn_bias : int
+  ; dyn_idx : Ast.expr
+  ; dyn_adj : int }
+
 type suffix_ref =
   | Suf_element of int          (* array element; payload = relocated data address *)
+  (* [E2E-22/P1] a RUNTIME-computed element address.  This is still an ARRAY reference -- it is
+     never routed through the call machinery, which was the whole of C165's misdiagnosis.  `bias'
+     is -lower_bound*element_size, so the relocated operand is (base+bias): AB2 (lb=1) carries
+     data addend 0xFFFE, VB2 (lb=2) 0xFFFC, and VB1 (lb=0) 0x0000 -- which is what discriminates
+     `base - lb*esz' from C159's recorded `base + (lb-1)*(-sz)': the DR goldens say the former.
+     `idx' is the index expression and `adj' a literal ADDED TO THE INDEX VALUE (AB8 `a(i+1)'
+     emits `LHLD i / INX H / DAD H', i.e. the +1 happens before the doubling, so it moves exactly
+     one element -- an address-side +1 would move two [measured, AB8]). *)
+  | Suf_element_dyn of dyn_ref
   | Suf_call of string * Ast.expr list
 
 let resolve_suffix st (hd : Ast.expr) (args : Ast.expr list) =
@@ -494,9 +515,39 @@ let resolve_suffix st (hd : Ast.expr) (args : Ast.expr list) =
                           failwith
                             ("codegen: [TBD] array subscript '" ^ t
                              ^ "' is not a decimal literal [C159]"))
+                 | Ast.Eident h ->
+                     (* simple variable index: `a(i)' [AB2 AB10 VB1 VB2] *)
+                     Suf_element_dyn
+                       { dyn_base = addr_of_raw st name; dyn_bias = -lb * ez;
+                         dyn_idx = a; dyn_adj = 0 }
+                 | Ast.Ebinary (Ast.Add, l, ({ Ast.e = Ast.Enumber ks; _ } as rr)) ->
+                     (* `a(i+1)' [AB8]: DR adds to the INDEX, then doubles -- see the
+                        type comment above.  Only +1 is measured; anything wider keeps
+                        refusing rather than extrapolating INX H repetition [E2E-13]. *)
+                     (match l.Ast.e with
+                      | Ast.Eident _ ->
+                          let k = int_of_string
+                            (String.concat "" (String.split_on_char '_' ks)) in
+                          if k = 1 then
+                            Suf_element_dyn
+                              { dyn_base = addr_of_raw st name; dyn_bias = -lb * ez;
+                                dyn_idx = l; dyn_adj = 1 }
+                          else
+                            failwith
+                              (Printf.sprintf
+                                 "codegen: [TBD] array subscript i+%d [C159]: only i+1 is \
+                                  DR-measured (AB8). i+k would need k INX H steps between LHLD \
+                                  and DAD H -- plausible but UNVERIFIED, so it refuses rather \
+                                  than extrapolate [E2E-13]" k)
+                      | _ ->
+                          failwith
+                            "codegen: [TBD] array subscript expression form [C159] (only a bare \
+                             index variable and index+1 are DR-measured: AB2 AB8 AB10 VB1 VB2)")
                  | _ ->
                      failwith
-                       "codegen: [TBD] runtime-variable array subscript [C159] (DR's                         ladder is `LXI H,A+(lb-1)*size / PUSH H / LHLD i / DAD H / POP D                         / DAD D' -- characterized, NOT implemented; refused rather than                         approximated)")
+                       "codegen: [TBD] runtime-variable array subscript [C159]: the index must be \
+                        a simple variable or variable+1 (AB8). DR's ladder for anything else \
+                        (multiply, deref, an element as index) is unmeasured, so it refuses.")
             | [] ->
                 failwith
                   ("codegen: [TBD] whole-array reference to `" ^ h.Ast.orig
@@ -507,6 +558,49 @@ let resolve_suffix st (hd : Ast.expr) (args : Ast.expr list) =
        | None -> Suf_call (nm, args))
   | _ -> Suf_call ("", [ hd ])   (* non-identifier target: existing code refuses it *)
 
+(* [E2E-22/P1] DR's variable-index address ladder -- TWO forms, chosen by whether the biased
+   operand equals the plain base. Leaves the element ADDRESS in HL:
+     dyn_bias = 0  (lb = 0, VB1) : LHLD idx [; INX H*adj] ; DAD H ; LXI D,<reloc base> ; DAD D
+     dyn_bias <> 0 (AB2 VB2 AB8 AB10):
+                             LXI H,<reloc base+bias> ; PUSH H ; LHLD idx [; INX H*adj] ;
+                             DAD H ; POP D ; DAD D
+   The difference is mechanical, not stylistic: with bias 0 there is no base value that has to
+   survive `LHLD idx' (which destroys HL), so DR computes 2*idx first and adds the base from DE
+   afterwards -- 7 bytes, no stack traffic. With bias <> 0 the base MUST survive the LHLD, so DR
+   parks it on the runtime stack, which is the C141 discipline applied to an address rather than
+   to a value. The doubling is `DAD H' of the index and the second add comes from the parked
+   copy, so the ladder's own PUSH/POP pair nests inside a caller's parking pair exactly as AB8
+   and AB10 show. Nothing here allocates storage: bind.layout remains the only sizing authority. *)
+let dyn_addr st (r : dyn_ref) =
+  let opnd = (r.dyn_base + r.dyn_bias) land 0xffff in
+  let emit_idx () =
+    (match r.dyn_idx.Ast.e with
+     | Ast.Eident h ->
+         d st op_lhld; reloc st Data (addr_of st h.Ast.orig)
+     | _ ->
+         failwith
+           "codegen: internal: dyn_addr index expression must be a simple variable")
+    ;
+    (* [AB8] `a(i+1)' increments the INDEX between the LHLD and the doubling, so it shifts the
+       result by exactly one element (2 bytes) -- an address-side increment would shift two. *)
+    for _ = 1 to r.dyn_adj do
+      d st op_inx_h
+    done
+  in
+  if r.dyn_bias = 0 then begin
+    emit_idx ();
+    d st op_dad_h;
+    d st op_lxi_d; reloc st Data opnd;
+    d st op_dad_d
+  end
+  else begin
+    d st op_lxi_h; reloc st Data opnd;
+    d st op_push_h;
+    emit_idx ();
+    d st op_dad_h;
+    d st op_pop_d;
+    d st op_dad_d
+  end
 let call_ext st name =
   (* CALL <external RTL>: operand slot = cd 00 00, immediately followed by
      LINK-CHAIN-EXT at the operand address [DR emits CHAIN-EXT per call site]
@@ -2002,6 +2096,17 @@ let rec lower_hl st (e : Ast.expr) =
           (match resolve_suffix st hd args with
            | Suf_element addr ->
                d st op_lhld; reloc st Data addr; st.last_imm <- None
+           | Suf_element_dyn r ->
+               (* [E2E-22/P2] variable-index READ.  DR's tail is `MOV E,M / INX H / MOV D,M' --
+                  the value arrives in DE, not HL (AB2 0025-0027, AB8 0039-003B, AB10
+                  003D-003F).  What settles the register contract is the CONTINUATION, not the
+                  tail: AB2's `b = a(i)' continues `XCHG / SHLD b' and AB8/AB10's PUT item
+                  continues `XCHG / MVI A,09 / <numeric PUT tail>'.  DR normalizes to HL with
+                  XCHG in every measured case, so the read keeps lower_hl's existing HL contract
+                  and every consumer (scalar store, PUT item, arithmetic) works unchanged. *)
+               dyn_addr st r;
+               d st 0x5e; d st op_inx_h; d st 0x56; d st op_xchg;
+               st.last_imm <- None
            | Suf_call _ -> assert false)
       | Ast.Eident h, args ->
           let nm = String.lowercase_ascii h.Ast.orig in
@@ -4771,7 +4876,15 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
               | _ -> assert false
             in
             (a, (sub - lb) * ez)
+        | Suf_element_dyn _ ->
+            (* placeholder: the dynamic branch below takes over before addr/off are used *)
+            (0, 0)
         | Suf_call _ -> assert false
+      in
+      let dyn_r =
+        match resolve_suffix st hd args with
+        | Suf_element_dyn r -> Some r
+        | _ -> None
       in
       (* form 4: self-update on the very same element with a literal bias *)
       let self_k =
@@ -4804,7 +4917,45 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                         (String.concat "" (String.split_on_char '_' t)))
             | _ -> None
           in
-          if off = 0 then begin
+          if dyn_r <> None then begin
+            (* [E2E-22/P2] variable-index STORE.  Two DR-measured shapes, and the discriminator is
+               the SAME one as for the ladder's own parking [C141]:
+                 literal value   (AB2 `a(i)=9', VB1, VB2) : <ladder> ; MVI M,lo ; INX H ; MVI M,hi
+                 computed value  (AB8 `a(i+1)=i*2', AB10 `a(i)=i'):
+                     lower_hl(rhs) ; PUSH H ; <ladder> ; POP D ; MOV M,E ; INX H ; MOV M,D
+               The computed form parks the VALUE before the ladder runs, so the ladder's own
+               PUSH H/POP D pair (needed when bias<>0) nests inside it -- two live stack slots, and
+               the value is recovered into DE by the outer POP D immediately before storing.  Byte
+               order is E2E-20's corrected one: 0x73 MOV M,E (low) then 0x72 MOV M,D (high).
+               NOT measured, so refused: a computed store whose bias is 0 (whether DR would still
+               nest a parking pair when the ladder itself has none), and self-update like
+               `a(i) = a(i) + 5' -- AC4's form-4 rule is constant-index only. *)
+            let r =
+              match dyn_r with Some r -> r | None -> assert false
+            in
+            match litv with
+            | Some v ->
+                dyn_addr st r;
+                d st op_mvi_m; d st (v land 0xff);
+                d st op_inx_h; d st op_mvi_m; d st ((v lsr 8) land 0xff)
+            | None ->
+                if r.dyn_bias = 0 then
+                  failwith
+                    "codegen: [TBD] variable-index store of a computed value with lower bound 0 \
+                     [E2E-22]: both DR-measured computed stores carry a nonzero bias (AB8 lb=1, \
+                     AB10 lb=1) and park the value with PUSH H before a ladder that itself parks \
+                     the base.  With bias=0 the ladder needs no parking, so whether DR still \
+                     nests a pair is UNMEASURED -- refused rather than guessed [C159]"
+                else begin
+                  st.last_imm <- None;
+                  lower_hl st rhs;
+                  d st op_push_h;
+                  dyn_addr st r;
+                  d st op_pop_d;
+                  d st 0x73; d st op_inx_h; d st 0x72
+                end
+          end
+          else if off = 0 then begin
             (* form 1: DR's ordinary scalar store -- value in HL, one SHLD.
                AB16 `q(1) = 2' gives `LXI H,0002 / SHLD Q A(0000)' and AC5
                `a(1) = b * 2' gives `LHLD B / DAD H / SHLD A A(0000)', so the

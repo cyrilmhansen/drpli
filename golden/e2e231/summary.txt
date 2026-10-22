@@ -1,0 +1,2 @@
+VB1	ok	PRN=True REL=True
+VB2	ok	PRN=True REL=True
