@@ -1377,6 +1377,83 @@ let parse_int_const (s : string) =
 let fits_int_lit (text : string) =
   (try bin15_fits (parse_int_const text) with _ -> false)
 
+let is_int_literal (s : string) =
+  match int_of_string_opt (String.concat "" (String.split_on_char '_' s)) with
+  | Some _ -> true
+  | None -> false
+
+(* [E2E-25/C178] ---- one classifier, one routing decision, used by prescan AND lowering ----
+   [C179] says a pool DEMAND must be made at exactly the AST position whose LOWERING allocates.  The
+   first version of this rule pattern-matched the operands separately in each walker, and they
+   disagreed about parenthesised spellings (`x + (-32768)' arrives as Econd(Eprefix(Minus,Enumber))),
+   so prescan demanded 3 bytes the lowering never allocated -- a pool-invariant refusal, caught
+   loudly [C167: the orientation that hid the bug was unverified].  These two functions are now the
+   ONLY place that decides which arithmetic positions convert a literal. *)
+
+(* parentheses reach the lowering wrapped in Econd; the unwrapping is part of the classifier so both
+   walkers see the same operand *)
+let rec e25_unwrap e = match e.Ast.e with Ast.Econd x -> e25_unwrap x | _ -> e
+
+(* negative literal out of bin(15) range: signed cell plus the SAME conversion route as the positive
+   case, with no ?IN20N, because the sign lives in the cell's final nibble [LP8, LR11, LR17-LR19].
+   Parses its own digits: parse_int_const is defined far below, and this must be reachable from
+   lower_hl -- OCaml resolves a let strictly before its use site. *)
+let lit_dec_neg_to_hl st (text : string) =
+  let p = lit_dec_p text in
+  match int_of_string_opt (String.concat "" (String.split_on_char '_' text)) with
+  | None -> failwith "codegen: [TBD] non-integer literal text"
+  | Some v -> dec_cell_route st (bcd_pack_signed (- v) p) p
+
+(* an ADD/SUB/store operand that is an out-of-range integer literal, in either spelling: `32768' as a
+   bare Enumber, `-32768' as Eprefix(Minus, Enumber), either possibly Econd-wrapped.  Yields the
+   literal TEXT, which fixes the cell's digit count, and the SIGNED VALUE, which fixes its bytes. *)
+let over_lit_operand e =
+  match (e25_unwrap e).Ast.e with
+  | Ast.Enumber s when is_int_literal s && not (fits_int_lit s) -> Some (s, parse_int_const s)
+  | Ast.Eprefix (Ast.Minus, inner) ->
+      (match (e25_unwrap inner).Ast.e with
+       | Ast.Enumber s when is_int_literal s && not (fits_int_lit s) ->
+           Some (s, - (parse_int_const s))
+       | _ -> None)
+  | _ -> None
+
+(* true when an operand WOULD reach lower_hl's unrouted immediate path -- an out-of-range literal in
+   a position this build does not convert.  Two such operands together are unmeasured, and emitting
+   a wrapped LXI H for either is the silent wrong-value class this priority closes. *)
+let is_over_lit e = over_lit_operand e <> None
+
+(* is this expression a DEC-typed variable, according to the lowering's own type table? *)
+let e25_is_dec st (e : Ast.expr) =
+  match (e25_unwrap e).Ast.e with
+  | Ast.Eident n -> (match vk_of st n.Ast.orig with Vdec _ -> true | _ -> false)
+  | _ -> false
+
+(* [E2E-25/C178] THE routing decision for ADD/SUB.  Exactly one operand may be an out-of-range
+   literal.  For ADD that is sufficient (a DEC-typed other operand is refused by lower_hl's own
+   Eident arm, which is C161 and must keep refusing).  For SUB the other operand must be a plain
+   NON-DEC identifier: that is the only shape DR has a measured sample for (LQ5, LP9, ML8 for
+   `x - K'; LR3, LR17 for `K - x'; LR18 for `x - (-K)'), and every other shape falls through
+   unchanged.  Prescan calls this with its own is_dec, so demand and allocation are one rule. *)
+let e25_bin_routes (is_dec : Ast.expr -> bool) (op : Ast.binop) (l : Ast.expr) (r : Ast.expr) =
+  match over_lit_operand l, over_lit_operand r with
+  | Some _, Some _ -> false
+  | None, None -> false
+  | (Some _, None) | (None, Some _) ->
+      if op <> Ast.Add && op <> Ast.Sub then false
+      else
+        (* [E2E-25] an unproven condition, caught by the pool invariant rather than by a specimen:
+           the first draft wrote `op = Ast.Add || <other-operand shape>', whose second disjunct is
+           true for a plain identifier whatever the operator is -- so `y = x * 32768' routed its
+           literal through a conversion cell the prescan had never demanded, and LP13 died on the
+           C152 size check instead of on its designed MB31 threshold refusal.  Only ADD and SUB are
+           measured; MUL/DIV keep their existing paths and their existing refusals. *)
+        if op = Ast.Add then true
+        else
+          let other = if (match over_lit_operand l with Some _ -> true | None -> false) then r else l in
+          match (e25_unwrap other).Ast.e with
+          | Ast.Eident _ -> not (is_dec other)
+          | _ -> false
+
 let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Ebinary (Ast.Exp, l, r) ->
@@ -1402,15 +1479,22 @@ let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
      in the C150 constant-operand paths that allocate no cell, and the pool invariant would refuse
      programs that used to build.  The other operand still recurses, so a nested ADD counts its own
      cell and nothing else. *)
-  | Ast.Ebinary (Ast.Add, { Ast.e = Ast.Enumber t; _ }, r) ->
-      pdec_int_lit_cell cx t + prescan_expr cx r
-  | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber t; _ }) ->
-      pdec_int_lit_cell cx t + prescan_expr cx l
-  (* [E2E-24/C178] the SUB mirror of the arm above -- RIGHT operand only.  `k - x' is measured
-     nowhere, so it is not routed and must not be demanded; demanding a cell the declining lowering
-     never allocates is exactly the failure mode recorded in [C179]. *)
-  | Ast.Ebinary (Ast.Sub, l, { Ast.e = Ast.Enumber t; _ }) ->
-      pdec_int_lit_cell cx t + prescan_expr cx l
+  (* [E2E-25/C178] ONE arm replaces E2E-24's three, and it asks the SAME predicate the lowering asks
+     -- `is_dec' here is prescan's view of the type table, `vk_of' in lower_hl is lowering's, and
+     both answer the same question because Bind built them from one declaration list. *)
+  | Ast.Ebinary (op, l, r)
+    when op = Ast.Add || op = Ast.Sub ->
+      let is_dec e = pdec_is_dec cx e in
+      if e25_bin_routes is_dec op l r then
+        match over_lit_operand l, over_lit_operand r with
+        | Some (t, v), None ->
+            (if v < 0 then pdec_int_neg_lit_cell cx t else pdec_int_lit_cell cx t)
+            + prescan_expr cx r
+        | None, Some (t, v) ->
+            (if v < 0 then pdec_int_neg_lit_cell cx t else pdec_int_lit_cell cx t)
+            + prescan_expr cx l
+        | _ -> prescan_expr cx l + prescan_expr cx r
+      else prescan_expr cx l + prescan_expr cx r
   | Ast.Ebinary (_, l, r) -> prescan_expr cx l + prescan_expr cx r
   | Ast.Eprefix (_, x) -> prescan_expr cx x
   | Ast.Ebuilt (_, es) ->
@@ -1632,11 +1716,6 @@ let match_put_list_lit (s : Ast.stmt) =
 
 (* true iff the literal text is an integer (PL/I float literals like "2.5" and
    "1.5e3" are not).  Used to keep numeric-literal arms out of float text. *)
-let is_int_literal (s : string) =
-  match int_of_string_opt (String.concat "" (String.split_on_char '_' s)) with
-  | Some _ -> true
-  | None -> false
-
 (* ---- [E2E-8] PUT EDIT: the compiled format list --------------------
    Decoded byte-wise from 11 DR tables (golden/e2e11/ R1001-R1010,
    R1018-R1020, IFACT).  A format table is a DATA pool item:
@@ -2885,7 +2964,8 @@ let rec lower_hl st (e : Ast.expr) =
       (* [(a+1) N304] +1 lowers to INX H on the 2-byte path; other
          additions keep the general ladder *)
       lower_hl st l; d st op_inx_h; st.last_imm <- None
-    | Ast.Ebinary (Ast.Add, { Ast.e = Ast.Enumber ks; _ }, r) ->
+    | Ast.Ebinary (Ast.Add, { Ast.e = Ast.Enumber ks; _ }, r)
+      when fits_int_lit ks ->
       (* [E2E-13/C141] LITERAL on the left of an ADD: DR commutes the operand and
          adds the constant to the value instead of loading an immediate and pairing
          it.  Two independent DR samples:
@@ -2901,15 +2981,16 @@ let rec lower_hl st (e : Ast.expr) =
          FIRST and then XCHG'd into DE, because a run-time conversion cannot be strength-reduced to
          a bias on a value that is not in HL yet.  This is the same XCHG shape C150 records for
          k>=5 in-range left literals, reached for a different reason. *)
-      if bin15_fits k then begin
-        lower_hl st r; hl_bias_free st k; st.last_imm <- None
-      end else begin
-        lit_dec_to_hl st ks k;
-        d st op_xchg;
-        lower_hl st r;
-        d st op_dad_d
-      end
-    | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber ks; _ }) ->
+      (* [E2E-25] the arm's `when fits_int_lit ks' now confines it to in-range literals: the
+         out-of-range case moved to the single arithmetic arm below, which is the ONLY place that
+         converts a literal operand.  An earlier draft of this commit deleted the routing branch here
+         but left the pattern unguarded, so `y = x + 0123456789' still matched, biased HL by a value
+         that silently does not fit, and never allocated its cell -- 11 specimens went from exact to
+         pool-invariant refusals.  Deleting a branch without narrowing the pattern that reaches it is
+         the same mistake as [C179], seen from the other side. *)
+      lower_hl st r; hl_bias_free st k; st.last_imm <- None
+    | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber ks; _ })
+      when fits_int_lit ks ->
       (* [E2E-13/C141] non-self constant add: strength-reduce the same way, on the
          left value.  k<=4 -> (INX H)*k, k>=5 -> LXI B,k ; DAD B  [R4,R5,R6,R8,R10,
          R12,T2,T4,T8].  Magnitude 1 lands in the arm above and gives the same byte. *)
@@ -2919,44 +3000,37 @@ let rec lower_hl st (e : Ast.expr) =
          appears ONLY because the conversion runs in HL and would otherwise destroy the left value
          -- which is exactly why C150's no-parking rule for in-range literals is not violated here.
          The in-range path below is untouched. *)
-      if bin15_fits k then begin
-        lower_hl st l; hl_bias_free st k; st.last_imm <- None
-      end else begin
-        lower_hl st l;
-        d st op_push_h;
-        lit_dec_to_hl st ks k;
-        d st op_pop_d;
-        d st op_dad_d
-      end
-    | Ast.Ebinary (Ast.Sub, l, { Ast.e = Ast.Enumber ks; _ })
-      when is_int_literal ks && not (fits_int_lit ks)
-           && (match l.Ast.e with
-               (* DEC-typed left operands stay unrouted: that is C161's mixed mode, still unproven,
-                  and it must keep refusing rather than be quietly pushed through a binary
-                  conversion.  Anything that is not a plain identifier also falls through to the
-                  existing path, so only the measured `var - k' shape is taken here. *)
-               | Ast.Eident n ->
-                   (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
-                    | Some vi -> (match vi.vk with Vdec _ -> false | _ -> true)
-                    | None -> true)
-               | _ -> false) ->
-      (* [E2E-24/C178] SUB with an out-of-range constant on the RIGHT.  Measured on two probes
-         before being written: LQ5 `y = y - 32768' and LP9 `y = x - 65535' both give
-         `LHLD v / PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / POP D / CALL ?IS22N'.
-         ?IS22N, not DAD-with-two's-complement: the in-range ladder adds FFFC for -4, but DR
-         switches to a subtraction ROUTINE once the operand arrives by conversion (DE = left,
-         HL = converted constant).
-         The `when' guard is deliberately narrow.  In-range SUB is produced by the shared
-         add/sub dispatcher, which MANY byte-exact specimens pin; this arm matches only the
-         out-of-range case, so nothing that compiled before changes.  DEC-typed left operands
-         are excluded: that is C161's mixed mode, still unproven, and must keep refusing
-         rather than being quietly routed through a binary conversion. *)
-      let k = parse_int_const ks in
-      lower_hl st l;
-      d st op_push_h;
-      lit_dec_to_hl st ks k;
-      d st op_pop_d;
-      call_ext st "?IS22N"
+      (* [E2E-25] as above: out-of-range right literals are handled by the unified arm. *)
+      lower_hl st l; hl_bias_free st k; st.last_imm <- None
+    (* [E2E-25/C178] THE single arithmetic route for an out-of-range literal operand.  It covers the
+       whole measured matrix, both operators, both sides, both signs, parenthesised or not -- each
+       cell pinned against a DR golden:
+         LP4  `32768 + x'    LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / XCHG / LHLD x / DAD D
+         LR11 `-32768 + x'   same, signed cell                        [C178: no ?IN20N]
+         LR3  `32768 - x'    route / XCHG / LHLD x / CALL ?IS22N
+         LR17 `-32768 - x'   same, signed cell
+         ML10 `x + 32768'    LHLD x / PUSH H / route / POP D / DAD D   [C150 parking: the conversion
+         LR19 `x + (-32768)'  runs in HL and would destroy the left value, so it is parked -- the
+         LQ5  `x - 32768'     in-range no-parking rule is untouched]
+         LP9  `x - 32768'    POP D / CALL ?IS22N
+       DR's shape depends only on WHICH SIDE the literal is on and WHICH OPERATOR, never on the
+       literal's sign or spelling: the sign is folded into the cell, parentheses disappear.  That
+       is why one arm replaces the five pattern-matched arms an earlier draft of this commit had. *)
+    | Ast.Ebinary (op, l, r)
+      when e25_bin_routes (e25_is_dec st) op l r ->
+      (match over_lit_operand l, over_lit_operand r with
+       | Some (text, v), None ->
+           if v < 0 then lit_dec_neg_to_hl st text else lit_dec_to_hl st text v;
+           d st op_xchg;
+           lower_hl st r;
+           if op = Ast.Add then d st op_dad_d else call_ext st "?IS22N"
+       | None, Some (text, v) ->
+           lower_hl st l;
+           d st op_push_h;
+           if v < 0 then lit_dec_neg_to_hl st text else lit_dec_to_hl st text v;
+           d st op_pop_d;
+           if op = Ast.Add then d st op_dad_d else call_ext st "?IS22N"
+       | _ -> failwith "codegen: internal: out-of-range literal operand unmatched [TBD]")
 
     | Ast.Ebinary (Ast.Add, l, r)
       when (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false)

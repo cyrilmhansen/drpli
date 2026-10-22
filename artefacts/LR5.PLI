@@ -1,0 +1,11 @@
+a: procedure options(main);
+  dcl x fixed, y fixed, d fixed dec(5), z(3) fixed, i fixed;
+  x = 1;
+  i = 1;
+  do i = 1 to 32768;
+    y = i;
+  end;
+  put skip list(y);
+  stop;
+end a;
+

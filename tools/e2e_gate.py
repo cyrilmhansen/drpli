@@ -2147,6 +2147,16 @@ DIVERGENT_FILE = os.path.join(ROOT, "spec", "DIVERGENT.txt")
 # was cosmetic: it was a code-size artefact of the truncation.  The remaining shapes stay in
 # spec/DIVERGENT.txt with measured bytes and are WRONG-VALUE rows, not cosmetic differences.  Refusals are pre-designed [TBD] guards with DR
 # goldens in NEG_META -- none is a pool-invariant failure.
+# [E2E-25] the completed ADD/SUB matrix.  Both operators, both sides, both signs, parenthesised or
+# not -- every cell pinned by its own DR golden (batches e2e292d / e2e293d), because [C167] says a
+# rule verified in only the orientation that hides its bug is not verified.  LR2 also proves the
+# leading-zero digit-count rule survives being an ADD operand (`x + 0123456789' = p=10, 6-byte cell).
+add_spec('LR2', ('artefacts/LR2.PLI', 'golden/e2e292d/LR2/LR2.REL'))
+add_spec('LR3', ('artefacts/LR3.PLI', 'golden/e2e292d/LR3/LR3.REL'))
+add_spec('LR11', ('artefacts/LR11.PLI', 'golden/e2e292d/LR11/LR11.REL'))
+add_spec('LR17', ('artefacts/LR17.PLI', 'golden/e2e293d/LR17/LR17.REL'))
+add_spec('LR18', ('artefacts/LR18.PLI', 'golden/e2e293d/LR18/LR18.REL'))
+add_spec('LR19', ('artefacts/LR19.PLI', 'golden/e2e293d/LR19/LR19.REL'))
 add_spec('LP1', ('artefacts/LP1.PLI', 'golden/e2e246/LP1/LP1.REL'))
 add_spec('LP8', ('artefacts/LP8.PLI', 'golden/e2e246/LP8/LP8.REL'))
 add_spec('LP14', ('artefacts/LP14.PLI', 'golden/e2e246/LP14/LP14.REL'))
@@ -2205,6 +2215,7 @@ REJECTS['ML7'] = (open('artefacts/ML7.PLI', "rb").read().replace(b"\r\n", b"\n")
 # the link-run arm stayed mine-only.  A defensive membership test is the wrong shape here -- a name
 # that is not a specimen must stop the gate, not be skipped [C163].
 for _n in ("LP1", "LP5", "LP8", "LP14", "LP15", "LQ2", "LQ4", "LQ5", "LQA",
+           "LR2", "LR3", "LR11", "LR17", "LR18", "LR19",
            "ML1", "ML3", "ML4", "ML8", "ML15", "ZK8", "ZK10", "ZK11"):
     assert _n in SPECIMENS, "output-check name %s is not a specimen" % _n
     OUTPUT_CHECK.add(_n)

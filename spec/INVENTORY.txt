@@ -222,6 +222,12 @@ LQ7	specimen	artefacts/LQ7.PLI	golden/e2e247/LQ7/LQ7.REL
 LQ8	specimen	artefacts/LQ8.PLI	golden/e2e247/LQ8/LQ8.REL
 LQ9	specimen	artefacts/LQ9.PLI	golden/e2e247/LQ9/LQ9.REL
 LQA	specimen	artefacts/LQA.PLI	golden/e2e247/LQA/LQA.REL
+LR11	specimen	artefacts/LR11.PLI	golden/e2e292d/LR11/LR11.REL
+LR17	specimen	artefacts/LR17.PLI	golden/e2e293d/LR17/LR17.REL
+LR18	specimen	artefacts/LR18.PLI	golden/e2e293d/LR18/LR18.REL
+LR19	specimen	artefacts/LR19.PLI	golden/e2e293d/LR19/LR19.REL
+LR2	specimen	artefacts/LR2.PLI	golden/e2e292d/LR2/LR2.REL
+LR3	specimen	artefacts/LR3.PLI	golden/e2e292d/LR3/LR3.REL
 M0	specimen	e16src/M0.PLI	golden/e2e175/M0/M0.REL
 M1	specimen	e16src/M1.PLI	golden/e2e175/M1/M1.REL
 M16	specimen	e16src/M16.PLI	golden/e2e175/M16/M16.REL
