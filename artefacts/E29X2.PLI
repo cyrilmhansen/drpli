@@ -1,0 +1,8 @@
+e29x2: procedure options(main);
+   declare p pointer, q fixed;
+   p = null;
+   if p ^= null then q = 2;
+   put list('x2=', q);
+  stop;
+end e29x2;
+

@@ -1,0 +1,8 @@
+x4: procedure options(main);
+   declare p pointer, q fixed;
+   p = null;
+   if null = p then q = 4;
+   put list('x4=', q);
+  stop;
+end x4;
+

@@ -1,0 +1,5 @@
+PS1	ok	PRN=True REL=True
+V9	ok	PRN=True REL=True
+VA	ok	PRN=True REL=True
+VB	ok	PRN=True REL=True
+X9	ok	PRN=True REL=True

@@ -1,0 +1,6 @@
+C3	ok	PRN=True REL=True
+C6	ok	PRN=True REL=True
+C7	ok	PRN=True REL=True
+C8	ok	PRN=True REL=True
+X6	diag	PRN=True REL=False
+X8	diag	PRN=True REL=False

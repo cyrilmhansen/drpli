@@ -1,0 +1,13 @@
+s2: procedure options(main);
+   declare p pointer, z fixed;
+   declare 1 s based(p), 2 a fixed, 2 nx pointer;
+   allocate s set(p);
+   a = 5;
+   nx = null();
+   z = 12;
+   nx = addr(z);
+   put list('a=', a);
+   free s;
+  stop;
+end s2;
+

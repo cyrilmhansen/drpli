@@ -1,0 +1,9 @@
+x9: procedure options(main);
+   declare p pointer, r pointer, q fixed;
+   p = null;
+   r = p;
+   if p ^= r then q = 9;
+   put list('x9=', q);
+  stop;
+end x9;
+

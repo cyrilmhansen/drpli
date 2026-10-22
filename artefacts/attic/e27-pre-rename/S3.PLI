@@ -1,0 +1,11 @@
+s3: procedure options(main);
+   declare p pointer;
+   declare 1 node based, 2 dist fixed, 2 nxt pointer;
+   allocate node set(p);
+   p->dist = 3;
+   p->nxt = null();
+   put list('d=', p->dist);
+   free p->node;
+  stop;
+end s3;
+

@@ -1,0 +1,9 @@
+e29x7: procedure options(main);
+   declare p pointer, r pointer, q fixed;
+   p = null;
+   r = p;
+   if p = r then q = 7;
+   put list('x7=', q);
+  stop;
+end e29x7;
+

@@ -383,7 +383,7 @@ def assemble(ws, names, outtag, batch, reuse):
 
 
 
-def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None):
+def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None, inputs=None):
     out = Output(os.path.join(PROJ, "golden"), outtag, allow_reuse=reuse)
     src_com = os.path.join(PROJ, "golden", intag)
     for n in names:
@@ -409,7 +409,9 @@ def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None):
                     else ["##WAIT \\nD>"])
             sess = (["C:", "D:", "##SEND \\r", "##WAIT \\nD>",
                      f"##SEND {n + (' ' + ARGS[n] if n in ARGS else '')}\\r"]
-                    + [f"##SEND {i}" for i in INPUTS.get(n, DEFAULT_INPUT)]
+                    + [f"##SEND {i}" for i in
+                       (inputs if inputs is not None
+                        else INPUTS.get(n, DEFAULT_INPUT))]
                     + tail + ["##HALT"])
             rc, tr = session(r, sess, timeout, out, n)
             clean = re.sub(r">>> [^\n]*\n", "", tr)
@@ -456,6 +458,13 @@ def main():
     ap.add_argument("--timeout", type=float, default=40)
     ap.add_argument("--reuse", action="store_true",
                     help="allow overwriting an existing golden out tag")
+    ap.add_argument("--input", nargs="*", default=None, metavar="LINE",
+                    help="run stage: console stdin script, one argv per line, using the "
+                         "same \\r / \\x1a escape syntax as the INPUTS table.  Overrides "
+                         "INPUTS for every selected name, so ONE object can be driven through "
+                         "several input scenarios in separate runs (E2E-29/P4: REVERSE needs a "
+                         "sentinel-first run, a two-word-sentence run and a repeat-sentence run "
+                         "from the same linked .COM).")
     ap.add_argument("--killon", default=None, metavar="REGEX",
                     help="run stage: STOP (kill) the program as soon as this "
                          "regex matches its console output instead of waiting "
@@ -481,7 +490,7 @@ def main():
     elif a.stage == "link":
         link(ws, names, a.tag, a.out, a.batch, a.reuse)
     else:
-        run_programs(ws, names, a.tag, a.out, a.timeout, a.reuse, a.killon)
+        run_programs(ws, names, a.tag, a.out, a.timeout, a.reuse, a.killon, inputs=a.input)
 
 
 if __name__ == "__main__":

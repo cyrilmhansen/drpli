@@ -1,0 +1,13 @@
+e29x8: procedure options(main);
+   declare p pointer, q fixed;
+   declare 1 nd based(p), 2 w character(4) varying;
+   allocate nd set(p);
+   if p = null then q = 8;
+   put list('x8-notreached=', q);
+   p = null;
+   if p = null then q = 9;
+   put list('x8=', q);
+   free p->nd;
+  stop;
+end e29x8;
+

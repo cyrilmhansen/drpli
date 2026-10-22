@@ -1,0 +1,8 @@
+e29c3: procedure options(main);
+   declare s character(6) varying, q fixed;
+   s = 'AB';
+   if s ^= 'ZZ' then q = 3;
+   put list('c3=', q);
+  stop;
+end e29c3;
+

@@ -156,7 +156,7 @@ E27S12	refusal	st12: procedure options(main);\n   declare p pointer;\n   declare
 E27S13	specimen	artefacts/ST13.PLI	golden/e2e324d/ST13/ST13.REL
 E27S3	specimen	artefacts/ST3.PLI	golden/e2e323d/ST3/ST3.REL
 E27S4	refusal	st4: procedure options(main);\n   declare p pointer, u pointer;\n   declare 1 aa based, 2 x fixed;\n   declare 1 bb based, 2 y fixed, 2 link pointer;\n   allocate aa set(p);\n   allocate bb set(u);\n   x = 11;\n   y = 22;\n   link = p;\n   put list('x=', x, ' y=', y);\n   free aa;\n   free bb;\n  stop;\nend st4;\n	DR rejects this probe (golden/e2e323d/ST4: 6 pass-2 errors, NO .REL) and mine refuses too, for a narrower and defensible reason: two bare-based records plus `x = 11' unqualified, which no DR sample supports since NETWORK always writes p->city_name. Registered for the refusal mine can actually defend; the probe needs splitting to attribute DR's six errors.
-E27S5	refusal	st5: procedure options(main);\n   declare sentence pointer;\n   declare 1 wordnode based(sentence), 2 word character(6) varying, 2 next pointer;\n   allocate wordnode set(sentence);\n   word = 'ABC';\n   next = null();\n   put list('w=', word);\n   free sentence->wordnode;\n  stop;\nend st5;\n	DR COMPILES IT (golden/e2e323d/ST5/ST5.REL). REVERSE's wordnode shape with a short varying member: `2 word character(6) varying, 2 next pointer'. Mine stops at the layout's member guard. This is REVERSE's blocker number two, after nested procedures (ST13): REVERSE shows DR stores a varying value through a pointer (`word = newword'), but no probe of mine has pinned those bytes yet.
+E27S5	specimen	artefacts/ST5.PLI	golden/e2e323d/ST5/ST5.REL
 E27S6	refusal	st6: procedure options(main);\n   declare p pointer;\n   declare 1 s based(p), 2 a fixed, 2 b bit, 2 c fixed;\n   allocate s set(p);\n   a = 1;\n   b = '1'b;\n   c = 2;\n   put list('c=', c);\n   free s;\n  stop;\nend st6;\n	DR COMPILES IT (golden/e2e323d/ST6/ST6.REL). `2 a fixed, 2 b bit, 2 c fixed' -- the probe that MEASURES DR's layout rule: bit(1) takes one byte and c lands at the ODD offset 3, with allocation size 5. Members are contiguous with no alignment padding. Mine binds that layout correctly (offsets and record size come from the same walk) and refuses only the BIT member's store bytes.
 E27S7	refusal	st7: procedure options(main);\n   declare p pointer;\n   declare 1 s based(p), 2 c character(4), 2 a fixed;\n   allocate s set(p);\n   a = 9;\n   put list('a=', a);\n   free s;\n  stop;\nend st7;\n	DR COMPILES IT (golden/e2e323d/ST7/ST7.REL). `2 c character(4), 2 a fixed': char(4) at offset 0, fixed at 4, record size 6. Character-member stores through a pointer are unimplemented; PB6 measures the analogous SCALAR form (LHLD <p> / LXI D,text / MVI A,len / MOV B,A / ?SMCCM), which is store_char with LHLD in place of LXI H.
 E27S8	specimen	artefacts/ST8.PLI	golden/e2e324d/ST8/ST8.REL
@@ -176,12 +176,45 @@ E28N6	specimen	artefacts/N6.PLI	golden/e2e332d/N6/N6.REL
 E28N8	specimen	artefacts/N8.PLI	golden/e2e331d/N8/N8.REL
 E28N9	refusal	n9: procedure options(main);\n   declare w fixed;\n   w = 1;\n   if w = 1 then stop;\n   w = 5;\n   put list('y=', w);\n  stop;\nend n9;\n	DR COMPILES IT (golden/e2e331d/N9/N9.REL). `if w = 1 then stop;' followed by `w = 5' and a PUT: DR emits the compare, a JNZ over the CALL ?STOPX @0015 and continues at 0018, so a conditional stop does NOT suppress anything. Mine refuses on the condition form -- the same gap that keeps AB11 open -- and this probe's value is that it separates that gap from the procedure work: N8/N10 (straight-line stop) are byte-exact, N9 is not, and the difference is the IF, not the STOP.
 E29A	specimen	e13src/E29A.PLI	golden/e2e143/E29A/E29A.REL
+E29C1	specimen	artefacts/E29C1.PLI	golden/e2e360/E29C1/E29C1.REL
+E29C10	specimen	artefacts/E29C10.PLI	golden/e2e354d/E29C10/E29C10.REL
+E29C11	specimen	artefacts/E29C11.PLI	golden/e2e354d/E29C11/E29C11.REL
+E29C2	specimen	artefacts/E29C2.PLI	golden/e2e360/E29C2/E29C2.REL
+E29C3	specimen	artefacts/E29C3.PLI	golden/e2e360/E29C3/E29C3.REL
+E29C4	specimen	artefacts/E29C4.PLI	golden/e2e360/E29C4/E29C4.REL
+E29C5	specimen	artefacts/E29C5.PLI	golden/e2e360/E29C5/E29C5.REL
+E29C6	specimen	artefacts/E29C6.PLI	golden/e2e360/E29C6/E29C6.REL
+E29C7	specimen	artefacts/E29C7.PLI	golden/e2e360/E29C7/E29C7.REL
+E29C8	specimen	artefacts/E29C8.PLI	golden/e2e360/E29C8/E29C8.REL
+E29C9	specimen	artefacts/E29C9.PLI	golden/e2e354d/E29C9/E29C9.REL
 E29D	specimen	e13src/E29D.PLI	golden/e2e144/E29D/E29D.REL
 E29F	specimen	e14src/E29F.PLI	golden/e2e150d/E29F/E29F.REL
 E29G	specimen	e14src/E29G.PLI	golden/e2e151d/E29G/E29G.REL
 E29H	specimen	e14src/E29H.PLI	golden/e2e151d/E29H/E29H.REL
 E29I	specimen	e14src/E29I.PLI	golden/e2e152d/E29I/E29I.REL
 E29J	specimen	e14src/E29J.PLI	golden/e2e152d/E29J/E29J.REL
+E29N23	specimen	artefacts/E29N23.PLI	golden/e2e354d/E29N23/E29N23.REL
+E29PD1	specimen	artefacts/E29PD1.PLI	golden/e2e360/E29PD1/E29PD1.REL
+E29PD2	specimen	artefacts/E29PD2.PLI	golden/e2e360/E29PD2/E29PD2.REL
+E29PD3	specimen	artefacts/E29PD3.PLI	golden/e2e361/E29PD3/E29PD3.REL
+E29PS1	specimen	artefacts/E29PS1.PLI	golden/e2e361/E29PS1/E29PS1.REL
+E29V2	specimen	artefacts/E29V2.PLI	golden/e2e361/E29V2/E29V2.REL
+E29V3	specimen	artefacts/E29V3.PLI	golden/e2e361/E29V3/E29V3.REL
+E29V4	specimen	artefacts/E29V4.PLI	golden/e2e361/E29V4/E29V4.REL
+E29V6	specimen	artefacts/E29V6.PLI	golden/e2e361/E29V6/E29V6.REL
+E29V7	specimen	artefacts/E29V7.PLI	golden/e2e361/E29V7/E29V7.REL
+E29V8	specimen	artefacts/E29V8.PLI	golden/e2e361/E29V8/E29V8.REL
+E29V9	specimen	artefacts/E29V9.PLI	golden/e2e361/E29V9/E29V9.REL
+E29VA	specimen	artefacts/E29VA.PLI	golden/e2e361/E29VA/E29VA.REL
+E29VB	specimen	artefacts/E29VB.PLI	golden/e2e362/E29VB/E29VB.REL
+E29X1	specimen	artefacts/E29X1.PLI	golden/e2e362/E29X1/E29X1.REL
+E29X2	specimen	artefacts/E29X2.PLI	golden/e2e362/E29X2/E29X2.REL
+E29X4	specimen	artefacts/E29X4.PLI	golden/e2e362/E29X4/E29X4.REL
+E29X5	specimen	artefacts/E29X5.PLI	golden/e2e362/E29X5/E29X5.REL
+E29X6	specimen	artefacts/E29X6.PLI	golden/e2e353d/E29X6/E29X6.REL
+E29X7	specimen	artefacts/E29X7.PLI	golden/e2e362/E29X7/E29X7.REL
+E29X8	specimen	artefacts/E29X8.PLI	golden/e2e353d/E29X8/E29X8.REL
+E29X9	specimen	artefacts/E29X9.PLI	golden/e2e362/E29X9/E29X9.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL
@@ -351,7 +384,6 @@ N15_CAT4	refusal	t:\n  procedure options(main);\n  dcl n char(6) varying;\n  n =
 N16_CATASSIGN	refusal	t:\n  procedure options(main);\n  dcl n char(6) varying;\n  dcl m char(6) varying;\n  n = 'Q';\n  m = 'Z' || n;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG06/NG06.REL)
 N21_DOIDX	refusal	t:\n  procedure options(main);\n  dcl c char(4) varying;\n  do c = 'A' to 'Z';\n    put list('X');\n  end;\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG07/NG07.REL)
 N22_FPUT	refusal	t:\n  procedure options(main);\n  put list(42);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG08/NG08.REL)
-N23_CHARVAR_MULTI	refusal	t:\n  procedure options(main);\n  dcl c char(4) varying;\n  dcl i fixed;\n  c = 'Q';\n  i = 1;\n  put list(c, i);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG09/NG09.REL)
 N24_BIGIN	refusal	t:\n  procedure options(main);\n  dcl c fixed bin(16);\n  c = 1;\n  put list(c);\nend t;\n	DR REFUSES: NOT IMP (golden/negpanel1/NG10/NG10.PRN)
 N25_DECCMP_SCALE	refusal	t:\n  procedure options(main);\n  dcl d fixed dec(9,2);\n  d = 3;\n  if d > 3 then put list(d);\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG11/NG11.REL)
 N27_DECBIGP	refusal	t:\n  procedure options(main);\n  dcl d fixed dec(20,0);\n  d = 1;\nend t;\n	DR REFUSES: NOT IMP (golden/negpanel1/NG12/NG12.PRN)
@@ -732,6 +764,7 @@ R917	specimen	probes/R917.PLI	golden/e2e10/R917/R917.REL
 RD1	specimen	e23src/RD1.PLI	golden/e2e225/RD1/RD1.REL
 RD2	specimen	e23src/RD2.PLI	golden/e2e225/RD2/RD2.REL
 RD3	specimen	e23src/RD3.PLI	golden/e2e225/RD3/RD3.REL
+REVERSE	specimen	artefacts/REVERSE.PLI	golden/e2e319d/REVERSE/REVERSE.REL
 RFACT	specimen	artefacts/RFACT.PLI	golden/first8080u/RFACT/RFACT.REL
 RT1	specimen	e23src/RT1.PLI	golden/e2e229/RT1/RT1.REL
 RT2	specimen	e23src/RT2.PLI	golden/e2e229/RT2/RT2.REL

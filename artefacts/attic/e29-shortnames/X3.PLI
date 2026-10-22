@@ -1,0 +1,12 @@
+x3: procedure options(main);
+   declare p pointer, q fixed, z fixed;
+   z = 0;
+   p = null;
+   do while (p ^= null);
+      z = z + 1;
+      p = null;
+   end;
+   put list('x3=', z);
+  stop;
+end x3;
+

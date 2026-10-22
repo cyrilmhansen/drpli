@@ -3706,3 +3706,53 @@ plus a marker fragment taken from the compiler's ACTUAL stderr.
   DR additionally keeps the offset live in DE across an intervening `LHLD` and reuses it (O2: `DAD D`
   with no reload at 001E), which is a register-liveness fact I cannot characterise from the samples I
   have; O1/O2/O4 are therefore pinned as +3-byte divergences rather than fitted by a guessed model.
+- **C190** *(E2E-29, CHARACTER VARYING structure members)* A based VARYING char member is a 1-byte
+  length plus declared capacity (REVERSE `.word` cap 30 -> `.next`@001F, record 0021; ST5 cap 6 ->
+  `.next`@0007, record 9), contributes nothing to AUTO STORAGE [C185], and moves through exactly five
+  routes, all byte-exact over E29V2-V8, E29N23, E27S5 and REVERSE: literal store `LHLD <q>`/[C189
+  step]/`LXI D,*S`/`MVI A,cap`/`MVI B,len`/`?SMCVM`; `varying`->member `LXID,<src cell>`/`MVI A,cap`/
+  `?SMVVM`; member->member with `PUSH H`/`POP D`; PUT read `CALL ?SLVTS`; and the two folds that are
+  the SCALAR store's tails -- `len==cap` to `MOV B,A` (V3) and `len==0` to a bare `MVI M,00` with no
+  call (V8). `A` is always the DESTINATION capacity, never the value's length: REVERSE stores
+  'Actually, ' with `MVI B,0A` and the runtime truncates to `Actual`, identically in both objects.
+  `w` and `p->w` lower to identical bytes, so ONE destination thunk (`vbvar_addr`) feeds every route
+  -- C179/C189's one-encoder rule again. Two refusals died here: E27S5 (whose own NEG note said "DR
+  COMPILES IT") and N23_CHARVAR_MULTI, retired because E29N23 is that exact shape with a golden [C154].
+- **C191** *(E2E-29, character and pointer comparison routing)* HL carries the RIGHT operand, DE the
+  LEFT, and the helper name says what the LEFT is: `?SCVCM` with `MVI A,len` for varying-or-member on
+  the left, `?SCCVM` with `MVI B,len` for literal on the left (a different helper AND a different
+  length register -- sampling only one orientation would have guessed both wrong [C167]), `?SCVVM`
+  with no length byte for varying-vs-varying. A member operand is `LHLD <q>`/[step], plus `XCHG` only
+  when it is the left operand -- `literal = member` needs no XCHG because HL is already right, which is
+  exactly why the mirror needs it. `=` skips the then-body with C2, `^=` with CA. A null test, in BOTH
+  operand orientations and for BOTH `null` and `null()`, is `LHLD / MOV A,H / ORA L / skip`: the cell's
+  own bits are the test, no null value is loaded. Pointer-vs-pointer is a different routine,
+  `LHLD / PUSH H / LHLD / POP D / ?NC22N` (X7 `=`, X9 `^=`). X6/X8 pin the allocated-pointer side.
+- **C192** *(E2E-29, procedure-local cells, nested-body tail RET, bare PUT SKIP)* A nested procedure's
+  local CHARACTER VARYING and POINTER get ordinary absolute DATA cells -- REVERSE's NEWWORD A(0018) and
+  write_it's P A(0039) -- with main's lowering routes; the earlier refusal "procedure-local Vvar/Vptr
+  unsampled" is retired by PD1-PD3 plus REVERSE. A nested body ending in a no-exit loop emits NO
+  trailing RET (PD1: 003B JMP 0034 then main's stop at 003E, no C9 between), a statement after such a
+  loop is still emitted (no dead-code suppression, PD2 at 0044 with its RET back), and an exiting loop
+  keeps its RET (PD3). Bare `put skip;` (REVERSE line 49, E29PS1 at 00FE) is the ordinary item-list
+  prologue + `?SKPOP` + `?QIOOP` with an EMPTY item list -- the generic encoder at zero items, not a
+  second one.
+- **C193** *(E2E-29, probe hygiene: check a key before you write its file, and check the bytes)*
+  Three self-inflicted wounds in one milestone, each of which produced a false reading that had to be
+  unwound: (a) probes declaring a name twice in nested blocks were refused by DR with one PASS-1 error
+  whose symbol-table row reads `DUPLIC` -- a defect in my generator, first misread as a language
+  boundary [C186(a)]; (b) renaming to collision-free keys wrote LF-only sources, and DR answered every
+  one with UNEXPECTED EOF [C118] -- verify CRLF on files you generate; (c) the new keys PD1/PD2/PD3
+  were ALREADY tracked E2E-13 probes, so writing `artefacts/PD1.PLI` overwrote real sources and the
+  gate reported `DIFF PD1` by building my program against someone else's golden. `git checkout` restored
+  them; they are still exact. Inventory-key checks must happen BEFORE the file write, not only before
+  registration, because the artefacts directory is itself part of the evidence.
+- **C194** *(E2E-29, REVERSE: DR's historical listing IS DR v1.4 output, byte for byte)* E2E-27 hedged
+  that REVERSE's golden came from "a different compiler generation than the 8-inch disk image" and that
+  its CODE 0110/DATA 003B might not be comparable. Measured: unchanged REVERSE compiled by the disk's
+  PL/I80.COM produces a .REL byte-identical to `golden/e2e319d/REVERSE/REVERSE.REL` -- 896 bytes, 201
+  code records, LINK-DEF-DATA-SIZE 003B -- and links to a .COM whose console output equals my compiler's
+  linked output on two scripted inputs. The hedge was wrong in the direction that mattered (the listing
+  stays valid evidence), and REVERSE's remaining behavioural curiosity -- both objects reverse the LAST
+  input word (`world hello`) where the program's own comment says `olleh dlrow` -- is now a property of
+  DR itself, reproduced exactly, not of my reimplementation.

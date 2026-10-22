@@ -1,0 +1,8 @@
+c5: procedure options(main);
+   declare s character(6) varying, q fixed;
+   s = '';
+   if s = '' then q = 5;
+   put list('c5=', q);
+  stop;
+end c5;
+

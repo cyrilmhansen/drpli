@@ -184,6 +184,17 @@ one probe is not a rule.
 
 ## 5. REVERSE: not integrated, and now known as an ordered list of blockers
 
+> **[E2E-29 update, 2026-10-23]** All four blockers on this list are closed and REVERSE is a
+> byte-exact registered specimen that runs identically to DR's own linked object on two scripted
+> inputs. Blocker 1 (nested placement) was already closed by E2E-28. Blocker 2 (VARYING members) and
+> blocker 4 (comparisons) are implemented per spec/notes/e2e29-varying-members-reverse.md [C190][C191].
+> Blocker 3 (GET LIST) turned out to be already implemented — `lower_get` emitted DR's exact
+> `?SYSIN/?GNVOP/?SSVFS` route for a scalar VARYING target all along; the work was proving it, not
+> writing it, which is why it is recorded here as a mis-ranking rather than a fix. The E27S5 refusal in
+> section 4 became a specimen, and the "pointer null" note below ("route exists, never wired into a
+> condition") is likewise resolved [C191]. The section is left intact as written for provenance [C166].
+
+
 Mine refuses REVERSE with `BASED structure member word of type CHAR(30) VARYING at record offset 0
 is unsampled`. ST13 — a main block that calls one nested procedure, which allocates into a based
 record and frees it, plus one statement in main after the procedure definition (`artefacts/ST13.PLI`

@@ -1,0 +1,6 @@
+ps1: procedure options(main);
+   put skip;
+   put list('after=');
+  stop;
+end ps1;
+

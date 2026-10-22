@@ -33,6 +33,12 @@ type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
      -- S6's fixed member at offset 3 is `LHLD P / INX H / INX H / INX H / MVI M,02' [measured],
      proving members are contiguous with NO alignment padding. *)
   | Vbfix of string * int      (* based FIXED BINARY(15) member   [S1 .A@0, S6 .A@0 .C@3] *)
+  | Vbvar of string * int * int  (* based CHAR(n) VARYING member: declared pointer, record
+                                    offset, declared capacity.  ST5's symbol map gives
+                                    `.WORD CHAR(6) VARYING MEMBER' at 0 and `.NEXT POINTER MEMBER'
+                                    at 0007 with a 9-byte record (7+2); REVERSE gives `.word'@0 and
+                                    `.next'@001F with 0021 (31+2).  Cell = 1 length byte + capacity,
+                                    contributes nothing to AUTO STORAGE, exactly like Vbfix. *)
   | Vbptr of string * int      (* based POINTER member            [S2 .NX@2, REVERSE .next@31] *)
   | Vstruct of string * int    (* the structure NAME: associated pointer + record size [LXI H,size] *)
    (* fixed/varying char capacity. Varying representation PROVEN
@@ -206,6 +212,13 @@ type st =
          call nested inside a CALL statement's argument list is still checked
          against the expression rule. *)
   ; mutable after_forever : bool  (* last MAIN stmt = no-exit loop/stop *)
+  ; mutable proc_tail_no_exit : bool
+      (* [E2E-29/P5] the NESTED-PROCEDURE analogue of the fact that a no-exit loop cannot fall
+         through, kept SEPARATE from after_forever because that flag drives the main epilogue-
+         suppression machinery [R401/R414/R419], which REVERSE's program says a nested procedure
+         must not touch.  PD1 (constant-true do-while last) shows DR emits NO trailing RET; PD2
+         (a `q = 5;' after it) shows the dead statement is still emitted AND the RET comes back;
+         PD3 (an exiting loop) keeps its RET. *)
   ; mutable secs : (string * int * int) list (* proc -> base,size excl pool *)
   ; mutable last_loop_edge : int }
 (* label bookkeeping for GOTO resolution [G115/G116]:
@@ -358,6 +371,7 @@ let member_step st off =
     d st ((off lsr 8) land 0xff);
     d st op_dad_d
   end
+
 let op_call = 0xcd
 let op_push_h = 0xe5
 let op_pop_d = 0xd1
@@ -1635,6 +1649,13 @@ let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
       else prescan_expr cx l + prescan_expr cx r
   | Ast.Ebinary (_, l, r) -> prescan_expr cx l + prescan_expr cx r
   | Ast.Eprefix (_, x) -> prescan_expr cx x
+  (* [E2E-29/P2] a string literal in a COMPARISON operand registers a pool cell, exactly as the
+     store and PUT paths already do (C3 stores 'AB', compares 'ZZ' and prints 'c3=': DR pools all
+     three, and REVERSE shares one cell between its line-28 compare of '.' and its line-48 PUT of
+     '.' [C152 dedup]).  prescan_expr had no Estring arm, so lowering's demand outran the layout and
+     C179's consistency check fired -- the check doing its job, not a reason to move the demand. *)
+  | Ast.Estring v -> pdec_str_cell cx v
+  | Ast.Ebit _ -> 0
   | Ast.Ebuilt (_, es) ->
       List.fold_left (fun a x -> a + prescan_expr cx x) 0 es
   | Ast.Esuffix (hd, args) ->
@@ -1677,7 +1698,10 @@ let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
 
 type chain = C2 of string * string * string   (* lit || var [W101] *)
            | C3 of string * string * string   (* lit || var || lit [W102] *)
-type pitem = PIlit of string | PIvar of Ast.name | PInum of Ast.expr
+type pitem =
+  | PIlit of string
+  | PIvar of Ast.name
+  | PInum of Ast.expr
 (* [E2E-22/P4] DR's runtime SKIP count, measured on SK3/SK4 (`put skip(one) list(...)'):
      LHLD v ; MOV A,L ; CALL ?SKPOP
    Only the LOW byte of the value is used -- the same 8-bit quantity the `MVI A,n' immediate
@@ -1804,6 +1828,22 @@ let put_kind_str (k : Ast.put_kind) =
 
 let match_put_list_lit (s : Ast.stmt) =
   match s.Ast.st with
+  (* [E2E-29/P4] BARE `put skip;' (the Item parse form with a lone SKIP control item) is
+     sampled by REVERSE's line 49 at 00FE: LXI D,0252 / LXI B,0000 / CALL ?SYSPR / MVI A,01 /
+     CALL ?SKPOP / CALL ?QIOOP plus the usual deferred backpatch triple.  That is the ordinary
+     PUT prologue and skip with NO item, so it reuses lower_put_items_gen with an empty list
+     rather than getting a second encoder.  `put page;' and counted skip are still unsampled. *)
+  | Ast.Sput { kind = Ast.Item; items = [ Ast.Pi_ctl (nm, None) ]; _ } ->
+      (match String.uppercase_ascii nm with
+       | "SKIP" ->
+           (match match_skip_ctl [Ast.Pi_ctl (nm, None)] with
+            | Some (sk, []) -> Pitems (sk, [])
+            | _ -> Pnone)
+       | _ ->
+           failwith (Printf.sprintf
+                       "codegen: PUT ITEM (%s) deferred [TBD] (line %d; only bare SKIP is sampled \
+                        -- REVERSE 00FE; PAGE and counted SKIP have no DR bytes here)"
+                       nm s.Ast.spos.Source.line))
   | Ast.Sput { kind = (Ast.Edit | Ast.Item | Ast.Editsk _) as k; _ } ->
       failwith (Printf.sprintf
                   "codegen: PUT %s deferred [TBD] (line %d; only PUT LIST \
@@ -2049,6 +2089,31 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
         | _ -> 0
       in
       one a b + one b a
+      (* [E2E-29/P2] plus the CHARACTER VARYING comparison cells.  The demand mirrors the four
+         shapes the lowering arms accept -- (varying|member, literal), (literal, varying cell) and
+         (varying cell, varying cell) -- and nothing else: a both-literal compare is refused by DR,
+         and an over-count breaks C179's consistency check just as an under-count does.
+         pdec_str_cell dedups by content, so C4's repeated 'AB' counts once [R614/C152]. *)
+      +
+      let vkind_of_e e =
+        match e.Ast.e with
+        | Ast.Eident n -> List.assoc_opt (String.lowercase_ascii n.Ast.orig) cx.pd_vars
+        | Ast.Eqptr (_, f) -> List.assoc_opt (String.lowercase_ascii f.Ast.orig) cx.pd_vars
+        | _ -> None
+      in
+      let is_lit e = match e.Ast.e with Ast.Estring v -> Some v | _ -> None in
+      let is_var e =
+        match vkind_of_e e with Some (Vvar _) | Some (Vbvar _) -> true | _ -> false
+      in
+      let is_cell e = match vkind_of_e e with Some (Vvar _) -> true | _ -> false in
+      let wants =
+        (is_lit b <> None && is_var a) || (is_lit a <> None && is_cell b)
+        || (is_cell a && is_cell b)
+      in
+      if not wants then 0
+      else
+        (match is_lit a with Some v -> pdec_str_cell cx v | None -> 0)
+        + (match is_lit b with Some v -> pdec_str_cell cx v | None -> 0)
   | Ast.Ebinary (_, l, r) -> prescan_cond cx l + prescan_cond cx r
   | Ast.Eprefix (_, x) -> prescan_cond cx x
   | _ -> 0
@@ -2160,6 +2225,7 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
                (fun a it -> match it with
                 | PIlit v -> a + pdec_str_cell cx v
                 | PInum x -> a + prescan_expr cx x
+                | PIvar _ -> a
                 | PIvar _ -> a) 0 its
        | None ->
       (match match_put_list_lit s with
@@ -2171,6 +2237,7 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
              (fun a it -> match it with
               | PIlit v -> a + pdec_str_cell cx v
               | PInum x -> a + prescan_expr cx x
+              | PIvar _ -> a
               | PIvar _ -> a) 0 its
        | _ -> 0)             (* var-puts consume no pool [V101] *))
   | Ast.Sif { cond; then_; els; _ } ->
@@ -3613,14 +3680,27 @@ and const_sub st n =
   else failwith "codegen: constant sub magnitude [TBD]"
 
 (* store a char literal into a char/varying variable [V101-V105] *)
-let store_char st name (k : vkind) (v : string) =
+let store_char ?(dst : (unit -> unit) option = None) st name (k : vkind) (v : string) =
   if List.mem (String.lowercase_ascii name) st.deref then
     failwith "codegen: store to pointer formal unproven [TBD]";
   let len = String.length v in
   if len > 255 then failwith "codegen: literal len > 255 [TBD]";
-  d st op_lxi_h; reloc st Data (addr_of st name);
+  (* [E2E-29/P1] `?dst' selects the DESTINATION address source; default is the variable's own cell
+     [V101-V108].  A based VARYING member passes vbvar_addr, because ST5/V2/V3/V4/V6/V7/V8 show DR
+     using the byte-identical tail (LXI D,*S / MVI A,cap / MVI B,len / ?SMCVM, or `MVI M,0' for an
+     empty literal) behind LHLD <pointer> instead of LXI H,<cell>.  The tail is not duplicated: one
+     encoder, or the two copies drift [C179/C189]. *)
+  (match dst with Some f -> f () | None -> (d st op_lxi_h; reloc st Data (addr_of st name)));
   match k with
-  | Vvar cap ->
+  | Vvar cap | Vbvar (_, _, cap) as kk ->
+      (* Fail-loud: a based member has NO cell of its own, so the default destination address
+         source (`LXI H,<cell>') would silently address whatever the member offset happens to look
+         like in the DATA segment.  Every caller that lowers a based VARYING member must pass
+         ~dst = vbvar_addr, which emits LHLD <pointer> / member_step <offset>. *)
+      if dst = None && (match kk with Vbvar _ -> true | _ -> false) then
+        failwith
+          ("codegen: internal: store_char reached based VARYING member " ^ name
+           ^ " without a destination address source [TBD] (would mis-address silently)");
       (* V104/V108 evidence: the literal registers a pool BLOCK even
          when empty; only non-empty stores emit LXI D/?SMCVM. *)
       let bytes =
@@ -3669,6 +3749,71 @@ let store_char st name (k : vkind) (v : string) =
          ^ " is unsampled [TBD] (E2E-27/P3 implements based FIXED and POINTER members; REVERSE shows "
          ^ "the varying-member route exists in DR -- `word = newword' -- but its bytes are not "
          ^ "characterized by a probe of its own yet)")
+(* [E2E-29/P1] ONE address source for a CHARACTER VARYING member, shared by the store (ST5, V2,
+   V3, V4, V7, V8, REVERSE `word = newword'), the PUT read (ST5, V2, V6, V7, V8, REVERSE
+   `put list(word)') and the comparisons (C4, C8).  DR's bytes for the unqualified and the `p->w'
+   spellings are identical -- V6/V7 print `p->w' exactly as V8 prints `w': LHLD <pointer> then
+   CALL ?SLVTS -- so qualification is a second spelling of one lowering [C179's one-encoder rule,
+   as with store_based ~off [E2E-27] and lower_store_ptr ~pa_of [E2E-26]].  `?qual' lets the CALLER
+   supply the address source, because REVERSE reaches members through a pointer other than the one
+   its record declaration names (`newnode->next', `newnode->word'). *)
+let vbvar_addr ?qual st (pn : string) (k : int) () =
+  let q = (match qual with Some x -> x | None -> pn) in
+  st.last_imm <- None;
+  d st op_lhld;
+  reloc st Data (addr_of st q);
+  member_step st k
+
+(* [E2E-29/P1] assignment INTO a CHARACTER VARYING member.  Exactly three right-hand shapes are
+   measured, and anything else refuses rather than inventing a route:
+     string literal   dst / LXI D,*S / MVI A,cap / MVI B,len / ?SMCVM          [ST5 000F, V2 000F,
+                    V3 000F, V4, V6 000F, V7 0018, V8, C4 000F, C8 000F]
+                    with len = cap folding to MOV B,A [V3: 'ABCDEF' into character(6)] and len = 0
+                    folding to a bare `MVI M,0' with no call at all [V8 000F] -- both are the
+                    existing store_char tails, shared, not re-derived.
+     scalar varying  dst / LXI D,<src cell> / MVI A,cap / ?SMVVM              [V2 001C `w = s',
+                    REVERSE 0083 `word = newword' with cap 1Eh = 30]
+     other member    src-addr / PUSH H / dst / POP D / MVI A,cap / ?SMVVM     [V7 0025 `r->w = w']
+   A is always the DESTINATION member's declared capacity, never the value's length; the source
+   keeps its own length byte.  V7 parks the source address on the stack rather than relying on a
+   register surviving another load, which is the C141 rule in a new context. *)
+let store_vbvar st ?qual (pn : string) (k : int) (cap : int) (nm : string) (rhs : Ast.expr) =
+  let dst = vbvar_addr ?qual st pn k in
+  let unwrapped = unwrap_e rhs in
+  match unwrapped.Ast.e with
+  | Ast.Estring v -> store_char ~dst:(Some dst) st nm (Vvar cap) v
+  | Ast.Eident src ->
+      let svk = vk_of st (String.lowercase_ascii src.Ast.orig) in
+      (match svk with
+       | Vvar _ ->
+           dst ();
+           d st op_lxi_d; reloc st Data (addr_of st src.Ast.orig);
+           d st op_mvi_a; d st (cap land 0xff);
+           call_ext st "?SMVVM"
+       | Vbvar (spn, sk, _) ->
+           if String.equal spn "" && String.length pn = 0 then
+             failwith
+               ("codegen: copy between VARYING members of BARE-based records is unsampled [TBD]");
+           (vbvar_addr st spn sk) ();
+           d st op_push_h;
+           dst ();
+           d st op_pop_d;
+           d st op_mvi_a; d st (cap land 0xff);
+           call_ext st "?SMVVM"
+       | _ ->
+           ignore svk;   (* vk_str is defined later in this file; the refusal names the
+                            target and lists the sampled sources, which is what matters *)
+           failwith
+             ("codegen: storing that kind of value into the VARYING member " ^ nm
+              ^ " is unsampled [TBD] (measured sources: a string literal, a scalar CHARACTER VARYING "
+              ^ "variable, another VARYING member -- ST5, V2, V7, REVERSE)")
+       )
+  | _ ->
+      failwith
+        ("codegen: storing this expression into the VARYING member " ^ nm
+         ^ " is unsampled [TBD] (measured sources are a string literal, a scalar CHARACTER VARYING "
+         ^ "variable and another VARYING member; REVERSE uses only `word = newword')")
+
 
 let is_small_int st (n : Ast.name) =
   let li = String.lowercase_ascii n.Ast.orig in
@@ -4407,6 +4552,8 @@ let vk_name (vk : vkind) : string =
   | Vbased p -> "based(" ^ p ^ ")"
   | Vbfix (p, k) -> "based-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
   | Vbptr (p, k) -> "based-pointer-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
+  | Vbvar (p, k, c) ->
+      "based-varying-member(" ^ p ^ "+" ^ string_of_int k ^ ",cap=" ^ string_of_int c ^ ")"
   | Vstruct (p, sz) -> "based-structure(" ^ p ^ ",size=" ^ string_of_int sz ^ ")"
 
 (* ==================================================================
@@ -5077,6 +5224,131 @@ let cmp_pair st first second skip =
     d st skip
   end
 
+(* [E2E-29/P2] operand classifiers for the CHARACTER VARYING comparison family.  Each returns a
+   pair of THUNKS that emit the operand's address into the register DR uses for it, plus the
+   literal text when a length operand is required.  Only shapes with a DR golden are accepted;
+   everything else returns None so the condition falls through to the [TBD] refusal. *)
+let str_side st (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Estring v ->
+      let bytes = Array.init (String.length v) (fun i -> Char.code (String.get v i)) in
+      Some (`Lit (v, bytes))
+  | Ast.Eident n ->
+      (match vk_of st (String.lowercase_ascii n.Ast.orig) with
+       | Vvar _ -> Some (`Cell n.Ast.orig)
+       (* [E2E-29/P2] the unqualified spelling of a VARYING member (C4/C8 `if w = 'AB' then',
+          `if w ^= 'ZZ' then') is the same read as `p->w', qualified by the record's DECLARED
+          pointer; a bare-based record has no pointer, so it stays refused. *)
+       | Vbvar (pn, k, _) when String.length pn > 0 -> Some (`Mem (pn, pn, k))
+       | _ -> None)
+  | Ast.Eqptr (b, f) ->
+      begin match b.Ast.e with
+        | Ast.Eident bn ->
+            (match vk_of st (String.lowercase_ascii f.Ast.orig) with
+             | Vbvar (pn, k, _) -> Some (`Mem (bn.Ast.orig, pn, k))
+             | _ -> None)
+        | _ -> None
+      end
+  | _ -> None
+
+(* left = varying (cell or member), right = literal  ->  ?SCVCM with the length in A [C1, C4, C8] *)
+let str_cmp_shape st l r =
+  match str_side st l, str_side st r with
+  | Some (`Cell a), Some (`Lit (v, bytes)) ->
+      Some ((fun () ->
+              d st op_lxi_h;
+              reloc st Data (pool_str st bytes)),
+            (fun () ->
+              d st op_lxi_d;
+              reloc st Data (addr_of st a)),
+            Some v)
+  | Some (`Mem (bn, pn, k)), Some (`Lit (v, bytes)) ->
+      Some ((fun () ->
+              (* C4 001C: LHLD <pointer> / [member step] / XCHG, then the literal into HL *)
+              (vbvar_addr ~qual:bn st pn k) ();
+              d st op_xchg;
+              d st op_lxi_h;
+              reloc st Data (pool_str st bytes)),
+            (fun () -> ()),
+            Some v)
+  | _ -> None
+
+(* left = literal, right = varying cell or member  ->  ?SCCVM with the length in B [C2, E29C9] *)
+let str_cmp_shape_rev st l r =
+  match str_side st l, str_side st r with
+  | Some (`Lit (v, bytes)), Some (`Cell a) ->
+      Some ((fun () ->
+              d st op_lxi_h;
+              reloc st Data (addr_of st a)),
+            (fun () ->
+              d st op_lxi_d;
+              reloc st Data (pool_str st bytes)),
+            v)
+  | Some (`Lit (v, bytes)), Some (`Mem (bn, pn, k)) ->
+      (* E29C9 `if 'AB' = w then': LHLD P / LXI D,*S / MVI B,02 / ?SCCVM / JNZ.  The member needs
+         NO XCHG here -- HL is already where the RIGHT operand belongs, which is the same rule that
+         made C4 need XCHG when the member was on the LEFT.  One rule, two orientations [C167]. *)
+      Some ((fun () -> (vbvar_addr ~qual:bn st pn k) ()),
+            (fun () ->
+              d st op_lxi_d;
+              reloc st Data (pool_str st bytes)),
+            v)
+  | _ -> None
+
+(* both sides vary -> ?SCVVM, no length operand.  Cell/cell [C6] and member(left)/cell(right)
+   [E29C10: LHLD P / XCHG / LXI H,S / CALL ?SCVVM / JNZ] are sampled; cell(left)/member(right)
+   and member/member are not, so they keep refusing. *)
+let str_cmp_shape_vv st l r =
+  match str_side st l, str_side st r with
+  | Some (`Cell a), Some (`Cell b) ->
+      Some ((fun () -> d st op_lxi_h; reloc st Data (addr_of st b)),
+            (fun () -> d st op_lxi_d; reloc st Data (addr_of st a)))
+  | Some (`Mem (bn, pn, k)), Some (`Cell b) ->
+      (* E29C10 `if w = s then': 0027 LHLD P A(0006) / 002A XCHG / 002B LXI H,S A(0008) /
+         002E CALL ?SCVVM.  The MEMBER is emitted first and moved into DE by XCHG, then the cell
+         goes into HL -- so the whole sequence lives in one thunk; the arm calls hl_fn then de_fn,
+         and splitting these two would emit them in the wrong order.  Same convention as the
+         member/literal shape in str_cmp_shape above (C4), which also bundles [C167]. *)
+      Some ((fun () ->
+              (vbvar_addr ~qual:bn st pn k) ();
+              d st op_xchg;
+              d st op_lxi_h;
+              reloc st Data (addr_of st b)),
+            (fun () -> ()))
+  | _ -> None
+
+(* [E2E-29/P3] one side is `null'/`null()' and the other is a plain POINTER cell, in either
+   orientation (X4 proves the reversed form is byte-identical).  Returns the cell's name. *)
+let null_cmp_side st a b =
+  let is_null e = match e.Ast.e with Ast.Ebuilt ("NULL", []) -> true | _ -> false in
+  let cell e =
+    match e.Ast.e with
+    | Ast.Eident n ->
+        (match vk_of st (String.lowercase_ascii n.Ast.orig) with
+         | Vptr -> Some n.Ast.orig
+         | _ -> None)
+    | _ -> None
+  in
+  match cell a, is_null b, cell b, is_null a with
+  | Some nm, true, _, _ -> Some (nm, `Left)
+  | _, _, Some nm, true -> Some (nm, `Right)
+  | _ -> None   (* X7 `p = r' exposed this: the previous two-arm version left (Some, false)
+                   unmatched and raised Match_failure, which is outside the refusal contract *)
+
+(* [E2E-29/P3] both sides are plain POINTER cells -- the operand pair ?NC22N compares. *)
+let ptr_pair st a b =
+  let cell e =
+    match e.Ast.e with
+    | Ast.Eident n ->
+        (match vk_of st (String.lowercase_ascii n.Ast.orig) with
+         | Vptr -> Some n.Ast.orig
+         | _ -> None)
+    | _ -> None
+  in
+  match cell a, cell b with
+  | Some x, Some y -> Some (x, y)
+  | _ -> None
+
 let lower_test_skip0 st (c : Ast.expr) =
   (* [E2E-10] every shape handled below is FIXED or DECIMAL.  A FLOAT
      operand must refuse here: reading `2.5` as an integer constant crashed
@@ -5232,6 +5504,110 @@ let lower_test_skip0 st (c : Ast.expr) =
       d st op_mov_a_h; d st op_ora_a;
       d st op_jp;
       let slot = st.lc in d st 0; d st 0; slot
+  (* ---- [E2E-29/P2] CHARACTER VARYING comparisons ------------------------------------------
+     REVERSE's `if newword = '.' then return;' is the historical need; C1-C8 are the probes that
+     pin the family.  The operand ROLES are consistent across every sample: HL carries the RIGHT
+     operand, DE the LEFT, and the helper name says what the LEFT operand is:
+       varying = literal   LXI H,*S(lit) / LXI D,<var>  / MVI A,len / ?SCVCM  [C1 0013]
+       literal = varying   LXI H,<var>  / LXI D,*S(lit) / MVI B,len / ?SCCVM  [C2 0013]
+       member  = literal   LHLD <q> / [step] / XCHG / LXI H,*S(lit) / MVI A,len / ?SCVCM [C4 001C]
+       varying = varying   LXI H,right / LXI D,left / ?SCVVM  (no length operand) [C6 0020]
+       s = ''              the empty literal still registers a pool cell and still passes A=0 [C5]
+     Branch byte: `=' skips the body with C2 (JNZ), `^=' with CA (JZ) -- C1 vs C3, C4 vs C8, and
+     REVERSE's own .REL at 000E/00B2 for the pointer cases.  The relation is NOT derived from the
+     numeric ladder: these helpers set flags themselves and the skip is a plain skip-the-then-body
+     jump, which is why the arms below return a patch slot like every other shape here. *)
+  | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
+      (match str_cmp_shape st l rr with Some _ -> true | None -> false) ->
+      let (hl_fn, de_fn, len_src) =
+        match str_cmp_shape st l rr with
+        | Some x -> x
+        | None -> assert false
+      in
+      hl_fn ();
+      de_fn ();
+      (match len_src with
+       | Some n -> d st op_mvi_a; d st (String.length n)
+       | None -> ());
+      call_ext st "?SCVCM";
+      d st (if r = Ast.Eq then 0xc2 else 0xca);
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
+      (match str_cmp_shape_rev st l rr with Some _ -> true | None -> false) ->
+      (* literal on the LEFT, varying on the RIGHT: DR switches helper AND moves the length
+         operand from A to B [C2].  One orientation, one encoder. *)
+      let (hl_fn, de_fn, len) =
+        match str_cmp_shape_rev st l rr with Some x -> x | None -> assert false
+      in
+      hl_fn ();
+      de_fn ();
+      d st op_mvi_b; d st (String.length len);
+      call_ext st "?SCCVM";
+      d st (if r = Ast.Eq then 0xc2 else 0xca);
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
+      (match str_cmp_shape_vv st l rr with Some _ -> true | None -> false) ->
+      (* both sides vary: ?SCVVM, no length operand [C6 cell/cell, E29C10 member/cell].  The
+         shape function admits only the sampled orientations and returns None otherwise, which
+         makes this arm fall through to the [TBD] refusal rather than guessing a route. *)
+      let (hl_fn, de_fn) =
+        match str_cmp_shape_vv st l rr with Some x -> x | None -> assert false
+      in
+      hl_fn (); de_fn ();
+      call_ext st "?SCVVM";
+      d st (if r = Ast.Eq then 0xc2 else 0xca);
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
+  (* ---- [E2E-29/P3] POINTER vs NULL -------------------------------------------------------
+     REVERSE tests `if sentence = null then stop;' and `do while (sentence ^= null);'.  Both
+     readings, and both operand orientations, are the plain HL-zero form -- X1 (=), X2 (^=),
+     X4 (null = p, byte-identical to p = null) and REVERSE's own 0009/00AD give:
+         LHLD <cell> / MOV A,H / ORA L / skip-byte
+     with C2 (JNZ) skipping the body of `=' and CA (JZ) skipping the body of `^='.  There is no
+     separate null VALUE to load: the cell's own bits are the test.  A based POINTER MEMBER being
+     compared to null is not sampled by any probe (REVERSE compares only the plain cell), so it
+     refuses below rather than borrowing this shape. *)
+  | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), a, b) when
+      (match null_cmp_side st a b with Some _ -> true | None -> false) ->
+      let (cell, _) =
+        match null_cmp_side st a b with Some x -> x | None -> assert false
+      in
+      d st op_lhld;
+      reloc st Data (addr_of st cell);
+      d st op_mov_a_h; d st 0xb5;  (* ORA L *)
+      d st (if r = Ast.Eq then 0xc2 else 0xca);
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
+  (* ---- [E2E-29/P3] POINTER vs POINTER -----------------------------------------------
+     X7 (`if p = r then') gives LHLD P / PUSH H / LHLD R / POP D / CALL ?NC22N / JNZ: the two
+     addresses are compared by a dedicated runtime routine, with the left operand parked on the
+     stack across the second load rather than kept in a register [C141].  That is not the numeric
+     ident-vs-ident route (?IS22N followed by MOV A,H / ORA L), so it gets its own arm.
+     `p ^= r' is unsampled: it refuses here rather than falling through to the numeric arm, which
+     would emit a shape DR never emits for pointers. *)
+  | Ast.Ebinary (Ast.EqR (Ast.Eq | Ast.Ne as r), a, b) when
+      (match ptr_pair st a b with Some _ -> true | None -> false) ->
+      let (la, lb) = match ptr_pair st a b with Some x -> x | None -> assert false in
+      (* X7 pins `p = r' (skip byte C2) and X9 pins `p ^= r' (skip byte CA at 001D of
+         golden/e2e344d/X9/X9.REL) -- same setup, same helper, opposite branch. *)
+      d st op_lhld;
+      reloc st Data (addr_of st la);
+      d st op_push_h;
+      d st op_lhld;
+      reloc st Data (addr_of st lb);
+      d st op_pop_d;
+      call_ext st "?NC22N";
+      d st (if r = Ast.Eq then 0xc2 else 0xca);
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
+  (* [E2E-29] REVERSE's `do while('1'b);' emits NO test at all (line 12 has no instruction
+     between the procedure entry and 0006 CALL read_it; the loop closes with an unconditional
+     JMP 0006 at 0017, and read_it's line 26 is the same shape).  That is already handled where
+     it belongs -- the Sdowhile arm routes `Ebit "1"' directly, provenance Z404 -- so NOTHING is
+     added here: `if '1'b then ...' has no DR sample and must keep refusing rather than take an
+     unsampled "no jump" through the generic condition path. *)
   | Ast.Ebinary (Ast.EqR r, l, rr) when is_ident l && is_ident rr ->
       let ident = fun x ->
         match x.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> assert false
@@ -5523,6 +5899,16 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
          address and the member supplies only the offset [golden/e2e319d: LHLD NEWNODE / INX ... /
          MOV M,E ...].  S3 is the same rule with a bare-based record, which has no declared pointer
          at all and therefore can only be reached this way. *)
+      | Vbvar (pn, k, cap) ->
+          (* [E2E-29/P1] `p->w = ...' reaches the same encoder as the unqualified spelling; the
+             QUALIFIER supplies the address, as REVERSE's `newnode->next' already established for
+             other member types [V6, V7]. *)
+          if not (is_ptr_cell st bn) then
+            failwith
+              ("codegen: `" ^ bn ^ "->" ^ fld.Ast.orig
+               ^ "' qualifies a VARYING member through something that is not a POINTER cell "
+               ^ "[TBD] (V6, V7 and REVERSE qualify with a declared pointer)");
+          store_vbvar ~qual:bn st pn k cap fld.Ast.orig rhs
       | Vbfix (pn, k) | Vbptr (pn, k) ->
           if not (is_ptr_cell st bn) then
             failwith
@@ -5548,9 +5934,9 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
       end
   | Ast.Eident n when
       (match vk_of st (String.lowercase_ascii n.Ast.orig) with
-       | Vbased _ | Vbfix _ | Vbptr _ -> true
+       | Vbased _ | Vbfix _ | Vbptr _ | Vbvar _ -> true
        | _ -> false) ->
-      (* [E2E-26/P2, extended E2E-27/P3] WRITE THROUGH A BASED NAME or a BASED STRUCTURE MEMBER.  DR's bytes are the two shapes already measured for
+      (* [E2E-26/P2, extended E2E-27/P3 and E2E-29/P1] WRITE THROUGH A BASED NAME or a BASED STRUCTURE MEMBER.  DR's bytes are the two shapes already measured for
          a pointer FORMAL [C131], because in both cases a cell holds the address and the value
          travels through it:
              constant  LHLD <p> / MVI M,lo / INX H / MVI M,hi   [P071K q=5, P041 p->q=100, P067C x=42]
@@ -5558,8 +5944,9 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                        MOV M,E / INX H / MOV M,D                [PB18 q=z, PB19 q=z+1]
          The pointer cell is RELOADED for the store, never parked: PB3 re-points p between reads and
          PB22 stores after an intervening write to the source, and DR re-reads the cell each time, so
-         there is nothing to preserve across a call [C141 unchanged].  Only based FIXED BINARY(15)
-         reaches here -- every other based type refuses at the layout switch, so no unmeasured shape
+         there is nothing to preserve across a call [C141 unchanged].  Based FIXED BINARY(15), based
+         POINTER and (E2E-29/P1) based CHARACTER VARYING members reach here; each has its own route
+         below and every other based type still refuses at the layout switch, so no unmeasured shape
          can arrive.  `p->q = 100' lands on this same arm: P041 emits identical bytes for `p->q=100'
          and `q=5', so the -> qualification is a second spelling, not a second mechanism. *)
       let (pn, k) =
@@ -5567,6 +5954,7 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
         | Vbased p -> (p, 0)
         | Vbfix (p, k) -> (p, k)
         | Vbptr (p, k) -> (p, k)
+        | Vbvar (p, k, _) -> (p, k)
         | _ -> assert false
       in
       if String.length pn = 0 then
@@ -5574,6 +5962,22 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
           ("codegen: store to unqualified `" ^ n.Ast.orig
            ^ "' in a BARE-based structure has no DR sample [TBD] (NETWORK/S3 always write "
            ^ "p->member; the record carries no associated pointer)")
+      else if
+        (match vk_of st (String.lowercase_ascii n.Ast.orig) with Vbvar _ -> true | _ -> false)
+      then begin
+        (* [E2E-29/P1] unqualified `w = ...' on a VARYING member of a level-numbered record --
+           REVERSE's `word = newword', ST5's `word = 'ABC''.  One encoder with the qualified
+           spelling, using the record's DECLARED pointer as the address source. *)
+        let cap =
+          match vk_of st (String.lowercase_ascii n.Ast.orig) with
+          | Vbvar (_, _, c) -> c | _ -> assert false
+        in
+        if String.length pn = 0 then
+          failwith
+            ("codegen: store to unqualified `" ^ n.Ast.orig
+               ^ "' in a BARE-based record has no DR sample [TBD] (REVERSE and ST5 name a pointer)")
+        else store_vbvar st pn k cap n.Ast.orig rhs
+      end
       else if vk_of st (String.lowercase_ascii n.Ast.orig) = Vbptr (pn, k) then begin
         (* a POINTER member accepts only the three measured right-hand shapes, the same rule as a
            pointer cell: REVERSE writes `newnode->next = sentence', S2 writes null() and addr(z), S9
@@ -6677,13 +7081,47 @@ let lower_put_items_gen st (edit_tbl : int option)
     call_ext st (if is_edit then "?EDTOV"
                  else if keep_going then "?PNCOP" else "?PNVOP")
   in
-  (* [G112/N18-era perimeter] a char-varying item in a MULTI-item PUT LIST is
-     unsampled and stays refused.  [E2E-8] PUT EDIT DOES sample it --
-     R1020 `put edit(c, i)(a(3), f(2,1), skip)' puts varying+barying ... i.e.
-     char varying next to a binary variable -- so the guard applies to the LIST
-     path only. *)
+  (* [G112/N18-era perimeter] a char-varying item in a MULTI-item PUT LIST used to be unsampled.
+     [E2E-29/P1] it is not: ST5 `put list('w=', word)', V2 `put list('v=', w)', V7
+     `put list('a=', p->w, ' b=', r->w)' and V8's three-item list are DR goldens, and REVERSE puts
+     `put list('=', word)' inside its own loop.  Each of them emits the per-item chain the
+     single-item path already emits (load, ?SLCTS/?SLVTS, ?PNCOP), so the guard is lifted for
+     CHARACTER and CHARACTER VARYING items; leaving it in place would refuse programs the oracle
+     compiles [C188].  PUT EDIT sampled this first (R1020). *)
   let char_var_ok =
-    is_edit || List.length items = 1 ||
+    (* [E2E-29/P1] lifted for exactly the shape DR samples: a CHARACTER VARYING item together with
+       string literals.  ST5 `put list('w=', word)', V2 `put list('v=', w)', V8's three-item list,
+     V7's `p->w'/`r->w' and REVERSE's `put list('=', word)' are all goldens, and each emits the
+     same per-item chain the single-item path emits.  A varying item next to a NUMERIC item is a
+     different shape: the only sample of that is N23 (`put list(c, i)'), which is still a controlled
+     negative, so this keeps refusing until V9/VA/VB say otherwise [C154: a negative is released
+     only when its own behaviour has a golden]. *)
+    let only_literals_and_chars =
+      List.for_all (function
+        | PIlit _ -> true
+        | PIvar n ->
+            (* [E2E-29/P2] a plain FIXED identifier item is `i' in V9/E29N23 (`put list(c, i)'),
+               which classifies as PIvar, not PInum -- so the numeric kinds have to be admitted
+               here too, or the lift does not reach the shape it was written for. *)
+            (match vk_of st (String.lowercase_ascii n.Ast.orig) with
+             | Vvar _ | Vbvar _ | Vfix _ -> true
+             | Vint | Vbfix _ | Vbased _ -> true
+             | _ -> false)
+        (* [E2E-29/P2] V9 (`put list(s, i)'), VA (`put list(w, i)') and E29N23 (N23's exact shape)
+         are DR goldens: each item keeps its own chain (LXI H/SLVTS/PNCOP then LHLD/MVI A,09/QICOP/
+         PNVOP), so a varying item next to a plain FIXED item is sampled too.  DECIMAL and FLOAT
+         items beside a character item are still not, and keep refusing. *)
+      | PInum x ->
+          (match (unwrap_e x).Ast.e with
+           | Ast.Eident n ->
+               (match vk_of st (String.lowercase_ascii n.Ast.orig) with
+                | Vint | Vbfix _ | Vbased _ -> true
+                | _ -> false)
+           | Ast.Eqptr _ -> true   (* based member read: numeric item path S3 pins *)
+           | _ -> false)
+        | _ -> false) items
+    in
+    is_edit || List.length items = 1 || only_literals_and_chars ||
     not (List.exists (function PIvar n ->
                         (match vk_of st n.Ast.orig with
                          | Vint -> false | Vdec _ -> false | Vflt -> false
@@ -6782,6 +7220,13 @@ let lower_put_items_gen st (edit_tbl : int option)
                 | Vvar _ ->
                     d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                     call_ext st "?SLVTS"
+                | Vbvar (pn, k, _) ->
+                    (* [E2E-29/P1] a VARYING member prints through the same ?SLVTS tail as a scalar
+                       varying variable with the record address as the source: ST5 003F, V2 003B,
+                       V8 0028 give `LHLD <pointer> / CALL ?SLVTS' at offset 0, and V6/V7 prove the
+                       qualified `p->w' spelling is byte-identical. *)
+                    (vbvar_addr st pn k) ();
+                    call_ext st "?SLVTS"
                 | Vfix cap ->
                     if cap > 255 then failwith "codegen: cap > 255 [TBD]";
                     d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
@@ -6796,6 +7241,32 @@ let lower_put_items_gen st (edit_tbl : int option)
                       "codegen: PUT of a BIT(1) variable is unsampled [TBD]                        (no DR sample puts a bit string; the bit-list output                         edit form is E2E-11 step 3 territory)");
                tail true ())
       | PInum x ->
+          (* [E2E-29/P1] A VARYING member reached through a pointer is a CHARACTER item, not a
+             number, and classification above is syntax-only, so the decision is made HERE where
+             the binder's vk is known -- the same arrangement PIvar already uses.  V7 0046 gives
+             LHLD P / CALL ?SLVTS / ?PNCOP for `p->w' and 005A gives LHLD R / CALL ?SLVTS for
+             `r->w', both from one declaration `2 w character(6) varying': the QUALIFIER supplies
+             the address.  The unqualified spelling lowers to identical bytes (V2 003B, V6 0030,
+             ST5 003F), so vbvar_addr ~qual is the single encoder for both.  Based FIXED members
+             keep the numeric path below untouched -- S3 is byte-exact there today. *)
+          let vbvar_item =
+            match x.Ast.e with
+            | Ast.Eqptr (b, f) ->
+                begin match (unwrap_e b).Ast.e with
+                  | Ast.Eident bn ->
+                      (match vk_of st (String.lowercase_ascii f.Ast.orig) with
+                       | Vbvar (pn, k, _) -> Some (bn.Ast.orig, pn, k)
+                       | _ -> None)
+                  | _ -> None
+                end
+            | _ -> None
+          in
+          match vbvar_item with
+          | Some (bn, pn, k) ->
+              (vbvar_addr ~qual:bn st pn k) ();
+              call_ext st "?SLVTS";
+              tail true ()
+          | None ->
           if is_float_expr st x then begin
             (* [E2E-10/FFACT] a float call item leaves its result on the
                float stack and the edit pair MVI A,0E / ?QFCSS follows the
@@ -7044,8 +7515,21 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
                { off = o; size = 2; vk = Vflt; w = 0 }
              else
                { off = o; size = Bind.bytes_of rt; vk = Vflt; w = 0 }
+         | Bind.RTchar (n, false) ->
+             (* [E2E-29/P5] a CHARACTER local of a nested procedure.  REVERSE's read_it declares
+                `newword character(30) varying' and write_it `p pointer', and DR gives them ordinary
+                absolute DATA cells like main's own variables (NEWWORD A(0018), P A(0039)), so the
+                same cells and the same routes apply; the layout switch below for main-block
+                variables is the authority on the sizes. *)
+             { off = o; size = Bind.bytes_of rt; vk = Vfix n; w = 0 }
+         | Bind.RTchar (n, true) -> { off = o; size = Bind.bytes_of rt; vk = Vvar n; w = 0 }
+         | Bind.RTptr -> { off = o; size = 2; vk = Vptr; w = 0 }
          | _ ->
-             failwith "codegen: non fixed-bin procedure local [TBD]"))
+             failwith
+               ("codegen: procedure local of type " ^ Bind.rty_str rt
+                ^ " is unsampled [TBD] (REVERSE needs CHARACTER VARYING and POINTER locals; a "
+                ^"nested-procedure BIT/DEC/structure local has no golden, and E2E-28/P1 covers only "
+                ^ "fixed, decimal and float)")))
       pl.Bind.pl_rows @ saved;
   st.arrays <- pl.Bind.pl_arrays @ saveda;
   (if pl.Bind.pl_rec
@@ -7074,7 +7558,22 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     (match pl.Bind.pl_ret with Some (Bind.RTfloat _) -> true | _ -> false);
   st.in_proc <- true;
   st.in_rec <- pl.Bind.pl_rec;
-  List.iter (fun x -> lower_stmt st ls x) pl.Bind.pl_body;
+  (* [E2E-29/P5] each procedure body starts able to fall through, and any statement lowered after
+     a no-exit loop puts fall-through back on the table: PD2 (`q = 5;' after `do while('1'b)')
+     keeps the dead store -- statements after a non-exiting loop are NOT suppressed, as E2E-28/P1
+     already established for a straight-line STOP [N8/N10] -- and DR's RET reappears at 0044.  The
+     clear happens BEFORE the statement lowers, because the no-exit loop sets the flag at its END.
+     Nested-procedure declarations do not count, mirroring main's window rule [RFACT/R410/R425]:
+     REVERSE's read_it ends with its loop, and write_it's declaration following it must not revoke
+     read_it's suppressed RET (nor write_it's own), because the flag is per-body by construction. *)
+  st.proc_tail_no_exit <- false;
+  List.iter
+    (fun x ->
+      (match x.Ast.st with
+       | Ast.Sproc _ -> ()
+       | _ -> st.proc_tail_no_exit <- false);
+      lower_stmt st ls x)
+    pl.Bind.pl_body;
   (* [E2E-11/CALL] a procedure with NO RETURNS gets an implicit `RET` after its
      body.  Eight probes pin this and none of them contradict it: E25A (empty
      body -> RET is the body's ONLY instruction), E24A/E24F/E25H (assignment or
@@ -7084,7 +7583,11 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      RET, gets no second one).  So the trigger is the absence of RETURNS, not
      the shape of the last statement.  Value-returning procedures are NOT given
      one: their exits are RETURN's RET / JMP ?FPRET / JMP ?DCRET. *)
-  if pl.Bind.pl_ret = None && not (st.top_proc && st.stop_seen) then begin
+  if
+    pl.Bind.pl_ret = None
+    && not (st.top_proc && st.stop_seen)
+    && not (st.in_proc && st.proc_tail_no_exit)
+  then begin
     d st 0xc9; (* RET *)
     st.last_imm <- None
   end else
@@ -7180,12 +7683,20 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
           st.after_forever <- true;
           st.last_loop_edge <- head + 4
         end
+        else
+          (* [E2E-29/P5] inside a procedure body the same fact has a different consequence: the
+             implicit trailing RET disappears, because control cannot reach the end.  PD1 proves
+             it (003B JMP 0034, then main's stop at 003E with no C9 between), and REVERSE's
+             read_it ends the same way at 008E before write_it starts at 0091. *)
+          st.proc_tail_no_exit <- true
       end else begin
         let slot = lower_test_skip st cond in
         st.last_imm <- None;   (* [E2E-8] branch target => HL unknown *)
         lower_stmt st ls body;
         (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head;
-        emit_triple st slot st.lc            (* [Z401: after JMP] *)
+        (* [E2E-29] slot -1 means the condition emitted no jump at all (REVERSE's
+           `do while('1'b)', whose body ends in an unconditional JMP back). *)
+        if slot >= 0 then emit_triple st slot st.lc            (* [Z401: after JMP] *)
       end
   | Ast.Sdoforever body ->
       (* bare DO; .. END; [Z403] body then unconditional JMP back *)
@@ -7247,11 +7758,18 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       let skip = lower_test_skip st cond in
       lower_stmt st ls then_;
       (match els with
-       | None -> emit_triple st skip st.lc
+       | None -> if skip >= 0 then emit_triple st skip st.lc
        | Some e ->
            (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
            let exit_slot = st.lc in
            d st 0; d st 0;
+           (* [E2E-29] a constant-true condition with an ELSE has no DR sample: the skip jump
+              this patch feeds does not exist, so the two-branch form refuses rather than emitting
+              an unconditional body plus a dangling JMP over a branch nobody tested for. *)
+           if skip < 0 then
+             failwith
+               "codegen: constant-true condition with an ELSE branch is unsampled [TBD] (REVERSE \
+                uses do while('1'b) only)";
            emit_triple st skip st.lc;      (* skip -> else start [G114] *)
            lower_stmt st ls e;
            emit_triple st exit_slot st.lc) (* fall-around else -> exit *)
@@ -7596,7 +8114,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
            end
        | Vstruct (bp, _) when String.length bp > 0 || qual <> None ->
            free_via st (match qual with Some q -> q | None -> bp)
-       | Vbfix (pn, _) | Vbptr (pn, _) ->
+       | Vbvar (pn, _, _) | Vbfix (pn, _) | Vbptr (pn, _) ->
            failwith
              ("codegen: FREE of the structure MEMBER " ^ fi
               ^ " is unsampled [TBD] (DR frees the record or the qualified record name -- S1 `free s', "
@@ -8003,7 +8521,7 @@ let emit_program (progname : string) (auto_bytes : int)
   ; fl_cells = []
   ; str_cells = []
     ; in_proc = false; in_rec = false; top_proc = false; call_stmt = None
-    ; after_forever = false; guards = 0; guard_slots = []
+    ; after_forever = false; proc_tail_no_exit = false; guards = 0; guard_slots = []
     ; appended = false; secs = layout.Bind.pl_secs
     ; last_loop_edge = 0 }
   in
@@ -8490,6 +9008,11 @@ let rows_of (b : Ast.block) =
             Some (nm, { off; size = 0; vk = Vbptr (ptr, k); w = binw 15 })
         | Bind.RTstructrec (ptr, sz) ->
             Some (nm, { off; size = 0; vk = Vstruct (ptr, sz); w = 0 })
+        | Bind.RTbmem (ptr, k, Bind.RTchar (n, true)) ->
+            (* [E2E-29/P1] CHARACTER VARYING member: REVERSE's `2 word character(30) varying'
+               sits at 0 with `.next' at 001F = 31 = 30+1, and ST5's cap-6 record is 9 = 7+2, so
+               Bind.bytes_of (n+1) is already the cell size and the contiguous layout holds. *)
+            Some (nm, { off; size = 0; vk = Vbvar (ptr, k, n); w = 0 })
         | Bind.RTbmem (ptr, k, inner) ->
             failwith
               ("codegen: BASED structure member " ^ nm

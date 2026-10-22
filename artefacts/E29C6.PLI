@@ -1,0 +1,9 @@
+e29c6: procedure options(main);
+   declare s character(6) varying, t character(6) varying, q fixed;
+   s = 'AB';
+   t = 'AB';
+   if s = t then q = 6;
+   put list('c6=', q);
+  stop;
+end e29c6;
+

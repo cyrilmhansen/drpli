@@ -1,0 +1,14 @@
+e29pd2: procedure options(main);
+   declare q fixed;
+   call inner();
+   put list('pd2=', q);
+  inner: procedure;
+   q = 1;
+   do while('1'b);
+      q = q + 1;
+   end;
+   q = 5;
+   end inner;
+  stop;
+end e29pd2;
+

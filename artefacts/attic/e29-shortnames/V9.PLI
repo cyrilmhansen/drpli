@@ -1,0 +1,8 @@
+v9: procedure options(main);
+   declare s character(6) varying, i fixed;
+   s = 'AB';
+   i = 1;
+   put list(s, i);
+  stop;
+end v9;
+

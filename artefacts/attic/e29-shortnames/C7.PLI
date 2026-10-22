@@ -1,0 +1,8 @@
+c7: procedure options(main);
+   declare s character(6) varying, q fixed;
+   s = 'AB';
+   if s = 'ABCD' then q = 7;
+   put list('c7=', q);
+  stop;
+end c7;
+

@@ -1,0 +1,9 @@
+x6: procedure options(main);
+   declare x fixed based(p), p pointer, q fixed;
+   allocate x set(p);
+   if p ^= null then q = 6;
+   put list('x6=', q);
+   free p;
+  stop;
+end x6;
+

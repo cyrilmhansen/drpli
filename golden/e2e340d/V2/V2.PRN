@@ -1,0 +1,84 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: V2
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+   3 b         declare p pointer, s character(10) varying;
+DUPLIC                 ?
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 V2 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 19 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0002 R POINTER AUTOMATIC
+c 0004 Q FIXED BINARY(15,0) AUTOMATIC
+c 0006 P POINTER AUTOMATIC
+c 0008 S CHAR(10) VARYING AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 2 BASED(P)
+c 0000 .W CHAR(10) VARYING MEMBER
+c 000B .NX POINTER MEMBER
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: V2
+
+   1 a 0000 v2: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare p pointer, r pointer, q fixed;
+   3 c 0006    declare p pointer, s character(10) varying;
+   4 c 0006    declare 1 nd based(p), 2 w character(10) varying, 2 nx pointer;
+   5 c 0006    allocate nd set(p);
+   6 c 0006    s = 'HELLO';
+       0006       LXI  H,S A(000F)
+       0009       LXI  H,* S(0000)
+       000C       PUSH PSW
+       000D       MVI  A,05
+       000F       CALL ?SLCTS
+       0012       POP  PSW
+       0013       MVI  B,0A
+       0015       CALL ?SSVFS
+   7 c 0018    w = s;
+       0018       LHLD P A(000D)
+       001B       LXI  H,S A(000F)
+       001E       PUSH PSW
+       001F       CALL ?SLVTS
+       0022       POP  PSW
+       0023       MVI  B,0A
+       0025       CALL ?SSVFS
+   8 c 0028    put list('v=', w);
+       0028       LXI  D,0252
+       002B       LXI  B,0000
+       002E       CALL ?SYSPR
+       0031       LXI  H,* S(0005)
+       0034       MVI  A,02
+       0036       CALL ?SLCTS
+       0039       CALL ?PNCOP
+       003C       LHLD P A(000D)
+       003F       CALL ?SLVTS
+       0042       CALL ?PNCOP
+       0045       CALL ?QIOOP
+       002C       ==== 0048
+   9 c 0048    free p->nd;
+       0048       LHLD P A(000D)
+       004B       CALL ?FREOP
+  10 c 004E   stop;
+       004E       CALL ?STOPX
+  11 a 0051 end v2;
+
+CODE SIZE = 0051
+DATA AREA = 001A
+FREE SYMS = 3855
+END  COMPILATION
+

@@ -1,0 +1,6 @@
+E29PD1	incomplete	PRN=True REL=False
+E29PD2	incomplete	PRN=True REL=False
+E29PD3	incomplete	PRN=True REL=False
+E29VB	incomplete	PRN=True REL=False
+E29X6	ok	PRN=True REL=True
+E29X8	ok	PRN=True REL=True

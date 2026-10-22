@@ -1,0 +1,12 @@
+s6: procedure options(main);
+   declare p pointer;
+   declare 1 s based(p), 2 a fixed, 2 b bit, 2 c fixed;
+   allocate s set(p);
+   a = 1;
+   b = '1'b;
+   c = 2;
+   put list('c=', c);
+   free s;
+  stop;
+end s6;
+

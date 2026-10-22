@@ -201,6 +201,14 @@ and primary p =
         let args = arglist p in
         suffix_chain p { e = Ebuilt (key, args); epos = q }
       end
+      else if key = "NULL" then
+        (* [E2E-29/P3] BARE `null' (no argument list) is the same value as `null()'.  DR proves it:
+           X1 `if p = null then', X5 `if p = null() then' and REVERSE's lines 14/24 (`if sentence =
+           null then', `sentence = null;') all lower to the identical bytes -- LXI H,0000 / SHLD <p>
+           for the store, LHLD <p> / MOV A,H / ORA L / JNZ for the test.  It arrives as an ordinary
+           identifier otherwise, and the binder then refuses it as "undeclared null", so the
+           distinction is purely a spelling and is resolved here rather than in two lowering paths. *)
+        suffix_chain p { e = Ebuilt ("NULL", []); epos = q }
       else suffix_chain p { e = Eident { orig; key; pos = q }; epos = q }
   | Token.Num { text; _ } ->
       advance p; suffix_chain p { e = Enumber text; epos = q }

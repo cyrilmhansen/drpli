@@ -1,0 +1,13 @@
+e29pd1: procedure options(main);
+   declare q fixed;
+   call inner();
+   put list('pd1=', q);
+  inner: procedure;
+   q = 1;
+   do while('1'b);
+      q = q + 1;
+   end;
+   end inner;
+  stop;
+end e29pd1;
+

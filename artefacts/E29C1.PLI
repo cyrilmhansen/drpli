@@ -1,0 +1,9 @@
+e29c1: procedure options(main);
+   declare p pointer, r pointer, q fixed;
+   declare s character(6) varying;
+   s = 'AB';
+   if s = 'AB' then q = 1;
+   put list('c1=', q);
+  stop;
+end e29c1;
+

@@ -1,0 +1,13 @@
+e29pd3: procedure options(main);
+   declare q fixed;
+   call inner();
+   put list('pd3=', q);
+  inner: procedure;
+   q = 1;
+   do while(q < 3);
+      q = q + 1;
+   end;
+   end inner;
+  stop;
+end e29pd3;
+

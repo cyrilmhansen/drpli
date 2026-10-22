@@ -1,0 +1,14 @@
+s9: procedure options(main);
+   declare p pointer, r pointer;
+   declare 1 s based(p), 2 a fixed, 2 nx pointer;
+   allocate s set(p);
+   a = 6;
+   r = p;
+   nx = r;
+   p = nx;
+   a = 8;
+   put list('a=', a);
+   free s;
+  stop;
+end s9;
+

@@ -1,0 +1,10 @@
+s12: procedure options(main);
+   declare p pointer;
+   declare 1 outer based(p), 2 o1 fixed, 1 inner, 2 i2 fixed;
+   allocate outer set(p);
+   i2 = 5;
+   put list('i=', i2);
+   free outer;
+  stop;
+end s12;
+

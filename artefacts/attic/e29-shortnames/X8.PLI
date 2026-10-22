@@ -1,0 +1,12 @@
+x8: procedure options(main);
+   declare x fixed based(p), p pointer, q fixed;
+   allocate x set(p);
+   if p = null then q = 8;
+   put list('x8-notreached=', q);
+   p = null;
+   if p = null then q = 9;
+   put list('x8=', q);
+   free p;
+  stop;
+end x8;
+

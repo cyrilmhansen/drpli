@@ -1,0 +1,11 @@
+e29va: procedure options(main);
+   declare p pointer, i fixed;
+   declare 1 nd based(p), 2 w character(6) varying;
+   allocate nd set(p);
+   w = 'AB';
+   i = 2;
+   put list(w, i);
+   free p->nd;
+  stop;
+end e29va;
+

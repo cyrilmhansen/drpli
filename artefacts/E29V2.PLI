@@ -1,0 +1,11 @@
+e29v2: procedure options(main);
+   declare p pointer, s character(10) varying;
+   declare 1 nd based(p), 2 w character(10) varying, 2 nx pointer;
+   allocate nd set(p);
+   s = 'HELLO';
+   w = s;
+   put list('v=', w);
+   free p->nd;
+  stop;
+end e29v2;
+

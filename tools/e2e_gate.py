@@ -807,11 +807,6 @@ REJECTS = {
                   "end t;\n", "DO FROM form unproven"),
     "N22_FPUT": ("t:\n  procedure options(main);\n"
                   "  put list(42);\nend t;\n", "PUT form"),
-    "N23_CHARVAR_MULTI": ("t:\n  procedure options(main);\n"
-                          "  dcl c char(4) varying;\n  dcl i fixed;\n"
-                          "  c = 'Q';\n  i = 1;\n"
-                          "  put list(c, i);\nend t;\n",
-                          "char var in multi-item"),
     "N24_BIGIN": ("t:\n  procedure options(main);\n"
                   "  dcl c fixed bin(16);\n  c = 1;\n"
                   # [E2E-11 step 0] marker updated: the refusal now happens in
@@ -1730,8 +1725,6 @@ NEG_META = {
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG07/NG07.REL)"),
     "N22_FPUT": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG08/NG08.REL)"),
-    "N23_CHARVAR_MULTI": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG09/NG09.REL)"),
     "N24_BIGIN": ("dr-refuses",
      "DR REFUSES: NOT IMP (golden/negpanel1/NG10/NG10.PRN)"),
     "N25_DECCMP_SCALE": ("my-gap",
@@ -2414,9 +2407,6 @@ add_spec('E27LN1', ('artefacts/LN1.PLI', 'golden/e2e325d/LN1/LN1.REL'))
 # [E2E-27] DR compiles these; mine refuses because only based FIXED and POINTER members are
 # implemented.  The refusal happens AFTER the layout, so member offsets and the record size are
 # already bound correctly -- extending this later is a lowering problem, not a layout re-derivation.
-REJECTS['E27S5'] = (open('artefacts/ST5.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-                  'BASED structure member')
-NEG_META['E27S5'] = ("my-gap", "DR COMPILES IT (golden/e2e323d/ST5/ST5.REL). REVERSE's wordnode shape with a short varying member: `2 word character(6) varying, 2 next pointer'. Mine stops at the layout's member guard. This is REVERSE's blocker number two, after nested procedures (ST13): REVERSE shows DR stores a varying value through a pointer (`word = newword'), but no probe of mine has pinned those bytes yet.")
 REJECTS['E27S6'] = (open('artefacts/ST6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                   'BASED structure member')
 NEG_META['E27S6'] = ("my-gap", "DR COMPILES IT (golden/e2e323d/ST6/ST6.REL). `2 a fixed, 2 b bit, 2 c fixed' -- the probe that MEASURES DR's layout rule: bit(1) takes one byte and c lands at the ODD offset 3, with allocation size 5. Members are contiguous with no alignment padding. Mine binds that layout correctly (offsets and record size come from the same walk) and refuses only the BIT member's store bytes.")
@@ -2542,6 +2532,138 @@ add_spec('O8', ('artefacts/O8.PLI', 'golden/e2e334d/O8/O8.REL'))
 REJECTS['E28N9'] = (open('artefacts/N9.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                  'condition form not in E2E-3b subset')
 NEG_META['E28N9'] = ("my-gap", "DR COMPILES IT (golden/e2e331d/N9/N9.REL). `if w = 1 then stop;' followed by `w = 5' and a PUT: DR emits the compare, a JNZ over the CALL ?STOPX @0015 and continues at 0018, so a conditional stop does NOT suppress anything. Mine refuses on the condition form -- the same gap that keeps AB11 open -- and this probe's value is that it separates that gap from the procedure work: N8/N10 (straight-line stop) are byte-exact, N9 is not, and the difference is the IF, not the STOP.")
+
+
+# ================================================================================================
+# [E2E-29] CHARACTER VARYING STRUCTURE MEMBERS, STRING AND POINTER COMPARISON, AND REVERSE
+# ================================================================================================
+# REVERSE (golden/e2e319d, DR's own historical listing) is this milestone's target, and it is now
+# byte-exact AND runtime-identical.  E2E-27's note recorded REVERSE's second blocker as "CHARACTER
+# VARYING members", with DR's route measured but no probe pinning the bytes.  These probes pin them,
+# and in doing so overturned two things this compiler had been told by its own earlier readings.
+#
+# 1. TWO REFUSALS WERE BUG REPORTS, NOT DESIGN DECISIONS [C188 again].  E27S5 was registered as a
+#    my-gap refusal with the note "DR COMPILES IT (golden/e2e323d/ST5/ST5.REL)".  ST5 now builds
+#    byte-exactly against that same golden, so it is promoted below.  N23_CHARVAR_MULTI refused
+#    "char var in multi-item PUT" as unsampled; E29N23 is that exact shape (a CHARACTER VARYING item
+#    beside a FIXED item) and DR compiles it with each item keeping its own chain (0022 LXI H,C /
+#    SLVTS / PNCOP, then 002B LHLD I / MVI A,09 / QICOP / PNVOP).  The negative is removed here,
+#    which is C154's condition: the behaviour has a golden of its own.
+#
+# 2. SIX OF MY FIRST EIGHT PROBES WERE REFUSED BY DR FOR A DEFECT IN MY PROBE GENERATOR, NOT BY THE
+#    LANGUAGE.  They declared `p' in a shared prefix AND again in the body, and DR answered with one
+#    PASS-1 error whose symbol-table row reads `DUPLIC'.  Nothing about VARYING members was
+#    established until each source declared every name once.  C186(a) again: a refusal produced by my
+#    own tooling is evidence about my tooling.  A second instance of the same class happened at the
+#    end: renaming the probes into collision-free E29* keys wrote the sources with LF line endings,
+#    and DR answered every one of them with UNEXPECTED EOF [C118].  Check the bytes you wrote.
+#
+# THE VARYING-MEMBER ABI (E29V2-V8, E27S5, REVERSE -- all byte-exact below):
+#   * cell = 1 length byte + declared capacity.  REVERSE's `.word'@0 has `.next'@001F (30+1) and the
+#     record is 0021 (33); ST5's cap-6 member has `.next'@0007 and the record is 9.  A VARYING member
+#     contributes nothing to AUTO STORAGE, like every other based member [C185].
+#   * literal store      LHLD <q> / [C189 step] / LXI D,*S / MVI A,cap / MVI B,len / ?SMCVM
+#                        len==cap folds to MOV B,A (V3: 'ABCDEF' into character(6)); len==0 folds to
+#                        a bare MVI M,00 with NO call (V8) -- both are the existing scalar store_char
+#                        tails, reached through one shared destination thunk.
+#   * varying -> member  LHLD <q> / [step] / LXI D,<src cell> / MVI A,cap / ?SMVVM  (V2, REVERSE)
+#   * member -> member   src / PUSH H / dst / POP D / MVI A,cap / ?SMVVM            (V7)
+#   * PUT read           LHLD <q> / [step] / CALL ?SLVTS / ?PNCOP      (ST5,V2,V6,V7,V8,REVERSE)
+#   A is the DESTINATION capacity in every store, never the value's length; the source carries its
+#   own length byte.  `w' and `p->w' lower to identical bytes (V6/V7 vs V2/V8), so one encoder
+#   (vbvar_addr) serves both spellings and every route -- C179's rule in instruction selection, the
+#   way C189 already did it for the offset step.
+#
+# STRING COMPARISON ABI (E29C1-C11, byte-exact): HL carries the RIGHT operand, DE the LEFT, and the
+# helper name says what the LEFT operand is.
+#   varying  = literal   LXI H,*S / LXI D,<var>  / MVI A,len / ?SCVCM
+#   literal  = varying   LXI H,<var> / LXI D,*S  / MVI B,len / ?SCCVM   <- different helper AND a
+#                                                                        different length register
+#   member   = literal   LHLD <q> / [step] / XCHG / LXI H,*S / MVI A,len / ?SCVCM
+#   literal  = member    LHLD <q> / [step] / LXI D,*S / MVI B,len / ?SCCVM -- no XCHG here, because
+#                                                                        HL is already the right side;
+#                                                                        that is exactly why the other
+#                                                                        orientation needs it [C167]
+#   varying  = varying   LXI H,right / LXI D,left / ?SCVVM
+#   member   = varying   LHLD <q> / XCHG / LXI H,<cell> / ?SCVVM        (E29C10)
+# `=' skips the then-body with C2, `^=' with CA.  E29C11 is the semantic witness: `s = 'A'' with
+# s='AB' (lengths differ) takes the FALSE branch, printed as 0 by both objects.
+#
+# POINTER / NULL COMPARISON ABI (E29X1-X9): `p = null' (C2) and `p ^= null' (CA), in BOTH operand
+# orientations byte-identical (X4 = X1), are LHLD <cell> / MOV A,H / ORA L / skip-byte -- the cell's
+# own bits are the test and no null value is loaded.  Bare `null' and `null()' are the same value to
+# DR (X1 vs X5, and REVERSE lines 14/24 use the bare form), so the parser resolves both to one AST
+# node instead of carrying two spellings down two routes.  Pointer-to-pointer is a different routine
+# entirely: LHLD / PUSH H / LHLD / POP D / ?NC22N, C2 for `=' (X7) and CA for `^=' (X9).  X6/X8 give
+# the allocated-pointer side: with p pointing at live storage `p = null' takes the FALSE branch and
+# `p ^= null' the TRUE one, executed identically by both objects.
+#
+# PROCEDURE-LOCAL CHARACTER VARYING AND POINTER CELLS: REVERSE's read_it declares `newword
+# character(30) varying' and write_it `p pointer'; DR gives them ordinary absolute DATA cells
+# (NEWWORD A(0018), P A(0039)), so the nested-procedure layout admits them with main's routes.
+# E29PD1-PD3 pin the tail rule for a procedure body: a body ending in a no-exit loop gets NO trailing
+# RET (PD1: 003B JMP 0034, then main's stop at 003E with no C9 between); a statement after such a
+# loop is still emitted -- there is still no dead-code suppression -- and the RET comes back (PD2 at
+# 0044); an exiting loop keeps its RET (PD3).  REVERSE's read_it is PD1's shape.
+#
+# BARE `put skip;' (E29PS1) is REVERSE line 49 at 00FE: LXI D,0252 / LXI B,0000 / CALL ?SYSPR /
+# MVI A,01 / CALL ?SKPOP / CALL ?QIOOP -- the ordinary prologue, skip and QIOOP with no item, i.e.
+# lower_put_items_gen with an empty item list rather than a second encoder.
+#
+# GET LIST needed NO change: lower_get already emitted ?SYSIN / ?GNVOP / ?SSVFS for a scalar
+# CHARACTER VARYING target, which is REVERSE's `get list(newword)' at 003C-0053 byte for byte.  The
+# only input-side work in this milestone was proving that, with REVERSE's two scripted runs as the
+# witness.  (E2E-27's note listed GET LIST as blocker #3; it was already implemented.)
+#
+# RUNTIME: nine of these objects were linked beside DR's own (LINK 1.31 + PLILIB) and executed under
+# cpmsim with identical scripted stdin; every transcript matched byte for byte -- E29V2 'v= HELLO',
+# E29V7 'a= ONE  b= ONE', E29VB 'AB  tail', E29C1 'c1=         1', E29C11 'c11=         0', E29C9
+# 'c9=         9', E29X8 'x8-notreached=         0 x8=         9', E29X9 'x9=         0', E29PS1
+# '\nafter=\n' [golden/e29rt_dr_r, golden/e29rt_my_r].  REVERSE ran twice on each object:
+# sentinel-first, and two sentences plus a terminating sentinel; both byte-identical
+# [golden/e29dr_run{A,B}, golden/e29my_run{A,B}].  The objects executed are the objects compared.
+#
+# ONE DIVERGENCE: E29X3 (`do while (p ^= null)' after `p = null;').  DR reuses HL=0 straight through
+# `SHLD P' and omits my LXI H,0000 -- 79 code bytes against DR's 76, data identical (3/3).  Same
+# register-reuse family as PB4/PB20/E28N7/O1/O2/O4, deliberately NOT fitted: no sample establishes
+# what invalidates the reuse, and C141/C189 forbid guessing into a shared encoder that 33 accepted
+# witnesses depend on.  See spec/DIVERGENT.txt.
+#
+add_spec('E29V2', ('artefacts/E29V2.PLI', 'golden/e2e361/E29V2/E29V2.REL'))
+add_spec('E29V3', ('artefacts/E29V3.PLI', 'golden/e2e361/E29V3/E29V3.REL'))
+add_spec('E29V4', ('artefacts/E29V4.PLI', 'golden/e2e361/E29V4/E29V4.REL'))
+add_spec('E29V6', ('artefacts/E29V6.PLI', 'golden/e2e361/E29V6/E29V6.REL'))
+add_spec('E29V7', ('artefacts/E29V7.PLI', 'golden/e2e361/E29V7/E29V7.REL'))
+add_spec('E29V8', ('artefacts/E29V8.PLI', 'golden/e2e361/E29V8/E29V8.REL'))
+add_spec('E29V9', ('artefacts/E29V9.PLI', 'golden/e2e361/E29V9/E29V9.REL'))
+add_spec('E29VA', ('artefacts/E29VA.PLI', 'golden/e2e361/E29VA/E29VA.REL'))
+add_spec('E29VB', ('artefacts/E29VB.PLI', 'golden/e2e362/E29VB/E29VB.REL'))
+add_spec('E29PS1', ('artefacts/E29PS1.PLI', 'golden/e2e361/E29PS1/E29PS1.REL'))
+add_spec('E29C1', ('artefacts/E29C1.PLI', 'golden/e2e360/E29C1/E29C1.REL'))
+add_spec('E29C2', ('artefacts/E29C2.PLI', 'golden/e2e360/E29C2/E29C2.REL'))
+add_spec('E29C3', ('artefacts/E29C3.PLI', 'golden/e2e360/E29C3/E29C3.REL'))
+add_spec('E29C4', ('artefacts/E29C4.PLI', 'golden/e2e360/E29C4/E29C4.REL'))
+add_spec('E29C5', ('artefacts/E29C5.PLI', 'golden/e2e360/E29C5/E29C5.REL'))
+add_spec('E29C6', ('artefacts/E29C6.PLI', 'golden/e2e360/E29C6/E29C6.REL'))
+add_spec('E29C7', ('artefacts/E29C7.PLI', 'golden/e2e360/E29C7/E29C7.REL'))
+add_spec('E29C8', ('artefacts/E29C8.PLI', 'golden/e2e360/E29C8/E29C8.REL'))
+add_spec('E29C9', ('artefacts/E29C9.PLI', 'golden/e2e354d/E29C9/E29C9.REL'))
+add_spec('E29C10', ('artefacts/E29C10.PLI', 'golden/e2e354d/E29C10/E29C10.REL'))
+add_spec('E29C11', ('artefacts/E29C11.PLI', 'golden/e2e354d/E29C11/E29C11.REL'))
+add_spec('E29X1', ('artefacts/E29X1.PLI', 'golden/e2e362/E29X1/E29X1.REL'))
+add_spec('E29X2', ('artefacts/E29X2.PLI', 'golden/e2e362/E29X2/E29X2.REL'))
+add_spec('E29X4', ('artefacts/E29X4.PLI', 'golden/e2e362/E29X4/E29X4.REL'))
+add_spec('E29X5', ('artefacts/E29X5.PLI', 'golden/e2e362/E29X5/E29X5.REL'))
+add_spec('E29X6', ('artefacts/E29X6.PLI', 'golden/e2e353d/E29X6/E29X6.REL'))
+add_spec('E29X7', ('artefacts/E29X7.PLI', 'golden/e2e362/E29X7/E29X7.REL'))
+add_spec('E29X8', ('artefacts/E29X8.PLI', 'golden/e2e353d/E29X8/E29X8.REL'))
+add_spec('E29X9', ('artefacts/E29X9.PLI', 'golden/e2e362/E29X9/E29X9.REL'))
+add_spec('E29PD1', ('artefacts/E29PD1.PLI', 'golden/e2e360/E29PD1/E29PD1.REL'))
+add_spec('E29PD2', ('artefacts/E29PD2.PLI', 'golden/e2e360/E29PD2/E29PD2.REL'))
+add_spec('E29PD3', ('artefacts/E29PD3.PLI', 'golden/e2e361/E29PD3/E29PD3.REL'))
+add_spec('E29N23', ('artefacts/E29N23.PLI', 'golden/e2e354d/E29N23/E29N23.REL'))
+add_spec('E27S5', ('artefacts/ST5.PLI', 'golden/e2e323d/ST5/ST5.REL'))
+add_spec('REVERSE', ('artefacts/REVERSE.PLI', 'golden/e2e319d/REVERSE/REVERSE.REL'))
 
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}

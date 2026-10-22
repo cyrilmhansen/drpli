@@ -1,0 +1,10 @@
+s1: procedure options(main);
+   declare p pointer;
+   declare 1 s based(p), 2 a fixed;
+   allocate s set(p);
+   a = 7;
+   put list('a=', a);
+   free s;
+  stop;
+end s1;
+

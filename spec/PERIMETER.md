@@ -130,3 +130,25 @@ claims C119-C121.
   samples; P066B confirms SYNTAX) — grammar updated.
 - ROUND/CEIL/LOG are ordinary builtin calls (earlier "auto-injection"
   hypothesis refuted by LOAN1 source + P066A).
+
+## [E2E-29] Perimeter widened — REVERSE is inside it now
+
+Everything REVERSE needs is [S] SUPPORTED and byte-exact here, and the program itself is a registered
+specimen (748-row inventory). Newly inside the perimeter, each with goldens and (where it can be
+observed) executed evidence:
+
+- **CHARACTER VARYING based members** — store from literal / varying / member, read for PUT, the
+  `len==cap` and `len==0` folds, capacity truncation by the runtime, offsets past the C189 step
+  boundary (`.next`@001F). [C190]
+- **Character comparison** in IF and DO WHILE conditions: `?SCVCM` / `?SCCVM` / `?SCVVM`, literal on
+  either side, member on either side, `=` and `^=`. [C191]
+- **Pointer comparison**: null tests in both orientations for `null` and `null()` (tested through the
+  cell's own bits), and pointer-vs-pointer through `?NC22N`. [C191]
+- **Procedure-local** CHARACTER VARYING and POINTER cells, the nested-body tail-RET rule (no RET after
+  a no-exit loop, RET otherwise), and bare `put skip;`. [C192]
+
+Still [S]-known-but-open, unchanged by this milestone: DR's register-reuse peephole family
+(PB4/PB20/E28N7/O1/O2/O4/**E29X3** — 8 rows in spec/DIVERGENT.txt, E29X3 being the only new one), the
+numeric-condition gaps E28N1/E28N9, and the decimal backlog. REVERSE's `free p->wordnode` compiles
+because that structure is BASED(p) [C185]; E2E-27's bare-based refusal is untouched and still correct
+(E27S3/E27S4/E27S6 still refuse).

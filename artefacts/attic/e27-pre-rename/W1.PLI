@@ -1,0 +1,21 @@
+w1: procedure options(main);
+   declare head pointer, p pointer, q pointer, z fixed;
+   declare 1 node based(head), 2 val fixed, 2 link pointer;
+   allocate node set(head);
+   val = 11;
+   link = null();
+   allocate node set(p);
+   p->val = 22;
+   p->link = null();
+   head->link = p;
+   z = p->val;
+   put list('first=', head->val, ' linked=', z);
+   p = head->link;
+   p->val = 33;
+   q = head->link;
+   put list(' after=', q->val, ' z=', z);
+   free head->node;
+   free q->node;
+  stop;
+end w1;
+

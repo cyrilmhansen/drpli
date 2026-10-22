@@ -1,0 +1,10 @@
+t23:
+    procedure options(main);
+  dcl c char(4) varying;
+  dcl i fixed;
+  c = 'Q';
+  i = 1;
+  put list(c, i);
+  stop;
+end t23;
+

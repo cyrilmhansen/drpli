@@ -1,0 +1,11 @@
+c8: procedure options(main);
+   declare p pointer, q fixed;
+   declare 1 nd based(p), 2 w character(6) varying, 2 nx pointer;
+   allocate nd set(p);
+   w = 'AB';
+   if w ^= 'ZZ' then q = 8;
+   put list('c8=', q);
+   free p->nd;
+  stop;
+end c8;
+

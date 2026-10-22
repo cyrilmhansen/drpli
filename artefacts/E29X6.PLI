@@ -1,0 +1,10 @@
+e29x6: procedure options(main);
+   declare p pointer, q fixed;
+   declare 1 nd based(p), 2 w character(4) varying;
+   allocate nd set(p);
+   if p ^= null then q = 6;
+   put list('x6=', q);
+   free p->nd;
+  stop;
+end e29x6;
+

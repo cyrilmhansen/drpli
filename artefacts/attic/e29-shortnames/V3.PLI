@@ -1,0 +1,10 @@
+v3: procedure options(main);
+   declare p pointer;
+   declare 1 nd based(p), 2 w character(6) varying, 2 nx pointer;
+   allocate nd set(p);
+   w = 'ABCDEF';
+   put list('m=', w);
+   free p->nd;
+  stop;
+end v3;
+

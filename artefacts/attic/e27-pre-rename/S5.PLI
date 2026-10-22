@@ -1,0 +1,11 @@
+s5: procedure options(main);
+   declare sentence pointer;
+   declare 1 wordnode based(sentence), 2 word character(6) varying, 2 next pointer;
+   allocate wordnode set(sentence);
+   word = 'ABC';
+   next = null();
+   put list('w=', word);
+   free sentence->wordnode;
+  stop;
+end s5;
+

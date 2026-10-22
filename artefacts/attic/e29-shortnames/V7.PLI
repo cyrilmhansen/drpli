@@ -1,0 +1,13 @@
+v7: procedure options(main);
+   declare p pointer, r pointer;
+   declare 1 nd based(p), 2 w character(6) varying;
+   allocate nd set(p);
+   allocate nd set(r);
+   w = 'ONE';
+   r->w = w;
+   put list('a=', p->w, ' b=', r->w);
+   free p->nd;
+   free r->nd;
+  stop;
+end v7;
+

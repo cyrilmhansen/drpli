@@ -1,0 +1,11 @@
+E29c9: procedure options(main);
+   declare p pointer, q fixed;
+   declare 1 nd based(p), 2 w character(6) varying;
+   allocate nd set(p);
+   w = 'AB';
+   if 'AB' = w then q = 9;
+   put list('c9=', q);
+   free p->nd;
+  stop;
+end e29c9;
+

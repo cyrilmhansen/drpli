@@ -1,0 +1,4 @@
+E29C10	ok	PRN=True REL=True
+E29C11	ok	PRN=True REL=True
+E29C9	ok	PRN=True REL=True
+E29N23	ok	PRN=True REL=True

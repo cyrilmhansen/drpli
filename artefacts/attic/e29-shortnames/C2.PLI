@@ -1,0 +1,9 @@
+c2: procedure options(main);
+   declare p pointer, r pointer, q fixed;
+   declare s character(6) varying;
+   s = 'AB';
+   if 'AB' = s then q = 2;
+   put list('c2=', q);
+  stop;
+end c2;
+
