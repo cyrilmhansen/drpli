@@ -884,10 +884,6 @@ REJECTS = {
     "N28_DECLITFRAC": ("t:\n  procedure options(main);\n"
                        "  dcl d fixed dec(7,0);\n  d = 1.25;\nend t;\n",
                        "into scale 0 [TBD]"),
-    "N29_DECININT": ("t:\n  procedure options(main);\n"
-                     "  dcl d fixed dec(9,0);\n  dcl i fixed;\n"
-                     "  i = 1;\n  i = i + d;\nend t;\n",
-                     "mixed decimal/integer arithmetic unproven"),
     "N16_CATASSIGN": ("t:\n  procedure options(main);\n"
                       "  dcl n char(6) varying;\n  dcl m char(6) varying;\n"
                       "  n = 'Q';\n  m = 'Z' || n;\nend t;\n",
@@ -1480,10 +1476,11 @@ for _n in ["RD1", "RD2", "RD3"]:
 # with "NO ERROR(S) IN PASS 1/2" [golden/e2e214, e2e216, e2e217, e2e218, e2e219,
 # e2e220], so all of these are MY gaps, never language rules.  They are registered
 # as refusals because the rules are characterized but not yet implemented: arrays
-# [C159], the PROC/DCL abbreviation front-end [C160], mixed DEC/BIN arithmetic
-# [C161], and a pre-existing pool under-count found by the E2E-16 demand/layout
-# invariant [C162].  CB6 is the one shape already implemented (R506 direct DEC->INT)
-# and is registered as a byte-exact SPECIMEN below.
+# [C159] and the PROC/DCL abbreviation front-end [C160] -- plus a pre-existing pool under-count found
+# by the E2E-16 demand/layout invariant [C162].  Mixed DEC/BIN arithmetic [C161] is now IMPLEMENTED
+# for ADD and SUB: CB6 (direct DEC->INT, R506), CB9 (pure DEC) and, since [E2E-25], CB1-CB5, CB7,
+# CONV, DECY and the self-add NG14 are all byte-exact SPECIMENS.  It stays REFUSED for MUL/DIV/EXP,
+# where CB8 is a single DR sample and one sample is not a rule.
 # ---------------------------------------------------------------------------
 _E17_REFS = {
     "ARRAY": ("e20src", "e2e214"), "PASSARAY": ("e20src", "e2e214"),
@@ -1500,8 +1497,6 @@ for _n in ["CB%d" % i for i in range(1, 11)]:
 # markers: substrings that MUST appear in my [TBD] message, so a changed route is noticed
 _E17_MARKER = {
     "ARRAY": "non-simple assignment lhs", "PASSARAY": "non-simple assignment lhs",
-    "CONV": "mixed decimal/integer arithmetic unproven",
-    "DECY": "mixed decimal/integer arithmetic unproven",
     # [E2E-19] AB5/AB13/AB15 now refuse EARLIER and more precisely: the binder itself
     # rejects STATIC and multi-dimensional arrays instead of falling through to a
     # scalar-sizing guess.  Markers updated to the new reason -- a pinned marker
@@ -1510,6 +1505,11 @@ _E17_MARKER = {
     "AB15": "STATIC array is not independently characterized",
     "AB13": "multi-dimensional or assumed-size array",
     "AB6": "ADD whose left operand must be parked across a call",
+    # [E2E-25/C161] CB8 is `b = d * b'.  Mixed ADD/SUB now route, so the refusal that used to cover
+    # them (and therefore CB8 as well) no longer fires; CB8 stops on lower_hl's DEC-operand guard,
+    # whose message now says precisely what is unpinned -- MUL, DIV, EXP, DEC sub-expressions.  The
+    # marker moved with the message: a pinned marker exists to notice a route change, not to hide one.
+    "CB8": "decimal operand inside an integer expression",
     "CB9": "pool demand/layout mismatch",
     "CB10": "decimal operation on non-decimal operand",
     # [E2E-22] these three all stop on the SAME unproven shape now that arrays work
@@ -1518,6 +1518,18 @@ _E17_MARKER = {
 }
 for _n, (_d, _t) in _E17_REFS.items():
     _f = "%s/%s.PLI" % (_d, _n)
+    if _n in (('CB1', 'CB2', 'CB3', 'CB4', 'CB5', 'CB7', 'CONV', 'DECY')):
+        # [E2E-25/C161] MIXED FIXED DECIMAL / FIXED BINARY ADD and SUB now convert the DEC operand
+        # in place (`LXI H,<var> / MVI A,p / ?DLDOP / ?QDI15', p = the SOURCE precision) and then use
+        # the ordinary binary lowering.  All eight are byte-identical to their own DR .REL, and the
+        # six that print were LINKed and RUN against DR's .COM with byte-equal console output and
+        # independently computed values: CB1 3+5=8, CB2 5+3=8, CB3 3-5=-2, CB4 5-3=2, CB5 z=d+b=8,
+        # CB7 12345+5=12350 on the dec(5) route [goldens e2e219/e2e220/e2e214; mine e2e299p, DR
+        # e2e306d/e2e307d/e2e308d].  CONV and DECY -- the third-party PLI-2000 programs that were the
+        # original reason C161 was written down -- are byte-exact too, so the integration blocker this
+        # claim named for four milestones is closed.
+        add_spec(_n, (_f, "golden/%s/%s/%s.REL" % (_t, _n, _n)))
+        continue
     if _n in ("CB6", "CB9"):
         # CB6: direct DEC->INT, promoted in E2E-17.  CB9: promoted by the C162 demand fix
         # [E2E-18] -- it was a refusal only because the prescan under-counted the pool.
@@ -1571,7 +1583,7 @@ _DEC = ("DR COMPILES IT [golden/e2e214, e2e219, e2e220]; MY GAP [C161].  DR conv
         "mixed expression into the pure-DEC path and lower_hl has no integer-context flag, so a "
         "DEC operand cannot be distinguished from a DEC expression without an explicit marker node.")
 for _n in _E17_REFS:
-    if _n in ("CB6", "CB9"):
+    if _n in ("CB6", "CB9") + ('CB1', 'CB2', 'CB3', 'CB4', 'CB5', 'CB7', 'CONV', 'DECY'):
         continue
     _base = _E17_REFS[_n][0]
     if _n.startswith("AB") or _n in ("ARRAY", "PASSARAY"):
@@ -1579,7 +1591,7 @@ for _n in _E17_REFS:
 DEC_NOTE = "see _E17 above"
 NEG_META_E17 = {}
 for _n in _E17_REFS:
-    if _n in ("CB6", "CB9"):
+    if _n in ("CB6", "CB9") + ('CB1', 'CB2', 'CB3', 'CB4', 'CB5', 'CB7', 'CONV', 'DECY'):
         continue
     if _n.startswith("AB") or _n in ("ARRAY", "PASSARAY"):
         NEG_META_E17[_n] = ("my-gap", _ARR)
@@ -1611,11 +1623,20 @@ NEG_META_E17["AB15"] = NEG_META_E17["AB5"]
 NEG_META_E17["AB6"] = ("my-gap", _ARR + "  AB6 `b = a(2) + a(3)' additionally hits the C146 "
     "descriptor-placement class once the elements become computed references: DR parks the left "
     "with `PUSH H / POP D' [golden/e2e216/AB6], which is C150-consistent.")
-NEG_META_E17["CONV"] = ("my-gap", _DEC + "  CONV.PL1 is one of the four independent PLI-2000 suite "
-    "programs; its whole content is this one mixed-mode statement [golden/e2e214/CONV].")
-NEG_META_E17["DECY"] = ("my-gap", _DEC + "  DECY.PL1 additionally has NO options(main) -- DR compiles "
-    "it as a procedure-only module [C136] -- and reads `a' before it is set, so its value is "
-    "garbage but its CODE is deterministic and byte-reproducible [golden/e2e214/DECY].")
+# NEG_META_E17["CONV"] deleted [E2E-25/C161]: CONV.PL1 (`b = d + b' with d dec(3)) and
+# DECY.PL1 (`a = a + c' with c dec(5)) are byte-exact SPECIMENS now, registered by the
+# _E17 loop above.  Their runtime behaviour is unchanged in one respect that matters more
+# than bytes: both had been REFUSED for four milestones as C161's gap, and CONV's own
+# comment in e2e214 is what proved the rule is context-free -- DR converts the DEC operand
+# in place whatever the target name or statement shape.  The claim text lives in
+# spec/CLAIMS.md C161/C180.
+# NEG_META_E17["DECY"] deleted [E2E-25/C161]: CONV.PL1 (`b = d + b' with d dec(3)) and
+# DECY.PL1 (`a = a + c' with c dec(5)) are byte-exact SPECIMENS now, registered by the
+# _E17 loop above.  Their runtime behaviour is unchanged in one respect that matters more
+# than bytes: both had been REFUSED for four milestones as C161's gap, and CONV's own
+# comment in e2e214 is what proved the rule is context-free -- DR converts the DEC operand
+# in place whatever the target name or statement shape.  The claim text lives in
+# spec/CLAIMS.md C161/C180.
 # A NEG_META value must be (category, verdict).  A bare string here used to survive until deep
 # inside run_negatives(), where `cat, _dv = ...` aborted the whole panel with a TypeError-shaped
 # ValueError and 79 already-checked negatives lost their report [E2E-17].  Fail at import instead.
@@ -1719,8 +1740,7 @@ NEG_META = {
      "DR REFUSES: NOT IMP (golden/negpanel1/NG12/NG12.PRN)"),
     "N28_DECLITFRAC": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG13/NG13.REL)"),
-    "N29_DECININT": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG14/NG14.REL)"),
+
     "N30_DECCMP_BUILTIN": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG15/NG15.REL)"),
     "N31_DIV_LITERAL_NUMERATOR": ("my-gap",
@@ -2197,6 +2217,13 @@ add_spec('MN5', ('artefacts/MN5.PLI', 'golden/e2e245/MN5/MN5.REL'))
 add_spec('MN6', ('artefacts/MN6.PLI', 'golden/e2e245/MN6/MN6.REL'))
 add_spec('MN7', ('artefacts/MN7.PLI', 'golden/e2e245/MN7/MN7.REL'))
 add_spec('MN8', ('artefacts/MN8.PLI', 'golden/e2e245/MN8/MN8.REL'))
+# [E2E-25/C161] `i = i + d' with d dec(9,0): the SELF-ADD form of mixed DEC/BIN.  It reaches the same
+# conversion (DEC operand on the RIGHT: LHLD I / PUSH H / LXI H,D / MVI A,09 / ?DLDOP / ?QDI15 /
+# POP D / DAD D) and is byte-identical to DR's NG14 [golden/negpanel1/NG14], so it leaves the negative
+# panel -- the refusal it made WAS C161's gap, and that gap is closed for this shape.  Source is
+# negsrc/NG14.PLI, the file DR's golden was compiled from, so the program name in the LINK header
+# matches too (comparing a renamed copy looked like a 120-byte divergence and is not evidence).
+add_spec('N29_DECININT', ('negsrc/NG14.PLI', 'golden/negpanel1/NG14/NG14.REL'))
 for _n, _g in (('ZK8','golden/e2e241/ZK8/ZK8.REL'),('ZK10','golden/e2e241/ZK10/ZK10.REL'),('ZK11','golden/e2e241/ZK11/ZK11.REL')):
     add_spec(_n, ('e24src/%s.PLI' % _n, _g))
 REJECTS['LP10'] = (open('artefacts/LP10.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), '] (line 3)")')
@@ -2216,7 +2243,13 @@ REJECTS['ML7'] = (open('artefacts/ML7.PLI', "rb").read().replace(b"\r\n", b"\n")
 # that is not a specimen must stop the gate, not be skipped [C163].
 for _n in ("LP1", "LP5", "LP8", "LP14", "LP15", "LQ2", "LQ4", "LQ5", "LQA",
            "LR2", "LR3", "LR11", "LR17", "LR18", "LR19",
-           "ML1", "ML3", "ML4", "ML8", "ML15", "ZK8", "ZK10", "ZK11"):
+           "ML1", "ML3", "ML4", "ML8", "ML15", "ZK8", "ZK10", "ZK11",
+           "CB1", "CB2", "CB3", "CB4", "CB5", "CB7", "CONV", "DECY"):
+    # N29_DECININT (negsrc/NG14.PLI) is deliberately NOT here: its source has no `put', so there is
+    # no console behaviour to compare, and DR's negative-panel golden stores no run transcript -- the
+    # harness reports "MISSING TRANSCRIPT", which is true but uninformative.  Listing it would teach
+    # the next reader to ignore that line, and the line exists to be trusted.  Its evidence is the
+    # byte-identical .REL plus the fact that CONV/CB1 already pin the same conversion at run time.
     assert _n in SPECIMENS, "output-check name %s is not a specimen" % _n
     OUTPUT_CHECK.add(_n)
 

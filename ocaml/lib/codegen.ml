@@ -1422,6 +1422,32 @@ let over_lit_operand e =
    a wrapped LXI H for either is the silent wrong-value class this priority closes. *)
 let is_over_lit e = over_lit_operand e <> None
 
+(* [E2E-25/C161] DR converts a FIXED DEC variable that appears in an INTEGER expression in place:
+   `LXI H,<var address> / MVI A,p / ?DLDOP / ?QDI15' -> the 16-bit value in HL, where p is the SOURCE
+   decimal's precision, not the target's -- CB1 (`d fixed dec(3)') says 03 and CB7 (`e fixed dec(5)')
+   says 05.  This is the same instruction pair the out-of-range literal route uses; only the load
+   differs (a variable address instead of a pool cell), which is why both classes share one
+   surrounding shape.  It allocates NO pool cell, so the prescan demands nothing for it. *)
+let dec_var_to_hl st (p : int) (addr : int) =
+  st.last_imm <- None;
+  d st op_lxi_h; reloc st Data addr;
+  d st op_mvi_a; d st p; call_ext st "?DLDOP";
+  call_ext st "?QDI15";
+  st.last_imm <- None
+
+(* a bare, parenthesised-or-not FIXED DEC identifier operand *)
+(* the declaration's own DEC precision, which is what `MVI A,p' must carry [C161] *)
+let dec_prec_of st (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Eident n -> (match vk_of st n.Ast.orig with Vdec (pp, _sc) -> pp | _ ->
+                     failwith "codegen: [TBD] DEC precision unavailable")
+  | _ -> failwith "codegen: [TBD] DEC operand is not a plain identifier"
+
+let eident_orig (e : Ast.expr) = match e.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> ""
+
+let is_plain_ident (e : Ast.expr) =
+  match (e25_unwrap e).Ast.e with Ast.Eident _ -> true | _ -> false
+
 (* is this expression a DEC-typed variable, according to the lowering's own type table? *)
 let e25_is_dec st (e : Ast.expr) =
   match (e25_unwrap e).Ast.e with
@@ -1460,6 +1486,38 @@ let e25_bin_routes (is_dec : Ast.expr -> bool) (op : Ast.binop) (l : Ast.expr) (
         match (e25_unwrap other).Ast.e with
         | Ast.Eident _ -> not (is_dec other)
         | _ -> false
+
+(* [E2E-25/C161] THE whole mixed-mode decision, one function asked by both walkers.  Two classes of
+   operand need conversion into HL: an out-of-range integer LITERAL (C178, decimal pool cell) and a
+   FIXED DEC variable (this claim).  Their surrounding shape is identical -- left operand converts
+   then XCHGs, right operand is parked with PUSH H / POP D -- because both leave their value in HL
+   and DR's parking rule is about protecting the OTHER operand, not about which conversion ran.
+   The shape requirements differ by class, and deliberately so:
+     * a literal on either side of ADD was measured with a compound other operand (LR2
+       `x + 32768 + 1'), so ADD stays permissive there;
+     * a DEC variable is measured ONLY against a plain non-DEC identifier (CB1 `d + b',
+       CB2 `b + d', CB3 `d - b', CB4 `b - d', CB5 `z = d + b', CB7 `e + b' with dec(5)) --
+       there is no DR sample of a DEC operand with a compound partner, so this declines;
+     * SUB in either class requires the partner to be a plain non-DEC identifier, because the
+       combine is ?IS22N (DE - HL) and the minuend must be exactly where DR puts it;
+     * both operands convertible -> refuse: DR's pure-DEC path owns DEC+DEC (CB9 `d + 2' stays
+       decimal, DECPOLY/DFACT unchanged) and no mixed-with-mixed sample exists. *)
+let e25_bin_routes_dec (is_dec : Ast.expr -> bool) (op : Ast.binop) (l : Ast.expr) (r : Ast.expr) =
+  if op <> Ast.Add && op <> Ast.Sub then false
+  else if over_lit_operand l <> None || over_lit_operand r <> None then
+    (* [E2E-25] EXCLUSION, not delegation.  A convertible literal operand belongs to the literal arm
+       above, which is the more permissive rule (it accepts a compound partner for ADD).  Delegating
+       here made this arm claim those same nodes and then fail its own match, because neither operand
+       is a DEC variable -- 12 byte-exact specimens turned into "internal: mixed DEC operand
+       unmatched".  Two predicates that answer for one node must partition it, not overlap. *)
+    false
+  else
+    let dl = is_plain_ident l && is_dec l in
+    let dr = is_plain_ident r && is_dec r in
+    match dl, dr with
+    | true, false -> is_plain_ident r && not (is_dec r)
+    | false, true -> is_plain_ident l && not (is_dec l)
+    | _ -> false
 
 (* [E2E-25/C178] THE choke point for every position that turns an integer literal into a plain
    16-bit immediate.  DR converts ANY magnitude >= 32768 through a decimal cell plus ?DLDOP/?QDI15,
@@ -2954,7 +3012,11 @@ let rec lower_hl st (e : Ast.expr) =
        | Vdec _ ->
            failwith
              "codegen: decimal operand inside an integer expression [TBD] \
-              (mixed-mode routes are unpinned)"
+              (a DEC operand as a direct ADD/SUB operand converts in place [C161/CB1-CB7]; \
+               anywhere else -- MUL, DIV, EXP, a DEC sub-expression, a DEC-returning call -- \
+               there is still no DR sample.  Mixed MUL is refused on purpose: CB8 shows DR \
+               parking the LEFT operand even though XCHG would be mechanically sound, which is \
+               one sample and not a rule [C161])"
        | Vflt ->
            failwith
              "codegen: FLOAT value used where a FIXED value is expected [TBD] (the float-to-fixed route ?FL40M/?QFI15 appears only inside FFACT's prologue, so no standalone conversion or mixed-mode arithmetic is sampled)"
@@ -3043,6 +3105,33 @@ let rec lower_hl st (e : Ast.expr) =
        DR's shape depends only on WHICH SIDE the literal is on and WHICH OPERATOR, never on the
        literal's sign or spelling: the sign is folded into the cell, parentheses disappear.  That
        is why one arm replaces the five pattern-matched arms an earlier draft of this commit had. *)
+    (* [E2E-25/C161] a FIXED DEC operand of an integer ADD/SUB, converted in place.  DR, per probe:
+       CB1 `b = d + b'   LXI H,D / MVI A,03 / ?DLDOP / ?QDI15 / XCHG / LHLD B / DAD D
+       CB3 `b = d - b'   ... / XCHG / LHLD B / CALL ?IS22N            (d in DE, b in HL, DE-HL)
+       CB2 `b = b + d'   LHLD B / PUSH H / LXI H,D / MVI A,03 / ?DLDOP / ?QDI15 / POP D / DAD D
+       CB4 `b = b - d'   LHLD B / PUSH H / <convert d> / POP D / CALL ?IS22N
+       CB7 `b = e + b'   ... MVI A,05 ... -- the precision is the SOURCE decimal's [CB1 vs CB7]
+       CB5 `z = d + b'   same as CB1 with a different target name, so the route is target-independent
+       CB9 (`b = d + 2') is NOT here: both operands are decimal-compatible, so dec_pure claims it and
+       the pure-DEC ?DADOP route stays in charge -- which is the point of asking is_dec on BOTH
+       operands and refusing when neither or both converts. *)
+    | Ast.Ebinary (op, l, r)
+      when e25_bin_routes_dec (e25_is_dec st) op l r ->
+      (match is_plain_ident l && e25_is_dec st l, is_plain_ident r && e25_is_dec st r with
+       | true, false ->
+           let p = dec_prec_of st (e25_unwrap l) in
+           dec_var_to_hl st p (addr_of st (eident_orig (e25_unwrap l)));
+           d st op_xchg;
+           lower_hl st r;
+           if op = Ast.Add then d st op_dad_d else call_ext st "?IS22N"
+       | false, true ->
+           let p = dec_prec_of st (e25_unwrap r) in
+           lower_hl st l;
+           d st op_push_h;
+           dec_var_to_hl st p (addr_of st (eident_orig (e25_unwrap r)));
+           d st op_pop_d;
+           if op = Ast.Add then d st op_dad_d else call_ext st "?IS22N"
+       | _ -> failwith "codegen: internal: mixed DEC operand unmatched [TBD]")
     | Ast.Ebinary (op, l, r)
       when e25_bin_routes (e25_is_dec st) op l r ->
       (match over_lit_operand l, over_lit_operand r with
@@ -5279,7 +5368,13 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
         (Printf.sprintf
            "codegen: storing a FLOAT value into a non-float variable is unsampled [TBD] (line %d; ?FL40M/?QFI15 has no standalone sample)"
            rhs.Ast.epos.Source.line)
-  | Ast.Eident n when is_dec_expr st rhs ->
+  (* [E2E-25/C161] `&& dec_pure st rhs' is the whole point: is_dec_expr ORs its operands, so a MIXED
+     tree like `d + b' used to be claimed here and then refused by the dec_pure guard below -- which
+     was the honest answer while the conversion route did not exist.  Now mixed trees fall through to
+     the integer route, where the DEC operand converts in place [CB1-CB5, CB7].  Pure DEC trees
+     (CB9, DECPOLY, DFACT and the C162W family) still land here and keep their byte-exact decimal lowering, and
+     `b = d' (CB6, a direct decimal operand) is dec_pure, so it is unchanged too. *)
+  | Ast.Eident n when is_dec_expr st rhs && dec_pure st rhs ->
       (* [E2E-6/R506] DEC -> INT: push the decimal value, convert with
          ?QDI15 (16-bit result in HL), then the ordinary integer store.
          R506 line 6 exactly: LXI H,D A(0002) ; MVI A,0F ; CALL ?DLDOP ;
