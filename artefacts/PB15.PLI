@@ -1,0 +1,10 @@
+pb15: procedure options(main);
+   declare p pointer, c char(3) based(p);
+   allocate c set(p);
+   c = 'QAZ';
+   put list('c=', c);
+   free c;
+  put skip list('end');
+  stop;
+end pb15;
+

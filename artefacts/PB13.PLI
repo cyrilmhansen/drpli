@@ -1,0 +1,10 @@
+pb13: procedure options(main);
+   declare p pointer, w fixed dec(5) based(p);
+   allocate w set(p);
+   w = 12345;
+   put list('w=', w);
+   free w;
+  put skip list('end');
+  stop;
+end pb13;
+

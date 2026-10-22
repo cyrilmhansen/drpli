@@ -1,0 +1,11 @@
+pb2: procedure options(main);
+   declare (p, r) pointer, q based(p) fixed, s based(r) fixed, z fixed;
+   z = 5;
+   p = addr(z);
+   r = addr(z);
+   s = 77;
+   put list('z=', z, ' q=', q, ' s=', s);
+  put skip list('end');
+  stop;
+end pb2;
+

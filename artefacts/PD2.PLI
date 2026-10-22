@@ -1,0 +1,7 @@
+pd2: procedure options(main);
+   declare p pointer;
+   put list('dead ptr decl ok');
+  put skip list('end');
+  stop;
+end pd2;
+

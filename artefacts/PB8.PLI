@@ -1,0 +1,12 @@
+pb8: procedure options(main);
+   declare p pointer, x fixed based(p), i fixed;
+   do i = 1 to 3;
+      allocate x set(p);
+      x = i * 11;
+      put list('i=', i, ' x=', x);
+      free x;
+   end;
+  put skip list('end');
+  stop;
+end pb8;
+

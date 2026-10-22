@@ -1,0 +1,10 @@
+pb14: procedure options(main);
+   declare p pointer, w bit(8) based(p);
+   allocate w set(p);
+   w = '10110011'b;
+   put list('w=', w);
+   free w;
+  put skip list('end');
+  stop;
+end pb14;
+

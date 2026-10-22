@@ -1,0 +1,8 @@
+pd3: procedure options(main);
+   declare p pointer, z fixed;
+   z = 5;
+   put list('z=', z);
+  put skip list('end');
+  stop;
+end pd3;
+

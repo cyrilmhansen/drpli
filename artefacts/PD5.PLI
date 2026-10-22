@@ -1,0 +1,6 @@
+pd5: procedure options(main);
+   declare x pointer;
+  put skip list('end');
+  stop;
+end pd5;
+

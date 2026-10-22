@@ -1,0 +1,6 @@
+pd4: procedure options(main);
+   DECLARE X POINTER;
+  put skip list('end');
+  stop;
+end pd4;
+

@@ -1,0 +1,7 @@
+PB11	diag	PRN=True REL=False
+PB12	diag	PRN=True REL=False
+PB13	ok	PRN=True REL=True
+PB14	ok	PRN=True REL=True
+PB15	ok	PRN=True REL=True
+PB16	diag	PRN=True REL=False
+PB17	diag	PRN=True REL=False

@@ -1,0 +1,5 @@
+PB18	ok	PRN=True REL=True
+PB19	ok	PRN=True REL=True
+PB20	ok	PRN=True REL=True
+PB21	ok	PRN=True REL=True
+PB22	ok	PRN=True REL=True

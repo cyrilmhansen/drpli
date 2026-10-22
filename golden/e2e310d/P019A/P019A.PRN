@@ -1,0 +1,164 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P019A
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 ADDR BUILTIN CONSTANT
+a 0000 BOOL BUILTIN CONSTANT
+a 0000 DIVIDE BUILTIN CONSTANT
+a 0000 FIXED BUILTIN CONSTANT
+a 0000 NULL BUILTIN CONSTANT
+a 0000 P019A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 6 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0002 X BIT(1) AUTOMATIC
+c 0003 Y BIT(1) AUTOMATIC
+c 0004 F FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P019A
+
+   1 a 0000 p019a: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare p pointer, x bit(1), y bit(1), f fixed;
+   3 c 0006    x = '1'b;
+       0006       LXI  H,X A(002B)
+       0009       MVI  M,80
+   4 c 000B    if p = null then put skip list('init null ok');
+       000B       LHLD P A(0029)
+       000E       MOV  A,H
+       000F       ORA  L
+       0010       JNZ  0000
+       0013       LXI  D,0252
+       0016       LXI  B,0000
+       0019       CALL ?SYSPR
+       001C       MVI  A,01
+       001E       CALL ?SKPOP
+       0021       LXI  H,* S(0000)
+       0024       MVI  A,0C
+       0026       CALL ?SLCTS
+       0029       CALL ?PNCOP
+       002C       CALL ?QIOOP
+       0017       ==== 002F
+       0011       ==== 002F
+   5 c 002F    p = addr(x);
+       002F       LXI  H,X A(002B)
+       0032       SHLD P A(0029)
+   6 c 0035    if p ^= null then put skip list('p nonnull');
+       0035       LHLD P A(0029)
+       0038       MOV  A,H
+       0039       ORA  L
+       003A       JZ   0000
+       003D       LXI  D,0252
+       0040       LXI  B,0000
+       0043       CALL ?SYSPR
+       0046       MVI  A,01
+       0048       CALL ?SKPOP
+       004B       LXI  H,* S(000C)
+       004E       MVI  A,09
+       0050       CALL ?SLCTS
+       0053       CALL ?PNCOP
+       0056       CALL ?QIOOP
+       0041       ==== 0059
+       003B       ==== 0059
+   7 c 0059    y = bool(x, x, '1010'b);
+       0059       LDA  X A(002B)
+       005C       ANI  80
+       005E       MOV  H,A
+       005F       MVI  L,00
+       0061       LDA  X A(002B)
+       0064       ANI  80
+       0066       PUSH H
+       0067       MOV  H,A
+       0068       POP  D
+       0069       MVI  B,A0
+       006B       CALL ?BOOLF
+       006E       STA  Y A(002C)
+   8 c 0071    put skip list('bool=', y);
+       0071       LXI  D,0252
+       0074       LXI  B,0000
+       0077       CALL ?SYSPR
+       007A       MVI  A,01
+       007C       CALL ?SKPOP
+       007F       LXI  H,* S(0015)
+       0082       MVI  A,05
+       0084       CALL ?SLCTS
+       0087       CALL ?PNCOP
+       008A       LDA  Y A(002C)
+       008D       MVI  B,01
+       008F       CALL ?QB08C
+       0092       CALL ?PNBOP
+       0095       CALL ?QIOOP
+       0075       ==== 0098
+   9 c 0098    f = divide(7, 2, 5);
+       0098       LXI  H,* S(001A)
+       009B       MVI  A,01
+       009D       CALL ?DLDOP
+       00A0       MVI  A,0E
+       00A2       CALL ?QDDSL
+       00A5       LXI  H,* S(001B)
+       00A8       MVI  A,01
+       00AA       CALL ?DLDOP
+       00AD       CALL ?DDVOP
+       00B0       MVI  A,0E
+       00B2       CALL ?QDDSR
+       00B5       CALL ?QDI15
+       00B8       SHLD F A(002D)
+  10 c 00BB    put skip list('divide=', f);
+       00BB       LXI  D,0252
+       00BE       LXI  B,0000
+       00C1       CALL ?SYSPR
+       00C4       MVI  A,01
+       00C6       CALL ?SKPOP
+       00C9       LXI  H,* S(001C)
+       00CC       MVI  A,07
+       00CE       CALL ?SLCTS
+       00D1       CALL ?PNCOP
+       00D4       LHLD F A(002D)
+       00D7       MVI  A,09
+       00D9       CALL ?QICOP
+       00DC       CALL ?PNVOP
+       00DF       CALL ?QIOOP
+       00BF       ==== 00E2
+  11 c 00E2    f = fixed('123');
+       00E2       LXI  H,007B
+       00E5       SHLD F A(002D)
+  12 c 00E8    put skip list('fixed=', f);
+       00E8       LXI  D,0252
+       00EB       LXI  B,0000
+       00EE       CALL ?SYSPR
+       00F1       MVI  A,01
+       00F3       CALL ?SKPOP
+       00F6       LXI  H,* S(0023)
+       00F9       MVI  A,06
+       00FB       CALL ?SLCTS
+       00FE       CALL ?PNCOP
+       0101       LHLD F A(002D)
+       0104       MVI  A,09
+       0106       CALL ?QICOP
+       0109       CALL ?PNVOP
+       010C       CALL ?QIOOP
+       00EC       ==== 010F
+  13 a 010F end p019a;
+       010F       CALL ?STOPX
+
+CODE SIZE = 0112
+DATA AREA = 002F
+FREE SYMS = 376E
+END  COMPILATION
+

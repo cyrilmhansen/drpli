@@ -1,0 +1,10 @@
+pb6: procedure options(main);
+   declare p pointer, c char(5) based(p);
+   allocate c set(p);
+   c = 'ABCDE';
+   put list('c=', c);
+   free c;
+  put skip list('end');
+  stop;
+end pb6;
+

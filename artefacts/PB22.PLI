@@ -1,0 +1,11 @@
+pb22: procedure options(main);
+   declare p pointer, q based(p) fixed, z fixed;
+   z = 9;
+   p = addr(z);
+   z = 2;
+   q = z;
+   put list('z=', z, ' q=', q);
+  put skip list('end');
+  stop;
+end pb22;
+

@@ -1,0 +1,10 @@
+pb18: procedure options(main);
+   declare p pointer, q based(p) fixed, z fixed;
+   z = 40;
+   p = addr(z);
+   q = z;
+   put list('q after q=z:', q);
+  put skip list('end');
+  stop;
+end pb18;
+

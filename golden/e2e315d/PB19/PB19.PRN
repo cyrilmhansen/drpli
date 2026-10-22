@@ -1,0 +1,103 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: PB19
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 ADDR BUILTIN CONSTANT
+a 0000 PB19 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0000 Q FIXED BINARY(15,0) BASED(P)
+c 0002 Z FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: PB19
+
+   1 a 0000 pb19: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare p pointer, q based(p) fixed, z fixed;
+   3 c 0006    z = 7;
+       0006       LXI  H,0007
+       0009       SHLD Z A(000A)
+   4 c 000C    p = addr(z);
+       000C       LXI  H,Z A(000A)
+       000F       SHLD P A(0008)
+   5 c 0012    q = z + 1;
+       0012       LHLD Z A(000A)
+       0015       INX  H
+       0016       PUSH H
+       0017       LHLD P A(0008)
+       001A       POP  D
+       001B       MOV  M,E
+       001C       INX  H
+       001D       MOV  M,D
+   6 c 001E    z = q * 2;
+       001E       LHLD P A(0008)
+       0021       MOV  E,M
+       0022       INX  H
+       0023       MOV  D,M
+       0024       XCHG 
+       0025       DAD  H
+       0026       SHLD Z A(000A)
+   7 c 0029    put list('z=', z, ' q=', q);
+       0029       LXI  D,0252
+       002C       LXI  B,0000
+       002F       CALL ?SYSPR
+       0032       LXI  H,* S(0000)
+       0035       MVI  A,02
+       0037       CALL ?SLCTS
+       003A       CALL ?PNCOP
+       003D       LHLD Z A(000A)
+       0040       MVI  A,09
+       0042       CALL ?QICOP
+       0045       CALL ?PNVOP
+       0048       LXI  H,* S(0002)
+       004B       MVI  A,03
+       004D       CALL ?SLCTS
+       0050       CALL ?PNCOP
+       0053       LHLD P A(0008)
+       0056       MOV  E,M
+       0057       INX  H
+       0058       MOV  D,M
+       0059       XCHG 
+       005A       MVI  A,09
+       005C       CALL ?QICOP
+       005F       CALL ?PNVOP
+       0062       CALL ?QIOOP
+       002D       ==== 0065
+   8 c 0065   put skip list('end');
+       0065       LXI  D,0252
+       0068       LXI  B,0000
+       006B       CALL ?SYSPR
+       006E       MVI  A,01
+       0070       CALL ?SKPOP
+       0073       LXI  H,* S(0005)
+       0076       MVI  A,03
+       0078       CALL ?SLCTS
+       007B       CALL ?PNCOP
+       007E       CALL ?QIOOP
+       0069       ==== 0081
+   9 c 0081   stop;
+       0081       CALL ?STOPX
+  10 a 0084 end pb19;
+
+CODE SIZE = 0084
+DATA AREA = 000C
+FREE SYMS = 3847
+END  COMPILATION
+

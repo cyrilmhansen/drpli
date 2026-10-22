@@ -1,0 +1,2 @@
+PD4	ok	PRN=True REL=True
+PD5	ok	PRN=True REL=True

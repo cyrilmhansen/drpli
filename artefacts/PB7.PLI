@@ -1,0 +1,13 @@
+pb7: procedure options(main);
+   declare (p, r) pointer, x fixed based(p), y fixed based(r);
+   allocate x set(p);
+   allocate y set(r);
+   x = 100; y = 200;
+   put list('x=', x, ' y=', y);
+   free x;
+   free y;
+   put list('done');
+  put skip list('end');
+  stop;
+end pb7;
+

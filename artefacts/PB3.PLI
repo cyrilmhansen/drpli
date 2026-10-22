@@ -1,0 +1,11 @@
+pb3: procedure options(main);
+   declare p pointer, q based(p) fixed, x fixed, y fixed;
+   x = 11; y = 22;
+   p = addr(x);
+   put list('first=', q);
+   p = addr(y);
+   put list('second=', q);
+  put skip list('end');
+  stop;
+end pb3;
+

@@ -1,0 +1,10 @@
+pb20: procedure options(main);
+   declare p pointer, q based(p) fixed, r based(p) fixed, z fixed;
+   z = 3;
+   p = addr(z);
+   q = q + q;
+   put list('q=', q);
+  put skip list('end');
+  stop;
+end pb20;
+

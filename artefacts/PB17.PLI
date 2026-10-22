@@ -1,0 +1,12 @@
+pb17: procedure options(main);
+   declare
+     1 nd,
+       2 v fixed,
+       2 nx pointer;
+   declare pn pointer;
+   allocate nd set(pn);
+   put list('alloc struct');
+  put skip list('end');
+  stop;
+end pb17;
+

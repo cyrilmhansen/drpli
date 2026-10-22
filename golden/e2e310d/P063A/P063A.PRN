@@ -1,0 +1,69 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: P063A
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  17 b           pp  pointer;
+NOT IMP                     ?
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 P063A ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 67 BYTES
+c 0000 P1 FIXED BINARY(1,0) AUTOMATIC
+c 0001 P7 FIXED BINARY(7,0) AUTOMATIC
+c 0002 P8 FIXED BINARY(8,0) AUTOMATIC
+c 0004 P9 FIXED BINARY(9,0) AUTOMATIC
+c 0006 P16 FIXED BINARY(16,0) AUTOMATIC
+c 0009 P17 FIXED BINARY(17,0) AUTOMATIC
+c 000C P24 FIXED BINARY(24,0) AUTOMATIC
+c 0010 P32 FIXED BINARY(32,0) AUTOMATIC
+c 0015 PD FIXED BINARY(15,0) AUTOMATIC
+c 0017 PC CHAR(1) AUTOMATIC
+c 0018 PB BIT(1) AUTOMATIC
+c 0019 PV CHAR(30) VARYING AUTOMATIC
+c 0038 P1D FIXED DECIMAL(1,0) AUTOMATIC
+c 0039 P15D FIXED DECIMAL(15,0) AUTOMATIC
+c 0041 PP POINTER AUTOMATIC
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: P063A
+
+   1 a 0000 p063a: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare
+   3 c 0006      p1  fixed binary(1),
+   4 c 0006      p7  fixed binary(7),
+   5 c 0006      p8  fixed binary(8),
+   6 c 0006      p9  fixed binary(9),
+   7 c 0006      p16 fixed binary(16),
+   8 c 0006      p17 fixed binary(17),
+   9 c 0006      p24 fixed binary(24),
+  10 c 0006      p32 fixed binary(32),
+  11 c 0006      pd  fixed,
+  12 c 0006      pc  character,
+  13 c 0006      pb  bit(1),
+  14 c 0006      pv  character(30) varying,
+  15 c 0006      p1d fixed decimal(1),
+  16 c 0006      p15d fixed decimal(15),
+  17 c 0006      pp  pointer;
+  18 a 0006 end p063a;
+       0006       CALL ?STOPX
+
+CODE SIZE = 0009
+DATA AREA = 0043
+FREE SYMS = 382C
+END  COMPILATION
+

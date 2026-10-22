@@ -1,0 +1,15 @@
+pb9: procedure options(main);
+   declare p pointer, x fixed based(p), z fixed;
+   z = 6;
+   p = addr(z);
+   call show(p);
+   put list('after=', z);
+  put skip list('end');
+  stop;
+show: procedure(argp);
+   declare argp pointer, q based(argp) fixed;
+   q = 99;
+   put list('in=', q);
+end show;
+end pb9;
+

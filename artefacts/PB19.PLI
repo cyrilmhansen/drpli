@@ -1,0 +1,11 @@
+pb19: procedure options(main);
+   declare p pointer, q based(p) fixed, z fixed;
+   z = 7;
+   p = addr(z);
+   q = z + 1;
+   z = q * 2;
+   put list('z=', z, ' q=', q);
+  put skip list('end');
+  stop;
+end pb19;
+

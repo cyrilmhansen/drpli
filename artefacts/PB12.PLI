@@ -1,0 +1,10 @@
+pb12: procedure options(main);
+   declare p pointer, w fixed bin(24) based(p);
+   allocate w set(p);
+   w = 70000;
+   put list('w=', w);
+   free w;
+  put skip list('end');
+  stop;
+end pb12;
+

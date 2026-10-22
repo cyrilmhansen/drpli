@@ -1,0 +1,11 @@
+pb16: procedure options(main);
+   declare
+     1 nd,
+       2 v fixed,
+       2 nx pointer;
+   declare nb based(pn) nd, pn pointer;
+   put list('syntax only');
+  put skip list('end');
+  stop;
+end pb16;
+
