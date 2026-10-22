@@ -1,0 +1,79 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: O4
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 O4 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 H POINTER AUTOMATIC
+c 0002 Z FIXED BINARY(15,0) AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 4 BASED(H)
+c 0000 .A FIXED BINARY(15,0) MEMBER
+c 0002 .B FIXED BINARY(15,0) MEMBER
+c 0004 .C FIXED BINARY(15,0) MEMBER
+c 0006 .D FIXED BINARY(15,0) MEMBER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: O4
+
+   1 a 0000 o4: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare h pointer, z fixed;
+   3 c 0006    declare 1 nd based(h), 2 a fixed, 2 b fixed, 2 c fixed, 2 d fixed;
+   4 c 0006    allocate nd set(h);
+       0006       LXI  H,0008
+       0009       CALL ?ALLOP
+       000C       SHLD H A(0002)
+   5 c 000F    d = 44;
+       000F       LHLD H A(0002)
+       0012       LXI  D,0006
+       0015       DAD  D
+       0016       MVI  M,2C
+       0018       INX  H
+       0019       MVI  M,00
+   6 c 001B    z = d;
+       001B       LHLD H A(0002)
+       001E       DAD  D
+       001F       MOV  E,M
+       0020       INX  H
+       0021       MOV  D,M
+       0022       XCHG 
+       0023       SHLD Z A(0004)
+   7 c 0026    put list('d=', z);
+       0026       LXI  D,0252
+       0029       LXI  B,0000
+       002C       CALL ?SYSPR
+       002F       LXI  H,* S(0000)
+       0032       MVI  A,02
+       0034       CALL ?SLCTS
+       0037       CALL ?PNCOP
+       003A       LHLD Z A(0004)
+       003D       MVI  A,09
+       003F       CALL ?QICOP
+       0042       CALL ?PNVOP
+       0045       CALL ?QIOOP
+       002A       ==== 0048
+   8 c 0048   stop;
+       0048       CALL ?STOPX
+   9 a 004B end o4;
+
+CODE SIZE = 004B
+DATA AREA = 0006
+FREE SYMS = 3873
+END  COMPILATION
+

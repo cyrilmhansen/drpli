@@ -1,0 +1,8 @@
+o8: procedure options(main);
+   declare h pointer;
+   declare 1 nd based(h), 2 a fixed, 2 b pointer, 2 c fixed, 2 d pointer;
+   allocate nd set(h);
+   b = null();
+  stop;
+end o8;
+

@@ -2517,6 +2517,26 @@ for _n, _g in [("ST8", "golden/e2e160/T8/T8.REL"), ("ST13", "golden/e2e162/T13/T
                   "e21src/%s.PLI" % _n if _n.startswith("AB") else
                   ("e24src/%s.PLI" % _n), _g))
 
+# [E2E-28] BASED-MEMBER ADDRESSING BY OFFSET.  DR chooses the encoding by the member's record offset,
+# and the crossover is measured on both sides: offsets 0-3 step with `INX H' repeated, offsets >= 4 use
+# `LXI D,<offset> / DAD D'.  INX at 2 (ST3/LN1 .link, ST6 .B), INX at 3 (ST6 .C, three INX H), LXI-D at
+# 4 (O5, O2), at 6 (O4, O1, O6) and at 001F (REVERSE's .next = 31).  At offset 4 the two encodings cost
+# the same four bytes and DR still takes DAD, so `off <= 3' is what the samples say rather than a cost
+# model I inferred.  Four byte-exact probes here cover one access per route:
+#   O3  fixed member at offset 2, store + read + PUT   (the INX case, and ST3/LN1's shape)
+#   O5  single CONSTANT store at offset 4              (LXI D / DAD D / MVI M,lo / INX H / MVI M,hi)
+#   O6  single READ at offset 6 into a fixed variable  (LXI D / DAD D / MOV E,M / INX H / MOV D,M / XCHG)
+#   O8  POINTER member store at offset 2               (null() through the measured route)
+# The rule now lives in ONE encoder (member_step in codegen.ml).  Before this, the offset was spelled
+# out as an inline `for _ = 1 to k do d st 0x23 done' loop at TWO read sites while the store path had a
+# third copy -- so a store could reach a member one way and a read of the SAME member another.  That is
+# the C179 argument for one encoder, applied to instruction selection instead of pool layout, and it was
+# live: O6 (offset 6 read) emitted six INX H while O5 (offset 4 store) had already learned DAD.
+add_spec('O3', ('artefacts/O3.PLI', 'golden/e2e333d/O3/O3.REL'))
+add_spec('O5', ('artefacts/O5.PLI', 'golden/e2e334d/O5/O5.REL'))
+add_spec('O6', ('artefacts/O6.PLI', 'golden/e2e334d/O6/O6.REL'))
+add_spec('O8', ('artefacts/O8.PLI', 'golden/e2e334d/O8/O8.REL'))
+
 # [E2E-28] DR compiles N9 (`if w = 1 then stop;' then live statements); mine refuses at the
 # condition, which is the pre-existing E2E-3b condition-subset gap, not a procedure issue.
 REJECTS['E28N9'] = (open('artefacts/N9.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),

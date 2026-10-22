@@ -417,6 +417,10 @@ N82_CALL_OF_FLOAT_RETURNING	refusal	E24H:\n  procedure options(main);\n  declare
 N83_EXPR_OF_NO_RETURNS	refusal	E24I:\n  procedure options(main);\n  declare (a, n) fixed;\n  a = 2;\n  n = gs(a);\n  stop;\n  gs: procedure (v);\n  declare v fixed;\n  v = v + 1;\n  end gs;\nend E24I;\n	DR REFUSES: TYPES NOT= (golden/negpanel1/NG64/NG64.PRN)
 N9_GTZERO	refusal	t:\n  procedure options(main);\n  dcl a fixed;\n  if a > 0 then put list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG65/NG65.REL)
 NFACT	specimen	probes/NFACT.PLI	golden/e2e5c/NFACT/NFACT.REL
+O3	specimen	artefacts/O3.PLI	golden/e2e333d/O3/O3.REL
+O5	specimen	artefacts/O5.PLI	golden/e2e334d/O5/O5.REL
+O6	specimen	artefacts/O6.PLI	golden/e2e334d/O6/O6.REL
+O8	specimen	artefacts/O8.PLI	golden/e2e334d/O8/O8.REL
 P041	specimen	probes/P041.PLI	golden/e2e310d/P041/P041.REL
 P063B	specimen	probes/P063B.PLI	golden/e2e310d/P063B/P063B.REL
 P067B	specimen	probes/P067B.PLI	golden/e2e310d/P067B/P067B.REL

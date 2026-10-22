@@ -1,0 +1,10 @@
+o4: procedure options(main);
+   declare h pointer, z fixed;
+   declare 1 nd based(h), 2 a fixed, 2 b fixed, 2 c fixed, 2 d fixed;
+   allocate nd set(h);
+   d = 44;
+   z = d;
+   put list('d=', z);
+  stop;
+end o4;
+

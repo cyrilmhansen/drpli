@@ -338,6 +338,26 @@ let op_dad_b = 0x09
 let op_dcx_h = 0x2b
 let op_inx_h = 0x23
 let op_xchg = 0xeb
+
+(* [E2E-28] ONE encoder for stepping a freshly loaded record address to a member offset, shared by
+   every based-member form: the qualified and unqualified reads (lower_hl), the PUT item read, and
+   the store/dereference machinery in lower_store_ptr.  DR's method depends on the offset and was
+   measured at both sides of the crossover -- offsets 0-3 are `INX H' repeated (ST6 .B at 2, ST6 .C
+   at 3, LN1/ST3 .link and .val at 0 and 2), offsets >= 4 are `LXI D,<offset> / DAD D' (O5/O2 at 4,
+   O4/O1/O6 and REVERSE's .next at 6 and 001F).  At offset 4 both encodings cost 4 bytes and DR takes
+   DAD, so the boundary is `off <= 3' as observed, not derived from a cost model.
+   Having the rule in one place matters for the same reason C179 makes demand and layout share one
+   encoder: with the loops written out at each site, a store could reach a member by one method and a
+   read of the SAME member by another, and nothing downstream would notice.  Two such duplicate loops
+   were found and folded in here. *)
+let member_step st off =
+  if off <= 3 then for _ = 1 to off do d st op_inx_h done
+  else begin
+    d st op_lxi_d;
+    d st (off land 0xff);
+    d st ((off lsr 8) land 0xff);
+    d st op_dad_d
+  end
 let op_call = 0xcd
 let op_push_h = 0xe5
 let op_pop_d = 0xd1
@@ -3073,7 +3093,7 @@ let rec lower_hl st (e : Ast.expr) =
       else begin
       st.last_imm <- None;
       d st op_lhld; reloc st Data (addr_of st pn);
-      for _ = 1 to k do d st 0x23 done;
+      member_step st k;
       d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
       end
   | Ast.Ebuilt ("ADDR", [ e ]) ->
@@ -3135,7 +3155,7 @@ let rec lower_hl st (e : Ast.expr) =
         | Vbfix (_, k) | Vbptr (_, k) ->
             st.last_imm <- None;
             d st op_lhld; reloc st Data (addr_of st bn);
-            for _ = 1 to k do d st 0x23 done;
+            member_step st k;
             d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
         | _ ->
             failwith
@@ -5365,10 +5385,24 @@ let lower_store_ptr ?(pa_of = None) ?(off = 0) ?(addr_de = false)
   (* [E2E-27/P3] `off' is the member's record-relative offset.  It is applied HERE, immediately
      after every `LHLD <pointer>', because that is the single point through which all of DR's based
      member forms pass: the constant store, the PUSH/POP general store and the dereference read all
-     load the record address the same way and then step.  Measured: offset 0 [S1, P071K], offset 2
-     [S6 .B, S2 .NX], offset 3 [S6 .C] -- and `INX H' rather than `DAD' is DR's own choice, since
-     S6's offset-3 store emits three INX H, not an add. *)
-  let deref_inx () = for _ = 1 to off do d st 0x23 done in
+     load the record address the same way and then step.
+
+     [E2E-28] DR picks the stepping method by COST, and the crossover is measured: offsets 0-3 are
+     `INX H' repeated (ST6 .B at 2, ST6 .C at 3 -- three INX H, not an add), offsets >= 4 are
+     `LXI D,<offset> / DAD D' (O2 at 4, O4/O5/O6/O8 and O1's d-member at 6, REVERSE's .next at 31 =
+     001F).  At offset 4 the two encodings cost the same 4 bytes and DR takes DAD, so the rule is
+     `off <= 3', not `off < 4 for cost reasons' -- which is what the samples say, not an inference
+     about DR's optimizer.  Applied in ONE place so the constant store, the PUSH/POP general store
+     and the dereference read can never disagree [C179].
+
+     DR additionally keeps the OFFSET live in DE and reuses it (`DAD D' with no preceding `LXI D') on
+     a later access to the same member: O2 @001B reads `c' with DE still holding 0004 from the store
+     at 0012, surviving an intervening LHLD (which clobbers HL, not DE).  That is a register-liveness
+     model I have not characterised -- REVERSE's read_it/write_it do not reuse across a CALL, and I
+     have no sample of what clobbers DE -- so the reload is emitted every time and O1/O2/O4 are
+     registered as divergences with that cause named, rather than me guessing a liveness rule into
+     the shared path. *)
+  let deref_inx () = member_step st off in
   let lhld_ptr () = d st op_lhld; reloc st Data pa; deref_inx () in
   let deref_read () = (d st 0x5e; d st 0x23; d st 0x56; d st op_xchg) in
   (* store HL through the pointer held in DE as ptr+1 *)
