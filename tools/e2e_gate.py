@@ -2221,6 +2221,48 @@ for _n in ("LP1", "LP5", "LP8", "LP14", "LP15", "LQ2", "LQ4", "LQ5", "LQA",
     OUTPUT_CHECK.add(_n)
 
 
+
+# [E2E-25] P0: every position where an out-of-range FIXED literal used to be truncated into a
+# wrapped 16-bit immediate is now an honest [TBD] refusal, each pinned by the DR .REL it declines to
+# reproduce and by a marker fragment taken from the compiler's ACTUAL stderr, not from a guess.
+# Before this block existed all of these BUILT: DR aborts at run time with `ERROR (1), Conversion'
+# while mine stored the wrapped value, branched on it, or passed it to a callee -- [C168]'s
+# wrong-value panel, closed by refusing rather than by shipping a silent mis-compile.  Positions with
+# a measured DR route (scalar store, and ADD/SUB in both orientations and both signs) convert for
+# real and are SPECIMENS; these are the ones with no DR golden for MY route, so the choice was
+# refusal, per [C139/C141]: a refusal is evidence, a silent mis-compile is not.
+REJECTS['LP11'] = (open('artefacts/LP11.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in a condition / DO-bound comparison constant')
+REJECTS['LP12'] = (open('artefacts/LP12.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in an array element store')
+REJECTS['LP16'] = (open('artefacts/LP16.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in a procedure-call argument')
+REJECTS['LR1'] = (open('artefacts/LR1.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'TWO INTEGER LITERALS')
+REJECTS['LR10'] = (open('artefacts/LR10.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'FIXED multiply by literal')
+REJECTS['LR12'] = (open('artefacts/LR12.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in a position lowered straight into HL')
+REJECTS['LR14'] = (open('artefacts/LR14.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in a procedure-call argument')
+REJECTS['LR15'] = (open('artefacts/LR15.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'PUT form not in E2E-3a subset')
+REJECTS['LR4'] = (open('artefacts/LR4.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in a condition / DO-bound comparison constant')
+REJECTS['LR5'] = (open('artefacts/LR5.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in a DO-loop TO bound')
+REJECTS['LR6'] = (open('artefacts/LR6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in an array element store')
+REJECTS['LR7'] = (open('artefacts/LR7.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in an array element store')
+REJECTS['LR8'] = (open('artefacts/LR8.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'in an array element self-update')
+REJECTS['LR9'] = (open('artefacts/LR9.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'condition form not in E2E-3b subset')
+
+NEG_META.update({
+    'LP11': ("my-gap", "DR compiles it (golden/e2e246/LP11/LP11.REL). LP11 is `if x > 32768 then y = 1' -- DR converts the comparison constant through a decimal cell (`LXI H,*S / MVI A,05 / ?DLDOP / ?QDI15 / XCHG / LHLD x / CALL ?IS22N / JP') and ABORTS at run time with `ERROR (1), Conversion', so the branch is never taken.  Mine used to bias HL by -(32768+1), which wraps to +32767, made the test come out TRUE, and EXECUTED the body: a branch DR never reaches.  The condition route is unmeasured beyond DR's single sample, so the position now refuses [C168]."),
+    'LP12': ("my-gap", "DR compiles it (golden/e2e246/LP12/LP12.REL). LP12 is `z(1) = 32768' with `z(3) fixed'.  DR converts (`LXI H,*S / MVI A,05 / ?DLDOP / ?QDI15 / SHLD Z') and aborts; mine stored a wrapped 0x8000 silently.  The offset-0 element route is byte-exact in principle, but the pool DEMAND cannot be made: pdec_ctx carries scalar types only, and a `fixed dec(3)' element is also 2 bytes, so prescan cannot tell an element that converts from one that travels the decimal stack -- demanding without allocation is the [C179] failure, so the position refuses until that type plumbing exists."),
+    'LP16': ("my-gap", "DR compiles it (golden/e2e246/LP16/LP16.REL). LP16 is `call p(32768)'.  DR converts into the anonymous temp cell it creates for the value argument and aborts; mine wrote the wrapped immediate, so p received a truncated value and the program completed.  Call arguments need their own demand site inside the call-argument machinery; unmeasured, so refused."),
+    'LR1': ("my-gap", "DR compiles it (golden/e2e292d/LR1/LR1.REL). LR1 is `y = 32768 + 32768' -- out-of-range literals on BOTH operands.  DR compiles it (golden/e2e292d/LR1), converting each; mine refuses with its pre-existing designed guard (fixed-bin ADD of two integer literals is not constant-folded by DR).  Not a wrong-value route: a refusal, with DR's .REL as evidence."),
+    'LR10': ("my-gap", "DR compiles it (golden/e2e292d/LR10/LR10.REL). LR10 is `y = 32768 * 2' -- out-of-range literal on the LEFT of a multiply.  Refused by the pre-existing MB31-family threshold guard, which measures the multiply route only for literals below 32768 (LP13 is its mirror image on the right)."),
+    'LR12': ("my-gap", "DR compiles it (golden/e2e292d/LR12/LR12.REL). LR12 is `y = 100000 / 3' -- the dividend literal.  DR's code is far longer (384 bytes vs mine 256), because it converts the constant before the divide; mine truncated it.  DIV/MUL operands reach lower_hl's plain immediate path, which is now the general choke-point guard."),
+    'LR14': ("my-gap", "DR compiles it (golden/e2e292d/LR14/LR14.REL). LR14 is `y = f(32768)' -- an out-of-range literal as a FUNCTION argument, i.e. LP16's shape in an expression rather than a call statement.  Same refusal, separate site, because the temp-cell store for a function call is laid down by different code."),
+    'LR15': ("my-gap", "DR compiles it (golden/e2e292d/LR15/LR15.REL). LR15 is `put skip list(x, 32768)' -- an out-of-range literal as a non-final PUT item.  Mine refuses with the pre-existing E2E-3a PUT-subset guard (LP10 is the single-item case); DR converts and aborts."),
+    'LR4': ("my-gap", "DR compiles it (golden/e2e292d/LR4/LR4.REL). LR4 is `if x < 32768' -- the other comparison orientation, same position as LP11, same refusal, pinned separately because the jump polarity differs (JP vs JM) and a rule tested on one operator only is not tested [C167]."),
+    'LR5': ("my-gap", "DR compiles it (golden/e2e292d/LR5/LR5.REL). LR5 is `do i = 1 to 32768'.  DR converts the bound into a hidden limit cell and aborts; mine biased the loop test by a wrapped -32769, so the loop would have run.  DO bounds share the comparison ladder, and the FROM/TO literal sites are guarded independently."),
+    'LR6': ("my-gap", "DR compiles it (golden/e2e292d/LR6/LR6.REL). LR6 is `z(i) = 32768' -- the dynamic-subscript element form.  Same position as LP12, different DR form (PUSH/address arithmetic), so it is pinned on its own rather than assumed."),
+    'LR7': ("my-gap", "DR compiles it (golden/e2e292d/LR7/LR7.REL). LR7 is `z(2) = 32768' -- the offset<>0 byte-pair form, which truncated to `MVI M,00 / MVI M,80'.  The guard sits on litv, the one place the element store reads a literal value, so every element form is covered by it."),
+    'LR8': ("my-gap", "DR compiles it (golden/e2e292d/LR8/LR8.REL). LR8 is `z(1) = z(1) + 32768' -- element self-update (DR's form 4), where the literal is inside the ADD rather than in the store position.  Restricting the routing predicate to a plain-identifier other operand was not enough: the shape fell into the self-update bias and BUILT with wrong bytes, so the bias constant is checked at its own site."),
+    'LR9': ("my-gap", "DR compiles it (golden/e2e292d/LR9/LR9.REL). LR9 is `if z(1) > 32768' -- an ARRAY ELEMENT as a comparison operand.  DR compiles it; mine refuses with the pre-existing E2E-3b condition-subset guard (AB11's family), which fires before the literal check.  Pinned here so the gap has a DR golden and a measured refusal."),
+})
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:

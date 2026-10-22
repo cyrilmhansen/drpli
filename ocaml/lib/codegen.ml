@@ -1447,12 +1447,35 @@ let e25_bin_routes (is_dec : Ast.expr -> bool) (op : Ast.binop) (l : Ast.expr) (
            literal through a conversion cell the prescan had never demanded, and LP13 died on the
            C152 size check instead of on its designed MB31 threshold refusal.  Only ADD and SUB are
            measured; MUL/DIV keep their existing paths and their existing refusals. *)
-        if op = Ast.Add then true
-        else
-          let other = if (match over_lit_operand l with Some _ -> true | None -> false) then r else l in
-          match (e25_unwrap other).Ast.e with
-          | Ast.Eident _ -> not (is_dec other)
-          | _ -> false
+        (* [E2E-25] the OTHER operand must be a plain identifier, for SUB *and* ADD.  LR8
+           (`z(1) = z(1) + 32768') is the counter-example: its rhs is an ADD whose left operand is an
+           array element, so lower_assign claims it through DR's element self-update form, which
+           biases HL and allocates no cell -- while prescan, seeing only the expression, demanded one.
+           That turned a designed refusal into a pool-invariant failure, which [C179] says is never an
+           acceptable trade.  Restricting to Eident keeps both walkers agreeing; an array element or a
+           call falls through to lower_hl's guarded immediate path and refuses honestly instead. *)
+        let other =
+          if (match over_lit_operand l with Some _ -> true | None -> false) then r else l
+        in
+        match (e25_unwrap other).Ast.e with
+        | Ast.Eident _ -> not (is_dec other)
+        | _ -> false
+
+(* [E2E-25/C178] THE choke point for every position that turns an integer literal into a plain
+   16-bit immediate.  DR converts ANY magnitude >= 32768 through a decimal cell plus ?DLDOP/?QDI15,
+   which aborts at run time with `ERROR (1), Conversion'; emitting `LXI H,<wrapped>' instead finishes
+   quietly with a wrong value, which is the class [C168] put in its own panel and the reason LP11
+   branched on a comparison DR never evaluated.  Refusing is the honest answer for a position that
+   has no DR golden of its own yet -- [C139/C141]: a refusal is evidence, a silent mis-compile is
+   not.  Positions that DO have goldens route through int_lit_to_hl / the unified arithmetic arm and
+   never reach here with an out-of-range value. *)
+let int_lit_checked (what : string) (text : string) : int =
+  let v = parse_int_const text in
+  if bin15_fits v then v
+  else
+    failwith
+      ("codegen: [TBD] out-of-range FIXED literal " ^ text ^ " in " ^ what
+       ^ ": DR converts it through a decimal cell and aborts at run time, but this position has no           DR golden of its own, and emitting a wrapped 16-bit immediate would silently produce a           wrong value [C178/C168]")
 
 let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
   match e.Ast.e with
@@ -2430,7 +2453,11 @@ let fp_mul_guard arrays (l : Ast.expr) (r : Ast.expr) =
 let rec lower_hl st (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Enumber s ->
-      let v = parse_int_const s in
+      (* [E2E-25] this is lower_hl's unrouted literal path -- PUT items, DO bounds, call
+         arguments, function-call operands, divisors, anything the measured positions above do not
+         already claim.  An out-of-range magnitude here is REFUSED, not wrapped: see
+         int_lit_checked. *)
+      let v = int_lit_checked "a position lowered straight into HL" s in
       d st op_lxi_h; d st (v land 0xff); d st ((v lsr 8) land 0xff)
   | Ast.Esuffix (hd, args) ->
       (* [E2E-5c P401] single-argument internal procedure call.
@@ -2774,7 +2801,7 @@ let rec lower_hl st (e : Ast.expr) =
                                       ("codegen: float literal argument "
                                        ^ k ^ " " ^ msg))
                              else begin
-                               let kv = parse_int_const k in
+                               let kv = int_lit_checked "a procedure-call argument" k in
                                pool_alloc st
                                  [| kv land 0xff; (kv lsr 8) land 0xff |]
                              end
@@ -4885,7 +4912,7 @@ let lower_test_skip0 st (c : Ast.expr) =
          bias goes through the shared ladder, so `> 1'/`> 2' use DCX repeats
          and `> 3' upward use LXI B/DAD B.  `> 0' is unprobed (it would be a
          bare DCX), so it still refuses. *)
-      let kk = parse_int_const k in
+      let kk = int_lit_checked "a condition / DO-bound comparison constant" k in
       if kk = 0 && List.mem (String.lowercase_ascii v.Ast.orig) st.deref then
         (* [E25B, C128] `x > 0' through a POINTER formal does not use the bias
            ladder at all (there is nothing to bias by): DR subtracts the
@@ -4913,7 +4940,7 @@ let lower_test_skip0 st (c : Ast.expr) =
          kk=4 up -- DR switches to LXI B/DAD B there -- and the cap turned a
          correct refusal into a silently wrong byte stream at 4..8 is not a
          concern (it refused), but 1..3 now share the ladder and >=4 is exact. *)
-      let kk = parse_int_const k in
+      let kk = int_lit_checked "a condition / DO-bound comparison constant" k in
       if kk < 1 then failwith "codegen: ^= 0 / negative const form unproven [TBD]";
       cmp_load_deref st v.Ast.orig;
       hl_bias st (-kk);
@@ -4926,7 +4953,7 @@ let lower_test_skip0 st (c : Ast.expr) =
          MOV A,H; ORA A; JP(F2) -> skip.  NOTE ORA A here vs ORA L in the ^=
          form.  The cap of 8 was a hedge at the same switch point the ladder
          now explains: kk <= 3 repeats DCX H, kk >= 4 takes LXI B/DAD B. *)
-      let kk = parse_int_const k in
+      let kk = int_lit_checked "a condition / DO-bound comparison constant" k in
       if kk < 1 then failwith "codegen: < 0 / negative const form unproven [TBD]";
       cmp_load_deref st v.Ast.orig;
       hl_bias st (-kk);
@@ -5447,8 +5474,13 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                  (match (try Some (resolve_suffix st lh largs) with _ -> None) with
                   | Some (Suf_element laddr) ->
                       if laddr = addr then
-                        let k0 = int_of_string
+                        let k0 = int_lit_checked "an array element self-update"
                           (String.concat "" (String.split_on_char '_' ks)) in
+                        (* [E2E-25/C178] form 4 biases HL by this constant, so an out-of-range
+                           magnitude would wrap into the stored element -- LR8 (`z(1) = z(1) +
+                           32768') built silently with 0x8000 where DR converts and aborts.  The
+                           element store's own guard (litv) cannot see it: the literal here sits
+                           inside the ADD, not in the rhs position litv reads. *)
                         Some (if op = Ast.Sub then -k0 else k0)
                       else None
                   | _ -> None)
@@ -5465,8 +5497,12 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
           let litv =
             match (unwrap_e rhs).Ast.e with
             | Ast.Enumber t ->
-                Some (int_of_string
-                        (String.concat "" (String.split_on_char '_' t)))
+                (* [E2E-25/C178] checked HERE, once, rather than at each form: litv feeds DR's
+                   offset-0 SHLD form, the offset<>0 byte-pair form (which truncates to
+                   `MVI M,lo / MVI M,hi'), the parked form and the self-update form, so a single
+                   guard covers every element-store shape.  LP12 (`z(1) = 32768') showed the
+                   offset-0 path storing a wrapped 0x8000 where DR converts and aborts. *)
+                Some (int_lit_checked "an array element store" t)
             | _ -> None
           in
           if dyn_r <> None then begin
@@ -5820,7 +5856,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
      (LHLD v / SHLD index -- IFACT's `do n = i to 1 by -1') *)
   let fromc, fromvar =
     match from with
-    | { Ast.e = Ast.Enumber c; _ } -> (Some (parse_int_const c), None)
+    | { Ast.e = Ast.Enumber c; _ } -> (Some (int_lit_checked "a DO-loop FROM bound" c), None)
     | { Ast.e = Ast.Eident nm; _ } ->
         (None,
          match vk_of st nm.Ast.orig with
@@ -5962,7 +5998,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
   let head, jpslot =
     match to_ with
     | Some { Ast.e = Ast.Enumber c; _ } ->
-        let b = parse_int_const c in
+        let b = int_lit_checked "a DO-loop TO bound" c in
         if b < 1 then
           failwith
             ("codegen: DO TO bound below 1 unproven [TBD] (DR switches to a \
