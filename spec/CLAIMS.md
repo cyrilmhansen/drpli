@@ -3655,3 +3655,40 @@ plus a marker fragment taken from the compiler's ACTUAL stderr.
   **(c)** Equal counts and near-miss names conceal substitutions: my structure probes were first written
   as S1-S13/W1, which are already panel keys from E2E-15/E2E-16, and the only reason that surfaced was
   the inventory guard refusing -- a count would have shown the expected number of entries.
+
+- **C187** *(E2E-28, nested-procedure placement -- a "layout law" that was a sampling artifact)*
+  A nested-procedure DECLARATION inside a main block emits a 3-byte branch-over (`C3 00 00`) at the
+  current address, before the body, and its operand is **wherever main's emission resumes after that
+  body** -- not "the epilogue".  N4: `@000C -> 0016`, a live `w = 7`; N3 has two declarations and two
+  branches, `@0012 -> 0020` (the next declaration) and `@0020 -> 002E`.  There is no branch when there
+  is no resumption point: REVERSE's main ends in a no-exit `do while('1'b)` whose tail is `JMP 0006`,
+  and read_it at 001A / write_it at 0091 carry no `JMP` at all.  A nested procedure gets **no prologue
+  of its own**, ends with `RET` only when control can fall through (read_it's always-loop tail emits
+  none; write_it's `put skip` tail emits one at 010F), reaches enclosing-block variables by **absolute
+  address** (`SHLD SENTENCE A(0016)` from inside read_it), and a same-named local is a distinct cell
+  (N6: outer `A(000C)`, inner `A(000E)`).  A bare `RETURN;` emits `RET` alone and emission continues
+  with the next statement (N7 `RET @003A` then `w = 4 @003B`; REVERSE line 29).  There is **no
+  dead-code suppression after a straight-line `STOP`**: N8 and N10 both emit live statements and a
+  second `CALL ?STOPX` after the first, byte-exact -- the only suppression my probes ever hit was the
+  *consecutive* `stop;` produced by my own template.
+  The pre-E2E-28 rules said the opposite -- one branch per program, chained to the epilogue CALL, and
+  a live main statement after a body declared "an unobserved DR layout" -- and were true of all 694
+  accepted specimens, because in every one of them all main statements preceded all procedures, so the
+  resumption point *was* the epilogue.  Six older my-gap refusals (ST8/ST13/ST14/AB7/AB14/EA1, with
+  DR goldens dating to E2E-15/E2E-17/E2E-24) became byte-identical the moment the rule was corrected.
+  Evidence: E28N1-N6/E28N8/E28N10 + E27S13 byte-exact; N1 (`a=         2`) and N4 (`z=         7`)
+  linked from my `.REL` and from DR's and executed identically -- N4 never calls its procedure, so
+  printing 7 rather than 2 is what proves the branch exists and is aimed correctly.
+
+- **C188** *(E2E-28, a refusal whose own rationale is a bug report)* `NEG_META["ST14"]` read, verbatim:
+  "DR emits the CALL ?STOPX at code 0023, AFTER q's body at 0010-0022.  My rule still refuses it."  A
+  negative-panel entry that records the oracle doing the opposite of what my compiler does is not a
+  documented language boundary -- it is a defect note filed against myself and then left unread for
+  three milestones, because the gate reports `NEG-OK` for it and the count looks healthy.  Two rules
+  follow.  **(a)** When a `my-gap` negative's prose contains a DR address, byte sequence or listing
+  fact that my behaviour contradicts, that entry is a TODO with a golden attached, and the milestone
+  that touches the area must re-test it.  **(b)** Quoted evidence must be verbatim with a location
+  (E2E-27's REVERSE/NETWORK "excerpts" were reconstructions and were wrong on six counts -- see
+  `e2e28-...` §0; the corrected quotes carry line numbers now), and measurements must be labelled with
+  the quantity they measure, because "data 8" and "DATA AREA 0020" are not in conflict -- one is
+  automatic storage, the other the whole data segment.

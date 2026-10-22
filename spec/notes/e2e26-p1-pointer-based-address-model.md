@@ -136,7 +136,7 @@ call site executed per iteration [PB8: preceded by `JP` from the loop test].  He
   said DR refuses all three spellings tried (PB10/PB16/PB17) and that P4 was blocked on DR itself.
   It is wrong, and the correct conclusion is claim C185. DR accepts level-numbered based structures:
   `REVERSE.PLI` and `NETWORK.PLI` -- both in artefacts/ throughout every milestone -- declare
-  `1 wordnode based(sentence), 2 word character(30) varying, 2 next pointer' and
+  `1 wordnode based (sentence), 2 word character(30) varying, 2 next pointer' and
   `1 city_node based, ...' and compile with no errors and a .REL (REVERSE's object regenerated:
   golden/e2e319d). PB10/PB16/PB17 failed on declaration SPELLING; ST11 isolates PB16's
   `declare nb based(pn) nd' and DR still rejects THAT, so one spelling is genuinely absent while

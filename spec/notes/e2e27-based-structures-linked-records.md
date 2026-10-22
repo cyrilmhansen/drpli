@@ -7,21 +7,58 @@ ARCH-1 `ocaml/proto/` untouched (md5 `e67a6868b6743e941b5984a53bbe178d`, 13 file
 
 E2E-26 concluded "DR refuses based structures in every spelling tried (PB10/PB16/PB17)". It refused
 the three probes I threw at it, and I generalised from that to the language. Two historical corpus
-programs refute it directly:
+programs refute it. Both excerpts below are copied verbatim from the sources, with line numbers; an
+earlier draft of this note presented reconstructed "excerpts" that were mine, not the corpus's, and
+they were wrong in particulars that mattered (`head` does not exist in REVERSE, which uses `sentence`
+and `newnode`; `population dec(9)` and a nested `3 country based(...)` exist in neither program --
+NETWORK has zero occurrences of `country`, `population`, `dec(9)` or `char(40)`).
 
-```
-REVERSE:   declare head pointer, newnode pointer, sentence pointer;
-           declare 1 wordnode based(sentence), 2 word character(30) varying, 2 next pointer;
-           allocate wordnode set(newnode);
-           newnode->next = null();
-           free head->node;
+`artefacts/REVERSE.PLI` lines 6-10 (one `declare`, structure head at level 1, members at level 2):
 
-NETWORK:   declare cityptr pointer, countryptr pointer;
-           declare 1 city_node based, 2 city_name char(30) varying, 2 population dec(9),
-                   3 country based(cityptr);
-           allocate city_node set(cityptr);
-           cityptr->city_name = 'X';
+```pli
+    declare
+        sentence pointer,
+        1 wordnode based (sentence),
+          2 word character(30) varying,
+          2 next pointer;
 ```
+
+REVERSE lines 30-33 and 44-46 (allocation through a second pointer, link built by assignment, and the
+`free` on the structure-name qualifier):
+
+```pli
+           allocate wordnode set (newnode);
+           newnode->next = sentence;
+           sentence      = newnode;
+           word          = newword;
+...
+           p = sentence;
+           sentence = next;
+           free p->wordnode;
+```
+
+`artefacts/NETWORK.PLI` lines 16-29 -- two bare-based records (no pointer named in the `based`), and
+`citysize` is a `%replace` macro, value 20 (line 11), so the field is `CHARACTER(20) VARYING`:
+
+```pli
+    declare
+        1 city_node based,
+          2 city_name   character(citysize) varying,
+          2 total_distance  fixed,
+          2 investigate bit,
+          2 city_list   pointer,
+          2 route_head  pointer;
+    declare
+        1 route_node based,
+          2 next_city   pointer,
+          2 route_distance  fixed,
+          2 route_list  pointer;
+    declare
+        city_head pointer;
+```
+
+NETWORK lines 100-105 are the qualified store pattern (`allocate city_node set(p)` then `p->city_name
+= city;`, `p->route_head = null;`) -- note `null` used as a bare value, without call parentheses.
 
 DR compiles both, no errors, with a `.REL` (REVERSE regenerated here: `golden/e2e319d`, CODE SIZE
 `0110`, DATA AREA `003B`). The `first8080u` copy stored only the `.PRN`, which is why E2E-26 had no
@@ -75,7 +112,8 @@ Two things that are *not* in this table and are refused rather than guessed:
 
 Six probes byte-exact: **ST1, ST3, ST8, ST9, ST10** and **LN1**.
 
-LN1 is the milestone's target — two linked records:
+LN1 is the milestone's target — two linked records. From `artefacts/LN1.PLI` lines 2-18, abridged
+only by putting independent statements on shared lines (every statement below appears verbatim):
 
 ```pli
 declare head pointer, p pointer, q pointer, z fixed;
@@ -89,8 +127,22 @@ q = head->link;           put list(' after=', q->val, ' z=', z);
 free head->node;          free q->node;
 ```
 
-It is byte-exact (384-byte `.REL`, code 256 / data 8; DR's own listing says CODE SIZE `0100`, DATA
-AREA `0020`), and it was **linked twice and run twice**: `LINK 1.31` on my object
+It is byte-exact, and the four numbers that describe its size are four different quantities, which an
+earlier draft of this note juxtaposed as if two of them disagreed ("data 8" vs "DATA AREA 0020"):
+
+| figure | value | what it measures | where it comes from |
+|---|---|---|---|
+| `.REL` file size | 640 bytes | the object padded to 128-byte sectors | `ls`, and my compiler's own `(%d bytes` field, which prints that padded size |
+| code | 256 = `0100` | bytes of CODE segment | DR's `CODE SIZE = 0100` = reldump `LINK-DEF-CODE-SIZE code 0100` = my compiler's `code=256` |
+| data area | 32 = `0020` | the whole DATA segment: variables **plus** the literal pool | DR's `DATA AREA = 0020` = reldump `LINK-DEF-DATA-SIZE abs 0020` (same value from both files, because they are byte-identical) |
+| automatic storage | 8 | only the declared variables: `head`, `p`, `q`, `z` at 2 bytes each | DR's `BLOCK AT LINE 2, AUTO STORAGE 8 BYTES` = my compiler's `data=8`, which is `rows_of`'s variable-area figure, **not** the data segment |
+
+So 32 = 8 bytes of variables + 24 bytes of pool (the four `put` literals `'first='`, `' linked='`,
+`' after='`, `' z='). The same split holds on the other probes: ST1 data area 4 against auto storage 2;
+REVERSE data area 59 against the sum of its four blocks' auto storage, 37. My stdout `data=` and DR's
+`DATA AREA` are two different measurements, and neither one is the file size.
+
+It was **linked twice and run twice**: `LINK 1.31` on my object
 (`golden/e27my/LN1/LN1.REL`) and on DR's (`golden/e27dr/LN1/LN1.REL`), both under cpmsim, both
 printing
 
@@ -133,15 +185,31 @@ one probe is not a rule.
 ## 5. REVERSE: not integrated, and now known as an ordered list of blockers
 
 Mine refuses REVERSE with `BASED structure member word of type CHAR(30) VARYING at record offset 0
-is unsampled`. ST13 — REVERSE's skeleton minus the varying member — **DR compiles** and mine refuses
-earlier, at the main-block/appended-procedure split. That fixes the order by measurement:
+is unsampled`. ST13 — a main block that calls one nested procedure, which allocates into a based
+record and frees it, plus one statement in main after the procedure definition (`artefacts/ST13.PLI`
+lines 4-13) — **DR compiles** and mine refuses earlier, at the main-block/appended-procedure split.
+That fixes the order by measurement:
 
-1. nested-procedure statement placement (ST13),
+1. nested-procedure statement placement (ST13) -- **CLEARED in E2E-28**: ST13 is byte-exact,
+   and so are N1-N6/N8/N10 plus six older append-layout refusals (ST8/ST13/ST14/AB7/AB14/EA1).  The
+   rule I had taken for a DR law ("every procedure body is appended AFTER every main-block
+   statement") was an induction over goldens that all put their statements first.  See
+   spec/notes/e2e28-nested-procedure-placement.md.
 2. CHARACTER VARYING **member** store/load (ST5 has the shape with a short field; REVERSE is the
-   `word = newword` case),
-3. `GET LIST` stream input (REVERSE's `get list(newword)`),
-4. the cross-pointer set form — already resolved: `allocate wordnode set(newnode)` on a record
-   declared `based(sentence)` is accepted by mine and is exactly what REVERSE does; ST3/LN1 pin it.
+   `word = newword` case at line 33),
+3. `GET LIST` stream input (REVERSE's `get list(newword)` at line 27),
+4. the cross-pointer set form — already resolved: `allocate wordnode set (newnode)` (line 30) on a
+   record declared `based (sentence)` (line 8) is accepted by mine and is what REVERSE does; ST3 and
+   LN1 pin that layout byte-exactly.
+
+This list was ordered by *where mine stops*, and item 1 has since been removed by fixing it; item 2
+is now REVERSE's live blocker.
+REVERSE also uses bare `null` as a value without call parentheses (lines 13, 42), `^=` (line 42),
+`return` inside a nested procedure (line 29), `do while('1'b)` (lines 12, 26, 42), `put skip list`
+(lines 22, 41), and unqualified member access from a nested procedure whose pointer lives in the
+enclosing block (`word = newword`, `sentence = next`). Each of those was probed or not independently;
+P1 measures the procedure-placement one, and the rest stay labelled untested until they have their
+own probes.
 
 The remaining historical targets are unchanged in character: `texp2/NETW.COM`, `METER2`, `SORT3` are
 still not available as DR `.REL` oracles, so NETWORK is a specification, not a second oracle.
@@ -158,7 +226,10 @@ recorded**, exit 0. ARCH-1 md5 verified unchanged after the build.
 * Unqualified access in a **bare-based** record (`x = 11` where the record has no named pointer):
   ST4 also shows six DR errors of its own, so there is nothing to reproduce.
 * Arrow accessors `<-` / `<` and `GOTO x->f` (DR internal `MATCH FAILURE`).
-* NETWORK's `BASED(cityptr) char(40) varying` field-array spelling and its two-level bare-based
-  records — the three shapes it needs are exactly the three my note says are blocked.
+* NETWORK's remaining shapes, read off the source rather than from memory: `character(citysize)
+  varying` members (blocked, as ST5 is), `investigate bit` members (blocked, as ST6 is),
+  `repeat(<qualified store>) while(<cond>)` (line 96 — a statement form never probed), chained
+  qualification `q->next_city->city_name` (line 124 — no sample), bare `null` as a value (lines 96,
+  105), and `%replace` (line 9). NETWORK is a different milestone, not a variant of REVERSE.
 * `free` of a structure record through a pointer that was never its `set` target, list traversal
   loops (`do while ...; p = p->link`), and reallocating over a freed pointer: none has a DR sample.
