@@ -3477,10 +3477,16 @@ C178 [E2E-24, 26 byte-exact probes + 8 executed witnesses: ML1-ML15, MN1-MN8, LP
   conversion cannot bias a register that is not loaded yet), and self-add, which DR emits
   identically to the right-literal form (LP14) so the measured -8..+16 ladder declines it and falls
   through.  The parking pair appears ONLY because the conversion runs in HL, so C150's no-parking
-  rule for in-range literals is untouched, not contradicted.  SUB is measured
-  (`LHLD x / PUSH H / route / POP D / CALL ?IS22N', LQ5/LP9) but deliberately NOT implemented: its
-  in-range shape is produced by the shared add/sub dispatcher that many byte-exact specimens pin,
-  and rewriting a shared path on two probes is refused.  PUT items, call arguments, conditions and
+  rule for in-range literals is untouched, not contradicted.  SUB with a plain non-DEC
+  identifier on the LEFT is routed too: `LHLD x / PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 /
+  POP D / CALL ?IS22N' (LQ5 `y = y - 32768', LP9 `y = x - 65535', ML8 `y = x - 1234567890').  It is
+  a NEW lower_hl arm whose `when' guard admits only out-of-range literals with a plain non-DEC
+  identifier on the left -- in-range SUB, DEC-typed lefts and compound lefts fall through to the
+  shared add/sub dispatcher UNTOUCHED, because hundreds of byte-exact specimens pin that dispatcher
+  and rewriting it for one family on two probes is how unrelated programs break.  DR calls a routine
+  where its in-range ladder adds a two's complement because after the conversion DE holds the LEFT
+  value and HL the constant, the wrong way round for DAD: mechanical, but known for three probes
+  only, so it is not generalised.  PUT items, call arguments, conditions and
   element stores remain unrouted and are pinned as WRONG-VALUE rows in DIVERGENT.txt, never as
   acceptable differences.  Executed proof that this is a semantic fix, not a cosmetic one: ML1
   (`y = x + 1234567890') printed 723 at HEAD and now aborts byte-identically to DR's own .COM. ZK8/ZK10/ZK11 -- E2E-23's three divergences -- were never waiting on a
