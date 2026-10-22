@@ -202,9 +202,12 @@ LONGNAME	specimen	probes/LONGNAME.PLI	golden/e2e12/LONGNAME/LONGNAME.REL
 LP1	specimen	artefacts/LP1.PLI	golden/e2e246/LP1/LP1.REL
 LP10	refusal	a: procedure options(main);\n  dcl x fixed, y fixed, y2 fixed, d fixed dec(9), z(3) fixed, i fixed;\n  put skip list(32768);\n  stop;\nend a;\n	DR compiles it (golden/e2e246/LP10).  LP10's only statement is `put skip list(32768)' -- a literal as a PUT item, exactly the position this step deliberately does NOT route, so the probe says nothing about the decimal route until that PUT form lands.  Registered so the refusal is tracked rather than lost.
 LP13	refusal	a: procedure options(main);\n  dcl x fixed, y fixed, y2 fixed, d fixed dec(9), z(3) fixed, i fixed;\n  x = 2;\n  y = x * 32768;\n  stop;\nend a;\n	DR compiles it (golden/e2e246/LP13).  Mine refuses with the designed MB31 threshold guard: MULTIPLY by a literal >= 32768 goes through the DEC pool (`PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / POP D / ?IM22N') and that composition is measured only for MB31 itself, so it is refused rather than extrapolated.  LP13 is `x = 2; y = x * 32768' -- multiply by an out-of-range constant, which is the position Priority 3 has not implemented.
+LP14	specimen	artefacts/LP14.PLI	golden/e2e246/LP14/LP14.REL
 LP15	specimen	artefacts/LP15.PLI	golden/e2e246/LP15/LP15.REL
 LP2	specimen	artefacts/LP2.PLI	golden/e2e246/LP2/LP2.REL
 LP3	refusal	a: procedure options(main);\n  dcl x fixed, y fixed, y2 fixed, d fixed dec(9), z(3) fixed, i fixed;\n  y = 32768 + 65535;\n  stop;\nend a;\n	DR compiles it (golden/e2e246/LP3) and lowers `32768 + 65535' to the DECIMAL POOL chain (?DLDOP both, one ?DADOP, ?QDI15).  My refusal is the designed C148/N301 guard: FIXED ADD of two integer literals has no measured fold, while `0 - 7' [N301] and `e = 0 - 2' [N306] DO fold -- the rule is asymmetric, so it stays refused rather than guessed.  Unrelated to the bin(15) route: this shape refused at HEAD too.
+LP4	specimen	artefacts/LP4.PLI	golden/e2e246/LP4/LP4.REL
+LP5	specimen	artefacts/LP5.PLI	golden/e2e246/LP5/LP5.REL
 LP6	specimen	artefacts/LP6.PLI	golden/e2e246/LP6/LP6.REL
 LP7	refusal	a: procedure options(main);\n  dcl x fixed, y fixed, y2 fixed, d fixed dec(9), z(3) fixed, i fixed;\n  x = 1;\n  d = x + 123456789;\n  stop;\nend a;\n	DR compiles it (golden/e2e246/LP7).  Mine refuses with C161's designed guard `decimal operation on non-decimal operand x': `x' is FIXED BINARY in a DEC-typed expression, which is exactly the mixed-mode conversion this step's Priority 3 would implement.  Refusing is correct: the conversion route is unmeasured, and the value would otherwise be computed wrong.
 LQ1	specimen	artefacts/LQ1.PLI	golden/e2e247/LQ1/LQ1.REL
@@ -263,9 +266,17 @@ MB6	specimen	e18src/MB6.PLI	golden/e2e186/MB6/MB6.REL
 MB7	refusal	a: \n    procedure options(main); \n    declare n fixed, m fixed; \n    n = 7; \n    m = 3; \n    m = n * 0; \n    put skip list('W', m); \n    stop; \n    f: procedure(j) returns(fixed); \n    declare j fixed; \n    return (j + 1); \n    end f; \nend a; \n	DR COMPILES IT (golden/e2e186/MB7) and lowers BOTH `n * 0' and `0 * n' to `MOV L,H', which copies H into L and does NOT produce zero -- a probable DR defect [MB8 emits byte-identical code]. I reproduce neither it (unverified) nor my old ?IM22N-by-0 path (not byte-equal). Note elide_fixed_zero previously rewrote `x * 0' into `x' outright, a silent mis-compile fixed under C151 [C148]
 MB8	refusal	a: \n    procedure options(main); \n    declare n fixed, m fixed; \n    n = 7; \n    m = 3; \n    m = 0 * n; \n    put skip list('W', m); \n    stop; \n    f: procedure(j) returns(fixed); \n    declare j fixed; \n    return (j + 1); \n    end f; \nend a; \n	The other operand order of MB7: DR emits `MOV L,H' for `0 * n' [golden/e2e186/MB8], byte-identical to its `n * 0' output, confirming the constant commutes for DR irrespective of route [C148]
 MB9	specimen	e18src/MB9.PLI	golden/e2e186/MB9/MB9.REL
+ML1	specimen	artefacts/ML1.PLI	golden/e2e244/ML1/ML1.REL
+ML10	specimen	artefacts/ML10.PLI	golden/e2e244/ML10/ML10.REL
+ML11	specimen	artefacts/ML11.PLI	golden/e2e244/ML11/ML11.REL
+ML12	specimen	artefacts/ML12.PLI	golden/e2e244/ML12/ML12.REL
+ML13	specimen	artefacts/ML13.PLI	golden/e2e244/ML13/ML13.REL
+ML14	specimen	artefacts/ML14.PLI	golden/e2e244/ML14/ML14.REL
 ML15	specimen	artefacts/ML15.PLI	golden/e2e244/ML15/ML15.REL
+ML2	specimen	artefacts/ML2.PLI	golden/e2e244/ML2/ML2.REL
 ML3	specimen	artefacts/ML3.PLI	golden/e2e244/ML3/ML3.REL
 ML4	specimen	artefacts/ML4.PLI	golden/e2e244/ML4/ML4.REL
+ML5	specimen	artefacts/ML5.PLI	golden/e2e244/ML5/ML5.REL
 ML6	refusal	a: procedure options(main);\n  dcl d fixed dec(5), y fixed dec(9);\n  d = 3;\n  y = d + 1234567890;\n  put skip list(y);\n  stop;\nend a;\n	DR compiles it (golden/e2e244/ML6).  Mine refuses with the encoder's designed guard `DEC literal does not fit its precision [TBD]': the literal has more digits than the declared precision, which DR's ?DLDOP accepts silently.  A value that cannot be packed is never emitted as a wrong packing.
 ML7	refusal	a: procedure options(main);\n  dcl b fixed bin(15), d fixed dec(3);\n  b = 5;\n  d = 3;\n  b = d + 1234567890;\n  put skip list(b);\n  stop;\nend a;\n	DR compiles it (golden/e2e244/ML7).  ML7 is `dcl b fixed bin(15), d fixed dec(3); b = d + 1234567890': the 10-digit literal is packed against the dec(3) operand precision in DR's DEC chain, which my encoder declines. ML6 hits the same guard through `y = d + 1234567890' with `d' dec(5).  Both are tracked so neither is mistaken for the pool invariant.
 ML9	specimen	artefacts/ML9.PLI	golden/e2e244/ML9/ML9.REL

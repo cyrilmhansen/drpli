@@ -3471,9 +3471,19 @@ C178 [E2E-24, 26 byte-exact probes + 8 executed witnesses: ML1-ML15, MN1-MN8, LP
   overflow case with `ERROR (1), Conversion' plus a traceback. The previous build silently
   truncated and printed a wrong number (ML1 printed `723'). Reproducing the route is what makes
   the failure mode match; mine now produces byte-identical output to DR's own .COM on ML3, ML4,
-  ML15, ZK8, ZK10, ZK11, LP15 and LQA. This claim covers the STORE position only; the operand
-  positions remain unrouted and are pinned as WRONG-VALUE rows in DIVERGENT.txt, never as
-  acceptable differences. ZK8/ZK10/ZK11 -- E2E-23's three divergences -- were never waiting on a
+  ML15, ZK8, ZK10, ZK11, LP15 and LQA. This claim covers the STORE position and BOTH ADD operand orientations: right-literal
+  `LHLD x / PUSH H / route / POP D / DAD D' (ML10/LP5/ML1/ML2/ML5), left-literal
+  `route / XCHG / LHLD x / DAD D' (LP4, the conversion must come first because a run-time
+  conversion cannot bias a register that is not loaded yet), and self-add, which DR emits
+  identically to the right-literal form (LP14) so the measured -8..+16 ladder declines it and falls
+  through.  The parking pair appears ONLY because the conversion runs in HL, so C150's no-parking
+  rule for in-range literals is untouched, not contradicted.  SUB is measured
+  (`LHLD x / PUSH H / route / POP D / CALL ?IS22N', LQ5/LP9) but deliberately NOT implemented: its
+  in-range shape is produced by the shared add/sub dispatcher that many byte-exact specimens pin,
+  and rewriting a shared path on two probes is refused.  PUT items, call arguments, conditions and
+  element stores remain unrouted and are pinned as WRONG-VALUE rows in DIVERGENT.txt, never as
+  acceptable differences.  Executed proof that this is a semantic fix, not a cosmetic one: ML1
+  (`y = x + 1234567890') printed 723 at HEAD and now aborts byte-identically to DR's own .COM. ZK8/ZK10/ZK11 -- E2E-23's three divergences -- were never waiting on a
   register optimiser [C168's assumption was wrong]; they were waiting on this route.
 
 C179 [E2E-24, four self-inflicted regressions, each caught by a different guard]

@@ -2134,15 +2134,18 @@ for _n, _marker in [("AV1", "TBD]: POINTER"),            # ALLOCATE/FREE: bind w
 #     stale), the gate stops rather than letting it drift silently.
 DIVERGENT_FILE = os.path.join(ROOT, "spec", "DIVERGENT.txt")
 
-# [E2E-24/C178] DR's out-of-range FIXED literal route (decimal pool cell + ?DLDOP/?QDI15).
-# 23 store-position probes are byte-exact and are promoted; the 6 refusals below are ALL
-# pre-designed [TBD] guards (PUT subset, multiply threshold, const-const ADD, non-decimal
-# operand, literal-not-fitting-precision) that these probes happen to exercise -- none is a
-# pool-invariant failure.  The remaining shapes are in spec/DIVERGENT.txt with measured bytes.
-# [E2E-24] registered by the E2E-24 step-1/step-2 pass.
+# [E2E-24/C178] DR's out-of-range FIXED literal route (decimal pool cell + ?DLDOP/?QDI15),
+# implemented at the STORE and at both ADD operand orientations (including self-add, which falls
+# through the measured -8..+16 ladder to the same parked form LP14 shows DR using).  Every probe
+# that is byte-exact is registered here; the 9 remaining shapes are in spec/DIVERGENT.txt with
+# measured bytes and are WRONG-VALUE rows, not cosmetic differences.  The refusals below are all
+# pre-designed [TBD] guards with DR goldens attached -- none is a pool-invariant failure.
 add_spec('LP1', ('artefacts/LP1.PLI', 'golden/e2e246/LP1/LP1.REL'))
+add_spec('LP14', ('artefacts/LP14.PLI', 'golden/e2e246/LP14/LP14.REL'))
 add_spec('LP15', ('artefacts/LP15.PLI', 'golden/e2e246/LP15/LP15.REL'))
 add_spec('LP2', ('artefacts/LP2.PLI', 'golden/e2e246/LP2/LP2.REL'))
+add_spec('LP4', ('artefacts/LP4.PLI', 'golden/e2e246/LP4/LP4.REL'))
+add_spec('LP5', ('artefacts/LP5.PLI', 'golden/e2e246/LP5/LP5.REL'))
 add_spec('LP6', ('artefacts/LP6.PLI', 'golden/e2e246/LP6/LP6.REL'))
 add_spec('LQ1', ('artefacts/LQ1.PLI', 'golden/e2e247/LQ1/LQ1.REL'))
 add_spec('LQ3', ('artefacts/LQ3.PLI', 'golden/e2e247/LQ3/LQ3.REL'))
@@ -2151,9 +2154,17 @@ add_spec('LQ7', ('artefacts/LQ7.PLI', 'golden/e2e247/LQ7/LQ7.REL'))
 add_spec('LQ8', ('artefacts/LQ8.PLI', 'golden/e2e247/LQ8/LQ8.REL'))
 add_spec('LQ9', ('artefacts/LQ9.PLI', 'golden/e2e247/LQ9/LQ9.REL'))
 add_spec('LQA', ('artefacts/LQA.PLI', 'golden/e2e247/LQA/LQA.REL'))
+add_spec('ML1', ('artefacts/ML1.PLI', 'golden/e2e244/ML1/ML1.REL'))
+add_spec('ML10', ('artefacts/ML10.PLI', 'golden/e2e244/ML10/ML10.REL'))
+add_spec('ML11', ('artefacts/ML11.PLI', 'golden/e2e244/ML11/ML11.REL'))
+add_spec('ML12', ('artefacts/ML12.PLI', 'golden/e2e244/ML12/ML12.REL'))
+add_spec('ML13', ('artefacts/ML13.PLI', 'golden/e2e244/ML13/ML13.REL'))
+add_spec('ML14', ('artefacts/ML14.PLI', 'golden/e2e244/ML14/ML14.REL'))
 add_spec('ML15', ('artefacts/ML15.PLI', 'golden/e2e244/ML15/ML15.REL'))
+add_spec('ML2', ('artefacts/ML2.PLI', 'golden/e2e244/ML2/ML2.REL'))
 add_spec('ML3', ('artefacts/ML3.PLI', 'golden/e2e244/ML3/ML3.REL'))
 add_spec('ML4', ('artefacts/ML4.PLI', 'golden/e2e244/ML4/ML4.REL'))
+add_spec('ML5', ('artefacts/ML5.PLI', 'golden/e2e244/ML5/ML5.REL'))
 add_spec('ML9', ('artefacts/ML9.PLI', 'golden/e2e244/ML9/ML9.REL'))
 add_spec('MN1', ('artefacts/MN1.PLI', 'golden/e2e245/MN1/MN1.REL'))
 add_spec('MN2', ('artefacts/MN2.PLI', 'golden/e2e245/MN2/MN2.REL'))

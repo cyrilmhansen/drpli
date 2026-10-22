@@ -788,6 +788,50 @@ let bcd_pack_scaled (v : int) (p : int) =
   let nib i = try List.nth lsf i with _ -> 0 in
   Array.init nbytes (fun b -> ((nib (2 * b + 1)) lsl 4) lor (nib (2 * b)))
 
+(* [E2E-24/C178] DR's bin(15) threshold: a FIXED literal <= 32767 goes in as an immediate and
+   >= 32768 becomes a packed-decimal cell converted at run time.  ML9/ML10 measure the boundary
+   at 32767/32768 exactly; ML10 (32768) is the first value on the decimal route. *)
+let bin15_fits (v : int) = v >= -32768 && v <= 32767
+
+
+(* [E2E-24/C178] the precision of a DEC cell holding a literal is the DIGIT COUNT OF THE TEXT,
+   leading zeros included: LP15 (`y = 0000032768') allocates a 6-byte cell for p=10 where LP2
+   (`y = 32768') allocates 3 for p=5, and the values are identical. *)
+let lit_dec_p (text : string) =
+  let ds = String.concat "" (String.split_on_char '_' text) in
+  max 1 (String.length ds)
+
+let lit_dec_image (v : int) (text : string) =
+  Array.to_list (bcd_pack_scaled v (lit_dec_p text))
+
+(* [E2E-24/C178] placed here because BOTH lower_hl's ADD arms and the store dispatcher
+   need it, and OCaml resolves a let before its use site. *)
+(* [E2E-24/C178] DR's route for a FIXED literal too large for bin(15): the value lives in a
+   packed-decimal pool cell and is converted in HL at run time by `?DLDOP' (packed -> binary) then
+   `?QDI15' (round to 16-bit integer).  `MVI A,p' carries the DIGIT COUNT, taken from the literal's
+   TEXT, so `0000032768' says 10 and gets a 6-byte cell while `32768' says 5 and gets 3 [LP15/LP2];
+   leading zeros are insignificant to the VALUE but decisive for the cell [C178].
+   The cell is deduped on byte image through st.dec_cells, the same table the DEC-operand layout
+   uses, so DR's sharing across declaration kinds is reproduced [LP1/LQ6/LQA].
+   `st.last_imm <- None' is deliberate: LP1 stores 32768 twice and DR re-emits the WHOLE route
+   rather than reusing HL, so the constant-reuse facts [C177] do not survive ?QDI15. *)
+let lit_dec_to_hl st (text : string) (v : int) =
+  let p = lit_dec_p text in
+  let bytes = bcd_pack_scaled v p in
+  let key = Array.to_list bytes in
+  let addr =
+    match List.assoc_opt key st.dec_cells with
+    | Some a -> a
+    | None ->
+        let a = pool_alloc st bytes in
+        st.dec_cells <- (key, a) :: st.dec_cells;
+        a
+  in
+  d st op_lxi_h; reloc st Data addr;
+  d st op_mvi_a; d st p; call_ext st "?DLDOP";
+  call_ext st "?QDI15";
+  st.last_imm <- None
+
 (* sum of decimal-pool bytes required by literal-base ** over all stmts
    (pure pre-scan, no side effects; mirrors pool_alloc ordering). *)
 
@@ -1105,21 +1149,6 @@ let pdec_dec_cell cx (p : int) (sc : int) (text : string) : int =
 (* parenthesised expressions arrive Econd-wrapped [N304]; prescan must
    see through them exactly like lowering does *)
 
-(* [E2E-24/C178] DR's bin(15) threshold: a FIXED literal <= 32767 goes in as an immediate and
-   >= 32768 becomes a packed-decimal cell converted at run time.  ML9/ML10 measure the boundary
-   at 32767/32768 exactly; ML10 (32768) is the first value on the decimal route. *)
-let bin15_fits (v : int) = v >= -32768 && v <= 32767
-
-(* [E2E-24/C178] the precision of a DEC cell holding a literal is the DIGIT COUNT OF THE TEXT,
-   leading zeros included: LP15 (`y = 0000032768') allocates a 6-byte cell for p=10 where LP2
-   (`y = 32768') allocates 3 for p=5, and the values are identical. *)
-let lit_dec_p (text : string) =
-  let ds = String.concat "" (String.split_on_char '_' text) in
-  max 1 (String.length ds)
-
-let lit_dec_image (v : int) (text : string) =
-  Array.to_list (bcd_pack_scaled v (lit_dec_p text))
-
 (* [E2E-24/C178] DEMAND for the decimal cell an overflow literal takes when it is STORED into an
    integer target.  Keyed on the byte image, because DR dedups on image, not on (p, value):
    LP1 (`y = 32768; y2 = 32768') and LQ6 (`032768' then `0032768', p=6 and p=7, same 4-byte image)
@@ -1294,6 +1323,14 @@ let parse_int_const (s : string) =
          ^ "(Q1/Q3 probes, spec/notes/e2e11-step5-gap-ranking.md)")
 
 
+(* [E2E-24] text-side of the bin(15) test, for a `when' guard that runs before the value is
+   parsed.  Placed here rather than with the other threshold helpers because it needs
+   parse_int_const, which is defined below them -- OCaml resolves a let strictly before its use
+   site.  Its only user is the self-update ladder arm, which declines out-of-range constants so
+   they fall through to lower_hl's routed ADD. *)
+let fits_int_lit (text : string) =
+  (try bin15_fits (parse_int_const text) with _ -> false)
+
 let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Ebinary (Ast.Exp, l, r) ->
@@ -1314,6 +1351,15 @@ let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
       in
       dec_pool_bytes (dec_digits (pint a))
       + dec_pool_bytes (dec_digits (pint b))
+  (* [E2E-24/C178] demand for an out-of-range literal in an ADD, mirroring the two ADD arms in
+     lower_hl POSITION FOR POSITION: a bare `Enumber' arm would also count literals in SUB/MUL and
+     in the C150 constant-operand paths that allocate no cell, and the pool invariant would refuse
+     programs that used to build.  The other operand still recurses, so a nested ADD counts its own
+     cell and nothing else. *)
+  | Ast.Ebinary (Ast.Add, { Ast.e = Ast.Enumber t; _ }, r) ->
+      pdec_int_lit_cell cx t + prescan_expr cx r
+  | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber t; _ }) ->
+      pdec_int_lit_cell cx t + prescan_expr cx l
   | Ast.Ebinary (_, l, r) -> prescan_expr cx l + prescan_expr cx r
   | Ast.Eprefix (_, x) -> prescan_expr cx x
   | Ast.Ebuilt (_, es) ->
@@ -2794,13 +2840,38 @@ let rec lower_hl st (e : Ast.expr) =
          loaded 1/2 into HL, XCHG'd it into DE and did DAD D -- right value, wrong
          bytes, and on the call-right shape it parked DE across the call (C139). *)
       let k = parse_int_const ks in
-      lower_hl st r; hl_bias_free st k; st.last_imm <- None
+      (* [E2E-24/C178] out-of-range constant on the LEFT: LP4 measures
+         `LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / XCHG / LHLD x / DAD D' -- the literal is converted
+         FIRST and then XCHG'd into DE, because a run-time conversion cannot be strength-reduced to
+         a bias on a value that is not in HL yet.  This is the same XCHG shape C150 records for
+         k>=5 in-range left literals, reached for a different reason. *)
+      if bin15_fits k then begin
+        lower_hl st r; hl_bias_free st k; st.last_imm <- None
+      end else begin
+        lit_dec_to_hl st ks k;
+        d st op_xchg;
+        lower_hl st r;
+        d st op_dad_d
+      end
     | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber ks; _ }) ->
       (* [E2E-13/C141] non-self constant add: strength-reduce the same way, on the
          left value.  k<=4 -> (INX H)*k, k>=5 -> LXI B,k ; DAD B  [R4,R5,R6,R8,R10,
          R12,T2,T4,T8].  Magnitude 1 lands in the arm above and gives the same byte. *)
       let k = parse_int_const ks in
-      lower_hl st l; hl_bias_free st k; st.last_imm <- None
+      (* [E2E-24/C178] out-of-range constant on the RIGHT of an ADD.  ML10/LP5 measure
+         `LHLD x / PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / POP D / DAD D': the parking pair
+         appears ONLY because the conversion runs in HL and would otherwise destroy the left value
+         -- which is exactly why C150's no-parking rule for in-range literals is not violated here.
+         The in-range path below is untouched. *)
+      if bin15_fits k then begin
+        lower_hl st l; hl_bias_free st k; st.last_imm <- None
+      end else begin
+        lower_hl st l;
+        d st op_push_h;
+        lit_dec_to_hl st ks k;
+        d st op_pop_d;
+        d st op_dad_d
+      end
     | Ast.Ebinary (Ast.Add, l, r)
       when (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false)
            && not (suf_is_element st r)
@@ -4798,32 +4869,6 @@ let lower_test_skip st (c : Ast.expr) =
    lowering of constants outside fixed()'s range is unimplemented here.  Mine stores the
    two's-complement value directly, which is arithmetically the same number, so this is byte
    divergence, not a wrong value -- verified by running them, not by reasoning. *)
-(* [E2E-24/C178] DR's route for a FIXED literal too large for bin(15): the value lives in a
-   packed-decimal pool cell and is converted in HL at run time by `?DLDOP' (packed -> binary) then
-   `?QDI15' (round to 16-bit integer).  `MVI A,p' carries the DIGIT COUNT, taken from the literal's
-   TEXT, so `0000032768' says 10 and gets a 6-byte cell while `32768' says 5 and gets 3 [LP15/LP2];
-   leading zeros are insignificant to the VALUE but decisive for the cell [C178].
-   The cell is deduped on byte image through st.dec_cells, the same table the DEC-operand layout
-   uses, so DR's sharing across declaration kinds is reproduced [LP1/LQ6/LQA].
-   `st.last_imm <- None' is deliberate: LP1 stores 32768 twice and DR re-emits the WHOLE route
-   rather than reusing HL, so the constant-reuse facts [C177] do not survive ?QDI15. *)
-let lit_dec_to_hl st (text : string) (v : int) =
-  let p = lit_dec_p text in
-  let bytes = bcd_pack_scaled v p in
-  let key = Array.to_list bytes in
-  let addr =
-    match List.assoc_opt key st.dec_cells with
-    | Some a -> a
-    | None ->
-        let a = pool_alloc st bytes in
-        st.dec_cells <- (key, a) :: st.dec_cells;
-        a
-  in
-  d st op_lxi_h; reloc st Data addr;
-  d st op_mvi_a; d st p; call_ext st "?DLDOP";
-  call_ext st "?QDI15";
-  st.last_imm <- None
-
 let hl_const st k =
         match st.last_imm with
 
@@ -5115,7 +5160,15 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                  parse_int_const calls int_of_string on "2.5" and the failure is
                  an uncaught exception instead of a [TBD] -- exactly the R3045
                  crash class, re-introduced by widening the pattern. *)
-              && is_int_literal ks ->
+              && is_int_literal ks
+              && fits_int_lit ks
+              (* [E2E-24/C178] the self-update ladder is measured across -8..+16 only, and every
+                 one of those k is in bin(15) range.  For an out-of-range constant LP14
+                 (`y = y + 65535') shows DR emitting EXACTLY the parked ADD form it uses for a
+                 non-self add -- `LHLD y / PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / POP D /
+                 DAD D' -- so the right move is to fall through to lower_hl's routed ADD arm rather
+                 than invent a ladder variant.  The demand side mirrors this by counting the cell in
+                 prescan_expr's Add arms, which is where the fall-through lands. *) ->
            (* [E2E-11 step 1a] DR's SELF-ADD / SELF-SUB LADDER, now measured
               across the whole small-k range instead of inferred from one point.
               A program per k (golden/e2e11n, E22A02..E22A16, E22B01..E22B08),

@@ -3,9 +3,10 @@
 Baseline HEAD: `d528144`. Gate at start: 607 byte-exact / 101 negatives / 3 divergences.
 Gate at end:   **633 byte-exact / 107 negatives / 22 divergences / exit 0.**
 
-Scope actually reached: Priority 1 (characterise DR), Priority 1b (cell layout), Priority 2 for the
-**store position**. Priorities 3, 5 and 6 are NOT done — the operand positions stay unrouted and are
-pinned as wrong-value rows instead of being guessed at.
+Scope actually reached: Priority 1 (characterise DR), Priority 1b (cell layout), Priority 2 at the
+**store** AND at **both ADD operand orientations** (including self-add).  Priorities 3, 5 and 6 are
+NOT done: SUB, array-element stores, PUT items, call arguments and conditions stay unrouted and are
+pinned as wrong-value rows rather than guessed at.
 
 ---
 
@@ -129,8 +130,8 @@ programs fail an internal consistency check is not an acceptable trade** [C179].
 
 ## 5. Evidence
 
-**Byte-exact (26 promoted specimens):** LP1 LP2 LP6 LP15, LQ1 LQ3 LQ6 LQ7 LQ8 LQ9 LQA,
-ML3 ML4 ML9 ML15, MN1–MN8, and **ZK8 ZK10 ZK11** — the three programs E2E-23 pinned as divergences.
+**Byte-exact (37 promoted specimens):** LP1 LP2 LP4 LP5 LP6 LP14 LP15, LQ1 LQ3 LQ6 LQ7 LQ8 LQ9 LQA,
+ML1–ML5 ML9–ML15, MN1–MN8, and **ZK8 ZK10 ZK11** — the three programs E2E-23 pinned as divergences.
 They were never waiting on a register optimiser; they were waiting on this literal route. Their
 divergence rows are deleted and they are specimens now.
 
@@ -146,8 +147,12 @@ golden.
 |---|---|
 | ML3 | `ERROR (1), Conversion` + `Traceback: 2066 0002 0612 1176 3635 3837 3039` |
 | ML4 | `ERROR (1), Conversion` + identical traceback |
+| **ML1** (`y = x + 1234567890`, the case that motivated the step) | `ERROR (1), Conversion` + `Traceback: 2070 0002 0612 1182 3635 3837 3039 0001` — **at HEAD this program printed `723`** |
+| LP5, LP14 | `ERROR (1), Conversion` + identical traceback each |
 | ML15 | `      124` |
 | ZK8, ZK10, ZK11, LP15, LQA | `ERROR (1), Conversion` + identical traceback each |
+
+11 executed witnesses in total.  Staged `.REL`s were `cmp`'d against DR's goldens before linking.
 
 The staged `.REL` used for linking was re-`cmp`'d against DR's golden first — runtime evidence has
 to come from the same artifact the byte check used. ML3/ML4/ML15 etc. are in
