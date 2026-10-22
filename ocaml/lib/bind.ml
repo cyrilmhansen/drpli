@@ -1314,11 +1314,33 @@ let bind_program (blk : Ast.block) : prog_layout =
           let sites =
             List.map
               (fun (p, args, slot) ->
+                let arrs = try bind_arrays b with _ -> [] in
+                let is_arr_hd aarg =
+                  match aarg.Ast.e with
+                  | Ast.Esuffix (hd, [ _ ]) ->
+                      (match hd.Ast.e with
+                       | Ast.Eident h ->
+                           List.exists
+                             (fun (n, _l, _u, _e) ->
+                               String.equal n
+                                 (String.lowercase_ascii h.Ast.orig))
+                             arrs
+                       | _ -> false)
+                  | _ -> false
+                in
                 let temps =
                   List.map
                     (fun arg ->
+                      (* [E2E-22/P3] an array ELEMENT actual is passed by reference to the
+                         element's own cell -- AB7 `call p(a(4))' emits `LXI H,A+0006 / SHLD
+                         <desc>' and PASSARAY's `call inner(argument(I))' emits the variable-index
+                         ladder then `SHLD <desc>'.  Neither allocates a value cell, unlike a call
+                         actual (`g(3)'), which DR evaluates into an anonymous temp [C145].  So the
+                         element joins the simple-actual list here; getting this wrong would add a
+                         DATA byte AND shift every later anonymous-cell number. *)
                       match arg.Ast.e with
                       | Ast.Enumber _ | Ast.Eident _ -> None
+                      | _ when is_arr_hd arg -> None
                       | _ -> let t = !cur in cur := !cur + 2; Some t)
                     args
                 in

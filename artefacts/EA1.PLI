@@ -1,0 +1,14 @@
+a: procedure options(main);
+  dcl a(5) fixed, i fixed;
+  p: procedure(x);
+    dcl x fixed;
+    x = x + 100;
+  end p;
+  a(4) = 6;
+  i = 2;
+  call p(a(4));
+  call p(a(i));
+  put skip list(a(4), a(i));
+  stop;
+end a;
+

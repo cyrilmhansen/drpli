@@ -1,0 +1,101 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: EA2
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: EA2
+
+   1 a 0000 a: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   dcl a(5) fixed, i fixed;
+   3 c 0006   a(4) = 6;
+       0006       LXI  H,A A(0000)+0006
+       0009       MVI  M,06
+       000B       INX  H
+       000C       MVI  M,00
+   4 c 000E   i = 2;
+       000E       LXI  H,0002
+       0011       SHLD I A(000A)
+   5 c 0014   call p(a(4));
+       0014       LXI  H,A A(0000)+0006
+       0017       SHLD * A(000C)
+       001A       LXI  H,* A(000C)
+       001D       CALL 0000
+   6 c 0020   call p(a(i));
+       0020       LXI  H,A A(0000)+FFFE
+       0023       PUSH H
+       0024       LHLD I A(000A)
+       0027       DAD  H
+       0028       POP  D
+       0029       DAD  D
+       002A       SHLD * A(000E)
+       002D       LXI  H,* A(000E)
+       0030       CALL P
+   7 c 0033   put skip list(a(4), a(i));
+       0033       LXI  D,0252
+       0036       LXI  B,0000
+       0039       CALL ?SYSPR
+       003C       MVI  A,01
+       003E       CALL ?SKPOP
+       0041       LHLD A A(0000)+0006
+       0044       MVI  A,09
+       0046       CALL ?QICOP
+       0049       CALL ?PNVOP
+       004C       LXI  H,A A(0000)+FFFE
+       004F       PUSH H
+       0050       LHLD I A(000A)
+       0053       DAD  H
+       0054       POP  D
+       0055       DAD  D
+       0056       MOV  E,M
+       0057       INX  H
+       0058       MOV  D,M
+       0059       XCHG 
+       005A       MVI  A,09
+       005C       CALL ?QICOP
+       005F       CALL ?PNVOP
+       0062       CALL ?QIOOP
+       0037       ==== 0065
+   8 c 0065 stop;
+       0065       CALL ?STOPX
+   9 c 0068   p: procedure(x);
+  10 e 0068     dcl x fixed;
+       0068       MOV  E,M
+       0069       INX  H
+       006A       MOV  D,M
+       006B       XCHG 
+       006C       SHLD X A(0010)
+  11 e 006F     x = x + 100;
+       006F       LHLD X A(0010)
+       0072       MOV  E,M
+       0073       INX  H
+       0074       MOV  D,M
+       0075       XCHG 
+       0076       LXI  B,0064
+       0079       DAD  B
+       007A       XCHG 
+       007B       MOV  M,D
+       007C       DCX  H
+       007D       MOV  M,E
+       007E       RET  
+  12 c 007F   end p;
+  13 a 007F end a;
+
+CODE SIZE = 007F
+DATA AREA = 0012
+FREE SYMS = 3867
+END  COMPILATION
+

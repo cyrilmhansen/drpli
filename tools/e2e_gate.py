@@ -1488,6 +1488,9 @@ for _n in ["RD1", "RD2", "RD3"]:
 _E17_REFS = {
     "ARRAY": ("e20src", "e2e214"), "PASSARAY": ("e20src", "e2e214"),
     "CONV": ("e20src", "e2e214"), "DECY": ("e20src", "e2e214"),
+    # [E2E-22/P3] AB7's shape (nested procedure declared BEFORE the main statements).  Element
+    # passing works; the append layout is what stops it -- see NEG_META["EA1"].
+    "EA1": ("e24src", "e2e234"),
 }
 for _n in ["AB%d" % i for i in range(1, 18)]:
     _E17_REFS[_n] = ("e21src", "e2e216" if int(_n[2:]) <= 7 else
@@ -1509,6 +1512,11 @@ _E17_MARKER = {
     "AB6": "ADD whose left operand must be parked across a call",
     "CB9": "pool demand/layout mismatch",
     "CB10": "decimal operation on non-decimal operand",
+    # [E2E-22] these three all stop on the SAME unproven shape now that arrays work
+    "EA1": "main-block statement after an appended procedure",
+    "AB7": "main-block statement after an appended procedure",
+    "PASSARAY": "PUT form not in E2E-3a subset",
+    "ARRAY": "PUT form not in E2E-3a subset",
 }
 for _n, (_d, _t) in _E17_REFS.items():
     _f = "%s/%s.PLI" % (_d, _n)
@@ -1898,8 +1906,9 @@ NEG_META["GW3"] = ("dr-refuses",
 # ARRAY and PASSARAY keep their slot but their pinned reason moves -- the variable-subscript gap
 # closed, so each now stops on its own NEXT missing mechanism (PUT EDIT, element-as-actual).
 for _n, _mk in [("ARRAY", "PUT form not in E2E-3a subset"),
-                ("PASSARAY", "array element passed as a procedure argument"),
-                ("AB7", "array element passed as a procedure argument"),
+                ("PASSARAY", "PUT form not in E2E-3a subset"),
+                ("AB7", "main-block statement after an appended procedure"),
+                ("EA1", "main-block statement after an appended procedure"),
                 ("AB14", "main-block statement after an appended procedure"),
                 ("AB11", "(> ")]:
     if _n in REJECTS:
@@ -1943,6 +1952,17 @@ for _n in ["AB2", "AB8", "AB10"]:
     add_spec(_n, ("%s/%s.PLI" % (_d, _n), "golden/%s/%s/%s.REL" % (_t, _n, _n)))
 for _n in ("VB1", "VB2"):
     add_spec(_n, ("e24src/%s.PLI" % _n, "golden/e2e231/%s/%s.REL" % (_n, _n)))
+# [E2E-22/P3] element-as-actual: EA2 is the Checkpoint C witness.  It passes a CONSTANT-index
+# element and a VARIABLE-index element to the same procedure, whose body does `x = x + 100'.
+# My .REL is byte-exact against DR [golden/e2e235/EA2], and both linked .COMs print
+# "106 100" -- a(4) 6->106 and a(i)=a(2) 0->100 -- so the callee demonstrably mutated the
+# ORIGINAL cells.  DR's route is the ordinary pointer-formal descriptor [C130]: LXI H,<element>
+# ; SHLD <desc> (constant, AB7) and <ladder> ; SHLD <desc> (variable, PASSARAY).  bind gives an
+# element actual NO temporary value cell, unlike a call actual [C145], which is why the
+# anonymous-cell numbering still matches -- a temp would have added a DATA byte and shifted every
+# later cell.
+add_spec("EA2", ("golden/e2e235/EA2/EA2.PLI" if os.path.exists("golden/e2e235/EA2/EA2.PLI")
+                 else "e24src/EA2.PLI", "golden/e2e235/EA2/EA2.REL"))
 # NB: specimens get NO NEG_META row -- that dict is negative evidence only, and the registration
 # guard refuses a REJECTS/NEG_META asymmetry because an unmatched entry silently changes what a
 # verdict means [C163-class bug; caught by the guard, not by review].

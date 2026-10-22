@@ -2128,25 +2128,34 @@ let rec lower_hl st (e : Ast.expr) =
              and is deliberately not landed here.  Without this guard the existing argument
              path would silently lower the element as a VALUE -- right-ish semantics, wrong
              bytes, the exact C139/C150 class -- so it refuses loudly instead. *)
-          (let bad =
-             List.exists
-               (fun a ->
-                 let a = match a.Ast.e with Ast.Econd x -> x | _ -> a in
-                 match a.Ast.e with
-                 | Ast.Esuffix (hd2, [_]) ->
-                     List.exists
-                       (fun (n, _l, _u, _e) ->
-                         String.equal n
-                           (match hd2.Ast.e with
-                            | Ast.Eident h2 -> String.lowercase_ascii h2.Ast.orig
-                            | _ -> "?"))
-                       st.arrays
-                 | _ -> false)
-               args
-           in
-           if bad then
-             failwith
-               "codegen: [TBD] array element passed as a procedure argument [C159] (DR                 stores the element ADDRESS in the call descriptor -- pointer-formal style,                 not a value read; characterized, not implemented)");
+          (* [E2E-22/P3] an array element passed as an ACTUAL is not a value read: DR hands the
+             callee the element's ADDRESS through the same call descriptor a pointer formal uses
+             [C130], so NO separate array calling convention exists.  Measured forms:
+               AB7  `call p(a(4))'  : LXI H,<a+6> ; SHLD <desc cell> ; LXI H,<desc> ; CALL p
+               PASSARAY `call inner(argument(I))':
+                                      <variable-index ladder> ; SHLD <desc cell> ; CALL inner
+             i.e. constant index loads the (statically known) element address with LXI H, and a
+             runtime index simply runs the ladder -- which already leaves the address in HL -- and
+             stores it.  Both take the DYNAMIC descriptor route (runtime SHLD, bare RELOC records,
+             no SET-LC wrapping), which is the route E27B established for a forwarded pointer
+             formal: even though an element address IS statically known, DR writes it at runtime,
+             so the descriptor word is code, not a static reloc.  Shapes that do not resolve to a
+             single element (multi-dimensional, whole-array, unbound name) refuse below through
+             resolve_suffix, which is the same single authority used everywhere else [C169]. *)
+          let elemrefs =
+            List.map
+              (fun a ->
+                let a = match a.Ast.e with Ast.Econd x -> x | _ -> a in
+                match a.Ast.e with
+                | Ast.Esuffix (hd2, args2) ->
+                    (match
+                       (try Some (resolve_suffix st hd2 args2) with _ -> None)
+                     with
+                     | Some (Suf_element _) | Some (Suf_element_dyn _) as r -> r
+                     | _ -> None)
+                | _ -> None)
+              args
+          in
           let ext = List.assoc_opt nm st.exts in
           (* [E2E-11/CALL, C122] the two disjoint procedure kinds, both from DR
              pass 2 with NO .REL emitted: see st.call_stmt's comment.  An
@@ -2276,6 +2285,47 @@ let rec lower_hl st (e : Ast.expr) =
                       route would silently let the callee read one byte of j plus
                       whatever follows, so it refuses until implemented. *)
                    let () =
+                     (* [E2E-22/P3] an element actual's width is the ARRAY element width; a formal
+                        wider or narrower than it is unmeasured (DR would widen through an
+                        anonymous cell [E29C], which needs a temp cell -- and AB7/PASSARAY show NO
+                        temp for an element), so it refuses rather than pass a short reference. *)
+                     (match List.nth elemrefs i with
+                      | Some (Suf_element _) | Some (Suf_element_dyn _) ->
+                          (* element size comes from the array list -- the same authority
+                             bind_arrays feeds to layout and to span [C167] *)
+                          let aw =
+                            match (unwrap_e arg).Ast.e with
+                            | Ast.Esuffix (hd2, _) ->
+                                (match
+                                   List.find_opt
+                                     (fun (n, _l, _u, _e) ->
+                                       String.equal n
+                                         (match hd2.Ast.e with
+                                          | Ast.Eident h2 ->
+                                              String.lowercase_ascii h2.Ast.orig
+                                          | _ -> "?"))
+                                     st.arrays
+                                 with
+                                 | Some (_n, _l, _u, e2) -> e2
+                                 | None -> 2)
+                            | _ -> 2
+                          in
+                          (match callee_formal_rt st nm i with
+                           | Some (Bind.RTbin p) ->
+                               let fw = Bind.bytes_of (Bind.RTbin p) in
+                               if fw <> aw then
+                                 failwith
+                                   ("codegen: [TBD] fixed(" ^ string_of_int p
+                                      ^ ") formal against an array element of "
+                                      ^ string_of_int aw
+                                      ^ " bytes [E2E-22/P3]: DR's widening route for a narrow "
+                                      ^ "actual copies through an anonymous cell [E29C], which is "
+                                      ^ "unmeasured for elements; refused (line "
+                                      ^ string_of_int arg.Ast.epos.Source.line ^ ")")
+                           | _ -> ())
+                      | _ -> ())
+                   in
+                   let () =
                      match (unwrap_e arg).Ast.e with
                      | Ast.Eident v ->
                          let aw =
@@ -2368,6 +2418,11 @@ let rec lower_hl st (e : Ast.expr) =
                                pool_alloc st
                                  [| kv land 0xff; (kv lsr 8) land 0xff |]
                              end
+                         | Ast.Esuffix _
+                           when (match List.nth elemrefs i with
+                                 | Some _ -> true
+                                 | None -> false) ->
+                             0 (* the address route below ignores target *)
                          | Ast.Eident v ->
                              let vn =
                                String.lowercase_ascii v.Ast.orig
@@ -2412,10 +2467,20 @@ let rec lower_hl st (e : Ast.expr) =
                           one address: mine disagreed with themselves, which no
                           comparison against DR could ever have to forgive. *)
                        d st op_shld; reloc st Data (slot + 2 * i)
-                   | None ->
+                   | None -> (
+                     match List.nth elemrefs i with
+                     | Some (Suf_element ea) ->
+                         (* [AB7] LXI H,<a+off> ; SHLD <desc cell> *)
+                         d st op_lxi_h; reloc st Data ea;
+                         d st op_shld; reloc st Data (slot + 2 * i)
+                     | Some (Suf_element_dyn r) ->
+                         (* [PASSARAY] the ladder already leaves the element ADDRESS in HL *)
+                         dyn_addr st r;
+                         d st op_shld; reloc st Data (slot + 2 * i)
+                     | _ ->
                        link st t_set_lc (Some (Data, slot + 2 * i)) None;
                        push st (Reloc (Data, target));
-                       link st t_set_lc (Some (Code, st.lc)) None)
+                       link st t_set_lc (Some (Code, st.lc)) None))
                  pairs;
                (* [E2E-11/CALL, E24A/E24J] a zero-argument call has NO
                   descriptor and no `LXI H` at all -- `call q;` and `n = f();`
