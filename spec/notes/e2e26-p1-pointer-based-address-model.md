@@ -132,8 +132,21 @@ call site executed per iteration [PB8: preceded by `JP` from the loop test].  He
   row now carries this result.  (Instruction from the milestone brief: a compiler anomaly must not be
   turned into a general language rule -- that cuts both ways, including against a stale row.)
 
-* Structure-based storage and `allocate <structure> set(p)` -- DR refuses all three spellings tried
-  (PB10/PB16/PB17), so P4's linked-list node is blocked on DR itself, not on my binder.
+* **[E2E-27] WITHDRAWN** -- Structure-based storage and `allocate <structure> set(p)`. This line
+  said DR refuses all three spellings tried (PB10/PB16/PB17) and that P4 was blocked on DR itself.
+  It is wrong, and the correct conclusion is claim C185. DR accepts level-numbered based structures:
+  `REVERSE.PLI` and `NETWORK.PLI` -- both in artefacts/ throughout every milestone -- declare
+  `1 wordnode based(sentence), 2 word character(30) varying, 2 next pointer' and
+  `1 city_node based, ...' and compile with no errors and a .REL (REVERSE's object regenerated:
+  golden/e2e319d). PB10/PB16/PB17 failed on declaration SPELLING; ST11 isolates PB16's
+  `declare nb based(pn) nd' and DR still rejects THAT, so one spelling is genuinely absent while
+  structures are present. E2E-27 implements based structures with FIXED and POINTER members
+  byte-exactly, and LN1 -- two linked records, link followed, second record modified through it --
+  is byte-exact AND runs identically when linked from my .REL and from DR's.
+  The mistake's shape is what is worth keeping: three refusals from three spellings of MY OWN
+  invention, generalised into a language limit, while two working programs sat in a corpus I had
+  been citing for three milestones. A negative about a language feature needs the feature's own
+  documentation or a working program as its control, not only probes I picked.
 * Pointer arithmetic (`p = p + 2`, `+=`): unprobed, PERIMETER row 58 still open.
 * Freeing twice, dereferencing a null or freed pointer: not probed -- unsafe to run and DR's behaviour
   is not demonstrable in isolation.
