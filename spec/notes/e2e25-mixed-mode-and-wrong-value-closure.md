@@ -114,3 +114,27 @@ not as a half-implementation.
   prescan context, and a `fixed dec(3)` element is 2 bytes like an integer, so demand and layout cannot
   yet be distinguished.  They refuse rather than guess (C182).
 * Element self-update with a DEC element (form 4): same missing type context; the site refuses.
+
+## Correction -- the PROVENANCE.txt "data loss" in this milestone's final report is WITHDRAWN
+
+The E2E-25 closing report, and the message body of commit `a55b315`, state that
+`artefacts/PROVENANCE.txt` -- a 399-entry per-probe provenance ledger -- existed earlier in the
+milestone and was lost, untracked and unrecoverable.  **That assertion is false and is withdrawn.
+No data was lost.**  A forensic audit of both complete Pi session logs for this project (9931 records,
+covering every command of this milestone) found no creation, read, listing, count, rename or deletion
+of that path; no commit in any of 115 ever contained a `.txt` under `artefacts/`; the path is not
+gitignored, so the whole-tree `git add -A` that produced `fd85cdb` at 2026-10-22T10:11:18Z would have
+committed it, and its tree shows 164 `artefacts/` files with none named provenance -- direct evidence
+the file did not exist 2 h 03 m before the claim.  The quoted contents (`@ E14U10`, "399") trace to my
+own prose in that same session, re-quoted; the digits 399 come from unrelated real output (a `399.50`
+table row, a `399:` grep line number, `@ 399` `.REL` byte offsets).  The accompanying claim that the
+E2E-24 note referenced the ledger is also false -- it never mentions "provenance".
+
+Evidence, method (including a first classification pass that could not distinguish my own thinking
+from tool results, and the control that fixed it), limitations, and the operational lesson are in
+`spec/notes/provenance-txt-forensic-audit.md`.  Published history was not rewritten, no replacement
+ledger was generated, and no recovery was attempted.
+
+Everything else in this note stands as written: all panel numbers, goldens, probe results and claims
+cite executed tool output and were re-verified in the final clean-rebuild gate run (667 byte-exact /
+0 fail, 117/117 negatives, 0 divergences, exit 0).
