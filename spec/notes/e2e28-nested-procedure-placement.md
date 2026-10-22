@@ -160,3 +160,46 @@ member addressing at offsets beyond the sampled `INX H` cases; `repeat(...) whil
 shows the macro value 20 for citysize is *already* handled where it appears in a declaration); GET
 stream input; the E2E-3b condition subset; and NETWORK as a whole, which remains a specification with
 no DR `.REL` oracle.
+
+## 6. Follow-on: based-member addressing by offset (found while protecting the new layout)
+
+With procedure placement fixed, the next thing that would bite a linked structure is member
+addressing at an offset my probes never reached. Four probes say what DR does
+(`golden/e2e333d/O1-O4`, `golden/e2e334d/O5-O8`):
+
+| offset | DR's encoding | evidence |
+|---|---|---|
+| 0 | `LHLD <qual>` then the store/read directly | ST1 `.val`, REVERSE `.word` |
+| 2 | `LHLD <qual> / INX H` | ST3/LN1 `.link`, ST6 `.B`, O3, O8 |
+| 3 | `LHLD <qual> / INX H / INX H / INX H` | ST6 `.C` |
+| 4 | `LHLD <qual> / LXI D,0004 / DAD D` | O5 (store), O2 |
+| 6 | `LHLD <qual> / LXI D,0006 / DAD D` | O4, O1, O6 (read) |
+| 31 = `001F` | `LHLD <qual> / LXI D,001F / DAD D` | REVERSE `.next` |
+
+So the crossover is at 4 — offsets ≤ 3 step, ≥ 4 add — and at offset 4 both forms cost 4 bytes with
+DR still choosing `DAD`, which is why the boundary is recorded as observed rather than as a cost
+model I inferred. Byte-exact after this: **O3, O5, O6, O8**.
+
+**Two duplicate encoders were found and folded into one** (`member_step`). The offset had been written
+out as an inline `for _ = 1 to k do d st 0x23 done` loop at two read sites while the store path
+carried a third copy — so `O5` (offset 4 store) already took `LXI D / DAD D` while `O6` (offset 6
+read) emitted six `INX H`. A store reaching a member one way and a read of the *same* member another
+way is C179's argument for one encoder, arriving in instruction selection rather than pool layout.
+
+**O1, O2, O4 are registered as `builds-shape-diverges`, all three at exactly +3 code bytes with the
+data area matching (6/6).** The cause is in the listings: DR keeps the member *offset* live in DE and
+reuses it, so its second `DAD D` has no preceding `LXI D` — O2 stores `c` at offset 4
+(`LHLD H / LXI D,0004 / DAD D / MVI M,15 / INX H / MVI M,00`, 000F-0019) and reads `c` as
+`LHLD H / DAD D / MOV E,M / INX H / MOV D,M / XCHG` (001B-0022), with no reload even though the
+intervening `LHLD` clobbered HL. Mine reloads the offset every access, costing one `LXI D` (3 bytes)
+per reuse — and all three probes land at +3, i.e. one reuse each, which is what makes the attribution
+safe rather than plausible. Reproducing it needs a DE-liveness model across `LHLD`/`MVI`/`INX`/`CALL`,
+and I have no sample establishing what clobbers DE (REVERSE does *not* reuse across its `CALL`s). I am
+not guessing a liveness rule into the shared encoder while seven accepted structure probes depend on
+it, so the shape is pinned instead [C140, C168, C179].
+
+One more instance of an old trap, logged because it is the third time: my regression check reported
+"LN1 REGRESSED" — the shell loop pointed LN1 at `golden/e2e324d/LN1/LN1.REL`, which does not exist
+(LN1 is in `e2e325d`), and `cmp` against a missing file reads as a difference. `cmp` against the right
+path says byte-identical. A negative from an instrument pointed at nothing is not evidence; check the
+path exists before believing the verdict.

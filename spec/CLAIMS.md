@@ -3692,3 +3692,17 @@ plus a marker fragment taken from the compiler's ACTUAL stderr.
   `e2e28-...` §0; the corrected quotes carry line numbers now), and measurements must be labelled with
   the quantity they measure, because "data 8" and "DATA AREA 0020" are not in conflict -- one is
   automatic storage, the other the whole data segment.
+
+- **C189** *(E2E-28, based-member addressing and one encoder for it)* DR steps a record address to a
+  member with `INX H` repeated for offsets ≤ 3 and with `LXI D,<offset> / DAD D` for offsets ≥ 4 --
+  measured on both sides of the boundary: offset 2 (ST3/LN1 `.link`, ST6 `.B`, O3, O8), offset 3 (ST6
+  `.C`, three INX H), offset 4 (O5 store, O2), offset 6 (O4/O1 store, O6 read), offset 001F (REVERSE
+  `.next`).  At offset 4 both encodings cost 4 bytes and DR still takes `DAD`, so the boundary is the
+  observation, not a cost model.  The rule lives in ONE encoder (`member_step`); before this it was
+  three inline `for _ = 1 to k do d st 0x23 done` loops -- two read sites and one store site -- which
+  had already diverged in behaviour: O5 (offset 4 store) took the DAD route while O6 (offset 6 read)
+  emitted six INX H.  That is C179's one-encoder requirement showing up in instruction selection: any
+  property enforced at several written-out copies will eventually be enforced differently by each.
+  DR additionally keeps the offset live in DE across an intervening `LHLD` and reuses it (O2: `DAD D`
+  with no reload at 001E), which is a register-liveness fact I cannot characterise from the samples I
+  have; O1/O2/O4 are therefore pinned as +3-byte divergences rather than fitted by a guessed model.
