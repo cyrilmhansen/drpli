@@ -771,6 +771,23 @@ let bcd_pack (k : int) (p : int) =
   Array.init nbytes (fun b -> ((nib (2 * b + 1)) lsl 4) lor (nib (2 * b)))
 
 
+(* [E2E-24] moved above every user so that the PRESCAN demand and the LOWERING layout
+   encode through ONE function: demand and layout may not be two rules that happen to
+   agree [C155/C162]. *)
+let bcd_pack_scaled (v : int) (p : int) =
+  let nbytes = dec_pool_bytes p in
+  let ds = string_of_int v in
+  if String.length ds > p then
+    failwith "codegen: DEC literal does not fit its precision [TBD]";
+  let digs =
+    Array.init p (fun i ->
+      let j = i - (p - String.length ds) in
+      if j >= 0 then Char.code (String.get ds j) - 48 else 0)
+  in
+  let lsf = Array.to_list digs |> List.rev in
+  let nib i = try List.nth lsf i with _ -> 0 in
+  Array.init nbytes (fun b -> ((nib (2 * b + 1)) lsl 4) lor (nib (2 * b)))
+
 (* sum of decimal-pool bytes required by literal-base ** over all stmts
    (pure pre-scan, no side effects; mirrors pool_alloc ordering). *)
 
@@ -1022,6 +1039,7 @@ type pdec_ctx =
   ; pd_procs : (string * (int * int) option) list
   ; pd_ret : (int * int) option
   ; pd_dec : (int * int * int) list ref
+  ; pd_img : int list list ref  (* [E2E-24] DEC-literal cells counted by BYTE IMAGE *)
   ; pd_str : string list ref            (* [E2E-16/C152] string contents already demanded *)
   ; pd_fl : int list list ref
       (* [E2E-10] float literal cell byte-images already counted, so pool
@@ -1072,12 +1090,49 @@ let pdec_dec_cell cx (p : int) (sc : int) (text : string) : int =
   if ls > sc then 0          (* the lowering refuses this case *)
   else begin
     let key = (p, sc, mag * pdec_pow10 (sc - ls)) in
-    if List.mem key !(cx.pd_dec) then 0
-    else (cx.pd_dec := key :: !(cx.pd_dec); dec_pool_bytes p)
+    (* [E2E-24] dedup is on the ENCODER'S BYTE IMAGE, which is what the lowering's st.dec_cells
+       table is keyed on and what DR dedups on: LQ6 stores `032768' (p=6) then `0032768' (p=7) --
+       different precisions, identical 4-byte image, ONE cell -- and LQA shares a cell between a
+       dec(5) store and an integer store of the same literal.  The old (p,sc,magnitude) triple
+       counted those as two cells while the layout emitted one, so prescan over-demanded.  The
+       triple is still what the value is ENCODED from; only the key changes. *)
+    ignore key;
+    let img = Array.to_list (bcd_pack_scaled (let (_, _, z) = key in z) p) in
+    if List.mem img !(cx.pd_img) then 0
+    else (cx.pd_img := img :: !(cx.pd_img); List.length img)
   end
 
 (* parenthesised expressions arrive Econd-wrapped [N304]; prescan must
    see through them exactly like lowering does *)
+
+(* [E2E-24/C178] DR's bin(15) threshold: a FIXED literal <= 32767 goes in as an immediate and
+   >= 32768 becomes a packed-decimal cell converted at run time.  ML9/ML10 measure the boundary
+   at 32767/32768 exactly; ML10 (32768) is the first value on the decimal route. *)
+let bin15_fits (v : int) = v >= -32768 && v <= 32767
+
+(* [E2E-24/C178] the precision of a DEC cell holding a literal is the DIGIT COUNT OF THE TEXT,
+   leading zeros included: LP15 (`y = 0000032768') allocates a 6-byte cell for p=10 where LP2
+   (`y = 32768') allocates 3 for p=5, and the values are identical. *)
+let lit_dec_p (text : string) =
+  let ds = String.concat "" (String.split_on_char '_' text) in
+  max 1 (String.length ds)
+
+let lit_dec_image (v : int) (text : string) =
+  Array.to_list (bcd_pack_scaled v (lit_dec_p text))
+
+(* [E2E-24/C178] DEMAND for the decimal cell an overflow literal takes when it is STORED into an
+   integer target.  Keyed on the byte image, because DR dedups on image, not on (p, value):
+   LP1 (`y = 32768; y2 = 32768') and LQ6 (`032768' then `0032768', p=6 and p=7, same 4-byte image)
+   each get ONE cell.  It shares cx.pd_img with pdec_dec_cell, which is what lets a dec(5) store
+   and an integer store of the same literal share one cell as DR does [LQA]. *)
+let pdec_int_lit_cell (cx : pdec_ctx) (text : string) : int =
+  let v, _own, _ls = dec_lit_value text in
+  if bin15_fits v then 0
+  else
+    let img = lit_dec_image v text in
+    if List.mem img !(cx.pd_img) then 0
+    else (cx.pd_img := img :: !(cx.pd_img); List.length img)
+
 (* [E2E-10] count the pool bytes for one FLOAT literal occurrence: 4 if the
    byte image is new, 0 if that identical cell was already counted.  The
    bytes come from the SAME encoder the lowering uses, so demand and layout
@@ -1730,7 +1785,15 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
              | _ ->
                  let r = pdec_unwrap rhs in
                  match r.Ast.e with
-                 | Ast.Enumber _ | Ast.Eident _ -> 0
+                 (* [E2E-24/C178] a bare literal under an INTEGER target used to allocate nothing
+                    at lowering (`LXI H,immediate').  It now allocates a decimal cell when the
+                    value is out of bin(15) range, so the demand is made HERE -- at the store, where
+                    the lowering decides the same thing.  This position is deliberately NOT put in
+                    prescan_expr: that walker recurses into operands, and `y = x + 32768' lowers by
+                    the C150 constant-operand path, which allocates nothing, so an Enumber arm there
+                    over-demanded and made previously-building programs fail the pool invariant. *)
+                 | Ast.Enumber t -> pdec_int_lit_cell cx t
+                 | Ast.Eident _ -> 0
                  | _ -> if pdec_is_dec cx r then pdec_operand_bytes cx r else 0)
         | _ -> 0
       in
@@ -3130,20 +3193,6 @@ let is_small_int st (n : Ast.name) =
    refused loudly. *)
 
 (* little-endian packed BCD of the ALREADY-SCALED magnitude v *)
-let bcd_pack_scaled (v : int) (p : int) =
-  let nbytes = dec_pool_bytes p in
-  let ds = string_of_int v in
-  if String.length ds > p then
-    failwith "codegen: DEC literal does not fit its precision [TBD]";
-  let digs =
-    Array.init p (fun i ->
-      let j = i - (p - String.length ds) in
-      if j >= 0 then Char.code (String.get ds j) - 48 else 0)
-  in
-  let lsf = Array.to_list digs |> List.rev in
-  let nib i = try List.nth lsf i with _ -> 0 in
-  Array.init nbytes (fun b -> ((nib (2 * b + 1)) lsl 4) lor (nib (2 * b)))
-
 let dec_pool st ~prec ~scale ~text =
   let (mag, _own, ls) = dec_lit_value text in
   if mag < 0 || ls > scale then
@@ -4749,6 +4798,32 @@ let lower_test_skip st (c : Ast.expr) =
    lowering of constants outside fixed()'s range is unimplemented here.  Mine stores the
    two's-complement value directly, which is arithmetically the same number, so this is byte
    divergence, not a wrong value -- verified by running them, not by reasoning. *)
+(* [E2E-24/C178] DR's route for a FIXED literal too large for bin(15): the value lives in a
+   packed-decimal pool cell and is converted in HL at run time by `?DLDOP' (packed -> binary) then
+   `?QDI15' (round to 16-bit integer).  `MVI A,p' carries the DIGIT COUNT, taken from the literal's
+   TEXT, so `0000032768' says 10 and gets a 6-byte cell while `32768' says 5 and gets 3 [LP15/LP2];
+   leading zeros are insignificant to the VALUE but decisive for the cell [C178].
+   The cell is deduped on byte image through st.dec_cells, the same table the DEC-operand layout
+   uses, so DR's sharing across declaration kinds is reproduced [LP1/LQ6/LQA].
+   `st.last_imm <- None' is deliberate: LP1 stores 32768 twice and DR re-emits the WHOLE route
+   rather than reusing HL, so the constant-reuse facts [C177] do not survive ?QDI15. *)
+let lit_dec_to_hl st (text : string) (v : int) =
+  let p = lit_dec_p text in
+  let bytes = bcd_pack_scaled v p in
+  let key = Array.to_list bytes in
+  let addr =
+    match List.assoc_opt key st.dec_cells with
+    | Some a -> a
+    | None ->
+        let a = pool_alloc st bytes in
+        st.dec_cells <- (key, a) :: st.dec_cells;
+        a
+  in
+  d st op_lxi_h; reloc st Data addr;
+  d st op_mvi_a; d st p; call_ext st "?DLDOP";
+  call_ext st "?QDI15";
+  st.last_imm <- None
+
 let hl_const st k =
         match st.last_imm with
 
@@ -4838,6 +4913,13 @@ let lower_store_ptr st (lhs_orig : string) (rhs : Ast.expr) =
       | _ -> lower_hl st rhs; store_reload ()
       end
   | _ -> lower_hl st rhs; store_reload ()
+
+(* [E2E-24/C178] the single dispatcher for "put this integer literal into HL at a store".
+   In range it is DR's constant-reuse ladder [C177] untouched; out of range it is the decimal-cell
+   route [C178].  Every store position goes through here so the threshold is decided in one place. *)
+let int_lit_to_hl st (text : string) =
+  let v = parse_int_const text in
+  if bin15_fits v then hl_const st v else lit_dec_to_hl st text v
 
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
   match lhs.Ast.e with
@@ -5022,7 +5104,7 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
 
 
       (match rhs.Ast.e with
-       | Ast.Enumber s -> hl_const st (parse_int_const s)
+       | Ast.Enumber s -> int_lit_to_hl st s
        | Ast.Ebinary ((Ast.Add | Ast.Sub as op), { Ast.e = Ast.Eident m; _ },
                       { Ast.e = Ast.Enumber ks; _ })
          when String.lowercase_ascii m.Ast.orig
@@ -5209,6 +5291,12 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                added bytes instead of removing them, and left HL holding a stray reload).
                For a non-literal rhs nothing changes: lower_hl, and the fact is cleared because
                the result is not a constant we know the value of. *)
+            (* [E2E-24] deliberately HEAD's route, NOT int_lit_to_hl.  Routing the element store
+               made `z(1) = 32768' FAIL THE POOL INVARIANT (prescan 0 bytes, lowering 3) because the
+               prescan cannot see an array's element type -- pdec_ctx carries scalar kinds only -- so
+               it cannot tell whether the offset-0 form is a fixed element that would take a cell.
+               A program that used to build must not start refusing, so this position is left alone
+               and recorded in DIVERGENT.txt: DR converts, mine stores the truncated immediate. *)
             (match (unwrap_e rhs).Ast.e with
              | Ast.Enumber s -> hl_const st (parse_int_const s)
              | _ -> st.last_imm <- None; lower_hl st rhs);
@@ -5223,8 +5311,14 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                reloaded with the element ADDRESS -- and ZK6 measures that DR stops reusing after
                exactly that: `x=1; y=2; a(2)=7; z=3' gives `... LXI H,<addr> / MVI M,... / INX H /
                MVI M,... / LXI H,0003 / SHLD Z', a fresh load for z. *)
+            (* [E2E-24] maintains ONLY the register fact; the value was emitted above.  This used to
+               CALL THE EMITTER again, which was harmless for in-range constants -- hl_const's first
+               arm matches a repeated value and emits nothing -- but re-emitted DR's entire decimal
+               conversion for `z(1) = 32768'.  After ?QDI15 the value is not a constant fact DR is
+               known to keep, so the fact is dropped rather than asserted. *)
             (match (unwrap_e rhs).Ast.e with
-             | Ast.Enumber s -> hl_const st (parse_int_const s)
+             | Ast.Enumber s -> hl_const st (parse_int_const s)   (* [E2E-24] reverted with the
+                emit above: this block now matches HEAD exactly, including the fact it sets *)
              | _ -> ())
           end
           else
@@ -6902,7 +6996,7 @@ let emit_program (progname : string) (auto_bytes : int)
   in
   let pool_total =
     prescan_pool { pd_vars; pd_procs; pd_ret = top_dec_ret
-                    ; pd_dec = ref []; pd_str = ref []; pd_fl = ref []; pd_fl_ret = top_fl_ret
+                    ; pd_dec = ref []; pd_img = ref []; pd_str = ref []; pd_fl = ref []; pd_fl_ret = top_fl_ret
                     ; pd_fl_procs
                     ; pd_callee_rt =
                         (fun nm i -> callee_formal_rt_l layout nm i) }

@@ -1,0 +1,7 @@
+a: procedure options(main);
+  dcl x fixed, y fixed, d fixed dec(5);
+  d = 32768;
+  y = 32768;
+  stop;
+end a;
+

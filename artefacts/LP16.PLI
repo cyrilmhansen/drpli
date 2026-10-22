@@ -1,0 +1,11 @@
+a: procedure options(main);
+  dcl x fixed, y fixed, y2 fixed, d fixed dec(9), z(3) fixed, i fixed;
+  x = 1;
+  call p(32768);
+  stop;
+  p: procedure (a);
+    dcl a fixed;
+    y = a;
+  end p;
+end a;
+

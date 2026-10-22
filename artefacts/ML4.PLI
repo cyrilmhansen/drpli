@@ -1,0 +1,7 @@
+a: procedure options(main);
+  dcl x fixed, y fixed;
+  y = 0123456789;
+  put skip list(y);
+  stop;
+end a;
+

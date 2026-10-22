@@ -3451,3 +3451,47 @@ C177 [E2E-23, probes ZK1-ZK12 + AB19/AB21/RT1 all byte-exact and all RUN, mine v
   (unproven conditions in instruction selection get trusted later) and the three probes are pinned
   in DIVERGENT.txt as their own open item.  The proximate cause of the misreading was a
   disassembly listing misaligned by SHLD's relocation operands: check bytes, not listings.
+
+C178 [E2E-24, 26 byte-exact probes + 8 executed witnesses: ML1-ML15, MN1-MN8, LP1-LP16, LQ1-LQA]
+  DR's route for a FIXED literal outside bin(15) is a packed-decimal pool cell converted at run
+  time, NOT a wider immediate: `LXI H,*cell / MVI A,<digit count> / CALL ?DLDOP / CALL ?QDI15`.
+  The trigger is the VALUE (ML9 32767 immediate, ML10 32768 decimal -- the boundary is exact, and
+  `fixed bin(31)' is `NOT IMP' in DR's own listing, so no immediate fallback exists). The cell's
+  PRECISION is the DIGIT COUNT OF THE TEXT, leading zeros included: `32768' is p=5/3 bytes and
+  `0000032768' is p=10/6 bytes for the same value (LP2 vs LP15). Nibbles run least-significant
+  digit first and the final nibble is the sign (0 positive, 9 negative, ten's complement in p
+  digits) -- LP1's 32768 cell is `68 27 03'. Dedup is on the ENCODER'S BYTE IMAGE, not on
+  (precision, value): LP1 (`32768' twice), LQ6 (`032768' p=6 then `0032768' p=7, identical images)
+  and LQA (a dec(5) store and an integer store of the same literal) each get ONE shared cell, so
+  the dedup table crosses declaration kinds. The route is context-free -- assignment, ADD/SUB
+  operand (LP4 XCHG, LP5/LP9 PUSH H...POP D), condition, call argument, element store, multiply --
+  and C177's HL-constant reuse does NOT survive it: LP1 stores 32768 twice and DR re-emits the
+  whole route rather than reusing HL, so the register fact is dropped, not asserted.
+  DECISIVE, and the reason byte parity here is not cosmetic: at run time DR ABORTS on every
+  overflow case with `ERROR (1), Conversion' plus a traceback. The previous build silently
+  truncated and printed a wrong number (ML1 printed `723'). Reproducing the route is what makes
+  the failure mode match; mine now produces byte-identical output to DR's own .COM on ML3, ML4,
+  ML15, ZK8, ZK10, ZK11, LP15 and LQA. This claim covers the STORE position only; the operand
+  positions remain unrouted and are pinned as WRONG-VALUE rows in DIVERGENT.txt, never as
+  acceptable differences. ZK8/ZK10/ZK11 -- E2E-23's three divergences -- were never waiting on a
+  register optimiser [C168's assumption was wrong]; they were waiting on this route.
+
+C179 [E2E-24, four self-inflicted regressions, each caught by a different guard]
+  A pool DEMAND must be made at exactly the AST position whose LOWERING allocates, and prescan
+  walkers that RECURSE INTO OPERANDS are the wrong place. Putting a bare `Enumber` arm in
+  prescan_expr over-counted every ADD/SUB constant, because those lower through the C150
+  constant-operand path, which allocates no cell: prescan demanded 6 bytes, layout produced 0, and
+  programs that had built at HEAD (ML1/ML2/ML5/ML8/LQ5) began failing the pool invariant. A patch
+  script applied twice inserted TWO such arms and doubled the demand further -- found by reading
+  the diff, not by reasoning about the rule. Consequences pinned as rules: (a) making
+  previously-building programs fail an INTERNAL consistency check is never an acceptable trade for
+  one more exact probe -- the element-store route was byte-exact at one point and was deliberately
+  REVERTED because its demand could not be made (pdec_ctx carries scalar kinds only, so prescan
+  cannot know an array's element kind); (b) demand and layout must share one encoder, which is why
+  bcd_pack_scaled moved above every user rather than being duplicated [C155/C162]; (c) verify a
+  change by recompiling the whole probe set with BOTH binaries and diffing the classification, not
+  by trusting that unrelated positions are untouched -- that comparison is the only thing that
+  proved the regressions gone; (d) a measurement whose every row reports the same number is a
+  broken generator, not a law of nature: a variant script built with text-mode reads and `\r\n`
+  patterns silently produced nine copies of one input file, and a shell loop that failed to reset
+  its source variable reported twelve nonexistent regressions.

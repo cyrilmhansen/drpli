@@ -1,0 +1,6 @@
+a: procedure options(main);
+  dcl y fixed;
+  y = -5;
+  stop;
+end a;
+

@@ -1,0 +1,6 @@
+a: procedure options(main);
+  dcl x fixed, y fixed, y2 fixed, d fixed dec(9), z(3) fixed, i fixed;
+  y = 32768 + 65535;
+  stop;
+end a;
+

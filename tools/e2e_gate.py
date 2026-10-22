@@ -1809,11 +1809,23 @@ NEG_META = {
      "DR REFUSES: TYPES NOT= (golden/negpanel1/NG64/NG64.PRN)"),
 }
 # [E2E-13] merged after the literal so the E13 block can sit above it.
+
+# [E2E-24/C178] verdict evidence for the six E2E-24 probes that refuse.  All six are# programs DR COMPILED (goldens exist), so each is `my-gap': a designed [TBD] guard of mine,# never a pool-invariant failure.  Recorded here because REJECTS without NEG_META loses the# DR-vs-me verdict, which is the whole content of a negative [C139].
+NEG_META_E24 = {
+    'LP3': ("my-gap", 'DR compiles it (golden/e2e246/LP3) and lowers `32768 + 65535\' to the DECIMAL POOL chain (?DLDOP both, one ?DADOP, ?QDI15).  My refusal is the designed C148/N301 guard: FIXED ADD of two integer literals has no measured fold, while `0 - 7\' [N301] and `e = 0 - 2\' [N306] DO fold -- the rule is asymmetric, so it stays refused rather than guessed.  Unrelated to the bin(15) route: this shape refused at HEAD too.'),
+    'LP7': ("my-gap", 'DR compiles it (golden/e2e246/LP7).  Mine refuses with C161\'s designed guard `decimal operation on non-decimal operand x\': `x\' is FIXED BINARY in a DEC-typed expression, which is exactly the mixed-mode conversion this step\'s Priority 3 would implement.  Refusing is correct: the conversion route is unmeasured, and the value would otherwise be computed wrong.'),
+    'LP10': ("my-gap", 'DR compiles it (golden/e2e246/LP10).  LP10\'s only statement is `put skip list(32768)\' -- a literal as a PUT item, exactly the position this step deliberately does NOT route, so the probe says nothing about the decimal route until that PUT form lands.  Registered so the refusal is tracked rather than lost.'),
+    'LP13': ("my-gap", 'DR compiles it (golden/e2e246/LP13).  Mine refuses with the designed MB31 threshold guard: MULTIPLY by a literal >= 32768 goes through the DEC pool (`PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / POP D / ?IM22N\') and that composition is measured only for MB31 itself, so it is refused rather than extrapolated.  LP13 is `x = 2; y = x * 32768\' -- multiply by an out-of-range constant, which is the position Priority 3 has not implemented.'),
+    'ML6': ("my-gap", 'DR compiles it (golden/e2e244/ML6).  Mine refuses with the encoder\'s designed guard `DEC literal does not fit its precision [TBD]\': the literal has more digits than the declared precision, which DR\'s ?DLDOP accepts silently.  A value that cannot be packed is never emitted as a wrong packing.'),
+    'ML7': ("my-gap", 'DR compiles it (golden/e2e244/ML7).  ML7 is `dcl b fixed bin(15), d fixed dec(3); b = d + 1234567890\': the 10-digit literal is packed against the dec(3) operand precision in DR\'s DEC chain, which my encoder declines. ML6 hits the same guard through `y = d + 1234567890\' with `d\' dec(5).  Both are tracked so neither is mistaken for the pool invariant.'),
+}
+
 NEG_META.update(NEG_META_E13)
 NEG_META.update(NEG_META_E15)
 NEG_META.update(NEG_META_E16)
 NEG_META.update(NEG_META_E17)
 NEG_META.update(NEG_META_E19)
+NEG_META.update(NEG_META_E24)
 
 
 
@@ -2121,6 +2133,44 @@ for _n, _marker in [("AV1", "TBD]: POINTER"),            # ALLOCATE/FREE: bind w
 #     makes one of these byte-exact (then it must be promoted) or makes one refuse (then it is
 #     stale), the gate stops rather than letting it drift silently.
 DIVERGENT_FILE = os.path.join(ROOT, "spec", "DIVERGENT.txt")
+
+# [E2E-24/C178] DR's out-of-range FIXED literal route (decimal pool cell + ?DLDOP/?QDI15).
+# 23 store-position probes are byte-exact and are promoted; the 6 refusals below are ALL
+# pre-designed [TBD] guards (PUT subset, multiply threshold, const-const ADD, non-decimal
+# operand, literal-not-fitting-precision) that these probes happen to exercise -- none is a
+# pool-invariant failure.  The remaining shapes are in spec/DIVERGENT.txt with measured bytes.
+# [E2E-24] registered by the E2E-24 step-1/step-2 pass.
+add_spec('LP1', ('artefacts/LP1.PLI', 'golden/e2e246/LP1/LP1.REL'))
+add_spec('LP15', ('artefacts/LP15.PLI', 'golden/e2e246/LP15/LP15.REL'))
+add_spec('LP2', ('artefacts/LP2.PLI', 'golden/e2e246/LP2/LP2.REL'))
+add_spec('LP6', ('artefacts/LP6.PLI', 'golden/e2e246/LP6/LP6.REL'))
+add_spec('LQ1', ('artefacts/LQ1.PLI', 'golden/e2e247/LQ1/LQ1.REL'))
+add_spec('LQ3', ('artefacts/LQ3.PLI', 'golden/e2e247/LQ3/LQ3.REL'))
+add_spec('LQ6', ('artefacts/LQ6.PLI', 'golden/e2e247/LQ6/LQ6.REL'))
+add_spec('LQ7', ('artefacts/LQ7.PLI', 'golden/e2e247/LQ7/LQ7.REL'))
+add_spec('LQ8', ('artefacts/LQ8.PLI', 'golden/e2e247/LQ8/LQ8.REL'))
+add_spec('LQ9', ('artefacts/LQ9.PLI', 'golden/e2e247/LQ9/LQ9.REL'))
+add_spec('LQA', ('artefacts/LQA.PLI', 'golden/e2e247/LQA/LQA.REL'))
+add_spec('ML15', ('artefacts/ML15.PLI', 'golden/e2e244/ML15/ML15.REL'))
+add_spec('ML3', ('artefacts/ML3.PLI', 'golden/e2e244/ML3/ML3.REL'))
+add_spec('ML4', ('artefacts/ML4.PLI', 'golden/e2e244/ML4/ML4.REL'))
+add_spec('ML9', ('artefacts/ML9.PLI', 'golden/e2e244/ML9/ML9.REL'))
+add_spec('MN1', ('artefacts/MN1.PLI', 'golden/e2e245/MN1/MN1.REL'))
+add_spec('MN2', ('artefacts/MN2.PLI', 'golden/e2e245/MN2/MN2.REL'))
+add_spec('MN3', ('artefacts/MN3.PLI', 'golden/e2e245/MN3/MN3.REL'))
+add_spec('MN4', ('artefacts/MN4.PLI', 'golden/e2e245/MN4/MN4.REL'))
+add_spec('MN5', ('artefacts/MN5.PLI', 'golden/e2e245/MN5/MN5.REL'))
+add_spec('MN6', ('artefacts/MN6.PLI', 'golden/e2e245/MN6/MN6.REL'))
+add_spec('MN7', ('artefacts/MN7.PLI', 'golden/e2e245/MN7/MN7.REL'))
+add_spec('MN8', ('artefacts/MN8.PLI', 'golden/e2e245/MN8/MN8.REL'))
+for _n, _g in (('ZK8','golden/e2e241/ZK8/ZK8.REL'),('ZK10','golden/e2e241/ZK10/ZK10.REL'),('ZK11','golden/e2e241/ZK11/ZK11.REL')):
+    add_spec(_n, ('e24src/%s.PLI' % _n, _g))
+REJECTS['LP10'] = (open('artefacts/LP10.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), '] (line 3)")')
+REJECTS['LP13'] = (open('artefacts/LP13.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), '] FIXED multiply by literal 32768 >= 327')
+REJECTS['LP3'] = (open('artefacts/LP3.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), '].  Note this is ADD-specific: `j = 0 -')
+REJECTS['LP7'] = (open('artefacts/LP7.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), ']")')
+REJECTS['ML6'] = (open('artefacts/ML6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), ']")')
+REJECTS['ML7'] = (open('artefacts/ML7.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), ']")')
 
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
