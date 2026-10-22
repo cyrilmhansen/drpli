@@ -88,6 +88,12 @@ type st =
                                            different byte image) still gets
                                            its own cell. *)
   ; mutable lc : int                  (* code location counter *)
+  ; mutable a_zero : bool             (* [E2E-23] DR's ONE tracked accumulator fact: A is
+                                         known to be zero.  Set ONLY by my own XRA A emission,
+                                         cleared by anything that can write A, by any CALL, and
+                                         at any branch -- see inst_writes_a / inst_is_flow. *)
+  ; mutable a_pending : int           (* operand bytes still expected for the current instruction,
+                                         so operand bytes are never mistaken for opcodes *)
   ; mutable last_imm : int option     (* HL still holds this constant?
                                          [G114 b=3 folded from a=5] *)
   ; mutable temps : int               (* dynamic-DO bound temp slots
@@ -183,11 +189,74 @@ type st =
 type lblstate = { mutable labs : (string * int) list
                 ; mutable fwd : (string * int) list }
 
-let push st it = st.items <- st.items @ [it]
+(* [E2E-23] DR keeps exactly ONE piece of accumulator state, and ZS1-ZS10 measure both
+   its persistence and its invalidation.  Measured (all eight probes clean-pass in DR):
+     ZS1  a(3)=0                      : XRA A ; MOV M,A ; INX H ; MOV M,A        (4 bytes, vs my
+                                        MVI M,00 / INX H / MVI M,00 = 5)
+     ZS2  two consecutive zero stores : ONE XRA A, FOUR MOV M,A   -- the fact survives `LXI H,addr'
+     ZS4  `a(3)=0; b=5; a(4)=0'       : ONE XRA A                 -- survives LXI H / SHLD
+     ZS9  `a(3)=0; i=2; a(i)=0'       : ONE XRA A                 -- survives the whole ladder
+                                                       (LXI H / PUSH H / LHLD / DAD H / POP D / DAD D)
+     ZS10 `a(3)=0; a(4)=7; a(5)=0'    : ONE XRA A, and the 7 STILL uses MVI M,07 / INX H / MVI M,00
+                                        => this is NOT "always XRA": the form is chosen per store
+                                        by whether the whole 2-byte constant is zero, and a nonzero
+                                        store does not disturb A.
+     ZS5  separated by `call q'       : TWO XRA A  -- a call invalidates (C141, at byte level)
+     ZS7  separated by a PUT          : TWO XRA A  -- `MVI A,n' / `LHLD`-then-`MVI A,09' invalidate
+     ZS8  separated by `if i > 1`     : TWO XRA A  -- the compare writes A (and/or the branch does)
+   So: persistence across value-preserving instructions and statement boundaries; invalidation on
+   anything that writes A, on any CALL, and at any branch.  Only ONE fact is modelled -- this is
+   deliberately not a register allocator or a constant propagator. *)
+let rec inst_operands b =
+  (* operand-byte count, so the tracker knows where instructions end *)
+  match b with
+  | 0x01 | 0x11 | 0x21 | 0x31                        (* LXI B,D,H,SP *) -> 2
+  | 0x22 | 0x2a | 0x32 | 0x3a                        (* SHLD STA LHLD LDA *) -> 2
+  | 0x06 | 0x0e | 0x16 | 0x1e | 0x26 | 0x2e | 0x36 | 0x3e (* MVI r,M *) -> 1
+  | 0xc3 | 0xcd                                      (* JMP, CALL *) -> 2
+  | 0xc0 | 0xc8 | 0xca | 0xcc | 0xd0 | 0xd2 | 0xd4 | 0xd8
+  | 0xda | 0xdc | 0xe8 | 0xf8 | 0xe0 | 0xf0          (* conditional jumps / RST-class *) -> 2
+  | _ -> 0
+and inst_writes_a b =
+  (* MVI A; MOV A,r (78-7F); every ALU/logic op (80-BF); INR/DCR A; CMA; rotates; DAA.
+     Conservative by construction: an unknown opcode is treated as a writer below. *)
+  b = 0x3e || b = 0x3a || (b >= 0x78 && b <= 0x7f) || (b >= 0x80 && b <= 0xbf)
+    || b = 0x3c || b = 0x34 || b = 0x3f || b = 0x37
+    || b = 0x07 || b = 0x0f || b = 0x17 || b = 0x1f || b = 0x27
+and inst_is_flow b =
+  (* a call, a return, or any jump: DR re-clears A after these (ZS5/ZS7/ZS8) *)
+  b = 0xcd || b = 0xc3 || b = 0xc9 || b = 0xd9 || b = 0xe9
+    || (b >= 0xc0 && b <= 0xcf && b <> 0xc4 && b <> 0xc5 && b <> 0xc6 && b <> 0xc7)
+    || (b >= 0xd0 && b <= 0xdf && b <> 0xd1 && b <> 0xd4 && b <> 0xd5 && b <> 0xd6)
+    || (b >= 0xe0 && b <= 0xef && b <> 0xe1 && b <> 0xe3 && b <> 0xe5 && b <> 0xe6)
+    || (b >= 0xf0 && b <= 0xff && b <> 0xf1 && b <> 0xf3 && b <> 0xf5 && b <> 0xf6)
+let track_code st v =
+  if st.a_pending > 0 then st.a_pending <- st.a_pending - 1
+  else begin
+    (* this byte sits where an opcode belongs *)
+    if inst_writes_a v || inst_is_flow v || not (List.mem v [0x00;0x09;0x19;0x29;0x39;0x23;0x2b;
+        0x0b;0x03;0x13;0x33;0x3b;0x05;0x0c;0x15;0x1c;0x25;0x2c;0x35;0x3c;0x22;0x2a;0x32;0x3a;
+        0x01;0x11;0x21;0x31;0x06;0x0e;0x16;0x1e;0x26;0x2e;0x36;0x3e;0xc3;0xcd;0xe5;0xd1;0xe1;
+        0xf1;0xc5;0xd5;0xe3;0xeb;0xf5;0xf9;0x72;0x73;0x77;0x76]) then
+      st.a_zero <- false;
+    st.a_pending <- inst_operands v
+  end
+let push st it =
+  (match it with
+   | Data b -> track_code st (b land 0xff)
+   | Reloc _ ->
+       (* a reloc contributes two operand bytes; if we are mid-instruction they belong to it,
+          otherwise the stream is not something this tracker understands -- be conservative *)
+       if st.a_pending > 0 then st.a_pending <- st.a_pending - 2
+       else begin st.a_zero <- false; st.a_pending <- 0 end
+   | _ -> ());
+  st.items <- st.items @ [it]
+
 let d st v = push st (Data (v land 0xff)); st.lc <- st.lc + 1
 let reloc st seg v =
   push st (Reloc (seg, v)); st.lc <- st.lc + 2          (* inline: 2 bytes *)
 let link st t valu name = push st (Link (t, valu, name))
+
 
 (* allocate a constant-pool entry (ONE block per literal), returning its
    data-segment address. G113 evidence: DR emits a SET-LC(data,addr) per
@@ -251,6 +320,16 @@ let op_mvi_a = 0x3e
 let op_mvi_b = 0x06
 let op_mov_b_a = 0x47   (* [V102/V103] len==cap store peephole *)
 let op_mvi_m = 0x36     (* [V104] MVI M,00: empty-varying store *)
+
+(* [E2E-23] DR's zero-store pair.  The tracker is set here and ONLY here -- an unclassified byte
+   can never manufacture "A is zero", which is the difference between a missed optimization and a
+   wrong value (C173's lesson, learned the hard way one episode ago). *)
+let store_zero_pair st =
+  if not st.a_zero then begin
+    d st 0xaf;                        (* XRA A -- clears A, sets Z/S flags [ZS1] *)
+    st.a_zero <- true
+  end;
+  d st 0x77; d st op_inx_h; d st 0x77 (* MOV M,A / INX H / MOV M,A *)
 let op_push_psw = 0xf5  (* [W102] PSW guard before nested SLVTS *)
 let op_jp = 0xf2      (* [X201/X202] GET skip byte; $C prints "JP";
                           REL byte is F2 = JPE (same family as the ^=
@@ -4661,7 +4740,7 @@ let lower_store_ptr st (lhs_orig : string) (rhs : Ast.expr) =
   | Ast.Enumber k ->
       let v = parse_int_const k in
       lhld_ptr ();
-      if v = 0 then (d st 0xaf; d st 0x77; d st 0x23; d st 0x77)
+      if v = 0 then store_zero_pair st   (* [E2E-23] same rule; E26A unchanged (a_zero false here) *)
       else if v > 0 && v <= 0xffff then
         (d st op_mvi_m; d st (v land 0xff); d st 0x23;
          d st op_mvi_m; d st ((v lsr 8) land 0xff))
@@ -5038,8 +5117,11 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
             match litv with
             | Some v ->
                 dyn_addr st r;
-                d st op_mvi_m; d st (v land 0xff);
-                d st op_inx_h; d st op_mvi_m; d st ((v lsr 8) land 0xff)
+                if v land 0xffff = 0 then store_zero_pair st   (* [ZS3 ZS9] DR's zero pair [E2E-23] *)
+                else begin
+                  d st op_mvi_m; d st (v land 0xff);
+                  d st op_inx_h; d st op_mvi_m; d st ((v lsr 8) land 0xff)
+                end
             | None ->
                 if r.dyn_bias = 0 then
                   failwith
@@ -5073,9 +5155,12 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                 let w = v land 0xffff in
                 st.last_imm <- None;
                 d st op_lxi_h; reloc st Data addr;
-                d st op_mvi_m; d st (w land 0xff);
-                d st op_inx_h;
-                d st op_mvi_m; d st ((w lsr 8) land 0xff)
+                if w = 0 then store_zero_pair st   (* [ZS1 ZS2] DR's zero pair [E2E-23] *)
+                else begin
+                  d st op_mvi_m; d st (w land 0xff);
+                  d st op_inx_h;
+                  d st op_mvi_m; d st ((w lsr 8) land 0xff)
+                end
             | None -> begin
                 (* form 3: park the value on the stack, then byte-store from DE.
                    Only the LITERAL-bias self-update (form 4) and these four are
@@ -6755,6 +6840,7 @@ let emit_program (progname : string) (auto_bytes : int)
        string literal. *)
     { base = statics.sy_total + pool_total; items = []; pool = statics.sy_cells
     ; pool_next = statics.sy_total; fmtq = []; dec_cells = []; lc = 0
+    ; a_zero = false; a_pending = 0
     ; last_imm = None; lowered = 0; temps = 0
     ; stat_addrs = statics.sy_addrs; stat_total = statics.sy_total
     ; files = statics.sy_files

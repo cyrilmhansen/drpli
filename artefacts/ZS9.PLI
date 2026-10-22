@@ -1,0 +1,8 @@
+a: procedure options(main);
+  dcl a(5) fixed, b fixed, i fixed;
+  a(3) = 0;
+  i = 2;
+  a(i) = 0;
+stop;
+end a;
+

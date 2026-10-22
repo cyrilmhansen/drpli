@@ -1,0 +1,48 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: ZS10
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: ZS10
+
+   1 a 0000 a: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   dcl a(5) fixed, b fixed, i fixed;
+   3 c 0006   a(3) = 0;
+       0006       LXI  H,A A(0000)+0004
+       0009       XRA  A
+       000A       MOV  M,A
+       000B       INX  H
+       000C       MOV  M,A
+   4 c 000D   a(4) = 7;
+       000D       LXI  H,A A(0000)+0006
+       0010       MVI  M,07
+       0012       INX  H
+       0013       MVI  M,00
+   5 c 0015   a(5) = 0;
+       0015       LXI  H,A A(0000)+0008
+       0018       MOV  M,A
+       0019       INX  H
+       001A       MOV  M,A
+   6 c 001B stop;
+       001B       CALL ?STOPX
+   7 a 001E end a;
+
+CODE SIZE = 001E
+DATA AREA = 000E
+FREE SYMS = 388D
+END  COMPILATION
+

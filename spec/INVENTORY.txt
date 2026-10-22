@@ -33,6 +33,7 @@ AR2	specimen	e23src/AR2.PLI	golden/e2e223/AR2/AR2.REL
 AR3	specimen	e23src/AR3.PLI	golden/e2e223/AR3/AR3.REL
 AR4	specimen	e23src/AR4.PLI	golden/e2e223/AR4/AR4.REL
 AR5	specimen	e23src/AR5.PLI	golden/e2e223/AR5/AR5.REL
+ARRAY	specimen	e20src/ARRAY.PLI	golden/e2e214/ARRAY/ARRAY.REL
 AV1	refusal	a: procedure options(main);\n  dcl p ptr, q fixed;\n  q = 1;\n  p = allocate(10);\n  free p;\n  put skip list(q);\nstop;\nend a;\n	Was a BARE crash (rc!=0, no [TBD]), which the corpus sweep counted as REFUSED and thus hid. Now a reasoned refusal; the underlying gap (TBD]: POINTER) remains. [E2E-21/P0]
 B	specimen	e14src/B.PLI	golden/e2e152d/B/B.REL
 C1	specimen	e15src/C1.PLI	golden/e2e172/C1/C1.REL
@@ -685,3 +686,15 @@ Z404	specimen	probes/Z404.PLI	golden/e2e5a/Z404/Z404.REL
 Z405	specimen	probes/Z405.PLI	golden/e2e5a/Z405/Z405.REL
 Z406	specimen	probes/Z406.PLI	golden/e2e5a/Z406/Z406.REL
 Z407	specimen	probes/Z407.PLI	golden/e2e5a/Z407/Z407.REL
+ZS1	specimen	e24src/ZS1.PLI	golden/e2e240/ZS1/ZS1.REL
+ZS10	specimen	e24src/ZS10.PLI	golden/e2e240/ZS10/ZS10.REL
+ZS11	specimen	e24src/ZS11.PLI	golden/e2e240/ZS11/ZS11.REL
+ZS12	specimen	e24src/ZS12.PLI	golden/e2e240/ZS12/ZS12.REL
+ZS2	specimen	e24src/ZS2.PLI	golden/e2e240/ZS2/ZS2.REL
+ZS3	specimen	e24src/ZS3.PLI	golden/e2e240/ZS3/ZS3.REL
+ZS4	specimen	e24src/ZS4.PLI	golden/e2e240/ZS4/ZS4.REL
+ZS5	specimen	e24src/ZS5.PLI	golden/e2e240/ZS5/ZS5.REL
+ZS6	specimen	e24src/ZS6.PLI	golden/e2e240/ZS6/ZS6.REL
+ZS7	specimen	e24src/ZS7.PLI	golden/e2e240/ZS7/ZS7.REL
+ZS8	specimen	e24src/ZS8.PLI	golden/e2e240/ZS8/ZS8.REL
+ZS9	specimen	e24src/ZS9.PLI	golden/e2e240/ZS9/ZS9.REL

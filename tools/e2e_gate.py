@@ -1531,12 +1531,14 @@ for _n, (_d, _t) in _E17_REFS.items():
         add_spec(_n, (_f, "golden/%s/%s/%s.REL" % (_t, _n, _n)))
         continue
     if _n == "ARRAY":
-        # [E2E-22/P4] ARRAY compiles and its runtime output is byte-identical to DR's, but its
-        # .REL is not: mine 181 code bytes vs DR 180, DATA area agrees (62 = 62), 438 of 640
-        # bytes differ.  The cause is the C168 peephole family (DR writes `XRA A / MOV M,A' for a
-        # zero store where I write `MVI M,00'), which is explicitly out of scope.  ARRAY therefore
-        # joins the DIVERGENT panel -- NOT a specimen (it is not exact) and NOT a refusal (it does
-        # not refuse) [C168/C171].
+        # [E2e23] ARRAY IS NOW BYTE-EXACT.  It sat in the DIVERGENT panel through E2E-22 and its
+        # single remaining cause turned out to be narrow and fully measurable, not the broad
+        # register optimizer C168 had been assumed to need: see C176 and the ZS1-ZS12 block below.
+        # Promotion path taken (Priority 4): authentic DR golden [golden/e2e214/ARRAY, PLI-2000
+        # original, DR v1.4 NO ERRORS in both passes] -> raw .REL parity -> LINK 1.31 -> cpmsim run
+        # -> output identical to DR's own .COM (75 lines) -> divergence row deleted deliberately
+        # -> registered here.  DATA area unchanged (62 = 62), so no layout regression.
+        add_spec(_n, (_f, "golden/%s/%s/%s.REL" % (_t, _n, _n)))
         continue
     REJECTS[_n] = (open(_f, "rb").read().replace(b"\r\n", b"\n")
                    .rstrip(b"\x1a").decode(),
@@ -2017,6 +2019,37 @@ for _n in ("SK1", "SK2", "SK3", "SK4"):
 # DR's tail is the ordinary pointer-formal deref [C130]: MOV E,M / INX H / MOV D,M / XCHG.
 for _n in ("DO1", "DO2"):
     add_spec(_n, ("e24src/%s.PLI" % _n, "golden/e2e239/%s/%s.REL" % (_n, _n)))
+# ---------------------------------------------------------------------------
+# [E2E-23/C176] DR's ZERO-STORE FORM and its ONE tracked accumulator fact.
+# Twelve probes, all byte-exact, measure when DR writes `XRA A / MOV M,A / INX H / MOV M,A'
+# (4 bytes) instead of `MVI M,00 / INX H / MVI M,00' (5 bytes).  ZS11/ZS12 are additionally
+# linked and RUN, which is what makes the counterexamples semantic rather than cosmetic.
+#   ZS1  a(3)=0                      -> XRA pair.  Note this is the CONSTANT-index route: the
+#        form is not specific to pointer formals (E26A had suggested it was).
+#   ZS2  two consecutive zero stores -> ONE XRA, four MOV M,A: the fact crosses a statement
+#        boundary and survives `LXI H,<addr>'.
+#   ZS4  zero ; b=5 ; zero           -> ONE XRA: survives `LXI H,0005 / SHLD b'.
+#   ZS9  zero ; i=2 ; a(i)=0         -> ONE XRA: survives the ENTIRE variable-index ladder
+#        (LXI H / PUSH H / LHLD / DAD H / POP D / DAD D) [measured, so the ladder is A-neutral].
+#   ZS10 zero ; a(4)=7 ; zero        -> ONE XRA, but the 7 STILL uses `MVI M,07 / INX H /
+#        MVI M,00'.  COUNTEREXAMPLE to "always XRA": the choice is made per store from the whole
+#        2-byte constant, and a nonzero store neither uses nor disturbs A.  RUNTIME: `0 0 5'
+#        identical to DR, so the reused A really held 0 and b was untouched.
+#   ZS5  zero ; call q ; zero        -> TWO XRA.  COUNTEREXAMPLE: a call invalidates.  This is
+#        C141 at byte level, and ZS12 (same shape, printing) runs to `0 0' exactly as DR does --
+#        had the tracker reused A across the call, the value would depend on q's accumulator.
+#   ZS7  zero ; put ... ; zero       -> TWO XRA: `MVI A,n' / `LDA' style writes invalidate.
+#   ZS8  zero ; if i>1 then b=2 ; zero -> TWO XRA: the compare writes A (and the branch is a
+#        merge); the implementation invalidates at both, so it cannot be wrong in either reading.
+#   ZS3  a(i)=0 (variable index)     -> XRA pair, i.e. ARRAY's own site.
+#   ZS6  do i=1 to 3; a(i)=0; end    -> ONE XRA inside the loop body (re-executed, so correct).
+# Corpus cross-check BEFORE implementing: across 1310 DR .REL files, `MVI M,00' appears in 51 but
+# the all-zero PAIR `36 00 23 36 00' appears in NONE, while `AF 77 23 77' appears in exactly three
+# distinct programs (E26A, ARRAY, ALLTST) -- always as two paired stores from a single XRA.  That
+# survey is what said the rule was narrow and value-triggered rather than a general peephole.
+for _n in ("ZS1", "ZS2", "ZS3", "ZS4", "ZS5", "ZS6",
+           "ZS7", "ZS8", "ZS9", "ZS10", "ZS11", "ZS12"):
+    add_spec(_n, ("e24src/%s.PLI" % _n, "golden/e2e240/%s/%s.REL" % (_n, _n)))
 # NB: specimens get NO NEG_META row -- that dict is negative evidence only, and the registration
 # guard refuses a REJECTS/NEG_META asymmetry because an unmatched entry silently changes what a
 # verdict means [C163-class bug; caught by the guard, not by review].

@@ -1,0 +1,2 @@
+ZS11	ok	PRN=True REL=True
+ZS12	ok	PRN=True REL=True
