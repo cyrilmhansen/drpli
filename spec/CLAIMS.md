@@ -2972,6 +2972,17 @@ that was built and tested in an isolated worktree: it made CB1-CB5/CB7 route cor
 CB9 (a pure-DEC case) double-convert -- and my own new invariant caught it (C162).  The clean fix
 needs an explicit integer-context marker (a node or a context parameter) threaded through lowering,
 which is a structural change and is deliberately not attempted at the end of a milestone.
+    [E2E-25 UPDATE -- THE ROUTE IS IMPLEMENTED, AND THE FIX WAS A PREDICATE, NOT A NODE ANNOTATION.]
+    `lower_assign' now guards its decimal-store arm with `is_dec_expr st rhs && dec_pure st rhs', so a
+    MIXED tree falls through to the integer route instead of being claimed and then refused; inside
+    `lower_hl', a bare FIXED DEC operand converts in place (`LXI H,<var> / MVI A,p / ?DLDOP /
+    ?QDI15', p = the SOURCE precision) and takes DR's measured parking shape unchanged.  Byte-exact
+    against their own DR goldens AND executed with byte-equal console output and independently
+    computed values: CB1 (3+5=8), CB2 (5+3=8), CB3 (3-5=-2), CB4 (5-3=2), CB5 (z=d+b=8), CB7
+    (12345+5=12350 on the dec(5) route), plus CONV.PL1, DECY.PL1 and NG14 (`i = i + d', mixed
+    self-add).  CB9 (`b = d + 2'), CB6 (`b = d'), DECPOLY, DFACT and C162W1..W8 are byte-identical
+    as before, which is the protection this claim's failed attempt used to break.  CB8 (mixed MUL)
+    and CB10 (mixed result into a DEC target) STILL REFUSE: see C181.
 
 C162. **A PRE-EXISTING pool DEMAND under-count for decimal literals, caught by the E2E-16
 demand/layout invariant within hours of that invariant existing.** CB9 (`b = d + 2` with
@@ -3511,3 +3522,69 @@ C179 [E2E-24, four self-inflicted regressions, each caught by a different guard]
   broken generator, not a law of nature: a variant script built with text-mode reads and `\r\n`
   patterns silently produced nine copies of one input file, and a shell loop that failed to reset
   its source variable reported twelve nonexistent regressions.
+
+C180. **A NEGATIVE out-of-range FIXED literal is a SIGNED decimal cell, not a magnitude plus a
+runtime negate -- and the whole ADD/SUB literal matrix is one rule, not five.**  DR's LP8 cell for
+`-32768' is `32 72 96' (10^5 - 32768 = 67232, digits LSD-first, final sign nibble 9) and LQ2's
+`-65535' is `65 44 93'; the emitted instructions are the ordinary conversion route and NOTHING else,
+no `?IN20N'.  Mine was emitting `LXI H,8000 / CALL ?IN20N', which COMPLETED SILENTLY where DR aborts
+with `ERROR (1), Conversion' -- so LP8/LQ2/LQ4 closed together on the first measured rule, and their
+previously "cosmetic" traceback difference turned out to be a code-size artefact of my own
+truncation, visible only once both sides aborted at the same instruction.
+    With the sign folded into the cell, DR's arithmetic shape depends ONLY on which SIDE the literal
+    sits on and which OPERATOR: left -> `route / XCHG / <other> / (DAD D | ?IS22N)', right ->
+    `<other> / PUSH H / route / POP D / (DAD D | ?IS22N)'.  Parentheses vanish (Econd) and the sign
+    vanishes into the cell, so E2E-24's four pattern-matched arms collapse into one.  Both orientations
+    and both signs are pinned independently (LR3 `32768 - x', LR11 `-32768 + x', LR17 `-32768 - x',
+    LR18 `x - (-32768)', LR19 `x + (-32768)', LR2 `x + 0123456789' -- leading zeros still decide p,
+    so 6 bytes even inside an ADD), all byte-exact and all re-run against DR by the gate.
+    Why the first drafts were wrong, all three caught by the pool invariant rather than by a specimen:
+    (a) prescan demanded through a classifier that unwrapped Econd while lowering matched raw
+        patterns, so `x + (-32768)' demanded 3 bytes and allocated 0 -- [C179] seen from the other
+        side: the two walkers must ask ONE function, not two equivalent-looking ones;
+    (b) deleting the out-of-range branch from the two E2E-24 ADD arms without narrowing their
+        PATTERNS left `x + 0123456789' matching and biasing HL by a value that does not fit -- 11
+        byte-exact specimens became pool refusals.  A pattern may only admit what its body can lower;
+    (c) `op = Ast.Add || <other-operand shape>' is true for ANY operator whose other operand is a
+        plain identifier, so `x * 32768' allocated a cell nobody demanded and died on the size check
+        instead of on its designed MB31 refusal [E2E-23: an unproven condition in selection].
+
+C181. **Mixed DEC/BIN arithmetic routes for ADD and SUB and ONLY for ADD and SUB; the predicate that
+says so must PARTITION, not overlap.**  A DEC operand and an out-of-range literal are two classes of
+the same idea -- convert into HL, then use the ordinary binary lowering -- but their shape
+requirements differ, and for a reason: a literal was measured with a compound partner (LR2), a DEC
+variable never was (CB1-CB7 all pair it with a plain identifier), and SUB needs the partner to be
+exactly where ?IS22N expects it.  Expressing both predicates as `either class may route' made the DEC
+arm CLAIM literal nodes, match none of its own cases, and fire its internal assertion: 12 byte-exact
+specimens turned into refusals.  Two predicates answering for one AST node must partition it -- the
+DEC predicate excludes any node with a convertible literal operand.
+    Still refused, with the refusal text naming exactly what is unpinned: MIXED MUL (CB8 is DR's one
+    sample, where DR parks the LEFT operand although XCHG would be mechanically sound -- one sample is
+    not a rule), DIV/EXP with a DEC operand, DEC sub-expressions, and MIXED RESULT INTO A DEC TARGET
+    (CB10, IC2-IC4, IC6).  CB8's pinned marker moved with its message: the old text said "mixed-mode
+    routes are unpinned", which stopped being true once ADD/SUB worked, and a refusal that no longer
+    says something true is worse than no refusal.
+
+C182. **An out-of-range FIXED literal must be ROUTED where DR is measured and REFUSED where it is
+not -- never silently wrapped.  The way to find every such place is a position sweep, not the
+symptom list.**  The divergence panel named six programs; a sweep of 15 new probes putting the
+literal into every position the language allows found ELEVEN, including four nobody had probed (DO
+bounds, element self-update, function arguments, a DIV dividend).  Every position now either converts
+for real (scalar store; ADD/SUB both sides both signs) or stops at one choke point, `int_lit_checked',
+whose refusal names the position it is in -- a condition/DO-bound comparison constant, an array
+element store (all four forms), an element self-update, a procedure-call or function argument, a
+direct HL load.  Before the guards, LP11's `if x > 32768' evaluated as `x + 32767' signed, so mine
+TOOK a branch DR never reached and assigned y=1; LP12 stored a wrapped 0x8000 into z(1); LP16 handed
+p a truncated value; all four completed with rc=0.  The divergence panel is now EMPTY (0 rows) and
+the 14 positions that cannot be reproduced are NEGATIVES pinned by the DR .REL they decline to emit
+plus a marker fragment taken from the compiler's ACTUAL stderr.
+    One refusal is not a free win, twice over: when narrowing the routing predicate pushed LR8 out of
+    the routed set it did not fall back to a designed refusal -- it went on BUILDING with wrong bytes,
+    because the element self-update form biases HL from its own copy of the constant.  A position is
+    only closed when the site that emits it refuses.
+    [E2E-25/P5] INT -> DEC is characterized but NOT implemented: `e = 7' (IC5) and `decimal(b,5)'
+    (IC7) are byte-exact SPECIMENS -- both convert via ?QI15D on the decimal stack -- while a bare
+    integer VARIABLE or expression reaching a DEC target (IC1-IC4, IC6) refuses on the decimal store's
+    guard, where DR emits `CALL ?QI15D' after the value is in HL (IC1's .REL, chain-ext at code 0020).
+    That is Q8's gap with measured edges; closing it wants all six goldens and DECPOLY/DFACT/C162W
+    in view at once, because that store route is tightly pinned.

@@ -1,0 +1,7 @@
+IC1	ok	PRN=True REL=True
+IC2	ok	PRN=True REL=True
+IC3	ok	PRN=True REL=True
+IC4	ok	PRN=True REL=True
+IC5	ok	PRN=True REL=True
+IC6	ok	PRN=True REL=True
+IC7	ok	PRN=True REL=True

@@ -1,0 +1,9 @@
+a: procedure options(main);
+  dcl b fixed bin(15), e fixed dec(5), d fixed dec(3), z fixed;
+  b = 5;
+  d = 3;
+  e = 7;
+  put skip list(e);
+  stop;
+end a;
+

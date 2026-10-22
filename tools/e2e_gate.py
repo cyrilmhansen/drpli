@@ -2296,6 +2296,30 @@ NEG_META.update({
     'LR9': ("my-gap", "DR compiles it (golden/e2e292d/LR9/LR9.REL). LR9 is `if z(1) > 32768' -- an ARRAY ELEMENT as a comparison operand.  DR compiles it; mine refuses with the pre-existing E2E-3b condition-subset guard (AB11's family), which fires before the literal check.  Pinned here so the gap has a DR golden and a measured refusal."),
 })
 
+
+# [E2E-25/P5] the INT -> DEC doorway, characterized over seven probes (DR batch e2e309d) so the gap
+# has measured edges instead of a guess.  What is ALREADY true: an integer LITERAL into a DEC target
+# (IC5 `e = 7') and the sanctioned `decimal(b,5)' builtin (IC7) are byte-exact -- both push through
+# ?QI15D on the decimal stack.  What is NOT: an integer VARIABLE or expression reaching a DEC target,
+# which DR converts with `CALL ?QI15D' after the value is in HL (IC1's .REL, chain-ext at code 0020).
+# That is Q8's gap, unchanged by this milestone and deliberately not implemented from one shape: IC1
+# is the direct case, IC2-IC4/IC6 require converting AFTER the binary combine, and DECPOLY/DFACT/
+# C162W1..W8 pin the decimal store tightly enough that a change there wants all six goldens at once.
+add_spec('IC5', ('artefacts/IC5.PLI', 'golden/e2e309d/IC5/IC5.REL'))
+OUTPUT_CHECK.add('IC5')
+add_spec('IC7', ('artefacts/IC7.PLI', 'golden/e2e309d/IC7/IC7.REL'))
+OUTPUT_CHECK.add('IC7')
+REJECTS['IC1'] = (open('artefacts/IC1.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'non-decimal operand')
+NEG_META['IC1'] = ("my-gap", "DR COMPILES IT (golden/e2e309d/IC1/IC1.REL).  `e = b': a bare FIXED BINARY variable stored into a FIXED DEC(5) target -- stops on the decimal store's guard `decimal operation on non-decimal operand'.  The missing route is ?QI15D applied to an integer value already in HL, i.e. Q8's gap [E2e-25/P5]: characterized, pinned, not implemented.")
+REJECTS['IC2'] = (open('artefacts/IC2.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'non-decimal operand')
+NEG_META['IC2'] = ("my-gap", "DR COMPILES IT (golden/e2e309d/IC2/IC2.REL).  `e = d + b': mixed ADD, DEC operand on the LEFT, DEC target -- stops on the decimal store's guard `decimal operation on non-decimal operand'.  The missing route is ?QI15D applied to an integer value already in HL, i.e. Q8's gap [E2e-25/P5]: characterized, pinned, not implemented.")
+REJECTS['IC3'] = (open('artefacts/IC3.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'non-decimal operand')
+NEG_META['IC3'] = ("my-gap", "DR COMPILES IT (golden/e2e309d/IC3/IC3.REL).  `e = b + d': mixed ADD, DEC operand on the RIGHT, DEC target (CB10's own shape) -- stops on the decimal store's guard `decimal operation on non-decimal operand'.  The missing route is ?QI15D applied to an integer value already in HL, i.e. Q8's gap [E2e-25/P5]: characterized, pinned, not implemented.")
+REJECTS['IC4'] = (open('artefacts/IC4.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'non-decimal operand')
+NEG_META['IC4'] = ("my-gap", "DR COMPILES IT (golden/e2e309d/IC4/IC4.REL).  `e = b - d': mixed SUB into a DEC target -- stops on the decimal store's guard `decimal operation on non-decimal operand'.  The missing route is ?QI15D applied to an integer value already in HL, i.e. Q8's gap [E2e-25/P5]: characterized, pinned, not implemented.")
+REJECTS['IC6'] = (open('artefacts/IC6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'non-decimal operand')
+NEG_META['IC6'] = ("my-gap", "DR COMPILES IT (golden/e2e309d/IC6/IC6.REL).  `e = b * 2': ordinary integer arithmetic whose RESULT must convert to DEC -- stops on the decimal store's guard `decimal operation on non-decimal operand'.  The missing route is ?QI15D applied to an integer value already in HL, i.e. Q8's gap [E2e-25/P5]: characterized, pinned, not implemented.")
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:
