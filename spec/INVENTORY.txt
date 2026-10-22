@@ -13,7 +13,9 @@ AB15	refusal	a:\n    procedure options(main);\n    declare a(5) fixed, b fixed;\
 AB16	specimen	e21src/AB16.PLI	golden/e2e218/AB16/AB16.REL
 AB17	specimen	e21src/AB17.PLI	golden/e2e218/AB17/AB17.REL
 AB18	specimen	e23src/AB18.PLI	golden/e2e227/AB18/AB18.REL
+AB19	specimen	e23src/AB19.PLI	golden/e2e227/AB19/AB19.REL
 AB2	specimen	e21src/AB2.PLI	golden/e2e216/AB2/AB2.REL
+AB21	specimen	e23src/AB21.PLI	golden/e2e228/AB21/AB21.REL
 AB22	specimen	e23src/AB22.PLI	golden/e2e228/AB22/AB22.REL
 AB23	specimen	e23src/AB23.PLI	golden/e2e228/AB23/AB23.REL
 AB3	specimen	e21src/AB3.PLI	golden/e2e216/AB3/AB3.REL
@@ -607,6 +609,7 @@ RD1	specimen	e23src/RD1.PLI	golden/e2e225/RD1/RD1.REL
 RD2	specimen	e23src/RD2.PLI	golden/e2e225/RD2/RD2.REL
 RD3	specimen	e23src/RD3.PLI	golden/e2e225/RD3/RD3.REL
 RFACT	specimen	artefacts/RFACT.PLI	golden/first8080u/RFACT/RFACT.REL
+RT1	specimen	e23src/RT1.PLI	golden/e2e229/RT1/RT1.REL
 RT2	specimen	e23src/RT2.PLI	golden/e2e229/RT2/RT2.REL
 RT3	specimen	e23src/RT3.PLI	golden/e2e229/RT3/RT3.REL
 RT4	specimen	e23src/RT4.PLI	golden/e2e229/RT4/RT4.REL
@@ -686,6 +689,15 @@ Z404	specimen	probes/Z404.PLI	golden/e2e5a/Z404/Z404.REL
 Z405	specimen	probes/Z405.PLI	golden/e2e5a/Z405/Z405.REL
 Z406	specimen	probes/Z406.PLI	golden/e2e5a/Z406/Z406.REL
 Z407	specimen	probes/Z407.PLI	golden/e2e5a/Z407/Z407.REL
+ZK1	specimen	e24src/ZK1.PLI	golden/e2e241/ZK1/ZK1.REL
+ZK12	specimen	e24src/ZK12.PLI	golden/e2e241/ZK12/ZK12.REL
+ZK2	specimen	e24src/ZK2.PLI	golden/e2e241/ZK2/ZK2.REL
+ZK3	specimen	e24src/ZK3.PLI	golden/e2e241/ZK3/ZK3.REL
+ZK4	specimen	e24src/ZK4.PLI	golden/e2e241/ZK4/ZK4.REL
+ZK5	specimen	e24src/ZK5.PLI	golden/e2e241/ZK5/ZK5.REL
+ZK6	specimen	e24src/ZK6.PLI	golden/e2e241/ZK6/ZK6.REL
+ZK7	specimen	e24src/ZK7.PLI	golden/e2e241/ZK7/ZK7.REL
+ZK9	specimen	e24src/ZK9.PLI	golden/e2e241/ZK9/ZK9.REL
 ZS1	specimen	e24src/ZS1.PLI	golden/e2e240/ZS1/ZS1.REL
 ZS10	specimen	e24src/ZS10.PLI	golden/e2e240/ZS10/ZS10.REL
 ZS11	specimen	e24src/ZS11.PLI	golden/e2e240/ZS11/ZS11.REL

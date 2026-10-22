@@ -2050,6 +2050,28 @@ for _n in ("DO1", "DO2"):
 for _n in ("ZS1", "ZS2", "ZS3", "ZS4", "ZS5", "ZS6",
            "ZS7", "ZS8", "ZS9", "ZS10", "ZS11", "ZS12"):
     add_spec(_n, ("e24src/%s.PLI" % _n, "golden/e2e240/%s/%s.REL" % (_n, _n)))
+# ---------------------------------------------------------------------------
+# [E2E-23/P3] DR's HL-REUSE forms, measured by ZK1-ZK12 on ONE fact: HL holds a known CONSTANT.
+# AB19/AB21/RT1 are the programs this came from; all three are now byte-identical AND were linked
+# and run.  The forms, each from a dedicated probe:
+#   ZK1 1->2 INX H | ZK4 2->1 DCX H | ZK3/ZK7 +256 INR H | ZK9 -256 DCR H
+#   ZK2 1->5 MVI L,05 (only the low byte changes) | R610/LOAN1 repeat -> no reload at all
+#   ZK12 array element at offset 0 then a scalar: the element store sits INSIDE the chain.  That
+#        is AB19's shape, and it is what forced hl_const to be shared instead of duplicated.
+#   ZK5 reuse interrupted by CALL -> DR reloads (C141's no-parking rule, at byte level).
+#   ZK6 reuse interrupted by a byte-store element write, where HL becomes the element ADDRESS ->
+#        DR reloads; RT1's own a(2)/a(3)/a(4) stores show the same, which is why address-bearing
+#        HL never carries the fact.
+# ZK8/ZK10/ZK11 are deliberately NOT specimens: they diverge on an UNRELATED cause (DR routes
+# out-of-range literals through a runtime call), so they are pinned in DIVERGENT.txt instead.
+for _n in ("ZK1", "ZK2", "ZK3", "ZK4", "ZK5", "ZK6", "ZK7", "ZK9", "ZK12"):
+    add_spec(_n, ("e24src/%s.PLI" % _n, "golden/e2e241/%s/%s.REL" % (_n, _n)))
+# [E2e23/P3] AB19/AB21/RT1 promoted out of the divergence panel.  Their remaining cause was NOT
+# the broad C168 peephole E2E-22 assumed: AB19/AB21 were my element route failing to carry the
+# HL-constant fact, and RT1 was a missing INR H arm.  Runtime, mine vs DR's own .COM built from
+# DR's own .REL: `2 1 3', `5 1 9', `257 513 769 1025 1281 1537' -- identical in all three.
+for _n, _t in (("AB19", "e2e227"), ("AB21", "e2e228"), ("RT1", "e2e229")):
+    add_spec(_n, ("e23src/%s.PLI" % _n, "golden/%s/%s/%s.REL" % (_t, _n, _n)))
 # NB: specimens get NO NEG_META row -- that dict is negative evidence only, and the registration
 # guard refuses a REJECTS/NEG_META asymmetry because an unmatched entry silently changes what a
 # verdict means [C163-class bug; caught by the guard, not by review].
@@ -2148,8 +2170,15 @@ def divergence_check(dv, exe):
             fails.append("%s: divergence SHAPE changed (code %d/%d data %d/%d ndiff %d recorded vs "                         "now %d/%d %d/%d %d) -- re-measure before accepting [C168]"
                          % (n, mc, dc, md, dd, nb, mcode, dcode, mdata, ddata, ndiff))
         else:
-            notes.append("%s: %d code bytes vs DR %d, data agrees, %d bytes differ (C168 peephole)"
-                         % (n, mcode, dcode, ndiff))
+            # [E2E-23] this line used to HARDCODE "data agrees" and "(C168 peephole)".  Both were
+            # false for the ZK8/ZK10/ZK11 rows, whose data areas differ (16 vs 19) and whose cause
+            # is DR's out-of-range-literal route.  The panel must not print a statement the row
+            # itself contradicts, so both now come from the measurement and from the row.
+            notes.append("%s: %d code bytes vs DR %d, data %s, %d bytes differ -- row cause: %s"
+                         % (n, mcode, dcode,
+                            ("agrees (%d)" % mdata) if mdata == ddata
+                            else "DIFFERS (%d vs DR %d)" % (mdata, ddata),
+                            ndiff, dv[n][-1][:90]))
     return fails, notes
 
 

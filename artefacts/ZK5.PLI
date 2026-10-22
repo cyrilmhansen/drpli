@@ -1,0 +1,13 @@
+a: procedure options(main);
+  dcl x fixed, y fixed, z fixed, a(4) fixed, i fixed;
+  x = 1;
+  y = 2;
+  call q;
+  z = 3;
+stop;
+  q: procedure;
+    dcl t fixed;
+    t = 9;
+  end q;
+end a;
+

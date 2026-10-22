@@ -3404,3 +3404,50 @@ C175. **There is NO array calling convention: an array element passed as an actu
       Checkpoint C evidence: EA2 passes `a(4)' AND `a(i)' to a procedure whose body is
       `x = x + 100'; my .REL is byte-exact and both linked .COMs print "106 100", so the callee
       mutated the ORIGINAL cells through both index forms.
+
+C176 [E2E-23, probes ZS1-ZS12 + a 1310-file corpus survey, all byte-exact, ZS11/ZS12 run]
+  DR's zero-store form is chosen by a single tracked accumulator fact, not by a general peephole.
+  Storing the 2-byte constant 0 through (HL) emits `XRA A / MOV M,A / INX H / MOV M,A' (4 bytes);
+  storing any other 2-byte constant emits `MVI M,lo / INX H / MVI M,hi' (5) EVEN WHEN A is already
+  known zero (ZS10's `a(4) = 7').  A lone zero byte still uses `MVI M,00' (V104, ZS10's high byte).
+  "A = 0" is set by my own XRA A and survives statement boundaries, LXI H, SHLD, LHLD, DAD,
+  PUSH/POP, INX H, MVI M and the entire variable-index ladder (ZS9: ONE XRA for both stores); it is
+  invalidated by any CALL (ZS5 -- C141's no-parking rule, re-derived at byte level), by any write
+  to A (ZS7: MVI A / LDA from the PUT argument path; ZS8: the compare), and at branches.  The rule
+  was surveyed BEFORE implementing: `MVI M,00' occurs in 51 goldens, the all-zero PAIR
+  `36 00 23 36 00' in NONE, and `AF 77 23 77' in exactly three distinct programs (E26A, ARRAY,
+  ALLTST), always as paired stores from one XRA -- which is what proved the rule narrow rather than
+  a peephole family, and made ARRAY's single remaining divergence tractable.  ARRAY is now
+  byte-identical and its cpmsim output is identical to DR's own .COM (75 lines), with DATA area
+  unchanged (62 = 62).  ZS11/ZS12 were run to make the counterexamples SEMANTIC: `0 0 5' proves a
+  reused accumulator stored real zeros without disturbing the neighbour b, and `0 0' proves the
+  post-call re-clear happened.  E26A's pointer-formal zero store, previously a one-off copy, now
+  shares this single rule and stays byte-exact.
+  CONSEQUENCE: the C168 label on ARRAY was wrong in size and in kind.  E2E-22's divergence row also
+  claimed "a 1-byte code-size delta in the same family" as a second cause -- it was the same cause,
+  since the two forms differ by exactly one byte.
+
+C177 [E2E-23, probes ZK1-ZK12 + AB19/AB21/RT1 all byte-exact and all RUN, mine vs DR's own .COM]
+  DR's cross-statement HL reuse is ONE fact already tracked here -- "HL holds a known constant
+  value" (st.last_imm) -- used by every constant-store route, and the missing work was sharing it,
+  not building an optimizer.  Measured forms, cheapest first: +1 `INX H' (ZK1), -1 `DCX H' (ZK4),
+  +256 `INR H' (ZK3/ZK7), -256 `DCR H' (ZK9), same-high-byte `MVI L,lo' (ZK2/AB21/Z401), repeated
+  value = no reload at all (R610/LOAN1).  Invalidations that are MEASURED, not assumed: a CALL
+  (ZK5), and any route that puts an ADDRESS in HL -- a byte-store element write (ZK6), which is why
+  RT1's a(2)/a(3)/a(4) reload while its offset-0 a(1) reuses.  The array element at offset 0 uses
+  the scalar SHLD route and therefore sits INSIDE a reuse chain (ZK12/AB19), which is exactly why
+  the helper had to move to module level: two copies of a measured rule drift by construction.
+  AB19 prints `2 1 3', AB21 `5 1 9', RT1 `257 513 769 1025 1281 1537' -- each identical to a .COM
+  built from DR's own .REL.  The divergence panel is now empty of pre-existing programs.
+  TWO ERRORS RECORDED, because both nearly became accepted results.  (1) An intermediate revision
+  of the element route called lower_hl AND the helper, emitting the value twice; that build made
+  AB19 store 4 for 3 -- a wrong value, visible only because the program prints its variables.  I
+  then blamed DR for it, having run a stale .REL that had been copied into a golden directory
+  rather than the current build's bytes: runtime evidence must come from the same artifact the byte
+  check uses.  (2) ZK8/ZK10/ZK11 (65535->0, 0->65535, 32767->32768) were read as "DR refuses reuse
+  when bit 15 flips" and a guard was written on that reading; the raw bytes show DR does not reload
+  there at all -- it routes the out-of-range LITERAL through `LXI H,0000 / MVI A,k / CALL / CALL'
+  and allocates a 4-byte DATA cell, never reaching the reuse question.  The guard was removed
+  (unproven conditions in instruction selection get trusted later) and the three probes are pinned
+  in DIVERGENT.txt as their own open item.  The proximate cause of the misreading was a
+  disassembly listing misaligned by SHLD's relocation operands: check bytes, not listings.

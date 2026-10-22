@@ -1,0 +1,4 @@
+ZK10	ok	PRN=True REL=True
+ZK11	ok	PRN=True REL=True
+ZK12	ok	PRN=True REL=True
+ZK9	ok	PRN=True REL=True

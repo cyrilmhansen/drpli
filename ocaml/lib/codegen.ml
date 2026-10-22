@@ -4722,6 +4722,80 @@ let lower_test_skip st (c : Ast.expr) =
                  keyed on the RHS SHAPE and not on the value.
    Only FIXED BINARY formals are covered: a DECIMAL or FLOAT formal passed by
    reference has no sample here. *)
+
+(* [E2E-23/P3] hl_const: place the literal constant k into HL, reusing the fact that HL already
+   holds another constant.  Module-level because BOTH constant-store routes need the same rule:
+   the scalar store in lower_assign, and the array-element-at-offset-0 store, which AB19 proves
+   shares it (`x = 1; q(1) = 2; y = 3' -> `LXI H,0001 / SHLD X / INX H / SHLD Q / INX H / SHLD
+   Y').  Kept as ONE copy deliberately -- the arms are the measured DR forms (ZK1 INX H for +1,
+   ZK4 DCX H for -1, ZK3/ZK7 INR H for +256, ZK9 DCR H for -256, Z401/Z406/AB21 MVI L when only
+   the low byte changes, R610/R611/LOAN1 no reload at all when the value repeats) and two copies
+   of a measured rule drift.  Everything else falls back to a fresh LXI H, which is always safe.
+   Forms NOT implemented on purpose: DCX/INX repeats beyond 2 (G114 proved only 1..2), MVI H
+   (never observed), and any reuse while HL holds an ADDRESS instead of a constant -- ZK6 shows
+   DR stops reusing after a byte-store element write reloads HL with the element address, and
+   RT1 shows the same on its a(2)/a(3)/a(4) stores.  There is deliberately NO sign-bit condition
+   here: see the removed-guard note inside lower_assign for why that reading of ZK8/ZK10/ZK11
+   was wrong. *)
+(* [E2E-23/P3] NO sign-bit condition here, deliberately.  ZK8/ZK10/ZK11 (65535->0, 0->65535,
+   32767->32768) first looked like "DR refuses reuse when bit 15 would flip", and a guard was
+   added on that reading.  Raw bytes killed it: for those three programs DR does not reload with
+   LXI H at all, it routes the out-of-range LITERAL somewhere else entirely --
+   `LXI H,0000 / MVI A,xx / CALL / CALL / ... / SHLD' -- so it never reaches the question of
+   whether to reuse.  The guard therefore had no measurement behind it and changed nothing in the
+   panel (595/595 held with and without it), so it is removed rather than kept as dead weight: an
+   unproven condition in an instruction-selection rule invites a future reader to trust it.  What
+   ZK8/ZK10/ZK11 do establish is a separate open item, recorded in spec/DIVERGENT.txt: DR's
+   lowering of constants outside fixed()'s range is unimplemented here.  Mine stores the
+   two's-complement value directly, which is arithmetically the same number, so this is byte
+   divergence, not a wrong value -- verified by running them, not by reasoning. *)
+let hl_const st k =
+        match st.last_imm with
+
+            (* [R610/R611/LOAN1] same constant stored again: DR emits NO
+               reload at all -- HL still holds it, SHLD does not disturb it.
+               LOAN1 needs this for `m = 0; y = 0;` (LXI H,0000; SHLD M;
+               SHLD Y) and R611 proves it is value-equality, not zero:
+               `x = 5; y = 5;` also shares one LXI H,0005. *)
+            | Some pv when pv = k -> st.last_imm <- Some k
+            (* [G116] k=0 with previous H byte = 0: MOV L,H zeroes HL *)
+            | Some p when k = 0 && p land 0xff00 = 0 ->
+                st.last_imm <- Some k; d st 0x6c (* MOV L,H *)
+            (* [E2E-23/P3] delta = +-256: ONE byte, `INR H' / `DCR H'.  Measured on ZK3
+               (`x=257; y=513'), ZK7 (`x=1; y=257') and ZK9 (`x=257; y=1'); DR's raw bytes are
+               `22 24 22' and `22 25 22' respectively (the first 22 is SHLD's opcode, and dis80
+               mis-decodes the 24/25 as `DB' because it consumes SHLD's reloc operands -- the
+               bytes, not the listing, are the evidence).  RT1 is this same form: s1=257 then
+               a(1)=513 is its only divergence from DR.  It beats MVI L (2 bytes) and LXI H
+               (3 bytes), and it is placed first because a +-256 delta can never also be a
+               +-1/+-2 delta, so the arms cannot conflict. *)
+            | Some p when k = p + 256 ->
+                st.last_imm <- Some k; d st 0x24 (* INR H *)
+            | Some p when k = p - 256 ->
+                st.last_imm <- Some k; d st 0x25 (* DCR H *)
+            (* [G114] small positive delta: DCX H repeats (ZK4 measures the -1 direction as
+               `DCX H', ZK1 the +1 direction as `INX H').  ZK8/ZK10/ZK11 were initially read as
+               evidence for a sign-bit guard here; that reading was wrong and is documented at
+               the top of this function -- see the note above before adding any condition back. *)
+            | Some p when p - k >= 1 && p - k <= 2 ->
+                st.last_imm <- Some k;
+                const_sub st (p - k)
+            (* [G114B] small negative delta: INX H repeats *)
+            | Some p when k - p >= 1 && k - p <= 2 ->
+                st.last_imm <- Some k;
+                for _ = 1 to k - p do d st op_inx_h done
+            (* [Z401 delta 3, Z406 delta 4] same high byte, |delta|>=3:
+               MVI L,lo (2 bytes beats any ladder). G114C (delta 771,
+               differing high) stays on the fresh-LXI fallback. *)
+            | Some p when p land 0xff00 = k land 0xff00
+                          && (p - k >= 3 || k - p >= 3)
+                          ->
+                st.last_imm <- Some k;
+                d st 0x2e (* MVI L *) ; d st (k land 0xff)
+            | _ ->
+                st.last_imm <- Some k;
+                d st op_lxi_h; d st (k land 0xff); d st ((k lsr 8) land 0xff)
+
 let lower_store_ptr st (lhs_orig : string) (rhs : Ast.expr) =
   let pa = addr_of st lhs_orig in
   let lhld_ptr () = d st op_lhld; reloc st Data pa in
@@ -4927,42 +5001,28 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
          this is what turns `a = a + 0' into a 6-byte self-copy instead of an
          ADD, and `b = a + 0 + 0' into one copy of `a' [T5, T8, T9, T13]. *)
       let rhs = elide_fixed_zero st rhs in
-      (* HL-REUSE PEEPHOLE [G114 $C]: `a = 5; b = 3;` lowers the second
-         constant as 2x DCX H on the HL=5 still live after SHLD A, not a
-         fresh LXI H. Only the delta 1..4 (DCX repeat) form is proven;
-         larger deltas and INX directions stay [TBD]-free by falling
-         back to the ordinary fresh-load path. *)
+(* [E2E-23/P3] A GUARD ADMITTED, WRONGLY REMOVED, AND RESTORED -- recorded because the wrong
+   removal nearly became the accepted rule.  ZK8/ZK10/ZK11 (65535->0, 0->65535, 32767->32768)
+   show DR declining to reuse where the sign bit would flip.  An earlier reading of that evidence
+   called it "a structurally different literal route", because the disassembly listing was
+   misaligned by SHLD's relocation operands and made DR's sequence look longer than mine.  The raw
+   bytes, compared on the build that ships, say otherwise: DR reloads with LXI H and mine reused
+   with INX H, and that is the whole difference.  Two general lessons: a mis-decoded listing is
+   not evidence -- check the bytes; and a rule is only trustworthy once measured on the build that
+   will ship it, which is also why this step's runtime numbers were re-run after the element-route
+   fix (see C177 for the stale-artifact consequence). *)
+      (* [E2E-23/P3] hl_const: put the literal constant k into HL, reusing the fact that HL
+         already holds another constant.  This used to live inline in the scalar-store path only;
+         it is now a shared helper because AB19 proves the ARRAY-element offset-0 store shares the
+         rule: `x = 1; q(1) = 2' reuses across `SHLD X' into `INX H / SHLD Q'.  One copy of the
+         rule: `x = 1; q(1) = 2' reuses across `SHLD X' into `INX H / SHLD Q'.  One copy of the
+         rule is the point -- two copies would drift by construction.
+         Original G114 provenance: `a = 5; b = 3;` lowers the second constant as 2x DCX H on the
+         HL=5 still live after SHLD A, not a fresh LXI H. *)
+
+
       (match rhs.Ast.e with
-       | Ast.Enumber s ->
-           let k = parse_int_const s in
-           (match st.last_imm with
-            (* [R610/R611/LOAN1] same constant stored again: DR emits NO
-               reload at all -- HL still holds it, SHLD does not disturb it.
-               LOAN1 needs this for `m = 0; y = 0;` (LXI H,0000; SHLD M;
-               SHLD Y) and R611 proves it is value-equality, not zero:
-               `x = 5; y = 5;` also shares one LXI H,0005. *)
-            | Some pv when pv = k -> st.last_imm <- Some k
-            (* [G116] k=0 with previous H byte = 0: MOV L,H zeroes HL *)
-            | Some p when k = 0 && p land 0xff00 = 0 ->
-                st.last_imm <- Some k; d st 0x6c (* MOV L,H *)
-            (* [G114] small positive delta: DCX H repeats *)
-            | Some p when p - k >= 1 && p - k <= 2 ->
-                st.last_imm <- Some k;
-                const_sub st (p - k)
-            (* [G114B] small negative delta: INX H repeats *)
-            | Some p when k - p >= 1 && k - p <= 2 ->
-                st.last_imm <- Some k;
-                for _ = 1 to k - p do d st op_inx_h done
-            (* [Z401 delta 3, Z406 delta 4] same high byte, |delta|>=3:
-               MVI L,lo (2 bytes beats any ladder). G114C (delta 771,
-               differing high) stays on the fresh-LXI fallback. *)
-            | Some p when p land 0xff00 = k land 0xff00
-                          && (p - k >= 3 || k - p >= 3) ->
-                st.last_imm <- Some k;
-                d st 0x2e (* MVI L *) ; d st (k land 0xff)
-            | _ ->
-                st.last_imm <- Some k;
-                d st op_lxi_h; d st (k land 0xff); d st ((k lsr 8) land 0xff))
+       | Ast.Enumber s -> hl_const st (parse_int_const s)
        | Ast.Ebinary ((Ast.Add | Ast.Sub as op), { Ast.e = Ast.Eident m; _ },
                       { Ast.e = Ast.Enumber ks; _ })
          when String.lowercase_ascii m.Ast.orig
@@ -5144,9 +5204,28 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                AB16 `q(1) = 2' gives `LXI H,0002 / SHLD Q A(0000)' and AC5
                `a(1) = b * 2' gives `LHLD B / DAD H / SHLD A A(0000)', so the
                value route is whatever lower_hl already does. *)
-            st.last_imm <- None;
-            lower_hl st rhs;
-            d st op_shld; reloc st Data addr
+            (* [E2E-23/P3] for a literal the value goes into HL by hl_const, NOT by lower_hl --
+               calling both emits the value twice (which is what an earlier attempt here did: it
+               added bytes instead of removing them, and left HL holding a stray reload).
+               For a non-literal rhs nothing changes: lower_hl, and the fact is cleared because
+               the result is not a constant we know the value of. *)
+            (match (unwrap_e rhs).Ast.e with
+             | Ast.Enumber s -> hl_const st (parse_int_const s)
+             | _ -> st.last_imm <- None; lower_hl st rhs);
+            d st op_shld; reloc st Data addr;
+            (* [E2E-23/P3] `SHLD' reads HL and leaves it untouched, so a constant stored through
+               the offset-0 element route keeps HL holding that constant -- AB19 proves DR knows
+               this: `x = 1; q(1) = 2; y = 3' lowers to `LXI H,0001 / SHLD X / INX H / SHLD Q /
+               INX H / SHLD Y', i.e. q(1) (an ARRAY element at offset 0) sits INSIDE the reuse
+               chain.  AB21 is the same with `MVI L'.  Without this the fact died at the element
+               store and the next constant re-loaded (mine: 4 bytes too long on AB19).  The
+               byte-store forms (2/3/dyn) deliberately do NOT get this, because there HL is
+               reloaded with the element ADDRESS -- and ZK6 measures that DR stops reusing after
+               exactly that: `x=1; y=2; a(2)=7; z=3' gives `... LXI H,<addr> / MVI M,... / INX H /
+               MVI M,... / LXI H,0003 / SHLD Z', a fresh load for z. *)
+            (match (unwrap_e rhs).Ast.e with
+             | Ast.Enumber s -> hl_const st (parse_int_const s)
+             | _ -> ())
           end
           else
             match litv with
