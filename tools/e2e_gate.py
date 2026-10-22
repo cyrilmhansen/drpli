@@ -2138,10 +2138,17 @@ DIVERGENT_FILE = os.path.join(ROOT, "spec", "DIVERGENT.txt")
 # implemented at the store, at both ADD operand orientations (incl. self-add, which falls through
 # the measured -8..+16 ladder to the same parked form LP14 shows DR using), and at SUB with a
 # plain-identifier left operand (`POP D / CALL ?IS22N', measured on LQ5/LP9/ML8).  Every byte-exact
-# probe is registered here; the remaining shapes are in spec/DIVERGENT.txt with measured bytes and
-# are WRONG-VALUE rows, not cosmetic differences.  Refusals are pre-designed [TBD] guards with DR
+# probe is registered here.  [E2E-25] LP8/LQ2/LQ4 were the first divergences CLOSED, and the rule
+# that closed them is the NEGATIVE decimal cell: DR folds the minus into the cell (ten's complement
+# in p digits, final sign nibble 9) rather than loading the magnitude and calling ?IN20N, so mine's
+# truncated `LXI H,imm / CALL ?IN20N' silently COMPLETED where DR aborts.  With the signed cell all
+# three are byte-identical AND their executed output matches DR's byte for byte, traceback words
+# included (golden/e2e290m) -- which also disproves the earlier note that their traceback difference
+# was cosmetic: it was a code-size artefact of the truncation.  The remaining shapes stay in
+# spec/DIVERGENT.txt with measured bytes and are WRONG-VALUE rows, not cosmetic differences.  Refusals are pre-designed [TBD] guards with DR
 # goldens in NEG_META -- none is a pool-invariant failure.
 add_spec('LP1', ('artefacts/LP1.PLI', 'golden/e2e246/LP1/LP1.REL'))
+add_spec('LP8', ('artefacts/LP8.PLI', 'golden/e2e246/LP8/LP8.REL'))
 add_spec('LP14', ('artefacts/LP14.PLI', 'golden/e2e246/LP14/LP14.REL'))
 add_spec('LP15', ('artefacts/LP15.PLI', 'golden/e2e246/LP15/LP15.REL'))
 add_spec('LP2', ('artefacts/LP2.PLI', 'golden/e2e246/LP2/LP2.REL'))
@@ -2150,7 +2157,9 @@ add_spec('LP5', ('artefacts/LP5.PLI', 'golden/e2e246/LP5/LP5.REL'))
 add_spec('LP6', ('artefacts/LP6.PLI', 'golden/e2e246/LP6/LP6.REL'))
 add_spec('LP9', ('artefacts/LP9.PLI', 'golden/e2e246/LP9/LP9.REL'))
 add_spec('LQ1', ('artefacts/LQ1.PLI', 'golden/e2e247/LQ1/LQ1.REL'))
+add_spec('LQ2', ('artefacts/LQ2.PLI', 'golden/e2e247/LQ2/LQ2.REL'))
 add_spec('LQ3', ('artefacts/LQ3.PLI', 'golden/e2e247/LQ3/LQ3.REL'))
+add_spec('LQ4', ('artefacts/LQ4.PLI', 'golden/e2e247/LQ4/LQ4.REL'))
 add_spec('LQ5', ('artefacts/LQ5.PLI', 'golden/e2e247/LQ5/LQ5.REL'))
 add_spec('LQ6', ('artefacts/LQ6.PLI', 'golden/e2e247/LQ6/LQ6.REL'))
 add_spec('LQ7', ('artefacts/LQ7.PLI', 'golden/e2e247/LQ7/LQ7.REL'))
@@ -2186,6 +2195,20 @@ REJECTS['LP3'] = (open('artefacts/LP3.PLI', "rb").read().replace(b"\r\n", b"\n")
 REJECTS['LP7'] = (open('artefacts/LP7.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), ']")')
 REJECTS['ML6'] = (open('artefacts/ML6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), ']")')
 REJECTS['ML7'] = (open('artefacts/ML7.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), ']")')
+
+# [E2E-25] the out-of-range-literal witnesses.  Byte-identical .RELs already imply an identical
+# .COM, but for these the DIVERGENCE WAS THE RUNTIME BEHAVIOUR -- DR aborts with `ERROR (1),
+# Conversion' where mine used to finish silently -- so the gate itself must re-link and re-run BOTH
+# arms and compare console output, not merely cmp bytes [C137/C173: only executed output is
+# evidence].  This block sits AFTER every add_spec on purpose and ASSERTS membership: an earlier
+# version ran before the registrations behind `if _n in SPECIMENS', so it silently added nothing and
+# the link-run arm stayed mine-only.  A defensive membership test is the wrong shape here -- a name
+# that is not a specimen must stop the gate, not be skipped [C163].
+for _n in ("LP1", "LP5", "LP8", "LP14", "LP15", "LQ2", "LQ4", "LQ5", "LQA",
+           "ML1", "ML3", "ML4", "ML8", "ML15", "ZK8", "ZK10", "ZK11"):
+    assert _n in SPECIMENS, "output-check name %s is not a specimen" % _n
+    OUTPUT_CHECK.add(_n)
+
 
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}

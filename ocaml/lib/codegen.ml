@@ -788,6 +788,39 @@ let bcd_pack_scaled (v : int) (p : int) =
   let nib i = try List.nth lsf i with _ -> 0 in
   Array.init nbytes (fun b -> ((nib (2 * b + 1)) lsl 4) lor (nib (2 * b)))
 
+let pdec_pow10 n =
+  let rec go v k = if k = 0 then v else go (v * 10) (k - 1) in go 1 n
+
+(* [E2E-25/C178] DR's NEGATIVE decimal literal cell: the magnitude is stored as the TEN'S
+   COMPLEMENT in p digits and the final nibble is 9 instead of 0.  Measured on two independent
+   cells -- LP8 `-32768' packs as `32 72 96' (10^5 - 32768 = 67232; digits LSD-first 2,3,2,7,6,
+   then sign 9) and LQ2 `-65535' as `65 44 93' (10^5 - 65535 = 34465).  CRUCIAL: DR emits NO
+   runtime negate for `-32768' -- the minus lives entirely in the cell, so the emitted sequence is
+   the ordinary conversion route and nothing else.  Precision p is still the digit count of the
+   literal TEXT. *)
+let bcd_pack_signed (v : int) (p : int) =
+  let nbytes = dec_pool_bytes p in
+  let pw = pdec_pow10 p in
+  let mag, sign =
+    if v >= 0 then (v, 0)
+    else begin
+      let m = (-v) mod pw in
+      ((pw - m) mod pw, 9)
+    end
+  in
+  let ds = string_of_int mag in
+  if String.length ds > p then
+    failwith "codegen: DEC literal does not fit its precision [TBD]";
+  let digs =
+    Array.init p (fun i ->
+      let j = i - (p - String.length ds) in
+      if j >= 0 then Char.code (String.get ds j) - 48 else 0)
+  in
+  let lsf = (Array.to_list digs |> List.rev) @ [ sign ] in
+  let nib i = try List.nth lsf i with _ -> 0 in
+  Array.init nbytes (fun b -> ((nib (2 * b + 1)) lsl 4) lor (nib (2 * b)))
+
+
 (* [E2E-24/C178] DR's bin(15) threshold: a FIXED literal <= 32767 goes in as an immediate and
    >= 32768 becomes a packed-decimal cell converted at run time.  ML9/ML10 measure the boundary
    at 32767/32768 exactly; ML10 (32768) is the first value on the decimal route. *)
@@ -804,6 +837,11 @@ let lit_dec_p (text : string) =
 let lit_dec_image (v : int) (text : string) =
   Array.to_list (bcd_pack_scaled v (lit_dec_p text))
 
+(* [E2E-25] image of a NEGATIVE literal's cell -- the key both demand and layout use, so
+   `y = -32768' dedups against its own repeats and against a DEC store of the same value. *)
+let lit_dec_neg_image (v : int) (text : string) =
+  Array.to_list (bcd_pack_signed v (lit_dec_p text))
+
 (* [E2E-24/C178] placed here because BOTH lower_hl's ADD arms and the store dispatcher
    need it, and OCaml resolves a let before its use site. *)
 (* [E2E-24/C178] DR's route for a FIXED literal too large for bin(15): the value lives in a
@@ -815,9 +853,7 @@ let lit_dec_image (v : int) (text : string) =
    uses, so DR's sharing across declaration kinds is reproduced [LP1/LQ6/LQA].
    `st.last_imm <- None' is deliberate: LP1 stores 32768 twice and DR re-emits the WHOLE route
    rather than reusing HL, so the constant-reuse facts [C177] do not survive ?QDI15. *)
-let lit_dec_to_hl st (text : string) (v : int) =
-  let p = lit_dec_p text in
-  let bytes = bcd_pack_scaled v p in
+let dec_cell_route st (bytes : int array) (p : int) =
   let key = Array.to_list bytes in
   let addr =
     match List.assoc_opt key st.dec_cells with
@@ -831,6 +867,11 @@ let lit_dec_to_hl st (text : string) (v : int) =
   d st op_mvi_a; d st p; call_ext st "?DLDOP";
   call_ext st "?QDI15";
   st.last_imm <- None
+
+(* [E2E-24/C178] the positive-literal case: same cell, same four instructions. *)
+let lit_dec_to_hl st (text : string) (v : int) =
+  let p = lit_dec_p text in
+  dec_cell_route st (bcd_pack_scaled v p) p
 
 (* sum of decimal-pool bytes required by literal-base ** over all stmts
    (pure pre-scan, no side effects; mirrors pool_alloc ordering). *)
@@ -1124,9 +1165,6 @@ let pdec_str_cell cx (v : string) : int =
   if List.mem v !(cx.pd_str) then 0
   else (cx.pd_str := v :: !(cx.pd_str); String.length v)
 
-let pdec_pow10 n =
-  let rec go v k = if k = 0 then v else go (v * 10) (k - 1) in go 1 n
-
 (* count the pool bytes for one DEC literal occurrence, 0 if an
    identical cell was already counted [R614] *)
 let pdec_dec_cell cx (p : int) (sc : int) (text : string) : int =
@@ -1154,6 +1192,14 @@ let pdec_dec_cell cx (p : int) (sc : int) (text : string) : int =
    LP1 (`y = 32768; y2 = 32768') and LQ6 (`032768' then `0032768', p=6 and p=7, same 4-byte image)
    each get ONE cell.  It shares cx.pd_img with pdec_dec_cell, which is what lets a dec(5) store
    and an integer store of the same literal share one cell as DR does [LQA]. *)
+let pdec_int_neg_lit_cell (cx : pdec_ctx) (text : string) : int =
+  let v, _own, _ls = dec_lit_value text in
+  if bin15_fits v then 0
+  else
+    let img = lit_dec_neg_image (-v) text in
+    if List.mem img !(cx.pd_img) then 0
+    else (cx.pd_img := img :: !(cx.pd_img); List.length img)
+
 let pdec_int_lit_cell (cx : pdec_ctx) (text : string) : int =
   let v, _own, _ls = dec_lit_value text in
   if bin15_fits v then 0
@@ -1844,6 +1890,11 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
                     the C150 constant-operand path, which allocates nothing, so an Enumber arm there
                     over-demanded and made previously-building programs fail the pool invariant. *)
                  | Ast.Enumber t -> pdec_int_lit_cell cx t
+                 (* [E2E-25/C178] LP8: a negative overflow literal is a STORE position whose
+                    lowering now allocates a signed cell, so it is demanded here.  Same scope rule
+                    as the arm above: bare literal only, never an operand of a binary [C179]. *)
+                 | Ast.Eprefix (Ast.Minus, { Ast.e = Ast.Enumber t; _ }) ->
+                     pdec_int_neg_lit_cell cx t
                  | Ast.Eident _ -> 0
                  | _ -> if pdec_is_dec cx r then pdec_operand_bytes cx r else 0)
         | _ -> 0
@@ -4997,6 +5048,12 @@ let lower_store_ptr st (lhs_orig : string) (rhs : Ast.expr) =
 (* [E2E-24/C178] the single dispatcher for "put this integer literal into HL at a store".
    In range it is DR's constant-reuse ladder [C177] untouched; out of range it is the decimal-cell
    route [C178].  Every store position goes through here so the threshold is decided in one place. *)
+(* [E2E-25/C178] negative literal out of bin(15) range: signed cell plus the SAME conversion
+   route, with no ?IN20N, because the sign is already in the cell [LP8]. *)
+let lit_dec_neg_to_hl st (text : string) =
+  let p = lit_dec_p text in
+  dec_cell_route st (bcd_pack_signed (- (parse_int_const text)) p) p
+
 let int_lit_to_hl st (text : string) =
   let v = parse_int_const text in
   if bin15_fits v then hl_const st v else lit_dec_to_hl st text v
@@ -5185,6 +5242,16 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
 
       (match rhs.Ast.e with
        | Ast.Enumber s -> int_lit_to_hl st s
+       | Ast.Eprefix (Ast.Minus, { Ast.e = Ast.Enumber s; _ })
+         when is_int_literal s && not (fits_int_lit s) ->
+           (* [E2E-25/C178] `-32768'.  DR does NOT load 32768 and negate: LP8's golden is
+              `LXI H,*S / MVI A,05 / ?DLDOP / ?QDI15 / SHLD Y' with the cell holding the ten's
+              complement and sign nibble 9 -- the minus is folded into the literal at compile time.
+              Mine emitted `LXI H,8000 / CALL ?IN20N / SHLD', which SILENTLY COMPLETED while DR
+              aborts with `ERROR (1), Conversion': the wrong-value class this priority exists to
+              close.  The guard admits only out-of-range magnitudes, so the in-range negate path
+              (MN1-MN8, MNEG, byte-exact) is untouched. *)
+           lit_dec_neg_to_hl st s
        | Ast.Ebinary ((Ast.Add | Ast.Sub as op), { Ast.e = Ast.Eident m; _ },
                       { Ast.e = Ast.Enumber ks; _ })
          when String.lowercase_ascii m.Ast.orig
