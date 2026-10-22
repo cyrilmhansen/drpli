@@ -50,6 +50,18 @@ type rt =
                ; ret : rt option; ptypes : rt list }
   | RTlabel | RTformat | RTbuiltin
   | RTstruct of { level : int; members : int }
+  | RTbmem of string * int * rt
+      (* [E2E-27/P2] a MEMBER of a level-numbered BASED structure: the associated pointer's name
+         ("" for DR's BARE `based', where every access must be qualified), the record-relative
+         offset, and the member's own type.  DR's map prints these as `.A FIXED BINARY(15,0)
+         MEMBER' at the record offset [S1-S12], and the member has NO cell of its own: S1's
+         AUTO STORAGE is 2 bytes -- just `declare p pointer' -- with the whole structure adding
+         nothing. *)
+  | RTstructrec of string * int
+      (* the structure NAME itself -- what `allocate s set(p)', `free s' and `free p->s' name.
+         Carries the associated pointer ("" = bare based) and the total record size, which is
+         DR's measured ALLOCATE operand: S1 2, S2 4, S3 4, S6 5, S7 6, and REVERSE's
+         wordnode = char(30) varying + pointer = 0x21 = 33 [golden/e2e319d 0065 LXI H,0021]. *)
 
 let rec rty_str = function
   | RTbin p -> Printf.sprintf "FIXED BINARY(%d,0)" p
@@ -68,6 +80,13 @@ let rec rty_str = function
   | RTlabel -> "LABEL"
   | RTformat -> "FORMAT"
   | RTbuiltin -> "BUILTIN"
+  | RTbmem (p, k, t) ->
+      rty_str t ^ " MEMBER OF BASED"
+      ^ (if String.equal p "" then "" else "(" ^ String.uppercase_ascii p ^ ")@" ^ string_of_int k)
+  | RTstructrec (p, sz) ->
+      "STRUCTURE BASED"
+      ^ (if String.equal p "" then "" else "(" ^ String.uppercase_ascii p ^ ")")
+      ^ " SIZE " ^ string_of_int sz
   | RTstruct { level; members } ->
       Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d" level members
 
@@ -143,6 +162,8 @@ and bytes_of = function
          cell holds a 16-bit data address, which is what `p = addr(z)' stores [LXI H,<DATA+off z>
          / SHLD <p>] and `LHLD <p>' reads.  The old citation was `[HYPOTHESIS] PROBE 57', whose
          probe has no .REL. *)
+  | RTbmem (_, _, _) -> 0   (* a view into an allocated record, not a variable *)
+  | RTstructrec (_, _) -> 0 (* the record type itself allocates nothing statically *)
   | RTbased (_, t) -> 0                     (* a view, not a variable -- see the type note above *)
   | RTentry _ -> 0   (* entry/FUNCTION symbols show at 0000, no visible bytes *)
   | _ -> 0
@@ -196,7 +217,10 @@ let resolve_type_raw (d : dcl) : rt =
    storage [P063B, PB1-PB4, PB9, PB13-PB15].  Shapes that are not measured are refused here rather
    than given a plausible layout:
      - a BASED whose operand is not a bare identifier  (e.g. based(expr) -- no DR sample);
-     - a based-on name that is not a declared POINTER in scope (PB16's structure-name confusion);
+     - a based-on name that is not a declared POINTER in scope (PB16/ST11: `declare nb based(pn)
+       nd' -- DR gives SYNTAX + BASED REQ, so naming a structure type through a based declaration
+       is not a form in this dialect.  This is NOT a limit on based structures themselves, which
+       DR accepts: see [E2E-27] below.)
      - a typeless based declaration (DR's own `BASED REQ' family, PB10/PB17).
    Note the pointer is resolved BY NAME, not by offset: DR reads the cell at every access, so a
    based view must follow whatever the pointer holds at that moment [PB3, PB22]. *)
@@ -208,6 +232,13 @@ let resolve_type (d : dcl) : rt =
       let ptr =
         match a.aargs with
         | [ { e = Ast.Eident h; _ } ] -> String.lowercase_ascii h.Ast.orig
+        | [] when d.dtype = None ->
+            "" (* [E2E-27/P2] BARE `based' on a typeless structure head -- NETWORK's
+                  `declare 1 city_node based' and S3/S4, all accepted by DR with a .REL.
+                  The record has no associated pointer, so only qualified `p->member' access
+                  is possible; the empty name is what marks that downstream. A bare BASED on a
+                  declaration WITH a type (a scalar `q based fixed') has no DR sample, so it
+                  falls through to the refusal below rather than getting a silent layout. *)
         | _ ->
             failwith
               ("codegen: BASED whose operand is not a bare pointer name [TBD] "
@@ -218,12 +249,34 @@ let resolve_type (d : dcl) : rt =
       | RTlabel | RTformat | RTbuiltin | RTentry _ | RTfile _ ->
           failwith
             ("codegen: BASED(" ^ ptr ^ ") on a " ^ rty_str rt
-             ^ " declaration has no DR sample [TBD] (based pointers, structures and allocated "
-             ^ "structures are all refused by DR itself: PB10/PB16/PB17 give BASED REQ)")
+             ^ " declaration has no DR sample [TBD].  [E2E-27 correction] an earlier draft of "
+             ^ "this message claimed based STRUCTURES were refused by DR itself, on the strength "
+             ^ "of PB10/PB16/PB17; that was wrong -- those were bad declaration spellings.  "
+             ^ "REVERSE and NETWORK both compile, and ST1-ST10 reproduce level-numbered based "
+             ^ "structures byte for byte.  What has no sample is a BASED on a label, format, "
+             ^ "entry or file head.")
       | rt' ->
           (* the based-on pointer must be a declared POINTER somewhere DR will resolve; if it is not
              in this frame's symbols the view would silently read an unrelated cell, so refuse. *)
           RTbased (ptr, rt')
+
+(* [E2E-27/P2] ONE place reads the BASED attribute of a STRUCTURE HEAD, so the layout walk, the
+   member bindings and the record size all agree on which pointer a record belongs to [C179].
+   Some "" is DR's bare `based' (NETWORK's city_node/route_node; S3, S4 accepted): the record has
+   no associated pointer, so an unqualified member reference has no address to use and refuses at
+   codegen -- DR's accepted spelling there is `p->member'.  Some p is `based(p)'. *)
+let head_based (d : dcl) : string option =
+  match
+    List.find_opt (fun (a : attr) -> String.uppercase_ascii a.akey = "BASED") d.dattrs
+  with
+  | None -> None
+  | Some a ->
+      (match a.aargs with
+       | [] -> Some ""
+       | [ { e = Ast.Eident h; _ } ] -> Some (String.lowercase_ascii h.Ast.orig)
+       | _ ->
+           failwith
+             "bind: BASED(...) on a structure head with a non-identifier operand has no DR sample [TBD] (S1-S12 and REVERSE/NETWORK use based(<pointer name>) or bare based)")
 
 type sym = { flag : string; sname : string; disp : string; off : int }
 let is_init_attr (d : dcl) =
@@ -290,17 +343,42 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
   let hname = ref "" in
   let hlevel = ref 0 in
   let hstatic = ref false in
+  (* [E2E-27/P2] state for a level-numbered BASED structure head.  hbase is None for an ordinary
+     (storage-bearing) structure and Some ptr for `1 s based(ptr)' / bare `1 s based'.  hmo runs the
+     record-relative member offset and hsz accumulates the total record size, which is exactly the
+     operand DR puts in `LXI H,<size>' before CALL ?ALLOP -- S1 2, S2 4, S3 4, S6 5 (fixed+bit+fixed,
+     NO alignment padding), S7 6, REVERSE 33.  Accumulating the size here keeps ONE layout authority: nothing
+     downstream re-derives offsets or the record size. *)
+  let hbase = ref (None : string option) in
+  let horig = ref "" in
+  let hmo = ref 0 in
+  let hsz = ref 0 in
   let hoff = ref 0 in
   let flush () =
     match !head with
     | None -> ()
     | Some (hl, ho) ->
         push { flag = "c"; sname = !hname
-             ; disp = Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d %s"
-                    hl !mcnt (if !hstatic then "STATIC" else "AUTOMATIC")
+             ; disp =
+                 (match !hbase with
+                  (* DR prints a based head as `WORDNODE STRUCTURE LEVEL 1, MEMBERS 2
+                     BASED(SENTENCE)' [REVERSE] and a BARE-based one as `NODE STRUCTURE LEVEL 1,
+                     MEMBERS 2 BASED()' [S3] -- the empty parentheses are DR's own, not a
+                     placeholder I invented. *)
+                  | Some p ->
+                      Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d BASED(%s)" hl !mcnt
+                        (String.uppercase_ascii p)
+                  | None ->
+                      Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d %s" hl !mcnt
+                        (if !hstatic then "STATIC" else "AUTOMATIC"))
              ; off = ho };
         List.iter push (List.rev !members);
-        head := None; members := []; mcnt := 0
+        (* the structure NAME becomes addressable for ALLOCATE/FREE only once its size is known *)
+        (match !hbase with
+         | Some p when !mcnt > 0 && String.length !horig > 0 ->
+             rows := (!horig, RTstructrec (p, !hsz), 0, false) :: !rows
+         | _ -> ());
+        head := None; members := []; mcnt := 0; hbase := None; hmo := 0; hsz := 0
   in
   List.iter
     (fun (item : dcl) ->
@@ -327,10 +405,16 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
             let ho = if explicit_static then !soff else !off in
             hstatic := explicit_static;
             hname := upper item.dname.orig;
+            hbase := head_based item;
+            horig := String.lowercase_ascii item.dname.orig;
+            hmo := 0; hsz := 0;
             members := []; mcnt := 0;
             (* TYPELESS group heads occupy nothing [EX employee, record,
-               grp]; heads with an explicit type reserve their size *)
-            if item.dtype <> None && bytes_of rt > 0 then begin
+               grp]; heads with an explicit type reserve their size.  A BASED head
+               reserves NOTHING even when it has a type: the whole record lives at the
+               pointer's target, which S1 proves with AUTO STORAGE 2 for `declare p
+               pointer' plus a 2-byte structure. *)
+            if !hbase = None && item.dtype <> None && bytes_of rt > 0 then begin
               if explicit_static then begin
                 head := Some (lvl, !soff); soff := !soff + bytes_of rt
               end else begin
@@ -345,6 +429,27 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
           if is_head then begin
             (* head line materialized at flush; do not emit member *)
             ()
+          end else if !hbase <> None then begin
+            (* [E2E-27/P2] a member of a BASED structure: offset accumulates in the RECORD, not in
+               the frame.  DR lays members out CONTIGUOUSLY with no alignment padding -- S6 is
+               fixed(0..1), bit(2), fixed(3..4) with a 2-byte member at the ODD offset 3, and
+               allocation size 5 -- so `mo + bytes_of' is the whole rule and anything that inserted
+               padding would change both the offsets and the ALLOCATE operand. *)
+            incr mcnt;
+            let sz = bytes_of rt in
+            let mo = !hmo in
+            hmo := mo + sz;
+            hsz := !hsz + sz;
+            (match !hbase with
+             | Some pp ->
+                 rows :=
+                   (String.lowercase_ascii item.dname.orig,
+                    RTbmem (pp, mo, rt), 0, false)
+                   :: !rows
+             | None -> ());
+            members :=
+              { flag = "c"; sname = "." ^ upper item.dname.orig
+              ; disp = rty_str rt ^ " MEMBER"; off = mo } :: !members
           end else begin
             incr mcnt;
             let sz = bytes_of rt in

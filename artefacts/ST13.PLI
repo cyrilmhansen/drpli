@@ -1,0 +1,15 @@
+st13: procedure options(main);
+   declare head pointer, p pointer, w fixed;
+   declare 1 node based(head), 2 val fixed, 2 link pointer;
+   w = 0;
+   call fill();
+   put list('w=', w);
+   free head->node;
+ fill: procedure;
+   allocate node set(p);
+   p->val = 5;
+   w = p->val;
+ end fill;
+  stop;
+end st13;
+

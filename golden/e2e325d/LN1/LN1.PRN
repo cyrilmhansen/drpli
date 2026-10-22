@@ -1,0 +1,183 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: LN1
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 NULL BUILTIN CONSTANT
+a 0000 LN1 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 8 BYTES
+c 0000 HEAD POINTER AUTOMATIC
+c 0002 P POINTER AUTOMATIC
+c 0004 Q POINTER AUTOMATIC
+c 0006 Z FIXED BINARY(15,0) AUTOMATIC
+c 0000 NODE STRUCTURE LEVEL 1, MEMBERS 2 BASED(HEAD)
+c 0000 .VAL FIXED BINARY(15,0) MEMBER
+c 0002 .LINK POINTER MEMBER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: LN1
+
+   1 a 0000 ln1: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare head pointer, p pointer, q pointer, z fixed;
+   3 c 0006    declare 1 node based(head), 2 val fixed, 2 link pointer;
+   4 c 0006    allocate node set(head);
+       0006       LXI  H,0004
+       0009       CALL ?ALLOP
+       000C       SHLD HEAD A(0018)
+   5 c 000F    val = 11;
+       000F       LHLD HEAD A(0018)
+       0012       MVI  M,0B
+       0014       INX  H
+       0015       MVI  M,00
+   6 c 0017    link = null();
+       0017       LXI  H,0000
+       001A       PUSH H
+       001B       LHLD HEAD A(0018)
+       001E       INX  H
+       001F       INX  H
+       0020       POP  D
+       0021       MOV  M,E
+       0022       INX  H
+       0023       MOV  M,D
+   7 c 0024    allocate node set(p);
+       0024       LXI  H,0004
+       0027       CALL ?ALLOP
+       002A       SHLD P A(001A)
+   8 c 002D    p->val = 22;
+       002D       LHLD P A(001A)
+       0030       MVI  M,16
+       0032       INX  H
+       0033       MVI  M,00
+   9 c 0035    p->link = null();
+       0035       LXI  H,0000
+       0038       PUSH H
+       0039       LHLD P A(001A)
+       003C       INX  H
+       003D       INX  H
+       003E       POP  D
+       003F       MOV  M,E
+       0040       INX  H
+       0041       MOV  M,D
+  10 c 0042    head->link = p;
+       0042       LHLD P A(001A)
+       0045       PUSH H
+       0046       LHLD HEAD A(0018)
+       0049       INX  H
+       004A       INX  H
+       004B       POP  D
+       004C       MOV  M,E
+       004D       INX  H
+       004E       MOV  M,D
+  11 c 004F    z = p->val;
+       004F       LHLD P A(001A)
+       0052       MOV  E,M
+       0053       INX  H
+       0054       MOV  D,M
+       0055       XCHG 
+       0056       SHLD Z A(001E)
+  12 c 0059    put list('first=', head->val, ' linked=', z);
+       0059       LXI  D,0252
+       005C       LXI  B,0000
+       005F       CALL ?SYSPR
+       0062       LXI  H,* S(0000)
+       0065       MVI  A,06
+       0067       CALL ?SLCTS
+       006A       CALL ?PNCOP
+       006D       LHLD HEAD A(0018)
+       0070       MOV  E,M
+       0071       INX  H
+       0072       MOV  D,M
+       0073       XCHG 
+       0074       MVI  A,09
+       0076       CALL ?QICOP
+       0079       CALL ?PNVOP
+       007C       LXI  H,* S(0006)
+       007F       MVI  A,08
+       0081       CALL ?SLCTS
+       0084       CALL ?PNCOP
+       0087       LHLD Z A(001E)
+       008A       MVI  A,09
+       008C       CALL ?QICOP
+       008F       CALL ?PNVOP
+       0092       CALL ?QIOOP
+       005D       ==== 0095
+  13 c 0095    p = head->link;
+       0095       LHLD HEAD A(0018)
+       0098       INX  H
+       0099       INX  H
+       009A       MOV  E,M
+       009B       INX  H
+       009C       MOV  D,M
+       009D       XCHG 
+       009E       SHLD P A(001A)
+  14 c 00A1    p->val = 33;
+       00A1       LHLD P A(001A)
+       00A4       MVI  M,21
+       00A6       INX  H
+       00A7       MVI  M,00
+  15 c 00A9    q = head->link;
+       00A9       LHLD HEAD A(0018)
+       00AC       INX  H
+       00AD       INX  H
+       00AE       MOV  E,M
+       00AF       INX  H
+       00B0       MOV  D,M
+       00B1       XCHG 
+       00B2       SHLD Q A(001C)
+  16 c 00B5    put list(' after=', q->val, ' z=', z);
+       00B5       LXI  D,0252
+       00B8       LXI  B,0000
+       00BB       CALL ?SYSPR
+       00BE       LXI  H,* S(000E)
+       00C1       MVI  A,07
+       00C3       CALL ?SLCTS
+       00C6       CALL ?PNCOP
+       00C9       LHLD Q A(001C)
+       00CC       MOV  E,M
+       00CD       INX  H
+       00CE       MOV  D,M
+       00CF       XCHG 
+       00D0       MVI  A,09
+       00D2       CALL ?QICOP
+       00D5       CALL ?PNVOP
+       00D8       LXI  H,* S(0015)
+       00DB       MVI  A,03
+       00DD       CALL ?SLCTS
+       00E0       CALL ?PNCOP
+       00E3       LHLD Z A(001E)
+       00E6       MVI  A,09
+       00E8       CALL ?QICOP
+       00EB       CALL ?PNVOP
+       00EE       CALL ?QIOOP
+       00B9       ==== 00F1
+  17 c 00F1    free head->node;
+       00F1       LHLD HEAD A(0018)
+       00F4       CALL ?FREOP
+  18 c 00F7    free q->node;
+       00F7       LHLD Q A(001C)
+       00FA       CALL ?FREOP
+  19 c 00FD   stop;
+       00FD       CALL ?STOPX
+  20 a 0100 end ln1;
+
+CODE SIZE = 0100
+DATA AREA = 0020
+FREE SYMS = 37D7
+END  COMPILATION
+

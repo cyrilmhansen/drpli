@@ -1,0 +1,9 @@
+st8: procedure options(main);
+   declare p pointer;
+   declare 1 s based(p), 2 a fixed;
+   allocate s set(p);
+   a = 4;
+   free p->s;
+  stop;
+end st8;
+

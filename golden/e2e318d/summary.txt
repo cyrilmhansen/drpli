@@ -1,0 +1,6 @@
+S10	ok	PRN=True REL=True
+S11	diag	PRN=True REL=False
+S12	ok	PRN=True REL=True
+S7	ok	PRN=True REL=True
+S8	ok	PRN=True REL=True
+S9	ok	PRN=True REL=True

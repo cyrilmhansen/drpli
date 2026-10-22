@@ -1,0 +1,90 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: ST13
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 ST13 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 6 BYTES
+c 0000 HEAD POINTER AUTOMATIC
+c 0002 P POINTER AUTOMATIC
+c 0004 W FIXED BINARY(15,0) AUTOMATIC
+c 0000 NODE STRUCTURE LEVEL 1, MEMBERS 2 BASED(HEAD)
+c 0000 .VAL FIXED BINARY(15,0) MEMBER
+c 0002 .LINK POINTER MEMBER
+c 0000 FILL ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 9, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: ST13
+
+   1 a 0000 st13: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare head pointer, p pointer, w fixed;
+   3 c 0006    declare 1 node based(head), 2 val fixed, 2 link pointer;
+   4 c 0006    w = 0;
+       0006       LXI  H,0000
+       0009       SHLD W A(0006)
+   5 c 000C    call fill();
+       000C       CALL 0000
+   6 c 000F    put list('w=', w);
+       000F       LXI  D,0252
+       0012       LXI  B,0000
+       0015       CALL ?SYSPR
+       0018       LXI  H,* S(0000)
+       001B       MVI  A,02
+       001D       CALL ?SLCTS
+       0020       CALL ?PNCOP
+       0023       LHLD W A(0006)
+       0026       MVI  A,09
+       0028       CALL ?QICOP
+       002B       CALL ?PNVOP
+       002E       CALL ?QIOOP
+       0013       ==== 0031
+   7 c 0031    free head->node;
+       0031       LHLD HEAD A(0002)
+       0034       CALL ?FREOP
+   8 c 0037  fill: procedure;
+   9 e 0037    allocate node set(p);
+       0037       JMP  0000
+       003A       LXI  H,0004
+       003D       CALL ?ALLOP
+       0040       SHLD P A(0004)
+  10 e 0043    p->val = 5;
+       0043       LHLD P A(0004)
+       0046       MVI  M,05
+       0048       INX  H
+       0049       MVI  M,00
+  11 e 004B    w = p->val;
+       004B       LHLD P A(0004)
+       004E       MOV  E,M
+       004F       INX  H
+       0050       MOV  D,M
+       0051       XCHG 
+       0052       SHLD W A(0006)
+       0055       RET  
+       0038       ==== 0056
+  12 c 0056  end fill;
+  13 c 0056   stop;
+       0056       CALL ?STOPX
+  14 a 0059 end st13;
+
+CODE SIZE = 0059
+DATA AREA = 0008
+FREE SYMS = 3851
+END  COMPILATION
+

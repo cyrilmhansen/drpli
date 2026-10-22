@@ -1,0 +1,10 @@
+st11: procedure options(main);
+   declare 1 nd, 2 v fixed, 2 nx pointer;
+   declare pn pointer;
+   declare nb based(pn) nd;
+   allocate nd set(pn);
+   v = 2;
+   free nb;
+  stop;
+end st11;
+

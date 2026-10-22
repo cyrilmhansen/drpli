@@ -1,0 +1,15 @@
+st4: procedure options(main);
+   declare p pointer, u pointer;
+   declare 1 aa based, 2 x fixed;
+   declare 1 bb based, 2 y fixed, 2 link pointer;
+   allocate aa set(p);
+   allocate bb set(u);
+   x = 11;
+   y = 22;
+   link = p;
+   put list('x=', x, ' y=', y);
+   free aa;
+   free bb;
+  stop;
+end st4;
+

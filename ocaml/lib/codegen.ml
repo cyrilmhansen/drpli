@@ -26,6 +26,15 @@ type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
      type refuses at the layout switch, because DR's store/read bytes for it are not in hand yet. *)
   | Vptr
   | Vbased of string
+  (* [E2E-27/P2/P3] members and names of a level-numbered BASED structure.  Like Vbased these are
+     VIEWS: no cell, no AUTO STORAGE contribution.  The string is the associated POINTER's name (""
+     for DR's bare `based', where only qualified access is possible) and the int is the member's
+     RECORD-RELATIVE offset, which DR reaches by emitting `INX H' that many times after `LHLD <ptr>'
+     -- S6's fixed member at offset 3 is `LHLD P / INX H / INX H / INX H / MVI M,02' [measured],
+     proving members are contiguous with NO alignment padding. *)
+  | Vbfix of string * int      (* based FIXED BINARY(15) member   [S1 .A@0, S6 .A@0 .C@3] *)
+  | Vbptr of string * int      (* based POINTER member            [S2 .NX@2, REVERSE .next@31] *)
+  | Vstruct of string * int    (* the structure NAME: associated pointer + record size [LXI H,size] *)
    (* fixed/varying char capacity. Varying representation PROVEN
       [V101-V104]: length byte at offset 0, data at +1..+n, total
       n+1 bytes (binder authority Bind.bytes_of).
@@ -540,6 +549,18 @@ let vk_of st name =
    ran and died in `List.assoc nm st.procs' -- a control-flow error in my patch, not the
    "Esuffix resolved twice" story recorded in C165 [proven by a reach-through probe, E2E-20].
    Returning a discriminated result here makes fall-through impossible by construction. *)
+(* [E2E-27/P3] ONE emission for the pointer-cell test and for the scalar-view ALLOCATE, so the
+   statement arms above cannot drift apart from the layout rules [C179]. *)
+let is_ptr_cell st (nm : string) =
+  match vk_of st (String.lowercase_ascii nm) with Vptr -> true | _ -> false
+
+(* [E2E-26/P3] DR's measured ALLOCATE sizes for a scalar BASED view are the based type's byte
+   count: fixed=2 [PB7 0006 LXI H,0002, PB8], bit(8)=1 [PB14], dec(5)=3 [PB13], char(3)=3 [PB15],
+   char(5)=5 [PB6].  The layout switch admits ONLY based FIXED BINARY(15) today, so 2 is the one
+   value that can legitimately reach here; when another based kind is admitted, this size and that
+   switch must be extended together from new DR samples -- inventing a size for an unmeasured type
+   would allocate the wrong amount at run time, which no byte check would catch. *)
+
 let suf_is_element st e = suf_is_element_arr st.arrays e
 
 
@@ -1697,6 +1718,11 @@ let classify_item (x : Ast.expr) =
   | Ast.Estring v -> Some (PIlit v)
   | Ast.Eident n -> Some (PIvar n)
   | Ast.Ebinary _ | Ast.Eprefix _ -> Some (PInum x)
+  (* [E2E-27/P3] a qualified structure-member read in a PUT LIST is an ordinary numeric item: S3's
+     `put list('d=', p->dist)' lowers to LHLD P / MOV E,M / INX H / MOV D,M / XCHG / MVI A,09 /
+     ?QICOP [golden/e2e317d S3 0038-0041], i.e. lower_hl's qualified-read tail followed by the
+     same numeric tail every fixed value uses. *)
+  | Ast.Eqptr (_, _) -> Some (PInum x)
   | Ast.Econd inner -> Some (PInum inner)  (* parens grouping [N304] *)
   | Ast.Esuffix (hd, args) when args <> [] ->
       (* [RFACT @3B-46] function-call item: pair + LXI H,*A(slot) +
@@ -3014,21 +3040,33 @@ let rec lower_hl st (e : Ast.expr) =
       | _ -> failwith "codegen: non-identifier call target deferred [TBD]"
       end
   | Ast.Eident n when
-      (match vk_of st (String.lowercase_ascii n.Ast.orig) with Vbased _ -> true | _ -> false) ->
-      (* [E2E-26/P2] READ THROUGH A BASED NAME:  LHLD <pointer cell> / MOV E,M / INX H / MOV D,M /
+      (match vk_of st (String.lowercase_ascii n.Ast.orig) with
+       | Vbased _ | Vbfix _ | Vbptr _ -> true
+       | _ -> false) ->
+      (* [E2E-26/P2, extended E2E-27/P3] READ THROUGH A BASED NAME:  LHLD <pointer cell> / MOV E,M / INX H / MOV D,M /
          XCHG, value in HL [P063B 0026 as a PUT item, P071K 0014 as an ADD operand, PB19 001E feeding
          DAD H].  Byte-for-byte the pointer-FORMAL dereference tail already emitted for st.deref
          names, which is why this reuses it instead of inventing one; what is loaded is the POINTER's
          address, since the based name has no cell of its own [PB1: q prints at p's offset and adds
          nothing to AUTO STORAGE]. *)
-      let pn =
+      let (pn, k) =
         match vk_of st (String.lowercase_ascii n.Ast.orig) with
-        | Vbased p -> p
+        | Vbased p -> (p, 0)
+        | Vbfix (p, k) | Vbptr (p, k) -> (p, k)
         | _ -> assert false
       in
+      if String.length pn = 0 then
+        failwith
+          ("codegen: unqualified reference to `" ^ n.Ast.orig
+           ^ "' belongs to a BARE-based structure, which has no associated pointer [TBD] (NETWORK "
+           ^ "declares `1 city_node based' with no pointer and always writes p->city_name; S3 "
+           ^ "confirms the qualified spelling compiles with a .REL while nothing unqualified does)")
+      else begin
       st.last_imm <- None;
       d st op_lhld; reloc st Data (addr_of st pn);
+      for _ = 1 to k do d st 0x23 done;
       d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
+      end
   | Ast.Ebuilt ("ADDR", [ e ]) ->
       (* [E2E-26/P2] addr(z) of a local automatic: the relocated cell address in HL via LXI H +
          a DATA relocation [P063B 000C loads z@0002; P041, PB18-PB22 the same].  Only a plain local
@@ -3062,6 +3100,42 @@ let rec lower_hl st (e : Ast.expr) =
          parenless `p = null' appears only inside a CONDITION [P019A], whose lowering is separate and
          is not part of this slice. *)
       d st 0x21; d st 0x00; d st 0x00; st.last_imm <- Some 0
+  | Ast.Eqptr (base, fld) ->
+      (* [E2E-27/P3] READ a structure member through a pointer:  LHLD <qualifier cell> / INX H x
+         offset / MOV E,M / INX H / MOV D,M / XCHG.  This is REVERSE's `sentence = next' and S3's
+         `p->dist' operand form; the qualifier -- not the structure's declared pointer -- supplies the
+         address, which is exactly what REVERSE proves (wordnode is declared based(sentence) yet is
+         reached through newnode).  Note what the value IS: the 2 bytes stored AT the member, i.e. the
+         link itself.  It is deliberately not the member's address (no LXI H of a record+off cell) and
+         not the target record's contents; the pointer variable that receives it then behaves like any
+         other pointer cell, so following the link is one read, not an add. *)
+      let bn =
+        match (unwrap_e base).Ast.e with
+        | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
+        | _ ->
+            failwith
+              "codegen: qualified read whose base is not a bare pointer name has no DR sample [TBD] (S3/S8/REVERSE all qualify with a declared pointer)"
+      in
+      if not (is_ptr_cell st bn) then
+        failwith
+          ("codegen: `" ^ bn ^ "->" ^ fld.Ast.orig
+           ^ "' qualifies through something that is not a POINTER cell [TBD] (E2E-27 measures only "
+           ^ "pointer-qualified member reads)")
+      else begin
+        match vk_of st (String.lowercase_ascii fld.Ast.orig) with
+        | Vbfix (_, k) | Vbptr (_, k) ->
+            st.last_imm <- None;
+            d st op_lhld; reloc st Data (addr_of st bn);
+            for _ = 1 to k do d st 0x23 done;
+            d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
+        | _ ->
+            failwith
+              ("codegen: qualified read of " ^ fld.Ast.orig
+               ^ " through " ^ bn
+               ^ " is unsampled [TBD] (a scalar BASED name read through a qualifier has no DR "
+               ^ "sample -- P041 measures only the WRITE `p->q = 100'; and a non-FIXED/POINTER member "
+               ^ "refuses at the layout switch)")
+      end
   | Ast.Eident n ->
       (match vk_of st n.Ast.orig with
        | Vint -> ()
@@ -3560,6 +3634,12 @@ let store_char st name (k : vkind) (v : string) =
         ("codegen: character store through a BASED name is unsampled [TBD] (E2E-26/P2 measures only "
          ^ "based FIXED BINARY(15); PB6/PB15 allocate a based char but their store bytes are not "
          ^ "emitted-and-compared yet)")
+  | Vbfix _ | Vbptr _ | Vstruct _ ->
+      failwith
+        ("codegen: character store into the based-structure target " ^ name
+         ^ " is unsampled [TBD] (E2E-27/P3 implements based FIXED and POINTER members; REVERSE shows "
+         ^ "the varying-member route exists in DR -- `word = newword' -- but its bytes are not "
+         ^ "characterized by a probe of its own yet)")
 
 let is_small_int st (n : Ast.name) =
   let li = String.lowercase_ascii n.Ast.orig in
@@ -4296,6 +4376,9 @@ let vk_name (vk : vkind) : string =
   | Vflt -> "float" | Vbit1 -> "bit(1)"
   | Vptr -> "pointer"
   | Vbased p -> "based(" ^ p ^ ")"
+  | Vbfix (p, k) -> "based-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
+  | Vbptr (p, k) -> "based-pointer-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
+  | Vstruct (p, sz) -> "based-structure(" ^ p ^ ",size=" ^ string_of_int sz ^ ")"
 
 (* ==================================================================
    [E2E-10 step 2] FLOAT BINARY(24): value model + operand-mode lowering.
@@ -5263,13 +5346,21 @@ let hl_const st k =
                 st.last_imm <- Some k;
                 d st op_lxi_h; d st (k land 0xff); d st ((k lsr 8) land 0xff)
 
-let lower_store_ptr ?(pa_of = None) st (lhs_orig : string) (rhs : Ast.expr) =
+let lower_store_ptr ?(pa_of = None) ?(off = 0) ?(addr_de = false)
+    st (lhs_orig : string) (rhs : Ast.expr) =
   (* [E2E-26/P2] pa_of lets a BASED view reuse this machinery: for a pointer FORMAL the cell to
      reload is the formal's own, and for `q based(p)' it is p's cell, while lhs_orig stays the NAME
      that the `x = x +- lit' shape test compares against (PB21 does `q = q + 41', so that identity
      test must be against q, not p).  Default None keeps every existing call site identical. *)
   let pa = match pa_of with Some a -> a | None -> addr_of st lhs_orig in
-  let lhld_ptr () = d st op_lhld; reloc st Data pa in
+  (* [E2E-27/P3] `off' is the member's record-relative offset.  It is applied HERE, immediately
+     after every `LHLD <pointer>', because that is the single point through which all of DR's based
+     member forms pass: the constant store, the PUSH/POP general store and the dereference read all
+     load the record address the same way and then step.  Measured: offset 0 [S1, P071K], offset 2
+     [S6 .B, S2 .NX], offset 3 [S6 .C] -- and `INX H' rather than `DAD' is DR's own choice, since
+     S6's offset-3 store emits three INX H, not an add. *)
+  let deref_inx () = for _ = 1 to off do d st 0x23 done in
+  let lhld_ptr () = d st op_lhld; reloc st Data pa; deref_inx () in
   let deref_read () = (d st 0x5e; d st 0x23; d st 0x56; d st op_xchg) in
   (* store HL through the pointer held in DE as ptr+1 *)
   let store_via_de () =
@@ -5282,6 +5373,18 @@ let lower_store_ptr ?(pa_of = None) st (lhs_orig : string) (rhs : Ast.expr) =
   in
   st.last_imm <- None;
   match (unwrap_e rhs).Ast.e with
+  | Ast.Ebuilt ("ADDR", [ { Ast.e = Ast.Eident h; _ } ]) when addr_de ->
+      (* [E2E-27/P3] when the value is a plain address, DR loads the DESTINATION first and puts
+         the value in DE -- `LHLD <p> / INX H x off / LXI D,<target> / MOV M,E / INX H /
+         MOV M,D' [S2 002A-0033, storing into a record's POINTER member].  No PUSH/POP: HL
+         already holds the destination and the value is one instruction wide, the same reason
+         the literal chain avoids the stack (C147).  Enabled ONLY on the member route, where it
+         is measured; the scalar-view and pointer-formal samples (PB18, P041) use the PUSH/POP
+         form and stay byte-identical, so switching it on by default would be a regression
+         dressed as a simplification [C179]. *)
+      lhld_ptr ();
+      d st 0x11; reloc st Data (addr_of st (String.lowercase_ascii h.Ast.orig));
+      d st 0x72; d st 0x23; d st 0x73
   | Ast.Enumber k ->
       let v = parse_int_const k in
       lhld_ptr ();
@@ -5297,6 +5400,14 @@ let lower_store_ptr ?(pa_of = None) st (lhs_orig : string) (rhs : Ast.expr) =
         when String.lowercase_ascii n.Ast.orig
              = String.lowercase_ascii lhs_orig ->
           let v = parse_int_const k in
+          if off > 0 then
+            failwith
+              ("codegen: `x = x +- lit' through a BASED STRUCTURE MEMBER (record offset "
+               ^ string_of_int off
+               ^ ") has no DR sample [TBD] (E2E-27/P3 measures member offsets for CONSTANT stores "
+               ^ "[S1 a=7, S6 c=2 at offset 3] and GENERAL stores [S2 nx=null(), S3 p->nxt, S9 nx=r]; "
+               ^"the arithmetic-in-place form is measured only for a pointer formal, PB21)")
+          ;
           if v = 0 then
             failwith
               ("codegen: [TBD] `x = x + 0` through a pointer formal is not                 sampled -- C119's zero-elision was established for ordinary                 cells (LHLD/SHLD only), and dropping the bias would also drop                 the store, so the shape has no evidence. Line "
@@ -5326,8 +5437,22 @@ let int_lit_to_hl st (text : string) =
 (* [E2E-26/P2] ONE encoder for writing through a BASED view, used by both the based-name lhs arm and
    the `p->q' arm below: P041 proves DR emits identical bytes for `p->q = 100' and `q = 100', so any
    difference between the two spellings here would be an accident of my own making [C179]. *)
-let store_based st (pn : string) (fld_orig : string) (rhs : Ast.expr) =
-  lower_store_ptr ~pa_of:(Some (addr_of st pn)) st fld_orig rhs
+let store_based ?(off = 0) st (pn : string) (fld_orig : string) (rhs : Ast.expr) =
+  lower_store_ptr ~pa_of:(Some (addr_of st pn)) ~off st fld_orig rhs
+
+let e26_alloc_fixed st (wi : string) (pi : string) =
+  let sz = match vk_of st wi with Vbased _ | Vbfix _ | Vbptr _ -> 2 | _ -> 0 in
+  if sz < 1 then
+    failwith
+      ("codegen: ALLOCATE of " ^ wi ^ " computed a size of " ^ string_of_int sz
+       ^ " bytes, which DR never emits (its measured samples are 1, 2, 3, 5 and 33)")
+  ;
+  st.last_imm <- None;
+  d st 0x21; d st (sz land 0xff); d st ((sz lsr 8) land 0xff);
+  call_ext st "?ALLOP";
+  d st op_shld; reloc st Data (addr_of st pi);
+  st.lowered <- st.lowered + 1
+
 
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
   match lhs.Ast.e with
@@ -5349,6 +5474,24 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
       let fk = String.lowercase_ascii fld.Ast.orig in
       begin match vk_of st fk with
       | Vbased pn when String.equal pn bn -> store_based st pn fk rhs
+      (* [E2E-27/P3] a STRUCTURE member qualified by a pointer.  REVERSE allocates `wordnode', whose
+         declaration says based(sentence), into NEWNODE and then writes `newnode->next = sentence',
+         so the qualifier need NOT be the structure's declared pointer -- the qualifier supplies the
+         address and the member supplies only the offset [golden/e2e319d: LHLD NEWNODE / INX ... /
+         MOV M,E ...].  S3 is the same rule with a bare-based record, which has no declared pointer
+         at all and therefore can only be reached this way. *)
+      | Vbfix (pn, k) | Vbptr (pn, k) ->
+          if not (is_ptr_cell st bn) then
+            failwith
+              ("codegen: `" ^ bn ^ "->" ^ fld.Ast.orig
+               ^ "' qualifies a structure member through something that is not a POINTER cell "
+               ^ "[TBD] (REVERSE and NETWORK always qualify with a declared pointer; S3, S8)");
+          lower_store_ptr ~pa_of:(Some (addr_of st bn)) ~off:k st fk rhs
+      | Vstruct _ ->
+          failwith
+            ("codegen: assignment to the whole structure " ^ fld.Ast.orig
+               ^ " through a pointer has no DR sample [TBD] (REVERSE/NETWORK assign members, never "
+               ^ "a record; record-level move would need a copy route DR never emits here)")
       | Vbased pn ->
           failwith
             ("codegen: `" ^ bn ^ "->" ^ fld.Ast.orig
@@ -5357,12 +5500,14 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
       | _vk ->
           failwith
             ("codegen: `" ^ bn ^ "->" ^ fld.Ast.orig
-             ^ "' where the field is not a BASED name is unsampled [TBD] (structure member through a "
-             ^ "pointer needs structure-based storage, which DR itself refuses: PB10/PB16/PB17)")
+             ^ "' where the field is not a BASED name is unsampled [TBD] (only a member or a based "
+             ^ "name may be qualified; DR's own refusals in this family are the type-name forms PD6/PD8)")
       end
   | Ast.Eident n when
-      (match vk_of st (String.lowercase_ascii n.Ast.orig) with Vbased _ -> true | _ -> false) ->
-      (* [E2E-26/P2] WRITE THROUGH A BASED NAME.  DR's bytes are the two shapes already measured for
+      (match vk_of st (String.lowercase_ascii n.Ast.orig) with
+       | Vbased _ | Vbfix _ | Vbptr _ -> true
+       | _ -> false) ->
+      (* [E2E-26/P2, extended E2E-27/P3] WRITE THROUGH A BASED NAME or a BASED STRUCTURE MEMBER.  DR's bytes are the two shapes already measured for
          a pointer FORMAL [C131], because in both cases a cell holds the address and the value
          travels through it:
              constant  LHLD <p> / MVI M,lo / INX H / MVI M,hi   [P071K q=5, P041 p->q=100, P067C x=42]
@@ -5374,12 +5519,63 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
          reaches here -- every other based type refuses at the layout switch, so no unmeasured shape
          can arrive.  `p->q = 100' lands on this same arm: P041 emits identical bytes for `p->q=100'
          and `q=5', so the -> qualification is a second spelling, not a second mechanism. *)
-      let pn =
+      let (pn, k) =
         match vk_of st (String.lowercase_ascii n.Ast.orig) with
-        | Vbased p -> p
+        | Vbased p -> (p, 0)
+        | Vbfix (p, k) -> (p, k)
+        | Vbptr (p, k) -> (p, k)
         | _ -> assert false
       in
-      store_based st pn n.Ast.orig rhs
+      if String.length pn = 0 then
+        failwith
+          ("codegen: store to unqualified `" ^ n.Ast.orig
+           ^ "' in a BARE-based structure has no DR sample [TBD] (NETWORK/S3 always write "
+           ^ "p->member; the record carries no associated pointer)")
+      else if vk_of st (String.lowercase_ascii n.Ast.orig) = Vbptr (pn, k) then begin
+        (* a POINTER member accepts only the three measured right-hand shapes, the same rule as a
+           pointer cell: REVERSE writes `newnode->next = sentence', S2 writes null() and addr(z), S9
+           writes another pointer variable.  Nothing else is sampled. *)
+        let good e =
+          match (unwrap_e e).Ast.e with
+          | Ast.Ebuilt ("ADDR", [ _ ]) | Ast.Ebuilt ("NULL", []) -> true
+          | Ast.Eident m ->
+              let v = vk_of st (String.lowercase_ascii m.Ast.orig) in
+              v = Vptr || v = Vbptr (pn, k)
+          (* [E2E-27/P3] following a link: `p = head->link'.  The qualified read already lowers to
+             LHLD <qualifier> / INX H x offset / MOV E,M / INX H / MOV D,M / XCHG, which yields the
+             LINK VALUE stored at that member -- not the member's address and not the target record's
+             contents.  REVERSE uses the unqualified spelling (`sentence = next'), so the qualified
+             form is the same read with a different address source; both are pinned here because a
+             linked list cannot be built without it. *)
+          | Ast.Eqptr (_, fld) ->
+              match vk_of st (String.lowercase_ascii fld.Ast.orig) with
+              | Vbptr (_, _) -> true
+              | _ -> false
+          | _ -> false
+        in
+        if not (good rhs) then
+          failwith
+            ("codegen: store to the POINTER member " ^ n.Ast.orig
+             ^ " of this expression is unsampled [TBD] (measured right-hand sides are addr(local), "
+             ^ "null() and another pointer -- REVERSE next=sentence, S2, S9)")
+        else
+          lower_store_ptr ~pa_of:(Some (addr_of st pn)) ~off:k ~addr_de:true
+            st n.Ast.orig rhs
+      end
+      else if is_dec_expr st rhs || is_float_expr st rhs then
+        failwith
+          ("codegen: storing a DECIMAL or FLOAT value into the based FIXED member " ^ n.Ast.orig
+             ^ " has no DR sample [TBD] (S1/S6/S9 store plain integers only)")
+      else if
+        match (unwrap_e rhs).Ast.e with
+        | Ast.Ebuilt ("ADDR", _) | Ast.Ebuilt ("NULL", _) -> true
+        | _ -> false
+      then
+        failwith
+          ("codegen: storing an ADDRESS into the based FIXED member " ^ n.Ast.orig
+           ^ " has no DR sample [TBD] (addresses go into POINTER members -- S2, S9, REVERSE; "
+           ^ "a fixed member is only sampled with integer values [S1, S6, S9])")
+      else store_based ~off:k st pn n.Ast.orig rhs
   | Ast.Eident n when
       (match vk_of st (String.lowercase_ascii n.Ast.orig) with Vptr -> true | _ -> false) ->
       (* [E2E-26/P2] assignment INTO a pointer cell.  The cell is an ordinary 2-byte automatic, so
@@ -5394,7 +5590,22 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
       let ok rhs =
         match (unwrap_e rhs).Ast.e with
         | Ast.Ebuilt ("ADDR", [ _ ]) | Ast.Ebuilt ("NULL", []) -> true
-        | Ast.Eident m -> vk_of st (String.lowercase_ascii m.Ast.orig) = Vptr
+        | Ast.Eident m ->
+            let v = vk_of st (String.lowercase_ascii m.Ast.orig) in
+            v = Vptr
+            ||
+            (* [E2E-27/P3] a POINTER MEMBER is a valid source for a pointer assignment: S9's
+               `p = nx' emits LHLD P / INX H / INX H / MOV E,M / INX H / MOV D,M / XCHG / SHLD P, and
+               REVERSE's `sentence = next' is the same route -- the read yields the LINK VALUE, which
+               is why p receives the target record's address rather than the member's address. *)
+            (match v with Vbptr (_, _) -> true | _ -> false)
+        (* [E2E-27/P3] following a link: `p = head->link'.  Same read route, different address
+           source -- REVERSE proves the unqualified form and S3/S8 the qualified one.  The value is
+           what is stored AT the member, so p receives the target record's address. *)
+        | Ast.Eqptr (_, fld) ->
+            (match vk_of st (String.lowercase_ascii fld.Ast.orig) with
+             | Vbptr (_, _) -> true
+             | _ -> false)
         | _ -> false
       in
       let is_alloc_call e =
@@ -6358,6 +6569,16 @@ let num_width st (x : Ast.expr) =
          | _ -> failwith "codegen: char var in numeric PUT item [TBD]")
     | Ast.Ebinary (_, l, r) -> max (w l) (w r)
     | Ast.Eprefix (_, x) -> w x
+    (* [E2E-27/P3] the width of a qualified member read is the MEMBER type's width, not the
+       record's [S3 p->dist -> MVI A,09, like a plain fixed variable]. *)
+    | Ast.Eqptr (_, fld) ->
+        begin match vk_of st (String.lowercase_ascii fld.Ast.orig) with
+         | Vbfix _ -> binw 15
+         | _ ->
+             failwith
+               ("codegen: PUT item reads a qualified member that is not a based FIXED "
+                ^ "value [TBD]")
+        end
     (* [E2E-20] an ARRAY ELEMENT in a PUT item: DR's form is the ordinary scalar one with
        the element address, RD1 `put skip list(a(3))' -> `LHLD A A(0000)+0004 / MVI A,09 /
        ?QICOP / ?PNVOP / ?QIOOP' [golden/e2e225/RD1] -- identical to a scalar PUT except for
@@ -6423,10 +6644,12 @@ let lower_put_items_gen st (edit_tbl : int option)
     not (List.exists (function PIvar n ->
                         (match vk_of st n.Ast.orig with
                          | Vint -> false | Vdec _ -> false | Vflt -> false
-                         (* [E2E-26/P2] a BASED fixed-binary item is NUMERIC for this purpose: P063B
-                            puts `q' (based) in a TWO-item list with a string and DR compiles it with
-                            no error, so treating it as a char var would refuse a program DR accepts. *)
+                         (* [E2E-26/P2, E2E-27/P3] a BASED fixed value and a based STRUCTURE member
+                            are NUMERIC here: P063B puts a scalar based var and S1 puts `a' (member of
+                            a level-numbered record) in a TWO-item list with a string, both accepted
+                            by DR, so classifying them as char items would refuse a program DR takes. *)
                          | Vbased _ -> false
+                         | Vbfix _ -> false
                          | _ -> true)
                       | _ -> false) items)
   in
@@ -6494,7 +6717,7 @@ let lower_put_items_gen st (edit_tbl : int option)
                            through an edit list)";
                d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st s;
                call_ext st "?QDCOP"; tail false ()
-           | Vint | Vbased _ ->
+           | Vint | Vbased _ | Vbfix _ ->
                (* [E2E-26/P2] a based variable prints through the SAME numeric item tail as a plain
                   fixed variable -- P063B is `LHLD <p> / MOV E,M / INX H / MOV D,M / XCHG' (which is
                   lower_hl's based read) followed by MVI A,width and ?QICOP.  Only the LOAD differs,
@@ -7231,24 +7454,34 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
               "codegen: ALLOCATE ... set() with a non-identifier pointer expression is unsampled [TBD] (every DR sample uses set(<pointer name>))"
       in
       begin match (vk_of st wi, vk_of st pi) with
-       | Vbased pn, Vptr when String.equal pn pi ->
-           (* DR's measured ALLOCATE sizes are the based type's byte count: fixed=2 [PB7 0006
-              LXI H,0002, PB8], bit(8)=1 [PB14], dec(5)=3 [PB13], char(3)=3 [PB15], char(5)=5
-              [PB6].  The layout switch accepts ONLY based FIXED BINARY(15) today, so 2 is the one
-              value that can legitimately reach here; when another based kind is admitted, this
-              table and that switch must be extended together from new DR samples -- inventing a
-              size for an unmeasured type would allocate the wrong amount at run time. *)
-           let sz = match vk_of st wi with Vbased _ -> 2 | _ -> 0 in
+       | Vstruct (_, sz), Vptr ->
+           (* [E2E-27/P4] ALLOCATE of a level-numbered structure.  Two facts come straight from
+              REVERSE's bytes: the size is the record size the binder accumulated (0x21 = char(30)
+              varying + pointer), and the SHLD target is the pointer named in SET(), which need not
+              be the pointer the structure is declared based on -- `allocate wordnode set(newnode)'
+              emits `SHLD NEWNODE', not `SHLD SENTENCE' [golden/e2e319d 0065-006B].  S1/S2/S3/S6/S7
+              cover the same-pointer case, so both operands are already pinned. *)
            if sz < 1 then
              failwith
-               ("codegen: ALLOCATE of " ^ wi
-                ^ " computed a size of " ^ string_of_int sz
-                ^ " bytes, which DR never emits (its six samples are 1, 2, 3 and 5)");
+               ("codegen: ALLOCATE of " ^ wi ^ " computed a record size of " ^ string_of_int sz
+                ^ " bytes, which DR never emits (measured sizes are 2, 4, 5, 6 and 33)");
            st.last_imm <- None;
            d st 0x21; d st (sz land 0xff); d st ((sz lsr 8) land 0xff);
            call_ext st "?ALLOP";
            d st op_shld; reloc st Data (addr_of st pi);
            st.lowered <- st.lowered + 1
+       | (Vbfix (bp, _) | Vbptr (bp, _) | Vbased bp), Vptr ->
+           (* A scalar view (PB6/PB7/PB8 family) and a structure member view (S1/S2/S3) are both
+              allocated through the pointer they are based on, and DR is only sampled allocating them
+              through that SAME pointer -- the cross-pointer case is REVERSE's whole-record form,
+              handled by the Vstruct arm above.  Mismatching a scalar/member view therefore refuses. *)
+           if not (String.equal bp pi) then
+             failwith
+               ("codegen: ALLOCATE of " ^ wi ^ " set(" ^ pi
+                ^ ") where its view is based on " ^ bp
+                ^ " has no DR sample [TBD] (only REVERSE's whole-record form allocates through a "
+                ^ "different pointer; every scalar and member sample uses the matching pair)")
+           else e26_alloc_fixed st wi pi
        | Vbased pn, _ ->
            failwith
              ("codegen: ALLOCATE of " ^ wi ^ " set(" ^ pi
@@ -7258,8 +7491,9 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
        | _, _ ->
            failwith
              ("codegen: ALLOCATE of " ^ wi
-              ^ " where that name is not a BASED variable is unsampled [TBD] (DR's own samples "
-              ^ "all allocate a based name; PB17's structure form is refused by DR itself)")
+              ^ " where that name is not a BASED variable or structure is unsampled [TBD] (DR's "
+              ^ "samples allocate a based name or a level-numbered structure; the type-name form "
+              ^ "PD6/PD8 is refused by DR itself with BASED REQ + SYNTAX)")
       end
   | Ast.Sfree [ f_expr ] ->
       (* [E2E-26/P3] FREE, measured shape: `LHLD <pointer cell> / CALL ?FREOP' -- PD9 000C-000F and
@@ -7267,19 +7501,79 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
          to ?FREOP; there is no `in use' flag anywhere in the sequence, exactly as the historical
          note said.  `free <pointer>' is rejected by DR itself (AV1: BASED REQ), so only a based name
          is accepted here; a comma list is unmeasured and refuses. *)
-      let fi =
+      (* [E2E-27/P4] `free q', `free s' and `free p->s' are the SAME two instructions in DR -- S8
+         measures `free p->s' as `LHLD <p> / CALL ?FREOP', byte-identical to S1/S6's `free s'.  The
+         difference is only WHERE the address comes from: a qualified free takes it from the
+         qualifier's cell (REVERSE: `free p->wordnode'), an unqualified one from the pointer the
+         record or view is based on.  One emission, two resolvers. *)
+      let free_via st (cell : string) =
+        st.last_imm <- None;
+        d st op_lhld; reloc st Data (addr_of st cell);
+        call_ext st "?FREOP";
+        st.lowered <- st.lowered + 1
+      in
+      let (fi, qual) =
         match (unwrap_e f_expr).Ast.e with
-        | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
+        | Ast.Eident h -> (String.lowercase_ascii h.Ast.orig, None)
+        | Ast.Eqptr (base, fld) ->
+            let bn =
+              match (unwrap_e base).Ast.e with
+              | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
+              | _ ->
+                  failwith
+                    "codegen: FREE whose -> base is not a bare pointer name has no DR sample [TBD] (S8 and REVERSE both use p->name)"
+            in
+            if not (is_ptr_cell st bn) then
+              failwith
+                ("codegen: FREE of " ^ bn ^ "->" ^ fld.Ast.orig
+                 ^ " where " ^ bn ^ " is not a POINTER cell is unsampled [TBD]")
+            else (String.lowercase_ascii fld.Ast.orig, Some bn)
         | _ ->
             failwith
-              "codegen: FREE of something other than a bare based variable name is unsampled [TBD] (P080K's `free p' and AV1 are rejected by DR itself: BASED REQ)"
+              "codegen: FREE of something other than a bare based variable/structure name or p->name is unsampled [TBD] (P080K's `free p' and AV1 are rejected by DR itself: BASED REQ)"
       in
       begin match vk_of st fi with
        | Vbased pn ->
+           (* a qualified free of a SCALAR view is not sampled: P041 measures only the store `p->q =
+              100', and every DR free sample is either unqualified [PD9, S1] or a structure [S8,
+              REVERSE].  Refusing keeps the shape table honest. *)
+           begin match qual with
+            | None -> free_via st pn
+            | Some q ->
+                failwith
+                  ("codegen: FREE of the scalar BASED view " ^ fi
+                   ^ " qualified by " ^ q
+                   ^ " has no DR sample [TBD] (PD9 frees a scalar view unqualified; only"
+                   ^ " structures are freed as a qualified name: S8 and REVERSE)")
+           end
+       | Vstruct (bp, _) when String.length bp > 0 || qual <> None ->
+           free_via st (match qual with Some q -> q | None -> bp)
+       | Vbfix (pn, _) | Vbptr (pn, _) ->
+           failwith
+             ("codegen: FREE of the structure MEMBER " ^ fi
+              ^ " is unsampled [TBD] (DR frees the record or the qualified record name -- S1 `free s', "
+              ^ "S8 `free p->s', REVERSE `free p->wordnode'; freeing a member is not a form in any "
+              ^ "sample)")
+       | Vstruct (bp, _) when String.length bp > 0 ->
+           (* [E2E-27/P4] `free s' for a level-numbered record: S1/S6/S9 all emit
+              LHLD <its associated pointer> / CALL ?FREOP -- byte-identical to the scalar form, and
+              S8 proves `free p->s' is identical too.  No other bookkeeping appears, so there is
+              nothing to model beyond handing ?FREOP the address in the pointer. *)
            st.last_imm <- None;
-           d st op_lhld; reloc st Data (addr_of st pn);
+           d st op_lhld; reloc st Data (addr_of st bp);
            call_ext st "?FREOP";
            st.lowered <- st.lowered + 1
+       | Vstruct (_, _) ->
+           failwith
+             ("codegen: FREE of " ^ fi
+              ^ " which is a BARE-based structure has no associated pointer to free through [TBD] "
+              ^ "(S4, which uses that spelling on a bare record, is not accepted by DR either)")
+       | Vbfix _ | Vbptr _ ->
+           failwith
+             ("codegen: FREE of the structure MEMBER " ^ fi
+              ^ " is unsampled [TBD] (DR frees the record or the qualified record name -- S1 `free s', "
+              ^ "S8 `free p->s', REVERSE `free p->wordnode'; freeing a member is not a form in any "
+              ^ "sample)")
        | _ ->
            failwith
              ("codegen: FREE of " ^ fi
@@ -8131,6 +8425,22 @@ let rows_of (b : Ast.block) =
            BASED: contributes no cell; the view carries the pointer's name so lowering reloads the
            cell at every access, exactly as DR does (PB3 re-points p and reads again; PB22 stores
            after an intervening write to the source). *)
+        | Bind.RTbmem (ptr, k, Bind.RTbin 15) ->
+            Some (nm, { off; size = 0; vk = Vbfix (ptr, k); w = binw 15 })
+        | Bind.RTbmem (ptr, k, Bind.RTptr) ->
+            Some (nm, { off; size = 0; vk = Vbptr (ptr, k); w = binw 15 })
+        | Bind.RTstructrec (ptr, sz) ->
+            Some (nm, { off; size = 0; vk = Vstruct (ptr, sz); w = 0 })
+        | Bind.RTbmem (ptr, k, inner) ->
+            failwith
+              ("codegen: BASED structure member " ^ nm
+               ^ " of type " ^ Bind.rty_str inner
+               ^ " at record offset " ^ string_of_int k
+               ^ " is unsampled [TBD] (E2E-27/P3 implements based FIXED BINARY(15) and POINTER "
+               ^ "members only).  S6 measures a BIT(1) member at offset 2 and S7 a CHAR(4) at "
+               ^ "offset 0 -- their offsets and the record size are known, but DR's store bytes "
+               ^ "for those member types are not, so the layout is accepted and the access refuses "
+               ^ "rather than inventing a shape.")
         | Bind.RTptr -> Some (nm, { off; size = 2; vk = Vptr; w = 0 })
         | Bind.RTbased (ptr, Bind.RTbin 15) ->
             Some (nm, { off; size = 0; vk = Vbased ptr; w = binw 15 })

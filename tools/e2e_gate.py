@@ -2373,6 +2373,68 @@ NEG_META['PB15'] = ("my-gap", "DR COMPILES IT (golden golden/e2e314d/PB15/PB15.R
 # register parking for that shape is not yet characterized.  They belong to neither
 # specimen nor refusal, so they go to the divergence panel [C168].
 
+# [E2E-27] LEVEL-NUMBERED BASED STRUCTURES.  This corrects E2E-26's conclusion that DR refuses
+# them: it does not.  REVERSE (artefacts/REVERSE.PLI) and NETWORK (artefacts/NETWORK.PLI) are
+# historical corpus programs declaring `1 wordnode based(sentence), 2 word character(30) varying,
+# 2 next pointer' and `1 city_node based, ...'; DR compiles BOTH with no errors and a .REL
+# (golden/e2e319d/REVERSE/REVERSE.REL -- the first8080u copy stored only the .PRN, so E2E-26 had no
+# object to look at).  E2E-26's PB10/PB16/PB17 rejections were bad declaration SPELLINGS, not a
+# language limit: ST11 re-runs PB16's `declare nb based(pn) nd' in isolation and DR still refuses it
+# (SYNTAX + BASED REQ), so that form genuinely is not in the dialect, while ST1-ST10/ST12 prove the
+# level-numbered form is.  These probes are named ST*/LN1 because S1-S13 and W1 are already panel
+# keys from earlier milestones -- registering under those keys would have been a SUBSTITUTION, which
+# the inventory guard refuses and an equal count would not have shown [C158].
+#
+# What the six accepted probes pin: members are contiguous from offset 0 with NO alignment padding
+# (ST6 = fixed@0, bit(1)@2, fixed@3, allocation size 5); the structure contributes ZERO AUTO STORAGE
+# (ST1's block is the pointer alone); qualified access takes its address from the QUALIFIER, not from
+# the pointer the record is declared based on (ST3, ST8, and REVERSE's `allocate wordnode
+# set(newnode)' followed by `newnode->next'); `free s' and `free p->s' are byte-identical (ST8 vs
+# ST1); and a link read yields the stored ADDRESS, which is what makes following a list one read
+# rather than an add (ST9, LN1).
+#
+# LN1 is the milestone's integration witness: two allocated records, FIXED and POINTER members, a
+# NULL link, record B's address stored into record A's link, the link followed, B modified through
+# it, and both freed.  It is byte-exact AND was LINKed twice -- from my own .REL (golden/e27my/LN1)
+# and from DR's (golden/e27dr/LN1) -- then executed under cpmsim.  Both printed
+#     first=        11  linked=        22  after=        33  z=        22
+# z staying at 22 while `after' reports 33 is the discriminating part: z is an independent value
+# copy, so following the link produced B's address rather than the member's address or the record's
+# contents.  LN1 is NOT in OUTPUT_CHECK -- DR's batch stores no run transcript -- so the two-run
+# comparison is the evidence, and it lives in golden/e27my_r/LN1.output.txt and
+# golden/e27dr_r/LN1.output.txt.
+add_spec('E27S1', ('artefacts/ST1.PLI', 'golden/e2e323d/ST1/ST1.REL'))
+add_spec('E27S3', ('artefacts/ST3.PLI', 'golden/e2e323d/ST3/ST3.REL'))
+add_spec('E27S8', ('artefacts/ST8.PLI', 'golden/e2e324d/ST8/ST8.REL'))
+add_spec('E27S9', ('artefacts/ST9.PLI', 'golden/e2e324d/ST9/ST9.REL'))
+add_spec('E27S10', ('artefacts/ST10.PLI', 'golden/e2e324d/ST10/ST10.REL'))
+add_spec('E27LN1', ('artefacts/LN1.PLI', 'golden/e2e325d/LN1/LN1.REL'))
+
+# [E2E-27] DR compiles these; mine refuses because only based FIXED and POINTER members are
+# implemented.  The refusal happens AFTER the layout, so member offsets and the record size are
+# already bound correctly -- extending this later is a lowering problem, not a layout re-derivation.
+REJECTS['E27S5'] = (open('artefacts/ST5.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                  'BASED structure member')
+NEG_META['E27S5'] = ("my-gap", "DR COMPILES IT (golden/e2e323d/ST5/ST5.REL). REVERSE's wordnode shape with a short varying member: `2 word character(6) varying, 2 next pointer'. Mine stops at the layout's member guard. This is REVERSE's blocker number two, after nested procedures (ST13): REVERSE shows DR stores a varying value through a pointer (`word = newword'), but no probe of mine has pinned those bytes yet.")
+REJECTS['E27S6'] = (open('artefacts/ST6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                  'BASED structure member')
+NEG_META['E27S6'] = ("my-gap", "DR COMPILES IT (golden/e2e323d/ST6/ST6.REL). `2 a fixed, 2 b bit, 2 c fixed' -- the probe that MEASURES DR's layout rule: bit(1) takes one byte and c lands at the ODD offset 3, with allocation size 5. Members are contiguous with no alignment padding. Mine binds that layout correctly (offsets and record size come from the same walk) and refuses only the BIT member's store bytes.")
+REJECTS['E27S7'] = (open('artefacts/ST7.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                  'BASED structure member')
+NEG_META['E27S7'] = ("my-gap", "DR COMPILES IT (golden/e2e323d/ST7/ST7.REL). `2 c character(4), 2 a fixed': char(4) at offset 0, fixed at 4, record size 6. Character-member stores through a pointer are unimplemented; PB6 measures the analogous SCALAR form (LHLD <p> / LXI D,text / MVI A,len / MOV B,A / ?SMCCM), which is store_char with LHLD in place of LXI H.")
+REJECTS['E27S12'] = (open('artefacts/ST12.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                   'undeclared i2')
+NEG_META['E27S12'] = ("my-gap", "DR COMPILES IT (golden/e2e324d/ST12/ST12.REL). `1 outer based(p), 2 o1 fixed, 1 inner, 2 i2 fixed': DR's map makes INNER a plain AUTOMATIC structure OUTSIDE the record -- outer allocates only 2 bytes and i2 lands in automatic storage at 0002, so a nested head inside a based record does NOT extend the record. Mine binds outer/o1 and gives the nested automatic head no member binding, so `i2 = 5' reports undeclared.")
+REJECTS['E27S13'] = (open('artefacts/ST13.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                   'main-block statement after an appended procedure')
+NEG_META['E27S13'] = ("my-gap", "DR COMPILES IT (golden/e2e324d/ST13/ST13.REL). REVERSE's skeleton minus the varying member: nested procedure called from main, level-numbered BASED structure, allocate through a second pointer, qualified store and read, free, PUT. Mine refuses BEFORE any structure work, at the main-block/appended-procedure split -- which fixes the ORDER of REVERSE's blockers as measured: (1) nested-procedure statement placement, (2) CHARACTER VARYING member (ST5), (3) GET (REVERSE's `get list(newword)'). The structure machinery behind all three is already byte-exact on ST1/ST3/ST8/ST9/ST10/LN1.")
+REJECTS['E27S4'] = (open('artefacts/ST4.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                  'store to unqualified')
+NEG_META['E27S4'] = ("my-gap", "DR rejects this probe (golden/e2e323d/ST4: 6 pass-2 errors, NO .REL) and mine refuses too, for a narrower and defensible reason: two bare-based records plus `x = 11' unqualified, which no DR sample supports since NETWORK always writes p->city_name. Registered for the refusal mine can actually defend; the probe needs splitting to attribute DR's six errors.")
+REJECTS['E27S11'] = (open('artefacts/ST11.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                   'call to unknown nd')
+NEG_META['E27S11'] = ("dr-refuses", "E2E-26's PB16 spelling, isolated. DR rejects it: SYNTAX + BASED REQ, NO .REL (golden/e2e324d/ST11/ST11.PRN). So `declare nb based(pn) nd' -- naming a structure type through a based declaration -- is genuinely not a form in this dialect, and E2E-26's inference from PB16/PB17 that based STRUCTURES were unsupported was wrong: the structures are fine, the spelling was not. Mine also refuses, at the binder's statement walker, because `nd' looks like a procedure call.")
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:
