@@ -1,0 +1,13 @@
+a: procedure options(main);
+  dcl st fixed, j fixed;
+  st = 3;
+  call p(st);
+stop;
+  p: procedure(x);
+    dcl x fixed;
+    do j = x to 5;
+      put skip list(j);
+    end;
+  end p;
+end a;
+

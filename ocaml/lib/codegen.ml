@@ -1225,10 +1225,40 @@ let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
 type chain = C2 of string * string * string   (* lit || var [W101] *)
            | C3 of string * string * string   (* lit || var || lit [W102] *)
 type pitem = PIlit of string | PIvar of Ast.name | PInum of Ast.expr
-type put_shape = Pnone | Plit of string option * string
+(* [E2E-22/P4] DR's runtime SKIP count, measured on SK3/SK4 (`put skip(one) list(...)'):
+     LHLD v ; MOV A,L ; CALL ?SKPOP
+   Only the LOW byte of the value is used -- the same 8-bit quantity the `MVI A,n' immediate
+   route carries, so a FIXED(15) count is truncated by DR, not range-checked.  Only a bare
+   variable is measured: arithmetic, an array element, or a call would need a value in A across
+   something that destroys A, and DR's form for those is unmeasured [C141], so they refuse.
+   Defined here (before the PUT lowerers) because it uses only the early emitters; it cannot
+   call lower_hl, which is bound later in the file. *)
+let emit_skip_count st e =
+  match e.Ast.e with
+  | Ast.Eident h ->
+      d st op_lhld; reloc st Data (addr_of st h.Ast.orig);
+      d st 0x7d;
+      call_ext st "?SKPOP"
+  | _ ->
+      failwith
+        "codegen: [TBD] PUT SKIP count expression is not a bare variable [E2E-22]: DR's measured \
+         form is `LHLD v / MOV A,L / CALL ?SKPOP' (SK3 SK4).  An arithmetic or subscripted count \
+         would leave the value in A across something that destroys it, and that shape is \
+         unmeasured [C141], so it refuses rather than guesses."
+
+(* [E2E-22/P4] a PUT SKIP count is one of three things, and SK1-SK4 pin which is which:
+     absent          -> nothing emitted                  [bare `put list(...)`]
+     literal n       -> MVI A,n ; CALL ?SKPOP            [SK2 `put skip(2) list(x)']
+     expression e    -> lower_hl(e) ; MOV A,L ; CALL ?SKPOP   [SK3 `put skip(one) list(x)']
+   DR takes only the LOW byte of the expression value -- `MOV A,L' -- which is the same 8-bit
+   quantity the immediate form carries, so the count is a byte even when the expression is a
+   16-bit FIXED.  This one shape is all that stood between the compiler and the two PLI-2000
+   integration programs (ARRAY, PASSARAY), both of which write `put skip(one) list(...)'. *)
+type put_skip = Sk_none | Sk_lit of string | Sk_expr of Ast.expr
+type put_shape = Pnone | Plit of put_skip * string
                | Pvar of string option * Ast.expr
-               | Pcat of string option * chain
-               | Pitems of string option * pitem list
+               | Pcat of put_skip * chain
+               | Pitems of put_skip * pitem list
 
 (* flatten a (left-assoc per our parser) || chain to operands
    left-to-right; only the proven shapes C2 [lit;varying] and
@@ -1277,12 +1307,18 @@ let classify_item (x : Ast.expr) =
        | _ -> None)
   | _ -> None
 
+
 let match_skip_ctl (items : Ast.put_item list) =
   match items with
   | Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ }) :: tl ->
-      Some (Some c, tl)
+      Some (Sk_lit c, tl)
   | Ast.Pi_ctl ("SKIP", None) :: tl ->
-      Some (Some "1", tl)   (* bare SKIP = 1 [N302: MVI A,01] *)
+      Some (Sk_lit "1", tl)   (* bare SKIP = 1 [N302: MVI A,01] *)
+  (* [E2E-22/P4] a non-literal count is no longer a reason to refuse the whole PUT: the
+     expression route is DR-measured (SK3/SK4).  Anything that is not SKIP-first still
+     falls through to the subset refusal. *)
+  | Ast.Pi_ctl ("SKIP", Some e) :: tl ->
+      Some (Sk_expr e, tl)
   | _ -> None
 
 (* accepted shapes: literal [G107/G108/G113] or a SINGLE char/varying
@@ -1336,7 +1372,7 @@ let match_put_list_lit (s : Ast.stmt) =
       let (sk, rest) =
         match match_skip_ctl items with
         | Some x -> x
-        | None -> (None, items)
+        | None -> (Sk_none, items)
       in
       let one x = match classify_item x with
                    | Some i -> [i] | None -> []
@@ -1726,19 +1762,20 @@ let prescan_pool (cx : pdec_ctx) (stmts : Ast.stmt list) =
      SET-LC(code,bslot) ; RELOC(code,epi_addr) ; SET-LC(code,epi_addr) —
    emitted after the LAST statement, before the ?STOPX epilogue CALL:
    the LXI B operand receives the epilogue (continuation) address. *)
-let lower_put_lit st (skipn : string option) (v : string) =
+let lower_put_lit st (skipn : put_skip) (v : string) =
   d st op_lxi_d; d st 0x52; d st 0x02;
   d st op_lxi_b;
   let bslot = st.lc in
   d st 0; d st 0;
   call_ext st "?SYSPR";
   (match skipn with
-   | Some c ->
+   | Sk_lit c ->
        let n = parse_int_const c in
        if n <= 0 || n > 255 then
          failwith "codegen: skip count out of MVI range [TBD]";
        d st op_mvi_a; d st n; call_ext st "?SKPOP"
-   | None -> ());
+   | Sk_expr e -> emit_skip_count st e   (* [SK3 SK4] LHLD / MOV A,L / CALL ?SKPOP *)
+   | Sk_none -> ());
   let bytes =
     Array.init (String.length v) (fun i -> Char.code (String.get v i))
   in
@@ -5169,7 +5206,7 @@ let lower_get st (items : Ast.name list) =
    PSW) then SJSCM(lit in B). C3: SLCTS(right lit in A); PUSH PSW;
    SLVTS(var); SJSCM(left lit in B); SJSTS. Tail = the standard
    PNCOP/QIOOP + continuation triple [W101/W102]. *)
-let lower_cat st (skipn : string option) (ch : chain) =
+let lower_cat st (skipn : put_skip) (ch : chain) =
   let maxlit = match ch with C2 (l, _, _) -> String.length l
                | C3 (l, _, r) -> max (String.length l) (String.length r) in
   if maxlit > 255 then failwith "codegen: lit > 255 [TBD]";
@@ -5179,12 +5216,13 @@ let lower_cat st (skipn : string option) (ch : chain) =
   d st 0; d st 0;
   call_ext st "?SYSPR";
   (match skipn with
-   | Some c ->
+   | Sk_lit c ->
        let n = parse_int_const c in
        if n <= 0 || n > 255 then
          failwith "codegen: skip count out of MVI range [TBD]";
        d st op_mvi_a; d st n; call_ext st "?SKPOP"
-   | None -> ());
+   | Sk_expr e -> emit_skip_count st e   (* [SK3 SK4] LHLD / MOV A,L / CALL ?SKPOP *)
+   | Sk_none -> ());
   let vk_guard nm =
     match vk_of st nm with
     | Vvar _ -> ()
@@ -5228,6 +5266,22 @@ let lower_cat st (skipn : string option) (ch : chain) =
    triples land on the increment start automatically [Y301: put
    cont -> 0x2F]. BY must be absent or literal 1 [Y304]; WHILE/
    REPEAT/no-TO/complex bounds/steps/index types all [TBD]. *)
+(* [E2E-22/P4] a POINTER formal read in a DO bound position must be DEREFERENCED, exactly as it
+   is when it appears in an expression [C130/E2E-11]: the cell holds the ADDRESS of the caller's
+   variable, not a value.  DR's measured tail in both bound slots:
+     TO   (DO1 `do j = 1 to x'):   LHLD <x> ; MOV E,M ; INX H ; MOV D,M ; XCHG ; SHLD <temp>
+     FROM (DO2 `do j = x to 5'):   LHLD <x> ; MOV E,M ; INX H ; MOV D,M ; XCHG ; SHLD <index>
+   Without it the ADDRESS becomes the bound -- a wrong-VALUE miscompile, not a cosmetic byte
+   difference: PASSARAY's `do J = 1 to val' printed 69900 lines where DR prints 75, and ARRAY
+   139580 against 75 (measured by linking both .RELs with LINK 1.31 and running under cpmsim).
+   This exists so the same rule is applied once at each of the two sites instead of being
+   re-derived, and it is conditional on st.deref so every non-formal bound (NFACT, RFACT, IFACT,
+   R10xx -- all byte-exact) is untouched. *)
+let do_bound_deref st d nm =
+  if List.mem (String.lowercase_ascii nm) st.deref then begin
+    d st 0x5e; d st op_inx_h; d st 0x56; d st op_xchg
+  end
+
 let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     (ind : Ast.name) (from : Ast.expr)
     (by : Ast.expr option) (to_ : Ast.expr option)
@@ -5347,6 +5401,9 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
        (match fromvar with
         | Some a -> d st op_lhld; reloc st Data a
         | None -> failwith "codegen: DO FROM [TBD]");
+       (match (unwrap_e from).Ast.e with
+        | Ast.Eident h -> do_bound_deref st d h.Ast.orig  (* [DO2] formal FROM [E2E-22/P4] *)
+        | _ -> ());
        d st op_shld; reloc st Data iaddr;
        st.last_imm <- None);
   if to_ = None && while_ = None && rep = None && by = None then begin
@@ -5468,6 +5525,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
         in
         st.temps <- st.temps + 1;
         d st op_lhld; reloc st Data (addr_of st bn.Ast.orig);
+        do_bound_deref st d bn.Ast.orig;   (* [DO1] formal bound [E2E-22/P4] *)
         d st op_shld; reloc st Data temp;
         let head = st.lc in
         d st op_lhld; reloc st Data temp;
@@ -5547,7 +5605,7 @@ let num_width st (x : Ast.expr) =
    PNVOP; single char/varying var = the V101/V106 chain (multi-item
    char vars UNPROVEN -> [TBD]); then ONE QIOOP + continuation. *)
 let lower_put_items_gen st (edit_tbl : int option)
-    (skipn : string option) (items : pitem list) =
+    (skipn : put_skip) (items : pitem list) =
   (* [E2E-8] `~edit_tbl' turns the same per-item value preparation into PUT
      EDIT: the table is loaded and ?EDITF called right after ?SYSPR, and every
      item's output tail becomes ?EDTOV instead of ?PNCOP/?PNVOP [IFACT,
@@ -5581,12 +5639,13 @@ let lower_put_items_gen st (edit_tbl : int option)
   d st 0; d st 0;
   call_ext st "?SYSPR";
   (match skipn with
-   | Some c ->
+   | Sk_lit c ->
        let n = parse_int_const c in
        if n <= 0 || n > 255 then
          failwith "codegen: skip count out of MVI range [TBD]";
        d st op_mvi_a; d st n; call_ext st "?SKPOP"
-   | None -> ());
+   | Sk_expr e -> emit_skip_count st e   (* [SK3 SK4] LHLD / MOV A,L / CALL ?SKPOP *)
+   | Sk_none -> ());
   (match edit_tbl with
    | Some addr ->
        (* the table was allocated by prealloc_fmt_tables, ahead of every
@@ -5697,7 +5756,7 @@ let lower_put_items_gen st (edit_tbl : int option)
 
 (* the byte-frozen PUT LIST entry point: no format table, so every item's
    output tail is ?PNCOP/?PNVOP as before [G107/G108, N301-N306, R506]. *)
-let lower_put_items st (skipn : string option) (items : pitem list) =
+let lower_put_items st (skipn : put_skip) (items : pitem list) =
   lower_put_items_gen st None skipn items
 
 (* pop the next pre-allocated format-table address [E2E-8] *)
@@ -6010,7 +6069,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
            (* [E2E-8] PUT EDIT: the PUT LIST machinery plus the compiled format
               table (?EDITF) and ?EDTOV after every item [IFACT, R1001-R1020]. *)
            ignore specs;
-           lower_put_items_gen st (Some (take_fmt_addr st)) None its
+           lower_put_items_gen st (Some (take_fmt_addr st)) Sk_none its
        | None ->
       (match match_put_list_lit s with
        | Plit (skipn, v) -> lower_put_lit st skipn v

@@ -1515,8 +1515,6 @@ _E17_MARKER = {
     # [E2E-22] these three all stop on the SAME unproven shape now that arrays work
     "EA1": "main-block statement after an appended procedure",
     "AB7": "main-block statement after an appended procedure",
-    "PASSARAY": "PUT form not in E2E-3a subset",
-    "ARRAY": "PUT form not in E2E-3a subset",
 }
 for _n, (_d, _t) in _E17_REFS.items():
     _f = "%s/%s.PLI" % (_d, _n)
@@ -1525,22 +1523,43 @@ for _n, (_d, _t) in _E17_REFS.items():
         # [E2E-18] -- it was a refusal only because the prescan under-counted the pool.
         add_spec(_n, (_f, "golden/%s/%s/%s.REL" % (_t, _n, _n)))
         continue
+    if _n == "PASSARAY":
+        # [E2E-22/P4] PASSARAY is byte-exact AND its linked .COM prints exactly what DR's prints
+        # (1446 bytes, line-for-line identical).  It needed three things: the variable-index
+        # ladder, element-as-actual, and `put skip(one) list(...)' -- plus the DO-bound deref fix
+        # below, which is what made it CORRECT rather than merely compiling.
+        add_spec(_n, (_f, "golden/%s/%s/%s.REL" % (_t, _n, _n)))
+        continue
+    if _n == "ARRAY":
+        # [E2E-22/P4] ARRAY compiles and its runtime output is byte-identical to DR's, but its
+        # .REL is not: mine 181 code bytes vs DR 180, DATA area agrees (62 = 62), 438 of 640
+        # bytes differ.  The cause is the C168 peephole family (DR writes `XRA A / MOV M,A' for a
+        # zero store where I write `MVI M,00'), which is explicitly out of scope.  ARRAY therefore
+        # joins the DIVERGENT panel -- NOT a specimen (it is not exact) and NOT a refusal (it does
+        # not refuse) [C168/C171].
+        continue
     REJECTS[_n] = (open(_f, "rb").read().replace(b"\r\n", b"\n")
                    .rstrip(b"\x1a").decode(),
                    _E17_MARKER.get(_n, "non-simple assignment lhs" if _n.startswith("AB")
                                    else "mixed decimal/integer arithmetic unproven"))
 _ARR = ("DR COMPILES IT with NO ERROR(S) IN PASS 1/2 [golden/e2e214,e2e216-e2e218]; this is a "
-        "MY GAP, not a language rule.  DR's array model is now fully characterized [C159]: "
-        "declare a(n) fixed = n 2-byte cells laid out contiguously in the automatic area (a(5) "
-        "occupies data 0000-0009, b lands at 000A), constant subscript -> a DIRECT reference "
-        "with offset (sub-lb)*2 (`LHLD A+0008'), zero-offset stores use SHLD and non-zero-offset "
-        "stores use `LXI H,A+off / MVI M,lo / INX H / MVI M,hi', variable subscript -> "
-        "`LXI H,A+(lb-1)*size / PUSH H / LHLD i / DAD H / POP D / DAD D' (element size by DAD H), "
-        "2-D is ROW-MAJOR with the LAST subscript fastest [AB13 m(2:4,1:3), m(1,2) -> FFFC = "
+        "MY GAP, not a language rule.  Arrays ARE implemented front to back [C164 storage in the "
+        "binder, C172 runtime addressing, C175 element-as-actual]; the text below records DR's "
+        "model, and the specific shape this row refuses is the one named in the message.  "
+        "1-D FIXED BINARY(15): `declare a(n) fixed' = n contiguous 2-byte cells in the automatic "
+        "area (a(5) occupies data 0000-0009, b lands at 000A).  CONSTANT subscript -> a DIRECT "
+        "reference with offset (sub-lb)*2 (`LHLD A+0008'); zero-offset stores use SHLD, "
+        "non-zero-offset stores use `LXI H,A+off / MVI M,lo / INX H / MVI M,hi'.  VARIABLE "
+        "subscript -> an address LADDER whose relocated operand is `base - lower_bound*"
+        "element_size' [C172 CORRECTS C159's `A+(lb-1)*size' wording: VB1 lb=0 addend 0000, "
+        "AB2 lb=1 FFFE, VB2 lb=2 FFFC], in one of two forms selected by whether that operand is "
+        "the plain base: bias=0 `LHLD i / DAD H / LXI D,base / DAD D' (no stack traffic) and "
+        "bias<>0 `LXI H,biased / PUSH H / LHLD i / DAD H / POP D / DAD D' (the base parked on the "
+        "stack per C141, because LHLD destroys HL).  `a(i+1)' adjusts the INDEX value before the "
+        "doubling (`LHLD i / INX H / DAD H'), so +1 moves one element, not two [AB8].  2-D is "
+        "ROW-MAJOR with the LAST subscript fastest [AB13 m(2:4,1:3), m(1,2) -> FFFC = "
         "((1-2)*3+(2-1))*2], NO bounds check is emitted, and an element passed as an actual "
-        "stores the element ADDRESS into the call descriptor [AB7, PASSARAY].  My parser has no "
-        "array declaration form and bind has no array sizing, so this needs front-end + layout "
-        "work, not just lowering.")
+        "stores the element ADDRESS into the call descriptor [C175: AB7, PASSARAY, EA2].")
 _DEC = ("DR COMPILES IT [golden/e2e214, e2e219, e2e220]; MY GAP [C161].  DR converts the DEC "
         "operand IN PLACE -- `LXI H,d / MVI A,p / CALL ?DLDOP / CALL ?QDI15' gives the 16-bit "
         "value in HL, with p the SOURCE precision (03 for dec(3), 05 for dec(5)) -- and then runs "
@@ -1906,7 +1925,8 @@ NEG_META["GW3"] = ("dr-refuses",
 # ARRAY and PASSARAY keep their slot but their pinned reason moves -- the variable-subscript gap
 # closed, so each now stops on its own NEXT missing mechanism (PUT EDIT, element-as-actual).
 for _n, _mk in [("ARRAY", "PUT form not in E2E-3a subset"),
-                ("PASSARAY", "PUT form not in E2E-3a subset"),
+# [E2E-22] removed: PASSARAY
+
                 ("AB7", "main-block statement after an appended procedure"),
                 ("EA1", "main-block statement after an appended procedure"),
                 ("AB14", "main-block statement after an appended procedure"),
@@ -1963,17 +1983,43 @@ for _n in ("VB1", "VB2"):
 # later cell.
 add_spec("EA2", ("golden/e2e235/EA2/EA2.PLI" if os.path.exists("golden/e2e235/EA2/EA2.PLI")
                  else "e24src/EA2.PLI", "golden/e2e235/EA2/EA2.REL"))
+# [E2E-22/P4] ARRAY and PASSARAY leave the negative panel: PASSARAY is byte-exact (promoted
+# above) and ARRAY compiles with DR-identical runtime output but non-exact bytes (DIVERGENT
+# panel).  Both their REJECTS and their NEG_META/NEG_META_E17 rows must go -- the registration
+# guard treats a REJECTS/NEG_META asymmetry as lost verdict evidence, and it is right: a note with
+# no verdict behind it, or a verdict with no note, is exactly how a silent acceptance happens
+# [C163/C171].
+for _n in ("ARRAY", "PASSARAY"):
+    REJECTS.pop(_n, None)
+    NEG_META.pop(_n, None)
+    NEG_META_E17.pop(_n, None)
+
+# [E2E-22/P4] N4_SKIPVAR -- an E2E-8-era inline negative (`put skip(a) list(\'X\')\', "PUT form")
+# -- is promoted by the SAME rule, independently: my .REL is byte-identical to DR's golden
+# [golden/negpanel1/NG36/NG36.REL], which was built through a different batch than SK3/SK4.  Two
+# separate DR goldens agreeing on `LHLD a / MOV A,L / CALL ?SKPOP' is worth more than one probe,
+# and it is the only sanctioned way to retire a negative [C154].  The source is now committed as
+# e24src/N4_SKIPVAR.PLI (space-indented, no TAB [C170]) because add_spec needs a real path.
+REJECTS.pop("N4_SKIPVAR", None)
+NEG_META.pop("N4_SKIPVAR", None)
+add_spec("N4_SKIPVAR", ("e24src/N4_SKIPVAR.PLI", "golden/negpanel1/NG36/NG36.REL"))
+
+# [E2E-22/P4] PUT SKIP with a RUNTIME count.  SK1/SK2 pin that the literal and string forms are
+# unchanged (they were already byte-exact [G107/G108/N302]); SK3/SK4 pin DR's expression form
+# `LHLD one / MOV A,L / CALL ?SKPOP' -- only the LOW byte, the same 8-bit quantity the immediate
+# carries.  This single shape was all that stood between the compiler and both PLI-2000
+# integration programs.
+for _n in ("SK1", "SK2", "SK3", "SK4"):
+    add_spec(_n, ("e24src/%s.PLI" % _n, "golden/e2e238/%s/%s.REL" % (_n, _n)))
+# [E2E-22/P4] DO ... TO <formal> and DO ... FROM <formal> DREREERENCE the pointer cell.  Before
+# this was fixed both sides silently used the ADDRESS as the bound -- a wrong-value miscompile:
+# PASSARAY printed 69900 lines where DR prints 75, ARRAY 139580 vs 75 (linked and run, measured).
+# DR's tail is the ordinary pointer-formal deref [C130]: MOV E,M / INX H / MOV D,M / XCHG.
+for _n in ("DO1", "DO2"):
+    add_spec(_n, ("e24src/%s.PLI" % _n, "golden/e2e239/%s/%s.REL" % (_n, _n)))
 # NB: specimens get NO NEG_META row -- that dict is negative evidence only, and the registration
 # guard refuses a REJECTS/NEG_META asymmetry because an unmatched entry silently changes what a
 # verdict means [C163-class bug; caught by the guard, not by review].
-NEG_META["ARRAY"] = ("my-gap",
-    "DR compiles it [golden/e2e214/ARRAY]. The variable-subscript gap is CLOSED [E2E-22]; ARRAY "
-    "now stops on PUT EDIT (`put edit(...)' at line 42), which is outside the E2E-3a PUT subset. "
-    "Recorded as a refusal so the next route change is noticed [C154].")
-NEG_META["PASSARAY"] = ("my-gap",
-    "DR compiles it [golden/e2e214/PASSARAY]. It now stops ONLY on passing an array element as an "
-    "actual argument (`call pass(b(2))'), which AB7 shows DR handling by storing the element "
-    "ADDRESS into the call descriptor [C159] -- Priority 3, not implemented yet.")
 
 # AB19 / AB21 are deliberately registered NOWHERE: they compile but are not byte-exact, because
 # DR applies cross-statement constant-reuse peepholes I do not implement (`LXI H,v ; SHLD ;

@@ -1,0 +1,4 @@
+SK1	ok	PRN=True REL=True
+SK2	ok	PRN=True REL=True
+SK3	ok	PRN=True REL=True
+SK4	ok	PRN=True REL=True

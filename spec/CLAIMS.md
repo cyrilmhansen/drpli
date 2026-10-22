@@ -3340,3 +3340,67 @@ parking involved -- which is consistent with C141 because nothing lives in a reg
 `LHLD` of the index cell. The negative bias `(lb-1)*(-2)` is carried by the relocation arithmetic,
 not by a separate offset field, so the operand value must be verified against AB8/AB10 (which use
 different bounds) before wiring it up.
+
+
+## E2E-22 (C172-C175): runtime array subscripts, element arguments, and a wrong-value miscompile found by running the integration programs
+
+C172. **DR's variable-index address ladder: operand = `base - lower_bound*element_size', and TWO
+      forms selected by whether that operand is the plain base.** The [C159] wording
+      `A+(lb-1)*size' and the E2E-21 note `(lb-1)*(-2)' are WRONG, and three goldens with three
+      different bounds say so by their DATA relocation addends: VB1 (lb=0) 0x0000, AB2 (lb=1)
+      0xFFFE, VB2 (lb=2) 0xFFFC. `base - lb*esz' fits all three; `(lb-1)*(-sz)' fits none of the
+      non-default ones. The two forms are
+        bias = 0   : LHLD idx [; INX H] ; DAD H ; LXI D,<base> ; DAD D            (7 bytes, no stack)
+        bias <> 0  : LXI H,<biased> ; PUSH H ; LHLD idx [; INX H] ; DAD H ; POP D ; DAD D  (13 bytes)
+      The selection is mechanical, not stylistic: `LHLD idx' destroys HL, so with bias<>0 the base
+      has to be parked -- on the runtime stack, exactly the C141 discipline applied to an address
+      instead of a value. With bias=0 there is nothing to preserve, so DR computes 2*idx first and
+      adds the base from DE afterwards. The doubling is `DAD H' of the INDEX, and the second add
+      comes from the parked copy, so the ladder's PUSH/POP pair nests inside a caller's own
+      parking pair, which is what AB8/AB10 show for a computed store.
+      Index expressions: `a(i+1)' emits `LHLD i / INX H / DAD H' -- the +1 is applied to the INDEX
+      VALUE before doubling, so it moves exactly one element; an address-side +1 would move two.
+      Only +1 is measured; `i+k', `i-1', products and element-as-index all keep refusing.
+      Evidence: AB2 AB8 AB10 VB1 VB2 byte-exact, and all five link+run to DR-identical output
+      (9, 4, 1 2 3 4 5, 7, 8) -- the runtime results are what rule out an off-by-one that the
+      byte comparison alone could hide only if DR were also wrong, which is why both are required
+      [C137].
+
+C173. **A pointer formal read in a DO bound position must be DEREFERENCED; omitting it is a
+      wrong-VALUE miscompile, and byte-parity plus rc=0 does not reveal it.** DR's tail in both
+      bound slots is the ordinary pointer-formal deref [C130] `MOV E,M / INX H / MOV D,M / XCHG'
+      (DO1 `do j = 1 to x', DO2 `do j = x to 5'). Before the fix mine stored the POINTER as the
+      bound. DO1/DO2 differ from DR by exactly those 4 bytes; the integration programs made the
+      semantic damage visible at runtime: linked with LINK 1.31 and run under cpmsim, PASSARAY
+      printed 69900 lines where DR prints 75, and ARRAY 139580 against 75 -- both rc=0, both
+      "compiled fine". After the fix DO1 prints 1 2 3, DO2 prints 3 4 5, PASSARAY is byte-exact,
+      and ARRAY's runtime output is line-for-line identical to DR's.
+      Lesson kept as a rule: a program that compiles and matches bytes is evidence; a program that
+      compiles with rc=0 is not. Wrong values can be invisible in the panel that counts refusals
+      and in the panel that counts bytes -- they surface only by running [C137, C168, C171].
+
+C174. **PUT SKIP accepts a runtime count, and DR keeps only its LOW BYTE**: `LHLD v / MOV A,L /
+      CALL ?SKPOP' versus the literal form `MVI A,n / CALL ?SKPOP' [SK3 SK4]. The count is an
+      8-bit quantity even when the expression is FIXED(15); DR neither range-checks nor widens.
+      Only a bare variable is measured, so an arithmetic/subscripted/call-bearing count refuses
+      (a call would clobber A between the load and ?SKPOP -- C141's hazard again).
+      Independent corroboration: N4_SKIPVAR, an E2E-8-era inline negative with its own older
+      golden (golden/negpanel1/NG36), became byte-identical under the same rule. Two DR goldens
+      built through different batches agreeing on one instruction sequence is stronger than one
+      probe, and promoting N4 is the only sanctioned way to retire it [C154].
+      This one shape was all that separated the compiler from both PLI-2000 integration programs.
+
+C175. **There is NO array calling convention: an array element passed as an actual goes through the
+      ordinary pointer-formal descriptor [C130].** Constant index -> `LXI H,<a+off> ; SHLD <desc
+      cell> ; LXI H,<desc> ; CALL p' [AB7]; runtime index -> `<ladder> ; SHLD <desc cell> ; CALL'
+      [PASSARAY], because the ladder already leaves the address in HL. Both take the DYNAMIC
+      descriptor route (runtime SHLD, bare RELOC, no SET-LC wrapping) that E27B established for a
+      forwarded pointer formal -- notably, even though a constant-index element address IS
+      statically known, DR still writes it at runtime rather than as a static descriptor reloc.
+      In the BINDER, an element actual counts as a simple argument and gets NO temporary value
+      cell, unlike a call actual [C145]: AB7/PASSARAY allocate none. Giving one would both add a
+      DATA byte and shift every later anonymous-cell number, which is why this belongs in bind and
+      not in a codegen patch.
+      Checkpoint C evidence: EA2 passes `a(4)' AND `a(i)' to a procedure whose body is
+      `x = x + 100'; my .REL is byte-exact and both linked .COMs print "106 100", so the callee
+      mutated the ORIGINAL cells through both index forms.
