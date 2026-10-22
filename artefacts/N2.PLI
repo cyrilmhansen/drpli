@@ -1,0 +1,10 @@
+n2: procedure options(main);
+   declare w fixed;
+   call sub();
+   call sub();
+ sub: procedure;
+   w = 9;
+ end sub;
+  stop;
+end n2;
+

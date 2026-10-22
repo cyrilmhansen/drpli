@@ -2375,8 +2375,9 @@ NEG_META['PB15'] = ("my-gap", "DR COMPILES IT (golden golden/e2e314d/PB15/PB15.R
 
 # [E2E-27] LEVEL-NUMBERED BASED STRUCTURES.  This corrects E2E-26's conclusion that DR refuses
 # them: it does not.  REVERSE (artefacts/REVERSE.PLI) and NETWORK (artefacts/NETWORK.PLI) are
-# historical corpus programs declaring `1 wordnode based(sentence), 2 word character(30) varying,
-# 2 next pointer' and `1 city_node based, ...'; DR compiles BOTH with no errors and a .REL
+# historical corpus programs declaring `1 wordnode based (sentence), 2 word character(30) varying,
+# 2 next pointer' (REVERSE.PLI lines 6-10) and `1 city_node based, ...' (NETWORK.PLI lines 16-22);
+# DR compiles BOTH with no errors and a .REL
 # (golden/e2e319d/REVERSE/REVERSE.REL -- the first8080u copy stored only the .PRN, so E2E-26 had no
 # object to look at).  E2E-26's PB10/PB16/PB17 rejections were bad declaration SPELLINGS, not a
 # language limit: ST11 re-runs PB16's `declare nb based(pn) nd' in isolation and DR still refuses it
@@ -2427,13 +2428,100 @@ REJECTS['E27S12'] = (open('artefacts/ST12.PLI', "rb").read().replace(b"\r\n", b"
 NEG_META['E27S12'] = ("my-gap", "DR COMPILES IT (golden/e2e324d/ST12/ST12.REL). `1 outer based(p), 2 o1 fixed, 1 inner, 2 i2 fixed': DR's map makes INNER a plain AUTOMATIC structure OUTSIDE the record -- outer allocates only 2 bytes and i2 lands in automatic storage at 0002, so a nested head inside a based record does NOT extend the record. Mine binds outer/o1 and gives the nested automatic head no member binding, so `i2 = 5' reports undeclared.")
 REJECTS['E27S13'] = (open('artefacts/ST13.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                    'main-block statement after an appended procedure')
-NEG_META['E27S13'] = ("my-gap", "DR COMPILES IT (golden/e2e324d/ST13/ST13.REL). REVERSE's skeleton minus the varying member: nested procedure called from main, level-numbered BASED structure, allocate through a second pointer, qualified store and read, free, PUT. Mine refuses BEFORE any structure work, at the main-block/appended-procedure split -- which fixes the ORDER of REVERSE's blockers as measured: (1) nested-procedure statement placement, (2) CHARACTER VARYING member (ST5), (3) GET (REVERSE's `get list(newword)'). The structure machinery behind all three is already byte-exact on ST1/ST3/ST8/ST9/ST10/LN1.")
+NEG_META['E27S13'] = ("my-gap", "DR COMPILES IT (golden/e2e324d/ST13/ST13.REL). A REVERSE-SHAPED probe, not REVERSE's skeleton: main calls a nested procedure that allocates into a based record, stores and reads a qualified member and frees it, and main has one statement after the procedure definition. REVERSE additionally uses GET, bare `null', `^=', `return', `do while' and unqualified member access, none of which this probe contains -- so it isolates the procedure-placement blocker and nothing else.  Mine refuses BEFORE any structure work, at the main-block/appended-procedure split, which fixes the ORDER of REVERSE's blockers as measured: (1) nested-procedure statement placement, (2) CHARACTER VARYING member (ST5), (3) GET (REVERSE's `get list(newword)'). The structure machinery behind all three is already byte-exact on ST1/ST3/ST8/ST9/ST10/LN1.")
 REJECTS['E27S4'] = (open('artefacts/ST4.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                   'store to unqualified')
 NEG_META['E27S4'] = ("my-gap", "DR rejects this probe (golden/e2e323d/ST4: 6 pass-2 errors, NO .REL) and mine refuses too, for a narrower and defensible reason: two bare-based records plus `x = 11' unqualified, which no DR sample supports since NETWORK always writes p->city_name. Registered for the refusal mine can actually defend; the probe needs splitting to attribute DR's six errors.")
 REJECTS['E27S11'] = (open('artefacts/ST11.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                    'call to unknown nd')
 NEG_META['E27S11'] = ("dr-refuses", "E2E-26's PB16 spelling, isolated. DR rejects it: SYNTAX + BASED REQ, NO .REL (golden/e2e324d/ST11/ST11.PRN). So `declare nb based(pn) nd' -- naming a structure type through a based declaration -- is genuinely not a form in this dialect, and E2E-26's inference from PB16/PB17 that based STRUCTURES were unsupported was wrong: the structures are fine, the spelling was not. Mine also refuses, at the binder's statement walker, because `nd' looks like a procedure call.")
+
+# [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
+# Before this milestone, codegen carried two refusals that were presented as DR layout laws:
+#   "main-block statement after an appended procedure [TBD] (unproven DR append layout)" and
+#   "second appended procedure after a tail guard [TBD] unproven, no multi-procedure golden".
+# Neither was a law.  They were inductions over 694 accepted specimens in which every main statement
+# happened to precede every procedure, so the single resumption point always WAS the epilogue [R404
+# @29->44, P404 @10->2B].  ST13 -- registered as a negative in E2E-27 for exactly that reason -- is
+# byte-exact now, which is the C154 condition for removing a negative: its behaviour has a golden of
+# its own.  This is the C185 error shape one layer down.
+#
+# What DR actually does, from golden/e2e330d + e2e332d listings:
+#   * every nested-procedure DECLARATION inside a main block emits a 3-byte branch-over (C3 00 00) at
+#     the current address, whose operand resolves to where main's emission RESUMES after that body --
+#     not to the epilogue in general.  N4: JMP @000C -> 0016 (the `w = 7' after `end sub').  N3 has
+#     two declarations and two branches: @0012 -> 0020 (the next declaration) and @0020 -> 002E.
+#   * when main's tail is a no-exit loop there is no resumption point and NO branch is emitted --
+#     REVERSE: read_it at 001A directly after main's `JMP 0006', write_it at 0091 directly after
+#     read_it's always-loop tail.  That is why the old single-guard model looked right.
+#   * a nested procedure gets NO prologue of its own (read_it starts at 001A with its first
+#     statement), ends with RET when its tail can fall through, and omits the RET when it cannot.
+#   * a nested procedure reaches the enclosing block's variables by ABSOLUTE address -- REVERSE's
+#     read_it writes `sentence = null' as LXI H,0000 / SHLD SENTENCE A(0016), SENTENCE being the main
+#     block's cell.  A local of the same name is a SEPARATE cell (N6: outer W A(000C), inner W
+#     A(000E)), which is the binder's scope chain doing its job.
+#   * forward CALLs resolve through the existing chain mechanism unchanged (N2 calls before either
+#     definition exists).
+#   * a bare `RETURN;' emits RET alone and emission CONTINUES with the next statement (N7, REVERSE
+#     line 29).
+#   * there is NO dead-code suppression after a straight-line STOP: N8 emits `w = 2', the PUT and a
+#     second CALL ?STOPX after its first stop, and N10 does the same inside a procedure body.  Both
+#     are byte-exact here, so the suppression this compiler used to need is only the consecutive-stop
+#     case my earlier probes tripped by having two `stop;' in a row -- which is now what the probes
+#     say, not what I assumed they said.
+add_spec('E28N1', ('artefacts/N1.PLI', 'golden/e2e332d/N1/N1.REL'))
+add_spec('E28N2', ('artefacts/N2.PLI', 'golden/e2e332d/N2/N2.REL'))
+add_spec('E28N3', ('artefacts/N3.PLI', 'golden/e2e332d/N3/N3.REL'))
+add_spec('E28N4', ('artefacts/N4.PLI', 'golden/e2e332d/N4/N4.REL'))
+add_spec('E28N5', ('artefacts/N5.PLI', 'golden/e2e332d/N5/N5.REL'))
+add_spec('E28N6', ('artefacts/N6.PLI', 'golden/e2e332d/N6/N6.REL'))
+add_spec('E28N8', ('artefacts/N8.PLI', 'golden/e2e331d/N8/N8.REL'))
+add_spec('E28N10', ('artefacts/N10.PLI', 'golden/e2e331d/N10/N10.REL'))
+for _n in ['E27S13']:            # promoted from refusal to specimen -- pop before re-registering
+    REJECTS.pop(_n, None); NEG_META.pop(_n, None)
+add_spec('E27S13', ('artefacts/ST13.PLI', 'golden/e2e324d/ST13/ST13.REL'))
+
+# N1 and N4 are the two that matter at runtime, and they were linked and executed twice -- from MY
+# .REL (golden/e28my/N1, golden/e28my/N4) and from DR's (golden/e28dr/...) -- with identical output:
+#     N1  a=         2      N4  z=         7
+# N4 is the discriminator: `sub' is never called, so if the branch-over were missing or mis-aimed,
+# main would fall into the body, execute `w = 2' and print 2.  It prints 7 in both executions, which
+# is the branch being emitted AND aimed at the right address.  N1 is the converse: the forward CALL
+# reaches the body and 2 is what the body stored.  Neither is in OUTPUT_CHECK -- DR's batch stores no
+# run transcript -- so the two-run comparison is the evidence, in golden/e28my_r, golden/e28my_r4,
+# golden/e28dr_r and golden/e28dr_r4.
+
+# [E2E-28] SIX REFUSALS THAT WERE WAITING ON THE PROCEDURE FIX -- promoted to byte-exact specimens.
+# These six are in the panel since E2E-15/E2E-17/E2E-24 as category "my-gap", each with DR's own .REL
+# recorded in its prose, and each refused only by the two append-layout rules removed above:
+#   ST8  -> golden/e2e160/T8/T8.REL    STACK(2000) + a nested RECURSIVE procedure + stop after the
+#                                       appended body
+#   ST13 -> golden/e2e162/T13/T13.REL  same append-order gap with STACK(2000) present
+#   ST14 -> golden/e2e162/T14/T14.REL  main `stop;' following an appended procedure
+#   AB7  -> golden/e2e216/AB7/AB7.REL  append layout (E2E-17 panel)
+#   AB14 -> golden/e2e218/AB14/AB14.REL append layout, second body (E2E-17 panel)
+#   EA1  -> golden/e2e234/EA1/EA1.REL  append layout (E2E-24 panel)
+# All six are byte-identical to those goldens after this milestone's change, verified against the
+# pre-existing DR objects -- not against anything added today.
+#
+# The uncomfortable part, kept because it is the lesson: NEG_META["ST14"] said, in my own words, "DR
+# emits the CALL ?STOPX at code 0023, AFTER q's body at 0010-0022.  My rule still refuses it".  A
+# refusal whose rationale records the oracle doing the opposite is a bug report, not a design decision
+# -- and it sat in the panel for three milestones.  The panel's job is to track DR, so the rule was
+# deleted here rather than the sentence re-worded.
+for _n, _g in [("ST8", "golden/e2e160/T8/T8.REL"), ("ST13", "golden/e2e162/T13/T13.REL"),
+               ("ST14", "golden/e2e162/T14/T14.REL"), ("AB7", "golden/e2e216/AB7/AB7.REL"),
+               ("AB14", "golden/e2e218/AB14/AB14.REL"), ("EA1", "golden/e2e234/EA1/EA1.REL")]:
+    REJECTS.pop(_n, None); NEG_META.pop(_n, None)      # [C163] pop before re-registering
+    add_spec(_n, ("e15src/%s.PLI" % _n if _n.startswith("ST") else
+                  "e21src/%s.PLI" % _n if _n.startswith("AB") else
+                  ("e24src/%s.PLI" % _n), _g))
+
+# [E2E-28] DR compiles N9 (`if w = 1 then stop;' then live statements); mine refuses at the
+# condition, which is the pre-existing E2E-3b condition-subset gap, not a procedure issue.
+REJECTS['E28N9'] = (open('artefacts/N9.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+                 'condition form not in E2E-3b subset')
+NEG_META['E28N9'] = ("my-gap", "DR COMPILES IT (golden/e2e331d/N9/N9.REL). `if w = 1 then stop;' followed by `w = 5' and a PUT: DR emits the compare, a JNZ over the CALL ?STOPX @0015 and continues at 0018, so a conditional stop does NOT suppress anything. Mine refuses on the condition form -- the same gap that keeps AB11 open -- and this probe's value is that it separates that gap from the procedure work: N8/N10 (straight-line stop) are byte-exact, N9 is not, and the difference is the IF, not the STOP.")
 
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}

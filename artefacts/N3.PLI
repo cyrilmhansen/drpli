@@ -1,0 +1,14 @@
+n3: procedure options(main);
+   declare w fixed;
+   w = 1;
+   call one();
+   call two();
+ one: procedure;
+   w = w + 10;
+ end one;
+ two: procedure;
+   w = w + 100;
+ end two;
+  stop;
+end n3;
+

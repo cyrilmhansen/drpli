@@ -1,0 +1,11 @@
+n1: procedure options(main);
+   declare w fixed;
+   w = 1;
+   call sub();
+   put list('a=', w);
+ sub: procedure;
+   w = 2;
+ end sub;
+  stop;
+end n1;
+

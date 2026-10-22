@@ -1,0 +1,14 @@
+n5: procedure options(main);
+   declare w fixed;
+   w = 1;
+ one: procedure;
+   w = 2;
+ end one;
+   w = 3;
+ two: procedure;
+   w = 4;
+ end two;
+   w = 5;
+  stop;
+end n5;
+

@@ -1,0 +1,9 @@
+n8: procedure options(main);
+   declare w fixed;
+   w = 1;
+   stop;
+   w = 2;
+   put list('x=', w);
+  stop;
+end n8;
+

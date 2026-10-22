@@ -1,0 +1,13 @@
+n6: procedure options(main);
+   declare w fixed;
+   w = 1;
+   call sub();
+   put list('outer=', w);
+ sub: procedure;
+   declare w fixed;
+   w = 8;
+   put list('inner=', w);
+ end sub;
+  stop;
+end n6;
+

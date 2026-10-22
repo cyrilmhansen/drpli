@@ -1,0 +1,53 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: N2
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 N2 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 W FIXED BINARY(15,0) AUTOMATIC
+c 0000 SUB ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 6, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: N2
+
+   1 a 0000 n2: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare w fixed;
+   3 c 0006    call sub();
+       0006       CALL 0000
+   4 c 0009    call sub();
+       0009       CALL SUB
+   5 c 000C  sub: procedure;
+   6 e 000C    w = 9;
+       000C       JMP  0000
+       000F       LXI  H,0009
+       0012       SHLD W A(0000)
+       0015       RET  
+       000D       ==== 0016
+   7 c 0016  end sub;
+   8 c 0016   stop;
+       0016       CALL ?STOPX
+   9 a 0019 end n2;
+
+CODE SIZE = 0019
+DATA AREA = 0002
+FREE SYMS = 38C1
+END  COMPILATION
+

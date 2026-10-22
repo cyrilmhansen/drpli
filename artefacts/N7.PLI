@@ -1,0 +1,13 @@
+n7: procedure options(main);
+   declare w fixed;
+   w = 0;
+   call g1();
+   put list('w=', w);
+ g1: procedure;
+   w = 3;
+   return;
+   w = 4;
+ end g1;
+  stop;
+end n7;
+

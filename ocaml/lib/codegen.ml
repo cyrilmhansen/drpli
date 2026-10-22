@@ -153,15 +153,24 @@ type st =
          RETURNS type is FIXED DECIMAL(p,s): selects the ?DLDOP/
          ?DSTOP/JMP ?DCRET path for RETURN [DFACT @007B, R509 @0041] *)
   ; mutable guards : int      (* tail-guard JMPs emitted (max one) *)
-  ; mutable appended : bool   (* a TOP-LEVEL procedure body has been
-                                 appended at the tail address. Every
-                                 golden lowers ALL procedures AFTER
-                                 every main-block statement; a live
-                                 main statement following an appended
-                                 proc is an unobserved DR layout, so
-                                 it fails loud instead of guessing. *)
+  ; mutable appended : bool   (* at least one TOP-LEVEL procedure body has been
+                                 appended at the tail address. [E2E-28/P1] the rest
+                                 of this comment used to read "Every golden lowers
+                                 ALL procedures AFTER every main-block statement; a
+                                 live main statement following an appended proc is an
+                                 unobserved DR layout, so it fails loud instead of
+                                 guessing" -- that refusal is removed: N4/N5/E27S13
+                                 are byte-exact with main statements AFTER a body, so
+                                 the old rule was an induction over samples that all
+                                 happened to put statements first, not a DR law. *)
   ; mutable guard_slots : int list
       (* [R404/R405/R406/R423/R429/R432/P404] tail-guard operand slots.
+         [E2E-28/P1] ONE slot per nested-procedure DECLARATION, not one per program, and
+         the operand is wherever main's emission RESUMES after that body -- N4 @000C -> 0016
+         (a live `w = 7'), N3 @0012 -> 0020 (the next declaration) and @0020 -> 002E.  The
+         epilogue-target reading below holds for every pre-E2E-28 golden only because there the
+         resumption point IS the epilogue.  No resumption point (no-exit main tail, or a stop
+         already seen) means NO branch at all: REVERSE @001A and @0091 have none.
          TAIL GUARD (bytes, 37-specimen matrix): when a top-level
          PROCEDURE body is appended at the address control reaches from
          the MAIN tail (fall-through OR a forward reference such as a
@@ -6812,26 +6821,26 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     | None ->
         failwith "codegen: BEGIN-block/procedure lowering deferred [TBD]"
   in
-  (* [R404/R405/R406/R423/R429/R432/P404] TAIL GUARD: emitted at the
-     append address BEFORE the entry label / forward-call chain /
-     prologue; see the guard_slots field comment for the full rule.
-     Evaluated once per program (the first appended proc). *)
+  (* [R404/R405/R406/R423/R429/R432/P404 + E2E-28/P1] BRANCH-OVER, one per nested-procedure
+     DECLARATION, not one per program.  N1-N5/N7 (golden/e2e330d) show every `proc:' line inside a
+     main block emits `C3 00 00' at the current address, whose operand resolves to where main's
+     emission RESUMES after that body: N4 `JMP @000C -> 0016' (the `w = 7' after `end sub'), N3 two
+     declarations -> `JMP @0012 -> 0020' and `JMP @0020 -> 002E', i.e. successive resumption points.
+     The pre-E2E-28 reading called this a one-per-program "tail guard chained to the epilogue CALL";
+     that was RIGHT for every earlier golden and wrong as a rule, because in all of them every main
+     statement preceded every procedure, so the one resumption point WAS the epilogue [R404 @29->44,
+     P404 @10->2B].  Inducing "a procedure declaration terminates the executable part of a block"
+     from samples that all followed that convention is the C185 error shape.  When main's tail is a
+     no-exit loop there is no resumption point and NO JMP is emitted -- REVERSE: read_it at 001A
+     straight after main's `JMP 0006', write_it at 0091 straight after read_it's always-loop tail.
+     Resolution now happens in the main statement loop, right after each body, at st.lc. *)
   if (not st.in_proc) && not st.top_proc && not st.stop_seen
        && not st.after_forever
   then begin
-    if st.guards = 0 then begin
-      st.guards <- st.guards + 1;
-      (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
-      st.guard_slots <- st.lc :: st.guard_slots;
-      d st 0; d st 0
-    end
-    else
-      (* A SECOND appended proc in a guarded shape is unproven: no
-         golden has two top-level procedures. Refuse rather than
-         extrapolate DR's behavior. *)
-      failwith
-        "codegen: second appended procedure after a tail guard \
-         [TBD] unproven, no multi-procedure golden]"
+    st.guards <- st.guards + 1;
+    (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
+    st.guard_slots <- st.lc :: st.guard_slots;
+    d st 0; d st 0
   end;
   if not st.in_proc && not st.top_proc then st.appended <- true;
   (* entry label [P401 'dbl:' — blabel from parse_proc_block] *)
@@ -7265,8 +7274,13 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
            link st t_chain_ext (Some (Code, slot)) (Some "?DCRET")
        | None ->
            (match eo with
+            (* [E2E-28/P1] a bare `RETURN;' in a procedure that returns no value emits a plain RET
+               and NOTHING else, and emission continues with the following statement: N7's `return;'
+               is `RET' @003A followed by `w = 4' @003B, and REVERSE line 29 is `RET' @0064 inside
+               read_it.  A RETURN carrying a value from a DECIMAL/FLOAT procedure stays refused --
+               those route through ?DCRET/?FPRET and `RETURN;' with no value there has no sample. *)
             | Some e -> lower_hl st e
-            | None -> failwith "codegen: RETURN without value [TBD]");
+            | None -> ());
            (* every exit of a RECURSIVE activation restores its saved
               block first [RFACT: RSBLK @7C base-case AND @95 recursive] *)
            if st.in_rec then call_ext st "?RSBLK";
@@ -7994,15 +8008,13 @@ let emit_program (progname : string) (auto_bytes : int)
   link st t_chain_ext (Some (Code, start_slot)) (Some "?START");
   List.iter
     (fun (s : Ast.stmt) ->
-      (* [R423/ALL goldens] every procedure body is appended AFTER
-         every main-block statement; DR layout with a live statement
-         following an appended proc is unobserved -> fail loud *)
-      if st.appended && not st.in_proc then
-        (match s.Ast.st with
-         | Ast.Sproc _ | Ast.Sdcl _ | Ast.Snull _ -> ()
-         | _ -> failwith
-                "codegen: main-block statement after an appended \
-                 procedure [TBD] (unproven DR append layout)");
+      (* [E2E-28/P1] A live main statement AFTER a nested-procedure body is a DR shape, not an
+         unobserved one: N4 emits `w = 7' at 0016 immediately after the body's RET, and the branch
+         the declaration emitted at 000C resolves to exactly that address; N5 interleaves two
+         procedures with main statements.  The refusal removed here read "every procedure body is
+         appended AFTER every main-block statement" off goldens that all happened to satisfy it, and
+         turned an untested shape into a supposed layout law -- see the guard comment above and C185.
+         Statements therefore lower in place, at the address the pending branch targets. *)
       (* [R401/R414/R419/R420/R423] any main-block statement other
          than a no-exit loop or the trailing stop anchors the
          epilogue region and closes the suppression window; the
@@ -8017,7 +8029,20 @@ let emit_program (progname : string) (auto_bytes : int)
          | _ -> st.after_forever <- false);
         st.last_loop_edge <- st.lc
       end;
-      lower_stmt st ls s)
+      lower_stmt st ls s;
+      (* [E2E-28/P1] a nested-procedure declaration that emitted a branch-over now resolves it to
+         the address main resumes at, wherever emission stands after the body: N3's first
+         `JMP @0012 -> 0020' (next declaration), N4's `JMP @000C -> 0016' (a live statement), N5
+         both.  The triple is emitted here rather than at the epilogue so its position in the item
+         stream matches DR's `==== <addr>' record under the body's last instruction.  When a
+         declaration is the LAST thing in main the slot stays pending and the epilogue path below
+         resolves it -- which is exactly the old single-guard behaviour, unchanged [R404]. *)
+      (match s.Ast.st with
+       | Ast.Sproc _ when not st.in_proc && st.guard_slots <> [] ->
+           let gs = List.hd st.guard_slots in
+           st.guard_slots <- List.tl st.guard_slots;
+           emit_triple st gs st.lc
+       | _ -> ()))
     stmts;
   end;
   (match ls.fwd with

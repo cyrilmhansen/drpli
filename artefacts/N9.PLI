@@ -1,0 +1,9 @@
+n9: procedure options(main);
+   declare w fixed;
+   w = 1;
+   if w = 1 then stop;
+   w = 5;
+   put list('y=', w);
+  stop;
+end n9;
+
