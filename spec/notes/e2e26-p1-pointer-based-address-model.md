@@ -148,3 +148,80 @@ Mine refuses ALL 20 accepted probes at one guard, `codegen.ml`'s declaration-lay
 binder at all, so a based name would currently be laid out as an ordinary cell.  Implementation is
 therefore: teach the binder that BASED contributes zero storage and carries its pointer's identity,
 give codegen a pointer cell kind and a based view kind, and emit the six instruction families above.
+
+
+---
+
+## P2/P3 -- what was implemented, and what was run
+
+Built on the address model above, without touching ARCH-1 (`ocaml/proto/' is untouched [C160]).
+
+**bind.ml**: `RTbased of string * rt`. A BASED declaration resolves to it and `bytes_of` reports
+**0**, which is the whole of DR's behaviour: PB1 shows `q` printed at `p`'s offset and adds nothing
+to AUTO STORAGE, so a based name is a view, not storage.
+
+**codegen.ml**: `vkind` gained `Vptr` (2-byte automatic cell, declaration order, not hoisted) and
+`Vbased of string`. The routes are exactly DR's measured forms:
+
+| source | DR's bytes | samples |
+|---|---|---|
+| read `q` | `LHLD <p> / MOV E,M / INX H / MOV D,M / XCHG` | P063B, P071K, PB19 |
+| store const | `LHLD <p> / MVI M,lo / INX H / MVI M,hi` | P071K, P041, P067C |
+| store general | `<rhs> / PUSH H / LHLD <p> / POP D / MOV M,E / INX H / MOV M,D` | PB18, PB19 |
+| `p->q = v` | identical to `q = v` | P041 |
+| `addr(z)` | `LXI H,<DATA+off z>` | P063B, PB18-PB22 |
+| `null()` | `LXI H,0000` | P086M |
+| `allocate x set(p)` | `LXI H,<size> / CALL ?ALLOP / SHLD <p>` | PB6, PB7 x2, PB8, PB13-PB15 |
+| `free x` | `LHLD <p> / CALL ?FREOP` | PD9, PB7 |
+
+The based store does not re-implement anything: it calls the existing `lower_store_ptr` with a new
+optional `pa_of` so the cell to reload is the pointer's, while the name tested by the `x = x +- lit`
+shape stays the based name (PB21 does `q = q + 41`). One encoder for two spellings [C179].
+The pointer cell is reloaded for every store and never parked -- PB3 (pointer re-pointed between
+reads) and PB22 (store after an intervening write to the source) both show DR re-reading the cell,
+so C141 is unchanged by this slice.
+
+**Gate: 688/688 byte-exact, 121/121 negatives, 0 divergences, exit 0** (was 667/117). 21 probes
+registered as specimens, 4 (PB6/PB13/PB14/PB15: based char/decimal/bit) as my-gap negatives.
+
+**Runtime witnesses** -- linked by LINK 1.31 from my own `.REL` and executed, so the evidence comes
+from the same artifact the byte check uses:
+
+    PB7   x=       100  y=       200 done      end
+    PB1   a=        11  q=        22  b=        22      end
+    PB3   first=        11 second=        22      end
+
+PB1 is the one that tests the model rather than the code: it stores 11 directly into `a`, points `p`
+at `a`, prints `q` (reads through the pointer), re-points `p` at `b`, stores 22 through it, and reads
+`a` again. Getting 22 twice means the re-read happened after the re-pointing, which is what the
+address model predicts and what a parked-pointer implementation would get wrong.
+They are not in OUTPUT_CHECK: DR kept no run transcript for these batches [E2E-25 lesson].
+
+**Not claimed, recorded instead.** PB4 (`q = q * 1`) and PB20 (`q = q + q`) build and differ -- in
+both, an arithmetic operand is itself read through the pointer, and DR's register parking for that
+shape is uncharacterized. They are left out of DIVERGENT.txt rather than given size columns filled
+with unverified numbers; the first differing byte is at offset 72 (PB4) and 82 (PB20), sizes equal.
+
+**Four defects found on the way**, each of which would have been silent or fatal:
+
+1. `Ebuilt` keys are stored UPPERCASE. My first `addr`/`null` arms matched `"addr"`/`"null"`, so
+   `addr(z)` fell through to the generic path and every pointer-holding probe refused with a message
+   about pointer arithmetic -- a refusal naming the wrong cause is worse than no refusal.
+2. Two new `(match ...)` blocks were left unclosed and one refusal message carried a stray `")`. The
+   compiler reported the resulting syntax error on a line ~40 lines away from either cause.
+3. `ALLOCATE`/`FREE` initially tripped my own DISCARD invariant: the statement counter counts every
+   non-decl/non-null statement, so a new statement arm that does not increment `lowered` aborts the
+   build. An internal check is part of the route, not an obstacle beside it.
+4. `p->q = 100` raised a bare `Match_failure`. The gap was pre-existing but unreachable: as long as
+   `POINTER` refused at the layout switch, no `Eqptr` lhs could ever reach `lower_assign`. Widening
+   a declaration makes the holes below it live, so each widening needs its lhs/rhs shapes enumerated
+   in the same pass (ME1/ME2/ME3 isolate this: the based store and the based read worked, only the
+   `->` spelling crashed).
+
+**Three measurement errors of my own that produced false readings** -- recorded because the
+conclusions looked empirical: `cmp` against a golden path that did not exist reported DIFFERS for
+four probes that were in fact byte-exact (PB18/PB19/PB21/PB22); `grep -c ALLOP` counts DR's symbol
+table row, so "ALLOP=1" did not mean a call was emitted; and a `CALL +4-hex-digits` regex matched
+nothing because DR prints `CALL ?ALLOP` with no address column, which is what made FREE look
+unimplemented for a while. A rule worth keeping: check that the instrument can see the thing at all
+before believing a negative from it.

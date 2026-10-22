@@ -3588,3 +3588,33 @@ plus a marker fragment taken from the compiler's ACTUAL stderr.
     guard, where DR emits `CALL ?QI15D' after the value is in HL (IC1's .REL, chain-ext at code 0020).
     That is Q8's gap with measured edges; closing it wants all six goldens and DECPOLY/DFACT/C162W
     in view at once, because that store route is tightly pinned.
+- **C183** *(E2E-26 P2/P3, pointer and based address model implemented)* A `POINTER` is a 2-byte
+  automatic cell in declaration order and is not hoisted; a `BASED` name is a view with **no** cell --
+  it occupies nothing in AUTO STORAGE and its value lives at its pointer's offset. Reads and writes
+  therefore all start from the POINTER's address, and DR never parks that address across a store:
+  `read q` = `LHLD <p> / MOV E,M / INX H / MOV D,M / XCHG`, `q = const` = `LHLD <p> / MVI M,lo / INX H
+  / MVI M,hi`, `q = <general>` = `<rhs> / PUSH H / LHLD <p> / POP D / MOV M,E / INX H / MOV M,D`.
+  `p->q = v` emits bytes identical to `q = v` [P041], so the two spellings must share one encoder.
+  `ALLOCATE` is a statement whose measured form is `allocate <based-name> set(<ptr>)` -- lowering to
+  `LXI H,<bytes-of-based-type> / CALL ?ALLOP / SHLD <ptr>` with 2/1/3/5 for fixed/bit(8)/dec(5)/
+  char(5) [PB7, PB8, PB14, PB13, PB15, PB6] -- and `FREE` takes a BASED name, lowering to
+  `LHLD <ptr> / CALL ?FREOP` [PD9, PB7]; `free p` on a pointer is rejected by DR itself (BASED REQ,
+  no .REL [AV1]), as is `allocate <type-name> to p` (BASED REQ + SYNTAX [PD6, PD8]). Assignment into
+  a pointer cell is accepted only for the three right-hand shapes DR is sampled on -- `addr(local)`,
+  `null()`, copy from another pointer -- and refuses everything else by name, because pointer
+  arithmetic has no sample at all. Evidence: 21 byte-exact probes plus three programs LINKed from
+  my own .REL and executed (PB7 `x=       100  y=       200 done`; PB1 `a=11 q=22 b=22`; PB3
+  `first=11 second=22`), gate 688/688 with 121/121 negatives.
+- **C184** *(E2E-26 P2/P3, reachability and instrumentation)* Two failure modes that no external
+  oracle can show you. **(a)** Widening a declaration makes the holes below it live: `p->q = 100`
+  raised a bare `Match_failure` on `lower_assign`'s outer match, a gap that had existed all along but
+  was unreachable while `POINTER` refused at the layout switch. Every time an acceptance guard is
+  widened, the lhs/rhs/operand shape tests downstream of it must be enumerated in the same pass --
+  and the minimal way to find which spelling crashes is to build the neighbours: `q = 100` and
+  `z = q` compiled while `p->q = 100` crashed, which isolated the defect to the `->` arm in one run.
+  **(b)** A negative measurement from an instrument that cannot see the thing is not evidence:
+  `cmp` against a nonexistent golden path reported four byte-exact probes as DIFFERS; `grep -c ALLOP`
+  counts DR's symbol-table row so `1` did not mean a call was emitted; and a `CALL <hexaddr>` regex
+  found nothing because DR prints `CALL ?ALLOP` with no address column, which is what made FREE look
+  unimplemented. Before a conclusion is drawn from an absence, show that the same instrument detects
+  the thing where it is known to be present.
