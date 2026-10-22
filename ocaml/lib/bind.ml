@@ -37,13 +37,21 @@ let is_builtin_name k =
 type rt =
   | RTbin of int | RTdec of int * int | RTfloat of int
   | RTchar of int * bool | RTbit of int | RTptr
+  (* [E2E-26/P1] `dcl q based(p) fixed':  DR's own storage maps show the BASED name with NO
+     storage of its own -- it prints at its POINTER's offset and the block's AUTO STORAGE excludes
+     it (P063B: auto=4 = p+z; PB4: auto=4; P067C: auto=2 = p alone).  So a based declaration is a
+     VIEW through a pointer cell, carrying the pointer's name and the value type, and it must
+     contribute 0 bytes to the layout: giving it a cell would silently shift every later automatic
+     and disagree with DR's DATA area (PB1 places the pointer BETWEEN two ordinary automatics, so a
+     spurious cell would move `b'). *)
+  | RTbased of string * rt
   | RTfile of { internal : bool }
   | RTentry of { params : int; external_ : bool
                ; ret : rt option; ptypes : rt list }
   | RTlabel | RTformat | RTbuiltin
   | RTstruct of { level : int; members : int }
 
-let rty_str = function
+let rec rty_str = function
   | RTbin p -> Printf.sprintf "FIXED BINARY(%d,0)" p
   | RTdec (p, s) -> Printf.sprintf "FIXED DECIMAL(%d,%d)" p s
   | RTfloat p -> Printf.sprintf "FLOAT BINARY(%d,0)" p
@@ -51,6 +59,8 @@ let rty_str = function
   | RTchar (n, true) -> Printf.sprintf "CHAR(%d) VARYING" n
   | RTbit n -> Printf.sprintf "BIT(%d)" n
   | RTptr -> "POINTER"
+  | RTbased (p, t) -> rty_str t ^ " BASED(" ^ String.uppercase_ascii p ^ ")"
+      (* DR prints exactly this shape: `c 0000 Q FIXED BINARY(15,0) BASED(P)' [P063B, PB1-PB4, PB9] *)
   | RTfile { internal } -> if internal then "FILE INTERNAL" else "FILE"
   | RTentry { params; external_; ret } ->
       Printf.sprintf "%s PARAMETERS(%d)"
@@ -125,7 +135,15 @@ and bytes_of = function
   | RTchar (n, false) -> n
   | RTchar (n, true) -> 1 + n
   | RTbit n -> (n + 7) / 8
-  | RTptr -> 2                                    (* [HYPOTHESIS] PROBE 57 *)
+  | RTptr -> 2
+      (* MEASURED, no longer a hypothesis [E2E-26/P1]: DR's maps put each POINTER automatic in a
+         2-byte cell in DECLARATION ORDER -- P063B p@0000 z@0002; P086M p@0000 q@0002 z@0004;
+         PB1 a@0000 p@0002 b@0004 (pointer cells are NOT hoisted to the front for locals; the
+         pointer-cells-first rule belongs to FORMAL argument descriptors only [C130/C175]).  The
+         cell holds a 16-bit data address, which is what `p = addr(z)' stores [LXI H,<DATA+off z>
+         / SHLD <p>] and `LHLD <p>' reads.  The old citation was `[HYPOTHESIS] PROBE 57', whose
+         probe has no .REL. *)
+  | RTbased (_, t) -> 0                     (* a view, not a variable -- see the type note above *)
   | RTentry _ -> 0   (* entry/FUNCTION symbols show at 0000, no visible bytes *)
   | _ -> 0
 
@@ -141,7 +159,7 @@ let num_arg = function
   | Some { e = Enumber t; _ } -> (try Some (int_of_string t) with _ -> None)
   | _ -> None
 
-let resolve_type (d : dcl) : rt =
+let resolve_type_raw (d : dcl) : rt =
   match d.dtype with
   | Some (Tfixed { dec; prec; scale }) ->
       let p = check_fixed_prec dec
@@ -172,8 +190,42 @@ let resolve_type (d : dcl) : rt =
       else if has_attr d.dattrs "FORMAT" then RTformat
       else RTbin 15
 
-type sym = { flag : string; sname : string; disp : string; off : int }
+(* [E2E-26/P2] ONE place applies the BASED attribute, so sizing, printing and lowering can never
+   disagree about it [C179].  `dcl q based(p) fixed' resolves to the value type wrapped with the
+   pointer's name; DR's map line for it is `Q FIXED BINARY(15,0) BASED(P)' at p's offset with no
+   storage [P063B, PB1-PB4, PB9, PB13-PB15].  Shapes that are not measured are refused here rather
+   than given a plausible layout:
+     - a BASED whose operand is not a bare identifier  (e.g. based(expr) -- no DR sample);
+     - a based-on name that is not a declared POINTER in scope (PB16's structure-name confusion);
+     - a typeless based declaration (DR's own `BASED REQ' family, PB10/PB17).
+   Note the pointer is resolved BY NAME, not by offset: DR reads the cell at every access, so a
+   based view must follow whatever the pointer holds at that moment [PB3, PB22]. *)
+let resolve_type (d : dcl) : rt =
+  let rt = resolve_type_raw d in
+  match List.find_opt (fun (a : attr) -> String.uppercase_ascii a.akey = "BASED") d.dattrs with
+  | None -> rt
+  | Some a ->
+      let ptr =
+        match a.aargs with
+        | [ { e = Ast.Eident h; _ } ] -> String.lowercase_ascii h.Ast.orig
+        | _ ->
+            failwith
+              ("codegen: BASED whose operand is not a bare pointer name [TBD] "
+               ^ "(no DR sample: every accepted probe is based(<name>) -- P063B, P067C, PB1-PB4, "
+               ^ "PB13-PB15)")
+      in
+      match rt with
+      | RTlabel | RTformat | RTbuiltin | RTentry _ | RTfile _ ->
+          failwith
+            ("codegen: BASED(" ^ ptr ^ ") on a " ^ rty_str rt
+             ^ " declaration has no DR sample [TBD] (based pointers, structures and allocated "
+             ^ "structures are all refused by DR itself: PB10/PB16/PB17 give BASED REQ)")
+      | rt' ->
+          (* the based-on pointer must be a declared POINTER somewhere DR will resolve; if it is not
+             in this frame's symbols the view would silently read an unrelated cell, so refuse. *)
+          RTbased (ptr, rt')
 
+type sym = { flag : string; sname : string; disp : string; off : int }
 let is_init_attr (d : dcl) =
   List.exists (fun (a : attr) ->
       List.mem a.akey [ "INIT"; "INITIALIZED"; "INITIAL" ]) d.dattrs

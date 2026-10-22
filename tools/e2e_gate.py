@@ -2133,7 +2133,7 @@ for _n, _t in (("AB19", "e2e227"), ("AB21", "e2e228"), ("RT1", "e2e229")):
 # Also note PU1's finding: the PARSER records `put file(f) list(x)' as an ON OPTION, not as a
 # stream, so the "ON options" arm is what a named-file PUT reaches.  Wording left as-is rather
 # than rebuilt over at the end of a gated milestone; recorded here so it is not rediscovered.
-for _n, _marker in [("AV1", "TBD]: POINTER"),            # ALLOCATE/FREE: bind walker had no arm
+for _n, _marker in [("AV1", "allocate(...)' where p is a POINTER is refused by DR itself [TBD]"),  # [E2E-26] AV1 is `p = allocate(10); free p;`: DR itself gives NO DCL + ARG COUNT + BASED REQ and no .REL (golden/e26av2/AV1/AV1.PRN), so this is a double refusal, now labelled with the statement-vs-expression reason rather than the old generic POINTER-layout message
                     ("PU1", "PUT LIST with ON options"),  # named-file PUT: outer match no catch-all
 ]:                       # (a third probe for the "undeclared" site would not PARSE cleanly;
                                                        # REVERT covers it in the sweep instead)
@@ -2319,6 +2319,59 @@ REJECTS['IC4'] = (open('artefacts/IC4.PLI', "rb").read().replace(b"\r\n", b"\n")
 NEG_META['IC4'] = ("my-gap", "DR COMPILES IT (golden/e2e309d/IC4/IC4.REL).  `e = b - d': mixed SUB into a DEC target -- stops on the decimal store's guard `decimal operation on non-decimal operand'.  The missing route is ?QI15D applied to an integer value already in HL, i.e. Q8's gap [E2e-25/P5]: characterized, pinned, not implemented.")
 REJECTS['IC6'] = (open('artefacts/IC6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'non-decimal operand')
 NEG_META['IC6'] = ("my-gap", "DR COMPILES IT (golden/e2e309d/IC6/IC6.REL).  `e = b * 2': ordinary integer arithmetic whose RESULT must convert to DEC -- stops on the decimal store's guard `decimal operation on non-decimal operand'.  The missing route is ?QI15D applied to an integer value already in HL, i.e. Q8's gap [E2e-25/P5]: characterized, pinned, not implemented.")
+
+# [E2E-26] POINTER storage, scalar BASED read/store, ALLOCATE and FREE.
+# Twenty-one probes now agree byte-for-byte with DR, covering: a POINTER's 2-byte
+# automatic cell (PD1-PD5), reading through a BASED name (P063B, P071K, PB2, PB19),
+# writing a constant and a general value through it (P041 `p->q = 100', PB1, PB18,
+# PB21/PB22), pointer re-pointing and copying (PB3, P086M, P067B), and the runtime
+# pair `LXI H,<size> / CALL ?ALLOP / SHLD <p>' with `LHLD <p> / CALL ?FREOP'
+# (PB7, PB8, PD9).  PB1, PB3 and PB7 were additionally LINKed (LINK 1.31) from MY OWN
+# .REL and executed: PB7 prints `x=       100  y=       200 done', PB1 prints
+# `a=        11  q=        22  b=        22', PB3 prints `first=        11
+# second=        22' -- transcripts under golden/e26my_r and golden/e26my_r2.
+# They are NOT in OUTPUT_CHECK: DR stored no run transcript for these batches, and
+# listing them would print `MISSING TRANSCRIPT' for a fact that is true but
+# uninformative [E2E-25 lesson].  The run evidence is mine-only and labelled so.
+add_spec('P063B', ('probes/P063B.PLI', 'golden/e2e310d/P063B/P063B.REL'))
+add_spec('P071K', ('probes/P071K.PLI', 'golden/e2e310d/P071K/P071K.REL'))
+add_spec('P041', ('probes/P041.PLI', 'golden/e2e310d/P041/P041.REL'))
+add_spec('P067B', ('probes/P067B.PLI', 'golden/e2e310d/P067B/P067B.REL'))
+add_spec('P086M', ('probes/P086M.PLI', 'golden/e2e310d/P086M/P086M.REL'))
+add_spec('PB1', ('artefacts/PB1.PLI', 'golden/e2e311d/PB1/PB1.REL'))
+add_spec('PB2', ('artefacts/PB2.PLI', 'golden/e2e311d/PB2/PB2.REL'))
+add_spec('PB3', ('artefacts/PB3.PLI', 'golden/e2e311d/PB3/PB3.REL'))
+add_spec('PB18', ('artefacts/PB18.PLI', 'golden/e2e315d/PB18/PB18.REL'))
+add_spec('PB19', ('artefacts/PB19.PLI', 'golden/e2e315d/PB19/PB19.REL'))
+add_spec('PB21', ('artefacts/PB21.PLI', 'golden/e2e315d/PB21/PB21.REL'))
+add_spec('PB22', ('artefacts/PB22.PLI', 'golden/e2e315d/PB22/PB22.REL'))
+add_spec('PD1', ('artefacts/PD1.PLI', 'golden/e2e311d/PD1/PD1.REL'))
+add_spec('PD2', ('artefacts/PD2.PLI', 'golden/e2e312d/PD2/PD2.REL'))
+add_spec('PD3', ('artefacts/PD3.PLI', 'golden/e2e312d/PD3/PD3.REL'))
+add_spec('PD4', ('artefacts/PD4.PLI', 'golden/e2e313d/PD4/PD4.REL'))
+add_spec('PD5', ('artefacts/PD5.PLI', 'golden/e2e313d/PD5/PD5.REL'))
+add_spec('PD7', ('artefacts/PD7.PLI', 'golden/e2e316d/PD7/PD7.REL'))
+add_spec('PB7', ('artefacts/PB7.PLI', 'golden/e2e311d/PB7/PB7.REL'))
+add_spec('PB8', ('artefacts/PB8.PLI', 'golden/e2e311d/PB8/PB8.REL'))
+add_spec('PD9', ('artefacts/PD9.PLI', 'golden/e2e316d/PD9/PD9.REL'))
+
+# [E2E-26] DR compiles these; mine refuses because the layout admits only based FIXED
+# BINARY(15).  PB6/PB15 want character stores through a pointer (PB6 measures the route:
+# `LHLD <p> / LXI D,<text> / MVI A,len / MOV B,A / CALL ?SMCCM'), PB13 wants a decimal
+# cell, PB14 a single byte.  Pinned as my-gap so a later slice inherits goldens, not guesses.
+REJECTS['PB6'] = (open('artefacts/PB6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'BASED(P) of type')
+NEG_META['PB6'] = ("my-gap", "DR COMPILES IT (golden golden/e2e311d/PB6/PB6.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).")
+REJECTS['PB13'] = (open('artefacts/PB13.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'BASED(P) of type')
+NEG_META['PB13'] = ("my-gap", "DR COMPILES IT (golden golden/e2e314d/PB13/PB13.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).")
+REJECTS['PB14'] = (open('artefacts/PB14.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'BASED(P) of type')
+NEG_META['PB14'] = ("my-gap", "DR COMPILES IT (golden golden/e2e314d/PB14/PB14.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).")
+REJECTS['PB15'] = (open('artefacts/PB15.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(), 'BASED(P) of type')
+NEG_META['PB15'] = ("my-gap", "DR COMPILES IT (golden golden/e2e314d/PB15/PB15.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).")
+
+# [E2E-26] PB4 (`q = q * 1') and PB20 (`q = q + q') BUILD but do not match DR byte-for-
+# byte: both are arithmetic whose operand is itself read through the pointer, and DR's
+# register parking for that shape is not yet characterized.  They belong to neither
+# specimen nor refusal, so they go to the divergence panel [C168].
 
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}

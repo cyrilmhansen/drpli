@@ -1,0 +1,8 @@
+me2: procedure options(main);
+   declare p pointer, q based(p) fixed, z fixed;
+   z = 1;
+   p = addr(z);
+   p->q = 100;
+  stop;
+end me2;
+

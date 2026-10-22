@@ -1,0 +1,52 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: PD7
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 PD7 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0000 Q FIXED BINARY(15,0) BASED(P)
+c 0002 Z FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: PD7
+
+   1 a 0000 PD7: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare p pointer, q based(p) fixed, z fixed;
+   3 c 0006    z = 5;
+       0006       LXI  H,0005
+       0009       SHLD Z A(0002)
+   4 c 000C    q = z;
+       000C       LHLD Z A(0002)
+       000F       PUSH H
+       0010       LHLD P A(0000)
+       0013       POP  D
+       0014       MOV  M,E
+       0015       INX  H
+       0016       MOV  M,D
+   5 c 0017   stop;
+       0017       CALL ?STOPX
+   6 a 001A end PD7;
+
+CODE SIZE = 001A
+DATA AREA = 0004
+FREE SYMS = 38B8
+END  COMPILATION
+

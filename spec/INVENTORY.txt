@@ -36,7 +36,7 @@ AR3	specimen	e23src/AR3.PLI	golden/e2e223/AR3/AR3.REL
 AR4	specimen	e23src/AR4.PLI	golden/e2e223/AR4/AR4.REL
 AR5	specimen	e23src/AR5.PLI	golden/e2e223/AR5/AR5.REL
 ARRAY	specimen	e20src/ARRAY.PLI	golden/e2e214/ARRAY/ARRAY.REL
-AV1	refusal	a: procedure options(main);\n  dcl p ptr, q fixed;\n  q = 1;\n  p = allocate(10);\n  free p;\n  put skip list(q);\nstop;\nend a;\n	Was a BARE crash (rc!=0, no [TBD]), which the corpus sweep counted as REFUSED and thus hid. Now a reasoned refusal; the underlying gap (TBD]: POINTER) remains. [E2E-21/P0]
+AV1	refusal	a: procedure options(main);\n  dcl p ptr, q fixed;\n  q = 1;\n  p = allocate(10);\n  free p;\n  put skip list(q);\nstop;\nend a;\n	Was a BARE crash (rc!=0, no [TBD]), which the corpus sweep counted as REFUSED and thus hid. Now a reasoned refusal; the underlying gap (allocate(...)' where p is a POINTER is refused by DR itself [TBD]) remains. [E2E-21/P0]
 B	specimen	e14src/B.PLI	golden/e2e152d/B/B.REL
 C1	specimen	e15src/C1.PLI	golden/e2e172/C1/C1.REL
 C162W1	specimen	e22src/W1.PLI	golden/e2e221/W1/W1.REL
@@ -395,9 +395,14 @@ N82_CALL_OF_FLOAT_RETURNING	refusal	E24H:\n  procedure options(main);\n  declare
 N83_EXPR_OF_NO_RETURNS	refusal	E24I:\n  procedure options(main);\n  declare (a, n) fixed;\n  a = 2;\n  n = gs(a);\n  stop;\n  gs: procedure (v);\n  declare v fixed;\n  v = v + 1;\n  end gs;\nend E24I;\n	DR REFUSES: TYPES NOT= (golden/negpanel1/NG64/NG64.PRN)
 N9_GTZERO	refusal	t:\n  procedure options(main);\n  dcl a fixed;\n  if a > 0 then put list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG65/NG65.REL)
 NFACT	specimen	probes/NFACT.PLI	golden/e2e5c/NFACT/NFACT.REL
+P041	specimen	probes/P041.PLI	golden/e2e310d/P041/P041.REL
+P063B	specimen	probes/P063B.PLI	golden/e2e310d/P063B/P063B.REL
+P067B	specimen	probes/P067B.PLI	golden/e2e310d/P067B/P067B.REL
 P071A	specimen	probes/P071A.PLI	golden/probe38/P071A/P071A.REL
 P071B	specimen	probes/P071B.PLI	golden/probe38/P071B/P071B.REL
 P071D	specimen	probes/P071D.PLI	golden/probe38/P071D/P071D.REL
+P071K	specimen	probes/P071K.PLI	golden/e2e310d/P071K/P071K.REL
+P086M	specimen	probes/P086M.PLI	golden/e2e310d/P086M/P086M.REL
 P1	specimen	e16src/P1.PLI	golden/e2e174/P1/P1.REL
 P10	specimen	e16src/P10.PLI	golden/e2e174/P10/P10.REL
 P11	specimen	e16src/P11.PLI	golden/e2e174/P11/P11.REL
@@ -413,6 +418,26 @@ P7	specimen	e16src/P7.PLI	golden/e2e174/P7/P7.REL
 P8	specimen	e16src/P8.PLI	golden/e2e174/P8/P8.REL
 P9	specimen	e16src/P9.PLI	golden/e2e174/P9/P9.REL
 PASSARAY	specimen	e20src/PASSARAY.PLI	golden/e2e214/PASSARAY/PASSARAY.REL
+PB1	specimen	artefacts/PB1.PLI	golden/e2e311d/PB1/PB1.REL
+PB13	refusal	pb13: procedure options(main);\n   declare p pointer, w fixed dec(5) based(p);\n   allocate w set(p);\n   w = 12345;\n   put list('w=', w);\n   free w;\n  put skip list('end');\n  stop;\nend pb13;\n	DR COMPILES IT (golden golden/e2e314d/PB13/PB13.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).
+PB14	refusal	pb14: procedure options(main);\n   declare p pointer, w bit(8) based(p);\n   allocate w set(p);\n   w = '10110011'b;\n   put list('w=', w);\n   free w;\n  put skip list('end');\n  stop;\nend pb14;\n	DR COMPILES IT (golden golden/e2e314d/PB14/PB14.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).
+PB15	refusal	pb15: procedure options(main);\n   declare p pointer, c char(3) based(p);\n   allocate c set(p);\n   c = 'QAZ';\n   put list('c=', c);\n   free c;\n  put skip list('end');\n  stop;\nend pb15;\n	DR COMPILES IT (golden golden/e2e314d/PB15/PB15.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).
+PB18	specimen	artefacts/PB18.PLI	golden/e2e315d/PB18/PB18.REL
+PB19	specimen	artefacts/PB19.PLI	golden/e2e315d/PB19/PB19.REL
+PB2	specimen	artefacts/PB2.PLI	golden/e2e311d/PB2/PB2.REL
+PB21	specimen	artefacts/PB21.PLI	golden/e2e315d/PB21/PB21.REL
+PB22	specimen	artefacts/PB22.PLI	golden/e2e315d/PB22/PB22.REL
+PB3	specimen	artefacts/PB3.PLI	golden/e2e311d/PB3/PB3.REL
+PB6	refusal	pb6: procedure options(main);\n   declare p pointer, c char(5) based(p);\n   allocate c set(p);\n   c = 'ABCDE';\n   put list('c=', c);\n   free c;\n  put skip list('end');\n  stop;\nend pb6;\n	DR COMPILES IT (golden golden/e2e311d/PB6/PB6.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).
+PB7	specimen	artefacts/PB7.PLI	golden/e2e311d/PB7/PB7.REL
+PB8	specimen	artefacts/PB8.PLI	golden/e2e311d/PB8/PB8.REL
+PD1	specimen	artefacts/PD1.PLI	golden/e2e311d/PD1/PD1.REL
+PD2	specimen	artefacts/PD2.PLI	golden/e2e312d/PD2/PD2.REL
+PD3	specimen	artefacts/PD3.PLI	golden/e2e312d/PD3/PD3.REL
+PD4	specimen	artefacts/PD4.PLI	golden/e2e313d/PD4/PD4.REL
+PD5	specimen	artefacts/PD5.PLI	golden/e2e313d/PD5/PD5.REL
+PD7	specimen	artefacts/PD7.PLI	golden/e2e316d/PD7/PD7.REL
+PD9	specimen	artefacts/PD9.PLI	golden/e2e316d/PD9/PD9.REL
 PL1	specimen	e19src/PL1.PLI	golden/e2e199/PL1/PL1.REL
 PL10	refusal	a:\n    procedure options(main);\n    declare n fixed, m fixed, q fixed, c char(1);\n    n = 7;\n    m = 3;\n    q = 11;\n    c = 'W';\n    c = 'W';\n    put skip list('W', n);\n    stop;\n    f: procedure(j) returns(fixed);\n    declare j fixed;\n    return (j + 1);\n    end f;\nend a;\n	DR COMPILES IT (golden/e2e200/PL10).  The refusal is NOT the pool rule: `c char(1)' with `c = 'W'' is len==cap, a store form my emitter has never measured [V102/V103 cover a DIFFERENT capacity shape], so it declines before reaching the pool. PL18-PL20 measure the same dedup rule through char(3) and are byte-identical [C152]
 PL11	refusal	a:\n    procedure options(main);\n    declare n fixed, m fixed, q fixed, c char(1);\n    n = 7;\n    m = 3;\n    q = 11;\n    c = 'W';\n    c = 'W';\n    stop;\n    f: procedure(j) returns(fixed);\n    declare j fixed;\n    return (j + 1);\n    end f;\nend a;\n	DR COMPILES IT (golden/e2e200/PL11) and it is the probe that MEASURES char-store dedup -- two stores of 'W' pool ONE byte -- but mine refuses on the unproven len==cap `char(1)' form, not on the pool.  Recorded as evidence for the rule and as an open my-gap for the store form [C152]

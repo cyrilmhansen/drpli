@@ -1,0 +1,4 @@
+PD6	diag	PRN=True REL=False
+PD7	ok	PRN=True REL=True
+PD8	diag	PRN=True REL=False
+PD9	ok	PRN=True REL=True
