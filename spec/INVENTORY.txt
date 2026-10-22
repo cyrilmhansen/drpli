@@ -210,8 +210,10 @@ LP4	specimen	artefacts/LP4.PLI	golden/e2e246/LP4/LP4.REL
 LP5	specimen	artefacts/LP5.PLI	golden/e2e246/LP5/LP5.REL
 LP6	specimen	artefacts/LP6.PLI	golden/e2e246/LP6/LP6.REL
 LP7	refusal	a: procedure options(main);\n  dcl x fixed, y fixed, y2 fixed, d fixed dec(9), z(3) fixed, i fixed;\n  x = 1;\n  d = x + 123456789;\n  stop;\nend a;\n	DR compiles it (golden/e2e246/LP7).  Mine refuses with C161's designed guard `decimal operation on non-decimal operand x': `x' is FIXED BINARY in a DEC-typed expression, which is exactly the mixed-mode conversion this step's Priority 3 would implement.  Refusing is correct: the conversion route is unmeasured, and the value would otherwise be computed wrong.
+LP9	specimen	artefacts/LP9.PLI	golden/e2e246/LP9/LP9.REL
 LQ1	specimen	artefacts/LQ1.PLI	golden/e2e247/LQ1/LQ1.REL
 LQ3	specimen	artefacts/LQ3.PLI	golden/e2e247/LQ3/LQ3.REL
+LQ5	specimen	artefacts/LQ5.PLI	golden/e2e247/LQ5/LQ5.REL
 LQ6	specimen	artefacts/LQ6.PLI	golden/e2e247/LQ6/LQ6.REL
 LQ7	specimen	artefacts/LQ7.PLI	golden/e2e247/LQ7/LQ7.REL
 LQ8	specimen	artefacts/LQ8.PLI	golden/e2e247/LQ8/LQ8.REL
@@ -279,6 +281,7 @@ ML4	specimen	artefacts/ML4.PLI	golden/e2e244/ML4/ML4.REL
 ML5	specimen	artefacts/ML5.PLI	golden/e2e244/ML5/ML5.REL
 ML6	refusal	a: procedure options(main);\n  dcl d fixed dec(5), y fixed dec(9);\n  d = 3;\n  y = d + 1234567890;\n  put skip list(y);\n  stop;\nend a;\n	DR compiles it (golden/e2e244/ML6).  Mine refuses with the encoder's designed guard `DEC literal does not fit its precision [TBD]': the literal has more digits than the declared precision, which DR's ?DLDOP accepts silently.  A value that cannot be packed is never emitted as a wrong packing.
 ML7	refusal	a: procedure options(main);\n  dcl b fixed bin(15), d fixed dec(3);\n  b = 5;\n  d = 3;\n  b = d + 1234567890;\n  put skip list(b);\n  stop;\nend a;\n	DR compiles it (golden/e2e244/ML7).  ML7 is `dcl b fixed bin(15), d fixed dec(3); b = d + 1234567890': the 10-digit literal is packed against the dec(3) operand precision in DR's DEC chain, which my encoder declines. ML6 hits the same guard through `y = d + 1234567890' with `d' dec(5).  Both are tracked so neither is mistaken for the pool invariant.
+ML8	specimen	artefacts/ML8.PLI	golden/e2e244/ML8/ML8.REL
 ML9	specimen	artefacts/ML9.PLI	golden/e2e244/ML9/ML9.REL
 MN1	specimen	artefacts/MN1.PLI	golden/e2e245/MN1/MN1.REL
 MN2	specimen	artefacts/MN2.PLI	golden/e2e245/MN2/MN2.REL

@@ -1360,6 +1360,11 @@ let rec prescan_expr (cx : pdec_ctx) (e : Ast.expr) =
       pdec_int_lit_cell cx t + prescan_expr cx r
   | Ast.Ebinary (Ast.Add, l, { Ast.e = Ast.Enumber t; _ }) ->
       pdec_int_lit_cell cx t + prescan_expr cx l
+  (* [E2E-24/C178] the SUB mirror of the arm above -- RIGHT operand only.  `k - x' is measured
+     nowhere, so it is not routed and must not be demanded; demanding a cell the declining lowering
+     never allocates is exactly the failure mode recorded in [C179]. *)
+  | Ast.Ebinary (Ast.Sub, l, { Ast.e = Ast.Enumber t; _ }) ->
+      pdec_int_lit_cell cx t + prescan_expr cx l
   | Ast.Ebinary (_, l, r) -> prescan_expr cx l + prescan_expr cx r
   | Ast.Eprefix (_, x) -> prescan_expr cx x
   | Ast.Ebuilt (_, es) ->
@@ -2872,6 +2877,36 @@ let rec lower_hl st (e : Ast.expr) =
         d st op_pop_d;
         d st op_dad_d
       end
+    | Ast.Ebinary (Ast.Sub, l, { Ast.e = Ast.Enumber ks; _ })
+      when is_int_literal ks && not (fits_int_lit ks)
+           && (match l.Ast.e with
+               (* DEC-typed left operands stay unrouted: that is C161's mixed mode, still unproven,
+                  and it must keep refusing rather than be quietly pushed through a binary
+                  conversion.  Anything that is not a plain identifier also falls through to the
+                  existing path, so only the measured `var - k' shape is taken here. *)
+               | Ast.Eident n ->
+                   (match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
+                    | Some vi -> (match vi.vk with Vdec _ -> false | _ -> true)
+                    | None -> true)
+               | _ -> false) ->
+      (* [E2E-24/C178] SUB with an out-of-range constant on the RIGHT.  Measured on two probes
+         before being written: LQ5 `y = y - 32768' and LP9 `y = x - 65535' both give
+         `LHLD v / PUSH H / LXI H,*S / MVI A,p / ?DLDOP / ?QDI15 / POP D / CALL ?IS22N'.
+         ?IS22N, not DAD-with-two's-complement: the in-range ladder adds FFFC for -4, but DR
+         switches to a subtraction ROUTINE once the operand arrives by conversion (DE = left,
+         HL = converted constant).
+         The `when' guard is deliberately narrow.  In-range SUB is produced by the shared
+         add/sub dispatcher, which MANY byte-exact specimens pin; this arm matches only the
+         out-of-range case, so nothing that compiled before changes.  DEC-typed left operands
+         are excluded: that is C161's mixed mode, still unproven, and must keep refusing
+         rather than being quietly routed through a binary conversion. *)
+      let k = parse_int_const ks in
+      lower_hl st l;
+      d st op_push_h;
+      lit_dec_to_hl st ks k;
+      d st op_pop_d;
+      call_ext st "?IS22N"
+
     | Ast.Ebinary (Ast.Add, l, r)
       when (match r.Ast.e with Ast.Esuffix _ -> true | _ -> false)
            && not (suf_is_element st r)
