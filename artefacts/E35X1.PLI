@@ -1,0 +1,17 @@
+x1: procedure options(main);
+   declare sysin file, n fixed;
+   n = 0;
+hd:
+   n = 1;
+   call sub;
+   put list('n=', n);
+  sub: procedure;
+    on endfile(sysin) goto hd;
+    n = n + 1;
+    goto hd;
+hd:
+    n = 99;
+   end sub;
+   stop;
+end x1;
+

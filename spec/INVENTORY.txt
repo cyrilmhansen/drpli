@@ -346,6 +346,15 @@ E35W4	specimen	artefacts/E35W4.PLI	golden/e35w/E35W4/E35W4.REL
 E35W5	specimen	artefacts/E35W5.PLI	golden/e35w/E35W5/E35W5.REL
 E35W6	specimen	artefacts/E35W6.PLI	golden/e35w/E35W6/E35W6.REL
 E35W7	specimen	artefacts/E35W7.PLI	golden/e35w/E35W7/E35W7.REL
+E35X1	specimen	artefacts/E35X1.PLI	golden/e35x/E35X1/E35X1.REL
+E35X2	specimen	artefacts/E35X2.PLI	golden/e35x/E35X2/E35X2.REL
+E35X3	specimen	artefacts/E35X3.PLI	golden/e35x/E35X3/E35X3.REL
+E35X4	specimen	artefacts/E35X4.PLI	golden/e35y/E35X4/E35X4.REL
+E35X5	refusal	x5: procedure options(main);\n   declare sysin file, n fixed;\n   n = 0;\nhd:\n   n = 1;\n   on endfile(sysin) goto hd;\n   call sub;\n   put list('n=', n);\n  sub: procedure;\n    n = 2;\n    goto hd;\n    n = 3;\n   end sub;\n   stop;\nend x5;\n	DR COMPILES it (golden/e35y/E35X5).  Same cross-block `goto hd;' as E35Y3 but the target label is ALREADY pad-bearing, because main has its own `on endfile(sysin) goto hd;'.  Mine lands 2 bytes over DR (105 vs 103), so even the cheap reading -- reuse the existing pad, chain the reference -- is not what DR does.  Registered with E35Y3 as one cause (cross-block entry) and kept separate because it shows the pad's existence does not by itself explain the encoding.
+E35Y1	specimen	artefacts/E35Y1.PLI	golden/e35y/E35Y1/E35Y1.REL
+E35Y2	specimen	artefacts/E35Y2.PLI	golden/e35y/E35Y2/E35Y2.REL
+E35Y3	refusal	y3: procedure options(main);\n   declare n fixed;\n   n = 0;\nsk:\n   call sub;\n   put list('n=', n);\n  sub: procedure;\n    n = 5;\n    goto sk;\n    n = 6;\n   end sub;\n   stop;\nend y3;\n	DR COMPILES it (golden/e35y/E35Y3, CODE 83 / DATA 6 against my 71 / 4).  A nested procedure's `goto sk;' to main's `sk:' makes the TARGET block pad-bearing: DR emits main's hidden saved-SP save at its entry (`0006 LXI H,0000 / 0009 DAD SP / 000A SHLD *A(0004)') and a recovery pad IMMEDIATELY BEFORE the label (`0013 LHLD *A(0004) / 0016 SPHL / 0017 CALL ?RECOV'), then resolves the reference through a chain.  No ON-unit is involved anywhere in the program, so [C208]'s pad demand -- labels targeted by an ON ... GOTO -- is a special case of something wider: entering a block transfers control INTO its stack frame, and the pad is what re-establishes it.  That is E34A9's class of unsampled pad demand again, with a concrete new trigger; refusing costs one construct and emitting it would write an address into the wrong frame.
+E35Y4	refusal	y4: procedure options(main);\n   declare n fixed;\n   n = 0;\nsk:\n   call sub;\n   put list('n=', n);\n  sub: procedure;\n    n = 5;\n    if n = 1 then goto sk;\n    n = 6;\n   end sub;\n   stop;\nend y4;\n	DR COMPILES it (golden/e35y/E35Y4).  `if n = 1 then goto sk;' from a nested procedure to main's label: the same cross-block transfer as E35Y3 reached conditionally.  Its value here is as the CONTROL for the tail-RET rule -- DR closes the body with `INX H / SHLD N / RET' at 004C because control can still fall out, which is what separates it from E35X2/X3 (unconditional trailing `goto', no RET).  Refused for the same reason as E35Y3.
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL
@@ -579,6 +588,7 @@ N81_CALL_OF_VALUE_RETURNING	refusal	E24D:\n  procedure options(main);\n  declare
 N82_CALL_OF_FLOAT_RETURNING	refusal	E24H:\n  procedure options(main);\n  declare (a, n) fixed;\n  a = 2;\n  call hf(a);\n  stop;\n  hf: procedure (v) returns(float);\n  declare v fixed;\n  return (v * 1.5);\n  end hf;\nend E24H;\n	DR REFUSES: NOT PROC (golden/negpanel1/NG63/NG63.PRN)
 N83_EXPR_OF_NO_RETURNS	refusal	E24I:\n  procedure options(main);\n  declare (a, n) fixed;\n  a = 2;\n  n = gs(a);\n  stop;\n  gs: procedure (v);\n  declare v fixed;\n  v = v + 1;\n  end gs;\nend E24I;\n	DR REFUSES: TYPES NOT= (golden/negpanel1/NG64/NG64.PRN)
 N9_GTZERO	refusal	t:\n  procedure options(main);\n  dcl a fixed;\n  if a > 0 then put list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG65/NG65.REL)
+NETWORK	specimen	artefacts/NETWORK.PLI	golden/first8080u/NETWORK/NETWORK.REL
 NFACT	specimen	probes/NFACT.PLI	golden/e2e5c/NFACT/NFACT.REL
 O1	specimen	artefacts/O1.PLI	golden/e2e333d/O1/O1.REL
 O2	specimen	artefacts/O2.PLI	golden/e2e333d/O2/O2.REL

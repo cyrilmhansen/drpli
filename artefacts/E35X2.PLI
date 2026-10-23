@@ -1,0 +1,16 @@
+x2: procedure options(main);
+   declare n fixed;
+   n = 0;
+hd:
+   n = 1;
+   call sub;
+   put list('n=', n);
+  sub: procedure;
+    n = 5;
+hd:
+    n = 7;
+    goto hd;
+   end sub;
+   stop;
+end x2;
+

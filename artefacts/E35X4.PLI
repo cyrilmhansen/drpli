@@ -1,0 +1,18 @@
+x4: procedure options(main);
+   declare sysin file, n fixed;
+   n = 0;
+hd:
+   n = 1;
+   on endfile(sysin) goto hd;
+   call sub;
+   put list('n=', n);
+  sub: procedure;
+    on endfile(sysin) goto hd;
+    n = 2;
+hd:
+    n = 3;
+    n = 4;
+   end sub;
+   stop;
+end x4;
+

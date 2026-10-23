@@ -260,8 +260,20 @@ type st =
 (* label bookkeeping for GOTO resolution [G115/G116]:
    emitted-labels assoc (lowername -> lc); pending forward refs
    (lowername -> operand slot). *)
-type lblstate = { mutable labs : (string * int) list
+(* [E2E-35/P3] `labs' entries carry the SCOPE that defined them and `own' is the set of labels
+   THIS block defines.  Both exist for one reason: the flat list is emission-ordered, so a
+   reference to a name the current block defines LATER used to find an enclosing block's
+   already-emitted twin and resolve to it -- a live address in the wrong block.  NETWORK's last
+   remaining .REL difference is exactly that (main defines `eof', print_paths defines its own
+   `eof' later, and mine sent print_paths' reference to main's pad). *)
+(* [E2E-35/P3] one id per block lowered, so that two sibling procedures never share a label
+   scope (each would otherwise see the other's entries in `labs'). *)
+let scope_counter = ref 0
+
+type lblstate = { mutable labs : (string * int * int) list   (* name, address, defining scope *)
                 ; mutable fwd : (string * int) list
+                ; mutable scope : int                       (* id of the block being lowered *)
+                ; mutable own : string list                 (* labels THIS block defines *)
                 (* [E2E-34/P1] the ON ... GOTO machinery, kept WITH the label state
                    because the recovery pad is a property OF A LABEL, not of the ON
                    statement: `on_pads' is exactly the label set Bind scanned when it
@@ -8129,6 +8141,78 @@ let emit_sp_save st cell =
   d st op_dad_sp;
   d st op_shld; reloc st Data cell
 
+(* [E2E-35/P3] the labels THIS block defines.  A reference must consult this set before any
+   identically named label in an enclosing block, because PL/I labels are block-scoped and the
+   flat emission-ordered `labs' list knows nothing about scopes.  Nested procedures are NOT
+   descended into: their labels belong to them, and their ENTRY label belongs to the block that
+   declares them.  Every container in Ast is listed; a kind not listed contributes nothing, and
+   the consequence of a gap there is the loud [TBD] in resolve_label, not a silent wrong
+   address -- which is the [C202] shape: an omission must cost an optimisation or a refusal,
+   never a value. *)
+let rec block_labels_of_stmts (ss : Ast.stmt list) =
+  List.concat_map block_labels_of_stmt ss
+and block_labels_of_stmt (s : Ast.stmt) =
+  let here =
+    List.map (fun (l : Ast.name) -> String.lowercase_ascii l.Ast.orig) s.Ast.slabels in
+  let deeper =
+    match s.Ast.st with
+    | Ast.Sdobegin ss -> block_labels_of_stmts ss
+    | Ast.Sif { then_; els; _ } ->
+        block_labels_of_stmt then_
+        @ (match els with Some e -> block_labels_of_stmt e | None -> [])
+    | Ast.Selse e -> block_labels_of_stmt e
+    | Ast.Sdowhile { body; _ } -> block_labels_of_stmt body
+    | Ast.Sdoto { body; _ } -> block_labels_of_stmt body
+    | Ast.Sdoforever body -> block_labels_of_stmt body
+    | Ast.Son { handler; _ } -> block_labels_of_stmt handler
+    | Ast.Sproc bs ->
+        (match bs.Ast.blk.Ast.bname with
+         | Some x -> [String.lowercase_ascii x.Ast.orig]
+         | None -> [])
+    | _ -> []
+  in
+  here @ deeper
+
+(* [E2E-35/P3] the ONE label-reference decision, used by a plain GOTO and by an ON ... GOTO
+   handler alike [C202: two consumers, one rule]. *)
+type lbl_ref =
+    Lbl_here of int          (* defined in this block and already emitted: inline RELOC [E34A4] *)
+  | Lbl_here_fwd             (* defined in this block but later: join this block's chain *)
+  | Lbl_outer of string      (* NOT defined here -> uncharacterized, see the refusal *)
+
+let resolve_label (ls : lblstate) (nm : string) =
+  if not (List.mem nm ls.own) then Lbl_outer nm
+  else
+    match List.filter (fun (k, _, sc) -> k = nm && sc = ls.scope) ls.labs with
+    | [] -> Lbl_here_fwd
+    | [(_, a, _)] -> Lbl_here a
+    | _ ->
+        failwith
+          ("codegen: [TBD] two definitions of label `" ^ nm ^ "' in one block")
+
+(* [E2E-35/P3] WHY a cross-block reference refuses.  Two fresh DR goldens, both accepted by
+   DR, and neither matched by anything I emit:
+
+     E35Y3 -- main has `sk:', a nested procedure ends with `goto sk;'.  DR gives the TARGET
+       block the hidden saved-SP cell and a recovery pad BEFORE the label:
+         0006 LXI H,0000 / 0009 DAD SP / 000A SHLD *A(0004)     (main's entry save)
+         0013 LHLD *A(0004) / 0016 SPHL / 0017 CALL ?RECOV      (a pad, immediately before `sk:')
+       so entering a block from another block re-establishes that block's stack frame.  Mine
+       allocates no such cell here (DATA 4 where DR has 6) and emits no pad: CODE 71 where DR
+       has 83, and the difference is not one instruction but this whole mechanism.
+     E35X5 -- the same construct where main's label is ALREADY pad-bearing because main has its
+       own `on endfile(sysin) goto hd;'.  Mine lands 2 bytes over, so even the cheap reading
+       (reuse the existing pad and only chain the reference) is not what DR does here.
+
+   NETWORK's remaining difference is NOT this construct -- its `eof' labels are each defined in
+   the block that references them -- so refusing does not cost the program that motivated it.
+   Emitting an address into an enclosing block's frame would: that is a wrong value, not a
+   missed optimisation, and [C137] refuses the trade. *)
+let refuse_outer_label nm =
+  failwith
+    (Printf.sprintf
+       "codegen: [TBD] GOTO to `%s', a label not defined in this block: a cross-block transfer         makes the TARGET block pad-bearing and gives it the saved-SP cell (E35Y3: DR emits `LXI         H,0000 / DAD SP / SHLD *A(0004)' at entry and `LHLD *A(0004) / SPHL / CALL ?RECOV'         immediately before `sk:'; DATA 6 vs my 4, CODE 83 vs my 71).  E35X5 shows the same         construct against an already-padded target still differing by 2.  Uncharacterized, so         this refuses rather than jumping into another block's frame (line %%d)" nm)
+
 (* The recovery landing pad, 7 bytes, emitted IMMEDIATELY BEFORE the label's own code:
      LHLD * A(<cell>) / SPHL / CALL ?RECOV
    The label's RESOLVED ADDRESS IS THE PAD START, not its body: E34A5 carries RELOC
@@ -8175,7 +8259,7 @@ let label_def st (ls : lblstate) (nm : string) =
            ("codegen: [TBD] ON ... GOTO target label with no saved-SP cell: Bind's "
             ^ "cell demand and its pad-label list disagree")
    else ());
-  ls.labs <- (nm, addr) :: ls.labs;
+  ls.labs <- (nm, addr, ls.scope) :: ls.labs;
   addr
 
 (* [E2E-34/P1] one FORWARD reference to a label, used by a plain GOTO and by an ON
@@ -8453,6 +8537,13 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   st.proc_tail_no_exit <- false;
   let savedex = st.proc_tail_exits in
   st.proc_tail_exits <- false;
+  (* [E2E-35/P3] enter this block's label scope.  Save/restore mirrors `proc_tail_exits'
+     immediately above for the same structural reason: a nested body is lowered DURING its
+     parent's statement loop, so the parent's set must be back on return. *)
+  let saved_scope = ls.scope and saved_own = ls.own in
+  incr scope_counter;
+  ls.scope <- !scope_counter;
+  ls.own <- block_labels_of_stmts pl.Bind.pl_body;
   List.iter
     (fun x ->
       (match x.Ast.st with
@@ -8502,7 +8593,19 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   if
     (pl.Bind.pl_ret = None
      && not (st.top_proc && st.stop_seen)
-     && not (st.in_proc && st.proc_tail_no_exit))
+     && not (st.in_proc && st.proc_tail_no_exit)
+     && not st.proc_tail_exits)
+    (* [E2E-35/P3] the no-RETURNS branch asked the fall-out question through
+       `proc_tail_no_exit' (a loop that cannot exit) but NOT through the shape of the last
+       top-level statement, which is what `falls_out' asks for value-returning procedures
+       [C213].  Four fresh DR goldens say the two branches ask the SAME question: a subroutine
+       whose body ends in `goto loc;' gets no tail RET (E35X3, its `loc:' being its own, and
+       E35X2 with an outer label of the same name shadowing), nor does one that ends in
+       `return;' (E35Y1) or `stop;' (E35Y2) -- each is exactly one byte over, and each is the
+       ONLY difference.  Two more say the rule is about the tail's shape and not about GOTO:
+       E35Y3 (`goto sk;' followed by `n = 6;') and E35Y4 (`if n = 1 then goto sk;' followed by
+       `n = 6;') both end `INX H / SHLD N / RET' at 004F/004C -- DR emits the RET when control
+       can still fall out.  Mine emitted it in all six cases. *)
     || falls_out
   then begin
     (* [E2E-34/P1] a block entered by a CALL whose block contains an ON-unit calls
@@ -8529,6 +8632,8 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     ()
   ;
   st.proc_tail_exits <- savedex;
+  ls.scope <- saved_scope;
+  ls.own <- saved_own;
   st.dec_ret <- saveddr;
   st.float_ret <- savedfr;
   st.in_rec <- savedr;
@@ -8751,9 +8856,12 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   | Ast.Sgoto { tgt; subscript = [] } ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       let nm = String.lowercase_ascii tgt.Ast.orig in
-      (match List.assoc_opt nm ls.labs with
-       | Some a -> (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code a        (* backward [G115] *)
-       | None -> fwd_ref st ls nm)                  (* forward [G115, C123] *)
+      (match resolve_label ls nm with
+       | Lbl_here a ->
+           (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
+           reloc st Code a                           (* backward, same block [G115, E34A4] *)
+       | Lbl_here_fwd -> fwd_ref st ls nm            (* forward, same block [G115, C123] *)
+       | Lbl_outer o -> refuse_outer_label o)
   | Ast.Sgoto _ ->
       failwith "codegen: computed GOTO deferred [TBD]"
   | Ast.Sdobegin ss ->
@@ -8921,12 +9029,13 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                    emitted joins the forward chain.  ls.labs holds the pad address because
                    label_def registers the label there, so no special case is needed. *)
                 let nm = String.lowercase_ascii tgt.Ast.orig in
-                (match List.assoc_opt nm ls.labs with
-                 | Some a ->
+                (match resolve_label ls nm with
+                 | Lbl_here a ->
                      d st op_jmp;
                      st.last_imm <- None (* [R723] branch boundary *);
                      reloc st Code a
-                 | None -> fwd_ref st ls nm);
+                 | Lbl_here_fwd -> fwd_ref st ls nm
+                 | Lbl_outer o -> refuse_outer_label o);
                 st.last_imm <- None;
                 emit_triple st cont st.lc
             | _ ->
@@ -9578,7 +9687,8 @@ let emit_program (progname : string) (auto_bytes : int)
      statement lowers. *)
   prealloc_fmt_tables st stmts;
   (* lower prologue + body + epilogue into st.items (code segment) *)
-  let ls = { labs = []; fwd = []; on_pads = []; sp_cell = None; on_any = false } in
+  let ls = { labs = []; fwd = []; scope = 0; own = []; on_pads = []; sp_cell = None
+           ; on_any = false } in
   (* [E2E-34/P1] the OUTERMOST block's facts.  A procedure-only module is lowered by
      lower_proc and picks its facts up from its own proc_layout, so they are set here
      only for a MAIN program -- but BOTH are produced by the one Bind scan, and the
@@ -9622,6 +9732,13 @@ let emit_program (progname : string) (auto_bytes : int)
      E34A2-A5, NETWORK's setup is the same shape at its own entry) and absent when the
      block holds only a statement-handler ON-unit (E32E1, E11A-E11F) *)
   (match ls.sp_cell with Some c -> emit_sp_save st c | None -> ());
+  (* [E2E-35/P3] main's own label scope, computed the same way a nested block computes its
+     own -- one function, both consumers [C202] -- so a reference in main that main defines
+     later chains instead of finding something else, and a reference main does NOT define is
+     an outer transfer and refuses. *)
+  incr scope_counter;
+  ls.scope <- !scope_counter;
+  ls.own <- block_labels_of_stmts blk.Ast.bstmts;
   List.iter
     (fun (s : Ast.stmt) ->
       (* [E2E-28/P1] A live main statement AFTER a nested-procedure body is a DR shape, not an

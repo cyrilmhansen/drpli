@@ -1,0 +1,14 @@
+y4: procedure options(main);
+   declare n fixed;
+   n = 0;
+sk:
+   call sub;
+   put list('n=', n);
+  sub: procedure;
+    n = 5;
+    if n = 1 then goto sk;
+    n = 6;
+   end sub;
+   stop;
+end y4;
+

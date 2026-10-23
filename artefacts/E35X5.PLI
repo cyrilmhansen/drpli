@@ -1,0 +1,16 @@
+x5: procedure options(main);
+   declare sysin file, n fixed;
+   n = 0;
+hd:
+   n = 1;
+   on endfile(sysin) goto hd;
+   call sub;
+   put list('n=', n);
+  sub: procedure;
+    n = 2;
+    goto hd;
+    n = 3;
+   end sub;
+   stop;
+end x5;
+

@@ -1,0 +1,111 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E35X4
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 X4 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 SYSIN FILE EXTERNAL STATIC
+c 0000 N FIXED BINARY(15,0) AUTOMATIC
+c 0000 HD LABEL CONSTANT
+c 0000 SUB ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 6, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 10, AUTO STORAGE 0 BYTES
+e 0000 HD LABEL CONSTANT
+BLOCK AT LINE 10, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E35X4
+
+   1 a 0000 x4: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare sysin file, n fixed;
+       0006       LXI  H,0000
+       0009       DAD  SP
+       000A       SHLD * A(0004)
+   3 c 000D    n = 0;
+       000D       LXI  H,0000
+       0010       SHLD N A(0002)
+       0013       LHLD * A(0004)
+       0016       SPHL 
+       0017       CALL ?RECOV
+   4 c 001A hd:
+   5 c 001A    n = 1;
+       001A       LXI  H,0001
+       001D       SHLD N A(0002)
+   6 c 0020    on endfile(sysin) goto hd;
+       0020       LXI  H,SYSIN
+       0023       MVI  A,05
+       0025       CALL ?ONCOP
+       0028       JMP  0000
+       002B       JMP  HD
+   7 c 002E    call sub;
+       0029       ==== 002E
+       002E       CALL 0000
+   8 c 0031    put list('n=', n);
+       0031       LXI  D,0252
+       0034       LXI  B,0000
+       0037       CALL ?SYSPR
+       003A       LXI  H,* S(0000)
+       003D       MVI  A,02
+       003F       CALL ?SLCTS
+       0042       CALL ?PNCOP
+       0045       LHLD N A(0002)
+       0048       MVI  A,09
+       004A       CALL ?QICOP
+       004D       CALL ?PNVOP
+       0050       CALL ?QIOOP
+       0035       ==== 0053
+   9 c 0053   sub: procedure;
+  10 e 0053     on endfile(sysin) goto hd;
+       0053       JMP  0000
+       0056       LXI  H,0000
+       0059       DAD  SP
+       005A       SHLD * A(0006)
+       005D       LXI  H,SYSIN
+       0060       MVI  A,05
+       0062       CALL ?ONCOP
+       0065       JMP  0000
+       0068       JMP  0000
+  11 e 006B     n = 2;
+       0066       ==== 006B
+       006B       LXI  H,0002
+       006E       SHLD N A(0002)
+       0071       LHLD * A(0006)
+       0074       SPHL 
+       0075       CALL ?RECOV
+  12 e 0078 hd:
+  13 e 0078     n = 3;
+       0078       LXI  H,0003
+       007B       SHLD N A(0002)
+  14 e 007E     n = 4;
+       007E       INX  H
+       007F       SHLD N A(0002)
+       0082       CALL ?OFCOP
+       0085       RET  
+       0054       ==== 0086
+  15 c 0086    end sub;
+  16 c 0086    stop;
+       0086       CALL ?STOPX
+  17 a 0089 end x4;
+
+CODE SIZE = 0089
+DATA AREA = 0008
+FREE SYMS = 3836
+END  COMPILATION
+

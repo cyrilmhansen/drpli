@@ -1,0 +1,6 @@
+E35X4	ok	PRN=True REL=True
+E35X5	ok	PRN=True REL=True
+E35Y1	ok	PRN=True REL=True
+E35Y2	ok	PRN=True REL=True
+E35Y3	ok	PRN=True REL=True
+E35Y4	ok	PRN=True REL=True

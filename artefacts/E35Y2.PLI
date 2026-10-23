@@ -1,0 +1,11 @@
+y2: procedure options(main);
+   declare n fixed;
+   n = 0;
+   call sub;
+  sub: procedure;
+    n = 5;
+    stop;
+   end sub;
+   stop;
+end y2;
+

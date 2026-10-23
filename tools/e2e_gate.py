@@ -3805,5 +3805,67 @@ def link_run(name, dr_rel, output_check=False):
             shutil.rmtree(os.path.join(gold, tag), ignore_errors=True)
 
 
+# ==================================================================== [E2E-35/P3]
+# NETWORK is BYTE-EXACT.  Its last remaining .REL difference was NOT the linkage-record
+# encoding hypothesised at the end of P2 (C225 said "a LINKAGE record, not an instruction").
+# Probes E35X1-X4 say something simpler and worse: a label defined in a nested procedure must
+# SHADOW an identically named label in an enclosing block.  Both main and print_paths define
+# `eof'; mine resolved print_paths' ON ... GOTO through an emission-ordered flat list and found
+# MAIN's already-emitted pad -- an inline RELOC pointing into another block's recovery chain,
+# i.e. a live wrong address.  Replacing that lookup with a scoped one took NETWORK from 1608
+# differing file bytes to zero (code 1456 = DR's CODE SIZE 05B0, data 235 = DR's 00EB).
+add_spec('NETWORK', ('artefacts/NETWORK.PLI', 'golden/first8080u/NETWORK/NETWORK.REL'))
+# its DIVERGENT.txt row is deleted in the same step -- rows are data in that file, and the gate
+# fails a row whose bytes became exact (that is how this was caught, [C168]).
+
+# [E2E-35/P3] the six DR goldens that pin the two rules whose combination closed NETWORK.
+#   X2, X3, Y1, Y2 -- a SUBROUTINE (no RETURNS) whose last top-level statement is `goto',
+#     `return;' or `stop;' gets NO tail RET.  Each was mine's single extra byte, and they are
+#     the positive half of a rule I had written only for value-returning procedures [C213].
+#   Y3, Y4 (below, as refusals) are its controls: a `goto' followed by a live statement, or a
+#     conditional goto, ends `... SHLD N / RET' in DR, so the rule is fall-out, not GOTO.
+#   X1, X4 -- label shadowing, with the nested ON-unit's pad and its own label's chain.
+#   X3 is the control that says shadowing was never in doubt as a mechanism: DR compiles two
+#     blocks with the same label name, and NETWORK proves it is what DR does there too.
+_E35_P3 = {
+    'E35X1': 'e35x', 'E35X2': 'e35x', 'E35X3': 'e35x',
+    'E35X4': 'e35y', 'E35Y1': 'e35y', 'E35Y2': 'e35y',
+}
+for _n, _t in sorted(_E35_P3.items()):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/%s/%s/%s.REL' % (_t, _n, _n)))
+
+# [E2E-35/P3] three shapes DR compiles and I refuse ON PURPOSE: a GOTO whose target label is
+# NOT defined in the referencing block.  Mine used to resolve such a reference to the enclosing
+# block's label and emit its address, which after the scoping work above is known to be wrong
+# in kind -- entering a block from another block is a padded transfer in DR, and DR even gives
+# the TARGET block a saved-SP cell it did not otherwise need.  I have no rule for that demand,
+# so the compile stops instead of jumping into another block's stack frame.
+for _n in ('E35X5', 'E35Y3', 'E35Y4'):
+    REJECTS[_n] = (open('artefacts/%s.PLI' % _n, 'rb').read().replace(b"\r\n", b"\n")
+                   .rstrip(b"\x1a").decode(), "[TBD]")
+NEG_META['E35Y3'] = ("my-gap", (
+    "DR COMPILES it (golden/e35y/E35Y3, CODE 83 / DATA 6 against my 71 / 4).  A nested procedure's "
+    "`goto sk;' to main's `sk:' makes the TARGET block pad-bearing: DR emits main's hidden saved-SP "
+    "save at its entry (`0006 LXI H,0000 / 0009 DAD SP / 000A SHLD *A(0004)') and a recovery pad "
+    "IMMEDIATELY BEFORE the label (`0013 LHLD *A(0004) / 0016 SPHL / 0017 CALL ?RECOV'), then "
+    "resolves the reference through a chain.  No ON-unit is involved anywhere in the program, so "
+    "[C208]'s pad demand -- labels targeted by an ON ... GOTO -- is a special case of something "
+    "wider: entering a block transfers control INTO its stack frame, and the pad is what re-establishes "
+    "it.  That is E34A9's class of unsampled pad demand again, with a concrete new trigger; refusing "
+    "costs one construct and emitting it would write an address into the wrong frame."))
+NEG_META['E35X5'] = ("my-gap", (
+    "DR COMPILES it (golden/e35y/E35X5).  Same cross-block `goto hd;' as E35Y3 but the target label is "
+    "ALREADY pad-bearing, because main has its own `on endfile(sysin) goto hd;'.  Mine lands 2 bytes over "
+    "DR (105 vs 103), so even the cheap reading -- reuse the existing pad, chain the reference -- is not "
+    "what DR does.  Registered with E35Y3 as one cause (cross-block entry) and kept separate because it "
+    "shows the pad's existence does not by itself explain the encoding."))
+NEG_META['E35Y4'] = ("my-gap", (
+    "DR COMPILES it (golden/e35y/E35Y4).  `if n = 1 then goto sk;' from a nested procedure to main's label: "
+    "the same cross-block transfer as E35Y3 reached conditionally.  Its value here is as the CONTROL for the "
+    "tail-RET rule -- DR closes the body with `INX H / SHLD N / RET' at 004C because control can still fall "
+    "out, which is what separates it from E35X2/X3 (unconditional trailing `goto', no RET).  Refused for the "
+    "same reason as E35Y3."))
+
+
 if __name__ == "__main__":
     sys.exit(main())
