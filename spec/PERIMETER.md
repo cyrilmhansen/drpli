@@ -289,7 +289,11 @@ measurement convention.
   the path [C218]); the ENDFILE condition has still never FIRED in anything executed, and no EOF event
   is simulated here.
 - **New refusal, deliberately narrower than DR** [C230]: a GOTO to a label NOT defined in the
-  referencing block.  E35Y3 shows DR making the TARGET block pad-bearing and giving it the saved-SP
+  referencing block.  **REMOVED BY E2E-36/P2** [C233] -- the rule that made it necessary was
+  "does a statement in this block name L?", and the probes showed the target block's ownership is
+  what matters; see the E2E-36 section below.  Kept verbatim because it is the record of what was
+  known at the time, and because its measured corpus cost (15 exact / 26 refusals / 0 divergent)
+  is still the baseline the E2E-36 sweep has to beat.  E35Y3 shows DR making the TARGET block pad-bearing and giving it the saved-SP
   cell with no ON-unit in the program, so [C208]'s pad demand is a special case of entering a block's
   stack frame; I have no rule for the demand, and emitting another block's address is a wrong value.
   E35X5 shows an already-padded target still differing by 2, so reusing the pad is not the answer
@@ -298,3 +302,41 @@ measurement convention.
 - **Still open**: the two-formal DATA anomaly (E32C6 26 vs 22, E33MC 16 vs 14), E34G3 (qualified
   varying member source, one sample), `k + x` and expr-vs-expr comparisons (no sample), procedure-local
   FILE, and DR's out-of-range-literal route (E28N7/PB4-class rows).
+
+## [E2E-36] Perimeter state -- cross-block GOTO is IN; DR's HL constant model is closed
+
+Gate at this commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9 divergences as recorded,
+16/16 runtime, exit 0.**  Evidence: `spec/notes/e2e36-cross-block-goto-and-hl-constants.md',
+[C233]-[C238], `golden/e36t' (17 transfer probes), `golden/e36h' (32 HL-ladder probes),
+`golden/e36r' (the executed nonlocal transfer).
+
+- **Cross-block `GOTO' is inside the perimeter** [C233].  Pad and saved-SP cell belong to the block
+  that OWNS the label; a plain `GOTO' from another block charges that pad exactly as `ON ... GOTO'
+  does, and a `GOTO' inside the owning block charges nothing (E36T11/T12 stay byte-exact with no
+  cell).  Bind surveys the whole block tree once and codegen resolves through a scope chain
+  [C235].  E35X5 / E35Y3 / E35Y4 moved from refusals to byte-exact specimens.
+- **`GOTO <procedure entry name>' is refused, and so is DR's** [C234]: `NOT LABEL', five
+  orientations, DR's diagnosis in `golden/e36t/*/`.  This is the only label-shaped refusal left.
+- **DR's HL constant model is closed for the fixed-width binary store path** [C237].  It is the
+  same model as DE's [C219] and it dies at branch TARGETS (label definition, IF join, conditional
+  landing pad, GOTO join) and at anything that writes HL; it survives an unconditional `JMP',
+  including into the dead code after a `GOTO'.  Reuse is destination-independent.  Six previously
+  divergent or exact-but-fragile goldens depended on this (E35Y3, E35X5, E36T3/T4/T5/T8) and two
+  pinned divergences closed with it (E29X3, E30L1).
+- **A nested procedure's branch-over is per declaration in ANY block** [C238].  Mine emitted it only
+  in the outermost block, so a procedure nested inside a procedure could be fallen into; E36T4 and
+  E36T14 measured 3 bytes short with the enclosing body's data agreeing.  Wrong value, not shape.
+- **A DR defect is now reproduced deliberately** [C236]: the `nx = addr(z)' route stores a pointer
+  member with its HIGH half at the LOWER byte.  E27S2/ST2 is byte-exact on that basis.  It has no
+  runtime witness because ST2 never dereferences the member; if a future program does, DR's answer
+  is wrong and mine will be wrong the same way, which is what the contract asks for.
+- **Still open, unchanged in shape**: the E30 traversal family (E30L2/L3/L4, E30G1) is one HL reload
+  over each and the `null()`-publish fix did not reach it, so that reload is a different rule and is
+  pinned rather than fitted [C179]; E28N7 is 2 bytes of code at equal data; E32B3/PB4 are the
+  shape-only pointer rows; the two-formal/no-local DATA anomaly (E32C6 26 vs 22, E33MC 16 vs 14) is
+  still undocumented; E34G3 (qualified varying member source), `k + x' and expr-vs-expr comparisons
+  still have no sample.  DECIMAL and NUMERIC are untouched.
+- **`E36H13' is not registered anywhere**: it does not parse here (the [E34A9] `begin ... end;'
+  statement shape) and DR's answer for that source has not been established, so it is neither a
+  specimen nor a negative.
+

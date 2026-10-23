@@ -4318,3 +4318,112 @@ byte-exact / 0 fail, 122 negatives, 12 divergences), and pushed with `--force-wi
 *Why this is a claim and not a footnote: the gate's value is that a red panel means something. If
 HEAD can be red for a reason that lives in a later commit, the panel's signal is diluted, and the
 [C224] repair I documented in P2 was the same failure mode one commit earlier.*
+## E2E-36/P2 — pad demand belongs to the block that OWNS the label
+
+**C233. A label is pad-bearing because of who it belongs to and who enters it, not because of
+where the `ON'/'GOTO' is written: an enclosing block's label referenced from a nested procedure
+gets that enclosing block's recovery pad and saved-SP cell, and a plain `GOTO' to it from another
+block charges the pad just as an `ON ... GOTO' does.** E2E-34/P5 had implemented the local reading
+(`does a statement in THIS block name label L?' -> THIS block gets the cell) and E36T13/E36T14
+break it: the reference sits inside a nested `begin ... end;' or a nested procedure and the pad
+still lands in main, immediately before `hd:' / `sk:'. The other half of the same evidence is
+negative: E36T11/T12 are a same-block `goto l;' and stay byte-exact with NO cell and NO pad, so
+"anything that mentions a label pads it" is also wrong. Bind's survey therefore walks the whole
+block tree once, resolves every reference against its owner, and propagates unresolved references
+upward; `section2' allocates from that plan. [C208]'s "labels targeted by an ON ... GOTO" is the
+special case it looked like it was the rule for.
+*What this bought: E35X5, E35Y3 and E35Y4 were refusals registered in E2E-35/P3; with owner-keyed
+demand all three are byte-exact, and E36T2-T8/T11-T14 join them. Nothing about the pad's CONTENTS
+changed — the [E2E-34/P5] stub shape (`CALL ?ONCOP / JMP <target>') was already right; only its
+ADDRESS was in dispute.*
+
+## E2E-36/P1 — a procedure entry is not a label
+
+**C234. `GOTO <procedure entry name>' is DR's `NOT LABEL' diagnosis in every orientation, so a
+nested procedure's entry label must not be in its own block's label set.** E36T9 (main's own
+nested proc), E36T10 (a label that is also a proc name), E36T15 (exit upward to an enclosing
+block's proc), E36T16 (a sibling's entry) and E36T17 (one's own entry) all get `NOT LABEL' from
+DR (`golden/e36t/*/`*.PRN*, five of five) and all five refuse with the same words here. The
+implementation consequence is one line: `proc_entries` populates `of_procs' and `own_labels_stmts'
+FILTERS those names out of `of_own', which makes `resolve_label' answer `Lbl_not_label' instead of
+resolving through the scope chain — the chain exists precisely so a name visible from below can be
+found, and a procedure name is visible for a `CALL', not for a transfer.
+*E35X3 was the earlier witness and was read as a shadowing question; it is this rule. The frame
+argument is why the refusal is the right behaviour rather than a convenient one: entering a
+procedure by JMP skips the copy-in ladder and the static-chain setup, so the body would read
+formals from whatever the previous activation left on the stack.*
+
+## E2E-36/P2 — one survey, two consumers, and two ways to get the scope chain wrong
+
+**C235. Cross-block resolution needs exactly ONE scan; the two traps are which list the parent
+frame contributes and what key a forward slot is matched on.** Bind's survey allocates the hidden
+saved-SP cell, codegen resolves labels through `pl_top_on`/`pl_on`; a second scan in codegen could
+disagree and [C202]'s assertion is there to catch it — it fired immediately, for both traps.
+(a) The chain slot for the enclosing frame must carry the `saved_pads` captured at the top of
+`lower_proc`, BEFORE the [E2E-34/P1] swap that gives a block its own pad list; pushing `ls.on_pads`
+puts the CHILD's (empty) list in the PARENT's slot, so a descendant reference to an ancestor's
+label finds zero pads there and every cross-block probe dies on the disagreement assertion with
+nothing wrong in its addressing. (b) A forward reference is keyed by `(name, owning scope)', not by
+name: [C228] allows a nested procedure to define the same label name as its parent (E35X1/E35X4),
+and a name-only match lets the inner definition satisfy the outer reference — which compiles,
+differs by one address, and looks like a pad bug.
+*The productive reading of the assertion: it never once lied, and in three separate episodes
+([E2E-34/P5], this one, E2E-35/P3) it was the only signal that a model was incoherent rather than
+merely unproven.*
+
+## E2E-36/P4 — DR stores a pointer member byte-swapped, and I reproduce it
+
+**C236. In the `nx = addr(z)'-through-a-based-pointer route DR writes the HIGH half of the address
+at the member's LOWER byte (`LXI D,*A / MOV M,E / INX H / MOV M,D'); the stored pointer is
+arithmetically wrong, and byte-exactness requires me to emit the same wrong order.** The evidence
+is `golden/e2e323d/ST2/ST2.REL* at 002F-0036 (0x73 = MOV M,E, 0x72 = MOV M,D), and the shape is
+confirmed by the sibling route at the DEC self-add, which already writes E first. Mine had the two
+instructions in the opposite order, which is why the row had read "mine's code section is ONE byte
+shorter and I have not identified which instruction DR adds there" for two episodes: DR adds no
+instruction, it orders them differently, and at equal code size that shows up as exactly two
+differing file bytes. It has never been seen at runtime because ST2 prints `a' and never
+dereferences `nx'.
+*This is the fourth place this project has found a DR defect by diffing bytes rather than outputs
+([C176] family, the `^='/"JZ" spelling [C072], the parity-defect skip byte, the two-formal DATA
+anomaly). The rule that keeps it honest: the defect is recorded as a defect with its consequence
+named, the byte order is reproduced because the contract is DR's bytes, and no runtime row is
+claimed for it because there is no program in the corpus that exposes it.*
+
+## E2E-36/P4 — DR's HL constant model is one model with one kill rule
+
+**C237. DR tracks the 16-bit literal in HL exactly as it tracks DE [C219], and it forgets it at
+branch TARGETS and at instructions that write HL — never at the source of an unconditional
+branch.** The ladder, from 32 probes in `golden/e36h`: same value -> no load (H4/H15/H16/H17);
++1/+2 -> `INX H` once or twice, -1/-2 -> `DCX H` (H1/H2/H3/H9/H25/H26); +/-256 -> `INR H`/`DCR H`
+(G114A); same high byte, |delta| >= 3 -> `MVI L,lo` (H5/H33/H34: delta 5 and delta 14 both take it,
+so there is no small-delta limit); high byte differs -> `LXI H` (H13/H20). Kills: `LXI H,<symbol>`
+(V7's HL twin), `LHLD`, `DAD` (a comparison bias — H8), any `CALL`/`RST` (H6), a label DEFINITION
+(H29: `n = 5; l1: n = 6;' reloads where the same pair without a label bumps), an IF join (H8) and
+a conditional landing pad with an ELSE (H35) — H32 pins the GOTO join. Does NOT kill: an
+unconditional `GOTO`, even into dead code — H14 shows a nested procedure bumping through three
+stores and then jumping, and E35Y3/E35X5/E36T3/T4/T5/T8 all show the store AFTER a `goto' taking
+the bump arm, which is where six byte-exact goldens were hiding. Reuse is
+destination-independent: `m = 5; n = 6;' bumps (H30), so the model is about the register, not the
+variable.
+*The existing `st.last_imm' field was already this model — I wrote a 200-line patch adding a
+parallel `hl_val' tracker before the first build failed on an anchor and I went to look at the
+code the patch was meant to extend. What was actually missing was three bookkeeping errors
+(a null store published nothing; the ladder's zero arm published BEFORE asking, so a program's
+first zero store emitted no load at all; the pointer-store route wiped the fact after the value was
+loaded) and one kill in the wrong place.*
+
+## E2E-36/P4 — the branch-over is per declaration, in every block
+
+**C238. A nested-procedure declaration emits its branch-over JMP in ANY block, not only in the
+outermost one, and where I skipped it inside a procedure body, control fell THROUGH into the
+declared procedure's body.** E2E-28/P1 established one-JMP-per-declaration from N1-N5/N7 (all
+inside `main') and I encoded the test with `not st.in_proc', so `inner' declared inside `sub' got
+no jump: in E36T4, `n = 4;' ran straight into `n = 5; goto sk; ...'. Mine measured 93 code bytes
+against DR's 96 with DATA 6/6 agreeing — the three bytes ARE the JMP, and the resolution target is
+where the enclosing body resumes (DR's `004B JMP -> 005D'), not the end of the program, so the
+pending-slot resolution had to move into the procedure-body loop as well. E36T14 is the same hole
+with the two-level shape.
+*Wrong value, not wrong shape, and it survived nine episodes because no accepted specimen had a
+procedure nested inside a procedure whose declaration sat at the end of its enclosing body. The
+general lesson is the one [C185] keeps teaching: a rule induced from samples that all live at one
+nesting level is a rule about that nesting level.*
