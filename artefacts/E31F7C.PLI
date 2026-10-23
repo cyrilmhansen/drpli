@@ -1,0 +1,24 @@
+f7c: procedure options(main);
+  declare head pointer, w pointer, t pointer, s fixed;
+  declare 1 nd based, 2 v fixed, 2 nx pointer;
+  head = null;
+  t = mk2(1);
+  t = mk2(2);
+  t = mk2(3);
+  s = 0;
+  do w = head repeat(w->nx) while(w ^= null);
+     s = s + w->v;
+  end;
+  put list('sum=', s);
+  stop;
+  mk2: procedure(k) returns(pointer);
+  declare k fixed;
+  declare p pointer;
+  allocate nd set(p);
+  p->v = k;
+  p->nx = head;
+  head = p;
+  return(p);
+  end mk2;
+end f7c;
+

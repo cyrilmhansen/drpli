@@ -1,0 +1,74 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E31F6
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 ADDR BUILTIN CONSTANT
+a 0000 NULL BUILTIN CONSTANT
+a 0000 F6 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 Q POINTER AUTOMATIC
+c 0002 W FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E31F6
+
+   1 a 0000 f6: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare q pointer, w fixed;
+   3 c 0006   q = addr(w);
+       0006       LXI  H,W A(0004)
+       0009       SHLD Q A(0002)
+   4 c 000C   q = null;
+       000C       LXI  H,0000
+       000F       SHLD Q A(0002)
+   5 c 0012   if q ^= null then w = 1; else w = 2;
+       0012       LHLD Q A(0002)
+       0015       MOV  A,H
+       0016       ORA  L
+       0017       JZ   0000
+       001A       LXI  H,0001
+       001D       SHLD W A(0004)
+       0020       JMP  0000
+       0018       ==== 0023
+       0023       LXI  H,0002
+       0026       SHLD W A(0004)
+       0021       ==== 0029
+   6 c 0029   put list('n=', w);
+       0029       LXI  D,0252
+       002C       LXI  B,0000
+       002F       CALL ?SYSPR
+       0032       LXI  H,* S(0000)
+       0035       MVI  A,02
+       0037       CALL ?SLCTS
+       003A       CALL ?PNCOP
+       003D       LHLD W A(0004)
+       0040       MVI  A,09
+       0042       CALL ?QICOP
+       0045       CALL ?PNVOP
+       0048       CALL ?QIOOP
+       002D       ==== 004B
+   7 c 004B   stop;
+       004B       CALL ?STOPX
+   8 a 004E end f6;
+
+CODE SIZE = 004E
+DATA AREA = 0006
+FREE SYMS = 388A
+END  COMPILATION
+

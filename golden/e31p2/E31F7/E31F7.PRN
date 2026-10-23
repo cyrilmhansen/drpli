@@ -1,0 +1,155 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E31F7
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 NULL BUILTIN CONSTANT
+a 0000 F7 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 8 BYTES
+c 0000 HEAD POINTER AUTOMATIC
+c 0002 P POINTER AUTOMATIC
+c 0004 T POINTER AUTOMATIC
+c 0006 S FIXED BINARY(15,0) AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 2 BASED()
+c 0000 .V FIXED BINARY(15,0) MEMBER
+c 0002 .NX POINTER MEMBER
+c 0000 ADD FUNCTION PARAMETERS(1) CONSTANT
+c 0000 .* POINTER RETURNED
+c 0002 .* FIXED BINARY(15,0) PARAMETER
+BLOCK AT LINE 15, AUTO STORAGE 4 BYTES, PARAMETERS K
+e 0000 K FIXED BINARY(15,0) PARAMETER
+e 0002 P POINTER AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E31F7
+
+   1 a 0000 f7: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare head pointer, p pointer, t pointer, s fixed;
+   3 c 0006   declare 1 nd based, 2 v fixed, 2 nx pointer;
+   4 c 0006   head = null;
+       0006       LXI  H,0000
+       0009       SHLD HEAD A(000A)
+   5 c 000C   t = add(1);
+       000C       LXI  H,* A(0012)
+       000F       CALL 0000
+       0012       SHLD T A(000E)
+   6 c 0015   t = add(2);
+       0015       LXI  H,* A(0014)
+       0018       CALL ADD
+       001B       SHLD T A(000E)
+   7 c 001E   t = add(3);
+       001E       LXI  H,* A(0016)
+       0021       CALL ADD
+       0024       SHLD T A(000E)
+   8 c 0027   s = 0;
+       0027       LXI  H,0000
+       002A       SHLD S A(0010)
+   9 c 002D   do p = head repeat(p->nx) while(p ^= null);
+       002D       LHLD HEAD A(000A)
+       0030       SHLD P A(000C)
+       0033       LHLD P A(000C)
+       0036       MOV  A,H
+       0037       ORA  L
+       0038       JZ   0000
+  10 c 003B      s = s + p->v;
+       003B       LHLD S A(0010)
+       003E       PUSH H
+       003F       LHLD P A(000C)
+       0042       MOV  E,M
+       0043       INX  H
+       0044       MOV  D,M
+       0045       XCHG 
+       0046       POP  D
+       0047       DAD  D
+       0048       SHLD S A(0010)
+       004B       LHLD P A(000C)
+       004E       INX  H
+       004F       INX  H
+       0050       MOV  E,M
+       0051       INX  H
+       0052       MOV  D,M
+       0053       XCHG 
+       0054       SHLD P A(000C)
+       0057       JMP  0033
+       0039       ==== 005A
+  11 c 005A   end;
+  12 c 005A   put list('sum=', s);
+       005A       LXI  D,0252
+       005D       LXI  B,0000
+       0060       CALL ?SYSPR
+       0063       LXI  H,* S(0006)
+       0066       MVI  A,04
+       0068       CALL ?SLCTS
+       006B       CALL ?PNCOP
+       006E       LHLD S A(0010)
+       0071       MVI  A,09
+       0073       CALL ?QICOP
+       0076       CALL ?PNVOP
+       0079       CALL ?QIOOP
+       005E       ==== 007C
+  13 c 007C   stop;
+       007C       CALL ?STOPX
+  14 c 007F   add: procedure(k) returns(pointer);
+  15 e 007F   declare k fixed;
+       007F       MOV  E,M
+       0080       INX  H
+       0081       MOV  D,M
+       0082       XCHG 
+       0083       SHLD K A(0018)
+  16 e 0086   declare p pointer;
+  17 e 0086   allocate nd set(p);
+       0086       LXI  H,0004
+       0089       CALL ?ALLOP
+       008C       SHLD P A(001A)
+  18 e 008F   p->v = k;
+       008F       LHLD K A(0018)
+       0092       MOV  E,M
+       0093       INX  H
+       0094       MOV  D,M
+       0095       XCHG 
+       0096       PUSH H
+       0097       LHLD P A(001A)
+       009A       POP  D
+       009B       MOV  M,E
+       009C       INX  H
+       009D       MOV  M,D
+  19 e 009E   p->nx = head;
+       009E       LHLD HEAD A(000A)
+       00A1       PUSH H
+       00A2       LHLD P A(001A)
+       00A5       INX  H
+       00A6       INX  H
+       00A7       POP  D
+       00A8       MOV  M,E
+       00A9       INX  H
+       00AA       MOV  M,D
+  20 e 00AB   head = p;
+       00AB       LHLD P A(001A)
+       00AE       SHLD HEAD A(000A)
+  21 e 00B1   return(p);
+       00B1       LHLD P A(001A)
+       00B4       RET  
+  22 c 00B5   end add;
+  23 a 00B5 end f7;
+
+CODE SIZE = 00B5
+DATA AREA = 001C
+FREE SYMS = 37C3
+END  COMPILATION
+

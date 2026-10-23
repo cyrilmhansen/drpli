@@ -1,0 +1,24 @@
+f9: procedure options(main);
+  declare t pointer;
+  declare 1 nd based, 2 v fixed, 2 nx pointer;
+  t = mk(3);
+  put list('v=', t->v);
+  stop;
+  mk: procedure(k) returns(pointer);
+  declare k fixed;
+  declare j fixed;
+  declare p pointer;
+  j = k;
+  if j = 3 then do;
+     allocate nd set(p);
+     p->v = 30;
+     p->nx = null;
+     return(p);
+  end;
+  allocate nd set(p);
+  p->v = 99;
+  p->nx = null;
+  return(p);
+  end mk;
+end f9;
+

@@ -6160,6 +6160,17 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
             (match vk_of st (String.lowercase_ascii fld.Ast.orig) with
              | Vbptr (_, _) -> true
              | _ -> false)
+        (* [E2E-31/P1] a call to a RETURNS(POINTER) procedure.  DR leaves the result in HL and the
+           caller stores it with one SHLD -- E31F1 0006-000C is `LXI H,*A(0008) / CALL MK / SHLD T',
+           and NETWORK connect line 77 is `LHLD DESTINATION_CITY / SHLD *A(00A4) / LXI H,*A(00A4) /
+           CALL FIND / SHLD D'.  The CALL half is the ordinary function-call lowering that 26
+           byte-exact FIXED-return specimens already pin, and the store half is the SHLD this clause
+           already emits; admitting the SOURCE is therefore the whole change -- no second calling
+           convention is introduced [C179].  A call whose callee returns anything else stays refused. *)
+        | Ast.Esuffix (h, _) ->
+            (match (unwrap_e h).Ast.e with
+             | Ast.Eident m -> fl_proc_ret st m.Ast.orig = Some Bind.RTptr
+             | _ -> false)
         | _ -> false
       in
       let is_alloc_call e =
@@ -8412,6 +8423,18 @@ let emit_program (progname : string) (auto_bytes : int)
        DR's float stack and the exit is JMP ?FPRET (+ ?RSBLK when recursive),
        proven by R3038 and FFACT.  Other precisions stay refused. *)
     | Bind.RTfloat 24 -> true
+    (* [E2E-31/P1] POINTER returns.  DR's own probes settle the convention: the callee
+       evaluates the returned pointer into HL and exits with a plain RET -- E31F1 006C/006F
+       (`LHLD P / RET' for `return(p)'), E31F3 returns a pointer FORMAL the same way, and
+       NETWORK find is identical (0150/0153 and 01A9/01AC for lines 98 and 106).  A value
+       result needs no slot write: E31F1's caller is `LXI H,*A(0008) / CALL MK / SHLD T', so
+       the result travels in HL and the SHLD picks it up.  The CALL half is the ordinary
+       function-call lowering that 26 byte-exact FIXED-return specimens already pin, so no
+       second calling convention is introduced [C179].  `return(null())' is ALSO this shape --
+       E31F2 005B/005E and 005F/0062 are `LXI H,0000 / RET' -- so null-as-result needs no
+       separate arm; E31F2 diverges for an unrelated reason (a FIXED FORMAL compared in a
+       condition is not dereferenced, which E31F8 reproduces under RETURNS(FIXED)). *)
+    | Bind.RTptr -> true
     | _ -> false
   in
   let check_returns (what : string) (line : int) (attrs : Ast.attr list) =

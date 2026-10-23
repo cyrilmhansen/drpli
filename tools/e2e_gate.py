@@ -2764,6 +2764,59 @@ add_spec('E27S6', ('artefacts/ST6.PLI', 'golden/e2e323d/ST6/ST6.REL'))
 #
 add_spec('E30C1', ('artefacts/E30C1.PLI', 'golden/e30p1/E30C1/E30C1.REL'))
 
+
+# ================================================================================================
+# [E2E-31/P1] RETURNS(POINTER) -- and two WRONG-VALUE defects the probes exposed
+# ================================================================================================
+# NETWORK's first blocker is cleared.  DR's convention, taken from seven purpose-built probes
+# (golden/e31p2, e31p3, e31p5), is: the CALLEE evaluates the returned pointer into HL and exits
+# with a plain RET -- E31F1 006C/006F and E31F3 for a pointer FORMAL, matching NETWORK find
+# 0150/0153 and 01A9/01AC (lines 98, 106); `return(null())' is the SAME shape (`LXI H,0000 / RET',
+# E31F2 005B/005E).  The CALLER is unchanged from the FIXED path -- `LXI H,*A(slot) / CALL f /
+# SHLD dst' (E31F1 0006-000C; NETWORK connect line 77 at 00D2-00DE) -- which 26 byte-exact
+# FIXED-return specimens already pin, so admitting POINTER adds no second calling convention
+# [C179].  Byte-exact: E31F1 (allocate in callee, return, qualified store + read in caller),
+# E31F3 (return a pointer formal), E31F6 (bare `null' assigned to a POINTER cell -- already
+# correct; E30L5's refusal was a defect in MY probe, which wrote `repeat(p->dist)' instead of
+# `repeat(p->link)', so NETWORK line 239 `q = null;' was never a blocker and matrix row 9 is
+# withdrawn).  E31F7/F7B also showed `add' as a procedure name is refused by my binder as a
+# conflict while DR accepts it; E31F7C renames it and is used instead.
+#
+# The probes then disagreed with my E2E-30 classification, and execution settled it.  Two families
+# are WRONG-VALUED, not merely byte-divergent; both were previously lumped into "register reuse":
+#
+#   FAMILY B -- based/pointer member reads accumulated in arithmetic.  DR keeps a running value in
+#   HL and brackets each dereference with PUSH H / POP D / DAD D (E31F4 0035-004F, summing
+#   `a->v + b->v + c->v'); mine omits the bracketing, so it emits FEWER bytes and computes garbage.
+#   Executed, linked through LINK 1.31 + PLILIB: DR prints `s=6' (the correct 1+2+3) and mine
+#   prints `s=7742'.  E31F7C is NETWORK's own loop body -- `do w = head repeat(w->nx)
+#   while(w ^= null); s = s + w->v; end;' -- and mine prints `sum=7768' where DR prints `sum=6'.
+#   PB20 (`q = q + q' on BASED(P)) prints `q=6947' against DR's and the correct `q=6'; PB4 prints
+#   `q=44' CORRECTLY, so the family is not uniformly wrong and the boundary is not yet drawn.
+#   MINE-SMALLER is the tell: the eight reuse rows are all mine-LARGER.
+#
+#   FAMILY C -- a FIXED FORMAL parameter read in a comparison is not dereferenced.  DR loads the
+#   formal cell and then reads THROUGH it (`LHLD M / MOV E,M / INX H / MOV D,M / XCHG', E31F5
+#   0073-007D for `if i = m'), because a formal holds the CALLER'S ADDRESS.  Mine uses the cell
+#   value directly, i.e. it compares against an address.  E31F8 (`returns(FIXED)', `if k = 0')
+#   prints `r=2' where DR and the arithmetic both say `r=1' -- wrong value.  E31F2 is the same
+#   defect but its value happens to survive (both branches return null(), so `r=1' is printed by
+#   DR and by mine alike; only 2 bytes differ).  E31F5 is the same cause again.  This is NOT
+#   returns(POINTER)-specific: E31F8 reproduces it with RETURNS(FIXED), so it predates this
+#   milestone and E2E-30 never saw it because none of its probes compared a formal.
+#
+# Neither family is fitted here.  Both are recorded with the executed evidence that shows they are
+# real defects, because a divergence panel row that says "shape differs, cause believed benign" is
+# worse than useless once the program turns out to compute the wrong number [C137][C168].  The
+# fixes need their own discriminating probes -- in particular what makes PB4 correct where PB20 and
+# E31F4 are not, and whether FAMILY C is a general formal-deref rule that the 756 accepted
+# specimens happen not to exercise in a comparison.  Changing the condition lowering without that
+# evidence would be exactly the trade C179 forbids.
+#
+add_spec('E31F1', ('artefacts/E31F1.PLI', 'golden/e31p2/E31F1/E31F1.REL'))
+add_spec('E31F3', ('artefacts/E31F3.PLI', 'golden/e31p2/E31F3/E31F3.REL'))
+add_spec('E31F6', ('artefacts/E31F6.PLI', 'golden/e31p2/E31F6/E31F6.REL'))
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:

@@ -1,0 +1,144 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E31F9
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 NULL BUILTIN CONSTANT
+a 0000 F9 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 T POINTER AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 2 BASED()
+c 0000 .V FIXED BINARY(15,0) MEMBER
+c 0002 .NX POINTER MEMBER
+c 0000 MK FUNCTION PARAMETERS(1) CONSTANT
+c 0000 .* POINTER RETURNED
+c 0002 .* FIXED BINARY(15,0) PARAMETER
+BLOCK AT LINE 8, AUTO STORAGE 6 BYTES, PARAMETERS K
+e 0000 K FIXED BINARY(15,0) PARAMETER
+e 0002 J FIXED BINARY(15,0) AUTOMATIC
+e 0004 P POINTER AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E31F9
+
+   1 a 0000 f9: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare t pointer;
+   3 c 0006   declare 1 nd based, 2 v fixed, 2 nx pointer;
+   4 c 0006   t = mk(3);
+       0006       LXI  H,* A(0006)
+       0009       CALL 0000
+       000C       SHLD T A(0004)
+   5 c 000F   put list('v=', t->v);
+       000F       LXI  D,0252
+       0012       LXI  B,0000
+       0015       CALL ?SYSPR
+       0018       LXI  H,* S(0002)
+       001B       MVI  A,02
+       001D       CALL ?SLCTS
+       0020       CALL ?PNCOP
+       0023       LHLD T A(0004)
+       0026       MOV  E,M
+       0027       INX  H
+       0028       MOV  D,M
+       0029       XCHG 
+       002A       MVI  A,09
+       002C       CALL ?QICOP
+       002F       CALL ?PNVOP
+       0032       CALL ?QIOOP
+       0013       ==== 0035
+   6 c 0035   stop;
+       0035       CALL ?STOPX
+   7 c 0038   mk: procedure(k) returns(pointer);
+   8 e 0038   declare k fixed;
+       0038       MOV  E,M
+       0039       INX  H
+       003A       MOV  D,M
+       003B       XCHG 
+       003C       SHLD K A(0008)
+   9 e 003F   declare j fixed;
+  10 e 003F   declare p pointer;
+  11 e 003F   j = k;
+       003F       LHLD K A(0008)
+       0042       MOV  E,M
+       0043       INX  H
+       0044       MOV  D,M
+       0045       XCHG 
+       0046       SHLD J A(000A)
+  12 e 0049   if j = 3 then do;
+       0049       LHLD J A(000A)
+       004C       DCX  H
+       004D       DCX  H
+       004E       DCX  H
+       004F       MOV  A,H
+       0050       ORA  L
+       0051       JNZ  0000
+  13 e 0054      allocate nd set(p);
+       0054       LXI  H,0004
+       0057       CALL ?ALLOP
+       005A       SHLD P A(000C)
+  14 e 005D      p->v = 30;
+       005D       LHLD P A(000C)
+       0060       MVI  M,1E
+       0062       INX  H
+       0063       MVI  M,00
+  15 e 0065      p->nx = null;
+       0065       LXI  H,0000
+       0068       PUSH H
+       0069       LHLD P A(000C)
+       006C       INX  H
+       006D       INX  H
+       006E       POP  D
+       006F       MOV  M,E
+       0070       INX  H
+       0071       MOV  M,D
+  16 e 0072      return(p);
+       0072       LHLD P A(000C)
+       0075       RET  
+       0052       ==== 0076
+  17 e 0076   end;
+  18 e 0076   allocate nd set(p);
+       0076       LXI  H,0004
+       0079       CALL ?ALLOP
+       007C       SHLD P A(000C)
+  19 e 007F   p->v = 99;
+       007F       LHLD P A(000C)
+       0082       MVI  M,63
+       0084       INX  H
+       0085       MVI  M,00
+  20 e 0087   p->nx = null;
+       0087       LXI  H,0000
+       008A       PUSH H
+       008B       LHLD P A(000C)
+       008E       INX  H
+       008F       INX  H
+       0090       POP  D
+       0091       MOV  M,E
+       0092       INX  H
+       0093       MOV  M,D
+  21 e 0094   return(p);
+       0094       LHLD P A(000C)
+       0097       RET  
+  22 c 0098   end mk;
+  23 a 0098 end f9;
+
+CODE SIZE = 0098
+DATA AREA = 000E
+FREE SYMS = 3816
+END  COMPILATION
+

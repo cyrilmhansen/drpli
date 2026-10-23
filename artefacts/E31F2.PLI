@@ -1,0 +1,13 @@
+f2: procedure options(main);
+  declare t pointer, w fixed;
+  t = pick(0);
+  if t = null then w = 1; else w = 2;
+  put list('r=', w);
+  stop;
+  pick: procedure(k) returns(pointer);
+  declare k fixed;
+  if k = 0 then return(null());
+  return(null());
+  end pick;
+end f2;
+

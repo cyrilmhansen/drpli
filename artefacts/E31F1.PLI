@@ -1,0 +1,17 @@
+f1: procedure options(main);
+  declare t pointer, u pointer;
+  declare 1 nd based, 2 v fixed, 2 nx pointer;
+  t = mk(5);
+  t->v = 7;
+  put list('v=', t->v);
+  stop;
+  mk: procedure(k) returns(pointer);
+  declare k fixed;
+  declare p pointer;
+  allocate nd set(p);
+  p->v = k;
+  p->nx = null;
+  return(p);
+  end mk;
+end f1;
+

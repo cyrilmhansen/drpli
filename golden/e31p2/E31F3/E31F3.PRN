@@ -1,0 +1,95 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E31F3
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 F3 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 T POINTER AUTOMATIC
+c 0002 U POINTER AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 2 BASED()
+c 0000 .V FIXED BINARY(15,0) MEMBER
+c 0002 .NX POINTER MEMBER
+c 0000 ID FUNCTION PARAMETERS(1) CONSTANT
+c 0000 .* POINTER RETURNED
+c 0002 .* POINTER PARAMETER
+BLOCK AT LINE 10, AUTO STORAGE 2 BYTES, PARAMETERS X
+e 0000 X POINTER PARAMETER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E31F3
+
+   1 a 0000 f3: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare t pointer, u pointer;
+   3 c 0006   declare 1 nd based, 2 v fixed, 2 nx pointer;
+   4 c 0006   allocate nd set(u);
+       0006       LXI  H,0004
+       0009       CALL ?ALLOP
+       000C       SHLD U A(0004)
+   5 c 000F   u->v = 4;
+       000F       LHLD U A(0004)
+       0012       MVI  M,04
+       0014       INX  H
+       0015       MVI  M,00
+   6 c 0017   t = id(u);
+       0017       LXI  H,* A(0006)
+       001A       CALL 0000
+       001D       SHLD T A(0002)
+   7 c 0020   put list('v=', t->v);
+       0020       LXI  D,0252
+       0023       LXI  B,0000
+       0026       CALL ?SYSPR
+       0029       LXI  H,* S(0000)
+       002C       MVI  A,02
+       002E       CALL ?SLCTS
+       0031       CALL ?PNCOP
+       0034       LHLD T A(0002)
+       0037       MOV  E,M
+       0038       INX  H
+       0039       MOV  D,M
+       003A       XCHG 
+       003B       MVI  A,09
+       003D       CALL ?QICOP
+       0040       CALL ?PNVOP
+       0043       CALL ?QIOOP
+       0024       ==== 0046
+   8 c 0046   stop;
+       0046       CALL ?STOPX
+   9 c 0049   id: procedure(x) returns(pointer);
+  10 e 0049   declare x pointer;
+       0049       MOV  E,M
+       004A       INX  H
+       004B       MOV  D,M
+       004C       XCHG 
+       004D       SHLD X A(0008)
+  11 e 0050   return(x);
+       0050       LHLD X A(0008)
+       0053       MOV  E,M
+       0054       INX  H
+       0055       MOV  D,M
+       0056       XCHG 
+       0057       RET  
+  12 c 0058   end id;
+  13 a 0058 end f3;
+
+CODE SIZE = 0058
+DATA AREA = 000A
+FREE SYMS = 3853
+END  COMPILATION
+

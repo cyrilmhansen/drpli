@@ -1,0 +1,9 @@
+f6: procedure options(main);
+  declare q pointer, w fixed;
+  q = addr(w);
+  q = null;
+  if q ^= null then w = 1; else w = 2;
+  put list('n=', w);
+  stop;
+end f6;
+

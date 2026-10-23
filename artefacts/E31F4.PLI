@@ -1,0 +1,18 @@
+f4: procedure options(main);
+  declare a pointer, b pointer, c pointer;
+  declare 1 nd based, 2 v fixed, 2 nx pointer;
+  a = mk(1);
+  b = mk(2);
+  c = mk(3);
+  put list('s=', a->v + b->v + c->v);
+  stop;
+  mk: procedure(k) returns(pointer);
+  declare k fixed;
+  declare p pointer;
+  allocate nd set(p);
+  p->v = k;
+  p->nx = null;
+  return(p);
+  end mk;
+end f4;
+

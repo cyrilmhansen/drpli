@@ -1,0 +1,25 @@
+f5: procedure options(main);
+  declare t pointer, n fixed;
+  declare 1 nd based, 2 v fixed, 2 nx pointer;
+  n = 3;
+  t = srch(n);
+  put list('got=', t->v);
+  stop;
+  srch: procedure(m) returns(pointer);
+  declare m fixed;
+  declare p pointer, i fixed;
+  i = 0;
+  do while('1'b);
+     i = i + 1;
+     allocate nd set(p);
+     p->v = i;
+     p->nx = null;
+     if i = m then do;
+        p->v = 100 + i;
+        return(p);
+     end;
+     if i > 9 then return(p);
+  end;
+  end srch;
+end f5;
+

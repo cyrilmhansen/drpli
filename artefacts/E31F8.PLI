@@ -1,0 +1,12 @@
+f8: procedure options(main);
+  declare w fixed;
+  w = pick(0);
+  put list('r=', w);
+  stop;
+  pick: procedure(k) returns(fixed);
+  declare k fixed;
+  if k = 0 then return(1);
+  return(2);
+  end pick;
+end f8;
+

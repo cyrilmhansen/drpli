@@ -1,0 +1,14 @@
+f3: procedure options(main);
+  declare t pointer, u pointer;
+  declare 1 nd based, 2 v fixed, 2 nx pointer;
+  allocate nd set(u);
+  u->v = 4;
+  t = id(u);
+  put list('v=', t->v);
+  stop;
+  id: procedure(x) returns(pointer);
+  declare x pointer;
+  return(x);
+  end id;
+end f3;
+
