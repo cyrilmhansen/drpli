@@ -52,9 +52,18 @@ and verify CRLF before handing a file to DR.
   own length byte. `w` and `p->w` lower to identical bytes, so one encoder (`vbvar_addr`) serves both
   spellings and every route — [C179]'s requirement restated for instruction selection, as [C189] did
   for the offset step.
-* Capacity truncation is DR's runtime (`?SMCVM`/`?SMVVM`), not mine; REVERSE proves it live: `'Actually, '`
-  (10 chars) into a `character(6)` member emits `MVI B,0A` (the source length) and the printed word
-  comes out `Actual` identically from both objects.
+* Capacity truncation is done by DR's runtime (`?SMCVM`/`?SMVVM`), not by the compiler. The
+  witness is E30T1 (a `character(6)` VARYING member assigned the 8-char literal `'ABCDEFGH'`),
+  where DR emits `LHLD P / LXI D,*S / MVI A,06 / MVI B,08 / CALL ?SMCVM` [golden/e30p1 000F] —
+  A is the DESTINATION capacity (06), B is the SOURCE length (08); my E30T1 is byte-exact.
+  **[E2E-30/P0 correction]** An earlier version of this note claimed REVERSE proved truncation
+  live, storing `'Actually, '` into a `character(6)` member and printing `Actual`. That was wrong
+  on three counts: REVERSE has no `character(6)` member (its `word` is `character(30)`);
+  `'Actually, '` is a PUT-list literal (`put skip list('Actually, ')`, line 41) that never touches
+  a member — its `MVI A,0A` at 00A2 feeds `?SLCTS`, a print, not `?SMCVM`; and the transcript
+  prints `Actually, ` in full. No executed transcript in E2E-29 shows truncation. The A=cap/B=len
+  distinction is real and compile-side (E30T1); the runtime truncation it implies is not yet
+  observed and is not claimed here.
 
 ## 3. Comparison ABI (measured, all byte-exact)
 
@@ -117,20 +126,36 @@ produced byte-identical console output on both scenarios —
 a .\n\nWhat's up? .\n\n\n"`) [golden/e29dr_run{A,B}, golden/e29my_run{A,B}]. The link was confirmed
 genuine: 0 unresolved externals, 2866 bytes of PLILIB runtime absorbed, entry at 0100h.
 
+**[E2E-30/P0 correction]** The paragraph below described REVERSE's output as an unexplained
+"oddity" and claimed its comment promises `olleh dlrow`. Both are false. REVERSE prepends each new
+word to a linked list (`newnode->next = sentence; sentence = newnode;`) and `write_it` walks that
+list printing each WORD member whole — so it reverses **word order**, leaving every word's
+characters intact. Input `hello world` correctly prints `world hello`, exactly as the algorithm
+requires; the source comment says only "reverses a sentence" (line 2) and contains no `olleh dlrow`
+anywhere in `artefacts/REVERSE.PLI` or the golden PRN. The behaviour is neither odd nor pending a
+reading — it is the intended result, and my earlier framing mistook a correct linked-list reversal
+for a character-level one.
+
 **The runtime comparison is circular and has to be read as such [C137].** Each pair of .REL files is
 byte-identical and LINK 1.31 is deterministic, so DR's `.COM` and mine are the same bytes — `cmp
 golden/e29dr_l/REVERSE.COM golden/e29my_l/REVERSE.COM` reports identical at 7808 B, and the same holds
 for the nine E29 pairs. Running "both" is running one file twice: identical output is guaranteed by the
 byte-exactness rather than adding independent evidence to it. What the runs genuinely establish is
 (i) that the byte-exact artifact I emit executes under CP/M, terminates cleanly, and is not a
-plausible-looking-but-dead image, and (ii) what DR's own linked runtime does — capacity truncation to
-`Actual`, `c1=1`/`c11=0` and `x8`/`x9` covering both outcomes of a compare and of a null test. That is
+plausible-looking-but-dead image, and (ii) what DR's own linked runtime does — the correct
+word-order reversal (`world hello`), and `c1=1`/`c11=0` and `x8`/`x9` covering both outcomes of a
+compare and of a null test. That is
 evidence about the oracle and about runnability. The evidence that my lowering is right remains
 byte-exactness against DR goldens; the runtime shows those bytes describe a working program.
 
 One observed oddity, recorded rather than explained: the transcript of *both* objects reverses the last
 input word (`world hello`, `c b a`) while REVERSE's own comment says `olleh dlrow` — this is identical
 on both sides and needs a separate reading before I cite it [C150].
+
+**[E2E-30/P0] The paragraph immediately above is superseded and kept only for provenance [C166].** It
+is wrong: there is no such comment (`REVERSE.PLI` says only "reverses a sentence") and reversing the
+order of whole words is the linked-list algorithm's correct, expected output — not an oddity and not
+pending a reading. See the correction earlier in this section; do not cite the struck text.
 
 ## 6. One divergence
 

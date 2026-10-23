@@ -3713,8 +3713,12 @@ plus a marker fragment taken from the compiler's ACTUAL stderr.
   step]/`LXI D,*S`/`MVI A,cap`/`MVI B,len`/`?SMCVM`; `varying`->member `LXID,<src cell>`/`MVI A,cap`/
   `?SMVVM`; member->member with `PUSH H`/`POP D`; PUT read `CALL ?SLVTS`; and the two folds that are
   the SCALAR store's tails -- `len==cap` to `MOV B,A` (V3) and `len==0` to a bare `MVI M,00` with no
-  call (V8). `A` is always the DESTINATION capacity, never the value's length: REVERSE stores
-  'Actually, ' with `MVI B,0A` and the runtime truncates to `Actual`, identically in both objects.
+  call (V8). `A` is always the DESTINATION capacity, never the value's length [E2E-30/P0 correction:
+  the truncation witness is E30T1 -- `character(6)` member assigned `'ABCDEFGH'` gives `MVI A,06`
+  (cap) / `MVI B,08` (len) / `?SMCVM`, byte-exact here -- NOT REVERSE, whose `'Actually, '` is a
+  full-printed PUT literal at 00A2 and whose only char member is `character(30)`; an earlier draft
+  of this claim invented a `character(6)` member store that truncates to `Actual`, and no such
+  source, object or transcript exists].
   `w` and `p->w` lower to identical bytes, so ONE destination thunk (`vbvar_addr`) feeds every route
   -- C179/C189's one-encoder rule again. Two refusals died here: E27S5 (whose own NEG note said "DR
   COMPILES IT") and N23_CHARVAR_MULTI, retired because E29N23 is that exact shape with a golden [C154].
@@ -3753,6 +3757,9 @@ plus a marker fragment taken from the compiler's ACTUAL stderr.
   PL/I80.COM produces a .REL byte-identical to `golden/e2e319d/REVERSE/REVERSE.REL` -- 896 bytes, 201
   code records, LINK-DEF-DATA-SIZE 003B -- and links to a .COM whose console output equals my compiler's
   linked output on two scripted inputs. The hedge was wrong in the direction that mattered (the listing
-  stays valid evidence), and REVERSE's remaining behavioural curiosity -- both objects reverse the LAST
-  input word (`world hello`) where the program's own comment says `olleh dlrow` -- is now a property of
-  DR itself, reproduced exactly, not of my reimplementation.
+  stays valid evidence). REVERSE's output -- both objects print `world hello` for `hello world` --
+  is its linked list prepending each word and `write_it` printing whole words, i.e. correct WORD-
+  ORDER reversal with characters intact. **[E2E-30/P0 correction]** An earlier draft called this a
+  "behavioural curiosity" where "the program's own comment says olleh dlrow"; the comment says only
+  "reverses a sentence" and `olleh dlrow` appears nowhere in the source or listing. It is the
+  intended result, not a DR quirk.
