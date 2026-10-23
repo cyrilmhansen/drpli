@@ -1,0 +1,15 @@
+c9: procedure options(main);
+  declare w fixed;
+  w = f(4);
+  put list('a=', w);
+  w = f(5);
+  put list('b=', w);
+  stop;
+  f: procedure(k) returns(fixed);
+  declare k fixed, y fixed;
+  y = k;
+  return(y);
+  end f;
+end c9;
+
+

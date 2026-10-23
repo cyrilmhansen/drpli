@@ -1,0 +1,100 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E32C9
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 C9 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 W FIXED BINARY(15,0) AUTOMATIC
+c 0000 F FUNCTION PARAMETERS(1) CONSTANT
+c 0000 .* FIXED BINARY(15,0) RETURNED
+c 0002 .* FIXED BINARY(15,0) PARAMETER
+BLOCK AT LINE 9, AUTO STORAGE 4 BYTES, PARAMETERS K
+e 0000 K FIXED BINARY(15,0) PARAMETER
+e 0002 Y FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E32C9
+
+   1 a 0000 c9: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare w fixed;
+   3 c 0006   w = f(4);
+       0006       LXI  H,* A(000A)
+       0009       CALL 0000
+       000C       SHLD W A(0008)
+   4 c 000F   put list('a=', w);
+       000F       LXI  D,0252
+       0012       LXI  B,0000
+       0015       CALL ?SYSPR
+       0018       LXI  H,* S(0002)
+       001B       MVI  A,02
+       001D       CALL ?SLCTS
+       0020       CALL ?PNCOP
+       0023       LHLD W A(0008)
+       0026       MVI  A,09
+       0028       CALL ?QICOP
+       002B       CALL ?PNVOP
+       002E       CALL ?QIOOP
+       0013       ==== 0031
+   5 c 0031   w = f(5);
+       0031       LXI  H,* A(000C)
+       0034       CALL F
+       0037       SHLD W A(0008)
+   6 c 003A   put list('b=', w);
+       003A       LXI  D,0252
+       003D       LXI  B,0000
+       0040       CALL ?SYSPR
+       0043       LXI  H,* S(0006)
+       0046       MVI  A,02
+       0048       CALL ?SLCTS
+       004B       CALL ?PNCOP
+       004E       LHLD W A(0008)
+       0051       MVI  A,09
+       0053       CALL ?QICOP
+       0056       CALL ?PNVOP
+       0059       CALL ?QIOOP
+       003E       ==== 005C
+   7 c 005C   stop;
+       005C       CALL ?STOPX
+   8 c 005F   f: procedure(k) returns(fixed);
+   9 e 005F   declare k fixed, y fixed;
+       005F       MOV  E,M
+       0060       INX  H
+       0061       MOV  D,M
+       0062       XCHG 
+       0063       SHLD K A(000E)
+  10 e 0066   y = k;
+       0066       LHLD K A(000E)
+       0069       MOV  E,M
+       006A       INX  H
+       006B       MOV  D,M
+       006C       XCHG 
+       006D       SHLD Y A(0010)
+  11 e 0070   return(y);
+       0070       LHLD Y A(0010)
+       0073       RET  
+  12 c 0074   end f;
+  13 a 0074 end c9;
+  14 a 0074 
+
+CODE SIZE = 0074
+DATA AREA = 0012
+FREE SYMS = 3834
+END  COMPILATION
+

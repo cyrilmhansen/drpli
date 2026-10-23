@@ -5075,6 +5075,21 @@ let op_pop_b = 0xc1
 let op_ana_b = 0xa0
 
 (* a 2-byte fixed-bin `var = 0` operand, or None *)
+(* [E2E-32/P1] ONE encoder for "leave HL pointing at the 2-byte value of `nm'".
+ Family C's root cause was that this property was written out separately in three arms
+ and only one of them knew about by-reference formals.  A formal's cell holds the
+ ADDRESS the caller stored -- DR's own entry sequence proves it: `MOV E,M / INX H /
+ MOV D,M / XCHG / SHLD K A(0008)' (E31F8 0034-0038) -- so pointing HL at the VALUE
+ means `LHLD cell' (load the pointer out of the cell).  A plain local's cell holds the
+ value, so it means `LXI H,&cell'.  Everything after the load is identical either way,
+ which is why this is one load primitive and not two instruction shapes.
+ DR samples, both sides of the same relation: E31F8/E32C2 (formal = 0 -> LHLD),
+ E32C1 (LOCAL = 0 -> still LXI H, byte-exact before and after this change). *)
+let val_addr st (nm : string) () =
+  let ln = String.lowercase_ascii nm in
+  if List.mem ln st.deref then d st op_lhld else d st op_lxi_h;
+  reloc st Data (addr_of st nm)
+
 let conj_bin_zero st (e : Ast.expr) =
   match (unwrap_e e).Ast.e with
   | Ast.Ebinary (Ast.EqR Ast.Eq, a, { Ast.e = Ast.Enumber "0"; _ })
@@ -5154,8 +5169,10 @@ let rec lower_bool st (c : Ast.expr) =
         | _ ->
         match conj_bin_zero st r with
         | Some v ->
-            (* [R2025] fixed-bin operand: address load hoisted above PUSH *)
-            d st op_lxi_h; reloc st Data (addr_of st v.Ast.orig);
+            (* [R2025] fixed-bin operand: address load hoisted above PUSH.
+               [E2E-32/P1] routed through val_addr exactly like the Eq/0 arm -- this is the
+               same property in a second written-out copy, which is how it drifted. *)
+            val_addr st v.Ast.orig ();
             d st op_push_psw; bin_zero_tail st
         | None ->
             (match (unwrap_e r).Ast.e with
@@ -5527,7 +5544,7 @@ let lower_test_skip0 st (c : Ast.expr) =
       let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber "0"; _ }) ->
-      d st op_lxi_h; reloc st Data (addr_of st v.Ast.orig);
+      val_addr st v.Ast.orig ();
       d st op_mov_a_m; d st op_inx_h; d st op_ora_m;
       d st op_jnz; let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR Ast.Gt, { Ast.e = Ast.Eident v; _ },
@@ -5698,9 +5715,18 @@ let lower_test_skip0 st (c : Ast.expr) =
        | Ast.Gt | Ast.Le ->
            cmp_pair st (ident rr) (ident l) (if r = Ast.Gt then op_jp else op_jm)
        | Ast.Eq | Ast.Ne ->
-           d st op_lhld; reloc st Data (addr_of st (ident l));
+           (* [E2E-32/P1] both sides through cmp_load_deref, which is already the
+              authority for "LHLD the cell, plus the deref ladder when the name is a
+              by-reference formal".  For two plain locals it emits exactly the
+              `LHLD cell' this arm used before, so existing byte-exact specimens are
+              untouched; for a formal the ladder is what was missing.  DR samples: E32C4
+              `k = m' (deref first), E32C5 `m = k' (deref second), E32C6 `k = j' (both)
+              -- all three PUSH/POP, each side loaded through whatever indirection its
+              own name needs.  This also makes Eq/Ne share one load mechanism with
+              Lt/Ge/Gt/Le, which already went through cmp_pair. *)
+           cmp_load_deref st (ident l);
            d st op_push_h;
-           d st op_lhld; reloc st Data (addr_of st (ident rr));
+           cmp_load_deref st (ident rr);
            d st op_pop_d;
            call_ext st "?IS22N";
            d st op_mov_a_h; d st 0xb5;  (* ORA L *)

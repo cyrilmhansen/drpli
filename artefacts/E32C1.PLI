@@ -1,0 +1,12 @@
+c1: procedure options(main);
+  declare z fixed, w fixed;
+  z = 5;
+  w = 0;
+  if z = 0 then w = w + 1;
+  if z > 3 then w = w + 2;
+  if (z = 0) & (w = 0) then w = w + 4;
+  put list('w=', w);
+  stop;
+end c1;
+
+

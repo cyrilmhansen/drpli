@@ -1,0 +1,16 @@
+c4: procedure options(main);
+  declare w fixed;
+  w = g(3);
+  put list('a=', w);
+  w = g(4);
+  put list('b=', w);
+  stop;
+  g: procedure(k) returns(fixed);
+  declare k fixed, m fixed;
+  m = 3;
+  if k = m then return(1);
+  return(2);
+  end g;
+end c4;
+
+

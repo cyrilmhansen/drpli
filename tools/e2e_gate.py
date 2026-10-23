@@ -2817,6 +2817,66 @@ add_spec('E31F1', ('artefacts/E31F1.PLI', 'golden/e31p2/E31F1/E31F1.REL'))
 add_spec('E31F3', ('artefacts/E31F3.PLI', 'golden/e31p2/E31F3/E31F3.REL'))
 add_spec('E31F6', ('artefacts/E31F6.PLI', 'golden/e31p2/E31F6/E31F6.REL'))
 
+# =====================================================================================
+# [E2E-32/P1] FAMILY C IS FIXED -- and the fix is one shared load primitive, not three.
+#
+# Root cause, established from DR's own bytes before touching codegen: a by-reference
+# formal's cell holds the ADDRESS the caller stored (DR's callee entry is `MOV E,M /
+# INX H / MOV D,M / XCHG / SHLD K A(0008)' -- E31F8 0034-0038), so every read must go
+# THROUGH the cell.  Mine already knew this: st.deref lists ALL formals of a
+# non-recursive callee and lower_hl / cmp_load_deref already consult it.  What was
+# wrong is that the property was written out a second and third time -- the `= 0' skip
+# arm and the ident-vs-ident `=/^=' arm each hand-rolled their own load and forgot the
+# indirection.  That is the failure mode of duplicated invariants, not of the rule.
+#
+# Fix: one `val_addr' primitive ("leave HL pointing at the 2-byte value": LHLD cell for
+# a by-reference formal, LXI H,&cell for a plain local) used by both `= 0' sites, and the
+# ident-vs-ident Eq/Ne arm routed through the EXISTING cmp_load_deref for both operands.
+# For two plain locals cmp_load_deref emits exactly what that arm emitted before, so the
+# 759 accepted specimens are untouched (verified: 759/759 after the change).
+#
+# Probe matrix, all DR-golden-first (golden/e32c), each orientation sampled separately
+# because a rule checked in only one direction is not checked [C167]:
+#   E32C1  LOCAL = 0 / LOCAL > 3 / conjunction          -> CONTROL, byte-exact BEFORE and
+#          AFTER; printed w=2 as independently expected.  This is what proves the fix was
+#          not applied too broadly.
+#   E32C2  formal = 0, BOTH outcomes (f(0)=1, f(3)=2)   -> byte-exact, executed 1 and 2
+#   E32C4  formal = local (k = m), both outcomes        -> byte-exact, executed 1 and 2
+#   E32C5  local = formal (m = k), both outcomes        -> byte-exact, executed 1 and 2
+#   E32C7  formal ^= nonzero literal                    -> byte-exact (already was), 2 and 1
+#   E32C8  formal > 2 / formal < 2 on a formal          -> byte-exact (already was), 1,4,8
+#   E32C9  plain VALUE read of a formal (y = k)         -> byte-exact (already was), 4 and 5
+# C7/C8/C9 being already-exact is itself the finding: the bug was confined to `=' arms,
+# which is why E2E-31's "formals in comparisons" phrasing was too broad to act on.
+# Promoted out of the divergence panel by this fix: E31F8, E31F2, E31F5 [C154].
+add_spec('E31F8', ('artefacts/E31F8.PLI', 'golden/e31p3/E31F8/E31F8.REL'))
+add_spec('E31F2', ('artefacts/E31F2.PLI', 'golden/e31p2/E31F2/E31F2.REL'))
+add_spec('E31F5', ('artefacts/E31F5.PLI', 'golden/e31p2/E31F5/E31F5.REL'))
+for _n in ('E32C1', 'E32C2', 'E32C4', 'E32C5', 'E32C7', 'E32C8', 'E32C9'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e32c/%s/%s.REL' % (_n, _n)))
+
+# Two ORIENTATIONS of `=' with a literal on the LEFT remain unimplemented -- and they are
+# refusals of a shape DR COMPILES, so they are my-gap, not perimeter [C188]: registering
+# them silently as "DR rejects this too" would misrepresent the oracle.
+#   E32C3  `if 0 = k'  -> mine: "condition form not in E2E-3b subset [TBD]"
+#   E32C10 `if k = 3'  -> mine refuses the same way; DR emits `LHLD K / deref ladder /
+#          LXI D,0003 / ?IS22N' (golden/e32c/E32C10 0066-006B), i.e. the fix above covers
+#          the LOAD but the condition-subset matcher never admits these two shapes.
+REJECTS['E32C3'] = (open('artefacts/E32C3.PLI', "rb").read().replace(b"\r\n", b"\n")
+                    .rstrip(b"\x1a").decode(), "condition form not in E2E-3b subset")
+REJECTS['E32C10'] = (open('artefacts/E32C10.PLI', "rb").read().replace(b"\r\n", b"\n")
+                     .rstrip(b"\x1a").decode(), "condition form not in E2E-3b subset")
+NEG_META['E32C3'] = ("my-gap",
+    "DR COMPILES it (golden/e32c/E32C3 emits a .REL): `if 0 = k' with the LITERAL on the "
+    "left of an equality whose other side is a formal.  Mine refuses with `condition form "
+    "not in E2E-3b subset'.  Unrelated to Family C, which is fixed: the refusal happens "
+    "before any load is chosen.")
+NEG_META['E32C10'] = ("my-gap",
+    "DR COMPILES it (golden/e32c/E32C10, callee tests `if k = 3' with a NON-ZERO literal: "
+    "`LHLD K / MOV E,M / INX H / MOV D,M / XCHG' then the literal compare).  Mine refuses "
+    "the same way as E32C3.  Note E32C7/E32C8 (`k ^= 2', `k > 2') ARE supported, so this "
+    "is specifically equality against a non-zero literal, not a general gap.")
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:
