@@ -171,11 +171,35 @@ the program itself is still refused, at `find(..) returns(POINTER)`. Newly insid
 - **`GET LIST` with several items** (E30H1) and the **capacity-vs-source-length store asymmetry**
   (`MVI A,dest-cap / MVI B,src-len / ?SMCVM`, E30T1). [C190]
 
-Still [S]-known-but-open, and now the *specific* reason NETWORK does not compile: **`returns(POINTER)`**
-(first blocker, E30F1; DR emits `LHLD P / RET`), **named-SYSIN `ON ENDFILE`/`REVERT`** (`?ONCOP` at 0027/025A/02A4,
+Still [S]-known-but-open (as of E2E-29) -- superseded by the [E2E-31] section below.**named-SYSIN `ON ENDFILE`/`REVERT`** (`?ONCOP` at 0027/025A/02A4,
 `?REVOP` at 02F8, all `LXI H,SYSIN` + `MVI A,05`; E30E2/E30E3), member-vs-member and chained **relational conditions**
 (E30C3/E30B4), and `GO TO <label>`. The **register-reuse peephole** grew to 14 divergence rows
 (PB4/PB20/E27S2/E28N7/O1/O2/O4/E29X3 + **E30L1-L4, E30B2, E30G1**): every pointer-walking loop we emit
 carries one or two reloads DR elides, so the traversal is behaviourally right (E30G1's linked output is
 byte-identical to DR's) but not yet byte-exact. That family is now the largest single obstacle to
 NETWORK. [C196][C197]
+
+## [E2E-31] Perimeter widened — RETURNS(POINTER) is in; two wrong-value defects are now on the record
+
+`find(..) returns(POINTER)` -- NETWORK's first blocker through three milestones -- is inside the
+perimeter and byte-exact (E31F1, E31F3).  The convention is shared with RETURNS(FIXED): the callee
+leaves the pointer in HL and `RET's, the caller stores it with one SHLD [C199].  Bare `null' as an
+assignment value to a POINTER cell was already inside it (E31F6), so E2E-30's matrix row 9 is
+withdrawn.  NETWORK now stops at `ON ENDFILE(sysin) GOTO eof' (line 50) [C201].
+
+Two things moved from "benign divergence" to "defect", and they are perimeter-relevant because they
+affect programs that already compile:
+
+- **Family B -- based/pointer member reads accumulated in arithmetic produce wrong values** (PB20,
+  E31F4, E31F7C).  E31F7C is NETWORK's own loop body, so NETWORK would compute wrong shortest
+  distances even after it compiles.  PB4 in the same family is correct, so the boundary is undrawn.
+- **Family C -- a FIXED formal parameter compared in a condition is not dereferenced, so the test is
+  made against the caller's address** (E31F8 prints `r=2' where DR prints the correct `r=1', at
+  identical code size with one differing byte).  E31F2 has the defect with a lucky-correct value.
+
+Neither is fitted [C179][C167]: both fixes need a probe in the opposite direction first, and Family C
+has to be checked against the 756 accepted specimens before the condition lowering is touched.
+
+`ON ENDFILE/REVERT` with label transfer is [S] SUPPORTED by DR and [M]-open in ours; its layout is now
+fully measured [C201] but unimplemented, and ENDFILE *firing* is still unobserved because a linked
+object driven to EOF under cpmsim hangs rather than transferring.

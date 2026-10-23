@@ -201,9 +201,9 @@ so matching output is independent evidence of behaviour — unlike byte-identica
 | 4 | `CHAR VARYING`/`POINTER`/`FIXED` members in a 2-type graph | 17-27 | **DONE** | E29V*/E29X*/E30B*; G1 runs identically |
 | 5 | allocation / `free p->struct` | alloc 78, 100; free 259, 261 | **DONE** | E2E-26/27; DR `?ALLOP` 00E4/0168, `?FREOP` 0584/059B |
 | 6 | `GET LIST` multi-item | 55 (3 items), 143/148 (1 item) | **DONE** | E30H1 byte-exact |
-| 7 | **`find(..) returns(POINTER)`** | decl 90; returns 98, 106; call sites 76, 77, 177, 221 | **FIRST BLOCKER** | E30F1 refuses; callee `LHLD P / RET` 0150/0153 and 01A9/01AC |
+| 7 | **`find(..) returns(POINTER)`** | decl 90; returns 98, 106; call sites 76, 77, 177, 221 | **DONE in E2E-31** [C199] | E31F1/E31F3 byte-exact; callee `LHLD P / RET` 0150/0153, 01A9/01AC |
 | 8 | **named-SYSIN `ON ENDFILE(sysin) goto label` / `REVERT`** | 50, 140, 145 / revert 151 | next | E30E2/E30E3 refuse; DR `LXI H,SYSIN / MVI A,05 / CALL ?ONCOP` 0027, 025A, 02A4; `?REVOP` 02F8 |
-| 9 | bare `null` assigned to a POINTER | 239 (`q = null;`) | next | E30L5 refuses: `assignment of this expression to the POINTER p is unsampled [TBD]` |
+| 9 | bare `null` assigned to a POINTER | 239 (`q = null;`) | **WITHDRAWN — was never a blocker** | already byte-exact (E31F6); E30L5 refused because that probe said `repeat(p->dist)` instead of `repeat(p->link)` |
 | 10 | compound/relational condition operands reached through pointers | 102, 158, 236 | next | E30C3/E30B4 refuse the member-comparison forms |
 | 11 | pointer-vs-null as a plain `do while` condition | 233 | **shape visible, unsampled by me** | DR tests at TOP (04D9-04DE, body from 04E1) |
 | 12 | label transfer for the ON-unit target | labels `eof:` 59, 153; `eol:` 151 | unsampled | DR emits `JMP 0000` after `?ONCOP` -- a deferred backpatch, not an immediate address |
@@ -263,3 +263,11 @@ python3 oracle/linkrun.py run  --tag e30g1m --out e30g1m --names E30G1 --reuse -
         --input ALAMEDA 7 BERKELEY BERKELEY 5 CONCORD ENDRUN ENDRUN
 python3 tools/e2e_gate.py --update-inventory && python3 tools/e2e_gate.py
 ```
+
+> **[E2E-31 addendum]** Row 7 is closed and row 9 was never real.  NETWORK's actual first blocker is
+> now row 8, `ON ENDFILE(sysin) GOTO eof` (line 50) -- and rows 3/9 of this table need one more
+> correction that only execution revealed: the traversal family recorded here as "only excess is
+> HL/DE reuse" contains **two distinct wrong-value defects**, and E31F7C reproduces NETWORK's own loop
+> body (`s = s + w->v`) printing `7768' instead of `6'.  See
+> `spec/notes/e2e31-returns-pointer-and-value-defects.md` and [C200] before trusting any row of this
+> matrix as a *byte*-level statement.
