@@ -232,3 +232,18 @@ unobserved**, so compile-side parity and runtime handler execution stay separate
 Evidence-kind rule adopted [C205]: byte parity, independent arithmetic, and running a byte-identical
 image are three different claims.  `tools/e2e_gate.py --runtime` now labels each runtime row with the
 authority that did the work, because after these fixes ten of twelve rows became circular.
+
+
+**[E2E-34] registration:** `e34a/E34A2..E34A9` (ON ... GOTO pads, hidden saved-SP cell,
+REVERT, OFCOP), `e34b/E34B1` (the FILE-with-empty-pool control for the SET-LC fix),
+`e34c/E34C1..E34C10` (CHARACTER VARYING x VARYING comparison: the four load/immediate
+shapes, both orientations), `e34d/E34D1..E34D4` (tail `RET' for value-returning procedures,
+trigger = shape of the last top-level statement), `e34e/E34E1..E34E11` (a based FIXED BINARY
+member as a comparison operand, six relations, both orientations), `e34f/E34F1..E34F14`
+(`= k' through the shared bias ladder up to 32767, and `= <arithmetic expression>' in both
+evaluation orders), `e34g/E34G1, G2, G4..G10` (the CHARACTER VARYING assignment family, four
+cells, and the deref ladder `bmem_addr' was missing for a formal base) -- 48 specimens this
+episode, plus `N7MFWD` and `N79GOTO` promoted from negatives against their own DR goldens and
+`E28N9` / `E32C10` promoted once the `= k' gap they recorded closed.  `e34g/E34G3` and
+`e34a/E34A9` are registered as refusals (qualified varying member source, and the unnamed
+nested block).  Panel after E2E-34: 840 byte-exact, 119 refused, 17 pinned divergences.

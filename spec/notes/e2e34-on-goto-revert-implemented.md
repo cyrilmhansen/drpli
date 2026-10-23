@@ -177,3 +177,54 @@ code DR emits, not the code path that runs when a file ends.
 
 Gate at the end of P6: **831 byte-exact / 0 fail, 118/118 negatives refused, 17/17 divergences
 pinned, exit 0.**  ARCH-1 (`ocaml/proto/`) untouched.  Decimal and numeric backlog untouched.
+
+## P7 -- the varying ASSIGNMENT family (same session, after the P4-P6 commit `1c066f9`)
+
+The NETWORK row named one shape: NETWORK line 101 `p->city_name = city;', a CHARACTER VARYING
+member receiving a by-reference varying FORMAL.  Measuring that turned up the rest of the
+family, because mine accepted only some of it:
+
+    dest imm  + src imm    refused ("char store from non-literal")
+    dest imm  + src load   refused
+    dest load + src imm    byte-exact already (E34G1, G5)
+    dest load + src load   only for a BARE member source (V7); a formal source COMPILED WRONG
+
+The four cells are now E34G9/G10, G2/G7/G8, G1/G5 and G6 -- nine new byte-exact goldens, every
+cell with at least two DR samples, and the mixed cells sampled in both orientations [C167].
+Same single bit per operand as [C212] (does the address need a LOAD, or is it a link-time
+constant), but the pairing is forced rather than free: an assignment pins the destination to
+HL and the source to DE, whereas a comparison only needs the two addresses in a pair, which is
+why the comparison's thunks could not simply be reused unchanged.
+
+Two things this caught that the panel could not:
+
+* `bmem_addr', the shared based-member ADDRESS encoder since E2E-30/P2, was one indirection
+  short when the qualifier is a by-reference pointer FORMAL -- its cell holds the address of
+  the caller's pointer, not the record.  E34G6 built with rc=0 and different bytes, and none
+  of the 831 specimens qualified a member through a formal, so nothing could report it:
+  [C202]'s failure mode (an invariant present in one encoder and absent from another).  The
+  fix reuses the ladder `bfix_val_load' owns instead of writing a second copy.  G6 and G7 both
+  put the member at offset 2, which is what pins the ORDER -- deref ladder, then member_step;
+  an offset-0 probe would not have distinguished the two orders.
+* E34G3 (`hp->vn = jq->vn', a member source spelled with an explicit qualifier) is registered
+  as a refusal rather than fitted from V7's bare `w' spelling: no probe shows DR's behaviour
+  when the two members belong to records of different types.
+
+NETWORK after this: image 3200 bytes, data area 235/235 exact, code 1101 against DR's 1096.
+The row was re-measured [C168], not chased: first divergent file byte 1087 = code 019C = DR's
+line 105 `p->route_head = null;'.  From DR's 01A5 onward the two streams are instruction for
+instruction identical (`POP D / MOV M,E / INX H / MOV M,D'); what differs is that DR parks the
+null VALUE in HL and on the stack first, and takes the member offset with the three-byte
+`MVI E,1A / DAD D' because D is already zero, where mine uses [C189]'s four-byte
+`LXI D,001A / DAD D'.  That is the register-liveness family the other sixteen rows already
+attribute to [C185], plus the null-as-a-value question -- not a missing shape in the
+pointer/varying lowering.
+
+The first divergence moved 338 -> 1027 -> 1087 during this episode while the code excess grew
++3 -> +5.  A lengthening image whose first difference moves later is progress; the differing-
+byte count alone (1679 -> 2071) reads as the opposite, which is why the row pins the first
+divergent address and not the diff size.
+
+Gate at the end of P7: **840 byte-exact / 0 fail, 119/119 negatives refused, 17/17 divergences
+pinned, exit 0.**  P3 (normal-flow runtime witness for E32E2) and any EOF-firing claim remain
+open; ARCH-1 (`ocaml/proto/') untouched.
