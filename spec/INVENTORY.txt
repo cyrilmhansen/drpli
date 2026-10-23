@@ -219,6 +219,7 @@ E30B1	specimen	artefacts/E30B1.PLI	golden/e30p1/E30B1/E30B1.REL
 E30B3	specimen	artefacts/E30B3.PLI	golden/e30p1/E30B3/E30B3.REL
 E30B5	specimen	artefacts/E30B5.PLI	golden/e30p1/E30B5/E30B5.REL
 E30B7	specimen	artefacts/E30B7.PLI	golden/e30p1/E30B7/E30B7.REL
+E30C1	specimen	artefacts/E30C1.PLI	golden/e30p1/E30C1/E30C1.REL
 E30H1	specimen	artefacts/E30H1.PLI	golden/e30p1/E30H1/E30H1.REL
 E30T1	specimen	artefacts/E30T1.PLI	golden/e30p1/E30T1/E30T1.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL

@@ -7361,17 +7361,52 @@ let lower_put_items_gen st (edit_tbl : int option)
                 begin match (unwrap_e b).Ast.e with
                   | Ast.Eident bn ->
                       (match vk_of st (String.lowercase_ascii f.Ast.orig) with
-                       | Vbvar (pn, k, _) -> Some (bn.Ast.orig, pn, k)
+                       | Vbvar (pn, k, _) -> Some (`Base (bn.Ast.orig, pn, k))
                        | _ -> None)
+                  (* [E2E-30/P4] A TWO-LEVEL chain `q->next_city->city_name' (NETWORK print_all
+                     line 124, E30C1/E30G1).  The inner qualifier is itself a read of a POINTER
+                     member, and DR follows it with the ordinary dereference tail before reading
+                     the final member -- E30C1 0044-004B: LHLD Q / MOV E,M / INX H / MOV D,M /
+                     XCHG / CALL ?SLVTS, and NETWORK 0220-0227 is the same bytes.  Both halves
+                     reuse existing encoders (bmem_addr + the deref tail + member_step), so no
+                     third addressing mechanism is introduced [C179].  A chain into a non-VARYING
+                     member, a chain through a non-POINTER member, and chains deeper than two are
+                     not sampled and keep refusing. *)
+                  | Ast.Eqptr (b2, f2) ->
+                      begin match (unwrap_e b2).Ast.e with
+                        | Ast.Eident bn2 ->
+(match vk_of st (String.lowercase_ascii f2.Ast.orig),
+                                   vk_of st (String.lowercase_ascii f.Ast.orig) with
+                             | Vbptr (pn2, k2), Vbvar (_pn1, k1, _) ->
+                                 Some (`Chain (bn2.Ast.orig, pn2, k2, k1))
+                             | _ -> None)
+                        | _ -> None
+                      end
                   | _ -> None
                 end
             | _ -> None
           in
           match vbvar_item with
-          | Some (bn, pn, k) ->
+          | Some (`Base (bn, pn, k)) ->
               (vbvar_addr ~qual:bn st pn k) ();
               call_ext st "?SLVTS";
               tail true ()
+          | Some (`Chain (bn2, pn2, k2, k1)) ->
+              (* HL := the record address held in the pointer member, then step to the final
+                 member.  The chain's own base must be a pointer cell, as every qualified read
+                 requires. *)
+              if not (is_ptr_cell st bn2) then
+                failwith
+                  ("codegen: chained PUT read through `" ^ bn2
+                   ^ "' which is not a POINTER cell [TBD] (E30C1/NETWORK qualify with a pointer)")
+              else begin
+                (bmem_addr ~qual:bn2 st pn2 k2) ();
+                d st 0x5e (* MOV E,M *); d st 0x23 (* INX H *);
+                d st 0x56 (* MOV D,M *); d st op_xchg;
+                member_step st k1;
+                call_ext st "?SLVTS";
+                tail true ()
+              end
           | None ->
           if is_float_expr st x then begin
             (* [E2E-10/FFACT] a float call item leaves its result on the

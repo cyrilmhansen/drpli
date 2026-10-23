@@ -2730,6 +2730,35 @@ add_spec('E30H1', ('artefacts/E30H1.PLI', 'golden/e30p1/E30H1/E30H1.REL'))
 add_spec('E30T1', ('artefacts/E30T1.PLI', 'golden/e30p1/E30T1/E30T1.REL'))
 add_spec('E27S6', ('artefacts/ST6.PLI', 'golden/e2e323d/ST6/ST6.REL'))
 
+
+# ================================================================================================
+# [E2E-30/P4] CHAINED QUALIFICATION specimen, and the register-reuse DIVERGENCES NETWORK reaches
+# ================================================================================================
+# E30C1 is byte-exact and is the graph-shape read NETWORK print_all needs: a TWO-level chain
+# `q->next_city->city_name' where the inner qualifier is a POINTER member.  DR follows the inner
+# pointer with the ordinary dereference tail and THEN reads the final member -- E30C1 0044-004B and
+# NETWORK print_all 0220-0227 are the same bytes: LHLD <base> / [step to the pointer member] /
+# MOV E,M / INX H / MOV D,M / XCHG / [step to the final member] / CALL ?SLVTS.  Both halves reuse
+# existing encoders (bmem_addr, the deref tail, member_step), so no third addressing mechanism is
+# added [C179].  A chain into a non-VARYING member (E30C2, arithmetic) and a chain inside a
+# COMPARISON (E30C3) stay refused -- neither is in any golden.
+#
+# The graph-building witness E30G1 (two based record types, BIT flags, chained qualification,
+# allocation, traversal) COMPILES and, when linked through LINK 1.31 + PLILIB, produces console
+# output BYTE-IDENTICAL to DR's own E30G1 under the same input.  Its .REL is NOT byte-exact: mine
+# carries 426 code bytes to DR's 419 (data area 21/21 exact), the excess being extra HL reloads
+# where DR reuses a register it knows is still live -- the same register-reuse family as the eight
+# pinned E2E-23/24/28/29 divergences.  It is pinned here as the strongest witness that the graph
+# MECHANISM is behaviourally right while the peephole is not: correct executed behaviour, wrong
+# byte-for-byte code size, cause attributed to ONE thing (register reuse) per [C140].
+#
+# E30B2 and E30L2/L3/L4 are the same family (all data areas EXACT, mine larger, divergence inside
+# read/write sequences where DR reuses DE or HL across a member access): pinned, not fitted [C141].
+# E30L5 (`do ... while(cond) BODY end;', test AFTER the body) stays REFUSED -- DR's post-test
+# ordering is not sampled.
+#
+add_spec('E30C1', ('artefacts/E30C1.PLI', 'golden/e30p1/E30C1/E30C1.REL'))
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:
