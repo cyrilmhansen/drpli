@@ -1,0 +1,37 @@
+
+Type "City1, Dist, City2"
+Boston,100,NewYork
+
+NewYork,50,Paris
+
+Boston,30,Paris
+
+^Z
+
+
+Paris :
+       30 miles to Boston
+       50 miles to NewYork
+NewYork :
+       50 miles to Paris
+      100 miles to Boston
+Boston :
+       30 miles to Paris
+      100 miles to NewYork
+Type Destination Paris
+
+
+Type Start Boston
+
+
+       30 miles remain,        30 miles to Paris
+Type Start ^Z
+
+
+Type Destination ^Z
+
+
+Type "City1, Dist, City2"
+^Z
+
+

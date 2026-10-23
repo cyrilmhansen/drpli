@@ -39,6 +39,17 @@ EXTRA_REL = {"DTEST": [("DIV2", "e2e140asm")],
              "FDTEST": [("FDIV2", "e2e140asm")]}
 
 INPUTS = {
+    # [E2E-35/P4] NETWORK is interactive.  setup reads (city, distance, city) triples until
+    # SYSIN EOF; print_paths then asks for a destination and a start.  Three roads, EOF, one
+    # route query, then two more EOFs: the first drives setup's `on endfile(sysin) goto eof'
+    # (a recovery pad), the second drives print_paths' INNER handler to `eol:' and its
+    # `revert endfile(sysin)' (?REVOP), the third ends the second setup pass so main's
+    # `if city_head = null then stop' fires.  Without the ninth line the program sits at
+    # `Type Destination' waiting for input it was never given -- a hang is not an exit [C205].
+    # Boston->Paris is 30 direct and 100+50 via NewYork, so the route line is checkable by
+    # hand, which is what makes the runtime row kind=independent rather than a DR transcript.
+    "NETWORK":    ["Boston,100,NewYork\\r", "NewYork,50,Paris\\r", "Boston,30,Paris\\r",
+                   "\\x1a\\r", "Paris\\r", "Boston\\r", "\\x1a\\r", "\\x1a\\r", "\\x1a\\r"],
     "DEMO":       ["John\\r"],
     "X201":       ["WORLD\\r"],
     "DECPOLY":    ["1.4, 2.3, 5.67\\r", "0,0,0\\r"],
