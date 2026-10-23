@@ -1,0 +1,13 @@
+md: procedure options(main);
+  declare w fixed;
+  w = q3(1, 2, 3);
+  put list('s=', w);
+  stop;
+  q3: procedure(a, b, c) returns(fixed);
+  declare a fixed, b fixed, c fixed;
+  if a = b then return(1);
+  return(b + c);
+  end q3;
+end md;
+
+

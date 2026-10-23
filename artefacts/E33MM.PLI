@@ -1,0 +1,13 @@
+mm: procedure options(main);
+  declare s fixed, z fixed;
+  z = 7;
+  s = f2(z, addr(z));
+  put list('s=', s);
+  stop;
+  f2: procedure(a, p) returns(fixed);
+  declare a fixed, p pointer;
+  return(a + 1);
+  end f2;
+end mm;
+
+

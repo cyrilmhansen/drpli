@@ -2949,6 +2949,28 @@ for _n, _g in (('E31F4', 'golden/e31p2/E31F4/E31F4.REL'),
 # which is exactly the [C167] one-direction-in-one-probe failure again.
 add_spec('E32E1', ('artefacts/E32E1.PLI', 'golden/e32e/E32E1/E32E1.REL'))
 
+# =====================================================================================
+# [E2E-33/P2] C203's stated cause was WRONG.  Multi-formal layout is fine; the defect is
+# "exactly TWO by-reference formals and NO other local rows in the callee".
+#
+# C203 said "with two or more by-reference formals my DATA segment is 4 bytes too large"
+# and inferred from it that NETWORK's connect (three formals) would diverge.  Four new
+# DR-golden probes (golden/e33m) refute both halves:
+#   E33M3  q3(a,b,c), 3 FIXED formals, no locals, return(a+b+c)   -> BYTE-EXACT
+#   E33MM  f2(a,p)  mixed FIXED + POINTER formals                 -> BYTE-EXACT
+#   E33ML  g2(a,b) 2 formals PLUS locals t,u                      -> BYTE-EXACT
+#   E33MD  q3(a,b,c) 3 formals, no locals, WITH `if a = b'         -> BYTE-EXACT
+#   E33MC  h(k,j)  2 formals, no locals, WITH `if k = j'           -> DIFFERS, +4 DATA
+#   E32C6  h(k,j)  same, two call sites and two PUTs               -> DIFFERS, +4 DATA
+# One formal is fine (E31F8/E32C4/C5/C8), three are fine (E33M3/E33MD), two-with-locals is
+# fine (E33ML); two-without-any-other-row is not.  So the trigger is the COMBINATION, and
+# the NETWORK inference in C203 is withdrawn -- connect's three formals measure clean.
+# The mechanism is still unidentified: with 5 passing and 2 failing shapes I can state the
+# boundary but not why the allocator behaves differently there, so nothing is fitted.
+# Guessing an allocator rule from a shape I chose is exactly [C185]/[C167].
+for _n in ('E33M3', 'E33MM', 'E33ML', 'E33MD'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e33m/%s/%s.REL' % (_n, _n)))
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:

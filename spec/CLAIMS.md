@@ -3824,3 +3824,36 @@ block, exactly the saved-SP model already recorded. Nothing was hidden: my mnemo
 omitted DAD, and I supplied an encoding to explain an absence that was my own tool's What remains for the GOTO form is four pieces, now isolated: (1) block-entry SP save into one hidden `*' cell; (2) per ON-unit `LXI H,<file> / MVI A,05 / CALL ?ONCOP / JMP <continue> / JMP <stub>' -- mine already emits the registration prefix correctly, which E32E1 proves; (3) stub body `LHLD * / SPHL / CALL ?RECOV' then `LXI H,<file> / MVI A,05 / CALL ?REVOP' (the implicit revert); (4) transfer to the label block. Deliberately UNIMPLEMENTED: label back-patching plus a real-EOF witness exceeded what could be done carefully in this milestone, and half-installed ON plumbing is worse than a documented gap. ENDFILE firing is still unobserved -- driving a linked object to a real CP/M EOF under cpmsim times out -- so compile-side parity and runtime handler execution stay separate claims [C205]. [E2E-32/P4.]
 
 **C207 — An instruction encoding asserted from memory is a claim with no evidence behind it; cite the byte, and check whether an absence belongs to the tool rather than to the source.** E2E-32 recorded that `DAD SP` is `ED 31`, an "extended opcode", and that DR's listing printed it on a line an early grep skipped. Both halves are false: `DAD SP` is the single-byte 8080 opcode `39h`, the 8080 has no `ED` prefix at all (that is Z80), and DR's listing shows `0009 DAD SP` plainly. The measured facts are code 0x06 = `21 00 00` (LXI H,0000), 0x09 = `39` (DAD SP), 0x0A = `22 xx xx` (SHLD of the hidden `*` cell): HL := SP, saved once per block -- which is precisely the model C206 established, so the semantics survived and only the encoding prose was rotten. The failure was procedural, and that is the interesting part: a mnemonic whitelist that did not include DAD produced an apparent gap in a listing, and instead of reading the byte at the gap I invented an explanation for it which happened to be a real Z80 encoding -- an authoritative-sounding error one step away from corrupting the emitter. Two rules adopted: (1) every encoding statement must cite a byte from the .REL or a listing line, never a recalled table; (2) when a tool reports nothing, first establish that the tool covers the case, because a grep whitelist is a claim about what can appear and must not be read as evidence about the source. Relatedly: my emitter has no DAD SP today -- no emission path writes 0x39 anywhere in codegen.ml, which knows the opcode only as an entry in a register-effect table -- so the false encoding claim actively concealed a real missing instruction needed by P1's block-entry SP save, by making the gap look like a misreading rather than an absence.
+
+E2E-33/P2 CORRECTION -- the cause stated in C203 is FALSE, and its NETWORK inference is
+withdrawn.  Measured on four new DR-golden probes (golden/e33m): E33M3 (3 FIXED formals, no
+locals) BYTE-EXACT; E33MM (mixed FIXED + POINTER formals) BYTE-EXACT; E33ML (2 formals PLUS
+locals t,u) BYTE-EXACT; E33MD (3 formals, no locals, WITH `if a = b') BYTE-EXACT.  What fails
+is `h(k,j)' with EXACTLY two by-reference formals and NO other local row: E32C6 +4 DATA bytes
+(26/22); E33MC reduces it to one call site and one put and measures +2 (16/14) with CODE
+byte-identical (81/81 rows).  So the excess is neither a constant nor a function of formal
+count, and NETWORK's `connect(source_city, distance, destination_city)' -- THREE formals --
+measures clean, so this defect does NOT gate NETWORK.  Mechanism unidentified, deliberately
+unfitted: five multi-formal shapes pass, and inventing an allocator rule from the two shapes
+I chose is [C185]/[C167].
+
+C208. [E2E-33/P1, P2] Three measurements that reorganize the NETWORK remaining work, none of
+which is an implementation.  (a) The ON-GOTO mechanism is now fully characterized from DR's own
+linked artifacts, so E34 can implement it in one pass: the handler's second `JMP` targets a
+RECOVERY LANDING PAD which DR emits immediately BEFORE the label's own code -- exactly `LHLD
+* A(cell) / SPHL / CALL ?RECOV`, 9 bytes -- and the label itself points AFTER the pad, so a
+plain GOTO to that label skips the recovery while the ON stub enters through it (E32E2: pads at
+0x74 and 0x84 precede `a:'s code at 0x7B and `b:'s at 0x8B; label `c:', targeted only by plain
+`goto c', has NO pad and its code starts at 0x91).  The pad is therefore per LABEL-TARGETED-BY-
+ON-GOTO, not per ON-unit and not per label.  (b) `REVERT <conditional>(<file>);' has NO
+representation in my AST or parser at all -- `grep -i revert' over lib/ast.ml and lib/parser.ml
+returns nothing -- and NETWORK line 151 (`eol: revert endfile(sysin);') and E32E2 line 14 both
+need it; its DR shape is `LXI H,SYSIN / MVI A,05 / CALL ?REVOP' (E32E2 code 0x91, E30E2's pad
+falling into its own revert).  The E2E-32/P4 note said REVERT was "already implemented"; that
+was about the ?REVOP appearing inside a refusal message's prose, not about a lowering path, and
+it is withdrawn.  (c) my DAD-SP-free codegen means the block-entry SP save has no emission path
+either.  Gate at this checkpoint: 780 byte-exact / 0 fail, 121/121 negatives refused, 16/16
+divergences as recorded, 12/12 runtime, exit 0.  NETWORK remains unchanged (266 lines) and
+still refuses at the ON ENDFILE/GOTO with no .REL produced; DR's oracle remains CODE SIZE 05B0 /
+DATA AREA 00EB.  After the C203 withdrawal, ON/GOTO + REVERT is the sole remaining blocker that
+has a measured recipe.

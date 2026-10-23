@@ -1,0 +1,12 @@
+m3: procedure options(main);
+  declare s fixed;
+  s = q3(1, 2, 3);
+  put list('s=', s);
+  stop;
+  q3: procedure(a, b, c) returns(fixed);
+  declare a fixed, b fixed, c fixed;
+  return(a + b + c);
+  end q3;
+end m3;
+
+

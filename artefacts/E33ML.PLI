@@ -1,0 +1,14 @@
+ml: procedure options(main);
+  declare s fixed;
+  s = g2(4, 5);
+  put list('s=', s);
+  stop;
+  g2: procedure(a, b) returns(fixed);
+  declare a fixed, b fixed, t fixed, u fixed;
+  t = a + b;
+  u = t * 2;
+  return(u);
+  end g2;
+end ml;
+
+
