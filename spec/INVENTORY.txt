@@ -174,7 +174,7 @@ E28N4	specimen	artefacts/N4.PLI	golden/e2e332d/N4/N4.REL
 E28N5	specimen	artefacts/N5.PLI	golden/e2e332d/N5/N5.REL
 E28N6	specimen	artefacts/N6.PLI	golden/e2e332d/N6/N6.REL
 E28N8	specimen	artefacts/N8.PLI	golden/e2e331d/N8/N8.REL
-E28N9	refusal	n9: procedure options(main);\n   declare w fixed;\n   w = 1;\n   if w = 1 then stop;\n   w = 5;\n   put list('y=', w);\n  stop;\nend n9;\n	DR COMPILES IT (golden/e2e331d/N9/N9.REL). `if w = 1 then stop;' followed by `w = 5' and a PUT: DR emits the compare, a JNZ over the CALL ?STOPX @0015 and continues at 0018, so a conditional stop does NOT suppress anything. Mine refuses on the condition form -- the same gap that keeps AB11 open -- and this probe's value is that it separates that gap from the procedure work: N8/N10 (straight-line stop) are byte-exact, N9 is not, and the difference is the IF, not the STOP.
+E28N9	specimen	artefacts/N9.PLI	golden/e2e331d/N9/N9.REL
 E29A	specimen	e13src/E29A.PLI	golden/e2e143/E29A/E29A.REL
 E29C1	specimen	artefacts/E29C1.PLI	golden/e2e360/E29C1/E29C1.REL
 E29C10	specimen	artefacts/E29C10.PLI	golden/e2e354d/E29C10/E29C10.REL
@@ -234,7 +234,7 @@ E32B1	specimen	artefacts/E32B1.PLI	golden/e32b/E32B1/E32B1.REL
 E32B2	specimen	artefacts/E32B2.PLI	golden/e32b/E32B2/E32B2.REL
 E32B4	specimen	artefacts/E32B4.PLI	golden/e32b/E32B4/E32B4.REL
 E32C1	specimen	artefacts/E32C1.PLI	golden/e32c/E32C1/E32C1.REL
-E32C10	refusal	c10: procedure options(main);\n  declare w fixed;\n  w = f(3);\n  put list('a=', w);\n  w = f(5);\n  put list('b=', w);\n  stop;\n  f: procedure(k) returns(fixed);\n  declare k fixed;\n  if k = 3 then return(1);\n  return(2);\n  end f;\nend c10;\n\n	DR COMPILES it (golden/e32c/E32C10, callee tests `if k = 3' with a NON-ZERO literal: `LHLD K / MOV E,M / INX H / MOV D,M / XCHG' then the literal compare).  Mine refuses the same way as E32C3.  Note E32C7/E32C8 (`k ^= 2', `k > 2') ARE supported, so this is specifically equality against a non-zero literal, not a general gap.
+E32C10	specimen	artefacts/E32C10.PLI	golden/e32c/E32C10/E32C10.REL
 E32C2	specimen	artefacts/E32C2.PLI	golden/e32c/E32C2/E32C2.REL
 E32C3	refusal	c3: procedure options(main);\n  declare w fixed;\n  w = f(0);\n  put list('a=', w);\n  w = f(3);\n  put list('b=', w);\n  stop;\n  f: procedure(k) returns(fixed);\n  declare k fixed;\n  if 0 = k then return(1);\n  return(2);\n  end f;\nend c3;\n\n	DR COMPILES it (golden/e32c/E32C3 emits a .REL): `if 0 = k' with the LITERAL on the left of an equality whose other side is a formal.  Mine refuses with `condition form not in E2E-3b subset'.  Unrelated to Family C, which is fixed: the refusal happens before any load is chosen.
 E32C4	specimen	artefacts/E32C4.PLI	golden/e32c/E32C4/E32C4.REL
@@ -256,6 +256,45 @@ E34A7	specimen	artefacts/E34A7.PLI	golden/e34a/E34A7/E34A7.REL
 E34A8	specimen	artefacts/E34A8.PLI	golden/e34a/E34A8/E34A8.REL
 E34A9_BEGIN_BLOCK_ONGOTO	refusal	a9: procedure options(main);\n  declare sysin file, w character(20) varying, n fixed;\n  n = 0;\n  begin;\n    on endfile(sysin) goto skip;\n    get list(w);\n  end;\nskip:\n  put list('n=', n);\n  stop;\nend a9;\n	DR COMPILES IT: .REL emitted with DATA AREA 001B and the saved-SP cell at 0019 in the OUTER block's section (golden/e34a/E34A9/E34A9.REL)
 E34B1	specimen	artefacts/E34B1.PLI	golden/e34b/E34B1/E34B1.REL
+E34C1	specimen	artefacts/E34C1.PLI	golden/e34c/E34C1/E34C1.REL
+E34C10	specimen	artefacts/E34C10.PLI	golden/e34c/E34C10/E34C10.REL
+E34C2	specimen	artefacts/E34C2.PLI	golden/e34c/E34C2/E34C2.REL
+E34C3	specimen	artefacts/E34C3.PLI	golden/e34c/E34C3/E34C3.REL
+E34C4	specimen	artefacts/E34C4.PLI	golden/e34c/E34C4/E34C4.REL
+E34C5	specimen	artefacts/E34C5.PLI	golden/e34c/E34C5/E34C5.REL
+E34C6	specimen	artefacts/E34C6.PLI	golden/e34c/E34C6/E34C6.REL
+E34C7	specimen	artefacts/E34C7.PLI	golden/e34c/E34C7/E34C7.REL
+E34C8	specimen	artefacts/E34C8.PLI	golden/e34c/E34C8/E34C8.REL
+E34C9	specimen	artefacts/E34C9.PLI	golden/e34c/E34C9/E34C9.REL
+E34D1	specimen	artefacts/E34D1.PLI	golden/e34d/E34D1/E34D1.REL
+E34D2	specimen	artefacts/E34D2.PLI	golden/e34d/E34D2/E34D2.REL
+E34D3	specimen	artefacts/E34D3.PLI	golden/e34d/E34D3/E34D3.REL
+E34D4	specimen	artefacts/E34D4.PLI	golden/e34d/E34D4/E34D4.REL
+E34E1	specimen	artefacts/E34E1.PLI	golden/e34e/E34E1/E34E1.REL
+E34E10	specimen	artefacts/E34E10.PLI	golden/e34e/E34E10/E34E10.REL
+E34E11	specimen	artefacts/E34E11.PLI	golden/e34e/E34E11/E34E11.REL
+E34E2	specimen	artefacts/E34E2.PLI	golden/e34e/E34E2/E34E2.REL
+E34E3	specimen	artefacts/E34E3.PLI	golden/e34e/E34E3/E34E3.REL
+E34E4	specimen	artefacts/E34E4.PLI	golden/e34e/E34E4/E34E4.REL
+E34E5	specimen	artefacts/E34E5.PLI	golden/e34e/E34E5/E34E5.REL
+E34E6	specimen	artefacts/E34E6.PLI	golden/e34e/E34E6/E34E6.REL
+E34E7	specimen	artefacts/E34E7.PLI	golden/e34e/E34E7/E34E7.REL
+E34E8	specimen	artefacts/E34E8.PLI	golden/e34e/E34E8/E34E8.REL
+E34E9	specimen	artefacts/E34E9.PLI	golden/e34e/E34E9/E34E9.REL
+E34F1	specimen	artefacts/E34F1.PLI	golden/e34f/E34F1/E34F1.REL
+E34F10	specimen	artefacts/E34F10.PLI	golden/e34f/E34F10/E34F10.REL
+E34F11	specimen	artefacts/E34F11.PLI	golden/e34f/E34F11/E34F11.REL
+E34F12	specimen	artefacts/E34F12.PLI	golden/e34f/E34F12/E34F12.REL
+E34F13	specimen	artefacts/E34F13.PLI	golden/e34f/E34F13/E34F13.REL
+E34F14	specimen	artefacts/E34F14.PLI	golden/e34f/E34F14/E34F14.REL
+E34F2	specimen	artefacts/E34F2.PLI	golden/e34f/E34F2/E34F2.REL
+E34F3	specimen	artefacts/E34F3.PLI	golden/e34f/E34F3/E34F3.REL
+E34F4	specimen	artefacts/E34F4.PLI	golden/e34f/E34F4/E34F4.REL
+E34F5	specimen	artefacts/E34F5.PLI	golden/e34f/E34F5/E34F5.REL
+E34F6	specimen	artefacts/E34F6.PLI	golden/e34f/E34F6/E34F6.REL
+E34F7	specimen	artefacts/E34F7.PLI	golden/e34f/E34F7/E34F7.REL
+E34F8	specimen	artefacts/E34F8.PLI	golden/e34f/E34F8/E34F8.REL
+E34F9	specimen	artefacts/E34F9.PLI	golden/e34f/E34F9/E34F9.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

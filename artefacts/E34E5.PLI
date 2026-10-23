@@ -1,0 +1,11 @@
+e34e5: procedure options(main);
+   declare hp pointer, b fixed, q fixed;
+   declare 1 nd based, 2 v fixed, 2 nx pointer;
+   allocate nd set(hp);
+   hp->v = 7;
+   b = 5;
+   if hp->v = b then q = 15;
+   put list('q=', q);
+  stop;
+end e34e5;
+

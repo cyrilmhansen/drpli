@@ -115,3 +115,65 @@ empty pool block still gets its location record [C152]); 13 have DATA bytes and 
 * **P4** EOF delivery: console EOF cannot deliver it (`oracle/linkrun.py` says so); needs a
   staged CP/M disk file.  Until then no claim about ENDFILE *firing* is made.
 * **P5** NETWORK recompile against DR's 05B0/00EB oracle — now unblocked at line 50.
+
+## P4 - P6 (same session, after the P1-P2 commit `a4bf0a5`)
+
+P1/P2 closed ON/GOTO and REVERT.  P4 onward is the comparison-family work that NETWORK's
+remaining refusals turned out to need, plus the NETWORK checkpoint itself.
+
+**P4a - CHARACTER VARYING x VARYING compare, all four shapes (C212).**  `str_cmp_shape_vv'
+was rewritten as a classifier pair (`str_vv_side' -> Imm / FCell / Mem, then a 4-arm table)
+instead of a list of operand-name combinations.  E34C1-C10, 10 goldens, byte-exact.  The
+part worth keeping as a warning: without the guard added to the numeric ident-vs-ident arm,
+any varying pair the classifier declined fell through to `CALL ?IS22N' and compiled with rc=0
+-- five of the seven probes I first wrote were silently wrong that way.  A `_ -> None' in a
+shape table is only as strong as the fallthrough arms beneath it.
+
+**P4b - tail RET for value-returning procedures (C213).**  The E2E-31 note's "value-returning
+procedures are not given a trailing RET" was false; the trigger is the shape of the last
+top-level statement, and E34D2 (IF/ELSE where both arms RETURN, still one extra RET) is what
+falsifies the instruction-level reading.  E34D4 + the E31F5 regression gave the second flag:
+a body that cannot fall out (forever loop) gets no RET, so `falls_out' consults both
+`proc_tail_exits' and `proc_tail_no_exit'.  E34D1-D4, 4 goldens, byte-exact.
+
+**P5 - based FIXED BINARY member as a comparison operand (C214).**  `bfix_val_load' is now the
+single authority for "member value into HL" (it replaced two hand-written copies, [C202]);
+`cmp_pair2' decomposes the [C204] parking decision so the member arm and the existing ident/ident
+arm share it -- the rewrite of `cmp_pair' onto it is byte-neutral, verified by the 790 specimens
+that were already green.  E34E1-E11, 11 goldens, byte-exact: six relations, both orientations,
+member-vs-member, offset members.  The `double XCHG' in E34E1/E34E4 turned out to be COMPOSITION
+(the ladder's trailing XCHG plus `cmp_pair2''s), not a DR quirk -- I nearly invented a rule for it.
+
+**P5b/P6 - `= k' and `= <arithmetic expression>' (C215).**  NETWORK's line 224
+(`if t = infinite', `%replace` -> 32767) had no arm: `^= k' had the ladder, `= 0' had its
+memory form, `= k' for k>0 had nothing.  E34F1-5 pin the ladder at k = 1, 5, 255, 300, 32767.
+Then line 236 (`if t = d + p->total_distance') needed the expression family: E34F6-14 pin it,
+including the fact that DR loads the *variable* first when the expression is one load plus a
+literal bias (F7, F14) and the *expression* first when it combines two non-literals (F6, F8,
+F11, F12, F13).  `k + x' and expression-vs-expression are refused: no sample.
+
+**NETWORK checkpoint (P6).**  It compiles end to end for the first time: 3200 bytes, DR's exact
+total size, DATA area 235/235 exact, 1099 code bytes against DR's 1096.  It is registered as
+DIVERGENT row 17 rather than as a specimen, because it is not byte-exact: first differing file
+byte 1027 = code 0171 = DR's line 101, `p->city_name = city;'.  There DR does
+`LHLD CITY / PUSH H / LHLD P / POP D / MVI A,20 / CALL ?SMVVM' (13 bytes) and mine does
+`LHLD CITY / LXI D,CITY / MVI A,20 / CALL ?SMVVM' (11): the C212 load-vs-immediate bit applied
+to a varying ASSIGNMENT through a based pointer.  Mine is 2 bytes shorter at that one site and
+3 longer overall, and the 1679 differing file bytes are one re-synchronization, not 1679
+defects -- which is why the row pins the first divergent address and not the diff size.
+October's first divergent byte was 338.
+
+**Two negatives closed.**  E28N9 (`if w = 1 then stop;') and E32C10 (nested `if k = 3' with k a
+formal) both documented this exact gap and both have pre-existing DR goldens, so they were
+promoted to specimens rather than deleted [E2E-32's rule].  The gate caught the substitution by
+name (`2 entries SUBSTITUTED (same name, different reference -- a count cannot see this)'),
+which is the check [C158] exists for.  Negatives: 120 -> 118; specimens: 804 -> 831.
+
+**P3 and the EOF question are NOT done.**  The normal-flow runtime witness for E32E2 has not
+been produced, and no EOF event has been demonstrated: console EOF cannot deliver one
+(`oracle/linkrun.py`), and a staged CP/M disk file is the route.  Nothing in P4-P6 touches the
+ENDFILE *firing* claim, which stays unverified; the ON/ENDFILE machinery verified here is the
+code DR emits, not the code path that runs when a file ends.
+
+Gate at the end of P6: **831 byte-exact / 0 fail, 118/118 negatives refused, 17/17 divergences
+pinned, exit 0.**  ARCH-1 (`ocaml/proto/`) untouched.  Decimal and numeric backlog untouched.

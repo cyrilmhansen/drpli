@@ -1,0 +1,90 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E34F11
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 E34F11 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 8 BYTES
+c 0000 T FIXED BINARY(15,0) AUTOMATIC
+c 0002 D FIXED BINARY(15,0) AUTOMATIC
+c 0004 E FIXED BINARY(15,0) AUTOMATIC
+c 0006 HP POINTER AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 1 BASED()
+c 0000 .V FIXED BINARY(15,0) MEMBER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E34F11
+
+   1 a 0000 e34f11: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare t fixed, d fixed, e fixed, hp pointer;
+   3 c 0006    declare 1 nd based, 2 v fixed;
+   4 c 0006    allocate nd set(hp);
+       0006       LXI  H,0002
+       0009       CALL ?ALLOP
+       000C       SHLD HP A(0008)
+   5 c 000F    t = 7; d = 1; e = 2; hp->v = 3;
+       000F       LXI  H,0007
+       0012       SHLD T A(0002)
+       0015       MVI  L,01
+       0017       SHLD D A(0004)
+       001A       INX  H
+       001B       SHLD E A(0006)
+       001E       LHLD HP A(0008)
+       0021       MVI  M,03
+       0023       INX  H
+       0024       MVI  M,00
+   6 c 0026    if t = d + e + 1 then t = 9;
+       0026       LHLD D A(0004)
+       0029       XCHG 
+       002A       LHLD E A(0006)
+       002D       DAD  D
+       002E       INX  H
+       002F       PUSH H
+       0030       LHLD T A(0002)
+       0033       POP  D
+       0034       CALL ?IS22N
+       0037       MOV  A,H
+       0038       ORA  L
+       0039       JNZ  0000
+       003C       LXI  H,0009
+       003F       SHLD T A(0002)
+       003A       ==== 0042
+   7 c 0042    put list('t=', t);
+       0042       LXI  D,0252
+       0045       LXI  B,0000
+       0048       CALL ?SYSPR
+       004B       LXI  H,* S(0000)
+       004E       MVI  A,02
+       0050       CALL ?SLCTS
+       0053       CALL ?PNCOP
+       0056       LHLD T A(0002)
+       0059       MVI  A,09
+       005B       CALL ?QICOP
+       005E       CALL ?PNVOP
+       0061       CALL ?QIOOP
+       0046       ==== 0064
+   8 c 0064   stop;
+       0064       CALL ?STOPX
+   9 a 0067 end e34f11;
+
+CODE SIZE = 0067
+DATA AREA = 000A
+FREE SYMS = 3851
+END  COMPILATION
+

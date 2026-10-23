@@ -1,0 +1,12 @@
+e34c1: procedure options(main);
+   declare p pointer, s character(6) varying, q fixed;
+   declare 1 nd based(p), 2 w character(6) varying;
+   allocate nd set(p);
+   s = 'AB';
+   w = s;
+   if w = s then q = 11;
+   put list('q=', q);
+   free p->nd;
+  stop;
+end e34c1;
+

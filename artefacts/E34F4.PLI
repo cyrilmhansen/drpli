@@ -1,0 +1,8 @@
+e34f4: procedure options(main);
+   declare t fixed, q fixed;
+   t = 7;
+   if t = 1 then q = 1;
+   put list('q=', q);
+  stop;
+end e34f4;
+

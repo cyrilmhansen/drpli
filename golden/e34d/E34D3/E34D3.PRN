@@ -1,0 +1,87 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E34D3
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 E34D3 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 9 BYTES
+c 0000 S CHAR(6) VARYING AUTOMATIC
+c 0007 Q FIXED BINARY(15,0) AUTOMATIC
+c 0000 F FUNCTION PARAMETERS(1) CONSTANT
+c 0000 .* FIXED BINARY(15,0) RETURNED
+c 0002 .* CHAR(6) VARYING PARAMETER
+BLOCK AT LINE 8, AUTO STORAGE 9 BYTES, PARAMETERS X
+e 0000 X CHAR(6) VARYING PARAMETER
+e 0002 Y CHAR(6) VARYING AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E34D3
+
+   1 a 0000 e34d3: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare s character(6) varying, q fixed;
+   3 c 0006    s = 'AB';
+       0006       LXI  H,S A(0006)
+       0009       LXI  D,* S(0000)
+       000C       MVI  A,06
+       000E       MVI  B,02
+       0010       CALL ?SMCVM
+   4 c 0013    q = f(s);
+       0013       LXI  H,* A(000F)
+       0016       CALL 0000
+       0019       SHLD Q A(000D)
+   5 c 001C    put list('q=', q);
+       001C       LXI  D,0252
+       001F       LXI  B,0000
+       0022       CALL ?SYSPR
+       0025       LXI  H,* S(0002)
+       0028       MVI  A,02
+       002A       CALL ?SLCTS
+       002D       CALL ?PNCOP
+       0030       LHLD Q A(000D)
+       0033       MVI  A,09
+       0035       CALL ?QICOP
+       0038       CALL ?PNVOP
+       003B       CALL ?QIOOP
+       0020       ==== 003E
+   6 c 003E   stop;
+       003E       CALL ?STOPX
+   7 c 0041    f: procedure(x) returns(fixed);
+   8 e 0041       declare x character(6) varying, y character(6) varying;
+       0041       MOV  E,M
+       0042       INX  H
+       0043       MOV  D,M
+       0044       XCHG 
+       0045       SHLD X A(0011)
+   9 e 0048       y = 'CD';
+       0048       LXI  H,Y A(0013)
+       004B       LXI  D,* S(0004)
+       004E       MVI  A,06
+       0050       MVI  B,02
+       0052       CALL ?SMCVM
+  10 e 0055       return(3);
+       0055       LXI  H,0003
+       0058       RET  
+  11 c 0059       end;
+  12 a 0059 end e34d3;
+
+CODE SIZE = 0059
+DATA AREA = 001A
+FREE SYMS = 383B
+END  COMPILATION
+

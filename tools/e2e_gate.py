@@ -2514,11 +2514,6 @@ add_spec('O8', ('artefacts/O8.PLI', 'golden/e2e334d/O8/O8.REL'))
 
 # [E2E-28] DR compiles N9 (`if w = 1 then stop;' then live statements); mine refuses at the
 # condition, which is the pre-existing E2E-3b condition-subset gap, not a procedure issue.
-REJECTS['E28N9'] = (open('artefacts/N9.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-                 'condition form not in E2E-3b subset')
-NEG_META['E28N9'] = ("my-gap", "DR COMPILES IT (golden/e2e331d/N9/N9.REL). `if w = 1 then stop;' followed by `w = 5' and a PUT: DR emits the compare, a JNZ over the CALL ?STOPX @0015 and continues at 0018, so a conditional stop does NOT suppress anything. Mine refuses on the condition form -- the same gap that keeps AB11 open -- and this probe's value is that it separates that gap from the procedure work: N8/N10 (straight-line stop) are byte-exact, N9 is not, and the difference is the IF, not the STOP.")
-
-
 # ================================================================================================
 # [E2E-29] CHARACTER VARYING STRUCTURE MEMBERS, STRING AND POINTER COMPARISON, AND REVERSE
 # ================================================================================================
@@ -2852,19 +2847,11 @@ for _n in ('E32C1', 'E32C2', 'E32C4', 'E32C5', 'E32C7', 'E32C8', 'E32C9'):
 #          the LOAD but the condition-subset matcher never admits these two shapes.
 REJECTS['E32C3'] = (open('artefacts/E32C3.PLI', "rb").read().replace(b"\r\n", b"\n")
                     .rstrip(b"\x1a").decode(), "condition form not in E2E-3b subset")
-REJECTS['E32C10'] = (open('artefacts/E32C10.PLI', "rb").read().replace(b"\r\n", b"\n")
-                     .rstrip(b"\x1a").decode(), "condition form not in E2E-3b subset")
 NEG_META['E32C3'] = ("my-gap",
     "DR COMPILES it (golden/e32c/E32C3 emits a .REL): `if 0 = k' with the LITERAL on the "
     "left of an equality whose other side is a formal.  Mine refuses with `condition form "
     "not in E2E-3b subset'.  Unrelated to Family C, which is fixed: the refusal happens "
     "before any load is chosen.")
-NEG_META['E32C10'] = ("my-gap",
-    "DR COMPILES it (golden/e32c/E32C10, callee tests `if k = 3' with a NON-ZERO literal: "
-    "`LHLD K / MOV E,M / INX H / MOV D,M / XCHG' then the literal compare).  Mine refuses "
-    "the same way as E32C3.  Note E32C7/E32C8 (`k ^= 2', `k > 2') ARE supported, so this "
-    "is specifically equality against a non-zero literal, not a general gap.")
-
 # =====================================================================================
 # [E2E-32/P2] FAMILY B IS FIXED.  The rule was mis-stated in E2E-31, and the correction
 # matters: DR does NOT "bracket every dereference with PUSH H / POP D / DAD D".  It parks
@@ -3024,6 +3011,70 @@ NEG_META["E34A9_BEGIN_BLOCK_ONGOTO"] = ("my-gap",
 
 for _n in ('N7MFWD', 'N79GOTO', 'E34B1'):
     add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e34b/%s/%s.REL' % (_n, _n)))
+
+# [E2E-34/P4] the CHARACTER VARYING x CHARACTER VARYING comparison family, with every
+# operand orientation probed separately [C167].  Before this round the shape table
+# admitted two of the four load/immediate combinations, and a pair it declined did NOT
+# refuse: the ident-vs-ident NUMERIC arm further down `lower_test_skip0' caught it and
+# emitted ?IS22N with rc=0.  E34C2/C7/C8/C9/C10 are five comparisons that compiled
+# silently wrong; C3 and C5 refused.  Nine of these ten probes were the evidence.
+#   C1 `w = s'   C4 `p->w = s'   (load left, immediate right  -> XCHG)
+#   C2 `s = w'   C3 `s = p->w'   (immediate left, load right  -> no parking at all;
+#                                             C3 and C2 are byte-identical: `w' and
+#                                             `p->w' are the same read)
+#   C5 `w = p->w'  C6 `x = p->w'  C7 `p->w = x'  (both load -> PUSH H / POP D)
+#   C8 `x = y'  C9 `y = x'  C10 `x = s'  (a by-reference VARYING formal: its cell holds
+#                                             the descriptor address, so it is a LOAD,
+#                                             not an immediate -- C8/C10 load-left,
+#                                             C9 load-right)
+for _n in ('E34C1', 'E34C2', 'E34C3', 'E34C4', 'E34C5',
+           'E34C6', 'E34C7', 'E34C8', 'E34C9', 'E34C10'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e34c/%s/%s.REL' % (_n, _n)))
+
+# [E2E-34/P4] E34D1..D4 pin the tail-RET rule for value-returning procedures, which the
+# comment at the epilogue had stated backwards ("Value-returning procedures are NOT given
+# one").  D1 (body ends in an IF, no ELSE) and D2 (IF/ELSE where BOTH branches RETURN, so
+# the last instruction is already a RET and DR emits one more) both end with a bare RET;
+# D3 (last top-level statement = `return(3);') does not, nor do E34A5/A7 (last statement =
+# GOTO), nor E31F5 (body ends inside `do while('1'b)' -- nothing falls out).  Those three
+# are the controls that keep this from being "always emit RET after a value proc".
+for _n in ('E34D1', 'E34D2', 'E34D3', 'E34D4'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e34d/%s/%s.REL' % (_n, _n)))
+
+# [E2E-34/P5] a based FIXED BINARY member as a comparison operand: one load primitive
+# (LHLD base / member ladder / MOV E,M / INX H / MOV D,M / XCHG) plus [C204]'s parking
+# rule, measured over all six relations and both orientations.  E34E3/E34E10 are the two
+# probes that pin DE's arrival order; E34E5 is the member-vs-member case where the LEFT
+# side's own ladder runs before the first load of the right.
+for _n in ('E34E1', 'E34E2', 'E34E3', 'E34E4', 'E34E5', 'E34E6',
+           'E34E7', 'E34E8', 'E34E9', 'E34E10', 'E34E11'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e34e/%s/%s.REL' % (_n, _n)))
+
+# [E2E-34/P5-P6] comparisons with a CONSTANT and with an EXPRESSION.
+# F1..F5 (`= 1, 5, 255, 300, 32767') walk the shared bias ladder DCX-repeats -> LXI B ->
+# DAD B and pin F3 = 32767 = 0x8001, the constant NETWORK's `infinite' expands to; they
+# also pin the `=' C2 skip against F9's `^=' CA [C072].  F6..F14 pin `v = <arith expr>'
+# and the two evaluation orders DR chooses: a single load plus a literal bias (F7 `d + 1',
+# F14 `hp->v + 1') is lowered LEFT-first, everything that combines two non-literal
+# operands (F6 sum, F8 sum with a member, F11 three operands, F12 product, F13 difference)
+# is lowered RIGHT-first with the variable's PUSH/POP pair after it.  F10 (`d + e = t')
+# is byte-identical to F6, which is what licenses routing by "which side is the
+# expression" rather than by source order.
+for _n in ('E34F1', 'E34F2', 'E34F3', 'E34F4', 'E34F5', 'E34F6', 'E34F7', 'E34F8',
+           'E34F9', 'E34F10', 'E34F11', 'E34F12', 'E34F13', 'E34F14'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e34f/%s/%s.REL' % (_n, _n)))
+
+# [E2E-34/P6] two negatives promoted, because the gap each recorded is now closed and
+# each has DR's own golden (E2E-32's rule: a negative is removed only when its behaviour
+# has a golden of its own -- here the goldens predate the fix and the programs are
+# byte-exact against them, E28N9 vs golden/e2e331d/N9, E32C10 vs golden/e32c/E32C10).
+# E28N9 is `if w = 1 then stop;': the `= k' ladder (E34F4) is what compiled it.
+# E32C10 is a nested `f: procedure(k) returns(fixed)' testing `if k = 3': the same ladder
+# reached through the formal's deref chain (LHLD K / MOV E,M / INX H / MOV D,M / XCHG /
+# DCX H x3 / MOV A,H / ORA L / skip) -- a FORMAL and a plain automatic take the SAME arm,
+# which is why the ladder must run after cmp_load_deref and not before it.
+add_spec('E28N9', ('artefacts/N9.PLI', 'golden/e2e331d/N9/N9.REL'))
+add_spec('E32C10', ('artefacts/E32C10.PLI', 'golden/e32c/E32C10/E32C10.REL'))
 
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}

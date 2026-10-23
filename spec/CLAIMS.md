@@ -3922,3 +3922,76 @@ is byte-exact in E34A6/E34A7 -- but both of those blocks contain a GOTO-form ON 
 because it declares `dcl sysin file' INSIDE the procedure, which remains a [TBD] refusal
 ("procedure local of type FILE is unsampled").  A1 is therefore the probe that will falsify the
 broad trigger if it is wrong, and it is kept committed for that reason [C198].
+
+C212. [E2E-34/P4] CHARACTER VARYING x CHARACTER VARYING comparison is FOUR shapes, decided
+by ONE bit per operand: does the operand's address have to be LOADED (LHLD, because it lives
+in a cell -- a variable, a based member, a by-reference varying formal) or can it be
+MATERIALIZED (LXI, because the address is a link-time constant)?  imm/imm -> `LXI H,right /
+LXI D,left'; load/imm -> load, `XCHG', `LXI H,right'; imm/load -> `LXI D,left', load; load/load
+-> load, `PUSH H', load, `POP D'.  All four are pinned by at least two DR samples each
+(E34C1-C10, 10 goldens, byte-exact), including both orientations of the same source shape and
+the three cases where a member of a varying struct appears instead of a whole varying value.
+The generalization is a classifier, not a table of pairs: `str_vv_side' answers Imm / FCell /
+Mem and `str_cmp_shape_vv' consumes the pair, so a new variable name needs no new arm.
+What makes the table safe is the guard on the NUMERIC ident-vs-ident arm above it.  Without
+that guard, a varying pair the classifier declined fell through to the generic numeric
+compare and was emitted as `CALL ?IS22N' with rc=0 -- five of the seven probes I first wrote
+were silently wrong in exactly that way, and only the byte check said so.  A shape table's
+`_ -> None' means nothing unless every fallthrough arm that could quietly accept the same
+operands is guarded; the guard now reads "and neither side classifies as a varying operand",
+so a refusal means refused [C167] and `_ -> None' in the table means what its comment says.
+
+C213. [E2E-34/P4] Value-returning procedures DO get a trailing `RET'.  The claim in the
+E2E-31 note that "they are not given one" was wrong: it was inferred from procedures whose
+last statement happened to be a RETURN.  The trigger is the shape of the last top-level
+STATEMENT, not of the last instruction: `returns(fixed)' and the last statement is not
+`return' / `goto' / `stop' -> emit RET.  E34D2 is the probe that kills the instruction-level
+reading -- both arms of an IF/ELSE return, the IF itself is the last statement, and DR still
+emits the extra RET.  E34D4 is the other side: a body whose last statement is
+`do while('1'b);' never falls out, and DR emits no RET, so `falls_out' must consult the
+loop-never-exits flag as well as the tail-exits flag.  E31F5 is the regression that found the
+second flag (its body ends inside a forever loop).  The flags are saved and restored per body
+because a nested procedure's tail question is its own.
+
+C214. [E2E-34/P5] A based FIXED BINARY member is admitted as a comparison operand through ONE
+load primitive -- `bfix_val_load' = LHLD ptr / member ladder / MOV E,M / INX H / MOV D,M /
+XCHG, leaving the value in HL -- and the parking decision is decomposed into `cmp_pair2',
+whose parameter says whether the first operand goes on the STACK (PUSH H / POP D) or into DE
+(`XCHG').  That is [C204]'s rule reused, not restated: DR uses `XCHG' when the second
+operand's lowering leaves DE alone and the stack when it WRITES DE, and the member ladder
+writes DE, which is why the orientation matters byte-wise.  E34E3 and E34E10 (same operands,
+reversed) are the two probes that pin it; E34E5 pins member-vs-member, where the left side's
+ladder runs before the first load of the right.  Admitted: exactly one side a member and the
+other a plain NON-deref fixed automatic, for all six relations; member-vs-literal,
+member-vs-formal and member-vs-undecorated-other-name keep refusing because no probe shows
+what DR does with them.  `bfix_val_load' also replaced two hand-written copies of the same
+load at unqualified and qualified reads -- [C202] again, an invariant written twice drifts.
+
+C215. [E2E-34/P5-P6] Two constant/expression comparison families, both closed only after the
+emission was measured.  (a) `v = k' for k non-zero had NO arm at all -- `^= k' had the bias
+ladder, `= 0' had its memory-form test, and NETWORK's `if t = infinite' (%replace to 32767)
+fell between them.  Five probes (E34F1-5, k = 1, 5, 255, 300, 32767) show the shape is
+`cmp_load_deref / hl_bias(-k) / MOV A,H / ORA L / skip', i.e. the `^= k' ladder with the skip
+byte un-inverted (`C2' against `CA', [C072]) -- and here that is measured on both sides of the
+pair, not derived from the neighbouring arm.  Routing the constant through the shared ladder
+means the DCX-repeat / LXI B / DAD B boundaries are not re-enumerated in the new arm.  It
+applies to a formal as well as a plain automatic, and E32C10 (a nested `if k = 3' with k a
+formal) is byte-exact on it: the ladder must run AFTER `cmp_load_deref' because the formal's
+deref chain leaves the value in HL and DCX-biasing before the load would bias an address.
+(b) `v = <arithmetic expression>' -- the whole right side goes through `lower_hl', the same
+lowering a STORE uses, so [C204]'s parking rules apply unchanged; the compare tail is
+`PUSH H / load the other side / POP D / CALL ?IS22N / MOV A,H / ORA L / skip'.  Which side is
+loaded FIRST is not one rule, and nine probes (E34F6-14) say so: when the expression is ONE
+load plus a literal bias (`d + 1', `hp->v + 1') DR loads the variable first; when it combines
+two non-literal operands or nests (`d + e', `d - e', `d * e', `d + hp->v', `d + e + 1') it
+loads the expression first and the variable second.  The classifier returns that bit as data
+and the arm just consumes it.  `k + x' (literal on the left of the bias) is NOT admitted: it
+is in none of the nine samples.  `d + e = t' is byte-identical to `t = d + e', which is what
+licenses routing by "which side is the expression" rather than by source order.
+Consequence: NETWORK compiles, end to end, first time ever -- 3200 bytes, the same total size
+as DR's, data area 235/235 exact, and its residual is pinned as DIVERGENT row 17 (first
+divergent file byte 1027 = code 0171 = `p->city_name = city;', where DR parks the source
+descriptor with PUSH H / POP D and mine materializes it with LXI D: the C212 load-vs-immediate
+bit, but on a varying ASSIGNMENT, which is the next thing to measure).  October's first
+divergent byte was 338.  Two negatives died on this work (E28N9 `if w = 1 then stop', E32C10
+`if k = 3'), both promoted to specimens against their own pre-existing DR goldens [E2E-32].

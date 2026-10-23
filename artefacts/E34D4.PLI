@@ -1,0 +1,13 @@
+e34d4: procedure options(main);
+   declare s character(6) varying;
+   s = 'AB';
+   call f(s);
+   put list('done');
+  stop;
+   f: procedure(x);
+      declare x character(6) varying, y character(6) varying;
+      y = 'CD';
+      if x = y then return;
+      end;
+end e34d4;
+

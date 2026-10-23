@@ -1,0 +1,86 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E34D4
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 E34D4 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 7 BYTES
+c 0000 S CHAR(6) VARYING AUTOMATIC
+c 0000 F ENTRY PARAMETERS(1) CONSTANT
+c 0000 .* CHAR(6) VARYING PARAMETER
+BLOCK AT LINE 8, AUTO STORAGE 9 BYTES, PARAMETERS X
+e 0000 X CHAR(6) VARYING PARAMETER
+e 0002 Y CHAR(6) VARYING AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E34D4
+
+   1 a 0000 e34d4: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare s character(6) varying;
+   3 c 0006    s = 'AB';
+       0006       LXI  H,S A(0008)
+       0009       LXI  D,* S(0000)
+       000C       MVI  A,06
+       000E       MVI  B,02
+       0010       CALL ?SMCVM
+   4 c 0013    call f(s);
+       0013       LXI  H,* A(000F)
+       0016       CALL 0000
+   5 c 0019    put list('done');
+       0019       LXI  D,0252
+       001C       LXI  B,0000
+       001F       CALL ?SYSPR
+       0022       LXI  H,* S(0002)
+       0025       MVI  A,04
+       0027       CALL ?SLCTS
+       002A       CALL ?PNCOP
+       002D       CALL ?QIOOP
+       001D       ==== 0030
+   6 c 0030   stop;
+       0030       CALL ?STOPX
+   7 c 0033    f: procedure(x);
+   8 e 0033       declare x character(6) varying, y character(6) varying;
+       0033       MOV  E,M
+       0034       INX  H
+       0035       MOV  D,M
+       0036       XCHG 
+       0037       SHLD X A(0011)
+   9 e 003A       y = 'CD';
+       003A       LXI  H,Y A(0013)
+       003D       LXI  D,* S(0006)
+       0040       MVI  A,06
+       0042       MVI  B,02
+       0044       CALL ?SMCVM
+  10 e 0047       if x = y then return;
+       0047       LHLD X A(0011)
+       004A       XCHG 
+       004B       LXI  H,Y A(0013)
+       004E       CALL ?SCVVM
+       0051       JNZ  0000
+       0054       RET  
+       0052       ==== 0055
+       0055       RET  
+  11 c 0056       end;
+  12 a 0056 end e34d4;
+
+CODE SIZE = 0056
+DATA AREA = 001A
+FREE SYMS = 3855
+END  COMPILATION
+

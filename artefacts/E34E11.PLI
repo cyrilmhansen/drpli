@@ -1,0 +1,12 @@
+e34e11: procedure options(main);
+   declare hp pointer, b fixed, q fixed;
+   declare 1 nd based, 2 flag fixed, 2 v fixed, 2 nx pointer;
+   allocate nd set(hp);
+   hp->flag = 1;
+   hp->v = 7;
+   b = 5;
+   if hp->v = b then q = 111;
+   put list('q=', q);
+  stop;
+end e34e11;
+

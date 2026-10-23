@@ -1,0 +1,10 @@
+e34f10: procedure options(main);
+   declare t fixed, d fixed, e fixed, hp pointer;
+   declare 1 nd based, 2 v fixed;
+   allocate nd set(hp);
+   t = 7; d = 1; e = 2; hp->v = 3;
+   if d + e = t then t = 9;
+   put list('t=', t);
+  stop;
+end e34f10;
+

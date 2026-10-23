@@ -1,0 +1,8 @@
+e34f2: procedure options(main);
+   declare t fixed, q fixed;
+   t = 7;
+   if t = 255 then q = 1;
+   put list('q=', q);
+  stop;
+end e34f2;
+

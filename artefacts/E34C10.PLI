@@ -1,0 +1,14 @@
+e34c10: procedure options(main);
+   declare s character(6) varying, q fixed;
+   s = 'AB';
+   q = f(s);
+   put list('q=', q);
+  stop;
+   f: procedure(x) returns(fixed);
+      declare x character(6) varying, y character(6) varying;
+      y = 'CD';
+      if x = s then return(7);
+      else return(9);
+      end;
+end e34c10;
+

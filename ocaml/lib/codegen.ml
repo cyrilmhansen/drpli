@@ -247,7 +247,8 @@ type st =
      The DATA-segment definitions at the foot of this file do NOT touch this state: the
      selection is tracked PER SEGMENT, which is exactly why the FIRST code-segment
      reference repeats a group the DATA segment already selected. *)
-  ; mutable cur_common : string option }
+  ; mutable cur_common : string option
+  ; mutable proc_tail_exits : bool }
 (* label bookkeeping for GOTO resolution [G115/G116]:
    emitted-labels assoc (lowername -> lc); pending forward refs
    (lowername -> operand slot). *)
@@ -2472,6 +2473,112 @@ let vk_is_dec st (n : Ast.name) =
 let unwrap_e (e : Ast.expr) =
   match e.Ast.e with Ast.Econd x -> x | _ -> e
 
+(* [E2E-34/P5] THE one encoder for "leave the VALUE of a based FIXED BINARY member
+   in HL": load the qualifier's pointer cell, step to the member, then read the two
+   bytes through it.  [C202] is the reason this is a function and not three copies:
+   the sequence already appears written-out at the unqualified based read, at the
+   qualified read, and at the store's deref branch, and E2E-32's family C was exactly
+   such a copy that had drifted.  DR's bytes, every one of them measured:
+       E34E1  1C LHLD HP A(0002) / 1F MOV E,M / 20 INX H / 21 MOV D,M / 22 XCHG
+       E34E9  27 LHLD HP / 2A INX H / 2B INX H / 2C MOV E,M / 2D INX H / 2E MOV D,M / 2F XCHG
+   (the offset-2 member steps with two INX H -- `member_step', whose crossover to
+   `LXI D / DAD D' at offset >= 4 is [E2E-28]'s measurement and is not repeated here).
+   Callers that need the value in DE add DR's own `XCHG'; that is the cmp_pair
+   composition, not part of this primitive. *)
+let bfix_val_load st (cell : string) (k : int) () =
+  st.last_imm <- None;
+  d st op_lhld; reloc st Data (addr_of st cell);
+  member_step st k;
+  d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
+
+(* [E2E-34/P5] a comparison operand that is a based FIXED BINARY member read through
+   a pointer qualifier -- `p->total_distance'.  Returns the qualifier CELL and the
+   record-relative offset.  Deliberately narrower than lower_hl's read path: an
+   unqualified based name (`v' where `1 nd based(p)') is not sampled here, nor is a
+   POINTER or VARYING member, nor a qualifier that is not a pointer cell; those return
+   None and the condition keeps refusing rather than borrowing a shape. *)
+(* [E2E-34/P5] classify a comparison whose two sides are not both simple: exactly one
+   side must be a plain fixed-binary automatic (not a formal -- a formal would make both
+   operands stack loads and no probe shows that pairing) and the other a fixed-binary
+   arithmetic expression that `lower_hl' can compile.  Returns (variable, expression,
+   evaluate-the-expression-first?).  See the arm for the nine probes behind the flag:
+   `x +- k' with x a single load is the class DR lowers LEFT-first (E34F7, E34F14), and
+   anything combining two non-literal operands is RIGHT-first (E34F6, F8, F11, F12, F13).
+   `k + x' -- a literal on the left of the bias -- is not in those samples, so it is NOT
+   admitted here; neither is an expression on both sides, nor a relation other than
+   `='/`^='. *)
+let cmp_expr_sides st (a : Ast.expr) (b : Ast.expr) =
+  let var e =
+    match (unwrap_e e).Ast.e with
+    | Ast.Eident n ->
+        let ln = String.lowercase_ascii n.Ast.orig in
+        if vk_of st ln = Vint && not (List.mem ln st.deref) then Some ln else None
+    | _ -> None
+  in
+  let is_lit e = match (unwrap_e e).Ast.e with Ast.Enumber _ -> true | _ -> false in
+  let is_single e =
+    match (unwrap_e e).Ast.e with
+    | Ast.Eident _ | Ast.Eqptr _ -> true
+    | _ -> false
+  in
+  let rec is_num e =
+    match (unwrap_e e).Ast.e with
+    | Ast.Enumber _ -> true
+    | Ast.Eident n -> vk_of st (String.lowercase_ascii n.Ast.orig) = Vint
+    | Ast.Eqptr (_, f) ->
+        (match vk_of st (String.lowercase_ascii f.Ast.orig) with
+         | Vbfix _ -> true | _ -> false)
+    | Ast.Ebinary (Ast.Add, x, y) | Ast.Ebinary (Ast.Sub, x, y)
+    | Ast.Ebinary (Ast.Mul, x, y) -> is_num x && is_num y
+    | Ast.Ebuilt ("MOD", [ x; y ]) -> is_num x && is_num y
+    | Ast.Eprefix (Ast.Minus, x) -> is_num x
+    | _ -> false
+  in
+  (* `x +- k': one load, then the literal bias of [C147] -- E34F7, E34E14. *)
+  let is_biased e =
+    match (unwrap_e e).Ast.e with
+    | Ast.Ebinary (Ast.Add, x, y) | Ast.Ebinary (Ast.Sub, x, y) -> is_single x && is_lit y
+    | _ -> false
+  in
+  let is_expr e =
+    match (unwrap_e e).Ast.e with
+    | Ast.Ebinary (Ast.Add, _, _) | Ast.Ebinary (Ast.Sub, _, _)
+    | Ast.Ebinary (Ast.Mul, _, _) -> is_num e
+    | _ -> false
+  in
+  let route side expr =
+    if not (is_expr expr) then None
+      else if is_biased (unwrap_e expr) then Some (side, expr, false)
+      else Some (side, expr, true)
+  in
+  match var a, var b with
+  | Some nm, None -> route nm b
+  | None, Some nm -> route nm a
+  | _ -> None
+
+let mem_operand st (e : Ast.expr) =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eqptr (b, f) ->
+      (match (unwrap_e b).Ast.e with
+       | Ast.Eident h ->
+           let bn = String.lowercase_ascii h.Ast.orig in
+           (match vk_of st (String.lowercase_ascii f.Ast.orig) with
+            | Vbfix (_, k) when is_ptr_cell st bn -> Some (bn, k)
+            | _ -> None)
+       | _ -> None)
+  | _ -> None
+
+(* [E2E-34/P5] the OTHER half of the admission: a plain (non-formal, non-decimal,
+   non-float, non-char) fixed-binary automatic.  A by-reference formal on the other
+   side would make BOTH operands stack-parking loads, which no probe shows (the
+   numeric cmp_pair already refuses a deref FIRST for the same reason [E26F, E26G]). *)
+let is_plain_num_auto st (e : Ast.expr) =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident n ->
+      let ln = String.lowercase_ascii n.Ast.orig in
+      vk_of st ln = Vint && not (List.mem ln st.deref)
+  | _ -> false
+
 let is_ident (e : Ast.expr) =
   match e.Ast.e with Ast.Eident _ -> true | _ -> false
 
@@ -3236,9 +3343,7 @@ let rec lower_hl st (e : Ast.expr) =
            ^ "confirms the qualified spelling compiles with a .REL while nothing unqualified does)")
       else begin
       st.last_imm <- None;
-      d st op_lhld; reloc st Data (addr_of st pn);
-      member_step st k;
-      d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
+      bfix_val_load st pn k ()
       end
   | Ast.Ebuilt ("ADDR", [ e ]) ->
       (* [E2E-26/P2] addr(z) of a local automatic: the relocated cell address in HL via LXI H +
@@ -3298,9 +3403,7 @@ let rec lower_hl st (e : Ast.expr) =
         match vk_of st (String.lowercase_ascii fld.Ast.orig) with
         | Vbfix (_, k) | Vbptr (_, k) ->
             st.last_imm <- None;
-            d st op_lhld; reloc st Data (addr_of st bn);
-            member_step st k;
-            d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
+            bfix_val_load st bn k ()
         | _ ->
             failwith
               ("codegen: qualified read of " ^ fld.Ast.orig
@@ -5322,6 +5425,18 @@ let hl_bias st (b : int) =
        LHLD X ; MOV E,M ; INX H ; MOV D,M ; XCHG
        LXI B,FFFB ; DAD B ; MOV A,H ; ORA A ; JM skip
    so only the 4-byte deref is added; the ladder itself is unchanged. *)
+(* [E2E-34/P4] "can control fall out of this procedure body?"  Set by the LAST
+   top-level statement lowered in the body: RETURN, GOTO and STOP all end the
+   straight line, anything else (including an IF whose branches return -- E34D2)
+   leaves a fall-through, and DR then closes the body with a bare RET.  Mirrors the
+   existing per-body `proc_tail_no_exit' pattern, including `Sproc' not counting:
+   a nested procedure's own tail must not rewrite its parent's. *)
+let tail_exits_stmt (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sproc _ -> None
+  | Ast.Sreturn _ | Ast.Sgoto _ | Ast.Sstop _ -> Some true
+  | _ -> Some false
+
 let cmp_load_deref st (nm : string) =
   d st op_lhld; reloc st Data (addr_of st nm);
   if List.mem (String.lowercase_ascii nm) st.deref then
@@ -5339,6 +5454,22 @@ let cmp_load_deref st (nm : string) =
    arms already do (Lt/Ge take l first, Gt/Le take rr first).  A deref on the
    FIRST side, or on both sides, has no DR sample and refuses: emitting the
    XCHG form there would be a guess, and the addresses would still line up. *)
+(* [E2E-34/P5] the two-operand compare, expressed as ONE loader pair plus the
+   parking decision, so a based member and a by-reference formal are two spellings of
+   the same question.  `stack' is set when the SECOND operand's load needs HL as its
+   own destination (a deref ladder, a member ladder) -- then the first goes on the
+   stack; otherwise XCHG moves it to DE for free.  That is [C204]'s rule, and it is
+   the rule cmp_pair already used; the decomposition is byte-neutral, verified by the
+   790 specimens that were exact before this arm existed. *)
+let cmp_pair2 st (first : unit -> unit) (second : unit -> unit) (stack : bool) skip =
+  if stack then begin
+    first (); d st op_push_h; second (); d st op_pop_d
+  end else begin
+    first (); d st op_xchg; second ()
+  end;
+  call_ext st "?IS22N";
+  d st skip
+
 let cmp_pair st first second skip =
   let fd = List.mem (String.lowercase_ascii first) st.deref in
   let sd = List.mem (String.lowercase_ascii second) st.deref in
@@ -5347,20 +5478,16 @@ let cmp_pair st first second skip =
       ("codegen: [TBD] pointer formal as the FIRST operand of a two-variable \
         compare is unsampled (DR always loads the plain operand first [E26F, \
         E26G]; both-deref has no sample at all)")
-  else if sd then begin
-    d st op_lhld; reloc st Data (addr_of st first);
-    d st op_push_h;
-    cmp_load_deref st second;
-    d st op_pop_d;
-    call_ext st "?IS22N";
-    d st skip
-  end else begin
-    d st op_lhld; reloc st Data (addr_of st first);
-    d st op_xchg;
-    d st op_lhld; reloc st Data (addr_of st second);
-    call_ext st "?IS22N";
-    d st skip
-  end
+  else if sd then
+    (* [E2E-34/P5] same bytes as before, now through cmp_pair2: the plain operand
+       loads into HL, the deref needs HL for itself, so the first is parked. *)
+    cmp_pair2 st
+      (fun () -> d st op_lhld; reloc st Data (addr_of st first))
+      (fun () -> cmp_load_deref st second) true skip
+  else
+    cmp_pair2 st
+      (fun () -> d st op_lhld; reloc st Data (addr_of st first))
+      (fun () -> d st op_lhld; reloc st Data (addr_of st second)) false skip
 
 (* [E2E-29/P2] operand classifiers for the CHARACTER VARYING comparison family.  Each returns a
    pair of THUNKS that emit the operand's address into the register DR uses for it, plus the
@@ -5433,25 +5560,80 @@ let str_cmp_shape_rev st l r =
             v)
   | _ -> None
 
-(* both sides vary -> ?SCVVM, no length operand.  Cell/cell [C6] and member(left)/cell(right)
-   [E29C10: LHLD P / XCHG / LXI H,S / CALL ?SCVVM / JNZ] are sampled; cell(left)/member(right)
-   and member/member are not, so they keep refusing. *)
+(* [E2E-34/P4] CHARACTER VARYING vs CHARACTER VARYING, every operand pair DR
+   has been made to show.  The three kinds of operand that can appear:
+     `Imm a   -- a varying cell whose ADDRESS is its own data address (main-locals
+                and procedure-locals): loaded with LXI H/LXI D, an immediate.
+     `FCell a -- a by-reference VARYING FORMAL.  Its cell holds the address of the
+                caller's descriptor (the entry sequence proves it: `MOV E,M / INX H
+                / MOV D,M / XCHG / SHLD X A(0011)' in E34C6/C7, whose own compare
+                then reads `LHLD X A(0011)'), so its address has to be LOADED, and
+                LHLD can only write HL.
+     `Mem     -- a based varying member; the same situation (address of the based
+                area comes out of the pointer cell with LHLD, then the member step).
+   Everything DR does here follows from ONE bit -- whether an operand's address has
+   to be loaded (needs HL) or can be materialized directly in the destination:
+     load-able side is emitted FIRST into HL; the immediate side goes straight into
+     the register it belongs to (DE for the left, HL for the right); XCHG moves a
+     loaded HL into DE for free.  That leaves exactly two parking choices, and DR
+     uses both:
+       both immediate     LXI H,<right> / LXI D,<left>            [E29C6 cell/cell]
+       load left, imm rt  <left> / XCHG / LXI H,<right>           [E29C10, C8 `x = y',
+                                                                   C10 `x = s']
+       imm left, load rt  <right> / LXI D,<left>                  [E34C2 `s = w',
+                                                                   E34C3 `s = p->w',
+                                                                   E34C9 `y = x']
+       both load          <left> / PUSH H / <right> / POP D       [E34C5 `w = p->w',
+                                                                   E34C6 `x = p->w',
+                                                                   E34C7 `p->w = x']
+   The third row is the one my code has been getting WRONG since [E2E-29/P2]: it
+   admitted only (Mem, Cell) and (Cell, Cell), and an unadmitted pair did not refuse
+   as this file's comment claimed -- the ident-vs-ident NUMERIC arm further down
+   caught it and emitted ?IS22N with rc=0.  E34C2/C3/C5/C7/C8/C9/C10 are seven
+   comparisons, every one of them silently mis-routed.  That arm is now guarded, so
+   an unmeasured string pair refuses instead of guessing a numeric helper.
+   Branch byte `=' C2 / `^=' CA, no length operand (?SCVVM takes both lengths from
+   the descriptors themselves) -- unchanged from [E2E-29/P2]. *)
+let str_vv_side st (e : Ast.expr) =
+  match str_side st e with
+  | Some (`Cell a) ->
+      Some (if List.mem (String.lowercase_ascii a) st.deref then `FCell a else `Imm a)
+  | Some (`Mem (bn, pn, k)) -> Some (`Mem (bn, pn, k))
+  | _ -> None
+
+let str_vv_load st = function
+  | `FCell a -> (fun () -> d st op_lhld; reloc st Data (addr_of st a))
+  | `Mem (bn, pn, k) -> vbvar_addr ~qual:bn st pn k
+  | `Imm a -> (fun () -> d st op_lxi_h; reloc st Data (addr_of st a))
+
 let str_cmp_shape_vv st l r =
-  match str_side st l, str_side st r with
-  | Some (`Cell a), Some (`Cell b) ->
+  match str_vv_side st l, str_vv_side st r with
+  | Some (`Imm a), Some (`Imm b) ->
       Some ((fun () -> d st op_lxi_h; reloc st Data (addr_of st b)),
             (fun () -> d st op_lxi_d; reloc st Data (addr_of st a)))
-  | Some (`Mem (bn, pn, k)), Some (`Cell b) ->
-      (* E29C10 `if w = s then': 0027 LHLD P A(0006) / 002A XCHG / 002B LXI H,S A(0008) /
-         002E CALL ?SCVVM.  The MEMBER is emitted first and moved into DE by XCHG, then the cell
-         goes into HL -- so the whole sequence lives in one thunk; the arm calls hl_fn then de_fn,
-         and splitting these two would emit them in the wrong order.  Same convention as the
-         member/literal shape in str_cmp_shape above (C4), which also bundles [C167]. *)
-      Some ((fun () ->
-              (vbvar_addr ~qual:bn st pn k) ();
-              d st op_xchg;
-              d st op_lxi_h;
-              reloc st Data (addr_of st b)),
+  | Some lp, Some (`Imm b) ->
+      (* the loaded side first into HL, XCHG parks it in DE, the immediate follows.
+         E29C10 `if w = s then': 0027 LHLD P / 002A XCHG / 002B LXI H,S A(0008).
+         C8 `if x = y then':      0055 LHLD X / 0058 XCHG / 0059 LXI H,Y A(0013).
+         Bundled into one thunk because the whole sequence must be emitted in DR's
+         order -- splitting it across hl_fn/de_fn would reorder it [C167]. *)
+      Some ((fun () -> (str_vv_load st lp) (); d st op_xchg;
+             d st op_lxi_h; reloc st Data (addr_of st b)),
+            (fun () -> ()))
+  | Some (`Imm a), Some rp ->
+      (* E34C2 `if s = w then': 0027 LHLD P / 002A LXI D,S A(0006) -- the RIGHT side
+         loads into HL directly where it belongs, and the left is materialized into
+         DE, so nothing needs parking.  No XCHG: HL is already the right operand's
+         (the same reason E29C9's literal/member pair needs none). *)
+      Some ((str_vv_load st rp),
+            (fun () -> d st op_lxi_d; reloc st Data (addr_of st a)))
+  | Some lp, Some rp ->
+      (* both sides need HL, so the first goes on the stack, never in a register
+         across a load [C141].  E34C5 `w = p->w': 0027 LHLD P / PUSH H / LHLD P /
+         POP D.  E34C6 `x = p->w': 0068 LHLD X / PUSH H / LHLD P / POP D.
+         E34C7 `p->w = x': 0068 LHLD P / PUSH H / LHLD X / POP D. *)
+      Some ((fun () -> (str_vv_load st lp) (); d st op_push_h;
+             (str_vv_load st rp) (); d st op_pop_d),
             (fun () -> ()))
   | _ -> None
 
@@ -5663,6 +5845,31 @@ let lower_test_skip0 st (c : Ast.expr) =
       d st op_mov_a_h; d st 0xb5;      (* ORA L *)
       d st 0xca;
       let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
+                 { Ast.e = Ast.Enumber k; _ }) ->
+      (* [E2E-34/P5] `v = kk' for a NON-ZERO constant: NETWORK's `if t = infinite'
+         expands (via %replace) to `t = 32767' and had no arm -- `= 0' has its own
+         memory-form test above, and `^= kk' has the bias ladder below.  Five probes
+         pin this shape and they pin the LADDER, not a guess: E34F4 `= 1' -> DCX H
+         (kk<=3 repeats DCX H), E34F1 `= 5' -> LXI B,FFFB / DAD B, E34F2 `= 255' ->
+         LXI B,FF01 / DAD B, E34F5 `= 300' -> LXI B,FED4 / DAD B, E34F3 `= 32767' ->
+         LXI B,8001 / DAD B -- every one of them `hl_bias(-kk)', then
+             MOV A,H ; ORA L ; JNZ skip
+         i.e. the same bias-and-test as `^= kk' with the skip byte UN-inverted:
+         CA means "skip when the difference is zero" (skip the body of `^='), C2
+         means "skip when it is not" (skip the body of `=').  That is [C072]'s parity
+         pair, and here it is measured on both sides rather than derived: these five
+         .RELs are the goldens and each constant goes through the shared ladder, so
+         the 256/1024 boundaries are not re-enumerated in this arm.
+         `= 0' is excluded (its own arm, memory form, and DR's shape differs); kk<1
+         refuses as the `^=' arm does. *)
+      let kk = int_lit_checked "a condition / DO-bound comparison constant" k in
+      if kk < 1 then failwith "codegen: = 0 / negative const form unproven [TBD]";
+      cmp_load_deref st v.Ast.orig;
+      hl_bias st (-kk);
+      d st op_mov_a_h; d st 0xb5;      (* ORA L *)
+      d st op_jnz;
+      let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR Ast.Lt, { Ast.e = Ast.Eident v; _ },
                  { Ast.e = Ast.Enumber k; _ }) ->
       (* [Z401/Z405 + E23L1..L8, L200] i < kk: LHLD; <bias ladder for -kk>;
@@ -5689,6 +5896,44 @@ let lower_test_skip0 st (c : Ast.expr) =
      REVERSE's own .REL at 000E/00B2 for the pointer cases.  The relation is NOT derived from the
      numeric ladder: these helpers set flags themselves and the skip is a plain skip-the-then-body
      jump, which is why the arms below return a patch slot like every other shape here. *)
+  (* ---- [E2E-34/P5] `v = <arithmetic expression>' ----------------------------------
+     NETWORK line 236 `if t = d + p->total_distance then'.  Nothing invented here: the
+     expression side goes through `lower_hl', the SAME arithmetic lowering that stores
+     use (so [C204]'s XCHG-versus-stack parking rules apply unchanged), and the compare
+     is `PUSH H / load the other side / POP D / ?IS22N / MOV A,H / ORA L / skip', the
+     same tail as the ident-vs-ident equality.  Nine probes pin which side is lowered
+     FIRST, because DR does not pick one order:
+       lowered RHS first                                    lowered LHS first
+         F6  `t = d + e'    LHLD D/XCHG/LHLD E/DAD D          F7  `t = d + 1'  LHLD T/PUSH H/
+         F13 `t = d - e'    ... PUSH H/LHLD T/POP D/IS22N               LHLD D/INX H/POP D/IS22N
+         F12 `t = d * e'                                     F14 `t = hp->v + 1'  LHLD T/PUSH H/
+         F8  `t = d + hp->v'                                          ladder/INX H/POP D/IS22N
+         F11 `t = d + e + 1'
+     The partition those nine samples support is structural, and it is the rule below:
+     when the whole right side is ONE load plus a literal bias (`x +- k', `k +- x', with
+     x a plain automatic or a based member) DR loads the LEFT first; when the right side
+     combines two non-literal operands, or nests, it loads the RIGHT first and the
+     `+1' in F11 is just the literal chain of [C147] inside that lowering.  `d + e = t'
+     (F10) is byte-identical to F6, so the source order of the operands does not matter
+     -- only which side is the expression.  `=' skips with C2, `^=' with CA [C072], and
+     F9 confirms both on the same expression.
+     Everything outside that partition -- an expression on BOTH sides, `<'/`>' against
+     an expression, a decimal or float operand -- keeps falling through to the [TBD]
+     refusal, because no probe shows DR doing it. *)
+  | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), a, b) when
+      (match cmp_expr_sides st a b with Some _ -> true | None -> false) ->
+      let (lhs_nm, rhs_e, rhs_first) =
+        match cmp_expr_sides st a b with Some x -> x | None -> assert false
+      in
+      let load_lhs () = cmp_load_deref st lhs_nm in
+      let load_rhs () = ignore (lower_hl st rhs_e) in
+      if rhs_first then begin load_rhs (); d st op_push_h; load_lhs (); d st op_pop_d end
+      else begin load_lhs (); d st op_push_h; load_rhs (); d st op_pop_d end;
+      call_ext st "?IS22N";
+      d st op_mov_a_h; d st 0xb5;  (* ORA L *)
+      d st (if r = Ast.Eq then op_jnz else 0xca);  (* [C072] `^=' skips with CA [F9] *)
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
       (match str_cmp_shape st l rr with Some _ -> true | None -> false) ->
       let (hl_fn, de_fn, len_src) =
@@ -5721,9 +5966,10 @@ let lower_test_skip0 st (c : Ast.expr) =
       let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
       (match str_cmp_shape_vv st l rr with Some _ -> true | None -> false) ->
-      (* both sides vary: ?SCVVM, no length operand [C6 cell/cell, E29C10 member/cell].  The
-         shape function admits only the sampled orientations and returns None otherwise, which
-         makes this arm fall through to the [TBD] refusal rather than guessing a route. *)
+      (* both sides vary: ?SCVVM, no length operand.  [E2E-34/P4] the shape function now
+         covers all four load/immediate combinations (E29C6, E29C10, E34C2..C9); anything
+         it declines is refused by the numeric arm's guard below, which is what makes its
+         `_ -> None' mean refusal and not "fall through to ?IS22N". *)
       let (hl_fn, de_fn) =
         match str_cmp_shape_vv st l rr with Some x -> x | None -> assert false
       in
@@ -5780,7 +6026,80 @@ let lower_test_skip0 st (c : Ast.expr) =
      it belongs -- the Sdowhile arm routes `Ebit "1"' directly, provenance Z404 -- so NOTHING is
      added here: `if '1'b then ...' has no DR sample and must keep refusing rather than take an
      unsampled "no jump" through the generic condition path. *)
-  | Ast.Ebinary (Ast.EqR r, l, rr) when is_ident l && is_ident rr ->
+  (* ---- [E2E-34/P5] a based FIXED BINARY member as a comparison operand --------------
+     NETWORK's `if p->total_distance < bestd' (line 187), `if d < r->total_distance'
+     (201) and `if p->investigate' relatives are this family, and until now every one
+     of them refused: the arms below pattern-match `is_ident', and a qualified member
+     arrives as `Eqptr'.  Eleven probes pin the shape (golden/e34e, all `status: ok'):
+       E34E1 `hp->v < b'   LHLD HP / MOV E,M / INX H / MOV D,M / XCHG / XCHG / LHLD B
+                          / ?IS22N / JP        -- member first: the ladder's own XCHG
+                          puts the value in HL, cmp_pair's XCHG moves it to DE.  The
+                          "double XCHG" is composition, not a DR artifact.
+       E34E4 `hp->v >= b'  identical loads, JM      (Lt/Ge share, [C115]'s pairing)
+       E34E2 `hp->v > b'   LHLD B / PUSH H / ladder / POP D / ?IS22N / JP
+       E34E3 `hp->v <= b'  identical loads, JM      (Gt/Le share; DR swaps to plain-first)
+       E34E7 `b < hp->v'   LHLD B / PUSH H / ladder / POP D / ?IS22N / JP   -- plain
+                          first, member second, and the PUSH/POP parking because the
+                          member ladder needs HL to hold the pointer [C204].
+       E34E5/E34E11 `hp->v = b'  ladder / PUSH H / LHLD B / POP D / ?IS22N / MOV A,H /
+                          ORA L / JNZ      (E34E6 `^=' is the same with JZ)
+       E34E8 `b = hp->v'   LHLD B / PUSH H / ladder / POP D / ?IS22N / MOV A,H / ORA L /
+                          JNZ              -- Eq does NOT swap: left is loaded first.
+       E34E9/E34E10/E34E11 repeat E1/E8/E5 with the member at OFFSET 2 (two INX H),
+                          which is the member_step of [E2E-28], not a new encoder.
+     So the relation routing and the loader are BOTH already implemented -- this arm
+     only feeds `cmp_pair2'/the Eq-Ne tail a member loader in place of a cell loader.
+     Admitted shapes: exactly one side a based FIXED member, the other a plain
+     NON-deref automatic.  A member compared with a literal, with a formal, or with
+     another member has no probe: those keep falling through to the [TBD] refusal. *)
+  | Ast.Ebinary (Ast.EqR r, l, rr) when
+      (match mem_operand st l, mem_operand st rr with
+       | Some _, None -> is_plain_num_auto st rr
+       | None, Some _ -> is_plain_num_auto st l
+       | _ -> false) ->
+      let (mcell, mk) =
+        match mem_operand st l, mem_operand st rr with
+        | Some x, None -> x | None, Some x -> x | _ -> assert false
+      in
+      let member_left = match mem_operand st l with Some _ -> true | None -> false in
+      let plain = String.lowercase_ascii
+        (match (unwrap_e (if member_left then rr else l)).Ast.e with
+         | Ast.Eident n -> n.Ast.orig | _ -> assert false)
+      in
+      let mload () = bfix_val_load st mcell mk () in
+      let pload () = d st op_lhld; reloc st Data (addr_of st plain) in
+      (match r with
+       | Ast.Eq | Ast.Ne ->
+           (* left first, always PUSH/POP [E34E5, E34E8] *)
+           if member_left then mload () else pload ();
+           d st op_push_h;
+           if member_left then pload () else mload ();
+           d st op_pop_d;
+           call_ext st "?IS22N";
+           d st op_mov_a_h; d st 0xb5;  (* ORA L *)
+           d st (if r = Ast.Eq then op_jnz else 0xca)  (* DR's `^=' skip byte, C072 *)
+       | Ast.Lt | Ast.Ge ->
+           (* keep the written order; a member in SECOND position needs the stack [C204] *)
+           cmp_pair2 st (if member_left then mload else pload)
+             (if member_left then pload else mload) (not member_left)
+             (if r = Ast.Lt then op_jp else op_jm)
+       | Ast.Gt | Ast.Le ->
+           (* DR evaluates `a > b' as `b < a' -- the operands swap, and after the swap
+              the member is the SECOND operand in every sampled case [E34E2, E34E3] *)
+           cmp_pair2 st (if member_left then pload else mload)
+             (if member_left then mload else pload) true
+             (if r = Ast.Gt then op_jp else op_jm));
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR r, l, rr) when
+      is_ident l && is_ident rr
+      (* [E2E-34/P4] this arm is ?IS22N, the NUMERIC helper, and it used to accept
+         CHARACTER VARYING operand pairs whenever `str_cmp_shape_vv' declined to
+         classify them -- seven probes (E34C2/C3/C5/C6/C7/C8/C9/C10) show DR on
+         ?SCVVM and mine emitting a numeric compare with rc=0.  A varying operand
+         pair that no string arm admits must REFUSE; the guard is what makes the
+         VV table's `_ -> None' mean what its comment says. *)
+      && (match str_side st l, str_side st rr with None, None -> true | _ -> false) ->
       let ident = fun x ->
         match x.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> assert false
       in
@@ -7911,11 +8230,16 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      REVERSE's read_it ends with its loop, and write_it's declaration following it must not revoke
      read_it's suppressed RET (nor write_it's own), because the flag is per-body by construction. *)
   st.proc_tail_no_exit <- false;
+  let savedex = st.proc_tail_exits in
+  st.proc_tail_exits <- false;
   List.iter
     (fun x ->
       (match x.Ast.st with
        | Ast.Sproc _ -> ()
        | _ -> st.proc_tail_no_exit <- false);
+      (match tail_exits_stmt x with
+       | Some v -> st.proc_tail_exits <- v
+       | None -> ());
       lower_stmt st ls x)
     pl.Bind.pl_body;
   (* [E2E-11/CALL] a procedure with NO RETURNS gets an implicit `RET` after its
@@ -7927,10 +8251,38 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      RET, gets no second one).  So the trigger is the absence of RETURNS, not
      the shape of the last statement.  Value-returning procedures are NOT given
      one: their exits are RETURN's RET / JMP ?FPRET / JMP ?DCRET. *)
-  if
-    pl.Bind.pl_ret = None
+  (* [E2E-34/P4] the sentence above -- "Value-returning procedures are NOT given
+     one" -- is FALSE, and E34D1/E34D2 are the probes that say so.  A
+     `returns(fixed)' procedure whose last TOP-LEVEL statement is not an
+     unconditional exit does get a trailing RET: D1 (`if x = y then return(7);',
+     no ELSE) ends `0060 ==== 0066 / 0066 RET', D2 (IF/ELSE, both branches RETURN)
+     ends `0067 ==== 006D / 006D RET', and the five varying-compare probes C6-C10
+     differ from DR by exactly that one byte.  D3 (last statement = `return(3);')
+     ends `0055 LXI H,0003 / 0058 RET' with NO extra byte, and E34A5/A7 (last
+     statement = GOTO) are byte-exact without one, which is why the trigger is the
+     shape of the last top-level STATEMENT and not "is the last instruction a RET":
+     D2's last instruction is a RET and DR still emits another.  It is the same
+     fall-out question the no-RETURNS branch already asks through
+     `proc_tail_no_exit', so it gets the same per-body save/restore.
+     The ?OFCOP of [E2E-34/P1] stays on the no-RETURNS path only: an ON-unit in a
+     value-returning procedure has no DR sample, so the tail of such a procedure is
+     one RET byte and nothing else. *)
+  let falls_out =
+    pl.Bind.pl_ret <> None && st.in_proc
     && not (st.top_proc && st.stop_seen)
-    && not (st.in_proc && st.proc_tail_no_exit)
+    && not st.proc_tail_exits
+    && not st.proc_tail_no_exit   (* E31F5: `srch' ends inside `do while(\'1\'b)',
+                                     so there is nothing to fall out of and DR emits
+                                     no tail RET -- the forever-loop flag is the same
+                                     question, asked the same way the no-RETURNS
+                                     branch asks it.  E31F5 is the control that this
+                                     rule is not "always RET after a value proc". *)
+  in
+  if
+    (pl.Bind.pl_ret = None
+     && not (st.top_proc && st.stop_seen)
+     && not (st.in_proc && st.proc_tail_no_exit))
+    || falls_out
   then begin
     (* [E2E-34/P1] a block entered by a CALL whose block contains an ON-unit calls
        ?OFCOP immediately before its tail RET.  E34A1 pins the trigger: p holds
@@ -7940,7 +8292,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
        ON ... GOTO units in print_paths and ONE ?OFCOP.  No outermost block has one in
        any sample (E11A-E11F, E32E1, E32E2, FLTPOLY2, E34A2-A5 all write their ONs on
        `c' lines with zero ?OFCOP), hence `st.in_proc'. *)
-    if ls.on_any && st.in_proc then call_ext st "?OFCOP";
+    if ls.on_any && st.in_proc && pl.Bind.pl_ret = None then call_ext st "?OFCOP";
     d st 0xc9; (* RET *)
     st.last_imm <- None
   end else
@@ -7955,6 +8307,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
        unprobed, so nested lowering keeps the byte it has always emitted. *)
     ()
   ;
+  st.proc_tail_exits <- savedex;
   st.dec_ret <- saveddr;
   st.float_ret <- savedfr;
   st.in_rec <- savedr;
@@ -8993,7 +9346,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; in_proc = false; in_rec = false; top_proc = false; call_stmt = None
     ; after_forever = false; proc_tail_no_exit = false; guards = 0; guard_slots = []
     ; appended = false; secs = layout.Bind.pl_secs
-    ; last_loop_edge = 0; cur_common = None }
+    ; last_loop_edge = 0; cur_common = None; proc_tail_exits = false }
   in
   (* [E2E-8] DR allocates every PUT EDIT format table ahead of all other pool
      items [R1003/R1021/R1022], so the tables are reserved BEFORE any
