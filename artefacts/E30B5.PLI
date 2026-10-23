@@ -1,0 +1,16 @@
+b5: procedure options(main);
+    %replace true by '1'b, false by '0'b, citysize by 20;
+  declare p pointer, n fixed;
+  declare 1 nd based, 2 f bit(1), 2 nx pointer;
+  allocate nd set(p);
+  p->f = true;
+  n = 0;
+  do while(p->f);
+     n = n + 1;
+     if n > 2 then p->f = false;
+  end;
+  put list('loops=', n);
+  free p->nd;
+  stop;
+end b5;
+

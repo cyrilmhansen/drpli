@@ -1,0 +1,13 @@
+b4: procedure options(main);
+  declare p pointer, w fixed;
+  declare 1 nd based, 2 f bit, 2 nx pointer;
+  allocate nd set(p);
+  p->f = '1'b;
+  if p->f ^= '1'b then w = 1; else w = 2;
+  put list('xor=', w);
+  if p->f = '0'b then w = 3; else w = 4;
+  put list(' eq0=', w);
+  free p->nd;
+  stop;
+end b4;
+

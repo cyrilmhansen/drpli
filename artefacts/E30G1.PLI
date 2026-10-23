@@ -1,0 +1,42 @@
+g1: procedure options(main);
+    %replace true by '1'b, false by '0'b, citysize by 20;
+  declare city_head pointer, p pointer, q pointer, t pointer, w fixed;
+  declare 1 city_node based,
+          2 city_name character(citysize) varying,
+          2 total_distance fixed,
+          2 investigate bit,
+          2 city_list pointer,
+          2 route_head pointer;
+  declare 1 route_node based,
+    2 next_city pointer,
+    2 route_distance fixed,
+    2 route_list pointer;
+  city_head = null;
+  allocate city_node set(t);
+  t->city_name = 'A'; t->total_distance = 10; t->investigate = true;
+  t->city_list = city_head; t->route_head = null; city_head = t;
+  p = t;
+  allocate city_node set(t);
+  t->city_name = 'B'; t->total_distance = 3; t->investigate = false;
+  t->city_list = city_head; t->route_head = null; city_head = t;
+  allocate route_node set(q);
+  q->next_city = p; q->route_distance = 3; q->route_list = t->route_head;
+  t->route_head = q;
+  do p = city_head repeat(p->city_list) while(p ^= null);
+     w = 0;
+     if p->investigate then w = 1;
+     put skip list(p->city_name, p->total_distance, w);
+     do q = p->route_head repeat(q->route_list) while(q ^= null);
+        put skip list(' to ', q->next_city->city_name, q->route_distance);
+     end;
+  end;
+  do p = city_head repeat(p->city_list) while(p ^= null);
+     do q = p->route_head repeat(q->route_list) while(q ^= null);
+        free q->route_node;
+     end;
+     free p->city_node;
+  end;
+  put list(' done');
+  stop;
+end g1;
+

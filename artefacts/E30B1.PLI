@@ -1,0 +1,14 @@
+b1: procedure options(main);
+  declare p pointer, w fixed;
+  declare 1 nd based, 2 f bit, 2 nx pointer;
+  allocate nd set(p);
+  p->f = '1'b;
+  if p->f then w = 1; else w = 2;
+  put list('set=', w);
+  p->f = '0'b;
+  if p->f then w = 3; else w = 4;
+  put list(' clr=', w);
+  free p->nd;
+  stop;
+end b1;
+

@@ -2407,9 +2407,6 @@ add_spec('E27LN1', ('artefacts/LN1.PLI', 'golden/e2e325d/LN1/LN1.REL'))
 # [E2E-27] DR compiles these; mine refuses because only based FIXED and POINTER members are
 # implemented.  The refusal happens AFTER the layout, so member offsets and the record size are
 # already bound correctly -- extending this later is a lowering problem, not a layout re-derivation.
-REJECTS['E27S6'] = (open('artefacts/ST6.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-                  'BASED structure member')
-NEG_META['E27S6'] = ("my-gap", "DR COMPILES IT (golden/e2e323d/ST6/ST6.REL). `2 a fixed, 2 b bit, 2 c fixed' -- the probe that MEASURES DR's layout rule: bit(1) takes one byte and c lands at the ODD offset 3, with allocation size 5. Members are contiguous with no alignment padding. Mine binds that layout correctly (offsets and record size come from the same walk) and refuses only the BIT member's store bytes.")
 REJECTS['E27S7'] = (open('artefacts/ST7.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                   'BASED structure member')
 NEG_META['E27S7'] = ("my-gap", "DR COMPILES IT (golden/e2e323d/ST7/ST7.REL). `2 c character(4), 2 a fixed': char(4) at offset 0, fixed at 4, record size 6. Character-member stores through a pointer are unimplemented; PB6 measures the analogous SCALAR form (LHLD <p> / LXI D,text / MVI A,len / MOV B,A / ?SMCCM), which is store_char with LHLD in place of LXI H.")
@@ -2664,6 +2661,74 @@ add_spec('E29PD3', ('artefacts/E29PD3.PLI', 'golden/e2e361/E29PD3/E29PD3.REL'))
 add_spec('E29N23', ('artefacts/E29N23.PLI', 'golden/e2e354d/E29N23/E29N23.REL'))
 add_spec('E27S5', ('artefacts/ST5.PLI', 'golden/e2e323d/ST5/ST5.REL'))
 add_spec('REVERSE', ('artefacts/REVERSE.PLI', 'golden/e2e319d/REVERSE/REVERSE.REL'))
+
+
+# ================================================================================================
+# [E2E-30] BIT(1) STRUCTURE MEMBERS, THE POINTER TRAVERSAL LOOP, AND THE NETWORK ORACLE
+# ================================================================================================
+# NETWORK.PLI (golden/first8080u) is this milestone's target.  Its oracle is fully verified before
+# anything was implemented: recompiling the unchanged source on the 8-inch disk's PL/I-80 v1.4 gives
+# a .REL BYTE-IDENTICAL to golden/first8080u/NETWORK/NETWORK.REL and a PRN identical too [golden/
+# e30net_dr], so -- exactly as C194 established for REVERSE -- the historical listing is v1.4 output,
+# not some earlier generation.  The listing reports NO ERROR(S) in both passes, CODE SIZE 05B0h and
+# DATA AREA 00EBh; both figures are read back out of the binary itself (201 code records ending at
+# 05B0, LINK-DEF-DATA-SIZE = 00EB), not taken on trust.  The historical PRN carries no disassembly
+# (switches L,D only), so a SECOND compile with '$L$D$C$S' [golden/e30net_c, 718 instruction lines]
+# is the instruction-level oracle used throughout -- DR's own bytes, not a re-decoding of the .REL
+# [E2E-23: a mis-decoded listing is not evidence].
+#
+# THE BIT(1) MEMBER ABI [C195].  A based bit is one byte reached by the SAME member_step encoder as
+# every other member (bmem_addr is now shared, so `w' and `p->w' and bit and varying cannot drift
+# [C179/C189]); true is bit 7, 0x80, exactly as in the scalar cell [E2E-11 step 1a].
+#   store  LHLD <p> / [step] / MVI M,80  (true)  |  MVI M,00  (false)   [NETWORK 0360, 03D1]
+#   test   LHLD <p> / [step] / MOV A,M / ORA A / JP <skip>              [NETWORK 0382]
+# DR's NETWORK puts `.investigate' at record offset 0017 = the 21-byte cap-20 varying cell + 2 for
+# total_distance -- contiguous, no padding, the C185 rule again -- in a 001C-byte record.  Byte-exact
+# here: E30B1 (bit@0, store then both test outcomes), E30B5 (bit(1) in a DO WHILE), E30B7 (bit@2
+# beside a fixed member), and E27S6/ST6, the offset-2 layout probe that E2E-27 pinned as a refusal
+# and which is promoted below [C154].  `if p->f = '1'b' and `^=' (E30B4) stay refused: DR's
+# comparison bytes for a bit member are not in any sample.
+#
+# THE PRE-TEST POINTER TRAVERSAL [C196].  `do p = <init> repeat(p-><link>) while(p ^= null); BODY
+# end;' is NETWORK's loop, six times over (find@013A, print_all@01B3 and @01EE, shortest_distance
+# @031B and @0382, free_all@056B) and my E30L1-L5 probes.  Measured byte order:
+#   init-assign  <p = from>          LHLD <from> / SHLD P            (an ordinary pointer store)
+#   TEST (head)  p ^= null           LHLD P / MOV A,H / ORA L / JZ <exit>
+#   BODY
+#   REPEAT       <p = p->link>       LHLD P / [step] / MOV E,M / INX H / MOV D,M / XCHG / SHLD P
+#   JMP back to TEST                  (so the update runs AFTER the body and the re-test gates exit)
+# The init and repeat clauses are lowered by lower_assign and the top test by lower_test_skip -- no
+# new encoder, and the guard variable is required to be a plain POINTER with no TO and no BY.  This
+# is deliberately the pre-test shape and not an algorithmically equivalent post-test while-loop:
+# reordering test/update would break raw REL parity, which is the acceptance criterion [C137].
+#
+# E30L1 COMPILES AND DIVERGES, and the cause is a single known one.  Mine emits 69 code bytes to
+# DR's 66 (data 12/12, 173 of 256 bytes differ, first at 59); deleting one `LXI H,0000' from my
+# stream makes it byte-identical to DR -- i.e. the traversal lowering itself is exact and the whole
+# difference is DR reusing HL=0 across the `head = null;' and `n = 0;' stores, the same
+# register-reuse family as PB4/PB20/E28N7/O1/O2/O4/E29X3.  I am NOT fitting that rule from these
+# probes [C141, and the task's own instruction not to fit reuse to a single sample]; E30L1 is pinned
+# as a divergence so the traversal's byte-correctness is recorded and the reuse gap stays visible.
+#
+# NETWORK's FIRST BLOCKER today is neither BIT nor the traversal (both now clear) but
+# `find(...) returns(pointer)' [E30F1 refuses at the returns(POINTER) gate], with chained
+# qualification `q->next_city->city_name' [E30C1-C3, G1] and the named-SYSIN ON ENDFILE/REVERT
+# handler [E30E2/E30E3] as the next dependencies.  GET LIST into multiple items was already
+# byte-exact (E30H1), so NETWORK's `get list(city1, distance, city2)' is not a blocker at all.
+#
+# E30T1 stores 'ABCDEFGH' (8) into a cap-6 VARYING member and is byte-exact: `MVI A,06' (the
+# DESTINATION capacity) / `MVI B,08' (the SOURCE length) / `?SMCVM'.  This replaces the withdrawn
+# REVERSE truncation attribution in the E2E-29 note -- the A=cap/B=len asymmetry is real and
+# compile-side; DR's runtime truncation is inferred from the ABI, not yet executed, and not claimed.
+#
+
+add_spec('E30B1', ('artefacts/E30B1.PLI', 'golden/e30p1/E30B1/E30B1.REL'))
+add_spec('E30B3', ('artefacts/E30B3.PLI', 'golden/e30p1/E30B3/E30B3.REL'))
+add_spec('E30B5', ('artefacts/E30B5.PLI', 'golden/e30p1/E30B5/E30B5.REL'))
+add_spec('E30B7', ('artefacts/E30B7.PLI', 'golden/e30p1/E30B7/E30B7.REL'))
+add_spec('E30H1', ('artefacts/E30H1.PLI', 'golden/e30p1/E30H1/E30H1.REL'))
+add_spec('E30T1', ('artefacts/E30T1.PLI', 'golden/e30p1/E30T1/E30T1.REL'))
+add_spec('E27S6', ('artefacts/ST6.PLI', 'golden/e2e323d/ST6/ST6.REL'))
 
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}

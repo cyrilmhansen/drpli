@@ -1,0 +1,23 @@
+f1: procedure options(main);
+  declare head pointer, p pointer, w fixed;
+  declare 1 city_node based,
+          2 city_name character(6) varying,
+          2 dist fixed,
+          2 link pointer;
+  head = null;
+  p = find('ABC');
+  w = 0;
+  if p = null then w = 9;
+  put list('name=', p->city_name, ' w=', w);
+  stop;
+  find: procedure(city) returns(pointer);
+     declare city character(6) varying, q pointer;
+     allocate city_node set(q);
+     q->city_name = city;
+     q->dist = 3;
+     q->link = head;
+     head = q;
+     return(q);
+  end find;
+end f1;
+

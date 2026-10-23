@@ -1,0 +1,20 @@
+c1: procedure options(main);
+  declare p pointer, q pointer;
+  declare 1 city_node based,
+          2 city_name character(6) varying,
+          2 dist fixed,
+          2 link pointer;
+  declare 1 route_node based,
+          2 next_city pointer,
+          2 route_distance fixed,
+          2 route_list pointer;
+  allocate city_node set(p);
+  allocate route_node set(q);
+  p->city_name = 'PARIS';
+  q->next_city = p;
+  put list('chain=', q->next_city->city_name);
+  free q->route_node;
+  free p->city_node;
+  stop;
+end c1;
+

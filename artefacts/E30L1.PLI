@@ -1,0 +1,15 @@
+l1: procedure options(main);
+  declare head pointer, p pointer, n fixed;
+  declare 1 city_node based,
+          2 city_name character(6) varying,
+          2 dist fixed,
+          2 link pointer;
+  head = null;
+  n = 0;
+  do p = head repeat(p->link) while(p ^= null);
+     n = n + 1;
+  end;
+  put list('empty=', n);
+  stop;
+end l1;
+

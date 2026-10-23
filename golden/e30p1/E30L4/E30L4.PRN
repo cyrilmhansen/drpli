@@ -1,0 +1,177 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E30L4
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 NULL BUILTIN CONSTANT
+a 0000 L4 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 10 BYTES
+c 0000 CHEAD POINTER AUTOMATIC
+c 0002 P POINTER AUTOMATIC
+c 0004 Q POINTER AUTOMATIC
+c 0006 T POINTER AUTOMATIC
+c 0008 U POINTER AUTOMATIC
+c 0000 CITY_NODE STRUCTURE LEVEL 1, MEMBERS 3 BASED()
+c 0000 .CITY_NAME CHAR(6) VARYING MEMBER
+c 0007 .DIST FIXED BINARY(15,0) MEMBER
+c 0009 .LINK POINTER MEMBER
+c 0000 ROUTE_NODE STRUCTURE LEVEL 1, MEMBERS 3 BASED()
+c 0000 .NEXT_CITY POINTER MEMBER
+c 0002 .ROUTE_DISTANCE FIXED BINARY(15,0) MEMBER
+c 0004 .ROUTE_LIST POINTER MEMBER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E30L4
+
+   1 a 0000 l4: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare chead pointer, p pointer, q pointer, t pointer, u pointer;
+   3 c 0006   declare 1 city_node based,
+   4 c 0006           2 city_name character(6) varying,
+   5 c 0006           2 dist fixed,
+   6 c 0006           2 link pointer;
+   7 c 0006   declare 1 route_node based,
+   8 c 0006           2 next_city pointer,
+   9 c 0006           2 route_distance fixed,
+  10 c 0006           2 route_list pointer;
+  11 c 0006   chead = null;
+       0006       LXI  H,0000
+       0009       SHLD CHEAD A(000E)
+  12 c 000C   allocate city_node set(t);
+       000C       MVI  L,0B
+       000E       CALL ?ALLOP
+       0011       SHLD T A(0014)
+  13 c 0014   t->city_name = 'X'; t->link = chead; chead = t;
+       0014       LHLD T A(0014)
+       0017       LXI  D,* S(0000)
+       001A       MVI  A,06
+       001C       MVI  B,01
+       001E       CALL ?SMCVM
+       0021       LHLD CHEAD A(000E)
+       0024       PUSH H
+       0025       LHLD T A(0014)
+       0028       LXI  D,0009
+       002B       DAD  D
+       002C       POP  D
+       002D       MOV  M,E
+       002E       INX  H
+       002F       MOV  M,D
+       0030       LHLD T A(0014)
+       0033       SHLD CHEAD A(000E)
+  14 c 0036   allocate city_node set(t);
+       0036       LXI  H,000B
+       0039       CALL ?ALLOP
+       003C       SHLD T A(0014)
+  15 c 003F   t->city_name = 'Y'; t->link = chead; chead = t;
+       003F       LHLD T A(0014)
+       0042       LXI  D,* S(0001)
+       0045       MVI  A,06
+       0047       MVI  B,01
+       0049       CALL ?SMCVM
+       004C       LHLD CHEAD A(000E)
+       004F       PUSH H
+       0050       LHLD T A(0014)
+       0053       LXI  D,0009
+       0056       DAD  D
+       0057       POP  D
+       0058       MOV  M,E
+       0059       INX  H
+       005A       MOV  M,D
+       005B       LHLD T A(0014)
+       005E       SHLD CHEAD A(000E)
+  16 c 0061   do p = chead repeat(p->link) while(p ^= null);
+       0061       LHLD CHEAD A(000E)
+       0064       SHLD P A(0010)
+       0067       LHLD P A(0010)
+       006A       MOV  A,H
+       006B       ORA  L
+       006C       JZ   0000
+  17 c 006F      put list('city=', p->city_name);
+       006F       LXI  D,0252
+       0072       LXI  B,0000
+       0075       CALL ?SYSPR
+       0078       LXI  H,* S(0002)
+       007B       MVI  A,05
+       007D       CALL ?SLCTS
+       0080       CALL ?PNCOP
+       0083       LHLD P A(0010)
+       0086       CALL ?SLVTS
+       0089       CALL ?PNCOP
+       008C       CALL ?QIOOP
+       0073       ==== 008F
+  18 c 008F      u = null;
+       008F       LXI  H,0000
+       0092       SHLD U A(0016)
+  19 c 0095      do q = u repeat(q->route_list) while(q ^= null);
+       0095       LHLD U A(0016)
+       0098       SHLD Q A(0012)
+       009B       LHLD Q A(0012)
+       009E       MOV  A,H
+       009F       ORA  L
+       00A0       JZ   0000
+  20 c 00A3         put list(' route=', q->route_distance);
+       00A3       LXI  D,0252
+       00A6       LXI  B,0000
+       00A9       CALL ?SYSPR
+       00AC       LXI  H,* S(0007)
+       00AF       MVI  A,07
+       00B1       CALL ?SLCTS
+       00B4       CALL ?PNCOP
+       00B7       LHLD Q A(0012)
+       00BA       INX  H
+       00BB       INX  H
+       00BC       MOV  E,M
+       00BD       INX  H
+       00BE       MOV  D,M
+       00BF       XCHG 
+       00C0       MVI  A,09
+       00C2       CALL ?QICOP
+       00C5       CALL ?PNVOP
+       00C8       CALL ?QIOOP
+       00A7       ==== 00CB
+       00CB       LHLD Q A(0012)
+       00CE       LXI  D,0004
+       00D1       DAD  D
+       00D2       MOV  E,M
+       00D3       INX  H
+       00D4       MOV  D,M
+       00D5       XCHG 
+       00D6       SHLD Q A(0012)
+       00D9       JMP  009B
+       00A1       ==== 00DC
+       00DC       LHLD P A(0010)
+       00DF       LXI  D,0009
+       00E2       DAD  D
+       00E3       MOV  E,M
+       00E4       INX  H
+       00E5       MOV  D,M
+       00E6       XCHG 
+       00E7       SHLD P A(0010)
+       00EA       JMP  0067
+       006D       ==== 00ED
+  21 c 00ED      end;
+  22 c 00ED   end;
+  23 c 00ED   stop;
+       00ED       CALL ?STOPX
+  24 a 00F0 end l4;
+
+CODE SIZE = 00F0
+DATA AREA = 0018
+FREE SYMS = 379C
+END  COMPILATION
+

@@ -1,0 +1,8 @@
+b3: procedure options(main);
+  declare f bit, w fixed;
+  f = '1'b;
+  if f then w = 1; else w = 2;
+  put list('scalar=', w);
+  stop;
+end b3;
+

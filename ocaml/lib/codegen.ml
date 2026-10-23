@@ -40,6 +40,15 @@ type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
                                     `.next'@001F with 0021 (31+2).  Cell = 1 length byte + capacity,
                                     contributes nothing to AUTO STORAGE, exactly like Vbfix. *)
   | Vbptr of string * int      (* based POINTER member            [S2 .NX@2, REVERSE .next@31] *)
+  | Vbbit of string * int      (* based BIT(1) member [E2E-30/P2].  NETWORK's `.investigate' sits
+                                  at record offset 0017 (23) = the 21-byte cap-20 varying cell plus
+                                  the 2-byte `total_distance', read straight off DR's own code:
+                                  `LHLD P / LXI D,0017 / DAD D / MVI M,80' for true and MVI M,00
+                                  for false [golden/e30net_c 0360 and 03D1], and `if p->investigate
+                                  then' tests it as MOV A,M / ORA A / JP skip [0382].  True is bit 7
+                                  (0x80), the same representation as the scalar BIT(1) cell [E2E-11
+                                  step 1a], and the member is again a VIEW: no cell, no AUTO
+                                  STORAGE contribution [C185]. *)
   | Vstruct of string * int    (* the structure NAME: associated pointer + record size [LXI H,size] *)
    (* fixed/varying char capacity. Varying representation PROVEN
       [V101-V104]: length byte at offset 0, data at +1..+n, total
@@ -3757,12 +3766,48 @@ let store_char ?(dst : (unit -> unit) option = None) st name (k : vkind) (v : st
    as with store_based ~off [E2E-27] and lower_store_ptr ~pa_of [E2E-26]].  `?qual' lets the CALLER
    supply the address source, because REVERSE reaches members through a pointer other than the one
    its record declaration names (`newnode->next', `newnode->word'). *)
-let vbvar_addr ?qual st (pn : string) (k : int) () =
+(* [E2E-30/P2] ONE address encoder for every based member, whatever its type: reload the base
+   pointer cell into HL and step to the member with `member_step'.  The VARYING-member route was
+   already this shape; pulling it out here means a BIT member cannot drift from it, which is the
+   C179/C189 requirement -- two spellings (`w' and `p->w') and two types must share one encoder. *)
+let bmem_addr ?qual st (pn : string) (k : int) () =
   let q = (match qual with Some x -> x | None -> pn) in
   st.last_imm <- None;
   d st op_lhld;
   reloc st Data (addr_of st q);
   member_step st k
+
+let vbvar_addr ?qual st (pn : string) (k : int) () =
+  bmem_addr ?qual st pn k ()
+
+(* [E2E-30/P2] store into a based BIT(1) member.  DR's whole byte-level form, from NETWORK:
+     p->investigate = true  ->  LHLD P / [step] / MVI M,80      [0360, 03D8 is the false side]
+     p->investigate = false ->  LHLD P / [step] / MVI M,00      [032F, 0335]
+   `true'/`false' are NETWORK's own %replace names for '1'b/'0'b, so the AST arrives as Ebit and
+   only a 1-character bit literal is accepted -- copying bit to bit, storing a character or a
+   number, and any wider bit literal stay refused rather than inventing a shape (the same rule the
+   scalar BIT(1) store has kept since E2E-11 step 1a). *)
+let store_vbbit st ?qual (pn : string) (k : int) (nm : string) (rhs : Ast.expr) =
+  let byte =
+    match (unwrap_e rhs).Ast.e with
+    | Ast.Ebit "1" -> 0x80
+    | Ast.Ebit "0" -> 0x00
+    | Ast.Ebit b ->
+        failwith
+          (Printf.sprintf
+             "codegen: store of the wide bit literal '%s' into the BIT(1) member %s is unsampled \
+              [TBD] (only '1'b and '0'b are measured -- E2E-11 step 1a, NETWORK)"
+             b nm)
+    | _ ->
+        failwith
+          (Printf.sprintf
+             "codegen: store into the BIT(1) member %s from %s is unsampled [TBD] (DR's measured \
+              sources are the bit literals '1'b and '0'b, spelled directly or through a %%replace \
+              of true/false -- NETWORK lines 175, 179, 196, 204)"
+             nm (expr_kind_name rhs.Ast.e))
+  in
+  bmem_addr ?qual st pn k ();
+  d st 0x36 (* MVI M,d *); d st byte
 
 (* [E2E-29/P1] assignment INTO a CHARACTER VARYING member.  Exactly three right-hand shapes are
    measured, and anything else refuses rather than inventing a route:
@@ -4552,6 +4597,7 @@ let vk_name (vk : vkind) : string =
   | Vbased p -> "based(" ^ p ^ ")"
   | Vbfix (p, k) -> "based-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
   | Vbptr (p, k) -> "based-pointer-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
+  | Vbbit (p, k) -> "based-bit-member(" ^ p ^ "+" ^ string_of_int k ^ ")"
   | Vbvar (p, k, c) ->
       "based-varying-member(" ^ p ^ "+" ^ string_of_int k ^ ",cap=" ^ string_of_int c ^ ")"
   | Vstruct (p, sz) -> "based-structure(" ^ p ^ ",size=" ^ string_of_int sz ^ ")"
@@ -5372,6 +5418,40 @@ let lower_test_skip0 st (c : Ast.expr) =
      ident-zero ladder further down.  `JP' (0xF2), not `JNZ': after ORA A the
      zero flag says nothing about bit 7 of an arbitrary byte, and DR's own bytes
      at code 0x79 in FLTPOLY2 are f2. *)
+  | Ast.Eqptr (b, f) when
+      (match vk_of st (String.lowercase_ascii f.Ast.orig) with
+       | Vbbit _ -> true
+       | _ -> false) ->
+      (* [E2E-30/P2] a BIT(1) member used as a bare condition -- NETWORK's `if p->investigate
+         then' (line 185) and `do while(p->f)'.  From golden/e30net_c 0382:
+            LHLD P / LXI D,0017 / DAD D / MOV A,M / ORA A / JP skip
+         which is the scalar bare-bit test [E2E-11 step 2: LDA f / ORA A / JP] with the member
+         address built by the same encoder the stores use.  JP, not JNZ: DR tests bit 7 through
+         the SIGN flag after ORA A, and the based cell holds 80 for true, so the branch skips the
+         body exactly when the byte's parity is even [C190].  An unqualified bare-based reference
+         has no pointer to load and stays refused. *)
+      let (pn, k) =
+        match vk_of st (String.lowercase_ascii f.Ast.orig) with
+        | Vbbit (pn, k) -> (pn, k)
+        | _ -> assert false
+      in
+      let bn =
+        match (unwrap_e b).Ast.e with
+        | Ast.Eident h -> String.lowercase_ascii h.Ast.orig
+        | _ ->
+            failwith
+              "codegen: `->' whose left side is not a bare pointer name has no DR sample [TBD]"
+      in
+      if not (is_ptr_cell st bn) then
+        failwith
+          ("codegen: `" ^ bn ^ "->" ^ f.Ast.orig
+           ^ "' tests a BIT member through something that is not a POINTER cell [TBD]")
+      else begin
+        bmem_addr ~qual:bn st pn k ();
+        d st 0x7e (* MOV A,M *); d st op_ora_a;
+        d st op_jp;
+        let slot = st.lc in d st 0; d st 0; slot
+      end
   | Ast.Eident v when vk_of st v.Ast.orig = Vbit1 ->
       d st 0x3a (* LDA dir *); reloc st Data (addr_of st v.Ast.orig);
       d st op_ora_a;
@@ -5909,6 +5989,15 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
                ^ "' qualifies a VARYING member through something that is not a POINTER cell "
                ^ "[TBD] (V6, V7 and REVERSE qualify with a declared pointer)");
           store_vbvar ~qual:bn st pn k cap fld.Ast.orig rhs
+      | Vbbit (pn, k) ->
+          (* [E2E-30/P2] `p->investigate = true': the qualifier supplies the address, as for every
+             other member, and the value goes in as one byte [NETWORK 0360, 03D1]. *)
+          if not (is_ptr_cell st bn) then
+            failwith
+              ("codegen: `" ^ bn ^ "->" ^ fld.Ast.orig
+               ^ "' qualifies a BIT member through something that is not a POINTER cell [TBD] \
+                (NETWORK always qualifies with a declared pointer)")
+          else store_vbbit ~qual:bn st pn k fld.Ast.orig rhs
       | Vbfix (pn, k) | Vbptr (pn, k) ->
           if not (is_ptr_cell st bn) then
             failwith
@@ -5934,7 +6023,7 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
       end
   | Ast.Eident n when
       (match vk_of st (String.lowercase_ascii n.Ast.orig) with
-       | Vbased _ | Vbfix _ | Vbptr _ | Vbvar _ -> true
+       | Vbased _ | Vbfix _ | Vbptr _ | Vbvar _ | Vbbit _ -> true
        | _ -> false) ->
       (* [E2E-26/P2, extended E2E-27/P3 and E2E-29/P1] WRITE THROUGH A BASED NAME or a BASED STRUCTURE MEMBER.  DR's bytes are the two shapes already measured for
          a pointer FORMAL [C131], because in both cases a cell holds the address and the value
@@ -5955,6 +6044,7 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
         | Vbfix (p, k) -> (p, k)
         | Vbptr (p, k) -> (p, k)
         | Vbvar (p, k, _) -> (p, k)
+        | Vbbit (p, k) -> (p, k)
         | _ -> assert false
       in
       if String.length pn = 0 then
@@ -5962,6 +6052,23 @@ let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
           ("codegen: store to unqualified `" ^ n.Ast.orig
            ^ "' in a BARE-based structure has no DR sample [TBD] (NETWORK/S3 always write "
            ^ "p->member; the record carries no associated pointer)")
+      else if
+        (match vk_of st (String.lowercase_ascii n.Ast.orig) with Vbbit _ -> true | _ -> false)
+      then begin
+        (* [E2E-30/P2] unqualified spelling of a BIT member, e.g. `investigate = true' inside a
+           level-numbered record whose declared pointer is known -- same encoder, same bytes as
+           `p->investigate' [C179]. *)
+        let capnm =
+          match vk_of st (String.lowercase_ascii n.Ast.orig) with
+          | Vbbit (_, kk) -> kk | _ -> assert false
+        in
+        if String.length pn = 0 then
+          failwith
+            ("codegen: store to unqualified `" ^ n.Ast.orig
+             ^ "' on a BARE-based BIT member has no DR sample [TBD] (NETWORK qualifies every \
+                investigate access)")
+        else store_vbbit st pn capnm n.Ast.orig rhs
+      end
       else if
         (match vk_of st (String.lowercase_ascii n.Ast.orig) with Vbvar _ -> true | _ -> false)
       then begin
@@ -6762,7 +6869,6 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
     | _ -> false
   in
   if while_ <> None
-     || (to_ <> None && rep <> None)
      || (rep <> None && not proven_repeat && not forever_repeat) then
     failwith "codegen: DO WHILE/REPEAT combo/UNTIL deferred [TBD]";
   (* [E2E-8] DO ... BY step.  A step is an INTEGER LITERAL: DR's increment is
@@ -7704,6 +7810,51 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       let head = st.lc in
       lower_stmt st ls body;
       (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head
+  | Ast.Sdoto { ind; from; by; to_; while_; rep; body } when
+      (* [E2E-30/P3] pre-test POINTER TRAVERSAL `do p = <init> repeat(<update>)
+         while(<p ^= null>); BODY; end;' -- NETWORK's loop form, six occurrences
+         (find@013A, print_all@01B3/@01EE, shortest_distance@031B/@0382, free_all@056B) plus
+         my E30L1-L5 probes.  Matched as a separate arm so the numeric DO machinery below is
+         never reached by it.  Requires: guard is a plain POINTER cell, no TO, no BY, a REPEAT
+         clause, and the WHILE condition is exactly `<guard> vs null' on that guard. *)
+      (match (to_, by, rep, while_) with
+       | (None, None, Some _, Some w) ->
+           let w = match w.Ast.e with Ast.Econd x -> x | _ -> w in
+           (match w.Ast.e with
+            | Ast.Ebinary (Ast.EqR (Eq | Ne), a, b) ->
+                (match null_cmp_side st a b with
+                 | Some (cell, _) ->
+                     String.equal (String.lowercase_ascii cell)
+                       (String.lowercase_ascii ind.Ast.orig)
+                     && vk_of st (String.lowercase_ascii ind.Ast.orig) = Vptr
+                 | None -> false)
+            | _ -> false)
+       | _ -> false)
+      ->
+      (* DR's layout, measured off golden/e30p1/E30L1 and the NETWORK listing: the DO's own init
+         and repeat clauses are ORDINARY pointer assignments (lower_assign) and the top test is
+         lower_test_skip -- no new encoder.  head = the TEST, so the back-JMP re-runs the null
+         test (E30L1: init 000F, TEST 0015 LHLD/MOV A,H/ORA L/JZ, body 001D, REPEAT 0024,
+         0032 JMP 0015, JZ relocs to exit 0035).  Lowering this to an equivalent post-test
+         while-loop would reorder test/update and break raw REL parity, the acceptance criterion. *)
+      st.lowered <- st.lowered + 1;
+      st.last_imm <- None;
+      let mk_id nm = { Ast.e = Ast.Eident nm; Ast.epos = nm.Ast.pos } in
+      lower_assign st (mk_id ind) from;   (* init: p = <from> *)
+      st.last_imm <- None;
+      let head = st.lc in                 (* the TEST is the back-JMP target *)
+      let w =
+        match while_ with
+        | Some w -> (match w.Ast.e with Ast.Econd x -> x | _ -> w)
+        | None -> assert false
+      in
+      let slot = lower_test_skip st w in
+      st.last_imm <- None;
+      lower_stmt st ls body;
+      st.last_imm <- None;
+      (match rep with Some r -> lower_assign st (mk_id ind) r | None -> assert false);
+      (d st op_jmp; st.last_imm <- None); reloc st Code head;
+      if slot >= 0 then emit_triple st slot st.lc
   | Ast.Sdoto { ind; from; by; to_; while_; rep; body } ->
       st.lowered <- st.lowered + 1;
       (* open the suppression window at the TAIL ADDRESS before the
@@ -9008,6 +9159,13 @@ let rows_of (b : Ast.block) =
             Some (nm, { off; size = 0; vk = Vbptr (ptr, k); w = binw 15 })
         | Bind.RTstructrec (ptr, sz) ->
             Some (nm, { off; size = 0; vk = Vstruct (ptr, sz); w = 0 })
+        | Bind.RTbmem (ptr, k, Bind.RTbit 1) ->
+            (* [E2E-30/P2] BIT(1) member: one byte, reached through the same record-relative step
+               as every other member, contributing nothing to AUTO STORAGE.  DR's own NETWORK code
+               puts `.investigate' at 0017 in a 001C-byte record, which is 21 (cap-20 varying cell)
+               + 2 (fixed) -- contiguous with no padding, exactly the C185 finding for the other
+               member types. *)
+            Some (nm, { off; size = 0; vk = Vbbit (ptr, k); w = 8 })
         | Bind.RTbmem (ptr, k, Bind.RTchar (n, true)) ->
             (* [E2E-29/P1] CHARACTER VARYING member: REVERSE's `2 word character(30) varying'
                sits at 0 with `.next' at 001F = 31 = 30+1, and ST5's cap-6 record is 9 = 7+2, so

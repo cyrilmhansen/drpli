@@ -1,0 +1,22 @@
+l3: procedure options(main);
+  declare head pointer, p pointer, t pointer, n fixed;
+  declare 1 city_node based,
+          2 city_name character(6) varying,
+          2 dist fixed,
+          2 link pointer;
+  head = null;
+  allocate city_node set(t);
+  t->city_name = 'AAA'; t->dist = 1; t->link = head; head = t;
+  allocate city_node set(t);
+  t->city_name = 'BBB'; t->dist = 2; t->link = head; head = t;
+  allocate city_node set(t);
+  t->city_name = 'CCC'; t->dist = 3; t->link = head; head = t;
+  n = 0;
+  do p = head repeat(p->link) while(p ^= null);
+     put list('v=', p->city_name, p->dist);
+     n = n + 1;
+  end;
+  put list('count=', n);
+  stop;
+end l3;
+

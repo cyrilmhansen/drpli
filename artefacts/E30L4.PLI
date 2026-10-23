@@ -1,0 +1,25 @@
+l4: procedure options(main);
+  declare chead pointer, p pointer, q pointer, t pointer, u pointer;
+  declare 1 city_node based,
+          2 city_name character(6) varying,
+          2 dist fixed,
+          2 link pointer;
+  declare 1 route_node based,
+          2 next_city pointer,
+          2 route_distance fixed,
+          2 route_list pointer;
+  chead = null;
+  allocate city_node set(t);
+  t->city_name = 'X'; t->link = chead; chead = t;
+  allocate city_node set(t);
+  t->city_name = 'Y'; t->link = chead; chead = t;
+  do p = chead repeat(p->link) while(p ^= null);
+     put list('city=', p->city_name);
+     u = null;
+     do q = u repeat(q->route_list) while(q ^= null);
+        put list(' route=', q->route_distance);
+     end;
+  end;
+  stop;
+end l4;
+

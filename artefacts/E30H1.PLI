@@ -1,0 +1,7 @@
+h1: procedure options(main);
+  declare a character(20) varying, b character(20) varying, d fixed;
+  get list(a, d, b);
+  put list('got=', a, d, b);
+  stop;
+end h1;
+

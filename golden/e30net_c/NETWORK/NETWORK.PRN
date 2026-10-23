@@ -1,0 +1,1086 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: NETWORK
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 NULL BUILTIN CONSTANT
+a 0000 NETWORK ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 9, AUTO STORAGE 2 BYTES
+c 0000 SYSIN FILE EXTERNAL STATIC
+c 0000 CITY_NODE STRUCTURE LEVEL 1, MEMBERS 5 BASED()
+c 0000 .CITY_NAME CHAR(20) VARYING MEMBER
+c 0015 .TOTAL_DISTANCE FIXED BINARY(15,0) MEMBER
+c 0017 .INVESTIGATE BIT(1) MEMBER
+c 0018 .CITY_LIST POINTER MEMBER
+c 001A .ROUTE_HEAD POINTER MEMBER
+c 0000 ROUTE_NODE STRUCTURE LEVEL 1, MEMBERS 3 BASED()
+c 0000 .NEXT_CITY POINTER MEMBER
+c 0002 .ROUTE_DISTANCE FIXED BINARY(15,0) MEMBER
+c 0004 .ROUTE_LIST POINTER MEMBER
+c 0000 CITY_HEAD POINTER AUTOMATIC
+c 0000 SETUP ENTRY PARAMETERS(0) CONSTANT
+c 0000 CONNECT ENTRY PARAMETERS(3) CONSTANT
+c 0000 .* CHAR(20) VARYING PARAMETER
+c 0015 .* FIXED BINARY(15,0) PARAMETER
+c 0017 .* CHAR(20) VARYING PARAMETER
+c 0000 FIND FUNCTION PARAMETERS(1) CONSTANT
+c 0000 .* POINTER RETURNED
+c 0002 .* CHAR(20) VARYING PARAMETER
+c 0000 PRINT_ALL ENTRY PARAMETERS(0) CONSTANT
+c 0000 PRINT_PATHS ENTRY PARAMETERS(0) CONSTANT
+c 0000 SHORTEST_DISTANCE ENTRY PARAMETERS(1) CONSTANT
+c 0000 .* CHAR(20) VARYING PARAMETER
+c 0000 PRINT_ROUTE ENTRY PARAMETERS(1) CONSTANT
+c 0000 .* CHAR(20) VARYING PARAMETER
+c 0000 FREE_ALL ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 47, AUTO STORAGE 44 BYTES
+e 0000 DISTANCE FIXED BINARY(15,0) AUTOMATIC
+e 0002 CITY1 CHAR(20) VARYING AUTOMATIC
+e 0017 CITY2 CHAR(20) VARYING AUTOMATIC
+e 0000 EOF LABEL CONSTANT
+BLOCK AT LINE 50, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 70, AUTO STORAGE 12 BYTES, PARAMETERS SOURCE_CITY, DISTANCE, DESTINATION_CITY
+e 0000 SOURCE_CITY CHAR(20) VARYING PARAMETER
+e 0004 DESTINATION_CITY CHAR(20) VARYING PARAMETER
+e 0002 DISTANCE FIXED BINARY(15,0) PARAMETER
+e 0006 R POINTER AUTOMATIC
+e 0008 S POINTER AUTOMATIC
+e 000A D POINTER AUTOMATIC
+BLOCK AT LINE 91, AUTO STORAGE 6 BYTES, PARAMETERS CITY
+e 0000 CITY CHAR(20) VARYING PARAMETER
+e 0002 P POINTER AUTOMATIC
+e 0004 Q POINTER AUTOMATIC
+BLOCK AT LINE 115, AUTO STORAGE 4 BYTES
+e 0000 P POINTER AUTOMATIC
+e 0002 Q POINTER AUTOMATIC
+BLOCK AT LINE 137, AUTO STORAGE 21 BYTES
+e 0000 CITY CHAR(20) VARYING AUTOMATIC
+e 0000 EOL LABEL CONSTANT
+e 0000 EOF LABEL CONSTANT
+BLOCK AT LINE 140, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 145, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 166, AUTO STORAGE 14 BYTES, PARAMETERS CITY
+e 0000 CITY CHAR(20) VARYING PARAMETER
+e 0002 BESTP POINTER AUTOMATIC
+e 0004 D FIXED BINARY(15,0) AUTOMATIC
+e 0006 BESTD FIXED BINARY(15,0) AUTOMATIC
+e 0008 P POINTER AUTOMATIC
+e 000A Q POINTER AUTOMATIC
+e 000C R POINTER AUTOMATIC
+BLOCK AT LINE 216, AUTO STORAGE 10 BYTES, PARAMETERS CITY
+e 0000 CITY CHAR(20) VARYING PARAMETER
+e 0002 P POINTER AUTOMATIC
+e 0004 Q POINTER AUTOMATIC
+e 0006 T FIXED BINARY(15,0) AUTOMATIC
+e 0008 D FIXED BINARY(15,0) AUTOMATIC
+BLOCK AT LINE 253, AUTO STORAGE 4 BYTES
+e 0000 P POINTER AUTOMATIC
+e 0002 Q POINTER AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: NETWORK
+
+   1   0000 /******************************************************/
+   2   0000 /* This program finds the shortest path between nodes */
+   3   0000 /* in a network.  It has 8 internal procedures:       */
+   4   0000 /* SETUP, CONNECT, FIND, PRINT_ALL, PRINT_PATHS,      */
+   5   0000 /* SHORTEST_DISTANCE, PRINT_ROUTE, and FREE_ALL.      */
+   6   0000 /******************************************************/
+   7 a 0000 network:
+       0000       LXI  B,0200
+       0003       CALL ?START
+   8 a 0006     procedure options(main);
+   9 c 0006     %replace 
+  10 c 0006         true     by '1'b,
+  11 c 0006         false    by '0'b,
+  12 c 0006         citysize by 20,
+  13 c 0006         infinite by 32767;
+  14 c 0006     declare
+  15 c 0006         sysin file;
+  16 c 0006     declare
+  17 c 0006         1 city_node based,
+  18 c 0006           2 city_name   character(citysize) varying,
+  19 c 0006           2 total_distance  fixed,
+  20 c 0006           2 investigate bit,
+  21 c 0006           2 city_list   pointer,
+  22 c 0006           2 route_head  pointer;
+  23 c 0006     declare
+  24 c 0006         1 route_node based,
+  25 c 0006           2 next_city   pointer,
+  26 c 0006           2 route_distance  fixed,
+  27 c 0006           2 route_list  pointer;
+  28 c 0006     declare
+  29 c 0006         city_head pointer;
+  30 c 0006 
+  31 c 0006     do while(true);
+  32 c 0006        call setup();
+       0006       CALL 0000
+  33 c 0009        if city_head = null then
+       0009       LHLD CITY_HEAD A(005A)
+       000C       MOV  A,H
+       000D       ORA  L
+       000E       JNZ  0000
+  34 c 0011           stop;
+       0011       CALL ?STOPX
+       000F       ==== 0014
+  35 c 0014        call print_all();
+       0014       CALL 0000
+  36 c 0017        call print_paths();
+       0017       CALL 0000
+  37 c 001A        call free_all();
+       001A       CALL 0000
+       001D       JMP  0006
+  38 c 0020     end;
+  39 c 0020 
+  40 c 0020 /******************************************************/
+  41 c 0020 /* This procedure reads two cities and then calls the */
+  42 c 0020 /* procedure CONNECT to establish the connection (in  */
+  43 c 0020 /* both directions) between the cities.               */
+  44 c 0020 /******************************************************/
+  45 c 0020     setup:
+  46 c 0020         procedure;
+  47 e 0020         declare
+       0020       LXI  H,0000
+       0023       DAD  SP
+       0024       SHLD * A(0088)
+  48 e 0027             distance fixed,
+  49 e 0027             (city1, city2) character(citysize) varying;
+  50 e 0027         on endfile(sysin) goto eof;
+       0027       LXI  H,SYSIN
+       002A       MVI  A,05
+       002C       CALL ?ONCOP
+       002F       JMP  0000
+       0032       JMP  0000
+  51 e 0035         city_head = null;
+       0030       ==== 0035
+       0035       LXI  H,0000
+       0038       SHLD CITY_HEAD A(005A)
+  52 e 003B         put skip list('Type "City1, Dist, City2"');
+       003B       LXI  D,0252
+       003E       LXI  B,0000
+       0041       CALL ?SYSPR
+       0044       MVI  A,01
+       0046       CALL ?SKPOP
+       0049       LXI  H,* S(0000)
+       004C       MVI  A,19
+       004E       CALL ?SLCTS
+       0051       CALL ?PNCOP
+       0054       CALL ?QIOOP
+       003F       ==== 0057
+  53 e 0057         put skip;
+       0057       LXI  D,0252
+       005A       LXI  B,0000
+       005D       CALL ?SYSPR
+       0060       MVI  A,01
+       0062       CALL ?SKPOP
+       0065       CALL ?QIOOP
+       005B       ==== 0068
+  54 e 0068         do while(true);
+  55 e 0068            get list(city1, distance, city2);
+       0068       LXI  D,0290
+       006B       LXI  B,0000
+       006E       CALL ?SYSIN
+       0071       CALL ?GNVOP
+       0074       JP   0000
+       0077       LXI  H,CITY1 A(005E)
+       007A       MVI  B,14
+       007C       CALL ?SSVFS
+       0075       ==== 007F
+       007F       CALL ?GNVOP
+       0082       JP   0000
+       0085       CALL ?QCIOP
+       0088       SHLD DISTANCE A(005C)
+       0083       ==== 008B
+       008B       CALL ?GNVOP
+       008E       JP   0000
+       0091       LXI  H,CITY2 A(0073)
+       0094       MVI  B,14
+       0096       CALL ?SSVFS
+       008F       ==== 0099
+       0099       CALL ?QIOOP
+       006C       ==== 009C
+  56 e 009C            call connect(city1, distance, city2);
+       009C       LXI  H,* A(008A)
+       009F       CALL 0000
+  57 e 00A2            call connect(city2, distance, city1);
+       00A2       LXI  H,* A(0090)
+       00A5       CALL CONNECT
+       00A8       JMP  0068
+       00AB       LHLD * A(0088)
+       00AE       SPHL 
+       00AF       CALL ?RECOV
+       00B2       CALL ?OFCOP
+       00B5       RET  
+  58 e 00B6         end;
+  59 e 00B6         eof:
+  60 c 00B6     end setup;
+  61 c 00B6 
+  62 c 00B6 /******************************************************/
+  63 c 00B6 /* This procedure establishes a single route_node to  */
+  64 c 00B6 /* connect the first city to the second city by       */
+  65 c 00B6 /* calling the FIND procedure twice; once for the     */
+  66 c 00B6 /* first city and once for the second city.           */
+  67 c 00B6 /******************************************************/
+  68 c 00B6     connect:
+  69 c 00B6         procedure(source_city, distance, destination_city);
+  70 e 00B6         declare
+       00B6       LXI  D,SOURCE_CITY A(0096)
+       00B9       MVI  C,06
+       00BB       MOV  A,M
+       00BC       INX  H
+       00BD       STAX D
+       00BE       INX  D
+       00BF       DCR  C
+       00C0       JNZ  00BB
+  71 e 00C3             source_city character(citysize) varying,
+  72 e 00C3             destination_city character(citysize) varying,
+  73 e 00C3             distance fixed,
+  74 e 00C3             (r, s, d) pointer;
+  75 e 00C3 
+  76 e 00C3         s = find(source_city);
+       00C3       LHLD SOURCE_CITY A(0096)
+       00C6       SHLD * A(00A2)
+       00C9       LXI  H,* A(00A2)
+       00CC       CALL 0000
+       00CF       SHLD S A(009E)
+  77 e 00D2         d = find(destination_city);
+       00D2       LHLD DESTINATION_CITY A(009A)
+       00D5       SHLD * A(00A4)
+       00D8       LXI  H,* A(00A4)
+       00DB       CALL FIND
+       00DE       SHLD D A(00A0)
+  78 e 00E1         allocate route_node set (r);
+       00E1       LXI  H,0006
+       00E4       CALL ?ALLOP
+       00E7       SHLD R A(009C)
+  79 e 00EA         r->route_distance = distance;
+       00EA       LHLD DISTANCE A(0098)
+       00ED       MOV  E,M
+       00EE       INX  H
+       00EF       MOV  D,M
+       00F0       XCHG 
+       00F1       PUSH H
+       00F2       LHLD R A(009C)
+       00F5       INX  H
+       00F6       INX  H
+       00F7       POP  D
+       00F8       MOV  M,E
+       00F9       INX  H
+       00FA       MOV  M,D
+  80 e 00FB         r->next_city  = d;
+       00FB       LHLD D A(00A0)
+       00FE       PUSH H
+       00FF       LHLD R A(009C)
+       0102       POP  D
+       0103       MOV  M,E
+       0104       INX  H
+       0105       MOV  M,D
+  81 e 0106         r->route_list = s->route_head;
+       0106       LHLD S A(009E)
+       0109       LXI  D,001A
+       010C       DAD  D
+       010D       MOV  E,M
+       010E       INX  H
+       010F       MOV  D,M
+       0110       XCHG 
+       0111       PUSH H
+       0112       LHLD R A(009C)
+       0115       LXI  D,0004
+       0118       DAD  D
+       0119       POP  D
+       011A       MOV  M,E
+       011B       INX  H
+       011C       MOV  M,D
+  82 e 011D         s->route_head = r;
+       011D       LHLD R A(009C)
+       0120       PUSH H
+       0121       LHLD S A(009E)
+       0124       LXI  D,001A
+       0127       DAD  D
+       0128       POP  D
+       0129       MOV  M,E
+       012A       INX  H
+       012B       MOV  M,D
+       012C       RET  
+  83 c 012D     end connect;
+  84 c 012D 
+  85 c 012D /******************************************************/
+  86 c 012D /* This procedure searches the list of cities and     */
+  87 c 012D /* returns a pointer to the requested city_node.      */
+  88 c 012D /******************************************************/
+  89 c 012D     find:
+  90 c 012D         procedure(city) returns(pointer);
+  91 e 012D         declare
+       012D       MOV  E,M
+       012E       INX  H
+       012F       MOV  D,M
+       0130       XCHG 
+       0131       SHLD CITY A(00A6)
+  92 e 0134             city character(citysize) varying,
+  93 e 0134             (p, q) pointer;
+  94 e 0134 
+  95 e 0134         do p = city_head
+       0134       LHLD CITY_HEAD A(005A)
+       0137       SHLD P A(00A8)
+       013A       LHLD P A(00A8)
+       013D       MOV  A,H
+       013E       ORA  L
+       013F       JZ   0000
+  96 e 0142            repeat(p->city_list) while(p^=null);
+  97 e 0142            if city = p->city_name then
+       0142       LHLD CITY A(00A6)
+       0145       PUSH H
+       0146       LHLD P A(00A8)
+       0149       POP  D
+       014A       CALL ?SCVVM
+       014D       JNZ  0000
+  98 e 0150               return(p);
+       0150       LHLD P A(00A8)
+       0153       RET  
+       014E       ==== 0154
+       0154       LHLD P A(00A8)
+       0157       LXI  D,0018
+       015A       DAD  D
+       015B       MOV  E,M
+       015C       INX  H
+       015D       MOV  D,M
+       015E       XCHG 
+       015F       SHLD P A(00A8)
+       0162       JMP  013A
+       0140       ==== 0165
+  99 e 0165         end;
+ 100 e 0165         allocate city_node set(p);
+       0165       LXI  H,001C
+       0168       CALL ?ALLOP
+       016B       SHLD P A(00A8)
+ 101 e 016E         p->city_name  = city;
+       016E       LHLD CITY A(00A6)
+       0171       PUSH H
+       0172       LHLD P A(00A8)
+       0175       POP  D
+       0176       MVI  A,14
+       0178       CALL ?SMVVM
+ 102 e 017B         p->city_list  = city_head;
+       017B       LHLD CITY_HEAD A(005A)
+       017E       PUSH H
+       017F       LHLD P A(00A8)
+       0182       LXI  D,0018
+       0185       DAD  D
+       0186       POP  D
+       0187       MOV  M,E
+       0188       INX  H
+       0189       MOV  M,D
+ 103 e 018A         city_head     = p;
+       018A       LHLD P A(00A8)
+       018D       SHLD CITY_HEAD A(005A)
+ 104 e 0190         p->total_distance = infinite;
+       0190       LHLD P A(00A8)
+       0193       LXI  D,0015
+       0196       DAD  D
+       0197       MVI  M,FF
+       0199       INX  H
+       019A       MVI  M,7F
+ 105 e 019C         p->route_head = null;
+       019C       MOV  H,D
+       019D       MOV  L,D
+       019E       PUSH H
+       019F       LHLD P A(00A8)
+       01A2       MVI  E,1A
+       01A4       DAD  D
+       01A5       POP  D
+       01A6       MOV  M,E
+       01A7       INX  H
+       01A8       MOV  M,D
+ 106 e 01A9         return(p);
+       01A9       LHLD P A(00A8)
+       01AC       RET  
+ 107 c 01AD     end find;
+ 108 c 01AD 
+ 109 c 01AD /******************************************************/
+ 110 c 01AD /* This procedure starts at the city_head and displays*/
+ 111 c 01AD /* all the cities in the city_list.                   */
+ 112 c 01AD /******************************************************/
+ 113 c 01AD     print_all:
+ 114 c 01AD         procedure;
+ 115 e 01AD         declare
+ 116 e 01AD             (p, q) pointer;
+ 117 e 01AD 
+ 118 e 01AD         do p = city_head
+       01AD       LHLD CITY_HEAD A(005A)
+       01B0       SHLD P A(00AC)
+       01B3       LHLD P A(00AC)
+       01B6       MOV  A,H
+       01B7       ORA  L
+       01B8       JZ   0000
+ 119 e 01BB            repeat(p->city_list) while(p^=null);
+ 120 e 01BB            put skip list(p->city_name,':');
+       01BB       LXI  D,0252
+       01BE       LXI  B,0000
+       01C1       CALL ?SYSPR
+       01C4       MVI  A,01
+       01C6       CALL ?SKPOP
+       01C9       LHLD P A(00AC)
+       01CC       CALL ?SLVTS
+       01CF       CALL ?PNCOP
+       01D2       LXI  H,* S(0019)
+       01D5       MVI  A,01
+       01D7       CALL ?SLCTS
+       01DA       CALL ?PNCOP
+       01DD       CALL ?QIOOP
+       01BF       ==== 01E0
+ 121 e 01E0            do q = p->route_head
+       01E0       LHLD P A(00AC)
+       01E3       LXI  D,001A
+       01E6       DAD  D
+       01E7       MOV  E,M
+       01E8       INX  H
+       01E9       MOV  D,M
+       01EA       XCHG 
+       01EB       SHLD Q A(00AE)
+       01EE       LHLD Q A(00AE)
+       01F1       MOV  A,H
+       01F2       ORA  L
+       01F3       JZ   0000
+ 122 e 01F6               repeat(q->route_list) while(q^=null);
+ 123 e 01F6               put skip list(q->route_distance,'miles to',
+       01F6       LXI  D,0252
+       01F9       LXI  B,0000
+       01FC       CALL ?SYSPR
+       01FF       MVI  A,01
+       0201       CALL ?SKPOP
+       0204       LHLD Q A(00AE)
+       0207       INX  H
+       0208       INX  H
+       0209       MOV  E,M
+       020A       INX  H
+       020B       MOV  D,M
+       020C       XCHG 
+       020D       MVI  A,09
+       020F       CALL ?QICOP
+       0212       CALL ?PNVOP
+       0215       LXI  H,* S(001A)
+       0218       MVI  A,08
+       021A       CALL ?SLCTS
+       021D       CALL ?PNCOP
+       0220       LHLD Q A(00AE)
+       0223       MOV  E,M
+       0224       INX  H
+       0225       MOV  D,M
+       0226       XCHG 
+       0227       CALL ?SLVTS
+       022A       CALL ?PNCOP
+       022D       CALL ?QIOOP
+       01FA       ==== 0230
+       0230       LHLD Q A(00AE)
+       0233       LXI  D,0004
+       0236       DAD  D
+       0237       MOV  E,M
+       0238       INX  H
+       0239       MOV  D,M
+       023A       XCHG 
+       023B       SHLD Q A(00AE)
+       023E       JMP  01EE
+       01F4       ==== 0241
+       0241       LHLD P A(00AC)
+       0244       LXI  D,0018
+       0247       DAD  D
+       0248       MOV  E,M
+       0249       INX  H
+       024A       MOV  D,M
+       024B       XCHG 
+       024C       SHLD P A(00AC)
+       024F       JMP  01B3
+       01B9       ==== 0252
+       0252       RET  
+ 124 e 0253                             q->next_city->city_name);
+ 125 e 0253            end;
+ 126 e 0253         end;
+ 127 c 0253     end print_all;
+ 128 c 0253 
+ 129 c 0253 /******************************************************/
+ 130 c 0253 /* This procedure reads a destination city, calls the */
+ 131 c 0253 /* SHORTEST_DISTANCE procedure, and sets the          */
+ 132 c 0253 /* total_distance field in each city_node to the      */
+ 133 c 0253 /* total distance from the destination city.          */
+ 134 c 0253 /******************************************************/
+ 135 c 0253     print_paths:
+ 136 c 0253         procedure;
+ 137 e 0253         declare
+       0253       LXI  H,0000
+       0256       DAD  SP
+       0257       SHLD * A(00C5)
+ 138 e 025A             city character(citysize) varying;
+ 139 e 025A 
+ 140 e 025A         on endfile(sysin) goto eof;
+       025A       LXI  H,SYSIN
+       025D       MVI  A,05
+       025F       CALL ?ONCOP
+       0262       JMP  0000
+       0265       JMP  0000
+ 141 e 0268         do while(true);
+       0263       ==== 0268
+ 142 e 0268            put skip list('Type Destination ');
+       0268       LXI  D,0252
+       026B       LXI  B,0000
+       026E       CALL ?SYSPR
+       0271       MVI  A,01
+       0273       CALL ?SKPOP
+       0276       LXI  H,* S(0022)
+       0279       MVI  A,11
+       027B       CALL ?SLCTS
+       027E       CALL ?PNCOP
+       0281       CALL ?QIOOP
+       026C       ==== 0284
+ 143 e 0284            get list(city);
+       0284       LXI  D,0290
+       0287       LXI  B,0000
+       028A       CALL ?SYSIN
+       028D       CALL ?GNVOP
+       0290       JP   0000
+       0293       LXI  H,CITY A(00B0)
+       0296       MVI  B,14
+       0298       CALL ?SSVFS
+       0291       ==== 029B
+       029B       CALL ?QIOOP
+       0288       ==== 029E
+ 144 e 029E            call shortest_distance(city);
+       029E       LXI  H,* A(00C7)
+       02A1       CALL 0000
+ 145 e 02A4            on endfile(sysin) goto eol;
+       02A4       LXI  H,SYSIN
+       02A7       MVI  A,05
+       02A9       CALL ?ONCOP
+       02AC       JMP  0000
+       02AF       JMP  0000
+ 146 e 02B2            do while(true);
+       02AD       ==== 02B2
+ 147 e 02B2               put skip list('Type Start ');
+       02B2       LXI  D,0252
+       02B5       LXI  B,0000
+       02B8       CALL ?SYSPR
+       02BB       MVI  A,01
+       02BD       CALL ?SKPOP
+       02C0       LXI  H,* S(0033)
+       02C3       MVI  A,0B
+       02C5       CALL ?SLCTS
+       02C8       CALL ?PNCOP
+       02CB       CALL ?QIOOP
+       02B6       ==== 02CE
+ 148 e 02CE               get list(city);
+       02CE       LXI  D,0290
+       02D1       LXI  B,0000
+       02D4       CALL ?SYSIN
+       02D7       CALL ?GNVOP
+       02DA       JP   0000
+       02DD       LXI  H,CITY A(00B0)
+       02E0       MVI  B,14
+       02E2       CALL ?SSVFS
+       02DB       ==== 02E5
+       02E5       CALL ?QIOOP
+       02D2       ==== 02E8
+ 149 e 02E8               call print_route(city);
+       02E8       LXI  H,* A(00C9)
+       02EB       CALL 0000
+       02EE       JMP  02B2
+       02F1       LHLD * A(00C5)
+       02F4       SPHL 
+       02F5       CALL ?RECOV
+ 150 e 02F8             end;
+ 151 e 02F8             eol: revert endfile(sysin);
+       02F8       LXI  H,SYSIN
+       02FB       MVI  A,05
+       02FD       CALL ?REVOP
+       0300       JMP  0268
+       0303       LHLD * A(00C5)
+       0306       SPHL 
+       0307       CALL ?RECOV
+       030A       CALL ?OFCOP
+       030D       RET  
+ 152 e 030E         end;
+ 153 e 030E         eof:
+ 154 c 030E     end print_paths;
+ 155 c 030E 
+ 156 c 030E /******************************************************/
+ 157 c 030E /* This procedure is the heart of the program.  It    */
+ 158 c 030E /* takes an input city (the destination), and computes*/
+ 159 c 030E /* the minimum total distance from every city in the  */
+ 160 c 030E /* network to the destination.  It then records this  */
+ 161 c 030E /* minimum value in the total_distance field of every */
+ 162 c 030E /* city_node.                                         */
+ 163 c 030E /******************************************************/
+ 164 c 030E     shortest_distance:
+ 165 c 030E         procedure(city);
+ 166 e 030E         declare
+       030E       MOV  E,M
+       030F       INX  H
+       0310       MOV  D,M
+       0311       XCHG 
+       0312       SHLD CITY A(00CB)
+ 167 e 0315             city character(citysize) varying;
+ 168 e 0315         declare
+ 169 e 0315             bestp pointer,
+ 170 e 0315             (d, bestd) fixed,
+ 171 e 0315             (p, q, r) pointer;
+ 172 e 0315         do p = city_head
+       0315       LHLD CITY_HEAD A(005A)
+       0318       SHLD P A(00D3)
+       031B       LHLD P A(00D3)
+       031E       MOV  A,H
+       031F       ORA  L
+       0320       JZ   0000
+ 173 e 0323            repeat(p->city_list) while(p^=null);
+ 174 e 0323            p->total_distance  = infinite;
+       0323       LHLD P A(00D3)
+       0326       LXI  D,0015
+       0329       DAD  D
+       032A       MVI  M,FF
+       032C       INX  H
+       032D       MVI  M,7F
+ 175 e 032F            p->investigate = false;
+       032F       LHLD P A(00D3)
+       0332       INX  D
+       0333       INX  D
+       0334       DAD  D
+       0335       MVI  M,00
+       0337       LHLD P A(00D3)
+       033A       INX  D
+       033B       DAD  D
+       033C       MOV  E,M
+       033D       INX  H
+       033E       MOV  D,M
+       033F       XCHG 
+       0340       SHLD P A(00D3)
+       0343       JMP  031B
+       0321       ==== 0346
+ 176 e 0346         end;
+ 177 e 0346         p = find(city);
+       0346       LHLD CITY A(00CB)
+       0349       SHLD * A(00D9)
+       034C       LXI  H,* A(00D9)
+       034F       CALL FIND
+       0352       SHLD P A(00D3)
+ 178 e 0355         p->total_distance  = 0;
+       0355       LHLD P A(00D3)
+       0358       LXI  D,0015
+       035B       DAD  D
+       035C       XRA  A
+       035D       MOV  M,A
+       035E       INX  H
+       035F       MOV  M,A
+ 179 e 0360         p->investigate = true;
+       0360       LHLD P A(00D3)
+       0363       INX  D
+       0364       INX  D
+       0365       DAD  D
+       0366       MVI  M,80
+ 180 e 0368         do while(true);
+ 181 e 0368            bestp = null;
+       0368       LXI  H,0000
+       036B       SHLD BESTP A(00CD)
+ 182 e 036E            bestd = infinite;
+       036E       LXI  H,7FFF
+       0371       SHLD BESTD A(00D1)
+ 183 e 0374            do p = city_head
+       0374       LHLD CITY_HEAD A(005A)
+       0377       SHLD P A(00D3)
+       037A       LHLD P A(00D3)
+       037D       MOV  A,H
+       037E       ORA  L
+       037F       JZ   0000
+ 184 e 0382               repeat(p->city_list) while(p^=null);
+ 185 e 0382               if p->investigate then
+       0382       LHLD P A(00D3)
+       0385       LXI  D,0017
+       0388       DAD  D
+       0389       MOV  A,M
+       038A       ORA  A
+       038B       JP   0000
+ 186 e 038E                  do;
+ 187 e 038E                    if p->total_distance < bestd then
+       038E       LHLD P A(00D3)
+       0391       LXI  D,0015
+       0394       DAD  D
+       0395       MOV  E,M
+       0396       INX  H
+       0397       MOV  D,M
+       0398       XCHG 
+       0399       XCHG 
+       039A       LHLD BESTD A(00D1)
+       039D       CALL ?IS22N
+       03A0       JP   0000
+ 188 e 03A3                       do;
+ 189 e 03A3                         bestd = p->total_distance;
+       03A3       LHLD P A(00D3)
+       03A6       LXI  D,0015
+       03A9       DAD  D
+       03AA       MOV  E,M
+       03AB       INX  H
+       03AC       MOV  D,M
+       03AD       XCHG 
+       03AE       SHLD BESTD A(00D1)
+ 190 e 03B1                         bestp = p;
+       03B1       LHLD P A(00D3)
+       03B4       SHLD BESTP A(00CD)
+       03A1       ==== 03B7
+       038C       ==== 03B7
+       03B7       LHLD P A(00D3)
+       03BA       LXI  D,0018
+       03BD       DAD  D
+       03BE       MOV  E,M
+       03BF       INX  H
+       03C0       MOV  D,M
+       03C1       XCHG 
+       03C2       SHLD P A(00D3)
+       03C5       JMP  037A
+       0380       ==== 03C8
+ 191 e 03C8                       end;
+ 192 e 03C8                  end;
+ 193 e 03C8            end;
+ 194 e 03C8            if bestp = null then
+       03C8       LHLD BESTP A(00CD)
+       03CB       MOV  A,H
+       03CC       ORA  L
+       03CD       JNZ  0000
+ 195 e 03D0               return;
+       03D0       RET  
+       03CE       ==== 03D1
+ 196 e 03D1            bestp->investigate = false;
+       03D1       LHLD BESTP A(00CD)
+       03D4       LXI  D,0017
+       03D7       DAD  D
+       03D8       MVI  M,00
+ 197 e 03DA            do q = bestp->route_head
+       03DA       LHLD BESTP A(00CD)
+       03DD       MVI  E,1A
+       03DF       DAD  D
+       03E0       MOV  E,M
+       03E1       INX  H
+       03E2       MOV  D,M
+       03E3       XCHG 
+       03E4       SHLD Q A(00D5)
+       03E7       LHLD Q A(00D5)
+       03EA       MOV  A,H
+       03EB       ORA  L
+       03EC       JZ   0000
+ 198 e 03EF               repeat(q->route_list) while(q^=null);
+ 199 e 03EF               r = q->next_city;
+       03EF       LHLD Q A(00D5)
+       03F2       MOV  E,M
+       03F3       INX  H
+       03F4       MOV  D,M
+       03F5       XCHG 
+       03F6       SHLD R A(00D7)
+ 200 e 03F9               d = bestd + q->route_distance;
+       03F9       LHLD BESTD A(00D1)
+       03FC       PUSH H
+       03FD       LHLD Q A(00D5)
+       0400       INX  H
+       0401       INX  H
+       0402       MOV  E,M
+       0403       INX  H
+       0404       MOV  D,M
+       0405       XCHG 
+       0406       POP  D
+       0407       DAD  D
+       0408       SHLD D A(00CF)
+ 201 e 040B               if d < r->total_distance then
+       040B       LHLD D A(00CF)
+       040E       PUSH H
+       040F       LHLD R A(00D7)
+       0412       LXI  D,0015
+       0415       DAD  D
+       0416       MOV  E,M
+       0417       INX  H
+       0418       MOV  D,M
+       0419       XCHG 
+       041A       POP  D
+       041B       CALL ?IS22N
+       041E       JP   0000
+ 202 e 0421                  do;
+ 203 e 0421                    r->total_distance  = d;
+       0421       LHLD D A(00CF)
+       0424       PUSH H
+       0425       LHLD R A(00D7)
+       0428       LXI  D,0015
+       042B       DAD  D
+       042C       POP  D
+       042D       MOV  M,E
+       042E       INX  H
+       042F       MOV  M,D
+ 204 e 0430                    r->investigate = true;
+       0430       LHLD R A(00D7)
+       0433       LXI  D,0017
+       0436       DAD  D
+       0437       MVI  M,80
+       041F       ==== 0439
+       0439       LHLD Q A(00D5)
+       043C       LXI  D,0004
+       043F       DAD  D
+       0440       MOV  E,M
+       0441       INX  H
+       0442       MOV  D,M
+       0443       XCHG 
+       0444       SHLD Q A(00D5)
+       0447       JMP  03E7
+       03ED       ==== 044A
+       044A       JMP  0368
+ 205 e 044D                  end;
+ 206 e 044D            end;
+ 207 e 044D         end;
+ 208 c 044D     end shortest_distance;
+ 209 c 044D 
+ 210 c 044D /******************************************************/
+ 211 c 044D /* This procedure displays the best route from the    */
+ 212 c 044D /* input city to the destination.                     */
+ 213 c 044D /******************************************************/
+ 214 c 044D     print_route:
+ 215 c 044D         procedure(city);
+ 216 e 044D         declare
+       044D       MOV  E,M
+       044E       INX  H
+       044F       MOV  D,M
+       0450       XCHG 
+       0451       SHLD CITY A(00DB)
+ 217 e 0454             city character(citysize) varying;
+ 218 e 0454         declare
+ 219 e 0454             (p,q) pointer,
+ 220 e 0454             (t,d) fixed;
+ 221 e 0454         p = find(city);
+       0454       LHLD CITY A(00DB)
+       0457       SHLD * A(00E5)
+       045A       LXI  H,* A(00E5)
+       045D       CALL FIND
+       0460       SHLD P A(00DD)
+ 222 e 0463         do while(true);
+ 223 e 0463            t = p->total_distance;
+       0463       LHLD P A(00DD)
+       0466       LXI  D,0015
+       0469       DAD  D
+       046A       MOV  E,M
+       046B       INX  H
+       046C       MOV  D,M
+       046D       XCHG 
+       046E       SHLD T A(00E1)
+ 224 e 0471            if t = infinite then
+       0471       LHLD T A(00E1)
+       0474       LXI  B,8001
+       0477       DAD  B
+       0478       MOV  A,H
+       0479       ORA  L
+       047A       JNZ  0000
+ 225 e 047D               do;
+ 226 e 047D                 put skip list('(No Connection)');
+       047D       LXI  D,0252
+       0480       LXI  B,0000
+       0483       CALL ?SYSPR
+       0486       MVI  A,01
+       0488       CALL ?SKPOP
+       048B       LXI  H,* S(003E)
+       048E       MVI  A,0F
+       0490       CALL ?SLCTS
+       0493       CALL ?PNCOP
+       0496       CALL ?QIOOP
+       0481       ==== 0499
+ 227 e 0499                 return;
+       0499       RET  
+       047B       ==== 049A
+ 228 e 049A               end;
+ 229 e 049A            if t = 0 then
+       049A       LXI  H,T A(00E1)
+       049D       MOV  A,M
+       049E       INX  H
+       049F       ORA  M
+       04A0       JNZ  0000
+ 230 e 04A3               return;
+       04A3       RET  
+       04A1       ==== 04A4
+ 231 e 04A4            put skip list(t,'miles remain,');
+       04A4       LXI  D,0252
+       04A7       LXI  B,0000
+       04AA       CALL ?SYSPR
+       04AD       MVI  A,01
+       04AF       CALL ?SKPOP
+       04B2       LHLD T A(00E1)
+       04B5       MVI  A,09
+       04B7       CALL ?QICOP
+       04BA       CALL ?PNVOP
+       04BD       LXI  H,* S(004D)
+       04C0       MVI  A,0D
+       04C2       CALL ?SLCTS
+       04C5       CALL ?PNCOP
+       04C8       CALL ?QIOOP
+       04A8       ==== 04CB
+ 232 e 04CB            q = p->route_head;
+       04CB       LHLD P A(00DD)
+       04CE       LXI  D,001A
+       04D1       DAD  D
+       04D2       MOV  E,M
+       04D3       INX  H
+       04D4       MOV  D,M
+       04D5       XCHG 
+       04D6       SHLD Q A(00DF)
+ 233 e 04D9            do while(q^=null);
+       04D9       LHLD Q A(00DF)
+       04DC       MOV  A,H
+       04DD       ORA  L
+       04DE       JZ   0000
+ 234 e 04E1               p = q->next_city;
+       04E1       LHLD Q A(00DF)
+       04E4       MOV  E,M
+       04E5       INX  H
+       04E6       MOV  D,M
+       04E7       XCHG 
+       04E8       SHLD P A(00DD)
+ 235 e 04EB               d = q->route_distance;
+       04EB       LHLD Q A(00DF)
+       04EE       INX  H
+       04EF       INX  H
+       04F0       MOV  E,M
+       04F1       INX  H
+       04F2       MOV  D,M
+       04F3       XCHG 
+       04F4       SHLD D A(00E3)
+ 236 e 04F7               if t = d + p->total_distance then
+       04F7       LHLD D A(00E3)
+       04FA       PUSH H
+       04FB       LHLD P A(00DD)
+       04FE       LXI  D,0015
+       0501       DAD  D
+       0502       MOV  E,M
+       0503       INX  H
+       0504       MOV  D,M
+       0505       XCHG 
+       0506       POP  D
+       0507       DAD  D
+       0508       PUSH H
+       0509       LHLD T A(00E1)
+       050C       POP  D
+       050D       CALL ?IS22N
+       0510       MOV  A,H
+       0511       ORA  L
+       0512       JNZ  0000
+ 237 e 0515                  do;
+ 238 e 0515                     put list(d,'miles to',p->city_name);
+       0515       LXI  D,0252
+       0518       LXI  B,0000
+       051B       CALL ?SYSPR
+       051E       LHLD D A(00E3)
+       0521       MVI  A,09
+       0523       CALL ?QICOP
+       0526       CALL ?PNVOP
+       0529       LXI  H,* S(001A)
+       052C       MVI  A,08
+       052E       CALL ?SLCTS
+       0531       CALL ?PNCOP
+       0534       LHLD P A(00DD)
+       0537       CALL ?SLVTS
+       053A       CALL ?PNCOP
+       053D       CALL ?QIOOP
+       0519       ==== 0540
+ 239 e 0540                     q = null;
+       0540       LXI  H,0000
+       0543       SHLD Q A(00DF)
+       0546       JMP  0000
+       0513       ==== 0549
+ 240 e 0549                  end; 
+ 241 e 0549               else
+ 242 e 0549                  q = q->route_list;
+       0549       LHLD Q A(00DF)
+       054C       LXI  D,0004
+       054F       DAD  D
+       0550       MOV  E,M
+       0551       INX  H
+       0552       MOV  D,M
+       0553       XCHG 
+       0554       SHLD Q A(00DF)
+       0547       ==== 0557
+       0557       JMP  04D9
+       04DF       ==== 055A
+       055A       JMP  0463
+ 243 e 055D            end;
+ 244 e 055D         end;
+ 245 c 055D     end print_route;
+ 246 c 055D 
+ 247 c 055D /******************************************************/
+ 248 c 055D /* This procedure frees all the storage allocated     */
+ 249 c 055D /* by the program while processing the network.       */
+ 250 c 055D /******************************************************/
+ 251 c 055D     free_all:
+ 252 c 055D         procedure;
+ 253 e 055D         declare
+ 254 e 055D             (p, q) pointer;
+ 255 e 055D         do p = city_head
+       055D       LHLD CITY_HEAD A(005A)
+       0560       SHLD P A(00E7)
+       0563       LHLD P A(00E7)
+       0566       MOV  A,H
+       0567       ORA  L
+       0568       JZ   0000
+ 256 e 056B            repeat(p->city_list) while(p^=null);
+ 257 e 056B            do q = p->route_head
+       056B       LHLD P A(00E7)
+       056E       LXI  D,001A
+       0571       DAD  D
+       0572       MOV  E,M
+       0573       INX  H
+       0574       MOV  D,M
+       0575       XCHG 
+       0576       SHLD Q A(00E9)
+       0579       LHLD Q A(00E9)
+       057C       MOV  A,H
+       057D       ORA  L
+       057E       JZ   0000
+ 258 e 0581               repeat(q->route_list) while(q^=null);
+ 259 e 0581               free q->route_node;
+       0581       LHLD Q A(00E9)
+       0584       CALL ?FREOP
+       0587       LHLD Q A(00E9)
+       058A       LXI  D,0004
+       058D       DAD  D
+       058E       MOV  E,M
+       058F       INX  H
+       0590       MOV  D,M
+       0591       XCHG 
+       0592       SHLD Q A(00E9)
+       0595       JMP  0579
+       057F       ==== 0598
+ 260 e 0598            end;
+ 261 e 0598            free p->city_node;
+       0598       LHLD P A(00E7)
+       059B       CALL ?FREOP
+       059E       LHLD P A(00E7)
+       05A1       LXI  D,0018
+       05A4       DAD  D
+       05A5       MOV  E,M
+       05A6       INX  H
+       05A7       MOV  D,M
+       05A8       XCHG 
+       05A9       SHLD P A(00E7)
+       05AC       JMP  0563
+       0569       ==== 05AF
+       05AF       RET  
+ 262 e 05B0         end;
+ 263 c 05B0     end free_all;
+ 264 c 05B0 
+ 265 a 05B0 end network;
+ 266 a 05B0 
+
+CODE SIZE = 05B0
+DATA AREA = 00EB
+FREE SYMS = 32EB
+END  COMPILATION
+

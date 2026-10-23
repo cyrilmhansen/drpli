@@ -1,0 +1,131 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E30L5
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 NULL BUILTIN CONSTANT
+a 0000 L5 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 8 BYTES
+c 0000 HEAD POINTER AUTOMATIC
+c 0002 P POINTER AUTOMATIC
+c 0004 T POINTER AUTOMATIC
+c 0006 N FIXED BINARY(15,0) AUTOMATIC
+c 0000 CITY_NODE STRUCTURE LEVEL 1, MEMBERS 3 BASED()
+c 0000 .CITY_NAME CHAR(6) VARYING MEMBER
+c 0007 .DIST FIXED BINARY(15,0) MEMBER
+c 0009 .LINK POINTER MEMBER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E30L5
+
+   1 a 0000 l5: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare head pointer, p pointer, t pointer, n fixed;
+   3 c 0006   declare 1 city_node based,
+   4 c 0006           2 city_name character(6) varying,
+   5 c 0006           2 dist fixed,
+   6 c 0006           2 link pointer;
+   7 c 0006   head = null;
+       0006       LXI  H,0000
+       0009       SHLD HEAD A(000A)
+   8 c 000C   allocate city_node set(t);
+       000C       MVI  L,0B
+       000E       CALL ?ALLOP
+       0011       SHLD T A(000E)
+   9 c 0014   t->city_name = 'SOLO'; t->dist = 6; t->link = head; head = t;
+       0014       LHLD T A(000E)
+       0017       LXI  D,* S(0000)
+       001A       MVI  A,06
+       001C       MVI  B,04
+       001E       CALL ?SMCVM
+       0021       LHLD T A(000E)
+       0024       LXI  D,0007
+       0027       DAD  D
+       0028       MVI  M,06
+       002A       INX  H
+       002B       MVI  M,00
+       002D       LHLD HEAD A(000A)
+       0030       PUSH H
+       0031       LHLD T A(000E)
+       0034       INX  D
+       0035       INX  D
+       0036       DAD  D
+       0037       POP  D
+       0038       MOV  M,E
+       0039       INX  H
+       003A       MOV  M,D
+       003B       LHLD T A(000E)
+       003E       SHLD HEAD A(000A)
+  10 c 0041   n = 0;
+       0041       LXI  H,0000
+       0044       SHLD N A(0010)
+  11 c 0047   do p = head repeat(p->dist) while(p ^= null);
+       0047       LHLD HEAD A(000A)
+       004A       SHLD P A(000C)
+       004D       LHLD P A(000C)
+       0050       MOV  A,H
+       0051       ORA  L
+       0052       JZ   0000
+  12 c 0055      n = n + 1;
+       0055       LHLD N A(0010)
+       0058       INX  H
+       0059       SHLD N A(0010)
+  13 c 005C      if n > 3 then p = null;
+       005C       LHLD N A(0010)
+       005F       LXI  B,FFFC
+       0062       DAD  B
+       0063       MOV  A,H
+       0064       ORA  A
+       0065       JM   0000
+       0068       LXI  H,0000
+       006B       SHLD P A(000C)
+       0066       ==== 006E
+       006E       LHLD P A(000C)
+       0071       LXI  D,0007
+       0074       DAD  D
+       0075       MOV  E,M
+       0076       INX  H
+       0077       MOV  D,M
+       0078       XCHG 
+       0079       SHLD P A(000C)
+       007C       JMP  004D
+       0053       ==== 007F
+  14 c 007F   end;
+  15 c 007F   put list('weird=', n);
+       007F       LXI  D,0252
+       0082       LXI  B,0000
+       0085       CALL ?SYSPR
+       0088       LXI  H,* S(0004)
+       008B       MVI  A,06
+       008D       CALL ?SLCTS
+       0090       CALL ?PNCOP
+       0093       LHLD N A(0010)
+       0096       MVI  A,09
+       0098       CALL ?QICOP
+       009B       CALL ?PNVOP
+       009E       CALL ?QIOOP
+       0083       ==== 00A1
+  16 c 00A1   stop;
+       00A1       CALL ?STOPX
+  17 a 00A4 end l5;
+
+CODE SIZE = 00A4
+DATA AREA = 0012
+FREE SYMS = 3801
+END  COMPILATION
+

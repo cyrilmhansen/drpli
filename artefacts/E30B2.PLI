@@ -1,0 +1,21 @@
+b2: procedure options(main);
+    %replace true by '1'b, false by '0'b, citysize by 20;
+  declare p pointer, w fixed;
+  declare 1 city_node based,
+          2 city_name character(citysize) varying,
+          2 total_distance fixed,
+          2 investigate bit,
+          2 city_list pointer,
+          2 route_head pointer;
+  allocate city_node set(p);
+  p->investigate = false;
+  if p->investigate then w = 1; else w = 2;
+  put list('off=', w);
+  p->investigate = true;
+  if p->investigate then w = 3; else w = 4;
+  put list(' on=', w);
+  put list('name=', p->city_name, ' dist=', p->total_distance);
+  free p->city_node;
+  stop;
+end b2;
+

@@ -157,7 +157,7 @@ E27S13	specimen	artefacts/ST13.PLI	golden/e2e324d/ST13/ST13.REL
 E27S3	specimen	artefacts/ST3.PLI	golden/e2e323d/ST3/ST3.REL
 E27S4	refusal	st4: procedure options(main);\n   declare p pointer, u pointer;\n   declare 1 aa based, 2 x fixed;\n   declare 1 bb based, 2 y fixed, 2 link pointer;\n   allocate aa set(p);\n   allocate bb set(u);\n   x = 11;\n   y = 22;\n   link = p;\n   put list('x=', x, ' y=', y);\n   free aa;\n   free bb;\n  stop;\nend st4;\n	DR rejects this probe (golden/e2e323d/ST4: 6 pass-2 errors, NO .REL) and mine refuses too, for a narrower and defensible reason: two bare-based records plus `x = 11' unqualified, which no DR sample supports since NETWORK always writes p->city_name. Registered for the refusal mine can actually defend; the probe needs splitting to attribute DR's six errors.
 E27S5	specimen	artefacts/ST5.PLI	golden/e2e323d/ST5/ST5.REL
-E27S6	refusal	st6: procedure options(main);\n   declare p pointer;\n   declare 1 s based(p), 2 a fixed, 2 b bit, 2 c fixed;\n   allocate s set(p);\n   a = 1;\n   b = '1'b;\n   c = 2;\n   put list('c=', c);\n   free s;\n  stop;\nend st6;\n	DR COMPILES IT (golden/e2e323d/ST6/ST6.REL). `2 a fixed, 2 b bit, 2 c fixed' -- the probe that MEASURES DR's layout rule: bit(1) takes one byte and c lands at the ODD offset 3, with allocation size 5. Members are contiguous with no alignment padding. Mine binds that layout correctly (offsets and record size come from the same walk) and refuses only the BIT member's store bytes.
+E27S6	specimen	artefacts/ST6.PLI	golden/e2e323d/ST6/ST6.REL
 E27S7	refusal	st7: procedure options(main);\n   declare p pointer;\n   declare 1 s based(p), 2 c character(4), 2 a fixed;\n   allocate s set(p);\n   a = 9;\n   put list('a=', a);\n   free s;\n  stop;\nend st7;\n	DR COMPILES IT (golden/e2e323d/ST7/ST7.REL). `2 c character(4), 2 a fixed': char(4) at offset 0, fixed at 4, record size 6. Character-member stores through a pointer are unimplemented; PB6 measures the analogous SCALAR form (LHLD <p> / LXI D,text / MVI A,len / MOV B,A / ?SMCCM), which is store_char with LHLD in place of LXI H.
 E27S8	specimen	artefacts/ST8.PLI	golden/e2e324d/ST8/ST8.REL
 E27S9	specimen	artefacts/ST9.PLI	golden/e2e324d/ST9/ST9.REL
@@ -215,6 +215,12 @@ E29X6	specimen	artefacts/E29X6.PLI	golden/e2e353d/E29X6/E29X6.REL
 E29X7	specimen	artefacts/E29X7.PLI	golden/e2e362/E29X7/E29X7.REL
 E29X8	specimen	artefacts/E29X8.PLI	golden/e2e353d/E29X8/E29X8.REL
 E29X9	specimen	artefacts/E29X9.PLI	golden/e2e362/E29X9/E29X9.REL
+E30B1	specimen	artefacts/E30B1.PLI	golden/e30p1/E30B1/E30B1.REL
+E30B3	specimen	artefacts/E30B3.PLI	golden/e30p1/E30B3/E30B3.REL
+E30B5	specimen	artefacts/E30B5.PLI	golden/e30p1/E30B5/E30B5.REL
+E30B7	specimen	artefacts/E30B7.PLI	golden/e30p1/E30B7/E30B7.REL
+E30H1	specimen	artefacts/E30H1.PLI	golden/e30p1/E30H1/E30H1.REL
+E30T1	specimen	artefacts/E30T1.PLI	golden/e30p1/E30T1/E30T1.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

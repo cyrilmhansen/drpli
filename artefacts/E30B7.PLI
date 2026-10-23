@@ -1,0 +1,12 @@
+b7: procedure options(main);
+  declare p pointer, w fixed;
+  declare 1 nd based, 2 a fixed, 2 f bit, 2 nx pointer;
+  allocate nd set(p);
+  p->a = 12;
+  p->f = '1'b;
+  if p->f then w = 1; else w = 2;
+  put list('mix=', w, ' a=', p->a);
+  free p->nd;
+  stop;
+end b7;
+

@@ -1,0 +1,24 @@
+c3: procedure options(main);
+  declare p pointer, q pointer, s character(6) varying, hit fixed;
+  declare 1 city_node based,
+          2 city_name character(6) varying,
+          2 dist fixed,
+          2 link pointer;
+  declare 1 route_node based,
+          2 next_city pointer,
+          2 route_distance fixed,
+          2 route_list pointer;
+  allocate city_node set(p);
+  allocate route_node set(q);
+  p->city_name = 'LYON';
+  q->next_city = p;
+  s = 'LYON';
+  hit = 0;
+  if s = q->next_city->city_name then hit = 3;
+  if q->next_city->city_name = s then hit = hit + 4;
+  put list('cmp=', hit);
+  free q->route_node;
+  free p->city_node;
+  stop;
+end c3;
+

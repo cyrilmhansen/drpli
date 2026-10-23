@@ -1,0 +1,10 @@
+t1: procedure options(main);
+  declare p pointer;
+  declare 1 nd based, 2 w character(6) varying, 2 nx pointer;
+  allocate nd set(p);
+  p->w = 'ABCDEFGH';
+  put list('trunc=[', p->w, ']');
+  free p->nd;
+  stop;
+end t1;
+

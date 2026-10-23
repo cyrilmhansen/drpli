@@ -1,0 +1,11 @@
+b6: procedure options(main);
+  declare p pointer, w fixed;
+  declare 1 nd based, 2 pad character(3), 2 f bit, 2 nx pointer;
+  allocate nd set(p);
+  p->f = '1'b;
+  if p->f then w = 7; else w = 8;
+  put list('mid=', w);
+  free p->nd;
+  stop;
+end b6;
+

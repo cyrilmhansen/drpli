@@ -1,0 +1,200 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E30L3
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 NULL BUILTIN CONSTANT
+a 0000 L3 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 8 BYTES
+c 0000 HEAD POINTER AUTOMATIC
+c 0002 P POINTER AUTOMATIC
+c 0004 T POINTER AUTOMATIC
+c 0006 N FIXED BINARY(15,0) AUTOMATIC
+c 0000 CITY_NODE STRUCTURE LEVEL 1, MEMBERS 3 BASED()
+c 0000 .CITY_NAME CHAR(6) VARYING MEMBER
+c 0007 .DIST FIXED BINARY(15,0) MEMBER
+c 0009 .LINK POINTER MEMBER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E30L3
+
+   1 a 0000 l3: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare head pointer, p pointer, t pointer, n fixed;
+   3 c 0006   declare 1 city_node based,
+   4 c 0006           2 city_name character(6) varying,
+   5 c 0006           2 dist fixed,
+   6 c 0006           2 link pointer;
+   7 c 0006   head = null;
+       0006       LXI  H,0000
+       0009       SHLD HEAD A(0011)
+   8 c 000C   allocate city_node set(t);
+       000C       MVI  L,0B
+       000E       CALL ?ALLOP
+       0011       SHLD T A(0015)
+   9 c 0014   t->city_name = 'AAA'; t->dist = 1; t->link = head; head = t;
+       0014       LHLD T A(0015)
+       0017       LXI  D,* S(0000)
+       001A       MVI  A,06
+       001C       MVI  B,03
+       001E       CALL ?SMCVM
+       0021       LHLD T A(0015)
+       0024       LXI  D,0007
+       0027       DAD  D
+       0028       MVI  M,01
+       002A       INX  H
+       002B       MVI  M,00
+       002D       LHLD HEAD A(0011)
+       0030       PUSH H
+       0031       LHLD T A(0015)
+       0034       INX  D
+       0035       INX  D
+       0036       DAD  D
+       0037       POP  D
+       0038       MOV  M,E
+       0039       INX  H
+       003A       MOV  M,D
+       003B       LHLD T A(0015)
+       003E       SHLD HEAD A(0011)
+  10 c 0041   allocate city_node set(t);
+       0041       LXI  H,000B
+       0044       CALL ?ALLOP
+       0047       SHLD T A(0015)
+  11 c 004A   t->city_name = 'BBB'; t->dist = 2; t->link = head; head = t;
+       004A       LHLD T A(0015)
+       004D       LXI  D,* S(0003)
+       0050       MVI  A,06
+       0052       MVI  B,03
+       0054       CALL ?SMCVM
+       0057       LHLD T A(0015)
+       005A       LXI  D,0007
+       005D       DAD  D
+       005E       MVI  M,02
+       0060       INX  H
+       0061       MVI  M,00
+       0063       LHLD HEAD A(0011)
+       0066       PUSH H
+       0067       LHLD T A(0015)
+       006A       INX  D
+       006B       INX  D
+       006C       DAD  D
+       006D       POP  D
+       006E       MOV  M,E
+       006F       INX  H
+       0070       MOV  M,D
+       0071       LHLD T A(0015)
+       0074       SHLD HEAD A(0011)
+  12 c 0077   allocate city_node set(t);
+       0077       LXI  H,000B
+       007A       CALL ?ALLOP
+       007D       SHLD T A(0015)
+  13 c 0080   t->city_name = 'CCC'; t->dist = 3; t->link = head; head = t;
+       0080       LHLD T A(0015)
+       0083       LXI  D,* S(0006)
+       0086       MVI  A,06
+       0088       MVI  B,03
+       008A       CALL ?SMCVM
+       008D       LHLD T A(0015)
+       0090       LXI  D,0007
+       0093       DAD  D
+       0094       MVI  M,03
+       0096       INX  H
+       0097       MVI  M,00
+       0099       LHLD HEAD A(0011)
+       009C       PUSH H
+       009D       LHLD T A(0015)
+       00A0       INX  D
+       00A1       INX  D
+       00A2       DAD  D
+       00A3       POP  D
+       00A4       MOV  M,E
+       00A5       INX  H
+       00A6       MOV  M,D
+       00A7       LHLD T A(0015)
+       00AA       SHLD HEAD A(0011)
+  14 c 00AD   n = 0;
+       00AD       LXI  H,0000
+       00B0       SHLD N A(0017)
+  15 c 00B3   do p = head repeat(p->link) while(p ^= null);
+       00B3       LHLD HEAD A(0011)
+       00B6       SHLD P A(0013)
+       00B9       LHLD P A(0013)
+       00BC       MOV  A,H
+       00BD       ORA  L
+       00BE       JZ   0000
+  16 c 00C1      put list('v=', p->city_name, p->dist);
+       00C1       LXI  D,0252
+       00C4       LXI  B,0000
+       00C7       CALL ?SYSPR
+       00CA       LXI  H,* S(0009)
+       00CD       MVI  A,02
+       00CF       CALL ?SLCTS
+       00D2       CALL ?PNCOP
+       00D5       LHLD P A(0013)
+       00D8       CALL ?SLVTS
+       00DB       CALL ?PNCOP
+       00DE       LHLD P A(0013)
+       00E1       LXI  D,0007
+       00E4       DAD  D
+       00E5       MOV  E,M
+       00E6       INX  H
+       00E7       MOV  D,M
+       00E8       XCHG 
+       00E9       MVI  A,09
+       00EB       CALL ?QICOP
+       00EE       CALL ?PNVOP
+       00F1       CALL ?QIOOP
+       00C5       ==== 00F4
+  17 c 00F4      n = n + 1;
+       00F4       LHLD N A(0017)
+       00F7       INX  H
+       00F8       SHLD N A(0017)
+       00FB       LHLD P A(0013)
+       00FE       LXI  D,0009
+       0101       DAD  D
+       0102       MOV  E,M
+       0103       INX  H
+       0104       MOV  D,M
+       0105       XCHG 
+       0106       SHLD P A(0013)
+       0109       JMP  00B9
+       00BF       ==== 010C
+  18 c 010C   end;
+  19 c 010C   put list('count=', n);
+       010C       LXI  D,0252
+       010F       LXI  B,0000
+       0112       CALL ?SYSPR
+       0115       LXI  H,* S(000B)
+       0118       MVI  A,06
+       011A       CALL ?SLCTS
+       011D       CALL ?PNCOP
+       0120       LHLD N A(0017)
+       0123       MVI  A,09
+       0125       CALL ?QICOP
+       0128       CALL ?PNVOP
+       012B       CALL ?QIOOP
+       0110       ==== 012E
+  20 c 012E   stop;
+       012E       CALL ?STOPX
+  21 a 0131 end l3;
+
+CODE SIZE = 0131
+DATA AREA = 0019
+FREE SYMS = 37B7
+END  COMPILATION
+

@@ -1,0 +1,18 @@
+l5: procedure options(main);
+  declare head pointer, p pointer, t pointer, n fixed;
+  declare 1 city_node based,
+          2 city_name character(6) varying,
+          2 dist fixed,
+          2 link pointer;
+  head = null;
+  allocate city_node set(t);
+  t->city_name = 'SOLO'; t->dist = 6; t->link = head; head = t;
+  n = 0;
+  do p = head repeat(p->dist) while(p ^= null);
+     n = n + 1;
+     if n > 3 then p = null;
+  end;
+  put list('weird=', n);
+  stop;
+end l5;
+

@@ -1,0 +1,136 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E30C3
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 C3 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 13 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0002 Q POINTER AUTOMATIC
+c 0004 S CHAR(6) VARYING AUTOMATIC
+c 000B HIT FIXED BINARY(15,0) AUTOMATIC
+c 0000 CITY_NODE STRUCTURE LEVEL 1, MEMBERS 3 BASED()
+c 0000 .CITY_NAME CHAR(6) VARYING MEMBER
+c 0007 .DIST FIXED BINARY(15,0) MEMBER
+c 0009 .LINK POINTER MEMBER
+c 0000 ROUTE_NODE STRUCTURE LEVEL 1, MEMBERS 3 BASED()
+c 0000 .NEXT_CITY POINTER MEMBER
+c 0002 .ROUTE_DISTANCE FIXED BINARY(15,0) MEMBER
+c 0004 .ROUTE_LIST POINTER MEMBER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E30C3
+
+   1 a 0000 c3: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare p pointer, q pointer, s character(6) varying, hit fixed;
+   3 c 0006   declare 1 city_node based,
+   4 c 0006           2 city_name character(6) varying,
+   5 c 0006           2 dist fixed,
+   6 c 0006           2 link pointer;
+   7 c 0006   declare 1 route_node based,
+   8 c 0006           2 next_city pointer,
+   9 c 0006           2 route_distance fixed,
+  10 c 0006           2 route_list pointer;
+  11 c 0006   allocate city_node set(p);
+       0006       LXI  H,000B
+       0009       CALL ?ALLOP
+       000C       SHLD P A(0008)
+  12 c 000F   allocate route_node set(q);
+       000F       LXI  H,0006
+       0012       CALL ?ALLOP
+       0015       SHLD Q A(000A)
+  13 c 0018   p->city_name = 'LYON';
+       0018       LHLD P A(0008)
+       001B       LXI  D,* S(0000)
+       001E       MVI  A,06
+       0020       MVI  B,04
+       0022       CALL ?SMCVM
+  14 c 0025   q->next_city = p;
+       0025       LHLD P A(0008)
+       0028       PUSH H
+       0029       LHLD Q A(000A)
+       002C       POP  D
+       002D       MOV  M,E
+       002E       INX  H
+       002F       MOV  M,D
+  15 c 0030   s = 'LYON';
+       0030       LXI  H,S A(000C)
+       0033       LXI  D,* S(0000)
+       0036       MVI  A,06
+       0038       MVI  B,04
+       003A       CALL ?SMCVM
+  16 c 003D   hit = 0;
+       003D       LXI  H,0000
+       0040       SHLD HIT A(0013)
+  17 c 0043   if s = q->next_city->city_name then hit = 3;
+       0043       LHLD Q A(000A)
+       0046       MOV  E,M
+       0047       INX  H
+       0048       MOV  D,M
+       0049       XCHG 
+       004A       LXI  D,S A(000C)
+       004D       CALL ?SCVVM
+       0050       JNZ  0000
+       0053       LXI  H,0003
+       0056       SHLD HIT A(0013)
+       0051       ==== 0059
+  18 c 0059   if q->next_city->city_name = s then hit = hit + 4;
+       0059       LHLD Q A(000A)
+       005C       MOV  E,M
+       005D       INX  H
+       005E       MOV  D,M
+       005F       XCHG 
+       0060       XCHG 
+       0061       LXI  H,S A(000C)
+       0064       CALL ?SCVVM
+       0067       JNZ  0000
+       006A       LHLD HIT A(0013)
+       006D       LXI  B,0004
+       0070       DAD  B
+       0071       SHLD HIT A(0013)
+       0068       ==== 0074
+  19 c 0074   put list('cmp=', hit);
+       0074       LXI  D,0252
+       0077       LXI  B,0000
+       007A       CALL ?SYSPR
+       007D       LXI  H,* S(0004)
+       0080       MVI  A,04
+       0082       CALL ?SLCTS
+       0085       CALL ?PNCOP
+       0088       LHLD HIT A(0013)
+       008B       MVI  A,09
+       008D       CALL ?QICOP
+       0090       CALL ?PNVOP
+       0093       CALL ?QIOOP
+       0078       ==== 0096
+  20 c 0096   free q->route_node;
+       0096       LHLD Q A(000A)
+       0099       CALL ?FREOP
+  21 c 009C   free p->city_node;
+       009C       LHLD P A(0008)
+       009F       CALL ?FREOP
+  22 c 00A2   stop;
+       00A2       CALL ?STOPX
+  23 a 00A5 end c3;
+
+CODE SIZE = 00A5
+DATA AREA = 0015
+FREE SYMS = 37CA
+END  COMPILATION
+

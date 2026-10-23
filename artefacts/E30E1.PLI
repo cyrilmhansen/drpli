@@ -1,0 +1,14 @@
+e1: procedure options(main);
+  declare s character(20) varying;
+  call readone();
+  put list('got=', s);
+  stop;
+  readone: procedure;
+     declare word character(20) varying;
+     on endfile(sysin) goto fin;
+     get list(word);
+     s = word;
+     fin: revert endfile(sysin);
+  end readone;
+end e1;
+

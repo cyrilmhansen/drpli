@@ -1,0 +1,23 @@
+c2: procedure options(main);
+  declare p pointer, q pointer, d fixed;
+  declare 1 city_node based,
+          2 city_name character(6) varying,
+          2 dist fixed,
+          2 link pointer;
+  declare 1 route_node based,
+          2 next_city pointer,
+          2 route_distance fixed,
+          2 route_list pointer;
+  allocate city_node set(p);
+  allocate route_node set(q);
+  p->city_name = 'ROME';
+  p->dist = 7;
+  q->next_city = p;
+  q->route_distance = 4;
+  d = q->next_city->dist + q->route_distance;
+  put list('sum=', d, ' name=', q->next_city->city_name);
+  free q->route_node;
+  free p->city_node;
+  stop;
+end c2;
+
