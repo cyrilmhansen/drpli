@@ -770,9 +770,6 @@ REJECTS = {
     "N6_COMPUTED_GOTO": ("t:\n  procedure options(main);\n  dcl i fixed;\n"
                          "l:\n  i = i + 1;\n  goto l(i);\nend t;\n",
                          "computed GOTO"),
-    "N7_MULTI_FWD": ("t:\n  procedure options(main);\n"
-                     "  goto l;\n  goto l;\nl:\n  put list('X');\nend t;\n",
-                     "[TBD]"),
     "N9_GTZERO": ("t:\n  procedure options(main);\n  dcl a fixed;\n"
                   "  if a > 0 then put list('X');\nend t;\n",
                   "unproven"),
@@ -1047,11 +1044,6 @@ REJECTS = {
     # [E2E-11 step 2] PERIMETER refusals around ON/FILE.  All three subjects are
     # programs DR compiles, so these record capability I have not built, not
     # language limits -- and each has a DR golden to be measured against later.
-    "N79_ON_HANDLER_GOTO": (
-        "e11f:\n  procedure options(main);\n  dcl sysin file;\n"
-        "  dcl a fixed bin(15);\n  on endfile(sysin) goto out;\n"
-        "out:\n  get list(a);\n  stop;\nend e11f;\n",
-        "needs DR's ?RECOV label prologue"),
     "N80_ON_HANDLER_BEGIN": (
         "e11c:\n  procedure options(main);\n  dcl sysin file;\n"
         "  dcl efile bit(1) static initial('0'b);\n"
@@ -1705,8 +1697,6 @@ NEG_META = {
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG36/NG36.REL)"),
     "N6_COMPUTED_GOTO": ("dr-refuses",
      "DR REFUSES: ARG COUNT (golden/negpanel1/NG50/NG50.PRN)"),
-    "N7_MULTI_FWD": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG60/NG60.REL)"),
     "N9_GTZERO": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG65/NG65.REL)"),
     "N11_STROVR": ("my-gap",
@@ -1810,8 +1800,6 @@ NEG_META = {
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG57/NG57.REL)"),
     "N78_INITIAL_WITHOUT_STATIC": ("dr-refuses",
      "DR REFUSES: NOT STATIC (golden/negpanel1/NG58/NG58.PRN)"),
-    "N79_ON_HANDLER_GOTO": ("my-gap",
-     "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG59/NG59.REL)"),
     "N80_ON_HANDLER_BEGIN": ("my-gap",
      "DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG61/NG61.REL)"),
     "N81_CALL_OF_VALUE_RETURNING": ("dr-refuses",
@@ -2970,6 +2958,72 @@ add_spec('E32E1', ('artefacts/E32E1.PLI', 'golden/e32e/E32E1/E32E1.REL'))
 # Guessing an allocator rule from a shape I chose is exactly [C185]/[C167].
 for _n in ('E33M3', 'E33MM', 'E33ML', 'E33MD'):
     add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e33m/%s/%s.REL' % (_n, _n)))
+
+# =====================================================================================
+# [E2E-34/P1] ON ... GOTO, the recovery pad, the hidden saved-SP cell and REVERT.
+#
+# Six probes, each written to answer ONE question and each DR-compiled first
+# (oracle/batch.py E34A -- golden/e34a/, all status ok, all $L$D$C$S listings):
+#   E34A2  two ON ... GOTO units to the SAME label   -> one pad, one cell, one SEL-COMMON
+#   E34A3  ON/GOTO and a plain GOTO to the same label -> pad chain and plain-goto chain
+#          are SEPARATE forward references (LINK-SET-LC 001C vs LINK-CHAIN-ADDR 0042)
+#   E34A4  ON ... GOTO to a label defined EARLIER     -> pad still precedes the label,
+#          handler JMP is an inline backward RELOC to the PAD (0x13), not to 0x1a
+#   E34A5  plain GOTO backward to a PADDED label      -> lands on the pad too (shares
+#          RELOC code 0x13 with the handler's JMP); the pad is the label's entry point
+#   E34A6  ON ... GOTO inside a nested procedure      -> cell belongs to the procedure's
+#          block, main gets none
+#   E34A7  nested procedure with a formal and ON/GOTO -> the SP save sits AFTER the
+#          formal pointer-copy prologue, at the block's entry
+# E34A1 (statement-handler ON in a nested procedure, no GOTO) is NOT registered: it
+# declares `dcl sysin file' INSIDE the procedure, which is still an unimplemented
+# [TBD] refusal here ("procedure local of type FILE is unsampled").  Its DR golden is
+# committed and it stays a probe; registering it as a refusal would have taught the gate
+# to expect a gap that E30E2 shares and NETWORK does not, from one sample [C185].
+for _n in ('E34A2', 'E34A3', 'E34A4', 'E34A5', 'E34A6', 'E34A7'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e34a/%s/%s.REL' % (_n, _n)))
+
+# [E2E-34/P1] the two negatives this milestone made obsolete, promoted rather than
+# deleted: "a negative is removed only when its behaviour has a golden of its own"
+# (E2E-32).  Both programs were DR-compiled under short CP/M names because the oracle
+# rejects names longer than 8 characters -- N7_MULTI_FWD's content is N7MFWD's, and
+# N79_ON_HANDLER_GOTO's is N79GOTO's, byte for byte apart from the name substitution.
+# N7MFWD is the two-forward-GOTOs-to-one-label program that NG60.REL recorded: it is
+# byte-exact WITHOUT any ON/GOTO code in it, which is the control that the new
+# multi-site forward chain is a general GOTO fix and not an ON-shaped hack.
+# E34B1 is the control for the DATA-segment fix: a FILE declaration and an EMPTY pool.
+# DR emits no SET-LC(data,0000) there; mine emitted one for 23 rounds on the strength of
+# a clause that was redundant in the only specimen that ever justified it (FLTPOLY2,
+# 44 DATA bytes).
+# [E2E-34/P1] E34A8: the ON ... GOTO unit inside a nested DO-block.  DR gives it no
+# section of its own -- DATA AREA 001B with the cell still at 0019, i.e. main's, exactly
+# as if the unit were written at main level (compare E34A4) -- and mine agrees byte for
+# byte, which is the control that says `on_facts' descends DO/IF/BEGIN for the right
+# reason and not by accident.
+add_spec('E34A8', ('artefacts/E34A8.PLI', 'golden/e34a/E34A8/E34A8.REL'))
+
+# [E2E-34/P1] E34A9: the same unit inside a nested UNNAMED BEGIN-block.  DR compiles it
+# (golden/e34a/E34A9: DATA AREA 001B, cell 0019 = the OUTER block's, pad at 003B), and
+# mine refuses with the pre-existing "procedure without name [TBD]".  Two things are
+# pinned here.  First, the refusal is not a regression introduced by this milestone:
+# bind.section2 allocates a saved-SP cell for any block whose on_facts.of_goto is true,
+# including the nm = None branch at the nested-BEGIN call, and that cell address has no
+# route out (pl_sp_cell is only exported for named blocks) -- so if lowering reached it,
+# the layout would be 2 bytes longer than the code that references it.  The named-block
+# refusal stands in front of that, and it must stay: this negative is the tripwire for
+# [C137]'s "a bare crash / silent layout is never acceptable".  Second, DR's measurement
+# above says the eventual fix is to give BEGIN-blocks the outer section's cell, NOT their
+# own, so the refusal should be lifted by reusing the parent layout rather than by adding
+# a per-BEGIN section.
+REJECTS["E34A9_BEGIN_BLOCK_ONGOTO"] = (
+    open("artefacts/E34A9.PLI", "rb").read().replace(b"\r\n", b"\n")
+    .rstrip(b"\x1a").decode(), "procedure without name")
+NEG_META["E34A9_BEGIN_BLOCK_ONGOTO"] = ("my-gap",
+     "DR COMPILES IT: .REL emitted with DATA AREA 001B and the saved-SP cell at 0019 in "
+     "the OUTER block's section (golden/e34a/E34A9/E34A9.REL)")
+
+for _n in ('N7MFWD', 'N79GOTO', 'E34B1'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e34b/%s/%s.REL' % (_n, _n)))
 
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}

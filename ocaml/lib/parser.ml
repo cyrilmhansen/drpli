@@ -615,6 +615,16 @@ and parse_stmt_body p q labels =
       (* conditional-name arguments: ON ENDFILE(sysin) [EX EXPR1] *)
       let cargs = opt_paren_exprs p in
       Son { cond; cargs; handler = parse_stmt p }
+    | Token.Ident { key = "REVERT"; _ } ->
+      (* [E2E-34/P2] REVERT <conditional-name>(<args>);  Same conditional-name shape as
+         ON (parser.ml:612-617) and no handler: it undoes the registration.  It was
+         previously reaching codegen as a call to an unknown procedure `revert', which
+         refused -- correct as a refusal, wrong as a parse.  DR's lowering is on
+         E32E2/A1/E30E2: `LXI H,<FILE> / MVI A,05 / CALL ?REVOP'. *)
+      advance p;
+      let cond = if at_num p then num_text p else (name_any p).key in
+      let cargs = opt_paren_exprs p in
+      Srevert { cond; cargs }
   | Token.Ident { key = "SIGNAL"; _ } ->
       advance p;
       let cond = if at_num p then num_text p else (name_any p).key in

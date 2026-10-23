@@ -1088,6 +1088,60 @@ type call_site =
   { cs_proc : string; cs_slot : int; cs_args : Ast.expr list
   ; cs_temps : int option list }  (* Some addr iff that arg is an expression *)
 
+(* ---------- [E2E-34/P1] ON-unit facts of one block ----------
+   ONE scan, exported, used by bind (which allocates the hidden saved-SP cell) and by
+   codegen (which decides which labels carry a recovery pad and which procedure tails
+   call ?OFCOP). Layout demand and instruction emission must agree or the DATA area
+   shifts under the code [C179], and a property written out twice drifts [C202]. *)
+type on_facts =
+{ of_labels : string list (* labels targeted by an ON-unit whose handler is a plain
+                             GOTO, in THIS block -- each gets ONE recovery pad [C208] *)
+; of_goto : bool          (* any such ON-unit -> the block saves SP at entry *)
+; of_any : bool }         (* any ON-unit at all -> ?OFCOP on a procedure tail [C209] *)
+
+(* The block that owns the cell and the pads is the block the ON-unit is WRITTEN IN.
+   A nested statement counts for its enclosing block: NETWORK:145's ON sits inside two
+   DO WHILEs of print_paths, and print_paths has ONE cell (DR listing: LHLD * A(00C5)
+   twice -- pads before eol: at 02F1 and before eof: at 0303). A nested PROCEDURE does
+   not: E34A6 / E34A1 / E30E2 give the callee its own cell and leave the caller's block
+   with none. So descent stops at Ast.Sproc. The handler is NOT descended into, because
+   only the direct `ON ENDFILE(<file>) GOTO <label>' shape demands a pad; a handler
+   that merely contains a GOTO deeper down is refused by codegen, and allocating a cell
+   for a program that emits no .REL would shift every later DATA address. *)
+let rec on_stmt (acc : string list * bool * bool) (s : Ast.stmt) =
+  let (lbls, g, a) = acc in
+  match s.Ast.st with
+  | Ast.Son { cond; cargs; handler } ->
+      (* the two matches are deliberately NOT siblings at one indentation: `| Some _ ->
+         | None ->' continuing the outer arm list retypes the outer scrutinee as an
+         option and the next constructor arm fails to compile [E2E-34] *)
+      let is_endfile =
+        String.lowercase_ascii cond = "endfile"
+        && (match cargs with [ { Ast.e = Ast.Eident _; _ } ] -> true | _ -> false)
+      in
+      let tgt =
+        match handler.Ast.st with
+        | Ast.Sgoto { tgt = t; subscript = [] } when is_endfile ->
+            Some (String.lowercase_ascii t.Ast.orig)
+        | _ -> None
+      in
+      (match tgt with Some l -> (l :: lbls, true, true) | None -> (lbls, g, true))
+  | Ast.Sproc _ -> acc
+  | Ast.Sdobegin ss -> List.fold_left on_stmt acc ss
+  | Ast.Sif { then_; els; _ } ->
+      let a1 = on_stmt acc then_ in
+      (match els with Some e -> on_stmt a1 e | None -> a1)
+  | Ast.Sdowhile { body; _ } | Ast.Sdoto { body; _ } -> on_stmt acc body
+  | Ast.Sdoforever body -> on_stmt acc body
+  | Ast.Selse b -> on_stmt acc b
+  | _ -> acc
+
+let on_facts (b : Ast.block) : on_facts =
+  let (lbls, g, a) =
+    List.fold_left on_stmt ([], false, false) b.Ast.bstmts
+  in
+  { of_labels = lbls; of_goto = g; of_any = a }
+
 type proc_layout =
   { pl_name : string; pl_lbl : string option; pl_rec : bool
   ; pl_attr_rec : bool      (* RECURSIVE literally written in the source *)
@@ -1099,10 +1153,13 @@ type proc_layout =
        1-D arrays declared in THIS block.  Explicit addition rather than a
        wider pl_rows tuple, so the 7 codegen consumers of pl_rows -- and every
        scalar offset they produce -- are untouched. *)
-  ; pl_body : Ast.stmt list }
+  ; pl_body : Ast.stmt list
+; pl_on : on_facts         (* [E2E-34] this block's ON-unit facts *)
+; pl_sp_cell : int option  (* [E2E-34] bind-relative DATA addr of its saved-SP cell *) }
 
 type prog_layout =
-  { pl_calls : call_site list     (* DFS order, POOL-EXCLUSIVE offsets *)
+  { pl_top_cell : int option (* [E2E-34] saved-SP cell of the OUTERMOST block *)
+; pl_calls : call_site list     (* DFS order, POOL-EXCLUSIVE offsets *)
   ; pl_procs : proc_layout list   (* DFS: parents before children *)
   ; pl_secs : (string * int * int) list
       (* proc name -> (block base, section size) POOL-EXCLUSIVE.
@@ -1251,6 +1308,12 @@ let rec pl_stmt_calls (nm_of : string -> bool) (s : Ast.stmt) =
        the separate DFS phase; Snull/Sdcl/Sexit/Spicturestmt/Spreproc/
        Sdeclare_fail carry no expressions. *)
     | Ast.Son { cargs; _ } -> List.concat_map w cargs
+    (* [E2E-34/P2] REVERT registers nothing and allocates nothing, but its conditional-
+       name argument list is still EXPRESSIONS in this statement: this walker has no
+       catch-all by design (see the ALLOCATE/FREE note below), so leaving the arm out
+       would kill E32E2 in a bare Match_failure inside bind -- the exact contract
+       violation that note records, reproduced from the other side. *)
+    | Ast.Srevert { cargs; _ } -> List.concat_map w cargs
     | Ast.Sedit { target; opts } -> w target @ List.concat_map wo opts
     | Ast.Sfilestmt { file; opts } ->
         (match file with Some e -> w e | None -> [])
@@ -1292,6 +1355,9 @@ let rec pl_stmt_calls (nm_of : string -> bool) (s : Ast.stmt) =
     | Ast.Sdoforever body -> pl_stmt_calls nm_of body
     | Ast.Sdoto { body; _ } -> pl_stmt_calls nm_of body
     | Ast.Son { handler; _ } | Ast.Selse handler -> pl_stmt_calls nm_of handler
+    (* [E2E-34/P2] REVERT has no sub-block (no handler), so it contributes no calls; it
+       must still be named here because this list is enumerated on purpose. *)
+    | Ast.Srevert _ -> []
     | Ast.Snull _ | Ast.Sdcl _ | Ast.Sassign _ | Ast.Sgoto _
     | Ast.Sput _ | Ast.Sget _ | Ast.Sfilestmt _ | Ast.Sedit _
     | Ast.Sreadwv _ | Ast.Sreturn _ | Ast.Sstop _ | Ast.Sexit _
@@ -1320,6 +1386,10 @@ let bind_program (blk : Ast.block) : prog_layout =
   let calls = ref ([] : call_site list) in
   let pls = ref ([] : proc_layout list) in
   let secs = ref ([] : (string * int * int) list) in
+  (* [E2E-34] the OUTERMOST block's saved-SP cell, written by section2 when top=true.
+     Declared beside the other layout refs and filled in the SAME pass that lays out
+     every procedure's cell, so main and a procedure-only module cannot drift [C202]. *)
+  let top_cell = ref (None : int option) in
   (* two-phase: registry first so call matching sees real procedures;
      the first pass above is superseded by section2. *)
   let reg =
@@ -1370,7 +1440,7 @@ let bind_program (blk : Ast.block) : prog_layout =
      layout of every LATER call site shifts -- the silent-shift failure class of
      C116/C129, not a diagnostic. *)
   let is_proc nm = List.mem nm names || List.mem_assoc nm exts in
-  let rec section2 b base formals recf attrf nm =
+  let rec section2 top b base formals recf attrf nm =
     let nf = List.length formals in
     if nf > 8 then
       failwith (Printf.sprintf "bind: %d-formal procedure unproven [TBD]" nf);
@@ -1460,7 +1530,25 @@ let bind_program (blk : Ast.block) : prog_layout =
              version interleaves (slot,temps) per site and puts g's arg cell at 000D
              ahead of h's descriptor.  This is the only difference between the two
              orderings, so it is decided by byte parity over the whole call corpus. *)
-          let sites0 =
+  (* [E2E-34/P1] the hidden saved-SP cell: demanded here, emitted by codegen at the
+     block entry as `LXI H,0000 / DAD SP / SHLD * A(<cell>)'. It sits at the end of the
+     NAMED autos and BEFORE the anonymous call cells -- DR's NETWORK numbers setup's
+     cell 0088 while its first call temp is 008A, and E32E2's cell is 0019 = main's
+     base 2 + AUTO STORAGE 23 -- so charging it here makes every later temp, child
+     block and the DATA total shift by 2 automatically, with no second copy of the
+     arithmetic. Only the ON ... GOTO form demands it: E32E1 has one statement-handler
+     ON-unit, no `DAD SP', no `*' cell, DATA AREA 0019 against E32E2's 001B. *)
+  let of_ = on_facts b in
+  let sp_cell =
+    if of_.of_goto then begin
+      let c = !cur in
+      cur := !cur + 2;
+      Some c
+    end
+    else None
+  in
+  if top then top_cell := sp_cell;
+  let sites0 =
             List.map
               (fun (p, args, _pos) ->
                 let slot = !cur in
@@ -1520,7 +1608,9 @@ let bind_program (blk : Ast.block) : prog_layout =
                         List.mapi (fun i f -> (f, base + 2 * i)) formals
                     ; pl_rows = rows
                     ; pl_arrays = bind_arrays b
-                    ; pl_body = b.bstmts } ]
+                    ; pl_body = b.bstmts
+                    ; pl_on = of_
+                    ; pl_sp_cell = sp_cell } ]
      | None -> ());
     List.fold_left
       (fun acc (s : Ast.stmt) ->
@@ -1531,9 +1621,9 @@ let bind_program (blk : Ast.block) : prog_layout =
               let cn = pl_l (Option.get pb.bname) in
               match List.find_opt (fun (n, _, _, _, _) -> n = cn) !reg with
               | Some (_, _, r, ar, fm) ->
-                  section2 pb acc fm r ar (Some cn)
+                  section2 false pb acc fm r ar (Some cn)
               | None -> acc
-            end else section2 pb acc [] false false None
+            end else section2 false pb acc [] false false None
         | _ -> acc)
       after b.bstmts
   in
@@ -1556,11 +1646,13 @@ let bind_program (blk : Ast.block) : prog_layout =
         failwith
           (Printf.sprintf
              "bind: procedure-only module %s is RECURSIVE [TBD: DR has no sample               of a shadow-cell/SVBLK prologue for a top-level module               (C136 covers non-recursive A only)]" tn);
-      let t = section2 blk 0 (List.map pl_l blk.bparams) false false (Some tn) in
+      let t = section2 true blk 0 (List.map pl_l blk.bparams) false false (Some tn) in
       top_pl := List.find_opt (fun (p : proc_layout) -> p.pl_name = tn) !pls;
       t
-    end else section2 blk 0 [] false false None
+    end else section2 true blk 0 [] false false None
   in
   { pl_calls = !calls; pl_procs = !pls; pl_secs = !secs;
     pl_total = total
-  ; pl_exts = exts; pl_top = !top_pl }
+  ; pl_exts = exts; pl_top = !top_pl
+  ; pl_top_cell = !top_cell (* [E2E-34] the outermost block's cell, from the SAME
+                               allocation site as every procedure's *) }

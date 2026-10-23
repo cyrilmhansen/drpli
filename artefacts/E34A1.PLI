@@ -1,0 +1,15 @@
+a1: procedure options(main);
+  declare s fixed;
+  call p();
+  put list('s=', s);
+  stop;
+  p: procedure;
+    declare sysin file, w character(20) varying, t fixed;
+    t = 1;
+    on endfile(sysin) t = 99;
+    get list(w);
+    s = t;
+  end p;
+end a1;
+
+

@@ -1,0 +1,7 @@
+e34b1: procedure options(main);
+  dcl sysin file;
+  dcl a fixed bin(15);
+  a = 1;
+  stop;
+end e34b1;
+

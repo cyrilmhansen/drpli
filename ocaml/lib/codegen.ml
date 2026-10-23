@@ -229,12 +229,42 @@ type st =
          (a `q = 5;' after it) shows the dead statement is still emitted AND the RET comes back;
          PD3 (an exiting loop) keeps its RET. *)
   ; mutable secs : (string * int * int) list (* proc -> base,size excl pool *)
-  ; mutable last_loop_edge : int }
+  ; mutable last_loop_edge : int
+  (* [E2E-34/P1] the COMMON group whose control block was last demanded by a
+     CODE-segment inline reloc, or None at the top of the code segment.  It lives with
+     the OUTPUT STREAM, not with a block's label state, because DR emits LINK-SEL-COMMON
+     only when the selection CHANGES within a segment -- read off its own goldens with
+     tools/reldump.py, not assumed:
+       COPYLPT   9 SEL / 15 common relocs, one SEL per group SWITCH and never a repeat
+                 of the group already selected (SYSIN, PRINTF, SOURCE alternate)
+       LOAN2     1 code SEL + 12 plain relocs of the same group
+       CREATE    1 code SEL + 4 plain relocs
+       E32E2     ON#1 SEL, ON#2 none, the REVERT none (3 relocs, 2 SEL total)
+       NETWORK   2 SEL / 4 common relocs = the DATA-segment SYSIN definition plus ONE
+                 code-segment selection for a program that names SYSIN four times
+       [E34A2]   2 SEL / 2 common relocs -- two ON ... GOTO units naming the SAME file
+                 share one code-segment selection; E34A4 and E34A7 each 2 SEL / 1 reloc
+     The DATA-segment definitions at the foot of this file do NOT touch this state: the
+     selection is tracked PER SEGMENT, which is exactly why the FIRST code-segment
+     reference repeats a group the DATA segment already selected. *)
+  ; mutable cur_common : string option }
 (* label bookkeeping for GOTO resolution [G115/G116]:
    emitted-labels assoc (lowername -> lc); pending forward refs
    (lowername -> operand slot). *)
 type lblstate = { mutable labs : (string * int) list
-                ; mutable fwd : (string * int) list }
+                ; mutable fwd : (string * int) list
+                (* [E2E-34/P1] the ON ... GOTO machinery, kept WITH the label state
+                   because the recovery pad is a property OF A LABEL, not of the ON
+                   statement: `on_pads' is exactly the label set Bind scanned when it
+                   allocated the DATA cell (Bind.on_facts -- one scan, two consumers, so
+                   demand and layout cannot drift [C179]), and `fwd' stays the ONE chain
+                   of pending forward references per label.  An ON stub and a plain GOTO
+                   to the same label share that chain: E34A3 measures the plain site's
+                   operand as RELOC code 0x1f -- the earlier STUB's operand word -- with
+                   a single CHAIN-ADDR at 0x42 resolving both. *)
+                ; mutable on_pads : string list  (* labels whose definition emits a pad *)
+                ; mutable sp_cell : int option   (* ABSOLUTE DATA addr of this block's cell *)
+                ; mutable on_any : bool }        (* this block contains an ON-unit *)
 
 (* [E2E-23] DR keeps exactly ONE piece of accumulator state, and ZS1-ZS10 measure both
    its persistence and its invalidation.  Measured (all eight probes clean-pass in DR):
@@ -769,6 +799,10 @@ let call_ext st name =
   d st 0; d st 0;
   link st t_chain_ext (Some (Code, slot)) (Some name)
 
+(* [E2E-34/P1] DAD SP is the single-byte 8080 opcode 39h -- read out of DR's own
+   E32E2.REL at code offset 0x09, NOT the Z80 pair ED 31 [C207] -- and SPHL is 0xF9. *)
+let op_dad_sp = 0x39
+let op_sphl   = 0xf9
 let op_jmp  = 0xc3
 let op_jnz  = 0xc2
 (* [E2E-15/C149] `op_jz = 0xc4` DELETED: it was never referenced, and 0xC4 is CNZ,
@@ -7528,6 +7562,94 @@ let take_fmt_addr st =
   | a :: rest -> st.fmtq <- rest; a
   | [] -> failwith "codegen: PUT EDIT format table not pre-allocated [TBD]" 
 
+(* ---------- [E2E-34] the ON ... GOTO mechanism, one encoder per piece ---------- *)
+
+(* DR's ON-unit registration prefix, SHARED by ON and REVERT:
+     LXI H,<FILE>   <- SEL-COMMON when the selected COMMON group CHANGES, then an
+                       inline COMMON reloc at 0 (see st.cur_common for the rule and
+                       the DR-golden measurements behind it)
+     MVI A,05       <- the conditional-name code; ENDFILE = 5 [C120]
+     then CALL ?ONCOP (ON) or CALL ?REVOP (REVERT).  Measured on E32E1, E32E2, E30E1,
+     E30E2, E34A1-A7 and NETWORK.  THE ONE AUTHORITY for this prefix [C202]: ON's copy
+     used to be written out twice, and the SEL-COMMON used to be unconditional, which is
+     not DR's rule -- it would have put 9 bytes of record stream into every second file
+     statement, including NETWORK's, where it is measurable. *)
+let on_reg_prefix st (fu : string) =
+  d st op_lxi_h;
+  if st.cur_common <> Some fu then begin
+    link st t_sel_common None (Some fu);
+    st.cur_common <- Some fu
+  end;
+  reloc st Common 0;
+  d st op_mvi_a;
+  d st 0x05
+
+(* The block-entry stack save, emitted ONLY by a block containing an ON ... GOTO unit:
+     LXI H,0000 / DAD SP / SHLD * A(<cell>)
+   E32E1 -- one ON-unit, statement handler, same block -- has no DAD SP, no `*' cell and
+   a DATA AREA 2 bytes smaller (0019 against E32E2's 001B), so this belongs to the GOTO
+   form, not to the ON-unit.  And it is PER BLOCK, not per ON-unit: E32E2 carries two
+   ON ... GOTO units and one cell, NETWORK two cells for its two procedures [C206]. *)
+let emit_sp_save st cell =
+  d st op_lxi_h; d st 0; d st 0;
+  d st op_dad_sp;
+  d st op_shld; reloc st Data cell
+
+(* The recovery landing pad, 7 bytes, emitted IMMEDIATELY BEFORE the label's own code:
+     LHLD * A(<cell>) / SPHL / CALL ?RECOV
+   The label's RESOLVED ADDRESS IS THE PAD START, not its body: E34A5 carries RELOC
+   code 0x13 for BOTH the ON stub and a backward PLAIN GOTO to the same label, while
+   DR's listing prints that label's line at 0x1A.  Because the pad falls through into
+   the body, a plain GOTO that lands on it still runs the labelled statement -- which
+   is how one chain can serve both kinds of reference [C208].  It also means the pad is
+   a property of the LABEL and can precede a label written BEFORE the ON that needs it
+   (E34A4, E34A5), which is why the decision comes from Bind's pre-scan and not from
+   the order statements arrive in. *)
+let emit_pad st cell =
+  d st op_lhld; reloc st Data cell;
+  d st op_sphl;
+  call_ext st "?RECOV"
+
+(* [E2E-34/P1] THE one label-definition site -- statement labels and procedure entry
+   labels both go through it: resolve the forward chain, emit a pad when this label is
+   an ON ... GOTO target, record the address.
+   The chain now carries any NUMBER of pending forward sites, which is the rule the
+   forward-CALL chain already follows [C123: E27A's three sites -> one CHAIN-ADDR on
+   the last operand].  DR's golden/negpanel1/NG60 does exactly the same for two forward
+   GOTOs to one label (CHAIN-ADDR code 000A, then RELOC code 000C), so generalising
+   removes a [TBD] refusal instead of inventing a behaviour. *)
+let label_def st (ls : lblstate) (nm : string) =
+  let addr = st.lc in
+  let slots = List.filter (fun (k, _) -> k = nm) ls.fwd |> List.map snd in
+  ls.fwd <- List.filter (fun (k, _) -> k <> nm) ls.fwd;
+  (match slots with
+   | [] -> ()
+   | _ ->
+       let head = List.fold_left (fun m a -> max m a) 0 slots in
+       link st t_chain_addr (Some (Code, head)) None);
+  (if List.mem nm ls.on_pads then
+     match ls.sp_cell with
+     | Some c -> emit_pad st c
+     | None ->
+         failwith
+           ("codegen: [TBD] ON ... GOTO target label with no saved-SP cell: Bind's "
+            ^ "cell demand and its pad-label list disagree")
+   else ());
+  ls.labs <- (nm, addr) :: ls.labs;
+  addr
+
+(* [E2E-34/P1] one FORWARD reference to a label, used by a plain GOTO and by an ON
+   ... GOTO stub alike, so the two cannot build the chain differently [C202]. *)
+let fwd_ref st (ls : lblstate) (nm : string) =
+  d st op_jmp;
+  st.last_imm <- None (* [R723] branch boundary *);
+  let slot = st.lc in
+  (match List.filter (fun (k, _) -> k = nm) ls.fwd with
+   | [] -> d st 0; d st 0                     (* chain terminator [G115] *)
+   | prev ->
+       reloc st Code (List.fold_left (fun m (_, a) -> max m a) 0 prev));
+  ls.fwd <- (nm, slot) :: ls.fwd
+
 (* statement lowering with label/goto resolution *)
 (* [E2E-5c P401] internal procedure block: forward-call resolution,
    deref prologue, scoped body lowering. Recursive procedures and
@@ -7545,6 +7667,14 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     | None ->
         failwith "codegen: BEGIN-block/procedure lowering deferred [TBD]"
   in
+  (* [E2E-34/P1] entering a block swaps the ON/GOTO facts with it, exactly as st.vars
+     and st.arrays do: a nested procedure owns its saved-SP cell and its pads, and the
+     caller's labels must not leak in (E34A6/E34A7: p's cell is p's, main has none). *)
+  let saved_pads = ls.on_pads and saved_cell = ls.sp_cell and saved_any = ls.on_any in
+  ls.on_pads <- pl.Bind.pl_on.of_labels;
+  ls.sp_cell <-
+    (match pl.Bind.pl_sp_cell with Some c -> Some (c + st.base) | None -> None);
+  ls.on_any <- pl.Bind.pl_on.of_any;
   (* [R404/R405/R406/R423/R429/R432/P404 + E2E-28/P1] BRANCH-OVER, one per nested-procedure
      DECLARATION, not one per program.  N1-N5/N7 (golden/e2e330d) show every `proc:' line inside a
      main block emits `C3 00 00' at the current address, whose operand resolves to where main's
@@ -7569,19 +7699,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   if not st.in_proc && not st.top_proc then st.appended <- true;
   (* entry label [P401 'dbl:' — blabel from parse_proc_block] *)
   (match pl.Bind.pl_lbl with
-   | Some l ->
-       ls.labs <- (l, st.lc) :: ls.labs;
-       let slots =
-         List.filter (fun (k, _) -> k = l) ls.fwd |> List.map snd
-       in
-       ls.fwd <- List.filter (fun (k, _) -> k <> l) ls.fwd;
-       (match slots with
-        | [] -> ()
-        | [ one ] -> link st t_chain_addr (Some (Code, one)) None
-        | _ ->
-            failwith
-              "codegen: multiple forward GOTO per label chain \
-               unproven [TBD]")
+   | Some l -> ignore (label_def st ls l)   (* [E2E-34] one definition site *)
    | None -> ());
   (* resolve pending forward CALLs at the entry byte [P401 @1285] *)
   let hits = List.filter (fun (k, _) -> k = nm) st.fcalls in
@@ -7677,6 +7795,13 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
        d st 0x13;                          (* INX D   *)
        d st 0x0d;                          (* DCR C   (0x05 would be DCR B) *)
        d st op_jnz; reloc st Code loop);
+  (* [E2E-34/P1] the block-entry stack save is the first thing the BODY does, but it
+     comes AFTER the formal pointer-cell prologue: E34A7's p(x) reads 0037 MOV E,M /
+     INX H / MOV D,M / XCHG / SHLD X A(0008), and only then 003E LXI H,0000 / DAD SP /
+     SHLD * A(001F).  For a formal-less callee the two orders coincide (E30E2 readone
+     starts at its entry byte 002C with the save), so this placement is A7's, and it is
+     the only sampled one. *)
+  (match ls.sp_cell with Some c -> emit_sp_save st c | None -> ());
   let saved = st.vars and savedd = st.deref in
   (* [E2E-20] the callee's OWN array metadata must replace the caller's for the duration of
      this scope, exactly as st.vars does.  Without it a subscripted name inside a procedure is
@@ -7807,6 +7932,15 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     && not (st.top_proc && st.stop_seen)
     && not (st.in_proc && st.proc_tail_no_exit)
   then begin
+    (* [E2E-34/P1] a block entered by a CALL whose block contains an ON-unit calls
+       ?OFCOP immediately before its tail RET.  E34A1 pins the trigger: p holds
+       `on endfile(sysin) t = 99;' -- a STATEMENT handler, so no pad, no DAD SP, no `*'
+       cell -- and still ends 0066 CALL ?OFCOP / 0069 RET.  So it is the ON-UNIT and
+       not the GOTO form, and it is per block and not per ON-unit: NETWORK has two
+       ON ... GOTO units in print_paths and ONE ?OFCOP.  No outermost block has one in
+       any sample (E11A-E11F, E32E1, E32E2, FLTPOLY2, E34A2-A5 all write their ONs on
+       `c' lines with zero ?OFCOP), hence `st.in_proc'. *)
+    if ls.on_any && st.in_proc then call_ext st "?OFCOP";
     d st 0xc9; (* RET *)
     st.last_imm <- None
   end else
@@ -7827,21 +7961,21 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   st.in_proc <- savedp;
   st.vars <- saved;
   st.deref <- savedd;
-  st.arrays <- saveda
+  st.arrays <- saveda;
+  ls.on_pads <- saved_pads;
+  ls.sp_cell <- saved_cell;
+  ls.on_any <- saved_any
 and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   (* label prefixes resolve at the STATEMENT's LC [G115 loop:/done:] *)
   List.iter
     (fun (l : Ast.name) ->
-      let nm = String.lowercase_ascii l.Ast.orig in
-      ls.labs <- (nm, st.lc) :: ls.labs;
-      let slots = List.filter (fun (k, _) -> k = nm) ls.fwd |> List.map snd in
-      ls.fwd <- List.filter (fun (k, _) -> k <> nm) ls.fwd;
-      match slots with
-      | [] -> ()
-      | [ one ] ->
-          (* forward GOTO resolution: CHAIN-ADDR at label position [G115] *)
-          link st t_chain_addr (Some (Code, one)) None
-      | _ -> failwith "codegen: multiple forward GOTO per label chain                        unproven [TBD]")
+      (* [E2E-34] one definition site, shared with procedure entry labels: it resolves
+         the forward chain AND emits the recovery pad of an ON ... GOTO target.  The
+         refusal removed here ("multiple forward GOTO per label chain unproven") was a
+         gap, not a law: DR's golden/negpanel1/NG60 compiles `goto l; goto l; l:' with
+         CHAIN-ADDR on the first operand word and a RELOC from the second -- the shape
+         C123 already measures for forward CALLs and already matches byte for byte. *)
+      ignore (label_def st ls (String.lowercase_ascii l.Ast.orig)))
     s.Ast.slabels;
   (* [E2E-11/CALL, E25G] a LABEL definition also ends HL-CONSTANT REUSE.  In
      E25G `t = 1; jmp: t = 2;` stores 1 with LXI H,0001/SHLD T, and AFTER the
@@ -8042,11 +8176,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       let nm = String.lowercase_ascii tgt.Ast.orig in
       (match List.assoc_opt nm ls.labs with
        | Some a -> (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code a        (* backward [G115] *)
-       | None ->
-           (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
-           let slot = st.lc in
-           d st 0; d st 0;
-           ls.fwd <- (nm, slot) :: ls.fwd)              (* forward [G115] *)
+       | None -> fwd_ref st ls nm)                  (* forward [G115, C123] *)
   | Ast.Sgoto _ ->
       failwith "codegen: computed GOTO deferred [TBD]"
   | Ast.Sdobegin ss ->
@@ -8171,49 +8301,84 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                (Printf.sprintf
                   "codegen: ON ENDFILE(%s) names something that is not a declared FILE [TBD] (line %d)"
                   f.Ast.orig s.Ast.spos.Source.line);
-           (* [E2E-11 step 2] A GOTO out of an ON handler is a DIFFERENT mechanism.
-              DR emits, at the TARGET LABEL:  LHLD * A(<2 hidden bytes>) / SPHL /
-              CALL ?RECOV  [golden/e2e11g/E11F, code 0x1B] -- a stack unwind, because
-              the handler runs inside the runtime's call context and jumping past it
-              must discard that frame.  A plain GOTO emits no such thing [G115's
-              labels have zero ?RECOV, and it is byte-exact], so this is specific to
-              the handler crossing.  My label lowering has no RECOV path at all, and
-              guessing the hidden cell would change both the AUTO area and the code.
-              Refuse rather than emit E11F's 335 divergent bytes. *)
-           (let rec has_goto (x : Ast.stmt) =
-             match x.Ast.st with
-             | Ast.Sgoto _ -> true
-             | Ast.Sdobegin ss -> List.exists has_goto ss
-             | Ast.Sif { then_; els; _ } ->
-                 has_goto then_
-                 || (match els with Some e -> has_goto e | None -> false)
-             | Ast.Sdowhile { body; _ } | Ast.Sdoto { body; _ }
-             | Ast.Sdoforever body -> has_goto body
-             | Ast.Sproc b -> List.exists has_goto b.Ast.blk.Ast.bstmts
-             | Ast.Son { handler; _ } -> has_goto handler
-             | _ -> false
-           in
-           if has_goto handler then
-             failwith
-               (Printf.sprintf
-                  "codegen: an ON handler containing GOTO needs DR's ?RECOV label \
-                   prologue (LHLD */SPHL/CALL ?RECOV) + the block-entry SP save into ONE hidden `*' cell
-                   -- per BLOCK, not per ON-unit, measured on E32E2 [C206] -- and the label transfer.
-                   An ON-unit whose handler is a STATEMENT is supported and byte-exact [E32E1]; only
-                   the GOTO form is open. [TBD] \
-                   (line %d; E11F shows the shape, G115 proves plain GOTO has none)"
-                  s.Ast.spos.Source.line));
-           d st op_lxi_h;
-           link st t_sel_common None (Some fu);
-           reloc st Common 0;
-           d st op_mvi_a; d st 0x05;
-           call_ext st "?ONCOP";
-           d st 0xc3 (* JMP *);
-           let jmp_slot = st.lc in
-           d st 0; d st 0;
-           lower_stmt st ls handler;
-           d st 0xc9 (* RET: terminates the inline handler unit [C109] *);
-           emit_triple st jmp_slot st.lc
+           (* [E2E-11 step 2 / E2E-34/P1] An ON-unit is TWO mechanisms, not one.
+
+              STATEMENT handler  [C109: E11A/E11C/E17A/FLTPOLY2/E32E1, byte-exact]:
+                registration, JMP over, <handler inline>, RET, continuation.  The RET is
+                how the runtime's call context is unwound when the handler finishes and
+                the interrupted statement is then allowed to complete [C110].
+
+              DIRECT GOTO handler  [E32E2, E30E2, E34A2-A7, NETWORK]:
+                registration, JMP <the statement after the ON>, JMP <the target label's
+                chain> and NOTHING ELSE -- no inline handler, no RET.  The unwind moves
+                to the label, into the recovery pad, which is why the label resolves to
+                the PAD address [C201][C208].  The stub goes through fwd_ref, the same
+                routine a plain GOTO uses, so a plain GOTO and this stub to one label
+                share one chain (E34A3); the record order is the measured one -- stub
+                operand first, then the continuation's LINK-SET-LC triple (E34A4,
+                0028-002E).  E11F's 335 divergent bytes were this shape, unimplemented.
+
+              A handler that merely CONTAINS a GOTO (inside a DO or IF), or a computed
+              GOTO, has no DR sample and refuses: the pad restores the SP saved at block
+              ENTRY, and what a handler-local transfer means for the runtime's saved
+              state has not been measured.
+
+              Both the ON and its handler are counted (see count_required). *)
+           (match handler.Ast.st with
+            | Ast.Sgoto { tgt; subscript = [] } ->
+                (* [E2E-34/P1] the handler is counted as lowered because it IS lowered:
+                   it becomes the stub JMP that fwd_ref emits.  count_required charges
+                   `1 + count_required handler' for every ON-unit [C109], and the
+                   statement form pays that with lower_stmt; the GOTO form pays it here
+                   or the DISCARD INVARIANT reads 16 required / 14 lowered. *)
+                st.lowered <- st.lowered + 1;
+                on_reg_prefix st fu;
+                call_ext st "?ONCOP";
+                d st op_jmp;
+                let cont = st.lc in
+                d st 0; d st 0;
+                (* [E2E-34/P1] the handler's JMP goes to the label's ENTRY, which is the
+                   recovery pad when the label has one -- in either direction.  A label
+                   already emitted gets DR's inline RELOC (E34A4: `JMP SKIP' -> RELOC code
+                   0x13, the PAD start, not the 0x1a where SKIP's body begins); one not yet
+                   emitted joins the forward chain.  ls.labs holds the pad address because
+                   label_def registers the label there, so no special case is needed. *)
+                let nm = String.lowercase_ascii tgt.Ast.orig in
+                (match List.assoc_opt nm ls.labs with
+                 | Some a ->
+                     d st op_jmp;
+                     st.last_imm <- None (* [R723] branch boundary *);
+                     reloc st Code a
+                 | None -> fwd_ref st ls nm);
+                st.last_imm <- None;
+                emit_triple st cont st.lc
+            | _ ->
+                let rec has_goto (x : Ast.stmt) =
+                  match x.Ast.st with
+                  | Ast.Sgoto _ -> true
+                  | Ast.Sdobegin ss -> List.exists has_goto ss
+                  | Ast.Sif { then_; els; _ } ->
+                      has_goto then_
+                      || (match els with Some e -> has_goto e | None -> false)
+                  | Ast.Sdowhile { body; _ } | Ast.Sdoto { body; _ }
+                  | Ast.Sdoforever body -> has_goto body
+                  | Ast.Sproc b -> List.exists has_goto b.Ast.blk.Ast.bstmts
+                  | Ast.Son { handler; _ } -> has_goto handler
+                  | _ -> false
+                in
+                if has_goto handler then
+                  failwith
+                    (Printf.sprintf
+                       "codegen: an ON handler that CONTAINS a GOTO instead of being one is unsampled [TBD] (line %d; the direct form ON ENDFILE(<file>) GOTO <label> is byte-exact on E32E2 / E30E2 / E34A2-A7 / NETWORK, and a GOTO nested in a DO or IF handler has no DR sample: the recovery pad restores the stack saved at block entry, so the meaning of a handler-local transfer is unmeasured)"
+                       s.Ast.spos.Source.line);
+                on_reg_prefix st fu;
+                call_ext st "?ONCOP";
+                d st 0xc3 (* JMP over the handler *);
+                let jmp_slot = st.lc in
+                d st 0; d st 0;
+                lower_stmt st ls handler;
+                d st 0xc9 (* RET: terminates the inline handler unit [C109] *);
+                emit_triple st jmp_slot st.lc)
        | ("endfile", _) ->
            failwith
              (Printf.sprintf
@@ -8224,6 +8389,32 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
              (Printf.sprintf
                 "codegen: ON %s is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line %d)"
                 cond s.Ast.spos.Source.line))
+  | Ast.Srevert { cond; cargs } ->
+      (* [E2E-34/P2] REVERT <conditional-name>(<file>): the same prefix as the ON
+         (one encoder, on_reg_prefix) and CALL ?REVOP instead of ?ONCOP.  E32E2's
+         `c: revert endfile(sysin);' at 0091 is LXI H,SYSIN / MVI A,05 / CALL ?REVOP,
+         E30E2's labelled `fin: revert endfile(fin);' the same, and NETWORK:151
+         (`eol: revert endfile(sysin);') the third.  REVERT undoes the registration;
+         it does NOT run the handler, does not emit the JMP pair, and does not by
+         itself restore the stack -- the pad at the label it is usually reached through
+         does that [C208]. *)
+      st.lowered <- st.lowered + 1;
+      st.last_imm <- None;
+      (match (String.lowercase_ascii cond, cargs) with
+       | ("endfile", [ { Ast.e = Ast.Eident f; _ } ]) ->
+           let fu = String.uppercase_ascii f.Ast.orig in
+           if not (List.mem fu st.files) then
+             failwith
+               (Printf.sprintf
+                  "codegen: REVERT ENDFILE(%s) names something that is not a declared FILE [TBD] (line %d)"
+                  f.Ast.orig s.Ast.spos.Source.line);
+           on_reg_prefix st fu;
+           call_ext st "?REVOP"
+       | _ ->
+           failwith
+             (Printf.sprintf
+                "codegen: REVERT %s with %d argument(s), or a non-identifier argument, is unsampled [TBD] (line %d)"
+                cond (List.length cargs) s.Ast.spos.Source.line))
   | Ast.Sprocedure_stmt { target; args } ->
       (* [E2E-11/CALL] a CALL statement is the SAME lowering as an expression
          call -- `LXI H,*A(desc)` (omitted when there are no arguments) then
@@ -8802,14 +8993,26 @@ let emit_program (progname : string) (auto_bytes : int)
     ; in_proc = false; in_rec = false; top_proc = false; call_stmt = None
     ; after_forever = false; proc_tail_no_exit = false; guards = 0; guard_slots = []
     ; appended = false; secs = layout.Bind.pl_secs
-    ; last_loop_edge = 0 }
+    ; last_loop_edge = 0; cur_common = None }
   in
   (* [E2E-8] DR allocates every PUT EDIT format table ahead of all other pool
      items [R1003/R1021/R1022], so the tables are reserved BEFORE any
      statement lowers. *)
   prealloc_fmt_tables st stmts;
   (* lower prologue + body + epilogue into st.items (code segment) *)
-  let ls = { labs = []; fwd = [] } in
+  let ls = { labs = []; fwd = []; on_pads = []; sp_cell = None; on_any = false } in
+  (* [E2E-34/P1] the OUTERMOST block's facts.  A procedure-only module is lowered by
+     lower_proc and picks its facts up from its own proc_layout, so they are set here
+     only for a MAIN program -- but BOTH are produced by the one Bind scan, and the
+     cell address is the one Bind allocated, never a second arithmetic [C202][C179]. *)
+  (match layout.pl_top with
+   | None ->
+       let fo = Bind.on_facts blk in
+       ls.on_pads <- fo.of_labels;
+       ls.on_any <- fo.of_any;
+       ls.sp_cell <-
+         (match layout.pl_top_cell with Some c -> Some (c + st.base) | None -> None)
+   | Some _ -> ());
   if is_top_proc then begin
     (* [E2E-11 step 5 / C136] NO `LXI B,0200 / CALL ?START': DR's procedure-only
        module begins with the formal copy-in ladder itself.  The body is lowered
@@ -8837,6 +9040,10 @@ let emit_program (progname : string) (auto_bytes : int)
   let start_slot = st.lc in
   d st 0; d st 0;
   link st t_chain_ext (Some (Code, start_slot)) (Some "?START");
+  (* [E2E-34/P1] main's saved-SP save, at 0006 in every GOTO-form sample (E32E2,
+     E34A2-A5, NETWORK's setup is the same shape at its own entry) and absent when the
+     block holds only a statement-handler ON-unit (E32E1, E11A-E11F) *)
+  (match ls.sp_cell with Some c -> emit_sp_save st c | None -> ());
   List.iter
     (fun (s : Ast.stmt) ->
       (* [E2E-28/P1] A live main statement AFTER a nested-procedure body is a DR shape, not an
@@ -8993,8 +9200,25 @@ let emit_program (progname : string) (auto_bytes : int)
         @ List.map (fun v -> Data v) (file_cb_bytes nm))
       statics.sy_files
   in
+  (* [E2E-34/P1] the opening SET-LC(data,0) belongs to the POOL, not to the mere
+     existence of a FILE group.  The `|| statics.sy_files <> []' clause came from
+     E2E-11 step 2 (0e4bc91), where it was REDUNDANT: FLTPOLY2, the specimen that
+     justified it, has 44 DATA-segment bytes, so `st.pool <> []' was already true.
+     It stayed latent for 23 rounds and became reachable the moment a program
+     declared a FILE with an empty pool -- N79GOTO and E34B1, both DR-compiled:
+     DR goes COMMON bytes -> DEF-DATA-SIZE -> SET-LC(code,0000) with NO
+     SET-LC(data,0000) record (E34B1: 0 data bytes; N79GOTO: 0 data bytes).
+     Counter-cases, measured over all 1761 goldens with tools/reldump.py, and why the
+     rule is "one SET-LC per POOL BLOCK" rather than "emit iff bytes exist":
+       10 goldens (PL16, PL17, PL21, V104, V108, ...) have SET-LC(data,0000) and
+          ZERO data bytes -- an empty pool block still gets its location record
+          [C152], which is what the `i > 0 || addr > 0' case below handles;
+       13 goldens (KEYFILE, P022, P046, ENTER, ...) have data bytes and NO
+          SET-LC(data,0000) -- their first block does not start at 0.
+     Both directions are consistent with per-block emission; neither is consistent
+     with a group-existence condition. *)
   let data_seg =
-    if st.pool <> [] || statics.sy_files <> [] then
+    if st.pool <> [] then
       Link (t_set_lc, Some (Data, 0), None)
       ::
       (let sorted =

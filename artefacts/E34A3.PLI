@@ -1,0 +1,13 @@
+a3: procedure options(main);
+  declare sysin file, w character(20) varying, n fixed;
+  n = 0;
+  on endfile(sysin) goto z;
+  get list(w);
+  n = 1;
+  goto z;
+z: n = 5;
+  put list('n=', n);
+  stop;
+end a3;
+
+

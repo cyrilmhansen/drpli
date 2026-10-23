@@ -1,0 +1,8 @@
+t:
+  procedure options(main);
+  goto l;
+  goto l;
+l:
+  put list('X');
+end t;
+

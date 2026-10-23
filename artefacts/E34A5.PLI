@@ -1,0 +1,12 @@
+a5: procedure options(main);
+  declare sysin file, w character(20) varying, n fixed;
+  n = 0;
+q: n = n + 1;
+  on endfile(sysin) goto q;
+  if n < 2 then goto q;
+  get list(w);
+  put list('n=', n);
+  stop;
+end a5;
+
+

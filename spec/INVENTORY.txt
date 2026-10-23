@@ -247,6 +247,15 @@ E33M3	specimen	artefacts/E33M3.PLI	golden/e33m/E33M3/E33M3.REL
 E33MD	specimen	artefacts/E33MD.PLI	golden/e33m/E33MD/E33MD.REL
 E33ML	specimen	artefacts/E33ML.PLI	golden/e33m/E33ML/E33ML.REL
 E33MM	specimen	artefacts/E33MM.PLI	golden/e33m/E33MM/E33MM.REL
+E34A2	specimen	artefacts/E34A2.PLI	golden/e34a/E34A2/E34A2.REL
+E34A3	specimen	artefacts/E34A3.PLI	golden/e34a/E34A3/E34A3.REL
+E34A4	specimen	artefacts/E34A4.PLI	golden/e34a/E34A4/E34A4.REL
+E34A5	specimen	artefacts/E34A5.PLI	golden/e34a/E34A5/E34A5.REL
+E34A6	specimen	artefacts/E34A6.PLI	golden/e34a/E34A6/E34A6.REL
+E34A7	specimen	artefacts/E34A7.PLI	golden/e34a/E34A7/E34A7.REL
+E34A8	specimen	artefacts/E34A8.PLI	golden/e34a/E34A8/E34A8.REL
+E34A9_BEGIN_BLOCK_ONGOTO	refusal	a9: procedure options(main);\n  declare sysin file, w character(20) varying, n fixed;\n  n = 0;\n  begin;\n    on endfile(sysin) goto skip;\n    get list(w);\n  end;\nskip:\n  put list('n=', n);\n  stop;\nend a9;\n	DR COMPILES IT: .REL emitted with DATA AREA 001B and the saved-SP cell at 0019 in the OUTER block's section (golden/e34a/E34A9/E34A9.REL)
+E34B1	specimen	artefacts/E34B1.PLI	golden/e34b/E34B1/E34B1.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL
@@ -472,8 +481,8 @@ N74_BIT_TO_BIT_COPY	refusal	PT1:\n  procedure options(main);\n  dcl f bit(1) sta
 N75_BIT_WIDER_THAN_ONE	refusal	PT2:\n  procedure options(main);\n  dcl (b,c) bit(5);\n  b = c;\n  stop;\nend PT2;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG56/NG56.REL)
 N76_STATIC_INITIAL_FIXED	refusal	PT3:\n  procedure options(main);\n  dcl s fixed static initial(5);\n  s = s + 1;\n  stop;\nend PT3;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG57/NG57.REL)
 N78_INITIAL_WITHOUT_STATIC	refusal	E20C:\n  procedure options(main);\n  dcl f bit(1) initial('1'b);\n  if f = '1'b then n = 1;\n  dcl n fixed;\n  stop;\nend E20C;\n	DR REFUSES: NOT STATIC (golden/negpanel1/NG58/NG58.PRN)
-N79_ON_HANDLER_GOTO	refusal	e11f:\n  procedure options(main);\n  dcl sysin file;\n  dcl a fixed bin(15);\n  on endfile(sysin) goto out;\nout:\n  get list(a);\n  stop;\nend e11f;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG59/NG59.REL)
-N7_MULTI_FWD	refusal	t:\n  procedure options(main);\n  goto l;\n  goto l;\nl:\n  put list('X');\nend t;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG60/NG60.REL)
+N79GOTO	specimen	artefacts/N79GOTO.PLI	golden/e34b/N79GOTO/N79GOTO.REL
+N7MFWD	specimen	artefacts/N7MFWD.PLI	golden/e34b/N7MFWD/N7MFWD.REL
 N8	specimen	e16src/N8.PLI	golden/e2e176/N8/N8.REL
 N80_ON_HANDLER_BEGIN	refusal	e11c:\n  procedure options(main);\n  dcl sysin file;\n  dcl efile bit(1) static initial('0'b);\n  dcl x fixed bin(15);\n  on endfile(sysin) begin;\n    efile = '1'b;\n  end;\n  get list(x);\n  stop;\nend e11c;\n	DR COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG61/NG61.REL)
 N81_CALL_OF_VALUE_RETURNING	refusal	E24D:\n  procedure options(main);\n  declare (n, s) fixed;\n  s = 4;\n  call acc(s);\n  n = acc(s) + 1;\n  stop;\n  acc: procedure (v) returns(fixed);\n  declare v fixed;\n  return (v + 10);\n  end acc;\nend E24D;\n	DR REFUSES: NOT PROC (golden/negpanel1/NG62/NG62.PRN)

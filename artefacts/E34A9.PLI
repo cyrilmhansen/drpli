@@ -1,0 +1,12 @@
+a9: procedure options(main);
+  declare sysin file, w character(20) varying, n fixed;
+  n = 0;
+  begin;
+    on endfile(sysin) goto skip;
+    get list(w);
+  end;
+skip:
+  put list('n=', n);
+  stop;
+end a9;
+

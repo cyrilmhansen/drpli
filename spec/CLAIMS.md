@@ -3857,3 +3857,68 @@ divergences as recorded, 12/12 runtime, exit 0.  NETWORK remains unchanged (266 
 still refuses at the ON ENDFILE/GOTO with no .REL produced; DR's oracle remains CODE SIZE 05B0 /
 DATA AREA 00EB.  After the C203 withdrawal, ON/GOTO + REVERT is the sole remaining blocker that
 has a measured recipe.
+
+C209. [E2E-34/P1] ON ... GOTO is implemented, and two of C208's three measurements were wrong
+in the direction that mattered.  (a) The recovery pad is SEVEN bytes, not nine: `LHLD *A(cell) /
+SPHL / CALL ?RECOV' = 2A lo hi + F9 + CD lo hi = 3+1+3, and E34A4 measures the gap directly --
+pad at 0x13, `skip:'s body at 0x1a, 0x1a-0x13 = 7.  (b) C208 said a plain GOTO to a padded label
+SKIPS the recovery.  It does not.  E34A5 (a plain `if n < 2 then goto q' to a label q that IS an
+ON/GOTO target) shows the plain jump and the handler's jump carrying the SAME RELOC code 0x13,
+the pad start: the pad is the label's ENTRY POINT for every jump to it, and it falls through into
+the label body.  The only shape in which a jump avoids the pad is a jump to a label that no
+ON ... GOTO ever targeted, because then there is no pad to jump to (E32E2's `c:', which is
+label `c: revert endfile(sysin);' and gets no pad).  The design consequence is that the pad
+address and the label address must be ONE fact stored once -- codegen's `label_def' is now the
+single site that emits a label's code, for both statement labels and procedure entry labels, and
+it registers ls.labs at the PAD address, so no jump path needs a special case; C202 said this
+about the load invariant and it is the same defect shape.  (c) E34A4 also corrects the pad's
+PLACEMENT rule: pads are not "forward-only pass-2 insertions".  A backward ON/GOTO target still
+gets its pad immediately before the label body, and the handler's jump to it is an inline
+backward RELOC (0x13), not a chain.  (d) E34A2: two ON ... GOTO units naming the SAME label emit
+two ?ONCOP registrations, ONE pad, ONE hidden cell and ONE LINK-SEL-COMMON -- the cell is per
+BLOCK and the pad is per LABEL, never per ON-unit.  (e) E34A6/E34A7: the cell belongs to the
+block that contains the GOTO-form ON, including a nested procedure's block, and the SP save is
+emitted AFTER that block's formal pointer-copy prologue (A7), not before it.  Statement-form
+handlers allocate nothing at all (E32E1 stays byte-exact, E34A1's DR golden has no cell and no
+DAD SP).  (f) REVERT is implemented: `revert endfile(sysin);' = `LXI H,SYSIN / MVI A,05 / CALL
+?REVOP', i.e. the ON registration prefix with a different callee, which is why it shares
+on_reg_prefix rather than restating it.  E32E2 (two GOTO-form ONs, two pads, one cell, a REVERT,
+literal-free get/put with the ?SSVFS/?QIOOP GET chain) is byte-exact at 640 bytes; so are E34A2,
+A3, A4, A5, A6, A7, N79GOTO and E34B1.  Gate: 789 byte-exact / 0 fail, 119/119 negatives,
+16/16 divergences, 12/12 runtime, exit 0.
+
+C210. [E2E-34/P1] LINK-SEL-COMMON is emitted when the selected COMMON group CHANGES within a
+segment, NOT once per reference to it.  Mine emitted it per reference; that was invisible for 23
+rounds because every registered specimen that declared a FILE either had exactly one reference
+(E32E1) or went through a path that never emitted two.  Measured over all 1761 DR goldens with
+tools/reldump.py: COPYLPT 9 SEL / 15 common relocs with one SEL per group SWITCH and no repeat of
+the already-selected group; LOAN2 1 code SEL + 12 plain relocs; CREATE 1 + 4; E32E2 ON#1 SEL,
+ON#2 none, REVERT none; E34A2 2 SEL / 2 relocs (the second is the DATA-segment definition);
+NETWORK's golden 2 SEL / 4 relocs.  Because DR would not accept names longer than 8 characters,
+N79_ON_HANDLER_GOTO had to be DR-compiled under the short name N79GOTO, and that is recorded
+rather than hidden.  The lesson is a rule about conditions, not about this record: the `||
+statics.sy_files <> []' disjunct in the DATA-segment test was ADDED for FLTPOLY2, which has 44
+DATA bytes and therefore did not need it -- a disjunct justified by a specimen that satisfies the
+OTHER disjunct is unverified [C167] and can sit latent until some unrelated capability (here,
+ON ... GOTO in a program with a literal-free GET) makes the shape reachable.  When adding a
+disjunct, name the specimen that fails without it AND the one that fails with the other disjunct
+alone.
+
+C211. [E2E-34/P1] Two prerequisites the summary listed as blockers were not blockers, and one
+was a real latent refusal.  (a) The multi-site forward GOTO ("N7_MULTI_FWD") is now handled by the
+same one-chain-per-label model already proven for forward CALLs [C123]: every pending site is
+resolved at the definition and a single LINK-CHAIN-ADDR targets the last operand word.  N7MFWD
+(two `goto l;' to one label, no ON anywhere) is byte-exact against a DR golden, which is the
+control that shows the change is a general GOTO fix and not ON-shaped.  Making it work removed
+the negative, and the negative was promoted only after its own DR golden existed [E2E-32].  (b)
+DAD SP needed no new opcode table entry: 0x39 was already in codegen's instruction-recognition
+set, it simply had no emitter; `d st 0x39' is the whole emission, and its byte is verified at code
+offset 0x09 of E32E2's REL, i.e. in the artifact the byte check compares.  (c) A nested procedure
+that contains ANY ON-unit ends with `CALL ?OFCOP / RET' (E34A1's DR golden), including
+statement-form handlers; the earlier reading that OFCOP was GOTO-form-specific was a sampling
+artifact of the probes E2E-33 chose.  That trigger IS implemented (`ls.on_any && st.in_proc') and
+is byte-exact in E34A6/E34A7 -- but both of those blocks contain a GOTO-form ON regardless, so the
+"ANY ON-unit" generalization rests on A1's DR golden alone, and A1 still cannot be compiled here
+because it declares `dcl sysin file' INSIDE the procedure, which remains a [TBD] refusal
+("procedure local of type FILE is unsampled").  A1 is therefore the probe that will falsify the
+broad trigger if it is wrong, and it is kept committed for that reason [C198].

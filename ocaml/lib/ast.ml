@@ -117,6 +117,9 @@ and stmt_kind =
                              used to, bound to `_cargs' in the parser) makes an
                              ON ENDFILE impossible to lower correctly. *)
     ; handler : stmt }       (* ON con stmt; *)
+| Srevert of {
+    cond : string
+  ; cargs : expr list }      (* REVERT con(stmt) [E2E-34/P2] *)
   | Ssignal of { cond : string; target : expr option }
   | Selse of stmt                                  (* orphan ELSE *)
   | Sdeclare_fail of pos                           (* DECLARED/NOT>RESERVED *)

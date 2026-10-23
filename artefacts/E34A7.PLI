@@ -1,0 +1,16 @@
+a7: procedure options(main);
+  declare sysin file, n fixed;
+  n = 0;
+  call p(5);
+  put list('n=', n);
+  stop;
+  p: procedure(x);
+    declare x fixed, w character(20) varying;
+    on endfile(sysin) goto z;
+    get list(w);
+    n = x;
+z: n = n + 1;
+  end p;
+end a7;
+
+
