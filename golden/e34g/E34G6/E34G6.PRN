@@ -1,0 +1,113 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E34G6
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 E34G6 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 13 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0002 JQ POINTER AUTOMATIC
+c 0004 S CHAR(6) VARYING AUTOMATIC
+c 000B Q FIXED BINARY(15,0) AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 2 BASED()
+c 0000 .NN FIXED BINARY(15,0) MEMBER
+c 0002 .W CHAR(6) VARYING MEMBER
+c 0000 SUB ENTRY PARAMETERS(2) CONSTANT
+c 0000 .* POINTER PARAMETER
+c 0002 .* CHAR(6) VARYING PARAMETER
+BLOCK AT LINE 11, AUTO STORAGE 13 BYTES, PARAMETERS BASE, T
+e 0000 BASE POINTER PARAMETER
+e 0002 T CHAR(6) VARYING PARAMETER
+e 0004 U CHAR(6) VARYING AUTOMATIC
+e 000B R FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E34G6
+
+   1 a 0000 e34g6: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare p pointer, jq pointer, s character(6) varying, q fixed;
+   3 c 0006    declare 1 nd based, 2 nn fixed, 2 w character(6) varying;
+   4 c 0006    allocate nd set(p);
+       0006       LXI  H,0009
+       0009       CALL ?ALLOP
+       000C       SHLD P A(0004)
+   5 c 000F    s = 'AB';
+       000F       LXI  H,S A(0008)
+       0012       LXI  D,* S(0000)
+       0015       MVI  A,06
+       0017       MVI  B,02
+       0019       CALL ?SMCVM
+   6 c 001C    p->nn = 5;
+       001C       LHLD P A(0004)
+       001F       MVI  M,05
+       0021       INX  H
+       0022       MVI  M,00
+   7 c 0024    call sub(p, s);
+       0024       LXI  H,* A(0011)
+       0027       CALL 0000
+   8 c 002A    put list('q=', q);
+       002A       LXI  D,0252
+       002D       LXI  B,0000
+       0030       CALL ?SYSPR
+       0033       LXI  H,* S(0002)
+       0036       MVI  A,02
+       0038       CALL ?SLCTS
+       003B       CALL ?PNCOP
+       003E       LHLD Q A(000F)
+       0041       MVI  A,09
+       0043       CALL ?QICOP
+       0046       CALL ?PNVOP
+       0049       CALL ?QIOOP
+       002E       ==== 004C
+   9 c 004C   stop;
+       004C       CALL ?STOPX
+  10 c 004F   sub: procedure(base, t);
+  11 e 004F    declare base pointer, t character(6) varying;
+       004F       LXI  D,BASE A(0015)
+       0052       MVI  C,04
+       0054       MOV  A,M
+       0055       INX  H
+       0056       STAX D
+       0057       INX  D
+       0058       DCR  C
+       0059       JNZ  0054
+  12 e 005C    declare u character(6) varying, r fixed;
+  13 e 005C    base->w = t;
+       005C       LHLD T A(0017)
+       005F       PUSH H
+       0060       LHLD BASE A(0015)
+       0063       MOV  E,M
+       0064       INX  H
+       0065       MOV  D,M
+       0066       XCHG 
+       0067       INX  H
+       0068       INX  H
+       0069       POP  D
+       006A       MVI  A,06
+       006C       CALL ?SMVVM
+       006F       RET  
+  14 e 0070 
+  15 c 0070   end sub;
+  16 a 0070 end e34g6;
+
+CODE SIZE = 0070
+DATA AREA = 0022
+FREE SYMS = 37F0
+END  COMPILATION
+

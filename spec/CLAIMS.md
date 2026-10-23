@@ -3995,3 +3995,34 @@ descriptor with PUSH H / POP D and mine materializes it with LXI D: the C212 loa
 bit, but on a varying ASSIGNMENT, which is the next thing to measure).  October's first
 divergent byte was 338.  Two negatives died on this work (E28N9 `if w = 1 then stop', E32C10
 `if k = 3'), both promoted to specimens against their own pre-existing DR goldens [E2E-32].
+
+C216. [E2E-34/P6] The CHARACTER VARYING ASSIGNMENT family is the same one bit per operand as
+C212, with the roles fixed by the direction of the store: the DESTINATION address must arrive
+in HL and the SOURCE address in DE, so the four combinations are
+  dest imm,  src imm   `LXI H,dst / LXI D,src / MVI A,cap / ?SMVVM'   E34G9 0020, E34G10 0020
+                                                                      + 002B (both directions)
+  dest imm,  src load  `load src / XCHG / LXI H,dst / MVI A,cap'      E34G2 0018, G7 0062, G8 005C
+  dest load, src imm   `dst / LXI D,src / MVI A,cap'                  E34G1 0018, G5 0018
+  dest load, src load  `load src / PUSH H / dst / POP D / MVI A,cap'  E34G6 005C, V7 0025
+Every cell has at least two DR samples and the two mixed cells are sampled in both
+orientations, so the table is not one-sided [C167].  `MVI A' is always the DESTINATION's
+declared capacity, never the value's length -- the source keeps its own length byte, which is
+why a helper call is needed at all.  The plain-automatic destination used to accept only a
+string literal (`char store from non-literal [TBD]'), so `w = hp->vn' and `u = t' refused
+while the member-destination form of the same copy was already byte-exact: an asymmetry
+between two halves of one family, not a language distinction.
+BONDED TO THIS, AND THE REAL FIND: `bmem_addr' -- the single based-member ADDRESS encoder
+shared by the varying store, the BIT store and the PUT read since E2E-30/P2 -- reloaded the
+qualifier cell into HL and stepped to the member, which is one indirection SHORT when the
+qualifier is a by-reference POINTER FORMAL (the cell holds the address of the caller's
+pointer, not the record).  DR inserts `MOV E,M / INX H / MOV D,M / XCHG' between the reload
+and the step; E34G6 and E34G7, both with the member at offset 2, pin that order (the ladder
+first, then the step -- a probe with the member at offset 0 would NOT have pinned it).  Before
+this, that path COMPILED AND WAS WRONG: E34G6's first build returned rc=0 with different bytes,
+and no specimen in the 831 exercised a formal-qualified member address, so the panel could not
+see it.  That is [C202]'s shape exactly -- an invariant written into one of several encoders
+and quietly absent from another -- and the fix reuses the ladder `bfix_val_load' already owns
+rather than writing a second copy.  E34G3 (`hp->vn = jq->vn', a member source written with an
+explicit qualifier) stays a registered refusal: store_vbvar's member-source branch keys on the
+bare `w' spelling V7 uses, DR's frame for the qualified one is visible in that golden, and the
+one thing no probe shows is a source and destination in records of DIFFERENT types.

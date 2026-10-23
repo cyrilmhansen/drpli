@@ -1,0 +1,12 @@
+e34g10: procedure options(main);
+   declare s character(6) varying, u character(6) varying, q fixed;
+   s = 'AB';
+   u = 'CDE';
+   u = s;
+   s = u;
+   u = 'Z';
+   q = 1;
+   put list('q=', q);
+  stop;
+end e34g10;
+

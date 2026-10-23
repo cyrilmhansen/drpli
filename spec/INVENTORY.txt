@@ -295,6 +295,16 @@ E34F6	specimen	artefacts/E34F6.PLI	golden/e34f/E34F6/E34F6.REL
 E34F7	specimen	artefacts/E34F7.PLI	golden/e34f/E34F7/E34F7.REL
 E34F8	specimen	artefacts/E34F8.PLI	golden/e34f/E34F8/E34F8.REL
 E34F9	specimen	artefacts/E34F9.PLI	golden/e34f/E34F9/E34F9.REL
+E34G1	specimen	artefacts/E34G1.PLI	golden/e34g/E34G1/E34G1.REL
+E34G10	specimen	artefacts/E34G10.PLI	golden/e34g/E34G10/E34G10.REL
+E34G2	specimen	artefacts/E34G2.PLI	golden/e34g/E34G2/E34G2.REL
+E34G3	refusal	e34g3: procedure options(main);\n    declare\n        w character(20) varying,\n        x character(20) varying,\n        hp pointer,\n        jq pointer;\n    declare\n        1 nd based,\n          2 vn character(20) varying,\n          2 nn fixed;\n    allocate nd set(hp);\n    allocate nd set(jq);\n    hp->vn = jq->vn;\n   put list('w=', w);\n  stop;\nend e34g3;\n	DR COMPILES it (golden/e34g/E34G3: `hp->vn = jq->vn' -> LHLD JQ / PUSH H / LHLD HP / POP D / MVI A,14 / CALL ?SMVVM -- the [C212] load/load frame, destination in HL).  Mine refuses: store_vbvar's member-source branch keys on an Ast.Eident whose value kind is Vbvar (the bare `w' spelling V7 uses), so a source qualified with an explicit pointer name reaches the outer refusal.  The bytes to emit are visible in the golden; the refusal is kept because no probe shows what DR does when the two members belong to records of DIFFERENT types, and E34G3 has one sample only.
+E34G4	specimen	artefacts/E34G4.PLI	golden/e34g/E34G4/E34G4.REL
+E34G5	specimen	artefacts/E34G5.PLI	golden/e34g/E34G5/E34G5.REL
+E34G6	specimen	artefacts/E34G6.PLI	golden/e34g/E34G6/E34G6.REL
+E34G7	specimen	artefacts/E34G7.PLI	golden/e34g/E34G7/E34G7.REL
+E34G8	specimen	artefacts/E34G8.PLI	golden/e34g/E34G8/E34G8.REL
+E34G9	specimen	artefacts/E34G9.PLI	golden/e34g/E34G9/E34G9.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

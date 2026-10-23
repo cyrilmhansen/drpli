@@ -3076,6 +3076,25 @@ for _n in ('E34F1', 'E34F2', 'E34F3', 'E34F4', 'E34F5', 'E34F6', 'E34F7', 'E34F8
 add_spec('E28N9', ('artefacts/N9.PLI', 'golden/e2e331d/N9/N9.REL'))
 add_spec('E32C10', ('artefacts/E32C10.PLI', 'golden/e32c/E32C10/E32C10.REL'))
 
+# [E2E-34/P6] the CHARACTER VARYING ASSIGNMENT family.  The same one bit per operand as
+# [C212]'s comparison table, with the roles fixed by the direction of the store: the
+# DESTINATION address must reach HL and the SOURCE address DE.
+#   G9, G10  dest imm,  src imm   LXI H,U / LXI D,S          (G10 = both orientations)
+#   G2,G7,G8 dest imm,  src load  load / XCHG / LXI H,U      (member source, formal source)
+#   G1, G5   dest load, src imm   dest / LXI D,S
+#   G3 -- member <- member written with an explicit qualifier -- is registered below as a
+#            refusal: mine has only the bare-member source shape (V7), no probe of the
+#            qualified one, and it must not be guessed in.
+#   G6       dest load, src load  LHLD T / PUSH H / dest ladder / POP D   (formal source:
+#            NETWORK line 101 `p->city_name = city;')
+# G6/G7 additionally pin that a by-reference POINTER formal base needs the deref ladder
+# BEFORE member_step -- a fact [C212] keys the same way and bmem_addr used to miss.
+for _n in ('E34G1', 'E34G2', 'E34G4', 'E34G5', 'E34G6', 'E34G7', 'E34G8', 'E34G9', 'E34G10'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e34g/%s/%s.REL' % (_n, _n)))
+REJECTS['E34G3'] = (open('artefacts/E34G3.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+    "codegen: storing this expression into the VARYING member")
+NEG_META['E34G3'] = ("my-gap", "DR COMPILES it (golden/e34g/E34G3: `hp->vn = jq->vn' -> LHLD JQ / PUSH H / LHLD HP / POP D / MVI A,14 / CALL ?SMVVM -- the [C212] load/load frame, destination in HL).  Mine refuses: store_vbvar's member-source branch keys on an Ast.Eident whose value kind is Vbvar (the bare `w' spelling V7 uses), so a source qualified with an explicit pointer name reaches the outer refusal.  The bytes to emit are visible in the golden; the refusal is kept because no probe shows what DR does when the two members belong to records of DIFFERENT types, and E34G3 has one sample only.")
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:

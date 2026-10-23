@@ -3953,6 +3953,18 @@ let bmem_addr ?qual st (pn : string) (k : int) () =
   st.last_imm <- None;
   d st op_lhld;
   reloc st Data (addr_of st q);
+  (* [E2E-34/P6] when the qualifier is a by-reference POINTER FORMAL its cell holds the
+     ADDRESS of the caller's pointer, so `LHLD' stops one indirection short of the record:
+     DR loads the pointed-to value with the same four-byte ladder the value reads use
+     (`bfix_val_load', [C202]'s single authority for the idiom) and only THEN steps to the
+     member.  Two samples, both with a non-zero offset so the order of the two operations is
+     pinned and not assumed: E34G6 0060-0068 `base->w = t' (w at offset 2) and E34G7
+     006E-0076 `base->w = u'.  A plain (non-formal) base gets no ladder -- `LHLD P' of a
+     local pointer cell already leaves HL at the record, which is E34G1/E34G5 and NETWORK
+     line 101 -- so this branch keys on the SAME fact [C212] keys the comparison shapes on. *)
+  if List.mem (String.lowercase_ascii q) st.deref then
+    (d st 0x5e (* MOV E,M *); d st 0x23 (* INX H *); d st 0x56 (* MOV D,M *);
+     d st op_xchg);
   member_step st k
 
 let vbvar_addr ?qual st (pn : string) (k : int) () =
@@ -4008,6 +4020,24 @@ let store_vbvar st ?qual (pn : string) (k : int) (cap : int) (nm : string) (rhs 
   | Ast.Eident src ->
       let svk = vk_of st (String.lowercase_ascii src.Ast.orig) in
       (match svk with
+       | Vvar _ when List.mem (String.lowercase_ascii src.Ast.orig) st.deref ->
+           (* [E2E-34/P6] the source is a by-reference VARYING FORMAL: its cell holds the
+              address of the descriptor, so its address is NOT a link-time constant and
+              `LXI D,<cell>' below would hand ?SMVVM the cell instead of the value.  That
+              is [C212]'s load-versus-immediate bit on the source side of an ASSIGNMENT,
+              and the resolution is [C212]'s load/load case with the roles fixed by the
+              direction of the store -- source address into HL then onto the stack,
+              destination ladder, POP D:
+                  LHLD T / PUSH H / LHLD BASE / ladder / POP D / MVI A,06 / CALL ?SMVVM
+              E34G6 005C-006A (varying formal into a first member) and V7 0025 (`r->w = w'',
+              a member source, same four-byte frame) are the two samples; E34G6 is the
+              shape NETWORK line 101 `p->city_name = city;' needs. *)
+           d st op_lhld; reloc st Data (addr_of st src.Ast.orig);
+           d st op_push_h;
+           dst ();
+           d st op_pop_d;
+           d st op_mvi_a; d st (cap land 0xff);
+           call_ext st "?SMVVM"
        | Vvar _ ->
            dst ();
            d st op_lxi_d; reloc st Data (addr_of st src.Ast.orig);
@@ -6778,6 +6808,52 @@ statement form IS implemented; this expression form is not.)")
       ignore (dec_push st None rhs);
       call_ext st "?QDI15";
       d st op_shld; reloc st Data (addr_of st n.Ast.orig)
+  | Ast.Eident n when (match vk_of st n.Ast.orig with Vvar _ -> true | _ -> false)
+                       && (match str_vv_side st rhs with Some _ -> true | None -> false) ->
+      (* [E2E-34/P6] a CHARACTER VARYING automatic receiving another varying value.  This
+         path used to accept only a string literal, so `w = hp->vn' and `u = t' (t a formal)
+         refused with "char store from non-literal" even though DR's helper call is the same
+         ?SMVVM the member stores use.  Same one bit per operand as [C212], with the roles
+         fixed by the direction of the store -- destination address into HL, source address
+         into DE:
+           dest imm,  src imm   LXI H,U / LXI D,S / MVI A,cap / ?SMVVM   E34G9 0020,
+                                                                              E34G10 0020+002B
+           dest imm,  src load  LHLD T / XCHG / LXI H,U / MVI A,cap / ?SMVVM
+                                                                              E34G8 005C,
+                                                                              E34G7 0062,
+                                                                              E34G2 0018
+         E34G10 is the control that the two immediate operands are not swapped: `u = s' and
+         `s = u' differ only in which name each instruction names.  The capacity in MVI A is
+         the DESTINATION's declared length (cap 6 into cap 6 in G8, cap 20 in G2 where the
+         source member is also 20), never the value's length -- the source keeps its own
+         length byte, which is what makes the helper call needed at all. *)
+      let dst_side = `Imm (String.lowercase_ascii n.Ast.orig) in
+      let src_side =
+        match str_vv_side st rhs with Some x -> x | None -> assert false
+      in
+      let cap =
+        match vk_of st (String.lowercase_ascii n.Ast.orig) with
+        | Vvar c -> c | Vbvar (_, _, c) -> c
+        | _ -> failwith "codegen: non-varying destination in the varying store path [TBD]"
+      in
+      st.last_imm <- None;
+      (match dst_side, src_side with
+       | `Imm a, `Imm b ->
+           d st op_lxi_h; reloc st Data (addr_of st a);
+           d st op_lxi_d; reloc st Data (addr_of st b)
+       | `Imm a, ((`FCell _ | `Mem _) as sv) ->
+           str_vv_load st sv ();
+           d st 0xeb (* XCHG *);
+           d st op_lxi_h; reloc st Data (addr_of st a)
+       | ((`FCell _ | `Mem _) as dv), `Imm b ->
+           str_vv_load st dst_side ();
+           d st op_lxi_d; reloc st Data (addr_of st b)
+       | ((`FCell _ | `Mem _) as dv), ((`FCell _ | `Mem _) as sv) ->
+           str_vv_load st sv (); d st op_push_h;
+           str_vv_load st dv (); d st op_pop_d)
+      ;
+      d st op_mvi_a; d st (cap land 0xff);
+      call_ext st "?SMVVM"
   | Ast.Eident n when vk_of st n.Ast.orig <> Vint ->
       (* char/varying store path [V101-V106]; HL clobbered *)
       st.last_imm <- None;

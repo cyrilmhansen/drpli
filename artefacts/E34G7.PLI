@@ -1,0 +1,20 @@
+e34g7: procedure options(main);
+   declare p pointer, jq pointer, s character(6) varying, q fixed;
+   declare 1 nd based, 2 nn fixed, 2 w character(6) varying;
+   allocate nd set(p);
+   s = 'AB';
+   p->nn = 5;
+   jq = p;
+call sub(jq, s);
+   put list('q=', q);
+  stop;
+  sub: procedure(base, t);
+   declare base pointer, t character(6) varying;
+   declare u character(6) varying, r fixed;
+   u = t;
+   base->w = u;
+   r = 1;
+
+  end sub;
+end e34g7;
+

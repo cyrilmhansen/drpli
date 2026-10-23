@@ -1,0 +1,18 @@
+e34g5: procedure options(main);
+    declare
+        w character(20) varying,
+        x character(20) varying,
+        hp pointer,
+        jq pointer;
+    declare
+        1 nd based,
+          2 vn character(20) varying,
+          2 nn fixed;
+    allocate nd set(hp);
+    allocate nd set(jq);
+    hp->vn = x;
+   hp->nn = 3;
+   put list('w=', w);
+  stop;
+end e34g5;
+
