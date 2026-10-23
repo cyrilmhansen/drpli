@@ -124,6 +124,26 @@ and I have no evidence about whether the 756 accepted specimens exercise that pa
 the trade C179 forbids. Fixing Family B needs to explain why PB4 is right while PB20/E31F4/E31F7C are
 not — one probe per direction, not one rule from one direction [C167].
 
+### Why these runtime comparisons count (the C193 check)
+
+Every pair above was verified NON-CIRCULAR before being cited: both the input `.REL` and the linked
+`.COM` differ between DR and mine, so running "both" is running two different programs.
+
+| probe | `.REL` differs? | DR `.COM` | mine `.COM` | images differ? |
+|---|---|---|---|---|
+| E31F8 | yes | 6912 | 6912 | yes |
+| PB20 | yes | 7296 | 7296 | yes |
+| E31F7C | yes | 7040 | 7040 | yes |
+| E31F4 | yes | 7040 | 7040 | yes |
+| PB4 | yes | 7296 | 7296 | yes |
+
+Equal `.COM` sizes are expected (the divergences are inside the code, and LINK pads to record
+boundaries); `cmp` says the bytes differ.  This is the opposite of E2E-29's REVERSE comparison, where
+byte-identical `.REL` made identical output a foregone conclusion [C137][C193] -- and it is why the
+E30G1 runtime agreement recorded in E2E-30 is worth less than these: there the images differ but the
+result happened to agree, whereas here the images differ and the results DISAGREE, which is the case
+that actually discriminates.
+
 ## P2 — ON ENDFILE / REVERT: the handler layout, resolved from a linked image
 
 Not implemented. What was done instead is more useful: the ambiguity in DR's emitted code was settled
