@@ -1,0 +1,86 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E36T14
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 T14 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 N FIXED BINARY(15,0) AUTOMATIC
+c 0000 SK LABEL CONSTANT
+c 0000 SUB ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 10, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E36T14
+
+   1 a 0000 t14: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare n fixed;
+       0006       LXI  H,0000
+       0009       DAD  SP
+       000A       SHLD * A(0004)
+   3 c 000D    n = 0;
+       000D       LXI  H,0000
+       0010       SHLD N A(0002)
+   4 c 0013    goto sk;
+       0013       JMP  0000
+       0016       LHLD * A(0004)
+       0019       SPHL 
+       001A       CALL ?RECOV
+   5 c 001D sk:
+   6 c 001D    n = 1;
+       001D       LXI  H,0001
+       0020       SHLD N A(0002)
+   7 c 0023    call sub;
+       0023       CALL 0000
+   8 c 0026    put list('n=', n);
+       0026       LXI  D,0252
+       0029       LXI  B,0000
+       002C       CALL ?SYSPR
+       002F       LXI  H,* S(0000)
+       0032       MVI  A,02
+       0034       CALL ?SLCTS
+       0037       CALL ?PNCOP
+       003A       LHLD N A(0002)
+       003D       MVI  A,09
+       003F       CALL ?QICOP
+       0042       CALL ?PNVOP
+       0045       CALL ?QIOOP
+       002A       ==== 0048
+   9 c 0048   sub: procedure;
+  10 e 0048     n = 5;
+       0048       JMP  0000
+       004B       LXI  H,0005
+       004E       SHLD N A(0002)
+  11 e 0051     goto sk;
+       0051       JMP  SK
+  12 e 0054     n = 6;
+       0054       INX  H
+       0055       SHLD N A(0002)
+       0058       RET  
+       0049       ==== 0059
+  13 c 0059    end sub;
+  14 c 0059    stop;
+       0059       CALL ?STOPX
+  15 a 005C end t14;
+
+CODE SIZE = 005C
+DATA AREA = 0006
+FREE SYMS = 3871
+END  COMPILATION
+

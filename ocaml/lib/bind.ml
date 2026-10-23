@@ -1088,59 +1088,192 @@ type call_site =
   { cs_proc : string; cs_slot : int; cs_args : Ast.expr list
   ; cs_temps : int option list }  (* Some addr iff that arg is an expression *)
 
-(* ---------- [E2E-34/P1] ON-unit facts of one block ----------
+(* ---------- [E2E-34/P1, E2E-36/P2] label ownership, references and recovery-pad demand ----------
    ONE scan, exported, used by bind (which allocates the hidden saved-SP cell) and by
-   codegen (which decides which labels carry a recovery pad and which procedure tails
-   call ?OFCOP). Layout demand and instruction emission must agree or the DATA area
-   shifts under the code [C179], and a property written out twice drifts [C202]. *)
+   codegen (which decides which labels carry a recovery pad, which labels are visible from
+   where, and which names are procedure entries and therefore NOT GOTO-able).  Layout demand
+   and instruction emission must agree or the DATA area shifts under the code [C179], and a
+   property written out twice drifts [C202].
+
+   [E2E-36] rewrote the DEMAND rule.  The pre-E36 version asked "does an ON ... GOTO written
+   in this block name label L" and gave THIS block the cell and the pad.  That was true of
+   every one of the 884 specimens because every ON-unit in them named a label of its own
+   block -- and it is false [C167].  E35Y3, E36T2-T8, E36T13 and E36T14 (13 DR goldens) say
+   the pad and the cell follow the block that OWNS the label, whoever points at it:
+
+     * a label is pad-bearing if an ON-unit's GOTO handler names it, from any block that can
+       see it (E36T13: a nested procedure's `on endfile(sysin) goto sk;' gives MAIN the cell
+       and pads MAIN's `sk:', with no ON-unit anywhere in main -- DATA 6, pad at 0013);
+     * or a plain GOTO names it from a DIFFERENT block (E35Y3: nested `goto sk;' to main's
+       label, no ON-unit in the program at all -- DATA 6, main gets the cell, pad at 0013);
+     * a plain GOTO from the owning block does NOT pad (E36T11/T12, byte-exact with no cell
+       and no pad: DATA 4) -- so the same-block orientation is what makes the rule need the
+       "who references it" input at all.
+
+   E36T15/T16/T17 add a second boundary: `GOTO <procedure entry label>' is rejected by DR
+   itself with `NOT LABEL' (1 ERROR IN PASS 2, no .REL), in the same-block orientation too
+   (T17 is main jumping to its own `sub:'), so a procedure name is not a transfer target and
+   the plan exports the entry-label set to make codegen say so. *)
+type ref_kind = Rk_on | Rk_plain
+
 type on_facts =
-{ of_labels : string list (* labels targeted by an ON-unit whose handler is a plain
-                             GOTO, in THIS block -- each gets ONE recovery pad [C208] *)
-; of_goto : bool          (* any such ON-unit -> the block saves SP at entry *)
-; of_any : bool }         (* any ON-unit at all -> ?OFCOP on a procedure tail [C209] *)
+{ of_labels : string list (* labels OWNED by this block that carry a recovery pad [E2E-36] *)
+; of_goto : bool          (* = of_labels <> []: this block saves SP at entry *)
+; of_any : bool           (* an ON-unit is WRITTEN here -> ?OFCOP on a procedure tail [C209] *)
+; of_own : string list    (* statement labels defined at this block level, incl. nested BEGINs
+                             of the SAME block [C228] *)
+; of_procs : string list  (* nested procedure entry labels: visible, but NOT GOTO-able [E36T17] *) }
 
-(* The block that owns the cell and the pads is the block the ON-unit is WRITTEN IN.
-   A nested statement counts for its enclosing block: NETWORK:145's ON sits inside two
-   DO WHILEs of print_paths, and print_paths has ONE cell (DR listing: LHLD * A(00C5)
-   twice -- pads before eol: at 02F1 and before eof: at 0303). A nested PROCEDURE does
-   not: E34A6 / E34A1 / E30E2 give the callee its own cell and leave the caller's block
-   with none. So descent stops at Ast.Sproc. The handler is NOT descended into, because
-   only the direct `ON ENDFILE(<file>) GOTO <label>' shape demands a pad; a handler
-   that merely contains a GOTO deeper down is refused by codegen, and allocating a cell
-   for a program that emits no .REL would shift every later DATA address. *)
-let rec on_stmt (acc : string list * bool * bool) (s : Ast.stmt) =
-  let (lbls, g, a) = acc in
-  match s.Ast.st with
-  | Ast.Son { cond; cargs; handler } ->
-      (* the two matches are deliberately NOT siblings at one indentation: `| Some _ ->
-         | None ->' continuing the outer arm list retypes the outer scrutinee as an
-         option and the next constructor arm fails to compile [E2E-34] *)
-      let is_endfile =
-        String.lowercase_ascii cond = "endfile"
-        && (match cargs with [ { Ast.e = Ast.Eident _; _ } ] -> true | _ -> false)
-      in
-      let tgt =
-        match handler.Ast.st with
-        | Ast.Sgoto { tgt = t; subscript = [] } when is_endfile ->
-            Some (String.lowercase_ascii t.Ast.orig)
-        | _ -> None
-      in
-      (match tgt with Some l -> (l :: lbls, true, true) | None -> (lbls, g, true))
-  | Ast.Sproc _ -> acc
-  | Ast.Sdobegin ss -> List.fold_left on_stmt acc ss
-  | Ast.Sif { then_; els; _ } ->
-      let a1 = on_stmt acc then_ in
-      (match els with Some e -> on_stmt a1 e | None -> a1)
-  | Ast.Sdowhile { body; _ } | Ast.Sdoto { body; _ } -> on_stmt acc body
-  | Ast.Sdoforever body -> on_stmt acc body
-  | Ast.Selse b -> on_stmt acc b
-  | _ -> acc
+(* The block that owns a label is the block whose statements define it.  A nested DO/IF/BEGIN
+   group does NOT own labels separately -- E36T5 puts the referencing GOTO inside `do; ... end;'
+   and the pad still belongs to main, exactly as NETWORK:145's ON inside two DO WHILEs belongs
+   to print_paths.  Descent stops at Ast.Sproc, because a nested procedure DOES own its labels
+   (E35X1/E35X4: the nested `hd:' shadows main's, [C228]). *)
+let lbl (x : Ast.name) = String.lowercase_ascii x.Ast.orig
 
-let on_facts (b : Ast.block) : on_facts =
-  let (lbls, g, a) =
-    List.fold_left on_stmt ([], false, false) b.Ast.bstmts
+let rec own_labels_stmts (ss : Ast.stmt list) =
+  List.concat_map own_labels_stmt ss
+and own_labels_stmt (s : Ast.stmt) =
+  let here = List.map lbl s.Ast.slabels in
+  let deeper =
+    match s.Ast.st with
+    | Ast.Sdobegin ss -> own_labels_stmts ss
+    | Ast.Sif { then_; els; _ } ->
+        own_labels_stmt then_
+        @ (match els with Some e -> own_labels_stmt e | None -> [])
+    | Ast.Selse e -> own_labels_stmt e
+    | Ast.Sdowhile { body; _ } -> own_labels_stmt body
+    | Ast.Sdoto { body; _ } -> own_labels_stmt body
+    | Ast.Sdoforever body -> own_labels_stmt body
+    | Ast.Son { handler; _ } -> own_labels_stmt handler
+    | Ast.Sproc _ -> []
+    | _ -> []
   in
-  { of_labels = lbls; of_goto = g; of_any = a }
+  here @ deeper
+
+(* nested procedure ENTRY labels: this block owns the names, but they are not transfer targets *)
+let proc_entries (ss : Ast.stmt list) =
+  List.concat_map
+    (fun (s : Ast.stmt) ->
+      match s.Ast.st with
+      | Ast.Sproc bs ->
+          (match bs.Ast.blk.Ast.bname with Some x -> [lbl x] | None -> [])
+      | _ -> [])
+    ss
+
+(* label REFERENCES written at this block level.  A GOTO in a handler that is itself a plain
+   GOTO is the ON-unit demand; anything deeper inside a handler is a plain reference, which
+   matches [E2E-34/P5]'s finding that a statement-form handler in a nested procedure demands
+   nothing for the block it is written in. *)
+let rec refs_stmts (ss : Ast.stmt list) = List.concat_map refs_stmt ss
+and refs_stmt (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Son { handler; _ } ->
+      (match handler.Ast.st with
+       | Ast.Sgoto { tgt = t; subscript = [] } -> [(lbl t, Rk_on)]
+       | Ast.Sgoto _ -> []
+       | _ -> refs_stmt handler)
+  | Ast.Sgoto { tgt = t; subscript = [] } -> [(lbl t, Rk_plain)]
+  | Ast.Sgoto _ -> []
+  | Ast.Sproc _ -> []
+  | Ast.Sdobegin ss -> refs_stmts ss
+  | Ast.Sif { then_; els; _ } ->
+      refs_stmt then_ @ (match els with Some e -> refs_stmt e | None -> [])
+  | Ast.Selse e -> refs_stmt e
+  | Ast.Sdowhile { body; _ } -> refs_stmt body
+  | Ast.Sdoto { body; _ } -> refs_stmt body
+  | Ast.Sdoforever body -> refs_stmt body
+  | _ -> []
+
+(* the ON-unit presence test, unchanged in meaning from [E2E-34]: any ON-unit written at this
+   block level, of any condition, with any handler shape, turns on ?OFCOP for a procedure tail *)
+let rec on_any_stmt (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Son _ -> true
+  | Ast.Sproc _ -> false
+  | Ast.Sdobegin ss -> List.exists on_any_stmt ss
+  | Ast.Sif { then_; els; _ } ->
+      on_any_stmt then_ || (match els with Some e -> on_any_stmt e | None -> false)
+  | Ast.Selse e -> on_any_stmt e
+  | Ast.Sdowhile { body; _ } -> on_any_stmt body
+  | Ast.Sdoto { body; _ } -> on_any_stmt body
+  | Ast.Sdoforever body -> on_any_stmt body
+  | _ -> false
+
+(* One pass over the block tree.  Each block returns its own facts plus the references it
+   could NOT resolve, which its ancestors must try; a reference reaches the root unresolved
+   when no enclosing block owns the label, and codegen refuses that (DR calls it NOT LABEL).
+   Blocks are keyed by PHYSICAL identity, not by name: anonymous nested BEGINs have no name to
+   key on, and silently merging two blocks that happen to share one would merge their labels. *)
+let rec survey (b : Ast.block)
+  : (Ast.block * on_facts) list * (string * ref_kind) list =
+  let procs = proc_entries b.Ast.bstmts in
+  (* [E2E-36/P2] a nested procedure's ENTRY label is carried in the Sproc statement's label
+     list by the parser, but it is NOT a transfer target: DR calls `GOTO sub;' NOT LABEL in
+     both orientations (E36T16 sibling-to-sibling entry, E36T17 parent-to-own-child entry).
+     Keeping those names out of `own' makes the survey hand them to `procs', which is what
+     codegen refuses on, and stops a reference to an entry label from charging a saved-SP
+     cell to a block DR never even gets to lay out. *)
+  let own =
+    List.filter (fun x -> not (List.mem x procs)) (own_labels_stmts b.Ast.bstmts) in
+  let direct = List.map (fun (n, k) -> (n, k, true)) (refs_stmts b.Ast.bstmts) in
+  let kids =
+    List.filter_map
+      (fun (s : Ast.stmt) -> match s.Ast.st with Ast.Sproc bs -> Some bs.Ast.blk | _ -> None)
+      b.Ast.bstmts
+  in
+  let kid_plans, kid_unresolved =
+    List.split (List.map survey kids)
+  in
+  let propagated =
+    List.map (fun (x, k) -> (x, k, false)) (List.concat kid_unresolved)
+  in
+  let (demanded, upward) =
+    List.fold_left
+      (fun (dem, up) (nm, kind, local) ->
+        if List.mem nm own then
+          (* resolved HERE.  Demanded if the ON-unit points at it, or if the reference came
+             from another block; a plain same-block GOTO does not demand a pad [E36T11]. *)
+          (if kind = Rk_on || not local then (nm :: dem, up) else (dem, up))
+        else
+          (* not ours: an ancestor's, or nothing's -- either way it goes up unchanged *)
+          (dem, (nm, kind) :: up))
+      ([], []) (direct @ propagated)
+  in
+  let facts =
+    { of_labels = demanded
+    ; of_goto = demanded <> []
+    ; of_any = List.exists on_any_stmt b.Ast.bstmts
+    ; of_own = own
+    ; of_procs = procs }
+  in
+  (if Sys.getenv_opt "PLI80_PADDEBUG" <> None then
+     prerr_endline
+       (Printf.sprintf "[pad] block@%d own=%s procs=%s direct=%s kidrefs=%s demanded=%s up=%s"
+          (match b.Ast.bstmts with x :: _ -> x.Ast.spos.Source.line | [] -> -1)
+          (String.concat "," own) (String.concat "," procs)
+          (String.concat "," (List.map (fun (n2, k, _) -> n2 ^ if k = Rk_on then ":on" else ":plain") direct))
+          (String.concat "," (List.map (fun (n2, k) -> n2 ^ if k = Rk_on then ":on" else ":plain")
+                              (List.concat kid_unresolved)))
+          (String.concat "," demanded)
+          (String.concat "," (List.map fst upward))));
+  ( (b, facts) :: List.concat kid_plans
+  , upward )
+
+let survey_all (b : Ast.block) = fst (survey b)
+
+(* the facts of ONE block out of a program-wide survey.  Absence is a bug, not a default: a
+   block that was not surveyed would silently lose its cell and its pads, which shifts DATA
+   and lands a jump in the wrong place [C179]. *)
+let facts_of (plan : (Ast.block * on_facts) list) (b : Ast.block) : on_facts =
+  match List.find_opt (fun (x, _) -> x == b) plan with
+  | Some (_, f) -> f
+  | None ->
+      failwith
+        "bind: block missing from the pad survey plan (internal inconsistency, [C179])"
+
+let no_facts =
+  { of_labels = []; of_goto = false; of_any = false; of_own = []; of_procs = [] }
 
 type proc_layout =
   { pl_name : string; pl_lbl : string option; pl_rec : bool
@@ -1159,6 +1292,8 @@ type proc_layout =
 
 type prog_layout =
   { pl_top_cell : int option (* [E2E-34] saved-SP cell of the OUTERMOST block *)
+  ; pl_top_on : on_facts     (* [E2E-36] the OUTERMOST block's surveyed facts, so codegen
+                                reads the SAME plan bind allocated from and never rescans *)
 ; pl_calls : call_site list     (* DFS order, POOL-EXCLUSIVE offsets *)
   ; pl_procs : proc_layout list   (* DFS: parents before children *)
   ; pl_secs : (string * int * int) list
@@ -1383,6 +1518,10 @@ let bind_program (blk : Ast.block) : prog_layout =
            | _ -> false)
          b.bstmts
   in
+  (* [E2E-36/P2] the program-wide pad plan, built ONCE per program, BEFORE section2 numbers
+     any block: a block's cell demand can come from a reference written in a descendant, and
+     section2 lays out a parent before it recurses into children [C179]. *)
+  let pad_plan = survey_all blk in
   let calls = ref ([] : call_site list) in
   let pls = ref ([] : proc_layout list) in
   let secs = ref ([] : (string * int * int) list) in
@@ -1538,7 +1677,7 @@ let bind_program (blk : Ast.block) : prog_layout =
      block and the DATA total shift by 2 automatically, with no second copy of the
      arithmetic. Only the ON ... GOTO form demands it: E32E1 has one statement-handler
      ON-unit, no `DAD SP', no `*' cell, DATA AREA 0019 against E32E2's 001B. *)
-  let of_ = on_facts b in
+  let of_ = facts_of pad_plan b in
   let sp_cell =
     if of_.of_goto then begin
       let c = !cur in
@@ -1654,5 +1793,6 @@ let bind_program (blk : Ast.block) : prog_layout =
   { pl_calls = !calls; pl_procs = !pls; pl_secs = !secs;
     pl_total = total
   ; pl_exts = exts; pl_top = !top_pl
-  ; pl_top_cell = !top_cell (* [E2E-34] the outermost block's cell, from the SAME
+  ; pl_top_on = facts_of pad_plan blk;
+    pl_top_cell = !top_cell (* [E2E-34] the outermost block's cell, from the SAME
                                allocation site as every procedure's *) }

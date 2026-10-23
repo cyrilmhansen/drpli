@@ -1,0 +1,13 @@
+t9: procedure options(main);
+   declare n fixed;
+   n = 0;
+   goto inner;
+   n = 1;
+  sub: procedure;
+    n = 5;
+inner:
+    n = 6;
+   end sub;
+   stop;
+end t9;
+

@@ -1,0 +1,7 @@
+h5: procedure options(main);
+   declare n fixed, m fixed;
+   n = 261;
+   n = 264;
+   stop;
+end h5;
+

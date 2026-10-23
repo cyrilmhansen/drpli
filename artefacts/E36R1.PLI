@@ -1,0 +1,19 @@
+r1: procedure options(main);
+   declare sysin file, n fixed, tot fixed;
+   on endfile(sysin) goto done;
+   n = 0;
+   tot = 0;
+loop:
+   n = n + 1;
+   tot = tot + n;
+   if n < 4 then call sub;
+   else goto done;
+done:
+   put list('tot=', tot);
+   stop;
+  sub: procedure;
+   n = n + 10;
+   goto loop;
+  end sub;
+end r1;
+

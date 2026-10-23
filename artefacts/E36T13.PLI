@@ -1,0 +1,15 @@
+t13: procedure options(main);
+   declare sysin file, n fixed;
+   n = 0;
+sk:
+   n = 1;
+   call sub;
+   put list('n=', n);
+  sub: procedure;
+    on endfile(sysin) goto sk;
+    n = 5;
+    n = 6;
+   end sub;
+   stop;
+end t13;
+

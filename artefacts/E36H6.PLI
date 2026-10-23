@@ -1,0 +1,8 @@
+h6: procedure options(main);
+   declare n fixed, m fixed;
+   n = 5;
+   put list('n=', n);
+   n = 6;
+   stop;
+end h6;
+

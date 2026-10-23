@@ -1,0 +1,18 @@
+t10: procedure options(main);
+   declare n fixed;
+   n = 0;
+   call sa;
+   call sb;
+  sa: procedure;
+    n = 5;
+here:
+    n = 6;
+   end sa;
+  sb: procedure;
+    n = 7;
+    goto here;
+    n = 8;
+   end sb;
+   stop;
+end t10;
+

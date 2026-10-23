@@ -271,9 +271,14 @@ type st =
 let scope_counter = ref 0
 
 type lblstate = { mutable labs : (string * int * int) list   (* name, address, defining scope *)
-                ; mutable fwd : (string * int) list
+                ; mutable fwd : (string * int * int) list (* name, OWNING scope, operand slot *)
                 ; mutable scope : int                       (* id of the block being lowered *)
                 ; mutable own : string list                 (* labels THIS block defines *)
+                ; mutable own_procs : string list           (* entry labels of nested procedures *)
+                ; mutable chain : (int * string list * string list * string list) list
+                    (* enclosing blocks, innermost first: (scope, own, procs, pads).  A label
+                       reference resolves against this chain exactly as Bind's pad survey did,
+                       so the two consumers of scoping share one answer [C202]. *)
                 (* [E2E-34/P1] the ON ... GOTO machinery, kept WITH the label state
                    because the recovery pad is a property OF A LABEL, not of the ON
                    statement: `on_pads' is exactly the label set Bind scanned when it
@@ -559,12 +564,38 @@ let store_zero_pair st =
    `bestp = null', the first statement of a DO WHILE(TRUE) body whose back-edge lands exactly
    there -- is `LXI H,0000', not `MOV H,D / MOV L,D'.  Both are also the sound choice: a jump
    arrives with whatever DE the source happened to leave behind. *)
-let kill_de st = st.de_val <- None; st.de_wait <- 0; st.de_bytes <- []
+(* [E2E-36/P4] every site that forgets DE is a branch target, a join, or a call -- and those
+   are exactly the sites where DR forgets HL too.  E36H8 is the witness for the join case:
+   `n = 5; if m = 0 then m = 1; n = 6;' could have been bumped with MVI L (the then-branch
+   leaves HL = 1, same high byte) but DR re-emits `LXI H,0006', and the only thing between the
+   two stores is the IF's join, which has no label and is still a branch target.  E36H29 shows
+   the same for a LABEL DEFINITION, and E36H32 for a GOTO join.  Forgetting HL at the same
+   places is therefore not a guess about DE's clobbers, it is one model with one kill rule. *)
+let kill_de st = st.de_val <- None; st.de_wait <- 0; st.de_bytes <- []; st.last_imm <- None
+
+(* [E2E-36/P4] forgetting HL at a join, WITHOUT touching DE: DE is already byte-exact on the
+   891 specimens with its current kill sites [C220], so widening them would be an unmeasured
+   change.  HL's kill sites are the same class of place -- a target a branch can land on --
+   and are established by E36H8/H35 (IF joins), E36H29 (label definition), E36H32 (GOTO join)
+   and, from the other side, E36H33/H34 (no kill: the same MVI L arm taken in straight-line
+   code) and E35Y3/E35X5/E36T3/T4/T5/T8 (no kill at an unconditional GOTO). *)
+let kill_hl_join st = st.last_imm <- None
 
 let hl_zero st =
-  match st.de_val with
-  | Some v when (v lsr 8) = 0 -> d st op_mov_h_d; d st op_mov_l_d
-  | _ -> d st op_lxi_h; d st 0x00; d st 0x00
+  (* E36H11 / E36H12: after a null store DR reuses HL = 0 for the NEXT store (`SHLD P' alone,
+     and `p = null; n = 0;' is also one load for two stores), so a zero store has to publish
+     the fact that HL now holds zero -- the same fact the LXI H route publishes everywhere else.
+     The MOV H,D / MOV L,D route publishes DE's own tracked value, which is what it copies. *)
+  match st.last_imm, st.de_val with
+  (* [E2E-36/P4] HL already holds zero: DR emits NO load at all.  E36H11 (`p = null; p = null;')
+     is `LXI H,0000 / SHLD P / SHLD P' and E36H12 (`p = null; n = 0;') is the same shape with a
+     fixed destination -- the value in HL is what a zero store needs, not the route that put it
+     there, which is the same independence the DE tracker's V-series showed [C219].  E29X3 and
+     E30L1-L4 have been pinned as divergences for two episodes on exactly this missing arm. *)
+  | Some 0, _ -> ()
+  | _, Some v when (v lsr 8) = 0 ->
+      d st op_mov_h_d; d st op_mov_l_d; st.last_imm <- st.de_val
+  | _ -> d st op_lxi_h; d st 0x00; d st 0x00; st.last_imm <- Some 0
 let op_push_psw = 0xf5  (* [W102] PSW guard before nested SLVTS *)
 let op_jp = 0xf2      (* [X201/X202] GET skip byte; $C prints "JP";
                           REL byte is F2 = JPE (same family as the ^=
@@ -6423,8 +6454,11 @@ let hl_const st k =
                    and on a pointer assignment; T7 (DE = 0x011B) is the control that keeps LXI H.
                    Note this is a SECOND site that places a literal into HL, and it already had
                    its own `LXI H' copy -- the rule lives in hl_zero so both sites read one rule
-                   [C202]. *)
-                st.last_imm <- Some k; hl_zero st
+                   [C202].  ORDER MATTERS, and E29X3 is the probe that says why: hl_zero now
+                   consults last_imm (E36H11/H12: it emits nothing when HL provably already
+                   holds zero), so publishing `k = 0' BEFORE the call made the very first zero
+                   store in a program emit no load at all.  Ask, then publish. *)
+                hl_zero st; st.last_imm <- Some k
             | _ ->
                 st.last_imm <- Some k;
                 d st op_lxi_h; d st (k land 0xff); d st ((k lsr 8) land 0xff)
@@ -6456,19 +6490,26 @@ let lower_store_ptr ?(pa_of = None) ?(off = 0) ?(addr_de = false)
      have no sample of what clobbers DE -- so the reload is emitted every time and O1/O2/O4 are
      registered as divergences with that cause named, rather than me guessing a liveness rule into
      the shared path. *)
-  let deref_inx () = member_step st off in
-  let lhld_ptr () = d st op_lhld; reloc st Data pa; deref_inx () in
-  let deref_read () = (d st 0x5e; d st 0x23; d st 0x56; d st op_xchg) in
+  (* [E2E-36/P4] the HL constant is forgotten where this route WRITES HL, not on entry.  The
+     blanket `st.last_imm <- None' here used to fire for every pointer store, including the plain
+     `p = null' / `p = q' shape whose whole emission is `LXI H,v / SHLD P' -- SHLD reads HL and
+     leaves the value in place [C219], which is why E36H11 (`p = null; p = null;') is
+     `LXI H,0000 / SHLD P / SHLD P' and E36H12 (`p = null; n = 0;') is one load for two stores,
+     and why E29X3's second `p = null' inside its loop is SHLD alone.  Forgetting on entry made
+     all three reload. *)
+  let kill_hl () = st.last_imm <- None in
+  let deref_inx () = (kill_hl (); member_step st off) in
+  let lhld_ptr () = (kill_hl (); d st op_lhld; reloc st Data pa; deref_inx ()) in
+  let deref_read () = (kill_hl (); d st 0x5e; d st 0x23; d st 0x56; d st op_xchg) in
   (* store HL through the pointer held in DE as ptr+1 *)
   let store_via_de () =
-    (d st op_xchg; d st 0x72; d st op_dcx_h; d st 0x73)
+    (kill_hl (); d st op_xchg; d st 0x72; d st op_dcx_h; d st 0x73)
   in
   (* store HL through the pointer, reloading it from the formal cell *)
   let store_reload () =
-    (d st op_push_h; lhld_ptr (); d st op_pop_d;
+    (kill_hl (); d st op_push_h; lhld_ptr (); d st op_pop_d;
      d st 0x73; d st 0x23; d st 0x72)
   in
-  st.last_imm <- None;
   match (unwrap_e rhs).Ast.e with
   | Ast.Ebuilt ("ADDR", [ { Ast.e = Ast.Eident h; _ } ]) when addr_de ->
       (* [E2E-27/P3] when the value is a plain address, DR loads the DESTINATION first and puts
@@ -6481,7 +6522,21 @@ let lower_store_ptr ?(pa_of = None) ?(off = 0) ?(addr_de = false)
          dressed as a simplification [C179]. *)
       lhld_ptr ();
       d st 0x11; reloc st Data (addr_of st (String.lowercase_ascii h.Ast.orig));
-      d st 0x72; d st 0x23; d st 0x73
+      (* [E2E-27/P3 / E2E-36/P4] the ORDER, and only the order, was wrong for four episodes.
+         0x73 = MOV M,E and 0x72 = MOV M,D, and ST2's golden writes E first:
+         `002F LXI D,*A / 0032 MOV M,E / 0035 INX H / 0036 MOV M,D' -- i.e. the HIGH half of the
+         address lands at the member's lower byte.  Mine had `MOV M,D / INX H / MOV M,E', which
+         is the little-endian order the comment above its own call site does not describe and
+         which left exactly two file bytes different at equal code size (the E27S2 row said "I
+         have not identified which instruction DR adds there"; it adds none, it orders them
+         differently).  The sibling route at the DEC self-add further down already emits 0x73
+         first, so this site was the outlier, not the rule.
+         The consequence is worth stating plainly: a pointer member written through THIS route
+         holds a byte-swapped address in DR, and following it would read the wrong record.  ST2
+         never dereferences `nx', which is why no runtime row has ever shown it.  Reproduced
+         because byte-exactness is the contract and the byte order is what the oracle says;
+         recorded as a DR-side defect rather than quietly matched [C236]. *)
+      d st 0x73; d st 0x23; d st 0x72
   | Ast.Enumber k ->
       let v = parse_int_const k in
       lhld_ptr ();
@@ -6797,8 +6852,21 @@ statement form IS implemented; this expression form is not.)")
            ^ "are measured -- P063B, P041, PB3, P086M.  Pointer arithmetic is PERIMETER row 58 and "
            ^ "has no DR sample.)")
       else begin
+        (* [E2E-36/P4] the forget moved BEFORE the value is lowered, and that is the whole
+           difference for three probes.  As written it wiped the fact that `lower_hl' had just
+           published (`LXI H,0000' for null() leaves zero in HL [P086M]), so the NEXT store could
+           not reuse it: E36H11 (`p = null; p = null;' = LXI H,0000 / SHLD P / SHLD P), E36H12
+           (`p = null; n = 0;' = one load, two stores) and E29X3's second `p = null' inside the
+           loop all reloaded here where DR bumps or skips.  Forgetting first, like the self-add
+           and DEC arms a few lines below, keeps the protection the clear was for -- a `p = q'
+           route ends in LHLD, which really does replace HL with an unknown memory value -- and
+           only costs the reuse when the route itself cannot know what HL holds. *)
+        (match (unwrap_e rhs).Ast.e with
+         (* the one shape that must not forget is the one whose loader ENDS by publishing the
+            constant it is about to store: null() leaves HL = 0 [P086M, E36H11/H12]. *)
+         | Ast.Ebuilt ("NULL", []) -> ()
+         | _ -> st.last_imm <- None);
         lower_hl st rhs;
-        st.last_imm <- None;
         d st op_shld; reloc st Data (addr_of st n.Ast.orig)
       end
   | Ast.Eident n when List.mem (String.lowercase_ascii n.Ast.orig) st.deref ->
@@ -8141,77 +8209,72 @@ let emit_sp_save st cell =
   d st op_dad_sp;
   d st op_shld; reloc st Data cell
 
-(* [E2E-35/P3] the labels THIS block defines.  A reference must consult this set before any
-   identically named label in an enclosing block, because PL/I labels are block-scoped and the
-   flat emission-ordered `labs' list knows nothing about scopes.  Nested procedures are NOT
-   descended into: their labels belong to them, and their ENTRY label belongs to the block that
-   declares them.  Every container in Ast is listed; a kind not listed contributes nothing, and
-   the consequence of a gap there is the loud [TBD] in resolve_label, not a silent wrong
-   address -- which is the [C202] shape: an omission must cost an optimisation or a refusal,
-   never a value. *)
-let rec block_labels_of_stmts (ss : Ast.stmt list) =
-  List.concat_map block_labels_of_stmt ss
-and block_labels_of_stmt (s : Ast.stmt) =
-  let here =
-    List.map (fun (l : Ast.name) -> String.lowercase_ascii l.Ast.orig) s.Ast.slabels in
-  let deeper =
-    match s.Ast.st with
-    | Ast.Sdobegin ss -> block_labels_of_stmts ss
-    | Ast.Sif { then_; els; _ } ->
-        block_labels_of_stmt then_
-        @ (match els with Some e -> block_labels_of_stmt e | None -> [])
-    | Ast.Selse e -> block_labels_of_stmt e
-    | Ast.Sdowhile { body; _ } -> block_labels_of_stmt body
-    | Ast.Sdoto { body; _ } -> block_labels_of_stmt body
-    | Ast.Sdoforever body -> block_labels_of_stmt body
-    | Ast.Son { handler; _ } -> block_labels_of_stmt handler
-    | Ast.Sproc bs ->
-        (match bs.Ast.blk.Ast.bname with
-         | Some x -> [String.lowercase_ascii x.Ast.orig]
-         | None -> [])
-    | _ -> []
-  in
-  here @ deeper
+(* [E2E-36/P2] the label-definition prescan that lived here moved to Bind (`own_labels_stmts').
+   It was duplicated: Bind needed it to charge the hidden saved-SP cell for a label whose pad
+   demand comes from a DESCENDANT, and codegen needed it to decide what a reference resolves
+   to -- and two copies of "which block owns which label" is [C202] waiting to happen.  Bind
+   surveys the whole block tree once and exports the answer per block through `on_facts'. *)
 
 (* [E2E-35/P3] the ONE label-reference decision, used by a plain GOTO and by an ON ... GOTO
    handler alike [C202: two consumers, one rule]. *)
 type lbl_ref =
     Lbl_here of int          (* defined in this block and already emitted: inline RELOC [E34A4] *)
   | Lbl_here_fwd             (* defined in this block but later: join this block's chain *)
-  | Lbl_outer of string      (* NOT defined here -> uncharacterized, see the refusal *)
+  | Lbl_pad of int           (* [E2E-36] an ancestor's pad-bearing label, already emitted *)
+  | Lbl_pad_fwd of int       (* [E2E-36] same, not yet emitted: chain to the OWNING scope *)
+  | Lbl_not_label of string * bool  (* (name, is-a-procedure-entry): DR says NOT LABEL [E36T15-17] *)
 
+(* [E2E-36/P2] the reference decision, walking the scope chain the way Bind's survey did.
+   Three things it must never do silently: resolve a name no block owns, land on a procedure
+   entry label, or hand back an ancestor label that Bind did not pad (the last would put a
+   jump at a label whose frame was never saved, which is [C230]'s wrong-value failure). *)
 let resolve_label (ls : lblstate) (nm : string) =
-  if not (List.mem nm ls.own) then Lbl_outer nm
-  else
-    match List.filter (fun (k, _, sc) -> k = nm && sc = ls.scope) ls.labs with
-    | [] -> Lbl_here_fwd
-    | [(_, a, _)] -> Lbl_here a
-    | _ ->
-        failwith
-          ("codegen: [TBD] two definitions of label `" ^ nm ^ "' in one block")
+  let rec find sc own procs pads rest =
+    if List.mem nm own then Some (sc, pads, false)
+    else if List.mem nm procs then Some (sc, pads, true)
+    else match rest with
+         | (s2, o2, p2, d2) :: tl -> find s2 o2 p2 d2 tl
+         | [] -> None
+  in
+  let emitted_at sc =
+    match List.filter (fun (k, _, sc') -> k = nm && sc' = sc) ls.labs with
+    | [] -> None
+    | [(_, a, _)] -> Some a
+    | _ -> failwith ("codegen: [TBD] two definitions of label `" ^ nm ^ "' in one block")
+  in
+  match find ls.scope ls.own ls.own_procs ls.on_pads ls.chain with
+  | None -> Lbl_not_label (nm, false)
+  | Some (_, _, true) -> Lbl_not_label (nm, true)
+  | Some (sc, pads, false) ->
+      if sc = ls.scope then
+        (match emitted_at sc with Some a -> Lbl_here a | None -> Lbl_here_fwd)
+      else begin
+        if not (List.mem nm pads) then
+          failwith
+            ("codegen: [TBD] a GOTO reaches the label `" ^ nm
+             ^ "' from an enclosing block, but Bind gave that block no recovery pad: pad "
+             ^ "demand and label resolution disagree [C179]");
+        match emitted_at sc with Some a -> Lbl_pad a | None -> Lbl_pad_fwd sc
+      end
 
-(* [E2E-35/P3] WHY a cross-block reference refuses.  Two fresh DR goldens, both accepted by
-   DR, and neither matched by anything I emit:
-
-     E35Y3 -- main has `sk:', a nested procedure ends with `goto sk;'.  DR gives the TARGET
-       block the hidden saved-SP cell and a recovery pad BEFORE the label:
-         0006 LXI H,0000 / 0009 DAD SP / 000A SHLD *A(0004)     (main's entry save)
-         0013 LHLD *A(0004) / 0016 SPHL / 0017 CALL ?RECOV      (a pad, immediately before `sk:')
-       so entering a block from another block re-establishes that block's stack frame.  Mine
-       allocates no such cell here (DATA 4 where DR has 6) and emits no pad: CODE 71 where DR
-       has 83, and the difference is not one instruction but this whole mechanism.
-     E35X5 -- the same construct where main's label is ALREADY pad-bearing because main has its
-       own `on endfile(sysin) goto hd;'.  Mine lands 2 bytes over, so even the cheap reading
-       (reuse the existing pad and only chain the reference) is not what DR does here.
-
-   NETWORK's remaining difference is NOT this construct -- its `eof' labels are each defined in
-   the block that references them -- so refusing does not cost the program that motivated it.
-   Emitting an address into an enclosing block's frame would: that is a wrong value, not a
-   missed optimisation, and [C137] refuses the trade. *)
-let refuse_outer_label nm =
+(* [E2E-36/P2] A label name that no visible block owns, or the entry label of a procedure, is
+   rejected by DR ITSELF: `NOT LABEL' and `1 ERROR(S) IN PASS 2', no .REL.  E36T9 (main naming a
+   label inside a nested procedure), E36T10 (one sibling naming the other's label), E36T15 (a
+   nested procedure jumping to the top procedure's entry), E36T16 (jumping to a sibling's entry)
+   and E36T17 (main jumping to its OWN nested `sub:') all fail that way, in both orientations
+   [C167].  So this refusal is perimeter parity, not a gap -- and it replaces the [C230] refusal,
+   which was over-broad: E35Y3 and E36T2-T8 show that a cross-block reference to a label an
+   ENCLOSING block OWNS is accepted by DR and is implemented now. *)
+let refuse_not_label (ln : int) (nm : string) (is_proc : bool) =
   failwith
-    (Printf.sprintf
-       "codegen: [TBD] GOTO to `%s', a label not defined in this block: a cross-block transfer         makes the TARGET block pad-bearing and gives it the saved-SP cell (E35Y3: DR emits `LXI         H,0000 / DAD SP / SHLD *A(0004)' at entry and `LHLD *A(0004) / SPHL / CALL ?RECOV'         immediately before `sk:'; DATA 6 vs my 4, CODE 83 vs my 71).  E35X5 shows the same         construct against an already-padded target still differing by 2.  Uncharacterized, so         this refuses rather than jumping into another block's frame (line %%d)" nm)
+    ("codegen: [TBD] GOTO to `" ^ nm
+     ^ "': NOT LABEL, which is also what DR reports (E36T9, E36T10, E36T15, E36T16, E36T17 -- "
+     ^ "`NOT LABEL ?  1 ERROR(S) IN PASS 2', no .REL). "
+     ^ (if is_proc then
+          "A procedure entry label is not a transfer target in any orientation. "
+        else
+          "No block visible from the reference defines this label. ")
+     ^ "(line " ^ string_of_int ln ^ ")")
 
 (* The recovery landing pad, 7 bytes, emitted IMMEDIATELY BEFORE the label's own code:
      LHLD * A(<cell>) / SPHL / CALL ?RECOV
@@ -8244,8 +8307,13 @@ let label_def st (ls : lblstate) (nm : string) =
      of a loop, so this is both DR's behaviour and the sound one. *)
   kill_de st;
   let addr = st.lc in
-  let slots = List.filter (fun (k, _) -> k = nm) ls.fwd |> List.map snd in
-  ls.fwd <- List.filter (fun (k, _) -> k <> nm) ls.fwd;
+  (* [E2E-36/P2] a pending reference is joined here only if THIS block owns the label: the
+     slot carries the scope its resolver found, and a nested procedure may legally define the
+     same name ([C228], E35X1/E35X4).  Matching on name alone would let an inner definition
+     satisfy an outer reference. *)
+  let mine (k, sc, _) = k = nm && sc = ls.scope in
+  let slots = List.filter mine ls.fwd |> List.map (fun (_, _, a) -> a) in
+  ls.fwd <- List.filter (fun x -> not (mine x)) ls.fwd;
   (match slots with
    | [] -> ()
    | _ ->
@@ -8264,15 +8332,15 @@ let label_def st (ls : lblstate) (nm : string) =
 
 (* [E2E-34/P1] one FORWARD reference to a label, used by a plain GOTO and by an ON
    ... GOTO stub alike, so the two cannot build the chain differently [C202]. *)
-let fwd_ref st (ls : lblstate) (nm : string) =
+let fwd_ref st (ls : lblstate) (nm : string) (owner : int) =
   d st op_jmp;
   st.last_imm <- None (* [R723] branch boundary *);
   let slot = st.lc in
-  (match List.filter (fun (k, _) -> k = nm) ls.fwd with
+  (match List.filter (fun (k, sc, _) -> k = nm && sc = owner) ls.fwd with
    | [] -> d st 0; d st 0                     (* chain terminator [G115] *)
    | prev ->
-       reloc st Code (List.fold_left (fun m (_, a) -> max m a) 0 prev));
-  ls.fwd <- (nm, slot) :: ls.fwd
+       reloc st Code (List.fold_left (fun m (_, _, a) -> max m a) 0 prev));
+  ls.fwd <- (nm, owner, slot) :: ls.fwd
 
 (* statement lowering with label/goto resolution *)
 (* [E2E-5c P401] internal procedure block: forward-call resolution,
@@ -8312,8 +8380,13 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      no-exit loop there is no resumption point and NO JMP is emitted -- REVERSE: read_it at 001A
      straight after main's `JMP 0006', write_it at 0091 straight after read_it's always-loop tail.
      Resolution now happens in the main statement loop, right after each body, at st.lc. *)
-  if (not st.in_proc) && not st.top_proc && not st.stop_seen
-       && not st.after_forever
+  (* [E2E-36/P4] E36T4 is the probe that says this is not a main-block-only rule: `inner'
+     declared inside `sub' gets DR's branch-over too (`004B JMP -> 005D', over inner's inline
+     body, landing on sub's epilogue), and without it mine lets `n = 4;' FALL THROUGH into
+     inner's body -- a wrong-value defect, not a shape difference (mine 93 code bytes against
+     DR's 96, DATA 6/6).  `st.in_proc' was therefore dropped from the test, `st.top_proc'
+    (the procedure-only-module case [C136]) and the two "flow does not resume" flags stay. *)
+  if not st.top_proc && not st.stop_seen && not st.after_forever
   then begin
     st.guards <- st.guards + 1;
     (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
@@ -8540,10 +8613,24 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   (* [E2E-35/P3] enter this block's label scope.  Save/restore mirrors `proc_tail_exits'
      immediately above for the same structural reason: a nested body is lowered DURING its
      parent's statement loop, so the parent's set must be back on return. *)
-  let saved_scope = ls.scope and saved_own = ls.own in
+  let saved_scope = ls.scope and saved_own = ls.own
+      and saved_procs = ls.own_procs and saved_chain = ls.chain in
+  (* (saved_pads was taken at the top of this function, before the ON/GOTO swap) *)
+  (* [E2E-36/P2] the enclosing frame goes on the chain BEFORE this block takes over the
+     resolver's fields, because a reference inside this block resolves through the frames
+     ABOVE it.  E36T4 (a grandchild naming a label of main's) needs two entries here; the
+     innermost-first order is what makes the walk stop at the CLOSEST owner, which is [C228]. *)
+  (* NOTE the `saved_*' values, not the `ls.*' fields: `saved_pads' was captured ABOVE the
+     ON/GOTO swap that gives this block its own pads, so ls.on_pads is already the CHILD's by
+     the time this line runs.  Pushing the live fields put the child's (empty) pad list into
+     the parent's chain slot and made every cross-block reference trip the disagreement
+     assertion below. *)
+  ls.chain <- (saved_scope, saved_own, saved_procs, saved_pads) :: ls.chain;
   incr scope_counter;
   ls.scope <- !scope_counter;
-  ls.own <- block_labels_of_stmts pl.Bind.pl_body;
+  (* [E2E-36/P2] ownership is Bind's survey answer, not a second scan here [C202]. *)
+  ls.own <- pl.Bind.pl_on.of_own;
+  ls.own_procs <- pl.Bind.pl_on.of_procs;
   List.iter
     (fun x ->
       (match x.Ast.st with
@@ -8552,7 +8639,16 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
       (match tail_exits_stmt x with
        | Some v -> st.proc_tail_exits <- v
        | None -> ());
-      lower_stmt st ls x)
+      lower_stmt st ls x;
+      (* [E2E-36/P4] the branch-over of a nested-procedure declaration resolves to where THIS
+         body resumes, the same rule the top-level loop uses (see the note there): for E36T4
+         that is sub's epilogue, three bytes past inner's RET, not the end of the program. *)
+      (match x.Ast.st with
+       | Ast.Sproc _ when st.guard_slots <> [] ->
+           let gs = List.hd st.guard_slots in
+           st.guard_slots <- List.tl st.guard_slots;
+           emit_triple st gs st.lc
+       | _ -> ()))
     pl.Bind.pl_body;
   (* [E2E-11/CALL] a procedure with NO RETURNS gets an implicit `RET` after its
      body.  Eight probes pin this and none of them contradict it: E25A (empty
@@ -8632,6 +8728,10 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
     ()
   ;
   st.proc_tail_exits <- savedex;
+  (* [E2E-36/P2] leaving this block pops its scope AND its chain entry; the pads/cell/any
+     fields are restored by the saved trio just below, exactly as [E2E-34/P1] did. *)
+  ls.chain <- saved_chain;
+  ls.own_procs <- saved_procs;
   ls.scope <- saved_scope;
   ls.own <- saved_own;
   st.dec_ret <- saveddr;
@@ -8838,9 +8938,17 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       let skip = lower_test_skip st cond in
       lower_stmt st ls then_;
       (match els with
-       | None -> if skip >= 0 then emit_triple st skip st.lc
+       (* [E2E-36/P4] the kill belongs at the branch TARGET (the join), not at the branch
+          source: E36H8 (`n = 5; if m = 0 then m = 1; n = 6;') and E36H35 (same with an ELSE)
+          both show DR re-emitting `LXI H,0006' where HL = 1 and the high byte agrees, which
+          E36H33/H34 (`n = 5; n = 10;' and `n = 261; n = 275;', straight-line, same shape) show
+          it does NOT do -- there it takes the one-byte `MVI L,lo(k)' arm.  The only thing the
+          first two have and the last two lack is a join that a conditional jump lands on.
+          DE's tracker has always been killed at the same places [C220]. *)
+       | None -> if skip >= 0 then (emit_triple st skip st.lc; kill_hl_join st)
        | Some e ->
-           (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
+           (* an unconditional JMP is NOT a kill site: see the Sgoto arm below *)
+           d st op_jmp;
            let exit_slot = st.lc in
            d st 0; d st 0;
            (* [E2E-29] a constant-true condition with an ELSE has no DR sample: the skip jump
@@ -8851,17 +8959,36 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                "codegen: constant-true condition with an ELSE branch is unsampled [TBD] (REVERSE \
                 uses do while('1'b) only)";
            emit_triple st skip st.lc;      (* skip -> else start [G114] *)
+           kill_hl_join st;                (* that else start is a conditional landing pad [E36H35] *)
            lower_stmt st ls e;
-           emit_triple st exit_slot st.lc) (* fall-around else -> exit *)
+           emit_triple st exit_slot st.lc; (* fall-around else -> exit *)
+           kill_hl_join st)                (* and so is the exit [E36H8, E36H35] *)
   | Ast.Sgoto { tgt; subscript = [] } ->
-      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      (* [E2E-36/P4] an unconditional GOTO does NOT invalidate the HL constant model, and this
+         used to be the one kill site that cost six byte-exact goldens: in E35Y3, E35X5, E36T3,
+         E36T4, E36T5 and E36T8 the statement right after a `goto' stores a constant, and DR
+         bumps (`INX H' + SHLD, 4 bytes) where I reloaded (`LXI H' + SHLD, 6 bytes).  The code
+         after a GOTO is unreachable, which is exactly why a *value*-tracking model that follows
+         the emitted instruction stream can keep it: nothing between the last load and this
+         store writes HL.  The kill sites are the TARGETS -- see kill_hl_join. *)
+      st.lowered <- st.lowered + 1;
       let nm = String.lowercase_ascii tgt.Ast.orig in
       (match resolve_label ls nm with
        | Lbl_here a ->
-           (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *));
+           d st op_jmp;
            reloc st Code a                           (* backward, same block [G115, E34A4] *)
-       | Lbl_here_fwd -> fwd_ref st ls nm            (* forward, same block [G115, C123] *)
-       | Lbl_outer o -> refuse_outer_label o)
+       | Lbl_here_fwd -> fwd_ref st ls nm ls.scope   (* forward, same block [G115, C123] *)
+       | Lbl_pad a ->
+           (* [E2E-36] an enclosing block's label, already emitted: its RECOVERY PAD address,
+              inline.  E36T2's `JMP 0016', E36T5-T8's `JMP 001A', E35Y3's `JMP 0013'. *)
+           (d st op_jmp   (* [E2E-36/P4] deliberately NOT a kill site: the pad stub's JMP is
+                             unconditional, and E35Y3 (`n = 5; goto sk; n = 6;') plus E36T5/T8
+                             (`n = 2; goto hd; n = 3;') show DR bumping with `INX H' there.
+                             The store after a cross-block GOTO is the last place I was still
+                             reloading. *));
+           reloc st Code a
+       | Lbl_pad_fwd sc -> fwd_ref st ls nm sc       (* forward, cross-block [E35Y3, E36T2/T3] *)
+       | Lbl_not_label (o, isp) -> refuse_not_label tgt.Ast.pos.Source.line o isp)
   | Ast.Sgoto _ ->
       failwith "codegen: computed GOTO deferred [TBD]"
   | Ast.Sdobegin ss ->
@@ -9034,8 +9161,11 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                      d st op_jmp;
                      st.last_imm <- None (* [R723] branch boundary *);
                      reloc st Code a
-                 | Lbl_here_fwd -> fwd_ref st ls nm
-                 | Lbl_outer o -> refuse_outer_label o);
+                 | Lbl_here_fwd -> fwd_ref st ls nm ls.scope
+                 | Lbl_pad a -> (d st op_jmp; st.last_imm <- None; reloc st Code a)
+                 | Lbl_pad_fwd sc -> fwd_ref st ls nm sc
+                 | Lbl_not_label (o, isp) ->
+                     refuse_not_label tgt.Ast.pos.Source.line o isp);
                 st.last_imm <- None;
                 emit_triple st cont st.lc
             | _ ->
@@ -9687,15 +9817,18 @@ let emit_program (progname : string) (auto_bytes : int)
      statement lowers. *)
   prealloc_fmt_tables st stmts;
   (* lower prologue + body + epilogue into st.items (code segment) *)
-  let ls = { labs = []; fwd = []; scope = 0; own = []; on_pads = []; sp_cell = None
-           ; on_any = false } in
+  let ls = { labs = []; fwd = []; scope = 0; own = []; own_procs = []; chain = []
+           ; on_pads = []; sp_cell = None; on_any = false } in
   (* [E2E-34/P1] the OUTERMOST block's facts.  A procedure-only module is lowered by
      lower_proc and picks its facts up from its own proc_layout, so they are set here
      only for a MAIN program -- but BOTH are produced by the one Bind scan, and the
      cell address is the one Bind allocated, never a second arithmetic [C202][C179]. *)
   (match layout.pl_top with
    | None ->
-       let fo = Bind.on_facts blk in
+       (* [E2E-36/P2] the OUTERMOST block's facts come from Bind's program-wide pad survey
+          (`pl_top_on'), not from a second scan here: bind has already charged DATA for them,
+          and a codegen-side rescan could disagree about which labels carry a pad [C202]. *)
+       let fo = layout.pl_top_on in
        ls.on_pads <- fo.of_labels;
        ls.on_any <- fo.of_any;
        ls.sp_cell <-
@@ -9738,7 +9871,8 @@ let emit_program (progname : string) (auto_bytes : int)
      an outer transfer and refuses. *)
   incr scope_counter;
   ls.scope <- !scope_counter;
-  ls.own <- block_labels_of_stmts blk.Ast.bstmts;
+  ls.own <- layout.pl_top_on.of_own;
+  ls.own_procs <- layout.pl_top_on.of_procs;
   List.iter
     (fun (s : Ast.stmt) ->
       (* [E2E-28/P1] A live main statement AFTER a nested-procedure body is a DR shape, not an
@@ -9780,7 +9914,7 @@ let emit_program (progname : string) (auto_bytes : int)
   end;
   (match ls.fwd with
    | [] -> ()
-   | (nm, _) :: _ ->
+   | (nm, _, _) :: _ ->
        failwith (Printf.sprintf
                    "codegen: GOTO to undefined/unresolvable label %s \
                     [TBD] DR pass-2 UNDEF diag" nm));

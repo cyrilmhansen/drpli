@@ -1,0 +1,11 @@
+t17: procedure options(main);
+   declare n fixed;
+   n = 0;
+   n = 1;
+   goto sub;
+  sub: procedure;
+    n = 5;
+   end sub;
+   stop;
+end t17;
+

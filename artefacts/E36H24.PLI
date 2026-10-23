@@ -1,0 +1,7 @@
+h24: procedure options(main);
+   declare n fixed, m fixed;
+   n = 510;
+   n = 512;
+   stop;
+end h24;
+

@@ -1,0 +1,17 @@
+t5: procedure options(main);
+   declare n fixed;
+   n = 0;
+sk:
+   call sub;
+   put list('n=', n);
+  sub: procedure;
+    n = 4;
+    do;
+      n = 5;
+      goto sk;
+      n = 6;
+    end;
+   end sub;
+   stop;
+end t5;
+

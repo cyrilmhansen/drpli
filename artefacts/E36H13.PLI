@@ -1,0 +1,13 @@
+h13: procedure options(main);
+   declare n fixed, hp pointer based, rec based, r fixed bin;
+   declare base fixed pointer init(addr(r));
+   declare 1 rec based aligned,
+             2 v fixed binary;
+   r = 0;
+   hp = addr(r);
+   n = 5;
+   hp->v = 9;
+   n = 6;
+   stop;
+end h13;
+

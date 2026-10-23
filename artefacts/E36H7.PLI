@@ -1,0 +1,11 @@
+h7: procedure options(main);
+   declare n fixed, m fixed;
+   n = 5;
+   goto l1;
+  l2:
+   n = 9;
+  l1:
+   n = 6;
+   stop;
+end h7;
+

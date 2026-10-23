@@ -1,0 +1,9 @@
+h35: procedure options(main);
+   declare n fixed, m fixed;
+   n = 5;
+   if m = 0 then m = 1;
+   else m = 2;
+   n = 6;
+   stop;
+end h35;
+

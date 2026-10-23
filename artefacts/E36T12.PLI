@@ -1,0 +1,23 @@
+t12: procedure options(main);
+   declare n fixed;
+   n = 0;
+   call sa;
+   call sb;
+   put list('n=', n);
+  sa: procedure;
+    n = 5;
+    goto sk;
+    n = 6;
+sk:
+    n = 7;
+   end sa;
+  sb: procedure;
+    n = 7;
+    goto sk;
+    n = 8;
+sk:
+    n = 9;
+   end sb;
+   stop;
+end t12;
+

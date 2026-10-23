@@ -1,0 +1,7 @@
+h26: procedure options(main);
+   declare n fixed, m fixed;
+   n = 513;
+   n = 511;
+   stop;
+end h26;
+

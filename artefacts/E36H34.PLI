@@ -1,0 +1,7 @@
+h34: procedure options(main);
+   declare n fixed, m fixed;
+   n = 261;
+   n = 275;
+   stop;
+end h34;
+

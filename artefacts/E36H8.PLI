@@ -1,0 +1,8 @@
+h8: procedure options(main);
+   declare n fixed, m fixed;
+   n = 5;
+   if m = 0 then m = 1;
+   n = 6;
+   stop;
+end h8;
+

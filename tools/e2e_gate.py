@@ -3834,37 +3834,64 @@ _E35_P3 = {
 for _n, _t in sorted(_E35_P3.items()):
     add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/%s/%s/%s.REL' % (_t, _n, _n)))
 
-# [E2E-35/P3] three shapes DR compiles and I refuse ON PURPOSE: a GOTO whose target label is
-# NOT defined in the referencing block.  Mine used to resolve such a reference to the enclosing
-# block's label and emit its address, which after the scoping work above is known to be wrong
-# in kind -- entering a block from another block is a padded transfer in DR, and DR even gives
-# the TARGET block a saved-SP cell it did not otherwise need.  I have no rule for that demand,
-# so the compile stops instead of jumping into another block's stack frame.
-for _n in ('E35X5', 'E35Y3', 'E35Y4'):
+# [E2E-36/P2+P4] E35X5, E35Y3 and E35Y4 were registered as controlled refusals in E2E-35/P3
+# because a GOTO whose label lives in an enclosing block had no rule here: mine either jumped
+# into the wrong stack frame or refused.  Cross-block transfer is now implemented (program-wide
+# label survey in bind.ml, scope-chain resolution in codegen.ml) and all three are BYTE-EXACT
+# against their DR goldens, so per [C154] they leave the negative panel and join the specimens.
+# The E2E-36 probe set goes with them: every probe DR compiled and mine now matches exactly is
+# registered, because a shared encoder (the HL constant model) just changed and [C179] says the
+# way to notice the collateral is to have the new shapes in the panel, not in a scratch script.
+for _n, _t in (('E35X5', 'e35y'), ('E35Y3', 'e35y'), ('E35Y4', 'e35y')):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/%s/%s/%s.REL' % (_t, _n, _n)))
+
+# the cross-block GOTO orientations that come out byte-exact.  T2/T6/T7/T11/T12/T13 are the
+# mechanism matrix (same-block control, ON-unit forms, pad sharing, unreferenced target); T3/T5/T8
+# are the multi-target, nested-BEGIN and enclosing-block-already-padded orientations that E2E-35
+# could only refuse; T13 additionally pins [C233] (a nested BEGIN block referencing its own outer
+# block's label gets no pad of its own).
+for _n in ('E36T2', 'E36T3', 'E36T4', 'E36T5', 'E36T6', 'E36T7', 'E36T8', 'E36T11', 'E36T12',
+           'E36T13', 'E36T14'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e36t/%s/%s.REL' % (_n, _n)))
+
+# the HL constant-model ladder [E2E-36/P4], one probe per arm: bump (+1/+2/-1/-2: H1,H2,H3,H9,H10,
+# H24,H25,H26,H27,H28), no load at all (H4,H15), MVI L in the same high byte (H5,H33,H34), the
+# destination-independence of the model (H30), the kill at a label definition (H29), the kill at an
+# IF join and at a conditional landing pad with an ELSE (H8,H35), CALL and test kills (H6,H7,H8),
+# dead-code reuse in a nested procedure (H14), and the zero/high-byte-change reloads (H10,H13->H20).
+for _n in ('E36H1', 'E36H2', 'E36H3', 'E36H4', 'E36H5', 'E36H6', 'E36H7', 'E36H8', 'E36H9',
+           'E36H10', 'E36H11', 'E36H12', 'E36H14', 'E36H15', 'E36H24', 'E36H25', 'E36H26',
+           'E36H27', 'E36H28', 'E36H29', 'E36H30', 'E36H32', 'E36H33', 'E36H34', 'E36H35'):
+    if (os.path.exists('golden/e36h/%s/%s.REL' % (_n, _n))
+            and os.path.exists('artefacts/%s.PLI' % _n)):
+        add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e36h/%s/%s.REL' % (_n, _n)))
+
+# [E2E-36/P4] two divergences that the HL-constant work CLOSED, promoted per [C154].
+# E29X3 (`p = null; do while (p ^= null); ... p = null; end;') had been pinned as "DR reuses
+# HL = 0 across a preceding SHLD where mine reloads"; E30L1 is the pre-test pointer traversal
+# with the same single excess load.  Both are now byte-exact against their goldens.
+# E27S2's source is artefacts/ST2.PLI (the S2 slice of E2E-27), not artefacts/E27S2.PLI: the
+# panel key and the file name have never been the same thing for the e2e3xx goldens.
+for _n, _s, _t in (('E29X3', 'E29X3', 'e2e362'), ('E30L1', 'E30L1', 'e30p1'),
+                   ('E27S2', 'ST2', 'e2e323d')):
+    if os.path.exists('golden/%s/%s/%s.REL' % (_t, _s, _s)):
+        add_spec(_n, ('artefacts/%s.PLI' % _s, 'golden/%s/%s/%s.REL' % (_t, _s, _s)))
+
+# [E2E-36/P1] `GOTO <procedure entry label>' is DR's NOT LABEL error in every orientation, and mine
+# refuses the same way for the same reason: a procedure name is not a transfer target, it is the
+# entry of a frame that has to be CALLED.  E35X3 was the earlier witness with the same diagnosis;
+# these five cover nonlocal exit, sibling entry, own-block entry and the nested-outer mix.
+for _n in ('E36T9', 'E36T10', 'E36T15', 'E36T16', 'E36T17'):
     REJECTS[_n] = (open('artefacts/%s.PLI' % _n, 'rb').read().replace(b"\r\n", b"\n")
-                   .rstrip(b"\x1a").decode(), "[TBD]")
-NEG_META['E35Y3'] = ("my-gap", (
-    "DR COMPILES it (golden/e35y/E35Y3, CODE 83 / DATA 6 against my 71 / 4).  A nested procedure's "
-    "`goto sk;' to main's `sk:' makes the TARGET block pad-bearing: DR emits main's hidden saved-SP "
-    "save at its entry (`0006 LXI H,0000 / 0009 DAD SP / 000A SHLD *A(0004)') and a recovery pad "
-    "IMMEDIATELY BEFORE the label (`0013 LHLD *A(0004) / 0016 SPHL / 0017 CALL ?RECOV'), then "
-    "resolves the reference through a chain.  No ON-unit is involved anywhere in the program, so "
-    "[C208]'s pad demand -- labels targeted by an ON ... GOTO -- is a special case of something "
-    "wider: entering a block transfers control INTO its stack frame, and the pad is what re-establishes "
-    "it.  That is E34A9's class of unsampled pad demand again, with a concrete new trigger; refusing "
-    "costs one construct and emitting it would write an address into the wrong frame."))
-NEG_META['E35X5'] = ("my-gap", (
-    "DR COMPILES it (golden/e35y/E35X5).  Same cross-block `goto hd;' as E35Y3 but the target label is "
-    "ALREADY pad-bearing, because main has its own `on endfile(sysin) goto hd;'.  Mine lands 2 bytes over "
-    "DR (105 vs 103), so even the cheap reading -- reuse the existing pad, chain the reference -- is not "
-    "what DR does.  Registered with E35Y3 as one cause (cross-block entry) and kept separate because it "
-    "shows the pad's existence does not by itself explain the encoding."))
-NEG_META['E35Y4'] = ("my-gap", (
-    "DR COMPILES it (golden/e35y/E35Y4).  `if n = 1 then goto sk;' from a nested procedure to main's label: "
-    "the same cross-block transfer as E35Y3 reached conditionally.  Its value here is as the CONTROL for the "
-    "tail-RET rule -- DR closes the body with `INX H / SHLD N / RET' at 004C because control can still fall "
-    "out, which is what separates it from E35X2/X3 (unconditional trailing `goto', no RET).  Refused for the "
-    "same reason as E35Y3."))
+                   .rstrip(b"\x1a").decode(), "NOT LABEL")
+    NEG_META[_n] = ("dr-refuses", (
+        "DR diagnoses it as NOT LABEL (golden/e36t/%s/%s.PRN) and mine refuses with the same "
+        "words: the target of the GOTO is the entry label of a nested procedure, which is a "
+        "procedure name, not a label.  [E2E-36/P1] established this for all four orientations -- "
+        "exit to an enclosing block's procedure, entry of a sibling, entry of oneself, entry of an "
+        "inner procedure from the enclosing block -- so bind.ml keeps procedure entries out of a "
+        "block's label set and resolve_label answers Lbl_not_label rather than resolving through "
+        "the scope chain." % (_n, _n)))
 
 
 if __name__ == "__main__":

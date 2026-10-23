@@ -1,0 +1,115 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E36R1
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 R1 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 SYSIN FILE EXTERNAL STATIC
+c 0000 N FIXED BINARY(15,0) AUTOMATIC
+c 0002 TOT FIXED BINARY(15,0) AUTOMATIC
+c 0000 LOOP LABEL CONSTANT
+c 0000 DONE LABEL CONSTANT
+c 0000 SUB ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 15, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E36R1
+
+   1 a 0000 r1: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare sysin file, n fixed, tot fixed;
+       0006       LXI  H,0000
+       0009       DAD  SP
+       000A       SHLD * A(0008)
+   3 c 000D    on endfile(sysin) goto done;
+       000D       LXI  H,SYSIN
+       0010       MVI  A,05
+       0012       CALL ?ONCOP
+       0015       JMP  0000
+       0018       JMP  0000
+   4 c 001B    n = 0;
+       0016       ==== 001B
+       001B       LXI  H,0000
+       001E       SHLD N A(0004)
+   5 c 0021    tot = 0;
+       0021       SHLD TOT A(0006)
+       0024       LHLD * A(0008)
+       0027       SPHL 
+       0028       CALL ?RECOV
+   6 c 002B loop:
+   7 c 002B    n = n + 1;
+       002B       LHLD N A(0004)
+       002E       INX  H
+       002F       SHLD N A(0004)
+   8 c 0032    tot = tot + n;
+       0032       LHLD TOT A(0006)
+       0035       XCHG 
+       0036       LHLD N A(0004)
+       0039       DAD  D
+       003A       SHLD TOT A(0006)
+   9 c 003D    if n < 4 then call sub;
+       003D       LHLD N A(0004)
+       0040       LXI  B,FFFC
+       0043       DAD  B
+       0044       MOV  A,H
+       0045       ORA  A
+       0046       JP   0000
+       0049       CALL 0000
+       004C       JMP  0000
+       0047       ==== 004F
+  10 c 004F    else goto done;
+       004F       JMP  DONE
+       004D       ==== 0052
+       0052       LHLD * A(0008)
+       0055       SPHL 
+       0056       CALL ?RECOV
+  11 c 0059 done:
+  12 c 0059    put list('tot=', tot);
+       0059       LXI  D,0252
+       005C       LXI  B,0000
+       005F       CALL ?SYSPR
+       0062       LXI  H,* S(0000)
+       0065       MVI  A,04
+       0067       CALL ?SLCTS
+       006A       CALL ?PNCOP
+       006D       LHLD TOT A(0006)
+       0070       MVI  A,09
+       0072       CALL ?QICOP
+       0075       CALL ?PNVOP
+       0078       CALL ?QIOOP
+       005D       ==== 007B
+  13 c 007B    stop;
+       007B       CALL ?STOPX
+  14 c 007E   sub: procedure;
+  15 e 007E    n = n + 10;
+       007E       LHLD N A(0004)
+       0081       LXI  B,000A
+       0084       DAD  B
+       0085       SHLD N A(0004)
+  16 e 0088    goto loop;
+       0088       JMP  LOOP
+  17 c 008B   end sub;
+  18 a 008B end r1;
+
+CODE SIZE = 008B
+DATA AREA = 000A
+FREE SYMS = 383B
+END  COMPILATION
+

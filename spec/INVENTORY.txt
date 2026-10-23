@@ -154,6 +154,7 @@ E27S10	specimen	artefacts/ST10.PLI	golden/e2e324d/ST10/ST10.REL
 E27S11	refusal	st11: procedure options(main);\n   declare 1 nd, 2 v fixed, 2 nx pointer;\n   declare pn pointer;\n   declare nb based(pn) nd;\n   allocate nd set(pn);\n   v = 2;\n   free nb;\n  stop;\nend st11;\n	E2E-26's PB16 spelling, isolated. DR rejects it: SYNTAX + BASED REQ, NO .REL (golden/e2e324d/ST11/ST11.PRN). So `declare nb based(pn) nd' -- naming a structure type through a based declaration -- is genuinely not a form in this dialect, and E2E-26's inference from PB16/PB17 that based STRUCTURES were unsupported was wrong: the structures are fine, the spelling was not. Mine also refuses, at the binder's statement walker, because `nd' looks like a procedure call.
 E27S12	refusal	st12: procedure options(main);\n   declare p pointer;\n   declare 1 outer based(p), 2 o1 fixed, 1 inner, 2 i2 fixed;\n   allocate outer set(p);\n   i2 = 5;\n   put list('i=', i2);\n   free outer;\n  stop;\nend st12;\n	DR COMPILES IT (golden/e2e324d/ST12/ST12.REL). `1 outer based(p), 2 o1 fixed, 1 inner, 2 i2 fixed': DR's map makes INNER a plain AUTOMATIC structure OUTSIDE the record -- outer allocates only 2 bytes and i2 lands in automatic storage at 0002, so a nested head inside a based record does NOT extend the record. Mine binds outer/o1 and gives the nested automatic head no member binding, so `i2 = 5' reports undeclared.
 E27S13	specimen	artefacts/ST13.PLI	golden/e2e324d/ST13/ST13.REL
+E27S2	specimen	artefacts/ST2.PLI	golden/e2e323d/ST2/ST2.REL
 E27S3	specimen	artefacts/ST3.PLI	golden/e2e323d/ST3/ST3.REL
 E27S4	refusal	st4: procedure options(main);\n   declare p pointer, u pointer;\n   declare 1 aa based, 2 x fixed;\n   declare 1 bb based, 2 y fixed, 2 link pointer;\n   allocate aa set(p);\n   allocate bb set(u);\n   x = 11;\n   y = 22;\n   link = p;\n   put list('x=', x, ' y=', y);\n   free aa;\n   free bb;\n  stop;\nend st4;\n	DR rejects this probe (golden/e2e323d/ST4: 6 pass-2 errors, NO .REL) and mine refuses too, for a narrower and defensible reason: two bare-based records plus `x = 11' unqualified, which no DR sample supports since NETWORK always writes p->city_name. Registered for the refusal mine can actually defend; the probe needs splitting to attribute DR's six errors.
 E27S5	specimen	artefacts/ST5.PLI	golden/e2e323d/ST5/ST5.REL
@@ -209,6 +210,7 @@ E29VA	specimen	artefacts/E29VA.PLI	golden/e2e361/E29VA/E29VA.REL
 E29VB	specimen	artefacts/E29VB.PLI	golden/e2e362/E29VB/E29VB.REL
 E29X1	specimen	artefacts/E29X1.PLI	golden/e2e362/E29X1/E29X1.REL
 E29X2	specimen	artefacts/E29X2.PLI	golden/e2e362/E29X2/E29X2.REL
+E29X3	specimen	artefacts/E29X3.PLI	golden/e2e362/E29X3/E29X3.REL
 E29X4	specimen	artefacts/E29X4.PLI	golden/e2e362/E29X4/E29X4.REL
 E29X5	specimen	artefacts/E29X5.PLI	golden/e2e362/E29X5/E29X5.REL
 E29X6	specimen	artefacts/E29X6.PLI	golden/e2e353d/E29X6/E29X6.REL
@@ -222,6 +224,7 @@ E30B5	specimen	artefacts/E30B5.PLI	golden/e30p1/E30B5/E30B5.REL
 E30B7	specimen	artefacts/E30B7.PLI	golden/e30p1/E30B7/E30B7.REL
 E30C1	specimen	artefacts/E30C1.PLI	golden/e30p1/E30C1/E30C1.REL
 E30H1	specimen	artefacts/E30H1.PLI	golden/e30p1/E30H1/E30H1.REL
+E30L1	specimen	artefacts/E30L1.PLI	golden/e30p1/E30L1/E30L1.REL
 E30T1	specimen	artefacts/E30T1.PLI	golden/e30p1/E30T1/E30T1.REL
 E31F1	specimen	artefacts/E31F1.PLI	golden/e31p2/E31F1/E31F1.REL
 E31F2	specimen	artefacts/E31F2.PLI	golden/e31p2/E31F2/E31F2.REL
@@ -350,11 +353,52 @@ E35X1	specimen	artefacts/E35X1.PLI	golden/e35x/E35X1/E35X1.REL
 E35X2	specimen	artefacts/E35X2.PLI	golden/e35x/E35X2/E35X2.REL
 E35X3	specimen	artefacts/E35X3.PLI	golden/e35x/E35X3/E35X3.REL
 E35X4	specimen	artefacts/E35X4.PLI	golden/e35y/E35X4/E35X4.REL
-E35X5	refusal	x5: procedure options(main);\n   declare sysin file, n fixed;\n   n = 0;\nhd:\n   n = 1;\n   on endfile(sysin) goto hd;\n   call sub;\n   put list('n=', n);\n  sub: procedure;\n    n = 2;\n    goto hd;\n    n = 3;\n   end sub;\n   stop;\nend x5;\n	DR COMPILES it (golden/e35y/E35X5).  Same cross-block `goto hd;' as E35Y3 but the target label is ALREADY pad-bearing, because main has its own `on endfile(sysin) goto hd;'.  Mine lands 2 bytes over DR (105 vs 103), so even the cheap reading -- reuse the existing pad, chain the reference -- is not what DR does.  Registered with E35Y3 as one cause (cross-block entry) and kept separate because it shows the pad's existence does not by itself explain the encoding.
+E35X5	specimen	artefacts/E35X5.PLI	golden/e35y/E35X5/E35X5.REL
 E35Y1	specimen	artefacts/E35Y1.PLI	golden/e35y/E35Y1/E35Y1.REL
 E35Y2	specimen	artefacts/E35Y2.PLI	golden/e35y/E35Y2/E35Y2.REL
-E35Y3	refusal	y3: procedure options(main);\n   declare n fixed;\n   n = 0;\nsk:\n   call sub;\n   put list('n=', n);\n  sub: procedure;\n    n = 5;\n    goto sk;\n    n = 6;\n   end sub;\n   stop;\nend y3;\n	DR COMPILES it (golden/e35y/E35Y3, CODE 83 / DATA 6 against my 71 / 4).  A nested procedure's `goto sk;' to main's `sk:' makes the TARGET block pad-bearing: DR emits main's hidden saved-SP save at its entry (`0006 LXI H,0000 / 0009 DAD SP / 000A SHLD *A(0004)') and a recovery pad IMMEDIATELY BEFORE the label (`0013 LHLD *A(0004) / 0016 SPHL / 0017 CALL ?RECOV'), then resolves the reference through a chain.  No ON-unit is involved anywhere in the program, so [C208]'s pad demand -- labels targeted by an ON ... GOTO -- is a special case of something wider: entering a block transfers control INTO its stack frame, and the pad is what re-establishes it.  That is E34A9's class of unsampled pad demand again, with a concrete new trigger; refusing costs one construct and emitting it would write an address into the wrong frame.
-E35Y4	refusal	y4: procedure options(main);\n   declare n fixed;\n   n = 0;\nsk:\n   call sub;\n   put list('n=', n);\n  sub: procedure;\n    n = 5;\n    if n = 1 then goto sk;\n    n = 6;\n   end sub;\n   stop;\nend y4;\n	DR COMPILES it (golden/e35y/E35Y4).  `if n = 1 then goto sk;' from a nested procedure to main's label: the same cross-block transfer as E35Y3 reached conditionally.  Its value here is as the CONTROL for the tail-RET rule -- DR closes the body with `INX H / SHLD N / RET' at 004C because control can still fall out, which is what separates it from E35X2/X3 (unconditional trailing `goto', no RET).  Refused for the same reason as E35Y3.
+E35Y3	specimen	artefacts/E35Y3.PLI	golden/e35y/E35Y3/E35Y3.REL
+E35Y4	specimen	artefacts/E35Y4.PLI	golden/e35y/E35Y4/E35Y4.REL
+E36H1	specimen	artefacts/E36H1.PLI	golden/e36h/E36H1/E36H1.REL
+E36H10	specimen	artefacts/E36H10.PLI	golden/e36h/E36H10/E36H10.REL
+E36H11	specimen	artefacts/E36H11.PLI	golden/e36h/E36H11/E36H11.REL
+E36H12	specimen	artefacts/E36H12.PLI	golden/e36h/E36H12/E36H12.REL
+E36H14	specimen	artefacts/E36H14.PLI	golden/e36h/E36H14/E36H14.REL
+E36H15	specimen	artefacts/E36H15.PLI	golden/e36h/E36H15/E36H15.REL
+E36H2	specimen	artefacts/E36H2.PLI	golden/e36h/E36H2/E36H2.REL
+E36H24	specimen	artefacts/E36H24.PLI	golden/e36h/E36H24/E36H24.REL
+E36H25	specimen	artefacts/E36H25.PLI	golden/e36h/E36H25/E36H25.REL
+E36H26	specimen	artefacts/E36H26.PLI	golden/e36h/E36H26/E36H26.REL
+E36H27	specimen	artefacts/E36H27.PLI	golden/e36h/E36H27/E36H27.REL
+E36H28	specimen	artefacts/E36H28.PLI	golden/e36h/E36H28/E36H28.REL
+E36H29	specimen	artefacts/E36H29.PLI	golden/e36h/E36H29/E36H29.REL
+E36H3	specimen	artefacts/E36H3.PLI	golden/e36h/E36H3/E36H3.REL
+E36H30	specimen	artefacts/E36H30.PLI	golden/e36h/E36H30/E36H30.REL
+E36H32	specimen	artefacts/E36H32.PLI	golden/e36h/E36H32/E36H32.REL
+E36H33	specimen	artefacts/E36H33.PLI	golden/e36h/E36H33/E36H33.REL
+E36H34	specimen	artefacts/E36H34.PLI	golden/e36h/E36H34/E36H34.REL
+E36H35	specimen	artefacts/E36H35.PLI	golden/e36h/E36H35/E36H35.REL
+E36H4	specimen	artefacts/E36H4.PLI	golden/e36h/E36H4/E36H4.REL
+E36H5	specimen	artefacts/E36H5.PLI	golden/e36h/E36H5/E36H5.REL
+E36H6	specimen	artefacts/E36H6.PLI	golden/e36h/E36H6/E36H6.REL
+E36H7	specimen	artefacts/E36H7.PLI	golden/e36h/E36H7/E36H7.REL
+E36H8	specimen	artefacts/E36H8.PLI	golden/e36h/E36H8/E36H8.REL
+E36H9	specimen	artefacts/E36H9.PLI	golden/e36h/E36H9/E36H9.REL
+E36T10	refusal	t10: procedure options(main);\n   declare n fixed;\n   n = 0;\n   call sa;\n   call sb;\n  sa: procedure;\n    n = 5;\nhere:\n    n = 6;\n   end sa;\n  sb: procedure;\n    n = 7;\n    goto here;\n    n = 8;\n   end sb;\n   stop;\nend t10;\n	DR diagnoses it as NOT LABEL (golden/e36t/E36T10/E36T10.PRN) and mine refuses with the same words: the target of the GOTO is the entry label of a nested procedure, which is a procedure name, not a label.  [E2E-36/P1] established this for all four orientations -- exit to an enclosing block's procedure, entry of a sibling, entry of oneself, entry of an inner procedure from the enclosing block -- so bind.ml keeps procedure entries out of a block's label set and resolve_label answers Lbl_not_label rather than resolving through the scope chain.
+E36T11	specimen	artefacts/E36T11.PLI	golden/e36t/E36T11/E36T11.REL
+E36T12	specimen	artefacts/E36T12.PLI	golden/e36t/E36T12/E36T12.REL
+E36T13	specimen	artefacts/E36T13.PLI	golden/e36t/E36T13/E36T13.REL
+E36T14	specimen	artefacts/E36T14.PLI	golden/e36t/E36T14/E36T14.REL
+E36T15	refusal	t15: procedure options(main);\n   declare n fixed;\n   n = 0;\n   call sub;\n   n = 1;\n  sub: procedure;\n    n = 5;\n    goto t15;\n    n = 6;\n   end sub;\n   stop;\nend t15;\n	DR diagnoses it as NOT LABEL (golden/e36t/E36T15/E36T15.PRN) and mine refuses with the same words: the target of the GOTO is the entry label of a nested procedure, which is a procedure name, not a label.  [E2E-36/P1] established this for all four orientations -- exit to an enclosing block's procedure, entry of a sibling, entry of oneself, entry of an inner procedure from the enclosing block -- so bind.ml keeps procedure entries out of a block's label set and resolve_label answers Lbl_not_label rather than resolving through the scope chain.
+E36T16	refusal	t16: procedure options(main);\n   declare n fixed;\n   n = 0;\n   call sa;\n   n = 1;\n  sa: procedure;\n    n = 5;\n    goto sb;\n    n = 6;\n   end sa;\n  sb: procedure;\n    n = 7;\n   end sb;\n   stop;\nend t16;\n	DR diagnoses it as NOT LABEL (golden/e36t/E36T16/E36T16.PRN) and mine refuses with the same words: the target of the GOTO is the entry label of a nested procedure, which is a procedure name, not a label.  [E2E-36/P1] established this for all four orientations -- exit to an enclosing block's procedure, entry of a sibling, entry of oneself, entry of an inner procedure from the enclosing block -- so bind.ml keeps procedure entries out of a block's label set and resolve_label answers Lbl_not_label rather than resolving through the scope chain.
+E36T17	refusal	t17: procedure options(main);\n   declare n fixed;\n   n = 0;\n   n = 1;\n   goto sub;\n  sub: procedure;\n    n = 5;\n   end sub;\n   stop;\nend t17;\n	DR diagnoses it as NOT LABEL (golden/e36t/E36T17/E36T17.PRN) and mine refuses with the same words: the target of the GOTO is the entry label of a nested procedure, which is a procedure name, not a label.  [E2E-36/P1] established this for all four orientations -- exit to an enclosing block's procedure, entry of a sibling, entry of oneself, entry of an inner procedure from the enclosing block -- so bind.ml keeps procedure entries out of a block's label set and resolve_label answers Lbl_not_label rather than resolving through the scope chain.
+E36T2	specimen	artefacts/E36T2.PLI	golden/e36t/E36T2/E36T2.REL
+E36T3	specimen	artefacts/E36T3.PLI	golden/e36t/E36T3/E36T3.REL
+E36T4	specimen	artefacts/E36T4.PLI	golden/e36t/E36T4/E36T4.REL
+E36T5	specimen	artefacts/E36T5.PLI	golden/e36t/E36T5/E36T5.REL
+E36T6	specimen	artefacts/E36T6.PLI	golden/e36t/E36T6/E36T6.REL
+E36T7	specimen	artefacts/E36T7.PLI	golden/e36t/E36T7/E36T7.REL
+E36T8	specimen	artefacts/E36T8.PLI	golden/e36t/E36T8/E36T8.REL
+E36T9	refusal	t9: procedure options(main);\n   declare n fixed;\n   n = 0;\n   goto inner;\n   n = 1;\n  sub: procedure;\n    n = 5;\ninner:\n    n = 6;\n   end sub;\n   stop;\nend t9;\n	DR diagnoses it as NOT LABEL (golden/e36t/E36T9/E36T9.PRN) and mine refuses with the same words: the target of the GOTO is the entry label of a nested procedure, which is a procedure name, not a label.  [E2E-36/P1] established this for all four orientations -- exit to an enclosing block's procedure, entry of a sibling, entry of oneself, entry of an inner procedure from the enclosing block -- so bind.ml keeps procedure entries out of a block's label set and resolve_label answers Lbl_not_label rather than resolving through the scope chain.
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

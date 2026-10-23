@@ -1,0 +1,16 @@
+t16: procedure options(main);
+   declare n fixed;
+   n = 0;
+   call sa;
+   n = 1;
+  sa: procedure;
+    n = 5;
+    goto sb;
+    n = 6;
+   end sa;
+  sb: procedure;
+    n = 7;
+   end sb;
+   stop;
+end t16;
+

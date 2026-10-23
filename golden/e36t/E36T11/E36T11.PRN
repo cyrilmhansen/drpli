@@ -1,0 +1,78 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E36T11
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 T11 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 2 BYTES
+c 0000 N FIXED BINARY(15,0) AUTOMATIC
+c 0000 SUB ENTRY PARAMETERS(0) CONSTANT
+BLOCK AT LINE 7, AUTO STORAGE 0 BYTES
+e 0000 SK LABEL CONSTANT
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E36T11
+
+   1 a 0000 t11: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006    declare n fixed;
+   3 c 0006    n = 0;
+       0006       LXI  H,0000
+       0009       SHLD N A(0002)
+   4 c 000C    call sub;
+       000C       CALL 0000
+   5 c 000F    put list('n=', n);
+       000F       LXI  D,0252
+       0012       LXI  B,0000
+       0015       CALL ?SYSPR
+       0018       LXI  H,* S(0000)
+       001B       MVI  A,02
+       001D       CALL ?SLCTS
+       0020       CALL ?PNCOP
+       0023       LHLD N A(0002)
+       0026       MVI  A,09
+       0028       CALL ?QICOP
+       002B       CALL ?PNVOP
+       002E       CALL ?QIOOP
+       0013       ==== 0031
+   6 c 0031   sub: procedure;
+   7 e 0031     n = 5;
+       0031       JMP  0000
+       0034       LXI  H,0005
+       0037       SHLD N A(0002)
+   8 e 003A     goto sk;
+       003A       JMP  0000
+   9 e 003D     n = 6;
+       003D       LXI  H,0006
+       0040       SHLD N A(0002)
+  10 e 0043 sk:
+  11 e 0043     n = 7;
+       0043       LXI  H,0007
+       0046       SHLD N A(0002)
+       0049       RET  
+       0032       ==== 004A
+  12 c 004A    end sub;
+  13 c 004A    stop;
+       004A       CALL ?STOPX
+  14 a 004D end t11;
+
+CODE SIZE = 004D
+DATA AREA = 0004
+FREE SYMS = 387B
+END  COMPILATION
+

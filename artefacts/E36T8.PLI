@@ -1,0 +1,16 @@
+t8: procedure options(main);
+   declare sysin file, n fixed;
+   n = 0;
+   call sub;
+   put list('n=', n);
+hd:
+   n = 1;
+   on endfile(sysin) goto hd;
+   stop;
+  sub: procedure;
+    n = 2;
+    goto hd;
+    n = 3;
+   end sub;
+end t8;
+

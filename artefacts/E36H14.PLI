@@ -1,0 +1,13 @@
+h14: procedure options(main);
+   declare n fixed;
+   n = 0;
+   call sub;
+   n = 1;
+  sub: procedure;
+    n = 5;
+    n = 6;
+    n = 7;
+   end sub;
+   stop;
+end h14;
+

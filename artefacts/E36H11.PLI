@@ -1,0 +1,7 @@
+h11: procedure options(main);
+   declare n fixed, m fixed, p pointer;
+   p = null;
+   p = null;
+   stop;
+end h11;
+
