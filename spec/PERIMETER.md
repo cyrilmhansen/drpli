@@ -150,5 +150,32 @@ observed) executed evidence:
 Still [S]-known-but-open, unchanged by this milestone: DR's register-reuse peephole family
 (PB4/PB20/E28N7/O1/O2/O4/**E29X3** — 8 rows in spec/DIVERGENT.txt, E29X3 being the only new one), the
 numeric-condition gaps E28N1/E28N9, and the decimal backlog. REVERSE's `free p->wordnode` compiles
-because that structure is BASED(p) [C185]; E2E-27's bare-based refusal is untouched and still correct
-(E27S3/E27S4/E27S6 still refuse).
+because that structure is BASED(p) [C185]; E2E-27's bare-based refusal is untouched for the shapes
+that remain unsampled (E27S3/E27S4 still refuse).  **E27S6 was since proved byte-exact and promoted
+to a specimen in E2E-30** [C195][C154] -- what E2E-27 refused was the *absence of a sample* for a
+`BIT(1)` member's store/test bytes, not a perimeter limit.
+
+## [E2E-30] Perimeter widened — NETWORK's graph structures are inside it
+
+NETWORK.PLI's data-structure and control-flow language is now [S] SUPPORTED and mostly byte-exact;
+the program itself is still refused, at `find(..) returns(POINTER)`. Newly inside the perimeter:
+
+- **`BIT(1)` based structure members** — one byte at the member's record offset, `MVI M,80`/`MVI M,00`
+  to store, `MOV A,M / ORA A / JP` to test, reached through the shared `member_step` encoder. Byte-exact
+  at offsets 0, 2 and 23 (E30B1/B5/B7, E27S6 promoted). [C195]
+- **The pre-test pointer traversal** `do p = <init> repeat(p-><link>) while(p ^= null)` — DR's exact
+  init / top-test / body / repeat-update / back-JMP order, lowered through the existing pointer-store and
+  test encoders rather than as an equivalent-but-reordered post-test `while`. [C196]
+- **Chained qualification into a VARYING member** `q->next_city->city_name` — two dereferences through
+  one encoder, byte-exact (E30C1). [C197]
+- **`GET LIST` with several items** (E30H1) and the **capacity-vs-source-length store asymmetry**
+  (`MVI A,dest-cap / MVI B,src-len / ?SMCVM`, E30T1). [C190]
+
+Still [S]-known-but-open, and now the *specific* reason NETWORK does not compile: **`returns(POINTER)`**
+(first blocker, E30F1; DR emits `LHLD P / RET`), **named-SYSIN `ON ENDFILE`/`REVERT`** (`?ONCOP`/`?REVOP`
+with `LXI H,SYSIN` + `MVI A,05`; E30E2/E30E3), member-vs-member and chained **relational conditions**
+(E30C3/E30B4), and `GO TO <label>`. The **register-reuse peephole** grew to 14 divergence rows
+(PB4/PB20/E27S2/E28N7/O1/O2/O4/E29X3 + **E30L1-L4, E30B2, E30G1**): every pointer-walking loop we emit
+carries one or two reloads DR elides, so the traversal is behaviourally right (E30G1's linked output is
+byte-identical to DR's) but not yet byte-exact. That family is now the largest single obstacle to
+NETWORK. [C196][C197]

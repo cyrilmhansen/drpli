@@ -242,5 +242,16 @@ recorded**, exit 0. ARCH-1 md5 verified unchanged after the build.
   `repeat(<qualified store>) while(<cond>)` (line 96 — a statement form never probed), chained
   qualification `q->next_city->city_name` (line 124 — no sample), bare `null` as a value (lines 96,
   105), and `%replace` (line 9). NETWORK is a different milestone, not a variant of REVERSE.
+  > **[E2E-30 update, 2026-10-23]** Five of the six items in that list are now closed, and the
+  > ranking was wrong in one place.  `character(...) varying` members were closed by E2E-29 [C190];
+  > `investigate bit` members are byte-exact [C195] (ST6/E27S6 promoted from refusal to specimen);
+  > `repeat(<qualified store>) while(<cond>)` is lowered in DR's exact pre-test order [C196]; chained
+  > qualification into a varying member is byte-exact [C197]; bare `null` as a value was closed by
+  > E2E-29 [C191].  What E2E-27 listed *last* (`%replace`, a comment) is inert, and what it did not
+  > list at all turns out to be the real gate: `find(..) returns(POINTER)` (line 91) is NETWORK's
+  > first blocker today, followed by named-SYSIN `ON ENDFILE`/`REVERT` (lines 50, 228).  So E2E-27's
+  > "blockers" for NETWORK were mostly absence of samples rather than absence of lowering, and the two
+  > constructs that actually stop the program are neither of the two E2E-27 blamed (BIT, traversal).
+  > Full dependency matrix in spec/notes/e2e30-network-graph-integration.md.
 * `free` of a structure record through a pointer that was never its `set` target, list traversal
   loops (`do while ...; p = p->link`), and reallocating over a freed pointer: none has a DR sample.
