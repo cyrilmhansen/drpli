@@ -176,8 +176,13 @@ shows `LXI H,0 / DAD SP / SHLD * A(0019)` written **once** at block entry and **
 the same `LHLD * A(0019)`.  E31's note said "a 2-byte hidden cell per ON-unit" — that was inferred
 from E30E2, which has exactly one ON-unit, where per-unit and per-block are indistinguishable: the
 [C167]/[C185] failure mode again.  Corrected in place in the E31 note, in C201, in C206, and in the
-compiler's refusal message.  (`DAD SP` is extended opcode `ED 31`, which DR's listing puts on the
-line my first grep skipped — the address jump 0006→000A is what proves it is there.)
+compiler's refusal message.  (`DAD SP` is the **single-byte 8080 opcode `39h`**. **[CORRECTED in E2E-33/P0.]** This note
+and C206 said "extended opcode `ED 31`", which is wrong twice over: the 8080 has no `ED`
+prefix at all (that is Z80), and DR's listing prints `0009 DAD SP` in plain text. The measured
+bytes are 0x06 = `21 00 00` (LXI H,0000), 0x09 = `39` (DAD SP), 0x0A = `22 xx xx` (SHLD of the
+hidden `*` cell) -- HL := SP, stored once per block, exactly as the saved-SP model says. The
+instruction was never hidden on a skipped line; my mnemonic grep did not include DAD, and I
+then invented an encoding to explain an absence that was my own tool's blind spot [C207].)
 
 The remaining work is now exactly four pieces: (1) block-entry SP save into one hidden `*` cell;
 (2) per ON-unit registration `LXI H,<file> / MVI A,05 / CALL ?ONCOP / JMP <continue> / JMP <stub>`
