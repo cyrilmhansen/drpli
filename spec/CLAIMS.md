@@ -4215,3 +4215,106 @@ panel would have caught by accident rather than by design.  Gate before and afte
 byte-exact / 0 fail, 119/119, 13/13, 14/14, exit 0 (the panel is 884 on that same binary after E35W4
 was registered, [C167]: a probe I had built and goldened but left unregistered) -- so nothing in the banked corpus exercises a mis-decoded
 length, and this is recorded as a latent defect closed, not as a behaviour change.
+## E2E-35/P3 — NETWORK's last difference was a wrong address; [C225] is corrected
+
+**C227. The final NETWORK divergence was label scoping, not the linkage record I predicted — and the probes refuted my hypothesis before I implemented it.** At the end of P2 I wrote
+that "NETWORK's remaining difference is a LINKAGE record, not an instruction" (C225) and
+planned to test whether DR chains every pad reference. Nine fresh DR probes answered a different
+question: DR's `LINK-CHAIN-ADDR code 0266` and mine's `RELOC code 0xAB` were **two different
+targets for the same instruction**. `eof` is defined twice in NETWORK — once in main, once in
+`print_paths` — and my label table was a flat emission-ordered list, so `print_paths`' ON-unit
+reference found MAIN's already-emitted pad and resolved to it. Mine was joining a recovery chain
+that belonged to another block. Fixing the scope rule took NETWORK from 1608 differing file bytes
+to **zero**, at DR's exact code 1456 / data 235.
+*Why: the hypothesis was testable and wrong; had I implemented it, NETWORK would have grown a
+chain record pointing at the same wrong address and the byte check would still have failed, with
+the encoding now blamed. [C140] (attribute to one cause before citing it) is what the probe-first
+order protected.*
+*Evidence: `golden/e35x/E35X1, E35X4` (a nested `on endfile(sysin) goto hd;` whose `hd:` belongs
+to the nested procedure — each differed from DR by exactly the 2-byte jump operand, sizes equal);
+`artefacts/NETWORK.PLI` vs `golden/first8080u/NETWORK/NETWORK.REL`, now identical.*
+*Corollary, and the part worth keeping: **a probe set that can only confirm my hypothesis is not
+a probe set.** Three of this episode's four "cause" statements (C223, C225, and the P3 plan) were
+wrong in the same direction — an encoding looked like the problem when a value was — and each was
+killed by a probe I had not chosen to need.*
+
+**C228. Labels are block-scoped: a label defined in a nested procedure shadows an identically named
+label in an enclosing block, and a reference must never resolve to the outer one.** The rule is
+implemented as a pre-scan of the labels the current block defines (`block_labels_of_stmts`,
+descending into every Ast container but not into a nested procedure, whose entry label belongs to
+its parent) plus a scope id on each emitted label. Two blocks may define the same name; a forward
+reference joins the current block's chain, a backward one resolves inline, and a name the current
+block does not define is not resolved at all (see C230).
+*Evidence: E35X1 and E35X4 byte-exact (shadowed name, nested pad, own chain); E35X3 as the control
+that the mechanism is not the question — DR compiles two same-named labels and NETWORK's golden has
+always contained exactly that; and 884 pre-existing specimens unaffected, which says the old flat
+lookup was correct in every orientation the panel had exercised.*
+
+## E2E-35/P3 — the tail RET, asked the same way in both branches
+
+**C229. A procedure with no RETURNS gets no trailing RET when its last top-level statement cannot
+fall through — the same question I had already written for value-returning procedures, in the other
+branch.** Four probes differ from DR by exactly one byte each, and it is that RET: a subroutine
+ending `goto loc;` (E35X3), ending `goto` to a shadowed outer name (E35X2), ending `return;`
+(E35Y1), ending `stop;` (E35Y2). Two more probes are the controls that pin the trigger to fall-out
+rather than to GOTO: E35Y3 (`goto sk;` followed by a live assignment) and E35Y4 (a *conditional*
+goto followed by one) both end `INX H / SHLD N / RET` in DR — the RET appears when control can
+still reach the end of the body.
+*Why it survived this long: [C213] established the shape for `returns(...)` procedures, and the
+no-RETURNS branch kept its older trigger ("absence of RETURNS"), which was true of every sample I
+had. Two predicates answering one question had drifted apart — [C202] again, and the third time in
+this episode ([C221], [C226]).*
+
+## E2E-35/P3 — cross-block transfers, refused
+
+**C230. A GOTO whose target label is in an ANOTHER block makes the TARGET block pad-bearing and
+gives it the hidden saved-SP cell; I do not have that demand rule, so mine refuses.** E35Y3 is a
+nested procedure's `goto sk;` to main's `sk:`, with no ON-unit anywhere in the program. DR emits
+main's SP save at entry (`0006 LXI H,0000 / 0009 DAD SP / 000A SHLD *A(0004)`) and a recovery pad
+immediately before the label (`0013 LHLD *A(0004) / 0016 SPHL / 0017 CALL ?RECOV`), then reaches
+the label through a chain: CODE 83 / DATA 6 against my 71 / 4. So **[C208]'s pad demand — "labels
+targeted by an ON ... GOTO" — is a special case of entering a block's stack frame**, not the rule
+itself. E35X5 shows the same construct against a target that is already padded still differing by
+2 bytes, so "reuse the existing pad and chain it" is not the missing piece either.
+*Measured cost of refusing: all 41 corpus sources with `.PLI` in `artefacts/` — 15 byte-exact, 26
+refused, **0 diverging**, and the new refusal fires on **none** of them. The constructs it costs
+are probes I wrote, not programs DR shipped.*
+*Registered as negatives E35Y3, E35X5, E35Y4 (DR compiles all three), each with DR's listing
+quoted in the refusal text — [C188]: a negative whose prose records the oracle doing the opposite
+is a bug report, and that is the point of it.*
+
+## E2E-35/P4 — NETWORK executes
+
+**C231. NETWORK, compiled byte-identically to DR, runs correctly end to end: two recovery pads,
+`?RECOV`, `?REVOP` from a `revert endfile(sysin)`, and the right shortest route.** Nine input
+lines (stored in `oracle/linkrun.py`'s INPUTS with the reason for each) drive three EOF transfers.
+The program builds the graph from three road triples, prints the adjacency listing, and answers a
+Boston→Paris query with `30 miles remain,        30 miles to Paris` — correct, because the direct
+link is 30 and the NewYork detour is 100+50. The run is the gate's own `--runtime` row 15, linking
+and executing the same `.REL` the byte check compares.
+*The non-circularity is narrower than it looks and is stated in the row: the executed image is
+DR's own compilation of a byte-identical file, so comparing its output against DR's would be
+circular [C137]; what the run validates is my **hand-derived expectation** (from the source) and
+PLILIB. Nothing about my lowering. What it does establish is that the ON-unit chain, the pads and
+REVERT — object-file-only artefacts through E2E-33 — correspond to a working runtime path in a
+program large enough that I could not have written its output by hand.*
+*Two incidental facts worth having: the third `^Z` matters, because main loops `do while(true)`
+over setup and terminates on `if city_head = null then stop`; a script that runs out of lines
+leaves the program waiting at a prompt, and the runtime panel refuses a run that does not
+terminate [C205]. My first three attempts got PLILIB `ERROR (1), Conversion` — not a compiler
+defect but my own input script: setup reads triples until EOF, so a lone city name reached a FIXED
+field.*
+
+## E2E-35/P4 — process: two commits shipped without files their own gate needed
+
+**C232. A commit whose gate depends on files added by a later commit is broken, and the check is
+cheap: `git show --stat` on the commit, then run the gate AT the commit.** P0 left
+`tools/relstats.py` untracked (C224). P3 committed the gate and probe sources but not
+`ocaml/lib/codegen.ml` (selective `git add` again), then P4 committed the probe goldens that P3's
+new specimens point at — so neither intermediate commit was gate-green. I rebuilt the two commits
+by pathspec so the compiler fix and its goldens sit in P3, verified `git diff` of the rewritten
+tree against the original is empty, ran the build and the full gate at the rewritten P3 (891
+byte-exact / 0 fail, 122 negatives, 12 divergences), and pushed with `--force-with-lease`.
+*Why this is a claim and not a footnote: the gate's value is that a red panel means something. If
+HEAD can be red for a reason that lives in a later commit, the panel's signal is diluted, and the
+[C224] repair I documented in P2 was the same failure mode one commit earlier.*

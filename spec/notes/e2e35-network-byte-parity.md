@@ -188,3 +188,119 @@ byte -- [C226].
    statement, which golden -- [C140] requires one cause per row before any of them is called a family.
 3. HL/DE liveness in the loops that remain (PB4, E27S2) is NOT the same obstacle as [C219] and should
    not be attempted with [C219]'s machinery.
+
+## P3 -- NETWORK byte-exact: label scoping, the tail RET, and a hypothesis that died
+
+P2 ended with NETWORK one `.REL` record from parity and a stated plan: test whether DR chains every
+pad reference, then emit the chain record instead of resolving. What the probes found instead was
+that the two records **disagreed about the target**, not about the encoding.
+
+| P2's claim | P3's finding |
+|---|---|
+| `LINK-CHAIN-ADDR code 0266` vs `RELOC code 0xAB`, same address | different addresses: DR's chain lands on `print_paths`' own pad, mine pointed at MAIN's |
+| a linkage-record choice | a wrong value -- a jump into another block's recovery chain |
+| "one record from parity" | whole file identical after the scope fix (1608 differing bytes -> 0) |
+
+The mechanism was the label table. `ls.labs` was a flat `(name, address) list`, prepended at each
+definition and looked up with `assoc_opt`, so "most recently emitted wins" -- correct in every
+orientation 884 specimens had exercised. NETWORK defines `eof` in main and again in `print_paths`.
+`print_paths`' ON-unit reference is lowered before its own `eof:` exists, so the only `eof` in the
+table was main's already-emitted pad, and mine resolved to it inline instead of joining a chain.
+E35X1 and E35X4 reproduce the shape at probe size (a nested `on endfile(sysin) goto hd;` whose `hd:`
+is the nested procedure's own), each differing from DR by exactly the two jump-operand bytes with
+sizes equal -- the signature of a wrong value, not a missing instruction. E35X3 is the control that
+shows duplicate names themselves were never in doubt: DR compiles it and prints both labels.
+
+Fix: `block_labels_of_stmts` pre-scans the labels the current block defines (descending into every
+Ast container except a nested procedure, whose *entry* label belongs to its parent), each emitted
+label carries a scope id from a global counter (sibling procedures must not share one), and
+`resolve_label` answers three ways -- defined here and already emitted (inline RELOC), defined here
+and later (join this block's chain), or not defined here (refuse, see below). A plain `goto` and an
+`ON ... GOTO` handler call the same resolver [C202].
+
+The tail RET came out of the same nine probes. Four differ from DR by one byte, and it is a RET my
+compiler adds to a **subroutine** whose last top-level statement is `goto` (E35X2, E35X3), `return;`
+(E35Y1) or `stop;` (E35Y2). [C213] had established that the trigger is the shape of the last
+top-level statement -- but only in the `returns(...)` branch; the no-RETURNS branch kept the older
+"absence of RETURNS" trigger. E35Y3/Y4 pin that the question is fall-out and not GOTO: a `goto`
+followed by a live assignment, and a conditional `goto` followed by one, both end `INX H / SHLD N /
+RET` in DR. So the two branches now ask one question [C229].
+
+### The refusal, and why it is worth more than the feature
+
+Three of the nine probes compile under DR and are refused here, and the reason is the most
+interesting thing P3 found: **entering a block from another block is a padded transfer**. E35Y3 is a
+nested procedure's `goto sk;` to main's `sk:`, and there is no ON-unit anywhere in the program. DR
+gives main the hidden saved-SP cell at entry and a recovery pad immediately before the label:
+
+    0006  LXI H,0000 / 0009 DAD SP / 000A SHLD *A(0004)      main's entry save
+    0013  LHLD *A(0004) / 0016 SPHL / 0017 CALL ?RECOV       a pad, before `sk:'
+    0048  JMP SK                                             the nested reference, chained
+
+DATA 6 where mine has 4, CODE 83 where mine has 71. [C208]'s pad demand -- labels targeted by an
+`ON ... GOTO` -- is therefore a special case, not the rule. E35X5 is the half-built version: the
+target label is already padded because main has its own ON-unit, and mine is still 2 bytes over, so
+"reuse the existing pad and chain the reference" is not the missing piece either. I refuse, because
+emitting an address into another block's frame is a wrong value, and because the panel keeps the
+three as negatives with DR's bytes quoted in the prose [C188].
+
+Measured cost of the refusal: every corpus source available (`golden/first8080u/*` with a matching
+`artefacts/*.PLI`, 41 programs) compiles to either byte-exact (15), a documented refusal (26), or --
+importantly -- zero divergences, and the new refusal fires on none of them. So this is a construct
+my own probes reached for and no shipped program uses [C230].
+
+## P4 -- NETWORK executed
+
+Byte parity was not acceptance [C137]. NETWORK now has a `--runtime` row (row 15) that links MY
+built `.REL` with LINK 1.31 + PLILIB and runs it under cpmsim, checking an expectation and
+termination. The input script lives in `oracle/linkrun.py`'s INPUTS, nine lines:
+
+    Boston,100,NewYork   NewYork,50,Paris   Boston,30,Paris   ^Z
+    Paris   Boston   ^Z   ^Z   ^Z
+
+which is: three road triples, EOF so `setup`'s `on endfile(sysin) goto eof` fires (recovery pad +
+`?RECOV`); then print_paths' destination and start, and EOF so its INNER handler reaches `eol:` and
+executes `revert endfile(sysin)` (`?REVOP`); then EOF again for the outer loop, and one more so the
+second `setup` pass ends with an empty list and main's `if city_head = null then stop` fires. The
+console output, verbatim except for echoed input:
+
+    Type "City1, Dist, City2"
+    Paris :        30 miles to Boston     50 miles to NewYork
+    NewYork :      50 miles to Paris     100 miles to Boston
+    Boston :       30 miles to Paris     100 miles to NewYork
+    Type Destination Paris
+    Type Start Boston
+           30 miles remain,        30 miles to Paris
+
+30 is right: the direct link costs 30 and the NewYork detour 150, so the based-structure graph, the
+pointer traversal and the route print behave as the source says. The expectation is derived by hand
+from the source and not from any DR run, so the row is `kind=independent` -- and the honest limit is
+in the row's own text: the executed image is DR's own compilation of a byte-identical `.REL`, so
+this run validates my expectation and PLILIB, and **nothing about my lowering** [C205]. What it does
+buy is that the ON-chain / pad / REVERT machinery, which until now existed only as bytes, is a
+working runtime path in a program whose output nobody could have written by guessing.
+
+Two things that looked like defects and were not: the first three runs failed with PLILIB
+`ERROR (1), Conversion`, which was my script (setup reads triples until EOF, so a lone city name
+reached a FIXED field), and the traceback hex `6F42 7473 6E6F` is `"Boston"` read little-endian by
+me, not a misaligned buffer. One thing that was a defect in the panel's sense: without the ninth
+line the program waits at `Type Destination` forever, and the runtime panel rejects a run that does
+not terminate [C205] -- an interactive program needs its script to include its exit condition.
+
+## P4 -- process note: gate-green at every commit
+
+Both P3's compiler fix and its probe goldens initially landed in the wrong commits (selective
+`git add`), so neither intermediate commit was gate-green -- the same failure as P0's untracked
+`tools/relstats.py` [C224]. The two commits were rebuilt by pathspec, the rewritten tree verified
+content-identical to the original (`git diff` empty), and the build plus full gate run AT the
+rewritten P3 (891 / 0 fail, 122 negatives, 12 divergences) before `--force-with-lease` [C232].
+
+## Next
+
+1. The remaining divergences are HL-side liveness (PB4, E27S2, E28N7) plus the shape rows E30L1-L4,
+   E30G1, E32B3, E32C6/E33MC. Each needs one cause with one golden before it is called a family
+   [C140]; none of them should be attempted with [C219]'s DE machinery.
+2. Cross-block entry ([C208]'s generalisation, [C230]) is the next real feature: the pad/SP-cell
+   demand must include labels targeted from another block, and E35Y3/E35X5 are its two oracles.
+3. Coverage inventory (P6): the 41-source corpus scan in this note is its first column -- DR accepts,
+   mine compiles/refuses, byte-exact, executed.

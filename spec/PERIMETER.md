@@ -159,8 +159,9 @@ to a specimen in E2E-30** [C195][C154] -- what E2E-27 refused was the *absence o
 
 NETWORK.PLI's data-structure and control-flow language is now [S] SUPPORTED and mostly byte-exact;
 the program itself is still refused, at `find(..) returns(POINTER)`. **(refusal superseded: NETWORK
-has compiled end-to-end since E2E-34/P6, and as of E2E-35/P2 it is one REL record from byte parity
--- see the [E2E-35] section at the end of this file.)** Newly inside the perimeter:
+has compiled end-to-end since E2E-34/P6, is BYTE-EXACT against DR's golden as of E2E-35/P3, and has
+been EXECUTED (gate runtime row 15, E2E-35/P4) -- see the [E2E-35] section at the end of this file.)**
+Newly inside the perimeter:
 
 - **`BIT(1)` based structure members** — one byte at the member's record offset, `MVI M,80`/`MVI M,00`
   to store, `MOV A,M / ORA A / JP` to test, reached through the shared `member_step` encoder. Byte-exact
@@ -260,7 +261,7 @@ episode, plus `N7MFWD` and `N79GOTO` promoted from negatives against their own D
 nested block).  Panel after E2E-34: 840 byte-exact, 119 refused, 17 pinned divergences.
 
 
-## [E2E-35] Perimeter state -- DE tracking in, NETWORK one record from parity
+## [E2E-35] Perimeter state -- DE tracking in, NETWORK byte-exact AND executed
 
 E2E-35 changed no language boundary: what it changed is how existing constructs are ENCODED, and one
 measurement convention.
@@ -268,13 +269,32 @@ measurement convention.
 - **DR's DE knowledge is now modelled** [C219][C220][C221].  Every based-member offset load and every
   zero load can now take the short form DR takes, which is a per-statement instruction-selection rule,
   not a feature.  37 new DR goldens pin it (e35r/e35t/e35v/e35w), all byte-exact, all registered.
-- **Four former divergences are specimens**: E30B2, O1, O2, O4 [C223].  The panel is 13 rows.
-- **NETWORK**: code 1456 = DR's `CODE SIZE = 05B0', data 235/235, and code 019C-0265 byte-identical.
-  The residual is `LINK-CHAIN-ADDR' versus inline `RELOC' for one ON/GOTO pad reference [C225].  It
-  stays a DIVERGENT row until that record matches: compiling and even running is not parity [C137].
+- **Five former divergences are specimens**: E30B2, O1, O2, O4 [C223] and NETWORK [C227].  The panel
+  is 12 rows.
+- **Labels are block-scoped** [C228].  A label defined in a nested procedure shadows an identically
+  named label in an enclosing block; my flat emission-ordered table used to resolve a nested forward
+  reference to the OUTER pad, which is a live wrong address.  That was NETWORK's last remaining .REL
+  difference [C227] -- not the `LINK-CHAIN-ADDR' encoding I had written up at the end of P2.
+- **The tail RET is one question, asked once** [C229]: a subroutine whose last top-level statement
+  cannot fall through (`goto`, `return;`, `stop;`) gets no trailing RET, exactly as a value-returning
+  procedure already did.  E35X2/X3/Y1/Y2 are the positives, E35Y3/Y4 the controls.
+- **NETWORK is byte-exact AND executed** [C231]: code 1456 = DR's `CODE SIZE = 05B0', data 235 = DR's
+  `00EB', whole file identical to `golden/first8080u/NETWORK/NETWORK.REL'; linked with LINK 1.31 +
+  PLILIB and run to completion, printing `30 miles remain,        30 miles to Paris' for a Boston to
+  Paris query on a 3-node graph whose alternatives cost 150.  The run executes two recovery pads,
+  `?RECOV', and `?REVOP' from a `revert endfile(sysin)'.  Its expectation is hand-derived from the
+  source, so the row is `kind=independent': the image is DR's own compilation of a byte-identical
+  .REL, and comparing its output to DR's would be circular [C137].
 - **`ON ... GOTO` has been EXECUTED** (E35N1, E35N2, normal flow, `n=         7`, pad SPHL + ?RECOV in
   the path [C218]); the ENDFILE condition has still never FIRED in anything executed, and no EOF event
   is simulated here.
+- **New refusal, deliberately narrower than DR** [C230]: a GOTO to a label NOT defined in the
+  referencing block.  E35Y3 shows DR making the TARGET block pad-bearing and giving it the saved-SP
+  cell with no ON-unit in the program, so [C208]'s pad demand is a special case of entering a block's
+  stack frame; I have no rule for the demand, and emitting another block's address is a wrong value.
+  E35X5 shows an already-padded target still differing by 2, so reusing the pad is not the answer
+  either.  Measured cost: of the 41 corpus sources available, 15 are byte-exact, 26 refuse, 0 diverge,
+  and this refusal fires on none of them.  Registered as negatives E35Y3, E35X5, E35Y4.
 - **Still open**: the two-formal DATA anomaly (E32C6 26 vs 22, E33MC 16 vs 14), E34G3 (qualified
   varying member source, one sample), `k + x` and expr-vs-expr comparisons (no sample), procedure-local
   FILE, and DR's out-of-range-literal route (E28N7/PB4-class rows).
