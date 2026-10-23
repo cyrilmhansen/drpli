@@ -2877,6 +2877,53 @@ NEG_META['E32C10'] = ("my-gap",
     "the same way as E32C3.  Note E32C7/E32C8 (`k ^= 2', `k > 2') ARE supported, so this "
     "is specifically equality against a non-zero literal, not a general gap.")
 
+# =====================================================================================
+# [E2E-32/P2] FAMILY B IS FIXED.  The rule was mis-stated in E2E-31, and the correction
+# matters: DR does NOT "bracket every dereference with PUSH H / POP D / DAD D".  It parks
+# the LEFT operand in DE (`XCHG') when the RIGHT operand's lowering leaves DE alone, and
+# on the STACK (`PUSH H' ... `POP D') only when the right operand's lowering writes DE --
+# which the member-read ladder `MOV E,M / INX H / MOV D,M / XCHG' does, and a plain
+# `LHLD m' or a literal does not.
+#
+# That is why PB4 was right while PB20 was not, which E2E-31 could not explain:  [C200]
+#   PB4  `q = q + 4'  right = literal      -> XCHG parking is legal, DE survives -> 44 OK
+#   PB20 `q = q + q'  right = member read  -> the ladder overwrote the parked value,
+#                                            `DAD D' then added the ADDRESS: 6947 = 3 + &z
+# The predicate in the compiler was `is a pointer FORMAL' (st.deref membership), so every
+# BASED and every qualified member read on the right escaped it -- including NETWORK's
+# `s = s + w->v'.  E32B1 puts all three right-operand kinds in ONE probe and is now
+# byte-exact: `p->v + m' (a=12), `p->v + 3' (b=10), `p->v + p->v' (c=14).
+#
+# Fix = one predicate `writes_de', used by the ADD right-side test and by SUB.  The old
+# reading had been wrong in BOTH directions [C167]: the E2E-15 comment in the ADD arm
+# records that "any deref on either side => PUSH" added a SPURIOUS PUSH/POP pair for
+# `p->v + m'.  So neither the pushing nor the not-pushing rule had been tested from both
+# sides until now.
+#
+# SUB: the arm used to refuse ANY deref operand ("no DR sample").  E32B2/E32B4 are those
+# samples, so the refusal is narrowed to the one case still unmeasured -- a pointer FORMAL
+# as the minuend -- and the measured routes now lower correctly:
+#   E32B4a `m - p->v' : LHLD M / PUSH H / ladder / POP D / CALL ?IS22N   -> 4  OK
+#   E32B4b `p->v - m' : XCHG park, no stack pair                          -> -4 OK
+#   E32B2b `q->v - p->v', E32B2c `p->v - q->v' : PUSH/POP both sides      -> 2, -2 OK
+# Non-commutative operators were tested in BOTH orientations on purpose: a rule fitted
+# only to `+' would have passed this whole matrix while still getting subtraction wrong.
+#
+# Executed against independently derived arithmetic (each image is byte-identical to
+# DR's, so this validates the EXPECTATION and the oracle together, not my lowering --
+# see the note on what runtime evidence can and cannot mean after C137):
+#   E32B1 a=12 b=10 c=14 | E32B2 a=10 b=2 c=-2 | E32B3 a=11 b=22 c=15
+#   E32B4 a=4 b=-4 c=16  | PB20 q=6            | E31F4 s=6 | E31F7C sum=6
+# E31F7C is NETWORK's own accumulation shape, so the shortest-distance computation is now
+# believed correct rather than merely compilable [the task's precedence for P2 over P4].
+# Promoted out of the divergence panel [C154/C168]: PB20, E31F4, E31F7C.
+add_spec('PB20', ('artefacts/PB20.PLI', 'golden/e2e315d/PB20/PB20.REL'))
+for _n in ('E32B1', 'E32B2', 'E32B4'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e32b/%s/%s.REL' % (_n, _n)))
+for _n, _g in (('E31F4', 'golden/e31p2/E31F4/E31F4.REL'),
+               ('E31F7C', 'golden/e31p5/E31F7C/E31F7C.REL')):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, _g))
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:

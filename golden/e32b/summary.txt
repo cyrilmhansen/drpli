@@ -1,0 +1,4 @@
+E32B1	ok	PRN=True REL=True
+E32B2	ok	PRN=True REL=True
+E32B3	ok	PRN=True REL=True
+E32B4	ok	PRN=True REL=True

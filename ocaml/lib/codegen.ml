@@ -2451,6 +2451,40 @@ let rec hl_operand_deref st (e : Ast.expr) =
   | Ast.Ebinary (_, a, b) -> hl_operand_deref st a || hl_operand_deref st b
   | Ast.Econd a | Ast.Eprefix (_, a) -> hl_operand_deref st a
   | _ -> false
+(* [E2E-32/P2] inserting writes_de here earlier consumed this function's catch-all and
+   turned `p->v' into a bare Match_failure [contract violation]; the arm above restores
+   exactly the fall-through that was here before. *)
+
+(* [E2E-32/P2] does LOWERING this operand write DE?  This is the question DR's parking
+   rule actually answers, and it is narrower than "is a deref": a based or qualified
+   member read loads through the ladder `MOV E,M / INX H / MOV D,M / XCHG', which
+   occupies DE, whereas a plain POINTER cell read (`LHLD p' = the pointer's own value)
+   does not.  Measured in BOTH directions [C167]:
+     right = plain local / literal      -> DR parks in DE with XCHG   [E32B1 a=12,
+                                           E32B3 a=11, E32B4 b `p->v - m' = -4]
+     right = based or qualified member  -> DR parks on the STACK      [E32B1 c,
+                                           E32B2 a/b/c, E32B3 b, E32B4 a/c]
+   E32B1's three statements in one probe separate these exactly, which is why the old
+   reading ("any deref on either side") was wrong in both directions: it pushed for
+   `p->v + m' (a spurious PUSH/POP pair, already noticed at E2E-15) and it did NOT push
+   for `p->v + q->v' (a mis-compile: the ladder destroyed the parked value, so DAD D
+   added the ADDRESS -- PB20 printed 6947 = 3 + &z, E32B1 printed 7758).
+   A CALL also destroys DE, but ADD/SUB have dedicated call arms, so this says nothing
+   about calls on purpose: widening it would silently re-route them. *)
+let rec writes_de st (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Eqptr _ -> true
+  | Ast.Eident n ->
+      let ln = String.lowercase_ascii n.Ast.orig in
+      List.mem ln st.deref
+      ||
+      (match vk_of st n.Ast.orig with
+       | Vbased _ | Vbfix _ | Vbptr _ -> true
+       | _ -> false)
+  | Ast.Ebinary (_, a, b) -> writes_de st a || writes_de st b
+  | Ast.Econd a | Ast.Eprefix (_, a) -> writes_de st a
+  | _ -> false
+  | _ -> false
 
 (* [E2E-5c slice 2] tail = the continuation address that follows the
    MAIN block (tail_addr in emit_program). DR routes an ADD through
@@ -3456,7 +3490,7 @@ let rec lower_hl st (e : Ast.expr) =
              XCHG ; LHLD P ; DAD D
          My old test treated any deref on either side as PUSH, which added a
          spurious PUSH H/POP D pair here. *)
-      if hl_operand_deref st r then begin
+      if writes_de st r then begin
         lower_hl st l; d st 0xe5;                    (* PUSH H *)
         lower_hl st r; d st 0xd1; d st op_dad_d      (* POP D; DAD D *)
       end else begin
@@ -3650,9 +3684,16 @@ let rec lower_hl st (e : Ast.expr) =
          [`s = s - i': LHLD S / XCHG / LHLD I / CALL ?IS22N / SHLD S;
            `s = i - i' identical].  POINTER-DEREF operands have no DR sample in
          this route and stay refused. *)
-      if hl_operand_deref st l || hl_operand_deref st r then
-        failwith "codegen: fixed-bin subtraction with a pointer formal \
-                  operand unproven [TBD]";
+      (* [E2E-32/P2] the refusal is narrowed to what is still unsampled -- a pointer
+         FORMAL as the MINUEND.  Based/qualified operands on either side are now
+         measured: E32B4a `m - p->v' is DR's `LHLD M / PUSH H / ladder / POP D /
+         CALL ?IS22N', E32B2b/c give the same shape with BOTH sides deref, and a deref
+         on the left with a DE-free right keeps the XCHG route (E32B4b `p->v - m' = -4,
+         byte-exact).  ?IS22N computes DE - HL, so the minuend has to survive in DE,
+         which is precisely what the ladder destroys. *)
+      if hl_operand_deref st l then
+        failwith "codegen: fixed-bin subtraction with a pointer formal as \
+                  the MINUEND unproven [TBD]";
       (* [E2E-13/C141] SUB with a CALL on the right takes the PUSH route even when the
          left operand is a simple variable -- P6 `return (t - g(3))':
              LHLD T A(0007) ; PUSH H ; LXI H,* A(0009) ; CALL G ; POP D ; CALL ?IS22N
@@ -3665,7 +3706,7 @@ let rec lower_hl st (e : Ast.expr) =
            failwith
              ("codegen: [TBD] SUB whose right operand is a procedure call.  The route is now known -- DR parks the MINUEND on the runtime stack, because ?IS22N computes DE - HL and the call has destroyed DE by then: `LHLD T / PUSH H / LXI H,* / CALL G / POP D / CALL ?IS22N' [P6, golden/e2e174/P6/P6.PRN].  I emit that sequence and my code bytes are IDENTICAL to DR's and the result is right (P6 prints 91 = DR, golden/e2e180r/P6), but DR emits the call's anonymous-cell allocation records before the left operand's code records while I emit them at point of use, so the .REL streams differ.  NOTE: my previous XCHG route was worse than a byte difference -- it parks the minuend in DE across the call, which any callee that touches DE (every shadowed/recursive one) silently corrupts.  Call on the LEFT is byte-exact and unchanged [P7].")
        | _ ->
-           (if add_left_needs_push r then
+           (if add_left_needs_push r || writes_de st r then
               (lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d
                ; call_ext st "?IS22N")
             else

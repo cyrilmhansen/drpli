@@ -1,0 +1,151 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E32B2
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 B2 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 6 BYTES
+c 0000 P POINTER AUTOMATIC
+c 0002 Q POINTER AUTOMATIC
+c 0004 S FIXED BINARY(15,0) AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 2 BASED()
+c 0000 .V FIXED BINARY(15,0) MEMBER
+c 0002 .NX POINTER MEMBER
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E32B2
+
+   1 a 0000 b2: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare p pointer, q pointer, s fixed;
+   3 c 0006   declare 1 nd based, 2 v fixed, 2 nx pointer;
+   4 c 0006   allocate nd set(p);
+       0006       LXI  H,0004
+       0009       CALL ?ALLOP
+       000C       SHLD P A(0006)
+   5 c 000F   p->v = 4;
+       000F       LHLD P A(0006)
+       0012       MVI  M,04
+       0014       INX  H
+       0015       MVI  M,00
+   6 c 0017   allocate nd set(q);
+       0017       LXI  H,0004
+       001A       CALL ?ALLOP
+       001D       SHLD Q A(0008)
+   7 c 0020   q->v = 6;
+       0020       LHLD Q A(0008)
+       0023       MVI  M,06
+       0025       INX  H
+       0026       MVI  M,00
+   8 c 0028   s = p->v + q->v;
+       0028       LHLD P A(0006)
+       002B       MOV  E,M
+       002C       INX  H
+       002D       MOV  D,M
+       002E       XCHG 
+       002F       PUSH H
+       0030       LHLD Q A(0008)
+       0033       MOV  E,M
+       0034       INX  H
+       0035       MOV  D,M
+       0036       XCHG 
+       0037       POP  D
+       0038       DAD  D
+       0039       SHLD S A(000A)
+   9 c 003C   put list('a=', s);
+       003C       LXI  D,0252
+       003F       LXI  B,0000
+       0042       CALL ?SYSPR
+       0045       LXI  H,* S(0000)
+       0048       MVI  A,02
+       004A       CALL ?SLCTS
+       004D       CALL ?PNCOP
+       0050       LHLD S A(000A)
+       0053       MVI  A,09
+       0055       CALL ?QICOP
+       0058       CALL ?PNVOP
+       005B       CALL ?QIOOP
+       0040       ==== 005E
+  10 c 005E   s = q->v - p->v;
+       005E       LHLD Q A(0008)
+       0061       MOV  E,M
+       0062       INX  H
+       0063       MOV  D,M
+       0064       XCHG 
+       0065       PUSH H
+       0066       LHLD P A(0006)
+       0069       MOV  E,M
+       006A       INX  H
+       006B       MOV  D,M
+       006C       XCHG 
+       006D       POP  D
+       006E       CALL ?IS22N
+       0071       SHLD S A(000A)
+  11 c 0074   put list('b=', s);
+       0074       LXI  D,0252
+       0077       LXI  B,0000
+       007A       CALL ?SYSPR
+       007D       LXI  H,* S(0002)
+       0080       MVI  A,02
+       0082       CALL ?SLCTS
+       0085       CALL ?PNCOP
+       0088       LHLD S A(000A)
+       008B       MVI  A,09
+       008D       CALL ?QICOP
+       0090       CALL ?PNVOP
+       0093       CALL ?QIOOP
+       0078       ==== 0096
+  12 c 0096   s = p->v - q->v;
+       0096       LHLD P A(0006)
+       0099       MOV  E,M
+       009A       INX  H
+       009B       MOV  D,M
+       009C       XCHG 
+       009D       PUSH H
+       009E       LHLD Q A(0008)
+       00A1       MOV  E,M
+       00A2       INX  H
+       00A3       MOV  D,M
+       00A4       XCHG 
+       00A5       POP  D
+       00A6       CALL ?IS22N
+       00A9       SHLD S A(000A)
+  13 c 00AC   put list('c=', s);
+       00AC       LXI  D,0252
+       00AF       LXI  B,0000
+       00B2       CALL ?SYSPR
+       00B5       LXI  H,* S(0004)
+       00B8       MVI  A,02
+       00BA       CALL ?SLCTS
+       00BD       CALL ?PNCOP
+       00C0       LHLD S A(000A)
+       00C3       MVI  A,09
+       00C5       CALL ?QICOP
+       00C8       CALL ?PNVOP
+       00CB       CALL ?QIOOP
+       00B0       ==== 00CE
+  14 c 00CE   stop;
+       00CE       CALL ?STOPX
+  15 a 00D1 end b2;
+  16 a 00D1 
+
+CODE SIZE = 00D1
+DATA AREA = 000C
+FREE SYMS = 3846
+END  COMPILATION
+

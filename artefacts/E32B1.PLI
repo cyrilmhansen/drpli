@@ -1,0 +1,16 @@
+b1: procedure options(main);
+  declare p pointer, m fixed, s fixed;
+  declare 1 nd based, 2 v fixed, 2 nx pointer;
+  allocate nd set(p);
+  p->v = 7;
+  m = 5;
+  s = p->v + m;
+  put list('a=', s);
+  s = p->v + 3;
+  put list('b=', s);
+  s = p->v + p->v;
+  put list('c=', s);
+  stop;
+end b1;
+
+
