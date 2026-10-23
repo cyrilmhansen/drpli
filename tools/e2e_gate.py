@@ -2924,6 +2924,31 @@ for _n, _g in (('E31F4', 'golden/e31p2/E31F4/E31F4.REL'),
                ('E31F7C', 'golden/e31p5/E31F7C/E31F7C.REL')):
     add_spec(_n, ('artefacts/%s.PLI' % _n, _g))
 
+# =====================================================================================
+# [E2E-32/P4] ON ENDFILE with a STATEMENT handler is byte-exact; only the GOTO form is open.
+#
+# E32E1 is `on endfile(sysin) n = 99;' -- registration plus an inline handler, NO label
+# transfer -- and mine matches DR byte for byte (golden/e32e/E32E1).  That matters because
+# the refusal text for the GOTO variant had been reading as if ON-conditions in general were
+# missing.  They are not: what is missing is precisely the label-transfer plumbing, now
+# isolated as four pieces by E32E2 (two GOTO handlers in one block, DR-golden captured):
+#   1. at BLOCK ENTRY, `LXI H,0 / DAD SP / SHLD * A(0019)' -- the block saves SP into ONE
+#      hidden cell (the `DAD SP' is an extended opcode DR's own listing prints on the next
+#      line, which is why an earlier grep-based read missed it; the addresses 0006 -> 000A
+#      prove the intervening instruction);
+#   2. per ON unit: `LXI H,SYSIN / MVI A,05 / CALL ?ONCOP / JMP <continue> / JMP <stub>';
+#   3. the stub, whose body both handlers share the cell for: `LHLD * A(0019) / SPHL /
+#      CALL ?RECOV / ...';
+#   4. transfer to the label block.
+# CORRECTION to C201 / the E2E-31 note, made in place rather than silently: E2E-31 recorded
+# "each ON-unit needs a 2-byte hidden cell".  E32E2 shows the cell is allocated ONCE PER
+# BLOCK and READ by every handler in it (two `LHLD * A(0019)' against one `SHLD * A(0019)'),
+# so the allocation is per-block and the cell's lifetime is the whole activation.  The rest
+# of C201 (four emissions, auto-revert, ?ONCOP taking its handler from the bytes after the
+# CALL) is unaffected -- and E30E2's single-ON-unit image cannot have distinguished the two,
+# which is exactly the [C167] one-direction-in-one-probe failure again.
+add_spec('E32E1', ('artefacts/E32E1.PLI', 'golden/e32e/E32E1/E32E1.REL'))
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:

@@ -25,6 +25,6 @@ D>
 >>> A:BYE (halt)
 
 D>A:BYE
-I/O ran for 4021 ms, waited for 0 ms
+I/O ran for 4002 ms, waited for 0 ms
 CPU executed 1395002 t-states in 1 ms
-Clock frequency 1109.78 MHz
+Clock frequency 965.39 MHz

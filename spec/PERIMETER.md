@@ -203,3 +203,32 @@ has to be checked against the 756 accepted specimens before the condition loweri
 `ON ENDFILE/REVERT` with label transfer is [S] SUPPORTED by DR and [M]-open in ours; its layout is now
 fully measured [C201] but unimplemented, and ENDFILE *firing* is still unobserved because a linked
 object driven to EOF under cpmsim hangs rather than transferring.
+
+## [E2E-32] Both wrong-value families are INSIDE the perimeter now; ON/GOTO is the open blocker
+
+`RETURNS(POINTER)`-era divergences turned out to be two defects, and both are fixed with one shared
+mechanism each: **a by-reference formal must be read through its cell** (`val_addr`, plus routing
+ident-vs-ident `=/^=` through `cmp_load_deref`) [C202], and **the left operand of ADD/SUB is parked in
+DE unless the right operand's lowering writes DE** (`writes_de`) [C204].  Byte-exactness went 759 ->
+776 with **no previously exact specimen moving**, and the six probes that printed wrong numbers
+(E31F8, E31F2, E31F5, PB20, E31F4, E31F7C) are now byte-identical to DR *and* print independently
+derived correct values.  E31F7C is NETWORK's own accumulation, so its shortest-distance computation is
+now believed correct rather than merely compilable.
+
+Two things are on the record as still open, both attributed rather than lumped:
+
+- **E32B3 / PB4 are shape divergences with correct values.**  PB4's row was rewritten because its
+  `q > 3` branch is taken for the wrong reason -- mine biases the **address**, and any `0x1Bxx`
+  address is > 3 -- so it must not be cited as evidence that based comparisons work.
+- **C203: with two or more by-reference formals my DATA segment is 4 bytes too large.**  E32C6's code
+  is byte-identical after the Family-C fix; only the allocation differs.  This is a real NETWORK
+  blocker (`connect` has three formals) and is left unfitted pending 2- and 3-formal DR samples.
+
+`ON ENDFILE` is now split accurately [C206]: a **statement** handler is byte-exact (E32E1); the hidden
+saved-SP cell is **per block**, not per ON-unit (E32E2), correcting C201; only `... GOTO label` --
+stub, `?RECOV` prologue, label transfer -- remains [M]-open, and **EOF firing under cpmsim is still
+unobserved**, so compile-side parity and runtime handler execution stay separate claims.
+
+Evidence-kind rule adopted [C205]: byte parity, independent arithmetic, and running a byte-identical
+image are three different claims.  `tools/e2e_gate.py --runtime` now labels each runtime row with the
+authority that did the work, because after these fixes ten of twelve rows became circular.

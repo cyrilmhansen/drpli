@@ -32,6 +32,6 @@ C>
 >>> A:BYE (halt)
 
 C>A:BYE
-I/O ran for 4013 ms, waited for 0 ms
-CPU executed 82413242 t-states in 36 ms
-Clock frequency 2248.34 MHz
+I/O ran for 4021 ms, waited for 0 ms
+CPU executed 82413242 t-states in 43 ms
+Clock frequency 1875.75 MHz

@@ -1,0 +1,19 @@
+e2: procedure options(main);
+  declare sysin file, w character(20) varying, n fixed;
+  n = 0;
+  on endfile(sysin) goto a;
+  get list(w);
+  n = n + 1;
+  on endfile(sysin) goto b;
+  get list(w);
+  n = n + 1;
+  goto c;
+a: n = 10;
+  goto c;
+b: n = 20;
+c: revert endfile(sysin);
+  put list('n=', n);
+  stop;
+end e2;
+
+

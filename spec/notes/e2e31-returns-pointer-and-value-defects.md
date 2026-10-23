@@ -206,7 +206,10 @@ steps over it. The stub target 0166 is the recovery prologue:
 Three conclusions for whoever implements this, each of which my compiler's refusal already names but
 now has addresses behind it: (1) registration (`?ONCOP`), the jump-over, the stub, and the label
 transfer are **four distinct emissions**, not one; (2) the handler prologue is
-`LHLD <hidden cell> / SPHL / CALL ?RECOV` and needs a **2-byte hidden cell per ON-unit**; (3) DR
+`LHLD <hidden cell> / SPHL / CALL ?RECOV` and needs a **2-byte hidden cell per ON-unit**
+  **[CORRECTED by E2E-32/P4: the cell is per BLOCK -- E32E2 has two GOTO handlers sharing one
+  `SHLD * A(0019)' written at block entry and read twice by the stubs, so per-unit and per-block were
+  indistinguishable in E30E2, which had exactly one ON-unit; see C206]**; (3) DR
 emits `?REVOP` **inside** the transfer path, so `ON ENDFILE ... GOTO` implicitly reverts — which is
 why NETWORK's explicit `eol: revert endfile(sysin)` (line 151) still emits its own
 `LXI H,SYSIN / MVI A,05 / CALL ?REVOP` at 02F8 and then `JMP 0268`.

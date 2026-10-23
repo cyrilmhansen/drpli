@@ -1,0 +1,10 @@
+e1: procedure options(main);
+  declare sysin file, w character(20) varying, n fixed;
+  n = 0;
+  on endfile(sysin) n = 99;
+  get list(w);
+  put list('n=', n);
+  stop;
+end e1;
+
+

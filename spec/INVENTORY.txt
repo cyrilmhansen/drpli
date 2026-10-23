@@ -242,6 +242,7 @@ E32C5	specimen	artefacts/E32C5.PLI	golden/e32c/E32C5/E32C5.REL
 E32C7	specimen	artefacts/E32C7.PLI	golden/e32c/E32C7/E32C7.REL
 E32C8	specimen	artefacts/E32C8.PLI	golden/e32c/E32C8/E32C8.REL
 E32C9	specimen	artefacts/E32C9.PLI	golden/e32c/E32C9/E32C9.REL
+E32E1	specimen	artefacts/E32E1.PLI	golden/e32e/E32E1/E32E1.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

@@ -1,0 +1,133 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E32E2
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 E2 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 23 BYTES
+c 0000 SYSIN FILE EXTERNAL STATIC
+c 0000 W CHAR(20) VARYING AUTOMATIC
+c 0015 N FIXED BINARY(15,0) AUTOMATIC
+c 0000 A LABEL CONSTANT
+c 0000 B LABEL CONSTANT
+c 0000 C LABEL CONSTANT
+BLOCK AT LINE 4, AUTO STORAGE 0 BYTES
+BLOCK AT LINE 7, AUTO STORAGE 0 BYTES
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E32E2
+
+   1 a 0000 e2: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare sysin file, w character(20) varying, n fixed;
+       0006       LXI  H,0000
+       0009       DAD  SP
+       000A       SHLD * A(0019)
+   3 c 000D   n = 0;
+       000D       LXI  H,0000
+       0010       SHLD N A(0017)
+   4 c 0013   on endfile(sysin) goto a;
+       0013       LXI  H,SYSIN
+       0016       MVI  A,05
+       0018       CALL ?ONCOP
+       001B       JMP  0000
+       001E       JMP  0000
+   5 c 0021   get list(w);
+       001C       ==== 0021
+       0021       LXI  D,0290
+       0024       LXI  B,0000
+       0027       CALL ?SYSIN
+       002A       CALL ?GNVOP
+       002D       JP   0000
+       0030       LXI  H,W A(0002)
+       0033       MVI  B,14
+       0035       CALL ?SSVFS
+       002E       ==== 0038
+       0038       CALL ?QIOOP
+       0025       ==== 003B
+   6 c 003B   n = n + 1;
+       003B       LHLD N A(0017)
+       003E       INX  H
+       003F       SHLD N A(0017)
+   7 c 0042   on endfile(sysin) goto b;
+       0042       LXI  H,SYSIN
+       0045       MVI  A,05
+       0047       CALL ?ONCOP
+       004A       JMP  0000
+       004D       JMP  0000
+   8 c 0050   get list(w);
+       004B       ==== 0050
+       0050       LXI  D,0290
+       0053       LXI  B,0000
+       0056       CALL ?SYSIN
+       0059       CALL ?GNVOP
+       005C       JP   0000
+       005F       LXI  H,W A(0002)
+       0062       MVI  B,14
+       0064       CALL ?SSVFS
+       005D       ==== 0067
+       0067       CALL ?QIOOP
+       0054       ==== 006A
+   9 c 006A   n = n + 1;
+       006A       LHLD N A(0017)
+       006D       INX  H
+       006E       SHLD N A(0017)
+  10 c 0071   goto c;
+       0071       JMP  0000
+       0074       LHLD * A(0019)
+       0077       SPHL 
+       0078       CALL ?RECOV
+  11 c 007B a: n = 10;
+       007B       LXI  H,000A
+       007E       SHLD N A(0017)
+  12 c 0081   goto c;
+       0081       JMP  C
+       0084       LHLD * A(0019)
+       0087       SPHL 
+       0088       CALL ?RECOV
+  13 c 008B b: n = 20;
+       008B       LXI  H,0014
+       008E       SHLD N A(0017)
+  14 c 0091 c: revert endfile(sysin);
+       0091       LXI  H,SYSIN
+       0094       MVI  A,05
+       0096       CALL ?REVOP
+  15 c 0099   put list('n=', n);
+       0099       LXI  D,0252
+       009C       LXI  B,0000
+       009F       CALL ?SYSPR
+       00A2       LXI  H,* S(0000)
+       00A5       MVI  A,02
+       00A7       CALL ?SLCTS
+       00AA       CALL ?PNCOP
+       00AD       LHLD N A(0017)
+       00B0       MVI  A,09
+       00B2       CALL ?QICOP
+       00B5       CALL ?PNVOP
+       00B8       CALL ?QIOOP
+       009D       ==== 00BB
+  16 c 00BB   stop;
+       00BB       CALL ?STOPX
+  17 a 00BE end e2;
+  18 a 00BE 
+
+CODE SIZE = 00BE
+DATA AREA = 001B
+FREE SYMS = 3848
+END  COMPILATION
+

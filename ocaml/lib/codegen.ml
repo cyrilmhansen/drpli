@@ -8197,7 +8197,10 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
              failwith
                (Printf.sprintf
                   "codegen: an ON handler containing GOTO needs DR's ?RECOV label \
-                   prologue (LHLD */SPHL/CALL ?RECOV + a 2-byte hidden cell) [TBD] \
+                   prologue (LHLD */SPHL/CALL ?RECOV) + the block-entry SP save into ONE hidden `*' cell
+                   -- per BLOCK, not per ON-unit, measured on E32E2 [C206] -- and the label transfer.
+                   An ON-unit whose handler is a STATEMENT is supported and byte-exact [E32E1]; only
+                   the GOTO form is open. [TBD] \
                    (line %d; E11F shows the shape, G115 proves plain GOTO has none)"
                   s.Ast.spos.Source.line));
            d st op_lxi_h;

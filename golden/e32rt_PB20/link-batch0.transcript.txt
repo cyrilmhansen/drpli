@@ -33,5 +33,5 @@ C>
 
 C>A:BYE
 I/O ran for 4021 ms, waited for 0 ms
-CPU executed 85316518 t-states in 60 ms
-Clock frequency 1408.81 MHz
+CPU executed 85316518 t-states in 51 ms
+Clock frequency 1645.41 MHz
