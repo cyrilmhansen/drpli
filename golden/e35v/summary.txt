@@ -1,0 +1,4 @@
+E35V10	ok	PRN=True REL=True
+E35V4	ok	PRN=True REL=True
+E35V5	ok	PRN=True REL=True
+E35V9	ok	PRN=True REL=True

@@ -1,0 +1,14 @@
+e35w1: procedure options(main);
+   declare p pointer, q fixed, n fixed;
+   declare 1 nd based,
+   2 w character(20) varying,
+   2 v fixed,
+   2 a fixed,
+   2 b pointer;
+   allocate nd set(p);
+   p->v = 32767;
+   q = p->a;
+   p->b = null;
+  stop;
+end e35w1;
+

@@ -1,0 +1,14 @@
+e35w4: procedure options(main);
+   declare p pointer, q fixed, n fixed, r pointer;
+   declare 1 nd based,
+   2 w character(20) varying,
+   2 v fixed,
+   2 a pointer,
+   2 link pointer;
+   allocate nd set(p);
+   r = p->a;
+   p->v = 32767;
+   p->link = null;
+  stop;
+end e35w4;
+

@@ -4080,3 +4080,138 @@ same clean termination.  Registering E32E2 as a specimen at the same time closed
 had been verified once by hand and never enforced: it is byte-exact and pins the per-BLOCK saved
 -SP cell [C206] plus two pads in one block.  None of this delivers an EOF event; the ENDFILE
 *firing* path remains unexercised and unverified.
+
+
+C219. [E2E-35/P2] DR carries DE from one statement to the next, and the member-offset load is
+derived from what DE already holds rather than from the offset alone.  This is not a peephole on
+my emitted bytes -- the offset sequence [C189] has FIVE alternative spellings of the same number
+and DR picks among them by register state:
+  offset == DE            no load at all, HL stays the base            E35V5 (offset 21 on DE=21)
+  delta +-1, +-2          `INX D' / `DCX D' repeats                     E35R6 001B (delta 1),
+                                                                        E35T1 0021 (delta 2),
+                                                                        NETWORK 0363-0364 (delta 2,
+                                                                        two bytes, DR's own listing)
+  0 < delta <= 0xFF,
+  same high byte          `MVI E,<lo>'                                 E35R7 0028 (25 from DE=0),
+                                                                        E35V4/V7, NETWORK 01AC
+  otherwise               `LXI D,<offset>'                             E35R5/R8/R9/R10, E35V2
+then `DAD D'.  E35R1 versus E35R2 versus E35R3 is the discriminating triple: the same record, the
+same member, the same offset 21, and three different instruction sequences (no load, `MVI E,15',
+`LXI D,0015') depending only on what the preceding load left in DE.  `MOV M,A / INX H / MOV M,A'
+keeps DE and `LHLD' / `POP D' / `XCHG' / `MVI E,x' / any CALL do not, so the knowledge is dead
+after the store that consumes it -- E35R4 and E35R12 show the load being re-materialized on the
+next store rather than carried.
+`MVI E,x' is the strange one and it is measured, not reasoned: E35V6 does
+`p->a = 1; p->b = 2;' on one 2-byte record, and the second store spells offset 1 as a full
+`LXI D,0001' even though `MVI E,00 / DAD D' had just put exactly 0x0001 in DE.  DR remembers a
+value it loaded wholesale and forgets one it assembled byte-wise.  The tracker models DR's
+knowledge state, not arithmetic provability, and every rule in it came from a golden.
+
+C220. [E2E-35/P2] The tracker dies at every address a jump can land on, labelled or not.
+E35W5 pins the labelled case: `p->v = 32767; loop: p->link = null;' -- the three instructions from
+`LXI D,0015' to the label are DE-neutral, so a naive tracker says DE = 0x0015 and offset 25 is
+reachable with `MVI E,19', yet DR reloads `LXI D,0017'.  NETWORK pins the IMPLICIT case, and it is
+the stronger evidence because no label exists: at code 0363-0364 DR emits its OWN two `INX D' for
+line 179, so DE = 0x0017 with D provably 00, and the next statement -- line 181 `bestp = null;,
+the first statement of a `do while(true)' body whose back-edge lands exactly there -- is
+`LXI H,0000'.  Reusing across a target would read a wrong ADDRESS on the second pass of the loop,
+so this is simultaneously DR's behaviour and the only sound behaviour; the implementation kills
+DE at `label_def' and at all six loop heads.  A branch (JMP, JZ, JNZ) kills as a side effect of
+not being on the preserved list, which is also why forward-reference targets need no separate
+rule.  The preserved set is a whitelist by 8080 semantics with unknown-opcode-means-dies, per
+[C202]: a gap in it costs an optimisation and can never produce a wrong address, whereas a
+call-site list would silently claim knowledge DR does not have.
+
+C221. [E2E-35/P2] DR materializes zero into HL as `MOV H,D / MOV L,D' when D provably holds 00 and
+as `LXI H,0000' when it does not, and this belongs to the zero LOAD, not to any store frame.
+E35T1 0021 (based-member store), E35W1 0028 (`p->link = null;'), E35W3 001B (`r = null;'),
+E35W5 0368 (`n = 0;' into a fixed auto) and NETWORK 019C all take the 2-byte form; E35T7 is the
+control that pins the condition as D == 00 rather than "DE known" -- there DE holds exactly
+0x011B, which is as precisely tracked as the others, and DR uses `LXI H,0000'.
+The placement cost more than the rule.  E35W3 (a pointer assignment) went byte-exact from the
+first build and E35W5 (an integer assignment) did not, and the reason is that this compiler has
+TWO encoders that put a literal into HL: `lower_hl's literal arm, and `hl_const' [E2E-23/P3],
+which the scalar-store route uses because it also implements the +1/-1/+256/MVI-L reuse ladder.
+`hl_const' has its OWN `LXI H,lo,hi' fallback, so installing the rule in one place left the other
+spelling 3 bytes where DR spelled 2 -- [C202] verbatim, "one load invariant written in several
+places with two of them drifted", here with the drift introduced by me mid-episode.  Both sites
+now call one `hl_zero'.  Ordering is by cost and by measurement: `no reload at all' when HL holds
+the value, `MOV L,H' when HL holds a constant with high byte 00 [G116], and only then DE.  The
+rule's position in the value-to-HL direction -- not the address-to-HL direction -- is pinned by
+E35V9: `p->v = 1; p->link = null; p = null;' is `MVI M,01 / MOV H,D / MOV L,D / XCHG / SHLD P', so
+the 2-byte zero load is taken and the value still ends in DE for the store.
+
+C222. [E2E-35/P2] `MOV L,D' is 0x6A.  My first build emitted 0x65, which is `MOV H,L', and the
+pair `62 65' decoded as "H<-D, L<-H", which is plausible enough to keep a wrong value out of
+every probe whose high byte was already 00.  It was found the way [C207] found DAD SP: not by
+reasoning about the opcode table but by diffing my byte against DR's .REL and asking which
+encoding the golden actually contains.  37 probes, byte-exact, and one of them was the only
+witness.
+
+C223. [E2E-35/P2] Family A's cause was mis-attributed, and the mis-attribution was load-bearing.
+E2E-31 wrote the O1/O2/O4 rows as "DR reuses HL across adjacent statements; mine reloads", and
+E2E-32 kept the label while naming liveness as the blocker.  What those three rows and E30B2 were
+actually missing was DE TRACKING [C219], and installing it made all four byte-exact in one pass.
+The rows whose cause really IS liveness did not move: PB4 (114 vs 118), E27S2 (99 vs 100),
+E31F1.  So "same family" was a grouping by symptom (an extra reload of a value the previous
+instruction had just produced) that hid two different mechanisms, and the one I could implement
+was the one I had filed under the wrong explanation.  Recorded as a cost: three episodes of
+probes aimed at HL while the missing fact was in DE.
+
+C224. [E2E-35/P2] A gate run proves the tree it was run in, not the commit it follows, and both
+of P0's deliverables were left out of the commits that carried the change depending on them.  P0
+redefined what the divergence panel measures (section sizes, [C217]), added `tools/relstats.py',
+re-measured all 17 rows of spec/DIVERGENT.txt in the working tree, and reported "gate 840/0/119/17,
+exit 0" -- which was true of the working tree and false of the commit.  `git show --stat 97d6f68'
+contains one file (the notes); P1's commit f863c05 contains the gate change and 22 others but not
+relstats.py and not DIVERGENT.txt.  So at HEAD the gate does not merely report a red panel, it
+cannot run at all: `_rel_stats' imports the module, and
+
+    $ git worktree add --detach /tmp/headchk HEAD && cd /tmp/headchk
+    $ python3 -c "import sys; sys.path.insert(0,'tools'); import relstats"
+    ModuleNotFoundError: No module named 'relstats'
+
+(and with DIVERGENT.txt also still carrying pre-P0 DATA-item counts against a measurer that now
+reads LINK-DEF-CODE-SIZE, every row would have failed "SHAPE changed" once the import was fixed).
+Nothing caught it because I always ran the gate with my working tree in place.  Two changes
+follow: the
+re-measurement is no longer hand-typed (the gate gained `--update-divergent [NAME...]' and
+`--only-divergent', which rewrite the measured columns through the SAME `_rel_stats' the checker
+uses and refuse to write if any row became byte-exact or stopped compiling, since that is a
+decision and not a measurement [C168]), and the rows are in this commit.  The general form: when a
+change alters what a spec file MEANS, every file that stores numbers in that file's old units is
+part of the change, and so is every NEW tool the change depends on -- committing a modified file is
+not the same action as committing the tree the gate reads, and a new file is invisible to both
+until it is named by hand.  The check that would have caught it is cheap: run the gate from a clean
+checkout of what one is about to claim (`git worktree add --detach /tmp/x HEAD` and run there), or
+at minimum require `git status --short` to be empty of tracked modifications after the commit.
+
+C225. [E2E-35/P2] NETWORK is one REL record away from byte parity, and it is a LINKAGE record, not
+an instruction.  After [C219]/[C220] the code section is 1456 bytes = DR's own 05B0 (the +7 of
+[C217] is gone), the 235 data bytes agree, and code 019C through 0265 agrees byte for byte.  The
+remaining difference is at code 0265, the SECOND `JMP' of an ON/GOTO stub: DR spells its operand
+as two DATA 00 bytes plus a `LINK-CHAIN-ADDR code 0266' fixup, mine spells the same operand as an
+inline `RELOC code 0xAB'.  0xAB is DR's own pad (listing 00A8 JMP, then LHLD/SPHL/CALL ?RECOV,
+then `eof:' at 00B6), so both files point at the same place and differ only in the record that
+says so: DR chains a pad reference even when the pad has already been emitted, I resolve it.  One
+sample, so it is a probe question for P3 (does DR chain every pad reference, and does it also chain
+plain backward GOTOs?), not yet a rule -- and the 1608 differing file bytes must not be read as
+1608 defects, because one record's encoding shifts every later bit of a 3200-byte bit stream.
+
+C226. [E2E-35/P2] The byte tracker's instruction-length table was wrong in both directions, and the
+fix is byte-neutral over the 883 specimens then in the panel -- which is why it is written down.  `inst_operands'
+(existing since E2E-23/P3 as the A tracker's notion of "where instructions end") omitted JNZ (0xC2)
+while including JZ (0xCA), so after every JNZ its two ADDRESS bytes were fed to the tracker as
+opcodes; an address containing 0x11 -- `JNZ 1100' -- decodes as `LXI D' and would have begun a
+tracked DE value made of jump-target bytes, which [C219]'s offset derivation would then have used
+as a record address.  It also gave RNC/RC/RP/RPE/RPO/RM (0xD0, 0xD8, 0xE8, 0xE0, 0xF0, 0xF8) two
+operand bytes when they are one-byte conditional returns, so the tracker skipped the next two real
+opcodes.  Rewritten as the 8080 encoding classes (rp/dd, ALU-abs, Jcc, Ccc -> 2; MVI, ALU-imm, IN,
+OUT -> 1; everything else -> 0), so it is architecture rather than a call-site list [C202], and
+unknown opcodes still kill both facts -- a gap then costs an optimisation and cannot cost an
+address.  The table was only ever audited because the new DE tracker made alignment load-bearing:
+for five episodes the same bug could only delay an A-reload decision, which is a divergence the
+panel would have caught by accident rather than by design.  Gate before and after the rewrite: 883
+byte-exact / 0 fail, 119/119, 13/13, 14/14, exit 0 (the panel is 884 on that same binary after E35W4
+was registered, [C167]: a probe I had built and goldened but left unregistered) -- so nothing in the banked corpus exercises a mis-decoded
+length, and this is recorded as a latent defect closed, not as a behaviour change.

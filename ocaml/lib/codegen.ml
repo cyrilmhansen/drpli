@@ -127,6 +127,14 @@ type st =
                                          so operand bytes are never mistaken for opcodes *)
   ; mutable last_imm : int option     (* HL still holds this constant?
                                          [G114 b=3 folded from a=5] *)
+  ; mutable de_val : int option       (* [E2E-35/P2] DR's SECOND tracked register fact: the exact
+                                         16-bit value DE holds, when the emitter can prove it.
+                                         Set only by `LXI D,<two literal bytes>'; adjusted by
+                                         INX D / DCX D; FORGOTTEN by MVI E even though the result
+                                         is exactly known (V6), by POP D (T8), XCHG (W1), any CALL
+                                         (V7) and at any branch target (W5).  See track_code. *)
+  ; mutable de_wait : int             (* operand bytes still owed by the LXI D being emitted *)
+  ; mutable de_bytes : int list       (* those bytes, low operand first *)
   ; mutable temps : int               (* dynamic-DO bound temp slots
                                          (2 bytes each, AFTER declared
                                          area [Y302: temp@6 = pool2+4;
@@ -286,15 +294,33 @@ type lblstate = { mutable labs : (string * int) list
    anything that writes A, on any CALL, and at any branch.  Only ONE fact is modelled -- this is
    deliberately not a register allocator or a constant propagator. *)
 let rec inst_operands b =
-  (* operand-byte count, so the tracker knows where instructions end *)
+  (* Operand-byte count, so the tracker knows where instructions end.
+     [E2E-35/P2] REWRITTEN as a complete 8080 encoding classification.  The old table was built
+     from the opcodes this compiler happened to emit, which is the call-site-list mistake [C202],
+     and it was wrong in both directions:
+       * JNZ (0xc2) had no entry while JZ (0xca) did, so after every JNZ the tracker read that
+         instruction's two ADDRESS bytes as opcodes.  An address containing 0x11 -- `JNZ 1100' --
+         decodes as `LXI D' and would have STARTED a tracked DE value made of jump-target bytes,
+         which member_step would then have used as a record address.  The DE tracker is new in
+         this episode, but the same counter has driven the A tracker since E2E-23, so the latent
+         mis-decode is older than the risk.
+       * 0xd0/0xd8/0xe8/0xe0/0xf0/0xf8 (RNC, RC, RP, RPE, RPO, RM) were given TWO operands.  They
+         are one-byte conditional RETURNS, so the tracker skipped the next two real opcodes.
+     The shape of the encoding is architecture, not a call-site list: rp/dd and ALU-abs and Jcc
+     and Ccc take two operand bytes, MVI/ALU-imm/IN/OUT take one, everything else takes none.
+     An unknown opcode still falls through to 0 and to "not DE-neutral" below, so it kills both
+     facts -- a gap costs an optimisation, never an address. *)
   match b with
-  | 0x01 | 0x11 | 0x21 | 0x31                        (* LXI B,D,H,SP *) -> 2
-  | 0x22 | 0x2a | 0x32 | 0x3a                        (* SHLD STA LHLD LDA *) -> 2
-  | 0x06 | 0x0e | 0x16 | 0x1e | 0x26 | 0x2e | 0x36 | 0x3e (* MVI r,M *) -> 1
-  | 0xc3 | 0xcd                                      (* JMP, CALL *) -> 2
-  | 0xc0 | 0xc8 | 0xca | 0xcc | 0xd0 | 0xd2 | 0xd4 | 0xd8
-  | 0xda | 0xdc | 0xe8 | 0xf8 | 0xe0 | 0xf0          (* conditional jumps / RST-class *) -> 2
-  | _ -> 0
+  | 0x01 | 0x11 | 0x21 | 0x31                          (* LXI rp,dd *) -> 2
+  | 0x22 | 0x2a | 0x32 | 0x3a                          (* SHLD LHLD STA LDA *) -> 2
+  | 0x86 | 0x8e | 0x96 | 0x9e | 0xa6 | 0xae | 0xb6 | 0xbe (* ADD..CMP r,M(abs) *) -> 2
+  | 0xc3 | 0xcd                                        (* JMP, CALL *) -> 2
+  | 0xc2 | 0xca | 0xd2 | 0xda | 0xe2 | 0xea | 0xf2 | 0xfa (* Jcc dd *) -> 2
+  | 0xc4 | 0xcc | 0xd4 | 0xdc | 0xe4 | 0xec | 0xf4 | 0xfc (* Ccc dd *) -> 2
+  | 0x06 | 0x0e | 0x16 | 0x1e | 0x26 | 0x2e | 0x36 | 0x3e (* MVI r,d8 *) -> 1
+  | 0xc6 | 0xce | 0xd6 | 0xde | 0xe6 | 0xee | 0xf6 | 0xfe (* ADD..CMP r,i8 *) -> 1
+  | 0xd3 | 0xdb                                        (* OUT port, IN port *) -> 1
+  | _ -> 0                                             (* 1-byte opcodes, incl. RST and Rcc *)
 and inst_writes_a b =
   (* MVI A; MOV A,r (78-7F); every ALU/logic op (80-BF); INR/DCR A; CMA; rotates; DAA.
      Conservative by construction: an unknown opcode is treated as a writer below. *)
@@ -308,8 +334,58 @@ and inst_is_flow b =
     || (b >= 0xd0 && b <= 0xdf && b <> 0xd1 && b <> 0xd4 && b <> 0xd5 && b <> 0xd6)
     || (b >= 0xe0 && b <= 0xef && b <> 0xe1 && b <> 0xe3 && b <> 0xe5 && b <> 0xe6)
     || (b >= 0xf0 && b <= 0xff && b <> 0xf1 && b <> 0xf3 && b <> 0xf5 && b <> 0xf6)
+and de_neutral b =
+  (* [E2E-35/P2] opcodes that provably leave DE alone, by 8080 semantics -- NOT by a call-site
+     list, which is the thing that cannot be kept complete (C202).  Anything absent from here
+     kills the tracker, so a gap costs an optimisation and can never produce a wrong address. *)
+  (b >= 0x80 && b <= 0xbf)                            (* ALU/logic: A only *)
+  || (b >= 0x40 && b <= 0x7f && not (b >= 0x50 && b <= 0x5f))  (* MOV r,r' except MOV D,r/E,r *)
+  || List.mem b [ 0x00                                (* NOP, HLT *)
+                ; 0x76
+                ; 0x09; 0x19; 0x29; 0x39              (* DAD B,D,H,SP *)
+                ; 0x01; 0x21; 0x31                    (* LXI B,H,SP *)
+                ; 0x06; 0x0e; 0x26; 0x2e; 0x36; 0x3e  (* MVI B,C,H,L,M,A *)
+                ; 0x03; 0x0b; 0x23; 0x2b              (* INX/DCX B,H *)
+                ; 0x04; 0x05; 0x0c; 0x0d; 0x24; 0x25; 0x2c  (* INR/DCR B,C,H,L *)
+                ; 0x34; 0x35; 0x3c; 0x3d              (* INR/DCR M,A *)
+                ; 0x02; 0x0a; 0x12; 0x1a              (* STAX/LDAX B,D *)
+                ; 0x22; 0x2a; 0x32; 0x3a              (* SHLD LHLD STA LDA *)
+                ; 0x07; 0x0f; 0x17; 0x1f; 0x27; 0x2f; 0x37  (* rotates, DAA, CMA, STC *)
+                ; 0xc1; 0xc5; 0xd5; 0xe1; 0xe5; 0xf5  (* POP/PUSH B,H,D,PSW (not POP D/PSW) *)
+                ; 0xd3; 0xdb; 0xe3 ]                  (* OUT, IN, XTHL *)
+and track_de st v =
+  (* [E2E-35/P2] the DE half of the tracker, reached only with a byte that sits where an opcode
+     belongs (or with an operand byte of an in-flight LXI D).  Rules and their probes:
+       LXI D,lo,hi (literal)  -> DE = value            T1-T5, V1-V5
+       LXI D,<symbol>         -> unknown               V7 (`LXI D,* S' is never reused from)
+       INX D / DCX D          -> value +/- 1           V2 (+1), V3/V5 (+2 chain), W6 (-1), W7 (-2)
+       MVI E,x                -> FORGET                V6 (the next store reloads LXI D)
+       POP D / XCHG / CALL    -> forget                T8, W1, V7
+       anything else that can write D or E, and any opcode not in de_neutral -> forget *)
+  match v with
+  | 0x11 -> st.de_val <- None; st.de_wait <- 2; st.de_bytes <- []
+  | 0x13 ->
+      (match st.de_val with
+       | Some c -> st.de_val <- Some ((c + 1) land 0xffff)
+       | None -> ())
+  | 0x1b ->
+      (match st.de_val with
+       | Some c -> st.de_val <- Some ((c - 1) land 0xffff)
+       | None -> ())
+  | _ when de_neutral v -> ()
+  | _ -> st.de_val <- None
 let track_code st v =
-  if st.a_pending > 0 then st.a_pending <- st.a_pending - 1
+  if st.a_pending > 0 then begin
+    st.a_pending <- st.a_pending - 1;
+    if st.de_wait > 0 then begin
+      st.de_wait <- st.de_wait - 1;
+      st.de_bytes <- st.de_bytes @ [v];
+      if st.de_wait = 0 then
+        match st.de_bytes with
+        | [lo; hi] -> st.de_val <- Some ((lo + (hi lsl 8)) land 0xffff)
+        | _ -> st.de_val <- None
+    end
+  end
   else begin
     (* this byte sits where an opcode belongs *)
     if inst_writes_a v || inst_is_flow v || not (List.mem v [0x00;0x09;0x19;0x29;0x39;0x23;0x2b;
@@ -317,7 +393,8 @@ let track_code st v =
         0x01;0x11;0x21;0x31;0x06;0x0e;0x16;0x1e;0x26;0x2e;0x36;0x3e;0xc3;0xcd;0xe5;0xd1;0xe1;
         0xf1;0xc5;0xd5;0xe3;0xeb;0xf5;0xf9;0x72;0x73;0x77;0x76]) then
       st.a_zero <- false;
-    st.a_pending <- inst_operands v
+    st.a_pending <- inst_operands v;
+    track_de st v
   end
 let push st it =
   (match it with
@@ -325,8 +402,12 @@ let push st it =
    | Reloc _ ->
        (* a reloc contributes two operand bytes; if we are mid-instruction they belong to it,
           otherwise the stream is not something this tracker understands -- be conservative *)
-       if st.a_pending > 0 then st.a_pending <- st.a_pending - 2
-       else begin st.a_zero <- false; st.a_pending <- 0 end
+       if st.a_pending > 0 then begin
+         st.a_pending <- st.a_pending - 2;
+         (* LXI D,<symbol>: DE holds a DATA address the compiler cannot know [V7] *)
+         if st.de_wait > 0 then begin st.de_wait <- 0; st.de_bytes <- [] end
+       end
+       else begin st.a_zero <- false; st.a_pending <- 0; st.de_val <- None end
    | _ -> ());
   st.items <- st.items @ [it]
 
@@ -390,6 +471,12 @@ let op_dad_h = 0x29   (* DAD H -- DR's doubling step [E2E-15/C148] *)
 let op_dad_b = 0x09
 let op_dcx_h = 0x2b
 let op_inx_h = 0x23
+let op_inx_d = 0x13   (* [E2E-35/P2] DR's +/-1, +/-2 member-offset derivation [V2,V3,V5,W6,W7] *)
+let op_dcx_d = 0x1b
+let op_mvi_e = 0x1e   (* [E2E-35/P2] same-high-byte derivation [V4,V8,T1,T7] -- and it FORGETS DE *)
+let op_mov_h_d = 0x62 (* [E2E-35/P2] DR's zero-into-HL form when D is known 00 [T1-T5,V3,V8,V9,W3,W5] *)
+let op_mov_l_d = 0x6a   (* MOV L,D is 01 101 010 -- NOT 0x65, which is MOV H,L.  Found by comparing my
+                                        byte against DR's .REL, exactly as C207 found the DAD SP encoding. *)
 let op_xchg = 0xeb
 
 (* [E2E-28] ONE encoder for stepping a freshly loaded record address to a member offset, shared by
@@ -406,9 +493,23 @@ let op_xchg = 0xeb
 let member_step st off =
   if off <= 3 then for _ = 1 to off do d st op_inx_h done
   else begin
-    d st op_lxi_d;
-    d st (off land 0xff);
-    d st ((off lsr 8) land 0xff);
+    (* [E2E-35/P2] DR derives the member offset from whatever DE provably holds instead of always
+       reloading it.  Fourteen probes pin the derivation and its order of preference:
+         same value           -> emit no load at all        V1 (offset 21 twice: DAD D alone)
+         delta +1, +2         -> INX D, repeated            V2 (+1), V3/V5 (+2, incl. crossing 256)
+         delta -1, -2         -> DCX D, repeated            W6 (-1), W7 (-2)
+         otherwise same high  -> MVI E,new low              V4 (-4), V8 (+8), T1 (+6), T7 (+8, D=01)
+         otherwise            -> LXI D,new                  V6 (after MVI E), V7 (after CALL), T8
+       The `off <= 3' INX H route above is taken FIRST regardless: T2 has DE = 0x0015 live and the
+       offset is 2, and DR still walks HL with two INX H. *)
+    (match st.de_val with
+     | Some v when v = off -> ()
+     | Some v when off > v && off - v <= 2 ->
+         for _ = 1 to off - v do d st op_inx_d done
+     | Some v when v > off && v - off <= 2 ->
+         for _ = 1 to v - off do d st op_dcx_d done
+     | Some v when (v lsr 8) = (off lsr 8) -> d st op_mvi_e; d st (off land 0xff)
+     | _ -> d st op_lxi_d; d st (off land 0xff); d st ((off lsr 8) land 0xff));
     d st op_dad_d
   end
 
@@ -429,6 +530,29 @@ let store_zero_pair st =
     st.a_zero <- true
   end;
   d st 0x77; d st op_inx_h; d st 0x77 (* MOV M,A / INX H / MOV M,A *)
+
+(* [E2E-35/P2] DR loads a zero into HL in two ways, and which one it uses depends on ONE tracked
+   fact about a register other than the destination:
+     D provably holds 00 -> MOV H,D / MOV L,D   (2 bytes)  T1,T2,T3,T4,T5,V3,V8,V9,W3,W5
+     otherwise           -> LXI H,0000          (3 bytes)  T6,T7 (DE = 0x011B), W1, W5-after-label
+   T7 is the control that separates "D is zero" from "DE is known": DE = 0x011B is exactly known
+   and still forces the reload.  E35W3/E35W5 show the rule is not particular to the PUSH/POP store
+   frame -- `r = null' and `n = 0' take it too -- so it lives in the zero load itself. *)
+(* [E2E-35/P2] DR forgets DE wherever a jump can land, which is the ONE place this tracker could
+   otherwise produce a wrong ADDRESS rather than a missed optimisation.  E35W5 pins the labelled
+   case (the store after `loop:' reloads `LXI D,0017' although the run of instructions since
+   `LXI D,0015' is DE-neutral, which E35V8 shows is normally enough to reuse).  NETWORK's own
+   bytes pin the implicit-loop-head case: at code 0363-0364 DR emits its own `INX D / INX D' for
+   line 179, so DE = 0x0017 with D provably 00, and the very next statement -- line 181
+   `bestp = null', the first statement of a DO WHILE(TRUE) body whose back-edge lands exactly
+   there -- is `LXI H,0000', not `MOV H,D / MOV L,D'.  Both are also the sound choice: a jump
+   arrives with whatever DE the source happened to leave behind. *)
+let kill_de st = st.de_val <- None; st.de_wait <- 0; st.de_bytes <- []
+
+let hl_zero st =
+  match st.de_val with
+  | Some v when (v lsr 8) = 0 -> d st op_mov_h_d; d st op_mov_l_d
+  | _ -> d st op_lxi_h; d st 0x00; d st 0x00
 let op_push_psw = 0xf5  (* [W102] PSW guard before nested SLVTS *)
 let op_jp = 0xf2      (* [X201/X202] GET skip byte; $C prints "JP";
                           REL byte is F2 = JPE (same family as the ^=
@@ -2829,7 +2953,8 @@ let rec lower_hl st (e : Ast.expr) =
          already claim.  An out-of-range magnitude here is REFUSED, not wrapped: see
          int_lit_checked. *)
       let v = int_lit_checked "a position lowered straight into HL" s in
-      d st op_lxi_h; d st (v land 0xff); d st ((v lsr 8) land 0xff)
+      if v = 0 then hl_zero st
+      else begin d st op_lxi_h; d st (v land 0xff); d st ((v lsr 8) land 0xff) end
   | Ast.Esuffix (hd, args) ->
       (* [E2E-5c P401] single-argument internal procedure call.
          Deferred pointer pair + LXI H,*A(cell) + CALL; forward entry
@@ -3377,7 +3502,7 @@ let rec lower_hl st (e : Ast.expr) =
       (* [E2E-26/P2] null() is just the zero address in HL [P086M 0006: LXI H,0000 / SHLD <p>].  The
          parenless `p = null' appears only inside a CONDITION [P019A], whose lowering is separate and
          is not part of this slice. *)
-      d st 0x21; d st 0x00; d st 0x00; st.last_imm <- Some 0
+      hl_zero st; st.last_imm <- Some 0
   | Ast.Eqptr (base, fld) ->
       (* [E2E-27/P3] READ a structure member through a pointer:  LHLD <qualifier cell> / INX H x
          offset / MOV E,M / INX H / MOV D,M / XCHG.  This is REVERSE's `sentence = next' and S3's
@@ -6277,6 +6402,17 @@ let hl_const st k =
                           ->
                 st.last_imm <- Some k;
                 d st 0x2e (* MVI L *) ; d st (k land 0xff)
+            | _ when k = 0 ->
+                (* [E2E-35/P2] the ZERO case has a third form, and it is decided by DE, not by HL:
+                   when D provably holds 00, DR loads HL as `MOV H,D / MOV L,D' (2 bytes).  E35W5
+                   is the witness -- `p->v = 32767; n = 0;' with HL holding a record ADDRESS (so
+                   last_imm is None and every HL arm above is dead) and DE = 0x0015, and DR emits
+                   62 6A 22 <shld N>.  E35W3/W1 and T1-T5 show the same choice on the store frame
+                   and on a pointer assignment; T7 (DE = 0x011B) is the control that keeps LXI H.
+                   Note this is a SECOND site that places a literal into HL, and it already had
+                   its own `LXI H' copy -- the rule lives in hl_zero so both sites read one rule
+                   [C202]. *)
+                st.last_imm <- Some k; hl_zero st
             | _ ->
                 st.last_imm <- Some k;
                 d st op_lxi_h; d st (k land 0xff); d st ((k lsr 8) land 0xff)
@@ -7489,6 +7625,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
        LHLD / (INX H)x|step| (or (DCX H)x|step| when step < 0) / SHLD / JMP
        [IFACT outer loop, R1014 k=1, R1018 k=2, R1033 k=-1]. *)
     let head = st.lc in
+    kill_de st;   (* [E2E-35/P2] this address is the back-JMP target: DR forgets DE here *)
     st.last_imm <- None;   (* [E2E-8] body head is a branch target: HL unknown *)
     lo st ls body;
     if is_small_int st ind && rep = None && step = 1 then begin
@@ -7548,6 +7685,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
              general XRA A/CMP M/INX H/SBB M signed compare for `to 0' \
              [R1029], which is not in the banked subset)");
         let head = st.lc in
+        kill_de st;   (* [E2E-35/P2] this address is the back-JMP target: DR forgets DE here *)
         d st op_lhld; reloc st Data iaddr;
         st.last_imm <- None;   (* LHLD clobbers HL *)
         (* [E2E-8] the body is re-entered by the back-edge, so HL knowledge from
@@ -7594,6 +7732,7 @@ let lower_doto st (ls : lblstate) (lo : st -> lblstate -> Ast.stmt -> unit)
         do_bound_deref st d bn.Ast.orig;   (* [DO1] formal bound [E2E-22/P4] *)
         d st op_shld; reloc st Data temp;
         let head = st.lc in
+        kill_de st;   (* [E2E-35/P2] this address is the back-JMP target: DR forgets DE here *)
         d st op_lhld; reloc st Data temp;
         d st op_xchg;
         d st op_lhld; reloc st Data iaddr;
@@ -8014,6 +8153,12 @@ let emit_pad st cell =
    GOTOs to one label (CHAIN-ADDR code 000A, then RELOC code 000C), so generalising
    removes a [TBD] refusal instead of inventing a behaviour. *)
 let label_def st (ls : lblstate) (nm : string) =
+  (* [E2E-35/P2] a label is a branch target, and a jump can arrive with any DE.  E35W5 is the
+     witness: the previous statement left DE = 0x0015 through a run of DE-neutral instructions
+     (which E35V8 shows is normally enough for DR to reuse it), yet the store after the label
+     reloads `LXI D,0017'.  Reusing across a target would be a wrong address on the second pass
+     of a loop, so this is both DR's behaviour and the sound one. *)
+  kill_de st;
   let addr = st.lc in
   let slots = List.filter (fun (k, _) -> k = nm) ls.fwd |> List.map snd in
   ls.fwd <- List.filter (fun (k, _) -> k <> nm) ls.fwd;
@@ -8453,6 +8598,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                  | _ -> cond
       in
       let head = st.lc in
+      kill_de st;   (* [E2E-35/P2] this address is the back-JMP target: DR forgets DE here *)
       st.last_imm <- None;   (* [E2E-8] branch target => HL unknown *)
       if cond.Ast.e = Ast.Ebit "1" then begin
         (* constant-true bit condition = pure forever, NO test
@@ -8484,6 +8630,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       (* bare DO; .. END; [Z403] body then unconditional JMP back *)
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       let head = st.lc in
+      kill_de st;   (* [E2E-35/P2] this address is the back-JMP target: DR forgets DE here *)
       lower_stmt st ls body;
       (d st op_jmp; st.last_imm <- None (* [R723] branch boundary *)); reloc st Code head
   | Ast.Sdoto { ind; from; by; to_; while_; rep; body } when
@@ -8519,6 +8666,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       lower_assign st (mk_id ind) from;   (* init: p = <from> *)
       st.last_imm <- None;
       let head = st.lc in                 (* the TEST is the back-JMP target *)
+      kill_de st;   (* [E2E-35/P2] this address is the back-JMP target: DR forgets DE here *)
       let w =
         match while_ with
         | Some w -> (match w.Ast.e with Ast.Econd x -> x | _ -> w)
@@ -9403,6 +9551,7 @@ let emit_program (progname : string) (auto_bytes : int)
     { base = statics.sy_total + pool_total; items = []; pool = statics.sy_cells
     ; pool_next = statics.sy_total; fmtq = []; dec_cells = []; lc = 0
     ; a_zero = false; a_pending = 0
+    ; de_val = None; de_wait = 0; de_bytes = []
     ; last_imm = None; lowered = 0; temps = 0
     ; stat_addrs = statics.sy_addrs; stat_total = statics.sy_total
     ; files = statics.sy_files

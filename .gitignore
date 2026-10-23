@@ -42,3 +42,7 @@ thirdparty/PLI-2000/
 # these transcript files are not, and leaving them tracked dirtied the tree on every gate run.
 golden/e32rt_*/link-batch*.transcript.txt
 golden/e32rt_*/*.transcript.txt
+
+# [E2E-35/P2] same rule for the NETWORK oracle/verification dirs: the cpmsim transcript carries
+# wall-clock text, the linked .COM and the .REL/.PRN inside do not, so those stay tracked.
+golden/e35net*/link-batch*.transcript.txt

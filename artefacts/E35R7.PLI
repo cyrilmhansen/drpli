@@ -1,0 +1,14 @@
+e35r7: procedure options(main);
+   declare p pointer, s character(6) varying;
+   declare 1 nd based,
+   2 v fixed,
+   2 w character(6) varying,
+   2 link pointer;
+   allocate nd set(p);
+   s = 'ABCDEF';
+   p->v = 32767;
+   p->w = s;
+   p->link = null;
+  stop;
+end e35r7;
+

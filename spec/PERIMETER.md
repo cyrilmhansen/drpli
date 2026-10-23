@@ -158,7 +158,9 @@ to a specimen in E2E-30** [C195][C154] -- what E2E-27 refused was the *absence o
 ## [E2E-30] Perimeter widened — NETWORK's graph structures are inside it
 
 NETWORK.PLI's data-structure and control-flow language is now [S] SUPPORTED and mostly byte-exact;
-the program itself is still refused, at `find(..) returns(POINTER)`. Newly inside the perimeter:
+the program itself is still refused, at `find(..) returns(POINTER)`. **(refusal superseded: NETWORK
+has compiled end-to-end since E2E-34/P6, and as of E2E-35/P2 it is one REL record from byte parity
+-- see the [E2E-35] section at the end of this file.)** Newly inside the perimeter:
 
 - **`BIT(1)` based structure members** — one byte at the member's record offset, `MVI M,80`/`MVI M,00`
   to store, `MOV A,M / ORA A / JP` to test, reached through the shared `member_step` encoder. Byte-exact
@@ -179,13 +181,22 @@ carries one or two reloads DR elides, so the traversal is behaviourally right (E
 byte-identical to DR's) but not yet byte-exact. That family is now the largest single obstacle to
 NETWORK. [C196][C197]
 
+**(Corrected by E2E-35/P2 [C223].)  Of those rows, PB20 had already died as a defect; E30B2, O1, O2
+and O4 turned out not to be HL reuse at all but missing DE tracking [C219], and went byte-exact in one
+pass (they are specimens now).  E30L1-L4 and E30G1 shrank (E30L2 154->153, E30L3 309->306, E30G1
+560->554 of DR's 152/305/553) and PB4, E27S2 and E28N7 did not move, so the rows whose cause really is
+HL-side liveness are the ones still open.  NETWORK is no longer blocked by this family: its code
+section is now DR's exact size and its residual is a single linkage record [C225].  The divergence
+panel is 13 rows.
+
 ## [E2E-31] Perimeter widened — RETURNS(POINTER) is in; two wrong-value defects are now on the record
 
 `find(..) returns(POINTER)` -- NETWORK's first blocker through three milestones -- is inside the
 perimeter and byte-exact (E31F1, E31F3).  The convention is shared with RETURNS(FIXED): the callee
 leaves the pointer in HL and `RET's, the caller stores it with one SHLD [C199].  Bare `null' as an
 assignment value to a POINTER cell was already inside it (E31F6), so E2E-30's matrix row 9 is
-withdrawn.  NETWORK now stops at `ON ENDFILE(sysin) GOTO eof' (line 50) [C201].
+withdrawn.  NETWORK then stopped at `ON ENDFILE(sysin) GOTO eof' (line 50) [C201] -- withdrawn, that
+ON unit compiles byte-exact and NETWORK has not stopped anywhere since E2E-34/P6.
 
 Two things moved from "benign divergence" to "defect", and they are perimeter-relevant because they
 affect programs that already compile:
@@ -247,3 +258,23 @@ episode, plus `N7MFWD` and `N79GOTO` promoted from negatives against their own D
 `E28N9` / `E32C10` promoted once the `= k' gap they recorded closed.  `e34g/E34G3` and
 `e34a/E34A9` are registered as refusals (qualified varying member source, and the unnamed
 nested block).  Panel after E2E-34: 840 byte-exact, 119 refused, 17 pinned divergences.
+
+
+## [E2E-35] Perimeter state -- DE tracking in, NETWORK one record from parity
+
+E2E-35 changed no language boundary: what it changed is how existing constructs are ENCODED, and one
+measurement convention.
+
+- **DR's DE knowledge is now modelled** [C219][C220][C221].  Every based-member offset load and every
+  zero load can now take the short form DR takes, which is a per-statement instruction-selection rule,
+  not a feature.  37 new DR goldens pin it (e35r/e35t/e35v/e35w), all byte-exact, all registered.
+- **Four former divergences are specimens**: E30B2, O1, O2, O4 [C223].  The panel is 13 rows.
+- **NETWORK**: code 1456 = DR's `CODE SIZE = 05B0', data 235/235, and code 019C-0265 byte-identical.
+  The residual is `LINK-CHAIN-ADDR' versus inline `RELOC' for one ON/GOTO pad reference [C225].  It
+  stays a DIVERGENT row until that record matches: compiling and even running is not parity [C137].
+- **`ON ... GOTO` has been EXECUTED** (E35N1, E35N2, normal flow, `n=         7`, pad SPHL + ?RECOV in
+  the path [C218]); the ENDFILE condition has still never FIRED in anything executed, and no EOF event
+  is simulated here.
+- **Still open**: the two-formal DATA anomaly (E32C6 26 vs 22, E33MC 16 vs 14), E34G3 (qualified
+  varying member source, one sample), `k + x` and expr-vs-expr comparisons (no sample), procedure-local
+  FILE, and DR's out-of-range-literal route (E28N7/PB4-class rows).

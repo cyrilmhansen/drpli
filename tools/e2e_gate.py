@@ -3110,6 +3110,46 @@ for _n in ('E32E2', 'E35N1', 'E35N2'):
     _t = 'e32e' if _n == 'E32E2' else 'e35n'
     add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/%s/%s/%s.REL' % (_t, _n, _n)))
 
+# [E2E-35/P2] DE-register tracking: 37 probes, each byte-exact, each pinning one clause of the
+# rule.  They are registered because the alternative is a rule protected by nothing -- member_step
+# and hl_zero now decide bytes on EVERY based store in the panel, and 843 specimens that all agree
+# by construction cannot tell me the rule is right, only that it is stable [C167].
+#   e35r (12): which member loads leave DE available (LHLD+LXI D yes, PUSH H/LHLD/POP D no,
+#              XCHG no) and the offsets/edges (255 -> MVI E, 2 -> INX D repeat, 1 -> INX D).
+#   e35t (8):  what KILLS the knowledge (POP D, CALL, IF with a numeric condition, MVI E,
+#              DCX D to a known value, an exactly-known DE whose HIGH byte is nonzero so the
+#              zero-load cannot use it) and that a small offset is still reached by INX H.
+#   e35v (10): the derivation ladder's boundaries (3 INX H vs 4 DAD; 255/256/257 around MVI E;
+#              DCX D; MVI E that FORGETS DE afterwards; reuse across DE-neutral stores and
+#              constant loads; reuse across an INX H that moved HL).
+#   e35w (7):  three back-to-back qualifying stores; the zero load taking MOV H,D/MOV L,D on a
+#              pointer, on a fixed auto (through hl_const's SECOND literal-into-HL copy [C202]),
+#              and on a pointer formal's member; and the label target that makes DR reload.
+_E35_P2 = {
+    'E35R1': 'e35r', 'E35R2': 'e35r', 'E35R3': 'e35r', 'E35R4': 'e35r',
+    'E35R5': 'e35r', 'E35R6': 'e35r', 'E35R7': 'e35r', 'E35R8': 'e35r',
+    'E35R9': 'e35r', 'E35R10': 'e35r', 'E35R11': 'e35r', 'E35R12': 'e35r',
+    'E35T1': 'e35t', 'E35T2': 'e35t', 'E35T3': 'e35t', 'E35T4': 'e35t',
+    'E35T5': 'e35t', 'E35T6': 'e35t', 'E35T7': 'e35t', 'E35T8': 'e35t',
+    'E35V1': 'e35v', 'E35V2': 'e35v', 'E35V3': 'e35v', 'E35V4': 'e35v',
+    'E35V5': 'e35v', 'E35V6': 'e35v', 'E35V7': 'e35v', 'E35V8': 'e35v',
+    'E35V9': 'e35v', 'E35V10': 'e35v',
+    'E35W1': 'e35w', 'E35W2': 'e35w', 'E35W3': 'e35w', 'E35W4': 'e35w',
+    'E35W5': 'e35w', 'E35W6': 'e35w', 'E35W7': 'e35w',
+}
+for _n, _t in sorted(_E35_P2.items()):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/%s/%s/%s.REL' % (_t, _n, _n)))
+
+# [E2E-35/P2] four DIVERGENT rows are now byte-exact and move to the specimen panel: O1, O2, O4
+# (the +3 code bytes each, attributed in E2E-31 to "one register-reuse rule missing, in the
+# value-to-HL direction") and E30B2 (the BIT(1) traversal loop, +6).  All four were Family A.
+# DE tracking, not HL reuse, is what closed them -- E31F1/E27S2/PB4, the rows whose cause really
+# was HL/DE LIVENESS, are unchanged.  That distinction is recorded because the attribution was
+# wrong and the fix would not have been found by someone trusting it.
+for _n, _t in (('O1', 'e2e333d'), ('O2', 'e2e333d'), ('O4', 'e2e333d'),
+               ('E30B2', 'e30p1')):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/%s/%s/%s.REL' % (_t, _n, _n)))
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:
@@ -3197,6 +3237,75 @@ def divergence_check(dv, exe):
                             else "DIFFERS (%d vs DR %d)" % (mdata, ddata),
                             ndiff, dv[n][-1][:90]))
     return fails, notes
+
+
+def divergence_remeasure(dv, exe, only=None, path=DIVERGENT_FILE):
+    """[E2E-35/P2] Rewrite the measured columns of spec/DIVERGENT.txt from the gate's OWN
+    measurement, keeping each row's verdict and cause text.
+
+    The rows carried numbers that could only be produced by running the gate, and there was no
+    sanctioned way to refresh them: when DE tracking changed four shapes, the stale rows failed
+    with "re-measure before accepting" and the only route left was to read the numbers off the
+    failure message and type them into the file by hand.  A number moved by hand is a number that
+    can be moved wrongly [C198], so the writer lives beside the reader and uses the same
+    `_rel_stats'.
+
+    A row that is now BYTE-EXACT is NOT quietly dropped -- this returns it in `promoted' and
+    writes nothing, because promoting means registering a specimen and deleting the row, which is
+    a decision, not a measurement [C168].  A row that stopped compiling is reported the same way.
+    """
+    rows, changed, promoted, broken = [], [], [], []
+    with open(path) as f:
+        raw = f.read().split("\n")
+    header = raw[0]
+    for line in raw[1:]:
+        if not line or line.startswith("#"):
+            rows.append(line); continue
+        p = line.split("\t")
+        if len(p) != 10:
+            raise ValueError("DIVERGENT.txt malformed row: %r" % line[:40])
+        name = p[0]
+        if only and name not in only:
+            rows.append(line); continue
+        r = subprocess.run([exe, os.path.join(ROOT, p[1]), "/tmp/divrm_%s.REL" % name],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            broken.append((name, r.stderr.strip().splitlines()[-1][:60])); rows.append(line); continue
+        mine = open("/tmp/divrm_%s.REL" % name, "rb").read()
+        dr = open(os.path.join(ROOT, p[2]), "rb").read()
+        if mine == dr:
+            promoted.append(name); rows.append(line); continue
+        mc, md = _rel_stats("/tmp/divrm_%s.REL" % name)
+        dc, dd = _rel_stats(os.path.join(ROOT, p[2]))
+        nb = sum(1 for a, b in zip(mine, dr) if a != b)
+        old = (int(p[3]), int(p[4]), int(p[5]), int(p[6]), int(p[7]))
+        new = (mc, dc, md, dd, nb)
+        rows.append("\t".join([name, p[1], p[2]] + [str(x) for x in new] + [p[8], p[9]]))
+        if old != new:
+            changed.append("%s: code %d/%d -> %d/%d, data %d/%d -> %d/%d, file bytes differing "
+                           "%d -> %d" % (name, old[0], old[1], new[0], new[1],
+                                         old[2], old[3], new[2], new[3],
+                                         old[4], new[4]))
+    if promoted or broken:
+        for n in promoted:
+            print("e2e gate: DIVERGENT %s is byte-exact -- register it as a specimen and delete "
+                  "the row; nothing was rewritten" % n)
+        for n, why in broken:
+            print("e2e gate: DIVERGENT %s no longer compiles (%s) -- nothing was rewritten for it"
+                  % (n, why))
+        if changed:
+            for c in changed:
+                print("e2e gate: %s" % c)
+        print("e2e gate: ABORTED rewrite -- %d row(s) need a decision first" % (len(promoted) + len(broken)))
+        return 2
+    out = "\n".join(rows)
+    assert isinstance(out, str) and len(out) > 100
+    with open(path + ".new", "w") as f:
+        f.write(out)
+    os.replace(path + ".new", path)
+    print("e2e gate: DIVERGENT.txt re-measured (%d row(s) rewritten%s)"
+          % (len(only) if only else len(rows) - 2, "" if not changed else ", %d changed" % len(changed)))
+    return 0
 
 
 def registration_audit(path, specimens, rejects, negmeta):
@@ -3477,6 +3586,12 @@ def main():
     ap.add_argument("--update-inventory", action="store_true",
                     help="rewrite spec/INVENTORY.txt from the live panel, then exit -- the "
                          "only sanctioned way to add/retire/repoint a specimen [E2E-16/P3]")
+    ap.add_argument("--update-divergent", nargs="*", metavar="NAME",
+                    help="[E2E-35/P2] rewrite the MEASURED columns of spec/DIVERGENT.txt from "
+                         "this gate's own measurement (cause text preserved); with no NAMEs, all "
+                         "rows.  Refuses if any row became byte-exact or stopped compiling.")
+    ap.add_argument("--only-divergent", action="store_true",
+                    help="run only the --update-divergent arm, on the freshly built compiler")
     ap.add_argument("--runtime", action="store_true",
                     help="[E2E-32/P3] link and execute the spec/RUNTIME.txt panel and check "
                          "independently derived expectations (slow; opt-in)")
@@ -3500,6 +3615,12 @@ def main():
             print("e2e gate: inventory rewritten (%d entries) -- review `git diff "
                   "spec/INVENTORY.txt' as part of this change" % len(inv_errs or rows_of(SPECIMENS)))
             return 0
+        if a.only_divergent:
+            # [E2E-35/P2] the measurement arm needs the same compiler the panel uses, and it
+            # must NOT be run against a stale binary -- that is how a row gets re-measured
+            # against bytes that no longer exist.
+            _exe = os.path.join(ROOT, "ocaml", "_build", "default", "bin", "pli80c.exe")
+            return divergence_remeasure(divergence_load(), _exe, only=a.update_divergent)
         if inv_errs:
             for e in inv_errs:
                 print("e2e gate: INVENTORY: %s" % e)

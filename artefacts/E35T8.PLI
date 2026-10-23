@@ -1,0 +1,12 @@
+e35t8: procedure options(main);
+   declare p pointer;
+   declare 1 nd based,
+   2 w character(20) varying,
+   2 a pointer,
+   2 b pointer;
+   allocate nd set(p);
+   p->a = null;
+   p->b = null;
+  stop;
+end e35t8;
+

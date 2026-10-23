@@ -1,0 +1,15 @@
+e35w5: procedure options(main);
+   declare p pointer, q fixed, n fixed;
+   declare 1 nd based,
+   2 w character(20) varying,
+   2 v fixed,
+   2 a pointer;
+   allocate nd set(p);
+   p->v = 32767;
+   n = 0;
+loop: n = n + 1;
+   p->a = null;
+   if n < 2 then go to loop;
+  stop;
+end e35w5;
+

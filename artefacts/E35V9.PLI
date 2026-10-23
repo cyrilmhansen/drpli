@@ -1,0 +1,12 @@
+e35v9: procedure options(main);
+   declare p pointer, q fixed;
+   declare 1 nd based,
+   2 tiny pointer,
+   2 w character(20) varying,
+   2 v fixed;
+   allocate nd set(p);
+   p->v = 32767;
+   p->tiny = null;
+  stop;
+end e35v9;
+

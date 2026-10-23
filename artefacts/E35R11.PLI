@@ -1,0 +1,11 @@
+e35r11: procedure options(main);
+   declare p pointer;
+   declare 1 nd based,
+   2 v fixed,
+   2 link pointer;
+   allocate nd set(p);
+   p->v = 5;
+   p->link = null;
+  stop;
+end e35r11;
+

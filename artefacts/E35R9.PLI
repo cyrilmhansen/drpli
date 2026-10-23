@@ -1,0 +1,11 @@
+e35r9: procedure options(main);
+   declare p pointer;
+   declare 1 nd based,
+   2 a pointer,
+   2 v fixed;
+   allocate nd set(p);
+   p->v = 32767;
+   p->a = null;
+  stop;
+end e35r9;
+

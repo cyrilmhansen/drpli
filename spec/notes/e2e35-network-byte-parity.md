@@ -117,3 +117,74 @@ Tooling lesson kept because it nearly produced a false report: `tr -d '\x1a'` (G
 escapes) deletes the characters `\`, `x`, `1`, `a`.  Displaying a probe with it made intact files
 read as corrupt (`declare` -> `declre`, `n = 1` -> `n = ;`).  Verified with python before
 repeating the claim; display commands that touch evidence get checked like everything else.
+
+## P2 -- DE-register tracking, and NETWORK's +7 bytes (closed to one record)
+
+P0 had located NETWORK's excess at code 019C (line 105 `p->route_head = null;') and P1 was unrelated.
+P2 asks the question [C189] left open: my `member_step' always materialized the offset with the
+three-byte `LXI D,<off>', while DR sometimes emits no load, `INX D', `MVI E,<lo>' or `LXI D'.  The
+answer was not a cost model -- it is a register fact DR carries across statements [C219].
+
+### How the rule was found, in the order it was found
+
+1. **One offset, three encodings.**  E35R1/R2/R3 use the SAME record, SAME member, SAME offset 21, and
+   differ only in what preceded the store: after `x = p->f;' (which ends in `LXI D,0015') DR emits no
+   load; after `p->f = 300;' DR emits `MVI E,15'; after `LHLD p' alone, `LXI D,0015'.  A shape table
+   cannot express that; a register tracker can.
+2. **Which loads qualify.**  E35R5-R12: `LHLD + LXI D' qualifies, `PUSH H / LHLD / POP D' does not
+   (`POP D' overwrites DE), `LHLD / DAD D / ... / XCHG' does not (`XCHG' moved DE into HL).
+3. **What kills the knowledge.**  E35T3 (any CALL -- DR reloads), E35T4 (`MVI E,x' -- DR reloads even
+   though the value is exactly right), E35T6 (a `POP D' at the tail of a varying store), E35T8
+   (`XCHG').  E35T5/T7 pin the zero rule as needing D == 00, not "DE known".
+4. **The ladder's boundaries.**  E35V1 vs E35V2: offset 3 goes `INX H / INX H / INX H' even though DE
+   holds 2 and one `INX D' would do -- so the small-offset route is taken FIRST, independently of DE;
+   E35V3 vs E35V4 vs E35V5 pin the crossover at 4 (`DAD D') and the `MVI E' window at 255/256/257.
+5. **The two things I had to be told by .REL bytes, not by reasoning.**  `MOV L,D' is 0x6A and my
+   first build said 0x65 (= `MOV H,L') [C222]; and the zero rule had to be installed in TWO encoders,
+   because `hl_const' [E2E-23/P3] carries its own literal-to-HL fallback -- E35W3 (pointer) passed
+   while E35W5 (fixed auto) failed, which is [C202] recurring inside one episode [C221].
+6. **Branch targets, from two directions.**  E35W5 (explicit label) and NETWORK itself (implicit loop
+   head at code 0368, where DR's own two `INX D' at 0363/0364 prove the tracker was alive immediately
+   before and dead immediately inside) [C220].  Six loop heads plus `label_def' now call `kill_de'.
+
+### The incident that nearly cost the episode
+
+After implementing the ladder I read E35V9 (a `p->link = null;' store following a `MVI M,01') as a
+contradiction: my probe goldens showed DR choosing `LXI H,0000' where the P1 E35N1 golden showed
+`MOV H,D', in the same frame.  Both readings were wrong twice over.  `DR 0x1A' in the probe comparison
+was `CD' -- the CALL of the NEXT instruction, because a RELOC item occupies two code bytes and prints
+no DATA rows, so a sparse address map silently misaligns every index after the first reloc; and the
+"counter-evidence" golden `golden/e2e3257a2d/E35N1.REL' belongs to a DIFFERENT program whose name
+collided after CP/M's 8-character truncation -- the E35N1 source registered as a specimen is
+`artefacts/E35N1.PLI' and it is byte-exact [golden/e35n/E35N1].  Checking `spec/INVENTORY.txt` before
+citing a key, which [C193] already requires, is what ended the detour.
+
+### Result
+
+NETWORK: code section 1463 -> **1456 = DR's `CODE SIZE = 05B0' exactly**, data 235/235 unchanged,
+first divergence moved from code 019C to 0266 (202 code bytes newly identical), and the residual is
+one REL record: DR chains a backward pad reference with `LINK-CHAIN-ADDR code 0266', I resolve it with
+an inline `RELOC code 0xAB' [C225].  E30G1 560 -> 554 (DR 553), E30L2 154 -> 153, E30L3 309 -> 306,
+and E30B2/O1/O2/O4 reached parity and became specimens.  Gate: **884 byte-exact / 0 fail, 119/119
+negatives, 13/13 divergences, 14/14 runtime, exit 0** (`/tmp/e35/gate_p2c.log`).  PB4 (114 vs 118),
+E27S2 (99 vs 100) and E28N7 did not move: those are the rows whose cause is genuinely HL-side.
+
+### An audit item the new tracker created
+
+Because DE reuse depends on knowing where each instruction ends, the pre-existing operand-length
+table `inst_operands' became load-bearing in a way it had not been.  It had no entry for JNZ (its
+two address bytes were therefore decoded as opcodes, and a 0x11 in an address would have been
+decoded as `LXI D' and trusted as a value), and it gave the one-byte conditional returns 0xD0/0xD8/
+0xE8/0xE0/0xF0/0xF8 two operands each.  Rewritten as the 8080 encoding classes; the 883 specimens then in the panel and
+37 probes byte-exact before and after, so the panel contains no case where the mis-decode changed a
+byte -- [C226].
+
+### P3, from here
+
+1. Probe the pad-reference rule (does DR chain EVERY pad reference, including backward ones, and plain
+   backward GOTOs into padded labels?) and, if it holds, emit the chain record instead of resolving.
+   NETWORK's remaining 1608 differing file bytes are expected to collapse to zero on that one record.
+2. Then re-measure the residual HL-side rows with the same discipline: which instruction, which
+   statement, which golden -- [C140] requires one cause per row before any of them is called a family.
+3. HL/DE liveness in the loops that remain (PB4, E27S2) is NOT the same obstacle as [C219] and should
+   not be attempted with [C219]'s machinery.

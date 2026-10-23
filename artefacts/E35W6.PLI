@@ -1,0 +1,13 @@
+e35w6: procedure options(main);
+   declare p pointer, q fixed, n fixed;
+   declare 1 nd based,
+   2 w character(20) varying,
+   2 a fixed,
+   2 f bit(1),
+   2 b fixed;
+   allocate nd set(p);
+   p->b = 32767;
+   p->f = '1'b;
+  stop;
+end e35w6;
+
