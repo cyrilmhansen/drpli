@@ -1,0 +1,13 @@
+t7: procedure options(main);
+  declare p pointer, t pointer;
+  declare 1 cn based, 2 name character(6) varying, 2 flag bit, 2 nxt pointer;
+  allocate cn set (t);
+  p = t;
+  p->flag = true;
+  if p->flag then
+     put list('set');
+  p->flag = false;
+  put list('done');
+  stop;
+end t7;
+

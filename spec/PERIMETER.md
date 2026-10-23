@@ -172,8 +172,8 @@ the program itself is still refused, at `find(..) returns(POINTER)`. Newly insid
   (`MVI A,dest-cap / MVI B,src-len / ?SMCVM`, E30T1). [C190]
 
 Still [S]-known-but-open, and now the *specific* reason NETWORK does not compile: **`returns(POINTER)`**
-(first blocker, E30F1; DR emits `LHLD P / RET`), **named-SYSIN `ON ENDFILE`/`REVERT`** (`?ONCOP`/`?REVOP`
-with `LXI H,SYSIN` + `MVI A,05`; E30E2/E30E3), member-vs-member and chained **relational conditions**
+(first blocker, E30F1; DR emits `LHLD P / RET`), **named-SYSIN `ON ENDFILE`/`REVERT`** (`?ONCOP` at 0027/025A/02A4,
+`?REVOP` at 02F8, all `LXI H,SYSIN` + `MVI A,05`; E30E2/E30E3), member-vs-member and chained **relational conditions**
 (E30C3/E30B4), and `GO TO <label>`. The **register-reuse peephole** grew to 14 divergence rows
 (PB4/PB20/E27S2/E28N7/O1/O2/O4/E29X3 + **E30L1-L4, E30B2, E30G1**): every pointer-walking loop we emit
 carries one or two reloads DR elides, so the traversal is behaviourally right (E30G1's linked output is

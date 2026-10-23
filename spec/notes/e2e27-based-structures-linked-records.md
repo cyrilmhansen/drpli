@@ -248,8 +248,8 @@ recorded**, exit 0. ARCH-1 md5 verified unchanged after the build.
   > `repeat(<qualified store>) while(<cond>)` is lowered in DR's exact pre-test order [C196]; chained
   > qualification into a varying member is byte-exact [C197]; bare `null` as a value was closed by
   > E2E-29 [C191].  What E2E-27 listed *last* (`%replace`, a comment) is inert, and what it did not
-  > list at all turns out to be the real gate: `find(..) returns(POINTER)` (line 91) is NETWORK's
-  > first blocker today, followed by named-SYSIN `ON ENDFILE`/`REVERT` (lines 50, 228).  So E2E-27's
+  > list at all turns out to be the real gate: `find(..) returns(POINTER)` (line 90) is NETWORK's
+  > first blocker today, followed by named-SYSIN `ON ENDFILE` (lines 50, 140, 145) / `REVERT` (line 151).  So E2E-27's
   > "blockers" for NETWORK were mostly absence of samples rather than absence of lowering, and the two
   > constructs that actually stop the program are neither of the two E2E-27 blamed (BIT, traversal).
   > Full dependency matrix in spec/notes/e2e30-network-graph-integration.md.

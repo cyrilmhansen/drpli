@@ -2673,15 +2673,15 @@ add_spec('REVERSE', ('artefacts/REVERSE.PLI', 'golden/e2e319d/REVERSE/REVERSE.RE
 # not some earlier generation.  The listing reports NO ERROR(S) in both passes, CODE SIZE 05B0h and
 # DATA AREA 00EBh; both figures are read back out of the binary itself (201 code records ending at
 # 05B0, LINK-DEF-DATA-SIZE = 00EB), not taken on trust.  The historical PRN carries no disassembly
-# (switches L,D only), so a SECOND compile with '$L$D$C$S' [golden/e30net_c, 718 instruction lines]
+# (switches L,D only), so a SECOND compile with '$L$D$C$S' [golden/e30net_c, 679 insruction lines]
 # is the instruction-level oracle used throughout -- DR's own bytes, not a re-decoding of the .REL
 # [E2E-23: a mis-decoded listing is not evidence].
 #
 # THE BIT(1) MEMBER ABI [C195].  A based bit is one byte reached by the SAME member_step encoder as
 # every other member (bmem_addr is now shared, so `w' and `p->w' and bit and varying cannot drift
 # [C179/C189]); true is bit 7, 0x80, exactly as in the scalar cell [E2E-11 step 1a].
-#   store  LHLD <p> / [step] / MVI M,80  (true)  |  MVI M,00  (false)   [NETWORK 0360, 03D1]
-#   test   LHLD <p> / [step] / MOV A,M / ORA A / JP <skip>              [NETWORK 0382]
+#   store  LHLD <p> / [step] / MVI M,80  (true)  |  MVI M,00  (false)   [NETWORK 0366, 03D1]
+#   test   LHLD <p> / [step] / MOV A,M / ORA A / JP <skip>              [NETWORK 038B]
 # DR's NETWORK puts `.investigate' at record offset 0017 = the 21-byte cap-20 varying cell + 2 for
 # total_distance -- contiguous, no padding, the C185 rule again -- in a 001C-byte record.  Byte-exact
 # here: E30B1 (bit@0, store then both test outcomes), E30B5 (bit(1) in a DO WHILE), E30B7 (bit@2
@@ -2690,8 +2690,11 @@ add_spec('REVERSE', ('artefacts/REVERSE.PLI', 'golden/e2e319d/REVERSE/REVERSE.RE
 # comparison bytes for a bit member are not in any sample.
 #
 # THE PRE-TEST POINTER TRAVERSAL [C196].  `do p = <init> repeat(p-><link>) while(p ^= null); BODY
-# end;' is NETWORK's loop, six times over (find@013A, print_all@01B3 and @01EE, shortest_distance
-# @031B and @0382, free_all@056B) and my E30L1-L5 probes.  Measured byte order:
+# end;' is NETWORK's loop, EIGHT times over (source lines 96, 119, 122, 173, 184, 198, 256, 258).
+#  DR emits nine LHLD/MOV A,H/ORA L/JZ top tests, listed against lines 95(013A), 118(01B3),
+#   121(01EE), 172(031B), 183(037A), 197(03E7), 233(04D9), 255(0563), 257(0579): the eight
+#   traversals plus line 233's plain `do while(q^=null)', which DR ALSO tests at the top, while
+#   `do while(true)' (lines 31, 54, 141, 146, 180, 222) emits no test at all.
 #   init-assign  <p = from>          LHLD <from> / SHLD P            (an ordinary pointer store)
 #   TEST (head)  p ^= null           LHLD P / MOV A,H / ORA L / JZ <exit>
 #   BODY
@@ -2754,8 +2757,10 @@ add_spec('E27S6', ('artefacts/ST6.PLI', 'golden/e2e323d/ST6/ST6.REL'))
 #
 # E30B2 and E30L2/L3/L4 are the same family (all data areas EXACT, mine larger, divergence inside
 # read/write sequences where DR reuses DE or HL across a member access): pinned, not fitted [C141].
-# E30L5 (`do ... while(cond) BODY end;', test AFTER the body) stays REFUSED -- DR's post-test
-# ordering is not sampled.
+# E30L5 stays REFUSED, but NOT for the reason first written here: it is the same pre-test
+# traversal with `if n > 3 then p = null;' in the body, and it refuses because assigning a BARE
+# `null' to a POINTER cell is unsampled -- which is also NETWORK line 239 (`q = null;').  It is a
+# value-lowering gap, not a loop-orientation gap.
 #
 add_spec('E30C1', ('artefacts/E30C1.PLI', 'golden/e30p1/E30C1/E30C1.REL'))
 
