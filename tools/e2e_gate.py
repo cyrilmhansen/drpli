@@ -3148,6 +3148,110 @@ def inventory_check(path, rows, write=False):
     return errs
 
 
+# =====================================================================================
+# [E2E-32/P3] INDEPENDENT-EXPECTATION RUNTIME PANEL  (opt-in: --runtime)
+#
+# This is deliberately NOT a second test framework.  It reuses compile_one, so the object
+# it executes is the SAME bytes the byte-parity arm compares, and oracle/linkrun.py, the
+# same link + cpmsim path the --link-run arm already uses.
+#
+# Why it exists: the positive panel proves REL identity against DR, and the divergence
+# panel documents shape differences -- neither one proves a program prints the right
+# NUMBER.  Both wrong-value families of this milestone were invisible to 759 byte-exact
+# specimens [C137][C200], and they were caught only by executing.  This pins the
+# expectations so a future change cannot silently re-break them.
+#
+# The three claims stay separate and the panel says which one did the work [C205]:
+#   byte parity vs DR         -- the main panel, cmp on .REL
+#   independent arithmetic    -- THIS panel
+#   running a byte-identical  -- adds nothing about MY code; for such a row the run
+#   image                       validates the expectation and DR's oracle together
+# Rows whose .REL is shape-divergent (E32B3, PB4) are the non-circular ones, and their
+# note field records that.
+RUNTIME_FILE = os.path.join(ROOT, "spec", "RUNTIME.txt")
+RUNTIME_FIELDS = ("name", "kind", "golden", "mine", "expected", "exit", "source", "note")
+
+
+def runtime_load(path=RUNTIME_FILE):
+    rows = []
+    with open(path) as f:
+        for line in f:
+            line = line.rstrip("\n")
+            if not line or line.startswith("name\t"):
+                continue
+            p = line.split("\t")
+            if len(p) != len(RUNTIME_FIELDS):
+                raise ValueError("RUNTIME.txt malformed row: %r" % line[:40])
+            rows.append(dict(zip(RUNTIME_FIELDS, p)))
+    names = [r["name"] for r in rows]
+    if len(names) != len(set(names)):
+        raise ValueError("RUNTIME.txt duplicate name -- a dict overwrite would hide it [C158]")
+    return rows
+
+
+def runtime_check(rows, verbose=True):
+    """Link and execute each row's object; return a list of failure strings."""
+    import re as _re
+    fails = []
+    for r in rows:
+        name = r["name"]
+        src = r["source"] if os.path.exists(os.path.join(ROOT, r["source"])) \
+            else (SPECIMENS.get(name, (None, None))[0] or r["source"])
+        rel, rc, err = compile_one(name, src)
+        if rc != 0:
+            fails.append("RUNTIME %s: build refused (rc=%d) -- a runtime row must not "
+                         "silently degrade into a refusal: %s"
+                         % (name, rc, (err or "").strip().splitlines()[-1:][0][:70] if err else ""))
+            continue
+        golden = os.path.join(ROOT, r["golden"])
+        if not os.path.exists(golden):
+            fails.append("RUNTIME %s: golden %s missing" % (name, r["golden"]))
+            continue
+        exact = open(rel, "rb").read() == open(golden, "rb").read()
+        tag = "e32rt_%s" % name
+        d = os.path.join(ROOT, "golden", tag, name)
+        os.makedirs(d, exist_ok=True)
+        shutil.copy(rel, os.path.join(d, name + ".REL"))
+        prn = os.path.splitext(r["golden"])[0] + ".PRN"
+        if not os.path.exists(os.path.join(ROOT, prn)):
+            fails.append("RUNTIME %s: no PRN at %s (external refs cannot resolve)" % (name, prn))
+            continue
+        shutil.copy(os.path.join(ROOT, prn), os.path.join(d, name + ".PRN"))
+        lr = subprocess.run([sys.executable, os.path.join(ROOT, "oracle", "linkrun.py"),
+                             "link", "--tag", tag, "--names", name, "--out", tag, "--reuse"],
+                            capture_output=True, text=True, cwd=ROOT)
+        com = os.path.join(ROOT, "golden", tag, name + ".COM")
+        if lr.returncode != 0 or not os.path.exists(com):
+            fails.append("RUNTIME %s: LINK failed rc=%d -- a .COM appearing is not the test "
+                         "[C137]: %s" % (name, lr.returncode, (lr.stdout or "")[-80:]))
+            continue
+        rr = subprocess.run([sys.executable, os.path.join(ROOT, "oracle", "linkrun.py"),
+                             "run", "--tag", tag, "--out", tag, "--names", name, "--reuse"],
+                            capture_output=True, text=True, cwd=ROOT)
+        op = os.path.join(ROOT, "golden", tag, name + ".output.txt")
+        if not os.path.exists(op):
+            fails.append("RUNTIME %s: no console output file (run rc=%d)" % (name, rr.returncode))
+            continue
+        raw = open(op, "rb").read()
+        if b"timeout-or-hang" in (rr.stdout or "").encode() or "timeout" in (rr.stdout or ""):
+            fails.append("RUNTIME %s: did not terminate -- execution must be observed to END "
+                         "[C205]" % name)
+            continue
+        # raw console bytes are preserved; only CRLF->LF and PL/I edit-strip padding are
+        # normalised, because `put list' pads numerics with spaces.
+        norm = _re.sub(r" +", " ", raw.replace(b"\r\n", b"\n").decode("ascii", "replace"))
+        missing = [e for e in r["expected"].split("|") if e not in norm]
+        if missing:
+            fails.append("RUNTIME %s: expected %s, got %r  [%s]"
+                         % (name, missing, norm[:60], "byte-exact image" if exact else "shape-divergent"))
+        elif verbose:
+            print("  runtime %-8s OK  %-34s  [%s]"
+                  % (name, norm.strip()[:34].replace("\n", " "),
+                     "byte-exact image: run validates expectation+oracle, not my lowering"
+                     if exact else "NON-CIRCULAR: images differ, this run is evidence about mine"))
+    return fails
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--link-run", action="store_true")
@@ -3158,6 +3262,9 @@ def main():
     ap.add_argument("--update-inventory", action="store_true",
                     help="rewrite spec/INVENTORY.txt from the live panel, then exit -- the "
                          "only sanctioned way to add/retire/repoint a specimen [E2E-16/P3]")
+    ap.add_argument("--runtime", action="store_true",
+                    help="[E2E-32/P3] link and execute the spec/RUNTIME.txt panel and check "
+                         "independently derived expectations (slow; opt-in)")
     ap.add_argument("--only", nargs="*", metavar="NAME",
                     help="restrict the --link-run arm to these specimens "
                          "(byte-parity compile still runs for all)")
@@ -3271,6 +3378,21 @@ def main():
         return 1
     print("e2e gate: divergence panel %d/%d as recorded (compiles, differs, shape pinned)"
           % (len(_dv), len(_dv)))
+    # [E2E-32/P3] independent-expectation runtime arm (opt-in).  Runs after the byte and
+    # divergence panels so a byte regression is reported first, and can fail the gate alone.
+    if a.runtime:
+        _rt = runtime_load()
+        print("e2e gate: runtime panel (%d rows; the object executed is the one the byte "
+              "check compares)" % len(_rt))
+        _rtf = runtime_check(_rt)
+        for _x in _rtf:
+            print("e2e gate: %s" % _x)
+        if _rtf:
+            print("e2e gate: RUNTIME PANEL %d fail of %d" % (len(_rtf), len(_rt)))
+            return 1
+        print("e2e gate: runtime panel %d/%d as recorded (expectation + termination)"
+              % (len(_rt), len(_rt)))
+
     return 1 if bad else 0
 
 

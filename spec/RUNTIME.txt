@@ -1,0 +1,13 @@
+name	kind	golden_rel	mine_rel	expected	exit	source	note
+E32B1	independent	golden/e32b/E32B1/E32B1.REL	<built>	a= 12|b= 10|c= 14	ok	artefacts/E32B1.PLI	Family-B matrix: deref+plain, deref+literal, deref+deref, all in one probe.
+E32B2	independent	golden/e32b/E32B2/E32B2.REL	<built>	a= 10|b= 2|c= -2	ok	artefacts/E32B2.PLI	Two different pointers; the two SUBS are the non-commutative orientation pair.
+E32B4	independent	golden/e32b/E32B4/E32B4.REL	<built>	a= 4|b= -4|c= 16	ok	artefacts/E32B4.PLI	Plain-left minus deref-right, deref-left minus plain-right, plain plus deref.
+E32C2	independent	golden/e32c/E32C2/E32C2.REL	<built>	a= 1|b= 2	ok	artefacts/E32C2.PLI	Family-C: formal = literal, BOTH branch outcomes visible separately.
+E32C4	independent	golden/e32c/E32C4/E32C4.REL	<built>	a= 1|b= 2	ok	artefacts/E32C4.PLI	Family-C: formal = local, deref on the FIRST operand (the shape cmp_pair refused).
+E32C5	independent	golden/e32c/E32C5/E32C5.REL	<built>	a= 1|b= 2	ok	artefacts/E32C5.PLI	Family-C: local = formal, deref on the SECOND operand.
+E32C8	independent	golden/e32c/E32C8/E32C8.REL	<built>	gt= 1|lt= 4|eq= 8	ok	artefacts/E32C8.PLI	Ordered relations on a formal; three outcomes, so a fixed-branch bug cannot hide.
+E32C1	independent	golden/e32c/E32C1/E32C1.REL	<built>	w= 2	ok	artefacts/E32C1.PLI	LOCAL-ONLY CONTROL: if this value moves, the formal fix was applied too broadly.
+PB20	independent	golden/e2e315d/PB20/PB20.REL	<built>	q= 6|end	ok	artefacts/PB20.PLI	Was 6947: the address of z added instead of the left value.
+E31F7C	independent	golden/e31p5/E31F7C/E31F7C.REL	<built>	sum= 6	ok	artefacts/E31F7C.PLI	NETWORK's own accumulation inside a pre-test traversal; was 7768.
+E32B3	independent	golden/e32b/E32B3/E32B3.REL	<built>	a= 11|b= 22|c= 15	ok	artefacts/E32B3.PLI	SHAPE-DIVERGENT (mine 162 code vs DR 160), so this run is NON-CIRCULAR evidence.
+PB4	independent	golden/e2e311d/PB4/PB4.REL	<built>	q= 44|end	ok	artefacts/PB4.PLI	SHAPE-DIVERGENT, value correct. Do NOT read as proof that based comparisons work: mine tests the biased address and any 0x1Bxx address is > 3.
