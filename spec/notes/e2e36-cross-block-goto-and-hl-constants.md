@@ -114,6 +114,30 @@ which is the same "it is the register, not the variable" fact the DE tracker's V
   byte DR adds that I cannot find".  Reproduced as DR's, recorded as a DR defect [C236]; no runtime
   row claims it, because ST2 never dereferences `nx`.
 
+## P6 — the historical corpus, re-swept with this build
+
+`golden/first8080u/<NAME>/<NAME>.REL` paired with `artefacts/<NAME>.PLI`: **44 pairs, 15 byte-exact,
+0 divergent, 29 refusals.**  The E2E-35/P3 baseline was 41 pairs / 15 / 0 / 26 [C230]; the pair count
+grew because three more corpus sources are now in `artefacts/`, and the exact set is *identical*
+(A, DECPOLY, DEMO, DFACT, DTEST, FDTEST, FFACT, FLTPOLY, FLTPOLY2, IFACT, LOAN1, NETWORK, REVERSE,
+RFACT, TEST).  That is the check this commit needed: the survey rewrite and the HL kill set both sit
+in code shared by every program, and the corpus contains no cross-block transfer at all, so the
+correct result is "nothing moved" — a byte-exact count that stays put and a divergence count that
+stays at zero.  The top refusal reasons are unchanged too (array element width, `BASED` on a
+non-bare operand, `STATIC` on character, multi-dimensional arrays, `ON ERROR`, long FILE names).
+
+## Harness caveat, because it changed how I read one number
+
+The throwaway driver I used for the probe-by-probe diagnosis (`/tmp/e36/check.py`) invoked the
+compiler with `--layout v7 --org 0x100 --rel OUT IN`; the CLI in this tree takes
+`pli80c [-d] INPUT.PLI OUTPUT.REL` and rejects that form with a usage error and rc=2.  Its outputs
+moved in response to each codegen edit, which is what a fresh compile looks like, and every
+conclusion I drew from it was re-verified through `tools/e2e_gate.py --update-divergent` and the
+committed panel (each closed divergence became a byte-exact specimen compiled by the gate itself).
+So the substance survived; the lesson is the [C224] one again — an ad-hoc harness that nobody else
+can re-run is not evidence, and the corpus sweep above was deliberately written against the gate's
+own `compile_one` argv so it can be.
+
 ## Panel state and what is still open
 
 - Promoted to specimens: E35X5, E35Y3, E35Y4 (refusals in E2E-35/P3), E36T2-T8, T11-T14, E35X1/X2/X4/Y1/Y2,
