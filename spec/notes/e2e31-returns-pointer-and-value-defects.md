@@ -65,7 +65,10 @@ Seven probes, DR goldens captured **first** (`golden/e31p2`, `e31p3`, `e31p5`). 
 
 The result travels **in HL**; there is no slot write for it. The `CALL` half is the ordinary
 function-call lowering already pinned by 26 byte-exact FIXED-return specimens, so admitting `RTptr`
-adds no second calling convention [C179]. **Byte-exact: E31F1, E31F3, E31F6.**
+adds no second calling convention [C179]. **Byte-exact: E31F1, E31F3, E31F6.**  A runtime witness of the return path itself is
+structurally unavailable: those three are byte-exact, so linking them would compare an image against
+itself [C137].  The only non-circular pointer-return probe, E31F5, is contaminated by Family C -- see
+"The one non-circular RETURNS(POINTER) witness" below.
 
 **NETWORK's first blocker moved from line 90 to line 50** — `returns(POINTER)` is genuinely cleared
 (it was a prescan-time check, so it would still fire if it applied).
@@ -123,6 +126,31 @@ no earlier probe ever compared a formal parameter.
 and I have no evidence about whether the 756 accepted specimens exercise that path; guessing would be
 the trade C179 forbids. Fixing Family B needs to explain why PB4 is right while PB20/E31F4/E31F7C are
 not — one probe per direction, not one rule from one direction [C167].
+
+### The one non-circular RETURNS(POINTER) witness, and why it does NOT clear the return path
+
+E31F5 is the only pointer-returning probe that both (a) round-trips a result through caller and callee
+and (b) links to an image that differs from DR's, so it is the only candidate for non-circular ABI
+evidence.  Independent expectation: `srch(3)` should set `p->v = 100 + 3` on the third iteration, so
+`got=103`.
+
+| | DR `.COM` | mine `.COM` | images | DR output | mine output |
+|---|---|---|---|---|---|
+| E31F5 | 7040 | 7040 | **differ** | `got=  103` ✓ | `got=   10` ✗ |
+
+The pointer *did* come back and *was* dereferenced -- mine printed a small plausible integer read from
+a real node rather than garbage -- but 10 is not 103 and not 101 either, and E31F5 simultaneously
+carries the Family-C condition defect (`if i = m` tested against the caller's address) and a
+based-member read.  So this witness **cannot be attributed to the return path**, and per [C140] a
+divergence must be attributed to one cause before it is cited as evidence for another.  What actually
+establishes RETURNS(POINTER) is byte-exactness on E31F1/E31F3/E31F6 [C199]; a runtime check of those
+would be circular by construction, since their `.REL` matches DR's.
+
+This is worth stating plainly because it is a structural limit of the method, not an oversight: for
+any feature whose lowering is already byte-exact, execution adds nothing, and for any feature where
+execution would add something, some *other* defect is usually also in play.  The way round it is what
+happened here -- build the witness anyway, and let it expose the other defect (E31F4/E31F7C/E31F8 all
+came out of probes aimed at the return ABI).
 
 ### Why these runtime comparisons count (the C193 check)
 

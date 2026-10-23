@@ -1,0 +1,156 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E31F5
+
+C: Code Trace Only
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 NULL BUILTIN CONSTANT
+a 0000 F5 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 2, AUTO STORAGE 4 BYTES
+c 0000 T POINTER AUTOMATIC
+c 0002 N FIXED BINARY(15,0) AUTOMATIC
+c 0000 ND STRUCTURE LEVEL 1, MEMBERS 2 BASED()
+c 0000 .V FIXED BINARY(15,0) MEMBER
+c 0002 .NX POINTER MEMBER
+c 0000 SRCH FUNCTION PARAMETERS(1) CONSTANT
+c 0000 .* POINTER RETURNED
+c 0002 .* FIXED BINARY(15,0) PARAMETER
+BLOCK AT LINE 9, AUTO STORAGE 6 BYTES, PARAMETERS M
+e 0000 M FIXED BINARY(15,0) PARAMETER
+e 0002 P POINTER AUTOMATIC
+e 0004 I FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E31F5
+
+   1 a 0000 f5: procedure options(main);
+       0000       LXI  B,0200
+       0003       CALL ?START
+   2 c 0006   declare t pointer, n fixed;
+   3 c 0006   declare 1 nd based, 2 v fixed, 2 nx pointer;
+   4 c 0006   n = 3;
+       0006       LXI  H,0003
+       0009       SHLD N A(0006)
+   5 c 000C   t = srch(n);
+       000C       LXI  H,* A(0008)
+       000F       CALL 0000
+       0012       SHLD T A(0004)
+   6 c 0015   put list('got=', t->v);
+       0015       LXI  D,0252
+       0018       LXI  B,0000
+       001B       CALL ?SYSPR
+       001E       LXI  H,* S(0000)
+       0021       MVI  A,04
+       0023       CALL ?SLCTS
+       0026       CALL ?PNCOP
+       0029       LHLD T A(0004)
+       002C       MOV  E,M
+       002D       INX  H
+       002E       MOV  D,M
+       002F       XCHG 
+       0030       MVI  A,09
+       0032       CALL ?QICOP
+       0035       CALL ?PNVOP
+       0038       CALL ?QIOOP
+       0019       ==== 003B
+   7 c 003B   stop;
+       003B       CALL ?STOPX
+   8 c 003E   srch: procedure(m) returns(pointer);
+   9 e 003E   declare m fixed;
+       003E       MOV  E,M
+       003F       INX  H
+       0040       MOV  D,M
+       0041       XCHG 
+       0042       SHLD M A(000A)
+  10 e 0045   declare p pointer, i fixed;
+  11 e 0045   i = 0;
+       0045       LXI  H,0000
+       0048       SHLD I A(000E)
+  12 e 004B   do while('1'b);
+  13 e 004B      i = i + 1;
+       004B       LHLD I A(000E)
+       004E       INX  H
+       004F       SHLD I A(000E)
+  14 e 0052      allocate nd set(p);
+       0052       LXI  H,0004
+       0055       CALL ?ALLOP
+       0058       SHLD P A(000C)
+  15 e 005B      p->v = i;
+       005B       LHLD I A(000E)
+       005E       PUSH H
+       005F       LHLD P A(000C)
+       0062       POP  D
+       0063       MOV  M,E
+       0064       INX  H
+       0065       MOV  M,D
+  16 e 0066      p->nx = null;
+       0066       LXI  H,0000
+       0069       PUSH H
+       006A       LHLD P A(000C)
+       006D       INX  H
+       006E       INX  H
+       006F       POP  D
+       0070       MOV  M,E
+       0071       INX  H
+       0072       MOV  M,D
+  17 e 0073      if i = m then do;
+       0073       LHLD I A(000E)
+       0076       PUSH H
+       0077       LHLD M A(000A)
+       007A       MOV  E,M
+       007B       INX  H
+       007C       MOV  D,M
+       007D       XCHG 
+       007E       POP  D
+       007F       CALL ?IS22N
+       0082       MOV  A,H
+       0083       ORA  L
+       0084       JNZ  0000
+  18 e 0087         p->v = 100 + i;
+       0087       LHLD I A(000E)
+       008A       LXI  B,0064
+       008D       DAD  B
+       008E       PUSH H
+       008F       LHLD P A(000C)
+       0092       POP  D
+       0093       MOV  M,E
+       0094       INX  H
+       0095       MOV  M,D
+  19 e 0096         return(p);
+       0096       LHLD P A(000C)
+       0099       RET  
+       0085       ==== 009A
+  20 e 009A      end;
+  21 e 009A      if i > 9 then return(p);
+       009A       LHLD I A(000E)
+       009D       LXI  B,FFF6
+       00A0       DAD  B
+       00A1       MOV  A,H
+       00A2       ORA  A
+       00A3       JM   0000
+       00A6       LHLD P A(000C)
+       00A9       RET  
+       00A4       ==== 00AA
+       00AA       JMP  004B
+  22 e 00AD   end;
+  23 c 00AD   end srch;
+  24 a 00AD end f5;
+
+CODE SIZE = 00AD
+DATA AREA = 0010
+FREE SYMS = 37F0
+END  COMPILATION
+
