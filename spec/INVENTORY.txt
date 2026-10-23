@@ -243,6 +243,7 @@ E32C7	specimen	artefacts/E32C7.PLI	golden/e32c/E32C7/E32C7.REL
 E32C8	specimen	artefacts/E32C8.PLI	golden/e32c/E32C8/E32C8.REL
 E32C9	specimen	artefacts/E32C9.PLI	golden/e32c/E32C9/E32C9.REL
 E32E1	specimen	artefacts/E32E1.PLI	golden/e32e/E32E1/E32E1.REL
+E32E2	specimen	artefacts/E32E2.PLI	golden/e32e/E32E2/E32E2.REL
 E33M3	specimen	artefacts/E33M3.PLI	golden/e33m/E33M3/E33M3.REL
 E33MD	specimen	artefacts/E33MD.PLI	golden/e33m/E33MD/E33MD.REL
 E33ML	specimen	artefacts/E33ML.PLI	golden/e33m/E33ML/E33ML.REL
@@ -305,6 +306,8 @@ E34G6	specimen	artefacts/E34G6.PLI	golden/e34g/E34G6/E34G6.REL
 E34G7	specimen	artefacts/E34G7.PLI	golden/e34g/E34G7/E34G7.REL
 E34G8	specimen	artefacts/E34G8.PLI	golden/e34g/E34G8/E34G8.REL
 E34G9	specimen	artefacts/E34G9.PLI	golden/e34g/E34G9/E34G9.REL
+E35N1	specimen	artefacts/E35N1.PLI	golden/e35n/E35N1/E35N1.REL
+E35N2	specimen	artefacts/E35N2.PLI	golden/e35n/E35N2/E35N2.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

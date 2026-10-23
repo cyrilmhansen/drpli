@@ -1,0 +1,15 @@
+e35n2: procedure options(main);
+  declare sysin file, n fixed;
+  n = 0;
+  on endfile(sysin) goto h;
+  goto a;
+a: n = n + 1;
+  goto b;
+b: n = n + 2;
+  revert endfile(sysin);
+  goto h;
+h: n = n + 4;
+  put list('n=', n);
+  stop;
+end e35n2;
+

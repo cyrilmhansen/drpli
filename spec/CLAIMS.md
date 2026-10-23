@@ -4026,3 +4026,57 @@ rather than writing a second copy.  E34G3 (`hp->vn = jq->vn', a member source wr
 explicit qualifier) stays a registered refusal: store_vbvar's member-source branch keys on the
 bare `w' spelling V7 uses, DR's frame for the qualified one is visible in that golden, and the
 one thing no probe shows is a source and destination in records of DIFFERENT types.
+
+C217. [E2E-35/P0] A "code size" must be LINK-DEF-CODE-SIZE, and the divergence panel had been
+quoting something else for two episodes.  `tools/e2e_gate.py::_rel_stats` computed code size as
+`len(re.findall("DATA\s+code", reldump_output))' -- a count of the DATA items reldump prints.
+DR's .REL is a bit stream: a clear bit introduces one data byte at the current (segment, logical
+address), while a RELOC item advances that address by TWO and contributes no item, and a
+CHAIN-EXT fixes up an operand word whose bytes are already counted.  So the item count is the
+section size MINUS the fixups: 58 for E34G1, whose listing says `CODE SIZE = 0046' (70).  Every
+row in spec/DIVERGENT.txt was recorded against that number, and the gate printed it as "N code
+bytes vs DR M".  What made this worth chasing is that the error was not constant: for 16 of 17
+rows mine-minus-DR happened to survive the redefinition, but for NETWORK it did not -- +5 items
+is +7 SECTION BYTES.  A claim of "NETWORK is 5 bytes long" had been repeated in notes and in
+this file; the true figure is 1463 against DR's 1456.
+FIX AND ITS EVIDENCE: the panel now reads LINK-DEF-CODE-SIZE / LINK-DEF-DATA-SIZE through
+reldump's own decoder (`tools/relstats.py`, which imports `decode` rather than re-parsing
+[C202]).  The claim "those fields are the listing numbers" is measured, not assumed:
+`python3 tools/relstats.py --selfcheck golden' compares them with DR's printed CODE SIZE /
+DATA AREA wherever both exist -- 2583 agreements and ZERO disagreements over DR-produced files.
+The first run of that check reported 4 exceptions, and all 4 were provenance, not measurement:
+the runtime panel deliberately stores MY .REL beside DR's listing (so the executed artifact is
+the one the byte check compares [E2E-23]), and each of the 4 hashes was reproduced by running
+bin/pli80c.exe on the matching artefact (E30G1 f28c07f8..., E32B3 9e471af4..., PB4
+626d41f0...).  They are exempted by pinned md5, not by path, so the exemption expires the
+moment the bytes change.  Two things this lesson generalizes to: (a) an early draft of
+relstats asserted items + 2*relocs == declared, and the corpus falsified it (P046: 8 items + 14
+relocs in a 16-byte data segment) -- a formula fitted to two files is not an identity; (b) a
+metric that is a count of a PRINTER's output lines is one formatter change away from silently
+changing meaning, which is [C123]'s bug in a new costume.  `nbytes' (a file-level byte diff of
+the two .RELs) was always an honest quantity and is unchanged for all 17 rows; spec/DIVERGENT.txt
+now carries a `#' legend defining every column, because the numbers had no definition anywhere.
+
+C218. [E2E-35/P1] ON ... GOTO's recovery pad executes on the NORMAL path, and DR's linked image
+says so at the byte level.  Nothing containing the ON/GOTO machinery had ever been run: E32E1's
+handler form has a golden, E32E2 has one too (two GOTO handlers plus a REVERT), but both read
+SYSIN, so executing them requires an EOF event -- which is precisely the thing I refuse to
+simulate.  E35N1/E35N2 were built for this phase and read NOTHING: they register
+`on endfile(sysin) goto h', walk a->b->h through ordinary labels, and jump to `h', the label that
+ON/GOTO pads.  Both compile byte-exact against fresh DR goldens [golden/e35n], and both were
+linked through LINK 1.31 + PLILIB and executed under cpmsim.  The expectation was computed from
+PL/I semantics BEFORE the run (n = 0+1+2+4 = 7); the transcript is `n=         7' with normal
+termination, for DR's image and for mine, and the two linked .COM files are byte-identical
+(f8221143..., 594336c6...) -- so per [C205] this run validates the expectation and DR's oracle
+together, NOT my lowering.  What IS new and non-circular is the pad's role in normal flow.  In
+the linked image the transfer for `goto h' is `C3 39 01' -- JMP 0139 -- and 0139 is the pad
+(`2A CA 1A' LHLD 1ACA, `F9' SPHL, `CD 67 12' CALL 1267 = ?RECOV), while the label's body starts
+at 0140.  So a plain GOTO to a label that an ON-unit targets lands IN the pad: it restores SP
+from the block's hidden cell and calls ?RECOV before executing the handler-free body.  That
+confirms [C209] in the executable rather than in the listing, and it shows the pad is safe to
+fall through when no condition is pending.  E35N2 adds `revert endfile(sysin);' in straight-line
+code -- the first observed execution of the ?REVOP emission at all -- with the same value and the
+same clean termination.  Registering E32E2 as a specimen at the same time closed a shape that
+had been verified once by hand and never enforced: it is byte-exact and pins the per-BLOCK saved
+-SP cell [C206] plus two pads in one block.  None of this delivers an EOF event; the ENDFILE
+*firing* path remains unexercised and unverified.

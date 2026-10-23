@@ -1,0 +1,37 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E35N1
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E35N1
+
+   1 a 0000 e35n1: procedure options(main);
+   2 c 0006   declare sysin file, n fixed;
+   3 c 000D   n = 0;
+   4 c 0013   on endfile(sysin) goto h;
+   5 c 0021   goto a;
+   6 c 0024 a: n = n + 1;
+   7 c 002B   goto b;
+   8 c 002E b: n = n + 2;
+   9 c 0036   goto h;
+  10 c 0040 h: n = n + 4;
+  11 c 004A   put list('n=', n);
+  12 c 006C   stop;
+  13 a 006F end e35n1;
+
+CODE SIZE = 006F
+DATA AREA = 0006
+FREE SYMS = 3858
+END  COMPILATION
+

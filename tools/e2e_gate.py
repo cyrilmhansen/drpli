@@ -3095,12 +3095,32 @@ REJECTS['E34G3'] = (open('artefacts/E34G3.PLI', "rb").read().replace(b"\r\n", b"
     "codegen: storing this expression into the VARYING member")
 NEG_META['E34G3'] = ("my-gap", "DR COMPILES it (golden/e34g/E34G3: `hp->vn = jq->vn' -> LHLD JQ / PUSH H / LHLD HP / POP D / MVI A,14 / CALL ?SMVVM -- the [C212] load/load frame, destination in HL).  Mine refuses: store_vbvar's member-source branch keys on an Ast.Eident whose value kind is Vbvar (the bare `w' spelling V7 uses), so a source qualified with an explicit pointer name reaches the outer refusal.  The bytes to emit are visible in the golden; the refusal is kept because no probe shows what DR does when the two members belong to records of DIFFERENT types, and E34G3 has one sample only.")
 
+# [E2E-35/P1] ON ... GOTO / REVERT in NORMAL FLOW -- three registrations, two of them executed.
+# E32E2 (golden captured in E2E-32, byte-exact since E2E-34/P1) was never in the specimen panel:
+# it is the only probe that pins TWO ON units with GOTO handlers in one block, the per-BLOCK
+# hidden saved-SP cell [C206], and a REVERT whose ?REVOP sits in straight-line code.  Registering
+# it costs nothing and closes a shape that was previously verified once, by hand.
+# E35N1/E35N2 are new DR goldens built for this phase.  Neither reads anything: they register
+# `on endfile(sysin) goto h', transfer through ordinary labels, and jump to `h' -- the label that
+# ON/GOTO pads.  So they exercise the pad (LHLD cell / SPHL / CALL ?RECOV) and, in E35N2, ?REVOP,
+# on a path where the ENDFILE condition NEVER fires.  Nothing here simulates an EOF event: there
+# is no GET in either program, so there is nothing to deliver.  Both are byte-exact against DR
+# and both are in the runtime panel -- first execution of this machinery at all.
+for _n in ('E32E2', 'E35N1', 'E35N2'):
+    _t = 'e32e' if _n == 'E32E2' else 'e35n'
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/%s/%s/%s.REL' % (_t, _n, _n)))
+
 def divergence_load(path=DIVERGENT_FILE):
     rows = {}
     with open(path) as f:
         for line in f:
             line = line.rstrip("\n")
-            if not line or line.startswith("name\t"):
+            if not line or line.startswith("name\t") or line.startswith("#"):
+                # [E2E-35/P0] "#" lines are the column legend.  The panel carried no
+                # definition of its own columns, which is how a count of reldump DATA
+                # ITEMS came to be printed and cited as "code bytes" for two episodes:
+                # the numbers looked plausible and nothing in the file said what they
+                # meant.  RUNTIME.txt has its own loader and is unaffected.
                 continue
             p = line.split("\t")
             if len(p) != 10:
@@ -3110,13 +3130,36 @@ def divergence_load(path=DIVERGENT_FILE):
     return rows
 
 def _rel_stats(rel):
-    """(code_data_records, data_size, reloc_count) straight out of reldump."""
-    import subprocess as _sp
-    out = _sp.run([sys.executable, os.path.join(ROOT, "tools", "reldump.py"), rel],
-                  capture_output=True, text=True).stdout
-    code = len(re.findall(r"DATA\s+code", out))
-    m = re.search(r"LINK-DEF-DATA-SIZE\s+abs\s+([0-9A-F]{4})", out)
-    return code, (int(m.group(1), 16) if m else -1)
+    """(code_section_bytes, data_section_bytes) -- the sizes DR's own listing prints.
+
+    [E2E-35/P0] This function used to return `len(re.findall("DATA\\s+code", dump))', i.e. a
+    count of reldump's DATA *items*, and the divergence panel printed it as "N code bytes vs
+    DR M".  It is not the code-section size: DR's .REL is a bit stream in which a clear bit
+    introduces one byte at the current (segment, logical address), and the relocated operand
+    words are fixed up by RELOC/CHAIN-EXT items that advance that address by two without
+    adding an item -- so the item count is the section size minus the fixups, and on NETWORK
+    it read 1096 while DR's listing and the file's own LINK-DEF-CODE-SIZE say 0x5B0 = 1456.
+    Both quantities are real; only one of them is a size, and a row that quotes the wrong one
+    makes an "+5 bytes of code" claim look true when the true excess is +7.
+
+    The replacement reads LINK-DEF-CODE-SIZE / LINK-DEF-DATA-SIZE through reldump's decoder
+    (one authority, [C202]) via tools/relstats.py.  That those fields ARE the listing numbers
+    is not assumed: it is checked on 2583 DR-produced sizes, zero mismatches
+    (`python3 tools/relstats.py --selfcheck golden').  A .REL with no DEF-CODE-SIZE record
+    raises rather than reporting 0 -- an unknown size is not a zero size.
+    """
+    if "relstats" not in globals():
+        import importlib.util as _iu
+        _spec = _iu.spec_from_file_location(
+            "relstats", os.path.join(ROOT, "tools", "relstats.py"))
+        globals()["relstats"] = _m = _iu.module_from_spec(_spec)
+        _spec.loader.exec_module(_m)
+    m = relstats.measure(rel)
+    def size(seg):
+        if m[seg]["declared"] is None:
+            raise AssertionError("%s: no LINK-DEF-%s-SIZE record" % (rel, seg.upper()))
+        return m[seg]["declared"]
+    return size("code"), size("data")
 
 def divergence_check(dv, exe):
     fails, notes = [], []
@@ -3147,7 +3190,8 @@ def divergence_check(dv, exe):
             # false for the ZK8/ZK10/ZK11 rows, whose data areas differ (16 vs 19) and whose cause
             # is DR's out-of-range-literal route.  The panel must not print a statement the row
             # itself contradicts, so both now come from the measurement and from the row.
-            notes.append("%s: %d code bytes vs DR %d, data %s, %d bytes differ -- row cause: %s"
+            notes.append("%s: CODE SECTION %d bytes vs DR %d, DATA SECTION %s, %d file bytes "
+                         "differ -- row cause: %s"
                          % (n, mcode, dcode,
                             ("agrees (%d)" % mdata) if mdata == ddata
                             else "DIFFERS (%d vs DR %d)" % (mdata, ddata),
