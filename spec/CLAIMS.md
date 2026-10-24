@@ -4668,3 +4668,23 @@ E39S1), which is a new data point for that matrix. E39X1 with its uses qualified
 named remedy for an ambiguous member name is available here; the ambiguous unqualified program still
 refuses exactly where DR refuses. MPMCALLB's next blocker is unchanged (`STATIC on CHAR(27)
 is unsampled`), so qualified member access was not what was holding it.
+
+## C259 — the first EXECUTION of a qualified member read/write: my object prints DR's value
+E40R1 is `declare 1 g, 2 a fixed, 2 b fixed; g.a = 7; g.b = 9; put list('g=', g.a + g.b)`. DR
+compiled it (golden/e40b), and DR's own object was then linked with LINK 1.31 + PLILIB and executed
+under cpmsim: it prints `g=        16` [golden/e40dr/E40R1.output.txt]. My object for the same
+source, linked the same way, prints the same value -- so the qualified writes, the qualified reads,
+and a qualified expression inside a PUT item all compute what DR computes.
+
+This is the strongest member evidence in the episode precisely because the objects differ: code 59
+vs DR 65 (the [C254] operand-preservation shortfall), 143 differing byte offsets. The gate labels the
+row `NON-CIRCULAR: images differ, this run is evidence about mine` -- unlike the 18 byte-exact
+runtime rows, where identical images mean the run tests the expectation rather than the lowering. It
+is the first RUNTIME.txt row of kind `dr_oracle`: the expectation is DR's printed transcript, not a
+number I derived.
+
+The value is also cross-checked structurally: the bare-spelling twin (a = 7; b = 9; put list('g=',
+a + b)) compiles to an object differing from the qualified one only at three name-byte offsets
+6/18/26, so one execution covers both spellings [C258]. E40R1 is registered as a divergence row as
+well as a runtime row: compiling and running correctly is not the same as matching DR's bytes, and
+the panels say so separately.

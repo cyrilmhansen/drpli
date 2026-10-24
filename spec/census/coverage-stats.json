@@ -38,7 +38,7 @@
   "SUPPORTED": 52
  },
  "no_parity": 27,
- "no_runtime": 65,
+ "no_runtime": 64,
  "perimeter": {
   "C": 3,
   "M": 13,

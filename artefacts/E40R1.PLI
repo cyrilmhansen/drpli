@@ -1,0 +1,8 @@
+b4r1: procedure options(main);
+   declare 1 g, 2 a fixed, 2 b fixed;
+   g.a = 7;
+   g.b = 9;
+   put list('g=', g.a + g.b);
+  stop;
+end b4r1;
+

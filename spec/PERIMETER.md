@@ -394,5 +394,9 @@ is a code-shape rule, value-preserving; recorded as divergences, not promotions.
   compiling program in this family is short by exactly that amount -- 9 specimens now, none exact --
   and all are registered in DIVERGENT.txt rather than being called matches.
 - **Not extended**: level-2+ members, and member types other than FIXED BIN(15)/POINTER [C228].
-- **Runtime**: none of these programs has been executed under cpmsim, so the VALUES remain unverified
-  by execution. What is verified is the layout invariant, at byte-offset granularity.
+- **Runtime**: E40R1 (`g.a = 7; g.b = 9; put list('g=', g.a + g.b)') **has been executed**: DR's
+  own linked object prints `g=        16' [golden/e40dr/E40R1.output.txt] and mine, linked the same
+  way, prints the same value -- so the qualified read/write pair and the qualified expression inside a
+  PUT item compute what DR computes, even though my image is 6 bytes short of DR's. The other nine
+  member specimens remain unexecuted; what is verified for them is the layout invariant, at
+  byte-offset granularity.

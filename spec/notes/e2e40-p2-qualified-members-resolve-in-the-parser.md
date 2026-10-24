@@ -74,3 +74,19 @@ in this episode, and it needs its own probe before either behaviour is trusted.
   E2E-39 section rather than adding a heading, and my memory of the shape was the thing that was
   wrong. In each case the fix was to ask a second, independent question of the repository instead of
   repeating the first one.
+
+## P5 addendum -- the first execution, and it is non-circular
+E40R1 adds a labelled qualified-member probe, DR-compiles it (golden/e40b, 6th of the episode's 12
+slots), links and runs DR's object (golden/e40dr/E40R1.output.txt: `g=        16`), and registers a
+RUNTIME.txt row that runs MY object against DR's printed value. My image differs from DR's at 143
+offsets (code 59 vs DR 65), so the gate marks the row NON-CIRCULAR -- the first member-program
+evidence that is about my semantics rather than about my ability to reproduce bytes. [C259]
+
+Two bookkeeping errors were caught by guards rather than by reading:
+- I hand-appended a row to spec/INVENTORY.txt, which its own header declares MACHINE-MAINTAINED, and
+  the gate aborted on the disagreement. `--update-inventory` then regenerated the file
+  byte-identically to HEAD, which also proved E40R1 needed no entry: only byte-exact specimens are
+  inventoried, and divergence/runtime rows are not.
+- `runtime_check` requires a `golden` path, so the row had to point at DR's real oracle output
+  (golden/e40b) rather than at the directory I created for the link/run scratch; the note records
+  which directory holds DR's transcript and why it exists.
