@@ -12,11 +12,11 @@ DECPOLY	ok	True	True	EXACT	1152
 DEMO	ok	True	True	EXACT	512			
 DEPREC	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
 DFACT	ok	True	True	EXACT	512			
-DIOCALLS	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: INITIAL without STATIC is rejected by DR (NOT STATIC) [TBD] (line 187)")
+DIOCALLS	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED(DBUFFV) of type CHAR(127) VARYING is not implemented [TBD] (E2E-26/P2 covers only a based FIXED BINARY(15). DR ac
 DIOCOPY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED whose operand is not a bare pointer name [TBD] (no DR sample: every accepted probe is based(<name>) -- P063B, P06
 DIORAND	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED whose operand is not a bare pointer name [TBD] (no DR sample: every accepted probe is based(<name>) -- P063B, P06
 DTEST	ok	True	True	EXACT	384			
-ENTER	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: INITIAL without STATIC is rejected by DR (NOT STATIC) [TBD] (line 26)")
+ENTER	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 37)")
 EXPR1	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line 18)")
 EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(10) is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are m
 FDTEST	ok	True	True	EXACT	384			
