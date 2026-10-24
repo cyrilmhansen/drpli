@@ -1,0 +1,1 @@
+E39P1	artefacts/E39P1.PLI	e39c	golden/e39c/E39P1/E39P1.REL	P2: the ordinary-variable twin of E39S2. Byte-exact against DR, and byte-identical to my E39S2 -- so my member resolution puts a structure member in exactly the cell DR measures (DATA AREA 0004 in DR print file), and the E39S2/S3/S5 residual is one codegen rule, not a layout or name defect [C253][C254]

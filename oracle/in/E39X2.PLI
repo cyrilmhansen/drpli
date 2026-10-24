@@ -1,0 +1,8 @@
+b9w: procedure options(main);
+   declare a fixed, 1 g, 2 a fixed, 2 b fixed;
+   a = 3;
+   g.a = 8;
+   put list(a);
+  stop;
+end b9w;
+

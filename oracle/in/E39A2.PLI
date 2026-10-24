@@ -1,0 +1,9 @@
+b9e: procedure options(main);
+   declare p pointer, z fixed, q based(p) fixed;
+   z = 40;
+   allocate q set(p);
+   q = 5;
+   put list(z);
+  stop;
+end b9e;
+
