@@ -1,0 +1,9 @@
+b9v: procedure options(main);
+   declare p pointer, z fixed, q based(p) fixed, r fixed;
+   z = 7; allocate q set(p); r = 0;
+   q = 9;
+   if q > 3 then r = 1;
+   put list(r);
+  stop;
+end b9v;
+

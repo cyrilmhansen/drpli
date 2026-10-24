@@ -1,0 +1,6 @@
+b9e: procedure options(main);
+   declare 1 g, 2 a fixed;
+   zz = 7;
+  stop;
+end b9e;
+

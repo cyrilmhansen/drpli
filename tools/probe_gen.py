@@ -181,7 +181,18 @@ def main():
     ap.add_argument("--classify", action="store_true")
     ap.add_argument("--tag", default="e37e")
     ap.add_argument("--outdir", default=ART)
+    ap.add_argument("--crlf-eof", nargs=2, metavar=("IN", "OUT"),
+                    help="single-file mode: read IN (LF, no marker), write OUT as CP/M text "
+                         "(CRLF + ^Z).  [C249]: a source without ^Z makes PL/I-80 print "
+                         "UNEXPECTED EOF and still leave a .PRN, so the harness, not a shell "
+                         "one-liner, owns this")
     a = ap.parse_args()
+    if a.crlf_eof:
+        src, dst = a.crlf_eof
+        body = open(src).read().rstrip("\n").replace("\r", "")
+        open(dst, "wb").write((body.replace("\n", "\r\n") + "\r\n\x1a").encode("ascii"))
+        print("cp/m source %s (%d bytes, CRLF + ^Z)" % (dst, os.path.getsize(dst)))
+        return 0
     if a.emit:
         emit(a.family, a.emit)
     if a.validate:

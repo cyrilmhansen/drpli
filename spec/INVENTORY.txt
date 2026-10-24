@@ -399,6 +399,9 @@ E36T6	specimen	artefacts/E36T6.PLI	golden/e36t/E36T6/E36T6.REL
 E36T7	specimen	artefacts/E36T7.PLI	golden/e36t/E36T7/E36T7.REL
 E36T8	specimen	artefacts/E36T8.PLI	golden/e36t/E36T8/E36T8.REL
 E36T9	refusal	t9: procedure options(main);\n   declare n fixed;\n   n = 0;\n   goto inner;\n   n = 1;\n  sub: procedure;\n    n = 5;\ninner:\n    n = 6;\n   end sub;\n   stop;\nend t9;\n	DR diagnoses it as NOT LABEL (golden/e36t/E36T9/E36T9.PRN) and mine refuses with the same words: the target of the GOTO is the entry label of a nested procedure, which is a procedure name, not a label.  [E2E-36/P1] established this for all four orientations -- exit to an enclosing block's procedure, entry of a sibling, entry of oneself, entry of an inner procedure from the enclosing block -- so bind.ml keeps procedure entries out of a block's label set and resolve_label answers Lbl_not_label rather than resolving through the scope chain.
+E37B1	specimen	artefacts/E37B1.PLI	golden/e37e/E37B1/E37B1.REL
+E37B2	specimen	artefacts/E37B2.PLI	golden/e37e/E37B2/E37B2.REL
+E37B3	specimen	artefacts/E37B3.PLI	golden/e37e/E37B3/E37B3.REL
 E37C1	specimen	artefacts/E37C1.PLI	golden/e37e/E37C1/E37C1.REL
 E37C3	specimen	artefacts/E37C3.PLI	golden/e37e/E37C3/E37C3.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
@@ -677,6 +680,7 @@ PB20	specimen	artefacts/PB20.PLI	golden/e2e315d/PB20/PB20.REL
 PB21	specimen	artefacts/PB21.PLI	golden/e2e315d/PB21/PB21.REL
 PB22	specimen	artefacts/PB22.PLI	golden/e2e315d/PB22/PB22.REL
 PB3	specimen	artefacts/PB3.PLI	golden/e2e311d/PB3/PB3.REL
+PB4	specimen	artefacts/PB4.PLI	golden/e2e311d/PB4/PB4.REL
 PB6	refusal	pb6: procedure options(main);\n   declare p pointer, c char(5) based(p);\n   allocate c set(p);\n   c = 'ABCDE';\n   put list('c=', c);\n   free c;\n  put skip list('end');\n  stop;\nend pb6;\n	DR COMPILES IT (golden golden/e2e311d/PB6/PB6.REL).  Based-variable store/read of a non-fixed type refuses at the layout switch; E2E-26/P2 implemented only based FIXED BINARY(15).
 PB7	specimen	artefacts/PB7.PLI	golden/e2e311d/PB7/PB7.REL
 PB8	specimen	artefacts/PB8.PLI	golden/e2e311d/PB8/PB8.REL

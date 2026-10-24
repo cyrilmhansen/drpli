@@ -194,8 +194,11 @@ an instruction" -- that diagnosis was WRONG and is corrected in [C237]; the resi
 instruction-sequence difference in the `LHLD / LXI B / DAD B' region of a pointer walk (DR does
 `LXI B,FFFE / DAD B' where I do `LXI H,#target / PUSH H / LXI D / POP H / DAD D': +3 bytes, and the
 DATA difference is the BASED-pointer own pad, which is pinned separately).  E27S2 and NETWORK are
-Family-B/C rows and neither has moved.  The divergence panel is 12 rows as of E2E-38 (9 + the three
-PB4-shape probes E37B1/B2/B3, which prove PB4 itself is a WRONG-VALUE defect [C246]).
+Family-B/C rows and neither has moved.  The divergence panel was 12 rows as of E2E-38 (9 + the three
+PB4-shape probes E37B1/B2/B3, registered then as proof that PB4 itself is a WRONG-VALUE defect
+[C246]).  E2E-39/P1 retired all four rows including PB4's: the missing deref ladder was real, the
+`q > 3' agreement at z = 1, 3, 4, 40 was coincidence, and the wrong value lived in `q = k'
+[C251][C252].  The panel is 8 rows.
 
 ## [E2E-31] Perimeter widened — RETURNS(POINTER) is in; two wrong-value defects are now on the record
 
@@ -211,7 +214,9 @@ affect programs that already compile:
 
 - **Family B -- based/pointer member reads accumulated in arithmetic produce wrong values** (PB20,
   E31F4, E31F7C).  E31F7C is NETWORK's own loop body, so NETWORK would compute wrong shortest
-  distances even after it compiles.  PB4 in the same family is correct, so the boundary is undrawn.
+  distances even after it compiles.  PB4 used to be cited in that sentence as the same-family case
+that works; it is byte-exact now, so NETWORK/E32C8's residual stands on [C237]'s instruction
+difference alone and no longer has a counter-example next to it.
 - **Family C -- a FIXED formal parameter compared in a condition is not dereferenced, so the test is
   made against the caller's address** (E31F8 prints `r=2' where DR prints the correct `r=1', at
   identical code size with one differing byte).  E31F2 has the defect with a lucky-correct value.
@@ -236,7 +241,9 @@ now believed correct rather than merely compilable.
 
 Two things are on the record as still open, both attributed rather than lumped:
 
-- **E32B3 / PB4 are shape divergences with correct values.**  PB4's row was rewritten because its
+- **E32B3 is a shape divergence with a correct value.**  PB4's row was retired in E2E-39/P1 [C251]:
+  the missing deref ladder was real, the branch masking it was a coincidence, and the object is
+  byte-exact now.  PB4's row had been rewritten because its
   `q > 3` branch is taken for the wrong reason -- mine biases the **address**, and any `0x1Bxx`
   address is > 3 -- so it must not be cited as evidence that based comparisons work.
 - **C203: with two or more by-reference formals my DATA segment is 4 bytes too large.**  E32C6's code
@@ -344,7 +351,7 @@ Gate at this commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9 divergenc
   is wrong and mine will be wrong the same way, which is what the contract asks for.
 - **Still open, unchanged in shape**: the E30 traversal family (E30L2/L3/L4, E30G1) is one HL reload
   over each and the `null()`-publish fix did not reach it, so that reload is a different rule and is
-  pinned rather than fitted [C179]; E28N7 is 2 bytes of code at equal data; E32B3/PB4 are the
+  pinned rather than fitted [C179]; E28N7 is 2 bytes of code at equal data; E32B3 is the
   shape-only pointer rows; the two-formal/no-local DATA anomaly (E32C6 26 vs 22, E33MC 16 vs 14) is
   still undocumented; E34G3 (qualified varying member source), `k + x' and expr-vs-expr comparisons
   still have no sample.  DECIMAL and NUMERIC are untouched.

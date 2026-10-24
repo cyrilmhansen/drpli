@@ -5635,10 +5635,47 @@ let tail_exits_stmt (s : Ast.stmt) =
   | Ast.Sreturn _ | Ast.Sgoto _ | Ast.Sstop _ -> Some true
   | _ -> Some false
 
+(* [E2E-39/P1] the comparison loader for a single FIXED operand.  THREE address
+   models share this one function, because DR's ladder is the same ladder:
+     ordinary automatic          LHLD <its own cell>                    [C128]
+     by-reference FORMAL         LHLD <formal cell> ; MOV E,M/INX H/MOV D,M/XCHG
+                                                            [E26F, E26G, C128]
+     BASED name (`q based(p)')   LHLD <p> ; (step to the member) ; same ladder
+                                                            [PB4, E37B1-B3, E39B4]
+   The third case used to fall into the first arm: `st.deref' is built from the
+   procedure's POINTER FORMALS only (see pl_ptrs at the prologue), so a BASED name
+   never got a deref and the comparison tested the POINTER CELL.  [C246] read that
+   from the disassembly and called it a wrong-value defect; it is one, but only for
+   `='/`^=' against a literal, which is measurable: DR prints `r= 1' for `if q = 7'
+   and I printed `r= 0' (golden/e39a/E39B4 vs golden/e39me2/E39B4), and four
+   variants that must take a branch (golden/e39me2/E39V1..V4) all printed 0.  The
+   relational arms happened to agree with DR on E37B1/B2/B3, which is why PB4 looked
+   benign -- that agreement was incidental, see [C246]'s correction.
+   The ladder body is `bfix_val_load''s (C202), spelled out here because
+   bfix_val_load also resets last_imm and takes a cell/bias pair, and this arm is
+   reached from conditions where the operand name has already been resolved. *)
 let cmp_load_deref st (nm : string) =
-  d st op_lhld; reloc st Data (addr_of st nm);
-  if List.mem (String.lowercase_ascii nm) st.deref then
-    (d st 0x5e; d st 0x23; d st 0x56; d st op_xchg)
+  let li = String.lowercase_ascii nm in
+  match (if List.mem li st.deref then `formal
+         else match List.assoc_opt li st.vars with
+              | Some { vk = Vbfix (cell, k) } -> `based (cell, k)
+              | Some { vk = Vbptr (cell, k) } -> `based (cell, k)
+              (* [E2E-39/P1] `dcl q based(p) fixed' is a VIEW, kind Vbased: no cell of its
+                 own (bind's RTbased note, [C178]), every access goes through the pointer.
+                 That is DR's model too -- its E39B4 code is `LHLD <p>' + the ladder -- so a
+                 based scalar needs the same deref a member does, with offset 0. *)
+              | Some { vk = Vbased p } -> `based (p, 0)
+              | _ -> `plain) with
+  | `formal ->
+      d st op_lhld; reloc st Data (addr_of st nm);
+      d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
+  | `based (cell, k) ->
+      st.last_imm <- None;
+      d st op_lhld; reloc st Data (addr_of st cell);
+      member_step st k;
+      d st 0x5e; d st 0x23; d st 0x56; d st op_xchg
+  | `plain ->
+      d st op_lhld; reloc st Data (addr_of st nm)
 
 (* [E2E-11 step 3b, C128] the two-operand fixed compare, with POINTER-formal
    support.  Without a deref it is DR's ordinary pair-up:

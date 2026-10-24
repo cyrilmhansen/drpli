@@ -1,0 +1,11 @@
+b9e: procedure options(main);
+   declare p pointer, z fixed, q based(p) fixed, r fixed;
+   z = 1;
+   allocate q set(p);
+   q = z;
+   r = 0;
+   if q < 3 then r = 1;
+   put list(r);
+  stop;
+end b9e;
+

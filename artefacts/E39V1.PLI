@@ -1,0 +1,8 @@
+b9v: procedure options(main);
+   declare p pointer, z fixed, q based(p) fixed, r fixed;
+   z = 7; p = addr(z); r = 0;
+   if q = 7 then r = 1;
+   put list(r);
+  stop;
+end b9v;
+

@@ -1,0 +1,8 @@
+b9e: procedure options(main);
+   declare 1 g, 2 h, 3 a fixed, 2 b fixed;
+   a = 7;
+   b = 9;
+   put list(a + b);
+  stop;
+end b9e;
+
