@@ -403,7 +403,14 @@ E37B2	specimen	artefacts/E37B2.PLI	golden/e37e/E37B2/E37B2.REL
 E37B3	specimen	artefacts/E37B3.PLI	golden/e37e/E37B3/E37B3.REL
 E37C1	specimen	artefacts/E37C1.PLI	golden/e37e/E37C1/E37C1.REL
 E37C3	specimen	artefacts/E37C3.PLI	golden/e37e/E37C3/E37C3.REL
+E39S1	specimen	artefacts/E39S1.PLI	golden/e39a/E39S1/E39S1.REL
+E39S2	specimen	artefacts/E39S2.PLI	golden/e39a/E39S2/E39S2.REL
+E39S3	specimen	artefacts/E39S3.PLI	golden/e39a/E39S3/E39S3.REL
 E39X1	refusal	b9w: procedure options(main);\n   declare 1 g, 2 a fixed, 2 b fixed;\n   declare 1 k, 2 a fixed, 2 c fixed;\n   a = 3;\n   put list(a);\n  stop;\nend b9w;\n	DR REFUSES: `QUALIFY ?' at each unqualified use, `2 ERROR(S) IN PASS 2', no .REL (golden/e39b/E39X1/E39X1.PRN) [C257]
+E40N1	specimen	artefacts/E40N1.PLI	golden/e40a/E40N1/E40N1.REL
+E40Q1	specimen	artefacts/E40Q1.PLI	golden/e40a/E40Q1/E40Q1.REL
+E40Q2	specimen	artefacts/E40Q2.PLI	golden/e40a/E40Q2/E40Q2.REL
+E40R1	specimen	artefacts/E40R1.PLI	golden/e40b/E40R1/E40R1.REL
 E40X3	refusal	b4t: procedure options(main);\n   declare p pointer, h fixed;\n   declare 1 g, 2 a fixed, 2 b fixed;\n   declare 1 k based(p), 2 a fixed, 2 c fixed;\n   a = 3;\n   put list(a);\n  stop;\nend b4t;\n	DR REFUSES: `QUALIFY ?' at each unqualified use, `2 ERROR(S) IN PASS 2', no .REL (golden/e40a/E40X3/E40X3.PRN) [C257]
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL

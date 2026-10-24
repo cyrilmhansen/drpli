@@ -373,15 +373,25 @@ Gate at this commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9 divergenc
 | Ambiguous member declared in an ENCLOSING frame, used unqualified inside a nested procedure | (unprobed — E39S4, the intended probe, was written malformed and says nothing) | **not caught**: `layout` checks only its own frame's candidates, and no caller threads ancestors yet. E40N1 shows DR DOES resolve an enclosing structure's member from inside a nested procedure, so the same visibility must carry the ambiguity with it; the miss needs two structures sharing a name in the outer block plus an unqualified use in the inner one | E40N1 (accepted by both) narrows it; the ambiguous case is unmeasured [C257] |
 | Ambiguous name used only inside a DECLARATION (INITIAL/DIMS/ATTRS) | (unprobed) | **not caught**: the use-walker skips `Sdcl`. Including it could only add refusals DR has not been asked about | statements are the shape E39X1/E40X3 use [C257] |
 
-**Why none of the resolved shapes is byte-exact yet -- [C254] as measured and [C260] as corrected:**
-for one program differing only in whether the operands are structure members or ordinary variables
-(E39S2 vs E39P1, same statements, same addresses, 54 vs 48 code bytes), DR changes TWO things, and
-the condition for both is the operand class:
+**The operand-class code-shape rule -- [C254] as measured, [C260] as corrected, [C261] as
+implemented.** For one program differing only in whether the operands are structure members or
+ordinary variables (E39S2 vs E39P1, same statements, same addresses), DR changes TWO things, and the
+condition for both is the operand class. **Both clauses are now implemented ([E2E-40/P4]) and eight
+specimens in this family became byte-for-byte DR objects**, so the table is current state, not a gap
+list:
 
 | operand | DR store form | DR read-operand form | my form (both cases) |
 |---|---|---|---|
-| ordinary variable | `LXI H,<value> / SHLD <cell> / INX H x k / SHLD <cell+k>' -- **byte-identical to mine**, and E39P1 is one of the 939 exact specimens | `LHLD / XCHG / ... / DAD D` | same as DR |
-| structure member | `LXI H,<DATA+offset> / MVI M,<lo> / INX H / MVI M,<hi>' per write -- H holds the ADDRESS, the value never enters a register pair | `LHLD / PUSH H / LHLD / POP D / DAD D` | `LXI H,<value> / SHLD`, `LHLD / XCHG` |
+| ordinary variable | `LXI H,<value> / SHLD <cell> / INX H x k / SHLD <cell+k>` | `LHLD / XCHG / ... / DAD D` | **same as DR** (E39P1 byte-exact, and one of the 946 exact specimens) |
+| FIXED BIN(15) member, literal value | `LXI H,<DATA+offset> / MVI M,<lo> / INX H / MVI M,<hi>` per write -- H holds the ADDRESS, the value never enters a register pair | `LHLD / PUSH H / LHLD / POP D / DAD D` when **BOTH** operands are members | **same as DR** since [E2E-40/P4]: E39S1/S2/S3, E40N1/Q1/Q2/R1 are byte-exact |
+| POINTER member | not sampled -- E40Q4 stays 50 vs DR 62 | not sampled | **divergent**, deliberately not guessed [C261(f)] |
+| member store of a COMPUTED value | `LHLD / PUSH H / LXI H,<addr> / POP D / MOV M,E / INX H / MOV M,D` (destroys HL, so DR's value reload is mandatory) | -- | **divergent**: E39S7 52 vs DR 57; its tail is byte-identical from 001F on, only the store's 3-byte value load differs [C261(d)] |
+
+The cost table in [C260] scored DR's member write as MORE expensive than mine and concluded a
+byte-exact specimen must be paying an offsetting cost elsewhere -- which is why the store route was
+abandoned mid-implementation, and why my first correct-looking attempt then overshot (E39S1 went
+48 -> 59 against DR's 54, because the value load was emitted AND ignored). Measured per write, DR's
+member store is CHEAPER (8 bytes vs my 9) and the gap closes with no offsetting cost [C261(b)].
 
 The old text of this paragraph said "3 bytes per member-operand ADD" and described the store as
 `MOV M,A / INX H / MOV M,A`. Both were wrong: the read delta is 1 byte (2 for PUSH+POP against 1 for
@@ -401,16 +411,43 @@ withdrawn -- DR's `PUSH H` sits mid-expression with `MVI A,09` and four calls af
 | `a(1).b`, `p->q.b` (left side not a plain identifier) | REFUSED, loudly | none -- no DR sample of either | The structured node is kept so these reach refusals that describe them instead of an undeclared-name message. |
 | `g.a` where `g` has no member `a` | REFUSED: "not a member of that owner" | none -- **DR's behaviour here is UNMEASURED** | Needs its own probe. This is a wrong-acceptance risk pointing the OTHER way from the rest of the episode: bind already ignores the head name when it collects member declarations, so DR may resolve `g.a' from all visible members regardless of the stated owner. Neither behaviour should be trusted until an oracle sample exists. |
 
-- **Not attempted here**: the two [C254]/[C260] clauses -- member stores via `LXI H,<addr> + MVI M',
-  and `PUSH H/POP D' instead of `XCHG' when an ADD operand is a member. Both are now measured, the
-  ordinary-variable control is byte-exact, and the change must be gated on operand class: applying the
-  member store form globally would break the 939 specimens that already match DR's variable form. Every newly
-  compiling program in this family is short by exactly that amount -- 9 specimens now, none exact --
-  and all are registered in DIVERGENT.txt rather than being called matches.
+- **DONE in [E2E-40/P4]**: the two [C254]/[C260] clauses -- member stores via `LXI H,<addr> + MVI M`,
+  and `PUSH H/POP D` instead of `XCHG` when **both** ADD operands are members. Gated on operand class as
+  required: applied globally the member store form would break the specimens that already match DR's
+  variable form, and applied to "either operand" it would break E39S3, which is member + ordinary and
+  keeps `XCHG`. Result: 8 specimens promoted, byte-exact panel 939 -> 946, corpus census unchanged
+  (0 DIFFERS / 0 UNEXPECTED), and E40R1 additionally verified at link and console level [C261(e)].
 - **Not extended**: level-2+ members, and member types other than FIXED BIN(15)/POINTER [C228].
-- **Runtime**: E40R1 (`g.a = 7; g.b = 9; put list('g=', g.a + g.b)') **has been executed**: DR's
-  own linked object prints `g=        16' [golden/e40dr/E40R1.output.txt] and mine, linked the same
-  way, prints the same value -- so the qualified read/write pair and the qualified expression inside a
-  PUT item compute what DR computes, even though my image is 6 bytes short of DR's. The other nine
-  member specimens remain unexecuted; what is verified for them is the layout invariant, at
-  byte-offset granularity.
+- **Runtime**: E40R1 (`g.a = 7; g.b = 9; put list('g=', g.a + g.b)`) is now the strongest runtime
+  witness in the project, at three levels: its `.REL` is byte-for-byte DR's, the gate's `--link-run` arm
+  reports **`.COM` IDENTICAL vs DR**, and its console output is **BYTE-EQUAL** -- 13 raw bytes,
+  `g=        16\r` [golden/e40dr/E40R1.output.txt, C261(e)]. Byte-exactness is what UNLOCKED that arm:
+  it links both sides, so it is available only for names in the SPECIMENS panel. The earlier claim here
+  ("mine prints the same value even though my image is 6 bytes short of DR's") is superseded, and the
+  same false sentence was corrected in place inside spec/RUNTIME.txt. E39S5, E39S7 and E40Q4 remain
+  unexecuted; for them only the layout invariant is verified, at byte-offset granularity.
+
+## [E2E-40/P4] The member store and ADD-preservation routes IMPLEMENTED -- 8 specimens promoted to byte-exact
+
+| shape | before (HEAD `acf1cc7`) | now | note |
+|---|---|---|---|
+| FIXED BIN(15) internal member, literal store (`g.a = 7`) | 48 vs DR 54 | **byte-exact** (E39S1, E39S2, E40Q1, E40Q2, E27S12) | `LXI H,<addr> / MVI M,lo / INX H / MVI M,hi`, and -- the part that cost me an iteration -- **no value load at all**. Route is my array form 2 (AB3/AB9/AB14/AC3) reused, not a third encoder. |
+| member + member ADD (`g.a + g.b`) | inside the 48 above | **byte-exact** | `LHLD / PUSH H / LHLD / POP D / DAD D` replaces `XCHG`. Value-equivalent; 2 bytes. |
+| member + ordinary ADD (`a + h`) | 53 vs DR 59 | **byte-exact** (E39S3) | keeps `XCHG`. This is the control that forbids widening preservation to "either operand is a member" -- its LEFT operand is a member and DR still uses `XCHG`. |
+| enclosing-frame member read from a nested procedure | 73 vs DR 76 | **byte-exact** (E40N1) | [C257]'s visibility rule now also matches in bytes. |
+| qualified member access, executed | runtime row only (mine vs a transcribed value) | **byte-exact + `.COM` IDENTICAL + console BYTE-EQUAL** (E40R1) | [C261(e)] |
+| nested level-3 structure | CODE 48, DATA 6 vs DR 4 | **CODE byte-identical to DR**, DATA still 6 vs 4 (E39S5) | stays in the divergence panel for the blocked nested-layout defect ALONE -- 5 differing file bytes, all record-length fields. No new work on it here. |
+| member store of a COMPUTED value (`a = a + g.b`) | 49 vs DR 57 | 52 vs DR 57 (E39S7) | tail byte-identical from 001F. DR's form destroys HL, so its value reload is mandatory; keeping my cheaper reuse is a deliberate choice on an unmeasured shape, not an oversight [C261(d)]. |
+| POINTER members (`cpb.nameadr = addr(t)`) | 50 vs DR 62 | 50 vs DR 62 (E40Q4) | **untouched**: out of scope, no oracle for the pointer store shape. Its gap is 3x the FIXED case, which is itself evidence the two routes are not the same route. |
+
+- **Why the gate did not move on 939 -> 946 by accident**: the class predicate is bind's own
+  `RTimem (owner, k, RTbin p)` with `p <= 15`, carried into codegen as `var_info.imem` and stamped by
+  one function (`Vinfo.attach`) at both frame builders -- so it cannot be set in one scope and
+  forgotten in the other. Ordinary scalars, array elements, BASED/POINTER views, formals, heads and
+  statics all resolve to `None` and keep the `SHLD` route. AB3/ZK6 (array byte stores) and E39P1
+  (flat scalars) are the two controls, and both are byte-exact.
+- **Process**: my first implementation of the store route emitted the value load *and* the address
+  load (48 -> 59 against 54). The array code had already documented that exact defect and I walked
+  into it from the other direction. The reason I abandoned the correct rule mid-course was a cost
+  model in [C260] that had DR's member write MORE expensive than mine; the per-write table in
+  [C261(b]) shows it is cheaper. Both errors are recorded rather than quietly fixed.

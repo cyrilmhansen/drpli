@@ -621,6 +621,37 @@ SPECIMENS.update({
     "W6":     ("e15src/W6.PLI",  "golden/e2e170/W6/W6.REL"),
 })
 
+# [E2E-40/P4] THE MEMBER STORE AND READ ROUTES, PROMOTED TO BYTE-EXACT.
+# These seven were carried in spec/DIVERGENT.txt as shape divergences.  Closing [C260]'s two
+# class-gated clauses made every one of them byte-for-byte DR's object, so they move to the
+# byte-exact panel -- which is the only panel that can say so, because the divergence panel
+# FAILS loudly when a row it pins turns out to be identical.
+#   E39S1 / E39S2   `g.a = 7; g.b = 9; put list(g.a + g.b)' and its bare-spelling twin: DR's own
+#                   pair is byte-identical (C253) and so is mine, which is the invariant that made
+#                   resolving qualification in the parser the right call.
+#   E39S3           `a + h' (member + ordinary scalar) -- keeps XCHG, i.e. the control that stops
+#                   the preservation rule being widened to "either operand is a member".
+#   E39S5           nested level-3 structure: its CODE now matches DR exactly; it stays in the
+#                   divergence panel for the independent DATA 6-vs-4 layout defect alone.
+#   E40N1           a member of an ENCLOSING frame read from a nested procedure (C257).
+#   E40Q1 / E40Q2   qualified vs disjoint-unqualified spellings of the same layout.
+#   E40R1           the specimen whose value is verified by DR's own printed transcript
+#                   (`g=        16', spec/RUNTIME.txt) -- byte-exact AND execution-verified.
+# E27S12 is deliberately NOT registered here although its .REL is now byte-for-byte DR's (it
+# measured 66/66 with 0 differing bytes): it was never on any panel, reaching this episode only as
+# a DIVERGENT.txt record.  Its history -- a `my-gap' refusal pin retired by [C256], then code 64 vs
+# DR 66, now 66 = 66 -- is recorded in prose and cited as a path in COVERAGE.tsv, which is honest;
+# inventing a byte-exact panel entry in the same slice that claims to have closed it is not.
+SPECIMENS.update({
+    "E39S1":  ("artefacts/E39S1.PLI", "golden/e39a/E39S1/E39S1.REL"),
+    "E39S2":  ("artefacts/E39S2.PLI", "golden/e39a/E39S2/E39S2.REL"),
+    "E39S3":  ("artefacts/E39S3.PLI", "golden/e39a/E39S3/E39S3.REL"),
+    "E40N1":  ("artefacts/E40N1.PLI", "golden/e40a/E40N1/E40N1.REL"),
+    "E40Q1":  ("artefacts/E40Q1.PLI", "golden/e40a/E40Q1/E40Q1.REL"),
+    "E40Q2":  ("artefacts/E40Q2.PLI", "golden/e40a/E40Q2/E40Q2.REL"),
+    "E40R1":  ("artefacts/E40R1.PLI", "golden/e40b/E40R1/E40R1.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -1664,8 +1695,14 @@ NEG_META_E13 = {
 
 # Names whose console output is compared against the DR arm under --link-run (their
 # DR .RELs are the SPECIMENS goldens, so the harness can link both sides).
+# [E2E-40/P4] E40R1 joins this list because the member store + ADD-preservation routes made its
+# .REL byte-for-byte DR's.  That is what unlocks the link-run arm: the harness links BOTH sides and
+# compares the two console transcripts, whereas spec/RUNTIME.txt can only run MINE against a value
+# transcribed by hand from DR's earlier session.  Verified, not assumed -- the run prints
+# `g=        16' on both sides (.COM IDENTICAL, console BYTE-EQUAL, 13 raw bytes), so DR's printed
+# transcript stays the authority for the RUNTIME row AND mine now produces the same bytes.
 for _n in ("U1", "W1", "W2", "W3", "P1", "P2", "P3", "P4", "P7", "P8", "P10", "P11",
-           "K4", "R4", "R5", "X1", "M4", "Y8", "P9"):
+           "K4", "R4", "R5", "X1", "M4", "Y8", "P9", "E40R1"):
     OUTPUT_CHECK.add(_n)
 
 NEG_META = {
@@ -3676,7 +3713,24 @@ def main():
                 if l.startswith(("ERROR", "FAIL", "coverage_check: corpus",
                                  "coverage_check: census")):
                     print("   " + l)
-            sys.exit(1)
+            # [E2E-40/P4] CIRCULARITY GUARD.  coverage_check.load_panel() resolves probe keys
+            # against the COMMITTED spec/INVENTORY.txt, and --update-inventory writes that file
+            # further down this same function -- AFTER this exit.  So the moment a specimen is
+            # added to SPECIMENS and cited in COVERAGE.tsv's probes column, the normal gate fails
+            # (correctly: the citation is not yet on the panel) and --update-inventory aborts
+            # before it can register it.  The panel is unreachable: adding a byte-exact specimen
+            # would need the inventory to already contain it.
+            # In --update-inventory mode the coverage panel is therefore reported, not fatal.
+            # Nothing is lost: the flag is an explicit "I am changing the panel" act, the
+            # inventory guard still runs on every ordinary gate invocation (and aborted me at
+            # E2E-16/P3 for exactly that), and the very next gate run re-validates coverage
+            # against the freshly written inventory -- which is the sequence this exists to allow.
+            if a.update_inventory:
+                print("e2e gate: coverage panel errors above are NOT fatal under "
+                      "--update-inventory (panel-registration cycle); the next gate run "
+                      "re-validates them against the rewritten inventory")
+            else:
+                sys.exit(1)
 
     # raw `cmp` on .REL bytes remains the acceptance criterion either way.
     if not a.skip_selftest:

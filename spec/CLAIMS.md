@@ -4754,3 +4754,158 @@ one PUT item. NOT established for POINTER members (E40Q4's gap is 12, and its wr
 pointers where `MVI M' twice would be wrong anyway), offsets >1, CHAR/VARYING members, or other
 relations. Byte-exactness for the ten member specimens is now a two-clause change with known costs
 rather than an unknown, but the clauses are measured on one shape each.
+
+## C261 — MEMBER STORE/READ ROUTES CONFIRM [C260], CORRECT ITS COST MODEL, and byte-exact DR on 8 specimens
+
+C260 characterized the two class-gated clauses but left them unimplemented, and its byte arithmetic
+was wrong in a way that immediately cost me bytes. This is the implementation plus the correction.
+
+**(a) The store route: `LXI H,<address>` + `MVI M,lo` + `INX H` + `MVI M,hi`, with NO value load.**
+Verified by promoting E39S1, E39S2, E39S3, E40N1, E40Q1, E40Q2, E40R1 to byte-for-byte DR objects.
+E39S1 is the clean witness -- DR's bytes from 0006:
+
+    21 ?? ??   LXI H,*(001F)      H = the member ADDRESS (a DATA relocation)
+    36 07      MVI  M,07          low byte first
+    23         INX  H             advance the ADDRESS
+    36 00      MVI  M,00          high byte
+    21 ?? ??   LXI H,*(0021)      second member, same form
+    36 09 / 23 / 36 00
+
+The route is *literally* my existing array form 2 (`codegen.ml` AB3/AB9/AB14/AC3), including the
+low-byte-first order that AC1 once taught me the hard way. **What array form 2 lacks is a second
+`LXI H`, and that is the whole lesson:** the load of the value into HL must be SKIPPED, not emitted
+and then ignored. My first attempt emitted `LXI H,0007` (value) followed by `LXI H,<addr>` -- E39S1
+went 48 -> 59 against DR's 54, adding 5 bytes where the correct change adds nothing. The array code
+already documented exactly this defect ("calling both emits the value twice ... it added bytes
+instead of removing them") for array elements; I walked into it again from a different direction.
+
+**(b) C260's cost model is WITHDRAWN as to direction.** C260 read the two compilers' conventions
+correctly (7+k bytes for DR, 6+2k for mine -- both reproduce) but concluded DR's write was more
+expensive, and reasoned that a byte-exact specimen must therefore be paying an offsetting cost
+elsewhere, so the store could not be the missing rule. It was wrong: measured per write,
+
+    ordinary scalar, 2 bytes   DR 7   mine 7      (identical form, SHLD route)
+    member,          2 bytes   DR 8   mine 9      (SHLD route, before this slice)
+    member,          2 bytes   DR 8   mine 8      (MVI M route, after)
+
+so DR's member write is CHEAPER, and the gap closed directly with no offsetting cost anywhere.
+E39S1's residual was 6 bytes, not a mystery to be explained away. **The inference "some other
+clause must be missing because a byte-exact specimen cannot be short by this route" is what
+withdrew the fix; the arithmetic behind it was never checked against a per-write table.** Recorded
+as a process rule: a cost model used to *rank* hypotheses must be computed, not reasoned about
+while reading a disassembly.
+
+**(c) The preservation rule keys on BOTH operands being members -- not on either, and not on tail
+position.** Three DR programs pin the boundary, and only one direction distinguishes them:
+
+    E39S2 `a + b'    member + member     LHLD a / PUSH H / LHLD b / POP D / DAD D
+    E40Q1 `g.a+k.a'  member + member     same form
+    E39S3 `a + h'    member + ordinary   LHLD a / XCHG  / LHLD h / DAD D
+    E39P1 `a + b'    ordinary + ordinary LHLD a / XCHG  / LHLD h / DAD D   (byte-exact control)
+
+E39S3 is the control that forbids "either operand is a member": its LEFT operand is a member and DR
+still uses XCHG. This completes the correction of [C254] begun in C260 -- the rule is keyed on
+operand CLASS, and the class pair, not on position in the expression. Value-equivalent either way
+(POP D restores what LHLD loaded; DAD D adds DE to HL regardless), differing by 2 code bytes.
+
+**(d) A member store KILLS the constant-reuse chain. DR's own ZK6 comment was already in my
+source and I had not applied it here.** `SHLD` reads HL and leaves the value live, which is what
+lets AB19/AB21 chain `x = 1; q(1) = 2; y = 3` into `LXI H,0001 / SHLD / INX H / SHLD / INX H / SHLD`.
+The member route replaces HL with an ADDRESS, so `last_imm` must be cleared -- and E39S7 proves DR
+agrees: its value reload at 0018 is exactly the 3 bytes I would have saved by chaining. Where I got
+it wrong was applying the kill to the ADD: I killed it after `PUSH H / POP D`, but `POP D` leaves HL
+holding the summed value, so the chain legitimately survives. E39S7's CODE measured 54 with the
+store route alone, 55 when I also killed reuse after the both-member ADD, and 52 once the value
+load was correctly skipped -- the middle number is the one that shows the kill was in the wrong
+place, because 55 was further from DR's 57 than 54 had been.
+
+**(e) E40R1 is now the strongest runtime witness in the project: .REL byte-exact, .COM
+IDENTICAL, console BYTE-EQUAL (`g=        16\r`, 13 raw bytes).** The gate's `--link-run` arm
+links both sides and compares the two transcripts; it is only available for names in SPECIMENS,
+which is why byte-exactness UNLOCKED it. That converts the P5 evidence (my object vs a value
+transcribed by hand from DR's session) into machine-checked equality at three levels. The
+RUNTIME.txt row stays -- it is what the value is, not how it was obtained -- and its note is
+corrected, because it asserted "My image is not byte-exact", which is now false.
+
+**(f) Scope discipline, enforced by measurement rather than by intent.** POINTER members (E40Q4,
+50 vs DR 62) and a member store of a COMPUTED value (E39S7, 52 vs DR 57) are left on the existing
+routes and stay in the divergence panel, re-pinned to their new shapes. Both remainders are
+characterized in panel notes; neither is guessed. E39S5 is the interesting case: its CODE is now
+BYTE-IDENTICAL to DR's and the 2-byte DATA overrun (mine 6, DR 4 -- the blocked nested-layout
+defect) is the ONLY thing keeping it divergent, at 5 differing file bytes, all of them
+record-length fields.
+
+## C262 -- TOOL CYCLE: a promoted specimen cannot be registered, because coverage_check resolves
+## probe keys against the file that --update-inventory writes AFTER the check aborts
+
+Adding a specimen to the byte-exact panel and citing it in COVERAGE.tsv's `probes` column made
+EVERY gate invocation fail, including the sanctioned registration command itself:
+
+    e2e gate: coverage panel  coverage_check: 85 rows, 1 errors
+       ERROR line 31: probe key 'E39S1' is neither on the panel nor a corpus program nor a path
+
+The mechanism is three facts that are each individually correct:
+  1. `coverage_check.load_panel()` builds its set of legal probe keys from the COMMITTED
+     `spec/INVENTORY.txt` (it is a standalone tool; it does not import the gate).
+  2. `e2e_gate.py --update-inventory` regenerates that file -- but the regeneration happens at the
+     END of main(), after the coverage/census subprocess loop, which does `sys.exit(1)` on any
+     coverage error.
+  3. The inventory guard refuses to proceed when the panel and `spec/INVENTORY.txt` disagree,
+     which is what the additions legitimately cause before registration.
+
+So 1 and 2 deadlock: the citation is invalid until the inventory is rewritten, and the inventory
+cannot be rewritten while the citation is invalid. **Promotion to byte-exact -- the single most
+desirable action in this project -- was therefore impossible**, not merely awkward. The gate's own
+`inventory_snapshot(SPECIMENS, REJECTS, NEG_META)` sees the new keys fine; only coverage_check's
+file-based view is stale.
+
+**Fix (tools/e2e_gate.py, `[E2E-40/P4]` circularity guard):** under `--update-inventory` the
+coverage panel is REPORTED but not fatal. This loses no protection -- the flag is an explicit
+"the panel is changing" act, the inventory guard still aborts every ordinary gate run, and the next
+ordinary run re-validates coverage against the freshly written inventory, which is exactly the
+sequence the flag exists to enable. Verified: `--update-inventory` then wrote 946 entries (+7), and
+the following full gate reported 85 rows / 0 errors and exit 0.
+
+**Process, in the same slice:** I ran `git checkout -- tools/e2e_gate.py` to discard ONE unwanted
+edit and thereby destroyed the uncommitted SPECIMENS registrations and the link-run arm added
+earlier in the same session -- the working tree showed 8 modified files, and `tools/e2e_gate.py`
+was silently absent from the list, which is how I noticed. The 6 coverage errors that appeared
+afterwards were not a new problem, they were the evidence. Nothing in this project's rules should
+ever make `git checkout --` on a file being actively edited the reflex for "undo my last
+increment": revert by re-editing the increment, or commit first. And `LR=0` from
+`... | grep ...; echo $?` was grep's status again [C249] -- the third time in this project, and this
+time it nearly let me report a successful link-run that had never been verified.
+
+## C263 -- UNBLOCKING DISCOVERED BY [E2E-40/P4]: ENTER/UPDATE's blocker moved from an unsupported
+## STATEMENT KIND to the STATIC-member wall, and the census counts cannot show it
+
+`spec/census/corpus-census.tsv` reports one status per program, and the gate prints aggregate counts.
+Between HEAD~1 (`acf1cc7`, P3) and HEAD (P4) those counts are IDENTICAL -- 15 EXACT, 0 DIFFERS, 0
+UNEXPECTED, 26 REFUSED -- which is exactly what I wrote in the P4 commit message. It was true and it
+was not sufficient. Per-program messages tell a different story:
+
+| program | blocker at HEAD~1 | blocker at HEAD |
+|---|---|---|
+| **ENTER** | `statement kind not in supported subset [TBD]` | `STATIC on FIXED BINARY(15,0) MEMBER OF EMPLOYEE@31 is unsampled` |
+| **UPDATE** | `statement kind not in supported subset [TBD]` | same |
+| REPORT | `STATIC on CHAR(15) is unsampled` | same |
+
+ENTER and UPDATE both contain `get list(...)` and `write file(emp) from(employee)` (ENTER lines 42,
+50, 57). The statement-kind refusal fires BEFORE the declaration scan -- so at HEAD~1 it masked this
+wall entirely, and at HEAD those statements pass far enough to reach it. **A whole statement class
+became non-blocking in these two historical programs as a side effect of this slice.** REPORT shows
+the same effect on a smaller scale: it used to stop at a CHAR member, and now reaches the FIXED
+BINARY(15) member first, because `EMPLOYEE@31` -- the `@`-joined qualified spelling -- is the row the
+STATIC scan now refuses on.
+
+**Still refused, so 0 UNEXPECTED and 0 DIFFERS remain accurate.** ENTER/UPDATE/REPORT/MPMCALLB are
+held by ONE wall now instead of two: STATIC INITIAL placement, and specifically STATIC on a structure
+MEMBER (`C114 places static cells below the pool, but only for...`). That is strictly better news for
+that blocked item than the flat counts suggested, and it is the reason the census snapshot is worth
+reading line by line and not only through its counts.
+
+**Process rule extracted:** when a slice changes a compiler's *failure ordering*, aggregate counts
+are the wrong instrument. Compare the stored per-program messages across commits -- the JSON keeps
+them, and `git show <ref>:spec/census/corpus-census.json` makes the diff trivial. The commit message
+was corrected by amend in the same slice that made the discovery, because the message is the record.
+

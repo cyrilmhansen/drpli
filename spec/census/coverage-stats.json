@@ -33,9 +33,9 @@
  "mine": {
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 2,
-  "PARTIAL": 7,
+  "PARTIAL": 6,
   "REFUSED": 21,
-  "SUPPORTED": 52
+  "SUPPORTED": 53
  },
  "no_parity": 27,
  "no_runtime": 64,

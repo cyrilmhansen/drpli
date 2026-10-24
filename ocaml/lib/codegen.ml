@@ -59,7 +59,13 @@ type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
       precisions: p=5 -> 3, p=7 -> 4, p=9 -> 5, p=15 -> 8
       [R503/R508/R502/R501 + DFACT], which is exactly Bind.bytes_of
       RTdec; codegen never re-derives sizes. *)
-type var_info = { off : int; size : int; vk : vkind; w : int }
+type var_info = { off : int; size : int; vk : vkind; w : int; mutable imem : int option }
+(* [E2E-40/P4] `imem' is Some k exactly for a FIXED BIN(<=15) MEMBER of an internal structure,
+   at byte offset k inside its owning head -- the same fact bind already carries as
+   `RTimem (owner, k, RTbin p)' [C260].  It is the ONLY thing that distinguishes DR's
+   `LXI H,<address> / MVI M' store route from its `LXI H,<value> / SHLD' route, and until now
+   codegen could not see it: the class was destroyed when the bind row was turned into a
+   var_info.  It is set by Vinfo.attach, never by hand, so it cannot disagree with bind. *)
 (* print width for FIXED BIN: min(9, digits(2^p-1)+4) -- banded rule
    matching ALL 16 probed points p=1..15,16,24 + default15 [N301-N308;
    C079]. NOT a linear formula. *)
@@ -67,6 +73,32 @@ let bin_digits10 n =
   let rec go x acc = if x < 10 then acc + 1 else go (x / 10) (acc + 1) in
   go n 0
 let binw p = min 9 (bin_digits10 ((1 lsl p) - 1) + 4)
+module Vinfo = struct
+  (* [E2E-40/P4] ONE place turns bind's row type into codegen's var_info, so the member class
+     can never be set in one builder and forgotten in the other.  `mk' is what the builders call
+     at each kind arm; `attach' walks the finished table and stamps `imem' from the row list the
+     table was built from.  Deliberately NOT a re-derivation from the name: a dotted key `g.a'
+     proves membership, but the BARE spelling `a' has no dot in it, and bind -- which is the
+     authority on what a member is -- has already put `RTimem (owner, k, inner)' in that row. *)
+  open Bind
+  let member_k rt =
+    match rt with
+    | RTimem (_, k, RTbin p) when p <= 15 -> Some k
+    | _ -> None
+  let attach rows vars =
+    List.map
+      (fun (nm, vi) ->
+        vi.imem <-
+          (match
+             List.find_opt
+               (fun (rn, _, _) -> String.equal (String.lowercase_ascii rn) nm)
+               rows
+           with
+           | Some (_, rt, _) -> member_k rt
+           | None -> None);
+        (nm, vi))
+      vars
+end
 let dec_digits k =
   let k = abs k in
   if k = 0 then 1 else bin_digits10 k
@@ -748,6 +780,16 @@ let whole_array_msg st name =
             ^ "golden/e2e230 -- DR emits NO .REL).  Reading or writing the base cell would "
             ^ "be a wrong-value miscompile, not a byte difference, so it refuses.")
   else None
+
+(* [E2E-40/P4] the member class of a name, read back from the var_info that Vinfo.attach
+   stamped.  Lives beside addr_of because it needs `st', whose record type is declared well
+   after Vinfo.  Some k = a FIXED BIN(<=15) member of an INTERNAL structure at byte offset k;
+   None = an ordinary scalar, a POINTER/BASED view member, a head, a formal, a static. *)
+let vinfo_imem st nm =
+  match List.assoc_opt (String.lowercase_ascii nm) st.vars with
+  | Some vi -> vi.imem
+  | None -> None
+
 
 let addr_of_raw st name =
   let li = String.lowercase_ascii name in
@@ -2652,6 +2694,17 @@ let unwrap_e (e : Ast.expr) =
    `LXI D / DAD D' at offset >= 4 is [E2E-28]'s measurement and is not repeated here).
    Callers that need the value in DE add DR's own `XCHG'; that is the cmp_pair
    composition, not part of this primitive. *)
+
+(* [E2E-40/P4] both operands name a FIXED BIN(<=15) internal member?  Only an Eident can
+   be one (a subscript, a call, or a literal cannot), and the alias to the bare dotted key is
+   already resolved by the parser, so a qualified name arrives as a single Eident [C258]. *)
+let vinfo_both_members st l r =
+  let one e =
+    match (unwrap_e e).Ast.e with
+    | Ast.Eident n -> vinfo_imem st n.Ast.orig <> None
+    | _ -> false
+  in
+  one l && one r
 let bfix_val_load st (cell : string) (k : int) () =
   st.last_imm <- None;
   d st op_lhld; reloc st Data (addr_of st cell);
@@ -3045,7 +3098,9 @@ let rec lower_hl st (e : Ast.expr) =
       (* [E2E-40/P2] resolved by alias, not by a second lowering -- see qref_key.  E2E-39 deferred
          this until [C254] landed for fear that one program would compile to two objects while DR's
          were identical; E40Q1 vs E40Q2 shows DR's two objects ARE identical, and sharing the table
-         entry guarantees mine are too. *)
+         entry guarantees mine are too.  [E2E-40/P4] CLOSED that fear outright: E39S1 and E39S2 are
+         now byte-for-byte DR's object AND byte-identical to each other, so the qualified and
+         unqualified spellings of one layout produce one image in both compilers. *)
       (match qref_key st base fld with
        | Some k -> lower_hl st (qref_name e k)
        | None ->
@@ -3879,6 +3934,20 @@ let rec lower_hl st (e : Ast.expr) =
            reachable BEFORE this milestone (via `*3', which the mul guard never refused), so the
            defect is pre-existing, not introduced by C148. *)
         if add_left_needs_push r then begin
+          lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d; d st op_dad_d
+        end else if vinfo_both_members st l r then begin
+          (* [E2E-40/P4] DR preserves the LEFT operand on the STACK, not in DE, when BOTH
+             operands are structure members [C260].  Three DR programs pin this exactly:
+               E39S2 `a + b'  (member, member)   LHLD a / PUSH H / LHLD b / POP D / DAD D
+               E40Q1 `g.a+k.a'(member, member)   same form
+               E39S3 `a + h'  (member, ordinary) LHLD a / XCHG  / LHLD h / DAD D
+             So the discriminator is the CLASS PAIR, not which side is a member and -- as an
+             earlier reading of this rule had it -- not tail position [C254 withdrawn as to
+             its explanation].  XCHG and PUSH/POP are value-identical here: POP D restores
+             exactly what LHLD loaded, and DAD D adds DE to HL either way.  What differs is
+             the surviving register state (H survives PUSH/POP, C does not survive XCHG --
+             nothing downstream samples H after a DAD D in my lowering, so this cannot change
+             a value) and 2 bytes of code per ADD. *)
           lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d; d st op_dad_d
         end else
           (lower_hl st l; d st op_xchg; lower_hl st r; d st op_dad_d)
@@ -5725,13 +5794,13 @@ let cmp_load_deref st (nm : string) =
   let li = String.lowercase_ascii nm in
   match (if List.mem li st.deref then `formal
          else match List.assoc_opt li st.vars with
-              | Some { vk = Vbfix (cell, k) } -> `based (cell, k)
-              | Some { vk = Vbptr (cell, k) } -> `based (cell, k)
+              | Some { vk = Vbfix (cell, k); imem = None } -> `based (cell, k)
+              | Some { vk = Vbptr (cell, k); imem = None } -> `based (cell, k)
               (* [E2E-39/P1] `dcl q based(p) fixed' is a VIEW, kind Vbased: no cell of its
                  own (bind's RTbased note, [C178]), every access goes through the pointer.
                  That is DR's model too -- its E39B4 code is `LHLD <p>' + the ladder -- so a
                  based scalar needs the same deref a member does, with offset 0. *)
-              | Some { vk = Vbased p } -> `based (p, 0)
+              | Some { vk = Vbased p; imem = None } -> `based (p, 0)
               | _ -> `plain) with
   | `formal ->
       d st op_lhld; reloc st Data (addr_of st nm);
@@ -7207,6 +7276,16 @@ statement form IS implemented; this expression form is not.)")
        | Ast.Estring v -> store_char st n.Ast.orig (vk_of st n.Ast.orig) v
        | _ -> failwith "codegen: char store from non-literal [TBD]")
   | Ast.Eident n ->
+      (* [E2E-40/P4] the value route is skipped ONLY for a member whose literal is stored
+         by the MVI M route below -- `int_lit_to_hl' is not always just hl_const: for an
+         out-of-range literal it is lit_dec_to_hl, DR's 4-CALL decimal conversion, and that
+         route is not sampled for members, so it must still run. *)
+      let skip_member_value =
+        match (unwrap_e rhs).Ast.e with
+        | Ast.Enumber ks when is_int_literal ks && fits_int_lit ks ->
+            vinfo_imem st n.Ast.orig <> None
+        | _ -> false
+      in
       (* [E2E-11 step 1a] DR's zero-elision pass, before any shape matching:
          this is what turns `a = a + 0' into a 6-byte self-copy instead of an
          ADD, and `b = a + 0 + 0' into one copy of `a' [T5, T8, T9, T13]. *)
@@ -7232,6 +7311,7 @@ statement form IS implemented; this expression form is not.)")
 
 
       (match rhs.Ast.e with
+       | Ast.Enumber s when skip_member_value && is_int_literal s && fits_int_lit s -> ()
        | Ast.Enumber s -> int_lit_to_hl st s
        | Ast.Eprefix (Ast.Minus, { Ast.e = Ast.Enumber s; _ })
          when is_int_literal s && not (fits_int_lit s) ->
@@ -7306,7 +7386,51 @@ statement form IS implemented; this expression form is not.)")
        | _ ->
            st.last_imm <- None;
            lower_hl st rhs);
-      d st op_shld; reloc st Data (addr_of st n.Ast.orig)
+      (* [E2E-40/P4] DR writes a structure MEMBER through its address, not through the
+         value in HL [C260].  E39S3 (`declare 1 g, 2 a fixed, 2 b fixed; a = 7; h = 5')
+         is the witness, and it also shows the discriminator is CLASS and not position --
+         the member at 0014 and the ordinary variable at 001C are adjacent statements:
+             0014  21 1F 00  LXI H,*(001F)   H = ADDRESS      (member)
+             0017  36 07     MVI M,07
+             0019  23        INX H
+             001A  36 00     MVI M,00
+             001C  21 07 00  LXI H,0007      H = THE VALUE    (ordinary)
+             001F  22 21 00  SHLD *(0021)
+         So for a member with a literal value the cell is written low byte first, exactly
+         as array form 2 does it (that route is DR-measured on AB3/AB9/AB14/AC3, and the
+         byte order was already corrected once via AC1 [E2E-20]: MVI M,lo ; INX H ;
+         MVI M,hi).  Reusing form 2's shape here means one DR sequence, one implementation.
+         `Vinfo.member_k' is Some k only for a FIXED BIN(<=15) member of an internal
+         structure, from bind's own RTimem row -- POINTER members (E40Q4) and every
+         ordinary scalar are excluded, and E39P1, which is byte-exact against DR's control
+         program, keeps the SHLD route below.
+         A non-literal member rhs stays on the SHLD route: DR parks the value
+         (LXI H,<addr> / POP D / MOV M,E / INX H / MOV M,D -- E39S7), which is array form 3,
+         but that form is sampled on array elements only, so this slice leaves it and the
+         residual CODE gap is pinned in DIVERGENT.txt.  It is a shape difference, not a
+         wrong value: SHLD writes the same two bytes HL holds.
+         ONE exception, checked rather than assumed: `a = a + 5' on a member takes the self-add
+         LADDER (`LHLD / LXI B,5 / DAD B / SHLD' -- measured against E39S7's general ADD, which
+         DR lowers as LHLD/PUSH H/LHLD/POP D/DAD D followed by the parked member store).  The
+         ladder's constant tail is byte-exact across E22A02..E22A16 on ORDINARY variables, and no
+         DR sample of it on a MEMBER exists, so whether it would become MVI M there is unmeasured;
+         that residual stays in DIVERGENT.txt rather than being guessed from the literal case. *)
+      (match (unwrap_e rhs).Ast.e, vinfo_imem st n.Ast.orig with
+       | Ast.Enumber ks, Some _ when is_int_literal ks && fits_int_lit ks ->
+           let v = parse_int_const ks land 0xffff in
+           st.last_imm <- None;
+           d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+           (* HL ends up at <member_address>+1, not at a value, so the constant-reuse chain
+              dies here -- and DR's ZK6 says it must: `x=1; y=2; a(2)=7; z=3' re-loads z with a
+              fresh LXI H after exactly this address-parking route.  For E39S7 that is the whole
+              3-byte CODE gap: DR emits `LXI H,*(000A)' at 0018 because the member store above
+              destroyed HL, while a reuse chain would have parked 0007 for free. *)
+           if v = 0 then store_zero_pair st
+           else begin
+             d st op_mvi_m; d st (v land 0xff);
+             d st op_inx_h; d st op_mvi_m; d st ((v lsr 8) land 0xff)
+           end
+       | _ -> d st op_shld; reloc st Data (addr_of st n.Ast.orig))
   | Ast.Esuffix (hd, args)
     when hd_is_element st.arrays hd ->
       (* [E2E-20/Priority 4] ELEMENT STORE -- DR's four measured forms.  Again a GUARDED
@@ -8650,8 +8774,12 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      class.  The list comes from the same proc_layout record that supplies pl_rows, so there is
      still one sizing authority (Bind). *)
   let saveda = st.arrays in
-  st.vars <-
-    List.map
+  (* [E2E-40/P4] attach stamps imem from THIS scope's bind rows only; the `@ saved'
+     tail below is the outer scope's var_info list, whose records were stamped when that
+     scope was built and must not be re-stamped against the inner rows. *)
+  let proc_rows = pl.Bind.pl_rows in
+  st.vars <- Vinfo.attach proc_rows
+    (List.map
       (fun (n, rt, o) ->
         (n,
          match rt with
@@ -8660,7 +8788,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
                failwith "codegen: FIXED BIN(>15) NOT IMP [TBD]"
              else
                { off = o; size = Bind.bytes_of rt; vk = Vint;
-                 w = binw (if p <= 0 then 15 else p) }
+                 w = binw (if p <= 0 then 15 else p); imem = None }
          | Bind.RTdec (p, s) ->
              if p > 15 || p < 1 || s < 0 || s > p then
                failwith
@@ -8678,10 +8806,10 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
                   [DECPOLY @10D: LHLD X A(004E) / MVI A,0F / CALL ?DLDOP].
                   Writes to a decimal formal have no golden and refuse in
                   lower_assign / the GET / PUT-EDIT paths. *)
-               { off = o; size = 2; vk = Vdec (p, s); w = p + 3 }
+               { off = o; size = 2; vk = Vdec (p, s); w = p + 3; imem = None }
              else
                { off = o; size = Bind.bytes_of rt; vk = Vdec (p, s);
-                 w = p + 3 }
+                 w = p + 3; imem = None }
          | Bind.RTfloat p ->
              if p <> 24 then
                failwith
@@ -8695,25 +8823,25 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
                   `LHLD <cell>` used directly as the operand address
                   [R3038: LHLD Q A(0032) / PUSH H / LHLD Q A(0032) / POP D /
                   CALL ?FM44M].  Writes have no sample. *)
-               { off = o; size = 2; vk = Vflt; w = 0 }
+               { off = o; size = 2; vk = Vflt; w = 0; imem = None }
              else
-               { off = o; size = Bind.bytes_of rt; vk = Vflt; w = 0 }
+               { off = o; size = Bind.bytes_of rt; vk = Vflt; w = 0; imem = None }
          | Bind.RTchar (n, false) ->
              (* [E2E-29/P5] a CHARACTER local of a nested procedure.  REVERSE's read_it declares
                 `newword character(30) varying' and write_it `p pointer', and DR gives them ordinary
                 absolute DATA cells like main's own variables (NEWWORD A(0018), P A(0039)), so the
                 same cells and the same routes apply; the layout switch below for main-block
                 variables is the authority on the sizes. *)
-             { off = o; size = Bind.bytes_of rt; vk = Vfix n; w = 0 }
-         | Bind.RTchar (n, true) -> { off = o; size = Bind.bytes_of rt; vk = Vvar n; w = 0 }
-         | Bind.RTptr -> { off = o; size = 2; vk = Vptr; w = 0 }
+             { off = o; size = Bind.bytes_of rt; vk = Vfix n; w = 0; imem = None }
+         | Bind.RTchar (n, true) -> { off = o; size = Bind.bytes_of rt; vk = Vvar n; w = 0; imem = None }
+         | Bind.RTptr -> { off = o; size = 2; vk = Vptr; w = 0; imem = None }
          | _ ->
              failwith
                ("codegen: procedure local of type " ^ Bind.rty_str rt
                 ^ " is unsampled [TBD] (REVERSE needs CHARACTER VARYING and POINTER locals; a "
                 ^"nested-procedure BIT/DEC/structure local has no golden, and E2E-28/P1 covers only "
                 ^ "fixed, decimal and float)")))
-      pl.Bind.pl_rows @ saved;
+      pl.Bind.pl_rows) @ saved;
   st.arrays <- pl.Bind.pl_arrays @ saveda;
   (if pl.Bind.pl_rec
      && List.exists
@@ -10440,6 +10568,8 @@ let rows_of (b : Ast.block) =
     static_dcls;
   let sy_total = !sy_total in
   let stat_set = !sy_addrs in
+  (* [E2E-40/P4] `rows' is the same bind row list this table was built from, so
+     Vinfo.attach can recover the member class that the var_info match above drops. *)
   let vars =
     List.filter_map
       (fun (nm, rt, off, _auto) ->
@@ -10459,7 +10589,7 @@ let rows_of (b : Ast.block) =
                 (Printf.sprintf
                    "codegen: FIXED BIN(%d) NOT IMP on DR [TBD]" p);
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vint;
-                        w = binw (if p <= 0 then 15 else p) })
+                        w = binw (if p <= 0 then 15 else p); imem = None })
         | Bind.RTdec (p, s) ->
             (* DR accepts FIXED DECIMAL up to p=15 [R501-R512, DFACT];
                p=31 is DR's own pass-1 'NOT IMP' [R504: no .REL].  The
@@ -10472,7 +10602,7 @@ let rows_of (b : Ast.block) =
                     [TBD] (DR: NOT IMP at p=31 [R504]; exact 16..30 unknown)"
                    p s);
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vdec (p, s)
-                      ; w = p + 3 })
+                      ; w = p + 3; imem = None })
         | Bind.RTfile _ ->
             (* [E2E-11 step 2] a FILE variable takes NO DATA cell: DR gives it a
                named COMMON group instead [C120, verified for SYSIN and INF].  bind
@@ -10493,9 +10623,9 @@ let rows_of (b : Ast.block) =
             sy_files := !sy_files @ [up];
             None
         | Bind.RTchar (n, false) ->
-            Some (nm, { off; size = Bind.bytes_of rt; vk = Vfix n; w = 0 })
+            Some (nm, { off; size = Bind.bytes_of rt; vk = Vfix n; w = 0; imem = None })
         | Bind.RTchar (n, true) ->
-            Some (nm, { off; size = Bind.bytes_of rt; vk = Vvar n; w = 0 })
+            Some (nm, { off; size = Bind.bytes_of rt; vk = Vvar n; w = 0; imem = None })
         | Bind.RTfloat p ->
             (* [E2E-10] the CELL is 4 bytes for every precision DR stores
                (R3001/R3013), but only binary(24) has a characterized value
@@ -10507,14 +10637,14 @@ let rows_of (b : Ast.block) =
                 (Printf.sprintf
                    "codegen: FLOAT BINARY(%d) precision unsupported [TBD] (only BINARY(24) is characterized; R3013 proves the CELL is 4 bytes but not the computed precision)"
                    p);
-            Some (nm, { off; size = Bind.bytes_of rt; vk = Vflt; w = 0 })
+            Some (nm, { off; size = Bind.bytes_of rt; vk = Vflt; w = 0; imem = None })
         | Bind.RTbit 1 ->
             (* [E2E-11 step 1a] BIT(1) = one byte, high-bit justified
                [E20A/E20B/E20D/E20E: `dcl s1 bit(1) static initial('1'b)` lands
                at S(0000), `f = '1'b' emits MVI M,80 and `f = '0'b' MVI M,00].
                Bind already sizes bit(n) as (n+7)/8, which gives 1 here; the
                VALUE encoding (bit 7, not bit 0) is what the probes add. *)
-            Some (nm, { off; size = 1; vk = Vbit1; w = 0 })
+            Some (nm, { off; size = 1; vk = Vbit1; w = 0; imem = None })
         | Bind.RTbit n ->
             failwith
               (Printf.sprintf
@@ -10535,9 +10665,9 @@ let rows_of (b : Ast.block) =
                DATA record says 0004 and E39S3 gave 4 where 6 is right, i.e. two variables would have
                shared one cell and corrupted each other [C256]. `_abs' is ignored on purpose: the
                row's offset IS the address, and re-deriving it here would create a second authority. *)
-            Some (nm, { off; size = Bind.bytes_of inner; vk = Vint; w = binw 15 })
+            Some (nm, { off; size = Bind.bytes_of inner; vk = Vint; w = binw 15; imem = None })
         | Bind.RTimem (_owner, _abs, (Bind.RTptr as inner)) ->
-            Some (nm, { off; size = Bind.bytes_of inner; vk = Vptr; w = binw 15 })
+            Some (nm, { off; size = Bind.bytes_of inner; vk = Vptr; w = binw 15; imem = None })
         | Bind.RTimem (owner, _abs, inner) ->
             failwith
               ("codegen: [TBD] unqualified reference to member of type " ^ Bind.rty_str inner
@@ -10547,23 +10677,23 @@ let rows_of (b : Ast.block) =
                ^ "FIXED BINARY only -- and an unsampled cell size silently overlaps the next variable "
                ^ "[C162 class], so it refuses rather than guesses.)")
         | Bind.RTbmem (ptr, k, Bind.RTbin 15) ->
-            Some (nm, { off; size = 0; vk = Vbfix (ptr, k); w = binw 15 })
+            Some (nm, { off; size = 0; vk = Vbfix (ptr, k); w = binw 15; imem = None })
         | Bind.RTbmem (ptr, k, Bind.RTptr) ->
-            Some (nm, { off; size = 0; vk = Vbptr (ptr, k); w = binw 15 })
+            Some (nm, { off; size = 0; vk = Vbptr (ptr, k); w = binw 15; imem = None })
         | Bind.RTstructrec (ptr, sz) ->
-            Some (nm, { off; size = 0; vk = Vstruct (ptr, sz); w = 0 })
+            Some (nm, { off; size = 0; vk = Vstruct (ptr, sz); w = 0; imem = None })
         | Bind.RTbmem (ptr, k, Bind.RTbit 1) ->
             (* [E2E-30/P2] BIT(1) member: one byte, reached through the same record-relative step
                as every other member, contributing nothing to AUTO STORAGE.  DR's own NETWORK code
                puts `.investigate' at 0017 in a 001C-byte record, which is 21 (cap-20 varying cell)
                + 2 (fixed) -- contiguous with no padding, exactly the C185 finding for the other
                member types. *)
-            Some (nm, { off; size = 0; vk = Vbbit (ptr, k); w = 8 })
+            Some (nm, { off; size = 0; vk = Vbbit (ptr, k); w = 8; imem = None })
         | Bind.RTbmem (ptr, k, Bind.RTchar (n, true)) ->
             (* [E2E-29/P1] CHARACTER VARYING member: REVERSE's `2 word character(30) varying'
                sits at 0 with `.next' at 001F = 31 = 30+1, and ST5's cap-6 record is 9 = 7+2, so
                Bind.bytes_of (n+1) is already the cell size and the contiguous layout holds. *)
-            Some (nm, { off; size = 0; vk = Vbvar (ptr, k, n); w = 0 })
+            Some (nm, { off; size = 0; vk = Vbvar (ptr, k, n); w = 0; imem = None })
         | Bind.RTbmem (ptr, k, inner) ->
             failwith
               ("codegen: BASED structure member " ^ nm
@@ -10574,9 +10704,9 @@ let rows_of (b : Ast.block) =
                ^ "offset 0 -- their offsets and the record size are known, but DR's store bytes "
                ^ "for those member types are not, so the layout is accepted and the access refuses "
                ^ "rather than inventing a shape.")
-        | Bind.RTptr -> Some (nm, { off; size = 2; vk = Vptr; w = 0 })
+        | Bind.RTptr -> Some (nm, { off; size = 2; vk = Vptr; w = 0; imem = None })
         | Bind.RTbased (ptr, Bind.RTbin 15) ->
-            Some (nm, { off; size = 0; vk = Vbased ptr; w = binw 15 })
+            Some (nm, { off; size = 0; vk = Vbased ptr; w = binw 15; imem = None })
         | Bind.RTbased (ptr, inner) ->
             failwith
               ("codegen: BASED(" ^ String.uppercase_ascii ptr
@@ -10621,4 +10751,4 @@ let rows_of (b : Ast.block) =
     match b.Ast.bname with Some n -> String.uppercase_ascii n.Ast.orig
                          | None -> failwith "codegen: main has no name"
   in
-  (prog, auto_bytes, vars, statics)
+  (prog, auto_bytes, Vinfo.attach (List.map (fun (n, r, o, _) -> (n, r, o)) rows) vars, statics)
