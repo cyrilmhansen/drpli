@@ -46,3 +46,9 @@ golden/e32rt_*/*.transcript.txt
 # [E2E-35/P2] same rule for the NETWORK oracle/verification dirs: the cpmsim transcript carries
 # wall-clock text, the linked .COM and the .REL/.PRN inside do not, so those stay tracked.
 golden/e35net*/link-batch*.transcript.txt
+# failed-harness run [C249]: only README.txt, summary.txt and one representative .PRN are versioned
+golden/e37d/*/
+!golden/e37d/summary.txt
+!golden/e37d/E37S6/
+golden/e37d/transcript-*.txt
+golden/e37d/E37S6/dir.txt
