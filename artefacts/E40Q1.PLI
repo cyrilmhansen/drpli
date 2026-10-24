@@ -1,0 +1,9 @@
+b4q: procedure options(main);
+   declare 1 g, 2 a fixed, 2 b fixed;
+   declare 1 k, 2 a fixed, 2 c fixed;
+   g.a = 3;
+   k.a = 4;
+   put list(g.a + k.a);
+  stop;
+end b4q;
+

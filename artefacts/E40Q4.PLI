@@ -1,0 +1,10 @@
+b4u: procedure options(main);
+   declare 1 cpb, 2 nameadr pointer, 2 paramadr pointer;
+   declare t pointer, w fixed;
+   cpb.nameadr = addr(t);
+   cpb.paramadr = cpb.nameadr;
+   w = 3;
+   put list(w);
+  stop;
+end b4u;
+

@@ -343,15 +343,28 @@ let returns_attr (b : block) : rt option =
    [C255].  The rule is real but lazy -- it belongs at an unqualified USE, which needs the
    statement-walking machinery rather than a filter over rows.  Until then an ambiguous name resolves
    by first-binding, which is a known wrong-acceptance against E39X1, recorded in PERIMETER. *)
+(* direct subexpressions, source order *)
+let rec pl_kids (e : Ast.expr) : Ast.expr list =
+  match e.Ast.e with
+  | Ast.Esuffix (h, es) -> h :: es
+  | Ast.Ebinary (_, a, b) -> [ a; b ]
+  | Ast.Econd a | Ast.Eprefix (_, a) -> [ a ]
+  | Ast.Eqstruct (a, _) | Ast.Eqptr (a, _) -> [ a ]
+  | Ast.Ebuilt (_, es) -> es
+  | _ -> []
+
+(* A "cell-owning" declaration: something that reserves storage of its own.  Structure heads,
+   record types, BASED views and internal-member NAMES do not -- they are aliases into storage
+   counted elsewhere.  Both member rules below need this distinction and must agree on it. *)
+let is_cell_rt = function
+  | RTimem _ | RTbmem _ | RTstruct _ | RTstructrec _ | RTbased _ -> false
+  | _ -> true
+
 let check_member_names (rs : (string * rt * int * bool) list) : unit =
   let owner_str = function RTimem (o, k, _) -> Printf.sprintf "%s@%d" (upper o) k | _ -> "?" in
-  let is_cell = function
-    | RTimem _ | RTbmem _ | RTstruct _ | RTstructrec _ | RTbased _ -> false
-    | _ -> true
-  in
   List.iter
     (fun (n, rt, _, _) ->
-      match List.filter (fun (k, r2, _, _) -> k = n && is_cell r2) rs with
+      match List.filter (fun (k, r2, _, _) -> k = n && is_cell_rt r2) rs with
       | [] -> ()
       | _ ->
           failwith
@@ -362,7 +375,132 @@ let check_member_names (rs : (string * rt * int * bool) list) : unit =
              ^ "rule to implement, and declaring one name twice is a program error, not a subset gap.)"))
     (List.filter (fun (_, rt, _, _) -> match rt with RTimem _ -> true | _ -> false) rs)
 
-let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
+(* [E2E-40/P1] DR's QUALIFY, raised where DR raises it: at the USE, once per use, in PASS 2.
+   E39X1 is the oracle [golden/e39b/E39X1/E39X1.PRN]:
+        declare 1 g, 2 a fixed, 2 b fixed;
+        declare 1 k, 2 a fixed, 2 c fixed;
+        a = 3;
+        put list(a);
+     PASS 1: `NO ERROR(S) IN PASS 1'  -- the two structures declaring `a' are perfectly legal.
+     PASS 2: `QUALIFY ?' printed under line 4 (`a = 3') AND under line 5 (`put list(a)'), then
+             `2 ERROR(S) IN PASS 2', and the directory holds NO .REL.
+   So the declaration set is not the problem and a declaration-time rejection is wrong: MPMCALLB
+   declares `2 link pointer' in one structure and `2 link fixed(15)' in another, references members
+   through their owners (`cpb.nameadr = addr (procname)'), and DR compiles it
+   [golden/first8080u/MPMCALLB/MPMCALLB.REL].  That is E2E-39's C255, and this is its fix.
+
+   The rule implemented: for each frame, a bare name that matches member rows of TWO OR MORE
+   DIFFERENT OWNING STRUCTURES is ambiguous, and any unqualified use of it in that frame is refused
+   quoting DR's own diagnostic.  All viable candidates are kept until the use site decides (bind's
+   row list holds every owner; nothing here selects one), which is also what makes the qualified
+   spelling the documented remedy.  Scope is the frame as it is implemented: `layout' is the unit that owns a candidate set,
+   and every frame goes through it (bind_rows -> layout, per block).  `outer_rows' exists so an
+   enclosing frame's members can be added, but NO CALLER PASSES IT YET -- bind_rows has no ancestor
+   knowledge and threading it would change section2's signature.  What that costs is narrow and
+   measured: DR DOES resolve an unqualified member of an enclosing structure from inside a nested
+   procedure (E40N1, CODE 004C / DATA 0006, accepted), so my per-frame check sees no candidates
+   there and stays silent -- correct for E40N1, where the outer name is unique, but it would miss
+   an ambiguous pair declared in an OUTER frame and used unqualified INSIDE a nested procedure.
+   That combination (two structures sharing a member name in the enclosing block plus an unqualified
+   use in an inner one) is the un-probed edge; E39S4, the intended probe for nested scope, was written
+   malformed (`end b9e;  s: procedure;') and says nothing [C257].
+
+   Two deliberate limits:
+     * Names inside DECLARATIONS (INITIAL / DIMS / ATTRS) are not treated as uses -- the statement
+       walker skips Sdcl.  No probe shows DR's answer for an ambiguous name inside an initializer,
+       and including it could only add refusals this milestone has not measured.
+     * The message carries [TBD], the marker the negative panel requires of a deliberate stop.  No
+       other bind refusal has ever been registered there, which is why none of them uses it.  This
+       one belongs: the refusal is the answer DR agrees with (E39X1 and E40X3 both produce no
+       object), and what is genuinely [TBD] is the qualified spelling that would make such a program
+       compilable -- see the [C253] sentence in the message and E2E-40/P2.
+*)
+let check_qualified_uses ?(outer : (string * rt * int * bool) list = []) (b : block) (rs : (string * rt * int * bool) list) : unit =
+  let owners : (string, (string * int) list) Hashtbl.t = Hashtbl.create 8 in
+  let add_mem n o k =
+    let cur = try Hashtbl.find owners n with Not_found -> [] in
+    if not (List.mem (o, k) cur) then Hashtbl.replace owners n ((o, k) :: cur)
+  in
+  (* [E40X3] a BASED view's member joins the candidate set: `declare 1 g, 2 a fixed' plus
+     `declare 1 k based(p), 2 a fixed' then unqualified `a = 3' gives DR `QUALIFY ?' at the use and
+     2 errors in PASS 2 [golden/e40a/E40X3], exactly the same diagnosis as two INTERNAL structures
+     sharing the name (E39X1).  So the ambiguity set is over member NAMES as seen by an unqualified
+     reference, not over members that own storage. *)
+  List.iter
+    (fun (n, rt, _, _) ->
+      match rt with
+      | RTimem (o, k, _) -> add_mem n o k
+      | RTbmem (o, k, _) -> add_mem n o k
+      | _ -> ())
+    (rs @ outer);
+  (* unqualified identifier occurrences in THIS frame's statements, with the line DR would print *)
+  let uses = ref [] in
+  let rec ex (e : Ast.expr) =
+    (match e.Ast.e with
+     | Ast.Eident n ->
+         uses := (String.lowercase_ascii n.Ast.orig, e.Ast.epos.Source.line) :: !uses
+     | _ -> ());
+    List.iter ex (pl_kids e)
+  in
+  let rec st (s : stmt) =
+    match s.st with
+    | Sdcl _ -> ()
+    | Sassign { lhs; rhs } -> ex lhs; ex rhs
+    | Sif { cond; then_; els } -> ex cond; st then_; Option.iter st els
+    | Sdoto { from; by; while_; to_; rep; body; _ } ->
+        ex from; Option.iter ex by; Option.iter ex while_; Option.iter ex to_;
+        Option.iter ex rep; st body
+    | Sdowhile { cond; body } -> ex cond; st body
+    | Sdoforever body -> st body
+    | Selse body -> st body
+    | Sdobegin ss -> List.iter st ss
+    | Sproc _ -> () (* its own frame, its own candidate set, checked by its own layout call *)
+    | Sput { items; _ } | Sget { items; _ } -> List.iter pi items
+    | Sedit { target; _ } -> ex target
+    | Sreadwv { to_ = x; _ } -> ex x
+    | Sreturn (Some x) | Sstop (Some x) -> ex x
+    | Son { handler; _ } -> st handler
+    | Ssignal { target; _ } -> Option.iter ex target
+    | Sprocedure_stmt { target; args } -> ex target; List.iter ex args
+    | Salloc { ptr; based } -> ex ptr; Option.iter ex based
+    | Sfree es -> List.iter ex es
+    | Sgoto { subscript; _ } -> List.iter ex subscript
+    | Sassign_label { to_ = x; _ } -> ex x
+    | Sformat items -> List.iter pi items
+    | _ -> ()
+  and pi (it : put_item) =
+    match it with
+    | Pi_fmt { fargs; fcount; _ } -> List.iter ex fargs; Option.iter ex fcount
+    | Pi_rep (a, b2) -> ex a; ex b2
+    | Pi_repgrp (c, its) -> ex c; List.iter pi its
+    | Pi_data x -> ex x
+    | Pi_ctl (_, Some x) -> ex x
+    | Pi_ctl _ | Pi_pic _ | Pi_remote _ -> ()
+    | Pi_group its | Pi_fmtlist its -> List.iter pi its
+  in
+  List.iter st b.bstmts;
+  List.iter
+    (fun (n, ln) ->
+      match try Hashtbl.find owners n with Not_found -> [] with
+      | (_ :: _ :: _) as c ->
+          let names =
+            String.concat ", "
+              (List.map (fun (o, k) -> Printf.sprintf "%s@%d" (upper o) k) (List.sort compare c))
+          in
+          failwith
+            ("bind: [TBD] `" ^ n ^ "' is an ambiguous member name used without qualification (line "
+             ^ string_of_int ln
+             ^ ") [DR: QUALIFY] -- it is declared by " ^ names
+             ^ ".  E39X1 is the oracle: DR's PASS 1 reports NO ERRORS for these declarations (two "
+             ^ "structures may legitimately share a member name), then PASS 2 prints `QUALIFY ?' at "
+             ^ "each unqualified use -- `a = 3' and `put list(a)', 2 errors -- and emits no .REL.  "
+             ^ "DR names the remedy in the diagnostic: qualify it (`g.a').  The qualified spelling "
+             ^ "is not resolved by this compiler yet [C253], so this program cannot be made to "
+             ^ "compile either way; refusing is the answer that agrees with DR producing no object.")
+      | _ -> ())
+    (List.sort (fun (a, la) (b2, lb) -> compare la lb) !uses)
+
+let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int * bool) list = []) (b : block) =
   let items = List.map fst (frame_decls b) in
   let off = ref 0 in
   (* STATIC area: separate running base; members/fields of static groups
@@ -682,6 +820,7 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
   flush ();
   (let rs = List.rev !rows in
    check_member_names rs;
+   check_qualified_uses ~outer:outer_rows b rs;
    (!off, List.rev !syms, !statics, rs, List.rev !arrays))
 
 (* ---------- format descriptors & labels (binder v2) [C052] ---------- *)
@@ -1404,15 +1543,6 @@ type prog_layout =
 
 let pl_l (n : Ast.name) = String.lowercase_ascii n.Ast.orig
 
-(* direct subexpressions, source order *)
-let rec pl_kids (e : Ast.expr) : Ast.expr list =
-  match e.Ast.e with
-  | Ast.Esuffix (h, es) -> h :: es
-  | Ast.Ebinary (_, a, b) -> [ a; b ]
-  | Ast.Econd a | Ast.Eprefix (_, a) -> [ a ]
-  | Ast.Eqstruct (a, _) | Ast.Eqptr (a, _) -> [ a ]
-  | Ast.Ebuilt (_, es) -> es
-  | _ -> []
 
 (* calls to procs matching nm_of inside one expression (flow order).
    NOTE: the callee-operand position of Esuffix is a name, not a call,

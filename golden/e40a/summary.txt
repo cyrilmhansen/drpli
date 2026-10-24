@@ -1,0 +1,5 @@
+E40N1	ok	PRN=True REL=True
+E40Q1	ok	PRN=True REL=True
+E40Q2	ok	PRN=True REL=True
+E40Q4	ok	PRN=True REL=True
+E40X3	diag	PRN=True REL=False

@@ -4598,3 +4598,38 @@ E27S12 sat on the negative panel as `kind=refusal`, expected `undeclared i2`, cl
 The row's own note contradicted its expectation: `DR COMPILES IT (golden/e2e324d/ST12/ST12.REL)`. DR's listing settles it directly -- line 5 is `i2 = 5`, an unqualified write to a member of `1 inner`, an AUTOMATIC structure declared after a based sibling in the same statement; PASS 1 and PASS 2 report NO ERRORS; the object exists with CODE 0042 / DATA 0006. So the refusal was never DR behaviour: the row pinned THIS compiler's missing member binding [C248], which `my-gap` means, and the panel is designed to be noticed and retired when such a gap closes (the same instruction C157 leaves for `COND.VOID_RIGHT`). "A program my compiler no longer refuses" is only evidence of a wrong-acceptance once DR's verdict for that exact source has been read -- not once a panel row says "refusal".
 
 Consequence: the implementation is restored. E27S12 now compiles; its DATA area is 6, equal to DR's, and its code is 64 bytes against DR's 66 -- the residual is [C254] plus DR addressing the member through the structure name (`LXI H,INNER A(0004)`) where I reach the cell directly. Retired to DIVERGENT.txt with `--update-inventory` recording the removal; gate is 939 byte-exact / 0 fail, 12/12 divergences, 18/18 runtime, 123 negatives, exit 0. Process rule taken forward: before treating a `NEG-FAIL` as a regression, read the row's class and its golden.
+
+## C257 — DR raises QUALIFY at the use, over the union of internal AND BASED member names; and the ambiguity set is the visible one
+E2E-39 left E39X1 as a known wrong-acceptance and C255 predicted the fix ("QUALIFY is real but must
+fire at the USE, not at a declaration"). Four probes settle the shape of the rule [golden/e40a,
+golden/e39b]:
+
+  * **E39X1** (`1 g, 2 a fixed, 2 b fixed` + `1 k, 2 a fixed, 2 c fixed`, then `a = 3; put list(a);`):
+    DR's PASS 1 says `NO ERROR(S) IN PASS 1` -- the declarations are legal -- and PASS 2 prints
+    `QUALIFY ?` UNDER EACH UNQUALIFIED USE (line 4 and line 5), then `2 ERROR(S) IN PASS 2`, and the
+    directory holds no `.REL`. One error per use, at the use. So a declaration-time filter cannot be
+    the mechanism, which is exactly why E2E-39's first attempt over-refused MPMCALLB.
+  * **E40Q1** (same two structures, all references qualified `g.a`/`k.a`): **compiled**, CODE 0036 /
+    DATA 0008. Sharing a member name is not an error; only the unqualified mention is. And E40Q2
+    (disjoint member names, all references unqualified) is CODE 0036 / DATA 0008 too -- **identical
+    sizes to the qualified program**, so qualification leaves no trace in the code either, not just in
+    DATA (C253's "pure name resolution" now holds on both areas).
+  * **E40X3** (an internal `1 g, 2 a fixed` PLUS a BASED view `1 k based(p), 2 a fixed`, then
+    unqualified `a = 3`): DR prints `QUALIFY ?` at the use, 2 errors in PASS 2, no `.REL`. So a BASED
+    view's member name counts as a candidate even though the view owns no storage. The ambiguity set
+    is over member NAMES as an unqualified reference can see them, not over cell-owning declarations.
+  * **E40N1** (member `a` of a structure declared in the ENCLOSING block, referenced unqualified from
+    inside a nested procedure): **compiled**, CODE 004C / DATA 0006. DR resolves enclosing members
+    through the inner frame, so the visible candidate set -- and with it the ambiguity -- is not
+    confined to the frame a statement lives in.
+
+Implemented in `bind.ml` as `check_qualified_uses`, called from `layout` (the per-frame authority
+`bind_rows` goes through, so every frame is checked exactly once): a bare name matching member rows
+of two or more distinct owners, from `RTimem` **or** `RTbmem`, is refused at its first unqualified
+statement occurrence, quoting DR's diagnostic. `Sdcl` is not walked (no evidence for an ambiguous
+name inside an initializer). `outer_rows` exists for E40N1's inheritance but **no caller passes it
+yet**, so an ambiguity declared in an outer frame and used inside a nested procedure is still missed
+-- E39S4, which was supposed to measure that, was written malformed (`end b9e;  s: procedure;`) and
+is no evidence at all. Both E39X1 and E40X3 are now negative rows anchored to DR's transcripts
+(panel 125); E2E-39's summary claimed those rows existed, and `git show` finds `E39X` in none of the
+commits -- a patch printing "gate rows added" is not evidence the content is in the file.

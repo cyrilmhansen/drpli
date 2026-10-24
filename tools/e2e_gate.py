@@ -1809,6 +1809,20 @@ NEG_META = {
     "N83_EXPR_OF_NO_RETURNS": ("dr-refuses",
      "DR REFUSES: TYPES NOT= (golden/negpanel1/NG64/NG64.PRN)"),
 }
+# [E2E-40/P1] DR's own QUALIFY refusals, registered now that my binder raises the diagnosis at the
+# place DR raises it.  E39X1 (two INTERNAL structures each declaring member `a') and E40X3 (an
+# internal structure plus a BASED view each declaring `a') both print `QUALIFY ?' under EVERY
+# unqualified use, report `2 ERROR(S) IN PASS 2', and emit NO .REL; both transcripts are in the
+# golden tree, so the marker is DR's word, not mine.  E39X1 was carried as a known WRONG-ACCEPTANCE
+# through E2E-39 (my binder picked a first binding and compiled); check_qualified_uses in bind.ml
+# closes it [C257].
+for _n, _g in (("E39X1", "golden/e39b/E39X1/E39X1.PRN"),
+               ("E40X3", "golden/e40a/E40X3/E40X3.PRN")):
+    REJECTS[_n] = (open("artefacts/%s.PLI" % _n, "rb").read().replace(b"\r\n", b"\n")
+                   .rstrip(b"\x1a").decode(), "QUALIFY")
+    NEG_META[_n] = ("dr-refuses",
+                    "DR REFUSES: `QUALIFY ?' at each unqualified use, `2 ERROR(S) IN PASS 2', no "
+                    ".REL (%s) [C257]" % _g)
 # [E2E-13] merged after the literal so the E13 block can sit above it.
 
 # [E2E-24/C178] verdict evidence for the six E2E-24 probes that refuse.  All six are# programs DR COMPILED (goldens exist), so each is `my-gap': a designed [TBD] guard of mine,# never a pool-invariant failure.  Recorded here because REJECTS without NEG_META loses the# DR-vs-me verdict, which is the whole content of a negative [C139].

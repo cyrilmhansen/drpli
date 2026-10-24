@@ -1,0 +1,13 @@
+b4s: procedure options(main);
+   declare 1 g, 2 a fixed, 2 b fixed;
+   declare h fixed;
+   a = 7;
+   h = 1;
+   call s();
+   put list(h);
+  s: procedure;
+   put list(a);
+  end s;
+  stop;
+end b4s;
+

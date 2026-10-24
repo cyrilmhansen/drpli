@@ -1,0 +1,9 @@
+b4r: procedure options(main);
+   declare 1 g, 2 a fixed, 2 b fixed;
+   declare 1 k, 2 z fixed, 2 c fixed;
+   a = 3;
+   z = 4;
+   put list(a + z);
+  stop;
+end b4r;
+

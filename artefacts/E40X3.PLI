@@ -1,0 +1,9 @@
+b4t: procedure options(main);
+   declare p pointer, h fixed;
+   declare 1 g, 2 a fixed, 2 b fixed;
+   declare 1 k based(p), 2 a fixed, 2 c fixed;
+   a = 3;
+   put list(a);
+  stop;
+end b4t;
+
