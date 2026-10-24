@@ -2398,9 +2398,17 @@ add_spec('E27LN1', ('artefacts/LN1.PLI', 'golden/e2e325d/LN1/LN1.REL'))
 REJECTS['E27S7'] = (open('artefacts/ST7.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                   'BASED structure member')
 NEG_META['E27S7'] = ("my-gap", "DR COMPILES IT (golden/e2e323d/ST7/ST7.REL). `2 c character(4), 2 a fixed': char(4) at offset 0, fixed at 4, record size 6. Character-member stores through a pointer are unimplemented; PB6 measures the analogous SCALAR form (LHLD <p> / LXI D,text / MVI A,len / MOV B,A / ?SMCCM), which is store_char with LHLD in place of LXI H.")
-REJECTS['E27S12'] = (open('artefacts/ST12.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-                   'undeclared i2')
-NEG_META['E27S12'] = ("my-gap", "DR COMPILES IT (golden/e2e324d/ST12/ST12.REL). `1 outer based(p), 2 o1 fixed, 1 inner, 2 i2 fixed': DR's map makes INNER a plain AUTOMATIC structure OUTSIDE the record -- outer allocates only 2 bytes and i2 lands in automatic storage at 0002, so a nested head inside a based record does NOT extend the record. Mine binds outer/o1 and gives the nested automatic head no member binding, so `i2 = 5' reports undeclared.")
+# [E2E-39/P2] RETIRED: REJECTS['E27S12'] / NEG_META['E27S12'] (a `my-gap' pin, kind=refusal, expected
+# 'undeclared i2').  The row's own note said "DR COMPILES IT (golden/e2e324d/ST12/ST12.REL)", and DR's
+# listing settles it: line 5 `i2 = 5' is an unqualified write to a member of an internal AUTOMATIC
+# structure, PASS 1 and PASS 2 both report NO ERRORS, and a .REL exists (CODE 0042, DATA 0006).  So the
+# refusal was never DR behaviour -- it pinned THIS compiler's missing member binding [C248], and the
+# row was designed to be noticed when the gap closed.  It has closed: bind now resolves the bare member
+# name to the owning structure's cell [C253][C256], the probe compiles, and it moves to DIVERGENT.txt
+# against that authentic golden -- remaining difference: DR addresses the member THROUGH the structure
+# name (`LXI H,INNER A(0004)') and its DATA area is 6 where mine is 4, while mine reaches the same cell
+# directly.  Nothing about BASED members changed: E27S7 (character member) and the unqualified-BASED
+# case stay refused, exactly as before.
 REJECTS['E27S13'] = (open('artefacts/ST13.PLI', "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                    'main-block statement after an appended procedure')
 NEG_META['E27S13'] = ("my-gap", "DR COMPILES IT (golden/e2e324d/ST13/ST13.REL). A REVERSE-SHAPED probe, not REVERSE's skeleton: main calls a nested procedure that allocates into a based record, stores and reads a qualified member and frees it, and main has one statement after the procedure definition. REVERSE additionally uses GET, bare `null', `^=', `return', `do while' and unqualified member access, none of which this probe contains -- so it isolates the procedure-placement blocker and nothing else.  Mine refuses BEFORE any structure work, at the main-block/appended-procedure split, which fixes the ORDER of REVERSE's blockers as measured: (1) nested-procedure statement placement, (2) CHARACTER VARYING member (ST5), (3) GET (REVERSE's `get list(newword)'). The structure machinery behind all three is already byte-exact on ST1/ST3/ST8/ST9/ST10/LN1.")

@@ -2990,6 +2990,23 @@ let fp_mul_guard arrays (l : Ast.expr) (r : Ast.expr) =
 
 let rec lower_hl st (e : Ast.expr) =
   match e.Ast.e with
+  | Ast.Eqstruct (base, fld) ->
+      (* [E2E-39/P2] DR resolves this spelling to the SAME cell: E39S1 (`g.a = 7; g.b = 9;
+         put list(g.a+g.b)'), E39S2 (identical program spelled `a = 7; b = 9; ...') and E39S5
+         (level-3 nesting) are byte-identical .REL [golden/e39a, md5 b3d60402, C253].  The BARE
+         spelling resolves in bind; the qualified one needs the same rewrite applied to every
+         expression classifier, and it is deliberately left to land WITH the member operand rule
+         (C254: for these same addresses DR emits `LHLD a / PUSH H / LHLD b / POP D / DAD D' for a
+         member and `LHLD a / XCHG / LHLD b / DAD D' for a plain variable, CODE SIZE 0036 vs 0030
+         [golden/e39a/E39S2 0x1F vs golden/e39c/E39P1 0x1A]), so that one program does not compile
+         to two different objects under my compiler while DR's are identical.  This arm also
+         replaces an `assert false' crash. *)
+      failwith
+        (Printf.sprintf
+           "codegen: [TBD] qualified reference %s.%s to an internal structure member is not             resolved (line %d; DR resolves it, see lower_assign's note; the bare spelling of the             same member works -- bind gives it the owning structure's cell [C253])"
+           (String.uppercase_ascii (match base.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> "<expr>"))
+           fld.Ast.orig base.Ast.epos.Source.line)
+
   | Ast.Enumber s ->
       (* [E2E-25] this is lower_hl's unrouted literal path -- PUT items, DO bounds, call
          arguments, function-call operands, divisors, anything the measured positions above do not
@@ -6645,6 +6662,22 @@ let e26_alloc_fixed st (wi : string) (pi : string) =
 
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
   match lhs.Ast.e with
+  | Ast.Eqstruct (base, fld) ->
+      (* [E2E-39/P2] DR resolves this spelling to the SAME cell: E39S1 (`g.a = 7; g.b = 9;
+         put list(g.a+g.b)'), E39S2 (identical program spelled `a = 7; b = 9; ...') and E39S5
+         (level-3 nesting) are byte-identical .REL [golden/e39a, md5 b3d60402, C253].  The BARE
+         spelling resolves in bind; the qualified one needs the same rewrite applied to every
+         expression classifier, and it is deliberately left to land WITH the member operand rule
+         (C254: for these same addresses DR emits `LHLD a / PUSH H / LHLD b / POP D / DAD D' for a
+         member and `LHLD a / XCHG / LHLD b / DAD D' for a plain variable, CODE SIZE 0036 vs 0030
+         [golden/e39a/E39S2 0x1F vs golden/e39c/E39P1 0x1A]), so that one program does not compile
+         to two different objects under my compiler while DR's are identical.  This arm also
+         replaces an `assert false' crash. *)
+      failwith
+        (Printf.sprintf
+           "codegen: [TBD] qualified reference %s.%s to an internal structure member is not             resolved (line %d; DR resolves it, see lower_assign's note; the bare spelling of the             same member works -- bind gives it the owning structure's cell [C253])"
+           (String.uppercase_ascii (match base.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> "<expr>"))
+           fld.Ast.orig base.Ast.epos.Source.line)
   | Ast.Eqptr (base, fld) ->
       (* [E2E-26/P2] `p->q'.  The ONLY shape DR is measured on is a based name qualified by exactly
          the pointer it is based on [P041: `declare p pointer, q based(p) fixed'; `p->q = 100'].  Any
@@ -10420,6 +10453,27 @@ let rows_of (b : Ast.block) =
            BASED: contributes no cell; the view carries the pointer's name so lowering reloads the
            cell at every access, exactly as DR does (PB3 re-points p and reads again; PB22 stores
            after an intervening write to the source). *)
+        | Bind.RTimem (_owner, _abs, (Bind.RTbin 15 as inner)) ->
+            (* [E2E-39/P2] an internal structure member referenced by its bare name.  Bind computed
+               the address (owning head's offset + base-relative member offset) and sized it ZERO so
+               bind's layout cannot count the bytes twice; the cell here, however, must carry the
+               member's own byte count, because THIS compiler derives the DATA area from
+               `max off + size' over the variable table.  With size = 0 the frame came out too small
+               whenever the last cell allocated is a member -- measured: E39S2 gave data=2 where DR's
+               DATA record says 0004 and E39S3 gave 4 where 6 is right, i.e. two variables would have
+               shared one cell and corrupted each other [C256]. `_abs' is ignored on purpose: the
+               row's offset IS the address, and re-deriving it here would create a second authority. *)
+            Some (nm, { off; size = Bind.bytes_of inner; vk = Vint; w = binw 15 })
+        | Bind.RTimem (_owner, _abs, (Bind.RTptr as inner)) ->
+            Some (nm, { off; size = Bind.bytes_of inner; vk = Vptr; w = binw 15 })
+        | Bind.RTimem (owner, _abs, inner) ->
+            failwith
+              ("codegen: [TBD] unqualified reference to member of type " ^ Bind.rty_str inner
+               ^ " of structure " ^ String.uppercase_ascii owner
+               ^ " (bind resolves the name; the cell-addressed lowering of an internal FIXED DECIMAL "
+               ^ "/ CHAR / BIT / VARYING member has no DR sample -- E39S2/S3/S5 and ST12 measure "
+               ^ "FIXED BINARY only -- and an unsampled cell size silently overlaps the next variable "
+               ^ "[C162 class], so it refuses rather than guesses.)")
         | Bind.RTbmem (ptr, k, Bind.RTbin 15) ->
             Some (nm, { off; size = 0; vk = Vbfix (ptr, k); w = binw 15 })
         | Bind.RTbmem (ptr, k, Bind.RTptr) ->

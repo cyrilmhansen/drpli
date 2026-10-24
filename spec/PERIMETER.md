@@ -359,3 +359,20 @@ Gate at this commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9 divergenc
   statement shape) and DR's answer for that source has not been established, so it is neither a
   specimen nor a negative.
 
+## [E2E-39/P2] Unqualified internal-structure member references: subset implemented
+
+| Shape | DR | Mine | Evidence |
+|---|---|---|---|
+| `declare 1 g, 2 a fixed` + `a = 7; put list(a)` (unqualified read/write, top-level head, FIXED BIN(15)/POINTER) | compiles, member lands in the owning structure's cells | **compiles**; DATA area equals DR exactly (E39S2 0004, E39S3 0006, E27S12/ST12 0006) | golden/e39a, golden/e2e324d/ST12 [C253][C256] |
+| Qualified spelling of the same member (`g.a = 7`) | compiles, `.REL` **byte-identical** to the unqualified spelling | **refuses** (clean message, was an `assert false` crash) -- lands with the rule below | E39S1 == E39S2 == E39S5, md5 b3d60402 [C253] |
+| Member nested two levels deep (`1 g, 2 h, 3 a fixed, 2 b fixed`) | DATA 4, same object as the flat form | compiles but **DATA 6** -- bind re-dispatches a head for a level-2 sibling after a level-3 member; row entry is gated to a level-1 owning head so the extra members stay unresolved | E39S5 vs DR [C255] |
+| Character / bit / decimal / varying internal member | resolves the name | **refuses**: no DR sample of the cell size, and a wrong size overlaps the next variable [C162 class] | -- |
+| Member name colliding with an ordinary variable | `DUPLIC ?` pass 1, no `.REL` | **refuses**, same outcome | E39X2 [C255] |
+| Ambiguous unqualified member (two owners) | `QUALIFY ?` pass 2, no `.REL` | **WRONG-ACCEPTANCE [C255]: resolves by first-binding and compiles.** The declaration-time check over-fired on MPMCALLB (`link` in two structures, DR compiles it, references qualified), so the rule must be raised lazily at an unqualified use; until then E39X1 compiles here and must not be trusted as supported | E39X1 vs mine |
+
+**Why none of the resolved shapes is byte-exact yet [C254]:** for one program differing only in
+whether the operands are structure members or ordinary variables, DR emits `PUSH H/POP D` around the
+second load (CODE 0036) where it uses `XCHG` for plain variables (CODE 0030) -- same addresses, same
+register state on exit, 3 bytes per member-operand ADD. My compiler uses the ordinary-variable form
+for both, so my member build is byte-identical to my ordinary build and 6 bytes short of DR's. This
+is a code-shape rule, value-preserving; recorded as divergences, not promotions.

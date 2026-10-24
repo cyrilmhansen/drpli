@@ -57,6 +57,16 @@ type rt =
          MEMBER' at the record offset [S1-S12], and the member has NO cell of its own: S1's
          AUTO STORAGE is 2 bytes -- just `declare p pointer' -- with the whole structure adding
          nothing. *)
+  | RTimem of string * int * rt
+      (* [E2E-39/P2] a MEMBER of an INTERNAL (non-BASED) level-numbered structure: the OWNING head's
+         name (the resolution authority carries it, so a reference can be attributed and two owners
+         detected), the member's ABSOLUTE frame offset, and its own type.  A NAME, not storage: the
+         owning head's group already advanced the running offset, so bytes_of is 0 here and bind's
+         layout cannot double-count.  Why this shape: DR compiles `g.a = 7' (E39S1), `a = 7' (E39S2)
+         and the level-3 nested form (E39S5) to BYTE-IDENTICAL .REL [golden/e39a, md5 b3d60402] and
+         compiles the authentic `i2 = 5' write to an internal member with the member landing in
+         automatic storage [golden/e2e324d/ST12/ST12.PRN line 5, DATA AREA 0006] -- qualification and
+         depth leave no trace in the object, so resolution is the entire job [C253][C256]. *)
   | RTstructrec of string * int
       (* the structure NAME itself -- what `allocate s set(p)', `free s' and `free p->s' name.
          Carries the associated pointer ("" = bare based) and the total record size, which is
@@ -89,6 +99,8 @@ let rec rty_str = function
       ^ " SIZE " ^ string_of_int sz
   | RTstruct { level; members } ->
       Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d" level members
+  | RTimem (owner, k, inner) ->
+      Printf.sprintf "%s MEMBER OF %s@%d" (rty_str inner) (String.uppercase_ascii owner) k
 
 let num_arg0 = function
   | Some { e = Enumber t; _ } -> (try Some (int_of_string t) with _ -> None)
@@ -163,6 +175,7 @@ and bytes_of = function
          / SHLD <p>] and `LHLD <p>' reads.  The old citation was `[HYPOTHESIS] PROBE 57', whose
          probe has no .REL. *)
   | RTbmem (_, _, _) -> 0   (* a view into an allocated record, not a variable *)
+  | RTimem (_, _, _) -> 0   (* a NAME for a byte range the owning head already sized [E2E-39/P2] *)
   | RTstructrec (_, _) -> 0 (* the record type itself allocates nothing statically *)
   | RTbased (_, t) -> 0                     (* a view, not a variable -- see the type note above *)
   | RTentry _ -> 0   (* entry/FUNCTION symbols show at 0000, no visible bytes *)
@@ -317,6 +330,38 @@ let returns_attr (b : block) : rt option =
    occupies a 2B slot dumped as `<type> PARAMETER` [EX FLTPOLY p:
    X/Y/Z @0,2,4 FLOAT PARAMETER, frame 6B] whereas procedures copy
    params as AUTOMATIC [EX P060B] *)
+(* [E2E-39/P2] The DUPLIC half of member-name validation.  E39X2 (`declare a fixed, 1 g, 2 a fixed,
+   2 b fixed') gives `DUPLIC ?' in PASS 1 and NO .REL [golden/e39b]: a member name shares the frame's
+   flat namespace, so there is no shadowing rule to implement -- DR rejects the program instead.  The
+   colliding "ordinary declaration" set means CELL-OWNING names only: MPMCALLB declares `2 link
+   pointer' in one structure and `2 link fixed(15)' in another and DR compiles it
+   [golden/first8080u/MPMCALLB/MPMCALLB.REL], so views and heads must not count as collisions.
+
+   The ambiguity half (DR's `QUALIFY ?', E39X1 -- two visible structures each declaring `a', then
+   `a = 3', 2 errors in PASS 2, no .REL) is NOT implemented: raised at declaration time it refuses
+   MPMCALLB, whose references are qualified (`cpb.nameadr = addr (procname)') and which DR compiles
+   [C255].  The rule is real but lazy -- it belongs at an unqualified USE, which needs the
+   statement-walking machinery rather than a filter over rows.  Until then an ambiguous name resolves
+   by first-binding, which is a known wrong-acceptance against E39X1, recorded in PERIMETER. *)
+let check_member_names (rs : (string * rt * int * bool) list) : unit =
+  let owner_str = function RTimem (o, k, _) -> Printf.sprintf "%s@%d" (upper o) k | _ -> "?" in
+  let is_cell = function
+    | RTimem _ | RTbmem _ | RTstruct _ | RTstructrec _ | RTbased _ -> false
+    | _ -> true
+  in
+  List.iter
+    (fun (n, rt, _, _) ->
+      match List.filter (fun (k, r2, _, _) -> k = n && is_cell r2) rs with
+      | [] -> ()
+      | _ ->
+          failwith
+            ("bind: member `" ^ n ^ "' of structure " ^ owner_str rt
+             ^ " collides with a declaration of the same name in the same block [DR: DUPLIC] "
+             ^ "(E39X2 gives `DUPLIC ?' in pass 1 and no .REL: a member name lives in the same flat "
+             ^ "namespace as an ordinary variable, so DR does NOT shadow -- there is no innermost-wins "
+             ^ "rule to implement, and declaring one name twice is a program error, not a subset gap.)"))
+    (List.filter (fun (_, rt, _, _) -> match rt with RTimem _ -> true | _ -> false) rs)
+
 let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
   let items = List.map fst (frame_decls b) in
   let off = ref 0 in
@@ -464,6 +509,28 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
                     end else begin
                       off := !off + sz; !off - sz - base
                     end in
+            (* [E2E-39/P2] UNQUALIFIED MEMBER RESOLUTION.  A member of an internal structure is
+               reachable by its bare name: manual 6.2's `C = B + A' over `declare 1 employee ...',
+               E39S2/S3/S5 (read, write, mixed with locals, nested), and the authentic ST12 whose
+               `i2 = 5' DR compiles [golden/e2e324d/ST12: line 5 of the listing, DATA AREA 0006, a
+               real .REL].  `base + o' is the absolute frame offset: `base' is the owning head's own
+               offset and `o' is base-relative in BOTH storage areas (a static scalar row carries the
+               absolute b0, and base + (b0 - base) = b0), so the coordinates agree by construction.
+               Only a TOP-LEVEL (level-1) owning head gets rows.  E39S5 (`declare 1 g, 2 h, 3 a
+               fixed, 2 b fixed') shows the nested spelling going wrong in bind's head re-dispatch --
+               a level-2 sibling after a level-3 member reopens a head and my frame came out 6 where
+               DR's DATA record says 4 [C255] -- and a frame whose size disagrees with DR's measured
+               one is a layout defect, so the nested shape is left unresolved and refuses.  Types are
+               limited to FIXED BINARY(15) and POINTER: DR resolves every member type, but this
+               compiler has no DR sample of a cell-addressed internal CHAR/BIT/DEC/VARYING member,
+               and guessing a cell size overlaps the next variable (the C162 class).  Ambiguity and
+               collision are handled once, after the walk, by check_member_names. *)
+            let top_level_head = match !head with Some (hl, _) -> hl = 1 | None -> false in
+            (match rt with
+             | (RTbin 15 | RTptr) when top_level_head ->
+                 rows := (String.lowercase_ascii item.dname.orig,
+                          RTimem (!horig, base + o, rt), base + o, false) :: !rows
+             | _ -> ());
             members :=
               { flag = "c"; sname = "." ^ upper item.dname.orig
               ; disp = rty_str rt ^ " MEMBER"; off = o } :: !members
@@ -613,7 +680,9 @@ let layout ?(soff_start = 0) ?(isfn = false) (b : block) =
       )
     items;
   flush ();
-  (!off, List.rev !syms, !statics, List.rev !rows, List.rev !arrays)
+  (let rs = List.rev !rows in
+   check_member_names rs;
+   (!off, List.rev !syms, !statics, rs, List.rev !arrays))
 
 (* ---------- format descriptors & labels (binder v2) [C052] ---------- *)
 (* sizes: F/E items 6B, A 2B, controls(SKIP/PAGE/LINE) 2B, count prefix +3B,
