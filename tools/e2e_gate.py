@@ -3605,6 +3605,36 @@ def main():
     # false byte-parity claim (C123 retraction).  A tool's blind spot is invisible
     # from inside its own output, so it is checked before any specimen is compiled;
     # raw `cmp` on .REL bytes remains the acceptance criterion either way.
+    # [E2E-37/P2] the measurement system is under test too.  COVERAGE.tsv and the corpus
+    # census are the only places that record "what does DR accept?", and both were wrong
+    # before they were machine-checked -- a 49-file directory listing read as a 44-program
+    # corpus, and a hand-written refusal count that did not add up.  They are validated on
+    # every gate run, before any specimen compiles: a coverage row may not cite a probe that
+    # is on no panel, a claim that does not exist, a corpus program the census does not
+    # contain, or a manual page the banked OCR text does not support.
+    for tool, argv in (("coverage panel", [sys.executable,
+                                           os.path.join(ROOT, "tools/coverage_check.py")]),
+                       ("corpus census", [sys.executable,
+                                          os.path.join(ROOT, "tools/corpus_census.py"),
+                                          "--verify",
+                                          os.path.join(ROOT, "spec/census/corpus-census.json")])):
+        rr = subprocess.run(argv, capture_output=True, text=True)
+        tl = [l for l in (rr.stdout + rr.stderr).splitlines() if l.strip()]
+        want = ("rows," if tool == "coverage panel" else "counts:")
+        line = next((l for l in tl if want in l), tl[-1] if tl else "(no output)")
+        print(f"{tool:16s} {line}")
+        if tool == "coverage panel":
+            for l in tl:
+                if l.startswith("coverage_check: corpus") or l.startswith("coverage_check: census"):
+                    print(f"{tool:16s} {l}")
+        if rr.returncode != 0:
+            for l in tl:
+                if l.startswith(("ERROR", "FAIL", "coverage_check: corpus",
+                                 "coverage_check: census")):
+                    print("   " + l)
+            sys.exit(1)
+
+    # raw `cmp` on .REL bytes remains the acceptance criterion either way.
     if not a.skip_selftest:
         # [E2E-15/C154] regression-list collisions have produced false confidence three
         # times, and a dict overwrite leaves no trace in the output -- check the panel's own

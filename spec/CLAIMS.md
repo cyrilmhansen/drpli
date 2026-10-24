@@ -4427,3 +4427,82 @@ with the two-level shape.
 procedure nested inside a procedure whose declaration sat at the end of its enclosing body. The
 general lesson is the one [C185] keeps teaching: a rule induced from samples that all live at one
 nesting level is a rule about that nesting level.*
+
+---
+
+## E2E-37 — measuring coverage: the corpus denominator, the manual, and my own propagation bug
+
+**C239. The corpus is 44 historical programs, 41 with an authenticated DR `.REL`, 3 DR refused outright, 15 byte-exact, 0 divergent, 26 refused by me, and 0 unexpected — and `tools/corpus_census.py` is the only sanctioned way to quote those numbers.**
+Seven questions are answered separately, because conflating them is what produced the bad
+number: *how many programs did DR's batch contain* (`batch`/`golden/first8080u/summary.txt`,
+44), *how many have an oracle I trust* (sha256 against `MANIFEST.sha256`, 41), *how many did DR
+reject* (3: `CALL`, `INVERT`, `MAININVT` — these have a `.PRN` and no `.REL`, so neither
+"accepted" nor "refused by me" is meaningful), *what does my compiler do with the rest*
+(15/0/26), and *is anything in the bucket where a tool lies* (`UNEXPECTED`, 0).
+E2E-36/P6 reported "44 pairs / 29 refusals" from a directory listing; 29 does not add up
+against 41 oracles and 15 exact, and the listing was one file per program rather than one pair
+per program.  Two hard rules come with the tool: the CP/M name pattern is `^[A-Z][A-Z0-9]{0,7}$`
+— `{2,9}` silently drops program **`A`**, a real one-letter name in this batch, which is how a
+census reads 43/40/14 — and the gate calls `--verify`, which compares without writing, because
+`--check` rewrites the snapshot it is about to compare against and so passes trivially while
+dirtying a tracked file.
+*The number that matters in C239 is not 15. It is the 0: an empty `UNEXPECTED` bucket is the
+only reason the other six are worth quoting.*
+
+**C240. DR's own manual documents that only `STATIC` variables may carry `INITIAL`, and that `AUTOMATIC` is statically allocated with recursion as the single exception — so [C181]'s "an outermost automatic is a static regardless of `RECURSIVE`" is the documented default, not a DR idiosyncrasy.**
+`PL1-80 Language Manual`, December 1980, §6.2 p.31: "only STATIC variables can have the INITIAL
+attribute in order to be compatible with the full language"; §6.3 p.31: "In PL/I-80, AUTOMATIC
+storage is statically allocated to improve variable addressing and execution speed. One exception
+is in the presence of recursion, where the AUTOMATIC variables must use the dynamic storage
+mechanism to prevent data overwrite on recursive calls", and "the default storage class attribute
+for a variable not declared STATIC or BASED is AUTOMATIC".  Evidence is the banked OCR text
+(`spec/manuals/PL1-80_Language_Manual_Dec80.txt.gz`, printed page = pdf page − 7), machine-checked
+by `tools/coverage_check.py`, which rejects a page cite the OCR text does not support.
+This does *not* license a claim about `RECURSIVE` for nested procedures: no accepted specimen
+recurses, the outermost case has no stack to switch to, and whether the dynamic mechanism ever
+appears in DR's output is unmeasured.  `DECL.RECURSIVE` is registered `SINGLE_SAMPLE` with that
+hole named.
+*A documented restriction and an undocumented DR behaviour look identical from a refusal message.
+That is why the perimeter table needed the manual in it.*
+
+**C241. DR documents a `BASED` pointer-ref as resolved in the scope of the `BASED` declaration and re-evaluated at every unqualified reference — the same (name, owning scope) discipline [C235] found for cross-block labels — and neither rule is implemented here.**
+§6.4 p.32: "the pointer-ref is re-evaluated at each occurrence of the unqualified variable", and
+"the pointer variable or pointer-valued function name given in the pointer-ref is taken from the
+scope of the BASED declaration, even if a more local declaration exists with the same pointer-ref
+name".  My `bind` resolves a pointer-ref in the scope of the *use*, and my codegen materialises the
+base once per statement.  The first half is a live competing hypothesis for the E30 traversal
+divergences — `E30L2/L3/L4/G1` each carry exactly one extra code byte, pinned for two episodes as
+"DR reloads something in the traversal" with the reload never localised — because a compiler that
+honours §6.4 would reload an implicit base per reference.  I have not established that this is the
+cause and I am not fitting it: the four rows stay `DIVERGENT`, and `DECL.BASED_REEVAL` is
+registered so the next episode inherits the question.  The shadowing half is registered
+`UNREVIEWED` with an explicit *no probe exists* — a specimen that shadows a base in an inner block
+would test it, and would need DR.
+*[C235] was learned from a label bug and immediately predicted a second place where the same key
+would be wrong. Two independent DR artefacts now agree on the discipline.*
+
+**C242. My bind does not propagate `STATIC` from a structure top to its members, so a member `INITIAL` is refused with a message that blames DR; DR compiles both corpus programs that exercise the shape, so this is my defect and it costs two exact specimens with no oracle work at all.**
+`artefacts/DIOCALLS.PLI:186-187` is `1 inbuff static,` / `2 maxsize bit(8) initial('80'b4),` and
+`artefacts/ENTER.PLI:25-33` is `1 default static,` with `initial(...)` on members — the manual's own
+§6.2 example shape, verbatim.  Both have authenticated `.REL` goldens, i.e. DR accepted them, while
+my refusal reads `INITIAL without STATIC is rejected by DR (NOT STATIC)`.  The message is not merely
+a bad phrasing: it *asserted a DR behaviour that the corpus contradicts*, and did so for nine
+episodes, because my [N76]/[N78] negatives only cover `INITIAL` on a non-static **top-level**
+variable and never the inherited case.  `LABELS`, `MPMCALLA`, `MPMCALLB` and `OPTIMIST` carry the
+same declaration family and may partly share the cause.
+*The general form: a refusal message that names DR is a claim about DR, and it needs the same
+evidence standard as a claim in CLAIMS.md. Mine had none.*
+
+**C243. Section 12 of the manual documents 52 built-in functions; none of the 15 byte-exact corpus programs calls one, so the built-in surface is the largest unmeasured area in the perimeter.**
+Ten arithmetic, 18 mathematical, 7 string, 10 conversion, 3 condition, 4 miscellaneous (`ABS …
+TRUNC`, `ACOS … TANH`, `BOOL COLLATE INDEX LENGTH SUBSTR TRANSLATE VERIFY`, `ASCII BINARY BIT
+CHARACTER DECIMAL DIVIDE FIXED FLOAT RANK UNSIGNED`, `ONCODE ONFILE ONKEY`, `ADDR DIMENSION HBOUND
+LBOUND LINENO NULL PAGENO`); the names and printed pages come from the manual's table of contents,
+because §12's body headings are OCR-garbled (`HBOTJNJ` = HBOUND, `NTTLL` = NULL).  All 52 parse and
+reach bind or codegen in `spec/coverage-builtin-sweep.tsv` — nothing is rejected as unknown — but
+DR-verified lowering exists only in probe specimens, never in a whole program.
+Two lessons about measuring rather than what was measured: the first sweep's template declared
+`fixed binary(31)`, which my compiler refuses, so all 55 rows failed identically on the declaration
+and reported nothing about built-ins — **a sweep whose every row says the same thing is telling you
+about the sweep**; and `DR-verified via byte-exact corpus programs: 0` is the kind of number that
+looks like a tool failure until you check whether it is true, which here it is.

@@ -1,0 +1,51 @@
+{
+ "by_category": {
+  "ABI": 1,
+  "AGG": 6,
+  "BUILTIN": 1,
+  "COND": 4,
+  "DECL": 14,
+  "EXPR": 12,
+  "IO": 5,
+  "LEX": 3,
+  "LOOP": 4,
+  "NEG": 1,
+  "OBJ": 3,
+  "PROC": 8,
+  "RTME": 1,
+  "STOR": 8,
+  "TRAN": 6
+ },
+ "confidence": {
+  "INFERRED": 3,
+  "MEASURED": 61,
+  "SINGLE_SAMPLE": 9,
+  "UNREVIEWED": 4
+ },
+ "dr": {
+  "ACCEPTS": 66,
+  "ACCEPTS_DEFECT": 2,
+  "REJECTS": 6,
+  "UNTESTED": 3
+ },
+ "manual_none": 69,
+ "manual_unverified": 0,
+ "mine": {
+  "DIVERGENT": 3,
+  "NOT_ATTEMPTED": 2,
+  "PARTIAL": 5,
+  "REFUSED": 16,
+  "SUPPORTED": 51
+ },
+ "no_parity": 21,
+ "no_runtime": 58,
+ "perimeter": {
+  "C": 2,
+  "M": 14,
+  "S": 61
+ },
+ "rows": 77,
+ "single_sample": 9,
+ "unreviewed": 4,
+ "with_boundary": 77
+}

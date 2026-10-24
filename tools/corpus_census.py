@@ -83,7 +83,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--json", default=os.path.join(ROOT, "spec/census/corpus-census.json"))
     ap.add_argument("--tsv", default=os.path.join(ROOT, "spec/census/corpus-census.tsv"))
-    ap.add_argument("--check", metavar="PREV.json")
+    ap.add_argument("--check", metavar="PREV.json",
+                    help="rewrite the snapshots, then compare counts against PREV.json")
+    ap.add_argument("--verify", metavar="SNAP.json",
+                    help="[E2E-37/P2 gate arm] recompute and compare against SNAP.json WITHOUT "
+                         "writing anything -- the read-only arm the gate uses, so a gate run "
+                         "cannot dirty the corpus snapshot it is supposed to be checking")
     a = ap.parse_args()
 
     if not os.path.exists(BIN):
@@ -223,6 +228,31 @@ def main():
     if snap["counts"]["UNEXPECTED"]:
         print("corpus census: UNEXPECTED bucket is NOT empty -- investigate before quoting "
               "any coverage number", file=sys.stderr)
+    if a.verify:
+        prev = json.load(open(a.verify))
+        bad = []
+        if prev["counts"] != snap["counts"]:
+            bad.append("counts: %s" % {k: (prev["counts"].get(k), v)
+                                       for k, v in snap["counts"].items()
+                                       if prev["counts"].get(k) != v})
+        pm = {r["name"]: r for r in prev["rows"]}
+        for r in rows:
+            q = pm.get(r["name"])
+            if q is None:
+                bad.append("%s: new program not in the snapshot" % r["name"])
+                continue
+            for k in ("dr_verdict", "sha_ok", "mine", "mine_bytes", "differing_bytes"):
+                if q.get(k) != r.get(k):
+                    bad.append("%s.%s: snapshot %r, recomputed %r" % (r["name"], k, q.get(k), r.get(k)))
+        for n_ in pm:
+            if n_ not in {r["name"] for r in rows}:
+                bad.append("%s: in the snapshot, not in the batch" % n_)
+        if bad:
+            print("corpus census: snapshot DRIFT -- %s" % "; ".join(bad[:8]), file=sys.stderr)
+            return 1
+        print("corpus census: recomputed counts match %s (nothing written)"
+              % os.path.relpath(a.verify, ROOT))
+        return 1 if snap["counts"]["UNEXPECTED"] else 0
     os.makedirs(os.path.dirname(a.json), exist_ok=True)
     open(a.json, "w").write(json.dumps(snap, indent=1, sort_keys=True) + "\n")
     cols = ["name", "dr_verdict", "rel_present", "sha_ok", "mine", "mine_bytes", "dr_bytes",
