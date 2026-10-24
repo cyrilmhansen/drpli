@@ -1,0 +1,8 @@
+E38C8: procedure options(main);
+   declare n fixed;
+      n = 1;
+      if n >= 1 then n = 100;
+      put list('n=', n);
+   stop;
+end E38C8;
+

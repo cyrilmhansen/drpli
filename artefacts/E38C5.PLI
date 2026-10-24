@@ -1,0 +1,9 @@
+E38C5: procedure options(main);
+   declare p pointer, q based(p) fixed, z fixed;
+      z = 3;
+      p = addr(z);
+      if q > 3 then do; q = q + 4; end;
+      put list('q=', q);
+   stop;
+end E38C5;
+

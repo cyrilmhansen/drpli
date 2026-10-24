@@ -1,0 +1,8 @@
+e37s5: procedure options(main);
+   declare t fixed;
+   declare 1 o static, 2 b bit(8) initial('80'b4), 2 c fixed initial(1);
+   t = c;
+   put list('t=', t, 'b=', b);
+   stop;
+end e37s5;
+

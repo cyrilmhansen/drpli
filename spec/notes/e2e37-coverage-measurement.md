@@ -54,6 +54,12 @@ checking and make the comparison pass trivially.
 `e2e_gate.py` runs the validator and the census before compiling anything, and fails
 the gate on either.  71 rows, 15 categories, `0 errors / 0 warnings`:
 
+> **[E2E-38 correction]** The numbers in this paragraph were stale in the file that wrote them: by
+> the end of the same episode `COVERAGE.tsv` held **77** rows over **16** declared categories (15 of
+> them populated), and `coverage_check.py` reported 0 errors against the 77-row file.  A count in
+> prose is the thing that goes stale first, so `COVERAGE-SCHEMA.md` now says to recompute it from the
+> validator instead of quoting it [C249].
+
     mine_status   SUPPORTED=49 REFUSED=15 PARTIAL=3 DIVERGENT=3 NOT_ATTEMPTED=1
     dr_status     ACCEPTS=60 ACCEPTS_DEFECT=2 REJECTS=6 UNTESTED=3
     perimeter     S=59 M=11 C=1
@@ -141,6 +147,14 @@ shape:
     25:  1 default static,
     27:  2 street char(20) initial('(no street)'),  (ENTER)
 
+> **[E2E-38]** the diagnosis here is right and its unlock estimate is not.  The member never
+> inherits `STATIC` because `dcl_static` reads only a declaration's own attributes; that is fixed in
+> [C250], which removes the false "`DR` rejects it" claim from nine corpus episodes.  It does *not*
+> unlock DIOCALLS or ENTER: with the false refusal gone, DIOCALLS stops at `BASED ... CHAR(127)
+> VARYING is not implemented` and ENTER at `statement kind not in supported subset (line 37)`, and
+> both need unqualified structure-member scope, which DR gives them [C248].  See
+> `spec/notes/e2e38-c236-c242-corrections-and-pb4.md`.
+
 `STATIC` on the structure top, `INITIAL` on a member.  **My bind does not propagate
 `STATIC` from the parent level to members**, and my message then mis-attributes the
 refusal to DR.  Two corpus programs unlock with zero DR round trips — the correct
@@ -172,7 +186,7 @@ Cost is stated in DR round trips, because that is the expensive resource here.
 
 | rank | programs | first blocking cause | cost to unlock |
 |---|---|---|---|
-| 1 | **DIOCALLS, ENTER** | my own `STATIC`-inheritance bug in bind (P3 above) | **0 round trips** — goldens already pin it |
+| 1 | ~~**DIOCALLS, ENTER** — 0 round trips~~ | my own `STATIC`-inheritance bug in bind (P3 above) | **[E2E-38] WRONG**: the bug was fixed with 0 round trips [C250] and revealed three more blockers behind it — BASED CHAR VARYING, the statement kinds, and unqualified member scope [C248]. Cheapest *real* unlock is the comparison subset [C247], which needs one round trip and is already banked in `e37e`/`e38a`. |
 | 2 | **COPY, COPYLPT, RETRIEVE** | `FILE` name longer than 6 chars (COMMON-symbol truncation) | **0 round trips** — `RETRIEVE.REL` shows DR's symbol form |
 | 3 | **DEPREC, LABELS, MPMCALLA, OPTIMIST** | array of 0-byte / 9-byte elements [C159] | ~1 (element sizes ≠ 2 need one sampled layout) |
 | 4 | **EXPR2, FSCAN, LOAN2, MPMCALLB, REPORT** | `STATIC` on `CHAR(n)` / `CHAR(n) VARYING` unsampled | 1 round trip, ~4 probes, then the same fix feeds rank 1 |

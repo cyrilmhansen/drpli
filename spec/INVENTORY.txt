@@ -399,6 +399,8 @@ E36T6	specimen	artefacts/E36T6.PLI	golden/e36t/E36T6/E36T6.REL
 E36T7	specimen	artefacts/E36T7.PLI	golden/e36t/E36T7/E36T7.REL
 E36T8	specimen	artefacts/E36T8.PLI	golden/e36t/E36T8/E36T8.REL
 E36T9	refusal	t9: procedure options(main);\n   declare n fixed;\n   n = 0;\n   goto inner;\n   n = 1;\n  sub: procedure;\n    n = 5;\ninner:\n    n = 6;\n   end sub;\n   stop;\nend t9;\n	DR diagnoses it as NOT LABEL (golden/e36t/E36T9/E36T9.PRN) and mine refuses with the same words: the target of the GOTO is the entry label of a nested procedure, which is a procedure name, not a label.  [E2E-36/P1] established this for all four orientations -- exit to an enclosing block's procedure, entry of a sibling, entry of oneself, entry of an inner procedure from the enclosing block -- so bind.ml keeps procedure entries out of a block's label set and resolve_label answers Lbl_not_label rather than resolving through the scope chain.
+E37C1	specimen	artefacts/E37C1.PLI	golden/e37e/E37C1/E37C1.REL
+E37C3	specimen	artefacts/E37C3.PLI	golden/e37e/E37C3/E37C3.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

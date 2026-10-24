@@ -55,3 +55,55 @@ The set lives in `tools/coverage_check.py` (CATS/PREFIX); a new category must be
 last one added the hard way: `NEG` was missing a comma in the set literal, which made it an unknown
 category, and the id/category checks were an `if/elif` chain, so a well-formed id masked it for the
 whole episode.  Both are fixed; `BUILTIN` was added for the section-12 audit.
+
+## Columns, explicitly
+
+| # | name | meaning | allowed |
+|---|---|---|---|
+| 1 | `id` | `<CATEGORY>.<SHAPE>` | category must be the row's own `category` |
+| 2 | `category` | one of the 16 declared categories | see *Categories* above |
+| 3 | `construct` | the shape, written as source text | free |
+| 4 | `contract` | what is actually established about it — DR's behaviour, the instruction sequence, the sizes | free, but must be an *observed* claim |
+| 5 | `perimeter` | whose restriction is it | `S` both accept, `M` mine only (a defect in me), `C` faithfully-adopted DR constraint, `OPEN` unmeasured |
+| 6 | `manual_ref` | `pNN[:§X.Y][=verbatim phrase]` or `NONE:<why>` | a cite with `=phrase` is checked against the OCR of that printed page |
+| 7 | `dr_status` | DR's verdict, measured | `ACCEPTS`, `ACCEPTS_DEFECT` (emits bytes its own docs contradict), `REJECTS`, `UNTESTED` |
+| 8 | `mine_status` | my verdict | `SUPPORTED`, `PARTIAL`, `REFUSED`, `DIVERGENT`, `NOT_ATTEMPTED` |
+| 9 | `rel_parity` | raw `.REL` comparisons | `EXACT:n`, `EXACT:n/DIFFERS:m`, `DIFFERS:n`, `NONE` |
+| 10 | `runtime` | linked-image witnesses | `NONE`, `UNVERIFIED`, `INDEPENDENT:n`, `CORROBORATING:n`, `CONTRADICTS_DR:n`, `n/m` |
+| 11 | `probes` | specimen keys and/or paths that carry the evidence | every key must be on the panel, a corpus program, or an existing file |
+| 12 | `corpus` | corpus programs this row explains | must be one of the 44 |
+| 13 | `boundary` | what this row does *not* settle, and why | free |
+| 14 | `confidence` | how much the evidence is worth | `MEASURED` (2+ independent witnesses), `SINGLE_SAMPLE`, `INFERRED` (one accepted shape — forced on `rel_parity`/`runtime`), `UNREVIEWED` (nothing above it holds — forces `rel_parity=NONE`, `runtime=NONE`) |
+| 15 | `provenance` | claim refs, sweep files, episode notes | a `MEASURED` row's probes must be nameable in a cited claim or note |
+
+**Do not hard-code row or category counts in prose.** A count in a header goes stale the moment a
+row is added, and three documents in this repo did exactly that in E2E-37 ("71 rows", "15
+categories", "71 numbered claims").  Run `python3 tools/coverage_check.py` for the current tally,
+and `tools/corpus_census.py` for corpus counts; the claims file's structure is described below
+rather than by a number.
+
+## Categories in use — 83 rows, 15 of 16 declared categories populated (E2E-38)
+
+`DECL 17 · COND 7 · EXPR 12 · STOR 8 · PROC 8 · AGG 6 · TRAN 6 · IO 5 · LOOP 4 · LEX 3 · OBJ 3 ·
+ABI 1 · BUILTIN 1 · NEG 1 · RTME 1 · FILE 0`.
+
+The first version of this table said `DECL 15 · COND 6` and was stale before the sentence ending the
+previous section was written: the six rows added in the same session had not been counted.  That is
+the argument for the paragraph above, not an argument for being more careful — recompute it from
+`tools/coverage_check.py`'s output.
+
+`FILE` is declared and unused: the file-oriented refusals are currently carried by `DECL.FILE_NAME_LEN`
+and the `IO`/`RTME` rows.  A declared-but-empty category is not an error, but it should not be read
+as coverage.
+
+## Claim-file structure
+
+Claims are cited by number (`[C072]`) and never by prose title.  They are spread over three formats
+— `## Cnnn — title` with `- status/evidence/prose/covers/depends` keys in `spec/CLAIMS.md`,
+`Cnnn. [E2E-..]` blocks, and `## Cnnn` blocks inside `spec/notes/*.md` — so the count and the
+numbering are not contiguous: `spec/CLAIMS.md` itself begins mid-index (its first line is a `| C079
+|` table row) and C001–C078 live in the notes.  `tools/coverage_check.py` loads all three formats;
+its first version recognised only one, and silently validated citations against a subset of the
+corpus.  A withdrawn claim stays in the file with its status changed to `WITHDRAWN` and a pointer to
+what replaced it (see [C245] → [C250]): a claim is a record of what was believed when, and deleting
+it destroys the audit trail that makes the correction visible.

@@ -1,0 +1,6 @@
+e37s6: procedure options(main);
+   declare 1 o static, 2 s char(6) var initial('abcdef');
+   put list('s=', s);
+   stop;
+end e37s6;
+

@@ -1,0 +1,9 @@
+e37s4: procedure options(main);
+   declare t fixed;
+   declare 1 o static, 2 a fixed initial(5), 2 b fixed;
+   b = 2;
+   t = a + b;
+   put list('t=', t);
+   stop;
+end e37s4;
+

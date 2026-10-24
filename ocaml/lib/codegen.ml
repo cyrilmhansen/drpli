@@ -9466,6 +9466,50 @@ let block_dcls (blk : Ast.block) : Ast.dcl list =
 let dcl_static (d : Ast.dcl) =
   List.exists (fun (a : Ast.attr) -> String.lowercase_ascii a.Ast.akey = "static")
     d.Ast.dattrs
+(* Effective storage class [E2E-38 P2].  Manual section 6.2: the storage class of
+   a structure element is the one on the first declaration at that structure
+   level, "or at the next higher structure level if there is no declaration at the
+   level involved" -- a member that names NO storage class inherits the enclosing
+   level's, and a member that names one wins.  `dcl_static' reads only a member's
+   OWN attribute list, so every `1 t static, 2 x ... initial(n)' shape was refused
+   here as NOT STATIC while DR accepts it and emits .REL (DIOCALLS 187, ENTER 26,
+   FSCAN, LOAN2, REPORT, MPMCALLB, EXPR2, DEPREC, LABELS, MPMCALLA) [C242].
+   Levels arrive as a flat dcl list in source order with d.Ast.dlevel, so the
+   enclosing chain is rebuilt by popping every entry at a level >= mine.  A real
+   DEFAULT clause is deliberately NOT modelled: ENTER's `default' is an ordinary
+   structure name (`1 default static'), and no accepted specimen uses a DEFAULT
+   clause, so inheriting from one would be invented behaviour. *)
+let dcl_sc_own (d : Ast.dcl) : bool option =
+  let has k =
+    List.exists (fun (a : Ast.attr) -> String.lowercase_ascii a.Ast.akey = k)
+      d.Ast.dattrs
+  in
+  if has "static" then Some true
+  else if has "automatic" then Some false
+  else None
+
+let dcl_static_dcls (ds : Ast.dcl list) : (string * bool) list =
+  let res = ref [] and chain = ref [] in
+  List.iter
+    (fun (d : Ast.dcl) ->
+      let lvl =
+        match d.Ast.dlevel with
+        | Some { Ast.e = Ast.Enumber t; _ } -> (try int_of_string t with _ -> 0)
+        | _ -> 0
+      in
+      let rec pop () =
+        match !chain with
+        | (l, _) :: tl when l >= lvl -> chain := tl; pop ()
+        | _ -> ()
+      in
+      pop ();
+      let inherited = match !chain with (_, e) :: _ -> e | [] -> false in
+      let eff = match dcl_sc_own d with Some x -> x | None -> inherited in
+      chain := (lvl, eff) :: !chain;
+      res := (String.lowercase_ascii d.Ast.dname.Ast.orig, eff) :: !res)
+    ds;
+  List.rev !res
+
 let dcl_initial (d : Ast.dcl) =
   match
     List.find_opt (fun (a : Ast.attr) ->
@@ -10163,11 +10207,16 @@ let rows_of (b : Ast.block) =
        * statics are collected from the MAIN block's Sdcl statements; a name
          declared static in a nested procedure is not in that map and refuses. *)
   let static_dcls =
+    let ds = block_dcls b in
+    let eff = dcl_static_dcls ds in
     let one (d : Ast.dcl) =
-      ( String.lowercase_ascii d.dname.Ast.orig
-      , (dcl_static d, dcl_initial d, d.dname.Ast.pos.Source.line) )
+      let nm = String.lowercase_ascii d.dname.Ast.orig in
+      let st =
+        match List.assoc_opt nm eff with Some x -> x | None -> dcl_static d
+      in
+      ( nm, (st, dcl_initial d, d.dname.Ast.pos.Source.line) )
     in
-    List.map one (block_dcls b)
+    List.map one ds
   in
   let has_static_class rt =
     match rt with

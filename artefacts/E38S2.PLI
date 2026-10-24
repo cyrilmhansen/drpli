@@ -1,0 +1,6 @@
+E38S2: procedure options(main);
+   declare 1 o static, 2 m, 3 a fixed initial(3), 2 c char(4) initial('abcd');
+      put list('a=', a, 'c=', c);
+   stop;
+end E38S2;
+

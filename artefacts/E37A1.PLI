@@ -1,0 +1,17 @@
+e37a1: procedure options(main);
+   declare p pointer, bp pointer, z fixed, y fixed, m fixed;
+   declare 1 s based(p), 2 a fixed, 2 nx pointer;
+   declare w based(bp) fixed;
+   allocate s set(p);
+   z = 12;
+   a = 5;
+   nx = addr(z);
+   bp = nx;
+   y = *w;
+   m = 0;
+   if bp = addr(z) then m = 1;
+   put list('y=', y, 'match=', m);
+   free s;
+   stop;
+end e37a1;
+

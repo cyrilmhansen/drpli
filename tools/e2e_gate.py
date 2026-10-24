@@ -3106,6 +3106,19 @@ NEG_META['E34G3'] = ("my-gap", "DR COMPILES it (golden/e34g/E34G3: `hp->vn = jq-
 # on a path where the ENDFILE condition NEVER fires.  Nothing here simulates an EOF event: there
 # is no GET in either program, so there is nothing to deliver.  Both are byte-exact against DR
 # and both are in the runtime panel -- first execution of this machinery at all.
+# [E2E-38/P4] Comparison-family probes from the e37e differential campaign.  Two are byte-exact
+# (E37C1 local-vs-literal, E37C3 formal-vs-literal) and pin that those paths are sound; three are
+# PB4's shape with z = 1, 3, 4 and are registered as DIVERGENT because DR dereferences the base
+# before biasing while I bias the pointer itself -- a wrong-value defect, proven by disassembly at
+# the same byte in all three, and masked in PB4 itself because z=40 takes the branch either way
+# [C246].  The rest of the campaign (10 probes DR accepts and I refuse, 2 DR rejects) is NOT
+# registered here: registering a refusal message as a negative would pin my wording, not DR's
+# behaviour [C247][C248]; they are carried as COVERAGE rows and counted by the corpus census.
+for _n in ('E37C1', 'E37C3'):
+    add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/e37e/%s/%s.REL' % (_n, _n)))
+# E37B1/B2/B3 are DIVERGENT-panel rows only: the gate refuses a name in both panels, which is how
+# PB4/E28N7/E30x are registered too.
+
 for _n in ('E32E2', 'E35N1', 'E35N2'):
     _t = 'e32e' if _n == 'E32E2' else 'e35n'
     add_spec(_n, ('artefacts/%s.PLI' % _n, 'golden/%s/%s/%s.REL' % (_t, _n, _n)))

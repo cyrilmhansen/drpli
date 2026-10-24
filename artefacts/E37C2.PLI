@@ -1,0 +1,8 @@
+e37c2: procedure options(main);
+   declare n fixed;
+   n = 1;
+   if 3 > n then n = 100;
+   put list('n=', n);
+   stop;
+end e37c2;
+

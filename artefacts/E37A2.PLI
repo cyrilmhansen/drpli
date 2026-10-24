@@ -1,0 +1,13 @@
+e37a2: procedure options(main);
+   declare p pointer, z fixed, m fixed;
+   declare 1 s based(p), 2 a fixed, 2 nx pointer;
+   allocate s set(p);
+   z = 12;
+   nx = addr(z);
+   m = 0;
+   if nx = addr(z) then m = 1;
+   put list('match=', m);
+   free s;
+   stop;
+end e37a2;
+

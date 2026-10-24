@@ -189,8 +189,13 @@ and O4 turned out not to be HL reuse at all but missing DE tracking [C219], and 
 pass (they are specimens now).  E30L1-L4 and E30G1 shrank (E30L2 154->153, E30L3 309->306, E30G1
 560->554 of DR's 152/305/553) and PB4, E27S2 and E28N7 did not move, so the rows whose cause really is
 HL-side liveness are the ones still open.  NETWORK is no longer blocked by this family: its code
-section is now DR's exact size and its residual is a single linkage record [C225].  The divergence
-panel is 13 rows.
+section is now DR's exact size and its residual was described in [C225] as "a LINKAGE record, not
+an instruction" -- that diagnosis was WRONG and is corrected in [C237]; the residual is a real
+instruction-sequence difference in the `LHLD / LXI B / DAD B' region of a pointer walk (DR does
+`LXI B,FFFE / DAD B' where I do `LXI H,#target / PUSH H / LXI D / POP H / DAD D': +3 bytes, and the
+DATA difference is the BASED-pointer own pad, which is pinned separately).  E27S2 and NETWORK are
+Family-B/C rows and neither has moved.  The divergence panel is 12 rows as of E2E-38 (9 + the three
+PB4-shape probes E37B1/B2/B3, which prove PB4 itself is a WRONG-VALUE defect [C246]).
 
 ## [E2E-31] Perimeter widened — RETURNS(POINTER) is in; two wrong-value defects are now on the record
 

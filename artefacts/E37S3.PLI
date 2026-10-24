@@ -1,0 +1,6 @@
+e37s3: procedure options(main);
+   declare 1 o, 2 a fixed initial(3);
+   put list('a=', a);
+   stop;
+end e37s3;
+

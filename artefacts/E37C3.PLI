@@ -1,0 +1,13 @@
+e37c3: procedure options(main);
+   declare r fixed;
+   r = 0;
+   call sub(1);
+   put list('r=', r);
+   stop;
+ sub: procedure(x);
+   declare x fixed;
+   if x > 3 then x = 100;
+   r = x;
+   end sub;
+end e37c3;
+
