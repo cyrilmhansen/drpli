@@ -90,3 +90,43 @@ Two bookkeeping errors were caught by guards rather than by reading:
 - `runtime_check` requires a `golden` path, so the row had to point at DR's real oracle output
   (golden/e40b) rather than at the directory I created for the link/run scratch; the note records
   which directory holds DR's transcript and why it exists.
+
+## P3 -- what the [C254] divergence actually is, found by disassembling a pair that P2 made possible
+
+P2's reward was not the nine compiling programs; it was that they became *comparable*. Disassembling
+DR's E39S2 beside my object for it, in the same window, produced [C260]:
+
+| operand class | DR's store | DR's read operand | mine (both classes) |
+|---|---|---|---|
+| ordinary variable | `LXI H,<value> / SHLD <cell> / INX H x k / SHLD` | `LHLD / XCHG / DAD D` | identical to DR -- E39P1 is byte-exact |
+| structure member | `LXI H,<DATA+off> / MVI M,<lo> / INX H / MVI M,<hi>` | `LHLD / PUSH H / LHLD / POP D / DAD D` | the variable form |
+
+One condition selects both halves, and my compiler implements the false branch correctly for 939
+specimens while applying it to the true branch as well. So the fix is class-gated, not a rewrite of
+the store lowering -- and that distinction is the reason this is recorded as a characterization
+rather than an implementation: doing the obvious thing (switch to `MVI M' everywhere) would break the
+exact corpus.
+
+Three of my own errors were in play, which is the more useful part of the note:
+1. **[C254]'s positional explanation was wrong on its own evidence.** My codegen comment claimed DR
+   uses `PUSH H/POP D` "when the evaluation position IS the tail", citing E39S2's `LHLD;INX H;SHLD'.
+   DR's PUSH H sits at 0022 with `MVI A,09` and four `CALL`s after it -- mid-expression, not a tail.
+   The citation was borrowed from RFACT's increment and never checked. Corrected in place, in
+   `ocaml/lib/codegen.ml`, where the next reader will hit it, as well as in CLAIMS.md.
+2. **[C254]'s store shape was invented from an unrelated specimen.** The `MOV M,A / INX H / MOV M,A`
+   sequence is ZS1's ARRAY store of a VARIABLE. DR stores an immediate member with `MVI M,<imm>`,
+   which never touches the accumulator, and its H holds the *address* where mine holds the *value* --
+   so `INX H` means opposite things in the two objects.
+3. **I over-corrected while writing the correction.** My first C260 said the gap was "1 byte cheaper
+   at k=1", then "no, 2 dearer", and claimed a 3-of-6-byte win: I mis-added my own sequence and never
+   asked why two `SHLD`s with a fixed operand could work at all. The answer was in the file -- E39S1
+   and E39S2 are the same program, H carries the value, and `INX H x 2` walks 7 to 9 so the second
+   `SHLD` writes the right number. Re-derived every count from the disassembly text itself
+   (DR 7+k per write, mine 6+2k; 16 vs 11 at two writes, which with the read's 1 byte is the 6).
+   Lesson: a "cheap win" derived from an arithmetic assertion rather than from the bytes is exactly
+   the kind of claim this project keeps having to withdraw.
+
+The control that made it conclusive is free and had been sitting there since E2E-39: E39P1, DR's
+ordinary-variable version of the identical program, where DR emits my sequence and my object is
+byte-exact. Any rule about member code shape must be stated so that the non-member case stays
+untouched, and the non-member case is the one with 939 witnesses.

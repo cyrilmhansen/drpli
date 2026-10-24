@@ -2794,12 +2794,21 @@ let rec writes_de st (e : Ast.expr) =
   | _ -> false
   | _ -> false
 
-(* [E2E-5c slice 2] tail = the continuation address that follows the
-   MAIN block (tail_addr in emit_program). DR routes an ADD through
-   PUSH H/POP D when the instruction at the evaluation position IS
-   the tail position itself (RFACT's main increment at 0x4C:
-   LHLD;INX H;SHLD) and uses the plain XCHG form elsewhere (dbl body
-   at 0x30: MOV A,M / ORA M) [P401/P402/RFACT byte differentials]. *)
+(* [E2E-5c slice 2, CORRECTED by E2E-40/P3 [C260]] tail = the continuation address
+   that follows the MAIN block (tail_addr in emit_program).  What this comment used
+   to claim -- that DR routes an ADD through PUSH H/POP D when the evaluation
+   position IS the tail position itself, citing E39S2's `LHLD;INX H;SHLD' -- is
+   wrong on its own evidence.  DR's E39S2 read is
+       LHLD a / PUSH H / LHLD b / POP D / DAD D / MVI A,09 / CALL ?QICOP ...
+   at 001F-002A: the preserved operand sits in the MIDDLE of an expression and is
+   followed by six more bytes of code, so position cannot be the discriminator.
+   The discriminator is the OPERAND CLASS -- a structure member vs a plain
+   variable [C254 as corrected by C260].  The cited `LHLD;INX H;SHLD' came from
+   RFACT's increment shape, a different program, and was never checked against
+   `g.a = 7'; the same paragraph also described the member STORE as `MOV M,A /
+   INX H / MOV M,A', which is what ZS1 (an ARRAY store of a VARIABLE) does, while
+   DR stores an immediate member with `LXI H,<addr> / MVI M,lo / INX H / MVI M,hi'
+   and never touches the accumulator.  Both halves are measured in [C260]. *)
 (* [E2E-9 slice 6] DR's FIXED BINARY peephole set, newly sampled by R2045,
    R2046 and P044.  All four shapes below are ones MY lowering gets WRONG --
    it emits a plausible instruction sequence instead of DR's -- so they fail

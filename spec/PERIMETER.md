@@ -373,12 +373,23 @@ Gate at this commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9 divergenc
 | Ambiguous member declared in an ENCLOSING frame, used unqualified inside a nested procedure | (unprobed — E39S4, the intended probe, was written malformed and says nothing) | **not caught**: `layout` checks only its own frame's candidates, and no caller threads ancestors yet. E40N1 shows DR DOES resolve an enclosing structure's member from inside a nested procedure, so the same visibility must carry the ambiguity with it; the miss needs two structures sharing a name in the outer block plus an unqualified use in the inner one | E40N1 (accepted by both) narrows it; the ambiguous case is unmeasured [C257] |
 | Ambiguous name used only inside a DECLARATION (INITIAL/DIMS/ATTRS) | (unprobed) | **not caught**: the use-walker skips `Sdcl`. Including it could only add refusals DR has not been asked about | statements are the shape E39X1/E40X3 use [C257] |
 
-**Why none of the resolved shapes is byte-exact yet [C254]:** for one program differing only in
-whether the operands are structure members or ordinary variables, DR emits `PUSH H/POP D` around the
-second load (CODE 0036) where it uses `XCHG` for plain variables (CODE 0030) -- same addresses, same
-register state on exit, 3 bytes per member-operand ADD. My compiler uses the ordinary-variable form
-for both, so my member build is byte-identical to my ordinary build and 6 bytes short of DR's. This
-is a code-shape rule, value-preserving; recorded as divergences, not promotions.
+**Why none of the resolved shapes is byte-exact yet -- [C254] as measured and [C260] as corrected:**
+for one program differing only in whether the operands are structure members or ordinary variables
+(E39S2 vs E39P1, same statements, same addresses, 54 vs 48 code bytes), DR changes TWO things, and
+the condition for both is the operand class:
+
+| operand | DR store form | DR read-operand form | my form (both cases) |
+|---|---|---|---|
+| ordinary variable | `LXI H,<value> / SHLD <cell> / INX H x k / SHLD <cell+k>' -- **byte-identical to mine**, and E39P1 is one of the 939 exact specimens | `LHLD / XCHG / ... / DAD D` | same as DR |
+| structure member | `LXI H,<DATA+offset> / MVI M,<lo> / INX H / MVI M,<hi>' per write -- H holds the ADDRESS, the value never enters a register pair | `LHLD / PUSH H / LHLD / POP D / DAD D` | `LXI H,<value> / SHLD`, `LHLD / XCHG` |
+
+The old text of this paragraph said "3 bytes per member-operand ADD" and described the store as
+`MOV M,A / INX H / MOV M,A`. Both were wrong: the read delta is 1 byte (2 for PUSH+POP against 1 for
+XCHG), and `MOV M,A` is ZS1's ARRAY store of a VARIABLE, never used by DR for an immediate member
+store -- the paragraph was built from a sequence copied from an unrelated shape. What survives is the
+observation: a code-shape rule keyed on operand class, value-preserving, recorded as divergences and
+not promotions. Its positional explanation ("the tail is where no instruction follows the CALL'") is
+withdrawn -- DR's `PUSH H` sits mid-expression with `MVI A,09` and four calls after it [C260].
 
 ## [E2E-40/P2] Qualified internal member access SUPPORTED -- resolved in the parser, verified byte-for-byte
 
@@ -390,7 +401,10 @@ is a code-shape rule, value-preserving; recorded as divergences, not promotions.
 | `a(1).b`, `p->q.b` (left side not a plain identifier) | REFUSED, loudly | none -- no DR sample of either | The structured node is kept so these reach refusals that describe them instead of an undeclared-name message. |
 | `g.a` where `g` has no member `a` | REFUSED: "not a member of that owner" | none -- **DR's behaviour here is UNMEASURED** | Needs its own probe. This is a wrong-acceptance risk pointing the OTHER way from the rest of the episode: bind already ignores the head name when it collects member declarations, so DR may resolve `g.a' from all visible members regardless of the stated owner. Neither behaviour should be trusted until an oracle sample exists. |
 
-- **Not attempted here**: [C254] (member operand preservation, the PUSH H/POP D shape). Every newly
+- **Not attempted here**: the two [C254]/[C260] clauses -- member stores via `LXI H,<addr> + MVI M',
+  and `PUSH H/POP D' instead of `XCHG' when an ADD operand is a member. Both are now measured, the
+  ordinary-variable control is byte-exact, and the change must be gated on operand class: applying the
+  member store form globally would break the 939 specimens that already match DR's variable form. Every newly
   compiling program in this family is short by exactly that amount -- 9 specimens now, none exact --
   and all are registered in DIVERGENT.txt rather than being called matches.
 - **Not extended**: level-2+ members, and member types other than FIXED BIN(15)/POINTER [C228].

@@ -4688,3 +4688,69 @@ a + b)) compiles to an object differing from the qualified one only at three nam
 6/18/26, so one execution covers both spellings [C258]. E40R1 is registered as a divergence row as
 well as a runtime row: compiling and running correctly is not the same as matching DR's bytes, and
 the panels say so separately.
+
+
+## C260 — CORRECTION [C254]: DR stores a member with `MVI M', through H; I store with `SHLD', and my H carries the VALUE
+Disassembling DR's E39S2 beside my object for it -- a comparison that only became possible after P2
+made the qualified programs compile -- falsifies the framing of [C254](i) in two ways and dissolves
+"unsampled". E39S1, E39S2 and E39S5 are one program (`g.a = 7; g.b = 9; put list(g.a + g.b)') written
+three ways, and DR compiles all three byte-identically, so a single disassembly covers them.
+
+**(a) The two compilers build a member store with opposite H conventions.**
+
+    DR, per write:  LXI H,<DATA + offsetof(member)>   ; 21 + reloc, H = the ADDRESS
+                    MVI M,<low byte>                  ; 36 xx      store through H
+                    INX H                             ; 23         advance the ADDRESS
+                    MVI M,<high byte>                 ; 36 xx
+                    ... for offset k: one INX H per byte, 2 bytes each
+                    = 7 + k bytes                     (8 at k=1)
+
+    mine:           LXI H,<the VALUE, zero-extended>  ; 21 xx 00, H = the NUMBER
+                    SHLD <DATA + off>                 ; 22 + reloc, store H's content
+                    INX H x k                         ; 23      advance the NUMBER
+                    SHLD <DATA + off+k>               ; 22 + reloc
+                    = 6 + 2k bytes                    (8 at k=1)
+
+At one write the two agree exactly, byte for byte. At two consecutive writes DR needs 16 and I need
+11, and the gap accounts for 5 of E39S2's 6-byte deficit; the last byte is the read in (b). Note that
+neither side is obviously better: mine is denser because one `LXI H' plus `INX H' does the work of two
+of DR's, and it is only wrong relative to DR. **My H holds the value and DR's holds the address** --
+the same instruction (`INX H') means "advance the destination" in one and "advance the value" in the
+other, which is why a comment saying "uses the accumulator as the indirect-store pointer" does not
+describe my object at all. The claim of a cheap 3-of-6 win was my own mis-reading of this pair and is
+withdrawn in the same breath as the finding that replaces it.
+
+**(b) The preserved operand is not in tail position.** DR's read is
+
+    001F LHLD <a> / 0022 PUSH H / 0023 LHLD <b> / 0026 POP D / 0027 DAD D / 0028 MVI A,09
+    002A CALL ?QICOP / 002D CALL ?PNVOP / 0030 CALL ?QIOOP / ...
+
+`PUSH H/POP D' straddles the second load so `DAD D' can add, and it is FOLLOWED by `MVI A,09' and
+four library calls (which `CALL' is the last instruction of the statement -- that is DR's tail, and
+this is not it). My codegen comment (E2E-5c slice 2) asserts the opposite,
+citing this family's `LHLD;INX H;SHLD', and my code follows that rule; the citation was borrowed from
+RFACT's increment, a different program, and was never checked here. The discriminator that the bytes
+do support is the operand CLASS: member vs plain variable -- which is what [C254] measured and what
+survives. `e2e13' note's framing ("park it on the runtime stack when there is nothing left to
+re-read") is compatible with this and is not corrected; the codegen comment is, in place.
+
+**(c) The control makes the class rule exact, and the change is class-conditional, not a global
+store-form change.** E39P1 -- `declare a fixed, b fixed; a = 7; b = 9; put list(a + b)', the same
+program with flat variables -- has DR emitting exactly my sequence:
+
+    0006 LXI H,0007 / 0009 SHLD a / 000C INX H / 000D INX H / 000E SHLD b   (mine: identical, and
+                                                                           this pair is byte-exact)
+    001A LHLD a / 001D XCHG / ...
+
+So `LXI H,<value> + SHLD` is DR's form for an ordinary variable and my implementation of it is
+correct; `LXI H,<address> + MVI M` is DR's form for a structure member; `XCHG` is DR's read for the
+first and `PUSH H/POP D` for the second. One condition -- is the operand a member -- selects both
+halves. My compiler is byte-exact wherever that condition is false, which is why 939 specimens pass
+and these ten do not, and why the fix must be gated on the class rather than applied to the store
+lowering globally: doing the latter would break the 939.
+
+**Scope of the measurement.** Two top-level FIXED members at offset 1, FIXED BIN(15), relation `+',
+one PUT item. NOT established for POINTER members (E40Q4's gap is 12, and its writes are 2-byte
+pointers where `MVI M' twice would be wrong anyway), offsets >1, CHAR/VARYING members, or other
+relations. Byte-exactness for the ten member specimens is now a two-clause change with known costs
+rather than an unknown, but the clauses are measured on one shape each.
