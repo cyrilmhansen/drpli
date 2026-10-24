@@ -58,9 +58,30 @@ Two traps, both measured rather than reasoned:
 silently**. A wrong-acceptance outranks a new capability, so `bind.ml`/`codegen.ml` are back at P1's
 state; the tree is 939 byte-exact / 0 fail, 84 coverage rows 0 errors, gate 0.
 
+## CORRECTION to the P2 section above (same session, later)
+
+The revert described above was **wrong** and has been undone — see [C256]. E27S12's panel row was
+`kind=refusal, class=my-gap`, i.e. a pin on *my* gap, and its own note said "DR COMPILES IT
+(golden/e2e324d/ST12/ST12.REL)". DR's listing line 5 is `i2 = 5`, both passes clean, DATA AREA 0006:
+the unqualified internal-member write is DR behaviour. `NEG-FAIL ... compiled silently` is therefore
+the fix landing, not a wrong-acceptance. Implementation restored, row retired.
+
+Restored state (commit `dd844be`): my DATA matches DR exactly on E39S2 (0004), E39S3 (0006) and
+E27S12 (0006); E39P1 is byte-exact against DR; the member programs are divergences of *one* named
+rule [C254] — DR's `PUSH H/POP D` for a member operand vs `XCHG` for a plain variable, same
+addresses, same exit registers. Negatives 124→123, divergences 8→12, specimens +1 (939 exact),
+coverage 84 rows 0 errors with three obsolete rows corrected, full gate including `--runtime` exit 0.
+
+The genuinely wrong-acceptance that remains is E39X1 (ambiguous unqualified member): DR prints
+QUALIFY and emits no .REL, mine first-binds and compiles. The declaration-time check that caught it
+also refused MPMCALLB, which DR compiles, so it was removed rather than left to block authentic
+programs. It needs a lazy use-site rule [C255].
+
 ## For E2E-40, in order
-1. Re-apply the member rows gated to non-BASED, non-view members, and re-run the negative panel
-   FIRST — E27S12 is the gate, not an afterthought. Establish what E27S12 declares before widening.
+1. Done in this slice: rows restored, E27S12 retired against its authentic golden, negative panel
+   re-run clean. Next scope item is the *lazy* QUALIFY rule (E39X1 wrong-acceptance) and the
+   qualified internal spelling (`cpb.nameadr = addr (procname)`, MPMCALLB — on the critical path,
+   same shape as E39S1).
 2. DR's member operand-preservation rule (C254): `PUSH H/POP D` instead of `XCHG` when an operand is
    a structure member. One controlled pair exists (E39P1/E39S2); needs the relation × operand-position
    matrix before it generalizes.
