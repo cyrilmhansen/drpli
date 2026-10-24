@@ -666,8 +666,21 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
             let top_level_head = match !head with Some (hl, _) -> hl = 1 | None -> false in
             (match rt with
              | (RTbin 15 | RTptr) when top_level_head ->
-                 rows := (String.lowercase_ascii item.dname.orig,
-                          RTimem (!horig, base + o, rt), base + o, false) :: !rows
+                 let bare = String.lowercase_ascii item.dname.orig in
+                 let qkey = String.lowercase_ascii !horig ^ "." ^ bare in
+                 (* [E2E-40/P2] TWO rows, ONE cell: the bare name and the owner-qualified
+                    `head.member'.  Why the second one exists is DR's own measurement -- E40Q1
+                    (`g.a = 3; k.a = 4; put list(g.a + k.a)') and E40Q2 (two structures, disjoint
+                    member names, everything unqualified) are byte-identical apart from the three
+                    bytes that spell their different procedure names: CODE and DATA agree exactly
+                    [golden/e40a, 3 differing bytes, all in the external-name records].  A member
+                    spelled two ways is ONE variable, so both keys carry the SAME offset, size and
+                    type -- codegen's table builder maps them through the same arm, and the rewrite
+                    in lower_hl/lower_assign cannot make the two spellings drift.  A dotted name is
+                    unlexable in source PL/I, so `g.a' cannot collide with a declared identifier,
+                    and the DUPLIC/QUALIFY checks key on bare uses, which never contain a dot. *)
+                 rows := (qkey, RTimem (!horig, base + o, rt), base + o, false)
+                         :: (bare, RTimem (!horig, base + o, rt), base + o, false) :: !rows
              | _ -> ());
             members :=
               { flag = "c"; sname = "." ^ upper item.dname.orig

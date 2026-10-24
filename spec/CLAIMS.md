@@ -4633,3 +4633,38 @@ yet**, so an ambiguity declared in an outer frame and used inside a nested proce
 is no evidence at all. Both E39X1 and E40X3 are now negative rows anchored to DR's transcripts
 (panel 125); E2E-39's summary claimed those rows existed, and `git show` finds `E39X` in none of the
 commits -- a patch printing "gate rows added" is not evidence the content is in the file.
+
+## C258 — `head.member' is a NAME, not a code shape: resolving it in the parser reproduces DR byte for byte
+E2E-39 deferred qualified internal-member resolution until the member operand-preservation rule
+[C254] could land with it, because the worry was one program compiling to two objects while DR's are
+identical. E40Q1 and E40Q2 test that worry directly, and it dissolves: DR's qualified program (two
+structures sharing a member name, every reference written `g.a`/`k.a`) and its unqualified twin
+(disjoint names, every reference bare) have .REL files differing at **exactly three bytes -- offsets
+5, 16, 23 -- which are the characters of their two different procedure names**. CODE and DATA agree
+(0036/0008 both). E39S1 vs E39S2 and E39S5 are already byte-identical [C253]. So the spelling leaves
+no trace anywhere, which means it must be erased as early as it is introduced, not threaded through
+every consumer.
+
+Implemented that way: the parser's `.' step now turns `head.member' with a plain identifier on the
+left into ONE dotted identifier (`G.A'), and bind emits a member row under that key as well as under
+the bare member name -- same offset, same size, same type, so the two spellings cannot drift.
+A dotted key cannot collide with a declared name because a dot is unlexable inside an identifier.
+Verification is the identity itself, at offset granularity: my E40Q1 vs my E40Q2 differ at 5, 16 and
+23 -- the same three offsets DR uses -- and my E39S1 vs my E39S2 differ at ZERO bytes, matching DR's
+identical pair. 939 byte-exact specimens, 125 negatives and all 18 divergence rows are unchanged by
+the parser edit, including four rows whose programs newly compile through it.
+
+What the per-site approach taught, and why the parser won: with only lower_hl, lower_assign and the
+PUT width function patched, `cpb.nameadr = addr(t)` worked but `cpb.paramadr = cpb.nameadr` still
+refused, because the pointer-assignment predicates inspect the RAW node to decide whether a form is
+measured, and `put list(g.a)` refused in the PUT-form matcher while `put list(g.a + k.a)` succeeded
+via the width function. Each miss is a refusal rather than a wrong value, but the miss list is not
+bounded, and DR says the node should not exist.
+
+Consequences measured this increment: E40Q1, E40Q4, E39S1 and E39S7 compile, all four with DATA
+equal to DR's and code SHORT by 4-12 bytes -- the [C254] member-preservation shortfall, now also
+visible on POINTER members (E40Q4: 50 vs DR 62, a 12-byte gap, three times the FIXED-only case at
+E39S1), which is a new data point for that matrix. E39X1 with its uses qualified compiles, so DR's
+named remedy for an ambiguous member name is available here; the ambiguous unqualified program still
+refuses exactly where DR refuses. MPMCALLB's next blocker is unchanged (`STATIC on CHAR(27)
+is unsampled`), so qualified member access was not what was holding it.

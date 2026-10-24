@@ -37,7 +37,7 @@
   "REFUSED": 21,
   "SUPPORTED": 52
  },
- "no_parity": 28,
+ "no_parity": 27,
  "no_runtime": 65,
  "perimeter": {
   "C": 3,

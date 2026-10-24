@@ -2988,24 +2988,65 @@ let fp_mul_guard arrays (l : Ast.expr) (r : Ast.expr) =
            ^ "POP D ladder is not byte-equal [TBD]")
        | _ -> false)
 
+(* [E2E-40/P2] An owner-qualified reference to an internal member resolves to the SAME variable the
+   bare spelling resolves to.  DR proves that this is only a name operation: E40Q1 writes
+   `g.a = 3; k.a = 4; put list(g.a + k.a)' and E40Q2 writes disjoint bare names `a = 3; z = 4;
+   put list(a + z)' -- and their .REL files are byte-identical except the three bytes spelling their
+   different PROCEDURE NAMES [golden/e40a: 3 differing bytes, all inside the external-name records;
+   CODE 0036 / DATA 0008 on both].  So no separate qualified lowering is built here.  Bind emits a
+   second row keyed `head.member' carrying the identical offset/size/type; qref_key hands codegen
+   that key and the caller re-dispatches on a bare Eident whose orig is it.  Every variable lookup in
+   this file is `List.assoc (String.lowercase_ascii n.Ast.orig) st.vars', so the ordinary path takes
+   over unchanged and the two spellings cannot drift apart.  A dotted name cannot be lexed from
+   source PL/I, so `g.a' cannot collide with a declared identifier.
+   None means there is no such row: a member of a nested (level-2+) structure, which bind gates off
+   [C255]; a member type with no cell-addressed DR sample; a BASED head qualified by its own name;
+   or an owner/member pair that was never declared.  Those keep refusing instead of guessing. *)
+let qref_key (st : st) (base : Ast.expr) (fld : Ast.name) : string option =
+  match base.Ast.e with
+  | Ast.Eident n ->
+      let k = String.lowercase_ascii n.Ast.orig ^ "." ^ String.lowercase_ascii fld.Ast.orig in
+      (try
+         ignore (List.assoc k st.vars);
+         Some k
+       with Not_found -> None)
+  | _ -> None
+
+(* One explanation for both refusal sites, so the read path and the write path cannot say different
+   things about the same shape. *)
+let qref_refuse_reason (base : Ast.expr) : string =
+  match base.Ast.e with
+  | Ast.Eident _ ->
+      "the qualified spelling itself is no longer the obstacle -- a top-level FIXED BINARY(15) or "
+      ^ "POINTER member resolves through EITHER spelling to the same cell (E40Q1 vs E40Q2 [C258]). "
+      ^ "What has no row, and so still refuses, is a member of a nested (level-2+) structure [C255], "
+      ^ "a CHAR/DECIMAL/BIT/VARYING member with no cell-addressed DR sample [C256], or an owner/member "
+      ^ "pair that was never declared."
+  | _ ->
+      "the left side of `.' is not a bare structure name, and only that form has a DR sample (E39S1, "
+      ^ "E40Q1, E40Q4, MPMCALLB all write `head.member' with a plain head name)"
+
+let qref_name (e : Ast.expr) (k : string) : Ast.expr =
+  { e with
+    Ast.e = Ast.Eident { orig = k; key = String.uppercase_ascii k; pos = e.Ast.epos } }
+
 let rec lower_hl st (e : Ast.expr) =
   match e.Ast.e with
   | Ast.Eqstruct (base, fld) ->
-      (* [E2E-39/P2] DR resolves this spelling to the SAME cell: E39S1 (`g.a = 7; g.b = 9;
-         put list(g.a+g.b)'), E39S2 (identical program spelled `a = 7; b = 9; ...') and E39S5
-         (level-3 nesting) are byte-identical .REL [golden/e39a, md5 b3d60402, C253].  The BARE
-         spelling resolves in bind; the qualified one needs the same rewrite applied to every
-         expression classifier, and it is deliberately left to land WITH the member operand rule
-         (C254: for these same addresses DR emits `LHLD a / PUSH H / LHLD b / POP D / DAD D' for a
-         member and `LHLD a / XCHG / LHLD b / DAD D' for a plain variable, CODE SIZE 0036 vs 0030
-         [golden/e39a/E39S2 0x1F vs golden/e39c/E39P1 0x1A]), so that one program does not compile
-         to two different objects under my compiler while DR's are identical.  This arm also
-         replaces an `assert false' crash. *)
-      failwith
-        (Printf.sprintf
-           "codegen: [TBD] qualified reference %s.%s to an internal structure member is not             resolved (line %d; DR resolves it, see lower_assign's note; the bare spelling of the             same member works -- bind gives it the owning structure's cell [C253])"
-           (String.uppercase_ascii (match base.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> "<expr>"))
-           fld.Ast.orig base.Ast.epos.Source.line)
+      (* [E2E-40/P2] resolved by alias, not by a second lowering -- see qref_key.  E2E-39 deferred
+         this until [C254] landed for fear that one program would compile to two objects while DR's
+         were identical; E40Q1 vs E40Q2 shows DR's two objects ARE identical, and sharing the table
+         entry guarantees mine are too. *)
+      (match qref_key st base fld with
+       | Some k -> lower_hl st (qref_name e k)
+       | None ->
+           failwith
+             (Printf.sprintf
+                "codegen: [TBD] qualified reference %s.%s is not a resolvable internal member (line %d): %s"
+                (String.uppercase_ascii (match base.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> "<expr>"))
+                fld.Ast.orig
+                base.Ast.epos.Source.line
+                (qref_refuse_reason base)))
 
   | Ast.Enumber s ->
       (* [E2E-25] this is lower_hl's unrouted literal path -- PUT items, DO bounds, call
@@ -6661,23 +6702,33 @@ let e26_alloc_fixed st (wi : string) (pi : string) =
 
 
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
+  (* [E2E-40/P2] Resolve an owner-qualified member BEFORE the dispatch, so the store travels the
+     ordinary variable path and lands in the identical cell [C258].  (lower_hl can re-dispatch
+     because it is `let rec'; this function is not, so the rewrite happens here instead.)  When the
+     pair has no row the arm below still refuses. *)
+  let alias st (x : Ast.expr) =
+    match x.Ast.e with
+    | Ast.Eqstruct (base, fld) ->
+        (match qref_key st base fld with Some k -> qref_name x k | None -> x)
+    | _ -> x
+  in
+  let lhs = alias st lhs in
+  (* [E2E-40/P2] the SOURCE side needs the same rewrite, and not only for lowering: the predicates
+     that decide whether a pointer assignment is a measured form (`ok rhs' below, and the
+     FUNCTION-call admission at [C179]) inspect the raw AST node, so an unresolved `cpb.nameadr'
+     there looks like an unknown expression kind and refuses -- E40Q4 line 5 is that case. Rewriting
+     the top node here makes those predicates see the ordinary identifier they already understand;
+     deeper nodes are handled when lower_hl re-dispatches on its way down. *)
+  let rhs = alias st rhs in
   match lhs.Ast.e with
   | Ast.Eqstruct (base, fld) ->
-      (* [E2E-39/P2] DR resolves this spelling to the SAME cell: E39S1 (`g.a = 7; g.b = 9;
-         put list(g.a+g.b)'), E39S2 (identical program spelled `a = 7; b = 9; ...') and E39S5
-         (level-3 nesting) are byte-identical .REL [golden/e39a, md5 b3d60402, C253].  The BARE
-         spelling resolves in bind; the qualified one needs the same rewrite applied to every
-         expression classifier, and it is deliberately left to land WITH the member operand rule
-         (C254: for these same addresses DR emits `LHLD a / PUSH H / LHLD b / POP D / DAD D' for a
-         member and `LHLD a / XCHG / LHLD b / DAD D' for a plain variable, CODE SIZE 0036 vs 0030
-         [golden/e39a/E39S2 0x1F vs golden/e39c/E39P1 0x1A]), so that one program does not compile
-         to two different objects under my compiler while DR's are identical.  This arm also
-         replaces an `assert false' crash. *)
       failwith
         (Printf.sprintf
-           "codegen: [TBD] qualified reference %s.%s to an internal structure member is not             resolved (line %d; DR resolves it, see lower_assign's note; the bare spelling of the             same member works -- bind gives it the owning structure's cell [C253])"
+           "codegen: [TBD] qualified reference %s.%s is not a resolvable internal member (line %d): %s"
            (String.uppercase_ascii (match base.Ast.e with Ast.Eident n -> n.Ast.orig | _ -> "<expr>"))
-           fld.Ast.orig base.Ast.epos.Source.line)
+           fld.Ast.orig
+           base.Ast.epos.Source.line
+           (qref_refuse_reason base))
   | Ast.Eqptr (base, fld) ->
       (* [E2E-26/P2] `p->q'.  The ONLY shape DR is measured on is a based name qualified by exactly
          the pointer it is based on [P041: `declare p pointer, q based(p) fixed'; `p->q = 100'].  Any
@@ -7918,6 +7969,18 @@ let num_width st (x : Ast.expr) =
          | _ -> failwith "codegen: char var in numeric PUT item [TBD]")
     | Ast.Ebinary (_, l, r) -> max (w l) (w r)
     | Ast.Eprefix (_, x) -> w x
+    (* [E2E-40/P2] an INTERNAL qualified member gets its width the same way it gets its address: by
+       re-dispatching on the owner-qualified alias, so the number comes from the very table entry the
+       bare spelling uses [C258].  This is the PUT-item classifier; it pattern-matches expression
+       shapes directly, so it needs the rewrite too.  Missing a classifier costs a refusal, never a
+       wrong value: that is why the rewrite is applied per site rather than by an AST copy pass. *)
+    | Ast.Eqstruct (base, fld) ->
+        (match qref_key st base fld with
+         | Some k -> w (qref_name e k)
+         | None ->
+             failwith
+               ("codegen: [TBD] PUT item names an unresolvable qualified member "
+                ^ String.uppercase_ascii fld.Ast.orig))
     (* [E2E-27/P3] the width of a qualified member read is the MEMBER type's width, not the
        record's [S3 p->dist -> MVI A,09, like a plain fixed variable]. *)
     | Ast.Eqptr (_, fld) ->

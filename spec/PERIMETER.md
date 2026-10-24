@@ -36,7 +36,7 @@ becomes a rule in our grammar/binder:
 | `FLOAT BINARY(p)` with p != 24 | cell is 4 bytes for every p probed [R3001/R3013] | Subset G lists BINARY(p) | **[S] storage only** | only binary(24) has a characterized value model; other precisions refuse so a `float binary(14)` program can never silently get 24-bit arithmetic. |
 | dedup'd callee formal's declared cell | occupies NO storage; a written-RECURSIVE callee's cell does | not addressable in the manual | **[S]** | C106, six probes (R3093-R3102) + P401/NFACT/FFACT/R3104. |
 | FILE attribute cluster (KEYED/ENVIRONMENT/TITLE...) | works | §10 | **[S]** | |
-| level numbers, groups, qualified refs, group assign | works (COPY-level) | §4.2-4.3 | **[S]** | incl. per-member dims/types in group parens (parser round) |
+| level numbers, groups, qualified refs, group assign | bind parses them; group assign and level-2+ members REFUSED | §4.2-4.3 | **[X]** | **[E2E-39/P3] corrects this row**: a second level number on a non-first item, a group-level name and a whole-group assignment each get a bind refusal quoting [C226][C227][C228], and DR compiles two of those three shapes. The row was copied from the manual's capability table and described bind's ability to PARSE a declaration, not to compile a reference. Qualified internal member access itself IS supported since E2E-40/P2 [C258] -- established by byte comparison against E40Q1/E40Q2, not read off a table. Structured declaration entries do emit one symbol per member, which is genuine and is what makes a member offset resolvable at all.
 | bare `PUT SKIP;` / `GET SKIP;` | works | §10 (control PUT) | **[S]** | |
 | `REPEAT(e)` in DO | works: i := e per pass (P055B) | §6.5 general forms ("replaces the control variable") | **[S]** | no implicit termination |
 | `^=` operator | works | **Subset G §1.1.2: `^=` = NOT EQUAL (standard ASCII substitution)**; `~=≡^=`?? (table: ~ ≡ ^, ! ≡ \|) | **[S + standard]** RESOLVED: NE → bit(1) result; P052E '1000' = bit(1) '1' widened into bit(4) (left-align pad) — DR consistent, our earlier "contradiction" was an artifact |
@@ -364,7 +364,7 @@ Gate at this commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9 divergenc
 | Shape | DR | Mine | Evidence |
 |---|---|---|---|
 | `declare 1 g, 2 a fixed` + `a = 7; put list(a)` (unqualified read/write, top-level head, FIXED BIN(15)/POINTER) | compiles, member lands in the owning structure's cells | **compiles**; DATA area equals DR exactly (E39S2 0004, E39S3 0006, E27S12/ST12 0006) | golden/e39a, golden/e2e324d/ST12 [C253][C256] |
-| Qualified spelling of the same member (`g.a = 7`) | compiles, `.REL` **byte-identical** to the unqualified spelling | **refuses** (clean message, was an `assert false` crash) -- lands with the rule below | E39S1 == E39S2 == E39S5, md5 b3d60402 [C253] |
+| Qualified spelling of the same member (`g.a = 7`) | compiles, `.REL` **byte-identical** to the unqualified spelling | **SUPPORTED since E2E-40/P2 [C258]** -- resolved in the parser into one dotted identifier; my qualified/unqualified pair differs at exactly the same three byte offsets DR's pair does |
 | Member nested two levels deep (`1 g, 2 h, 3 a fixed, 2 b fixed`) | DATA 4, same object as the flat form | compiles but **DATA 6** -- bind re-dispatches a head for a level-2 sibling after a level-3 member; row entry is gated to a level-1 owning head so the extra members stay unresolved | E39S5 vs DR [C255] |
 | Character / bit / decimal / varying internal member | resolves the name | **refuses**: no DR sample of the cell size, and a wrong size overlaps the next variable [C162 class] | -- |
 | Member name colliding with an ordinary variable | `DUPLIC ?` pass 1, no `.REL` | **refuses**, same outcome | E39X2 [C255] |
@@ -379,3 +379,20 @@ second load (CODE 0036) where it uses `XCHG` for plain variables (CODE 0030) -- 
 register state on exit, 3 bytes per member-operand ADD. My compiler uses the ordinary-variable form
 for both, so my member build is byte-identical to my ordinary build and 6 bytes short of DR's. This
 is a code-shape rule, value-preserving; recorded as divergences, not promotions.
+
+## [E2E-40/P2] Qualified internal member access SUPPORTED -- resolved in the parser, verified byte-for-byte
+
+| shape | verdict | evidence | note |
+|---|---|---|---|
+| `g.a = 7; put list(g.a + g.b)` on `declare 1 g, 2 a fixed, 2 b fixed` (read AND write of a qualified top-level FIXED member, inside an expression, inside a PUT item) | **SUPPORTED** | golden/e39a/E39S1.REL (code 48 vs DR 54, data 4 = 4), golden/e40a/E40Q1.REL, artefacts/E39S7.PLI | One place does the work: the parser's `.' step turns `head.member' with a plain identifier on the left into a single dotted identifier, and bind keys a member row under that name as well as under the bare member name. Why that is the right level: DR's E40Q1 (every reference qualified) and E40Q2 (disjoint names, every reference bare) differ at exactly offsets 5/16/23 -- their procedure name -- and my pair differs at those same three offsets; my E39S1 vs E39S2 are byte-identical, as DR's are [C258]. |
+| `cpb.nameadr = addr(t)` and `cpb.paramadr = cpb.nameadr` (POINTER members of an internal structure -- MPMCALLB's own shape) | **SUPPORTED** | golden/e40a/E40Q4.REL (code 50 vs DR 62, data 8 = 8) | The second statement is why the rewrite had to happen earlier than lowering: the predicates that decide whether a pointer assignment is a measured form inspect the RAW node, so an unresolved `Eqstruct' reads to them as an unknown expression kind. The 12-byte code shortfall here against DR's 4-byte shortfall on the single-FIXED case is further [C254] evidence. |
+| E39X1 with its uses qualified | **COMPILES** | artefacts/E39X1.PLI, DR's own named remedy | The ambiguity's fix is available here, so E39X1 stays a genuine wrong-acceptance rather than a matched gap. |
+| `a(1).b`, `p->q.b` (left side not a plain identifier) | REFUSED, loudly | none -- no DR sample of either | The structured node is kept so these reach refusals that describe them instead of an undeclared-name message. |
+| `g.a` where `g` has no member `a` | REFUSED: "not a member of that owner" | none -- **DR's behaviour here is UNMEASURED** | Needs its own probe. This is a wrong-acceptance risk pointing the OTHER way from the rest of the episode: bind already ignores the head name when it collects member declarations, so DR may resolve `g.a' from all visible members regardless of the stated owner. Neither behaviour should be trusted until an oracle sample exists. |
+
+- **Not attempted here**: [C254] (member operand preservation, the PUSH H/POP D shape). Every newly
+  compiling program in this family is short by exactly that amount -- 9 specimens now, none exact --
+  and all are registered in DIVERGENT.txt rather than being called matches.
+- **Not extended**: level-2+ members, and member types other than FIXED BIN(15)/POINTER [C228].
+- **Runtime**: none of these programs has been executed under cpmsim, so the VALUES remain unverified
+  by execution. What is verified is the layout invariant, at byte-offset granularity.

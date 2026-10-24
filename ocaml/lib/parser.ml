@@ -236,7 +236,29 @@ and suffix_chain p base =
         advance p;
         let q = curpos p in
         let n = name_any p in
-        cur := { e = Eqstruct (!cur, n); epos = q }
+        (* [E2E-40/P2] `head.member' with a plain identifier on the left becomes ONE dotted identifier
+           here, at the single place the spelling is introduced.  Why the parser may do that: DR proves
+           the spelling carries no information at all -- E40Q1 (every reference qualified `g.a', `k.a')
+           and E40Q2 (disjoint names, every reference unqualified) have .REL files differing at exactly
+           three bytes, offsets 5/16/23, which are their different procedure names; CODE and DATA agree
+           [golden/e40a], and E39S1/E39S2/E39S5 are byte-IDENTICAL [C253][C258]. A distinction that
+           leaves no trace anywhere in the output belongs at the front, not in each consumer: bind keys
+           a member row by `head.member' as well as by the bare member name, and every codegen matcher,
+           width function and condition classifier then sees the ordinary identifier it already
+           understands, instead of needing to be taught qualified references one at a time.  The key
+           cannot collide with a real declaration because a dot cannot be lexed inside an identifier.
+           Ambiguity is unaffected: an unqualified use still arrives as the bare name (E39X1 still gets
+           its QUALIFY refusal) while `g.a' and `k.a' are different keys, one owner each, which is
+           exactly why qualification is DR's named remedy.
+           A non-identifier left side (`a(1).b', `p->q.b') keeps the structured node, so those shapes
+           still reach the loud refusals that explain them rather than an undeclared-name message. *)
+        (match !cur with
+         | { e = Eident b; _ } ->
+             let o = b.orig ^ "." ^ n.orig in
+             cur :=
+               { e = Eident { orig = o; key = String.uppercase_ascii o; pos = n.pos }
+               ; epos = q }
+         | _ -> cur := { e = Eqstruct (!cur, n); epos = q })
     | Token.Punct Token.Arrow ->
         advance p;
         let q = curpos p in
