@@ -3,8 +3,8 @@
 Episode scope (from the task): (P1) probe what DR does with a `GOTO' whose label lives in another
 block, (P2) implement it, (P3) get an execution witness for a nonlocal transfer, (P4) close the
 residual difference the probes exposed, (P5) a machine-readable coverage inventory, (P6) a fresh
-corpus sweep, (P7) a bounded differential probe generator.  P1-P4 are done and committed; P5-P7 are
-not started.  Gate at the P2-P4 commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9
+corpus sweep, (P7) a bounded differential probe generator.  P1-P4 and P6 are done and committed (P6's
+denominator was wrong and is corrected in the P6 section below); P5 and P7 became E2E-37/P2 and P4.  Gate at the P2-P4 commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9
 divergences as recorded, 16/16 runtime, exit 0** (was 891 / 122 / 12 / 15).
 
 ## P1 — the probe matrix, and the two things it settled
@@ -116,11 +116,25 @@ which is the same "it is the register, not the variable" fact the DE tracker's V
 
 ## P6 — the historical corpus, re-swept with this build
 
-`golden/first8080u/<NAME>/<NAME>.REL` paired with `artefacts/<NAME>.PLI`: **44 pairs, 15 byte-exact,
-0 divergent, 29 refusals.**  The E2E-35/P3 baseline was 41 pairs / 15 / 0 / 26 [C230]; the pair count
-grew because three more corpus sources are now in `artefacts/`, and the exact set is *identical*
-(A, DECPOLY, DEMO, DFACT, DTEST, FDTEST, FFACT, FLTPOLY, FLTPOLY2, IFACT, LOAN1, NETWORK, REVERSE,
-RFACT, TEST).  That is the check this commit needed: the survey rewrite and the HL kill set both sit
+`golden/first8080u/<NAME>/<NAME>.REL` paired with `artefacts/<NAME>.PLI`: **15 byte-exact, 0
+divergent, and every remaining program refused at a documented perimeter edge.**
+
+> **CORRECTED BY E2E-37/P1.**  This paragraph read "44 pairs, 15 exact, 0 divergent, 29 refusals" and
+> explained the jump from E2E-35/P3's 41 as three corpus sources newly present in `artefacts/`.  Both
+> statements were false, and `tools/corpus_census.py` now settles it from DR's own batch record
+> instead of from a directory scan: the batch holds **44 historical programs**, of which **41 are
+> authentic goldens** (`summary.txt` verdict `ok`, `<NAME>.REL` present, sha256 equal to
+> `MANIFEST.sha256` -- 41 verify, 0 do not) and **3 are DR-rejected** with a PRN and no REL (CALL,
+> INVERT, MAININVT).  Nothing appeared in `artefacts/`: the loop counted program *directories* and
+> then compared each against a `.REL` that does not exist for those three, silently promoting "no
+> oracle" to "refusal".  Corrected split: 15 exact / 0 divergent / 26 controlled refusals / 0
+> unexpected -- identical to E2E-35/P3 [C230], which is the invariant this sweep exists to check.  All
+> three DR-rejected programs are refused here too: INVERT and MAININVT at `[TBD] multi-dimensional or
+> assumed-size array` [C159], CALL at a parser `expected statement`.  Agreement in outcome; no parity
+> claim is made for any of them, because there is no authenticated oracle to claim against.
+
+The exact set is *identical* to E2E-35's (A, DECPOLY, DEMO, DFACT, DTEST, FDTEST, FFACT, FLTPOLY,
+FLTPOLY2, IFACT, LOAN1, NETWORK, REVERSE, RFACT, TEST).  That is the check this commit needed: the survey rewrite and the HL kill set both sit
 in code shared by every program, and the corpus contains no cross-block transfer at all, so the
 correct result is "nothing moved" — a byte-exact count that stays put and a divergence count that
 stays at zero.  The top refusal reasons are unchanged too (array element width, `BASED` on a

@@ -293,10 +293,12 @@ measurement convention.
   "does a statement in this block name L?", and the probes showed the target block's ownership is
   what matters; see the E2E-36 section below.  Kept verbatim because it is the record of what was
   known at the time, and because its measured corpus cost (15 exact / 26 refusals / 0 divergent)
-  is still the baseline the E2E-36 sweep has to beat.  **E2E-36/P6 re-swept it: 44 pairs, 15
-  byte-exact (the same 15 programs), 0 divergent, 29 refusals** -- the cross-block refusal fired on
-  no corpus program, and removing it moved nothing, which is the result a change to shared label
-  survey and HL-kill code should produce.  E35Y3 shows DR making the TARGET block pad-bearing and giving it the saved-SP
+  is still the baseline the E2E-36 sweep has to beat.  **Re-swept after E2E-36/P6, denominator
+  corrected by E2E-37/P1 (`tools/corpus_census.py', snapshot in `spec/census/'): of 44 historical
+  programs, 41 carry sha256-authenticated DR `.REL' goldens and 3 (CALL, INVERT, MAININVT) are
+  DR-rejected with no oracle -- 15 byte-exact (the same 15), 0 divergent, 26 controlled refusals, 0
+  unexpected.**  The cross-block refusal fired on no corpus program and removing it moved nothing,
+  which is the result a change to shared label-survey and HL-kill code should produce.  E35Y3 shows DR making the TARGET block pad-bearing and giving it the saved-SP
   cell with no ON-unit in the program, so [C208]'s pad demand is a special case of entering a block's
   stack frame; I have no rule for the demand, and emitting another block's address is a wrong value.
   E35X5 shows an already-padded target still differing by 2, so reusing the pad is not the answer
