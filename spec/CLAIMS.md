@@ -5520,7 +5520,7 @@ ran, E45S8's in the pre-oracle addendum).  Coverage **86 rows / 0 errors / 0 war
 `EXPR.ADD_PRESERVE_ROUTE'), census 44 programs / 15 EXACT / **0 DIFFERS / 0 UNEXPECTED** with
 `--verify' clean, INVENTORY 982.
 
-**Three errors of mine, recorded rather than deleted.**  (i) I diffed instruction *listings* instead
+**Four errors of mine, recorded rather than deleted.**  (i) I diffed instruction *listings* instead
 of whole files, mistook DR's `LHLD` relocatable DATA operands (printed `None/None' in my own output
 because they live in RELOC records, not code bytes) for missing instructions, and concluded the fix
 had missed its target.  [C264]'s mistake repeated one step up, by the tool that had told me the truth
@@ -5528,7 +5528,12 @@ in P6.  (ii) I then registered E45S1 as a shape divergence on the theory that my
 hidden by identical bytes -- my own output already contains DR's `PUSH H' at 003A, and the theory had
 silently assumed the node was reached by the arm I had changed.  (iii) I wrote a post-fix park-site
 count into `golden/e45/CORPUS_SCAN.txt' without re-running the scan; struck, with a sentence about
-what that instrument can and cannot measure.
+what that instrument can and cannot measure.  (iv) Commit `f4d894d' states "No codegen change in this
+commit" while carrying 61 changed lines of `codegen.ml' including `rhs_is_imem' itself -- a bare
+`git add -A' earlier in the turn staged the edit, and `git commit' commits the index.  Pushed, so it
+is annotated in the note's section 9 with the `--numstat' check that exposes the class of mismatch;
+the pre-oracle chronology that makes the predictions worth anything is intact (`b618332' has zero
+codegen lines, and E45S8's addendum states this compiler's post-change behaviour explicitly).
 
 **(h) Not claimed -- one place where the two candidate rules differ, and no sample of it.**
 The rule in (d) says "class of the right operand"; the alternative says "HL must survive the load",

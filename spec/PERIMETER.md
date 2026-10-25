@@ -804,7 +804,7 @@ oracle ran.  Without that probe, E45S1's agreement would have been an artefact o
 mechanism, and I would have written "the class rule is sufficient" on evidence that only showed the
 two rules coinciding.
 
-**Two errors of mine, recorded rather than deleted.**
+**Four errors of mine, recorded rather than deleted.**
 (i) I diffed *instruction listings* instead of whole files, read DR's `LHLD <cell>` reloc operands
 (printed `None/None` in my own output because they are RELOC records) as missing instructions, and
 concluded the fix had missed its target.  [C264]'s mistake repeated one level up, by the tool that
@@ -812,8 +812,15 @@ had told me the truth in P6.
 (ii) I then registered E45S1 as a shape divergence on the theory that my `XCHG` there was hidden by
 identical bytes.  My E45S1 output already contains DR's `PUSH H` at 003A; the theory had silently
 assumed the node went through the arm I changed.  The row was added and deleted within the slice.
-(iii) And in the same file I wrote a post-fix tail count (56) without re-running the scan.  Struck,
-with a sentence about what the instrument measures.
+(iii) I wrote a post-fix tail count (56) into `golden/e45/CORPUS_SCAN.txt` without re-running the
+scan.  Struck, with a sentence about what that instrument can and cannot measure -- it reads DR's
+goldens, so re-running it after a codegen change measures nothing about my build.
+(iv) Commit `f4d894d` says "No codegen change in this commit" and contains 61 changed lines of
+`codegen.ml`, including the new predicate.  A bare `git add -A` earlier in the same turn staged the
+edit and `git commit` takes the index.  Pushed, so annotated rather than rewritten
+(`spec/notes/e2e40-p9-add-operand-preservation-route.md` section 9, with the `--numstat` check that
+finds this class of mismatch).  The pre-oracle chronology is unaffected: `b618332` has zero codegen
+lines and E45S8's predictions state this compiler's post-change behaviour out loud.
 
 **Gate after P9 (measured, `tools/e2e_gate.py --runtime` on the shipped build): 982 byte-exact / 0
 fail** (973 + E40S2, E40S4 and the eight E45 specimens that compile), **129/129** refusals (+1:
