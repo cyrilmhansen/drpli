@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "96a38095f0218e911337267de96c6691",
+ "binary_md5": "b8aa41c310d0a57d856bef07da79310d",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,11 +15,25 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-10-24T19:47:25",
+ "generated": "2026-10-25T02:20:37",
  "git_dirty_paths": [
-  "M ocaml/lib/codegen.ml"
+  "M ocaml/lib/bind.ml",
+  " M spec/CLAIMS.md",
+  " M spec/DIVERGENT.txt",
+  " M spec/INVENTORY.txt",
+  " M spec/RUNTIME.txt",
+  " M tools/corpus_census.py",
+  " M tools/e2e_gate.py",
+  "?? artefacts/E40S1.PLI",
+  "?? artefacts/E40S2.PLI",
+  "?? artefacts/E40S3.PLI",
+  "?? artefacts/E40S4.PLI",
+  "?? golden/e32rt_E39S5/",
+  "?? golden/e32rt_E40S2/",
+  "?? golden/e32rt_E40S4/",
+  "?? golden/e40n/"
  ],
- "git_head": "acf1cc721d5ecdce3f47527ccb1469183b274b55",
+ "git_head": "6df2bd976ddbd1e0d64426a19c0cf651dea5c826",
  "rows": [
   {
    "dir_present": true,
@@ -235,7 +249,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: STATIC on FIXED BINARY(15,0) MEMBER OF EMPLOYEE@31 is unsampled [TBD] (C114 places static cells below the pool, but onl",
+   "msg": "Fatal error: exception Failure(\"codegen: statement kind not in supported subset [TBD] (line 37)\")",
    "name": "ENTER",
    "prn_present": true,
    "rel_bytes": 896,
@@ -475,7 +489,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: STATIC on FIXED BINARY(15,0) MEMBER OF EMPLOYEE@31 is unsampled [TBD] (C114 places static cells below the pool, but onl",
+   "msg": "Fatal error: exception Failure(\"codegen: STATIC on CHAR(15) is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are m",
    "name": "REPORT",
    "prn_present": true,
    "rel_bytes": 1408,
@@ -559,7 +573,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: STATIC on FIXED BINARY(15,0) MEMBER OF EMPLOYEE@31 is unsampled [TBD] (C114 places static cells below the pool, but onl",
+   "msg": "Fatal error: exception Failure(\"codegen: statement kind not in supported subset [TBD] (line 31)\")",
    "name": "UPDATE",
    "prn_present": true,
    "rel_bytes": 2048,

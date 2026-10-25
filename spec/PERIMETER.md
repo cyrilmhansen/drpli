@@ -365,7 +365,7 @@ Gate at this commit: **933 byte-exact / 0 fail, 124/124 negatives, 9/9 divergenc
 |---|---|---|---|
 | `declare 1 g, 2 a fixed` + `a = 7; put list(a)` (unqualified read/write, top-level head, FIXED BIN(15)/POINTER) | compiles, member lands in the owning structure's cells | **compiles**; DATA area equals DR exactly (E39S2 0004, E39S3 0006, E27S12/ST12 0006) | golden/e39a, golden/e2e324d/ST12 [C253][C256] |
 | Qualified spelling of the same member (`g.a = 7`) | compiles, `.REL` **byte-identical** to the unqualified spelling | **SUPPORTED since E2E-40/P2 [C258]** -- resolved in the parser into one dotted identifier; my qualified/unqualified pair differs at exactly the same three byte offsets DR's pair does |
-| Member nested two levels deep (`1 g, 2 h, 3 a fixed, 2 b fixed`) | DATA 4, same object as the flat form | compiles but **DATA 6** -- bind re-dispatches a head for a level-2 sibling after a level-3 member; row entry is gated to a level-1 owning head so the extra members stay unresolved | E39S5 vs DR [C255] |
+| Member nested two levels deep (`1 g, 2 h, 3 a fixed, 2 b fixed`) | DATA 4, the SAME object as the flat form | **byte-exact** (E39S5) | [C264]: a level-numbered item WITH CHILDREN is a group and reserves nothing; the frame offset advances only by leaf sizes. Before P6 this compiled to a 6-byte frame with `a' at DATA+0x2 and `b' at 0x4 where DR fixes up 0x0 and 0x2. Probe E40S3 (`3 i, 4 a fixed') shows the rule is "has children", not "level = 3"; E40S1 (group last) and E40S4 (leaf before group) pin the rest. |
 | Character / bit / decimal / varying internal member | resolves the name | **refuses**: no DR sample of the cell size, and a wrong size overlaps the next variable [C162 class] | -- |
 | Member name colliding with an ordinary variable | `DUPLIC ?` pass 1, no `.REL` | **refuses**, same outcome | E39X2 [C255] |
 | Ambiguous unqualified member, two INTERNAL structures | `QUALIFY ?` at each unqualified use, `2 ERROR(S) IN PASS 2`, no `.REL` | **refuses, same outcome** — raised at the USE, in the frame that sees the candidates. E39X1 was a wrong-acceptance through E2E-39 (first-binding selection compiled it); closed in E2E-40/P1 [C257] | E39X1 `golden/e39b/E39X1/E39X1.PRN` |
@@ -424,8 +424,11 @@ withdrawn -- DR's `PUSH H` sits mid-expression with `MVI A,09` and four calls af
   `g=        16\r` [golden/e40dr/E40R1.output.txt, C261(e)]. Byte-exactness is what UNLOCKED that arm:
   it links both sides, so it is available only for names in the SPECIMENS panel. The earlier claim here
   ("mine prints the same value even though my image is 6 bytes short of DR's") is superseded, and the
-  same false sentence was corrected in place inside spec/RUNTIME.txt. E39S5, E39S7 and E40Q4 remain
-  unexecuted; for them only the layout invariant is verified, at byte-offset granularity.
+  same false sentence was corrected in place inside spec/RUNTIME.txt. E39S7 and E40Q4 remain
+  unexecuted; for them only the layout invariant is verified, at byte-offset granularity. E39S5 WAS linked and run
+  in [E2E-40/P6]: `.COM` **IDENTICAL** to DR's (6912 bytes) and console **BYTE-EQUAL** (`      16`,
+  10 raw bytes) -- but see [C264]: a run cannot discriminate this class of layout defect, because the
+  pre-fix frame was self-consistent and printed 16 as well.
 
 ## [E2E-40/P4] The member store and ADD-preservation routes IMPLEMENTED -- 8 specimens promoted to byte-exact
 
@@ -436,8 +439,7 @@ withdrawn -- DR's `PUSH H` sits mid-expression with `MVI A,09` and four calls af
 | member + ordinary ADD (`a + h`) | 53 vs DR 59 | **byte-exact** (E39S3) | keeps `XCHG`. This is the control that forbids widening preservation to "either operand is a member" -- its LEFT operand is a member and DR still uses `XCHG`. |
 | enclosing-frame member read from a nested procedure | 73 vs DR 76 | **byte-exact** (E40N1) | [C257]'s visibility rule now also matches in bytes. |
 | qualified member access, executed | runtime row only (mine vs a transcribed value) | **byte-exact + `.COM` IDENTICAL + console BYTE-EQUAL** (E40R1) | [C261(e)] |
-| nested level-3 structure | CODE 48, DATA 6 vs DR 4 | **CODE byte-identical to DR**, DATA still 6 vs 4 (E39S5) | stays in the divergence panel for the blocked nested-layout defect ALONE -- 5 differing file bytes, all record-length fields. No new work on it here. |
-| member store of a COMPUTED value (`a = a + g.b`) | 49 vs DR 57 | 52 vs DR 57 (E39S7) | tail byte-identical from 001F. DR's form destroys HL, so its value reload is mandatory; keeping my cheaper reuse is a deliberate choice on an unmeasured shape, not an oversight [C261(d)]. |
+| nested level-3 structure | CODE 48, DATA 6 vs DR 4 | 54, DATA 6 vs DR 4 | **[E2E-40/P6 WITHDRAWS THE "CODE BYTE-IDENTICAL" CLAIM WRITTEN HERE]**: the code payload was identical because it never contains a member address; DR and mine disagreed in the RELOC fixups (0x0/0x2 vs 0x2/0x4). See [C264] and the row below. | stays in ts form destroys HL, so its value reload is mandatory; keeping my cheaper reuse is a deliberate choice on an unmeasured shape, not an oversight [C261(d)]. |
 | POINTER members (`cpb.nameadr = addr(t)`) | 50 vs DR 62 | 50 vs DR 62 (E40Q4) | **untouched**: out of scope, no oracle for the pointer store shape. Its gap is 3x the FIXED case, which is itself evidence the two routes are not the same route. |
 
 - **Why the gate did not move on 939 -> 946 by accident**: the class predicate is bind's own
@@ -451,3 +453,58 @@ withdrawn -- DR's `PUSH H` sits mid-expression with `MVI A,09` and four calls af
   into it from the other direction. The reason I abandoned the correct rule mid-course was a cost
   model in [C260] that had DR's member write MORE expensive than mine; the per-write table in
   [C261(b]) shows it is cheaper. Both errors are recorded rather than quietly fixed.
+
+## [E2E-40/P6] Nested internal structures: the subgroup rule, and what a code-byte match cannot prove
+
+**The rule (C264).** A level-numbered item is a GROUP when the items after it, up to the next one at
+its own level or higher, nest under it. A group reserves NOTHING: it takes the running offset as its
+own offset, its children start there, and the running offset advances only by LEAF sizes. The level-1
+head path already had this ("typeless group heads occupy nothing"); level >= 2 subgroups did not, and
+were charged `bytes_of` of the default type -- a typeless item resolves to FIXED BINARY(15), 2 bytes --
+so the group took a cell nobody declared and every later member sat 2 high.
+
+| | before | after | DR |
+|---|---|---|---|
+| E39S5 `1 g, 2 h, 3 a fixed, 2 b fixed` | frame 6, fixups 0x2/0x4 | **256/256 identical**, fixups 0x0/0x2 | DATA 4, 0x0/0x2 |
+| E40S1 `1 g, 2 h, 3 a fixed` (group last) | 4 | **identical** | DATA 2 |
+| E40S3 `1 g, 2 h, 3 i, 4 a fixed, 2 b fixed` | 8 | **identical** | DATA 4 |
+| E40S2 `2 h, 3 a, 3 c, 2 b` | DATA 8 | DATA **6 = DR**, members 0/2/4 | DATA 6 |
+| E40S4 `2 a, 2 h, 3 c, 2 b` (leaf first) | DATA 8 | DATA **6 = DR**, members 0/2/4 | DATA 6 |
+| ENTER `2 address, 3 street/city/state/zip, 2 age...` | age 91, wage 93, hours 96 | age 89, wage 91, hours 94, next structure 97 | **89 / 91 / 94 / 97** |
+
+**Why the previous slice's note was wrong, and how it was capable of being wrong.** [C261] recorded
+E39S5 as "CODE byte-identical to DR, only the DATA extent differs". Both halves looked like
+measurements and the first is literally true of the code PAYLOAD -- which is exactly why it proves
+nothing: `LXI H,<DATA+off>` records the segment and leaves the offset to the LINK-CHAIN-DATA/RELOC
+item. Of the 5 differing file bytes, two (`0x2F`, `0x38`) WERE the member addresses, so even the
+"all of them record-length fields" description misread its own evidence. The panel legend in
+`spec/DIVERGENT.txt` now says this out loud, because a CODE/DATA column pair that agrees is not
+parity.
+
+**The gate's own census could not have caught any of it (C265).** `--verify` compares
+`dr_verdict, sha_ok, mine, mine_bytes, differing_bytes` -- not `msg` -- and only `--check` writes the
+snapshot. So [C263]'s blocker transition was found by hand, and [C264]'s reverse transition was
+initially "measured" as 0 changes because the comparison read a stale snapshot against a file nothing
+had rewritten. `msg` is now compared (41 of 44 messages already agreed; the 3 that drifted are this
+change), and the snapshots were refreshed with the sanctioned writer, which simultaneously proved the
+counts identical (15 EXACT / 0 DIFFERS / 0 UNEXPECTED).
+
+**Blocker state after P6 (per program, not aggregate).** ENTER and UPDATE are held by a statement
+they contain -- `open file(emp) keyed output environment(f(128),b(8000))` at ENTER line 37 -- and
+REPORT by `STATIC on CHAR(15)`. That is where they stood at P1/P2/P3: [C263]'s claim that P4 had made
+`get list` / `write file from` non-blocking is WITHDRAWN, because the `EMPLOYEE@31` refusal that
+appeared to unblock them was this slice's phantom cell. MPMCALLB (CHAR(27)), FSCAN (CHAR(80)
+VARYING) and LOAN2 (CHAR(14) VARYING) are unchanged: they never moved.
+
+**What is NOT claimed.** Nested structures are not "supported" in general. Unsampled or still
+unsupported: the `$S` dump SPELLING of a subgroup (`STRUCTURE LEVEL n, MEMBERS k` at level >= 2 is my
+analogue of the head line -- golden/bind1 holds six DR dumps and every structure in them is LEVEL 1
+with leaf members, so nothing here is transcription); `MEMBERS k` counting for nested heads;
+references to a bare GROUP name (`address = default`) -- they now resolve to nothing and refuse,
+whereas before they resolved to the phantom cell, i.e. a wrong-width copy instead of a refusal, and
+DR's correct behaviour for that shape has no sample; arrays inside level-numbered structures;
+subgroups inside BASED views (the head path, untouched); CHAR/BIT/DEC/VARYING members [C228];
+STATIC INITIAL on any member. E40S2/E40S4 remain divergent on 1 instruction, which shows [C261]'s
+"both operands are members" preservation predicate is too narrow -- the three-term sum is E39S7's
+class and is deliberately outside this slice.
+

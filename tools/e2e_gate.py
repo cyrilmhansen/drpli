@@ -631,8 +631,13 @@ SPECIMENS.update({
 #                   resolving qualification in the parser the right call.
 #   E39S3           `a + h' (member + ordinary scalar) -- keeps XCHG, i.e. the control that stops
 #                   the preservation rule being widened to "either operand is a member".
-#   E39S5           nested level-3 structure: its CODE now matches DR exactly; it stays in the
-#                   divergence panel for the independent DATA 6-vs-4 layout defect alone.
+#   E39S5           nested level-3 structure: [E2E-40/P6] WITHDRAWS the claim written here in P4,
+#                   that its CODE matched DR exactly and only DATA differed (6 vs 4).  The code
+#                   PAYLOAD matched because a member address never appears in it -- the offsets live
+#                   in the RELOC records, which a raw byte comparison of the code section cannot see.
+#                   DR fixed up DATA+0x0 / 0x2; mine fixed up 0x2 / 0x4.  The frame was 2 bytes too
+#                   large BECAUSE every nested member was at the wrong address, which is the
+#                   subgroup-layout defect C264, now closed and registered below.
 #   E40N1           a member of an ENCLOSING frame read from a nested procedure (C257).
 #   E40Q1 / E40Q2   qualified vs disjoint-unqualified spellings of the same layout.
 #   E40R1           the specimen whose value is verified by DR's own printed transcript
@@ -650,6 +655,26 @@ SPECIMENS.update({
     "E40Q1":  ("artefacts/E40Q1.PLI", "golden/e40a/E40Q1/E40Q1.REL"),
     "E40Q2":  ("artefacts/E40Q2.PLI", "golden/e40a/E40Q2/E40Q2.REL"),
     "E40R1":  ("artefacts/E40R1.PLI", "golden/e40b/E40R1/E40R1.REL"),
+})
+
+# [E2E-40/P6] three more, from the subgroup-layout rule (C264): a level-numbered item that HAS
+# children reserves nothing, the running offset advances only by leaf sizes, and children start at
+# the group's own offset.  Before the rule E39S5 fixed up DATA+0x2/0x4 where DR fixes up 0x0/0x2 --
+# same code bytes, different addresses -- and its frame was 6 where DR's listing says 4.
+#   E39S5  `1 g, 2 h, 3 a fixed, 2 b fixed'      DR DATA 4   -> 256/256 bytes identical
+#   E40S1  `1 g, 2 h, 3 a fixed'  (group LAST)   DR DATA 2   -> identical.  Isolates the group's own
+#          phantom cell from any level-3 -> level-2 sibling transition.
+#   E40S3  `1 g, 2 h, 3 i, 4 a fixed, 2 b fixed' DR DATA 4   -> identical.  Proves the rule is "has
+#          children", not "level = 3".
+# E40S2 / E40S4 (two children, and a leaf before the group: both DR DATA 6 with members at 0/2/4)
+# get DIVERGENT.txt rows instead: their LAYOUT is right but their code is 0x43 vs DR's 0x44, on
+# `XCHG' where DR uses `PUSH H' for the second ADD of a three-term sum -- the same residual E39S7
+# already pins, i.e. [C261]'s both-operands-are-members predicate is too narrow.  That is the P4
+# rule's territory and deliberately untouched here.
+SPECIMENS.update({
+    "E39S5":  ("artefacts/E39S5.PLI", "golden/e39a/E39S5/E39S5.REL"),
+    "E40S1":  ("artefacts/E40S1.PLI", "golden/e40n/E40S1/E40S1.REL"),
+    "E40S3":  ("artefacts/E40S3.PLI", "golden/e40n/E40S3/E40S3.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -1702,7 +1727,7 @@ NEG_META_E13 = {
 # `g=        16' on both sides (.COM IDENTICAL, console BYTE-EQUAL, 13 raw bytes), so DR's printed
 # transcript stays the authority for the RUNTIME row AND mine now produces the same bytes.
 for _n in ("U1", "W1", "W2", "W3", "P1", "P2", "P3", "P4", "P7", "P8", "P10", "P11",
-           "K4", "R4", "R5", "X1", "M4", "Y8", "P9", "E40R1"):
+           "K4", "R4", "R5", "X1", "M4", "Y8", "P9", "E40R1", "E39S5"):
     OUTPUT_CHECK.add(_n)
 
 NEG_META = {

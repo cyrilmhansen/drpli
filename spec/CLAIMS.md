@@ -4830,10 +4830,16 @@ corrected, because it asserted "My image is not byte-exact", which is now false.
 **(f) Scope discipline, enforced by measurement rather than by intent.** POINTER members (E40Q4,
 50 vs DR 62) and a member store of a COMPUTED value (E39S7, 52 vs DR 57) are left on the existing
 routes and stay in the divergence panel, re-pinned to their new shapes. Both remainders are
-characterized in panel notes; neither is guessed. E39S5 is the interesting case: its CODE is now
-BYTE-IDENTICAL to DR's and the 2-byte DATA overrun (mine 6, DR 4 -- the blocked nested-layout
-defect) is the ONLY thing keeping it divergent, at 5 differing file bytes, all of them
-record-length fields.
+characterized in panel notes; neither is guessed. E39S5 is the interesting case, and the sentence
+I wrote about it was wrong twice over [E2E-40/P6], see [C264]. I claimed its CODE was
+BYTE-IDENTICAL to DR's, with the 2-byte DATA overrun as the only remainder, described as "5
+differing file bytes, all of them record-length fields". (a) The code PAYLOAD is identical only
+because a member address is never a payload byte: it is carried by a LINK-CHAIN-DATA / RELOC item.
+DR fixes E39S5's stores up at `data 0x0` and `data 0x2`, mine at `0x2` and `0x4` -- same code
+shape, different program. (b) Two of those five differing bytes ARE the fixup offsets (file 0x2F
+and 0x38), so even the byte-level description of the diff misreported what it showed. The excess
+DATA extent was a symptom of the addresses being wrong, and the subgroup rule that fixed one fixed
+the other; E39S5 is now 256/256 identical.
 
 ## C262 -- TOOL CYCLE: a promoted specimen cannot be registered, because coverage_check resolves
 ## probe keys against the file that --update-inventory writes AFTER the check aborts
@@ -4907,5 +4913,147 @@ reading line by line and not only through its counts.
 **Process rule extracted:** when a slice changes a compiler's *failure ordering*, aggregate counts
 are the wrong instrument. Compare the stored per-program messages across commits -- the JSON keeps
 them, and `git show <ref>:spec/census/corpus-census.json` makes the diff trivial. The commit message
-was corrected by amend in the same slice that made the discovery, because the message is the record.
+was corrected by amend in the same slice that made the discovery, because the message is the record.the message is the record.
+
+**[E2E-40/P6] PARTIALLY WITHDRAWN -- [C264].** The *observation* was real: the stored blockers for
+ENTER / UPDATE / REPORT moved between acf1cc7 and 6df2bd9, and `EMPLOYEE@31` appeared in all three.
+Two interpretations here were wrong.
+
+1. **"a whole statement class became non-blocking in these two historical programs as a side effect
+   of this slice."** False. `EMPLOYEE@31` is the phantom cell of the typeless subgroup `address`,
+   which [C264] showed DR never allocates. That refusal was MY artifact preempting the real blocker,
+   and removing it did not restore the static wall -- it restored the *statement* wall, in the same
+   position it had held at P1, P2 and P3: ENTER now refuses at `statement kind ... (line 37)` =
+   `open file(emp) keyed output environment(f(128),b(8000))`, UPDATE at line 31. `get list` /
+   `write file from` are still not lowered. What actually happened at P4 was that a new refusal
+   appeared EARLIER in the pipeline than the statement refusal, and it was not a new fact about DR.
+2. **"ENTER/UPDATE/REPORT/MPMCALLB are held by ONE wall now instead of two."** False; and note that
+   MPMCALLB was never one of the three whose message changed at all -- the program list in this
+   claim was wrong as well as the reading of it.
+
+The one sentence of C263 that survives and matters most is the process rule at the end: counts are
+the wrong instrument when a slice changes failure ordering. [C265] is the version of that rule the
+tools now enforce, rather than the version I have to remember to apply by hand.
+
+## C264 -- A LEVEL-NUMBERED ITEM THAT HAS CHILDREN IS A GROUP: IT RESERVES NOTHING, AND THE
+## RUNNING FRAME OFFSET ADVANCES ONLY BY LEAF SIZES. [C261]'s "E39S5's CODE is byte-identical to
+## DR's, only DATA differs" was a measurement artefact -- the code bytes never contain a member
+## address
+
+**The rule.** In a level-numbered internal structure, an item is a GROUP exactly when the items
+following it, up to the next one at its own level or higher, nest under it (strictly greater level).
+A group takes the running offset as its own offset and reserves NO storage: its children start AT
+that offset and the running offset advances only when a LEAF is placed, by the leaf's size. The
+level-1 head path already had this for typeless heads ("TYPELESS group heads occupy nothing"); what
+was missing was the same rule at level >= 2, where a typeless subgroup fell into the MEMBER branch,
+inherited the default type (a typeless item resolves to FIXED BINARY(15) -> 2 bytes), took a cell
+nobody declared, and pushed every later member up by 2.
+
+**The evidence, five programs, one of them authenticated historical:**
+
+| program | declaration | DR DATA | DR member addresses |
+|---|---|---|---|
+| E39S5 | `1 g, 2 h, 3 a fixed, 2 b fixed` | 0004 | a 0x0, b 0x2 |
+| E40S1 | `1 g, 2 h, 3 a fixed` (group LAST) | 0002 | a 0x0 |
+| E40S2 | `1 g, 2 h, 3 a fixed, 3 c fixed, 2 b fixed` | 0006 | 0x0, 0x2, 0x4 |
+| E40S3 | `1 g, 2 h, 3 i, 4 a fixed, 2 b fixed` (level 4) | 0004 | a 0x0, b 0x2 |
+| E40S4 | `1 g, 2 a fixed, 2 h, 3 c fixed, 2 b fixed` (leaf first) | 0006 | 0x0, 0x2, 0x4 |
+| **ENTER** | `1 employee static, 2 name CHAR(30) VAR, 2 address, 3 street/city/state/zip, 2 age, 2 wage, 2 hours` | 00BE | name 0x0, address 0x1F, street 0x1F, age 0x59, wage 0x5B, hours 0x5E, `default` 0x61 |
+
+E40S1 separates the group's own phantom cell from any level-3 -> level-2 transition artifact (there
+is no sibling there). E40S2's two children refute "a group advances by a fixed 2 bytes". E40S3 shows
+the predicate is "has children", not "level = 3". E40S4 shows the group is entered at the running
+offset and its child OVERLAYS it -- the group's offset is its first leaf's offset, which is also what
+ENTER does for `address` (0x1F) and what makes `address = default` a 58-byte copy rather than a
+2-byte scalar store.
+
+ENTER is the strongest witness because it is authentic and it is a *difference* test that needs no
+knowledge of VARYING/DECIMAL widths: DR's fixups put age/wage/hours at 89/91/94 and the following
+structure `default` at 97; my binder had 91/93/96/99. Every member after the subgroup was exactly 2
+high, and the frame 2 too large, from this one cell. Recomputing with groups charging nothing
+reproduces all seven DR offsets, and the sizes fall out of the offsets themselves (name VARYING(30)
+= 31 bytes, DEC(3) = 2, DEC(5,2) = 3, DEC(5,1) = 3, employee = 97).
+
+**Rejected alternatives.** (a) *Head re-dispatch* -- [C255]'s explanation, quoted in the code comment
+where it was written: "a level-2 sibling after a level-3 member reopens a head". False on the code's
+own arithmetic: `starts_head` tests `lvl <= hl` and the open head stays at level 1, so 2 <= 1 is
+false and no head reopens. (b) *Children placed after the group's own span* -- E40S2 needs 12 bytes
+where DR reports 6, E39S5 needs 6 (which is exactly what the old build produced, so this hypothesis
+is what the bug was). (c) *codegen re-derives the extent wrongly* -- the binder's own dump was
+already 6 at frame level with `.H` a 2-byte member, before codegen saw anything.
+
+**Why [C261] said the wrong thing.** P4 measured "CODE 54 = 54, 0 differing code bytes, 5 file bytes
+differ, all record-length fields" and concluded the only remainder was a DATA-extent discrepancy. But
+**a member's address is never a code byte: it is a LINK-CHAIN-DATA / RELOC item, and the code
+section's payload carries placeholders.** DR's E39S5 fixups are `data 0x0` and `data 0x2`; mine were
+`data 0x2` and `data 0x4`. The images were the same shape and different programs. Any claim of the
+form "the code matches, only the size differs" must be re-checked against the fixup records before it
+is written down -- and a raw byte-diff of two .REL files is structurally incapable of showing an
+addressing error.
+
+**Post-fix state.** E39S5, E40S1, E40S3 are 256/256 byte-identical to DR and are registered as
+specimens (946 -> 949). E40S2/E40S4 have DATA agreeing with DR at 6 with members at 0/2/4 -- the
+panel records `data agrees (6)` -- and are pinned in DIVERGENT.txt for a one-instruction residual
+(`XCHG` where DR uses `PUSH H` for the second ADD of a three-member sum), which is the same shape
+E39S7 pins: **[C261]'s "both operands are members" predicate is too narrow, and the true
+discriminator is unmeasured.** That is the P4 rule's territory and was deliberately not touched here.
+
+**Execution, and what it cannot show.** E39S5 links and runs: console `16`, and DR's authenticated
+transcript prints `      16`. That is NOT evidence about the layout: the pre-fix frame was
+SELF-CONSISTENT (store and load both used the shifted addresses), so it printed 16 too. The runtime
+rows for E40S2/E40S4 (21 = 7+9+5, computed independently of either compiler) are worth more because
+those images differ from DR's, but they test my lowering, not DR's bytes. Only the fixup offsets and
+ENTER's seven member addresses discriminate.
+
+**Boundary -- do not generalise this to "nested structures are supported".** Unmeasured or still
+unsupported after this slice: the $S dump SPELLING of a subgroup (six DR dumps in golden/bind1, every
+structure in them LEVEL 1 with leaf members -- my `STRUCTURE LEVEL 2, MEMBERS n` line is the head
+line's analogue, chosen, not observed); `MEMBERS n` counting for nested heads (direct or subtree?
+E39S5 pins neither); arrays inside level-numbered structures; BASED views with subgroups (the
+head path, unchanged here); CHAR / BIT / FIXED DEC / VARYING members of internal structures ([C228]
+not extended); STATIC INITIAL on a member (ENTER/REPORT/UPDATE/MPMCALLB still refuse); references to
+a bare GROUP name (`address = default`-style structure assignment) now resolve to NOTHING and refuse,
+whereas before they resolved to the phantom 2-byte cell -- a refusal instead of a silently
+wrong-width copy, but with no DR sample of the correct behaviour either way; and level ordering
+inside one item list is assumed to be well-formed nesting.
+
+## C265 -- THE CENSUS PANEL COULD NOT SEE A BLOCKER MOVE, AND THE SNAPSHOT WAS STALE BY DESIGN:
+## `--verify' compared five fields and `msg' was not one of them, while only `--check' writes
+
+Two separate tool facts, discovered in one afternoon, that between them made [C263] an accident and
+made its correction look like a non-result:
+
+1. **`spec/census/*.json` is written only by `corpus_census.py --check` (or a bare run).** The gate
+   calls `--verify SNAP.json`, which the tool's own help describes as "the read-only arm the gate
+   uses, so a gate run cannot dirty the corpus". Correct design -- but it means the committed
+   snapshot is a *hand-maintained* file, and nothing in a gate run forces it to be current.
+2. **`--verify` compares `dr_verdict, sha_ok, mine, mine_bytes, differing_bytes` per program.**
+   `msg` -- the blocker text -- is not in the tuple, and the aggregate counts cannot see it either.
+   So a program can refuse for an entirely different reason than the snapshot records and the panel
+   prints `recomputed counts match ... (nothing written)`.
+
+**The proof is this slice.** [C264] removed the phantom subgroup row, and ENTER / UPDATE / REPORT
+moved blocker (to keyed-`OPEN ... ENVIRONMENT` at line 37 / line 31 and `STATIC on CHAR(15)`
+respectively). I then ran the exact comparison that had found C263's transition -- per-program
+message diff, snapshot vs fresh -- and it reported **0 programs changed**. That was not a result; it
+was both defects at once: the comparison read the STALE snapshot against itself in a file the
+baseline gate had not touched, and the panel that should have flagged the drift does not look at
+messages. A script that can only print "no change" is not an instrument.
+
+**Fix (tools/corpus_census.py):** `msg` added to the compared fields. Cost measured before making
+it, not after: 41 of 44 programs' stored messages already matched a fresh run byte-for-byte, and the
+3 that drifted are exactly the [C264] transition under review, so the check adds no noise. Snapshots
+refreshed with the sanctioned writer (`--check` against HEAD's snapshot, which also *proved* the
+counts identical: 15 EXACT / 0 DIFFERS / 0 UNEXPECTED), and the gate's census panel then passed with
+the stricter comparison in place.
+
+**What the corrected record says.** ENTER and UPDATE are blocked by a *statement* they contain
+(`open file(emp) keyed output environment(f(128),b(8000))`), REPORT/MPMCALLB/FSCAN/LOAN2 by
+STATIC placement on character members. The [C264] wall they share with everything else nested is now
+gone, and with it [C263]'s claim that a statement class had stopped blocking them -- see the
+withdrawal appended there.
+
+**Process rule, stated once so it can be cited:** before trusting a comparison, confirm the two sides
+are actually different artifacts of the thing being compared. `git show HEAD:file` vs a file that
+nothing has rewritten for 40 minutes of gate runs is the same measurement twice.
 

@@ -563,6 +563,75 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
          | _ -> ());
         head := None; members := []; mcnt := 0; hbase := None; hmo := 0; hsz := 0
   in
+  (* [E2E-40/P6] WHICH DECLARED ITEMS ARE GROUPS (have children).
+     A level-numbered item is a GROUP exactly when the items immediately
+     following it, up to the next one at its own level or higher, nest
+     UNDER it (strictly greater level).  Groups reserve NO storage of
+     their own: the running offset advances only by LEAF sizes, and a
+     group's children start AT the group's own offset.  The level-1 head
+     path already had this rule for typeless heads ("TYPELESS group heads
+     occupy nothing"); what it did not have was the same rule for heads at
+     level >= 2, i.e. SUBgroups, which fell into the member branch and were
+     charged `bytes_of` of the DEFAULT type (a typeless item resolves to
+     FIXED BINARY(15) -> 2 bytes).  The group then took a cell no one asked
+     for and pushed every later member up by 2.
+
+     Evidence -- five independent programs, one authenticated historical:
+       E39S5  `1 g, 2 h, 3 a fixed, 2 b fixed'          DR DATA 0004,
+              RELOC data 0x0 (a), 0x2 (b) [golden/e39a]  -- mine 6, a@2, b@4.
+       E40S1  `1 g, 2 h, 3 a fixed'                     DR DATA 0002, a@0
+              [golden/e40n].  Subgroup LAST: the excess is the group's own
+              cell, not a level-3 -> level-2 transition artifact.
+       E40S2  `1 g, 2 h, 3 a fixed, 3 c fixed, 2 b fixed'  DR DATA 0006,
+              0x0 / 0x2 / 0x4.  Two children: rules out "a group advances
+              by a fixed 2 bytes" and by the COUNTER-HYPOTHESIS "children
+              are placed after the group's own span" (which needs 12).
+       E40S3  `1 g, 2 h, 3 i, 4 a fixed, 2 b fixed'     DR DATA 0004,
+              0x0 / 0x2.  The rule is "has children", not "level = 3".
+       E40S4  `1 g, 2 a fixed, 2 h, 3 c fixed, 2 b fixed'  DR DATA 0006,
+              0x0 / 0x2 / 0x4.  Leaf BEFORE the group: the group is entered
+              at the running offset and its child overlays it.
+       ENTER  (AUTHENTIC, golden/first8080u) `1 employee static, 2 name
+              CHAR(30) VARYING, 2 address, 3 street CHAR(30) VARYING, 3 city
+              CHAR(10) VARYING, 3 state CHAR(12) VARYING, 3 zip FIXED DEC(5),
+              2 age FIXED DEC(3), 2 wage FIXED DEC(5,2), 2 hours FIXED DEC
+              (5,1)'.  DR's own fixups: address = DATA+0x1F (31 -- the SAME
+              base my binder gives it), then age 0x59 (89), wage 0x5B (91),
+              hours 0x5E (94), and `default' at 0x61 (97) = employee's size.
+              My binder had 91 / 93 / 96 / 99: every member after the
+              subgroup exactly 2 high, and the frame 2 too large, because of
+              this one phantom cell.  Recomputing by hand with groups
+              charging nothing reproduces ALL SEVEN DR offsets (31, 89, 91,
+              94, 97, street 31, and DATA AREA 00BE = 190).
+     The lookup is POSITIONAL and uses PHYSICAL equality on the very records
+     the walk below iterates (`items', shared with frame_decls, never
+     copied), because a member name is not unique -- `address' can be
+     declared twice, and a name-keyed table would misclassify.  Items with a
+     `dpre' prefix are excluded from the sequence for exactly the reason the
+     walk skips them: they are never laid out, so they cannot be children. *)
+  let dlevel_of (d : dcl) =
+    match d.dlevel with
+    | Some { e = Ast.Enumber t; _ } -> (try int_of_string t with _ -> 0)
+    | _ -> 0
+  in
+  let group_counts : (dcl * int) list =
+    let seq = List.filter (fun (d : dcl) -> d.dpre = None) items in
+    let rec run lv = function
+      | y :: ys -> if dlevel_of y > lv then y :: run lv ys else []
+      | [] -> []
+    in
+    let rec go acc = function
+      | [] -> acc
+      | x :: xs ->
+          let lv = dlevel_of x in
+          let kids = if lv > 0 then run lv xs else [] in
+          go (if kids <> [] then (x, List.length kids) :: acc else acc) xs
+    in
+    go [] seq
+  in
+  let group_info (d : dcl) =
+    List.find_map (fun (y, n) -> if y == d then Some n else None) group_counts
+  in
   List.iter
     (fun (item : dcl) ->
       match item.dpre with
@@ -636,17 +705,27 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
           end else begin
             incr mcnt;
             let sz = bytes_of rt in
+            (* [E2E-40/P6] Some n => this item is a GROUP with n descendants:
+               it takes the running offset as its OWN offset and reserves
+               NOTHING, so the children that follow land on it.  See the
+               detection comment above for the evidence. *)
+            let grp = group_info item in
             (* member offsets are BASE-RELATIVE [EX P022: GRP2@0006 but
                .C@0000]; the STRUCTURE line carries the absolute base *)
             let base =
               match !head with Some (_, ho) -> ho | None -> 0
             in
-            let o = if !hstatic then begin
-                      statics := !statics + sz;
-                      let b0 = !soff in soff := !soff + sz; b0 - base
-                    end else begin
-                      off := !off + sz; !off - sz - base
-                    end in
+            let o =
+              match grp with
+              | Some _ -> (if !hstatic then !soff else !off) - base
+              | None ->
+                  if !hstatic then begin
+                    statics := !statics + sz;
+                    let b0 = !soff in soff := !soff + sz; b0 - base
+                  end else begin
+                    off := !off + sz; !off - sz - base
+                  end
+            in
             (* [E2E-39/P2] UNQUALIFIED MEMBER RESOLUTION.  A member of an internal structure is
                reachable by its bare name: manual 6.2's `C = B + A' over `declare 1 employee ...',
                E39S2/S3/S5 (read, write, mixed with locals, nested), and the authentic ST12 whose
@@ -665,7 +744,7 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
                collision are handled once, after the walk, by check_member_names. *)
             let top_level_head = match !head with Some (hl, _) -> hl = 1 | None -> false in
             (match rt with
-             | (RTbin 15 | RTptr) when top_level_head ->
+             | (RTbin 15 | RTptr) when top_level_head && grp = None ->
                  let bare = String.lowercase_ascii item.dname.orig in
                  let qkey = String.lowercase_ascii !horig ^ "." ^ bare in
                  (* [E2E-40/P2] TWO rows, ONE cell: the bare name and the owner-qualified
@@ -684,7 +763,20 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
              | _ -> ());
             members :=
               { flag = "c"; sname = "." ^ upper item.dname.orig
-              ; disp = rty_str rt ^ " MEMBER"; off = o } :: !members
+              ; disp =
+                  (match grp with
+                   (* UNSAMPLED SPELLING.  DR's $S dump for a level >= 2
+                      subgroup has no witness: golden/bind1 holds six DR
+                      dumps and every structure in them is LEVEL 1 with leaf
+                      members only.  This line is the direct analogue of the
+                      head line at the subgroup's own level, chosen because a
+                      group is neither a type nor a MEMBER-of-a-cell; it is
+                      NOT a transcription of anything DR printed, and the
+                      offsets it reports ARE measured (ENTER, E40S1-4). *)
+                   | Some n ->
+                       Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d" lvl n
+                   | None -> rty_str rt ^ " MEMBER");
+                off = o } :: !members
           end
         end
         else if

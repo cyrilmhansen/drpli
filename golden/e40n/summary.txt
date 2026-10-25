@@ -1,0 +1,4 @@
+E40S1	ok	PRN=True REL=True
+E40S2	ok	PRN=True REL=True
+E40S3	ok	PRN=True REL=True
+E40S4	ok	PRN=True REL=True

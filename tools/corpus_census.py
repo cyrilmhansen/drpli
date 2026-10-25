@@ -241,7 +241,16 @@ def main():
             if q is None:
                 bad.append("%s: new program not in the snapshot" % r["name"])
                 continue
-            for k in ("dr_verdict", "sha_ok", "mine", "mine_bytes", "differing_bytes"):
+            # [E2E-40/P6] C265: `msg' is now compared too.  Without it the snapshot could
+            # say a program refuses for reason A while the compiler refuses for reason B,
+            # and the panel still printed "counts match (nothing written)" -- twice, in two
+            # consecutive episodes, in both directions.  [C263] found ENTER/UPDATE/REPORT
+            # moving blocker by reading the file by hand; [C264]'s subgroup fix moved all
+            # three BACK, and a fresh `--verify` run STILL reported the snapshot as matching.
+            # `msg' is deterministic compiler text (it carries a source line number, not a
+            # path or a timestamp), 41 of 44 messages already matched byte-for-byte, and the
+            # 3 that drifted are exactly the change under review.
+            for k in ("dr_verdict", "sha_ok", "mine", "mine_bytes", "differing_bytes", "msg"):
                 if q.get(k) != r.get(k):
                     bad.append("%s.%s: snapshot %r, recomputed %r" % (r["name"], k, q.get(k), r.get(k)))
         for n_ in pm:
