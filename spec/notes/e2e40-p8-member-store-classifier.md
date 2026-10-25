@@ -109,5 +109,6 @@ Coverage and census unchanged in counts; census `--verify` (which now compares `
 * Whether a `FIXED BIN(15)` member store of a converted literal should also abort in
   *my* runtime when mine is used standalone — my object only aborts because the
   linked library is DR's.  That is an ARCH-level question, not a codegen one.
-* E40S2/E40S4 remain divergent on `XCHG` vs `PUSH H` — operand preservation, a
+* ~~E40S2/E40S4 remain divergent on `XCHG` vs `PUSH H`~~ **[closed in P9: [C271] — the discriminator is the class of
+  the operand DR loads next, not the class pair; both are byte-exact now]** — operand preservation, a
   different route, untouched here.

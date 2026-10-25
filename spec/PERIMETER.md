@@ -505,10 +505,13 @@ references to a bare GROUP name (`address = default`) -- they now resolve to not
 whereas before they resolved to the phantom cell, i.e. a wrong-width copy instead of a refusal, and
 DR's correct behaviour for that shape has no sample; arrays inside level-numbered structures;
 subgroups inside BASED views (the head path, untouched); CHAR/BIT/DEC/VARYING members [C228];
-STATIC INITIAL on any member. ~~E40S2/E40S4 remain divergent on 1 instruction, which shows [C261]'s
-"both operands are members" preservation predicate is too narrow -- the three-term sum is E39S7's **[CLOSED in P9: the discriminator was neither the layout nor a store route -- it is the
-class of the operand DR loads next, [C271].**
-class and is deliberately outside this slice.
+STATIC INITIAL on any member.  ~~E40S2/E40S4 remain divergent on 1 instruction, which shows
+[C261]'s "both operands are members" preservation predicate is too narrow -- the three-term sum
+is E39S7's class and is deliberately outside this slice.~~  **[CLOSED in P9: the discriminator
+was neither the layout nor the store route.  It is the class of the operand DR loads next
+([C271], golden/e45), and both programs are now 256/256 whole-file identical and registered
+byte-exact; the predicate was not only too narrow, it could not express the shape -- it took
+`Eident' names and a compound left operand is not one.]**
 
 ## [E2E-40/P7] Computed member store: the DESTINATION's addressing mode selects DR's route [C266]
 

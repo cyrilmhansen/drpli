@@ -153,3 +153,26 @@ divergence on a route theory my own output contradicted.  (iii) Writing a post-f
   between a park and a re-load, and nothing here resolves it.
 * `E45S6` — DR compiles it, this compiler refuses in the PUT-item classifier.  A different gap,
   registered as a my-gap negative rather than fixed here.
+
+## 9. Provenance defect in this slice's own commit chain (found by auditing `--numstat', not by reading)
+
+`f4d894d` is titled *"pre-oracle addendum: E45S8 ... No codegen change in this commit"* **and
+contains 61 changed lines of `ocaml/lib/codegen.ml`**, including `rhs_is_imem` and the arm that
+replaced `vinfo_both_members`.  It happened because an earlier command in the same turn ended with a
+bare `git add -A`, so the index already held the codegen edit when the next targeted commit ran --
+`git commit` commits the index, not the paths named in the `git add` that came before it.  The commit
+is pushed, so it is left alone and annotated here rather than rewritten: a false statement in a
+published message is corrected by a true statement in a later one, and the record of how it happened
+is worth more than a clean-looking history.
+
+Why it matters beyond tidiness.  That message is the evidence someone would use to decide *when* the
+ADD route changed -- and the whole point of the pre-oracle commits (`b618332`, then `f4d894d`) is the
+chronology that makes the predictions worth anything.  The chronology itself survives: `b618332`
+carries no codegen change and predates DR seeing E45S1..S7 (verified: `git show b618332 --numstat`
+shows zero for `codegen.ml`), and E45S8's predictions state my build's post-change behaviour
+explicitly ("this compiler predicts 83 and emits the park"), so nothing was retro-dated.  What was
+wrong is only the claim about one commit's contents.
+
+Check to reproduce: `for c in <slice commits>; do git show $c --numstat -- ocaml/lib/codegen.ml; done`
+and read the message against the number.  A commit message is a claim like any other, and this repo
+has already been burned twice by text that disagreed with the thing that ran [C268].
