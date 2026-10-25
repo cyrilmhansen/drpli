@@ -5357,7 +5357,8 @@ compile-side bytes are 256/256 identical to mine, and it aborts identically, so 
 finding cost nothing in code. Evidence: `spec/lab-evidence/e2e40-p8b/TAILWORD.txt`.
 All three `.REL` files are 256/256 identical to mine; all three `.COM` (DR's LINK-80 + PLILIB vs
 mine linked against the same library) are identical; all three consoles are byte-equal (10 / 64 / 64
-raw bytes).  So the ladder's measured span is **-32767..+32767 at 24 sampled points**, and
+raw bytes).  So the ladder's measured span is **-32767..+32767 at 25 sampled points** (24 from
+   P8a plus E44A1's -32767), and
 `ladder_bias_fits`'s `-32768` was never reachable from this spelling: the arm that calls it is gated
 by `fits t` on the positive literal, so the function's lower endpoint is dead code for
 `a = a - k`.  Three facts stay separate, and [C268] conflated the first two: (i) `DAD B` can

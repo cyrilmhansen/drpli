@@ -603,7 +603,7 @@ it, and this time executing it changes what the specimen is *for*.
 | class | destination | route | licensed by |
 |---|---|---|---|
 | `Ms_literal` | member | `MVI M` at the cell | E39S1/S2, E40S1..S4, E43L* |
-| `Ms_ladder` | member, same cell +/- k where the **source literal** fits BIN(15) (measured 24 biases, -32767..+32767) | ladder then `SHLD` | E42P1, then **E43L*/E43B*** [P8a]; `-32768` does NOT qualify -- E44A1 vs E44B1 [C270] |
+| `Ms_ladder` | member, same cell +/- k where the **source literal** fits BIN(15) (measured 25 biases, -32767..+32767) | ladder then `SHLD` | E42P1, then **E43L*/E43B*** [P8a]; `-32768` does NOT qualify -- E44A1 vs E44B1 [C270] |
 | `Ms_general` | member, anything else | parked store | E39S7, E41P1/P4, E42P2, E43M1 |
 | `Ms_unsampled` | member | **refusal before any byte** | nothing -- that is the point |
 
@@ -629,7 +629,8 @@ Two defects, one measurement campaign.  `golden/e43l` (10 programs) + `golden/e4
 programs -- the "20" first written here counted one probe twice), whole `.REL` compared each time,
 `PREDICTIONS.txt` written first.  29 new P8a programs in total: 28 ladder/cross-spelling plus the
 converted-literal probe E43M1.  **The "-32768 endpoint" claimed below is withdrawn by P8b: the
-ladder's measured span is -32767..+32767 at 24 sampled biases, and `a = a - 32768` converts.**
+ladder's measured span is -32767..+32767 at 25 sampled biases (24 from P8a + E44A1), and
+`a = a - 32768` converts.**
 
 **(1) The alleged classifier/producer agreement did not exist.**  `member_store_class` decided
 `Ms_ladder` by comparing resolved DATA addresses; the value-producing ladder arm inside
