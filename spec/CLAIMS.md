@@ -5289,10 +5289,17 @@ whole `.REL` file and not as a CODE length [C264], plus 3 more in `golden/e44` [
    still equalled DR's, because `lower_hl` and the ladder both call `hl_bias`, whose selection
    coincides with the ladder's. So the disagreement was latent, not visible -- and it was still the
    defect [C260] was wrong about: two predicates, one output, no stated reason they must agree. DR's
-   answer is that the CELL decides: E43L6 (`a = g.a + 5`) and E43L7 (`g.a = a + 5`) are each 256/256
-   identical to E42P1 (`a = a + 5`) and to each other, with all three fixups on the same DATA
-   address, so qualification contributes nothing to the route -- the first *direct* evidence for
-   treating the two spellings as one cell inside a self-update, in both directions.
+   answer is that the CELL decides: E43L6 (`a = g.a + 5`) and E43L7 (`g.a = a + 5`) are whole-file
+   identical to each other, and each shares E42P1's (`a = a + 5`) self-update sequence byte for byte
+   and every DATA fixup, including both member-address fixups on the same DATA address -- so
+   qualification contributes nothing to the route, the first *direct* evidence for treating the two
+   spellings as one cell inside a self-update, in both directions.
+   *[Corrected by [C270]: this said "are each 256/256 identical to E42P1 ... and to each other". True
+   of L6 vs L7; FALSE of L6 vs E42P1, where 4 bytes differ -- 0x31, 0x32, 0x3A, 0x3B, the two
+   initialization immediates (this probe initializes g.a=100, g.b=1; E42P1 g.a=5, g.b=100) plus the
+   two record-length bytes that follow them. Per-byte evidence: `golden/e44/PROVENANCE.tsv`. The
+   conclusion is untouched -- the self-update and the addresses do agree -- but it was reached from
+   a comparison that was asserted, not run.]*
 
 **The fix.** `member_store` now carries its operands (`Ms_literal of string`,
 `Ms_ladder of Ast.binop * int`), and the ladder arm is opened by the verdict for a member destination

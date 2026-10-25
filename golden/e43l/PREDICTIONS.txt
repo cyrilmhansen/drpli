@@ -195,7 +195,11 @@ occur: DR compiled all thirty probes.
   E43L3  ladder, 55, con 99   LHLD/DCX H/SHLD, CODE 0x37                       PREDICTED
   E43L4  ladder, 58           LXI B,0010                                       PREDICTED
   E43L5  H3 general+parked    LXI B,0011, CODE 0x3A                            REFUTED
-  E43L6  H1 == E42P1 body     256/256 identical to E42P1 and to E43L7, con 105 PREDICTED
+  E43L6  H1 == E42P1 body     identical to E43L7, con 105                          PREDICTED
+                               [RESULTS CORRECTED by [C270]: NOT 256/256 vs E42P1 -- 4 bytes
+                               differ (0x31,0x32,0x3A,0x3B: init immediates + record lengths).
+                               Self-update sequence and all DATA fixups DO match E42P1, which is
+                               the part the prediction was about. golden/e44/PROVENANCE.tsv]
   E43L7  H1, L6 == L7         identical                                        PREDICTED
   E43L8  H1 repeats, 57       LHLD/INX H x3/SHLD, CODE 0x39                    PREDICTED
   E43L9  H1 LXI B, 58         LXI B,0004                                       PREDICTED
