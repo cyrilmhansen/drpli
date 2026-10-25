@@ -6,7 +6,7 @@ cross-spelling in e43l + 1 converted literal (E43M1) + 19 in e43b = 29 new P8a p
 below are the 19.  Per-program provenance (with the biases that have NO artifact): golden/e44/
 PROVENANCE.tsv.  And the boundary: `a = a - 32767' ladders, `a = a - 32768' does not -- see [C270].
 CP/M names are limited to 8 characters, so the SUFFIX IS NOT ALWAYS THE NUMBER (the oracle
-refused E43B100 / E43B32767 outright).  All 20 programs share the template in
+refused E43B100 / E43B32767 outright).  All **19** programs in this directory share the template in
 artefacts/E43*.PLI: `g.a = 100; g.b = 1; <PROBE>; put list(a); stop;'.
 
   name      k          DR body (identical shape in all of them)

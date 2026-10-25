@@ -35,9 +35,14 @@ that converge, exactly as [C264] says about code bytes and addresses.
 
 `ladder_bias_fits = -8 <= k && k <= 16` was P8's transfer of E22A02..E22A16 / E22B01..E22B08
 to a destination class those probes never tested, on the strength of one member sample (+5,
-E42P1). DR was shown **28 ladder programs covering 24 distinct biases** (the list first written here
-included -30, -5, -2, +1 and +2, which have no artifact -- -30 was a sign slip for E43B30 = +30,
-and +/-1 and +/-2 were never probed at a member):
+E42P1). DR was shown **28 ladder/cross-spelling programs covering 25 distinct biases, 24 of them new
+to P8a** -- the 25th, +5, belongs to P8's E42P1, and three rows reuse a bias (+5 via E43L6/E43L7, +16
+via E43L4/E43B16, +17 via E43L5/E43B17).  **Corrected by [C270]: this said "24 distinct biases", which
+was the count of *newly established* values, not of distinct ones, and the list below includes +5.**
+(The list first written here also included -30, -5, -2, +1 and +2, which have no artifact -- -30 was a
+sign slip for E43B30 = +30, and **+1, +2 and -2** were never probed at a member, while -1 was, as
+E43L3's `DCX H` x1.)  P8b adds -32767 (E44A1), for **26 distinct biases in all**.  The list below is
+the 25 covered by the 28 P8a rows; prefix it with -32767 for the 26:
 
 ```
 -16 -10  -9  -8  -1   3   4   5  14  15  16  17  18  19  20
@@ -45,9 +50,15 @@ and +/-1 and +/-2 were never probed at a member):
 ```
 
 Every one: `LHLD <cell> / <bias> / SHLD <cell>`, ladder operand carrying k exactly
-(`+100`→`0064`, `+5000`→`1388`, `+30000`→`7530`, `+32767`→`7FFF`, `-9`→`FFF7`), whole-program
-CODE `0x3A` unchanged, `.REL` 256/256 identical to mine. So there is no window; the bound is
-whether the constant fits the 16-bit `DAD` addend. `+3` vs `+4` (E43L8/E43L9) brackets the
+(`+100`→`0064`, `+5000`→`1388`, `+30000`→`7530`, `+32767`→`7FFF`, `-9`→`FFF7`), `.REL` 256/256
+identical to mine. So there is no window.
+**Two phrases in this paragraph were corrected by [C270].** (a) "whole-program CODE `0x3A`
+unchanged" holds only for the probes on this template whose bias is spelled `LXI B,k / DAD B`:
+`-1` is `DCX H` and its program is `0x37`, `+3` is `INX H` x3 at `0x39`, and `0x3A` begins at `+4`
+(E43L3/E43L8/E43L9) — that is [C165]'s selection rule, not a size that every ladder shares.
+(b) "the bound is whether the constant fits the 16-bit `DAD` addend" is wrong at the negative end:
+the bound is `fits t` on the **positive source literal**, which is why `-32768` never reaches the
+ladder at all (E44A1/E44B1, addendum item (1)). `+3` vs `+4` (E43L8/E43L9) brackets the
 instruction-selection break-even to one unit, confirming [C165]'s `|k| <= 3` rule transfers.
 
 **E42N3 was a refusal of a program DR compiles.** `a = a + 100` at a member: mine refused,

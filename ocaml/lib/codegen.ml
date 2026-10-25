@@ -6828,14 +6828,17 @@ let member_cell_opt st nm =
    never tested |k| > 16 -- from ordinary variables to a member destination, where the single
    existing sample (E42P1) was +5.  DR's measurement, every one a whole .REL compared and read
    with tools/dis80.py so the operands are the real ones (golden/e43l 10 programs,
-   golden/e43b 19, golden/e44 3, plus E42P1 -- 33 programs), gives the ladder with SHLD at
+   golden/e43b 19, golden/e44 4, plus E42P1 -- 35 programs, 30 of them ladder rows), gives the
+   ladder with SHLD at
      k = -32767, -16, -10, -9, -8, -1, +3, +4, +5, +14, +15, +16, +17, +18, +19, +20, +30, +60,
      +100, +127, +200, +1000, +5000, +10000, +30000, +32767
    -- the operand carries k EXACTLY (+100 -> LXI B,0064, +5000 -> 1388, +32767 -> 7FFF,
-   -9 -> FFF7, -32767 -> 8001), CODE size constant at 0x3A across every one of them.  There is
-   no -8..16 window, and no negative bias at all beyond -1 is measured: +/-1 and +/-2 are NOT
-   sampled at a member (E43L3's -1 is DCX H x1), and the gaps between the listed points are
-   interpolated, not tested.
+   -9 -> FFF7, -32767 -> 8001).  Among the 24 biases whose ladder uses LXI B/DAD B the
+   whole-program CODE size is 0x3A every time (same template, same instruction count); it is NOT
+   0x3A for the small biases spelled as repeats -- E43L3 (-1, DCX H) is 0x37 and E43L8 (+3,
+   INX H x3) is 0x39, and E43L9 (+4, LXI B,0004) is where 0x3A starts.  There is no -8..16
+   window; the 26 values above are the sampled ones and the gaps between them are interpolated,
+   not tested (unsampled at a member: +1, +2, -2, every negated literal, anything past +/-32767).
 
    THE BOUNDARY IS THE SOURCE LITERAL, NOT THE ADDEND [E44A1/E44B1, C270].  So `ladder_bias_fits'
    is the wrong name for a bound that does nothing: the arm that calls it is already gated on
@@ -7619,9 +7622,11 @@ statement form IS implemented; this expression form is not.)")
              split AC4 (`a(2) = a(2)+5') showed for an array cell.  Console value 10 (spec/RUNTIME.txt)
              confirms the result reaches the cell.  [E2E-40/P8a WITHDRAWS -8..16 AS A MEMBER
              RULE: it was inherited from E22A/E22B, which never tested |k| > 16.  DR's member
-             ladder reaches at least -32767..+32767 -- 24 sampled biases (-16, -10, -9, -8, -1,
-             3..5, 14..20, 30, 60, 100, 127, 200, 1000, 5000, 10000, 30000, 32767), every one
-             `LHLD / LXI B,<k> / DAD B / SHLD' with CODE 0x3A unchanged (golden/e43l, golden/e43b,
+             ladder reaches at least -32767..+32767 -- 26 sampled biases (-32767, -16, -10, -9,
+             -8, -1, 3..5, 14..20, 30, 60, 100, 127, 200, 1000, 5000, 10000, 30000, 32767: one
+             established in P8, 24 more in P8a, one more in P8b), every one `LHLD / <bias> /
+             SHLD', spelled `LXI B,<k> / DAD B' and CODE 0x3A whenever |k| >= 4 and as INX H or
+             DCX H repeats when |k| <= 3 [C165] (golden/e43l, golden/e43b,
              golden/e44; per-program audit golden/e44/PROVENANCE.tsv).  `a = a + 100' is specimen
              E43B1C now, and the refusal E42N3 that used to cover it has been retired.  [P8b
              CORRECTS "the whole 16-bit addend", which this comment shared with C268: what bounds

@@ -123,6 +123,7 @@ RUNTIME -- H3 WAS THE INTERESTING PART AND IT IS TRUE FOR A REASON H3 DID NOT ST
 WHAT THIS DOES AND DOES NOT SETTLE.  It settles that -32768 is not a ladder addend, so
 `ladder_bias_fits' at -32768 is dead code for `a = a - k' and [C268]'s "whole 16-bit addend"
 is withdrawn.  It does not settle `a = a + (-32768)' (a different AST: Eprefix inside Ebinary,
-classified Ms_general here, never shown to DR), nor +/-1, nor +/-2, nor anything between the
+classified Ms_general here, never shown to DR), nor +1, +2 or -2 (-1 IS sampled, as E43L3's
+`DCX H' x1), nor anything between the
 sampled points.  See golden/e44/PROVENANCE.tsv for the per-program audit and the five phantom
 entries removed from [C268]'s bias list.

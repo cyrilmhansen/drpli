@@ -3,7 +3,19 @@ Companion to PROVENANCE.tsv (which is machine-readable: 7 tab-separated fields p
 COUNTS.  golden/e43l = 10 programs, golden/e43b = 19 programs (NOT 20 -- the "20" in C268, the P8a
 note and K_TABLE.txt counted one probe twice), golden/e44 = 3.  New P8a programs 29 = 28 ladder or
 cross-spelling + 1 converted-literal (E43M1); E42P1/E42P2 are P8 oracles.  P8b adds 3.
-BIAS VALUES WITH A DR ARTIFACT AT A MEMBER: 25 distinct (24 from P8a + -32767 from P8b); programs
-28 ladder + E44A1 = 29, of which 22 are on the byte-exact panel.
+BIAS VALUES WITH A DR ARTIFACT AT A MEMBER: **26 distinct** -- 1 established in P8 (+5, E42P1), 24
+more in P8a, 1 more in P8b (-32767, E44A1).  ACCOUNTING RULE, so the number is reproducible and not a
+hand list: take the rows of this file whose dr_instruction_pattern begins LHLD (the ladder) and whose
+statement is a self-update on an internal member, decode k from DR's own operand in that column
+(LXI B,<hex> -> signed 16-bit; "INX H x n" -> +n; "DCX H x n" -> -n), and count distinct k.  That
+gives 1 / 24 / 1 per episode and 26 overall; the ladder rows total 29 programs because three reuse a
+bias already sampled (+5 in E43L6 and E43L7, +16 in E43L4 and E43B16, +17 in E43L5 and E43B17), so the
+ladder rows total **30** programs: 28 from P8a, plus P8's E42P1, plus P8b's E44A1.  E42P2
+and E43M1 (literal stores) and E44B1/C1/D1 (conversion route, two of them on an ordinary variable) are
+NOT ladder rows and contribute no bias.  Panel: 14 of the 30 ladder rows are registered byte-exact
+specimens, and between them they pin **12 of the 26 biases** (-32767, -9, -8, -1, +3, +4, +5, +16, +17,
++100, +30000, +32767); the other 14 biases are evidence in golden/e43b, cited in COVERAGE.tsv, but not
+individually on the panel.
 NOT SAMPLED ANYWHERE AT A MEMBER: +1, +2, -2, -5, -30 (C268's first draft listed these; they have no
-artifact and are struck), and anything above +32767 or below -32768.
+artifact and are struck -- note -1 IS sampled, as E43L3's DCX H x1, so the "+/-1" phrasing used in
+earlier drafts was wrong at the negative end), and anything above +32767 or below -32768.

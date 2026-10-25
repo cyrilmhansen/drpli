@@ -5221,8 +5221,8 @@ behaviour [C256]. Ordinary (non-member) destinations are not examined at all -- 
 measured route for every RHS class in the corpus, and a blanket rule would break 900+ specimens.
 
 **Not claimed.** ~~Whether the ladder is what DR does for a member self-update at biases other than
-+5 (refused).~~ **CLAIMED NOW [C268]:** measured at 24 distinct biases spanning -16..+32767 [C270
-corrects the count and the -30], DR ladders and
++5 (refused).~~ **CLAIMED NOW [C268]:** measured at **26 distinct biases spanning -32767..+32767** (24 of them as
+first written here; [C270] corrects the count, the -30 and the -32768 endpoint), DR ladders and
 stores with `SHLD` at every one; the refusal that used to sit here (E42N3) is retired and replaced by
 specimen E43B1C. Whether POINTER/BASED members follow this table at all -- E40Q4 is still the 12-byte gap,
 and P7's rule was derived for cells with a fixed DATA address. Whether a float/DEC literal into a
@@ -5251,12 +5251,22 @@ whole `.REL` file and not as a CODE length [C264], plus 3 more in `golden/e44` [
    member emits `LHLD <cell> / <bias> / SHLD <cell>` at every sampled k from -32767 to +32767
    ~~for every k that fits the 16-bit `DAD` addend~~ [the struck clause was an over-claim: see
    correction (ii) at the end of this numbered point, settled by E44A1/E44B1 in [C270]].
-   Sampled at a member -- 24 distinct values over 29 P8a programs (golden/e43l 10, golden/e43b
-   **19, not 20**) plus E42P1, each listed with its artifact in `golden/e44/PROVENANCE.tsv`:
-   -16, -10, -9, -8, -1, +3, +4, +5, +14, +15, +16, +17, +18, +19, +20, +30, +60, +100, +127, +200,
-   +1000, +5000, +10000, +30000, +32767 (+5, +16 and +17 are each sampled twice).  The ladder
-   operand carries k exactly (`+100` -> `LXI B,0064`, `+5000` -> `1388`, `+30000` -> `7530`,
-   `+32767` -> `7FFF`, `-9` -> `FFF7`) and whole-program CODE is `0x3A` in all of them.  +30000 is
+   Sampled at a member -- **26 distinct biases: one established in P8 (+5, E42P1), 24 more in P8a,
+   one more in P8b (-32767, E44A1)**.  P8a's 28 ladder/cross-spelling programs (golden/e43l 10,
+   golden/e43b **19, not 20**) cover 25 distinct values, 24 of them new to P8a, because three rows
+   reuse a bias already sampled (+5 via E43L6/E43L7, +16 via E43L4/E43B16, +17 via E43L5/E43B17);
+   every row is listed with its artifact in `golden/e44/PROVENANCE.tsv`.  The 26:
+   -32767, -16, -10, -9, -8, -1, +3, +4, +5, +14, +15, +16, +17, +18, +19, +20, +30, +60, +100, +127,
+   +200, +1000, +5000, +10000, +30000, +32767.  (Four numbers belong in four different sentences and
+   must not be conflated: 35 DR programs across golden/e42p + e43l + e43b + e44, 30 of them ladder
+   rows (28 from P8a + E42P1 + E44A1), 26 distinct biases, 14 ladder rows registered as byte-exact
+   specimens, and those specimens pin 12 of the 26 biases -- the other 14 biases are golden evidence
+   cited in COVERAGE.tsv but not individually on the panel, which is P8a's decision, not a gap.)
+   The ladder operand carries k exactly (`+100` -> `LXI B,0064`, `+5000` -> `1388`, `+30000` ->
+   `7530`, `+32767` -> `7FFF`, `-9` -> `FFF7`, `-32767` -> `8001`).  Whole-program CODE is `0x3A` for
+   the probes sharing the E43 template whose bias is spelled `LXI B,k / DAD B`; it is **not** a
+   property of "all of them" -- E43L3 (-1, `DCX H`) is `0x37` and E43L8 (+3, `INX H` x3) is `0x39`,
+   and `0x3A` starts at E43L9 (+4).  [Corrected by [C270]: this said 0x3A "in all of them".]  +30000 is
    also *executed*: DR's own linked object prints `30100` (100+30000 still fits BIN(15)), so the
    large-bias ladder has a runtime witness and not only a byte one
    (`golden/e43br/E43B7C.output.txt`, spec/RUNTIME.txt row E43B7C).  Instruction *selection* inside
@@ -5265,8 +5275,9 @@ whole `.REL` file and not as a CODE length [C264], plus 3 more in `golden/e44` [
    to one unit).
    **Two corrections to this sentence as originally written, both from [C270].**  (i) The first
    draft listed `-30, -5, -2, +1, +2`; none has an artifact.  `-30` was a sign slip for E43B30
-   (+30), and no member has ever been shown a bias of +/-1 or +/-2 in this repository -- E43L3's
-   `-1` (`DCX H` x1) is the only unit bias measured at a member.  Values between the listed points
+   (+30), and no member has ever been shown a bias of +1, +2 or -2 in this repository -- E43L3's
+   `-1` (`DCX H` x1) is the only unit bias measured at a member -- measured, not missing, unlike
+   +1, +2 and -2.  Values between the listed points
    are **interpolated, not tested**.  (ii) "for every k that fits the 16-bit `DAD` addend" claimed
    the endpoint -32768, which no spelling can reach: `a = a - 32768` carries the *positive* literal
    32768, which fails the arm's `fits t`, so the gate never saw that k.  DR has now been shown both
@@ -5367,8 +5378,10 @@ compile-side bytes are 256/256 identical to mine, and it aborts identically, so 
 finding cost nothing in code. Evidence: `spec/lab-evidence/e2e40-p8b/TAILWORD.txt`.
 All three `.REL` files are 256/256 identical to mine; all three `.COM` (DR's LINK-80 + PLILIB vs
 mine linked against the same library) are identical; all three consoles are byte-equal (10 / 64 / 64
-raw bytes).  So the ladder's measured span is **-32767..+32767 at 25 sampled points** (24 from
-   P8a plus E44A1's -32767), and
+raw bytes).  So the member-ladder evidence is **26 distinct biases**: one first established in P8 (+5), 24
+   additional in P8a, one additional in P8b (-32767).  The sampled values span -32767 to +32767;
+   intervening values remain extrapolations, and [C268] now states the same accounting (35 programs,
+   30 ladder rows, 26 distinct biases, 14 registered ladder specimens pinning 12 biases).  And
 `ladder_bias_fits`'s `-32768` was never reachable from this spelling: the arm that calls it is gated
 by `fits t` on the positive literal, so the function's lower endpoint is dead code for
 `a = a - k`.  Three facts stay separate, and [C268] conflated the first two: (i) `DAD B` can
@@ -5414,7 +5427,8 @@ now recorded in `golden/e44/PREDICTIONS.txt`'s results section.
 
 **Not claimed.**  Whether `a = a + (-32768)` -- `Eprefix` inside `Ebinary`, a different AST -- takes
 the same route at a member (this compiler classifies it `Ms_general`; DR has never been shown it);
-any bias of +/-1 or +/-2 at a member; any bias between the sampled points; negated literals at a
+any bias of +1, +2 or -2 at a member (-1 is measured, as E43L3's `DCX H` x1); any bias between the
+   sampled points; negated literals at a
 member (E42N1/E42N2, unchanged refusals); literals above 65535 (E42N4); and POINTER/BASED members
 (E40Q4) -- this whole table is for cells at a fixed DATA address.  The ordinary-variable ladder's
 upper end is also still unsampled in DR (only `+100` exists at an ordinary variable, in

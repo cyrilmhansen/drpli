@@ -627,10 +627,13 @@ question, not a codegen one.  E40S2/E40S4 remain where P7 left them.
 
 Two defects, one measurement campaign.  `golden/e43l` (10 programs) + `golden/e43b` (**19**
 programs -- the "20" first written here counted one probe twice), whole `.REL` compared each time,
-`PREDICTIONS.txt` written first.  29 new P8a programs in total: 28 ladder/cross-spelling plus the
+`PREDICTIONS.txt` written first.  29 new P8a programs in total (30 ladder rows counting E42P1 and
+E44A1; 35 programs counting golden/e42p and golden/e44): 28 ladder/cross-spelling plus the
 converted-literal probe E43M1.  **The "-32768 endpoint" claimed below is withdrawn by P8b: the
-ladder's measured span is -32767..+32767 at 25 sampled biases (24 from P8a + E44A1), and
-`a = a - 32768` converts.**
+ladder's measured span is -32767..+32767 at **26 distinct sampled biases** (1 from P8, 24 more from
+P8a, 1 more from P8b's E44A1), and `a = a - 32768` converts.**  Also withdrawn from the section below:
+"CODE is 0x3A across every one of them" -- 0x3A holds for the E43-template probes whose bias is spelled
+`LXI B,k / DAD B`, while E43L3 (-1, `DCX H`) is 0x37 and E43L8 (+3, `INX H` x3) is 0x39.**
 
 **(1) The alleged classifier/producer agreement did not exist.**  `member_store_class` decided
 `Ms_ladder` by comparing resolved DATA addresses; the value-producing ladder arm inside
@@ -650,11 +653,14 @@ store `match` instead of reaching the `SHLD` default arm.
 
 **(2) The range was an artifact of my own probe set.**  P8 refused a member self-update outside
 -8..16, citing E22A02..E22A16/E22B01..E22B08 -- but those probes never asked for `|k| > 16`.  DR
-was shown, at a member, **-16, -10, -9, -8, -1, +3, +4, +5, +14..+20, +30, +60, +100, +127, +200,
-+1000, +5000, +10000, +30000, +32767** -- 24 distinct values over 28 ladder programs, per-program
-audit in `golden/e44/PROVENANCE.tsv`.  (The list first written here also had -30, -5, -2, +1, +2:
-no artifact supports those.  -30 was a sign slip for E43B30 = +30; +/-1 and +/-2 have never been
-probed at a member, only -1 as `DCX H` x1.)  **Every sampled one takes the ladder with `SHLD`, the
+was shown, at a member, **-32767, -16, -10, -9, -8, -1, +3, +4, +5, +14..+20, +30, +60, +100, +127,
++200, +1000, +5000, +10000, +30000, +32767** -- **26 distinct biases**: the 25 values covered by the 28
+P8a ladder/cross-spelling rows (24 new to P8a; +5, +16 and +17 are each sampled twice, and +5 itself was
+first established by P8's E42P1) plus E44A1's -32767.  Per-program audit in
+`golden/e44/PROVENANCE.tsv`.  (The list first written here also had -30, -5, -2, +1, +2: no artifact
+supports those.  -30 was a sign slip for E43B30 = +30; **+1, +2 and -2** have never been probed at a
+member, while -1 has -- E43L3's `DCX H` x1.  The earlier "+/-1 and +/-2" phrasing contradicted the very
+sentence next to it and is corrected.)  **Every sampled one takes the ladder with `SHLD`, the
 operand carrying k exactly** (`+100` -> `LXI B,0064`, `+5000` -> `1388`, `+30000` -> `7530`,
 `+32767` -> `7FFF`, `-9` -> `FFF7`) and whole-program CODE stays `0x3A` across all of them.  The
 gate is therefore not a window.  It was then written as "whether the constant fits the 16-bit `DAD`
@@ -693,7 +699,8 @@ P8a wrote that the member ladder "runs over the whole 16-bit addend".  That sent
 facts and one unknown: `DAD B` can represent `8000h`; my ladder arm is gated by `fits t` on the
 **positive source literal**, so the only spelling that yields k = -32768 (`a = a - 32768`) never
 reaches `ladder_bias_fits` and its lower endpoint is dead code; and DR's choice was unmeasured.
-Three probes (golden/e44, predictions committed first at 6ba2dc6) settled it.
+Three probes (golden/e44, predictions committed first at 6ba2dc6) settled it; a fourth, E44D1, was
+added after that commit as a control on a traceback reading of mine, and it is also 256/256 identical.
 
 | probe | statement | literal in BIN(15) | DR's body | code | DATA | run |
 |---|---|---|---|---|---|---|
@@ -704,8 +711,9 @@ Three probes (golden/e44, predictions committed first at 6ba2dc6) settled it.
 All three `.REL` are 256/256 identical to this compiler **as it already stood** -- so no codegen
 change was made, and none should have been: the shape P8a's comment called "the addend's range" is
 reached only by literals that `fits t` already admits.  The measured span is therefore **-32767 to
-+32767 at the 24 sampled biases** (25 counting -32767), not "the whole addend"; +/-1 and +/-2 have no
-member sample at all, and the intervals between sampled points are interpolation.
++32767 at 26 distinct sampled biases** (1 from P8, 24 more from P8a, 1 more from P8b), not "the whole
+addend"; +1, +2 and -2 have no member sample (-1 does), and the intervals between sampled points are
+interpolation.
 
 **The abort is not [C267]'s store-range check.** `100 - 32768 = -32668` fits BIN(15) and is never
 computed: DR dies inside the decimal conversion of the operand, before the subtraction.  E44C1 aborts
