@@ -5491,8 +5491,29 @@ there the destination's addressing mode chose the store shape, here the source o
 preservation shape.  Scope: this predicate is consulted only where the generic two-`DAD D` route is chosen.
 The self-add ladder [C165]/[C267] takes precedence (`a = a + 5` keeps `LHLD / LXI B / DAD B / SHLD`,
 E42P1 -- the literal `+5` never reaches an `LHLD`, which is what distinguishes it from E45S5),
-`add_left_needs_push` still fires first, and `writes_de` still outranks this test in the order that
-DR's bytes establish.  See (h) for what "the rule" is and is not.
+`writes_de` still outranks this test.  **[E2E-40/P10a] corrects the rest of that sentence.**  P9 wrote
+that `add_left_needs_push` fires first; [C272] then put a new test in front of it, so as of this
+revision the claim is stale.  The measured order, from `codegen.ml` rather than from memory (`ocaml/lib/codegen.ml`, the `Ast.Ebinary (Ast.Add, l, r)` arm whose body begins with
+`if writes_de st r`):
+
+    1. `writes_de st r`                -> park the LEFT  (PUSH H / <right> / POP D / DAD D)
+    2. `paren_add_right r`     [C272]  -> evaluate the RIGHT group FIRST (<right> / PUSH H /
+                                          <left> / POP D / DAD D)
+    3. `add_left_needs_push r` [C150]  -> park the LEFT
+    4. `rhs_is_imem st r`      [C271]  -> park the LEFT      <-- this claim's predicate
+    5. otherwise                       -> `XCHG`
+
+So `add_left_needs_push` does **not** fire first: it is third, behind `writes_de` and the C272
+parenthesized-ADD test.  `rhs_is_imem` is fourth, which is why E45S1's inner `h + a` and E45S8 park
+through it while MB34's `n + (n*3)` never consults it -- step 3 already matched.  Two boundaries on
+that list.  First, it is the dispatch *within the generic FIXED ADD route only*: that route is itself
+reached after specialized arms of `lower_hl` -- the self-add / `+1` / in-range-ladder arms
+([C165]/[C267], e.g. E42P1's `a = a + 5` keeping `LHLD / LXI B / DAD B / SHLD`), the literal-left
+commute [C141], the mixed-DEC arm, the [E2E-25/C178] out-of-range-literal arm, and the call-on-right
+arm [C141] -- and each of those keeps its own precedence, which is why LR19 and R722 are not samples
+of any step above.  Second, the ORDER of steps 1, 3, 4 and 5 is what DR's bytes establish (each of
+those routes is byte-exact on named specimens); the position of step 2 is established by E45S6 alone.
+See (h) for what "the rule" is and is not.
 
 **(e) Both earlier readings were proxies, and both were falsified inside their own probe sets.**
 [C150]'s "left operand is compound" was contradicted at the time it was written by MB36
