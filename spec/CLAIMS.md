@@ -5244,7 +5244,10 @@ rather than ladders there. The probe counts below are corrected in place, not qu
 `golden/e43b` (**19**, not the 20 first recorded -- one was counted twice), every one compared as a
 whole `.REL` file and not as a CODE length [C264], plus 3 more in `golden/e44` [C270]:
 
-1. **The member self-update ladder has no window.** `x = x +/- k` on an internal `FIXED BINARY(15)`
+1. ~~The member self-update ladder has no window.~~ [Title withdrawn by [C270]: there is no *sampled*
+   window, and the addend is not the real gate either -- see correction (ii) below and E44A1/E44B1.
+   What is measured follows.]
+   `x = x +/- k` on an internal `FIXED BINARY(15)`
    member emits `LHLD <cell> / <bias> / SHLD <cell>` at every sampled k from -32767 to +32767
    ~~for every k that fits the 16-bit `DAD` addend~~ [the struck clause was an over-claim: see
    correction (ii) at the end of this numbered point, settled by E44A1/E44B1 in [C270]].
