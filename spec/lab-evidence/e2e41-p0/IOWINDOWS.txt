@@ -1,0 +1,3033 @@
+# windows around each file-I/O CALL, one object per historical program
+# routines: ?OIOOP ?CIOOP ?SIOOP ?QIOOP ?WNIOP ?SYSIN ?SYSPR ?GNVOP ?SSVFS ?QCIOP ?PAGOP
+
+== COPYLPT   golden/first8080u/COPYLPT/COPYLPT.REL   code=810 bytes, COMMON=126 bytes
+   --- ?SYSPR call at 0013
+      0009  DAD  SP                ; 39       
+      000A  SHLD                   ; 22 00 00    ; RELOC -> data+0x0214 / ??????
+      000D  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0010  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0024 / ??????
+      0013  CALL                   ; CD 00 00    ; IMM 0x0000
+      0016  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0011 / ??????
+      0019  MVI  A                 ; 3E 1F       ; IMM 0x1F
+   --- ?QIOOP call at 0021
+      0016  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0011 / ??????
+      0019  MVI  A                 ; 3E 1F       ; IMM 0x1F
+      001B  CALL                   ; CD 00 00    ; IMM 0x0000
+      001E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0021  CALL                   ; CD 00 00    ; IMM 0x0000
+      0024  LXI  H                 ; 21 00 00    ; RELOC -> common/SYSIN/+0x0000 / ??????
+      0027  MVI  A                 ; 3E 05       ; IMM 0x05
+   --- ?SYSPR call at 003F
+      0035  DB F9                  ; F9       
+      0036  CALL                   ; CD 00 00    ; IMM 0x0000
+      0039  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      003C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0055 / ??????
+      003F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0042  MVI  A                 ; 3E 05       ; IMM 0x05
+      0044  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0052
+      0047  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0030 / ??????
+      004A  MVI  A                 ; 3E 1B       ; IMM 0x1B
+      004C  CALL                   ; CD 00 00    ; IMM 0x0000
+      004F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0052  CALL                   ; CD 00 00    ; IMM 0x0000
+      0055  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0058  LXI  B                 ; 01 00 00    ; RELOC -> code+0x006D / ??????
+   --- ?SYSIN call at 005B
+      004F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0052  CALL                   ; CD 00 00    ; IMM 0x0000
+      0055  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0058  LXI  B                 ; 01 00 00    ; RELOC -> code+0x006D / ??????
+      005B  CALL                   ; CD 00 00    ; IMM 0x0000
+      005E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0061  JP                     ; F2 00 00    ; RELOC -> code+0x006A / ??????
+   --- ?GNVOP call at 005E
+      0052  CALL                   ; CD 00 00    ; IMM 0x0000
+      0055  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0058  LXI  B                 ; 01 00 00    ; RELOC -> code+0x006D / ??????
+      005B  CALL                   ; CD 00 00    ; IMM 0x0000
+      005E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0061  JP                     ; F2 00 00    ; RELOC -> code+0x006A / ??????
+      0064  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QCIOP call at 0064
+      0058  LXI  B                 ; 01 00 00    ; RELOC -> code+0x006D / ??????
+      005B  CALL                   ; CD 00 00    ; IMM 0x0000
+      005E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0061  JP                     ; F2 00 00    ; RELOC -> code+0x006A / ??????
+      0064  CALL                   ; CD 00 00    ; IMM 0x0000
+      0067  SHLD                   ; 22 00 00    ; RELOC -> data+0x00FE / ??????
+      006A  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 006A
+      005E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0061  JP                     ; F2 00 00    ; RELOC -> code+0x006A / ??????
+      0064  CALL                   ; CD 00 00    ; IMM 0x0000
+      0067  SHLD                   ; 22 00 00    ; RELOC -> data+0x00FE / ??????
+      006A  CALL                   ; CD 00 00    ; IMM 0x0000
+      006D  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0070  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0089 / ??????
+   --- ?SYSPR call at 0073
+      0067  SHLD                   ; 22 00 00    ; RELOC -> data+0x00FE / ??????
+      006A  CALL                   ; CD 00 00    ; IMM 0x0000
+      006D  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0070  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0089 / ??????
+      0073  CALL                   ; CD 00 00    ; IMM 0x0000
+      0076  MVI  A                 ; 3E 01       ; IMM 0x01
+      0078  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0086
+      007B  LXI  H                 ; 21 00 00    ; RELOC -> data+0x004B / ??????
+      007E  MVI  A                 ; 3E 1B       ; IMM 0x1B
+      0080  CALL                   ; CD 00 00    ; IMM 0x0000
+      0083  CALL                   ; CD 00 00    ; IMM 0x0000
+      0086  CALL                   ; CD 00 00    ; IMM 0x0000
+      0089  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      008C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00A6 / ??????
+   --- ?SYSIN call at 008F
+      0083  CALL                   ; CD 00 00    ; IMM 0x0000
+      0086  CALL                   ; CD 00 00    ; IMM 0x0000
+      0089  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      008C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00A6 / ??????
+      008F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0092  MVI  A                 ; 3E 01       ; IMM 0x01
+      0094  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?GNVOP call at 0097
+      008C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00A6 / ??????
+      008F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0092  MVI  A                 ; 3E 01       ; IMM 0x01
+      0094  CALL                   ; CD 00 00    ; IMM 0x0000
+      0097  CALL                   ; CD 00 00    ; IMM 0x0000
+      009A  JP                     ; F2 00 00    ; RELOC -> code+0x00A3 / ??????
+      009D  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QCIOP call at 009D
+      0092  MVI  A                 ; 3E 01       ; IMM 0x01
+      0094  CALL                   ; CD 00 00    ; IMM 0x0000
+      0097  CALL                   ; CD 00 00    ; IMM 0x0000
+      009A  JP                     ; F2 00 00    ; RELOC -> code+0x00A3 / ??????
+      009D  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A0  SHLD                   ; 22 00 00    ; RELOC -> data+0x0100 / ??????
+      00A3  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 00A3
+      0097  CALL                   ; CD 00 00    ; IMM 0x0000
+      009A  JP                     ; F2 00 00    ; RELOC -> code+0x00A3 / ??????
+      009D  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A0  SHLD                   ; 22 00 00    ; RELOC -> data+0x0100 / ??????
+      00A3  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A6  LXI  H                 ; 21 01 00    ; IMM 0x0001
+      00A9  XRA  A                 ; AF       
+   --- ?SYSPR call at 00B6
+      00AA  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AD  JMP                    ; C3 00 00    ; RELOC -> code+0x00CA / ??????
+      00B0  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00B3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00C7 / ??????
+      00B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B9  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0066 / ??????
+      00BC  MVI  A                 ; 3E 1C       ; IMM 0x1C
+   --- ?QIOOP call at 00C4
+      00B9  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0066 / ??????
+      00BC  MVI  A                 ; 3E 1C       ; IMM 0x1C
+      00BE  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C1  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C7  JMP                    ; C3 00 00    ; IMM 0x0000
+      00CA  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0214 / ??????
+   --- ?SYSPR call at 00D7
+      00CD  DB F9                  ; F9       
+      00CE  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D1  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00D4  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00ED / ??????
+      00D7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00DA  MVI  A                 ; 3E 01       ; IMM 0x01
+      00DC  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 00EA
+      00DF  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0082 / ??????
+      00E2  MVI  A                 ; 3E 1B       ; IMM 0x1B
+      00E4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EA  CALL                   ; CD 00 00    ; IMM 0x0000
+      00ED  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010A / ??????
+   --- ?SYSIN call at 00F3
+      00E7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EA  CALL                   ; CD 00 00    ; IMM 0x0000
+      00ED  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010A / ??????
+      00F3  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F6  MVI  A                 ; 3E 01       ; IMM 0x01
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?GNVOP call at 00FB
+      00F0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010A / ??????
+      00F3  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F6  MVI  A                 ; 3E 01       ; IMM 0x01
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FE  JP                     ; F2 00 00    ; RELOC -> code+0x0107 / ??????
+      0101  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QCIOP call at 0101
+      00F6  MVI  A                 ; 3E 01       ; IMM 0x01
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FE  JP                     ; F2 00 00    ; RELOC -> code+0x0107 / ??????
+      0101  CALL                   ; CD 00 00    ; IMM 0x0000
+      0104  SHLD                   ; 22 00 00    ; RELOC -> data+0x0102 / ??????
+      0107  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0107
+      00FB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FE  JP                     ; F2 00 00    ; RELOC -> code+0x0107 / ??????
+      0101  CALL                   ; CD 00 00    ; IMM 0x0000
+      0104  SHLD                   ; 22 00 00    ; RELOC -> data+0x0102 / ??????
+      0107  CALL                   ; CD 00 00    ; IMM 0x0000
+      010A  LXI  H                 ; 21 01 00    ; IMM 0x0001
+      010D  XRA  A                 ; AF       
+   --- ?SYSPR call at 0117
+      010D  XRA  A                 ; AF       
+      010E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0111  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0114  LXI  B                 ; 01 00 00    ; RELOC -> code+0x012D / ??????
+      0117  CALL                   ; CD 00 00    ; IMM 0x0000
+      011A  MVI  A                 ; 3E 01       ; IMM 0x01
+      011C  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 012A
+      011F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x009D / ??????
+      0122  MVI  A                 ; 3E 1B       ; IMM 0x1B
+      0124  CALL                   ; CD 00 00    ; IMM 0x0000
+      0127  CALL                   ; CD 00 00    ; IMM 0x0000
+      012A  CALL                   ; CD 00 00    ; IMM 0x0000
+      012D  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0130  LXI  B                 ; 01 00 00    ; RELOC -> code+0x014C / ??????
+   --- ?SYSIN call at 0133
+      0127  CALL                   ; CD 00 00    ; IMM 0x0000
+      012A  CALL                   ; CD 00 00    ; IMM 0x0000
+      012D  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0130  LXI  B                 ; 01 00 00    ; RELOC -> code+0x014C / ??????
+      0133  CALL                   ; CD 00 00    ; IMM 0x0000
+      0136  MVI  A                 ; 3E 01       ; IMM 0x01
+      0138  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?GNVOP call at 013B
+      0130  LXI  B                 ; 01 00 00    ; RELOC -> code+0x014C / ??????
+      0133  CALL                   ; CD 00 00    ; IMM 0x0000
+      0136  MVI  A                 ; 3E 01       ; IMM 0x01
+      0138  CALL                   ; CD 00 00    ; IMM 0x0000
+      013B  CALL                   ; CD 00 00    ; IMM 0x0000
+      013E  JP                     ; F2 00 00    ; RELOC -> code+0x0149 / ??????
+      0141  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+   --- ?SSVFS call at 0146
+      013B  CALL                   ; CD 00 00    ; IMM 0x0000
+      013E  JP                     ; F2 00 00    ; RELOC -> code+0x0149 / ??????
+      0141  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+      0144  MVI  B                 ; 06 0E       ; IMM 0x0E
+      0146  CALL                   ; CD 00 00    ; IMM 0x0000
+      0149  CALL                   ; CD 00 00    ; IMM 0x0000
+      014C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+   --- ?QIOOP call at 0149
+      013E  JP                     ; F2 00 00    ; RELOC -> code+0x0149 / ??????
+      0141  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+      0144  MVI  B                 ; 06 0E       ; IMM 0x0E
+      0146  CALL                   ; CD 00 00    ; IMM 0x0000
+      0149  CALL                   ; CD 00 00    ; IMM 0x0000
+      014C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+      014F  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?OIOOP call at 016A
+      0162  PUSH H                 ; E5       
+      0163  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0100 / ??????
+      0166  PUSH H                 ; E5       
+      0167  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      016A  CALL                   ; CD 00 00    ; IMM 0x0000
+      016D  LXI  H                 ; 21 00 00    ; RELOC -> common/SOURCE/+0x0000 / ??????
+      0170  MVI  A                 ; 3E 06       ; IMM 0x06
+   --- ?SYSPR call at 017E
+      0172  CALL                   ; CD 00 00    ; IMM 0x0000
+      0175  JMP                    ; C3 00 00    ; RELOC -> code+0x01AB / ??????
+      0178  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      017B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01A8 / ??????
+      017E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0181  MVI  A                 ; 3E 01       ; IMM 0x01
+      0183  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01A5
+      019A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00B9 / ??????
+      019D  MVI  A                 ; 3E 14       ; IMM 0x14
+      019F  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A8  JMP                    ; C3 00 00    ; IMM 0x0000
+      01AB  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0214 / ??????
+   --- ?SYSPR call at 01B8
+      01AE  DB F9                  ; F9       
+      01AF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B2  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01B5  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01CE / ??????
+      01B8  CALL                   ; CD 00 00    ; IMM 0x0000
+      01BB  MVI  A                 ; 3E 01       ; IMM 0x01
+      01BD  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01CB
+      01C0  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00CD / ??????
+      01C3  MVI  A                 ; 3E 1B       ; IMM 0x1B
+      01C5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C8  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CB  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CE  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01D1  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01E8 / ??????
+   --- ?SYSIN call at 01D4
+      01C8  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CB  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CE  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01D1  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01E8 / ??????
+      01D4  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DA  JP                     ; F2 00 00    ; RELOC -> code+0x01E5 / ??????
+   --- ?GNVOP call at 01D7
+      01CB  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CE  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01D1  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01E8 / ??????
+      01D4  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DA  JP                     ; F2 00 00    ; RELOC -> code+0x01E5 / ??????
+      01DD  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+   --- ?SSVFS call at 01E2
+      01D7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DA  JP                     ; F2 00 00    ; RELOC -> code+0x01E5 / ??????
+      01DD  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+      01E0  MVI  B                 ; 06 0E       ; IMM 0x0E
+      01E2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E8  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+   --- ?QIOOP call at 01E5
+      01DA  JP                     ; F2 00 00    ; RELOC -> code+0x01E5 / ??????
+      01DD  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+      01E0  MVI  B                 ; 06 0E       ; IMM 0x0E
+      01E2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E8  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0106 / ??????
+      01EB  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?OIOOP call at 0207
+      0201  DB 6C                  ; 6C       
+      0202  PUSH H                 ; E5       
+      0203  PUSH H                 ; E5       
+      0204  LXI  H                 ; 21 00 00    ; RELOC -> common/SOURCE/+0x0000 / ??????
+      0207  CALL                   ; CD 00 00    ; IMM 0x0000
+      020A  LXI  H                 ; 21 00 00    ; RELOC -> common/SOURCE/+0x0000 / ??????
+      020D  MVI  A                 ; 3E 05       ; IMM 0x05
+   --- ?SIOOP call at 021E
+      0212  JMP                    ; C3 00 00    ; RELOC -> code+0x022A / ??????
+      0215  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      0218  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      021B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0227 / ??????
+      021E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0221  CALL                   ; CD 00 00    ; IMM 0x0000
+      0224  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?PAGOP call at 0221
+      0215  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      0218  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      021B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0227 / ??????
+      021E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0221  CALL                   ; CD 00 00    ; IMM 0x0000
+      0224  CALL                   ; CD 00 00    ; IMM 0x0000
+      0227  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0224
+      0218  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      021B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0227 / ??????
+      021E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0221  CALL                   ; CD 00 00    ; IMM 0x0000
+      0224  CALL                   ; CD 00 00    ; IMM 0x0000
+      0227  CALL                   ; CD 00 00    ; IMM 0x0000
+      022A  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+   --- ?SYSPR call at 023B
+      022F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0232  JMP                    ; C3 00 00    ; RELOC -> code+0x0254 / ??????
+      0235  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0238  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0251 / ??????
+      023B  CALL                   ; CD 00 00    ; IMM 0x0000
+      023E  MVI  A                 ; 3E 01       ; IMM 0x01
+      0240  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 024E
+      0243  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E8 / ??????
+      0246  MVI  A                 ; 3E 11       ; IMM 0x11
+      0248  CALL                   ; CD 00 00    ; IMM 0x0000
+      024B  CALL                   ; CD 00 00    ; IMM 0x0000
+      024E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0251  CALL                   ; CD 00 00    ; IMM 0x0000
+      0254  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+   --- ?SIOOP call at 0268
+      025C  JMP                    ; C3 00 00    ; RELOC -> code+0x02AA / ??????
+      025F  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      0262  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0265  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0295 / ??????
+      0268  CALL                   ; CD 00 00    ; IMM 0x0000
+      026B  CALL                   ; CD 00 00    ; IMM 0x0000
+      026E  MVI  A                 ; 3E 02       ; IMM 0x02
+   --- ?PAGOP call at 026B
+      025F  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      0262  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0265  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0295 / ??????
+      0268  CALL                   ; CD 00 00    ; IMM 0x0000
+      026B  CALL                   ; CD 00 00    ; IMM 0x0000
+      026E  MVI  A                 ; 3E 02       ; IMM 0x02
+      0270  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0292
+      0287  CALL                   ; CD 00 00    ; IMM 0x0000
+      028A  MVI  A                 ; 3E 09       ; IMM 0x09
+      028C  CALL                   ; CD 00 00    ; IMM 0x0000
+      028F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0292  CALL                   ; CD 00 00    ; IMM 0x0000
+      0295  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      0298  LXI  D                 ; 11 52 06    ; IMM 0x0652
+   --- ?SIOOP call at 029E
+      0292  CALL                   ; CD 00 00    ; IMM 0x0000
+      0295  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      0298  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      029B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02A9 / ??????
+      029E  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A1  MVI  A                 ; 3E 04       ; IMM 0x04
+      02A3  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 02A6
+      029B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02A9 / ??????
+      029E  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A1  MVI  A                 ; 3E 04       ; IMM 0x04
+      02A3  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A6  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A9  RET                    ; C9       
+      02AA  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+   --- ?SIOOP call at 02C1
+      02B5  SHLD                   ; 22 00 00    ; RELOC -> data+0x0104 / ??????
+      02B8  LXI  H                 ; 21 00 00    ; RELOC -> common/SOURCE/+0x0000 / ??????
+      02BB  LXI  D                 ; 11 90 06    ; IMM 0x0690
+      02BE  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02D8 / ??????
+      02C1  CALL                   ; CD 00 00    ; IMM 0x0000
+      02C4  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      02C7  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?SSVFS call at 02D2
+      02C7  CALL                   ; CD 00 00    ; IMM 0x0000
+      02CA  CALL                   ; CD 00 00    ; IMM 0x0000
+      02CD  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0115 / ??????
+      02D0  MVI  B                 ; 06 FE       ; IMM 0xFE
+      02D2  CALL                   ; CD 00 00    ; IMM 0x0000
+      02D5  CALL                   ; CD 00 00    ; IMM 0x0000
+      02D8  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+   --- ?QIOOP call at 02D5
+      02CA  CALL                   ; CD 00 00    ; IMM 0x0000
+      02CD  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0115 / ??????
+      02D0  MVI  B                 ; 06 FE       ; IMM 0xFE
+      02D2  CALL                   ; CD 00 00    ; IMM 0x0000
+      02D5  CALL                   ; CD 00 00    ; IMM 0x0000
+      02D8  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      02DB  LXI  D                 ; 11 52 06    ; IMM 0x0652
+   --- ?SIOOP call at 02E1
+      02D5  CALL                   ; CD 00 00    ; IMM 0x0000
+      02D8  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      02DB  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      02DE  LXI  B                 ; 01 00 00    ; RELOC -> code+0x030C / ??????
+      02E1  CALL                   ; CD 00 00    ; IMM 0x0000
+      02E4  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0005 / ??????
+      02E7  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0309
+      02FD  CALL                   ; CD 00 00    ; IMM 0x0000
+      0300  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0115 / ??????
+      0303  CALL                   ; CD 00 00    ; IMM 0x0000
+      0306  CALL                   ; CD 00 00    ; IMM 0x0000
+      0309  CALL                   ; CD 00 00    ; IMM 0x0000
+      030C  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      030F  LXI  D                 ; 11 52 06    ; IMM 0x0652
+   --- ?SIOOP call at 0315
+      0309  CALL                   ; CD 00 00    ; IMM 0x0000
+      030C  LXI  H                 ; 21 00 00    ; RELOC -> common/PRINTF/+0x0000 / ??????
+      030F  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0312  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0322 / ??????
+      0315  CALL                   ; CD 00 00    ; IMM 0x0000
+      0318  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0102 / ??????
+      031B  DB 7D                  ; 7D       
+   --- ?QIOOP call at 031F
+      0315  CALL                   ; CD 00 00    ; IMM 0x0000
+      0318  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0102 / ??????
+      031B  DB 7D                  ; 7D       
+      031C  CALL                   ; CD 00 00    ; IMM 0x0000
+      031F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0322  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0104 / ??????
+      0325  INX  H                 ; 23       
+   call counts: ?GNVOP=5 ?OIOOP=2 ?PAGOP=2 ?QCIOP=3 ?QIOOP=20 ?SIOOP=6 ?SSVFS=3 ?SYSIN=5 ?SYSPR=9
+
+== COPY   golden/first8080u/COPY/COPY.REL   code=127 bytes, COMMON=89 bytes
+   --- ?OIOOP call at 0027
+      0021  DB 6C                  ; 6C       
+      0022  PUSH H                 ; E5       
+      0023  PUSH H                 ; E5       
+      0024  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT_/+0x0000 / ??????
+      0027  CALL                   ; CD 00 00    ; IMM 0x0000
+      002A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0005 / ??????
+      002D  MVI  A                 ; 3E 05       ; IMM 0x05
+   --- ?OIOOP call at 004B
+      0045  DB 6C                  ; 6C       
+      0046  PUSH H                 ; E5       
+      0047  PUSH H                 ; E5       
+      0048  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      004B  CALL                   ; CD 00 00    ; IMM 0x0000
+      004E  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT_/+0x0000 / ??????
+      0051  LXI  D                 ; 11 90 06    ; IMM 0x0690
+   --- ?SIOOP call at 0057
+      004B  CALL                   ; CD 00 00    ; IMM 0x0000
+      004E  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT_/+0x0000 / ??????
+      0051  LXI  D                 ; 11 90 06    ; IMM 0x0690
+      0054  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0066 / ??????
+      0057  CALL                   ; CD 00 00    ; IMM 0x0000
+      005A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x000A / ??????
+      005D  LXI  D                 ; 11 FF 00    ; IMM 0x00FF
+   --- ?QIOOP call at 0063
+      0057  CALL                   ; CD 00 00    ; IMM 0x0000
+      005A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x000A / ??????
+      005D  LXI  D                 ; 11 FF 00    ; IMM 0x00FF
+      0060  CALL                   ; CD 00 00    ; IMM 0x0000
+      0063  CALL                   ; CD 00 00    ; IMM 0x0000
+      0066  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      0069  LXI  D                 ; 11 50 06    ; IMM 0x0650
+   --- ?SIOOP call at 006F
+      0063  CALL                   ; CD 00 00    ; IMM 0x0000
+      0066  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      0069  LXI  D                 ; 11 50 06    ; IMM 0x0650
+      006C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x007E / ??????
+      006F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0072  LXI  H                 ; 21 00 00    ; RELOC -> data+0x000A / ??????
+      0075  LXI  D                 ; 11 FF 00    ; IMM 0x00FF
+   --- ?WNIOP call at 0078
+      006C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x007E / ??????
+      006F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0072  LXI  H                 ; 21 00 00    ; RELOC -> data+0x000A / ??????
+      0075  LXI  D                 ; 11 FF 00    ; IMM 0x00FF
+      0078  CALL                   ; CD 00 00    ; IMM 0x0000
+      007B  CALL                   ; CD 00 00    ; IMM 0x0000
+      007E  JMP                    ; C3       
+   --- ?QIOOP call at 007B
+      006F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0072  LXI  H                 ; 21 00 00    ; RELOC -> data+0x000A / ??????
+      0075  LXI  D                 ; 11 FF 00    ; IMM 0x00FF
+      0078  CALL                   ; CD 00 00    ; IMM 0x0000
+      007B  CALL                   ; CD 00 00    ; IMM 0x0000
+      007E  JMP                    ; C3       
+   call counts: ?OIOOP=2 ?QIOOP=2 ?SIOOP=2 ?WNIOP=1
+
+== CREATE   golden/first8080u/CREATE/CREATE.REL   code=503 bytes, COMMON=40 bytes
+   --- ?SYSPR call at 000C
+      0000  LXI  B                 ; 01 00 02    ; IMM 0x0200
+      0003  CALL                   ; CD 00 00    ; IMM 0x0000
+      0006  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0009  LXI  B                 ; 01 00 00    ; RELOC -> code+0x001D / ??????
+      000C  CALL                   ; CD 00 00    ; IMM 0x0000
+      000F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0001 / ??????
+      0012  MVI  A                 ; 3E 2E       ; IMM 0x2E
+   --- ?QIOOP call at 001A
+      000F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0001 / ??????
+      0012  MVI  A                 ; 3E 2E       ; IMM 0x2E
+      0014  CALL                   ; CD 00 00    ; IMM 0x0000
+      0017  CALL                   ; CD 00 00    ; IMM 0x0000
+      001A  CALL                   ; CD 00 00    ; IMM 0x0000
+      001D  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0020  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0037 / ??????
+   --- ?SYSIN call at 0023
+      0017  CALL                   ; CD 00 00    ; IMM 0x0000
+      001A  CALL                   ; CD 00 00    ; IMM 0x0000
+      001D  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0020  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0037 / ??????
+      0023  CALL                   ; CD 00 00    ; IMM 0x0000
+      0026  CALL                   ; CD 00 00    ; IMM 0x0000
+      0029  JP                     ; F2 00 00    ; RELOC -> code+0x0034 / ??????
+   --- ?GNVOP call at 0026
+      001A  CALL                   ; CD 00 00    ; IMM 0x0000
+      001D  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0020  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0037 / ??????
+      0023  CALL                   ; CD 00 00    ; IMM 0x0000
+      0026  CALL                   ; CD 00 00    ; IMM 0x0000
+      0029  JP                     ; F2 00 00    ; RELOC -> code+0x0034 / ??????
+      002C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00C9 / ??????
+   --- ?SSVFS call at 0031
+      0026  CALL                   ; CD 00 00    ; IMM 0x0000
+      0029  JP                     ; F2 00 00    ; RELOC -> code+0x0034 / ??????
+      002C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00C9 / ??????
+      002F  MVI  B                 ; 06 0E       ; IMM 0x0E
+      0031  CALL                   ; CD 00 00    ; IMM 0x0000
+      0034  CALL                   ; CD 00 00    ; IMM 0x0000
+      0037  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00C9 / ??????
+   --- ?QIOOP call at 0034
+      0029  JP                     ; F2 00 00    ; RELOC -> code+0x0034 / ??????
+      002C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00C9 / ??????
+      002F  MVI  B                 ; 06 0E       ; IMM 0x0E
+      0031  CALL                   ; CD 00 00    ; IMM 0x0000
+      0034  CALL                   ; CD 00 00    ; IMM 0x0000
+      0037  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00C9 / ??????
+      003A  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?OIOOP call at 004F
+      0049  PUSH H                 ; E5       
+      004A  PUSH H                 ; E5       
+      004B  PUSH H                 ; E5       
+      004C  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      004F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0052  LDA                    ; 3A 00 00    ; RELOC -> data+0x0000 / ??????
+      0055  ORA  A                 ; B7       
+   --- ?SYSPR call at 005F
+      0055  ORA  A                 ; B7       
+      0056  JM                     ; FA 00 00    ; RELOC -> code+0x01C1 / ??????
+      0059  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      005C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0075 / ??????
+      005F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0062  MVI  A                 ; 3E 03       ; IMM 0x03
+      0064  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0072
+      0067  LXI  H                 ; 21 00 00    ; RELOC -> data+0x002F / ??????
+      006A  MVI  A                 ; 3E 06       ; IMM 0x06
+      006C  CALL                   ; CD 00 00    ; IMM 0x0000
+      006F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0072  CALL                   ; CD 00 00    ; IMM 0x0000
+      0075  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0078  LXI  B                 ; 01 00 00    ; RELOC -> code+0x008F / ??????
+   --- ?SYSIN call at 007B
+      006F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0072  CALL                   ; CD 00 00    ; IMM 0x0000
+      0075  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0078  LXI  B                 ; 01 00 00    ; RELOC -> code+0x008F / ??????
+      007B  CALL                   ; CD 00 00    ; IMM 0x0000
+      007E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0081  JP                     ; F2 00 00    ; RELOC -> code+0x008C / ??????
+   --- ?GNVOP call at 007E
+      0072  CALL                   ; CD 00 00    ; IMM 0x0000
+      0075  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0078  LXI  B                 ; 01 00 00    ; RELOC -> code+0x008F / ??????
+      007B  CALL                   ; CD 00 00    ; IMM 0x0000
+      007E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0081  JP                     ; F2 00 00    ; RELOC -> code+0x008C / ??????
+      0084  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005A / ??????
+   --- ?SSVFS call at 0089
+      007E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0081  JP                     ; F2 00 00    ; RELOC -> code+0x008C / ??????
+      0084  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005A / ??????
+      0087  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0089  CALL                   ; CD 00 00    ; IMM 0x0000
+      008C  CALL                   ; CD 00 00    ; IMM 0x0000
+      008F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005A / ??????
+   --- ?QIOOP call at 008C
+      0081  JP                     ; F2 00 00    ; RELOC -> code+0x008C / ??????
+      0084  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005A / ??????
+      0087  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0089  CALL                   ; CD 00 00    ; IMM 0x0000
+      008C  CALL                   ; CD 00 00    ; IMM 0x0000
+      008F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005A / ??????
+      0092  XCHG                   ; EB       
+   --- ?SYSPR call at 00AE
+      00A4  ORA  A                 ; B7       
+      00A5  JM                     ; FA 00 00    ; RELOC -> code+0x01BE / ??????
+      00A8  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00AB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00BF / ??????
+      00AE  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B1  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0038 / ??????
+      00B4  MVI  A                 ; 3E 09       ; IMM 0x09
+   --- ?QIOOP call at 00BC
+      00B1  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0038 / ??????
+      00B4  MVI  A                 ; 3E 09       ; IMM 0x09
+      00B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00BC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00BF  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00C2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00D9 / ??????
+   --- ?SYSIN call at 00C5
+      00B9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00BC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00BF  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00C2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00D9 / ??????
+      00C5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00CB  JP                     ; F2 00 00    ; RELOC -> code+0x00D6 / ??????
+   --- ?GNVOP call at 00C8
+      00BC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00BF  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00C2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00D9 / ??????
+      00C5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00CB  JP                     ; F2 00 00    ; RELOC -> code+0x00D6 / ??????
+      00CE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0079 / ??????
+   --- ?SSVFS call at 00D3
+      00C8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00CB  JP                     ; F2 00 00    ; RELOC -> code+0x00D6 / ??????
+      00CE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0079 / ??????
+      00D1  MVI  B                 ; 06 1E       ; IMM 0x1E
+      00D3  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D9  LXI  D                 ; 11 52 02    ; IMM 0x0252
+   --- ?QIOOP call at 00D6
+      00CB  JP                     ; F2 00 00    ; RELOC -> code+0x00D6 / ??????
+      00CE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0079 / ??????
+      00D1  MVI  B                 ; 06 1E       ; IMM 0x1E
+      00D3  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D9  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00DC  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00F0 / ??????
+   --- ?SYSPR call at 00DF
+      00D3  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D9  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00DC  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00F0 / ??????
+      00DF  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0041 / ??????
+      00E5  MVI  A                 ; 3E 12       ; IMM 0x12
+   --- ?QIOOP call at 00ED
+      00E2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0041 / ??????
+      00E5  MVI  A                 ; 3E 12       ; IMM 0x12
+      00E7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EA  CALL                   ; CD 00 00    ; IMM 0x0000
+      00ED  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F0  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x012B / ??????
+   --- ?SYSIN call at 00F6
+      00EA  CALL                   ; CD 00 00    ; IMM 0x0000
+      00ED  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F0  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x012B / ??????
+      00F6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FC  JP                     ; F2 00 00    ; RELOC -> code+0x0107 / ??????
+   --- ?GNVOP call at 00F9
+      00ED  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F0  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x012B / ??????
+      00F6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FC  JP                     ; F2 00 00    ; RELOC -> code+0x0107 / ??????
+      00FF  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0098 / ??????
+   --- ?SSVFS call at 0104
+      00F9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FC  JP                     ; F2 00 00    ; RELOC -> code+0x0107 / ??????
+      00FF  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0098 / ??????
+      0102  MVI  B                 ; 06 14       ; IMM 0x14
+      0104  CALL                   ; CD 00 00    ; IMM 0x0000
+      0107  CALL                   ; CD 00 00    ; IMM 0x0000
+      010A  JP                     ; F2 00 00    ; RELOC -> code+0x0115 / ??????
+   --- ?GNVOP call at 0107
+      00FC  JP                     ; F2 00 00    ; RELOC -> code+0x0107 / ??????
+      00FF  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0098 / ??????
+      0102  MVI  B                 ; 06 14       ; IMM 0x14
+      0104  CALL                   ; CD 00 00    ; IMM 0x0000
+      0107  CALL                   ; CD 00 00    ; IMM 0x0000
+      010A  JP                     ; F2 00 00    ; RELOC -> code+0x0115 / ??????
+      010D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00AD / ??????
+   --- ?SSVFS call at 0112
+      0107  CALL                   ; CD 00 00    ; IMM 0x0000
+      010A  JP                     ; F2 00 00    ; RELOC -> code+0x0115 / ??????
+      010D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00AD / ??????
+      0110  MVI  B                 ; 06 0A       ; IMM 0x0A
+      0112  CALL                   ; CD 00 00    ; IMM 0x0000
+      0115  CALL                   ; CD 00 00    ; IMM 0x0000
+      0118  JP                     ; F2 00 00    ; RELOC -> code+0x0128 / ??????
+   --- ?GNVOP call at 0115
+      010A  JP                     ; F2 00 00    ; RELOC -> code+0x0115 / ??????
+      010D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00AD / ??????
+      0110  MVI  B                 ; 06 0A       ; IMM 0x0A
+      0112  CALL                   ; CD 00 00    ; IMM 0x0000
+      0115  CALL                   ; CD 00 00    ; IMM 0x0000
+      0118  JP                     ; F2 00 00    ; RELOC -> code+0x0128 / ??????
+      011B  MVI  B                 ; 06 00       ; IMM 0x00
+   --- ?QIOOP call at 0128
+      011D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0120  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00B8 / ??????
+      0123  MVI  A                 ; 3E 06       ; IMM 0x06
+      0125  CALL                   ; CD 00 00    ; IMM 0x0000
+      0128  CALL                   ; CD 00 00    ; IMM 0x0000
+      012B  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      012E  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0142 / ??????
+   --- ?SYSPR call at 0131
+      0125  CALL                   ; CD 00 00    ; IMM 0x0000
+      0128  CALL                   ; CD 00 00    ; IMM 0x0000
+      012B  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      012E  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0142 / ??????
+      0131  CALL                   ; CD 00 00    ; IMM 0x0000
+      0134  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0053 / ??????
+      0137  MVI  A                 ; 3E 07       ; IMM 0x07
+   --- ?QIOOP call at 013F
+      0134  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0053 / ??????
+      0137  MVI  A                 ; 3E 07       ; IMM 0x07
+      0139  CALL                   ; CD 00 00    ; IMM 0x0000
+      013C  CALL                   ; CD 00 00    ; IMM 0x0000
+      013F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0142  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0145  LXI  B                 ; 01 00 00    ; RELOC -> code+0x015C / ??????
+   --- ?SYSIN call at 0148
+      013C  CALL                   ; CD 00 00    ; IMM 0x0000
+      013F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0142  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0145  LXI  B                 ; 01 00 00    ; RELOC -> code+0x015C / ??????
+      0148  CALL                   ; CD 00 00    ; IMM 0x0000
+      014B  CALL                   ; CD 00 00    ; IMM 0x0000
+      014E  JP                     ; F2 00 00    ; RELOC -> code+0x0159 / ??????
+   --- ?GNVOP call at 014B
+      013F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0142  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0145  LXI  B                 ; 01 00 00    ; RELOC -> code+0x015C / ??????
+      0148  CALL                   ; CD 00 00    ; IMM 0x0000
+      014B  CALL                   ; CD 00 00    ; IMM 0x0000
+      014E  JP                     ; F2 00 00    ; RELOC -> code+0x0159 / ??????
+      0151  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00BC / ??????
+   --- ?SSVFS call at 0156
+      014B  CALL                   ; CD 00 00    ; IMM 0x0000
+      014E  JP                     ; F2 00 00    ; RELOC -> code+0x0159 / ??????
+      0151  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00BC / ??????
+      0154  MVI  B                 ; 06 0C       ; IMM 0x0C
+      0156  CALL                   ; CD 00 00    ; IMM 0x0000
+      0159  CALL                   ; CD 00 00    ; IMM 0x0000
+      015C  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+   --- ?QIOOP call at 0159
+      014E  JP                     ; F2 00 00    ; RELOC -> code+0x0159 / ??????
+      0151  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00BC / ??????
+      0154  MVI  B                 ; 06 0C       ; IMM 0x0C
+      0156  CALL                   ; CD 00 00    ; IMM 0x0000
+      0159  CALL                   ; CD 00 00    ; IMM 0x0000
+      015C  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      015F  LXI  D                 ; 11 52 06    ; IMM 0x0652
+   --- ?SIOOP call at 0165
+      0159  CALL                   ; CD 00 00    ; IMM 0x0000
+      015C  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      015F  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0162  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01AA / ??????
+      0165  CALL                   ; CD 00 00    ; IMM 0x0000
+      0168  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005A / ??????
+      016B  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01A7
+      019B  CALL                   ; CD 00 00    ; IMM 0x0000
+      019E  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00BC / ??????
+      01A1  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A4  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01AA  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      01AD  LXI  D                 ; 11 52 06    ; IMM 0x0652
+   --- ?SIOOP call at 01B3
+      01A7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01AA  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      01AD  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      01B0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01BE / ??????
+      01B3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B6  MVI  A                 ; 3E 01       ; IMM 0x01
+      01B8  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01BB
+      01B0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01BE / ??????
+      01B3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B6  MVI  A                 ; 3E 01       ; IMM 0x01
+      01B8  CALL                   ; CD 00 00    ; IMM 0x0000
+      01BB  CALL                   ; CD 00 00    ; IMM 0x0000
+      01BE  JMP                    ; C3 00 00    ; RELOC -> code+0x0052 / ??????
+      01C1  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+   --- ?SIOOP call at 01CA
+      01BE  JMP                    ; C3 00 00    ; RELOC -> code+0x0052 / ??????
+      01C1  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      01C4  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      01C7  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01E0 / ??????
+      01CA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CD  MVI  A                 ; 3E 01       ; IMM 0x01
+      01CF  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01DD
+      01D2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0035 / ??????
+      01D5  MVI  A                 ; 3E 03       ; IMM 0x03
+      01D7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E0  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      01E3  LXI  D                 ; 11 52 06    ; IMM 0x0652
+   --- ?SIOOP call at 01E9
+      01DD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E0  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      01E3  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      01E6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01F4 / ??????
+      01E9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01EC  MVI  A                 ; 3E 01       ; IMM 0x01
+      01EE  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01F1
+      01E6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01F4 / ??????
+      01E9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01EC  MVI  A                 ; 3E 01       ; IMM 0x01
+      01EE  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F1  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F4  CALL                   ; CD 00 00    ; IMM 0x0000
+   call counts: ?GNVOP=7 ?OIOOP=1 ?QIOOP=14 ?SIOOP=4 ?SSVFS=6 ?SYSIN=5 ?SYSPR=5
+
+== DEPREC   golden/first8080u/DEPREC/DEPREC.REL   code=3605 bytes, COMMON=80 bytes
+   --- ?OIOOP call at 0041
+      003B  PUSH H                 ; E5       
+      003C  PUSH H                 ; E5       
+      003D  PUSH H                 ; E5       
+      003E  LXI  H                 ; 21 00 00    ; RELOC -> common/SYSPRI/+0x0000 / ??????
+      0041  CALL                   ; CD 00 00    ; IMM 0x0000
+      0044  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0047  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0066 / ??????
+   --- ?SYSPR call at 004A
+      003E  LXI  H                 ; 21 00 00    ; RELOC -> common/SYSPRI/+0x0000 / ??????
+      0041  CALL                   ; CD 00 00    ; IMM 0x0000
+      0044  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0047  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0066 / ??????
+      004A  CALL                   ; CD 00 00    ; IMM 0x0000
+      004D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E2 / ??????
+      0050  MVI  A                 ; 3E 01       ; IMM 0x01
+   --- ?QIOOP call at 0063
+      0058  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E3 / ??????
+      005B  MVI  A                 ; 3E 18       ; IMM 0x18
+      005D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0060  CALL                   ; CD 00 00    ; IMM 0x0000
+      0063  CALL                   ; CD 00 00    ; IMM 0x0000
+      0066  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0069  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0082 / ??????
+   --- ?SYSPR call at 006C
+      0060  CALL                   ; CD 00 00    ; IMM 0x0000
+      0063  CALL                   ; CD 00 00    ; IMM 0x0000
+      0066  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0069  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0082 / ??????
+      006C  CALL                   ; CD 00 00    ; IMM 0x0000
+      006F  MVI  A                 ; 3E 03       ; IMM 0x03
+      0071  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 007F
+      0074  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00FB / ??????
+      0077  MVI  A                 ; 3E 12       ; IMM 0x12
+      0079  CALL                   ; CD 00 00    ; IMM 0x0000
+      007C  CALL                   ; CD 00 00    ; IMM 0x0000
+      007F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0082  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0085  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00A1 / ??????
+   --- ?SYSIN call at 0088
+      007C  CALL                   ; CD 00 00    ; IMM 0x0000
+      007F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0082  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0085  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00A1 / ??????
+      0088  CALL                   ; CD 00 00    ; IMM 0x0000
+      008B  CALL                   ; CD 00 00    ; IMM 0x0000
+      008E  JP                     ; F2 00 00    ; RELOC -> code+0x009E / ??????
+   --- ?GNVOP call at 008B
+      007F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0082  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0085  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00A1 / ??????
+      0088  CALL                   ; CD 00 00    ; IMM 0x0000
+      008B  CALL                   ; CD 00 00    ; IMM 0x0000
+      008E  JP                     ; F2 00 00    ; RELOC -> code+0x009E / ??????
+      0091  MVI  B                 ; 06 02       ; IMM 0x02
+   --- ?QIOOP call at 009E
+      0093  CALL                   ; CD 00 00    ; IMM 0x0000
+      0096  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0496 / ??????
+      0099  MVI  A                 ; 3E 08       ; IMM 0x08
+      009B  CALL                   ; CD 00 00    ; IMM 0x0000
+      009E  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A1  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00A4  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00B8 / ??????
+   --- ?SYSPR call at 00A7
+      009B  CALL                   ; CD 00 00    ; IMM 0x0000
+      009E  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A1  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00A4  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00B8 / ??????
+      00A7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AA  LXI  H                 ; 21 00 00    ; RELOC -> data+0x010D / ??????
+      00AD  MVI  A                 ; 3E 12       ; IMM 0x12
+   --- ?QIOOP call at 00B5
+      00AA  LXI  H                 ; 21 00 00    ; RELOC -> data+0x010D / ??????
+      00AD  MVI  A                 ; 3E 12       ; IMM 0x12
+      00AF  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B2  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B8  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00BB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00D7 / ??????
+   --- ?SYSIN call at 00BE
+      00B2  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B8  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00BB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00D7 / ??????
+      00BE  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C1  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C4  JP                     ; F2 00 00    ; RELOC -> code+0x00D4 / ??????
+   --- ?GNVOP call at 00C1
+      00B5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B8  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00BB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00D7 / ??????
+      00BE  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C1  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C4  JP                     ; F2 00 00    ; RELOC -> code+0x00D4 / ??????
+      00C7  MVI  B                 ; 06 02       ; IMM 0x02
+   --- ?QIOOP call at 00D4
+      00C9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00CC  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04A0 / ??????
+      00CF  MVI  A                 ; 3E 08       ; IMM 0x08
+      00D1  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D7  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00DA  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00EE / ??????
+   --- ?SYSPR call at 00DD
+      00D1  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D7  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00DA  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00EE / ??????
+      00DD  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E0  LXI  H                 ; 21 00 00    ; RELOC -> data+0x011F / ??????
+      00E3  MVI  A                 ; 3E 12       ; IMM 0x12
+   --- ?QIOOP call at 00EB
+      00E0  LXI  H                 ; 21 00 00    ; RELOC -> data+0x011F / ??????
+      00E3  MVI  A                 ; 3E 12       ; IMM 0x12
+      00E5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EE  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F1  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010D / ??????
+   --- ?SYSIN call at 00F4
+      00E8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EE  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F1  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010D / ??????
+      00F4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FA  JP                     ; F2 00 00    ; RELOC -> code+0x010A / ??????
+   --- ?GNVOP call at 00F7
+      00EB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EE  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F1  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010D / ??????
+      00F4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FA  JP                     ; F2 00 00    ; RELOC -> code+0x010A / ??????
+      00FD  MVI  B                 ; 06 02       ; IMM 0x02
+   --- ?QIOOP call at 010A
+      00FF  CALL                   ; CD 00 00    ; IMM 0x0000
+      0102  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04B9 / ??????
+      0105  MVI  A                 ; 3E 03       ; IMM 0x03
+      0107  CALL                   ; CD 00 00    ; IMM 0x0000
+      010A  CALL                   ; CD 00 00    ; IMM 0x0000
+      010D  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0110  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0124 / ??????
+   --- ?SYSPR call at 0113
+      0107  CALL                   ; CD 00 00    ; IMM 0x0000
+      010A  CALL                   ; CD 00 00    ; IMM 0x0000
+      010D  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0110  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0124 / ??????
+      0113  CALL                   ; CD 00 00    ; IMM 0x0000
+      0116  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0131 / ??????
+      0119  MVI  A                 ; 3E 12       ; IMM 0x12
+   --- ?QIOOP call at 0121
+      0116  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0131 / ??????
+      0119  MVI  A                 ; 3E 12       ; IMM 0x12
+      011B  CALL                   ; CD 00 00    ; IMM 0x0000
+      011E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0121  CALL                   ; CD 00 00    ; IMM 0x0000
+      0124  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0127  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0143 / ??????
+   --- ?SYSIN call at 012A
+      011E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0121  CALL                   ; CD 00 00    ; IMM 0x0000
+      0124  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0127  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0143 / ??????
+      012A  CALL                   ; CD 00 00    ; IMM 0x0000
+      012D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0130  JP                     ; F2 00 00    ; RELOC -> code+0x0140 / ??????
+   --- ?GNVOP call at 012D
+      0121  CALL                   ; CD 00 00    ; IMM 0x0000
+      0124  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0127  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0143 / ??????
+      012A  CALL                   ; CD 00 00    ; IMM 0x0000
+      012D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0130  JP                     ; F2 00 00    ; RELOC -> code+0x0140 / ??????
+      0133  MVI  B                 ; 06 00       ; IMM 0x00
+   --- ?QIOOP call at 0140
+      0135  CALL                   ; CD 00 00    ; IMM 0x0000
+      0138  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04C0 / ??????
+      013B  MVI  A                 ; 3E 02       ; IMM 0x02
+      013D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0140  CALL                   ; CD 00 00    ; IMM 0x0000
+      0143  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0146  LXI  B                 ; 01 00 00    ; RELOC -> code+0x015A / ??????
+   --- ?SYSPR call at 0149
+      013D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0140  CALL                   ; CD 00 00    ; IMM 0x0000
+      0143  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0146  LXI  B                 ; 01 00 00    ; RELOC -> code+0x015A / ??????
+      0149  CALL                   ; CD 00 00    ; IMM 0x0000
+      014C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0143 / ??????
+      014F  MVI  A                 ; 3E 12       ; IMM 0x12
+   --- ?QIOOP call at 0157
+      014C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0143 / ??????
+      014F  MVI  A                 ; 3E 12       ; IMM 0x12
+      0151  CALL                   ; CD 00 00    ; IMM 0x0000
+      0154  CALL                   ; CD 00 00    ; IMM 0x0000
+      0157  CALL                   ; CD 00 00    ; IMM 0x0000
+      015A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      015D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0179 / ??????
+   --- ?SYSIN call at 0160
+      0154  CALL                   ; CD 00 00    ; IMM 0x0000
+      0157  CALL                   ; CD 00 00    ; IMM 0x0000
+      015A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      015D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0179 / ??????
+      0160  CALL                   ; CD 00 00    ; IMM 0x0000
+      0163  CALL                   ; CD 00 00    ; IMM 0x0000
+      0166  JP                     ; F2 00 00    ; RELOC -> code+0x0176 / ??????
+   --- ?GNVOP call at 0163
+      0157  CALL                   ; CD 00 00    ; IMM 0x0000
+      015A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      015D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0179 / ??????
+      0160  CALL                   ; CD 00 00    ; IMM 0x0000
+      0163  CALL                   ; CD 00 00    ; IMM 0x0000
+      0166  JP                     ; F2 00 00    ; RELOC -> code+0x0176 / ??????
+      0169  MVI  B                 ; 06 00       ; IMM 0x00
+   --- ?QIOOP call at 0176
+      016B  CALL                   ; CD 00 00    ; IMM 0x0000
+      016E  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04D1 / ??????
+      0171  MVI  A                 ; 3E 02       ; IMM 0x02
+      0173  CALL                   ; CD 00 00    ; IMM 0x0000
+      0176  CALL                   ; CD 00 00    ; IMM 0x0000
+      0179  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      017C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0190 / ??????
+   --- ?SYSPR call at 017F
+      0173  CALL                   ; CD 00 00    ; IMM 0x0000
+      0176  CALL                   ; CD 00 00    ; IMM 0x0000
+      0179  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      017C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0190 / ??????
+      017F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0182  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0155 / ??????
+      0185  MVI  A                 ; 3E 12       ; IMM 0x12
+   --- ?QIOOP call at 018D
+      0182  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0155 / ??????
+      0185  MVI  A                 ; 3E 12       ; IMM 0x12
+      0187  CALL                   ; CD 00 00    ; IMM 0x0000
+      018A  CALL                   ; CD 00 00    ; IMM 0x0000
+      018D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0190  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0193  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01AF / ??????
+   --- ?SYSIN call at 0196
+      018A  CALL                   ; CD 00 00    ; IMM 0x0000
+      018D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0190  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0193  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01AF / ??????
+      0196  CALL                   ; CD 00 00    ; IMM 0x0000
+      0199  CALL                   ; CD 00 00    ; IMM 0x0000
+      019C  JP                     ; F2 00 00    ; RELOC -> code+0x01AC / ??????
+   --- ?GNVOP call at 0199
+      018D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0190  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0193  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01AF / ??????
+      0196  CALL                   ; CD 00 00    ; IMM 0x0000
+      0199  CALL                   ; CD 00 00    ; IMM 0x0000
+      019C  JP                     ; F2 00 00    ; RELOC -> code+0x01AC / ??????
+      019F  MVI  B                 ; 06 00       ; IMM 0x00
+   --- ?QIOOP call at 01AC
+      01A1  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A4  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04D9 / ??????
+      01A7  MVI  A                 ; 3E 02       ; IMM 0x02
+      01A9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01AC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01AF  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01B2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01C6 / ??????
+   --- ?SYSPR call at 01B5
+      01A9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01AC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01AF  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01B2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01C6 / ??????
+      01B5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B8  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0167 / ??????
+      01BB  MVI  A                 ; 3E 12       ; IMM 0x12
+   --- ?QIOOP call at 01C3
+      01B8  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0167 / ??????
+      01BB  MVI  A                 ; 3E 12       ; IMM 0x12
+      01BD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C0  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C6  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01C9  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01E0 / ??????
+   --- ?SYSIN call at 01CC
+      01C0  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C6  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01C9  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01E0 / ??????
+      01CC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D2  JP                     ; F2 00 00    ; RELOC -> code+0x01DD / ??????
+   --- ?GNVOP call at 01CF
+      01C3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C6  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01C9  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01E0 / ??????
+      01CC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D2  JP                     ; F2 00 00    ; RELOC -> code+0x01DD / ??????
+      01D5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04D3 / ??????
+   --- ?QIOOP call at 01DD
+      01D2  JP                     ; F2 00 00    ; RELOC -> code+0x01DD / ??????
+      01D5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04D3 / ??????
+      01D8  MVI  B                 ; 06 04       ; IMM 0x04
+      01DA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E0  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01E3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x021E / ??????
+   --- ?SYSPR call at 01E6
+      01DA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E0  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01E3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x021E / ??????
+      01E6  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E9  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      01EC  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 021B
+      0210  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01A4 / ??????
+      0213  MVI  A                 ; 3E 12       ; IMM 0x12
+      0215  CALL                   ; CD 00 00    ; IMM 0x0000
+      0218  CALL                   ; CD 00 00    ; IMM 0x0000
+      021B  CALL                   ; CD 00 00    ; IMM 0x0000
+      021E  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0221  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0238 / ??????
+   --- ?SYSIN call at 0224
+      0218  CALL                   ; CD 00 00    ; IMM 0x0000
+      021B  CALL                   ; CD 00 00    ; IMM 0x0000
+      021E  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0221  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0238 / ??????
+      0224  CALL                   ; CD 00 00    ; IMM 0x0000
+      0227  CALL                   ; CD 00 00    ; IMM 0x0000
+      022A  JP                     ; F2 00 00    ; RELOC -> code+0x0235 / ??????
+   --- ?GNVOP call at 0227
+      021B  CALL                   ; CD 00 00    ; IMM 0x0000
+      021E  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0221  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0238 / ??????
+      0224  CALL                   ; CD 00 00    ; IMM 0x0000
+      0227  CALL                   ; CD 00 00    ; IMM 0x0000
+      022A  JP                     ; F2 00 00    ; RELOC -> code+0x0235 / ??????
+      022D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04DF / ??????
+   --- ?QIOOP call at 0235
+      022A  JP                     ; F2 00 00    ; RELOC -> code+0x0235 / ??????
+      022D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04DF / ??????
+      0230  MVI  B                 ; 06 01       ; IMM 0x01
+      0232  CALL                   ; CD 00 00    ; IMM 0x0000
+      0235  CALL                   ; CD 00 00    ; IMM 0x0000
+      0238  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      023B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x024F / ??????
+   --- ?SYSPR call at 023E
+      0232  CALL                   ; CD 00 00    ; IMM 0x0000
+      0235  CALL                   ; CD 00 00    ; IMM 0x0000
+      0238  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      023B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x024F / ??????
+      023E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0241  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01B6 / ??????
+      0244  MVI  A                 ; 3E 12       ; IMM 0x12
+   --- ?QIOOP call at 024C
+      0241  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01B6 / ??????
+      0244  MVI  A                 ; 3E 12       ; IMM 0x12
+      0246  CALL                   ; CD 00 00    ; IMM 0x0000
+      0249  CALL                   ; CD 00 00    ; IMM 0x0000
+      024C  CALL                   ; CD 00 00    ; IMM 0x0000
+      024F  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0252  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0269 / ??????
+   --- ?SYSIN call at 0255
+      0249  CALL                   ; CD 00 00    ; IMM 0x0000
+      024C  CALL                   ; CD 00 00    ; IMM 0x0000
+      024F  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0252  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0269 / ??????
+      0255  CALL                   ; CD 00 00    ; IMM 0x0000
+      0258  CALL                   ; CD 00 00    ; IMM 0x0000
+      025B  JP                     ; F2 00 00    ; RELOC -> code+0x0266 / ??????
+   --- ?GNVOP call at 0258
+      024C  CALL                   ; CD 00 00    ; IMM 0x0000
+      024F  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0252  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0269 / ??????
+      0255  CALL                   ; CD 00 00    ; IMM 0x0000
+      0258  CALL                   ; CD 00 00    ; IMM 0x0000
+      025B  JP                     ; F2 00 00    ; RELOC -> code+0x0266 / ??????
+      025E  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04E0 / ??????
+   --- ?QIOOP call at 0266
+      025B  JP                     ; F2 00 00    ; RELOC -> code+0x0266 / ??????
+      025E  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04E0 / ??????
+      0261  MVI  B                 ; 06 04       ; IMM 0x04
+      0263  CALL                   ; CD 00 00    ; IMM 0x0000
+      0266  CALL                   ; CD 00 00    ; IMM 0x0000
+      0269  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01C8 / ??????
+      026C  LXI  D                 ; 11 00 00    ; RELOC -> data+0x04E0 / ??????
+   --- ?OIOOP call at 0293
+      028D  PUSH H                 ; E5       
+      028E  PUSH H                 ; E5       
+      028F  PUSH H                 ; E5       
+      0290  LXI  H                 ; 21 00 00    ; RELOC -> common/LIST/+0x0000 / ??????
+      0293  CALL                   ; CD 00 00    ; IMM 0x0000
+      0296  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01CF / ??????
+      0299  MVI  A                 ; 3E 02       ; IMM 0x02
+   --- ?SYSPR call at 03BF
+      03B4  MVI  A                 ; 3E 08       ; IMM 0x08
+      03B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      03B9  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      03BC  LXI  B                 ; 01 00 00    ; RELOC -> code+0x03D0 / ??????
+      03BF  CALL                   ; CD 00 00    ; IMM 0x0000
+      03C2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E2 / ??????
+      03C5  MVI  A                 ; 3E 01       ; IMM 0x01
+   --- ?QIOOP call at 03CD
+      03C2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E2 / ??????
+      03C5  MVI  A                 ; 3E 01       ; IMM 0x01
+      03C7  CALL                   ; CD 00 00    ; IMM 0x0000
+      03CA  CALL                   ; CD 00 00    ; IMM 0x0000
+      03CD  CALL                   ; CD 00 00    ; IMM 0x0000
+      03D0  LXI  H                 ; 21 00 00    ; RELOC -> common/SYSPRI/+0x0000 / ??????
+      03D3  SHLD                   ; 22 00 00    ; RELOC -> data+0x04F0 / ??????
+   --- ?SYSPR call at 03FE
+      03F2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x04F2 / ??????
+      03F5  CALL                   ; CD 00 00    ; RELOC -> code+0x03DA / ??????
+      03F8  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      03FB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0414 / ??????
+      03FE  CALL                   ; CD 00 00    ; IMM 0x0000
+      0401  MVI  A                 ; 3E 01       ; IMM 0x01
+      0403  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0411
+      0406  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01EC / ??????
+      0409  MVI  A                 ; 3E 1D       ; IMM 0x1D
+      040B  CALL                   ; CD 00 00    ; IMM 0x0000
+      040E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0411  CALL                   ; CD 00 00    ; IMM 0x0000
+      0414  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0417  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0425 / ??????
+   --- ?SYSIN call at 041A
+      040E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0411  CALL                   ; CD 00 00    ; IMM 0x0000
+      0414  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0417  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0425 / ??????
+      041A  CALL                   ; CD 00 00    ; IMM 0x0000
+      041D  MVI  A                 ; 3E 02       ; IMM 0x02
+      041F  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0422
+      0417  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0425 / ??????
+      041A  CALL                   ; CD 00 00    ; IMM 0x0000
+      041D  MVI  A                 ; 3E 02       ; IMM 0x02
+      041F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0422  CALL                   ; CD 00 00    ; IMM 0x0000
+      0425  JMP                    ; C3 00 00    ; RELOC -> code+0x0044 / ??????
+      0428  DB 5E                  ; 5E       
+   --- ?SIOOP call at 045E
+      0454  RET                    ; C9       
+      0455  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0458  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      045B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0475 / ??????
+      045E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0461  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0007 / ??????
+      0464  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0472
+      0467  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0209 / ??????
+      046A  MVI  A                 ; 3E 23       ; IMM 0x23
+      046C  CALL                   ; CD 00 00    ; IMM 0x0000
+      046F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0472  CALL                   ; CD 00 00    ; IMM 0x0000
+      0475  CALL                   ; CD 00 00    ; IMM 0x0000
+      0478  RET                    ; C9       
+   --- ?SIOOP call at 049D
+      0491  CALL                   ; CD 00 00    ; IMM 0x0000
+      0494  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0497  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      049A  LXI  B                 ; 01 00 00    ; RELOC -> code+0x04B4 / ??????
+      049D  CALL                   ; CD 00 00    ; IMM 0x0000
+      04A0  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0012 / ??????
+      04A3  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 04B1
+      04A6  LXI  H                 ; 21 00 00    ; RELOC -> data+0x022C / ??????
+      04A9  MVI  A                 ; 3E 19       ; IMM 0x19
+      04AB  CALL                   ; CD 00 00    ; IMM 0x0000
+      04AE  CALL                   ; CD 00 00    ; IMM 0x0000
+      04B1  CALL                   ; CD 00 00    ; IMM 0x0000
+      04B4  CALL                   ; CD 00 00    ; IMM 0x0000
+      04B7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x049B / ??????
+   --- ?SIOOP call at 064E
+      0642  CALL                   ; CD 00 00    ; IMM 0x0000
+      0645  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0648  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      064B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0665 / ??????
+      064E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0651  LXI  H                 ; 21 00 00    ; RELOC -> data+0x001D / ??????
+      0654  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0662
+      0657  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0253 / ??????
+      065A  MVI  A                 ; 3E 1F       ; IMM 0x1F
+      065C  CALL                   ; CD 00 00    ; IMM 0x0000
+      065F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0662  CALL                   ; CD 00 00    ; IMM 0x0000
+      0665  CALL                   ; CD 00 00    ; RELOC -> code+0x04B5 / ??????
+      0668  LXI  H                 ; 21 00 00    ; RELOC -> data+0x049B / ??????
+   --- ?SIOOP call at 0891
+      0885  CALL                   ; CD 00 00    ; IMM 0x0000
+      0888  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      088B  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      088E  LXI  B                 ; 01 00 00    ; RELOC -> code+0x08A8 / ??????
+      0891  CALL                   ; CD 00 00    ; IMM 0x0000
+      0894  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0028 / ??????
+      0897  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 08A5
+      089A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0274 / ??????
+      089D  MVI  A                 ; 3E 20       ; IMM 0x20
+      089F  CALL                   ; CD 00 00    ; IMM 0x0000
+      08A2  CALL                   ; CD 00 00    ; IMM 0x0000
+      08A5  CALL                   ; CD 00 00    ; IMM 0x0000
+      08A8  CALL                   ; CD 00 00    ; RELOC -> code+0x0666 / ??????
+      08AB  LXI  H                 ; 21 00 00    ; RELOC -> data+0x049B / ??????
+   --- ?SIOOP call at 0A96
+      0A8A  CALL                   ; CD 00 00    ; IMM 0x0000
+      0A8D  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0A90  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0A93  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0B5F / ??????
+      0A96  CALL                   ; CD 00 00    ; IMM 0x0000
+      0A99  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0033 / ??????
+      0A9C  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0B5C
+      0B51  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02F8 / ??????
+      0B54  MVI  A                 ; 3E 0E       ; IMM 0x0E
+      0B56  CALL                   ; CD 00 00    ; IMM 0x0000
+      0B59  CALL                   ; CD 00 00    ; IMM 0x0000
+      0B5C  CALL                   ; CD 00 00    ; IMM 0x0000
+      0B5F  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0B62  LXI  D                 ; 11 52 06    ; IMM 0x0652
+   --- ?SIOOP call at 0B68
+      0B5C  CALL                   ; CD 00 00    ; IMM 0x0000
+      0B5F  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0B62  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0B65  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0BA0 / ??????
+      0B68  CALL                   ; CD 00 00    ; IMM 0x0000
+      0B6B  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0072 / ??????
+      0B6E  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0B9D
+      0B92  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02A3 / ??????
+      0B95  MVI  A                 ; 3E 32       ; IMM 0x32
+      0B97  CALL                   ; CD 00 00    ; IMM 0x0000
+      0B9A  CALL                   ; CD 00 00    ; IMM 0x0000
+      0B9D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0BA0  RET                    ; C9       
+      0BA1  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+   --- ?SIOOP call at 0BAA
+      0BA0  RET                    ; C9       
+      0BA1  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0BA4  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0BA7  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0C35 / ??????
+      0BAA  CALL                   ; CD 00 00    ; IMM 0x0000
+      0BAD  LXI  H                 ; 21 00 00    ; RELOC -> data+0x007B / ??????
+      0BB0  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0C32
+      0C27  LXI  H                 ; 21 00 00    ; RELOC -> data+0x036A / ??????
+      0C2A  MVI  A                 ; 3E 02       ; IMM 0x02
+      0C2C  CALL                   ; CD 00 00    ; IMM 0x0000
+      0C2F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0C32  CALL                   ; CD 00 00    ; IMM 0x0000
+      0C35  RET                    ; C9       
+      0C36  CALL                   ; CD 00 00    ; RELOC -> code+0x0476 / ??????
+   --- ?SIOOP call at 0CD3
+      0CC7  CALL                   ; CD 00 00    ; IMM 0x0000
+      0CCA  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0CCD  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0CD0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0DF0 / ??????
+      0CD3  CALL                   ; CD 00 00    ; IMM 0x0000
+      0CD6  LXI  H                 ; 21 00 00    ; RELOC -> data+0x009E / ??????
+      0CD9  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0DED
+      0DE2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02D5 / ??????
+      0DE5  MVI  A                 ; 3E 01       ; IMM 0x01
+      0DE7  CALL                   ; CD 00 00    ; IMM 0x0000
+      0DEA  CALL                   ; CD 00 00    ; IMM 0x0000
+      0DED  CALL                   ; CD 00 00    ; IMM 0x0000
+      0DF0  CALL                   ; CD 00 00    ; RELOC -> code+0x0C37 / ??????
+      0DF3  RET                    ; C9       
+   --- ?SIOOP call at 0DFD
+      0DF3  RET                    ; C9       
+      0DF4  LHLD                   ; 2A 00 00    ; RELOC -> data+0x04E4 / ??????
+      0DF7  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0DFA  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0E14 / ??????
+      0DFD  CALL                   ; CD 00 00    ; IMM 0x0000
+      0E00  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00D2 / ??????
+      0E03  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0E11
+      0E06  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02A3 / ??????
+      0E09  MVI  A                 ; 3E 32       ; IMM 0x32
+      0E0B  CALL                   ; CD 00 00    ; IMM 0x0000
+      0E0E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0E11  CALL                   ; CD 00 00    ; IMM 0x0000
+      0E14  RET                    ; C9       
+   call counts: ?GNVOP=9 ?OIOOP=2 ?QIOOP=31 ?SIOOP=9 ?SYSIN=10 ?SYSPR=12
+
+== ENTER   golden/first8080u/ENTER/ENTER.REL   code=244 bytes, COMMON=37 bytes
+   --- ?OIOOP call at 0027
+      0021  DB 6C                  ; 6C       
+      0022  PUSH H                 ; E5       
+      0023  PUSH H                 ; E5       
+      0024  LXI  H                 ; 21 00 00    ; RELOC -> common/EMP/+0x0000 / ??????
+      0027  CALL                   ; CD 00 00    ; IMM 0x0000
+      002A  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      002D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0041 / ??????
+   --- ?SYSPR call at 0030
+      0024  LXI  H                 ; 21 00 00    ; RELOC -> common/EMP/+0x0000 / ??????
+      0027  CALL                   ; CD 00 00    ; IMM 0x0000
+      002A  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      002D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0041 / ??????
+      0030  CALL                   ; CD 00 00    ; IMM 0x0000
+      0033  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A1 / ??????
+      0036  MVI  A                 ; 3E 0A       ; IMM 0x0A
+   --- ?QIOOP call at 003E
+      0033  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A1 / ??????
+      0036  MVI  A                 ; 3E 0A       ; IMM 0x0A
+      0038  CALL                   ; CD 00 00    ; IMM 0x0000
+      003B  CALL                   ; CD 00 00    ; IMM 0x0000
+      003E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0041  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0044  LXI  B                 ; 01 00 00    ; RELOC -> code+0x005B / ??????
+   --- ?SYSIN call at 0047
+      003B  CALL                   ; CD 00 00    ; IMM 0x0000
+      003E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0041  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0044  LXI  B                 ; 01 00 00    ; RELOC -> code+0x005B / ??????
+      0047  CALL                   ; CD 00 00    ; IMM 0x0000
+      004A  CALL                   ; CD 00 00    ; IMM 0x0000
+      004D  JP                     ; F2 00 00    ; RELOC -> code+0x0058 / ??????
+   --- ?GNVOP call at 004A
+      003E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0041  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0044  LXI  B                 ; 01 00 00    ; RELOC -> code+0x005B / ??????
+      0047  CALL                   ; CD 00 00    ; IMM 0x0000
+      004A  CALL                   ; CD 00 00    ; IMM 0x0000
+      004D  JP                     ; F2 00 00    ; RELOC -> code+0x0058 / ??????
+      0050  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+   --- ?SSVFS call at 0055
+      004A  CALL                   ; CD 00 00    ; IMM 0x0000
+      004D  JP                     ; F2 00 00    ; RELOC -> code+0x0058 / ??????
+      0050  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      0053  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0055  CALL                   ; CD 00 00    ; IMM 0x0000
+      0058  CALL                   ; CD 00 00    ; IMM 0x0000
+      005B  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+   --- ?QIOOP call at 0058
+      004D  JP                     ; F2 00 00    ; RELOC -> code+0x0058 / ??????
+      0050  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      0053  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0055  CALL                   ; CD 00 00    ; IMM 0x0000
+      0058  CALL                   ; CD 00 00    ; IMM 0x0000
+      005B  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      005E  XCHG                   ; EB       
+   --- ?SYSPR call at 0082
+      0076  LXI  B                 ; 01 3A 00    ; IMM 0x003A
+      0079  CALL                   ; CD 00 00    ; IMM 0x0000
+      007C  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      007F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0093 / ??????
+      0082  CALL                   ; CD 00 00    ; IMM 0x0000
+      0085  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00AE / ??????
+      0088  MVI  A                 ; 3E 0D       ; IMM 0x0D
+   --- ?QIOOP call at 0090
+      0085  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00AE / ??????
+      0088  MVI  A                 ; 3E 0D       ; IMM 0x0D
+      008A  CALL                   ; CD 00 00    ; IMM 0x0000
+      008D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0090  CALL                   ; CD 00 00    ; IMM 0x0000
+      0093  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0096  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00C5 / ??????
+   --- ?SYSIN call at 0099
+      008D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0090  CALL                   ; CD 00 00    ; IMM 0x0000
+      0093  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0096  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00C5 / ??????
+      0099  CALL                   ; CD 00 00    ; IMM 0x0000
+      009C  CALL                   ; CD 00 00    ; IMM 0x0000
+      009F  JP                     ; F2 00 00    ; RELOC -> code+0x00AF / ??????
+   --- ?GNVOP call at 009C
+      0090  CALL                   ; CD 00 00    ; IMM 0x0000
+      0093  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0096  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00C5 / ??????
+      0099  CALL                   ; CD 00 00    ; IMM 0x0000
+      009C  CALL                   ; CD 00 00    ; IMM 0x0000
+      009F  JP                     ; F2 00 00    ; RELOC -> code+0x00AF / ??????
+      00A2  MVI  B                 ; 06 00       ; IMM 0x00
+   --- ?GNVOP call at 00AF
+      00A4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0059 / ??????
+      00AA  MVI  A                 ; 3E 03       ; IMM 0x03
+      00AC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AF  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B2  JP                     ; F2 00 00    ; RELOC -> code+0x00C2 / ??????
+      00B5  MVI  B                 ; 06 02       ; IMM 0x02
+   --- ?QIOOP call at 00C2
+      00B7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00BA  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005B / ??????
+      00BD  MVI  A                 ; 3E 05       ; IMM 0x05
+      00BF  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C2  CALL                   ; CD 00 00    ; IMM 0x0000
+      00C5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00BB / ??????
+      00C8  MVI  A                 ; 3E 05       ; IMM 0x05
+   --- ?SIOOP call at 00E4
+      00D8  JMP                    ; C3 00 00    ; RELOC -> code+0x002A / ??????
+      00DB  LXI  H                 ; 21 00 00    ; RELOC -> common/EMP/+0x0000 / ??????
+      00DE  LXI  D                 ; 11 50 05    ; IMM 0x0550
+      00E1  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00F3 / ??????
+      00E4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      00EA  LXI  D                 ; 11 61 00    ; IMM 0x0061
+   --- ?WNIOP call at 00ED
+      00E1  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00F3 / ??????
+      00E4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      00EA  LXI  D                 ; 11 61 00    ; IMM 0x0061
+      00ED  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F0  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F3  RET                    ; C9       
+   --- ?QIOOP call at 00F0
+      00E4  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      00EA  LXI  D                 ; 11 61 00    ; IMM 0x0061
+      00ED  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F0  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F3  RET                    ; C9       
+   call counts: ?GNVOP=3 ?OIOOP=1 ?QIOOP=5 ?SIOOP=1 ?SSVFS=1 ?SYSIN=2 ?SYSPR=2 ?WNIOP=1
+
+== KEYFILE   golden/first8080u/KEYFILE/KEYFILE.REL   code=194 bytes, COMMON=77 bytes
+   --- ?OIOOP call at 0027
+      0021  DB 6C                  ; 6C       
+      0022  PUSH H                 ; E5       
+      0023  PUSH H                 ; E5       
+      0024  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      0027  CALL                   ; CD 00 00    ; IMM 0x0000
+      002A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0025 / ??????
+      002D  MVI  A                 ; 3E 06       ; IMM 0x06
+   --- ?OIOOP call at 0046
+      003F  PUSH H                 ; E5       
+      0040  MVI  L                 ; 2E 3C       ; IMM 0x3C
+      0042  PUSH H                 ; E5       
+      0043  LXI  H                 ; 21 00 00    ; RELOC -> common/KEYS/+0x0000 / ??????
+      0046  CALL                   ; CD 00 00    ; IMM 0x0000
+      0049  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      004C  LXI  D                 ; 11 94 05    ; IMM 0x0594
+   --- ?SIOOP call at 0052
+      0046  CALL                   ; CD 00 00    ; IMM 0x0000
+      0049  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      004C  LXI  D                 ; 11 94 05    ; IMM 0x0594
+      004F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0067 / ??????
+      0052  CALL                   ; CD 00 00    ; IMM 0x0000
+      0055  LXI  H                 ; 21 00 00    ; RELOC -> data+0x002E / ??????
+      0058  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0064
+      0058  CALL                   ; CD 00 00    ; IMM 0x0000
+      005B  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      005E  LXI  D                 ; 11 1F 00    ; IMM 0x001F
+      0061  CALL                   ; CD 00 00    ; IMM 0x0000
+      0064  CALL                   ; CD 00 00    ; IMM 0x0000
+      0067  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      006A  LXI  B                 ; 01 00 00    ; RELOC -> code+0x008C / ??????
+   --- ?SYSPR call at 006D
+      0061  CALL                   ; CD 00 00    ; IMM 0x0000
+      0064  CALL                   ; CD 00 00    ; IMM 0x0000
+      0067  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      006A  LXI  B                 ; 01 00 00    ; RELOC -> code+0x008C / ??????
+      006D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0070  MVI  A                 ; 3E 01       ; IMM 0x01
+      0072  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0089
+      007D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0080  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      0083  CALL                   ; CD 00 00    ; IMM 0x0000
+      0086  CALL                   ; CD 00 00    ; IMM 0x0000
+      0089  CALL                   ; CD 00 00    ; IMM 0x0000
+      008C  LXI  H                 ; 21 00 00    ; RELOC -> common/KEYS/+0x0000 / ??????
+      008F  LXI  D                 ; 11 52 06    ; IMM 0x0652
+   --- ?SIOOP call at 0095
+      0089  CALL                   ; CD 00 00    ; IMM 0x0000
+      008C  LXI  H                 ; 21 00 00    ; RELOC -> common/KEYS/+0x0000 / ??????
+      008F  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0092  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00AF / ??????
+      0095  CALL                   ; CD 00 00    ; IMM 0x0000
+      0098  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      009B  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 00AC
+      00A1  LHLD                   ; 2A 00 00    ; RELOC -> data+0x002E / ??????
+      00A4  MVI  A                 ; 3E 09       ; IMM 0x09
+      00A6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AF  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      00B2  XCHG                   ; EB       
+   call counts: ?OIOOP=2 ?QIOOP=3 ?SIOOP=2 ?SYSPR=1
+
+== LOAN2   golden/first8080u/LOAN2/LOAN2.REL   code=2464 bytes, COMMON=40 bytes
+   --- ?SYSPR call at 0013
+      0009  DAD  SP                ; 39       
+      000A  SHLD                   ; 22 00 00    ; RELOC -> data+0x0318 / ??????
+      000D  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0010  LXI  B                 ; 01 00 00    ; RELOC -> code+0x002F / ??????
+      0013  CALL                   ; CD 00 00    ; IMM 0x0000
+      0016  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00B1 / ??????
+      0019  MVI  A                 ; 3E 01       ; IMM 0x01
+   --- ?QIOOP call at 002C
+      0021  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00B2 / ??????
+      0024  MVI  A                 ; 3E 27       ; IMM 0x27
+      0026  CALL                   ; CD 00 00    ; IMM 0x0000
+      0029  CALL                   ; CD 00 00    ; IMM 0x0000
+      002C  CALL                   ; CD 00 00    ; IMM 0x0000
+      002F  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      0032  MVI  A                 ; 3E 06       ; IMM 0x06
+   --- ?SYSPR call at 0040
+      0034  CALL                   ; CD 00 00    ; IMM 0x0000
+      0037  JMP                    ; C3 00 00    ; RELOC -> code+0x0062 / ??????
+      003A  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      003D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x005F / ??????
+      0040  CALL                   ; CD 00 00    ; IMM 0x0000
+      0043  MVI  A                 ; 3E 01       ; IMM 0x01
+      0045  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 005C
+      0050  CALL                   ; CD 00 00    ; IMM 0x0000
+      0053  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A2 / ??????
+      0056  CALL                   ; CD 00 00    ; IMM 0x0000
+      0059  CALL                   ; CD 00 00    ; IMM 0x0000
+      005C  CALL                   ; CD 00 00    ; IMM 0x0000
+      005F  JMP                    ; C3 00 00    ; IMM 0x0000
+      0062  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0318 / ??????
+   --- ?SYSPR call at 006F
+      0065  DB F9                  ; F9       
+      0066  CALL                   ; CD 00 00    ; IMM 0x0000
+      0069  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      006C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0085 / ??????
+      006F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0072  MVI  A                 ; 3E 02       ; IMM 0x02
+      0074  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0082
+      0077  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00EA / ??????
+      007A  MVI  A                 ; 3E 13       ; IMM 0x13
+      007C  CALL                   ; CD 00 00    ; IMM 0x0000
+      007F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0082  CALL                   ; CD 00 00    ; IMM 0x0000
+      0085  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0088  LXI  B                 ; 01 00 00    ; RELOC -> code+0x009F / ??????
+   --- ?SYSIN call at 008B
+      007F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0082  CALL                   ; CD 00 00    ; IMM 0x0000
+      0085  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0088  LXI  B                 ; 01 00 00    ; RELOC -> code+0x009F / ??????
+      008B  CALL                   ; CD 00 00    ; IMM 0x0000
+      008E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0091  JP                     ; F2 00 00    ; RELOC -> code+0x009C / ??????
+   --- ?GNVOP call at 008E
+      0082  CALL                   ; CD 00 00    ; IMM 0x0000
+      0085  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0088  LXI  B                 ; 01 00 00    ; RELOC -> code+0x009F / ??????
+      008B  CALL                   ; CD 00 00    ; IMM 0x0000
+      008E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0091  JP                     ; F2 00 00    ; RELOC -> code+0x009C / ??????
+      0094  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A2 / ??????
+   --- ?SSVFS call at 0099
+      008E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0091  JP                     ; F2 00 00    ; RELOC -> code+0x009C / ??????
+      0094  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A2 / ??????
+      0097  MVI  B                 ; 06 0E       ; IMM 0x0E
+      0099  CALL                   ; CD 00 00    ; IMM 0x0000
+      009C  CALL                   ; CD 00 00    ; IMM 0x0000
+      009F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00FD / ??????
+   --- ?QIOOP call at 009C
+      0091  JP                     ; F2 00 00    ; RELOC -> code+0x009C / ??????
+      0094  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A2 / ??????
+      0097  MVI  B                 ; 06 0E       ; IMM 0x0E
+      0099  CALL                   ; CD 00 00    ; IMM 0x0000
+      009C  CALL                   ; CD 00 00    ; IMM 0x0000
+      009F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00FD / ??????
+      00A2  LXI  D                 ; 11 00 00    ; RELOC -> data+0x00A2 / ??????
+   --- ?OIOOP call at 00C7
+      00C1  PUSH H                 ; E5       
+      00C2  PUSH H                 ; E5       
+      00C3  PUSH H                 ; E5       
+      00C4  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      00C7  CALL                   ; CD 00 00    ; IMM 0x0000
+      00CA  JMP                    ; C3 00 00    ; RELOC -> code+0x00E8 / ??????
+      00CD  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A2 / ??????
+   --- ?OIOOP call at 00E5
+      00DF  PUSH H                 ; E5       
+      00E0  PUSH H                 ; E5       
+      00E1  PUSH H                 ; E5       
+      00E2  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      00E5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E8  LXI  H                 ; 21 00 00    ; IMM 0x0000
+      00EB  XRA  A                 ; AF       
+   --- ?SYSPR call at 00F8
+      00EC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EF  JMP                    ; C3 00 00    ; RELOC -> code+0x0111 / ??????
+      00F2  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00F5  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010E / ??????
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FB  MVI  A                 ; 3E 01       ; IMM 0x01
+      00FD  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 010B
+      0100  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0101 / ??????
+      0103  MVI  A                 ; 3E 17       ; IMM 0x17
+      0105  CALL                   ; CD 00 00    ; IMM 0x0000
+      0108  CALL                   ; CD 00 00    ; IMM 0x0000
+      010B  CALL                   ; CD 00 00    ; IMM 0x0000
+      010E  JMP                    ; C3 00 00    ; IMM 0x0000
+      0111  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0318 / ??????
+   --- ?SYSPR call at 011E
+      0114  DB F9                  ; F9       
+      0115  CALL                   ; CD 00 00    ; IMM 0x0000
+      0118  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      011B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0134 / ??????
+      011E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0121  MVI  A                 ; 3E 02       ; IMM 0x02
+      0123  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0131
+      0126  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0118 / ??????
+      0129  MVI  A                 ; 3E 11       ; IMM 0x11
+      012B  CALL                   ; CD 00 00    ; IMM 0x0000
+      012E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0131  CALL                   ; CD 00 00    ; IMM 0x0000
+      0134  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0137  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0153 / ??????
+   --- ?SYSIN call at 013A
+      012E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0131  CALL                   ; CD 00 00    ; IMM 0x0000
+      0134  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0137  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0153 / ??????
+      013A  CALL                   ; CD 00 00    ; IMM 0x0000
+      013D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0140  JP                     ; F2 00 00    ; RELOC -> code+0x0150 / ??????
+   --- ?GNVOP call at 013D
+      0131  CALL                   ; CD 00 00    ; IMM 0x0000
+      0134  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0137  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0153 / ??????
+      013A  CALL                   ; CD 00 00    ; IMM 0x0000
+      013D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0140  JP                     ; F2 00 00    ; RELOC -> code+0x0150 / ??????
+      0143  MVI  B                 ; 06 02       ; IMM 0x02
+   --- ?QIOOP call at 0150
+      0145  CALL                   ; CD 00 00    ; IMM 0x0000
+      0148  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02D0 / ??????
+      014B  MVI  A                 ; 3E 0A       ; IMM 0x0A
+      014D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0150  CALL                   ; CD 00 00    ; IMM 0x0000
+      0153  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02D0 / ??????
+      0156  MVI  A                 ; 3E 0A       ; IMM 0x0A
+   --- ?SYSPR call at 0169
+      015E  MVI  A                 ; 3E 0A       ; IMM 0x0A
+      0160  CALL                   ; CD 00 00    ; IMM 0x0000
+      0163  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0166  LXI  B                 ; 01 00 00    ; RELOC -> code+0x017A / ??????
+      0169  CALL                   ; CD 00 00    ; IMM 0x0000
+      016C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0129 / ??????
+      016F  MVI  A                 ; 3E 11       ; IMM 0x11
+   --- ?QIOOP call at 0177
+      016C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0129 / ??????
+      016F  MVI  A                 ; 3E 11       ; IMM 0x11
+      0171  CALL                   ; CD 00 00    ; IMM 0x0000
+      0174  CALL                   ; CD 00 00    ; IMM 0x0000
+      0177  CALL                   ; CD 00 00    ; IMM 0x0000
+      017A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      017D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0199 / ??????
+   --- ?SYSIN call at 0180
+      0174  CALL                   ; CD 00 00    ; IMM 0x0000
+      0177  CALL                   ; CD 00 00    ; IMM 0x0000
+      017A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      017D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0199 / ??????
+      0180  CALL                   ; CD 00 00    ; IMM 0x0000
+      0183  CALL                   ; CD 00 00    ; IMM 0x0000
+      0186  JP                     ; F2 00 00    ; RELOC -> code+0x0196 / ??????
+   --- ?GNVOP call at 0183
+      0177  CALL                   ; CD 00 00    ; IMM 0x0000
+      017A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      017D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0199 / ??????
+      0180  CALL                   ; CD 00 00    ; IMM 0x0000
+      0183  CALL                   ; CD 00 00    ; IMM 0x0000
+      0186  JP                     ; F2 00 00    ; RELOC -> code+0x0196 / ??????
+      0189  MVI  B                 ; 06 02       ; IMM 0x02
+   --- ?QIOOP call at 0196
+      018B  CALL                   ; CD 00 00    ; IMM 0x0000
+      018E  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0300 / ??????
+      0191  MVI  A                 ; 3E 04       ; IMM 0x04
+      0193  CALL                   ; CD 00 00    ; IMM 0x0000
+      0196  CALL                   ; CD 00 00    ; IMM 0x0000
+      0199  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0300 / ??????
+      019C  MVI  A                 ; 3E 04       ; IMM 0x04
+   --- ?SYSPR call at 01AF
+      01A4  MVI  A                 ; 3E 04       ; IMM 0x04
+      01A6  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A9  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01AC  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01C0 / ??????
+      01AF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x013A / ??????
+      01B5  MVI  A                 ; 3E 11       ; IMM 0x11
+   --- ?QIOOP call at 01BD
+      01B2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x013A / ??????
+      01B5  MVI  A                 ; 3E 11       ; IMM 0x11
+      01B7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01BA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01BD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C0  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01C3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01DF / ??????
+   --- ?SYSIN call at 01C6
+      01BA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01BD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C0  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01C3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01DF / ??????
+      01C6  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CC  JP                     ; F2 00 00    ; RELOC -> code+0x01DC / ??????
+   --- ?GNVOP call at 01C9
+      01BD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C0  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01C3  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01DF / ??????
+      01C6  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CC  JP                     ; F2 00 00    ; RELOC -> code+0x01DC / ??????
+      01CF  MVI  B                 ; 06 02       ; IMM 0x02
+   --- ?QIOOP call at 01DC
+      01D1  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D4  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02E8 / ??????
+      01D7  MVI  A                 ; 3E 0A       ; IMM 0x0A
+      01D9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DF  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02E8 / ??????
+      01E2  MVI  A                 ; 3E 0A       ; IMM 0x0A
+   --- ?SYSPR call at 01F5
+      01EA  MVI  A                 ; 3E 0A       ; IMM 0x0A
+      01EC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01EF  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01F2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0206 / ??????
+      01F5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F8  LXI  H                 ; 21 00 00    ; RELOC -> data+0x014B / ??????
+      01FB  MVI  A                 ; 3E 11       ; IMM 0x11
+   --- ?QIOOP call at 0203
+      01F8  LXI  H                 ; 21 00 00    ; RELOC -> data+0x014B / ??????
+      01FB  MVI  A                 ; 3E 11       ; IMM 0x11
+      01FD  CALL                   ; CD 00 00    ; IMM 0x0000
+      0200  CALL                   ; CD 00 00    ; IMM 0x0000
+      0203  CALL                   ; CD 00 00    ; IMM 0x0000
+      0206  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0209  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0225 / ??????
+   --- ?SYSIN call at 020C
+      0200  CALL                   ; CD 00 00    ; IMM 0x0000
+      0203  CALL                   ; CD 00 00    ; IMM 0x0000
+      0206  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0209  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0225 / ??????
+      020C  CALL                   ; CD 00 00    ; IMM 0x0000
+      020F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0212  JP                     ; F2 00 00    ; RELOC -> code+0x0222 / ??????
+   --- ?GNVOP call at 020F
+      0203  CALL                   ; CD 00 00    ; IMM 0x0000
+      0206  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0209  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0225 / ??????
+      020C  CALL                   ; CD 00 00    ; IMM 0x0000
+      020F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0212  JP                     ; F2 00 00    ; RELOC -> code+0x0222 / ??????
+      0215  MVI  B                 ; 06 02       ; IMM 0x02
+   --- ?QIOOP call at 0222
+      0217  CALL                   ; CD 00 00    ; IMM 0x0000
+      021A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0315 / ??????
+      021D  MVI  A                 ; 3E 04       ; IMM 0x04
+      021F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0222  CALL                   ; CD 00 00    ; IMM 0x0000
+      0225  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0315 / ??????
+      0228  MVI  A                 ; 3E 04       ; IMM 0x04
+   --- ?SYSPR call at 026B
+      0260  MVI  A                 ; 3E 0F       ; IMM 0x0F
+      0262  CALL                   ; CD 00 00    ; IMM 0x0000
+      0265  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0268  LXI  B                 ; 01 00 00    ; RELOC -> code+0x027C / ??????
+      026B  CALL                   ; CD 00 00    ; IMM 0x0000
+      026E  LXI  H                 ; 21 00 00    ; RELOC -> data+0x016F / ??????
+      0271  MVI  A                 ; 3E 11       ; IMM 0x11
+   --- ?QIOOP call at 0279
+      026E  LXI  H                 ; 21 00 00    ; RELOC -> data+0x016F / ??????
+      0271  MVI  A                 ; 3E 11       ; IMM 0x11
+      0273  CALL                   ; CD 00 00    ; IMM 0x0000
+      0276  CALL                   ; CD 00 00    ; IMM 0x0000
+      0279  CALL                   ; CD 00 00    ; IMM 0x0000
+      027C  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      027F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0294 / ??????
+   --- ?SYSIN call at 0282
+      0276  CALL                   ; CD 00 00    ; IMM 0x0000
+      0279  CALL                   ; CD 00 00    ; IMM 0x0000
+      027C  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      027F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0294 / ??????
+      0282  CALL                   ; CD 00 00    ; IMM 0x0000
+      0285  CALL                   ; CD 00 00    ; IMM 0x0000
+      0288  JP                     ; F2 00 00    ; RELOC -> code+0x0291 / ??????
+   --- ?GNVOP call at 0285
+      0279  CALL                   ; CD 00 00    ; IMM 0x0000
+      027C  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      027F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0294 / ??????
+      0282  CALL                   ; CD 00 00    ; IMM 0x0000
+      0285  CALL                   ; CD 00 00    ; IMM 0x0000
+      0288  JP                     ; F2 00 00    ; RELOC -> code+0x0291 / ??????
+      028B  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QCIOP call at 028B
+      027F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0294 / ??????
+      0282  CALL                   ; CD 00 00    ; IMM 0x0000
+      0285  CALL                   ; CD 00 00    ; IMM 0x0000
+      0288  JP                     ; F2 00 00    ; RELOC -> code+0x0291 / ??????
+      028B  CALL                   ; CD 00 00    ; IMM 0x0000
+      028E  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C0 / ??????
+      0291  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0291
+      0285  CALL                   ; CD 00 00    ; IMM 0x0000
+      0288  JP                     ; F2 00 00    ; RELOC -> code+0x0291 / ??????
+      028B  CALL                   ; CD 00 00    ; IMM 0x0000
+      028E  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C0 / ??????
+      0291  CALL                   ; CD 00 00    ; IMM 0x0000
+      0294  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0297  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02AB / ??????
+   --- ?SYSPR call at 029A
+      028E  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C0 / ??????
+      0291  CALL                   ; CD 00 00    ; IMM 0x0000
+      0294  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0297  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02AB / ??????
+      029A  CALL                   ; CD 00 00    ; IMM 0x0000
+      029D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0180 / ??????
+      02A0  MVI  A                 ; 3E 11       ; IMM 0x11
+   --- ?QIOOP call at 02A8
+      029D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0180 / ??????
+      02A0  MVI  A                 ; 3E 11       ; IMM 0x11
+      02A2  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A5  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A8  CALL                   ; CD 00 00    ; IMM 0x0000
+      02AB  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      02AE  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02C3 / ??????
+   --- ?SYSIN call at 02B1
+      02A5  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A8  CALL                   ; CD 00 00    ; IMM 0x0000
+      02AB  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      02AE  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02C3 / ??????
+      02B1  CALL                   ; CD 00 00    ; IMM 0x0000
+      02B4  CALL                   ; CD 00 00    ; IMM 0x0000
+      02B7  JP                     ; F2 00 00    ; RELOC -> code+0x02C0 / ??????
+   --- ?GNVOP call at 02B4
+      02A8  CALL                   ; CD 00 00    ; IMM 0x0000
+      02AB  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      02AE  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02C3 / ??????
+      02B1  CALL                   ; CD 00 00    ; IMM 0x0000
+      02B4  CALL                   ; CD 00 00    ; IMM 0x0000
+      02B7  JP                     ; F2 00 00    ; RELOC -> code+0x02C0 / ??????
+      02BA  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QCIOP call at 02BA
+      02AE  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02C3 / ??????
+      02B1  CALL                   ; CD 00 00    ; IMM 0x0000
+      02B4  CALL                   ; CD 00 00    ; IMM 0x0000
+      02B7  JP                     ; F2 00 00    ; RELOC -> code+0x02C0 / ??????
+      02BA  CALL                   ; CD 00 00    ; IMM 0x0000
+      02BD  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C4 / ??????
+      02C0  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 02C0
+      02B4  CALL                   ; CD 00 00    ; IMM 0x0000
+      02B7  JP                     ; F2 00 00    ; RELOC -> code+0x02C0 / ??????
+      02BA  CALL                   ; CD 00 00    ; IMM 0x0000
+      02BD  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C4 / ??????
+      02C0  CALL                   ; CD 00 00    ; IMM 0x0000
+      02C3  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      02C6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02DA / ??????
+   --- ?SYSPR call at 02C9
+      02BD  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C4 / ??????
+      02C0  CALL                   ; CD 00 00    ; IMM 0x0000
+      02C3  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      02C6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02DA / ??????
+      02C9  CALL                   ; CD 00 00    ; IMM 0x0000
+      02CC  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0191 / ??????
+      02CF  MVI  A                 ; 3E 11       ; IMM 0x11
+   --- ?QIOOP call at 02D7
+      02CC  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0191 / ??????
+      02CF  MVI  A                 ; 3E 11       ; IMM 0x11
+      02D1  CALL                   ; CD 00 00    ; IMM 0x0000
+      02D4  CALL                   ; CD 00 00    ; IMM 0x0000
+      02D7  CALL                   ; CD 00 00    ; IMM 0x0000
+      02DA  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      02DD  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02F2 / ??????
+   --- ?SYSIN call at 02E0
+      02D4  CALL                   ; CD 00 00    ; IMM 0x0000
+      02D7  CALL                   ; CD 00 00    ; IMM 0x0000
+      02DA  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      02DD  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02F2 / ??????
+      02E0  CALL                   ; CD 00 00    ; IMM 0x0000
+      02E3  CALL                   ; CD 00 00    ; IMM 0x0000
+      02E6  JP                     ; F2 00 00    ; RELOC -> code+0x02EF / ??????
+   --- ?GNVOP call at 02E3
+      02D7  CALL                   ; CD 00 00    ; IMM 0x0000
+      02DA  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      02DD  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02F2 / ??????
+      02E0  CALL                   ; CD 00 00    ; IMM 0x0000
+      02E3  CALL                   ; CD 00 00    ; IMM 0x0000
+      02E6  JP                     ; F2 00 00    ; RELOC -> code+0x02EF / ??????
+      02E9  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QCIOP call at 02E9
+      02DD  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02F2 / ??????
+      02E0  CALL                   ; CD 00 00    ; IMM 0x0000
+      02E3  CALL                   ; CD 00 00    ; IMM 0x0000
+      02E6  JP                     ; F2 00 00    ; RELOC -> code+0x02EF / ??????
+      02E9  CALL                   ; CD 00 00    ; IMM 0x0000
+      02EC  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C6 / ??????
+      02EF  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 02EF
+      02E3  CALL                   ; CD 00 00    ; IMM 0x0000
+      02E6  JP                     ; F2 00 00    ; RELOC -> code+0x02EF / ??????
+      02E9  CALL                   ; CD 00 00    ; IMM 0x0000
+      02EC  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C6 / ??????
+      02EF  CALL                   ; CD 00 00    ; IMM 0x0000
+      02F2  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      02F5  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0330 / ??????
+   --- ?SYSPR call at 02F8
+      02EC  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C6 / ??????
+      02EF  CALL                   ; CD 00 00    ; IMM 0x0000
+      02F2  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      02F5  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0330 / ??????
+      02F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      02FB  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      02FE  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 032D
+      0322  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01D5 / ??????
+      0325  MVI  A                 ; 3E 11       ; IMM 0x11
+      0327  CALL                   ; CD 00 00    ; IMM 0x0000
+      032A  CALL                   ; CD 00 00    ; IMM 0x0000
+      032D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0330  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0333  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0348 / ??????
+   --- ?SYSIN call at 0336
+      032A  CALL                   ; CD 00 00    ; IMM 0x0000
+      032D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0330  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0333  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0348 / ??????
+      0336  CALL                   ; CD 00 00    ; IMM 0x0000
+      0339  CALL                   ; CD 00 00    ; IMM 0x0000
+      033C  JP                     ; F2 00 00    ; RELOC -> code+0x0345 / ??????
+   --- ?GNVOP call at 0339
+      032D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0330  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0333  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0348 / ??????
+      0336  CALL                   ; CD 00 00    ; IMM 0x0000
+      0339  CALL                   ; CD 00 00    ; IMM 0x0000
+      033C  JP                     ; F2 00 00    ; RELOC -> code+0x0345 / ??????
+      033F  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QCIOP call at 033F
+      0333  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0348 / ??????
+      0336  CALL                   ; CD 00 00    ; IMM 0x0000
+      0339  CALL                   ; CD 00 00    ; IMM 0x0000
+      033C  JP                     ; F2 00 00    ; RELOC -> code+0x0345 / ??????
+      033F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0342  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C8 / ??????
+      0345  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0345
+      0339  CALL                   ; CD 00 00    ; IMM 0x0000
+      033C  JP                     ; F2 00 00    ; RELOC -> code+0x0345 / ??????
+      033F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0342  SHLD                   ; 22 00 00    ; RELOC -> data+0x02C8 / ??????
+      0345  CALL                   ; CD 00 00    ; IMM 0x0000
+      0348  LHLD                   ; 2A 00 00    ; RELOC -> data+0x02C8 / ??????
+      034B  DCX  H                 ; 2B       
+   --- ?SIOOP call at 03B3
+      03A7  JZ                     ; CA 00 00    ; RELOC -> code+0x03BC / ??????
+      03AA  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      03AD  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      03B0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x03BC / ??????
+      03B3  CALL                   ; CD 00 00    ; IMM 0x0000
+      03B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      03B9  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?PAGOP call at 03B6
+      03AA  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      03AD  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      03B0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x03BC / ??????
+      03B3  CALL                   ; CD 00 00    ; IMM 0x0000
+      03B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      03B9  CALL                   ; CD 00 00    ; IMM 0x0000
+      03BC  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 03B9
+      03AD  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      03B0  LXI  B                 ; 01 00 00    ; RELOC -> code+0x03BC / ??????
+      03B3  CALL                   ; CD 00 00    ; IMM 0x0000
+      03B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      03B9  CALL                   ; CD 00 00    ; IMM 0x0000
+      03BC  CALL                   ; CD 00 00    ; IMM 0x0000
+      03BF  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01E6 / ??????
+   --- ?SIOOP call at 052B
+      051F  JP                     ; F2 00 00    ; RELOC -> code+0x0603 / ??????
+      0522  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      0525  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0528  LXI  B                 ; 01 00 00    ; RELOC -> code+0x055D / ??????
+      052B  CALL                   ; CD 00 00    ; IMM 0x0000
+      052E  MVI  A                 ; 3E 01       ; IMM 0x01
+      0530  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 055A
+      0551  DAD  D                 ; 19       
+      0552  MVI  A                 ; 3E 09       ; IMM 0x09
+      0554  CALL                   ; CD 00 00    ; IMM 0x0000
+      0557  CALL                   ; CD 00 00    ; IMM 0x0000
+      055A  CALL                   ; CD 00 00    ; IMM 0x0000
+      055D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02DC / ??????
+      0560  MVI  A                 ; 3E 0A       ; IMM 0x0A
+   --- ?SIOOP call at 068A
+      067E  JNZ                    ; C2 00 00    ; RELOC -> code+0x0679 / ??????
+      0681  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      0684  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0687  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0732 / ??????
+      068A  CALL                   ; CD 00 00    ; IMM 0x0000
+      068D  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0015 / ??????
+      0690  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 072F
+      0724  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01EC / ??????
+      0727  MVI  A                 ; 3E 01       ; IMM 0x01
+      0729  CALL                   ; CD 00 00    ; IMM 0x0000
+      072C  CALL                   ; CD 00 00    ; IMM 0x0000
+      072F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0732  RET                    ; C9       
+      0733  LXI  H                 ; 21 00 00    ; RELOC -> data+0x02BD / ??????
+   --- ?SIOOP call at 0796
+      078A  CALL                   ; CD 00 00    ; RELOC -> code+0x0662 / ??????
+      078D  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      0790  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0793  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0806 / ??????
+      0796  CALL                   ; CD 00 00    ; IMM 0x0000
+      0799  MVI  A                 ; 3E 01       ; IMM 0x01
+      079B  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0803
+      07F8  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01EC / ??????
+      07FB  MVI  A                 ; 3E 01       ; IMM 0x01
+      07FD  CALL                   ; CD 00 00    ; IMM 0x0000
+      0800  CALL                   ; CD 00 00    ; IMM 0x0000
+      0803  CALL                   ; CD 00 00    ; IMM 0x0000
+      0806  CALL                   ; CD 00 00    ; RELOC -> code+0x078B / ??????
+      0809  RET                    ; C9       
+   --- ?SIOOP call at 0813
+      0809  RET                    ; C9       
+      080A  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      080D  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      0810  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0824 / ??????
+      0813  CALL                   ; CD 00 00    ; IMM 0x0000
+      0816  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00B1 / ??????
+      0819  MVI  A                 ; 3E 01       ; IMM 0x01
+   --- ?QIOOP call at 0821
+      0816  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00B1 / ??????
+      0819  MVI  A                 ; 3E 01       ; IMM 0x01
+      081B  CALL                   ; CD 00 00    ; IMM 0x0000
+      081E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0821  CALL                   ; CD 00 00    ; IMM 0x0000
+      0824  CALL                   ; CD 00 00    ; RELOC -> code+0x0807 / ??????
+      0827  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+   --- ?SIOOP call at 0830
+      0824  CALL                   ; CD 00 00    ; RELOC -> code+0x0807 / ??????
+      0827  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      082A  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      082D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0862 / ??????
+      0830  CALL                   ; CD 00 00    ; IMM 0x0000
+      0833  MVI  A                 ; 3E 01       ; IMM 0x01
+      0835  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 085F
+      0854  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01EC / ??????
+      0857  MVI  A                 ; 3E 01       ; IMM 0x01
+      0859  CALL                   ; CD 00 00    ; IMM 0x0000
+      085C  CALL                   ; CD 00 00    ; IMM 0x0000
+      085F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0862  CALL                   ; CD 00 00    ; RELOC -> code+0x0825 / ??????
+      0865  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+   --- ?SIOOP call at 086E
+      0862  CALL                   ; CD 00 00    ; RELOC -> code+0x0825 / ??????
+      0865  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      0868  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      086B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x08E5 / ??????
+      086E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0871  MVI  A                 ; 3E 01       ; IMM 0x01
+      0873  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 08E2
+      08D7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x01EC / ??????
+      08DA  MVI  A                 ; 3E 01       ; IMM 0x01
+      08DC  CALL                   ; CD 00 00    ; IMM 0x0000
+      08DF  CALL                   ; CD 00 00    ; IMM 0x0000
+      08E2  CALL                   ; CD 00 00    ; IMM 0x0000
+      08E5  CALL                   ; CD 00 00    ; RELOC -> code+0x0863 / ??????
+      08E8  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+   --- ?SIOOP call at 08F1
+      08E5  CALL                   ; CD 00 00    ; RELOC -> code+0x0863 / ??????
+      08E8  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      08EB  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      08EE  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0944 / ??????
+      08F1  CALL                   ; CD 00 00    ; IMM 0x0000
+      08F4  MVI  A                 ; 3E 01       ; IMM 0x01
+      08F6  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0941
+      0936  LXI  H                 ; 21 00 00    ; RELOC -> data+0x028C / ??????
+      0939  MVI  A                 ; 3E 0F       ; IMM 0x0F
+      093B  CALL                   ; CD 00 00    ; IMM 0x0000
+      093E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0941  CALL                   ; CD 00 00    ; IMM 0x0000
+      0944  CALL                   ; CD 00 00    ; RELOC -> code+0x08E6 / ??????
+      0947  RET                    ; C9       
+   --- ?SIOOP call at 0951
+      0947  RET                    ; C9       
+      0948  LXI  H                 ; 21 00 00    ; RELOC -> common/OUTPUT/+0x0000 / ??????
+      094B  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      094E  LXI  B                 ; 01 00 00    ; RELOC -> code+0x099F / ??????
+      0951  CALL                   ; CD 00 00    ; IMM 0x0000
+      0954  MVI  A                 ; 3E 01       ; IMM 0x01
+      0956  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 099C
+      0992  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0358 / ??????
+      0995  INX  H                 ; 23       
+      0996  SHLD                   ; 22 00 00    ; RELOC -> data+0x0358 / ??????
+      0999  JMP                    ; C3 00 00    ; RELOC -> code+0x097B / ??????
+      099C  CALL                   ; CD 00 00    ; IMM 0x0000
+      099F  RET                    ; C9       
+   call counts: ?GNVOP=9 ?OIOOP=2 ?PAGOP=1 ?QCIOP=4 ?QIOOP=30 ?SIOOP=9 ?SSVFS=1 ?SYSIN=9 ?SYSPR=12
+
+== REPORT   golden/first8080u/REPORT/REPORT.REL   code=462 bytes, COMMON=82 bytes
+   --- ?OIOOP call at 0027
+      0021  DB 6C                  ; 6C       
+      0022  PUSH H                 ; E5       
+      0023  PUSH H                 ; E5       
+      0024  LXI  H                 ; 21 00 00    ; RELOC -> common/EMPFIL/+0x0000 / ??????
+      0027  CALL                   ; CD 00 00    ; IMM 0x0000
+      002A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0076 / ??????
+      002D  MVI  A                 ; 3E 05       ; IMM 0x05
+   --- ?OIOOP call at 004B
+      0045  DB 6C                  ; 6C       
+      0046  PUSH H                 ; E5       
+      0047  PUSH H                 ; E5       
+      0048  LXI  H                 ; 21 00 00    ; RELOC -> common/REPFIL/+0x0000 / ??????
+      004B  CALL                   ; CD 00 00    ; IMM 0x0000
+      004E  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0051  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0065 / ??????
+   --- ?SYSPR call at 0054
+      0048  LXI  H                 ; 21 00 00    ; RELOC -> common/REPFIL/+0x0000 / ??????
+      004B  CALL                   ; CD 00 00    ; IMM 0x0000
+      004E  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0051  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0065 / ??????
+      0054  CALL                   ; CD 00 00    ; IMM 0x0000
+      0057  LXI  H                 ; 21 00 00    ; RELOC -> data+0x007B / ??????
+      005A  MVI  A                 ; 3E 1E       ; IMM 0x1E
+   --- ?QIOOP call at 0062
+      0057  LXI  H                 ; 21 00 00    ; RELOC -> data+0x007B / ??????
+      005A  MVI  A                 ; 3E 1E       ; IMM 0x1E
+      005C  CALL                   ; CD 00 00    ; IMM 0x0000
+      005F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0062  CALL                   ; CD 00 00    ; IMM 0x0000
+      0065  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0068  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0076 / ??????
+   --- ?SYSIN call at 006B
+      005F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0062  CALL                   ; CD 00 00    ; IMM 0x0000
+      0065  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0068  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0076 / ??????
+      006B  CALL                   ; CD 00 00    ; IMM 0x0000
+      006E  MVI  A                 ; 3E 01       ; IMM 0x01
+      0070  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0073
+      0068  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0076 / ??????
+      006B  CALL                   ; CD 00 00    ; IMM 0x0000
+      006E  MVI  A                 ; 3E 01       ; IMM 0x01
+      0070  CALL                   ; CD 00 00    ; IMM 0x0000
+      0073  CALL                   ; CD 00 00    ; IMM 0x0000
+      0076  LXI  H                 ; 21 00 00    ; RELOC -> common/EMPFIL/+0x0000 / ??????
+      0079  LXI  D                 ; 11 90 05    ; IMM 0x0590
+   --- ?SIOOP call at 007F
+      0073  CALL                   ; CD 00 00    ; IMM 0x0000
+      0076  LXI  H                 ; 21 00 00    ; RELOC -> common/EMPFIL/+0x0000 / ??????
+      0079  LXI  D                 ; 11 90 05    ; IMM 0x0590
+      007C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x008E / ??????
+      007F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0082  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      0085  LXI  D                 ; 11 61 00    ; IMM 0x0061
+   --- ?QIOOP call at 008B
+      007F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0082  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      0085  LXI  D                 ; 11 61 00    ; IMM 0x0061
+      0088  CALL                   ; CD 00 00    ; IMM 0x0000
+      008B  CALL                   ; CD 00 00    ; IMM 0x0000
+      008E  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      0091  XCHG                   ; EB       
+   --- ?SIOOP call at 00A9
+      009D  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A0  LXI  H                 ; 21 00 00    ; RELOC -> common/REPFIL/+0x0000 / ??????
+      00A3  LXI  D                 ; 11 52 06    ; IMM 0x0652
+      00A6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00B4 / ??????
+      00A9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AC  MVI  A                 ; 3E 02       ; IMM 0x02
+      00AE  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 00B1
+      00A6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00B4 / ??????
+      00A9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AC  MVI  A                 ; 3E 02       ; IMM 0x02
+      00AE  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B1  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B4  LXI  H                 ; 21 00 00    ; RELOC -> data+0x009D / ??????
+      00B7  MVI  A                 ; 3E 03       ; IMM 0x03
+   --- ?SSVFS call at 00D3
+      00C8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00CB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00CE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A5 / ??????
+      00D1  MVI  B                 ; 06 14       ; IMM 0x14
+      00D3  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D6  LXI  H                 ; 21 00 00    ; RELOC -> common/REPFIL/+0x0000 / ??????
+      00D9  LXI  D                 ; 11 50 06    ; IMM 0x0650
+   --- ?SIOOP call at 00DF
+      00D3  CALL                   ; CD 00 00    ; IMM 0x0000
+      00D6  LXI  H                 ; 21 00 00    ; RELOC -> common/REPFIL/+0x0000 / ??????
+      00D9  LXI  D                 ; 11 50 06    ; IMM 0x0650
+      00DC  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00EE / ??????
+      00DF  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A5 / ??????
+      00E5  LXI  D                 ; 11 15 00    ; IMM 0x0015
+   --- ?WNIOP call at 00E8
+      00DC  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00EE / ??????
+      00DF  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A5 / ??????
+      00E5  LXI  D                 ; 11 15 00    ; IMM 0x0015
+      00E8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005B / ??????
+   --- ?QIOOP call at 00EB
+      00DF  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E2  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A5 / ??????
+      00E5  LXI  D                 ; 11 15 00    ; IMM 0x0015
+      00E8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005B / ??????
+      00F1  MVI  A                 ; 3E 05       ; IMM 0x05
+   --- ?SSVFS call at 014D
+      0143  MVI  B                 ; 06 02       ; IMM 0x02
+      0145  CALL                   ; CD 00 00    ; IMM 0x0000
+      0148  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A5 / ??????
+      014B  MVI  B                 ; 06 14       ; IMM 0x14
+      014D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0150  LXI  H                 ; 21 01 00    ; IMM 0x0001
+      0153  SHLD                   ; 22 00 00    ; RELOC -> data+0x00A3 / ??????
+   --- ?SIOOP call at 01BE
+      01B2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B5  LXI  H                 ; 21 00 00    ; RELOC -> common/REPFIL/+0x0000 / ??????
+      01B8  LXI  D                 ; 11 50 06    ; IMM 0x0650
+      01BB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01CD / ??????
+      01BE  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C1  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A5 / ??????
+      01C4  LXI  D                 ; 11 15 00    ; IMM 0x0015
+   --- ?WNIOP call at 01C7
+      01BB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01CD / ??????
+      01BE  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C1  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A5 / ??????
+      01C4  LXI  D                 ; 11 15 00    ; IMM 0x0015
+      01C7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CD  JMP                    ; C3       
+   --- ?QIOOP call at 01CA
+      01BE  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C1  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A5 / ??????
+      01C4  LXI  D                 ; 11 15 00    ; IMM 0x0015
+      01C7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CD  JMP                    ; C3       
+   call counts: ?OIOOP=2 ?QIOOP=6 ?SIOOP=4 ?SSVFS=2 ?SYSIN=1 ?SYSPR=1 ?WNIOP=2
+
+== RETRIEVE   golden/first8080u/RETRIEVE/RETRIEVE.REL   code=573 bytes, COMMON=81 bytes
+   --- ?OIOOP call at 0020
+      001A  PUSH H                 ; E5       
+      001B  PUSH H                 ; E5       
+      001C  PUSH H                 ; E5       
+      001D  LXI  H                 ; 21 00 00    ; RELOC -> common/SYSPRI/+0x0000 / ??????
+      0020  CALL                   ; CD 00 00    ; IMM 0x0000
+      0023  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0026  LXI  B                 ; 01 00 00    ; RELOC -> code+0x003A / ??????
+   --- ?SYSPR call at 0029
+      001D  LXI  H                 ; 21 00 00    ; RELOC -> common/SYSPRI/+0x0000 / ??????
+      0020  CALL                   ; CD 00 00    ; IMM 0x0000
+      0023  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0026  LXI  B                 ; 01 00 00    ; RELOC -> code+0x003A / ??????
+      0029  CALL                   ; CD 00 00    ; IMM 0x0000
+      002C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0004 / ??????
+      002F  MVI  A                 ; 3E 27       ; IMM 0x27
+   --- ?QIOOP call at 0037
+      002C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0004 / ??????
+      002F  MVI  A                 ; 3E 27       ; IMM 0x27
+      0031  CALL                   ; CD 00 00    ; IMM 0x0000
+      0034  CALL                   ; CD 00 00    ; IMM 0x0000
+      0037  CALL                   ; CD 00 00    ; IMM 0x0000
+      003A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      003D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0054 / ??????
+   --- ?SYSIN call at 0040
+      0034  CALL                   ; CD 00 00    ; IMM 0x0000
+      0037  CALL                   ; CD 00 00    ; IMM 0x0000
+      003A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      003D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0054 / ??????
+      0040  CALL                   ; CD 00 00    ; IMM 0x0000
+      0043  CALL                   ; CD 00 00    ; IMM 0x0000
+      0046  JP                     ; F2 00 00    ; RELOC -> code+0x0051 / ??????
+   --- ?GNVOP call at 0043
+      0037  CALL                   ; CD 00 00    ; IMM 0x0000
+      003A  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      003D  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0054 / ??????
+      0040  CALL                   ; CD 00 00    ; IMM 0x0000
+      0043  CALL                   ; CD 00 00    ; IMM 0x0000
+      0046  JP                     ; F2 00 00    ; RELOC -> code+0x0051 / ??????
+      0049  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00F3 / ??????
+   --- ?SSVFS call at 004E
+      0043  CALL                   ; CD 00 00    ; IMM 0x0000
+      0046  JP                     ; F2 00 00    ; RELOC -> code+0x0051 / ??????
+      0049  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00F3 / ??????
+      004C  MVI  B                 ; 06 0E       ; IMM 0x0E
+      004E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0051  CALL                   ; CD 00 00    ; IMM 0x0000
+      0054  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0102 / ??????
+   --- ?QIOOP call at 0051
+      0046  JP                     ; F2 00 00    ; RELOC -> code+0x0051 / ??????
+      0049  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00F3 / ??????
+      004C  MVI  B                 ; 06 0E       ; IMM 0x0E
+      004E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0051  CALL                   ; CD 00 00    ; IMM 0x0000
+      0054  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0102 / ??????
+      0057  LXI  D                 ; 11 00 00    ; RELOC -> data+0x002B / ??????
+   --- ?SYSPR call at 0072
+      0068  DB 47                  ; 47       
+      0069  CALL                   ; CD 00 00    ; IMM 0x0000
+      006C  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      006F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0088 / ??????
+      0072  CALL                   ; CD 00 00    ; IMM 0x0000
+      0075  MVI  A                 ; 3E 02       ; IMM 0x02
+      0077  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0085
+      007A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0067 / ??????
+      007D  MVI  A                 ; 3E 1A       ; IMM 0x1A
+      007F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0082  CALL                   ; CD 00 00    ; IMM 0x0000
+      0085  CALL                   ; CD 00 00    ; IMM 0x0000
+      0088  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      008B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00B0 / ??????
+   --- ?SYSIN call at 008E
+      0082  CALL                   ; CD 00 00    ; IMM 0x0000
+      0085  CALL                   ; CD 00 00    ; IMM 0x0000
+      0088  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      008B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00B0 / ??????
+      008E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0091  CALL                   ; CD 00 00    ; IMM 0x0000
+      0094  JP                     ; F2 00 00    ; RELOC -> code+0x009F / ??????
+   --- ?GNVOP call at 0091
+      0085  CALL                   ; CD 00 00    ; IMM 0x0000
+      0088  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      008B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00B0 / ??????
+      008E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0091  CALL                   ; CD 00 00    ; IMM 0x0000
+      0094  JP                     ; F2 00 00    ; RELOC -> code+0x009F / ??????
+      0097  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0102 / ??????
+   --- ?SSVFS call at 009C
+      0091  CALL                   ; CD 00 00    ; IMM 0x0000
+      0094  JP                     ; F2 00 00    ; RELOC -> code+0x009F / ??????
+      0097  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0102 / ??????
+      009A  MVI  B                 ; 06 1E       ; IMM 0x1E
+      009C  CALL                   ; CD 00 00    ; IMM 0x0000
+      009F  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A2  JP                     ; F2 00 00    ; RELOC -> code+0x00AD / ??????
+   --- ?GNVOP call at 009F
+      0094  JP                     ; F2 00 00    ; RELOC -> code+0x009F / ??????
+      0097  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0102 / ??????
+      009A  MVI  B                 ; 06 1E       ; IMM 0x1E
+      009C  CALL                   ; CD 00 00    ; IMM 0x0000
+      009F  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A2  JP                     ; F2 00 00    ; RELOC -> code+0x00AD / ??????
+      00A5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0121 / ??????
+   --- ?SSVFS call at 00AA
+      009F  CALL                   ; CD 00 00    ; IMM 0x0000
+      00A2  JP                     ; F2 00 00    ; RELOC -> code+0x00AD / ??????
+      00A5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0121 / ??????
+      00A8  MVI  B                 ; 06 1E       ; IMM 0x1E
+      00AA  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AD  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B0  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0081 / ??????
+   --- ?QIOOP call at 00AD
+      00A2  JP                     ; F2 00 00    ; RELOC -> code+0x00AD / ??????
+      00A5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0121 / ??????
+      00A8  MVI  B                 ; 06 1E       ; IMM 0x1E
+      00AA  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AD  CALL                   ; CD 00 00    ; IMM 0x0000
+      00B0  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0081 / ??????
+      00B3  LXI  D                 ; 11 00 00    ; RELOC -> data+0x0102 / ??????
+   --- ?OIOOP call at 00E0
+      00DA  DB 6C                  ; 6C       
+      00DB  PUSH H                 ; E5       
+      00DC  PUSH H                 ; E5       
+      00DD  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      00E0  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E3  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0140 / ??????
+      00E6  MVI  M                 ; 36 00       ; IMM 0x00
+   --- ?SIOOP call at 00F8
+      00EC  JM                     ; FA 00 00    ; RELOC -> code+0x0236 / ??????
+      00EF  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      00F2  LXI  D                 ; 11 90 06    ; IMM 0x0690
+      00F5  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010C / ??????
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FE  JP                     ; F2 00 00    ; RELOC -> code+0x0109 / ??????
+   --- ?GNVOP call at 00FB
+      00EF  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      00F2  LXI  D                 ; 11 90 06    ; IMM 0x0690
+      00F5  LXI  B                 ; 01 00 00    ; RELOC -> code+0x010C / ??????
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FE  JP                     ; F2 00 00    ; RELOC -> code+0x0109 / ??????
+      0101  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+   --- ?SSVFS call at 0106
+      00FB  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FE  JP                     ; F2 00 00    ; RELOC -> code+0x0109 / ??????
+      0101  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+      0104  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0106  CALL                   ; CD 00 00    ; IMM 0x0000
+      0109  CALL                   ; CD 00 00    ; IMM 0x0000
+      010C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+   --- ?QIOOP call at 0109
+      00FE  JP                     ; F2 00 00    ; RELOC -> code+0x0109 / ??????
+      0101  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+      0104  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0106  CALL                   ; CD 00 00    ; IMM 0x0000
+      0109  CALL                   ; CD 00 00    ; IMM 0x0000
+      010C  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+      010F  XCHG                   ; EB       
+   --- ?SIOOP call at 012E
+      0122  JM                     ; FA 00 00    ; RELOC -> code+0x0233 / ??????
+      0125  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      0128  LXI  D                 ; 11 90 06    ; IMM 0x0690
+      012B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x017F / ??????
+      012E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0131  CALL                   ; CD 00 00    ; IMM 0x0000
+      0134  JP                     ; F2 00 00    ; RELOC -> code+0x013F / ??????
+   --- ?GNVOP call at 0131
+      0125  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      0128  LXI  D                 ; 11 90 06    ; IMM 0x0690
+      012B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x017F / ??????
+      012E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0131  CALL                   ; CD 00 00    ; IMM 0x0000
+      0134  JP                     ; F2 00 00    ; RELOC -> code+0x013F / ??????
+      0137  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A3 / ??????
+   --- ?SSVFS call at 013C
+      0131  CALL                   ; CD 00 00    ; IMM 0x0000
+      0134  JP                     ; F2 00 00    ; RELOC -> code+0x013F / ??????
+      0137  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A3 / ??????
+      013A  MVI  B                 ; 06 1E       ; IMM 0x1E
+      013C  CALL                   ; CD 00 00    ; IMM 0x0000
+      013F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0142  JP                     ; F2 00 00    ; RELOC -> code+0x014D / ??????
+   --- ?GNVOP call at 013F
+      0134  JP                     ; F2 00 00    ; RELOC -> code+0x013F / ??????
+      0137  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A3 / ??????
+      013A  MVI  B                 ; 06 1E       ; IMM 0x1E
+      013C  CALL                   ; CD 00 00    ; IMM 0x0000
+      013F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0142  JP                     ; F2 00 00    ; RELOC -> code+0x014D / ??????
+      0145  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00C2 / ??????
+   --- ?SSVFS call at 014A
+      013F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0142  JP                     ; F2 00 00    ; RELOC -> code+0x014D / ??????
+      0145  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00C2 / ??????
+      0148  MVI  B                 ; 06 14       ; IMM 0x14
+      014A  CALL                   ; CD 00 00    ; IMM 0x0000
+      014D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0150  JP                     ; F2 00 00    ; RELOC -> code+0x015B / ??????
+   --- ?GNVOP call at 014D
+      0142  JP                     ; F2 00 00    ; RELOC -> code+0x014D / ??????
+      0145  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00C2 / ??????
+      0148  MVI  B                 ; 06 14       ; IMM 0x14
+      014A  CALL                   ; CD 00 00    ; IMM 0x0000
+      014D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0150  JP                     ; F2 00 00    ; RELOC -> code+0x015B / ??????
+      0153  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00D7 / ??????
+   --- ?SSVFS call at 0158
+      014D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0150  JP                     ; F2 00 00    ; RELOC -> code+0x015B / ??????
+      0153  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00D7 / ??????
+      0156  MVI  B                 ; 06 0A       ; IMM 0x0A
+      0158  CALL                   ; CD 00 00    ; IMM 0x0000
+      015B  CALL                   ; CD 00 00    ; IMM 0x0000
+      015E  JP                     ; F2 00 00    ; RELOC -> code+0x016E / ??????
+   --- ?GNVOP call at 015B
+      0150  JP                     ; F2 00 00    ; RELOC -> code+0x015B / ??????
+      0153  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00D7 / ??????
+      0156  MVI  B                 ; 06 0A       ; IMM 0x0A
+      0158  CALL                   ; CD 00 00    ; IMM 0x0000
+      015B  CALL                   ; CD 00 00    ; IMM 0x0000
+      015E  JP                     ; F2 00 00    ; RELOC -> code+0x016E / ??????
+      0161  MVI  B                 ; 06 00       ; IMM 0x00
+   --- ?GNVOP call at 016E
+      0163  CALL                   ; CD 00 00    ; IMM 0x0000
+      0166  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E2 / ??????
+      0169  MVI  A                 ; 3E 06       ; IMM 0x06
+      016B  CALL                   ; CD 00 00    ; IMM 0x0000
+      016E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0171  JP                     ; F2 00 00    ; RELOC -> code+0x017C / ??????
+      0174  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E6 / ??????
+   --- ?SSVFS call at 0179
+      016E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0171  JP                     ; F2 00 00    ; RELOC -> code+0x017C / ??????
+      0174  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E6 / ??????
+      0177  MVI  B                 ; 06 0C       ; IMM 0x0C
+      0179  CALL                   ; CD 00 00    ; IMM 0x0000
+      017C  CALL                   ; CD 00 00    ; IMM 0x0000
+      017F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+   --- ?QIOOP call at 017C
+      0171  JP                     ; F2 00 00    ; RELOC -> code+0x017C / ??????
+      0174  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E6 / ??????
+      0177  MVI  B                 ; 06 0C       ; IMM 0x0C
+      0179  CALL                   ; CD 00 00    ; IMM 0x0000
+      017C  CALL                   ; CD 00 00    ; IMM 0x0000
+      017F  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+      0182  XCHG                   ; EB       
+   --- ?SYSPR call at 01A2
+      0198  ANA  B                 ; A0       
+      0199  JP                     ; F2 00 00    ; RELOC -> code+0x0233 / ??????
+      019C  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      019F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01B9 / ??????
+      01A2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A8  MVI  A                 ; 3E 03       ; IMM 0x03
+   --- ?PAGOP call at 01A5
+      0199  JP                     ; F2 00 00    ; RELOC -> code+0x0233 / ??????
+      019C  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      019F  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01B9 / ??????
+      01A2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01A8  MVI  A                 ; 3E 03       ; IMM 0x03
+      01AA  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01B6
+      01AA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01AD  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+      01B0  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B9  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01BC  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01D3 / ??????
+   --- ?SYSPR call at 01BF
+      01B3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B9  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01BC  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01D3 / ??????
+      01BF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C2  MVI  A                 ; 3E 01       ; IMM 0x01
+      01C4  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01D0
+      01C4  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00A3 / ??????
+      01CA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01CD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D0  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D3  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01D6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01F6 / ??????
+   --- ?SYSPR call at 01D9
+      01CD  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D0  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D3  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01D6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01F6 / ??????
+      01D9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01DC  MVI  A                 ; 3E 01       ; IMM 0x01
+      01DE  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01F3
+      01E7  CALL                   ; CD 00 00    ; IMM 0x0000
+      01EA  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00D7 / ??????
+      01ED  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F0  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F6  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01F9  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0219 / ??????
+   --- ?SYSPR call at 01FC
+      01F0  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F6  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01F9  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0219 / ??????
+      01FC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01FF  MVI  A                 ; 3E 01       ; IMM 0x01
+      0201  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0216
+      020C  MVI  A                 ; 3E 09       ; IMM 0x09
+      020E  MVI  B                 ; 06 00       ; IMM 0x00
+      0210  CALL                   ; CD 00 00    ; IMM 0x0000
+      0213  CALL                   ; CD 00 00    ; IMM 0x0000
+      0216  CALL                   ; CD 00 00    ; IMM 0x0000
+      0219  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      021C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0233 / ??????
+   --- ?SYSPR call at 021F
+      0213  CALL                   ; CD 00 00    ; IMM 0x0000
+      0216  CALL                   ; CD 00 00    ; IMM 0x0000
+      0219  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      021C  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0233 / ??????
+      021F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0222  MVI  A                 ; 3E 01       ; IMM 0x01
+      0224  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 0230
+      0224  CALL                   ; CD 00 00    ; IMM 0x0000
+      0227  LXI  H                 ; 21 00 00    ; RELOC -> data+0x00E6 / ??????
+      022A  CALL                   ; CD 00 00    ; IMM 0x0000
+      022D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0230  CALL                   ; CD 00 00    ; IMM 0x0000
+      0233  JMP                    ; C3 00 00    ; RELOC -> code+0x00E8 / ??????
+      0236  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+   --- ?CIOOP call at 0239
+      022D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0230  CALL                   ; CD 00 00    ; IMM 0x0000
+      0233  JMP                    ; C3 00 00    ; RELOC -> code+0x00E8 / ??????
+      0236  LXI  H                 ; 21 00 00    ; RELOC -> common/INPUT/+0x0000 / ??????
+      0239  CALL                   ; CD 00 00    ; IMM 0x0000
+      023C  JMP                    ; C3       
+   call counts: ?CIOOP=1 ?GNVOP=9 ?OIOOP=2 ?PAGOP=1 ?QIOOP=11 ?SIOOP=2 ?SSVFS=8 ?SYSIN=2 ?SYSPR=7
+
+== UPDATE   golden/first8080u/UPDATE/UPDATE.REL   code=685 bytes, COMMON=75 bytes
+   --- ?OIOOP call at 0024
+      001E  DB 6C                  ; 6C       
+      001F  PUSH H                 ; E5       
+      0020  PUSH H                 ; E5       
+      0021  LXI  H                 ; 21 00 00    ; RELOC -> common/EMP/+0x0000 / ??????
+      0024  CALL                   ; CD 00 00    ; IMM 0x0000
+      0027  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0068 / ??????
+      002A  MVI  A                 ; 3E 06       ; IMM 0x06
+   --- ?OIOOP call at 0048
+      0042  DB 6C                  ; 6C       
+      0043  PUSH H                 ; E5       
+      0044  PUSH H                 ; E5       
+      0045  LXI  H                 ; 21 00 00    ; RELOC -> common/KEYS/+0x0000 / ??????
+      0048  CALL                   ; CD 00 00    ; IMM 0x0000
+      004B  LXI  H                 ; 21 01 00    ; IMM 0x0001
+      004E  SHLD                   ; 22 00 00    ; RELOC -> data+0x0D79 / ??????
+   --- ?SIOOP call at 006C
+      0060  JP                     ; F2 00 00    ; RELOC -> code+0x00D3 / ??????
+      0063  LXI  H                 ; 21 00 00    ; RELOC -> common/KEYS/+0x0000 / ??????
+      0066  LXI  D                 ; 11 90 06    ; IMM 0x0690
+      0069  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00AB / ??????
+      006C  CALL                   ; CD 00 00    ; IMM 0x0000
+      006F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0072  JP                     ; F2 00 00    ; RELOC -> code+0x008B / ??????
+   --- ?GNVOP call at 006F
+      0063  LXI  H                 ; 21 00 00    ; RELOC -> common/KEYS/+0x0000 / ??????
+      0066  LXI  D                 ; 11 90 06    ; IMM 0x0690
+      0069  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00AB / ??????
+      006C  CALL                   ; CD 00 00    ; IMM 0x0000
+      006F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0072  JP                     ; F2 00 00    ; RELOC -> code+0x008B / ??????
+      0075  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0074 / ??????
+   --- ?SSVFS call at 0088
+      0083  POP  D                 ; D1       
+      0084  DAD  D                 ; 19       
+      0085  POP  PSW               ; F1       
+      0086  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0088  CALL                   ; CD 00 00    ; IMM 0x0000
+      008B  CALL                   ; CD 00 00    ; IMM 0x0000
+      008E  JP                     ; F2 00 00    ; RELOC -> code+0x00A8 / ??????
+   --- ?GNVOP call at 008B
+      0084  DAD  D                 ; 19       
+      0085  POP  PSW               ; F1       
+      0086  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0088  CALL                   ; CD 00 00    ; IMM 0x0000
+      008B  CALL                   ; CD 00 00    ; IMM 0x0000
+      008E  JP                     ; F2 00 00    ; RELOC -> code+0x00A8 / ??????
+      0091  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QCIOP call at 0091
+      0086  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0088  CALL                   ; CD 00 00    ; IMM 0x0000
+      008B  CALL                   ; CD 00 00    ; IMM 0x0000
+      008E  JP                     ; F2 00 00    ; RELOC -> code+0x00A8 / ??????
+      0091  CALL                   ; CD 00 00    ; IMM 0x0000
+      0094  PUSH H                 ; E5       
+      0095  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0093 / ??????
+   --- ?QIOOP call at 00A8
+      00A4  POP  D                 ; D1       
+      00A5  DB 73                  ; 73       
+      00A6  INX  H                 ; 23       
+      00A7  DB 72                  ; 72       
+      00A8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00AB  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0074 / ??????
+      00AE  PUSH H                 ; E5       
+   --- ?SYSPR call at 00D9
+      00CD  SHLD                   ; 22 00 00    ; RELOC -> data+0x0D79 / ??????
+      00D0  JMP                    ; C3 00 00    ; RELOC -> code+0x0051 / ??????
+      00D3  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      00D6  LXI  B                 ; 01 00 00    ; RELOC -> code+0x00EF / ??????
+      00D9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00DC  MVI  A                 ; 3E 01       ; IMM 0x01
+      00DE  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 00EC
+      00E1  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0071 / ??????
+      00E4  MVI  A                 ; 3E 0A       ; IMM 0x0A
+      00E6  CALL                   ; CD 00 00    ; IMM 0x0000
+      00E9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EF  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0109 / ??????
+   --- ?SYSIN call at 00F5
+      00E9  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EF  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0109 / ??????
+      00F5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FB  JP                     ; F2 00 00    ; RELOC -> code+0x0106 / ??????
+   --- ?GNVOP call at 00F8
+      00EC  CALL                   ; CD 00 00    ; IMM 0x0000
+      00EF  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      00F2  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0109 / ??????
+      00F5  CALL                   ; CD 00 00    ; IMM 0x0000
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FB  JP                     ; F2 00 00    ; RELOC -> code+0x0106 / ??????
+      00FE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0D7D / ??????
+   --- ?SSVFS call at 0103
+      00F8  CALL                   ; CD 00 00    ; IMM 0x0000
+      00FB  JP                     ; F2 00 00    ; RELOC -> code+0x0106 / ??????
+      00FE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0D7D / ??????
+      0101  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0103  CALL                   ; CD 00 00    ; IMM 0x0000
+      0106  CALL                   ; CD 00 00    ; IMM 0x0000
+      0109  LXI  H                 ; 21 00 00    ; RELOC -> data+0x006E / ??????
+   --- ?QIOOP call at 0106
+      00FB  JP                     ; F2 00 00    ; RELOC -> code+0x0106 / ??????
+      00FE  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0D7D / ??????
+      0101  MVI  B                 ; 06 1E       ; IMM 0x1E
+      0103  CALL                   ; CD 00 00    ; IMM 0x0000
+      0106  CALL                   ; CD 00 00    ; IMM 0x0000
+      0109  LXI  H                 ; 21 00 00    ; RELOC -> data+0x006E / ??????
+      010C  LXI  D                 ; 11 00 00    ; RELOC -> data+0x0D7D / ??????
+   --- ?SIOOP call at 014E
+      0142  JNZ                    ; C2 00 00    ; RELOC -> code+0x02A2 / ??????
+      0145  LXI  H                 ; 21 00 00    ; RELOC -> common/EMP/+0x0000 / ??????
+      0148  LXI  D                 ; 11 8C 05    ; IMM 0x058C
+      014B  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0173 / ??????
+      014E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0151  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0093 / ??????
+      0154  PUSH H                 ; E5       
+   --- ?QIOOP call at 0170
+      0164  CALL                   ; CD 00 00    ; IMM 0x0000
+      0167  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      016A  LXI  D                 ; 11 61 00    ; IMM 0x0061
+      016D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0170  CALL                   ; CD 00 00    ; IMM 0x0000
+      0173  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0176  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01BC / ??????
+   --- ?SYSPR call at 0179
+      016D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0170  CALL                   ; CD 00 00    ; IMM 0x0000
+      0173  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0176  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01BC / ??????
+      0179  CALL                   ; CD 00 00    ; IMM 0x0000
+      017C  MVI  A                 ; 3E 01       ; IMM 0x01
+      017E  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01B9
+      01AF  MVI  A                 ; 3E 08       ; IMM 0x08
+      01B1  MVI  B                 ; 06 00       ; IMM 0x00
+      01B3  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01BC  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01BF  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01D8 / ??????
+   --- ?SYSPR call at 01C2
+      01B6  CALL                   ; CD 00 00    ; IMM 0x0000
+      01B9  CALL                   ; CD 00 00    ; IMM 0x0000
+      01BC  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      01BF  LXI  B                 ; 01 00 00    ; RELOC -> code+0x01D8 / ??????
+      01C2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01C5  MVI  A                 ; 3E 01       ; IMM 0x01
+      01C7  CALL                   ; CD 00 00    ; IMM 0x0000
+   --- ?QIOOP call at 01D5
+      01CA  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0084 / ??????
+      01CD  MVI  A                 ; 3E 09       ; IMM 0x09
+      01CF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D8  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01DB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0221 / ??????
+   --- ?SYSIN call at 01DE
+      01D2  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D8  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01DB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0221 / ??????
+      01DE  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E1  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E4  JP                     ; F2 00 00    ; RELOC -> code+0x01EF / ??????
+   --- ?GNVOP call at 01E1
+      01D5  CALL                   ; CD 00 00    ; IMM 0x0000
+      01D8  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      01DB  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0221 / ??????
+      01DE  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E1  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E4  JP                     ; F2 00 00    ; RELOC -> code+0x01EF / ??????
+      01E7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x001F / ??????
+   --- ?SSVFS call at 01EC
+      01E1  CALL                   ; CD 00 00    ; IMM 0x0000
+      01E4  JP                     ; F2 00 00    ; RELOC -> code+0x01EF / ??????
+      01E7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x001F / ??????
+      01EA  MVI  B                 ; 06 1E       ; IMM 0x1E
+      01EC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01EF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F2  JP                     ; F2 00 00    ; RELOC -> code+0x01FD / ??????
+   --- ?GNVOP call at 01EF
+      01E4  JP                     ; F2 00 00    ; RELOC -> code+0x01EF / ??????
+      01E7  LXI  H                 ; 21 00 00    ; RELOC -> data+0x001F / ??????
+      01EA  MVI  B                 ; 06 1E       ; IMM 0x1E
+      01EC  CALL                   ; CD 00 00    ; IMM 0x0000
+      01EF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F2  JP                     ; F2 00 00    ; RELOC -> code+0x01FD / ??????
+      01F5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x003E / ??????
+   --- ?SSVFS call at 01FA
+      01EF  CALL                   ; CD 00 00    ; IMM 0x0000
+      01F2  JP                     ; F2 00 00    ; RELOC -> code+0x01FD / ??????
+      01F5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x003E / ??????
+      01F8  MVI  B                 ; 06 0A       ; IMM 0x0A
+      01FA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01FD  CALL                   ; CD 00 00    ; IMM 0x0000
+      0200  JP                     ; F2 00 00    ; RELOC -> code+0x020B / ??????
+   --- ?GNVOP call at 01FD
+      01F2  JP                     ; F2 00 00    ; RELOC -> code+0x01FD / ??????
+      01F5  LXI  H                 ; 21 00 00    ; RELOC -> data+0x003E / ??????
+      01F8  MVI  B                 ; 06 0A       ; IMM 0x0A
+      01FA  CALL                   ; CD 00 00    ; IMM 0x0000
+      01FD  CALL                   ; CD 00 00    ; IMM 0x0000
+      0200  JP                     ; F2 00 00    ; RELOC -> code+0x020B / ??????
+      0203  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0049 / ??????
+   --- ?SSVFS call at 0208
+      01FD  CALL                   ; CD 00 00    ; IMM 0x0000
+      0200  JP                     ; F2 00 00    ; RELOC -> code+0x020B / ??????
+      0203  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0049 / ??????
+      0206  MVI  B                 ; 06 0C       ; IMM 0x0C
+      0208  CALL                   ; CD 00 00    ; IMM 0x0000
+      020B  CALL                   ; CD 00 00    ; IMM 0x0000
+      020E  JP                     ; F2 00 00    ; RELOC -> code+0x021E / ??????
+   --- ?GNVOP call at 020B
+      0200  JP                     ; F2 00 00    ; RELOC -> code+0x020B / ??????
+      0203  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0049 / ??????
+      0206  MVI  B                 ; 06 0C       ; IMM 0x0C
+      0208  CALL                   ; CD 00 00    ; IMM 0x0000
+      020B  CALL                   ; CD 00 00    ; IMM 0x0000
+      020E  JP                     ; F2 00 00    ; RELOC -> code+0x021E / ??????
+      0211  MVI  B                 ; 06 00       ; IMM 0x00
+   --- ?QIOOP call at 021E
+      0213  CALL                   ; CD 00 00    ; IMM 0x0000
+      0216  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0056 / ??????
+      0219  MVI  A                 ; 3E 05       ; IMM 0x05
+      021B  CALL                   ; CD 00 00    ; IMM 0x0000
+      021E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0221  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0224  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0255 / ??????
+   --- ?SYSPR call at 0227
+      021B  CALL                   ; CD 00 00    ; IMM 0x0000
+      021E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0221  LXI  D                 ; 11 52 02    ; IMM 0x0252
+      0224  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0255 / ??????
+      0227  CALL                   ; CD 00 00    ; IMM 0x0000
+      022A  LXI  H                 ; 21 00 00    ; RELOC -> data+0x008D / ??????
+      022D  MVI  A                 ; 3E 06       ; IMM 0x06
+   --- ?QIOOP call at 0252
+      0247  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0093 / ??????
+      024A  MVI  A                 ; 3E 02       ; IMM 0x02
+      024C  CALL                   ; CD 00 00    ; IMM 0x0000
+      024F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0252  CALL                   ; CD 00 00    ; IMM 0x0000
+      0255  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0258  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0274 / ??????
+   --- ?SYSIN call at 025B
+      024F  CALL                   ; CD 00 00    ; IMM 0x0000
+      0252  CALL                   ; CD 00 00    ; IMM 0x0000
+      0255  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0258  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0274 / ??????
+      025B  CALL                   ; CD 00 00    ; IMM 0x0000
+      025E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0261  JP                     ; F2 00 00    ; RELOC -> code+0x0271 / ??????
+   --- ?GNVOP call at 025E
+      0252  CALL                   ; CD 00 00    ; IMM 0x0000
+      0255  LXI  D                 ; 11 90 02    ; IMM 0x0290
+      0258  LXI  B                 ; 01 00 00    ; RELOC -> code+0x0274 / ??????
+      025B  CALL                   ; CD 00 00    ; IMM 0x0000
+      025E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0261  JP                     ; F2 00 00    ; RELOC -> code+0x0271 / ??????
+      0264  MVI  B                 ; 06 01       ; IMM 0x01
+   --- ?QIOOP call at 0271
+      0266  CALL                   ; CD 00 00    ; IMM 0x0000
+      0269  LXI  H                 ; 21 00 00    ; RELOC -> data+0x005E / ??????
+      026C  MVI  A                 ; 3E 05       ; IMM 0x05
+      026E  CALL                   ; CD 00 00    ; IMM 0x0000
+      0271  CALL                   ; CD 00 00    ; IMM 0x0000
+      0274  LXI  H                 ; 21 00 00    ; RELOC -> common/EMP/+0x0000 / ??????
+      0277  LXI  D                 ; 11 4C 05    ; IMM 0x054C
+   --- ?SIOOP call at 027D
+      0271  CALL                   ; CD 00 00    ; IMM 0x0000
+      0274  LXI  H                 ; 21 00 00    ; RELOC -> common/EMP/+0x0000 / ??????
+      0277  LXI  D                 ; 11 4C 05    ; IMM 0x054C
+      027A  LXI  B                 ; 01 00 00    ; RELOC -> code+0x02A2 / ??????
+      027D  CALL                   ; CD 00 00    ; IMM 0x0000
+      0280  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0093 / ??????
+      0283  PUSH H                 ; E5       
+   --- ?WNIOP call at 029C
+      0292  XCHG                   ; EB       
+      0293  CALL                   ; CD 00 00    ; IMM 0x0000
+      0296  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      0299  LXI  D                 ; 11 61 00    ; IMM 0x0061
+      029C  CALL                   ; CD 00 00    ; IMM 0x0000
+      029F  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A2  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0D79 / ??????
+   --- ?QIOOP call at 029F
+      0293  CALL                   ; CD 00 00    ; IMM 0x0000
+      0296  LXI  H                 ; 21 00 00    ; RELOC -> data+0x0000 / ??????
+      0299  LXI  D                 ; 11 61 00    ; IMM 0x0061
+      029C  CALL                   ; CD 00 00    ; IMM 0x0000
+      029F  CALL                   ; CD 00 00    ; IMM 0x0000
+      02A2  LHLD                   ; 2A 00 00    ; RELOC -> data+0x0D79 / ??????
+      02A5  INX  H                 ; 23       
+   call counts: ?GNVOP=8 ?OIOOP=2 ?QCIOP=1 ?QIOOP=10 ?SIOOP=3 ?SSVFS=5 ?SYSIN=3 ?SYSPR=4 ?WNIOP=1

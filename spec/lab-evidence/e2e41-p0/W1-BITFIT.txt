@@ -1,0 +1,110 @@
+34 OPEN sites; 34 with an immediate w1, 0 built outside the block
+
+the whole w1 population:
+   0x0652 ( 1618)  P019B:3-3
+   0x0690 ( 1680)  P072H:3-3, P081Q:3-3
+   0x0E50 ( 3664)  E17D:3-3, CREATE:22-22, E16D:3-3
+   0x0E52 ( 3666)  LOAN2:56-56, DEPREC:78-78, RETRIEVE:19-19
+   0x0E90 ( 3728)  E17B:4-4, E16B:5-5, E17C:5-5, P021:3-3, E18A:4-4, E16C:4-4, E18B:5-5, E16A:8-8, E17A:8-8
+   0x1E50 ( 7760)  KEYFILE:19-20
+   0x2652 ( 9810)  P021:6-6
+   0x2E52 (11858)  LOAN2:54-54, DEPREC:51-52
+   0x3E52 (15954)  COPYLPT:38-39
+   0x4D2C (19756)  UPDATE:31-32
+   0x4D54 (19796)  P021:4-5, ENTER:37-38
+   0x4D94 (19860)  KEYFILE:16-17, REPORT:27-28
+   0x4E50 (20048)  COPY:13-14
+   0x4E52 (20050)  REPORT:29-30
+   0x4E90 (20112)  COPY:10-11, COPYLPT:49-50, RETRIEVE:31-32, UPDATE:34-35
+
+bit x option: does the bit separate rows with the option set from rows without?
+bit    option             verdict
+0x0001 (constant clear)   no discrimination in this population
+0x0002                    MODE: set only when MODE=PRINT
+0x0004                    ORG: set only when ORG=DIRECT,KEYED; F: set only when F=Y
+0x0008                    ORG: set only when ORG=DIRECT; MODE: set only when MODE=UPDATE
+0x0010                    ORG: set only when ORG=KEYED,STREAM; MODE: set only when MODE=INPUT,OUTPUT,PRINT
+0x0020                    ORG: set only when ORG=DIRECT; MODE: set only when MODE=UPDATE
+0x0040                    MODE: set only when MODE=OUTPUT,PRINT
+0x0080                    MODE: set only when MODE=INPUT
+0x0100                    ORG: set only when ORG=DIRECT,KEYED; F: set only when F=Y
+0x0200                    ORG: set only when ORG=STREAM; F: set only when F=-
+0x0400 (constant set)     no discrimination in this population
+0x0800                    TITLE: set only when TITLE=Y
+0x1000                    LINESIZE: set only when LINESIZE=Y
+0x2000                    PAGESIZE: set only when PAGESIZE=Y
+0x4000                    ENV: set only when ENV=Y
+0x8000 (constant clear)   no discrimination in this population
+
+per-row option summary (immediate w1 only):
+   prog      line   org     mode   title 
+   E17D      3-3    STREAM  OUTPUT Y       IMM:0x0E50
+   COPY      10-11  STREAM  INPUT  Y       IMM:0x4E90
+   COPY      13-14  STREAM  OUTPUT Y       IMM:0x4E50
+   E17B      4-4    STREAM  INPUT  Y       IMM:0x0E90
+   E16B      5-5    STREAM  INPUT  Y       IMM:0x0E90
+   E17C      5-5    STREAM  INPUT  Y       IMM:0x0E90
+   KEYFILE   16-17  KEYED   INPUT  Y       IMM:0x4D94
+   KEYFILE   19-20  STREAM  OUTPUT Y       IMM:0x1E50
+   LOAN2     54-54  STREAM  PRINT  Y       IMM:0x2E52
+   LOAN2     56-56  STREAM  PRINT  Y       IMM:0x0E52
+   P072H     3-3    STREAM  INPUT  -       IMM:0x0690
+   P021      3-3    STREAM  INPUT  Y       IMM:0x0E90
+   P021      4-5    KEYED   OUTPUT Y       IMM:0x4D54
+   P021      6-6    STREAM  PRINT  -       IMM:0x2652
+   E18A      4-4    STREAM  INPUT  Y       IMM:0x0E90
+   E16C      4-4    STREAM  INPUT  Y       IMM:0x0E90
+   P019B     3-3    STREAM  PRINT  -       IMM:0x0652
+   DEPREC    51-52  STREAM  PRINT  Y       IMM:0x2E52
+   DEPREC    78-78  STREAM  PRINT  Y       IMM:0x0E52
+   COPYLPT   38-39  STREAM  PRINT  Y       IMM:0x3E52
+   COPYLPT   49-50  STREAM  INPUT  Y       IMM:0x4E90
+   RETRIEVE  19-19  STREAM  PRINT  Y       IMM:0x0E52
+   RETRIEVE  31-32  STREAM  INPUT  Y       IMM:0x4E90
+   CREATE    22-22  STREAM  OUTPUT Y       IMM:0x0E50
+   E18B      5-5    STREAM  INPUT  Y       IMM:0x0E90
+   UPDATE    31-32  DIRECT  UPDATE Y       IMM:0x4D2C
+   UPDATE    34-35  STREAM  INPUT  Y       IMM:0x4E90
+   REPORT    27-28  KEYED   INPUT  Y       IMM:0x4D94
+   REPORT    29-30  STREAM  PRINT  Y       IMM:0x4E52
+   E16A      8-8    STREAM  INPUT  Y       IMM:0x0E90
+   E17A      8-8    STREAM  INPUT  Y       IMM:0x0E90
+   P081Q     3-3    STREAM  INPUT  -       IMM:0x0690
+   ENTER     37-38  KEYED   OUTPUT Y       IMM:0x4D54
+   E16D      3-3    STREAM  OUTPUT Y       IMM:0x0E50
+
+   prog      line   title env   F    B    keyd dire stre in   out/up/pr w1
+   E17D      3-3    lit   -     -    -    -    -    Y    -    Y--     IMM:0x0E50
+   COPY      10-11  lit   Y     -    Y:8192 -    -    Y    -    ---     IMM:0x4E90
+   COPY      13-14  lit   Y     -    Y:8192 -    -    Y    -    Y--     IMM:0x4E50
+   E17B      4-4    lit   -     -    -    -    -    Y    -    ---     IMM:0x0E90
+   E16B      5-5    lit   -     -    -    -    -    Y    -    ---     IMM:0x0E90
+   E17C      5-5    lit   -     -    -    -    -    Y    -    ---     IMM:0x0E90
+   KEYFILE   16-17  lit   Y     Y:128 -    Y    -    -    Y    ---     IMM:0x4D94
+   KEYFILE   19-20  lit   -     -    -    -    -    Y    -    Y--     IMM:0x1E50
+   LOAN2     54-54  lit   -     -    -    -    -    -    -    Y-Y     IMM:0x2E52
+   LOAN2     56-56  var   -     -    -    -    -    -    -    Y-Y     IMM:0x0E52
+   P072H     3-3    -     -     -    -    -    -    -    Y    ---     IMM:0x0690
+   P021      3-3    lit   -     -    -    -    -    -    Y    ---     IMM:0x0E90
+   P021      4-5    lit   Y     Y:80 -    Y    -    -    -    Y--     IMM:0x4D54
+   P021      6-6    -     -     -    -    -    -    Y    -    --Y     IMM:0x2652
+   E18A      4-4    lit   -     -    -    -    -    Y    -    ---     IMM:0x0E90
+   E16C      4-4    lit   -     -    -    -    -    Y    -    ---     IMM:0x0E90
+   P019B     3-3    -     -     -    -    -    -    -    -    --Y     IMM:0x0652
+   DEPREC    51-52  lit   -     -    -    -    -    Y    -    --Y     IMM:0x2E52
+   DEPREC    78-78  lit   -     -    -    -    -    Y    -    --Y     IMM:0x0E52
+   COPYLPT   38-39  var   -     -    -    -    -    -    -    --Y     IMM:0x3E52
+   COPYLPT   49-50  var   Y     -    Y:8000 -    -    Y    -    ---     IMM:0x4E90
+   RETRIEVE  19-19  lit   -     -    -    -    -    -    -    --Y     IMM:0x0E52
+   RETRIEVE  31-32  var   Y     -    Y:1024 -    -    Y    Y    ---     IMM:0x4E90
+   CREATE    22-22  var   -     -    -    -    -    Y    -    Y--     IMM:0x0E50
+   E18B      5-5    lit   -     -    -    -    -    Y    -    ---     IMM:0x0E90
+   UPDATE    31-32  lit   Y     Y:128 -    -    Y    -    -    -Y-     IMM:0x4D2C
+   UPDATE    34-35  lit   Y     -    Y:4000 -    -    Y    -    ---     IMM:0x4E90
+   REPORT    27-28  lit   Y     Y:128 -    Y    -    -    -    ---     IMM:0x4D94
+   REPORT    29-30  lit   Y     -    Y:2000 -    -    Y    -    --Y     IMM:0x4E52
+   E16A      8-8    lit   -     -    -    -    -    Y    -    ---     IMM:0x0E90
+   E17A      8-8    lit   -     -    -    -    -    Y    -    ---     IMM:0x0E90
+   P081Q     3-3    -     -     -    -    -    -    -    Y    ---     IMM:0x0690
+   ENTER     37-38  lit   Y     Y:128 -    Y    -    -    -    Y--     IMM:0x4D54
+   E16D      3-3    lit   -     -    -    -    -    Y    -    Y--     IMM:0x0E50

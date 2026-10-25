@@ -1,0 +1,56 @@
+prog      line   env  org  w2     w3     w4     w5     w6     verdict
+E17D      3-3    -    STRE 0000   0000   0000   0000   0000   OK
+COPY      10-11  Y    STRE 0008   2000   0080   0000   0000   OK
+COPY      13-14  Y    STRE 0008   2000   0080   0000   0000   OK
+E17B      4-4    -    STRE 0000   0000   0000   0000   0000   OK
+E16B      5-5    -    STRE 0000   0000   0000   0000   0000   OK
+E17C      5-5    -    STRE 0000   0000   0000   0000   0000   OK
+KEYFILE   16-17  Y    KEYE 0018   2710   0080   0000   0000   OK
+KEYFILE   19-20  -    STRE 0000   0000   0000   0000   003C   OK
+LOAN2     54-54  -    STRE 0000   0000   0000   0000   0000   OK
+LOAN2     56-56  -    STRE 0000   0000   0000   0000   0000   OK
+P072H     3-3    -    STRE 0000   0000   0000   0000   0000   OK
+P021      3-3    -    STRE 0000   0000   0000   0000   0000   OK
+P021      4-5    Y    KEYE 0018   0400   0050   0000   0000   OK
+P021      6-6    -    STRE 0000   0000   0000   003C   0000   OK
+E18A      4-4    -    STRE 0000   0000   0000   0000   0000   OK
+E16C      4-4    -    STRE 0000   0000   0000   0000   0000   OK
+P019B     3-3    -    STRE 0000   0000   0000   0000   0000   OK
+DEPREC    51-52  -    STRE 0000   0000   0000   0000   0000   OK
+DEPREC    78-78  -    STRE 0000   0000   0000   0000   0000   OK
+COPYLPT   49-50  Y    STRE 0008   1F40   0080   0000   0000   OK
+RETRIEVE  19-19  -    STRE 0000   0000   0000   0000   0000   OK
+RETRIEVE  31-32  Y    STRE 0008   0400   0080   0000   0000   OK
+CREATE    22-22  -    STRE 0000   0000   0000   0000   0000   OK
+E18B      5-5    -    STRE 0000   0000   0000   0000   0000   OK
+UPDATE    31-32  Y    DIRE 0010   0000   0080   0000   0000   OK
+UPDATE    34-35  Y    STRE 0008   0FA0   0080   0000   0000   OK
+REPORT    27-28  Y    KEYE 0018   0FA0   0080   0000   0000   OK
+REPORT    29-30  Y    STRE 0008   07D0   0080   0000   0000   OK
+E16A      8-8    -    STRE 0000   0000   0000   0000   0000   OK
+E17A      8-8    -    STRE 0000   0000   0000   0000   0000   OK
+P081Q     3-3    -    STRE 0000   0000   0000   0000   0000   OK
+ENTER     37-38  Y    KEYE 0018   1F40   0080   0000   0000   OK
+E16D      3-3    -    STRE 0000   0000   0000   0000   0000   OK
+
+33 rows agree with the candidate, 0 do not, 1 rows have words built outside the block and test nothing
+   untested: COPYLPT   open file(printfile) print pagesize(pagesize) linesize(pagewidth   [IMM:0x3E52 IMM:0x0000 IMM:0x0000 IMM:0x0000 value of the word at data+0x00FE value of the word at data+0x0100]
+
+coverage of the tested population:
+   org=DIRECT  mode=UPDATE  env=True F=True B=False linesize=False pagesize=False title=lit   <- UPDATE:31-32
+   org=KEYED   mode=INPUT   env=True F=True B=False linesize=False pagesize=False title=lit   <- KEYFILE:16-17, REPORT:27-28
+   org=KEYED   mode=OUTPUT  env=True F=True B=False linesize=False pagesize=False title=lit   <- P021:4-5, ENTER:37-38
+   org=STREAM  mode=INPUT   env=False F=False B=False linesize=False pagesize=False title=-     <- P072H:3-3, P081Q:3-3
+   org=STREAM  mode=INPUT   env=False F=False B=False linesize=False pagesize=False title=lit   <- E17B:4-4, E16B:5-5, E17C:5-5, P021:3-3, E18A:4-4, E16C:4-4, E18B:5-5, E16A:8-8, E17A:8-8
+   org=STREAM  mode=INPUT   env=True F=False B=True linesize=False pagesize=False title=lit   <- COPY:10-11, UPDATE:34-35
+   org=STREAM  mode=INPUT   env=True F=False B=True linesize=False pagesize=False title=var   <- COPYLPT:49-50, RETRIEVE:31-32
+   org=STREAM  mode=OUTPUT  env=False F=False B=False linesize=False pagesize=False title=lit   <- E17D:3-3, E16D:3-3
+   org=STREAM  mode=OUTPUT  env=False F=False B=False linesize=False pagesize=False title=var   <- CREATE:22-22
+   org=STREAM  mode=OUTPUT  env=False F=False B=False linesize=True pagesize=False title=lit   <- KEYFILE:19-20
+   org=STREAM  mode=OUTPUT  env=True F=False B=True linesize=False pagesize=False title=lit   <- COPY:13-14
+   org=STREAM  mode=PRINT   env=False F=False B=False linesize=False pagesize=False title=-     <- P019B:3-3
+   org=STREAM  mode=PRINT   env=False F=False B=False linesize=False pagesize=False title=lit   <- DEPREC:78-78, RETRIEVE:19-19
+   org=STREAM  mode=PRINT   env=False F=False B=False linesize=False pagesize=False title=var   <- LOAN2:56-56
+   org=STREAM  mode=PRINT   env=False F=False B=False linesize=False pagesize=True title=-     <- P021:6-6
+   org=STREAM  mode=PRINT   env=False F=False B=False linesize=False pagesize=True title=lit   <- LOAN2:54-54, DEPREC:51-52
+   org=STREAM  mode=PRINT   env=True F=False B=True linesize=False pagesize=False title=lit   <- REPORT:29-30

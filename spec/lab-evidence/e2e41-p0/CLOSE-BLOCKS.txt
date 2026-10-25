@@ -1,0 +1,25 @@
+== golden/e2e11h/E16D/E16D.REL   [e13src/E16D.PLI]   1 ?CIOOP block(s), 38 COMMON bytes, sha e9bcb17b5a00c5a4
+  block 005E..0064 (6 bytes)  0 PUSH H, CALL ?CIOOP at 0062   COMMON /OUTF/ +0x0000   title-helper=-
+    005E  LXI  H                         ; 21 00 00   ; RELOC -> common/OUTF/+0x0000 / ??????
+    0061  CALL ?CIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?CIOOP
+
+== golden/e2e11i/E17D/E17D.REL   [e13src/E17D.PLI]   1 ?CIOOP block(s), 38 COMMON bytes, sha 29557d48cc6e921e
+  block 005E..0064 (6 bytes)  0 PUSH H, CALL ?CIOOP at 0062   COMMON /OUTF/ +0x0000   title-helper=-
+    005E  LXI  H                         ; 21 00 00   ; RELOC -> common/OUTF/+0x0000 / ??????
+    0061  CALL ?CIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?CIOOP
+
+== golden/first/RETRIEVE/RETRIEVE.REL   [artefacts/RETRIEVE.PLI]   1 ?CIOOP block(s), 81 COMMON bytes, sha af85b9733e80a9f4
+  block 0236..023C (6 bytes)  0 PUSH H, CALL ?CIOOP at 023A   COMMON /INPUT/ +0x0000   title-helper=-
+    0236  LXI  H                         ; 21 00 00   ; RELOC -> common/INPUT/+0x0000 / ??????
+    0239  CALL ?CIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?CIOOP
+
+== golden/probe40/P072H/P072H.REL   [probes/P072H.PLI]   1 ?CIOOP block(s), 35 COMMON bytes, sha 79658d2c3ea050aa
+  block 0038..003E (6 bytes)  0 PUSH H, CALL ?CIOOP at 003C   COMMON /F/ +0x0000   title-helper=-
+    0038  LXI  H                         ; 21 00 00   ; RELOC -> common/F/+0x0000 / ??????
+    003B  CALL ?CIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?CIOOP
+
+== golden/probe50/P081Q/P081Q.REL   [probes/P081Q.PLI]   1 ?CIOOP block(s), 35 COMMON bytes, sha dd2d1b4da6009770
+  block 0036..003C (6 bytes)  0 PUSH H, CALL ?CIOOP at 003A   COMMON /F/ +0x0000   title-helper=-
+    0036  LXI  H                         ; 21 00 00   ; RELOC -> common/F/+0x0000 / ??????
+    0039  CALL ?CIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?CIOOP
+

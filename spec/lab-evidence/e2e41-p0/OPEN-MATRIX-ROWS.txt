@@ -1,0 +1,36 @@
+/home/john/projects/sushiworks/pli80/spec/lab-evidence/e2e41-p0/OPEN-INVENTORY.txt: 24 distinct objects, 36 file copies
+/home/john/projects/sushiworks/pli80/spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv: 34 rows (28 columns)
+  E17D      3-3    open file(outf) stream output title('$1.$1');  w1=IMM:0x0E50 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /OUTF/ +0x0000
+  COPY      10-11  open file (input_file) stream environment(b(81 w1=IMM:0x4E90 w2=IMM:0x0008 w3=IMM:0x2000 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INPUT_/ +0x0000
+  COPY      13-14  open file (output_file) stream output environm w1=IMM:0x4E50 w2=IMM:0x0008 w3=IMM:0x2000 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /OUTPUT/ +0x0000
+  E17B      4-4    open file(inf) stream title('$1.$1');          w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  E16B      5-5    open file(inf) stream title('E16IN DAT');      w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  E17C      5-5    open file(inf) stream title('$1.$1');          w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  KEYFILE   16-17  open file(input) keyed environment(f(128),b(10 w1=IMM:0x4D94 w2=IMM:0x0018 w3=IMM:0x2710 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INPUT/ +0x0000
+  KEYFILE   19-20  open file(keys) stream output linesize (60) ti w1=IMM:0x1E50 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x003C  lit COMMON /KEYS/ +0x0000
+  LOAN2     54-54  open file(output) title('$con') print pagesize w1=IMM:0x2E52 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /OUTPUT/ +0x0000
+  LOAN2     56-56  open file(output) title(name) print;           w1=IMM:0x0E52 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  var COMMON /OUTPUT/ +0x0000
+  P072H     3-3    open file(f) input;                            w1=IMM:0x0690 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  - COMMON /F/ +0x0000
+  P021      3-3    open file(inf) input title('$1.$1');           w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  P021      4-5    open file(outf) output keyed environment(f(80) w1=IMM:0x4D54 w2=IMM:0x0018 w3=IMM:0x0400 w4=IMM:0x0050 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /OUTF/ +0x0000
+  P021      6-6    open file(pf) stream print pagesize(60);       w1=IMM:0x2652 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x003C w6=IMM:0x0000  - COMMON /PF/ +0x0000
+  E18A      4-4    open file(inf) stream title('$1.$1');          w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  E16C      4-4    open file(inf) stream title('E16IN DAT');      w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  P019B     3-3    open file(pf) print;                           w1=IMM:0x0652 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  - COMMON /PF/ +0x0000
+  DEPREC    51-52  open file (sysprint) stream print pagesize(0)  w1=IMM:0x2E52 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /SYSPRI/ +0x0000
+  DEPREC    78-78  open file(list) stream print title('$lst');    w1=IMM:0x0E52 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /LIST/ +0x0000
+  COPYLPT   38-39  open file(printfile) print pagesize(pagesize)  w1=IMM:0x3E52 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=value of the word at data+0x00FE w6=value of the word at data+0x0100  var COMMON /PRINTF/ +0x0000
+  COPYLPT   49-50  open file(sourcefile) stream  environment(b(80 w1=IMM:0x4E90 w2=IMM:0x0008 w3=IMM:0x1F40 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  var COMMON /SOURCE/ +0x0000
+  RETRIEVE  19-19  open file(sysprint) print title('$con');       w1=IMM:0x0E52 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /SYSPRI/ +0x0000
+  RETRIEVE  31-32  open file(input) stream input environment(b(10 w1=IMM:0x4E90 w2=IMM:0x0008 w3=IMM:0x0400 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  var COMMON /INPUT/ +0x0000
+  CREATE    22-22  open file(output) stream output title(filename w1=IMM:0x0E50 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  var COMMON /OUTPUT/ +0x0000
+  E18B      5-5    open file(inf) stream title('$1.$1');          w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  UPDATE    31-32  open file(emp) update direct environment(f(128 w1=IMM:0x4D2C w2=IMM:0x0010 w3=IMM:0x0000 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /EMP/ +0x0000
+  UPDATE    34-35  open file(keys) stream environment(b(4000)) ti w1=IMM:0x4E90 w2=IMM:0x0008 w3=IMM:0x0FA0 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /KEYS/ +0x0000
+  REPORT    27-28  open file(empfile) keyed environment(f(128),b( w1=IMM:0x4D94 w2=IMM:0x0018 w3=IMM:0x0FA0 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /EMPFIL/ +0x0000
+  REPORT    29-30  open file(repfile) stream print environment(b( w1=IMM:0x4E52 w2=IMM:0x0008 w3=IMM:0x07D0 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /REPFIL/ +0x0000
+  E16A      8-8    open file(inf) stream title('E16IN DAT');      w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  E17A      8-8    open file(inf) stream title('$1.$1');          w1=IMM:0x0E90 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /INF/ +0x0000
+  P081Q     3-3    open file(f) input;                            w1=IMM:0x0690 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  - COMMON /F/ +0x0000
+  ENTER     37-38  open file(emp) keyed output environment(f(128) w1=IMM:0x4D54 w2=IMM:0x0018 w3=IMM:0x1F40 w4=IMM:0x0080 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /EMP/ +0x0000
+  E16D      3-3    open file(outf) stream output title('E16OUT DA w1=IMM:0x0E50 w2=IMM:0x0000 w3=IMM:0x0000 w4=IMM:0x0000 w5=IMM:0x0000 w6=IMM:0x0000  lit COMMON /OUTF/ +0x0000

@@ -1,0 +1,77 @@
+# every ?SIOOP (named-file stream attach) in the distinct DR objects,
+# with the file it names, the DE mode word, and that file's OPEN w1
+# (from OPEN-MATRIX.tsv, matched on the COMMON group HL points at).
+# `after' lists the routines called between this attach and the next
+# attach or statement -- the item-conversion chain the route runs.
+
+program   call   HL file   DE       same file OPEN w1 BC       routines after the attach
+CREATE    0165   OUTPUT    0x0652   0E50          continuation ?SLVTS ?PNCOP ?SLVTS
+CREATE    01B3   OUTPUT    0x0652   0E50          continuation ?SKPOP ?QIOOP
+CREATE    01CA   OUTPUT    0x0652   0E50          continuation ?SKPOP ?SLCTS
+CREATE    01E9   OUTPUT    0x0652   0E50          continuation ?SKPOP ?QIOOP ?STOPX
+KEYFILE   0052   INPUT     0x0594   4D94          continuation ?KEYTO ?RNIOP
+KEYFILE   0095   KEYS      0x0652   1E50          continuation ?SLVTS ?PNCOP
+E16A      0045   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E16B      004F   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E16B      008C   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E16C      002C   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E16C      0069   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E16D      002C   OUTF      0x0652   0E50          continuation ?SLCTS ?PNCOP ?QIOOP
+E16D      0046   OUTF      0x0652   0E50          continuation ?DLDOP
+E17A      0045   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E17B      002C   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E17B      0069   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E17C      004F   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E17C      008C   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E17D      002C   OUTF      0x0652   0E50          continuation ?SLCTS ?PNCOP ?QIOOP
+E17D      0046   OUTF      0x0652   0E50          continuation ?DLDOP
+E18A      002C   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E18A      0069   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E18A      00A6   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E18A      00E3   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E18B      004F   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E18B      008C   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E18B      00C9   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+E18B      0106   INF       0x0690   0E90          continuation ?GNVOP ?QCIOP ?QIOOP
+COPY      0057   INPUT_    0x0690   4E90          continuation ?RNIOP ?QIOOP
+COPY      006F   OUTPUT    0x0650   4E50          continuation ?WNIOP ?QIOOP
+COPYLPT   021E   PRINTF    0x0652   3E52          continuation ?PAGOP ?QIOOP ?STOPX
+COPYLPT   0268   PRINTF    0x0652   3E52          continuation ?PAGOP ?SKPOP
+COPYLPT   029E   PRINTF    0x0652   3E52          continuation ?SKPOP ?QIOOP
+COPYLPT   02C1   SOURCE    0x0690   4E90          continuation ?EDITF ?EDTIV
+COPYLPT   02E1   PRINTF    0x0652   3E52          continuation ?EDITF ?QICOP
+COPYLPT   0315   PRINTF    0x0652   3E52          continuation ?SKPOP ?QIOOP
+DEPREC    045E   -         0x0652   -             continuation ?EDITF ?SLCTS
+DEPREC    049D   -         0x0652   -             continuation ?EDITF ?SLCTS
+DEPREC    064E   -         0x0652   -             continuation ?EDITF ?SLCTS
+DEPREC    0891   -         0x0652   -             continuation ?EDITF ?SLCTS
+DEPREC    0A96   -         0x0652   -             continuation ?EDITF ?SLCTS
+DEPREC    0B68   -         0x0652   -             continuation ?EDITF ?SLCTS
+DEPREC    0BAA   -         0x0652   -             continuation ?EDITF ?SLCTS
+DEPREC    0CD3   -         0x0652   -             continuation ?EDITF ?SLCTS
+DEPREC    0DFD   -         0x0652   -             continuation ?EDITF ?SLCTS
+ENTER     00E4   EMP       0x0550   4D54          continuation ?WNIOP ?QIOOP
+LOAN2     03B3   OUTPUT    0x0652   0E52/2E52     continuation ?PAGOP ?QIOOP
+LOAN2     052B   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+LOAN2     068A   OUTPUT    0x0652   0E52/2E52     continuation ?EDITF ?SLCTS
+LOAN2     0796   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+LOAN2     0813   OUTPUT    0x0652   0E52/2E52     continuation ?SLCTS ?PNCOP ?QIOOP
+LOAN2     0830   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+LOAN2     086E   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+LOAN2     08F1   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+LOAN2     0951   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+REPORT    007F   EMPFIL    0x0590   4D94          continuation ?RNIOP ?QIOOP
+REPORT    00A9   REPFIL    0x0652   4E52          continuation ?SKPOP ?QIOOP
+REPORT    00DF   REPFIL    0x0650   4E52          continuation ?WNIOP ?QIOOP
+REPORT    01BE   REPFIL    0x0650   4E52          continuation ?WNIOP ?QIOOP
+RETRIEVE  00F8   INPUT     0x0690   4E90          continuation ?GNVOP ?SSVFS
+RETRIEVE  012E   INPUT     0x0690   4E90          continuation ?GNVOP ?SSVFS
+UPDATE    006C   KEYS      0x0690   4E90          continuation ?GNVOP
+UPDATE    014E   EMP       0x058C   4D2C          continuation ?IM22N
+UPDATE    027D   EMP       0x054C   4D2C          continuation ?IM22N
+P072H     0024   F         0x0690   0690          continuation ?GNVOP ?SSVFS
+P081Q     0024   F         0x0690   0690          continuation ?GNVOP ?QCIOP ?QIOOP
+P086K     001F   F         0x0652   -             continuation ?EDITF ?DLDOP
+P086K     0046   F         0x0690   -             continuation ?EDITF ?EDTIV ?QCDOP
+P021      0068   PF        0x0652   2652          continuation ?SKPOP ?SLCTS
+P019B     006C   PF        0x0652   0652          continuation ?SLCTS ?PNCOP ?QIOOP

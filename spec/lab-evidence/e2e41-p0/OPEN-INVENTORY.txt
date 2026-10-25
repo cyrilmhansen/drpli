@@ -1,0 +1,92 @@
+# DR objects carrying an OPEN lowering (a CHAIN-EXT for ?OIOOP)
+# 2053 .REL files scanned under golden/ and extracted/ (2053 parsed)
+# grouped by SHA-256 prefix: one block per DISTINCT object, listing
+# every path with those exact bytes -- golden/first, first8080u and
+# bind1 hold copies of the same oracle output, and a copy is not
+# independent evidence.
+
+6f9a83e1d0c59819  2 OPEN block(s)
+    golden/bind1/KEYFILE/KEYFILE.REL
+    golden/first/KEYFILE/KEYFILE.REL
+    golden/first8080u/KEYFILE/KEYFILE.REL
+
+b1ea7387bddd3251  1 OPEN block(s)
+    golden/bind1/CREATE/CREATE.REL
+    golden/first/CREATE/CREATE.REL
+    golden/first8080u/CREATE/CREATE.REL
+
+31ddb612cdf57603  2 OPEN block(s)
+    golden/first/COPY/COPY.REL
+    golden/first8080u/COPY/COPY.REL
+
+712cfcb2c6460119  2 OPEN block(s)
+    golden/first/LOAN2/LOAN2.REL
+    golden/first8080u/LOAN2/LOAN2.REL
+
+9e770e765c391768  2 OPEN block(s)
+    golden/first/DEPREC/DEPREC.REL
+    golden/first8080u/DEPREC/DEPREC.REL
+
+ad320a385d927898  2 OPEN block(s)
+    golden/first/COPYLPT/COPYLPT.REL
+    golden/first8080u/COPYLPT/COPYLPT.REL
+
+af85b9733e80a9f4  2 OPEN block(s)
+    golden/first/RETRIEVE/RETRIEVE.REL
+    golden/first8080u/RETRIEVE/RETRIEVE.REL
+
+ba005762c85d4846  2 OPEN block(s)
+    golden/first/UPDATE/UPDATE.REL
+    golden/first8080u/UPDATE/UPDATE.REL
+
+d8dbc907358433c0  2 OPEN block(s)
+    golden/first/REPORT/REPORT.REL
+    golden/first8080u/REPORT/REPORT.REL
+
+e1cc0015882e1341  1 OPEN block(s)
+    golden/first/ENTER/ENTER.REL
+    golden/first8080u/ENTER/ENTER.REL
+
+29557d48cc6e921e  1 OPEN block(s)
+    golden/e2e11i/E17D/E17D.REL
+
+4c8c4112eae04cb5  1 OPEN block(s)
+    golden/e2e11i/E17B/E17B.REL
+
+60f4cdd044dc49d8  1 OPEN block(s)
+    golden/e2e11h/E16B/E16B.REL
+
+6905adb3cd9b4796  1 OPEN block(s)
+    golden/e2e11i/E17C/E17C.REL
+
+79658d2c3ea050aa  1 OPEN block(s)
+    golden/probe40/P072H/P072H.REL
+
+7ede1bd248840001  3 OPEN block(s)
+    golden/probes10/P021/P021.REL
+
+8a011bd31424dc20  1 OPEN block(s)
+    golden/e2e11j/E18A/E18A.REL
+
+9ccf6aa9735332a7  1 OPEN block(s)
+    golden/e2e11h/E16C/E16C.REL
+
+9e135e5582446a9b  1 OPEN block(s)
+    golden/probes11/P019B/P019B.REL
+
+b3c3722c0d27b18b  1 OPEN block(s)
+    golden/e2e11j/E18B/E18B.REL
+
+d96b5d883a81bfc2  1 OPEN block(s)
+    golden/e2e11h/E16A/E16A.REL
+
+da05b748440b12fa  1 OPEN block(s)
+    golden/e2e11i/E17A/E17A.REL
+
+dd2d1b4da6009770  1 OPEN block(s)
+    golden/probe50/P081Q/P081Q.REL
+
+e9bcb17b5a00c5a4  1 OPEN block(s)
+    golden/e2e11h/E16D/E16D.REL
+
+24 distinct objects, 36 file copies

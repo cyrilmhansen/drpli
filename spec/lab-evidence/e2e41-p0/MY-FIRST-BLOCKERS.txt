@@ -1,0 +1,97 @@
+# E2E-41/P0 B2: first blocker of each historical FILE-IO target
+# command: ocaml/_build/default/bin/pli80c.exe artefacts/<P>.PLI /tmp/e41/<P>.rel
+# captured at HEAD 935f18a; the binary is the one dune just built from this tree
+
+### ENTER   (artefacts/ENTER.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 37)")
+    exit=2  .REL produced: NO
+
+### UPDATE   (artefacts/UPDATE.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 31)")
+    exit=2  .REL produced: NO
+
+### COPY   (artefacts/COPY.PLI)
+    Fatal error: exception Failure("codegen: FILE name INPUT_FILE (10 chars) exceeds 6 [TBD] (COMMON-symbol truncation for FILE control blocks is unmeasured; SYSIN/INF are 5/3)")
+    exit=2  .REL produced: NO
+
+### KEYFILE   (artefacts/KEYFILE.PLI)
+    Fatal error: exception Failure("codegen: [TBD] PUT LIST with ON options (line 25): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array gap")
+    exit=2  .REL produced: NO
+
+### REPORT   (artefacts/REPORT.PLI)
+    Fatal error: exception Failure("codegen: STATIC on CHAR(15) is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are measured; line 21)")
+    exit=2  .REL produced: NO
+
+### RETRIEVE   (artefacts/RETRIEVE.PLI)
+    Fatal error: exception Failure("codegen: FILE name SYSPRINT (8 chars) exceeds 6 [TBD] (COMMON-symbol truncation for FILE control blocks is unmeasured; SYSIN/INF are 5/3)")
+    exit=2  .REL produced: NO
+
+### FSCAN   (artefacts/FSCAN.PLI)
+    Fatal error: exception Failure("codegen: STATIC on CHAR(80) VARYING is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are measured; line 11)")
+    exit=2  .REL produced: NO
+
+### LOAN2   (artefacts/LOAN2.PLI)
+    Fatal error: exception Failure("codegen: STATIC on CHAR(14) VARYING is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are measured; line 39)")
+    exit=2  .REL produced: NO
+
+### DIOCALLS   (artefacts/DIOCALLS.PLI)
+    Fatal error: exception Failure("codegen: BASED(DBUFFV) of type CHAR(127) VARYING is not implemented [TBD] (E2E-26/P2 covers only a based FIXED BINARY(15). DR accepts char/bit/dec based storage -- PB6/PB13/PB14/PB15 allocate them -- but their indirect store bytes are not emitted and compared yet, and bin(16/24/31) are refused by DR itself [PB11/PB12/PB5].)")
+    exit=2  .REL produced: NO
+
+# and the probe objects that carry OPEN blocks (same command, paths as listed in OPEN-INVENTORY.txt)
+
+### P019B   (probes/P019B.PLI)
+    Fatal error: exception Failure("codegen: [TBD] PUT LIST with ON options (line 7): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array gap")
+    exit=2
+
+### P021   (probes/P021.PLI)
+    Fatal error: exception Failure("codegen: [TBD] PUT LIST with ON options (line 7): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array gap")
+    exit=2
+
+### P072H   (probes/P072H.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 3)")
+    exit=2
+
+### P081Q   (probes/P081Q.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 3)")
+    exit=2
+
+### E16A   (e13src/E16A.PLI)
+    Fatal error: exception Failure("codegen: procedure without name [TBD]")
+    exit=2
+
+### E16B   (e13src/E16B.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 5)")
+    exit=2
+
+### E16C   (e13src/E16C.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
+    exit=2
+
+### E16D   (e13src/E16D.PLI)
+    Fatal error: exception Failure("codegen: [TBD] PUT LIST with ON options (line 4): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array gap")
+    exit=2
+
+### E17A   (e13src/E17A.PLI)
+    Fatal error: exception Failure("codegen: procedure without name [TBD]")
+    exit=2
+
+### E17B   (e13src/E17B.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
+    exit=2
+
+### E17C   (e13src/E17C.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 5)")
+    exit=2
+
+### E17D   (e13src/E17D.PLI)
+    Fatal error: exception Failure("codegen: [TBD] PUT LIST with ON options (line 4): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array gap")
+    exit=2
+
+### E18A   (e13src/E18A.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
+    exit=2
+
+### E18B   (e13src/E18B.PLI)
+    Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 5)")
+    exit=2
