@@ -603,7 +603,7 @@ it, and this time executing it changes what the specimen is *for*.
 | class | destination | route | licensed by |
 |---|---|---|---|
 | `Ms_literal` | member | `MVI M` at the cell | E39S1/S2, E40S1..S4, E43L* |
-| `Ms_ladder` | member, same cell +/- a 16-bit-representable k | ladder then `SHLD` | E42P1, then **E43L1..L9 / E43B* over -30..+32767** [P8a] |
+| `Ms_ladder` | member, same cell +/- k where the **source literal** fits BIN(15) (measured 24 biases, -32767..+32767) | ladder then `SHLD` | E42P1, then **E43L*/E43B*** [P8a]; `-32768` does NOT qualify -- E44A1 vs E44B1 [C270] |
 | `Ms_general` | member, anything else | parked store | E39S7, E41P1/P4, E42P2, E43M1 |
 | `Ms_unsampled` | member | **refusal before any byte** | nothing -- that is the point |
 
@@ -625,8 +625,11 @@ question, not a codegen one.  E40S2/E40S4 remain where P7 left them.
 
 ## [E2E-40/P8a] The classifier and the producer were two predicates; and the -8..16 range was mine, not DR's
 
-Two defects, one measurement campaign.  `golden/e43l` (10 probes) + `golden/e43b` (20 probes),
-whole `.REL` compared each time, `PREDICTIONS.txt` written first.
+Two defects, one measurement campaign.  `golden/e43l` (10 programs) + `golden/e43b` (**19**
+programs -- the "20" first written here counted one probe twice), whole `.REL` compared each time,
+`PREDICTIONS.txt` written first.  29 new P8a programs in total: 28 ladder/cross-spelling plus the
+converted-literal probe E43M1.  **The "-32768 endpoint" claimed below is withdrawn by P8b: the
+ladder's measured span is -32767..+32767 at 24 sampled biases, and `a = a - 32768` converts.**
 
 **(1) The alleged classifier/producer agreement did not exist.**  `member_store_class` decided
 `Ms_ladder` by comparing resolved DATA addresses; the value-producing ladder arm inside
@@ -646,11 +649,18 @@ store `match` instead of reaching the `SHLD` default arm.
 
 **(2) The range was an artifact of my own probe set.**  P8 refused a member self-update outside
 -8..16, citing E22A02..E22A16/E22B01..E22B08 -- but those probes never asked for `|k| > 16`.  DR
-was shown -30, -16, -10, -9, -8, -5, -2, -1, +1..+5, +14..+20, +30, +60, +100, +127, +200, +1000,
-+5000, +10000, +30000, +32767 at a member: **every one takes the ladder with `SHLD`, the operand
-carrying k exactly** (`+100` -> `LXI B,0064`, `+5000` -> `1388`, `+30000` -> `7530`, `+32767` ->
-`7FFF`, `-9` -> `FFF7`) and whole-program CODE stays `0x3A` across all of them.  The gate is
-therefore not a window at all: it is whether the constant fits the 16-bit `DAD` addend.  The same
+was shown, at a member, **-16, -10, -9, -8, -1, +3, +4, +5, +14..+20, +30, +60, +100, +127, +200,
++1000, +5000, +10000, +30000, +32767** -- 24 distinct values over 28 ladder programs, per-program
+audit in `golden/e44/PROVENANCE.tsv`.  (The list first written here also had -30, -5, -2, +1, +2:
+no artifact supports those.  -30 was a sign slip for E43B30 = +30; +/-1 and +/-2 have never been
+probed at a member, only -1 as `DCX H` x1.)  **Every sampled one takes the ladder with `SHLD`, the
+operand carrying k exactly** (`+100` -> `LXI B,0064`, `+5000` -> `1388`, `+30000` -> `7530`,
+`+32767` -> `7FFF`, `-9` -> `FFF7`) and whole-program CODE stays `0x3A` across all of them.  The
+gate is therefore not a window.  It was then written as "whether the constant fits the 16-bit `DAD`
+addend", and **that too was wrong: [C270] shows the boundary is the SOURCE LITERAL's magnitude.**
+`a = a - 32767` (literal in BIN(15)) ladders with `LXI B,8001`; `a = a - 32768` (literal 32768,
+addend -32768 = `8000h`, representable) converts, subtracts generally, parks, and DR's own run
+ABORTS -- all of it byte-identical to this compiler without a codegen change.  The same
 sentence tested at an *ordinary* variable (`artefacts/E22A17`, `100 = 100 + 100`) also ladders, so
 this is not a member-specific relaxation.  **E42N3 (`a = a + 100`) is retired from the negative
 panel and returns as byte-exact specimen E43B1C** -- a refusal removed only with a replacement
@@ -672,6 +682,58 @@ traceback is a *decoding key*, which is worth knowing before one mistakes it for
 
 Gate after P8a: **969 byte-exact / 0 fail** (+13 specimens, 0 regressions), **128 refusals** (129
 -1, E42N3 retired), **11 divergences** (unchanged -- no divergent row moved toward or away from
-parity), **34 runtime rows** (+6), coverage 85 rows / 0 errors (DECL.MEMBER_SCOPE now `MIXED:46/49`),
+parity), **34 runtime rows** (+6), coverage 85 rows / 0 errors (DECL.MEMBER_SCOPE now `MIXED:34/37, recomputed from the row's own probe column in P8b`),
 census 44 programs / 15 EXACT / 0 DIFFERS / 0 UNEXPECTED (no corpus verdict or blocker text moved),
 exit 0.
+
+## [E2E-40/P8b] The `-32768' endpoint: the boundary is the SOURCE LITERAL, and no codegen change was licensed
+
+P8a wrote that the member ladder "runs over the whole 16-bit addend".  That sentence conflated two
+facts and one unknown: `DAD B` can represent `8000h`; my ladder arm is gated by `fits t` on the
+**positive source literal**, so the only spelling that yields k = -32768 (`a = a - 32768`) never
+reaches `ladder_bias_fits` and its lower endpoint is dead code; and DR's choice was unmeasured.
+Three probes (golden/e44, predictions committed first at 6ba2dc6) settled it.
+
+| probe | statement | literal in BIN(15) | DR's body | code | DATA | run |
+|---|---|---|---|---|---|---|
+| E44A1 | `a = a - 32767` | yes | `LHLD / LXI B,8001 / DAD B / SHLD` | 0x3A | 0004 | `-32667` |
+| E44B1 | `a = a - 32768` | **no** | conversion of 32768, general subtract, **parked** store | 0x4B | 0007 | **abort** |
+| E44C1 | `h = h - 32768` (ordinary) | **no** | same conversion + general subtract, then `SHLD` | 0x4C | 0009 | **abort** |
+
+All three `.REL` are 256/256 identical to this compiler **as it already stood** -- so no codegen
+change was made, and none should have been: the shape P8a's comment called "the addend's range" is
+reached only by literals that `fits t` already admits.  The measured span is therefore **-32767 to
++32767 at the 24 sampled biases** (25 counting -32767), not "the whole addend"; +/-1 and +/-2 have no
+member sample at all, and the intervals between sampled points are interpolation.
+
+**The abort is not [C267]'s store-range check.** `100 - 32768 = -32668` fits BIN(15) and is never
+computed: DR dies inside the decimal conversion of the operand, before the subtraction.  E44C1 aborts
+identically with an ordinary destination and the variable plainly in scope, so the check belongs to
+the literal's route, not to the member store -- and [C266]'s destination rule still shows through
+inside it (E44B1 parks, E44C1 uses `SHLD`).
+
+**Provenance audit, because P8a's numbers were wrong.** golden/e43l = 10 programs, golden/e43b =
+**19** (the "20" in [C268], the P8a note, K_TABLE.txt and the section above counted one probe twice):
+29 new P8a programs, 28 ladder/cross-spelling plus the converted literal E43M1; E42P1/E42P2 belong to
+P8.  [C268]'s bias list carried five entries with no artifact -- `-30` was a sign slip for E43B30
+(+30), and `-5`, `-2`, `+1`, `+2` were never probed at a member (only `-1`, as `DCX H` x1 in E43L3).
+E43L6 is **not** whole-file identical to E42P1: 4 bytes differ (0x31, 0x32, 0x3A, 0x3B -- the two
+initialization immediates `MVI M,05`/`MVI M,64` vs `MVI M,64`/`MVI M,01`, plus the record-length bytes
+after them); what is identical is the self-update sequence at code 0x16-0x20 and every DATA fixup,
+including both member-address fixups.  E43L6 and E43L7 *are* whole-file identical, so the
+qualification symmetry survives with a narrower statement.  Per-program table:
+`golden/e44/PROVENANCE.tsv` (+ `PROVENANCE-NOTES.txt`).  COVERAGE's DECL.MEMBER_SCOPE row also
+contradicted itself: the 13 E43 panel specimens cited in P8a's commit message had been lost from its
+probe column when the row was restored from HEAD after a column-index error, and the `46/49` figure
+was not the probe list's count -- it is now `MIXED:34/37`, recomputed from the row itself.
+
+**Harness lesson.** The first oracle run returned PRNs reading `UNEXPECTED EOF` and no `.REL` for all
+three programs, which looks exactly like "DR rejects this source".  It was my own LF line endings in
+a CRLF corpus.  The order to distinguish, before believing any verdict: DR I/O error on my file -> DR
+language diagnostic -> LINK failure -> PLILIB runtime abort -> code-generation difference.
+
+Gate after P8b: **972 byte-exact / 0 fail** (+3, 0 regressions), **128/128** refusals (unchanged --
+this shape was never a refusal), **11/11** divergences (E40S2/E40S4/E40Q4 untouched), **37/37**
+runtime (+3: -32667 and two aborts), coverage **85 rows / 0 errors / 0 warnings**, census 44 programs
+/ 15 EXACT / 0 DIFFERS / 0 UNEXPECTED, INVENTORY **972** (+3/-0), exit 0.  All three new specimens
+additionally have DR's `.COM` identical to mine and byte-equal consoles (10/64/64 raw bytes).

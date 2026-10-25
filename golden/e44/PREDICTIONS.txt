@@ -76,3 +76,48 @@ expected outcomes are H1, H2[+/-H3], and H4.
 
 DEPENDENCE ORDER.  Predicting E44A1 exactly is the cheap check that the harness is measuring
 what I think it is: if A does NOT come out the ladder, everything below is suspect.
+
+================================================================================
+RESULTS -- appended after the oracle ran.  Everything above this line is the
+pre-run text, unedited.  Commands: oracle/batch.py E44A1 E44B1 E44C1 --tag e44
+--reuse; oracle/linkrun.py link --tag e44 --out e44l; run --tag e44l --out e44r.
+================================================================================
+
+FIRST INVOCATION WAS NOT A VERDICT AT ALL.  All three came back
+`{'status': 'incomplete', 'outputs': {'PRN': True, 'REL': False}}' with the PRN reading
+`UNEXPECTED EOF'.  That looks like H4 (DR rejects the source) for all three programs, and it is
+nothing of the kind: my printf-written sources carried LF line endings where this corpus uses
+CRLF, so DR's reader hit end-of-file inside the first record.  Re-encoding the same three programs
+to CRLF gave 3/3 `.REL'.  Distinguish, in this order: a DR I/O error on my file, a DR language
+diagnostic, a LINK failure, a PLILIB runtime abort, and only then a code-generation verdict.
+
+H2 CONFIRMED, H1 REFUTED, H3 REFUTED, H4 REFUTED (for the language).
+
+  E44A1  a = a - 32767   code 0x3A, `LHLD / LXI B,8001 / DAD B / SHLD', .REL 256/256 identical,
+         DR .COM identical, console `-32667' (10 bytes, byte-equal).  PREDICTED.  This was the
+         harness check and it passed, which is what licenses reading E44B1 at all.
+  E44B1  a = a - 32768   code 0x4B -- NOT the predicted-if-H1 0x3A.  DR converts the positive
+         literal (MVI A,05 + two calls), subtracts through the general route, and PARKS the member
+         store: PUSH H / LXI H,<a> / POP D / MOV M,E / INX H / MOV M,D.  DATA grows 0004 -> 0007
+         (the pool cell for a 5-digit literal).  Whole .REL 256/256 identical to MINE, which was
+         already doing this: no codegen change was made or needed.  No `LXI B,8000' anywhere.
+  E44C1  h = h - 32768 (ordinary)  code 0x4C, same conversion + general subtract, tail `SHLD <h>'
+         instead of the parked form -- [C266]'s destination rule holding inside a [C270] literal
+         rule.  256/256 identical, DATA 0009.
+
+RUNTIME -- H3 WAS THE INTERESTING PART AND IT IS TRUE FOR A REASON H3 DID NOT STATE.
+  E44A1 prints -32667.  E44B1 and E44C1 ABORT: `ERROR (1), Conversion' (64 raw bytes each,
+  byte-equal between DR's object and mine, traceback words included).  The arithmetic result
+  -32668 fits BIN(15) and is never computed, so this is NOT [C267]'s store-range check -- the
+  conversion of the operand dies before the subtraction.  E44C1 proves the same for an ordinary
+  destination with the variable in scope, so the check travels with the literal's route.
+  Traceback: `0612 10A1 3320 3732 3836 0064' -> after the first word, ASCII digit pairs spell
+  3, 32, 327, 3276, 32768, and the last word is 0064 = 100 = g.a's value at the moment of the
+  abort.  E43M1's traceback had no such tail because there the literal WAS the stored value.
+
+WHAT THIS DOES AND DOES NOT SETTLE.  It settles that -32768 is not a ladder addend, so
+`ladder_bias_fits' at -32768 is dead code for `a = a - k' and [C268]'s "whole 16-bit addend"
+is withdrawn.  It does not settle `a = a + (-32768)' (a different AST: Eprefix inside Ebinary,
+classified Ms_general here, never shown to DR), nor +/-1, nor +/-2, nor anything between the
+sampled points.  See golden/e44/PROVENANCE.tsv for the per-program audit and the five phantom
+entries removed from [C268]'s bias list.

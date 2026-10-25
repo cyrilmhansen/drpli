@@ -5221,7 +5221,8 @@ behaviour [C256]. Ordinary (non-member) destinations are not examined at all -- 
 measured route for every RHS class in the corpus, and a blanket rule would break 900+ specimens.
 
 **Not claimed.** ~~Whether the ladder is what DR does for a member self-update at biases other than
-+5 (refused).~~ **CLAIMED NOW [C268]:** measured at 30 biases spanning -30..+32767, DR ladders and
++5 (refused).~~ **CLAIMED NOW [C268]:** measured at 24 distinct biases spanning -16..+32767 [C270
+corrects the count and the -30], DR ladders and
 stores with `SHLD` at every one; the refusal that used to sit here (E42N3) is retired and replaced by
 specimen E43B1C. Whether POINTER/BASED members follow this table at all -- E40Q4 is still the 12-byte gap,
 and P7's rule was derived for cells with a fixed DATA address. Whether a float/DEC literal into a
@@ -5233,23 +5234,43 @@ not claiming it was sound, and stronger than the byte-identity it rested on: the
 DATA addresses while the value-producing arm compared `Ast.orig' spellings, so the two predicates
 disagreed on exactly these inputs and agreed with DR only because both routes reach for `hl_bias'.
 
-## C268 -- A RANGE INHERITED BY ANALOGY IS NOT A MEASUREMENT: THE MEMBER SELF-UPDATE LADDER RUNS OVER THE WHOLE 16-BIT ADDEND, AND SPELLING-vs-ADDRESS WAS A REAL SPLIT (E2E-40/P8a)
+## C268 -- A RANGE INHERITED BY ANALOGY IS NOT A MEASUREMENT: THE MEMBER SELF-UPDATE LADDER RUNS FAR BEYOND -8..16, AND SPELLING-vs-ADDRESS WAS A REAL SPLIT (E2E-40/P8a)
 
-**Statement.** Three things, all measured against DR in `golden/e43l` (10 probes) and `golden/e43b`
-(20 probes), every one compared as a whole `.REL` file and not as a CODE length [C264]:
+*[Title corrected by [C270]: "the whole 16-bit addend" was itself an over-claim -- the endpoint -32768 is
+unreachable from `a = a - 32768' because the arm tests the positive source literal, and DR converts
+rather than ladders there. The probe counts below are corrected in place, not quietly rewritten.]*
+
+**Statement.** Three things, all measured against DR in `golden/e43l` (10 programs) and
+`golden/e43b` (**19**, not the 20 first recorded -- one was counted twice), every one compared as a
+whole `.REL` file and not as a CODE length [C264], plus 3 more in `golden/e44` [C270]:
 
 1. **The member self-update ladder has no window.** `x = x +/- k` on an internal `FIXED BINARY(15)`
-   member emits `LHLD <cell> / <bias> / SHLD <cell>` for every k that fits the 16-bit `DAD` addend.
-   Sampled at a member: -30, -16, -10, -9, -8, -5, -2, -1, +1, +2, +3, +4, +5, +14, +15, +16, +17,
-   +18, +19, +20, +30, +60, +100, +127, +200, +1000, +5000, +10000, +30000, +32767. The ladder
+   member emits `LHLD <cell> / <bias> / SHLD <cell>` at every sampled k from -32767 to +32767
+   ~~for every k that fits the 16-bit `DAD` addend~~ [the struck clause was an over-claim: see
+   correction (ii) at the end of this numbered point, settled by E44A1/E44B1 in [C270]].
+   Sampled at a member -- 24 distinct values over 29 P8a programs (golden/e43l 10, golden/e43b
+   **19, not 20**) plus E42P1, each listed with its artifact in `golden/e44/PROVENANCE.tsv`:
+   -16, -10, -9, -8, -1, +3, +4, +5, +14, +15, +16, +17, +18, +19, +20, +30, +60, +100, +127, +200,
+   +1000, +5000, +10000, +30000, +32767 (+5, +16 and +17 are each sampled twice).  The ladder
    operand carries k exactly (`+100` -> `LXI B,0064`, `+5000` -> `1388`, `+30000` -> `7530`,
-   `+32767` -> `7FFF`, `-9` -> `FFF7`) and whole-program CODE is `0x3A` in all of them. Instruction
-  `+30000' is also executed: DR's own linked object prints `30100' (100+30000 still fits
-  BIN(15)), so the large-bias ladder has a runtime witness, not only a byte one
-  (`golden/e43br/E43B7C.output.txt`, spec/RUNTIME.txt row E43B7C).
-   *selection* inside the ladder is `|k| <= 3` -> INX/DCX repeats, else `LXI B,k ; DAD B` -- [C165]'s
-   rule, now confirmed to transfer to a member destination (E43L8 at +3 vs E43L9 at +4 bracket the
-   break-even to one unit).
+   `+32767` -> `7FFF`, `-9` -> `FFF7`) and whole-program CODE is `0x3A` in all of them.  +30000 is
+   also *executed*: DR's own linked object prints `30100` (100+30000 still fits BIN(15)), so the
+   large-bias ladder has a runtime witness and not only a byte one
+   (`golden/e43br/E43B7C.output.txt`, spec/RUNTIME.txt row E43B7C).  Instruction *selection* inside
+   the ladder is `|k| <= 3` -> INX/DCX repeats, else `LXI B,k ; DAD B` -- [C165]'s rule, now
+   confirmed to transfer to a member destination (E43L8 at +3 vs E43L9 at +4 bracket the break-even
+   to one unit).
+   **Two corrections to this sentence as originally written, both from [C270].**  (i) The first
+   draft listed `-30, -5, -2, +1, +2`; none has an artifact.  `-30` was a sign slip for E43B30
+   (+30), and no member has ever been shown a bias of +/-1 or +/-2 in this repository -- E43L3's
+   `-1` (`DCX H` x1) is the only unit bias measured at a member.  Values between the listed points
+   are **interpolated, not tested**.  (ii) "for every k that fits the 16-bit `DAD` addend" claimed
+   the endpoint -32768, which no spelling can reach: `a = a - 32768` carries the *positive* literal
+   32768, which fails the arm's `fits t`, so the gate never saw that k.  DR has now been shown both
+   sides of it and agrees with the literal test: -32767 ladders (`LXI B,8001`, E44A1) while -32768
+   takes the conversion route and **aborts at run time** (E44B1).  The measured span is
+   **-32767..+32767 at the tested points**, and the discriminator is the magnitude of the SOURCE
+   LITERAL, not of the addend.
 2. **`-8..16` was never DR's rule; it was my probe list.** [C267] gated members with that window
    because E22A02..E22A16 / E22B01..E22B08 covered it, but those probes never ASKED for |k| > 16, and
    E42P1 -- the only member sample that existed -- was +5. A bound that came from the shape of a
@@ -5302,3 +5323,70 @@ above 65535 (E42N4); FLOAT/DEC literals into a FIXED member ([C228]); POINTER/BA
 are conversion-then-park, pinned by E42P2/E43M1 only as whole-literal stores); and whether the
 ordinary-variable ladder reaches 32767 in DR (only +100 is sampled at an ordinary variable here, in
 `artefacts/E22A17`, whose DR oracle does not exist yet).
+
+## C270 -- THE LADDER'S BOUNDARY IS THE SOURCE LITERAL, NOT THE DAD ADDEND: `-32768' CONVERTS, PARKS AND ABORTS, AND MY BUILD WAS ALREADY RIGHT (E2E-40/P8b)
+
+**Statement.** `a = a - 32768` on an internal `FIXED BINARY(15)` member does **not** take the
+self-update ladder in DR, and does not take it here either -- the two compilers agree byte for byte
+without any codegen change.  The discriminator is the magnitude of the **literal as written**, not
+of the addend it would produce:
+
+| probe | source | literal in BIN(15)? | DR's body | code | run |
+|---|---|---|---|---|---|
+| E44A1 | `a = a - 32767` | yes (32767) | `LHLD <a> / LXI B,8001 / DAD B / SHLD <a>` | 0x3A | `-32667` |
+| E44B1 | `a = a - 32768` | **no** (32768) | conversion of 32768, general subtract, **parked** `PUSH H / LXI H,<a> / POP D / MOV M,E / INX H / MOV M,D` | 0x4B | **`ERROR (1), Conversion`** |
+| E44C1 | `h = h - 32768` (ordinary) | **no** (32768) | same conversion + general subtract, then `SHLD <h>` | 0x4C | **`ERROR (1), Conversion`** |
+
+All three `.REL` files are 256/256 identical to mine; all three `.COM` (DR's LINK-80 + PLILIB vs
+mine linked against the same library) are identical; all three consoles are byte-equal (10 / 64 / 64
+raw bytes).  So the ladder's measured span is **-32767..+32767 at 24 sampled points**, and
+`ladder_bias_fits`'s `-32768` was never reachable from this spelling: the arm that calls it is gated
+by `fits t` on the positive literal, so the function's lower endpoint is dead code for
+`a = a - k`.  Three facts stay separate, and [C268] conflated the first two: (i) `DAD B` can
+represent `8000h`; (ii) this compiler rejects the literal 32768 in the ladder arm; (iii) DR's choice
+-- now measured, and it matches (ii).
+
+**Why the abort is new information, not just H2 confirmed.**  `100 - 32768 = -32668` fits BIN(15),
+so the *stored value* is legal: this is **not** [C267]'s store-range check.  DR dies before the
+subtraction, in the decimal-conversion path that a >32767 literal must take.  E44C1 shows the same
+abort with the variable plainly in scope and the store route being ordinary `SHLD`, so the check
+belongs to the literal's route and not to the member store -- which also means my two E42N2-style
+`my-gap` negatives (E42N1 `a = -5`, E42N2 `a = -65535`) sit next to a *now-sampled* neighbourhood
+without being covered by it: they are negated literals, a different AST and a different route, still
+unmeasured.
+
+**Traceback decoding, second observation and the `100` tail.**  E44B1's traceback is
+`0612 10A1 3320 3732 3836 0064`: after the first word the pairs read as ASCII digits `3 32 327 3276
+32768` (DR's incremental conversion of the literal) and the final word `0064` is `100` in decimal --
+`g.a`'s value at the moment of the abort.  Same shape in E44C1 with `10A2`/`0064`.  E43M1 had no
+such tail because its literal was the whole value being stored.  A traceback is therefore a digit
+dump plus a context word, and should be decoded before it is read as addresses.
+
+**Probe-count and provenance corrections (documentation, not new science).**  `golden/e43l` holds 10
+programs and `golden/e43b` holds **19**, not the "20" recorded in [C268], the P8a note and
+`golden/e43b/K_TABLE.txt`; total new P8a programs = **29** (28 ladder/cross-spelling + E43M1).  The
+bias list in [C268] contained five entries with no artifact (`-30` was a sign slip for E43B30 = +30;
+`-5`, `-2`, `+1`, `+2` were never probed at a member -- only `-1`, as `DCX H` x1 in E43L3), so the
+measured set is 24 values, and everything between them is interpolation.  E43L6 vs E42P1 is
+corrected too: they are **not** whole-file identical (4 bytes differ, 0x31/0x32/0x3A/0x3B = the two
+initialization immediates, `MVI M,05`/`MVI M,64` vs `MVI M,64`/`MVI M,01`, and the record-length
+bytes that follow them).  What is identical is the self-update sequence at code 0x16-0x20 and the
+DATA fixups, including both member-address fixups; and E43L6 vs E43L7 *are* whole-file identical, so
+the direction of the qualification is fully symmetric.  Full per-program table:
+`golden/e44/PROVENANCE.tsv` (probe, source statement, oracle path, compile verdict, DR instruction
+pattern, panel registration).
+
+**Method note.**  The first oracle invocation of all three probes returned PRNs with `UNEXPECTED EOF`
+and no `.REL`, because my `printf`-generated sources carried LF line endings where the corpus uses
+CRLF.  A careless reading of that transcript is `H4`: DR "rejected" `a = a - 32767`, which is a
+property of my file encoding and not of the language.  Re-encoding to CRLF gave 3/3 `.REL` files and
+the result above.  Three-way distinction (DR I/O error / DR language diagnostic / LINK failure) is
+now recorded in `golden/e44/PREDICTIONS.txt`'s results section.
+
+**Not claimed.**  Whether `a = a + (-32768)` -- `Eprefix` inside `Ebinary`, a different AST -- takes
+the same route at a member (this compiler classifies it `Ms_general`; DR has never been shown it);
+any bias of +/-1 or +/-2 at a member; any bias between the sampled points; negated literals at a
+member (E42N1/E42N2, unchanged refusals); literals above 65535 (E42N4); and POINTER/BASED members
+(E40Q4) -- this whole table is for cells at a fixed DATA address.  The ordinary-variable ladder's
+upper end is also still unsampled in DR (only `+100` exists at an ordinary variable, in
+`artefacts/E22A17`, which has no oracle).

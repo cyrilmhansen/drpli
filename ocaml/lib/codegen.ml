@@ -6822,22 +6822,40 @@ type member_store =
 let member_cell_opt st nm =
   try Some (addr_of st (String.lowercase_ascii nm)) with _ -> None
 
-(* [E2E-40/P8a] THE -8..16 FIGURE WAS AN ARTIFACT OF WHICH k THE OLD PROBES ASKED FOR, and it
-   is withdrawn.  P8 gated member self-updates with `-8 <= k && k <= 16', transferring
-   E22A02..E22A16 / E22B01..E22B08 -- probes that simply never tested |k| > 16 -- from
-   ordinary variables to a member destination, where the single existing sample (E42P1) was
-   +5.  DR's measurement (golden/e43l + golden/e43b, 28 programs, whole .REL compared):
-   a self-update on an internal member takes the LADDER with SHLD at
-     k = -30, -16, -10, -9, -8, -5, -2, -1, +1, +2, +3, +4, +5, +14, +15, +16, +17, +18, +19,
-     +20, +30, +60, +100, +127, +200, +1000, +5000, +10000, +32767
-   -- the whole in-range interval, ladder operand carrying k EXACTLY (+100 -> LXI B,0064,
-   +5000 -> 1388, +32767 -> 7FFF, -9 -> FFF7), CODE size constant at 0x3A across every one
-   of them.  What changes the route is the magnitude of the RHS constant relative to the
-   16-bit ADDEND: E42P2's 65535 cannot be an addend, so it goes through DR's decimal
-   conversion and DR parks it.  So the member gate is exactly the gate the emitter's own
-   shape test already applies -- `fits_int_lit' -- and this function now encodes the
-   addend's range, not a sampled window.  Still UNSAMPLED at a member: a negated literal of
-   any magnitude (E42N1/E42N2) and any literal above 65535 (E42N4). *)
+(* [E2E-40/P8a, bounded by E2E-40/P8b] THE -8..16 FIGURE WAS AN ARTIFACT OF WHICH k THE OLD
+   PROBES ASKED FOR, and it is withdrawn.  P8 gated member self-updates with
+   `-8 <= k && k <= 16', transferring E22A02..E22A16 / E22B01..E22B08 -- probes that simply
+   never tested |k| > 16 -- from ordinary variables to a member destination, where the single
+   existing sample (E42P1) was +5.  DR's measurement, every one a whole .REL compared and read
+   with tools/dis80.py so the operands are the real ones (golden/e43l 10 programs,
+   golden/e43b 19, golden/e44 3, plus E42P1 -- 33 programs), gives the ladder with SHLD at
+     k = -32767, -16, -10, -9, -8, -1, +3, +4, +5, +14, +15, +16, +17, +18, +19, +20, +30, +60,
+     +100, +127, +200, +1000, +5000, +10000, +30000, +32767
+   -- the operand carries k EXACTLY (+100 -> LXI B,0064, +5000 -> 1388, +32767 -> 7FFF,
+   -9 -> FFF7, -32767 -> 8001), CODE size constant at 0x3A across every one of them.  There is
+   no -8..16 window, and no negative bias at all beyond -1 is measured: +/-1 and +/-2 are NOT
+   sampled at a member (E43L3's -1 is DCX H x1), and the gaps between the listed points are
+   interpolated, not tested.
+
+   THE BOUNDARY IS THE SOURCE LITERAL, NOT THE ADDEND [E44A1/E44B1, C270].  So `ladder_bias_fits'
+   is the wrong name for a bound that does nothing: the arm that calls it is already gated on
+   `fits t', which tests the POSITIVE literal text, and a self-update whose addend is -32768 can
+   only be spelled `a = a - 32768' -- whose literal 32768 fails `fits t' and never reaches this
+   function.  That makes the -32768 endpoint here DEAD for that shape, and P8a's "the whole
+   16-bit addend" an over-claim.  DR was shown both sides and agrees with the literal test, not
+   with the addend test:
+     E44A1  a = a - 32767   literal in BIN(15)   -> LHLD / LXI B,8001 / DAD B / SHLD, code 0x3A
+     E44B1  a = a - 32768   literal 32768        -> decimal conversion, general subtract, PARKED
+                                                   store, code 0x4B -- 256/256 identical to mine
+                                                   with NO codegen change
+   and DR's run of E44B1 ABORTS (`ERROR (1), Conversion') although 100-32768 = -32668 fits
+   BIN(15), so this is not [C267]'s store-range check: the value never reaches the cell.  The
+   ordinary-scalar control E44C1 (`h = h - 32768', h in scope) takes the same route and aborts
+   identically, which is what makes it a literal-magnitude rule rather than a member rule
+   [C266's destination rule still owns the store tail: E44B1 parks, E44C1 uses SHLD].
+   Still UNSAMPLED at a member: a negated literal of any magnitude (E42N1/E42N2), any literal
+   above 65535 (E42N4), and `a = a + (-32768)' -- a different AST (Eprefix inside Ebinary), which
+   classifies Ms_general here and has no DR sample of its own. *)
 let ladder_bias_fits k = -32768 <= k && k <= 32767
 
 let member_store_class st dst (rhs : Ast.expr) =
@@ -6885,10 +6903,19 @@ let member_store_class st dst (rhs : Ast.expr) =
           let k = if op = Ast.Sub then -k0 else k0 in
           if ladder_bias_fits k then Ms_ladder (op, k)
           else
+            (* [E2E-40/P8b] UNREACHABLE AS THE CODE STANDS, and it is kept as a tripwire rather
+               than deleted so that a future arm which computes k some other way cannot quietly
+               ladder outside the measured set.  `fits t' above has already rejected any literal
+               whose magnitude exceeds 32767, so k can only land in -32767..32767 and the branch
+               never fires; that is exactly why E44B1 (`a = a - 32768') is Ms_general and why
+               [C268]'s "whole 16-bit addend" had to be withdrawn.  If this message is ever
+               printed, the guard above has changed and nothing in golden/e43* licenses it. *)
             Ms_unsampled
               ("self-update with a bias of " ^ string_of_int k
                ^ ", which cannot be a 16-bit DAD addend.  Measured at a member over "
-               ^ "-30..+32767 (golden/e43l, golden/e43b): DR keeps the ladder and stores with SHLD.")
+               ^ "-32767..+32767 at the points listed in golden/e43l, golden/e43b, golden/e44 "
+               ^ "(see [C270] for the -32768 literal boundary): DR keeps the ladder and stores "
+               ^ "with SHLD.")
       | Ast.Eident m, Ast.Enumber t when fits t ->
           (* same operator shape, different cell: that is E41P1's biased COPY, parked *)
           Ms_general
@@ -7592,10 +7619,15 @@ statement form IS implemented; this expression form is not.)")
              split AC4 (`a(2) = a(2)+5') showed for an array cell.  Console value 10 (spec/RUNTIME.txt)
              confirms the result reaches the cell.  [E2E-40/P8a WITHDRAWS -8..16 AS A MEMBER
              RULE: it was inherited from E22A/E22B, which never tested |k| > 16.  DR's member
-             ladder runs over the whole 16-bit addend -- measured at -30, -9, +17, +100, +5000
-             and +32767, every one `LHLD / LXI B,<k> / DAD B / SHLD' with CODE 0x3A unchanged
-             (golden/e43l, golden/e43b).  `a = a + 100' is specimen E43B1C now, and the refusal
-             E42N3 that used to cover it has been retired.  What bounds the route is the ADDEND:
+             ladder reaches at least -32767..+32767 -- 24 sampled biases (-16, -10, -9, -8, -1,
+             3..5, 14..20, 30, 60, 100, 127, 200, 1000, 5000, 10000, 30000, 32767), every one
+             `LHLD / LXI B,<k> / DAD B / SHLD' with CODE 0x3A unchanged (golden/e43l, golden/e43b,
+             golden/e44; per-program audit golden/e44/PROVENANCE.tsv).  `a = a + 100' is specimen
+             E43B1C now, and the refusal E42N3 that used to cover it has been retired.  [P8b
+             CORRECTS "the whole 16-bit addend", which this comment shared with C268: what bounds
+             the route is the SOURCE LITERAL, not the addend -- E44A1 `a = a - 32767' ladders with
+             `LXI B,8001' while E44B1 `a = a - 32768' converts, subtracts generally and parks,
+             both byte-identical to this compiler.]  What bounds it within that range is:
              a constant too big for LXI B (32768..65535) goes through DR's decimal conversion
              and then parks (E42P2, E43M1).
            THE OUT-OF-RANGE LITERAL DOES NOT STAY PUT.  E42P2 (`a = 65535') is 384/384

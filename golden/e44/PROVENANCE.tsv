@@ -1,0 +1,35 @@
+probe	source_statement	oracle_rel	compiled	dr_instruction_pattern	panel_specimen	note
+E42P1	a = a + 5	golden/e42p/E42P1/E42P1.REL	yes	LHLD / LXI B,0005 / DAD B / SHLD	yes	P8 member-ladder oracle; NOT a P8a probe (counted separately)
+E42P2	a = 65535	golden/e42p/E42P2/E42P2.REL	yes	decimal conversion + general + parked (MOV M,E/INX H/MOV M,D)	yes	P8; aborts at run time
+E43L1	a = a - 8	golden/e43l/E43L1/E43L1.REL	yes	LHLD / LXI B,FFF8 / DAD B / SHLD	yes	-8
+E43L2	a = a - 9	golden/e43l/E43L2/E43L2.REL	yes	LHLD / LXI B,FFF7 / DAD B / SHLD	yes	-9; P8 refused it
+E43L3	a = a - 1	golden/e43l/E43L3/E43L3.REL	yes	LHLD / DCX H / SHLD	yes	-1; the ONLY unit bias ever shown at a member (+1/-2 never probed)
+E43L4	a = a + 16	golden/e43l/E43L4/E43L4.REL	yes	LHLD / LXI B,0010 / DAD B / SHLD	yes	+16
+E43L5	a = a + 17	golden/e43l/E43L5/E43L5.REL	yes	LHLD / LXI B,0011 / DAD B / SHLD	yes	+17; P8 refused it
+E43L6	a = g.a + 5	golden/e43l/E43L6/E43L6.REL	yes	LHLD / LXI B,0005 / DAD B / SHLD	yes	cross-spelling; whole-file identical to E43L7, differs from E42P1 in 4 init bytes
+E43L7	g.a = a + 5	golden/e43l/E43L7/E43L7.REL	yes	LHLD / LXI B,0005 / DAD B / SHLD	yes	mirror of E43L6
+E43L8	a = a + 3	golden/e43l/E43L8/E43L8.REL	yes	LHLD / INX H x3 / SHLD	yes	+3; CODE 0x39
+E43L9	a = a + 4	golden/e43l/E43L9/E43L9.REL	yes	LHLD / LXI B,0004 / DAD B / SHLD	yes	+4; brackets the |k|<=3 break-even with E43L8
+E43M1	a = 32768	golden/e43l/E43M1/E43M1.REL	yes	decimal conversion (5 digits) + parked store	yes	literal, not a bias; CODE 0x43; DR run aborts
+E43B14	a = a + 14	golden/e43b/E43B14/E43B14.REL	yes	LHLD / LXI B,000E / DAD B / SHLD	no	evidence only
+E43B15	a = a + 15	golden/e43b/E43B15/E43B15.REL	yes	LHLD / LXI B,000F / DAD B / SHLD	no	evidence only
+E43B16	a = a + 16	golden/e43b/E43B16/E43B16.REL	yes	LHLD / LXI B,0010 / DAD B / SHLD	no	duplicate of E43L4's bias
+E43B17	a = a + 17	golden/e43b/E43B17/E43B17.REL	yes	LHLD / LXI B,0011 / DAD B / SHLD	no	duplicate of E43L5's bias
+E43B18	a = a + 18	golden/e43b/E43B18/E43B18.REL	yes	LHLD / LXI B,0012 / DAD B / SHLD	no	evidence only
+E43B19	a = a + 19	golden/e43b/E43B19/E43B19.REL	yes	LHLD / LXI B,0013 / DAD B / SHLD	no	evidence only
+E43B1C	a = a + 100	golden/e43b/E43B1C/E43B1C.REL	yes	LHLD / LXI B,0064 / DAD B / SHLD	yes	the shape the retired refusal E42N3 claimed was unsampled
+E43B1D	a = a + 127	golden/e43b/E43B1D/E43B1D.REL	yes	LHLD / LXI B,007F / DAD B / SHLD	no	evidence only
+E43B20	a = a + 20	golden/e43b/E43B20/E43B20.REL	yes	LHLD / LXI B,0014 / DAD B / SHLD	no	evidence only
+E43B2C	a = a + 200	golden/e43b/E43B2C/E43B2C.REL	yes	LHLD / LXI B,00C8 / DAD B / SHLD	no	evidence only
+E43B30	a = a + 30	golden/e43b/E43B30/E43B30.REL	yes	LHLD / LXI B,001E / DAD B / SHLD	no	+30, NOT -30: this is the artifact behind C268's phantom "-30"
+E43B3C	a = a + 1000	golden/e43b/E43B3C/E43B3C.REL	yes	LHLD / LXI B,03E8 / DAD B / SHLD	no	evidence only
+E43B4C	a = a + 5000	golden/e43b/E43B4C/E43B4C.REL	yes	LHLD / LXI B,1388 / DAD B / SHLD	no	evidence only
+E43B5C	a = a + 32767	golden/e43b/E43B5C/E43B5C.REL	yes	LHLD / LXI B,7FFF / DAD B / SHLD	yes	largest legal addend
+E43B60	a = a + 60	golden/e43b/E43B60/E43B60.REL	yes	LHLD / LXI B,003C / DAD B / SHLD	no	evidence only
+E43B6C	a = a + 10000	golden/e43b/E43B6C/E43B6C.REL	yes	LHLD / LXI B,2710 / DAD B / SHLD	no	evidence only
+E43B7C	a = a + 30000	golden/e43b/E43B7C/E43B7C.REL	yes	LHLD / LXI B,7530 / DAD B / SHLD	yes	runtime row: DR's object prints 30100
+E43N10	a = a - 10	golden/e43b/E43N10/E43N10.REL	yes	LHLD / LXI B,FFF6 / DAD B / SHLD	no	evidence only
+E43N16	a = a - 16	golden/e43b/E43N16/E43N16.REL	yes	LHLD / LXI B,FFF0 / DAD B / SHLD	no	most-negative bias BEFORE P8b
+E44A1	a = a - 32767	golden/e44/E44A1/E44A1.REL	yes	LHLD / LXI B,8001 / DAD B / SHLD	yes	P8b: most-negative ladder DR has been shown; runtime -32667
+E44B1	a = a - 32768	golden/e44/E44B1/E44B1.REL	yes	decimal conversion + general subtract + PARKED store	yes	P8b: the disputed boundary. Ladder REFUSED by DR. Runtime ABORTS though -32668 fits
+E44C1	h = h - 32768	golden/e44/E44C1/E44C1.REL	yes	decimal conversion + general subtract + SHLD (ordinary)	yes	P8b control: same abort with an ordinary destination, so it is a literal rule not a member rule

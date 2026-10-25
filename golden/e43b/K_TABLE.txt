@@ -1,4 +1,10 @@
 E2E-40/P8a range survey: member self-update bias k for each probe name.
+COUNT CORRECTION [E2E-40/P8b]: this directory holds **19** programs, not the "20" cited in the
+P8a note, [C268] and spec/PERIMETER.md -- one probe was counted twice.  28 ladder/cross-spelling
+programs exist across golden/e43l (10) and golden/e43b (19) plus E42P1... precisely: 9 ladder or
+cross-spelling in e43l + 1 converted literal (E43M1) + 19 in e43b = 29 new P8a programs.  The rows
+below are the 19.  Per-program provenance (with the biases that have NO artifact): golden/e44/
+PROVENANCE.tsv.  And the boundary: `a = a - 32767' ladders, `a = a - 32768' does not -- see [C270].
 CP/M names are limited to 8 characters, so the SUFFIX IS NOT ALWAYS THE NUMBER (the oracle
 refused E43B100 / E43B32767 outright).  All 20 programs share the template in
 artefacts/E43*.PLI: `g.a = 100; g.b = 1; <PROBE>; put list(a); stop;'.

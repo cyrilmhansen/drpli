@@ -1,0 +1,9 @@
+Companion to PROVENANCE.tsv (which is machine-readable: 7 tab-separated fields per row, no prose).
+
+COUNTS.  golden/e43l = 10 programs, golden/e43b = 19 programs (NOT 20 -- the "20" in C268, the P8a
+note and K_TABLE.txt counted one probe twice), golden/e44 = 3.  New P8a programs 29 = 28 ladder or
+cross-spelling + 1 converted-literal (E43M1); E42P1/E42P2 are P8 oracles.  P8b adds 3.
+BIAS VALUES WITH A DR ARTIFACT AT A MEMBER: 25 distinct (24 from P8a + -32767 from P8b); programs
+28 ladder + E44A1 = 29, of which 22 are on the byte-exact panel.
+NOT SAMPLED ANYWHERE AT A MEMBER: +1, +2, -2, -5, -30 (C268's first draft listed these; they have no
+artifact and are struck), and anything above +32767 or below -32768.

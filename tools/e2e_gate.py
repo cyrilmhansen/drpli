@@ -777,6 +777,14 @@ SPECIMENS.update({
     # +30000: DR links it and prints 30100, so this one is the largest-bias ARITHMETIC witness,
     # not just a byte witness (100 + 30000 fits BIN(15); E43B5C's +32767 would not).
     "E43B7C": ("artefacts/E43B7C.PLI", "golden/e43b/E43B7C/E43B7C.REL"),
+    # [E2E-40/P8b] the two ends of the member ladder's addend, plus the ordinary-scalar control.
+    # E44B1/E44C1 are byte-identical WITHOUT a code change: the positive literal 32768 fails the
+    # ladder arm's `fits t', and DR makes the same choice -- conversion, general subtract, park.
+    # E44A1 (-32767, literal in BIN(15)) is the ladder at the last addend DR has been shown to
+    # reach, and it is the only one of the three whose run prints a value.
+    "E44A1": ("artefacts/E44A1.PLI", "golden/e44/E44A1/E44A1.REL"),
+    "E44B1": ("artefacts/E44B1.PLI", "golden/e44/E44B1/E44B1.REL"),
+    "E44C1": ("artefacts/E44C1.PLI", "golden/e44/E44C1/E44C1.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
