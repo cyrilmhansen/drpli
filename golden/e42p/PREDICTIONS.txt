@@ -1,0 +1,98 @@
+E2E-40/P8 FALSIFICATION PREDICTIONS -- authored BEFORE the DR oracle ran (tag e42p).
+
+Destination in both: `a', a FIXED BINARY(15) member of an internal structure at DATA+0x0.
+`g.b = 100' is present in both programs and printed after the store under test, so a
+destination-address bug cannot hide: if a write landed on g.b instead of a, the second PUT
+would show it.  Current build (HEAD 7310e10) behaviour measured with tools/dis80.py.
+
+---------------------------------------------------------------------------------------
+E42P1  a = a + 5          (self-update of a member, in-range small bias)
+---------------------------------------------------------------------------------------
+MINE NOW: LHLD *(a) / LXI B,0005 / DAD B / SHLD *(a)      code=50, data=4
+          -> the self-add LADDER arm (7368-7393), then the tail's default SHLD, because
+             rhs_landed_in_hl is not set on that arm.
+
+MODEL A  ladder survives, store with SHLD  (= what mine does today; 50 bytes).
+         Evidence: the ARRAY analogue is DR-measured. AC4 `a(2) = a(2) + 5' is
+         `LHLD A+2 / LXI B,5 / DAD B / SHLD A+2' -- a fixed-address cell stored with SHLD
+         after a ladder, i.e. C165's form 4 beats form 3 [C165]. If members are just
+         fixed-DATA-address cells, this is DR's answer.
+MODEL B  ladder, then the literal route MVI M: ... DAD B / LXI H,<cell> / MVI M,0A /
+         INX H / MVI M,00  (7 more bytes). Would mean DR recomputes the address for a
+         member even when HL already holds the value -- C260 item 1 generalised from
+         literals to any member store.
+MODEL C  no ladder at all: DR drops the value onto the general path and parks,
+         LHLD/PUSH/... /POP D/DAD D / PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H /
+         MOV M,D  (= C266's parked route with the bias folded in).
+MODEL D  DR refuses the source (a syntax/semantic wall, not a shape).
+
+PREDICTION: MODEL A, 50 bytes, exactly my current sequence.  Confidence: moderate -- it
+rests on AC4 (arrays), not on any member sample, which is precisely the gap this slice is
+about.  THE DECISIVE PART IS NOT THE SIZE BUT THE STORE BYTE: SHLD vs LXI H+MVI M vs
+PUSH H.  If A hits, my acceptance is right and P7's "unmeasured" note closes; if B or C
+hits, mine is a silent mis-shape and must refuse until re-implemented.
+
+---------------------------------------------------------------------------------------
+E42P2  a = 65535          (out-of-range integer literal into a member)
+---------------------------------------------------------------------------------------
+MINE NOW: (DR-style decimal conversion calls) / SHLD *(a)  code=54, data=4
+          -> `skip_member_value' is false (65535 does not fit), the value goes through
+             lit_dec_to_hl, the tail's default SHLD fires (rhs_landed_in_hl false).
+
+MODEL A  conversion route + SHLD (= mine; 54 bytes).
+MODEL B  conversion route + parked PUSH H/LXI H,<cell>/POP D/MOV M,E/INX H/MOV M,D (C266).
+MODEL C  conversion route + MVI M at the cell (C260 item 1, if DR treats a literal as
+         always-writable-in-place -- but 65535 does not fit hl_const, so the value must
+         come through the calls first).
+MODEL D  DR aborts: [C178] shows DR rejecting `y = -32768' with `ERROR (1), Conversion',
+         so an out-of-range positive literal could abort too.  Countered by ZK8/ZK10/ZK11,
+         where DR ACCEPTS 65535 into an ordinary FIXED BIN(15) cell -- so the literal is
+         admissible; the open question is only the member's store shape.
+
+PREDICTION: MODEL A (conversion calls then SHLD), because C266's parked route needs the
+value to arrive via the general expression path, and a literal never does -- every literal
+member sample (E39S1/S2, E40S1-S4, E41P1's first store) writes with MVI M or SHLD, never
+parked.  Confidence: low-moderate.  If B or C hits, mine is wrong in shape; if D hits,
+mine is wrong in ACCEPTING at all.
+
+BOTH: if DR produces a .REL, compare the whole file (256/256) including RELOC records, not
+just the code payload -- [C264].
+
+=======================================================================================
+RESULTS -- appended after the oracle ran and after both objects were linked and
+executed (golden/e42p/*.output.txt, *.COM, link-batch0.transcript.txt).
+=======================================================================================
+
+E42P1  MODEL A HIT.  My .REL is 256/256 identical to DR's, RELOC records included.
+       DR's linked image at 0116 reads  LHLD 19F6 / LXI B,0005 / DAD B / SHLD 19F6,
+       and DR's own console is `      10' -- the ladder result reaches the member cell.
+       So a member self-update keeps BOTH the ladder and the SHLD tail: [C266]'s
+       destination rule does not override [C165]'s form-4-before-form-3 precedence,
+       the same split AC4 showed for an array cell.  P7's acceptance of this shape was
+       RIGHT; its label ("unmeasured, therefore not pinned") was what misled.
+       Licensed at +5 only: biases outside -8..16 are E42N3 and refuse.
+
+E42P2  MODEL A MISSED, MODEL B HIT.  DR parks: the decimal-conversion prefix
+       (LXI H,*(pool) / MVI A,05 / CALL / CALL) is followed by
+       PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D.  Mine wrote SHLD,
+       168 differing bytes -- the silent mis-shape this file predicted as the risk.
+       The reasoning recorded above ("a literal never arrives via the general
+       expression path") was the error: what matters is whether HL holds the VALUE at
+       the store, and a converted literal does.  Mine now reproduces DR 384/384 (code 0x5A = 90 bytes, DATA 0x7 -- the
+       extra DATA cell is DR's pool entry for the 5-digit literal, which is why this .REL is 384
+       bytes where E42P1's is 256; the pre-run note below says "compare the whole file (256/256)"
+       and that 256 was E42P1's size read onto both probes).
+       MODEL D was half right and framed wrongly: DR does not reject at COMPILE time
+       (the .REL exists), it aborts at RUN time -- `ERROR (1), Conversion', traceback
+       0612 10B0 3620 3535 3533 -- because a FIXED BIN(15) cell cannot hold 65535.
+       Since that check is in DR's runtime library and my object links against the same
+       library, MY object aborts with byte-identical console text.  A .REL being
+       byte-exact says nothing about whether the program runs [C264] again, this time
+       with the emphasis on the runtime library rather than on layout.
+
+BOTH   The instruction "compare the whole file including RELOC" was followed, and both
+       verdicts above are whole-file verdicts [C264].  And a correction to my own pre-run text:
+       it said "(256/256)" for BOTH probes, which was E42P1's file size pasted onto E42P2 --
+       E42P2's .REL is 384 bytes (code 0x5A, DATA 0x7), because the 5-digit literal needs a pool
+       cell E42P1 has no reason to allocate.  The equality verdicts are unaffected: in each case
+       the whole file, at its own length, is identical.

@@ -5138,11 +5138,22 @@ ZK6 rule, one more program confirming it.
    E41P3 (12 = 7+5) are, because both operands are initialized, and they are the programs that put
    the bias and the sum on the console instead of only in the bytes.
 
-**Not claimed.** Out-of-range literal member stores keep the `SHLD` tail (DR's decimal-conversion
-route is unsampled for members, and LR7 parks only for an *array* element). The self-add ladder on
-a member keeps `SHLD`: DR's ladder is measured on ordinary variables (AC4/RT4/RFACT) and a
-group-relative `MVI M`/parked variant has no sample -- E40L1, the P4 probe of that shape, was built
-with MY compiler only and is not preserved, so it is not evidence of anything. DEC/CHAR/VARYING/
+**Not claimed -- and [C267] corrects two sentences of it.** DEC/CHAR/VARYING/POINTER members are
+still refused or out of perimeter [C228]. `unspec (x) = <computed>` into a plain scalar in MPMCALLB
+parks, which does not fit the destination table above; three of its four `unspec` sites involve a
+based/pointer destination and the fourth (`unspec (i) = ...`, `i fixed`) is a real anomaly. I did
+not build on it and did not let it overwrite AC3/RT4: the `unspec()` wrapper is a confound this
+compiler cannot reproduce, and the P7 change leaves scalar stores untouched. E40S2/E40S4 stay
+divergent on 1 instruction -- see [C261]'s correction: that is operand preservation, a different
+route, and E41P1/P3/P4 pass while they still differ on the same build.
+
+**Two sentences of this claim were wrong, and they were wrong in the direction of the code.** "The
+self-add ladder on a member keeps `SHLD`... a variant has no sample" was the *right shape* asserted
+on no evidence, and E42P1 now supplies the evidence (DR's .REL byte-identical, its .COM reading
+`LHLD 19F6 / LXI B,0005 / DAD B / SHLD 19F6`). "Out-of-range literal member stores keep the `SHLD`
+tail (DR's decimal-conversion route is unsampled for members, and LR7 parks only for an *array*
+element)" was flatly false: E42P2 parks, and its .REL is byte-identical once the parked route is
+given the shape. See [C267]. DEC/CHAR/VARYING/
 POINTER members are still refused or out of perimeter [C228]. `unspec (x) = <computed>` into a
 plain scalar in MPMCALLB parks, which does not fit the destination table above; three of its four
 `unspec` sites involve a based/pointer destination and the fourth (`unspec (i) = ...`, `i fixed`)
@@ -5151,3 +5162,66 @@ wrapper is a confound this compiler cannot reproduce, and the P7 change leaves s
 untouched. E40S2/E40S4 stay divergent on 1 instruction -- see [C261]'s correction: that is operand
 preservation, a different route, and E41P1/P3/P4 pass while they still differ on the same build.
 
+## C267 -- A "MEASURED" CODE PATH THAT WAS NEVER MEASURED: TWO MEMBER-STORE ROUTES DR DID NOT LEAVE
+## IN THE SPECIMENS, AND THE CLASSIFIER THAT NOW REFUSES THE UNLICENSED ONES (E2E-40/P8)
+
+**Statement.** Inside a member store, DR's RHS-dependence is a choice among THREE shapes, not two.
+For a destination cell with a fixed DATA address (an internal structure member):
+
+| RHS shape | DR's store | witness |
+|---|---|---|
+| integer literal in `hl_const` range | `LXI H,<cell> / MVI M,lo / INX H / MVI M,hi` -- the value never enters a pair | E39S1, E39S2, E40S1..E40S4 |
+| same cell `+/-` a constant bias in -8..16 | `LHLD <cell> / <ladder> / SHLD <cell>` -- the LADDER AND `SHLD` BOTH SURVIVE | **E42P1** (256/256, .COM at 0116) |
+| anything else, **including a literal DR must convert** (32768..65535) | `PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D` | E39S7, E41P1, E41P4, **E42P2** (384/384, .COM 0116-0128) |
+
+The third row's extension is the correction: what selects parking is **whether HL holds the value at
+the tail**, not whether the source text was a literal. A literal in `hl_const` range is written in
+place; a literal that has to go through DR's decimal-conversion calls ends up in HL like any other
+computed value and parks. [C266]'s destination-first framing survives untouched -- it was the code
+and this claim's own "Not claimed" paragraph that overreached.
+
+**How a wrong "unmeasured" label got promoted into code.** [E2E-40/P7] added the `rhs_landed_in_hl`
+flag to route computed stores, and explicitly *excluded* two shapes on the grounds that DR had no
+sample: the self-add ladder on a member, and an out-of-range literal on a member. The exclusion was
+implemented by NOT setting the flag, which makes those two fall through the tail match to `SHLD`. So
+a shape that P7's own prose called unpinned and "not evidence of anything" was in fact being EMITTED,
+byte for byte, in the shipped build. That is the failure mode this slice is about: *declining to
+decide a shape is itself a decision, written into the fall-through arm.* Three things close it --
+probing instead of labelling, refusing instead of falling through, and reading DR's linked image
+with `tools/dis80.py --com` so operands resolve, instead of reading a `.REL` listing.
+
+**E42P1 `g.a = 5; g.b = 100; a = a + 5; put list(a)`** -- my .REL 256/256 identical to DR's, and DR's
+own console is `10`, which requires the ladder result to reach the cell. The qualification P7 thought
+it needed does not exist: DR's `LHLD` operand is the member's absolute DATA address, and the store is
+plain `SHLD` to that same address. Note the LHS spelling is the *unqualified* `a` while the
+declaration is `g.a`: after [C258] both names bind to one cell, and the classifier compares DATA
+addresses, not spellings -- R3/R4 in `spec/lab-evidence/e2e40-p8/` (`a = g.a + 5`, `g.a = a + 5`) classify as the ladder
+for that reason, which rests on E40Q1/E40Q2's identity rather than on a probe of this shape.
+Bias magnitude is licensed only at +5, so a member self-update outside -8..16 refuses (E42N3).
+
+**E42P2 `a = 65535` into the same member** -- my .REL 384/384 identical once the parked route takes
+the conversion result (before that, 168 differing bytes). DR's image:
+`LXI H,*(literal pool) / MVI A,05 / CALL / CALL / PUSH H   (the two calls resolve to `?QDI15' and `?QICOP': their NAMES are in E42P2's own EXTERNAL records and DR's linked image gives the addresses 126D / 10A6 -- an earlier draft of this text said `?DLDNCP-style', a routine name that exists nowhere in the corpus and was invented to fill the gap; struck) / LXI H,*(cell) / POP D / MOV M,E / INX H /
+MOV M,D`, i.e. the ordinary-variable conversion prefix [LR7/ZK8/ZK10/ZK11] plus the member's parked
+store -- both halves independently measured, and E42P2 measures their combination directly.
+**Then DR's own run of that object aborts**: `ERROR (1), Conversion` with traceback
+`0612 10B0 3620 3535 3533`, because a FIXED BIN(15) cell cannot hold 65535. The check lives in the
+runtime library, not in the code DR emits, so MY object -- linked from a byte-identical .REL through
+the same library -- aborts with byte-identical console text (golden/e42p/E42P2.output.txt vs
+E42P2.MINE.COM's run). Two consequences: this specimen is a runtime row that pins an ABORT, not a
+value, and byte-parity of a .REL is not a statement about behaviour unless something executes it.
+
+**What refuses now, and why that is the point.** `member_store_class` (codegen.ml) is consulted
+BEFORE any byte is emitted and names the shape in the refusal: negated literals of any magnitude
+into a member (E42N1/E42N2 -- no DR sample, and the closest witness aborts anyway), literals above
+65535 (E42N4), and member self-updates with a bias outside -8..16 (E42N3). All four are registered
+as `my-gap` negatives, NOT `dr-refuses`: DR has never been shown any of these shapes at a member
+store, and registering an unmeasured form as a DR-negative would launder my refusal into DR's
+behaviour [C256]. Ordinary (non-member) destinations are not examined at all -- `SHLD` is their
+measured route for every RHS class in the corpus, and a blanket rule would break 900+ specimens.
+
+**Not claimed.** Whether the ladder is what DR does for a member self-update at biases other than +5
+(refused). Whether POINTER/BASED members follow this table at all -- E40Q4 is still the 12-byte gap,
+and P7's rule was derived for cells with a fixed DATA address. Whether a float/DEC literal into a
+FIXED member has any DR sample (it does not; those routes refuse earlier, on [C228]). That the E41P1
+cross-spelling ladder equivalence holds: it is inferred from E40Q1/E40Q2's byte-identity, not probed.

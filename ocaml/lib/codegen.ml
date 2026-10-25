@@ -6779,6 +6779,96 @@ let e26_alloc_fixed st (wi : string) (pi : string) =
   st.lowered <- st.lowered + 1
 
 
+(* [E2E-40/P8] ONE OWNED CLASSIFICATION OF A MEMBER STORE, consulted before any byte is
+   emitted.  [C266] said the DESTINATION selects DR's store route and the RHS only decides
+   "literal vs not"; E42P1/E42P2 (DR's own linked images, disassembled with
+   `tools/dis80.py --com' so every operand is resolved) show the RHS half was too coarse:
+   the destination class decides WHICH ROUTES EXIST, and within a member store the RHS
+   SHAPE picks between three of them --
+     in-range literal      LXI H,<cell> / MVI M,lo / INX H / MVI M,hi   [E39S1,S2,E40S1-4]
+     same-cell small bias  LHLD,<cell> / <ladder> / SHLD <cell>         [E42P1, 58 bytes,
+                          my .REL 256/256 identical -- the LADDER SURVIVES on a member,
+                          which is C165's form-4-before-form-3 precedence, and AC4
+                          `a(2) = a(2)+5' says for an array cell]
+     anything else         PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D
+                          [E39S7, E41P1, E41P4, and now E42P2, where a literal arrives via
+                           DR's decimal-conversion calls and DR STILL parks it]
+   Shapes with no DR sample are returned as `Unsampled' and the caller refuses, so a
+   member store can no longer fall through to `SHLD' just because nothing else claimed
+   it.  The predicate is deliberately syntactic -- the SAME shape test the value-producing
+   match below uses -- because that match is what determines whether HL holds a value at
+   the tail; if the two ever disagree, `Unsampled' wins, which refuses rather than guesses.
+   `same_cell' compares DATA ADDRESSES, never spellings: after [C258] `a' and `g.a' are
+   two names for one row, so `n.Ast.orig' differs ("a" vs "g.a") while both resolve to the
+   same cell -- E42P1 writes the cell through the unqualified spelling and DR still takes
+   the ladder.  R3/R4 in spec/lab-evidence/e2e40-p8/ show the cross-spelling pair. *)
+type member_store =
+  | Ms_literal                    (* in-range integer literal: MVI M at the cell *)
+  | Ms_ladder                     (* same-cell +/- with a bias the ladder is measured for *)
+  | Ms_general                    (* value arrives through lower_hl: park it *)
+  | Ms_unsampled of string        (* no DR sample -- refuse, do not guess a shape *)
+
+let member_cell_opt st nm =
+  try Some (addr_of st (String.lowercase_ascii nm)) with _ -> None
+
+(* the bias range the self-add ladder is measured over: -8..16, E22A02..E22A16 /
+   E22B01..E22B08 on ORDINARY variables, and E42P1 only extends it to a MEMBER at +5 *)
+let ladder_bias_fits k = -8 <= k && k <= 16
+
+let member_store_class st dst (rhs : Ast.expr) =
+  let fits t = is_int_literal t && fits_int_lit t in
+  match (unwrap_e rhs).Ast.e with
+  | Ast.Enumber t when is_int_literal t ->
+      if fits t then Ms_literal
+      else (match int_of_string_opt (String.concat "" (String.split_on_char '_' t)) with
+            (* [E2E-40/P8] 32768..65535 is DR-MEASURED, not guessed: E42P2 (`a = 65535' into
+               a member) is `LXI H,*(literal) / MVI A,05 / CALL / CALL' -- the two calls resolve to
+           ?QDI15 and ?QICOP, whose NAMES are in E42P2's own EXTERNAL records and whose addresses
+           (126D / 10A6) DR's linked image shows.  (The `?DLDNCP' this comment guessed at exists
+           nowhere in the corpus and has been struck; a routine name invented in a refusal message
+           is as much a fabrication as an invented opcode.)  The decimal-conversion
+               prefix already pinned on ordinary cells by LR7/ZK8/ZK10/ZK11) and then the
+               PARKED store `PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D' --
+               read off DR's own linked image at 0116-0128, and LR7 already parks the same
+               conversion result into an ARRAY cell at 32768.  So the literal arrives in HL by
+               a measured route and DR still parks it, which is C266's destination rule holding
+               while the "literal" half of it needs the qualification [C266 corrected].
+               Above 65535, or with a spelling this parser cannot turn into an int, nothing is
+               sampled and the shape refuses. *)
+            | Some v when v >= 32768 && v <= 65535 -> Ms_general
+            | _ ->
+                Ms_unsampled
+                  ("the integer literal " ^ t
+                   ^ ", outside both hl_const's range and DR's sampled decimal-conversion magnitudes"))
+  | Ast.Enumber _ -> Ms_general (* a float/DEC literal: the existing typed routes own it *)
+  | Ast.Eprefix (Ast.Minus, { Ast.e = Ast.Enumber t; _ }) when is_int_literal t ->
+      Ms_unsampled
+        (if fits t then
+           ("a negated in-range literal (-" ^ t
+            ^ "): no DR sample stores any negated literal into a member")
+         else
+           ("a negated out-of-range literal (-" ^ t
+            ^ "), which reaches the cell through DR's decimal-conversion calls"))
+  | Ast.Eprefix (Ast.Minus, _) -> Ms_general (* float negate: existing typed routes *)
+  | Ast.Ebinary ((Ast.Add | Ast.Sub as op), l, r) -> (
+      match (unwrap_e l).Ast.e, (unwrap_e r).Ast.e with
+      | Ast.Eident m, Ast.Enumber t
+        when fits t
+             && member_cell_opt st m.Ast.orig = member_cell_opt st dst
+             && member_cell_opt st dst <> None ->
+          let k0 = parse_int_const t in
+          let k = if op = Ast.Sub then -k0 else k0 in
+          if ladder_bias_fits k then Ms_ladder
+          else
+            Ms_unsampled
+              ("self-update with a bias of " ^ string_of_int k
+               ^ " (the ladder is sampled for -8..16 only)")
+      | Ast.Eident m, Ast.Enumber t when fits t ->
+          (* same operator shape, different cell: that is E41P1's biased COPY, parked *)
+          Ms_general
+      | _ -> Ms_general)
+  | _ -> Ms_general
+
 let lower_assign st (lhs : Ast.expr) (rhs : Ast.expr) =
   (* [E2E-40/P2] Resolve an owner-qualified member BEFORE the dispatch, so the store travels the
      ordinary variable path and lands in the identical cell [C258].  (lower_hl can re-dispatch
@@ -7296,8 +7386,28 @@ statement form IS implemented; this expression form is not.)")
          int_lit_to_hl, and neither is E39S7's class.  The tail uses this to pick DR's parked
          store for a MEMBER, and it is the [C165] array precedence (form 4 before form 3) applied
          one level up -- see the tail comment. *)
-      let rhs_landed_in_hl = ref false in
       let rhs = elide_fixed_zero st rhs in
+      (* [E2E-40/P8] the classification and the refusal happen BEFORE any emission, so an
+         unlicensed member shape cannot leak even one byte of speculative code.  Ordinary
+         (non-member) destinations are not examined here at all: `SHLD' is their measured
+         route for every RHS class in the corpus, and a global prohibition would break the
+         900+ byte-exact specimens that depend on it. *)
+      let mstore =
+        if vinfo_imem st n.Ast.orig <> None then Some (member_store_class st n.Ast.orig rhs)
+        else None
+      in
+      (match mstore with
+       | Some (Ms_unsampled why) ->
+           failwith
+             ("codegen: storing " ^ why
+              ^ " into an internal structure MEMBER is unsampled [TBD] in DR -- the [C266]"
+              ^ " boundary, measured by E42P1/E42P2 in [E2E-40/P8].  DR licenses three member"
+              ^ " stores by SHAPE: an in-range literal writes the cell in place (MVI M), a"
+              ^ " same-cell +/- with a small constant bias keeps the ladder and stores with"
+              ^ " SHLD, and everything else parks the value in DE while LXI H takes the cell."
+              ^ "  This form has no DR sample, so it refuses rather than being handed a shape."
+)
+       | _ -> ());
 (* [E2E-23/P3] A GUARD ADMITTED, WRONGLY REMOVED, AND RESTORED -- recorded because the wrong
    removal nearly became the accepted rule.  ZK8/ZK10/ZK11 (65535->0, 0->65535, 32767->32768)
    show DR declining to reuse where the sign bit would flip.  An earlier reading of that evidence
@@ -7393,7 +7503,6 @@ statement form IS implemented; this expression form is not.)")
            (* final SHLD comes from the common tail *)
        | _ ->
            st.last_imm <- None;
-           rhs_landed_in_hl := true;
            lower_hl st rhs);
       (* [E2E-40/P4] DR writes a structure MEMBER through its address, not through the
          value in HL [C260].  E39S3 (`declare 1 g, 2 a fixed, 2 b fixed; a = 7; h = 5')
@@ -7429,16 +7538,34 @@ statement form IS implemented; this expression form is not.)")
          the RHS only decides whether the value is a literal DR can write in place.  E41P4
          (`a = b', member, plain copy, parked) and E41P2 (`h = g.a', ordinary, not parked) are
          the pair that leaves no doubt about which side of the statement the rule reads.
-         ONE exception, checked rather than assumed: `a = a + 5' on a member takes the self-add
-         LADDER (`LHLD / LXI B,5 / DAD B / SHLD' -- measured against E39S7's general ADD, which
-         DR lowers as LHLD/PUSH H/LHLD/POP D/DAD D followed by the parked member store).  The
-         ladder's constant tail is byte-exact across E22A02..E22A16 on ORDINARY variables, and no
-         DR sample of it on a MEMBER exists, so whether it would become MVI M -- or park -- there
-         is unmeasured, and it stays unpinned rather than being guessed from either the literal
-         case or the general ADD.  E40L1, P4's probe of this shape, was built with MY compiler
-         only and no DR oracle was ever produced for it, so it is not evidence of anything. *)
-      (match (unwrap_e rhs).Ast.e, vinfo_imem st n.Ast.orig with
-       | Ast.Enumber ks, Some _ when is_int_literal ks && fits_int_lit ks ->
+         [E2E-40/P8] TWO exceptions, both now MEASURED rather than assumed.  This paragraph used to
+         say the shapes below were "unmeasured" and left them to fall through to `SHLD' -- which is
+         not a neutral choice, it silently invents a store shape.  Both were re-probed against DR:
+           SELF-UPDATE HOLDS.  E42P1 (`g.a = 5; g.b = 100; a = a + 5') is 256/256 identical to my
+             .REL, and DR's linked image reads `LHLD 19F6 / LXI B,0005 / DAD B / SHLD 19F6'.  So the
+             ladder survives a member destination and its tail stays `SHLD': C266's destination rule
+             does NOT reach this case, C165's form-4-before-form-3 precedence does -- exactly the
+             split AC4 (`a(2) = a(2)+5') showed for an array cell.  Console value 10 (spec/RUNTIME.txt)
+             confirms the result reaches the cell.  The bias range is still -8..16 (E22A/E22B, all on
+             ORDINARY variables); E42P1 licenses +5 at a member and nothing wider, so `a = a + 100'
+             is E42N3 and refuses.
+           THE OUT-OF-RANGE LITERAL DOES NOT STAY PUT.  E42P2 (`a = 65535') is 384/384
+             identical -- once the parked route was given this shape -- and DR's image shows the
+             decimal-conversion prefix followed by PARKING (`PUSH H / LXI H,1BB4 / POP D / MOV M,E /
+             INX H / MOV M,D' at 0116-0128).  So "was the source text a literal" is the wrong
+             question; the right one is whether HL holds the VALUE at the tail or only an address
+             pool cell.  32768..65535 is admitted on that evidence (E42P2 at 65535, LR7 parking the
+             same conversion result into an array cell at 32768); above 65535, and in EVERY negated
+             spelling (E42N1/E42N2), nothing is sampled and the store refuses.  DR's own run of E42P2
+             aborts with `ERROR (1), Conversion': the range check lives in the runtime library, which
+             my linked object shares, so mine aborts byte-identically -- that pair is a runtime row.
+         E40L1, P4's probe of the ladder shape, was built with MY compiler only and no DR oracle was
+         ever produced for it, so it contributed nothing either way; E42P1 replaces it. *)
+      (match (unwrap_e rhs).Ast.e, vinfo_imem st n.Ast.orig, mstore with
+       (* [E2E-40/P8] the classifier has already proved `fits_int_lit ks' here (Ms_literal is only
+          handed out for an in-range literal); an ordinary destination has mstore = None and reaches
+          the final `_' below, which is its measured `SHLD' route and is NOT the member case. *)
+       | Ast.Enumber ks, Some _, Some Ms_literal ->
            let v = parse_int_const ks land 0xffff in
            st.last_imm <- None;
            d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
@@ -7470,7 +7597,7 @@ statement form IS implemented; this expression form is not.)")
           pointers.  `rhs_landed_in_hl' keeps the two unmeasured member shapes off this route:
           the self-add LADDER (array form 4's analogue, where DR stores with SHLD) and literals
           outside hl_const's range, which go through DR's decimal-conversion calls. *)
-       | (_, Some _) when !rhs_landed_in_hl ->
+       | (_, Some _, (Some Ms_general | None)) ->
            st.last_imm <- None;
            d st op_push_h;
            d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
@@ -7478,6 +7605,14 @@ statement form IS implemented; this expression form is not.)")
            (* 0x73 MOV M,E (LOW first) then INX H then 0x72 MOV M,D -- the order E2E-20
               corrected against AC1/ST2 and that [C127] records for the pointer route. *)
            d st 0x73; d st op_inx_h; d st 0x72
+       | (_, Some _, Some Ms_ladder) ->
+           (* [E2E-40/P8] DR stores the ladder's result into the MEMBER with plain SHLD --
+              E42P1 `a = a + 5', golden/e42p/E42P1.COM at 0116: `LHLD 19F6 / LXI B,0005 /
+              DAD B / SHLD 19F6'.  This is the SAME tail an ordinary variable uses, which is
+              why the ladder must not be handed to the parked route just because the
+              destination is a member: C165's precedence, not C266's destination rule, owns
+              this case. *)
+           d st op_shld; reloc st Data (addr_of st n.Ast.orig)
        | _ -> d st op_shld; reloc st Data (addr_of st n.Ast.orig))
   | Ast.Esuffix (hd, args)
     when hd_is_element st.arrays hd ->

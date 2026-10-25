@@ -1,0 +1,21 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E42P1
+
+D: Disk Print
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+
+CODE SIZE = 003A
+DATA AREA = 0004
+FREE SYMS = 38B0
+END  COMPILATION
+

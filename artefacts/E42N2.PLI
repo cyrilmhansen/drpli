@@ -1,0 +1,9 @@
+b9e: procedure options(main);
+  declare 1 g, 2 a fixed, 2 b fixed;
+  g.a = 5;
+  g.b = 100;
+  a = -65535;
+  put list(a);
+  put list(g.b);
+  stop;
+end b9e;

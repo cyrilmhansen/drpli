@@ -520,7 +520,7 @@ the two answers; it only decides whether the value is a literal DR can write in 
 | " | hl_const literal | `LXI H,<value> / SHLD` | RT4 `b = 17` |
 | fixed DATA-address cell (array element, **internal member**) | hl_const literal | `LXI H,<cell> / MVI M,lo / INX H / MVI M,hi` | AC3 `a(0) = 1`, E39S1/S2 [C260] |
 | " | **anything else, including a plain variable** | `PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D` | AC1 `a(3) = b`, AC2, RT4, **E39S7**, **E41P1/P4** |
-| " | self-update ladder | `LHLD / <bias> / SHLD` -- form 4 tested BEFORE form 3 | AC4, RT4 `a(2) = a(2)+5` [C165] |
+| " | self-update ladder | `LHLD / <bias> / SHLD` -- form 4 tested BEFORE form 3 | AC4, RT4 `a(2) = a(2)+5` [C165]; **on a MEMBER: E42P1 [P8]** |
 | pointer-displaced cell | non-literal | reload the pointer into HL (`LHLD <ptr>`), park | C127's three shapes, MPMCALLB, DIORAND |
 
 **Four new DR probes close the matrix (`golden/e41p`, byte-exact against mine on all four: code
@@ -552,11 +552,13 @@ and is now restored from `git show 6df2bd9:spec/PERIMETER.md` with its wording p
 also where the P6 claim about ENTER/UPDATE's blockers was recorded, corrected in two COVERAGE rows
 here (`EMPLOYEE@31` was the phantom subgroup cell, never a DR-shaped fact).
 
-**Still refused / still unmeasured (unchanged by P7, and not silently widened).** POINTER members
-(E40Q4 stays divergent at 50 vs 62); CHAR/VARYING/DEC/BIT members [C228]; STATIC INITIAL on any
-member; member stores of out-of-range literals (keep `SHLD` + DR's decimal-conversion calls, LR7
-parks only for array elements); the self-add ladder on a member (E40L1 was MY build only, no DR
-oracle, so it is not evidence -- no `MVI M`, no parking); `unspec(x) = <computed>` into a plain
+**Still refused / still unmeasured (as of P7 -- [P8] below moves two of these five items).** POINTER
+members (E40Q4 stays divergent at 50 vs 62); CHAR/VARYING/DEC/BIT members [C228]; STATIC INITIAL on
+any member; ~~member stores of out-of-range literals (keep `SHLD` + DR's decimal-conversion calls,
+LR7 parks only for array elements)~~ **[P8] MEASURED, AND WRONG: E42P2 parks**; ~~the self-add ladder
+on a member (E40L1 was MY build only, no DR oracle, so it is not evidence -- no `MVI M`, no
+parking)~~ **[P8] MEASURED, AND RIGHT: E42P1 keeps the ladder and `SHLD`**; `unspec(x) = <computed>`
+into a plain
 scalar in MPMCALLB parks, which does not fit the table above -- three of its four `unspec` sites
 have a based/pointer destination and the fourth is a genuine anomaly I did not build on. **E40S2 /
 E40S4 are a different question, not a leftover of this one**: their stores are all literals and
@@ -564,3 +566,58 @@ their residual is operand preservation inside `a + b + c`; they remain pinned at
 LAYOUT agreeing (DATA 6/6, members 0/2/4), and [C261]'s both-operands-are-members predicate is still
 too narrow with the real discriminator unmeasured.
 
+## [E2E-40/P8] The two shapes P7 called unmeasured were being emitted; one of them was wrong [C267]
+
+P7's `rhs_landed_in_hl` flag routed the computed member stores and *excluded* two shapes on the
+grounds that DR had no sample of them.  Because the exclusion was implemented by not setting the
+flag, both fell through the tail match to `SHLD` -- so a build whose prose said "unpinned rather
+than guessed" was emitting a specific pinned store shape for them, and `E40L1` (P4's ladder probe)
+had never been shown to DR at all.  The defect is the general one: **declining to decide a shape is
+a decision, written into the fall-through arm.**
+
+Two probes (`golden/e42p`, predictions in its `PREDICTIONS.txt` first, verdicts read off DR's linked
+`.COM` with `tools/dis80.py --com` rather than off a `.REL` listing, per [C264]):
+
+| probe | statement | DR's store | mine at HEAD | now |
+|---|---|---|---|---|
+| E42P1 | `g.a=5; g.b=100; a = a + 5` | `LHLD 19F6 / LXI B,0005 / DAD B / SHLD 19F6`, console `10` | ladder + `SHLD` | **unchanged -- 256/256 identical** (code 0x3A = 58, DATA 4).  Right shape, wrong label: [C165]'s form-4-before-form-3 owns this, not [C266]'s destination rule (AC4 says the same for an array cell) |
+| E42P2 | `a = 65535` (member) | decimal-conversion calls, then **`PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D`** | conversion + `SHLD`, 168 differing bytes | **parked -- 384/384 identical** (code 0x5A, DATA 0x7: the extra DATA is DR's literal-pool cell for the 5-digit value).  A silent mis-shape, closed |
+
+`[C266]`'s destination-first framing is untouched; its *second* half needed the qualification.  In
+a member store the RHS chooses among THREE shapes and the dividing line is whether HL holds the
+**value** at the tail, not whether the source text was a literal: an in-range literal is written in
+place, a literal DR must convert arrives in HL and parks.  32768..65535 is admitted on E42P2 plus
+LR7 (same conversion result parked into an array cell at 32768); above that, nothing.
+
+**E42P2 then produced the slice's sharpest result.** DR compiles it, links it -- and its own object
+aborts at run time: `ERROR (1), Conversion`, traceback `0612 10B0 3620 3535 3533`, because a
+`FIXED BIN(15)` cell cannot hold 65535.  The range check is in DR's runtime library, so MY object,
+linked from a byte-identical `.REL` against that same library, aborts with byte-identical console
+text (`golden/e42p/E42P2.MINE.COM`).  E42P2 is therefore a RUNTIME row whose expected output is an
+error message: byte parity of a `.REL` still says nothing about behaviour unless something executes
+it, and this time executing it changes what the specimen is *for*.
+
+**The code now refuses instead of falling through.** `member_store_class` runs immediately after
+`elide_fixed_zero`, before the value-producing match, and the tail reads its verdict:
+
+| class | destination | route | licensed by |
+|---|---|---|---|
+| `Ms_literal` | member | `MVI M` at the cell | E39S1/S2, E40S1..S4 |
+| `Ms_ladder` | member, same cell +/- k, k in -8..16 | ladder then `SHLD` | E42P1 (+5 only) |
+| `Ms_general` | member, anything else | parked store | E39S7, E41P1/P4, E42P2 |
+| `Ms_unsampled` | member | **refusal before any byte** | nothing -- that is the point |
+
+Four `my-gap` negatives pin the refusals (`E42N1..E42N4`: `a = -5`, `a = -65535`, `a = a + 100`,
+`a = 100000`); none is registered as `dr-refuses`, because DR has never been shown any of these
+shapes at a member store [C256].  Ordinary scalar destinations are not classified at all -- `mstore`
+is `None` for them, `SHLD` stays their measured route for every RHS class in the corpus, and a
+blanket rule would break 900+ byte-exact specimens.  `rhs_landed_in_hl` is deleted: mutable state
+that every value arm must remember to set, replaced by a syntactic classification the tail can check
+against the same AST the value arm consumed.
+
+**Still open after P8.**  The ladder on a member at biases other than +5, and under `-`; negated
+literals at a member; FLOAT/DEC literals into a FIXED member [C228]; POINTER/BASED members entirely
+(E40Q4) -- this table is for cells with a fixed DATA address; the cross-spelling ladder equivalence
+(`a = g.a + 5`), inferred from E40Q1/E40Q2's byte-identity and never probed; and whether *my*
+runtime should abort on the E42P2 shape when the linked library is mine rather than DR's, which is
+an ARCH-level question, not a codegen one.  E40S2/E40S4 remain where P7 left them.

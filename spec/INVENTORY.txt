@@ -420,6 +420,12 @@ E41P1	specimen	artefacts/E41P1.PLI	golden/e41p/E41P1/E41P1.REL
 E41P2	specimen	artefacts/E41P2.PLI	golden/e41p/E41P2/E41P2.REL
 E41P3	specimen	artefacts/E41P3.PLI	golden/e41p/E41P3/E41P3.REL
 E41P4	specimen	artefacts/E41P4.PLI	golden/e41p/E41P4/E41P4.REL
+E42N1	refusal	b9e: procedure options(main);\n  declare 1 g, 2 a fixed, 2 b fixed;\n  g.a = 5;\n  g.b = 100;\n  a = -5;\n  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n	DR VERDICT UNMEASURED: `a = -5' into an internal member.  E42P2 shows DR parks a literal-conversion result, and the negation route (lit_dec_neg_to_hl) has no member sample at all, so mine refuses instead of guessing which of DR's store shapes would take it
+E42N2	refusal	b9e: procedure options(main);\n  declare 1 g, 2 a fixed, 2 b fixed;\n  g.a = 5;\n  g.b = 100;\n  a = -65535;\n  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n	DR VERDICT UNMEASURED at compile, and its nearest witness is a RUNTIME ABORT: E42P2 (`a = 65535' into the same member) links and then prints `ERROR (1), Conversion' with a traceback (golden/e42p/E42P2.output.txt), because a FIXED BIN(15) cell cannot hold 65535.  A negative literal of any magnitude is therefore refused here rather than compiled into a sequence whose runtime behaviour is unknown
+E42N3	refusal	b9e: procedure options(main);\n  declare 1 g, 2 a fixed, 2 b fixed;\n  g.a = 5;\n  g.b = 100;\n  a = a + 100;\n  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n	DR VERDICT UNMEASURED: `a = a + 100'.  E42P1 licenses the same-cell ladder at +5 for a member; the -8..16 range itself comes from E22A02..E22A16/E22B01..E22B08 on ORDINARY variables, so a bias outside it is unsampled at a member even though mine's ladder arm accepts any in-range constant for a plain scalar
+E42N4	refusal	b9e: procedure options(main);\n  declare 1 g, 2 a fixed, 2 b fixed;\n  g.a = 5;\n  g.b = 100;\n  a = 100000;\n  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n	DR VERDICT UNMEASURED: `a = 100000'.  E42P2 (65535) and LR7 (32768 at an array cell) bound the decimal-conversion magnitudes DR is known to emit; above 65535 nothing is sampled
+E42P1	specimen	artefacts/E42P1.PLI	golden/e42p/E42P1/E42P1.REL
+E42P2	specimen	artefacts/E42P2.PLI	golden/e42p/E42P2/E42P2.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

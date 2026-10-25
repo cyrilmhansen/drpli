@@ -21,7 +21,7 @@ Alternates:
 
 | probe | statement under test | dest class | rhs class | MYPRED | M1 | M2 | M3 |
 |---|---|---|---|---|---|---|---|
-| E41P1 | `a = b + 1`        | internal member, DATA+0 | member read + bias 1 | `LHLD b / INX H / PUSH H / LXI H,*(0) / POP D / MOV M,E / INX H / MOV M,D` = 14 bytes, **no `LHLD;INX H;SHLD`** | `LHLD b / INX H / SHLD *(0)` = 9  <-- FALSIFIER: `LHLD;INX H;SHLD` exists in 0 of 1963 goldens | park (14) | same as MYPRED but `LXI H,*(1)` |
+| E41P1 | `a = b + 1`        | internal member, DATA+0 | member read + bias 1 | `LHLD b / INX H / PUSH H / LXI H,*(0) / POP D / MOV M,E / INX H / MOV M,D` = 14 bytes  [[APPENDED AFTER THE FACT: the parked sequence is 8 bytes, and with `LHLD b / INX H' the body is 12, which is DR's real figure -- this estimate double-counted LXI H's operand bytes. The QUALITATIVE call (park, and no `LHLD;INX H;SHLD') hit; the byte arithmetic did not.]], **no `LHLD;INX H;SHLD`** | `LHLD b / INX H / SHLD *(0)` = 9  <-- FALSIFIER: `LHLD;INX H;SHLD` exists in 0 of 1963 goldens | park (14) | same as MYPRED but `LXI H,*(1)` |
 | E41P2 | `h = g.a`          | ordinary scalar | plain member read | `LHLD a / SHLD *(h)` = 6 | park = 11 <-- falsifies "member-ness of the *source* forces parking" | SHLD = 6 | SHLD = 6 |
 | E41P3 | `a = a + g.b` (both operands initialized) | internal member | member+member ADD | 57-byte image = E39S7's shape plus one more literal store; sum stored PARKED | same (E39S7 already showed it) | SHLD tail | SHLD tail |
 | E41P4 | `a = b`            | internal member, DATA+0 | plain member copy | park = 11 (member destination, value not directly storeable) | park = 11 | `LHLD b / SHLD *(0)` = 6 <-- member would park only at nonzero offset | n/a |

@@ -716,6 +716,29 @@ SPECIMENS.update({
     "E41P4":  ("artefacts/E41P4.PLI", "golden/e41p/E41P4/E41P4.REL"),
 })
 
+# [E2E-40/P8] The two member-store shapes P7 called "unmeasured" and left falling through to
+# SHLD, measured directly.  Both are now 256/256 identical to DR, fixups included.
+#   E42P1  `g.a = 5; a = a + 5'   a SELF-UPDATE of a member keeps the ladder AND keeps SHLD:
+#          DR's linked image is `LHLD 19F6 / LXI B,0005 / DAD B / SHLD 19F6'.  So C266's
+#          destination rule does NOT reach this case -- C165's form-4-before-form-3 precedence
+#          does, the same split AC4 (`a(2) = a(2)+5') showed for an array cell.  Console 10.
+#   E42P2  `a = 65535'            an out-of-range LITERAL parks: DR's decimal-conversion prefix
+#          is followed by `PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D'.  P7's
+#          comment asserted the opposite ("keeps SHLD") from the flag's bookkeeping, never from
+#          DR -- C266's "literal vs computed" half needed the qualification that what matters is
+#          whether the value came from hl_const IN PLACE, not whether the source text was a
+#          literal.  DR's own run of E42P2 then ABORTS (`ERROR (1), Conversion'), because a
+#          FIXED BIN(15) cell cannot hold 65535: the range check lives in DR's RUNTIME LIBRARY, not
+#          in the code DR emits.  So it IS on the runtime panel -- and that panel turns the apparent
+#          contradiction into a check: my object, linked from the byte-identical .REL through the
+#          same library, aborts with byte-identical console text, so the row's expected output is an
+#          ERROR MESSAGE (see spec/RUNTIME.txt).  Nothing about the bytes alone could have shown
+#          either half of that [C267].
+SPECIMENS.update({
+    "E42P1":  ("artefacts/E42P1.PLI", "golden/e42p/E42P1/E42P1.REL"),
+    "E42P2":  ("artefacts/E42P2.PLI", "golden/e42p/E42P2/E42P2.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -1775,10 +1798,57 @@ NEG_META_E13 = {
 # derivable, and registering it would launder a weak check into the panel.
 for _n in ("U1", "W1", "W2", "W3", "P1", "P2", "P3", "P4", "P7", "P8", "P10", "P11",
            "K4", "R4", "R5", "X1", "M4", "Y8", "P9", "E40R1", "E39S5",
-           "E41P1", "E41P2", "E41P3", "E41P4"):
+           "E41P1", "E41P2", "E41P3", "E41P4",
+           # [E2E-40/P8] E42P1 joins: DR's own console value is 10, which only the ladder
+           # (5 + 5) reaching the cell can produce.  E42P2 joins too, but as an ABORT row:
+           # DR's run prints `ERROR (1), Conversion' because a FIXED BIN(15) cell cannot hold
+           # 65535, the check is in the runtime library, and my object shares that library --
+           # so its console is byte-identical to DR's.  Both rows are expected substrings of
+           # text, not values: one pins a computed number, the other pins a refusal to compute.
+           "E42P1", "E42P2"):
     OUTPUT_CHECK.add(_n)
 
+# [E2E-40/P8] The member-store shapes with NO DR sample.  Each is refused by the classifier in
+# codegen.ml BEFORE a byte is emitted (P7 left them falling through to `SHLD', which silently
+# invented a store shape); the marker is the shared sentence, the `why' clause differs per shape.
+# Sources are identical to artefacts/E42N*.PLI, which is what the DR oracle is asked about.
+# [E2E-40/P8] same source as artefacts/E42N*.PLI, parameterised on the one statement that
+# decides the shape -- so the panel and the DR-oracle artefacts cannot drift apart.
+_MEMBER_SRC = ("b9e: procedure options(main);\n"
+               "  declare 1 g, 2 a fixed, 2 b fixed;\n"
+               "  g.a = 5;\n  g.b = 100;\n"
+               "  %s\n"
+               "  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n")
+_MEMBER_UNSAMPLED = "internal structure MEMBER is unsampled [TBD] in DR"
+REJECTS.update({
+    "E42N1": (_MEMBER_SRC % "a = -5;", _MEMBER_UNSAMPLED),
+    "E42N2": (_MEMBER_SRC % "a = -65535;", _MEMBER_UNSAMPLED),
+    "E42N3": (_MEMBER_SRC % "a = a + 100;", _MEMBER_UNSAMPLED),
+    "E42N4": (_MEMBER_SRC % "a = 100000;", _MEMBER_UNSAMPLED),
+})
+
 NEG_META = {
+    # [E2E-40/P8] all four are `my-gap', NOT `dr-refuses': DR has never been shown a member
+    # store of these shapes, so nothing here claims DR rejects them.  Registering a form DR
+    # would ACCEPT as a DR-negative would ratify my refusal as DR's behaviour [C256].
+    "E42N1": ("my-gap", "DR VERDICT UNMEASURED: `a = -5' into an internal member.  E42P2 shows "
+                        "DR parks a literal-conversion result, and the negation route "
+                        "(lit_dec_neg_to_hl) has no member sample at all, so mine refuses "
+                        "instead of guessing which of DR's store shapes would take it"),
+    "E42N2": ("my-gap", "DR VERDICT UNMEASURED at compile, and its nearest witness is a RUNTIME "
+                        "ABORT: E42P2 (`a = 65535' into the same member) links and then prints "
+                        "`ERROR (1), Conversion' with a traceback (golden/e42p/E42P2.output.txt), "
+                        "because a FIXED BIN(15) cell cannot hold 65535.  A negative literal of "
+                        "any magnitude is therefore refused here rather than compiled into a "
+                        "sequence whose runtime behaviour is unknown"),
+    "E42N3": ("my-gap", "DR VERDICT UNMEASURED: `a = a + 100'.  E42P1 licenses the same-cell "
+                        "ladder at +5 for a member; the -8..16 range itself comes from "
+                        "E22A02..E22A16/E22B01..E22B08 on ORDINARY variables, so a bias outside "
+                        "it is unsampled at a member even though mine's ladder arm accepts any "
+                        "in-range constant for a plain scalar"),
+    "E42N4": ("my-gap", "DR VERDICT UNMEASURED: `a = 100000'.  E42P2 (65535) and LR7 (32768 at "
+                        "an array cell) bound the decimal-conversion magnitudes DR is known to "
+                        "emit; above 65535 nothing is sampled"),
     "ST5": ("dr-refuses",
      "DR REFUSES: 1 ERROR(S) IN PASS 1, NO .REL emitted (golden/e2e160/T5/T5.PRN) "
      "-- stack(65536) does not fit the 16-bit LXI B operand [C138]"),
