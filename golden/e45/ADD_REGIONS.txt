@@ -1,0 +1,75 @@
+E2E-40/P9 -- DR's OWN LINKED IMAGES, DECODED WITH OPERAND NAMES
+================================================================================
+Source: golden/e45l/E45S{1..7}.COM -- DR PL/I-80 v1.4 compiled these (golden/e45/*.REL, sha
+verified by oracle/batch.py), DR's own linker produced these .COM files, and DR's own runtime
+printed the values in golden/e45r/*.output.txt.  Decoded by golden/e45/decode_com.py.
+
+Cell identity is recovered from DR's own initializer shape, not from my compiler:
+  member   -> `LXI H,<addr> / MVI M,<lo> / INX H / MVI M,<hi>'   (the [C260]/[C267] store route)
+  ordinary -> `LXI H,<value> / SHLD <addr>'                       (the [C165]/E22A store route)
+so the six DISTINCT values 7,11,13,17,19,23 name every cell, and the prologue independently
+confirms that a,b,c are members and h,k,n are not.  (Caveat found while writing this: a variable
+initialized to 2 or 3 aliases the TPA base word at 0x0100, which this scan misreads; nothing in
+this family has such an initial value.)
+
+THE ADD REGIONS (the program body is the first CODE bytes of the .COM)
+================================================================================
+
+E45S1    put list(h + a + b)      DR CODE 0x54  DATA 000C  DR console 35
+37: LHLD h(ORDINARY) | 3A: PUSH H | 3B: LHLD a(member) | 3E: POP D | 3F: DAD D   <- inner, parks
+    40: PUSH H | 41: LHLD b(member) | 44: POP D | 45: DAD D                       <- outer, parks
+    -> (ordinary,member)=PUSH and (compound,member)=PUSH.  One member involved => [C260]'s pair rule refuted.
+
+E45S4    put list(a + h + b)      DR CODE 0x53  DATA 000C  DR console 35
+37: LHLD a(member) | 3A: XCHG | 3B: LHLD h(ORDINARY) | 3E: DAD D                  <- inner, no park
+    3F: PUSH H | 40: LHLD b(member) | 43: POP D | 44: DAD D                        <- outer, parks
+    -> Same storage classes as S1, swapped positions.  Inner XCHG while outer PUSH in the SAME program: the
+decision is per-node and depends only on the operand loaded next.  Matches [C150]'s MB33 exactly.
+
+E45S7    put list(h + k + a)      DR CODE 0x53  DATA 000C  DR console 43
+37: LHLD h(ORDINARY) | 3A: XCHG | 3B: LHLD k(ORDINARY) | 3E: DAD D                <- inner, no park
+    3F: PUSH H | 40: LHLD a(member) | 43: POP D | 44: DAD D                        <- outer, parks
+    -> Control for E45S3: differs in one operand's storage class (k -> a) and in nothing else.
+
+E45S3    put list(h + k + n)      DR CODE 0x52  DATA 000C  DR console 59
+37: LHLD h(ORD) | 3A: XCHG | 3B: LHLD k(ORD) | 3E: DAD D                           <- inner, no park
+    3F: XCHG | 40: LHLD n(ORD) | 43: DAD D                                         <- outer, no park
+    -> S3 vs S7: identical topology, identical inner route; both nodes flip together with one class change.
+
+E45S2    put list(a + b + h)      DR CODE 0x53  DATA 000C  DR console 35
+37: LHLD a(member) | 3A: PUSH H | 3B: LHLD b(member) | 3E: POP D | 3F: DAD D        <- inner, parks
+    40: XCHG | 41: LHLD h(ORD) | 44: DAD D                                         <- outer, no park
+    -> THE COMPOUND-LEFT FALSIFIER: a compound left operand behind an ORDINARY right takes XCHG, byte for
+byte as this compiler already did -- cf. [C150] MB36 `(n*3)+n' and golden/e2e182/D12 code 0x6F-0x74.
+
+E45S5    put list(a + b + 5)      DR CODE 0x52  DATA 000C  DR console 23
+37: LHLD a(member) | 3A: PUSH H | 3B: LHLD b(member) | 3E: POP D | 3F: DAD D        <- inner, parks
+    40: db 01 05 00 | 43: DAD B                                                    <- literal, no swap
+    -> A literal right operand is neither parked nor swapped: DR adds it as a 16-bit immediate pair with
+DAD B (M,I).  A literal is not a memory operand, so the class rule does not reach it.  Note the
+bytes: the pair is 01 05 00, NOT 11 05 00 -- DR does not spell out the LXI B opcode here, which is
+what keeps emission separate from classification and makes E45S5 the probe that pins that split.
+
+E45S6    put list(a + (b + c))      DR CODE 0x54  DATA 000C  DR console 31
+37: LHLD b(member) | 3A: PUSH H | 3B: LHLD c(member) | 3E: POP D | 3F: DAD D        <- RIGHT group first
+    40: PUSH H | 41: LHLD a(member) | 44: POP D | 45: DAD D                        <- then + a, parks
+    -> Parens change the ORDER, not the route.  The class rule predicts both nodes without knowing the
+order, which is why it survives a grouping this compiler refuses in its PUT-item matcher (a
+different gap, registered as a my-gap negative: DR compiles E45S6, I do not).
+
+
+THE RULE (spec/CLAIMS.md C271; superseded readings C150/C254/C260/C261/C266/C267)
+================================================================================
+At a two-operand FIXED ADD, DR preserves the LEFT operand on the STACK --
+`PUSH H / LHLD <right> / POP D / DAD D' (6 bytes) -- exactly when the RIGHT operand is loaded from an
+internal structure member's fixed DATA cell; otherwise `XCHG / LHLD <right> / DAD D' (5 bytes).
+  right = member cell        -> PUSH        S1 inner, S1 outer, S4 outer, S7 outer, and every
+                                            two-member pair (E39S2, E40Q1)
+  right = ordinary cell      -> XCHG        S2 outer, S3 both, S4 inner, S7 inner
+  right = immediate constant -> neither     S5 outer (M,I / DAD B, no swap at all)
+  right = compound           -> PUSH        MB34/MB35 [C150]; S6's left node via the member case
+Neither the operands' POSITIONS, nor the left operand's class, nor the parse-tree shape decides
+anything on its own.  [C266]'s store-route rule is the same idea one level up: the DESTINATION's
+addressing mode selects how a value is written; here the SOURCE operand's addressing mode selects
+how the other operand is kept.  Both times the discriminator was an addressing mode, and both times
+I first wrote down a proxy for it (RHS class; class pair) that fit the sample in front of me.

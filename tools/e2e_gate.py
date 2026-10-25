@@ -676,6 +676,30 @@ SPECIMENS.update({
 # E40S2/S4 stay divergent on the same build, which is the direct evidence that they are separate
 # questions; a common policy is plausible and unproven.  [C261]'s both-operands-are-members
 # predicate is still too narrow, and the real discriminator is unmeasured.
+#   **[E2E-40/P9] CLOSED, and it was neither of the two readings on offer.**  Seven DR probes
+#   (golden/e45) show the discriminator is the CLASS OF THE RIGHT OPERAND: DR parks the left operand
+#   with PUSH H / POP D exactly when the operand it is about to load into HL is an internal
+#   FIXED BIN(<=15) member -- whatever the left operand is.  (ordinary, member) parks with only one
+#   member present, so [C260]'s pair reading is refuted; (compound, ordinary) takes XCHG in three
+#   independent samples (E45S2/S3/S5, matching MB36 [C150] and D12), so compound-left is refuted.
+#   E40S2 and E40S4 are registered byte-exact below; both rows are deleted from DIVERGENT.txt.
+# [E2E-40/P9] three-term FIXED ADD and the operand-preservation route.  DR's discriminator is
+# the storage class of the RIGHT operand (golden/e45/E45S1..S7, predictions in
+# golden/e45/PREDICTIONS.txt written before the oracle ran).  E40S2/E40S4 are DR's own objects
+# that pinned this defect for five milestones and are registered here as byte-exact for the first
+# time; E45S1 and E45S4 were deliberately never byte-exact on any build, so they are new
+# specimens of a fixed defect rather than regressions being covered up.
+SPECIMENS.update({
+    "E40S2":  ("artefacts/E40S2.PLI", "golden/e40n/E40S2/E40S2.REL"),
+    "E40S4":  ("artefacts/E40S4.PLI", "golden/e40n/E40S4/E40S4.REL"),
+    "E45S1":  ("artefacts/E45S1.PLI", "golden/e45/E45S1/E45S1.REL"),
+    "E45S2":  ("artefacts/E45S2.PLI", "golden/e45/E45S2/E45S2.REL"),
+    "E45S3":  ("artefacts/E45S3.PLI", "golden/e45/E45S3/E45S3.REL"),
+    "E45S4":  ("artefacts/E45S4.PLI", "golden/e45/E45S4/E45S4.REL"),
+    "E45S5":  ("artefacts/E45S5.PLI", "golden/e45/E45S5/E45S5.REL"),
+    "E45S7":  ("artefacts/E45S7.PLI", "golden/e45/E45S7/E45S7.REL"),
+})
+
 SPECIMENS.update({
     "E39S5":  ("artefacts/E39S5.PLI", "golden/e39a/E39S5/E39S5.REL"),
     "E40S1":  ("artefacts/E40S1.PLI", "golden/e40n/E40S1/E40S1.REL"),
@@ -686,8 +710,8 @@ SPECIMENS.update({
 # address takes that address with `LXI H', so the value must be parked -- `PUSH H / LXI H,<cell> /
 # POP D / MOV M,E / INX H / MOV M,D' -- while a store to a plain cell ends in `SHLD' even for the
 # same expression.  These four probes are the matrix; E39S7 (`a = a + g.b') promoted from the
-# divergence panel in the same slice, and E40S2/E40S4 stayed pinned (their residual is operand
-# preservation, not the store -- see the correction below).
+# divergence panel in the same slice, and E40S2/E40S4 stayed pinned **[closed in P9: the operand-
+# route question, not the store question]** (their residual is operand
 #   E41P1  `a = b + 1'      member <- biased member.  DR's body is `LHLD b / INX H / PUSH H /
 #          LXI H,*(DATA+0) / POP D / MOV M,E / INX H / MOV M,D': the bias belongs to the VALUE and
 #          the cell is relocated to its own offset (C165's rule, second witness).  This is also the
@@ -1346,6 +1370,18 @@ class NoOverwriteDict(dict):
 
 
 SPECIMENS = NoOverwriteDict(SPECIMENS)
+# [E2E-40/P9] E45S6 is a MY-GAP negative, not a DR refusal: DR compiles
+#   put list(a + (b + c))   (golden/e45/E45S6, CODE 0x54, DATA 000C) and lowers the parenthesized
+# inner sum exactly like the unwrapped one -- its three LHLD fixups read DATA+2, +4, +0, so DR
+# evaluates the right group first and then adds `a', parking the sum each time.  This compiler
+# refuses BEFORE any codegen decision, in the PUT-item matcher (codegen.ml ~8437: it classifies
+# Eident / Eqstruct / Eqptr / Esuffix / Enumber and falls through for a parenthesized sum).  So
+# the refusal is about my PUT item classification, NOT about operand preservation, and P9 did not
+# touch it.  Annotating, not silently registering: the panel must keep showing that DR accepts a
+# shape I do not.
+REJECTS["E45S6"] = (open(os.path.join(ROOT, "artefacts", "E45S6.PLI"), encoding="cp437").read(),
+                    "PUT numeric item form unproven")
+
 REJECTS = NoOverwriteDict(REJECTS)
 
 
@@ -1890,6 +1926,20 @@ NEG_META = {
     # [E2E-40/P8] all four are `my-gap', NOT `dr-refuses': DR has never been shown a member
     # store of these shapes, so nothing here claims DR rejects them.  Registering a form DR
     # would ACCEPT as a DR-negative would ratify my refusal as DR's behaviour [C256].
+    # [E2E-40/P9] the one negative on this panel whose DR verdict is MEASURED, not unmeasured:
+    # DR compiles `put list(a + (b + c))' (golden/e45/E45S6: CODE 0x54, DATA 000C, and its own
+    # linked object prints 31 -- golden/e45r/E45S6.output.txt).  Mine refuses inside the PUT-item
+    # matcher, before any operand-preservation decision: that matcher classifies Eident / Eqstruct
+    # / Eqptr / Esuffix / Enumber and falls through for a parenthesized sum (codegen.ml ~8437).
+    # So this is a PUT-item-classification gap, NOT an ADD-route gap -- the ADD route for exactly
+    # this shape is pinned by the other six E45 probes, which are byte-exact.  Registered so the
+    # panel keeps showing a shape DR accepts and I do not.
+    "E45S6": ("my-gap", "DR COMPILES THIS AND I DO NOT (measured, golden/e45/E45S6 CODE 0x54 / "
+                        "DATA 000C, console 31): a parenthesized sum inside `put list'.  The "
+                        "refusal is in the PUT-item classifier, not in the ADD lowering -- the "
+                        "parenthesized inner sum is lowered exactly like the unwrapped one by DR "
+                        "(its three LHLD fixups read DATA+2, +4, +0, so DR evaluates the right "
+                        "group first).  Unrelated to operand preservation, which P9 closed"),
     "E42N1": ("my-gap", "DR VERDICT UNMEASURED: `a = -5' into an internal member.  E42P2 shows "
                         "DR parks a literal-conversion result, and the negation route "
                         "(lit_dec_neg_to_hl) has no member sample at all, so mine refuses "

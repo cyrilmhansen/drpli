@@ -2698,13 +2698,40 @@ let unwrap_e (e : Ast.expr) =
 (* [E2E-40/P4] both operands name a FIXED BIN(<=15) internal member?  Only an Eident can
    be one (a subscript, a call, or a literal cannot), and the alias to the bare dotted key is
    already resolved by the parser, so a qualified name arrives as a single Eident [C258]. *)
-let vinfo_both_members st l r =
-  let one e =
-    match (unwrap_e e).Ast.e with
-    | Ast.Eident n -> vinfo_imem st n.Ast.orig <> None
-    | _ -> false
-  in
-  one l && one r
+(* [E2E-40/P9] DOES THE RIGHT OPERAND OF AN ADD LOAD AN INTERNAL MEMBER?  This is DR's
+   discriminator for parking the left operand with PUSH H / POP D instead of XCHG.  It replaces
+   `vinfo_both_members', which asked the question of the PAIR and therefore could not see a
+   compound left operand at all (a compound expression is not an Eident), which is exactly the
+   shape E40S2/E40S4 fail on.  Seven DR probes decide it (golden/e45, predictions in
+   golden/e45/PREDICTIONS.txt written first):
+     h + a + b   (ordinary,member) inner -> PUSH        E45S1 84 == mine 84   (pair rule refuted:
+                 (compound,member) outer -> PUSH                              only ONE is a member)
+     a + h + b   (member,ordinary) inner -> XCHG        E45S4 83 == mine 83   (so it is not "a member
+                 (compound,member) outer -> PUSH                              is involved somewhere")
+     a + b + h                           outer -> XCHG  E45S2 83 == DR        (compound-left refuted:
+                                                                             matches MB36 `(n*3)+n'
+                                                                             [C150] and golden/e2e182/
+                                                                             D12 `t+(g(3)+g(3))+g(3)'
+                                                                             at code 0x6F-0x74)
+     h + k + n                           outer -> XCHG  E45S3 82 == DR
+     h + k + a                           outer -> PUSH  E45S7 83 == DR        (S3 vs S7: identical
+                                                                             topology, identical inner
+                                                                             route, one operand's
+                                                                             storage class differs)
+     a + b + 5                           outer -> LXI B / DAD B, no swap      E45S5 82 == DR
+   Only an Eident can be a member; a subscript, a call or a literal cannot.  Parens are unwrapped
+   because DR lowers a parenthesized expression exactly like the unwrapped one [P401, (i+i)], and
+   the parser folds `g.a' into one Eident [C258], so a qualified name needs no special case.
+   `vinfo_imem' is Some k only for a FIXED BIN(<=15) member of an INTERNAL structure: POINTER and
+   BASED-view members, heads, formals and statics are None [C260], and their deref ladders destroy
+   DE and take the PUSH route through `writes_de' instead, which is why this function says no to
+   them rather than guessing at a shape no probe has shown (E40Q4 stays a pinned divergence). *)
+let rec rhs_is_imem st e =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident n -> vinfo_imem st n.Ast.orig <> None
+  | Ast.Econd x -> rhs_is_imem st x
+  | _ -> false
+
 let bfix_val_load st (cell : string) (k : int) () =
   st.last_imm <- None;
   d st op_lhld; reloc st Data (addr_of st cell);
@@ -3935,15 +3962,17 @@ let rec lower_hl st (e : Ast.expr) =
            defect is pre-existing, not introduced by C148. *)
         if add_left_needs_push r then begin
           lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d; d st op_dad_d
-        end else if vinfo_both_members st l r then begin
-          (* [E2E-40/P4] DR preserves the LEFT operand on the STACK, not in DE, when BOTH
-             operands are structure members [C260].  Three DR programs pin this exactly:
-               E39S2 `a + b'  (member, member)   LHLD a / PUSH H / LHLD b / POP D / DAD D
-               E40Q1 `g.a+k.a'(member, member)   same form
-               E39S3 `a + h'  (member, ordinary) LHLD a / XCHG  / LHLD h / DAD D
-             So the discriminator is the CLASS PAIR, not which side is a member and -- as an
-             earlier reading of this rule had it -- not tail position [C254 withdrawn as to
-             its explanation].  XCHG and PUSH/POP are value-identical here: POP D restores
+        end else if rhs_is_imem st r then begin
+          (* [E2E-40/P9, correcting E2E-40/P4's reading of the same bytes] DR preserves the LEFT
+             operand on the STACK, not in DE, when the RIGHT operand is an internal structure
+             member -- whatever the left operand is.  P4 saw three programs ((member,member) x2
+             and (member,ordinary)) and concluded the discriminator was the CLASS PAIR [C260];
+             that was the shape of the sample, not DR's rule, and E45S1 (`h + a', ordinary left,
+             member right) parks with only one member involved, while E40S2/E45S7 park behind a
+             COMPOUND left.  The pair reading is what left E40S2/E40S4 one byte short for five
+             milestones.  Still true from P4: the push is keyed on operand CLASS, never on tail
+             position [C254's explanation withdrawn then, unchanged now], and XCHG and PUSH/POP
+             are value-identical here -- both leave HL = left+right and DE = left.  XCHG and PUSH/POP are value-identical here: POP D restores
              exactly what LHLD loaded, and DAD D adds DE to HL either way.  What differs is
              the surviving register state (H survives PUSH/POP, C does not survive XCHG --
              nothing downstream samples H after a DAD D in my lowering, so this cannot change

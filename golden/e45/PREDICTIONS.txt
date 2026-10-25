@@ -140,3 +140,27 @@ The two pairs that do the work:
   * any probe whose DR total differs from section 3   -> my own model of DR's evaluation ORDER is wrong;
                                                           stop and re-derive before touching codegen.
 --------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+ADDENDUM -- E45S8, written and committed BEFORE DR saw it, AFTER E45S1..S7 had
+--------------------------------------------------------------------------------
+The six probes above settled the compound-left case, but they left one disjunct of the shipped
+rule untested.  My arm pushes when (i) storing/keeping the left operand destroys DE, (ii) the left
+operand is syntactically compound, or (iii) the RIGHT operand is an internal member cell.  S1's
+inner node `h + a' is covered by (i) -- and only incidentally by (iii), because `h = ...' follows
+and my SHLD-style store reuses HL.  So S1 cannot say whether (iii) is sufficient on its own.
+
+E45S8 removes the store:   put list(h + a);   (h ordinary, a a member, nothing assigned)
+  * right-operand class alone (rule (iii), H2 in section 2): DR parks --
+      LHLD h / PUSH H / LHLD a / POP D / DAD D
+  * "HL must survive because it will be reused as an address": DR does NOT park --
+      LHLD h / XCHG / LHLD a / DAD D
+  These are 8 bytes apart in one instruction, so a single .REL decides it.  Predicted DR CODE 83
+  under the first reading and 82 under the second (this compiler predicts 83 and emits the park,
+  because its own generic arm is rule (iii)); DATA 000C either way; console 24 = 17 + 7 in both,
+  which is the [C254] point again -- the value cannot see the route, which is exactly why this
+  probe exists and why the bytes are the instrument.
+  If DR parks, [C271]'s rule stands as written and the `writes_de' disjunct is a coincidence of my
+  store lowering.  If DR swaps, the rule is about HL reuse, [C271] must be re-stated, and E45S1's
+  agreement was produced by a different mechanism than the one I documented.

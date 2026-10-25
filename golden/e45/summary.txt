@@ -1,0 +1,7 @@
+E45S1	ok	PRN=True REL=True
+E45S2	ok	PRN=True REL=True
+E45S3	ok	PRN=True REL=True
+E45S4	ok	PRN=True REL=True
+E45S5	ok	PRN=True REL=True
+E45S6	ok	PRN=True REL=True
+E45S7	ok	PRN=True REL=True

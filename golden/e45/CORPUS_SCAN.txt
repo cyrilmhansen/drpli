@@ -1,0 +1,34 @@
+E2E-40/P9 -- BLAST RADIUS, MEASURED OVER THE WHOLE GOLDEN CORPUS
+================================================================
+Tool: golden/e45/scan_tails.py (run: `python3 golden/e45/scan_tails.py' from the repo root, ~3 min).
+It reads all 2050 .REL files through tools/dis80.code_and_xrefs and counts DR's two
+operand-preservation tails by opcode sequence:
+  park  E5 2A . . D1 19   PUSH H / LHLD <right> / POP D / DAD D
+  swap  EB 2A . . 19      XCHG / LHLD <right> / DAD D
+and flags a site whose preceding byte is 19 (DAD D), i.e. a SECOND add inside one expression --
+the only population a rule keyed on a compound left operand could possibly change.
+
+  park sites, all                                    44   (in 154 files)
+  swap sites, all                                   128   (in 154 files)
+  park sites at a second add                         11 listings
+  swap sites at a second add                          5 listings
+
+LISTINGS ARE NOT PROGRAMS.  The runtime panel stores its own copy of a .REL under
+golden/e32rt_<NAME>/, so every program on that panel is scanned twice; a scan over golden/** counts
+both copies.  Deduplicated, the 11 + 5 listings are 9 programs:
+  second add, PARK:  E40S2, E40S4, E45S1, E45S4, E45S6, E45S7          (6 programs)
+  second add, SWAP:  D12, E45S2, E45S3                                  (3 programs)
+and the 154/154 file counts are also inflated by those copies, so the interesting number is not
+there either.
+
+WHY THIS IS THE COLLATERAL PROOF.  The nine programs above are, between them, the entire set of DR
+samples where the choice at a second add has ever been observed.  Six of them are this slice's own
+probes, two are the divergences it closed, and the ninth -- golden/e2e182/D12, source `return (t +
+(g(3) + g(3))) + g(3)' read out of DR's listing, ordinary scalars throughout -- is DR's XCHG behind a
+compound left, which the new rule must and does leave alone.  Every one of those nine is byte-exact
+against DR on the current build, and 981/981 panel specimens pass with 0 failures, with the corpus
+census recomputing to 0 DIFFERS / 0 UNEXPECTED.  Nothing outside this set was reachable by the change.
+
+The remaining 44-11 = 33 park listings are FIRST adds, where this compiler already pushed for the
+reason [C260] recorded (both operands members) -- a reason that coincides with the true rule on every
+sample that has ever shown it.
