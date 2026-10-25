@@ -1,0 +1,142 @@
+E2E-40/P9 -- THREE-TERM FIXED ADD: WHAT ROUTE DOES DR TAKE AT A COMPOUND LEFT OPERAND?
+Written and committed BEFORE DR saw any of E45S1..E45S7. Baseline HEAD 7edd243 (P8c + its item-0 fix).
+Nothing below is derived from a DR run; it is derived from (a) the two authentic DR objects E40S2/E40S4,
+(b) DR witnesses already in the repo, and (c) this compiler's own output, which is NOT an oracle.
+
+--------------------------------------------------------------------------------
+0. THE DEFECT BEING INVESTIGATED (reproduced on the current build, before any change)
+--------------------------------------------------------------------------------
+E40S2 (`declare 1 g, 2 h, 3 a fixed, 3 c fixed, 2 b fixed; a=7; c=5; b=9; put list(a+b+c)'):
+  DR   0027 LHLD a / 002A PUSH H / 002B LHLD b / 002E POP D / 002F DAD D   <- inner (a+b)
+       0030 PUSH H / 0031 LHLD c / 0034 POP D / 0035 DAD D                 <- OUTER, 6 bytes
+  mine 0027..002F  identical to DR
+       0030 XCHG / 0031 LHLD c / 0034 DAD D                               <- 5 bytes
+  DR CODE 0x44 (68), mine 0x43 (67); DATA agrees at 6; the ONLY difference in the whole file is that
+  one instruction and the 1-byte shift it causes. E40S4 (leaf declared before the subgroup) is the
+  same one instruction. Verified this session with tools/dis80.py + tools/reldump.py [C264].
+
+--------------------------------------------------------------------------------
+1. THE AUTHENTIC DATA THAT CONSTRAINS THE RULE (all pre-existing, DR-produced)
+--------------------------------------------------------------------------------
+  shape                         left operand    right operand    DR route
+  E39S2   a + b                 member          member           PUSH H / POP D
+  E40Q1   g.a + k.a              member          member           PUSH H / POP D
+  E39S3   a + h                  member          ordinary         XCHG
+  E39P1   a + b (flat vars)      ordinary        ordinary         XCHG
+  MB34    n + (n*3)              ordinary        COMPOUND         PUSH H / POP D   [C150]
+  MB35    (n+1) + (n*3)          COMPOUND        COMPOUND         PUSH H / POP D   [C150]
+  MB36    (n*3) + n              COMPOUND        ordinary         XCHG             [C150]  <<<
+  E40S2   (a+b) + c              COMPOUND        MEMBER           PUSH H / POP D   (the defect)
+  D12     (t+(g(3)+g(3)))+g(3)   COMPOUND        ordinary scalar  XCHG             (golden/e2e182/D12,
+                                                                                   code 0x6F-0x74)  <<<
+MB36 and D12 are a genuine DR `(compound) + ordinary` = XCHG, so **"the left operand is compound" is
+NOT what selects PUSH H/POP D** -- a rule that fired on compound-left would have to explain both away.
+Nothing in the corpus has ever shown DR a three-term add whose right operand is a member at the outer
+node (E40S2/S4 are the only two 3-term adds in all 2037 .REL files -- scanned this session) and nothing
+has ever shown DR a two-term add whose LEFT is an ordinary scalar and whose RIGHT is a member.
+
+--------------------------------------------------------------------------------
+2. THE SURVIVING HYPOTHESES
+--------------------------------------------------------------------------------
+H2  RIGHT-CLASS.  DR parks the left operand on the stack exactly when the operand being LOADED into HL
+    next (the right operand) is a structure member, or is itself compound; otherwise XCHG.
+    Explains every row above. This compiler already implements a NARROWER version: it pushes when the
+    right operand writes DE, or is compound, or when BOTH operands are members [C260]. The two extra
+    E40S2 bytes are the case (compound-left, member-right), which `vinfo_both_members` cannot see
+    because its left argument is an expression, not an Eident.
+H2' CLASS PAIR (member,member) or (compound,member) only.  Differs from H2 exactly at a
+    (ordinary-left, member-right) node. E39S3 pins (member,ordinary)=XCHG but the reverse pair has
+    NEVER been shown to DR.
+H1  COMPOUND-LEFT.  Refuted twice over by MB36/D12 above; retained here only so the probes can
+    re-falsify it in a member context, because MB36/D12 come from the E2E-15/E2E-18 pointer-era corpus
+    where the left operand was a multiplication/call ladder rather than a member sum.
+H3  TOPOLOGY / GROUPING.  DR might key on the parse tree shape rather than on storage class.
+H4  PRIOR REGISTER STATE.  The choice depends on what the previous operation left in DE.  Note for the
+    arithmetic: after BOTH routes HL = left+right and DE = the left operand's value, so the outward
+    state is identical -- H4 has to be about the *history* of HL, not its content.
+H5  A SPECIALIZED CONSECUTIVE-MEMBER ROUTE.  DR has a path for "sum of members" that generalizes no
+    further.  If true, probes whose terms mix classes should fall back to XCHG everywhere.
+
+--------------------------------------------------------------------------------
+3. THE PROBES (7).  Identical declarations, identical initializations in all of them; ONLY the
+   expression in `put list(...)' differs, so every difference localizes to the ADD region.
+   declare 1 g, 2 a fixed, 2 b fixed, 2 c fixed;  declare h fixed, k fixed, n fixed;
+   a=7; b=11; c=13; h=17; k=19; n=23;
+--------------------------------------------------------------------------------
+  probe  expression        inner node (class, class)        outer node            expected total
+  E45S1  h + a + b         (ordinary, member)               (compound, member)    35
+  E45S2  a + b + h         (member, member)                 (compound, ordinary)  35
+  E45S3  h + k + n         (ordinary, ordinary)             (compound, ordinary)  59
+  E45S4  a + h + b         (member, ordinary)               (compound, member)    35
+  E45S5  a + b + 5         (member, member)                 (compound, LITERAL)   23
+  E45S6  a + (b + c)       (member, member) [right group]   (member, compound)    31
+  E45S7  h + k + a         (ordinary, ordinary)             (compound, member)    49
+The two pairs that do the work:
+  S3 vs S7  -- identical topology and identical inner route; the outer RIGHT operand changes storage
+     class only.  H2/H2' say XCHG then PUSH (DR 1 byte bigger on S7); H1 says PUSH in both (S3 == S7);
+     H5 says XCHG in both.  This is the single-dimension test of the right-operand's class.
+  S1 vs S4  -- both end in (compound, member); the inner nodes differ ((ordinary,member) vs
+     (member,ordinary)).  E39S3 pins (member,ordinary)=XCHG.  If S1's inner is PUSH and S4's inner is
+     XCHG, the rule is H2 (right class alone) and NOT H2' (which needs both members) and NOT H4 (which
+     would key on the left operand's provenance).
+  S2  -- outer (compound, ordinary): H2/H2'/H1-disfavour all say XCHG, i.e. my CURRENT build should
+     match DR byte for byte here.  If DR pushes at S2's outer node, the compound-left reading is back.
+  S5  -- is a literal right operand treated like a simple cell (XCHG / LXI-B-DAD-B) or like a compound
+     one (PUSH)?  This compiler already uses `LXI B,5 / DAD B` there, so a PUSH in DR would mean the
+     push is keyed on more than "right is simple".
+  S6  -- does right-grouping change anything (H3)?  NOTE: this compiler currently REFUSES E45S6
+     ("PUT numeric item form unproven [TBD]"), so S6 yields DR-side information only; it cannot
+     compare routes.  Recorded as a known my-gap, not as evidence about parity.
+
+--------------------------------------------------------------------------------
+4. BYTE-LEVEL PREDICTIONS.  Each PUSH-route site costs exactly 1 more byte than an XCHG site
+   (PUSH H/LHLD/POP D/DAD D = 1+3+1+1 = 6 versus XCHG/LHLD/DAD D = 1+3+1 = 5), so predicted DR CODE
+   = this compiler's actual CODE + (sites where DR pushes and I do not).  The "mine now" column is
+   MEASURED on this build.  (An earlier draft of this section carried estimated sizes, 0x45/0x46,
+   written before measuring; corrected here, before the oracle ran.  Arithmetic and measurement only:
+   no hypothesis, falsifier or prediction of DR's behaviour was changed by the correction.)
+   probe  expression   mine now     H2          H2'         H1
+   E45S1  h + a + b    0x52 (82)    84 (+2)     83 (+1)     84 (+2)
+   E45S2  a + b + h    0x53 (83)    83 (+0)     83 (+0)     84 (+1)
+   E45S3  h + k + n    0x52 (82)    82 (+0)     82 (+0)     83 (+1)
+   E45S4  a + h + b    0x52 (82)    83 (+1)     83 (+1)     83 (+1)
+   E45S5  a + b + 5    0x52 (82)    82 (+0)     82 (+0)     83 (+1)
+   E45S6  a + (b + c)  refused      --          --          --
+   E45S7  h + k + a    0x52 (82)    83 (+1)     83 (+1)     83 (+1)
+   Reading the table: S1's SIZE alone does not separate H2 from H2' (they differ by one site but S1's
+   inner pair is (ordinary, member), which H2' treats as XCHG -> 83, while H2 treats as PUSH -> 84);
+   S4's size is identical under all three, because S4's inner (member, ordinary) is XCHG everywhere
+   and its outer (compound, member) is PUSH everywhere.  So the size table can only refute H1 (84 at
+   S2/S3/S5 vs 83).  H2 vs H2' is decided by S1's inner INSTRUCTION, not by any length: if S1 shows
+   PUSH H/POP D at (h + a) the pure right-class rule stands; XCHG there means both operands must be
+   members and (compound, member) at the outer node is a separate third case.
+   DATA is predicted 000C in all seven (6 FIXED variables; the subgroup `g' reserves nothing [C264]) --
+   confirmed on this build -- and the route choice must NOT move any member address: all fixup operands
+   are predicted identical to this compiler's, so a length match proves nothing [C264] and the whole
+   .REL will be compared, per probe, before any conclusion.
+   Runtime: DR's own linked objects must print 35 / 35 / 59 / 35 / 23 / 31 / 43 in probe order.  A
+   route swap is value-preserving in this shape, so the console CANNOT confirm a route; it is here to
+   catch a wrong-operand selection (18, 24 or 28 at S1 would mean a term was dropped or reused).
+--------------------------------------------------------------------------------
+5. WHAT WOULD REFUTE THE PREFERRED READING (H2)
+--------------------------------------------------------------------------------
+  * S1's inner node comes out XCHG                     -> the rule needs BOTH operands to be members
+                                                          (H2'), and (ordinary-left, member-right) is
+                                                          still unmeasured at the outer node too.
+  * S3's outer node comes out PUSH                    -> H2 is wrong about right-operand class; the
+                                                          surviving reading is H1 or H5.
+  * S7's outer node comes out XCHG                    -> the push at E40S2's outer node was about the
+                                                          whole 3-member chain (H5), not about `c'.
+  * S2's outer node comes out PUSH                    -> (compound, ordinary) pushes in a member
+                                                          context although MB36/D12 did not: the rule
+                                                          depends on the STORAGE CLASS of the left
+                                                          operand's subterms, i.e. on evaluation
+                                                          history -- H4, and a new mechanism.
+  * S5 comes out PUSH                                 -> the discriminator is "the right operand needs
+                                                          more than one instruction", i.e. C150's
+                                                          syntactic rule covers everything and member-
+                                                          ness is irrelevant -- which would leave
+                                                          E40S2 unexplained, so this is a split verdict.
+  * any probe whose DR total differs from section 3   -> my own model of DR's evaluation ORDER is wrong;
+                                                          stop and re-derive before touching codegen.
+--------------------------------------------------------------------------------
