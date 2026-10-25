@@ -1,0 +1,78 @@
+E2E-40/P8b -- PRE-RUN PREDICTIONS.  Written and committed BEFORE the oracle ran (this file's
+git log shows the commit; the oracle transcript in golden/e44/transcript-batch*.txt is later).
+Baseline f359b8e [E2E-40/P8a].
+
+WHY THESE THREE PROGRAMS
+  P8a withdrew the -8..16 member-ladder window and replaced it with `ladder_bias_fits k =
+  -32768 <= k <= 32767', i.e. the range of the 16-bit DAD addend.  That lower endpoint has
+  never been reached by this compiler from the source forms we can write: the ladder arm of
+  member_store_class is guarded by `fits t', which tests the SOURCE LITERAL, and the only
+  spelling that produces k = -32768 is `a = a - 32768', whose literal is POSITIVE 32768 and
+  therefore fails `fits t'.  So the code's apparent support for -32768 is unreachable from
+  that shape, and [C268]'s "the whole 16-bit addend" is an over-claim on two counts (the
+  endpoint is unmeasured in DR, and my own classifier never tests it).
+  Three facts must stay separate:
+    (1) 8080 `DAD B' can represent the addend 8000h = -32768.  Instruction-set fact.
+    (2) My classifier rejects POSITIVE SOURCE LITERAL 32768 in the ladder arm (`fits t'), so
+        `a = a - 32768' currently classifies Ms_general.  Verified below, not assumed.
+    (3) DR's choice for `a = a - 32768'.  UNKNOWN.  (1) and (2) say nothing about it.
+
+THE PROGRAMS (same template as golden/e43l, golden/e43b, golden/e42p: internal
+`declare 1 g, 2 a fixed, 2 b fixed', member `a' at DATA+0, `b' at DATA+2, DATA 0004)
+  E44A1  g.a=100; g.b=1; a = a - 32767; put list(a);  last ordinary positive literal, k=-32767
+  E44B1  g.a=100; g.b=1; a = a - 32768; put list(a);  the disputed boundary, k=-32768
+  E44C1  g.a=100; g.b=1; h=100; h = h - 32768; put list(h);  ORDINARY scalar control, so a
+         member-vs-general literal-conversion rule can be told apart.  (DATA 0006: a, b, h.)
+
+WHAT MY BUILD DOES AT f359b8e (measured with ./pli80c + tools/dis80.py, before any oracle ran)
+  E44A1  code 58 (0x3A)  `LHLD <a> / LXI B,8001 / DAD B / SHLD <a>'          -> Ms_ladder
+  E44B1  code 75 (0x4B)  `LHLD <a> / PUSH H / LXI H <pool> / MVI A,05 / CALL / CALL /
+                          POP D / CALL <sub> / PUSH H / LXI H <a> / POP D / MOV M,E /
+                          INX H / MOV M,D'                                    -> Ms_general
+  E44C1  code 76 (0x4C)  same conversion, general subtract, then `SHLD <h>'   -> ordinary
+  So A is expected to be byte-identical to DR (it is the unremarkable end of a range DR has
+  already been shown over, -16..+32767).  B is the experiment.
+
+HYPOTHESES FOR E44B1, AND WHAT WOULD FALSIFY EACH.  They are NOT mutually exclusive: H2 is a
+code-generation route and H3 is a possible runtime consequence of that same route, so the
+expected outcomes are H1, H2[+/-H3], and H4.
+
+  H1  THE EFFECTIVE SIGNED ADDEND DECIDES.  DR recognises a direct self-update, ignores the
+      sign spelling and emits
+          LHLD <a> / LXI B,8000 / DAD B / SHLD <a>
+      Predicts: whole-file 256/256 identical to mine ONLY IF mine also switches (it will not
+      until the classifier is corrected); CODE 0x3A like every other ladder probe; fixups on
+      the member address 0x0 for the LHLD, the SHLD, the two initializing LXI H and the PUT's
+      LHLD -- five, all DATA+0x0 or DATA+0x2, and NO pool cell; execution prints -32668.
+      FALSIFIED if CODE != 0x3A, or if no `LXI B,8000' appears, or if a decimal-conversion
+      CALL triple shows up.
+  H2  THE SOURCE LITERAL'S MAGNITUDE DECIDES (what my code does today).  Positive 32768 is
+      out of signed BIN(15), so it goes through DR's decimal conversion (`MVI A,05' +
+      ?QDI15/?QICOP, the pool cell sized for 5 digits -- the E42P2/E43M1 signature), the
+      subtraction is the general route, and because the destination is a member the value is
+      PARKED: PUSH H / LXI H,<a> / POP D / MOV M,E / INX H / MOV M,D.
+      Predicts: CODE ~0x4B, one EXTRA DATA cell beyond 0004 (the literal pool), the store
+      fixup inside a PUSH/POP sandwich, execution printing -32668 if the conversion is
+      range-clean, or aborting under H3.
+      FALSIFIED if the body is 0x3A with `LXI B,8000', or if DR refuses to compile.
+      NOTE: this hypothesis is MIRRORING MY OWN IMPLEMENTATION ONTO DR.  It is recorded as a
+      prediction precisely because the P8a lesson is that my route is not evidence of DR's.
+  H3  COMPILES BUT ABORTS.  A .REL exists, and the run aborts `ERROR (1), Conversion' before
+      the subtraction, because DR's conversion/range check on a positive 32768 fires the way
+      it does when 32768 is STORED into a BIN(15) cell (E43M1, golden/e43lr).  Predicts a
+      console of 61 bytes matching E43M1's shape with traceback digits spelling 3, 32, 327,
+      3276, 32768.
+      FALSIFIED if the console is the value -32668.  Under H1 this hypothesis is irrelevant --
+      a ladder has no conversion call to abort in.
+  H4  DR REJECTS THE SOURCE.  No .REL, a diagnostic in the PRN (compare E41P2's `STRUCTURE ?'
+      and the E39X2 `DUPLIC ?' cases).  Predicts: compile rc != 0 / missing .REL.
+      Falsified the moment a .REL is extracted from the simulator disk.
+
+  UNRESOLVED BY ANY OF THEM: whether DR's choice at 32768 is about the ADDEND (H1) or about
+  the LITERAL (H2), and whether `a = a + (-32768)' -- a different AST, Eprefix inside Ebinary
+  -- follows the same route.  E44C1 is the control that separates "member rule" from "literal
+  magnitude rule": if the ordinary scalar also converts, a difference between A/B/C cannot be
+  blamed on the destination.
+
+DEPENDENCE ORDER.  Predicting E44A1 exactly is the cheap check that the harness is measuring
+what I think it is: if A does NOT come out the ladder, everything below is suspect.
