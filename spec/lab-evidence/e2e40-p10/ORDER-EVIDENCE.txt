@@ -20,3 +20,37 @@ That .REL lived at /tmp/e45s6.rel and was overwritten by the next build before t
 directory existed.  The measurement survives in the note (section 2); the artifact does
 not.  Recorded so the absence reads as a bookkeeping gap, not as a step never run.
 Both orders print 31: execution cannot see this difference [C264].
+
+----------------------------------------------------------------------
+ADDENDUM [E2E-40/P10a]: the intermediate image has been REGENERATED
+----------------------------------------------------------------------
+The paragraph above says the classifier-fix-only .REL was overwritten and only its measurements
+survived.  At P10a it was rebuilt, so the artifact now exists -- as a RECONSTRUCTION, not as the
+original file:
+
+  recipe (a throwaway copy of the tree, nothing in the repo modified):
+    tar -c --exclude=_build --exclude=.git ocaml | tar -x -C /tmp/prev_tree
+    edit /tmp/prev_tree/ocaml/lib/codegen.ml:
+      `if paren_add_right r then begin'  ->  `if false && paren_add_right r then begin'
+    dune build bin/pli80c.exe
+    ./_build/default/bin/pli80c.exe artefacts/E45S6.PLI /tmp/leftfirst.rel
+
+  Measured, three images, relocation operands in file order (tools/reldump.py | grep RELOC):
+    classifier fix only, ADD route OFF (leftfirst-regenerated.rel):
+      0x0 0x2 0x4 0x6 0x8 0xa 0x0 0x2 0x4 0x51
+    shipped P10/P10a (after-both-fixes.rel):
+      0x0 0x2 0x4 0x6 0x8 0xa 0x2 0x4 0x0 0x51
+    DR golden/e45/E45S6/E45S6.REL:
+      0x0 0x2 0x4 0x6 0x8 0xa 0x2 0x4 0x0 0x51
+
+  leftfirst-regenerated.rel vs DR: 11 differing bytes, at file offsets 113, 117-126 -- the
+  RELOC records, not the code area.  leftfirst vs shipped: the SAME 11 offsets, and NOTHING
+  else.  That is the cleanest possible statement of [C264] in this context: swapping DR's
+  evaluation order moves no instruction byte at all; it permutes three relocation operands and
+  the record lengths that wrap them.  Execution cannot see it, which is why both orders print 31.
+
+  This confirms the numbers P10 recorded from the lost artifact (11 bytes, expression fixups
+  0x0 0x2 0x4 = a, b, c) and upgrades them from `measurement survives, artifact does not' to
+  `measurement reproduced from a rebuilt equivalent'.  It is still NOT the P10 build: same
+  source, same flags, different /tmp directory, built weeks later -- so the file hash is not a
+  chain of custody back to P10's run.

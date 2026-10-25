@@ -1,0 +1,59 @@
+E2E-40/P10a -- gate summary, measured on the shipped build
+
+Build:      dune build bin/pli80c.exe, exit 0.
+            Warning sites, HEAD `c325faf' built from a clean `git archive': 116
+            Warning sites, this tree, built from a clean copy:                  116
+            -> no new warnings.  Binary 4631160 bytes,
+               sha256 be0f5a03e36b39c9...
+
+Two gate runs exist for this slice.  The FIRST was launched before a comment-only rebuild, so
+the binary changed underneath it and its provenance is muddled; it is kept as
+`gate-overlapped.log' and is NOT the slice's evidence.  The run below is the clean one: final
+tree built first, gate executed once against that binary.
+
+  e2e gate: 983 byte-exact / 0 fail of 983
+  e2e gate: negative panel clean (128/128 refused)
+  e2e gate: divergence panel 9/9 as recorded (compiles, differs, shape pinned)
+  e2e gate: runtime panel (46 rows; the object executed is the one the byte check compares)
+  e2e gate: runtime panel 46/46 as recorded (expectation + termination)
+  exit code 0
+
+  FAIL / MISMATCH lines in the log: 0
+  'Traceback' occurrences: 5, ALL inside OK runtime rows
+  (E42P2, E43M1, E44B1, E44C1, E44D1 print DR's runtime abort banner [C267]).  P9a's commit
+  message called a log '0 FAIL/ABORT/Traceback lines' while 5 such substrings sat inside OK
+  rows; this file counts them instead of denying them.
+
+  coverage:     confidence      INFERRED=3 MEASURED=71 SINGLE_SAMPLE=8 UNREVIEWED=4
+              86 rows, 15 columns, ragged rows: []
+  coverage_check.py has no --verify flag; the pre-commit validation is its own schema check
+  above, and `--verify' belongs to corpus_census.py:
+  census:     corpus census: recomputed counts match ../../../../../tmp/census_p10a.json (nothing written)
+              44 programs, EXACT 15, DIFFERS 0, UNEXPECTED 0
+  panel_keys: suggested rel_parity for the classified set: MIXED:10/10   (10 exact + 0 divergent + 0 refused; 0 cited name(s) unregistered and excluded)
+
+Panel sizes (unchanged by this slice -- it registers nothing):
+  INVENTORY.txt  983 byte-exact specimens, 128 refusals
+  DIVERGENT.txt  9 measured divergences (non-comment lines: 10 = header + rows)
+  RUNTIME.txt    46 runtime rows (non-comment lines: 47 = header + rows)
+
+git diff --check: exit 0.
+
+E45S6 after the guard simplification: 256/256 identical to golden/e45/E45S6/E45S6.REL.
+Every panel program re-checked individually -- the witness list is recorded in
+spec/notes/e2e40-p10-parenthesized-add-order.md section 8; R722 and LR19, which stay byte-exact
+but do NOT bear on this arm, are explained in section 9(c) of that note.
+
+Binary provenance: four gate runs happened for this slice; only the last is the slice's evidence.
+  (1) launched before a comment-only rebuild finished, so the binary changed underneath it -- kept as
+      `gate-run1-overlapped.log', disclaimed;
+  (2) and (3) each ran on a built tree, and comment-only edits landed after each of them (the
+      reconstruction cross-references, then the seven-versus-eight prediction nuance);
+  (4) THE CITED RUN: final source built, then one gate execution against that exact binary.  Its log
+      is `gate-final.log' and its numbers are above.
+No executable line changed between (1) and (4) -- `CODE-DIFF.txt' proves the comment-stripped diff
+against HEAD is exactly the guard line -- and all four runs returned identical numbers, which is
+itself the check that the comment churn was inert.
+
+Expectation for this slice: byte-parity must not move.  It did not: 983/983, 128/128,
+9/9, 46/46, 86/0/0, 15/0/0.  A simplification that changed a count would have been a bug.

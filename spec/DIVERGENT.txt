@@ -28,8 +28,9 @@
 name	source	golden	mine_code_bytes	dr_code_bytes	mine_data_bytes	dr_data_bytes	nbytes	verdict	note
 # [E2E-40/P9] TWO ROWS DELETED HERE, deliberately, with the numbers they carried left in git
 # (E40S2 and E40S4, both recorded 67 vs DR 68 CODE and 74 differing file bytes).  Their residual was
-# one instruction at the OUTER add of a three-term sum.  Seven DR probes (golden/e45, predictions in
-# golden/e45/PREDICTIONS.txt written before the oracle ran) showed DR parks the left operand with
+# one instruction at the OUTER add of a three-term sum.  Seven initial DR probes (golden/e45; the
+# predictions are in golden/e45/PREDICTIONS.txt, written and committed before DR saw any of those
+# seven) and then the eighth, E45S8, showed DR parks the left operand with
 # PUSH H / POP D exactly when the RIGHT operand is an internal FIXED BIN(<=15) member -- which this
 # compiler had been reading as a property of the operand PAIR [C260].  Both programs are now 256/256
 # whole-file identical to DR, registered in the byte-exact panel with runtime rows beside them.

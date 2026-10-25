@@ -884,8 +884,10 @@ source-scanning count silently misses.  Coverage 86 rows / 0 errors / 0 warnings
 **The change.**  Two additions to `ocaml/lib/codegen.ml`, one per problem: `num_width`'s recursive
 width function gains `| Ast.Econd x -> w x` (parens are transparent for width, joining `unwrap_e`,
 `add_left_needs_push`, `writes_de` and `rhs_is_imem`), and the generic FIXED ADD arm gains a
-right-first route gated by `paren_add_right r && (add_left_needs_push r || writes_de st r ||
-rhs_is_imem st r)`, placed before the existing route tests.  `paren_add_right` is
+right-first route, placed before the existing route tests, gated as P10 shipped it by
+`paren_add_right r && (add_left_needs_push r || writes_de st r || rhs_is_imem st r)` -- a suffix P10a
+proved tautological and removed, so the shipped test is `paren_add_right r` alone.  `paren_add_right`
+is
 `Econd { e = Ebinary (Add, _, _) }` and nothing wider.
 
 **Two gaps where P9 saw one.**  P9 registered E45S6 as a PUT-item-classifier refusal and noted,
@@ -901,10 +903,13 @@ DATA initializers (7/11/13 distinct) and the DATA layout is identical, so the co
 circular and not about spelling.  Execution discriminated nothing at any point: both orders print 31
 [C264, again].
 
-**The bound, measured before and after.**  MB34 `n + (n*3)`, MB35 `(n+1) + (n*3)`, R722 `a + (b/d)`
-and LR19 `x + (-32768)` are parenthesized right operands that DR evaluates LEFT-first and that this
-compiler keeps byte-identical after the change -- which is why the gate names the inner operator
-instead of testing for parentheses.  Unparenthesized compound rights keep [C271]'s route.  No
+**The bound, measured before and after.**  MB34 `n + (n*3)` and MB35 `(n+1) + (n*3)` are parenthesized
+right operands whose inner operator is MUL; they reach this arm, DR evaluates them LEFT-first (MB34's
+DATA fixups run 0x1, 0x1, 0x3 = n, n, m), and this compiler keeps them byte-identical -- which is why
+the gate names the inner operator instead of testing for parentheses.  P10 also cited R722
+`a + (b/d)` and LR19 `x + (-32768)` here; **[E2E-40/P10a] a branch trace shows neither reaches this
+arm** (decimal operands; out-of-range literal), so DIV, SUB, EXP and a parenthesized literal are
+UNSAMPLED at this arm, though both programs remain byte-exact specimens of the route they do take.  Unparenthesized compound rights keep [C271]'s route.  No
 reassociation: the AST order is untouched, and no normalization to `(a + b) + c` anywhere.
 
 **Gate (measured on the shipped build, `--runtime', exit read without a pipe):** 983 byte-exact / 0
@@ -914,7 +919,58 @@ warnings, census 44 programs / 15 EXACT / 0 DIFFERS / 0 UNEXPECTED with `--verif
 `tools/e2e_gate.py` where the entry was, because a `my-gap' row that vanishes silently is
 indistinguishable from a gap that never existed [C256].
 
-**Open after P10.**  Parenthesized group on the LEFT of an ADD; a parenthesized group inside a store
-RHS or a condition; inner SUB/EXP in a parenthesized right operand -- all four have no sample, and
-each is one probe.  Unchanged from P9: POINTER/BASED-view members as right operands (E40Q4's 12-byte
+**Open after P10** *(three of these four statements are wrong; the P10a section below corrects them --
+kept as the record of what P10 believed it had left open)*.  Parenthesized group on the LEFT of an
+ADD; a parenthesized group inside a store RHS or a condition; inner SUB/EXP in a parenthesized right
+operand -- all four have no sample, and each is one probe.  Unchanged from P9: POINTER/BASED-view members as right operands (E40Q4's 12-byte
 gap), array elements as right operands (never traced through any disjunct), SUB/MUL/DIV ADD routes.
+
+## [E2E-40/P10a] A tautological guard removed; two of P10's four witnesses were never at this arm
+
+**The change.**  `if paren_add_right r && (add_left_needs_push r || writes_de st r || rhs_is_imem st r)`
+becomes `if paren_add_right r`.  The suffix was not merely unnecessary, it was **provable from the
+definitions**: `paren_add_right` matches only `Econd { e = Ebinary (Add, _, _) }` and
+`add_left_needs_push` recurses through `Econd` to `Ebinary _ -> true`, so the first disjunct is true
+whenever the guard is considered, for every AST value.  And `writes_de st r` in that position is dead
+the other way: the match lives inside the `else` of `if writes_de st r`.  Body, arm order and every
+surrounding branch are untouched -- verified by stripping all comments from HEAD's and this revision's
+`codegen.ml` and diffing, which yields exactly one changed executable line -- plus one blank line that
+moved with a relocated comment block (`spec/lab-evidence/e2e40-p10a/CODE-DIFF.txt`).  A
+**semantics-preserving simplification, not a DR finding.**
+
+**The write-up corrections, which are the substance of this slice.**  (1) P10 restored, over P9a's
+corrected text, the comment claiming E45S1's inner park came from `writes_de` and that
+`put list(h + a)` "has not been written" -- both disproved in P9a by branch trace, and re-disproved
+here by the same instrument (`rhs_is_imem` fires at E45S1 inner and outer, at E45S8, at E40S2/E40S4's
+outer; `writes_de` at none).  P9a's block is restored verbatim; P10's helper and its comment are kept.
+(2) The conjunction was described as "load-bearing" and as the reason MB34/R722 stayed left-first; the
+pattern is what excludes them, and the conjunction excluded nothing.  (3) R722 and LR19 were listed as
+guards of this route; a trace shows neither reaches the generic FIXED ADD arm, so the sampled operator
+set at this arm is **ADD (right-first, E45S6) and MUL (left-first, MB34/MB35) only**, and DIV, SUB,
+EXP and a parenthesized literal are unsampled.  (4) The comment's relocation sequence had been written
+as `0x2, 0x4, 0x0` twice; the recorded evidence is `0, 2, 4, 6, 8, A | 2, 4, 0 | 51`.  (5) The P10 note
+carried a duplicated paragraph whose second copy said "the first five fixups agree" where six
+initializers agree.  (6) `EXPR.ADD_PRESERVE_ROUTE`'s boundary column still asserted, in the present
+tense, that E45S6 is a my-gap refusal and that E45S1's agreement came from `writes_de`; both removed,
+one labelled historical clause kept in their place, and the row now says why `runtime=NONE` on it is
+deliberate (both routes and both orders compute the same sum, so no linked-image run bears on this
+contract).
+
+**Gate (measured on this build).**  983 byte-exact / 0 fail, 128/128 refusals, 9/9 divergences,
+46/46 runtime rows, coverage 86 rows / 0 errors / 0 warnings, census 44 programs / 15 EXACT /
+0 DIFFERS / 0 UNEXPECTED with `--verify` clean, INVENTORY unchanged at 983 + 128.  E45S6 stays
+256/256 identical to DR.  Clean-build warning count unchanged at 116 (pre-existing sites; this slice
+adds none -- and note `dune` hashes content, so `touch` alone does not force a recompile and a cached
+build prints no warnings, which briefly made the tree look warning-free).
+
+**Open after P10a.**  Parenthesized DIV/SUB/EXP/literal as the right operand of a FIXED ADD at this
+arm -- one probe each, and R722/LR19 do not answer them.  A parenthesized inner ADD inside a store's
+RHS (MB34/MB35 show a parenthesized MUL there is left-first; the ADD case is unsampled).  A
+parenthesized group inside a condition, and parenthesized groups on both sides -- no sample of either.
+**Correction to P10's list above:** it says a parenthesized group on the LEFT has no sample.  It does --
+MB35 `(n+1) + (n*3)' reaches this arm and DR computes the left group first and parks it (`LHLD n /
+INX H / PUSH H / LHLD n / LXI D,3 / CALL ?IM22N / POP D / DAD D / SHLD m`, expression fixups
+`0x1, 0x1, 0x3`).  What stays open there is `(a+b) + c`, a parenthesized left group with a SIMPLE
+right operand: MB35's right is compound, so its order comes from [C271]'s park and says nothing about
+a left-group rule.  Unchanged from P10: E40Q4's 12-byte POINTER-member gap, array elements as
+right operands, SUB/MUL/DIV operand preservation.

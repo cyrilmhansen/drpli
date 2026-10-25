@@ -676,8 +676,11 @@ SPECIMENS.update({
 # E40S2/S4 stay divergent on the same build, which is the direct evidence that they are separate
 # questions; a common policy is plausible and unproven.  [C261]'s both-operands-are-members
 # predicate is still too narrow, and the real discriminator is unmeasured.
-#   **[E2E-40/P9] CLOSED, and it was neither of the two readings on offer.**  Seven DR probes
-#   (golden/e45) show the discriminator is the CLASS OF THE RIGHT OPERAND: DR parks the left operand
+#   **[E2E-40/P9] CLOSED, and it was neither of the two readings on offer.**  Seven initial DR probes
+#   (golden/e45; predictions for those seven written and committed before DR saw any of them),
+#   followed by the eighth, E45S8 -- whose prediction is an ADDENDUM to that file, written before DR
+#   saw E45S8 but after the first oracle run -- show the discriminator is the CLASS OF THE RIGHT
+#   OPERAND: DR parks the left operand
 #   with PUSH H / POP D exactly when the operand it is about to load into HL is an internal
 #   FIXED BIN(<=15) member -- whatever the left operand is.  (ordinary, member) parks with only one
 #   member present, so [C260]'s pair reading is refuted; (compound, ordinary) takes XCHG in three
@@ -1383,15 +1386,20 @@ SPECIMENS = NoOverwriteDict(SPECIMENS)
 # [E2E-40/P9 -> RETIRED BY E2E-40/P10] E45S6 WAS the one negative on this panel whose DR verdict was
 # MEASURED rather than unmeasured: DR compiles `put list(a + (b + c))' (golden/e45/E45S6: CODE 0x54,
 # DATA 000C, console 31 in golden/e45r/E45S6.output.txt) and its own relocation order -- expression
-# fixups to DATA+2, +4, +0, i.e. b, c, a -- said it evaluates the parenthesized right group first.
+# fixups to 0x0 0x2 0x4 0x6 0x8 0xa | 0x2 0x4 0x0 | 0x51 -- six initializers, then the expression as
+# b, c, a, then the code length -- i.e. it evaluates the parenthesized right group first.
 # P9 registered the refusal and stopped there, describing it as a PUT-item-classifier gap only.  It
 # was TWO gaps: the width classifier had no Econd case (the actual refusal), and the generic ADD arm
 # evaluated left-first, which the classifier fix alone exposed as an 11-byte difference.  P10 closes
 # both; E45S6 is now a byte-exact specimen AND a runtime row, and this negative is gone.  Recorded
 # here rather than deleted because a my-gap entry disappearing without explanation is indistinguishable
 # from a gap that never existed.  The remaining negatives E42N1/E42N2/E42N4 stay, and E45S6's
-# neighbours -- a parenthesized MUL/DIV/SUB on the right of an ADD -- keep their left-first routes and
-# are byte-exact, so the shape admitted is `(x + (y + z))' with internal members and nothing wider.
+# neighbours are narrower than P10 claimed [E2E-40/P10a]: a parenthesized MUL on the right of an ADD
+# (MB34, MB35) reaches this arm and keeps its left-first route, but R722 `a + (b/d)' and LR19
+# `x + (-32768)' do NOT reach this arm (decimal operands; out-of-range literal), so DIV/SUB/EXP and a
+# parenthesized literal are UNSAMPLED here.  What is admitted is `(x + (y + z))' with internal members,
+# nothing wider -- and the guard is `paren_add_right r' alone, since P10's conjunction was implied by
+# its own left operand (spec/lab-evidence/e2e40-p10a/ARM-REACH.txt).
 
 REJECTS = NoOverwriteDict(REJECTS)
 

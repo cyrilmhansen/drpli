@@ -5587,9 +5587,10 @@ are untouched.
 > outputs, the pre-fix and post-fix `.REL' files and the two disassemblies are in
 > `spec/lab-evidence/e2e40-p9a/'.
 
-**C272 — DR evaluates a PARENTHESIZED ADD group appearing as the right operand of an ADD FIRST, and
-parks that group's value while it loads the left operand; the same shape with a MUL or DIV inside the
-parens is evaluated LEFT-first.**  [E2E-40/P10, `golden/e45/E45S6', `spec/notes/e2e40-p10-parenthesized-add-order.md']
+**C272 — For the one directly measured form, `ADD(left, parenthesized ADD(...))`, DR evaluates the
+parenthesized right-hand ADD FIRST and preserves its result while it evaluates the left operand; a
+measured parenthesized MUL right operand at the same arm stays LEFT-first.  Parenthesized DIV, SUB,
+EXP and a parenthesized literal are NOT sampled at this arm.**  [E2E-40/P10, `golden/e45/E45S6', `spec/notes/e2e40-p10-parenthesized-add-order.md']
 
 (a) **The program.**  `b9e: procedure options(main); declare 1 g, 2 a fixed, 2 b fixed, 2 c fixed;
 declare h fixed, k fixed, n fixed; a=7; b=11; c=13; h=17; k=19; n=23; put list(a + (b + c)); stop;
@@ -5600,19 +5601,33 @@ spaces + `31`).
 code byte in a `.REL' -- it is a RELOC record [C264] -- so the evaluation order is visible only in the
 **fixup sequence**.  DR's expression fixups run `data 0x2, 0x4, 0x0` = `b, c, a`; this compiler's,
 before the change, ran `0x0, 0x2, 0x4` = `a, b, c`.  The cells are identified from DR's own DATA
-initializers (7, 11, 13 are distinct) and the DATA layout is identical in both images -- the first
-five fixups agree -- so this is neither a layout argument nor a naming argument.  Instructions, from
-DR's linked image where the operands are concrete:
+initializers (7, 11, 13 are distinct) and the DATA layout is identical in both images -- the six initializer
+fixups agree (`0x0, 0x2, 0x4, 0x6, 0x8, 0xa', then the three expression operands, then the `0x51'
+code-length reloc, all recorded in `spec/lab-evidence/e2e40-p10/ORDER-EVIDENCE.txt', whose P10a
+addendum also files a REBUILT left-first image (`spec/lab-evidence/e2e40-p10a/leftfirst-regenerated.rel':
+11 bytes from DR, every one of them inside a RELOC record, zero instruction bytes moved) -- so this is
+neither a layout argument nor a naming argument.  Instructions, from DR's linked image where the
+operands are concrete:
 
     LHLD b / PUSH H / LHLD c / POP D / DAD D / PUSH H / LHLD a / POP D / DAD D
 
-(c) **The four witnesses that bound it.**  `n + (n*3)` (MB34), `(n+1) + (n*3)` (MB35), `a + (b/d)`
-(R722) and `x + (-32768)` (LR19) are all parenthesized right operands and all stay LEFT-first, byte-
-exact at P10 without change.  So parentheses alone do not flip the order: the licensed trigger is a
-parenthesized group whose inner operator is **ADD**, in a position that parks anyway under [C271].
-Unparenthesized compound rights (`a + b + h`, E45S2; `(a+b)+c` spelled as `a+b+c`, E40S2) keep the
-[C271] left-first park.  Inner SUB/EXP have no sample and are excluded by construction, not by
-measurement.
+(c) **The bound, and which of P10's four witnesses are real.**  MB34 `n + (n*3)` and MB35
+`(n+1) + (n*3)` DO reach the generic FIXED ADD arm with a parenthesized right operand whose inner
+operator is MUL, and DR evaluates them LEFT-first.  The evidence is not only the fixups: MB34's own
+code is `LHLD n / PUSH H / LHLD n / LXI D,0003 / CALL ?IM22N / POP D / DAD D / SHLD m' and MB35's is
+`LHLD n / INX H / PUSH H / LHLD n / LXI D,0003 / CALL ?IM22N / POP D / DAD D / SHLD m' -- the left
+operand is loaded and PARKED before the parenthesized MUL is evaluated.  Their expression fixups both
+run `0x1, 0x1, 0x3' = n, n, m (the last being the store, not an operand), and my images match DR
+256/256 on both.  MB35 additionally samples a parenthesized group on the LEFT, `(n+1)', computed
+first -- see (f) for what that does and does not license.  So parentheses alone do not flip the order: what does is the inner operator being **ADD**.
+P10 additionally cited R722 `a + (b/d)` and LR19 `x + (-32768)` as left-first guards of the same
+route.  **A branch trace shows neither reaches this arm at all** [E2E-40/P10a,
+`spec/lab-evidence/e2e40-p10a/ARM-REACH.txt`] -- R722's four variables are `fixed dec(9,2)' and
+LR19's literal is outside the in-range path -- so they neither confirm nor deny anything about
+`paren_add_right': **DIV, SUB, EXP and a parenthesized literal are UNSAMPLED at this arm.**  Both
+programs stay byte-exact specimens of whatever route they do take, which is why the panel still
+re-checks them.  Unparenthesized compound rights (`a + b + h`, E45S2; `(a+b)+c` spelled `a+b+c`,
+E40S2) keep [C271]'s left-first park.
 
 (d) **Why the console cannot find this.**  Both orders compute 31, both images are 17 bytes for the
 expression, and the difference lives entirely in fixup order (11 file bytes).  Execution verified the
@@ -5624,14 +5639,21 @@ value at every step of this slice and discriminated nothing -- [C264]'s point ag
 catch-all; `classify_item` already admitted the top-level parenthesized item [N304].  Adding
 `| Ast.Econd x -> w x` alone made the program compile and differ by 11 bytes; adding the order rule
 alone was unreachable because the refusal came first.  The order rule is gated by
-`paren_add_right r && (add_left_needs_push r || writes_de st r || rhs_is_imem st r)` and placed
-before the existing route tests.  Conjunction, not a bare paren test, because the three left-first
-witnesses above are all parenthesized.
+`paren_add_right r`, placed before the existing route tests -- see (i) for the redundant suffix P10
+also shipped and P10a removed.
 
-(f) **Not claimed.**  Any account of *why* DR orders it that way; that a parenthesized group on the
-LEFT behaves as this one does; that a parenthesized group inside a store's RHS or a condition behaves
-as this one does; any general parenthesis support; anything about POINTER/BASED-view members (E40Q4
-unchanged), nor SUB/MUL/DIV routes.  Width traversal through `Econd` is licensed only because width
+(f) **Not claimed -- and the three things to keep apart.**  (1) *What DR demonstrably emits*: for
+E45S6, the right group first, from DR's own relocations; for MB34/MB35, the left operand first.  (2)
+*What this compiler's classifier selects*: `paren_add_right`, i.e. an `Econd` wrapping an `Ebinary
+Add`, nothing wider.  (3) *What is not established*: that these two coincide beyond the sampled
+operators, and any account of *why* DR orders it that way.  Also not claimed, position by
+position: that a parenthesized group on the LEFT behaves as this one does -- MB35 `(n+1) + (n*3)'
+samples a parenthesized LEFT group and DR computes it first, but its right operand is compound, so the
+`(a+b) + c' shape with a simple right operand is unmeasured; that the rule survives inside a CONDITION
+(no sample anywhere) or with parenthesized groups on BOTH sides (no sample); that a parenthesized
+**ADD** at a store's RHS orders like E45S6's (MB34/MB35 put a parenthesized MUL there, left-first, and
+the ADD case is unmeasured); and any general parenthesis support.
+anything about POINTER/BASED-view members (E40Q4 unchanged), nor SUB/MUL/DIV routes.  Width traversal through `Econd` is licensed only because width
 is max-of-leaf-widths read from the same binder rows; it is not a claim that a parenthesized item has
 the same *lowering* as an unwrapped one in general.
 
@@ -5642,3 +5664,28 @@ the same *lowering* as an unwrapped one in general.
 983, exit 0.  (h) P9's own retirement note on this negative already recorded the fixup order and
 still drew the wrong scope from it -- "NOT about operand preservation" -- which is the shape of the
 error this slice exists to fix: a fact in a comment is not a fact applied.
+
+> **[E2E-40/P10a CORRECTION -- a semantics-preserving simplification, plus a witness that was never
+> at this arm.]**  Two things.  **(i) The guard was partly tautological.**  P10 shipped
+> `paren_add_right r && (add_left_needs_push r || writes_de st r || rhs_is_imem st r)'.  But
+> `paren_add_right` is true only of `Econd { e = Ebinary (Add, _, _) }`, and `add_left_needs_push`
+> maps `Econd x` to itself and any `Ebinary` to true, so `paren_add_right r => add_left_needs_push r`
+> **for every AST value** -- not merely on E45S6 -- and the suffix's first disjunct decided the whole
+> disjunction.  The `writes_de st r` disjunct was dead in the opposite direction too: this match sits
+> inside the `else` of `if writes_de st r` fifteen lines above, so that test was already false
+> wherever the guard is evaluated.  P10a ships `paren_add_right r` alone.  Verified by stripping every
+> comment from HEAD's and P10a's `codegen.ml` and diffing: **one executable line differs** -- plus one
+> blank line that moved with a relocated comment block, recorded in
+> `spec/lab-evidence/e2e40-p10a/CODE-DIFF.txt`, and
+> E45S6, E45S1, E45S8, E40S2, E40S4, MB34, MB35, MB36, R722, LR19, N301-N304, P401, E42P1, E39S2,
+> E39S7, E40Q1 all remain 256/256 identical to their DR goldens.  This is a code-hygiene change, NOT
+> a DR finding: nothing about DR's behaviour was learned, and the parenthesized MUL/DIV programs were
+> never kept out of the new route by the conjunction -- `paren_add_right`'s own pattern requires an
+> inner ADD, which is what excludes them.  P10's phrase "(parenthesized, inner operator ADD,
+> park-worthy right) triple" is withdrawn: the third element selected nothing and was never a tested
+> condition, so "in a position that parks anyway under [C271]" in (c) is likewise not part of the
+> licence.  **(ii) Two of the four cited witnesses do not exercise this arm** -- see the rewritten
+> (c).  Both corrections came from reading the definitions and from a temporary branch trace since
+> reverted, and the same trace that found them also re-confirmed P9a's finding that `rhs_is_imem` --
+> not `writes_de` -- selects the park at E45S1, E45S8 and E40S2/E40S4; P10 had overwritten that
+> comment with P9's superseded text and P10a restores it.

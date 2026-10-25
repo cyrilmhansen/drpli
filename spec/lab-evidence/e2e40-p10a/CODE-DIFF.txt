@@ -1,0 +1,34 @@
+CODE DIFFERS -- 16 diff lines:
+--- 
++++ 
+@@ -1828,3 +1828,2 @@
+  
+- 
+ let paren_add_right e =
+@@ -1834,2 +1833,3 @@
+ 
++ 
+ let rec rhs_is_imem st e =
+@@ -2657,4 +2657,3 @@
+          
+-        if paren_add_right r
+-           && (add_left_needs_push r || writes_de st r || rhs_is_imem st r) then begin
++        if paren_add_right r then begin
+            
+
+Reading: the ONLY executable difference between HEAD (`c325faf', P10) and this revision is the guard --
+the two blank-line moves are whitespace that follows the relocated comment blocks (the [E2E-40/P9]
+block was put back directly above `rhs_is_imem', which is where P9a had it, instead of stranded two
+definitions away as P10 left it).  Everything else in this slice is comment prose.
+
+Method: `strip_comments.py' removes every (* ... *) block (nesting-aware, string-literal aware)
+from two revisions of codegen.ml and diffs the result.  Reproduce with:
+
+    git show HEAD:ocaml/lib/codegen.ml > /tmp/head_cg.ml
+    python3 spec/lab-evidence/e2e40-p10a/strip_comments.py /tmp/head_cg.ml ocaml/lib/codegen.ml
+
+WHY A STRIPPED DIFF AND NOT ONLY A BYTE COMPARISON: outputs agreeing on 983 programs shows the two
+builds coincide on the panel; the stripped diff shows the change COULD NOT have reached any other
+program, including ones never compiled.  The implication `paren_add_right r =>
+add_left_needs_push r' is a property of the patterns, not of a sample -- which is why the
+simplification needed no oracle run and gets no claim about DR.

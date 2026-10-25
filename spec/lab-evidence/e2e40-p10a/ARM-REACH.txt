@@ -1,0 +1,63 @@
+E2E-40/P10a -- which ADD arm each witness actually reaches (temporary trace, since reverted)
+
+Method: `prerr_endline' immediately before the P10 guard, at the top of the NEEDS_PUSH arm, at the
+top of the rhs_is_imem arm, and at the top of the XCHG arm of the GENERIC FIXED ADD match
+(codegen.ml ~3950).  Built locally, run over nine programs, then `codegen.ml' restored byte-identical
+to HEAD (`diff` against `git show HEAD:ocaml/lib/codegen.ml' empty).  The line before the `if' prints
+the syntactic class of the RIGHT operand; the arm line says which branch was taken, so the pair
+distinguishes "paren_add_right true" from "paren_add_right false but a paren node arrived".
+
+  program   source              reaches the generic FIXED ADD arm?            arm taken
+  E45S6     a + (b + c)         YES, twice: outer r=cond, inner r=other       outer PAREN-FIRST, inner rhs_is_imem
+  E45S1     h + a, (h+a) + b    YES, twice                                    both rhs_is_imem (no parens anywhere)
+  E45S8     h + a in a PUT      YES                                           rhs_is_imem
+  E40S2     a + b + h           YES, twice                                    rhs_is_imem
+  MB36      (n*3) + n           YES                                           XCHG
+  MB34      n + (n*3)           YES, r=cond                                   NEEDS_PUSH  <- paren_add_right FALSE (inner MUL)
+  MB35      (n+1) + (n*3)       YES, r=cond                                   NEEDS_PUSH  <- paren_add_right FALSE (inner MUL)
+  R722      a + (b/d)           NO -- no TRACE-ADD line at all                different arm (all four vars are `fixed dec(9,2)')
+  LR19      x + (-32768)        NO -- no TRACE-ADD line at all                different arm (literal outside LXI range)
+
+CONSEQUENCE FOR [C272]'s SCOPE.  MB34 and MB35 are real witnesses: a PARENTHESIZED right operand
+whose inner operator is MUL arrives at this arm and is evaluated LEFT-first by DR (MB34's own
+relocation order is 0x1, 0x1, 0x3 = n, n, m -- the left operand's LHLD is the first expression
+fixup) and stays byte-identical after P10.  R722 and LR19 are NOT witnesses about this arm: neither
+reaches it, so neither can confirm or deny anything about `paren_add_right'.  P10's note and code
+comment listed all four as the bound; the correct bound is MB34/MB35 for MUL, and UNMEASURED at this
+arm for DIV, SUB, EXP and for a parenthesized literal.  P10a corrects the attribution; the programs
+themselves are untouched and remain byte-exact specimens of whatever route they do take.
+
+----------------------------------------------------------------------
+ADDENDUM [P10a]: POSITIVE IDENTIFICATION, NOT ABSENCE
+----------------------------------------------------------------------
+Absence of a trace line is weak evidence -- it can mean "different route" or "instrument in
+the wrong place" (P9a's lesson, [C271]).  Both non-witnesses are therefore identified
+positively as well:
+
+  LR19 `y = x + (-32768)'
+      codegen.ml has FOUR `Ast.Ebinary' arms before the generic FIXED ADD arm, at lines
+      3886 (mixed DEC), 3903 (out-of-range integer literal, guarded by `e25_bin_routes
+      (e25_is_dec st) op l r'), 3919 (call on the right, [C141]) and then the generic arm
+      itself.  `over_lit_operand' (line 1734) unwraps `Econd' and recognizes
+      `Eprefix (Minus, Enumber)', so LR19's right operand is claimed by the arm at 3903.
+      The emitted bytes agree with that arm's `None, Some' branch and not with the generic
+      arm's: `LHLD x / PUSH H / LXI H,<cell> / MVI A,05 / CALL / CALL / POP D / DAD D /
+      SHLD y' -- the left operand is loaded first and PARKED, and the literal is converted
+      into a signed decimal cell (the [E2E-25/C178] route, LR11/LR17/LR18/LR19 are its own
+      four specimens).  So LR19 never reaches the arm that carries `paren_add_right'.
+      Note what its bytes do NOT show: they show no XCHG at all, so P9's table row
+      "LR19 (literal right, in parens) | XCHG | PUSH H" describes neither the route nor the
+      order.  It is not a left-first witness either: it is a different arm.
+
+  R722 `a = b + (c/d)' with four `fixed dec(9,2)' operands
+      Its DECIMAL precision makes it a mixed-DEC program, claimed before the generic arm.
+      Positive evidence in the images themselves: the EXTERNAL name records of DR's golden
+      `golden/e18/MB30/R722.REL' are `?DDVOP ?PNVOP ?START ?SYSPR', and this compiler's
+      rebuilt image lists exactly the same four.  `?DDVOP' is DR's decimal operate routine;
+      a FIXED-binary XCHG/PUSH ladder for `b + (c/d)' would carry none of these names.
+      MB34's EXTERNALs by contrast are `?IM22N ?PNCOP ?START' -- integer conversion, no
+      decimal operator -- and MB34 DOES reach the generic arm, with the trace confirming it.
+
+So: R722 and LR19 are excluded by two independent kinds of evidence (trace absence from a
+site proven live by three other programs in the same build, plus route identification from
+code reading and from the images' own EXTERNAL records / instruction shapes).
