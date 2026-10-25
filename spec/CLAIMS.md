@@ -5057,3 +5057,97 @@ withdrawal appended there.
 are actually different artifacts of the thing being compared. `git show HEAD:file` vs a file that
 nothing has rewritten for 40 minutes of gate runs is the same measurement twice.
 
+## C266 -- DR's STORE ROUTE IS SELECTED BY THE DESTINATION'S ADDRESSING MODE, NOT BY THE RHS
+## CLASS; "literal vs computed" was only ever the visible half of that (E2E-40/P7)
+
+**Statement.** For an assignment DR asks one question about the *destination*: can the cell be
+written without moving HL? Three answers, and the RHS never picks between them:
+
+| destination | value arrives | DR's write |
+|---|---|---|
+| plain cell (ordinary scalar, static head cell, pointer formal's own cell) | anything -- literal, variable, computed, call | `SHLD <cell>` (value stays in HL) |
+| fixed DATA-address cell (array element, internal structure member) | hl_const-range literal | `LXI H,<cell> / MVI M,lo / INX H / MVI M,hi` (no value load at all [C260]) |
+| fixed DATA-address cell | anything else, INCLUDING A PLAIN VARIABLE | `PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D` |
+| same cell, self-update (`x = x + k`) | ladder | `LHLD / <bias> / SHLD <cell>` -- form 4 tested BEFORE form 3 [C165] |
+| pointer-displaced cell (BASED / POINTER) | anything non-literal | `LHLD <ptr>` reloads the address into HL each time, so park; byte order flips with whether the pointer is dead [C127] |
+
+The single predicate is **"taking the destination's address destroys HL"**. It was already the array
+rule [C165] and the pointer rule [C127]; E39S7 is the same rule on a member, and P4's
+`MVI M` route is its literal half.
+
+**Evidence -- four new DR probes, `golden/e41p`, predictions recorded in
+`golden/e41p/PREDICTIONS.txt` before DR ran.** All four compile `.REL` byte-for-byte identically
+to mine on the P7 build (code 60 / 46 / 65 / 59 bytes, DATA 4/6/4/4).
+
+| probe | statement | destination | DR body | what it settles |
+|---|---|---|---|---|
+| E41P1 | `a = b + 1` | internal member, DATA+0 | `LHLD b / INX H / PUSH H / LXI H,*(0) / POP D / MOV M,E / INX H / MOV M,D` (12) | **falsifier for [C260]**: a biased member read does NOT become `LHLD;INX H;SHLD` |
+| E41P2 | `h = g.a` | **ordinary scalar** | `LHLD a / SHLD *(h)` (6) | the source being a member does not force parking; only the destination does |
+| E41P3 | `g.a=7; g.b=5; a = a + g.b` | internal member | 17-byte body, DR console `12` | E39S7's shape with both operands initialized -- the arithmetic oracle E39S7 is not |
+| E41P4 | `a = b` | internal member | `LHLD b / PUSH H / LXI H,*(0) / POP D / MOV M,E / INX H / MOV M,D` (11) | **the RHS class is irrelevant**: a bare copy parks, exactly as AC1 (`a(3) = b`) does for arrays |
+
+Existing witnesses that did most of the work, re-mined rather than re-invented: **AC1/AC2/AC3/RT4**
+(array form 3 on a variable and on computed RHS; `c = a(2)+a(4)` and `i = a(0)+a(3)` are
+*computed-into-a-plain-cell* and park nothing), **LR7** (`z(2) = 32768`, out-of-range literal,
+still parked), **ST2/ZK6** ([C260]'s own `LXI H / MVI M` and reuse-kill evidence), plus a scan of
+**1963 goldens**: 12 parked sites total against 3740 `SHLD` occurrences in 1185 objects, so parking
+is rare and each site sits at a destination that needs an address in HL. The 34 DR statements of
+the form `var = var` (LABELS `y = x`, R613 `z = x`, R3094/R3101 `a = b; b = c; c = a`, LOAN2
+`m = sm`) are all `LHLD / SHLD` with **zero** intervening `INX H`.
+
+**Where the bias belongs.** `LHLD b / INX H / PUSH H / LXI H,*(cell) / ...`: DR biases the VALUE
+and relocates the destination to the cell's OWN offset. Two independent witnesses -- AC3's
+`a(4) = b + 1` (cell fixup DATA+0x6, a 2-byte element so +1 would be impossible) and E41P1's
+`a = b + 1` (fixup reads DATA+0x0, not +0x1) -- so form 3's operand is never cell+bias. That also
+means the store never needs HL to hold `cell`, only *an* address.
+
+**Register-state consequence, measured not assumed.** The parked store leaves HL at `cell+1`, so
+constant reuse dies there -- the same kill [C260] established for the `MVI M` route, and for the
+same reason. DR's E41P1 then reloads with a full `LHLD a` at 002B for `put list(a)`, with **no
+`XRA A`**, which is what a still-live zero would have produced. `last_imm` is therefore cleared at
+the store and NOT at the preceding `DAD D` (HL legitimately holds the sum) -- no change to the
+ZK6 rule, one more program confirming it.
+
+**Corrections this forces on the record.**
+
+1. **The `LHLD;INX H;SHLD` triple that [C260] item 2 quotes as E39S2's member store exists nowhere
+   in DR.** [C260] already withdrew that citation's RELEVANCE -- "borrowed from RFACT's increment, a
+   different program, and was never checked here" -- and what [E2E-40/P7] adds is the measurement,
+   because E41P1 was the shape that would have produced it. Scanning the code sections of **all 1963
+   goldens** for the adjacency `2a .. 23 22`: **zero hits**, mine included (opcode bytes are payload,
+   so a reloc-hidden operand cannot hide an adjacency). What the triple actually is: the self-add
+   LADDER with a +1 bias on an ORDINARY variable, `LHLD v / INX H / SHLD v` [E22A02..E22A16], where
+   load and store name the SAME cell, so HL holding the value is harmless. A biased copy to a
+   DIFFERENT cell (`a = b + 1`, AC3's `a(4) = b + 1`) never puts those three opcodes adjacent.
+   E39S2's real store is `LXI H,<addr> / MVI M,lo / INX H / MVI M,hi` -- [C260] item 1 -- unchanged.
+   [E2E-40/P7] also fixes what the codegen comment at the P4 store gate asserted: E39S7's parked
+   form was "sampled on array elements only", which was true and is why it was not used -- but the
+   same comment's parenthetical "(LXI H,<addr> / POP D / MOV M,E / INX H / MOV M,D ...)" dropped the
+   leading PUSH H and quoted DR's relocated operand `*(data 0x0)` as an immediate `*(000A)`, the
+   [C264] class of error about the very file this slice is about.
+2. **"At offset 0 the only discriminator between DR's store shapes is literal-vs-computed" -- the
+   reading [C259] recorded, which [C260] built its cost model on -- is superseded, not merely
+   widened.** AC1 (`a(3) = b`, offset 6, a plain
+   variable) already contradicted the "computed" half of it and was read as a register-state fact;
+   E41P4 (member, plain copy) shows the same at offset 0. The correct statement is destination
+   class first, then "is the value a literal DR can write in place".
+3. **[C264]'s "execution cannot discriminate THIS defect class" needs one word.** It is right for
+   E39S5 (self-consistent wrong offsets). But the *same* insight, applied to E39S7, is why E41P3
+   exists: E39S7 never writes `g.b`, so DR's own run prints `7` = `a + 0` and the ADD is invisible
+   in its console -- an observed 7 from E39S7 is not an arithmetic oracle. E41P1 (10 = 9+1) and
+   E41P3 (12 = 7+5) are, because both operands are initialized, and they are the programs that put
+   the bias and the sum on the console instead of only in the bytes.
+
+**Not claimed.** Out-of-range literal member stores keep the `SHLD` tail (DR's decimal-conversion
+route is unsampled for members, and LR7 parks only for an *array* element). The self-add ladder on
+a member keeps `SHLD`: DR's ladder is measured on ordinary variables (AC4/RT4/RFACT) and a
+group-relative `MVI M`/parked variant has no sample -- E40L1, the P4 probe of that shape, was built
+with MY compiler only and is not preserved, so it is not evidence of anything. DEC/CHAR/VARYING/
+POINTER members are still refused or out of perimeter [C228]. `unspec (x) = <computed>` into a
+plain scalar in MPMCALLB parks, which does not fit the destination table above; three of its four
+`unspec` sites involve a based/pointer destination and the fourth (`unspec (i) = ...`, `i fixed`)
+is a real anomaly. I did not build on it and did not let it overwrite AC3/RT4: the `unspec()`
+wrapper is a confound this compiler cannot reproduce, and the P7 change leaves scalar stores
+untouched. E40S2/E40S4 stay divergent on 1 instruction -- see [C261]'s correction: that is operand
+preservation, a different route, and E41P1/P3/P4 pass while they still differ on the same build.
+

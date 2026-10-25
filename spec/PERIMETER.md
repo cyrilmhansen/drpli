@@ -439,7 +439,8 @@ withdrawn -- DR's `PUSH H` sits mid-expression with `MVI A,09` and four calls af
 | member + ordinary ADD (`a + h`) | 53 vs DR 59 | **byte-exact** (E39S3) | keeps `XCHG`. This is the control that forbids widening preservation to "either operand is a member" -- its LEFT operand is a member and DR still uses `XCHG`. |
 | enclosing-frame member read from a nested procedure | 73 vs DR 76 | **byte-exact** (E40N1) | [C257]'s visibility rule now also matches in bytes. |
 | qualified member access, executed | runtime row only (mine vs a transcribed value) | **byte-exact + `.COM` IDENTICAL + console BYTE-EQUAL** (E40R1) | [C261(e)] |
-| nested level-3 structure | CODE 48, DATA 6 vs DR 4 | 54, DATA 6 vs DR 4 | **[E2E-40/P6 WITHDRAWS THE "CODE BYTE-IDENTICAL" CLAIM WRITTEN HERE]**: the code payload was identical because it never contains a member address; DR and mine disagreed in the RELOC fixups (0x0/0x2 vs 0x2/0x4). See [C264] and the row below. | stays in ts form destroys HL, so its value reload is mandatory; keeping my cheaper reuse is a deliberate choice on an unmeasured shape, not an oversight [C261(d)]. |
+| nested level-3 structure | CODE 48, DATA 6 vs DR 4 | 54, DATA 6 vs DR 4 (E39S5) | **[E2E-40/P6 WITHDRAWS THE "CODE BYTE-IDENTICAL" CLAIM WRITTEN HERE]**: the code payload was identical because it never contains a member address; DR and mine disagreed in the RELOC fixups (DR DATA+0x0/0x2, mine 0x2/0x4), and two of the five "record-length" bytes were exactly those offsets. Closed by the subgroup rule [C264] -- E39S5 is 256/256 identical and its .COM is DR's. |
+| member store of a COMPUTED value (`a = a + g.b`) | 49 vs DR 57 | **byte-exact** (E39S7, 57 = DR 57) | **This row was DELETED from the table by [E2E-40/P6]'s edit and is restored from `git show 6df2bd9:spec/PERIMETER.md`, with P4's wording where it still stands.** P4 recorded 52 vs 57 and called the difference "a deliberate choice on an unmeasured shape" -- keeping my cheaper reuse because DR's parked form destroys HL. The shape was not unmeasured: E39S7 IS the DR sample, read in the wrong place. [C266]: a store whose destination cell has a fixed DATA address parks the value (`PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D`) whenever the value came from the general expression path; the subsequent `put list(a)` is a full `LHLD` reload on both sides, so the reuse kill was right and the store shape was not. E40S2/E40S4, which P6 pointed at from here, are a different question -- operand preservation, not the store. |
 | POINTER members (`cpb.nameadr = addr(t)`) | 50 vs DR 62 | 50 vs DR 62 (E40Q4) | **untouched**: out of scope, no oracle for the pointer store shape. Its gap is 3x the FIXED case, which is itself evidence the two routes are not the same route. |
 
 - **Why the gate did not move on 939 -> 946 by accident**: the class predicate is bind's own
@@ -507,4 +508,59 @@ subgroups inside BASED views (the head path, untouched); CHAR/BIT/DEC/VARYING me
 STATIC INITIAL on any member. E40S2/E40S4 remain divergent on 1 instruction, which shows [C261]'s
 "both operands are members" preservation predicate is too narrow -- the three-term sum is E39S7's
 class and is deliberately outside this slice.
+
+## [E2E-40/P7] Computed member store: the DESTINATION's addressing mode selects DR's route [C266]
+
+One question per store: **can the cell be written without moving HL?** The RHS never picks between
+the two answers; it only decides whether the value is a literal DR can write in place.
+
+| destination | value | DR's write | witnesses |
+|---|---|---|---|
+| plain cell (ordinary scalar) | literal / variable / computed / call | `SHLD <cell>` | RT4 `c = a(2)+a(4)`, AC3 `i = a(0)+a(3)`, 34 `var = var` copies in LABELS/R613/R3094/R3101/LOAN2 |
+| " | hl_const literal | `LXI H,<value> / SHLD` | RT4 `b = 17` |
+| fixed DATA-address cell (array element, **internal member**) | hl_const literal | `LXI H,<cell> / MVI M,lo / INX H / MVI M,hi` | AC3 `a(0) = 1`, E39S1/S2 [C260] |
+| " | **anything else, including a plain variable** | `PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D` | AC1 `a(3) = b`, AC2, RT4, **E39S7**, **E41P1/P4** |
+| " | self-update ladder | `LHLD / <bias> / SHLD` -- form 4 tested BEFORE form 3 | AC4, RT4 `a(2) = a(2)+5` [C165] |
+| pointer-displaced cell | non-literal | reload the pointer into HL (`LHLD <ptr>`), park | C127's three shapes, MPMCALLB, DIORAND |
+
+**Four new DR probes close the matrix (`golden/e41p`, byte-exact against mine on all four: code
+60/46/65/59, DATA 4/6/4/4; predictions recorded in `golden/e41p/PREDICTIONS.txt` before DR ran):**
+
+| probe | statement | destination | DR body | settles |
+|---|---|---|---|---|
+| E41P1 | `a = b + 1` | member, DATA+0 | `LHLD b / INX H / PUSH H / LXI H,*(0) / POP D / MOV M,E / INX H / MOV M,D` | the bias belongs to the VALUE; destination relocates to the cell's own offset (M3 refuted); `LHLD;INX H;SHLD` does not appear |
+| E41P2 | `h = g.a` | **ordinary scalar** | `LHLD a / SHLD *(h)` | a member *source* does not force parking (M1 refuted) |
+| E41P4 | `a = b` | member | parked, 11 bytes | **a bare copy parks -- the RHS class is irrelevant** |
+| E41P3 | `g.a=7; g.b=5; a = a + g.b` | member | E39S7's shape, DR console `12` | the arithmetic oracle E39S7 is not |
+
+Corpus-wide: 12 parked sites against 3740 `SHLD` occurrences in 1185 authentic objects, and the
+triple `2a .. 23 22` (`LHLD;INX H;SHLD`) occurs **zero times in all 1963 goldens** -- which is what
+[C260]'s corrected citation claimed for E39S2. It is the ordinary-variable ladder (`LHLD v / INX H /
+SHLD v`, load and store naming the SAME cell) misread as a member store.
+
+**Consequences for register state.** The parked store leaves HL at `cell+1`, so `last_imm` dies at
+the store -- not at the preceding `DAD D` (HL legitimately holds the sum). DR's E41P1 reloads
+`put list(a)` with a full `LHLD a` and **no `XRA A`**, so the zero-store machinery (E36H11/E36H12/
+ZS3-ZS6) does not fire here and my `kill` is right.
+
+**Two rows of this perimeter moved.** E39S7 (`a = a + g.b`, 52 vs DR 57) is byte-exact and promoted;
+its [C261(d)] note "DR's form destroys HL, so its value reload is mandatory; keeping my cheaper
+reuse is a deliberate choice on an unmeasured shape" was wrong because the shape WAS measured -- by
+E39S7 itself, read in the wrong place. **The P6 edit also destroyed a table row: the
+"member store of a COMPUTED value" row of the P4 table above was consumed by a string replacement
+and is now restored from `git show 6df2bd9:spec/PERIMETER.md` with its wording preserved.** That is
+also where the P6 claim about ENTER/UPDATE's blockers was recorded, corrected in two COVERAGE rows
+here (`EMPLOYEE@31` was the phantom subgroup cell, never a DR-shaped fact).
+
+**Still refused / still unmeasured (unchanged by P7, and not silently widened).** POINTER members
+(E40Q4 stays divergent at 50 vs 62); CHAR/VARYING/DEC/BIT members [C228]; STATIC INITIAL on any
+member; member stores of out-of-range literals (keep `SHLD` + DR's decimal-conversion calls, LR7
+parks only for array elements); the self-add ladder on a member (E40L1 was MY build only, no DR
+oracle, so it is not evidence -- no `MVI M`, no parking); `unspec(x) = <computed>` into a plain
+scalar in MPMCALLB parks, which does not fit the table above -- three of its four `unspec` sites
+have a based/pointer destination and the fourth is a genuine anomaly I did not build on. **E40S2 /
+E40S4 are a different question, not a leftover of this one**: their stores are all literals and
+their residual is operand preservation inside `a + b + c`; they remain pinned at 67 vs DR 68 with
+LAYOUT agreeing (DATA 6/6, members 0/2/4), and [C261]'s both-operands-are-members predicate is still
+too narrow with the real discriminator unmeasured.
 

@@ -1,0 +1,40 @@
+# E2E-40/P7 probe predictions -- written BEFORE DR ran (timestamp: see git log of this file)
+
+Model under test (from E39S7 + AC1/AC2/AC3/RT4/LR7 + 34 bare copies):
+  **The DESTINATION class selects the store route; the RHS class only decides
+  whether the value is directly storeable.** A store whose destination needs an
+  address in HL (internal member, array element at fixed offset, pointer-based
+  cell) parks the value when the value arrived via the general expression path
+  (`PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D`), and writes it
+  in place with `MVI M,lo / INX H / MVI M,hi` when the RHS is an hl_const-range
+  literal. A store whose destination is a plain cell always uses `SHLD`.
+
+Alternates:
+  M1 "PARK"  -- parking follows the RHS shape (computed/loaded), so any such
+                store parks, wherever it goes. This is what C260 currently says.
+  M2 "OFFSET" -- DR's real rule is the array rule read literally: offset 0 or a
+                plain cell -> SHLD; nonzero byte offset -> park. Then a member at
+                offset 0 parks only when ... it would NOT park (SHLD), so M2
+                predicts SHLD for every member store except biased-array ones.
+  M3 "BIAS-INTEGRATED" -- DR folds the bias into the destination address
+                (LHLD b / INX H / PUSH H / LXI H,*(0)+1 / ...) for the biased case.
+
+| probe | statement under test | dest class | rhs class | MYPRED | M1 | M2 | M3 |
+|---|---|---|---|---|---|---|---|
+| E41P1 | `a = b + 1`        | internal member, DATA+0 | member read + bias 1 | `LHLD b / INX H / PUSH H / LXI H,*(0) / POP D / MOV M,E / INX H / MOV M,D` = 14 bytes, **no `LHLD;INX H;SHLD`** | `LHLD b / INX H / SHLD *(0)` = 9  <-- FALSIFIER: `LHLD;INX H;SHLD` exists in 0 of 1963 goldens | park (14) | same as MYPRED but `LXI H,*(1)` |
+| E41P2 | `h = g.a`          | ordinary scalar | plain member read | `LHLD a / SHLD *(h)` = 6 | park = 11 <-- falsifies "member-ness of the *source* forces parking" | SHLD = 6 | SHLD = 6 |
+| E41P3 | `a = a + g.b` (both operands initialized) | internal member | member+member ADD | 57-byte image = E39S7's shape plus one more literal store; sum stored PARKED | same (E39S7 already showed it) | SHLD tail | SHLD tail |
+| E41P4 | `a = b`            | internal member, DATA+0 | plain member copy | park = 11 (member destination, value not directly storeable) | park = 11 | `LHLD b / SHLD *(0)` = 6 <-- member would park only at nonzero offset | n/a |
+
+Console expectations (independent arithmetic, both operands initialized):
+  E41P1 = 10 (9 + 1),  E41P2 = 7,  E41P3 = 12 (7 + 5),  E41P4 = 9.
+E39S7 itself prints 7 because `g.b` is never written -- uninitialized DATA is 0,
+so `a + g.b` = `a` and the ADD is invisible in the output; that is why E41P3
+exists and why E39S7's console value is not an arithmetic oracle.
+
+Decisive pair: **P1 vs AC3.** AC3's `i = a(0) + a(3)` and RT4's `c = a(2) + a(4)`
+are computed -> plain cell and DR parks nothing (SHLD). If P1 parks, the variable
+that changed is the destination, and the same statement class (`x = y + 1`) is
+routed two ways. If P1 emits `LHLD;INX H;SHLD`, that exact triple exists in a DR
+object for the first time and my "0 of 1963" measurement was an artifact -- and
+the P7 rule is withdrawn, leaving E39S7 pinned as it was.

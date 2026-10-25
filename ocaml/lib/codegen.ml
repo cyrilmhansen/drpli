@@ -7289,6 +7289,14 @@ statement form IS implemented; this expression form is not.)")
       (* [E2E-11 step 1a] DR's zero-elision pass, before any shape matching:
          this is what turns `a = a + 0' into a 6-byte self-copy instead of an
          ADD, and `b = a + 0 + 0' into one copy of `a' [T5, T8, T9, T13]. *)
+      (* [E2E-40/P7] did the RIGHT operand go through the general expression path, i.e. does
+         HL hold the value at the common tail?  Set in exactly one place, the `| _ ->' branch of
+         the value-production match below, so it cannot claim a shape that did not happen: the
+         self-add LADDER leaves HL biased by its own route and the literal routes leave HL through
+         int_lit_to_hl, and neither is E39S7's class.  The tail uses this to pick DR's parked
+         store for a MEMBER, and it is the [C165] array precedence (form 4 before form 3) applied
+         one level up -- see the tail comment. *)
+      let rhs_landed_in_hl = ref false in
       let rhs = elide_fixed_zero st rhs in
 (* [E2E-23/P3] A GUARD ADMITTED, WRONGLY REMOVED, AND RESTORED -- recorded because the wrong
    removal nearly became the accepted rule.  ZK8/ZK10/ZK11 (65535->0, 0->65535, 32767->32768)
@@ -7385,6 +7393,7 @@ statement form IS implemented; this expression form is not.)")
            (* final SHLD comes from the common tail *)
        | _ ->
            st.last_imm <- None;
+           rhs_landed_in_hl := true;
            lower_hl st rhs);
       (* [E2E-40/P4] DR writes a structure MEMBER through its address, not through the
          value in HL [C260].  E39S3 (`declare 1 g, 2 a fixed, 2 b fixed; a = 7; h = 5')
@@ -7404,17 +7413,30 @@ statement form IS implemented; this expression form is not.)")
          structure, from bind's own RTimem row -- POINTER members (E40Q4) and every
          ordinary scalar are excluded, and E39P1, which is byte-exact against DR's control
          program, keeps the SHLD route below.
-         A non-literal member rhs stays on the SHLD route: DR parks the value
-         (LXI H,<addr> / POP D / MOV M,E / INX H / MOV M,D -- E39S7), which is array form 3,
-         but that form is sampled on array elements only, so this slice leaves it and the
-         residual CODE gap is pinned in DIVERGENT.txt.  It is a shape difference, not a
-         wrong value: SHLD writes the same two bytes HL holds.
+         [E2E-40/P7] THE REST OF THE ROUTE IS NOW IMPLEMENTED, and P4's paragraph for it was
+         wrong in three ways, kept here because the error is instructive.  It said a non-literal
+         member rhs "stays on the SHLD route: DR parks the value (LXI H,<addr> / POP D / MOV M,E /
+         INX H / MOV M,D -- E39S7), but that form is sampled on array elements only".  (i) The
+         quoted sequence omits the leading PUSH H -- DR's E39S7 body at 0017 is `PUSH H / LXI H /
+         POP D / MOV M,E / INX H / MOV M,D'.  (ii) The `*(000A)' below quotes DR's RELOCATED
+         operand as an immediate; the fixup says DATA+0x0, the [C264] error about the very file
+         this slice is about.  (iii) "sampled on array elements only" was true of the corpus as
+         read, and E39S7 was itself the member sample all along: 12 parked sites exist in the
+         authentic DR goldens -- array elements (AC1/AC2/AC3/RT4), a pointer-based cell
+         (MPMCALLB, DIORAND), a POINTER member (E40Q4) and an internal member (E39S7).
+         [C266] is the rule: the DESTINATION's addressing mode selects the route -- a cell whose
+         address has to be loaded into HL parks the value, a plain cell always uses SHLD -- and
+         the RHS only decides whether the value is a literal DR can write in place.  E41P4
+         (`a = b', member, plain copy, parked) and E41P2 (`h = g.a', ordinary, not parked) are
+         the pair that leaves no doubt about which side of the statement the rule reads.
          ONE exception, checked rather than assumed: `a = a + 5' on a member takes the self-add
          LADDER (`LHLD / LXI B,5 / DAD B / SHLD' -- measured against E39S7's general ADD, which
          DR lowers as LHLD/PUSH H/LHLD/POP D/DAD D followed by the parked member store).  The
          ladder's constant tail is byte-exact across E22A02..E22A16 on ORDINARY variables, and no
-         DR sample of it on a MEMBER exists, so whether it would become MVI M there is unmeasured;
-         that residual stays in DIVERGENT.txt rather than being guessed from the literal case. *)
+         DR sample of it on a MEMBER exists, so whether it would become MVI M -- or park -- there
+         is unmeasured, and it stays unpinned rather than being guessed from either the literal
+         case or the general ADD.  E40L1, P4's probe of this shape, was built with MY compiler
+         only and no DR oracle was ever produced for it, so it is not evidence of anything. *)
       (match (unwrap_e rhs).Ast.e, vinfo_imem st n.Ast.orig with
        | Ast.Enumber ks, Some _ when is_int_literal ks && fits_int_lit ks ->
            let v = parse_int_const ks land 0xffff in
@@ -7422,14 +7444,40 @@ statement form IS implemented; this expression form is not.)")
            d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
            (* HL ends up at <member_address>+1, not at a value, so the constant-reuse chain
               dies here -- and DR's ZK6 says it must: `x=1; y=2; a(2)=7; z=3' re-loads z with a
-              fresh LXI H after exactly this address-parking route.  For E39S7 that is the whole
-              3-byte CODE gap: DR emits `LXI H,*(000A)' at 0018 because the member store above
-              destroyed HL, while a reuse chain would have parked 0007 for free. *)
+              fresh LXI H after exactly this address-parking route.  [E2E-40/P7 corrects the rest
+              of this note, written while E39S7 was still being misread: the gap was FIVE bytes,
+              not three, and DR's reload is `LXI H' at the cell whose fixup says DATA+0x0 --
+              `*(000A)' quoted a relocated operand as an immediate, the [C264] error about this
+              very file.  The reuse-kill conclusion stands, and E41P1 measures it again: its
+              `put list(a)' reload is a full `LHLD a' with NO XRA A, so nothing was live [C266]. *)
            if v = 0 then store_zero_pair st
            else begin
              d st op_mvi_m; d st (v land 0xff);
              d st op_inx_h; d st op_mvi_m; d st ((v lsr 8) land 0xff)
            end
+       (* [E2E-40/P7] THE PARKED MEMBER STORE -- the destination class selects the route, not
+          the RHS class [C266].  E39S7 (`a = a + g.b', HL holding the sum, DR at 0017):
+              PUSH H / LXI H,*(data 0x0) / POP D / MOV M,E / INX H / MOV M,D   (8 bytes)
+          against AC3/RT4's `i = a(0) + a(3)', `c = a(2) + a(4)' on ORDINARY destinations:
+              ... DAD D / SHLD *(cell)                                        (3 bytes)
+          which is the same value in HL stored a different way, so the only difference between
+          the two statements is the destination.  A member cell sits at a FIXED DATA offset that
+          `LXI H,<addr>' can reach, and taking that address destroys HL, so the value must be
+          parked -- which is verbatim array form 3, and AC1 (`a(3) = b', a plain VARIABLE) shows
+          the RHS class is irrelevant there, while AC3's `a(0) = 1' (offset 0, literal) shows
+          fixed offset does not by itself force the route.  Together with [C260]'s member+literal
+          -> MVI M, `needs an address in HL' is the single predicate across arrays, members and
+          pointers.  `rhs_landed_in_hl' keeps the two unmeasured member shapes off this route:
+          the self-add LADDER (array form 4's analogue, where DR stores with SHLD) and literals
+          outside hl_const's range, which go through DR's decimal-conversion calls. *)
+       | (_, Some _) when !rhs_landed_in_hl ->
+           st.last_imm <- None;
+           d st op_push_h;
+           d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+           d st op_pop_d;
+           (* 0x73 MOV M,E (LOW first) then INX H then 0x72 MOV M,D -- the order E2E-20
+              corrected against AC1/ST2 and that [C127] records for the pointer route. *)
+           d st 0x73; d st op_inx_h; d st 0x72
        | _ -> d st op_shld; reloc st Data (addr_of st n.Ast.orig))
   | Ast.Esuffix (hd, args)
     when hd_is_element st.arrays hd ->

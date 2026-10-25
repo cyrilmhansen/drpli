@@ -614,7 +614,18 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
     | Some { e = Ast.Enumber t; _ } -> (try int_of_string t with _ -> 0)
     | _ -> 0
   in
-  let group_counts : (dcl * int) list =
+  (* [E2E-40/P6, split cleanly in P7] Two different things used to be one value.  What is
+     MEASURED is the predicate "this item has descendants", i.e. it is a GROUP, and a group
+     reserves no storage [C264: E39S5, E40S1-4, ENTER's seven fixups].  What is NOT measured is
+     DR's `$S' dump line `STRUCTURE LEVEL n, MEMBERS k' for a level >= 2 subgroup -- and the
+     number this walk happens to have available is the count of descendants at ALL DEPTHS in the
+     item's own run, which need not equal DR's `MEMBERS k' (direct children would be the natural
+     reading, and golden/bind1's six DR dumps cannot decide between the two because every
+     structure in them is LEVEL 1 with leaf members only).  So the classification below reads
+     `is_group', and the count is kept under `descendant_count' with that caveat attached,
+     reachable only from the diagnostic line.  Nothing here changes layout: `off' advances on
+     `is_group' alone, exactly as before. *)
+  let group_descendants : (dcl * int) list =
     let seq = List.filter (fun (d : dcl) -> d.dpre = None) items in
     let rec run lv = function
       | y :: ys -> if dlevel_of y > lv then y :: run lv ys else []
@@ -629,8 +640,13 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
     in
     go [] seq
   in
-  let group_info (d : dcl) =
-    List.find_map (fun (y, n) -> if y == d then Some n else None) group_counts
+  (* [C264] physical equality, not a name: a member name is not unique.
+     The next line is the ONLY unsampled thing these two definitions feed: the
+     dollar-S dump's MEMBERS argument for a subgroup, whose DR meaning was never
+     observed -- see the caveat above the group_descendants table. *)
+  let is_group (d : dcl) = List.mem_assq d group_descendants
+  and descendant_count (d : dcl) =
+    List.find_map (fun (y, n) -> if y == d then Some n else None) group_descendants
   in
   List.iter
     (fun (item : dcl) ->
@@ -709,7 +725,9 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
                it takes the running offset as its OWN offset and reserves
                NOTHING, so the children that follow land on it.  See the
                detection comment above for the evidence. *)
-            let grp = group_info item in
+            let grp = is_group item in
+            (* grp says only "group, reserves nothing" [C264].  The descendant COUNT never
+               takes part in layout -- it is used in the dump line below and nowhere else. *)
             (* member offsets are BASE-RELATIVE [EX P022: GRP2@0006 but
                .C@0000]; the STRUCTURE line carries the absolute base *)
             let base =
@@ -717,8 +735,8 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
             in
             let o =
               match grp with
-              | Some _ -> (if !hstatic then !soff else !off) - base
-              | None ->
+              | true -> (if !hstatic then !soff else !off) - base
+              | false ->
                   if !hstatic then begin
                     statics := !statics + sz;
                     let b0 = !soff in soff := !soff + sz; b0 - base
@@ -733,18 +751,27 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
                real .REL].  `base + o' is the absolute frame offset: `base' is the owning head's own
                offset and `o' is base-relative in BOTH storage areas (a static scalar row carries the
                absolute b0, and base + (b0 - base) = b0), so the coordinates agree by construction.
-               Only a TOP-LEVEL (level-1) owning head gets rows.  E39S5 (`declare 1 g, 2 h, 3 a
-               fixed, 2 b fixed') shows the nested spelling going wrong in bind's head re-dispatch --
-               a level-2 sibling after a level-3 member reopens a head and my frame came out 6 where
-               DR's DATA record says 4 [C255] -- and a frame whose size disagrees with DR's measured
-               one is a layout defect, so the nested shape is left unresolved and refuses.  Types are
+               Only a TOP-LEVEL (level-1) owning head gets rows, and that gate is NOT about E39S5.
+               [C264] measured E39S5's 6-vs-4 frame as the level-2 subgroup `2 h' being charged a
+               default FIXED BINARY(15) cell, and [C255]'s story here -- "head re-dispatch", a level-2
+               sibling after a level-3 member reopening a head -- is WITHDRAWN with it: nothing
+               re-dispatches, and the nested shape never refused, it compiled to a frame 2 bytes too
+               large with every member at or after the group fixed up 2 high.  With the subgroup rule
+               E39S5 is byte-exact against DR (256/256, fixups DATA+0x0 / 0x2, and its .COM is
+               IDENTICAL to DR's) [E2E-40/P6].  The level-1 restriction is kept for a different and
+               still honest reason: a head opened at level >= 2 inside another structure has no DR
+               sample of its members being referenced at all.  Nested structure support remains
+               deliberately partial -- well-formed level ordering is assumed, subgroups inside BASED
+               views go through the head path rather than this one, and a reference to a bare GROUP
+               name (`address = default') resolves to nothing and refuses because a group owns no
+               cell; DR's behaviour for that shape is unsampled, so it is not imitated.  Types are
                limited to FIXED BINARY(15) and POINTER: DR resolves every member type, but this
                compiler has no DR sample of a cell-addressed internal CHAR/BIT/DEC/VARYING member,
                and guessing a cell size overlaps the next variable (the C162 class).  Ambiguity and
                collision are handled once, after the walk, by check_member_names. *)
             let top_level_head = match !head with Some (hl, _) -> hl = 1 | None -> false in
             (match rt with
-             | (RTbin 15 | RTptr) when top_level_head && grp = None ->
+             | (RTbin 15 | RTptr) when top_level_head && not grp ->
                  let bare = String.lowercase_ascii item.dname.orig in
                  let qkey = String.lowercase_ascii !horig ^ "." ^ bare in
                  (* [E2E-40/P2] TWO rows, ONE cell: the bare name and the owner-qualified
@@ -773,9 +800,10 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
                       group is neither a type nor a MEMBER-of-a-cell; it is
                       NOT a transcription of anything DR printed, and the
                       offsets it reports ARE measured (ENTER, E40S1-4). *)
-                   | Some n ->
-                       Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d" lvl n
-                   | None -> rty_str rt ^ " MEMBER");
+                   | true ->
+                       Printf.sprintf "STRUCTURE LEVEL %d, MEMBERS %d" lvl
+                         (match descendant_count item with Some n -> n | None -> 0)
+                   | false -> rty_str rt ^ " MEMBER");
                 off = o } :: !members
           end
         end

@@ -668,13 +668,52 @@ SPECIMENS.update({
 #          children", not "level = 3".
 # E40S2 / E40S4 (two children, and a leaf before the group: both DR DATA 6 with members at 0/2/4)
 # get DIVERGENT.txt rows instead: their LAYOUT is right but their code is 0x43 vs DR's 0x44, on
-# `XCHG' where DR uses `PUSH H' for the second ADD of a three-term sum -- the same residual E39S7
-# already pins, i.e. [C261]'s both-operands-are-members predicate is too narrow.  That is the P4
-# rule's territory and deliberately untouched here.
+# `XCHG' where DR uses `PUSH H' for the second ADD of a three-term sum.  **[E2E-40/P7] CORRECTS
+# what this note used to say -- that this was "the same residual E39S7 already pins".  It is not:
+# E39S7 was about how a value is WRITTEN to a member (store route, now closed byte-exact), while
+# E40S2/E40S4 are about how an ADDEND is PRESERVED (operand route), in a program whose stores are
+# all literals and which therefore never reaches the store route at all.  E41P1/P3/P4 pass while
+# E40S2/S4 stay divergent on the same build, which is the direct evidence that they are separate
+# questions; a common policy is plausible and unproven.  [C261]'s both-operands-are-members
+# predicate is still too narrow, and the real discriminator is unmeasured.
 SPECIMENS.update({
     "E39S5":  ("artefacts/E39S5.PLI", "golden/e39a/E39S5/E39S5.REL"),
     "E40S1":  ("artefacts/E40S1.PLI", "golden/e40n/E40S1/E40S1.REL"),
     "E40S3":  ("artefacts/E40S3.PLI", "golden/e40n/E40S3/E40S3.REL"),
+})
+
+# [E2E-40/P7] the parked member store (C266): a store whose DESTINATION cell has a fixed DATA
+# address takes that address with `LXI H', so the value must be parked -- `PUSH H / LXI H,<cell> /
+# POP D / MOV M,E / INX H / MOV M,D' -- while a store to a plain cell ends in `SHLD' even for the
+# same expression.  These four probes are the matrix; E39S7 (`a = a + g.b') promoted from the
+# divergence panel in the same slice, and E40S2/E40S4 stayed pinned (their residual is operand
+# preservation, not the store -- see the correction below).
+#   E41P1  `a = b + 1'      member <- biased member.  DR's body is `LHLD b / INX H / PUSH H /
+#          LXI H,*(DATA+0) / POP D / MOV M,E / INX H / MOV M,D': the bias belongs to the VALUE and
+#          the cell is relocated to its own offset (C165's rule, second witness).  This is also the
+#          falsifier for [C260]'s citation of `LHLD;INX H;SHLD': that triple does not occur in any
+#          of the 1963 goldens, and DR does not park an ordinary destination here.
+#   E41P2  `h = g.a'        ORDINARY scalar <- member read: `LHLD a / SHLD *(h)', no parking.
+#          Completes the matrix with E41P4 and shows the rule is keyed on the DESTINATION, not on
+#          whether a member is involved at all.  (Its first spelling, `declare 1 g, 2 a fixed,
+#          2 b fixed, 1 h fixed', is a DR PASS-1 `STRUCTURE ?' with no .REL: a level-1 sibling
+#          cannot follow nested members inside one declaration -- golden/e41p/E41P2/E41P2.PRN.)
+#   E41P4  `a = b'          member <- plain member COPY: parked.  With E41P2 adjacent this proves
+#          the RHS class does not select the route -- AC1 (`a(3) = b', a variable into an array
+#          element) says the same thing for arrays, so the literal-vs-computed split that [C259]
+#          called the discriminator at offset 0 was never the whole rule.
+#   E41P3  `g.a = 7; g.b = 5; a = a + g.b'   E39S7's shape with BOTH operands initialized, so its
+#          console value (12) is an independent arithmetic oracle, which E39S7's own 7 is not:
+#          DR never had `b' written there, so `a + g.b' = `a + 0' and the ADD is invisible.
+SPECIMENS.update({
+    # [E2E-40/P7] promoted out of DIVERGENT.txt by the parked-store rule: 52 -> 57 code bytes and
+    # now 256/256 identical to DR, fixups included.  Its console value is deliberately NOT on the
+    # runtime panel (7 = `a + 0', `b' never written -- E41P3 is that witness instead).
+    "E39S7":  ("artefacts/E39S7.PLI", "golden/e39a/E39S7/E39S7.REL"),
+    "E41P1":  ("artefacts/E41P1.PLI", "golden/e41p/E41P1/E41P1.REL"),
+    "E41P2":  ("artefacts/E41P2.PLI", "golden/e41p/E41P2/E41P2.REL"),
+    "E41P3":  ("artefacts/E41P3.PLI", "golden/e41p/E41P3/E41P3.REL"),
+    "E41P4":  ("artefacts/E41P4.PLI", "golden/e41p/E41P4/E41P4.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -1726,8 +1765,17 @@ NEG_META_E13 = {
 # transcribed by hand from DR's earlier session.  Verified, not assumed -- the run prints
 # `g=        16' on both sides (.COM IDENTICAL, console BYTE-EQUAL, 13 raw bytes), so DR's printed
 # transcript stays the authority for the RUNTIME row AND mine now produces the same bytes.
+# [E2E-40/P7] E41P1..E41P4 join because their .RELs are now byte-exact, so the harness can link
+# both sides and diff the two consoles.  E41P3 is the one that matters as an ORACLE: E39S7 -- the
+# program this slice's rule came from -- never writes `g.b', so DR's own run prints 7 = `a + 0' and
+# the ADD is invisible in its output.  E41P3 is E39S7's shape with both operands initialized, where
+# 12 = 7 + 5 can only come out of a real addition.  E41P1 (10 = 9 + 1) and E41P4 (9) are the
+# biased-copy and plain-copy companions; E41P2 (7) is the ordinary-scalar control whose store DR
+# does NOT park.  E39S7 itself gets no RUNTIME row on purpose: its value is not independently
+# derivable, and registering it would launder a weak check into the panel.
 for _n in ("U1", "W1", "W2", "W3", "P1", "P2", "P3", "P4", "P7", "P8", "P10", "P11",
-           "K4", "R4", "R5", "X1", "M4", "Y8", "P9", "E40R1", "E39S5"):
+           "K4", "R4", "R5", "X1", "M4", "Y8", "P9", "E40R1", "E39S5",
+           "E41P1", "E41P2", "E41P3", "E41P4"):
     OUTPUT_CHECK.add(_n)
 
 NEG_META = {
