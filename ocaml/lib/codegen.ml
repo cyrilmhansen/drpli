@@ -2722,6 +2722,12 @@ let unwrap_e (e : Ast.expr) =
    Only an Eident can be a member; a subscript, a call or a literal cannot.  Parens are unwrapped
    because DR lowers a parenthesized expression exactly like the unwrapped one [P401, (i+i)], and
    the parser folds `g.a' into one Eident [C258], so a qualified name needs no special case.
+   THIS PREDICATE IS ONE DISJUNCT, NOT THE WHOLE RULE: the arm also pushes when the left operand
+   destroys DE (`writes_de') or is syntactically compound ([C150]).  E45S1's inner node `h + a' is
+   covered by `writes_de', not by this function -- DR parks there because its own SHLD reuses HL as
+   an address, and this compiler parks because the same store destroys DE.  Same bytes, different
+   reason, and `put list(h + a)' (where nothing is stored) is the probe that would separate them; it
+   has not been written, so do not read this comment as claiming the class test is sufficient.
    `vinfo_imem' is Some k only for a FIXED BIN(<=15) member of an INTERNAL structure: POINTER and
    BASED-view members, heads, formals and statics are None [C260], and their deref ladders destroy
    DE and take the PUSH route through `writes_de' instead, which is why this function says no to

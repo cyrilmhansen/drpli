@@ -47,8 +47,12 @@ says nothing at all about parking behind a computed value.
 
 Of the 44, exactly **11 listings / 6 programs** sit at a *second* add, and the swaps at a second
 add are **3 programs** (`D12`, E45S2, E45S3).  That is the entire population this rule governs.
-(Listings ≠ programs: the runtime panel keeps a second copy of every `.REL` it executes under
-`golden/e32rt_<NAME>/`, which is also why the 154/154 "files" numbers are inflated.)
+**Listings are not programs, and the duplication is not uniform.**  Older runtime programs have a
+second copy under `golden/e32rt_<NAME>/` (E40S2, E40S4, E44A1 appear twice); E45S1 appears exactly
+once, so halving the listing count is wrong, and the deduplicated reading is 6 park programs and 3
+swap programs.  The scan also reads DR's committed goldens only -- it says nothing about my build,
+which is why `golden/e45/CORPUS_SCAN.txt` now says so instead of letting a corpus description read
+like a post-fix measurement.
 
 ## 4. The probes and what DR said
 
@@ -112,27 +116,34 @@ was *too wide*.  The general form of the lesson is that the classifier's predica
 conjunction of "DR would park here" **and** "this file can emit a park here", and neither half is
 derivable from the other.
 
-## 7. Collateral
+## 7. Collateral (measured)
 
-981/981 byte-exact, 0 failures; 129/129 refusals; **9/9** pinned divergences (was 11 — E40S2 and
-E40S4 moved to the byte-exact panel); 44/44 runtime rows (7 new, DR's own console values).
-Corpus census recomputed clean: 44 programs, 15 EXACT, **0 DIFFERS, 0 UNEXPECTED**.  Byte-level
-witness over the corpus: the `2A . . E5 2A . . D1 19` park sequence is present in 412 committed
-goldens and absent from all 270 of my current outputs that the panel compares — which is the same
-statement as "the change only ever adds a park, and every program it could add one to already has
-one".
+**982 byte-exact / 0 fail**, 129/129 refusals, **9/9** pinned divergences (was 11), **45/45** runtime
+rows (+7 at DR's own console values 35/35/59/35/23/43/24), coverage 86 rows / 0 errors / 0 warnings,
+census 44 programs / 15 EXACT / **0 DIFFERS / 0 UNEXPECTED** and `--verify' clean, INVENTORY 982,
+gate exit 0.  Nine programs came out 256/256 whole-file identical to DR: the two divergences this
+slice was about and seven of the eight probes (E45S6 is the eighth and is refused).
+
+**Three of my own readings did not survive re-measurement, and they are in this file because
+deleting them would lose the only record of how they were reached.**  (i) Diffing instruction
+listings instead of whole files, and concluding from DR's `LHLD None/None' that an instruction was
+missing -- [C264]'s error, made with the tool that had corrected me.  (ii) Registering E45S1 as a
+divergence on a route theory my own output contradicted.  (iii) Writing a post-fix tail count into
+`golden/e45/CORPUS_SCAN.txt' without re-running the scan.  See [C271](g).
 
 ## 8. Not claimed
 
-* **(ordinary-left, member-right) at an ordinary destination is contradicted by the rule as written
-  in §5 and is NOT handled by this change.**  `a = h + b` → DR uses `XCHG` (E45S4's inner node, an
-  ordinary destination); `a = g.a + g.b` → DR parks (E40S2's inner node, a member destination);
-  `put list(h + a)` → DR parks (E45S1's inner node, a *value discarded* by `put list`).  The
-  surviving discriminator across all of them is whether HL holds a value that must survive the load
-  of the right operand — i.e. whether HL is **reused as a data address** afterwards.  P9 changed
-  only the compound-left region, so `h + a` still takes `XCHG` in this compiler and E45S1 remains a
-  pinned divergence.  Making that row byte-exact requires the store-lowering to know the ADD
-  routes, or a single shared predicate over both — a real piece of work, not a widening of this one.
+* **The rule as shipped is a disjunction, and the two halves have different witnesses.**  This
+  compiler parks when the right operand is an internal member cell (`rhs_is_imem`, new in P9) **or**
+  when storing/keeping the left operand destroys DE (`writes_de`, [C150]) **or** when the left operand
+  is syntactically compound ([C150]).  E45S1's inner node `h + a` -- ordinary value in HL, member on
+  the right -- is covered by the SECOND disjunct and not the first: DR parks there because its own
+  `SHLD h` store reuses HL as an address, and this compiler parks because that same store destroys
+  DE.  The bytes are identical, so the repo contains no sample that says which reason is DR's.  The
+  discriminating program is `put list(h + a)`, where nothing is stored: DR would park by the class
+  reading and this compiler would not.  **That probe has not been written.**  Until it has, "the
+  discriminator is the right operand's addressing mode" is the best-fitting rule over 44 park sites,
+  not a rule with a falsification test at its own boundary.
 * Array elements as the right operand: DR parks (E45S5's inner node, and LR4-family, RT4, AB6).
   Not generalized here because the corresponding left-operand shapes are unmeasured.
 * Whether `writes_de`'s "the conversion prefix destroys DE" reading is *why* DR pushes there: only

@@ -505,8 +505,9 @@ references to a bare GROUP name (`address = default`) -- they now resolve to not
 whereas before they resolved to the phantom cell, i.e. a wrong-width copy instead of a refusal, and
 DR's correct behaviour for that shape has no sample; arrays inside level-numbered structures;
 subgroups inside BASED views (the head path, untouched); CHAR/BIT/DEC/VARYING members [C228];
-STATIC INITIAL on any member. E40S2/E40S4 remain divergent on 1 instruction, which shows [C261]'s
-"both operands are members" preservation predicate is too narrow -- the three-term sum is E39S7's
+STATIC INITIAL on any member. ~~E40S2/E40S4 remain divergent on 1 instruction, which shows [C261]'s
+"both operands are members" preservation predicate is too narrow -- the three-term sum is E39S7's **[CLOSED in P9: the discriminator was neither the layout nor a store route -- it is the
+class of the operand DR loads next, [C271].**
 class and is deliberately outside this slice.
 
 ## [E2E-40/P7] Computed member store: the DESTINATION's addressing mode selects DR's route [C266]
@@ -564,7 +565,9 @@ have a based/pointer destination and the fourth is a genuine anomaly I did not b
 E40S4 are a different question, not a leftover of this one**: their stores are all literals and
 their residual is operand preservation inside `a + b + c`; they remain pinned at 67 vs DR 68 with
 LAYOUT agreeing (DATA 6/6, members 0/2/4), and [C261]'s both-operands-are-members predicate is still
-too narrow with the real discriminator unmeasured.
+too narrow with the real discriminator unmeasured. **[P9: closed. The predicate was too narrow AND could not express the shape --
+it took `Eident` names, and a compound left operand is not a name; the discriminator is the right
+operand's addressing mode, [C271]. E40S2/E40S4 are byte-exact.]**
 
 ## [E2E-40/P8] The two shapes P7 called unmeasured were being emitted; one of them was wrong [C267]
 
@@ -621,7 +624,7 @@ member [C228]; POINTER/BASED members entirely (E40Q4) -- this table is for cells
 address; ~~the cross-spelling ladder equivalence (`a = g.a + 5`), inferred from E40Q1/E40Q2's
 byte-identity and never probed~~ (**probed in P8a: E43L6/E43L7**); and whether *my* runtime should
 abort on the E42P2 shape when the linked library is mine rather than DR's, which is an ARCH-level
-question, not a codegen one.  E40S2/E40S4 remain where P7 left them.
+question, not a codegen one.  ~~E40S2/E40S4 remain where P7 left them~~ **(closed in P9: [C271], `golden/e45', both 256/256 identical).**
 
 ## [E2E-40/P8a] The classifier and the producer were two predicates; and the -8..16 range was mine, not DR's
 
@@ -768,3 +771,58 @@ rather than read.  What survives: the ASCII digit pairs are the literal being co
 decode, reproduces across E42P2/E43M1/E44B1/C1/D1), and traceback agreement between the two
 compilers is byte-identity of a shared failure path, nothing more.  E44D1 is 256/256 identical, so
 this whole correction cost no code.  Evidence: `spec/lab-evidence/e2e40-p8b/TAILWORD.txt`.
+
+## [E2E-40/P9] What selects DR's operand-preservation route at an ADD: the RIGHT operand's addressing mode [C271]
+
+**The change.** One predicate at the generic ADD route selector in `ocaml/lib/codegen.ml`:
+`rhs_is_imem st r` (the operand about to be loaded into HL is a `FIXED BIN(<=15)` member of an
+**internal** structure) replaces `vinfo_both_members st l r` (both operands are members).  Four
+lines of executable code; the rest of the diff is the comment that used to state the old rule.
+
+**Why the old rule could not be patched into shape.** `vinfo_both_members` takes `Eident` names, so
+`(compound, member)` -- the exact shape E40S2/E40S4 fail on -- was not merely mis-classified, it was
+inexpressible.  Prose described the residual as "unmeasured"; the implementation could not have
+reached the question.
+
+**The rule DR actually uses**, over seven probes whose operands are named from DR's own linked
+`.COM` (`golden/e45/ADD_REGIONS.txt`), plus the two goldens that pinned the defect: park with
+`PUSH H / LHLD <right> / POP D / DAD D` when the right operand is an internal member cell or is
+itself compound; use `XCHG / LHLD <right> / DAD D` for an ordinary cell; emit no swap at all for a
+literal (immediate pair + `DAD B`); and let the self-add ladder win first (`a = a + 5` has no `LHLD`
+to park behind, E42P1).  Corpus-wide: **44 park sites, all 44 preceded by a load of a DATA cell**
+(`golden/e45/scan_tails.py`, `golden/e45/CORPUS_SCAN.txt` -- which also states that the scan reads
+DR's goldens only and therefore measures nothing about my build).
+
+**E45S8 closes the last hole in the reading.**  `put list(h + a)` -- ordinary value in HL, member on
+the right, **nothing stored afterwards**, so DE survives the load and my `writes_de` disjunct cannot
+be DR's reason either.  DR parks; `golden/e45/E45S8/E45S8.REL` is 256/256 identical to this
+compiler's; DR's own console is 24, predicted in `golden/e45/PREDICTIONS.txt`'s addendum before the
+oracle ran.  Without that probe, E45S1's agreement would have been an artefact of the wrong
+mechanism, and I would have written "the class rule is sufficient" on evidence that only showed the
+two rules coinciding.
+
+**Two errors of mine, recorded rather than deleted.**
+(i) I diffed *instruction listings* instead of whole files, read DR's `LHLD <cell>` reloc operands
+(printed `None/None` in my own output because they are RELOC records) as missing instructions, and
+concluded the fix had missed its target.  [C264]'s mistake repeated one level up, by the tool that
+had told me the truth in P6.
+(ii) I then registered E45S1 as a shape divergence on the theory that my `XCHG` there was hidden by
+identical bytes.  My E45S1 output already contains DR's `PUSH H` at 003A; the theory had silently
+assumed the node went through the arm I changed.  The row was added and deleted within the slice.
+(iii) And in the same file I wrote a post-fix tail count (56) without re-running the scan.  Struck,
+with a sentence about what the instrument measures.
+
+**Gate after P9 (measured, `tools/e2e_gate.py --runtime` on the shipped build): 982 byte-exact / 0
+fail** (973 + E40S2, E40S4 and the eight E45 specimens that compile), **129/129** refusals (+1:
+E45S6, a *my-gap* negative -- DR compiles it, I refuse in the PUT-item matcher), **9/9** pinned
+divergences (was 11: E40S2 and E40S4 left the panel, nothing new joined it), **45/45** runtime (+7:
+E45S1-S5, S7, S8 at DR's own console values), coverage **86 rows / 0 errors / 0 warnings** (new row
+`EXPR.ADD_PRESERVE_ROUTE'), census 44 programs / 15 EXACT / 0 DIFFERS / 0 UNEXPECTED with
+`--verify' clean, INVENTORY 982, exit 0.
+
+**Still open in this area.**  POINTER/BASED-view members as right operands (E40Q4, untouched:
+`vinfo_imem` is `None` for them by construction).  Array elements park in DR (E45S5's inner node,
+LR4, RT4, AB6) but reach that by `writes_de`, not by the class test -- generalizing the class test to
+them is one obvious probe, unmeasured.  SUB/MUL/DIV untouched.  `a + (-32768)` at a member and the
+other unsampled store shapes from P8 stay refused.  And E45S6: DR accepts a parenthesized sum in a
+`put list` item, which is a PUT-item-classifier gap, not a codegen one.

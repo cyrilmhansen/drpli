@@ -73,3 +73,33 @@ anything on its own.  [C266]'s store-route rule is the same idea one level up: t
 addressing mode selects how a value is written; here the SOURCE operand's addressing mode selects
 how the other operand is kept.  Both times the discriminator was an addressing mode, and both times
 I first wrote down a proxy for it (RHS class; class pair) that fit the sample in front of me.
+
+
+ADDENDUM, written AFTER re-measuring (not part of the pre-oracle predictions)
+=============================================================================
+All seven DR programs above are compiled byte-identically by this compiler after the P9 change --
+E45S1 84/0x0C, E45S2 83, E45S3 82, E45S4 83, E45S5 82, E45S7 83, plus E40S2 and E40S4 at 68, all
+256/256 whole-file identical (E45S6 is refused in the PUT-item matcher).  So the table records what
+DR does, and every row of it is now reproduced here.  One row is reproduced for a reason the table
+does not state: E45S1's inner node parks in this compiler because `writes_de` fires (the sum into
+`h` ends in `SHLD`, so HL holds the cell address), not because of the right operand's class -- same
+bytes, different route.  The two readings are separated only by `put list(h + a)`, which has not
+been written.  That program is the next probe of this family.
+
+
+E45S8   put list(h + a)      DR CODE 0x4E  DATA 000C   (the eighth program, written after the
+                                                                          first seven had decided
+                                                                          the compound-left case)
+37: LHLD h(ORDINARY) | 3A: PUSH H | 3B: LHLD a(member) | 3E: POP D | 3F: DAD D   <- parks, and NOTHING
+                                                                                    is stored after it
+    -> This is the probe that E45S1 could not be.  In E45S1 the sum is assigned to `h', so both
+       compilers have a reason to move the cell address into HL and the parked tail is invisible in
+       the .REL stream.  Here there is no assignment: DR still parks, so the right operand's class is
+       sufficient on its own and [C271] needs no "HL will be reused" escape clause.  256/256 identical
+       to this compiler; DR's own console is 24.
+
+COUNTS.  Eight DR programs in this family, eight `.REL' files (one per program, under
+`golden/e45/<NAME>/<NAME>.REL'); ten rows in PROVENANCE.tsv, because E40S2 and E40S4 come from
+`golden/e40n' and are cited here as the defect this family was built to close.  Seven are registered byte-exact panel specimens (E45S1..S5, S7, S8), one
+is a refusal (E45S6, my-gap), two older programs (E40S2/E40S4) moved from the divergence panel to the
+byte-exact panel in this slice.

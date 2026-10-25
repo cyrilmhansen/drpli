@@ -16,56 +16,8 @@ CPU speed is unlimited, CPU executes undocumented instructions
 
 A>C:
 C>
->>> PLI D:E45S1 $L$D
-PLI D:E45S1 $L$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:E45S2 $L$D
-PLI D:E45S2 $L$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:E45S3 $L$D
-PLI D:E45S3 $L$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:E45S4 $L$D
-PLI D:E45S4 $L$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:E45S5 $L$D
-PLI D:E45S5 $L$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:E45S6 $L$D
-PLI D:E45S6 $L$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:E45S7 $L$D
-PLI D:E45S7 $L$D
+>>> PLI D:E45S8 $L$D
+PLI D:E45S8 $L$D
 
    NO ERROR(S) IN PASS 1
 
@@ -75,6 +27,6 @@ C>
 >>> A:BYE (halt)
 
 C>A:BYE
-I/O ran for 16082 ms, waited for 0 ms
-CPU executed 85955043 t-states in 65 ms
-Clock frequency 1322.01 MHz
+I/O ran for 4022 ms, waited for 0 ms
+CPU executed 12285442 t-states in 6 ms
+Clock frequency 1791.66 MHz

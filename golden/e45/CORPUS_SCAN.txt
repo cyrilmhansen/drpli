@@ -13,9 +13,11 @@ the only population a rule keyed on a compound left operand could possibly chang
   park sites at a second add                         11 listings
   swap sites at a second add                          5 listings
 
-LISTINGS ARE NOT PROGRAMS.  The runtime panel stores its own copy of a .REL under
-golden/e32rt_<NAME>/, so every program on that panel is scanned twice; a scan over golden/** counts
-both copies.  Deduplicated, the 11 + 5 listings are 9 programs:
+LISTINGS ARE NOT PROGRAMS -- and the duplication is not uniform, which is the trap.  Older runtime
+programs have a second copy under golden/e32rt_<NAME>/ (E44A1 appears twice, as do E40S2 and E40S4),
+but E45S1 appears exactly ONCE, so dividing the listing count by two is wrong.  Every listing is also
+DR's golden, not my build's output, whatever the panel stores alongside it.  Deduplicated by base
+name, the 11 + 5 listings are 9 programs:
   second add, PARK:  E40S2, E40S4, E45S1, E45S4, E45S6, E45S7          (6 programs)
   second add, SWAP:  D12, E45S2, E45S3                                  (3 programs)
 and the 154/154 file counts are also inflated by those copies, so the interesting number is not
@@ -26,9 +28,18 @@ samples where the choice at a second add has ever been observed.  Six of them ar
 probes, two are the divergences it closed, and the ninth -- golden/e2e182/D12, source `return (t +
 (g(3) + g(3))) + g(3)' read out of DR's listing, ordinary scalars throughout -- is DR's XCHG behind a
 compound left, which the new rule must and does leave alone.  Every one of those nine is byte-exact
-against DR on the current build, and 981/981 panel specimens pass with 0 failures, with the corpus
+against DR on the current build, and 982/982 panel specimens pass with 0 failures, with the corpus
 census recomputing to 0 DIFFERS / 0 UNEXPECTED.  Nothing outside this set was reachable by the change.
 
 The remaining 44-11 = 33 park listings are FIRST adds, where this compiler already pushed for the
 reason [C260] recorded (both operands members) -- a reason that coincides with the true rule on every
 sample that has ever shown it.
+
+WHAT THIS SCAN DOES AND DOES NOT MEASURE, stated plainly because an earlier paragraph of mine
+implied otherwise.  It reads the COMMITTED DR GOLDENS ONLY.  Re-running it after a codegen change
+measures nothing about my build -- DR's files did not move -- so the numbers above are a description
+of the corpus and of the rule's reach, not evidence that the fix worked.  Post-change parity is
+established a different way and is stated with the instrument that produced it: this compiler's own
+output for E45S1, S2, S3, S4, S5, S7, S8, E40S2 and E40S4 is 256/256 whole-file identical to DR
+(0 differing bytes each, verified with cmp and with reldump CODE/DATA sizes), and the panel reports
+982 byte-exact / 0 fail with 9/9 pinned divergences and 45/45 runtime rows.

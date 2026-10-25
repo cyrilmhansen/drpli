@@ -4691,6 +4691,10 @@ the panels say so separately.
 
 
 ## C260 — CORRECTION [C254]: DR stores a member with `MVI M', through H; I store with `SHLD', and my H carries the VALUE
+> **[E2E-40/P9 CORRECTION]** the rule below over-fits its sample: see [C271].  DR parks on
+> the stack when the operand it loads NEXT is an internal member cell or a compound value, not
+> because of the class of the pair; E45S1 (`h + a', ordinary left, member right) parks with one
+> member present.  Everything measured in this claim stays true as an observation.
 Disassembling DR's E39S2 beside my object for it -- a comparison that only became possible after P2
 made the qualified programs compile -- falsifies the framing of [C254](i) in two ways and dissolves
 "unsampled". E39S1, E39S2 and E39S5 are one program (`g.a = 7; g.b = 9; put list(g.a + g.b)') written
@@ -4756,6 +4760,10 @@ relations. Byte-exactness for the ten member specimens is now a two-clause chang
 rather than an unknown, but the clauses are measured on one shape each.
 
 ## C261 — MEMBER STORE/READ ROUTES CONFIRM [C260], CORRECT ITS COST MODEL, and byte-exact DR on 8 specimens
+> **[E2E-40/P9 CORRECTION]** the rule below over-fits its sample: see [C271].  DR parks on
+> the stack when the operand it loads NEXT is an internal member cell or a compound value, not
+> because of the class of the pair; E45S1 (`h + a', ordinary left, member right) parks with one
+> member present.  Everything measured in this claim stays true as an observation.
 
 C260 characterized the two class-gated clauses but left them unimplemented, and its byte arithmetic
 was wrong in a way that immediately cost me bytes. This is the implementation plus the correction.
@@ -5433,3 +5441,103 @@ member (E42N1/E42N2, unchanged refusals); literals above 65535 (E42N4); and POIN
 (E40Q4) -- this whole table is for cells at a fixed DATA address.  The ordinary-variable ladder's
 upper end is also still unsampled in DR (only `+100` exists at an ordinary variable, in
 `artefacts/E22A17`, which has no oracle).
+
+
+## C271 — THE OPERAND DR PRESERVES ON THE STACK IS CHOSEN BY THE **RIGHT** OPERAND'S ADDRESSING MODE; [C260]'s CLASS PAIR AND [C150]'s COMPOUND-LEFT ARE BOTH PROXIES
+
+E40S2 and E40S4 sat one byte short of DR for six milestones (P6 recorded their layout as fixed and
+their residual as operand preservation; P7/P8/P8a/P8b/P8c each left it pinned).  The missing byte
+was at the **outer** add of `a + b + c`: DR emits `PUSH H / LHLD <c> / POP D / DAD D`, this compiler
+emitted `XCHG / LHLD <c> / DAD D`.  The inner add already matched.
+
+**(a) The mechanical reason it was never fixed: the predicate could not express the shape.**
+`vinfo_both_members` takes `Eident` names, and a compound left operand is not a name.  So the
+[ C260] rule was not merely wrong about E40S2 -- the code could not have reached the question.  A
+residual described in prose as "unmeasured" was in fact unrepresentable in the implementation, which
+is a different kind of debt and a worse one.
+
+**(b) The corpus already said what the rule is about.**  `golden/e45/scan_tails.py` over all 2050
+`.REL` files finds 44 park tails (`E5 2A . . D1 19`) and 128 swap tails (`EB 2A . . 19`).  Sorted by
+the byte before the park, **all 44 parks follow a `LHLD` of a relocatable DATA cell** (33 of them
+show the `0x00` filler left by the absent operand high byte).  Nothing parks behind `MOV M,H`,
+`MOV A,L`, `LDAX`, or a call return.  The question was always about the operand loaded next.
+
+**(c) Seven probes, DR's verdict** (`golden/e45`, predictions written first in
+`golden/e45/PREDICTIONS.txt`; operands named from DR's own linked `.COM` because [C264] -- code
+bytes never identify a cell):
+
+| probe | expression | `(left, right)` at the outer add | DR |
+|---|---|---|---|
+| E45S1 | `h + a + b` | `(ordinary, member)` inner and `(compound, member)` outer | **PUSH at both** |
+| E45S4 | `a + h + b` | `(member, ordinary)` inner, `(compound, member)` outer | XCHG inner, **PUSH outer** |
+| E45S7 | `h + k + a` | `(ordinary, ordinary)` inner, `(compound, member)` outer | XCHG inner, **PUSH outer** |
+| E45S3 | `h + k + n` | both `(…, ordinary)` | **XCHG at both** |
+| E45S2 | `a + b + h` | `(member, member)` inner, `(compound, ordinary)` outer | PUSH inner, **XCHG outer** |
+| E45S5 | `a + b + 5` | literal outer | **neither**: `… / DAD B`, no swap |
+| E45S6 | `a + (b + c)` | right group evaluated first, then `(member, compound)` | **PUSH at both** |
+
+S3/S7 change exactly one operand's storage class and both nodes flip together; S1/S4 move the same
+two classes between two positions and both nodes flip.  S1, S4 and S7's inner nodes are shapes DR
+had **never** been shown before this slice.
+
+**(d) The rule.** Park when the operand about to be loaded into HL comes from an internal member's
+fixed DATA cell, or is itself compound; otherwise `XCHG`; and a literal is neither (it is an
+immediate added with `DAD B`).  An addressing mode, exactly like [C266]'s store rule one level up:
+there the destination's addressing mode chose the store shape, here the source operand's chose the
+preservation shape.  Scope: this predicate is consulted only where the generic two-`DAD D` route is chosen.
+The self-add ladder [C165]/[C267] takes precedence (`a = a + 5` keeps `LHLD / LXI B / DAD B / SHLD`,
+E42P1 -- the literal `+5` never reaches an `LHLD`, which is what distinguishes it from E45S5),
+`add_left_needs_push` still fires first, and `writes_de` still outranks this test in the order that
+DR's bytes establish.  See (h) for what "the rule" is and is not.
+
+**(e) Both earlier readings were proxies, and both were falsified inside their own probe sets.**
+[C150]'s "left operand is compound" was contradicted at the time it was written by MB36
+`(n*3) + n` = XCHG, and again by `golden/e2e182/D12` (`return (t + (g(3) + g(3))) + g(3)`, ordinary
+scalars, XCHG at code 0x6F-0x74); it survived because it was recorded as a precedence between two
+half-rules rather than as a claim about why DR pushes.  [C260]'s class pair survived because every
+sample it had -- E39S2, E40Q1, E39S3, E39P1 -- agrees with the true rule by coincidence of the two
+operands' classes.  [C254]'s tail position died in P3.
+
+**(f) The [C268] split, second addendum.** Between writing the predicate and running the panel I
+made the classifier's test the whole condition, which predicted a park for E45S5's literal `+ 5` and
+would have emitted `PUSH H / LXI H,5 / POP D / DAD D` -- a sequence DR does not have.  Caught by
+comparing predicted park sites to the seven DR images before the gate ran (2 predicted where 3 are
+measured).  The shipped condition keeps `writes_de st r` -- a byte-verified requirement that DR's
+parked form literally contains `PUSH H / LHLD … / POP D` -- and P8a's `Ms_ladder` precedence keeps
+`a = a + 5` on the self-add ladder.  P8a's defect was a classifier too narrow for its emitter; this
+one was too wide.  The predicate must be the conjunction of "DR would park here" and "this file can
+emit a park here", and neither half is derivable from the other.
+
+**(g) Collateral (measured, `tools/e2e_gate.py --runtime' on the shipped build, exit status read
+without a pipe [C249]).**  **982 byte-exact / 0 fail** -- 973 before, plus E40S2, E40S4 and the eight
+E45 specimens that compile; **nine programs come out 256/256 whole-file identical to DR** (E45S1, S2,
+S3, S4, S5, S7, S8, E40S2, E40S4), verified by `cmp' and again by the panel.  **129/129** refusals
+(+1: E45S6, a *my-gap* negative -- DR compiles it and I do not).  **9/9** pinned divergences (was 11:
+E40S2/E40S4 left the panel and nothing new joined it -- an E45S1 row I added mid-slice was deleted
+when re-measurement refuted it, see (i) below).  **45/45** runtime (+7 rows at DR's own console
+values 35/35/59/35/23/43/24, every one predicted in `golden/e45/PREDICTIONS.txt' before the oracle
+ran, E45S8's in the pre-oracle addendum).  Coverage **86 rows / 0 errors / 0 warnings** (new row
+`EXPR.ADD_PRESERVE_ROUTE'), census 44 programs / 15 EXACT / **0 DIFFERS / 0 UNEXPECTED** with
+`--verify' clean, INVENTORY 982.
+
+**Three errors of mine, recorded rather than deleted.**  (i) I diffed instruction *listings* instead
+of whole files, mistook DR's `LHLD` relocatable DATA operands (printed `None/None' in my own output
+because they live in RELOC records, not code bytes) for missing instructions, and concluded the fix
+had missed its target.  [C264]'s mistake repeated one step up, by the tool that had told me the truth
+in P6.  (ii) I then registered E45S1 as a shape divergence on the theory that my `XCHG' there was
+hidden by identical bytes -- my own output already contains DR's `PUSH H' at 003A, and the theory had
+silently assumed the node was reached by the arm I had changed.  (iii) I wrote a post-fix park-site
+count into `golden/e45/CORPUS_SCAN.txt' without re-running the scan; struck, with a sentence about
+what that instrument can and cannot measure.
+
+**(h) Not claimed -- one place where the two candidate rules differ, and no sample of it.**
+The rule in (d) says "class of the right operand"; the alternative says "HL must survive the load",
+i.e. HL is about to be reused as an address.  They differ wherever an ordinary variable's value sits
+in HL and the next operand is a member cell.  At an ordinary destination this compiler emits
+`XCHG` and DR emits `PUSH H` -- and they still produce identical bytes, because the store that
+follows begins `LXI H,<cell>` and discards HL either way; `SHLD`'s operand is a relocatable field,
+so the sequence is invisible in the file stream.  The two readings genuinely diverge only for
+`put list(h + a)`, where nothing is stored; **that program has not been written**, so (d) is stated
+as the rule that fits every sample, not as a rule proven to be the whole rule.  POINTER/BASED-view
+members as right operands remain unmeasured (E40Q4), array elements park by [C150]'s `writes_de`
+route rather than by this predicate, and SUB/MUL/DIV are untouched.

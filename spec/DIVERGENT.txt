@@ -52,3 +52,15 @@ E33MC	artefacts/E33MC.PLI	golden/e33m/E33MC/E33MC.REL	97	97	16	14	246	builds-sha
 # [E2E-40/P4] RETIRED E40Q1: its .REL is now BYTE-FOR-BYTE DR's.  The row pinned mine=was/DR's code size and the gate fails loudly when a pinned divergence turns out to be identical, so it could not be left in place.  Cause of the closure: the two class-gated clauses of [C260] -- a FIXED BIN(15) internal member with a literal value stores through LXI H,<address> + MVI M/INX H/MVI M (no value load at all) and a member+member ADD preserves the left operand with PUSH H/POP D.  Registered as a byte-exact SPECIMENS entry in tools/e2e_gate.py instead.
 E40Q4	artefacts/E40Q4.PLI	golden/e40a/E40Q4/E40Q4.REL	50	62	8	8	118	builds-shape-diverges	MPMCALLB's own shape: `1 cpb, 2 nameadr pointer, 2 paramadr pointer' with `cpb.nameadr = addr(t)' and `cpb.paramadr = cpb.nameadr'. This is the qualified internal-member form the historical program needs, and it compiles here now -- line 4 needed only bind's member row, line 5 needed the assignment predicates to see the alias too (they read the raw AST node, so an unresolved `cpb.nameadr' looked like an unknown expression kind). DATA agrees at 8 (cpb 4 + t 2 + w 2). Code 50 vs DR 62: the 12-byte shortfall is larger than the 4-byte FIXED cases, i.e. [C254] preservation applies to the pointer member reads as well -- additional evidence for the matrix, not a new cause.
 # [E2E-40/P4] RETIRED E40R1: its .REL is now BYTE-FOR-BYTE DR's.  The row pinned mine=was/DR's code size and the gate fails loudly when a pinned divergence turns out to be identical, so it could not be left in place.  Cause of the closure: the two class-gated clauses of [C260] -- a FIXED BIN(15) internal member with a literal value stores through LXI H,<address> + MVI M/INX H/MVI M (no value load at all) and a member+member ADD preserves the left operand with PUSH H/POP D.  Registered as a byte-exact SPECIMENS entry in tools/e2e_gate.py instead.
+# [E2E-40/P9] ONE ROW ADDED AND THEN DELETED IN THE SAME SLICE, and it is worth recording that it
+# existed: after S1 came out with `PUSH H' at an (ordinary, member) inner node I registered E45S1 as
+# a shape divergence on the theory that my `XCHG' there was a route difference hidden by identical
+# bytes (DR's park tail is invisible in the .REL stream because its LHLD operand is a RELOC record).
+# It was wrong on its own evidence.  My E45S1 output already contained DR's PUSH at 003A -- the
+# theory had silently assumed the node was reached by the arm I had changed, when `writes_de' fires
+# first for a different reason, which is the same mistake as claiming agreement from a shared verdict
+# instead of a shared route, pointed at myself this time.  E45S8 (`put list(h + a)', no store at all)
+# then decided the question outright: DR's .REL is 256/256 identical to mine and its disassembly
+# shows `LHLD h / PUSH H / LHLD a / POP D / DAD D' with nothing stored afterwards, so the right
+# operand's class is sufficient on its own and [C271] stands as written.
+

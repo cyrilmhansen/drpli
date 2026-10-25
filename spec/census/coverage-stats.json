@@ -5,7 +5,7 @@
   "BUILTIN": 1,
   "COND": 8,
   "DECL": 18,
-  "EXPR": 12,
+  "EXPR": 13,
   "IO": 5,
   "LEX": 3,
   "LOOP": 4,
@@ -18,34 +18,34 @@
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 70,
+  "MEASURED": 71,
   "SINGLE_SAMPLE": 8,
   "UNREVIEWED": 4
  },
  "dr": {
-  "ACCEPTS": 73,
+  "ACCEPTS": 74,
   "ACCEPTS_DEFECT": 1,
   "REJECTS": 8,
   "UNTESTED": 3
  },
- "manual_none": 75,
+ "manual_none": 76,
  "manual_unverified": 0,
  "mine": {
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 2,
   "PARTIAL": 6,
   "REFUSED": 21,
-  "SUPPORTED": 53
+  "SUPPORTED": 54
  },
  "no_parity": 27,
- "no_runtime": 64,
+ "no_runtime": 65,
  "perimeter": {
   "C": 3,
   "M": 13,
-  "S": 69
+  "S": 70
  },
- "rows": 85,
+ "rows": 86,
  "single_sample": 8,
  "unreviewed": 4,
- "with_boundary": 85
+ "with_boundary": 86
 }

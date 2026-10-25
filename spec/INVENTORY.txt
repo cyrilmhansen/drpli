@@ -451,6 +451,7 @@ E45S4	specimen	artefacts/E45S4.PLI	golden/e45/E45S4/E45S4.REL
 E45S5	specimen	artefacts/E45S5.PLI	golden/e45/E45S5/E45S5.REL
 E45S6	refusal	b9e: procedure options(main);\n   declare 1 g, 2 a fixed, 2 b fixed, 2 c fixed;\n   declare h fixed, k fixed, n fixed;\n   a = 7;\n   b = 11;\n   c = 13;\n   h = 17;\n   k = 19;\n   n = 23;\n   put list(a + (b + c));\n  stop;\nend b9e;\n	DR COMPILES THIS AND I DO NOT (measured, golden/e45/E45S6 CODE 0x54 / DATA 000C, console 31): a parenthesized sum inside `put list'.  The refusal is in the PUT-item classifier, not in the ADD lowering -- the parenthesized inner sum is lowered exactly like the unwrapped one by DR (its three LHLD fixups read DATA+2, +4, +0, so DR evaluates the right group first).  Unrelated to operand preservation, which P9 closed
 E45S7	specimen	artefacts/E45S7.PLI	golden/e45/E45S7/E45S7.REL
+E45S8	specimen	artefacts/E45S8.PLI	golden/e45/E45S8/E45S8.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

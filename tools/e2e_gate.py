@@ -698,6 +698,10 @@ SPECIMENS.update({
     "E45S4":  ("artefacts/E45S4.PLI", "golden/e45/E45S4/E45S4.REL"),
     "E45S5":  ("artefacts/E45S5.PLI", "golden/e45/E45S5/E45S5.REL"),
     "E45S7":  ("artefacts/E45S7.PLI", "golden/e45/E45S7/E45S7.REL"),
+    # [E2E-40/P9 addendum] the probe that separates the two surviving disjuncts of [C271]: no store
+    # follows the ADD at all, so `writes_de' cannot be what makes DR park.  DR parks (PUSH H at 003A)
+    # and its .REL is 256/256 identical to this compiler's -> the right operand's class is sufficient.
+    "E45S8":  ("artefacts/E45S8.PLI", "golden/e45/E45S8/E45S8.REL"),
 })
 
 SPECIMENS.update({
