@@ -1,0 +1,213 @@
+E2E-40/P8a FALSIFICATION PREDICTIONS -- authored BEFORE the DR oracle ran (tag e43l).
+Chronology: this file and artefacts/E43{L1..L9,M1}.PLI were written first; `python3
+oracle/batch.py <names> --tag e43l' was invoked only after this text was saved.  Failed
+predictions are annotated in a RESULTS section appended afterwards, never rewritten.
+
+PROGRAM SHAPE (identical in all ten, only the marked statement differs):
+
+    b9e: procedure options(main);
+      declare 1 g, 2 a fixed, 2 b fixed;
+      g.a = 100;                      <- both: so the preceding HL cannot be blamed for the
+      g.b = 1;                            choice (E22A's discipline), and the value 100 makes
+      <PROBE STATEMENT>                   every result distinct: -9=91 ... +17=117
+      put list(a);
+      stop;
+    end b9e;
+
+`a' is a FIXED BINARY(15) member at DATA+0x0, `b' at DATA+0x2.  The store under test always
+names `a' (or spells it `g.a'), so any destination-address error shows up as a wrong console
+value AND as a wrong RELOC target on the store.
+
+WHAT IS ALREADY ESTABLISHED, and what this batch is meant to bound
+------------------------------------------------------------------
+[C165]/[E2E-11 step 1a] measured the self-update ladder on ORDINARY variables across
+k = -8..+16 (E22A02..E22A16, E22B01..E22B08), with the selection rule
+    |k| <= 3   -> INX H / DCX H repeats
+    |k| >= 4   -> LXI B,<k or twos-complement> ; DAD B
+[C178] measured that an OUT-OF-RANGE constant on a self-update (LP14, `y = y + 65535') makes
+DR emit the general parked ADD form instead of a ladder -- but 65535 is outside hl_const's
+range, so it says nothing about k = 17 or k = -9, which ARE in range.
+[E42P1] measured ONE member self-update, at k = +5: LHLD / LXI B,0005 / DAD B / SHLD, 256/256
+byte-identical, console 10.
+The compiler currently applies the ORDINARY-variable range -8..16 to members by analogy
+(`ladder_bias_fits'), and refuses a member self-update outside it (E42N3 registered at +100).
+That analogy has never been bounded.  THIS BATCH BOUNDS IT.
+
+HYPOTHESES
+----------
+H1  An internal member is just a fixed-DATA-address cell: it inherits the ordinary ladder
+    EXACTLY -- same -8..16 boundary, same |k|<=3 repeat-vs-LXI B selection, same SHLD tail.
+H2  Members use a narrower or otherwise different ladder selection (e.g. always LXI B/DAD B,
+    or a boundary set by 5 rather than 8/16), because the cell is addressed relative to a
+    structure rather than standing alone.
+H3  Outside the ladder DR takes the general expression route and, per [C266], then PARKS the
+    member store: body becomes ~LHLD/PUSH H/LXI H,*S/MVI A,p/CALL/CALL/POP D/DAD D followed by
+    PUSH H/LXI H,<cell>/POP D/MOV M,E/INX H/MOV M,D.
+H4  Qualification changes the emitted route even though `a' and `g.a' denote one cell
+    (the [C253]/[C257] "no trace" result would then be false for this shape).
+H5  DR rejects some tested source form outright (no .REL emitted).
+
+Byte accounting used below: the ladder body is 6 + |k| when it uses repeats (LHLD 3, SHLD 3,
+plus |k| single-byte INX/DCX) and 10 when it uses LXI B/DAD B.  E43L1's whole-program CODE is
+predicted at 0x3A = 58, matching E42P1, because +5 and -8 both land on the LXI B side.
+
+---------------------------------------------------------------------------------------
+E43L1  a = a - 8       negative end of the sampled range
+---------------------------------------------------------------------------------------
+MINE NOW: LHLD *(a) / LXI B FFF8 / DAD B / SHLD *(a)   code = 0x3A (58)
+H1 -> exactly that: -8 is inside the measured ordinary range and on the LXI B side.
+H2 -> if the member boundary is tighter than -8, expect repeats-vs-LXI-B confusion or the
+      general route: code jumps to >= 0x48 (the parked body adds ~16 bytes).
+H3 -> general + parked: 26-byte body, CODE ~= 0x4C.
+RELOCATION CHECK (all probes): the LHLD and SHLD must both fix up to DATA+0x0.  A SHLD that
+fixes up elsewhere, or a body whose second fixup is +0x1, is a destination bug, not a route
+choice.
+PREDICTION: H1, 58 bytes, console 92.  Confidence: moderate-high (this is the endpoint the
+analogy was drawn from).
+
+---------------------------------------------------------------------------------------
+E43L2  a = a - 9       ONE step outside
+---------------------------------------------------------------------------------------
+MINE NOW: REFUSED by member_store_class ("self-update with a bias of -9").
+H1 -> if the ordinary boundary is real, DR must switch shape HERE: the parked/general ADD
+      form (H3 is then the mechanism).  Expected CODE ~0x4C-0x50, and the store becomes
+      PUSH H/LXI H,<cell>/POP D/MOV M,E/INX H/MOV M,D -- the [C266] parked store, which mine
+      already emits for other general values.
+H2 -> could still be a ladder (LXI B,FFF7) if the -8 boundary was an artifact of the
+      ordinary-variable probes rather than a DR rule; then 58 bytes and my refusal is too
+      tight.
+DECISIVE: this is the ONLY probe that can show whether -8 is a DR boundary at all.  If DR
+ladders at -9, the range in `ladder_bias_fits' is unmeasured on BOTH ends and must be
+re-derived, not extended by one.
+PREDICTION: H3 (general + parked), i.e. DR does NOT ladder here; my refusal is the right
+verdict for the wrong reason unless I implement the general route.  Confidence: low.
+
+---------------------------------------------------------------------------------------
+E43L3  a = a - 1       smallest negative step (repeat side)
+---------------------------------------------------------------------------------------
+MINE NOW: LHLD *(a) / DCX H / SHLD *(a)   code = 0x37 (55)
+H1 -> that.  H2 -> LXI B,FFFF/DAD B instead (58): would mean the member side never uses the
+repeat trick, i.e. the ladder's |k|<=3 rule is ordinary-variable-only.
+PREDICTION: H1, 55 bytes, console 99.  Confidence: moderate.
+
+---------------------------------------------------------------------------------------
+E43L4  a = a + 16      positive end of the sampled range
+---------------------------------------------------------------------------------------
+MINE NOW: LHLD *(a) / LXI B 0010 / DAD B / SHLD *(a)   code = 0x3A (58)
+H1 -> that, console 116.  H2 -> parked/general (>= 0x48).
+PREDICTION: H1.  Confidence: moderate-high.
+
+---------------------------------------------------------------------------------------
+E43L5  a = a + 17      ONE step outside, positive
+---------------------------------------------------------------------------------------
+MINE NOW: REFUSED ("bias of 17").
+Same logic as E43L2 with the opposite sign; the pair is the boundary test.  If L2 ladders and
+L5 parks (or vice versa) the range is asymmetric on members and `ladder_bias_fits' is wrong
+in shape, not just width.
+PREDICTION: H3 (general + parked), matching E43L2.  Confidence: low.
+
+---------------------------------------------------------------------------------------
+E43L6  a = g.a + 5     LHS unqualified, RHS qualified, ONE cell
+---------------------------------------------------------------------------------------
+MINE NOW: LHLD *(a) / LXI B 0005 / DAD B / SHLD *(a)   code = 0x3A (58) -- but NOT via the
+          ladder arm: the value comes from the general ADD route (codegen's ladder arm
+          compares the two spellings TEXTUALLY and fails), while the store is SHLD because
+          member_store_class compares resolved DATA addresses and succeeds.  Two different
+          predicates, one output.  Whether that output is DR's is exactly what this probe asks.
+H1/H4 -> if DR ladders (10-byte body, both fixups DATA+0x0), qualification leaves no trace
+          here as elsewhere [C253] and the address-based classifier is right.
+       -> if DR parks instead (H4), then DR's OWN route for `g.a + 5' is the general one and
+          my classifier must key the ladder on the SPELLING, which would be a genuinely new
+          scope-sensitivity in codegen.
+PREDICTION: H1 -- byte-identical to E42P1's body.  Confidence: moderate (rests on
+E40Q1/E40Q2 compiling byte-identically, which was never tested on a self-update).
+
+---------------------------------------------------------------------------------------
+E43L7  g.a = a + 5     the mirror spelling
+---------------------------------------------------------------------------------------
+MINE NOW: identical to E43L6 (0x3A).  Same hypotheses; if L6 and L7 differ from each other in
+DR's output, DR discriminates the LHS spelling from the RHS spelling and neither of my
+predicates is the right one.
+PREDICTION: H1, and L6 == L7 == E42P1 byte-for-byte.  Confidence: moderate.
+
+---------------------------------------------------------------------------------------
+E43L8  a = a + 3       repeat side of the |k| = 4 break-even, AT A MEMBER
+---------------------------------------------------------------------------------------
+MINE NOW: LHLD / INX H INX H INX H / SHLD   code = 0x39 (57)
+H1 -> that.  H2 -> LXI B,0003 (58).  This is the instruction-SELECTION probe: it separates
+"a member inherits the ladder" from "a member inherits only the >=4 half of the ladder",
+which E42P1 (+5) could not distinguish.
+PREDICTION: H1, 57 bytes.  Confidence: moderate.
+
+---------------------------------------------------------------------------------------
+E43L9  a = a + 4       LXI B side of the same break-even
+---------------------------------------------------------------------------------------
+MINE NOW: LHLD / LXI B,0004 / DAD B / SHLD   code = 0x3A (58)
+L8 vs L9 together locate the break-even to within one unit.  If DR repeats at 4 (61 bytes) or
+uses LXI B at 3 (58), the member's break-even is NOT 4 and [C165]'s number does not transfer.
+PREDICTION: H1, break-even at 4 in both directions.  Confidence: moderate-high.
+
+---------------------------------------------------------------------------------------
+E43M1  a = 32768       lower bound of the admitted literal interval (32768..65535)
+---------------------------------------------------------------------------------------
+MINE NOW: conversion prefix then the PARKED store: LXI H,*(pool) / MVI A,05 / CALL / CALL /
+          PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D   code = 0x43 (67)
+Evidence for the interval is NOT uniform: 65535 was measured at a member (E42P2) and 32768 was
+measured only at an ARRAY element (LR7), so the lower bound is a composition, not an
+observation.  [C178]'s LP15 note says DR sizes a DEC literal pool cell by digit count; 32768
+has 5 digits like 65535, so the prefix should be identical and only the pool VALUE differs --
+which makes this the cleanest possible test of whether the interval's lower end behaves like
+its upper end at a member destination.
+H1 -> byte-identical to mine apart from the literal itself: same 67-byte CODE, same parked
+      store, and DR prints or aborts depending on its runtime range check.
+H2  -> DR writes 32768 in place with MVI M (would mean the MVI-M rule keys on the destination
+      alone and E42P2's parking was about something else).
+PREDICTION: H1, including the RUNTIME behaviour: DR's own object should abort with
+`ERROR (1), Conversion' as E42P2 did, since 32768 is outside a signed BIN(15).  If it does
+NOT abort, the abort in E42P2 is a property of 65535 specifically and my "range check lives
+in the runtime library" reading needs revising.  Confidence: moderate.
+
+COST OF BEING WRONG
+-------------------
+Every prediction above is about a shape, and mine currently emits a shape for all eight
+non-refused probes.  If DR parks where I ladder, or ladders where I refuse, the bytes differ
+and the specimen stays out of the byte-exact panel -- which is why the whole file is
+compared (256/256 or 384/384 style, RELOC included [C264]), not just CODE length, and the
+verdict is read off the linked .COM with `tools/dis80.py --com' so operands resolve rather
+than appearing as relocation placeholders.
+
+
+================================================================================
+RESULTS -- appended after DR ran (oracle/batch.py --tag e43l, then e43b).  The
+predictions above are unedited; this section records which ones were refuted.
+================================================================================
+
+H1 WON EVERYWHERE.  H2 (members use a narrower ladder) is REFUTED and was the compiler's
+own gate, not a DR property.  H4 (qualification changes the route) is REFUTED.  H5 did not
+occur: DR compiled all thirty probes.
+
+  probe  predicted            DR delivered                                     verdict
+  -----  -------------------  -----------------------------------------------  ----------
+  E43L1  ladder, 58, con 92   LHLD/LXI B,FFF8/DAD B/SHLD, CODE 0x3A            PREDICTED
+  E43L2  H3 general+parked    LHLD/LXI B,FFF7/DAD B/SHLD, CODE 0x3A            REFUTED
+       -- the lowest-confidence prediction in the file, and wrong: DR does not park at -9.
+         Mine REFUSED it.  E43L2 became byte-exact specimen; the refusal moved nowhere.
+  E43L3  ladder, 55, con 99   LHLD/DCX H/SHLD, CODE 0x37                       PREDICTED
+  E43L4  ladder, 58           LXI B,0010                                       PREDICTED
+  E43L5  H3 general+parked    LXI B,0011, CODE 0x3A                            REFUTED
+  E43L6  H1 == E42P1 body     256/256 identical to E42P1 and to E43L7, con 105 PREDICTED
+  E43L7  H1, L6 == L7         identical                                        PREDICTED
+  E43L8  H1 repeats, 57       LHLD/INX H x3/SHLD, CODE 0x39                    PREDICTED
+  E43L9  H1 LXI B, 58         LXI B,0004                                       PREDICTED
+  E43M1  H1 conversion+parks  byte-identical, CODE 0x43                        PREDICTED
+         and DR aborts as predicted: `ERROR (1), Conversion', traceback
+         `0612 1099 3320 3732 3836' -- see golden/e43lr/E43M1.output.txt.  The abort
+         is magnitude-independent, so E42P2's reading of it stands and 32768..65535
+         is measured at both ends at a member.
+
+  The 0x3A/0x43 byte accounting held: 6 + |k| for repeats, 10 for LXI B, constant total
+  because the bias instruction and the store are fixed size once |k| >= 4.
+
+  What the file did NOT anticipate: that the boundary would not exist.  Both low-confidence
+  predictions (L2, L5) were failures in the same direction, which is the signature of a
+  limit taken from my own specimen list rather than from DR -- see spec/CLAIMS.md [C268].

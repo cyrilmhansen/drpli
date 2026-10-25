@@ -1,0 +1,27 @@
+E2E-40/P8a range survey: member self-update bias k for each probe name.
+CP/M names are limited to 8 characters, so the SUFFIX IS NOT ALWAYS THE NUMBER (the oracle
+refused E43B100 / E43B32767 outright).  All 20 programs share the template in
+artefacts/E43*.PLI: `g.a = 100; g.b = 1; <PROBE>; put list(a); stop;'.
+
+  name      k          DR body (identical shape in all of them)
+  E43B14   +14    LHLD <cell> / LXI B,000E / DAD B / SHLD <cell>     CODE 0x3A
+  E43B15   +15    LXI B,000F
+  E43B16   +16    LXI B,0010                    (P8's invented upper bound)
+  E43B17   +17    LXI B,0011                    (P8 refused this; DR ladders)
+  E43B18   +18    LXI B,0012
+  E43B19   +19    LXI B,0013
+  E43B20   +20    LXI B,0014
+  E43B30   +30    LXI B,001E
+  E43B60   +60    LXI B,003C
+  E43B1C  +100    LXI B,0064   *** the retired refusal E42N3's shape; panel specimen ***
+  E43B1D  +127    LXI B,007F
+  E43B2C  +200    LXI B,00C8
+  E43B3C +1000    LXI B,03E8
+  E43B4C +5000    LXI B,1388
+  E43B5C +32767   LXI B,7FFF   *** largest legal addend; panel specimen ***
+  E43B6C +10000   LXI B,2710
+  E43B7C +30000   LXI B,7530   *** panel specimen + RUNTIME row: DR's object prints 30100 ***
+  E43N10    -10    LXI B,FFF6                    (P8 refused; DR ladders)
+  E43N16    -16    LXI B,FFF0
+  (E43L1..L9 in golden/e43l add -8, -9, -1, +16, +17, +3, +4 and the two cross-spelling +5 forms;
+   E43M1 adds the literal 32768.)

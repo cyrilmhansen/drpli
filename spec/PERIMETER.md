@@ -602,9 +602,9 @@ it, and this time executing it changes what the specimen is *for*.
 
 | class | destination | route | licensed by |
 |---|---|---|---|
-| `Ms_literal` | member | `MVI M` at the cell | E39S1/S2, E40S1..S4 |
-| `Ms_ladder` | member, same cell +/- k, k in -8..16 | ladder then `SHLD` | E42P1 (+5 only) |
-| `Ms_general` | member, anything else | parked store | E39S7, E41P1/P4, E42P2 |
+| `Ms_literal` | member | `MVI M` at the cell | E39S1/S2, E40S1..S4, E43L* |
+| `Ms_ladder` | member, same cell +/- a 16-bit-representable k | ladder then `SHLD` | E42P1, then **E43L1..L9 / E43B* over -30..+32767** [P8a] |
+| `Ms_general` | member, anything else | parked store | E39S7, E41P1/P4, E42P2, E43M1 |
 | `Ms_unsampled` | member | **refusal before any byte** | nothing -- that is the point |
 
 Four `my-gap` negatives pin the refusals (`E42N1..E42N4`: `a = -5`, `a = -65535`, `a = a + 100`,
@@ -615,9 +615,63 @@ blanket rule would break 900+ byte-exact specimens.  `rhs_landed_in_hl` is delet
 that every value arm must remember to set, replaced by a syntactic classification the tail can check
 against the same AST the value arm consumed.
 
-**Still open after P8.**  The ladder on a member at biases other than +5, and under `-`; negated
-literals at a member; FLOAT/DEC literals into a FIXED member [C228]; POINTER/BASED members entirely
-(E40Q4) -- this table is for cells with a fixed DATA address; the cross-spelling ladder equivalence
-(`a = g.a + 5`), inferred from E40Q1/E40Q2's byte-identity and never probed; and whether *my*
-runtime should abort on the E42P2 shape when the linked library is mine rather than DR's, which is
-an ARCH-level question, not a codegen one.  E40S2/E40S4 remain where P7 left them.
+**Still open after P8.**  ~~The ladder on a member at biases other than +5, and under `-`~~
+(**measured in P8a**, see below); negated literals at a member; FLOAT/DEC literals into a FIXED
+member [C228]; POINTER/BASED members entirely (E40Q4) -- this table is for cells with a fixed DATA
+address; ~~the cross-spelling ladder equivalence (`a = g.a + 5`), inferred from E40Q1/E40Q2's
+byte-identity and never probed~~ (**probed in P8a: E43L6/E43L7**); and whether *my* runtime should
+abort on the E42P2 shape when the linked library is mine rather than DR's, which is an ARCH-level
+question, not a codegen one.  E40S2/E40S4 remain where P7 left them.
+
+## [E2E-40/P8a] The classifier and the producer were two predicates; and the -8..16 range was mine, not DR's
+
+Two defects, one measurement campaign.  `golden/e43l` (10 probes) + `golden/e43b` (20 probes),
+whole `.REL` compared each time, `PREDICTIONS.txt` written first.
+
+**(1) The alleged classifier/producer agreement did not exist.**  `member_store_class` decided
+`Ms_ladder` by comparing resolved DATA addresses; the value-producing ladder arm inside
+`lower_assign` decided by comparing the two operands' `Ast.orig` **spellings textually**.  Those
+open onto different things, and they disagreed: instrumenting the arm shows `a = a + 5` firing it
+and `a = g.a + 5` (R3/R4/X2/X4) **never** firing it -- the value came from the general ADD route
+while the tail stored with `SHLD` because the verdict said ladder.  Their bytes still equalled DR's
+for one reason only: `lower_hl` and the ladder both reach for `hl_bias`, whose `|k| <= 3` INX/DCX-vs-
+`LXI B / DAD B` selection happens to reproduce the ladder's.  Two independently written predicates
+agreeing by coincidence is exactly the [C260] failure mode.  P8a closes it by making the verdict
+carry its operands (`Ms_ladder of Ast.binop * int`, `Ms_literal of string`) and by opening the ladder
+arm **on the verdict** for a member destination (`None` -> the textual test, which is what the
+ordinary-variable specimens measured and what 900+ byte-exact files depend on).  Consequences now
+enforced rather than lucky: an `Ms_ladder` member cannot fall through to general value production,
+an `Ms_general` member cannot emit a ladder, and a member carrying `Ms_unsampled` fails loudly in the
+store `match` instead of reaching the `SHLD` default arm.
+
+**(2) The range was an artifact of my own probe set.**  P8 refused a member self-update outside
+-8..16, citing E22A02..E22A16/E22B01..E22B08 -- but those probes never asked for `|k| > 16`.  DR
+was shown -30, -16, -10, -9, -8, -5, -2, -1, +1..+5, +14..+20, +30, +60, +100, +127, +200, +1000,
++5000, +10000, +30000, +32767 at a member: **every one takes the ladder with `SHLD`, the operand
+carrying k exactly** (`+100` -> `LXI B,0064`, `+5000` -> `1388`, `+30000` -> `7530`, `+32767` ->
+`7FFF`, `-9` -> `FFF7`) and whole-program CODE stays `0x3A` across all of them.  The gate is
+therefore not a window at all: it is whether the constant fits the 16-bit `DAD` addend.  The same
+sentence tested at an *ordinary* variable (`artefacts/E22A17`, `100 = 100 + 100`) also ladders, so
+this is not a member-specific relaxation.  **E42N3 (`a = a + 100`) is retired from the negative
+panel and returns as byte-exact specimen E43B1C** -- a refusal removed only with a replacement
+specimen.  What still divides the routes: a literal too large for the addend (32768..65535) goes
+through DR's decimal conversion and then **parks**, and E43M1 measures that at a member at the
+interval's lower end, so `32768..65535` is no longer a composition of LR7 + E42P2.  Above 65535
+(E42N4) and for any negated literal (E42N1/E42N2) there is still no sample and the store refuses.
+
+**(3) Cross-spelling is now measured, not inferred.**  `a = g.a + 5` (E43L6) and `g.a = a + 5`
+(E43L7) are each 256/256 identical to DR and to each other and to E42P1's body, and their linked
+objects print 105 [C268].  E40Q1/E40Q2's byte-identity was the only prior warrant for treating the
+two spellings as one cell inside a self-update; there is now direct evidence in both directions.
+
+**(4) DR's abort traceback is a literal dump.**  E43M1 (`a = 32768`) aborts the way E42P2 (`65535`)
+does, with traceback `0612 1099 3320 3732 3836`: dropping the first word and reading the surviving
+ASCII digit pairs left-to-right gives `3 32 327 3276 32768` -- DR's incremental decimal conversion.
+My object aborts with byte-equal text.  The check is therefore magnitude-independent, and the
+traceback is a *decoding key*, which is worth knowing before one mistakes it for an address [C267].
+
+Gate after P8a: **969 byte-exact / 0 fail** (+13 specimens, 0 regressions), **128 refusals** (129
+-1, E42N3 retired), **11 divergences** (unchanged -- no divergent row moved toward or away from
+parity), **34 runtime rows** (+6), coverage 85 rows / 0 errors (DECL.MEMBER_SCOPE now `MIXED:46/49`),
+census 44 programs / 15 EXACT / 0 DIFFERS / 0 UNEXPECTED (no corpus verdict or blocker text moved),
+exit 0.

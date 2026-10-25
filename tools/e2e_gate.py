@@ -739,6 +739,46 @@ SPECIMENS.update({
     "E42P2":  ("artefacts/E42P2.PLI", "golden/e42p/E42P2/E42P2.REL"),
 })
 
+# [E2E-40/P8a] THE MEMBER SELF-UPDATE RANGE, MEASURED AT THE MEMBER, AND THE CROSS-SPELLING
+# EQUIVALENCE.  E42P1 licensed exactly one bias (+5); P8 then gate-extended the ORDINARY-
+# variable window -8..16 to members and refused anything outside it (E42N3).  DR says the
+# window was an artifact of which k E22A/E22B happened to sample: the ladder runs across the
+# whole in-range addend and the tail stays SHLD.  Every file below is a DR-generated .REL
+# compared in full (256 bytes, RELOC included -- [C264]'s rule that a CODE-byte match alone
+# proves nothing about the member addresses), and mine is 256/256 identical on all of them.
+#   boundaries of the old invented window: -9 (E43L2) and +17 (E43L5) -- both LADDER in DR,
+#     both REFUSED by P8's gate, hence the retirement of E42N3 and this batch of specimens.
+#   inside the old window, unchanged: -8 (E43L1), -1 (E43L3), +3 (E43L8), +16 (E43L4).
+#   the instruction-selection break-even at a member: +3 repeats INX H, +4 switches to
+#     LXI B/DAD B (E43L8 vs E43L9) -- [C165]'s |k|<=3 rule transfers.
+#   cross-spelling, the Problem A pair: `a = g.a + 5' (E43L6) and `g.a = a + 5' (E43L7), both
+#     byte-identical to each other and to E42P1's body -- DR's ladder keys on the CELL, so the
+#     classifier's address comparison is right and the textual one P8 used for production was
+#     the wrong predicate.  This is the first PROBE (not just an inference from E40Q1/E40Q2)
+#     that licenses treating `a' and `g.a' as one cell inside a self-update.
+#   literals: E43M1 stores 32768 at a member, byte-identical -- the lower end of the
+#     32768..65535 conversion-then-park interval is now measured at a member, not composed
+#     from LR7 (array cell) + E42P2 (65535).
+#   extremes: E43B1C = +100 (E42N3's shape, now a specimen), E43B5C = +32767 (the largest
+#     addend DR can take; LXI B,7FFF).
+SPECIMENS.update({
+    "E43L1":  ("artefacts/E43L1.PLI", "golden/e43l/E43L1/E43L1.REL"),
+    "E43L2":  ("artefacts/E43L2.PLI", "golden/e43l/E43L2/E43L2.REL"),
+    "E43L3":  ("artefacts/E43L3.PLI", "golden/e43l/E43L3/E43L3.REL"),
+    "E43L4":  ("artefacts/E43L4.PLI", "golden/e43l/E43L4/E43L4.REL"),
+    "E43L5":  ("artefacts/E43L5.PLI", "golden/e43l/E43L5/E43L5.REL"),
+    "E43L6":  ("artefacts/E43L6.PLI", "golden/e43l/E43L6/E43L6.REL"),
+    "E43L7":  ("artefacts/E43L7.PLI", "golden/e43l/E43L7/E43L7.REL"),
+    "E43L8":  ("artefacts/E43L8.PLI", "golden/e43l/E43L8/E43L8.REL"),
+    "E43L9":  ("artefacts/E43L9.PLI", "golden/e43l/E43L9/E43L9.REL"),
+    "E43M1":  ("artefacts/E43M1.PLI", "golden/e43l/E43M1/E43M1.REL"),
+    "E43B1C": ("artefacts/E43B1C.PLI", "golden/e43b/E43B1C/E43B1C.REL"),
+    "E43B5C": ("artefacts/E43B5C.PLI", "golden/e43b/E43B5C/E43B5C.REL"),
+    # +30000: DR links it and prints 30100, so this one is the largest-bias ARITHMETIC witness,
+    # not just a byte witness (100 + 30000 fits BIN(15); E43B5C's +32767 would not).
+    "E43B7C": ("artefacts/E43B7C.PLI", "golden/e43b/E43B7C/E43B7C.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -1823,7 +1863,15 @@ _MEMBER_UNSAMPLED = "internal structure MEMBER is unsampled [TBD] in DR"
 REJECTS.update({
     "E42N1": (_MEMBER_SRC % "a = -5;", _MEMBER_UNSAMPLED),
     "E42N2": (_MEMBER_SRC % "a = -65535;", _MEMBER_UNSAMPLED),
-    "E42N3": (_MEMBER_SRC % "a = a + 100;", _MEMBER_UNSAMPLED),
+    # [E2E-40/P8a] E42N3 (`a = a + 100' on an internal member) is RETIRED, not re-labelled.
+    # P8 registered it as my-gap because "the ladder is sampled for -8..16 only" -- but that
+    # range came from E22A02..E22A16 / E22B01..E22B08 on ORDINARY variables, which never
+    # tested |k| > 16, so the bound was an artifact of my own probe set.  DR measured at the
+    # member (golden/e43b/E43B1C) emits `LHLD <cell> / LXI B,0064 / DAD B / SHLD <cell>':
+    # 256/256 identical to mine once the gate stopped refusing it.  Its replacement byte-exact
+    # specimen is E43B1C; E43L1..L9 and E43M1 pin the boundary set, and E43B5C (+32767) the
+    # upper extreme.  E42N1/E42N2 (negated literals) and E42N4 (above 65535) stay refusals --
+    # DR has still never been shown those at a member.
     "E42N4": (_MEMBER_SRC % "a = 100000;", _MEMBER_UNSAMPLED),
 })
 
@@ -1841,11 +1889,9 @@ NEG_META = {
                         "because a FIXED BIN(15) cell cannot hold 65535.  A negative literal of "
                         "any magnitude is therefore refused here rather than compiled into a "
                         "sequence whose runtime behaviour is unknown"),
-    "E42N3": ("my-gap", "DR VERDICT UNMEASURED: `a = a + 100'.  E42P1 licenses the same-cell "
-                        "ladder at +5 for a member; the -8..16 range itself comes from "
-                        "E22A02..E22A16/E22B01..E22B08 on ORDINARY variables, so a bias outside "
-                        "it is unsampled at a member even though mine's ladder arm accepts any "
-                        "in-range constant for a plain scalar"),
+    # [E2E-40/P8a] E42N3's entry removed: the shape it refused is now DR-measured (see the
+    # REJECTS note above and golden/e43b/E43B1C).  It left the panel as a refusal and came
+    # back as a byte-exact specimen, so negatives go 129 -> 128 and specimens 956 -> +E43B1C.
     "E42N4": ("my-gap", "DR VERDICT UNMEASURED: `a = 100000'.  E42P2 (65535) and LR7 (32768 at "
                         "an array cell) bound the decimal-conversion magnitudes DR is known to "
                         "emit; above 65535 nothing is sampled"),

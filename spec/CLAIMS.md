@@ -5171,7 +5171,7 @@ For a destination cell with a fixed DATA address (an internal structure member):
 | RHS shape | DR's store | witness |
 |---|---|---|
 | integer literal in `hl_const` range | `LXI H,<cell> / MVI M,lo / INX H / MVI M,hi` -- the value never enters a pair | E39S1, E39S2, E40S1..E40S4 |
-| same cell `+/-` a constant bias in -8..16 | `LHLD <cell> / <ladder> / SHLD <cell>` -- the LADDER AND `SHLD` BOTH SURVIVE | **E42P1** (256/256, .COM at 0116) |
+| same cell `+/-` a constant bias that fits the 16-bit `DAD` addend ~~in -8..16~~ [C267 corrected by C268: the window was an artifact of E22A/E22B never testing |k|>16; DR ladders at -30, -9, +17, +100, +5000, +32767 at a member] | `LHLD <cell> / <ladder> / SHLD <cell>` -- the LADDER AND `SHLD` BOTH SURVIVE | **E42P1**, then **E43L1..L9 / E43B*** (256/256, .COM at 0116) |
 | anything else, **including a literal DR must convert** (32768..65535) | `PUSH H / LXI H,<cell> / POP D / MOV M,E / INX H / MOV M,D` | E39S7, E41P1, E41P4, **E42P2** (384/384, .COM 0116-0128) |
 
 The third row's extension is the correction: what selects parking is **whether HL holds the value at
@@ -5220,8 +5220,85 @@ store, and registering an unmeasured form as a DR-negative would launder my refu
 behaviour [C256]. Ordinary (non-member) destinations are not examined at all -- `SHLD` is their
 measured route for every RHS class in the corpus, and a blanket rule would break 900+ specimens.
 
-**Not claimed.** Whether the ladder is what DR does for a member self-update at biases other than +5
-(refused). Whether POINTER/BASED members follow this table at all -- E40Q4 is still the 12-byte gap,
+**Not claimed.** ~~Whether the ladder is what DR does for a member self-update at biases other than
++5 (refused).~~ **CLAIMED NOW [C268]:** measured at 30 biases spanning -30..+32767, DR ladders and
+stores with `SHLD` at every one; the refusal that used to sit here (E42N3) is retired and replaced by
+specimen E43B1C. Whether POINTER/BASED members follow this table at all -- E40Q4 is still the 12-byte gap,
 and P7's rule was derived for cells with a fixed DATA address. Whether a float/DEC literal into a
 FIXED member has any DR sample (it does not; those routes refuse earlier, on [C228]). That the E41P1
-cross-spelling ladder equivalence holds: it is inferred from E40Q1/E40Q2's byte-identity, not probed.
+~~cross-spelling ladder equivalence holds: it is inferred from E40Q1/E40Q2's byte-identity, not
+probed.~~ **PROBED NOW [C268]:** E43L6 (`a = g.a + 5') and E43L7 (`g.a = a + 5') are each 256/256
+identical to DR, to each other and to E42P1, and their linked objects print 105 -- but P8's reason for
+not claiming it was sound, and stronger than the byte-identity it rested on: the classifier compared
+DATA addresses while the value-producing arm compared `Ast.orig' spellings, so the two predicates
+disagreed on exactly these inputs and agreed with DR only because both routes reach for `hl_bias'.
+
+## C268 -- A RANGE INHERITED BY ANALOGY IS NOT A MEASUREMENT: THE MEMBER SELF-UPDATE LADDER RUNS OVER THE WHOLE 16-BIT ADDEND, AND SPELLING-vs-ADDRESS WAS A REAL SPLIT (E2E-40/P8a)
+
+**Statement.** Three things, all measured against DR in `golden/e43l` (10 probes) and `golden/e43b`
+(20 probes), every one compared as a whole `.REL` file and not as a CODE length [C264]:
+
+1. **The member self-update ladder has no window.** `x = x +/- k` on an internal `FIXED BINARY(15)`
+   member emits `LHLD <cell> / <bias> / SHLD <cell>` for every k that fits the 16-bit `DAD` addend.
+   Sampled at a member: -30, -16, -10, -9, -8, -5, -2, -1, +1, +2, +3, +4, +5, +14, +15, +16, +17,
+   +18, +19, +20, +30, +60, +100, +127, +200, +1000, +5000, +10000, +30000, +32767. The ladder
+   operand carries k exactly (`+100` -> `LXI B,0064`, `+5000` -> `1388`, `+30000` -> `7530`,
+   `+32767` -> `7FFF`, `-9` -> `FFF7`) and whole-program CODE is `0x3A` in all of them. Instruction
+  `+30000' is also executed: DR's own linked object prints `30100' (100+30000 still fits
+  BIN(15)), so the large-bias ladder has a runtime witness, not only a byte one
+  (`golden/e43br/E43B7C.output.txt`, spec/RUNTIME.txt row E43B7C).
+   *selection* inside the ladder is `|k| <= 3` -> INX/DCX repeats, else `LXI B,k ; DAD B` -- [C165]'s
+   rule, now confirmed to transfer to a member destination (E43L8 at +3 vs E43L9 at +4 bracket the
+   break-even to one unit).
+2. **`-8..16` was never DR's rule; it was my probe list.** [C267] gated members with that window
+   because E22A02..E22A16 / E22B01..E22B08 covered it, but those probes never ASKED for |k| > 16, and
+   E42P1 -- the only member sample that existed -- was +5. A bound that came from the shape of a
+   specimen set, applied to a destination class those specimens never tested, got written into the
+   compiler as a range check and started refusing programs DR compiles: `a = a + 100` and `a = a - 9`
+   were rejected by me and ladder-emitted by DR, byte-for-byte. **E42N3 is retired from the negative
+   panel and returns as byte-exact specimen E43B1C** (`+100`), with E43B5C (`+32767`) as the extreme.
+   The same shape tested at an ordinary variable (`artefacts/E22A17`, `100 = 100 + 100`) also ladders,
+   so this is not a member-only relaxation -- and [C165]'s remaining caution ("a negated literal is a
+   different lowering", "1-byte target unmeasured") stands: those are still unsampled at a member.
+3. **The classifier and the value producer were reading different things, and DR settles which is
+   right.** `member_store_class` decided `Ms_ladder` by comparing resolved DATA addresses; the
+   ladder arm in `lower_assign` decided by comparing the two operands' `Ast.orig` textually. For
+   `a = g.a + 5` the classifier fired (one cell) and the arm did not (two spellings) -- instrumenting
+   the arm proves it: R1 traces through the ladder arm, R3/R4/E43L6/E43L7 never do. The emitted bytes
+   still equalled DR's, because `lower_hl` and the ladder both call `hl_bias`, whose selection
+   coincides with the ladder's. So the disagreement was latent, not visible -- and it was still the
+   defect [C260] was wrong about: two predicates, one output, no stated reason they must agree. DR's
+   answer is that the CELL decides: E43L6 (`a = g.a + 5`) and E43L7 (`g.a = a + 5`) are each 256/256
+   identical to E42P1 (`a = a + 5`) and to each other, with all three fixups on the same DATA
+   address, so qualification contributes nothing to the route -- the first *direct* evidence for
+   treating the two spellings as one cell inside a self-update, in both directions.
+
+**The fix.** `member_store` now carries its operands (`Ms_literal of string`,
+`Ms_ladder of Ast.binop * int`), and the ladder arm is opened by the verdict for a member destination
+while an ordinary variable keeps the textual test that 900+ byte-exact specimens depend on. One
+classification, two consumers, no second decision to drift: an `Ms_ladder` member cannot fall through
+to general value production, an `Ms_general` member cannot emit a ladder, and an `Ms_unsampled` member
+fails loudly in the store `match` rather than reaching the `SHLD` default arm.
+
+**Runtime consequence, and a decoding key.** E43M1 (`a = 32768` into a member) is byte-identical and
+DR's own linked object aborts exactly as E42P2's (`65535`) does: `ERROR (1), Conversion`. So the
+`FIXED BIN(15)` range check in DR's runtime library is magnitude-independent, and the
+`32768..65535` conversion-then-park interval is now measured at a member at both ends rather than
+composed from LR7 (array cell, 32768) + E42P2 (member, 65535). The tracebacks are informative: E42P2's
+`3620 3535 3533` and E43M1's `3320 3732 3836`, read as ASCII digit pairs after the first word, are
+`6 65 655 6553 65535` and `3 32 327 3276 32768` -- DR's incremental conversion of the literal. A
+traceback word can therefore be a digit prefix, not an address; check that before interpreting one.
+
+**Method note (the reason this slice exists).** P8 cited R3/R4 as demonstrating that the classifier
+and the emitter agree. They demonstrated no such thing: they show agreement of *output*, which is a
+weaker and, here, accidental property. Verifying a shared decision requires tracing which arm ran,
+not diffing the bytes -- a byte match cannot distinguish two routes that happen to converge, exactly
+as [C264] says a code match cannot distinguish addresses.
+
+**Not claimed.** Negated literals at a member (E42N1/E42N2 still refuse, no DR sample); literals
+above 65535 (E42N4); FLOAT/DEC literals into a FIXED member ([C228]); POINTER/BASED members (E40Q4's
+12-byte gap) -- this table is only for cells at a fixed DATA address; `|k|` in 32768..65535 as a
+*self-update* addend (it cannot be one: the value would not fit the addend, and the shapes in between
+are conversion-then-park, pinned by E42P2/E43M1 only as whole-literal stores); and whether the
+ordinary-variable ladder reaches 32767 in DR (only +100 is sampled at an ordinary variable here, in
+`artefacts/E22A17`, whose DR oracle does not exist yet).

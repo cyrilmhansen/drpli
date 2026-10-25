@@ -6795,31 +6795,56 @@ let e26_alloc_fixed st (wi : string) (pi : string) =
                            DR's decimal-conversion calls and DR STILL parks it]
    Shapes with no DR sample are returned as `Unsampled' and the caller refuses, so a
    member store can no longer fall through to `SHLD' just because nothing else claimed
-   it.  The predicate is deliberately syntactic -- the SAME shape test the value-producing
-   match below uses -- because that match is what determines whether HL holds a value at
-   the tail; if the two ever disagree, `Unsampled' wins, which refuses rather than guesses.
+   it.
+   [E2E-40/P8a CORRECTS THE NEXT TWO SENTENCES OF P8'S NOTE HERE.]  P8 claimed this
+   predicate is "the SAME shape test the value-producing match below uses".  It was not,
+   and R3/R4 did not prove it: the classifier compares RESOLVED DATA ADDRESSES while the
+   ladder arm in `lower_assign' compares the two `Ast.orig' SPELLINGS TEXTUALLY, so for
+   `a = g.a + 5' the classifier said Ms_ladder (one cell) and the ladder arm refused to
+   fire (two spellings), leaving the general ADD route to produce the value while the tail
+   still stored with SHLD.  Instrumenting the arm showed exactly that: R1 traces through
+   the ladder arm, R3/R4/X2/X4 never do.  Their bytes matched DR's anyway only because
+   `lower_hl' and the ladder share `hl_bias', whose |k|<=3 repeat-vs-LXI B selection
+   happens to reproduce the ladder's selection -- two independently written predicates
+   agreeing by coincidence, which is how [C260] was originally wrong.  The verdict now
+   CARRIES ITS OPERANDS and the ladder arm fires on the verdict, so classification and
+   emission are one decision (see `member_store' below).
    `same_cell' compares DATA ADDRESSES, never spellings: after [C258] `a' and `g.a' are
    two names for one row, so `n.Ast.orig' differs ("a" vs "g.a") while both resolve to the
    same cell -- E42P1 writes the cell through the unqualified spelling and DR still takes
    the ladder.  R3/R4 in spec/lab-evidence/e2e40-p8/ show the cross-spelling pair. *)
 type member_store =
-  | Ms_literal                    (* in-range integer literal: MVI M at the cell *)
-  | Ms_ladder                     (* same-cell +/- with a bias the ladder is measured for *)
+  | Ms_literal of string          (* in-range integer literal, decimal text: MVI M at the cell *)
+  | Ms_ladder of Ast.binop * int  (* op, SIGNED bias: same cell +/- k, ladder + SHLD tail *)
   | Ms_general                    (* value arrives through lower_hl: park it *)
   | Ms_unsampled of string        (* no DR sample -- refuse, do not guess a shape *)
 
 let member_cell_opt st nm =
   try Some (addr_of st (String.lowercase_ascii nm)) with _ -> None
 
-(* the bias range the self-add ladder is measured over: -8..16, E22A02..E22A16 /
-   E22B01..E22B08 on ORDINARY variables, and E42P1 only extends it to a MEMBER at +5 *)
-let ladder_bias_fits k = -8 <= k && k <= 16
+(* [E2E-40/P8a] THE -8..16 FIGURE WAS AN ARTIFACT OF WHICH k THE OLD PROBES ASKED FOR, and it
+   is withdrawn.  P8 gated member self-updates with `-8 <= k && k <= 16', transferring
+   E22A02..E22A16 / E22B01..E22B08 -- probes that simply never tested |k| > 16 -- from
+   ordinary variables to a member destination, where the single existing sample (E42P1) was
+   +5.  DR's measurement (golden/e43l + golden/e43b, 28 programs, whole .REL compared):
+   a self-update on an internal member takes the LADDER with SHLD at
+     k = -30, -16, -10, -9, -8, -5, -2, -1, +1, +2, +3, +4, +5, +14, +15, +16, +17, +18, +19,
+     +20, +30, +60, +100, +127, +200, +1000, +5000, +10000, +32767
+   -- the whole in-range interval, ladder operand carrying k EXACTLY (+100 -> LXI B,0064,
+   +5000 -> 1388, +32767 -> 7FFF, -9 -> FFF7), CODE size constant at 0x3A across every one
+   of them.  What changes the route is the magnitude of the RHS constant relative to the
+   16-bit ADDEND: E42P2's 65535 cannot be an addend, so it goes through DR's decimal
+   conversion and DR parks it.  So the member gate is exactly the gate the emitter's own
+   shape test already applies -- `fits_int_lit' -- and this function now encodes the
+   addend's range, not a sampled window.  Still UNSAMPLED at a member: a negated literal of
+   any magnitude (E42N1/E42N2) and any literal above 65535 (E42N4). *)
+let ladder_bias_fits k = -32768 <= k && k <= 32767
 
 let member_store_class st dst (rhs : Ast.expr) =
   let fits t = is_int_literal t && fits_int_lit t in
   match (unwrap_e rhs).Ast.e with
   | Ast.Enumber t when is_int_literal t ->
-      if fits t then Ms_literal
+      if fits t then Ms_literal t
       else (match int_of_string_opt (String.concat "" (String.split_on_char '_' t)) with
             (* [E2E-40/P8] 32768..65535 is DR-MEASURED, not guessed: E42P2 (`a = 65535' into
                a member) is `LXI H,*(literal) / MVI A,05 / CALL / CALL' -- the two calls resolve to
@@ -6858,11 +6883,12 @@ let member_store_class st dst (rhs : Ast.expr) =
              && member_cell_opt st dst <> None ->
           let k0 = parse_int_const t in
           let k = if op = Ast.Sub then -k0 else k0 in
-          if ladder_bias_fits k then Ms_ladder
+          if ladder_bias_fits k then Ms_ladder (op, k)
           else
             Ms_unsampled
               ("self-update with a bias of " ^ string_of_int k
-               ^ " (the ladder is sampled for -8..16 only)")
+               ^ ", which cannot be a 16-bit DAD addend.  Measured at a member over "
+               ^ "-30..+32767 (golden/e43l, golden/e43b): DR keeps the ladder and stores with SHLD.")
       | Ast.Eident m, Ast.Enumber t when fits t ->
           (* same operator shape, different cell: that is E41P1's biased COPY, parked *)
           Ms_general
@@ -7443,8 +7469,26 @@ statement form IS implemented; this expression form is not.)")
            lit_dec_neg_to_hl st s
        | Ast.Ebinary ((Ast.Add | Ast.Sub as op), { Ast.e = Ast.Eident m; _ },
                       { Ast.e = Ast.Enumber ks; _ })
-         when String.lowercase_ascii m.Ast.orig
-              = String.lowercase_ascii n.Ast.orig
+         when
+           (* [E2E-40/P8a] ONE DECISION, NOT TWO.  This guard used to be purely textual
+                 (`m.Ast.orig = n.Ast.orig'), which is a DIFFERENT predicate from the
+              classifier's address comparison -- so `a = g.a + 5' classified as a ladder
+              (one cell) while this arm declined to fire (two spellings), and the value came
+              from the general ADD route while the store came from the ladder tail.  The
+              bytes happened to agree because both routes reach for `hl_bias'; that is a
+              coincidence, not a design, and it is what [C260] was originally wrong about.
+              For a MEMBER destination the classifier's verdict is now the only thing that
+              opens this arm: Some Ms_ladder fires it, any other verdict closes it (so an
+              Ms_general member can never emit a ladder), and None cannot occur -- a member
+              always has a verdict by the time we get here.  An ORDINARY variable keeps the
+              textual test, which is what E22A/E22B measured and what 900+ byte-exact
+              specimens depend on. *)
+           (match mstore with
+            | Some (Ms_ladder _) -> true
+            | Some _ -> false
+            | None ->
+                String.lowercase_ascii m.Ast.orig
+                = String.lowercase_ascii n.Ast.orig)
               (* the arm is for INTEGER literals only: a float literal written
                  against a fixed variable (`x = x + 2.5') must fall through to
                  the generic path, which refuses it.  Without this guard
@@ -7546,9 +7590,14 @@ statement form IS implemented; this expression form is not.)")
              ladder survives a member destination and its tail stays `SHLD': C266's destination rule
              does NOT reach this case, C165's form-4-before-form-3 precedence does -- exactly the
              split AC4 (`a(2) = a(2)+5') showed for an array cell.  Console value 10 (spec/RUNTIME.txt)
-             confirms the result reaches the cell.  The bias range is still -8..16 (E22A/E22B, all on
-             ORDINARY variables); E42P1 licenses +5 at a member and nothing wider, so `a = a + 100'
-             is E42N3 and refuses.
+             confirms the result reaches the cell.  [E2E-40/P8a WITHDRAWS -8..16 AS A MEMBER
+             RULE: it was inherited from E22A/E22B, which never tested |k| > 16.  DR's member
+             ladder runs over the whole 16-bit addend -- measured at -30, -9, +17, +100, +5000
+             and +32767, every one `LHLD / LXI B,<k> / DAD B / SHLD' with CODE 0x3A unchanged
+             (golden/e43l, golden/e43b).  `a = a + 100' is specimen E43B1C now, and the refusal
+             E42N3 that used to cover it has been retired.  What bounds the route is the ADDEND:
+             a constant too big for LXI B (32768..65535) goes through DR's decimal conversion
+             and then parks (E42P2, E43M1).
            THE OUT-OF-RANGE LITERAL DOES NOT STAY PUT.  E42P2 (`a = 65535') is 384/384
              identical -- once the parked route was given this shape -- and DR's image shows the
              decimal-conversion prefix followed by PARKING (`PUSH H / LXI H,1BB4 / POP D / MOV M,E /
@@ -7565,7 +7614,7 @@ statement form IS implemented; this expression form is not.)")
        (* [E2E-40/P8] the classifier has already proved `fits_int_lit ks' here (Ms_literal is only
           handed out for an in-range literal); an ordinary destination has mstore = None and reaches
           the final `_' below, which is its measured `SHLD' route and is NOT the member case. *)
-       | Ast.Enumber ks, Some _, Some Ms_literal ->
+       | (_, Some _, Some (Ms_literal ks)) ->
            let v = parse_int_const ks land 0xffff in
            st.last_imm <- None;
            d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
@@ -7594,9 +7643,11 @@ statement form IS implemented; this expression form is not.)")
           the RHS class is irrelevant there, while AC3's `a(0) = 1' (offset 0, literal) shows
           fixed offset does not by itself force the route.  Together with [C260]'s member+literal
           -> MVI M, `needs an address in HL' is the single predicate across arrays, members and
-          pointers.  `rhs_landed_in_hl' keeps the two unmeasured member shapes off this route:
-          the self-add LADDER (array form 4's analogue, where DR stores with SHLD) and literals
-          outside hl_const's range, which go through DR's decimal-conversion calls. *)
+          pointers.  [E2E-40/P8a] This route is selected by `member_store_class', not by the old
+          `rhs_landed_in_hl' flag: P7 set that flag inside lower_hl and P8 found it both redundant
+          (the syntactic classifier covers every value-producing arm) and incomplete (it could
+          only say "the value is in HL", never "DR has no sample for this store shape").  It was
+          deleted in P8; the ladder/general split now comes from the verdict alone. *)
        | (_, Some _, (Some Ms_general | None)) ->
            st.last_imm <- None;
            d st op_push_h;
@@ -7605,7 +7656,17 @@ statement form IS implemented; this expression form is not.)")
            (* 0x73 MOV M,E (LOW first) then INX H then 0x72 MOV M,D -- the order E2E-20
               corrected against AC1/ST2 and that [C127] records for the pointer route. *)
            d st 0x73; d st op_inx_h; d st 0x72
-       | (_, Some _, Some Ms_ladder) ->
+       | (_, Some _, Some (Ms_unsampled w)) ->
+           failwith
+             ("codegen: [TBD] member store reached emission although it was classified "
+              ^ "unsampled (" ^ w ^ ") [E2E-40/P8a]")
+       | (_, Some _, Some (Ms_ladder _)) ->
+           (* [E2E-40/P8a] The classifier's Ms_ladder can only have come from the same-cell
+              +/- in-range-literal shape, and the value-producing arm above is now opened by
+              THAT verdict, so reaching this tail means the ladder was emitted: HL holds the
+              value and SHLD is DR's tail.  An Ms_general member can never get a ladder from
+              the producer, and an Ms_unsampled member never gets here at all:
+              (Some _, _, Some (Ms_unsampled _)) below fails loudly instead. *)
            (* [E2E-40/P8] DR stores the ladder's result into the MEMBER with plain SHLD --
               E42P1 `a = a + 5', golden/e42p/E42P1.COM at 0116: `LHLD 19F6 / LXI B,0005 /
               DAD B / SHLD 19F6'.  This is the SAME tail an ordinary variable uses, which is
