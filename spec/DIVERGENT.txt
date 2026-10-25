@@ -56,10 +56,15 @@ E40Q4	artefacts/E40Q4.PLI	golden/e40a/E40Q4/E40Q4.REL	50	62	8	8	118	builds-shape
 # existed: after S1 came out with `PUSH H' at an (ordinary, member) inner node I registered E45S1 as
 # a shape divergence on the theory that my `XCHG' there was a route difference hidden by identical
 # bytes (DR's park tail is invisible in the .REL stream because its LHLD operand is a RELOC record).
-# It was wrong on its own evidence.  My E45S1 output already contained DR's PUSH at 003A -- the
-# theory had silently assumed the node was reached by the arm I had changed, when `writes_de' fires
-# first for a different reason, which is the same mistake as claiming agreement from a shared verdict
-# instead of a shared route, pointed at myself this time.  E45S8 (`put list(h + a)', no store at all)
+# It was wrong on its own evidence -- though wrong in a way I did not see until P9a traced it.  The
+# deletion was right (E45S1's .REL is 256/256 DR's) but P9's stated REASON was false: it claimed the
+# park came from `writes_de' before my new predicate.  `writes_de' recognizes dereference/BASED
+# forms and does NOT classify an internal FIXED member, so the pre-fix build emitted XCHG at E45S1's
+# inner node (measured: `spec/lab-evidence/e2e40-p9a/pre-fix-output/E45S1.REL', 11 bytes from DR)
+# and the park there is produced by `rhs_is_imem' (measured: a temporary per-branch trace fires
+# twice for E45S1, once for E45S8, twice for E40S2).  So the row was still unregistrable, but for
+# the reason [C271] states rather than the one I wrote here.  The general lesson survives the
+# correction unchanged: claiming agreement from a shared verdict instead of a shared route.  E45S8 (`put list(h + a)', no store at all)
 # then decided the question outright: DR's .REL is 256/256 identical to mine and its disassembly
 # shows `LHLD h / PUSH H / LHLD a / POP D / DAD D' with nothing stored afterwards, so the right
 # operand's class is sufficient on its own and [C271] stands as written.

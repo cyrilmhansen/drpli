@@ -1,0 +1,33 @@
+0000  LXI  B 0200                ; 01 00 02
+0003  CALL 0000                  ; CD 00 00
+0006  LXI  H None/None           ; 21   .   .
+0009  MVI  M 07                  ; 36 07
+000B  INX  H                     ; 23
+000C  MVI  M 00                  ; 36 00
+000E  LXI  H None/None           ; 21   .   .
+0011  MVI  M 0B                  ; 36 0B
+0013  INX  H                     ; 23
+0014  MVI  M 00                  ; 36 00
+0016  LXI  H None/None           ; 21   .   .
+0019  MVI  M 0D                  ; 36 0D
+001B  INX  H                     ; 23
+001C  MVI  M 00                  ; 36 00
+001E  LXI  H 0011                ; 21 11 00
+0021  SHLD None/None             ; 22   .   .
+0024  INX  H                     ; 23
+0025  INX  H                     ; 23
+0026  SHLD None/None             ; 22   .   .
+0029  MVI  L 17                  ; 2E 17
+002B  SHLD None/None             ; 22   .   .
+002E  LXI  D 0252                ; 11 52 02
+0031  LXI  B 0000                ; 01 00 00
+0034  CALL 0000                  ; CD 00 00
+0037  LHLD None/None             ; 2A   .   .
+003A  XCHG                       ; EB
+003B  LHLD None/None             ; 2A   .   .
+003E  DAD  D                     ; 19
+003F  MVI  A 09                  ; 3E 09
+0041  CALL 0000                  ; CD 00 00
+0044  CALL 0000                  ; CD 00 00
+0047  CALL 0000                  ; CD 00 00
+004A  CALL 0000                  ; CD 00 00

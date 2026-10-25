@@ -73,8 +73,11 @@ are not, independent of this compiler.  Full decoded regions in `golden/e45/ADD_
 | E45S5 | `a + b + 5` | `(member, member)` → **PUSH** | `(compound, literal)` → **no swap at all** | 0x52 | 23 |
 | E45S6 | `a + (b + c)` | right group first, `(member, member)` → **PUSH** | `(member, compound)` → **PUSH** | 0x54 | 31 |
 
-Single-variable pairs: **S3 vs S7** differ in one operand's storage class and both nodes flip
-together; **S1 vs S4** swap the same two classes between the two positions and both nodes flip;
+~~Single-variable pairs: **S3 vs S7** differ in one operand's storage class and both nodes flip
+together; **S1 vs S4** swap the same two classes between the two positions and both nodes flip;~~
+**[P9a: wrong.  S3 and S7 have the same inner node `(ordinary, ordinary)' and both take XCHG there;
+only the outer node flips.  S1 and S4 have the same outer node (PUSH) and only the inner flips.  The
+table above this line shows it; the prose did not read it.]**
 **S1 vs S7** keep the topology and differ only in the inner pair.  S1, S4 and S7 have **no DR
 predecessor at all** for their inner node, and all three land on the rule's prediction.
 
@@ -140,10 +143,14 @@ divergence on a route theory my own output contradicted.  (iii) Writing a post-f
   the right -- is covered by the SECOND disjunct and not the first: DR parks there because its own
   `SHLD h` store reuses HL as an address, and this compiler parks because that same store destroys
   DE.  The bytes are identical, so the repo contains no sample that says which reason is DR's.  The
-  discriminating program is `put list(h + a)`, where nothing is stored: DR would park by the class
-  reading and this compiler would not.  **That probe has not been written.**  Until it has, "the
-  discriminator is the right operand's addressing mode" is the best-fitting rule over 44 park sites,
-  not a rule with a falsification test at its own boundary.
+  discriminating program is `put list(h + a)`, where nothing is stored.  **That probe HAS been
+  written -- E45S8, and it came out DR's way: 256/256 identical, console 24.**  So the sentence
+  above, which P9 left in place as a live caveat, was stale by one of my own commits [P9a].  What
+  P9 also got wrong in the same paragraph is the mechanism: it said E45S1's park came from
+  `writes_de', and tracing shows it comes from `rhs_is_imem' (`writes_de' does not recognize an
+  internal member at all).  The remaining honest limitation is narrower than the one stated: the
+  rule fits every one of the 44 sampled park sites and has a probe at its boundary, but it is a
+  classification rule inferred from emitted code, not a recovered description of DR's internals.
 * Array elements as the right operand: DR parks (E45S5's inner node, and LR4-family, RT4, AB6).
   Not generalized here because the corresponding left-operand shapes are unmeasured.
 * Whether `writes_de`'s "the conversion prefix destroys DE" reading is *why* DR pushes there: only
@@ -176,3 +183,50 @@ wrong is only the claim about one commit's contents.
 Check to reproduce: `for c in <slice commits>; do git show $c --numstat -- ocaml/lib/codegen.ml; done`
 and read the message against the number.  A commit message is a claim like any other, and this repo
 has already been burned twice by text that disagreed with the thing that ran [C268].
+
+## 10. [E2E-40/P9a] Re-attribution by tracing, and the instrumentation error that hid it
+
+P9 left four sentences asserting that E45S1's inner `h + a' parks because of `writes_de' and that
+`put list(h + a)' -- the probe that would separate the two surviving readings -- had not been
+written.  Both were wrong, and the second was contradicted by a commit of my own made an hour
+earlier (`f4d894d`, the pre-oracle addendum for E45S8).
+
+**What was done to find out.**  A temporary `prerr_endline` in each branch of the route selector,
+plus one in `num_width`, built locally, run over the eight probes, then removed -- no trace ships.
+The output, the pre-fix and post-fix `.REL` files and both E45S8 disassemblies are in
+`spec/lab-evidence/e2e40-p9a/`:
+
+    E45S1  rhs_is_imem -> PUSH          (twice: inner `h + a' AND outer `(h+a) + b')
+    E45S8  rhs_is_imem -> PUSH          (once)
+    E40S2  rhs_is_imem -> PUSH          (twice)
+    E45S5  rhs_is_imem -> PUSH          (inner `a + b' only; the outer `+ 5' takes the literal route)
+    writes_de -> PUSH                  at none of these
+
+The counterfactual that makes this decisive rather than merely suggestive: building `b618332`'s
+`codegen.ml` (identical to HEAD except that `rhs_is_imem' is absent from the arm) gives an E45S1
+`.REL' 11 bytes from DR's with `XCHG` at 003A, and identical bytes for `a + b + 5` (E45S5), which is
+the pattern you expect if the new predicate -- not `writes_de', which the old build also had -- is
+what produces those parks.
+
+**Why the wrong attribution survived, and why the near-miss matters more than the error.**  Of five
+trace insertions, two went into the *wrong* `Ast.Ebinary (Ast.Add, ...)` arm: the call-on-right arm
+at 3884 ends with the same source text as the generic arm at 3936, and my anchor matched there.  The
+first trace run therefore printed nothing at E45S1, E45S8, E40S2 and E45S5 -- and since those are
+exactly the programs whose route the fix was supposed to explain, the reading "the shipped predicate
+is dead code and something else emits the park" looked overwhelmingly supported.  It was an artifact
+of where the prints were, not of which arm ran.  The duplicate branch that produced the confusion was
+left in place for that first run and removed afterwards, which is how the discrepancy between
+`3988`/`3991` became visible at all.
+
+A trace answers "which instrumented arm ran".  It cannot answer "which arm runs in the path I think
+I instrumented", and an absent line is weaker evidence than a present one.  Check placement before
+concluding from silence.
+
+**Consequences for the claim, in order of importance.**  (i) E45S1 and E45S8 are both discriminating
+probes of the class rule -- the pair rule [C260] and the compound-left rule [C150] each die on S1
+alone; S8 additionally removes the three-term context and any store-side explanation.  (ii) The
+`writes_de` reading of DR's motivation, which P9 said was "separated only by E45S8", was never a
+live alternative for either program in my build.  (iii) Two prose claims about node-flipping
+contradicted the tables printed beside them.  (iv) P9's summary said all eight console values had
+been predicted: line 73 of PREDICTIONS.txt predicts 49 for E45S7 and DR printed 43 (17+19+7), so the
+record is seven of eight.  The entry is not edited.

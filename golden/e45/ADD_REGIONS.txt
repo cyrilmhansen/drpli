@@ -80,11 +80,20 @@ ADDENDUM, written AFTER re-measuring (not part of the pre-oracle predictions)
 All seven DR programs above are compiled byte-identically by this compiler after the P9 change --
 E45S1 84/0x0C, E45S2 83, E45S3 82, E45S4 83, E45S5 82, E45S7 83, plus E40S2 and E40S4 at 68, all
 256/256 whole-file identical (E45S6 is refused in the PUT-item matcher).  So the table records what
-DR does, and every row of it is now reproduced here.  One row is reproduced for a reason the table
-does not state: E45S1's inner node parks in this compiler because `writes_de` fires (the sum into
-`h` ends in `SHLD`, so HL holds the cell address), not because of the right operand's class -- same
-bytes, different route.  The two readings are separated only by `put list(h + a)`, which has not
-been written.  That program is the next probe of this family.
+DR does, and every row of it is now reproduced here.  One row's REASON was misstated here and is
+corrected below rather than quietly replaced.  P9 claimed E45S1's inner node parks because
+`writes_de` fires, not because of the right operand's class.  That is false: `writes_de`
+(ocaml/lib/codegen.ml:2868) tests `Eqptr' and `Vbased/Vbfix/Vbptr' rows, and an internal structure
+member is none of them.  [E2E-40/P9a] traced the branches directly -- a temporary `prerr_endline'
+in each, run over the eight probes -- and `rhs_is_imem' fires twice for E45S1 (inner AND outer),
+once for E45S8, twice for E40S2/E40S4; `writes_de' fires at none of those.  The pre-fix build's
+E45S1 came out 11 bytes from DR with an XCHG at 003A (`spec/lab-evidence/e2e40-p9a/'), which is
+only possible if the park depended on the new predicate.  So E45S1 was already an independent
+probe of the class rule and E45S8 replicates it minimally; `put list(h + a)' HAS been written, and
+it prints 24.  What the trace also exposes is a method error of mine: two of the five temporary
+trace insertions landed in a DIFFERENT `Ast.Ebinary (Ast.Add, ...)' arm (the call-right arm at 3884
+ends with the same source text as the generic arm), so the first trace run printed nothing at the
+sites I believed I had instrumented and I nearly concluded the fix did nothing.
 
 
 E45S8   put list(h + a)      DR CODE 0x4E  DATA 000C   (the eighth program, written after the

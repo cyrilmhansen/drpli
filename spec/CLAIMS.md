@@ -5476,9 +5476,13 @@ bytes never identify a cell):
 | E45S5 | `a + b + 5` | literal outer | **neither**: `… / DAD B`, no swap |
 | E45S6 | `a + (b + c)` | right group evaluated first, then `(member, compound)` | **PUSH at both** |
 
-S3/S7 change exactly one operand's storage class and both nodes flip together; S1/S4 move the same
-two classes between two positions and both nodes flip.  S1, S4 and S7's inner nodes are shapes DR
-had **never** been shown before this slice.
+~~S3/S7 change exactly one operand's storage class and both nodes flip together; S1/S4 move the same
+two classes between two positions and both nodes flip.~~ **[E2E-40/P9a correction: only the OUTER
+node flips between S3 and S7 -- their inner nodes are `(ordinary, ordinary)' in both and both are
+XCHG, which is exactly what makes the pair a single-dimension test of the outer right operand.
+Between S1 and S4 the INNER node flips (PUSH vs XCHG) while the outer node is PUSH in both.  The
+sentence as written was wrong about its own table two lines above it.**  S1, S4 and S7's inner
+nodes are shapes DR had **never** been shown before this slice.
 
 **(d) The rule.** Park when the operand about to be loaded into HL comes from an internal member's
 fixed DATA cell, or is itself compound; otherwise `XCHG`; and a literal is neither (it is an
@@ -5515,8 +5519,11 @@ S3, S4, S5, S7, S8, E40S2, E40S4), verified by `cmp' and again by the panel.  **
 (+1: E45S6, a *my-gap* negative -- DR compiles it and I do not).  **9/9** pinned divergences (was 11:
 E40S2/E40S4 left the panel and nothing new joined it -- an E45S1 row I added mid-slice was deleted
 when re-measurement refuted it, see (i) below).  **45/45** runtime (+7 rows at DR's own console
-values 35/35/59/35/23/43/24, every one predicted in `golden/e45/PREDICTIONS.txt' before the oracle
-ran, E45S8's in the pre-oracle addendum).  Coverage **86 rows / 0 errors / 0 warnings** (new row
+values 35/35/59/35/23/43/24.  **Seven of the eight console values were predicted correctly; E45S7's
+was not** -- the pre-oracle entry says 49, DR printed 43, and 17+19+7 = 43, so the prediction used
+`c' (13) where the program names `a' (7) [P9a correction: P9's own summary claimed a clean sweep of
+all eight, which `golden/e45/PREDICTIONS.txt` line 73 contradicts.  The entry is left exactly as it
+was written; the authenticated value is 43, as recorded in `spec/RUNTIME.txt` and `golden/e45r/E45S7.output.txt`]).  Coverage **86 rows / 0 errors / 0 warnings** (new row
 `EXPR.ADD_PRESERVE_ROUTE'), census 44 programs / 15 EXACT / **0 DIFFERS / 0 UNEXPECTED** with
 `--verify' clean, INVENTORY 982.
 
@@ -5542,7 +5549,40 @@ in HL and the next operand is a member cell.  At an ordinary destination this co
 `XCHG` and DR emits `PUSH H` -- and they still produce identical bytes, because the store that
 follows begins `LXI H,<cell>` and discards HL either way; `SHLD`'s operand is a relocatable field,
 so the sequence is invisible in the file stream.  The two readings genuinely diverge only for
-`put list(h + a)`, where nothing is stored; **that program has not been written**, so (d) is stated
-as the rule that fits every sample, not as a rule proven to be the whole rule.  POINTER/BASED-view
-members as right operands remain unmeasured (E40Q4), array elements park by [C150]'s `writes_de`
-route rather than by this predicate, and SUB/MUL/DIV are untouched.
+`put list(h + a)`, where nothing is stored -- **and that program has been written: E45S8,
+`golden/e45/E45S8/`, DR's .REL 256/256 identical to this compiler's, console 24** [E2E-40/P9a: the
+earlier version of this sentence said it had not been written, which was simply out of date by one
+commit of my own].  With it, (d) is the rule that fits every sample AND has a probe at its own
+boundary: nothing is stored, `writes_de` cannot fire, and DR still parks.  POINTER/BASED-view
+members as right operands remain unmeasured (E40Q4).  ~~array elements park by [C150]'s `writes_de`
+route rather than by this predicate~~ **[P9a: conflates two different rules -- LR4/RT4/AB6 are
+member/array STORES, which park by [C266]'s destination rule, not ADD right operands at all; and
+`writes_de` returns false for a plain array element (`Esuffix' falls to its catch-all), so which
+disjunct, if any, covers an array element as an ADD operand has never been traced.**  SUB/MUL/DIV
+are untouched.
+
+> **[E2E-40/P9a] THREE SENTENCES OF THIS CLAIM WERE WRONG, AND ONE OF THEM WAS ABOUT MY OWN
+> PREDICTION RECORD.**  (1) The `writes_de' attribution for E45S1's inner node (repeated in
+> `ocaml/lib/codegen.ml`, `spec/DIVERGENT.txt` and `golden/e45/ADD_REGIONS.txt`) is false:
+> `writes_de` tests `Eqptr' and `Vbased/Vbfix/Vbptr' rows, so an internal FIXED member is not one of
+> its operands.  Direct evidence -- a temporary `prerr_endline' in each branch of the route selector
+> prints `rhs_is_imem' twice for E45S1, once for E45S8, twice for E40S2/E40S4, and `writes_de' at
+> none of them; and the pre-fix build's E45S1 `.REL' sits 11 bytes from DR's with `XCHG' at 003A,
+> which is only possible if the park depended on the new predicate.  Both probes are therefore
+> discriminating ones: S1 separates the class rule from the class-PAIR rule, S8 separates it from
+> any "HL is about to be reused" reading.  (2) The sentence claiming E45S8 "has not been written"
+> was stale by one of my own commits.  (3) "Both nodes flip" for S3/S7 and S1/S4 contradicted the
+> table printed four lines above it -- only one node flips in each pair.  (4) And P9's summary
+> asserted all eight console values were predicted: line 73 of `golden/e45/PREDICTIONS.txt' predicts
+> 49 for E45S7 where DR printed 43 (= 17+19+7; the prediction used `c' where the program names `a').
+> Seven of eight, not eight.  The entry is untouched -- an authenticated prediction record is not
+> edited after the fact -- and 43 stands as the runtime value.
+>
+> Method note, because it is the reason (1) survived as long as it did.  Of five trace insertions,
+> two landed in a *different* `Ast.Ebinary (Ast.Add, ...)' arm, because that arm ends with the same
+> source text as the generic one and my anchors matched there first; the run printed nothing where I
+> expected a print, and I came within one paragraph of concluding the shipped predicate did nothing
+> at all.  A trace only answers the question "which arm did I instrument" -- before drawing a
+> conclusion from an absent line, check that the line was placed in the path under test.  All
+> outputs, the pre-fix and post-fix `.REL' files and the two disassemblies are in
+> `spec/lab-evidence/e2e40-p9a/'.

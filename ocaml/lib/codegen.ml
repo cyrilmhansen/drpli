@@ -2702,8 +2702,8 @@ let unwrap_e (e : Ast.expr) =
    discriminator for parking the left operand with PUSH H / POP D instead of XCHG.  It replaces
    `vinfo_both_members', which asked the question of the PAIR and therefore could not see a
    compound left operand at all (a compound expression is not an Eident), which is exactly the
-   shape E40S2/E40S4 fail on.  Seven DR probes decide it (golden/e45, predictions in
-   golden/e45/PREDICTIONS.txt written first):
+   shape E40S2/E40S4 fail on.  Seven initial DR probes decide it, and an eighth (E45S8) followed
+   them (golden/e45, predictions in golden/e45/PREDICTIONS.txt written first):
      h + a + b   (ordinary,member) inner -> PUSH        E45S1 84 == mine 84   (pair rule refuted:
                  (compound,member) outer -> PUSH                              only ONE is a member)
      a + h + b   (member,ordinary) inner -> XCHG        E45S4 83 == mine 83   (so it is not "a member
@@ -2722,16 +2722,26 @@ let unwrap_e (e : Ast.expr) =
    Only an Eident can be a member; a subscript, a call or a literal cannot.  Parens are unwrapped
    because DR lowers a parenthesized expression exactly like the unwrapped one [P401, (i+i)], and
    the parser folds `g.a' into one Eident [C258], so a qualified name needs no special case.
-   THIS PREDICATE IS ONE DISJUNCT, NOT THE WHOLE RULE: the arm also pushes when the left operand
-   destroys DE (`writes_de') or is syntactically compound ([C150]).  E45S1's inner node `h + a' is
-   covered by `writes_de', not by this function -- DR parks there because its own SHLD reuses HL as
-   an address, and this compiler parks because the same store destroys DE.  Same bytes, different
-   reason, and `put list(h + a)' (where nothing is stored) is the probe that would separate them; it
-   has not been written, so do not read this comment as claiming the class test is sufficient.
+   THIS PREDICATE IS ONE DISJUNCT, NOT THE WHOLE RULE: the arm also pushes when the right operand
+   destroys DE (`writes_de', for deref/BASED forms) or is syntactically compound
+   (`add_left_needs_push', [C150]).  WHICH DISJUNCT FIRES WHERE IS NOW TRACED, NOT INFERRED
+   [E2E-40/P9a]: a temporary prerr_endline in each branch, run over the eight probes, shows this
+   predicate -- not `writes_de' -- producing the park at E45S1's inner `h + a', at E45S8's
+   `h + a', and at E40S2/E40S4's outer add.  An internal FIXED member is NOT a `writes_de'
+   operand: the predicate recognizes `Eqptr' and `Vbased/Vbfix/Vbptr' rows, and a member of an
+   internal structure is none of those, which is why the pre-fix build emitted XCHG at E45S1's
+   inner node and 11 file bytes separated it from DR.  P9's own text claimed the opposite
+   attribution, and it was wrong; the corrected reading is in [C271] and the trace output is
+   `spec/lab-evidence/e2e40-p9a/'.  So E45S1 and E45S8 are INDEPENDENT probes of this rule, not
+   one probe plus a confirmation: S1 shows an (ordinary, member) pair parks, which the class-PAIR
+   reading [C260] could not survive, and S8 shows the same park in a two-operand PUT with no
+   store anywhere, which removes the three-term context.
    `vinfo_imem' is Some k only for a FIXED BIN(<=15) member of an INTERNAL structure: POINTER and
    BASED-view members, heads, formals and statics are None [C260], and their deref ladders destroy
-   DE and take the PUSH route through `writes_de' instead, which is why this function says no to
-   them rather than guessing at a shape no probe has shown (E40Q4 stays a pinned divergence). *)
+   DE and reach a park through `writes_de' instead (that attribution is structural, from reading
+   the predicate, and has NOT been traced -- P9a's warning is exactly that structural readings
+   about this arm were wrong once already), which is why this function says no to them rather than
+   guessing at a shape no probe has shown (E40Q4 stays a pinned divergence). *)
 let rec rhs_is_imem st e =
   match (unwrap_e e).Ast.e with
   | Ast.Eident n -> vinfo_imem st n.Ast.orig <> None

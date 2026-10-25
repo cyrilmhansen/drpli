@@ -787,7 +787,8 @@ lines of executable code; the rest of the diff is the comment that used to state
 inexpressible.  Prose described the residual as "unmeasured"; the implementation could not have
 reached the question.
 
-**The rule DR actually uses**, over seven probes whose operands are named from DR's own linked
+**The rule DR actually uses**, over seven initial probes (plus an eighth, E45S8, written after the
+first seven had decided the compound-left case) whose operands are named from DR's own linked
 `.COM` (`golden/e45/ADD_REGIONS.txt`), plus the two goldens that pinned the defect: park with
 `PUSH H / LHLD <right> / POP D / DAD D` when the right operand is an internal member cell or is
 itself compound; use `XCHG / LHLD <right> / DAD D` for an ordinary cell; emit no swap at all for a
@@ -831,8 +832,49 @@ E45S1-S5, S7, S8 at DR's own console values), coverage **86 rows / 0 errors / 0 
 `--verify' clean, INVENTORY 982, exit 0.
 
 **Still open in this area.**  POINTER/BASED-view members as right operands (E40Q4, untouched:
-`vinfo_imem` is `None` for them by construction).  Array elements park in DR (E45S5's inner node,
-LR4, RT4, AB6) but reach that by `writes_de`, not by the class test -- generalizing the class test to
-them is one obvious probe, unmeasured.  SUB/MUL/DIV untouched.  `a + (-32768)` at a member and the
+`vinfo_imem` is `None` for them by construction).  ~~Array elements park in DR (E45S5's inner node,
+LR4, RT4, AB6) but reach that by `writes_de`, not by the class test~~ **[P9a: two errors folded
+together.  LR4/RT4/AB6 are member/array STORES, which park by [C266]'s destination rule and have
+nothing to do with an ADD operand; and `writes_de` returns false for a plain array element, so no
+disjunct of mine has ever been traced firing for one.  E45S5's inner node parks via `rhs_is_imem`.]**
+Whether an array element as an ADD *right operand* parks at all has no sample; generalizing the class
+test to it is one obvious probe, unmeasured.  SUB/MUL/DIV untouched.  `a + (-32768)` at a member and the
 other unsampled store shapes from P8 stay refused.  And E45S6: DR accepts a parenthesized sum in a
 `put list` item, which is a PUT-item-classifier gap, not a codegen one.
+
+### [E2E-40/P9a] Documentation closure on P9: the route attribution was wrong, and I nearly
+### concluded the fix was dead code
+
+P9's prose said E45S1's inner `h + a' parks because of `writes_de'.  It does not: `writes_de` tests
+`Eqptr' and `Vbased/Vbfix/Vbptr' rows, and an internal FIXED member is none of them.  Traced directly
+(temporary `prerr_endline' per branch, run over the eight probes, then removed -- nothing ships):
+`rhs_is_imem' fires twice for E45S1, once for E45S8, twice for E40S2/E40S4 and once for E45S5's inner
+node; `writes_de' fires at none of those.  The counterfactual settles it -- building `b618332'
+(HEAD minus the predicate) leaves `a + b + 5' byte-identical but puts E45S1 11 bytes from DR with an
+`XCHG' at 003A.  Artifacts in `spec/lab-evidence/e2e40-p9a/'.
+
+So E45S1 was already an independent falsification of [C260]'s class-pair reading, and E45S8
+independently replicates the class result in a minimal two-operand PUT.  P9's E45S8 section claimed
+the separating probe "has not been written" -- it had, by me, one commit earlier.
+
+**The instrumentation error is the more transferable finding.**  Two of my five trace insertions
+landed in a different `Ast.Ebinary (Ast.Add, ...)` arm, because the call-on-right arm at 3884 ends
+with the same source text as the generic arm at 3936 and my anchor matched there first.  The first
+run printed nothing at exactly the four programs the fix was supposed to explain, and "the shipped
+predicate is dead code" looked like the only reading of that.  A trace answers *which instrumented
+arm ran*; an absent line is weaker evidence than a present one, and it says nothing about placement.
+
+Also corrected here: "both nodes flip" for S3/S7 and S1/S4 (only one node flips in each pair -- the
+sentence contradicted the table four lines above it), the [C271] note that E45S6's array-element
+parking was `writes_de', and the prediction record.  **P9's summary claimed all eight console values
+had been predicted; `golden/e45/PREDICTIONS.txt' line 73 predicts 49 for E45S7 where DR printed 43**
+(17+19+7 -- the prediction used `c' where the program names `a').  Seven of eight.  The pre-oracle
+entry is left exactly as written; 43 is the authenticated runtime value in `spec/RUNTIME.txt'.
+
+`DECL.MEMBER_SCOPE`'s parity is recomputed rather than incremented: **36 exact + 1 divergence
+(E40Q4) of 37 registered probes = `MIXED:36/37'**, with `artefacts/ST12.PLI' kept in the probe list
+but not counted, because it is a file reference and not a panel key.  `tools/panel_keys.py` is new
+and does this by resolving cited names against `spec/INVENTORY.txt` (kind=specimen/refusal) and
+`spec/DIVERGENT.txt`; reading the generated table is required because only 466 of the 982 specimens
+are literal `SPECIMENS` dict keys -- the rest arrive through `SPECIMENS[x] = ...` in loops, which a
+source-scanning count silently misses.  Coverage 86 rows / 0 errors / 0 warnings.

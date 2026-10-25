@@ -1,0 +1,18 @@
+########## E45S1
+TRACE-ITEM (BIN Add (BIN Add ID:h ID:a) ID:b)
+  out=256
+########## E45S8
+TRACE-ITEM (BIN Add ID:h ID:a)
+  out=256
+########## E45S7
+TRACE-ARM -> XCHG
+TRACE-ITEM (BIN Add (BIN Add ID:h ID:k) ID:a)
+  out=256
+########## E40S2
+TRACE-ITEM (BIN Add (BIN Add ID:a ID:b) ID:c)
+  out=256
+########## E45S6
+TRACE-ARM compound -> PUSH
+TRACE-ITEM (BIN Add ID:a (COND (BIN Add ID:b ID:c)))
+TRACE-WIDTH Econd traversed
+  out=256
