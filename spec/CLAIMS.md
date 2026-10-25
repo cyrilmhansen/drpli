@@ -5337,6 +5337,24 @@ of the addend it would produce:
 | E44B1 | `a = a - 32768` | **no** (32768) | conversion of 32768, general subtract, **parked** `PUSH H / LXI H,<a> / POP D / MOV M,E / INX H / MOV M,D` | 0x4B | **`ERROR (1), Conversion`** |
 | E44C1 | `h = h - 32768` (ordinary) | **no** (32768) | same conversion + general subtract, then `SHLD <h>` | 0x4C | **`ERROR (1), Conversion`** |
 
+
+**Addendum, measured the same day.** The last traceback word is **not** the conversion call's
+address, and my first reading of it (`0064' = the pool cell, whose low byte happens to be g.a) is
+withdrawn.  `golden/e44/E44D1` is the discriminator: same statement `h = h - 32768`, but
+`g.a = 1`, `g.b = 2`, `h = 7` and an extra variable so the layout moves -- and its traceback ends
+`... 3836 0007`.  Two measurements, two different tail words, and each equals the value of the
+variable the subtraction targets (`h`): 0064 = 100 in E44C1, 0007 = 7 in E44D1.  E44B1's 0064 then
+fits as the value `a` held when the conversion aborted.  E44C1 was the ambiguous case and the source of the error: there the
+target's value, `g.a`'s value and the target's own DATA address are 0064h all at once.  So the tail words carry the *operation's
+operands*, not a digit dump and not an address -- the digit-prefix part of the decoding above
+stands on its own (`3 32 327 3276 32768` is the literal, and it is genuinely there), and the
+`0005` after the tail is still open.  **What is NOT resolved: why that word is where the traceback
+printer finds it.**  E44A1's .REL has no EXTERNAL records at all -- the conversion/subtraction
+calls are resolved through the link chain, so `10A1`/`109F` cannot be attributed to a named library
+routine without PLILIB's own layout, and the mechanism claim would be invented.  Practical rule:
+the digit-prefix reading is safe, and a traceback tail is not evidence about addresses. E44D1's
+compile-side bytes are 256/256 identical to mine, and it aborts identically, so the operand-value
+finding cost nothing in code. Evidence: `spec/lab-evidence/e2e40-p8b/TAILWORD.txt`.
 All three `.REL` files are 256/256 identical to mine; all three `.COM` (DR's LINK-80 + PLILIB vs
 mine linked against the same library) are identical; all three consoles are byte-equal (10 / 64 / 64
 raw bytes).  So the ladder's measured span is **-32767..+32767 at 24 sampled points**, and

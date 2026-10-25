@@ -16,24 +16,8 @@ CPU speed is unlimited, CPU executes undocumented instructions
 
 A>C:
 C>
->>> PLI D:E44A1 $L$D
-PLI D:E44A1 $L$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:E44B1 $L$D
-PLI D:E44B1 $L$D
-
-   NO ERROR(S) IN PASS 1
-
-   NO ERROR(S) IN PASS 2
-
-C>
->>> PLI D:E44C1 $L$D
-PLI D:E44C1 $L$D
+>>> PLI D:E44D1 $L$D
+PLI D:E44D1 $L$D
 
    NO ERROR(S) IN PASS 1
 
@@ -43,6 +27,6 @@ C>
 >>> A:BYE (halt)
 
 C>A:BYE
-I/O ran for 8041 ms, waited for 0 ms
-CPU executed 32538332 t-states in 19 ms
-Clock frequency 1688.46 MHz
+I/O ran for 4021 ms, waited for 0 ms
+CPU executed 11454701 t-states in 7 ms
+Clock frequency 1489.17 MHz

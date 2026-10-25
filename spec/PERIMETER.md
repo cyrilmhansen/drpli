@@ -720,7 +720,12 @@ P8.  [C268]'s bias list carried five entries with no artifact -- `-30` was a sig
 E43L6 is **not** whole-file identical to E42P1: 4 bytes differ (0x31, 0x32, 0x3A, 0x3B -- the two
 initialization immediates `MVI M,05`/`MVI M,64` vs `MVI M,64`/`MVI M,01`, plus the record-length bytes
 after them); what is identical is the self-update sequence at code 0x16-0x20 and every DATA fixup,
-including both member-address fixups.  E43L6 and E43L7 *are* whole-file identical, so the
+including both member-address fixups.  **The traceback's last word is the VALUE the subtraction targets, not an address:
+E44C1 `0064' (= h's 100) and E44D1 `0007' (= h's 7, with g.a = 1 and the layout moved) are the two
+measurements; the address reading was tried and is withdrawn, and why the word sits there is unresolved
+because the .REL carries no EXTERNAL records for the library calls. Digit prefixes: safe to decode.
+Tail words: not evidence about addresses. See spec/lab-evidence/e2e40-p8b/TAILWORD.txt.** E43L6 and E43L7
+*are* whole-file identical, so the
 qualification symmetry survives with a narrower statement.  Per-program table:
 `golden/e44/PROVENANCE.tsv` (+ `PROVENANCE-NOTES.txt`).  COVERAGE's DECL.MEMBER_SCOPE row also
 contradicted itself: the 13 E43 panel specimens cited in P8a's commit message had been lost from its
@@ -732,8 +737,25 @@ three programs, which looks exactly like "DR rejects this source".  It was my ow
 a CRLF corpus.  The order to distinguish, before believing any verdict: DR I/O error on my file -> DR
 language diagnostic -> LINK failure -> PLILIB runtime abort -> code-generation difference.
 
-Gate after P8b: **972 byte-exact / 0 fail** (+3, 0 regressions), **128/128** refusals (unchanged --
-this shape was never a refusal), **11/11** divergences (E40S2/E40S4/E40Q4 untouched), **37/37**
-runtime (+3: -32667 and two aborts), coverage **85 rows / 0 errors / 0 warnings**, census 44 programs
-/ 15 EXACT / 0 DIFFERS / 0 UNEXPECTED, INVENTORY **972** (+3/-0), exit 0.  All three new specimens
-additionally have DR's `.COM` identical to mine and byte-equal consoles (10/64/64 raw bytes).
+Gate after P8b: **973 byte-exact / 0 fail** (+4, 0 regressions), **128/128** refusals (unchanged --
+this shape was never a refusal), **11/11** divergences (E40S2/E40S4/E40Q4 untouched), **38/38**
+runtime (+4: -32667 and three aborts), coverage **85 rows / 0 errors / 0 warnings** (DECL.MEMBER_SCOPE
+`MIXED:36/39'), census 44 programs / 15 EXACT / 0 DIFFERS / 0 UNEXPECTED and `--verify' clean,
+INVENTORY **973** (+4/-0), exit 0 (and the runtime run exits 0 too, checked without a pipe so the code
+is the gate's, not grep's).  All four new specimens additionally have DR's `.COM` identical to mine and
+byte-equal consoles (10/64/64/64 raw bytes).
+
+**And a claim of my own that did not survive its own control.**  Between the commit and this
+paragraph I read E44C1's traceback tail `0064' as "100 = g.a's value at the abort"; the follow-up
+note here repeats that; the version I then wrote instead ("it is the literal pool cell's address")
+is also wrong.  `golden/e44/E44D1` -- same statement, `g.a = 1`, `h = 7`, an extra variable so the
+pool cell moves (DATA 000B vs 0009) -- aborts with tail `0007'.  The tail equals the value of the
+variable the subtraction *targets* in all three measurements; it is not an address and not g.a.
+E44C1 was the trap: there the target's value, g.a's value and the target's DATA address are 0064h
+all at once, which is precisely why its traceback appeared to say something it never said.  Why the
+word is where the printer finds it is *unresolved* -- these .REL files carry no EXTERNAL records, so
+`10A1'/'109F' cannot be named without PLILIB's load map, and the mechanism sentence was invented
+rather than read.  What survives: the ASCII digit pairs are the literal being converted (safe to
+decode, reproduces across E42P2/E43M1/E44B1/C1/D1), and traceback agreement between the two
+compilers is byte-identity of a shared failure path, nothing more.  E44D1 is 256/256 identical, so
+this whole correction cost no code.  Evidence: `spec/lab-evidence/e2e40-p8b/TAILWORD.txt`.

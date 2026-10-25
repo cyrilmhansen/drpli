@@ -33,3 +33,4 @@ E43N16	a = a - 16	golden/e43b/E43N16/E43N16.REL	yes	LHLD / LXI B,FFF0 / DAD B / 
 E44A1	a = a - 32767	golden/e44/E44A1/E44A1.REL	yes	LHLD / LXI B,8001 / DAD B / SHLD	yes	P8b: most-negative ladder DR has been shown; runtime -32667
 E44B1	a = a - 32768	golden/e44/E44B1/E44B1.REL	yes	decimal conversion + general subtract + PARKED store	yes	P8b: the disputed boundary. Ladder REFUSED by DR. Runtime ABORTS though -32668 fits
 E44C1	h = h - 32768	golden/e44/E44C1/E44C1.REL	yes	decimal conversion + general subtract + SHLD (ordinary)	yes	P8b control: same abort with an ordinary destination, so it is a literal rule not a member rule
+E44D1	h = h - 32768	golden/e44/E44D1/E44D1.REL	yes	decimal conversion + general subtract + SHLD (ordinary)	yes	P8b discriminator: g.a=1, extra var k, DATA 000B -- traceback tail 0007 = h's value, refuting the g.a/pool-address readings of E44C1's tail

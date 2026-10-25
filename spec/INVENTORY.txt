@@ -441,6 +441,7 @@ E43M1	specimen	artefacts/E43M1.PLI	golden/e43l/E43M1/E43M1.REL
 E44A1	specimen	artefacts/E44A1.PLI	golden/e44/E44A1/E44A1.REL
 E44B1	specimen	artefacts/E44B1.PLI	golden/e44/E44B1/E44B1.REL
 E44C1	specimen	artefacts/E44C1.PLI	golden/e44/E44C1/E44C1.REL
+E44D1	specimen	artefacts/E44D1.PLI	golden/e44/E44D1/E44D1.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

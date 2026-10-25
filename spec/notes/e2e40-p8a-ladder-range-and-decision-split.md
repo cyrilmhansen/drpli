@@ -157,8 +157,24 @@ E42P1's is `g.a=5; g.b=100`. What IS identical is the self-update sequence at co
 every DATA fixup, including both member-address fixups. E43L6 and E43L7 are whole-file identical
 to each other, so the qualification symmetry still holds — with the stronger, narrower statement.
 
-**Gate after P8b:** 972 byte-exact / 0 fail (+3, 0 regressions), 128/128 refusals (unchanged — no
-refusal retired here, because the shape was never one), 11/11 divergences (E40S2/E40S4/E40Q4
-untouched), 37/37 runtime (+3), coverage 85 rows / 0 errors, census 44 programs / 15 EXACT / 0
-DIFFERS / 0 UNEXPECTED, INVENTORY 972 (+3/−0), exit 0. All three new specimens also have DR's
-`.COM` identical to mine and byte-equal consoles.
+**(5) And a reading of mine that its own control killed, twice.** I wrote in [C270] that E44C1's
+traceback tail word `0064' is "100 = g.a's value at the abort", then "corrected" it to "the literal
+pool cell's address — 100 is a coincidence of the low byte". Both wrong. `golden/e44/E44D1` repeats
+E44C1's statement with `g.a = 1`, `h = 7` and an extra variable so the pool cell moves (DATA 000B vs
+0009): its traceback ends `0007'. The tail equals the value of the variable the subtraction *targets*
+in all three measurements — not an address, not g.a. E44C1 was the trap: there the target's value,
+g.a's value and the target's DATA address are all 0064h at once. The *mechanism* sentence in the
+first draft was worse than wrong — it was invented: these `.REL` files carry no EXTERNAL records, so
+`10A1'/`109F' cannot be named without PLILIB's load map. What survives: the ASCII digit pairs really
+are the literal being converted, so decode those and treat every other traceback word as
+uninterpreted. E44D1's `.REL` is 256/256 identical, so the correction cost no code. Evidence:
+`spec/lab-evidence/e2e40-p8b/TAILWORD.txt`.
+
+**Gate after P8b:** 973 byte-exact / 0 fail (+4, 0 regressions), 128/128 refusals (unchanged — no
+refusal was retired here, because the shape was never one), 11/11 divergences (E40S2/E40S4/E40Q4
+untouched), 38/38 runtime (+4: −32667 and three aborts), coverage 85 rows / 0 errors / 0 warnings
+(DECL.MEMBER_SCOPE `MIXED:36/39', recomputed from the row's own probe column), census 44 programs /
+15 EXACT / 0 DIFFERS / 0 UNEXPECTED and `--verify' clean, INVENTORY 973 (+4/−0), exit 0 — read with
+`>file; echo $?` rather than through a pipe, since `$?` after a pipeline belongs to the last command
+in it [C249]. All four new specimens also have DR's `.COM` identical to mine and byte-equal consoles
+(10/64/64/64 raw bytes).

@@ -785,6 +785,9 @@ SPECIMENS.update({
     "E44A1": ("artefacts/E44A1.PLI", "golden/e44/E44A1/E44A1.REL"),
     "E44B1": ("artefacts/E44B1.PLI", "golden/e44/E44B1/E44B1.REL"),
     "E44C1": ("artefacts/E44C1.PLI", "golden/e44/E44C1/E44C1.REL"),
+    # [E2E-40/P8b] same statement as E44C1 with g.a = 1 and an extra variable: 256/256 identical too,
+    # and its traceback tail (0007 = h's value) is what refuted the "g.a's value" reading of E44C1's.
+    "E44D1": ("artefacts/E44D1.PLI", "golden/e44/E44D1/E44D1.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research

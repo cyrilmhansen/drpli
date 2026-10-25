@@ -1,0 +1,62 @@
+E2E-40/P8b -- the last word of a DR conversion-abort traceback. NOT a golden, NOT a panel row:
+this directory records how a claim about DR's runtime was tested and how two of its readings fell.
+Everything here is reproducible from committed artifacts.
+
+THE CLAIM BEING TESTED
+  [C270] as committed said E44C1's traceback `0612 10A2 3320 3732 3836 0064' ends with
+  "100 = g.a's value at the moment of the abort".  That is a coincidence-shaped inference: 100 is
+  both g.a's initialized value and 0064h, and 0064h is also E44C1's DATA base + 4.  A reading that
+  survives only when the test program happens to make two things equal is not a reading.
+
+THE DISCRIMINATOR -- golden/e44/E44D1 (DR-compiled, DR-linked, DR-run; .REL 256/256 identical to
+this compiler's, so nothing here costs any code):
+
+  b9e: procedure options(main);
+    declare 1 g, 2 a fixed, 2 b fixed;
+    declare h fixed, k fixed;      -- k moves the literal's pool cell
+    g.a = 1;  g.b = 2;  h = 7;     -- g.a is 1, NOT 100
+    h = h - 32768;                 -- the same disputed statement, ordinary destination
+    put list(h);  stop;
+  end b9e;
+
+  DR's console (golden/e44dr/E44D1.output.txt):
+
+    ERROR (1), Conversion
+    Traceback: 0612 10A2 3320 3732 3836 0007
+
+  DATA sizes (LINK-DEF-DATA-SIZE, from the .REL): E44B1 0007, E44C1 0009, E44D1 000B -- the
+  literal's pool cell sits at a different DATA offset in each of them.
+
+WHAT THE THREE MEASUREMENTS SAY
+  program  targeted var  its value  g.a   pool-cell offset moves?   traceback tail
+  E44B1    a             100        100   (member, DATA 0007)       0064  = 100
+  E44C1    h             100        100   (DATA 0009)                0064  = 100
+  E44D1    h             7          1     (DATA 000B)                0007  = 7
+  The tail equals the value of the variable the subtraction targets, in all three.  It is not the
+  pool cell's address (that changed between C1 and D1 while the tail tracked the value instead),
+  and it is not g.a (D1's g.a is 1, its tail is 7).  E44C1 was the ambiguous case: there the
+  target's value, g.a's value and the target's own DATA address are all 0064h at once, which is
+  exactly why its traceback looked like it said something it did not.
+
+WHAT IS STILL NOT EXPLAINED, AND IS NOT CLAIMED
+  WHY that word is where the traceback printer finds it.  E44A1's .REL contains no EXTERNAL
+  records at all -- library entry points are resolved through the link chain, so `10A1' and `109F'
+  cannot be attributed to a named routine (conversion vs range check vs the subtraction helper)
+  without PLILIB's own load map.  The mechanism sentence in the first draft of this file ("the
+  aborted call returns 64 00 05 00 and 0064 is its address argument") is therefore WITHDRAWN, not
+  corrected: it was never verified.  The `0005' that follows in some tracebacks is likewise
+  unexplained -- note that MVI A,05 (the literal's digit count) appears at code 0x1D/0x23 in every
+  one of these programs, which is a suggestion, not an identification.
+
+PRACTICAL RULE, which is the reason to keep this file
+  Decode the ASCII digit pairs of a PL/I-80 conversion traceback -- they are the literal being
+  converted, and that part reproduces (E42P2 6/65/655/6553/65535, E43M1 and E44B1/C1/D1
+  3/32/327/3276/32768).  Do NOT read the other words as addresses, and do not read an agreement of
+  traceback bytes between two compilers as an explanation: it is byte-identity of a shared failure
+  path, which is evidence about the emitted code and the linked library and nothing more.
+
+HOW TO REPRODUCE
+  oracle/batch.py E44D1 --tag e44 --reuse
+  oracle/linkrun.py link --tag e44 --out e44dl --names E44D1
+  oracle/linkrun.py run  --tag e44dl --out e44dr --names E44D1
+  python3 tools/dis80.py golden/e44/E44D1/E44D1.REL ; python3 tools/reldump.py ... | grep DATA-SIZE

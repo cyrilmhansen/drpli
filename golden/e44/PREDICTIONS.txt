@@ -113,7 +113,12 @@ RUNTIME -- H3 WAS THE INTERESTING PART AND IT IS TRUE FOR A REASON H3 DID NOT ST
   destination with the variable in scope, so the check travels with the literal's route.
   Traceback: `0612 10A1 3320 3732 3836 0064' -> after the first word, ASCII digit pairs spell
   3, 32, 327, 3276, 32768, and the last word is 0064 = 100 = g.a's value at the moment of the
-  abort.  E43M1's traceback had no such tail because there the literal WAS the stored value.
+  abort. [CORRECTED THE SAME DAY by golden/e44/E44D1: with `g.a = 1; g.b = 2; h = 7; h = h - 32768'
+  the traceback ends `... 3836 0007', i.e. h's value, and E44C1's ended 0064 = its h's value.  So the tail
+  word carries the operation's operand, NOT the literal pool's address -- the address reading was wrong,
+  and the original "g.a's value" was right for the wrong reason (in E44C1 g.a and h are both 100).  The
+  digit-prefix part stands.  Why that word is where the printer finds it is unresolved: E44A1's .REL has
+  no EXTERNAL records, so 10A1/109F cannot be named without PLILIB's layout.]  E43M1's traceback had no such tail because there the literal WAS the stored value.
 
 WHAT THIS DOES AND DOES NOT SETTLE.  It settles that -32768 is not a ladder addend, so
 `ladder_bias_fits' at -32768 is dead code for `a = a - k' and [C268]'s "whole 16-bit addend"
