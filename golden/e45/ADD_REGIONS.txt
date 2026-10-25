@@ -79,7 +79,7 @@ ADDENDUM, written AFTER re-measuring (not part of the pre-oracle predictions)
 =============================================================================
 All seven DR programs above are compiled byte-identically by this compiler after the P9 change --
 E45S1 84/0x0C, E45S2 83, E45S3 82, E45S4 83, E45S5 82, E45S7 83, plus E40S2 and E40S4 at 68, all
-256/256 whole-file identical (E45S6 is refused in the PUT-item matcher).  So the table records what
+256/256 whole-file identical (E45S6 was refused in the PUT-item matcher at P9; **[E2E-40/P10] it is no longer refused -- and the fix was two changes, not one: parens had to be made transparent to width inference AND this ADD had to be lowered right-first, because DR's expression fixups run data 0x2, 0x4, 0x0 = b, c, a. E45S6 is now a byte-exact specimen and a runtime row printing 31, and [C272] states the order rule.**).  So the table records what
 DR does, and every row of it is now reproduced here.  One row's REASON was misstated here and is
 corrected below rather than quietly replaced.  P9 claimed E45S1's inner node parks because
 `writes_de` fires, not because of the right operand's class.  That is false: `writes_de`

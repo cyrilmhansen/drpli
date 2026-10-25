@@ -702,6 +702,12 @@ SPECIMENS.update({
     # follows the ADD at all, so `writes_de' cannot be what makes DR park.  DR parks (PUSH H at 003A)
     # and its .REL is 256/256 identical to this compiler's -> the right operand's class is sufficient.
     "E45S8":  ("artefacts/E45S8.PLI", "golden/e45/E45S8/E45S8.REL"),
+    # [E2E-40/P10] promoted from the my-gap negative panel.  `put list(a + (b + c))': DR evaluates
+    # the PARENTHESIZED right group first and parks ITS sum while it loads `a' -- measured by DR's
+    # own expression fixup order (DATA+2, +4, +0 = b, c, a) -- and two things had to be true for my
+    # bytes to agree: the width classifier had to see through the parens, and this ADD had to be
+    # lowered right-first.  256/256 whole-file identical, and DR's linked object prints 31.
+    "E45S6":  ("artefacts/E45S6.PLI", "golden/e45/E45S6/E45S6.REL"),
 })
 
 SPECIMENS.update({
@@ -1374,17 +1380,18 @@ class NoOverwriteDict(dict):
 
 
 SPECIMENS = NoOverwriteDict(SPECIMENS)
-# [E2E-40/P9] E45S6 is a MY-GAP negative, not a DR refusal: DR compiles
-#   put list(a + (b + c))   (golden/e45/E45S6, CODE 0x54, DATA 000C) and lowers the parenthesized
-# inner sum exactly like the unwrapped one -- its three LHLD fixups read DATA+2, +4, +0, so DR
-# evaluates the right group first and then adds `a', parking the sum each time.  This compiler
-# refuses BEFORE any codegen decision, in the PUT-item matcher (codegen.ml ~8437: it classifies
-# Eident / Eqstruct / Eqptr / Esuffix / Enumber and falls through for a parenthesized sum).  So
-# the refusal is about my PUT item classification, NOT about operand preservation, and P9 did not
-# touch it.  Annotating, not silently registering: the panel must keep showing that DR accepts a
-# shape I do not.
-REJECTS["E45S6"] = (open(os.path.join(ROOT, "artefacts", "E45S6.PLI"), encoding="cp437").read(),
-                    "PUT numeric item form unproven")
+# [E2E-40/P9 -> RETIRED BY E2E-40/P10] E45S6 WAS the one negative on this panel whose DR verdict was
+# MEASURED rather than unmeasured: DR compiles `put list(a + (b + c))' (golden/e45/E45S6: CODE 0x54,
+# DATA 000C, console 31 in golden/e45r/E45S6.output.txt) and its own relocation order -- expression
+# fixups to DATA+2, +4, +0, i.e. b, c, a -- said it evaluates the parenthesized right group first.
+# P9 registered the refusal and stopped there, describing it as a PUT-item-classifier gap only.  It
+# was TWO gaps: the width classifier had no Econd case (the actual refusal), and the generic ADD arm
+# evaluated left-first, which the classifier fix alone exposed as an 11-byte difference.  P10 closes
+# both; E45S6 is now a byte-exact specimen AND a runtime row, and this negative is gone.  Recorded
+# here rather than deleted because a my-gap entry disappearing without explanation is indistinguishable
+# from a gap that never existed.  The remaining negatives E42N1/E42N2/E42N4 stay, and E45S6's
+# neighbours -- a parenthesized MUL/DIV/SUB on the right of an ADD -- keep their left-first routes and
+# are byte-exact, so the shape admitted is `(x + (y + z))' with internal members and nothing wider.
 
 REJECTS = NoOverwriteDict(REJECTS)
 
@@ -1930,20 +1937,9 @@ NEG_META = {
     # [E2E-40/P8] all four are `my-gap', NOT `dr-refuses': DR has never been shown a member
     # store of these shapes, so nothing here claims DR rejects them.  Registering a form DR
     # would ACCEPT as a DR-negative would ratify my refusal as DR's behaviour [C256].
-    # [E2E-40/P9] the one negative on this panel whose DR verdict is MEASURED, not unmeasured:
-    # DR compiles `put list(a + (b + c))' (golden/e45/E45S6: CODE 0x54, DATA 000C, and its own
-    # linked object prints 31 -- golden/e45r/E45S6.output.txt).  Mine refuses inside the PUT-item
-    # matcher, before any operand-preservation decision: that matcher classifies Eident / Eqstruct
-    # / Eqptr / Esuffix / Enumber and falls through for a parenthesized sum (codegen.ml ~8437).
-    # So this is a PUT-item-classification gap, NOT an ADD-route gap -- the ADD route for exactly
-    # this shape is pinned by the other six E45 probes, which are byte-exact.  Registered so the
-    # panel keeps showing a shape DR accepts and I do not.
-    "E45S6": ("my-gap", "DR COMPILES THIS AND I DO NOT (measured, golden/e45/E45S6 CODE 0x54 / "
-                        "DATA 000C, console 31): a parenthesized sum inside `put list'.  The "
-                        "refusal is in the PUT-item classifier, not in the ADD lowering -- the "
-                        "parenthesized inner sum is lowered exactly like the unwrapped one by DR "
-                        "(its three LHLD fixups read DATA+2, +4, +0, so DR evaluates the right "
-                        "group first).  Unrelated to operand preservation, which P9 closed"),
+    # [E2E-40/P10] E45S6's `my-gap' entry retired -- see the retirement note above REJECTS.  P9's
+    # description of it was right about the refusal site and wrong about the scope: fixing the
+    # classifier alone did NOT produce DR's bytes, because DR also evaluates the right group first.
     "E42N1": ("my-gap", "DR VERDICT UNMEASURED: `a = -5' into an internal member.  E42P2 shows "
                         "DR parks a literal-conversion result, and the negation route "
                         "(lit_dec_neg_to_hl) has no member sample at all, so mine refuses "

@@ -1,0 +1,22 @@
+E45S6 `put list(a + (b + c))' -- relocation operands in file order, from tools/reldump.py.
+A LHLD operand is NOT a code byte in a .REL; it is a RELOC record [C264], so evaluation
+order is visible ONLY here.  Cells from DR's own DATA initializers:
+DATA+0 = a = 7,  DATA+2 = b = 11,  DATA+4 = c = 13,  +6 = h, +8 = k, +a = n.
+
+DR   (golden/e45/E45S6/E45S6.REL):
+0x0 0x2 0x4 0x6 0x8 0xa 0x2 0x4 0x0 0x51 
+mine (after-both-fixes.rel, this commit):
+0x0 0x2 0x4 0x6 0x8 0xa 0x2 0x4 0x0 0x51 
+
+The first six entries are the DATA initializers, the last three are the expression.
+Reading of the expression part -- 0x2, 0x4, 0x0 = b, c, a: DR loads b, parks it,
+loads c, sums, parks THAT sum, loads a, adds.  Mine matches, which is the whole
+point of the second fix.
+
+THE INTERMEDIATE IMAGE IS NOT HERE.  `classifier fix only' (adding `| Ast.Econd x -> w x'
+to num_width, before the ADD route existed) was built and measured at 11 differing bytes
+from DR with the expression fixups running 0x0, 0x2, 0x4 -- a, b, c, i.e. left-first.
+That .REL lived at /tmp/e45s6.rel and was overwritten by the next build before this
+directory existed.  The measurement survives in the note (section 2); the artifact does
+not.  Recorded so the absence reads as a bookkeeping gap, not as a step never run.
+Both orders print 31: execution cannot see this difference [C264].

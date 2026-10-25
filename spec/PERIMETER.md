@@ -878,3 +878,43 @@ and does this by resolving cited names against `spec/INVENTORY.txt` (kind=specim
 `spec/DIVERGENT.txt`; reading the generated table is required because only 466 of the 982 specimens
 are literal `SPECIMENS` dict keys -- the rest arrive through `SPECIMENS[x] = ...` in loops, which a
 source-scanning count silently misses.  Coverage 86 rows / 0 errors / 0 warnings.
+
+## [E2E-40/P10] A parenthesized ADD on the right of an ADD is evaluated FIRST by DR [C272]
+
+**The change.**  Two additions to `ocaml/lib/codegen.ml`, one per problem: `num_width`'s recursive
+width function gains `| Ast.Econd x -> w x` (parens are transparent for width, joining `unwrap_e`,
+`add_left_needs_push`, `writes_de` and `rhs_is_imem`), and the generic FIXED ADD arm gains a
+right-first route gated by `paren_add_right r && (add_left_needs_push r || writes_de st r ||
+rhs_is_imem st r)`, placed before the existing route tests.  `paren_add_right` is
+`Econd { e = Ebinary (Add, _, _) }` and nothing wider.
+
+**Two gaps where P9 saw one.**  P9 registered E45S6 as a PUT-item-classifier refusal and noted,
+correctly, that DR's three expression fixups read `DATA+2, +4, +0` -- `b, c, a` -- i.e. that DR
+evaluates the parenthesized group first.  It then concluded the shape was "NOT about operand
+preservation" and stopped.  Measured here: fixing the classifier alone makes the program compile and
+leave **11 bytes** from DR's, because this compiler loads `a` first.  A fact in a comment is not a
+fact applied.
+
+**The order lives in the relocations, not the code.**  Both sides emit 17 bytes for the expression;
+the difference is which cells the fixups name and in what order.  Cell identity comes from DR's own
+DATA initializers (7/11/13 distinct) and the DATA layout is identical, so the comparison is not
+circular and not about spelling.  Execution discriminated nothing at any point: both orders print 31
+[C264, again].
+
+**The bound, measured before and after.**  MB34 `n + (n*3)`, MB35 `(n+1) + (n*3)`, R722 `a + (b/d)`
+and LR19 `x + (-32768)` are parenthesized right operands that DR evaluates LEFT-first and that this
+compiler keeps byte-identical after the change -- which is why the gate names the inner operator
+instead of testing for parentheses.  Unparenthesized compound rights keep [C271]'s route.  No
+reassociation: the AST order is untouched, and no normalization to `(a + b) + c` anywhere.
+
+**Gate (measured on the shipped build, `--runtime', exit read without a pipe):** 983 byte-exact / 0
+fail, 128/128 refusals, 9/9 divergences, 46/46 runtime rows, coverage 86 rows / 0 errors / 0
+warnings, census 44 programs / 15 EXACT / 0 DIFFERS / 0 UNEXPECTED with `--verify' clean, INVENTORY
+983.  E45S6 promoted from negative panel to specimen and runtime row; the retirement text stays in
+`tools/e2e_gate.py` where the entry was, because a `my-gap' row that vanishes silently is
+indistinguishable from a gap that never existed [C256].
+
+**Open after P10.**  Parenthesized group on the LEFT of an ADD; a parenthesized group inside a store
+RHS or a condition; inner SUB/EXP in a parenthesized right operand -- all four have no sample, and
+each is one probe.  Unchanged from P9: POINTER/BASED-view members as right operands (E40Q4's 12-byte
+gap), array elements as right operands (never traced through any disjunct), SUB/MUL/DIV ADD routes.

@@ -5586,3 +5586,59 @@ are untouched.
 > conclusion from an absent line, check that the line was placed in the path under test.  All
 > outputs, the pre-fix and post-fix `.REL' files and the two disassemblies are in
 > `spec/lab-evidence/e2e40-p9a/'.
+
+**C272 — DR evaluates a PARENTHESIZED ADD group appearing as the right operand of an ADD FIRST, and
+parks that group's value while it loads the left operand; the same shape with a MUL or DIV inside the
+parens is evaluated LEFT-first.**  [E2E-40/P10, `golden/e45/E45S6', `spec/notes/e2e40-p10-parenthesized-add-order.md']
+
+(a) **The program.**  `b9e: procedure options(main); declare 1 g, 2 a fixed, 2 b fixed, 2 c fixed;
+declare h fixed, k fixed, n fixed; a=7; b=11; c=13; h=17; k=19; n=23; put list(a + (b + c)); stop;
+end b9e;`  DR: CODE 0x54, DATA 000C, linked object prints 31 (`golden/e45r/E45S6.output.txt`, nine
+spaces + `31`).
+
+(b) **The order, read out of DR's own relocations.**  A `LHLD <cell>` operand does not exist as a
+code byte in a `.REL' -- it is a RELOC record [C264] -- so the evaluation order is visible only in the
+**fixup sequence**.  DR's expression fixups run `data 0x2, 0x4, 0x0` = `b, c, a`; this compiler's,
+before the change, ran `0x0, 0x2, 0x4` = `a, b, c`.  The cells are identified from DR's own DATA
+initializers (7, 11, 13 are distinct) and the DATA layout is identical in both images -- the first
+five fixups agree -- so this is neither a layout argument nor a naming argument.  Instructions, from
+DR's linked image where the operands are concrete:
+
+    LHLD b / PUSH H / LHLD c / POP D / DAD D / PUSH H / LHLD a / POP D / DAD D
+
+(c) **The four witnesses that bound it.**  `n + (n*3)` (MB34), `(n+1) + (n*3)` (MB35), `a + (b/d)`
+(R722) and `x + (-32768)` (LR19) are all parenthesized right operands and all stay LEFT-first, byte-
+exact at P10 without change.  So parentheses alone do not flip the order: the licensed trigger is a
+parenthesized group whose inner operator is **ADD**, in a position that parks anyway under [C271].
+Unparenthesized compound rights (`a + b + h`, E45S2; `(a+b)+c` spelled as `a+b+c`, E40S2) keep the
+[C271] left-first park.  Inner SUB/EXP have no sample and are excluded by construction, not by
+measurement.
+
+(d) **Why the console cannot find this.**  Both orders compute 31, both images are 17 bytes for the
+expression, and the difference lives entirely in fixup order (11 file bytes).  Execution verified the
+value at every step of this slice and discriminated nothing -- [C264]'s point again, now for an
+*ordering* defect rather than an offset defect.
+
+(e) **Implementation, and why the two halves were separately necessary.**  `num_width`'s recursive
+`w` had no `Econd` case, so `a + (b + c)` refused with `PUT numeric item form unproven [TBD]` at the
+catch-all; `classify_item` already admitted the top-level parenthesized item [N304].  Adding
+`| Ast.Econd x -> w x` alone made the program compile and differ by 11 bytes; adding the order rule
+alone was unreachable because the refusal came first.  The order rule is gated by
+`paren_add_right r && (add_left_needs_push r || writes_de st r || rhs_is_imem st r)` and placed
+before the existing route tests.  Conjunction, not a bare paren test, because the three left-first
+witnesses above are all parenthesized.
+
+(f) **Not claimed.**  Any account of *why* DR orders it that way; that a parenthesized group on the
+LEFT behaves as this one does; that a parenthesized group inside a store's RHS or a condition behaves
+as this one does; any general parenthesis support; anything about POINTER/BASED-view members (E40Q4
+unchanged), nor SUB/MUL/DIV routes.  Width traversal through `Econd` is licensed only because width
+is max-of-leaf-widths read from the same binder rows; it is not a claim that a parenthesized item has
+the same *lowering* as an unwrapped one in general.
+
+(g) **Panel.**  E45S6 retired from the negative panel (129 -> 128) and registered byte-exact
+(982 -> 983) plus a runtime row (45 -> 46, expectation 31).  Gate measured on the shipped build:
+**983 byte-exact / 0 fail, 128/128 refusals, 9/9 divergences, 46/46 runtime**, coverage 86 rows /
+0 errors / 0 warnings, census 15 EXACT / 0 DIFFERS / 0 UNEXPECTED with `--verify' clean, INVENTORY
+983, exit 0.  (h) P9's own retirement note on this negative already recorded the fixup order and
+still drew the wrong scope from it -- "NOT about operand preservation" -- which is the shape of the
+error this slice exists to fix: a fact in a comment is not a fact applied.
