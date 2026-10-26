@@ -47,13 +47,17 @@ OPTION_WITNESSES = {
         "  L4: FILE-STMT OPEN file=f opts=[FILE(f) STREAM PRINT PAGESIZE(24) "
         "LINESIZE(80)]\n"
         "  L5: FILE-STMT CLOSE file=f opts=[FILE(f)]\n"),
-    # the BARE file form: `open f input' / `close f', witnessed by DR's own
-    # probes/P080Q.PLI (probes/P080Q/P080Q.REL exists), where `f' is a declared FILE
-    # variable -- an identifier in the place an option word would otherwise be read.
+    # the BARE file form, which the LANGUAGE MANUAL brackets only for READ and
+    # WRITE (`READ [FILE(fname)] INTO(v)' B.21, `WRITE [FILE(fname)] FROM(v)' B.29).
     "E47H.PLI": (
-        "  DCL line 3: f\n"
-        "  L4: FILE-STMT OPEN file=f opts=[FILE(f) INPUT]\n"
-        "  L5: FILE-STMT CLOSE file=f opts=[FILE(f)]\n"),
+        "  DCL line 3: f\n  DCL line 3: s\n"
+        "  L4: FILE-STMT READ file=f opts=[FILE(f) INTO(s)]\n"
+        "  L5: FILE-STMT WRITE file=f opts=[FILE(f) FROM(s)]\n"),
+    # OPEN and CLOSE do NOT bracket FILE (`OPEN FILE(fname) [file-attributes]' B.17,
+    # `CLOSE FILE(fname)' B.5), and the DR side agrees: probes/P080Q.PLI is exactly
+    # this program and golden/probe49/P080Q contains no .REL, while its three batch
+    # siblings P080O/P080P/P080R each have one.
+    "E47I.PLI": "REFUSE",
     # an option word NO DR sample places in a FILE statement: the parser must refuse
     # it, not re-read it as the following statement (which is what it did before
     # [E2E-41/P1a] -- see OPTIONS-AST-BEFORE.txt).
@@ -107,6 +111,14 @@ EXPECTED_REJECT = {
     "P052C.PLI": "[M] binary ^ XOR: DR rejects; our parity grammar omits",
     "P052D.PLI": "[M] binary ^ XOR: DR rejects; our parity grammar omits",
     "P066B.PLI": "picture dcl group form + bare (pic) format ref: DR SYNTAX, parser rejects too",
+    # [E2E-41/P1a] `open f input; get f list(i); close f;': the manual brackets
+    # FILE for GET/PUT/READ/WRITE (B.12/B.20/B.21/B.29) but NOT for OPEN/CLOSE
+    # (B.17/B.5, sections 9.5/9.6), and the DR side agrees -- golden/probe49/P080Q
+    # holds dir.txt only, no .REL, while P080O/P080P/P080R of the same batch each
+    # produced one.  Our grammar refuses the bare OPEN/CLOSE form, so this is
+    # parity, not a gap.
+    "P080Q.PLI": "bare FILE reference in OPEN/CLOSE: manual brackets FILE only for "
+                  "READ/WRITE/GET/PUT; DR left P080Q with no .REL (golden/probe49)",
 }
 
 STANDARD_SUPERSET = {

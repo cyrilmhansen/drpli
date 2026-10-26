@@ -118,14 +118,18 @@ let ioopt_keys =
    scanner did not know -- KEYED, DIRECT, PRINT, PAGESIZE, LINESIZE -- which made it
    stop there and re-read the rest of the statement as SEPARATE statements: 18 of the
    34 sites (OPTIONS-AST-BEFORE.txt shows E47C losing KEYED/OUTPUT/ENVIRONMENT
-   outright).  KEYTO/INTO/FROM come from DR-compiled READ/WRITE sources: KEYFILE:23
+   outright).  SEQUENTIAL is in the LANGUAGE MANUAL's own file-attribute list
+   (p.60, section 9.5: STREAM RECORD INPUT OUTPUT KEYED DIRECT SEQUENTIAL UPDATE
+   PRINT TITLE PAGESIZE LINESIZE) but in no sampled object, so it is recognised
+   here and refused in codegen.  KEYTO/INTO/FROM come from DR-compiled READ/WRITE
+   sources: KEYFILE:23
    `read file(input) into(employee) keyto(k)', COPY:19-20 `read file (input_file)
    into (buff)' / `write file (output_file) from (buff)'.  ACCEPTING A KEY IS NOT A
    CODEGEN CLAIM: codegen refuses every option subset it has no DR witness for
    (spec/notes/e2e41-p1-*.md section 8). *)
 let filestmt_opt_keys =
   ioopt_keys @ [ "KEYED"; "DIRECT"; "PRINT"; "PAGESIZE"; "LINESIZE";
-                 "KEYTO"; "INTO"; "FROM" ]
+                 "SEQUENTIAL"; "KEYTO"; "INTO"; "FROM" ]
 
 let ctl_keys = [ "SKIP"; "PAGE"; "LINE" ]
 
@@ -709,13 +713,20 @@ and parse_stmt_body p q labels =
   | Token.Ident { key = ("READ" | "WRITE" | "REWRITE" | "UPDATE" | "OPEN"
                        | "CLOSE" | "CREATE" | "REWIND" | "DELETE" as k); _ } ->
       advance p;
-      (* [E2E-41/P1a] a FILE statement may name its file either as `FILE(name)' or
-         BARE -- probes/P080Q.PLI, which DR compiled, is `open f input; get f
-         list(i); close f;'.  The bare form is read ONLY in the leading position, so
-         the strict check below still refuses an unrecognised option word. *)
+      (* [E2E-41/P1a] the LANGUAGE MANUAL's own bracketing decides whether a FILE
+         statement may name its file BARE: `READ [FILE(fname)] INTO(v)' (B.21) and
+         `WRITE [FILE(fname)] FROM(v)' (B.29) bracket the FILE keyword, so the bare
+         form is grammar there; `OPEN FILE(fname) [file-attributes]' (B.17, 9.5) and
+         `CLOSE FILE(fname)' (B.5, 9.6) do not.  probes/P080Q.PLI is the DR-side
+         evidence that the unbracketed reading is right: it is `open f input; get f
+         list(i); close f;', and golden/probe49/P080Q holds NO .REL while the three
+         sibling probes of the same batch (P080O, P080P, P080R) each have one.  GET
+         and PUT already took the bare form -- manual B.12/B.20 bracket FILE too. *)
+      let bare_file_ok = k = "READ" || k = "WRITE" in
       let leading =
         match peek p with
-        | Token.Ident { orig; key } when not (List.mem key filestmt_opt_keys) ->
+        | Token.Ident { orig; key } when bare_file_ok
+                                       && not (List.mem key filestmt_opt_keys) ->
             let q = curpos p in
             advance p;
             [ { io_key = "FILE";
@@ -731,7 +742,19 @@ and parse_stmt_body p q labels =
          that here would move unrelated byte-exact specimens. *)
       (match peek p with
        | Token.Ident { key = bad; _ } ->
-           err p "%s: unrecognised FILE-statement option %s [TBD] -- no DR sample in spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv or in the DR-compiled corpus places this word in a FILE statement option list, so it is refused rather than silently dropped" k bad
+         (* Two different gaps land here, and the message says which: with no FILE
+            option yet parsed the statement named its file bare (READ/WRITE/GET/PUT
+            grammar only); otherwise an option word outside the vocabulary refused.
+            `open buffered;' -- no FILE and a non-file word -- gets the first message,
+            which is imprecise but still refuses and still names a real rule. *)
+         if opts = [] && not bare_file_ok then
+           err p "%s: PL/I-80 names the file as FILE(name) in this statement [TBD] -- \
+                  the manual brackets FILE only for READ/WRITE/GET/PUT (B.21/B.29/\
+                  B.12/B.20), and DR left probes/P080Q.PLI (open f input / close f) \
+                  with no .REL in golden/probe49"
+             k
+         else
+           err p "%s: unrecognised FILE-statement option %s [TBD] -- neither a DR object (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv) nor the language manual's file-attribute list (p.60) places this word in a FILE statement option list, so it is refused rather than silently dropped" k bad
        | _ -> ());
       let file =
         match List.find_opt (fun o -> o.io_key = "FILE") opts with

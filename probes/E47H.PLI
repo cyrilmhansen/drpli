@@ -1,6 +1,6 @@
 e47h:
   procedure options(main);
-  dcl f file;
-  open f input;
-  close f;
+  dcl f file, s char(20);
+  read f into(s);
+  write f from(s);
 end e47h;

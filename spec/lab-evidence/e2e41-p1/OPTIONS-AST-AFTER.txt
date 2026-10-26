@@ -1,64 +1,72 @@
-# [E2E-41/P1a] the same witnesses AFTER the parser change: a FILE-statement option
-# vocabulary (filestmt_opt_keys) that carries the five OPEN words P0 found missing --
-# KEYED, DIRECT, PRINT, PAGESIZE, LINESIZE -- plus KEYTO/INTO/FROM from DR-compiled
-# READ/WRITE sources, and a strict tail check on the nine FILE statements so an
-# unrecognised word is refused instead of being re-read as the next statement.
-# The GET/PUT/EDIT arms keep the ORIGINAL list: the EDIT arm eats FROM itself, so a
-# shared widened list would have swallowed the edit source.  Regenerate with:
-#   for n in E47A E47B E47C E47D E47E E47F E47G; do
+# [E2E-41/P1a] the same witnesses AFTER the parser change.  Three edits, each with its
+# own evidence:
+#   1. filestmt_opt_keys -- the nine FILE statements now accept KEYED, DIRECT, PRINT,
+#      PAGESIZE, LINESIZE (the five words P0 found missing from DR's own objects),
+#      SEQUENTIAL (documented in the manual's file-attribute list, p.60, but in no
+#      sampled object), and KEYTO/INTO/FROM (DR-compiled READ/WRITE sources).  The
+#      GET/PUT/EDIT list `ioopt_keys' is UNCHANGED on purpose: the EDIT arm eats FROM
+#      itself, so a shared widened list would swallow every `EDIT ... FROM' source.
+#   2. a strict tail check on the nine FILE statements: an unrecognised word is now a
+#      loud [TBD] refusal instead of being re-read as the following statement.
+#   3. the bare file reference, which the LANGUAGE MANUAL brackets only for
+#      READ/WRITE/GET/PUT: accepted for READ/WRITE (E47H), refused for OPEN/CLOSE
+#      (E47I, P080Q) -- DR left golden/probe49/P080Q without a .REL while P080O,
+#      P080P and P080R of the same batch each produced one.
+# Dumped with bin/pli80tree.exe (lib/parser.ml dump_trees).  Regenerate with:
+#   for n in E47A E47B E47C E47D E47E E47F E47G E47H E47I P080Q; do
 #     echo "== probes/$n.PLI"; ./ocaml/_build/default/bin/pli80tree.exe probes/$n.PLI; done
 # Compare OPTIONS-AST-BEFORE.txt.  ACCEPTING A KEY IS NOT A CODEGEN CLAIM: every one
 # of these still refuses in codegen -- only `open file(f) input' (E47A) and
 # `close file(f)' are lowered, in P1b/P1c, against P081Q/P072H.
 
 == probes/E47A.PLI
-  source: open file(f) input;
+  source: open file(f) input;  close file(f);
   DCL line 3: f
   L4: FILE-STMT OPEN file=f opts=[FILE(f) INPUT]
   L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
-  dump exit=0
+  tree exit=0
   pli80c: exit=2  Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
 
 == probes/E47B.PLI
-  source: open file(f) stream output title('X.DAT');
+  source: open file(f) stream output title('X.DAT');  close file(f);
   DCL line 3: f
   L4: FILE-STMT OPEN file=f opts=[FILE(f) STREAM OUTPUT TITLE('X.DAT')]
   L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
-  dump exit=0
+  tree exit=0
   pli80c: exit=2  Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
 
 == probes/E47C.PLI
-  source: open file(f) keyed output environment(f(128),b(8000));
+  source: open file(f) keyed output environment(f(128),b(8000));  close file(f);
   DCL line 3: f
   L4: FILE-STMT OPEN file=f opts=[FILE(f) KEYED OUTPUT ENVIRONMENT((comma[(call f[128]), (call b[8000])]))]
   L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
-  dump exit=0
+  tree exit=0
   pli80c: exit=2  Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
 
 == probes/E47D.PLI
-  source: open file(f) update direct environment(f(128));
+  source: open file(f) update direct environment(f(128));  close file(f);
   DCL line 3: f
   L4: FILE-STMT OPEN file=f opts=[FILE(f) UPDATE DIRECT ENVIRONMENT((call f[128]))]
   L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
-  dump exit=0
+  tree exit=0
   pli80c: exit=2  Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
 
 == probes/E47E.PLI
-  source: open file(f) stream print pagesize(24) linesize(80);
+  source: open file(f) stream print pagesize(24) linesize(80);  close file(f);
   DCL line 3: f
   L4: FILE-STMT OPEN file=f opts=[FILE(f) STREAM PRINT PAGESIZE(24) LINESIZE(80)]
   L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
-  dump exit=0
+  tree exit=0
   pli80c: exit=2  Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
 
 == probes/E47F.PLI
-  source: open file(f) buffered;
-  Fatal error: exception Pli80.Parser.Parse_error(_, "OPEN: unrecognised FILE-statement option BUFFERED [TBD] -- no DR sample in spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv places this word in a FILE statement option list, so it is refused rather than silently dropped")
-  dump exit=2
-  pli80c: exit=2  Fatal error: exception Pli80.Parser.Parse_error(_, "OPEN: unrecognised FILE-statement option BUFFERED [TBD] -- no DR sample in spec/lab-evidence/e2e41-p0/OPEN-MATRIX
+  source: open file(f) buffered;  close file(f);
+  Fatal error: exception Pli80.Parser.Parse_error(_, "OPEN: unrecognised FILE-statement option BUFFERED [TBD] -- neither a DR object (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv) nor the language manual's file-attribute list (p.60) places this word in a FILE statement option list, so it is refused rather than silently dropped")
+  tree exit=2
+  pli80c: exit=2  Fatal error: exception Pli80.Parser.Parse_error(_, "OPEN: unrecognised FILE-statement option BUFFERED [TBD] -- neither a DR object (spec/lab-evidence/e2e41-p0/OPEN-MATRIX
 
 == probes/E47G.PLI
-  source: open file(f) input;;  get file(f) list(i, s);;  put file(f) list(i);;  read file(f) into(s) keyto(i);
+  source: open file(f) input;  get file(f) list(i, s);  put file(f) list(i);  read file(f) into(s) keyto(i);
   DCL line 3: f
   DCL line 3: i
   DCL line 3: s
@@ -66,6 +74,27 @@
   L5: GET kind=LIST items=2 opts=1 opts[FILE]
   L6: PUT kind=LIST items=1 opts=1 opts[FILE]
   L7: FILE-STMT READ file=f opts=[FILE(f) INTO(s) KEYTO(i)]
-  dump exit=0
-  pli80c: exit=2  Fatal error: exception Failure("codegen: [TBD] PUT LIST with ON options (line 6): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an a
+  tree exit=0
+  pli80c: exit=2  Fatal error: exception Failure("codegen: [TBD] PUT LIST with ON options (line 6): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array 
+
+== probes/E47H.PLI
+  source: read f into(s);  write f from(s);
+  DCL line 3: f
+  DCL line 3: s
+  L4: FILE-STMT READ file=f opts=[FILE(f) INTO(s)]
+  L5: FILE-STMT WRITE file=f opts=[FILE(f) FROM(s)]
+  tree exit=0
+  pli80c: exit=2  Fatal error: exception Failure("codegen: statement kind not in supported subset [TBD] (line 4)")
+
+== probes/E47I.PLI
+  source: open f input;  close f;
+  Fatal error: exception Pli80.Parser.Parse_error(_, "OPEN: PL/I-80 names the file as FILE(name) in this statement [TBD] -- the manual brackets FILE only for READ/WRITE/GET/PUT (B.21/B.29/B.12/B.20), and DR left probes/P080Q.PLI (open f input / close f) with no .REL in golden/probe49")
+  tree exit=2
+  pli80c: exit=2  Fatal error: exception Pli80.Parser.Parse_error(_, "OPEN: PL/I-80 names the file as FILE(name) in this statement [TBD] -- the manual brackets FILE only for READ/WRITE/GET
+
+== probes/P080Q.PLI
+  source: open f input;  get f list(i);  close f;
+  Fatal error: exception Pli80.Parser.Parse_error(_, "OPEN: PL/I-80 names the file as FILE(name) in this statement [TBD] -- the manual brackets FILE only for READ/WRITE/GET/PUT (B.21/B.29/B.12/B.20), and DR left probes/P080Q.PLI (open f input / close f) with no .REL in golden/probe49")
+  tree exit=2
+  pli80c: exit=2  Fatal error: exception Pli80.Parser.Parse_error(_, "OPEN: PL/I-80 names the file as FILE(name) in this statement [TBD] -- the manual brackets FILE only for READ/WRITE/GET
 

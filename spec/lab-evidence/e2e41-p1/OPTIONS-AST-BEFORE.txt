@@ -1,7 +1,8 @@
-# [E2E-41/P1a] the parsed AST of the FILE-statement option witnesses BEFORE the parser
-# change, dumped with bin/pli80tree.exe (= lib/parser.ml dump_trees, which printed
-# nothing at all for a FILE statement -- that silence is how the truncation stayed
-# invisible).  Regenerate with:
+# [E2E-41/P1a] the parsed AST of the FILE-statement option witnesses at HEAD before
+# the parser change, dumped with bin/pli80tree.exe (= lib/parser.ml dump_trees, which
+# printed nothing at all for a FILE statement -- that silence is how the truncation
+# stayed invisible for two episodes).  Captured by checking lib/parser.ml out to
+# 6e665e5, rebuilding, and re-running the same dump as OPTIONS-AST-AFTER.txt.  Regenerate with:
 #   for n in E47A E47B E47C E47D E47E E47F E47G; do
 #     echo "== probes/$n.PLI"; ./ocaml/_build/default/bin/pli80tree.exe probes/$n.PLI; done
 # The number after L is the line the statement starts on.  Anything the option scanner
