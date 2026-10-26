@@ -2806,8 +2806,12 @@ NEG_META["E41X5"] = ("my-gap",
     "`put file(outf) list('HELLO')' and attaches with mode word 0652H (36 such sites in "
     "spec/lab-evidence/e2e41-p0/SIOMODES.txt).  Mine refuses with the pre-existing PUT-with-"
     "options message, which is true as far as it goes -- the ?OIOOP/?SIOOP route is what is "
-    "missing -- and the output-file comparison P2 needs already exists in this repository "
-    "(golden/e2e11iu/E17D/OUT.DAT, exactly 128 bytes, from an open that spells F(128)).")
+    "missing -- and an archived output-file comparison exists in this repository: "
+    "golden/e2e11iu/E17D/OUT.DAT, exactly 128 bytes = the 13 payload bytes `'HELLO''    42' "
+    "plus 115 x 0x1A.  [E2E-41/P3a] withdraws the explanation this row used to give "
+    "(`from an open that spells F(128)'): E17D's OPEN has NO ENVIRONMENT clause, so the "
+    "padding has no measured cause here -- observation and hypothesis are separated in "
+    "spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt [C279].")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:

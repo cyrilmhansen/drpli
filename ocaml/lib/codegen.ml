@@ -8337,9 +8337,11 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
      0x0690 at both of its sites (P072H:3, P081Q:3).  So 0x0200 (stream organisation,
      DR's default) and 0x0080 (input mode) are set whichever word is written, 0x0010
      is set by every stream open, and 0x0400 -- file rather than console -- is set in
-     all 34 samples.  0x0800 is set EXACTLY when a TITLE clause is present: 29 of 34
-     rows carry it, the 4 titleless rows (P072H, P081Q, P019B, P021:6) clear it, and
-     E17B/E16C/E18A measure the composition directly as 0x0E90.
+     all 34 samples.  0x0800 is set EXACTLY when a TITLE clause is present: 30 of 34
+     rows carry it (25 literal + 5 variable titles -- recounted from OPEN-MATRIX.tsv by
+     [E2E-41/P3a] [C279], which corrects the 29 stated here until then), the 4 titleless rows
+     (P072H, P081Q, P019B, P021:6) clear it, and E17B/E16C/E18A measure the composition
+     directly as 0x0E90.
      An open naming NO mode is refused: it is unmeasured (P0 section 12, probe C), and
      0x0690 for it would be an inference from the default-bit reading above, not a
      witness. *)
@@ -8386,8 +8388,14 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
                                closest witness is P042A:3 `open file(output) stream', which
                                measures B(4096)/F(4096) in w3/w4, while the titleless stream
                                opens of P072H and P081Q measure 0/0 -- DR's own defaults
-                               apply, and the 128-byte OUT.DAT of E17D comes from an open
-                               that spells F(128), not from this shape.
+                               apply.  (What stood here until [E2E-41/P3a] -- "the 128-byte
+                               OUT.DAT of E17D comes from an open that spells F(128)" -- was
+                               false: e13src/E17D.PLI has NO ENVIRONMENT clause, its w1
+                               0x0E50 has bit 0x4000 clear and DR's listing pushes w3/w4 as
+                               LXI H,0000.  E17D's OUT.DAT IS 128 bytes (13 payload + 115
+                               0x1A) and this repository has NO measurement of why; CP/M
+                               record padding is a hypothesis, not evidence -- see
+                               spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt [C279].)
             w5 PAGESIZE, w6 LINESIZE: set only by their own options, each with a single
                                witness site in P0 section 4 (P021 for PAGESIZE, KEYFILE for
                                LINESIZE) and no measured combination of the two.

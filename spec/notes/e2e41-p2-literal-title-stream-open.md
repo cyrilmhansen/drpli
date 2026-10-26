@@ -138,7 +138,9 @@ never reaches either walker's output.
 
 `open_mode_word` takes the title bit as a measured composition: `w1 |= 0x0800` iff a
 TITLE clause is present — the bit fits all 34 P0 rows (`W1-BITFIT.txt`: 29 set, the 4
-titleless clear).  The lowering of the zero word switched from the `MOV H,B` pebble to
+titleless clear — **[E2E-41/P3a] the count here is wrong: the matrix gives 30 set, 4
+clear,** with 25 literal + 5 variable titles, and the bit agrees with the presence of a
+TITLE clause in all 34 rows; see spec/lab-evidence/e2e41-p3/TITLE-CENSUS.txt [C279]).  The lowering of the zero word switched from the `MOV H,B` pebble to
 `LXI H,0000H` in the title branch **because the goldens show it**, and the two branches
 share `load_file_cb` and `?OIOOP` unchanged, so the P1 titleless bytes are untouched.
 

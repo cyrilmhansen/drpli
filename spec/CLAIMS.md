@@ -1595,11 +1595,22 @@ contexts (arrays, structures, subscripted or wide `bit(n)`, n>1) is unprobed —
   first **space** into name/extension, so `E17D OUT DAT` created a file literally
   named `out`, and a single **dotted** token (`E17A INF.DAT`) is required — then
   DR reports `File: INF=INF.DAT`.
-* **Output files are record-padded.**  E17D's captured `OUT.DAT` is 128 bytes:
-  `'HELLO'    42` + `^Z` fill.  List-directed output quotes character constants
-  and right-justifies numerics; the length is a whole record, not the payload.
-  Byte-exact output-DATA comparison is therefore a distinct evidence class from
-  `.REL` parity and from console-transcript matching, with its own rules.
+* **Output files arrive padded to a whole CP/M record -- as an OBSERVATION whose cause
+  is not measured.**  E17D's captured `OUT.DAT` is 128 bytes: the 13 payload bytes
+  `'HELLO'    42` (list-directed output quotes character constants and right-justifies
+  numerics) followed by 115 `^Z` bytes, with no CR or LF anywhere.  **[E2E-41/P3a]** the
+  sentence that stood here -- "the length is a whole record, not the payload", read
+  alongside P0/P1's claim that E17D's open "spells F(128)" -- overstated what is known:
+  `e13src/E17D.PLI` has **no ENVIRONMENT clause**, DR's OPEN word is `0E50` (bit 0x4000
+  clear) and the listing pushes w3/w4 as `LXI H,0000`, so nothing in this repository ties
+  the 128 to an F(n).  A CP/M record extent of 128 bytes is the plausible explanation and
+  is recorded as a HYPOTHESIS only -- the harness reads the file off the disk with
+  cpmtools' `cpmcp`, which derives the exported length from the directory extent, so the
+  capture path cannot separate runtime padding from extent padding.  Observed bytes and
+  explanation are written up separately in
+  spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt.  Byte-exact output-DATA comparison remains
+  a distinct evidence class from `.REL` parity and from console-transcript matching, with
+  its own rules.
 
 ## C114 — DR's data area is ONE block ordered [statics][literal pool][automatics] (E2E-11 step 1a design)
 
@@ -6012,3 +6023,48 @@ assert as the intended behaviour.  A literal title does not name the CP/M file �
 (`title('E16IN DAT')`) ran as `UNDEFINED FILE (1), File: INF=NUL` in
 `golden/e2e11hr/E16C.output.txt` — so filename resolution stays on the evidence of
 P0 §11, not on the source spelling.
+
+## C279 — TWO PROSE COUNTS WERE WRONG: TITLE IS PRESENT AT 30 OF THE 34 MEASURED OPEN SITES, AND E17D's 128-BYTE OUT.DAT HAS NO MEASURED CAUSE (E2E-41/P3a)
+
+Both corrections are recomputations from files already committed in this repository, not
+new oracle work.  `spec/lab-evidence/e2e41-p3/p3a-measure.py` regenerates the two artefacts
+this claim cites (`TITLE-CENSUS.txt`, `E17D-OUT-DAT.txt`) by reading
+`spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv`, `e13src/E17D.PLI`,
+`golden/e2e11i/E17D/E17D.PRN` and `golden/e2e11iu/E17D/OUT.DAT`; nothing in
+`spec/lab-evidence/e2e41-p0/` or in any `golden/` file was modified to produce them.
+
+**(a) TITLE is present at 30 sites and absent at 4 — not 29.**  The matrix has 34 OPEN
+rows: `title-kind` is `lit` in 25, `var` in 5 and `-` in 4.  Independently, bit 0x0800 of
+the measured `w1` is set in 30 rows and clear in 4, and the two classifications agree in
+**all 34 rows** (0 disagreements) — which is what makes "0x0800 == a TITLE clause is
+present" a fitted rule rather than an association: the bit is set for literal titles
+(0x0E90, 0x0E50, 0x0E52, 0x4E90, 0x4E50, 0x4E52, 0x1E50, 0x2E52, 0x3E52, 0x4D94, 0x4D54,
+0x4D2C) and for variable titles alike.  The 4 titleless rows are P072H:3, P081Q:3,
+P019B:3 and P021:6 (`0x0690`, `0x0652`, `0x2652`).  The wrong 29 stood in P0 §7's bit
+table, in P1 §13 item 1 (which had already corrected an earlier wrong 25 upward — 25 is
+the LITERAL-title count, not the TITLE-present count), in P2 §4, in PERIMETER's FILE row,
+in COVERAGE.tsv's `FILE.OPEN_STREAM` row and in `codegen.ml`'s `open_mode_word` comment.
+The number 29 is reproducible from no artefact: `W1-BITFIT.txt` prints the rule, not a
+count.  Nothing about the lowering changes — the bit is composed the same way — but a
+count quoted in five places was wrong, and a wrong count in the table that says what DR
+accepts is exactly what `tools/coverage_check.py` exists to catch.
+
+**(b) E17D's OPEN carries no ENVIRONMENT, so its 128-byte output file is not F(n)
+evidence.**  `e13src/E17D.PLI:3` is `open file(outf) stream output title('$1.$1');` and
+DR's listing puts `LXI  H,0E50` at 0x0011 with bit 0x4000 clear and `LXI  H,0000` for w2
+through w6 — no ORGANIZATION word, no record size.  Four documents nonetheless attributed
+`golden/e2e11iu/E17D/OUT.DAT`'s 128 bytes to an `environment(f(128))' clause: P0 §11 (which
+also misquoted E17D's source as `environment(f(128),b(8000)) title('$2.$2')` — the
+f(128),b(8000) spelling is `artefacts/ENTER.PLI:37` and `'$2.$2'` is COPY/REPORT/P021),
+P1 §4, `codegen.ml`'s w3/w4 comment, and E41X5's `NEG_META` note plus the `INVENTORY.txt`
+row generated from it.  All four are corrected here.  **Observed** (unchanged, and
+byte-counted): the file is 128 bytes — `'HELLO'` (7 bytes, quotes included) + 4 spaces +
+`42` = 13 payload bytes, then 115 `0x1A`, no CR and no LF.  The payload is exactly what the
+two `PUT FILE LIST` statements put through the `MVI A,05` (`p+3`) width DR emits before
+`?QDCOP`.  **Not established:** why the length is 128 rather than 13.  CP/M record padding
+is the obvious hypothesis, and it cannot be separated from the capture path from anything
+in this repository — `oracle/cpmwork.py:export` reads the file off the scratch disk with
+cpmtools' `cpmcp`, which derives the exported length from the directory extent, and there
+is no captured FCB, no directory dump and no second output file of a different length.  A
+hypothesis is written down as a hypothesis; the padding rule the runtime panel has to
+reproduce is stated as an observation, independently of its cause.

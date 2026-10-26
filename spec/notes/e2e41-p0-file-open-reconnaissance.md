@@ -257,7 +257,7 @@ gets a clean verdict except the two constants**:
 | 0x0100 | set for KEYED and DIRECT |
 | 0x0200 | set for STREAM |
 | 0x0400 | **set in all 34** |
-| 0x0800 | set exactly when a TITLE clause is present (29 rows; 4 titleless rows clear it) |
+| 0x0800 | set exactly when a TITLE clause is present (**30 rows; 4 titleless rows clear it** — [E2E-41/P3a] recomputed from OPEN-MATRIX.tsv; the 29 written here in P0 counted wrong [C279], see spec/lab-evidence/e2e41-p3/TITLE-CENSUS.txt) |
 | 0x1000 | set exactly when LINESIZE is present (literal *or* variable — COPYLPT's `linesize(pagewidth)` sets it) |
 | 0x2000 | set exactly when PAGESIZE is present |
 | 0x4000 | set exactly when ENVIRONMENT is present |
@@ -362,12 +362,24 @@ carries the staging: `STAGE_IN`, `ARGS`, `EXPORT_OUT`):
   `INF.DAT` and produced real output: `X=         7 X=         8 X=         9 X=
   9 DONE`, `X=         7 REACHED SECOND`. A stream input file works end to end in the
   harness today.
-* **`$2` names the output file, and F sizes the record.** E17D opens
-  `outf … environment(f(128),b(8000)) title('$2.$2')`, does two `put file(outf)` and a
-  `close`; with tail `OUT.DAT` it printed `WROTE` and left
-  `golden/e2e11iu/E17D/OUT.DAT` — **exactly 128 bytes**, `'HELLO'        42` padded
-  with `0x1A`. One 128-byte record: independent corroboration of §6's `w4 = F(n)`, and
-  of `CLOSE` flushing.
+* **The command tail names E17D's output file.** **[E2E-41/P3a correction [C279] — the
+  source line quoted below is WRONG and the corroboration claimed from it never
+  existed; the paragraph is kept so the error is traceable.]**  This bullet said
+  "`$2` names the output file, and F sizes the record.  E17D opens `outf …
+  environment(f(128),b(8000)) title('$2.$2')`".  `e13src/E17D.PLI` has **no
+  ENVIRONMENT clause** and its title is `'$1.$1'` (DR's own listing:
+  `open file(outf) stream output title('$1.$1');` at code 0006, w1 `0E50`, in which
+  bit 0x4000 is CLEAR and w3/w4 are pushed as `LXI H,0000`).  The `f(128),b(8000)`
+  half of that sentence is `artefacts/ENTER.PLI:37` (w1 0x4D54, title `'$1.EMP'`) and
+  the `title('$2.$2')` half is COPY.PLI:13 / REPORT.PLI:29 / probes/P021.PLI:4 —
+  nothing in E17D.  What the bullet measured is still true: E17D does two
+  `put file(outf)`, one `close`, printed `WROTE` under the tail `OUT.DAT`, and left
+  `golden/e2e11iu/E17D/OUT.DAT` — **exactly 128 bytes**: the 13 payload bytes
+  `'HELLO'    42` followed by **115 `0x1A`** bytes.  What it does NOT corroborate is
+  §6's `w4 = F(n)`, because E17D writes no F(n); the 128-byte length has no measured
+  cause in this repository (CP/M record padding is a hypothesis — see
+  spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt, which separates the observation from
+  any explanation).  It does corroborate `CLOSE` flushing: the payload is on disk.
 * **A literal title did not name a file in any run here, and the tail splits at a
   space.** The `E16x` runs (`title('E16IN DAT')`) all fail as `UNDEFINED FILE (1),
   File: INF=NUL` — PLILIB asked for the FILE variable's own name. `ARGS` records that

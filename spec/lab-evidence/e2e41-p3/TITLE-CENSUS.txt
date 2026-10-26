@@ -1,0 +1,67 @@
+TITLE census, recomputed from spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv
+population: 34 OPEN sites (the file is the measurement; it is read, never rewritten)
+
+  title-kind  sites  helper   meaning
+  lit           25   ?SLCTS    a literal-string TITLE clause
+  var            5   ?SLVTS    a variable (non-literal) TITLE clause
+  -              4   none      NO TITLE clause at all
+
+  TITLE PRESENT  = 30 of 34 sites  (literal 25 + variable 5)
+  TITLE ABSENT   = 4 of 34 sites
+
+and the option bit, independently: bit 0x0800 of the measured w1.
+  0x0800 set    30 rows
+  0x0800 clear  4 rows
+  bit disagrees with the presence of a TITLE clause in 0 rows
+  => the bit tracks TITLE PRESENCE, literal or variable alike; the
+     count of sites carrying it is 30, not 29.
+
+the 30 TITLE-bearing sites, and where each one's title goes:
+  lit (25):
+    E17D     3-3       0006    w1=IMM:0x0E50 helper=?SLCTS  open file(outf) stream output title('$1.$1');
+    COPY     10-11     0006    w1=IMM:0x4E90 helper=?SLCTS  open file (input_file) stream environment(b(8192)) title('$1.$1');
+    COPY     13-14     002A    w1=IMM:0x4E50 helper=?SLCTS  open file (output_file) stream output environment(b(8192)) title('$2.$2');
+    E17B     4-4       0006    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) stream title('$1.$1');
+    E16B     5-5       0029    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) stream title('E16IN DAT');
+    E17C     5-5       0029    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) stream title('$1.$1');
+    KEYFILE  16-17     0006    w1=IMM:0x4D94 helper=?SLCTS  open file(input) keyed environment(f(128),b(10000)) title('$1.emp');
+    KEYFILE  19-20     002A    w1=IMM:0x1E50 helper=?SLCTS  open file(keys) stream output linesize (60) title('$1.key');
+    LOAN2    54-54     00AD    w1=IMM:0x2E52 helper=?SLCTS  open file(output) title('$con') print pagesize(0);
+    P021     3-3       0006    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) input title('$1.$1');
+    P021     4-5       0023    w1=IMM:0x4D54 helper=?SLCTS  open file(outf) output keyed environment(f(80),b(1024)) title('$2.$2');
+    E18A     4-4       0006    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) stream title('$1.$1');
+    E16C     4-4       0006    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) stream title('E16IN DAT');
+    DEPREC   51-52     0027    w1=IMM:0x2E52 helper=?SLCTS  open file (sysprint) stream print pagesize(0) title ('$con');
+    DEPREC   78-78     0279    w1=IMM:0x0E52 helper=?SLCTS  open file(list) stream print title('$lst');
+    RETRIEVE 19-19     0006    w1=IMM:0x0E52 helper=?SLCTS  open file(sysprint) print title('$con');
+    E18B     5-5       0029    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) stream title('$1.$1');
+    UPDATE   31-32     0006    w1=IMM:0x4D2C helper=?SLCTS  open file(emp) update direct environment(f(128)) title ('$1.EMP');
+    UPDATE   34-35     0027    w1=IMM:0x4E90 helper=?SLCTS  open file(keys) stream environment(b(4000)) title('$1.key');
+    REPORT   27-28     0006    w1=IMM:0x4D94 helper=?SLCTS  open file(empfile) keyed environment(f(128),b(4000)) title ('$1.EMP');
+    REPORT   29-30     002A    w1=IMM:0x4E52 helper=?SLCTS  open file(repfile) stream print environment(b(2000)) title('$2.$2');
+    E16A     8-8       0017    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) stream title('E16IN DAT');
+    E17A     8-8       0017    w1=IMM:0x0E90 helper=?SLCTS  open file(inf) stream title('$1.$1');
+    ENTER    37-38     0006    w1=IMM:0x4D54 helper=?SLCTS  open file(emp) keyed output environment(f(128),b(8000)) title ('$1.EMP');
+    E16D     3-3       0006    w1=IMM:0x0E50 helper=?SLCTS  open file(outf) stream output title('E16OUT DAT');
+  var (5):
+    LOAN2    56-56     00CD    w1=IMM:0x0E52 helper=?SLVTS  open file(output) title(name) print;
+    COPYLPT  38-39     014C    w1=IMM:0x3E52 helper=?SLVTS  open file(printfile) print pagesize(pagesize) linesize(pagewidth) title(line);
+    COPYLPT  49-50     01E8    w1=IMM:0x4E90 helper=?SLVTS  open file(sourcefile) stream  environment(b(8000)) title(line);
+    RETRIEVE 31-32     00C1    w1=IMM:0x4E90 helper=?SLVTS  open file(input) stream input environment(b(1024)) title(filename);
+    CREATE   22-22     0037    w1=IMM:0x0E50 helper=?SLVTS  open file(output) stream output title(filename);
+
+the 4 titleless sites:
+    P072H    3-3       0006    w1=IMM:0x0690 open file(f) input;
+    P021     6-6       0047    w1=IMM:0x2652 open file(pf) stream print pagesize(60);
+    P019B    3-3       0006    w1=IMM:0x0652 open file(pf) print;
+    P081Q    3-3       0006    w1=IMM:0x0690 open file(f) input;
+
+PROVENANCE OF THE WRONG NUMBERS: 29 appears in P0's bit table
+(section 7), in P1 section 13 item 1 (where an earlier 25 -- which is the
+LITERAL-title count, not the TITLE-present count -- is corrected upward),
+in P2 section 4, in PERIMETER, in COVERAGE.tsv's FILE.OPEN_STREAM row and
+in codegen.ml's open_mode_word comment.  Neither 25 nor 29 is reproducible
+from this file; 30 is.
+spec/lab-evidence/e2e41-p0/W1-BITFIT.txt states no count -- it reports
+`0x0800  TITLE: set only when TITLE=Y', which is what the rows above
+measure.  The artefacts are unchanged; only the prose counted wrong.

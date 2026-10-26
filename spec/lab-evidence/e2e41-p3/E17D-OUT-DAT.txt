@@ -1,0 +1,110 @@
+E17D's output file: OBSERVED bytes, and what is NOT known about them.
+
+== 1. OBSERVED -- the file ==
+  path    golden/e2e11iu/E17D/OUT.DAT
+  size    128 bytes
+  first 13 bytes  b"'HELLO'    42"
+  remaining bytes 115 of them, all one value: 0x1A (SUB/^Z)
+     0x1A ^Z  x 115   filler
+     0x20     x   4   payload
+     0x27 '   x   2   payload
+     0x32 2   x   1   payload
+     0x34 4   x   1   payload
+     0x45 E   x   1   payload
+     0x48 H   x   1   payload
+     0x4C L   x   2   payload
+     0x4F O   x   1   payload
+
+  hex dump (16 bytes/line):
+     0000  27 48 45 4c 4c 4f 27 20 20 20 20 34 32 1a 1a 1a 'HELLO'    42...
+     0010  1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a ................
+     0020  1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a ................
+     0030  1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a ................
+     0040  1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a ................
+     0050  1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a ................
+     0060  1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a ................
+     0070  1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a ................
+
+== 2. OBSERVED -- how the file came to exist (committed DR evidence) ==
+  e13src/E17D.PLI, the source DR compiled:
+     1  e17d: procedure options(main);
+     2   dcl outf file;
+     3   open file(outf) stream output title('$1.$1');
+     4   put file(outf) list('HELLO');
+     5   put file(outf) list(42);
+     6   close file(outf);
+     7   put list('WROTE');
+     8   end e17d;
+     9  
+
+  DR's own listing (golden/e2e11i/E17D/E17D.PRN), the OPEN statement and
+  its block, verbatim:
+        3 c 0006  open file(outf) stream output title('$1.$1');
+            0006       LXI  H,* S(0000)
+            0009       MVI  A,05
+            000B       CALL ?SLCTS
+            000E       MOV  B,A
+            000F       PUSH B
+            0010       INX  SP
+            0011       LXI  H,0E50
+            0014       PUSH H
+            0015       LXI  H,0000
+            0018       PUSH H
+            0019       PUSH H
+            001A       PUSH H
+            001B       PUSH H
+            001C       PUSH H
+            001D       LXI  H,OUTF
+            0020       CALL ?OIOOP
+
+  sizes DR printed:  CODE SIZE = 007E, DATA AREA = 0011
+  golden .REL size:  512 bytes (/home/john/projects/sushiworks/pli80/golden/e2e11i/E17D/E17D.REL)
+  the run that produced OUT.DAT: `D>E17D OUT.DAT' -- see
+  golden/e2e11iu/E17D.transcript.txt (console `WROTE'), and
+  oracle/linkrun.py ARGS["E17D"] = "OUT.DAT", EXPORT_OUT["E17D"] = ["OUT.DAT", "OUT"].
+
+== 3. WHAT IS ESTABLISHED FROM THE OBSERVATION ==
+  * The OPEN statement carries NO ENVIRONMENT clause.  The source above
+    has no `environment(...)' and DR's OPEN word is 0x0E50, in which bit
+    0x4000 (the ENVIRONMENT bit, OPEN-MATRIX/W1-BITFIT) is CLEAR; the two
+    record-size words w3/w4 are pushed as 0000 by the listing block above.
+  * The 13 payload bytes are exactly what the two PUT LIST statements
+    write: `'HELLO'' -- list-directed output QUOTES a character literal --
+    then `42' RIGHT-JUSTIFIED IN 5 columns, which is the `MVI A,05' width
+    DR emits before ?QDCOP for a 2-digit decimal literal (width = p+3).
+    No CR or LF appears between them or after them.
+  * The 0x1A fill BEGINS at offset 13, immediately after the payload; the
+    file is 128 bytes, so there are 115 filler bytes.
+
+== 4. WHAT IS NOT ESTABLISHED (hypothesis, not evidence) ==
+  WHY the file is 128 bytes rather than 13 is NOT measured by anything in
+  this repository.  CP/M FCB record padding is the obvious hypothesis --
+  a CP/M sequential file's directory extent counts 128-byte records, and
+  128 is exactly one record -- but the harness exports the file with
+  `cpmcp -f <fmt> <disk> 0:NAME dst' (oracle/cpmwork.py `export',
+  cpmtools), which takes the length from the directory extent, and
+  PLILIB may or may not write the filler.  Nothing
+  here separates those: no captured FCB dump, no directory record, no
+  second output file of a different length.
+
+  WITHDRAWN CLAIMS.  These sentences were written in earlier phases and
+  are false as stated:
+    P0 section 11: `E17D opens outf ... environment(f(128),b(8000))
+                  title('$2.$2')' -- and `One 128-byte record: independent
+                  corroboration of section 6's w4 = F(n)'.
+       E17D has no ENVIRONMENT clause at all and its title is '$1.$1';
+       the two halves of that sentence are OTHER programs' -- the
+       `f(128),b(8000)' is artefacts/ENTER.PLI:37 (w1 0x4D54, title
+       '$1.EMP') and `title('$2.$2')' is COPY.PLI:13 / REPORT.PLI:29 /
+       probes/P021.PLI:4.  The corroboration of w4 = F(n) that P0 thought
+       this gave therefore never existed.
+    P1 section 4: `the 128-byte OUT.DAT of E17D comes from an open that
+                  spells F(128)'.
+    codegen.ml (w3/w4 comment): same sentence.
+    E41X5's NEG_META note (and the INVENTORY.txt row generated from it):
+    `... 128 bytes, from an open that spells F(128)'.
+  What the E17D run DOES corroborate is narrower: that a stream OUTPUT
+  open whose option words are all zero, followed by two PUT FILE LIST
+  statements and a CLOSE, produced a readable file whose payload is the
+  two items -- so the pushed words are accepted by DR's runtime and
+  CLOSE flushed the buffer.

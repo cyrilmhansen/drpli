@@ -134,9 +134,16 @@ and each is stated because P0 measured what fills it when it is *not* absent:
   bit 0x4000 (ENVIRONMENT) is set, taking 08 (stream) / 10 (direct) / 18 (keyed).
 * **w3 BLOCK(n), w4 FILE(n)** — record-oriented sizes.  The nearest witness that they
   *can* be nonzero on a stream open is P042A:3 `open file(output) stream` with
-  B(4096)/F(4096) in w3/w4; P072H and P081Q write neither and measure 0/0.  (P0's
-  warning stands: F(128) and B(8000) in `environment(f(128),b(8000))` are two different
-  quantities, and the 128-byte `OUT.DAT` of E17D comes from an open that spells F(128).)
+  B(4096)/F(4096) in w3/w4; P072H and P081Q write neither and measure 0/0.  (**[E2E-41/P3a
+  correction [C279]** the parenthetical that stood here — "the 128-byte `OUT.DAT` of E17D
+  comes from an open that spells F(128)" — is false: `e13src/E17D.PLI` has NO
+  ENVIRONMENT clause, DR's OPEN word 0x0E50 has bit 0x4000 clear, and DR's listing
+  pushes w3/w4 as `LXI H,0000`.  E17D's OUT.DAT is 128 bytes for a reason this
+  repository has not measured (observation and explanation are recorded separately in
+  spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt); the F(128),B(8000) spelling belongs to
+  `artefacts/ENTER.PLI:37`.  P0's warning that F(n) and B(n) are two different
+  quantities stands — ENTER, KEYFILE, REPORT and UPDATE write both and measure
+  separately.)
 * **w5 PAGESIZE, w6 LINESIZE** — set only by their own options, and each of those has one
   witness site in P0 §4 (P021 for PAGESIZE=60 in w5, KEYFILE for LINESIZE=60 in w6),
   with no site measuring both.  Neither option appears in these two probes, so both stay
@@ -364,6 +371,15 @@ Ordered by how much of the corpus they unlock, each with the probe that would se
 1. **TITLE** — 29 of the 34 measured OPENs carry the TITLE bit (0x0800), not 25 —
    the count of 25 written here in P1 was wrong, spec/lab-evidence/e2e41-p0/
    W1-BITFIT.txt measures set=29 clear=4.
+   **[E2E-41/P3a: BOTH numbers in the four lines above are wrong; they are kept to
+   record the error.]**  Recounting the population straight from
+   `spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv` gives **TITLE present at 30 of the 34
+   sites** (25 literal + 5 variable) **and absent at 4**, and bit 0x0800 is set in
+   exactly those 30 rows and clear in exactly the 4 titleless ones — 0 rows where the
+   bit and the clause disagree.  `spec/lab-evidence/e2e41-p3/TITLE-CENSUS.txt`
+   regenerates that from the matrix; W1-BITFIT.txt itself states no count, only
+   `0x0800  TITLE: set only when TITLE=Y`.  The 25 was the LITERAL-title count read as
+   a TITLE-present count; the 29 that replaced it is reproducible from no file [C279].
    **[CORRECTED BY P2b — the byte sequence quoted below is WRONG and is kept only
    to record the error.]**  This paragraph said the titled form "needs DR's 8-byte
    FCB prologue (`3E 40 ED 51 22 F1 33 CD 3A E9') and the ?SLCTS/?SLVTS string call

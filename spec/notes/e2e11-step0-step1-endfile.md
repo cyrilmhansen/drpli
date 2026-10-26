@@ -354,11 +354,16 @@ Three hard-won rules, all measured:
    so `E17D OUT DAT` created a CP/M file literally named `out` and
    `E17A INF DAT` never found `INF.DAT`.  A single **dotted** token
    (`E17A INF.DAT`) is what works, and then DR reports `File: INF=INF.DAT`.
-3. **Output files are record-padded.**  `E17D`'s captured `OUT.DAT` is 128
-   bytes: `'HELLO'    42` then `^Z` fill.  List-directed output quotes
-   character constants and right-justifies numbers, and the file length is a
-   whole 128-byte record, not the payload length.  Any byte-exact output-file
-   comparison must reproduce the padding, or it compares nothing meaningful.
+3. **Output files come back one record long -- cause not established.**  `E17D`'s
+   captured `OUT.DAT` is 128 bytes: `'HELLO'    42` then `^Z` fill, 13 payload bytes
+   and 115 fillers, with no CR or LF.  List-directed output quotes character constants
+   and right-justifies numbers.  **[E2E-41/P3a]** the sentence that stood here -- "the
+   file length is a whole 128-byte record, not the payload length", taken as if it were
+   explained -- was too strong: E17D's OPEN carries **no ENVIRONMENT clause**, so the
+   length is NOT attributable to an `F(128)' option (the claim P0 §11 and P1 §4 made
+   from this file is withdrawn; see spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt).  CP/M
+   record padding is the plausible hypothesis and is recorded as one; any byte-exact
+   output-file comparison must reproduce the padding, whatever produces it.
 
 Consequence for acceptance: **byte-exact `.REL` remains the criterion and is
 unaffected** — FILE work can proceed on the compile tier, where I already have
