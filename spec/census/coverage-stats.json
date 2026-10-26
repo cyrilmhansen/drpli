@@ -19,8 +19,8 @@
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 71,
-  "SINGLE_SAMPLE": 11,
+  "MEASURED": 73,
+  "SINGLE_SAMPLE": 9,
   "UNREVIEWED": 4
  },
  "dr": {
@@ -46,7 +46,7 @@
   "S": 74
  },
  "rows": 89,
- "single_sample": 11,
+ "single_sample": 9,
  "unreviewed": 4,
  "with_boundary": 89
 }

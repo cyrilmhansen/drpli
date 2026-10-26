@@ -213,6 +213,14 @@ PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, and none of those
 combinations is byte-exactly pinned by a .REL in this repository yet
 ```
 
+*(The clause "TITLE needs DR's 8-byte FCB prologue" in that P1 message is false and
+was removed from the message by E2E-41/P2b; the quote above is the verbatim P1
+stderr, kept as history.  The measured titled prologue and the full correction of
+this claim are in [C278](c) and spec/notes/e2e41-p2-literal-title-stream-open.md
+section 2.1.  Since P2b the literal-TITLE stream/input open is LOWERED, so KEYED or
+UPDATE -- not TITLE -- is what the census now reports as ENTER's and UPDATE's first
+refused option.)*
+
 That is the message the census now records for the two historical programs that use
 KEYED/UPDATE opens: `artefacts/ENTER.PLI:37` (`open file(emp) keyed output
 environment(f(128),b(8000))`) and `artefacts/UPDATE.PLI:31` (`open file(emp) update
@@ -353,10 +361,28 @@ inventory gains 5 rows.
 
 Ordered by how much of the corpus they unlock, each with the probe that would settle it:
 
-1. **TITLE** — 25 of 34 measured OPENs.  Needs DR's 8-byte FCB prologue (`3E 40 ED 51
-   22 F1 33 CD 3A E9`) and the `?SLCTS`/`?SLVTS` string call in place of `XRA A`.
-   E16C/E18A are already byte-exact specimens of the *console* side and their `.REL` files
-   contain the titled OPEN, so no new probe is required — the specimens exist.
+1. **TITLE** — 29 of the 34 measured OPENs carry the TITLE bit (0x0800), not 25 —
+   the count of 25 written here in P1 was wrong, spec/lab-evidence/e2e41-p0/
+   W1-BITFIT.txt measures set=29 clear=4.
+   **[CORRECTED BY P2b — the byte sequence quoted below is WRONG and is kept only
+   to record the error.]**  This paragraph said the titled form "needs DR's 8-byte
+   FCB prologue (`3E 40 ED 51 22 F1 33 CD 3A E9') and the ?SLCTS/?SLVTS string call
+   in place of `XRA A'".  Those bytes are not DR's TITLE prologue, and in fact
+   appear in NO file of this repository: `3E 40 ED 51` (MVI A,40H / IN 51H — a PORT
+   read) matches nowhere; the `22 F1 33` trigram (`SHLD 33F1H` — storing an
+   *inherited HL* pair through memory, the "MOV M" family) occurs once only, inside
+   the little-endian POINTER TABLE at 0x06F2 of `golden/link1/UPDATE.COM`, not at an
+   instruction boundary; and `CD 3A E9` (CALL to the ABSOLUTE address E93AH) cannot
+   appear in any program .REL at all, because externals are chained via CHAIN-EXT
+   with `0000` operands that LINK fills.  The real literal-TITLE prologue, now
+   byte-exact here, is `LXI H,<pool>; MVI A,<byte len>; CALL ?SLCTS; MOV B,A; PUSH
+   B; INX SP` and w1 |= 0x0800 with w2 from `LXI H,0000H` — 29 bytes, +8 over the
+   titleless 21 — see [C278] and spec/notes/e2e41-p2-literal-title-stream-open.md
+   section 2.  The rest of the P1 paragraph was right: E16C/E18A are indeed
+   byte-exact specimens once the OPEN block was lowered, and no new probe was
+   required.
+   *(Historical text preserved: "Needs DR's 8-byte FCB prologue (`3E 40 ED 51 22 F1
+   33 CD 3A E9')", 25-of-34.)*
 2. **PUT FILE(f)** — attach word 0x0652 (36 sites), `?PNCOP` chain already lowered for
    the console.  E16D/E17D have `close file(outf)` and would become byte-exact, and the
    128-byte `golden/e2e11iu/E17D/OUT.DAT` is the output-file comparison P0 §9 wanted.

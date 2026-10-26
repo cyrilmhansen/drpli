@@ -71,6 +71,9 @@ E11A	specimen	e13src/E11A.PLI	golden/e2e11g/E11A/E11A.REL
 E11B	specimen	e13src/E11B.PLI	golden/e2e11g/E11B/E11B.REL
 E11D	specimen	e13src/E11D.PLI	golden/e2e11g/E11D/E11D.REL
 E11E	specimen	e13src/E11E.PLI	golden/e2e11g/E11E/E11E.REL
+E16C	specimen	e13src/E16C.PLI	golden/e2e11h/E16C/E16C.REL
+E17B	specimen	e13src/E17B.PLI	golden/e2e11i/E17B/E17B.REL
+E18A	specimen	e13src/E18A.PLI	golden/e2e11j/E18A/E18A.REL
 E20A	specimen	e13src/E20A.PLI	golden/e2e11l/E20A/E20A.REL
 E20B	specimen	e13src/E20B.PLI	golden/e2e11l/E20B/E20B.REL
 E20D	specimen	e13src/E20D.PLI	golden/e2e11l/E20D/E20D.REL
@@ -422,7 +425,6 @@ E41P1	specimen	artefacts/E41P1.PLI	golden/e41p/E41P1/E41P1.REL
 E41P2	specimen	artefacts/E41P2.PLI	golden/e41p/E41P2/E41P2.REL
 E41P3	specimen	artefacts/E41P3.PLI	golden/e41p/E41P3/E41P3.REL
 E41P4	specimen	artefacts/E41P4.PLI	golden/e41p/E41P4/E41P4.REL
-E41X1	refusal	t:\n  procedure options(main);\n  dcl f file;\n  open file(f) title('XY');\n  close file(f);\nend t;\n	DR compiles a titled stream open: 25 of the 34 OPEN blocks P0 measured carry a TITLE (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv), e.g. golden/e2e11h/E16B/E16B.REL (`open file(inf) stream title('E16IN DAT')'). I refuse because the titled form needs DR's 8-byte FCB prologue (3E 40 ED 51 22 F1 33 CD 3A E9) plus the ?SLCTS/?SLVTS string call in place of `XRA A', and neither is lowered yet -- E2E-41/P2's first item.
 E41X4	refusal	t:\n  procedure options(main);\n  dcl f file, s char(20);\n  read file(f) into(s);\nend t;\n	DR compiles READ of a named file: golden/bind1/KEYFILE/KEYFILE.REL is built from `read file(input) into(employee) keyto(k)' (KEYFILE.PLI:23) and its record-oriented chain is ?WNIOP/?RNIOP/?KEYTO.  I refuse; P1 lowers only OPEN, GET LIST and CLOSE.
 E41X5	refusal	t:\n  procedure options(main);\n  dcl f file;\n  put file(f) list('A');\nend t;\n	DR compiles PUT of a named file: golden/e2e11h/E16D/E16D.REL contains `put file(outf) list('HELLO')' and attaches with mode word 0652H (36 such sites in spec/lab-evidence/e2e41-p0/SIOMODES.txt).  Mine refuses with the pre-existing PUT-with-options message, which is true as far as it goes -- the ?OIOOP/?SIOOP route is what is missing -- and the output-file comparison P2 needs already exists in this repository (golden/e2e11iu/E17D/OUT.DAT, exactly 128 bytes, from an open that spells F(128)).
 E42N1	refusal	b9e: procedure options(main);\n  declare 1 g, 2 a fixed, 2 b fixed;\n  g.a = 5;\n  g.b = 100;\n  a = -5;\n  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n	DR VERDICT UNMEASURED: `a = -5' into an internal member.  E42P2 shows DR parks a literal-conversion result, and the negation route (lit_dec_neg_to_hl) has no member sample at all, so mine refuses instead of guessing which of DR's store shapes would take it

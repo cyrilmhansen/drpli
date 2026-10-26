@@ -16,7 +16,7 @@ DIOCALLS	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED(
 DIOCOPY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED whose operand is not a bare pointer name [TBD] (no DR sample: every accepted probe is based(<name>) -- P063B, P06
 DIORAND	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED whose operand is not a bare pointer name [TBD] (no DR sample: every accepted probe is based(<name>) -- P063B, P06
 DTEST	ok	True	True	EXACT	384			
-ENTER	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside the E2E-41/P1 witnessed subset [TBD] (line 37) -- P0 measured 34 OPEN blocks in 24 DR obje
+ENTER	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside the E2E-41/P2 witnessed subset [TBD] (line 37) -- P0 measured 34 OPEN blocks in 24 DR obje
 EXPR1	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line 18)")
 EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(10) is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are m
 FDTEST	ok	True	True	EXACT	384			
@@ -42,4 +42,4 @@ REVERT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] un
 RFACT	ok	True	True	EXACT	512			
 SAMPLE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: procedure upper returns(CHAR(10) VARYING) deferred [TBD] (line 25; return types emitted today are FIXED [26 specimens],
 TEST	ok	True	True	EXACT	896			
-UPDATE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option UPDATE is outside the E2E-41/P1 witnessed subset [TBD] (line 31) -- P0 measured 34 OPEN blocks in 24 DR obj
+UPDATE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option UPDATE is outside the E2E-41/P2 witnessed subset [TBD] (line 31) -- P0 measured 34 OPEN blocks in 24 DR obj

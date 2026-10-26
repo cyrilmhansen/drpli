@@ -785,6 +785,22 @@ SPECIMENS.update({
     "P081Q": ("probes/P081Q.PLI", "golden/e41p1/P081Q/P081Q.REL"),
     "P072H": ("probes/P072H.PLI", "golden/e41p1/P072H/P072H.REL"),
 })
+
+# [E2E-41/P2b] the literal-TITLE stream OPEN, byte-exact.  Three witnesses of the
+# 29-byte OPEN block: E17B/E18A open `stream title('$1.$1')` (5-byte literal) and
+# E16C opens `stream title('E16IN DAT')` (9-byte literal).  These are the ORIGINAL
+# E2E-11 oracle objects (golden/e2e11h/i/j, with .PRN beside them); DR's own listing
+# puts the OPEN at c 0006 and the following GET at c 0023 -- 29 bytes, independent of
+# my decoder.  Whole-file comparisons: E17B/E16C are 640 bytes, E18A 1152 (CODE
+# 0x00AC / 0x0095 / 0x0131).  E18A additionally pins FOUR named-file GETs, three
+# console PUTs and the DATA reloc of the title at data 0x0000 (pool FIRST, because
+# the OPEN precedes the PUTs in source order).  See [C278] and
+# spec/notes/e2e41-p2-literal-title-stream-open.md.
+SPECIMENS.update({
+    "E17B": ("e13src/E17B.PLI", "golden/e2e11i/E17B/E17B.REL"),
+    "E16C": ("e13src/E16C.PLI", "golden/e2e11h/E16C/E16C.REL"),
+    "E18A": ("e13src/E18A.PLI", "golden/e2e11j/E18A/E18A.REL"),
+})
 SPECIMENS.update({
     "E42P1":  ("artefacts/E42P1.PLI", "golden/e42p/E42P1/E42P1.REL"),
     "E42P2":  ("artefacts/E42P2.PLI", "golden/e42p/E42P2/E42P2.REL"),
@@ -895,6 +911,11 @@ OUTPUT_CHECK = {"G107", "G108", "G113", "G114", "G114B", "G114C",
                 # [E2E-7A slice 3] ROUND specimens: all terminate with stop;
                 "R801", "R802", "R803", "R804", "R806", "R807", "R811",
                 "R813",
+                # [E2E-41/P2b] the literal-TITLE stream opens: DR's archived runs of
+                # the SAME objects (golden/e2e11iu/E17B, golden/e2e11jr/E18A) are the
+                # transcript authority; the link-run arm links both arms from the
+                # byte-identical .RELs and compares the RAW consoles.
+                "E17B", "E18A",
                 # [E2E-7A slice 4] every GET/MOD specimen ends in `stop;',
                 # so its console transcript is COMPLETE and is compared
                 # byte-for-byte: scripted echo, CR/LF and EOF behaviour all
@@ -1415,19 +1436,30 @@ SPECIMENS = NoOverwriteDict(SPECIMENS)
 # nothing wider -- and the guard is `paren_add_right r' alone, since P10's conjunction was implied by
 # its own left operand (spec/lab-evidence/e2e40-p10a/ARM-REACH.txt).
 
-# [E2E-41/P1b] three FILE-statement shapes DR compiles today and this compiler refuses by
-# name.  Each is classifiable as `my-gap' because the DR side is MEASURED, not inferred --
+# [E2E-41/P1b] FILE-statement shapes DR compiles today and this compiler refuses by
+# name (three in P1; E41X1 retired by P2b, see the retirement note below).  Each is
+# classifiable as `my-gap' because the DR side is MEASURED, not inferred --
 # the object is cited in NEG_META below.  Two further refusals (OPEN naming no mode word;
 # CLOSE naming several files) are deliberately NOT registered here: both panel classes
 # require knowing what DR does, and no DR object in this repository contains either shape
 # (spec/notes/e2e41-p0-file-open-reconnaissance.md section 12 asks for exactly those
 # probes).  They are documented in spec/lab-evidence/e2e41-p1/REFUSALS.txt instead, which
 # is where an unmeasured refusal belongs.
+# [E2E-41/P2b] E41X1 RETIRED.  `open file(f) title('XY'); close file(f);' refused
+# because a literal TITLE was not lowered; with the E17B/E16C/E18A lowering in, the
+# TITLE option itself is no longer what stops that source.  It still refuses -- but
+# now at `OPEN FILE(...) naming no INPUT or STREAM has no DR witness [TBD]', because
+# E41X1 names no mode and NONE of the 34 measured OPENs omits one (P0 section 12,
+# probe E46C).  That refusal is UNMEASURED on the DR side, and the P1 policy at the
+# head of this block is that a negative-panel entry must state a measured DR verdict
+# -- so E41X1 leaves the active panel rather than being re-pinned to an unmeasured
+# reason.  Its historical registration and reason are preserved here and in
+# spec/notes/e2e41-p2-literal-title-stream-open.md; its exact source is NOT claimed
+# byte-identical to DR (no DR object exists for it), and E17B/E16C/E18A carry the
+# byte-parity claims.  It is also documented in
+# spec/lab-evidence/e2e41-p2/REFUSALS.txt.
+
 REJECTS.update({
-    "E41X1": (
-        "t:\n  procedure options(main);\n  dcl f file;\n"
-        "  open file(f) title('XY');\n  close file(f);\nend t;\n",
-        "OPEN option TITLE is outside the E2E-41/P1"),
     "E41X4": (
         "t:\n  procedure options(main);\n  dcl f file, s char(20);\n"
         "  read file(f) into(s);\nend t;\n",
@@ -2765,12 +2797,6 @@ REJECTS['E27S11'] = (open('artefacts/ST11.PLI', "rb").read().replace(b"\r\n", b"
                    'call to unknown nd')
 NEG_META['E27S11'] = ("dr-refuses", "E2E-26's PB16 spelling, isolated. DR rejects it: SYNTAX + BASED REQ, NO .REL (golden/e2e324d/ST11/ST11.PRN). So `declare nb based(pn) nd' -- naming a structure type through a based declaration -- is genuinely not a form in this dialect, and E2E-26's inference from PB16/PB17 that based STRUCTURES were unsupported was wrong: the structures are fine, the spelling was not. Mine also refuses, at the binder's statement walker, because `nd' looks like a procedure call.")
 
-NEG_META["E41X1"] = ("my-gap",
-    "DR compiles a titled stream open: 25 of the 34 OPEN blocks P0 measured carry a TITLE "
-    "(spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv), e.g. golden/e2e11h/E16B/E16B.REL "
-    "(`open file(inf) stream title('E16IN DAT')'). I refuse because the titled form needs "
-    "DR's 8-byte FCB prologue (3E 40 ED 51 22 F1 33 CD 3A E9) plus the ?SLCTS/?SLVTS string "
-    "call in place of `XRA A', and neither is lowered yet -- E2E-41/P2's first item.")
 NEG_META["E41X4"] = ("my-gap",
     "DR compiles READ of a named file: golden/bind1/KEYFILE/KEYFILE.REL is built from "
     "`read file(input) into(employee) keyto(k)' (KEYFILE.PLI:23) and its record-oriented "
@@ -4241,7 +4267,14 @@ def link_run(name, dr_rel, output_check=False):
             # mode would eat the \r\r\n command-echo anchor)
             tr = open(tp, encoding="latin-1", newline="").read()
             clean = _re.sub(r">>> [^\n]*\n", "", tr)
-            m = _re.search(rf"{name}\r\r\n(.*?)(?=\nD>|I/O ran|\Z)",
+            # [E2E-41/P2b] the anchor is the COMMAND ECHO line, and linkrun's
+            # ARGS puts a command tail on it (`D>E17B INF.DAT'), so a bare
+            # `{name}\r\r\n' pattern never matches a tailed run -- the first
+            # P2b gate run printed MISSING TRANSCRIPT for exactly that reason.
+            # No OUTPUT_CHECK name had ever been run with a tail before FILE I/O
+            # (ARGS was introduced for E16/E17/E18 in e2e-11), so the hole was
+            # invisible; the tail is now part of the anchor.
+            m = _re.search(rf"{name}(?: [^\r\n]*)?\r\r\n(.*?)(?=\nD>|I/O ran|\Z)",
                            clean, _re.S)
             return m.group(1) if m else None
         if do_dr:

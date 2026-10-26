@@ -2612,6 +2612,19 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
      two relocations of variable `a' (DR: A(000E)) came out as data 0x7 -- right
      code shape, wrong addresses, and byte-identical DATA bytes that hid it. *)
   | Ast.Son { handler; _ } -> prescan_stmt cx handler
+  (* [E2E-41/P2b] a literal-string TITLE on an OPEN demands a pool cell exactly like
+     the PUT side: DR allocates pool blocks in SOURCE order, so in E17B/E16C/E18A the
+     title occupies data 0x0000 and the later PUT strings sit above it
+     (golden/e2e11i/E17B/E17B.REL, golden/e2e11h/E16C/E16C.REL -- the OPEN's
+     `LXI H,* S(0000)' carries a DATA reloc to the FIRST pool block).  Only literal
+     titles are counted: a variable title routes to ?SLVTS and refuses. *)
+  | Ast.Sfilestmt { key = "OPEN"; opts } ->
+      List.fold_left
+        (fun a (o : Ast.io_opt) ->
+          match o.Ast.io_key, o.Ast.io_val with
+          | "TITLE", Some { Ast.e = Ast.Estring v; _ } -> pdec_str_cell cx v
+          | _ -> a)
+        0 opts
   | _ -> 0
 
 let prescan_pool (cx : pdec_ctx) (stmts : Ast.stmt list) =
@@ -8243,7 +8256,7 @@ let lower_get_file st (fu : string) (items : Ast.name list) =
   d st op_lxi_d; d st 0x90; d st 0x06;    (* LXI D,0690 input mode word *)
   lower_get_body st "?SIOOP" items
 
-(* ---------- [E2E-41/P1b] OPEN and CLOSE of a named STREAM file ----------
+(* ---------- [E2E-41/P1b, P2b] OPEN and CLOSE of a named STREAM file ----------
 
    P0 read 34 OPEN blocks out of 24 distinct DR-compiled objects
    (spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt, OPEN-MATRIX.tsv) and found one shape
@@ -8253,27 +8266,66 @@ let lower_get_file st (fu : string) (items : Ast.name list) =
    block is its only argument, which is why adding a word here would change the
    length and not the bytes and why every CLOSE specimen pins length too.
 
-   What is lowered here is the titleless stream form only: P081Q (golden/probe50,
-   63 code bytes) and P072H (golden/probe40, 77).  Everything that needs the
-   8-byte FCB prologue, an attribute word, or a string title refuses below. *)
+   P1 lowered the titleless stream form (P081Q, P072H).  P2b adds the LITERAL-STRING
+   TITLE on a stream/input OPEN: E17B/E16C/E18A are byte-exact witnesses (29-byte
+   OPEN, [C278]).  Everything else -- a VARIABLE title (?SLVTS), an output or print
+   open, an attribute word, PAGESIZE/LINESIZE/KEYED/DIRECT/ENVIRONMENT -- still
+   refuses below. *)
 
-(* the option words P1 tolerates on OPEN.  Not a codegen claim about the others: the
+(* the option words P2b tolerates on OPEN.  Not a codegen claim about the others: the
    parser accepts the whole documented vocabulary (P1a) so that the option list is
    visible, and codegen refuses what it cannot emit byte-exactly. *)
-let open_subset_keys = [ "FILE"; "INPUT"; "STREAM" ]
+let open_subset_keys = [ "FILE"; "INPUT"; "STREAM"; "TITLE" ]
 
 let refuse_file_opt (what : string) (o : Ast.io_opt) (s : Ast.stmt) =
   failwith
     (Printf.sprintf
-       "codegen: %s option %s is outside the E2E-41/P1 witnessed subset [TBD] (line %d) \
+       "codegen: %s option %s is outside the E2E-41/P2 witnessed subset [TBD] (line %d) \
         -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); \
-        TITLE needs DR's 8-byte FCB prologue, ENVIRONMENT its ORGANIZATION and RECORD \
-        SIZE words, PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, and \
-        none of those combinations is byte-exactly pinned by a .REL in this repository yet"
+        P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open \
+        (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD \
+        SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, \
+        and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly \
+        by this compiler yet"
        what o.Ast.io_key s.Ast.spos.Source.line)
 
+(* the TITLE clause, if any, in the one form P2b measures: exactly ONE TITLE whose
+   operand is a literal string.  A variable title (LOAN2:56, CREATE:22, COPYLPT, RETRIEVE,
+   KEYFILE -- 5 sites in P0 section 5) routes through ?SLVTS with the descriptor address
+   in HL, and no probe of MINE is byte-exact against it, so it refuses here by name. *)
+let open_title (s : Ast.stmt) (opts : Ast.io_opt list) : string option =
+  match List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "TITLE") opts with
+  | [] -> None
+  | [ { Ast.io_val = Some { Ast.e = Ast.Estring v; _ }; _ } ] ->
+      if String.length v > 255 then
+        failwith
+          (Printf.sprintf
+             "codegen: OPEN TITLE literal of %d bytes exceeds the one-byte MVI A length \
+              [TBD] (line %d) -- the longest measured title is 9 bytes ('E16IN DAT', E16C)"
+             (String.length v) s.Ast.spos.Source.line)
+      else Some v
+  | [ { Ast.io_val = Some _; _ } ] ->
+      failwith
+        (Printf.sprintf
+           "codegen: OPEN TITLE of a non-literal operand is the ?SLVTS route and is not \
+            lowered [TBD] (line %d) -- 5 measured sites (LOAN2:56, CREATE:22) but no \
+            byte-exact specimen of this compiler's own against them"
+           s.Ast.spos.Source.line)
+  | [ _ ] ->
+      failwith
+        (Printf.sprintf
+           "codegen: OPEN TITLE with no string operand has no DR witness [TBD] (line %d)"
+           s.Ast.spos.Source.line)
+  | _ ->
+      failwith
+        (Printf.sprintf
+           "codegen: OPEN with %d TITLE clauses is unmeasured [TBD] (line %d) -- every \
+            measured open carries at most one"
+           (List.length (List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "TITLE") opts))
+           s.Ast.spos.Source.line)
+
 (* the option word, assembled from P0 section 3's fitted bit table. *)
-let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) =
+let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
   List.iter
     (fun (o : Ast.io_opt) ->
       if not (List.mem o.Ast.io_key open_subset_keys) then refuse_file_opt "OPEN" o s)
@@ -8285,7 +8337,9 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) =
      0x0690 at both of its sites (P072H:3, P081Q:3).  So 0x0200 (stream organisation,
      DR's default) and 0x0080 (input mode) are set whichever word is written, 0x0010
      is set by every stream open, and 0x0400 -- file rather than console -- is set in
-     all 34 samples.
+     all 34 samples.  0x0800 is set EXACTLY when a TITLE clause is present: 29 of 34
+     rows carry it, the 4 titleless rows (P072H, P081Q, P019B, P021:6) clear it, and
+     E17B/E16C/E18A measure the composition directly as 0x0E90.
      An open naming NO mode is refused: it is unmeasured (P0 section 12, probe C), and
      0x0690 for it would be an inference from the default-bit reading above, not a
      witness. *)
@@ -8296,7 +8350,8 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) =
           -- every one of the 34 measured opens names a mode; P0 section 12 probe C is the missing evidence"
          s.Ast.spos.Source.line)
   else
-    0x0400 lor 0x0200 lor 0x0010 lor 0x0080
+    let base = 0x0400 lor 0x0200 lor 0x0010 lor 0x0080 in
+    if title then base lor 0x0800 else base
 
 let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
   let fu =
@@ -8307,37 +8362,81 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
                 "codegen: OPEN needs exactly one `FILE(name)' operand, got %d option(s) [TBD] (line %d)"
                 (List.length opts) s.Ast.spos.Source.line)
   in
-  let w1 = open_mode_word s opts in
-  (* DR's zero-length title: XRA A / MOV B,A / PUSH B / INX SP, leaving one zero byte
-     on the stack above the six words (P0 section 2).  Not invented -- the IDENTICAL
-     four bytes are DR's own console-input prologue in ?CIN (1A 47 C5 33 at 83A0 in
-     both PLILIB.COM and PLILIB0.COM, which P0 section 11 uses to confirm the PUSH
-     order) and sit at the head of P019B's titleless `open file(pf) print', so three
-     independent measurements fix them.  The `INX SP' is what makes the argument one
-     byte and not a word: DR's parameterless-CALL convention leaves SP one past the
-     data [C205]. *)
-  d st op_xra_a; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
-  d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
-  d st op_push_h;
-  (* The remaining five words are zero for this form -- and they are zero for
-     DIFFERENT documented reasons, which is why no loop of five `LXI H,0000' is used:
-       w2 ORGANIZATION  : an ENVIRONMENT datum (P0 section 3: it appears ONLY with
-                          bit 0x4000, as 08 stream / 10 direct / 18 keyed), so with no
-                          ENVIRONMENT clause DR leaves it 0.
-       w3 BLOCK(n), w4 FILE(n): record-oriented.  A stream open carries neither: the
-                          closest witness is P042A:3 `open file(output) stream', which
-                          measures B(4096)/F(4096) in w3/w4, while the titleless stream
-                          opens of P072H and P081Q measure 0/0 -- DR's own defaults
-                          apply, and the 128-byte OUT.DAT of E17D comes from an open
-                          that spells F(128), not from this shape.
-       w5 PAGESIZE, w6 LINESIZE: set only by their own options, each with a single
-                          witness site in P0 section 4 (P021 for PAGESIZE, KEYFILE for
-                          LINESIZE) and no measured combination of the two.
-     DR writes all five with MOV H,B / MOV L,B -- B is still the 0 of the title byte,
-     so both halves come from it and HL stays 0000 -- rather than five more LXI H,PUSH H: the
-     register-reuse peephole is part of the byte-exact target [P0 section 2]. *)
-  d st op_mov_h_b; d st op_mov_l_b;
-  for _ = 1 to 5 do d st op_push_h done;
+  let title = open_title s opts in
+  let w1 = open_mode_word s opts (title <> None) in
+  (match title with
+   | None ->
+       (* DR's zero-length title: XRA A / MOV B,A / PUSH B / INX SP, leaving one zero byte
+          on the stack above the six words (P0 section 2).  Not invented -- the IDENTICAL
+          four bytes are DR's own console-input prologue in ?CIN (1A 47 C5 33 at 83A0 in
+          both PLILIB.COM and PLILIB0.COM, which P0 section 11 uses to confirm the PUSH
+          order) and sit at the head of P019B's titleless `open file(pf) print', so three
+          independent measurements fix them.  The `INX SP' is what makes the argument one
+          byte and not a word: DR's parameterless-CALL convention leaves SP one past the
+          data [C205]. *)
+       d st op_xra_a; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
+       d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
+       d st op_push_h;
+       (* The remaining five words are zero for this form -- and they are zero for
+          DIFFERENT documented reasons, which is why no loop of five `LXI H,0000' is used:
+            w2 ORGANIZATION  : an ENVIRONMENT datum (P0 section 3: it appears ONLY with
+                               bit 0x4000, as 08 stream / 10 direct / 18 keyed), so with no
+                               ENVIRONMENT clause DR leaves it 0.
+            w3 BLOCK(n), w4 FILE(n): record-oriented.  A stream open carries neither: the
+                               closest witness is P042A:3 `open file(output) stream', which
+                               measures B(4096)/F(4096) in w3/w4, while the titleless stream
+                               opens of P072H and P081Q measure 0/0 -- DR's own defaults
+                               apply, and the 128-byte OUT.DAT of E17D comes from an open
+                               that spells F(128), not from this shape.
+            w5 PAGESIZE, w6 LINESIZE: set only by their own options, each with a single
+                               witness site in P0 section 4 (P021 for PAGESIZE, KEYFILE for
+                               LINESIZE) and no measured combination of the two.
+          DR writes all five with MOV H,B / MOV L,B -- B is still the 0 of the title byte,
+          so both halves come from it and HL stays 0000 -- rather than five more LXI H,PUSH H:
+          the register-reuse peephole is part of the byte-exact target [P0 section 2]. *)
+       d st op_mov_h_b; d st op_mov_l_b;
+       for _ = 1 to 5 do d st op_push_h done
+   | Some v ->
+       (* DR's literal-title prologue, 29 bytes total, witnessed at code 0x0006 in
+          E17B/E16C/E18A (golden/e2e11i/E17B, golden/e2e11h/E16C, golden/e2e11j/E18A --
+          the .PRN puts the next statement at 0x0023):
+
+            LXI H,<title in DATA pool>  ; MVI A,<byte length> ; CALL ?SLCTS
+            MOV B,A ; PUSH B ; INX SP   ; one byte of the prepared title reaches
+                                        ; PLILIB on the stack (the byte sequence is
+                                        ; DR's exactly; the helper's own convention
+                                        ; is library behaviour, not claimed [C278])
+            LXI H,0E90H ; PUSH H        ; w1 with the TITLE bit 0x0800
+            LXI H,0000H ; PUSH H        ; w2
+            PUSH H x4                   ; w3..w6
+            LXI H,<control block> ; CALL ?OIOOP
+
+          Why 29 and not 21 (+8): the title preparation replaces the one-byte `XRA A'
+          with LXI H/MVI A/CALL ?SLCTS -- 8 bytes for 1, a net +7 -- and the zero word
+          can no longer be built out of B, because after the MOV B,A the register holds
+          the TITLE LENGTH, not 0; `MOV H,B / MOV L,B' (2 bytes) becomes `LXI H,0000H'
+          (3 bytes), a net +1.  Seven plus one is eight.  It is NOT an eight-byte FCB
+          structure pushed separately (the P1 note's `3E 40 ED 51 22 F1 33 CD 3A E9'
+          sentence is withdrawn by [C278]: those bytes appear in NO object in this
+          repository, and a CHAIN-EXT CALL in program code always carries a 0000
+          operand, never an absolute address like E93A).
+
+          The operand of MVI A is the BYTE LENGTH of the pool cell -- 5 for '$1.$1',
+          9 for 'E16IN DAT' -- measured from the two goldens, not inferred.  The pool
+          block itself is allocated by the shared string allocator: DR puts the title
+          FIRST (data 0x0000) because the OPEN precedes the PUTs in source order, which
+          is what prescan_stmt now demands. *)
+       let bytes = pool_bytes v in
+       let addr = pool_str st bytes in
+       d st op_lxi_h; reloc st Data addr;
+       d st op_mvi_a; d st (String.length v land 0xff);
+       call_ext st "?SLCTS";
+       d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
+       d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
+       d st op_push_h;
+       d st op_lxi_h; d st 0x00; d st 0x00;
+       d st op_push_h;
+       for _ = 1 to 4 do d st op_push_h done);
   load_file_cb st fu;
   call_ext st "?OIOOP"
 

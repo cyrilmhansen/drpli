@@ -1,0 +1,185 @@
+E2E-41/P2b -- the literal-TITLE OPEN region, per specimen.
+
+Sources of truth, all pre-existing in this repository:
+  * DR objects  golden/e2e11i/E17B/E17B.REL (640 B), golden/e2e11h/E16C/E16C.REL
+    (640 B), golden/e2e11j/E18A/E18A.REL (1152 B) -- decodes below are produced by
+    tools/reldump.py on DR's own files.
+  * DR listings golden/e2e11*/E17B.PRN etc (the `$C' code column), quoted verbatim
+    for E17B below.
+  * P0 measurement spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv rows E17B/E16C/E18A:
+    block-start 0006, block-bytes 29, w1 IMM:0x0E90, title-kind lit, helper ?SLCTS
+    -- recorded BEFORE this phase, independent of my decoder.
+  * my objects: `tools/e2e_gate.py' compile of e13src/E17B.PLI / E16C.PLI / E18A.PLI
+    with the P2b compiler; WHOLE-FILE `cmp' results quoted at the bottom -- every
+    byte of every .REL, not just this region.
+
+DR's own listing of the E17B block (golden/e2e11i/E17B/E17B.PRN lines 25-41):
+
+   4 c 0006  open file(inf) stream title('$1.$1');
+       0006       LXI  H,* S(0000)
+       0009       MVI  A,05
+       000B       CALL ?SLCTS
+       000E       MOV  B,A
+       000F       PUSH B
+       0010       INX  SP
+       0011       LXI  H,0E90
+       0014       PUSH H
+       0015       LXI  H,0000
+       0018       PUSH H
+       0019       PUSH H
+       001A       PUSH H
+       001B       PUSH H
+       001C       PUSH H
+       001D       LXI  H,INF
+       0020       CALL ?OIOOP
+   5 c 0023  get file(inf) list(x);
+
+(The listing prints five consecutive PUSH H at 0018..001C; the object bytes are
+e5 e5 e5 e5 e5 there -- one PUSH H for w2 at 0018 and four more for w3..w6 -- the
+29-byte span 0006..0022 is full.)
+
+reldump.py decode of the same region, DR bytes vs my bytes (identical, as the
+whole-file cmp proves; shown per specimen with the region's two relocations and
+the chain externals):
+
+
+===== E17B  (source e13src/E17B.PLI; DR .REL 640 bytes)
+@ 1106 DATA           code 0006 0x21
+@ 1115 RELOC          data  0x0
+@ 1134 DATA           code 0009 0x3e
+@ 1143 DATA           code 000A 0x5
+@ 1152 DATA           code 000B 0xcd
+@ 1161 DATA           code 000C 0x0
+@ 1170 DATA           code 000D 0x0
+@ 1179 LINK-CHAIN-EXT  code 000C ?SLCTS
+@ 1255 DATA           code 000E 0x47
+@ 1264 DATA           code 000F 0xc5
+@ 1273 DATA           code 0010 0x33
+@ 1282 DATA           code 0011 0x21
+@ 1291 DATA           code 0012 0x90
+@ 1300 DATA           code 0013 0xe
+@ 1309 DATA           code 0014 0xe5
+@ 1318 DATA           code 0015 0x21
+@ 1327 DATA           code 0016 0x0
+@ 1336 DATA           code 0017 0x0
+@ 1345 DATA           code 0018 0xe5
+@ 1354 DATA           code 0019 0xe5
+@ 1363 DATA           code 001A 0xe5
+@ 1372 DATA           code 001B 0xe5
+@ 1381 DATA           code 001C 0xe5
+@ 1390 DATA           code 001D 0x21
+@ 1399 LINK-SEL-COMMON   INF
+@ 1433 RELOC          common  0x0
+@ 1452 DATA           code 0020 0xcd
+@ 1461 DATA           code 0021 0x0
+@ 1470 DATA           code 0022 0x0
+@ 1479 LINK-CHAIN-EXT  code 0021 ?OIOOP
+@ 1555 DATA           code 0023 0x21
+
+  my compile of e13src/E17B.PLI: WHOLE-FILE IDENTICAL (sha256[:16] DR 4c8c4112eae04cb5 == mine 4c8c4112eae04cb5)
+
+===== E16C  (source e13src/E16C.PLI; DR .REL 640 bytes)
+@ 1063 DATA           code 0006 0x21
+@ 1072 RELOC          data  0x0
+@ 1091 DATA           code 0009 0x3e
+@ 1100 DATA           code 000A 0x9
+@ 1109 DATA           code 000B 0xcd
+@ 1118 DATA           code 000C 0x0
+@ 1127 DATA           code 000D 0x0
+@ 1136 LINK-CHAIN-EXT  code 000C ?SLCTS
+@ 1212 DATA           code 000E 0x47
+@ 1221 DATA           code 000F 0xc5
+@ 1230 DATA           code 0010 0x33
+@ 1239 DATA           code 0011 0x21
+@ 1248 DATA           code 0012 0x90
+@ 1257 DATA           code 0013 0xe
+@ 1266 DATA           code 0014 0xe5
+@ 1275 DATA           code 0015 0x21
+@ 1284 DATA           code 0016 0x0
+@ 1293 DATA           code 0017 0x0
+@ 1302 DATA           code 0018 0xe5
+@ 1311 DATA           code 0019 0xe5
+@ 1320 DATA           code 001A 0xe5
+@ 1329 DATA           code 001B 0xe5
+@ 1338 DATA           code 001C 0xe5
+@ 1347 DATA           code 001D 0x21
+@ 1356 LINK-SEL-COMMON   INF
+@ 1390 RELOC          common  0x0
+@ 1409 DATA           code 0020 0xcd
+@ 1418 DATA           code 0021 0x0
+@ 1427 DATA           code 0022 0x0
+@ 1436 LINK-CHAIN-EXT  code 0021 ?OIOOP
+@ 1512 DATA           code 0023 0x21
+
+  my compile of e13src/E16C.PLI: WHOLE-FILE IDENTICAL (sha256[:16] DR 9ccf6aa9735332a7 == mine 9ccf6aa9735332a7)
+
+===== E18A  (source e13src/E18A.PLI; DR .REL 1152 bytes)
+@ 1255 DATA           code 0006 0x21
+@ 1264 RELOC          data  0x0
+@ 1283 DATA           code 0009 0x3e
+@ 1292 DATA           code 000A 0x5
+@ 1301 DATA           code 000B 0xcd
+@ 1310 DATA           code 000C 0x0
+@ 1319 DATA           code 000D 0x0
+@ 1328 LINK-CHAIN-EXT  code 000C ?SLCTS
+@ 1404 DATA           code 000E 0x47
+@ 1413 DATA           code 000F 0xc5
+@ 1422 DATA           code 0010 0x33
+@ 1431 DATA           code 0011 0x21
+@ 1440 DATA           code 0012 0x90
+@ 1449 DATA           code 0013 0xe
+@ 1458 DATA           code 0014 0xe5
+@ 1467 DATA           code 0015 0x21
+@ 1476 DATA           code 0016 0x0
+@ 1485 DATA           code 0017 0x0
+@ 1494 DATA           code 0018 0xe5
+@ 1503 DATA           code 0019 0xe5
+@ 1512 DATA           code 001A 0xe5
+@ 1521 DATA           code 001B 0xe5
+@ 1530 DATA           code 001C 0xe5
+@ 1539 DATA           code 001D 0x21
+@ 1548 LINK-SEL-COMMON   INF
+@ 1582 RELOC          common  0x0
+@ 1601 DATA           code 0020 0xcd
+@ 1610 DATA           code 0021 0x0
+@ 1619 DATA           code 0022 0x0
+@ 1628 LINK-CHAIN-EXT  code 0021 ?OIOOP
+@ 1704 DATA           code 0023 0x21
+
+  my compile of e13src/E18A.PLI: WHOLE-FILE IDENTICAL (sha256[:16] DR 8a011bd31424dc20 == mine 8a011bd31424dc20)
+
+
+Why this is not decoder-only evidence: the DR .PRN listings above place the OPEN at
+c 0006 and the NEXT statement at c 0023, so 29 bytes is DR's own measurement of the
+block; reldump.py only reproduces what both the listing and the raw bytes already
+say; and the byte-parity claim is the whole-file cmp, which the gate re-runs on every
+commit (tools/e2e_gate.py SPECIMENS entries E17B/E16C/E18A).
+
+The pool placement (title at data 0x0000, one pool cell, byte lengths 05/09/05):
+
+  E17B SET-LC/data cells, from reldump (title first, PUT strings above):
+
+    @  671 DATA           data 0000 0x24
+    @  680 DATA           data 0001 0x31
+    @  689 DATA           data 0002 0x2e
+    @  698 DATA           data 0003 0x24
+    @  707 DATA           data 0004 0x31
+    @  741 DATA           data 0005 0x58
+    @  750 DATA           data 0006 0x3d
+    @  784 DATA           data 0007 0x52
+    @  793 DATA           data 0008 0x45
+    @  802 DATA           data 0009 0x41
+    @  811 DATA           data 000A 0x43
+    @  820 DATA           data 000B 0x48
+    @  829 DATA           data 000C 0x45
+    @  838 DATA           data 000D 0x44
+    @  872 DATA           data 000E 0x53
+    @  881 DATA           data 000F 0x45
+    @  890 DATA           data 0010 0x43
+    @  899 DATA           data 0011 0x4f
+    @  908 DATA           data 0012 0x4e
+    @  917 DATA           data 0013 0x44
+
+  (0000-0004 = "$1.$1", then the console strings; DEF-DATA-SIZE 0x16 = 20 pool + 2
+   for the fixed-bin x cell.  E16C: title 'E16IN DAT' 9 bytes at 0000-0008,
+   DEF-DATA-SIZE 0x14 = 18 + 2.  E18A: DEF-DATA-SIZE 0x21 = 31 + 2.)

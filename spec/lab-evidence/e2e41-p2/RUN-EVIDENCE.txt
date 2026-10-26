@@ -1,0 +1,34 @@
+E2E-41/P2b -- runtime evidence for the literal-TITLE stream open (E17B, E18A).
+
+The fixtures and the DR transcripts are ARCHIVE, recovered from the E2E-11 session
+captures already in this repository; nothing here is a new DR execution.
+
+Fixture (tracked as e13dat/INF.DAT, staged as D:INF.DAT by oracle/linkrun.py
+STAGE_IN; ARGS["E17B"] = ARGS["E18A"] = "INF.DAT"):
+  00000000: 370d 0a38 0d0a 390d 0a1a                 7..8..9...
+
+DR's own archived runs of THE SAME OBJECTS now byte-matched by my compiler:
+
+  golden/e2e11iu/E17B.output.txt (tail of the session, `D>E17B INF.DAT'):
+    X=         7 REACHED SECOND
+  golden/e2e11jr/E18A.output.txt (`D>E18A INF.DAT'):
+    X1=         7 X2=         8 X3=         9
+    END OF FILE (1), File: INF=INF.DAT
+    Traceback: 08BE 0869 01E9 3900 # 0802 04B0 8082 01E9
+  golden/e2e11hr/E16C.output.txt (`D>E16C' -- no command tail staged; the literal
+  title 'E16IN DAT' is NOT used as the CP/M file name, PLILIB asks for INF=NUL):
+    UNDEFINED FILE (1), File: INF=NUL
+    Traceback: 075A 0599 0123 0000 # 3631 4E49 4420 5441
+
+E16C therefore has NO runtime row: its archived DR run failed on a missing tail,
+and a passing run would be a new DR execution rather than a recovered fixture.
+  link :    E17B: .COM IDENTICAL vs DR
+  run  :    E17B: console BYTE-EQUAL (28 raw bytes): 'X=         7 REACHED SECOND\r'
+  link :    E18A: .COM IDENTICAL vs DR
+  run  :    E18A: console BYTE-EQUAL (132 raw bytes): 'X1=         7 X2=         8 X3=         9\r\nEND OF FILE (1), File: INF=INF.DAT\r\nTraceback: 08BE 0869 01E9 3900 # 0802 04B0 8082 01E9\r'
+
+(the four lines above: `python3 tools/e2e_gate.py --link-run --only E17B E18A').
+Final standard gate `python3 tools/e2e_gate.py --runtime' (exit 0) then re-ran the
+panel rows:
+    runtime E17B     OK  X= 7 REACHED SECOND                 [byte-exact image: run validates expectation+oracle, not my lowering]
+    runtime E18A     OK  X1= 7 X2= 8 X3= 9 END OF FILE (1),  [byte-exact image: run validates expectation+oracle, not my lowering]

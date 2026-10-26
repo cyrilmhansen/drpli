@@ -5935,3 +5935,80 @@ share one COMMON group on an inference.  The refusal text now names the truncati
 rather than calling the law "unmeasured", and the census `.msg` for COPY/COPYLPT/RETRIEVE
 was re-snapshotted with it; all three stay REFUSED (their complete DR objects are not
 byte-reproducible here, which is outside this milestone).
+
+## C278 — A LITERAL-TITLE STREAM OPEN IS 29 BYTES: LXI H/MVI A/CALL ?SLCTS, w1 |= 0x0800, AND THE ZERO WORD COMES FROM `LXI H,0000H', NOT FROM B (E2E-41/P2b)
+
+**(a) The block, byte for byte.**  `open file(<f>) stream title('<literal>')` (and the
+`input` spelling, same word per [C273](b)) lowers to 29 bytes, witnessed whole-file at
+code offset 0x0006 in three DR objects already in this repository —
+`golden/e2e11i/E17B/E17B.REL` (640 bytes), `golden/e2e11h/E16C/E16C.REL` (640),
+`golden/e2e11j/E18A/E18A.REL` (1152) — and placed by DR's own `$C` listings at `0006`,
+with the following statement at `0023`:
+
+```
+21 <rel data>    LXI  H,<title bytes in the DATA pool>
+3e <len>         MVI  A,<BYTE length>          ; 05 for '$1.$1', 09 for 'E16IN DAT'
+cd <ext ?SLCTS>  CALL ?SLCTS
+47               MOV  B,A                      ; DR's bytes exactly; whether ?SLCTS
+                                                ; RETURNS or PRESERVES the length in
+                                                ; A is library behaviour NOT claimed
+                                                ; here -- the bytes are fixed by the
+                                                ; three objects and executed by two
+                                                ; (section (f))
+c5               PUSH B                        ; B,A on the stack ...
+33               INX  SP                       ; ... low half dropped: ONE title byte
+21 90 0e         LXI  H,0E90H ; PUSH H         ; w1 = 0x0690 | 0x0800 (TITLE bit)
+21 00 00         LXI  H,0000H ; PUSH H         ; w2
+e5 e5 e5 e5      PUSH H x4                     ; w3 w4 w5 w6
+21 <rel cb>      LXI  H,/INF/ + 0              ; SEL-COMMON on change, as in [C273]
+cd <ext ?OIOOP>  CALL ?OIOOP
+```
+
+**(b) Why 29 = 21 + 8, exactly.**  Against the titleless 21-byte block of [C273]:
+`XRA A` (1 byte) is replaced by `LXI H`+`MVI A`+`CALL ?SLCTS` (8 bytes), net **+7**;
+and `MOV H,B / MOV L,B` (2 bytes) is replaced by `LXI H,0000H` (3 bytes), net **+1**,
+because after the `MOV B,A` B holds the TITLE LENGTH, not the 0 that the zero words
+were built from.  7 + 1 = 8.  There is no additional FCB structure: all six pushed
+words are still there, five of them zero, and the block is six `PUSH H` plus one
+`PUSH B`/`INX SP` pair, exactly as P0 §5 measured across 34 blocks.
+
+**(c) The withdrawn sentence.**  The P1 note (§13 item 1) said the titled form "needs
+DR's 8-byte FCB prologue (`3E 40 ED 51 22 F1 33 CD 3A E9`) plus the ?SLCTS/?SLVTS
+string call".  Those bytes are **in no file of this repository**: a byte-search of
+every `.REL`, `.COM`, `.IRL` and captured text (the whole tree, `.git` aside) finds
+zero hits for `3E 40 ED 51`, and the only occurrence of the `22 F1 33` trigram is data
+in `golden/link1/UPDATE.COM` at 0x06F2, inside a run of little-endian pointer halves
+(`...22 f5 33 2a e5 33 22 f1 33 21 ed 33...`), not at an instruction boundary.  The
+sequence is also unrepresentable as compiler CODE: it `IN`s port 51H, `SHLD`s an
+ABSOLUTE address (storing an inherited HL through the M-register pair), and `CALL`s
+absolute `E93A` — program objects chain externals through CHAIN-EXT with `0000`
+operands that LINK fills, so an absolute call target can never appear in a `.REL`
+code byte.  The titled prologue is the LXI/MVI/CALL ?SLCTS sequence in (a), nothing
+else; the P1 note carries the correction and this claim supersedes that sentence.
+
+**(d) The pool.**  The title literal is an ordinary string-pool cell allocated by the
+same deduplicating allocator the PUT path uses [C152]: DR places it FIRST (data
+0x0000) in E17B/E16C/E18A because the OPEN statement precedes every PUT in source
+order — the OPEN's `LXI H` carries a plain `RELOC data 0x0000`.  `MVI A` takes the
+BYTE length of that cell (5 and 9 in the two spellings), not a character-count or
+descriptor form.  The prescan now demands TITLE literals exactly like PUT literals,
+so `DEF-DATA-SIZE` matches: 0x16 = 20 pool + 2 (x) in E17B, 0x14 = 18 + 2 in E16C,
+0x21 = 31 + 2 in E18A.
+
+**(e) What stays refused.**  A VARIABLE title (the `?SLVTS` route, 5 measured sites:
+LOAN2:56, CREATE:22, COPYLPT:38/49, KEYFILE — P0 §5), titled OUTPUT/PRINT opens
+(w1 0x0E50/0x0E52 in E16D/E17D/LOAN2/RETRIEVE — measured by P0, not lowered here),
+PUT FILE, KEYED/DIRECT/UPDATE, ENVIRONMENT, PAGESIZE/LINESIZE, and an OPEN naming no
+mode word (E41X1's source, which is why that negative retired from the panel to the
+unmeasured-refusal file rather than staying registered against a reason it no longer
+hits).  The subsequent GET keeps its own attach word 0x0690 regardless of the open's
+0x0E90, exactly as [C274](a) states — E18A is now a byte-exact witness of that
+independence (four GETs under one titled open).
+
+**(f) Runtime.**  `golden/e2e11iu/E17B.output.txt` and `golden/e2e11jr/E18A.output.txt`
+are DR's own runs of these objects (`D>E17B INF.DAT`, `D>E18A INF.DAT`); E18A's fourth
+GET hits `END OF FILE (1), File: INF=INF.DAT` and a traceback, which the runtime rows
+assert as the intended behaviour.  A literal title does not name the CP/M file — E16C
+(`title('E16IN DAT')`) ran as `UNDEFINED FILE (1), File: INF=NUL` in
+`golden/e2e11hr/E16C.output.txt` — so filename resolution stays on the evidence of
+P0 §11, not on the source spelling.

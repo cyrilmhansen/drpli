@@ -1,0 +1,93 @@
+E2E-41/P2 -- FILE-statement refusals kept after the literal-TITLE lowering.
+
+Every message below is the compiler's ACTUAL stderr (ocaml/_build/default/bin/
+pli80c.exe), captured 2026-10-28 on the P2b binary; the sources are the exact
+negative-panel strings or DR-corpus-shaped probes in this directory's heredoc
+history (spec/notes/e2e41-p2-literal-title-stream-open.md section 6 lists the
+panel disposition).  [C278] is the lowering's claim; [C277] the FILE-name rule.
+
+! NOTE: probe E41X1 (`open file(f) title('XY'); close file(f);') is RETIRED from
+! the active negative panel by P2b.  It still refuses, but the refusal moved from
+! the (now-implemented) TITLE option to the mode-less open -- an UNMEASURED DR
+! verdict -- and the P1 panel policy requires a measured verdict, so it is
+! documented here instead of on the panel.
+
+== variable TITLE (the ?SLVTS route; measured in DR, not lowered)            my-gap
+$ pli80c p2r_var.PLI            # dcl inf file, t char(10); open file(inf) stream title(t);
+Fatal error: exception Failure("codegen: OPEN TITLE of a non-literal operand is the ?SLVTS route and is not lowered [TBD] (line 2) -- 5 measured sites (LOAN2:56, CREATE:22) but no byte-exact specimen of this compiler's own against them")
+  DR evidence: OPEN-MATRIX.tsv title-kind `var' sites -- LOAN2.REL line 56
+  (0x0E52 + ?SLVTS), CREATE.REL:22, COPYLPT, RETRIEVE, KEYFILE literals aside;
+  P0 note section 5.  All five objects stand behind unrelated blockers, so a
+  byte-exact P2c specimen would need a NEW probe object compiled by DR -- not
+  authorized in this phase.
+
+== titled OUTPUT / PRINT open (measured, not lowered)                        my-gap
+$ pli80c p2r_out.PLI            # open file(p1) output title('$1.$1');
+Fatal error: exception Failure("codegen: OPEN option OUTPUT is outside the E2E-41/P2 witnessed subset [TBD] (line 2) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly by this compiler yet")
+  DR evidence: E17D.REL line 3 (w1 0x0E50), E16D.REL, LOAN2 (0x0E52 print),
+  RETRIEVE; P0 measured OPEN word values (OPEN-WORDS.txt).  Lowering this is
+  E2E-41/P3's first item because E16D/E17D also carry PUT FILE.
+
+== OPEN naming no mode word -- E41X1, retired from the panel                 unmeasured
+$ pli80c e41x1.PLI              # open file(f) title('XY');  (no INPUT/STREAM)
+Fatal error: exception Failure("codegen: OPEN FILE(...) naming no INPUT or STREAM has no DR witness [TBD] (line 2) -- every one of the 34 measured opens names a mode; P0 section 12 probe C is the missing evidence")
+  NONE of the 34 measured OPENs omits a mode word (P0 section 12: probe E46C is
+  the missing DR experiment), so this verdict cannot be pinned as my-gap and the
+  entry left the negative panel rather than being re-pinned to an unmeasured
+  reason.  The TITLE option itself no longer refuses: literal TITLE is lowered
+  ([C278]) and E17B/E16C/E18A are byte-exact.
+
+== OPEN option ENVIRONMENT (E41X2, on the panel)                             my-gap
+Fatal error: exception Failure("codegen: OPEN option ENVIRONMENT is outside the E2E-41/P2 witnessed subset [TBD] (line 2) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly by this compiler yet")
+  DR: COPY w1 0x4E90 + w2 0008/w3 2000, KEYFILE 0x4D94 etc (OPEN-MATRIX.tsv);
+  census first-blocker for ENTER is now KEYED, and UPDATE's is the UPDATE word
+  (spec/census/corpus-census.json msg fields, P2b snapshot).
+
+== OPEN option KEYED (E41X3, on the panel)                                   my-gap
+Fatal error: exception Failure("codegen: OPEN option KEYED is outside the E2E-41/P2 witnessed subset [TBD] (line 2) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly by this compiler yet")
+
+== OPEN option DIRECT / UPDATE / LINESIZE / PRINT / APPEND (probes here)     my-gap
+Fatal error: exception Failure("codegen: OPEN option DIRECT is outside the E2E-41/P2 witnessed subset [TBD] (line 2) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly by this compiler yet")
+Fatal error: exception Failure("codegen: OPEN option UPDATE is outside the E2E-41/P2 witnessed subset [TBD] (line 2) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly by this compiler yet")
+Fatal error: exception Failure("codegen: OPEN option OUTPUT is outside the E2E-41/P2 witnessed subset [TBD] (line 2) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly by this compiler yet")
+
+  DR: KEYFILE line 20 has LINESIZE 60 (w6 0x003C); ENTER/UPDATE use KEYED/UPDATE
+  (census msg fields); PAGESIZE measured in LOAN2 (pagesize(0)).  All of these
+  bits and words are measured in spec/lab-evidence/e2e41-p0/ but none is lowered
+  byte-exactly by this compiler, so each still refuses BY NAME with the P2
+  message above.
+
+== OPEN option PAGESIZE (E40X12, on the panel since P0)                      my-gap
+Fatal error: exception Failure("codegen: OPEN option PAGESIZE is outside the E2E-41/P2 witnessed subset [TBD] (line 2) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly by this compiler yet")
+
+== READ of a named file (E41X4, on the panel)                                unmeasured->kept
+Fatal error: exception Failure("codegen: READ of a named file has no DR witness in this repository yet [TBD] (line 2)")
+  No object in this repository contains a READ statement; DR's verdict is simply
+  not observed (P0 section 12 probe B is the missing experiment).  Kept on the
+  panel because the *class* (record-oriented IO) is what P1 registered; NEG_META
+  says exactly this.
+
+== PUT FILE / PUT LIST to a named file (E41X5, on the panel)                 my-gap
+Fatal error: exception Pli80.Parser.Parse_error(_, "expected statement")
+  DR puts to named files everywhere (36 measured `put file' sites, SIOMODES.txt
+  attach 0652), e.g. COPY/RETRIEVE/E16D/E17D; refused because the file PUT chain
+  (?PNCOP + ?SIOOP with 0x0652) is not lowered.  E2E-41/P3's first item.
+
+== multi-file CLOSE (`close file(f), file(g);')                              unmeasured
+  $ pli80c e41x5-oldshape.PLI
+  Fatal error: exception Pli80.Parser.Parse_error(_, "expected statement")
+  (rejected at PARSE level; DR's verdict on the multi-file form is unmeasured --
+  no measured object closes more than one file; P0 section 12 probe D.)
+
+== long FILE names (E41W4; corpus COPY, COPYLPT, RETRIEVE)                   my-gap (P2a)
+Fatal error: exception Failure("codegen: FILE name LONGFILENAME (12 chars) exceeds 6 [TBD] (DR accepts this name: the COMMON symbol is its first 6 chars and the control block stores the full name, size 34+len [C277]; this compiler does not yet implement that COMMON-symbol truncation safely -- collision behaviour after truncation is unmeasured)")
+  DR ACCEPTS these names [C277]: measured COMMON truncation and full-name CBs in
+  golden/first/{COPY,RETRIEVE,COPYLPT,REPORT,DEPREC}.  The refusal stands only
+  because the post-truncation COLLISION behaviour is unmeasured (probe E46D); the
+  census first-blocker lines (P2b snapshot) name exactly these programs:
+    COPY      -> "FILE name INPUT_FILE (10 chars) exceeds 6"
+    COPYLPT   -> "FILE name SOURCEFILE (10 chars) exceeds 6"
+    RETRIEVE  -> "FILE name SYSPRINT (8 chars) exceeds 6"
+  Counterexample removal: N22_FPUT (`put list(42)') declares NO file variable --
+  its old attribution on the coverage row was false; probes/P063H.PLI is that
+  program's real source.
