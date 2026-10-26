@@ -1,0 +1,6 @@
+e47h:
+  procedure options(main);
+  dcl f file;
+  open f input;
+  close f;
+end e47h;

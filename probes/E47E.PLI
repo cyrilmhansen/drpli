@@ -1,0 +1,6 @@
+e47E:
+  procedure options(main);
+  dcl f file;
+  open file(f) stream print pagesize(24) linesize(80);
+  close file(f);
+end e47E;

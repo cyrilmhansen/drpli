@@ -103,10 +103,29 @@ let attr_keys =
   ; "UPDATE"; "APPEND"; "KEYED"; "SEQUENTIAL"; "RANDOM"; "STREAM"
   ; "PRINT"; "SET"; "LABEL"; "INITIAL"; "RECURSIVE"; "VARIABLE"; "VAR" ]
 
+(* [E2E-41/P1a] the option vocabulary the GET/PUT/EDIT arms have always accepted.
+   UNCHANGED by this milestone: the EDIT arm calls parse_io_opts and then eats FROM
+   itself (parser.ml ~line 705), so widening the shared list would swallow an edit
+   source. *)
 let ioopt_keys =
   [ "FILE"; "STREAM"; "SOURCE"; "SINK"; "TITLE"; "ENVIRONMENT"; "RECORD"
   ; "PREAMBLE"; "KEYFROM"; "KEYINTO"; "KEY"; "SET"; "SETUPDATE"; "INPUT"
   ; "OUTPUT"; "UPDATE"; "APPEND"; "VARYING"; "ENV" ]
+
+(* The vocabulary of the NINE FILE statements, read off DR-compiled objects and
+   sources rather than invented.  P0 sampled 34 OPEN statements in 24 distinct
+   objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv) and found five words the
+   scanner did not know -- KEYED, DIRECT, PRINT, PAGESIZE, LINESIZE -- which made it
+   stop there and re-read the rest of the statement as SEPARATE statements: 18 of the
+   34 sites (OPTIONS-AST-BEFORE.txt shows E47C losing KEYED/OUTPUT/ENVIRONMENT
+   outright).  KEYTO/INTO/FROM come from DR-compiled READ/WRITE sources: KEYFILE:23
+   `read file(input) into(employee) keyto(k)', COPY:19-20 `read file (input_file)
+   into (buff)' / `write file (output_file) from (buff)'.  ACCEPTING A KEY IS NOT A
+   CODEGEN CLAIM: codegen refuses every option subset it has no DR witness for
+   (spec/notes/e2e41-p1-*.md section 8). *)
+let filestmt_opt_keys =
+  ioopt_keys @ [ "KEYED"; "DIRECT"; "PRINT"; "PAGESIZE"; "LINESIZE";
+                 "KEYTO"; "INTO"; "FROM" ]
 
 let ctl_keys = [ "SKIP"; "PAGE"; "LINE" ]
 
@@ -690,7 +709,30 @@ and parse_stmt_body p q labels =
   | Token.Ident { key = ("READ" | "WRITE" | "REWRITE" | "UPDATE" | "OPEN"
                        | "CLOSE" | "CREATE" | "REWIND" | "DELETE" as k); _ } ->
       advance p;
-      let opts = parse_io_opts p in
+      (* [E2E-41/P1a] a FILE statement may name its file either as `FILE(name)' or
+         BARE -- probes/P080Q.PLI, which DR compiled, is `open f input; get f
+         list(i); close f;'.  The bare form is read ONLY in the leading position, so
+         the strict check below still refuses an unrecognised option word. *)
+      let leading =
+        match peek p with
+        | Token.Ident { orig; key } when not (List.mem key filestmt_opt_keys) ->
+            let q = curpos p in
+            advance p;
+            [ { io_key = "FILE";
+                io_val = Some { e = Eident { orig; key; pos = q }; epos = q } } ]
+        | _ -> []
+      in
+      let opts = leading @ parse_io_opts p ~keys:filestmt_opt_keys in
+      (* [E2E-41/P1a] an unrecognised word after a FILE statement's options used to be
+         re-read as the NEXT statement, so a program reached codegen with a silently
+         shorter option list than DR saw.  Refuse it loudly instead.  Only the nine
+         FILE statements are strict -- a GET/PUT keeps its present behaviour, because
+         `put list(x) skip(2)'-style control words are handled elsewhere and changing
+         that here would move unrelated byte-exact specimens. *)
+      (match peek p with
+       | Token.Ident { key = bad; _ } ->
+           err p "%s: unrecognised FILE-statement option %s [TBD] -- no DR sample in spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv or in the DR-compiled corpus places this word in a FILE statement option list, so it is refused rather than silently dropped" k bad
+       | _ -> ());
       let file =
         match List.find_opt (fun o -> o.io_key = "FILE") opts with
         | Some o -> o.io_val | None -> None
@@ -810,10 +852,10 @@ and parse_begin_block p q =
                 ; bendpos = Some qe }
         ; bpos = q }
 
-and parse_io_opts p =
+and parse_io_opts ?(keys = ioopt_keys) p =
   let rec go acc =
     match peek p with
-    | Token.Ident { key; _ } when List.mem key ioopt_keys ->
+    | Token.Ident { key; _ } when List.mem key keys ->
         advance p;
         let vals = opt_paren_exprs p in
         let v = match vals with
@@ -1207,6 +1249,13 @@ let rec pp_e fmt = function
   | { e = Eformat_ref n; _ } -> Format.fprintf fmt "(r %s)" n.orig
   | { e = Epicture s; _ } -> Format.fprintf fmt "(p '%s')" s
 
+(* [E2E-41/P1a] prints the option KEYS a GET/PUT collected, in source order, so
+   `put file(f) list(x)' can be seen for what the parser actually stores it as --
+   an entry in `on_opts', not in `stream' (defect P0 §1(b)). *)
+let opt_keys (os : Ast.io_opt list) =
+  if os = [] then ""
+  else " opts[" ^ String.concat "," (List.map (fun (o : Ast.io_opt) -> o.io_key) os) ^ "]"
+
 let dump_trees src =
   let toks = Lexer.tokenize src in
   let p = make toks in
@@ -1238,7 +1287,7 @@ let dump_trees src =
     | Sdobegin ss -> List.iter pp_st ss
     | Sproc { blk; _ } -> List.iter pp_st blk.bstmts
     | Sput { kind = k; items; on_opts; stream; _ } ->
-        Format.printf "L%d: PUT kind=%s items=%d opts=%d%s\n%!"
+        Format.printf "L%d: PUT kind=%s items=%d opts=%d%s%s\n%!"
           s.spos.Source.line
           (match k with
            | List_ -> "LIST" | Edit -> "EDIT" | Item -> "ITEM"
@@ -1246,12 +1295,28 @@ let dump_trees src =
                (match n with Some x -> string_of_int x | None -> "-") ^ ")")
           (List.length items) (List.length on_opts)
           (if stream = None then "" else " FILEREF")
+          (opt_keys on_opts)
     | Sget { kind = k; items; on_opts; stream; _ } ->
-        Format.printf "L%d: GET kind=%s items=%d opts=%d%s\n%!"
+        Format.printf "L%d: GET kind=%s items=%d opts=%d%s%s\n%!"
           s.spos.Source.line
           (match k with List_ -> "LIST" | Edit -> "EDIT" | Const_ -> "CONST")
           (List.length items) (List.length on_opts)
           (if stream = None then "" else " FILEREF")
+          (opt_keys on_opts)
+    | Sfilestmt { key; file; opts } ->
+        (* [E2E-41/P1a] the FILE-statement arm printed nothing at all, which is how the
+           option-list truncation stayed invisible: the dropped tail re-appeared as
+           EXTRA statements two lines below, not as a missing option. *)
+        Format.printf "L%d: FILE-STMT %s file=%s opts=[%s]\n%!"
+          s.spos.Source.line key
+          (match file with Some e -> Format.asprintf "%a" pp_e e | None -> "-")
+          (String.concat " "
+             (List.map
+                (fun (o : Ast.io_opt) ->
+                  o.io_key ^ (match o.io_val with
+                    | Some e -> "(" ^ Format.asprintf "%a" pp_e e ^ ")"
+                    | None -> ""))
+                opts))
     | _ ->
         (* fail-loud observability: never silently elide a statement kind *)
         Format.printf "L%d: [STMT-KIND-NOT-PRINTED]\n%!" s.spos.Source.line

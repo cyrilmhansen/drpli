@@ -1,0 +1,6 @@
+e47A:
+  procedure options(main);
+  dcl f file;
+  open file(f) input;
+  close file(f);
+end e47A;

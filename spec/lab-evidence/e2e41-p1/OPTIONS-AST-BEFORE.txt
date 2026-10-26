@@ -1,0 +1,74 @@
+# [E2E-41/P1a] the parsed AST of the FILE-statement option witnesses BEFORE the parser
+# change, dumped with bin/pli80tree.exe (= lib/parser.ml dump_trees, which printed
+# nothing at all for a FILE statement -- that silence is how the truncation stayed
+# invisible).  Regenerate with:
+#   for n in E47A E47B E47C E47D E47E E47F E47G; do
+#     echo "== probes/$n.PLI"; ./ocaml/_build/default/bin/pli80tree.exe probes/$n.PLI; done
+# The number after L is the line the statement starts on.  Anything the option scanner
+# did not recognise reappears BELOW it as a separate statement -- the truncation P0
+# section 1(a) measured on 18 of the 34 sampled DR open statements.
+
+== probes/E47A.PLI
+  source: open file(f) input;
+  DCL line 3: f
+  L4: FILE-STMT OPEN file=f opts=[FILE(f) INPUT]
+  L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
+  exit=0
+
+== probes/E47B.PLI
+  source: open file(f) stream output title('X.DAT');
+  DCL line 3: f
+  L4: FILE-STMT OPEN file=f opts=[FILE(f) STREAM OUTPUT TITLE('X.DAT')]
+  L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
+  exit=0
+
+== probes/E47C.PLI
+  source: open file(f) keyed output environment(f(128),b(8000));
+  DCL line 3: f
+  L4: FILE-STMT OPEN file=f opts=[FILE(f)]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
+  exit=0
+
+== probes/E47D.PLI
+  source: open file(f) update direct environment(f(128));
+  DCL line 3: f
+  L4: FILE-STMT OPEN file=f opts=[FILE(f) UPDATE]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
+  exit=0
+
+== probes/E47E.PLI
+  source: open file(f) stream print pagesize(24) linesize(80);
+  DCL line 3: f
+  L4: FILE-STMT OPEN file=f opts=[FILE(f) STREAM]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
+  exit=0
+
+== probes/E47F.PLI
+  source: open file(f) buffered;
+  DCL line 3: f
+  L4: FILE-STMT OPEN file=f opts=[FILE(f)]
+  L4: [STMT-KIND-NOT-PRINTED]
+  L5: FILE-STMT CLOSE file=f opts=[FILE(f)]
+  exit=0
+
+== probes/E47G.PLI
+  source: open file(f) input;
+  DCL line 3: f
+  DCL line 3: i
+  DCL line 3: s
+  L4: FILE-STMT OPEN file=f opts=[FILE(f) INPUT]
+  L5: GET kind=LIST items=2 opts=1 opts[FILE]
+  L6: PUT kind=LIST items=1 opts=1 opts[FILE]
+  L7: FILE-STMT READ file=f opts=[FILE(f)]
+  L7: [STMT-KIND-NOT-PRINTED]
+  L7: [STMT-KIND-NOT-PRINTED]
+  exit=0
+
