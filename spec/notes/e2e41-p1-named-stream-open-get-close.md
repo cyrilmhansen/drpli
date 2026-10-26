@@ -261,9 +261,22 @@ size between the two probes (63 vs 65) — consistent, and the reason I do not r
 
 Honest limit: both `.REL` images are byte-identical to DR's, so a run of "my" object *is*
 a run of DR's object.  The gate prints exactly that framing for these rows
-(`byte-exact image: run validates expectation+oracle, not my lowering`).  What the runs
-establish here is that the *encoding* P0 measured is the encoding DR's runtime accepts —
-not that a different lowering would also have worked.
+(`byte-exact image: run validates expectation+oracle, not my lowering`).  To make the
+comparison literal rather than inferred, DR's historical object and mine were each linked
+separately by LINK 1.31 against `PLILIB.IRL` and each run with the same staged `D:F.DAT`:
+
+```
+$ python3 oracle/linkrun.py link --tag e41dr --names P081Q P072H --out e41dr --reuse   # DR's .REL
+$ python3 oracle/linkrun.py run  --tag e41dr --names P081Q P072H --out e41dr --reuse
+$ cmp golden/e41dr/P081Q.COM golden/e32rt_P081Q/P081Q.COM      # silent, 7040 bytes
+$ cmp golden/e41dr/P072H.COM golden/e32rt_P072H/P072H.COM      # silent, 6912 bytes
+$ cmp golden/e41dr/P081Q.output.txt golden/e32rt_P081Q/P081Q.output.txt   # silent
+$ cmp golden/e41dr/P072H.output.txt golden/e32rt_P072H/P072H.output.txt   # silent
+```
+
+The linked `.COM` images and the console bytes agree byte for byte, so the executions are
+the same execution.  What these runs establish is that the *encoding* P0 measured is the
+encoding DR's runtime accepts — not that some other lowering would also have worked.
 
 ## 10. Two corrections to the P0 note
 
@@ -327,7 +340,9 @@ inventory gains 5 rows.
   The five small sources it cites are committed under
   `spec/lab-evidence/e2e41-p1/refusals/`, so the file re-runs.
 * `spec/lab-evidence/e2e41-p1/RUN-{P081Q,P072H}-{with,no}-F.DAT.txt` — the four run
-  captures of section 9.
+  captures of section 9, plus the mine-vs-DR `.COM` and console comparisons.
+* `golden/e41dr/{P081Q,P072H}/` and `golden/e41dr/*.COM` — DR's historical objects linked
+  separately, for the execution comparison in section 9.
 * `spec/lab-evidence/e2e41-p1/CODE-DIFF.txt` — the executable-line diff of the codegen
   change with every comment stripped (the [E2E-40/P10a] method): **+124 / -10 lines** for
   the whole phase, which is the size of the lowering without 200 lines of prose in the way.

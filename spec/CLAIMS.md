@@ -5797,7 +5797,10 @@ behaviour-preserving rather than merely plausible.
 with it removed they print `UNDEFINED FILE (1), File: F=NUL` and a traceback — see [C275].
 Neither has a PUT, so the runtime rows assert the ABSENCE of that text (`!UNDEFINED
 FILE|!Traceback`), which is what makes the silence a test rather than an accident of the
-program being short.
+program being short.  The comparison is not left to inference from identical `.REL` bytes:
+DR's historical object and mine were linked SEPARATELY by LINK 1.31 (`golden/e41dr/`,
+`golden/e32rt_P081Q/`) and the resulting `.COM` images (7040 and 6912 bytes) and their
+console captures are each byte-identical, so the two executions are one execution.
 
 ## C275 — CLOSE PUSHES NOTHING: SIX BYTES, AND LENGTH IS THEN THE ONLY SEMANTIC TEST
 

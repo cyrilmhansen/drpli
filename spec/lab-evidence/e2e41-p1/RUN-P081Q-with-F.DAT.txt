@@ -2,3 +2,17 @@
 -- console output (cat -v):
 
 -- run rc: 0 (cpmsim session ended at the D> prompt, no timeout)
+
+-- direct comparison of the two executions, not just of the two objects --
+DR's historical object and mine, each linked separately by LINK 1.31 against PLILIB.IRL
+and each run under cpmsim with the same staged D:F.DAT:
+
+   golden/probe50/P081Q/P081Q.REL  ->  golden/e41dr/P081Q.COM  (7040 bytes)
+   my compiled object (golden/e32rt_P081Q/P081Q/P081Q.REL) ->  golden/e32rt_P081Q/P081Q.COM  (7040 bytes)
+   cmp of the two .COM files: identical
+   cmp of the two console outputs: identical ( \n)
+
+Reproduce with:
+   mkdir -p golden/e41dr/P081Q && cp golden/probe50/P081Q/P081Q.REL golden/e41dr/P081Q/
+   python3 oracle/linkrun.py link --tag e41dr --names P081Q --out e41dr --reuse
+   python3 oracle/linkrun.py run  --tag e41dr --names P081Q --out e41dr --reuse
