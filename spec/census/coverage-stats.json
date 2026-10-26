@@ -24,9 +24,9 @@
   "UNREVIEWED": 4
  },
  "dr": {
-  "ACCEPTS": 77,
+  "ACCEPTS": 78,
   "ACCEPTS_DEFECT": 1,
-  "REJECTS": 8,
+  "REJECTS": 7,
   "UNTESTED": 3
  },
  "manual_none": 76,
@@ -41,9 +41,9 @@
  "no_parity": 27,
  "no_runtime": 65,
  "perimeter": {
-  "C": 3,
+  "C": 2,
   "M": 13,
-  "S": 73
+  "S": 74
  },
  "rows": 89,
  "single_sample": 11,

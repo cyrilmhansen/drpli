@@ -11262,14 +11262,25 @@ let rows_of (b : Ast.block) =
                nothing to the DATA area.  The `internal' flag turned out NOT to
                distinguish SYSIN from a user stream (FLTPOLY2's `dcl sysin file'
                binds as FILE EXTERNAL STATIC), and both get the same block shape --
-               so this arm does not branch on it.  A name longer than 6 chars is
-               refused: DR's 6-character truncation law is measured for program
-               and entry names [DECPOLY, LONGNAME], never for a COMMON symbol. *)
+               so this arm does not branch on it.
+
+               A name longer than 6 chars is STILL refused, but the reason is no longer
+               "unmeasured": [C277] (E2E-41/P2a) measured DR's law on five independent
+               historical objects (COPY, RETRIEVE, COPYLPT, REPORT, DEPREC --
+               spec/lab-evidence/e2e41-p0/OPEN-INVENTORY.txt):  DR ACCEPTS the long name,
+               names the COMMON group with its first 6 characters (`INPUT_FILE -> /INPUT_/',
+               `OUTPUT_FILE -> /OUTPUT/', `SYSPRINT -> /SYSPRI/') and stores the FULL
+               uppercase name in the control block, with DEF-COMMON-SIZE = 34 + len(full
+               name).  What remains unmeasured is the COLLISION case -- two names equal
+               on their first six characters -- which no object here declares, so
+               emitting a truncated symbol would make two files share one COMMON group
+               on an inference.  This is OUR implementation gap, not a DR restriction;
+               the lowering waits for the collision boundary (P0 probe E46D). *)
             let up = String.uppercase_ascii nm in
             if String.length up > 6 then
               failwith
                 (Printf.sprintf
-                   "codegen: FILE name %s (%d chars) exceeds 6 [TBD] (COMMON-symbol truncation for FILE control blocks is unmeasured; SYSIN/INF are 5/3)"
+                   "codegen: FILE name %s (%d chars) exceeds 6 [TBD] (DR accepts this name: the COMMON symbol is its first 6 chars and the control block stores the full name, size 34+len [C277]; this compiler does not yet implement that COMMON-symbol truncation safely -- collision behaviour after truncation is unmeasured)"
                    up (String.length up));
             sy_files := !sy_files @ [up];
             None

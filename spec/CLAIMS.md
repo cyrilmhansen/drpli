@@ -5893,3 +5893,45 @@ than in `stream` (`ast.ml`), because the grammar really is an option list — P0
 matches that accident explicitly (`match_get_list_file`, with a comment saying it is an
 accident of the grammar and not a belief that FILE is an ON unit) rather than restructuring
 the AST, which would have moved 46 pinned AST dumps for no behavioural gain.
+
+## C277 — DR ACCEPTS LONG FILE NAMES: THE COMMON SYMBOL IS THE FIRST SIX CHARACTERS AND THE CONTROL BLOCK STORES THE FULL NAME (E2E-41/P2a)
+
+`DECL.FILE_NAME_LEN` used to record this as a DR diagnosis (`dr_status=REJECTS`,
+`perimeter=C`, probe `N22_FPUT`).  All three were wrong.  `N22_FPUT` is
+`put list(42)` (`tools/e2e_gate.py`), which declares no FILE at all; DR accepts long FILE
+names, and five independent historical objects measure the rule:
+
+| object | FILE name | COMMON group symbol | DEF-COMMON-SIZE | CB stores |
+|---|---|---|---|---|
+| `golden/first/COPY/COPY.REL` | INPUT_FILE (10) | /INPUT_/ | 44 = 34+10 | 33 zeros, 0x0A, "INPUT_FILE" |
+| `golden/first/COPY/COPY.REL` | OUTPUT_FILE (11) | /OUTPUT/ | 45 = 34+11 | 33 zeros, 0x0B, "OUTPUT_FILE" |
+| `golden/first/RETRIEVE/RETRIEVE.REL` | SYSPRINT (8) | /SYSPRI/ | 42 = 34+8 | 33 zeros, 0x08, "SYSPRINT" |
+| `golden/first/COPYLPT/COPYLPT.REL` | SOURCEFILE (10) / PRINTFILE (9) | /SOURCE/ / /PRINTF/ | 44 / 43 | full names |
+| `golden/first/REPORT/REPORT.REL` | REPFILE (7) / EMPFILE (7) | /REPFIL/ / /EMPFIL/ | 41 / 41 | full names |
+| `golden/first/DEPREC/DEPREC.REL` | SYSPRINT (8) | /SYSPRI/ | 42 = 34+8 | full name |
+
+Five distinct SHA-256 objects (`spec/lab-evidence/e2e41-p0/OPEN-INVENTORY.txt`: 31ddb612
+COPY, af85b973 RETRIEVE, ad320a38 COPYLPT, d8dbc907 REPORT, 9e770e76 DEPREC); the
+`golden/first8080u` copies of the same bytes are not counted as independent.  The sizes
+and stored names are re-read from the `.REL` records here, not taken from P0's prose.
+
+**(a) The rule.**  Group symbol = first 6 characters of the uppercased name; the
+control block keeps `33 zero bytes | one-byte FULL length | full uppercase name`; the
+`DEF-COMMON-SIZE` value is computed from the **full** name (34 + len), not from the
+truncated symbol.  This is the layout of [C120] applied to a long name — [C120]'s two
+witnesses were SYSIN (5) and INF (3), both under the cut.
+
+**(b) What is NOT claimed.**  `/INPUT_/` retains the underscore, so the cut is at six
+characters and not "up to the first non-alphanumeric" — but no object in this repository
+declares two FILE names that COLLIDE after truncation (`abcdef1`/`abcdef2` both name
+/ABCDEF/), so DR's collision behaviour is unmeasured and no algorithm is claimed for it
+(P0 §10 probe E46D is the missing experiment).  Nothing here is inferred from DR's
+procedure-name truncation law [DECPOLY, LONGNAME]; these are FILE/COMMON measurements on
+their own objects.
+
+**(c) My status.**  Still `REFUSED` at `ocaml/lib/codegen.ml` (`Bind.RTfile`): silently
+truncating the symbol without measured collision handling would make two distinct files
+share one COMMON group on an inference.  The refusal text now names the truncation gap
+rather than calling the law "unmeasured", and the census `.msg` for COPY/COPYLPT/RETRIEVE
+was re-snapshotted with it; all three stay REFUSED (their complete DR objects are not
+byte-reproducible here, which is outside this milestone).
