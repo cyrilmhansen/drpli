@@ -771,6 +771,20 @@ SPECIMENS.update({
 #          same library, aborts with byte-identical console text, so the row's expected output is an
 #          ERROR MESSAGE (see spec/RUNTIME.txt).  Nothing about the bytes alone could have shown
 #          either half of that [C267].
+
+# [E2E-41/P1b] the first FILE-statement objects: OPEN / GET LIST / CLOSE of a named
+# stream.  P0 measured the shape off 34 DR OPEN blocks (spec/lab-evidence/e2e41-p0/
+# OPEN-BLOCKS.txt); these two probes are the byte-exact specimens that turn the measurement
+# into a lowering.  The goldens are a FRESH oracle run, because E2E-33/P0 requires a
+# specimen to compile, link and run under the CURRENT harness and runtime_check needs a
+# .PRN beside the golden -- which golden/probe40/P072H and golden/probe50/P081Q do not
+# contain.  Fresh and historical agree byte for byte (cmp of golden/e41p1 against
+# golden/probe50 and golden/probe40 is silent, recorded in
+# spec/lab-evidence/e2e41-p1/P081Q-REGION.txt), so nothing about the original evidence moved.
+SPECIMENS.update({
+    "P081Q": ("probes/P081Q.PLI", "golden/e41p1/P081Q/P081Q.REL"),
+    "P072H": ("probes/P072H.PLI", "golden/e41p1/P072H/P072H.REL"),
+})
 SPECIMENS.update({
     "E42P1":  ("artefacts/E42P1.PLI", "golden/e42p/E42P1/E42P1.REL"),
     "E42P2":  ("artefacts/E42P2.PLI", "golden/e42p/E42P2/E42P2.REL"),
@@ -1400,6 +1414,29 @@ SPECIMENS = NoOverwriteDict(SPECIMENS)
 # parenthesized literal are UNSAMPLED here.  What is admitted is `(x + (y + z))' with internal members,
 # nothing wider -- and the guard is `paren_add_right r' alone, since P10's conjunction was implied by
 # its own left operand (spec/lab-evidence/e2e40-p10a/ARM-REACH.txt).
+
+# [E2E-41/P1b] three FILE-statement shapes DR compiles today and this compiler refuses by
+# name.  Each is classifiable as `my-gap' because the DR side is MEASURED, not inferred --
+# the object is cited in NEG_META below.  Two further refusals (OPEN naming no mode word;
+# CLOSE naming several files) are deliberately NOT registered here: both panel classes
+# require knowing what DR does, and no DR object in this repository contains either shape
+# (spec/notes/e2e41-p0-file-open-reconnaissance.md section 12 asks for exactly those
+# probes).  They are documented in spec/lab-evidence/e2e41-p1/REFUSALS.txt instead, which
+# is where an unmeasured refusal belongs.
+REJECTS.update({
+    "E41X1": (
+        "t:\n  procedure options(main);\n  dcl f file;\n"
+        "  open file(f) title('XY');\n  close file(f);\nend t;\n",
+        "OPEN option TITLE is outside the E2E-41/P1"),
+    "E41X4": (
+        "t:\n  procedure options(main);\n  dcl f file, s char(20);\n"
+        "  read file(f) into(s);\nend t;\n",
+        "READ of a named file has no DR witness"),
+    "E41X5": (
+        "t:\n  procedure options(main);\n  dcl f file;\n"
+        "  put file(f) list('A');\nend t;\n",
+        "PUT LIST with ON options"),
+})
 
 REJECTS = NoOverwriteDict(REJECTS)
 
@@ -2728,6 +2765,24 @@ REJECTS['E27S11'] = (open('artefacts/ST11.PLI', "rb").read().replace(b"\r\n", b"
                    'call to unknown nd')
 NEG_META['E27S11'] = ("dr-refuses", "E2E-26's PB16 spelling, isolated. DR rejects it: SYNTAX + BASED REQ, NO .REL (golden/e2e324d/ST11/ST11.PRN). So `declare nb based(pn) nd' -- naming a structure type through a based declaration -- is genuinely not a form in this dialect, and E2E-26's inference from PB16/PB17 that based STRUCTURES were unsupported was wrong: the structures are fine, the spelling was not. Mine also refuses, at the binder's statement walker, because `nd' looks like a procedure call.")
 
+NEG_META["E41X1"] = ("my-gap",
+    "DR compiles a titled stream open: 25 of the 34 OPEN blocks P0 measured carry a TITLE "
+    "(spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv), e.g. golden/e2e11h/E16B/E16B.REL "
+    "(`open file(inf) stream title('E16IN DAT')'). I refuse because the titled form needs "
+    "DR's 8-byte FCB prologue (3E 40 ED 51 22 F1 33 CD 3A E9) plus the ?SLCTS/?SLVTS string "
+    "call in place of `XRA A', and neither is lowered yet -- E2E-41/P2's first item.")
+NEG_META["E41X4"] = ("my-gap",
+    "DR compiles READ of a named file: golden/bind1/KEYFILE/KEYFILE.REL is built from "
+    "`read file(input) into(employee) keyto(k)' (KEYFILE.PLI:23) and its record-oriented "
+    "chain is ?WNIOP/?RNIOP/?KEYTO.  I refuse; P1 lowers only OPEN, GET LIST and CLOSE.")
+NEG_META["E41X5"] = ("my-gap",
+    "DR compiles PUT of a named file: golden/e2e11h/E16D/E16D.REL contains "
+    "`put file(outf) list('HELLO')' and attaches with mode word 0652H (36 such sites in "
+    "spec/lab-evidence/e2e41-p0/SIOMODES.txt).  Mine refuses with the pre-existing PUT-with-"
+    "options message, which is true as far as it goes -- the ?OIOOP/?SIOOP route is what is "
+    "missing -- and the output-file comparison P2 needs already exists in this repository "
+    "(golden/e2e11iu/E17D/OUT.DAT, exactly 128 bytes, from an open that spells F(128)).")
+
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
 #   "main-block statement after an appended procedure [TBD] (unproven DR append layout)" and
@@ -3903,10 +3958,28 @@ def runtime_check(rows, verbose=True):
         # raw console bytes are preserved; only CRLF->LF and PL/I edit-strip padding are
         # normalised, because `put list' pads numerics with spaces.
         norm = _re.sub(r" +", " ", raw.replace(b"\r\n", b"\n").decode("ascii", "replace"))
-        missing = [e for e in r["expected"].split("|") if e not in norm]
-        if missing:
-            fails.append("RUNTIME %s: expected %s, got %r  [%s]"
-                         % (name, missing, norm[:60], "byte-exact image" if exact else "shape-divergent"))
+        # [E2E-41/P1b] an expectation may also be NEGATIVE, written `!text'.  A program with
+        # no PUT statement prints nothing at all -- P081Q and P072H are `open / get / close'
+        # with no output -- and "the console is empty" is not an assertion: an empty expected
+        # string matches every transcript.  What IS assertable is the absence of the failure
+        # DR's file runtime reports when an OPEN cannot find its FCB: `UNDEFINED FILE (1),
+        # File: F=NUL' plus a traceback, measured in
+        # spec/lab-evidence/e2e41-p1/RUN-P081Q-no-F.DAT.txt.  A row that demands that text be
+        # ABSENT is a real test: the same staged-file machinery, run without the data file,
+        # fails it.
+        missing, forbidden = [], []
+        for e in r["expected"].split("|"):
+            if not e:
+                continue
+            if e.startswith("!"):
+                if e[1:] in norm:
+                    forbidden.append(e)
+            elif e not in norm:
+                missing.append(e)
+        if missing or forbidden:
+            fails.append("RUNTIME %s: expected %s, forbidden-but-present %s, got %r  [%s]"
+                         % (name, missing, forbidden, norm[:60],
+                            "byte-exact image" if exact else "shape-divergent"))
         elif verbose:
             print("  runtime %-8s OK  %-34s  [%s]"
                   % (name, norm.strip()[:34].replace("\n", " "),

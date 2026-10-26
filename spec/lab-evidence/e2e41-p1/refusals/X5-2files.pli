@@ -1,0 +1,6 @@
+t:
+  procedure options(main);
+  dcl f file, g file;
+  open file(f) input;
+  close file(f, g);
+end t;

@@ -1,0 +1,184 @@
+# [E2E-41/P1b] the EXECUTABLE-LINE diff of the codegen change, comments stripped, so
+# the size of the lowering is visible without 200 lines of evidence prose inflating it.
+# Method (the one [E2E-40/P10a] used): strip every OCaml comment from HEAD's and the
+# working copy's lib/codegen.ml, drop blank lines, and diff.  Regenerate with the block at
+# the bottom of this file.
+--- HEAD (4ed1ade) codegen.ml, comments stripped
++++ working tree, comments stripped
+@@ -461,4 +461,31 @@
+   push st (Reloc (Code, value));
+   link st t_set_lc (Some (Code, value)) None
++let op_xra_a   = 0xaf
++let op_push_b  = 0xc5
++let op_inx_sp  = 0x33
++let op_mov_h_b = 0x60
++let op_mov_l_b = 0x68
++let file_group st (s : Ast.stmt) (e : Ast.expr option) =
++  match e with
++  | Some { Ast.e = Ast.Eident n; _ } ->
++      let fu = String.uppercase_ascii n.Ast.orig in
++      if not (List.mem fu st.files) then
++        failwith
++          (Printf.sprintf
++             "codegen: FILE(%s) names something that is not a declared FILE [TBD] (line %d)"
++             n.Ast.orig s.Ast.spos.Source.line)
++      else fu
++  | _ ->
++      failwith
++        (Printf.sprintf
++           "codegen: a FILE statement whose file operand is not a plain declared file name is unproven [TBD] (line %d) -- multi-file forms such as `close file(a,b)' parse (the manual's Inform-6 list, p.90) but no DR object measures what they push"
++           s.Ast.spos.Source.line)
++let load_file_cb st (fu : string) =
++  d st op_lxi_h;
++  if st.cur_common <> Some fu then begin
++    link st t_sel_common None (Some fu);
++    st.cur_common <- Some fu
++  end;
++  reloc st Common 0
+ let dec_pool_bytes p = (p + 1 + 1) / 2
+ let dec_digits_of k =
+@@ -1235,4 +1262,20 @@
+       in
+       names [] items
++  | _ -> None
++let match_get_list_file (s : Ast.stmt) =
++  match s.Ast.st with
++  | Ast.Sget { stream = None; kind = Ast.List_; on_opts; items } ->
++      let is_file (o : Ast.io_opt) = o.Ast.io_key = "FILE" in
++      let rec names acc = function
++        | [] -> Some (List.rev acc)
++        | Ast.Pi_data { Ast.e = Ast.Eident n; _ } :: tl -> names (n :: acc) tl
++        | _ -> None
++      in
++      (match on_opts, names [] items with
++       | [ o ], Some nm when is_file o ->
++           (match o.Ast.io_val with
++            | Some ({ Ast.e = Ast.Eident _; _ } as e) -> Some (e, nm)
++            | _ -> None)
++       | _ -> None)
+   | _ -> None
+ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
+@@ -4460,5 +4503,5 @@
+               end
+   | _ -> failwith "codegen: non-simple assignment lhs [TBD]"
+-let lower_get st (items : Ast.name list) =
++let lower_get_body st (attach : string) (items : Ast.name list) =
+   if
+     List.exists
+@@ -4466,9 +4509,8 @@
+       items
+   then failwith "codegen: GET into pointer formal unproven [TBD]";
+-  d st op_lxi_d; d st 0x90; d st 0x02;
+   d st op_lxi_b;
+   let bslot = st.lc in
+   d st 0; d st 0;
+-  call_ext st "?SYSIN";
++  call_ext st attach;
+   List.iter
+     (fun n ->
+@@ -4519,4 +4561,66 @@
+   call_ext st "?QIOOP";
+   emit_triple st bslot st.lc
++let lower_get st (items : Ast.name list) =
++  d st op_lxi_d; d st 0x90; d st 0x02;
++  lower_get_body st "?SYSIN" items
++let lower_get_file st (fu : string) (items : Ast.name list) =
++  load_file_cb st fu;
++  d st op_lxi_d; d st 0x90; d st 0x06;
++  lower_get_body st "?SIOOP" items
++let open_subset_keys = [ "FILE"; "INPUT"; "STREAM" ]
++let refuse_file_opt (what : string) (o : Ast.io_opt) (s : Ast.stmt) =
++  failwith
++    (Printf.sprintf
++       "codegen: %s option %s is outside the E2E-41/P1 witnessed subset [TBD] (line %d) \
++        -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); \
++        TITLE needs DR's 8-byte FCB prologue, ENVIRONMENT its ORGANIZATION and RECORD \
++        SIZE words, PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, and \
++        none of those combinations is byte-exactly pinned by a .REL in this repository yet"
++       what o.Ast.io_key s.Ast.spos.Source.line)
++let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) =
++  List.iter
++    (fun (o : Ast.io_opt) ->
++      if not (List.mem o.Ast.io_key open_subset_keys) then refuse_file_opt "OPEN" o s)
++    opts;
++  let has k = List.exists (fun (o : Ast.io_opt) -> o.Ast.io_key = k) opts in
++  if not (has "INPUT" || has "STREAM") then
++    failwith
++      (Printf.sprintf
++         "codegen: OPEN FILE(...) naming no INPUT or STREAM has no DR witness [TBD] (line %d) \
++          -- every one of the 34 measured opens names a mode; P0 section 12 probe C is the missing evidence"
++         s.Ast.spos.Source.line)
++  else
++    0x0400 lor 0x0200 lor 0x0010 lor 0x0080
++let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
++  let fu =
++    match List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "FILE") opts with
++    | [ { Ast.io_val = Some e; _ } ] -> file_group st s (Some e)
++    | _ -> failwith
++             (Printf.sprintf
++                "codegen: OPEN needs exactly one `FILE(name)' operand, got %d option(s) [TBD] (line %d)"
++                (List.length opts) s.Ast.spos.Source.line)
++  in
++  let w1 = open_mode_word s opts in
++  d st op_xra_a; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
++  d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
++  d st op_push_h;
++  d st op_mov_h_b; d st op_mov_l_b;
++  for _ = 1 to 5 do d st op_push_h done;
++  load_file_cb st fu;
++  call_ext st "?OIOOP"
++let lower_close st (s : Ast.stmt) (opts : Ast.io_opt list) =
++  let files = List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "FILE") opts in
++  (match List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key <> "FILE") opts with
++   | o :: _ -> refuse_file_opt "CLOSE" o s
++   | [] -> ());
++  (match files with
++   | [ { Ast.io_val = Some e; _ } ] ->
++       let fu = file_group st s (Some e) in
++       load_file_cb st fu;
++       call_ext st "?CIOOP"
++   | _ -> failwith
++            (Printf.sprintf
++               "codegen: CLOSE needs exactly one `FILE(name)' operand, got %d [TBD] (line %d)"
++               (List.length files) s.Ast.spos.Source.line))
+ let lower_cat st (skipn : put_skip) (ch : chain) =
+   let maxlit = match ch with C2 (l, _, _) -> String.length l
+@@ -5010,10 +5114,5 @@
+   | [] -> failwith "codegen: PUT EDIT format table not pre-allocated [TBD]"
+ let on_reg_prefix st (fu : string) =
+-  d st op_lxi_h;
+-  if st.cur_common <> Some fu then begin
+-    link st t_sel_common None (Some fu);
+-    st.cur_common <- Some fu
+-  end;
+-  reloc st Common 0;
++  load_file_cb st fu;
+   d st op_mvi_a;
+   d st 0x05
+@@ -5357,5 +5456,9 @@
+       (match match_get_list_var s with
+        | Some nm -> lower_get st nm
+-       | None -> failwith
++       | None ->
++         match match_get_list_file s with
++         | Some (fe, nm) ->
++             lower_get_file st (file_group st s (Some fe)) nm
++         | None -> failwith
+              (Printf.sprintf
+                 "codegen: GET form not in E2E-3e subset [TBD] \
+@@ -5775,4 +5878,15 @@
+   | Ast.Sdcl _ -> ()
+   | Ast.Snull _ -> ()
++  | Ast.Sfilestmt { key = "OPEN"; opts } ->
++      st.lowered <- st.lowered + 1; st.last_imm <- None;
++      lower_open st s opts
++  | Ast.Sfilestmt { key = "CLOSE"; opts } ->
++      st.lowered <- st.lowered + 1; st.last_imm <- None;
++      lower_close st s opts
++  | Ast.Sfilestmt { key = k; _ } ->
++      st.lowered <- st.lowered + 1; st.last_imm <- None;
++      failwith
++        (Printf.sprintf "codegen: %s of a named file has no DR witness in this repository yet [TBD] (line %d)"
++           k s.Ast.spos.Source.line)
+   | _ -> failwith
+          (Printf.sprintf "codegen: statement kind not in supported subset \

@@ -139,6 +139,13 @@ STAGE_IN.update({
     "E18A": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
     "E18B": [("d", "INF.DAT", os.path.join(PROJ, "e13dat/INF.DAT"))],
 })
+STAGE_IN.update({
+    # [E2E-41/P1b] the two titleless stream probes P0 §12 asked to run.  DR builds the
+    # FCB from the FILE variable's OWN name -- P0 §9 and the note above this dict agree:
+    # a literal TITLE does not name the file -- so `dcl f file' looks for F.DAT.
+    "P081Q": [("d", "F.DAT", os.path.join(PROJ, "e41dat/F.DAT"))],
+    "P072H": [("d", "F.DAT", os.path.join(PROJ, "e41dat/F.DAT"))],
+})
 EXPORT_OUT = {
     # same default-naming rule: an output FILE named OUTF
     # lands as OUTF.DAT, not E16OUT.DAT

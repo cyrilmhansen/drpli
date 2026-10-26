@@ -5,13 +5,26 @@ episode and unchanged: **983 byte-exact / 0 fail, 128/128 refusals, 9/9
 divergences, 46/46 runtime, coverage 86 rows / 0 errors / 0 warnings, census
 44 HISTORICAL / 41 AUTHENTIC / 15 EXACT / 26 REFUSED / 0 UNEXPECTED, exit 0.**
 
-**P0 changes no OCaml source, no test registration and no golden.** Everything in
+**P0 changes no OCaml source, no test registration and no golden.**  Everything in
 this note comes from DR objects already in the repo, read with the tools in
-`spec/lab-evidence/e2e41-p0/`. Nothing here is a registered claim: no CLAIMS.md row
+`spec/lab-evidence/e2e41-p0/`.  Nothing here is a registered claim: no CLAIMS.md row
 is added, because a claim in this spec gets registered with the gate row that
-re-measures it. Sections 6-8 state *candidates* with their witnesses and their
+re-measures it.  Sections 6-8 state *candidates* with their witnesses and their
 counterexamples, and section 10 says exactly which samples are missing before any of
 them can become a claim.
+
+> **[CORRECTED IN P1 -- read before using three numbers in this note.]**  P1 lowered the
+> titleless stream OPEN and it landed byte-exact on the first compile, which validates the
+> *decoding* in sections 2-4 completely.  It also exposed three prose errors in this note,
+> recorded as [C276]: (a) the section 1(c) comparison of a 553-byte `probes/P072H.REL`
+> against an `E45P` copy is withdrawn -- there is no E45P batch in this repository, and
+> both real objects are 384 bytes (code 65 and 63), reproduced byte for byte by a fresh
+> oracle run in `golden/e41p1/`; (b) every block length in `OPEN-BLOCKS.txt` /
+> `OPEN-MATRIX.tsv` is 3 bytes too long, because the printed window includes the
+> relocation operand that follows `CALL ?OIOOP` -- statement addresses in DR's own `.PRN`
+> are the fix (`open` 21 bytes, not 24); (c) the zero words are built with `MOV H,B /
+> MOV L,B` (0x68 = 01 101 000), not `MOV L,H` -- the decoder here and `tools/dis80.py`
+> were right, the prose was not.
 
 ---
 
@@ -121,7 +134,8 @@ hold copies of the same oracle output, and a copy is not independent evidence).
    CLOSE), with zero anomalies**: every OPEN block is exactly six pushed words.
 5. Register state is tracked symbolically while walking, because DR does not always
    build a word with `LXI H`: `XRA A / MOV B,A / MOV H,B / MOV L,B` pushes 0x0000, and
-   `MOV L,H` collapses HL to a repeated byte. Without that, four of the six words in
+   `MOV L,B` (0x68 = 01 101 000, NOT 0x6C) collapses HL to a repeated byte.  Without
+   that, four of the six words in
    the 21-byte blocks look unset.
 
 Why the symbolic walk exists at all: in the linked `.COM` a pushed word is just a
@@ -151,7 +165,7 @@ CALL ?OIOOP                 CHAIN-EXT to PLILIB
 ```
 
 …except that DR reuses registers instead of re-loading: 15 of 34 blocks are 29 bytes
-because the zero words come from `MOV L,H` (HL collapses to 0x0000 after a
+because the zero words come from `MOV H,B / MOV L,B` (HL collapses to 0x0000 after a
 `LXI H,0080`) and from repeated `PUSH H` rather than fresh `LXI H` pairs. Full size
 histogram (from `OPEN-MATRIX.tsv`):
 

@@ -1,0 +1,119 @@
+# [E2E-41/P1b] DR's bytes, my bytes, and the two independent cross-checks.
+# Regenerate: this file is produced by the commands echoed in each block.
+
+============================================================================
+== P081Q   source probes/P081Q.PLI
+   pp081q: procedure options(main);
+      declare f file, i fixed;
+      open file(f) input;
+      get file(f) list(i);
+      close file(f);
+   end pp081q;
+
+-- compile: wrote /tmp/e41p1/P081Q.rel (384 bytes, code=63 data=2)
+-- whole-file compare vs the fresh DR object golden/e41p1/.../P081Q.REL: IDENTICAL (384 bytes)
+-- whole-file compare vs the historical golden/probe50/.../P081Q.REL:      IDENTICAL
+-- fresh DR object vs the historical one (section 1 of the note):  IDENTICAL
+
+-- DR listing statement addresses (tools/dis80-free cross-check of every block length):
+      1 a 0000 pp081q: procedure options(main);
+      2 c 0006    declare f file, i fixed;
+      3 c 0006    open file(f) input;
+      4 c 001B    get file(f) list(i);
+      5 c 0036    close file(f);
+      6 a 003C end pp081q;
+   CODE SIZE = 003F
+   DATA AREA = 0002
+
+-- tools/dis80.py over MY relocated-free .REL (same bytes as DR by the line above):
+   0000  LXI  B 0200                ; 01 00 02
+   0003  CALL 0000                  ; CD 00 00
+   0006  XRA A                      ; AF
+   0007  MOV  B,A                   ; 47
+   0008  PUSH B                     ; C5
+   0009  INX  SP                    ; 33
+   000A  LXI  H 0690                ; 21 90 06
+   000D  PUSH H                     ; E5
+   000E  MOV  H,B                   ; 60
+   000F  MOV  L,B                   ; 68
+   0010  PUSH H                     ; E5
+   0011  PUSH H                     ; E5
+   0012  PUSH H                     ; E5
+   0013  PUSH H                     ; E5
+   0014  PUSH H                     ; E5
+   0015  LXI  H None/None           ; 21   .   .
+   0018  CALL 0000                  ; CD 00 00
+   001B  LXI  H None/None           ; 21   .   .
+   001E  LXI  D 0690                ; 11 90 06
+   0021  LXI  B 0000                ; 01 00 00
+   0024  CALL 0000                  ; CD 00 00
+   0027  CALL 0000                  ; CD 00 00
+   002A  JP 0000                    ; F2 00 00
+   002D  CALL 0000                  ; CD 00 00
+   0030  SHLD None/None             ; 22   .   .
+   0033  CALL 0000                  ; CD 00 00
+   0036  LXI  H <None>/None         ; 21 <None>     .
+   0039  CALL 0000                  ; CD 00 00
+   003C  CALL 0000                  ; CD 00 00
+
+-- raw code bytes, DR object, offsets 0x0000..end:
+   file length 384 bytes; sha1 59a603894298f75074e2f6f59fca3b40488be488
+
+============================================================================
+== P072H   source probes/P072H.PLI
+   pp072h: procedure options(main);
+      declare f file, s char(30) varying;
+      open file(f) input;
+      get file(f) list(s);
+      close file(f);
+   end pp072h;
+
+-- compile: wrote /tmp/e41p1/P072H.rel (384 bytes, code=65 data=31)
+-- whole-file compare vs the fresh DR object golden/e41p1/.../P072H.REL: IDENTICAL (384 bytes)
+-- whole-file compare vs the historical golden/probe40/.../P072H.REL:      IDENTICAL
+-- fresh DR object vs the historical one (section 1 of the note):  IDENTICAL
+
+-- DR listing statement addresses (tools/dis80-free cross-check of every block length):
+      1 a 0000 pp072h: procedure options(main);
+      2 c 0006    declare f file, s char(30) varying;
+      3 c 0006    open file(f) input;
+      4 c 001B    get file(f) list(s);
+      5 c 0038    close file(f);
+      6 a 003E end pp072h;
+   CODE SIZE = 0041
+   DATA AREA = 001F
+
+-- tools/dis80.py over MY relocated-free .REL (same bytes as DR by the line above):
+   0000  LXI  B 0200                ; 01 00 02
+   0003  CALL 0000                  ; CD 00 00
+   0006  XRA A                      ; AF
+   0007  MOV  B,A                   ; 47
+   0008  PUSH B                     ; C5
+   0009  INX  SP                    ; 33
+   000A  LXI  H 0690                ; 21 90 06
+   000D  PUSH H                     ; E5
+   000E  MOV  H,B                   ; 60
+   000F  MOV  L,B                   ; 68
+   0010  PUSH H                     ; E5
+   0011  PUSH H                     ; E5
+   0012  PUSH H                     ; E5
+   0013  PUSH H                     ; E5
+   0014  PUSH H                     ; E5
+   0015  LXI  H None/None           ; 21   .   .
+   0018  CALL 0000                  ; CD 00 00
+   001B  LXI  H None/None           ; 21   .   .
+   001E  LXI  D 0690                ; 11 90 06
+   0021  LXI  B 0000                ; 01 00 00
+   0024  CALL 0000                  ; CD 00 00
+   0027  CALL 0000                  ; CD 00 00
+   002A  JP 0000                    ; F2 00 00
+   002D  LXI  H None/None           ; 21   .   .
+   0030  MVI  B 1E                  ; 06 1E
+   0032  CALL 0000                  ; CD 00 00
+   0035  CALL 0000                  ; CD 00 00
+   0038  LXI  H <None>/None         ; 21 <None>     .
+   003B  CALL 0000                  ; CD 00 00
+   003E  CALL 0000                  ; CD 00 00
+
+-- raw code bytes, DR object, offsets 0x0000..end:
+   file length 384 bytes; sha1 fda266e2176b80ccdbff7ecb55cdc7297e097315

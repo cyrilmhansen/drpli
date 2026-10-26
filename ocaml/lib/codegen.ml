@@ -1036,6 +1036,62 @@ let emit_triple st slot value =
   push st (Reloc (Code, value));
   link st t_set_lc (Some (Code, value)) None
 
+(* ---------- [E2E-41/P1b] the pieces every named-FILE statement shares ----------
+
+   Five opcodes DR uses to build an OPEN block and that this file had no name for.
+   Three of them are single-byte MOV forms the DR80 opcode TABLE in tools/dis80.py does
+   not carry (its disassembler decodes the whole 0x40-0x7F family generically from
+   learned evidence -- dis80.py line 82 -- which is where the names below come from), so
+   the bytes are taken from P081Q/P072H themselves: code 0007 = 47 (MOV B,A, already
+   op_mov_b_a [V102/V103]), 000E = 60, 000F = 68.  MOV H,B is 01 100 000 = 0x60 and
+   MOV L,B is 01 101 000 = 0x68; MOV H,L is 0x65, MOV L,H is 0x6C and MOV L,D is 0x6a,
+   which is the same trap op_mov_l_d's comment already records [C072-class naming
+   risk]. *)
+let op_xra_a   = 0xaf
+let op_push_b  = 0xc5
+let op_inx_sp  = 0x33
+let op_mov_h_b = 0x60
+(* 0x68 = 01 101 000 = MOV L,B.  NOT MOV L,H, which is 0x6C -- and not 0x65, which is
+   MOV H,L, nor 0x6a, MOV L,D, both already recorded on the same trap above [C072].
+   P0's note prose said MOV L,H; its decoder (openblocks.py `elif op == 0x68: L = B')
+   and tools/dis80.py both say MOV L,B, which is what the encoding gives.  The bytes
+   were never wrong -- only the name. *)
+let op_mov_l_b = 0x68
+
+(* A FILE operand resolves to the NAMED COMMON group DR builds for that file:
+   the uppercased declared name (P0 §5: /F/, /INF/, /OUTF/, /EMP/ ... -- the group
+   symbol is the first 6 characters, but every name reachable in P1 is <= 6, and
+   codegen still refuses longer ones at layout time [C120]).  Same declared-FILE
+   test ON ENDFILE uses (codegen.ml ~9787), so a file statement cannot name a
+   FIXED variable and get a control block out of it. *)
+let file_group st (s : Ast.stmt) (e : Ast.expr option) =
+  match e with
+  | Some { Ast.e = Ast.Eident n; _ } ->
+      let fu = String.uppercase_ascii n.Ast.orig in
+      if not (List.mem fu st.files) then
+        failwith
+          (Printf.sprintf
+             "codegen: FILE(%s) names something that is not a declared FILE [TBD] (line %d)"
+             n.Ast.orig s.Ast.spos.Source.line)
+      else fu
+  | _ ->
+      failwith
+        (Printf.sprintf
+           "codegen: a FILE statement whose file operand is not a plain declared file name is unproven [TBD] (line %d) -- multi-file forms such as `close file(a,b)' parse (the manual's Inform-6 list, p.90) but no DR object measures what they push"
+           s.Ast.spos.Source.line)
+
+(* LXI H,<the file's control block>, with DR's SEL-COMMON rule: the group is
+   selected only when it CHANGES (st.cur_common), which is why P081Q's three
+   references to /F/ carry one SEL-COMMON and two bare RELOC records.  This is the
+   one authority for the prefix; on_reg_prefix below is its other user [C202]. *)
+let load_file_cb st (fu : string) =
+  d st op_lxi_h;
+  if st.cur_common <> Some fu then begin
+    link st t_sel_common None (Some fu);
+    st.cur_common <- Some fu
+  end;
+  reloc st Common 0
+
 (* ---- decimal constant POOL (DATA segment) ----
    PL/I-80 stores a literal-base `k ** n` base as a DECIMAL pool entry
    (proven across 6 samples 2/7/12/25/100 + P071D):
@@ -2286,6 +2342,29 @@ let match_get_list_var (s : Ast.stmt) =
       names [] items
   | _ -> None
 
+(* [E2E-41/P1b] `get file(f) list(i)'.  The parser puts the FILE option in `on_opts'
+   because the grammar really is a stream-options list (P0 section 2(b)), so this is
+   pattern matching on that accident, NOT a belief that FILE is an ON unit: the
+   option-list arm of GET/PUT in lib/parser.ml takes an optional FILE first and that
+   is where the name comes from.  Exactly one FILE option, no other option, no stream
+   expression, LIST form only. *)
+let match_get_list_file (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sget { stream = None; kind = Ast.List_; on_opts; items } ->
+      let is_file (o : Ast.io_opt) = o.Ast.io_key = "FILE" in
+      let rec names acc = function
+        | [] -> Some (List.rev acc)
+        | Ast.Pi_data { Ast.e = Ast.Eident n; _ } :: tl -> names (n :: acc) tl
+        | _ -> None
+      in
+      (match on_opts, names [] items with
+       | [ o ], Some nm when is_file o ->
+           (match o.Ast.io_val with
+            | Some ({ Ast.e = Ast.Eident _; _ } as e) -> Some (e, nm)
+            | _ -> None)
+       | _ -> None)
+  | _ -> None
+
 (* pool demand: RECURSIVE over container bodies (G114: puts live inside
    IF arms; a flat scan under-counts the pool and shifts DATA) *)
 (* [E2E-7A slice 1] a DECIMAL comparison literal takes a pool cell sized
@@ -2574,6 +2653,7 @@ let lower_put_lit st (skipn : put_skip) (v : string) =
      this statement), not an epilogue. [G107/G108: continuation == the
      ?STOPX call, so both models coincided.] *)
   emit_triple st bslot st.lc
+
 
 (* count statements that MUST be accounted for by lowering (everything
    except declarations and empty statements). The counter + per-stmt
@@ -8055,17 +8135,21 @@ statement form IS implemented; this expression form is not.)")
      FIXED BIN(2b)  : ?QCIOP ; SHLD var                [R903, R904: no MVI]
      CHAR VAR(cap)  : LXI H,var ; MVI B,cap ; ?SSVFS   [X201/X202]
 *)
-let lower_get st (items : Ast.name list) =
+
+(* THE one GET item chain: LXI B,<continuation> ; CALL <attach> ; per item
+   ?GNVOP/JP/<conversion> ; ?QIOOP, then the continuation triple.  Shared by the
+   console and the named-file form so the item lowering cannot drift between them
+   [C202: one authority, two callers]. *)
+let lower_get_body st (attach : string) (items : Ast.name list) =
   if
     List.exists
       (fun n -> List.mem (String.lowercase_ascii n.Ast.orig) st.deref)
       items
   then failwith "codegen: GET into pointer formal unproven [TBD]";
-  d st op_lxi_d; d st 0x90; d st 0x02;   (* LXI D,0290 input desc *)
   d st op_lxi_b;
   let bslot = st.lc in
   d st 0; d st 0;
-  call_ext st "?SYSIN";
+  call_ext st attach;
   List.iter
     (fun n ->
       call_ext st "?GNVOP";
@@ -8129,6 +8213,153 @@ let lower_get st (items : Ast.name list) =
     items;
   call_ext st "?QIOOP";
   emit_triple st bslot st.lc           (* continuation = next stmt *)
+
+(* the console GET: the same body with no control block and no named attach; the
+   bytes of [R903/R904, X201/X202] are unchanged by this refactoring. *)
+let lower_get st (items : Ast.name list) =
+  d st op_lxi_d; d st 0x90; d st 0x02;   (* LXI D,0290 input desc *)
+  lower_get_body st "?SYSIN" items
+(* [E2E-41/P1b] the same skeleton with a NAMED FILE attached.  P081Q (golden/probe50)
+   and P072H (golden/probe40) are byte-exact witnesses; their GET is the console GET
+   with two changes and nothing else:
+     * one extra instruction first: LXI H,<the file's control block>;
+     * LXI D,<mode> and the routine name differ -- 0x0690 / ?SIOOP for an input
+       stream, against 0x0290 / ?SYSIN on the console.
+   The ITEM chain is identical: P081Q's fixed-bin item is `CALL ?GNVOP ; JP ; CALL
+   ?QCIOP ; SHLD i' -- the [R903/R904] console form byte for byte -- and P072H's
+   varying item is `CALL ?GNVOP ; JP ; LXI H,s ; MVI B,1E ; CALL ?SSVFS' -- the
+   [X201/X202] console form byte for byte.  That is why this is one lowering with a
+   parameter and not a second copy of GET.
+
+   0x0690 is NOT `the open's w1 with bits cleared': P0 §8 disproved that rule on 30 of
+   68 comparable attaches.  It is the input mode word in its own right, witnessed 26
+   times in SIOMODES.txt -- including on files opened with w1 = 0x0E90 (E16C, E17C,
+   E18A/B, whose TITLE and stream bits differ) -- so the attach word depends on the
+   STATEMENT, not on the open.  An output or keyed attach word has witnesses here
+   (0x0652 for put list, 0x0650 for write-from, 0x0594 for keyed read) but no P1
+   lowering, so those statements refuse below rather than borrow this constant. *)
+let lower_get_file st (fu : string) (items : Ast.name list) =
+  load_file_cb st fu;
+  d st op_lxi_d; d st 0x90; d st 0x06;    (* LXI D,0690 input mode word *)
+  lower_get_body st "?SIOOP" items
+
+(* ---------- [E2E-41/P1b] OPEN and CLOSE of a named STREAM file ----------
+
+   P0 read 34 OPEN blocks out of 24 distinct DR-compiled objects
+   (spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt, OPEN-MATRIX.tsv) and found one shape
+   in all 34: a title prologue, then six PUSHed option words, then LXI H over the
+   file's control block and CALL ?OIOOP.  CLOSE is six bytes in all 5 measured sites:
+   LXI H over the same control block, CALL ?CIOOP, pushing NOTHING -- the control
+   block is its only argument, which is why adding a word here would change the
+   length and not the bytes and why every CLOSE specimen pins length too.
+
+   What is lowered here is the titleless stream form only: P081Q (golden/probe50,
+   63 code bytes) and P072H (golden/probe40, 77).  Everything that needs the
+   8-byte FCB prologue, an attribute word, or a string title refuses below. *)
+
+(* the option words P1 tolerates on OPEN.  Not a codegen claim about the others: the
+   parser accepts the whole documented vocabulary (P1a) so that the option list is
+   visible, and codegen refuses what it cannot emit byte-exactly. *)
+let open_subset_keys = [ "FILE"; "INPUT"; "STREAM" ]
+
+let refuse_file_opt (what : string) (o : Ast.io_opt) (s : Ast.stmt) =
+  failwith
+    (Printf.sprintf
+       "codegen: %s option %s is outside the E2E-41/P1 witnessed subset [TBD] (line %d) \
+        -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); \
+        TITLE needs DR's 8-byte FCB prologue, ENVIRONMENT its ORGANIZATION and RECORD \
+        SIZE words, PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, and \
+        none of those combinations is byte-exactly pinned by a .REL in this repository yet"
+       what o.Ast.io_key s.Ast.spos.Source.line)
+
+(* the option word, assembled from P0 section 3's fitted bit table. *)
+let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) =
+  List.iter
+    (fun (o : Ast.io_opt) ->
+      if not (List.mem o.Ast.io_key open_subset_keys) then refuse_file_opt "OPEN" o s)
+    opts;
+  let has k = List.exists (fun (o : Ast.io_opt) -> o.Ast.io_key = k) opts in
+  (* INPUT and STREAM denote the SAME bit set: P021:3 `open file(inf) input
+     title($1.$1)' and E17B:4 `open file(inf) stream title($1.$1)' both measure
+     w1 = 0x0E90 (OPEN-MATRIX.tsv, 9 sites), and the titleless spelling measures
+     0x0690 at both of its sites (P072H:3, P081Q:3).  So 0x0200 (stream organisation,
+     DR's default) and 0x0080 (input mode) are set whichever word is written, 0x0010
+     is set by every stream open, and 0x0400 -- file rather than console -- is set in
+     all 34 samples.
+     An open naming NO mode is refused: it is unmeasured (P0 section 12, probe C), and
+     0x0690 for it would be an inference from the default-bit reading above, not a
+     witness. *)
+  if not (has "INPUT" || has "STREAM") then
+    failwith
+      (Printf.sprintf
+         "codegen: OPEN FILE(...) naming no INPUT or STREAM has no DR witness [TBD] (line %d) \
+          -- every one of the 34 measured opens names a mode; P0 section 12 probe C is the missing evidence"
+         s.Ast.spos.Source.line)
+  else
+    0x0400 lor 0x0200 lor 0x0010 lor 0x0080
+
+let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
+  let fu =
+    match List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "FILE") opts with
+    | [ { Ast.io_val = Some e; _ } ] -> file_group st s (Some e)
+    | _ -> failwith
+             (Printf.sprintf
+                "codegen: OPEN needs exactly one `FILE(name)' operand, got %d option(s) [TBD] (line %d)"
+                (List.length opts) s.Ast.spos.Source.line)
+  in
+  let w1 = open_mode_word s opts in
+  (* DR's zero-length title: XRA A / MOV B,A / PUSH B / INX SP, leaving one zero byte
+     on the stack above the six words (P0 section 2).  Not invented -- the IDENTICAL
+     four bytes are DR's own console-input prologue in ?CIN (1A 47 C5 33 at 83A0 in
+     both PLILIB.COM and PLILIB0.COM, which P0 section 11 uses to confirm the PUSH
+     order) and sit at the head of P019B's titleless `open file(pf) print', so three
+     independent measurements fix them.  The `INX SP' is what makes the argument one
+     byte and not a word: DR's parameterless-CALL convention leaves SP one past the
+     data [C205]. *)
+  d st op_xra_a; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
+  d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
+  d st op_push_h;
+  (* The remaining five words are zero for this form -- and they are zero for
+     DIFFERENT documented reasons, which is why no loop of five `LXI H,0000' is used:
+       w2 ORGANIZATION  : an ENVIRONMENT datum (P0 section 3: it appears ONLY with
+                          bit 0x4000, as 08 stream / 10 direct / 18 keyed), so with no
+                          ENVIRONMENT clause DR leaves it 0.
+       w3 BLOCK(n), w4 FILE(n): record-oriented.  A stream open carries neither: the
+                          closest witness is P042A:3 `open file(output) stream', which
+                          measures B(4096)/F(4096) in w3/w4, while the titleless stream
+                          opens of P072H and P081Q measure 0/0 -- DR's own defaults
+                          apply, and the 128-byte OUT.DAT of E17D comes from an open
+                          that spells F(128), not from this shape.
+       w5 PAGESIZE, w6 LINESIZE: set only by their own options, each with a single
+                          witness site in P0 section 4 (P021 for PAGESIZE, KEYFILE for
+                          LINESIZE) and no measured combination of the two.
+     DR writes all five with MOV H,B / MOV L,B -- B is still the 0 of the title byte,
+     so both halves come from it and HL stays 0000 -- rather than five more LXI H,PUSH H: the
+     register-reuse peephole is part of the byte-exact target [P0 section 2]. *)
+  d st op_mov_h_b; d st op_mov_l_b;
+  for _ = 1 to 5 do d st op_push_h done;
+  load_file_cb st fu;
+  call_ext st "?OIOOP"
+
+let lower_close st (s : Ast.stmt) (opts : Ast.io_opt list) =
+  (* CLOSE takes a file name and nothing else in every measured site: 5 objects
+     (E16D, E17D, RETRIEVE, P072H, P081Q), all `close file(<one name>)', all 6 bytes.
+     Multi-file CLOSE (`close file(a,b)') is the obvious generalisation and is NOT
+     measured -- DR may well push a vector of control blocks -- so it refuses here
+     until a .REL says what it is. *)
+  let files = List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "FILE") opts in
+  (match List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key <> "FILE") opts with
+   | o :: _ -> refuse_file_opt "CLOSE" o s
+   | [] -> ());
+  (match files with
+   | [ { Ast.io_val = Some e; _ } ] ->
+       let fu = file_group st s (Some e) in
+       load_file_cb st fu;
+       call_ext st "?CIOOP"
+   | _ -> failwith
+            (Printf.sprintf
+               "codegen: CLOSE needs exactly one `FILE(name)' operand, got %d [TBD] (line %d)"
+               (List.length files) s.Ast.spos.Source.line))
 
 (* PUT LIST with || chain: DR evaluates RIGHT-to-LEFT while the
    pool is allocated LEFT-to-RIGHT in source order [W102 hex:
@@ -8861,12 +9092,7 @@ let take_fmt_addr st =
      not DR's rule -- it would have put 9 bytes of record stream into every second file
      statement, including NETWORK's, where it is measurable. *)
 let on_reg_prefix st (fu : string) =
-  d st op_lxi_h;
-  if st.cur_common <> Some fu then begin
-    link st t_sel_common None (Some fu);
-    st.cur_common <- Some fu
-  end;
-  reloc st Common 0;
+  load_file_cb st fu;
   d st op_mvi_a;
   d st 0x05
 
@@ -9467,7 +9693,14 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (match match_get_list_var s with
        | Some nm -> lower_get st nm
-       | None -> failwith
+       | None ->
+         match match_get_list_file s with
+         | Some (fe, nm) ->
+             (* [E2E-41/P1b] a named input stream: LXI H,<CB> ; LXI D,0690 ;
+                LXI B,<continuation> ; CALL ?SIOOP, then the one item chain the
+                console form uses [P081Q, P072H]. *)
+             lower_get_file st (file_group st s (Some fe)) nm
+         | None -> failwith
              (Printf.sprintf
                 "codegen: GET form not in E2E-3e subset [TBD] \
                  (line %d)" s.Ast.spos.Source.line))
@@ -10098,6 +10331,18 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       end
   | Ast.Sdcl _ -> ()
   | Ast.Snull _ -> ()
+  (* [E2E-41/P1b] OPEN and CLOSE of a declared file, subset-gated inside. *)
+  | Ast.Sfilestmt { key = "OPEN"; opts } ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      lower_open st s opts
+  | Ast.Sfilestmt { key = "CLOSE"; opts } ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      lower_close st s opts
+  | Ast.Sfilestmt { key = k; _ } ->
+      st.lowered <- st.lowered + 1; st.last_imm <- None;
+      failwith
+        (Printf.sprintf "codegen: %s of a named file has no DR witness in this repository yet [TBD] (line %d)"
+           k s.Ast.spos.Source.line)
   | _ -> failwith
          (Printf.sprintf "codegen: statement kind not in supported subset \
                           [TBD] (line %d)" s.Ast.spos.Source.line)

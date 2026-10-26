@@ -1,0 +1,6 @@
+t:
+  procedure options(main);
+  dcl f file;
+  open file(f) title('XY');
+  close file(f);
+end t;

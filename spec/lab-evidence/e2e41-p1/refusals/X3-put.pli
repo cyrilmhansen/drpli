@@ -1,0 +1,5 @@
+t:
+  procedure options(main);
+  dcl f file;
+  put file(f) list('A');
+end t;

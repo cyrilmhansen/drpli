@@ -422,6 +422,9 @@ E41P1	specimen	artefacts/E41P1.PLI	golden/e41p/E41P1/E41P1.REL
 E41P2	specimen	artefacts/E41P2.PLI	golden/e41p/E41P2/E41P2.REL
 E41P3	specimen	artefacts/E41P3.PLI	golden/e41p/E41P3/E41P3.REL
 E41P4	specimen	artefacts/E41P4.PLI	golden/e41p/E41P4/E41P4.REL
+E41X1	refusal	t:\n  procedure options(main);\n  dcl f file;\n  open file(f) title('XY');\n  close file(f);\nend t;\n	DR compiles a titled stream open: 25 of the 34 OPEN blocks P0 measured carry a TITLE (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv), e.g. golden/e2e11h/E16B/E16B.REL (`open file(inf) stream title('E16IN DAT')'). I refuse because the titled form needs DR's 8-byte FCB prologue (3E 40 ED 51 22 F1 33 CD 3A E9) plus the ?SLCTS/?SLVTS string call in place of `XRA A', and neither is lowered yet -- E2E-41/P2's first item.
+E41X4	refusal	t:\n  procedure options(main);\n  dcl f file, s char(20);\n  read file(f) into(s);\nend t;\n	DR compiles READ of a named file: golden/bind1/KEYFILE/KEYFILE.REL is built from `read file(input) into(employee) keyto(k)' (KEYFILE.PLI:23) and its record-oriented chain is ?WNIOP/?RNIOP/?KEYTO.  I refuse; P1 lowers only OPEN, GET LIST and CLOSE.
+E41X5	refusal	t:\n  procedure options(main);\n  dcl f file;\n  put file(f) list('A');\nend t;\n	DR compiles PUT of a named file: golden/e2e11h/E16D/E16D.REL contains `put file(outf) list('HELLO')' and attaches with mode word 0652H (36 such sites in spec/lab-evidence/e2e41-p0/SIOMODES.txt).  Mine refuses with the pre-existing PUT-with-options message, which is true as far as it goes -- the ?OIOOP/?SIOOP route is what is missing -- and the output-file comparison P2 needs already exists in this repository (golden/e2e11iu/E17D/OUT.DAT, exactly 128 bytes, from an open that spells F(128)).
 E42N1	refusal	b9e: procedure options(main);\n  declare 1 g, 2 a fixed, 2 b fixed;\n  g.a = 5;\n  g.b = 100;\n  a = -5;\n  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n	DR VERDICT UNMEASURED: `a = -5' into an internal member.  E42P2 shows DR parks a literal-conversion result, and the negation route (lit_dec_neg_to_hl) has no member sample at all, so mine refuses instead of guessing which of DR's store shapes would take it
 E42N2	refusal	b9e: procedure options(main);\n  declare 1 g, 2 a fixed, 2 b fixed;\n  g.a = 5;\n  g.b = 100;\n  a = -65535;\n  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n	DR VERDICT UNMEASURED at compile, and its nearest witness is a RUNTIME ABORT: E42P2 (`a = 65535' into the same member) links and then prints `ERROR (1), Conversion' with a traceback (golden/e42p/E42P2.output.txt), because a FIXED BIN(15) cell cannot hold 65535.  A negative literal of any magnitude is therefore refused here rather than compiled into a sequence whose runtime behaviour is unknown
 E42N4	refusal	b9e: procedure options(main);\n  declare 1 g, 2 a fixed, 2 b fixed;\n  g.a = 5;\n  g.b = 100;\n  a = 100000;\n  put list(a);\n  put list(g.b);\n  stop;\nend b9e;\n	DR VERDICT UNMEASURED: `a = 100000'.  E42P2 (65535) and LR7 (32768 at an array cell) bound the decimal-conversion magnitudes DR is known to emit; above 65535 nothing is sampled
@@ -701,6 +704,8 @@ P071A	specimen	probes/P071A.PLI	golden/probe38/P071A/P071A.REL
 P071B	specimen	probes/P071B.PLI	golden/probe38/P071B/P071B.REL
 P071D	specimen	probes/P071D.PLI	golden/probe38/P071D/P071D.REL
 P071K	specimen	probes/P071K.PLI	golden/e2e310d/P071K/P071K.REL
+P072H	specimen	probes/P072H.PLI	golden/e41p1/P072H/P072H.REL
+P081Q	specimen	probes/P081Q.PLI	golden/e41p1/P081Q/P081Q.REL
 P086M	specimen	probes/P086M.PLI	golden/e2e310d/P086M/P086M.REL
 P1	specimen	e16src/P1.PLI	golden/e2e174/P1/P1.REL
 P10	specimen	e16src/P10.PLI	golden/e2e174/P10/P10.REL

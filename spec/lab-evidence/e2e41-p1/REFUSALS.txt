@@ -1,0 +1,66 @@
+# [E2E-41/P1b] every named-FILE shape this compiler has been asked about, what it does
+# with it, and what DR evidence exists for it.  Regenerate with:
+#   (the case list lives in the phase script; equivalently run each source through
+#    ./ocaml/_build/default/bin/pli80c.exe <src> /tmp/r.rel and read exit+first line)
+# Nothing here is a claim about DR unless the `dr' line cites an object.
+
+== titleless stream open + GET fixed + CLOSE  [LOWERED, byte-exact]
+   source : probes/P081Q.PLI
+   verdict: exit=0  COMPILES  (384 bytes, code=63 data=2)
+   dr     : P081Q is a specimen: golden/probe50/P081Q/P081Q.REL, whole-file identical.
+
+== titleless stream open + GET char varying  [LOWERED, byte-exact]
+   source : probes/P072H.PLI
+   verdict: exit=0  COMPILES  (384 bytes, code=65 data=31)
+   dr     : P072H is a specimen: golden/probe40/P072H/P072H.REL, whole-file identical.
+
+== open with a TITLE
+   source : spec/lab-evidence/e2e41-p1/refusals/X1-title.pli
+   verdict: exit=2  codegen: OPEN option TITLE is outside the E2E-41/P1 witnessed subset [TBD] (line 4) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); TITLE needs DR's 8-byte FCB prologue, ENVIRONMENT its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, and none of those combinations is byte-exactly pinned by a .REL in this repository yet
+   dr     : DR: 25 of 34 measured OPEN blocks carry a TITLE (golden/e2e11h/E16B/E16B.REL).  ON the negative panel as E41X1 (my-gap).
+
+== READ FILE(f) INTO(s)
+   source : spec/lab-evidence/e2e41-p1/refusals/X2-read.pli
+   verdict: exit=2  codegen: READ of a named file has no DR witness in this repository yet [TBD] (line 4)
+   dr     : DR: golden/bind1/KEYFILE/KEYFILE.REL (KEYFILE.PLI:23).  ON the panel as E41X4 (my-gap).
+
+== PUT FILE(f) LIST('A')
+   source : spec/lab-evidence/e2e41-p1/refusals/X3-put.pli
+   verdict: exit=2  codegen: [TBD] PUT LIST with ON options (line 4): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array gap
+   dr     : DR: golden/e2e11h/E16D/E16D.REL.  ON the panel as E41X5 (my-gap).  The message is PUT's pre-existing one because the parser stores FILE in on_opts (P0 section 2(b)); P2 routes it.
+
+== open with NO mode word
+   source : spec/lab-evidence/e2e41-p1/refusals/X4-nomode.pli
+   verdict: exit=2  codegen: OPEN FILE(...) naming no INPUT or STREAM has no DR witness [TBD] (line 4) -- every one of the 34 measured opens names a mode; P0 section 12 probe C is the missing evidence
+   dr     : DR's verdict is UNMEASURED -- no object in this repository writes `open file(f);' -- so this is deliberately NOT on the negative panel, whose two classes both assert something about DR.  P0 section 12 probe C would settle it.
+
+== close of two files
+   source : spec/lab-evidence/e2e41-p1/refusals/X5-2files.pli
+   verdict: exit=2  codegen: a FILE statement whose file operand is not a plain declared file name is unproven [TBD] (line 5) -- multi-file forms such as `close file(a,b)' parse (the manual's Inform-6 list, p.90) but no DR object measures what they push
+   dr     : DR's verdict UNMEASURED.  The manual's Inform-6 list (p.90) shows `CLOSE FILE(fname),' so multi-file CLOSE is grammar, and my parser records it as one FILE option holding a comma expression; codegen refuses.  Not on the panel, same reason as above.
+
+== open file(f) buffered   [parse refusal]
+   source : probes/E47F.PLI
+   verdict: exit=2  OPEN: unrecognised FILE-statement option BUFFERED [TBD] -- neither a DR object (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv) nor the language manual's file-attribute list (p.60) places this word in a FILE statement option list, so it is refused rather than silently dropped
+   dr     : BUFFERED is in no DR object and in no manual attribute list (p.60).  Refused at the parser, owned by parse_gate's OPTION_WITNESSES (E47F = REFUSE), not on the negative panel.
+
+== bare `open f input' / `close f'   [parse refusal]
+   source : probes/P080Q.PLI
+   verdict: exit=2  OPEN: PL/I-80 names the file as FILE(name) in this statement [TBD] -- the manual brackets FILE only for READ/WRITE/GET/PUT (B.21/B.29/B.12/B.20), and DR left probes/P080Q.PLI (open f input / close f) with no .REL in golden/probe49
+   dr     : DR leaves golden/probe49/P080Q without a .REL while P080O/P080P/P080R of the same batch each produced one, and manual B.17/B.5 do not bracket FILE for OPEN/CLOSE.  parse_gate EXPECTED_REJECT (parity with DR); E47I is the pinned witness.
+
+== bare `read f into(s)' / `write f from(s)'  [parses, refused in codegen]
+   source : probes/E47H.PLI
+   verdict: exit=2  codegen: READ of a named file has no DR witness in this repository yet [TBD] (line 4)
+   dr     : Grammar per manual B.21/B.29 (FILE bracketed there); no DR object in this repository writes the bare form, so codegen refuses.  parse_gate OPTION_WITNESSES pins the AST.
+
+== historical: ENTER.PLI (keyed output open)
+   source : artefacts/ENTER.PLI
+   verdict: exit=2  codegen: OPEN option KEYED is outside the E2E-41/P1 witnessed subset [TBD] (line 37) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); TITLE needs DR's 8-byte FCB prologue, ENVIRONMENT its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, and none of those combinations is byte-exactly pinned by a .REL in this repository yet
+   dr     : Census REFUSED bucket; its pinned .msg now names KEYED instead of the old generic statement-kind refusal (C276(d)).
+
+== historical: UPDATE.PLI (update direct open)
+   source : artefacts/UPDATE.PLI
+   verdict: exit=2  codegen: OPEN option UPDATE is outside the E2E-41/P1 witnessed subset [TBD] (line 31) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); TITLE needs DR's 8-byte FCB prologue, ENVIRONMENT its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, and none of those combinations is byte-exactly pinned by a .REL in this repository yet
+   dr     : Census REFUSED bucket; its pinned .msg now names UPDATE.
+

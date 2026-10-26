@@ -1,0 +1,5 @@
+t:
+  procedure options(main);
+  dcl f file, s char(20);
+  read file(f) into(s);
+end t;

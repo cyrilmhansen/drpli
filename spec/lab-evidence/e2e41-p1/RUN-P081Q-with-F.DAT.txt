@@ -1,0 +1,4 @@
+== P081Q WITH e41dat/F.DAT staged as D:F.DAT (5 bytes: '17 CR LF SUB')
+-- console output (cat -v):
+
+-- run rc: 0 (cpmsim session ended at the D> prompt, no timeout)

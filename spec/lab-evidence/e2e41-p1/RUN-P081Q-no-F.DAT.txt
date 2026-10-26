@@ -1,0 +1,13 @@
+== P081Q with NO F.DAT on the disk (control run)
+-- console output (cat -v):
+
+UNDEFINED FILE (1), File: F=NUL
+Traceback: 056D 03AC 011B 0000 # 0000 0000 9000 0006
+-- run rc: 0 (the runtime ERROR is reported by PLILIB, the process still exits)
+
+This is the control that makes the other file mean something: DR's own file
+runtime reached the open, printed UNDEFINED FILE (1), File: F=NUL and a traceback.
+It names the file F -- from the declared FILE variable, not from any TITLE (P0 section 9),
+and it got that far only because the six pushed words and the control-block
+address were consumed in the shape ?OIOOP expects.  With F.DAT present both
+programs exit silently, so the OPEN, the GET attachment and the CLOSE all ran.

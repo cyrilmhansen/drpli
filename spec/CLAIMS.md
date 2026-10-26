@@ -5710,3 +5710,183 @@ error this slice exists to fix: a fact in a comment is not a fact applied.
 > reverted, and the same trace that found them also re-confirmed P9a's finding that `rhs_is_imem` --
 > not `writes_de` -- selects the park at E45S1, E45S8 and E40S2/E40S4; P10 had overwritten that
 > comment with P9's superseded text and P10a restores it.
+
+## C273 — A TITLELESS STREAM OPEN IS 21 BYTES, AND `INPUT' AND `STREAM' SPELL THE SAME OPTION WORD (E2E-41/P1b)
+
+**(a) The block, byte for byte.**  `open file(f) input;` lowers to 21 bytes at code offset
+0x0006 in P081Q and P072H, both whole-file identical to DR (384 bytes each, `sha1` in
+`spec/lab-evidence/e2e41-p1/P081Q-REGION.txt`):
+
+```
+af 47 c5 33        XRA A / MOV B,A / PUSH B / INX SP   -- the zero-length title
+21 90 06 e5        LXI H,0690H ; PUSH H                -- w1, the option word
+60 68              MOV H,B ; MOV L,B                   -- HL := 0000 out of the 0 in B
+e5 e5 e5 e5 e5     PUSH H x5                           -- w2 w3 w4 w5 w6
+21 <rel cb>        LXI H,/F/ + 0
+cd <ext ?OIOOP>    CALL ?OIOOP
+```
+
+The four title bytes are not my construction: `1A 47 C5 33` sits at 83A0 in DR's `?CIN`
+in **both** `PLILIB.COM` and `PLILIB0.COM`, serving the lengthless form of the same
+parameter (P0 §11), and P019B's titleless `open file(pf) print` opens its block with the
+same four bytes.  `INX SP` is what makes the title one byte rather than a word, per the
+DR parameterless-CALL convention [C205].  The five `PUSH H` after `MOV H,B / MOV L,B` are
+DR's register-reuse peephole, in the same family as [V102/V103]'s `MOV B,A`: B still holds
+the 0 of the title byte, so both halves of HL come from it.
+
+**(b) `input` and `stream` are the same bits.**  P021:3 `open file(inf) input
+title('$1.$1')` and E17B:4 `open file(inf) stream title('$1.$1')` both measure
+`w1 = 0x0E90` — 9 sites, `OPEN-MATRIX.tsv`.  So 0x0200 (stream organisation, DR's default)
+and 0x0080 (input mode) are set whichever keyword is written, 0x0010 marks stream rather
+than record I/O, and 0x0400 marks a declared FILE rather than the console (that bit is set
+in all 34 measured blocks).  Removing the title bit from 0x0E90 gives 0x0690, which is what
+P072H and P081Q contain.  Both spellings therefore lower identically, and this is the one
+place in the lowering where two source forms share a word — stated here because the
+equivalence came from two DR objects, not from the manual.
+
+**(c) What does not follow.**  `open file(f);` — no mode word at all — would also read
+0x0690 under (b), and it is **refused**, because (b) is a statement about what two written
+keywords do, not a measurement of a default.  P0 §12 probe C is the missing object.
+Likewise the ORGANIZATION word (w2) is nonzero only where bit 0x4000 (ENVIRONMENT) is set,
+w3/w4 carry BLOCK/FILE sizes that these probes do not write (P042A:3 `open file(output)
+stream` measures 4096/4096 in them), and w5/w6 are PAGESIZE/LINESIZE, each with exactly one
+measured site (P021 for PAGESIZE=60 in w5, KEYFILE for LINESIZE=60 in w6) and no site
+measuring the pair.  The zeros in this block are therefore five separately-evidenced
+absences, not one "rest of the record".
+
+**(d) The lengths.**  DR's own listing fixes the block sizes without my decoder:
+`golden/e41p1/P081Q/P081Q.PRN` puts line 3 at `c 0006`, line 4 at `c 001B`, line 5 at
+`c 0036` and `end` at `003C`, i.e. OPEN = 21, GET = 27, CLOSE = 6, CODE SIZE 003F;
+P072H gives 21, 29, 6 and CODE SIZE 0041.  That is also the correction to P0's
+artefacts, whose block windows ran 3 bytes long because the backward walk stops at
+`CALL ?OIOOP` while the printed window includes the following `LXI H,<reloc>` operand
+[C276](b).
+
+## C274 — THE GET ATTACH WORD BELONGS TO THE STATEMENT, NOT TO THE OPEN, AND THE ITEM CHAIN IS THE CONSOLE'S
+
+`get file(f) list(i)` emits one instruction more than the console GET and changes one
+operand and one routine name:
+
+```
+21 <rel cb>     LXI H,/F/ + 0        ; not emitted by the console form
+11 90 06        LXI D,0690H          ; console: 11 90 02  (0290H)
+01 00 00        LXI B,0000H          ; continuation, patched by the usual triple
+cd <ext ?SIOOP> CALL ?SIOOP          ; console: CALL ?SYSIN
+...             the item chain, byte-identical ...
+```
+
+**(a) 0x0690 is a witnessed constant, not a mask.**  P0 §8 tested `DE = w1 & ~0x4800` and
+it fails on 30 of the 68 comparable attaches in `SIOMODES.txt`.  The attach word is a
+property of the statement: 26 input attaches read 0x0690, including on files whose OPEN
+word was 0x0E90 (E16C, E17C, E18A, E18B — titled stream opens, different w1).  So the
+lowering writes the value with its own comment and derives nothing from the open.  The
+measured-but-unlowered attach words (0x0652 for `put list` — 36 sites; 0x0650 for
+write-from; 0x0594 for keyed read) are named in code comments and borrowed by nothing.
+
+**(b) The item chain is shared, and that is the claim.**  P081Q's fixed-binary item is
+`CALL ?GNVOP ; JP <cont> ; CALL ?QCIOP ; SHLD i` — the [R903/R904] console form byte for
+byte.  P072H's varying item is `CALL ?GNVOP ; JP <cont> ; LXI H,s ; MVI B,1E ; CALL
+?SSVFS` — the [X201/X202] console form byte for byte.  `lower_get` was therefore split
+into `lower_get_body st <attach routine>` with the console wrapper passing `?SYSIN`/0290H
+and the file wrapper `?SIOOP`/0690H; one item lowering serves both, so the two cannot
+drift.  The console specimens (R903, R904, X201, X202, N29_DECININT, LOAN1, NETWORK) still
+compare byte-exact after that refactoring, which is the test that the refactor was
+behaviour-preserving rather than merely plausible.
+
+**(c) Execution.**  With `e41dat/F.DAT` staged both probes exit rc=0 with an empty console;
+with it removed they print `UNDEFINED FILE (1), File: F=NUL` and a traceback — see [C275].
+Neither has a PUT, so the runtime rows assert the ABSENCE of that text (`!UNDEFINED
+FILE|!Traceback`), which is what makes the silence a test rather than an accident of the
+program being short.
+
+## C275 — CLOSE PUSHES NOTHING: SIX BYTES, AND LENGTH IS THEN THE ONLY SEMANTIC TEST
+
+`close file(f);` is `LXI H,<CB> ; CALL ?CIOOP`, six bytes, in all five measured sites
+(E16D, E17D, RETRIEVE, P072H, P081Q — `CLOSE-BLOCKS.txt`).  It is the only FILE statement
+whose block contains no pushed word, and that has a consequence for how a specimen can
+fail: an extra `PUSH H` in a CLOSE would change the file length while leaving every other
+byte's meaning untouched, so P081Q/P072H are registered as whole-file comparisons (384
+bytes) rather than as region comparisons.
+
+**(a) The control run.**  `oracle/linkrun.py` already stages per-run input files
+(`STAGE_IN`) and exports output files (`EXPORT_OUT`); with `F.DAT` on D: both programs
+exit silently, and LINK resolves every reference of my object against DR's `PLILIB.IRL`
+(`/F/`, `?OIOOP`, `?SIOOP`, `?CIOOP`, `?GNVOP`, `?QCIOP`, `?SSVFS`, `?QIOOP`) with no
+undefined symbol [C137].  Without it:
+
+```
+UNDEFINED FILE (1), File: F=NUL
+Traceback: 056D 03AC 011B 0000 # 0000 0000 9000 0006   (P081Q, 63 code bytes)
+Traceback: 056F 03AE 011B 0000 # 0000 0000 9000 0006   (P072H, 65 code bytes)
+```
+
+DR reached the open, printed the CP/M name it wanted — `F`, from the declared FILE
+variable, not from a title [P0 §9] — and stopped.  That the two tracebacks differ only in
+their first word, by exactly the 2-byte code-size difference between the probes, is
+consistent; it is also why I do not read the trailing `9000 0006` as the mode word with its
+nibbles swapped: P0 §8 warns against nibble assumptions, and nothing here needs them.
+
+**(b) `close file(a,b)` is refused and deliberately NOT on the negative panel.**  The
+manual's Inform-6 list (p.90) shows `CLOSE FILE(fname),` so multi-file CLOSE is grammar,
+and my parser records it as one FILE option holding a comma expression; my build refuses
+it.  No DR object in this repository contains one, so its verdict is unknown, and both
+panel classes (`dr-refuses`, `my-gap`) assert something about DR that I have not measured.
+It is recorded in `spec/lab-evidence/e2e41-p1/REFUSALS.txt` instead.  The same reasoning
+keeps `open file(f)` (no mode word) off the panel.
+
+## C276 — TWO OF P0'S PROSE CLAIMS WERE WRONG, AND THE PARSER'S SILENT TRUNCATION WAS THE REAL P1 BLOCKER
+
+P0's *artefacts* reproduce exactly (`openblocks.py | diff - OPEN-BLOCKS.txt` is silent,
+re-checked this phase), and the block bytes it decoded were right — they are what made this
+lowering land byte-exact on the first compile.  Three of its prose claims were not.
+
+**(a) The `E45P` line-number comparison in §1(c) is withdrawn: there is no E45P batch in
+this repository.**  `oracle/` holds the harness (`batch.py`, `linkrun.py`, `run.py`,
+`cpmwork.py`, `disks/`, `in/`, `srctools/`), not batch output, and `E45P` appears zero
+times in every P0 artefact.  The P072H and P081Q objects are `golden/probe40/P072H/P072H.REL`
+and `golden/probe50/P081Q/P081Q.REL`, **both 384 bytes**, code 65 and 63, and a fresh
+oracle run today reproduces them byte for byte.  The line-number rule itself (LF-only
+sources report roughly half the real line) is unaffected and stays diagnostic-only — but its
+"two lengths of the same program" illustration was invented, and the note now says so.
+This is the same failure mode as [C263]'s withdrawn cause and [C203]'s: a plausible number
+in prose that no artefact backs.
+
+**(b) The block lengths in `OPEN-BLOCKS.txt` / `OPEN-MATRIX.tsv` are 3 bytes too long.**
+The backward walk anchors on `CALL ?OIOOP` and the printed window extends past the `LXI
+H,<CB>` relocation operand.  Statement addresses from the `.PRN` (C273(d)) are the fix.
+
+**(c) 0x68 is `MOV L,B`, not `MOV L,H`.**  0x68 = 01 101 000 (dst L, src B); MOV L,H is
+0x6C.  P0's decoder (`openblocks.py: elif op == 0x68: L = B`) and `tools/dis80.py` (which
+decodes the whole 0x40-0x7F family generically from learned evidence) were right; P0's note
+prose and my first version of `op_mov_l_h` were wrong, and both are corrected.  Bytes were
+never affected — the constant is 0x68 either way — which is exactly the [C072] pattern: a
+name asserting a meaning the evidence does not support.
+
+**(d) The real blocker was the parser, not codegen.**  Five words DR actually uses in OPEN
+option lists — KEYED, DIRECT, PRINT, PAGESIZE, LINESIZE — were absent from
+`ioopt_keys`, so 18 of the 34 sampled OPEN statements were truncated silently and the rest
+of each statement was re-read as separate statements: E47C's `open file(f) keyed output
+environment(f(128),b(8000))` parsed as three statements and lost KEYED, OUTPUT and
+ENVIRONMENT entirely.  The widened vocabulary is `filestmt_opt_keys`, used ONLY by the nine
+FILE statements: `ioopt_keys` stays as it was because the EDIT arm eats `FROM` itself and a
+shared list would swallow every `EDIT ... FROM` source in the corpus.  After parsing, an
+unrecognised word in a FILE statement is now a loud `[TBD]` refusal instead of a silent
+re-read, and `SEQUENTIAL` — documented in the manual's attribute list (p.60) but in no
+measured object — is recognised at parse and refused at codegen, which is where the
+evidence boundary belongs.
+
+**(e) The bare file reference is grammar for four statements only.**  The manual brackets
+FILE in `READ [FILE(fname)] INTO(v)` (B.21), `WRITE [FILE(fname)] FROM(v)` (B.29),
+`GET [FILE(fname)] ... [LIST(input-list)]` (p.64) and PUT (p.64), but not in
+`OPEN FILE(fname) [file-attributes]` (p.60) or `CLOSE FILE(fname)` (p.62).  DR agrees:
+`probes/P080Q.PLI` is exactly `open f input; get f list(i); close f;` and
+`golden/probe49/P080Q/` holds `dir.txt` and **no `.REL`**, while P080O, P080P and P080R of
+the same batch each produced one.  So `read f into(s)` / `write f from(s)` parse (E47H),
+`open f input` refuses (E47I), and P080Q moved to parse_gate's parity-reject list: DR
+rejects it and my parity grammar rejects it, which is perimeter, not gap.
+
+**(f) Still true and still a defect:** `Sput`/`Sget` store `FILE(f)` in `on_opts` rather
+than in `stream` (`ast.ml`), because the grammar really is an option list — P0 §2(b).  P1
+matches that accident explicitly (`match_get_list_file`, with a comment saying it is an
+accident of the grammar and not a belief that FILE is an ON unit) rather than restructuring
+the AST, which would have moved 46 pinned AST dumps for no behavioural gain.
