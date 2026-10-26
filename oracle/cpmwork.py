@@ -32,7 +32,20 @@ import sys
 
 FMT = "ibm-3740"
 NAME_RE = re.compile(r"^[A-Za-z0-9_]{1,8}$")
-F83_RE = re.compile(r"^([A-Za-z0-9_]{1,8})(?:\.([A-Za-z0-9_]{1,3})?)$")
+# [E2E-41/P3b] This was `^([A-Za-z0-9_]{1,8})(?:\.([A-Za-z0-9_]{1,3})?)$' -- the `?' written
+# INSIDE the group instead of after it, which makes the DOT mandatory and the extension optional,
+# so an EXTENSIONLESS name never matched:
+#   re.match(old, "OUT")     -> None      (measured, Python 3.14.8)
+#   re.match(old, "OUT.DAT") -> match
+# A defect in this guard, not a regex-engine quirk -- the same shape rejects `OUT' on every
+# version.  It cost real evidence rather than only a message: E16D's own `title('E16OUT DAT')'
+# creates the CP/M file `E16OUT' with NO extension (spec/lab-evidence/e2e41-p3/E16D-RUN.txt), and
+# the export guard refused to copy it out of the run disk, so a program that had demonstrably
+# written a file was reported as having written nothing.  CP/M's F8.3 grammar makes the whole
+# `.EXT' optional, so the optional group now wraps both the dot and the extension; group 2 is
+# still the extension when there is one, which is what check_f83() below reads.
+# Reproduction: spec/lab-evidence/e2e41-p3/F83-REGEX.txt
+F83_RE = re.compile(r"^([A-Za-z0-9_]{1,8})(?:\.([A-Za-z0-9_]{1,3}))?$")
 # Explicit absolute tool paths; verified present & non-symlink on import.
 TOOLS = {
     "mkfs.cpm": "/usr/bin/mkfs.cpm",

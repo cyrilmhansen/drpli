@@ -1,0 +1,202 @@
+==============================================================================
+== E16D   source e13src/E16D.PLI  golden golden/e2e11h/E16D/E16D.REL
+   whole-file cmp: mine 512 bytes, DR 512 bytes, identical = True
+   segments: DR code 126, data 22   MINE code 126, data 22   (all equal: True)
+   DATA bytes DR : 45 31 36 4F 55 54 20 44 41 54 48 45 4C 4C 4F 42 00 57 52 4F 54 45
+   DATA bytes mine: 45 31 36 4F 55 54 20 44 41 54 48 45 4C 4C 4F 42 00 57 52 4F 54 45
+   -- OPEN FILE(OUTF) title('E16OUT DAT') -> ?OIOOP  [0006-0022]  code bytes DR==mine: True
+      DR bytes  21 -- -- 3E 0A CD 00 00 47 C5 33 21 50 0E E5 21 00 00 E5 E5 E5 E5 E5 21 -- -- CD 00 00
+      my bytes  21 -- -- 3E 0A CD 00 00 47 C5 33 21 50 0E E5 21 00 00 E5 E5 E5 E5 E5 21 -- -- CD 00 00
+      DR prn  0006  LXI H,* S(0000)
+      DR prn  0009  MVI A,0A
+      DR prn  000B  CALL ?SLCTS
+      DR prn  000E  MOV B,A
+      DR prn  000F  PUSH B
+      DR prn  0010  INX SP
+      DR prn  0011  LXI H,0E50
+      DR prn  0014  PUSH H
+      DR prn  0015  LXI H,0000
+      DR prn  0018  PUSH H
+      DR prn  0019  PUSH H
+      DR prn  001A  PUSH H
+      DR prn  001B  PUSH H
+      DR prn  001C  PUSH H
+      DR prn  001D  LXI H,OUTF
+      DR prn  0020  CALL ?OIOOP
+   -- PUT LIST('HELLO')  attach 0652 -> ?SLCTS/?PNCOP -> ?QIOOP  [0023-003C]  code bytes DR==mine: True
+      DR bytes  21 -- -- 11 52 06 01 00 00 CD 00 00 21 -- -- 3E 05 CD 00 00 CD 00 00 CD 00 00
+      my bytes  21 -- -- 11 52 06 01 00 00 CD 00 00 21 -- -- 3E 05 CD 00 00 CD 00 00 CD 00 00
+      DR prn  0023  LXI H,OUTF
+      DR prn  0026  LXI D,0652
+      DR prn  0029  LXI B,0000
+      DR prn  002C  CALL ?SIOOP
+      DR prn  002F  LXI H,* S(000A)
+      DR prn  0032  MVI A,05
+      DR prn  0034  CALL ?SLCTS
+      DR prn  0037  CALL ?PNCOP
+      DR prn  003A  CALL ?QIOOP
+      DR prn  002A  ==== 003D
+   -- PUT LIST(42)       attach 0652 -> ?DLDOP/?QDCOP/?PNVOP -> ?QIOOP  [003D-005D]  code bytes DR==mine: True
+      DR bytes  21 -- -- 11 52 06 01 00 00 CD 00 00 21 -- -- 3E 02 CD 00 00 3E 05 06 00 CD 00 00 CD 00 00 CD 00 00
+      my bytes  21 -- -- 11 52 06 01 00 00 CD 00 00 21 -- -- 3E 02 CD 00 00 3E 05 06 00 CD 00 00 CD 00 00 CD 00 00
+      DR prn  003D  LXI H,OUTF
+      DR prn  0040  LXI D,0652
+      DR prn  0043  LXI B,0000
+      DR prn  0046  CALL ?SIOOP
+      DR prn  0049  LXI H,* S(000F)
+      DR prn  004C  MVI A,02
+      DR prn  004E  CALL ?DLDOP
+      DR prn  0051  MVI A,05
+      DR prn  0053  MVI B,00
+      DR prn  0055  CALL ?QDCOP
+      DR prn  0058  CALL ?PNVOP
+      DR prn  005B  CALL ?QIOOP
+      DR prn  0044  ==== 005E
+   -- CLOSE FILE(OUTF) -> ?CIOOP  [005E-0063]  code bytes DR==mine: True
+      DR bytes  21 -- -- CD 00 00
+      my bytes  21 -- -- CD 00 00
+      DR prn  005E  LXI H,OUTF
+      DR prn  0061  CALL ?CIOOP
+   -- PUT LIST('WROTE')  console: attach 0252 -> ?SYSPR  [0064-007A]  code bytes DR==mine: True
+      DR bytes  11 52 02 01 00 00 CD 00 00 21 -- -- 3E 05 CD 00 00 CD 00 00 CD 00 00
+      my bytes  11 52 02 01 00 00 CD 00 00 21 -- -- 3E 05 CD 00 00 CD 00 00 CD 00 00
+      DR prn  0064  LXI D,0252
+      DR prn  0067  LXI B,0000
+      DR prn  006A  CALL ?SYSPR
+      DR prn  006D  LXI H,* S(0011)
+      DR prn  0070  MVI A,05
+      DR prn  0072  CALL ?SLCTS
+      DR prn  0075  CALL ?PNCOP
+      DR prn  0078  CALL ?QIOOP
+      DR prn  0068  ==== 007B
+==============================================================================
+== E17D   source e13src/E17D.PLI  golden golden/e2e11i/E17D/E17D.REL
+   whole-file cmp: mine 512 bytes, DR 512 bytes, identical = True
+   segments: DR code 126, data 17   MINE code 126, data 17   (all equal: True)
+   DATA bytes DR : 24 31 2E 24 31 48 45 4C 4C 4F 42 00 57 52 4F 54 45
+   DATA bytes mine: 24 31 2E 24 31 48 45 4C 4C 4F 42 00 57 52 4F 54 45
+   -- OPEN FILE(OUTF) title('$1.$1') -> ?OIOOP  [0006-0022]  code bytes DR==mine: True
+      DR bytes  21 -- -- 3E 05 CD 00 00 47 C5 33 21 50 0E E5 21 00 00 E5 E5 E5 E5 E5 21 -- -- CD 00 00
+      my bytes  21 -- -- 3E 05 CD 00 00 47 C5 33 21 50 0E E5 21 00 00 E5 E5 E5 E5 E5 21 -- -- CD 00 00
+      DR prn  0006  LXI H,* S(0000)
+      DR prn  0009  MVI A,05
+      DR prn  000B  CALL ?SLCTS
+      DR prn  000E  MOV B,A
+      DR prn  000F  PUSH B
+      DR prn  0010  INX SP
+      DR prn  0011  LXI H,0E50
+      DR prn  0014  PUSH H
+      DR prn  0015  LXI H,0000
+      DR prn  0018  PUSH H
+      DR prn  0019  PUSH H
+      DR prn  001A  PUSH H
+      DR prn  001B  PUSH H
+      DR prn  001C  PUSH H
+      DR prn  001D  LXI H,OUTF
+      DR prn  0020  CALL ?OIOOP
+   -- PUT LIST('HELLO')  attach 0652 -> ?SLCTS/?PNCOP -> ?QIOOP  [0023-003C]  code bytes DR==mine: True
+      DR bytes  21 -- -- 11 52 06 01 00 00 CD 00 00 21 -- -- 3E 05 CD 00 00 CD 00 00 CD 00 00
+      my bytes  21 -- -- 11 52 06 01 00 00 CD 00 00 21 -- -- 3E 05 CD 00 00 CD 00 00 CD 00 00
+      DR prn  0023  LXI H,OUTF
+      DR prn  0026  LXI D,0652
+      DR prn  0029  LXI B,0000
+      DR prn  002C  CALL ?SIOOP
+      DR prn  002F  LXI H,* S(0005)
+      DR prn  0032  MVI A,05
+      DR prn  0034  CALL ?SLCTS
+      DR prn  0037  CALL ?PNCOP
+      DR prn  003A  CALL ?QIOOP
+      DR prn  002A  ==== 003D
+   -- PUT LIST(42)       attach 0652 -> ?DLDOP/?QDCOP/?PNVOP -> ?QIOOP  [003D-005D]  code bytes DR==mine: True
+      DR bytes  21 -- -- 11 52 06 01 00 00 CD 00 00 21 -- -- 3E 02 CD 00 00 3E 05 06 00 CD 00 00 CD 00 00 CD 00 00
+      my bytes  21 -- -- 11 52 06 01 00 00 CD 00 00 21 -- -- 3E 02 CD 00 00 3E 05 06 00 CD 00 00 CD 00 00 CD 00 00
+      DR prn  003D  LXI H,OUTF
+      DR prn  0040  LXI D,0652
+      DR prn  0043  LXI B,0000
+      DR prn  0046  CALL ?SIOOP
+      DR prn  0049  LXI H,* S(000A)
+      DR prn  004C  MVI A,02
+      DR prn  004E  CALL ?DLDOP
+      DR prn  0051  MVI A,05
+      DR prn  0053  MVI B,00
+      DR prn  0055  CALL ?QDCOP
+      DR prn  0058  CALL ?PNVOP
+      DR prn  005B  CALL ?QIOOP
+      DR prn  0044  ==== 005E
+   -- CLOSE FILE(OUTF) -> ?CIOOP  [005E-0063]  code bytes DR==mine: True
+      DR bytes  21 -- -- CD 00 00
+      my bytes  21 -- -- CD 00 00
+      DR prn  005E  LXI H,OUTF
+      DR prn  0061  CALL ?CIOOP
+   -- PUT LIST('WROTE')  console: attach 0252 -> ?SYSPR  [0064-007A]  code bytes DR==mine: True
+      DR bytes  11 52 02 01 00 00 CD 00 00 21 -- -- 3E 05 CD 00 00 CD 00 00 CD 00 00
+      my bytes  11 52 02 01 00 00 CD 00 00 21 -- -- 3E 05 CD 00 00 CD 00 00 CD 00 00
+      DR prn  0064  LXI D,0252
+      DR prn  0067  LXI B,0000
+      DR prn  006A  CALL ?SYSPR
+      DR prn  006D  LXI H,* S(000C)
+      DR prn  0070  MVI A,05
+      DR prn  0072  CALL ?SLCTS
+      DR prn  0075  CALL ?PNCOP
+      DR prn  0078  CALL ?QIOOP
+      DR prn  0068  ==== 007B
+   DR golden OUT.DAT: 128 bytes sha256=56ad391f3e1ee7e7
+      head 27 48 45 4C 4C 4F 27 20 20 20 20 34 32 | tail 1A 1A 1A 1A
+   MINE (runtime panel's export) OUT.DAT: 128 bytes sha256=56ad391f3e1ee7e7
+      byte-for-byte equal over ALL 128 bytes (0x1A tail included): True
+==============================================================================
+Cross-program check: the SAME open block in an OUTPUT and an INPUT program
+  E17D `open file(outf) stream output title('$1.$1')'  vs
+  E17B `open file(inf) stream title('$1.$1')'          -- identical 29-byte
+  block at 0006-0022 except the mode word itself.
+   0006  E17D 21  E17B 21
+   0007  E17D reloc  E17B reloc
+   0008  E17D reloc  E17B reloc
+   0009  E17D 3E  E17B 3E
+   000A  E17D 05  E17B 05
+   000B  E17D CD  E17B CD
+   000C  E17D 00  E17B 00
+   000D  E17D 00  E17B 00
+   000E  E17D 47  E17B 47
+   000F  E17D C5  E17B C5
+   0010  E17D 33  E17B 33
+   0011  E17D 21  E17B 21
+   0012  E17D 50  E17B 90   <-- differs
+   0013  E17D 0E  E17B 0E
+   0014  E17D E5  E17B E5
+   0015  E17D 21  E17B 21
+   0016  E17D 00  E17B 00
+   0017  E17D 00  E17B 00
+   0018  E17D E5  E17B E5
+   0019  E17D E5  E17B E5
+   001A  E17D E5  E17B E5
+   001B  E17D E5  E17B E5
+   001C  E17D E5  E17B E5
+   001D  E17D 21  E17B 21
+   001E  E17D reloc  E17B reloc
+   001F  E17D reloc  E17B reloc
+   0020  E17D CD  E17B CD
+   0021  E17D 00  E17B 00
+   0022  E17D 00  E17B 00
+   differing addresses: [('0x12', '50', '90')]
+   -> the ONLY byte that moves is the low half of w1: 0x50 (OUTPUT, 0x0E50) against
+      0x90 (INPUT, 0x0E90); 0x0080 is CLEARED, not added to, and w2..w6 stay 0000 [C280].
+==============================================================================
+Attach-word cross-check (P0's sweep, spec/lab-evidence/e2e41-p0/SIOMODES.txt):
+   program   call   HL file   DE       same file OPEN w1 BC       routines after the attach
+   E16D      002C   OUTF      0x0652   0E50          continuation ?SLCTS ?PNCOP ?QIOOP
+   E16D      0046   OUTF      0x0652   0E50          continuation ?DLDOP
+   E17D      002C   OUTF      0x0652   0E50          continuation ?SLCTS ?PNCOP ?QIOOP
+   E17D      0046   OUTF      0x0652   0E50          continuation ?DLDOP
+   LOAN2     03B3   OUTPUT    0x0652   0E52/2E52     continuation ?PAGOP ?QIOOP
+   LOAN2     052B   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+   LOAN2     068A   OUTPUT    0x0652   0E52/2E52     continuation ?EDITF ?SLCTS
+   LOAN2     0796   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+   LOAN2     0813   OUTPUT    0x0652   0E52/2E52     continuation ?SLCTS ?PNCOP ?QIOOP
+   LOAN2     0830   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+   LOAN2     086E   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+   LOAN2     08F1   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+   LOAN2     0951   OUTPUT    0x0652   0E52/2E52     continuation ?SKPOP ?EDITF
+   RETRIEVE  00F8   INPUT     0x0690   4E90          continuation ?GNVOP ?SSVFS
+   RETRIEVE  012E   INPUT     0x0690   4E90          continuation ?GNVOP ?SSVFS
+   P019B     006C   PF        0x0652   0652          continuation ?SLCTS ?PNCOP ?QIOOP

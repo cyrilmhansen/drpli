@@ -147,9 +147,18 @@ STAGE_IN.update({
     "P072H": [("d", "F.DAT", os.path.join(PROJ, "e41dat/F.DAT"))],
 })
 EXPORT_OUT = {
-    # same default-naming rule: an output FILE named OUTF
-    # lands as OUTF.DAT, not E16OUT.DAT
-    "E16D": ["OUTF.DAT", "E16OUT.DAT"],
+    # [E2E-41/P3b] MEASURED, not guessed -- see spec/lab-evidence/e2e41-p3/E16D-RUN.txt, which
+    # lists the WHOLE D: image after a run of my byte-exact E16D object.  E16D's OPEN carries the
+    # literal title 'E16OUT DAT' and the file DR's runtime creates is `E16OUT' -- NO extension:
+    # the name comes from the TITLE, not from the FILE variable (`dcl outf file' would have given
+    # OUTF), and the title's second token does not become an extension.  The two names this table
+    # used to guess (OUTF.DAT, E16OUT.DAT) are both absent, which is why the entry still lists
+    # them: their absence is part of the measurement.  Exporting `E16OUT' at all needed
+    # oracle/cpmwork.py's F83_RE fixed -- it required a dot -- see the comment there.
+    # E17D writes OUT.DAT because its title is '$1.$1' and ARGS supplies the tail 'OUT.DAT'
+    # (DR's own run left golden/e2e11iu/E17D/OUT.DAT); "OUT" is kept for the space-tail case
+    # measured in E2E-11 step 3e.
+    "E16D": ["E16OUT", "OUTF.DAT", "E16OUT.DAT"],
     "E17D": ["OUT.DAT", "OUT"],
 }
 

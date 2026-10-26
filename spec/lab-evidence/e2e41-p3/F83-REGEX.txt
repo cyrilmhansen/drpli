@@ -1,0 +1,40 @@
+### cpmwork.check_f83 rejected extensionless CP/M names -- reproduction (E2E-41/P3b, [C281])
+python: 3.14.8  on linux
+old pattern: ^([A-Za-z0-9_]{1,8})(?:\.([A-Za-z0-9_]{1,3})?)$
+  the '?' sits INSIDE the group: the DOT is mandatory, the extension optional
+new pattern: ^([A-Za-z0-9_]{1,8})(?:\.([A-Za-z0-9_]{1,3}))?$
+  the whole '.EXT' is optional, which is what CP/M's F8.3 grammar says
+
+name         old      new     
+'OUT'        REJECT   match   
+'E16OUT'     REJECT   match   
+'OUT.DAT'    match    match   
+'E16OUT.DAT' match    match   
+'INF.DAT'    match    match   
+'A'          REJECT   match   
+'ABCDEFGHI'  REJECT   REJECT  
+'A.BCD'      match    match   
+'A.BCDE'     REJECT   REJECT  
+'AB/CD'      REJECT   REJECT  
+'..'         REJECT   REJECT  
+'A B'        REJECT   REJECT  
+''           REJECT   REJECT  
+
+### the two names that matter
+  old: check_f83('E16OUT') -> SafetyError illegal CP/M F8.3 name 'E16OUT'
+  old: check_f83('OUT') -> SafetyError illegal CP/M F8.3 name 'OUT'
+  new: check_f83('E16OUT') -> 'E16OUT' (group(2) is None, which is what the function's own normalisation branch reads)
+  new: check_f83('e16out.dat') -> 'E16OUT.DAT'  (still upper-cases both fields)
+
+### what the guard still refuses (unchanged by the fix)
+  'AB/CD'      -> REJECT
+  'A.BCDE'     -> REJECT
+  'ABCDEFGHI'  -> REJECT
+  '..'         -> REJECT
+  'A B'        -> REJECT
+
+### why it mattered: E16D writes a file literally named E16OUT -- see
+spec/lab-evidence/e2e41-p3/E16D-RUN.txt, which lists the whole D: image after a run of
+the byte-exact object.  `Run/export' called check_f83 BEFORE cpmcp, so the harness
+reported 'no file' for a program that had demonstrably written one, and the measurement
+was only possible by driving cpmcp directly.  [C281](b).

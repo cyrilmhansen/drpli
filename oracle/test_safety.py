@@ -80,6 +80,14 @@ def run_checks(tmp):
     refuses("overlong name", lambda: check_name("ABCDEFGHIJ"))
     refuses("f83 bad char", lambda: check_f83("F`OO`.PLI"))
     ok("f83 good", check_f83("demo.pli") == "DEMO.PLI")
+    # [E2E-41/P3b] the extension is optional, not just its characters: E16D's OPEN carries
+    # TITLE('E16OUT DAT') and the file CP/M actually creates has NO extension, and the guard used
+    # to have the `?' INSIDE the group -- `(?:\.EXT)?' -- which made the DOT mandatory and refused
+    # every extensionless name.  Measured in spec/lab-evidence/e2e41-p3/F83-REGEX.txt, claimed in
+    # [C281]; these two lines are the regression pin.
+    ok("f83 extensionless", check_f83("E16OUT") == "E16OUT")
+    ok("f83 short extensionless", check_f83("out") == "OUT")
+    refuses("f83 dangling dot", lambda: check_f83("OUT."))
 
     print("== workspace symlink rejection ==")
     linkp = os.path.join(tmp, "evil_ws")

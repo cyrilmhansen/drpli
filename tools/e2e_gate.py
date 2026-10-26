@@ -801,6 +801,30 @@ SPECIMENS.update({
     "E16C": ("e13src/E16C.PLI", "golden/e2e11h/E16C/E16C.REL"),
     "E18A": ("e13src/E18A.PLI", "golden/e2e11j/E18A/E18A.REL"),
 })
+
+# [E2E-41/P3b] THE STREAM-OUTPUT OPEN AND THE NAMED-FILE PUT LIST, byte-exact.  Both witnesses
+# contain BOTH file PUTs -- `put file(outf) list('HELLO')' and `put file(outf) list(42)' -- and
+# those two statements exercise DIFFERENT item lowerers: the string literal goes ?SLCTS/?PNCOP and
+# the integer literal goes ?DLDOP at its own digit count, ?QDCOP at digits+3 with scale 0, then
+# ?PNVOP.  What each pins:
+#   OPEN w1 = 0x0E50 = 0x0400 declared | 0x0200 stream organisation | 0x0010 stream
+#                  | 0x0040 OUTPUT | 0x0800 TITLE -- the input open's 0x0E90 with the MODE BIT
+#                  REPLACED, not added: E17D's 29-byte block at 0006-0022 and E17B's (same title
+#                  '$1.$1', same addresses) differ at exactly ONE byte, 0012: 50 against 90
+#                  (spec/lab-evidence/e2e41-p3/P3b-MEASURE.txt);
+#   w2..w6 all 0x0000: a stream OUTPUT open carries no record length either, which is what made
+#                  the old F(128) story for E17D's OUT.DAT false [C279];
+#   PUT attach = LXI H,/OUTF/ ; LXI D,0652 ; LXI B,<continuation> ; CALL ?SIOOP (E16D/E17D
+#                  0023-002C identical), then the console PUT's own item chain, ?QIOOP, triple;
+#   DATA = 0x16 for E16D (title 'E16OUT DAT' is 10 bytes) and 0x11 for E17D (title '$1.$1' is 5),
+#                  BOTH including the 2-byte packed cell for 42 -- a numeric PUT item DOES pool.
+# Whole file: each object is 512 bytes, CODE 0x007E, and my bytes match DR's through the final
+# loader pad -- `cmp` on the whole file, not a region.  See [C280] and
+# spec/notes/e2e41-p3-stream-output-put-file.md.
+SPECIMENS.update({
+    "E16D": ("e13src/E16D.PLI", "golden/e2e11h/E16D/E16D.REL"),
+    "E17D": ("e13src/E17D.PLI", "golden/e2e11i/E17D/E17D.REL"),
+})
 SPECIMENS.update({
     "E42P1":  ("artefacts/E42P1.PLI", "golden/e42p/E42P1/E42P1.REL"),
     "E42P2":  ("artefacts/E42P2.PLI", "golden/e42p/E42P2/E42P2.REL"),
@@ -1467,7 +1491,26 @@ REJECTS.update({
     "E41X5": (
         "t:\n  procedure options(main);\n  dcl f file;\n"
         "  put file(f) list('A');\nend t;\n",
-        "PUT LIST with ON options"),
+        "PUT FILE(F) has no byte-exact DR witness"),
+    # [E2E-41/P3b] three more file-PUT shapes, all refused AFTER the P3b route exists, i.e.
+    # these sources open the file the way P3b lowers and still refuse -- so what is pinned here
+    # is the ITEM route, not the open.  All three DR sides are MEASURED objects (CREATE, P086K),
+    # which is what makes them panel entries rather than REFUSALS.txt lines.
+    "E41X6": (
+        "t:\n  procedure options(main);\n  dcl f file;\n"
+        "  open file(f) stream output title('X Y');\n"
+        "  put file(f) skip list('A');\nend t;\n",
+        "PUT LIST with options this route does not claim"),
+    "E41X7": (
+        "t:\n  procedure options(main);\n  dcl f file;\n"
+        "  open file(f) stream output title('X Y');\n"
+        "  put file(f) list('A','B');\nend t;\n",
+        "PUT LIST with options this route does not claim"),
+    "E41X8": (
+        "t:\n  procedure options(main);\n  dcl f file;\n  dcl d fixed dec(5,2);\n"
+        "  open file(f) stream output title('X Y');\n"
+        "  d = 1.5;\n  put file(f) edit(d)(f(5,1));\nend t;\n",
+        "PUT EDIT deferred"),
 })
 
 REJECTS = NoOverwriteDict(REJECTS)
@@ -2493,7 +2536,12 @@ for _n, _t in (("AB19", "e2e227"), ("AB21", "e2e228"), ("RT1", "e2e229")):
 # stream, so the "ON options" arm is what a named-file PUT reaches.  Wording left as-is rather
 # than rebuilt over at the end of a gated milestone; recorded here so it is not rediscovered.
 for _n, _marker in [("AV1", "allocate(...)' where p is a POINTER is refused by DR itself [TBD]"),  # [E2E-26] AV1 is `p = allocate(10); free p;`: DR itself gives NO DCL + ARG COUNT + BASED REQ and no .REL (golden/e26av2/AV1/AV1.PRN), so this is a double refusal, now labelled with the statement-vs-expression reason rather than the old generic POINTER-layout message
-                    ("PU1", "PUT LIST with ON options"),  # named-file PUT: outer match no catch-all
+                    # [E2E-41/P3b] PU1's marker moved.  `put file(f) list(x)' used to fall into the generic
+    # "PUT LIST with ON options" arm; P3b claims the named-file route for LITERAL items only, so
+    # a VARIABLE item (x here) now refuses one level deeper, by item kind, which is the true
+    # remaining gap -- KEYFILE's `list(name,k)' and CREATE's six-item list are the DR objects
+    # that would pin those bytes and neither is compilable by me.
+    ("PU1", "PUT LIST on a named file of this item is unmeasured"),
 ]:                       # (a third probe for the "undeclared" site would not PARSE cleanly;
                                                        # REVERT covers it in the sweep instead)
     _src = "e24src/%s.PLI" % _n
@@ -2802,16 +2850,60 @@ NEG_META["E41X4"] = ("my-gap",
     "`read file(input) into(employee) keyto(k)' (KEYFILE.PLI:23) and its record-oriented "
     "chain is ?WNIOP/?RNIOP/?KEYTO.  I refuse; P1 lowers only OPEN, GET LIST and CLOSE.")
 NEG_META["E41X5"] = ("my-gap",
-    "DR compiles PUT of a named file: golden/e2e11h/E16D/E16D.REL contains "
-    "`put file(outf) list('HELLO')' and attaches with mode word 0652H (36 such sites in "
-    "spec/lab-evidence/e2e41-p0/SIOMODES.txt).  Mine refuses with the pre-existing PUT-with-"
-    "options message, which is true as far as it goes -- the ?OIOOP/?SIOOP route is what is "
-    "missing -- and an archived output-file comparison exists in this repository: "
-    "golden/e2e11iu/E17D/OUT.DAT, exactly 128 bytes = the 13 payload bytes `'HELLO''    42' "
-    "plus 115 x 0x1A.  [E2E-41/P3a] withdraws the explanation this row used to give "
-    "(`from an open that spells F(128)'): E17D's OPEN has NO ENVIRONMENT clause, so the "
-    "padding has no measured cause here -- observation and hypothesis are separated in "
-    "spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt [C279].")
+    "DR compiles PUT of a named file: golden/e2e11h/E16D/E16D.REL and "
+    "golden/e2e11i/E17D/E17D.REL are BOTH byte-exact specimens of mine now [C280], and 36 such "
+    "attaches are tabulated in spec/lab-evidence/e2e41-p0/SIOMODES.txt.  What still stops this "
+    "source is narrower than the reason P1 recorded (\"the ?OIOOP/?SIOOP route is missing\"): "
+    "E41X5 never OPENS `f' at all -- and DR does attach an unopened stream: P086K:4 "
+    "`put file(f) edit(d)(f(5,1))', with no OPEN anywhere in the program, attaches HL=the file "
+    "common, DE=0x0652 at 001F (golden/probe55/P086K/P086K.REL, tabulated in SIOMODES.txt).  So "
+    "the attach does NOT require an open, and two earlier wordings on this row were wrong: "
+    "`the ?OIOOP/?SIOOP route is missing' (P1) and `0x0652 is measured only against a "
+    "stream-output open' (P3b first draft -- 0x0652 also sits behind P019B's titleless PRINT open, "
+    "whose OPEN word is 0x0652 itself, and behind print opens carrying pagesize/linesize/"
+    "ENVIRONMENT; 0x0650 is COPY/REPORT's record-WRITE attach on the ?WNIOP chain, a different "
+    "statement).  What still stops E41X5 is narrower and true: P086K's unopened attach is followed "
+    "by ?EDITF (the EDIT route, refused here for other reasons [C245]->[C250]), and no object of "
+    "mine -- and no object in SIOMODES.txt -- carries the LIST item chain (?SLCTS ?PNCOP ?QIOOP) "
+    "after an attach on a stream with no open.  Mine therefore claims the file PUT only where a "
+    "whole object pins the OPEN word, the attach and the item chain together, which is E16D/E17D.  "
+    "The "
+    "archived output-file comparison this row used to point at -- golden/e2e11iu/E17D/OUT.DAT, "
+    "exactly 128 bytes = the 13 payload bytes `'HELLO''    42' plus 115 x 0x1A -- is now "
+    "REPRODUCED by E17D's own runtime row (a file assertion, not a transcript), and "
+    "[E2E-41/P3a] withdrew the F(128) explanation this row used to give: E17D's OPEN has no "
+    "ENVIRONMENT clause, so the padding has no measured cause here [C279]; observation and "
+    "hypothesis are separated in spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt.")
+
+NEG_META["E41X6"] = ("my-gap",
+    "DR compiles a SKIP on a named-file PUT: CREATE opens `file(output) stream output "
+    "title(filename)' and then `put skip list(...)' / `put file(output) list(...)', and "
+    "SIOMODES.txt tabulates four 0x0652 attaches in CREATE.REL whose continuations are "
+    "`?SKPOP ?QIOOP' (01B3), `?SKPOP ?SLCTS' (01CA) and `?SKPOP ?QIOOP ?STOPX' (01E9) -- so the "
+    "SKIP-on-a-stream word exists in DR.  My P3b route claims exactly one item per file PUT "
+    "because E16D/E17D, the only byte-exact objects of mine with a file attach, carry one item "
+    "each; the words between a file attach and a following item are unpinned.  CREATE itself is "
+    "unreachable here anyway: its title is a VARIABLE (?SLVTS), which is not lowered.")
+
+NEG_META["E41X7"] = ("my-gap",
+    "DR compiles a multi-item named-file PUT: CREATE:39 `put file(output) "
+    "list(name,addr,city,state,zip,phone)' attaches 0x0652 at 0165 and runs `?SLVTS ?PNCOP "
+    "?SLVTS' (SIOMODES.txt), and KEYFILE:25 `put file(keys) list(name,k)' attaches 0x0652 at "
+    "0095 with `?SLVTS ?PNCOP'.  Both are lists of VARIABLES, so no object measures the words "
+    "between two LITERAL items either; E16D/E17D close every file attach with one ?QIOOP and "
+    "nothing more.  Refused rather than guessed, and the two corpus programs stay REFUSED in the "
+    "census for their OPENs as well (variable TITLE, LINESIZE).")
+
+NEG_META["E41X8"] = ("my-gap",
+    "DR compiles PUT EDIT on a named file, and does so WITHOUT an open: P086K:4 "
+    "`put file(f) edit(d)(f(5,1))' attaches HL=the file's control block with DE=0x0652 at 001F "
+    "and runs `?EDITF ?DLDOP', and its `get file(f) edit(d)(f(5,1))' attaches 0x0690 at 0046 with "
+    "`?EDITF ?EDTIV ?QCDOP' (spec/lab-evidence/e2e41-p0/SIOMODES.txt, from "
+    "golden/probe55/P086K/P086K.REL -- an object this panel does not hold, and the directory contains no .COM and no transcript, so nothing here shows it ever executed).  "
+    "So P086K is the witness that an attach does NOT require an OPEN [C282], and it is also the "
+    "reason this probe refuses on the EDIT route rather than the file route: PUT EDIT is deferred "
+    "for its own reasons ([C245]->[C250], the R(S)/SKIP-EDIT defect), which the open lowering of "
+    "P3b neither advances nor changes.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
@@ -4000,6 +4092,42 @@ def runtime_check(rows, verbose=True):
         missing, forbidden = [], []
         for e in r["expected"].split("|"):
             if not e:
+                continue
+            if e.startswith("file:"):
+                # [E2E-41/P3b] AN OUTPUT-FILE ASSERTION, spelled `file:<exported name>=<golden \
+                # path>'.  Console text alone cannot prove a `put file(f)' wrote anything -- the
+                # bytes that matter land in a CP/M file -- so this compares the file the run
+                # EXPORTED (oracle/linkrun.py's EXPORT_OUT -> golden/<tag>/<name>/) against a
+                # golden, whole file, exact length, trailing 0x1A fill included.  NO normalisation
+                # here, deliberately: the console assertion above collapses runs of spaces and
+                # CRLF because PUT pads numerics; a data file has no such licence.
+                # First user: E17D, whose own DR run left golden/e2e11iu/E17D/OUT.DAT at 128
+                # bytes [C280].
+                on_disk, _, goldp = e[5:].partition("=")
+                mine_f = os.path.join(ROOT, "golden", tag, name, on_disk)
+                gold_f = os.path.join(ROOT, goldp)
+                if not os.path.exists(gold_f):
+                    fails.append("RUNTIME %s: file assertion names a missing golden: %s"
+                                 % (name, goldp))
+                elif not os.path.exists(mine_f):
+                    d = os.path.join(ROOT, "golden", tag, name)
+                    got = " ".join(sorted(os.listdir(d))) if os.path.isdir(d) else "(no dir)"
+                    fails.append("RUNTIME %s: the run exported no %s; that directory holds %s "
+                                 "-- writing NOTHING must never pass a file assertion"
+                                 % (name, on_disk, got))
+                else:
+                    a, b = open(mine_f, "rb").read(), open(gold_f, "rb").read()
+                    if a == b:
+                        if verbose:
+                            print("  runtime %-8s FILE OK  %s == %s  (%d bytes, byte for byte)"
+                                  % (name, on_disk, goldp, len(a)))
+                    else:
+                        at = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]),
+                                  min(len(a), len(b)))
+                        fails.append("RUNTIME %s: %s differs from %s at byte %d (mine %d bytes, "
+                                     "golden %d): mine %r golden %r"
+                                     % (name, on_disk, goldp, at, len(a), len(b),
+                                        a[max(0, at - 4):at + 4], b[max(0, at - 4):at + 4]))
                 continue
             if e.startswith("!"):
                 if e[1:] in norm:

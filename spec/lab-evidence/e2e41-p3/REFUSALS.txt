@@ -1,0 +1,77 @@
+E2E-41/P3 -- file OPEN and file PUT refusals, with the compiler's ACTUAL stderr.
+
+Captured 2026-10-28 on the P3b binary (ocaml/_build/default/bin/pli80c.exe).
+The three `.pli' sources quoted below are staged in this directory; they are
+shaped from the DR corpus (OPEN-MATRIX.tsv) but are NOT panel entries, for the
+reason stated at the foot of this file.  The file-PUT refusals that ARE panel
+entries (E41X5, E41X6, E41X7, E41X8 and the long-standing PU1) are listed after
+them so the whole boundary of the route is in one place.
+
+
+== OPEN naming BOTH INPUT and OUTPUT -- no DR object of the combination      my-gap
+
+$ pli80c REFUSAL-io.pli          # open file(f) stream input output title('E16OUT DAT');
+Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) naming BOTH INPUT and OUTPUT has no byte-exact DR witness [TBD] (line 2) -- all nine measured OUTPUT rows in OPEN-MATRIX.tsv are: `stream output' with a LITERAL title (E16D:3, E17D:3 -> w1 0x0E50, lowered here), `stream output' with a VARIABLE title (CREATE:22 -> 0x0E50, ?SLVTS, not lowered), keyed output (P021:4, ENTER:37 -> 0x4D54), print (LOAN2:54/56 -> 0x2E52 with PAGESIZE, 0x0E52 without) and output opens carrying an attribute (COPY:13 ENVIRONMENT -> 0x4E50, KEYFILE:19 LINESIZE -> 0x1E50).  Every one of the nine carries a TITLE.  naming BOTH INPUT and OUTPUT is outside that set")
+
+  DR side: OPEN-MATRIX.tsv has 34 rows, 25 with INPUT and 9 with OUTPUT, and no row carries
+  both.  So the mode WORD for the combination (is it 0x0E50|0x0080? does one bit override the
+  other?) is not readable out of anything in this repository.
+
+
+== OPEN OUTPUT without the STREAM keyword -- no DR object of that spelling    my-gap
+
+$ pli80c REFUSAL-nostream.pli    # open file(f) output title('E16OUT DAT');
+Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) OUTPUT without the STREAM keyword has no byte-exact DR witness [TBD] (line 2) -- all nine measured OUTPUT rows in OPEN-MATRIX.tsv are: `stream output' with a LITERAL title (E16D:3, E17D:3 -> w1 0x0E50, lowered here), `stream output' with a VARIABLE title (CREATE:22 -> 0x0E50, ?SLVTS, not lowered), keyed output (P021:4, ENTER:37 -> 0x4D54), print (LOAN2:54/56 -> 0x2E52 with PAGESIZE, 0x0E52 without) and output opens carrying an attribute (COPY:13 ENVIRONMENT -> 0x4E50, KEYFILE:19 LINESIZE -> 0x1E50).  Every one of the nine carries a TITLE.  OUTPUT without the STREAM keyword is outside that set")
+
+  DR side: all 9 OUTPUT rows in the matrix spell `stream output' and all carry w1 = 0x0E50.
+  P0 §4 measured a 0x0010 bit it reads as `stream', so a STREAM-less OUTPUT would presumably
+  drop it -- but that is arithmetic on a reading, not an object.
+
+
+== titleless OPEN STREAM OUTPUT -- composes a word no matrix row carries      my-gap
+
+$ pli80c REFUSAL-notitle.pli     # open file(f) stream output;
+Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) a titleless OUTPUT has no byte-exact DR witness [TBD] (line 2) -- all nine measured OUTPUT rows in OPEN-MATRIX.tsv are: `stream output' with a LITERAL title (E16D:3, E17D:3 -> w1 0x0E50, lowered here), `stream output' with a VARIABLE title (CREATE:22 -> 0x0E50, ?SLVTS, not lowered), keyed output (P021:4, ENTER:37 -> 0x4D54), print (LOAN2:54/56 -> 0x2E52 with PAGESIZE, 0x0E52 without) and output opens carrying an attribute (COPY:13 ENVIRONMENT -> 0x4E50, KEYFILE:19 LINESIZE -> 0x1E50).  Every one of the nine carries a TITLE.  a titleless OUTPUT is outside that set")
+
+  DR side: E17A.REL is the one titleless OPEN in the corpus, and it is INPUT (w1 0x0290)
+  [C274].  0x0650 does exist in DR objects -- but only as an ATTACH word (the 0x0652
+  `put list' word minus its 0x0002 bit), on record WRITEs in COPY and REPORT, never as an
+  OPEN's w1.  P2a already withdrew a compose-0x0650 lowering on this ground [C276] and P3b
+  keeps the withdrawal.
+
+  Correction to a sentence in an earlier draft of this file and of [C280]: 0x0652 is NOT
+  0x0400|0x0200|0x0010|0x0040 -- that sum is 0x0650.  The attach word is 0x0252 (the console
+  PUT's word) plus the declared-file bit 0x0400, so it carries 0x0002 as well; see [C282].
+
+
+== the file-PUT refusals that ARE on the negative panel
+
+PU1    probes/PU1.pli, `put file(f) list(x)' with x a variable -- the ?SLVTS route, measured
+       in DR at CREATE 0165 (`?SLVTS ?PNCOP ?SLVTS') and KEYFILE 0095 (`?SLVTS ?PNCOP'), but
+       not lowered.  Kept exactly as P1 registered it [C273].
+E41X5  `put file(f) list('A')' with no OPEN in the program.  DR does attach a stream it never
+       opened -- P086K:4 does it at 001F with DE = 0x0652, and P019B:3 attaches 0x0652 behind a
+       PRINT open whose own w1 is 0x0652 [C282] -- so the refusal is not that DR forbids the
+       shape; it is that no whole object pins OPEN 0x0E50 + attach 0x0652 + this LIST item
+       chain except E16D/E17D, which open the file first.
+E41X6  `put file(f) skip list('A')' after the open P3b lowers.  DR measures the SKIP-on-a-file
+       route at CREATE 01B3 / 01CA / 01E9 (`?SKPOP ...'), all behind a variable-title open, so
+       the attach word agrees but the sequence has no byte-exact witness here.
+E41X7  `put file(f) list('A','B')'.  DR measures a multi-item attach at CREATE 0165 (six items,
+       all variables) and KEYFILE 0095 (two, variables); what no object measures is two LITERAL
+       items in one file attach -- E16D/E17D close every attach with exactly one ?QIOOP.
+E41X8  `put file(f) edit(d)(f(5,1))'.  Refused by the long-standing PUT-EDIT deferral
+       ([C245]->[C250]), not by the file route: DR measures exactly this statement on P086K:4,
+       attaching 0x0652 with no OPEN in the program at all.
+
+Why these four and PU1 are panel entries while the three OPEN shapes above are not:
+each of them opens its file the way P3b lowers it, so it exercises a route this compiler
+does emit and pins the ITEM boundary against a measured DR object (CREATE, KEYFILE, P086K).
+The three OPEN refusals have no DR object at all -- inventing a golden for them would be
+fabrication, which is the same line P1 drew for `open file(f) mode overwrite'
+(spec/lab-evidence/e2e41-p1/REFUSALS.txt) and P2a drew for the titleless open [C276].
+
+Retirements in this phase: none.  The `titled OUTPUT / PRINT open' refusal recorded in
+spec/lab-evidence/e2e41-p2/REFUSALS.txt is superseded for the OUTPUT half -- P3b lowers
+`open file(f) stream output title(<lit>)' byte-exactly [C280] -- and the PRINT half still
+refuses with the same text.

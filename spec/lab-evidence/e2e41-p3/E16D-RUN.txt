@@ -1,0 +1,22 @@
+### my build vs DR golden /home/john/projects/sushiworks/pli80/golden/e2e11h/E16D/E16D.REL: byte-identical
+   E16D: COM=True LINK D:E16D | LINK 1.31
+ | PLILIB   RQST   E16D     0100   /OUTF/   19A0   /SYSIN/  1A2A    | /SYSPRI/ 1A51    |  | ABSOLUTE     0000 | CODE SIZE    18A0 (0100-199F) | DATA SIZE    01E1 (1AAC-1C8C) | COMMON SIZE  010C (19A0-1AAB) | USE FACTOR     4C |  | C>
+len 128
+len 128
+### linked golden/e32rt_E16D/E16D.COM (7168 bytes) -- LINK-80's own image of my .REL
+   E16D: rc=0 done E16OUT=yes OUTF.DAT=no E16OUT.DAT=no
+### run dir (scratch workspace, deleted afterwards): /home/john/projects/sushiworks/pli80/oracle/workspace/run-run-e32rt_E16D-E16D-003
+### drive d after the run (cpmls -l) -- EVERY file, name straight off the disk
+0:
+-rwxrwxrwx    7168 Jan 01 1970  e16d.com
+-rw-rw-rw-     128 Jan 01 1970  e16out
+### every file on d: except the program itself, exported and hashed
+   0:             cpmcp FAILED: 
+   e16out          128 bytes sha256=56ad391f3e1ee7e7
+        first 32: 27 48 45 4c 4c 4f 27 20 20 20 20 34 32 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a 1a
+        as text : b"'HELLO'    42\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a\x1a"
+        distinct tail byte: ['1A']
+### reference: DR's own golden/e2e11iu/E17D/OUT.DAT = 128 bytes, sha256=56ad391f3e1ee7e7
+   E16OUT         == DR OUT.DAT byte for byte: True (mine 128, DR 128)
+### staged the measured file at golden/e32rt_E16D/E16D/E16OUT (128 bytes) for the runtime row
+### run dir removed; golden/e32rt_E16D keeps the .REL/.PRN/.COM and the exported file

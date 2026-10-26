@@ -6068,3 +6068,147 @@ cpmtools' `cpmcp`, which derives the exported length from the directory extent, 
 is no captured FCB, no directory dump and no second output file of a different length.  A
 hypothesis is written down as a hypothesis; the padding rule the runtime panel has to
 reproduce is stated as an observation, independently of its cause.
+
+## C280 — A STREAM OUTPUT OPEN IS THE INPUT OPEN WITH ONE WORD CHANGED, AND A NAMED-FILE PUT LIST ATTACHES WITH 0x0652 (E2E-41/P3b)
+
+`open file(f) stream output title('<literal>')` and
+`put file(f) list(<one literal>)` are lowered byte-exactly, witnessed whole-file by
+`golden/e2e11h/E16D/E16D.REL` and `golden/e2e11i/E17D/E17D.REL` — both 512 bytes, `cmp` silent,
+loader pad included, not a code-region comparison.
+
+**(a) OUTPUT replaces the input bit; it does not add to it.**  The measured word is
+`0x0E50 = 0x0400 | 0x0200 | 0x0010 | 0x0040 | 0x0800`: the input open's `0x0E90` with `0x0080`
+cleared and `0x0040` set.  The decisive witness is cross-program: E17D's OPEN block and E17B's
+(`open file(inf) stream title('$1.$1')` — same title, same 29-byte block, same position
+`0006-0022` in both objects) differ at **exactly one address**, `0012: 50` against `90`, the low
+half of w1, and nothing else moves, **w6 = 0000 included** — a stream OUTPUT open carries no
+record length, which is the fact [C279] needed before anyone could explain E17D's 128-byte file
+(`P3b-MEASURE.txt` prints the byte-by-byte comparison).
+Of the nine OUTPUT rows in `OPEN-MATRIX.tsv` the seven that are not E16D/E17D are keyed
+(P021:4, ENTER:37 — both `0x4D54`), print (LOAN2:54/56 — `0x2E52`/`0x0E52`), carry ENVIRONMENT or
+LINESIZE (COPY:13 `0x4E50`, KEYFILE:19 `0x1E50`) or take a **variable** TITLE (CREATE:22).  CREATE
+is the useful one: its w1 is `0x0E50`, identical to E16D/E17D's, which shows the mode word does
+not depend on how the TITLE is spelled — `0x0800` means "a TITLE is present" in both cases.
+**All nine carry a TITLE**; so `OUTPUT` is accepted only as `stream output` **with** a literal
+TITLE, and three combinations refuse by name — `input output` on one open (no row spells it),
+`output` without `stream`, and a titleless `output` (which would emit `0x0650`, a word the census
+knows only as a write-from *attach* word, never as an OPEN w1).
+
+**(b) The write attach.**  `SIOMODES.txt` has 36 attach sites; E16D and E17D carry two each, HL =
+the file's control block, DE = **0x0652**, `LXI B,0000`, `CALL ?SIOOP`.  The measured relation to
+the console PUT is **one bit**: `0x0252 + 0x0400 (declared file) = 0x0652`, exactly as the console
+GET's `0x0290 + 0x0400 = 0x0690` [C274] — plus a leading `LXI H,<CB>`.  An earlier draft of this
+claim decomposed 0x0652 as `0x0400|0x0200|0x0010|0x0040`, **which sums to 0x0650, not 0x0652**: the
+attach word also carries `0x0002`, and P0 §3's reading of `0x0002` as the PRINT bit belongs to
+OPEN words only (0x0652/0x0E52/0x2E52 are all print opens) — E16D attaches `0x0652` on a
+stream-OUTPUT file, and not one of the 26 measured GET attaches (0x0290 console, 0x0690 file) has
+the bit.  What is measured is the *pairing*: all 36 LIST-directed PUT attaches carry 0x0002, all
+26 GET attaches omit it, and the three record-WRITE attaches read 0x0650 — which is 0x0652 minus
+exactly that bit.  Inside an attach word, then, 0x0002 separates `put list' from `write' and from
+`get'; what it means inside DR is unmeasured, and P0 §3's PRINT reading belongs to OPEN words.  `lower_put_items_gen` therefore stays ONE function with an optional `?file`
+parameter rather than a second copy, because the item bytes are provably route-independent:
+E17D's own console `put list('WROTE')` at `0064` emits `LXI H,*S(0011) / MVI A,05 / ?SLCTS /
+?PNCOP / ?QIOOP`, byte for byte the file PUT's string chain.
+
+**(c) The two items in each program take different chains, and both are claimed.**
+`list('HELLO')` is `MVI A,05` (the literal's byte count) → `?SLCTS` → `?PNCOP`; `list(42)` is
+`MVI A,02` (digit count from the literal's TEXT) → `?DLDOP` → `MVI A,05` (= digits+3, DR's field
+width) → `MVI B,00` (scale 0) → `?QDCOP` → `?PNVOP`.  42 therefore lives in a **packed-decimal
+pool cell** (`42 00`) allocated through the same image-dedup table as every other DEC cell
+[R614](E16D offsets: title 0x00, 'HELLO' 0x0A, 42 0x0F, 'WROTE' 0x11 — DATA 22 bytes; E17D:
+0x00, 0x05, 0x0A, 0x0C — DATA 17), not on the fixed-variable route.  The numeric arm claims a
+plain non-negative integer literal only: a fraction (nonzero scale), a signed literal (the
+tens-complement cell is measured for STORES, never as a PUT item) and a float spelling refuse.
+
+**(d) Execution, not just bytes.**  `spec/RUNTIME.txt` gained a new assertion form,
+`file:<exported name>=<golden path>`, evaluated by `runtime_check` as an exact whole-file
+comparison with NO space collapsing and NO CRLF normalisation — a data file has no such licence.
+E17D's row asserts `WROTE` on the console and `file:OUT.DAT=golden/e2e11iu/E17D/OUT.DAT`; this
+compiler's object creates the file and all 128 bytes, `'HELLO'` + 4 spaces + `42` + 115 `0x1A`,
+equal DR's archived file.  E16D's row (`kind=independent` — `golden/e2e11iu` holds E17A..E17D only, so this repository has no
+DR-run artefacts for E16D at all and the byte pattern comes from E17D's DR run, not from a DR
+oracle of E16D's own) asserts `file:E16OUT=` the same 128 bytes.
+Console output alone would not have proved any of this.
+
+**(e) What it does not claim.**  Variable file items, multi-item file PUTs, `SKIP` on a file PUT
+and every `PUT EDIT` on a file refuse by name (section 4 of the P3 note); `READ` and record I/O
+are untouched.  A PUT refuses unless this compiler lowered that file's `stream output' OPEN -- but
+that is a claim about what a WHOLE object pins here, not about DR: DR emits the same 0x0652 attach
+behind a PRINT open (P019B 006C) and behind no open at all (P086K 001F) [C282].
+
+Evidence: `spec/lab-evidence/e2e41-p3/P3b-MEASURE.txt` (regenerated by `p3b-measure.py` from the
+current binary and the goldens — whole-file cmp, per-window byte equality, DATA images, the
+SIOMODES cross-check), `spec/lab-evidence/e2e41-p3/E16D-RUN.txt`, and the two runtime rows.
+
+## C281 — E16D'S OUTPUT FILE IS `E16OUT`, WITH NO EXTENSION, AND THE HARNESS COULD NOT EXPORT IT (E2E-41/P3b)
+
+**(a) The name comes from the TITLE, not from the FILE variable.**  E16D declares `dcl outf file`
+and opens it `title('E16OUT DAT')`; a run of my byte-exact object leaves one file on D:, named
+`E16OUT` — 128 bytes, sha256 `56ad391f…`, the same bytes as DR's `golden/e2e11iu/E17D/OUT.DAT`.
+The two names the harness had been guessing (`OUTF.DAT`, `E16OUT.DAT`) are both absent, and the
+title's second token does **not** become an extension.  E17D, whose title is `'$1.$1'` and whose
+command tail is `OUT.DAT`, writes `OUT.DAT`.  That is two observations and no more: what DR does
+with the remaining characters of a title, and whether a space always suppresses the extension,
+are unmeasured. — the substitution rule of [E2E-11 step 3e]
+(`oracle/linkrun.py`'s `ARGS` comment: a SPACE-separated tail produced a file literally named
+`out`) and this measurement together are the only two witnesses of title→name derivation the
+repository has for an OUTPUT open.  `EXPORT_OUT["E16D"]` now lists the measured name first and
+keeps the two absent guesses so their absence stays visible.
+
+**(b) `cpmwork.check_f83` rejected every extensionless CP/M name.**  The guard's pattern was
+
+    r"^([A-Za-z0-9_]{1,8})(?:\.([A-Za-z0-9_]{1,3})?)$"
+
+— the `?` written INSIDE the group, so the dot was mandatory and the extension optional.
+Measured on Python 3.14.8: `re.match(old,"OUT")` is `None`, `re.match(old,"OUT.DAT")` matches;
+the corrected `r"^([A-Za-z0-9_]{1,8})(?:\.([A-Za-z0-9_]{1,3}))?$"` accepts both.  This is a defect
+in the guard, not a regex-engine quirk — the old shape fails on every version.  Its cost was
+evidence, not a message: `export()` called the guard before `cpmcp`, so a program that had
+demonstrably written a file was reported as having written nothing, and the only way to see the
+truth was to bypass the harness (`p3b-e16d-run.py` lists and copies the whole D: image with
+`cpmls`/`cpmcp`).  The corrected pattern still refuses anything outside `[A-Za-z0-9_]`, still
+caps the name at 8 and the extension at 3, and still returns the same normalised form.
+Reproduction: `spec/lab-evidence/e2e41-p3/F83-REGEX.txt`.
+
+## C282 — A RE-WORDED REFUSAL MUST BE RE-CHECKED IN EVERY PLACE THAT QUOTED THE OLD ONE (E2E-41/P3b)
+
+P3b narrowed one refusal, and four documents and two panels carried the old wording.  The
+count: `NEG_META["E41X5"]` and `NEG_META["PU1"]` (panel markers — the gate aborted on the
+inventory disagreement until `--update-inventory` regenerated `spec/INVENTORY.txt`, which is the
+guard working, not failing), the four `msg` fields of the corpus census (CREATE, KEYFILE, ENTER,
+UPDATE — re-snapshotted, with the classification counts unchanged at 15 EXACT / 26 REFUSED /
+0 UNEXPECTED, so no corpus program's bytes moved), `COVERAGE.tsv`'s `IO.PUT_EDIT` boundary row
+(which asserted "two live corpus refusals cite `PUT LIST with ON options'" — true of the old
+message, false of the new), and `PERIMETER.md`.  PU1 is the instructive one: its marker had come
+from the parser recording a FILE option as an ON option, so the file PUT it contains now refuses
+one level deeper, **by item kind**, and the panel text had to follow it or the panel would have
+been asserting a gap that no longer exists at that address.  A refusal message is an artefact
+with citation traffic, exactly like a byte pattern.
+
+**The second-order lesson, which is the one that actually cost bytes.**  Re-checking the *new*
+wording against the evidence it cites falsified two claims P3b had just written into it:
+
+* `0x0652 is measured only against a file opened stream OUTPUT` — false.  P019B's
+  `open file(pf) print` (a titleless PRINT open, w1 = `0x0652`) is followed by
+  `put file(pf) list('hello')` attaching `0x0652`, and nine LOAN2/DEPREC/COPYLPT/REPORT/KEYFILE
+  sites do the same behind print opens that carry attributes.
+* `0x0652 = 0x0400 | 0x0200 | 0x0010 | 0x0040` — an arithmetic error in my own sentence: that sum
+  is `0x0650`.  The attach word really carries `0x0002` too, and P0 §3's reading of that bit as
+  PRINT applies to OPEN words, where it correlates with `print` (0x0652, 0x0E52, 0x2E52).  In
+  ATTACH words the measured pairing is different — 0x0652 for every one of the 36 `put list`
+  attaches, 0x0690 for every one of the 26 `get` attaches (no `0x0002` anywhere), and 0x0650 for
+  the 3 record-`write` attaches, which is `0x0652` minus exactly that bit.  The claim was rewritten
+  around what is measured (the word arithmetic and the pairing) instead of a bit meaning nobody has
+  traced [C280(b)].
+* `nothing measures a write attach on a stream the program never opened` — also false.
+  P086K:4 (`put file(f) edit(d)(f(5,1))`, no OPEN anywhere in the program) attaches `0x0652` at
+  001F; its continuation is `?EDITF ?DLDOP`, and its GET attaches `0x0690` at 0046 with
+  `?EDITF ?EDTIV ?QCDOP` (both rows in `SIOMODES.txt`, from `golden/probe55/P086K/P086K.REL`).
+
+The refusal itself survives — the DR object for an unopened stream carries the EDIT route, which
+this compiler defers for its own reasons [C245]→[C250], and nothing measures a LIST item chain
+behind an attach with no OPEN — but the REASON had to be rewritten to be about what a whole
+object pins rather than what DR forbids, in the message, in `NEG_META["E41X5"]`, in
+`COVERAGE.tsv`'s `FILE.PUT_LIST` boundary, in the note and in three code comments.  The general
+form: when you narrow a refusal, re-derive every fact the new sentence asserts; a corrected
+message is only as good as its own evidence.

@@ -118,6 +118,18 @@ type st =
   ; mutable stat_addrs : (string * int) list
   ; mutable stat_total : int
   ; mutable files : string list   (* [E2E-11 step 2] uppercased FILE names *)
+  ; mutable file_out : string list
+      (* [E2E-41/P3b] the FILE groups this program has OPENED for output through a LOWERED
+         `open ... stream output title(<literal>)'.  P0's SIOMODES.txt measures the write attach
+         word 0x0652 36 times: on a stream-OUTPUT open (E16D, E17D, twice each; CREATE four times),
+         on a titleless PRINT open (P019B, whose OPEN word is 0x0652 too), on PRINT opens with
+         pagesize/linesize/ENVIRONMENT (LOAN2, DEPREC, COPYLPT, REPORT, KEYFILE) and -- the case
+         that matters for the guard below -- TWICE IN A PROGRAM THAT OPENS NOTHING AT ALL,
+         P086K's `put file(f) edit(d)(f(5,1))' at 001F.  So an attach does NOT require an open.
+         What P086K's site is followed by is `?EDITF', the EDIT route; nothing measures the LIST
+         item chain (?SLCTS/?PNCOP/?QIOOP) after an attach on a stream the program never opened.
+         Hence this guard: the LIST route is claimed only where the whole statement -- attach
+         word, item chain and OPEN -- comes from the one pair of byte-exact specimens, E16D/E17D. *)
   ; mutable fmtq : int list
 
       (* [E2E-8] FIFO of pre-allocated PUT EDIT format-table addresses.  DR
@@ -1217,6 +1229,47 @@ let lit_dec_p (text : string) =
 let lit_dec_image (v : int) (text : string) =
   Array.to_list (bcd_pack_scaled v (lit_dec_p text))
 
+(* [E2E-41/P3b] ---- the numeric-literal PUT item --------------------------------
+   E16D/E17D measure `put file(outf) list(42)' as the DEC item chain fed from the literal's
+   OWN packed cell:
+      LXI H,*S(000A) ; MVI A,02 ; CALL ?DLDOP            42 -> bytes 42 00, digit count 2
+      MVI A,05 ; MVI B,00 ; CALL ?QDCOP ; CALL ?PNVOP    width = digits + 3, scale = 0
+   [C280].  That is [C178]'s literal-cell encoder (p = digit count of the TEXT, leading zeros
+   significant) and the DEC variable item's measured edit pair (A = p+3, B = s) joined to a
+   literal source -- so the cell, the precision and the width are all computed here from the
+   SAME encoder the rest of this file uses, and prescan demand and lowering layout cannot
+   drift apart [C179].
+   Claimed: a non-negative literal whose text is nothing but digits (underscores allowed, as
+   everywhere else in this file).  Refused: a fractional literal (its scale is not 0 and no
+   file PUT with a nonzero scale is measured), a signed one (the tens-complement cell is
+   measured for STORES, never for a PUT item), and a float spelling. *)
+let put_dec_parts (text : string) : int * int * int array =
+  let ds = String.concat "" (String.split_on_char '_' text) in
+  let digits c = c >= '0' && c <= '9' in
+  if ds = "" || not (String.for_all digits ds) then
+    failwith
+      (Printf.sprintf
+         "codegen: PUT LIST numeric literal %s is outside what DR measures on a named file \
+          [TBD] -- the witness is the plain non-negative integer 42: ?DLDOP at its own digit \
+          count, ?QDCOP at digits+3 with scale 0.  A fractional, signed or float literal needs \
+          a scale or a tens-complement cell no file PUT specimen measures"
+         text)
+  else
+    let p = String.length ds
+    and v = try int_of_string ds with _ ->
+      failwith (Printf.sprintf "codegen: PUT LIST numeric literal %s is out of range [TBD]" text)
+    in
+    if p > 252 then
+      failwith
+        (Printf.sprintf
+           "codegen: PUT LIST numeric literal %s needs a one-byte precision wider than the \
+            measured MVI A form [TBD]" text);
+    (v, p, bcd_pack_scaled v p)
+
+let put_dec_ok (text : string) =
+  let ds = String.concat "" (String.split_on_char '_' text) in
+  ds <> "" && String.for_all (fun c -> c >= '0' && c <= '9') ds
+
 (* [E2E-25] image of a NEGATIVE literal's cell -- the key both demand and layout use, so
    `y = -32768' dedups against its own repeats and against a DEC store of the same value. *)
 let lit_dec_neg_image (v : int) (text : string) =
@@ -1233,16 +1286,21 @@ let lit_dec_neg_image (v : int) (text : string) =
    uses, so DR's sharing across declaration kinds is reproduced [LP1/LQ6/LQA].
    `st.last_imm <- None' is deliberate: LP1 stores 32768 twice and DR re-emits the WHOLE route
    rather than reusing HL, so the constant-reuse facts [C177] do not survive ?QDI15. *)
-let dec_cell_route st (bytes : int array) (p : int) =
+(* [E2E-41/P3b] the cell itself, split out of dec_cell_route so the PUT numeric-literal item can
+   take its cell from the SAME allocator and the SAME image-dedup table [R614] as every other DEC
+   pool cell in this file -- DR shares one cell between identical byte images however they were
+   demanded, and two allocators would silently double the pool. *)
+let dec_cell_addr st (bytes : int array) : int =
   let key = Array.to_list bytes in
-  let addr =
-    match List.assoc_opt key st.dec_cells with
-    | Some a -> a
-    | None ->
-        let a = pool_alloc st bytes in
-        st.dec_cells <- (key, a) :: st.dec_cells;
-        a
-  in
+  match List.assoc_opt key st.dec_cells with
+  | Some a -> a
+  | None ->
+      let a = pool_alloc st bytes in
+      st.dec_cells <- (key, a) :: st.dec_cells;
+      a
+
+let dec_cell_route st (bytes : int array) (p : int) =
+  let addr = dec_cell_addr st bytes in
   d st op_lxi_h; reloc st Data addr;
   d st op_mvi_a; d st p; call_ext st "?DLDOP";
   call_ext st "?QDI15";
@@ -1585,6 +1643,19 @@ let pdec_int_lit_cell (cx : pdec_ctx) (text : string) : int =
   if bin15_fits v then 0
   else
     let img = lit_dec_image v text in
+    if List.mem img !(cx.pd_img) then 0
+    else (cx.pd_img := img :: !(cx.pd_img); List.length img)
+
+(* [E2E-41/P3b] the prescan demand for a numeric-literal PUT item.  Unlike pdec_int_lit_cell
+   above it has NO bin(15) gate: DR gives `42' a decimal cell on this route (E17D DATA 0x11 =
+   the title's 5 + 'HELLO''s 5 + the cell's 2 + 'WROTE''s 5), because the item is edited as
+   DECIMAL, not converted to a binary register pair.  The image comes from put_dec_parts, the
+   very encoder the lowering allocates with, so demand and layout are one computation [C179]. *)
+let pdec_put_dec_cell (cx : pdec_ctx) (text : string) : int =
+  if not (put_dec_ok text) then 0
+  else
+    let (_v, _p, bytes) = put_dec_parts text in
+    let img = Array.to_list bytes in
     if List.mem img !(cx.pd_img) then 0
     else (cx.pd_img := img :: !(cx.pd_img); List.length img)
 
@@ -2011,6 +2082,12 @@ type pitem =
   | PIlit of string
   | PIvar of Ast.name
   | PInum of Ast.expr
+  | PIlit_dec of string
+    (* [E2E-41/P3b] a NUMERIC literal PUT item, holding the literal's TEXT: DR feeds it to
+       ?DLDOP from a packed decimal pool cell at its own digit count, then edits it with
+       ?QDCOP at width digits+3 and scale 0 (E16D/E17D `put file(outf) list(42)').  Produced
+       ONLY by the named-file PUT matcher, so it cannot reach the console chain -- where a
+       numeric literal item is still unmeasured and keeps refusing. *)
 (* [E2E-22/P4] DR's runtime SKIP count, measured on SK3/SK4 (`put skip(one) list(...)'):
      LHLD v ; MOV A,L ; CALL ?SKPOP
    Only the LOW byte of the value is used -- the same 8-bit quantity the `MVI A,n' immediate
@@ -2045,6 +2122,9 @@ type put_shape = Pnone | Plit of put_skip * string
                | Pvar of string option * Ast.expr
                | Pcat of put_skip * chain
                | Pitems of put_skip * pitem list
+               | Pfile of Ast.expr * pitem list
+                 (* [E2E-41/P3b] `put file(<declared file>) list(<one literal item>)': the
+                    named-file route, file operand kept so lowering can resolve its group *)
 
 (* flatten a (left-assoc per our parser) || chain to operands
    left-to-right; only the proven shapes C2 [lit;varying] and
@@ -2159,22 +2239,77 @@ let match_put_list_lit (s : Ast.stmt) =
                    is implemented; format/picture editing needs the \
                    ?EDITF/?EDTOV/?QDDSL route family)"
                   (put_kind_str k) s.Ast.spos.Source.line)
+  (* [E2E-41/P3b] THE NAMED-FILE PUT LIST, matched BEFORE the two refusals below so the
+     FILE option is claimed by the file route and not read as an ON handler.  The parser
+     stores `file(f)' in `on_opts' [P1a]; this arm takes ONLY a single option whose key is
+     FILE with a plain identifier operand, LIST kind, no console stream flag and EXACTLY ONE
+     data item, and that item must be a string literal or an all-digit integer literal.
+     Anything else -- two items, a variable item, SKIP, several options -- falls through to
+     the refusals, so no other ON-option spelling changes meaning [the mission's condition].
+     Why those bytes: E16D 0023-002C and E17D 0023-002C are identical and measure
+        LXI H,<the file's control block> ; LXI D,0652 ; LXI B,<continuation> ; CALL ?SIOOP
+     then the per-item chain, then ?QIOOP and the continuation triple -- the console PUT's
+     own skeleton with a selected control block in front and a different mode word and
+     routine (?SYSPR/0x0252 versus ?SIOOP/0x0652) [C280].  THE measured relation between those two
+     words is one bit: 0x0252 + 0x0400 (declared file) = 0x0652, exactly as the console GET's
+     0x0290 + 0x0400 = the file GET's 0x0690 [C274].  Do NOT read 0x0652 with P0 section 3's OPEN
+     bit table -- it is NOT 0x0400|0x0200|0x0010|0x0040 (that is 0x0650) but carries 0x0002 as
+     well, and in OPEN words 0x0002 correlates with PRINT (0x0652/0x0E52/0x2E52 are all print
+     opens) while E16D's stream-OUTPUT PUT attaches with 0x0002 set and not one of the 26 GET
+     attaches (0x0290 console, 0x0690 file) has it.  So the bit does a different job inside an
+     attach word than inside an OPEN word, and what that job IS is unmeasured -- what IS measured,
+     across SIOMODES.txt's 70 sites, is the pairing: 0x0652 for all 36 `put list' attaches, 0x0690
+     for all 26 `get' attaches, 0x0650 for the 3 record-`write' attaches (= 0x0652 minus this bit),
+     and the keyed/direct family (0x0590, 0x0594, 0x0550, 0x058C, 0x054C) trading 0x0200 for
+     0x0100.
+     The attach carries the statement's direction, not the open's mode word (P019B puts the same 0x0652 on a file whose open word is 0x0652
+     because it is PRINT, not OUTPUT, and P086K puts 0x0652 on a stream it never opens at all --
+     so the attach is not gated on the OPEN in DR either).  This compiler still refuses a file PUT
+     below unless it lowered that file's OUTPUT open, because the only COMPLETE statement it is
+     byte-exact against is E16D/E17D's pair (open word + attach word + LIST item chain); the other
+     measured attaches are either EDIT routes (?EDITF, P086K/DEPREC/COPYLPT) or sit behind opens
+     this compiler refuses (PRINT, pagesize, linesize, ENVIRONMENT, variable TITLE). *)
+  | Ast.Sput
+      { kind = Ast.List_
+      ; stream = None
+      ; on_opts = [ { Ast.io_key = "FILE"; Ast.io_val = Some ({ Ast.e = Ast.Eident _; _ } as fe) } ]
+      ; items = [ Ast.Pi_data x ] } ->
+      (match x.Ast.e with
+       | Ast.Estring v -> Pfile (fe, [ PIlit v ])
+       | Ast.Enumber t when put_dec_ok t -> Pfile (fe, [ PIlit_dec t ])
+       | _ ->
+           failwith
+             (Printf.sprintf
+                "codegen: PUT LIST on a named file of this item is unmeasured [TBD] (line %d) -- \
+                 the two byte-exact witnesses (E16D/E17D) carry ONE item, a string literal \
+                 (?SLCTS/?PNCOP) or a plain non-negative integer literal (?DLDOP/?QDCOP/?PNVOP); \
+                 a variable item routes through ?SLVTS -- CREATE 0165 attaches 0x0652 then runs \
+                 `?SLVTS ?PNCOP ?SLVTS' (its six-item list) and KEYFILE 0095 `?SLVTS ?PNCOP' (its \
+                 two) -- and this repository has no byte-exact file PUT of a variable, so it \
+                 refuses rather than guess"
+                s.Ast.spos.Source.line))
   (* [E20-21/P0] BEFORE the plain case, so an unadorned `put [skip] list(...)' still matches
      above.  These two arms replace a BARE Match_failure with a reasoned refusal: a PUT naming a
      FILE stream (corpus KEYFILE `put file(keys) list(name,k)') or carrying ON options (corpus
      CREATE) fell off the end of this match and crashed inside bind/codegen prescan, which is
-     outside this project's refusal contract -- rc!=0 is not evidence, `[TBD]` is.  The blocker is
-     the ?OIOOP/?SIOOP file-I/O route, the same one that already stops the seven
-     named-sequential-FILE corpus programs; it is NOT an array gap, and nothing here implements
-     file I/O -- it only names what is missing. *)
+     outside this project's refusal contract -- rc!=0 is not evidence, `[TBD]` is.  [E2E-41/P3b]
+     narrows them: a single `FILE(name)' option with ONE literal item is the route above, so what
+     reaches here is a multi-item file PUT, a file PUT of a variable, or a real ON handler --
+     none of which is lowered. *)
   | Ast.Sput { kind = Ast.List_; stream = Some _; _ } ->
       failwith
         (Printf.sprintf
-           "codegen: [TBD] PUT LIST naming a FILE stream (line %d): `put file(...) list(...)'             needs the ?OIOOP/?SIOOP file-I/O route -- same blocker as the named-sequential FILE             programs, not an array gap" s.Ast.spos.Source.line)
+           "codegen: [TBD] PUT LIST naming a FILE stream (line %d): DR's console-stream spelling \
+            of PUT has no measured object in this repository"
+           s.Ast.spos.Source.line)
   | Ast.Sput { kind = Ast.List_; on_opts = _ :: _; _ } ->
       failwith
         (Printf.sprintf
-           "codegen: [TBD] PUT LIST with ON options (line %d): ON-expression handling needs the             ?OIOOP/?SIOOP file-I/O route, not an array gap" s.Ast.spos.Source.line)
+           "codegen: [TBD] PUT LIST with options this route does not claim (line %d): P3b lowers \
+            `put file(<f>) list(<one literal>)' only -- a multi-item file PUT (CREATE's six), a \
+            file PUT of a variable (KEYFILE), an ON handler or a SKIP on a file PUT all need \
+            bytes no specimen of mine measures"
+           s.Ast.spos.Source.line)
   | Ast.Sput { stream = None; on_opts = []; kind = Ast.List_; items } ->
       let (sk, rest) =
         match match_skip_ctl items with
@@ -2558,7 +2693,7 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
                 | PIlit v -> a + pdec_str_cell cx v
                 | PInum x -> a + prescan_expr cx x
                 | PIvar _ -> a
-                | PIvar _ -> a) 0 its
+                | PIlit_dec t -> a + pdec_put_dec_cell cx t) 0 its
        | None ->
       (match match_put_list_lit s with
        | Plit (_, v) -> pdec_str_cell cx v
@@ -2570,7 +2705,17 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
               | PIlit v -> a + pdec_str_cell cx v
               | PInum x -> a + prescan_expr cx x
               | PIvar _ -> a
-              | PIvar _ -> a) 0 its
+              | PIlit_dec t -> a + pdec_put_dec_cell cx t) 0 its
+       (* [E2E-41/P3b] a named-file PUT takes its pool cells in SOURCE order like every other
+          item: E17D's DATA 0x11 is the title's 5, then 'HELLO''s 5, then the 2-byte packed cell
+          for 42, then 'WROTE''s 5 -- so a file PUT of a numeric literal DOES grow the pool, and
+          missing it would shift every automatic address [the ROUND prescan failure mode]. *)
+       | Pfile (_, its) ->
+           List.fold_left
+             (fun a it -> match it with
+              | PIlit v -> a + pdec_str_cell cx v
+              | PIlit_dec t -> a + pdec_put_dec_cell cx t
+              | _ -> a) 0 its
        | _ -> 0)             (* var-puts consume no pool [V101] *))
   | Ast.Sif { cond; then_; els; _ } ->
       prescan_cond cx cond
@@ -8268,23 +8413,25 @@ let lower_get_file st (fu : string) (items : Ast.name list) =
 
    P1 lowered the titleless stream form (P081Q, P072H).  P2b adds the LITERAL-STRING
    TITLE on a stream/input OPEN: E17B/E16C/E18A are byte-exact witnesses (29-byte
-   OPEN, [C278]).  Everything else -- a VARIABLE title (?SLVTS), an output or print
-   open, an attribute word, PAGESIZE/LINESIZE/KEYED/DIRECT/ENVIRONMENT -- still
-   refuses below. *)
+   OPEN, [C278]).  P3b adds `stream output' with a literal TITLE (E16D/E17D, w1 =
+   0x0E50 [C280]) and the named-file PUT LIST of literals.  Everything else -- a
+   VARIABLE title (?SLVTS), a print open, an attribute word, a titleless OUTPUT,
+   PAGESIZE/LINESIZE/KEYED/DIRECT/ENVIRONMENT -- still refuses below. *)
 
-(* the option words P2b tolerates on OPEN.  Not a codegen claim about the others: the
+(* the option words P3b tolerates on OPEN.  Not a codegen claim about the others: the
    parser accepts the whole documented vocabulary (P1a) so that the option list is
    visible, and codegen refuses what it cannot emit byte-exactly. *)
-let open_subset_keys = [ "FILE"; "INPUT"; "STREAM"; "TITLE" ]
+let open_subset_keys = [ "FILE"; "INPUT"; "STREAM"; "OUTPUT"; "TITLE" ]
 
 let refuse_file_opt (what : string) (o : Ast.io_opt) (s : Ast.stmt) =
   failwith
     (Printf.sprintf
-       "codegen: %s option %s is outside the E2E-41/P2 witnessed subset [TBD] (line %d) \
+       "codegen: %s option %s is outside the E2E-41/P3 witnessed subset [TBD] (line %d) \
         -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); \
-        P1 lowers the titleless stream open and P2b the literal-TITLE stream/input open \
-        (E17B/E16C/E18A byte-exact [C278]); ENVIRONMENT needs its ORGANIZATION and RECORD \
-        SIZE words, PAGESIZE/LINESIZE/PRINT/OUTPUT/KEYED/DIRECT their own bits and words, \
+        P1 lowers the titleless stream open, P2b the literal-TITLE stream/input open \
+        (E17B/E16C/E18A byte-exact [C278]) and P3b the literal-TITLE `stream output' open \
+        (E16D/E17D byte-exact, w1 = 0x0E50 [C280]); ENVIRONMENT needs its ORGANIZATION and \
+        RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, \
         and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly \
         by this compiler yet"
        what o.Ast.io_key s.Ast.spos.Source.line)
@@ -8301,7 +8448,7 @@ let open_title (s : Ast.stmt) (opts : Ast.io_opt list) : string option =
         failwith
           (Printf.sprintf
              "codegen: OPEN TITLE literal of %d bytes exceeds the one-byte MVI A length \
-              [TBD] (line %d) -- the longest measured title is 9 bytes ('E16IN DAT', E16C)"
+              [TBD] (line %d) -- the longest measured title is 10 bytes ('E16OUT DAT', E16D/E17D)"
              (String.length v) s.Ast.spos.Source.line)
       else Some v
   | [ { Ast.io_val = Some _; _ } ] ->
@@ -8344,15 +8491,49 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
      directly as 0x0E90.
      An open naming NO mode is refused: it is unmeasured (P0 section 12, probe C), and
      0x0690 for it would be an inference from the default-bit reading above, not a
-     witness. *)
-  if not (has "INPUT" || has "STREAM") then
+     witness.
+     [E2E-41/P3b] OUTPUT REPLACES the input bit, it does not add to it: of the NINE measured
+     output rows in OPEN-MATRIX.tsv the two compilable ones -- E16D:3, E17D:3, both
+     `open file(outf) stream output title(<literal>)' -- measure w1 = 0x0E50, which is 0x0E90
+     with 0x0080 cleared and 0x0040 set.  Cross-program witness (spec/lab-evidence/e2e41-p3/
+     P3b-MEASURE.txt): E17D's 29-byte open block at 0006-0022 and E17B's -- same title
+     '$1.$1', same block, same addresses -- differ at EXACTLY ONE BYTE, 0012: 50 against 90,
+     the low half of w1; w2..w6 stay 0x0000, so a stream OUTPUT open carries no record length
+     either, which is the fact P3a had to establish before anyone could explain E17D's file
+     size [C279][C280].
+     OUTPUT is accepted ONLY spelled `stream output' and ONLY with a TITLE, because that is
+     all the corpus measures: the other seven output rows are keyed (P021:4, ENTER:37), print
+     (LOAN2:54/56) or carry ENVIRONMENT/LINESIZE (COPY:13, KEYFILE:19), and EVERY measured
+     output row carries a title -- so a titleless `stream output' would compose w1 = 0x0650, and
+     0x0650 appears in this census ONLY as a write-from ATTACH word (SIOMODES.txt: COPY 006F,
+     REPORT 00DF/01BE, each followed by ?WNIOP ?QIOOP) and never as an OPEN w1.  The titleless
+     opens that ARE measured are P019B's print (0x0652) and P072H/P081Q's input (0x0690).
+     `input output' on one open is refused for the same reason: no row spells it. *)
+  let n_in, n_out, n_stream = has "INPUT", has "OUTPUT", has "STREAM" in
+  let refuse_combination what =
     failwith
       (Printf.sprintf
-         "codegen: OPEN FILE(...) naming no INPUT or STREAM has no DR witness [TBD] (line %d) \
-          -- every one of the 34 measured opens names a mode; P0 section 12 probe C is the missing evidence"
+         "codegen: OPEN FILE(...) %s has no byte-exact DR witness [TBD] (line %d) -- all nine \
+          measured OUTPUT rows in OPEN-MATRIX.tsv are: `stream output' with a LITERAL title \
+          (E16D:3, E17D:3 -> w1 0x0E50, lowered here), `stream output' with a VARIABLE title \
+          (CREATE:22 -> 0x0E50, ?SLVTS, not lowered), keyed output (P021:4, ENTER:37 -> 0x4D54), \
+          print (LOAN2:54/56 -> 0x2E52 with PAGESIZE, 0x0E52 without) and output opens carrying an \
+          attribute (COPY:13 ENVIRONMENT -> 0x4E50, KEYFILE:19 LINESIZE -> 0x1E50).  Every one of \
+          the nine carries a TITLE.  %s is outside that set"
+         what s.Ast.spos.Source.line what)
+  in
+  if n_in && n_out then refuse_combination "naming BOTH INPUT and OUTPUT"
+  else if n_out && not n_stream then refuse_combination "OUTPUT without the STREAM keyword"
+  else if n_out && not title then refuse_combination "a titleless OUTPUT"
+  else if not (n_in || n_out || n_stream) then
+    failwith
+      (Printf.sprintf
+         "codegen: OPEN FILE(...) naming no INPUT, OUTPUT or STREAM has no DR witness [TBD] \
+          (line %d) -- every one of the 34 measured opens names a mode; P0 section 12 probe C \
+          is the missing evidence"
          s.Ast.spos.Source.line)
   else
-    let base = 0x0400 lor 0x0200 lor 0x0010 lor 0x0080 in
+    let base = 0x0400 lor 0x0200 lor 0x0010 lor (if n_out then 0x0040 else 0x0080) in
     if title then base lor 0x0800 else base
 
 let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
@@ -8366,6 +8547,11 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
   in
   let title = open_title s opts in
   let w1 = open_mode_word s opts (title <> None) in
+  (* [E2E-41/P3b] remember that THIS group was opened for output by a lowered open: the named-file
+     PUT takes its attach word (0x0652) from that fact and nothing else [C280].  Recorded only
+     after open_mode_word has accepted the combination, so a refused open claims nothing. *)
+  if List.exists (fun (o : Ast.io_opt) -> o.Ast.io_key = "OUTPUT") opts then
+    st.file_out <- fu :: st.file_out;
   (match title with
    | None ->
        (* DR's zero-length title: XRA A / MOV B,A / PUSH B / INX SP, leaving one zero byte
@@ -8908,14 +9094,30 @@ let num_width st (x : Ast.expr) =
    (bare = 1, skip(n)); per item: literal = LXI H,*S; MVI A,len;
    SLCTS; PNCOP; numeric (var/expr) = <HL>; MVI A,width; QICOP;
    PNVOP; single char/varying var = the V101/V106 chain (multi-item
-   char vars UNPROVEN -> [TBD]); then ONE QIOOP + continuation. *)
-let lower_put_items_gen st (edit_tbl : int option)
-    (skipn : put_skip) (items : pitem list) =
+   char vars UNPROVEN -> [TBD]); then ONE QIOOP + continuation.
+   [E2E-41/P3b] `~file' turns the SAME chain into a named-file PUT: only the
+   statement prologue changes -- the control block is selected first, the mode word is
+   0x0652 instead of 0x0252 and the routine is ?SIOOP instead of ?SYSPR (E16D/E17D 0023-002C
+   against E17D's own console PUT at 0064 [C280]).  One chain, two callers, because DR's item
+   bytes are IDENTICAL on both routes; that is the same argument P1 used for `lower_get_body'
+   and it is why the console route's bytes cannot move here. *)
+let lower_put_items_gen st ?(file : string option = None)
+    (edit_tbl : int option) (skipn : put_skip) (items : pitem list) =
+  (match file with
+   | Some fu ->
+       (* DR re-selects the group before EVERY file statement (P0 section 10): SEL-COMMON only
+          when it changes, which load_file_cb already enforces through st.cur_common [C202]. *)
+       load_file_cb st fu
+   | None -> ());
   (* [E2E-8] `~edit_tbl' turns the same per-item value preparation into PUT
      EDIT: the table is loaded and ?EDITF called right after ?SYSPR, and every
      item's output tail becomes ?EDTOV instead of ?PNCOP/?PNVOP [IFACT,
      R1001-R1020].  PUT LIST keeps the byte-frozen path (edit_tbl = None). *)
   let is_edit = edit_tbl <> None in
+  if is_edit && file <> None then
+    failwith
+      "codegen: PUT FILE ... EDIT has no DR witness [TBD] -- the format table's bytes are \
+       measured on the CONSOLE route only (11 golden objects, none of them a file PUT)";
   (* `tail keep_going ()': keep_going = true selects ?PNCOP (character item,
      cursor continues), false selects ?PNVOP (numeric); for PUT EDIT every
      tail is ?EDTOV regardless [R1001-R1020]. *)
@@ -8941,6 +9143,7 @@ let lower_put_items_gen st (edit_tbl : int option)
     let only_literals_and_chars =
       List.for_all (function
         | PIlit _ -> true
+        | PIlit_dec _ -> true   (* [E2E-41/P3b] a literal is a literal on either route *)
         | PIvar n ->
             (* [E2E-29/P2] a plain FIXED identifier item is `i' in V9/E29N23 (`put list(c, i)'),
                which classifies as PIvar, not PInum -- so the numeric kinds have to be admitted
@@ -8978,11 +9181,27 @@ let lower_put_items_gen st (edit_tbl : int option)
   in
   if not char_var_ok then
     failwith "codegen: char var in multi-item PUT unproven [TBD]";
-  d st op_lxi_d; d st 0x52; d st 0x02;
+  (* [E2E-41/P3b] two prologues, one chain.  Console (byte-frozen since [E2E-3a], and the shape
+     every N3xx/R5xx specimen pins): LXI D,0252 ; LXI B,<continuation> ; CALL ?SYSPR.
+     Named file (E16D/E17D 0023-002C): LXI H,<CB> [above] ; LXI D,0652 ; LXI B,<continuation> ;
+     CALL ?SIOOP.  The continuation is the ADDRESS OF THE NEXT STATEMENT in both cases -- DR's
+     I/O abort convention, patched by emit_triple at the end of the statement. *)
+  (match file with
+   | Some _ -> d st op_lxi_d; d st 0x52; d st 0x06
+   | None -> d st op_lxi_d; d st 0x52; d st 0x02);
   d st op_lxi_b;
   let bslot = st.lc in
   d st 0; d st 0;
-  call_ext st "?SYSPR";
+  call_ext st (if file <> None then "?SIOOP" else "?SYSPR");
+  (* [E2E-41/P3b] a SKIP on a named-file PUT is unmeasured here: CREATE writes
+     `put file(output) skip list('EOF')' and `put file(output) skip' (golden/first/CREATE), so the
+     ?SKPOP exists on this route, but the object that carries it also carries a VARIABLE title and
+     is not one of this compiler's byte-exact specimens.  Refuse by name rather than compose. *)
+  if file <> None && skipn <> Sk_none then
+    failwith
+      "codegen: PUT FILE ... SKIP has no byte-exact DR witness [TBD] -- CREATE:44 measures the \
+       shape (`put file(output) skip list('EOF')') but its own open carries a VARIABLE title, so \
+       no specimen of mine pins the bytes";
   (match skipn with
    | Sk_lit c ->
        let n = parse_int_const c in
@@ -9008,6 +9227,33 @@ let lower_put_items_gen st (edit_tbl : int option)
           d st op_lxi_h; reloc st Data addr;
           d st op_mvi_a; d st len;
           call_ext st "?SLCTS"; tail true ()
+      | PIlit_dec text ->
+          (* [E2E-41/P3b] DR's numeric-LITERAL item, measured at E16D/E17D 0046-005B:
+                LXI H,*S(000A) ; MVI A,02 ; CALL ?DLDOP
+                MVI A,05 ; MVI B,00 ; CALL ?QDCOP ; CALL ?PNVOP
+             the packed cell of `42' (2 bytes, `42 00') fed to ?DLDOP at the literal's own digit
+             count, then the DEC edit pair at width digits+3 and scale 0.  This is NOT the fixed
+             variable arm below (which loads a variable's cell and a width from its declaration) and
+             it is not the BIN(15) immediate route: DR chooses the decimal route because the ITEM is
+             a decimal literal [C280]. *)
+          if is_edit then
+            failwith
+              "codegen: PUT EDIT of a numeric literal item is unsampled [TBD] -- the 11 format-
+              table goldens all print variables";
+          (match file with
+           | None ->
+               failwith
+                 "codegen: a numeric-literal PUT item on the CONSOLE route is unmeasured [TBD] -- \
+                  ?DLDOP/?QDCOP for a literal is measured only on a named file (E16D/E17D); \
+                  `put list(42)' has no DR object in this repository"
+           | Some _ -> ());
+          let (v, p, bytes) = put_dec_parts text in
+          ignore v;
+          d st op_lxi_h; reloc st Data (dec_cell_addr st bytes);
+          d st op_mvi_a; d st p; call_ext st "?DLDOP";
+          d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st 0;
+          call_ext st "?QDCOP";
+          tail false ()
       | PIvar n ->
           (match vk_of st n.Ast.orig with
            | Vflt ->
@@ -9792,6 +10038,29 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
        | Plit (skipn, v) -> lower_put_lit st skipn v
        | Pcat (skipn, ch) -> lower_cat st skipn ch
        | Pitems (sk, its) -> lower_put_items st sk its
+       | Pfile (fe, its) ->
+           (* [E2E-41/P3b] `put file(<f>) list(<literal>)'.  The file must have been OPENED for
+              output by a lowered `open ... stream output title(<literal>)' in THIS program: that
+              is the only complete statement -- OPEN word, attach word and LIST item chain in one
+              object -- this compiler is byte-exact against.  DR attaches streams this compiler
+              does not lower (P019B's PRINT, CREATE's variable TITLE) and even a stream with no
+              OPEN at all (P086K 001F, an EDIT PUT), so the guard is about what THIS compiler can
+              reproduce as a whole, not about what DR requires. *)
+           let fu = file_group st s (Some fe) in
+           if not (List.mem fu st.file_out) then
+             failwith
+               (Printf.sprintf
+                  "codegen: PUT FILE(%s) has no byte-exact DR witness [TBD] (line %d) -- this \
+                   route claims the complete statement only where a whole object pins it: \
+                   OPEN 0x0E50 + attach 0x0652 + LIST item chain, which is E16D and E17D.  DR \
+                   attaches 0x0652 elsewhere too (SIOMODES.txt: P019B 006C behind a PRINT open, \
+                   LOAN2/DEPREC/COPYLPT/REPORT/KEYFILE behind print-with-attribute opens, CREATE \
+                   behind a VARIABLE-title open, and P086K 001F with NO open at all -- but that \
+                   one is an EDIT PUT, `?EDITF ?DLDOP'), and none of those opens nor the EDIT \
+                   route is lowered here, so this file must have been opened \
+                   `stream output title(<literal>)' by this compiler"
+                  fu s.Ast.spos.Source.line);
+           lower_put_items_gen st ~file:(Some fu) None Sk_none its
        | Pnone -> failwith
              (Printf.sprintf
                 "codegen: PUT form not in E2E-3a subset [TBD] \
@@ -10866,6 +11135,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; last_imm = None; lowered = 0; temps = 0
     ; stat_addrs = statics.sy_addrs; stat_total = statics.sy_total
     ; files = statics.sy_files
+    ; file_out = []
     ; stop_seen = false; calls = layout.pl_calls
     ; procs =
         List.map
