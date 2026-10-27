@@ -18,7 +18,14 @@ open Rel80
    bit(1) is a single byte, significant in bit 7 ('1'b -> 0x80, '0'b -> 0x00)
    [E20A/E20B/E20D/E20E, C112].  Wide bit(n) has no byte-level sample at all, so
    it keeps refusing rather than borrowing this shape. *)
-type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
+(* [E2E-42/P1e] what bind records about ONE CHARACTER member of a level-numbered INTERNAL
+   structure.  Split out of `vkind' so the authorization sites can pass it around and still
+   name the member they are refusing on.  `owner' and `name' are the SOURCE spellings bind
+   used for the head and for the member, so "was this reference qualified" is answered by
+   comparing two names -- not by looking for a dot in a table key. *)
+type mem_char =
+  { owner : string; name : string; cap : int; varying : bool }
+and vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
   (* [E2E-26/P2] two storage authorities that are NOT ordinary cells:  Vptr is a 2-byte automatic
      holding a 16-bit data address [P063B, P086M, PB1-PB4, PB9]; Vbased(p) is a VIEW with no storage
      of its own whose every access goes through p's cell [PB1: based name printed at p's offset and
@@ -50,6 +57,23 @@ type vkind = Vint | Vfix of int | Vvar of int | Vdec of int * int | Vflt | Vbit1
                                   step 1a], and the member is again a VIEW: no cell, no AUTO
                                   STORAGE contribution [C185]. *)
   | Vstruct of string * int    (* the structure NAME: associated pointer + record size [LXI H,size] *)
+  (* [E2E-42/P1e] a CHARACTER member of a level-numbered INTERNAL structure -- `2 line
+     char(14) varying' inside `1 rec'.  bind registers both spellings of it ([C253]/[C258]
+     repeat for this type: E46J21's $D DATA IMAGE shows `rec.line' and `line' sharing ONE
+     cell at DATA+0002), so the name RESOLVES; what it may be USED for is a separate
+     question, and answering it by reusing Vfix/Vvar would have answered it wrongly.  A
+     CHARACTER variable is a valid operand in an assignment, a comparison, an EDIT item, a
+     concatenation, a subscript and a whole-structure move, and DR has NO object for any of
+     those on a member -- if `Vimem' were spelled `Vvar cap' every one of those routes would
+     have started accepting it silently, because none of them tests anything but the kind.
+     So this is its OWN kind: resolution carries the owner, the declared capacity and the
+     FIXED/VARYING class, and each of the five routes E46J6..E46J21 actually measures names
+     this constructor in an explicit arm (see `imem_put', `imem_title', `imem_store').
+     Everything else keeps refusing, and refuses BY NAME, because the kind is unmatched.
+     owner/name are the SOURCE spellings, which is what makes "was this reference qualified"
+     answerable without sniffing the key for a dot; the var_info's `off' is the member's
+    absolute DATA address, which bind computed as base + relative offset. *)
+  | Vimem of mem_char
    (* fixed/varying char capacity. Varying representation PROVEN
       [V101-V104]: length byte at offset 0, data at +1..+n, total
       n+1 bytes (binder authority Bind.bytes_of).
@@ -99,6 +123,19 @@ module Vinfo = struct
         (nm, vi))
       vars
 end
+
+(* [E2E-42/P1e] the BARE member name behind one of bind's two internal-member keys.  bind
+   registers an internal member under exactly two keys -- `bare' and `owner.bare'
+   [E2E-40/P2, C253/C258] -- so inverting the key is a two-way choice against the owner bind
+   itself recorded, not a scan for a dot: a key that does not begin `owner.' IS the bare
+   name, because a dot cannot be lexed inside a declared identifier.  The result goes into
+   `Vimem', where the authorization sites compare it against the source spelling of a
+   reference to decide whether that reference was qualified. *)
+let imem_bare (nm : string) (owner : string) =
+  let p = String.lowercase_ascii owner ^ "." in
+  if String.length nm > String.length p && String.sub nm 0 (String.length p) = p then
+    String.sub nm (String.length p) (String.length nm - String.length p)
+  else nm
 let dec_digits k =
   let k = abs k in
   if k = 0 then 1 else bin_digits10 k
@@ -3469,6 +3506,45 @@ let qref_key (st : st) (base : Ast.expr) (fld : Ast.name) : string option =
 
 (* One explanation for both refusal sites, so the read path and the write path cannot say different
    things about the same shape. *)
+(* [E42P1e] Does this expression touch an internal CHARACTER member anywhere in it?  The four
+   generic CHAR fall-throughs below (arithmetic, comparison, a non-literal store, a multi-item PUT)
+   each refuse for their own pre-existing reason, and every one of those reasons also covers a shape
+   that refuses when BOTH operands are ordinary variables.  So a row that stops there proves nothing
+   about a member unless the refusal says which member: `Vimem' being unmatched in the classifier is
+   an accident of the match, and an accident is not a perimeter.  These three helpers turn each such
+   stop into an EXPLICIT one that names the member, so a later widening of the classifier cannot
+   quietly make the shape compile. *)
+let rec imem_in_e st (e : Ast.expr) : (string * mem_char) option =
+  match e.Ast.e with
+  | Ast.Eident n ->
+      (match vk_of st n.Ast.orig with Vimem m -> Some (n.Ast.orig, m) | _ -> None)
+  | Ast.Ebuilt (_, args) | Ast.Esuffix (_, args) ->
+      List.fold_left (fun acc a -> match acc with Some _ -> acc | None -> imem_in_e st a) None args
+  | k ->
+      let kids =
+        match k with
+        | Ast.Ebinary (_, a, b) -> [ a; b ]
+        | Ast.Eprefix (_, a) | Ast.Econd a | Ast.Eqstruct (a, _) | Ast.Eqptr (a, _) -> [ a ]
+        | _ -> []
+      in
+      List.fold_left (fun acc a -> match acc with Some _ -> acc | None -> imem_in_e st a) None kids
+
+let imem_of_name st (n : Ast.name) =
+  match vk_of st n.Ast.orig with Vimem m -> Some (n.Ast.orig, m) | _ -> None
+
+(* The ONE text every member stop prints.  Naming the three licensed routes is the point: the
+   reader can see which object authorizes what, and which shapes are simply not among them. *)
+let imem_refuse (use : string) (m : mem_char) (why : string) =
+  failwith
+    (Printf.sprintf
+       "codegen: %s of the internal CHARACTER member %s (%s) is unmeasured [TBD] -- bind RESOLVES \
+        the name and the cell exists, but RESOLUTION IS NOT AUTHORIZATION: E46J6/E46J12 and \
+        E46J21 measure PUT LIST, E46J11/E46J18 measure OPEN TITLE, and E46J21 measures ONE store \
+        (owner-qualified, CHARACTER VARYING, string-literal source) [golden/e42p1d].  %s"
+       use (String.uppercase_ascii m.owner ^ "." ^ String.uppercase_ascii m.name)
+       (if m.varying then "CHARACTER VARYING" else "CHARACTER FIXED")
+       why)
+
 let qref_refuse_reason (base : Ast.expr) : string =
   match base.Ast.e with
   | Ast.Eident _ ->
@@ -4113,7 +4189,16 @@ let rec lower_hl st (e : Ast.expr) =
        | Vflt ->
            failwith
              "codegen: FLOAT value used where a FIXED value is expected [TBD] (the float-to-fixed route ?FL40M/?QFI15 appears only inside FFACT's prologue, so no standalone conversion or mixed-mode arithmetic is sampled)"
-      | _ -> failwith "codegen: arithmetic on char variable [TBD]");
+       | _ ->
+           (match imem_of_name st n with
+            | Some (nm, m) ->
+                imem_refuse "arithmetic" m
+                 ("the operand spelled " ^ String.uppercase_ascii nm
+                  ^ " is a member, and no DR object puts a level-numbered CHARACTER member in an \
+                    arithmetic expression; a flat CHARACTER variable refuses here too, so this is \
+                    the pre-existing char-arithmetic stop reached by a member -- named so that a \
+                    later widening cannot lose it")
+           | None -> failwith "codegen: arithmetic on char variable [TBD]"));
       let vi = List.assoc (String.lowercase_ascii n.Ast.orig) st.vars in
       if vi.size = 1
          && List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
@@ -4607,12 +4692,103 @@ and const_sub st n =
     d st op_lxi_b; d st (w land 0xff); d st ((w lsr 8) land 0xff); d st op_dad_b
   else failwith "codegen: constant sub magnitude [TBD]"
 
+(* ================= [E2E-42/P1e] INTERNAL CHARACTER MEMBER: RESOLUTION, THEN LICENSE ======
+   bind resolves both spellings of a level-1 CHARACTER member to ONE cell (E46J6/J11/J12/J18
+   under the bare name, E46J21 under `rec.line'), and this is where the SECOND question -- what
+   may be DONE with it -- is answered.  The answer is not "whatever a CHARACTER variable can do":
+   the five objects of golden/e42p1d measure THREE uses and nothing else --
+     PUT LIST     E46J6 (varying), E46J12 (fixed), E46J21 (varying, qualified spelling)
+     OPEN TITLE   E46J11 (varying), E46J18 (fixed)
+     STORE        E46J21 only, and there only the QUALIFIED destination with a literal source
+   so those three are the whole authorization, each named below with its own object.  Everything
+   else that a CHARACTER operand could be asked to do -- arithmetic, comparison, concatenation,
+   subscript, EDIT, a whole-structure move, a file PUT -- has no DR object here and refuses BY
+   NAME, because `Vimem' is not `Vvar' or `Vfix' and none of those routes matches it.
+   The three helpers this needs -- `imem_in_e', `imem_of_name' and the one refusal text
+   `imem_refuse' -- are defined ONCE, before lower_hl, because lower_hl's arithmetic arm is the
+   earliest user and a second copy of the wording anywhere else would be exactly the duplication
+   [C179] forbids. *)
+
+(* Was this reference the OWNER-QUALIFIED spelling of the member?  Answered by comparing the
+   source spelling against the owner/name pair bind recorded for the cell -- NOT by looking for a
+   dot in a table key, because a dotted key is only how bind STORES the qualified spelling and a
+   refusal that inspects it would be reasoning about a name rather than about a variable. *)
+let imem_qualified (nm : string) (m : mem_char) =
+  String.lowercase_ascii nm
+  = String.lowercase_ascii m.owner ^ "." ^ String.lowercase_ascii m.name
+
+(* [E2E-42/P1e-A] ONE encoder for BOTH authorized reads.  A member's string-preparation half is
+   [C174]'s storage-class dispatch applied to the member's own cell, and DR's four objects say so
+   byte for byte:
+     E46J6  000F  21 <data 0000> cd <?SLVTS>              put list(line)   -- varying
+     E46J11 0006  21 <data 0000> cd <?SLVTS>              open ... title(line)   -- varying
+     E46J12 000F  21 <data 0000> 3e 0e cd <?SLCTS>        put list(line)   -- char(14)
+     E46J18 0006  21 <data 0000> 3e 0e cd <?SLCTS>        open ... title(line)   -- char(14)
+   The three instructions are IDENTICAL in the PUT pair and in the TITLE pair; only the
+   STATEMENT around them differs (?PNCOP/?QIOOP versus MOV B,A + the OPEN block).  So this
+   emits the operand and nothing else -- the caller keeps its own tail, which is [C288]'s rule
+   that the OPERAND picks the helper and not the statement -- and PUT and TITLE cannot drift
+   apart because there is only one copy of the bytes [C179].  The address is `addr_of', i.e.
+   the row bind built, so the qualified spelling needs no second route: E46J21 prints `rec.line'
+   with the same `LXI H,*D(0002)' E46J6 prints `line' with [C253/C258]. *)
+let imem_str_op st (nm : string) (m : mem_char) =
+  d st op_lxi_h;
+  reloc st Data (addr_of st nm);
+  if m.varying then call_ext st "?SLVTS"
+  else begin
+    (* [C174] again: a FIXED operand passes its DECLARED length, not a length byte it does not
+       have -- E46J12/E46J18 both say MVI A,0E for `char(14)' whatever the cell holds. *)
+    if m.cap > 255 then failwith "codegen: cap > 255 [TBD]";
+    d st op_mvi_a;
+    d st m.cap;
+    call_ext st "?SLCTS"
+  end
+
 (* store a char literal into a char/varying variable [V101-V105] *)
 let store_char ?(dst : (unit -> unit) option = None) st name (k : vkind) (v : string) =
   if List.mem (String.lowercase_ascii name) st.deref then
     failwith "codegen: store to pointer formal unproven [TBD]";
   let len = String.length v in
   if len > 255 then failwith "codegen: literal len > 255 [TBD]";
+  (* [E2E-42/P1e-B] the ONE store DR measures on an internal CHARACTER member is E46J21's:
+       code 0006  21 <data 0002>   LXI H, rec.line   (the member's own cell)
+       code 0009  11 <data 0000>   LXI D, *S         (the 'AB' pool cell)
+       code 000C  3e 0e            MVI A, 0E         (the member's DECLARED capacity)
+       code 000E  06 02            MVI B, 02         (the literal's length)
+       code 0010  cd <?SMCVM>
+     E46J16 is the same five instructions on a FLAT `dcl (line char(14)) varying' -- the two .REL
+     files differ only in DATA size (0x13 vs 0x110), because the member's cell is 17 bytes and the
+     flat group's is 270 [golden/e42p1d].  So the member destination reuses the measured scalar
+     route with a different ADDRESS and nothing else changes, and `addr_of' already returns the
+     member's address because bind built the row.  What this arm decides is therefore not how to
+     emit but WHAT TO ALLOW:
+       * the destination spelling: E46J21 stores through `rec.line'.  The BARE destination is not
+         in this bank -- the bare reads are (E46J6/J11/J12/J18) but no object stores through a bare
+         member name -- so it refuses as our conservative stop, not as a DR rejection.  That makes
+         the reads and the write deliberately asymmetric, and the asymmetry is the measured bank.
+       * the storage class: only VARYING has an object.  A FIXED member would take ?SMCCM, and no
+         DR probe stores into a level-numbered fixed char member, so the route is unknown.
+       * the source: store_char is only ever reached with a STRING LITERAL (lower_assign refuses
+         `char store from non-literal' before calling), which is exactly E46J21's shape; a
+         varying-to-varying member move (?SMVVM) is unmeasured here too.
+     The authorization happens BEFORE the first `d st', so a refused store emits nothing at all. *)
+  let k =
+    match k with
+    | Vimem m ->
+        if not m.varying then
+          imem_refuse "store" m
+            "a FIXED member would take ?SMCCM into the member cell, and no DR object stores into a \
+             level-numbered fixed CHARACTER member (E46J12/E46J18 only READ one)";
+        if not (imem_qualified name m) then
+          imem_refuse "store" m
+            ("the destination is spelled " ^ String.uppercase_ascii name
+             ^ ", unqualified: the BARE name is measured as a READ operand (E46J6/E46J11/E46J12/ \
+              E46J18) and never as a store destination, so this compiler does not hand it the \
+              ?SMCVM route on the strength of E46J21's QUALIFIED store alone -- write `"
+             ^ m.owner ^ "." ^ m.name ^ " = ...'");
+        Vvar m.cap
+    | k -> k
+  in
   (* [E2E-29/P1] `?dst' selects the DESTINATION address source; default is the variable's own cell
      [V101-V108].  A based VARYING member passes vbvar_addr, because ST5/V2/V3/V4/V6/V7/V8 show DR
      using the byte-identical tail (LXI D,*S / MVI A,cap / MVI B,len / ?SMCVM, or `MVI M,0' for an
@@ -5550,6 +5726,9 @@ let vk_name (vk : vkind) : string =
   | Vbvar (p, k, c) ->
       "based-varying-member(" ^ p ^ "+" ^ string_of_int k ^ ",cap=" ^ string_of_int c ^ ")"
   | Vstruct (p, sz) -> "based-structure(" ^ p ^ ",size=" ^ string_of_int sz ^ ")"
+  | Vimem { owner; name; cap; varying } ->
+      (if varying then "varying-member(" else "char-member(")
+      ^ owner ^ "." ^ name ^ ",cap=" ^ string_of_int cap ^ ")"
 
 (* ==================================================================
    [E2E-10 step 2] FLOAT BINARY(24): value model + operand-mode lowering.
@@ -6953,7 +7132,15 @@ let lower_test_skip0 st (c : Ast.expr) =
       d st (if r = Ast.Eq then 0xc2 else 0xca);  (* DR's ^= skip byte is CA everywhere [C072, R910] *)
       st.last_imm <- None;
       let slot = st.lc in d st 0; d st 0; slot
-  | _ -> failwith (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c)
+  | _ ->
+      (match imem_in_e st c with
+       | Some (_, m) ->
+           imem_refuse "comparison" m
+             "string comparison is measured on FLAT variables (E2E-29's golden set) and on BASED \
+              members, never on an internal level-numbered one"
+       | None ->
+           failwith
+             (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
 
 (* [R723] DR's HL-CONSTANT REUSE is a straight-line peephole: after a
    conditional skip jump the loaded constant belongs to a DIFFERENT basic
@@ -7857,7 +8044,18 @@ statement form IS implemented; this expression form is not.)")
       st.last_imm <- None;
       (match rhs.Ast.e with
        | Ast.Estring v -> store_char st n.Ast.orig (vk_of st n.Ast.orig) v
-       | _ -> failwith "codegen: char store from non-literal [TBD]")
+       | _ ->
+           (match
+              match imem_of_name st n with
+              | Some x -> Some x
+              | None -> imem_in_e st rhs
+            with
+            | Some (_, m) ->
+                imem_refuse "store" m
+                  "only a STRING LITERAL source is measured on a member (E46J21); the flat \
+                   varying-to-varying route (?SMVVM, E29V2/REVERSE) is a BASED-member and scalar \
+                   shape with no internal-member witness"
+            | None -> failwith "codegen: char store from non-literal [TBD]"))
   | Ast.Eident n ->
       (* [E2E-40/P4] the value route is skipped ONLY for a member whose literal is stored
          by the MVI M route below -- `int_lit_to_hl' is not always just hl_const: for an
@@ -8879,6 +9077,26 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
                     MVI A,08 whether or not the program ever stores into nm. *)
                  d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                  d st op_mvi_a; d st (cap land 0xff); call_ext st "?SLCTS"
+             | Vimem m ->
+                 (* [E2E-42/P1e-A] a member as the TITLE operand.  E46J11 (`char(14) varying')
+                    and E46J18 (`char(14)') are both `open file(outf) stream output', and DR's
+                    blocks are the [C288] sizes exactly -- 27 bytes for the varying operand at
+                    code 0006, 29 for the fixed one -- because the OPERAND preparation is the same
+                    `LXI H,<cell>' + ?SLVTS / + MVI A,cap + ?SLCTS the four read objects measure
+                    and the statement around it is OPEN's.  One consequence worth naming: the
+                    `MOV B,A' that follows takes the LENGTH FROM THE OPERATOR, exactly as it does
+                    for a scalar varying/fixed title, so a member title needs no operand-specific
+                    word -- which is what [C288] already said about E46F1/E46F2 and what these two
+                    objects now confirm for a member.  Nothing here distinguishes input from
+                    output: [C288] measured that the option word and the operand route are
+                    ORTHOGONAL (E46F1 output-varying and E46F3 input-varying are both ?SLVTS in a
+                    27-byte block; E46F2 fixed is ?SLCTS in a 29-byte one), and the member changes
+                    only the address, so no new combination is being claimed.
+                    A QUALIFIED title operand (`title(rec.line)') takes this same arm: E46J21
+                    proves the qualified spelling is the same variable [C253], and the open objects
+                    that measure titles are bare -- the distinction that DOES matter, the store
+                    destination, is enforced separately in store_char. *)
+                 imem_str_op st n.Ast.orig m
              | k ->
                  failwith
                    (Printf.sprintf
@@ -9524,7 +9742,19 @@ let lower_put_items_gen st ?(file : string option = None)
                       | _ -> false) items)
   in
   if not char_var_ok then
-    failwith "codegen: char var in multi-item PUT unproven [TBD]";
+    (match
+       List.fold_left
+         (fun acc -> function
+           | PIvar n -> (match acc with Some _ -> acc | None -> imem_of_name st n)
+           | _ -> acc)
+         None items
+     with
+     | Some (_, m) ->
+         imem_refuse "multi-item PUT" m
+           "every E46J object prints ONE member item; the multi-item lift [E2E-29/P1] was granted \
+            to flat and BASED varying items on their own goldens, and Vimem is deliberately absent \
+            from that classifier"
+     | None -> failwith "codegen: char var in multi-item PUT unproven [TBD]");
   (* [E2E-41/P3b] two prologues, one chain.  Console (byte-frozen since [E2E-3a], and the shape
      every N3xx/R5xx specimen pins): LXI D,0252 ; LXI B,<continuation> ; CALL ?SYSPR.
      Named file (E16D/E17D 0023-002C): LXI H,<CB> [above] ; LXI D,0652 ; LXI B,<continuation> ;
@@ -9673,6 +9903,21 @@ let lower_put_items_gen st ?(file : string option = None)
                     if cap > 255 then failwith "codegen: cap > 255 [TBD]";
                     d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                     d st op_mvi_a; d st cap; call_ext st "?SLCTS"
+                | Vimem m ->
+                    (* [E2E-42/P1e-A] the authorized PUT LIST read.  E46J6 (varying), E46J12
+                       (fixed) and E46J21 (`put list(rec.line)', the QUALIFIED spelling of the
+                       same cell) are the three objects, and each one's item chain is
+                       `<operand>; ?PNCOP; ?QIOOP' -- the `tail true ()' below is DR's, unchanged.
+                       A FILE PUT never reaches here: match_put_list_lit admits only a single
+                       LITERAL item on the file route, so a member item on `put file(f) list(..)'
+                       is refused before this arm exists.  PUT EDIT does reach here and does NOT:
+                       ?EDTOV behind a member operand has no witness in any of the 21 E46J probes
+                       or the 11 golden/e2e11 EDIT tables. *)
+                    if is_edit then
+                      imem_refuse "PUT EDIT" m
+                        "the format-table route (?EDITF then ?EDTOV per item) is measured on eleven \
+                         golden/e2e11 objects, none of which edits a structure member";
+                    imem_str_op st n.Ast.orig m
                 | Vint -> assert false
                 (* [E2E-11 step 1a] a BIT(1) variable in a PUT list: DR has no
                    sample here (E20A/E20B/E20D/E20E never print a bit cell), and
@@ -12078,14 +12323,28 @@ let rows_of (b : Ast.block) =
             Some (nm, { off; size = Bind.bytes_of inner; vk = Vint; w = binw 15; imem = None })
         | Bind.RTimem (_owner, _abs, (Bind.RTptr as inner)) ->
             Some (nm, { off; size = Bind.bytes_of inner; vk = Vptr; w = binw 15; imem = None })
+        | Bind.RTimem (owner, _abs, (Bind.RTchar (n, varying) as inner)) ->
+            (* [E2E-42/P1e] a CHARACTER member of an INTERNAL structure, resolved under either
+               spelling.  Bind owns the address (`off' is base + the member's relative offset, the
+               same authority the RTbin/RTptr arms above use) and owns the size, so `auto_bytes'
+               now counts the member's own cell -- which is what DR's AUTO STORAGE does: E46J6's
+               dump says 17 BYTES for `line char(14) varying' (0) + `nxt fixed bin(15)' (15), and
+               E46J12's says 16 for char(14) + 2 [golden/probe46].
+               The kind is `Vimem', NOT `Vvar'/`Vfix': see the constructor's comment.  Sizing the
+               cell here does not authorize anything -- the scalar routes all match on the kind, and
+               an unmatched kind is a refusal, not a fall-through. *)
+            Some (nm, { off; size = Bind.bytes_of inner; w = 0; imem = None
+                      ; vk =
+                          Vimem { owner; name = imem_bare nm owner; cap = n; varying } })
         | Bind.RTimem (owner, _abs, inner) ->
             failwith
               ("codegen: [TBD] unqualified reference to member of type " ^ Bind.rty_str inner
                ^ " of structure " ^ String.uppercase_ascii owner
                ^ " (bind resolves the name; the cell-addressed lowering of an internal FIXED DECIMAL "
-               ^ "/ CHAR / BIT / VARYING member has no DR sample -- E39S2/S3/S5 and ST12 measure "
-               ^ "FIXED BINARY only -- and an unsampled cell size silently overlaps the next variable "
-               ^ "[C162 class], so it refuses rather than guesses.)")
+               ^ "/ BIT member has no DR sample -- E39S2/S3/S5 and ST12 measure "
+               ^ "FIXED BINARY only, E46J6/J11/J12/J18/J21 measure CHARACTER only -- and an unsampled "
+               ^ "cell size silently overlaps the next variable [C162 class], so it refuses rather "
+               ^ "than guesses.)")
         | Bind.RTbmem (ptr, k, Bind.RTbin 15) ->
             Some (nm, { off; size = 0; vk = Vbfix (ptr, k); w = binw 15; imem = None })
         | Bind.RTbmem (ptr, k, Bind.RTptr) ->

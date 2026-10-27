@@ -1,0 +1,7 @@
+E46K11:
+  procedure options(main);
+  dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);
+  dcl p pointer;
+  p = addr(line);
+end E46K11;
+

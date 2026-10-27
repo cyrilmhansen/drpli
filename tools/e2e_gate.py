@@ -996,17 +996,44 @@ SPECIMENS.update({
 #   E46J5   the no-attribute control: a bare `(line char(14), buff char(254)' group with NO
 #           varying takes ?SLCTS twice.  Without this row the varying rows could be read as
 #           "always ?SLVTS in a group".
+#
+# [E2E-42/P1e] THE FIVE OBJECTS THAT ROWS belonged to a MY-GAP refusal, moved here.
+# P1e-A (E46J6, E46J11, E46J12, E46J18) is the operand route: an internal CHARACTER member of a
+# level-numbered structure, spelled BARE, in PUT LIST and in OPEN TITLE.  P1e-B (E46J21) is the
+# store route: the same member spelled QUALIFIED, assigned from a literal.
+# Each of the four operand shapes is pinned by its OWN object because they differ twice over --
+# by statement and by attribute:
+#   E46J6   PUT LIST, member char(14) VARYING  -> `LXI H,*D(0000)' + `CALL ?SLVTS', code 56/17
+#           The 0000 also re-proves member layout: a varying member is n+1 bytes, exactly as a
+#           flat declaration is.
+#   E46J12  PUT LIST, member char(14) FIXED    -> `MVI A,0E' + `CALL ?SLCTS', code 32/16
+#           The control that stops E46J6 reading as "members always take ?SLVTS" [C288].
+#   E46J11  OPEN TITLE, member char(14) VARYING -> `CALL ?SLVTS', code 42/17
+#   E46J18  OPEN TITLE, member char(14) FIXED   -> `CALL ?SLCTS', code 38/16
+#           E46J11/E46J18 settle the question P1c's note asked but could not: the STATEMENT does
+#           not pick the helper, the OPERAND's storage class does -- a title operand and a list
+#           operand of the same shape emit the same three instructions [C288].
+#   E46J21  `rec.line = 'AB'' then PUT LIST    -> `LXI H,*D(0002)' + `LHLD *D(0000)' +
+#           `MVI A,0E' + `MVI B,02' + `CALL ?SMCVM', code 43/19
+#           The qualified spelling of the SAME cell E46J6 prints bare [C253], and the store is the
+#           member route of the flat ?SMCVM shape E46J16 already pins -- capacity from the declared
+#           length, actual length from the literal, both immediates, one reloc for the source.
 SPECIMENS.update({
     "E46J1":  ("probes/E46J1.PLI",  "golden/e42p1d/E46J1/E46J1.REL"),
     "E46J2":  ("probes/E46J2.PLI",  "golden/e42p1d/E46J2/E46J2.REL"),
     "E46J3":  ("probes/E46J3.PLI",  "golden/e42p1d/E46J3/E46J3.REL"),
     "E46J4":  ("probes/E46J4.PLI",  "golden/e42p1d/E46J4/E46J4.REL"),
     "E46J5":  ("probes/E46J5.PLI",  "golden/e42p1d/E46J5/E46J5.REL"),
+    "E46J6":  ("probes/E46J6.PLI",  "golden/e42p1d/E46J6/E46J6.REL"),
     "E46J7":  ("probes/E46J7.PLI",  "golden/e42p1d/E46J7/E46J7.REL"),
+    "E46J11": ("probes/E46J11.PLI", "golden/e42p1d/E46J11/E46J11.REL"),
+    "E46J12": ("probes/E46J12.PLI", "golden/e42p1d/E46J12/E46J12.REL"),
     "E46J13": ("probes/E46J13.PLI", "golden/e42p1d/E46J13/E46J13.REL"),
     "E46J16": ("probes/E46J16.PLI", "golden/e42p1d/E46J16/E46J16.REL"),
     "E46J17": ("probes/E46J17.PLI", "golden/e42p1d/E46J17/E46J17.REL"),
+    "E46J18": ("probes/E46J18.PLI", "golden/e42p1d/E46J18/E46J18.REL"),
     "E46J20": ("probes/E46J20.PLI", "golden/e42p1d/E46J20/E46J20.REL"),
+    "E46J21": ("probes/E46J21.PLI", "golden/e42p1d/E46J21/E46J21.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -1524,6 +1551,15 @@ REJECTS = {
 #   dr-refuses   DR's own compiler rejects the source (language rule / syntax /
 #                implementation limit OF THE COMPILER, with DR's word attached)
 #   my-gap       DR compiles the source and emits a .REL; my build refuses
+#   unmeasured   [added by E2E-42/P1e] NEITHER verdict is known: no oracle object and no oracle
+#                transcript exists for the shape.  The first two categories are ABOUT DR, and the
+#                whole point of classifying is that the panel can be read as evidence.  Before
+#                P1e an honesty gap existed: a guard added with no oracle probe had nowhere to
+#                go, and `my-gap' would have asserted a DR acceptance nobody measured -- which is
+#                the error [C256] was written against.  `unmeasured' says what is true: THIS
+#                compiler stops, on purpose, because it has no witness; and the note must name
+#                what would make the shape admissible.  Nothing in this category may be read as
+#                DR's verdict, and the row is retired by MEASURING DR, not by deleting it.
 #
 # Generated from golden/negpanel1/ (DR's transcripts) rather than transcribed by
 # hand, so the dict cannot drift from the evidence it summarizes; re-run
@@ -3098,10 +3134,13 @@ for _k in ("E46E1", "E46E2", "E46G4", "E46H2", "E46G2", "E46E3", "E46H5",
 # Split by WHOSE verdict they are, which is the distinction this panel exists to keep honest:
 #   dr-refuses  E46J8, E46J9, E46J10, E46J15, E46J19 -- DR itself says CONFLICT and emits no
 #               object, so refusing is PARITY, not a gap.  VARYING is a CHARACTER attribute.
-#   my-gap      E46J6, E46J11, E46J12, E46J14, E46J18, E46J21 -- DR compiles all six and emits a
-#               real .REL (sizes recorded below); we refuse.  Registering them as `dr-refuses'
-#               would ratify our refusal as DR's behaviour, which [C256] is exactly what this
-#               panel was built to prevent.
+#   my-gap      E46J14 -- DR compiles it and emits a .REL; we refuse.
+# [E2E-42/P1e] E46J6, E46J11, E46J12, E46J18 and E46J21 were on this list as my-gap refusals.
+# They are now BYTE-EXACT SPECIMENS (see SPECIMENS above): P1e added the member routes they
+# measure, so registering a refusal for them would pin the OLD behaviour.  Their reasons are kept
+# below rather than deleted, because a my-gap entry that disappears without explanation is
+# indistinguishable from a gap that never existed -- and the reasoning recorded here (do not widen
+# the alias registry past the routes DR has sampled) is what P1e had to argue against.
 REJECTS.update({
     # VARYING on a type that is not CHARACTER: DR's CONFLICT, pass 1, no object.
     "E46J8":  (open("probes/E46J8.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
@@ -3117,18 +3156,6 @@ REJECTS.update({
     # typeless + VARYING: DR accepts it as a zero-length CHARACTER with NO cell; see NEG_META.
     "E46J14": (open("probes/E46J14.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "the VARYING attribute on a typeless declaration"),
-    # level-numbered structure MEMBERS: classification and layout now match DR line for line;
-    # what is missing is the unqualified NAME, i.e. member lowering [P1e].
-    "E46J6":  (open("probes/E46J6.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "resolves to the bound member `REC.LINE'"),
-    "E46J11": (open("probes/E46J11.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "resolves to the bound member `REC.LINE'"),
-    "E46J12": (open("probes/E46J12.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "resolves to the bound member `REC.LINE'"),
-    "E46J18": (open("probes/E46J18.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "resolves to the bound member `REC.LINE'"),
-    "E46J21": (open("probes/E46J21.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "resolves to the bound member `REC.LINE'"),
 })
 for _k in ("E46J8", "E46J9", "E46J10", "E46J15", "E46J19"):
     NEG_META[_k] = ("dr-refuses",
@@ -3143,6 +3170,35 @@ for _k in ("E46J8", "E46J9", "E46J10", "E46J15", "E46J19"):
         "0005, C CHAR(6) VARYING at 0007 -- so the law is per-item, not per-declaration.  This "
         "compiler cannot reproduce a partially-accepted object, so the whole declaration "
         "refuses; same OUTCOME as DR (no object), and the reason is named.  [C288]")
+
+# [E2E-42/P1e] RETIRED, kept for the record.  These five my-gap entries said: DR COMPILES them and
+# mine refused because the bare or qualified member NAME was not resolvable at all.  P1e closes
+# exactly that, so the refusals are gone and the objects are on the byte-exact panel.  What the
+# reasoning still guards is unchanged -- resolving a name is not authorizing an OPERATION, and the
+# perimeter below (E46K1-E46K15) is where that line now sits.
+#
+#   E46J6   PUT LIST of a VARYING member: `LXI H,000F / CALL ?SLVTS' -- the member is at 000F
+#           because its own cell is 15 bytes, so this is ALSO the proof that member layout follows
+#           the same n+1 rule as a flat declaration
+#   E46J11  OPEN ... TITLE(line) of a VARYING member: `CALL ?SLVTS' with the member address in HL,
+#           code 42 / data 17
+#   E46J12  PUT LIST of a FIXED member: `CALL ?SLCTS' with the DECLARED length as the capacity
+#           operand, code 32 / data 16 -- the control that keeps E46J6 from being read as `members
+#           always take ?SLVTS'
+#   E46J18  OPEN ... TITLE(line) of a FIXED member: `CALL ?SLCTS', code 38 / data 16 -- the
+#           TITLE-side control to E46J11, and DR's answer to the question P1c's note asked but
+#           could not settle (does a level-numbered fixed member take the fixed helper?)
+#   E46J21  the QUALIFIED spelling `rec.line': store through ?SMCVM and print through ?SLVTS, code
+#           43 / data 19 -- so the member route is the flat route at the member's address, in both
+#           spellings
+#
+# The P1d wording that went with them is kept readable here because it is the argument P1e had to
+# answer: bind registered an unqualified (and qualified) member name only for FIXED BINARY(15) and
+# POINTER [E2E-39/P2], the member types whose operations had been measured one by one, and adding
+# CHARACTER to that registry would have resolved assignment, comparison, EDIT and PUT EDIT for
+# members through routes with NO member sample.  P1e's answer is not to widen the registry: a
+# CHARACTER member gets its OWN kind (codegen's Vimem), so every route must name it to accept it
+# and every route that does not is refused by construction, not by omission.
 NEG_META["E46J14"] = ("my-gap",
     "DR COMPILES IT (golden/e42p1d/E46J14: code 0x26 = 38 bytes, DATA AREA 0001, NO ERRORS in "
     "either pass) and dumps `X(0) VARYING AUTOMATIC' in a block of AUTO STORAGE 0 -- the name "
@@ -3153,35 +3209,80 @@ NEG_META["E46J14"] = ("my-gap",
     "FIXED BINARY(15) cell, producing a 2-byte data area where DR's is 1 and a ?SLBIP print "
     "where DR's is ?PNVOP -- an object that disagreed with DR on size, helper and symbol entry "
     "at once.  Refusing is the state of the evidence. [C288]")
-for _k, _why in (
-    ("E46J6",  "PUT LIST of a VARYING member: `LXI H,000F / CALL ?SLVTS' -- the member is at "
-               "000F because its own cell is 15 bytes, so this is ALSO the proof that member "
-               "layout follows the same n+1 rule as a flat declaration"),
-    ("E46J11", "OPEN ... TITLE(line) of a VARYING member: `CALL ?SLVTS' with the member address "
-               "in HL, code 42 / data 17"),
-    ("E46J12", "PUT LIST of a FIXED member: `CALL ?SLCTS' with the DECLARED length as the "
-               "capacity operand, code 32 / data 16 -- the control that keeps E46J6 from being "
-               "read as `members always take ?SLVTS'"),
-    ("E46J18", "OPEN ... TITLE(line) of a FIXED member: `CALL ?SLCTS', code 38 / data 16 -- the "
-               "TITLE-side control to E46J11, and DR's answer to the question P1c's note asked "
-               "but could not settle (does a level-numbered fixed member take the fixed helper?)"),
-    ("E46J21", "the QUALIFIED spelling `rec.line': store through ?SMCVM and print through "
-               "?SLVTS, code 43 / data 19 -- so the member route is the flat route at the "
-               "member's address, in both spellings"),
-):
-    NEG_META[_k] = ("my-gap",
-        "DR COMPILES IT and emits a real .REL (golden/e42p1d/" + _k + "): " + _why + ".  Mine "
-        "refuses, and the refusal is about the NAME, not the type: bind now lays this member out "
-        "exactly as DR does -- our own $S dump of E46J21 is `c 0000 REC STRUCTURE LEVEL 1, "
-        "MEMBERS 2 AUTOMATIC / c 0000 .LINE CHAR(14) VARYING MEMBER / c 000F .NXT FIXED "
-        "BINARY(15,0) MEMBER', DR's lines verbatim -- and the varying flag that produced it came "
-        "from the same apply_varying_attr that fixed the group shape [C288].  What is missing is "
-        "the alias: bind registers an unqualified (and qualified) member name only for FIXED "
-        "BINARY(15) and POINTER [E2E-39/P2], because those are the member types whose operations "
-        "have been measured one by one.  Adding CHARACTER to that registry would resolve "
-        "assignment, comparison, EDIT and PUT EDIT for members through routes with no member "
-        "sample; the two routes DR HAS measured here (PUT item, TITLE) are not enough to "
-        "warrant it.  P1e takes member lowering as its own measurement.")
+
+# [E2E-42/P1e] THE MEMBER PERIMETER: SHAPES THIS COMPILER STOPS ON, WITH NO DR VERDICT CLAIMED.
+# P1e resolves an internal CHARACTER member by BOTH spellings and licenses THREE operations, each
+# pinned byte-for-byte by its own object above.  What it does NOT do is hand the member every route
+# a CHARACTER variable has, because DR has no object for those routes on a MEMBER -- and "no object"
+# is not "DR rejects it" either.  So these rows are `unmeasured', the third category added above:
+# the guard is OURS, stated as ours, and each note says what would retire it.
+#
+# The marker text matters here.  Some rows stop on a message that predates P1e and fires for flat
+# variables too (K10's named-file PUT, K11's addr(), K15's GET form) -- those pin that resolving a
+# name did NOT open the route.  Others stop on a message P1e wrote, which names the member and its
+# storage class (K1-K9, K14) -- those pin the authorization boundary itself.  A row whose marker was
+# member-specific must never quietly fall back to a generic one: that would mean the boundary moved
+# while the panel kept printing green.
+#
+#   K1  store through the BARE member name          K9   a member item in a MULTI-ITEM PUT
+#   K2  store into a FIXED member                   K10  a member item in a PUT FILE
+#   K3  comparison of a member                      K11  addr() of a member
+#   K4  PUT EDIT of a member                        K12  two structures sharing a CHARACTER member
+#   K5  varying-to-varying MOVE from a member            name, used bare
+#   K6  arithmetic on a member                      K13  a member of a STATIC head (no alias at all)
+#   K7  CONCATENATION with a member                 K14  a member as a bare condition
+#   K8  SUBSTR of a member                          K15  GET EDIT of a member
+#
+# K12 is the one row here whose message QUOTES a DR diagnostic (`[DR: QUALIFY]', bind's own
+# wording).  That diagnostic IS measured -- E39X1 and E40X3 both print QUALIFY for an ambiguous
+# FIXED member -- but those witnesses are FIXED, and no DR object holds an ambiguous pair of
+# CHARACTER members.  The row stays `unmeasured' because what is unmeasured is DR's answer for THIS
+# TYPE, and the refusal is required independently of DR: bind holds TWO rows under the one bare key
+# and List.assoc would silently pick whichever came first, i.e. one of the two cells at random.
+REJECTS.update({
+    "E46K1":  (open("probes/E46K1.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "store of the internal CHARACTER member REC.LINE"),
+    "E46K2":  (open("probes/E46K2.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "store of the internal CHARACTER member REC.LINE"),
+    "E46K3":  (open("probes/E46K3.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "comparison of the internal CHARACTER member REC.LINE"),
+    "E46K4":  (open("probes/E46K4.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT EDIT of the internal CHARACTER member REC.LINE"),
+    "E46K5":  (open("probes/E46K5.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "store of the internal CHARACTER member REC.LINE"),
+    "E46K6":  (open("probes/E46K6.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "arithmetic of the internal CHARACTER member REC.LINE"),
+    "E46K7":  (open("probes/E46K7.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "store of the internal CHARACTER member REC.LINE"),
+    "E46K8":  (open("probes/E46K8.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "store of the internal CHARACTER member REC.LINE"),
+    "E46K9":  (open("probes/E46K9.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "multi-item PUT of the internal CHARACTER member REC.LINE"),
+    "E46K10": (open("probes/E46K10.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT LIST on a named file of this item is unmeasured"),
+    "E46K11": (open("probes/E46K11.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "addr() of line is unsampled"),
+    "E46K12": (open("probes/E46K12.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "is an ambiguous member name used without qualification"),
+    "E46K13": (open("probes/E46K13.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "resolves to the bound member `REC.LINE'"),
+    "E46K14": (open("probes/E46K14.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "comparison of the internal CHARACTER member REC.LINE"),
+    "E46K15": (open("probes/E46K15.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "GET form not in E2E-3e subset"),
+})
+for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8", "E46K9",
+           "E46K10", "E46K11", "E46K12", "E46K13", "E46K14", "E46K15"):
+    NEG_META[_k] = ("unmeasured",
+        "NEITHER verdict is known: golden/ holds no object and no transcript for this shape, so "
+        "this row may NOT be read as DR rejecting it.  It records a stop THIS compiler imposes.  "
+        "[E2E-42/P1e] bind now resolves both spellings of an internal CHARACTER member and codegen "
+        "gives the member its OWN kind (Vimem) instead of reusing Vvar/Vfix, so a route accepts a "
+        "member only by naming that kind -- and these routes do not.  K1/K5/K7/K8 all reach ONE "
+        "stop (a char store whose source is not a string literal, or a bare destination); K3/K14 "
+        "reach the comparison stop; they are listed separately because each SOURCE is a different "
+        "shape a reader may try.  To retire a row: measure DR on it, then promote it to a "
+        "byte-exact specimen or re-classify it as dr-refuses with DR's word attached.")
 
 NEG_META["E46F5"] = ("my-gap",
     "DR COMPILES it (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site).  The refusal "

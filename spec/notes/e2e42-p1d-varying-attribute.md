@@ -78,6 +78,12 @@ diagnosis, which a single-shot front end cannot have.
 
 ## 4. WHAT IS STILL REFUSED, AND WHAT THE REFUSAL NOW SAYS
 
+> **[E2E-42/P1e] Five of the six are CLOSED and byte-exact** -- E46J6, J11, J12, J18 and J21
+> are specimens now [C291], and this section is kept as the record of what P1d could and could
+> not say, not as the current perimeter.  The sixth, E46J14's typeless `dcl x varying;', is
+> still open, and the reason is stated in [C291]: type inference is a different piece of work
+> from member aliasing, and P1e deliberately did not smuggle the second in through the first.
+
 Six probes are `my-gap`: DR emits a real object, we do not.
 
 ```

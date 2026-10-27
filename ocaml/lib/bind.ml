@@ -442,6 +442,35 @@ let is_cell_rt = function
   | RTimem _ | RTbmem _ | RTstruct _ | RTstructrec _ | RTbased _ -> false
   | _ -> true
 
+(* [E42P1e] A CHARACTER member's BARE key is withdrawn where an ordinary declaration of the same
+   name exists in the frame -- and that is not a guess about DR, it is forced by an object.
+   MPMCALLB declares `2 line character(128)' inside `1 clicmd' (line 124) and `declare line
+   character(80)' in the SAME block (line 234), then uses both: `get edit (clicmd.line) (a)' at 179
+   and `get edit (line) (a)' / `pfcb.flname = addr (line)' at 264-268.
+   DR compiles it: `NO ERROR(S) IN PASS 1' / `NO ERROR(S) IN PASS 2'
+   [golden/first8080u/MPMCALLB/MPMCALLB.REL].  So for CHARACTER DR prints NO DUPLIC and the bare
+   name means the 80-byte buffer -- the ORDINARY declaration owns it, not the member.
+   Two consequences, both implemented here:
+     * DUPLIC is NOT extended to a CHARACTER member.  E39X2's `DUPLIC ?' stands measured for the
+       types that were registered before this milestone (BINARY(15), pointer); claiming it for a
+       CHARACTER name would contradict MPMCALLB and would turn a program DR ACCEPTS into a refusal
+       that asserts a DR diagnostic DR does not print.
+     * the member must not shadow, in either declaration order: the walk registers the member first
+       here, so the withdrawal happens after the walk, over the finished row list.
+   The QUALIFIED spelling is untouched by this -- `clicmd.line' keeps its row and its own cell [C253].
+   A bare CHARACTER name shared by TWO structures is a different case and still goes to QUALIFY.
+*)
+let unshadow_char_members (rs : (string * rt * int * bool) list) : (string * rt * int * bool) list =
+  let ordinary n =
+    List.exists (fun (k, r, _, _) -> k = n && is_cell_rt r) rs
+  in
+  List.filter
+    (fun (n, rt, _, _) ->
+      match rt with
+      | RTimem (_, _, RTchar _) when not (String.contains n '.') -> not (ordinary n)
+      | _ -> true)
+    rs
+
 let check_member_names (rs : (string * rt * int * bool) list) : unit =
   let owner_str = function RTimem (o, k, _) -> Printf.sprintf "%s@%d" (upper o) k | _ -> "?" in
   List.iter
@@ -862,30 +891,66 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
                and guessing a cell size overlaps the next variable (the C162 class).  Ambiguity and
                collision are handled once, after the walk, by check_member_names. *)
             let top_level_head = match !head with Some (hl, _) -> hl = 1 | None -> false in
-            (if top_level_head && not grp
-               && not (match rt with RTbin 15 | RTptr -> true | _ -> false)
-             then
+            (* [E2E-42/P1e] CHARACTER joined the two aliased types on FRESH DR objects, not on
+               the analogy with BINARY(15).  Four of the five E46J6..E46J21 objects resolve
+               a level-1 CHARACTER member under the BARE name alone -- E46J6 and E46J12
+               `put list(line)', E46J11 and E46J18 `open f title(line)' -- and none of the
+               four is an undeclared-identifier object: DR printed a $C CARD IMAGE and a $D
+               DATA IMAGE for every one of them [golden/probe46/*/DR-RESULTS.txt], which
+               means the name RESOLVED and the cell got ADDRESSED.  E46J21 then shows the
+               OWNER-QUALIFIED spelling `rec.line' taking that same cell at that same DATA
+               address, which is [C253]/[C258] repeating for a new type: two spellings, one
+               variable.  So both keys are registered here exactly as the BINARY(15) arm
+               registers them, and the level-1-only restriction stays DR's own (E40S6: a
+               level >= 2 subgroup head resolves NEITHER way).
+               What a resolved name may then DO is a different question and bind does not
+               answer it -- see codegen's `Vimem', which carries the owner and admits only
+               the uses E46J6..E46J21 measure.  The types still outside this list (bin(p)
+               with p<>15, bit(n>1), dec, float) stay unregistered, so their refusals keep
+               naming the member [C263] instead of calling it undeclared.
+               AN EXPLICITLY STATIC OWNING HEAD IS NOT ALIASED, whatever its type.  The five
+               objects above all have an AUTOMATIC head, and a static structure's members live
+               BELOW the pool base ([C114]) while an RTimem row is emitted with `auto = false',
+               so `addr_of' would add `st.base' to an address that is already absolute.  That
+               is an existing property of the BINARY(15)/POINTER arms and none of E46J6..E46J21
+               tests it, so CHARACTER does not walk into it: a static head's member keeps
+               refusing by name.  [C250] is the separate rule that a level >= 2 subgroup under
+               an explicit-static head INHERITS static -- it has no level-1 head of its own, so
+               `top_level_head' is false there, it is never aliased, and nothing changes here.
+*)
+            let aliased =
+              top_level_head && not grp
+              && (match rt with
+                  (* [E2E-39/P2] the two types the E39W1/E40W1 batches measure, unconditionally. *)
+                  | RTbin 15 | RTptr -> true
+                  (* [E2E-42/P1e] CHARACTER, but only under an AUTOMATIC head -- see the note above. *)
+                  | RTchar _ -> not !hstatic
+                  | _ -> false)
+            in
+            (if top_level_head && not grp && not aliased then
                unaliased :=
                  (String.lowercase_ascii item.dname.orig, !horig, rt, base + o)
                  :: !unaliased);
-            (match rt with
-             | (RTbin 15 | RTptr) when top_level_head && not grp ->
-                 let bare = String.lowercase_ascii item.dname.orig in
-                 let qkey = String.lowercase_ascii !horig ^ "." ^ bare in
-                 (* [E2E-40/P2] TWO rows, ONE cell: the bare name and the owner-qualified
-                    `head.member'.  Why the second one exists is DR's own measurement -- E40Q1
-                    (`g.a = 3; k.a = 4; put list(g.a + k.a)') and E40Q2 (two structures, disjoint
-                    member names, everything unqualified) are byte-identical apart from the three
-                    bytes that spell their different procedure names: CODE and DATA agree exactly
-                    [golden/e40a, 3 differing bytes, all in the external-name records].  A member
-                    spelled two ways is ONE variable, so both keys carry the SAME offset, size and
-                    type -- codegen's table builder maps them through the same arm, and the rewrite
-                    in lower_hl/lower_assign cannot make the two spellings drift.  A dotted name is
-                    unlexable in source PL/I, so `g.a' cannot collide with a declared identifier,
-                    and the DUPLIC/QUALIFY checks key on bare uses, which never contain a dot. *)
-                 rows := (qkey, RTimem (!horig, base + o, rt), base + o, false)
-                         :: (bare, RTimem (!horig, base + o, rt), base + o, false) :: !rows
-             | _ -> ());
+            (if aliased then
+               let bare = String.lowercase_ascii item.dname.orig in
+               let qkey = String.lowercase_ascii !horig ^ "." ^ bare in
+               (* [E2E-40/P2] TWO rows, ONE cell: the bare name and the owner-qualified
+                  `head.member'.  Why the second one exists is DR's own measurement -- E40Q1
+                  (`g.a = 3; k.a = 4; put list(g.a + k.a)') and E40Q2 (two structures, disjoint
+                  member names, everything unqualified) are byte-identical apart from the three
+                  bytes that spell their different procedure names: CODE and DATA agree exactly
+                  [golden/e40a, 3 differing bytes, all in the external-name records].  A member
+                  spelled two ways is ONE variable, so both keys carry the SAME offset, size and
+                  type -- codegen's table builder maps them through the same arm, and the rewrite
+                  in lower_hl/lower_assign cannot make the two spellings drift.  A dotted name is
+                  unlexable in source PL/I, so `g.a' cannot collide with a declared identifier,
+                  and the DUPLIC/QUALIFY checks key on bare uses, which never contain a dot.
+                  E46J21's $D DATA IMAGE is the same measurement for a CHARACTER member: the
+                  qualified store leaves the ONE cell (the bare name's) at DATA+0002, and its
+                  print of `rec.line' reads that same DATA+0002 [golden/probe46/E46J21]. *)
+               rows := (qkey, RTimem (!horig, base + o, rt), base + o, false)
+                       :: (bare, RTimem (!horig, base + o, rt), base + o, false) :: !rows
+             else ());
             members :=
               { flag = "c"; sname = "." ^ upper item.dname.orig
               ; disp =
@@ -1049,7 +1114,7 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
       )
     items;
   flush ();
-  (let rs = List.rev !rows in
+  (let rs = unshadow_char_members (List.rev !rows) in
    check_member_names rs;
    check_qualified_uses ~outer:outer_rows b rs;
    (!off, List.rev !syms, !statics, rs, List.rev !arrays, List.rev !unaliased))

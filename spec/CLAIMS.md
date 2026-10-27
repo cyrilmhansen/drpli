@@ -6452,13 +6452,13 @@ then chose correctly with no change to `lower_open`: `E46J3` is byte-exact at 38
 asserts the dispatch for SCALAR `Vvar`/`Vfix` operands, and [C290] says how a group-declared
 character reaches `Vvar` in the first place.
 
-What remains open is a DIFFERENT shape that P1c's note had conflated with this one: a member of a
-LEVEL-NUMBERED structure (`dcl 1 rec, 2 line char(14) varying'), referenced bare or qualified.  DR
-lowers it -- `LXI H,<member cell>` plus the helper its type picks [E46J6, E46J11, E46J12, E46J18,
-E46J21] -- and this compiler still refuses it, because its unqualified-member registry covers FIXED
-BINARY(15) and POINTER only [E2E-39/P2].  Since P1d that refusal says so by name (`codegen: [TBD]
-`line' resolves to the bound member `REC.LINE' (CHAR(14) VARYING at DATA 0000) ...`) instead of claiming
-the declaration is out of scope, which was false: bind lays that member out at DR's exact offsets.
+**[SUPERSEDED in its last paragraph by [C291], E2E-42/P1e]**  What this claim called open -- a member
+of a LEVEL-NUMBERED structure (`dcl 1 rec, 2 line char(14) varying'), referenced bare or qualified --
+is now lowered, and the dispatch above is what made it cheap: once `lower_open' chose its helper from
+the OPERAND'S class, giving the member an operand of its own was the whole job.  Two things in this
+paragraph were right and are kept: DR did lower all five objects, and the refusal's wording WAS false
+-- bind laid the member out at DR's exact offsets all along, so "the declaration is out of scope"
+described a gap in the alias registry [E2E-39/P2], not in the layout.
 
 ## C289 — LINK-80'S SIDE OF A NAME COLLISION, MEASURED ON FOUR LINKED IMAGES (E2E-42/P1a)
 
@@ -6538,7 +6538,98 @@ by DR (E46J14: `X(0) VARYING AUTOMATIC`, AUTO STORAGE 0, a 1-byte DATA area, the
 ?DLDOP and the print through ?PNVOP), and this compiler refuses it.  DR's dump calls the name
 VARYING while its code treats it as a number and allocates no cell; that is a shape of its own, not
 `CHARACTER(0)` with the n+1 rule, and no probe shows what a read of such a name does.  It is
-registered as `my-gap`.  Likewise nothing here claims a LEVEL-NUMBERED member's lowering: the
-classification and layout of `2 line char(14) varying` are now DR-exact (E46J21's dump matches ours
-line for line), but the member still has no alias [E2E-39/P2], and the five DR objects for its bare
-and qualified uses ([C288]) are banked as the evidence P1e has to match.
+registered as `my-gap`.  Likewise nothing here claims a LEVEL-NUMBERED member's lowering: at the
+time of P1d the classification and layout of `2 line char(14) varying` were DR-exact (E46J21's dump
+matches ours line for line) but the member still had no alias [E2E-39/P2], and the five DR objects for
+its bare and qualified uses ([C288]) were banked as the evidence P1e had to match.  **P1e matched all
+five byte for byte and added the two rules this claim could not know** -- the member keeps its OWN
+kind so that resolving its name authorizes only the three measured uses [C291], and an ordinary
+declaration of the same bare name OWNS that name, because DR prints no DUPLIC for a CHARACTER member
+[MPMCALLB, C292].
+
+## C291 — AN INTERNAL CHARACTER MEMBER RESOLVES; THAT IS NOT THE SAME AS BEING ALLOWED (E2E-42/P1e)
+
+Five objects in `golden/e42p1d` settle what DR does with a CHARACTER member of a LEVEL-NUMBERED
+INTERNAL structure (`dcl 1 rec, 2 line char(14) [varying], 2 nxt fixed bin(15)`).  Before this
+step bind registered a member's name -- bare and `head.member' -- only for FIXED BINARY(15) and
+POINTER [C253]/[C258], so all five refused, and the refusal was correct *as a refusal* but wrong as
+a claim: DR compiles every one of them.
+
+| object | statement | operand | route |
+|---|---|---|---|
+| `E46J6`  | `put list(line)`      | `char(14) varying`, BARE      | `LXI H,*D(0000)` ; `CALL ?SLVTS` ; `?PNCOP` ; `?QIOOP` (code 56, data 17) |
+| `E46J12` | `put list(line)`      | `char(14)` FIXED, BARE        | `LXI H,*D(0000)` ; `MVI A,0E` ; `CALL ?SLCTS` ; … (code 32, data 16) |
+| `E46J11` | `open … title(line)`  | `char(14) varying`, BARE      | the same `?SLVTS` operand half, inside a 27-byte OPEN block (code 42, data 17) |
+| `E46J18` | `open … title(line)`  | `char(14)` FIXED, BARE        | the same `?SLCTS` operand half, inside a 29-byte OPEN block (code 38, data 16) |
+| `E46J21` | `rec.line = 'AB'` then `put list(rec.line)` | `char(14) varying`, QUALIFIED | `LXI H,*D(0002)` ; `LHLD *D(0000)` ; `MVI A,0E` ; `MVI B,02` ; `CALL ?SMCVM` (code 43, data 19) |
+
+**Three laws, confirmed rather than discovered.**  (i) [C174]'s dispatch reaches members: E46J6 and
+E46J12 differ in the helper and in nothing else about the operand, so `?SLVTS`/`?SLCTS` is chosen by
+the member's own storage class.  (ii) [C288] holds on the member side too -- E46J6's three operand
+instructions are E46J11's three operand instructions byte for byte, so the STATEMENT does not pick
+the route and there is ONE encoder (`imem_str_op`) behind both statements, not two [C179].  (iii)
+[C253]/[C258]'s one-cell rule repeats for this type: E46J21 prints `rec.line` from `*D(0002)` and
+E46J6 prints `line` from the same cell -- DATA-relative relocs to the member's absolute frame offset
+in both cases -- and the store and the print in E46J21 agree on that address.
+
+**The finding is the SPLIT, not the resolution.**  A CHARACTER variable is a legal operand in an
+assignment, a comparison, an EDIT item, a concatenation, a subscript, arithmetic and a whole-record
+move; DR has NO object for ANY of those on an internal member.  So the member is given its OWN kind
+(`Vimem {owner; name; cap; varying}`) instead of reusing `Vvar`/`Vfix`.  That single decision is
+what makes the perimeter structural rather than behavioural: a route accepts a member only by naming
+`Vimem` in an arm, and every route that does not -- the four generic CHARACTER fall-throughs included
+-- refuses, BY NAME, because the constructor is unmatched.  Sizing the cell is not authorizing a use:
+`rows_of` gives the member its real `Bind.bytes_of` size (which is why `auto_bytes` now equals DR's
+AUTO STORAGE, 17 for E46J6 and 16 for E46J12) and the scalar routes still never see the kind.
+
+**What is NOT claimed.**  Nothing here says DR REJECTS the unauthorized shapes; their DR verdict is
+unmeasured and the fifteen `E46K1`-`E46K15` rows say so with the panel's third category,
+`unmeasured` (spec/notes/e2e42-p1e-internal-character-member.md explains why a third label was needed rather than bending `my-gap` or `dr-refuses`).
+The licensed store is ONE shape -- qualified destination, VARYING member, string-literal source.  The
+BARE destination, a FIXED member's store (which would take `?SMCCM`, never sampled on a member), and
+a varying-to-varying MOVE (`?SMVVM`, measured on flat and BASED members by [C189]/[C192] but not on
+an internal one) all stop.  And a title or list operand inside a `PUT FILE`, a `GET`, an `ADDR()`, or
+a multi-item list is unchanged from before this step: those routes refused a member then and refuse
+it now, which is the point of pinning them.
+
+## C292 — DR'S `DUPLIC' DOES NOT COVER A CHARACTER MEMBER NAME, AND AN ORDINARY DECLARATION OWNS THE BARE NAME (E2E-42/P1e)
+
+[C257] established, from E39X2, that a member name is NOT shadowed by an inner declaration: it
+lives in the same flat namespace as an ordinary variable, and declaring both is a diagnostic
+(`declare a fixed, 1 g, 2 a fixed, 2 b fixed;` gives `DUPLIC ?` at pass 1 and no object
+`[golden/e39b/E39X2]`).  `check_member_names` implements that for every member bind registers.
+
+Extending bind's registry to CHARACTER made that check fire on MPMCALLB, and MPMCALLB is the
+counter-example: it declares `2 line character(128)` inside `1 clicmd` (line 124) and
+`declare line character(80)` in the SAME block (line 234), then uses both spellings separately --
+`get edit (clicmd.line) (a)` at 179 and `get edit (line) (a)`, `line = substr (line,1,…)`,
+`pfcb.flname = addr (line)` at 264-268 -- and DR prints
+`NO ERROR(S) IN PASS 1` / `NO ERROR(S) IN PASS 2` and emits `.REL`
+`[golden/first8080u/MPMCALLB/MPMCALLB.REL]`.  So [C257]'s rule is right about the NAMESPACE and
+wrong about its TYPES: the DUPLIC witness is a FIXED member, and DR does not raise DUPLIC for a
+CHARACTER member name that equals an ordinary variable's.
+
+Two things follow, and they pull in opposite directions, which is why both are stated:
+
+* **A CHARACTER member must not SHADOW.**  In MPMCALLB the member is declared FIRST, so bind's
+  row list puts its bare key first and `List.assoc` would hand the bare `line` to the 128-byte
+  member -- a live wrong address for a program DR compiles.  `unshadow_char_members` therefore
+  withdraws a bare CHARACTER member key whenever the same frame holds a cell-owning declaration of
+  that name, in either declaration order (the withdrawal runs on the finished row list, not during
+  the walk).  The QUALIFIED key is untouched: `clicmd.line` keeps its own row and cell [C253].
+  Note what this does NOT claim -- no DR object pins which cell DR's bare `line` means, because
+  MPMCALLB cannot be run here (it stops on [C114]'s unsampled `STATIC on CHAR(27)`).  The ordinary
+  declaration winning is the reading that makes MPMCALLB's own source work, so it is implemented as
+  this compiler's rule and labelled as one.
+* **DUPLIC stays where it was measured.**  It fires for the member types registered before this
+  milestone (FIXED BINARY(15), POINTER) and not for CHARACTER.  Widening it would have converted a
+  program DR ACCEPTS into a refusal that asserts a DR diagnostic DR does not print -- the exact
+  error class [C256] was written against, and the reason the census caught it: MPMCALLB's recorded
+  refusal text moved from a `my-gap` sizing stop to a fake `DUPLIC`, and `corpus_census.py --verify`
+  fails on a message change as readily as on a count change.
+
+A bare CHARACTER name held by TWO structures is a separate case and is still refused as ambiguous
+(E46K12).  That refusal is required by correctness regardless of DR -- bind holds two rows under one
+key and `List.assoc` would silently pick whichever came first -- and it quotes DR's `QUALIFY`
+wording, which is measured for FIXED (E39X1, E40X3) and NOT for CHARACTER, so its panel row is
+classified `unmeasured` rather than `dr-refuses`.

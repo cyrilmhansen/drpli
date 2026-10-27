@@ -1,0 +1,8 @@
+E46K15:
+  procedure options(main);
+  dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);
+  dcl outf file;
+  open file(outf) stream input;
+  get edit (line) (a);
+end E46K15;
+

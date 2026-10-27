@@ -1,0 +1,6 @@
+E46K13:
+  procedure options(main);
+  dcl 1 rec static, 2 line char(14) varying;
+  put list(line);
+end E46K13;
+

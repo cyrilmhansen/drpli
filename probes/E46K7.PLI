@@ -1,0 +1,7 @@
+E46K7:
+  procedure options(main);
+  dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);
+  dcl s char(20) varying;
+  s = line || 'X';
+end E46K7;
+

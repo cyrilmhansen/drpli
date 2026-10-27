@@ -1,0 +1,7 @@
+E46K12:
+  procedure options(main);
+  dcl 1 ra, 2 line char(14) varying, 2 a fixed bin(15);
+  dcl 1 rb, 2 line char(14) varying, 2 b fixed bin(15);
+  put list(line);
+end E46K12;
+

@@ -1,0 +1,7 @@
+E46K14:
+  procedure options(main);
+  dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);
+  dcl k fixed bin(15);
+  if line then k = 1;
+end E46K14;
+
