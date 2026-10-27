@@ -1,0 +1,41 @@
+# [E2E-42/P1a] LINK-80's OWN BEHAVIOUR ON A SIX-CHARACTER NAME COLLISION
+# Produced by: python3 oracle/linkrun.py link --tag <batch> --out e42p1a-link --names ... --reuse
+# LINK 1.31, PLILIB.IRL, from artefacts/.  The .COM images are in golden/e42p1a-link/.
+
+probe    declaration(s)                 LINK-80 message                    the /ABCDEF/ control block, as linked
+----------------------------------------------------------------------------------------------------------------------------------
+E46D4    dcl abcdef1 file, abcdefghij f /ABCDEF/ FIRST COMMON NOT LARGEST  len byte 0x0A (10), name bytes b'ABCDEFG\x00\x00\x00'  <-- ONLY 7 of the 10 characters are present
+E46D5    dcl abcdef1 file, abcdef2 file (no message)                       len byte 0x07 ( 7), name bytes b'ABCDEF2'
+E46F4    dcl abcdefghij file;  (NO coll (no message)                       len byte 0x0A (10), name bytes b'ABCDEFGHIJ'
+E46D6    dcl averylongname file;  (NO c (no message)                       len byte 0x0D (13), name bytes b'AVERYLONGNAME'
+
+## What this pins
+
+1. A COLLIDING PAIR IS ONE GROUP AT ONE BASE ADDRESS.  LINK-80 does not allocate a second
+   /ABCDEF/; E46D4 and E46D5 each contain exactly one control block in that region, where
+   DR's .REL carries two DEF-COMMON-SIZE records.  So at run time abcdef1 and abcdef2 are
+   the SAME file -- that is a program bug, and it is LINK-80's behaviour, not DR's compiler's.
+
+2. THE SIZE LINK-80 KEEPS IS THE FIRST GROUP'S, which is what the warning says in so many
+   words (`FIRST COMMON NOT LARGEST').  In E46D4 the first variable is 7 characters (block
+   33+1+7 = 41 bytes) and the second is 10 (44 bytes); 41 bytes hold exactly 33 zeros, one
+   length byte and SEVEN name characters, so the surviving record -- the second one's,
+   which is what lands at the shared base -- is cut after `ABCDEFG'.  Its length byte still
+   says 10 and only 7 characters follow it: a self-inconsistent control block, measured at
+   1989..198F in golden/e42p1a-link/E46D4.COM.
+
+3. WITH EQUAL SIZES NOTHING IS CLIPPED AND THE SECOND RECORD WINS.  E46D5's two blocks are
+   both 41 bytes, no warning fires, and the CB reads `07 ABCDEF2'.  abcdef1's block was
+   overwritten by abcdef2's at the same base -- which is why the surviving NAME is the
+   second variable's, not the first's.
+
+4. WITHOUT A COLLISION A LONG NAME IS STORED IN FULL AND EXACTLY.  E46F4 (`abcdefghij',
+   symbol ABCDEF) reads `0A ABCDEFGHIJ' and E46D6 (`averylongname', symbol AVERYL) reads
+   `0D AVERYLONGNAME'.  So the clipping in item 2 is a collision artifact and NOT a
+   six-character limit on the stored name -- the control block always carries the full name.
+
+5. NONE OF THIS IS THE COMPILER'S BUSINESS.  Every one of these objects starts as a
+   byte-exact .REL from DR and from this compiler; the divergence appears only when LINK-80
+   resolves two groups to one name.  This compiler therefore reproduces DR's RECORDS and
+   adds no diagnostic DR does not have -- a collision warning here would make us disagree
+   with DR on a program DR accepts.

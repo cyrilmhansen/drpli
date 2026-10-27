@@ -1,0 +1,7 @@
+E46D6:
+  procedure options(main);
+  dcl averylongname file, i fixed bin(15);
+  open file(averylongname) stream input title('T.DAT');
+  get file(averylongname) list(i);
+  close file(averylongname);
+end E46D6;

@@ -1,0 +1,3 @@
+p046d2: procedure options(main);
+   dcl abcdefg file;
+end p046d2;

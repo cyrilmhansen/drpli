@@ -1,0 +1,9 @@
+p046d1: procedure options(main);
+   dcl abcdef1 file, abcdef2 file, i fixed bin(15);
+   open file(abcdef1) stream input;
+   open file(abcdef2) stream input;
+   get file(abcdef1) list(i);
+   get file(abcdef2) list(i);
+   close file(abcdef1);
+   close file(abcdef2);
+end p046d1;

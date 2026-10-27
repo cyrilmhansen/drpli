@@ -1,0 +1,9 @@
+p046d3: procedure options(main);
+   dcl in_file file, insize file, i fixed bin(15);
+   open file(in_file) stream input;
+   open file(insize) stream input;
+   get file(in_file) list(i);
+   get file(insize) list(i);
+   close file(in_file);
+   close file(insize);
+end p046d3;

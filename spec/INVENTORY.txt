@@ -462,6 +462,13 @@ E45S5	specimen	artefacts/E45S5.PLI	golden/e45/E45S5/E45S5.REL
 E45S6	specimen	artefacts/E45S6.PLI	golden/e45/E45S6/E45S6.REL
 E45S7	specimen	artefacts/E45S7.PLI	golden/e45/E45S7/E45S7.REL
 E45S8	specimen	artefacts/E45S8.PLI	golden/e45/E45S8/E45S8.REL
+E46D1	specimen	probes/E46D1.PLI	golden/e42p1/E46D1/E46D1.REL
+E46D2	specimen	probes/E46D2.PLI	golden/e42p1/E46D2/E46D2.REL
+E46D3	specimen	probes/E46D3.PLI	golden/e42p1/E46D3/E46D3.REL
+E46D4	specimen	probes/E46D4.PLI	golden/e42p1b/E46D4/E46D4.REL
+E46D5	specimen	probes/E46D5.PLI	golden/e42p1b/E46D5/E46D5.REL
+E46D6	specimen	probes/E46D6.PLI	golden/e42p1b/E46D6/E46D6.REL
+E46D7	specimen	probes/E46D7.PLI	golden/e42p1b/E46D7/E46D7.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

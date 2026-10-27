@@ -6228,3 +6228,77 @@ object pins rather than what DR forbids, in the message, in `NEG_META["E41X5"]`,
 `COVERAGE.tsv`'s `FILE.PUT_LIST` boundary, in the note and in three code comments.  The general
 form: when you narrow a refusal, re-derive every fact the new sentence asserts; a corrected
 message is only as good as its own evidence.
+## C283 — A FILE NAME LONGER THAN SIX CHARACTERS IS LOWERED, NOT REFUSED (E2E-42/P1a)
+
+**STATUS: CONFIRMED & IMPLEMENTED.**  Seven DR oracle probes, whole `.REL` files compared
+byte-for-byte: E46D1 (640 B), E46D2 (256), E46D3 (640), E46D4 (512), E46D5 (640), E46D6 (384),
+E46D7 (384), in `golden/e42p1` and `golden/e42p1b`.
+
+Two identities live in one `dcl <name> file;` and only one of them is cut:
+
+* the **LINK-80 COMMON group symbol** = first six characters of the uppercased name —
+  `ABCDEFG -> ABCDEF`, `IN_FILE -> IN_FIL`, `AVERYLONGNAME -> AVERYL`, and historically
+  `INPUT_FILE -> INPUT_`, `SYSPRINT -> SYSPRI`, `SOURCEFILE -> SOURCE`, `PRINTFILE -> PRINTF`,
+  `REPFILE -> REPFIL`, `EMPFILE -> EMPFIL` [C277];
+* the **control block** = 33 zero bytes, a one-byte length, then the **FULL** name, so
+  `DEF-COMMON-SIZE = 34 + len(name)`.
+
+`IN_FILE -> IN_FIL` is the load-bearing case: the underscore survives, so the cut is HARD at
+six characters and not a cut at the first non-alphanumeric.  `INSIZE` (6 chars, size 40 =
+34+6) pins the other end — a name at or below six characters passes through unchanged and is
+not padded.  E46D7 (`alpha1`/`beta2`, 6 and 5) is the control that proves truncation is not
+merging: two distinct groups when the symbols differ.
+
+**WHAT THIS CLAIM WITHDRAWS.**  Before this commit `codegen.ml` refused any FILE name above
+six characters, and the refusal text attributed the limit to DR.  It was my own gap wearing
+DR's authority: DR accepts every one of these programs with `0 ERRORS` in its own listing.
+[C277] had measured the rule correctly and recorded that the *lowering* was missing; the
+lowering became a refusal somewhere between that note and the code.
+
+E46D2 is the probe that separates two things that had been conflated: it declares
+`dcl abcdefg file;` and contains **no OPEN at all**, and the group symbol is still cut.  The
+truncation is a DECLARATION rule, not an OPEN rule.
+
+## C284 — SEL-COMMON IS KEYED ON THE FILE VARIABLE, NOT ON THE CLIPPED SYMBOL (E2E-42/P1a)
+
+E46D5 declares `abcdef1` and `abcdef2` — one symbol, two variables — and references them
+`open, open, get | get, get | close`.  DR emits **5** `LINK-SEL-COMMON` records (bit offsets
+302, 830, 1606, 2748, 4180), each carrying the same clipped name `ABCDEF`: two at the
+declarations (every `DEF-COMMON-SIZE` is followed by its own `SEL-COMMON`, even for the
+second colliding declaration) and one at each of the **three** variable switches.
+
+The counterfactual was run rather than argued.  Keying `st.cur_common` on `file_sym fu`
+instead of on the full name makes this compiler emit **3** SEL-COMMON — 302, 830, 1606 — and
+lose **2748** and **4180**, which are exactly the `abcdef1 -> abcdef2` and
+`abcdef2 -> abcdef1` switches.  The object stays 640 bytes and `cmp` fails.  Reverting the
+one-line change restores byte-exactness.
+
+So `st.cur_common` keys on the **full variable name** while the **record** carries
+`file_sym nm`; the two are deliberately different, and the code says so because a plausible
+future "simplification" would unify them and silently break the specimen.
+
+## C289 — LINK-80'S SIDE OF A NAME COLLISION, MEASURED ON FOUR LINKED IMAGES (E2E-42/P1a)
+
+Everything here was measured by running the real harness (`oracle/linkrun.py link`,
+LINK 1.31 + `artefacts/PLILIB.IRL`); evidence in
+`spec/lab-evidence/e2e42-p1a/LINK-COLLISION.txt`.  This is **linker** behaviour and is
+deliberately NOT reproduced by the compiler, but it is written down so that the collision
+probes E46D1/E46D4/E46D5 are not mistaken for accepted-and-correct programs.
+
+1. A colliding pair becomes **one group at one base address**: E46D4's and E46D5's `.COM`
+   each contain a SINGLE control block where DR's `.REL` carries two `DEF-COMMON-SIZE`
+   records.  At run time the two variables are the same file.
+2. **The size kept is the FIRST group's** — which is what LINK-80's own message says,
+   `/ABCDEF/ FIRST COMMON NOT LARGEST`, emitted for the unequal pair (E46D4: 41 then 44) and
+   NOT for the equal pair (E46D5: 41 and 41).  In E46D4 the surviving block therefore carries
+   length byte `0x0A` with only **7 of its 10 name characters** present (`ABCDEFG`, read at
+   1989..198F of `E46D4.COM`): a self-inconsistent control block.
+3. With equal sizes nothing is clipped and **the second record wins** — E46D5's block reads
+   `07 ABCDEF2`, the *second* variable's name, having overwritten the first at the shared base.
+4. **Without a collision a long name is stored in full and exactly**: E46F4 reads
+   `0A ABCDEFGHIJ` and E46D6 reads `0D AVERYLONGNAME`.  So (2)'s clipping is a collision
+   artifact, not a six-character limit on the stored name.
+5. None of it is the compiler's business.  Every object above begins as a byte-exact `.REL`
+   from DR and from this compiler; the divergence appears only when LINK-80 resolves two
+   groups to one name.  A collision diagnostic here would make this compiler disagree with
+   the oracle about a program DR accepts, so we reproduce DR's **records** and add nothing.

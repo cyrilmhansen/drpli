@@ -35,10 +35,10 @@
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 2,
   "PARTIAL": 11,
-  "REFUSED": 21,
-  "SUPPORTED": 54
+  "REFUSED": 20,
+  "SUPPORTED": 55
  },
- "no_parity": 27,
+ "no_parity": 26,
  "no_runtime": 65,
  "perimeter": {
   "C": 2,

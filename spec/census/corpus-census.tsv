@@ -5,8 +5,8 @@ ACKTST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT EDIT
 ALLTST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED(MEMPTR) of type BIT(16) is not implemented [TBD] (E2E-26/P2 covers only a based FIXED BINARY(15). DR accepts char
 ANNUITY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: declaration ftc returns(CHAR(17) VARYING) deferred [TBD] (line 21; return types emitted today are FIXED [26 specimens],
 CALL	diag	False	None	NO_ORACLE				Fatal error: exception Pli80.Parser.Parse_error(_, "expected statement")
-COPY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: FILE name INPUT_FILE (10 chars) exceeds 6 [TBD] (DR accepts this name: the COMMON symbol is its first 6 chars and the c
-COPYLPT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: FILE name SOURCEFILE (10 chars) exceeds 6 [TBD] (DR accepts this name: the COMMON symbol is its first 6 chars and the c
+COPY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option ENVIRONMENT is outside the E2E-41/P3 witnessed subset [TBD] (line 10) -- P0 measured 34 OPEN blocks in 24 D
+COPYLPT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT ITEM (PAGE) deferred [TBD] (line 53; only bare SKIP is sampled -- REVERSE 00FE; PAGE and counted SKIP have no DR by
 CREATE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] PUT LIST with options this route does not claim (line 39): P3b lowers `put file(<f>) list(<one literal>)' only --
 DECPOLY	ok	True	True	EXACT	1152			
 DEMO	ok	True	True	EXACT	512			
@@ -36,7 +36,7 @@ MPMCALLB	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC
 NETWORK	ok	True	True	EXACT	3200			
 OPTIMIST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 9-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
 REPORT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(15) is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are m
-RETRIEVE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: FILE name SYSPRINT (8 chars) exceeds 6 [TBD] (DR accepts this name: the COMMON symbol is its first 6 chars and the cont
+RETRIEVE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option PRINT is outside the E2E-41/P3 witnessed subset [TBD] (line 19) -- P0 measured 34 OPEN blocks in 24 DR obje
 REVERSE	ok	True	True	EXACT	896			
 REVERT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] undeclared exit (no declaration in scope; PL/I would make it implicit FLOAT, but no                   DR sample s
 RFACT	ok	True	True	EXACT	512			

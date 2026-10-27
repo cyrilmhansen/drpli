@@ -1070,12 +1070,12 @@ let op_mov_h_b = 0x60
    were never wrong -- only the name. *)
 let op_mov_l_b = 0x68
 
-(* A FILE operand resolves to the NAMED COMMON group DR builds for that file:
-   the uppercased declared name (P0 §5: /F/, /INF/, /OUTF/, /EMP/ ... -- the group
-   symbol is the first 6 characters, but every name reachable in P1 is <= 6, and
-   codegen still refuses longer ones at layout time [C120]).  Same declared-FILE
-   test ON ENDFILE uses (codegen.ml ~9787), so a file statement cannot name a
-   FIXED variable and get a control block out of it. *)
+(* A FILE operand resolves to the NAMED COMMON group DR builds for that file: the
+   UPPERCASED DECLARED NAME, which is what `st.cur_common' and `st.files' key on and
+   what the control block stores.  The LINK-80 SYMBOL for that group is a different
+   thing -- the first six characters, `file_sym' below [C283].  Same declared-FILE test
+   ON ENDFILE uses (codegen.ml ~9787), so a file statement cannot name a FIXED variable
+   and get a control block out of it. *)
 let file_group st (s : Ast.stmt) (e : Ast.expr option) =
   match e with
   | Some { Ast.e = Ast.Eident n; _ } ->
@@ -1091,15 +1091,38 @@ let file_group st (s : Ast.stmt) (e : Ast.expr option) =
         (Printf.sprintf
            "codegen: a FILE statement whose file operand is not a plain declared file name is unproven [TBD] (line %d) -- multi-file forms such as `close file(a,b)' parse (the manual's Inform-6 list, p.90) but no DR object measures what they push"
            s.Ast.spos.Source.line)
+(* [E2E-42/P1a] DR's LINK-80 SYMBOL for a FILE's COMMON group: the FIRST SIX characters
+   of the uppercased declared name.  Measured, not inferred -- see `file_group' below for
+   the seven-object historical census [C277] and, in this milestone, the oracle probes
+   golden/e42p1/E46D2 (abcdefg -> /ABCDEF/, control block holds ABCDEFG, size 41) and
+   E46D3 (in_file -> /IN_FIL/, a HARD cut that keeps the underscore; insize -> /INSIZE/,
+   a 6-char name passes through unchanged) [C283].  NAMES AT OR BELOW SIX CHARACTERS ARE
+   UNAFFECTED, so every specimen already in the gate sees no change. *)
+let file_sym (fu : string) =
+  String.sub fu 0 (min 6 (String.length fu))
+
 
 (* LXI H,<the file's control block>, with DR's SEL-COMMON rule: the group is
    selected only when it CHANGES (st.cur_common), which is why P081Q's three
    references to /F/ carry one SEL-COMMON and two bare RELOC records.  This is the
-   one authority for the prefix; on_reg_prefix below is its other user [C202]. *)
+   one authority for the prefix; on_reg_prefix below is its other user [C202].
+
+   [E2E-42/P1a] THE TWO IDENTITIES ARE DELIBERATELY DIFFERENT HERE.  `st.cur_common'
+   keys on the FULL uppercased name; the SEL-COMMON record carries the TRUNCATED
+   symbol.  E46D5 (`dcl abcdef1 file, abcdef2 file', golden/e42p1b) measures why that
+   is the only correct reading: its six statements reference two different variables
+   that share the symbol /ABCDEF/, and DR emits THREE code-region SEL-COMMON records
+   -- at chain heads 1606 (the first reference, abcdef1), 2748 (abcdef1 -> abcdef2)
+   and 4180 (abcdef2 -> abcdef1) -- for six COMMON relocs at 1664, 1930, 2061, 2806,
+   3493, 4238.  Two consecutive abcdef1 references (1930, 2061) carry NO new
+   SEL-COMMON, and the second abcdef2 reference (3493) likewise.  So the selection
+   state is per FILE VARIABLE, not per LINK symbol: keying cur_common on
+   `file_sym fu' would drop the SEL-COMMON at 2748 and 4180 and lose 2 records from
+   the object. [C284] *)
 let load_file_cb st (fu : string) =
   d st op_lxi_h;
   if st.cur_common <> Some fu then begin
-    link st t_sel_common None (Some fu);
+    link st t_sel_common None (Some (file_sym fu));
     st.cur_common <- Some fu
   end;
   reloc st Common 0
@@ -11401,8 +11424,9 @@ let emit_program (progname : string) (auto_bytes : int)
   let common_seg =
     List.concat_map
       (fun (nm : string) ->
-        [ Link (t_def_common_size, Some (Abs, 34 + String.length nm), Some nm)
-        ; Link (t_sel_common, None, Some nm)
+        [ Link (t_def_common_size, Some (Abs, 34 + String.length nm),
+                 Some (file_sym nm))
+        ; Link (t_sel_common, None, Some (file_sym nm))
         ; Link (t_set_lc, Some (Common, 0), None) ]
         @ List.map (fun v -> Data v) (file_cb_bytes nm))
       statics.sy_files
@@ -11668,34 +11692,43 @@ let rows_of (b : Ast.block) =
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vdec (p, s)
                       ; w = p + 3; imem = None })
         | Bind.RTfile _ ->
-            (* [E2E-11 step 2] a FILE variable takes NO DATA cell: DR gives it a
-               named COMMON group instead [C120, verified for SYSIN and INF].  bind
-               classifies it static-class, so it never reaches the static-bit path
-               above; here it is recorded for the COMMON emission and contributes
-               nothing to the DATA area.  The `internal' flag turned out NOT to
-               distinguish SYSIN from a user stream (FLTPOLY2's `dcl sysin file'
-               binds as FILE EXTERNAL STATIC), and both get the same block shape --
-               so this arm does not branch on it.
+            (* [E2E-11 step 2] a FILE variable takes NO DATA cell: DR gives it a named
+               COMMON group instead [C120, verified for SYSIN and INF].  bind classifies
+               it static-class, so it never reaches the static-bit path above; here it is
+               recorded for the COMMON emission and contributes nothing to the DATA area.
+               The `internal' flag turned out NOT to distinguish SYSIN from a user stream
+               (FLTPOLY2's `dcl sysin file' binds as FILE EXTERNAL STATIC), and both get
+               the same block shape -- so this arm does not branch on it.
 
-               A name longer than 6 chars is STILL refused, but the reason is no longer
-               "unmeasured": [C277] (E2E-41/P2a) measured DR's law on five independent
-               historical objects (COPY, RETRIEVE, COPYLPT, REPORT, DEPREC --
-               spec/lab-evidence/e2e41-p0/OPEN-INVENTORY.txt):  DR ACCEPTS the long name,
-               names the COMMON group with its first 6 characters (`INPUT_FILE -> /INPUT_/',
-               `OUTPUT_FILE -> /OUTPUT/', `SYSPRINT -> /SYSPRI/') and stores the FULL
-               uppercase name in the control block, with DEF-COMMON-SIZE = 34 + len(full
-               name).  What remains unmeasured is the COLLISION case -- two names equal
-               on their first six characters -- which no object here declares, so
-               emitting a truncated symbol would make two files share one COMMON group
-               on an inference.  This is OUR implementation gap, not a DR restriction;
-               the lowering waits for the collision boundary (P0 probe E46D). *)
-            let up = String.uppercase_ascii nm in
-            if String.length up > 6 then
-              failwith
-                (Printf.sprintf
-                   "codegen: FILE name %s (%d chars) exceeds 6 [TBD] (DR accepts this name: the COMMON symbol is its first 6 chars and the control block stores the full name, size 34+len [C277]; this compiler does not yet implement that COMMON-symbol truncation safely -- collision behaviour after truncation is unmeasured)"
-                   up (String.length up));
-            sy_files := !sy_files @ [up];
+               [E2E-42/P1a] A NAME LONGER THAN SIX CHARACTERS IS NOW ACCEPTED, and the
+               refusal that used to sit here is withdrawn as a MY-GAP, not as a DR rule.
+               DR's law, measured on five historical objects [C277] and then settled on
+               seven fresh oracle probes (golden/e42p1/E46D1..E46D3, golden/e42p1b/
+               E46D4..E46D7) [C283]:
+                 * the COMMON group SYMBOL is the first six characters of the uppercased
+                   name -- a HARD cut, `in_file' -> /IN_FIL/, no separator handling;
+                 * the CONTROL BLOCK stores the FULL name with the FULL length byte, so
+                   `averylongname' is /AVERYL/ outside and 33 zeros | 13 | AVERYLONGNAME
+                   inside, DEF-COMMON-SIZE 47 = 34 + 13;
+                 * DR ACCEPTS two names that collide on the six characters and emits one
+                   DEF-COMMON-SIZE per VARIABLE, all under the same symbol (E46D1: two
+                   records `/ABCDEF/ 41').  It diagnoses NOTHING at compile time.
+               What happens AFTER that is LINK-80's, and it was measured too, because a
+               silent alias would have been an invented claim [C284]: LINK-80 merges the
+               same-named groups, ALIASES every reloc to the first group's base, keeps the
+               FIRST group's size and clips the later control block into it -- E46D4
+               (`abcdef1' 41 bytes, `abcdefghij' 44) links with the diagnostic
+               `/ABCDEF/ FIRST COMMON NOT LARGEST' and its .COM holds ONE 41-byte block
+               reading length 10, name `ABCDEFG' (the tenth name byte fell outside the
+               group).  E46D1 (equal sizes) links with NO diagnostic at all and its .COM
+               holds one block reading `ABCDEF2'.  Both FILE variables therefore address
+               the SAME control block at runtime.
+               So a collision is a program bug DR never reports, exactly as the manual
+               page for LINK-80's common merge implies; reproducing DR's RECORDS is what
+               byte-exactness requires, and this arm deliberately does not add a
+               diagnostic DR does not have.  The consequence is documented instead, and
+               gate-pinned on E46D1/E46D4 whole objects. *)
+            sy_files := !sy_files @ [String.uppercase_ascii nm];
             None
         | Bind.RTchar (n, false) ->
             Some (nm, { off; size = Bind.bytes_of rt; vk = Vfix n; w = 0; imem = None })

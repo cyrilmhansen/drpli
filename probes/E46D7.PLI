@@ -1,0 +1,9 @@
+E46D7:
+  procedure options(main);
+  dcl alpha1 file, beta2 file, i fixed bin(15);
+  open file(alpha1) stream input;
+  open file(alpha1) stream input;
+  open file(beta2) stream input;
+  close file(alpha1);
+  close file(beta2);
+end E46D7;

@@ -1,0 +1,8 @@
+E46D4:
+  procedure options(main);
+  dcl abcdef1 file, abcdefghij file, i fixed bin(15);
+  open file(abcdef1) stream input;
+  open file(abcdefghij) stream input;
+  get file(abcdef1) list(i);
+  close file(abcdefghij);
+end E46D4;

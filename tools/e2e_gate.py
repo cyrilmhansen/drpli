@@ -830,6 +830,58 @@ SPECIMENS.update({
     "E42P2":  ("artefacts/E42P2.PLI", "golden/e42p/E42P2/E42P2.REL"),
 })
 
+# [E2E-42/P1a] LONG FILE IDENTIFIERS AND DR's COMMON-TRUNCATION LAW.
+# spec/notes/e2e41-p0-file-open-reconnaissance.md section 5 read the group symbol off five
+# historical objects and [C277] stated the law; what was NEVER measured was the COLLISION --
+# two FILE variables whose names agree on their first six characters.  Seven DR oracle probes
+# settle it, and every whole object -- 640, 640, 640, 512, 384, 384 and 256 bytes -- is
+# reproduced byte-for-byte here.  Each row below is a WHOLE-FILE `cmp', so the DEF-COMMON-SIZE
+# symbol, its size, the control-block bytes AND the SEL-COMMON selection state are all pinned
+# together, which is [C264]'s rule that a CODE-byte match alone proves nothing.
+#   E46D2  `abcdefg'        -> symbol /ABCDEF/, block 33 zeros|07|ABCDEFG, size 41 = 34+7.  A
+#                              HARD cut at six: no separator handling, no folding.  This probe
+#                              declares the file and NEVER OPENS it, which is what proves the
+#                              truncation is a DECLARATION rule and not an OPEN rule.
+#   E46D3  `in_file','insize' -> /IN_FIL/ (the underscore SURVIVES the cut) size 41, and
+#                              /INSIZE/ size 40 = 34+6, which pins the formula at BOTH ends of
+#                              the boundary: a 6-char name is NOT padded out to 6+1.
+#   E46D1  `abcdef1','abcdef2'  THE COLLISION, EQUAL sizes (41 and 41).  DR emits TWO
+#                              DEF-COMMON-SIZE records BOTH named ABCDEF and diagnoses NOTHING.
+#                              LINK-80 then merges them into one group (measured:
+#                              spec/lab-evidence/e2e42-p1a/LINK-COLLISION.txt) whose stored name
+#                              reads ABCDEF2 -- the SECOND record wins at the shared base -- so
+#                              both variables share one control block at run time.  That is a
+#                              program bug, and it is LINK-80's behaviour, not the compiler's.
+#   E46D4  `abcdef1','abcdefghij'  THE COLLISION, UNEQUAL sizes (41 then 44).  LINK-80 prints
+#                              `/ABCDEF/ FIRST COMMON NOT LARGEST' and keeps the FIRST size, so
+#                              the surviving block carries length byte 0x0A but only 7 of its 10
+#                              name characters -- `ABCDEFG' -- the rest fell outside the
+#                              41-byte group.  DR's COMPILER still says 0 ERRORS.
+#   E46D5  six references alternating abcdef1/abcdef2 (open, open, get | get, get | close).
+#                              THE SEL-COMMON TEST, and the reason `cur_common' keys on the
+#                              VARIABLE and not on the symbol: DR emits FIVE SEL-COMMON records
+#                              (chain heads 302, 830, 1606, 2748, 4180) -- two at the
+#                              declarations plus one at each of the THREE variable switches --
+#                              every one of them carrying the same clipped name ABCDEF.  Keying
+#                              on file_sym was run and measured: it emits THREE and loses 2748
+#                              and 4180, the abcdef1->abcdef2 and abcdef2->abcdef1 switches, and
+#                              the 640-byte object then fails `cmp'. [C284]
+#   E46D6  `averylongname' (13) with a literal TITLE -> /AVERYL/, size 47 = 34+13, and the
+#                              title bit 0x0800 in w1 (0x0E90) on TOP of the long name: the two
+#                              features compose, they are not alternatives.
+#   E46D7  alpha1/beta2, NON-colliding 6- and 5-char names -> two distinct groups /ALPHA1/ 40
+#                              and /BETA2/ 39 with alternating SEL-COMMON.  The control row for
+#                              E46D1/E46D4: truncation is not merging when the symbols differ.
+SPECIMENS.update({
+    "E46D1": ("probes/E46D1.PLI", "golden/e42p1/E46D1/E46D1.REL"),
+    "E46D2": ("probes/E46D2.PLI", "golden/e42p1/E46D2/E46D2.REL"),
+    "E46D3": ("probes/E46D3.PLI", "golden/e42p1/E46D3/E46D3.REL"),
+    "E46D4": ("probes/E46D4.PLI", "golden/e42p1b/E46D4/E46D4.REL"),
+    "E46D5": ("probes/E46D5.PLI", "golden/e42p1b/E46D5/E46D5.REL"),
+    "E46D6": ("probes/E46D6.PLI", "golden/e42p1b/E46D6/E46D6.REL"),
+    "E46D7": ("probes/E46D7.PLI", "golden/e42p1b/E46D7/E46D7.REL"),
+})
+
 # [E2E-40/P8a] THE MEMBER SELF-UPDATE RANGE, MEASURED AT THE MEMBER, AND THE CROSS-SPELLING
 # EQUIVALENCE.  E42P1 licensed exactly one bias (+5); P8 then gate-extended the ORDINARY-
 # variable window -8..16 to members and refused anything outside it (E42N3).  DR says the
