@@ -145,6 +145,26 @@ Corpus effect: the census re-ran and the only changed message is `EXPR2`'s, whos
 storage class [C114]) and we now reject it at the same place for the same reason.  COPYLPT still
 refuses, but at `PUT PAGE` — a P2 feature — and no longer anywhere in its TITLE or its storage.
 
+## 5b. DUMP TEXT, NOT JUST BYTES
+
+A byte-exact `.REL` says the addresses agree; it does not say the compiler and the oracle agree
+about what the declaration MEANS.  `pli80bind -d` prints DR's `$S` format, so the two texts can be
+diffed line for line — and for both the group shape and COPYLPT's declaration verbatim they are
+identical:
+
+```
+   E46J2  BLOCK AT LINE 3, AUTO STORAGE 272 BYTES      (DR and ours, same three lines)
+          c 0000 LINE CHAR(14) VARYING AUTOMATIC
+          c 000F BUFF CHAR(254) VARYING AUTOMATIC
+          c 010E K FIXED BINARY(15,0) AUTOMATIC
+   E46J13 BLOCK AT LINE 3, AUTO STORAGE 278 BYTES      (COPYLPT's declaration, verbatim)
+```
+
+Before P1d the same command printed `c 0000 LINE CHAR(14) AUTOMATIC` and `c 000E BUFF …` in a
+270-byte frame, i.e. the model itself was wrong and the object was merely consistent with the wrong
+model.  That is the difference this episode was about: a self-consistent wrong binding produces
+plausible bytes, and only a comparison against DR's dump or object shows it.
+
 ## 6. WHAT P1e HAS TO MATCH
 
 The five level-numbered objects are banked and are the target, not an approximation of it: PUT LIST
