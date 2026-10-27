@@ -41,8 +41,9 @@ classified `RTchar(14, false)` — a fixed cell.
 
 Everything downstream inherited that one read:
 
-* **layout** added 14 bytes instead of 15, so `buff` and everything after it sat one byte low
-  (COPYLPT's frame measured 276 against DR's 278);
+* **layout** added 14 bytes instead of 15, so `buff` and everything after it sat one byte low.
+  COPYLPT itself still refuses, at its `PUT ITEM (PAGE)' [C280], so the measurement is E46J13 --
+  COPYLPT's declaration block verbatim, one PUT -- which measured 276 against DR's 278;
 * **`pli80bind -d`** printed `LINE CHAR(14) AUTOMATIC`, so the dump disagreed with DR's;
 * **both string operations** chose their helper from that classification.  `lower_open` and the PUT
   item route are pure dispatch on `Vvar`/`Vfix` [C174][C288] — they were never wrong, they were
