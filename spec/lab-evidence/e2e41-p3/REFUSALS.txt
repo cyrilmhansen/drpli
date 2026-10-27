@@ -11,7 +11,7 @@ them so the whole boundary of the route is in one place.
 == OPEN naming BOTH INPUT and OUTPUT -- no DR object of the combination      my-gap
 
 $ pli80c REFUSAL-io.pli          # open file(f) stream input output title('E16OUT DAT');
-Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) naming BOTH INPUT and OUTPUT has no byte-exact DR witness [TBD] (line 2) -- all nine measured OUTPUT rows in OPEN-MATRIX.tsv are: `stream output' with a LITERAL title (E16D:3, E17D:3 -> w1 0x0E50, lowered here), `stream output' with a VARIABLE title (CREATE:22 -> 0x0E50, ?SLVTS, not lowered), keyed output (P021:4, ENTER:37 -> 0x4D54), print (LOAN2:54/56 -> 0x2E52 with PAGESIZE, 0x0E52 without) and output opens carrying an attribute (COPY:13 ENVIRONMENT -> 0x4E50, KEYFILE:19 LINESIZE -> 0x1E50).  Every one of the nine carries a TITLE.  naming BOTH INPUT and OUTPUT is outside that set")
+Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) naming BOTH INPUT and OUTPUT is outside what this compiler lowers [TBD] (line 2) -- OPEN-MATRIX.tsv measures 34 OPENs, 9 of them spelling `output': 5 spell `stream output' (E16D:3, E17D:3 -> w1 0x0E50, lowered here; COPY:13 -> 0x4E50 with ENVIRONMENT; KEYFILE:19 -> 0x1E50 with LINESIZE; CREATE:22 -> 0x0E50 with a VARIABLE title via ?SLVTS), 2 spell `keyed output' (P021:4, ENTER:37 -> 0x4D54) and 2 spell `output ... print' (LOAN2:54 -> 0x2E52 with PAGESIZE, LOAN2:56 -> 0x0E52 with a VARIABLE title).  All nine carry a TITLE (7 literal, 2 variable) and DR compiled all nine.  no measured open carries both direction bits: of the 34, 17 have 0x0080, 16 have 0x0040 and the one with neither is UPDATE:31's `update direct' (0x4D2C), so the word for the combination is unreadable from this corpus")
 
   DR side: OPEN-MATRIX.tsv has 34 rows, 25 with INPUT and 9 with OUTPUT, and no row carries
   both.  So the mode WORD for the combination (is it 0x0E50|0x0080? does one bit override the
@@ -30,26 +30,28 @@ Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) naming BOTH
 == OPEN OUTPUT without the STREAM keyword -- no DR object of that spelling    my-gap
 
 $ pli80c REFUSAL-nostream.pli    # open file(f) output title('E16OUT DAT');
-Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) OUTPUT without the STREAM keyword has no byte-exact DR witness [TBD] (line 2) -- all nine measured OUTPUT rows in OPEN-MATRIX.tsv are: `stream output' with a LITERAL title (E16D:3, E17D:3 -> w1 0x0E50, lowered here), `stream output' with a VARIABLE title (CREATE:22 -> 0x0E50, ?SLVTS, not lowered), keyed output (P021:4, ENTER:37 -> 0x4D54), print (LOAN2:54/56 -> 0x2E52 with PAGESIZE, 0x0E52 without) and output opens carrying an attribute (COPY:13 ENVIRONMENT -> 0x4E50, KEYFILE:19 LINESIZE -> 0x1E50).  Every one of the nine carries a TITLE.  OUTPUT without the STREAM keyword is outside that set")
+Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) OUTPUT without the STREAM keyword is outside what this compiler lowers [TBD] (line 2) -- OPEN-MATRIX.tsv measures 34 OPENs, 9 of them spelling `output': 5 spell `stream output' (E16D:3, E17D:3 -> w1 0x0E50, lowered here; COPY:13 -> 0x4E50 with ENVIRONMENT; KEYFILE:19 -> 0x1E50 with LINESIZE; CREATE:22 -> 0x0E50 with a VARIABLE title via ?SLVTS), 2 spell `keyed output' (P021:4, ENTER:37 -> 0x4D54) and 2 spell `output ... print' (LOAN2:54 -> 0x2E52 with PAGESIZE, LOAN2:56 -> 0x0E52 with a VARIABLE title).  All nine carry a TITLE (7 literal, 2 variable) and DR compiled all nine.  the four measured OUTPUTs that omit STREAM are keyed or print rows, whose attribute words (0x4D54, 0x2E52, 0x0E52) this compiler has no lowering for; DR compiles all four, so this refusal is MY gap, not a DR rejection of the spelling")
 
   DR side: all 9 OUTPUT rows in the matrix spell `stream output' and all carry w1 = 0x0E50.
   P0 §4 measured a 0x0010 bit it reads as `stream', so a STREAM-less OUTPUT would presumably
   drop it -- but that is arithmetic on a reading, not an object.
 
-  Correction, re-measured 2026-10-27: this sentence is false in both halves, and the compiler's
-  message quoted above inherits the error (it lists the four rows below as "outside that set"
-  while they are in fact the corpus's own non-`stream' OUTPUTs).  Of the nine OUTPUT rows, FIVE
-  spell `stream output' (E16D:3, E17D:3, COPY:13, KEYFILE:19, CREATE:22) and FOUR do not --
+  Correction, re-measured 2026-10-27: the sentence in that capture is false in both halves.
+  Of the nine OUTPUT rows, FIVE spell `stream output' (E16D:3, E17D:3, COPY:13, KEYFILE:19,
+  CREATE:22) and FOUR do not --
   P021:4 and ENTER:37 spell `keyed output' (w1 0x4D54) and LOAN2:54/56 spell `output ... print'
   (0x2E52, 0x0E52).  Only THREE carry w1 = 0x0E50.  So DR plainly accepts `output' without
   `stream'; what is unmeasured is a `output' with no KEYED/PRINT attribute, and this refusal is
-  a my-gap guard about THIS COMPILER's missing KEYED/PRINT lowering, not a DR rejection.
+  a my-gap guard about THIS COMPILER's missing KEYED/PRINT lowering, not a DR rejection.  The
+  message above was re-captured after that guard was re-worded (P3c): the older text called the
+  combination "outside that set" while the same sentence listed the four non-`stream' rows as
+  members of the set, which contradicted itself.
 
 
 == titleless OPEN STREAM OUTPUT -- composes a word no matrix row carries      my-gap
 
 $ pli80c REFUSAL-notitle.pli     # open file(f) stream output;
-Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) a titleless OUTPUT has no byte-exact DR witness [TBD] (line 2) -- all nine measured OUTPUT rows in OPEN-MATRIX.tsv are: `stream output' with a LITERAL title (E16D:3, E17D:3 -> w1 0x0E50, lowered here), `stream output' with a VARIABLE title (CREATE:22 -> 0x0E50, ?SLVTS, not lowered), keyed output (P021:4, ENTER:37 -> 0x4D54), print (LOAN2:54/56 -> 0x2E52 with PAGESIZE, 0x0E52 without) and output opens carrying an attribute (COPY:13 ENVIRONMENT -> 0x4E50, KEYFILE:19 LINESIZE -> 0x1E50).  Every one of the nine carries a TITLE.  a titleless OUTPUT is outside that set")
+Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) a titleless OUTPUT is outside what this compiler lowers [TBD] (line 2) -- OPEN-MATRIX.tsv measures 34 OPENs, 9 of them spelling `output': 5 spell `stream output' (E16D:3, E17D:3 -> w1 0x0E50, lowered here; COPY:13 -> 0x4E50 with ENVIRONMENT; KEYFILE:19 -> 0x1E50 with LINESIZE; CREATE:22 -> 0x0E50 with a VARIABLE title via ?SLVTS), 2 spell `keyed output' (P021:4, ENTER:37 -> 0x4D54) and 2 spell `output ... print' (LOAN2:54 -> 0x2E52 with PAGESIZE, LOAN2:56 -> 0x0E52 with a VARIABLE title).  All nine carry a TITLE (7 literal, 2 variable) and DR compiled all nine.  a titleless `stream output' composes 0x0E50 minus 0x0800 = 0x0650, which appears in the census only as a record-WRITE attach word (SIOMODES COPY 006F, REPORT 00DF/01BE) and never as an OPEN w1; the four titleless opens are input (P072H:3, P081Q:3 = 0x0690) or print (P019B:3 = 0x0652, P021:6 = 0x2652), none of them an OUTPUT")
 
   DR side: E17A.REL is the one titleless OPEN in the corpus, and it is INPUT (w1 0x0290)
   [C274].  0x0650 does exist in DR objects -- but only as an ATTACH word (the 0x0652

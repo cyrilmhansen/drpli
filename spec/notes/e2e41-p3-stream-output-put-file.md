@@ -81,13 +81,15 @@ it would have had to emit:
   0x4D54) or print (`LOAN2:54/56` → 0x2E52/0x0E52), so a bare `output title(...)` has no witness.
   DR compiles all four of those rows, so this refusal is about the *bare* spelling and about this
   compiler having no lowering for the KEYED/PRINT attribute words — it is not evidence that DR
-  rejects `output` without `stream`, and the refusal message's "outside that set" phrasing
-  overstates the rows it goes on to list.
+  rejects `output` without `stream`.  The refusal message used to say the combination was
+  "outside that set" while going on to list rows that are in the set — corrected in P3c, and
+  the three captures in `REFUSALS.txt` re-recorded against the rebuilt compiler.
 * a **titleless** `stream output` — the word it composes to is `0x0400|0x0200|0x0010|0x0040 =
   0x0650`, and 0x0650 appears in this census **only as a write-from ATTACH word** (COPY 006F,
   REPORT 00DF/01BE, all three `?WNIOP`/`?QIOOP`) and never as an OPEN w1.  The titleless opens
-  that ARE measured are P019B's `open file(pf) print` (w1 = 0x0652) and P072H/P081Q's
-  `open file(f) input` (0x0690) — neither is an OUTPUT.
+  that ARE measured are FOUR — P019B's `open file(pf) print` (0x0652), P021:6's
+  `open file(pf) stream print pagesize(60)` (0x2652), and P072H/P081Q's `open file(f) input`
+  (0x0690) — and none of the four spells `output`.
 
 `lower_open` records the file group in `st.file_out` **after** `open_mode_word` has accepted the
 combination, so a refused OPEN claims nothing.

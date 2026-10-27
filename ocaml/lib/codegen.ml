@@ -8522,21 +8522,45 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
      row with neither is UPDATE:31's `update direct' (0x4D2C).  17+16+1 = 34: the partition is
      complete, so "no measured open writes and reads" is a fact about every row, not a sample. *)
   let n_in, n_out, n_stream = has "INPUT", has "OUTPUT", has "STREAM" in
-  let refuse_combination what =
+  (* The census, stated once and correctly [C280 corrected by P3c]: 34 measured OPENs, nine of
+     them spelling `output'.  Five of those nine spell `stream output', FOUR do not (two keyed,
+     two print), and all nine carry a TITLE -- seven literal, TWO VARIABLE.  DR compiled every
+     one of them, so a refusal here is about what THIS compiler lowers, never about what DR
+     rejects; an earlier version of this message said the combination was "outside that set",
+     which read as a claim about DR and was contradicted by the rows it listed. *)
+  let census =
+    "OPEN-MATRIX.tsv measures 34 OPENs, 9 of them spelling `output': 5 spell `stream output' \
+     (E16D:3, E17D:3 -> w1 0x0E50, lowered here; COPY:13 -> 0x4E50 with ENVIRONMENT; KEYFILE:19 \
+     -> 0x1E50 with LINESIZE; CREATE:22 -> 0x0E50 with a VARIABLE title via ?SLVTS), 2 spell \
+     `keyed output' (P021:4, ENTER:37 -> 0x4D54) and 2 spell `output ... print' (LOAN2:54 -> \
+     0x2E52 with PAGESIZE, LOAN2:56 -> 0x0E52 with a VARIABLE title).  All nine carry a TITLE \
+     (7 literal, 2 variable) and DR compiled all nine" in
+  let refuse_combination what why =
     failwith
       (Printf.sprintf
-         "codegen: OPEN FILE(...) %s has no byte-exact DR witness [TBD] (line %d) -- all nine \
-          measured OUTPUT rows in OPEN-MATRIX.tsv are: `stream output' with a LITERAL title \
-          (E16D:3, E17D:3 -> w1 0x0E50, lowered here), `stream output' with a VARIABLE title \
-          (CREATE:22 -> 0x0E50, ?SLVTS, not lowered), keyed output (P021:4, ENTER:37 -> 0x4D54), \
-          print (LOAN2:54/56 -> 0x2E52 with PAGESIZE, 0x0E52 without) and output opens carrying an \
-          attribute (COPY:13 ENVIRONMENT -> 0x4E50, KEYFILE:19 LINESIZE -> 0x1E50).  Every one of \
-          the nine carries a TITLE.  %s is outside that set"
-         what s.Ast.spos.Source.line what)
+         "codegen: OPEN FILE(...) %s is outside what this compiler lowers [TBD] (line %d) -- %s.  \
+          %s"
+         what s.Ast.spos.Source.line census why)
   in
-  if n_in && n_out then refuse_combination "naming BOTH INPUT and OUTPUT"
-  else if n_out && not n_stream then refuse_combination "OUTPUT without the STREAM keyword"
-  else if n_out && not title then refuse_combination "a titleless OUTPUT"
+  if n_in && n_out then
+    refuse_combination
+      "naming BOTH INPUT and OUTPUT"
+      "no measured open carries both direction bits: of the 34, 17 have 0x0080, 16 have 0x0040 \
+       and the one with neither is UPDATE:31's `update direct' (0x4D2C), so the word for the \
+       combination is unreadable from this corpus"
+  else if n_out && not n_stream then
+    refuse_combination
+      "OUTPUT without the STREAM keyword"
+      "the four measured OUTPUTs that omit STREAM are keyed or print rows, whose attribute words \
+       (0x4D54, 0x2E52, 0x0E52) this compiler has no lowering for; DR compiles all four, so this \
+       refusal is MY gap, not a DR rejection of the spelling"
+  else if n_out && not title then
+    refuse_combination
+      "a titleless OUTPUT"
+      "a titleless `stream output' composes 0x0E50 minus 0x0800 = 0x0650, which appears in the \
+       census only as a record-WRITE attach word (SIOMODES COPY 006F, REPORT 00DF/01BE) and \
+       never as an OPEN w1; the four titleless opens are input (P072H:3, P081Q:3 = 0x0690) or \
+       print (P019B:3 = 0x0652, P021:6 = 0x2652), none of them an OUTPUT"
   else if not (n_in || n_out || n_stream) then
     failwith
       (Printf.sprintf
