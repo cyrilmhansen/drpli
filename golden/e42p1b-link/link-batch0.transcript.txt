@@ -1,0 +1,38 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU doesn't execute undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> LINK D:E46G1
+LINK D:E46G1
+LINK 1.31
+
+PLILIB   RQST   E46G1    0100   /F/      1933   /SYSIN/  19BA   
+/SYSPRI/ 19E1   
+
+ABSOLUTE     0000
+CODE SIZE    1833 (0100-1932)
+DATA SIZE    01A6 (1A3C-1BE1)
+COMMON SIZE  0109 (1933-1A3B)
+USE FACTOR     4B
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 4020 ms, waited for 0 ms
+CPU executed 81354871 t-states in 41 ms
+Clock frequency 1954.42 MHz

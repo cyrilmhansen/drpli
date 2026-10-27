@@ -1,0 +1,7 @@
+E46E3:
+  procedure options(main);
+  dcl f file;
+  dcl i fixed bin(15);
+  open file(f) input output;
+  get file(f) list(i);
+end E46E3;

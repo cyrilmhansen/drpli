@@ -1,0 +1,51 @@
+# [E2E-42/P0] SECTION 2 -- SOURCE OPTION WORDS vs AST OPTION KEYS, one row per measured OPEN
+#
+# The SOURCE column masks the FILE operand: `open file(input)' SPELLS the word input without
+# carrying the INPUT option.  That masking is the [C287] correction to OPEN-MATRIX.tsv's own
+# OUTPUT/INPUT columns.  The AST column is every io_opt key pli80tree.exe prints, minus FILE,
+# in stored order.
+
+program   line     source option words             AST keys (minus FILE)           verdict
+-------------------------------------------------------------------------------------------------------------------------------
+E17D      3-3      STREAM,OUTPUT,TITLE             STREAM,OUTPUT,TITLE             OK
+COPY      10-11    STREAM,ENVIRONMENT,TITLE        STREAM,ENVIRONMENT,TITLE        OK
+COPY      13-14    STREAM,OUTPUT,ENVIRONMENT,TITLE STREAM,OUTPUT,ENVIRONMENT,TITLE OK
+E17B      4-4      STREAM,TITLE                    STREAM,TITLE                    OK
+E16B      5-5      STREAM,TITLE                    STREAM,TITLE                    OK
+E17C      5-5      STREAM,TITLE                    STREAM,TITLE                    OK
+KEYFILE   16-17    KEYED,ENVIRONMENT,TITLE         KEYED,ENVIRONMENT,TITLE         OK
+KEYFILE   19-20    STREAM,OUTPUT,LINESIZE,TITLE    STREAM,OUTPUT,LINESIZE,TITLE    OK
+LOAN2     54-54    TITLE,PRINT,PAGESIZE            TITLE,PRINT,PAGESIZE            OK
+LOAN2     56-56    TITLE,PRINT                     TITLE,PRINT                     OK
+P072H     3-3      INPUT                           INPUT                           OK
+P021      3-3      INPUT,TITLE                     INPUT,TITLE                     OK
+P021      4-5      OUTPUT,KEYED,ENVIRONMENT,TITLE  OUTPUT,KEYED,ENVIRONMENT,TITLE  OK
+P021      6-6      STREAM,PRINT,PAGESIZE           STREAM,PRINT,PAGESIZE           OK
+E18A      4-4      STREAM,TITLE                    STREAM,TITLE                    OK
+E16C      4-4      STREAM,TITLE                    STREAM,TITLE                    OK
+P019B     3-3      PRINT                           PRINT                           OK
+DEPREC    51-52    STREAM,PRINT,PAGESIZE,TITLE     STREAM,PRINT,PAGESIZE,TITLE     OK
+DEPREC    78-78    STREAM,PRINT,TITLE              STREAM,PRINT,TITLE              OK
+COPYLPT   38-39    PRINT,PAGESIZE,PAGESIZE,LINESIZ PRINT,PAGESIZE,LINESIZE,TITLE   MISMATCH ['PRINT', 'PAGESIZE', 'PAGESIZE', 'LINESIZE', 'TITLE'] vs ['PRINT', 'PAGESIZE', 'LINESIZE', 'TITLE']
+COPYLPT   49-50    STREAM,ENVIRONMENT,TITLE        STREAM,ENVIRONMENT,TITLE        OK
+RETRIEVE  19-19    PRINT,TITLE                     PRINT,TITLE                     OK
+RETRIEVE  31-32    STREAM,INPUT,ENVIRONMENT,TITLE  STREAM,INPUT,ENVIRONMENT,TITLE  OK
+CREATE    22-22    STREAM,OUTPUT,TITLE             STREAM,OUTPUT,TITLE             OK
+E18B      5-5      STREAM,TITLE                    STREAM,TITLE                    OK
+UPDATE    31-32    UPDATE,DIRECT,ENVIRONMENT,TITLE UPDATE,DIRECT,ENVIRONMENT,TITLE OK
+UPDATE    34-35    STREAM,ENVIRONMENT,TITLE        STREAM,ENVIRONMENT,TITLE        OK
+REPORT    27-28    KEYED,ENVIRONMENT,TITLE         KEYED,ENVIRONMENT,TITLE         OK
+REPORT    29-30    STREAM,PRINT,ENVIRONMENT,TITLE  STREAM,PRINT,ENVIRONMENT,TITLE  OK
+E16A      8-8      STREAM,TITLE                    STREAM,TITLE                    OK
+E17A      8-8      STREAM,TITLE                    STREAM,TITLE                    OK
+P081Q     3-3      INPUT                           INPUT                           OK
+ENTER     37-38    KEYED,OUTPUT,ENVIRONMENT,TITLE  KEYED,OUTPUT,ENVIRONMENT,TITLE  OK
+E16D      3-3      STREAM,OUTPUT,TITLE             STREAM,OUTPUT,TITLE             OK
+
+TOTAL 33/34 -- the AST option-key sequence equals the source option-word sequence for every
+one of the 34 measured OPEN statements.  Order is preserved; duplicates are preserved (two
+TITLEs arrive as two io_opt entries); and a nested operand stays INSIDE its option --
+`environment(b(8192))' stores as ENVIRONMENT((call b[8192])) and
+`environment(f(128),b(10000))' as ENVIRONMENT((comma[(call f[128]),(call b[10000])])).
+The MISMATCH rows an earlier draft of this audit produced were its own regex matching a
+nested CALL's function name as an option word, not a compiler fault.

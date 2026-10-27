@@ -1,0 +1,6 @@
+E46H7:
+  procedure options(main);
+  dcl f file, i fixed bin(15);
+  open file(f) input update;
+  get file(f) list(i);
+end E46H7;

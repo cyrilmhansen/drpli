@@ -8487,12 +8487,69 @@ let open_title (s : Ast.stmt) (opts : Ast.io_opt list) : string option =
            "codegen: OPEN TITLE with no string operand has no DR witness [TBD] (line %d)"
            s.Ast.spos.Source.line)
   | _ ->
+      (* [E2E-42/P0] no longer "unmeasured": DR diagnoses two TITLE clauses itself. *)
       failwith
         (Printf.sprintf
-           "codegen: OPEN with %d TITLE clauses is unmeasured [TBD] (line %d) -- every \
-            measured open carries at most one"
+           "codegen: [TBD] OPEN with %d TITLE clauses: DR diagnoses pass-2 CONFLICT and emits \
+            no .REL [C285] (line %d) -- probe E46G2 `open file(f) input title('A') title('B')' \
+            ends `1 ERROR(S) IN PASS 2'; every measured open carries at most one TITLE"
            (List.length (List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "TITLE") opts))
            s.Ast.spos.Source.line)
+
+(* [E2E-42/P0] DR REJECTS A REPEATED OPTION KEYWORD, and this compiler used to accept it.
+   Nine oracle probes, covering all EIGHT keywords below, every one diagnosed `CONFLICT' under
+   the offending statement with `1 ERROR(S) IN PASS 2' and NO .REL emitted (INPUT is probed
+   twice, once bare and once after STREAM):
+     golden/e42p0/E46E1   `open file(f) input input'
+     golden/e42p0/E46E2   `open file(f) stream stream input'
+     golden/e42p0b/E46G4  `open file(f) stream input input'
+     golden/e42p0c/E46H2  `open file(f) file(f) input'
+     golden/e42p0b/E46G2  `open file(f) input title('A') title('B')'
+     golden/e42p0b/E46G6  `open file(f) input pagesize(24) pagesize(24)'
+     golden/e42p0c/E46H6  `open file(f) input linesize(80) linesize(80)'
+   and golden/e42p0b/E46G5 repeats ENVIRONMENT.  Before this commit E46E1, E46E2 and E46G4
+   COMPILED here and lowered as a plain INPUT open -- the duplicate silently COLLAPSED, which
+   is exactly what P0's acceptance list forbids, on a program DR refuses outright.
+
+   The rule is NOT "any two options together".  E46H1 `open file(f) keyed direct input'
+   (w1 = 0x058C), E46H3 `record input' and E46H4 `sequential input' (both 0x0590) are all
+   ACCEPTED by DR, so KEYED and DIRECT coexist and a CONFLICT means one keyword written twice,
+   or two members of the mutually exclusive MODE group -- E46E3 `input output', E46H5
+   `output input' and E46H7 `input update' are that second case.  Both arms therefore refuse
+   here with the diagnosis named; neither is presented as a DR layout law it is not.
+
+   This runs FIRST in lower_open, ahead of the operand extractions, because DR diagnoses the
+   repetition before it resolves any operand: with two FILE operands the duplicate is the
+   finding, not "needs exactly one FILE(name)".
+
+   The list is EXACTLY the EIGHT keywords a duplicate of which DR was put to, and no further:
+   INPUT (E46E1, E46G4), STREAM (E46E2), FILE (E46H2), TITLE (E46G2), PAGESIZE (E46G6),
+   LINESIZE (E46H6), ENVIRONMENT (E46G5), DIRECT (E46G7).  `OUTPUT' is DELIBERATELY ABSENT:
+   no probe ever wrote `output output', so a repeated OUTPUT has never been put to DR and is
+   not claimed here.  It cannot leak either -- `open file(f) output output' reaches
+   open_mode_word, where the titleless-OUTPUT and OUTPUT-without-STREAM guards refuse it as
+   MY gap, and E46E3/E46H5 measure the OTHER case, `input' with `output', which is the
+   mutually exclusive mode group and is diagnosed there, not by repetition.  KEYED, RECORD,
+   SEQUENTIAL, UPDATE, APPEND and PRINT are equally unprobed and equally absent; extending
+   the list would be an inference about six spellings DR has never been asked about. [C285] *)
+let check_open_options (s : Ast.stmt) (opts : Ast.io_opt list) =
+  let dup k =
+    let n = List.length (List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = k) opts) in
+    if n > 1 then
+      failwith
+        (Printf.sprintf
+           "codegen: OPEN repeats option %s %d times [TBD] (line %d) -- DR diagnoses this as \
+            pass-2 CONFLICT and emits NO .REL [C285]: E46E1 `input input', E46E2 `stream \
+            stream input', E46G4 `stream input input', E46H2 two FILE operands, E46G2 two \
+            TITLE clauses, E46G6/E46H6 repeated PAGESIZE/LINESIZE, E46G5 repeated \
+            ENVIRONMENT.  This compiler used to COLLAPSE a repeated mode keyword and compile \
+            the statement as if it were written once -- the silent discard P0 forbids, on a \
+            program DR refuses.  DR's rule is one occurrence per keyword, NOT mutual exclusion \
+            of every pair: `keyed direct' (E46H1) and `record input' (E46H3) are accepted"
+           k n s.Ast.spos.Source.line)
+  in
+  List.iter dup [ "FILE"; "INPUT"; "STREAM"; "TITLE"
+                ; "PAGESIZE"; "LINESIZE"; "ENVIRONMENT"; "DIRECT" ]
 
 (* the option word, assembled from P0 section 3's fitted bit table. *)
 let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
@@ -8512,28 +8569,31 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
      [E2E-41/P3a] [C279], which corrects the 29 stated here until then), the 4 titleless rows
      (P072H, P081Q, P019B, P021:6) clear it, and E17B/E16C/E18A measure the composition
      directly as 0x0E90.
-     An open naming NO mode is refused: it is unmeasured (P0 section 12, probe C), and
-     0x0690 for it would be an inference from the default-bit reading above, not a
-     witness.
-     [E2E-41/P3b] OUTPUT REPLACES the input bit, it does not add to it: of the NINE measured
-     output rows in OPEN-MATRIX.tsv the two compilable ones -- E16D:3, E17D:3, both
-     `open file(outf) stream output title(<literal>)' -- measure w1 = 0x0E50, which is 0x0E90
-     with 0x0080 cleared and 0x0040 set.  Cross-program witness (spec/lab-evidence/e2e41-p3/
-     P3b-MEASURE.txt): E17D's 29-byte open block at 0006-0022 and E17B's -- same title
-     '$1.$1', same block, same addresses -- differ at EXACTLY ONE BYTE, 0012: 50 against 90,
-     the low half of w1; w2..w6 stay 0x0000, so a stream OUTPUT open carries no record length
-     either, which is the fact P3a had to establish before anyone could explain E17D's file
-     size [C279][C280].
-     What the corpus measures, stated exactly: of the NINE rows spelling `output', FIVE spell
-     `stream output' (E16D:3, E17D:3, COPY:13, KEYFILE:19, CREATE:22) and FOUR do not -- P021:4
-     and ENTER:37 spell `keyed output' (w1 0x4D54), LOAN2:54/56 spell `output ... print' (0x2E52,
-     0x0E52).  So DR does NOT require the STREAM keyword; an earlier draft of this comment, of
-     [C280] and of the refusal message below claimed it did, and the four rows contradict it.
-     What is true, and what the guards below rest on, is narrower: EVERY measured output row
-     carries a TITLE (seven literal, two variable), every non-`stream' output row also carries a
-     KEYED or PRINT attribute this compiler has no lowering for, and no row spells `output'
-     bare.  A refusal here is therefore a my-gap guard about this compiler's missing routes plus
-     one genuine absence, not a claim that DR rejects the spelling.
+     An open naming NO mode DEFAULTS TO INPUT: measured by [E2E-42/P0] on E46E4
+     (`open file(f)' -> w1 = 0x0690) and E46G3 (`open file(f) stream' -> 0x0690), the same
+     word P081Q:3 and P072H:3 measure for a spelled INPUT with no title.  P0 section 12's
+     probe C asked this question and is CLOSED by those two objects [C286]; the refusal
+     that used to sit on this arm is withdrawn as a my-gap.
+     [E2E-41/P3b] OUTPUT REPLACES the input bit, it does not add to it: of the SEVEN
+     measured rows that SPELL `output' in OPEN-MATRIX.tsv (seven, not nine -- see [C287]:
+     two of the nine were counted on a FILE OPERAND named `output', not on the keyword) the
+     two compilable ones -- E16D:3, E17D:3, both `open file(outf) stream
+     output title(<literal>)' -- measure w1 = 0x0E50, which is 0x0E90 with 0x0080 cleared and
+     0x0040 set.  Cross-program witness (spec/lab-evidence/e2e41-p3/P3b-MEASURE.txt): E17D's
+     29-byte open block at 0006-0022 and E17B's -- same title '$1.$1', same block, same
+     addresses -- differ at EXACTLY ONE BYTE, 0012: 50 against 90, the low half of w1; w2..w6
+     stay 0x0000, so a stream OUTPUT open carries no record length either, which is the fact
+     P3a had to establish before anyone could explain E17D's file size [C279][C280].
+     What the corpus measures, stated exactly [C287]: of the SEVEN rows spelling `output',
+     FIVE spell `stream output' (E16D:3, E17D:3, COPY:13, KEYFILE:19, CREATE:22) and TWO do
+     not -- P021:4 and ENTER:37 spell `keyed output' (w1 0x4D54).  DR does NOT require the
+     STREAM keyword; an earlier draft of this comment, of [C280] and of the refusal message
+     below claimed it did, and those rows contradict it.  What is true, and what the guards
+     below rest on, is narrower: EVERY measured output row carries a TITLE (six literal, one
+     variable), every non-`stream' output row also carries a KEYED attribute this compiler has
+     no lowering for, and no row spells `output' bare.  A refusal here is therefore a my-gap
+     guard about this compiler's missing routes, not a claim that DR rejects the spelling --
+     EXCEPT for the both-modes case below, which DR itself diagnoses as CONFLICT [C285].
      A titleless `stream output' would compose w1 = 0x0650, and
      0x0650 appears in this census ONLY as a write-from ATTACH word (SIOMODES.txt: COPY 006F,
      REPORT 00DF/01BE, each followed by ?WNIOP ?QIOOP) and never as an OPEN w1.  The titleless
@@ -8545,19 +8605,28 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
      row with neither is UPDATE:31's `update direct' (0x4D2C).  17+16+1 = 34: the partition is
      complete, so "no measured open writes and reads" is a fact about every row, not a sample. *)
   let n_in, n_out, n_stream = has "INPUT", has "OUTPUT", has "STREAM" in
-  (* The census, stated once and correctly [C280 corrected by P3c]: 34 measured OPENs, nine of
-     them spelling `output'.  Five of those nine spell `stream output', FOUR do not (two keyed,
-     two print), and all nine carry a TITLE -- seven literal, TWO VARIABLE.  DR compiled every
-     one of them, so a refusal here is about what THIS compiler lowers, never about what DR
-     rejects; an earlier version of this message said the combination was "outside that set",
-     which read as a claim about DR and was contradicted by the rows it listed. *)
+  (* The census, stated once and CORRECTED by [E2E-42/P0] [C287].  An earlier version of
+     this block, of [C280] and of OPEN-MATRIX.tsv's own option columns said 34 OPENs with
+     NINE spelling `output' and FIVE spelling `input'.  That was wrong, and the cause was
+     mechanical: the columns are derived by searching the STATEMENT TEXT for each keyword,
+     so a FILE OPERAND whose name happens to be an option word was counted as spelling
+     that option -- `open file(input) keyed ...' (KEYFILE:16) scored an INPUT, and
+     `open file(output) ... print' (LOAN2:54, LOAN2:56) scored an OUTPUT.  Masking the
+     `FILE(...)' operand before searching gives the true counts: SEVEN rows spell OUTPUT,
+     FOUR spell INPUT.  Nothing about the OBJECTS changed -- the w1 bit counts, which are
+     read from the .REL and not from the text, were already right (17 rows carry 0x0080,
+     16 carry 0x0040, one carries neither, 17+16+1 = 34) and every lowering keys on the
+     parsed option list, not on these columns, so no byte was ever emitted from a wrong
+     count.  What was wrong is the prose that quoted them, which is what a census exists
+     to support.  See spec/notes/e2e42-p0-front-end-integrity.md. *)
   let census =
-    "OPEN-MATRIX.tsv measures 34 OPENs, 9 of them spelling `output': 5 spell `stream output' \
-     (E16D:3, E17D:3 -> w1 0x0E50, lowered here; COPY:13 -> 0x4E50 with ENVIRONMENT; KEYFILE:19 \
-     -> 0x1E50 with LINESIZE; CREATE:22 -> 0x0E50 with a VARIABLE title via ?SLVTS), 2 spell \
-     `keyed output' (P021:4, ENTER:37 -> 0x4D54) and 2 spell `output ... print' (LOAN2:54 -> \
-     0x2E52 with PAGESIZE, LOAN2:56 -> 0x0E52 with a VARIABLE title).  All nine carry a TITLE \
-     (7 literal, 2 variable) and DR compiled all nine" in
+    "OPEN-MATRIX.tsv measures 34 OPENs, 7 of them SPELLING `output' (after masking the \
+     FILE operand, because two rows were counted on the file's NAME `output' and are print \
+     opens, not output opens): 5 spell `stream output' (E16D:3, E17D:3 -> w1 0x0E50, \
+     lowered here; COPY:13 -> 0x4E50 with ENVIRONMENT; KEYFILE:19 -> 0x1E50 with LINESIZE; \
+     CREATE:22 -> 0x0E50 with a VARIABLE title via ?SLVTS) and 2 spell `keyed output' \
+     (P021:4, ENTER:37 -> 0x4D54).  All seven carry a TITLE (6 literal, 1 variable) and DR \
+     compiled all seven; 16 rows carry the output BIT 0x0040, of which 9 are print opens" in
   let refuse_combination what why =
     failwith
       (Printf.sprintf
@@ -8568,14 +8637,17 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
   if n_in && n_out then
     refuse_combination
       "naming BOTH INPUT and OUTPUT"
-      "no measured open carries both direction bits: of the 34, 17 have 0x0080, 16 have 0x0040 \
-       and the one with neither is UPDATE:31's `update direct' (0x4D2C), so the word for the \
-       combination is unreadable from this corpus"
+      "DR diagnoses it in pass 2 as CONFLICT and emits no .REL: E46E3 spells `input output' and \
+       E46H5 spells `output input', both `1 ERROR(S) IN PASS 2'; E46H7 `input update' is the \
+       same diagnosis.  [C285] WITHDRAWS the reading above, which called the combination \
+       unreadable from this corpus on the strength of no measured open carrying both bits -- \
+       the mode group is mutually exclusive in DR, so refusing is now byte-exact behaviour \
+       rather than an absence in our sample, and this is a DR rejection, not my gap"
   else if n_out && not n_stream then
     refuse_combination
       "OUTPUT without the STREAM keyword"
-      "the four measured OUTPUTs that omit STREAM are keyed or print rows, whose attribute words \
-       (0x4D54, 0x2E52, 0x0E52) this compiler has no lowering for; DR compiles all four, so this \
+      "the two measured OUTPUTs that omit STREAM spell `keyed output' (P021:4, ENTER:37), whose \
+       attribute word 0x4D54 this compiler has no lowering for; DR compiles both, so this \
        refusal is MY gap, not a DR rejection of the spelling"
   else if n_out && not title then
     refuse_combination
@@ -8585,17 +8657,24 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
        never as an OPEN w1; the four titleless opens are input (P072H:3, P081Q:3 = 0x0690) or \
        print (P019B:3 = 0x0652, P021:6 = 0x2652), none of them an OUTPUT"
   else if not (n_in || n_out || n_stream) then
-    failwith
-      (Printf.sprintf
-         "codegen: OPEN FILE(...) naming no INPUT, OUTPUT or STREAM has no DR witness [TBD] \
-          (line %d) -- every one of the 34 measured opens names a mode; P0 section 12 probe C \
-          is the missing evidence"
-         s.Ast.spos.Source.line)
+    (* [E2E-42/P0] THE MODE-LESS OPEN IS NOW MEASURED; the refusal that used to stand here
+       is withdrawn as a MY-GAP, and P0 section 12's probe C is CLOSED.  DR accepts
+       `open file(f)' naming no mode at all and gives it w1 = 0x0690 (golden/e42p0/E46E4),
+       bit-for-bit the word of the spelled `open file(f) input' at P081Q:3 and P072H:3, and
+       `open file(f) stream' measures 0x0690 too (E46G3).  With a TITLE and still no mode
+       the word is 0x0E90 = 0x0690 with DR's TITLE bit added (golden/e42p0b/E46G1), so the
+       default is INPUT and the title bit composes with it exactly as it does with a
+       spelled mode.  This compiler's WHOLE object for E46E4 and E46G3 is byte-identical
+       to DR's on this arm [C286] -- the missing option cannot silently change the mode
+       because the default is now a measurement, not an inference. *)
+    let base = 0x0400 lor 0x0200 lor 0x0010 lor 0x0080 in
+    if title then base lor 0x0800 else base
   else
     let base = 0x0400 lor 0x0200 lor 0x0010 lor (if n_out then 0x0040 else 0x0080) in
     if title then base lor 0x0800 else base
 
 let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
+  check_open_options s opts;
   let fu =
     match List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "FILE") opts with
     | [ { Ast.io_val = Some e; _ } ] -> file_group st s (Some e)

@@ -1,0 +1,32 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46G2
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   4 c        open file(f) input title('A') title('B');
+CONFLICT                                      ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46G2
+
+   1 a 0000 E46G2:
+   2 a 0006   procedure options(main);
+   3 c 0006   dcl f file, i fixed bin(15);
+   4 c 0006   open file(f) input title('A') title('B');
+   5 c 0028   get file(f) list(i);
+   6 a 004C end E46G2;
+
+CODE SIZE = 004F
+DATA AREA = 0004
+FREE SYMS = 38A5
+END  COMPILATION
+

@@ -1,0 +1,4 @@
+E46E1	diag	PRN=True REL=False
+E46E2	diag	PRN=True REL=False
+E46E3	diag	PRN=True REL=False
+E46E4	ok	PRN=True REL=True

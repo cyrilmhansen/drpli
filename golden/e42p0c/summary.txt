@@ -1,0 +1,7 @@
+E46H1	ok	PRN=True REL=True
+E46H2	diag	PRN=True REL=False
+E46H3	ok	PRN=True REL=True
+E46H4	ok	PRN=True REL=True
+E46H5	diag	PRN=True REL=False
+E46H6	diag	PRN=True REL=False
+E46H7	diag	PRN=True REL=False

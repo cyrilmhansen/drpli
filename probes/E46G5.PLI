@@ -1,0 +1,6 @@
+E46G5:
+  procedure options(main);
+  dcl f file, i fixed bin(15);
+  open file(f) input environment(b(1024)) environment(b(1024));
+  get file(f) list(i);
+end E46G5;

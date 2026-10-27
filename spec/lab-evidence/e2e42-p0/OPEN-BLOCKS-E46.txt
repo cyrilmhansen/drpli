@@ -1,0 +1,545 @@
+# [E2E-42] DR'S OWN OPEN BLOCKS FOR THE E46 PROBES
+#
+# Generated verbatim by spec/lab-evidence/e2e41-p0/openblocks.py, which finds a block WITHOUT
+# line numbers: a LINK-CHAIN-EXT naming ?OIOOP anchors the CALL, and the walk backward collects
+# the PUSH H words (E46E4 above has six, and its COMMON is /F/).  Instruction boundaries come
+# from a linear decode with tools/dis80.py's length table over a bitstream replay that keeps the
+# RELOC attached to each byte -- the same discipline [C125]/[C137] established, and the reason
+# COPYLPT's blocks are complete here and were truncated in tools/reldump.py's text.
+#
+# What this file is evidence FOR, in [C282], [C285], [C286] and [C287]:
+#   * `PUSH B ; INX SP' at the head of a titleless block -- the title length is pushed as a
+#     WORD and the low half thrown away, so the argument is one byte.  This is why a titleless
+#     open builds w2 out of B (`MOV H,B / MOV L,B', the DB 60 / DB 68 pairs below) while a
+#     TITLED open resets it with `LXI H,0000': after INX SP, B is still live and still holds
+#     the length, so the two forms cannot be normalised to one instruction sequence.
+#   * the block ENDS at `CALL ?OIOOP' -- no POP follows it in any block here, so ?OIOOP's
+#     callee cleans the stack, which is the same convention the 6-byte CLOSE block implies.
+#   * w1 per probe, which is where the option-word table in the note comes from.
+
+== golden/e42p0/E46E4/E46E4.REL   [probes/E46E4.PLI]   1 ?OIOOP block(s), 35 COMMON bytes, sha 779a60a079eed0ba
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /F/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 06
+    000D  PUSH H                         ; E5   -> IMM:0x0690
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/F/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p0b/E46G1/E46G1.REL   [probes/E46G1.PLI]   1 ?OIOOP block(s), 35 COMMON bytes, sha 216cd0039b4afee0
+  block 0006..0023 (29 bytes)  6 PUSH H, CALL ?OIOOP at 0021   COMMON /F/ +0x0000   title-helper=?SLCTS
+      w1  = IMM:0x0E90
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  LXI  H                         ; 21 00 00   ; RELOC -> data+0x0000 / ??????
+    0009  MVI  A                         ; 3E 01
+    000B  CALL ?SLCTS                    ; CD 00 00   ; CHAIN-EXT -> ?SLCTS
+    000E  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    000F  PUSH B                         ; C5   ; push the title length byte
+    0010  INX  SP                        ; 33   ; drop the low half, keep SP even
+    0011  LXI  H                         ; 21 90 0E
+    0014  PUSH H                         ; E5   -> IMM:0x0E90
+    0015  LXI  H                         ; 21 00 00
+    0018  PUSH H                         ; E5   -> IMM:0x0000
+    0019  PUSH H                         ; E5   -> IMM:0x0000
+    001A  PUSH H                         ; E5   -> IMM:0x0000
+    001B  PUSH H                         ; E5   -> IMM:0x0000
+    001C  PUSH H                         ; E5   -> IMM:0x0000
+    001D  LXI  H                         ; 21 00 00   ; RELOC -> common/F/+0x0000 / ??????
+    0020  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p0b/E46G3/E46G3.REL   [probes/E46G3.PLI]   1 ?OIOOP block(s), 35 COMMON bytes, sha 0ba242ad2f063dd8
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /F/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 06
+    000D  PUSH H                         ; E5   -> IMM:0x0690
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/F/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p0c/E46H1/E46H1.REL   [probes/E46H1.PLI]   1 ?OIOOP block(s), 35 COMMON bytes, sha 749492b23a209efd
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /F/ +0x0000   title-helper=-
+      w1  = IMM:0x058C
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 8C 05
+    000D  PUSH H                         ; E5   -> IMM:0x058C
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/F/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p0c/E46H3/E46H3.REL   [probes/E46H3.PLI]   1 ?OIOOP block(s), 35 COMMON bytes, sha 733e68b244c8f11e
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /F/ +0x0000   title-helper=-
+      w1  = IMM:0x0590
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 05
+    000D  PUSH H                         ; E5   -> IMM:0x0590
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/F/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p0c/E46H4/E46H4.REL   [probes/E46H4.PLI]   1 ?OIOOP block(s), 35 COMMON bytes, sha ec6f525f121db2a0
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /F/ +0x0000   title-helper=-
+      w1  = IMM:0x0590
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 05
+    000D  PUSH H                         ; E5   -> IMM:0x0590
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/F/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1/E46D1/E46D1.REL   [probes/E46D1.PLI]   2 ?OIOOP block(s), 82 COMMON bytes, sha 894772056c7ca9fb
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /ABCDEF/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 06
+    000D  PUSH H                         ; E5   -> IMM:0x0690
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/ABCDEF/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+  block 001B..0030 (21 bytes)  6 PUSH H, CALL ?OIOOP at 002E   COMMON /ABCDEF/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    001B  XRA  A                         ; AF   ; no TITLE clause: length 0
+    001C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    001D  PUSH B                         ; C5   ; push the title length byte
+    001E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    001F  LXI  H                         ; 21 90 06
+    0022  PUSH H                         ; E5   -> IMM:0x0690
+    0023  DB 60                          ; 60
+    0024  DB 68                          ; 68
+    0025  PUSH H                         ; E5   -> IMM:0x0000
+    0026  PUSH H                         ; E5   -> IMM:0x0000
+    0027  PUSH H                         ; E5   -> IMM:0x0000
+    0028  PUSH H                         ; E5   -> IMM:0x0000
+    0029  PUSH H                         ; E5   -> IMM:0x0000
+    002A  LXI  H                         ; 21 00 00   ; RELOC -> common/ABCDEF/+0x0000 / ??????
+    002D  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1/E46D3/E46D3.REL   [probes/E46D3.PLI]   2 ?OIOOP block(s), 81 COMMON bytes, sha 538643765f52638c
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /IN_FIL/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 06
+    000D  PUSH H                         ; E5   -> IMM:0x0690
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/IN_FIL/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+  block 001B..0030 (21 bytes)  6 PUSH H, CALL ?OIOOP at 002E   COMMON /INSIZE/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    001B  XRA  A                         ; AF   ; no TITLE clause: length 0
+    001C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    001D  PUSH B                         ; C5   ; push the title length byte
+    001E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    001F  LXI  H                         ; 21 90 06
+    0022  PUSH H                         ; E5   -> IMM:0x0690
+    0023  DB 60                          ; 60
+    0024  DB 68                          ; 68
+    0025  PUSH H                         ; E5   -> IMM:0x0000
+    0026  PUSH H                         ; E5   -> IMM:0x0000
+    0027  PUSH H                         ; E5   -> IMM:0x0000
+    0028  PUSH H                         ; E5   -> IMM:0x0000
+    0029  PUSH H                         ; E5   -> IMM:0x0000
+    002A  LXI  H                         ; 21 00 00   ; RELOC -> common/INSIZE/+0x0000 / ??????
+    002D  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1b/E46D4/E46D4.REL   [probes/E46D4.PLI]   2 ?OIOOP block(s), 85 COMMON bytes, sha 9176e4233004d2d6
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /ABCDEF/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 06
+    000D  PUSH H                         ; E5   -> IMM:0x0690
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/ABCDEF/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+  block 001B..0030 (21 bytes)  6 PUSH H, CALL ?OIOOP at 002E   COMMON /ABCDEF/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    001B  XRA  A                         ; AF   ; no TITLE clause: length 0
+    001C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    001D  PUSH B                         ; C5   ; push the title length byte
+    001E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    001F  LXI  H                         ; 21 90 06
+    0022  PUSH H                         ; E5   -> IMM:0x0690
+    0023  DB 60                          ; 60
+    0024  DB 68                          ; 68
+    0025  PUSH H                         ; E5   -> IMM:0x0000
+    0026  PUSH H                         ; E5   -> IMM:0x0000
+    0027  PUSH H                         ; E5   -> IMM:0x0000
+    0028  PUSH H                         ; E5   -> IMM:0x0000
+    0029  PUSH H                         ; E5   -> IMM:0x0000
+    002A  LXI  H                         ; 21 00 00   ; RELOC -> common/ABCDEF/+0x0000 / ??????
+    002D  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1b/E46D5/E46D5.REL   [probes/E46D5.PLI]   2 ?OIOOP block(s), 82 COMMON bytes, sha c94d49985d1ba98a
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /ABCDEF/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 06
+    000D  PUSH H                         ; E5   -> IMM:0x0690
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/ABCDEF/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+  block 001B..0030 (21 bytes)  6 PUSH H, CALL ?OIOOP at 002E   COMMON /ABCDEF/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    001B  XRA  A                         ; AF   ; no TITLE clause: length 0
+    001C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    001D  PUSH B                         ; C5   ; push the title length byte
+    001E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    001F  LXI  H                         ; 21 90 06
+    0022  PUSH H                         ; E5   -> IMM:0x0690
+    0023  DB 60                          ; 60
+    0024  DB 68                          ; 68
+    0025  PUSH H                         ; E5   -> IMM:0x0000
+    0026  PUSH H                         ; E5   -> IMM:0x0000
+    0027  PUSH H                         ; E5   -> IMM:0x0000
+    0028  PUSH H                         ; E5   -> IMM:0x0000
+    0029  PUSH H                         ; E5   -> IMM:0x0000
+    002A  LXI  H                         ; 21 00 00   ; RELOC -> common/ABCDEF/+0x0000 / ??????
+    002D  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1b/E46D6/E46D6.REL   [probes/E46D6.PLI]   1 ?OIOOP block(s), 47 COMMON bytes, sha 687d0bbf9eaaefd9
+  block 0006..0023 (29 bytes)  6 PUSH H, CALL ?OIOOP at 0021   COMMON /AVERYL/ +0x0000   title-helper=?SLCTS
+      w1  = IMM:0x0E90
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  LXI  H                         ; 21 00 00   ; RELOC -> data+0x0000 / ??????
+    0009  MVI  A                         ; 3E 05
+    000B  CALL ?SLCTS                    ; CD 00 00   ; CHAIN-EXT -> ?SLCTS
+    000E  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    000F  PUSH B                         ; C5   ; push the title length byte
+    0010  INX  SP                        ; 33   ; drop the low half, keep SP even
+    0011  LXI  H                         ; 21 90 0E
+    0014  PUSH H                         ; E5   -> IMM:0x0E90
+    0015  LXI  H                         ; 21 00 00
+    0018  PUSH H                         ; E5   -> IMM:0x0000
+    0019  PUSH H                         ; E5   -> IMM:0x0000
+    001A  PUSH H                         ; E5   -> IMM:0x0000
+    001B  PUSH H                         ; E5   -> IMM:0x0000
+    001C  PUSH H                         ; E5   -> IMM:0x0000
+    001D  LXI  H                         ; 21 00 00   ; RELOC -> common/AVERYL/+0x0000 / ??????
+    0020  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1b/E46D7/E46D7.REL   [probes/E46D7.PLI]   3 ?OIOOP block(s), 79 COMMON bytes, sha 61f7d20f331d3a1d
+  block 0006..001B (21 bytes)  6 PUSH H, CALL ?OIOOP at 0019   COMMON /ALPHA1/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0007  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0008  PUSH B                         ; C5   ; push the title length byte
+    0009  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000A  LXI  H                         ; 21 90 06
+    000D  PUSH H                         ; E5   -> IMM:0x0690
+    000E  DB 60                          ; 60
+    000F  DB 68                          ; 68
+    0010  PUSH H                         ; E5   -> IMM:0x0000
+    0011  PUSH H                         ; E5   -> IMM:0x0000
+    0012  PUSH H                         ; E5   -> IMM:0x0000
+    0013  PUSH H                         ; E5   -> IMM:0x0000
+    0014  PUSH H                         ; E5   -> IMM:0x0000
+    0015  LXI  H                         ; 21 00 00   ; RELOC -> common/ALPHA1/+0x0000 / ??????
+    0018  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+  block 001B..0030 (21 bytes)  6 PUSH H, CALL ?OIOOP at 002E   COMMON /ALPHA1/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    001B  XRA  A                         ; AF   ; no TITLE clause: length 0
+    001C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    001D  PUSH B                         ; C5   ; push the title length byte
+    001E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    001F  LXI  H                         ; 21 90 06
+    0022  PUSH H                         ; E5   -> IMM:0x0690
+    0023  DB 60                          ; 60
+    0024  DB 68                          ; 68
+    0025  PUSH H                         ; E5   -> IMM:0x0000
+    0026  PUSH H                         ; E5   -> IMM:0x0000
+    0027  PUSH H                         ; E5   -> IMM:0x0000
+    0028  PUSH H                         ; E5   -> IMM:0x0000
+    0029  PUSH H                         ; E5   -> IMM:0x0000
+    002A  LXI  H                         ; 21 00 00   ; RELOC -> common/ALPHA1/+0x0000 / ??????
+    002D  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+  block 0030..0045 (21 bytes)  6 PUSH H, CALL ?OIOOP at 0043   COMMON /BETA2/ +0x0000   title-helper=-
+      w1  = IMM:0x0690
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0030  XRA  A                         ; AF   ; no TITLE clause: length 0
+    0031  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    0032  PUSH B                         ; C5   ; push the title length byte
+    0033  INX  SP                        ; 33   ; drop the low half, keep SP even
+    0034  LXI  H                         ; 21 90 06
+    0037  PUSH H                         ; E5   -> IMM:0x0690
+    0038  DB 60                          ; 60
+    0039  DB 68                          ; 68
+    003A  PUSH H                         ; E5   -> IMM:0x0000
+    003B  PUSH H                         ; E5   -> IMM:0x0000
+    003C  PUSH H                         ; E5   -> IMM:0x0000
+    003D  PUSH H                         ; E5   -> IMM:0x0000
+    003E  PUSH H                         ; E5   -> IMM:0x0000
+    003F  LXI  H                         ; 21 00 00   ; RELOC -> common/BETA2/+0x0000 / ??????
+    0042  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1c/E46F1/E46F1.REL   [probes/E46F1.PLI]   1 ?OIOOP block(s), 38 COMMON bytes, sha d6d1a2b973095d48
+  block 0006..0021 (27 bytes)  6 PUSH H, CALL ?OIOOP at 001F   COMMON /OUTF/ +0x0000   title-helper=?SLVTS
+      w1  = IMM:0x0E50
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  LXI  H                         ; 21 00 00   ; RELOC -> data+0x0001 / ??????
+    0009  CALL ?SLVTS                    ; CD 00 00   ; CHAIN-EXT -> ?SLVTS
+    000C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    000D  PUSH B                         ; C5   ; push the title length byte
+    000E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000F  LXI  H                         ; 21 50 0E
+    0012  PUSH H                         ; E5   -> IMM:0x0E50
+    0013  LXI  H                         ; 21 00 00
+    0016  PUSH H                         ; E5   -> IMM:0x0000
+    0017  PUSH H                         ; E5   -> IMM:0x0000
+    0018  PUSH H                         ; E5   -> IMM:0x0000
+    0019  PUSH H                         ; E5   -> IMM:0x0000
+    001A  PUSH H                         ; E5   -> IMM:0x0000
+    001B  LXI  H                         ; 21 00 00   ; RELOC -> common/OUTF/+0x0000 / ??????
+    001E  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1c/E46F2/E46F2.REL   [probes/E46F2.PLI]   1 ?OIOOP block(s), 38 COMMON bytes, sha 4ee51abf4c7a9593
+  block 0006..0023 (29 bytes)  6 PUSH H, CALL ?OIOOP at 0021   COMMON /OUTF/ +0x0000   title-helper=?SLCTS
+      w1  = IMM:0x0E50
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  LXI  H                         ; 21 00 00   ; RELOC -> data+0x0001 / ??????
+    0009  MVI  A                         ; 3E 08
+    000B  CALL ?SLCTS                    ; CD 00 00   ; CHAIN-EXT -> ?SLCTS
+    000E  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    000F  PUSH B                         ; C5   ; push the title length byte
+    0010  INX  SP                        ; 33   ; drop the low half, keep SP even
+    0011  LXI  H                         ; 21 50 0E
+    0014  PUSH H                         ; E5   -> IMM:0x0E50
+    0015  LXI  H                         ; 21 00 00
+    0018  PUSH H                         ; E5   -> IMM:0x0000
+    0019  PUSH H                         ; E5   -> IMM:0x0000
+    001A  PUSH H                         ; E5   -> IMM:0x0000
+    001B  PUSH H                         ; E5   -> IMM:0x0000
+    001C  PUSH H                         ; E5   -> IMM:0x0000
+    001D  LXI  H                         ; 21 00 00   ; RELOC -> common/OUTF/+0x0000 / ??????
+    0020  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1c/E46F3/E46F3.REL   [probes/E46F3.PLI]   1 ?OIOOP block(s), 37 COMMON bytes, sha 445121828d78bcaa
+  block 0006..0021 (27 bytes)  6 PUSH H, CALL ?OIOOP at 001F   COMMON /INF/ +0x0000   title-helper=?SLVTS
+      w1  = IMM:0x0E90
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  LXI  H                         ; 21 00 00   ; RELOC -> data+0x0000 / ??????
+    0009  CALL ?SLVTS                    ; CD 00 00   ; CHAIN-EXT -> ?SLVTS
+    000C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    000D  PUSH B                         ; C5   ; push the title length byte
+    000E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000F  LXI  H                         ; 21 90 0E
+    0012  PUSH H                         ; E5   -> IMM:0x0E90
+    0013  LXI  H                         ; 21 00 00
+    0016  PUSH H                         ; E5   -> IMM:0x0000
+    0017  PUSH H                         ; E5   -> IMM:0x0000
+    0018  PUSH H                         ; E5   -> IMM:0x0000
+    0019  PUSH H                         ; E5   -> IMM:0x0000
+    001A  PUSH H                         ; E5   -> IMM:0x0000
+    001B  LXI  H                         ; 21 00 00   ; RELOC -> common/INF/+0x0000 / ??????
+    001E  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1c/E46F4/E46F4.REL   [probes/E46F4.PLI]   1 ?OIOOP block(s), 44 COMMON bytes, sha 2ed6c5c151521d2c
+  block 0006..0021 (27 bytes)  6 PUSH H, CALL ?OIOOP at 001F   COMMON /ABCDEF/ +0x0000   title-helper=?SLVTS
+      w1  = IMM:0x0E50
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  LXI  H                         ; 21 00 00   ; RELOC -> data+0x0001 / ??????
+    0009  CALL ?SLVTS                    ; CD 00 00   ; CHAIN-EXT -> ?SLVTS
+    000C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    000D  PUSH B                         ; C5   ; push the title length byte
+    000E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000F  LXI  H                         ; 21 50 0E
+    0012  PUSH H                         ; E5   -> IMM:0x0E50
+    0013  LXI  H                         ; 21 00 00
+    0016  PUSH H                         ; E5   -> IMM:0x0000
+    0017  PUSH H                         ; E5   -> IMM:0x0000
+    0018  PUSH H                         ; E5   -> IMM:0x0000
+    0019  PUSH H                         ; E5   -> IMM:0x0000
+    001A  PUSH H                         ; E5   -> IMM:0x0000
+    001B  LXI  H                         ; 21 00 00   ; RELOC -> common/ABCDEF/+0x0000 / ??????
+    001E  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP
+== golden/e42p1c/E46F5/E46F5.REL   [probes/E46F5.PLI]   1 ?OIOOP block(s), 38 COMMON bytes, sha 7077712618008e8b
+  block 0006..0021 (27 bytes)  6 PUSH H, CALL ?OIOOP at 001F   COMMON /OUTF/ +0x0000   title-helper=?SLVTS
+      w1  = IMM:0x0E50
+      w2  = IMM:0x0000
+      w3  = IMM:0x0000
+      w4  = IMM:0x0000
+      w5  = IMM:0x0000
+      w6  = IMM:0x0000
+    0006  LXI  H                         ; 21 00 00   ; RELOC -> data+0x0000 / ??????
+    0009  CALL ?SLVTS                    ; CD 00 00   ; CHAIN-EXT -> ?SLVTS
+    000C  DB 47                          ; 47   ; MOV B,A: copy the length to the high half
+    000D  PUSH B                         ; C5   ; push the title length byte
+    000E  INX  SP                        ; 33   ; drop the low half, keep SP even
+    000F  LXI  H                         ; 21 50 0E
+    0012  PUSH H                         ; E5   -> IMM:0x0E50
+    0013  LXI  H                         ; 21 00 00
+    0016  PUSH H                         ; E5   -> IMM:0x0000
+    0017  PUSH H                         ; E5   -> IMM:0x0000
+    0018  PUSH H                         ; E5   -> IMM:0x0000
+    0019  PUSH H                         ; E5   -> IMM:0x0000
+    001A  PUSH H                         ; E5   -> IMM:0x0000
+    001B  LXI  H                         ; 21 00 00   ; RELOC -> common/OUTF/+0x0000 / ??????
+    001E  CALL ?OIOOP                    ; CD 00 00   ; CHAIN-EXT -> ?OIOOP

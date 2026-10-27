@@ -1,0 +1,6 @@
+E46H6:
+  procedure options(main);
+  dcl f file, i fixed bin(15);
+  open file(f) input linesize(80) linesize(80);
+  get file(f) list(i);
+end E46H6;

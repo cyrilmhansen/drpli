@@ -1,0 +1,6 @@
+E46H1:
+  procedure options(main);
+  dcl f file, i fixed bin(15);
+  open file(f) keyed direct input;
+  get file(f) list(i);
+end E46H1;

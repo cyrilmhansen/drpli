@@ -1,0 +1,151 @@
+# [E2E-42] DR's OWN VERDICT AND OPTION WORD, for every probe of this milestone
+
+# dr_verdict is DR's own listing (its printed diagnosis).  w1 is DR's first option word, read out
+# of DR's own CODE bytes as the LXI H between the OPEN block's PUSH B / INX SP and its six PUSH H
+# (those six are w2..w6).  ours is what THIS compiler does with the same source.
+
+#   dr ACCEPTS + ours REFUSES   -> MY gap, panel class my-gap
+#   dr CONFLICT + ours refuses  -> DR parity, panel class dr-refuses, naming the same keyword
+#   dr CONFLICT + ours compiles -> the silent discard P0 forbids.  NONE remain.
+
+probe    open statement               dr_verdict      w1      this compiler
+------------------------------------------------------------------------------------------------------------------------------
+E46D1    open file(abcdef1) stream in ACCEPTS         0x0690  ACCEPTS, byte-exact
+E46D2    (declaration only)           ACCEPTS         -       ACCEPTS, byte-exact
+E46D3    open file(in_file) stream in ACCEPTS         0x0690  ACCEPTS, byte-exact
+E46E1    open file(f) input input     REJECTS CONFLICT -       REFUSE: OPEN repeats option INPUT 2 times
+E46E2    open file(f) stream stream i REJECTS CONFLICT -       REFUSE: OPEN repeats option STREAM 2 times
+E46E3    open file(f) input output    REJECTS CONFLICT -       REFUSE: OPEN FILE(...) naming BOTH INPUT and OUTPUT is outside wha
+E46E4    open file(f)                 ACCEPTS         0x0690  ACCEPTS, byte-exact
+E46G1    open file(f) title('A')      ACCEPTS         0x0E90  ACCEPTS, byte-exact
+E46G2    open file(f) input title('A' REJECTS CONFLICT -       REFUSE: OPEN repeats option TITLE 2 times
+E46G3    open file(f) stream          ACCEPTS         0x0690  ACCEPTS, byte-exact
+E46G4    open file(f) stream input in REJECTS CONFLICT -       REFUSE: OPEN repeats option INPUT 2 times
+E46G5    open file(f) input environme REJECTS CONFLICT -       REFUSE: OPEN repeats option ENVIRONMENT 2 times
+E46G6    open file(f) input pagesize( REJECTS CONFLICT -       REFUSE: OPEN repeats option PAGESIZE 2 times
+E46G7    open file(f) direct direct i REJECTS CONFLICT -       REFUSE: OPEN repeats option DIRECT 2 times
+E46H1    open file(f) keyed direct in ACCEPTS         0x058C  REFUSE: OPEN option KEYED is outside the E2E-41/P3 witnessed subse
+E46H2    open file(f) file(f) input   REJECTS CONFLICT -       REFUSE: OPEN repeats option FILE 2 times
+E46H3    open file(f) record input    ACCEPTS         0x0590  REFUSE: OPEN option RECORD is outside the E2E-41/P3 witnessed subs
+E46H4    open file(f) sequential inpu ACCEPTS         0x0590  REFUSE: OPEN option SEQUENTIAL is outside the E2E-41/P3 witnessed 
+E46H5    open file(f) output input    REJECTS CONFLICT -       REFUSE: OPEN FILE(...) naming BOTH INPUT and OUTPUT is outside wha
+E46H6    open file(f) input linesize( REJECTS CONFLICT -       REFUSE: OPEN repeats option LINESIZE 2 times
+E46H7    open file(f) input update    REJECTS CONFLICT -       REFUSE: OPEN option UPDATE is outside the E2E-41/P3 witnessed subs
+E46D4    open file(abcdef1) stream in ACCEPTS         0x0690  ACCEPTS, byte-exact
+E46D5    open file(abcdef1) stream in ACCEPTS         0x0690  ACCEPTS, byte-exact
+E46D6    open file(averylongname) str ACCEPTS         0x0E90  ACCEPTS, byte-exact
+E46D7    open file(alpha1) stream inp ACCEPTS         0x0690  ACCEPTS, byte-exact
+E46F1    open file(outf) stream outpu ACCEPTS         0x0E50  PENDING -- see P1b
+E46F2    open file(outf) stream outpu ACCEPTS         0x0E50  PENDING -- see P1b
+E46F3    open file(inf) stream input  ACCEPTS         0x0E90  PENDING -- see P1b
+E46F4    open file(abcdefghij) stream ACCEPTS         0x0E50  PENDING -- see P1b
+E46F5    open file(outf) stream outpu ACCEPTS         0x0E50  REFUSE: STATIC on CHAR(14) VARYING is unsampled
+
+
+## What this table says, in one paragraph per finding
+
+ACCEPTED-BY-DR AND BYTE-EXACT HERE (10): E46D1, D3, D4, D5, D6, D7 (long FILE names), E46E4,
+G1, G3 (mode-less OPEN) and E46D2 (long-name declaration with no OPEN at all -- the
+truncation is a DECLARATION rule, not an OPEN rule).  E46F1..F4 sit in the same position once
+[E2E-42/P1b] lowers the variable TITLE, which makes the count 14; at THIS commit they are
+`PENDING', because the compiler still refuses a non-literal TITLE by name.  E46F5 is a refusal
+either way, and for a reason that has nothing to do with TITLE.
+
+DR REJECTS, WE REFUSE FOR THE SAME REASON (11): every row whose dr_verdict is `REJECTS
+CONFLICT'. Nine are a repeated keyword (INPUT x2 in E46E1/G4, STREAM x2 in E46E2, FILE x2 in
+E46H2, TITLE x2 in E46G2, ENVIRONMENT x2 in E46G5, PAGESIZE x2 in E46G6, LINESIZE x2 in E46H6,
+DIRECT x2 in E46G7); two name two members of the exclusive mode group (E46E3 `input output',
+E46H5 `output input'). Before [C285] three of those eleven COMPILED here.
+
+E46H7 `open file(f) input update' is the TWELFTH REJECTS CONFLICT row and is deliberately NOT
+in the eleven: DR's reason is the exclusive mode group, but this compiler refuses earlier, in
+the unsupported-option guard, because UPDATE is outside open_subset_keys.  Same outcome (no
+object), different reason, so the panel pins it with the marker `OPEN option UPDATE is outside'
+and its NEG_META says plainly that the parity is one of outcome and not of diagnosis.
+
+DR ACCEPTS, WE STILL REFUSE (4): E46H1 (0x058C), E46H3 and E46H4 (both 0x0590) -- KEYED/DIRECT,
+RECORD and SEQUENTIAL attribute words this compiler has no lowering for -- and E46F5, where the
+TITLE route is byte-exact on E46F1 once [P1b] lands, while this program's `STATIC CHAR(14)
+VARYING' declaration is a separate unsampled-declaration gap that stands no matter what the
+TITLE does. E46H1/H3/H4 are panel rows of class my-gap; E46F5 is pinned to its own [C114]
+reason and not to a TITLE gap, because calling it a TITLE gap would misdescribe it.
+
+## 3. THE OPTION CENSUS, RECOMPUTED FROM THE PARSED OPTION LIST (census.py)
+
+Two independent methods, and they agree.  (a) `spec/lab-evidence/e2e42-p0/census.py` counts
+the `opts=[...]' lists of `AST-OPEN-SITES.txt' -- this compiler's own parser output over all
+34 measured historical OPEN statements -- where an option key is a PARSED key and an operand
+name can never be mistaken for one.  (b) the same statement text with the `FILE(...)' operand
+masked before the keyword search.  Full output: `OPEN-CENSUS.txt` in the same directory.
+
+    sites=34   file=34  stream=21  input=4  output=7  print=9  title=30  environment=11
+               keyed=4  pagesize=4  linesize=2  direct=1  update=1
+    TITLE operands: literal=25  variable=5
+    mode partition: INPUT=4  OUTPUT=7  both=0  neither=23,  and 4 + 7 - 0 + 23 = 34 = sites
+    OUTPUT rows that omit the STREAM keyword: 2 -- P021:4-5 and ENTER:37-38, both `keyed'
+    variable TITLE sites: LOAN2:56, COPYLPT:38-39, COPYLPT:49-50, RETRIEVE:31-32, CREATE:22-22
+
+E2E-41/P0's own option columns in `spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv` say
+`input=5, output=9`, and that is the error [C287] corrects.  The cause is mechanical: those
+columns search the STATEMENT TEXT for each keyword, and the substring `output' also occurs in
+a FILE OPERAND'S NAME -- `open file(input) keyed ...' (KEYFILE:16) scored an INPUT it does not
+spell, and `open file(output) ... print' (LOAN2:54, LOAN2:56) scored an OUTPUT they do not
+spell.  Masking `FILE(...)' first, or counting parsed keys, gives 4 and 7.  The `title' column
+was never in the matrix at all; `title=30' here is the first time this corpus counts it, and it
+is the number that sizes the variable-title work ([C288]: 5 of the 30).
+
+What did NOT change is the OBJECT evidence.  OPEN-MATRIX.tsv's `w1` column is read from the
+.REL, and 17 of the 34 rows carry the input bit 0x0080, 16 carry the output bit 0x0040, one
+carries neither (UPDATE:31's `update direct', 0x4D2C) and NONE carries both -- 17+16+1 = 34, a
+complete partition.  So 11 rows SPELL a mode keyword while 33 rows CARRY a mode bit, and the
+22-row difference is precisely what [C286] measures on DR's own objects: a row that spells no
+mode still gets one in the word, and DR's default carries the input bit.  No byte was ever
+emitted from a wrong count, because lowering reads the parsed option list; what was wrong is
+the prose that quoted the columns, in [C280] and in `open_mode_word'.
+
+
+## 4. THE TWO OPTION WORDS THE CENSUS HAD BACKWARDS
+
+0x058C = 0x0400 declared + 0x0100 + 0x0080 input + 0x0004 keyed + 0x0008 direct.
+0x0590 = 0x0400 declared + 0x0100 + 0x0080 input + 0x0010 stream.
+
+RECORD and SEQUENTIAL measure the SAME word, and neither carries the 0x0200 STREAM-ORGANISATION
+bit that only 21 of the 34 rows of OPEN-MATRIX.tsv spell STREAM on.  That combination refutes the sentence
+"the four measured OUTPUTs that omit STREAM are keyed or print rows": with E46H3/E46H4 an INPUT
+row can omit 0x0200 too, so 0x0200 tracks the ORGANISATION clause and not the mode. [C287]
+
+
+## 5. THE OPEN BLOCK'S OWN SHAPE, read off DR's bytes (tools/dis80.py)
+
+    E46E4  open file(f);                          titleless, 21 bytes  0006..001A
+      0006 XRA A            ; 0007 MOV B,A        <- title length = 0
+      0008 PUSH B           ; 0009 INX SP         <- push it, then step the stack back
+      000A LXI H,0690       ; 000D PUSH H         <- w1
+      000E MOV H,B ; 000F MOV L,B ; 0010 PUSH H   <- w2 = 0000, built out of B
+      0011..0014 PUSH H x4                        <- w3..w6, HL still 0000
+      0015 LXI H,<control block>
+      0018 CALL ?OIOOP
+
+    E46G1  open file(f) title('A');               literal title, 29 bytes  0006..0022
+      0006 LXI H,<pool 3 bytes>  ; 0009 MVI A,01  ; 000B CALL ?SLCTS
+      000E MOV B,A  ; 000F PUSH B  ; 0010 INX SP
+      0011 LXI H,0E90  ; 0014 PUSH H               <- w1 with the TITLE bit
+      0015 LXI H,0000  ; 0018 PUSH H               <- w2: an LXI now, because B holds the length
+      0019..001D PUSH H x5                         <- w3..w6
+      001E LXI H,<cb>  ; 0021 CALL ?OIOOP
+
+    E46F2  open file(outf) stream output title(nm);   nm is CHAR(8) FIXED, 29 bytes
+      0006 LXI H,<nm's cell>  ; 0009 MVI A,08     ; 000B CALL ?SLCTS
+      ... identical from 000E on, w1 = 0E50
+
+    E46F1  open file(outf) stream output title(nm);   nm is CHAR(14) VARYING, 27 bytes
+      0006 LXI H,<nm's descriptor>  ; 0009 CALL ?SLVTS     <- NO MVI A: the length is runtime
+      000C MOV B,A  ; 000D PUSH B  ; 000E INX SP
+      000F LXI H,0E50  ; 0012 PUSH H ... 001B LXI H,<cb>  ; 001E CALL ?OIOOP
+
+Two independent facts fall out of this.  `INX SP` at the end of the title push is why a
+titleless open and a titled one differ by exactly one instruction in w2: after `INX SP` the
+byte is off the stack but B still carries the length, so the word-2 pair can be either
+`MOV H,B / MOV L,B` (length is zero, reuse B) or a literal `LXI H,0000` (B is live).  And
+?OIOOP is called with its arguments still on the stack and no POP follows -- the callee
+cleans up -- which is why the block ends at the CALL.

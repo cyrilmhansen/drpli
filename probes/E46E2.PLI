@@ -1,0 +1,7 @@
+E46E2:
+  procedure options(main);
+  dcl f file;
+  dcl i fixed bin(15);
+  open file(f) stream stream input;
+  get file(f) list(i);
+end E46E2;

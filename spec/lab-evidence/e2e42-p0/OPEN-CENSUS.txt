@@ -1,0 +1,45 @@
+# [E2E-42/P0] OPEN OPTION CENSUS -- recomputed from the PARSED option lists
+# source: AST-OPEN-SITES.txt (pli80tree.exe over the 34 measured historical OPENs)
+# generator: census.py, same directory.  [C287]
+
+sites=34   direct=1  environment=11  file=34  input=4  keyed=4  linesize=2  output=7  pagesize=4  print=9  stream=21  title=30  update=1
+TITLE operands: literal=25  variable=5
+mode partition: INPUT=4 (P072H:3-3, P021:3-3, RETRIEVE:31-32, P081Q:3-3)   OUTPUT=7 (E17D:3-3, COPY:13-14, KEYFILE:19-20, P021:4-5, CREATE:22-22, ENTER:37-38, E16D:3-3)   both=0   neither=23
+the mode partition accounts for every site: 4 + 7 - 0 + 23 = 34 = sites
+
+OUTPUT rows that omit the STREAM keyword (2):
+  P021:4-5 [FILE OUTPUT KEYED ENVIRONMENT TITLE]
+  ENTER:37-38 [FILE KEYED OUTPUT ENVIRONMENT TITLE]
+
+rows naming NEITHER INPUT nor OUTPUT (23) -- these are the print / attribute-only
+forms, and they are why `a missing mode means INPUT' cannot be read off the corpus:
+  COPY:10-11  FILE STREAM ENVIRONMENT TITLE
+  E17B:4-4  FILE STREAM TITLE
+  E16B:5-5  FILE STREAM TITLE
+  E17C:5-5  FILE STREAM TITLE
+  KEYFILE:16-17  FILE KEYED ENVIRONMENT TITLE
+  LOAN2:54-54  FILE TITLE PRINT PAGESIZE
+  LOAN2:56-56  FILE TITLE PRINT
+  P021:6-6  FILE STREAM PRINT PAGESIZE
+  E18A:4-4  FILE STREAM TITLE
+  E16C:4-4  FILE STREAM TITLE
+  P019B:3-3  FILE PRINT
+  DEPREC:51-52  FILE STREAM PRINT PAGESIZE TITLE
+  DEPREC:78-78  FILE STREAM PRINT TITLE
+  COPYLPT:38-39  FILE PRINT PAGESIZE LINESIZE TITLE
+  COPYLPT:49-50  FILE STREAM ENVIRONMENT TITLE
+  RETRIEVE:19-19  FILE PRINT TITLE
+  E18B:5-5  FILE STREAM TITLE
+  UPDATE:31-32  FILE UPDATE DIRECT ENVIRONMENT TITLE
+  UPDATE:34-35  FILE STREAM ENVIRONMENT TITLE
+  REPORT:27-28  FILE KEYED ENVIRONMENT TITLE
+  REPORT:29-30  FILE STREAM PRINT ENVIRONMENT TITLE
+  E16A:8-8  FILE STREAM TITLE
+  E17A:8-8  FILE STREAM TITLE
+
+VARIABLE TITLE operands (5 sites) -- the ?SLCTS/?SLVTS split, [C288]:
+  LOAN2:56-56  title(name)
+  COPYLPT:38-39  title(line)
+  COPYLPT:49-50  title(line)
+  RETRIEVE:31-32  title(filename)
+  CREATE:22-22  title(filename)

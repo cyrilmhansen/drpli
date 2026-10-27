@@ -1,0 +1,6 @@
+E46G1:
+  procedure options(main);
+  dcl f file, i fixed bin(15);
+  open file(f) title('A');
+  get file(f) list(i);
+end E46G1;

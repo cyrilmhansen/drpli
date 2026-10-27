@@ -6277,6 +6277,108 @@ So `st.cur_common` keys on the **full variable name** while the **record** carri
 `file_sym nm`; the two are deliberately different, and the code says so because a plausible
 future "simplification" would unify them and silently break the specimen.
 
+## C285 — DR DIAGNOSES A REPEATED OPEN KEYWORD AS CONFLICT; THIS COMPILER USED TO COLLAPSE IT (E2E-42/P0)
+
+Nine probes, DR's own listings, `1 ERROR(S) IN PASS 2`, **no `.REL` emitted**: E46E1 `input
+input`, E46E2 `stream stream input`, E46G4 `stream input input`, E46H2 two `FILE` operands,
+E46G2 two `TITLE`, E46G5 two `ENVIRONMENT`, E46G6 two `PAGESIZE`, E46H6 two `LINESIZE`,
+E46G7 two `DIRECT`.  Plus the exclusive-mode pair E46E3 `input output` and E46H5
+`output input`, in **both** source orders.
+
+**THE DEFECT THIS REMOVES.**  E46E1, E46E2 and E46G4 **COMPILED** here.  `open_mode_word`
+tested options with `List.exists`, so a repeated keyword was indistinguishable from a single
+one and the duplicate silently collapsed — the statement lowered as if written once,
+producing the same bytes a legal program would.  That is precisely the accept-and-discard
+failure mode [E2E-42/P0]'s acceptance list forbids, and it was invisible from the object.
+
+**THE RULE IS NOT "ANY TWO OPTIONS TOGETHER".**  DR ACCEPTS `keyed direct input` (E46H1,
+w1 = `0x058C`), `record input` (E46H3, `0x0590`) and `sequential input` (E46H4, `0x0590`), so
+KEYED and DIRECT coexist happily.  `CONFLICT` means one keyword written twice, **or** two
+members of the mutually exclusive mode group.
+
+`check_open_options` tests exactly the EIGHT keywords a duplicate of which DR was probed
+with -- FILE, INPUT, STREAM, TITLE, PAGESIZE, LINESIZE, ENVIRONMENT, DIRECT.  `OUTPUT' is NOT
+among them: `output output' has never been put to DR, and a repeated OUTPUT cannot leak,
+because it reaches `open_mode_word`, where the titleless-OUTPUT and OUTPUT-without-STREAM
+guards already refuse it (`OPEN FILE(...) OUTPUT without the STREAM keyword`), so omitting it
+costs nothing and claiming it would cost honesty.  `KEYED`, `RECORD`, `SEQUENTIAL`, `UPDATE`,
+`APPEND`, `PRINT` and `RANDOM` are equally unprobed and equally absent — the parser records
+all of them (`parser.ml:103`, [C264]) and `open_subset_keys` holds only the five with a
+byte-exact specimen, so none of them reaches this rule at all.  Extending the list would be an
+inference about spellings DR has never been asked about.
+It runs **first** in `lower_open`, ahead of operand extraction, because DR diagnoses the
+repetition before resolving an operand: with two `FILE` operands the duplicate is the
+finding, not "needs exactly one FILE(name)".
+
+**[C285] WITHDRAWS** the earlier gloss on `input output`, which called the pair a
+"combination this compiler declines to guess at".  DR does not merely decline it; it diagnoses
+it, in both orders.
+
+## C286 — AN OPEN THAT NAMES NO MODE DEFAULTS TO STREAM INPUT (0x0690), AND TITLE COMPOSES WITH THE DEFAULT (E2E-42/P0)
+
+Three probes close what the old code refused as "no mode word was measured":
+
+* **E46E4** `open file(f);` — nothing but the file.  w1 = `0x0690` = `0x0400` declared file
+  + `0x0200` stream organisation + `0x0010` stream + `0x0080` input.  The default is
+  *stream input*, and it spells the same word an explicit `input` does.
+* **E46G3** `open file(f) stream;` — also `0x0690`, confirming `stream` and `input` denote the
+  same bit set on a statement carrying no other option.
+* **E46G1** `open file(f) title('A');` — a title and **no mode at all**: w1 = `0x0E90`, the
+  `0x0800` TITLE bit composed with the **default**.  This is the one that made the old refusal
+  plainly wrong: a titled open with no mode is an ordinary thing to write.
+
+The corpus already contained the witness and nobody had read it: **COPY line 10-11**,
+`open input_file stream environment(b(8192)) title('$1.$1')`, spells no mode word and
+measures `0x4E90` — the INPUT word.
+
+All three emit DR's existing shapes, not a new one: E46E4/E46G3 the 21-byte titleless block,
+E46G1 the 29-byte titled block.  The mode-less default is a different **w1**, not a different
+code path.
+
+## C287 — THE OPEN CENSUS COUNTED FILE-OPERAND NAMES AS OPTIONS; THE TRUE COUNTS ARE 7 OUTPUT AND 4 INPUT (E2E-42/P0)
+
+`OPEN-MATRIX.tsv`'s `input` / `output` columns were produced by matching the whole statement
+text, so three rows were false positives — and each is a different kind of open, which is why
+they survived review:
+
+| program | line | w1 | statement | wrongly counted as |
+|---|---|---|---|---|
+| KEYFILE | 16-17 | `0x4D94` | `open file(input) keyed environment(...) title('$1.emp');` | INPUT |
+| LOAN2 | 54-54 | `0x2E52` | `open file(output) title('$con') print pagesize(0);` | OUTPUT |
+| LOAN2 | 56-56 | `0x0E52` | `open file(output) title(name) print;` | OUTPUT |
+
+Masking `FILE(...)`, the counts are **OUTPUT 7** (E17D:3, COPY:13, KEYFILE:19, P021:4,
+CREATE:22, ENTER:37, E16D:3) and **INPUT 4** (P072H:3, P021:3, RETRIEVE:31, P081Q:3), against
+the census's 9 and 5.  "OUTPUT spelled without `stream`" drops from 4 rows to **2** — P021:4
+and ENTER:37, both `0x4D54`, both KEYED; E16D/E17D/CREATE:22 all carry STREAM.  Rows whose w1
+omits `0x0200` are **5** (KEYFILE:16, P021:4, UPDATE:31, REPORT:27, ENTER:37), every one a
+KEYED or DIRECT attribute open.
+
+**No generated byte was ever affected** — codegen keys on the parsed option list, not on this
+census.  The damage was to prose: the sentence "the four measured OUTPUTs that omit STREAM
+are keyed or print rows" was load-bearing for the claim that `0x0200` is the stream
+*organisation* bit.  With the corrected counts it is two keyed rows and no print row, and
+E46H3/E46H4 (`record input`, `sequential input`, both `0x0590`) show an **INPUT** row can omit
+`0x0200` too — so the conclusion survives, but it now rests on two measurements instead of one
+inference from a miscount.
+
+The method correction, not just the numbers: `spec/lab-evidence/e2e42-p0/census.py` counts
+the PARSED `opts=[...]` lists dumped by `pli80tree.exe` over the same 34 sites -- one
+statement per row, options in source order -- and a second pass over the masked statement
+text agrees with it row for row.  The full counts, several of which had never been counted
+before, are `file=34 stream=21 input=4 output=7 print=9 title=30 environment=11 keyed=4
+pagesize=4 linesize=2 direct=1 update=1`, with `INPUT=4 + OUTPUT=7 + both=0 + neither=23 =
+34` accounting for every site.  Note that `title` had no column in `OPEN-MATRIX.tsv` at all:
+`title=30`, of which **25 literal and 5 variable**, is new, and it is what sizes [C288].
+`spec/lab-evidence/e2e42-p0/OPEN-CENSUS.txt` is that script's output.
+
+The general form: a census built by regexing source text must mask the operand positions
+before matching keywords, because PL/I option keywords and declared identifiers share a
+vocabulary -- and the trustworthy source is the compiler's own parse, not a mask.
+`spec/lab-evidence/e2e42-p0/AST-vs-SOURCE.tsv` is that comparison run against the AST for
+all 34 sites (34/34 agree), which is also what licenses a conflict rule to read the option
+LIST instead of the token stream.
+
 ## C289 — LINK-80'S SIDE OF A NAME COLLISION, MEASURED ON FOUR LINKED IMAGES (E2E-42/P1a)
 
 Everything here was measured by running the real harness (`oracle/linkrun.py link`,

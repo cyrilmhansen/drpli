@@ -882,6 +882,21 @@ SPECIMENS.update({
     "E46D7": ("probes/E46D7.PLI", "golden/e42p1b/E46D7/E46D7.REL"),
 })
 
+# [E2E-42/P0] THE MODE-LESS AND STREAM-ONLY OPEN.  P0 section 12 left probe C -- what does DR
+# do for an OPEN that names NO mode -- as the single missing fact under the input/output guard.
+# E46E4 answers it: DR ACCEPTS `open file(f);' and measures w1 = 0x0690, bit-for-bit the word
+# of the spelled `open file(f) input' at P081Q:3 and P072H:3.  So the default mode is INPUT and
+# a missing option does NOT silently mean something else -- it means the measured thing.  E46G3
+# (`open file(f) stream') is the same 0x0690, and E46G1 (`open file(f) title('A')', still no
+# mode) is 0x0E90 = 0x0690 + the TITLE bit, which proves the title bit composes with the DEFAULT
+# mode exactly as with a spelled one.  All three whole objects are byte-identical here; before
+# this milestone all three were REFUSED, so the guard rested on an absence that is now filled.
+SPECIMENS.update({
+    "E46E4": ("probes/E46E4.PLI", "golden/e42p0/E46E4/E46E4.REL"),
+    "E46G1": ("probes/E46G1.PLI", "golden/e42p0b/E46G1/E46G1.REL"),
+    "E46G3": ("probes/E46G3.PLI", "golden/e42p0b/E46G3/E46G3.REL"),
+})
+
 # [E2E-40/P8a] THE MEMBER SELF-UPDATE RANGE, MEASURED AT THE MEMBER, AND THE CROSS-SPELLING
 # EQUIVALENCE.  E42P1 licensed exactly one bias (+5); P8 then gate-extended the ORDINARY-
 # variable window -8..16 to members and refused anything outside it (E42N3).  DR says the
@@ -2956,6 +2971,97 @@ NEG_META["E41X8"] = ("my-gap",
     "reason this probe refuses on the EDIT route rather than the file route: PUT EDIT is deferred "
     "for its own reasons ([C245]->[C250], the R(S)/SKIP-EDIT defect), which the open lowering of "
     "P3b neither advances nor changes.")
+
+# [E2E-42/P0] DR's own CONFLICT diagnosis, mirrored.  These eight sources are NOT my-gap
+# refusals: DR rejects every one of them in pass 2 with the word `CONFLICT' printed under the
+# offending statement, `1 ERROR(S) IN PASS 2', and NO .REL (golden/e42p0/E46E1,E46E2,
+# golden/e42p0b/E46G2,E46G5,E46G6, golden/e42p0c/E46H2,H6,H7 and golden/e42p0/E46E3).  Before
+# this milestone the first three INPUT/STREAM duplicates COMPILED here and were lowered as a
+# plain INPUT open -- the duplicate was silently COLLAPSED, which is the exact failure mode P0's
+# acceptance list names.  The marker pins WHICH option the compiler blames, so a future change
+# that collapses a duplicate again, or that blames the wrong keyword, fails the panel.
+#   E46E1  input  x2      E46E2  stream x2        E46G4  input x2 (after stream)
+#   E46H2  FILE   x2      E46G2  TITLE  x2        E46G6  pagesize x2 (refused as an
+#   unsupported option, which is also correct: DR's CONFLICT fires before any lowering)
+#   E46E3 / E46H5  INPUT with OUTPUT, in BOTH source orders -- the exclusive mode group.
+REJECTS.update({
+    "E46E1": (open("probes/E46E1.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option INPUT 2 times"),
+    "E46E2": (open("probes/E46E2.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option STREAM 2 times"),
+    "E46G4": (open("probes/E46G4.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option INPUT 2 times"),
+    "E46H2": (open("probes/E46H2.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option FILE 2 times"),
+    "E46G2": (open("probes/E46G2.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option TITLE 2 times"),
+    "E46E3": (open("probes/E46E3.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "naming BOTH INPUT and OUTPUT"),
+    "E46H5": (open("probes/E46H5.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "naming BOTH INPUT and OUTPUT"),
+    "E46G5": (open("probes/E46G5.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option ENVIRONMENT 2 times"),
+    "E46G6": (open("probes/E46G6.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option PAGESIZE 2 times"),
+    "E46H6": (open("probes/E46H6.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option LINESIZE 2 times"),
+    "E46G7": (open("probes/E46G7.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN repeats option DIRECT 2 times"),
+    # E46H7 `open file(f) input update' is the twelfth DR CONFLICT in this batch and the ONE
+    # whose refusal here is not the conflict.  UPDATE is not in open_subset_keys, so the
+    # unsupported-option guard fires before check_open_options' mode-group reasoning could;
+    # same OUTCOME (DR emits no .REL, we emit no object), different REASON.  The row is pinned
+    # so that lowering UPDATE later cannot turn a DR rejection into an acceptance by accident:
+    # at that point this marker moves to the mode-group arm and this comment goes with it.
+    "E46H7": (open("probes/E46H7.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN option UPDATE is outside"),
+})
+for _k in ("E46E1", "E46E2", "E46G4", "E46H2", "E46G2", "E46E3", "E46H5",
+           "E46G5", "E46G6", "E46H6", "E46G7"):
+    NEG_META[_k] = ("dr-refuses",
+        "DR diagnoses pass-2 CONFLICT and emits NO .REL [C285].  This panel row is perimeter "
+        "PARITY, not a gap: the compiler refuses for the same reason DR does, and names the "
+        "repeated keyword.  Counter-cases that keep the rule from being over-read: E46H1 "
+        "`keyed direct input' (w1 = 0x058C), E46H3 `record input' and E46H4 `sequential "
+        "input' (both 0x0590) are ACCEPTED by DR, so CONFLICT is repetition plus the exclusive "
+        "mode group, not any two options side by side.")
+
+NEG_META["E46H7"] = ("dr-refuses",
+    "DR diagnoses pass-2 CONFLICT and emits NO .REL [C285]: `open file(f) input update' names "
+    "two members of the mutually exclusive mode group, the same arm E46E3 `input output' and "
+    "E46H5 `output input' measure.  The PERIMETER of this row is OUTCOME, not diagnosis: this "
+    "compiler refuses in the unsupported-option guard, because UPDATE is outside "
+    "open_subset_keys and never reaches the mode-group arm, so the pinned marker is `OPEN "
+    "option UPDATE is outside' and NOT `OPEN repeats' or the BOTH-INPUT-AND-OUTPUT wording. "
+    "Claiming diagnosis parity here would be invented, and saying DR accepted it would be "
+    "wrong; the row records a DR rejection we coincide with for a different reason.")
+
+# [E2E-42/P0] THREE OPTION WORDS DR MEASURES AND THIS COMPILER STILL DOES NOT LOWER.  These are
+# MY gaps, and they are on the panel precisely so they cannot be mistaken for DR rejections:
+# DR compiled all three, and each one hands me a w1 I have never emitted.
+#   E46H1  `open file(f) keyed direct input;'    -> w1 = 0x058C
+#   E46H3  `open file(f) record input;'          -> w1 = 0x0590
+#   E46H4  `open file(f) sequential input;'      -> w1 = 0x0590
+# 0x058C = 0x0400 | 0x0100 | 0x0080 | 0x0004 | 0x0008 (declared | KEYED-or-RECORD attribute |
+# input | keyed | direct) and 0x0590 = 0x0400 | 0x0100 | 0x0080 | 0x0010 -- note that RECORD and
+# SEQUENTIAL measure the SAME word, and that E46H3/E46H4 lack the 0x0200 bit every stream row in
+# the 34-row census carries, while E46H1 lacks both 0x0200 and 0x0010.  Not lowered: KEYED and
+# DIRECT semantics are outside this milestone's perimeter.  Recorded because the WORDS are now
+# measured, which retires the older prose claim that "the four measured OUTPUTs that omit STREAM
+# are keyed or print rows" -- see [C287].
+REJECTS.update({
+    "E46H1": (open("probes/E46H1.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN option KEYED is outside"),
+    "E46H3": (open("probes/E46H3.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN option RECORD is outside"),
+    "E46H4": (open("probes/E46H4.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "OPEN option SEQUENTIAL is outside"),
+})
+for _k, _w in (("E46H1", "0x058C"), ("E46H3", "0x0590"), ("E46H4", "0x0590")):
+    NEG_META[_k] = ("my-gap",
+        "DR COMPILES it and measures w1 = " + _w + " (golden/e42p0c/" + _k + "), which is an "
+        "attribute word this compiler has no lowering for; the refusal is MY gap and the name "
+        "is deliberately not a DR vocabulary claim -- DR accepts every one of these spellings.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
