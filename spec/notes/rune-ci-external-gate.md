@@ -108,3 +108,38 @@ believing a green.
 Validated on this host against commit `3741cee` (E2E-41/P3c): 990/990 byte-exact,
 133/133 refusals, 9/9 divergences, 52/52 runtime rows, 436s, revision verified,
 submit returning in 0.18s, and a re-submit of the same tuple reused the running job.
+
+## What a report is allowed to say
+
+Three non-green outcomes, because three different things went wrong:
+
+| status | meaning | test counts |
+|---|---|---|
+| `failed` | the gate ran and a panel said no | kept, and the failing tests are named |
+| `build_failed` | the tree did not compile (`dune-build`/`checkout` died) | none — no test ran |
+| `infra_error` | the harness is wrong (preflight, revision pin, fixtures, wrapper) | dropped, deliberately |
+
+Two counting rules that came out of running the thing:
+
+* A panel banner often gives only two of the three numbers (`RUNTIME PANEL 1 fail of
+  52`, `NEGATIVE PANEL 1 fail`).  `passed` is completed at the end of the run from the
+  rows the gate actually printed, never guessed: a panel that started and died mid-way
+  is reported as `incomplete (n rows printed)` rather than `52/52`.
+* `tools/e2e_gate.py` returns at its **first** failing panel, so the panels after it
+  print no verdict.  That is a test failure with a short transcript, not a broken
+  harness: the wrapper records `panels_not_reached` and the client says *"the gate stops
+  at its first failing panel: no verdict from divergences, runtime"*.  A silent panel is
+  `infra_error` only when nothing failed, or when the gate exited 0 with panels missing —
+  and then the gate's own last line is quoted, since it is the actionable part (e.g.
+  *"run --update-inventory and commit the diff"*).
+
+Probe builds on throwaway branches (both deleted; `main` never saw them) established all
+of this against a real master: a perturbed runtime expectation fails one named row
+(`bs16`), an inventory/`REJECTS` disagreement aborts the gate entirely (`bs18`, `bs19`),
+and a legalised negative fails the negative panel and stops the run before the divergence
+and runtime panels (`bs20`, `bs21`, six seconds).  A specimen-source edit that only adds
+output no expectation forbids stays green (`bs17`) — the byte panel compiles the source
+registered in `SPECIMENS`, and a runtime row is a subset check, not a transcript
+comparison, so a probe has to perturb an *expectation* to fail anything.  Side branches
+work without touching the master config: Buildbot uses the sourcestamp branch in
+preference to the step's, so `--branch` is what the worker fetches.
