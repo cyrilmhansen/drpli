@@ -141,6 +141,13 @@ clean; divergence panel 9/9; `bind_gate` 43 exact / 2 known-gap / 2 FAIL (unchan
 baseline, which is 43/2/2); `parse_gate` 9/0; `ir_gate` 2 byte-exact / 3 struct-exact / 5 gap / 0;
 `coverage_check` 92 rows, 0 errors; `file_prose_check` clean; `dune runtest` 0.
 
+**The same gate, re-run by the external builder on `6e81d4de6` (bs28, build #20, 436 s), reports
+`byte_exact 1014/1014 | refusals 160/160 | divergences 9/9 | runtime 52/52 | coverage 93 rows/0
+err/0 warn`.**  The runtime row matters more here than on a codegen-only change: this fix moves
+DATA addresses — `buff` from 000E to 000F and everything after it — so 52 programs that actually
+run under CP/M and have their output compared executed against the new layout without one
+difference [C265].
+
 Corpus effect: the census re-ran and the only changed message is `EXPR2`'s, whose declaration is
 `dcl inp char(10) varying static;` — DR rejects that with CONFLICT (`STATIC` is not a varying
 storage class [C114]) and we now reject it at the same place for the same reason.  COPYLPT still
