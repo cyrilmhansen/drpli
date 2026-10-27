@@ -972,6 +972,43 @@ SPECIMENS.update({
     "E44D1": ("artefacts/E44D1.PLI", "golden/e44/E44D1/E44D1.REL"),
 })
 
+# [E2E-42/P1d] THE VARYING DECLARATION ATTRIBUTE, APPLIED WHERE DR APPLIES IT.
+# COPYLPT's `declare (line character(14), buff character(254)) varying' reaches the binder as a
+# group whose items carry a bare VARYING attr and FIXED-size types; until P1d resolve_type read
+# d.dtype alone, so both members bound as CHARACTER(n), the frame came out 2 bytes short (270
+# where DR's $S dump says 272 [E46J2] and 276 vs 278 on COPYLPT's own declaration [E46J13]),
+# and every reference chose ?SLCTS where DR chooses ?SLVTS -- the defect P1b had recorded in the
+# wrong place, as one TITLE bug [C288].  One repair -- apply_varying_attr in bind.ml, the single
+# type-building function -- moves classification, layout AND dispatch together; nothing below it
+# names the attribute.  Each row is the WHOLE .REL compared byte-for-byte against DR's object,
+# chain records and relocation operands included, not the code section alone [C264].
+#   E46J2   the reported shape: two varying members printed with PUT LIST, ?SLVTS twice, 272 bytes
+#   E46J3   a varying member in OPEN TITLE and a PUT FILE item in the same object (?SLVTS/?SLCTS)
+#   E46J4   the same member as a LIST item while the title holds it too
+#   E46J13  COPYLPT's declaration VERBATIM (file group, four FIXED, then the varying group) --
+#           code 57 / data 278, DR's own numbers for COPYLPT's 278-byte frame
+#   E46J16  assignment to a group-declared varying member: ?SMCVM then ?SLVTS
+#   E46J17  the SECOND member of the group (BUFF at 000F), which is where a 268-byte frame would
+#           have put 000E -- the offset shift the missing length byte caused
+#   E46J20  a ONE-member group, and a fixed item printed beside it: ?SLVTS + ?PNVOP together
+#   E46J7   the pre-type spelling `nm varying char(14)' -- same attribute, other side of the name
+#   E46J1   the scalar control `nm char(14) varying' (P1b's witness, first time on this panel)
+#   E46J5   the no-attribute control: a bare `(line char(14), buff char(254)' group with NO
+#           varying takes ?SLCTS twice.  Without this row the varying rows could be read as
+#           "always ?SLVTS in a group".
+SPECIMENS.update({
+    "E46J1":  ("probes/E46J1.PLI",  "golden/e42p1d/E46J1/E46J1.REL"),
+    "E46J2":  ("probes/E46J2.PLI",  "golden/e42p1d/E46J2/E46J2.REL"),
+    "E46J3":  ("probes/E46J3.PLI",  "golden/e42p1d/E46J3/E46J3.REL"),
+    "E46J4":  ("probes/E46J4.PLI",  "golden/e42p1d/E46J4/E46J4.REL"),
+    "E46J5":  ("probes/E46J5.PLI",  "golden/e42p1d/E46J5/E46J5.REL"),
+    "E46J7":  ("probes/E46J7.PLI",  "golden/e42p1d/E46J7/E46J7.REL"),
+    "E46J13": ("probes/E46J13.PLI", "golden/e42p1d/E46J13/E46J13.REL"),
+    "E46J16": ("probes/E46J16.PLI", "golden/e42p1d/E46J16/E46J16.REL"),
+    "E46J17": ("probes/E46J17.PLI", "golden/e42p1d/E46J17/E46J17.REL"),
+    "E46J20": ("probes/E46J20.PLI", "golden/e42p1d/E46J20/E46J20.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -3056,6 +3093,95 @@ for _k in ("E46E1", "E46E2", "E46G4", "E46H2", "E46G2", "E46E3", "E46H5",
         "`keyed direct input' (w1 = 0x058C), E46H3 `record input' and E46H4 `sequential "
         "input' (both 0x0590) are ACCEPTED by DR, so CONFLICT is repetition plus the exclusive "
         "mode group, not any two options side by side.")
+
+# [E2E-42/P1d] THE ELEVEN SHAPES AROUND THE VARYING ATTRIBUTE THAT DO NOT COMPILE HERE.
+# Split by WHOSE verdict they are, which is the distinction this panel exists to keep honest:
+#   dr-refuses  E46J8, E46J9, E46J10, E46J15, E46J19 -- DR itself says CONFLICT and emits no
+#               object, so refusing is PARITY, not a gap.  VARYING is a CHARACTER attribute.
+#   my-gap      E46J6, E46J11, E46J12, E46J14, E46J18, E46J21 -- DR compiles all six and emits a
+#               real .REL (sizes recorded below); we refuse.  Registering them as `dr-refuses'
+#               would ratify our refusal as DR's behaviour, which [C256] is exactly what this
+#               panel was built to prevent.
+REJECTS.update({
+    # VARYING on a type that is not CHARACTER: DR's CONFLICT, pass 1, no object.
+    "E46J8":  (open("probes/E46J8.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "the VARYING attribute on a FIXED declaration"),
+    "E46J9":  (open("probes/E46J9.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "the VARYING attribute on a FIXED declaration"),
+    "E46J10": (open("probes/E46J10.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "the VARYING attribute on a BIT declaration"),
+    "E46J15": (open("probes/E46J15.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "the VARYING attribute on a POINTER declaration"),
+    "E46J19": (open("probes/E46J19.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "the VARYING attribute on a FIXED declaration"),
+    # typeless + VARYING: DR accepts it as a zero-length CHARACTER with NO cell; see NEG_META.
+    "E46J14": (open("probes/E46J14.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "the VARYING attribute on a typeless declaration"),
+    # level-numbered structure MEMBERS: classification and layout now match DR line for line;
+    # what is missing is the unqualified NAME, i.e. member lowering [P1e].
+    "E46J6":  (open("probes/E46J6.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "resolves to the bound member `REC.LINE'"),
+    "E46J11": (open("probes/E46J11.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "resolves to the bound member `REC.LINE'"),
+    "E46J12": (open("probes/E46J12.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "resolves to the bound member `REC.LINE'"),
+    "E46J18": (open("probes/E46J18.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "resolves to the bound member `REC.LINE'"),
+    "E46J21": (open("probes/E46J21.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "resolves to the bound member `REC.LINE'"),
+})
+for _k in ("E46J8", "E46J9", "E46J10", "E46J15", "E46J19"):
+    NEG_META[_k] = ("dr-refuses",
+        "DR diagnoses CONFLICT in pass 1 and emits NO .REL (golden/e42p1d/" + _k + ": the "
+        "$L$D$S listing prints the block and CODE SIZE / DATA AREA, then `1 ERROR(S) IN PASS 1' "
+        "with no object exported).  VARYING is a CHARACTER attribute and nothing else: "
+        "E46J9 `dcl i fixed bin(15) varying', E46J8 `(a fixed bin(15), b char(4)) varying', "
+        "E46J19 `(a char(4), b fixed bin(15), c char(6)) varying', E46J10 `bit(4) varying', "
+        "E46J15 `pointer varying' (which additionally reaches COMP REQ in pass 2).  DR's own "
+        "listing shows the attribute still DISTRIBUTING to the CHARACTER items while the FIXED "
+        "one is the CONFLICT -- E46J19 dumps A CHAR(4) VARYING at 0000, B FIXED BINARY(15,0) at "
+        "0005, C CHAR(6) VARYING at 0007 -- so the law is per-item, not per-declaration.  This "
+        "compiler cannot reproduce a partially-accepted object, so the whole declaration "
+        "refuses; same OUTCOME as DR (no object), and the reason is named.  [C288]")
+NEG_META["E46J14"] = ("my-gap",
+    "DR COMPILES IT (golden/e42p1d/E46J14: code 0x26 = 38 bytes, DATA AREA 0001, NO ERRORS in "
+    "either pass) and dumps `X(0) VARYING AUTOMATIC' in a block of AUTO STORAGE 0 -- the name "
+    "has a VARYING type and NO cell -- then lowers `x = 1' through ?DLDOP and `put list(x)' "
+    "through ?PNVOP, i.e. DR OPERATES on it as a number while its dump calls it VARYING.  That "
+    "combination is a shape of its own: no probe shows what a READ of such a name yields, and "
+    "CHARACTER(0) has never been laid out here.  Before P1d the item silently took the default "
+    "FIXED BINARY(15) cell, producing a 2-byte data area where DR's is 1 and a ?SLBIP print "
+    "where DR's is ?PNVOP -- an object that disagreed with DR on size, helper and symbol entry "
+    "at once.  Refusing is the state of the evidence. [C288]")
+for _k, _why in (
+    ("E46J6",  "PUT LIST of a VARYING member: `LXI H,000F / CALL ?SLVTS' -- the member is at "
+               "000F because its own cell is 15 bytes, so this is ALSO the proof that member "
+               "layout follows the same n+1 rule as a flat declaration"),
+    ("E46J11", "OPEN ... TITLE(line) of a VARYING member: `CALL ?SLVTS' with the member address "
+               "in HL, code 42 / data 17"),
+    ("E46J12", "PUT LIST of a FIXED member: `CALL ?SLCTS' with the DECLARED length as the "
+               "capacity operand, code 32 / data 16 -- the control that keeps E46J6 from being "
+               "read as `members always take ?SLVTS'"),
+    ("E46J18", "OPEN ... TITLE(line) of a FIXED member: `CALL ?SLCTS', code 38 / data 16 -- the "
+               "TITLE-side control to E46J11, and DR's answer to the question P1c's note asked "
+               "but could not settle (does a level-numbered fixed member take the fixed helper?)"),
+    ("E46J21", "the QUALIFIED spelling `rec.line': store through ?SMCVM and print through "
+               "?SLVTS, code 43 / data 19 -- so the member route is the flat route at the "
+               "member's address, in both spellings"),
+):
+    NEG_META[_k] = ("my-gap",
+        "DR COMPILES IT and emits a real .REL (golden/e42p1d/" + _k + "): " + _why + ".  Mine "
+        "refuses, and the refusal is about the NAME, not the type: bind now lays this member out "
+        "exactly as DR does -- our own $S dump of E46J21 is `c 0000 REC STRUCTURE LEVEL 1, "
+        "MEMBERS 2 AUTOMATIC / c 0000 .LINE CHAR(14) VARYING MEMBER / c 000F .NXT FIXED "
+        "BINARY(15,0) MEMBER', DR's lines verbatim -- and the varying flag that produced it came "
+        "from the same apply_varying_attr that fixed the group shape [C288].  What is missing is "
+        "the alias: bind registers an unqualified (and qualified) member name only for FIXED "
+        "BINARY(15) and POINTER [E2E-39/P2], because those are the member types whose operations "
+        "have been measured one by one.  Adding CHARACTER to that registry would resolve "
+        "assignment, comparison, EDIT and PUT EDIT for members through routes with no member "
+        "sample; the two routes DR HAS measured here (PUT item, TITLE) are not enough to "
+        "warrant it.  P1e takes member lowering as its own measurement.")
 
 NEG_META["E46F5"] = ("my-gap",
     "DR COMPILES it (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site).  The refusal "

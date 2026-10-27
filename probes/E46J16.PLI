@@ -1,0 +1,6 @@
+E46J16:
+  procedure options(main);
+  dcl (line char(14), buff char(254)) varying;
+  line = 'AB';
+  put list(line);
+end E46J16;

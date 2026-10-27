@@ -1,0 +1,5 @@
+E46J18:
+  procedure options(main);
+  dcl outf file, 1 rec, 2 line char(14), 2 nxt fixed bin(15);
+  open file(outf) stream output title(line);
+end E46J18;

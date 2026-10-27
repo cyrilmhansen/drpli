@@ -1,0 +1,6 @@
+E46J6:
+  procedure options(main);
+  dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);
+  put list(line);
+  put list(nxt);
+end E46J6;

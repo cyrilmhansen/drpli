@@ -213,6 +213,13 @@ type st =
   ; mutable arrays : (string * int * int * int) list
     (* [E2E-20] (name, lb, ub, elem bytes) copied straight out of Bind.bind_arrays --
        bind.layout remains the ONLY storage authority; codegen derives nothing. *)
+  ; mutable members : (string * string * Bind.rt * int) list
+    (* [E2E-42/P1d] internal LEVEL-1 members that bind laid out but did NOT alias, copied
+       out of Bind.bind_members / pl_members.  Read ONLY to word a refusal honestly --
+       nothing lowers through it.  Registering these names as variables would make every
+       CHARACTER member operation resolve at once (assignment, compare, EDIT, subscript),
+       and only PUT LIST and OPEN TITLE have DR objects [E46J6, E46J11, E46J12, E46J18,
+       E46J21 in golden/e42p1d]; a blanket alias would silently accept the rest. *)
       (* scope chain head (lowername -> info); swapped per procedure
          body [PL/I nesting: inner declarations shadow outer] *)
   ; mutable dec_ret : (int * int) option
@@ -803,6 +810,47 @@ let vinfo_imem st nm =
   | None -> None
 
 
+(* [E2E-42/P1d] One wording for "this name is a structure member we do not lower".
+   Before P1d these three sites (call actual, vk_of/addr_of, OPEN TITLE) all said
+   "no declaration in scope", which was false in a way that matters: bind HAS the member, sizes
+   it, and dumps it exactly as DR does -- E46J21's own $S output is
+     c 0000 REC STRUCTURE LEVEL 1, MEMBERS 2 AUTOMATIC
+     c 0000 .LINE CHAR(14) VARYING MEMBER
+     c 000F .NXT FIXED BINARY(15,0) MEMBER
+   byte-for-byte DR's (golden/e42p1d/E46J21), and DR's object for the same source is code 43 /
+   data 19 with ?SMCVM for the assignment and ?SLVTS for the print.  What is missing is the
+   NAME, not the type or the cell: the alias registry in bind.ml binds a bare member name only
+   for FIXED BINARY(15) and POINTER [E2E-39/P2], because those are the member types whose
+   OTHER operations have been measured.  Widening it is a lowering decision with its own
+   evidence to gather, so the refusal stays -- and now says what it is. *)
+let member_note st name =
+  (* either spelling of the same cell: the bare name, or `owner.member' -- bind registers
+     both keys for the types it aliases at all [E40Q1/E40Q2], and refuses both here. *)
+  match
+    List.find_opt
+      (fun (n, o, _rt, _a) ->
+        String.equal n (String.lowercase_ascii name)
+        || String.equal (String.lowercase_ascii o ^ "." ^ n)
+             (String.lowercase_ascii name))
+      st.members
+  with
+  | None -> None
+  | Some (bare, owner, rt, abs) ->
+      Some
+        (Printf.sprintf
+           "codegen: [TBD] `%s' resolves to the bound member `%s.%s' (%s at DATA %04X): bind \
+lays it out at DR's exact offset but registers NO alias for it, because the \
+unqualified-member registry covers FIXED BINARY(15) and POINTER only [E2E-39/P2] -- this is a \
+bound member, not an undeclared name.  DR lowers it both ways: a VARYING member takes \
+`LXI H,<member>' + ?SLVTS in PUT LIST [E46J6] and in OPEN TITLE [E46J11], a FIXED one takes \
+?SLCTS with `MVI A,<declared length>' [E46J12, E46J18], and the qualified spelling's store goes \
+through ?SMCVM [E46J21] -- five objects in golden/e42p1d.  Aliasing a CHARACTER member would \
+also resolve assignment, comparison, EDIT and subscript on it, none of which has a member \
+sample, so the refusal is kept rather than widening the registry on an inference. \
+spec/notes/e2e42-p1d-varying-attribute.md"
+           name (String.uppercase_ascii owner) (String.uppercase_ascii bare)
+           (Bind.rty_str rt) abs)
+
 let addr_of_raw st name =
   let li = String.lowercase_ascii name in
   (* STATIC cells come first: their offset is already an absolute DATA address
@@ -819,8 +867,11 @@ let addr_of_raw st name =
               name="exit": a LABEL used as a value, which DR rejects in pass 2 rather than
               treating as an implicit FLOAT.  No semantics claimed -- only the wording fixed. *)
            failwith
-             ("codegen: [TBD] undeclared " ^ name
-                ^ " (no declaration in scope; PL/I would make it implicit FLOAT, but no                   DR sample shows such a name used as a call actual -- REVERSE/REVERT-class,                                     a label used as a value is TYPES territory"))
+             (match member_note st name with
+              | Some t -> t
+              | None ->
+                "codegen: [TBD] undeclared " ^ name
+                ^ " (no declaration in scope; PL/I would make it implicit FLOAT, but no                   DR sample shows such a name used as a call actual -- REVERSE/REVERT-class,                                     a label used as a value is TYPES territory)"))
 
 let addr_of st name =
   match whole_array_msg st name with
@@ -839,7 +890,10 @@ let vk_of st name =
       (* same fix as above [E20-21/P0]: the message must contain [TBD] so a refusal is
          distinguishable from a crash by the panel, not by reading the trace. *)
       failwith
-        ("codegen: [TBD] undeclared " ^ name
+        (match member_note st name with
+         | Some t -> t
+         | None ->
+           "codegen: [TBD] undeclared " ^ name
            ^ " (no declaration in scope)")
 
 (* [E2E-20/Priority 2] ONE authoritative resolution of a subscripted name.
@@ -8808,9 +8862,12 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
         with
         | None ->
             failwith
-              (Printf.sprintf
-                 "codegen: OPEN TITLE(%s) names no declared variable [TBD] (line %d)"
-                 n.Ast.orig s.Ast.spos.Source.line)
+              (match member_note st n.Ast.orig with
+               | Some t -> t
+               | None ->
+                 Printf.sprintf
+                   "codegen: OPEN TITLE(%s) names no declared variable [TBD] (line %d)"
+                   n.Ast.orig s.Ast.spos.Source.line)
         | Some vi ->
             (match vi.vk with
              | Vvar _ ->
@@ -10048,6 +10105,11 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
      the only sampled one. *)
   (match ls.sp_cell with Some c -> emit_sp_save st c | None -> ());
   let saved = st.vars and savedd = st.deref in
+  let savedm = st.members in
+  (* [E2E-42/P1d] the callee's unaliased members travel with its scope, so a refusal inside
+     a procedure names THAT procedure's members.  Accumulated like `saved', never replacing:
+     an inner block may reference an outer structure. *)
+  st.members <- pl.Bind.pl_members @ savedm;
   (* [E2E-20] the callee's OWN array metadata must replace the caller's for the duration of
      this scope, exactly as st.vars does.  Without it a subscripted name inside a procedure is
      resolved against the CALLER's block: the name may be absent (so an element falls into the
@@ -10290,6 +10352,7 @@ let rec lower_proc st (ls : lblstate) (bs : Ast.block_stmt) =
   st.float_ret <- savedfr;
   st.in_rec <- savedr;
   st.in_proc <- savedp;
+  st.members <- savedm;
   st.vars <- saved;
   st.deref <- savedd;
   st.arrays <- saveda;
@@ -11442,6 +11505,7 @@ let emit_program (progname : string) (auto_bytes : int)
     ; entries = []; fcalls = []; deref = []
     ; floor = layout.pl_total; vars = rows
     ; arrays = Bind.bind_arrays blk
+    ; members = Bind.bind_members blk
     ; dec_ret = None
   ; float_ret = false
   ; fl_cells = []

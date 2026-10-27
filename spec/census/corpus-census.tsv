@@ -18,7 +18,7 @@ DIORAND	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED w
 DTEST	ok	True	True	EXACT	384			
 ENTER	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 37) -- P0 measured 34 OPEN blocks in 24 DR objects (
 EXPR1	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line 18)")
-EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(10) is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are m
+EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(10) VARYING is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYT
 FDTEST	ok	True	True	EXACT	384			
 FFACT	ok	True	True	EXACT	512			
 FLTPOLY	ok	True	True	EXACT	1024			

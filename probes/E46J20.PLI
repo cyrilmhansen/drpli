@@ -1,0 +1,8 @@
+E46J20:
+  procedure options(main);
+  dcl outf file;
+  dcl (line character(14)) varying;
+  dcl k fixed bin(15);
+  open file(outf) stream output title(line);
+  put list(line, k);
+end E46J20;

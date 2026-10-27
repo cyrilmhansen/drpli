@@ -1,0 +1,6 @@
+E46J14:
+  procedure options(main);
+  dcl x varying;
+  x = 1;
+  put list(x);
+end E46J14;

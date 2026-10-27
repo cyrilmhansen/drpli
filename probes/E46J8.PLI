@@ -1,0 +1,5 @@
+E46J8:
+  procedure options(main);
+  dcl (a fixed bin(15), b char(4)) varying;
+  put list(b);
+end E46J8;

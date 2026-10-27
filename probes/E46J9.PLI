@@ -1,0 +1,6 @@
+E46J9:
+  procedure options(main);
+  dcl i fixed bin(15) varying;
+  i = 1;
+  put list(i);
+end E46J9;

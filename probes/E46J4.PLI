@@ -1,0 +1,7 @@
+E46J4:
+  procedure options(main);
+  dcl outf file, (line char(14), buff char(254)) varying;
+  open file(outf) stream output title(line);
+  put list(line);
+  close file(outf);
+end E46J4;

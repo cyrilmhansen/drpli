@@ -1,0 +1,340 @@
+E2E-42/P1d -- THE VARYING DECLARATION ATTRIBUTE: WHAT DR DOES AND WHAT THE OBJECTS SAY
+=======================================================================================
+
+Oracle: artefacts/PLI.COM (sha256 c6d9c7b697b8909e7ff7326f25bf870d0e9f52b6444fe517c2484742a23bcd80,
+PL/I-80 V1.4) under thirdparty/z80pack/cpmsim/cpmsim -8, isolated CP/M disks, `PLI D:<name> $L$D$S'
+(listing, DATA area, SYMBOL table).  Goldens: golden/e42p1d/<name>/  (regenerate:
+  PLI_SRC=probes python3 oracle/batch.py E46J1 ... E46J21 --switches '$L$D$S' --tag e42p1d)
+Source files are CRLF-terminated CP/M records; PL/I-80 reads LF-only files to UNEXPECTED EOF,
+which is how the first E46J17-20 batch failed and is recorded here so nobody loses an hour to it.
+
+Every line below is read out of a file that exists in this repository.  "cmp" is the whole .REL:
+RELOC and CHAIN records included, which is the [C264] rule that a CODE-section match proves
+nothing about the addresses a variable actually carries.
+
+SECTION 1 -- DR's verdicts, symbol dumps and helper chains
+----------------------------------------------------------------------
+
+E46J1  DR pass-1 errors: 0   .REL: yes
+  source:   dcl nm char(14) varying, k fixed bin(15);    put list(nm);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J1 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 17 BYTES
+   DR| c 0000 NM CHAR(14) VARYING AUTOMATIC
+   DR| c 000F K FIXED BINARY(15,0) AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 30, data 17
+   DR chain : ?START ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?STOPX
+
+E46J2  DR pass-1 errors: 0   .REL: yes
+  source:   dcl (line char(14), buff char(254)) varying, k fixed bin(15);    put list(line);    put list(buff);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J2 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 272 BYTES
+   DR| c 0000 LINE CHAR(14) VARYING AUTOMATIC
+   DR| c 000F BUFF CHAR(254) VARYING AUTOMATIC
+   DR| c 010E K FIXED BINARY(15,0) AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 51, data 272
+   DR chain : ?START ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?STOPX
+
+E46J3  DR pass-1 errors: 0   .REL: yes
+  source:   dcl outf file, (line char(14), buff char(254)) varying;    open file(outf) stream output title(line);    put file(outf) list('X');    close file(outf);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J3 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 270 BYTES
+   DR| c 0000 OUTF FILE EXTERNAL STATIC
+   DR| c 0000 LINE CHAR(14) VARYING AUTOMATIC
+   DR| c 000F BUFF CHAR(254) VARYING AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 68, data 271
+   DR chain : ?START ?SLVTS ?OIOOP ?SIOOP ?SLCTS ?PNCOP ?QIOOP ?CIOOP ?STOPX
+
+E46J4  DR pass-1 errors: 0   .REL: yes
+  source:   dcl outf file, (line char(14), buff char(254)) varying;    open file(outf) stream output title(line);    put list(line);    close file(outf);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J4 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 270 BYTES
+   DR| c 0000 OUTF FILE EXTERNAL STATIC
+   DR| c 0000 LINE CHAR(14) VARYING AUTOMATIC
+   DR| c 000F BUFF CHAR(254) VARYING AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 63, data 270
+   DR chain : ?START ?SLVTS ?OIOOP ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?CIOOP ?STOPX
+
+E46J5  DR pass-1 errors: 0   .REL: yes
+  source:   dcl (line char(14), buff char(254));    put list(line);    put list(buff);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J5 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 268 BYTES
+   DR| c 0000 LINE CHAR(14) AUTOMATIC
+   DR| c 000E BUFF CHAR(254) AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 55, data 268
+   DR chain : ?START ?SYSPR ?SLCTS ?PNCOP ?QIOOP ?SYSPR ?SLCTS ?PNCOP ?QIOOP ?STOPX
+
+E46J6  DR pass-1 errors: 0   .REL: yes
+  source:   dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);    put list(line);    put list(nxt);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J6 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 17 BYTES
+   DR| c 0000 REC STRUCTURE LEVEL 1, MEMBERS 2 AUTOMATIC
+   DR| c 0000 .LINE CHAR(14) VARYING MEMBER
+   DR| c 000F .NXT FIXED BINARY(15,0) MEMBER
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 53, data 17
+   DR chain : ?START ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?SYSPR ?QICOP ?PNVOP ?QIOOP ?STOPX
+
+E46J7  DR pass-1 errors: 0   .REL: yes
+  source:   dcl nm varying char(14), k fixed bin(15);    put list(nm);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J7 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 17 BYTES
+   DR| c 0000 NM CHAR(14) VARYING AUTOMATIC
+   DR| c 000F K FIXED BINARY(15,0) AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 30, data 17
+   DR chain : ?START ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?STOPX
+
+E46J8  DR pass-1 errors: 1   .REL: NO -- DR refused to emit
+  source:   dcl (a fixed bin(15), b char(4)) varying;    put list(b);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J8 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 7 BYTES
+   DR| c 0000 A FIXED BINARY(15,0) AUTOMATIC
+   DR| c 0002 B CHAR(4) VARYING AUTOMATIC
+   DR|     1 ERROR(S) IN PASS 1
+
+E46J9  DR pass-1 errors: 1   .REL: NO -- DR refused to emit
+  source:   dcl i fixed bin(15) varying;    i = 1;    put list(i);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J9 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 2 BYTES
+   DR| c 0000 I FIXED BINARY(15,0) AUTOMATIC
+   DR|     1 ERROR(S) IN PASS 1
+
+E46J10  DR pass-1 errors: 1   .REL: NO -- DR refused to emit
+  source:   dcl b bit(4) varying;    put list(b);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J10 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 1 BYTES
+   DR| c 0000 B BIT(4) AUTOMATIC
+   DR|     1 ERROR(S) IN PASS 1
+
+E46J11  DR pass-1 errors: 0   .REL: yes
+  source:   dcl outf file, 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);    open file(outf) stream output title(line);    close file(outf);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J11 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 17 BYTES
+   DR| c 0000 OUTF FILE EXTERNAL STATIC
+   DR| c 0000 REC STRUCTURE LEVEL 1, MEMBERS 2 AUTOMATIC
+   DR| c 0000 .LINE CHAR(14) VARYING MEMBER
+   DR| c 000F .NXT FIXED BINARY(15,0) MEMBER
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 42, data 17
+   DR chain : ?START ?SLVTS ?OIOOP ?CIOOP ?STOPX
+
+E46J12  DR pass-1 errors: 0   .REL: yes
+  source:   dcl 1 rec, 2 line char(14), 2 nxt fixed bin(15);    put list(line);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J12 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 16 BYTES
+   DR| c 0000 REC STRUCTURE LEVEL 1, MEMBERS 2 AUTOMATIC
+   DR| c 0000 .LINE CHAR(14) MEMBER
+   DR| c 000E .NXT FIXED BINARY(15,0) MEMBER
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 32, data 16
+   DR chain : ?START ?SYSPR ?SLCTS ?PNCOP ?QIOOP ?STOPX
+
+E46J13  DR pass-1 errors: 0   .REL: yes
+  source:   declare      (sysin, sourcefile, printfile) file,      (pagesize, pagewidth, spaces, linenumber) fixed,      (line character(14), buff character(254)) varying;    open file(printfile) stream output title(line);    put list(line);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J13 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 278 BYTES
+   DR| c 0000 SYSIN FILE EXTERNAL STATIC
+   DR| c 0000 SOURCEFILE FILE EXTERNAL STATIC
+   DR| c 0000 PRINTFILE FILE EXTERNAL STATIC
+   DR| c 0000 PAGESIZE FIXED BINARY(15,0) AUTOMATIC
+   DR| c 0002 PAGEWIDTH FIXED BINARY(15,0) AUTOMATIC
+   DR| c 0004 SPACES FIXED BINARY(15,0) AUTOMATIC
+   DR| c 0006 LINENUMBER FIXED BINARY(15,0) AUTOMATIC
+   DR| c 0008 LINE CHAR(14) VARYING AUTOMATIC
+   DR| c 0017 BUFF CHAR(254) VARYING AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 57, data 278
+   DR chain : ?START ?SLVTS ?OIOOP ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?STOPX
+
+E46J14  DR pass-1 errors: 0   .REL: yes
+  source:   dcl x varying;    x = 1;    put list(x);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J14 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 0 BYTES
+   DR| c 0000 X(0) VARYING AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 38, data 1
+   DR chain : ?START ?DLDOP ?SYSPR ?PNVOP ?QIOOP ?STOPX
+
+E46J15  DR pass-1 errors: 1   .REL: NO -- DR refused to emit
+  source:   dcl p pointer varying;    put list(p);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J15 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 2 BYTES
+   DR| c 0000 P POINTER AUTOMATIC
+   DR|     1 
+
+E46J16  DR pass-1 errors: 0   .REL: yes
+  source:   dcl (line char(14), buff char(254)) varying;    line = 'AB';    put list(line);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J16 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 270 BYTES
+   DR| c 0000 LINE CHAR(14) VARYING AUTOMATIC
+   DR| c 000F BUFF CHAR(254) VARYING AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 43, data 272
+   DR chain : ?START ?SMCVM ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?STOPX
+
+E46J17  DR pass-1 errors: 0   .REL: yes
+  source:   dcl (line char(14), buff char(254)) varying;    put list(buff);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J17 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 270 BYTES
+   DR| c 0000 LINE CHAR(14) VARYING AUTOMATIC
+   DR| c 000F BUFF CHAR(254) VARYING AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 30, data 270
+   DR chain : ?START ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?STOPX
+
+E46J18  DR pass-1 errors: 0   .REL: yes
+  source:   dcl outf file, 1 rec, 2 line char(14), 2 nxt fixed bin(15);    open file(outf) stream output title(line);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J18 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 16 BYTES
+   DR| c 0000 OUTF FILE EXTERNAL STATIC
+   DR| c 0000 REC STRUCTURE LEVEL 1, MEMBERS 2 AUTOMATIC
+   DR| c 0000 .LINE CHAR(14) MEMBER
+   DR| c 000E .NXT FIXED BINARY(15,0) MEMBER
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 38, data 16
+   DR chain : ?START ?SLCTS ?OIOOP ?STOPX
+
+E46J19  DR pass-1 errors: 1   .REL: NO -- DR refused to emit
+  source:   dcl (a char(4), b fixed bin(15), c char(6)) varying;    put list(a, c, b);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J19 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 14 BYTES
+   DR| c 0000 A CHAR(4) VARYING AUTOMATIC
+   DR| c 0005 B FIXED BINARY(15,0) AUTOMATIC
+   DR| c 0007 C CHAR(6) VARYING AUTOMATIC
+   DR|     1 ERROR(S) IN PASS 1
+
+E46J20  DR pass-1 errors: 0   .REL: yes
+  source:   dcl outf file;    dcl (line character(14)) varying;    dcl k fixed bin(15);    open file(outf) stream output title(line);    put list(line, k);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J20 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 17 BYTES
+   DR| c 0000 OUTF FILE EXTERNAL STATIC
+   DR| c 0000 LINE CHAR(14) VARYING AUTOMATIC
+   DR| c 000F K FIXED BINARY(15,0) AUTOMATIC
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 68, data 17
+   DR chain : ?START ?SLVTS ?OIOOP ?SYSPR ?SLVTS ?PNCOP ?QICOP ?PNVOP ?QIOOP ?STOPX
+
+E46J21  DR pass-1 errors: 0   .REL: yes
+  source:   dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);    rec.line = 'AB';    put list(rec.line);
+   DR| BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR| a 0000 E46J21 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR| BLOCK AT LINE 3, AUTO STORAGE 17 BYTES
+   DR| c 0000 REC STRUCTURE LEVEL 1, MEMBERS 2 AUTOMATIC
+   DR| c 0000 .LINE CHAR(14) VARYING MEMBER
+   DR| c 000F .NXT FIXED BINARY(15,0) MEMBER
+   DR|    NO ERROR(S) IN PASS 1
+   DR object: code 43, data 19
+   DR chain : ?START ?SMCVM ?SYSPR ?SLVTS ?PNCOP ?QIOOP ?STOPX
+
+
+SECTION 2 -- this compiler, before and after the binder fix
+----------------------------------------------------------------------
+The `before' column is HEAD (876fa0f, P1c) MEASURED, not remembered: `git worktree add /tmp/wt-head
+HEAD', build, run the probes on the same sources.  Its refusal texts and emitted sizes come from
+that run; the sizes recorded before any oracle ran are in HYPOTHESES.md, which predicted them and
+was not edited afterwards.  The `after' column is this tree, measured by tools/e2e_gate.py.
+
+probe    shape                                          before (876fa0f)                       after (this tree)
+E46J1    CHARACTER(14) VARYING declared inline (control) byte-exact 256/256                     was already exact; now on the panel
+E46J2    group attribute, both members printed          ?SLCTS + 270-byte frame                BYTE-EXACT 256/256, ?SLVTS twice, 272
+E46J3    group attribute + TITLE(line) + put file       ?SLCTS at the title                    BYTE-EXACT 384/384
+E46J4    group attribute, TITLE and LIST on one member  ?SLCTS at both                         BYTE-EXACT 384/384
+E46J5    the same group WITHOUT the attribute           ?SLCTS + 268 (correct)                 BYTE-EXACT 256/256, unchanged -- the control
+E46J6    level-numbered VARYING member, bare name       HEAD emitted nothing: `undeclared line'             refused, now named as REC.LINE CHAR(14) VARYING
+E46J7    `nm varying char(14)' -- attribute BEFORE the type ?SLCTS + 16-byte frame                 BYTE-EXACT 256/256, 17
+E46J8    group attribute over a FIXED item              EMITTED AN OBJECT DR never emits       refuses; DR's CONFLICT, no .REL
+E46J9    `fixed bin(15) varying'                        EMITTED AN OBJECT DR never emits       refuses; DR's CONFLICT, no .REL
+E46J10   `bit(4) varying'                               HEAD refused, but at BIT(4)-unsampled refuses at the attribute, matching DR
+E46J11   level-numbered VARYING member as a TITLE       HEAD: `OPEN TITLE ... names no declared variable'  refuses, now truthful
+E46J12   level-numbered FIXED member printed            HEAD emitted nothing: `undeclared line'             refuses, now truthful
+E46J13   COPYLPT's declaration VERBATIM                 ?SLCTS + 276-byte frame                BYTE-EXACT 512/512, code 57, data 278
+E46J14   `dcl x varying;' -- attribute, no type         EMITTED code 38 / data 2; DR has data 1         refuses; DR accepts with no cell
+E46J15   `pointer varying'                              HEAD refused, but at POINTER-PUT-unsampled refuses at the attribute, matching DR
+E46J16   group attribute + assignment                   ?SLCTS after ?SMCVM                    BYTE-EXACT 256/256
+E46J17   SECOND member of the group (BUFF)              BUFF at 000E, 268-byte frame           BYTE-EXACT 256/256, BUFF at 000F, 270
+E46J18   level-numbered FIXED member as a TITLE         refused                                refuses, now truthful
+E46J19   two CHARACTER and one FIXED under one attribute EMITTED AN OBJECT DR never emits       refuses; DR's CONFLICT, no .REL
+E46J20   ONE-member group + fixed item printed          ?SLCTS + 16-byte frame                 BYTE-EXACT 384/384, code 68, data 17
+E46J21   QUALIFIED `rec.line' store and print           HEAD: `undeclared rec.line'         refuses, now truthful
+
+
+SECTION 3 -- the two numbers that show the defect was storage, not syntax
+-------------------------------------------------------------------------
+Same declaration, two spellings:
+
+  dcl (line char(14), buff char(254)) varying;      <- COPYLPT's spelling
+  dcl line char(14) varying, buff char(254) varying; <- the scalar spelling
+
+DR's $L$D$S dump for BOTH is:
+  c 0000 LINE CHAR(14) VARYING AUTOMATIC
+  c 000F BUFF CHAR(254) VARYING AUTOMATIC
+(the scalar spelling is E46J1-class evidence in golden/e42p1d; the group spelling is E46J2/E46J17).
+000F = 15 = 14 + the length byte.  Before P1d this compiler printed 000E for the group spelling --
+CHARACTER(14) with NO length byte -- so BUFF, and everything after it, sat one byte low, and the
+frame was 270 where DR's is 272.  COPYLPT itself measured 276 against DR's 278 (E46J13).
+
+That is why the symptom was a wrong helper rather than a wrong name: ?SLVTS reads the length OUT
+OF the descriptor cell, ?SLCTS takes it as a `MVI A' immediate, and choosing between them is a
+read of the storage class the binder produced.  Fixing the binder moves the classification, the
+layout, the dump and both operations' dispatch at once; no TITLE-specific or PUT-specific branch
+was added, and [C174]'s dispatch table is untouched.
+
+SECTION 4 -- what still refuses, and why that is the honest state
+-----------------------------------------------------------------
+Five probes are DR's own rejections and are registered on the negative panel as `dr-refuses':
+E46J8, E46J9, E46J10, E46J15, E46J19 (CONFLICT, no .REL).  VARYING attaches to CHARACTER and to
+nothing else; DR applies it per ITEM, so E46J19's listing shows A and C becoming VARYING while
+B (FIXED) is the CONFLICT.  This compiler cannot emit a partially-diagnosed object, so the
+declaration refuses as a whole -- same OUTCOME (no object), and the message names DR's word.
+
+Six are MY gaps (`my-gap' on the panel), because DR emits a real object for each:
+  E46J6, E46J11, E46J12, E46J18, E46J21  -- a level-numbered structure's CHARACTER member, in
+      both the bare and the qualified spelling.  Bind now lays these out exactly as DR does (see
+      E46J21 below, where our own dump equals DR's line for line); what is missing is the ALIAS,
+      because bind's member registry covers FIXED BINARY(15) and POINTER only [E2E-39/P2].
+      Widening it would resolve assignment, comparison, EDIT and PUT EDIT for members through
+      routes that have no member sample, so the refusal is kept and, since P1d, says which
+      member and which type it is refusing.
+  E46J14 -- `dcl x varying;' with no type at all: DR dumps `X(0) VARYING AUTOMATIC' in a block of
+      AUTO STORAGE 0 (no cell), assigns through ?DLDOP and prints through ?PNVOP, i.e. the dump
+      says VARYING and the code treats it as a number.  Nothing pins a READ of that name.
+Our dump of E46J21, which is the shape the level-numbered rows are about:
+
+   ours| BLOCK AT LINE 3, AUTO STORAGE 17 BYTES
+   ours| c 0000 REC STRUCTURE LEVEL 1, MEMBERS 2 AUTOMATIC
+   ours| c 0000 .LINE CHAR(14) VARYING MEMBER
+   ours| c 000F .NXT FIXED BINARY(15,0) MEMBER
+
+DR's dump of the same source:
+   DR  | BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+   DR  | a 0000 E46J21 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+   DR  | BLOCK AT LINE 3, AUTO STORAGE 17 BYTES
+   DR  | c 0000 REC STRUCTURE LEVEL 1, MEMBERS 2 AUTOMATIC
+   DR  | c 0000 .LINE CHAR(14) VARYING MEMBER
+   DR  | c 000F .NXT FIXED BINARY(15,0) MEMBER
+   DR  |    NO ERROR(S) IN PASS 1

@@ -1,0 +1,5 @@
+E46J10:
+  procedure options(main);
+  dcl b bit(4) varying;
+  put list(b);
+end E46J10;

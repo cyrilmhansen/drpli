@@ -1,0 +1,5 @@
+E46J1:
+  procedure options(main);
+  dcl nm char(14) varying, k fixed bin(15);
+  put list(nm);
+end E46J1;

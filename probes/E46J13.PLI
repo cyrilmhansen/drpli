@@ -1,0 +1,9 @@
+E46J13:
+  procedure options(main);
+  declare
+    (sysin, sourcefile, printfile) file,
+    (pagesize, pagewidth, spaces, linenumber) fixed,
+    (line character(14), buff character(254)) varying;
+  open file(printfile) stream output title(line);
+  put list(line);
+end E46J13;

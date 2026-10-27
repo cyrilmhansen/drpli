@@ -1,0 +1,6 @@
+E46J2:
+  procedure options(main);
+  dcl (line char(14), buff char(254)) varying, k fixed bin(15);
+  put list(line);
+  put list(buff);
+end E46J2;

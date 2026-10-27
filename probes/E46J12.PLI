@@ -1,0 +1,5 @@
+E46J12:
+  procedure options(main);
+  dcl 1 rec, 2 line char(14), 2 nxt fixed bin(15);
+  put list(line);
+end E46J12;

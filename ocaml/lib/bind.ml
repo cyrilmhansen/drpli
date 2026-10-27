@@ -193,8 +193,90 @@ let num_arg = function
   | Some { e = Enumber t; _ } -> (try Some (int_of_string t) with _ -> None)
   | _ -> None
 
+(* [E2E-42/P1d] ONE place applies the VARYING declaration ATTRIBUTE.
+
+   DR accepts three spellings of one thing and the parser keeps them in two places:
+   `character(14) varying' folds the flag into the TYPE (parser.ml, parse_type), while a
+   group's trailing attribute -- COPYLPT's `declare (line character(14), buff
+   character(254)) varying' -- and the pre-type spelling `nm varying char(14)' arrive as an
+   ordinary VARYING attr on an item whose parsed type is still FIXED-size.  Until P1d the
+   binder read d.dtype alone, so both of those spellings bound as plain CHARACTER(n), and a
+   later reader of the binding could not tell them apart from a declaration that never said
+   varying at all.
+
+   The cost is not cosmetic.  DR's $L$D$S dump of the group spelling says
+   `LINE CHAR(14) VARYING AUTOMATIC' at 0000 with `BUFF CHAR(254) VARYING AUTOMATIC' at 000F
+   and AUTO STORAGE 272 [E46J2]; we bound CHAR(14) at 0000, CHAR(254) at 000E and 270 bytes,
+   and COPYLPT's own dump puts LINE at 0008 and BUFF at 0017 in 278 bytes [COPYLPT, E46J13 --
+   DR gives 0008/0017/278].  Every address after the varying cell was therefore ours-to-DR
+   wrong, and -- the visible symptom that opened this episode -- PUT LIST(line) and
+   OPEN ... TITLE(line) chose ?SLCTS where DR chooses ?SLVTS, because the dispatch below the
+   binder is a read of the classification this function produces [C288].  That is ONE shared
+   defect behind both operations, which is why the repair is here and not in either route.
+
+   VARYING is a CHARACTER attribute and nothing else: applied to a FIXED it is CONFLICT
+   [E46J9], in a group whose other items are FIXED it is CONFLICT while the CHARACTER items
+   still become varying [E46J8, E46J19], and on a POINTER it is CONFLICT plus a pass-2
+   COMP REQ [E46J15].  No DR object exists for any of those, so this refuses rather than
+   inventing an object DR never emits.
+
+   A typeless item carrying VARYING is also refused, and this is the one place that says why:
+   DR accepts `dcl x varying;' as `X(0) VARYING AUTOMATIC' in a ONE-byte DATA area, assigning
+   through ?DLDOP and printing through ?PNVOP [E46J14] -- a zero-length CHARACTER default with
+   no length byte to its name, which no probe of ours pins down.  Before this commit the item
+   silently became the default FIXED BINARY(15) cell of a two-byte data area, so we emitted an
+   object whose size, helper and symbol entry all disagreed with DR's.  Refusing is the
+   truthful state of knowledge; matching E46J14 would be its own measurement.
+
+   The attribute is case-folded like every other attribute read [E2E-9], and it is applied to
+   the type the parser produced, so an item that already says `char(14) varying' AND carries
+   the attribute (a spelling DR has not been probed) simply stays varying. *)
+let apply_varying_attr (d : dcl) (rt : rt) : rt =
+  if not (has_attr d.dattrs "VARYING") then rt
+  else match rt with
+    | RTchar (n, _) -> RTchar (n, true)
+    | _ ->
+        let what =
+          match d.dtype with
+          | None -> "typeless"
+          | Some (Tfixed _) -> "FIXED"
+          | Some (Tfloat _) -> "FLOAT"
+          | Some (Tbit _) -> "BIT"
+          | Some Tptr -> "POINTER"
+          | Some Tfile -> "FILE"
+          | Some (Tentry _) -> "ENTRY"
+          | Some (Tchar _) -> "CHARACTER"
+        in
+        if what = "typeless" then
+          failwith
+            "bind: the VARYING attribute on a typeless declaration is not bound [TBD].  DR \
+             accepts `dcl x varying;' and dumps it as `X(0) VARYING AUTOMATIC' in a block of \
+             AUTO STORAGE 0 -- no cell at all -- while `x = 1' goes through ?DLDOP and \
+             `put list(x)' through ?PNVOP, i.e. DR OPERATES on it as a number even though the \
+             dump says VARYING [E46J14, oracle golden/e42p1d].  That is a shape of its own, not \
+             CHARACTER(0) with our layout, and no probe pins down what a reference to it does. \
+             Before P1d the item silently became the default FIXED BINARY(15) in two bytes, \
+             whose object differed from DR's in data size, helper and symbol entry"
+        else
+          failwith
+            (Printf.sprintf
+               "bind: the VARYING attribute on a %s declaration is DR's CONFLICT, and DR emits \
+                no object [TBD] (a LANGUAGE rule DR enforces, not a lowering this compiler is \
+                missing -- the [TBD] tag is this project's marker for \"refused, did not \
+                crash\", and the refusal is the parity behaviour).  \
+                `fixed bin(15) varying' is CONFLICT [E46J9]; a group \
+                `(a fixed bin(15), b char(4)) varying' is CONFLICT while the CHARACTER member \
+                still takes the attribute [E46J8]; `(a char(4), b fixed bin(15), c char(6)) \
+                varying' is the same law with two varying members [E46J19]; `bit(4) varying' \
+                is CONFLICT [E46J10]; `pointer varying' is CONFLICT and then COMP REQ on the \
+                PUT [E46J15].  Measured in DR's $L$D$S dumps at oracle golden/e42p1d [C288]"
+               what)
+
+(* The single type-building function: every caller -- flat variables, structure members,
+   based views, procedure locals, formals and RETURNS types -- goes through it, so the
+   VARYING attribute cannot be honoured in one context and dropped in another. *)
 let resolve_type_raw (d : dcl) : rt =
-  match d.dtype with
+  apply_varying_attr d (match d.dtype with
   | Some (Tfixed { dec; prec; scale }) ->
       let p = check_fixed_prec dec
                   (match num_arg prec with Some p -> p | None -> 15) in
@@ -222,7 +304,7 @@ let resolve_type_raw (d : dcl) : rt =
   | None ->
       if has_attr d.dattrs "LABEL" then RTlabel
       else if has_attr d.dattrs "FORMAT" then RTformat
-      else RTbin 15
+      else RTbin 15)
 
 (* [E2E-26/P2] ONE place applies the BASED attribute, so sizing, printing and lowering can never
    disagree about it [C179].  `dcl q based(p) fixed' resolves to the value type wrapped with the
@@ -512,6 +594,16 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
   let statics = ref 0 in
   (* structured rows for the IR builder: (lower name, rt, offset, auto) *)
   let rows = ref [] in
+  (* [E2E-42/P1d] internal members that got NO unqualified alias: (lower bare name, owner,
+     own rt, absolute frame offset).  Bind sizes and dumps every member type correctly -- a
+     CHARACTER member's row in the $S dump is byte-for-byte DR's, `.LINE CHAR(14) VARYING
+     MEMBER' -- but the alias registry below registers a bare name only for
+     `RTbin 15 | RTptr', so a CHARACTER/BIT/DEC/FLOAT member is invisible to codegen's name
+     table.  Before P1d the result was a refusal that said "no declaration in scope", which
+     is false: the declaration IS in scope and laid out, and only its LOWERING is unmeasured
+     (DR emits real objects for all four shapes, golden/e42p1d E46J6/E46J11/E46J12/E46J18).
+     Carrying the member here is what lets codegen say which of the two it is. *)
+  let unaliased = ref [] in
   (* [E2E-19] 1-D array metadata: (lower name, lower bound, upper bound,
      element bytes).  Filled by the SAME walk that computes offsets, so
      layout stays the single authority on storage: the only thing this adds
@@ -770,6 +862,12 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
                and guessing a cell size overlaps the next variable (the C162 class).  Ambiguity and
                collision are handled once, after the walk, by check_member_names. *)
             let top_level_head = match !head with Some (hl, _) -> hl = 1 | None -> false in
+            (if top_level_head && not grp
+               && not (match rt with RTbin 15 | RTptr -> true | _ -> false)
+             then
+               unaliased :=
+                 (String.lowercase_ascii item.dname.orig, !horig, rt, base + o)
+                 :: !unaliased);
             (match rt with
              | (RTbin 15 | RTptr) when top_level_head && not grp ->
                  let bare = String.lowercase_ascii item.dname.orig in
@@ -954,7 +1052,7 @@ let layout ?(soff_start = 0) ?(isfn = false) ?(outer_rows : (string * rt * int *
   (let rs = List.rev !rows in
    check_member_names rs;
    check_qualified_uses ~outer:outer_rows b rs;
-   (!off, List.rev !syms, !statics, rs, List.rev !arrays))
+   (!off, List.rev !syms, !statics, rs, List.rev !arrays, List.rev !unaliased))
 
 (* ---------- format descriptors & labels (binder v2) [C052] ---------- *)
 (* sizes: F/E items 6B, A 2B, controls(SKIP/PAGE/LINE) 2B, count prefix +3B,
@@ -1176,7 +1274,7 @@ let rec bind_and_dump (blk : block) =
   let blocks : (int * int * string * sym list) list ref = ref [] in
   List.iter
     (fun (b, ln, fl) ->
-      let auto, syms, statics, _rows, _arrays =
+      let auto, syms, statics, _rows, _arrays, _mems =
         layout ~soff_start:fmt_total ~isfn:(returns_attr b <> None) b
       in
       (* unit-block storage totals ALL statics program-wide, incl. nested
@@ -1375,15 +1473,23 @@ let dump_s = bind_and_dump
 
 (* structured view for the IR builder: first (frame) block's rows *)
 let bind_rows (blk : block) =
-  let (_auto, _syms, _statics, rows, _arrays) = layout blk in
+  let (_auto, _syms, _statics, rows, _arrays, _mems) = layout blk in
   rows
 
 (* [E2E-19] array metadata for a block, from the SAME `layout' walk that
    computes every offset.  Re-running layout is not a second allocator: it is
-   one function, called twice, producing two views of one model. *)
+   one function, called twice, producing two views of one model.
+
+   [E2E-42/P1d] `bind_members' is that same second-view trick for the members that got no
+   unqualified alias.  It carries no layout information codegen could act on -- it exists so a
+   refusal can name the member it is refusing instead of claiming the name was never declared. *)
 let bind_arrays (blk : block) =
-  let (_auto, _syms, _statics, _rows, arrays) = layout blk in
+  let (_auto, _syms, _statics, _rows, arrays, _mems) = layout blk in
   arrays
+
+let bind_members (blk : block) =
+  let (_auto, _syms, _statics, _rows, _arrays, mems) = layout blk in
+  mems
 
 (* ---------- [E2E-5c] whole-program call layout (additive view) ----------
    Rules extracted from DR bytes, P401/P402/RFACT ($S + $C + .REL
@@ -1627,6 +1733,13 @@ type proc_layout =
        1-D arrays declared in THIS block.  Explicit addition rather than a
        wider pl_rows tuple, so the 7 codegen consumers of pl_rows -- and every
        scalar offset they produce -- are untouched. *)
+  ; pl_members : (string * string * rt * int) list
+    (* [E2E-42/P1d] (lower bare name, owning head, the member's OWN type, absolute frame
+       offset) for every internal LEVEL-1 member the alias registry declined to bind -- i.e.
+       everything except FIXED BINARY(15) and POINTER [E2E-39/P2].  Layout and the $S dump are
+       already DR-exact for these (E46J21: our dump equals DR's line for line); the list exists
+       so codegen's refusal can name the member it is refusing instead of saying that no
+       declaration is in scope.  Nothing lowers through it. *)
   ; pl_body : Ast.stmt list
 ; pl_on : on_facts         (* [E2E-34] this block's ON-unit facts *)
 ; pl_sp_cell : int option  (* [E2E-34] bind-relative DATA addr of its saved-SP cell *) }
@@ -2079,6 +2192,7 @@ let bind_program (blk : Ast.block) : prog_layout =
                         List.mapi (fun i f -> (f, base + 2 * i)) formals
                     ; pl_rows = rows
                     ; pl_arrays = bind_arrays b
+                    ; pl_members = bind_members b
                     ; pl_body = b.bstmts
                     ; pl_on = of_
                     ; pl_sp_cell = sp_cell } ]

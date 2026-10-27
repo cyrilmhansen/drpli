@@ -6438,15 +6438,27 @@ option word is unchanged by any of this -- `0x0800` is set by the presence of a 
 nothing about its operand, which [C286] had already established for the title/default-mode
 composition.
 
-**One accepted shape diverges, and [C288] does not cover it.**  An UNQUALIFIED reference to a
-member of a VARYING STRUCTURE -- COPYLPT's `title(line)`, where `line` is `character(14)` inside
-`(line character(14), buff character(254)) varying` -- reaches this arm as a plain declared name
-and binds in `st.vars` as a FIXED cell, so this compiler emits `LXI H,<cell>; MVI A,<len>;
-CALL ?SLCTS` where DR emits `LXI H,<descriptor>; CALL ?SLVTS` (COPYLPT blocks `014C..016D` and
-`01E8..020A`, `spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt`).  The shape therefore COMPILES with
-wrong bytes rather than refusing, and no probe of mine pins it -- `E46F1-4` all name scalar
-variables.  This claim asserts the dispatch for SCALAR `Vvar`/`Vfix` operands and nothing more;
-closing the member case needs the storage class fixed at the binding, not in `lower_open`.
+**One accepted shape diverged here, and [C290] closes it -- from below.**  COPYLPT's
+`title(line)`, where `line` comes from `declare (line character(14), buff character(254))
+varying`, reached this arm as a plain declared name bound as a FIXED cell, so the compiler emitted
+`LXI H,<cell>; MVI A,<len>; CALL ?SLCTS` where DR emits `LXI H,<descriptor>; CALL ?SLVTS`.  When
+this claim was written the shape was attributed to STRUCTURE-MEMBER resolution, which was wrong:
+that parenthesised form is not a level-numbered structure at all -- the parser flattens it into two
+ordinary scalar items -- and DR's dump for it says `LINE CHAR(14) VARYING AUTOMATIC', not `MEMBER'.
+The flag was simply being dropped by the binder, which read the parsed TYPE and never the
+declaration's ATTRIBUTE list.  [E2E-42/P1d] repaired that one place ([C290]) and the dispatch above
+then chose correctly with no change to `lower_open`: `E46J3` is byte-exact at 384 bytes and `E46J13`
+(COPYLPT's declaration verbatim) at 512, code 57 and a 278-byte data area.  This claim therefore
+asserts the dispatch for SCALAR `Vvar`/`Vfix` operands, and [C290] says how a group-declared
+character reaches `Vvar` in the first place.
+
+What remains open is a DIFFERENT shape that P1c's note had conflated with this one: a member of a
+LEVEL-NUMBERED structure (`dcl 1 rec, 2 line char(14) varying'), referenced bare or qualified.  DR
+lowers it -- `LXI H,<member cell>` plus the helper its type picks [E46J6, E46J11, E46J12, E46J18,
+E46J21] -- and this compiler still refuses it, because its unqualified-member registry covers FIXED
+BINARY(15) and POINTER only [E2E-39/P2].  Since P1d that refusal says so by name (`codegen: [TBD]
+`line' resolves to the bound member `REC.LINE' (CHAR(14) VARYING at DATA 0000) ...`) instead of claiming
+the declaration is out of scope, which was false: bind lays that member out at DR's exact offsets.
 
 ## C289 — LINK-80'S SIDE OF A NAME COLLISION, MEASURED ON FOUR LINKED IMAGES (E2E-42/P1a)
 
@@ -6473,3 +6485,60 @@ probes E46D1/E46D4/E46D5 are not mistaken for accepted-and-correct programs.
    from DR and from this compiler; the divergence appears only when LINK-80 resolves two
    groups to one name.  A collision diagnostic here would make this compiler disagree with
    the oracle about a program DR accepts, so we reproduce DR's **records** and add nothing.
+
+## C290 — THE VARYING ATTRIBUTE BELONGS TO THE DECLARATION, NOT TO THE TYPE SPELLING (E2E-42/P1d)
+
+`declare (line character(14), buff character(254)) varying` is one declaration carrying ONE
+attribute and two types.  DR applies that attribute to every item in the group, per item, and only
+where the item's type can take it.  `golden/e42p1d` measures the whole law on 21 programs, and the
+three parts of it had each been recorded wrongly until now.
+
+**1. The attribute is part of the storage class.**  DR's dump of the group form is
+
+    c 0000 LINE CHAR(14) VARYING AUTOMATIC     (E46J2, AUTO STORAGE 272)
+    c 000F BUFF CHAR(254) VARYING AUTOMATIC
+
+while the same group with NO trailing attribute is
+
+    c 0000 LINE CHAR(14) AUTOMATIC             (E46J5, AUTO STORAGE 268)
+    c 000E BUFF CHAR(254) AUTOMATIC
+
+One word changes both the DUMP and the arithmetic: `buff` moves from 000E to 000F because a varying
+cell is `n+1`, and the frame from 268 to 272.  `CHARACTER(n) VARYING` declared inline and the group
+attribute therefore mean the same thing, and so does the pre-type spelling `nm varying char(14)`
+(E46J7, an object identical to E46J1's apart from names).  Until P1d this compiler honoured only
+the inline spelling: `resolve_type` read `d.dtype`, where the parser had put the flag, and never
+`d.dattrs`, where a GROUP attribute lands.  The result was not a wrong name and not a wrong route
+but a wrong CELL -- every address after a varying member one byte low, a frame 2 bytes short on a
+two-member group, and both string helpers chosen from a storage class the source never declared.
+`apply_varying_attr` (bind.ml) now applies the attribute in the one function every declaration goes
+through -- flat items, structure members, based views, procedure locals, formals and RETURNS -- so
+no operation can see one classification and another operation see something else.  Nothing was
+added to `lower_open` or to the PUT item: [C174]'s and [C288]'s dispatch, which reads the storage
+class, now simply reads a true one.  Ten whole objects are byte-exact against DR (`E46J1, J2, J3,
+J4, J5, J7, J13, J16, J17, J20`; RELOC and CHAIN records included, per [C264]).
+
+**2. It is a CHARACTER attribute.**  DR says CONFLICT and emits no object for `fixed bin(15)
+varying` (E46J9), for `bit(4) varying` (E46J10), for `pointer varying` (E46J15 -- which then fails
+pass 2 with COMP REQ), and for a group whose items include a FIXED one (E46J8, E46J19).  This
+compiler emitted objects for three of those four before P1d, with sizes of its own.  It now
+refuses, and the refusal is parity in OUTCOME, not in diagnosis: DR produces no `.REL`, we produce
+no object.
+
+**3. The attribute distributes PER ITEM, and DR keeps compiling.**  E46J19
+`(a char(4), b fixed bin(15), c char(6)) varying` dumps `A CHAR(4) VARYING` at 0000,
+`B FIXED BINARY(15,0)` at 0005 and `C CHAR(6) VARYING` at 0007 alongside its CONFLICT: the
+CHARACTER items took the attribute and the FIXED one is the error.  E46J8's listing shows the same
+split.  A single-shot front end cannot reproduce an object that was emitted past an error, so the
+whole declaration refuses here -- recorded on the negative panel as `dr-refuses`, because DR gives
+no object either.
+
+**What is NOT claimed.**  `dcl x varying;` -- the attribute on an item with NO type -- is accepted
+by DR (E46J14: `X(0) VARYING AUTOMATIC`, AUTO STORAGE 0, a 1-byte DATA area, the store through
+?DLDOP and the print through ?PNVOP), and this compiler refuses it.  DR's dump calls the name
+VARYING while its code treats it as a number and allocates no cell; that is a shape of its own, not
+`CHARACTER(0)` with the n+1 rule, and no probe shows what a read of such a name does.  It is
+registered as `my-gap`.  Likewise nothing here claims a LEVEL-NUMBERED member's lowering: the
+classification and layout of `2 line char(14) varying` are now DR-exact (E46J21's dump matches ours
+line for line), but the member still has no alias [E2E-39/P2], and the five DR objects for its bare
+and qualified uses ([C288]) are banked as the evidence P1e has to match.

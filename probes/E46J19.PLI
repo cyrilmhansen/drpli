@@ -1,0 +1,5 @@
+E46J19:
+  procedure options(main);
+  dcl (a char(4), b fixed bin(15), c char(6)) varying;
+  put list(a, c, b);
+end E46J19;

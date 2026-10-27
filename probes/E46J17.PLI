@@ -1,0 +1,5 @@
+E46J17:
+  procedure options(main);
+  dcl (line char(14), buff char(254)) varying;
+  put list(buff);
+end E46J17;
