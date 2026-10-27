@@ -2784,8 +2784,18 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
      the PUT side: DR allocates pool blocks in SOURCE order, so in E17B/E16C/E18A the
      title occupies data 0x0000 and the later PUT strings sit above it
      (golden/e2e11i/E17B/E17B.REL, golden/e2e11h/E16C/E16C.REL -- the OPEN's
-     `LXI H,* S(0000)' carries a DATA reloc to the FIRST pool block).  Only literal
-     titles are counted: a variable title routes to ?SLVTS and refuses. *)
+     `LXI H,* S(0000)' carries a DATA reloc to the FIRST pool block).
+
+   Only a LITERAL title allocates a pool cell, and the reason is ALLOCATION, not refusal.
+   A VARIABLE operand has nowhere new to live: both routes of [C288] point HL at an
+   EXISTING declared cell -- `LXI H,<descriptor>; CALL ?SLVTS' for CHARACTER(n) VARYING,
+   `LXI H,<cell>; MVI A,<declared length>; CALL ?SLCTS' for CHARACTER(n) FIXED -- and DR's
+   own E46F1/E46F2 objects (golden/e42p1c/) carry NO pool block for the title: each has a
+   ONE-byte DATA area, the `X' of its own PUT LIST, where the same program with the LITERAL
+   title('T.DAT') -- E46D6 -- has a FIVE-byte DATA area, the title's own pool block.  Counting a variable operand here would
+   insert a phantom block, move every later literal up, and break the source-order law this
+   comment exists to enforce.  So the two variable routes ARE lowered (see lower_open) and
+   this prescan deliberately ignores them. *)
   | Ast.Sfilestmt { key = "OPEN"; opts } ->
       List.fold_left
         (fun a (o : Ast.io_opt) ->
@@ -8424,7 +8434,7 @@ let lower_get_file st (fu : string) (items : Ast.name list) =
   d st op_lxi_d; d st 0x90; d st 0x06;    (* LXI D,0690 input mode word *)
   lower_get_body st "?SIOOP" items
 
-(* ---------- [E2E-41/P1b, P2b] OPEN and CLOSE of a named STREAM file ----------
+(* ---------- [E2E-41/P1b, P2b, P3b + E2E-42/P0, P1a, P1b] OPEN and CLOSE of a named STREAM file ----------
 
    P0 read 34 OPEN blocks out of 24 distinct DR-compiled objects
    (spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt, OPEN-MATRIX.tsv) and found one shape
@@ -8437,27 +8447,92 @@ let lower_get_file st (fu : string) (items : Ast.name list) =
    P1 lowered the titleless stream form (P081Q, P072H).  P2b adds the LITERAL-STRING
    TITLE on a stream/input OPEN: E17B/E16C/E18A are byte-exact witnesses (29-byte
    OPEN, [C278]).  P3b adds `stream output' with a literal TITLE (E16D/E17D, w1 =
-   0x0E50 [C280]) and the named-file PUT LIST of literals.  Everything else -- a
-   VARIABLE title (?SLVTS), a print open, an attribute word, a titleless OUTPUT,
-   PAGESIZE/LINESIZE/KEYED/DIRECT/ENVIRONMENT -- still refuses below. *)
+   0x0E50 [C280]) and the named-file PUT LIST of literals.  [E2E-42/P0] adds DR's CONFLICT
+   diagnosis for a repeated keyword or a mode pair [C285] and the MODE-LESS open, which DR
+   defaults to stream input at w1 = 0x0690 [C286].  [E2E-42/P1a] lowers a FILE name longer
+   than six characters: the COMMON GROUP symbol is the first six characters while the control
+   block stores the FULL name, and DR ACCEPTS two such names that collide on the six
+   characters instead of refusing [C283][C284].  [E2E-42/P1b] adds the VARIABLE TITLE -- and
+   its finding is that a title operand is not one helper but a ROUTE CHOSEN BY THE OPERAND'S
+   STORAGE CLASS: a CHARACTER(n) VARYING operand takes ?SLVTS in a 27-byte block and a
+   CHARACTER(n) FIXED one keeps ?SLCTS with `MVI A,<declared length>' in a 29-byte one
+   (E46F1 versus E46F2, byte-exact, [C288]).
 
-(* the option words P3b tolerates on OPEN.  Not a codegen claim about the others: the
-   parser accepts the whole documented vocabulary (P1a) so that the option list is
-   visible, and codegen refuses what it cannot emit byte-exactly. *)
+   What still refuses below is an OPTION WORD, not a title: a print open, a titleless OUTPUT,
+   and PAGESIZE/LINESIZE/KEYED/DIRECT/ENVIRONMENT/RECORD/SEQUENTIAL/UPDATE/PRINT, none of
+   whose option words is lowered byte-exactly here.  The TITLE OPERAND shapes refused are an
+   expression, an array element or a QUALIFIED reference, and a declared name whose kind is
+   neither CHARACTER VARYING nor CHARACTER FIXED.
+
+   ONE ACCEPTED SHAPE DIVERGES, AND IT IS RECORDED RATHER THAN HIDDEN.  An UNQUALIFIED
+   reference to a member of a VARYING STRUCTURE -- COPYLPT's `title(line)', where `line' is
+   `character(14)' inside `(line character(14), buff character(254)) varying' -- resolves
+   through st.vars as a FIXED cell, so this code emits `LXI H,<cell>; MVI A,<len>;
+   CALL ?SLCTS' where DR emits `LXI H,<descriptor>; CALL ?SLVTS' (COPYLPT blocks 014C..016D
+   and 01E8..020A, spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt).  No probe of mine pins that
+   shape, so [C288] does not claim it, and COPYLPT itself is unreachable here for unrelated
+   reasons (its OPENs carry PRINT/PAGESIZE/LINESIZE and its ENDFILE handler carries a PUT
+   PAGE).  Closing it needs the storage class fixed at the BINDING, which is outside this
+   documentation-only episode. *)
+
+(* the option words OPEN tolerates.  Not a codegen claim about the others: the
+   parser accepts the whole documented vocabulary (E2E-41/P1a) so that the option list is
+   visible, and codegen refuses what it cannot emit byte-exactly.  The list is about
+   OPTION WORDS only -- a TITLE OPERAND shape is checked separately, in open_title. *)
 let open_subset_keys = [ "FILE"; "INPUT"; "STREAM"; "OUTPUT"; "TITLE" ]
 
+(* The pinned negative-panel markers are the PREFIXES `OPEN option KEYED is outside',
+   `OPEN option RECORD is outside', `OPEN option SEQUENTIAL is outside' and `OPEN option
+   UPDATE is outside' (tools/e2e_gate.py), so the wording AFTER `is outside' may be
+   corrected freely -- but the corpus census snapshot (spec/census/corpus-census.tsv, verified
+   byte-for-byte on `msg' by tools/corpus_census.py --verify per [C265]) carries the FULL text,
+   and COPY/ENTER/RETRIEVE/UPDATE refuse here.  Rewriting this message therefore REQUIRES
+   regenerating that snapshot; doing it silently is exactly the hidden drift [C265] catches.
+
+   OPEN and CLOSE share this one raise site, so the message is chosen by `what': an OPEN
+   history recited inside a CLOSE diagnostic would describe a statement the user did not
+   write.  Neither arm changes what is refused -- open_subset_keys and the CLOSE filter are
+   untouched -- only what the refusal says.  Note the CLOSE arm is a BACKSTOP, not the live
+   refusal: the parser already rejects an unrecognised CLOSE option word (E2E-41/P1a's
+   vocabulary guard, measured in parser.ml and pinned by E46H2-class rows), so an unknown
+   option reaches codegen only on the OPEN side.  The arm exists so that if a CLOSE option
+   ever does reach it, the message describes CLOSE and not OPEN. *)
 let refuse_file_opt (what : string) (o : Ast.io_opt) (s : Ast.stmt) =
-  failwith
-    (Printf.sprintf
-       "codegen: %s option %s is outside the E2E-41/P3 witnessed subset [TBD] (line %d) \
-        -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv); \
-        P1 lowers the titleless stream open, P2b the literal-TITLE stream/input open \
-        (E17B/E16C/E18A byte-exact [C278]) and P3b the literal-TITLE `stream output' open \
-        (E16D/E17D byte-exact, w1 = 0x0E50 [C280]); ENVIRONMENT needs its ORGANIZATION and \
-        RECORD SIZE words, PAGESIZE/LINESIZE/PRINT/KEYED/DIRECT their own bits and words, \
-        and a VARIABLE title routes to ?SLVTS -- none of those is lowered byte-exactly \
-        by this compiler yet"
-       what o.Ast.io_key s.Ast.spos.Source.line)
+  (* Printf.sprintf needs a LITERAL format, so each statement kind carries its own call
+     rather than selecting a tail string -- which is also why the two narratives cannot leak
+     into each other. *)
+  if what = "CLOSE" then
+    failwith
+      (Printf.sprintf
+         "codegen: %s option %s is outside what this compiler lowers [TBD] (line %d) \
+          -- CLOSE is measured at 5 sites (E16D, E17D, RETRIEVE, P072H, P081Q), every one of \
+          them `close file(<one name>)' in 6 bytes: LXI H over the control block and CALL \
+          ?CIOOP with NOTHING pushed [C275].  %s is an operand no measured CLOSE carries, and \
+          multi-file CLOSE is likewise unmeasured, so this refuses rather than guess whether \
+          DR pushes a vector of control blocks"
+         what o.Ast.io_key s.Ast.spos.Source.line o.Ast.io_key)
+  else
+    failwith
+      (Printf.sprintf
+         "codegen: %s option %s is outside what this compiler lowers [TBD] (line %d) \
+          -- P0 measured 34 OPEN blocks in 24 DR objects \
+          (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv).  Lowered today: the titleless stream \
+          open [C273]; the MODE-LESS open, which DR defaults to stream input at w1 = 0x0690 \
+          (E46E4, E46G3 [C286]); the literal-TITLE stream/input open (E17B/E16C/E18A, 29 bytes \
+          [C278]); the literal-TITLE `stream output' open (E16D/E17D, w1 = 0x0E50 [C280]); a \
+          FILE name longer than six characters, whose COMMON symbol is clipped to six while \
+          the control block keeps the full name (E46D1-D7 [C283][C284]); and a VARIABLE title \
+          on either side -- ?SLVTS for a CHARACTER(n) VARYING operand, ?SLCTS with MVI A, \
+          <declared length> for a CHARACTER(n) FIXED one (E46F1-F4 [C288]).  So nothing in \
+          this message is a TITLE gap or a name-length gap: %s refuses as an OPTION WORD. \
+          ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE their \
+          attribute words, and PRINT/KEYED/DIRECT/RECORD/SEQUENTIAL their own bits; DR \
+          compiles every one of those (E46H1 `keyed direct' = 0x058C, E46H3/E46H4 \
+          `record'/'sequential' = 0x0590, and the recount of [C287] measures 11 ENVIRONMENT, \
+          4 PAGESIZE, 2 LINESIZE, 4 KEYED and 1 DIRECT site) and this compiler has no \
+          byte-exact witness of any of them, so it refuses rather than compose a word from \
+          bits it has not measured"
+         what o.Ast.io_key s.Ast.spos.Source.line o.Ast.io_key)
 
 (* The TITLE clause, if any.  [E2E-42/P1b] DR has TWO routes, and which one a site takes
    is decided by the OPERAND, not by the option word:
@@ -8497,10 +8572,12 @@ let open_title (s : Ast.stmt) (opts : Ast.io_opt list) : title_spec option =
       failwith
         (Printf.sprintf
            "codegen: OPEN TITLE of an operand that is not a literal string or a plain \
-            declared name has no DR witness [TBD] (line %d) -- all five measured variable \
-            titles (LOAN2:56, CREATE:22, COPYLPT:38/49, RETRIEVE:31) and my own E46F1/F2/F3/F5 \
-            name a simple CHARACTER variable; an expression, a qualified reference or an \
-            ARRAY element is unreadable from this corpus"
+            declared name has no DR witness [TBD] (line %d) -- every measured variable title \
+            names a simple CHARACTER variable: the five historical sites (LOAN2:56, CREATE:22, \
+            COPYLPT:38 and :49, RETRIEVE:31) and my own four byte-exact probes E46F1/E46F3/ \
+            E46F4 (CHARACTER(14) VARYING -> ?SLVTS) and E46F2 (CHARACTER(8) FIXED -> ?SLCTS + \
+            MVI A) [C288].  An EXPRESSION, a QUALIFIED reference or an ARRAY element is \
+            unreadable from this corpus, so it refuses by name rather than guess a route"
            s.Ast.spos.Source.line)
   | [ _ ] ->
       failwith
@@ -8749,9 +8826,13 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
                  failwith
                    (Printf.sprintf
                       "codegen: OPEN TITLE(%s) on a %s variable is unmeasured [TBD] (line %d) \
-                       -- all nine measured variable-title operands are CHARACTER: five \
-                       historical VARYING sites (LOAN2:56, CREATE:22, COPYLPT:38/49, \
-                       RETRIEVE:31) plus my E46F1/F3/F5 (varying) and E46F2 (fixed)"
+                       -- the nine measured variable-title operands are all CHARACTER: five \
+                       historical VARYING sites (LOAN2:56, COPYLPT:38 and :49, RETRIEVE:31, \
+                       CREATE:22) plus my own E46F1/E46F3/E46F4 (CHARACTER(14) VARYING) and \
+                       E46F2 (CHARACTER(8) FIXED) [C288].  E46F5 is a tenth on DR's side ONLY: \
+                       it is refused here at its STATIC declaration ([C114]) and never reaches \
+                       this arm, so it witnesses nothing about a route.  A BIT/DECIMAL/FLOAT/ \
+                       STRUCTURE title operand refuses by name rather than borrow a route"
                       n.Ast.orig (vk_name k) s.Ast.spos.Source.line)))
        ; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
          d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
@@ -9401,13 +9482,23 @@ let lower_put_items_gen st ?(file : string option = None)
   call_ext st (if file <> None then "?SIOOP" else "?SYSPR");
   (* [E2E-41/P3b] a SKIP on a named-file PUT is unmeasured here: CREATE writes
      `put file(output) skip list('EOF')' and `put file(output) skip' (golden/first/CREATE), so the
-     ?SKPOP exists on this route, but the object that carries it also carries a VARIABLE title and
-     is not one of this compiler's byte-exact specimens.  Refuse by name rather than compose. *)
+     ?SKPOP exists on this route, but no byte-exact specimen of MINE carries it.  What made CREATE
+     unreachable used to be its VARIABLE title, and that stopped being true at [E2E-42/P1b] --
+     CREATE:22's `title(filename)' is a CHARACTER(14) VARYING operand on a `stream output' open,
+     the exact shape E46F1 now matches byte-exactly [C288].  CREATE still refuses, and the reason
+     is now visible for what it is: the multi-item `put file(output) list(name,addr,city,state,
+     zip,phone)' at line 39.  Refuse by name rather than compose. *)
   if file <> None && skipn <> Sk_none then
     failwith
-      "codegen: PUT FILE ... SKIP has no byte-exact DR witness [TBD] -- CREATE:44 measures the \
-       shape (`put file(output) skip list('EOF')') but its own open carries a VARIABLE title, so \
-       no specimen of mine pins the bytes";
+      "codegen: PUT FILE ... SKIP has no byte-exact DR witness of MINE [TBD] -- CREATE:44 \
+       measures the shape (`put file(output) skip list('EOF')') and CREATE:41/45 the bare \
+       `put file(output) skip', and CREATE's OPEN at line 22 is a `stream output' with a \
+       CHARACTER(14) VARYING TITLE, which this compiler has lowered byte-exactly since \
+       [E2E-42/P1b] (E46F1, [C288]) -- so the TITLE is NOT why this refuses.  What is missing \
+       is a specimen: no object of mine carries a NAMED-FILE attach and a SKIP together \
+       (E16D/E17D, the two file-attach specimens, have no SKIP), and the words between a file \
+       attach and a following item are unpinned.  Bare console SKIP is byte-exact (LOAN1, \
+       N302; REVERSE 00FE), so this is a combination gap and not a SKIP gap";
   (match skipn with
    | Sk_lit c ->
        let n = parse_int_const c in

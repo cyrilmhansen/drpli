@@ -2974,7 +2974,14 @@ NEG_META["E41X6"] = ("my-gap",
     "SKIP-on-a-stream word exists in DR.  My P3b route claims exactly one item per file PUT "
     "because E16D/E17D, the only byte-exact objects of mine with a file attach, carry one item "
     "each; the words between a file attach and a following item are unpinned.  CREATE itself is "
-    "unreachable here anyway: its title is a VARIABLE (?SLVTS), which is not lowered.")
+    "still unreachable, but NOT for the reason this row used to give: its OPEN at line 22 carries "
+    "a VARIABLE title on a CHARACTER(14) VARYING operand, which [E2E-42/P1b] lowers byte-exactly "
+    "([C288], witness E46F1), and what refuses now is the six-item "
+    "`put file(output) list(name,addr,city,state,zip,phone)' at line 39 -- the E41X7 gap.  The "
+    "SKIP itself is byte-exact on the CONSOLE route -- LOAN1's "
+    "`put skip list(\'Principal \')' is a specimen since E2E-7 (golden/first8080u/LOAN1) and N302 "
+    "pins `put skip' and `put skip(2)' -- so what is unmeasured is only the combination: a SKIP "
+    "after a NAMED-FILE attach, which no specimen of mine carries.")
 
 NEG_META["E41X7"] = ("my-gap",
     "DR compiles a multi-item named-file PUT: CREATE:39 `put file(output) "
@@ -4382,15 +4389,25 @@ def main():
     # every gate run, before any specimen compiles: a coverage row may not cite a probe that
     # is on no panel, a claim that does not exist, a corpus program the census does not
     # contain, or a manual page the banked OCR text does not support.
+    # [E2E-42/P1c] and the PROSE that describes them.  P1a/P1b changed what the compiler does
+    # without changing every sentence that describes it, and neither of the two checks above can
+    # see that: coverage_check validates that a cited claim EXISTS, never that the surrounding
+    # text still matches the code, and a stale comment emits no bytes so no panel notices.  The
+    # third validator asserts the specific obsolete sentences are absent from ACTIVE descriptions
+    # (and, because the historical record must survive, it is pointedly silent on
+    # spec/notes/e2e41-* and spec/lab-evidence/**).
     for tool, argv in (("coverage panel", [sys.executable,
                                            os.path.join(ROOT, "tools/coverage_check.py")]),
                        ("corpus census", [sys.executable,
                                           os.path.join(ROOT, "tools/corpus_census.py"),
                                           "--verify",
-                                          os.path.join(ROOT, "spec/census/corpus-census.json")])):
+                                          os.path.join(ROOT, "spec/census/corpus-census.json")]),
+                       ("file prose", [sys.executable,
+                                       os.path.join(ROOT, "tools/file_prose_check.py")])):
         rr = subprocess.run(argv, capture_output=True, text=True)
         tl = [l for l in (rr.stdout + rr.stderr).splitlines() if l.strip()]
-        want = ("rows," if tool == "coverage panel" else "counts:")
+        want = ("rows," if tool == "coverage panel" else
+                "counts:" if tool == "corpus census" else "prose check:")
         line = next((l for l in tl if want in l), tl[-1] if tl else "(no output)")
         print(f"{tool:16s} {line}")
         if tool == "coverage panel":
@@ -4399,8 +4416,8 @@ def main():
                     print(f"{tool:16s} {l}")
         if rr.returncode != 0:
             for l in tl:
-                if l.startswith(("ERROR", "FAIL", "coverage_check: corpus",
-                                 "coverage_check: census")):
+                if l.startswith(("ERROR", "FAIL", "file prose check:", "   ",
+                                 "coverage_check: corpus", "coverage_check: census")):
                     print("   " + l)
             # [E2E-40/P4] CIRCULARITY GUARD.  coverage_check.load_panel() resolves probe keys
             # against the COMMITTED spec/INVENTORY.txt, and --update-inventory writes that file
@@ -4415,9 +4432,10 @@ def main():
             # E2E-16/P3 for exactly that), and the very next gate run re-validates coverage
             # against the freshly written inventory -- which is the sequence this exists to allow.
             if a.update_inventory:
-                print("e2e gate: coverage panel errors above are NOT fatal under "
+                print("e2e gate: %s errors above are NOT fatal under "
                       "--update-inventory (panel-registration cycle); the next gate run "
-                      "re-validates them against the rewritten inventory")
+                      "re-validates them against the freshly written inventory"
+                      % ("coverage panel" if tool == "coverage panel" else tool))
             else:
                 sys.exit(1)
 

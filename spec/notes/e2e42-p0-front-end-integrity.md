@@ -202,7 +202,7 @@ Three probes DR **accepts** and this compiler still refuses.  They are recorded 
 
 | probe | DR | our refusal | why it is our gap |
 |---|---|---|---|
-| `E46H1` `open file(f) keyed direct input` | `ACCEPTS`, `w1 = 0x058C` | `OPEN option KEYED is outside the E2E-41/P3 witnessed subset` | `parser.ml` DOES record `KEYED` (it is in the option-word list at `parser.ml:103`, which is [C264]'s fix), and `open_mode_word` already computes bit `0x0004`; what refuses is `open_subset_keys = [FILE; INPUT; STREAM; OUTPUT; TITLE]`, the guarded list that deliberately holds only what has a byte-exact specimen. |
+| `E46H1` `open file(f) keyed direct input` | `ACCEPTS`, `w1 = 0x058C` | `OPEN option KEYED is outside ...` -- the pinned marker PREFIX only; the tail of that message was rewritten at **[E2E-42/P1c]** because it still recited a VARIABLE title as unlowered, which [C288] had made false.  The text quoted in this table is the P0-era message, kept as the record of what the panel matched then. | `parser.ml` DOES record `KEYED` (it is in the option-word list at `parser.ml:103`, which is [C264]'s fix), and `open_mode_word` already computes bit `0x0004`; what refuses is `open_subset_keys = [FILE; INPUT; STREAM; OUTPUT; TITLE]`, the guarded list that deliberately holds only what has a byte-exact specimen. |
 | `E46H3` `open file(f) record input` | `ACCEPTS`, `w1 = 0x0590` | `OPEN option RECORD ...` | record-attribute lowering. |
 | `E46H4` `open file(f) sequential input` | `ACCEPTS`, `w1 = 0x0590` | `OPEN option SEQUENTIAL ...` | the same. |
 

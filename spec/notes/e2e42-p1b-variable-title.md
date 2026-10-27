@@ -83,9 +83,16 @@ mistake is recorded here because it is exactly the error a one-block-per-program
 and the block table in `spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt` lists both blocks.
 
 Note `COPYLPT`: its `line` is a **structure member** (`(line character(14), buff
-character(254)) varying`) and DR still takes `?SLVTS` with a `LXI H` over the member.  This
-compiler refuses a qualified title operand (§5), so it does **not** compile COPYLPT, and the
-member case stays unlowered while remaining measured on DR's side.
+character(254)) varying`) and DR still takes `?SLVTS` with a `LXI H` over the member.
+**[P1c correction, recorded in `e2e42-p1c-doc-diagnostics-reconciliation.md`]:** an earlier
+draft of this note said the member case "refuses by name".  It does not, and testing it
+shows why the sentence was wrong.  `title(line)` is an UNQUALIFIED identifier, so
+`open_title` returns `T_var` and `lower_open` consults `st.vars`, where a varying structure
+member binds as a FIXED cell -- so this compiler emits `LXI H,<cell>; MVI A,<len>;
+CALL ?SLCTS` where DR emits `CALL ?SLVTS`.  The shape COMPILES and its bytes are wrong.  COPYLPT
+itself still refuses, but never at that OPEN's title operand (its OPENs carry
+PRINT/PAGESIZE/LINESIZE and its ENDFILE handler carries a PUT PAGE).  [C288] does not claim
+the member case and no probe of mine pins it; the divergence is documented, not papered over.
 
 ## 4. WHAT THE DISPATCH COSTS IN BYTES, AND WHY `w2` CHANGES HANDS
 
@@ -119,7 +126,8 @@ third form cannot be added by accident.  What it refuses, by name:
 * **a declared name whose storage class is neither `Vvar` nor `Vfix`** — `BIT(1)`, `DECIMAL`,
   `FLOAT`, `STRUCTURE`, based and external variables.  DR's `COPYLPT` block shows a varying
   *member* taking `?SLVTS`, but this compiler has no byte-exact witness of a member title of
-  **its own**, so the member case is refused while remaining measured on DR's side.
+  **its own** -- and, as §3's correction records, a member title is not refused but LOWERED ON
+  THE WRONG ROUTE (?SLCTS where DR has ?SLVTS), because the member binds as a fixed cell.
 * **`STATIC` operands** — and this is where `E46F5` sits.  DR accepts it (`w1 = 0x0E50`,
   `?SLVTS` at the title site), and this compiler refuses it at the **declaration**: line 3's
   `dcl nm char(14) varying static initial('AB')` hits [C114]'s unsampled
@@ -159,7 +167,8 @@ addition of a route rather than a re-derivation of one.
 * `STATIC` / `EXTERNAL` title operands: `E46F5` proves DR accepts one but this compiler cannot
   reach the code, so no object of mine measures the *lowering*.
 * qualified and array-element title operands: unmeasured on both sides.
-* `COPYLPT`'s varying **member** title is DR-measured and this-compiler-refused.
+* `COPYLPT`'s varying **member** title is DR-measured (`?SLVTS`) and LOWERED WRONG here
+  (`?SLCTS`), because the member binds as a fixed cell -- see §3.  Unpinned by any probe.
 * A `TITLE` on an open that also carries `PAGESIZE`/`LINESIZE` (the `COPYLPT:38` shape) is
   unlowered here because those options are refused, so the block length for that combination
   is DR-side only (33 bytes).

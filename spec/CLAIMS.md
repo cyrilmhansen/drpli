@@ -6084,6 +6084,14 @@ cleared and `0x0040` set.  The decisive witness is cross-program: E17D's OPEN bl
 half of w1, and nothing else moves, **w6 = 0000 included** — a stream OUTPUT open carries no
 record length, which is the fact [C279] needed before anyone could explain E17D's 128-byte file
 (`P3b-MEASURE.txt` prints the byte-by-byte comparison).
+**[C287] CORRECTS THE COUNTS IN THE THREE PARAGRAPHS BELOW.**  They read `nine OUTPUT rows' and
+`two variable' titles; the true numbers are **7 OUTPUT** and **5 variable titles**, because the
+census searched statement TEXT and `LOAN2:54/56' say `open file(output)', where `output' is the
+FILE VARIABLE'S NAME and both rows are PRINT opens ([C287]'s table shows the masked recount).
+The paragraphs are kept verbatim because the bit-table reading in them is right and was the
+evidence [C280] was built on; only the row counts are superseded.  Also superseded below: the
+claim that a variable TITLE is not lowered -- [C288] lowers it, on two routes.
+
 Of the nine OUTPUT rows in `OPEN-MATRIX.tsv` the seven that are not E16D/E17D are keyed
 (P021:4, ENTER:37 — both `0x4D54`), print (LOAN2:54/56 — `0x2E52`/`0x0E52`), carry ENVIRONMENT or
 LINESIZE (COPY:13 `0x4E50`, KEYFILE:19 `0x1E50`) or take a **variable** TITLE (CREATE:22).  CREATE
@@ -6429,6 +6437,16 @@ so `open_title` refuses those operands by name instead of assuming they take `?S
 option word is unchanged by any of this -- `0x0800` is set by the presence of a TITLE and
 nothing about its operand, which [C286] had already established for the title/default-mode
 composition.
+
+**One accepted shape diverges, and [C288] does not cover it.**  An UNQUALIFIED reference to a
+member of a VARYING STRUCTURE -- COPYLPT's `title(line)`, where `line` is `character(14)` inside
+`(line character(14), buff character(254)) varying` -- reaches this arm as a plain declared name
+and binds in `st.vars` as a FIXED cell, so this compiler emits `LXI H,<cell>; MVI A,<len>;
+CALL ?SLCTS` where DR emits `LXI H,<descriptor>; CALL ?SLVTS` (COPYLPT blocks `014C..016D` and
+`01E8..020A`, `spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt`).  The shape therefore COMPILES with
+wrong bytes rather than refusing, and no probe of mine pins it -- `E46F1-4` all name scalar
+variables.  This claim asserts the dispatch for SCALAR `Vvar`/`Vfix` operands and nothing more;
+closing the member case needs the storage class fixed at the binding, not in `lower_open`.
 
 ## C289 — LINK-80'S SIDE OF A NAME COLLISION, MEASURED ON FOUR LINKED IMAGES (E2E-42/P1a)
 
