@@ -6379,6 +6379,57 @@ vocabulary -- and the trustworthy source is the compiler's own parse, not a mask
 all 34 sites (34/34 agree), which is also what licenses a conflict rule to read the option
 LIST instead of the token stream.
 
+## C288 — A VARIABLE OPEN TITLE IS A DISPATCH ON THE OPERAND'S STORAGE CLASS (?SLVTS vs ?SLCTS) (E2E-42/P1b)
+
+Until this claim, `open_title` accepted exactly one shape -- `title(<literal string>)` -- and
+refused every other operand with "the ?SLVTS route is not lowered", citing five historical
+sites and no object of mine.  Four probes close it, and they are byte-exact WHOLE OBJECTS
+(`golden/e42p1c/E46F1-4`):
+
+| probe | operand | DR's route | block |
+|---|---|---|---|
+| `E46F1` | `nm char(14) varying`, output side | `LXI H,<descriptor>` ; `CALL ?SLVTS` | 27 bytes |
+| `E46F2` | `nm char(8)` (fixed), output side | `LXI H,<cell>` ; `MVI A,08` ; `CALL ?SLCTS` | 29 bytes |
+| `E46F3` | `nm char(14) varying`, input side | `LXI H,<descriptor>` ; `CALL ?SLVTS` | 27 bytes, w1 = 0x0E90 |
+| `E46F4` | same, on a 10-character FILE name | `?SLVTS`; CB `/ABCDEFGHIJ/` (44 bytes), LINK symbol `/ABCDEF/` | composes with [C283] |
+
+**The finding is the dispatch, not the existence of ?SLVTS.**  E2E-41/P2b's reading -- "a
+variable title routes through ?SLVTS" -- was wrong in a way that only E46F2 exposes: a FIXED
+`CHARACTER(n)` operand keeps `?SLCTS` and passes its DECLARED length as `MVI A,n`.  E46F1 and
+E46F2 differ in their SOURCE BY ONE DECLARATION and differ in the object by the helper name and
+by two bytes.  So the route is chosen by the operand's storage class, exactly as `?SLVTS`/`?SLCTS`
+is already chosen for a PUT LIST item by [C174] -- TITLE is that same pair's third user, and
+neither prologue is new code in this compiler.
+
+The proof is read out of LINK RECORDS rather than from mnemonics, because in an unlinked `.REL`
+`CALL ?SLCTS` and `CALL ?SLVTS` are both `CD 00 00`: only the `LINK-CHAIN-EXT` name distinguishes
+them.  `spec/lab-evidence/e2e42-p1b/TITLE-DISPATCH.txt` dumps nine objects.  The decisive rows:
+`E46F1` carries BOTH helpers -- `?SLVTS` at code 000A (inside its OPEN block, 0006..001F) and
+`?SLCTS` at 0033, which is its own `put list('X')` -- while `E46F2` carries `?SLCTS` at 000C and
+**no `?SLVTS` anywhere in the object**.  Changing only a declaration changed the routine.
+
+DR's own five historical variable-title sites are in the same dump and all take `?SLVTS`:
+`LOAN2:56` (`name`) at 00D1, `COPYLPT:38/49` (`line`) at 0150 and 01EC, `RETRIEVE:31`
+(`filename`) at 00C5, `CREATE:22` (`filename`) at 003B -- and in the three of those programs
+that also carry a literal title, the LITERAL takes `?SLCTS` in the same object
+(`LOAN2` 00B3, `RETRIEVE` 000C).
+
+Two consequences inside `lower_open` that are measurements and not style choices.  First, a
+VARYING title block is 27 bytes and a fixed or literal one is 29: the `?SLVTS` form has no
+`MVI A` because the length is a runtime value the helper reads out of the descriptor.  Second,
+`w2` can no longer be built out of `B` in either titled form -- `B` now holds a runtime or
+declared length rather than zero -- so a titled open emits `LXI H,0000` for `w2` where the
+titleless one reuses `B` (see [C282] and section 5 of `DR-VERDICTS.txt`).
+
+**What is NOT claimed.**  No measured object puts a title through either helper from an
+EXPRESSION, a qualified reference, an ARRAY element, or a `STATIC` variable: `E46F5`
+(`nm char(14) varying static initial('AB')`) is the only static-title probe and DR ACCEPTS it
+at w1 = 0x0E50 while this compiler refuses it for [C114]'s unrelated `STATIC`-on-`VARYING` gap,
+so `open_title` refuses those operands by name instead of assuming they take `?SLVTS`.  The
+option word is unchanged by any of this -- `0x0800` is set by the presence of a TITLE and
+nothing about its operand, which [C286] had already established for the title/default-mode
+composition.
+
 ## C289 — LINK-80'S SIDE OF A NAME COLLISION, MEASURED ON FOUR LINKED IMAGES (E2E-42/P1a)
 
 Everything here was measured by running the real harness (`oracle/linkrun.py link`,

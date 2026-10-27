@@ -8459,11 +8459,29 @@ let refuse_file_opt (what : string) (o : Ast.io_opt) (s : Ast.stmt) =
         by this compiler yet"
        what o.Ast.io_key s.Ast.spos.Source.line)
 
-(* the TITLE clause, if any, in the one form P2b measures: exactly ONE TITLE whose
-   operand is a literal string.  A variable title (LOAN2:56, CREATE:22, COPYLPT, RETRIEVE,
-   KEYFILE -- 5 sites in P0 section 5) routes through ?SLVTS with the descriptor address
-   in HL, and no probe of MINE is byte-exact against it, so it refuses here by name. *)
-let open_title (s : Ast.stmt) (opts : Ast.io_opt list) : string option =
+(* The TITLE clause, if any.  [E2E-42/P1b] DR has TWO routes, and which one a site takes
+   is decided by the OPERAND, not by the option word:
+     literal string          LXI H,<pool cell>  ; MVI A,<byte length> ; CALL ?SLCTS
+     CHARACTER-n VARYING     LXI H,<descriptor>                    ; CALL ?SLVTS
+     CHARACTER-n (fixed)     LXI H,<cell>       ; MVI A,<n>        ; CALL ?SLCTS
+   All three are MEASURED on my own oracle objects, not reconstructed from a listing:
+     golden/e42p1c/E46F1  `title(nm)' with `nm char(14) varying' -> ?SLVTS, 27-byte block
+     golden/e42p1c/E46F2  `title(nm)' with `nm char(8)'          -> ?SLCTS + MVI A,08, 29
+     golden/e42p1c/E46F3  input side, varying                     -> ?SLVTS, w1 = 0x0E90
+     golden/e42p1c/E46F5  `varying static initial(AB)'            -> ?SLVTS
+     golden/e42p1b/CREATE, golden/first/LOAN2, COPYLPT, RETRIEVE -- the five historical
+     variable-title sites, all CHARACTER(n) VARYING, all `LXI H,<descriptor>; CALL ?SLVTS'.
+   E46F2 is the one that makes this a ROUTE and not a guess: a fixed CHARACTER operand
+   keeps ?SLCTS and passes its DECLARED length, exactly as [C174] already requires of a
+   fixed item in a PUT LIST.  So the two prologues are the two string-preparation
+   sequences this compiler has lowered byte-exactly for PUT items since E2E-11 -- TITLE
+   is their third user, and `open_title' deliberately returns the OPERATOR rather than a
+   flattened length so codegen cannot confuse the two. [C288] *)
+type title_spec =
+    T_lit of string                 (* LXI H,<pool> ; MVI A,len ; CALL ?SLCTS *)
+  | T_var of Ast.name              (* a declared CHARACTER variable; the kind picks the route *)
+
+let open_title (s : Ast.stmt) (opts : Ast.io_opt list) : title_spec option =
   match List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = "TITLE") opts with
   | [] -> None
   | [ { Ast.io_val = Some { Ast.e = Ast.Estring v; _ }; _ } ] ->
@@ -8473,13 +8491,16 @@ let open_title (s : Ast.stmt) (opts : Ast.io_opt list) : string option =
              "codegen: OPEN TITLE literal of %d bytes exceeds the one-byte MVI A length \
               [TBD] (line %d) -- the longest measured title is 10 bytes ('E16OUT DAT', E16D/E17D)"
              (String.length v) s.Ast.spos.Source.line)
-      else Some v
-  | [ { Ast.io_val = Some _; _ } ] ->
+      else Some (T_lit v)
+  | [ { Ast.io_val = Some { Ast.e = Ast.Eident n; _ }; _ } ] -> Some (T_var n)
+  | [ { Ast.io_val = Some e; _ } ] ->
       failwith
         (Printf.sprintf
-           "codegen: OPEN TITLE of a non-literal operand is the ?SLVTS route and is not \
-            lowered [TBD] (line %d) -- 5 measured sites (LOAN2:56, CREATE:22) but no \
-            byte-exact specimen of this compiler's own against them"
+           "codegen: OPEN TITLE of an operand that is not a literal string or a plain \
+            declared name has no DR witness [TBD] (line %d) -- all five measured variable \
+            titles (LOAN2:56, CREATE:22, COPYLPT:38/49, RETRIEVE:31) and my own E46F1/F2/F3/F5 \
+            name a simple CHARACTER variable; an expression, a qualified reference or an \
+            ARRAY element is unreadable from this corpus"
            s.Ast.spos.Source.line)
   | [ _ ] ->
       failwith
@@ -8691,6 +8712,53 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
   if List.exists (fun (o : Ast.io_opt) -> o.Ast.io_key = "OUTPUT") opts then
     st.file_out <- fu :: st.file_out;
   (match title with
+   | Some (T_var n) ->
+       (* [E2E-42/P1b] DR's VARIABLE-title prologue.  The operand is a declared CHARACTER
+          variable and the ROUTE is its storage class, measured on my own objects:
+            varying  LXI H,<descriptor address>            ; CALL ?SLVTS   (6-byte prologue)
+            fixed    LXI H,<cell address> ; MVI A,<declared length> ; CALL ?SLCTS  (8)
+          E46F1 (char(14) varying, output) and E46F3 (the same on the input side) both
+          measure a 27-byte block; E46F2 (char(8) fixed) measures 29, the same length as
+          a LITERAL title because it is the same three instructions with the operand
+          pointing at the variable instead of at a pool cell.  Neither prologue is new
+          code: `LXI H,<var>; CALL ?SLVTS' and `LXI H,<var>; MVI A,<cap>; CALL ?SLCTS' are
+          verbatim the PUT-LIST item routes of [C174], already byte-exact across E2E-11,
+          and TITLE is their third user -- which is why a VARIABLE title costs 2 bytes
+          less than a literal one on the varying side and exactly the same on the fixed
+          side, and why w2 can no longer be built out of B in EITHER titled form. [C288] *)
+       (match (try Some (List.assoc (String.lowercase_ascii n.Ast.orig) st.vars)
+               with Not_found -> None)
+        with
+        | None ->
+            failwith
+              (Printf.sprintf
+                 "codegen: OPEN TITLE(%s) names no declared variable [TBD] (line %d)"
+                 n.Ast.orig s.Ast.spos.Source.line)
+        | Some vi ->
+            (match vi.vk with
+             | Vvar _ ->
+                 d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+                 call_ext st "?SLVTS"
+             | Vfix cap ->
+                 (* [C174]'s rule again: a fixed operand passes its DECLARED length, not
+                    whatever happens to be in the cell -- E46F2's `nm char(8)' measures
+                    MVI A,08 whether or not the program ever stores into nm. *)
+                 d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+                 d st op_mvi_a; d st (cap land 0xff); call_ext st "?SLCTS"
+             | k ->
+                 failwith
+                   (Printf.sprintf
+                      "codegen: OPEN TITLE(%s) on a %s variable is unmeasured [TBD] (line %d) \
+                       -- all nine measured variable-title operands are CHARACTER: five \
+                       historical VARYING sites (LOAN2:56, CREATE:22, COPYLPT:38/49, \
+                       RETRIEVE:31) plus my E46F1/F3/F5 (varying) and E46F2 (fixed)"
+                      n.Ast.orig (vk_name k) s.Ast.spos.Source.line)))
+       ; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
+         d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
+         d st op_push_h;
+         d st op_lxi_h; d st 0x00; d st 0x00;
+         d st op_push_h;
+         for _ = 1 to 4 do d st op_push_h done
    | None ->
        (* DR's zero-length title: XRA A / MOV B,A / PUSH B / INX SP, leaving one zero byte
           on the stack above the six words (P0 section 2).  Not invented -- the IDENTICAL
@@ -8728,7 +8796,7 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
           the register-reuse peephole is part of the byte-exact target [P0 section 2]. *)
        d st op_mov_h_b; d st op_mov_l_b;
        for _ = 1 to 5 do d st op_push_h done
-   | Some v ->
+   | Some (T_lit v) ->
        (* DR's literal-title prologue, 29 bytes total, witnessed at code 0x0006 in
           E17B/E16C/E18A (golden/e2e11i/E17B, golden/e2e11h/E16C, golden/e2e11j/E18A --
           the .PRN puts the next statement at 0x0023):

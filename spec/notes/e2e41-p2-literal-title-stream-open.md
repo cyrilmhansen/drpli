@@ -254,8 +254,13 @@ for the two DR arms (section 5) and the unchanged `tools/parse_gate.py` set:
 2. **CLOSE under the new specimens** — already byte-exact; nothing to do.
 3. **w5/w6 together, mode-less OPEN, DIRECT without UPDATE** — need the P0 §10 probes
    (E46A/E46C) compiled by DR; no new oracle run is authorized in P2 and none was run.
-4. **Variable TITLE (?SLVTS)** — 5 measured sites (LOAN2:56, CREATE:22, COPYLPT,
-   RETRIEVE, KEYFILE) but all five sit behind unrelated historical blockers
+4. **Variable TITLE (?SLVTS)** — 5 measured sites (LOAN2:56, CREATE:22, COPYLPT:38 and
+   :49, RETRIEVE:31) but all five sit behind unrelated historical blockers
    (long-name refusal, STATIC refusals, PUT FILE); needs a fresh probe object.
+   **CLOSED by [E2E-42/P1b]** on four probes of my own, which also showed the route is a
+   DISPATCH: a CHARACTER(n) VARYING operand takes `?SLVTS` (27-byte block) and a fixed
+   CHARACTER(n) operand keeps `?SLCTS` with `MVI A,<declared length>` (29) — see
+   `spec/notes/e2e42-p1b-variable-title.md` and [C288].  KEYFILE is not one of the five: it
+   carries a literal title, and `copylpt`/`retrieve` each carry both kinds.
 5. **FILE-name truncation lowering** — measured rule ([C277]), collision case still
    unmeasured (E46D).

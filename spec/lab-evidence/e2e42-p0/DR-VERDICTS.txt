@@ -35,21 +35,21 @@ E46D4    open file(abcdef1) stream in ACCEPTS         0x0690  ACCEPTS, byte-exac
 E46D5    open file(abcdef1) stream in ACCEPTS         0x0690  ACCEPTS, byte-exact
 E46D6    open file(averylongname) str ACCEPTS         0x0E90  ACCEPTS, byte-exact
 E46D7    open file(alpha1) stream inp ACCEPTS         0x0690  ACCEPTS, byte-exact
-E46F1    open file(outf) stream outpu ACCEPTS         0x0E50  PENDING -- see P1b
-E46F2    open file(outf) stream outpu ACCEPTS         0x0E50  PENDING -- see P1b
-E46F3    open file(inf) stream input  ACCEPTS         0x0E90  PENDING -- see P1b
-E46F4    open file(abcdefghij) stream ACCEPTS         0x0E50  PENDING -- see P1b
+E46F1    open file(outf) stream outpu ACCEPTS         0x0E50  ACCEPTS, byte-exact
+E46F2    open file(outf) stream outpu ACCEPTS         0x0E50  ACCEPTS, byte-exact
+E46F3    open file(inf) stream input  ACCEPTS         0x0E90  ACCEPTS, byte-exact
+E46F4    open file(abcdefghij) stream ACCEPTS         0x0E50  ACCEPTS, byte-exact
 E46F5    open file(outf) stream outpu ACCEPTS         0x0E50  REFUSE: STATIC on CHAR(14) VARYING is unsampled
 
 
 ## What this table says, in one paragraph per finding
 
-ACCEPTED-BY-DR AND BYTE-EXACT HERE (10): E46D1, D3, D4, D5, D6, D7 (long FILE names), E46E4,
-G1, G3 (mode-less OPEN) and E46D2 (long-name declaration with no OPEN at all -- the
-truncation is a DECLARATION rule, not an OPEN rule).  E46F1..F4 sit in the same position once
-[E2E-42/P1b] lowers the variable TITLE, which makes the count 14; at THIS commit they are
-`PENDING', because the compiler still refuses a non-literal TITLE by name.  E46F5 is a refusal
-either way, and for a reason that has nothing to do with TITLE.
+ACCEPTED-BY-DR AND BYTE-EXACT HERE (14): E46D1, D3, D4, D5, D6, D7 (long FILE names), E46E4,
+G1, G3 (mode-less and stream-only OPEN, [C286]), E46F1, F2, F3, F4 (variable TITLE, [C288])
+and E46D2 (long-name declaration with no OPEN at all -- the truncation is a DECLARATION rule,
+not an OPEN rule).  This table was written at [E2E-42/P0], when E46F1..F4 were still `PENDING';
+they are byte-exact from [E2E-42/P1b], and E46F5 is a refusal either way, for a reason that has
+nothing to do with TITLE.
 
 DR REJECTS, WE REFUSE FOR THE SAME REASON (11): every row whose dr_verdict is `REJECTS
 CONFLICT'. Nine are a repeated keyword (INPUT x2 in E46E1/G4, STREAM x2 in E46E2, FILE x2 in
@@ -64,11 +64,12 @@ object), different reason, so the panel pins it with the marker `OPEN option UPD
 and its NEG_META says plainly that the parity is one of outcome and not of diagnosis.
 
 DR ACCEPTS, WE STILL REFUSE (4): E46H1 (0x058C), E46H3 and E46H4 (both 0x0590) -- KEYED/DIRECT,
-RECORD and SEQUENTIAL attribute words this compiler has no lowering for -- and E46F5, where the
-TITLE route is byte-exact on E46F1 once [P1b] lands, while this program's `STATIC CHAR(14)
-VARYING' declaration is a separate unsampled-declaration gap that stands no matter what the
-TITLE does. E46H1/H3/H4 are panel rows of class my-gap; E46F5 is pinned to its own [C114]
-reason and not to a TITLE gap, because calling it a TITLE gap would misdescribe it.
+RECORD and SEQUENTIAL attribute words this compiler has no lowering for -- and E46F5, whose
+TITLE route IS byte-exact on E46F1 from [P1b], while this program's `dcl nm char(14) varying
+static initial('AB')' hits [C114]'s unsampled STATIC-on-VARYING guard during DECLARATION
+layout, before lower_open ever runs.  All four are panel rows of class my-gap; E46F5's marker
+is the STATIC message, not a TITLE one, because calling it a TITLE gap would misdescribe it
+and would let a future [C114] change be read as title work.
 
 ## 3. THE OPTION CENSUS, RECOMPUTED FROM THE PARSED OPTION LIST (census.py)
 

@@ -1,0 +1,7 @@
+E46F2:
+  procedure options(main);
+  dcl outf file, nm char(8), k fixed bin(15);
+  open file(outf) stream output title(nm);
+  put file(outf) list('X');
+  close file(outf);
+end E46F2;

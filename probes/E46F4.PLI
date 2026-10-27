@@ -1,0 +1,7 @@
+E46F4:
+  procedure options(main);
+  dcl abcdefghij file, nm char(14) varying, k fixed bin(15);
+  open file(abcdefghij) stream output title(nm);
+  put file(abcdefghij) list('X');
+  close file(abcdefghij);
+end E46F4;

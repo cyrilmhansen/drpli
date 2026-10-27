@@ -897,6 +897,30 @@ SPECIMENS.update({
     "E46G3": ("probes/E46G3.PLI", "golden/e42p0b/E46G3/E46G3.REL"),
 })
 
+# [E2E-42/P1b] THE VARIABLE TITLE, AND THE DISPATCH THAT IS ITS REAL FINDING.
+# E2E-41/P2b lowered only `title(<literal>)' and refused every other operand by name, on the
+# grounds that DR's variable titles route through ?SLVTS and nothing of MINE had ever matched
+# it.  Four probes close that, and they are byte-exact WHOLE OBJECTS:
+#   E46F1  `dcl nm char(14) varying'  -> LXI H,<descriptor> ; CALL ?SLVTS        27-byte block
+#   E46F2  `dcl nm char(8)'           -> LXI H,<cell> ; MVI A,08 ; CALL ?SLCTS   29-byte block
+#   E46F3  the INPUT side of F1       -> ?SLVTS, w1 = 0x0E90 instead of 0x0E50
+#   E46F4  a 10-character FILE name AND a variable TITLE together, 44-byte /ABCDEFGHIJ/ CB
+# E46F2 is the one that turns the rule from a guess into a dispatch: a FIXED CHARACTER operand
+# keeps ?SLCTS and passes its DECLARED length, so the route is chosen by the OPERAND's storage
+# class and not by the option word -- the same split [C174] already measures for PUT LIST items,
+# here with its third user.  E46F1 is 27 bytes and E46F2 is 29, which is why the two cannot be
+# one code path.  E46F4 composes [C288] with [C283]: the CB carries the full name, the LINK
+# symbol carries ABCDEFGH's first six.
+#   spec/lab-evidence/e2e42-p0/DR-VERDICTS.txt section 5 prints DR's own bytes for all four,
+#   and spec/lab-evidence/e2e42-p1b/TITLE-DISPATCH.txt is the LINK-CHAIN-EXT record dump that
+#   proves E46F1 asks for BOTH helpers (?SLVTS for the title, ?SLCTS for its own PUT LIST).
+SPECIMENS.update({
+    "E46F1": ("probes/E46F1.PLI", "golden/e42p1c/E46F1/E46F1.REL"),
+    "E46F2": ("probes/E46F2.PLI", "golden/e42p1c/E46F2/E46F2.REL"),
+    "E46F3": ("probes/E46F3.PLI", "golden/e42p1c/E46F3/E46F3.REL"),
+    "E46F4": ("probes/E46F4.PLI", "golden/e42p1c/E46F4/E46F4.REL"),
+})
+
 # [E2E-40/P8a] THE MEMBER SELF-UPDATE RANGE, MEASURED AT THE MEMBER, AND THE CROSS-SPELLING
 # EQUIVALENCE.  E42P1 licensed exactly one bias (+5); P8 then gate-extended the ORDINARY-
 # variable window -8..16 to members and refused anything outside it (E42N3).  DR says the
@@ -3026,6 +3050,15 @@ for _k in ("E46E1", "E46E2", "E46G4", "E46H2", "E46G2", "E46E3", "E46H5",
         "input' (both 0x0590) are ACCEPTED by DR, so CONFLICT is repetition plus the exclusive "
         "mode group, not any two options side by side.")
 
+NEG_META["E46F5"] = ("my-gap",
+    "DR COMPILES it (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site).  The refusal "
+    "here is NOT about TITLE: line 3's `dcl nm char(14) varying static initial(\'AB\')' hits "
+    "[C114]'s STATIC-on-VARYING guard, which fires during DECLARATION layout and never reaches "
+    "lower_open at all.  So this object measures nothing about the title route -- E46F1 is the "
+    "varying witness and E46F2 the fixed one -- and the row exists to keep the two facts apart: "
+    "closing [C114] would make E46F5 compile, and until then no static-operand TITLE claim of "
+    "any kind is admissible.  `open_title' therefore refuses a STATIC title operand by name.")
+
 NEG_META["E46H7"] = ("dr-refuses",
     "DR diagnoses pass-2 CONFLICT and emits NO .REL [C285]: `open file(f) input update' names "
     "two members of the mutually exclusive mode group, the same arm E46E3 `input output' and "
@@ -3050,6 +3083,15 @@ NEG_META["E46H7"] = ("dr-refuses",
 # measured, which retires the older prose claim that "the four measured OUTPUTs that omit STREAM
 # are keyed or print rows" -- see [C287].
 REJECTS.update({
+    # E46F5 is the STATIC title case and it is NOT a TITLE gap.  DR ACCEPTS the program
+    # (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site) and so would this compiler
+    # if the declaration were lowerable: what refuses is line 3's
+    # `dcl nm char(14) varying static initial('AB')', which hits [C114]'s unsampled
+    # STATIC-on-VARYING guard before any OPEN code is emitted.  Pinning it here keeps a future
+    # TITLE change from being mistaken for closing that gap, and keeps the gap from being
+    # quietly re-labelled as TITLE work.  See spec/notes/e2e42-p1b-variable-title.md.
+    "E46F5": (open("probes/E46F5.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "STATIC on CHAR(14) VARYING is unsampled"),
     "E46H1": (open("probes/E46H1.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
               "OPEN option KEYED is outside"),
     "E46H3": (open("probes/E46H3.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),

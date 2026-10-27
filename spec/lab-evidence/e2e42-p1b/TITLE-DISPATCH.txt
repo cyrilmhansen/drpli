@@ -1,0 +1,194 @@
+# [E2E-42/P1b] THE TITLE ROUTE IS A DISPATCH ON THE OPERAND, PROVEN BY LINK RECORDS
+
+Reproduce from the repository root:
+
+    for f in golden/e42p1c/E46F1/E46F1.REL golden/e42p1c/E46F2/E46F2.REL \\
+             golden/e42p1c/E46F3/E46F3.REL golden/e42p1c/E46F4/E46F4.REL \\
+             golden/e42p1b/E46D6/E46D6.REL golden/first/LOAN2/LOAN2.REL \\
+             golden/first/RETRIEVE/RETRIEVE.REL golden/first/COPYLPT/COPYLPT.REL \\
+             golden/bind1/CREATE/CREATE.REL; do
+      echo "== $f"; python3 tools/reldump.py "$f" | grep CHAIN-EXT
+    done
+
+WHY RECORDS AND NOT MNEMONICS.  A `CALL ?SLCTS' and a `CALL ?SLVTS' are the same three bytes
+(CD 00 00) in an unlinked .REL: the target is a LINK-CHAIN-EXT record, not an operand.  So the
+only thing inside a DR object that distinguishes the two routines is the NAME field of the chain
+record whose code address is the CALL's.  Reading that name is what makes this a measurement
+rather than a guess, and it is why [C288] cites this file and not only the disassembly.
+
+The OPEN block's own extent for every historical site below comes from
+spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt, which locates blocks by chain anchor plus backward
+walk over instruction starts (the same [C125]/[C137] discipline), and DR's code addresses in
+this file are inside those ranges.
+
+--------------------------------------------------------------------------------------------
+== golden/e42p1c/E46F1/E46F1.REL   (title-helper and ?OIOOP chains only)
+    @  964 LINK-CHAIN-EXT  code 000A ?SLVTS
+    @ 1272 LINK-CHAIN-EXT  code 001F ?OIOOP
+    @ 1606 LINK-CHAIN-EXT  code 0033 ?SLCTS
+
+== golden/e42p1c/E46F2/E46F2.REL   (title-helper and ?OIOOP chains only)
+    @  982 LINK-CHAIN-EXT  code 000C ?SLCTS
+    @ 1290 LINK-CHAIN-EXT  code 0021 ?OIOOP
+    @ 1624 LINK-CHAIN-EXT  code 0035 ?SLCTS
+
+== golden/e42p1c/E46F3/E46F3.REL   (title-helper and ?OIOOP chains only)
+    @  905 LINK-CHAIN-EXT  code 000A ?SLVTS
+    @ 1205 LINK-CHAIN-EXT  code 001F ?OIOOP
+
+== golden/e42p1c/E46F4/E46F4.REL   (title-helper and ?OIOOP chains only)
+    @ 1050 LINK-CHAIN-EXT  code 000A ?SLVTS
+    @ 1374 LINK-CHAIN-EXT  code 001F ?OIOOP
+    @ 1708 LINK-CHAIN-EXT  code 0033 ?SLCTS
+
+== golden/e42p1b/E46D6/E46D6.REL   (title-helper and ?OIOOP chains only)
+    @ 1131 LINK-CHAIN-EXT  code 000C ?SLCTS
+    @ 1455 LINK-CHAIN-EXT  code 0021 ?OIOOP
+
+== golden/first/LOAN2/LOAN2.REL   (title-helper and ?OIOOP chains only)
+    @ 8728 LINK-CHAIN-EXT  code 001C ?SLCTS
+    @ 8980 LINK-CHAIN-EXT  code 0027 ?SLCTS
+    @ 9916 LINK-CHAIN-EXT  code 004E ?SLCTS
+    @10150 LINK-CHAIN-EXT  code 0057 ?SLVTS
+    @11113 LINK-CHAIN-EXT  code 007D ?SLCTS
+    @12418 LINK-CHAIN-EXT  code 00B3 ?SLCTS
+    @12684 LINK-CHAIN-EXT  code 00C8 ?OIOOP
+    @12911 LINK-CHAIN-EXT  code 00D1 ?SLVTS
+    @13177 LINK-CHAIN-EXT  code 00E6 ?OIOOP
+    @13839 LINK-CHAIN-EXT  code 0106 ?SLCTS
+    @14802 LINK-CHAIN-EXT  code 012C ?SLCTS
+    @16479 LINK-CHAIN-EXT  code 0172 ?SLCTS
+    @18156 LINK-CHAIN-EXT  code 01B8 ?SLCTS
+    @19833 LINK-CHAIN-EXT  code 01FE ?SLCTS
+    @22554 LINK-CHAIN-EXT  code 0274 ?SLCTS
+    @23794 LINK-CHAIN-EXT  code 02A3 ?SLCTS
+    @25034 LINK-CHAIN-EXT  code 02D2 ?SLCTS
+    @26405 LINK-CHAIN-EXT  code 0307 ?SLCTS
+    @26657 LINK-CHAIN-EXT  code 0312 ?SLCTS
+    @26909 LINK-CHAIN-EXT  code 031D ?SLCTS
+    @27161 LINK-CHAIN-EXT  code 0328 ?SLCTS
+    @37758 LINK-CHAIN-EXT  code 053F ?SLCTS
+    @44486 LINK-CHAIN-EXT  code 0699 ?SLCTS
+    @45129 LINK-CHAIN-EXT  code 06B6 ?SLCTS
+    @45772 LINK-CHAIN-EXT  code 06D3 ?SLCTS
+    @46415 LINK-CHAIN-EXT  code 06F0 ?SLCTS
+    @47058 LINK-CHAIN-EXT  code 070D ?SLCTS
+    @47701 LINK-CHAIN-EXT  code 072A ?SLCTS
+    @50039 LINK-CHAIN-EXT  code 07AA ?SLCTS
+    @50291 LINK-CHAIN-EXT  code 07B5 ?SLCTS
+    @50795 LINK-CHAIN-EXT  code 07CB ?SLCTS
+    @51299 LINK-CHAIN-EXT  code 07E1 ?SLCTS
+    @51942 LINK-CHAIN-EXT  code 07FE ?SLCTS
+    @52613 LINK-CHAIN-EXT  code 081C ?SLCTS
+    @53502 LINK-CHAIN-EXT  code 0844 ?SLCTS
+    @53754 LINK-CHAIN-EXT  code 084F ?SLCTS
+    @54006 LINK-CHAIN-EXT  code 085A ?SLCTS
+    @54895 LINK-CHAIN-EXT  code 0882 ?SLCTS
+    @55147 LINK-CHAIN-EXT  code 088D ?SLCTS
+    @55790 LINK-CHAIN-EXT  code 08AA ?SLCTS
+    @56042 LINK-CHAIN-EXT  code 08B5 ?SLCTS
+    @56685 LINK-CHAIN-EXT  code 08D2 ?SLCTS
+    @56937 LINK-CHAIN-EXT  code 08DD ?SLCTS
+    @57826 LINK-CHAIN-EXT  code 0905 ?SLCTS
+    @58078 LINK-CHAIN-EXT  code 0910 ?SLCTS
+    @58330 LINK-CHAIN-EXT  code 091B ?SLCTS
+    @58582 LINK-CHAIN-EXT  code 0926 ?SLCTS
+    @58834 LINK-CHAIN-EXT  code 0931 ?SLCTS
+    @59086 LINK-CHAIN-EXT  code 093C ?SLCTS
+    @60009 LINK-CHAIN-EXT  code 0965 ?SLCTS
+    @60261 LINK-CHAIN-EXT  code 0970 ?SLCTS
+    @60677 LINK-CHAIN-EXT  code 098D ?SLCTS
+
+== golden/first/RETRIEVE/RETRIEVE.REL   (title-helper and ?OIOOP chains only)
+    @ 2872 LINK-CHAIN-EXT  code 000C ?SLCTS
+    @ 3196 LINK-CHAIN-EXT  code 0021 ?OIOOP
+    @ 3502 LINK-CHAIN-EXT  code 0032 ?SLCTS
+    @ 5253 LINK-CHAIN-EXT  code 0080 ?SLCTS
+    @ 7060 LINK-CHAIN-EXT  code 00C5 ?SLVTS
+    @ 7439 LINK-CHAIN-EXT  code 00E1 ?OIOOP
+    @11706 LINK-CHAIN-EXT  code 01B1 ?SLVTS
+    @12390 LINK-CHAIN-EXT  code 01CB ?SLVTS
+    @13074 LINK-CHAIN-EXT  code 01E5 ?SLVTS
+    @13308 LINK-CHAIN-EXT  code 01EE ?SLVTS
+    @14833 LINK-CHAIN-EXT  code 022B ?SLVTS
+
+== golden/first/COPYLPT/COPYLPT.REL   (title-helper and ?OIOOP chains only)
+    @ 4907 LINK-CHAIN-EXT  code 001C ?SLCTS
+    @ 6096 LINK-CHAIN-EXT  code 004D ?SLCTS
+    @ 7457 LINK-CHAIN-EXT  code 0081 ?SLCTS
+    @ 8984 LINK-CHAIN-EXT  code 00BF ?SLCTS
+    @ 9947 LINK-CHAIN-EXT  code 00E5 ?SLCTS
+    @11568 LINK-CHAIN-EXT  code 0125 ?SLCTS
+    @12772 LINK-CHAIN-EXT  code 0150 ?SLVTS
+    @13152 LINK-CHAIN-EXT  code 016B ?OIOOP
+    @13813 LINK-CHAIN-EXT  code 018C ?SLCTS
+    @14047 LINK-CHAIN-EXT  code 0195 ?SLVTS
+    @14299 LINK-CHAIN-EXT  code 01A0 ?SLCTS
+    @15262 LINK-CHAIN-EXT  code 01C6 ?SLCTS
+    @16345 LINK-CHAIN-EXT  code 01EC ?SLVTS
+    @16674 LINK-CHAIN-EXT  code 0208 ?OIOOP
+    @18143 LINK-CHAIN-EXT  code 0249 ?SLCTS
+    @19324 LINK-CHAIN-EXT  code 0279 ?SLCTS
+    @22412 LINK-CHAIN-EXT  code 02FB ?SLCTS
+    @22646 LINK-CHAIN-EXT  code 0304 ?SLVTS
+
+== golden/bind1/CREATE/CREATE.REL   (title-helper and ?OIOOP chains only)
+    @ 2164 LINK-CHAIN-EXT  code 0015 ?SLCTS
+    @ 3247 LINK-CHAIN-EXT  code 003B ?SLVTS
+    @ 3571 LINK-CHAIN-EXT  code 0050 ?OIOOP
+    @ 4062 LINK-CHAIN-EXT  code 006D ?SLCTS
+    @ 5625 LINK-CHAIN-EXT  code 00B7 ?SLCTS
+    @ 6883 LINK-CHAIN-EXT  code 00E8 ?SLCTS
+    @ 8958 LINK-CHAIN-EXT  code 013A ?SLCTS
+    @10226 LINK-CHAIN-EXT  code 016C ?SLVTS
+    @10460 LINK-CHAIN-EXT  code 0175 ?SLVTS
+    @10694 LINK-CHAIN-EXT  code 017E ?SLVTS
+    @10928 LINK-CHAIN-EXT  code 0187 ?SLVTS
+    @11553 LINK-CHAIN-EXT  code 01A2 ?SLVTS
+    @12927 LINK-CHAIN-EXT  code 01D8 ?SLCTS
+
+WHAT THE DUMPS ESTABLISH
+
+1. E46F1 -- `dcl nm char(14) varying', `open file(outf) stream output title(nm);
+   put file(outf) list("X");' -- carries BOTH helpers in one module: ?SLVTS at code 000A,
+   inside the OPEN block (DR-VERDICTS section 5 prints it as 0006..001F), and ?SLCTS at
+   code 0033, which is the program's own PUT LIST literal.  Same statement, two routines,
+   chosen by the operand.  Nothing about the option word distinguishes the two sites.
+
+2. E46F2 -- `dcl nm char(8)' and otherwise an IDENTICAL program -- emits ?SLCTS at code
+   000C and NO ?SLVTS ANYWHERE IN THE OBJECT.  Changing only the variable's storage class
+   changed the routine, and the call at 000C is nine bytes into the block, i.e. at the
+   title site and nowhere else.  That isolates the dispatch: the route is a property of the
+   OPERAND, not of `title' and not of `stream output'.
+
+3. E46F3 (varying, `stream input', ?SLVTS at 000A) and E46F4 (varying on a TEN-character
+   FILE name, ?SLVTS at 000A) show the route is the same on the input side and that it
+   COMPOSES with the long-name rule [C283] instead of competing with it: E46F4's object has
+   both /ABCDEFGH/'s clipped LINK symbol and the ?SLVTS title chain.
+
+4. E46D6 (literal title on a long name) emits ?SLCTS at 000C alone -- the [C278] route, byte
+   exact since E2E-41/P2b.  Literal, VARYING and FIXED are therefore the whole measured
+   vocabulary of a TITLE operand and there is no fourth form.
+
+5. DR's OWN five variable-title sites, and this is the half of the table that is historical
+   rather than mine:
+
+     LOAN2     00CD..00E8 title(name)         -> ?SLVTS at 00D1   (the 00AD..00CA block is
+                                                    title('$con'), ?SLCTS at 00B3)
+     COPYLPT   014C..016D title(line)         -> ?SLVTS at 0150
+     COPYLPT   01E8..020A title(line)         -> ?SLVTS at 01EC
+     RETRIEVE  00C1..00E3 title(filename)     -> ?SLVTS at 00C5   (its 0006..0023 block is
+                                                    title('$con'), ?SLCTS at 000C)
+     CREATE    0037..0052 title(filename)     -> ?SLVTS at 003B
+
+   All five take ?SLVTS, and in the three programs that also have a literal title the LITERAL
+   takes ?SLCTS in the same object.  So [C288]'s dispatch is DR's behaviour on five historical
+   sites plus four of mine, and E46F2's fixed operand is the ONLY case where a variable name
+   reaches ?SLCTS -- which is what makes the rule "route by storage class" rather than "any
+   non-literal goes to ?SLVTS", the reading this compiler had before and which [C288] corrects.
+
+6. What the dumps do NOT say.  No object here puts a title through ?SLVTS from an
+   EXPRESSION, a qualified reference (`x.y'), an ARRAY element, or a STATIC variable:
+   LOAN2's `name' is `char(14) varying STATIC initial(...)' and that program is refused here
+   for [C114]'s reason BEFORE any title code is emitted, so static title operands remain
+   unmeasured and `open_title' refuses them by name rather than assuming they are ?SLVTS.

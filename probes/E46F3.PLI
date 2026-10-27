@@ -1,0 +1,7 @@
+E46F3:
+  procedure options(main);
+  dcl inf file, nm char(14) varying, k fixed bin(15);
+  open file(inf) stream input title(nm);
+  get file(inf) list(nm);
+  close file(inf);
+end E46F3;
