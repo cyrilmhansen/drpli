@@ -17,6 +17,15 @@ Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) naming BOTH
   both.  So the mode WORD for the combination (is it 0x0E50|0x0080? does one bit override the
   other?) is not readable out of anything in this repository.
 
+  Correction, re-measured 2026-10-27 against the matrix: the "25 with INPUT" is wrong.  Of the
+  34 rows, 5 spell `input' (KEYFILE:16, P072H:3, P021:3, RETRIEVE:31, P081Q:3), 21 spell
+  `stream', 9 spell `output'; by WORD, 17 rows carry the input bit 0x0080 and 16 carry the
+  output bit 0x0040, NO row carries both, and exactly one row carries neither -- UPDATE:31's
+  `open file(emp) update direct' = 0x4D2C.  That is what the refusal actually rests on, and it
+  is stronger than the sentence above: the two direction bits never co-occur in a measured open.
+  (17 + 16 + 1 = 34, so the partition is complete.)  The 25 in the wrong sentence above is the
+  count of rows with a LITERAL title, which is a different column.
+
 
 == OPEN OUTPUT without the STREAM keyword -- no DR object of that spelling    my-gap
 
@@ -26,6 +35,15 @@ Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) OUTPUT with
   DR side: all 9 OUTPUT rows in the matrix spell `stream output' and all carry w1 = 0x0E50.
   P0 §4 measured a 0x0010 bit it reads as `stream', so a STREAM-less OUTPUT would presumably
   drop it -- but that is arithmetic on a reading, not an object.
+
+  Correction, re-measured 2026-10-27: this sentence is false in both halves, and the compiler's
+  message quoted above inherits the error (it lists the four rows below as "outside that set"
+  while they are in fact the corpus's own non-`stream' OUTPUTs).  Of the nine OUTPUT rows, FIVE
+  spell `stream output' (E16D:3, E17D:3, COPY:13, KEYFILE:19, CREATE:22) and FOUR do not --
+  P021:4 and ENTER:37 spell `keyed output' (w1 0x4D54) and LOAN2:54/56 spell `output ... print'
+  (0x2E52, 0x0E52).  Only THREE carry w1 = 0x0E50.  So DR plainly accepts `output' without
+  `stream'; what is unmeasured is a `output' with no KEYED/PRINT attribute, and this refusal is
+  a my-gap guard about THIS COMPILER's missing KEYED/PRINT lowering, not a DR rejection.
 
 
 == titleless OPEN STREAM OUTPUT -- composes a word no matrix row carries      my-gap
@@ -38,6 +56,12 @@ Fatal error: Fatal error: exception Failure("codegen: OPEN FILE(...) a titleless
   `put list' word minus its 0x0002 bit), on record WRITEs in COPY and REPORT, never as an
   OPEN's w1.  P2a already withdrew a compose-0x0650 lowering on this ground [C276] and P3b
   keeps the withdrawal.
+
+  Correction, re-measured 2026-10-27: "the one titleless OPEN" is wrong -- the matrix has FOUR
+  titleless rows (P072H:3 and P081Q:3 input 0x0690, P019B:3 print 0x0652, P021:6 stream 0x2652),
+  and E17A's 0x0290 is the CONSOLE get, not a named-file open.  None of the four is an OUTPUT,
+  which is the point the sentence was reaching for; the 0x0650 observation itself stands
+  unchanged (3 attach rows: COPY 006F, REPORT 00DF/01BE; 0 rows with w1 = 0x0650).
 
   Correction to a sentence in an earlier draft of this file and of [C280]: 0x0652 is NOT
   0x0400|0x0200|0x0010|0x0040 -- that sum is 0x0650.  The attach word is 0x0252 (the console

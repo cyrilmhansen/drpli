@@ -6089,12 +6089,25 @@ Of the nine OUTPUT rows in `OPEN-MATRIX.tsv` the seven that are not E16D/E17D ar
 LINESIZE (COPY:13 `0x4E50`, KEYFILE:19 `0x1E50`) or take a **variable** TITLE (CREATE:22).  CREATE
 is the useful one: its w1 is `0x0E50`, identical to E16D/E17D's, which shows the mode word does
 not depend on how the TITLE is spelled — `0x0800` means "a TITLE is present" in both cases.
-**All nine carry a TITLE**; so `OUTPUT` is accepted only as `stream output` **with** a literal
-TITLE, and three combinations refuse by name — `input output` on one open (no row spells it),
-`output` without `stream`, and a titleless `output` (which would emit `0x0650`, a word the census
-knows only as a write-from *attach* word, never as an OPEN w1).
+**All nine carry a TITLE** — seven literal, two variable (`CREATE:22 title(filename)`,
+`LOAN2:56 title(name)`).  That is the whole of what the nine support.  An earlier draft of this
+claim read the same nine rows as "`OUTPUT` is accepted only as `stream output` **with** a literal
+TITLE", and the rows contradict it twice over: four of them spell `output` with **no** `stream`
+keyword at all (`P021:4`, `ENTER:37` keyed; `LOAN2:54`, `LOAN2:56` print), and two carry a
+variable TITLE.  So what is measured is a *lowering perimeter*, not a DR rejection: `pli80c`
+refuses `input output` on one open, `output` without `stream`, and a titleless `output` by name
+because no row spells those three in the plain form — `input output` appears nowhere in the 34
+rows, and every `output`-without-`stream` row also carries KEYED or PRINT, whose attribute words
+this compiler does not emit.  DR compiled all of those rows, so its verdict on a *plain*
+`open file(f) output title('X');` is unmeasured, and the refusal is a [TBD] guard of mine, not a
+DR behaviour [C139].  The `0x0650` observation stands but is arithmetic, not a witness: a
+titleless `stream output` would compose `0x0E50` minus `0x0800` = `0x0650`, and `0x0650` appears
+in the census only as a record-WRITE *attach* word, never as an OPEN w1.
 
-**(b) The write attach.**  `SIOMODES.txt` has 36 attach sites; E16D and E17D carry two each, HL =
+**(b) The write attach.**  `SIOMODES.txt` tabulates **70** `?SIOOP` attach sites, of which **36**
+carry `DE = 0x0652` (26 carry `0x0690`, 3 carry `0x0650`, and 5 are keyed-file attaches at
+`0x054C`/`0x0550`/`0x058C`/`0x0590`/`0x0594`); an earlier draft said "36 attach sites", which is
+the count of the 36, not of the file.  E16D and E17D carry two each, HL =
 the file's control block, DE = **0x0652**, `LXI B,0000`, `CALL ?SIOOP`.  The measured relation to
 the console PUT is **one bit**: `0x0252 + 0x0400 (declared file) = 0x0652`, exactly as the console
 GET's `0x0290 + 0x0400 = 0x0690` [C274] — plus a leading `LXI H,<CB>`.  An earlier draft of this
@@ -6102,9 +6115,12 @@ claim decomposed 0x0652 as `0x0400|0x0200|0x0010|0x0040`, **which sums to 0x0650
 attach word also carries `0x0002`, and P0 §3's reading of `0x0002` as the PRINT bit belongs to
 OPEN words only (0x0652/0x0E52/0x2E52 are all print opens) — E16D attaches `0x0652` on a
 stream-OUTPUT file, and not one of the 26 measured GET attaches (0x0290 console, 0x0690 file) has
-the bit.  What is measured is the *pairing*: all 36 LIST-directed PUT attaches carry 0x0002, all
-26 GET attaches omit it, and the three record-WRITE attaches read 0x0650 — which is 0x0652 minus
-exactly that bit.  Inside an attach word, then, 0x0002 separates `put list' from `write' and from
+the bit.  What is measured is the *pairing*: the 36 LIST-directed PUT attaches are exactly the 36
+rows carrying `0x0002` (no other DE word in the file has it), the 26 GET attaches at `0x0690` all
+omit it, and the three record-WRITE attaches read `0x0650` — which is `0x0652` minus exactly that
+bit.  The five keyed-file attaches are a fourth family and are not covered by that pairing: their
+words (`0x054C`, `0x0550`, `0x058C`, `0x0590`, `0x0594`) do not decompose against `0x0652`/`0x0690`
+at all, which is why no claim here reaches them.  Inside an attach word, then, 0x0002 separates `put list' from `write' and from
 `get'; what it means inside DR is unmeasured, and P0 §3's PRINT reading belongs to OPEN words.  `lower_put_items_gen` therefore stays ONE function with an optional `?file`
 parameter rather than a second copy, because the item bytes are provably route-independent:
 E17D's own console `put list('WROTE')` at `0064` emits `LXI H,*S(0011) / MVI A,05 / ?SLCTS /

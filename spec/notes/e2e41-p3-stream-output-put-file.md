@@ -52,7 +52,11 @@ repository byte-exactly (E16D:3, E17D:3); the other seven are keyed (P021:4, ENT
 print (LOAN2:54/56 → 0x2E52/0x0E52), carry an attribute (COPY:13 ENVIRONMENT → 0x4E50, KEYFILE:19
 LINESIZE → 0x1E50) or take a VARIABLE title (CREATE:22).  **CREATE's w1 is 0x0E50, exactly
 E16D/E17D's**: the mode word does not care how the TITLE is spelled, only that one is present.
-Every one of the nine carries a TITLE.  The measured word is
+Every one of the nine carries a TITLE — seven literal, two variable (`CREATE:22`, `LOAN2:56`).
+That is as far as the nine go: four of them spell `output` with NO `stream` keyword (the two keyed
+rows and the two print rows), so the corpus does not support "OUTPUT is accepted only as
+`stream output` with a literal TITLE"; it supports "this compiler lowers exactly one of the nine
+spellings".  The measured word is
 
 ```
 0x0E50 = 0x0400 declared file | 0x0200 stream organisation | 0x0010 stream | 0x0040 OUTPUT
@@ -75,6 +79,10 @@ it would have had to emit:
   both mode bits).
 * `output` without `stream` — the only non-stream OUTPUT rows are keyed (`P021:4`, `ENTER:37` →
   0x4D54) or print (`LOAN2:54/56` → 0x2E52/0x0E52), so a bare `output title(...)` has no witness.
+  DR compiles all four of those rows, so this refusal is about the *bare* spelling and about this
+  compiler having no lowering for the KEYED/PRINT attribute words — it is not evidence that DR
+  rejects `output` without `stream`, and the refusal message's "outside that set" phrasing
+  overstates the rows it goes on to list.
 * a **titleless** `stream output` — the word it composes to is `0x0400|0x0200|0x0010|0x0040 =
   0x0650`, and 0x0650 appears in this census **only as a write-from ATTACH word** (COPY 006F,
   REPORT 00DF/01BE, all three `?WNIOP`/`?QIOOP`) and never as an OPEN w1.  The titleless opens
@@ -86,7 +94,10 @@ combination, so a refused OPEN claims nothing.
 
 ### 2.2 `PUT FILE(f) LIST(<one literal>)` — attach 0x0652, `CALL ?SIOOP`
 
-`spec/lab-evidence/e2e41-p0/SIOMODES.txt` tabulates 36 attach sites.  E16D and E17D each have
+`spec/lab-evidence/e2e41-p0/SIOMODES.txt` tabulates **70** `?SIOOP` attach sites, 36 of which carry
+DE = **0x0652** (26 carry 0x0690, 3 carry 0x0650, 5 are keyed-file attaches at 0x054C/0x0550/
+0x058C/0x0590/0x0594).  An earlier draft of this note, of C280 and of the refusal message said
+"36 attach sites", which counts the 0x0652 family and calls it the file.  E16D and E17D each have
 two, both at HL = the file's control block and DE = **0x0652**:
 
 ```

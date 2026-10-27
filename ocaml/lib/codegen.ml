@@ -8501,14 +8501,26 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
      the low half of w1; w2..w6 stay 0x0000, so a stream OUTPUT open carries no record length
      either, which is the fact P3a had to establish before anyone could explain E17D's file
      size [C279][C280].
-     OUTPUT is accepted ONLY spelled `stream output' and ONLY with a TITLE, because that is
-     all the corpus measures: the other seven output rows are keyed (P021:4, ENTER:37), print
-     (LOAN2:54/56) or carry ENVIRONMENT/LINESIZE (COPY:13, KEYFILE:19), and EVERY measured
-     output row carries a title -- so a titleless `stream output' would compose w1 = 0x0650, and
+     What the corpus measures, stated exactly: of the NINE rows spelling `output', FIVE spell
+     `stream output' (E16D:3, E17D:3, COPY:13, KEYFILE:19, CREATE:22) and FOUR do not -- P021:4
+     and ENTER:37 spell `keyed output' (w1 0x4D54), LOAN2:54/56 spell `output ... print' (0x2E52,
+     0x0E52).  So DR does NOT require the STREAM keyword; an earlier draft of this comment, of
+     [C280] and of the refusal message below claimed it did, and the four rows contradict it.
+     What is true, and what the guards below rest on, is narrower: EVERY measured output row
+     carries a TITLE (seven literal, two variable), every non-`stream' output row also carries a
+     KEYED or PRINT attribute this compiler has no lowering for, and no row spells `output'
+     bare.  A refusal here is therefore a my-gap guard about this compiler's missing routes plus
+     one genuine absence, not a claim that DR rejects the spelling.
+     A titleless `stream output' would compose w1 = 0x0650, and
      0x0650 appears in this census ONLY as a write-from ATTACH word (SIOMODES.txt: COPY 006F,
      REPORT 00DF/01BE, each followed by ?WNIOP ?QIOOP) and never as an OPEN w1.  The titleless
-     opens that ARE measured are P019B's print (0x0652) and P072H/P081Q's input (0x0690).
-     `input output' on one open is refused for the same reason: no row spells it. *)
+     opens that ARE measured are four: P019B's print (0x0652), P021:6's stream (0x2652) and
+     P072H/P081Q's input (0x0690) -- none of them an OUTPUT.
+     `input output' on one open is refused for the same reason: no row spells it, and by WORD
+     rather than by keyword the combination does not exist -- of the 34 measured opens 17 carry
+     the input bit 0x0080, 16 carry the output bit 0x0040, NONE carries both, and the single
+     row with neither is UPDATE:31's `update direct' (0x4D2C).  17+16+1 = 34: the partition is
+     complete, so "no measured open writes and reads" is a fact about every row, not a sample. *)
   let n_in, n_out, n_stream = has "INPUT", has "OUTPUT", has "STREAM" in
   let refuse_combination what =
     failwith
