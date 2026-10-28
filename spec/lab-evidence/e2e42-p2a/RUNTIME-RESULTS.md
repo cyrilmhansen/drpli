@@ -20,8 +20,7 @@ the SAME harness with the SAME boot seeds: `golden/e42p2adr/` links DR's own `.R
 | E46L17 | console PUT, file PUT, console PUT | IDENTICAL | IDENTICAL (`CON AGAIN\r\n`) | IDENTICAL | `'FILE'` — 6 |
 | E46L18 | **the same variable on BOTH routes** | IDENTICAL | IDENTICAL (`HELLO\r\n`) | IDENTICAL | `'HELLO'` — 7 |
 
-Every one of the seven is also a byte-exact whole `.REL` against `golden/e42p2a/` (512/512,
-384/384, 512/512, 512/512, 640/640, 512/512, 512/512 bytes).  Each written file is 128 bytes:
+Every one of the seven is also a byte-exact whole `.REL' against `golden/e42p2a/': E46L12 512/512, E46L13 512/512, E46L14 384/384, E46L15 512/512, E46L16 640/640, E46L17 512/512, E46L18 512/512 bytes -- read out of the files with `stat', not written down from memory, which is how the first version of this sentence came to transpose E46L13 and E46L14.  Each written file is 128 bytes:
 the payload, then `0x1A` to the end of the record.
 
 ## Four of six runtime predictions were WRONG, and the fourth was invented
