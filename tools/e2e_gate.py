@@ -3387,9 +3387,13 @@ for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8
 
 NEG_META["E46L7"] = ("my-gap",
     "DR COMPILES it (golden/e42p2a/E46L7: code 94 bytes / DATA 26, NO errors) -- an internal "
-    "CHARACTER VARYING member and a FIXED member behind the same 0x0652 attach, reaching "
-    "`LXI H,*D(REC A(0)) / ?SLVTS / ?PNCOP' and `LHLD RECBIN A(0F) / MVI A,09 / ?QICOP / ?PNVOP', "
-    "byte-identical to the CONSOLE chains E46J6 and E46J12 pin.  So the FILE route would need no "
+    "CHARACTER VARYING member and a FIXED BINARY member, each behind its OWN 0x0652 attach "
+    "(?SIOOP at code 002D and again at 0045 -- DR re-attaches per statement, exactly as E46L5 and "
+    "E46L16 show), reaching `?SLVTS / ?PNCOP / ?QIOOP' for the varying one and `MVI A,09 / ?QICOP "
+    "/ ?PNVOP / ?QIOOP' for the fixed-bin one.  DR's own $S dump names the operands `c 0000 .LINE "
+    "CHAR(14) VARYING MEMBER' and `c 000F .NXT FIXED BINARY(15,0) MEMBER' inside one 17-byte AUTO "
+    "block, so the operand is the member's frame offset and not a descriptor indirection.  Both "
+    "chains are byte-identical to the CONSOLE chains E46J6 and E46J12 pin.  So the FILE route would need no "
     "new item lowering at all, and this is a gap of MINE on a verdict DR has measured, not an "
     "unknown.  The refusal is [C291]'s own principle carried onto the new route: bind RESOLVES "
     "`rec.line' and the cell exists, but RESOLUTION IS NOT AUTHORIZATION -- admitting a Vimem "
