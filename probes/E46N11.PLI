@@ -1,0 +1,14 @@
+E46N11:
+  procedure options(main);
+  /* [E2E-42/P2c] RUNTIME: BARE SKIP BETWEEN TWO ITEMS,
+     as three statements.  Control E46N16 writes the same
+     two items with NO skip. */
+  dcl outf file;
+  open file(outf) stream output title('N11OUT DAT');
+  put file(outf) list('A');
+  put file(outf) skip;
+  put file(outf) list('B');
+  close file(outf);
+  stop;
+end E46N11;
+

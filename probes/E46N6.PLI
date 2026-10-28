@@ -1,0 +1,12 @@
+E46N6:
+  procedure options(main);
+  /* [E2E-42/P2c] OUTPUT THEN SKIP, two statements.  Pairs
+     with E46N7: the two must differ ONLY in the order of
+     the two statement blocks. */
+  dcl outf file;
+  open file(outf) stream output title('N6OUT DAT');
+  put file(outf) list('A');
+  put file(outf) skip;
+  close file(outf);
+end E46N6;
+

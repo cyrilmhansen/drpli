@@ -1,0 +1,14 @@
+E46N22:
+  procedure options(main);
+  /* [E2E-42/P2c] NEGATIVE: FILE AFTER.  This does not
+     reach codegen at all -- `AFTER' is not in the PUT
+     option keys, so the parser stops at `PUT: expected
+     LIST/EDIT/ITEM/FROM'.  A PARSE negative, not a
+     lowering negative; if DR accepts it, the gap is
+     ours at a different stage. */
+  dcl outf file;
+  open file(outf) stream output title('N22OUT DAT');
+  put file(outf) after(2) list('A');
+  close file(outf);
+end E46N22;
+

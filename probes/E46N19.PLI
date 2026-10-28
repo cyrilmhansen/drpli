@@ -1,0 +1,14 @@
+E46N19:
+  procedure options(main);
+  /* [E2E-42/P2c] PROTOCOL CONTROL.  Strict CRLF on every
+     line including the last, then 0x1A.  E46N20 is this
+     same program with the CRs removed and NOTHING else
+     changed -- not even the title length, so a successful
+     E46N20 must have identical CODE and DATA. */
+  dcl outf file, v char(10) varying;
+  v = 'DELTA';
+  open file(outf) stream output title('N19OUT DAT');
+  put file(outf) list(v);
+  close file(outf);
+end E46N19;
+

@@ -1,0 +1,10 @@
+E46N23:
+  procedure options(main);
+  /* [E2E-42/P2c] NEGATIVE: FILE BEFORE.  The mirror of
+     E46N22. */
+  dcl outf file;
+  open file(outf) stream output title('N23OUT DAT');
+  put file(outf) before(2) list('A');
+  close file(outf);
+end E46N23;
+

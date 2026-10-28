@@ -1,0 +1,23 @@
+E46N17:
+  procedure options(main);
+  /* [E2E-42/P2c] CREATE's OWN TAIL, spelled out.  Line 39
+     is the six-item list P2b lowered ([C296]); 41, 44 and
+     45 are the three SKIP statements P2c needs.  CREATE
+     opens with a VARIABLE title, which is why a corpus
+     program cannot be a specimen; here the title is a
+     literal and the record layout is CREATE's, so this
+     object is the byte witness for CREATE:39-45 without
+     needing CREATE's own bytes. */
+  dcl outf file;
+  dcl name char(30) varying, addr char(30) varying,
+        city char(20) varying, state char(10) varying,
+        zip  fixed dec(6), phone char(12) varying;
+  open file(outf) stream output title('N17OUT DAT');
+  /* the title length is 10, matching the model's DATA */
+  put file(outf) list(name,addr,city,state,zip,phone);
+  put file(outf) skip;
+  put file(outf) skip list('EOF');
+  put file(outf) skip;
+  close file(outf);
+end E46N17;
+

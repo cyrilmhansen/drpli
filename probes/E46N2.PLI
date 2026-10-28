@@ -1,0 +1,13 @@
+E46N2:
+  procedure options(main);
+  /* [E2E-42/P2c] FILE SKIP THEN ONE LITERAL.  CREATE:44 is
+     this shape with 'EOF'; here with 'A' so the pool cell
+     is one byte.  The question is ORDER: does DR attach
+     the SKIP before the item chain (CREATE says yes) and
+     is there one close for the whole statement? */
+  dcl outf file;
+  open file(outf) stream output title('N2OUT DAT');
+  put file(outf) skip list('A');
+  close file(outf);
+end E46N2;
+

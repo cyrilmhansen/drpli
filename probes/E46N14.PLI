@@ -1,0 +1,17 @@
+E46N14:
+  procedure options(main);
+  /* [E2E-42/P2c] RUNTIME: THREE SUCCESSIVE BARE FILE
+     SKIPs between two items.  E46N11 has one; three minus
+     one, divided by two, is the bytes of one skip even if
+     a skip is not a fixed length. */
+  dcl outf file;
+  open file(outf) stream output title('N14OUT DAT');
+  put file(outf) list('A');
+  put file(outf) skip;
+  put file(outf) skip;
+  put file(outf) skip;
+  put file(outf) list('B');
+  close file(outf);
+  stop;
+end E46N14;
+

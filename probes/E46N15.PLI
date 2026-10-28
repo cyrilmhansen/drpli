@@ -1,0 +1,19 @@
+E46N15:
+  procedure options(main);
+  /* [E2E-42/P2c] RUNTIME ROUTING.  Console text on either
+     side of a FILE SKIP.  A misrouted skip shows up as an
+     extra line break in the CONSOLE transcript and a
+     missing one in the FILE -- a judgement on output, not
+     on .REL bytes, and it cannot be satisfied by making
+     CREATE byte-exact alone. */
+  dcl outf file;
+  open file(outf) stream output title('N15OUT DAT');
+  put list('CON');
+  put file(outf) list('A');
+  put file(outf) skip;
+  put file(outf) list('B');
+  put list('AGAIN');
+  close file(outf);
+  stop;
+end E46N15;
+

@@ -1,0 +1,13 @@
+E46N1:
+  procedure options(main);
+  /* [E2E-42/P2c] THE BARE FILE SKIP, alone in an object.
+     E41X9 refuses this today.  CREATE:41/45 spell it and
+     DR carries it at 01AA-01BD: 12-byte named-file
+     attach, MVI A,01, CALL ?SKPOP, CALL ?QIOOP.  20
+     bytes, and NO item chain. */
+  dcl outf file;
+  open file(outf) stream output title('N1OUT DAT');
+  put file(outf) skip;
+  close file(outf);
+end E46N1;
+

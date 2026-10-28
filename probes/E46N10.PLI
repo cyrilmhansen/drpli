@@ -1,0 +1,14 @@
+E46N10:
+  procedure options(main);
+  /* [E2E-42/P2c] FILE PAGE.  COPYLPT:53 is 0215-0226 =
+     attach, CALL ?PAGOP, CALL ?QIOOP, 18 bytes, behind a
+     PRINT open.  ?PAGOP has never appeared in an object
+     of mine on EITHER route.  P2c's perimeter says keep
+     PAGE refused, so this probe records DR's verdict and
+     the byte cost without claiming it. */
+  dcl outf file;
+  open file(outf) stream output title('N10OUT DAT');
+  put file(outf) page;
+  close file(outf);
+end E46N10;
+

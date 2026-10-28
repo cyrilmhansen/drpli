@@ -1,0 +1,13 @@
+E46N4:
+  procedure options(main);
+  /* [E2E-42/P2c] FILE SKIP WITH A TWO-ITEM LIST.  P2b's H1
+     was confirmed: one attach and one close per PUT
+     STATEMENT.  This asks whether a control item changes
+     that -- three chains under one attach would say no,
+     two attaches would say yes. */
+  dcl outf file;
+  open file(outf) stream output title('N4OUT DAT');
+  put file(outf) skip list('A','B');
+  close file(outf);
+end E46N4;
+

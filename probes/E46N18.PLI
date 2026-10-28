@@ -1,0 +1,13 @@
+E46N18:
+  procedure options(main);
+  /* [E2E-42/P2c] FILE SKIP WITH AN EXPRESSION COUNT.
+     COPYLPT:81 `skip(spaces)' is 030C-0321 = attach,
+     LHLD, MOV A,L, ?SKPOP, ?QIOOP -- 22 bytes, two more
+     than the literal form. */
+  dcl outf file, n fixed bin;
+  n = 3;
+  open file(outf) stream output title('N18OUT DAT');
+  put file(outf) skip(n);
+  close file(outf);
+end E46N18;
+

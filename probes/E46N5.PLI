@@ -1,0 +1,13 @@
+E46N5:
+  procedure options(main);
+  /* [E2E-42/P2c] TWO SUCCESSIVE BARE FILE SKIPs.  CREATE:41
+     and 45 are this pair with work between them; here
+     nothing is between, so a coalescing front end would
+     show as one 20-byte block instead of two. */
+  dcl outf file;
+  open file(outf) stream output title('N5OUT DAT');
+  put file(outf) skip;
+  put file(outf) skip;
+  close file(outf);
+end E46N5;
+

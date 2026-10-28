@@ -1,0 +1,20 @@
+E46N8:
+  procedure options(main);
+  /* [E2E-42/P2c] THE ROUTING CONTRAST, INSIDE ONE OBJECT.
+     A console `put skip;' (REVERSE:00FE, 17 bytes, ends
+     in ?SYSPR) and a file `put file(outf) skip;'
+     (CREATE:41, 20 bytes, ends in ?SIOOP then ?QIOOP) in
+     the SAME program.  The current matcher takes its
+     bare-control arm BEFORE it looks at the FILE option
+     and tests the STREAM option first, so it sends the
+     FILE one to ?SYSPR.  This object is the witness that
+     says whether the implementation kept them apart: the
+     console one must reach ?SYSPR and the file one must
+     NOT. */
+  dcl outf file;
+  open file(outf) stream output title('N8OUT DAT');
+  put skip;
+  put file(outf) skip;
+  close file(outf);
+end E46N8;
+

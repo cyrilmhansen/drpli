@@ -1,0 +1,14 @@
+E46N12:
+  procedure options(main);
+  /* [E2E-42/P2c] RUNTIME: BARE SKIP BEFORE ANY OUTPUT.
+     Does a file skip advance from the CURRENT position or
+     from the start of a record that has nothing written
+     in it yet?  E46N11 answers the other half. */
+  dcl outf file;
+  open file(outf) stream output title('N12OUT DAT');
+  put file(outf) skip;
+  put file(outf) list('A');
+  close file(outf);
+  stop;
+end E46N12;
+

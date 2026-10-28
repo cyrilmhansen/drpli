@@ -1,0 +1,14 @@
+E46N9:
+  procedure options(main);
+  /* [E2E-42/P2c] COUNTED FILE SKIP, literal count.  DR
+     carries this behind a PRINT open this compiler
+     refuses: COPYLPT:67 is 0295-02A6 = attach, MVI A,04,
+     ?SKPOP, ?QIOOP, 20 bytes -- the BARE length with a
+     different count byte.  Asked here behind a stream
+     OUTPUT open. */
+  dcl outf file;
+  open file(outf) stream output title('N9OUT DAT');
+  put file(outf) skip(2);
+  close file(outf);
+end E46N9;
+

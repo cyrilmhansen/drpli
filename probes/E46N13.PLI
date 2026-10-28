@@ -1,0 +1,13 @@
+E46N13:
+  procedure options(main);
+  /* [E2E-42/P2c] RUNTIME: FILE SKIP WITH A LIST, spelled
+     exactly as CREATE:44 spells it.  The item follows the
+     skip INSIDE one statement, so the question is whether
+     the skip's bytes come before the item's text. */
+  dcl outf file;
+  open file(outf) stream output title('N13OUT DAT');
+  put file(outf) skip list('EOF');
+  close file(outf);
+  stop;
+end E46N13;
+

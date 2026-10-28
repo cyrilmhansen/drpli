@@ -1,0 +1,13 @@
+E46N3:
+  procedure options(main);
+  /* [E2E-42/P2c] FILE SKIP BEFORE A VARYING VARIABLE.
+     A SKIP is a control item and a variable is an operand;
+     [C293] says mixing the two classes has never been
+     accepted on the named-file route, and this is the
+     first time DR is asked directly. */
+  dcl outf file, v char(20) varying;
+  open file(outf) stream output title('N3OUT DAT');
+  put file(outf) skip list(v);
+  close file(outf);
+end E46N3;
+

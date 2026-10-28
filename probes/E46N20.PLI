@@ -1,0 +1,17 @@
+E46N20:
+  procedure options(main);
+  /* [E2E-42/P2c] PROTOCOL DISCRIMINATOR, and the
+     deliberately malformed one -- this probe is written
+     with a bare LF at the end of EVERY line INCLUDING the
+     last, then 0x1A, which is exactly the shape of
+     E46M36.  If DR refuses it while accepting E46N19,
+     bare LF anywhere is fatal and [C303] stands.  If DR
+     accepts it, then what killed E46M36 was the missing
+     CR on the LAST line, and [C303]'s wording is wrong. */
+  dcl outf file, v char(10) varying;
+  v = 'DELTA';
+  open file(outf) stream output title('N19OUT DAT');
+  put file(outf) list(v);
+  close file(outf);
+end E46N20;
+

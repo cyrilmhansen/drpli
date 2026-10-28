@@ -1,0 +1,11 @@
+E46N7:
+  procedure options(main);
+  /* [E2E-42/P2c] SKIP THEN OUTPUT, two statements -- the
+     mirror of E46N6. */
+  dcl outf file;
+  open file(outf) stream output title('N7OUT DAT');
+  put file(outf) skip;
+  put file(outf) list('A');
+  close file(outf);
+end E46N7;
+

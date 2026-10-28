@@ -1,0 +1,15 @@
+E46N21:
+  procedure options(main);
+  /* [E2E-42/P2c] NEGATIVE: FILE LINE.  `ctl_keys' is
+     SKIP/PAGE/LINE (parser.ml:134), so LINE parses as a
+     control item and `file_items' refuses it by class and
+     position.  Nothing of mine, and nothing in the corpus,
+     measures what DR emits for it behind a stream-output
+     attach -- COPYLPT's LINE uses are GET, not PUT, and
+     are on a printer file. */
+  dcl outf file;
+  open file(outf) stream output title('N21OUT DAT');
+  put file(outf) line(2) list('A');
+  close file(outf);
+end E46N21;
+

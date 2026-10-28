@@ -1,0 +1,16 @@
+E46N16:
+  procedure options(main);
+  /* [E2E-42/P2c] RUNTIME CONTROL: E46N11 with the SKIP
+     STATEMENT REMOVED and nothing else changed.  [C295]
+     and [C299] predict its payload exactly: each item is
+     apostrophe-quoted, items take one blank between them
+     across statement boundaries, and a PUT never
+     terminates its line -- so `'A' 'B'` is 7 bytes. */
+  dcl outf file;
+  open file(outf) stream output title('N16OUT DAT');
+  put file(outf) list('A');
+  put file(outf) list('B');
+  close file(outf);
+  stop;
+end E46N16;
+
