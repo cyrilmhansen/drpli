@@ -10067,9 +10067,12 @@ let lower_put_items_gen st ?(file : string option = None)
      ?SKPOP exists on this route, but no byte-exact specimen of MINE carries it.  What made CREATE
      unreachable used to be its VARIABLE title, and that stopped being true at [E2E-42/P1b] --
      CREATE:22's `title(filename)' is a CHARACTER(14) VARYING operand on a `stream output' open,
-     the exact shape E46F1 now matches byte-exactly [C288].  CREATE still refuses, and the reason
-     is now visible for what it is: the multi-item `put file(output) list(name,addr,city,state,
-     zip,phone)' at line 39.  Refuse by name rather than compose. *)
+     the exact shape E46F1 now matches byte-exactly [C288].  CREATE still refuses, and [E2E-42/P2b]
+     moved the reason TWICE: the multi-item `put file(output) list(name,addr,city,state,zip,phone)'
+     at line 39 became a lowering ([C296]), so the measured blocker is now the CONTROL item at line
+     41, `put file(output) skip;'.  Refuse by name rather than compose.  [E2E-42/P2b-F: this
+     paragraph used to end "and the reason is now visible for what it is: the multi-item ... at line
+     39", which stopped being true the moment E46M19 landed.] *)
   if file <> None && skipn <> Sk_none then
     failwith
       "codegen: PUT FILE ... SKIP has no byte-exact DR witness of MINE [TBD] -- CREATE:44 \

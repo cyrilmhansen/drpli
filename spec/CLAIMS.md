@@ -6678,6 +6678,15 @@ classified `unmeasured` rather than `dr-refuses`.
   formal.  Multi-item lists stay refused (E41X7), so does FILE SKIP (E41X6) and PUT EDIT on a
   file (E41X8); an unopened file stays refused (E46L8, which is PU1's own program and is what
   reclassifies PU1 from an assumed gap to a measured one).
+* **ASIDES OF DATE (E2E-42/P2b-F) — two entries on the list above have since CLOSED, and leaving
+  them present-tense would make a P2a claim look current.**  The internal CHARACTER member (E46L7)
+  is authorized and byte-exact since [E2E-42/P2b]: DR's answer to that cold question is that a FIXED
+  member carries its declared length (`MVI A,08 / ?SLCTS', E46M17) [C297].  And the MULTI-ITEM list
+  is lowered — [C296] retired the E41X7 negative when E46M1's measured shape became supported, with
+  20 multi-item objects byte-exact, so "multi-item lists stay refused" was true when P2a wrote it and
+  is not true now.  What the list still excludes, unchanged by either closing: FILE SKIP behind an
+  attach (E41X6/E41X9 — [E2E-42/P2c]'s subject), a file PUT EDIT (E41X8), and an expression, ARRAY
+  element, FLOAT, POINTER, BASED or BIT(1) item.
 
 ## C294 — THE FILE ROUTE'S OPEN GUARD KEYS ON THE OPEN, NOT ON HOW ITS TITLE WAS SPELLED (E2E-42/P2a)
 
@@ -6761,11 +6770,27 @@ classified `unmeasured` rather than `dr-refuses`.
   then ONE `CALL ?QIOOP` and the continuation triple.  The attach and the close belong to the
   STATEMENT; the chains belong to the ITEMS.  Source order is emitted order.  Nothing is folded:
   an item repeated in a list is emitted twice.
-* **The arithmetic, measured on one pair.**  E46M1 (`put file(outf) list('A','B')`) is 115 bytes of
-  CODE; its file statement spans `0023`–`0048` = **37 bytes** = 12 + 11 + 11 + 3.  E46M2 (the same
-  two items as TWO one-item statements) is 96 = 26 + 26 for the same work.  The difference — 19
-  bytes of code, of which 15 is an attach (12) and a close (3) — IS the second attach and close that
-  the multi-item form does not emit.  Both objects are byte-identical to DR's (512/512 each).
+* **The arithmetic, measured on one pair — and TWO numbers here that used to be conflated.**
+  The statement-level saving is what the law predicts and it is **15 bytes**: E46M1's file statement
+  spans `0023`–`0048` = **37 bytes** = 12 (attach) + 11 (`*D(0009)` chain) + 11 (`*D(000A)` chain)
+  + 3 (close), and E46M2's two one-item file statements span `0023`–`003C` and `003D`–`0056` =
+  **26 + 26 = 52**.  `52 − 37 = 15` = one redundant FILE attachment/prologue (12) + one redundant
+  `CALL ?QIOOP` (3).  Both objects are byte-identical to DR's (512/512 each).
+*
+  **The whole-program CODE sizes are 115 and 96, and their difference — 19 — is a DIFFERENT
+  measurement, not this saving.**  The two programs are not the same program minus one attach: E46M1
+  also carries a CONSOLE `put list('A','B')` that E46M2 does not have.  Decomposed against the
+  objects with `chaindump.py`, both sizes account for exactly:
+
+      fixed overhead, identical in both = 35 (preamble 6 + literal-title OPEN 29) + 9 (CLOSE 6 + ?STOPX 3) = 44
+      E46M1 = 44 + 37 (file stmt) + 34 (console stmt 0048–006A: 9 + 11 + 11 + 3) = 115
+      E46M2 = 44 + 26 + 26                                    (two file stmts)  =  96
+      115 − 96 = 34 − 15 = 19          (the console statement ADDED, less the attach+close SAVED)
+
+  So 19 and 15 differ by the 34-byte console statement E46M1 carries — which is the whole
+  reconciliation: the proven statement-level saving is **15**, and the earlier prose that called the
+  19-byte whole-CODE gap "of which 15 is an attach and a close" mixed two measurements.  Nothing is
+  unexplained and nothing needs inventing.
 * **Corpus corroboration, which is why the probes were worth writing.**  `golden/first/KEYFILE`
   008C-00AC is `put file(keys) list(name,k)`: one `?SIOOP` at 008F, a varying-member chain, a FIXED
   BINARY chain, one `?QIOOP`.  `golden/first/CREATE` 015C-01A8 is six members: one attach at 0166,
@@ -6773,7 +6798,13 @@ classified `unmeasured` rather than `dr-refuses`.
   refused by `tools/coverage_check.py` as witnesses), so E46M1-M20 re-measure the shapes as probes
   and E46M19 — CREATE's six-item list spelled with ordinary variables — is byte-exact against DR at
   122 CODE / 121 DATA.
-* **What changed in this compiler is the PARSER and nothing else.**  `[E2E-42/P2a]`'s
+* **What changed in this compiler is the MATCHER in `ocaml/lib/codegen.ml` and nothing else.**
+  `[C296]`'s own first draft said "the PARSER"; `git log -S` for the admission (`items <> []`,
+  `Pfile (fe, its)`) and the diff stat for `c816af5..16b1ffd` both name ONE file, `codegen.ml`
+  (+270/−76), with `parser.ml` and `ast.ml` untouched — `18785e5`.  The P2b implementation report
+  (`RESULTS.md`) says matcher, and the matcher is right: `match_put_list_lit`'s FILE arm is where the
+  list-length restriction lived.  Corrected here rather than left, because a reader who went to
+  `parser.ml` for this change would find nothing.  `[E2E-42/P2a]`'s
   `authorize_file_item` gates classes per item and `lower_put_items_gen` has folded over an item
   list since [E2E-29/P1], emitting one prologue and one close; P2a's matcher simply refused to
   *name* a list longer than one.  Allowing `items <> []` is the entire lowering change.  That is
@@ -6876,10 +6907,15 @@ classified `unmeasured` rather than `dr-refuses`.
   constrain EVERY field that selects a route.  A pattern that pins `kind` and `items` and leaves
   `on_opts`/`stream` free does not mean "the default route"; it means "any route, silently", and the
   failure mode is invisible in exactly the panel that would otherwise catch a wrong byte.  The
-  refusal is pinned as REJECTS row **E41X9** (`my-gap`: DR's CREATE carries the statement — 01AA
-  `?SIOOP`, 01B6 `MVI A,01`, 01B8 `?SKPOP`, 01BB `?QIOOP`, 18 bytes, attach to close with no item
-  chain).  A row that pins a FIXED defect is kept for the same reason a regression test is: if the
-  guard is dropped again, the panel says so.
+  refusal is pinned as REJECTS row **E41X9** (`my-gap`: DR's CREATE carries the statement).  Re-
+  measured off `golden/first/CREATE/CREATE.REL` for P2c, because C300's own byte count was wrong:
+  the bare FILE SKIP is `01AA LXI H,*C(fcb) / 01AD LXI D,0652 / 01B0 LXI B,*CODE(01BE) / 01B3 CALL
+  ?SIOOP / 01B6 MVI A,01 / 01B8 CALL ?SKPOP / 01BB CALL ?QIOOP`, span `01AA`–`01BD` = **20 bytes**
+  = 12 (attach) + 2 + 3 (`?SKPOP`) + 3 (close), with NO item chain.  C300 first wrote "`01AA`
+  `?SIOOP` ... 18 bytes": `?SIOOP` is at **01B3**, not 01AA (01AA is the `LXI H`), and the span is
+  20, not 18 — a prose transcription of an object that was always the authority [C264].  CREATE:45's
+  second bare SKIP at `01E0`–`01F3` measures the same 20 bytes.  A row that pins a FIXED defect is
+  kept for the same reason a regression test is: if the guard is dropped again, the panel says so.
 
 ## C301 — DR REFUSES A STRUCTURE-VALUED AND A POINTER PUT ITEM: `COMP REQ ?` (E2E-42/P2b)
 

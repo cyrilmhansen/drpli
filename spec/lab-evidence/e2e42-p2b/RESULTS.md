@@ -108,8 +108,18 @@ a specimen).  Category counts move by +7 `my-gap` and +4 `dr-refuses`, and E46K1
 * **H2 — the second item costs its own chain and NOTHING else. CONFIRMED, in the sharp form.**
   E46M1's file statement spans 0x23 to 0x48 = **37 bytes** = 12 (attach) + 11 (`LXI H,*D(0009) /
   MVI A,01 / ?SLCTS / ?PNCOP`) + 11 (the same for `*D(000A)`) + 3 (close), exactly as predicted;
-  E46M2's two one-item statements are 26 + 26.  E46M1 − E46M2 = 19 bytes of CODE, of which 15 is
-  the attach+close the multi-item form does not emit ✓.
+  E46M2's two one-item statements are 26 + 26.  **52 − 37 = 15** = one attach (12) + one close (3) ✓.
+  * **Erratum (E2E-42/P2b-F), in the sentence above as first written.**  It read "E46M1 − E46M2 = 19
+    bytes of CODE, of which 15 is the attach+close", and that conflates TWO measurements.  19 is the
+    whole-program CODE difference (115 − 96); 15 is the STATEMENT difference (52 − 37), and only the
+    15 is H2's prediction.  The programs are not identical apart from one attach: E46M1 also carries
+    a CONSOLE `put list('A','B')' that E46M2 does not.  Decomposed off the objects — 44 fixed bytes
+    in each (preamble 6 + literal-title OPEN 29 + CLOSE 6 + `?STOPX` 3), then E46M1 = 44 + 37 + 34
+    (the console statement, 0048–006A = 9 + 11 + 11 + 3) = 115 and E46M2 = 44 + 26 + 26 = 96 — the 19
+    reconciles exactly as **34 − 15 = 19**, so nothing is left unexplained and no bridging claim is
+    needed.  The §3 prediction table below is a PREREGISTERED record and is deliberately NOT edited:
+    it said "E46M1 minus E46M2 = 19 bytes of file code, 15 of which is the second attach+close", and
+    the number that was actually tested and passed is the 15.
 * **H3 — there is no separator instruction between items. CONFIRMED** in the object, and then in
   the FILE at run time (§4): nothing is emitted between `?PNCOP` of item 1 and `LXI H` of item 2
   (E46M1 0037→003A, E46M16 0035→0038, CREATE 01A4→01A7...).  The blank E46L16 had measured between
