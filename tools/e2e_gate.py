@@ -2776,7 +2776,7 @@ for _n, _marker in [("AV1", "allocate(...)' where p is a POINTER is refused by D
 # longer stops on the item -- it stops on having NO OPEN STATEMENT at all, which is what the
 # guard has always required.  Its exact whole-program shape (`dcl f file, x fixed' +
 # `put file(f) list(x)', no open, no close) is now MEASURED: E46L8 (golden/e42p2a) is that
-# program, and DR COMPILES it -- code 0x56, one `LXI H,*C(0000) / LXI D,0652 / LXI B,0000 /
+# program, and DR COMPILES it -- code 41 bytes, one `LXI H,*C(0000) / LXI D,0652 / LXI B,0000 /
 # CALL ?SIOOP' attach and `LHLD x / MVI A,09 / ?QICOP / ?PNVOP / ?QIOOP', with no open and no
 # close anywhere.  So the row is `my-gap' on a MEASURED verdict instead of an assumed one.
 # PU1 is NOT retired by that: accepting it would mean claiming DR's no-open attach, and no
@@ -2788,7 +2788,7 @@ NEG_META["PU1"] = ("my-gap",
     "route claims the complete statement only where a whole object pins it (OPEN 0x0E50 + attach "
     "0x0652 + the item chain, which is E16D/E17D [C280]).  [E2E-21/P0] found it as a bare crash "
     "the corpus sweep miscounted as a refusal.  [E2E-42/P2a] re-measured it: DR COMPILES this "
-    "exact shape (golden/e42p2a/E46L8, code 0x56, attach 0x0652 with no open and no close), so "
+    "exact shape (golden/e42p2a/E46L8, code 41 bytes / DATA 2, a 256-byte .REL, attach 0x0652 with no open and no close), so "
     "this is a gap of MINE on a verdict DR has now told us, and it stays a gap because lowering "
     "the no-open attach would be a claim with no object of ours behind it.")
 
@@ -3386,7 +3386,7 @@ for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8
         "byte-exact specimen or re-classify it as dr-refuses with DR's word attached.")
 
 NEG_META["E46L7"] = ("my-gap",
-    "DR COMPILES it (golden/e42p2a/E46L7: code 0x9A = 154 bytes, NO errors) -- an internal "
+    "DR COMPILES it (golden/e42p2a/E46L7: code 94 bytes / DATA 26, NO errors) -- an internal "
     "CHARACTER VARYING member and a FIXED member behind the same 0x0652 attach, reaching "
     "`LXI H,*D(REC A(0)) / ?SLVTS / ?PNCOP' and `LHLD RECBIN A(0F) / MVI A,09 / ?QICOP / ?PNVOP', "
     "byte-identical to the CONSOLE chains E46J6 and E46J12 pin.  So the FILE route would need no "
@@ -3405,7 +3405,7 @@ NEG_META["E46L9"] = ("my-gap",
 
 NEG_META["E46L10"] = ("my-gap",
     "DR COMPILES a SUBSCRIPTED item on this route (golden/e42p2a/E46L10: `list(a(1))' on "
-    "`dcl a(3) fixed' emits the static-subscript ladder and the numeric tail, code 0x61).  Same "
+    "`dcl a(3) fixed' emits the static-subscript ladder and the numeric tail; code 70 bytes / DATA 16).  Same "
     "perimeter stop as E46L9, same measured verdict.")
 
 NEG_META["E46L11"] = ("my-gap",
