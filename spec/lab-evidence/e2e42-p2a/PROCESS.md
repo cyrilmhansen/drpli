@@ -10,7 +10,11 @@ including me.
 the oracle ran, but it was never committed before the run: `git log -- <that path>` is empty as of
 this writing and `git status` shows the whole directory untracked, while
 `golden/e42p2a/E46L1/E46L1.REL` — the oracle's OUTPUT — has an mtime of `08:05:20` and
-`HYPOTHESES.md` an mtime of `08:32:29`, i.e. later.  So the honest statement is not "the
+`HYPOTHESES.md` an mtime of `08:32:29`, i.e. later.  **Those timestamps no longer exist:** a
+`git stash -u` + `git stash pop` run later in the same session rewrote the mtime of every untracked
+file in the directory to `09:51:09`, so the ordering is now attested by nothing at all.  The two
+numbers above are quoted from what I observed at the time and cannot be re-checked by anyone,
+including me.  So the honest statement is not "the
 hypotheses were pre-registered"; it is "the hypotheses were written before the run, and the only
 evidence for that ordering is a filesystem timestamp I could have produced either way".  The
 claims [C293]-[C295] do not depend on the pre-registration; they stand on the goldens.  What the
@@ -63,7 +67,9 @@ after the oracle stops being a hypothesis.
   them, so DR's verdicts are independent of my lowering, and `HYPOTHESES.md`'s eleven static
   predictions were fixed before that run.
 * E46L18 is the one probe written in response to a measurement — the apostrophe discrepancy
-  between E46L12's file and E46L17's console — and it is labelled as such.  Writing a probe to
+  between E46L12's file and E46L17's console — and it is labelled as such, as a marked ADDENDUM at
+  the foot of `HYPOTHESES.md` rather than as a ninth entry in the section that was fixed before
+  L12-L17 ran.  Its prediction was written before DR was pointed at it.  Writing a probe to
   separate two explanations after noticing they differ is good practice; silently editing the old
   prediction to match would not be, and that is what was NOT done.
 * Refusals were designed and described before implementation, and the implementation was then

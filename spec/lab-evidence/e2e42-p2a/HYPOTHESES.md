@@ -154,6 +154,9 @@ not a table [the mission's "Do not promote a runtime behaviour to a compiler cla
 
 ## RUNTIME PROBES E46L12-E46L17 (P2a-D) — written and FIXED BEFORE their oracle run
 
+(E46L18 is NOT in this section: it was designed only after these six ran and contradicted four
+predictions, and its own prediction is recorded in the addendum at the foot of this file.)
+
 Their `.REL` bytes are NOT predicted; what is predicted here is the EXECUTED OUTPUT FILE, a
 different oracle.  The classes were chosen deliberately: a varying item exercises the
 DESCRIPTOR's length byte at runtime (H12), a fixed item the declared width (H13), a numeric the
@@ -192,3 +195,22 @@ that restarts at offset 0 (`CC`).
 **H17** — a console PUT, a file PUT, then a console PUT → console shows `CON` then `AGAIN`, and
 `L17OUT` holds `FILE`.  If the file route clobbered SYSOUT's FCB the second line would not
 appear.
+
+
+## ADDENDUM — H18, written after L12-L17 ran, and before L18's own oracle run
+
+E46L12's file held `'HELLO'` with apostrophes while E46L17's console held `AGAIN` with none.  That
+is exactly two explanations — the ASSIGNMENT stores the delimiters into the cell, or the file's
+output EDIT adds them — and none of the six probes separates them, because no probe PUT the same
+character item on both routes.  So E46L18 was written for that question alone.
+
+**H18** — `dcl v char(20) varying; v = 'HELLO';` then `put list(v);` and `put file(outf)
+list(v);` in ONE program → the console line shows `HELLO` (no delimiters, because the console
+route has never shown any) and `L18OUT` holds `'HELLO'`, 7 bytes.  If instead the cell carried the
+delimiters, BOTH lines would show them; if the file route did not quote, NEITHER would.  Either of
+those falsifies the stream-edit explanation and [C295] could not be written.
+
+This addendum is marked as an addendum rather than folded into the section above, because it was
+composed after six oracle runs had already happened.  Its own prediction was fixed before E46L18
+was given to DR — see `PROCESS.md`, which also records that the timestamps that used to prove the
+ordering are no longer recoverable.
