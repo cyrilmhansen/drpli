@@ -1,0 +1,39 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46L10
+
+D: Disk Print
+L: List Source Program
+S: Symbol Table List
+
+  SYMBOLS:
+
+BLOCK AT LINE 1, AUTO STORAGE 0 BYTES
+a 0000 E46L10 ENTRY PARAMETERS(0) EXTERNAL CONSTANT
+BLOCK AT LINE 3, AUTO STORAGE 6 BYTES
+c 0000 OUTF FILE EXTERNAL STATIC
+c 0000 A(1:3) FIXED BINARY(15,0) AUTOMATIC
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46L10
+
+   1 a 0000 E46L10:
+   2 a 0006   procedure options(main);
+   3 c 0006   dcl outf file, a(3) fixed;
+   4 c 0006   open file(outf) stream output title('L10OUT DAT');
+   5 c 0023   put file(outf) list(a(1));
+   6 c 003D   close file(outf);
+   7 a 0043 end E46L10;
+
+CODE SIZE = 0046
+DATA AREA = 0010
+FREE SYMS = 3894
+END  COMPILATION
+

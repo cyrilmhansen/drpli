@@ -1,0 +1,32 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:E46L16 $L$D$S
+PLI D:E46L16 $L$D$S
+
+C>
+>>> PLI D:E46L17 $L$D$S
+PLI D:E46L17 $L$D$S
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 6030 ms, waited for 0 ms
+CPU executed 9560740 t-states in 5 ms
+Clock frequency 1696.97 MHz

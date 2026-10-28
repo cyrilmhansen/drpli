@@ -6633,3 +6633,120 @@ A bare CHARACTER name held by TWO structures is a separate case and is still ref
 key and `List.assoc` would silently pick whichever came first -- and it quotes DR's `QUALIFY`
 wording, which is measured for FIXED (E39X1, E40X3) and NOT for CHARACTER, so its panel row is
 classified `unmeasured` rather than `dr-refuses`.
+
+## C293 — THE FILE ROUTE'S ITEM BYTES ARE THE CONSOLE'S: ONE GENERATOR, TWO PROLOGUES (E2E-42/P2a)
+
+* **LAW:** `PUT FILE(f) LIST(<one variable>)` emits the SAME item chain the console statement
+  `PUT LIST(<the same variable>)` emits, byte for byte and operand for operand, in the same
+  object; the two statements differ ONLY in the stream-selection prologue.  The file route is
+  `LXI H,<fcb> / LXI D,0652 / LXI B,<this statement> / CALL ?SIOOP` where the console route is
+  `LXI D,0252 / LXI B,<this statement> / CALL ?SYSPR`, and BOTH end in `CALL ?QIOOP`.  There is
+  therefore no "file item lowering" to write: an item class is lowered once, and a new statement
+  route needs only a decision about which classes may travel it.
+* **Evidence, read off the LINKED images** (`tools/dis80.py --com`, every operand resolved, so
+  this is what executes; `golden/e42p2adr/`).  Each of the four probes below contains BOTH a file
+  PUT and a console PUT of the SAME variable, so the identity is measured inside one object and
+  not across two compilations:
+
+  | class | the chain, emitted twice in the same program | file stmt | console stmt |
+  |---|---|---|---|
+  | `char(20) varying` | `LXI H,<v> / CALL ?SLVTS / CALL ?PNCOP / CALL ?QIOOP` | E46L1 `012F-013A` | E46L1 `0144-014F` |
+  | `char(20)` fixed | `LXI H,<v> / MVI A,14 / CALL ?SLCTS / CALL ?PNCOP / CALL ?QIOOP` | E46L2 `012F-013C` | E46L2 `0146-0153` |
+  | `fixed bin(15)` | `LHLD <k> / MVI A,09 / CALL ?QICOP / CALL ?PNVOP / CALL ?QIOOP` | E46L3 `012F-013C` | E46L3 `0146-0153` |
+  | `fixed dec(6)`, s=0 | `LXI H,<z> / MVI A,06 / CALL ?DLDOP / MVI A,09 / MVI B,00 / CALL ?QDCOP / CALL ?PNVOP / CALL ?QIOOP` | E46L4 `012F-0143` | E46L4 `014D-0161` |
+
+  For E46L1 the resolved cell address is identical too (`LXI H 19CD` at both sites), and E46L3
+  reads the same `LHLD 1A69` twice.  Six whole objects are byte-exact against DR — E46L1
+  384/384, E46L2 384/384, E46L3 384/384, E46L4 512/512, E46L5 384/384, E46L6 384/384 bytes — so
+  this is not a claim about a fragment.
+* **What the widths are, now measured on four classes rather than inferred.**  CHARACTER FIXED
+  passes the DECLARED length inline (`MVI A,14` = 20 for `char(20)`) exactly as [C291] found for a
+  member; CHARACTER VARYING passes NO width at all and `?SLVTS` takes it from the cell's length
+  byte; both numeric classes pass `MVI A,09` and FIXED DECIMAL additionally `MVI B,00` for scale
+  0, so `?DLDOP`'s width is p (6), the print width is p+3 (9) and the scale is s — the same p+3
+  [E2E-7A] measured for PUT EDIT's DEC field, now confirmed on plain `PUT LIST` where the route
+  had only ever been seen with a DEC LITERAL (E17D's `list(42)`).
+* **The operand form is chosen by STORAGE CLASS, not by route** — the rule [C291] stated for the
+  console generalises across routes without amendment: `LXI H,*D` for a cell operand (character,
+  decimal) and `LHLD` for a value operand (fixed binary).  Nothing about the file attach changes
+  it, which is why sharing the generator is correct rather than merely convenient.
+* **What this does NOT license** — everything `authorize_file_item` refuses, each with a DR object
+  behind it and so a `my-gap` rather than an unknown: an internal CHARACTER member (E46L7, DR
+  compiles it and gets the console chains [C291] pins — refused under [C291]'s own "resolution is
+  not authorization"), an expression (E46L9), an ARRAY element (E46L10), a FLOAT (E46L11), a
+  POINTER (no object on EITHER route prints one), a BASED operand, a BIT(1), and a procedure
+  formal.  Multi-item lists stay refused (E41X7), so does FILE SKIP (E41X6) and PUT EDIT on a
+  file (E41X8); an unopened file stays refused (E46L8, which is PU1's own program and is what
+  reclassifies PU1 from an assumed gap to a measured one).
+
+## C294 — THE FILE ROUTE'S OPEN GUARD KEYS ON THE OPEN, NOT ON HOW ITS TITLE WAS SPELLED (E2E-42/P2a)
+
+* **LAW:** `PUT FILE(f)` is admitted where, and only where, THIS compiler lowered an OUTPUT `OPEN`
+  for `f` — a literal title (E16D/E17D) and a VARIABLE title (E46L6) both qualify, because the
+  PUT's own attach word is `0x0652` in either case and a PUT never re-supplies a title.
+* **E46L6 is the object**: `open file(outf) stream output title(t); put file(outf) list(v);` with
+  `t char(20) varying` assigned `'L6OUT DAT'` — 384 bytes, byte-identical to DR, attaching the
+  27-byte varying-title block (`MVI A,1B / ?SLVTS`) and then the varying item (`?SLVTS / ?PNCOP`).
+  So [C282]'s variable-title OPEN lowering and this route's item lowering COMPOSE, and neither
+  had to be touched for the other.
+* **My own pre-registered prediction was wrong about this.**  `HYPOTHESES.md` H6 predicted a
+  refusal "because P1e's `st.file_out` records LITERAL-title opens only".  It does not:
+  `lower_open` pushes the file name on every lowered OUTPUT open, before it dispatches on the
+  title's form.  The prediction described a guard that was never written, which is worth recording
+  because it is the kind of wrong a design note invites — reasoning about what a comment says
+  instead of what the code does.
+* **What the guard is for** stays exactly as P1e put it: DR attaches `0x0652` in places this
+  compiler has never lowered — a PRINT open (P019B), print-with-attribute opens (LOAN2, DEPREC,
+  COPYLPT, REPORT, KEYFILE), a record write (SIOMODES COPY `006F`, REPORT `00DF`/`01BE`), and with
+  NO open at all (P086K, an EDIT PUT).  Matching DR's item bytes is no licence to invent a
+  prologue, so a `PUT FILE` to a file this compiler did not open for output is refused.
+
+## C295 — DR'S PUT LIST QUOTES CHARACTER ITEMS ON A STREAM FILE AND NOT ON THE CONSOLE (E2E-42/P2a-D)
+
+* **OBSERVATION, and the object that separates the two possible explanations.**  Seven runtime
+  probes EXECUTED under CP/M; my `.COM`, my console transcript and my WRITTEN FILE are each
+  byte-identical to DR's (`golden/e42p2adr/`, asserted in `spec/RUNTIME.txt`).  The file contents
+  turned out to be:
+
+  | program | item | bytes DR's runtime wrote |
+  |---|---|---|
+  | E46L12 | `v char(20) varying`, `v = 'HELLO'` | `'HELLO'` — 7, apostrophes included |
+  | E46L13 | `c char(20)` fixed, `c = 'ABC'` | `'ABC'` + 17 blanks + `'` — 22 |
+  | E46L14 | `k fixed bin(15)`, `k = 42` | `       42` — 9, DECIMAL, unquoted |
+  | E46L15 | `z fixed dec(6)`, s = 0, `z = 123` | `      123` — 9, NO decimal point |
+  | E46L16 | three separate file PUTs on one stream | `'AA' 'B' 'CC'` — 13 |
+  | E46L18 | the SAME `v` PUT on BOTH routes | console `HELLO`, file `'HELLO'` |
+
+* **E46L18 is the discriminator.**  Apostrophes in the file could have come from the ASSIGNMENT
+  (the delimiters stored into the cell) or from the file's output EDIT.  One variable, one cell,
+  read by two statements whose item chains this compiler emits byte-for-byte identically: the
+  console line comes back bare and the file comes back quoted.  So the delimiters are a property
+  of the STREAM, selected at run time, and not of the stored value and not of the emitted code.
+* **And the operand itself is proved bare, so no assignment can be blamed.**  Read out of DR's
+  own LINKED images, where the relocatable `*D` operands are resolved addresses one can look at:
+  E46L16's file item `list('B')` is `LXI H,1A31 / MVI A,01 / ?SLCTS / ?PNCOP`, and the cell at
+  `1A31` holds the ONE byte `42` -- `B`, no delimiters -- while the file E46L16 writes contains
+  `'B'`, three bytes.  The length handed to `?SLCTS` is the BARE count (01 for `'B'`, 05 for
+  E46L5's `HELLO` at `19D2`), and the same program's console literal `'DONE'` sits bare at `1A32`
+  and prints bare.  So the two extra bytes on the file route are neither in the cell nor in the
+  count nor in the item chain: they are produced after `?SLCTS` has been handed a bare string.
+  Which PLILIB routine adds them, and whether an OPEN option could suppress it, stays UNMEASURED
+  -- no object here varies that.
+* **Items are separated by one blank and never line-terminated.**  E46L6's/E46L16's three
+  statements produce `AABCC`-shaped adjacency with a single blank between items and no CR, no LF;
+  E46L17's console agrees from the other route (`CON AGAIN` on one line).  This retires the last
+  shadow of the old `F(128)` record-size story: nothing in the program asks for 128 of anything,
+  no terminator appears, and the 128-byte file length is CP/M's record padding.
+* **Under-filled CHARACTER FIXED is padded with BLANKS** (E46L13): declared length reaches the
+  file whether or not it was assigned, and the pad is `0x20`, not `0x00` and not the cell's prior
+  bytes.  Varying items are NOT padded — the length byte governs (E46L12).
+* **FIXED BINARY PRINTS IN DECIMAL** (`42`, not octal `34`).
+* **This is a claim about DR's RUNTIME, not about this compiler.**  Nothing above is emitted: no
+  byte of the apostrophes, the blanks, the separators or the radix appears in any `.REL`, and
+  these runs are CIRCULAR for the lowering because the two `.COM` files are the same bytes.  What
+  they do establish is that this compiler's `.REL` LINKS through LINK 1.31 + PLILIB with no
+  undefined symbol, RUNS, WRITES A REAL CP/M FILE, and TERMINATES — none of which a `.REL`
+  comparison can show.  The mechanism inside PLILIB (which routine appends the apostrophes,
+  whether an OPEN option suppresses it) is UNMEASURED: no object here varies it.  Recorded as
+  `RUNTIME` rows of kind `dr_oracle`, and predicted — wrongly, four times out of six — in
+  `spec/lab-evidence/e2e42-p2a/HYPOTHESES.md` before the run.

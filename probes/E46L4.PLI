@@ -1,0 +1,9 @@
+E46L4:
+  procedure options(main);
+  dcl outf file, z fixed dec(6);
+  open file(outf) stream output title('L4OUT DAT');
+  put file(outf) list(z);
+  put list(z);
+  close file(outf);
+end E46L4;
+

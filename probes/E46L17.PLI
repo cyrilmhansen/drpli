@@ -1,0 +1,16 @@
+E46L17:
+  procedure options(main);
+  /* [E2E-42/P2a] runtime 6: the file route AND the console route in one program.  A PUT FILE
+     must not disturb SYSIN/SYSOUT's control blocks (E16D's note: DR's file runtime uses
+     FCB#0 for the console and attaches user files at 0x005C).  If the file PUT clobbered the
+     console the second line would not appear. */
+  dcl outf file, v char(20) varying;
+  v = 'FILE';
+  put list('CON');
+  open file(outf) stream output title('L17OUT DAT');
+  put file(outf) list(v);
+  close file(outf);
+  put list('AGAIN');
+  stop;
+end E46L17;
+

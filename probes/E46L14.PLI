@@ -1,0 +1,14 @@
+E46L14:
+  procedure options(main);
+  /* [E2E-42/P2a] runtime 3: FIXED BIN(15).  k = 42 is 28 in DR's octal print (the E3B2
+     measurement), and the 9-wide numeric edit right-justifies it, so the file must hold
+     seven spaces then '34'. */
+  dcl outf file, k fixed bin(15);
+  k = 42;
+  open file(outf) stream output title('L14OUT DAT');
+  put file(outf) list(k);
+  close file(outf);
+  put list('DONE');
+  stop;
+end E46L14;
+

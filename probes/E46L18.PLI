@@ -1,0 +1,16 @@
+E46L18:
+  procedure options(main);
+  /* [E2E-42/P2a] runtime 7: the SAME variable on BOTH routes.  E46L12's file holds `'HELLO'`
+     WITH apostrophes while E46L17's console holds `CON` without them, which leaves two
+     explanations and this object separates them: either the ASSIGNMENT stores the delimiters
+     into the cell (then the console line shows them too), or the file's output edit adds them
+     (then the console line shows HELLO and the file still shows 'HELLO'). */
+  dcl outf file, v char(20) varying;
+  v = 'HELLO';
+  put list(v);
+  open file(outf) stream output title('L18OUT DAT');
+  put file(outf) list(v);
+  close file(outf);
+  stop;
+end E46L18;
+

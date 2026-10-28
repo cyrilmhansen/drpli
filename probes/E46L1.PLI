@@ -1,0 +1,9 @@
+E46L1:
+  procedure options(main);
+  dcl outf file, v char(20) varying;
+  open file(outf) stream output title('L1OUT DAT');
+  put file(outf) list(v);
+  put list(v);
+  close file(outf);
+end E46L1;
+

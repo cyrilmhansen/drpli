@@ -1,0 +1,21 @@
+E46L16:
+  procedure options(main);
+  /* [E2E-42/P2a] runtime 5: THREE separate file PUT statements on ONE open stream.  Each is
+     a complete single-item statement, so this is NOT the multi-item shape E46L5 refuses; it
+     is the sequencing question CREATE asks -- does the runtime flush per statement, and does
+     a second PUT start where the first ended?  Expectation: 'AA' + 'B' + 'CC' = 5 bytes, no
+     separator, because the console stream's per-statement line terminator is not reproduced
+     on a stream output file unless the runtime puts one there (unmeasured, so unasserted
+     here and read off DR's own file). */
+  dcl outf file, v char(20) varying, w char(20) varying;
+  v = 'AA';
+  w = 'CC';
+  open file(outf) stream output title('L16OUT DAT');
+  put file(outf) list(v);
+  put file(outf) list('B');
+  put file(outf) list(w);
+  close file(outf);
+  put list('DONE');
+  stop;
+end E46L16;
+

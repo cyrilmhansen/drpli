@@ -1,0 +1,9 @@
+E46L11:
+  procedure options(main);
+  dcl outf file, q float;
+  open file(outf) stream output title('L11OUT DAT');
+  put file(outf) list(q);
+  put list(q);
+  close file(outf);
+end E46L11;
+

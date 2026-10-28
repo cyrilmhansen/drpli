@@ -1,0 +1,8 @@
+E46L10:
+  procedure options(main);
+  dcl outf file, a(3) fixed;
+  open file(outf) stream output title('L10OUT DAT');
+  put file(outf) list(a(1));
+  close file(outf);
+end E46L10;
+

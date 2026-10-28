@@ -2391,16 +2391,29 @@ let match_put_list_lit (s : Ast.stmt) =
       (match x.Ast.e with
        | Ast.Estring v -> Pfile (fe, [ PIlit v ])
        | Ast.Enumber t when put_dec_ok t -> Pfile (fe, [ PIlit_dec t ])
+       (* [E2E-42/P2a] ONE DECLARED VARIABLE reaches the shared generator now.  This is a
+          SYNTACTIC admission and nothing more: `char(20) varying', `char(20)' and a
+          level-numbered MEMBER all parse to the same Eident node, so which storage classes the
+          route really lowers is decided at lowering by `authorize_file_item', from the BINDER's
+          answer [the mission's "Check the actual bound operand kind"].  What licenses it is
+          golden/e42p2a: E46L1-L4 each carry a file attach and a console attach of the SAME
+          variable in ONE object, and their item chains are byte-identical -- so the FILE route
+          and the console route differ only in the prologue, which is what [C280] already said
+          for a literal item and what this bank now says for a variable one. *)
+       | Ast.Eident n -> Pfile (fe, [ PIvar n ])
        | _ ->
            failwith
              (Printf.sprintf
                 "codegen: PUT LIST on a named file of this item is unmeasured [TBD] (line %d) -- \
-                 the two byte-exact witnesses (E16D/E17D) carry ONE item, a string literal \
-                 (?SLCTS/?PNCOP) or a plain non-negative integer literal (?DLDOP/?QDCOP/?PNVOP); \
-                 a variable item routes through ?SLVTS -- CREATE 0165 attaches 0x0652 then runs \
-                 `?SLVTS ?PNCOP ?SLVTS' (its six-item list) and KEYFILE 0095 `?SLVTS ?PNCOP' (its \
-                 two) -- and this repository has no byte-exact file PUT of a variable, so it \
-                 refuses rather than guess"
+                 the named-file route lowers EXACTLY ONE item, and only as a string literal \
+                 (?SLCTS/?PNCOP, E16D/E17D [C280]), a plain non-negative integer literal \
+                 (?DLDOP/?QDCOP/?PNVOP, same two objects), or a single declared VARIABLE of a \
+                 class golden/e42p2a pins (E46L1-L4).  What this node is not: an EXPRESSION \
+                 (DR compiles it -- E46L9 002F `LHLD k / DAD H / MVI A,09 / ?QICOP / ?PNVOP' -- \
+                 so that is a measured gap of MINE, not a DR limit), an ARRAY ELEMENT (DR \
+                 compiles it too, E46L10 002F `LHLD / MVI A,09 / ?QICOP / ?PNVOP'), a CALL, a \
+                 QUALIFIED reference or a CONCATENATION, none of which has a file-route witness \
+                 of ours"
                 s.Ast.spos.Source.line))
   (* [E20-21/P0] BEFORE the plain case, so an unadorned `put [skip] list(...)' still matches
      above.  These two arms replace a BARE Match_failure with a reasoned refusal: a PUT naming a
@@ -9663,6 +9676,91 @@ let num_width st (x : Ast.expr) =
    against E17D's own console PUT at 0064 [C280]).  One chain, two callers, because DR's item
    bytes are IDENTICAL on both routes; that is the same argument P1 used for `lower_get_body'
    and it is why the console route's bytes cannot move here. *)
+(* [E2E-42/P2a] WHICH ITEMS THE NAMED-FILE ROUTE AUTHORISE.
+
+   `match_put_list_lit' is syntax-only, and the FILE matcher now admits `list(<identifier>)'.
+   That admission is NOT the authorization: what decides is the BOUND STORAGE CLASS, which only
+   the binder can answer, so it is asked HERE, at lowering, before a single byte is emitted.
+   Everything this function lets through has a whole-object DR witness on THIS route, in
+   `golden/e42p2a/':
+     CHARACTER(n) VARYING   E46L1 002F-003A against its own console PUT at 0044-004F  [?SLVTS]
+     CHARACTER(n) FIXED     E46L2 002F-003C against its own console PUT at 0046-0053  [?SLCTS]
+     FIXED / FIXED BIN(15)  E46L3 002F-003C against its own console PUT at 0046-0053  [?QICOP]
+     FIXED DECIMAL(p,s)     E46L4 002F-0043 against its own console PUT at 004D-0061  [?DLDOP]
+   and each of those four chains is byte-identical -- same operand form, same helper, same
+   `?PNCOP'/`?PNVOP' tail -- to the chain the CONSOLE statement of the very same object emits
+   for the very same variable.  That is what makes sharing this generator correct instead of
+   convenient.
+   Everything it refuses is a class whose FILE-route bytes no object of ours measures, even where
+   the console route is byte-exact: a member (E46L7 shows DR COMPILES one on this route, which is
+   why the stop quotes [C291]'s "resolution is not authorization" rather than claiming ignorance),
+   a FLOAT (E46L11), an ARRAY element or an expression (E46L9, E46L10 -- refused at the matcher,
+   which sees the syntax), a POINTER (no object on
+   EITHER route), and a formal of a non-recursive procedure (whose console route reads the
+   pointer cell, a shape never measured behind an attach).
+   Called from the `Pfile' arm of lower_stmt, BEFORE the open guard and before a byte of the
+   statement is emitted. *)
+let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
+  let no_witness what why =
+    failwith
+      (Printf.sprintf
+         "codegen: PUT FILE(%s) LIST of %s has no byte-exact DR witness [TBD] (line %d) -- the \
+          named-file route is lowered for ONE item and for the classes `golden/e42p2a/' pins \
+          (E46L1 CHARACTER VARYING, E46L2 CHARACTER FIXED, E46L3 FIXED BINARY, E46L4 FIXED \
+          DECIMAL, plus the two literal classes of E16D/E17D).  %s"
+         fu what ln why)
+  in
+  match it with
+  | PIlit _ | PIlit_dec _ -> ()      (* E16D/E17D [C280] *)
+  | PIvar n ->
+      let nm = String.lowercase_ascii n.Ast.orig in
+      if List.mem nm st.deref then
+        no_witness
+          (Printf.sprintf "the FORMAL %s" (String.uppercase_ascii n.Ast.orig))
+          "a procedure formal is read through its pointer cell on the console route, and no \
+           object of ours puts a formal behind a file attach"
+      else begin
+        match vk_of st n.Ast.orig with
+        | Vvar _ -> ()                                   (* E46L1 *)
+        | Vfix _ -> ()                                   (* E46L2 *)
+        | Vint -> ()                                     (* E46L3 *)
+        | Vdec _ -> ()                                   (* E46L4 *)
+        | Vimem m ->
+            imem_refuse ("PUT FILE(" ^ fu ^ ") LIST") m
+              "DR COMPILES this shape -- E46L7 (golden/e42p2a) puts both an internal CHARACTER \
+               VARYING member and a FIXED member behind a 0x0652 attach and gets \
+               `LXI H + ?SLVTS + ?PNCOP' and `LHLD + MVI A,09 + ?QICOP + ?PNVOP', the same \
+               chains E46J6/E46J12 measure on the console -- so this stop is a MEASURED gap, not \
+               an unknown: a member PUT is licensed by [C291]'s CONSOLE objects and by nothing \
+               else, and admitting it here would put a Vimem operand on a route that has not \
+               been authorized for one"
+        | Vflt ->
+            no_witness "a FLOAT variable"
+              "E46L11 shows DR puts a float behind the attach with `LXI H,*D / MVI A,0E / ?QFCMS \
+               / ?PNVOP', identical to R3030's console chain -- so DR accepts it and this \
+               compiler has no object of its own claiming the route yet"
+        | Vptr ->
+            no_witness "a POINTER variable"
+              "not even the CONSOLE route is measured for a pointer value (P019A/P086M never \
+               print an address), so the file route cannot be"
+        | Vbvar _ | Vbfix _ | Vbased _ | Vbptr _ | Vbbit _ | Vstruct _ ->
+            no_witness "a BASED operand"
+              "a based read goes through its pointer cell (S3, V6, V7 measure that on the \
+               console); no object carries a based operand behind an attach"
+        | Vbit1 ->
+            no_witness "a BIT(1) variable"
+              "the console route refuses this class too -- no DR sample prints a bit string"
+        | vk ->
+            no_witness ("a variable bound as " ^ vk_name vk)
+              "no object on either route carries it in a PUT item"
+      end
+  | PInum x ->
+      no_witness "an EXPRESSION or SUBSCRIPTED item"
+        ("DR COMPILES both shapes on this route (E46L9 `list(k + 1)' and E46L10 `list(a(1))'), \
+         each ending in the numeric tail the console uses, so this is a measured gap and not an \
+         unknown one -- but P2a's perimeter is one VARIABLE, and an expression has to earn its \
+         own witness")
+
 let lower_put_items_gen st ?(file : string option = None)
     (edit_tbl : int option) (skipn : put_skip) (items : pitem list) =
   (match file with
@@ -10652,6 +10750,12 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
               OPEN at all (P086K 001F, an EDIT PUT), so the guard is about what THIS compiler can
               reproduce as a whole, not about what DR requires. *)
            let fu = file_group st s (Some fe) in
+           (* [E2E-42/P2a] THE ITEM FIRST, then the open.  Order matters for what a refusal
+              CLAIMS: `authorize_file_item' answers "is this operand class lowered on this
+              route?" and the guard below answers "is this whole statement's object known?", and
+              a probe like E46K10 (a member item on a file that was never opened) has to be
+              refused for the operand reason it was written to test. *)
+           List.iter (authorize_file_item st fu s.Ast.spos.Source.line) its;
            if not (List.mem fu st.file_out) then
              failwith
                (Printf.sprintf

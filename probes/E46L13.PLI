@@ -1,0 +1,15 @@
+E46L13:
+  procedure options(main);
+  /* [E2E-42/P2a] runtime 2: CHARACTER FIXED.  `c = 42' leaves 19 characters of the declared
+     20 UNASSIGNED, and NOTHING in this project has ever measured what DR's runtime writes
+     into those -- blanks, NULs, or the cell's prior bytes.  That is the question this object
+     asks, and the answer is read out of DR's own file, not guessed. */
+  dcl outf file, c char(20);
+  c = 'ABC';
+  open file(outf) stream output title('L13OUT DAT');
+  put file(outf) list(c);
+  close file(outf);
+  put list('DONE');
+  stop;
+end E46L13;
+

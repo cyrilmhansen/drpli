@@ -1,0 +1,14 @@
+E46L15:
+  procedure options(main);
+  /* [E2E-42/P2a] runtime 4: FIXED DECIMAL(6) with s = 0.  z = 123.5 rounds to 124 (R101's
+     measured rounding at s=0) and the 9-wide field right-justifies it, so the file must hold
+     six spaces then '124'. */
+  dcl outf file, z fixed dec(6);
+  z = 123;
+  open file(outf) stream output title('L15OUT DAT');
+  put file(outf) list(z);
+  close file(outf);
+  put list('DONE');
+  stop;
+end E46L15;
+

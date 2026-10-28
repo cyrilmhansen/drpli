@@ -160,6 +160,11 @@ EXPORT_OUT = {
     # measured in E2E-11 step 3e.
     "E16D": ["E16OUT", "OUTF.DAT", "E16OUT.DAT"],
     "E17D": ["OUT.DAT", "OUT"],
+    # [E2E-42/P2a] the six runtime probes.  Each writes under a LITERAL title, and by [C279]'s
+    # measurement of E16D the CP/M name is the title's FIRST token with NO extension -- so these
+    # are not guesses: `L12OUT DAT' produces `L12OUT'.  The old F(128)/name-guessing story is
+    # already withdrawn above; nothing here needs an ARGS tail because nothing uses $1/$2.
+    **{"E46L%d" % k: ["L%dOUT" % k] for k in (12, 13, 14, 15, 16, 17, 18)},
 }
 
 

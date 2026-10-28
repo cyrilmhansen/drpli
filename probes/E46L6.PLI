@@ -1,0 +1,8 @@
+E46L6:
+  procedure options(main);
+  dcl outf file, t char(14) varying, v char(30) varying;
+  open file(outf) stream output title(t);
+  put file(outf) list(v);
+  close file(outf);
+end E46L6;
+

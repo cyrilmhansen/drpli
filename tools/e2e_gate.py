@@ -1034,6 +1034,51 @@ SPECIMENS.update({
     "E46J18": ("probes/E46J18.PLI", "golden/e42p1d/E46J18/E46J18.REL"),
     "E46J20": ("probes/E46J20.PLI", "golden/e42p1d/E46J20/E46J20.REL"),
     "E46J21": ("probes/E46J21.PLI", "golden/e42p1d/E46J21/E46J21.REL"),
+    # ------------------------------------------------------------------
+    # [E2E-42/P2a] PUT FILE(f) LIST(<one variable>): the named-file route, extended from the two
+    # literal classes of E16D/E17D [C280] to four DECLARED VARIABLE classes.  The oracle is
+    # DR's own compiler: PLI_SRC=probes python3 oracle/batch.py E46L1.. --tag e42p2a
+    # --switches '$L$D$S'.  Every one of these six is a WHOLE-OBJECT byte-exact .REL.
+    #
+    # What makes them specimens rather than re-runs of C280 is WHERE the bytes come from: each
+    # object also contains a console PUT of the SAME variable, and in the linked image the two
+    # item chains are byte-for-byte the same instructions with the same resolved operands
+    # (E46L1: `LXI H 19CD / CALL 1154 / CALL 0180 / CALL 167D' at both 012F and 0144).  Only the
+    # stream-selection prologue differs -- ?SIOOP on the 0x0652 attach versus ?SYSPR on 0x0252 --
+    # which is what licenses sharing ONE generator between the two routes instead of writing a
+    # second lowering.  spec/lab-evidence/e2e42-p2a/RESULTS.md carries the disassembly.
+    #
+    #   E46L1  CHARACTER VARYING  -- DR emits `LXI H,*D(<v>) / ?SLVTS / ?PNCOP', NOT the LHLD
+    #          descriptor form ?Vrop uses on the GET side: PUT reads the cell's address like any
+    #          other auto.  Refuted my own P1e design note before it was implemented.
+    #   E46L2  CHARACTER FIXED    -- `LXI H,*D / MVI A,14 / ?SLCTS', the declared width inline
+    #   E46L3  FIXED BINARY(15)   -- `LHLD <k> / MVI A,09 / ?QICOP', 2-word operand
+    #   E46L4  FIXED DECIMAL(6) and FIXED DECIMAL(6,3) in ONE object -- `?DLDOP / MVI A,p+3 /
+    #          MVI B,s / ?QDCOP', two widths and two scales, both p+3 = 9 with p = 6
+    #   E46L5  SEQUENTIAL single-item statements, not a multi-item list: a varying literal and a
+    #          varying variable in one program, pool DATA 0x15.  This is the composition check --
+    #          the literal and variable routes coexist with no re-selection between them.
+    #   E46L6  a VARIABLE title on the OPEN plus a varying item: [C282]'s variable-title attach
+    #          composes with this route unchanged, because the open guard keys on the FILE
+    #          operand of a LOWERED OUTPUT open and not on how the title was spelled.
+    # ------------------------------------------------------------------
+    "E46L1":  ("probes/E46L1.PLI",  "golden/e42p2a/E46L1/E46L1.REL"),
+    "E46L2":  ("probes/E46L2.PLI",  "golden/e42p2a/E46L2/E46L2.REL"),
+    "E46L3":  ("probes/E46L3.PLI",  "golden/e42p2a/E46L3/E46L3.REL"),
+    "E46L4":  ("probes/E46L4.PLI",  "golden/e42p2a/E46L4/E46L4.REL"),
+    "E46L5":  ("probes/E46L5.PLI",  "golden/e42p2a/E46L5/E46L5.REL"),
+    "E46L6":  ("probes/E46L6.PLI",  "golden/e42p2a/E46L6/E46L6.REL"),
+    # [E2E-42/P2a-D] the seven that EXECUTE.  Registered as specimens AND as runtime rows
+    # (spec/RUNTIME.txt): here the .COM, the console transcript AND the written CP/M file are all
+    # byte-identical to DR's own run, which is the only way a `put file' can be validated at all
+    # -- the bytes that matter land in a file, not on the console.
+    "E46L12": ("probes/E46L12.PLI", "golden/e42p2a/E46L12/E46L12.REL"),
+    "E46L13": ("probes/E46L13.PLI", "golden/e42p2a/E46L13/E46L13.REL"),
+    "E46L14": ("probes/E46L14.PLI", "golden/e42p2a/E46L14/E46L14.REL"),
+    "E46L15": ("probes/E46L15.PLI", "golden/e42p2a/E46L15/E46L15.REL"),
+    "E46L16": ("probes/E46L16.PLI", "golden/e42p2a/E46L16/E46L16.REL"),
+    "E46L17": ("probes/E46L17.PLI", "golden/e42p2a/E46L17/E46L17.REL"),
+    "E46L18": ("probes/E46L18.PLI", "golden/e42p2a/E46L18/E46L18.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -2714,7 +2759,7 @@ for _n, _marker in [("AV1", "allocate(...)' where p is a POINTER is refused by D
     # a VARIABLE item (x here) now refuses one level deeper, by item kind, which is the true
     # remaining gap -- KEYFILE's `list(name,k)' and CREATE's six-item list are the DR objects
     # that would pin those bytes and neither is compilable by me.
-    ("PU1", "PUT LIST on a named file of this item is unmeasured"),
+    ("PU1", "PUT FILE(F) has no byte-exact DR witness"),
 ]:                       # (a third probe for the "undeclared" site would not PARSE cleanly;
                                                        # REVERT covers it in the sweep instead)
     _src = "e24src/%s.PLI" % _n
@@ -2725,6 +2770,38 @@ for _n, _marker in [("AV1", "allocate(...)' where p is a POINTER is refused by D
     NEG_META[_n] = ("my-gap",
         "Was a BARE crash (rc!=0, no [TBD]), which the corpus sweep counted as REFUSED and thus "
         "hid. Now a reasoned refusal; the underlying gap (%s) remains. [E2E-21/P0]" % _marker)
+
+# [E2E-42/P2a] PU1's refusal REASON moved, and the move is the honest kind.  Its operand
+# `x fixed' became an AUTHORIZED class when E46L3 pinned FIXED BINARY on this route, so PU1 no
+# longer stops on the item -- it stops on having NO OPEN STATEMENT at all, which is what the
+# guard has always required.  Its exact whole-program shape (`dcl f file, x fixed' +
+# `put file(f) list(x)', no open, no close) is now MEASURED: E46L8 (golden/e42p2a) is that
+# program, and DR COMPILES it -- code 0x56, one `LXI H,*C(0000) / LXI D,0652 / LXI B,0000 /
+# CALL ?SIOOP' attach and `LHLD x / MVI A,09 / ?QICOP / ?PNVOP / ?QIOOP', with no open and no
+# close anywhere.  So the row is `my-gap' on a MEASURED verdict instead of an assumed one.
+# PU1 is NOT retired by that: accepting it would mean claiming DR's no-open attach, and no
+# object of ours pins it.  The mission's own warning applies verbatim -- opened-file variable
+# PUT working does not retire PU1, because PU1 is a different whole program.
+NEG_META["PU1"] = ("my-gap",
+    "Refused because NO lowered OUTPUT open exists for the named file, not because of its "
+    "operand: `dcl f file, x fixed' with `put file(f) list(x)' carries no OPEN at all, and this "
+    "route claims the complete statement only where a whole object pins it (OPEN 0x0E50 + attach "
+    "0x0652 + the item chain, which is E16D/E17D [C280]).  [E2E-21/P0] found it as a bare crash "
+    "the corpus sweep miscounted as a refusal.  [E2E-42/P2a] re-measured it: DR COMPILES this "
+    "exact shape (golden/e42p2a/E46L8, code 0x56, attach 0x0652 with no open and no close), so "
+    "this is a gap of MINE on a verdict DR has now told us, and it stays a gap because lowering "
+    "the no-open attach would be a claim with no object of ours behind it.")
+
+# E46K10 (member item on an UNOPENED file) keeps its category but its reason moved from the
+# matcher to the authorization guard, and the guard now says why in terms of [C291].
+NEG_META["E46K10"] = ("unmeasured",
+    "NEITHER verdict is known for THIS program: E46K10 has no OPEN statement, and no object in "
+    "golden/ is a member PUT behind a missing open, so this row may NOT be read as DR rejecting "
+    "it.  What IS measured is the operand class -- E46L7 (golden/e42p2a) puts an internal "
+    "CHARACTER VARYING member and a FIXED member behind a 0x0652 attach on an OPENED file and DR "
+    "compiles both -- so the member half of the stop is a measured gap and the no-open half is "
+    "not.  [E2E-42/P2a] moved the refusal from the matcher (""'this item is unmeasured'"") to "
+    "authorize_file_item, where it names the operand it actually refuses.")
 
 # (b) Divergence panel: programs that COMPILE but are NOT byte-exact [C168].  They belong to
 #     neither regression panel -- a negative would claim a [TBD] that never happens, a specimen
@@ -3268,7 +3345,7 @@ REJECTS.update({
     "E46K9":  (open("probes/E46K9.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "multi-item PUT of the internal CHARACTER member REC.LINE"),
     "E46K10": (open("probes/E46K10.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "PUT LIST on a named file of this item is unmeasured"),
+               "PUT FILE(OUTF) LIST of the internal CHARACTER member"),
     "E46K11": (open("probes/E46K11.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "addr() of line is unsampled"),
     "E46K12": (open("probes/E46K12.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
@@ -3279,6 +3356,21 @@ REJECTS.update({
                "comparison of the internal CHARACTER member REC.LINE"),
     "E46K15": (open("probes/E46K15.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "GET form not in E2E-3e subset"),
+    # ------------------------------------------------------------------
+    # [E2E-42/P2a] the four classes DR puts behind a file attach that this step does NOT admit.
+    # All four have a DR object in golden/e42p2a, so every one of these rows is a MEASURED gap --
+    # a refusal with a known verdict behind it, not an unknown.  A fifth row, E46L8, is not here:
+    # it is PU1's own program and is registered on PU1 (e24src/), which is where the mission said
+    # its regression lives; golden/e42p2a/E46L8 is the object that licenses PU1's classification.
+    # ------------------------------------------------------------------
+    "E46L7": (open("probes/E46L7.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "PUT FILE(OUTF) LIST of the internal CHARACTER member"),
+    "E46L9": (open("probes/E46L9.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+              "PUT LIST on a named file of this item is unmeasured"),
+    "E46L10": (open("probes/E46L10.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT LIST on a named file of this item is unmeasured"),
+    "E46L11": (open("probes/E46L11.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT FILE(OUTF) LIST of a FLOAT variable"),
 })
 for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8", "E46K9",
            "E46K10", "E46K11", "E46K12", "E46K13", "E46K14", "E46K15"):
@@ -3292,6 +3384,35 @@ for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8
         "reach the comparison stop; they are listed separately because each SOURCE is a different "
         "shape a reader may try.  To retire a row: measure DR on it, then promote it to a "
         "byte-exact specimen or re-classify it as dr-refuses with DR's word attached.")
+
+NEG_META["E46L7"] = ("my-gap",
+    "DR COMPILES it (golden/e42p2a/E46L7: code 0x9A = 154 bytes, NO errors) -- an internal "
+    "CHARACTER VARYING member and a FIXED member behind the same 0x0652 attach, reaching "
+    "`LXI H,*D(REC A(0)) / ?SLVTS / ?PNCOP' and `LHLD RECBIN A(0F) / MVI A,09 / ?QICOP / ?PNVOP', "
+    "byte-identical to the CONSOLE chains E46J6 and E46J12 pin.  So the FILE route would need no "
+    "new item lowering at all, and this is a gap of MINE on a verdict DR has measured, not an "
+    "unknown.  The refusal is [C291]'s own principle carried onto the new route: bind RESOLVES "
+    "`rec.line' and the cell exists, but RESOLUTION IS NOT AUTHORIZATION -- admitting a Vimem "
+    "operand here would put a kind on the file route that no file object of ours carries.  E46K1 "
+    "through E46K14 keep the console-side member rows; this row is the file side.")
+
+NEG_META["E46L9"] = ("my-gap",
+    "DR COMPILES an EXPRESSION item on this route (golden/e42p2a/E46L9: `list(k + 1)' emits "
+    "`LHLD k / DAD H / MVI A,09 / ?QICOP / ?PNVOP' -- the operand ladder of the console PUT and "
+    "then the numeric tail, with the ?QICOP/?PNVOP span in `LXI B' exactly as on the console).  "
+    "P2a's perimeter is ONE DECLARED VARIABLE, so the item never reaches the generator and the "
+    "refusal happens in match_put_list_lit.  Measured gap, not an unknown.")
+
+NEG_META["E46L10"] = ("my-gap",
+    "DR COMPILES a SUBSCRIPTED item on this route (golden/e42p2a/E46L10: `list(a(1))' on "
+    "`dcl a(3) fixed' emits the static-subscript ladder and the numeric tail, code 0x61).  Same "
+    "perimeter stop as E46L9, same measured verdict.")
+
+NEG_META["E46L11"] = ("my-gap",
+    "DR COMPILES a FLOAT item on this route (golden/e42p2a/E46L11: `LXI H,*D(q) / MVI A,0E / "
+    "?QFCMS / ?PNVOP', identical to R3030's console chain -- the constant 14, not a precision).  "
+    "FLOAT is not in the four authorized classes and the mission's boundary list names it as "
+    "outside P2a, so this stop is deliberate and its verdict is measured.")
 
 NEG_META["E46F5"] = ("my-gap",
     "DR COMPILES it (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site).  The refusal "

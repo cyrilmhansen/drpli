@@ -1,0 +1,15 @@
+E46L12:
+  procedure options(main);
+  /* [E2E-42/P2a] runtime 1: the CHARACTER VARYING item actually REACHES THE FILE.  The
+     lowering is E46L1's; what this object adds is a real length in the cell.  Written under
+     the LITERAL title 'L12OUT DAT', so by [C279]'s measurement of E16D the CP/M name is
+     `L12OUT' with NO extension. */
+  dcl outf file, v char(20) varying;
+  v = 'HELLO';
+  open file(outf) stream output title('L12OUT DAT');
+  put file(outf) list(v);
+  close file(outf);
+  put list('DONE');
+  stop;
+end E46L12;
+
