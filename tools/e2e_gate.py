@@ -2422,8 +2422,17 @@ def run_negatives():
     bad = 0
     unclassified = sorted(set(REJECTS) - set(NEG_META))
     for name in unclassified:
-        print(f"NEG-FAIL {name}: no NEG_META entry -- classify it (dr-refuses "
-              f"or my-gap) and record DR's verdict")
+        # [E2E-42/P2a-0] P1e added a THIRD category (spec/notes/e2e42-p1e-internal-character-member.md
+        # and the Categories block above this function), but this diagnostic still listed only the
+        # two that make a claim about DR.  A contributor following the old wording would have had to
+        # pick `dr-refuses' or `my-gap' for a shape nobody put through the oracle -- i.e. the message
+        # itself invited inventing a DR verdict, the error class [C256] was written against.  All
+        # three are now listed, with what each one owes as evidence spelled out: a DR verdict for
+        # the first two, an explicit no-verdict-known statement plus the experiment for the third.
+        # The guard's FATALITY is unchanged: an unclassified negative still counts as a failure.
+        print(f"NEG-FAIL {name}: no NEG_META entry -- classify as dr-refuses | my-gap | "
+              f"unmeasured; cite the observed DR verdict for the first two; for unmeasured, "
+              f"state explicitly that no DR verdict is known and identify the experiment needed")
     bad += len(unclassified)
     for name, (src, marker) in REJECTS.items():
         plipath = os.path.join(OUT, name + ".PLI")
