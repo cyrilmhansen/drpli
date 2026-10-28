@@ -1,12 +1,12 @@
 {
  "by_category": {
   "ABI": 1,
-  "AGG": 7,
+  "AGG": 8,
   "BUILTIN": 1,
   "COND": 8,
   "DECL": 19,
   "EXPR": 13,
-  "FILE": 6,
+  "FILE": 7,
   "IO": 6,
   "LEX": 3,
   "LOOP": 4,
@@ -19,12 +19,12 @@
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 79,
+  "MEASURED": 81,
   "SINGLE_SAMPLE": 9,
   "UNREVIEWED": 5
  },
  "dr": {
-  "ACCEPTS": 84,
+  "ACCEPTS": 86,
   "ACCEPTS_DEFECT": 1,
   "REJECTS": 7,
   "UNTESTED": 4
@@ -34,7 +34,7 @@
  "mine": {
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 2,
-  "PARTIAL": 12,
+  "PARTIAL": 14,
   "REFUSED": 21,
   "SUPPORTED": 58
  },
@@ -44,10 +44,10 @@
   "C": 2,
   "M": 14,
   "OPEN": 1,
-  "S": 79
+  "S": 81
  },
- "rows": 96,
+ "rows": 98,
  "single_sample": 9,
  "unreviewed": 5,
- "with_boundary": 96
+ "with_boundary": 98
 }

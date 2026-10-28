@@ -6930,3 +6930,29 @@ classified `unmeasured` rather than `dr-refuses`.
   `for _k in ("E46K1" … "E46K15"): NEG_META[_k] = …` loop silently overwrote it.  A panel entry whose
   prose is replaced by a generality downstream reads as evidence and is not.  The entry now follows
   the loop and the comment says why.
+
+## C303 — A `[TBD]` LINE NUMBER ASSUMES CRLF SOURCES; LF INPUT MIS-COUNTS IT, AND DR REFUSES LF OUTRIGHT (E2E-42/P2b)
+
+* **Measured, on two binaries.**  The same program written twice, once with CP/M `CR LF` endings and
+  once with UNIX `LF`: this compiler names the statement's OWN line in the CRLF case (E46M33's
+  `put file(outf) file(outf) list('A');` is on line 7 and the refusal says `(line 7)`, which is where
+  DR's listing puts it) and names an EARLIER line in the LF case (line 4; and `line 3` for the same
+  shape in a shorter file).  Building the binary at baseline `c816af5` and feeding it an LF file
+  reproduces the mis-count, so this is not a P2b regression — it is line-ending handling in the lexer
+  that a new message happened to expose.
+* **The offset is not constant and I have not traced it.**  Measured pairs (true, printed): (5,3),
+  (6,3), (7,4), (8,4), (9,5), (12,6), and in one layout the printed number was the line of the last
+  statement before a blank line.  That is enough to say "wrong" and not enough to say why; a fix has
+  to start from the token position recorder, not from a subtraction.
+* **No byte is affected and the panel is safe by construction.**  Positions reach the object only
+  through messages; `tools/e2e_gate.py` writes every negative-panel source as CRLF + `^Z` itself, and
+  every oracle probe is stored CRLF, so no specimen or refusal compares a mis-numbered artefact.  What
+  the defect does reach is a human reading a `[TBD]` line number out of a UNIX editor — which is why it
+  is a claim and not a changelog line.
+* **The same file format is a DR precondition too, and the two facts are easy to conflate.**  An
+  LF-only probe does not merely mis-number for DR: `E46M36` (correct `end <name>;`, LF) comes back
+  `UNEXPECTED EOF` with **no source listing at all**, and `E46M35` (CRLF, `end E46M35.` with a period)
+  comes back `SYNTAX ?` under the `end` line.  Both refused, both with no `.REL`; both are protocol
+  facts about how a probe must be written, and neither is a language finding.  The general rule is
+  [C164]'s: a probe that is wrong in two ways answers neither question, and the confounded run
+  (`golden/e42p2b4/`) is kept as the record of the mistake instead of being quietly resubmitted.

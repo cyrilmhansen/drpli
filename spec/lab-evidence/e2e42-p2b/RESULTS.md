@@ -17,15 +17,24 @@ P2a documented a violation: ordering was asserted from filesystem mtimes, and af
 the mtimes were gone and the claim was unrecoverable (`e2e42-p2a/PROCESS.md`).  P2b's ordering is
 proved by three things a reader can re-check without trusting my account:
 
-1. **The prediction file is in the preregistration commit and has not been touched since** — the
-   `git diff` above is empty, so every number scored below was on disk before DR was invoked.
+1. **The 32 predictions in §1–§4 have not been touched since the preregistration commit.**  The
+   command is `git diff f390236 HEAD -- spec/lab-evidence/e2e42-p2b/HYPOTHESES.md`, and it reports
+   **46 insertions and 0 deletions** — the two additions are §5 (E46M33/M34) and §6 (E46M35/M36),
+   each committed BEFORE its own oracle call (`18785e5` 15:12:06, `ae15bee` 15:24:02; the e42p2b5 and
+   e42p2b6 golden directories postdate them).  Nothing scored in §1 below was written after DR
+   answered, and no prediction that DR answered has been edited.
 2. **The probes DR compiled are the probes git holds.**  DR's own printout lists the source it read
    (the `N a|c XXXX <line>` block after `PL/I-80 V1.4 COMPILATION OF:`), and all 32 blocks match
    `probes/E46M*.PLI` line for line — 32 probes, 0 mismatches — allowing only DR's own truncation
    at column 72.  The check is a 20-line script and its result is quoted in section 6.
-3. **The one probe edit between the two commits is itself committed and explained**: `5de6b08`
-   wrapped the probes after DR truncated a 233-column comment line (section 6, "DR's own source
-   format").  Both oracle batches — every `golden/e42p2b*/` directory — postdate `f390236`.
+3. **Probe edits are committed and explained, including one made after an oracle call.**  `5de6b08`
+   wrapped the 32 probes after DR truncated a 233-column comment line (§6, "DR's own source format"),
+   and `git diff 5de6b08 HEAD -- probes/` shows 4 files and 0 deletions, i.e. no probe DR already
+   answered was rewritten.  The exception is inside §11 and is stated there rather than hidden: the
+   FIRST submission of E46M33/E46M34 (`git show 18785e5:probes/E46M33.PLI` — LF endings, `end X.`) was
+   replaced before its second oracle call, because the artefact it produced (`golden/e42p2b4/`) proves
+   the submission was malformed rather than proving anything about the statement.  A rewritten probe
+   gets its own tag and its own committed prediction; the old artefact stays.
 
 ## 1. DR's verdicts against the predictions
 
@@ -74,7 +83,19 @@ item classes (M21-M26).
 (the 23 above plus E46L7, promoted from P2a's negatives); 6 of the accepted ones are my-gaps; 2 are
 DR refusals registered with DR's word.  Of the 20 probes whose CODE size I predicted, **20 were
 exact**.  Of the 20 ?SIOOP counts and 20 ?QIOOP counts, **40 of 40 were exact**.  Of the 20 DATA
-sizes, **11 were exact and 9 were wrong**.
+sizes, **11 were exact and 9 were wrong** (§7 owns the nine).
+
+**The two later calls, kept out of that tally because they are a different question.**  E46M33 and
+E46M34 (§11) are two more DR refusals — `SYNTAX ?` in pass 2, no object — and both were predicted as
+refusals.  E46M35 and E46M36 are protocol probes, also refused, and their job was to isolate why the
+first submission of M33/M34 proved nothing.
+
+**The panel's own arithmetic, taken by loading the gate module at `c816af5` and at HEAD** (not from
+my prose): SPECIMENS **1032 → 1056** (+24: E46M1-M11, M13-M15, M17-M19, M27-M32 and the promoted
+E46L7; nothing removed), REJECTS **174 → 184** (+12 rows — E41X9, E46M12, M16, M20-M26, M33, M34 —
+of which 8 are `my-gap` and 4 are `dr-refuses`; −2 rows, E41X7 which now compiles and E46L7 which is
+a specimen).  Category counts move by +7 `my-gap` and +4 `dr-refuses`, and E46K10 moves from
+`unmeasured` to `my-gap` inside the unchanged 174-minus-2 — which is the [C256] correction §5 records.
 
 ## 2. The hypotheses, each with the evidence that decides it
 
@@ -335,3 +356,55 @@ warning profile  identical to c816af5: 252 warning lines, same counts by kind (2
 * **No claim that DR's DATA layout is understood.**  Nine predicted DATA sizes were wrong (§7); the
   compiler reproduces DR's layout byte-for-byte because it already implemented it, not because the
   model here describes it.
+
+## 11. AFTER THE 32: the option arm's stale text, three oracle calls, and probe format
+
+Re-wording a refusal is a documentation event here, not a string edit ([C282]), so the arm
+[E2E-41/P3b] wrote got re-checked against the evidence it cites.  It failed that check.  Its text
+said the shapes reaching it include "a multi-item file PUT (CREATE's six)" — which stopped being
+true when E46M19 landed — and `grep -n "options this route" tools/e2e_gate.py` came back empty, so
+NO REJECTS row keyed the sentence either: it was prose describing nothing.  `tools/file_prose_check.py`
+pinned it as a marker the negative panel matches, and the FIRST gate run after I deleted it failed on
+that pin, which is the guard working, not a regression.
+
+What can still reach the arm, measured by running it: a **duplicated FILE option**, an **empty LIST**,
+and **N options**.  (`put on(x) list('A')` — the ON-handler spelling the old text named — does not
+PARSE here at all: `PUT: expected LIST/EDIT/ITEM/FROM`.  Recorded rather than deleted, because the arm
+is a defensive default and a reader should know that branch is unreachable.)  The first two went to
+the oracle with their predictions committed first (`ae15bee`), and DR refused both:
+
+| probe | statement | DR's answer | my answer | prediction |
+|---|---|---|---|---|
+| E46M33 | `put file(outf) file(outf) list('A');` | `7 c … / SYNTAX ? / 1 ERROR(S) IN PASS 2`, **no `.REL`** | `[TBD] PUT LIST with 2 ON options on one PUT (line 7)` | refusal — **right** (model sizes 83/98 void) |
+| E46M34 | `put file(outf) list();` | `7 c … / SYNTAX ? / 1 ERROR(S) IN PASS 2`, **no `.REL`** | `[TBD] PUT LIST with an EMPTY LIST behind a FILE option (line 7)` | refusal — **right** (model size 72 void) |
+
+Note the diagnostic word: `SYNTAX ?`, not the `COMP REQ ?` of E46M24/E46M25.  DR has at least two
+pass-2 failure voices and they say different things — `COMP REQ` is "no generator for this operand",
+`SYNTAX` is "this spelling is not a statement" — which is why [C301] keeps them separate instead of
+recording "DR errors" as one class.
+
+**The aborted run, and why the format of a probe is part of the evidence.**  The first submission of
+those two probes (tag `e42p2b4`) came back `10 b / SYNTAX ? / UNEXPECTED EOF` on a nine-line file,
+which is not an answer about `put file(f) file(f)` at all: that source was wrong in **two**
+independent ways — UNIX LF line endings, and `end E46M33.` with a period where every accepted probe
+uses `end <name>;`.  A confounded oracle result attributes to nothing, so two more probes unconfound
+it (tag `e42p2b6`, predicted in HYPOTHESES.md §6):
+
+* **E46M35 (CRLF + trailing period):** `7 b end E46M35. / SYNTAX ? / UNEXPECTED EOF`, no object.  The
+  period is a refusal by itself.
+* **E46M36 (LF + correct `;`):** `UNEXPECTED EOF` and **no source listing at all** — DR never read it
+  as lines.  LF-only input is not a variant of the language; it is a different file.
+
+Those two rows are protocol facts, not panel rows: neither can be a SPECIMENS entry (no object) and
+neither can be a REJECTS entry (my compiler *accepts* both shapes).  `golden/e42p2b4/` is committed as
+the record of the malformed submission rather than deleted, so the sequence is auditable.
+
+**The line-number defect this exposed, which is MINE and pre-dates P2b.**  With CRLF sources my
+refusal messages name the statement's own line (both rows above say `line 7`, which is where DR's
+listing puts the statement).  With LF-only sources the same file prints `line 4` for E46M33 and
+`line 3` for the same shape in a shorter program, and running those LF files through the binary built
+at **baseline `c816af5`** gives `line 3` too — so the mis-count is line-ending handling in the lexer,
+not anything P2b wrote.  The offset is not constant (3, 4, 4, 6 measured across four layouts) and the
+mechanism is untraced; no byte is affected, and the panel is unaffected because `tools/e2e_gate.py`
+writes every negative source as CRLF + `^Z` itself.  It is [C303] so that a future reader of a
+`[TBD]` line number knows which convention that number assumes.
