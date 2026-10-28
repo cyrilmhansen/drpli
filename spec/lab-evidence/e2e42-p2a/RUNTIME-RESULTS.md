@@ -52,17 +52,25 @@ which does not exist was allowed to stand next to five honestly derived ones.  F
 ## The two facts the runtime produced, and the object that separates them
 
 **A CHARACTER item is apostrophe-delimited on the FILE route and NOT on the console route.**
-E46L18 is the discriminating object, written AFTER the L12/L17 discrepancy appeared and BEFORE
-its oracle run, precisely to separate the two available explanations: if the assignment
-`v = 'HELLO'` stored the delimiters into the cell then the console line would carry them too; if
-the file's output edit adds them then the console shows bare `HELLO`.  The console shows `HELLO`
-and the file shows `'HELLO'`, from the SAME variable in the SAME program, through item chains
-that this compiler emits byte-for-byte identically (`LXI H,*D(<v>) / CALL ?SLVTS / CALL ?PNCOP`)
-and which differ only in the statement prologue (`?SYSPR` on `0x0252` versus `?SIOOP` on the
-attached `0x0652`).  So the delimiters are a property of the STREAM, selected at run time, not of
-the emitted item code and not of the stored value.  The mechanism inside PLILIB is unmeasured —
-which routine appends the apostrophes, and whether an OPEN option could turn it off, are both
-questions with no object here.
+E46L18 is the discriminating object, written AFTER the L12/L17 discrepancy appeared and BEFORE its
+oracle run, precisely to separate the two available explanations: if the assignment `v = 'HELLO'`
+stored the delimiters into the cell then the console line would carry them too; if the file's
+output edit adds them then the console shows bare `HELLO`.  The console shows `HELLO` and the file
+shows `'HELLO'`, from the SAME variable in the SAME program, through item chains this compiler
+emits byte-for-byte identically.
+
+**And the operand is proved BARE, so no assignment is being blamed.**  This is a second,
+independent argument, read straight out of DR's linked image where the `*D` relocs have become
+real addresses one can look at.  E46L16's file item `list('B')` is `LXI H,1A31 / MVI A,01 /
+CALL ?SLCTS / CALL ?PNCOP` — and the byte at `1A31` is `42`, the single character `B`, with the
+length argument saying ONE.  The file E46L16 writes contains `'B'`: three bytes.  Two bytes appear
+that are in no cell, in no length, and in no emitted instruction.  In the same program the console
+literal `'DONE'` sits bare at `1A32` (4 bytes, printed as `DONE`), and E46L5's `list('HELLO')`
+points at `19D2` holding a bare 5-byte `HELLO` while the same route is what writes `'HELLO'` in
+E46L12's file.  So the delimiters are produced AFTER `?SLCTS` receives a bare string — they are
+the stream's edit, established for literals as well as for the varying variable.  What remains
+unmeasured is the mechanism inside PLILIB: which routine appends them, and whether an OPEN option
+could turn it off — no object here varies either.
 
 **Successive PUT LIST statements on one stream are separated by one blank and never
 line-terminated.**  E46L16 writes three items with three statements and the file is

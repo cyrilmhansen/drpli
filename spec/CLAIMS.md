@@ -6685,10 +6685,13 @@ classified `unmeasured` rather than `dr-refuses`.
   for `f` — a literal title (E16D/E17D) and a VARIABLE title (E46L6) both qualify, because the
   PUT's own attach word is `0x0652` in either case and a PUT never re-supplies a title.
 * **E46L6 is the object**: `open file(outf) stream output title(t); put file(outf) list(v);` with
-  `t char(20) varying` assigned `'L6OUT DAT'` — 384 bytes, byte-identical to DR, attaching the
-  27-byte varying-title block (`MVI A,1B / ?SLVTS`) and then the varying item (`?SLVTS / ?PNCOP`).
-  So [C282]'s variable-title OPEN lowering and this route's item lowering COMPOSE, and neither
-  had to be touched for the other.
+  `t char(20) varying` assigned `'L6OUT DAT'` — 384 bytes, byte-identical to DR.  The OPEN
+  carries the 27-byte VARYING title block (`LXI H,<t> / CALL ?SLVTS` with NO `MVI A`, because the
+  length is a runtime value the helper reads from the descriptor — [C291]'s first consequence), and
+  the PUT then runs `LXI H,<v> / CALL ?SLVTS / ?PNCOP / ?QIOOP` behind a `0x0652` attach: the two
+  helpers are the SAME pair, at `000A` and `0031` in the one external chain.  So [C282]'s
+  variable-title OPEN lowering and this route's item lowering COMPOSE, and neither had to be
+  touched for the other.
 * **My own pre-registered prediction was wrong about this.**  `HYPOTHESES.md` H6 predicted a
   refusal "because P1e's `st.file_out` records LITERAL-title opens only".  It does not:
   `lower_open` pushes the file name on every lowered OUTPUT open, before it dispatches on the
