@@ -1,0 +1,9 @@
+E46M33:
+  procedure options(main);
+  dcl outf file;
+  dcl v char(20) varying;
+  v = 'DELTA';
+  open file(outf) stream output title('M33OUT DAT');
+  put file(outf) file(outf) list('A');
+  close file(outf);
+end E46M33.

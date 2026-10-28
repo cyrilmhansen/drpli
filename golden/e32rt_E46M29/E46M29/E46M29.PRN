@@ -1,0 +1,43 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46M29
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46M29
+
+   1 a 0000 E46M29:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2b] RUNTIME: a CHARACTER item beside a FIXED BINARY and
+   4 a 0006      a FIXED DECIMAL item in one file PUT, plus a MIXED
+   5 a 0006      literal/variable list. P2a pinned each numeric class alone in
+   6 a 0006      the file (9 right-justified bytes for both); what is unpinned is
+   7 a 0006      the separator before a numeric item that follows a character
+   8 a 0006      item. */
+   9 c 0006   dcl outf file, v char(20) varying, k fixed bin(15), z fixed dec(6);
+  10 c 0006   v = 'HI';
+  11 c 0013   k = 42;
+  12 c 0019   z = 123;
+  13 c 0029   open file(outf) stream output title('M29OUT DAT');
+  14 c 0046   put file(outf) list(v,k,z);
+  15 c 007B   put file(outf) list('=',v);
+  16 c 009E   close file(outf);
+  17 c 00A4   put list('DONE');
+  18 c 00BB   stop;
+  19 a 00BE end E46M29;
+
+CODE SIZE = 00BE
+DATA AREA = 0030
+FREE SYMS = 381E
+END  COMPILATION
+

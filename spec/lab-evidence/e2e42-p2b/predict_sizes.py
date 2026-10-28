@@ -1,7 +1,15 @@
 import re
 #!/usr/bin/env python3
-"""E2E-42/P2b: predicted CODE/DATA totals from the cost model pinned by
+"""E2E-42/P2b: predicted CODE totals from the cost model pinned by   [CODE ONLY -- see below]
 golden/e42p2a/ (E46L1-L18) and golden/first/ (KEYFILE, CREATE).
+
+THIS TOOL MODELS CODE AND NOTHING ELSE.  Its docstring used to say "CODE/DATA", which it does not
+live up to: there is no DATA model here, and the predicted DATA column in HYPOTHESES.md was hand
+arithmetic over declared capacities.  Nine of those twenty numbers were wrong (eight one byte low,
+E46M5 five high) and the reasons are set out in RESULTS.md section 7 -- chiefly that a CHARACTER
+VARYING cell is capacity+1 [C291] and that the DATA segment is pool-first-then-auto, both of which
+my arithmetic ignored.  Do not read a DATA number in this directory as machine-derived; the CODE
+numbers are, and all 20 of them were exact.
 
 Costs (all verified against a DR .REL in this repo, see HYPOTESES.md FP2/FP3):
   program start          6   LXI B,0200 / CALL ?START          (E46L1 0000-0005)
@@ -73,6 +81,11 @@ P = {
  "E46M30": full("lit", [A_C, A_C, fput([FIXC,FIXC]), cput([LIT])]),
  "E46M31": full("lit", [A_M*5, A_D, fput([VAR,VAR,VAR,VAR,DEC,VAR]), cput([LIT])]),
  "E46M32": full("lit", [A_V, A_V, cput([LIT]), fput([VAR,VAR]), cput([LIT])]),
+ # [E2E-42/P2b] added AFTER the 32-probe run, to pre-register the two spellings that still reach
+ # the option-level refusal: a duplicated FILE option and an empty LIST.  Predictions below were
+ # committed before their oracle call.
+ "E46M33": full("lit", [A_V, fput([LIT])]),          # 6+29+13+26+6+3  (one attach)
+ "E46M34": full("lit", [A_V, 12 + 0 + 3]),           # 6+29+13+15+6+3  (attach, no chain, close)
 }
 for k in sorted(P, key=lambda s: int(re.sub(r"[A-Z]","",s[4:]))):
     print(f"{k:9s} predicted CODE = {P[k]}")

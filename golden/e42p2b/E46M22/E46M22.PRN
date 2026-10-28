@@ -1,0 +1,35 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46M22
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46M22
+
+   1 a 0000 E46M22:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2b] THE SECOND-ITEM GUARD: an ARRAY ELEMENT in
+   4 a 0006      position 2. E46L10 pins `list(a(1))' as a my-gap in position
+   5 a 0006      1, and a list is where an `authorize only the first item' bug
+   6 a 0006      would show. */
+   7 c 0006   dcl outf file, v char(20) varying, arr(3) fixed;
+   8 c 0006   open file(outf) stream output title('M22OUT DAT');
+   9 c 0023   put file(outf) list(v,arr(2));
+  10 c 0046   close file(outf);
+  11 a 004C end E46M22;
+
+CODE SIZE = 004F
+DATA AREA = 0025
+FREE SYMS = 3887
+END  COMPILATION
+

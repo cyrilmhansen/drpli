@@ -57,19 +57,29 @@ five varying members are 31, 31, 21, 11 and (after the decimal) 13 bytes, which 
 each, so a level-numbered CHARACTER member's cell is the scalar cell laid out at the member
 offset — which is [C291]'s finding, here seen on the FILE route rather than the console one.
 
-Code 01AA-01DD — `put file(output) skip list('EOF');`:
+Code 01AA-01DD and 01E0-01F1 -- the two SKIP shapes:
 
 ```
-01AA  lxi h *C(0000) / lxi d 0652 / lxi b *CODE(01DE) / call ?SIOOP
-0165? -- see dump:  mvi a 01 / call ?SKPOP
-01C0? -- see dump:  lxi h *D(0035) / mvi a 03 / call ?SLCTS / call ?PNCOP
-      call ?QIOOP
+01AA  lxi h *C(0000) / lxi d 0652 / lxi b *CODE(01BE) / call ?SIOOP   <- line 41, `put file(output) skip;'
+01B6  mvi a 01 / call ?SKPOP
+01BB  call ?QIOOP                          <- 18 bytes: attach, skip, close.  NO item chain.
+01BE  jmp  *CODE(0052)                     <- the DO loop back edge
+01C1  lxi h *C(0000) / lxi d 0652 / lxi b *CODE(01E0) / call ?SIOOP   <- line 44, `skip list(\'EOF\')'
+01CD  mvi a 01 / call ?SKPOP
+01D2  lxi h *D(0035) / mvi a 03 / call ?SLCTS / call ?PNCOP           <- the literal, 3 bytes
+01DD  call ?QIOOP
+01E0  lxi h *C(0000) / lxi d 0652 / lxi b *CODE(01F4) / call ?SIOOP   <- line 45, bare skip again
+01EC  mvi a 01 / call ?SKPOP / call ?QIOOP
+01F4  call ?STOPX
 ```
 
-and code 01E0 — the bare `put file(output) skip;`: `?SIOOP / mvi a 01 / ?SKPOP / ?QIOOP`.  A SKIP
-on a FILE attach goes BETWEEN the attach and the items, one `MVI A,<count>` before `?SKPOP`, the
-same three instructions bare console SKIP uses (REVERSE:00FE).  These are CREATE's remaining
-blockers, and they are a DIFFERENT mechanism from the item count; P2b does not claim them.
+A SKIP on a FILE attach goes BETWEEN the attach and the items -- one `MVI A,<count>` before
+`?SKPOP`, the same three instructions the bare console SKIP uses (REVERSE:00FE) -- and a bare
+`put file(f) skip;` is a complete statement with a continuation and a close and NOTHING between
+`?SKPOP` and `?QIOOP`.  These are CREATE's remaining blockers, and they are a DIFFERENT mechanism
+from the item count; P2b does not claim them.  They are now pinned as refusals by REJECTS rows
+E41X6 (skip + list) and E41X9 (bare skip), the latter because a real defect lived here: see
+RESULTS.md section 5.
 
 ## What these two objects do NOT settle
 
@@ -83,5 +93,6 @@ blockers, and they are a DIFFERENT mechanism from the item count; P2b does not c
   own probes.
 - No DR object in this repository puts a level-numbered FIXED CHARACTER member behind an attach
   (CREATE has none: four varying + one decimal + one varying), so the fixed-member FILE class
-  stays refused regardless of what any probe's verdict turns out to be unless the probe is
-  byte-exact.
+  had no witness at all when the probes were written.  E46M17 asked the question cold and DR
+  ACCEPTED it -- see RESULTS.md section 3, where that answer is recorded as a new fact rather
+  than as a prediction.

@@ -189,3 +189,27 @@ written to tell the two apart inside one file.
 * No promotion of CREATE.  Its six-item chain becoming reachable does not make CREATE itself a
   specimen while its `put file(output) skip` still has no byte-exact witness of mine.
 * One `rune-ci submit`, on the final SHA only.
+
+## 5. Two MORE predictions, committed before the SECOND oracle call (they are not part of the 32)
+
+P2b narrowed the generic "PUT LIST with options this route does not claim" arm, and [C282]'s law is
+that a re-worded refusal must be re-checked against every place quoting the old one.  Re-checking
+found the text named a shape the route now LOWERS (`a multi-item file PUT (CREATE's six)'), and that
+no REJECTS row keys the sentence at all — `tools/file_prose_check.py`'s `PINNED_MARKERS` did, and the
+gate failed on the first run after I deleted it, which is the guard working.  The arm now names what
+can still reach it.  Two of those spellings had never been put to DR:
+
+* **E46M33 — `put file(outf) file(outf) list('A');`** (the same FILE option named TWICE on one PUT).
+  Model: 6 + 29 + 13 + **26** + 6 + 3 = **83 bytes** if DR lowers it with ONE attach; **98** if it
+  stacks two (`26 + 15`).  My expectation is a REFUSAL: nothing in DR's objects duplicates a PUT
+  option, and [C285] measures only that a duplicated OPEN option is refused (`OPEN repeats option`) —
+  the nearest analogy, not a witness, which is why the number is written down before the call.
+* **E46M34 — `put file(outf) list();`** (an empty LIST).  Model: 6 + 29 + 13 + **15** + 6 + 3 =
+  **72 bytes** (attach, no chain, close).  My expectation is a REFUSAL: no DR object on either route
+  carries an empty item list.
+
+A third spelling was tried first and does not PARSE in this compiler at all — `put on(x) list('A')`
+gives `PUT: expected LIST/EDIT/ITEM/FROM` — so the arm's "an ON option (k) that is not a FILE
+reference" clause describes a branch this parser cannot produce.  Recorded here rather than deleted:
+the arm is a defensive default, and a reader should know which of its branches are reachable and
+which are not.

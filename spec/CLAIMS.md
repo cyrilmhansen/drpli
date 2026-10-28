@@ -6753,3 +6753,180 @@ classified `unmeasured` rather than `dr-refuses`.
   whether an OPEN option suppresses it) is UNMEASURED: no object here varies it.  Recorded as
   `RUNTIME` rows of kind `dr_oracle`, and predicted — wrongly, four times out of six — in
   `spec/lab-evidence/e2e42-p2a/HYPOTHESES.md` before the run.
+
+## C296 — A MULTI-ITEM NAMED-FILE PUT IS ONE ATTACH, N CHAINS IN SOURCE ORDER, ONE CLOSE (E2E-42/P2b)
+
+* **LAW:** `PUT FILE(f) LIST(i1, i2, … iN)` emits `LXI H,<fcb> / LXI D,0652 / LXI B,<continuation> /
+  CALL ?SIOOP`, then item 1's chain, then item 2's, … then item N's, with **nothing between them**,
+  then ONE `CALL ?QIOOP` and the continuation triple.  The attach and the close belong to the
+  STATEMENT; the chains belong to the ITEMS.  Source order is emitted order.  Nothing is folded:
+  an item repeated in a list is emitted twice.
+* **The arithmetic, measured on one pair.**  E46M1 (`put file(outf) list('A','B')`) is 115 bytes of
+  CODE; its file statement spans `0023`–`0048` = **37 bytes** = 12 + 11 + 11 + 3.  E46M2 (the same
+  two items as TWO one-item statements) is 96 = 26 + 26 for the same work.  The difference — 19
+  bytes of code, of which 15 is an attach (12) and a close (3) — IS the second attach and close that
+  the multi-item form does not emit.  Both objects are byte-identical to DR's (512/512 each).
+* **Corpus corroboration, which is why the probes were worth writing.**  `golden/first/KEYFILE`
+  008C-00AC is `put file(keys) list(name,k)`: one `?SIOOP` at 008F, a varying-member chain, a FIXED
+  BINARY chain, one `?QIOOP`.  `golden/first/CREATE` 015C-01A8 is six members: one attach at 0166,
+  six chains, one close at 01A7.  Neither can be a SPECIMEN (corpus programs are DR's own sources,
+  refused by `tools/coverage_check.py` as witnesses), so E46M1-M20 re-measure the shapes as probes
+  and E46M19 — CREATE's six-item list spelled with ordinary variables — is byte-exact against DR at
+  122 CODE / 121 DATA.
+* **What changed in this compiler is the PARSER and nothing else.**  `[E2E-42/P2a]`'s
+  `authorize_file_item` gates classes per item and `lower_put_items_gen` has folded over an item
+  list since [E2E-29/P1], emitting one prologue and one close; P2a's matcher simply refused to
+  *name* a list longer than one.  Allowing `items <> []` is the entire lowering change.  That is
+  [C293]'s law paying for itself: "there is no file item lowering to write", so a route grows by
+  admitting shapes, not by duplicating encoders.
+* **Sizes of what is now exact: 24 objects.**  E46M1-M11, M13-M15, M17-M19, M27-M32 plus E46L7
+  promoted from P2a's negatives (94 code / 26 DATA).  Every predicted CODE size and every predicted
+  `?SIOOP`/`?QIOOP` count came out exact (20 and 40 of them); nine predicted DATA sizes did not, and
+  `spec/lab-evidence/e2e42-p2b/RESULTS.md` §7 says why rather than rounding them off.
+* **What this does NOT license.**  A control item (SKIP/PAGE) on a file PUT — E41X6 and the new
+  E41X9; an ON option other than `FILE(name)`; PUT EDIT (E41X8); a GET; a record WRITE; a KEYED or
+  DIRECT attach; an EXPRESSION item (E46M23/E46L9, which DR compiles — a `my-gap`); a SUBSCRIPTED
+  item (E46M22/E46L10, DR folds the literal subscript into the address); a FLOAT item (E46M21,
+  E46M26, E46L11); an item on a file this compiler did not open (E46K10); and a MULTI-ITEM list on
+  the CONSOLE containing a member or a decimal beside a character (E46M16, E46M12 — both DR-accepted,
+  both console-route work outside this phase).
+
+## C297 — A STRUCTURE MEMBER IS AN OPERAND ON THE FILE ROUTE, AND A FIXED CHARACTER MEMBER CARRIES ITS DECLARED LENGTH (E2E-42/P2b)
+
+* **The cold question, answered by DR.**  No object in this repository — DR's or mine — had ever put
+  a level-numbered FIXED CHARACTER variable behind a `0x0652` attach: CREATE's members are four
+  varying, one decimal, one varying.  E46M17 asked anyway, and DR ACCEPTED with `MVI A,08` (the
+  declared length of `c8 char(8)`) then `CALL ?SLCTS`, exactly the chain [C293] pins for a scalar
+  fixed character.  Byte-exact, 105 CODE / 33 DATA.  Had DR refused, the fixed-member FILE class
+  would have been a language limit; instead it is one more admitted class, and the refusal this
+  compiler used to give was a gap of ours.
+* **Members are frame offsets, not descriptors, on both routes.**  E46M16 puts `line` (CHARACTER(14)
+  VARYING) and `nxt` (FIXED BINARY(15)) of one internal structure on a file in both orders and on the
+  console: `LXI H,*D(000A) / ?SLVTS / ?PNCOP` and `LHLD *D(0019) / MVI A,09 / ?QICOP / ?PNVOP` — the
+  same two chains, in the same object, under `?SIOOP` and under `?SYSPR` [C293] at N=2.  The operand
+  is the member's DATA offset; there is no indirection and no descriptor block.
+* **QUALIFIED and UNQUALIFIED spellings address ONE cell.**  E46M18's `list(line,' = ',v)` and
+  `list(rec.line,rec.nxt)` both emit `LXI H,*D(0022)` for the member: [C253]'s one-cell-two-spellings
+  rule, re-verified behind a file attach, which is where [E2E-42/P1e] had left it unverified.
+* **The authorization change, and its limit.**  `authorize_file_item` admits `Vimem` now.  It does
+  NOT admit a decimal member, because there is nothing to admit: bind registers no alias for the
+  unqualified name of a FIXED DECIMAL member [E2E-39/P2], so E46M20 refuses at BIND with a message
+  naming `RECORD.ZIP`, three mechanisms earlier than the PUT.  That distinction is the row's whole
+  content — resolution, authorization and registration are three different gates and this probe set
+  separates all three.
+
+## C298 — THE LITERAL POOL DEDUPS BY CONTENT, EXCEPT THAT EVERY EMPTY LITERAL GETS ITS OWN ZERO-LENGTH CELL (E2E-42/P2b)
+
+* **DR's rule, from three objects.**  E46M4's `list('A','A','B','A')` addresses TWO cells for four
+  items (three chains name `*D(0009)`, one names `*D(000A)`) and its DATA is 11 bytes — the same 11
+  as a list of two distinct literals.  E46M6's `list('','A','')` addresses `*D(0009)` for the first
+  empty item, `*D(0009)` again for `'A'`, and `*D(000A)` for the SECOND empty item: a zero-length
+  allocation does not advance the pool pointer, and empty literals are NOT deduped with each other.
+  E46M5's two statements share one decimal cell (`*D(000B)`, two bytes holding `42 00` — packed BCD
+  for the literal `42`), so numeric literals dedup by value like character ones.
+* **My bug and the fix.**  `pool_str` deduped by content for every literal including `''`, so E46M6's
+  third item pointed at `'A'`'s cell and one pool block was registered where DR registers two.  The
+  cell was never READ (the item's width operand is `MVI A,00`), so no run could have noticed — only
+  the .REL bytes differ, which is precisely what the byte panel exists to see.  Fixed by allocating a
+  fresh zero-length cell per empty-literal occurrence before the dedup lookup.
+* **Corollary for anyone reading a DR DATA dump:** the segment is laid out **pool first, then auto**
+  (E46M18: 10-byte TITLE + 3-byte `' = '` pool, `v` at `000D`, the structure at `0022`, DATA 51), and
+  a CHARACTER VARYING cell is `capacity + 1` [C291].  Both facts were in this repository already; the
+  nine wrong predicted DATA sizes in P2b came from doing arithmetic without them.
+
+## C299 — THE BLANK BETWEEN PUT ITEMS IS A PROPERTY OF THE ITEM LIST, NOT OF THE STATEMENT (E2E-42/P2b-D)
+
+* **The discrimination, in one file.**  [C295] had measured one blank between the items of SEPARATE
+  one-item PUT statements (E46L16: `'AA' 'B' 'CC'`) and could not tell whether the blank was emitted
+  at an item boundary or at a statement boundary, because in that program the two coincide.  E46M27
+  separates them: four statements of 2, 1, 1 and 2 items into one open stream.  Item boundaries give
+  33 bytes of content + 5 blanks = **38**; statement boundaries give 33 + 3 = 36.  DR wrote 38, and
+  so did my byte-identical object: `'HELLO' 'XY' 'HELLO' 'XY' 'HELLO' 'XY'`, 128-byte record.
+* **It is a runtime behaviour, not an emitted byte.**  No separator instruction exists between the
+  chains (H3, confirmed in six objects), so the blank is produced by PLILIB's output edit between
+  items of one list.  Nothing in a `.REL` shows it, which is why this claim is a `RUNTIME` row
+  (`spec/RUNTIME.txt`, `file:M27OUT=`) rather than a byte claim.
+* **The five other runtime rows agree with their predictions**: E46M28 14 bytes, E46M29 33, E46M30 17
+  (each under-filled FIXED char padded to its OWN declared length — per item, not per list), E46M31 53
+  (CREATE's six-item list executed: five varying members at their assigned lengths plus a 9-wide
+  right-justified unquoted decimal), E46M32 (console PUT, two-item file PUT, console PUT — `FIRST
+  SECOND` on the console and `'CON' 'AGAIN'` in the file, so [C294]'s two-route coexistence holds
+  with N=2 behind the attach).  All six: DR's exported file and my exported file are byte-identical,
+  and the whole console transcripts are identical too.
+
+## C300 — A MATCHER ARM THAT IGNORES `on_opts` SILENTLY MISROUTING A FILE PUT TO THE CONSOLE (E2E-42/P2b)
+
+* **The defect.**  `match_put_list_lit`'s bare-`put skip;` arm (added by [E2E-29/P4] from
+  REVERSE:00FE) matched `kind = Item` and a lone `Pi_ctl("SKIP", None)` and bound NOTHING from the
+  statement's `on_opts` or `stream`.  So corpus CREATE:41's `put file(output) skip;` was lowered as
+  a CONSOLE skip — `LXI D,0252 / ?SYSPR / MVI A,01 / ?SKPOP / ?QIOOP` — and would have written to
+  SYSOUT with the named file untouched: rc=0, no `[TBD]`, plausible bytes, wrong stream.  The fix
+  splits the arm: a file-named control item goes to `file_items` and refuses by name, any other ON
+  option refuses, and the console arm is now `on_opts = []` AND `stream = None`.
+* **How it was found — the census's line number, not a test.**  CREATE refused at line 39 before
+  this phase (the six-item list, [C296]'s subject).  After the multi-item matcher landed, its
+  message moved to line 44.  Line 41 is the bare file SKIP, so "the refusal moved past it" WAS the
+  observation that the statement was getting through.  Nothing in the byte panel could see it:
+  CREATE is a corpus program, so its refusal text is checked only by `tools/corpus_census.py`, and
+  the program still refused either way.  Two census messages moved and were re-snapshotted with the
+  counts unchanged (EXACT 15 / DIFFERS 0 / REFUSED 26): CREATE (39 → 44 → back to 41, refused by
+  the new guard) and COPYLPT (`PUT ITEM (PAGE) deferred` → `PUT FILE(PRINTFILE) LIST item 1 is the
+  control item PAGE` — same statement, now refused by the route that owns it).
+* **The general rule, which is why this is a claim and not a changelog line:** a matcher arm must
+  constrain EVERY field that selects a route.  A pattern that pins `kind` and `items` and leaves
+  `on_opts`/`stream` free does not mean "the default route"; it means "any route, silently", and the
+  failure mode is invisible in exactly the panel that would otherwise catch a wrong byte.  The
+  refusal is pinned as REJECTS row **E41X9** (`my-gap`: DR's CREATE carries the statement — 01AA
+  `?SIOOP`, 01B6 `MVI A,01`, 01B8 `?SKPOP`, 01BB `?QIOOP`, 18 bytes, attach to close with no item
+  chain).  A row that pins a FIXED defect is kept for the same reason a regression test is: if the
+  guard is dropped again, the panel says so.
+
+## C301 — DR REFUSES A STRUCTURE-VALUED AND A POINTER PUT ITEM: `COMP REQ ?` (E2E-42/P2b)
+
+* **Two measured refusals.**  E46M24 (`put file(outf) list(v,rec)` — a level-1 structure's WHOLE row
+  as an item) and E46M25 (`list(v,p)` — a POINTER) each get, in DR's own printout, the PUT statement
+  echoed, the words `COMP REQ` with `?` under it, `1 ERROR(S) IN PASS 2`, and NO `.REL`.  So
+  [C290]'s "no object on either route prints a pointer" — an absence of evidence — becomes a
+  measured refusal on the file route, and the same happens for a structure-valued item, which had
+  never been probed at all.
+* **`COMP REQ` is DR's pass-2 "I have no generator for this".**  It is not a syntax error (pass 1 is
+  clean in both cases) and it is not the `CONFLICT` P0 catalogued for duplicate OPEN options.  Both
+  probes place it under the PUT statement, which is where an item-class failure belongs.
+* **My refusals agree in verdict and NOT in mechanism, and the rows say so.**  E46M24 refuses with
+  `undeclared rec (no declaration in scope)`: this compiler's parser does not register a level-1 head
+  name as a variable, so the failure is at BIND while DR's is at code generation for the item.  Two
+  mechanisms reaching the same answer is worth pinning explicitly — a future parser that registers
+  level-1 heads will make E46M24 compile-farther, and the row must then be re-pinned to a real item
+  refusal rather than left to rot into a false "DR refuses this because the name is unknown" reading.
+  E46M25 refuses by CLASS (`PUT FILE(OUTF) LIST of a POINTER variable`), naming no position, which is
+  the shape the second-item guards were built to keep.
+
+## C302 — AN ABSENCE IN MY OWN MESSAGES IS NOT AN ORDER IN DR'S (E2E-42/P2b, correcting P2a)
+
+* **What was claimed.**  P2a wrote, for E46K10 (`put file(outf) list(line);` on a file the program
+  never OPENs), that the ITEM question is answered BEFORE the open question and that this was
+  MEASURED at N=1 — the evidence being that the refusal message named the member rather than the
+  open.  P2b's HYPOTHESES.md inherited the claim and predicted DR would refuse the same shape with
+  `COMP REQ ?`.
+* **What DR's object says.**  `golden/e42p2b/E46M26/E46M26.REL` compiles `put file(outf) list(v,q)`
+  — two items, one of them an unauthorized-on-my-route FLOAT — on a stream the program never opens:
+  `LXI H,*C(0000) / LXI D,0652 / LXI B,<cont> / CALL ?SIOOP`, chains, `?QIOOP`, 44 bytes, and no
+  `?OIOOP` anywhere in the object.  DR has no missing-open refusal to order, so a claim about the
+  ORDER of my two guards cannot be a claim about DR at all.
+* **The mechanism of the error, in one sentence:** I read my own message text as a property of the
+  compiler that produced it.  A refusal message orders MY guards because it is emitted by MY code in
+  MY sequence; it says nothing about anyone else's.  This is [C256]'s failure mode — registering a
+  DR-negative that is really a my-gap — reached from the other side: predicting a DR refusal because
+  my guard fires first.
+* **Also recorded here, because it is the same class of mistake:** while writing E46K10's re-classified
+  row I asserted that P086K's PUT is `put file(f) list(d)` rather than the EDIT [C282] records.  That
+  is false — `probes/P086K.PLI` is `put file(f) edit(d)(f(5,1))` and its object runs `?EDITF /
+  ?DLDOP / ?QDCOP / ?EDTOV` at 0022-003A.  The sentence was written into the panel BEFORE the source
+  was re-opened, exactly backwards from the protocol.  It is withdrawn in `NEG_META["E46K10"]` (which
+  now carries the withdrawal in place of the claim) and in `RESULTS.md` §5, and the LIST-attach-without-OPEN
+  fact is left standing on E46M26 alone: one probe, one object, stated as such.
+* **Third instance from the same run, and the reason `unmeasured` rows must be re-measured rather
+  than trusted:** `NEG_META["E46K10"]` had never been the text the panel reported, because a later
+  `for _k in ("E46K1" … "E46K15"): NEG_META[_k] = …` loop silently overwrote it.  A panel entry whose
+  prose is replaced by a generality downstream reads as evidence and is not.  The entry now follows
+  the loop and the comment says why.

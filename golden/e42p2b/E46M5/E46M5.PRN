@@ -10,6 +10,28 @@ COMPILATION OF: E46M5
 D: Disk Print
 L: List Source Program
 
-   3 b        /* [E2E-42/P2b] MIXED LITERAL CLASSES IN ONE LIST, BOTH ORDERS: a CHARACTER literal and a DECIMAL literal.  The two chw
-TRUNC                                                                                                                            ?
-UNEXPECTED EOF
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46M5
+
+   1 a 0000 E46M5:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2b] MIXED LITERAL CLASSES IN ONE LIST, BOTH ORDERS: a
+   4 a 0006      CHARACTER literal and a DECIMAL literal. The two chains end in
+   5 a 0006      different tails (?PNCOP for a character item, ?PNVOP for a
+   6 a 0006      numeric one), so this pins which tail follows which item, and
+   7 a 0006      that the ?QIOOP still follows BOTH. */
+   8 c 0006   dcl outf file;
+   9 c 0006   open file(outf) stream output title('M5OUT DAT');
+  10 c 0023   put file(outf) list('X=',42);
+  11 c 004F   put file(outf) list(42,'X=');
+  12 c 007B   close file(outf);
+  13 a 0081 end E46M5;
+
+CODE SIZE = 0084
+DATA AREA = 000D
+FREE SYMS = 3883
+END  COMPILATION
+

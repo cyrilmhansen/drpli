@@ -10,6 +10,28 @@ COMPILATION OF: E46M4
 D: Disk Print
 L: List Source Program
 
-   3 b        /* [E2E-42/P2b] POOL DEDUP INSIDE ONE LIST: `list('A','A','B','A')'.  [C155] established one cell per DISTINCT contentw
-TRUNC                                                                                                                            ?
-UNEXPECTED EOF
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46M4
+
+   1 a 0000 E46M4:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2b] POOL DEDUP INSIDE ONE LIST:
+   4 a 0006      `list('A','A','B','A')'. [C155] established one cell per
+   5 a 0006      DISTINCT content program-wide and PL7/PL12 measured it INSIDE
+   6 a 0006      one PUT LIST; this asks whether a file-route list behaves the
+   7 a 0006      same way (four items, two pool bytes above the title) and
+   8 a 0006      whether a repeated item repeats the SAME LXI H operand. */
+   9 c 0006   dcl outf file;
+  10 c 0006   open file(outf) stream output title('M4OUT DAT');
+  11 c 0023   put file(outf) list('A','A','B','A');
+  12 c 005E   close file(outf);
+  13 a 0064 end E46M4;
+
+CODE SIZE = 0067
+DATA AREA = 000B
+FREE SYMS = 3887
+END  COMPILATION
+

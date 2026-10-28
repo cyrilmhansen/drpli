@@ -553,7 +553,17 @@ let pool_alloc st (bytes : int array) =
    So dedup applies to the ADDRESS, not to the empty-block registration. *)
 let pool_str st (bytes : int array) =
   let l = Array.to_list bytes in
-  match List.find_opt (fun (_addr, bs) -> bs = l) st.str_cells with
+  (* [E2E-42/P2b] THE EMPTY LITERAL IS NOT DEDUPED.  E46M6 (`put file(outf) list('''','A',''')',
+     golden/e42p2b/, byte-exact against my output now) shows DR's THIRD item loading *D(000A) and
+     not the *D(0009) its first '' got: a zero-length cell is allocated at the pool top AS OF THAT
+     OCCURRENCE, so it moves once other bytes have been added in between, while a NON-EMPTY literal
+     still dedups by content ([C152]'s rule, E46M4's four items naming two cells).  The cell costs
+     no bytes either way -- E46M6's DEF-DATA-SIZE is 10 = 9 title + 1 'A' -- and one zero-length
+     block is still registered PER OCCURRENCE [C155], which is what `pool_alloc' does by appending
+     (addr,[]) and advancing by zero.  Before this, an empty literal hit the cache and got the
+     FIRST occurrence's address, which is the same cell only until something else is allocated. *)
+  if l = [] then pool_alloc st bytes
+  else match List.find_opt (fun (_addr, bs) -> bs = l) st.str_cells with
   | Some (addr, _) ->
       if l = [] then st.pool <- st.pool @ [ (addr, []) ];
       addr
@@ -2329,24 +2339,157 @@ let put_kind_str (k : Ast.put_kind) =
   | Ast.Item -> "ITEM (also the parse form of bare PUT SKIP;/PAGE;)"
   | Ast.Editsk _ -> "SKIP(n) without LIST"
 
-let match_put_list_lit (s : Ast.stmt) =
-  match s.Ast.st with
+(* [E2E-42/P2b] the FILE matcher's item map: the three shapes the route has a witness for, by
+   CLASS at lowering.  `None' means an item this route cannot name, and `file_items' has already
+   raised with the position and the shape, so a caller never sees a partial list. *)
+(* strip a parenthesised-condition wrapper: DR lowers (c) exactly like c
+   [P401 dbl body: (i+i)], and Econd also wraps while-conditions.  Moved up
+   from the DEC model block so the CALL lowering can mode-check arguments. *)
+let unwrap_e (e : Ast.expr) =
+  match e.Ast.e with Ast.Econd x -> x | _ -> e
+
+let file_item_of (x : Ast.expr) =
+  match x.Ast.e with
+  | Ast.Estring v -> Some (PIlit v)
+  | Ast.Enumber t when put_dec_ok t -> Some (PIlit_dec t)
+  (* [E2E-42/P2a] a declared VARIABLE is admitted here as SYNTAX only -- `char(20) varying',
+     `char(20)' and a level-numbered MEMBER all parse to the same Eident node, and
+     `authorize_file_item' decides from the BINDER's answer whether the class is lowered. *)
+  | Ast.Eident n -> Some (PIvar n)
+  | _ -> None
+
+let file_item_desc x =
+  match (unwrap_e x).Ast.e with
+  | Ast.Ebinary _ -> "an EXPRESSION (a binary operator)"
+  | Ast.Eprefix _ -> "a PREFIXED expression"
+  | Ast.Esuffix (_, args) when args <> [] -> "a CALL or SUBSCRIPTED element (the suffix form)"
+  | Ast.Eqptr _ -> "a POINTER-QUALIFIED (`->') reference"
+  | Ast.Eqstruct _ -> "a dot-QUALIFIED reference"
+  | Ast.Ebuilt (k, _) -> "the built-in form " ^ k
+  | Ast.Ebit _ -> "a BIT literal"
+  | Ast.Epicture _ -> "a PICTURE item"
+  | Ast.Eformat_ref _ -> "an edit-format reference"
+  | Ast.Enumber t -> "the numeric literal " ^ t
+  | Ast.Estring v -> "a string literal of length " ^ string_of_int (String.length v)
+  | Ast.Eident _ -> "an identifier"
+  | _ -> "a form this matcher does not recognize"
+
+let file_items (ln : int) (fe : Ast.expr_kind) (items : Ast.put_item list) =
+  let fname =
+    match fe with Ast.Eident n -> String.uppercase_ascii n.Ast.orig | _ -> "?"
+  in
+  let bad =
+    List.filter_map
+      (fun (i, it) ->
+        match it with
+        | Ast.Pi_data x when file_item_of x <> None -> None
+        | Ast.Pi_data x -> Some (i + 1, Some x, file_item_desc x)
+        | Ast.Pi_ctl (nm, cnt) ->
+            Some (i + 1, None,
+                  Printf.sprintf "the control item %s%s" (String.uppercase_ascii nm)
+                    (match cnt with Some _ -> " with a count" | None -> ""))
+        | _ ->
+            Some (i + 1, None, "a PUT item form that is not a plain data or control item \
+                                (an EDIT format, a picture, a replicate group, a remote or a \
+                                group item)"))
+      (List.mapi (fun i x -> (i, x)) items)
+  in
+  match bad with
+  | [] -> Some (List.filter_map (function Ast.Pi_data x -> file_item_of x | _ -> None) items)
+  | (pos, node, what) :: _ ->
+      failwith
+        (Printf.sprintf
+           "codegen: PUT FILE(%s) LIST item %d is %s, unmeasured on the named-file route [TBD] \
+            (line %d) -- P2b lowered the MULTI-ITEM list (E46M1-M20, [C296]) and the classes \
+            `authorize_file_item' admits, but this node is not one of the THREE shapes the \
+            matcher can name: a string literal (?SLCTS/?PNCOP, E16D/E17D), a plain non-negative \
+            integer literal (?DLDOP/?QDCOP/?PNVOP, same two objects) or a declared VARIABLE of an \
+            authorized class (E46L1-L4, and since P2b a structure MEMBER: E46M16-M20).  \
+            %s  The item's POSITION is reported because a list is refused as a whole -- no byte \
+            of the statement, not even the attach, is emitted for a list with one bad item."
+           fname pos what ln
+           (match node with
+            | Some x ->
+                (match (unwrap_e x).Ast.e with
+                 | Ast.Ebinary _
+                 | Ast.Esuffix (_, _) ->
+                     "DR COMPILES both of those shapes on this route (E46L9 `list(k + 1)' and \
+                      E46L10 `list(a(1))', each ending in the numeric tail the console uses), so \
+                      this is a MEASURED gap of MINE and not a DR limit: an expression and a \
+                      subscripted element need their own file-route witness before this arm \
+                      opens.  "
+                 | Ast.Eident _ ->
+                     "the name resolves to a class the FILE route does not authorize, and \
+                      `authorize_file_item' says which -- if this message reached you instead, \
+                      the item never got a pitem at all.  "
+                 | _ ->
+                     "no DR object in this repository carries this shape behind a 0x0652 \
+                      attach.  ")
+            | None ->
+                "no object of ours carries a SKIP, PAGE or ON handler on a NAMED-FILE PUT: \
+                 CREATE:41/44/45 carry put file(output) skip and the same form with a \
+                 list, and they are corpus programs, so the words between a file attach \
+                 and a SKIP are unpinned by any specimen of mine."))
+
   (* [E2E-29/P4] BARE `put skip;' (the Item parse form with a lone SKIP control item) is
      sampled by REVERSE's line 49 at 00FE: LXI D,0252 / LXI B,0000 / CALL ?SYSPR / MVI A,01 /
      CALL ?SKPOP / CALL ?QIOOP plus the usual deferred backpatch triple.  That is the ordinary
      PUT prologue and skip with NO item, so it reuses lower_put_items_gen with an empty list
      rather than getting a second encoder.  `put page;' and counted skip are still unsampled. *)
-  | Ast.Sput { kind = Ast.Item; items = [ Ast.Pi_ctl (nm, None) ]; _ } ->
-      (match String.uppercase_ascii nm with
-       | "SKIP" ->
-           (match match_skip_ctl [Ast.Pi_ctl (nm, None)] with
-            | Some (sk, []) -> Pitems (sk, [])
-            | _ -> Pnone)
-       | _ ->
-           failwith (Printf.sprintf
-                       "codegen: PUT ITEM (%s) deferred [TBD] (line %d; only bare SKIP is sampled \
-                        -- REVERSE 00FE; PAGE and counted SKIP have no DR bytes here)"
-                       nm s.Ast.spos.Source.line))
+  (* [E2E-42/P2b] THIS ARM USED TO IGNORE `on_opts' AND `stream'.  Corpus CREATE:41 is
+   `put file(output) skip;', and with the FILE option unseen it matched here and was lowered as
+   the CONSOLE bare skip REVERSE:00FE pins -- `LXI D,0252 / LXI B,<cont> / CALL ?SYSPR / MVI A,01
+   / CALL ?SKPOP / CALL ?QIOOP', written to SYSOUT with the named file never touched.  A silent
+   misroute is the worst failure this project can have: rc=0, no [TBD], and bytes that look right
+   going to the wrong stream.  P2b found it while re-reading CREATE's refusal, which had MOVED
+   from line 39 (the six-item list, now lowered -- see E41X7's retirement) to line 44, so the
+   statement at 41 was getting past the matcher.  A file-named PUT of a control item now claims
+   the file route here and is refused by the same per-item message the LIST route uses, naming the
+   control item; it is NOT lowered, because no object of mine carries a file attach and a ?SKPOP
+   together.  DR does: SIOMODES.txt tabulates three CREATE continuations whose first word is
+   ?SKPOP after a 0x0652 attach (01B3 `?SKPOP ?QIOOP', 01CA `?SKPOP ?SLCTS', 01E9 `?SKPOP ?QIOOP
+   ?STOPX'), which makes this a MEASURED my-gap and not a DR limit -- REJECTS row E41X9. *)
+let bare_ctl_put (ln : int) (nm : string) (cnt : Ast.expr option)
+    (its : Ast.put_item list) (on_opts : Ast.io_opt list) (stream : Ast.expr option) =
+  match on_opts, stream with
+  | [ { Ast.io_key = "FILE"; Ast.io_val = Some ({ Ast.e = Ast.Eident _; _ } as fe) } ], None ->
+      (* `file_items' raises for ANY control item, so the Some case is unreachable; it is written
+         so this arm cannot ever hand the matcher a shape it has no bytes for. *)
+      (match file_items ln fe.Ast.e its with
+       | Some _ -> Pnone
+       | None -> Pnone)
+  | _ :: _, _ ->
+      failwith (Printf.sprintf
+                  "codegen: PUT with a control item and an ON option this route does not claim \
+                   [TBD] (line %d) -- the file route claims exactly one plain `FILE(name)' \
+                   option; anything else is a shape no object of ours lowers" ln)
+  | [], Some _ ->
+      failwith (Printf.sprintf
+                  "codegen: PUT with a control item naming a console STREAM [TBD] (line %d) -- \
+                   DR's console-stream spelling of PUT has no measured object in this repository" ln)
+  | [], None ->
+      match cnt with
+      | Some _ ->
+          failwith (Printf.sprintf
+                      "codegen: PUT SKIP with a COUNT [TBD] (line %d) -- `put skip(n)' is \
+                       unsampled on a bare control item; N302 measures only `put skip(n) list(...)'" ln)
+      | None ->
+          match String.uppercase_ascii nm with
+          | "SKIP" ->
+              (match match_skip_ctl [Ast.Pi_ctl (nm, None)] with
+               | Some (sk, []) -> Pitems (sk, [])
+               | _ -> Pnone)
+          | _ ->
+              failwith (Printf.sprintf
+                          "codegen: PUT ITEM (%s) deferred [TBD] (line %d; only bare SKIP is \
+                           sampled -- REVERSE 00FE; PAGE and counted SKIP have no DR bytes here)"
+                          nm ln)
+
+
+let match_put_list_lit (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sput { kind = Ast.Item; items = [ Ast.Pi_ctl (nm, cnt) ] as its; on_opts; stream } ->
+      bare_ctl_put s.Ast.spos.Source.line nm cnt its on_opts stream
   | Ast.Sput { kind = (Ast.Edit | Ast.Item | Ast.Editsk _) as k; _ } ->
       failwith (Printf.sprintf
                   "codegen: PUT %s deferred [TBD] (line %d; only PUT LIST \
@@ -2387,34 +2530,39 @@ let match_put_list_lit (s : Ast.stmt) =
       { kind = Ast.List_
       ; stream = None
       ; on_opts = [ { Ast.io_key = "FILE"; Ast.io_val = Some ({ Ast.e = Ast.Eident _; _ } as fe) } ]
-      ; items = [ Ast.Pi_data x ] } ->
-      (match x.Ast.e with
-       | Ast.Estring v -> Pfile (fe, [ PIlit v ])
-       | Ast.Enumber t when put_dec_ok t -> Pfile (fe, [ PIlit_dec t ])
-       (* [E2E-42/P2a] ONE DECLARED VARIABLE reaches the shared generator now.  This is a
-          SYNTACTIC admission and nothing more: `char(20) varying', `char(20)' and a
-          level-numbered MEMBER all parse to the same Eident node, so which storage classes the
-          route really lowers is decided at lowering by `authorize_file_item', from the BINDER's
-          answer [the mission's "Check the actual bound operand kind"].  What licenses it is
-          golden/e42p2a: E46L1-L4 each carry a file attach and a console attach of the SAME
-          variable in ONE object, and their item chains are byte-identical -- so the FILE route
-          and the console route differ only in the prologue, which is what [C280] already said
-          for a literal item and what this bank now says for a variable one. *)
-       | Ast.Eident n -> Pfile (fe, [ PIvar n ])
-       | _ ->
-           failwith
-             (Printf.sprintf
-                "codegen: PUT LIST on a named file of this item is unmeasured [TBD] (line %d) -- \
-                 the named-file route lowers EXACTLY ONE item, and only as a string literal \
-                 (?SLCTS/?PNCOP, E16D/E17D [C280]), a plain non-negative integer literal \
-                 (?DLDOP/?QDCOP/?PNVOP, same two objects), or a single declared VARIABLE of a \
-                 class golden/e42p2a pins (E46L1-L4).  What this node is not: an EXPRESSION \
-                 (DR compiles it -- E46L9 002F `LHLD k / DAD H / MVI A,09 / ?QICOP / ?PNVOP' -- \
-                 so that is a measured gap of MINE, not a DR limit), an ARRAY ELEMENT (DR \
-                 compiles it too, E46L10 002F `LHLD / MVI A,09 / ?QICOP / ?PNVOP'), a CALL, a \
-                 QUALIFIED reference or a CONCATENATION, none of which has a file-route witness \
-                 of ours"
-                s.Ast.spos.Source.line))
+      ; items } when items <> [] ->
+      (* [E2E-42/P2b] THE LIST IS A LIST.  P2a admitted ONE item; this admits N, and what changed
+         is the PARSING and nothing else -- `lower_put_items_gen' has folded over a list of items
+         since [E2E-29/P1], and it emits one prologue and one ?QIOOP for the whole list, which is
+         exactly what DR's multi-item objects do:
+            golden/first/KEYFILE 008C-00AC  `put file(keys) list(name,k)': ONE ?SIOOP at 008F, a
+              varying-member chain 0098-00A0 and a FIXED BINARY chain 00A1-00AC with NOTHING
+              between them, ONE ?QIOOP.
+            golden/first/CREATE 015C-01A7   `put file(output) list(name,addr,city,state,zip,phone)':
+              ONE ?SIOOP at 0166, six chains, ONE ?QIOOP at 01A7.
+         Both are corpus programs and so cannot be SPECIMENS [tools/coverage_check.py], which is
+         why E46M1-M20 measure the same shapes as probes.  What they settle, and what this arm
+         therefore claims:
+          * 12 + (sum of the item chains) + 3: an attach and a close PER STATEMENT, never per
+            item (E46M1's file statement is 37 bytes against E46M2's two one-item statements at
+            26 + 26 -- the 15-byte difference IS the second attach and close) [C296].
+          * the source order of items is the order of chains (E46M5/M9/M10/M11/M13 spell every
+            mixed pair twice, in opposite order).
+          * NO folding and no separator instruction: E46M14's `list(v,v)' emits the SAME
+            `LXI H,*D(000A)' twice (DR's CODE is 9 bytes larger than `list(v)' would be).
+          * a repeated literal addresses ONE pool cell: E46M4's four items name two cells and its
+            DATA is 11 bytes, the same as if the list held two literals [C155 on this route].
+         WHICH CLASSES the route lowers is still NOT decided here: this is syntax.  The bound
+         storage class is asked at lowering by `authorize_file_item', per item, and a list with
+         one unauthorized item emits nothing at all.  Items this arm cannot even name -- a SKIP or
+         PAGE control item, an expression, a subscripted element, a call, a concatenation -- are
+         refused HERE, by position and shape, because the matcher sees the syntax; E46M22/E46M23
+         measure that DR ACCEPTS both, so those two rows are gaps of MINE and the stop says so.
+         An empty list (`put file(f) skip;') falls through to the refusal below: no DR object of
+         ours carries a file attach and a SKIP together. *)
+      (match file_items s.Ast.spos.Source.line fe.Ast.e items with
+       | Some its -> Pfile (fe, its)
+       | None -> Pnone)
   (* [E20-21/P0] BEFORE the plain case, so an unadorned `put [skip] list(...)' still matches
      above.  These two arms replace a BARE Match_failure with a reasoned refusal: a PUT naming a
      FILE stream (corpus KEYFILE `put file(keys) list(name,k)') or carrying ON options (corpus
@@ -2429,14 +2577,37 @@ let match_put_list_lit (s : Ast.stmt) =
            "codegen: [TBD] PUT LIST naming a FILE stream (line %d): DR's console-stream spelling \
             of PUT has no measured object in this repository"
            s.Ast.spos.Source.line)
-  | Ast.Sput { kind = Ast.List_; on_opts = _ :: _; _ } ->
+  | Ast.Sput { kind = Ast.List_; stream = _; items;
+               on_opts = ((_ :: _) as opts) } ->
+      (* [E2E-42/P2b] THIS MESSAGE USED TO SAY that "a multi-item file PUT (CREATE's six)" is
+         refused here.  That stopped being true when E46M19 landed, and a refusal that names a
+         shape the route now lowers is worse than a vague one: it points a reader at a gap that has
+         been closed.  What can still reach this arm is a NON-FILE option, several options, a FILE
+         operand the matcher will not name, or an EMPTY LIST -- so it now says which, and names
+         nothing it has not checked.  NO REJECTS row keyed the old sentence (verified by
+         `grep -n "options this route" tools/e2e_gate.py' being empty); the marker list in
+         `tools/file_prose_check.py' did, and is updated with this text.
+         The `_ :: _' guard is load-bearing: writing `on_opts' alone makes this arm swallow the
+         console route below it -- [C300]'s mistake, and the compiler reports it as two
+         redundant-case warnings, which is why the warning profile is checked too. *)
+      let why =
+        match opts with
+        | [ { Ast.io_key = "FILE"; Ast.io_val = Some { Ast.e = Ast.Eident n; _ } } ]
+          when items <> [] ->
+            Printf.sprintf "a FILE(%s) option and a LIST this route cannot name"
+              (String.uppercase_ascii n.Ast.orig)
+        | [ { Ast.io_key = "FILE"; _ } ] -> "an EMPTY LIST behind a FILE option"
+        | [ { Ast.io_key = k; _ } ] ->
+            Printf.sprintf "an ON option (%s) that is not a FILE reference" k
+        | _ -> Printf.sprintf "%d ON options on one PUT" (List.length opts)
+      in
       failwith
         (Printf.sprintf
-           "codegen: [TBD] PUT LIST with options this route does not claim (line %d): P3b lowers \
-            `put file(<f>) list(<one literal>)' only -- a multi-item file PUT (CREATE's six), a \
-            file PUT of a variable (KEYFILE), an ON handler or a SKIP on a file PUT all need \
-            bytes no specimen of mine measures"
-           s.Ast.spos.Source.line)
+           "codegen: [TBD] PUT LIST with %s (line %d): the named-file route claims exactly one \
+            `FILE(name)' option and a LIST of one or more items it can name [C296]; this spelling \
+            is bytes no specimen of mine measures.  An item SHAPE the matcher can name but the \
+            route does not authorize refuses earlier, by class and position, in `file_items'."
+           why s.Ast.spos.Source.line)
   | Ast.Sput { stream = None; on_opts = []; kind = Ast.List_; items } ->
       let (sk, rest) =
         match match_skip_ctl items with
@@ -3051,11 +3222,6 @@ let vk_is_dec st (n : Ast.name) =
   | Some vi -> (match vi.vk with Vdec _ -> true | _ -> false)
   | None -> false
 
-(* strip a parenthesised-condition wrapper: DR lowers (c) exactly like c
-   [P401 dbl body: (i+i)], and Econd also wraps while-conditions.  Moved up
-   from the DEC model block so the CALL lowering can mode-check arguments. *)
-let unwrap_e (e : Ast.expr) =
-  match e.Ast.e with Ast.Econd x -> x | _ -> e
 
 (* [E2E-34/P5] THE one encoder for "leave the VALUE of a based FIXED BINARY member
    in HL": load the qualifier's pointer cell, step to the member, then read the two
@@ -9691,13 +9857,22 @@ let num_width st (x : Ast.expr) =
    `?PNCOP'/`?PNVOP' tail -- to the chain the CONSOLE statement of the very same object emits
    for the very same variable.  That is what makes sharing this generator correct instead of
    convenient.
-   Everything it refuses is a class whose FILE-route bytes no object of ours measures, even where
-   the console route is byte-exact: a member (E46L7 shows DR COMPILES one on this route, which is
-   why the stop quotes [C291]'s "resolution is not authorization" rather than claiming ignorance),
-   a FLOAT (E46L11), an ARRAY element or an expression (E46L9, E46L10 -- refused at the matcher,
-   which sees the syntax), a POINTER (no object on
-   EITHER route), and a formal of a non-recursive procedure (whose console route reads the
-   pointer cell, a shape never measured behind an attach).
+   [E2E-42/P2b] THE MEMBER ROW IS OPEN, and it was the last thing P2a left shut.  Three objects
+   license it and none of them is the corpus:
+     E46M16  put file(outf) list(line,nxt) / list(nxt,line) -- a VARYING member and a FIXED
+             BINARY(15) member, in both orders, in the SAME object as the console statement of the
+             identical list; chains byte-identical to the console ones.
+     E46M17  put file(outf) list(c8) and list(c8,line) -- a FIXED (non-varying) CHARACTER member,
+             MVI A,<declared capacity> + ?SLCTS.  This one was the cold question: no corpus object
+             puts a fixed member behind an attach, and DR accepts it [the registered hypothesis
+             H7, spec/lab-evidence/e2e42-p2b/HYPOTHESES.md].
+     E46M18  the QUALIFIED spelling rec.line beside the bare one, in one object: same *D offset, so
+             [C253] holds on the file route too and no second addressing path is introduced.
+   What it STILL refuses, and why the refusal is honest rather than conservative:
+   a FLOAT (E46L11 -- DR compiles it, so this is a MY-GAP, not a DR rejection), an ARRAY element or
+   an expression (E46L9, E46L10 -- refused at the matcher, which sees the syntax), a POINTER (E46M25
+   -- DR REFUSES it, the answer this probe was written to get), and a formal of a non-recursive
+   procedure (whose console route reads the pointer cell, a shape never measured behind an attach).
    Called from the `Pfile' arm of lower_stmt, BEFORE the open guard and before a byte of the
    statement is emitted. *)
 let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
@@ -9705,9 +9880,12 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
     failwith
       (Printf.sprintf
          "codegen: PUT FILE(%s) LIST of %s has no byte-exact DR witness [TBD] (line %d) -- the \
-          named-file route is lowered for ONE item and for the classes `golden/e42p2a/' pins \
+          named-file route is lowered for an ANY-LENGTH list of the classes its objects pin: the \
+          two literal classes of E16D/E17D, the four variable classes of `golden/e42p2a/' \
           (E46L1 CHARACTER VARYING, E46L2 CHARACTER FIXED, E46L3 FIXED BINARY, E46L4 FIXED \
-          DECIMAL, plus the two literal classes of E16D/E17D).  %s"
+          DECIMAL) and, since [E2E-42/P2b], the internal CHARACTER members of \
+          `golden/e42p2b/' (E46M16 varying + binary, E46M17 FIXED, E46M18 QUALIFIED).  \
+          A list is refused as a WHOLE, item by item, before the attach is emitted.  %s"
          fu what ln why)
   in
   match it with
@@ -9723,20 +9901,22 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
         match vk_of st n.Ast.orig with
         | Vvar _ -> ()                                   (* E46L1 *)
         | Vfix _ -> ()                                   (* E46L2 *)
-        | Vint -> ()                                     (* E46L3 *)
+        | Vint -> ()                                     (* E46L3; a FIXED BINARY(15) MEMBER of a
+                                                            level-numbered record binds to this
+                                                            SAME class ([E2E-39/P2]'s registry),
+                                                            so KEYFILE's `k' and E46M16's `nxt'
+                                                            need no arm of their own *)
         | Vdec _ -> ()                                   (* E46L4 *)
-        | Vimem m ->
-            imem_refuse ("PUT FILE(" ^ fu ^ ") LIST") m
-              "DR COMPILES this shape -- E46L7 (golden/e42p2a) puts an internal CHARACTER VARYING \
-               member and a FIXED BINARY member behind a 0x0652 attach EACH (?SIOOP at code 002D \
-               and again at 0045: DR re-attaches per statement) and gets `?SLVTS + ?PNCOP' and \
-               `MVI A,09 + ?QICOP + ?PNVOP', the same chains E46J6/E46J12 measure on the console \
-               (DR's own $S dump names the operands .LINE at c 0000 and .NXT at c 000F of one \
-               17-byte AUTO block, so the operand is the member's frame offset) -- so this stop is \
-               a MEASURED gap, not \
-               an unknown: a member PUT is licensed by [C291]'s CONSOLE objects and by nothing \
-               else, and admitting it here would put a Vimem operand on a route that has not \
-               been authorized for one"
+        | Vimem _m ->
+            ()  (* [E2E-42/P2b] ADMITTED.  The item chain is `imem_str_op', the one encoder shared
+               with OPEN TITLE since [C288], plus DR's own `?PNCOP' tail: E46J6/E46J12/E46J21
+               pinned the operand and the tail on the console, and E46M16-M18 show the SAME bytes
+               between a 0x0652 attach and a ?QIOOP.  The member's ADDRESS is `addr_of', i.e. the
+               row bind built, so the qualified spelling needs no route of its own -- E46M18 puts
+               `rec.line' and `line' at one offset in one object, which is [C253] re-measured on
+               this route.  A level-numbered FIXED DECIMAL member never reaches here: bind lays it
+               out and registers NO alias for it ([E2E-39/P2]), and that refusal is a BIND refusal
+               with its own message, not a PUT authorization question.  *)
         | Vflt ->
             no_witness "a FLOAT variable"
               "E46L11 shows DR puts a float behind the attach with `LXI H,*D / MVI A,0E / ?QFCMS \
@@ -9795,6 +9975,20 @@ let lower_put_items_gen st ?(file : string option = None)
      single-item path already emits (load, ?SLCTS/?SLVTS, ?PNCOP), so the guard is lifted for
      CHARACTER and CHARACTER VARYING items; leaving it in place would refuse programs the oracle
      compiles [C188].  PUT EDIT sampled this first (R1020). *)
+  (* [E2E-42/P2b] THE FILE ROUTE DOES NOT USE THIS CLASSIFIER, and that is not an oversight.
+     `char_var_ok' answers "is a CHARACTER item allowed to share a MULTI-ITEM console PUT LIST
+     with these other items?", which is a question about the SYSPR route and its goldens
+     (ST5/V2/V7/V8/REVERSE for varying, V9/VA/N23 for fixed-and-numeric).  The named-file route
+     has its own, STRICTER answer per item: `authorize_file_item' runs over the whole list in the
+     Pfile arm of lower_stmt BEFORE this function is reached and before a byte is emitted, and it
+     refuses FLOAT, POINTER, formal, BASED, expression and subscripted items -- every one of which
+     `char_var_ok' lets through on the console.  So skipping the classifier when `file <> None'
+     removes no protection: the item classes on that route are decided by an authorizer that is a
+     superset of its refusals, from `golden/e42p2a/' and `golden/e42p2b/' witnesses.  What it fixes
+     is a false refusal: E46M11 (`put file(outf) list(v,z)') and E46M15's five-item list are
+     VARYING-and-DECIMAL lists, the exact shape [C296]'s objects pin behind an attach, and they
+     were being stopped by a console-route rule.  The console route is untouched: E46M12 puts the
+     same list on SYSPR in a separate probe and still refuses, exactly as before. *)
   let char_var_ok =
     (* [E2E-29/P1] lifted for exactly the shape DR samples: a CHARACTER VARYING item together with
        string literals.  ST5 `put list('w=', word)', V2 `put list('v=', w)', V8's three-item list,
@@ -9829,7 +10023,7 @@ let lower_put_items_gen st ?(file : string option = None)
            | _ -> false)
         | _ -> false) items
     in
-    is_edit || List.length items = 1 || only_literals_and_chars ||
+    is_edit || file <> None || List.length items = 1 || only_literals_and_chars ||
     not (List.exists (function PIvar n ->
                         (match vk_of st n.Ast.orig with
                          | Vint -> false | Vdec _ -> false | Vflt -> false

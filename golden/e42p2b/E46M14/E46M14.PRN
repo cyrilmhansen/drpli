@@ -1,0 +1,38 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46M14
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46M14
+
+   1 a 0000 E46M14:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2b] REPEATED OPERAND: the SAME variable twice in one
+   4 a 0006      list, then a three-item list that repeats it. Nothing in this
+   5 a 0006      project has ever put one operand twice in one PUT LIST; the
+   6 a 0006      question is whether DR re-emits the chain (the chain is per
+   7 a 0006      ITEM) or folds it, and whether ?QIOOP still appears once per
+   8 a 0006      STATEMENT. */
+   9 c 0006   dcl outf file, v char(20) varying, k fixed bin(15);
+  10 c 0006   open file(outf) stream output title('M14OUT DAT');
+  11 c 0023   put file(outf) list(v,v);
+  12 c 0044   put file(outf) list(v,k,v);
+  13 c 0070   close file(outf);
+  14 a 0076 end E46M14;
+
+CODE SIZE = 0079
+DATA AREA = 0021
+FREE SYMS = 389A
+END  COMPILATION
+

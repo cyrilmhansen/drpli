@@ -1,0 +1,45 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46M27
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46M27
+
+   1 a 0000 E46M27:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2b] RUNTIME: ONE multi-item file PUT and the SAME items
+   4 a 0006      as separate single-item PUTs, written to ONE file in sequence.
+   5 a 0006      [C295] measured one BLANK between items of SEPARATE statements
+   6 a 0006      and no line terminator; nothing has measured the separator
+   7 a 0006      BETWEEN ITEMS OF ONE STATEMENT. If it belongs to the statement
+   8 a 0006      the two halves differ; if it belongs to the item they are
+   9 a 0006      identical. */
+  10 c 0006   dcl outf file, v char(20) varying, w char(20) varying;
+  11 c 0006   v = 'HELLO';
+  12 c 0013   w = 'XY';
+  13 c 0020   open file(outf) stream output title('M27OUT DAT');
+  14 c 003D   put file(outf) list(v,w);
+  15 c 005E   put file(outf) list(v);
+  16 c 0076   put file(outf) list(w);
+  17 c 008E   put file(outf) list(v,w);
+  18 c 00AF   close file(outf);
+  19 c 00B5   put list('DONE');
+  20 c 00CC   stop;
+  21 a 00CF end E46M27;
+
+CODE SIZE = 00CF
+DATA AREA = 003F
+FREE SYMS = 3848
+END  COMPILATION
+

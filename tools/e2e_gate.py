@@ -1079,6 +1079,39 @@ SPECIMENS.update({
     "E46L16": ("probes/E46L16.PLI", "golden/e42p2a/E46L16/E46L16.REL"),
     "E46L17": ("probes/E46L17.PLI", "golden/e42p2a/E46L17/E46L17.REL"),
     "E46L18": ("probes/E46L18.PLI", "golden/e42p2a/E46L18/E46L18.REL"),
+    # [E2E-42/P2b] MULTI-ITEM FILE PUT, and the ONE-ITEM MEMBER PUT P2a left refused.
+    # E46L7 is P2a's my-gap row promoted: `put file(outf) list(line)' and `list(nxt)' behind a
+    # 0x0652 attach compile to DR's 94 code bytes / 26 DATA bytes with no change to the item
+    # chain at all, because `imem_str_op' (shared with OPEN TITLE since [C288]) was already the
+    # right bytes and only the AUTHORIZATION was missing [C296].
+    "E46L7":  ("probes/E46L7.PLI",  "golden/e42p2a/E46L7/E46L7.REL"),
+    # The multi-literal and multi-variable shapes (E46M1-M11, M13-M15, M17-M19) and the five that
+    # EXECUTE (M27-M32, rows in spec/RUNTIME.txt).  Each is whole-object byte-identical to the
+    # golden in golden/e42p2b/ -- 512/512, 384/384, 768/768 as the case may be -- and each was
+    # predicted BEFORE DR ran from spec/lab-evidence/e2e42-p2b/HYPOTHESES.md.
+    "E46M1":  ("probes/E46M1.PLI",  "golden/e42p2b/E46M1/E46M1.REL"),
+    "E46M2":  ("probes/E46M2.PLI",  "golden/e42p2b/E46M2/E46M2.REL"),
+    "E46M3":  ("probes/E46M3.PLI",  "golden/e42p2b/E46M3/E46M3.REL"),
+    "E46M4":  ("probes/E46M4.PLI",  "golden/e42p2b/E46M4/E46M4.REL"),
+    "E46M5":  ("probes/E46M5.PLI",  "golden/e42p2b/E46M5/E46M5.REL"),
+    "E46M6":  ("probes/E46M6.PLI",  "golden/e42p2b/E46M6/E46M6.REL"),
+    "E46M7":  ("probes/E46M7.PLI",  "golden/e42p2b/E46M7/E46M7.REL"),
+    "E46M8":  ("probes/E46M8.PLI",  "golden/e42p2b/E46M8/E46M8.REL"),
+    "E46M9":  ("probes/E46M9.PLI",  "golden/e42p2b/E46M9/E46M9.REL"),
+    "E46M10": ("probes/E46M10.PLI", "golden/e42p2b/E46M10/E46M10.REL"),
+    "E46M11": ("probes/E46M11.PLI", "golden/e42p2b/E46M11/E46M11.REL"),
+    "E46M13": ("probes/E46M13.PLI", "golden/e42p2b/E46M13/E46M13.REL"),
+    "E46M14": ("probes/E46M14.PLI", "golden/e42p2b/E46M14/E46M14.REL"),
+    "E46M15": ("probes/E46M15.PLI", "golden/e42p2b/E46M15/E46M15.REL"),
+    "E46M17": ("probes/E46M17.PLI", "golden/e42p2b/E46M17/E46M17.REL"),
+    "E46M18": ("probes/E46M18.PLI", "golden/e42p2b/E46M18/E46M18.REL"),
+    "E46M19": ("probes/E46M19.PLI", "golden/e42p2b/E46M19/E46M19.REL"),
+    "E46M27": ("probes/E46M27.PLI", "golden/e42p2b/E46M27/E46M27.REL"),
+    "E46M28": ("probes/E46M28.PLI", "golden/e42p2b/E46M28/E46M28.REL"),
+    "E46M29": ("probes/E46M29.PLI", "golden/e42p2b/E46M29/E46M29.REL"),
+    "E46M30": ("probes/E46M30.PLI", "golden/e42p2b/E46M30/E46M30.REL"),
+    "E46M31": ("probes/E46M31.PLI", "golden/e42p2b/E46M31/E46M31.REL"),
+    "E46M32": ("probes/E46M32.PLI", "golden/e42p2b/E46M32/E46M32.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -1709,17 +1742,33 @@ REJECTS.update({
         "t:\n  procedure options(main);\n  dcl f file;\n"
         "  open file(f) stream output title('X Y');\n"
         "  put file(f) skip list('A');\nend t;\n",
-        "PUT LIST with options this route does not claim"),
-    "E41X7": (
-        "t:\n  procedure options(main);\n  dcl f file;\n"
-        "  open file(f) stream output title('X Y');\n"
-        "  put file(f) list('A','B');\nend t;\n",
-        "PUT LIST with options this route does not claim"),
+        # [E2E-42/P2b] RE-PINNED.  The multi-item matcher made this shape's refusal move: it used
+        # to fall off the end of match_put_list_lit into a generic "options this route does not
+        # claim" text, and now the SKIP is seen as what it is -- item 1 of a file PUT LIST that is
+        # a CONTROL item, which no file route of mine has bytes for.  Same refusal, same reason,
+        # and a message that names the item instead of the statement.
+        "PUT FILE(F) LIST item 1 is the control item SKIP"),
+    # [E2E-42/P2b] E41X7 RETIRED: `put file(f) list('A','B')' COMPILES, and E46M1 holds the
+    # byte-exact DR witness for exactly this shape (512/512 against golden/e42p2b).  A retired
+    # negative is not deleted silently -- see the retirement note above E41X4 for the convention.
     "E41X8": (
         "t:\n  procedure options(main);\n  dcl f file;\n  dcl d fixed dec(5,2);\n"
         "  open file(f) stream output title('X Y');\n"
         "  d = 1.5;\n  put file(f) edit(d)(f(5,1));\nend t;\n",
-        "PUT EDIT deferred"),
+        "PUT EDIT deferred"),    # [E2E-42/P2b] A NEW ROW FOR A DEFECT FOUND, NOT FOR A SHAPE EXPLORED.  Before P2b this shape
+    # COMPILED: the bare-`put skip;' arm of match_put_list_lit tested the item list and IGNORED the
+    # ON options, so corpus CREATE's `put file(output) skip;' at line 41 was lowered as the CONSOLE
+    # bare skip and its bytes went to SYSOUT while the named file was never touched.  That is a
+    # silent misroute -- rc=0, no [TBD], plausible bytes on the wrong stream -- and the census is
+    # what exposed it: CREATE's refusal had moved from line 39 to line 44, so line 41 was getting
+    # through.  The guard is now `on_opts = [] and stream = None'; this row pins the refusal, and
+    # its kind is my-gap because DR's CREATE carries the statement (SIOMODES.txt: the 0x0652
+    # continuations at 01B3 `?SKPOP ?QIOOP', 01CA `?SKPOP ?SLCTS', 01E9 `?SKPOP ?QIOOP ?STOPX').
+    "E41X9": (
+        "t:\n  procedure options(main);\n  dcl f file;\n"
+        "  open file(f) stream output title('X Y');\n"
+        "  put file(f) skip;\nend t;\n",
+        "PUT FILE(F) LIST item 1 is the control item SKIP"),
 })
 
 REJECTS = NoOverwriteDict(REJECTS)
@@ -2794,14 +2843,6 @@ NEG_META["PU1"] = ("my-gap",
 
 # E46K10 (member item on an UNOPENED file) keeps its category but its reason moved from the
 # matcher to the authorization guard, and the guard now says why in terms of [C291].
-NEG_META["E46K10"] = ("unmeasured",
-    "NEITHER verdict is known for THIS program: E46K10 has no OPEN statement, and no object in "
-    "golden/ is a member PUT behind a missing open, so this row may NOT be read as DR rejecting "
-    "it.  What IS measured is the operand class -- E46L7 (golden/e42p2a) puts an internal "
-    "CHARACTER VARYING member and a FIXED member behind a 0x0652 attach on an OPENED file and DR "
-    "compiles both -- so the member half of the stop is a measured gap and the no-open half is "
-    "not.  [E2E-42/P2a] moved the refusal from the matcher (""'this item is unmeasured'"") to "
-    "authorize_file_item, where it names the operand it actually refuses.")
 
 # (b) Divergence panel: programs that COMPILE but are NOT byte-exact [C168].  They belong to
 #     neither regression panel -- a negative would claim a [TBD] that never happens, a specimen
@@ -3142,14 +3183,16 @@ NEG_META["E41X6"] = ("my-gap",
     "pins `put skip' and `put skip(2)' -- so what is unmeasured is only the combination: a SKIP "
     "after a NAMED-FILE attach, which no specimen of mine carries.")
 
-NEG_META["E41X7"] = ("my-gap",
-    "DR compiles a multi-item named-file PUT: CREATE:39 `put file(output) "
-    "list(name,addr,city,state,zip,phone)' attaches 0x0652 at 0165 and runs `?SLVTS ?PNCOP "
-    "?SLVTS' (SIOMODES.txt), and KEYFILE:25 `put file(keys) list(name,k)' attaches 0x0652 at "
-    "0095 with `?SLVTS ?PNCOP'.  Both are lists of VARIABLES, so no object measures the words "
-    "between two LITERAL items either; E16D/E17D close every file attach with one ?QIOOP and "
-    "nothing more.  Refused rather than guessed, and the two corpus programs stay REFUSED in the "
-    "census for their OPENs as well (variable TITLE, LINESIZE).")
+# [E2E-42/P2b] NEG_META["E41X7"] IS GONE WITH ITS ROW, and what replaced it is a specimen.  The
+# prose is in git history; its sentence "Both are lists of VARIABLES, so no object measures the
+# words between two LITERAL items either" is what E46M1 was written to test, and DR's answer was to
+# accept.  KEYFILE.REL 008C-00AC carries ONE ?SIOOP at 008F, a varying-member chain, a FIXED
+# BINARY chain with NOTHING between them, and ONE ?QIOOP; CREATE.REL 015C-01A8 carries one attach
+# at 0166, six chains, one close at 01A7.  E46M1-M20 are the probe-side versions of both shapes and
+# are byte-exact against them, which is what retires the row: the multi-item named-file PUT is
+# lowered, authorized per item, with ONE attach and ONE close per STATEMENT -- [C296].  What CREATE
+# and KEYFILE still refuse on is named by other rows now: CREATE's SKIP (E41X6, E41X9) and
+# KEYFILE's OPEN options (KEYED, LINESIZE, variable TITLE).
 
 NEG_META["E41X8"] = ("my-gap",
     "DR compiles PUT EDIT on a named file, and does so WITHOUT an open: P086K:4 "
@@ -3161,6 +3204,118 @@ NEG_META["E41X8"] = ("my-gap",
     "reason this probe refuses on the EDIT route rather than the file route: PUT EDIT is deferred "
     "for its own reasons ([C245]->[C250], the R(S)/SKIP-EDIT defect), which the open lowering of "
     "P3b neither advances nor changes.")
+
+# [E2E-42/P2b] E41X9 -- the misroute row, in full, because a row that pins a FIXED bug must say
+# what the bug was or a reader will think it pins a language rule.
+NEG_META["E41X9"] = ("my-gap",
+    "DR COMPILES it: CREATE:41 `put file(output) skip;' is in golden/probe55/CREATE/CREATE.REL, and "
+    "SIOMODES.txt lists three 0x0652 attaches whose continuation BEGINS with ?SKPOP -- 01B3 "
+    "`?SKPOP ?QIOOP', 01CA `?SKPOP ?SLCTS', 01E9 `?SKPOP ?QIOOP ?STOPX'.  So a SKIP on a named file "
+    "is a measured DR shape, and this compiler refuses it honestly: it has no object of its own "
+    "carrying a file attach and a ?SKPOP together, and the words between an attach and a SKIP are "
+    "unpinned by any specimen here (E46M1-M20 put DATA items between ?SIOOP and ?QIOOP and nothing "
+    "else).  The row exists because of what this shape did BEFORE it was refused: the bare-skip arm "
+    "matched on the item list alone, so `put file(output) skip;' reached the CONSOLE lowering that "
+    "REVERSE:00FE pins and wrote 13 bytes to SYSOUT.  Nothing in a compile of CREATE could see that "
+    "-- the program still refused, just further down -- and only the census's line number moving "
+    "showed the statement at 41 had escaped.  A negative that pins a fixed defect is worth keeping "
+    "for exactly that reason: if the guard is dropped again the panel says so, instead of a file "
+    "quietly not being written.")
+
+
+# [E2E-42/P2b] THE MULTI-ITEM FILE PUT: nine rows, all measured by DR at
+# spec/lab-evidence/e2e42-p2b/HYPOTHESES.md and answered in golden/e42p2b/.  Seven are my-gaps on
+# DR-ACCEPTED sources, two are dr-refuses with DR's own word (`COMP REQ', and NO .REL).  The rule
+# these rows exist to enforce is H6: authorization is per ITEM, so an unauthorized class in
+# position 2 must refuse the statement as a whole and must name the CLASS, never the position --
+# a "check only the first item" bug would compile E46M21-M26 and print garbage.
+NEG_META["E46M12"] = ("my-gap",
+    "DR COMPILES it (golden/e42p2b/E46M12: CODE 87, DATA 25, no errors) -- `put list(v,d)' and "
+    "`put list(d,v)' on the CONSOLE, a CHARACTER VARYING variable beside a FIXED DECIMAL one, in "
+    "both orders.  Its chains are `LXI H,*D(0000) / ?SLVTS / ?PNCOP' and `LXI H,*D(0015) / "
+    "MVI A,06 / ?DLDOP / MVI A,09 / MVI B,00 / ?QDCOP / ?PNVOP', byte-for-byte the chains E46L12 "
+    "and E46L15 pin as single items, concatenated with nothing between [C293].  What refuses HERE "
+    "is not the file route at all: it is [E2E-29/P1]'s console classifier, which stops a DECIMAL "
+    "item beside a CHARACTER one because no console object of ours had that pair.  So this row is "
+    "the answer to the question P2b was asked to put -- and the answer is that the boundary is "
+    "MINE.  It stays a my-gap because P2b's perimeter is the FILE route; the console fix needs its "
+    "own byte-exact console specimen, which this object (a .REL, not a console transcript of mine) "
+    "is not.")
+NEG_META["E46M16"] = ("my-gap",
+    "DR COMPILES all three statements (golden/e42p2b/E46M16: CODE 146, DATA 27): two internal "
+    "members in one FILE list, the same list reversed in a second statement with its OWN attach at "
+    "0046 (one ?SIOOP per statement, never two in one -- [C293]'s prologue rule holds at N=2), and "
+    "the same list on the CONSOLE at 0069 via `?SYSPR' with the IDENTICAL two chains "
+    "(`LXI H,*D(000A) / ?SLVTS / ?PNCOP' then `LHLD *D(0019) / MVI A,09 / ?QICOP / ?PNVOP').  My "
+    "file statements lower byte-exactly; the refusal is line 13, the CONSOLE list of two members, "
+    "because P2b admitted Vimem to the FILE authorization only -- the console multi-item classifier "
+    "is P2a's perimeter and still names this unmeasured.  E46L7 (one member, file) is a specimen "
+    "now; this row is its multi-item console twin.")
+NEG_META["E46M20"] = ("my-gap",
+    "DR COMPILES it (golden/e42p2b/E46M20: CODE 122, DATA 121 -- the same 122/121 as E46M19, which "
+    "spells the same six items as ordinary variables): a level-numbered RECORD whose five CHARACTER "
+    "VARYING members and ONE FIXED DECIMAL(6) member go into one six-item file list.  E46M19 is a "
+    "byte-exact specimen, so every byte of this object is already held here; what refuses is BIND, "
+    "not codegen and not PUT authorization.  [E2E-39/P2] registers no alias for the unqualified "
+    "name of a FIXED DECIMAL member (the unqualified-member registry covers FIXED BINARY(15), "
+    "POINTER and CHARACTER), so `zip' is undeclared before the statement is ever authorised -- "
+    "which is why this refusal names `RECORD.ZIP' and no other row on this panel does.  Licensing "
+    "the decimal-member alias is a bind change with its own witness requirement; this probe "
+    "measures DR so the gap is no longer unmeasured, and E46M19 is what makes the eventual fix a "
+    "byte-exact one rather than a guess.")
+NEG_META["E46M21"] = ("my-gap",
+    "DR COMPILES it (golden/e42p2b/E46M21: CODE 79, DATA 35) -- a FLOAT variable as the SECOND "
+    "item of a file list, after a fully authorized varying character.  The float chain is `LXI "
+    "H,*D(001F) / MVI A,0E / ?QFCMS / ?PNVOP', the same words E46L11 measured for a float in "
+    "position 1 behind the same attach.  So DR's FILE route accepts FLOAT at N=2 as it did at N=1, "
+    "and the class boundary is mine alone: this compiler authorizes four classes on the file route "
+    "from E16D/E17D's objects and FLOAT is not among them.  Position is irrelevant to the refusal, "
+    "which is the point of the probe: a per-item check that looked only at item 1 would have "
+    "compiled this and printed nothing for the float.")
+NEG_META["E46M22"] = ("my-gap",
+    "DR COMPILES it (golden/e42p2b/E46M22: CODE 79, DATA 37) -- `put file(outf) list(v,arr(2))' on "
+    "an `arr(3) fixed' array.  The item is NOT indexed at run time: DR emits `LHLD *D(0021)' with "
+    "arr's base at 001F, i.e. it FOLDS the literal subscript into the cell address (001F + 2 bytes "
+    "for element 2) and then runs the ordinary `MVI A,09 / ?QICOP / ?PNVOP' fixed-binary chain.  "
+    "That is a new fact about DR's item lowering, recorded here rather than in a claim because it "
+    "is one object's evidence.  My refusal is at the matcher on the SUBSCRIPTED syntax; my array "
+    "lowering computes addresses, so adopting DR's folded form would be a lowering decision needing "
+    "more than one witness, not an authorization change.")
+NEG_META["E46M23"] = ("my-gap",
+    "DR COMPILES it (golden/e42p2b/E46M23: CODE 80, DATA 33) -- `put file(outf) list(v,k + 1)'.  "
+    "DR evaluates `k + 1' as `LHLD *D(001F) / INX H': the expression is not a call and not a "
+    "runtime add, it is the cell loaded into HL and incremented in place, followed by the same "
+    "`MVI A,09 / ?QICOP / ?PNVOP'.  Mine refuses EXPRESSION items on the file route at the matcher "
+    "([E2E-40/P9/P10] hold the console-side expression story).  An `INX H' for +1 is one object's "
+    "answer about one operator; the general expression item on a file list needs its own probe set.")
+NEG_META["E46M24"] = ("dr-refuses",
+    "DR REFUSES IT: `9 c put file(outf) list(v,rec); / COMP REQ ? / 1 ERROR(S) IN PASS 2' and NO "
+    ".REL (golden/e42p2b/E46M24/E46M24.PRN) -- the whole row of an internal structure, in position "
+    "2, is not a printable item.  This retires the [C290]-style assumption that a structure-valued "
+    "PUT item is merely UNMEASURED: it is measured, and the measurement is a rejection.  My refusal "
+    "also fires, but NOT for DR's reason and the difference matters: my parser does not register "
+    "the level-1 HEAD name `rec' as a variable at all, so I fail at BIND with `undeclared rec' "
+    "while DR binds `rec' and fails at pass 2 with no code generator for the item.  Two different "
+    "mechanisms reaching the same verdict -- the row pins MY marker, and a future parser that "
+    "registers level-1 heads will have to re-pin it to a real item refusal rather than let the "
+    "shape compile.")
+NEG_META["E46M25"] = ("dr-refuses",
+    "DR REFUSES IT: `9 c put file(outf) list(v,p); / COMP REQ ? / 1 ERROR(S) IN PASS 2' and NO "
+    ".REL (golden/e42p2b/E46M25/E46M25.PRN).  This is the FIRST measurement of [C290]'s open half: "
+    "the claim recorded that no object on either route prints a POINTER, which was an absence of "
+    "evidence, and here DR is shown a pointer behind a 0x0652 attach and rejects it exactly as it "
+    "rejects a structure.  So `no object prints a pointer' upgrades from unmeasured to MEASURED on "
+    "the file route, and this compiler's refusal is not a gap.  The marker names the CLASS and not "
+    "the position, so the row survives whatever the console route decides.")
+NEG_META["E46M26"] = ("my-gap",
+    "DR COMPILES it (golden/e42p2b/E46M26: CODE 44, DATA 25) -- and this object says two things.  "
+    "First, FLOAT in position 2 again (E46M21's gap, unopened).  Second, and independent of "
+    "multi-item work: the program contains NO `open file(outf)' and DR still attaches `LXI "
+    "H,*C(0000) / LXI D,0652 / ?SIOOP' -- the FCB built from the FILE variable's OWN name in the "
+    "COMMON area, with no ?OIOOP anywhere in the object.  That re-measures [C282] (P086K attached "
+    "without opening) on the multi-item route, so an attach does not require an OPEN at N=2 either. "
+    " My refusal is on the ITEM, as E46K10 measured the order at N=1: the guard never reaches the "
+    "open question, and this row is the check that a future change does not reorder them.")
 
 # [E2E-42/P0] DR's own CONFLICT diagnosis, mirrored.  These eight sources are NOT my-gap
 # refusals: DR rejects every one of them in pass 2 with the word `CONFLICT' printed under the
@@ -3345,7 +3500,10 @@ REJECTS.update({
     "E46K9":  (open("probes/E46K9.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "multi-item PUT of the internal CHARACTER member REC.LINE"),
     "E46K10": (open("probes/E46K10.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "PUT FILE(OUTF) LIST of the internal CHARACTER member"),
+               # [E2E-42/P2b] RE-PINNED TWICE OVER: P2a moved this refusal from the matcher to the
+               # item authorization; P2b authorized the member and the refusal moved again, to the
+               # open-completeness guard.  See the prose below -- DR accepts both halves.
+               "PUT FILE(OUTF) has no byte-exact DR witness"),
     "E46K11": (open("probes/E46K11.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "addr() of line is unsampled"),
     "E46K12": (open("probes/E46K12.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
@@ -3363,14 +3521,45 @@ REJECTS.update({
     # it is PU1's own program and is registered on PU1 (e24src/), which is where the mission said
     # its regression lives; golden/e42p2a/E46L8 is the object that licenses PU1's classification.
     # ------------------------------------------------------------------
-    "E46L7": (open("probes/E46L7.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-              "PUT FILE(OUTF) LIST of the internal CHARACTER member"),
+    # [E2E-42/P2b] E46L7 RETIRED, and it is the clearest case of what this panel is for.  P2a
+    # registered it as a my-gap with the words "the FILE route would need no new item lowering at
+    # all"; P2b proved that true -- one authorization line, no new encoder -- and the object is
+    # now byte-identical to golden/e42p2a/E46L7/E46L7.REL (94 code / 26 DATA).  It moved to
+    # SPECIMENS above rather than being deleted here.
     "E46L9": (open("probes/E46L9.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-              "PUT LIST on a named file of this item is unmeasured"),
+              # [E2E-42/P2b] RE-PINNED: the multi-item matcher names the shape it cannot lower, so
+              # the refusal says "item 1 is an EXPRESSION (a binary operator)" instead of the
+              # generic sentence P2a left here.  Same stop, more exact words.
+              "LIST item 1 is an EXPRESSION (a binary operator)"),
     "E46L10": (open("probes/E46L10.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "PUT LIST on a named file of this item is unmeasured"),
+               "LIST item 1 is a CALL or SUBSCRIPTED element (the suffix form)"),
     "E46L11": (open("probes/E46L11.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "PUT FILE(OUTF) LIST of a FLOAT variable"),
+    # [E2E-42/P2b] SEVEN shapes DR ACCEPTED and this compiler still refuses, each measured by a
+    # probe of its own in golden/e42p2b/, and each refusal naming the CLASS rather than the
+    # position -- which is what E46M21-M26 were written to test (an unauthorized class in the
+    # SECOND item of an otherwise authorized list).
+    "E46M12": (open("probes/E46M12.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "char var in multi-item PUT unproven"),
+    "E46M16": (open("probes/E46M16.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "multi-item PUT of the internal CHARACTER member"),
+    "E46M20": (open("probes/E46M20.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "resolves to the bound member `RECORD.ZIP'"),
+    "E46M21": (open("probes/E46M21.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT FILE(OUTF) LIST of a FLOAT variable"),
+    "E46M22": (open("probes/E46M22.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "LIST item 2 is a CALL or SUBSCRIPTED element"),
+    "E46M23": (open("probes/E46M23.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "LIST item 2 is an EXPRESSION"),
+    "E46M26": (open("probes/E46M26.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT FILE(OUTF) LIST of a FLOAT variable"),
+    # TWO shapes DR REFUSES, with its word attached: `1 ERROR(S) IN PASS 2' and NO .REL
+    # (golden/e42p2b/E46M24, golden/e42p2b/E46M25).  These are the first file-PUT negatives on
+    # this panel whose DR side is a rejection and not an acceptance.
+    "E46M24": (open("probes/E46M24.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "undeclared rec"),
+    "E46M25": (open("probes/E46M25.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT FILE(OUTF) LIST of a POINTER variable"),
 })
 for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8", "E46K9",
            "E46K10", "E46K11", "E46K12", "E46K13", "E46K14", "E46K15"):
@@ -3385,20 +3574,38 @@ for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8
         "shape a reader may try.  To retire a row: measure DR on it, then promote it to a "
         "byte-exact specimen or re-classify it as dr-refuses with DR's word attached.")
 
-NEG_META["E46L7"] = ("my-gap",
-    "DR COMPILES it (golden/e42p2a/E46L7: code 94 bytes / DATA 26, NO errors) -- an internal "
-    "CHARACTER VARYING member and a FIXED BINARY member, each behind its OWN 0x0652 attach "
-    "(?SIOOP at code 002D and again at 0045 -- DR re-attaches per statement, exactly as E46L5 and "
-    "E46L16 show), reaching `?SLVTS / ?PNCOP / ?QIOOP' for the varying one and `MVI A,09 / ?QICOP "
-    "/ ?PNVOP / ?QIOOP' for the fixed-bin one.  DR's own $S dump names the operands `c 0000 .LINE "
-    "CHAR(14) VARYING MEMBER' and `c 000F .NXT FIXED BINARY(15,0) MEMBER' inside one 17-byte AUTO "
-    "block, so the operand is the member's frame offset and not a descriptor indirection.  Both "
-    "chains are byte-identical to the CONSOLE chains E46J6 and E46J12 pin.  So the FILE route would need no "
-    "new item lowering at all, and this is a gap of MINE on a verdict DR has measured, not an "
-    "unknown.  The refusal is [C291]'s own principle carried onto the new route: bind RESOLVES "
-    "`rec.line' and the cell exists, but RESOLUTION IS NOT AUTHORIZATION -- admitting a Vimem "
-    "operand here would put a kind on the file route that no file object of ours carries.  E46K1 "
-    "through E46K14 keep the console-side member rows; this row is the file side.")
+# [E2E-42/P2b] OVERRIDES THE LOOP ABOVE -- which, until this milestone moved, sat AFTER the
+# dedicated E46K10 entry and silently replaced its text.  A panel row whose prose is
+# overwritten by a later loop is worse than no prose: it reads as evidence and is a generality.
+NEG_META["E46K10"] = ("my-gap",
+    "DR COMPILES IT -- and this row is the panel's own example of a guard ORDER being MINE rather "
+    "than DR's, which is [C256]'s failure mode caught late instead of never.  It took three rounds "
+    "of misreading.  (1) P2a classified E46K10 as `unmeasured' and P2b's HYPOTHESES.md predicted DR "
+    "would refuse it with `COMP REQ ?'.  (2) DR's answer at golden/e42p2b/E46M26: a two-item file "
+    "list on a file the program never OPENs, compiled to CODE 44 / DATA 25 as `LXI H,*C(0000) / LXI "
+    "D,0652 / LXI B,<cont> / CALL ?SIOOP' + chains + `?QIOOP' -- the FCB built from the FILE "
+    "variable's OWN name in the COMMON area, and NO ?OIOOP anywhere in the object.  That also "
+    "refutes the order P2a claimed to have measured at N=1: DR does not refuse a missing OPEN at "
+    "all, so it cannot have refused one before looking at an item.  (3) A claim I made while "
+    "writing this row and then had to WITHDRAW: that re-reading P086K showed its PUT to be a plain "
+    "`list(d)' rather than the EDIT this project had recorded.  It is not -- `probes/P086K.PLI' is "
+    "`put file(f) edit(d)(f(5,1))' and its object runs `?EDITF ?DLDOP / ?QDCOP / ?EDTOV' at "
+    "0022-003A, exactly as [C282] says.  E46M26 stands alone as the measured LIST attach with no "
+    "OPEN.  So both halves of E46K10 are authorized by DR objects -- the member by E46L7/E46M16, "
+    "the missing open by E46M26 alone -- and what refuses is my own completeness guard: this "
+    "compiler's file route claims the PUT only for a file whose `stream output title(<literal>)' "
+    "open it lowered "
+    "itself, because E16D/E17D are the only COMPLETE objects it is byte-exact against.  Lowering the no-open attach "
+    "is a real change with a real witness now, and it belongs to its own sub-phase rather than to "
+    "the multi-item claim.  The marker is re-pinned to the guard that now fires.")
+
+# [E2E-42/P2b] NEG_META["E46L7"] IS GONE WITH ITS ROW: E46L7 left the negatives panel when the
+# FILE route authorized a structure MEMBER, and it is a byte-exact SPECIMEN now --
+# golden/e42p2a/E46L7/E46L7.REL, 94 code / 26 DATA, the same 94/26 P2a recorded as the evidence
+# behind the refusal.  P2a's prose for this row said it plainly: "the FILE route would need no new
+# item lowering at all, and this is a gap of MINE on a verdict DR has measured".  P2b proved that
+# true with one authorization arm and no new encoder: `imem_str_op', shared with OPEN TITLE since
+# [C288], was already the right bytes [C296].
 
 NEG_META["E46L9"] = ("my-gap",
     "DR COMPILES an EXPRESSION item on this route (golden/e42p2a/E46L9: `list(k + 1)' emits "

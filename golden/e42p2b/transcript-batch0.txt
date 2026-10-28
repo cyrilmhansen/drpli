@@ -19,34 +19,86 @@ C>
 >>> PLI D:E46M1 $L$D
 PLI D:E46M1 $L$D
 
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
 C>
 >>> PLI D:E46M2 $L$D
 PLI D:E46M2 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
 
 C>
 >>> PLI D:E46M3 $L$D
 PLI D:E46M3 $L$D
 
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
 C>
 >>> PLI D:E46M4 $L$D
 PLI D:E46M4 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
 
 C>
 >>> PLI D:E46M5 $L$D
 PLI D:E46M5 $L$D
 
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
 C>
 >>> PLI D:E46M6 $L$D
 PLI D:E46M6 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
 
 C>
 >>> PLI D:E46M7 $L$D
 PLI D:E46M7 $L$D
 
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:E46M8 $L$D
+PLI D:E46M8 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:E46M9 $L$D
+PLI D:E46M9 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:E46M10 $L$D
+PLI D:E46M10 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
 C>
 >>> A:BYE (halt)
 
 C>A:BYE
-I/O ran for 16064 ms, waited for 0 ms
-CPU executed 25607139 t-states in 17 ms
-Clock frequency 1477.70 MHz
+I/O ran for 22092 ms, waited for 0 ms
+CPU executed 137130323 t-states in 74 ms
+Clock frequency 1847.02 MHz

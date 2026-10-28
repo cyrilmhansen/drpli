@@ -154,6 +154,41 @@ def dump(path, lo=0, hi=0xFFFF):
         a += n
 
 
+def instrs(path):
+    """-> (list of (addr, mnemonic, operand-string), sizes dict).  The machine-readable form of
+    `dump', for the comparisons in compare.py; the operand string carries the SEGMENT tag so a
+    DATA 0009 and an absolute 0009 are never printed alike ([C264])."""
+    code, reloc, chext, chaddr, sizes, pub, com, dat = decode(path)
+    out, a = [], 0
+    top = max(code) if code else 0
+    while a <= top:
+        if a not in code:
+            a += 1
+            continue
+        b = code[a]
+        mn, n = OP.get(b, ("db %02X" % b, 1))
+        if n == 3:
+            r, e = reloc.get(a + 1), chext.get(a + 1)
+            if mn == "call":
+                op = e or ("chain@%04X" % chaddr[a + 1][1] if a + 1 in chaddr else "??")
+            elif e:
+                op = e
+            elif r:
+                tag = {"data": "*D", "common": "*C", "code": "*CODE"}.get(r[0], "?" + r[0])
+                op = "%s(%04X)" % (tag, r[1])
+            elif a + 1 in chaddr:
+                op = "chain(%04X)" % chaddr[a + 1][1]
+            else:
+                op = "%04X" % (code.get(a + 2, 0) << 8 | code.get(a + 1, 0))
+        elif n == 2:
+            op = "%02X" % code.get(a + 1, 0)
+        else:
+            op = ""
+        out.append((a, mn, op))
+        a += n
+    return out, sizes
+
+
 if __name__ == "__main__":
     p = sys.argv[1]
     lo = int(sys.argv[2], 16) if len(sys.argv) > 2 else 0

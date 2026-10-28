@@ -6,8 +6,8 @@ ALLTST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED(ME
 ANNUITY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: declaration ftc returns(CHAR(17) VARYING) deferred [TBD] (line 21; return types emitted today are FIXED [26 specimens],
 CALL	diag	False	None	NO_ORACLE				Fatal error: exception Pli80.Parser.Parse_error(_, "expected statement")
 COPY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option ENVIRONMENT is outside what this compiler lowers [TBD] (line 10) -- P0 measured 34 OPEN blocks in 24 DR obj
-COPYLPT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT ITEM (PAGE) deferred [TBD] (line 53; only bare SKIP is sampled -- REVERSE 00FE; PAGE and counted SKIP have no DR by
-CREATE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] PUT LIST with options this route does not claim (line 39): P3b lowers `put file(<f>) list(<one literal>)' only --
+COPYLPT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT FILE(PRINTFILE) LIST item 1 is the control item PAGE, unmeasured on the named-file route [TBD] (line 53) -- P2b low
+CREATE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT FILE(OUTPUT) LIST item 1 is the control item SKIP, unmeasured on the named-file route [TBD] (line 41) -- P2b lowere
 DECPOLY	ok	True	True	EXACT	1152			
 DEMO	ok	True	True	EXACT	512			
 DEPREC	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
@@ -26,7 +26,7 @@ FLTPOLY2	ok	True	True	EXACT	1024
 FSCAN	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(80) VARYING is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYT
 IFACT	ok	True	True	EXACT	384			
 INVERT	diag	False	None	NO_ORACLE				Fatal error: exception Failure("codegen: [TBD] multi-dimensional or assumed-size array [C159] (DR's 2-D is row-major, la
-KEYFILE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] PUT LIST with options this route does not claim (line 25): P3b lowers `put file(<f>) list(<one literal>)' only --
+KEYFILE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 16) -- P0 measured 34 OPEN blocks in 24 DR objects (
 LABELS	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
 LOAN1	ok	True	True	EXACT	1536			
 LOAN2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(14) VARYING is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYT

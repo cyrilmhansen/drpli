@@ -165,6 +165,14 @@ EXPORT_OUT = {
     # are not guesses: `L12OUT DAT' produces `L12OUT'.  The old F(128)/name-guessing story is
     # already withdrawn above; nothing here needs an ARGS tail because nothing uses $1/$2.
     **{"E46L%d" % k: ["L%dOUT" % k] for k in (12, 13, 14, 15, 16, 17, 18)},
+    # [E2E-42/P2b] the five runtime probes of the MULTI-ITEM file PUT.  Same rule, same shape of
+    # evidence: each OPEN carries a literal title whose FIRST token is the CP/M name and whose
+    # second token is NOT an extension ([C279], measured on E16D and re-read here off DR's own
+    # directory listings).  These five are the ones that decide a question no single-item object
+    # can: whether the blank [C295] measured BETWEEN the items of separate PUT statements is a
+    # property of the STATEMENT or of the ITEM LIST -- E46M27 mixes a two-item statement with
+    # one-item statements inside one file, so the two answers give different byte counts.
+    **{"E46M%d" % k: ["M%dOUT" % k] for k in (27, 28, 29, 30, 31, 32)},
 }
 
 

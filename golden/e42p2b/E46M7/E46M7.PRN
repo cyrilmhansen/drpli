@@ -10,6 +10,27 @@ COMPILATION OF: E46M7
 D: Disk Print
 L: List Source Program
 
-   3 b        /* [E2E-42/P2b] TWO CHARACTER VARYING scalars in one file PUT, and the same list on the console.  A varying item emitsw
-TRUNC                                                                                                                            ?
-UNEXPECTED EOF
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46M7
+
+   1 a 0000 E46M7:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2b] TWO CHARACTER VARYING scalars in one file PUT, and
+   4 a 0006      the same list on the console. A varying item emits NO width byte
+   5 a 0006      (the length lives in the cell [C293]), so this is the purest
+   6 a 0006      concatenation test there is. */
+   7 c 0006   dcl outf file, v char(20) varying, w char(20) varying;
+   8 c 0006   open file(outf) stream output title('M7OUT DAT');
+   9 c 0023   put file(outf) list(v,w);
+  10 c 0044   put list(v,w);
+  11 c 0062   close file(outf);
+  12 a 0068 end E46M7;
+
+CODE SIZE = 006B
+DATA AREA = 0033
+FREE SYMS = 389D
+END  COMPILATION
+
