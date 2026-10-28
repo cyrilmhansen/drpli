@@ -1,8 +1,11 @@
 E46L14:
   procedure options(main);
-  /* [E2E-42/P2a] runtime 3: FIXED BIN(15).  k = 42 is 28 in DR's octal print (the E3B2
-     measurement), and the 9-wide numeric edit right-justifies it, so the file must hold
-     seven spaces then '34'. */
+  /* [E2E-42/P2a] runtime 3: FIXED BIN(15).  PREDICTED WRONG and MEASURED WRONG-BY-DR: I
+     expected OCTAL '34' here and cited "the E3B2 measurement" for it.  Neither E3B2 nor any
+     other object in this repository ever measured the radix of a FIXED BINARY PUT -- see
+     spec/lab-evidence/e2e42-p2a/PROCESS.md.  DR's own file holds 7 spaces then '42': FIXED
+     BINARY PRINTS IN DECIMAL [C295].  The comment is left corrected rather than deleted so the
+     false prediction stays visible in the source that carried it. */
   dcl outf file, k fixed bin(15);
   k = 42;
   open file(outf) stream output title('L14OUT DAT');

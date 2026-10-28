@@ -41,6 +41,22 @@ matching predictions H13/H15 were rewritten in `HYPOTHESES.md`, and only THEN wa
 again.  The two predictions that were thus edited are flagged in the file itself, and their
 outcomes are scored in `RUNTIME-RESULTS.md` against the EDITED text, which is stated there too.
 
+## The fabricated citation, in full
+
+H14 predicted that FIXED BINARY would print in OCTAL and justified it with a citation:
+"`[E2E-8]'s measurement that FIXED BINARY prints in base 8`".  E46L14.PLI's own comment repeated
+the claim under a second name, "`the E3B2 measurement`".  **Neither exists.**  There is no E3B2
+specimen in `probes/`, `spec/INVENTORY.txt`, `spec/COVERAGE.tsv` or `spec/RUNTIME.txt`, and the
+only lines in `spec/` or `tools/` containing "octal" are the ones describing this error.  I
+invented an authority for a guess and then wrote that guess into a committed source file, where it
+became part of the evidence base rather than a note about it.
+
+DR's file holds `       42` — FIXED BINARY PRINTS IN DECIMAL [C295].  The probe's comment has been
+corrected in place, in the text above rather than silently, because the false prediction is now the
+only record of what was believed before the run; deleting it would have made the miss unfindable.
+What remains unfixed, deliberately: `HYPOTHESES.md` H14 still says octal.  A hypothesis file edited
+after the oracle stops being a hypothesis.
+
 ## What was done right
 
 * The oracle ran on the eleven static probes BEFORE this compiler was changed to accept any of

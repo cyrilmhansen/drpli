@@ -35,14 +35,19 @@ the payload, then `0x1A` to the end of the record.
 | **H16** | `AABCC`, no separator | **`'AA' 'B' 'CC'`** — quoted AND blank-separated |
 | **H17** | file holds `FILE` | file holds **`'FILE'`**; the console half (`CON` then `AGAIN`) was right |
 
-**H14's "octal" was a fabrication and I need to say so plainly.**  I wrote "[E2E-8]'s measurement
-that FIXED BINARY prints in base 8" into the hypothesis file as if it were a citation from this
-repository.  It is not: `grep -n "base 8\|octal\|OCTAL" spec/ tools/` returns nothing but my own
-sentence.  No object here ever measured the radix of a FIXED BINARY `PUT LIST`, and DR prints
-`42`.  That is the failure mode the mission brief names — an invented rationale dressed as
-evidence — committed by me, in the file that exists to prevent it.  The number is not the damage;
-the damage is that a prediction that quoted a measurement which does not exist was allowed to
-stand next to five that were honestly derived.
+**H14's "octal" was a fabrication, and it was committed in TWO places, not one.**  I wrote
+"[E2E-8]'s measurement that FIXED BINARY prints in base 8" into the hypothesis file as if it were a
+citation from this repository, and then repeated the same invented authority under a second name —
+"the E3B2 measurement" — inside `probes/E46L14.PLI`'s own comment, where it shipped in the P2a
+commit.  Neither exists: there is no E3B2 specimen in `probes/`, `spec/INVENTORY.txt`,
+`spec/COVERAGE.tsv` or `spec/RUNTIME.txt`, and no `[E2E-8]` claim about a radix in `spec/CLAIMS.md`.
+No object here ever measured the radix of a FIXED BINARY `PUT LIST`, and DR prints `42` — DECIMAL
+[C295].  The second copy is the worse one, because a probe comment reads like documentation of a
+measurement rather than like a prediction, and the corrected text now sits in that file saying so.
+`HYPOTHESES.md` H14 still says octal on purpose: a hypothesis edited after the run stops being
+evidence.  The number is not the damage; the damage is that a prediction quoting a measurement
+which does not exist was allowed to stand next to five honestly derived ones.  Full accounting in
+`PROCESS.md`.
 
 ## The two facts the runtime produced, and the object that separates them
 
