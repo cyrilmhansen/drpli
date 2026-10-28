@@ -1,6 +1,10 @@
 E46M12:
   procedure options(main);
-  /* [E2E-42/P2b] THE SAME mixed CHARACTER/DECIMAL list on the CONSOLE route, alone.  This records DR's OWN verdict on the combination the [E2E-29/P1] classifier refuses.  It is a CONSOLE boundary, not a file one; nothing here authorizes a console change. */
+  /* [E2E-42/P2b] THE SAME mixed CHARACTER/DECIMAL list on the
+     CONSOLE route, alone. This records DR's OWN verdict on the
+     combination the [E2E-29/P1] classifier refuses. It is a CONSOLE
+     boundary, not a file one; nothing here authorizes a console
+     change. */
   dcl v char(20) varying, z fixed dec(6);
   put list(v,z);
   put list(z,v);

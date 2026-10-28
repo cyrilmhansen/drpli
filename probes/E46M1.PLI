@@ -1,6 +1,9 @@
 E46M1:
   procedure options(main);
-  /* [E2E-42/P2b] THE SHAPE E41X7 REFUSES: TWO literal items in ONE `put file'.  The same two items are then PUT on the CONSOLE route in the same object, so the item chain is compared inside ONE compilation instead of across two. */
+  /* [E2E-42/P2b] THE SHAPE E41X7 REFUSES: TWO literal items in ONE
+     `put file'. The same two items are then PUT on the CONSOLE route
+     in the same object, so the item chain is compared inside ONE
+     compilation instead of across two. */
   dcl outf file;
   open file(outf) stream output title('M1OUT DAT');
   put file(outf) list('A','B');

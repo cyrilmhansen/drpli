@@ -1,8 +1,14 @@
 E46M19:
   procedure options(main);
-  /* [E2E-42/P2b] CREATE's SIX-ITEM LIST spelled with ORDINARY variables: five CHARACTER VARYING scalars of CREATE's own capacities plus one FIXED DECIMAL(6), in CREATE's own order.  The DECIMAL is a scalar here on purpose -- a level-numbered FIXED DECIMAL MEMBER is not resolvable by this compiler at all -- so this object, not CREATE, is what measures the six-item chain. */
+  /* [E2E-42/P2b] CREATE's SIX-ITEM LIST spelled with ORDINARY
+     variables: five CHARACTER VARYING scalars of CREATE's own
+     capacities plus one FIXED DECIMAL(6), in CREATE's own order. The
+     DECIMAL is a scalar here on purpose -- a level-numbered FIXED
+     DECIMAL MEMBER is not resolvable by this compiler at all -- so
+     this object, not CREATE, is what measures the six-item chain. */
   dcl outf file;
-  dcl name char(30) varying, addr char(30) varying, city char(20) varying,
+  dcl name char(30) varying, addr char(30) varying,
+       city char(20) varying,
       state char(10) varying, zip fixed dec(6), phone char(12) varying;
   open file(outf) stream output title('M19OUT DAT');
   put file(outf) list(name,addr,city,state,zip,phone);

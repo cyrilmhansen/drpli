@@ -1,6 +1,11 @@
 E46M31:
   procedure options(main);
-  /* [E2E-42/P2b] RUNTIME, CREATE-SHAPED AND EXECUTABLE: six items in one file PUT -- five CHARACTER VARYING members of one internal record plus one ORDINARY FIXED DECIMAL scalar, assigned and written by ONE statement.  This is as close to CREATE:39 as this compiler can reach, because a level-numbered FIXED DECIMAL member is not resolvable here at all. */
+  /* [E2E-42/P2b] RUNTIME, CREATE-SHAPED AND EXECUTABLE: six items in
+     one file PUT -- five CHARACTER VARYING members of one internal
+     record plus one ORDINARY FIXED DECIMAL scalar, assigned and
+     written by ONE statement. This is as close to CREATE:39 as this
+     compiler can reach, because a level-numbered FIXED DECIMAL
+     member is not resolvable here at all. */
   dcl outf file;
   dcl 1 rec,
     2 name  char(30) varying,

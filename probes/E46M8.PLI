@@ -1,6 +1,9 @@
 E46M8:
   procedure options(main);
-  /* [E2E-42/P2b] TWO CHARACTER FIXED scalars, both routes.  Each item carries its OWN declared length inline (0E and 0A), so the two chains differ by one byte and a shared or hoisted width operand would show immediately. */
+  /* [E2E-42/P2b] TWO CHARACTER FIXED scalars, both routes. Each item
+     carries its OWN declared length inline (0E and 0A), so the two
+     chains differ by one byte and a shared or hoisted width operand
+     would show immediately. */
   dcl outf file, c char(14), d char(10);
   open file(outf) stream output title('M8OUT DAT');
   put file(outf) list(c,d);

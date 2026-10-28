@@ -1,6 +1,9 @@
 E46M22:
   procedure options(main);
-  /* [E2E-42/P2b] THE SECOND-ITEM GUARD: an ARRAY ELEMENT in position 2.  E46L10 pins `list(a(1))' as a my-gap in position 1, and a list is where an `authorize only the first item' bug would show. */
+  /* [E2E-42/P2b] THE SECOND-ITEM GUARD: an ARRAY ELEMENT in
+     position 2. E46L10 pins `list(a(1))' as a my-gap in position
+     1, and a list is where an `authorize only the first item' bug
+     would show. */
   dcl outf file, v char(20) varying, arr(3) fixed;
   open file(outf) stream output title('M22OUT DAT');
   put file(outf) list(v,arr(2));

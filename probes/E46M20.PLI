@@ -1,6 +1,15 @@
 E46M20:
   procedure options(main);
-  /* [E2E-42/P2b] CREATE's six-item list with the members of a VISIBLE level-numbered RECORD, which is what RECORD.DCL declares.  This object is expected to refuse HERE at the FIXED DECIMAL MEMBER, not at the PUT: bind lays a decimal member out but registers no alias for it ([E2E-39/P2]'s registry is FIXED BINARY(15), POINTER and CHARACTER only).  It is probed because it is the only object that says whether DR accepts the member spelling at all, and because the refusal this compiler gives must be shown to come from bind and not from a PUT route this milestone chose to keep closed. */
+  /* [E2E-42/P2b] CREATE's six-item list with the members of a
+     VISIBLE level-numbered RECORD, which is what RECORD.DCL
+     declares. This object is expected to refuse HERE at the FIXED
+     DECIMAL MEMBER, not at the PUT: bind lays a decimal member out
+     but registers no alias for it ([E2E-39/P2]'s registry is FIXED
+     BINARY(15), POINTER and CHARACTER only). It is probed because it
+     is the only object that says whether DR accepts the member
+     spelling at all, and because the refusal this compiler gives
+     must be shown to come from bind and not from a PUT route this
+     milestone chose to keep closed. */
   dcl outf file;
   dcl 1 record,
     2 name  char(30) varying,

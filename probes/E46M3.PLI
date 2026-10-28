@@ -1,6 +1,8 @@
 E46M3:
   procedure options(main);
-  /* [E2E-42/P2b] THE MVI A OPERAND PER ITEM: three literals of THREE DIFFERENT lengths on both routes.  If DR passed the list's item COUNT, or one width for all items, these operands say so. */
+  /* [E2E-42/P2b] THE MVI A OPERAND PER ITEM: three literals of THREE
+     DIFFERENT lengths on both routes. If DR passed the list's item
+     COUNT, or one width for all items, these operands say so. */
   dcl outf file;
   open file(outf) stream output title('M3OUT DAT');
   put file(outf) list('A','BB','CCC');

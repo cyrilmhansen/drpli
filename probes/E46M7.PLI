@@ -1,6 +1,9 @@
 E46M7:
   procedure options(main);
-  /* [E2E-42/P2b] TWO CHARACTER VARYING scalars in one file PUT, and the same list on the console.  A varying item emits NO width byte (the length lives in the cell [C293]), so this is the purest concatenation test there is. */
+  /* [E2E-42/P2b] TWO CHARACTER VARYING scalars in one file PUT, and
+     the same list on the console. A varying item emits NO width byte
+     (the length lives in the cell [C293]), so this is the purest
+     concatenation test there is. */
   dcl outf file, v char(20) varying, w char(20) varying;
   open file(outf) stream output title('M7OUT DAT');
   put file(outf) list(v,w);

@@ -1,6 +1,10 @@
 E46M10:
   procedure options(main);
-  /* [E2E-42/P2b] CHARACTER VARYING beside FIXED BINARY, both orders, both routes.  E46L3/E46L14 pin the binary item chain (`LHLD / MVI A,09 / ?QICOP / ?PNVOP') and the console already accepts this pair, so the only new thing is the SECOND item behind an attach. */
+  /* [E2E-42/P2b] CHARACTER VARYING beside FIXED BINARY, both
+     orders, both routes. E46L3/E46L14 pin the binary item chain
+     (`LHLD / MVI A,09 / ?QICOP / ?PNVOP') and the console already
+     accepts this pair, so the only new thing is the SECOND item
+     behind an attach. */
   dcl outf file, v char(20) varying, k fixed bin(15);
   open file(outf) stream output title('M10OUT DAT');
   put file(outf) list(v,k);

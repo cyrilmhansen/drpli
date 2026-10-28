@@ -1,6 +1,12 @@
 E46M27:
   procedure options(main);
-  /* [E2E-42/P2b] RUNTIME: ONE multi-item file PUT and the SAME items as separate single-item PUTs, written to ONE file in sequence.  [C295] measured one BLANK between items of SEPARATE statements and no line terminator; nothing has measured the separator BETWEEN ITEMS OF ONE STATEMENT.  If it belongs to the statement the two halves differ; if it belongs to the item they are identical. */
+  /* [E2E-42/P2b] RUNTIME: ONE multi-item file PUT and the SAME items
+     as separate single-item PUTs, written to ONE file in sequence.
+     [C295] measured one BLANK between items of SEPARATE statements
+     and no line terminator; nothing has measured the separator
+     BETWEEN ITEMS OF ONE STATEMENT. If it belongs to the statement
+     the two halves differ; if it belongs to the item they are
+     identical. */
   dcl outf file, v char(20) varying, w char(20) varying;
   v = 'HELLO';
   w = 'XY';

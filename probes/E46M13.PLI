@@ -1,6 +1,10 @@
 E46M13:
   procedure options(main);
-  /* [E2E-42/P2b] TWO NUMERIC items in one list, both orders, both routes: FIXED BINARY and FIXED DECIMAL.  The console already accepts this pair, so it is here to compare the two routes' numeric chains in one object and to show the widths are per-item (09 for the binary, 06/09/00 for the decimal). */
+  /* [E2E-42/P2b] TWO NUMERIC items in one list, both orders, both
+     routes: FIXED BINARY and FIXED DECIMAL. The console already
+     accepts this pair, so it is here to compare the two routes'
+     numeric chains in one object and to show the widths are per-item
+     (09 for the binary, 06/09/00 for the decimal). */
   dcl outf file, k fixed bin(15), z fixed dec(6);
   open file(outf) stream output title('M13OUT DAT');
   put file(outf) list(k,z);

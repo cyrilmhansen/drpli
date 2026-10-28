@@ -1,6 +1,10 @@
 E46M18:
   procedure options(main);
-  /* [E2E-42/P2b] MEMBER + LITERAL + ORDINARY VARIABLE in one list, and the QUALIFIED spelling of the same two members as items of another list.  [C253]/[C258] measure that the qualified and bare spellings resolve to ONE cell; whether they emit the same ITEM bytes behind an attach is what this asks. */
+  /* [E2E-42/P2b] MEMBER + LITERAL + ORDINARY VARIABLE in one list,
+     and the QUALIFIED spelling of the same two members as items of
+     another list. [C253]/[C258] measure that the qualified and bare
+     spellings resolve to ONE cell; whether they emit the same ITEM
+     bytes behind an attach is what this asks. */
   dcl outf file, v char(20) varying;
   dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);
   open file(outf) stream output title('M18OUT DAT');

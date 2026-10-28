@@ -1,7 +1,11 @@
 E46M15:
   procedure options(main);
-  /* [E2E-42/P2b] FIVE items, every authorized class, ONE statement: varying char, fixed char, fixed bin, fixed dec, varying char.  CREATE's list has six; this is the same spread with ordinary variables, so a length- or class-dependent bug cannot hide. */
-  dcl outf file, v char(20) varying, c char(14), k fixed bin(15), z fixed dec(6);
+  /* [E2E-42/P2b] FIVE items, every authorized class, ONE statement:
+     varying char, fixed char, fixed bin, fixed dec, varying char.
+     CREATE's list has six; this is the same spread with ordinary
+     variables, so a length- or class-dependent bug cannot hide. */
+  dcl outf file, v char(20) varying, c char(14),
+       k fixed bin(15), z fixed dec(6);
   open file(outf) stream output title('M15OUT DAT');
   put file(outf) list(v,c,k,z,v);
   close file(outf);

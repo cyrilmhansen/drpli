@@ -1,6 +1,10 @@
 E46M6:
   procedure options(main);
-  /* [E2E-42/P2b] THE EMPTY LITERAL AS AN ITEM of a multi-item file PUT.  [C155]'s exception is PL17: a zero-length pool BLOCK is registered per occurrence of '' while a non-empty repeat registers none.  This asks whether that holds on the FILE route, where the item also emits `MVI A,00'. */
+  /* [E2E-42/P2b] THE EMPTY LITERAL AS AN ITEM of a multi-item file
+     PUT. [C155]'s exception is PL17: a zero-length pool BLOCK is
+     registered per occurrence of '' while a non-empty repeat
+     registers none. This asks whether that holds on the FILE route,
+     where the item also emits `MVI A,00'. */
   dcl outf file;
   open file(outf) stream output title('M6OUT DAT');
   put file(outf) list('','A','');
