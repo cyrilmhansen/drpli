@@ -114,8 +114,18 @@ P = {
             "counted skip(2): MVI A,02 is the same 2 bytes as MVI A,01, so "
             "the same 20 as the bare form (COPYLPT skip(4) = 20)",
             []),
- "E46N10": (prolog(9) + file_put([], "page") + epilog(),
-            9,
+ # [E2E-42/P2c RESULT] THE ONE MISS, AND IT WAS A TYPED NUMBER, NOT THE MODEL.
+ # This entry pre-registered 62/9; DR returned 62/10 -- CODE HIT, DATA one byte short.  The cause is
+ # that `title('N10OUT DAT')' is TEN characters and I typed 9 here, while every sibling entry types
+ # the length of its OWN title (N1-N9 use 'N<n>OUT DAT', nine characters, because the number is one
+ # digit; N10-N18 use ten).  The model rule itself is untouched and reproduces all six executed rows
+ # exactly -- DATA = title_len + sum(len(literal)) -- which is why this is recorded as a transcription
+ # error in a hand-typed argument rather than a defect in [C296]'s cost model.  The PRE-REGISTERED
+ # VALUE IS NOT EDITED: spec/lab-evidence/e2e42-p2c/HYPOTHESES.md keeps 62/9 as the table DR was
+ # invoked against, and RESULTS.md carries the hit/miss column.  What is fixed here is the generator
+ # going forward, so re-running it cannot silently re-issue the same wrong number.
+ "E46N10": (prolog(10) + file_put([], "page") + epilog(),
+            10,
             "FILE page: 12+3+3 = 18 (COPYLPT 0215-0226); ?PAGOP=1",
             []),
  "E46N11": (prolog(10) + file_put([L]) + file_put([], "lit")

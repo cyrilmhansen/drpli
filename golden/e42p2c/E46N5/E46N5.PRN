@@ -1,0 +1,36 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46N5
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46N5
+
+   1 a 0000 E46N5:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2c] TWO SUCCESSIVE BARE FILE SKIPs.  CREATE:41
+   4 a 0006      and 45 are this pair with work between them; here
+   5 a 0006      nothing is between, so a coalescing front end would
+   6 a 0006      show as one 20-byte block instead of two. */
+   7 c 0006   dcl outf file;
+   8 c 0006   open file(outf) stream output title('N5OUT DAT');
+   9 c 0023   put file(outf) skip;
+  10 c 0037   put file(outf) skip;
+  11 c 004B   close file(outf);
+  12 a 0051 end E46N5;
+
+CODE SIZE = 0054
+DATA AREA = 0009
+FREE SYMS = 38B3
+END  COMPILATION
+

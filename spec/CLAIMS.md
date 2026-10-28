@@ -6967,7 +6967,7 @@ classified `unmeasured` rather than `dr-refuses`.
   prose is replaced by a generality downstream reads as evidence and is not.  The entry now follows
   the loop and the comment says why.
 
-## C303 — A `[TBD]` LINE NUMBER ASSUMES CRLF SOURCES; LF INPUT MIS-COUNTS IT, AND DR REFUSES LF OUTRIGHT (E2E-42/P2b)
+## C303 — A `[TBD]` LINE NUMBER ASSUMES CRLF SOURCES; LF INPUT MIS-COUNTS IT — AND, CORRECTED BY E2E-42/P2c, DR TOLERATES BARE LF IN THE BODY AND REQUIRES A CR ONLY ON THE LAST LINE
 
 * **Measured, on two binaries.**  The same program written twice, once with CP/M `CR LF` endings and
   once with UNIX `LF`: this compiler names the statement's OWN line in the CRLF case (E46M33's
@@ -6985,10 +6985,104 @@ classified `unmeasured` rather than `dr-refuses`.
   every oracle probe is stored CRLF, so no specimen or refusal compares a mis-numbered artefact.  What
   the defect does reach is a human reading a `[TBD]` line number out of a UNIX editor — which is why it
   is a claim and not a changelog line.
-* **The same file format is a DR precondition too, and the two facts are easy to conflate.**  An
-  LF-only probe does not merely mis-number for DR: `E46M36` (correct `end <name>;`, LF) comes back
-  `UNEXPECTED EOF` with **no source listing at all**, and `E46M35` (CRLF, `end E46M35.` with a period)
-  comes back `SYNTAX ?` under the `end` line.  Both refused, both with no `.REL`; both are protocol
-  facts about how a probe must be written, and neither is a language finding.  The general rule is
-  [C164]'s: a probe that is wrong in two ways answers neither question, and the confounded run
-  (`golden/e42p2b4/`) is kept as the record of the mistake instead of being quietly resubmitted.
+* **The same file format is a DR precondition too — but P2b stated it WRONG, and P2c corrected it by
+  re-reading the goldens P2b had already committed.**  What [C303] originally claimed was that "an
+  LF-only probe does not merely mis-number for DR", with `E46M36` (`UNEXPECTED EOF`, no listing) and
+  `E46M35` (CRLF, `end E46M35.` with a period, `SYNTAX ?`) cited as if the two together showed that DR
+  rejects LF.  They show no such thing: the two probes differ in MORE than line endings, which is
+  [C164]'s confound, and the sweep of every committed probe with a source on disk settles it.  **Five
+  DR-ACCEPTED probes carry bare LF in the body** — `E46D4`/`E46D5`/`E46D6`/`E46D7` (4, 6, 3 and 5 bare
+  LFs among CRLF lines, `golden/e42p1b/`, each with a `.REL`) and `E46E4` (1 bare LF,
+  `golden/e42p0/`) — and every accepted probe without exception has a CR on its last line.  The two
+  `UNEXPECTED EOF` refusals, `E46M36` and `E46N20`, are exactly the two sources with NO CR on the last
+  line before the `^Z`.  `E46E1`/`E46E2`/`E46E3` also carry a bare LF and were refused, but for their
+  own `OPEN` syntax (`open file(f) input input;` at their line 5, `SYNTAX ?`, `1 ERROR(S) IN PASS 2`),
+  so they are not counter-evidence.
+* **The mechanism, stated precisely.**  DR's source reader terminates a LINE on CR.  A bare LF inside
+  the body therefore does not end a line — it is ordinary text inside one, which is why a declaration
+  group on LF-only lines still parses.  The last line before `^Z` is the one case where a missing CR
+  matters: with no CR, that line is never delivered, so the compiler reaches end-of-file without ever
+  seeing `end <name>;` and reports `UNEXPECTED EOF`.  `E46N19`/`E46N20` are the isolated discriminator
+  for exactly this — same declarations, same statements, same `end E46N<n>;`, differing ONLY in that
+  N19 is strict CRLF and N20 is all-LF — and DR's answer is a `.REL` for N19 and no object for N20.
+* **Why the wording mattered, and why this is a claim and not a typo fix.**  "DR refuses LF outright"
+  is a statement about DR's language that happens to be false, and it was load-bearing: it justified
+  writing every probe as strict CRLF on the grounds that anything else would be refused.  The real
+  reason to write probes as strict CRLF survives the correction — the last line needs its CR, and my
+  OWN lexer mis-numbers LF input (above) — but a future reader who believed the false version would
+  not write the mixed-ending probe that `E46D4`-`D7` show to be legal, and would conclude from a single
+  all-LF refusal that no LF is ever accepted.  `golden/e42p2b4/` and `golden/e42p2b5/` are kept as the
+  record of the confounded runs rather than quietly resubmitted, which is what made the re-reading
+  possible at all.
+
+## C304 — FILE SKIP IS A STATEMENT OPTION, NOT A PUT LIST ITEM (E2E-42/P2c)
+
+* **Measured, on 18 byte-exact objects.**  A leading `skip` in `put file(f) skip <items...>` is
+  consumed BEFORE item authorization and becomes part of the statement, not a member of the list.
+  The evidence is the byte position: in `E46N2` (`skip list('A')`, 75 code / 10 data) the skip's two
+  bytes `3E 01 / CD ?SKPOP` sit between the attach's `CALL ?SIOOP` and the first item's `LXI H,*D`,
+  and there is exactly ONE `?SIOOP` and ONE `?QIOOP` for the whole statement.  Had the skip been an
+  item it would have been chained like a literal and separated by the blank [C295] puts between
+  items — and `E46N13`, executed, proves the negative directly: its file holds `'\r\n'EOF'` at 8
+  bytes, not `'\r\n' 'EOF'' at 10.  `E46N1`/`E46N9` (bare and `skip(2)`) are 20 bytes each with NO
+  item chain at all, which is what a statement option with no payload looks like.
+* **Non-leading control items still refuse, and that asymmetry is the rule.**  `put file(f)
+  list('A') skip;` does not lower.  So `file_items` consumes a skip at position 1 and refuses any
+  control item it finds at any other position — the option-ness is positional, exactly as PL/I
+  defines it, and not a general "control items are allowed on a file now".
+* **Refusal positions are counted against the ORIGINAL list, skip included.**  `E46N21` (`line(2)
+  list('A')`) reports `item 1`, because the leading node is a LINE and not a skip, so nothing is
+  consumed and nothing shifts.  A matcher that renumbered after consuming would have made `E46N2`
+  and `E46N21` disagree about what "item 1" means, and the message is the only thing a reader of a
+  census line gets.
+* **Why this is a claim and not an implementation note.**  The route that lowers this already existed
+  — `lower_put_items_gen` takes a `skipn` argument for the console's sake, and P2b had already made
+  it emit ONE attach and ONE close per statement [C296].  What P2c had to get right was not the bytes
+  but the CLASSIFICATION: the same `Pi_ctl("SKIP", ...)` node is an option in one position and an
+  unauthorized item in another, and a compiler that treats it uniformly in either direction produces
+  objects that are wrong in a way the byte panel cannot see, because there is no object to compare
+  until you know which shape you are claiming.
+
+## C305 — A NAMED-FILE PUT DOES NOT TERMINATE ITS RECORD; THE SKIP IS THE ONLY LINE BREAK (E2E-42/P2c)
+
+* **Measured, on six executed files.**  `E46N16` writes `list('A')` then `list('B')` with no skip and
+  the exported file is `'A' 'B'` — SEVEN bytes on one line, the [C295] statement-boundary blank, and
+  **no CR LF anywhere**.  So a file PUT does not end a record: unlike the console, which breaks per
+  statement, a `stream output` file accumulates until something tells it to.  `E46N11` is the same
+  two statements with a `skip;` between them and gives `'A'\r\n'B'`; `E46N14` is three consecutive
+  `skip;` statements and gives `'A'\r\n\r\n\r\n'B'`, six bytes of line break, so skips do not
+  coalesce and each contributes exactly one CR LF pair.
+* **The count is not the repetition.**  `E46N9`'s `skip(2)` emits `MVI A,02` into the SAME 20 bytes as
+  `E46N1`'s bare `skip` (`MVI A,01`): the count is a runtime argument passed to `?SKPOP`, not something
+  the compiler unrolls.  `E46N18`'s `skip(n)` goes further and puts a `LHLD *D / MOV A,L` in front of
+  the same `?SKPOP`, 22 bytes, because the count is a variable the compiler cannot fold.
+* **A leading skip is not suppressed.**  `E46N12` opens the file and skips first, and the file begins
+  with a bare `'\r\n'` — an empty first line reaches the disk.  This is the difference from a
+  line-buffered console that might discard a break before any payload, and it is why `E46N6`
+  (output-then-skip) and `E46N7` (skip-then-output) are two probes rather than one: their objects
+  differ ONLY in the order of the two statement blocks, and the order is visible in the file.
+* **Routing, which is what makes these bytes land at all.**  `E46N8` holds BOTH `put skip;` and
+  `put file(f) skip;` in one program, and its byte-exact object contains ONE `?SYSPR` (the console
+  statement, `LXI D,0252`) and ONE `?SIOOP` (the file statement, `LXI D,0652`) plus TWO `?SKPOP` and
+  TWO `?QIOOP`.  `E46N1`, the bare file skip alone, contains ZERO `?SYSPR`.  Byte-exactness on `E46N1`
+  by itself could not have closed [C300]: a misrouted skip still contains `?SKPOP`, so the symbol that
+  discriminates is the one the misroute would have added.
+
+## C306 — MY COMPILER ACCEPTS THE SOURCE DR REFUSES, AND THAT IS A COVERAGE ROW, NOT A PANEL ROW (E2E-42/P2c)
+
+* **Measured.**  `E46N20` is `E46N19` with LF endings throughout.  DR stops at `UNEXPECTED EOF` and
+  emits no object; this compiler normalizes line endings in the lexer, parses it, and writes an object
+  byte-identical to its own `E46N19` (81 code / 26 data).  Neither side is wrong about the language —
+  they disagree about the file format [C303].
+* **Why it is not on the negative panel.**  `run_negatives()` asserts `"[TBD]" in msg`, so every row
+  there pins a DESIGNED stop of MINE.  `E46N20` is the opposite asymmetry — DR refuses, I accept — and
+  a panel whose whole meaning is "this compiler deliberately stops" cannot host "this compiler does not
+  stop".  It is recorded as a `COVERAGE.tsv` row instead.  `E46N22`/`E46N23` (`after`/`before`) left the
+  panel for the same structural reason from the other direction: my refusal is a parser syntax error
+  with no `[TBD]`, so their correct status is `mine_status=NOT_ATTEMPTED` — no implementation and no
+  refusal design — not `REFUSED`.
+* **The general rule.**  A panel is a claim about ONE direction.  When a measurement lands in the other
+  direction it must go somewhere that can say so, or the panel starts teaching the opposite of what it
+  means.  The same reasoning retired `E41X6`/`E41X9` in this phase: they were rows asserting my refusal,
+  and P2c removed the refusal, so keeping them would have made the panel claim a gap that no longer
+  exists — which is why a retired negative vanishes from `REJECTS` *and* `NEG_META` [E2E-16 symmetry].

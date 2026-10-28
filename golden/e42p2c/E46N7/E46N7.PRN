@@ -1,0 +1,33 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46N7
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46N7
+
+   1 a 0000 E46N7:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2c] SKIP THEN OUTPUT, two statements -- the
+   4 a 0006      mirror of E46N6. */
+   5 c 0006   dcl outf file;
+   6 c 0006   open file(outf) stream output title('N7OUT DAT');
+   7 c 0023   put file(outf) skip;
+   8 c 0037   put file(outf) list('A');
+   9 c 0051   close file(outf);
+  10 a 0057 end E46N7;
+
+CODE SIZE = 005A
+DATA AREA = 000A
+FREE SYMS = 389D
+END  COMPILATION

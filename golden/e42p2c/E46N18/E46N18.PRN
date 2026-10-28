@@ -1,0 +1,36 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46N18
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46N18
+
+   1 a 0000 E46N18:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2c] FILE SKIP WITH AN EXPRESSION COUNT.
+   4 a 0006      COPYLPT:81 `skip(spaces)' is 030C-0321 = attach,
+   5 a 0006      LHLD, MOV A,L, ?SKPOP, ?QIOOP -- 22 bytes, two more
+   6 a 0006      than the literal form. */
+   7 c 0006   dcl outf file, n fixed bin;
+   8 c 0006   n = 3;
+   9 c 000C   open file(outf) stream output title('N18OUT DAT');
+  10 c 0029   put file(outf) skip(n);
+  11 c 003F   close file(outf);
+  12 a 0045 end E46N18;
+
+CODE SIZE = 0048
+DATA AREA = 000C
+FREE SYMS = 389A
+END  COMPILATION
+

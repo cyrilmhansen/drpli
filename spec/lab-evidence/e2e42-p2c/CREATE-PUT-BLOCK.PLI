@@ -1,0 +1,16 @@
+ord3:
+    procedure options(main);
+    declare output file, filename character(14) varying;
+    declare name character(14), k fixed binary;
+    filename = 'X';
+    open file(output) stream output title(filename);
+    do while (k < 1);
+       put file(output) list('A','B');
+       put file(output) skip;
+       put file(output) skip list('EOF');
+       put file(output) skip;
+       k = k + 1;
+    end;
+    close file(output);
+end ord3;
+

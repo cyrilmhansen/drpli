@@ -6,8 +6,8 @@ ALLTST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED(ME
 ANNUITY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: declaration ftc returns(CHAR(17) VARYING) deferred [TBD] (line 21; return types emitted today are FIXED [26 specimens],
 CALL	diag	False	None	NO_ORACLE				Fatal error: exception Pli80.Parser.Parse_error(_, "expected statement")
 COPY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option ENVIRONMENT is outside what this compiler lowers [TBD] (line 10) -- P0 measured 34 OPEN blocks in 24 DR obj
-COPYLPT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT FILE(PRINTFILE) LIST item 1 is the control item PAGE, unmeasured on the named-file route [TBD] (line 53) -- P2b low
-CREATE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT FILE(OUTPUT) LIST item 1 is the control item SKIP, unmeasured on the named-file route [TBD] (line 41) -- P2b lowere
+COPYLPT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT FILE with a bare PAGE control item [TBD] (line 53) -- PAGE has DR's bytes (E46N10, 0023-0034, CALL ?PAGOP after the
+CREATE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: condition form not in E2E-3b subset [TBD]: (^ eofile)")
 DECPOLY	ok	True	True	EXACT	1152			
 DEMO	ok	True	True	EXACT	512			
 DEPREC	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI

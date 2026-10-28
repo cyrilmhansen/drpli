@@ -230,3 +230,36 @@ calibration covers only literal titles.  So a claim of the form
 compares equal, and `RESULTS.md` must state which of the two it achieved.
 `E46N17` is written to be the witness that does not need CREATE's own bytes:
 the six-item list plus the three SKIP statements, with a literal title.
+
+---
+
+## Addendum, written AFTER DR voted — the table above is unchanged
+
+**This section is appended, not edited into the predictions.**  The 23 rows above are the record
+DR was invoked against and they stand as written, including the four DR-verdict predictions that
+were wrong; if a reader wants the hit/miss score it is `RESULTS.md` §1.  What follows is only the
+pointer, because a pre-registration that quietly corrects itself is not a pre-registration.
+
+Ordering, re-checkable without trusting this file:
+
+```
+$ git diff de6ff2f HEAD -- spec/lab-evidence/e2e42-p2c/HYPOTHESES.md   # only this addendum
+$ git show de6ff2f:spec/lab-evidence/e2e42-p2c/HYPOTHESES.md | sha256sum  # the blob DR was run against
+```
+
+What DR answered, in one line each:
+
+* `E46N1`–`E46N9`, `E46N11`–`E46N19`: **accept**, and 18 of 19 pre-registered CODE/DATA sizes HIT;
+  the single miss is `E46N10`'s DATA (predicted 9, DR 10), caused by a ten-character title typed as
+  nine, not by the cost model — `RESULTS.md` §2.
+* `E46N10` **accepted** as predicted, so `?PAGOP` is a measured DR shape and a refusal of MINE.
+* `E46N21` (`line(2)`), `E46N22` (`after(2)`), `E46N23` (`before(2)`): **DR REFUSES, all three,
+  `SYNTAX ?` in pass 2, no `.REL`.**  All three verdict predictions were wrong, in the same
+  direction.  `E46N21` additionally refutes the pre-registration's own lumping of PAGE and LINE into
+  one question — DR accepts one and refuses the other.
+* `E46N20`: **refused, as predicted**, with `UNEXPECTED EOF` — one of the two candidates this file
+  named.  But the pre-registration's *decision rule* for it was flawed, and that is the more
+  important finding: an all-LF file has bare LF in the body **and** no CR on the last line, so it
+  cannot separate the two hypotheses it was written to separate.  [C303]'s correction rests on five
+  probes already committed and accepted with bare-LF bodies (`E46D4`–`D7`, `E46E4`), not on this
+  probe — `RESULTS.md` §5.1.

@@ -1,0 +1,75 @@
+# spec/lab-evidence/e2e42-p2c/CREATE-PUT-BLOCK.REL: CODE ('code', 182)  DATA ('abs', 37)
+0000  lxi b  0200
+0003  call  ?START            ; CD 00 00
+0006  lxi h  *D(0006)
+0009  lxi d  *D(0000)
+000C  mvi a  0E
+000E  mvi b  01
+0010  call  ?SMCVM            ; CD 00 00
+0013  lxi h  *D(0006)
+0016  call  ?SLVTS            ; CD 00 00
+0019  mov b,a
+001A  db C5
+001B  inx sp
+001C  lxi h  0E50
+001F  push h
+0020  lxi h  0000
+0023  push h
+0024  push h
+0025  push h
+0026  push h
+0027  push h
+0028  lxi h  *C(0000)
+002B  call  ?OIOOP            ; CD 00 00
+002E  lhld   *D(0023)
+0031  dcx h
+0032  mov a,h
+0033  ora a
+0034  db F2
+0035  nop
+0036  nop
+0037  lxi h  *C(0000)
+003A  lxi d  0652
+003D  lxi b  *CODE(005C)
+0040  call  ?SIOOP            ; CD 00 00
+0043  lxi h  *D(0001)
+0046  mvi a  01
+0048  call  ?SLCTS            ; CD 00 00
+004B  call  ?PNCOP            ; CD 00 00
+004E  lxi h  *D(0002)
+0051  mvi a  01
+0053  call  ?SLCTS            ; CD 00 00
+0056  call  ?PNCOP            ; CD 00 00
+0059  call  ?QIOOP            ; CD 00 00
+005C  lxi h  *C(0000)
+005F  lxi d  0652
+0062  lxi b  *CODE(0070)
+0065  call  ?SIOOP            ; CD 00 00
+0068  mvi a  01
+006A  call  ?SKPOP            ; CD 00 00
+006D  call  ?QIOOP            ; CD 00 00
+0070  lxi h  *C(0000)
+0073  lxi d  0652
+0076  lxi b  *CODE(008F)
+0079  call  ?SIOOP            ; CD 00 00
+007C  mvi a  01
+007E  call  ?SKPOP            ; CD 00 00
+0081  lxi h  *D(0003)
+0084  mvi a  03
+0086  call  ?SLCTS            ; CD 00 00
+0089  call  ?PNCOP            ; CD 00 00
+008C  call  ?QIOOP            ; CD 00 00
+008F  lxi h  *C(0000)
+0092  lxi d  0652
+0095  lxi b  *CODE(00A3)
+0098  call  ?SIOOP            ; CD 00 00
+009B  mvi a  01
+009D  call  ?SKPOP            ; CD 00 00
+00A0  call  ?QIOOP            ; CD 00 00
+00A3  lhld   *D(0023)
+00A6  inx h
+00A7  shld   *D(0023)
+00AA  jmp    *CODE(002E)
+00AD  lxi h  *C(0000)
+00B0  call  ?CIOOP            ; CD 00 00
+00B3  call  ?STOPX            ; CD 00 00

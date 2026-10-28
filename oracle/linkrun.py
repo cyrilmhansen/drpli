@@ -173,6 +173,12 @@ EXPORT_OUT = {
     # property of the STATEMENT or of the ITEM LIST -- E46M27 mixes a two-item statement with
     # one-item statements inside one file, so the two answers give different byte counts.
     **{"E46M%d" % k: ["M%dOUT" % k] for k in (27, 28, 29, 30, 31, 32)},
+    # [E2E-42/P2c] the six runtime probes of the NAMED-FILE SKIP.  Same [C279] rule: the CP/M name
+    # is the title's FIRST token with no extension.  E46N11 and E46N16 are the pair that decides
+    # what a SKIP actually WRITES -- one file written by DR's object, one by mine, byte-compared --
+    # and E46N15 is the one that shows a file skip and a console skip coexisting in a running
+    # program without either stream losing its place.
+    **{"E46N%d" % k: ["N%dOUT" % k] for k in (11, 12, 13, 14, 15, 16)},
 }
 
 

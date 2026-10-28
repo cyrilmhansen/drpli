@@ -1,0 +1,39 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E46N22
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+  11 c        put file(outf) after(2) list('A');
+SYNTAX                         ?
+    1 ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E46N22
+
+   1 a 0000 E46N22:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-42/P2c] NEGATIVE: FILE AFTER.  This does not
+   4 a 0006      reach codegen at all -- `AFTER' is not in the PUT
+   5 a 0006      option keys, so the parser stops at `PUT: expected
+   6 a 0006      LIST/EDIT/ITEM/FROM'.  A PARSE negative, not a
+   7 a 0006      lowering negative; if DR accepts it, the gap is
+   8 a 0006      ours at a different stage. */
+   9 c 0006   dcl outf file;
+  10 c 0006   open file(outf) stream output title('N22OUT DAT');
+  11 c 0023   put file(outf) after(2) list('A');
+  12 c 003D   close file(outf);
+  13 a 003D end E46N22;
+
+CODE SIZE = 0040
+DATA AREA = 000B
+FREE SYMS = 389A
+END  COMPILATION
+

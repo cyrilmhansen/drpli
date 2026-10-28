@@ -2246,9 +2246,14 @@ type put_shape = Pnone | Plit of put_skip * string
                | Pvar of string option * Ast.expr
                | Pcat of put_skip * chain
                | Pitems of put_skip * pitem list
-               | Pfile of Ast.expr * pitem list
-                 (* [E2E-41/P3b] `put file(<declared file>) list(<one literal item>)': the
-                    named-file route, file operand kept so lowering can resolve its group *)
+               | Pfile of Ast.expr * put_skip * pitem list
+                 (* [E2E-41/P3b] `put file(<declared file>) list(<items>)': the named-file
+                    route, file operand kept so lowering can resolve its group.
+                    [E2E-42/P2c] it carries a SKIP too.  A FILE control item is a statement
+                    OPTION and not an item -- DR emits it between the attach and the FIRST
+                    item chain (CREATE 01AA-01BD, 01C1-01DF; E46N2, E46N13) -- so it cannot
+                    live in the item list, and putting it there would have made
+                    `authorize_file_item' asked about a control item it has no class for. *)
 
 (* flatten a (left-assoc per our parser) || chain to operands
    left-to-right; only the proven shapes C2 [lit;varying] and
@@ -2374,14 +2379,52 @@ let file_item_desc x =
   | Ast.Eident _ -> "an identifier"
   | _ -> "a form this matcher does not recognize"
 
+let file_skip_of (it : Ast.put_item) =
+  (* [E2E-42/P2c] THE FILE SKIP, claimed by SHAPE.  Every one of these words is MEASURED, on
+     a `stream output' open whose attach is 0x0652, by probes written for this episode and put
+     to DR before the lowering was written (golden/e42p2c):
+       bare        E46N1  0023-0036  attach, MVI A,01, CALL ?SKPOP, CALL ?QIOOP   = 20
+       skip(n)     E46N9  0023-0036  the SAME with MVI A,02                       = 20
+       skip(expr)  E46N18 0029-003E  attach, LHLD *D, MOV A,L, ?SKPOP, ?QIOOP     = 22
+       skip+item   E46N2  0023-003F  skip BEFORE the first chain, ONE close       = 31
+     and CREATE 01AA-01BD / 01C1-01DF / 01E0-01F3 carry the first, third and fourth of those
+     in DR's own shipped program.  DR reads the count's LOW byte (E46N18's `MOV A,L'), which
+     is the same 8-bit quantity `MVI A,n' carries, so a count is a byte on this route exactly
+     as it is on the console one [E2E-22/P4].
+     NOT admitted: PAGE and LINE.  E46N10 measures DR accepting `put file(f) page;' at
+     0023-0034 -- 12 + CALL ?PAGOP + 3 = 18 -- and E46N21 shows DR REFUSING `line(2)', but
+     ?PAGOP is not emitted anywhere by this compiler and no specimen of MINE carries it, so
+     PAGE stays a refusal of MINE on an object that says DR accepts it. *)
+  match it with
+  | Ast.Pi_ctl ("SKIP", None) -> Some (Sk_lit "1")
+  | Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ }) -> Some (Sk_lit c)
+  | Ast.Pi_ctl ("SKIP", Some e) -> Some (Sk_expr e)
+  | _ -> None
+
 let file_items (ln : int) (fe : Ast.expr_kind) (items : Ast.put_item list) =
   let fname =
     match fe with Ast.Eident n -> String.uppercase_ascii n.Ast.orig | _ -> "?"
   in
+  (* [E2E-42/P2c] A LEADING control item is the statement's SKIP OPTION, consumed here; every
+     other position is a bad item, so `put file(f) list('A') skip' and a skip that is not FIRST
+     still refuse.  DR's own objects put it first in all four measured sites, and no object on
+     either route puts a control item AFTER an operand.  ITEM POSITIONS are kept relative to the
+     ORIGINAL list -- the refusal says "item 2" about a list the programmer counted with the skip
+     in it, which is the only reading that matches the source text. *)
+  let skipn, rest =
+    match items with
+    | it :: tl ->
+        (match file_skip_of it with
+         | Some sk -> (sk, tl)
+         | None -> (Sk_none, items))
+    | [] -> (Sk_none, items)
+  in
+  let consumed = skipn <> Sk_none in
   let bad =
     List.filter_map
       (fun (i, it) ->
-        match it with
+        if consumed && i = 0 then None
+        else match it with
         | Ast.Pi_data x when file_item_of x <> None -> None
         | Ast.Pi_data x -> Some (i + 1, Some x, file_item_desc x)
         | Ast.Pi_ctl (nm, cnt) ->
@@ -2395,7 +2438,13 @@ let file_items (ln : int) (fe : Ast.expr_kind) (items : Ast.put_item list) =
       (List.mapi (fun i x -> (i, x)) items)
   in
   match bad with
-  | [] -> Some (List.filter_map (function Ast.Pi_data x -> file_item_of x | _ -> None) items)
+  | [] ->
+      Some (skipn,
+            List.filter_map
+              (function
+                | Ast.Pi_data x -> file_item_of x
+                | _ -> None)
+              rest)
   | (pos, node, what) :: _ ->
       failwith
         (Printf.sprintf
@@ -2426,10 +2475,24 @@ let file_items (ln : int) (fe : Ast.expr_kind) (items : Ast.put_item list) =
                      "no DR object in this repository carries this shape behind a 0x0652 \
                       attach.  ")
             | None ->
-                "no object of ours carries a SKIP, PAGE or ON handler on a NAMED-FILE PUT: \
-                 CREATE:41/44/45 carry put file(output) skip and the same form with a \
-                 list, and they are corpus programs, so the words between a file attach \
-                 and a SKIP are unpinned by any specimen of mine."))
+                (* [E2E-42/P2c] SKIP is no longer in this list: a LEADING `SKIP' or
+                   `SKIP(n)' is claimed above as the statement's option, on DR objects E46N1,
+                   E46N2, E46N9 and E46N18.  What reaches here is a control item in a position
+                   or of a class the route still does not take. *)
+                (if consumed then
+                   "a control item that is NOT FIRST in the list.  DR puts a FILE SKIP between \
+                    the attach and the first item chain in all four measured sites (CREATE \
+                    01AA/01C1/01E0, E46N2 0023, E46N13 0023), and no object on either route \
+                    puts a control item after an operand, so a skip that follows an item is \
+                    words nothing measures.  "
+                 else
+                   "PAGE or LINE, which the named-file route does not lower.  E46N10 shows DR \
+                    ACCEPTING `put file(f) page;' at 0023-0034 -- attach, CALL ?PAGOP, CALL \
+                    ?QIOOP, 18 bytes -- so PAGE is a MEASURED gap of MINE and not a DR limit, \
+                    but ?PAGOP is emitted nowhere in this compiler and no specimen of mine \
+                    carries it; E46N21 shows DR REFUSING `line(2)' with SYNTAX ? in pass 2 and \
+                    no object, so LINE is a DR-side refusal.  CREATE:41/44/45 and E46N1/E46N2 \
+                    pin the SKIP forms that ARE lowered.")))
 
   (* [E2E-29/P4] BARE `put skip;' (the Item parse form with a lone SKIP control item) is
      sampled by REVERSE's line 49 at 00FE: LXI D,0252 / LXI B,0000 / CALL ?SYSPR / MVI A,01 /
@@ -2453,11 +2516,28 @@ let bare_ctl_put (ln : int) (nm : string) (cnt : Ast.expr option)
     (its : Ast.put_item list) (on_opts : Ast.io_opt list) (stream : Ast.expr option) =
   match on_opts, stream with
   | [ { Ast.io_key = "FILE"; Ast.io_val = Some ({ Ast.e = Ast.Eident _; _ } as fe) } ], None ->
-      (* `file_items' raises for ANY control item, so the Some case is unreachable; it is written
-         so this arm cannot ever hand the matcher a shape it has no bytes for. *)
-      (match file_items ln fe.Ast.e its with
-       | Some _ -> Pnone
-       | None -> Pnone)
+      (* [E2E-42/P2c] THE MISROUTE, CLOSED.  This arm used to reach `Pitems (Sk_lit "1", [])'
+         whatever `on_opts' said, because it was written against REVERSE:00FE's CONSOLE bare
+         skip and did not look at the options at all -- so `put file(output) skip;' emitted
+         `LXI D,0252 / CALL ?SYSPR', wrote to SYSOUT, and never touched the named file [C300].
+         It now claims the FILE ROUTE: a bare FILE SKIP lowers through `Pfile', whose prologue
+         is the 12-byte `LXI H,*C / LXI D,0652 / LXI B,*CODE / CALL ?SIOOP' attach and whose
+         close is ?QIOOP.  E46N1 is the witness -- 64 bytes of DR CODE, and its ?SYSPR count is
+         ZERO -- and E46N8 is the routing contrast that keeps the two arms from being merged
+         again: in ONE object, the console skip reaches ?SYSPR and the file skip reaches
+         ?SIOOP.  The invariant is the whole point of the arm: a statement that NAMES a file
+         must never fall through to the console helper. *)
+      (match String.uppercase_ascii nm, cnt with
+       | "SKIP", _ ->
+           (match file_items ln fe.Ast.e its with
+            | Some (sk, its') -> Pfile (fe, sk, its')
+            | None -> Pnone)
+       | n, _ ->
+           failwith (Printf.sprintf
+                       "codegen: PUT FILE with a bare %s control item [TBD] (line %d) -- \
+                        PAGE has DR's bytes (E46N10, 0023-0034, CALL ?PAGOP after the attach) \
+                        but no specimen of MINE, and LINE is refused by DR itself (E46N21); \
+                        SKIP is lowered" n ln))
   | _ :: _, _ ->
       failwith (Printf.sprintf
                   "codegen: PUT with a control item and an ON option this route does not claim \
@@ -2561,7 +2641,25 @@ let match_put_list_lit (s : Ast.stmt) =
          An empty list (`put file(f) skip;') falls through to the refusal below: no DR object of
          ours carries a file attach and a SKIP together. *)
       (match file_items s.Ast.spos.Source.line fe.Ast.e items with
-       | Some its -> Pfile (fe, its)
+       | Some (sk, its) ->
+           let fname =
+             match fe.Ast.e with
+             | Ast.Eident n -> String.uppercase_ascii n.Ast.orig
+             | _ -> "?"
+           in
+           (* [E2E-42/P2c] a FILE PUT with NO items at all -- `put file(f) skip list();' --
+              would have an empty chain list.  Nothing measures it: E46M34 (`list()') is
+              refused by DR itself.  A bare `skip' with no LIST does NOT come through here; it
+              parses to kind = Item and is claimed by `bare_ctl_put'. *)
+           if sk <> Sk_none && its = [] then
+             failwith (Printf.sprintf
+                         "codegen: PUT FILE(%s) SKIP with an EMPTY list [TBD] (line %d) -- no \
+                          object on either route carries a PUT whose list has no items: E46M34 \
+                          (`put file(f) list()') is refused by DR itself with SYNTAX ? and no \
+                          .REL, and every measured FILE SKIP has either no LIST at all (E46N1, \
+                          E46N9, E46N18, CREATE:41/45) or a non-empty one (E46N2, E46N13)" fname
+                           s.Ast.spos.Source.line);
+           Pfile (fe, sk, its)
        | None -> Pnone)
   (* [E20-21/P0] BEFORE the plain case, so an unadorned `put [skip] list(...)' still matches
      above.  These two arms replace a BARE Match_failure with a reasoned refusal: a PUT naming a
@@ -3008,7 +3106,7 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
           item: E17D's DATA 0x11 is the title's 5, then 'HELLO''s 5, then the 2-byte packed cell
           for 42, then 'WROTE''s 5 -- so a file PUT of a numeric literal DOES grow the pool, and
           missing it would shift every automatic address [the ROUND prescan failure mode]. *)
-       | Pfile (_, its) ->
+       | Pfile (_, _sk, its) ->
            List.fold_left
              (fun a it -> match it with
               | PIlit v -> a + pdec_str_cell cx v
@@ -10062,28 +10160,21 @@ let lower_put_items_gen st ?(file : string option = None)
   let bslot = st.lc in
   d st 0; d st 0;
   call_ext st (if file <> None then "?SIOOP" else "?SYSPR");
-  (* [E2E-41/P3b] a SKIP on a named-file PUT is unmeasured here: CREATE writes
-     `put file(output) skip list('EOF')' and `put file(output) skip' (golden/first/CREATE), so the
-     ?SKPOP exists on this route, but no byte-exact specimen of MINE carries it.  What made CREATE
-     unreachable used to be its VARIABLE title, and that stopped being true at [E2E-42/P1b] --
-     CREATE:22's `title(filename)' is a CHARACTER(14) VARYING operand on a `stream output' open,
-     the exact shape E46F1 now matches byte-exactly [C288].  CREATE still refuses, and [E2E-42/P2b]
-     moved the reason TWICE: the multi-item `put file(output) list(name,addr,city,state,zip,phone)'
-     at line 39 became a lowering ([C296]), so the measured blocker is now the CONTROL item at line
-     41, `put file(output) skip;'.  Refuse by name rather than compose.  [E2E-42/P2b-F: this
-     paragraph used to end "and the reason is now visible for what it is: the multi-item ... at line
-     39", which stopped being true the moment E46M19 landed.] *)
-  if file <> None && skipn <> Sk_none then
-    failwith
-      "codegen: PUT FILE ... SKIP has no byte-exact DR witness of MINE [TBD] -- CREATE:44 \
-       measures the shape (`put file(output) skip list('EOF')') and CREATE:41/45 the bare \
-       `put file(output) skip', and CREATE's OPEN at line 22 is a `stream output' with a \
-       CHARACTER(14) VARYING TITLE, which this compiler has lowered byte-exactly since \
-       [E2E-42/P1b] (E46F1, [C288]) -- so the TITLE is NOT why this refuses.  What is missing \
-       is a specimen: no object of mine carries a NAMED-FILE attach and a SKIP together \
-       (E16D/E17D, the two file-attach specimens, have no SKIP), and the words between a file \
-       attach and a following item are unpinned.  Bare console SKIP is byte-exact (LOAN1, \
-       N302; REVERSE 00FE), so this is a combination gap and not a SKIP gap";
+  (* [E2E-42/P2c] THE FILE SKIP, NO LONGER A REFUSAL.  This guard used to stop any `skipn <>
+     Sk_none' on the file route, because nothing of MINE carried a named-file attach and a
+     ?SKPOP together and the only witness was CREATE, a corpus program.  Four specimens now
+     measure it, all written and pre-registered BEFORE the lowering was written and all put to
+     DR in golden/e42p2c:
+       E46N1  bare           0023-0036  12 + MVI A,01 + CALL ?SKPOP + CALL ?QIOOP   = 20
+       E46N9  skip(2)        0023-0036  the same, MVI A,02                          = 20
+       E46N18 skip(n)        0029-003E  12 + LHLD *D + MOV A,L + ?SKPOP + ?QIOOP    = 22
+       E46N2  skip list('A') 0023-003F  12 + 5 + 11 + 3                             = 31
+     and CREATE 01AA-01BD / 01C1-01DF / 01E0-01F3 carry the bare form, the skip+item form and
+     the bare form again in DR's own shipped program.  THE ROUTING INVARIANT THIS RELIES ON is
+     not in this function: it is that the `file' argument is Some only when the MATCHER saw a
+     FILE option, and `bare_ctl_put' and the LIST arm both refuse before reaching here on any
+     shape this function has no bytes for.  E46N8 is the specimen that pins the two routes
+     apart inside one object -- ?SYSPR for `put skip;', ?SIOOP for `put file(f) skip;'. *)
   (match skipn with
    | Sk_lit c ->
        let n = parse_int_const c in
@@ -10941,7 +11032,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
        | Plit (skipn, v) -> lower_put_lit st skipn v
        | Pcat (skipn, ch) -> lower_cat st skipn ch
        | Pitems (sk, its) -> lower_put_items st sk its
-       | Pfile (fe, its) ->
+       | Pfile (fe, sk, its) ->
            (* [E2E-41/P3b] `put file(<f>) list(<literal>)'.  The file must have been OPENED for
               output by a lowered `open ... stream output title(<literal>)' in THIS program: that
               is the only complete statement -- OPEN word, attach word and LIST item chain in one
@@ -10969,7 +11060,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                    route is lowered here, so this file must have been opened \
                    `stream output title(<literal>)' by this compiler"
                   fu s.Ast.spos.Source.line);
-           lower_put_items_gen st ~file:(Some fu) None Sk_none its
+           lower_put_items_gen st ~file:(Some fu) None sk its
        | Pnone -> failwith
              (Printf.sprintf
                 "codegen: PUT form not in E2E-3a subset [TBD] \

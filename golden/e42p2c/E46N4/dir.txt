@@ -1,0 +1,20 @@
+0:
+-rw-rw-rw-     128 Jan 01 1970  dio80.dcl
+-rw-rw-rw-    1664 Jan 01 1970  diomod.dcl
+-rw-rw-rw-     425 Jan 01 1970  e46n1.pli
+-rw-rw-rw-    1152 Jan 01 1970  e46n1.prn
+-rw-rw-rw-     384 Jan 01 1970  e46n1.rel
+-rw-rw-rw-     466 Jan 01 1970  e46n2.pli
+-rw-rw-rw-    1152 Jan 01 1970  e46n2.prn
+-rw-rw-rw-     384 Jan 01 1970  e46n2.rel
+-rw-rw-rw-     464 Jan 01 1970  e46n3.pli
+-rw-rw-rw-    1152 Jan 01 1970  e46n3.prn
+-rw-rw-rw-     384 Jan 01 1970  e46n3.rel
+-rw-rw-rw-     448 Jan 01 1970  e46n4.pli
+-rw-rw-rw-    1152 Jan 01 1970  e46n4.prn
+-rw-rw-rw-     384 Jan 01 1970  e46n4.rel
+-rw-rw-rw-     640 Jan 01 1970  fcb.dcl
+-rw-rw-rw-     128 Jan 01 1970  matsize.lib
+-rw-rw-rw-    1152 Jan 01 1970  mpmdio.dcl
+-rw-rw-rw-     384 Jan 01 1970  record.dcl
+-rw-rw-rw-    6016 Jan 01 1970  z80.lib

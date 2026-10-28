@@ -6,7 +6,7 @@
   "COND": 8,
   "DECL": 19,
   "EXPR": 13,
-  "FILE": 7,
+  "FILE": 11,
   "IO": 6,
   "LEX": 3,
   "LOOP": 4,
@@ -19,35 +19,35 @@
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 81,
+  "MEASURED": 85,
   "SINGLE_SAMPLE": 9,
   "UNREVIEWED": 5
  },
  "dr": {
-  "ACCEPTS": 86,
+  "ACCEPTS": 88,
   "ACCEPTS_DEFECT": 1,
-  "REJECTS": 7,
+  "REJECTS": 9,
   "UNTESTED": 4
  },
- "manual_none": 79,
+ "manual_none": 81,
  "manual_unverified": 0,
  "mine": {
   "DIVERGENT": 3,
-  "NOT_ATTEMPTED": 2,
+  "NOT_ATTEMPTED": 3,
   "PARTIAL": 14,
-  "REFUSED": 21,
-  "SUPPORTED": 58
+  "REFUSED": 23,
+  "SUPPORTED": 59
  },
- "no_parity": 27,
- "no_runtime": 69,
+ "no_parity": 30,
+ "no_runtime": 72,
  "perimeter": {
   "C": 2,
-  "M": 14,
+  "M": 16,
   "OPEN": 1,
-  "S": 81
+  "S": 83
  },
- "rows": 98,
+ "rows": 102,
  "single_sample": 9,
  "unreviewed": 5,
- "with_boundary": 98
+ "with_boundary": 102
 }

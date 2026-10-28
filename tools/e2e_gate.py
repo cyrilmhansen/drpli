@@ -1112,6 +1112,44 @@ SPECIMENS.update({
     "E46M30": ("probes/E46M30.PLI", "golden/e42p2b/E46M30/E46M30.REL"),
     "E46M31": ("probes/E46M31.PLI", "golden/e42p2b/E46M31/E46M31.REL"),
     "E46M32": ("probes/E46M32.PLI", "golden/e42p2b/E46M32/E46M32.REL"),
+    # [E2E-42/P2c] THE NAMED-FILE SKIP.  Seventeen whole objects byte-identical to
+    # golden/e42p2c/, each PREDICTED in spec/lab-evidence/e2e42-p2c/HYPOTHESES.md before DR was
+    # invoked, and every CODE/DATA size hit except E46N10's DATA -- which is a PAGE row, and PAGE
+    # stays REFUSED, so it is not registered here.
+    #
+    #   E46N1  64/9   bare `put file(f) skip;' -- what E41X9 refused, and CREATE:41/45
+    #   E46N2  75/10  `skip list('A')': the skip is BETWEEN attach and first chain; CREATE:44
+    #   E46N3  73/30  skip + a VARYING operand: a control item and an operand in one statement
+    #   E46N4  86/11  skip + TWO items: still ONE attach and ONE close
+    #   E46N5  84/9   two bare skips: 20 + 20, and they do NOT coalesce
+    #   E46N6  90/10  output THEN skip      } a mirror pair: the two objects differ ONLY in
+    #   E46N7  90/10  skip THEN output      } the order of the two statement blocks
+    #   E46N8  81/9   THE ROUTING WITNESS: one object, `put skip;' reaching ?SYSPR and
+    #                 `put file(f) skip;' reaching ?SIOOP.  This is the row that says [C300]'s
+    #                 misroute is closed -- byte-exactness on E46N1 alone could not, because a
+    #                 misrouted skip still has ?SKPOP in it.
+    #   E46N9  64/9   `skip(2)' behind a stream-output attach: MVI A,02, same 20 bytes
+    #   E46N18 72/12  `skip(n)' with an EXPRESSION count: LHLD *D / MOV A,L / ?SKPOP = 22
+    #   E46N11..E46N16  the six that EXECUTE (spec/RUNTIME.txt rows)
+    #   E46N17 193/124  CREATE:39-45 spelled with a literal title -- the integration witness
+    "E46N1":  ("probes/E46N1.PLI",  "golden/e42p2c/E46N1/E46N1.REL"),
+    "E46N2":  ("probes/E46N2.PLI",  "golden/e42p2c/E46N2/E46N2.REL"),
+    "E46N3":  ("probes/E46N3.PLI",  "golden/e42p2c/E46N3/E46N3.REL"),
+    "E46N4":  ("probes/E46N4.PLI",  "golden/e42p2c/E46N4/E46N4.REL"),
+    "E46N5":  ("probes/E46N5.PLI",  "golden/e42p2c/E46N5/E46N5.REL"),
+    "E46N6":  ("probes/E46N6.PLI",  "golden/e42p2c/E46N6/E46N6.REL"),
+    "E46N7":  ("probes/E46N7.PLI",  "golden/e42p2c/E46N7/E46N7.REL"),
+    "E46N8":  ("probes/E46N8.PLI",  "golden/e42p2c/E46N8/E46N8.REL"),
+    "E46N9":  ("probes/E46N9.PLI",  "golden/e42p2c/E46N9/E46N9.REL"),
+    "E46N11": ("probes/E46N11.PLI", "golden/e42p2c/E46N11/E46N11.REL"),
+    "E46N12": ("probes/E46N12.PLI", "golden/e42p2c/E46N12/E46N12.REL"),
+    "E46N13": ("probes/E46N13.PLI", "golden/e42p2c/E46N13/E46N13.REL"),
+    "E46N14": ("probes/E46N14.PLI", "golden/e42p2c/E46N14/E46N14.REL"),
+    "E46N15": ("probes/E46N15.PLI", "golden/e42p2c/E46N15/E46N15.REL"),
+    "E46N16": ("probes/E46N16.PLI", "golden/e42p2c/E46N16/E46N16.REL"),
+    "E46N17": ("probes/E46N17.PLI", "golden/e42p2c/E46N17/E46N17.REL"),
+    "E46N18": ("probes/E46N18.PLI", "golden/e42p2c/E46N18/E46N18.REL"),
+    "E46N19": ("probes/E46N19.PLI", "golden/e42p2c/E46N19/E46N19.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -1738,16 +1776,11 @@ REJECTS.update({
     # these sources open the file the way P3b lowers and still refuse -- so what is pinned here
     # is the ITEM route, not the open.  All three DR sides are MEASURED objects (CREATE, P086K),
     # which is what makes them panel entries rather than REFUSALS.txt lines.
-    "E41X6": (
-        "t:\n  procedure options(main);\n  dcl f file;\n"
-        "  open file(f) stream output title('X Y');\n"
-        "  put file(f) skip list('A');\nend t;\n",
-        # [E2E-42/P2b] RE-PINNED.  The multi-item matcher made this shape's refusal move: it used
-        # to fall off the end of match_put_list_lit into a generic "options this route does not
-        # claim" text, and now the SKIP is seen as what it is -- item 1 of a file PUT LIST that is
-        # a CONTROL item, which no file route of mine has bytes for.  Same refusal, same reason,
-        # and a message that names the item instead of the statement.
-        "PUT FILE(F) LIST item 1 is the control item SKIP"),
+    # [E2E-42/P2c] E41X6 RETIRED.  `put file(f) skip list('A')' now COMPILES, and E46N2 holds the
+    # byte-exact DR witness for exactly this shape (75/10 against golden/e42p2c).  The retirement
+    # note is [C294]'s: this row was never evidence that DR refused -- it was evidence that I had
+    # no bytes.  P2b moved the refusal from a generic statement-level text to an item-level one;
+    # P2c removes it by LOWERING the leading control item instead of authorizing it as an item.
     # [E2E-42/P2b] E41X7 RETIRED: `put file(f) list('A','B')' COMPILES, and E46M1 holds the
     # byte-exact DR witness for exactly this shape (512/512 against golden/e42p2b).  A retired
     # negative is not deleted silently -- see the retirement note above E41X4 for the convention.
@@ -1764,11 +1797,12 @@ REJECTS.update({
     # through.  The guard is now `on_opts = [] and stream = None'; this row pins the refusal, and
     # its kind is my-gap because DR's CREATE carries the statement (SIOMODES.txt: the 0x0652
     # continuations at 01B3 `?SKPOP ?QIOOP', 01CA `?SKPOP ?SLCTS', 01E9 `?SKPOP ?QIOOP ?STOPX').
-    "E41X9": (
-        "t:\n  procedure options(main);\n  dcl f file;\n"
-        "  open file(f) stream output title('X Y');\n"
-        "  put file(f) skip;\nend t;\n",
-        "PUT FILE(F) LIST item 1 is the control item SKIP"),
+    # [E2E-42/P2c] E41X9 RETIRED, and it is the most important retirement on this panel.  The row
+    # existed because of a DEFECT: before P2b the bare-`put skip;' arm ignored the ON options and
+    # so CREATE's `put file(output) skip;' silently became a CONSOLE skip.  P2b turned that silent
+    # misroute into this refusal; P2c lowers it correctly.  E46N1 is now byte-exact against DR at
+    # 64/9, and E46N8 is the routing witness -- one object containing BOTH `put skip;' (?SYSPR)
+    # and `put file(f) skip;' (?SIOOP + ?QIOOP), byte-identical to DR.
 })
 
 REJECTS = NoOverwriteDict(REJECTS)
@@ -3166,25 +3200,30 @@ NEG_META["E41X5"] = ("my-gap",
     "ENVIRONMENT clause, so the padding has no measured cause here [C279]; observation and "
     "hypothesis are separated in spec/lab-evidence/e2e41-p3/E17D-OUT-DAT.txt.")
 
-NEG_META["E41X6"] = ("my-gap",
-    "DR compiles a SKIP on a named-file PUT: CREATE opens `file(output) stream output "
-    "title(filename)' and then `put skip list(...)' / `put file(output) list(...)', and "
-    "SIOMODES.txt tabulates four 0x0652 attaches in CREATE.REL whose continuations are "
-    "`?SKPOP ?QIOOP' (01B3), `?SKPOP ?SLCTS' (01CA) and `?SKPOP ?QIOOP ?STOPX' (01E9) -- so the "
-    "SKIP-on-a-stream word exists in DR.  [E2E-42/P2b-F correction] the two sentences that followed "
-    "were STALE as soon as [C296] landed and are fixed here rather than left standing: this route "
-    "does NOT claim 'exactly one item per file PUT' -- a file PUT carries N chains under ONE attach "
-    "and ONE close (E46M1-M20, byte-exact) -- and CREATE does NOT refuse at its six-item line-39 "
-    "PUT, the retired E41X7 gap; CREATE:39 lowers today and the measured blocker is the CONTROL "
-    "item at line 41 (the census prints `PUT FILE(OUTPUT) LIST item 1 is the control item SKIP ... "
-    "(line 41)').  What this row is about survives both corrections untouched: the combination of a "
-    "NAMED-FILE attach and a SKIP, which no specimen of mine carried.  CREATE's OPEN is likewise "
-    "not a blocker -- its line-22 VARIABLE title on a CHARACTER(14) VARYING operand has been "
-    "byte-exact since [E2E-42/P1b] ([C288], witness E46F1).  The "
-    "SKIP itself is byte-exact on the CONSOLE route -- LOAN1's "
-    "`put skip list(\'Principal \')' is a specimen since E2E-7 (golden/first8080u/LOAN1) and N302 "
-    "pins `put skip' and `put skip(2)' -- so what is unmeasured is only the combination: a SKIP "
-    "after a NAMED-FILE attach, which no specimen of mine carries.")
+# [E2E-42/P2c] NEG_META["E41X6"] IS GONE WITH ITS ROW -- the symmetry audit (E2E-16) requires a
+# retired negative to vanish from REJECTS *and* from NEG_META, so the prose moves here as a
+# retirement note rather than an assertion.  Its evidence is what MADE the lowering possible;
+# it is kept in full because it is still the record of why the row existed.  What replaced it
+# is a byte-exact specimen: golden/e42p2c/E41X6.  The claim it hedged -- that the words between a
+# named-file attach and a SKIP were unpinned -- is now pinned at 20 bytes, [C301].
+#     "DR compiles a SKIP on a named-file PUT: CREATE opens `file(output) stream output "
+#     "title(filename)' and then `put skip list(...)' / `put file(output) list(...)', and "
+#     "SIOMODES.txt tabulates four 0x0652 attaches in CREATE.REL whose continuations are "
+#     "`?SKPOP ?QIOOP' (01B3), `?SKPOP ?SLCTS' (01CA) and `?SKPOP ?QIOOP ?STOPX' (01E9) -- so the "
+#     "SKIP-on-a-stream word exists in DR.  [E2E-42/P2b-F correction] the two sentences that followed "
+#     "were STALE as soon as [C296] landed and are fixed here rather than left standing: this route "
+#     "does NOT claim 'exactly one item per file PUT' -- a file PUT carries N chains under ONE attach "
+#     "and ONE close (E46M1-M20, byte-exact) -- and CREATE does NOT refuse at its six-item line-39 "
+#     "PUT, the retired E41X7 gap; CREATE:39 lowers today and the measured blocker is the CONTROL "
+#     "item at line 41 (the census prints `PUT FILE(OUTPUT) LIST item 1 is the control item SKIP ... "
+#     "(line 41)').  What this row is about survives both corrections untouched: the combination of a "
+#     "NAMED-FILE attach and a SKIP, which no specimen of mine carried.  CREATE's OPEN is likewise "
+#     "not a blocker -- its line-22 VARIABLE title on a CHARACTER(14) VARYING operand has been "
+#     "byte-exact since [E2E-42/P1b] ([C288], witness E46F1).  The "
+#     "SKIP itself is byte-exact on the CONSOLE route -- LOAN1's "
+#     "`put skip list(\'Principal \')' is a specimen since E2E-7 (golden/first8080u/LOAN1) and N302 "
+#     "pins `put skip' and `put skip(2)' -- so what is unmeasured is only the combination: a SKIP "
+#     "after a NAMED-FILE attach, which no specimen of mine carries."
 
 # [E2E-42/P2b] NEG_META["E41X7"] IS GONE WITH ITS ROW, and what replaced it is a specimen.  The
 # prose is in git history; its sentence "Both are lists of VARIABLES, so no object measures the
@@ -3194,8 +3233,9 @@ NEG_META["E41X6"] = ("my-gap",
 # at 0166, six chains, one close at 01A7.  E46M1-M20 are the probe-side versions of both shapes and
 # are byte-exact against them, which is what retires the row: the multi-item named-file PUT is
 # lowered, authorized per item, with ONE attach and ONE close per STATEMENT -- [C296].  What CREATE
-# and KEYFILE still refuse on is named by other rows now: CREATE's SKIP (E41X6, E41X9) and
-# KEYFILE's OPEN options (KEYED, LINESIZE, variable TITLE).
+# and KEYFILE still refuse on is named by other rows now: CREATE's SKIP -- which E41X6 and E41X9
+# pinned until [E2E-42/P2c] LOWERED it, so neither row survives -- and KEYFILE's OPEN options
+# (KEYED, LINESIZE, variable TITLE).
 
 NEG_META["E41X8"] = ("my-gap",
     "DR compiles PUT EDIT on a named file, and does so WITHOUT an open: P086K:4 "
@@ -3210,21 +3250,77 @@ NEG_META["E41X8"] = ("my-gap",
 
 # [E2E-42/P2b] E41X9 -- the misroute row, in full, because a row that pins a FIXED bug must say
 # what the bug was or a reader will think it pins a language rule.
-NEG_META["E41X9"] = ("my-gap",
-    "DR COMPILES it: CREATE:41 `put file(output) skip;' is in golden/probe55/CREATE/CREATE.REL, and "
-    "SIOMODES.txt lists three 0x0652 attaches whose continuation BEGINS with ?SKPOP -- 01B3 "
-    "`?SKPOP ?QIOOP', 01CA `?SKPOP ?SLCTS', 01E9 `?SKPOP ?QIOOP ?STOPX'.  So a SKIP on a named file "
-    "is a measured DR shape, and this compiler refuses it honestly: it has no object of its own "
-    "carrying a file attach and a ?SKPOP together, and the words between an attach and a SKIP are "
-    "unpinned by any specimen here (E46M1-M20 put DATA items between ?SIOOP and ?QIOOP and nothing "
-    "else).  The row exists because of what this shape did BEFORE it was refused: the bare-skip arm "
-    "matched on the item list alone, so `put file(output) skip;' reached the CONSOLE lowering that "
-    "REVERSE:00FE pins and wrote 13 bytes to SYSOUT.  Nothing in a compile of CREATE could see that "
-    "-- the program still refused, just further down -- and only the census's line number moving "
-    "showed the statement at 41 had escaped.  A negative that pins a fixed defect is worth keeping "
-    "for exactly that reason: if the guard is dropped again the panel says so, instead of a file "
-    "quietly not being written.")
+# [E2E-42/P2c] NEG_META["E41X9"] IS GONE WITH ITS ROW -- the symmetry audit (E2E-16) requires a
+# retired negative to vanish from REJECTS *and* from NEG_META, so the prose moves here as a
+# retirement note rather than an assertion.  Its evidence is what MADE the lowering possible;
+# it is kept in full because it is still the record of why the row existed.  What replaced it
+# is a byte-exact specimen: golden/e42p2c/E41X9.  The claim it hedged -- that the words between a
+# named-file attach and a SKIP were unpinned -- is now pinned at 20 bytes, [C301].
+#     "DR COMPILES it: CREATE:41 `put file(output) skip;' is in golden/probe55/CREATE/CREATE.REL, and "
+#     "SIOMODES.txt lists three 0x0652 attaches whose continuation BEGINS with ?SKPOP -- 01B3 "
+#     "`?SKPOP ?QIOOP', 01CA `?SKPOP ?SLCTS', 01E9 `?SKPOP ?QIOOP ?STOPX'.  So a SKIP on a named file "
+#     "is a measured DR shape, and this compiler refuses it honestly: it has no object of its own "
+#     "carrying a file attach and a ?SKPOP together, and the words between an attach and a SKIP are "
+#     "unpinned by any specimen here (E46M1-M20 put DATA items between ?SIOOP and ?QIOOP and nothing "
+#     "else).  The row exists because of what this shape did BEFORE it was refused: the bare-skip arm "
+#     "matched on the item list alone, so `put file(output) skip;' reached the CONSOLE lowering that "
+#     "REVERSE:00FE pins and wrote 13 bytes to SYSOUT.  Nothing in a compile of CREATE could see that "
+#     "-- the program still refused, just further down -- and only the census's line number moving "
+#     "showed the statement at 41 had escaped.  A negative that pins a fixed defect is worth keeping "
+#     "for exactly that reason: if the guard is dropped again the panel says so, instead of a file "
+#     "quietly not being written."
 
+
+# [E2E-42/P2c] THE FOUR SKIP-ADJACENT FORMS THAT DID NOT BECOME SPECIMENS.
+#
+# Two facts organise this whole group, and both were MEASURED rather than assumed:
+#   (1) FILE SKIP is a statement OPTION, not an item.  A LEADING `skip' is consumed before item
+#       authorization runs, which is why E46N2/N13 (`skip list('A')') lower and why the position
+#       numbers in these messages are relative to the ORIGINAL list including the skip.
+#   (2) The four split across TWO compiler stages.  PAGE and LINE parse and die in codegen;
+#       AFTER and BEFORE never parse -- `PUT: expected LIST/EDIT/ITEM/FROM'.  A row that did not
+#       say which would send a reader looking for a missing lowering that cannot fix it.
+NEG_META["E46N10"] = ("my-gap",
+    "DR ACCEPTS it and the object is in golden/e42p2c/E46N10/: 62 code, 10 data, and the statement "
+    "is 18 bytes -- `LXI H,*C / LXI D,0652 / LXI B,*CODE / CALL ?SIOOP / CALL ?PAGOP / CALL ?QIOOP' "
+    "at 0023-0034.  It agrees with the model I pre-registered, so the SHAPE is not in question; "
+    "what is missing is a specimen of MINE, because `?PAGOP' is emitted nowhere in this compiler "
+    "and no DR object in golden/ carries it except this probe and COPYLPT:53.  This is the only "
+    "P2c shape that is a my-gap rather than a DR-side refusal, and it is why the bare-control arm "
+    "refuses PAGE with its own message instead of falling through to the item message: PAGE never "
+    "reaches item authorization at all, so an item-level text would describe a stage the "
+    "statement never got to.  COPYLPT's census line moved from the generic control-item refusal to "
+    "this one, which is the same blocker named correctly.")
+
+NEG_META["E46N21"] = ("dr-refuses",
+    "DR REFUSES it in pass 2 -- `12 c put file(outf) line(2) list('A');' / `SYNTAX ?' / "
+    "`1 ERROR(S) IN PASS 2' -- and produces NO object, so this row is a DR-side limit and not my "
+    "gap, and it is recorded that way [E2E-42/P2c].  My refusal is at a DIFFERENT STAGE from DR's "
+    "(I parse it, DR does not) and both are refusals, which is the asymmetry this row pins.  LINE "
+    "also differs from PAGE in KIND: `line' carries a COUNT, so it is not a bare control item and "
+    "`file_items' sees it as an ordinary unauthorized node rather than routing it through the "
+    "bare-control arm -- the same message shape the other control items get, for a different "
+    "reason.  The probe was written AFTER DR's answer, because a pre-registered `page or line' "
+    "prediction would have had to pick one verdict for two forms that DR splits apart, which is "
+    "the H14 error again in a smaller container.")
+
+# [E2E-42/P2c] not a panel row -- see the note above REJECTS; kept as prose evidence.
+# NEG_META["E46N22"] = ("dr-refuses",
+#     "DR REFUSES `put file(outf) after(2) list('A')' with `SYNTAX ?' in pass 2 and no object "
+#     "(golden/e42p2c/E46N22/, cited at its line 11).  So does mine, but in the PARSER: `after' is "
+#     "not a PUT keyword my grammar admits in this position, so the text is the generic "
+#     "`PUT: expected LIST/EDIT/ITEM/FROM' and carries no line number of its own.  The stage "
+#     "difference is the point of the row.  AFTER/BEFORE belong to PL/I's FILE-POSITION statements "
+#     "(the `FROM' family), not to the PUT LIST options, and P2c's census of DR's 34 file-attached "
+#     "PUTs found no `after' or `before' among them either -- so neither side has a witness, and "
+#     "neither side accepts.")
+
+# [E2E-42/P2c] not a panel row -- see the note above REJECTS; kept as prose evidence.
+# NEG_META["E46N23"] = ("dr-refuses",
+#     "The mirror of E46N22 and deliberately kept as a separate row rather than folded into it: DR "
+#     "refuses `before(2)' at its line 7, and the fact that both words die in the same parser arm "
+#     "is a property of MY grammar, not a reason to lose the two distinct DR verdicts and the two "
+#     "distinct listing lines.  Same stage split as E46N22, same absence of any DR witness.")
 
 # [E2E-42/P2b] THE MULTI-ITEM FILE PUT: nine rows, all measured by DR at
 # spec/lab-evidence/e2e42-p2b/HYPOTHESES.md and answered in golden/e42p2b/.  Seven are my-gaps on
@@ -3600,6 +3696,28 @@ REJECTS.update({
                "PUT LIST with 2 ON options on one PUT (line 7)"),
     "E46M34": (open("probes/E46M34.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "PUT LIST with an EMPTY LIST behind a FILE option (line 7)"),
+    # [E2E-42/P2c] THE FOUR THAT DO NOT BECOME SPECIMENS, and they split into TWO DIFFERENT STAGES,
+    # which is the reason they are worded differently.  E46N10 and E46N21 PARSE and die in codegen;
+    # E46N22 and E46N23 never parse at all.  A reader who conflates them will look for a lowering
+    # gap where there is a grammar gap, and vice versa.
+    #
+    # E46N10 is DR-ACCEPTED and MINE-refuses -- a my-gap, the only one P2c leaves open.
+    "E46N10": (open("probes/E46N10.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "bare PAGE control item [TBD] (line 11)"),
+    # E46N21 is DR-REFUSED (`SYNTAX ?' in pass 2, no object) AND mine-refuses, at the codegen stage.
+    # Its marker names position 1 although SKIP-style consumption happens first: LINE is not a
+    # leading-skip candidate, so it stays item 1 of the ORIGINAL list.
+    "E46N21": (open("probes/E46N21.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "control item LINE with a count, unmeasured on the named-file route [TBD] (line 12)"),
+    # [E2E-42/P2c] E46N22 AND E46N23 ARE NOT ROWS ON THIS PANEL, and the reason is a property of the
+    # PANEL, not of the shapes: run_negatives() asserts `"[TBD]" in msg', so every row asserts a
+    # DESIGNED stop.  These two die in the PARSER with `PUT: expected LIST/EDIT/ITEM/FROM' -- an
+    # ordinary syntax error, because my grammar simply does not admit those words in that position.
+    # Registering them here would have meant either weakening the [TBD] requirement or stamping [TBD]
+    # onto every syntax error in the language; both are worse than the alternative, which is a
+    # COVERAGE row with mine_status=NOT_ATTEMPTED ("no implementation AND no refusal design") --
+    # exactly what they are.  DR's verdicts are measured in golden/e42p2c/, E46N22 at its line 11 and
+    # E46N23 at its line 7.
 })
 for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8", "E46K9",
            "E46K10", "E46K11", "E46K12", "E46K13", "E46K14", "E46K15"):
