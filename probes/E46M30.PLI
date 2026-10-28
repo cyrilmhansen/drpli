@@ -1,0 +1,13 @@
+E46M30:
+  procedure options(main);
+  /* [E2E-42/P2b] RUNTIME: two UNDER-FILLED CHARACTER FIXED items in one file PUT.  E46L13 measured that ONE under-filled fixed item is padded to its DECLARED length with BLANKS; this asks whether the padding swallows the separator, and whether the second item's padding is affected by the first. */
+  dcl outf file, c char(8), d char(4);
+  c = 'ABC';
+  d = 'W';
+  open file(outf) stream output title('M30OUT DAT');
+  put file(outf) list(c,d);
+  close file(outf);
+  put list('DONE');
+  stop;
+end E46M30;
+

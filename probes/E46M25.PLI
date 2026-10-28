@@ -1,0 +1,9 @@
+E46M25:
+  procedure options(main);
+  /* [E2E-42/P2b] THE SECOND-ITEM GUARD: a POINTER in position 2.  [C290] records that NO object on either route prints a pointer, so this boundary class has no DR answer anywhere -- which is why it is probed, not assumed. */
+  dcl outf file, v char(20) varying, p pointer;
+  open file(outf) stream output title('M25OUT DAT');
+  put file(outf) list(v,p);
+  close file(outf);
+end E46M25;
+

@@ -1,0 +1,10 @@
+E46M5:
+  procedure options(main);
+  /* [E2E-42/P2b] MIXED LITERAL CLASSES IN ONE LIST, BOTH ORDERS: a CHARACTER literal and a DECIMAL literal.  The two chains end in different tails (?PNCOP for a character item, ?PNVOP for a numeric one), so this pins which tail follows which item, and that the ?QIOOP still follows BOTH. */
+  dcl outf file;
+  open file(outf) stream output title('M5OUT DAT');
+  put file(outf) list('X=',42);
+  put file(outf) list(42,'X=');
+  close file(outf);
+end E46M5;
+

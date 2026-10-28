@@ -1,0 +1,12 @@
+E46M9:
+  procedure options(main);
+  /* [E2E-42/P2b] CHARACTER VARYING beside CHARACTER FIXED, BOTH ORDERS, both routes.  The tail is ?PNCOP for both classes, so an order bug cannot hide in the tail; it can only hide in the helper pair, and the two orders are spelled separately. */
+  dcl outf file, v char(20) varying, c char(14);
+  open file(outf) stream output title('M9OUT DAT');
+  put file(outf) list(v,c);
+  put file(outf) list(c,v);
+  put list(v,c);
+  put list(c,v);
+  close file(outf);
+end E46M9;
+

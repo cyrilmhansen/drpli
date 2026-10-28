@@ -1,0 +1,9 @@
+E46M4:
+  procedure options(main);
+  /* [E2E-42/P2b] POOL DEDUP INSIDE ONE LIST: `list('A','A','B','A')'.  [C155] established one cell per DISTINCT content program-wide and PL7/PL12 measured it INSIDE one PUT LIST; this asks whether a file-route list behaves the same way (four items, two pool bytes above the title) and whether a repeated item repeats the SAME LXI H operand. */
+  dcl outf file;
+  open file(outf) stream output title('M4OUT DAT');
+  put file(outf) list('A','A','B','A');
+  close file(outf);
+end E46M4;
+

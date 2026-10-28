@@ -1,0 +1,14 @@
+E46M32:
+  procedure options(main);
+  /* [E2E-42/P2b] RUNTIME, THE ROUTE-INTERFERENCE CONTROL: a multi-item file PUT BETWEEN two console PUTs.  E46L17 measured that ONE file PUT between two console PUTs leaves SYSOUT's control block intact; a MULTI-item statement is a longer stay inside the file attach, so this asks whether the console still prints both of its lines. */
+  dcl outf file, v char(20) varying, w char(20) varying;
+  v = 'CON';
+  w = 'AGAIN';
+  put list('FIRST');
+  open file(outf) stream output title('M32OUT DAT');
+  put file(outf) list(v,w);
+  close file(outf);
+  put list('SECOND');
+  stop;
+end E46M32;
+

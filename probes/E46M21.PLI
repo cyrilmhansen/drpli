@@ -1,0 +1,9 @@
+E46M21:
+  procedure options(main);
+  /* [E2E-42/P2b] THE SECOND-ITEM GUARD: a FLOAT in position 2.  E46L11 pins FLOAT as a my-gap in position 1; each item is authorized on its own, so an unauthorized class anywhere must stop the whole statement. */
+  dcl outf file, v char(20) varying, q float;
+  open file(outf) stream output title('M21OUT DAT');
+  put file(outf) list(v,q);
+  close file(outf);
+end E46M21;
+

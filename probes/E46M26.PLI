@@ -1,0 +1,8 @@
+E46M26:
+  procedure options(main);
+  /* [E2E-42/P2b] AN UNAUTHORIZED SECOND ITEM ON A FILE THIS COMPILER NEVER OPENED.  Two guards meet: the per-item authorization and the open guard.  E46K10 measured that the ITEM question is answered FIRST, so this must refuse on the item and not on the open -- and it must refuse the statement as a whole, not the second item alone. */
+  dcl outf file, v char(20) varying, q float;
+  put file(outf) list(v,q);
+  stop;
+end E46M26;
+

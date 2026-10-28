@@ -1,0 +1,10 @@
+E46M14:
+  procedure options(main);
+  /* [E2E-42/P2b] REPEATED OPERAND: the SAME variable twice in one list, then a three-item list that repeats it.  Nothing in this project has ever put one operand twice in one PUT LIST; the question is whether DR re-emits the chain (the chain is per ITEM) or folds it, and whether ?QIOOP still appears once per STATEMENT. */
+  dcl outf file, v char(20) varying, k fixed bin(15);
+  open file(outf) stream output title('M14OUT DAT');
+  put file(outf) list(v,v);
+  put file(outf) list(v,k,v);
+  close file(outf);
+end E46M14;
+

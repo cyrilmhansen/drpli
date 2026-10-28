@@ -1,0 +1,10 @@
+E46M2:
+  procedure options(main);
+  /* [E2E-42/P2b] THE COMPOSITION CONTROL for E46M1: the same two literals as TWO separate single-item file PUT statements.  E46M1 minus E46M2 is what a second item costs.  If the two objects differ by anything but ONE attach and ONE ?QIOOP, a multi-item list is NOT one attach plus a concatenation. */
+  dcl outf file;
+  open file(outf) stream output title('M2OUT DAT');
+  put file(outf) list('A');
+  put file(outf) list('B');
+  close file(outf);
+end E46M2;
+

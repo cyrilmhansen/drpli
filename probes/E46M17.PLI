@@ -1,0 +1,11 @@
+E46M17:
+  procedure options(main);
+  /* [E2E-42/P2b] THE CHARACTER FIXED MEMBER CLASS on the file route: a fixed member beside a varying member in one list.  E46J12/E46J18 prove the fixed member's CONSOLE chain (`MVI A,<declared length>' + ?SLCTS); nothing proves the file route, so this is that class's own witness. */
+  dcl outf file;
+  dcl 1 rec, 2 c8 char(8), 2 line char(14) varying;
+  open file(outf) stream output title('M17OUT DAT');
+  put file(outf) list(c8);
+  put file(outf) list(c8,line);
+  close file(outf);
+end E46M17;
+

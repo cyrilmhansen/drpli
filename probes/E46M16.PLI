@@ -1,0 +1,12 @@
+E46M16:
+  procedure options(main);
+  /* [E2E-42/P2b] TWO INTERNAL MEMBERS in one file PUT, both orders, and the same list on the console: a CHARACTER VARYING member and a FIXED BINARY member of one level-numbered internal structure.  This is KEYFILE:25's member-beside-value shape at member-beside-member size. */
+  dcl outf file;
+  dcl 1 rec, 2 line char(14) varying, 2 nxt fixed bin(15);
+  open file(outf) stream output title('M16OUT DAT');
+  put file(outf) list(line,nxt);
+  put file(outf) list(nxt,line);
+  put list(line,nxt);
+  close file(outf);
+end E46M16;
+

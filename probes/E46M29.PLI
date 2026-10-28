@@ -1,0 +1,15 @@
+E46M29:
+  procedure options(main);
+  /* [E2E-42/P2b] RUNTIME: a CHARACTER item beside a FIXED BINARY and a FIXED DECIMAL item in one file PUT, plus a MIXED literal/variable list.  P2a pinned each numeric class alone in the file (9 right-justified bytes for both); what is unpinned is the separator before a numeric item that follows a character item. */
+  dcl outf file, v char(20) varying, k fixed bin(15), z fixed dec(6);
+  v = 'HI';
+  k = 42;
+  z = 123;
+  open file(outf) stream output title('M29OUT DAT');
+  put file(outf) list(v,k,z);
+  put file(outf) list('=',v);
+  close file(outf);
+  put list('DONE');
+  stop;
+end E46M29;
+

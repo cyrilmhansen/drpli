@@ -1,0 +1,11 @@
+E46M28:
+  procedure options(main);
+  /* [E2E-42/P2b] RUNTIME: three literal items in ONE file PUT.  The literal counterpart of E46M27, and the object that says what several literal items of one statement actually reach the file.  E17D measures one CHARACTER literal (`'HELLO'`, apostrophes included) and one DECIMAL literal (`    42`) as SEPARATE statements; [C295] measures one blank between them. */
+  dcl outf file;
+  open file(outf) stream output title('M28OUT DAT');
+  put file(outf) list('AA','B','CCC');
+  close file(outf);
+  put list('DONE');
+  stop;
+end E46M28;
+
