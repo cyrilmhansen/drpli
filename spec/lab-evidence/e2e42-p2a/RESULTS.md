@@ -3,27 +3,30 @@
 Oracle: `PLI_SRC=probes python3 oracle/batch.py E46L1..E46L11 --tag e42p2a --switches '$L$D$S'`
 under the vendored `thirdparty/z80pack/cpmsim/cpmsim`, `oracle/runner.py` unchanged, `--reuse`
 only to extend the tag with the runtime probes afterwards.  Eleven objects produced, none
-refused by DR.  Predictions were written and committed in `HYPOTHESES.md` **before** the run.
+refused by DR.  Predictions were WRITTEN before the run — but not committed before it, so the
+pre-registration is attested only by a timestamp and not by git; see `PROCESS.md`.
 
 My side: `ocaml/_build/default/bin/pli80c.exe probes/E46Ln.PLI` compared over the WHOLE `.REL`.
 
 | probe | shape | DR | my compiler | predicted | verdict |
 |---|---|---|---|---|---|
-| E46L1 | `v char(20) varying` on an open output file | code 0x59, DATA 0x1E | **BYTE-EXACT**, 384/384 bytes | refuse (P2a-B); `LHLD` descriptor form | class **right**, route and operand form both **wrong** |
-| E46L2 | `c char(20)` fixed | `E46L2.REL` | **BYTE-EXACT**, 384/384 | accept via `?SLCTS` | **right** |
-| E46L3 | `k fixed bin(15)` | `E46L3.REL` | **BYTE-EXACT**, 384/384 | accept via `?QICOP` | **right** |
-| E46L4 | `z fixed dec(6)`, `y fixed dec(6,3)` | `E46L4.REL` | **BYTE-EXACT**, 512/512 | accept via `?DLDOP`, width p+3, scale s | **right** |
-| E46L5 | a literal file PUT then a varying file PUT, sequential | code 0x5E, **DATA 0x23** | **BYTE-EXACT**, 384/384 | refuse (multi-item); pool 9+5+21=0x23 | **route WRONG, pool EXACT** |
-| E46L6 | `open ... title(t)` + `put file(outf) list(v)` | code 0x5D, DATA 0x1E | **BYTE-EXACT**, 384/384 | refuse (variable-title route unlicensed) | **WRONG** |
-| E46L7 | internal member, varying + fixed | code 154 | refused, `imem_refuse` | DR accepts / I refuse | **right** |
-| E46L8 | `dcl f file` with NO open | code 86 | refused by the open guard | DR attaches 0x0652 with no open | **right** |
-| E46L9 | `list(k + 1)` | code 90 | refused by the matcher | DR emits the numeric tail, span 12 | **right** |
-| E46L10 | `list(a(1))` on a static array | code 97 | refused by the matcher | DR emits the subscript ladder + numeric tail | **right** |
-| E46L11 | `q float` | code 89 | refused | `?QFCMS`, `MVI A,0E` | **right** |
+| E46L1 | `v char(20) varying` on an open output file | code 89 (0x59), DATA 30 (0x1E) | **BYTE-EXACT**, 384/384 bytes | refuse (P2a-B); `LHLD` descriptor form | class **right**, route and operand form both **wrong** |
+| E46L2 | `c char(20)` fixed | code 93, DATA 29 | **BYTE-EXACT**, 384/384 | accept via `?SLCTS` | **right** |
+| E46L3 | `k fixed bin(15)` | code 93, DATA 11 | **BYTE-EXACT**, 384/384 | accept via `?QICOP` | **right** |
+| E46L4 | `z fixed dec(6)`, `y fixed dec(6,3)` | code 107, DATA 13 | **BYTE-EXACT**, 512/512 | accept via `?DLDOP`, width p+3, scale s | **right** |
+| E46L5 | a literal file PUT then a varying file PUT, sequential | code 94 (0x5E), **DATA 35 (0x23)** | **BYTE-EXACT**, 384/384 | refuse (multi-item); pool 9+5+21=0x23 | **route WRONG, pool EXACT** |
+| E46L6 | `open ... title(t)` + `put file(outf) list(v)` | code 66 (0x42), DATA 46 (0x2E) | **BYTE-EXACT**, 384/384 | refuse (variable-title route unlicensed) | **WRONG** |
+| E46L7 | internal member, varying + fixed | code 94, DATA 26 | refused, `imem_refuse` | DR accepts / I refuse | **right** |
+| E46L8 | `dcl f file` with NO open | code 41, DATA 2 | refused by the open guard | DR attaches 0x0652 with no open | **right** |
+| E46L9 | `list(k + 1)` | code 77, DATA 11 | refused by the matcher | DR emits the numeric tail, span 12 | **right** |
+| E46L10 | `list(a(1))` on a static array | code 70, DATA 16 | refused by the matcher | DR emits the subscript ladder + numeric tail | **right** |
+| E46L11 | `q float` | code 93, DATA 14 | refused | `?QFCMS`, `MVI A,0E` | **right** |
 
 Six of the eleven are now byte-exact whole `.REL` files (E46L1-L6); E46L5 and E46L6 compiled
 byte-exact where I had predicted a refusal, and five refused for the reason designed.  The
-e2e_gate panel after implementation: **1019/1019 byte-exact, 0 fail**, plus the new rows.
+e2e_gate panel after implementation: **1032/1032 byte-exact, 0 fail**, 174/174 refusals, 9/9
+divergences, 59/59 runtime rows, 96 coverage rows with 0 errors — and Rune CI `bs32`/`bs33`
+both `passed` on the pinned revisions.
 
 ## The three misses, stated plainly
 
