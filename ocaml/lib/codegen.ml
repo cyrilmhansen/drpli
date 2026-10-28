@@ -9727,10 +9727,13 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
         | Vdec _ -> ()                                   (* E46L4 *)
         | Vimem m ->
             imem_refuse ("PUT FILE(" ^ fu ^ ") LIST") m
-              "DR COMPILES this shape -- E46L7 (golden/e42p2a) puts both an internal CHARACTER \
-               VARYING member and a FIXED member behind a 0x0652 attach and gets \
-               `LXI H + ?SLVTS + ?PNCOP' and `LHLD + MVI A,09 + ?QICOP + ?PNVOP', the same \
-               chains E46J6/E46J12 measure on the console -- so this stop is a MEASURED gap, not \
+              "DR COMPILES this shape -- E46L7 (golden/e42p2a) puts an internal CHARACTER VARYING \
+               member and a FIXED BINARY member behind a 0x0652 attach EACH (?SIOOP at code 002D \
+               and again at 0045: DR re-attaches per statement) and gets `?SLVTS + ?PNCOP' and \
+               `MVI A,09 + ?QICOP + ?PNVOP', the same chains E46J6/E46J12 measure on the console \
+               (DR's own $S dump names the operands .LINE at c 0000 and .NXT at c 000F of one \
+               17-byte AUTO block, so the operand is the member's frame offset) -- so this stop is \
+               a MEASURED gap, not \
                an unknown: a member PUT is licensed by [C291]'s CONSOLE objects and by nothing \
                else, and admitting it here would put a Vimem operand on a route that has not \
                been authorized for one"
