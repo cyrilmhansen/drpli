@@ -213,3 +213,25 @@ gives `PUT: expected LIST/EDIT/ITEM/FROM` — so the arm's "an ON option (k) tha
 reference" clause describes a branch this parser cannot produce.  Recorded here rather than deleted:
 the arm is a defensive default, and a reader should know which of its branches are reachable and
 which are not.
+
+## 6. Two PROTOCOL probes, not language probes (E46M35, E46M36)
+
+The first submission of E46M33/E46M34 came back `SYNTAX ?` plus `UNEXPECTED EOF` at line 10 of a
+nine-line file.  That source was wrong in TWO independent ways — UNIX LF endings, and a final
+`end E46M33.` with a period where every accepted probe in this repository uses `end <name>;` — so the
+run attributes nothing to either defect and is kept in `golden/e42p2b4/` as the record of a malformed
+submission, not as evidence.  One confounded oracle result is worth 2 probes to unconfound, because
+both defects would otherwise be folklore:
+
+* **E46M35 — CRLF, `end E46M35.` (a period).**  Prediction: DR REFUSES with a syntax diagnostic and
+  writes no `.REL`.  Basis: no accepted source in this repository ends with a period, and none of the
+  588 `artefacts/*.PLI` does either.  If it COMPILES, the convention is mine, not DR's, and the
+  probes' uniformity was luck rather than knowledge.
+* **E46M36 — LF only, `end E46M36;`.**  Prediction: DR refuses (`SYNTAX ?` / `UNEXPECTED EOF`), which
+  would isolate line endings as the cause of the aborted run.  If it COMPILES, the first run's failure
+  belongs to the period alone and my LF-vs-CRLF claim about [C303]'s line numbers needs re-reading,
+  because then DR tolerates LF where I claimed it does not.
+
+Neither can become a panel row: a probe DR refuses has no object to compare, and a probe my compiler
+ACCEPTS cannot be a REJECTS row (E46M36 compiles here today — the only observable difference is the
+line number in a message that never fires).  They are protocol facts, recorded in `RESULTS.md`.

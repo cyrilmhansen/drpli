@@ -1,0 +1,8 @@
+E46M35:
+  procedure options(main);
+  dcl outf file;
+  open file(outf) stream output title('M35OUT DAT');
+  put file(outf) list('A');
+  close file(outf);
+end E46M35.
+

@@ -60,7 +60,11 @@ C280_BANNER = "[C287] CORRECTS THE COUNTS"
 PINNED_MARKERS = [
     "OPEN option %s is outside" % k
     for k in ("KEYED", "RECORD", "SEQUENTIAL", "UPDATE")
-] + ["naming BOTH INPUT and OUTPUT", "OPEN repeats option", "PUT LIST with options this route"]
+] + ["naming BOTH INPUT and OUTPUT", "OPEN repeats option",
+        # [E2E-42/P2b] "PUT LIST with options this route" is GONE: P2b lowered every list length the
+        # route can name, so that blanket sentence described nothing (no REJECTS row keyed it).  The
+        # arm now names the three spellings that still reach it, and two of them have rows.
+        "ON options on one PUT", "an EMPTY LIST behind a FILE option"]
 
 
 def fail(msg, hits):

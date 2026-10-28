@@ -3312,10 +3312,40 @@ NEG_META["E46M26"] = ("my-gap",
     "First, FLOAT in position 2 again (E46M21's gap, unopened).  Second, and independent of "
     "multi-item work: the program contains NO `open file(outf)' and DR still attaches `LXI "
     "H,*C(0000) / LXI D,0652 / ?SIOOP' -- the FCB built from the FILE variable's OWN name in the "
-    "COMMON area, with no ?OIOOP anywhere in the object.  That re-measures [C282] (P086K attached "
-    "without opening) on the multi-item route, so an attach does not require an OPEN at N=2 either. "
-    " My refusal is on the ITEM, as E46K10 measured the order at N=1: the guard never reaches the "
-    "open question, and this row is the check that a future change does not reorder them.")
+    "COMMON area, with no ?OIOOP anywhere in the object.  That extends [C282], which had measured "
+    "the no-OPEN attach only on the EDIT route (P086K): E46M26 is the first LIST attach with no "
+    "OPEN anywhere in the program [C302].  My refusal fires on the ITEM and never reaches the open "
+    "question -- which is a fact about MY sequence of guards and not about DR's, since DR has no "
+    "missing-open check to order against [C302].  ONE STALE TEXT SURVIVES ON PURPOSE: this probe's "
+    "own comment asserts the falsified order (`E46K10 measured that the ITEM question is answered "
+    "FIRST').  It cannot be edited -- DR's listing echoes the source, so `E46M26.PRN' and "
+    "`E46M26.PLI' must keep matching byte for byte -- and deleting a claim from an artefact is worse "
+    "than leaving it, because the artefact would then look like a probe that predicted the right "
+    "thing.  The comment is wrong, the row says so, and the listing is the proof of what was sent.")
+# [E2E-42/P2b] THE TWO SPELLINGS LEFT IN THE OPTION ARM, MEASURED AFTER THE 32-PROBE RUN.  Their
+# predictions are in spec/lab-evidence/e2e42-p2b/HYPOTHESES.md section 5, committed before this
+# call (git 18785e5); the goldens are golden/e42p2b5/.
+NEG_META["E46M33"] = ("dr-refuses",
+    "DR REFUSES IT: `7 c put file(outf) file(outf) list('A'); / SYNTAX ? / 1 ERROR(S) IN PASS 2' "
+    "and NO .REL (golden/e42p2b5/E46M33/E46M33.PRN) -- the same FILE option named twice on one PUT "
+    "is not a statement DR's pass 2 will take.  Note the diagnostic word: `SYNTAX', not the "
+    "`COMP REQ' of E46M24/M25, and pass 1 is clean in both, so DR's two failure sites are "
+    "distinguishable and this one is earlier [C301].  My refusal agrees in verdict and differs in "
+    "reason (`bytes no specimen of mine measures'), which is what a dr-refuses row means here.  "
+    "THE LINE NUMBER IN THE MARKER IS THE STATEMENT'S OWN (`line 7', which is where DR's listing "
+    "puts it) and that is itself a finding: the same source written with UNIX LF endings reports "
+    "`line 4', and the baseline binary c816af5 reports `line 3' for an LF file of the same shape, "
+    "so the mis-count belongs to line-ending handling and predates this phase [C303].  Probes are "
+    "written CRLF + ^Z for a second reason too: `golden/e42p2b4/' is an ABORTED first attempt at "
+    "these two probes, kept as the record of a malformed submission (LF endings and `end <name>.' "
+    "with a period -- two defects at once, so it attributes nothing) and NOT as evidence about "
+    "`put file(f) file(f)'.")
+NEG_META["E46M34"] = ("dr-refuses",
+    "DR REFUSES IT: `7 c put file(outf) list(); / SYNTAX ? / 1 ERROR(S) IN PASS 2' and NO .REL "
+    "(golden/e42p2b5/E46M34/E46M34.PRN) -- an EMPTY item list.  My HYPOTHESES.md section 5 "
+    "predicted a refusal (right) and a model size of 72 bytes if it had compiled (void, and "
+    "recorded as void: predict_sizes.py keeps the entry so the arithmetic is not lost).  Same "
+    "line-ending caveat as E46M33 [C303], and the same reason for pinning the number.")
 
 # [E2E-42/P0] DR's own CONFLICT diagnosis, mirrored.  These eight sources are NOT my-gap
 # refusals: DR rejects every one of them in pass 2 with the word `CONFLICT' printed under the
@@ -3560,6 +3590,13 @@ REJECTS.update({
                "undeclared rec"),
     "E46M25": (open("probes/E46M25.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "PUT FILE(OUTF) LIST of a POINTER variable"),
+    # [E2E-42/P2b] the two spellings the option arm still owns, both refused by DR in pass 2 with
+    # `SYNTAX ?' and no object.  Their markers carry the WRONG line number on purpose -- the line a
+    # refusal names is a diagnostic artefact, and [C303] measures it against baseline c816af5.
+    "E46M33": (open("probes/E46M33.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT LIST with 2 ON options on one PUT (line 7)"),
+    "E46M34": (open("probes/E46M34.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT LIST with an EMPTY LIST behind a FILE option (line 7)"),
 })
 for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8", "E46K9",
            "E46K10", "E46K11", "E46K12", "E46K13", "E46K14", "E46K15"):

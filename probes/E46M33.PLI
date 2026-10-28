@@ -6,4 +6,5 @@ E46M33:
   open file(outf) stream output title('M33OUT DAT');
   put file(outf) file(outf) list('A');
   close file(outf);
-end E46M33.
+end E46M33;
+
