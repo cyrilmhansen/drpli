@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "763cadc3ba1d00130cbfa1098459312e",
+ "binary_md5": "662cbaeb0a99ae58368b800f6d77ff2a",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,15 +15,11 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-10-29T21:50:05",
+ "generated": "2026-10-29T23:18:19",
  "git_dirty_paths": [
-  "M ocaml/lib/codegen.ml",
-  "?? golden/e48p2c/summary.txt",
-  "?? golden/e48p2c/transcript-batch0.txt",
-  "?? golden/e48p2c/transcript-batch1.txt",
-  "?? golden/e48p2c/transcript-batch2.txt"
+  "?? golden/e48p2retire/"
  ],
- "git_head": "8c578563ee83414880102b0520cdb0884269bf7a",
+ "git_head": "b78770d035174b7bc0cd68b0fee448f279d833dd",
  "rows": [
   {
    "dir_present": true,
@@ -263,7 +259,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: STATIC on CHAR(10) VARYING is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER ",
+   "msg": "Fatal error: exception Failure(\"codegen: [TBD] STATIC INITIAL value '' on CHAR(10) VARYING is unsampled -- E48C8 measures only a NON-EMPTY character literal not",
    "name": "EXPR2",
    "prn_present": true,
    "rel_bytes": 2048,
@@ -323,7 +319,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: STATIC on CHAR(80) VARYING is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER ",
+   "msg": "Fatal error: exception Failure(\"codegen: [TBD] STATIC INITIAL value '' on CHAR(80) VARYING is unsampled -- E48C8 measures only a NON-EMPTY character literal not",
    "name": "FSCAN",
    "prn_present": true,
    "rel_bytes": 1024,
@@ -401,7 +397,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: STATIC on CHAR(14) VARYING is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER ",
+   "msg": "Fatal error: exception Failure(\"codegen: variable i declared with conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]\")",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
