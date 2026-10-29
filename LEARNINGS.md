@@ -7,6 +7,23 @@ The guard never writes this file.
 
 ## Accepted
 
+- **In OCaml, an arm body that begins with an unparenthesised `match` silently steals the
+  following arms of the enclosing `match`.** I added a `match rhs.Ast.e with …` as the body of the
+  `| Ast.Eident n when … = Vbit1 ->` arm of `lower_assign`'s `match lhs.Ast.e`; OCaml parsed every
+  later `| Ast.Eident …` as a case of MY inner match, so the outer match lost its DEC / varying /
+  based arms and 15 probes died with `Match_failure` at the *outer* `match` (codegen.ml:8026) — a
+  line I had not touched. It compiles clean (warning 8 is only emitted when a case is provably
+  unreachable, and here the stolen cases looked plausible), so `dune build` proved nothing.
+  Tell: a `Match_failure` naming a line you never edited, on specimens that passed minutes ago.
+  Fix: `begin match … end` (or parentheses) for any match used as an arm body. Rule: **write one
+  arm, rebuild, re-run the affected `cmp` sweep — never batch two arms before the first
+  verification.** [accepted, measured 2026-10-29: the failure and its cause were observed; the
+  fix itself was left UNVERIFIED when the closing phase arrived]
+- **`cmp` the whole `.REL` after each arm, not at the end.** Six probes went byte-identical from
+  the `^`-TEST arm alone (E48A1/A2/A5/A13/B1/B7), which is what localised the later regression to
+  the store/boolean arms instead of a 24-probe mystery. Evidence-first granularity pays in
+  debugging time, not just in honesty.
+
 - **A handoff summary can carry a rendering-error that the goldens disprove, and the
   renewal chain propagates it.** The "DR's own DAD H bias defect" recorded in a level-2
   checkpoint summary was traced to a mnemonic typo in `spec/lab-evidence/e2e42-p2b/chaindump.py`

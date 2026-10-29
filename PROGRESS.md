@@ -5,8 +5,34 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+**E2E-48/P1 step 5 — the golden-pinned codegen arms. IN PROGRESS, UNCOMMITTED, and the last
+edit is UNVERIFIED (the closing phase arrived before the rebuild).** Read
+`HANDOFF.md` → `## Last verified state — E2E-48/P1 step 5` and its `## Next action` item 0 before
+doing anything: the tree has one dirty file, `ocaml/lib/codegen.ml`, and the first job of the
+successor is `dune build` + the 24-probe `cmp` sweep, not new code.
+
+*Measured and committed this session (accepted):* after step 1 alone — the
+`Ast.Eprefix (Ast.NegL, x)` arm in `lower_test_skip0` (bare `^b` → `3A/B7/FA`; `^(k = 0)` →
+`21/7E/23/B6/CA`; `^(k = c)` c ≥ 1 → `cmp_load_deref/hl_bias(-c)/7C/B5/CA`) — **E48A1, E48A2,
+E48A5, E48A13, E48B1, E48B7 became whole-file BYTE-IDENTICAL to the goldens** (six new specimens,
+build clean at that point). That is the direct confirmation of RESULTS §3.1/§3.3: `^` in TEST
+position inverts only the skip byte.
+
+*Written but NOT verified (proposed, not accepted):* step 2 (`bit_cond_mat`, the six §3.2
+materialisers + `STA`) and step 3 (the `lower_bool` BIT(1) right operand, `F5/3A/C1/A0` under one
+`F2`). A 23-probe sweep after these showed a **regression I caused**: 15 probes died with
+`Match_failure` at `codegen.ml:8026` — the Vbit1 store arm's body started with an
+**unparenthesised `match rhs.Ast.e with`**, so OCaml absorbed every following `| Ast.Eident …`
+arm of the OUTER `match lhs.Ast.e` into it and the outer match lost its DEC/varying/based arms.
+Fixed by wrapping in `begin … end`; **the rebuild after the fix never ran**. E48A10/A15 failed on
+the *expected* unimplemented-PUT reasons (steps 4/5 still open).
+
+*Unchanged from the previous checkpoint (accepted):* goldens `ece657e` (24 programs, 15/15 + 9/9);
+`RESULTS.md` + `chaindump.py` fix `388673b`; the bind `span` double-count fix `a8d1c3a` with the
+gate at **1074 byte-exact / 0 fail** and E48A3/E48A4 byte-identical.
+
 **E2E-48/P1 — the condition-form half of CREATE: `^bit(1)` tests, conditions stored into
-BIT(1), and the DATA-area static/automatic law. In progress at this checkpoint.**
+BIT(1), and the DATA-area static/automatic law.**
 
 *Done (measured/committed this session, 2026-10-29):* goldens already committed at `ece657e`
 (24 programs, 15/15 + 9/9 accepted); **`spec/lab-evidence/e2e48-p1/RESULTS.md`** written with
@@ -80,6 +106,16 @@ never outranks the compiler work above; it changes no implementation strategy an
 
 ## Pending
 
+- **E2E-48/P1 step 5, resumed** — see `HANDOFF.md` → `## Next action — E2E-48/P1 step 5, resumed`.
+  Order is: `dune build` (verify the unverified `begin/end` fix) → 24-probe `cmp` sweep → gate
+  (must be 1074/0) → COMMIT the steps 1-3 arms → step 4 (PUT bit item, incl. the `char_var_ok`
+  classifier fix) → step 5 (STATIC-on-CHARACTER) → panel/claims C309+/INVENTORY/COVERAGE/gate/
+  census. The CREATE-vs-E48 SCVCM load-order discriminator stays `[TBD]` and must be MEASURED
+  (a new pre-registered round) before it is implemented; CREATE EXACT depends on it.
+- **Gate rows constrain refusal TEXTS** (discovered by reading `tools/e2e_gate.py`, accepted):
+  `N74_BIT_TO_BIT_COPY` pins the substring `store into BIT(1) from ident is unsampled`, and
+  `condition form not in E2E-3b subset` is pinned at three rows (MB13, LR9, E32C3). Any new
+  refusal wording must keep those substrings or the negative panel fails.
 - **E2E-48/P1 continuation** — see `HANDOFF.md` → `## Next action — E2E-48/P1 step 5`: land
   the golden-pinned codegen arms, register `E48A*/E48B*` in the byte panel, write C309+ from
   RESULTS §3, update INVENTORY/COVERAGE, run the gate, re-run the census. The
@@ -167,13 +203,13 @@ pre-registered hypotheses and replace that section with one chosen, exact next s
 The renewal test window is closed; infrastructure needs nothing further this session.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 6
-checkpoint-id: g6-2401cb724047
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-10-29T18:51:00.231Z
+checkpoint-generation: 8
+checkpoint-id: g8-ca0d7b0cae81
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-10-29T19:27:30.740Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 52a3c0455591a5b4a2771956ae819f53efd5102e9201da2e01713a4b55432cf6
 source-handoff: fb47e4976b67c5f749535dbdb05d5bd2c05e25c026cb8240ece21603d734b304
@@ -219,7 +255,4 @@ All arm locations were read in-session (2026-10-29, commit a8d1c3a) — reuse th
    INVENTORY/COVERAGE rows; gate; `python3 tools/corpus_census.py --check`. CREATE EXACT likely
    needs the [TBD] SCVCM load-order — if it blocks, measure the discriminator with a NEW
    pre-registered probe round (E48C) before implementing, or report census honestly unchanged.
-readiness-by: session:01a188dc-98bf-7470-93c0-80da3659a612
-readiness-at: 2026-10-29T18:51:00.235Z
-readiness-checkpoint: g6-2401cb724047
 <!-- guard:end checkpoint -->

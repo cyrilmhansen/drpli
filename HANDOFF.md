@@ -98,6 +98,35 @@ not as fresh measurements):
   related to PUT. Also recorded, deliberately unfixed: `pli80c`'s `wrote … (data=N)` summary line
   reports a number that is not the DATA segment length.
 
+## Last verified state — E2E-48/P1 step 5 (codegen arms, session started 19:12 UTC)
+
+**COMMITTED at `371a12e` (ocaml/lib/codegen.ml only).** VERIFIED BY MEASUREMENT IN THIS SESSION:
+`dune build` rc=0 with no new warning kinds, and the 24-probe sweep (`pli80c.exe` then whole-file
+`cmp` against `golden/e48p1/N/N.REL`) gave **14 BYTE-IDENTICAL** —
+E48A1 A2 A3 A4 A5 A13 **A14** B1 B2 B3 B4 B5 B7 **B9** — and **10 differing** —
+E48A6 A7 A8 A9 A10 A11 A12 A15 B6 B8. E48A14 exact proves the step-3 `&`-bit arm; E48B9 exact
+proves the §3.2 SCVCM store route on a plain cell. **The gate was NOT re-run after the arms**
+(1074/0 is inherited from `a8d1c3a` and must be re-measured before any panel registration).
+
+Arms landed: the `Ast.Eprefix (Ast.NegL, x)` TEST arm (^bare bit -> 3A/B7/FA; ^(k=0) ->
+21/7E/23/B6/CA; ^(k=c) c>=1 -> cmp_load_deref/hl_bias(-c)/7C/B5/CA); `bit_cond_mat`, the §3.2
+store classifier returning None for every unpinned shape; the `lower_bool` BIT(1) right operand
+(`F5 / 3A / C1 / A0` under one `F2`); and the Vbit1 store arm rewritten as `begin match ... end`.
+
+That last rewrite fixed a **regression I caused and then verified fixed**: an unparenthesised
+`match rhs.Ast.e with` as an arm body absorbed every following `| Ast.Eident ...` arm of the OUTER
+`match lhs.Ast.e`, so 15 probes died with `Match_failure` at codegen.ml:8026 — a line I never
+edited. Lesson recorded in `LEARNINGS.md`; the fix is now build- and sweep-verified.
+
+NOT done: step 4 (PUT bit item — A15 refuses, and `char_var_ok` blocks the 2-item [literal,bit]
+lists A6/A7/A8/A9/A10/B8 put), step 5 (STATIC-on-CHARACTER — B6), panel registration, claims
+C309+, INVENTORY/COVERAGE, gate, census.
+
+**Successor's first job: diff each of the 10 differing probes against its golden with
+`python3 spec/lab-evidence/e2e42-p2b/chaindump.py` on BOTH files.** E48B9 (exact, two SCVCM
+stores) versus E48A6/A7/B8 (differ) is the discriminator already in hand; do not guess past it,
+and never edit a golden.
+
 ## Unfinished operations — E2E-48/P1 (open at this checkpoint)
 
 - DONE since `ece657e`: `RESULTS.md` (prediction-vs-verdict, all bytes re-derived; MISSes kept:
@@ -112,8 +141,40 @@ not as fresh measurements):
   `= '0'b` as a materialised (stored) comparison (only `'1'b` pinned, E48A10); `^(cond)` in
   a STORE beyond `^(k = 0)`; nested `&` shapes beyond E48A14.
 
-## Next action — E2E-48/P1 step 5, the exact continuation (codegen arms)
+## Next action — E2E-48/P1 step 5, resumed (codegen arms, HALF-DONE and UNCOMMITTED)
 
+**Do this in order; the first two commands are the verification the previous session ran out of
+budget for. Never `git clean`/`reset` — the uncommitted diff IS the work.**
+
+0. `cd /home/john/projects/sushiworks/pli80 && git status --porcelain=v1` → expect exactly one
+   dirty file, `ocaml/lib/codegen.ml` (uncommitted step-2/3 arms + the begin/end fix, all
+   UNVERIFIED). Then `cd ocaml && opam exec --switch=default -- dune build`.
+   Expect rc=0 and **no** new warning kinds.
+1. Re-run the whole-bank sweep and record the honest tally:
+   `for n in E48A{1..15} E48B{1..9}; do … pli80c.exe ../probes/$n.PLI /tmp/e48fix/$n.REL; cmp vs
+   ../golden/e48p1/$n/$n.REL; done`.
+   Expected after the begin/end fix: E48A1/A2/A3/A4/A5/A13/B1/B7 EXACT (8), the store probes
+   (A6/A7/A8/A9/A11/A12/B8/B9) EXACT if `bit_cond_mat` matches the goldens, E48A10 EXACT, E48A14
+   EXACT (step 3), and E48A15/A10-PUT + E48B6 still refusing (steps 4/5 open). Read the
+   `cmp` failures with `python3 spec/lab-evidence/e2e42-p2b/chaindump.py` on both files; the
+   golden is the authority, never my output.
+2. Gate must stay **1074 byte-exact / 0 fail** before panel registration:
+   `python3 tools/e2e_gate.py`. Two negative-panel rows constrain the refusal TEXTS:
+   `N74_FIXED…`/`N74_BIT_TO_BIT_COPY` requires the substring
+   `"store into BIT(1) from ident is unsampled"` (my new message keeps that prefix — verified by
+   reading `tools/e2e_gate.py:1699-1717`, NOT by running the gate), and
+   `"condition form not in E2E-3b subset"` stays required at gate lines 1778/3157/4421 (MB13,
+   LR9, E32C3) — the catch-all in `lower_test_skip0` is still reachable for unpinned NegL shapes,
+   but my new inner refusal for `^(<other>)` has its OWN text; if a row breaks, keep the
+   catch-all reachable rather than editing the gate.
+3. Remaining arms (unchanged from the list below): step 4 the PUT bit item
+   (`3A reloc / 06 01 / ?QB08C / ?PNBOP`, refusal at the old ≈10317 `Vbit1 -> failwith`; note
+   `?PNBOP` REPLACES the shared `tail true ()`'s `?PNCOP`, and the `char_var_ok` classifier must
+   stop treating Vbit1 as a blocking char var — E48A6/A7/A8/A9/A10/B8 are 2-item `[literal,bit]`
+   console lists), and step 5 STATIC-on-CHARACTER (E48B6, largest, defer freely).
+4. Then panel registration, claims C309+, INVENTORY/COVERAGE, gate, census (items 6-7 below).
+
+Everything below is the predecessor's arm map, still accurate except where marked DONE above.
 All arm locations were read in-session (2026-10-29, commit a8d1c3a) — reuse them, do not re-explore:
 
 1. `ocaml/lib/codegen.ml` `lower_test_skip0`: beside the positive bare-bit arm (≈6993, emits
@@ -232,13 +293,13 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 6
-checkpoint-id: g6-2401cb724047
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 2, remaining ~13474, session 01a188dc-98bf-7470-93c0-80da3659a612)
-checkpointed: 2026-10-29T18:51:00.231Z
+checkpoint-generation: 8
+checkpoint-id: g8-ca0d7b0cae81
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4838, session 01a18900-db17-7470-93c0-80deb112c0f8)
+checkpointed: 2026-10-29T19:27:30.740Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 52a3c0455591a5b4a2771956ae819f53efd5102e9201da2e01713a4b55432cf6
 source-handoff: fb47e4976b67c5f749535dbdb05d5bd2c05e25c026cb8240ece21603d734b304
@@ -246,11 +307,8 @@ source-learnings: 7c0e8146fde39a8bbe29b79e661af80c7fa413d66c6c60f9013378b4475376
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 
 
-readiness-by: session:01a188dc-98bf-7470-93c0-80da3659a612
-readiness-at: 2026-10-29T18:51:00.235Z
-readiness-checkpoint: g6-2401cb724047
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
