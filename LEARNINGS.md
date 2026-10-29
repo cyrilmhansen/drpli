@@ -49,11 +49,12 @@ The guard never writes this file.
   left exactly as found).
 - **The launch environment can silently override `handoff.config.json`.** `CONTEXT_GUARD_AUTO_RENEW=1`
   is exported in this operator's shell and turns renewal **and** the model-initiated path on
-  regardless of the file (`config.ts`). DRPLi policy is renewal OFF, so every DRPLi Pi launch must
-  set `CONTEXT_GUARD_AUTO_RENEW=0` explicitly (it is also honoured as `0` = force-off) and
-  `/guard status` must be read back to confirm `renewal: policy enabled=false autoRenew=false`.
+  regardless of the file (`config.ts`). As of 2026-10-29 renewal is the project policy, but the
+  **file must be authoritative**: controlled DRPLi launches strip the inherited override with
+  `env -u CONTEXT_GUARD_AUTO_RENEW` and read `/guard status` back to confirm the effective policy
+  (the env var remains a per-process kill/experiment switch: `=0` force-off, `=1` force-on).
   Measured 2026-10-29: the first Phase D run reported `enabled=true autoRenew=true` until the
-  kill switch was set.
+  kill switch was set; the renewal e2e child ran correctly only after `env -u`.
 - **Guard slash-commands run without a model turn.** Driving the extension over
   `pi --mode rpc --no-session` and sending them as `prompt` records returns
   `disposition: "handled"` — the state machine can be exercised with zero inference and zero
@@ -123,14 +124,18 @@ The guard never writes this file.
   guard wrote an automatic, unattested checkpoint `g3-0c5843a47674` (`kind: auto`,
   `content-delta: none`) into both managed files, preserving the prior substantive notes — the
   auto-checkpoint preservation behaviour works on renewals too.
-- **Proposed [TBD]:** Why the successor's *fresh* context measured ~211k used at once. Candidates:
-  (a) the STQ model's API usage figures over-report prompt tokens for this harness's system+renewal
-  prompt, (b) an accounting artifact carrying parent usage across the switch. Measure: log the raw
-  per-turn usage fields in `.pi-guard/sessions/<successor>.json` and compare against a tokenizer
-  count of the successor's first prompt. Until measured, treat successor-start pressure as
-  unexplained — this is `unmeasured`, not a defect claim.
+- **Accepted (measured, closure session):** The successor's ~9 000-remaining start reading was
+  **fully explained by the test harness itself**: the child process was launched with
+  `CONTEXT_GUARD_SYNTHETIC_REMAINING=9000` (the deliberate controlled threshold), that env
+  override is re-applied by `loadConfig` at every session_start inside the process, and
+  `.pi-guard/sessions/<successor>.json` records `lastRemaining: 9000` exactly — the synthetic
+  figure, not a usage estimate. Not a defect, not an accounting artifact. Lesson: when a renewal
+  successor reports suspicious pressure, first check whether the launch environment still carries
+  a synthetic override before investigating Pi's accounting.
 - **Accepted (decision, per protocol):** The successor did **not** renew again — the authorized
-  procedure says the successor reports and stops; re-renewing while start-pressure is unexplained
-  risked burning the chain cap (8) in a renewal loop. Test-window closure (restore the real next
+  procedure says the successor reports and stops; re-renewing while start-pressure looked
+  unexplained risked burning the chain cap (8) in a renewal loop. (The pressure was later
+  explained as the harness's synthetic override — the no-re-renew decision stands on the
+  procedure alone.) Test-window closure (restore the real next
   action from pre-test commit `a6eec67`, `/handoff` refresh, `/handoff ready`) remains an operator/
   next-session step.

@@ -101,31 +101,38 @@ final deployment checkpoint.
   (b) the inherited `CONTEXT_GUARD_AUTO_RENEW=1` is now neutralized for controlled launches
   by stripping it (`env -u`); `handoff.config.json` is authoritative (see `PROTOCOL.md` → Load).
 
-## Renewal test window (2026-10-29)
+## Renewal test window (2026-10-29) — **CLOSED, PASSED**
 
-**Successor result (renewal 1/8, session 01a188a6, 17:12Z+):** renewal e2e **passed** — fresh
-successor recovered the test task from durable files only, executed it (highest ledger claim
-**C308**; no scientific file touched), durable chain counter verified in
-`.pi-guard/renewal-state.json` (`renewalsDone: 1`, from checkpoint `g2-470d507dbf6c`). The
-successor hit guard **level 3 at session start** (~9 000 remaining of 220 000) and the guard
-auto-wrote unattested checkpoint `g3-0c5843a47674`; cause of start-pressure unexplained — see
-`LEARNINGS.md` 2026-10-29 successor block (item marked [TBD]). Successor did not re-renew
-(procedure: report and stop). **Pending closure:** restore genuine next action from pre-test
-commit `a6eec67`, refresh + attest the checkpoint, end the test window.
+Operator-authorized end-to-end renewal test, run as a real model-driven renewal (RPC-mode child
+session, production profile, trust-based auto-load, no `-e`, synthetic level-3 threshold
+`CONTEXT_GUARD_SYNTHETIC_REMAINING=9000`):
 
-An operator-authorized end-to-end renewal test is running: HANDOFF.md → Next action is
-temporarily a harmless evidence-reading task; after the test it is restored from the
-pre-test commit `a6eec67`, the checkpoint refreshed, attested and verified fresh.
+- Parent `01a188a5-2c00-708a-affc-0a48428f85d5` reported `autoCompactionEnabled=false` live;
+  read the durable files, invoked `handoff_renew` exactly once (trigger `model`); guard refreshed
+  + attested checkpoint `g2-470d507dbf6c` and switched to successor
+  `01a188a6-36ee-708a-affc-0a4c9333a1c9`, which started with **3 messages** (identity +
+  recovery), i.e. fresh context recovered from durable files only — no transcript replay, zero
+  compaction events in either session.
+- Durable counter verified in `.pi-guard/renewal-state.json`: `renewalsDone: 1/8`,
+  `renewedFromCheckpointId: g2-470d507dbf6c`, chain `chain:01a188a5-…`, `stopped: false`.
+- Successor identified and executed the test task from the files alone (highest claim **C308**),
+  wrote its results into the durable prose, and stopped without re-renewing.
+- The successor's ~9 000-remaining start reading was the test harness's own synthetic override
+  (re-read at every session_start in the process), **not** an anomaly — resolved in
+  `LEARNINGS.md`.
+- Only `HANDOFF.md`, `PROGRESS.md`, `LEARNINGS.md` and the guard-written managed blocks were
+  touched; directory-listing checksums of every protected tree (artefacts/manuals/extracted/
+  references/oracle/golden/probes/build/ocaml/spec/tools/thirdparty) verified unchanged; global
+  profile `settings.json` untouched; `trust.json` holds only the pre-existing exact-path entries.
+- Closure (this session): genuine Next action restored verbatim from `a6eec67`, checkpoint
+  refreshed and re-attested.
 
 ## Next action
 
-**[Test window 2026-10-29]** See `HANDOFF.md` → `## Next action` (currently the authorized
-renewal e2e test; the genuine DRPLi action below is preserved and restored afterwards).
-Genuine action: read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7–§9,
+See `HANDOFF.md` → `## Next action`: read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7–§9,
 `.../HYPOTHESES.md` and claims `C296`–`C308`, then write the candidate next phase as
 pre-registered hypotheses and replace that section with one chosen, exact next step.
-Infrastructure-wise: nothing further is authorized in this session beyond Phase D/E validation
-and the reporting steps.
+The renewal test window is closed; infrastructure needs nothing further this session.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
 checkpoint-generation: 3

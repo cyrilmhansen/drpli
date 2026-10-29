@@ -24,8 +24,10 @@ Manual prose wins over the managed block below it. Do not hand-edit the managed 
 
 Verified **in the deployment session itself** (i.e. measured now, not quoted from a report):
 
-- Repo `/home/john/projects/sushiworks/pli80`, branch `main`, HEAD
-  `0a50fc4c745838e3af1641c8a6f68fd17ed1371a`, working tree clean (0 porcelain lines).
+- Repo `/home/john/projects/sushiworks/pli80`, branch `main`; scientific HEAD
+  `0a50fc4c745838e3af1641c8a6f68fd17ed1371a`, with the 2026-10-29 infrastructure chain on top
+  (`aa03eeb` renewal activation, `88248b1` renewal e2e test record, plus the closure commits);
+  working tree clean (0 porcelain lines) at every checkpoint of this window.
 - 12 028 tracked files; 471 102 ignored files present; 37 entries at the repository root.
 - Nested third-party repos untouched and clean: `thirdparty/PLI-2000` @
   `c6f0f2ddd9c2100781ce6fb65d79d3039ac94e2a`, `thirdparty/z80pack` @
@@ -58,9 +60,11 @@ not as fresh measurements):
 
 ## Unfinished operations
 
-- **None in progress.** The Pi Handoff deployment (Phases A–E) is complete and validated; the
-  operator decisions listed in `PROGRESS.md` → Pending (project trust, reserve tuning, closing
-  enforcement, renewal, push) remain **open by design** and are not half-applied.
+- **None in progress.** The Pi Handoff deployment (Phases A–E) is complete, and on
+  2026-10-29 the operator authorized and live-tested the renewal activation (project trust,
+  compaction disabled project-wide, `renewal.enabled/autoRenew`, cap 8). The remaining
+  operator decisions listed in `PROGRESS.md` → Pending (reserve tuning, closing enforcement,
+  push) stay **open by design** and are not half-applied.
 - No compiler work was started, continued or left half-done in this session. Nothing in
   `ocaml/`, `spec/`, `tools/`, `golden/`, `oracle/` or `probes/` was touched by it, and no gate
   was executed by it.
@@ -71,30 +75,32 @@ not as fresh measurements):
 
 ## Next action
 
-**[INFRA TEST WINDOW — 2026-10-29]** This section is deliberately swapped for the operator-
-authorized end-to-end renewal test. The task for the session reading it now is the harmless
-evidence read below — **not** compiler development:
+**Not established by this session.** A deployment session deliberately did not choose the
+compiler's next task, and inventing one here would put an unmeasured intention into the file a
+fresh session trusts. The first action of the next session is therefore evidence-reading, not
+implementation:
 
-> Read `spec/CLAIMS.md` and identify the highest-numbered claim and what it records (one short
-> paragraph, reported in chat). Do **not** edit any project file. Do **not** run the compiler,
-> the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`. When the context guard reports
-> level-3 pressure and offers renewal, first ensure this session's state is recorded, then
-> invoke the `handoff_renew` tool exactly once with a short note naming the test. The successor
-> session must report — from the durable files alone — which task it recovered, then stop.
-
-The genuine post-test DRPLi next action is preserved verbatim in git (`HANDOFF.md` at the
-pre-test commit `a6eec67`) and summarized in `PROGRESS.md` → Next action; it is restored and
-re-attested when this test window closes.
+> Read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7 (CREATE blockers), §8 (the recorded gate
+> verdict) and §9 (the unfixed `data=` reporting defect), plus
+> `spec/lab-evidence/e2e42-p2c/HYPOTHESES.md`, plus claims `C296`–`C308` in `spec/CLAIMS.md`,
+> then `spec/INVENTORY.txt` rows whose refusal text names `^eofile` or a `BIT(1)` condition store.
+> Expected output: the candidate next phases written as *pre-registerable hypotheses* (e.g. the
+> `^eofile`-in-`DO WHILE` condition form, the `BIT(1)` condition store, the `data=` reporting defect
+> in `pli80c`'s summary line). Pick one, write its probe bank and predictions, commit them **before**
+> any oracle run — and replace this section with the exact chosen command.
 
 ## Discoveries not yet incorporated
 
-- **Renewal e2e test 2026-10-29 — complete at the successor (renewal 1/8).** Durable chain,
-  attested-handoff recovery, file-only successor bootstrap and auto-checkpoint preservation all
-  verified working; successor start-pressure (~9 000 at once) is **unexplained [TBD]** and logged
-  in `LEARNINGS.md`. The INFRA TEST WINDOW in `## Next action` (both this file's prose and the
-  managed blocks) can now be closed: restore the genuine next action verbatim from pre-test commit
-  `a6eec67`, then `/handoff` refresh + `/handoff ready` to re-attest. Full test record:
-  `PROGRESS.md` → Renewal test window.
+- **Renewal e2e test 2026-10-29 — PASSED and closed.** Durable chain, attested-handoff
+  recovery, file-only successor bootstrap and auto-checkpoint preservation all verified
+  (renewal 1/8, parent `01a188a5-2c00-708a-affc-0a48428f85d5` → successor
+  `01a188a6-36ee-708a-affc-0a4c9333a1c9`, checkpoint `g2-470d507dbf6c`). The successor's
+  start-pressure reading (~9 000 remaining) was **not** an anomaly: the test deliberately set
+  `CONTEXT_GUARD_SYNTHETIC_REMAINING=9000` in the child *process* environment, and that
+  synthetic override is re-read at every session_start in the process — by design, not
+  measurement. The INFRA TEST WINDOW is closed: the genuine next action above was restored
+  verbatim from `a6eec67`. Full record: `PROGRESS.md` → Renewal test window; lessons in
+  `LEARNINGS.md`.
 
 - `AGENTS.md`'s reading order, the guard's managed-block rules and `PROTOCOL.md` Part 2 are new to
   this repository; nothing in `spec/` has been reconciled against them, and nothing in `spec/`
