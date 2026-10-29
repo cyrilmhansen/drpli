@@ -284,6 +284,57 @@ The guard never writes this file.
   reports managed-block-sized deltas in the wrong files. Rule: after any guard-triggered write,
   re-read `git status` and `git show --stat` before composing the message. [accepted, measured 2026-10-29]
 
+## Accepted (E2E-48/P2c close + P2d pre-registration, measured 2026-10-30, renewal 8/8 successor)
+
+- **A refusal reason that says "no golden exists" is a SEARCHABLE claim, and two of them were
+  false.** The P2c §3 list (inherited through three renewals) said `TITLE(<static varying>)` and
+  the EMPTY `initial('')` static cell were unmeasured. They are not: `golden/e42p1c/E46F5/E46F5.REL`
+  is DR's own accepted object for exactly the static-varying TITLE (CODE 68 / DATA 18, `?SLVTS` at
+  0006, option word `0E50`, cell `02 41 42 20 x11` in place, `.PRN` prints NO ERRORS), and
+  `golden/first8080u/EXPR2/EXPR2.REL` DATA **000F = 00 then ten 20 bytes** is the empty-varying
+  cell. Neither was ever looked for. RULE: before writing `unmeasured`, run the search —
+  `find golden -name '<program>.REL'` then `tools/reldump.py | grep "DATA  *data"`. A refusal
+  copied forward by summaries accumulates authority it never earned (the same failure class as the
+  `dad d` mnemonic). Classification: the two §3 claims **falsified**; the objects stand.
+  [accepted, measured 2026-10-30]
+- **Retiring a negative row is a THREE-place edit, and only the audit sees the third.** A row lives
+  in `REJECTS`, in `NEG_META`, and (by path) in `SPECIMENS`. Removing it from `REJECTS` but leaving
+  its `NEG_META` stamp makes `registration_audit`'s symmetry rule abort the FULL gate — and
+  `--update-inventory` **returns before that audit**, so the promotion commit looks green while the
+  gate is doomed. The predecessor's sweeps (per-probe `cmp`) could never find it either. Tell:
+  `len(NEG_META) != len(REJECTS)`. Cheap pre-flight that costs no compile:
+  `python3 -c` importing `tools/e2e_gate.py` and calling `registration_audit` directly. Fix at
+  `f67cc6d` keeping the superseded prose verbatim in a comment. [accepted, measured 2026-10-30]
+- **`coverage_check` validates citations, never prose currency, so stale blocker NAMES are the real
+  rot in `spec/COVERAGE.tsv`.** Four rows still named refusals the binary no longer emits
+  (LOAN2's line-39 `STATIC on CHAR(14) VARYING is unsampled`, CREATE's line-41 SKIP control item,
+  `STATIC on CHAR(27)`/`CHAR(15)`, and DECL.STATIC_INITIAL's `STATIC on character types has no
+  sample at all`). The gate stayed green through all of it. Method I used: diff each named blocker
+  against the **census `msg` column** (the only machine-maintained source for "what does my
+  compiler refuse today"), then APPEND a dated correction and keep the original sentence word-for-word
+  — `git diff` proves the append (`original-preserved: True` for all four). [accepted, measured
+  2026-10-30 at `ef0a198`]
+- **`--update-inventory`'s success line counts SPECIMENS, not inventory rows**
+  ("inventory rewritten (1109 entries)" while the file holds 1291 rows = 1109 specimens + 182
+  refusals): the message reports `rows_of(SPECIMENS)` because `inventory_check(write=True)` returns
+  `[]`. Read the file, not the line. [accepted, measured 2026-10-30]
+- **The renewal successor's shell is NOT the operator's login shell.** `dune` is absent
+  (`command introuvable`) until `eval $(opam env)` (switch `default`, ocaml 5.4.0, dune at
+  `/home/john/.opam/default/bin/dune`), and the renewal banner's "verify the build: `node --test
+  test/`" is a generic template line — this repository has no `test/`; its build verification is
+  `dune build` plus the sweeps/gate. Do not invent a Node test suite to satisfy a template. Also:
+  a `dune build` that prints nothing may be CACHED, so an "0 warnings" claim from it proves
+  nothing — compare clean-rebuild warning multisets as `LEARNINGS` already requires. [accepted,
+  measured 2026-10-30]
+- **Proposed (unverified): LOAN2's `conflicting kinds` refusal is a DESIGN gap, not an arm.**
+  `codegen.ml:12460-12490` builds ONE global `pd_vars` name -> vkind map for the DEC-pool prescan
+  and refuses when a name appears with two kinds; LOAN2 legally declares `i` `fixed decimal(4,2)`
+  in `main` (line 32) and `fixed bin` in the internal procedure `line` (line 211), and DR's object
+  exists. Every one of the ~15 consumers is `List.assoc_opt name cx.pd_vars` and the prescan runs
+  deliberately WITHOUT statement context (`codegen.ml:3009` says so), so scope-keying it is a
+  refactor with pool-layout consequences. Classified `my-gap`, cause measured; **not started**,
+  must not be attempted on faith. [proposed, unverified]
+
 ## Falsified or superseded
 
 - **"File mtimes prove pre-registration"** — superseded by the committed-blob rule above (P2a).

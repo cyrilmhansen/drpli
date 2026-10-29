@@ -5,6 +5,59 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+**E2E-48/P2c CLOSED (renewal 8/8 successor, 2026-10-30): steps 6 AND 7 are DONE and MEASURED.**
+Measured by THIS session, in order:
+- HEAD at session start `2bae05e` + the guard's uncommitted g19 managed-block refresh, committed as
+  its own commit `2d26c1b` (PROTOCOL Part 2 step 7). Tree clean.
+- Baseline re-verified at HEAD: `dune build` rc=0 (needs `eval $(opam env)` — the renewal
+  successor's shell does not carry the opam PATH; `dune: command introuvable` otherwise), E48C
+  sweep **9/9** whole-file byte-identical, e48p1 **24/24**, and the two RETIRE goldens E46K1/E46K3
+  byte-identical to `golden/e48p2retire/`.
+- **A real leftover of the promotion was found and fixed:** the retired rows' `NEG_META` entries
+  were still stamped by the loop at `tools/e2e_gate.py:3941`, so `registration_audit`'s
+  REJECTS/NEG_META **symmetry** rule aborted the gate (`negmeta-only=['E46K1','E46K3']`) — a count
+  cannot see it, only the audit can. Fixed by removing those two keys from the loop and keeping the
+  superseded sentence verbatim in a comment above it (`f67cc6d`).
+- **Step 6 item 2 DONE:** `python3 tools/e2e_gate.py --update-inventory` -> INVENTORY rewritten,
+  **1291 rows = 1109 specimens + 182 refusals**, reviewed line by line: the only content changes are
+  E46K1/E46K3 becoming specimen rows (goldens verified present), the nine new E48C rows, the
+  E46F5 verdict text the 7/8 successor had rewritten in `e2e_gate.py` at `3ee414a` but never
+  re-exported, and the shared E46K* prose.
+- **Step 6 item 3 DONE — FULL GATE MEASURED twice, both rc=0:** `1109 byte-exact / 0 fail of 1109`,
+  negative panel **182/182 refused**, divergence **9/9**, coverage **102 then 107 rows, 0 errors**,
+  census `--verify` clean (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0), prose check clean.
+  The inherited "1107/184" is confirmed FALSE; 1109/182 is what the artifacts produce.
+- **Step 7 DONE (`ef0a198`):** the five drafted `spec/COVERAGE.tsv` rows written —
+  `COND.BIT1_NEG_TEST`, `STOR.BIT1_COND_STORE`, `COND.AND_BIT1_OPERAND`, `IO.PUT_BIT1_ITEM`,
+  `DECL.STATIC_CHAR` — with the CURRENT ledger (C309-C320), not the round-1 draft text: the STOR row
+  cites [C317]'s operand-CLASS law and lists E48C1..C8 + E46K1 (18 exact), `DECL.STATIC_CHAR` is
+  `PARTIAL` and cites [C314][C319][C320] with the empty-literal / store-into-static / TITLE
+  refusals named. Also corrected, each as a PURE APPEND with the original kept word-for-word:
+  FILE.PUT_LIST_VAR's CREATE and LOAN2 blocker sentences (LOAN2 now refuses in the prescan, CREATE
+  at `GET LIST of unknown variable name`), STOR.STATIC_MEMBER_INITIAL's and DECL.STATIC_INHERIT's
+  census blocker names, and DECL.STATIC_INITIAL's falsified `STATIC on character types has no sample
+  at all` clause. `coverage_check` 107 rows / 0 errors, gate re-run at that HEAD still 1109/0.
+
+**OPEN AT THIS BOUNDARY: no half-finished COMPILER edit; every commit above was made after its
+measurement.**
+
+**Round 4 (E2E-48/P2d) PRE-REGISTERED, oracle NOT RUN** (this session stopped at the
+pre-registration boundary on context pressure). Written and committed:
+`spec/lab-evidence/e2e48-p2d/mkprobes.py`, ten CRLF probes `probes/E48D1..D10.PLI`,
+`BASELINE-MINE.txt` (measured at `ef0a198`: D1/D2/D4/D6/D8/D9/D10 refuse with their named texts;
+**D3 static-FIXED title, D5 empty FIXED initial and D7 store into a static VARYING cell already
+COMPILE** -- my bytes for those three are unverified against any DR object), and `HYPOTHESES.md`
+P-D1..P-D10 derived only from committed goldens (`golden/e42p1c/E46F1/F2/F3/F5`,
+`golden/first8080u/EXPR2`, `golden/e48p2c/E48C8`; P-D6/P-D7 pool arithmetic flagged as the weakest
+derivations). Two §3 "unmeasured" claims were **FALSIFIED by artifacts already in the tree** during
+this work -- DR's accepted object for `TITLE(<static varying>)` is `golden/e42p1c/E46F5/E46F5.REL`,
+and the EMPTY-literal static-varying cell is `golden/first8080u/EXPR2/EXPR2.REL` DATA 000F = `00` +
+ten `20` (recorded in `LEARNINGS.md`). The `spec/CLAIMS.md` [C319]/RESULTS §3 annotations and the
+COVERAGE boundary sentences stay OWED -- they must be corrected with the round's OWN measurements,
+not pre-emptively from a prediction.
+**No oracle call was made in this session on any E48D probe; `golden/e48p2d` does not exist.**
+
+(Inherited boundary text, kept for lineage:)
 **E2E-48/P2c STEP 6 OWED (renewal 7/8 successor, 2026-10-30); arms 4a/4b/2 + RETIRE round + claims DONE.**
 Measured by THIS session, in order:
 - Re-verified inherited baseline at `c4d6a80`: dune rc=0; E48C sweep 6/9; e48p1 24/24.
@@ -160,16 +213,22 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 ## Pending
 
-- **RETIRE round oracle** (E46K1/E46K3) -- pre-registered at `630e9be`, NOT yet measured; then
-  gate promotion/retirement of the two rows per the measured verdict, then step 6 registration
-  (11 SPECIMENS rows if both accept, `--update-inventory`, claims C317..C320 + C310 annotation,
-  census `--check`, FULL GATE -- expected 1109/182, corrected from the checkpoint's 1107/184 by
-  this session's discovery; see Current phase).
-- Step 7 (lower priority): the five DRAFTED `spec/COVERAGE.tsv` rows (15-column format measured;
-  rows NOT yet written).
+- **DONE this session (kept for lineage):** the RETIRE round oracle (`630e9be` prereg -> 2 ok/2 ->
+  promoted at `1480d6f`), step 6 registration (`--update-inventory` + FULL GATE measured at
+  `f67cc6d`), and step 7's five COVERAGE rows (`ef0a198`).
+- **LOAN2's new prescan my-gap** (`variable i declared with conflicting kinds; decimal pool prescan
+  needs one unambiguous type map [TBD]`): measured cause, fix NOT attempted. `codegen.ml:12460-12490`
+  builds ONE global `pd_vars` name -> vkind map for the DEC-pool prescan, and LOAN2 declares `i`
+  `fixed decimal(4,2)` at line 32 and `fixed bin` at line 211 — two scopes, both legal, DR accepts
+  (its golden exists). Making the prescan scope-aware touches ~15 `List.assoc_opt … cx.pd_vars`
+  call sites whose prescan deliberately runs WITHOUT statement context, so it is a design change,
+  not an arm. It needs its own measured plan; do not start it on faith.
 - CREATE remains NOT byte-exact; its measured blocker is still the front-end `%include` gap
   (`pli80c.ml` never expands INCLUDE). Do NOT implement any unmeasured shape from the
   [TBD] list in RESULTS section 3.
+- **Renewal budget is EXHAUSTED (8/8, `maxRenewals: 8`).** `handoff_renew` will refuse with
+  `capped`; the operator must either raise the cap by decision or start the successor session
+  manually. Nothing about the science changes; the durable files are the recovery path either way.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3

@@ -160,7 +160,67 @@ unchanged); the sweep is
 > items of that list are UNCHANGED and still must not be guessed. The COVERAGE rows remain
 > unwritten (now sub-task 7 of the current Next action).
 
-## Next action - E2E-48/P2c step 6: census re-measure, inventory, FULL GATE
+## Next action - E2E-48/P2d: RUN THE PRE-REGISTERED ROUND-4 ORACLE (E48D1..D10)
+
+> **STATUS 2026-10-30 (renewal 8/8 successor, session closing; HEAD after this commit):**
+> **E2E-48/P2c IS CLOSED.** Step 6 and step 7 are DONE and MEASURED:
+> - `2d26c1b` committed the guard's g19 managed-block refresh as its own commit.
+> - `f67cc6d` — fixed the promotion leftover (`NEG_META` still stamped the two retired rows, which
+>   aborted `registration_audit`'s REJECTS/NEG_META symmetry rule; counts 182 vs 184), ran
+>   `--update-inventory` (INVENTORY **1291 rows = 1109 specimens + 182 refusals**, reviewed line by
+>   line), and measured the **FULL GATE rc=0: 1109 byte-exact / 0 fail, negative 182/182,
+>   divergence 9/9, coverage 102 rows 0 errors, census --verify clean (15/0/26/0)**. The inherited
+>   "1107/184" is confirmed false.
+> - `ef0a198` — step 7: the five drafted COVERAGE rows written against the CURRENT ledger
+>   (`COND.BIT1_NEG_TEST`, `STOR.BIT1_COND_STORE`, `COND.AND_BIT1_OPERAND`, `IO.PUT_BIT1_ITEM`,
+>   `DECL.STATIC_CHAR`; 107 rows / 0 errors, gate re-run still 1109/0 rc=0) plus four stale blocker
+>   sentences marked SUPERSEDED by pure appends (originals kept word-for-word, verified by
+>   `git diff` + `startswith`).
+> - **Then two §3 "unmeasured" claims were FALSIFIED by artifacts already in the tree** (see
+>   `LEARNINGS.md`): DR's object for `TITLE(<static varying>)` IS `golden/e42p1c/E46F5/E46F5.REL`
+>   (CODE 68 / DATA 18, `?SLVTS`, w1 `0E50`, cell `02 41 42 20 x11` in place), and the EMPTY
+>   `initial('')` static-varying cell IS `golden/first8080u/EXPR2/EXPR2.REL` DATA 000F = `00` +
+>   ten `20`. E48F1/E46F5 differ in CODE only at the two `LXI H,*D` operand words.
+> - **Round 4 (E48D1..D10) is PRE-REGISTERED and the oracle has NOT been run.** Committed in the
+>   closing commit of this session: `spec/lab-evidence/e2e48-p2d/mkprobes.py`, the ten
+>   `probes/E48Dn.PLI` (CRLF, [C193] (b)), `BASELINE-MINE.txt` (my state at `ef0a198`: 7 named
+>   refusals, 3 that already compile — D3 static-FIXED title, D5 empty fixed initial, D7 store into
+>   static varying) and `HYPOTHESES.md` (P-D1..P-D10, every row derived from a listed committed
+>   object; P-D6/P-D7 pool arithmetic flagged as the weakest derivations).
+>
+> **THE EXACT NEXT ACTION** (a fresh session; **renewal is capped at 8/8, so `handoff_renew` will
+> refuse — the operator starts the successor manually or raises `renewal.maxRenewals` by decision**):
+>
+> 1. Verify the boundary: `git rev-parse HEAD` (expect the P2d pre-registration commit or a
+>    descendant), `git status --porcelain=v1` (expect clean or only guard blocks),
+>    `ls probes/E48D{1..10}.PLI spec/lab-evidence/e2e48-p2d/`, and confirm the pre-registration is
+>    the PREDECESSOR of any oracle call:
+>    `git log --oneline --format='%h %s' -- probes/E48D1.PLI | tail -1`.
+> 2. `cd /home/john/projects/sushiworks/pli80/ocaml && eval $(opam env) && dune build` (the opam
+>    PATH is NOT set in a renewal successor's shell) — rc=0, binary current.
+> 3. Run the oracle ONCE, exactly as pre-registered:
+>    `PLI_SRC=probes python3 oracle/batch.py E48D1 E48D2 E48D3 E48D4 E48D5 E48D6 E48D7 E48D8 E48D9 E48D10 --tag e48p2d --switches '$L$D'`
+>    (new tag — `golden/e48p2d` must not exist; never pass `--reuse` into an existing tag).
+> 4. Write `spec/lab-evidence/e2e48-p2d/RESULTS.md`: §1 the prediction-vs-verdict table over
+>    P-D1..P-D10 (keep every MISS), §2 the laws read out of the `.REL` records with
+>    `tools/reldump.py` / `spec/lab-evidence/e2e42-p2b/chaindump.py` (never a `.PRN` size), §3 what
+>    the round did NOT measure. Commit goldens + report together.
+> 5. Only then lower what §2 measures — one arm per commit, `dune build` + `cmp` sweep after each,
+>    and mirror every new pool-allocating shape in its prescan demand twin (the `fa09b97` rule).
+>    E46F5's promotion, if D1/D2 land, is a THREE-place edit: `REJECTS`, `NEG_META`, `SPECIMENS`,
+>    then `--update-inventory`, census `--check <copy of prev>` (counts MAY legitimately change
+>    here — a corpus advance is not a regression, but re-read every delta) and the FULL GATE.
+>
+> **Standing prohibitions unchanged:** do NOT touch `golden/e48p1`, `golden/e48p2c`,
+> `golden/e48p2retire`, `golden/e42p1c`, `golden/first8080u` or any other committed evidence; do
+> NOT implement a §3 shape on faith; a BASED member in a condition store and a bit item behind a
+> file attach stay refused (no witness anywhere); no `%include` work without its own
+> pre-registered round; the LOAN2 `conflicting kinds` prescan gap stays `proposed` (design change,
+> not an arm); no push is authorized.
+
+(Previous next-action section, kept for lineage — its steps 6 and 7 are DONE as measured above.)
+
+## Next action (superseded) - E2E-48/P2c step 6: census re-measure, inventory, FULL GATE
 
 > STATUS 2026-10-30 (renewal 7/8 successor, HEAD after the RETIRE+claims commit):
 > **Steps 1-5 DONE, RETIRE round DONE.** `14c7321` (4a store-destination widening, 8/9),

@@ -8,7 +8,8 @@ stays in that table (PROTOCOL #2).
     probes written by spec/lab-evidence/e2e48-p2d/mkprobes.py (CRLF, [C193] (b))
     baseline of MY compiler recorded in BASELINE-MINE.txt at HEAD ef0a198 (no oracle call)
     the commit that adds probes/E48D*.PLI + mkprobes.py + this file = the prediction SHA,
-      recorded here when known: <fill in at oracle time from `git log --format=%h -- probes/E48D1.PLI`>
+      recorded here when known: **60cf463** (`git log --format=%h -- probes/E48D1.PLI | tail -1`),
+      committed BEFORE any oracle invocation; `golden/e48p2d` does not exist at that commit.
 
 ## What this round is
 
