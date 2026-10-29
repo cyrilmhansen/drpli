@@ -7086,3 +7086,49 @@ classified `unmeasured` rather than `dr-refuses`.
   means.  The same reasoning retired `E41X6`/`E41X9` in this phase: they were rows asserting my refusal,
   and P2c removed the refusal, so keeping them would have made the panel claim a gap that no longer
   exists — which is why a retired negative vanishes from `REJECTS` *and* `NEG_META` [E2E-16 symmetry].
+
+## C307 — AN ARM THAT CANNOT FAIL IS NOT EVIDENCE, AND A COUNT THAT MOVES BETWEEN BUILDS IS NOT EITHER (E2E-42/P2c)
+
+* **Measured.**  `link_run()` printed `.COM DIFFERS! vs DR`, `CONSOLE DIFFERS` and `MISSING
+  TRANSCRIPT` and **returned nothing**; `main()`'s status came from the byte panel.  The last full
+  serial run before this fix reached 817 arm lines and was cut off mid-panel (it printed no summary
+  line at all), and what it had said was: **212 `.COM IDENTICAL vs DR`, zero `DIFFERS!`, zero
+  `MISSING TRANSCRIPT`, and 25 arms reporting "captured 0 raw output bytes"** — the only line in
+  that log containing the word DIFFERS is the corpus census JSON.  So nothing that was ever
+  correct changes, but a wrong program could not stop this repository by that route, and the arm
+  could not be handed to CI until it could fail.  It now returns failures, a nonzero `link`
+  step is a failure, and **no `.COM` at all** is a failure — which is what those 25 lines were.
+* **The "by design" sentence in an earlier claim is wrong and I am not editing it.**  The entry
+  recording the first full `--link-run` regression calls 42 specimens "the mine-only
+  non-terminating/no-output set **by design**".  Measured now, that set is 55 arms, and the reasons
+  are not design: `REVERSE` prints `What's up?` and `TEST` prints `Type Three Numbers:` (input this
+  harness does not send), most stop at their own command echo, and `V5`'s transcript never reaches
+  its own echo at all.  Two more are not hangs but refusals — `N29_DECININT` and `N4_SKIPVAR` exceed
+  CP/M's 8.3 limit and die in the link step with `SAFETY: illegal CP/M name`.  Four (`E29F/G/I/J`)
+  were **silently un-linked**: `link()` reads a companion from `golden/<tag>/…` which nothing staged,
+  so they linked with `UNDEFINED SYMBOLS:` and printed "captured 0" — [C137] reproduced inside the
+  harness itself, because "a `.COM` appeared" was never the test.
+* **A count that depends on scheduling is worse than a wrong count.**  `runtime_row_count` read 92
+  for a 71-row panel (rows that check an exported file print two lines), and after that was fixed it
+  read **71 on one build and 70 on the next, over identical code**.  `print(x)` issues two writes —
+  text, then newline — so a pool can interleave a second record between them and produce one physical
+  line with two records; `gate_runner` anchors at `^  runtime `, so a torn row silently stops
+  existing.  `spec/notes/rune-ci-external-gate.md` said of per-row timing: "the gap … is a fair
+  estimate, not a measured duration."  Under a pool it was worse than an estimate — it was lossy.
+* **Both fixes are checked, and the check has a control that must fail.**  `_line_atomic_selftest()`
+  asserts the *unwrapped* stream violates the invariant (a write not ending in `\n`) and aborts the
+  gate if it does not, because a race-control that happens not to tear proves nothing; it then
+  requires 2400 records through 8 threads to return as 2400 whole lines.  Verified against CI's own
+  regex: 92 matching lines, 71 distinct names, 0 doubled lines.
+* **The infrastructure failure is part of the record too.**  The first two builds died in 2-3 seconds
+  with `dune: commande introuvable` because the worker daemon had been restarted and no longer
+  inherited the interactive shell's `eval $(opam env)`.  `TOOLCHAIN_ENV` now names the switch in the
+  step environment — verified by a from-scratch `env -i` build before shipping — and the fingerprint
+  hashes it, because "same argv, different environment" was invisible to a fingerprint that covered
+  only argv.  A build that cannot compile reports an infrastructure fault; if it looks like the
+  project broke, the next person does not trust the panel.
+* **The consequence for how work is done here.**  Tiers measured on 24 cores: compile panels 2 s,
+  runtime 588 s serial / 77 s at `-j 8`, link+run ~90 min serial / 1588 s on the builder.  The
+  slowest CI design available is local, serial, and run by an agent, because every minute is someone
+  waiting.  From this commit the rule is: edit against the 2-second tier, commit, and let rune-ci's
+  `full` and `audit` suites own the emulator time.

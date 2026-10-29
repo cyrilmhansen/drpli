@@ -20,9 +20,10 @@ delegated: `--runtime` is rune-ci's `full` suite, `--link-run` is its `audit` su
 ## 2. The arm could not fail
 
 `link_run()` printed `.COM DIFFERS! vs DR`, `CONSOLE DIFFERS` and `MISSING TRANSCRIPT`
-and **returned nothing**; `main()`'s status came from the byte panel alone.  Against the
-last full serial run (818 arms printed): 212 `.COM IDENTICAL vs DR`, 0
-differing, 0 `MISSING TRANSCRIPT` — so tightening this changes no verdict that exists.
+and **returned nothing**; `main()`'s status came from the byte panel alone.  The last serial
+run — **817 arm lines, cut off mid-panel, and it printed no summary line at all** — reported
+212 `.COM IDENTICAL vs DR`, 0 differing, 0 `MISSING TRANSCRIPT`.  So tightening this changes
+no verdict that exists.
 What it changes is that the arm can now REPORT a verdict, which is the precondition for
 CI being allowed to own it instead of an agent burning 90 minutes on it.
 
@@ -102,9 +103,12 @@ echo, so nothing of V5 ever ran; the old serial harness reported it as "captured
 bytes" and passed.  That is the mechanism working: the sample seeded 54, the panel caught the
 one the sample missed.
 
-`25` arms printed `captured 0 raw output bytes` in the old serial run; that number is
-the footprint of this hole, and it is NOT equal to 54 because some of the 54 printed a
-nonzero prefix before hanging (RFACT prints DR's factoring banner).
+`25` arms printed `captured 0 raw output bytes` in that run.  That number is the footprint of
+the hole but it is **not** the size of `HANG_ARMS` (55), and the difference is worth stating
+rather than smoothing over: some non-terminators printed a nonzero prefix before hanging
+(`RFACT` prints DR's factoring banner first), and two of the "captured 0" arms were not hangs
+at all but the 8.3-name refusals — which is also why the 25 counts only what one truncated
+run happened to reach.
 
 ## 4. Why a pool must not be allowed to invent a hang
 
