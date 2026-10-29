@@ -162,6 +162,34 @@ unchanged); the sweep is
 
 ## Next action - E2E-48/P2c implementation (arms, registration, gate)
 
+> STATUS 2026-10-30 (renewal 6/8 successor, at commit `7701f52`): steps 1(a)(b)(c) and 3 are
+> **DONE and measured**. `7701f52` adds the `Imem variant to `str_side`, the 18-byte member
+> SCVCM arm to `str_cmp_shape`, the `~imem:true`-gated SCCVM arms to `str_cmp_shape_rev`, the
+> two `bit_cond_mat` orientation arms, and BOTH demand twins
+> (`bit_store_cond_bytes` rewritten as one class predicate over {flat Vvar, varying Vimem};
+> `prescan_cond`'s `is_var`/`vkind_of_e` extended for the qualified spelling). Measured at that
+> commit: `dune build` rc=0 with no new warnings; **6/9 E48C whole-file byte-identical**
+> (E48C1,C2,C5,C6,C7,C9 — includes the TEST-position arm 3 via the shared `str_cmp_shape`
+> encoder) and **24/24 `golden/e48p1/` still byte-identical**. The TEST route still refuses a
+> member on the RIGHT exactly as §3 requires (`str_cmp_shape_rev`'s `imem` parameter defaults
+> false and only `bit_cond_mat` passes true).
+>
+> **THE EXACT NEXT ACTION is now step 4a, then step 4, then steps 2/5/6/7:**
+>
+> 4a. `store_char` (ocaml/lib/codegen.ml, the `Vimem m` arm of the `let k = match k with`):
+>     drop the `if not (imem_qualified name m) then imem_refuse "store" m (...)` gate for a
+>     VARYING member whose source is a STRING LITERAL. Licensed by E48C3's golden, which
+>     RESULTS §1 P3 records as byte-identical to E48C2 apart from the three module-name bytes
+>     (verified: `cmp -l golden/e48p2c/E48C2/E48C2.REL golden/e48p2c/E48C3/E48C3.REL` -> offsets
+>     6, 19, 28 only): DR's 0006 `LXI H,*D(0008) / LXI D,*D(0001) / MVI A,1E / MVI B,02 /
+>     ?SMCVM` IS the unqualified destination. Keep the FIXED-member refusal verbatim, and update
+>     the WHY-text of any refusal you narrow to cite golden/e48p2c/E48C3 (never silently).
+>     Then E48C3 and E48C4 must reach `6/9 -> 8/9` on the sweep.
+> 4b. Step 4 (STATIC-on-CHARACTER-VARYING placement, E48C8) as written below, with its E46F5
+>     negative-row consequence.
+>
+> Everything below is the ORIGINAL step list; steps 1-3 are complete, so do not redo them.
+
 The round-3 battery is PRE-REGISTERED (`f9f21f2`), MEASURED 9 ok/9 and committed with
 `spec/lab-evidence/e2e48-p2c/RESULTS.md` (`8c57856`); the level-0 STATIC-chain my-gap fix is
 committed (`6130164`) with the census re-measured (counts IDENTICAL; MPMCALLB advanced one
@@ -217,6 +245,11 @@ Implement ONLY what RESULTS section 2 measures; every RESULTS section 3 shape st
 
 Do NOT touch golden/e48p1 or golden/e48p2c. Do NOT start `%include` (CREATE's front-end blocker)
 without its own pre-registered round.
+
+**Unmeasured at the `7701f52` boundary (do NOT claim them):** the full gate has not been run
+since `1595a10` (1098/0 is that HEAD's recorded figure, not the current one); the census has not
+been re-measured since `7701f52`; the refusal WHY-strings of step 2 are NOT yet updated.
+**No half-finished edit exists** — `7701f52` is built, swept and committed; the tree is clean.
 
 ## Unfinished operations (Pi Handoff deployment)
 
@@ -296,31 +329,56 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 13
-checkpoint-id: g13-d26e872436f9
+checkpoint-generation: 15
+checkpoint-id: g15-a84fe43da892
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 3, remaining ~9416, session 01a1894d-c352-7470-93c0-80e614b0e047)
-checkpointed: 2026-10-29T20:59:28.223Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3859, session 01a18976-b266-7470-93c0-80ebbd864437)
+checkpointed: 2026-10-29T21:39:58.715Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 1787dca1b54d6dc01dcc96ebea9756c3e6ea6ee3265d7743801f8cd954804c08
-source-handoff: c83bc280f02b501a4a858bbb3e92ee2f05556f843ae7bc2dffab627543158fe5
-source-learnings: 74bd6a0a280a80a8e70feef8043bdffde759a67ced033e0069a6a7cb96fa67c4
+source-handoff: ae94c31c5a59dc78a0df297d8ebde4aad9925f5f03750ecfeaf757e41cf816b9
+source-learnings: 16aa736bf34559c215d1c6b75880be810202d53c535105f4c1cad6d8b7213ca4
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 
 
-readiness-by: session:01a1894d-c352-7470-93c0-80e614b0e047
-readiness-at: 2026-10-29T20:59:59.889Z
-readiness-checkpoint: g13-d26e872436f9
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
 - E2E-48/P2c implementation (arms, registration, gate)
+
+> STATUS 2026-10-30 (renewal 6/8 successor, at commit `7701f52`): steps 1(a)(b)(c) and 3 are
+> **DONE and measured**. `7701f52` adds the `Imem variant to `str_side`, the 18-byte member
+> SCVCM arm to `str_cmp_shape`, the `~imem:true`-gated SCCVM arms to `str_cmp_shape_rev`, the
+> two `bit_cond_mat` orientation arms, and BOTH demand twins
+> (`bit_store_cond_bytes` rewritten as one class predicate over {flat Vvar, varying Vimem};
+> `prescan_cond`'s `is_var`/`vkind_of_e` extended for the qualified spelling). Measured at that
+> commit: `dune build` rc=0 with no new warnings; **6/9 E48C whole-file byte-identical**
+> (E48C1,C2,C5,C6,C7,C9 — includes the TEST-position arm 3 via the shared `str_cmp_shape`
+> encoder) and **24/24 `golden/e48p1/` still byte-identical**. The TEST route still refuses a
+> member on the RIGHT exactly as §3 requires (`str_cmp_shape_rev`'s `imem` parameter defaults
+> false and only `bit_cond_mat` passes true).
+>
+> **THE EXACT NEXT ACTION is now step 4a, then step 4, then steps 2/5/6/7:**
+>
+> 4a. `store_char` (ocaml/lib/codegen.ml, the `Vimem m` arm of the `let k = match k with`):
+>     drop the `if not (imem_qualified name m) then imem_refuse "store" m (...)` gate for a
+>     VARYING member whose source is a STRING LITERAL. Licensed by E48C3's golden, which
+>     RESULTS §1 P3 records as byte-identical to E48C2 apart from the three module-name bytes
+>     (verified: `cmp -l golden/e48p2c/E48C2/E48C2.REL golden/e48p2c/E48C3/E48C3.REL` -> offsets
+>     6, 19, 28 only): DR's 0006 `LXI H,*D(0008) / LXI D,*D(0001) / MVI A,1E / MVI B,02 /
+>     ?SMCVM` IS the unqualified destination. Keep the FIXED-member refusal verbatim, and update
+>     the WHY-text of any refusal you narrow to cite golden/e48p2c/E48C3 (never silently).
+>     Then E48C3 and E48C4 must reach `6/9 -> 8/9` on the sweep.
+> 4b. Step 4 (STATIC-on-CHARACTER-VARYING placement, E48C8) as written below, with its E46F5
+>     negative-row consequence.
+>
+> Everything below is the ORIGINAL step list; steps 1-3 are complete, so do not redo them.
 
 The round-3 battery is PRE-REGISTERED (`f9f21f2`), MEASURED 9 ok/9 and committed with
 `spec/lab-evidence/e2e48-p2c/RESULTS.md` (`8c57856`); the level-0 STATIC-chain my-gap fix is
@@ -377,6 +435,11 @@ Implement ONLY what RESULTS section 2 measures; every RESULTS section 3 shape st
 
 Do NOT touch golden/e48p1 or golden/e48p2c. Do NOT start `%include` (CREATE's front-end blocker)
 without its own pre-registered round.
+
+**Unmeasured at the `7701f52` boundary (do NOT claim them):** the full gate has not been run
+since `1595a10` (1098/0 is that HEAD's recorded figure, not the current one); the census has not
+been re-measured since `7701f52`; the refusal WHY-strings of step 2 are NOT yet updated.
+**No half-finished edit exists** — `7701f52` is built, swept and committed; the tree is clean.
 
 ### Guard notes
 E2E-48/P1 CLOSED and committed (HEAD 1108af1, tree clean). Measured this session: 24 of 24 probes in golden/e48p1/ whole-file byte-identical (was 14/24 at start), all 24 registered on the byte panel, `python3 tools/e2e_gate.py` -> 1098 byte-exact / 0 fail, negative panel 184/184 refused, divergence 9/9, coverage 102 rows 0 errors, census --verify clean (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0). Claims C309-C316 written in spec/CLAIMS.md. Session commits in order: f839f52 census re-measured (the drift was CREATE ADVANCING past (^ eofile) and past the SCVCM store, not a regression), fa09b97 prescan demand bit_store_cond_bytes (my 371a12e store arm allocated a pool cell prescan_expr never counted because it has no Econd arm; E48A12 exact), df4b9c8 step 4 BIT(1) PUT item 3A cell / 06 01 / ?QB08C / ?PNBOP where ?PNBOP REPLACES the shared tail's ?PNCOP plus two Vbit1 classifier admissions (23/24), 613385b step 5 STATIC-on-CHARACTER (cell = full declared extent blank-padded 41 42 20, DATA 3 = 3 static + 0 pool, read at the declared length; 24/24), 992ccad panel + INVENTORY 1098 + claims, then handoff commits whose messages were corrected by amend because a guard auto-checkpoint had landed inside the commit window (see LEARNINGS). NEXT ACTION is in HANDOFF.md "Next action — E2E-48 round 2": either (1) pre-register an E48C round to MEASURE the CREATE-vs-E48 SCVCM load-order discriminator (18-byte LXI H,var/XCHG vs 17-byte LXI H,lit/LXI D,var; no probe varied it; commit predictions BEFORE the oracle run), or (2) write the five DRAFTED spec/COVERAGE.tsv rows whose exact 15-column format, validator rules (coverage_check:213 requires a MEASURED row's probes to be named by the row's own cited claim) and per-row probes/rel_parity/confidence/boundary text are recorded in HANDOFF item 2 — rows are NOT yet written (that session hit level 3 first), validate with tools/coverage_check.py then the gate (must stay 1098/0, rows 102 -> 107). Do NOT guess the [TBD] list in C310/C313/C314 (|c| in 1..3 store form, ='0'b as a value, ^(cond) in a store beyond ^(k=0), nested &, non-final bit PUT item, store into a STATIC CHARACTER, STATIC-on-CHARACTER VARYING — last two deliberately refused). Gate rows pin refusal TEXTS: "STATIC on CHAR(14) VARYING is unsampled" (E46F5), "STATIC on FIXED BINARY(15,0) is unsampled", "char var in multi-item PUT unproven" (E46M12), "store into BIT(1) from ident is unsampled" (N74), "condition form not in E2E-3b subset" (MB13/LR9/E32C3). CREATE is still NOT byte-exact: its measured blocker is front-end — pli80c.ml performs no %include expansion (only bin/pli80bind.ml does), so get list(name) from artefacts/RECORD.DCL refuses on an unbound name; proposed, fix unverified. Never rewrite a golden; stage explicit paths; no push authorized.

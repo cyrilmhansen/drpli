@@ -5,7 +5,27 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
-**E2E-48/P2c (round 3, E48C1..E48C9) is MEASURED; implementation is OPEN.** The SCVCM
+**E2E-48/P2c IMPLEMENTATION IN PROGRESS (renewal 6/8 successor, 2026-10-30); round 3 MEASURED.**
+Of the licensed lowering steps, **1(a)(b)(c) and 3 are DONE** at `7701f52`:
+`str_side`'s new `Imem variant (an internal level-numbered CHARACTER VARYING member, BOTH
+spellings), the 18-byte member SCVCM head in `str_cmp_shape` (`LXI H,*D(member) / EB /
+LXI H,*S(lit) / MVI A,len / ?SCVCM`), the 17-byte literal-left SCCVM arms in
+`str_cmp_shape_rev` gated by a new `?imem` parameter that ONLY `bit_cond_mat` passes true — so
+the TEST route still refuses member-as-RIGHT exactly as RESULTS §3 demands — the two
+`bit_cond_mat` orientation arms sharing the [C095] `D6 01 / 9F / STA` tail, and BOTH demand
+twins (`bit_store_cond_bytes` rewritten as one class predicate over {flat Vvar, varying Vimem};
+`prescan_cond`'s `is_var` + qualified-spelling lookup). Measured at `7701f52` by THIS session:
+`dune build` rc=0, no new warnings; sweep **6/9 E48C whole-file byte-identical** (C1,C2,C5,C6,
+C7,C9 — arm 3 arrives free through the shared encoder) and **24/24 `golden/e48p1/` intact**.
+Remaining: **E48C3/E48C4** stop at `store_char`'s qualified-DESTINATION gate (licensed to widen
+by golden/e48p2c/E48C3 — RESULTS §1 P3; `cmp -l` of the C2/C3 goldens shows ONLY the three
+module-name bytes 6/19/28 differ); **E48C8** stops at the STATIC-on-CHARACTER-VARYING
+placement (step 4, with E46F5's negative-row consequence). NOT re-run and therefore NOT
+claimed: the full gate (1098/0 is recorded at `1595a10` alone) and the census since `7701f52`;
+step 2's refusal WHY-string updates are unwritten. Exact next action: `HANDOFF.md` → the STATUS
+block of `## Next action - E2E-48/P2c implementation`, sub-step **4a**.
+
+(Original round-3 findings, superseded above for work state: the SCVCM
 load-order discriminator that [C310] left [TBD] is ANSWERED by the oracle: the operand CLASS
 decides (internal VARYING member -> 18-byte `LXI H,*D(member)/XCHG/LXI H,*S(lit)` — E48C2/C3/C4/C7
 + CREATE 008F; flat cell, auto or static -> 17-byte `LXI H,*S/LXI D,*D` — E48A6/E48C1/E48C8);
@@ -96,10 +116,12 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 ## Pending
 
-- **E2E-48/P2c implementation and registration** - see `HANDOFF.md` ->
-  `## Next action - E2E-48/P2c implementation`. The oracle round is DONE
-  (`spec/lab-evidence/e2e48-p2c/RESULTS.md`); the lowering arms, panel registration,
-  claims C317+ and a fresh full gate are not started.
+- **E2E-48/P2c sub-steps 4a then 4b, then 2/5/6/7** — `HANDOFF.md` → the STATUS block of
+  `## Next action - E2E-48/P2c implementation`. 4a = widen `store_char`'s qualified-
+  destination gate for a VARYING member with a STRING-LITERAL source (licensed by
+  golden/e48p2c/E48C3, which is byte-identical to E48C2 except its module name); 4b = the
+  STATIC-on-CHARACTER-VARYING placement, with E46F5's pinned refusal re-measured through the
+  tool's write path. Steps 1-3 are DONE at `7701f52` — do not redo them.
 - The five DRAFTED `spec/COVERAGE.tsv` rows from E2E-48/P1 (recorded in the previous
   checkpoint's Next-action item 2) are STILL not written; new P2c rows may be drafted on top.
 - CREATE remains NOT byte-exact; its measured blocker is still the front-end `%include` gap
@@ -108,19 +130,47 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 13
-checkpoint-id: g13-d26e872436f9
+checkpoint-generation: 15
+checkpoint-id: g15-a84fe43da892
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 3
-checkpointed: 2026-10-29T20:59:28.223Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-10-29T21:39:58.715Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 1787dca1b54d6dc01dcc96ebea9756c3e6ea6ee3265d7743801f8cd954804c08
-source-handoff: c83bc280f02b501a4a858bbb3e92ee2f05556f843ae7bc2dffab627543158fe5
-source-learnings: 74bd6a0a280a80a8e70feef8043bdffde759a67ced033e0069a6a7cb96fa67c4
+source-handoff: ae94c31c5a59dc78a0df297d8ebde4aad9925f5f03750ecfeaf757e41cf816b9
+source-learnings: 16aa736bf34559c215d1c6b75880be810202d53c535105f4c1cad6d8b7213ca4
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 next-action: - E2E-48/P2c implementation (arms, registration, gate)
+
+> STATUS 2026-10-30 (renewal 6/8 successor, at commit `7701f52`): steps 1(a)(b)(c) and 3 are
+> **DONE and measured**. `7701f52` adds the `Imem variant to `str_side`, the 18-byte member
+> SCVCM arm to `str_cmp_shape`, the `~imem:true`-gated SCCVM arms to `str_cmp_shape_rev`, the
+> two `bit_cond_mat` orientation arms, and BOTH demand twins
+> (`bit_store_cond_bytes` rewritten as one class predicate over {flat Vvar, varying Vimem};
+> `prescan_cond`'s `is_var`/`vkind_of_e` extended for the qualified spelling). Measured at that
+> commit: `dune build` rc=0 with no new warnings; **6/9 E48C whole-file byte-identical**
+> (E48C1,C2,C5,C6,C7,C9 — includes the TEST-position arm 3 via the shared `str_cmp_shape`
+> encoder) and **24/24 `golden/e48p1/` still byte-identical**. The TEST route still refuses a
+> member on the RIGHT exactly as §3 requires (`str_cmp_shape_rev`'s `imem` parameter defaults
+> false and only `bit_cond_mat` passes true).
+>
+> **THE EXACT NEXT ACTION is now step 4a, then step 4, then steps 2/5/6/7:**
+>
+> 4a. `store_char` (ocaml/lib/codegen.ml, the `Vimem m` arm of the `let k = match k with`):
+>     drop the `if not (imem_qualified name m) then imem_refuse "store" m (...)` gate for a
+>     VARYING member whose source is a STRING LITERAL. Licensed by E48C3's golden, which
+>     RESULTS §1 P3 records as byte-identical to E48C2 apart from the three module-name bytes
+>     (verified: `cmp -l golden/e48p2c/E48C2/E48C2.REL golden/e48p2c/E48C3/E48C3.REL` -> offsets
+>     6, 19, 28 only): DR's 0006 `LXI H,*D(0008) / LXI D,*D(0001) / MVI A,1E / MVI B,02 /
+>     ?SMCVM` IS the unqualified destination. Keep the FIXED-member refusal verbatim, and update
+>     the WHY-text of any refusal you narrow to cite golden/e48p2c/E48C3 (never silently).
+>     Then E48C3 and E48C4 must reach `6/9 -> 8/9` on the sweep.
+> 4b. Step 4 (STATIC-on-CHARACTER-VARYING placement, E48C8) as written below, with its E46F5
+>     negative-row consequence.
+>
+> Everything below is the ORIGINAL step list; steps 1-3 are complete, so do not redo them.
 
 The round-3 battery is PRE-REGISTERED (`f9f21f2`), MEASURED 9 ok/9 and committed with
 `spec/lab-evidence/e2e48-p2c/RESULTS.md` (`8c57856`); the level-0 STATIC-chain my-gap fix is
@@ -177,9 +227,11 @@ Implement ONLY what RESULTS section 2 measures; every RESULTS section 3 shape st
 
 Do NOT touch golden/e48p1 or golden/e48p2c. Do NOT start `%include` (CREATE's front-end blocker)
 without its own pre-registered round.
-readiness-by: session:01a1894d-c352-7470-93c0-80e614b0e047
-readiness-at: 2026-10-29T20:59:59.889Z
-readiness-checkpoint: g13-d26e872436f9
+
+**Unmeasured at the `7701f52` boundary (do NOT claim them):** the full gate has not been run
+since `1595a10` (1098/0 is that HEAD's recorded figure, not the current one); the census has not
+been re-measured since `7701f52`; the refusal WHY-strings of step 2 are NOT yet updated.
+**No half-finished edit exists** — `7701f52` is built, swept and committed; the tree is clean.
 <!-- guard:end checkpoint -->
 
 ## Verified evidence

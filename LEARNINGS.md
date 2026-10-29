@@ -189,6 +189,32 @@ The guard never writes this file.
   (CREATE 008F, E48A6/A12, E29C4/C9, E46J21) instead of from memory is what made the residual
   misses informative (a size label) rather than fatal. [accepted, measured]
 
+## Accepted (E2E-48/P2c implementation, measured 2026-10-30, renewal 6/8 successor)
+
+- **Re-measure the inherited baseline before writing code; the handoff's numbers were recorded
+  at a DIFFERENT HEAD.** The predecessor verified `24/24` and `E48C1 exact` at `6130164` but
+  explicitly owed the full gate. Re-running the two sweeps at HEAD `8b42166` reproduced
+  24/24 e48p1 whole-file byte-identical, E48C1 byte-identical, and E48C2..C9 refusing with the
+  named texts (`store into BIT(1) from condition is unsampled` x4, `store of the internal
+  CHARACTER member` x2 for the unqualified spellings, `STATIC on CHAR(14) VARYING is unsampled`,
+  `comparison of the internal CHARACTER member`). Tell worth keeping: **the two probes that spell
+  the member store unqualified (E48C3/C4) die at the MEMBER-STORE authorization, not at the
+  compare** — so arm 1(a) needs BOTH widenings (the compare classifier AND `store_char`'s
+  qualified-destination gate) or the sweep cannot reach the compare at all. [accepted, measured]
+
+- **Gate a NEW authorization by CALL SITE, not by classifier, when two positions differ in
+  evidence.** RESULTS §2.3 measures `('EOF' = member)' in a STORE but §3 records the same
+  orientation in TEST as unmeasured, so widening `str_cmp_shape_rev`'s classifier would have
+  silently authorized an unmeasured shape through the TEST arm. The fix is a parameter with the
+  safe default (`?(imem = false)`), passed true only by `bit_cond_mat` — one encoder, two
+  positions, and the refusal cannot reappear by accident. The mirror-image case is §2.4/§2.1:
+  member-LEFT is measured in BOTH positions, so it went into `str_cmp_shape` ungated and arm 3
+  (TEST) arrived free. Lesson: before widening a shared classifier, enumerate its callers —
+  `grep -n str_cmp_shape ocaml/lib/codegen.ml` is what told me arm 3 needed no new code. Also:
+  adding a variant to `str_side` automatically narrows the numeric `?IS22N` guard (which reads
+  `None, None -> true`), so a member compare stops mis-routing instead of guessing. [accepted,
+  measured 2026-10-30 at `7701f52`: 6/9 E48C byte-identical, 24/24 e48p1 intact]
+
 ## Proposed (E2E-48/P2c session)
 
 - **The widening plan for the measured laws is written as the exact command-level next action in
