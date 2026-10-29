@@ -2981,6 +2981,34 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
   | Ast.Eprefix (_, x) -> prescan_cond cx x
   | _ -> 0
 
+(* [E2E-48/P1 step 5] the pool DEMAND for a BIT(1) store whose rhs is a CONDITION value.
+   `bit_cond_mat' allocates exactly ONE pool cell in this position: the string literal of a
+   `varying = literal' compare, whose 17 bytes (?SCVCM + SUI 01 / SBB A + STA) are pinned at five
+   golden sites (E48A6 0013, E48A12 0027, E48B8 0013, E48B9 0013 and 004F).  Every other class it
+   accepts (k = 0, k = c with c >= 4, k ^= 0, k > 0, b = '1'b) is built from immediates and
+   declared cells and allocates nothing, so it demands nothing.
+
+   This arm was MISSING, and the invariant caught it, exactly as [C152]/[C179] intend: E48A12 died
+   with "prescan demanded 5 pool bytes, lowering allocated 8" -- 3 = 'EOF', which `prescan_expr',
+   having no Econd arm, never counted.  The predicate restates `str_side''s (Cell, Lit) pair
+   against cx.pd_vars because prescan has no `st'; a Vbvar MEMBER stays uncounted precisely
+   because `bit_cond_mat' refuses it, so demand and layout remain ONE rule. *)
+let bit_store_cond_bytes (cx : pdec_ctx) (lhs : Ast.expr) (rhs : Ast.expr) : int =
+  let kind_of e =
+    match e.Ast.e with
+    | Ast.Eident n -> List.assoc_opt (String.lowercase_ascii n.Ast.orig) cx.pd_vars
+    | _ -> None
+  in
+  match kind_of lhs with
+  | Some Vbit1 ->
+      (match (pdec_unwrap rhs).Ast.e with
+       | Ast.Ebinary (Ast.EqR Ast.Eq, l, r) ->
+           (match kind_of (pdec_unwrap l), (pdec_unwrap r).Ast.e with
+            | Some (Vvar _), Ast.Estring v -> pdec_str_cell cx v
+            | _ -> 0)
+       | _ -> 0)
+  | _ -> 0
+
 let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
   match s.Ast.st with
   | Ast.Sassign { lhs; rhs } ->
@@ -3059,6 +3087,7 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
                 [V104]; type-mismatched uses RAISE at lowering.  [E2E-16/C152] dedup'd by
                 CONTENT, which PL11 (`c = 'W' twice -> one cell) and PL10 (char store and PUT
                 sharing one cell) both measure; '' still registers a block at lowering. *)
+         | Ast.Econd _ -> bit_store_cond_bytes cx lhs rhs
          | _ -> prescan_expr cx rhs)
   | Ast.Sreturn (Some e0) ->
       (* [E2E-10] a FLOAT function's literal becomes a float cell: FFACT's
