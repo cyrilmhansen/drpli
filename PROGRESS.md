@@ -163,32 +163,43 @@ pre-registered hypotheses and replace that section with one chosen, exact next s
 The renewal test window is closed; infrastructure needs nothing further this session.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 4
-checkpoint-id: g4-b98c8a7648a8
+checkpoint-generation: 5
+checkpoint-id: g5-e13e44ea140a
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 0
-checkpointed: 2026-10-29T17:21:14.957Z
+guard-level: 2
+checkpointed: 2026-10-29T18:11:29.070Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 6b8bb68dfbe10cfce5c259af82f0da2a1c0ab2e2e0b05f115109270bd14f9f16
-source-handoff: 9949ee8628b704045d19360ed5ef152a904f4fa305e8e493b15a74b761df03e9
-source-learnings: a5c3b7a420d196d03bdd9278b974820f17a5d5465920cda7288e42db16b3d639
+source-progress: 93031c01c2ed5f95b67826d9cd92f0d400d436e921bc20b2b937e9d675778f65
+source-handoff: e0f6bba9928e0362253cd831b1b1e337a01ba4db67c5d70f9549090857aba524
+source-learnings: 3cbc63e02f60bff8668bcc549782a5dc7f4f3491c3c243e6724fcea2713e6f40
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
-next-action: **Not established by this session.** A deployment session deliberately did not choose the
-compiler's next task, and inventing one here would put an unmeasured intention into the file a
-fresh session trusts. The first action of the next session is therefore evidence-reading, not
-implementation:
+next-action: — E2E-48/P1, the exact continuation
 
-> Read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7 (CREATE blockers), §8 (the recorded gate
-> verdict) and §9 (the unfixed `data=` reporting defect), plus
-> `spec/lab-evidence/e2e42-p2c/HYPOTHESES.md`, plus claims `C296`–`C308` in `spec/CLAIMS.md`,
-> then `spec/INVENTORY.txt` rows whose refusal text names `^eofile` or a `BIT(1)` condition store.
-> Expected output: the candidate next phases written as *pre-registerable hypotheses* (e.g. the
-> `^eofile`-in-`DO WHILE` condition form, the `BIT(1)` condition store, the `data=` reporting defect
-> in `pli80c`'s summary line). Pick one, write its probe bank and predictions, commit them **before**
-> any oracle run — and replace this section with the exact chosen command.
-readiness-by: session:01a188ae-07e3-7768-ad7c-fb0708f2fe20
-readiness-at: 2026-10-29T17:21:29.957Z
-readiness-checkpoint: g4-b98c8a7648a8
+1. `cd /home/john/projects/sushiworks/pli80 && git rev-parse HEAD` → expect `3401821…` or a
+   descendant; `git status --porcelain=v1` → expect only `?? golden/e48p1/`.
+2. Write `spec/lab-evidence/e2e48-p1/RESULTS.md` §1-§3 — prediction-vs-verdict over
+   `HYPOTHESES.md`'s P1-P15 and R1-R8, every byte reading re-derived from the goldens
+   (`python3 spec/lab-evidence/e2e42-p2b/chaindump.py golden/e48p1/<N>/<N>.REL`,
+   `python3 tools/reldump.py ...` for DATA sizes and chain fills). Keep the MISSes.
+3. Commit the evidence: `git add golden/e48p1 spec/lab-evidence/e2e48-p1/RESULTS.md && git
+   commit -m "E2E-48/P1 [dr]: 24-probe condition-form and DATA-area bank measured"` (nothing
+   pre-existing lives inside `golden/e48p1`; never `git add -A`).
+4. Fix the DATA-size double-count in `ocaml/lib/bind.ml` `section2`'s `span` (≈2146): exclude
+   STATIC-class rows (the `stc` decision is bind.ml ≈995; `bind_rows` carries the auto flag).
+   Rebuild, then `python3 tools/e2e_gate.py` must still print **1074 byte-exact / 0 fail**
+   before any codegen work — the fix may not move an existing specimen.
+5. Implement in `ocaml/lib/codegen.ml` only what a golden pins: `Eprefix(NegL, Eident Vbit1)`
+   test arm (`3A/B7/FA`) beside the existing `Vbit1` arm (≈7395); `b = (cond)` = materialiser +
+   `0x32` (replacing the refusal at ≈8220); the per-class materialisers measured in
+   `HANDOFF.md` → Last verified state (including DR's `DAD H` bias defect and the `ADI FF/SBB
+   A` negation); the `^(cond)` skip inversion `C2→CA`; the `&`-bit operand in `lower_bool`;
+   the `?QB08C/?PNBOP` bit PUT item; STATIC-on-CHARACTER per E48B6. Register `E48A*/E48B*` in
+   `tools/e2e_gate.py`'s `SPECIMENS` against `golden/e48p1/<N>/<N>.REL`.
+6. Write claims **C309+**, `INVENTORY.txt`/`COVERAGE.tsv` rows, run the gate, commit, re-run
+   `python3 tools/corpus_census.py --check` — CREATE is this phase's target EXACT (15 → 16).
+readiness-by: session:01a188bf-e7a9-7470-93c0-80d7f44bde5e
+readiness-at: 2026-10-29T18:11:29.074Z
+readiness-checkpoint: g5-e13e44ea140a
 <!-- guard:end checkpoint -->
