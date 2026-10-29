@@ -35,7 +35,10 @@ from reldump import BR, SEGS, TYPES        # noqa: E402  the pinned decoder, imp
 # rather than being guessed at, because a wrong mnemonic in a committed evidence file is worse
 # than no mnemonic.
 OP = {
-    0x00: ("nop", 1), 0x01: ("lxi b", 3), 0x06: ("mvi b", 2), 0x09: ("dad d", 1),
+    # 0x09 fixed E2E-48/P1: was "dad d", contradicting golden bytes 0x09 at
+    # E48A7:0040/E48A12:003E/E48B1:002E and this project's own learned constants
+    # op_dad_b=0x09, op_dad_d=0x19 [C144].
+    0x00: ("nop", 1), 0x01: ("lxi b", 3), 0x06: ("mvi b", 2), 0x09: ("dad b", 1),
     0x0b: ("dcx b", 1), 0x0c: ("inx b", 1), 0x11: ("lxi d", 3), 0x13: ("inx d", 1),
     0x19: ("dad d", 1), 0x21: ("lxi h", 3), 0x22: ("shld", 3), 0x23: ("inx h", 1),
     0x29: ("dad h", 1), 0x2a: ("lhld", 3), 0x2b: ("dcx h", 1), 0x31: ("lxi sp", 3),
