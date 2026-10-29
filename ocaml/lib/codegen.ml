@@ -12084,7 +12084,15 @@ let dcl_static_dcls (ds : Ast.dcl list) : (string * bool) list =
       pop ();
       let inherited = match !chain with (_, e) :: _ -> e | [] -> false in
       let eff = match dcl_sc_own d with Some x -> x | None -> inherited in
-      chain := (lvl, eff) :: !chain;
+      (* [E2E-48/P2c P7, RESULTS section 2.6/section 4] a level-0 FLAT declaration
+         is not a structure level: manual 6.2 ([C242]'s cited text) inherits the
+         storage class down STRUCTURE levels only, and DR places a record declared
+         AFTER a flat `dcl s char(3) static' in the AUTOMATIC area (golden/e48p2c/
+         E48C7: statics *D(0000..0003), pool 0004..000C, rec AUTO at 000D).  A flat
+         dcl still computes and REPORTS its own class (the static cell placement
+         reads this map), but it never enters the chain as a parent -- the pop()
+         above already emptied the chain for lvl = 0. *)
+      if lvl > 0 then chain := (lvl, eff) :: !chain;
       res := (String.lowercase_ascii d.Ast.dname.Ast.orig, eff) :: !res)
     ds;
   List.rev !res

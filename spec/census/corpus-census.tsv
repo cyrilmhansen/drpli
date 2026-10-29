@@ -32,7 +32,7 @@ LOAN1	ok	True	True	EXACT	1536
 LOAN2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(14) VARYING is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER 
 MAININVT	diag	False	None	NO_ORACLE				Fatal error: exception Failure("codegen: [TBD] multi-dimensional or assumed-size array [C159] (DR's 2-D is row-major, la
 MPMCALLA	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
-MPMCALLB	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on POINTER MEMBER OF CPB@390 is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED C
+MPMCALLB	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on FIXED BINARY(15,0) MEMBER OF STRINGQCB@82 is unsampled [TBD] (C114 places static cells below the pool; E48B6 
 NETWORK	ok	True	True	EXACT	3200			
 OPTIMIST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 9-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
 REPORT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 27) -- P0 measured 34 OPEN blocks in 24 DR objects (
