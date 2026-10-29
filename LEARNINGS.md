@@ -163,6 +163,39 @@ The guard never writes this file.
   change in GOAL/prose/LEARNINGS/config yields `content-delta: none`, and readiness then warns
   "checkpoint recorded nothing new" — write the discoveries first, then refresh.
 
+## Accepted (E2E-48/P2c session, measured 2026-10-30)
+
+- **Design a probe bank so it measures its axis EVEN IF a known my-defect is unfixed.** The
+  E48C bank declares the record BEFORE the `bit(1) static` (CREATE's own order) in every member
+  probe, because writing the bank exposed the level-0 STATIC-chain leak in `dcl_static_dcls`
+  (flat scalars pushed as inheritance parents) — with static-first order ALL member probes would
+  have died at the DECL, not at the comparison. The one deliberately static-first probe (E48C7)
+  then became the bank's oracle arbitration of the defect itself: DR places the record
+  AUTOMATIC (DATA `41 42 20 | 00 | pool | rec@000D`). Classification: my-gap, fixed at `6130164`
+  only AFTER that golden existed. [accepted, measured]
+- **Derive predicted byte-counts by summing instruction widths out of the golden dump, never
+  from prose memory.** Seven of nine PREDICTED SEQUENCES hit exactly (helper, registers, length
+  byte, skip byte, layout); both misses were my SIZE LABEL for the SCCVM store (I wrote 16, the
+  dump is `3+3+2+3+2+1+3 = 17` — I summed the `D6 01 / 9F / 32 X` tail as 5 instead of 6). The
+  sequence law was right, the arithmetic was wrong, and the MISS still belongs in the table
+  (PROTOCOL #2). [accepted, measured]
+- **`tools/corpus_census.py --check <prev>` is measure AND write: it re-measures every program,
+  count-guards against the copy, and rewrites `spec/census/corpus-census.{json,tsv}` in the same
+  invocation.** After a compiler advance this is the ONE command that both proves counts held and
+  refreshes the snapshot; always `git diff` the tsv afterwards and read every msg delta before
+  committing. [accepted, measured at `6130164`]
+- **A pre-registered oracle round is the cheapest path from [TBD] to law: 9 probes, one batch,
+  7/9 predictions confirmed as derived.** Deriving every prediction from literal golden bytes
+  (CREATE 008F, E48A6/A12, E29C4/C9, E46J21) instead of from memory is what made the residual
+  misses informative (a size label) rather than fatal. [accepted, measured]
+
+## Proposed (E2E-48/P2c session)
+
+- **The widening plan for the measured laws is written as the exact command-level next action in
+  `HANDOFF.md`** (arms in `bit_cond_mat`, the demand twin, the imem gate, the static-varying
+  placement, panel registration to 1107). The gate re-run at the post-census-fix HEAD is still
+  owed: the 1098/0 figure is recorded at `1595a10`, not at `6130164`. [proposed, unverified]
+
 ## Proposed
 
 - **CREATE's next blocker is a FRONT-END gap, not codegen.** Measured this session: after the

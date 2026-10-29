@@ -155,42 +155,68 @@ unchanged); the sweep is
 - CREATE is NOT byte-exact. Its measured blocker is now front-end: `%include` is never expanded by
   `pli80c.ml` (only `bin/pli80bind.ml` does), so `get list (name)` refuses with an unbound name.
 
-## Next action — E2E-48 round 2 (the [TBD] list), or the COVERAGE rows
+> STATUS 2026-10-30 (E2E-48/P2c): the SCVCM load-order discriminator in the second bullet is
+> MEASURED and answered (operand CLASS; RESULTS sections 1-2 of e2e48-p2c); the other [TBD]
+> items of that list are UNCHANGED and still must not be guessed. The COVERAGE rows remain
+> unwritten (now sub-task 7 of the current Next action).
 
-Steps 1-5 and panel registration are DONE; E2E-48/P1 is closed at 24/24 byte-identical and
-1098/0. Pick ONE, in this order of value:
+## Next action - E2E-48/P2c implementation (arms, registration, gate)
 
-1. **Pre-register E48C to measure the SCVCM load-order discriminator** (the only [TBD] that blocks
-   a corpus program: CREATE's 18-byte store). Write the probe bank and the predictions, COMMIT them
-   BEFORE any oracle run (PROTOCOL #1), then measure with `oracle/batch.py --tag e48p2c` (needs
-   `--reuse` if the tag exists; it only ADDS programs). Candidates that vary the discriminator:
-   the same `eofile = (name = 'EOF')` store in a DO-WHILE body vs a straight-line body vs behind a
-   `put`; a VARYING **member** left operand (the `Mem` shape `bit_cond_mat` refuses today).
-   Expected output: new goldens + a claim that names the rule, or a recorded `dr-refuses` row.
-2. **`spec/COVERAGE.tsv` rows** - started but NOT written (this session reached the format check
-   only, then hit level 3). Format facts MEASURED here, so do not re-derive them: **15** tab-separated
-   columns (`id category construct contract perimeter manual_ref dr_status mine_status rel_parity
-   runtime probes corpus boundary confidence provenance`); `manual_ref` is column 6, which the FIRST
-   table of `spec/COVERAGE-SCHEMA.md` omits - trust the second table and an existing row such as
-   `COND.GE_LE`. `probes` = comma-separated INVENTORY keys (E48A1..E48B9 are on the panel now, so they
-   resolve); `corpus` = names from the 44-program census (CREATE, EXPR2, FSCAN, LOAN2, MPMCALLB,
-   REPORT all qualify); `provenance` = space-separated `[Cnnn]` (C309-C316 exist); use
-   `manual_ref = NONE:<why>` to stay clear of the OCR page check. `tools/coverage_check.py` line 8 and
-   213: a `MEASURED`/`SINGLE_SAMPLE` row must name at least one probe that one of its OWN cited claims
-   also names - cite the claim carrying the specimen ([C313] names E48A15/A6/A7/B8). Drafted rows:
-   COND.BIT1_NEG_TEST (E48A1,A2,A5,A12,A13,B1,B7 EXACT:7, [C309][C311]); STOR.BIT1_COND_STORE
-   (E48A6..A12,B8,B9 EXACT:9, [C310], boundary = the load-order / |c|<=3 / ='0'b [TBD]s);
-   COND.AND_BIT1_OPERAND (E48A14 EXACT:1, SINGLE_SAMPLE, [C312]); IO.PUT_BIT1_ITEM (E48A15,A6,A7,B8
-   EXACT:4, runtime NONE because no transcript was captured, [C313]); DECL.STATIC_CHAR (E48B5,B6,B7
-   EXACT:3, mine_status PARTIAL because STATIC-on-CHARACTER VARYING still refuses, [C314]).
-   Validate with `python3 tools/coverage_check.py` (exit 0), then `python3 tools/e2e_gate.py`: the row
-   count goes 102 -> 107 and the byte panel must stay 1098 byte-exact / 0 fail.
-3. `%include` in the main pipeline (CREATE's real blocker) — bigger, and needs its own
-   pre-registered round for DR's search order/case rules.
+The round-3 battery is PRE-REGISTERED (`f9f21f2`), MEASURED 9 ok/9 and committed with
+`spec/lab-evidence/e2e48-p2c/RESULTS.md` (`8c57856`); the level-0 STATIC-chain my-gap fix is
+committed (`6130164`) with the census re-measured (counts IDENTICAL; MPMCALLB advanced one
+blocker). E48C1 is already whole-file byte-identical and 24/24 e48p1 probes are intact.
+THE PREVIOUS NEXT-ACTION SECTION ("E2E-48 round 2 ... Pick ONE") IS SUPERSEDED by this one;
+its item 2 (the five drafted COVERAGE rows) survives as sub-task 7 below.
 
-Commands to start either way:
-  `git rev-parse HEAD` -> expect `992ccad` or a descendant; `git status --porcelain=v1` -> expect
-  clean (or only handoff files); `python3 tools/e2e_gate.py` -> **1098 byte-exact / 0 fail**.
+Implement ONLY what RESULTS section 2 measures; every RESULTS section 3 shape stays a named refusal:
+
+1. `bit_cond_mat` (ocaml/lib/codegen.ml:7005) - add exactly these arms, ONE AT A TIME,
+   `dune build` + `cmp` sweep after EACH (LEARNINGS rule):
+   (a) (internal varying MEMBER left, literal right) - both spellings, AUTOMATIC records only:
+       `LXI H,*D(member) / EB / LXI H,*S(lit) / MVI A,len / CALL ?SCVCM / D6 01 / 9F` (18 bytes
+       incl. the `32` STA the Vbit1 arm adds) - sites E48C2 0013, C3 0013, C4 0027, C7 0013;
+   (b) (literal left, flat Vvar cell right - auto OR static): `LXI H,*D(var) / LXI D,*S(lit) /
+       MVI B,len / CALL ?SCCVM / D6 01 / 9F` (17 bytes) - E48C5 0013, E48C8's SCVCM site stays
+       the flat LEFT form;
+   (c) (literal left, internal varying member right): same, member cell in HL, NO XCHG - E48C6.
+   A BASED member as either side of a condition STORE stays refused (unmeasured).
+   Mirror EVERY new pool-cell-allocating shape in `bit_store_cond_bytes` (codegen.ml:2996) -
+   prescan demand is ONE rule with lowering (C152/C179; the fa09b97 lesson: an arm without a
+   demand twin dies on the pool invariant).
+2. Widen the internal-member gate ONLY for the admitted shapes: the store-path `imem_in_e st rhs`
+   refusal at codegen.ml:8555 and the TEST-path comparison refusal at 7632 must consult the SAME
+   predicates as `bit_cond_mat` (one authority, never a second copy of the byte decision); every
+   other member use keeps `imem_refuse` verbatim. Update the refusal WHY-strings to cite
+   golden/e48p2c where the bank now measures a shape - corrections stay traceable, never silent.
+3. TEST position (E48C9): the 15-byte head `LXI H,*D(member) / EB / LXI H,*S / MVI A,len /
+   CALL ?SCVCM / C2 00 00` with the no-else skip to the NEXT STATEMENT (C309 rule); member-as-
+   RIGHT in TEST is UNMEASURED - keep refusing it.
+4. STATIC-on-CHARACTER-VARYING placement (RESULTS section 2.5, arm at codegen.ml:12861 region,
+   `Bind.RTchar (n, true)`): accept ONLY a non-empty string-literal INITIAL not longer than the
+   extent; cell = [len-byte][literal padded to n with 0x20] IN PLACE in the static zone, NOT
+   pooled; `initial('')` is unmeasured (EXPR2's spelling) - keep refusing it. CAUTION: E46F5's
+   declaration then passes and the program advances to `OPEN ... TITLE(nm)` - TITLE on a STATIC
+   varying is UNMEASURED, so E46F5 must refuse THERE; its negative-panel row pins the CURRENT
+   text and must be re-measured and updated through the tool's write path with an explicit
+   reason, never by hand-editing a verdict.
+5. Sweep after each arm: `for n in E48C{1..9}; do ./ocaml/_build/default/bin/pli80c.exe
+   probes/$n.PLI /tmp/sw/$n.REL && cmp /tmp/sw/$n.REL golden/e48p2c/$n/$n.REL; done` plus the
+   24-probe e48p1 loop - expect 9/9 and 24/24 byte-identical at the end.
+6. Registration: SPECIMENS.tsv byte-tier rows E48C1..C9 (NO spec/RUNTIME.txt rows - this bank
+   captured .REL/.PRN only), `python3 tools/e2e_gate.py --update-inventory` (INVENTORY 1098 ->
+   1107), claims C317..C320 in spec/CLAIMS.md (the six laws of RESULTS section 2) plus an
+   ANNOTATION on C310 marking its load-order [TBD] answered (keep the old text), census
+   re-measure via `tools/corpus_census.py --check <copy of prev>` (counts must stay IDENTICAL;
+   EXPR2/FSCAN/LOAN2/REPORT/MPMCALLB msg deltas are expected to ADVANCE - verify each message),
+   then `python3 tools/e2e_gate.py` -> expect **1107 byte-exact / 0 fail**, negative 184/184
+   (E46F5 row re-measured per step 4), divergence 9/9.
+7. Sub-task (carried over, lower priority): the five DRAFTED spec/COVERAGE.tsv rows in the
+   previous checkpoint's item 2 (format facts already MEASURED there: 15 columns, validator rule
+   at coverage_check:213, `manual_ref = NONE:<why>`); validate with `python3 tools/coverage_check.py`.
+
+Do NOT touch golden/e48p1 or golden/e48p2c. Do NOT start `%include` (CREATE's front-end blocker)
+without its own pre-registered round.
 
 ## Unfinished operations (Pi Handoff deployment)
 
@@ -270,66 +296,84 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 12
-checkpoint-id: g12-b9a7bfdfd150
-checkpoint-kind: manual
+checkpoint-generation: 13
+checkpoint-id: g13-d26e872436f9
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-2520, session 01a18927-3b36-7470-93c0-80e28e177244)
-checkpointed: 2026-10-29T20:14:46.078Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~9416, session 01a1894d-c352-7470-93c0-80e614b0e047)
+checkpointed: 2026-10-29T20:59:28.223Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 300ed1c3a101f42da5f851cdf78cabad91879c5fce93ee9e8078c56dd862995c
-source-handoff: d8c627c77f70e481592000c272fb50fb1f199abc65cddff8655668fe6dc8ee0e
-source-learnings: 123479d0c781a1ca2ebc186ad04a3754ce3ae21837dc4f1b878e5322e64f768d
+source-progress: 1787dca1b54d6dc01dcc96ebea9756c3e6ea6ee3265d7743801f8cd954804c08
+source-handoff: c83bc280f02b501a4a858bbb3e92ee2f05556f843ae7bc2dffab627543158fe5
+source-learnings: 74bd6a0a280a80a8e70feef8043bdffde759a67ced033e0069a6a7cb96fa67c4
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 
 
-readiness-by: session:01a18927-3b36-7470-93c0-80e28e177244
-readiness-at: 2026-10-29T20:14:46.080Z
-readiness-checkpoint: g12-b9a7bfdfd150
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-48 round 2 (the [TBD] list), or the COVERAGE rows
+- E2E-48/P2c implementation (arms, registration, gate)
 
-Steps 1-5 and panel registration are DONE; E2E-48/P1 is closed at 24/24 byte-identical and
-1098/0. Pick ONE, in this order of value:
+The round-3 battery is PRE-REGISTERED (`f9f21f2`), MEASURED 9 ok/9 and committed with
+`spec/lab-evidence/e2e48-p2c/RESULTS.md` (`8c57856`); the level-0 STATIC-chain my-gap fix is
+committed (`6130164`) with the census re-measured (counts IDENTICAL; MPMCALLB advanced one
+blocker). E48C1 is already whole-file byte-identical and 24/24 e48p1 probes are intact.
+THE PREVIOUS NEXT-ACTION SECTION ("E2E-48 round 2 ... Pick ONE") IS SUPERSEDED by this one;
+its item 2 (the five drafted COVERAGE rows) survives as sub-task 7 below.
 
-1. **Pre-register E48C to measure the SCVCM load-order discriminator** (the only [TBD] that blocks
-   a corpus program: CREATE's 18-byte store). Write the probe bank and the predictions, COMMIT them
-   BEFORE any oracle run (PROTOCOL #1), then measure with `oracle/batch.py --tag e48p2c` (needs
-   `--reuse` if the tag exists; it only ADDS programs). Candidates that vary the discriminator:
-   the same `eofile = (name = 'EOF')` store in a DO-WHILE body vs a straight-line body vs behind a
-   `put`; a VARYING **member** left operand (the `Mem` shape `bit_cond_mat` refuses today).
-   Expected output: new goldens + a claim that names the rule, or a recorded `dr-refuses` row.
-2. **`spec/COVERAGE.tsv` rows** - started but NOT written (this session reached the format check
-   only, then hit level 3). Format facts MEASURED here, so do not re-derive them: **15** tab-separated
-   columns (`id category construct contract perimeter manual_ref dr_status mine_status rel_parity
-   runtime probes corpus boundary confidence provenance`); `manual_ref` is column 6, which the FIRST
-   table of `spec/COVERAGE-SCHEMA.md` omits - trust the second table and an existing row such as
-   `COND.GE_LE`. `probes` = comma-separated INVENTORY keys (E48A1..E48B9 are on the panel now, so they
-   resolve); `corpus` = names from the 44-program census (CREATE, EXPR2, FSCAN, LOAN2, MPMCALLB,
-   REPORT all qualify); `provenance` = space-separated `[Cnnn]` (C309-C316 exist); use
-   `manual_ref = NONE:<why>` to stay clear of the OCR page check. `tools/coverage_check.py` line 8 and
-   213: a `MEASURED`/`SINGLE_SAMPLE` row must name at least one probe that one of its OWN cited claims
-   also names - cite the claim carrying the specimen ([C313] names E48A15/A6/A7/B8). Drafted rows:
-   COND.BIT1_NEG_TEST (E48A1,A2,A5,A12,A13,B1,B7 EXACT:7, [C309][C311]); STOR.BIT1_COND_STORE
-   (E48A6..A12,B8,B9 EXACT:9, [C310], boundary = the load-order / |c|<=3 / ='0'b [TBD]s);
-   COND.AND_BIT1_OPERAND (E48A14 EXACT:1, SINGLE_SAMPLE, [C312]); IO.PUT_BIT1_ITEM (E48A15,A6,A7,B8
-   EXACT:4, runtime NONE because no transcript was captured, [C313]); DECL.STATIC_CHAR (E48B5,B6,B7
-   EXACT:3, mine_status PARTIAL because STATIC-on-CHARACTER VARYING still refuses, [C314]).
-   Validate with `python3 tools/coverage_check.py` (exit 0), then `python3 tools/e2e_gate.py`: the row
-   count goes 102 -> 107 and the byte panel must stay 1098 byte-exact / 0 fail.
-3. `%include` in the main pipeline (CREATE's real blocker) — bigger, and needs its own
-   pre-registered round for DR's search order/case rules.
+Implement ONLY what RESULTS section 2 measures; every RESULTS section 3 shape stays a named refusal:
 
-Commands to start either way:
-  `git rev-parse HEAD` -> expect `992ccad` or a descendant; `git status --porcelain=v1` -> expect
-  clean (or only handoff files); `python3 tools/e2e_gate.py` -> **1098 byte-exact / 0 fail**.
+1. `bit_cond_mat` (ocaml/lib/codegen.ml:7005) - add exactly these arms, ONE AT A TIME,
+   `dune build` + `cmp` sweep after EACH (LEARNINGS rule):
+   (a) (internal varying MEMBER left, literal right) - both spellings, AUTOMATIC records only:
+       `LXI H,*D(member) / EB / LXI H,*S(lit) / MVI A,len / CALL ?SCVCM / D6 01 / 9F` (18 bytes
+       incl. the `32` STA the Vbit1 arm adds) - sites E48C2 0013, C3 0013, C4 0027, C7 0013;
+   (b) (literal left, flat Vvar cell right - auto OR static): `LXI H,*D(var) / LXI D,*S(lit) /
+       MVI B,len / CALL ?SCCVM / D6 01 / 9F` (17 bytes) - E48C5 0013, E48C8's SCVCM site stays
+       the flat LEFT form;
+   (c) (literal left, internal varying member right): same, member cell in HL, NO XCHG - E48C6.
+   A BASED member as either side of a condition STORE stays refused (unmeasured).
+   Mirror EVERY new pool-cell-allocating shape in `bit_store_cond_bytes` (codegen.ml:2996) -
+   prescan demand is ONE rule with lowering (C152/C179; the fa09b97 lesson: an arm without a
+   demand twin dies on the pool invariant).
+2. Widen the internal-member gate ONLY for the admitted shapes: the store-path `imem_in_e st rhs`
+   refusal at codegen.ml:8555 and the TEST-path comparison refusal at 7632 must consult the SAME
+   predicates as `bit_cond_mat` (one authority, never a second copy of the byte decision); every
+   other member use keeps `imem_refuse` verbatim. Update the refusal WHY-strings to cite
+   golden/e48p2c where the bank now measures a shape - corrections stay traceable, never silent.
+3. TEST position (E48C9): the 15-byte head `LXI H,*D(member) / EB / LXI H,*S / MVI A,len /
+   CALL ?SCVCM / C2 00 00` with the no-else skip to the NEXT STATEMENT (C309 rule); member-as-
+   RIGHT in TEST is UNMEASURED - keep refusing it.
+4. STATIC-on-CHARACTER-VARYING placement (RESULTS section 2.5, arm at codegen.ml:12861 region,
+   `Bind.RTchar (n, true)`): accept ONLY a non-empty string-literal INITIAL not longer than the
+   extent; cell = [len-byte][literal padded to n with 0x20] IN PLACE in the static zone, NOT
+   pooled; `initial('')` is unmeasured (EXPR2's spelling) - keep refusing it. CAUTION: E46F5's
+   declaration then passes and the program advances to `OPEN ... TITLE(nm)` - TITLE on a STATIC
+   varying is UNMEASURED, so E46F5 must refuse THERE; its negative-panel row pins the CURRENT
+   text and must be re-measured and updated through the tool's write path with an explicit
+   reason, never by hand-editing a verdict.
+5. Sweep after each arm: `for n in E48C{1..9}; do ./ocaml/_build/default/bin/pli80c.exe
+   probes/$n.PLI /tmp/sw/$n.REL && cmp /tmp/sw/$n.REL golden/e48p2c/$n/$n.REL; done` plus the
+   24-probe e48p1 loop - expect 9/9 and 24/24 byte-identical at the end.
+6. Registration: SPECIMENS.tsv byte-tier rows E48C1..C9 (NO spec/RUNTIME.txt rows - this bank
+   captured .REL/.PRN only), `python3 tools/e2e_gate.py --update-inventory` (INVENTORY 1098 ->
+   1107), claims C317..C320 in spec/CLAIMS.md (the six laws of RESULTS section 2) plus an
+   ANNOTATION on C310 marking its load-order [TBD] answered (keep the old text), census
+   re-measure via `tools/corpus_census.py --check <copy of prev>` (counts must stay IDENTICAL;
+   EXPR2/FSCAN/LOAN2/REPORT/MPMCALLB msg deltas are expected to ADVANCE - verify each message),
+   then `python3 tools/e2e_gate.py` -> expect **1107 byte-exact / 0 fail**, negative 184/184
+   (E46F5 row re-measured per step 4), divergence 9/9.
+7. Sub-task (carried over, lower priority): the five DRAFTED spec/COVERAGE.tsv rows in the
+   previous checkpoint's item 2 (format facts already MEASURED there: 15 columns, validator rule
+   at coverage_check:213, `manual_ref = NONE:<why>`); validate with `python3 tools/coverage_check.py`.
+
+Do NOT touch golden/e48p1 or golden/e48p2c. Do NOT start `%include` (CREATE's front-end blocker)
+without its own pre-registered round.
 
 ### Guard notes
 E2E-48/P1 CLOSED and committed (HEAD 1108af1, tree clean). Measured this session: 24 of 24 probes in golden/e48p1/ whole-file byte-identical (was 14/24 at start), all 24 registered on the byte panel, `python3 tools/e2e_gate.py` -> 1098 byte-exact / 0 fail, negative panel 184/184 refused, divergence 9/9, coverage 102 rows 0 errors, census --verify clean (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0). Claims C309-C316 written in spec/CLAIMS.md. Session commits in order: f839f52 census re-measured (the drift was CREATE ADVANCING past (^ eofile) and past the SCVCM store, not a regression), fa09b97 prescan demand bit_store_cond_bytes (my 371a12e store arm allocated a pool cell prescan_expr never counted because it has no Econd arm; E48A12 exact), df4b9c8 step 4 BIT(1) PUT item 3A cell / 06 01 / ?QB08C / ?PNBOP where ?PNBOP REPLACES the shared tail's ?PNCOP plus two Vbit1 classifier admissions (23/24), 613385b step 5 STATIC-on-CHARACTER (cell = full declared extent blank-padded 41 42 20, DATA 3 = 3 static + 0 pool, read at the declared length; 24/24), 992ccad panel + INVENTORY 1098 + claims, then handoff commits whose messages were corrected by amend because a guard auto-checkpoint had landed inside the commit window (see LEARNINGS). NEXT ACTION is in HANDOFF.md "Next action — E2E-48 round 2": either (1) pre-register an E48C round to MEASURE the CREATE-vs-E48 SCVCM load-order discriminator (18-byte LXI H,var/XCHG vs 17-byte LXI H,lit/LXI D,var; no probe varied it; commit predictions BEFORE the oracle run), or (2) write the five DRAFTED spec/COVERAGE.tsv rows whose exact 15-column format, validator rules (coverage_check:213 requires a MEASURED row's probes to be named by the row's own cited claim) and per-row probes/rel_parity/confidence/boundary text are recorded in HANDOFF item 2 — rows are NOT yet written (that session hit level 3 first), validate with tools/coverage_check.py then the gate (must stay 1098/0, rows 102 -> 107). Do NOT guess the [TBD] list in C310/C313/C314 (|c| in 1..3 store form, ='0'b as a value, ^(cond) in a store beyond ^(k=0), nested &, non-final bit PUT item, store into a STATIC CHARACTER, STATIC-on-CHARACTER VARYING — last two deliberately refused). Gate rows pin refusal TEXTS: "STATIC on CHAR(14) VARYING is unsampled" (E46F5), "STATIC on FIXED BINARY(15,0) is unsampled", "char var in multi-item PUT unproven" (E46M12), "store into BIT(1) from ident is unsampled" (N74), "condition form not in E2E-3b subset" (MB13/LR9/E32C3). CREATE is still NOT byte-exact: its measured blocker is front-end — pli80c.ml performs no %include expansion (only bin/pli80bind.ml does), so get list(name) from artefacts/RECORD.DCL refuses on an unbound name; proposed, fix unverified. Never rewrite a golden; stage explicit paths; no push authorized.

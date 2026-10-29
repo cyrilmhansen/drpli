@@ -5,9 +5,41 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
-**E2E-48/P1 is CLOSED: all 24 probes of `golden/e48p1/` are whole-file byte-identical and all 24
-are registered on the byte panel. Gate measured 1098 byte-exact / 0 fail, negative 184/184,
-divergence 9/9, coverage 102 rows 0 errors, census `--verify` clean.**
+**E2E-48/P2c (round 3, E48C1..E48C9) is MEASURED; implementation is OPEN.** The SCVCM
+load-order discriminator that [C310] left [TBD] is ANSWERED by the oracle: the operand CLASS
+decides (internal VARYING member -> 18-byte `LXI H,*D(member)/XCHG/LXI H,*S(lit)` — E48C2/C3/C4/C7
++ CREATE 008F; flat cell, auto or static -> 17-byte `LXI H,*S/LXI D,*D` — E48A6/E48C1/E48C8);
+qualification and loop position do NOT matter. Also measured: the SCCVM store route (literal left,
+17 bytes, length in B, member needs no XCHG — E48C5/C6), the first STATIC-on-CHARACTER-VARYING
+layout law (cell = 1-length byte + declared extent blank-padded IN PLACE below the pool, initial
+NOT pooled — E48C8), the internal-member compare in TEST position (15-byte head + C2 skip-to-next
+— E48C9), and DR's storage-class law that a flat level-0 STATIC does NOT contaminate a later
+`dcl 1 rec` (record is AUTOMATIC — E48C7).
+
+Commits this session: `f9f21f2` pre-registration (bank + HYPOTHESES + BASELINE-MINE, oracle NOT
+yet run), `8c57856` goldens `golden/e48p2c/` (9 ok/9) + `spec/lab-evidence/e2e48-p2c/RESULTS.md`
+(prediction vs verdict: 7 clean HITs; P5/P6 sequences HIT but my size LABEL said 16, actual 17 —
+arithmetic slip, kept as written per PROTOCOL #2), `6130164` my-gap fix of the level-0
+storage-class leak in `dcl_static_dcls` + census re-measured (counts IDENTICAL; ONE msg delta =
+MPMCALLB ADVANCED from `STATIC on POINTER MEMBER OF CPB@390` — the leak — to its next genuine
+`STATIC on FIXED BINARY(15,0) MEMBER OF STRINGQCB@82` blocker).
+
+Verified at `6130164`: dune rc=0; 24/24 e48p1 probes still whole-file byte-identical; E48C1
+byte-identical to its new golden; D2/D3 scratch (static-first record) compile. NOT yet re-run:
+the full gate (the pre-fix run aborted at census `--verify`, which the snapshot update now
+closes — the gate must be re-run and is expected to measure 1098/0).
+
+**Pending (this round):** the codegen arms RESULTS §2 licenses — `bit_cond_mat` member(SCVCM)/
+reverse(SCCVM) arms with their `bit_store_cond_bytes` prescan twins, the internal-member
+store/compare gate widenings (they must admit ONLY the measured shapes: based-member stores stay
+refused), the static-VARYING placement arm (careful: E46F5's pinned refusal text must survive via
+a named refusal at its `OPEN ... TITLE(nm)` step or its gate row re-measured explicitly), the
+TEST-position internal-member arm, then panel registration (SPECIMENS/INVENTORY 1098 -> 1107),
+claims C317+, census re-measure, gate.
+
+(Previous phase, closed: **E2E-48/P1: all 24 probes of `golden/e48p1/` byte-identical and
+registered. Gate measured 1098 byte-exact / 0 fail, negative 184/184, divergence 9/9, coverage
+102 rows 0 errors, census `--verify` clean.**)
 
 Commits this session (each verified by measurement, in order): `f839f52` census re-measured after
 `371a12e` (the drift was CREATE advancing, not regressing) · `fa09b97` prescan demand
@@ -64,91 +96,121 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 ## Pending
 
-- **E2E-48/P1 step 5, resumed** — see `HANDOFF.md` → `## Next action
-
-See `HANDOFF.md` → `## Next action — E2E-48 round 2 (the [TBD] list), or the COVERAGE rows`.
-E2E-48/P1 step 5 is closed (24/24 byte-identical, 1098/0 measured at `992ccad`); the successor
-picks either the pre-registered E48C discriminator round, or the COVERAGE rows, or `%include`
-(CREATE's measured front-end blocker) — in that order of value.
+- **E2E-48/P2c implementation and registration** - see `HANDOFF.md` ->
+  `## Next action - E2E-48/P2c implementation`. The oracle round is DONE
+  (`spec/lab-evidence/e2e48-p2c/RESULTS.md`); the lowering arms, panel registration,
+  claims C317+ and a fresh full gate are not started.
+- The five DRAFTED `spec/COVERAGE.tsv` rows from E2E-48/P1 (recorded in the previous
+  checkpoint's Next-action item 2) are STILL not written; new P2c rows may be drafted on top.
+- CREATE remains NOT byte-exact; its measured blocker is still the front-end `%include` gap
+  (`pli80c.ml` never expands INCLUDE). Do NOT implement any unmeasured shape from the
+  [TBD] list in RESULTS section 3.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 12
-checkpoint-id: g12-b9a7bfdfd150
-checkpoint-kind: manual
+checkpoint-generation: 13
+checkpoint-id: g13-d26e872436f9
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-10-29T20:14:46.078Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-10-29T20:59:28.223Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 300ed1c3a101f42da5f851cdf78cabad91879c5fce93ee9e8078c56dd862995c
-source-handoff: d8c627c77f70e481592000c272fb50fb1f199abc65cddff8655668fe6dc8ee0e
-source-learnings: 123479d0c781a1ca2ebc186ad04a3754ce3ae21837dc4f1b878e5322e64f768d
+source-progress: 1787dca1b54d6dc01dcc96ebea9756c3e6ea6ee3265d7743801f8cd954804c08
+source-handoff: c83bc280f02b501a4a858bbb3e92ee2f05556f843ae7bc2dffab627543158fe5
+source-learnings: 74bd6a0a280a80a8e70feef8043bdffde759a67ced033e0069a6a7cb96fa67c4
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
-next-action: — E2E-48 round 2 (the [TBD] list), or the COVERAGE rows
+next-action: - E2E-48/P2c implementation (arms, registration, gate)
 
-Steps 1-5 and panel registration are DONE; E2E-48/P1 is closed at 24/24 byte-identical and
-1098/0. Pick ONE, in this order of value:
+The round-3 battery is PRE-REGISTERED (`f9f21f2`), MEASURED 9 ok/9 and committed with
+`spec/lab-evidence/e2e48-p2c/RESULTS.md` (`8c57856`); the level-0 STATIC-chain my-gap fix is
+committed (`6130164`) with the census re-measured (counts IDENTICAL; MPMCALLB advanced one
+blocker). E48C1 is already whole-file byte-identical and 24/24 e48p1 probes are intact.
+THE PREVIOUS NEXT-ACTION SECTION ("E2E-48 round 2 ... Pick ONE") IS SUPERSEDED by this one;
+its item 2 (the five drafted COVERAGE rows) survives as sub-task 7 below.
 
-1. **Pre-register E48C to measure the SCVCM load-order discriminator** (the only [TBD] that blocks
-   a corpus program: CREATE's 18-byte store). Write the probe bank and the predictions, COMMIT them
-   BEFORE any oracle run (PROTOCOL #1), then measure with `oracle/batch.py --tag e48p2c` (needs
-   `--reuse` if the tag exists; it only ADDS programs). Candidates that vary the discriminator:
-   the same `eofile = (name = 'EOF')` store in a DO-WHILE body vs a straight-line body vs behind a
-   `put`; a VARYING **member** left operand (the `Mem` shape `bit_cond_mat` refuses today).
-   Expected output: new goldens + a claim that names the rule, or a recorded `dr-refuses` row.
-2. **`spec/COVERAGE.tsv` rows** - started but NOT written (this session reached the format check
-   only, then hit level 3). Format facts MEASURED here, so do not re-derive them: **15** tab-separated
-   columns (`id category construct contract perimeter manual_ref dr_status mine_status rel_parity
-   runtime probes corpus boundary confidence provenance`); `manual_ref` is column 6, which the FIRST
-   table of `spec/COVERAGE-SCHEMA.md` omits - trust the second table and an existing row such as
-   `COND.GE_LE`. `probes` = comma-separated INVENTORY keys (E48A1..E48B9 are on the panel now, so they
-   resolve); `corpus` = names from the 44-program census (CREATE, EXPR2, FSCAN, LOAN2, MPMCALLB,
-   REPORT all qualify); `provenance` = space-separated `[Cnnn]` (C309-C316 exist); use
-   `manual_ref = NONE:<why>` to stay clear of the OCR page check. `tools/coverage_check.py` line 8 and
-   213: a `MEASURED`/`SINGLE_SAMPLE` row must name at least one probe that one of its OWN cited claims
-   also names - cite the claim carrying the specimen ([C313] names E48A15/A6/A7/B8). Drafted rows:
-   COND.BIT1_NEG_TEST (E48A1,A2,A5,A12,A13,B1,B7 EXACT:7, [C309][C311]); STOR.BIT1_COND_STORE
-   (E48A6..A12,B8,B9 EXACT:9, [C310], boundary = the load-order / |c|<=3 / ='0'b [TBD]s);
-   COND.AND_BIT1_OPERAND (E48A14 EXACT:1, SINGLE_SAMPLE, [C312]); IO.PUT_BIT1_ITEM (E48A15,A6,A7,B8
-   EXACT:4, runtime NONE because no transcript was captured, [C313]); DECL.STATIC_CHAR (E48B5,B6,B7
-   EXACT:3, mine_status PARTIAL because STATIC-on-CHARACTER VARYING still refuses, [C314]).
-   Validate with `python3 tools/coverage_check.py` (exit 0), then `python3 tools/e2e_gate.py`: the row
-   count goes 102 -> 107 and the byte panel must stay 1098 byte-exact / 0 fail.
-3. `%include` in the main pipeline (CREATE's real blocker) — bigger, and needs its own
-   pre-registered round for DR's search order/case rules.
+Implement ONLY what RESULTS section 2 measures; every RESULTS section 3 shape stays a named refusal:
 
-Commands to start either way:
-  `git rev-parse HEAD` -> expect `992ccad` or a descendant; `git status --porcelain=v1` -> expect
-  clean (or only handoff files); `python3 tools/e2e_gate.py` -> **1098 byte-exact / 0 fail**.
-readiness-by: session:01a18927-3b36-7470-93c0-80e28e177244
-readiness-at: 2026-10-29T20:14:46.080Z
-readiness-checkpoint: g12-b9a7bfdfd150
+1. `bit_cond_mat` (ocaml/lib/codegen.ml:7005) - add exactly these arms, ONE AT A TIME,
+   `dune build` + `cmp` sweep after EACH (LEARNINGS rule):
+   (a) (internal varying MEMBER left, literal right) - both spellings, AUTOMATIC records only:
+       `LXI H,*D(member) / EB / LXI H,*S(lit) / MVI A,len / CALL ?SCVCM / D6 01 / 9F` (18 bytes
+       incl. the `32` STA the Vbit1 arm adds) - sites E48C2 0013, C3 0013, C4 0027, C7 0013;
+   (b) (literal left, flat Vvar cell right - auto OR static): `LXI H,*D(var) / LXI D,*S(lit) /
+       MVI B,len / CALL ?SCCVM / D6 01 / 9F` (17 bytes) - E48C5 0013, E48C8's SCVCM site stays
+       the flat LEFT form;
+   (c) (literal left, internal varying member right): same, member cell in HL, NO XCHG - E48C6.
+   A BASED member as either side of a condition STORE stays refused (unmeasured).
+   Mirror EVERY new pool-cell-allocating shape in `bit_store_cond_bytes` (codegen.ml:2996) -
+   prescan demand is ONE rule with lowering (C152/C179; the fa09b97 lesson: an arm without a
+   demand twin dies on the pool invariant).
+2. Widen the internal-member gate ONLY for the admitted shapes: the store-path `imem_in_e st rhs`
+   refusal at codegen.ml:8555 and the TEST-path comparison refusal at 7632 must consult the SAME
+   predicates as `bit_cond_mat` (one authority, never a second copy of the byte decision); every
+   other member use keeps `imem_refuse` verbatim. Update the refusal WHY-strings to cite
+   golden/e48p2c where the bank now measures a shape - corrections stay traceable, never silent.
+3. TEST position (E48C9): the 15-byte head `LXI H,*D(member) / EB / LXI H,*S / MVI A,len /
+   CALL ?SCVCM / C2 00 00` with the no-else skip to the NEXT STATEMENT (C309 rule); member-as-
+   RIGHT in TEST is UNMEASURED - keep refusing it.
+4. STATIC-on-CHARACTER-VARYING placement (RESULTS section 2.5, arm at codegen.ml:12861 region,
+   `Bind.RTchar (n, true)`): accept ONLY a non-empty string-literal INITIAL not longer than the
+   extent; cell = [len-byte][literal padded to n with 0x20] IN PLACE in the static zone, NOT
+   pooled; `initial('')` is unmeasured (EXPR2's spelling) - keep refusing it. CAUTION: E46F5's
+   declaration then passes and the program advances to `OPEN ... TITLE(nm)` - TITLE on a STATIC
+   varying is UNMEASURED, so E46F5 must refuse THERE; its negative-panel row pins the CURRENT
+   text and must be re-measured and updated through the tool's write path with an explicit
+   reason, never by hand-editing a verdict.
+5. Sweep after each arm: `for n in E48C{1..9}; do ./ocaml/_build/default/bin/pli80c.exe
+   probes/$n.PLI /tmp/sw/$n.REL && cmp /tmp/sw/$n.REL golden/e48p2c/$n/$n.REL; done` plus the
+   24-probe e48p1 loop - expect 9/9 and 24/24 byte-identical at the end.
+6. Registration: SPECIMENS.tsv byte-tier rows E48C1..C9 (NO spec/RUNTIME.txt rows - this bank
+   captured .REL/.PRN only), `python3 tools/e2e_gate.py --update-inventory` (INVENTORY 1098 ->
+   1107), claims C317..C320 in spec/CLAIMS.md (the six laws of RESULTS section 2) plus an
+   ANNOTATION on C310 marking its load-order [TBD] answered (keep the old text), census
+   re-measure via `tools/corpus_census.py --check <copy of prev>` (counts must stay IDENTICAL;
+   EXPR2/FSCAN/LOAN2/REPORT/MPMCALLB msg deltas are expected to ADVANCE - verify each message),
+   then `python3 tools/e2e_gate.py` -> expect **1107 byte-exact / 0 fail**, negative 184/184
+   (E46F5 row re-measured per step 4), divergence 9/9.
+7. Sub-task (carried over, lower priority): the five DRAFTED spec/COVERAGE.tsv rows in the
+   previous checkpoint's item 2 (format facts already MEASURED there: 15 columns, validator rule
+   at coverage_check:213, `manual_ref = NONE:<why>`); validate with `python3 tools/coverage_check.py`.
+
+Do NOT touch golden/e48p1 or golden/e48p2c. Do NOT start `%include` (CREATE's front-end blocker)
+without its own pre-registered round.
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
 
-Measured by the session that closed E2E-48/P1 (2026-10-29/30), not quoted from a report:
+Measured by the E2E-48/P2c session (2026-10-30), not quoted from a report:
 
-- `python3 tools/e2e_gate.py` at HEAD `992ccad` -> **1098 byte-exact / 0 fail of 1098**; negative
-  panel 184/184 refused; divergence 9/9; coverage 102 rows / 0 errors; census `--verify` clean
-  (EXACT 15, DIFFERS 0, REFUSED 26, UNEXPECTED 0); rc=0. Three earlier gate runs in the same
-  session, before registration, each measured 1074/0.
-- 24-probe sweep (`pli80c.exe probes/$n.PLI` then whole-file `cmp` vs `golden/e48p1/$n/$n.REL`)
-  -> **24 BYTE-IDENTICAL**; it was 14/24 when this session started.
-- `dune build` rc=0; warning multiset compared cache-neutrally against the `df4b9c8` tree in a
-  scratch copy -> identical (kinds 11/26/27/32/39/57/8/9 = 22/15/28/2/14/2/17/26).
-- `tools/corpus_census.py --check <prev>` twice -> counts IDENTICAL both times; five `msg` deltas,
-  all of them the compiler advancing (CREATE, REPORT, MPMCALLB, EXPR2/FSCAN/LOAN2 wording).
-- Authorities read: `spec/lab-evidence/e2e48-p1/RESULTS.md` sections 1-6, `golden/e48p1/`,
-  claims **C309-C316** in `spec/CLAIMS.md`.
+- Oracle `PLI_SRC=probes python3 oracle/batch.py E48C1..E48C9 --tag e48p2c --switches '$L$D'`
+  -> **9 ok / 9**, all `.REL` produced; pre-registration committed at `f9f21f2` BEFORE the run;
+  goldens committed at `8c57856` with RESULTS.md (prediction-vs-verdict: 7 clean HITs; P5/P6
+  sequence HIT with a 16-vs-17 size-label slip kept as written per PROTOCOL #2).
+- Laws read from the `.REL` records via chaindump/reldump: member store 18 bytes (E48C2/C3/C4/C7
+  + CREATE 008F); flat 17 (C1, A6, C8); SCCVM store 17 with `06 len`, no XCHG member-side (C5/C6);
+  C7 DATA `41 42 20 | 00 | pool 4..C | rec AUTO @000D`, DEF-DATA-SIZE 44; C8 `nm` cell 15 bytes
+  `02 41 42 20 x12`, DEF-DATA-SIZE 21; C9 head + `C2` skip to next statement 0027.
+- Leak fix `6130164`: D2/D3 scratch compile; 24/24 `golden/e48p1/` still whole-file
+  byte-identical; E48C1 whole-file byte-identical; census re-measured via
+  `tools/corpus_census.py --check <copy of prev>`: counts IDENTICAL (EXACT 15 / DIFFERS 0 /
+  REFUSED 26 / UNEXPECTED 0), ONE msg delta = MPMCALLB ADVANCED past the leak blocker to
+  `STATIC on FIXED BINARY(15,0) MEMBER OF STRINGQCB@82`.
+- Gate at baseline `1595a10` (before any edit this session): **1098 byte-exact / 0 fail**,
+  negative 184/184, divergence 9/9, coverage 102/0, census clean, rc=0. NOT yet re-run at
+  `6130164` - the first run aborted on the then-stale census snapshot, which the re-measure
+  above closed; a fresh full gate run is part of the pending registration step.
 
 ## Blockers
 
-- None scientific is open, and nothing is half-edited; the tree is clean at this boundary.
-- What limits further parity is **missing evidence**, never a licence to guess: the CREATE-vs-E48
-  SCVCM load-order discriminator (18-byte `LXI H,var / XCHG` vs 17-byte `LXI H,lit / LXI D,var`)
-  was not varied by any probe in this bank, so CREATE's completion stays `[TBD]` until an E48C
-  round measures it (C310). Same for the store forms and PUT shapes listed in C310/C313/C314.
+- None scientific is open at this boundary, and nothing is half-edited; every commit above was
+  made only after its measurement.
+- The full gate must be RE-RUN at the P2c HEAD before this round can be called registered (the
+  1098/0 figure above is recorded from `1595a10`).
+- What limits further parity is **missing evidence**, never a licence to guess: RESULTS section 3
+  lists what P2c did NOT measure (based-member condition STORES, member-as-RIGHT in TEST
+  position, `^(cond)` stores, `k = c` with |c| in 1..3, `'0'b` as a value, nested `&`, non-final
+  bit PUT items, stores INTO static cells, `TITLE(<static varying>)`) - every one stays a named
+  refusal.
 - CREATE's measured blocker is front-end: `pli80c.ml` does no `%include` expansion, so
   `get list (name)` (from `artefacts/RECORD.DCL`) refuses on an unbound name. Proposed, unverified.
