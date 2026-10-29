@@ -1,0 +1,41 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E48C6
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E48C6
+
+   1 a 0000 E48C6:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-48/P2c] THE ORIENTATION, member: `b = ('EOF' = rec.name)'.  [C191]:
+   4 a 0006 `literal = member' needs NO XCHG because HL is already the right
+   5 a 0006 operand (E29C9 001C: LHLD / LXI D,*S / MVI B / ?SCCVM).  On an
+   6 a 0006 automatic member the address materializes directly, so P6 predicts
+   7 a 0006 LXI H,*D(rec) / LXI D,*S / MVI B,03 / ?SCCVM -- 16 bytes, the
+   8 a 0006 mirror of P5 plus the member cell. */
+   9 c 0006   dcl
+  10 c 0006     1 rec,
+  11 c 0006       2 name character(30) varying;
+  12 c 0006   dcl b bit(1) static initial('0'b);
+  13 c 0006   rec.name = 'AB';
+  14 c 0013   b = ('EOF' = rec.name);
+  15 c 0024   put list('B=', b);
+  16 c 0046   stop;
+  17 a 0049 end E48C6;
+
+CODE SIZE = 0049
+DATA AREA = 0027
+FREE SYMS = 3877
+END  COMPILATION
+
