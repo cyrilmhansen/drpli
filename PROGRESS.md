@@ -8,22 +8,25 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 **E2E-48/P1 — the condition-form half of CREATE: `^bit(1)` tests, conditions stored into
 BIT(1), and the DATA-area static/automatic law. In progress at this checkpoint.**
 
-*Done so far (measured in-session):* two probe banks pre-registered and committed **before**
-each oracle call — `284b630` (`probes/E48A1..E48A15.PLI` +
-`spec/lab-evidence/e2e48-p1/HYPOTHESES.md` + `mkprobes.py` + `BASELINE-MINE.txt`, my own
-refusals recorded at `d609e01` before DR ran) and `3401821` (`probes/E48B1..E48B9.PLI` +
-`mkprobes2.py` + round-2 predictions). Both oracle runs are complete: **15 ok / 15** and **9 ok
-/ 9** into `golden/e48p1/` (uncommitted at this checkpoint). DR's measured bytes are recorded in
-`HANDOFF.md` → Last verified state — the `^b` test (`3A/B7/FA`, 8 bytes), the condition store
-(`… / D6 01 / 9F / 32 <cell>`), the per-class materialisers, DR's `DAD H` bias defect on
-`k = 5`, the `ADI FF / SBB A` negation, the `C2→CA` skip inversion under `^(cond)`, the
-`PUSH PSW / LDA / POP B / ANA B` bit conjunction operand, the **accepted** `put list(b)` route
-(`?QB08C / ?PNBOP`), and STATIC-on-CHARACTER (E48B6). One **my-gap in my own data-size formula**
-was found and root-caused (bind's `section2` `span` charges STATIC rows; `codegen.ml:12340`
-double-counts them) — see `HANDOFF.md` → Next action step 4.
+*Done (measured/committed this session, 2026-10-29):* goldens already committed at `ece657e`
+(24 programs, 15/15 + 9/9 accepted); **`spec/lab-evidence/e2e48-p1/RESULTS.md`** written with
+every byte reading re-derived from the `.REL` records — prediction-vs-verdict over P1-P15 and
+R1-R8, all MISSes kept (P15 `put list(b)` **accepted** against a predicted refusal; P6/P7/P11
+spelling misses; the "8-byte/5-byte-chain" miscount). RESULTS §5 **falsifies** three inherited
+readings: the "DR `DAD H` bias defect" (golden bytes 0x09 = standard DAD B, bias applied —
+root cause: a mnemonic typo in `chaindump.py`, fixed in the same commit **388673b**); CREATE's
+"16-byte LHLD" SCVCM store (actual **18 bytes** `LXI H,var / XCHG / LXI H,lit`, vs **17 bytes**
+`LXI H,lit / LXI D,var` at every E48 site — the **discriminator is [TBD]**); FLTPOLY2's `2A`
+store (actual `0x21`). The **DATA-size double-count is FIXED** (bind's `section2` `span` no
+longer charges STATIC rows, commit **a8d1c3a**): E48A3/E48A4 now compile **byte-identical** to
+the goldens and the gate held **1074 byte-exact / 0 fail**, census unchanged (15 EXACT).
 
-*Not done (the continuation):* `RESULTS.md`, the evidence commit, the bind fix, the codegen
-arms, the panel registration, claims **C309+**, the gate, the census.
+*Not done (the continuation):* the golden-pinned codegen arms (`^b` test → `3A/B7/FA`, `^(cond)`
+skip inversion `C2→CA`, the per-class materialisers ending `32 <cell>`, the `&`-bit operand
+`PUSH PSW/LDA/POP B/ANA B` under one `F2`, the `?QB08C/?PNBOP` bit PUT item, STATIC-on-
+CHARACTER per E48B6) — exact arm locations and reusable helpers are recorded in `HANDOFF.md`
+→ Next action step 5; then panel registration, claims **C309+**, INVENTORY/COVERAGE, gate,
+census.
 
 **E2E-42/P2c — the named-file `SKIP` bank: pre-registered, measured, lowered, and the
 harness/audit layer that came out of it.** Recorded HEAD for the scientific work:
@@ -77,10 +80,11 @@ never outranks the compiler work above; it changes no implementation strategy an
 
 ## Pending
 
-- **E2E-48/P1 continuation** — see `HANDOFF.md` → `## Next action — E2E-48/P1`: commit
-  `golden/e48p1/`, write `RESULTS.md`, fix the `span`/`pl_total` double-count in `bind.ml`,
-  land the codegen arms, register the specimens, write C309+, run the gate, re-run the census
-  (target: CREATE becomes the 16th EXACT corpus program).
+- **E2E-48/P1 continuation** — see `HANDOFF.md` → `## Next action — E2E-48/P1 step 5`: land
+  the golden-pinned codegen arms, register `E48A*/E48B*` in the byte panel, write C309+ from
+  RESULTS §3, update INVENTORY/COVERAGE, run the gate, re-run the census. The
+  CREATE-vs-E48 SCVCM load-order discriminator is `[TBD]` and must be MEASURED (a new
+  pre-registered probe round) before it is implemented; CREATE EXACT depends on it.
 - **Operator decision taken 2026-10-29:** project trust granted (exact path, production
   profile); renewal ENABLED (`enabled/autoRenew true`, `maxRenewals 8`,
   `generationReserve 20000` retained); Pi auto-compaction disabled for this project only via
@@ -153,9 +157,9 @@ session, production profile, trust-based auto-load, no `-e`, synthetic level-3 t
 
 ## Next action
 
-See `HANDOFF.md` → `## Next action — E2E-48/P1, the exact continuation` (six numbered steps,
-starting with committing `golden/e48p1/` and writing `spec/lab-evidence/e2e48-p1/RESULTS.md`).
-The historical P2c reading list below is superseded by it.
+See `HANDOFF.md` → `## Next action — E2E-48/P1 step 5, the exact continuation (codegen arms)`
+(seven numbered items, starting with the `Eprefix(NegL, …)` arm in `lower_test_skip0`, with
+all arm locations and reusable helpers already measured and recorded there).
 
 See `HANDOFF.md` → `## Next action`: read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7–§9,
 `.../HYPOTHESES.md` and claims `C296`–`C308`, then write the candidate next phase as

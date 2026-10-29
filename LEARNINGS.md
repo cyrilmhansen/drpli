@@ -7,6 +7,20 @@ The guard never writes this file.
 
 ## Accepted
 
+- **A handoff summary can carry a rendering-error that the goldens disprove, and the
+  renewal chain propagates it.** The "DR's own DAD H bias defect" recorded in a level-2
+  checkpoint summary was traced to a mnemonic typo in `spec/lab-evidence/e2e42-p2b/chaindump.py`
+  (`0x09` labeled `dad d`); the literal golden bytes at E48A7:0040/E48A12:003E/E48B1:002E are
+  0x09 = DAD B — bias applied correctly, and `hl_bias` already emits 0x09. Nothing to
+  reproduce. The predecessor session even wrote the antidote into LEARNINGS ("a mnemonic
+  from a disassembler is not evidence") and then committed the error anyway by trusting the
+  mnemonic. Lesson: before an inherited summary becomes work ("reproduce the defect"),
+  re-read the literal bytes it cites. Evidence: `spec/lab-evidence/e2e48-p1/RESULTS.md` §5;
+  tool fixed at commit 388673b. [accepted, measured 2026-10-29]
+- **A `max(a, b)` sizing arm must be probed in BOTH regimes.** (pre-existing 2026-10-29
+  entry below) — closed the same day: the fix (bind's `section2` span no longer charges
+  STATIC rows) is committed at a8d1c3a and E48A3/E48A4 became byte-identical to the new
+  goldens with no other change; gate stayed 1074 byte-exact / 0 fail. [accepted, measured]
 - **A formula that has only ever been exercised where two terms are large can hide a
   double-count.** My `DEF-DATA-SIZE` is `sy_total + pool_total + max(auto, pl_total) + 2*temps`
   and it passed 1074 specimens, because in every one of them the `max` term was dominated by

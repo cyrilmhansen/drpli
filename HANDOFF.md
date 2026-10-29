@@ -27,28 +27,38 @@ pre-registered at `284b630`, measured 15 ok/15; round 2 (E48B1..B9) pre-register
 `3401821`, measured 9 ok/9; goldens in `golden/e48p1/` (uncommitted). DR laws measured this
 phase, all read out of the `.REL` records:
 
-- `^b` test on BIT(1): `3A <cell> / B7 / FA + 5-byte chain` (8 bytes; CREATE 0052, E48A1 000C,
-  E48A5 0011, E48A12 000C, E48B1, E48B7); positive form identical with `F2` (E48A3 0006, E48B2,
-  FLTPOLY2 0075). `DO WHILE` chain tail is `C3 <loop head>` written after the loop and patched
-  back through `SET-LC/RELOC` (CREATE 01BE, E48A1 0041, E48A12 0049); IF/ELSE false chain
-  targets the else (E48A2 000B→0027).
-- `b = (cond)`: compare, then **[C095]'s** `D6 01 / 9F`, then `32 <cell>` (STA, inline DATA
-  reloc [C079]). CREATE's `(name = 'EOF')` = 16 bytes; E48A6/E48B8/E48B9 reproduce it exactly.
-- Materialiser by class: varying-vs-literal `LXI H,v / XCHG / LXI H,lit / MVI A,n / CALL
-  ?SCVCM`; `k = 0` → `LXI H,k / MOV A,M / INX H / ORA M`; `k = 5` → `LHLD k / LXI B,FFFB / DAD
-  H`(0x09) **not `DAD B`** (DR's own bias defect); `k ^= 0` and `^(k = 0)` → `ADI FF / SBB A`;
-  `k > 0` → `XOR A / CMP M / INX H / SBB A`; `b = '1'b` → `LDA / ANI 80 / SUI 80` + flag trick.
-- `^(cond)` in a test **inverts the skip byte** (`C2 JNZ → CA JZ`, E48A13); `if k = 0 & b then`
-  materialises a bit operand as `PUSH PSW / LDA b / POP B / ANA B` under one `F2` (E48A14).
+- `^b` test on BIT(1): `3A <cell> / B7 / FA + 2-byte operand filler (00 00, filled later by
+  SET-LC/RELOC)` = **7 bytes** (the earlier "8 bytes / 5-byte chain" wording was a miscount;
+  RESULTS.md §5 supersedes it). CREATE 0052, E48A1 000C, E48A5 0011, E48A12 000C, E48B1,
+  E48B7; positive form identical with `F2` (E48A3 0006, E48B2, FLTPOLY2 0075). `DO WHILE`
+  exit = address just after the loop-tail `C3 <test>` (tail+3; E48A1 fill 0011→0044);
+  IF/ELSE false-chain targets the else (E48A2 000B→0027); no-else IF skip → next statement
+  (E48B1 inner 001F→0028).
+- `b = (cond)`: materialiser, then `D6 01 / 9F` (`SUI 01/SBB A`: 0→FF, nonzero→00), then
+  `32 <cell>`. E48A6 (auto varying = literal) measured **17 bytes** `LXI H,*S(lit) / LXI D,var
+  / MVI A,litlen / CALL ?SCVCM / D6 01 / 9F / 32 b`. CREATE's own store at 008F is **18 bytes**
+  `LXI H,var / EB(XCHG) / LXI H,*S(lit) / 3E 03 / ?SCVCM / D6 01 / 9F / 32` — same registers,
+  different load order; the **discriminator is [TBD]** (only one SCVCM site exists in CREATE;
+  all 18 E48 sites use the LXI-D form). The earlier "16 bytes, 2A/LHLD" reading was wrong
+  (RESULTS.md §5).
+- Materialiser by class (RESULTS.md §3.2): `k = 0` → `LXI H,k / MOV A,M / INX H / ORA M`;
+  `k = c` |c| ≥ 4 → `LHLD k / LXI B,two's-comp / DAD B(0x09) / MOV A,H / ORA L` — **no DR
+  defect: byte 0x09 is standard DAD B and my `hl_bias` already matches** ([C143] compare-route
+  threshold ≤3 confirmed by E48A13 `= 3` = DCX H ×3 vs E48A12 `= 4` = LXI B,FFFC); `k ^= 0`
+  AND `^(k = 0)` (value) → same `=0` ladder with `ADI FF / SBB A` (C6 FF/9F) — never CMA;
+  `k > 0` → `LXI H,k / XOR A / CMP M / INX H / SBB M` (result already 00/FF, no tail);
+  `f = (b = '1'b)` → `LDA / ANI 80 / SUI 80 / D6 01 / 9F / 32`.
+- `^(cond)` in a test **inverts the skip byte** (`C2 JNZ → CA JZ`, emitted as `CA 00 00` +
+  SET-LC/RELOC fill, E48A13); `if k = 0 & b then` materialises the left into A, then
+  `PUSH PSW / LDA b / POP B / ANA B` under one `F2` (E48A14 000C-001D).
 - `put list(b)` is **accepted**: `LDA cell / MVI B,01 / CALL ?QB08C / CALL ?PNBOP` (7 objects).
 - STATIC bits are DATA-absolute and adjacent (E48B5 0000/0001); `dcl s char(3) static
   initial('AB')` is accepted, cell `41 42 20`, and the PUT reuses that cell — DATA area 3, zero
   pool bytes (E48B6). I refuse both today.
-- **My defect, root-caused**: DR's `DEF-DATA-SIZE` is 3/2/4/5 for E48A3/B3/B5/B7 where mine is
-  4/3/5/6 (+1 every time). `codegen.ml:12340` = `sy_total + pool_total + max auto_bytes
-  layout.pl_total + 2*temps`, and `bind.ml` `section2`'s `span` (≈2146) charges STATIC rows, so
-  a static byte is counted twice whenever statics dominate the `max` (FLTPOLY2 masks it). Found
-  with temporary `E48DBG` instrumentation, since reverted; `ocaml/` is clean.
+- **My DATA-size double-count — FIXED and committed.** `bind.ml` `section2`'s `span` charged
+  STATIC rows; a8d1c3a excludes them (`static_rows` from `bind_rows`' 4-tuple auto flag). E48A3
+  (DR 3) and E48A4 (DR 8) are now byte-identical whole-file to the goldens; the gate stayed
+  **1074 byte-exact / 0 fail**, census unchanged (15 EXACT). `codegen.ml:12340` needed no change.
 
 ## Last verified state (Pi Handoff deployment window — superseded above for work state)
 
@@ -90,15 +100,59 @@ not as fresh measurements):
 
 ## Unfinished operations — E2E-48/P1 (open at this checkpoint)
 
-- `golden/e48p1/` (24 DR programs: E48A1..A15, E48B1..B9, plus summaries and transcripts)
-  exists on disk and is **NOT YET COMMITTED**. It is this phase's oracle evidence — stage it
-  explicitly, never regenerate or rewrite it.
-- `spec/lab-evidence/e2e48-p1/RESULTS.md` is **not written** yet; the prediction-vs-verdict
-  table over the 15+9 pre-registered rows is owed, and must keep both MISSes.
-- No `spec/CLAIMS.md` rows yet (next free id **C309**); no `INVENTORY.txt` / `COVERAGE.tsv`
-  rows; **no OCaml change made**; the gate has not been run for this phase.
-- Build note (measured): `dune` is not on `PATH`; use `cd ocaml && opam exec --switch=default
-  -- dune build` (72 pre-existing warnings). Binary: `ocaml/_build/default/bin/pli80c.exe`.
+- DONE since `ece657e`: `RESULTS.md` (prediction-vs-verdict, all bytes re-derived; MISSes kept:
+  P15 accepted, P6/P7/P11 spellings, the 8-byte miscount, the falsified "DAD defect" — §5);
+  chaindump.py:38 typo fixed in the same commit (388673b); bind span fix + gate (a8d1c3a).
+  Working tree clean at this checkpoint; `ocaml/` compiles (dune via `opam exec`).
+- OPEN: the codegen arms of HANDOFF "Next action" (none started yet — no half-edited file);
+  no `spec/CLAIMS.md` rows yet (next free id **C309**); no INVENTORY/COVERAGE rows; E48
+  specimens not in the panel; census not re-run for this phase.
+- `[TBD]` items that must NOT be guessed: the CREATE-vs-E48 SCVCM load-order discriminator;
+  the BIT-store materialiser for `k = c` with |c| ∈ {1,2,3} (only c=0 and |c|≥4 are pinned);
+  `= '0'b` as a materialised (stored) comparison (only `'1'b` pinned, E48A10); `^(cond)` in
+  a STORE beyond `^(k = 0)`; nested `&` shapes beyond E48A14.
+
+## Next action — E2E-48/P1 step 5, the exact continuation (codegen arms)
+
+All arm locations were read in-session (2026-10-29, commit a8d1c3a) — reuse them, do not re-explore:
+
+1. `ocaml/lib/codegen.ml` `lower_test_skip0`: beside the positive bare-bit arm (≈6993, emits
+   `0x3a / reloc / op_ora_a / op_jp / 2-byte slot`), add `Ast.Eprefix (Ast.NegL, x)` with
+   `x` unwrapped (parser gives `(^ b)` bare-Eident and `(^ (cond ...))` = Econd-wrapped):
+   - `Eident Vbit1` → same ladder, skip `0xfa` (JM) [E48A1/A2/A5/A12/B1/B7, CREATE 0052];
+   - `Ebinary(EqR Eq, Eident v, Enumber "0")` → `val_addr / 7E / 23 / B6 / 0xca` [E48A13 000F];
+   - `Ebinary(EqR Eq, Eident v, Enumber k)` kk ≥ 1 → `cmp_load_deref / hl_bias(-kk) / 7C / B5 /
+     0xca` [E48A13 002F pins kk=3 = DCX×3; hl_bias ≥4 = LXI B + op_dad_b 0x09 = E48A12/B1];
+   - anything else under NegL keeps refusing (name the shape).
+   DO-WHILE/IF skip targets need no change — the existing slot-fill machinery already emits
+   `00 00` + SET-LC/RELOC and matches DR (proved by the E48A3/A4 whole-file identity).
+2. The BIT(1) store arm (≈8210): replace the unconditional refusal after the `Ebit` literal
+   cases with a materialiser dispatch ending `32 <cell>` (STA, `d st 0x32; reloc st Data`):
+   - `str_cmp_shape st l rr` (varying = literal) → run `hl_fn(); de_fn(); MVI A,len;
+     call_ext "?SCVCM"` then `op_sui 01 / op_sbb_a` [E48A6/B8/B9 17 bytes — hl_fn is already
+     LXI H,lit / de_fn LXI D,var, the arm at ≈7200 proves it];
+   - `Ebinary(EqR Eq, Eident, Enumber "0")` → `val_addr / bin_zero_tail` (≈6507) [=0 → FF];
+   - `Ne 0` or `Eprefix(NegL, Econd(Eq k 0))` → `val_addr / 7E / 23 / B6 / 0xc6 0xff / 9f`
+     [E48A8/A11]; `Gt 0` → `21 k / 0xaf / 0xbe / 0x23 / 0x9e` [E48A9, no tail];
+   - `Eq k` kk ≥ 4 → `cmp_load_deref / hl_bias(-kk) / 7C / B5 / D6 01 / 9F` [E48A7 k=5];
+   - `Ebinary(EqR Eq, Eident Vbit1, Ebit "1")` → `0x3a reloc / E6 80 / D6 80 / D6 01 / 9F`
+     [E48A10]. Refuse everything else (the [TBD] list above).
+3. `lower_bool` (≈6545) And-arm: in the right-operand match chain add `Eident v when Vbit1` →
+   `d st op_push_psw; d st 0x3a; reloc st Data (addr_of ...)` before the shared
+   `pop_b / ana_b` [E48A14].
+4. PUT: refusal at ≈10317 → bit item `0x3a reloc / 0x06 0x01 / call_ext "?QB08C" /
+   call_ext "?PNBOP"` (after literal items' SLCTS/PNCOP, before QIOOP) [E48A15/A6/A7/B8].
+5. STATIC-on-CHARACTER per E48B6 (cell = full extent blank-padded, DATA 0000, pool 0, PUT
+   reads the cell with declared length) — locate the refusal first (bind/codegen "STATIC on
+   CHAR" text; gate NEG rows E46F5). Largest arm; do LAST or defer to a follow-up commit.
+6. Verify each step: `cd ocaml && opam exec --switch=default -- dune build`; compile probes to
+   `/tmp/e48fix/` (usage: `pli80c.exe IN.PLI OUT.REL`) and `cmp` against `golden/e48p1/N/N.REL`;
+   run `python3 tools/e2e_gate.py` (must stay 1074/0 until panel registration, then grows).
+7. Then: register `E48A*/E48B*` in `tools/e2e_gate.py` SPECIMENS; claims C309+ from RESULTS §3;
+   INVENTORY/COVERAGE rows; gate; `python3 tools/corpus_census.py --check`. CREATE EXACT likely
+   needs the [TBD] SCVCM load-order — if it blocks, measure the discriminator with a NEW
+   pre-registered probe round (E48C) before implementing, or report census honestly unchanged.
+
 
 ## Unfinished operations (Pi Handoff deployment)
 
@@ -115,30 +169,15 @@ not as fresh measurements):
   `HANDOFF.md`, `PROGRESS.md`, `LEARNINGS.md`, `handoff.config.json`,
   `.pi/extensions/context-guard/*.ts`, `.agents/skills/pi-handoff/**`.
 
-## Next action — E2E-48/P1, the exact continuation
+## Next action (superseded — E2E-48/P1 steps 1-4)
 
-1. `cd /home/john/projects/sushiworks/pli80 && git rev-parse HEAD` → expect `3401821…` or a
-   descendant; `git status --porcelain=v1` → expect only `?? golden/e48p1/`.
-2. Write `spec/lab-evidence/e2e48-p1/RESULTS.md` §1-§3 — prediction-vs-verdict over
-   `HYPOTHESES.md`'s P1-P15 and R1-R8, every byte reading re-derived from the goldens
-   (`python3 spec/lab-evidence/e2e42-p2b/chaindump.py golden/e48p1/<N>/<N>.REL`,
-   `python3 tools/reldump.py ...` for DATA sizes and chain fills). Keep the MISSes.
-3. Commit the evidence: `git add golden/e48p1 spec/lab-evidence/e2e48-p1/RESULTS.md && git
-   commit -m "E2E-48/P1 [dr]: 24-probe condition-form and DATA-area bank measured"` (nothing
-   pre-existing lives inside `golden/e48p1`; never `git add -A`).
-4. Fix the DATA-size double-count in `ocaml/lib/bind.ml` `section2`'s `span` (≈2146): exclude
-   STATIC-class rows (the `stc` decision is bind.ml ≈995; `bind_rows` carries the auto flag).
-   Rebuild, then `python3 tools/e2e_gate.py` must still print **1074 byte-exact / 0 fail**
-   before any codegen work — the fix may not move an existing specimen.
-5. Implement in `ocaml/lib/codegen.ml` only what a golden pins: `Eprefix(NegL, Eident Vbit1)`
-   test arm (`3A/B7/FA`) beside the existing `Vbit1` arm (≈7395); `b = (cond)` = materialiser +
-   `0x32` (replacing the refusal at ≈8220); the per-class materialisers measured in
-   `HANDOFF.md` → Last verified state (including DR's `DAD H` bias defect and the `ADI FF/SBB
-   A` negation); the `^(cond)` skip inversion `C2→CA`; the `&`-bit operand in `lower_bool`;
-   the `?QB08C/?PNBOP` bit PUT item; STATIC-on-CHARACTER per E48B6. Register `E48A*/E48B*` in
-   `tools/e2e_gate.py`'s `SPECIMENS` against `golden/e48p1/<N>/<N>.REL`.
-6. Write claims **C309+**, `INVENTORY.txt`/`COVERAGE.tsv` rows, run the gate, commit, re-run
-   `python3 tools/corpus_census.py --check` — CREATE is this phase's target EXACT (15 → 16).
+The 2026-10-29 predecessor's six-step list (write RESULTS.md, commit evidence, fix the
+bind `span` double-count, gate) was COMPLETED this session: RESULTS.md + chaindump typo
+fix at 388673b (all bytes re-derived from the goldens, both MISSes kept), bind fix at
+a8d1c3a with the gate still 1074/0 and E48A3/A4 byte-identical. Its step 5 (codegen
+arms) and step 6 (panel/claims/census) continue in `## Next action — E2E-48/P1 step 5`
+above, which supersedes it in full. (The goldens were in fact already committed at
+ece657e, before this step list was written.)
 
 ## Next action (historical — deployment window)
 
