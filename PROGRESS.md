@@ -112,7 +112,7 @@ checkpoint-generation: 13
 checkpoint-id: g13-d26e872436f9
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 3
 checkpointed: 2026-10-29T20:59:28.223Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -177,6 +177,9 @@ Implement ONLY what RESULTS section 2 measures; every RESULTS section 3 shape st
 
 Do NOT touch golden/e48p1 or golden/e48p2c. Do NOT start `%include` (CREATE's front-end blocker)
 without its own pre-registered round.
+readiness-by: session:01a1894d-c352-7470-93c0-80e614b0e047
+readiness-at: 2026-10-29T20:59:59.889Z
+readiness-checkpoint: g13-d26e872436f9
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
