@@ -5,6 +5,26 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+**E2E-48/P1 — the condition-form half of CREATE: `^bit(1)` tests, conditions stored into
+BIT(1), and the DATA-area static/automatic law. In progress at this checkpoint.**
+
+*Done so far (measured in-session):* two probe banks pre-registered and committed **before**
+each oracle call — `284b630` (`probes/E48A1..E48A15.PLI` +
+`spec/lab-evidence/e2e48-p1/HYPOTHESES.md` + `mkprobes.py` + `BASELINE-MINE.txt`, my own
+refusals recorded at `d609e01` before DR ran) and `3401821` (`probes/E48B1..E48B9.PLI` +
+`mkprobes2.py` + round-2 predictions). Both oracle runs are complete: **15 ok / 15** and **9 ok
+/ 9** into `golden/e48p1/` (uncommitted at this checkpoint). DR's measured bytes are recorded in
+`HANDOFF.md` → Last verified state — the `^b` test (`3A/B7/FA`, 8 bytes), the condition store
+(`… / D6 01 / 9F / 32 <cell>`), the per-class materialisers, DR's `DAD H` bias defect on
+`k = 5`, the `ADI FF / SBB A` negation, the `C2→CA` skip inversion under `^(cond)`, the
+`PUSH PSW / LDA / POP B / ANA B` bit conjunction operand, the **accepted** `put list(b)` route
+(`?QB08C / ?PNBOP`), and STATIC-on-CHARACTER (E48B6). One **my-gap in my own data-size formula**
+was found and root-caused (bind's `section2` `span` charges STATIC rows; `codegen.ml:12340`
+double-counts them) — see `HANDOFF.md` → Next action step 4.
+
+*Not done (the continuation):* `RESULTS.md`, the evidence commit, the bind fix, the codegen
+arms, the panel registration, claims **C309+**, the gate, the census.
+
 **E2E-42/P2c — the named-file `SKIP` bank: pre-registered, measured, lowered, and the
 harness/audit layer that came out of it.** Recorded HEAD for the scientific work:
 `1e5fe03` (panel +18 byte-exact objects, `[C303]` corrected) through `0a50fc4`
@@ -57,6 +77,10 @@ never outranks the compiler work above; it changes no implementation strategy an
 
 ## Pending
 
+- **E2E-48/P1 continuation** — see `HANDOFF.md` → `## Next action — E2E-48/P1`: commit
+  `golden/e48p1/`, write `RESULTS.md`, fix the `span`/`pl_total` double-count in `bind.ml`,
+  land the codegen arms, register the specimens, write C309+, run the gate, re-run the census
+  (target: CREATE becomes the 16th EXACT corpus program).
 - **Operator decision taken 2026-10-29:** project trust granted (exact path, production
   profile); renewal ENABLED (`enabled/autoRenew true`, `maxRenewals 8`,
   `generationReserve 20000` retained); Pi auto-compaction disabled for this project only via
@@ -128,6 +152,10 @@ session, production profile, trust-based auto-load, no `-e`, synthetic level-3 t
   refreshed and re-attested.
 
 ## Next action
+
+See `HANDOFF.md` → `## Next action — E2E-48/P1, the exact continuation` (six numbered steps,
+starting with committing `golden/e48p1/` and writing `spec/lab-evidence/e2e48-p1/RESULTS.md`).
+The historical P2c reading list below is superseded by it.
 
 See `HANDOFF.md` → `## Next action`: read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7–§9,
 `.../HYPOTHESES.md` and claims `C296`–`C308`, then write the candidate next phase as

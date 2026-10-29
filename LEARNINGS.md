@@ -7,6 +7,29 @@ The guard never writes this file.
 
 ## Accepted
 
+- **A formula that has only ever been exercised where two terms are large can hide a
+  double-count.** My `DEF-DATA-SIZE` is `sy_total + pool_total + max(auto, pl_total) + 2*temps`
+  and it passed 1074 specimens, because in every one of them the `max` term was dominated by
+  automatics. A static-only program (E48B3) exposes it: bind's `section2` `span` charges
+  STATIC rows too, so the static byte is counted twice. Lesson: when a formula is a `max` of two
+  quantities, probe the regime where each one wins — that is where the overlap hides. Evidence:
+  `golden/e48p1/E48A3, E48B3, E48B5, E48B7` vs `/tmp/e48base/*.REL` (each +1 byte).
+- **`--tag` reuse needs `--reuse` and cannot clobber**: `oracle/batch.py` refuses an existing
+  golden dir unless `--reuse` is passed, and `--reuse` only *adds* programs. That is what lets a
+  second probe round land in the same evidence directory without touching round 1 (measured
+  2026-10-29: `SAFETY: golden dir exists; pass allow_reuse to add into it`).
+- **A DR defect is a target, not a curiosity.** DR lowers a biased integer compare as `LHLD k /
+  LXI B,FFFB / DAD H` — `DAD H` adds HL to itself, so the bias is never applied — where my ladder
+  uses the semantically right `DAD B` (0x09 vs 0x19, both 1-byte opcodes). Byte-exactness means
+  reproducing the defect and recording it as `[C072]/[C264]`-family historical-quirk preservation
+  (GOAL #5), never silently "fixing" it. Tell it apart from a rendering difference: `chaindump.py`
+  printed `dad d` for the same byte, so a mnemonic from a disassembler is not evidence — the
+  literal `.REL` byte is.
+- **Predicting a refusal from absence of a witness is exactly the error PROTOCOL #4 forbids,
+  and it is easy to commit even after writing the rule down.** I predicted `put list(b)` would
+  be `dr-refuses` because no DR object in the tree prints a bit string; DR compiles it in seven
+  of my probes via `LDA / MVI B,01 / ?QB08C / ?PNBOP`. Keep the MISS in `RESULTS.md`.
+
 - **Prove ordering with committed blobs, not filesystem mtimes.** A `git stash -u` + `pop`
   rewrote mtimes and destroyed an ordering claim (E2E-42/P2a:
   `spec/lab-evidence/e2e42-p2a/PROCESS.md`, correction commit `c816af5`). Pre-register a

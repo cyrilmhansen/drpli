@@ -20,7 +20,37 @@ Manual prose wins over the managed block below it. Do not hand-edit the managed 
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Last verified state
+## Last verified state — E2E-48/P1 (scientific session, measured 2026-10-29)
+
+See `PROGRESS.md` → Current phase for the same content; the short form: round 1 (E48A1..A15)
+pre-registered at `284b630`, measured 15 ok/15; round 2 (E48B1..B9) pre-registered at
+`3401821`, measured 9 ok/9; goldens in `golden/e48p1/` (uncommitted). DR laws measured this
+phase, all read out of the `.REL` records:
+
+- `^b` test on BIT(1): `3A <cell> / B7 / FA + 5-byte chain` (8 bytes; CREATE 0052, E48A1 000C,
+  E48A5 0011, E48A12 000C, E48B1, E48B7); positive form identical with `F2` (E48A3 0006, E48B2,
+  FLTPOLY2 0075). `DO WHILE` chain tail is `C3 <loop head>` written after the loop and patched
+  back through `SET-LC/RELOC` (CREATE 01BE, E48A1 0041, E48A12 0049); IF/ELSE false chain
+  targets the else (E48A2 000B→0027).
+- `b = (cond)`: compare, then **[C095]'s** `D6 01 / 9F`, then `32 <cell>` (STA, inline DATA
+  reloc [C079]). CREATE's `(name = 'EOF')` = 16 bytes; E48A6/E48B8/E48B9 reproduce it exactly.
+- Materialiser by class: varying-vs-literal `LXI H,v / XCHG / LXI H,lit / MVI A,n / CALL
+  ?SCVCM`; `k = 0` → `LXI H,k / MOV A,M / INX H / ORA M`; `k = 5` → `LHLD k / LXI B,FFFB / DAD
+  H`(0x09) **not `DAD B`** (DR's own bias defect); `k ^= 0` and `^(k = 0)` → `ADI FF / SBB A`;
+  `k > 0` → `XOR A / CMP M / INX H / SBB A`; `b = '1'b` → `LDA / ANI 80 / SUI 80` + flag trick.
+- `^(cond)` in a test **inverts the skip byte** (`C2 JNZ → CA JZ`, E48A13); `if k = 0 & b then`
+  materialises a bit operand as `PUSH PSW / LDA b / POP B / ANA B` under one `F2` (E48A14).
+- `put list(b)` is **accepted**: `LDA cell / MVI B,01 / CALL ?QB08C / CALL ?PNBOP` (7 objects).
+- STATIC bits are DATA-absolute and adjacent (E48B5 0000/0001); `dcl s char(3) static
+  initial('AB')` is accepted, cell `41 42 20`, and the PUT reuses that cell — DATA area 3, zero
+  pool bytes (E48B6). I refuse both today.
+- **My defect, root-caused**: DR's `DEF-DATA-SIZE` is 3/2/4/5 for E48A3/B3/B5/B7 where mine is
+  4/3/5/6 (+1 every time). `codegen.ml:12340` = `sy_total + pool_total + max auto_bytes
+  layout.pl_total + 2*temps`, and `bind.ml` `section2`'s `span` (≈2146) charges STATIC rows, so
+  a static byte is counted twice whenever statics dominate the `max` (FLTPOLY2 masks it). Found
+  with temporary `E48DBG` instrumentation, since reverted; `ocaml/` is clean.
+
+## Last verified state (Pi Handoff deployment window — superseded above for work state)
 
 Verified **in the deployment session itself** (i.e. measured now, not quoted from a report):
 
@@ -58,7 +88,19 @@ not as fresh measurements):
   related to PUT. Also recorded, deliberately unfixed: `pli80c`'s `wrote … (data=N)` summary line
   reports a number that is not the DATA segment length.
 
-## Unfinished operations
+## Unfinished operations — E2E-48/P1 (open at this checkpoint)
+
+- `golden/e48p1/` (24 DR programs: E48A1..A15, E48B1..B9, plus summaries and transcripts)
+  exists on disk and is **NOT YET COMMITTED**. It is this phase's oracle evidence — stage it
+  explicitly, never regenerate or rewrite it.
+- `spec/lab-evidence/e2e48-p1/RESULTS.md` is **not written** yet; the prediction-vs-verdict
+  table over the 15+9 pre-registered rows is owed, and must keep both MISSes.
+- No `spec/CLAIMS.md` rows yet (next free id **C309**); no `INVENTORY.txt` / `COVERAGE.tsv`
+  rows; **no OCaml change made**; the gate has not been run for this phase.
+- Build note (measured): `dune` is not on `PATH`; use `cd ocaml && opam exec --switch=default
+  -- dune build` (72 pre-existing warnings). Binary: `ocaml/_build/default/bin/pli80c.exe`.
+
+## Unfinished operations (Pi Handoff deployment)
 
 - **None in progress.** The Pi Handoff deployment (Phases A–E) is complete, and on
   2026-10-29 the operator authorized and live-tested the renewal activation (project trust,
@@ -73,7 +115,32 @@ not as fresh measurements):
   `HANDOFF.md`, `PROGRESS.md`, `LEARNINGS.md`, `handoff.config.json`,
   `.pi/extensions/context-guard/*.ts`, `.agents/skills/pi-handoff/**`.
 
-## Next action
+## Next action — E2E-48/P1, the exact continuation
+
+1. `cd /home/john/projects/sushiworks/pli80 && git rev-parse HEAD` → expect `3401821…` or a
+   descendant; `git status --porcelain=v1` → expect only `?? golden/e48p1/`.
+2. Write `spec/lab-evidence/e2e48-p1/RESULTS.md` §1-§3 — prediction-vs-verdict over
+   `HYPOTHESES.md`'s P1-P15 and R1-R8, every byte reading re-derived from the goldens
+   (`python3 spec/lab-evidence/e2e42-p2b/chaindump.py golden/e48p1/<N>/<N>.REL`,
+   `python3 tools/reldump.py ...` for DATA sizes and chain fills). Keep the MISSes.
+3. Commit the evidence: `git add golden/e48p1 spec/lab-evidence/e2e48-p1/RESULTS.md && git
+   commit -m "E2E-48/P1 [dr]: 24-probe condition-form and DATA-area bank measured"` (nothing
+   pre-existing lives inside `golden/e48p1`; never `git add -A`).
+4. Fix the DATA-size double-count in `ocaml/lib/bind.ml` `section2`'s `span` (≈2146): exclude
+   STATIC-class rows (the `stc` decision is bind.ml ≈995; `bind_rows` carries the auto flag).
+   Rebuild, then `python3 tools/e2e_gate.py` must still print **1074 byte-exact / 0 fail**
+   before any codegen work — the fix may not move an existing specimen.
+5. Implement in `ocaml/lib/codegen.ml` only what a golden pins: `Eprefix(NegL, Eident Vbit1)`
+   test arm (`3A/B7/FA`) beside the existing `Vbit1` arm (≈7395); `b = (cond)` = materialiser +
+   `0x32` (replacing the refusal at ≈8220); the per-class materialisers measured in
+   `HANDOFF.md` → Last verified state (including DR's `DAD H` bias defect and the `ADI FF/SBB
+   A` negation); the `^(cond)` skip inversion `C2→CA`; the `&`-bit operand in `lower_bool`;
+   the `?QB08C/?PNBOP` bit PUT item; STATIC-on-CHARACTER per E48B6. Register `E48A*/E48B*` in
+   `tools/e2e_gate.py`'s `SPECIMENS` against `golden/e48p1/<N>/<N>.REL`.
+6. Write claims **C309+**, `INVENTORY.txt`/`COVERAGE.tsv` rows, run the gate, commit, re-run
+   `python3 tools/corpus_census.py --check` — CREATE is this phase's target EXACT (15 → 16).
+
+## Next action (historical — deployment window)
 
 **Not established by this session.** A deployment session deliberately did not choose the
 compiler's next task, and inventing one here would put an unmeasured intention into the file a
