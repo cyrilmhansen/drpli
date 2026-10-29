@@ -33,6 +33,131 @@ workspace) harness.
 """
 import argparse, os, subprocess, sys, shutil, re, time
 import concurrent.futures as _fut
+import io
+import threading as _threading
+
+
+class _LineAtomicStream:
+    """A stdout wrapper that hands the underlying stream WHOLE lines, one write each.
+
+    [E2E-42/P2c] Found on the builder, not at the desk: the audit's `runtime_row_count'
+    read 71 once and 70 the next time, over identical code, with nothing changed between
+    the two builds except how the threads happened to interleave.  `print(x)' does TWO
+    writes -- the text, then the newline -- so with a pool of 8 a second thread can slip
+    its own text in between, and the reader sees one physical line carrying two records.
+    `gate_runner' anchors rows at `^  runtime ', so the swallowed row simply stops being
+    counted: a panel that ran 71 rows reports 70.
+
+    Buffering until a newline and writing the complete line in ONE call fixes it, because
+    a write shorter than PIPE_BUF (4096 on Linux) to a pipe is atomic, and a gate line is
+    far shorter than that.  Serial runs are untouched: one writer cannot interleave with
+    itself.
+    """
+
+    def __init__(self, under):
+        self._under = under
+        self._lock = _threading.Lock()
+        self._buf = ""
+
+    def write(self, s):
+        with self._lock:
+            self._buf += s
+            if "\n" not in self._buf:
+                return len(s)
+            head, self._buf = self._buf.rsplit("\n", 1)
+            self._under.write(head + "\n")        # ONE call: the atomic unit
+            self._under.flush()
+            return len(s)
+
+    def flush(self):
+        with self._lock:
+            if self._buf:
+                self._under.write(self._buf)
+                self._buf = ""
+            self._under.flush()
+
+    def __getattr__(self, name):                  # isatty(), encoding, everything else
+        return getattr(self._under, name)
+
+
+def _line_atomic_stdout():
+    """Install the writer.  Idempotent, and called only when a pool is about to start."""
+    if not isinstance(sys.stdout, _LineAtomicStream):
+        sys.stdout = _LineAtomicStream(sys.stdout)
+
+
+def _line_atomic_selftest():
+    """Prove the wrapper delivers whole lines, deterministically.
+
+    Two checks, and the first is the proof.  A test that relied on threads actually
+    interleaving would pass or fail by scheduling luck -- and a control that happens not to
+    tear proves nothing about the code that is supposed to prevent it.
+
+    1. INVARIANT, single-threaded: `print(x)' writes the text and the newline as TWO calls,
+       so an unwrapped stream necessarily receives a write that does NOT end in `\n' --
+       that is the exact moment another thread can cut in.  The wrapper must never let such
+       a call through.
+    2. UNDER A POOL: 8 threads writing 2400 records must produce no physical line carrying
+       two records.
+    """
+
+    class _Recorder:
+        def __init__(self):
+            self.calls = []
+
+        def write(self, s):
+            self.calls.append(s)
+
+        def flush(self):
+            pass
+
+    # 1. the invariant: split writes, exactly what print() does
+    raw = _Recorder()
+    raw.write("  runtime E46N11  FILE OK\n")      # a lone write that DOES end in \n
+    raw.write("  runtime E46N12  OK")             # ...and one that does NOT: print()'s shape
+    bad_raw = [c for c in raw.calls if not c.endswith("\n")]
+    if not bad_raw:
+        raise SystemExit("_line_atomic_selftest: the control did not violate the invariant, "
+                         "so the test proves nothing")
+
+    rec = _Recorder()
+    w = _LineAtomicStream(rec)
+    w.write("  runtime E46N11  FILE OK\n")
+    w.write("  runtime E46N12  OK")
+    w.write("\n")
+    w.flush()
+    torn = [c for c in rec.calls if not c.endswith("\n")]
+    if torn:
+        raise SystemExit("_line_atomic_selftest: the wrapper still delivered %d partial "
+                         "write(s): %r" % (len(torn), torn[:2]))
+    if rec.calls != ["  runtime E46N11  FILE OK\n", "  runtime E46N12  OK\n"]:
+        raise SystemExit("_line_atomic_selftest: the wrapper reordered or merged records: "
+                         "%r" % (rec.calls,))
+
+    # 2. under contention
+    sink = io.StringIO()
+    wrapped = _LineAtomicStream(sink)
+
+    def worker(n):
+        for i in range(300):
+            wrapped.write("  runtime %-8s OK   row %d text\n" % ("R%02d" % n, i))
+    ts = [_threading.Thread(target=worker, args=(n,)) for n in range(8)]
+    for t in ts:
+        t.start()
+    for t in ts:
+        t.join()
+    wrapped.flush()
+    phys = [x for x in sink.getvalue().split("\n") if x]
+    doubled = [x for x in phys if x.count("  runtime ") > 1]
+    if doubled:
+        raise SystemExit("_line_atomic_selftest: %d physical line(s) carry two records "
+                         "under an 8-thread pool: %r" % (len(doubled), doubled[0][:80]))
+    if len(phys) != 8 * 300:
+        raise SystemExit("_line_atomic_selftest: wrote 2400 records, read back %d lines "
+                         "-- records were lost, which is the 71-rows-reported-70 shape" %
+                         len(phys))
+    return ("stdout delivers whole lines (control violates the invariant as expected; "
+            "2400 records through 8 threads, none torn)")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CC = os.path.join(ROOT, "ocaml/_build/default/bin/pli80c.exe")
@@ -5128,6 +5253,7 @@ def runtime_check(rows, verbose=True, jobs=1):
         for r in rows:
             fails += _safe_row(r, verbose)
         return fails
+    _line_atomic_stdout()
     with _fut.ThreadPoolExecutor(max_workers=jobs) as ex:
         futs = [ex.submit(_safe_row, r, verbose) for r in rows]
         out = [f.result() for f in futs]
@@ -5308,6 +5434,16 @@ def main():
         if st.returncode != 0:
             print(st.stdout.strip() or st.stderr.strip())
             print("e2e gate: ABORTED -- reldump selftest failed")
+            return 2
+        # [E2E-42/P2c] The pool's output integrity, checked before the pool is trusted.
+        # The builder reported 70 rows for a 71-row panel on code that had just reported
+        # 71 -- a torn line, invisible locally and visible only as a count that quietly
+        # disagrees with the gate's own verdict line.  A harness whose denominator depends
+        # on thread interleaving must be tested for that, not observed to be mostly fine.
+        try:
+            print("  stdout:      " + _line_atomic_selftest())
+        except SystemExit as e:
+            print("e2e gate: ABORTED -- " + str(e))
             return 2
     ok = bad = 0
     arms = []
@@ -5746,6 +5882,7 @@ def link_arms(arms, jobs=1):
         for (nm, gp, oc) in arms:
             out += link_arm(nm, gp, output_check=oc, jobs=jobs)
         return out
+    _line_atomic_stdout()
     with _fut.ThreadPoolExecutor(max_workers=jobs) as ex:
         futs = [ex.submit(_safe_arm, nm, gp, oc, jobs) for (nm, gp, oc) in arms]
         res = [f.result() for f in futs]

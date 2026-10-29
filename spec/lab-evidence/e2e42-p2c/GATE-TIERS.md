@@ -205,33 +205,57 @@ Counts recorded by the audit: `byte_exact 1074/1074`, `refusals 184/184`, `diver
 matters under a pool: a gap between consecutive lines would have attributed one row's 8.3 s
 to whichever row happened to print next.
 
-## 9. The row count was wrong, and only the builder showed it
+## 9. The row count was wrong twice, for two different reasons
 
-`runtime_row_count` came back **92** for a **71**-row panel.  A runtime row that checks an
-exported file prints twice -- `runtime E46N13  FILE OK ...` and then `runtime E46N13  OK
-...` -- and `gate_runner` counted lines.  Same specimen four times in `slowest_runtime`.
+**Reason one: the wrapper counted lines, not rows.**  `runtime_row_count` came back **92**
+for a **71**-row panel.  A runtime row that checks an exported file prints twice --
+`runtime E46N13  FILE OK ...` and then `runtime E46N13  OK ...` -- so 21 rows contributed
+two lines each.  My local runs missed this because the gate's own `counts.runtime` (the
+verdict line I actually read) says 71 and comes from a different place in the log; two
+numbers for one thing, and only one of them was wrong.  `_dedupe_rows` now merges by name,
+with **fail sticking** if any of a row's lines failed and the **longest** duration winning.
 
-Local runs did not catch it because the gate's own `counts.runtime` (which I read) comes
-from the gate's verdict line, 71, while the wrapper's row count is derived independently --
-two numbers for one thing, and only one of them was wrong.  `_dedupe_rows` now merges by
-name: a row counts once, **fail sticks** if any of its lines failed, and the **longest**
-duration wins.  Verified on the builder after the fix: build #36 reports
-`runtime_row_count: 71`.
+**Reason two, found only because the first fix changed the symptom:** after dedupe, the
+builder reported **71** on one build and **70** on the next, over identical code.  That is
+not counting; that is the log itself.  `print(x)` issues TWO writes -- the text, then the
+newline -- so with `-j 8` a second thread can land between them and produce one physical
+line carrying two records.  `gate_runner` anchors rows with `^  runtime `, so a swallowed
+row silently stops existing: a 71-row panel with one torn line reports 70.
 
-`CI_VERSION` is `rune-ci/6`; the fingerprint already hashes `ci/gate_runner.py`, so this
-invalidates cached greens without being told to.
+A count that depends on thread interleaving is worse than a wrong count, because it looks
+like a real result and moves.  `_LineAtomicStream` buffers until a newline and hands the
+underlying stream the complete line in ONE `write`, which is atomic for a pipe under
+PIPE_BUF (4096 on Linux; a gate line is ~80 bytes).  Installed only when a pool starts, so
+serial output is untouched -- one writer cannot interleave with itself.
 
-## 10. Where this left the final SHA
+`_line_atomic_selftest()` runs in the gate's own pre-flight, and it is deterministic rather
+than race-dependent:
+
+* the **control** asserts the invariant is violated WITHOUT the wrapper -- `print()`'s split
+  writes necessarily produce a write not ending in `\n`, which is the exact instant another
+  thread can cut in.  A control that might not tear proves nothing, so the gate aborts if it
+  doesn't.
+* the wrapper must deliver only newline-terminated writes, in order, with no merged records.
+* 2400 records through 8 threads must come back as 2400 lines, none carrying two records --
+  the 71-reported-as-70 shape, checked directly.
+
+Verified locally against the CI regex itself: a `-j 8` run yields 92 matching lines, 71
+distinct row names, and **zero** lines containing two `runtime` records.
+
+`CI_VERSION` is `rune-ci/6`; the fingerprint already hashes `ci/gate_runner.py`, so the
+counting fix invalidates cached greens without being told to.
+
+## 10. What each build proved, and which SHA it proved it on
 
 | build | suite | SHA | wall | result |
 |---|---|---|---|---|
-| #34 / audit #1 | full, audit | `87c11db` | 2-3 s | **failed**: `dune: commande introuvable` (section 8) |
+| #34, audit #1 | full, audit | `87c11db` | 2-3 s | **failed**: `dune: commande introuvable` (section 8) |
 | #35 | full | `87c11db` | 81 s | passed |
-| audit #2 | audit | `87c11db` | 1668 s | passed, `link_run 1072/1072` |
-| #36 | full | final | 81 s | passed, `runtime_row_count 71` |
+| audit #2 | audit | `87c11db` | 1668 s | passed, `link_run 1072/1072`, `runtime_row_count 92` |
+| #36 | full | `87c11db`+docs | 81 s | passed, `runtime_row_count 71` (dedupe only, before the torn-line fix) |
+| #37 | full | `be3c447` | 80 s | passed, `runtime_row_count 70` -- the tearing bug, caught by the count disagreeing with the gate's own verdict line |
+| audit, final | audit | the commit that fixes both | — | the audit re-runs on the final SHA because BOTH panels share the stdout plumbing that section 9 fixes; a green for the runtime panel is not a green for the link panel's log |
 
-The audit ran on `87c11db`, whose compiler, gate and panels are **byte-identical** to the
-final SHA (`git diff 87c11db HEAD -- tools/ ocaml/ oracle/` is empty); what the final commit
-adds is prose and evidence text, which is the tier the strict gate covers.  Re-running the
-27-minute audit over identical code would spend the worker's time to learn nothing, so the
-final SHA gets the strict gate and the audit stays where it is recorded.
+The last row is deliberate: the stdout wrapper changes how every pooled panel reports, so
+the 27-minute audit is re-run on the fixed SHA rather than inherited from `87c11db`.  That
+is the cost of delegating, and it is paid by the builder.
