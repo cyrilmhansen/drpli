@@ -5128,6 +5128,18 @@ let store_char ?(dst : (unit -> unit) option = None) st name (k : vkind) (v : st
         call_ext st "?SMCVM"
       end
   | Vfix cap ->
+      (* [E2E-48/P1 R6 boundary] a STATIC target is a DIFFERENT question from the cell's
+         placement, and R6 sampled only the DECLARATION and the READ.  The automatic route below
+         allocates a POOL cell for the literal beside the static cell -- s1 (`dcl s char(3) static
+         initial('AB'); s = 'XY';') grew DATA from 3 to 5, static 3 + pool 2 -- and DR has no
+         object that shows what a static CHARACTER store costs.  Refuse rather than guess
+         (PROTOCOL #5); a follow-up round measures it. *)
+      if List.mem_assoc (String.lowercase_ascii name) st.stat_addrs then
+        failwith
+          "codegen: [TBD] store into a STATIC CHARACTER cell is unmeasured -- E48B6 pins the \
+           declaration (`41 42 20', DATA 3 = 3 static + 0 pool) and the read (?SLCTS at the \
+           declared length), not a write; DR has no sample of a static CHARACTER destination"
+      else
       (* only the V106 shape (0 < len < cap) is proven for fixed *)
       if len = 0 || len > cap then
         failwith "codegen: fixed-char store form unproven [TBD]"
@@ -12834,10 +12846,47 @@ let rows_of (b : Ast.block) =
                         (Printf.sprintf
                            "codegen: STATIC INITIAL value %s on BIT(1) is unsampled [TBD] (only the '0'b and '1'b literals have DR bytes [E20B/E20D]; anything else would be a silently wrong initialiser)"
                            (Format.asprintf "%a" Parser.pp_e e))))
+        | Bind.RTchar (n, false) ->
+            (* [E2E-48/P1 R6] STATIC on a CHARACTER is ACCEPTED, and its cell is the DECLARED
+               EXTENT, blank-padded: `dcl s char(3) static initial('AB')` gives DATA = 3 bytes
+               `41 42 20' with DEF-DATA-SIZE 3 = 3 static + 0 pool -- the initialiser literal IS
+               the cell and is NOT pooled, which is the opposite of an automatic CHARACTER store
+               (that one allocates a pool cell and copies [C114]).  DR then reads the cell back at
+               its DECLARED length, not the literal's: E48B6 000F is `LXI H,*D(0000) / MVI A,03 /
+               CALL ?SLCTS', i.e. the existing Vfix item arm with no change, because addr_of
+               resolves the name through st.stat_addrs.
+               ONE golden pins this shape, so everything adjacent to it stays refused: no INITIAL
+               (R6 measures only `initial(<literal>)'), a non-literal initialiser, and a literal
+               LONGER than the extent (DR's truncation law is unmeasured). *)
+            sy_addrs := !sy_addrs @ [(li, off)];
+            sy_total := max !sy_total (off + n);
+            (match init_opt with
+             | None ->
+                 failwith
+                   (Printf.sprintf
+                      "codegen: [TBD] STATIC on %s with no INITIAL is unmeasured -- E48B6 samples \
+                       only `initial(<character literal>)' (line %d)" (Bind.rty_str rt) line)
+             | Some { Ast.e = Ast.Estring v; _ } when String.length v <= n ->
+                 let bytes =
+                   List.init (String.length v) (fun i -> Char.code (String.get v i))
+                   @ List.init (n - String.length v) (fun _ -> 0x20)
+                 in
+                 sy_cells := !sy_cells @ [(off, bytes)]
+             | Some e ->
+                 failwith
+                   (Printf.sprintf
+                      "codegen: [TBD] STATIC INITIAL value %s on %s is unsampled -- E48B6 measures \
+                       only a character literal not longer than the declared extent, and DR's \
+                       truncation of a longer one is unmeasured (line %d)"
+                      (Format.asprintf "%a" Parser.pp_e e) (Bind.rty_str rt) line))
         | _ ->
+            (* The catch-all keeps its EXACT words: gate row E46F5 pins
+               "STATIC on CHAR(14) VARYING is unsampled" (a `char(14) varying static
+               initial('AB')`, which R6 does NOT sample -- only the FIXED character extent is
+               measured) and another row pins "STATIC on FIXED BINARY(15,0) is unsampled". *)
             failwith
               (Printf.sprintf
-                 "codegen: STATIC on %s is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are measured; line %d)"
+                 "codegen: STATIC on %s is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER case and E20B/E20D the BIT(1) one, but only those two initialiser encodings have DR bytes; line %d)"
                  (Bind.rty_str rt) line)
       end
       else

@@ -18,24 +18,24 @@ DIORAND	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED w
 DTEST	ok	True	True	EXACT	384			
 ENTER	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 37) -- P0 measured 34 OPEN blocks in 24 DR objects (
 EXPR1	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line 18)")
-EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(10) VARYING is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYT
+EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(10) VARYING is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER 
 FDTEST	ok	True	True	EXACT	384			
 FFACT	ok	True	True	EXACT	512			
 FLTPOLY	ok	True	True	EXACT	1024			
 FLTPOLY2	ok	True	True	EXACT	1024			
-FSCAN	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(80) VARYING is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYT
+FSCAN	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(80) VARYING is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER 
 IFACT	ok	True	True	EXACT	384			
 INVERT	diag	False	None	NO_ORACLE				Fatal error: exception Failure("codegen: [TBD] multi-dimensional or assumed-size array [C159] (DR's 2-D is row-major, la
 KEYFILE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 16) -- P0 measured 34 OPEN blocks in 24 DR objects (
 LABELS	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
 LOAN1	ok	True	True	EXACT	1536			
-LOAN2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(14) VARYING is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYT
+LOAN2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(14) VARYING is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER 
 MAININVT	diag	False	None	NO_ORACLE				Fatal error: exception Failure("codegen: [TBD] multi-dimensional or assumed-size array [C159] (DR's 2-D is row-major, la
 MPMCALLA	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
-MPMCALLB	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(27) is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are m
+MPMCALLB	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on POINTER MEMBER OF CPB@390 is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED C
 NETWORK	ok	True	True	EXACT	3200			
 OPTIMIST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 9-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
-REPORT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on CHAR(15) is unsampled [TBD] (C114 places static cells below the pool, but only BIT(1) initialiser BYTES are m
+REPORT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 27) -- P0 measured 34 OPEN blocks in 24 DR objects (
 RETRIEVE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option PRINT is outside what this compiler lowers [TBD] (line 19) -- P0 measured 34 OPEN blocks in 24 DR objects (
 REVERSE	ok	True	True	EXACT	896			
 REVERT	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] undeclared exit (no declaration in scope; PL/I would make it implicit FLOAT, but no                   DR sample s
