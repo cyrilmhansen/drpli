@@ -6581,6 +6581,17 @@ let rec lower_bool st (c : Ast.expr) =
             d st op_push_psw; bin_zero_tail st
         | None ->
             (match (unwrap_e r).Ast.e with
+             | Ast.Eident v when vk_of st v.Ast.orig = Vbit1 ->
+                 (* [E2E-48/P1] a BIT(1) operand on the RIGHT of `&', E48A14 0015-001A: the
+                    left operand is already materialised into A, and the bit rides through BC --
+                       PUSH PSW / LDA <cell> / POP B / ANA B
+                    then ONE `F2' (JP) tests the sign of the AND result (FF ∧ 80 = 80 takes the
+                    branch, any 00 skips).  A bit cell is ONE byte, so it cannot take the
+                    2-byte `= 0' read above, and it never reaches the `LHLD' route: that is why
+                    DR gives it a route of its own (§3.4).  Only the plain cell is pinned; a
+                    BASED bit member in a conjunction has no golden. *)
+                 d st op_push_psw;
+                 d st 0x3a (* LDA dir *); reloc st Data (addr_of st v.Ast.orig)
              | Ast.Ebinary (Ast.EqR Ast.Eq, a, b)
                when is_dec_operand st a || is_dec_operand st b ->
                  (match dec_eq_bool_parts st a b with
@@ -6933,6 +6944,119 @@ let ptr_pair st a b =
   | Some x, Some y -> Some (x, y)
   | _ -> None
 
+(* [E2E-48/P1] THE BIT(1) CONDITION STORE: `b = (cond)'.  DR MATERIALISES the condition into a
+   00/FF byte and stores it with `STA <cell>' (0x32 + inline DATA reloc, [C079]'s
+   byte-replicates-the-mnemonic family) -- NOT the `LXI H,<cell> / MVI M,val' form the bit
+   LITERALS use ([C112]/E20A, which stays correct for `b = '1'b', see E48A1 003C).  Six
+   materialisers are pinned by golden/e48p1/ and tabulated in
+   spec/lab-evidence/e2e48-p1/RESULTS.md §3.2; the 00/FF tail is [C095]'s `SUI 01 / SBB A'
+   (`D6 01 / 9F': operand 0 -> FF, nonzero -> 00) and its measured NEGATION is `ADI FF / SBB A'
+   (`C6 FF / 9F', the carry-polarity flip, §1 P8).  No golden in this bank emits CMA (0x2F):
+   `^(cond)' in VALUE position retargets the TAIL, while in TEST position it inverts the SKIP
+   byte (§3.3) -- two mechanisms for one operator, both measured in the same 24 objects.
+   The classifier returns None for every shape the bank does not pin, so the caller refuses BY
+   NAME instead of guessing:
+     `k = c' with c in {1,2,3} (§1 P7 pins c=0 as the memory form and c=5 on the bias ladder);
+     c < 0 (the ladder is witnessed at c=5 only);
+     `= '0'b' as a VALUE (only the `= '1'b' ladder is materialised, §1 P10);
+     a BASED varying MEMBER left of the SCVCM compare (§1 P6/R7 pin a PLAIN cell);
+     `^' over any condition other than `= 0' (§1 P11 pins `^(k = 0)' alone). *)
+let bit_cond_mat st (rhs : Ast.expr) =
+  let pint s = int_of_string_opt (String.concat "" (String.split_on_char '_' s)) in
+  let flag () = d st op_sui; d st 0x01; d st op_sbb_a in
+  let flag_neg () = d st 0xc6 (* ADI *); d st 0xff; d st op_sbb_a in
+  let zero_read () = d st op_mov_a_m; d st op_inx_h; d st op_ora_m in
+  (* the ONE operand pair this bank pins for the ladder classes: a plain FIXED ident cell and
+     an integer literal that fits BIN(15).  A DEC or FLOAT ident is refused by the vk test --
+     §1 P7/P8/P9 sample `fixed bin(15)' and nothing else. *)
+  let bin_lit a b =
+    match (unwrap_e a).Ast.e, (unwrap_e b).Ast.e with
+    | Ast.Eident v, Ast.Enumber t ->
+        (match pint t with
+         | Some k when bin15_fits k && vk_of st v.Ast.orig = Vint -> Some (v, k)
+         | _ -> None)
+    | _ -> None
+  in
+  match (unwrap_e rhs).Ast.e with
+  (* varying = literal: the ?SCVCM compare feeds the flag trick.  17 bytes, and FIVE sites in
+     this bank spell it identically -- A6 0013, A12 0027, B8 0013, B9 0013 AND 004F -- every one
+     on a PLAIN cell.  `hl_fn' is already LXI H,<literal pool cell> and `de_fn' LXI D,<varying>,
+     which the TEST route at lower_test_skip0's str_cmp_shape arm proves. *)
+  | Ast.Ebinary (Ast.EqR Ast.Eq, l, r) ->
+      (match str_side st (unwrap_e l), str_side st (unwrap_e r) with
+       | Some (`Cell _), Some (`Lit _) ->
+           (match str_cmp_shape st (unwrap_e l) (unwrap_e r) with
+            | Some (hl_fn, de_fn, Some lit) ->
+                Some
+                  (fun () ->
+                    hl_fn ();
+                    de_fn ();
+                    d st op_mvi_a; d st (String.length lit);
+                    call_ext st "?SCVCM";
+                    flag ())
+            | _ -> None)
+       | _ ->
+         match bin_lit l r with
+         | Some (v, 0) ->
+             (* `k = 0', 12 bytes: LXI H,k / MOV A,M / INX H / ORA M / SUI 01 / SBB A
+                [A7 000C].  `val_addr' is the ONE authority for "HL points at the 2-byte
+                value" [E2E-32/P1], and it spells `LXI H,<cell>' for a plain local, which is
+                exactly what the golden shows -- NOT `LHLD'. *)
+             Some (fun () -> val_addr st v.Ast.orig (); bin_zero_tail st)
+         | Some (v, kk) when kk >= 4 ->
+             (* `k = c', c >= 4, 15 bytes: LHLD,k / LXI B,65536-c / DAD B / MOV A,H / ORA L /
+                SUI 01 / SBB A [A7 003A at c=5] -- [C143]'s compare route, threshold >= 4, and
+                the bias IS applied (byte 0x09 = DAD B; §5 item 1 falsifies the inherited
+                "DAD H defect" reading). *)
+             Some
+               (fun () ->
+                 cmp_load_deref st v.Ast.orig;
+                 hl_bias st (-kk);
+                 d st op_mov_a_h; d st 0xb5 (* ORA L *);
+                 flag ())
+         | _ ->
+             (* `f = (b = '1'b)', 13 bytes: LDA / ANI 80 / SUI 80 / SUI 01 / SBB A [A10 0006] --
+                the [C112] ladder's result feeds the flag trick, then STA the OTHER bit cell. *)
+             (match (unwrap_e l).Ast.e, (unwrap_e r).Ast.e with
+              | Ast.Eident v, Ast.Ebit "1" when vk_of st v.Ast.orig = Vbit1 ->
+                  Some
+                    (fun () ->
+                      d st 0x3a; reloc st Data (addr_of st v.Ast.orig);
+                      d st 0xe6 (* ANI *); d st 0x80;
+                      d st 0xd6 (* SUI *); d st 0x80;
+                      flag ())
+              | _ -> None))
+  (* `k ^= 0', 12 bytes: the `= 0' read with the NEGATED tail [A8 000C].  §1 P8's open question
+     resolves: the ^= skip-byte defect does NOT travel, because no skip byte exists here. *)
+  | Ast.Ebinary (Ast.EqR Ast.Ne, l, r) ->
+      (match bin_lit l r with
+       | Some (v, 0) ->
+           Some (fun () -> val_addr st v.Ast.orig (); zero_read (); flag_neg ())
+       | _ -> None)
+  (* `k > 0', 10 bytes: LXI H,k / XOR A / CMP M / INX H / SBB M [A9 000C].  The borrow of 0 - k
+     IS `k > 0' and `SBB M' materialises it as 00/FF directly, so this is the one class that
+     carries NO flag tail. *)
+  | Ast.Ebinary (Ast.EqR Ast.Gt, l, r) ->
+      (match bin_lit l r with
+       | Some (v, 0) ->
+           Some
+             (fun () ->
+               val_addr st v.Ast.orig ();
+               d st 0xaf (* XOR A *); d st 0xbe (* CMP M *); d st 0x23;
+               d st 0x9e (* SBB M *))
+       | _ -> None)
+  (* `^(k = 0)' as a VALUE, 12 bytes: byte-IDENTICAL lowering to `k ^= 0' (A11 000C vs
+     A8 000C) -- §1 P11's predicted CMA / inverted compare / refusal are all falsified. *)
+  | Ast.Eprefix (Ast.NegL, x) ->
+      (match (unwrap_e x).Ast.e with
+       | Ast.Ebinary (Ast.EqR Ast.Eq, a, b) ->
+           (match bin_lit a b with
+            | Some (v, 0) ->
+                Some (fun () -> val_addr st v.Ast.orig (); zero_read (); flag_neg ())
+            | _ -> None)
+       | _ -> None)
+  | _ -> None
+
 let lower_test_skip0 st (c : Ast.expr) =
   (* [E2E-10] every shape handled below is FIXED or DECIMAL.  A FLOAT
      operand must refuse here: reading `2.5` as an integer constant crashed
@@ -6995,6 +7119,60 @@ let lower_test_skip0 st (c : Ast.expr) =
       d st op_ora_a;
       d st op_jp;
       let slot = st.lc in d st 0; d st 0; slot
+  (* ---- [E2E-48/P1] `^' IN TEST POSITION -------------------------------------------
+     Negating a condition in a TEST materialises NOTHING: DR keeps the unnegated ladder
+     byte for byte and inverts only its skip byte (RESULTS.md §3.3).  Measured arms, every
+     byte from `golden/e48p1/`:
+       (^ b)            7B  `3A cell / B7 / FA <chain>'          [A1 000C, A2 0006, A5 0011,
+                                                                  A12 000C, B1 000C AND 001A,
+                                                                  B7 0006, CREATE 0052]
+       ^(k = 0)         9B  `21 k / 7E / 23 / B6 / CA <chain>'   [A13 000F -- the `= 0' TEST
+                                                                  ladder above with C2 -> CA]
+       ^(k = c)  c >= 1  `2A k / <bias ladder for -c> / 7C / B5 / CA <chain>'
+                                                              [A13 002F pins c=3, spelled
+                                                                 three DCX H ([C143]'s <=3
+                                                                 arm); the >=4 side of the SAME
+                                                                 ladder -- LXI B / DAD B -- is
+                                                                 pinned by A12 0038 and B1 0028,
+                                                                 so both halves of this
+                                                                 composition are measured]
+     No 0x2F (CMA) appears anywhere in the 24 goldens of this bank, and none of them shows
+     `^` on a BIT-literal ladder, a DEC or FLOAT operand, or a string compare: those keep
+     refusing BY NAME below rather than borrowing the fixed-bin inversion. *)
+  | Ast.Eprefix (Ast.NegL, x) ->
+      let xu = unwrap_e x in
+      (match xu.Ast.e with
+       | Ast.Eident v when vk_of st v.Ast.orig = Vbit1 ->
+           d st 0x3a (* LDA dir *); reloc st Data (addr_of st v.Ast.orig);
+           d st op_ora_a;
+           d st 0xfa (* JM -- the bare-bit test's JP inverted, [A1] *);
+           let slot = st.lc in d st 0; d st 0; slot
+       | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
+                      { Ast.e = Ast.Enumber "0"; _ }) ->
+           val_addr st v.Ast.orig ();
+           d st op_mov_a_m; d st op_inx_h; d st op_ora_m;
+           d st 0xca (* JZ -- DR's own byte for the negated `= 0' test [A13 0015] *);
+           let slot = st.lc in d st 0; d st 0; slot
+       | Ast.Ebinary (Ast.EqR Ast.Eq, { Ast.e = Ast.Eident v; _ },
+                      { Ast.e = Ast.Enumber k; _ }) ->
+           let kk = int_lit_checked "a condition / DO-bound comparison constant" k in
+           if kk < 1 then
+             failwith
+               "codegen: ^(= 0) / ^(= k<=0) as a test is unproven [TBD] (only = 0 and c >= 1 have goldens [E48A13])";
+           cmp_load_deref st v.Ast.orig;
+           hl_bias st (-kk);
+           d st op_mov_a_h; d st 0xb5; (* ORA L *)
+           d st 0xca;
+           let slot = st.lc in d st 0; d st 0; slot
+       | inner ->
+           ignore inner;
+           failwith
+             (Format.asprintf
+                "codegen: negated TEST form has no DR golden [TBD]: ^(%a) (the skip-byte \
+                 inversion CA is pinned only for a bare BIT(1) cell (FA, [E48A1/A2/A5/A12/B1/B7]) \
+                 and a FIXED `= c' ([E48A13]); a bit-literal ladder, DEC, FLOAT or string \
+                 operand under `^' has no witness in golden/e48p1/"
+                Parser.pp_e xu))
   (* [E2E-11 step 1a] BIT(1) equality against a bit literal, matched BEFORE the
      fixed/decimal ladders on purpose: a bit cell is 1 byte, and the generic
      1-byte-zero test below would read it with LHLD (two bytes) -- a cell-length
@@ -8208,26 +8386,34 @@ statement form IS implemented; this expression form is not.)")
       st.last_imm <- None;
       fl_store_var st (addr_of st n.Ast.orig) (fl_push st rhs)
   | Ast.Eident n when vk_of st n.Ast.orig = Vbit1 ->
-      (* [E2E-11 step 1a] DR's whole BIT(1) store, from E20A:
+      (* [E2E-11 step 1a] DR's BIT(1) store of a bit LITERAL, from E20A and re-pinned by
+         E48A1/A5/A12/B1:
             LXI  H,F A(0002) ; MVI  M,80      ('1'b)
             LXI  H,F A(0002) ; MVI  M,00      ('0'b)
-         A 4-byte address form plus a 2-byte memory immediate -- no accumulator,
-         no runtime call.  Only a 1-character bit LITERAL is accepted: copying
-         bit to bit, assigning from an expression, or storing a character/number
-         into a bit cell are all unsampled, so they keep refusing. *)
+         A 4-byte address form plus a 2-byte memory immediate -- no accumulator, no runtime
+         call.  [E2E-48/P1] adds the CONDITION store, `b = (cond)', which is a DIFFERENT form:
+         a per-class materialiser into A and then `STA <cell>' (0x32 + inline DATA reloc).
+         Everything else -- bit-to-bit copy, an arithmetic value, a character, a STATIC init
+         form -- stays refused, named. *)
       st.last_imm <- None;
-      let byte =
-        match rhs.Ast.e with
-        | Ast.Ebit "1" -> 0x80
-        | Ast.Ebit "0" -> 0x00
-        | _ ->
-            failwith
-              (Printf.sprintf
-                 "codegen: store into BIT(1) from %s is unsampled [TBD]                   (only the '1'b/'0'b literals are pinned by E20A)"
-                 (expr_kind_name rhs.Ast.e))
-      in
-      d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
-      d st 0x36 (* MVI M,d *) (* ; DR: MVI M,80 / MVI M,00 [E20A] *); d st byte
+      begin match rhs.Ast.e with
+      | Ast.Ebit "1"
+      | Ast.Ebit "0" ->
+          let byte = if rhs.Ast.e = Ast.Ebit "1" then 0x80 else 0x00 in
+          d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+          d st 0x36 (* MVI M,d *) (* ; DR: MVI M,80 / MVI M,00 [E20A] *); d st byte
+      | _ ->
+          begin match bit_cond_mat st rhs with
+           | Some mat ->
+               mat ();
+               d st 0x32 (* STA dir *); reloc st Data (addr_of st n.Ast.orig)
+           | None ->
+               failwith
+                 (Printf.sprintf
+                    "codegen: store into BIT(1) from %s is unsampled [TBD]                   (the '1'b/'0'b literals take LXI H/MVI M [E20A]; a CONDITION takes a per-class materialiser + STA, pinned for six classes by golden/e48p1/ [RESULTS.md §3.2]; anything else has no DR golden)"
+                    (expr_kind_name rhs.Ast.e))
+          end
+      end
   | Ast.Eident _n when is_float_expr st rhs ->
       failwith
         (Printf.sprintf
