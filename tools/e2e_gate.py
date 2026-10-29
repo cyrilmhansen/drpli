@@ -1295,6 +1295,59 @@ SPECIMENS.update({
     "E46N17": ("probes/E46N17.PLI", "golden/e42p2c/E46N17/E46N17.REL"),
     "E46N18": ("probes/E46N18.PLI", "golden/e42p2c/E46N18/E46N18.REL"),
     "E46N19": ("probes/E46N19.PLI", "golden/e42p2c/E46N19/E46N19.REL"),
+    # ------------------------------------------------------------------
+    # [E2E-48/P1] THE CONDITION-FORM HALF OF CREATE: `^bit(1)' tests, conditions STORED into a
+    # BIT(1), and the DATA-area law for STATIC bits and a STATIC CHARACTER.  Twenty-four programs,
+    # two pre-registered rounds -- round 1 (E48A1..A15) predicted in the commit that added the
+    # bank (284b630) and measured 15 accepted, round 2 (E48B1..B9) at 3401821, 9 accepted.
+    # Every one of the 24 is now WHOLE-FILE byte-identical to its DR object in golden/e48p1/;
+    # the laws and the two MISSes are in spec/lab-evidence/e2e48-p1/RESULTS.md.
+    #
+    # Byte tier only.  No spec/RUNTIME.txt row is added here: A6/A7/A8/A9/A11/B8 read the console
+    # with `get list', and this round captured .REL/.PRN evidence, not DR console transcripts, so
+    # an execution claim would be an invented one (PROTOCOL #1).
+    #
+    #   E48A1/A2/A5/A12/A13/B1/B7  `^b' as a loop or IF test: 3A cell / B7 / FA <2 filler bytes>
+    #                              filled later by SET-LC + RELOC -- 7 bytes, not 8 (RESULTS §5).
+    #   E48A3/A4                   the DO-WHILE exit target and the IF/ELSE false chain.
+    #   E48A6..A12, B8, B9         a condition STORED into a BIT(1): the §3.2 materialiser, then
+    #                              D6 01 / 9F (0 -> FF, nonzero -> 00) and 32 <cell>; the varying
+    #                              = literal class runs 17 bytes through ?SCVCM.
+    #   E48A10                     `f = (b = '1'b)': LDA / ANI 80 / SUI 80 / SUI 01 / SBB A.
+    #   E48A13                     `^' in a TEST inverts the SKIP byte only (C2 JNZ -> CA JZ).
+    #   E48A14                     `if k = 0 & b then': PUSH PSW / LDA b / POP B / ANA B under F2.
+    #   E48A15                     `put list(b)' -- P15's predicted refusal was a MISS; the bit
+    #                              item is LDA / MVI B,01 / ?QB08C / ?PNBOP.
+    #   E48B2/B3/B4/B5/B7           the STATIC law: bits are DATA-absolute and adjacent, and a
+    #                              static-only program sizes DATA without double-counting them.
+    #   E48B6                      STATIC on CHARACTER: cell = full extent blank-padded, DATA 3
+    #                              = 3 static + 0 pool, and the PUT reads the cell at the DECLARED
+    #                              length.
+    # ------------------------------------------------------------------
+    "E48A1":  ("probes/E48A1.PLI",  "golden/e48p1/E48A1/E48A1.REL"),
+    "E48A2":  ("probes/E48A2.PLI",  "golden/e48p1/E48A2/E48A2.REL"),
+    "E48A3":  ("probes/E48A3.PLI",  "golden/e48p1/E48A3/E48A3.REL"),
+    "E48A4":  ("probes/E48A4.PLI",  "golden/e48p1/E48A4/E48A4.REL"),
+    "E48A5":  ("probes/E48A5.PLI",  "golden/e48p1/E48A5/E48A5.REL"),
+    "E48A6":  ("probes/E48A6.PLI",  "golden/e48p1/E48A6/E48A6.REL"),
+    "E48A7":  ("probes/E48A7.PLI",  "golden/e48p1/E48A7/E48A7.REL"),
+    "E48A8":  ("probes/E48A8.PLI",  "golden/e48p1/E48A8/E48A8.REL"),
+    "E48A9":  ("probes/E48A9.PLI",  "golden/e48p1/E48A9/E48A9.REL"),
+    "E48A10": ("probes/E48A10.PLI", "golden/e48p1/E48A10/E48A10.REL"),
+    "E48A11": ("probes/E48A11.PLI", "golden/e48p1/E48A11/E48A11.REL"),
+    "E48A12": ("probes/E48A12.PLI", "golden/e48p1/E48A12/E48A12.REL"),
+    "E48A13": ("probes/E48A13.PLI", "golden/e48p1/E48A13/E48A13.REL"),
+    "E48A14": ("probes/E48A14.PLI", "golden/e48p1/E48A14/E48A14.REL"),
+    "E48A15": ("probes/E48A15.PLI", "golden/e48p1/E48A15/E48A15.REL"),
+    "E48B1":  ("probes/E48B1.PLI",  "golden/e48p1/E48B1/E48B1.REL"),
+    "E48B2":  ("probes/E48B2.PLI",  "golden/e48p1/E48B2/E48B2.REL"),
+    "E48B3":  ("probes/E48B3.PLI",  "golden/e48p1/E48B3/E48B3.REL"),
+    "E48B4":  ("probes/E48B4.PLI",  "golden/e48p1/E48B4/E48B4.REL"),
+    "E48B5":  ("probes/E48B5.PLI",  "golden/e48p1/E48B5/E48B5.REL"),
+    "E48B6":  ("probes/E48B6.PLI",  "golden/e48p1/E48B6/E48B6.REL"),
+    "E48B7":  ("probes/E48B7.PLI",  "golden/e48p1/E48B7/E48B7.REL"),
+    "E48B8":  ("probes/E48B8.PLI",  "golden/e48p1/E48B8/E48B8.REL"),
+    "E48B9":  ("probes/E48B9.PLI",  "golden/e48p1/E48B9/E48B9.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research

@@ -7166,3 +7166,131 @@ classified `unmeasured` rather than `dr-refuses`.
   transcriptions of a classifier that could not tell two mechanisms apart.  A reason string is
   only as good as the distinction its producer makes; when a harness collapses codes, everything
   downstream inherits the collapse silently — including a claim file that says "measured".
+
+## C309 — A BIT(1) TEST HEAD IS SEVEN BYTES: `3A cell / B7 / <skip> 00 00`, AND `^` CHANGES ONLY THE SKIP BYTE (E2E-48/P1)
+
+* **Measured.**  Round 1, pre-registered at `284b630` (before DR ran) and measured in
+  `golden/e48p1/`: `dcl b bit(1)` tested bare gives `3A <cell> / B7 (ORA A) / F2 <00 00>` =
+  **7 bytes**; negated `^b` gives the same head with skip byte **FA (JM)** instead of F2
+  (JP).  Specimens E48A1 000C, E48A5 0011, E48A12 000C, E48B1, E48B7, plus CREATE 0052.
+  The positive form with F2 is likewise E48A3 0006, E48B2 and FLTPOLY2 0075.
+* **The 2-byte operand is a forward reference, not a chain.**  It is emitted `00 00` and
+  filled by SET-LC/RELOC after the pass.  The inherited wording "`3A/B7/FA` + 5-byte chain,
+  8 bytes" (HYPOTHESES.md P1/P12) was a MISCOUNT, corrected in
+  `spec/lab-evidence/e2e48-p1/RESULTS.md` §5 item 2; HYPOTHESES.md is kept as written.
+* **Targets, all measured here** (§3.1 table): `do while(cond)` skips to the address just
+  after the loop-tail `C3 <test>` (tail + 3; E48A1's fill 0011 -> 0044); `if … else` skips to
+  the ELSE body (E48A2 000B -> 0027); a no-else `if … then do; … end;` skips to the NEXT
+  statement (E48B1 inner 001F -> 0028).
+* **Lowered and byte-exact.**  The `Ast.Eprefix (Ast.NegL, x)` arm in `lower_test_skip0`
+  (commit `371a12e`); E48A1/A2/A5/A12/A13/B1/B7 whole-file identical, and the gate at
+  `fa09b97`/`df4b9c8`/`613385b` measured **1074 byte-exact / 0 fail** each time.
+
+## C310 — STORING A CONDITION INTO A BIT(1): THE VALUE IS 00 OR FF, THE TAIL IS `32 <cell>`, AND THE MATERIALISER DEPENDS ON THE OPERAND CLASS (E2E-48/P1)
+
+* **Measured.**  Round 1 §3.2, every row read out of the `.REL` records, never out of a
+  `.PRN`.  All six sampled classes end `<materialiser> / <flag arithmetic> / 32 <cell>`
+  (STA with an inline DATA reloc, [C079]):
+  | shape | bytes | lowering |
+  |---|---|---|
+  | auto varying `=` literal | 17 | `21 lit / 11 var / 3E len / CD ?SCVCM / D6 01 / 9F / 32 b` |
+  | `k = 0` | 12 | `21 k / 7E / 23 / B6 / D6 01 / 9F / 32 b` |
+  | `k ^= 0` or `^(k = 0)` | 12 | same read, tail `C6 FF / 9F` |
+  | `k = c`, \|c\| >= 4 | 15 | `2A k / 01 65536-c / 09 / 7C / B5 / D6 01 / 9F / 32 b` |
+  | `k > 0` | 10 | `21 k / AF / BE / 23 / 9E / 32 b` (no flag tail) |
+  | `b = '1'b` | 13 | `3A b / E6 80 / D6 80 / D6 01 / 9F / 32 f` |
+* **The flag trick's polarity is measured, not inferred.**  [C095]'s `SUI 01 / SBB A`
+  (`D6 01 / 9F`) maps operand 0 -> **FF** and nonzero -> **00**; its negated form
+  `ADI FF / SBB A` (`C6 FF / 9F`) is the reverse (§1 P8).  Neither route ever uses `CMA`.
+* **[TBD], must not be guessed.**  CREATE's single SCVCM store spells the same register setup
+  as 18 bytes `21 var / EB (XCHG) / 21 lit / 3E 03 / …` while all eighteen E48 sites use the
+  17-byte `21 lit / 11 var` form; **no probe in this bank varied the discriminator** — a
+  round-3 (E48C) candidate.  Also unmeasured: the store form for `k = c` with \|c\| in {1,2,3}
+  (only c = 0 and \|c\| >= 4 are pinned), `= '0'b` as a stored value (only `'1'b`), `^(cond)`
+  in a store beyond `^(k = 0)`, and nested `&` shapes beyond E48A14.
+* **Lowered.**  `bit_cond_mat` (`371a12e`) returns None for every unpinned shape, and its
+  prescan demand twin `bit_store_cond_bytes` (`fa09b97`) closes the C152/C179 gap this arm
+  opened -- E48A6..A12, B8, B9 whole-file byte-identical.
+
+## C311 — `^` OVER A GENERAL CONDITION IN TEST POSITION INVERTS THE SKIP BYTE ONLY: `C2` -> `CA` (E2E-48/P1)
+
+* **Measured.**  E48A13 @000F: the negated compare uses the SAME ladder as the unnegated one
+  and emits `CA 00 00` (JZ) where the unnegated form emits `C2 00 00` (JNZ).  In `DO WHILE`
+  this means `^(cond)` exits on the JZ.  Value position is a different mechanism entirely
+  (C310's `ADI FF` tail), which is why the two must not be conflated.
+* **Lowered** by the `Eprefix (Ast.NegL, x)` arm; `E48A13` byte-exact.
+
+## C312 — `&` WITH A BIT(1) OPERAND: THE LEFT SIDE MATERISES INTO A, THE BIT ARRIVES BY STACK, ONE `F2` TESTS THE CONJUNCTION (E2E-48/P1)
+
+* **Measured.**  E48A14 000C-001D for `if n = 0 & b then`: `F5 / 3A <bit cell> / C1 / A0`
+  (`PUSH PSW / LDA / POP B / ANA B`) under ONE `F2`.  The conjunction is a value-level AND of
+  the 00/FF-with-80 patterns, tested by sign -- there is no second conditional jump.
+* **Lowered** in `lower_bool`'s And-arm (`371a12e`); E48A14 byte-exact.  Wider nested `&`
+  shapes remain [TBD].
+
+## C313 — `put list(b)` ON A BIT(1) IS A ROUTE, NOT A REFUSAL: `LDA / MVI B,01 / ?QB08C / ?PNBOP` (E2E-48/P1, and my P15 prediction was a MISS)
+
+* **Measured.**  E48A15 000F-001A: `3A *D(0000) / 06 01 / CD ?QB08C / CD ?PNBOP / CD ?QIOOP`.
+  Nine sites across seven goldens agree (A15 000F sole item; A6 0038; A7 002C and 005D; A8;
+  A9; A10; A11; B8 0038).  The declared length goes in **B**, not A.  `?PNBOP` is the item's
+  OWN tail and REPLACES `?PNCOP` rather than adding to it (A6: `?PNCOP` 0035 for the literal,
+  `?PNBOP` 0040 for the bit, ONE `?QIOOP` 0043).
+* **I predicted the opposite and was wrong.**  P15 predicted `dr-refuses` because no DR object
+  in the repository printed a bit string -- PROTOCOL #4's exact error class (absence of a
+  witness is `unmeasured`, not a rule).  The MISS is kept in RESULTS §1 and §3.5, and the
+  falsified sentence in `authorize_file_item` ("the console route refuses this class too") is
+  preserved there labelled superseded.
+* **Unsampled and still refused:** a bit item under PUT EDIT (no `?EDTOV` behind `?QB08C` in
+  the eleven format-table goldens), a bit item that is NOT the final item (all nine samples
+  are final), and a bit item behind a file attach (`authorize_file_item`).
+* **Lowered** at `df4b9c8`; all eight affected probes byte-identical, negative panel still
+  184/184 (P052A/P053A/B/C and E46J10/J19 use BIT(4)/(8)/(16)/(3), which are not this class).
+
+## C314 — DATA AREA LAW, EXTENDED: STATIC BIT CELLS ARE ABSOLUTE AND ADJACENT, AND STATIC ON CHARACTER IS ACCEPTED AS A FULL-EXTENT BLANK-PADDED CELL (E2E-48/P1)
+
+* **Confirms [C114]/[C115].**  `[statics][pool][automatics]`; static bits are DATA-absolute
+  and adjacent in declaration order (E48B5 0000/0001 = `00 80`, E48B7 `80 00`); literals
+  dedup by CONTENT (E48B8); automatics sit above the pool in declaration order, a bit taking
+  1 byte (E48A5, E48B9 places `b` above `name`); `DEF-DATA-SIZE` is the total extent.
+* **New (R6, round 2 pre-registered at `3401821`).**  `dcl s char(3) static initial('AB')` is
+  ACCEPTED and its cell is the DECLARED EXTENT, blank-padded: DATA = **3 bytes `41 42 20`**,
+  `DEF-DATA-SIZE 3 = 3 static + 0 pool` -- the initialiser literal IS the cell and is **not**
+  pooled, the opposite of an automatic CHARACTER store, which pools and copies.  The PUT then
+  reads the static cell at the DECLARED length, not the literal's: E48B6 000F
+  `LXI H,*D(0000) / MVI A,03 / CD ?SLCTS` (`golden/e48p1/E48B6/E48B6.REL`).
+* **What R6 does NOT say.**  STATIC on CHARACTER **VARYING** is unmeasured (E46F5 and the
+  corpus EXPR2/FSCAN/LOAN2 still stop there, and the gate pins that refusal text); a store
+  INTO a static CHARACTER is unmeasured -- my automatic route would pool the literal beside the
+  static cell (scratch s1 grew DATA 3 -> 5), so it is refused, not guessed.
+* **Lowered** at `613385b`; all 24 probes of this bank are now whole-file byte-identical.
+
+## C315 — MY `DEF-DATA-SIZE` DOUBLE-COUNTED STATIC BYTES, AND 1074 SPECIMENS COULD NOT SEE IT (E2E-48/P1, `my-gap`, fixed)
+
+* **Measured.**  At `d609e01` five probes differed from their goldens by exactly ONE record,
+  always +1 in `LINK-DEF-DATA-SIZE`: E48A3 DR 0003 / mine 0004, E48A4 0008/0009, E48B3
+  0002/0003, E48B5 0004/0005, E48B7 0005/0006.
+* **Root cause.**  `codegen`'s formula `sy_total + pool_total + max(auto_bytes, pl_total) +
+  2*temps` charges the static extent twice when statics dominate the `max`: `bind.ml`'s
+  `section2` `span` folded STATIC-class rows into `pl_total`, which exists to cover
+  *automatics*.  Fixed in `bind.ml` by excluding static rows (`static_rows` from the 4-tuple
+  auto flag), commit `a8d1c3a`; `codegen.ml` needed no change.
+* **Why the panel missed it.**  Every one of the 1074 pre-existing specimens has automatics
+  >= statics, so the `max` term hid the overlap.  A formula that is a `max` of two quantities
+  must be probed in the regime where EACH one wins (see `LEARNINGS.md`).
+
+## C316 — THREE INHERITED READINGS WERE WRONG AND THE GOLDENS SAY SO; THE BUG WAS IN MY DISASSEMBLER (E2E-48/P1, falsified)
+
+* **"DR has a `DAD H` bias defect" -- FALSIFIED.**  The literal golden bytes at E48A7:0040,
+  E48A12:003E and E48B1:002E are **0x09 = DAD B**: the bias IS applied and my `hl_bias`
+  already matches.  The claim came from trusting a *mnemonic* that `chaindump.py:38` mislabelled
+  (`dad d` for 0x09) -- a typo in my own tool, inside the very lesson that warns "a rendering is
+  not evidence" ([C264]).  `chaindump.py:38` corrected at `388673b`; no existing evidence file
+  rewritten.  The proposed "reproduce DR's defect" work never existed.
+* **"CREATE's SCVCM store is 16 bytes with `2A`/LHLD" -- FALSIFIED**: CREATE 008F/0093 carry
+  `0x21` (LXI H), and the store is 18 bytes.  FLTPOLY2's `eofile = true` at 0011 is likewise
+  `0x21 / 0x36 0x80`, not `2A`.
+* **"the `k = 0` read ends with `B4`" -- FALSIFIED**: the goldens are uniformly `0xB6`
+  (`ORA M`), matching [C095]/[C144]'s corrected ALU table.
+* **Standing rule.**  A handoff summary is a pointer, never an authority: re-read the literal
+  bytes an inherited claim cites before making it work.  RESULTS §5 keeps all three as written
+  and labelled superseded (PROTOCOL #2).
