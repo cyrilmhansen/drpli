@@ -126,42 +126,44 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 3
-checkpoint-id: g3-0c5843a47674
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~9000, session 01a188a6-36ee-708a-affc-0a4c9333a1c9)
-checkpointed: 2026-10-29T17:12:41.572Z
+checkpoint-generation: 4
+checkpoint-id: g4-b98c8a7648a8
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 0, remaining ~199903, session 01a188ae-07e3-7768-ad7c-fb0708f2fe20)
+checkpointed: 2026-10-29T17:21:14.957Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7ddf764d69ab80a04269d44a7fd01b96787e74799aaa8c18226baac64da3fa61
-source-handoff: 6dff3309341bf5e65d3ced1e4021e6e565ae4a8f2833beb2e008f07566800cb7
-source-learnings: a045846945dd3949bc9425561f3f41dad007eb9ba6523b8fa055ff6906d2e53e
+source-progress: 6b8bb68dfbe10cfce5c259af82f0da2a1c0ab2e2e0b05f115109270bd14f9f16
+source-handoff: 9949ee8628b704045d19360ed5ef152a904f4fa305e8e493b15a74b761df03e9
+source-learnings: a5c3b7a420d196d03bdd9278b974820f17a5d5465920cda7288e42db16b3d639
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 
 
+readiness-by: session:01a188ae-07e3-7768-ad7c-fb0708f2fe20
+readiness-at: 2026-10-29T17:21:29.957Z
+readiness-checkpoint: g4-b98c8a7648a8
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 0; checkpoint requested (renewal-activation closure refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-**[INFRA TEST WINDOW — 2026-10-29]** This section is deliberately swapped for the operator-
-authorized end-to-end renewal test. The task for the session reading it now is the harmless
-evidence read below — **not** compiler development:
+**Not established by this session.** A deployment session deliberately did not choose the
+compiler's next task, and inventing one here would put an unmeasured intention into the file a
+fresh session trusts. The first action of the next session is therefore evidence-reading, not
+implementation:
 
-> Read `spec/CLAIMS.md` and identify the highest-numbered claim and what it records (one short
-> paragraph, reported in chat). Do **not** edit any project file. Do **not** run the compiler,
-> the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`. When the context guard reports
-> level-3 pressure and offers renewal, first ensure this session's state is recorded, then
-> invoke the `handoff_renew` tool exactly once with a short note naming the test. The successor
-> session must report — from the durable files alone — which task it recovered, then stop.
-
-The genuine post-test DRPLi next action is preserved verbatim in git (`HANDOFF.md` at the
-pre-test commit `a6eec67`) and summarized in `PROGRESS.md` → Next action; it is restored and
-re-attested when this test window closes.
+> Read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7 (CREATE blockers), §8 (the recorded gate
+> verdict) and §9 (the unfixed `data=` reporting defect), plus
+> `spec/lab-evidence/e2e42-p2c/HYPOTHESES.md`, plus claims `C296`–`C308` in `spec/CLAIMS.md`,
+> then `spec/INVENTORY.txt` rows whose refusal text names `^eofile` or a `BIT(1)` condition store.
+> Expected output: the candidate next phases written as *pre-registerable hypotheses* (e.g. the
+> `^eofile`-in-`DO WHILE` condition form, the `BIT(1)` condition store, the `data=` reporting defect
+> in `pli80c`'s summary line). Pick one, write its probe bank and predictions, commit them **before**
+> any oracle run — and replace this section with the exact chosen command.
 
 ### Guard notes
-deployment validated in the real Pi runtime (Phase D read-only: no writes, no .pi-guard/, dry-run /handoff; Phase E writable: schema-v3 checkpoint current + identity-consistent + attested; level-3 auto-checkpoint preserved substantive notes). HEAD at commit time: ce8d19f on main, tree clean. Renewal OFF, enforceClosing OFF, readOnly now false. No compiler/oracle/golden/spec/tool file touched; no gate run.
+renewal-activation closure refresh
 <!-- guard:end checkpoint -->
