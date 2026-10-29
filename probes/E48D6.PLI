@@ -1,0 +1,10 @@
+E48D6:
+  procedure options(main);
+  /* [E2E-48/P2d] STORE INTO a static CHARACTER (fixed): a two-character literal stored into a three-character static cell that already carries an initialiser.  My automatic route pools the source literal (scratch s1 grew DATA 3 -> 5); does DR pool again beside an already-initialised static cell, or copy into it? */
+  dcl b bit(1) static initial('0'b);
+  dcl s char(3) static initial('AB');
+  s = 'CD';
+  put list('S=', s);
+  stop;
+end E48D6;
+

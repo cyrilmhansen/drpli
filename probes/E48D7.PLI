@@ -1,0 +1,10 @@
+E48D7:
+  procedure options(main);
+  /* [E2E-48/P2d] STORE INTO a static CHARACTER VARYING: does DR rewrite the LEADING LENGTH BYTE (E48C8 pins the cell as the two-length-byte cell measured by E48C8, which used a NON-EMPTY initial only, and does the pool grow? */
+  dcl b bit(1) static initial('0'b);
+  dcl s char(10) varying static initial('AB');
+  s = 'CDE';
+  put list('S=', s);
+  stop;
+end E48D7;
+

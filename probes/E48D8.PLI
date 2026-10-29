@@ -1,0 +1,12 @@
+E48D8:
+  procedure options(main);
+  /* [E2E-48/P2d] the the biased integer compare materialiser with |c| in 2 and 3 in a STORE -- [C310] pins only c = 0 and |c| >= 4 there, while the TEST route [C143] switches to `DCX H x c' at |c| <= 3 (E48A13 = 3 vs E48A12 = 4). Two targets, so each site is addressable. */
+  dcl b bit(1) static initial('0'b);
+  dcl c bit(1) static initial('0'b),
+      k fixed bin(15);
+  b = (k = 2);
+  c = (k = 3);
+  put list('B=', b, 'C=', c);
+  stop;
+end E48D8;
+
