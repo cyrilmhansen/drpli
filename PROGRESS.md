@@ -173,17 +173,17 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 17
-checkpoint-id: g17-55346e17c951
-checkpoint-kind: auto
+checkpoint-generation: 19
+checkpoint-id: g19-a1cadcc56d16
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-10-29T22:18:19.054Z
+readiness: attested
+guard-level: 4
+checkpointed: 2026-10-29T22:20:03.288Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 613ca6f88cd68354b61c6797893943423c5b6e3db1a2f3ff72081e9660aa9bfb
-source-handoff: f089cb30c0701daf190245715f7bc796b7b3836df5afebcf55d69273207ffa6b
-source-learnings: 58874fda930af7a574f431b88ca96dc7c104830a3adc78d3539fbaaae9bf8fc1
+source-progress: c994ff4745d9c8a042f283cdd40662850e028b1e1d964c6109b8e336847d7fba
+source-handoff: a39efb8344f2f7f0e31201dde46a18027883e4984572581e278481d385ccd1ac
+source-learnings: ff8f82d25240122069672f7e7b66446ebf3f788d12a4edb5b686afb78e9363e4
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 next-action: - E2E-48/P2c step 6: census re-measure, inventory, FULL GATE
 
@@ -198,7 +198,12 @@ next-action: - E2E-48/P2c step 6: census re-measure, inventory, FULL GATE
 > binary). `dune build` rc=0 with the inherited warning multiset unchanged (126 =
 > 22/15/28/2/14/2/17/26).
 >
-> **THE EXACT NEXT ACTION is step 6, then step 7:**
+> > NOTE (7/8 successor): step-6 item 1 (census --check) is DONE (counts IDENTICAL
+> 15/0/26/0, snapshot `014a736`); LOAN2 advanced to a NEW prescan my-gap
+> `variable i declared with conflicting kinds` (future round, recorded not lowered).
+> Items 2 (--update-inventory) and 3 (FULL GATE, expect **1109/0, negative 182/182** --
+> the 1107/184 in the older text is superseded by the K1/K3 promotions) are OWED.
+**THE EXACT NEXT ACTION is step 6, then step 7:**
 > 1. Census: `cp spec/census/corpus-census.json /tmp/census-prev.json && python3
 >    tools/corpus_census.py --check /tmp/census-prev.json` — counts MUST stay IDENTICAL
 >    (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0); EXPR2/FSCAN (now the EMPTY
@@ -282,6 +287,9 @@ without its own pre-registered round.
 since `1595a10` (1098/0 is that HEAD's recorded figure, not the current one); the census has not
 been re-measured since `7701f52`; the refusal WHY-strings of step 2 are NOT yet updated.
 **No half-finished edit exists** — `7701f52` is built, swept and committed; the tree is clean.
+readiness-by: session:01a1899c-bfe2-7470-93c0-80efada31a9a
+readiness-at: 2026-10-29T22:20:03.291Z
+readiness-checkpoint: g19-a1cadcc56d16
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
