@@ -110,3 +110,46 @@ implementation:
 - Managed checkpoint blocks were hand-edited **once**, deliberately, as the E2 test of the
   level-3 auto-checkpoint preservation path (a `TEST-E2-*` marker, since superseded by the final
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
+<!-- guard:begin checkpoint -->
+checkpoint-schema: 3
+checkpoint-generation: 1
+checkpoint-id: g1-8eb959c8cc46
+checkpoint-kind: manual
+content-delta: initial
+readiness: attested
+status: checkpoint (guard level 0, remaining ~199903, session 01a18883-726f-71e4-ba24-0ff0b96e1a3c)
+checkpointed: 2026-10-29T16:34:40.494Z
+source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
+source-progress: 099982a5a6c603838f67bc0ed84a149c077e24f8c27b37622577fbe266e672ab
+source-handoff: b0851c9d4fda4fa4039a485777525d486233d7cda7155c9ac8c9e0a85e971680
+source-learnings: a045846945dd3949bc9425561f3f41dad007eb9ba6523b8fa055ff6906d2e53e
+source-config: 5c9125e95278e9c3c3fd0d7f050d1d7d12bf6f3b997e89d0b17bdcd752be5edb
+
+
+readiness-by: session:01a18884-fb1f-77c6-aa48-d3e9cb99ce33
+readiness-at: 2026-10-29T16:36:20.580Z
+readiness-checkpoint: g1-8eb959c8cc46
+### Last verified state
+guard level 0; checkpoint requested (deployment validated in the real Pi runtime (Phase D read-only: no writes, no .pi-guard/, dry-run /handoff; Phase E writable: schema-v3 checkpoint current + identity-consistent + attested; level-3 auto-checkpoint preserved substantive notes). HEAD at commit time: ce8d19f on main, tree clean. Renewal OFF, enforceClosing OFF, readOnly now false. No compiler/oracle/golden/spec/tool file touched; no gate run.)
+
+### Unfinished operations
+- (none recorded)
+
+### Next action
+**Not established by this session.** A deployment session deliberately did not choose the
+compiler's next task, and inventing one here would put an unmeasured intention into the file a
+fresh session trusts. The first action of the next session is therefore evidence-reading, not
+implementation:
+
+> Read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7 (CREATE blockers), §8 (the recorded gate
+> verdict) and §9 (the unfixed `data=` reporting defect), plus
+> `spec/lab-evidence/e2e42-p2c/HYPOTHESES.md`, plus claims `C296`–`C308` in `spec/CLAIMS.md`,
+> then `spec/INVENTORY.txt` rows whose refusal text names `^eofile` or a `BIT(1)` condition store.
+> Expected output: the candidate next phases written as *pre-registerable hypotheses* (e.g. the
+> `^eofile`-in-`DO WHILE` condition form, the `BIT(1)` condition store, the `data=` reporting defect
+> in `pli80c`'s summary line). Pick one, write its probe bank and predictions, commit them **before**
+> any oracle run — and replace this section with the exact chosen command.
+
+### Guard notes
+deployment validated in the real Pi runtime (Phase D read-only: no writes, no .pi-guard/, dry-run /handoff; Phase E writable: schema-v3 checkpoint current + identity-consistent + attested; level-3 auto-checkpoint preserved substantive notes). HEAD at commit time: ce8d19f on main, tree clean. Renewal OFF, enforceClosing OFF, readOnly now false. No compiler/oracle/golden/spec/tool file touched; no gate run.
+<!-- guard:end checkpoint -->
