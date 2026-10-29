@@ -1,0 +1,13 @@
+E48C1:
+  procedure options(main);
+  /* [E2E-48/P2c] THE CONTROL of this bank: the flat-cell SCVCM store re-measured
+inside the E48C battery.  P1 predicts it keeps E48A6 0013's
+17-byte `LXI H,lit / LXI D,var' so every other row here differs by
+ONE axis. */
+  dcl b bit(1) static initial('0'b);
+  dcl name char(30) varying;
+  name = 'AB';
+  b = (name = 'EOF');
+  put list('B=', b);
+  stop;
+end E48C1;

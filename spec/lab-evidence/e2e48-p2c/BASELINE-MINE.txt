@@ -1,0 +1,33 @@
+# E2E-48/P2c BASELINE-MINE -- my compiler's verdicts on E48C1..E48C9,
+# measured at HEAD 1595a103568aa2e093f65eded2b3d04491c10c0d with ocaml/_build/default/bin/pli80c.exe
+e22f3cf884e9ddca280be5aa59baafca  (md5 recorded in the line above)
+# BEFORE any oracle call on an E48C probe. Command:
+#   for n in 1..9: pli80c.exe probes/E48C$n.PLI /tmp/.../E48C$n.REL
+
+=== E48C1
+wrote /tmp/e48cbase/E48C1.REL (256 bytes, code=73 data=31)
+rc=0
+=== E48C2
+Fatal error: exception Failure("codegen: store into BIT(1) from condition is unsampled [TBD]                   (the '1'b/'0'b literals take LXI H/MVI M [E20A]; a CONDITION takes a per-class materialiser + STA, pinned for six classes by golden/e48p1/ [RESULTS.md \194\1673.2]; anything else has no DR golden)")
+rc=2
+=== E48C3
+Fatal error: exception Failure("codegen: store of the internal CHARACTER member REC.NAME (CHARACTER VARYING) is unmeasured [TBD] -- bind RESOLVES the name and the cell exists, but RESOLUTION IS NOT AUTHORIZATION: E46J6/E46J12 and E46J21 measure PUT LIST, E46J11/E46J18 measure OPEN TITLE, and E46J21 measures ONE store (owner-qualified, CHARACTER VARYING, string-literal source) [golden/e42p1d].  the destination is spelled NAME, unqualified: the BARE name is measured as a READ operand (E46J6/E46J11/E46J12/ E46J18) and never as a store destination, so this compiler does not hand it the ?SMCVM route on the strength of E46J21's QUALIFIED store alone -- write `rec.name = ...'")
+rc=2
+=== E48C4
+Fatal error: exception Failure("codegen: store of the internal CHARACTER member REC.NAME (CHARACTER VARYING) is unmeasured [TBD] -- bind RESOLVES the name and the cell exists, but RESOLUTION IS NOT AUTHORIZATION: E46J6/E46J12 and E46J21 measure PUT LIST, E46J11/E46J18 measure OPEN TITLE, and E46J21 measures ONE store (owner-qualified, CHARACTER VARYING, string-literal source) [golden/e42p1d].  the destination is spelled NAME, unqualified: the BARE name is measured as a READ operand (E46J6/E46J11/E46J12/ E46J18) and never as a store destination, so this compiler does not hand it the ?SMCVM route on the strength of E46J21's QUALIFIED store alone -- write `rec.name = ...'")
+rc=2
+=== E48C5
+Fatal error: exception Failure("codegen: store into BIT(1) from condition is unsampled [TBD]                   (the '1'b/'0'b literals take LXI H/MVI M [E20A]; a CONDITION takes a per-class materialiser + STA, pinned for six classes by golden/e48p1/ [RESULTS.md \194\1673.2]; anything else has no DR golden)")
+rc=2
+=== E48C6
+Fatal error: exception Failure("codegen: store into BIT(1) from condition is unsampled [TBD]                   (the '1'b/'0'b literals take LXI H/MVI M [E20A]; a CONDITION takes a per-class materialiser + STA, pinned for six classes by golden/e48p1/ [RESULTS.md \194\1673.2]; anything else has no DR golden)")
+rc=2
+=== E48C7
+Fatal error: exception Failure("codegen: STATIC on CHAR(30) VARYING MEMBER OF REC@0 is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER case and E20B/E20D the BIT(1) one, but only those two initialiser encodings have DR bytes; line 15)")
+rc=2
+=== E48C8
+Fatal error: exception Failure("codegen: STATIC on CHAR(14) VARYING is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER case and E20B/E20D the BIT(1) one, but only those two initialiser encodings have DR bytes; line 11)")
+rc=2
+=== E48C9
+Fatal error: exception Failure("codegen: comparison of the internal CHARACTER member REC.NAME (CHARACTER VARYING) is unmeasured [TBD] -- bind RESOLVES the name and the cell exists, but RESOLUTION IS NOT AUTHORIZATION: E46J6/E46J12 and E46J21 measure PUT LIST, E46J11/E46J18 measure OPEN TITLE, and E46J21 measures ONE store (owner-qualified, CHARACTER VARYING, string-literal source) [golden/e42p1d].  string comparison is measured on FLAT variables (E2E-29's golden set) and on BASED members, never on an internal level-numbered one")
+rc=2

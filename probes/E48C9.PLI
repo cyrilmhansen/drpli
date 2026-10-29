@@ -1,0 +1,16 @@
+E48C9:
+  procedure options(main);
+  /* [E2E-48/P2c] THE MEMBER COMPARE IN TEST POSITION: `if rec.name = 'EOF' then'.
+The store battery cannot show the skip byte; E29C4 001C pins the
+BASED member test as LHLD / XCHG / LXI H,*S / MVI A / ?SCVCM /
+JNZ, and [C191] pins `=' as C2.  P9 predicts the automatic member
+test is the same head with LXI H,*D for the member. */
+  dcl
+    1 rec,
+      2 name character(30) varying;
+  dcl b bit(1) static initial('0'b);
+  rec.name = 'AB';
+  if rec.name = 'EOF' then b = '1'b;
+  put list('B=', b);
+  stop;
+end E48C9;

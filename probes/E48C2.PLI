@@ -1,0 +1,16 @@
+E48C2:
+  procedure options(main);
+  /* [E2E-48/P2c] THE DISCRIMINATOR, member side: `b = (rec.name = 'EOF')' on an
+INTERNAL automatic record.  CREATE 008F spells its member store 18
+bytes `LXI H,var / XCHG / LXI H,lit'; E48A6/A12 spell the flat
+cell 17 bytes `LXI H,lit / LXI D,var'.  If operand class (member
+vs flat) is the discriminator, this object carries CREATE's form. */
+  dcl
+    1 rec,
+      2 name character(30) varying;
+  dcl b bit(1) static initial('0'b);
+  rec.name = 'AB';
+  b = (rec.name = 'EOF');
+  put list('B=', b);
+  stop;
+end E48C2;

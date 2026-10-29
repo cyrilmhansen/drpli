@@ -1,0 +1,21 @@
+E48C7:
+  procedure options(main);
+  /* [E2E-48/P2c] THE STATIC-LEAK LAYOUT QUESTION: a flat CHARACTER STATIC declared
+BEFORE an automatic record.  My binder propagates a level-0
+storage class INTO every later structure unless the structure
+names one -- manual 6.2 speaks of structure LEVELS, and DR's own
+MPMCALLB declares `upper/lower static' at lines 48-50 and an
+automatic `1 cpb' at 166 and compiles.  This object measures where
+DR actually PLACES rec: automatic (above the pool, [C114]) or
+static (below it).  The store inside is P2's member shape. */
+  dcl s char(3) static initial('AB');
+  dcl b bit(1) static initial('0'b);
+  dcl
+    1 rec,
+      2 name character(30) varying;
+  rec.name = 'AB';
+  b = (rec.name = 'EOF');
+  put list('S=', s);
+  put list('B=', b);
+  stop;
+end E48C7;

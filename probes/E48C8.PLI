@@ -1,0 +1,16 @@
+E48C8:
+  procedure options(main);
+  /* [E2E-48/P2c] THE EXPLICIT STATIC VARYING CELLS: `dcl nm char(14) varying static
+initial('AB')' -- the attribute spelling of E46F5, EXPR2, FSCAN
+and LOAN2, which DR compiled (all four corpus witnesses are
+AUTHENTIC) but which no probe has ever put through a COMPARE.  P8
+predicts DR accepts, lays the varying cell below the pool [C114],
+and that a flat static cell keeps the immediate-address 17-byte
+SCVCM form (its address, like a flat auto's, needs no load). */
+  dcl b bit(1) static initial('0'b);
+  dcl nm char(14) varying static initial('AB');
+  b = (nm = 'EOF');
+  put list(nm);
+  put list('B=', b);
+  stop;
+end E48C8;

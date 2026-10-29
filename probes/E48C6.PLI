@@ -1,0 +1,17 @@
+E48C6:
+  procedure options(main);
+  /* [E2E-48/P2c] THE ORIENTATION, member: `b = ('EOF' = rec.name)'.  [C191]:
+`literal = member' needs NO XCHG because HL is already the right
+operand (E29C9 001C: LHLD / LXI D,*S / MVI B / ?SCCVM).  On an
+automatic member the address materializes directly, so P6 predicts
+LXI H,*D(rec) / LXI D,*S / MVI B,03 / ?SCCVM -- 16 bytes, the
+mirror of P5 plus the member cell. */
+  dcl
+    1 rec,
+      2 name character(30) varying;
+  dcl b bit(1) static initial('0'b);
+  rec.name = 'AB';
+  b = ('EOF' = rec.name);
+  put list('B=', b);
+  stop;
+end E48C6;

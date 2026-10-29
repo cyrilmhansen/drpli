@@ -1,0 +1,22 @@
+E48C4:
+  procedure options(main);
+  /* [E2E-48/P2c] THE MEMBER STORE IN CREATE'S CONTEXT, a `do while(^b)' body --
+exactly E48A12's loop with the member taking `name''s place.
+E48A12 proved a flat cell keeps the 17-byte form inside a loop; if
+this object carries the 18-byte XCHG form, position is NOT the
+discriminator and class is. */
+  dcl
+    1 rec,
+      2 name character(30) varying;
+  dcl b bit(1) static initial('0'b);
+  dcl n fixed bin(15);
+  n = 0;
+  do while(^b);
+     n = n + 1;
+     name = 'AB';
+     b = (name = 'EOF');
+     if n = 4 then b = '1'b;
+  end;
+  put list('N=', n);
+  stop;
+end E48C4;

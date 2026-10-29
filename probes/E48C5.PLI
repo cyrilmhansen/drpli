@@ -1,0 +1,14 @@
+E48C5:
+  procedure options(main);
+  /* [E2E-48/P2c] THE ORIENTATION, flat: `b = ('EOF' = name)'.  [C191] pins literal-
+on-the-left as a DIFFERENT helper with a DIFFERENT length register
+(?SCCVM, MVI B,len).  P5 predicts the store route follows the
+E29C9 TEST-route shape: LXI H,var / LXI D,lit / MVI B,n / ?SCCVM,
+then the [C095] flag trick and STA. */
+  dcl b bit(1) static initial('0'b);
+  dcl name char(30) varying;
+  name = 'AB';
+  b = ('EOF' = name);
+  put list('B=', b);
+  stop;
+end E48C5;

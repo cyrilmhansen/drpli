@@ -1,0 +1,15 @@
+E48C3:
+  procedure options(main);
+  /* [E2E-48/P2c] THE SAME statement spelled UNQUALIFIED, exactly CREATE:34.  If
+qualification is a front-end matter the store bytes are identical
+to E48C2's; a different spelling here would mean the two resolve
+to different operand classes. */
+  dcl
+    1 rec,
+      2 name character(30) varying;
+  dcl b bit(1) static initial('0'b);
+  name = 'AB';
+  b = (name = 'EOF');
+  put list('B=', b);
+  stop;
+end E48C3;
