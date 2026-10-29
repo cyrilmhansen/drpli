@@ -1,0 +1,85 @@
+# BASELINE-MINE full reldumps, HEAD 3ee414a, generated BEFORE any oracle call on E46K1/E46K3
+===== mine E46K1 =====
+===== /tmp/sw48/E46K1.REL (128 bytes, bits consumed 807/1024)
+  @    0 LINK-PROG-NAME   E46K1
+  @   50 LINK-REQ-LIBRARY   PLILIB
+  @  108 LINK-EXTDEF      E46K1
+  @  158 LINK-DEF-PUBLIC  code 0000 E46K1
+  @  226 LINK-SET-LC     data 0000 None
+  @  251 DATA           data 0000 0x41
+  @  260 DATA           data 0001 0x42
+  @  269 LINK-DEF-DATA-SIZE  abs 0013 None
+  @  294 LINK-SET-LC     code 0000 None
+  @  319 DATA           code 0000 0x1
+  @  328 DATA           code 0001 0x0
+  @  337 DATA           code 0002 0x2
+  @  346 DATA           code 0003 0xcd
+  @  355 DATA           code 0004 0x0
+  @  364 DATA           code 0005 0x0
+  @  373 LINK-CHAIN-EXT  code 0004 ?START
+  @  449 DATA           code 0006 0x21
+  @  458 RELOC          data  0x2
+  @  477 DATA           code 0009 0x11
+  @  486 RELOC          data  0x0
+  @  505 DATA           code 000C 0x3e
+  @  514 DATA           code 000D 0xe
+  @  523 DATA           code 000E 0x6
+  @  532 DATA           code 000F 0x2
+  @  541 DATA           code 0010 0xcd
+  @  550 DATA           code 0011 0x0
+  @  559 DATA           code 0012 0x0
+  @  568 LINK-CHAIN-EXT  code 0011 ?SMCVM
+  @  644 DATA           code 0013 0xcd
+  @  653 DATA           code 0014 0x0
+  @  662 DATA           code 0015 0x0
+  @  671 LINK-CHAIN-EXT  code 0014 ?STOPX
+  @  747 LINK-DEF-CODE-SIZE  code 0016 None
+  @  772 LINK-END-PROGRAM  code 0000 None
+  @  800 LINK-END-FILE    None
+===== mine E46K3 =====
+===== /tmp/sw48/E46K3.REL (128 bytes, bits consumed 951/1024)
+  @    0 LINK-PROG-NAME   E46K3
+  @   50 LINK-REQ-LIBRARY   PLILIB
+  @  108 LINK-EXTDEF      E46K3
+  @  158 LINK-DEF-PUBLIC  code 0000 E46K3
+  @  226 LINK-SET-LC     data 0000 None
+  @  251 DATA           data 0000 0x41
+  @  260 DATA           data 0001 0x42
+  @  269 LINK-DEF-DATA-SIZE  abs 0015 None
+  @  294 LINK-SET-LC     code 0000 None
+  @  319 DATA           code 0000 0x1
+  @  328 DATA           code 0001 0x0
+  @  337 DATA           code 0002 0x2
+  @  346 DATA           code 0003 0xcd
+  @  355 DATA           code 0004 0x0
+  @  364 DATA           code 0005 0x0
+  @  373 LINK-CHAIN-EXT  code 0004 ?START
+  @  449 DATA           code 0006 0x21
+  @  458 RELOC          data  0x2
+  @  477 DATA           code 0009 0xeb
+  @  486 DATA           code 000A 0x21
+  @  495 RELOC          data  0x0
+  @  514 DATA           code 000D 0x3e
+  @  523 DATA           code 000E 0x2
+  @  532 DATA           code 000F 0xcd
+  @  541 DATA           code 0010 0x0
+  @  550 DATA           code 0011 0x0
+  @  559 LINK-CHAIN-EXT  code 0010 ?SCVCM
+  @  635 DATA           code 0012 0xc2
+  @  644 DATA           code 0013 0x0
+  @  653 DATA           code 0014 0x0
+  @  662 DATA           code 0015 0x21
+  @  671 DATA           code 0016 0x1
+  @  680 DATA           code 0017 0x0
+  @  689 DATA           code 0018 0x22
+  @  698 RELOC          data  0x13
+  @  717 LINK-SET-LC     code 0013 None
+  @  742 RELOC          code  0x1b
+  @  761 LINK-SET-LC     code 001B None
+  @  786 DATA           code 001B 0xcd
+  @  795 DATA           code 001C 0x0
+  @  804 DATA           code 001D 0x0
+  @  813 LINK-CHAIN-EXT  code 001C ?STOPX
+  @  889 LINK-DEF-CODE-SIZE  code 001E None
+  @  914 LINK-END-PROGRAM  code 0000 None
+  @  944 LINK-END-FILE    None
