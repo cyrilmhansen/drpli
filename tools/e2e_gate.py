@@ -3982,13 +3982,16 @@ NEG_META["E46L11"] = ("my-gap",
     "outside P2a, so this stop is deliberate and its verdict is measured.")
 
 NEG_META["E46F5"] = ("my-gap",
-    "DR COMPILES it (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site).  The refusal "
-    "here is NOT about TITLE: line 3's `dcl nm char(14) varying static initial(\'AB\')' hits "
-    "[C114]'s STATIC-on-VARYING guard, which fires during DECLARATION layout and never reaches "
-    "lower_open at all.  So this object measures nothing about the title route -- E46F1 is the "
-    "varying witness and E46F2 the fixed one -- and the row exists to keep the two facts apart: "
-    "closing [C114] would make E46F5 compile, and until then no static-operand TITLE claim of "
-    "any kind is admissible.  `open_title' therefore refuses a STATIC title operand by name.")
+    "DR COMPILES it (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site).  "
+    "[E2E-42 RECORD, superseded below:] the refusal was NOT about TITLE -- line 3's `dcl nm "
+    "char(14) varying static initial('AB')' hit [C114]'s STATIC-on-VARYING guard during "
+    "DECLARATION layout and never reached lower_open; the row kept the two facts apart.]  "
+    "E2E-48/P2c RESULTS §2.5 (golden/e48p2c/E48C8) MEASURED the static varying cell, so the "
+    "declaration now lowers and the program advances to line 4, where OPEN TITLE(nm) on a "
+    "STATIC CHARACTER VARYING operand refuses BY NAME (§3: no golden puts a static varying in "
+    "a TITLE; the marker is the binary's measured output).  The gap MOVED from placement to "
+    "operand route and is STILL a my-gap against DR's accepted object; no static-operand TITLE "
+    "claim of any kind is admissible until an oracle round measures those bytes.")
 
 NEG_META["E46H7"] = ("dr-refuses",
     "DR diagnoses pass-2 CONFLICT and emits NO .REL [C285]: `open file(f) input update' names "
@@ -4014,15 +4017,20 @@ NEG_META["E46H7"] = ("dr-refuses",
 # measured, which retires the older prose claim that "the four measured OUTPUTs that omit STREAM
 # are keyed or print rows" -- see [C287].
 REJECTS.update({
-    # E46F5 is the STATIC title case and it is NOT a TITLE gap.  DR ACCEPTS the program
-    # (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site) and so would this compiler
-    # if the declaration were lowerable: what refuses is line 3's
-    # `dcl nm char(14) varying static initial('AB')', which hits [C114]'s unsampled
-    # STATIC-on-VARYING guard before any OPEN code is emitted.  Pinning it here keeps a future
-    # TITLE change from being mistaken for closing that gap, and keeps the gap from being
-    # quietly re-labelled as TITLE work.  See spec/notes/e2e42-p1b-variable-title.md.
+    # E46F5, RE-MEASURED by E2E-48/P2c step 4: the pinned text MOVED because the blocker MOVED.
+    # [ORIGINAL RECORD, E2E-42/P0..P1b] the row pinned "STATIC on CHAR(14) VARYING is
+    # unsampled": what refused was line 3's `dcl nm char(14) varying static initial('AB')',
+    # hitting [C114]'s unsampled STATIC-on-VARYING guard before any OPEN code was emitted.
+    # golden/e48p2c/E48C8 (RESULTS §2.5) has since MEASURED the static varying CELL, so that
+    # declaration now lowers and the program advances to line 4's `open file(outf) stream
+    # output title(nm)'.  TITLE on a STATIC varying operand is UNMEASURED (§3), so it refuses
+    # BY NAME there -- the marker below is the compiler's ACTUAL measured output at this
+    # commit (re-run, not hand-written).  The case is still NOT a DR rejection and still a MY
+    # gap: DR ACCEPTS the whole program (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title
+    # site); the gap is simply located one statement later.  See
+    # spec/notes/e2e42-p1b-variable-title.md.
     "E46F5": (open("probes/E46F5.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-              "STATIC on CHAR(14) VARYING is unsampled"),
+              "TITLE(nm) on a STATIC CHARACTER VARYING operand is unmeasured"),
     "E46H1": (open("probes/E46H1.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
               "OPEN option KEYED is outside"),
     "E46H3": (open("probes/E46H3.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),

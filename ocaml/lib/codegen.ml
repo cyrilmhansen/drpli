@@ -3887,8 +3887,10 @@ let imem_refuse (use : string) (m : mem_char) (why : string) =
     (Printf.sprintf
        "codegen: %s of the internal CHARACTER member %s (%s) is unmeasured [TBD] -- bind RESOLVES \
         the name and the cell exists, but RESOLUTION IS NOT AUTHORIZATION: E46J6/E46J12 and \
-        E46J21 measure PUT LIST, E46J11/E46J18 measure OPEN TITLE, and E46J21 measures ONE store \
-        (owner-qualified, CHARACTER VARYING, string-literal source) [golden/e42p1d].  %s"
+        E46J21 measure PUT LIST, E46J11/E46J18 measure OPEN TITLE, and the STORE is measured on \
+        a CHARACTER VARYING member with a string-literal source in BOTH spellings -- E46J21 \
+        qualified [golden/e42p1d] and E48C2/C3/C4/C7 [golden/e48p2c, RESULTS §1 P3, §2.1]; no \
+        other member use has a DR object.  %s"
        use (String.uppercase_ascii m.owner ^ "." ^ String.uppercase_ascii m.name)
        (if m.varying then "CHARACTER VARYING" else "CHARACTER FIXED")
        why)
@@ -9687,6 +9689,22 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
         | Some vi ->
             (match vi.vk with
              | Vvar _ ->
+                 (* [E2E-48/P2c step 4 / RESULTS §3] the STATIC spelling of this operand is a
+                    DIFFERENT question from the automatic one: E48C8 measures the static varying
+                    CELL in a compare and in PUT LIST, but NO golden puts a static varying in a
+                    TITLE -- E46F5 is exactly this shape and its DR object shows the [C288]
+                    prologue only as a whole accepted program, never isolated per instruction.
+                    Borrowing the automatic route here would claim unmeasured layout bytes, so
+                    refuse by name and keep E46F5 a measured my-gap on the negative panel. *)
+                 if List.mem_assoc (String.lowercase_ascii n.Ast.orig) st.stat_addrs then
+                   failwith
+                     (Printf.sprintf
+                        "codegen: OPEN TITLE(%s) on a STATIC CHARACTER VARYING operand is \
+                         unmeasured [TBD] (line %d) -- the variable-title route [C288] is \
+                         measured on AUTOMATIC cells only (E46F1/E46F3/E46F4); E48C8 pins the \
+                         static varying cell's compare and PUT bytes but never its TITLE, and \
+                         DR's E46F5 object is not a per-instruction witness for this block"
+                        n.Ast.orig s.Ast.spos.Source.line);
                  d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                  call_ext st "?SLVTS"
              | Vfix cap ->
@@ -9723,11 +9741,13 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
                        historical VARYING sites (LOAN2:56, COPYLPT:38 and :49, RETRIEVE:31, \
                        CREATE:22) plus my own E46F1/E46F3/E46F4 (CHARACTER(14) VARYING) and \
                        E46F2 (CHARACTER(8) FIXED) [C288].  E46F5 is a tenth on DR's side ONLY: \
-                       it is refused here at its STATIC declaration ([C114]) and never reaches \
-                       this arm, so it witnesses nothing about a route.  A BIT/DECIMAL/FLOAT/ \
+                       since E2E-48/P2c §2.5 its STATIC declaration lowers and the program \
+                       refuses one statement later at the STATIC-operand guard above (§3 keeps \
+                       TITLE-on-static-varying unmeasured), so it still witnesses nothing about \
+                       a route.  A BIT/DECIMAL/FLOAT/ \
                        STRUCTURE title operand refuses by name rather than borrow a route"
                       n.Ast.orig (vk_name k) s.Ast.spos.Source.line)))
-       ; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
+   ; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
          d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
          d st op_push_h;
          d st op_lxi_h; d st 0x00; d st 0x00;
@@ -13001,11 +13021,52 @@ let rows_of (b : Ast.block) =
                        only a character literal not longer than the declared extent, and DR's \
                        truncation of a longer one is unmeasured (line %d)"
                       (Format.asprintf "%a" Parser.pp_e e) (Bind.rty_str rt) line))
+        | Bind.RTchar (n, true) ->
+            (* [E2E-48/P2c step 4 / RESULTS §2.5] STATIC on a CHARACTER VARYING is E48B6's
+               FIXED law extended by the LEADING LENGTH BYTE: `dcl nm char(14) varying static
+               initial('AB')` gives a 15-byte cell `02 41 42 20x12` at *D(0001) -- the
+               initialiser's LENGTH byte plus the DECLARED EXTENT blank-padded, IN PLACE in the
+               static zone BELOW the pool, NOT pooled and NOT deduped; DEF-DATA-SIZE counts all
+               15 (bind already sizes RTchar(n,true) at 1+n). The same golden pins the two READ
+               routes: the compare store is the flat-class 17-byte SCVCM form (§2.2, admitted by
+               step 1(b)) with `LXI D,*D(cell)' on the STATIC address, and `put list(nm)' is the
+               ordinary descriptor read `LXI H,*D(cell) / ?SLVTS'.
+               ONE golden (golden/e48p2c/E48C8) pins the shape, so everything adjacent stays
+               refused by name: NO INITIAL, a non-literal initialiser, the EMPTY `initial('')'
+               spelling of EXPR2/FSCAN (DR's zero-length cell layout is unmeasured -- §3), and a
+               literal LONGER than the extent (truncation unmeasured). *)
+            sy_addrs := !sy_addrs @ [(li, off)];
+            sy_total := max !sy_total (off + n + 1);
+            (match init_opt with
+             | None ->
+                 failwith
+                   (Printf.sprintf
+                      "codegen: [TBD] STATIC on %s with no INITIAL is unmeasured -- E48C8 samples \
+                       only `initial(<character literal>)' (line %d)" (Bind.rty_str rt) line)
+             | Some { Ast.e = Ast.Estring v; _ }
+               when String.length v > 0 && String.length v <= n ->
+                 let bytes =
+                   String.length v
+                   :: List.init (String.length v) (fun i -> Char.code (String.get v i))
+                   @ List.init (n - String.length v) (fun _ -> 0x20)
+                 in
+                 sy_cells := !sy_cells @ [(off, bytes)]
+             | Some e ->
+                 failwith
+                   (Printf.sprintf
+                      "codegen: [TBD] STATIC INITIAL value %s on %s is unsampled -- E48C8 measures \
+                       only a NON-EMPTY character literal not longer than the declared extent; \
+                       the empty `initial('')' spelling (EXPR2/FSCAN) and DR's truncation of a \
+                       longer literal are unmeasured (line %d)"
+                      (Format.asprintf "%a" Parser.pp_e e) (Bind.rty_str rt) line))
         | _ ->
-            (* The catch-all keeps its EXACT words: gate row E46F5 pins
-               "STATIC on CHAR(14) VARYING is unsampled" (a `char(14) varying static
-               initial('AB')`, which R6 does NOT sample -- only the FIXED character extent is
-               measured) and another row pins "STATIC on FIXED BINARY(15,0) is unsampled". *)
+            (* The catch-all keeps its EXACT words for the row that still needs them: one gate
+               row pins "STATIC on FIXED BINARY(15,0) is unsampled".  [SUPERSEDED record,
+               E2E-48/P2c step 4] it used to cover E46F5 too -- "STATIC on CHAR(14) VARYING is
+               unsampled" -- until golden/e48p2c/E48C8 measured the static varying CELL (§2.5);
+               E46F5 now advances to its OPEN TITLE(nm) and refuses there by name (§3 keeps
+               TITLE-on-static-varying unmeasured), and its negative row was RE-MEASURED against
+               the binary and updated in tools/e2e_gate.py with that reason, not hand-edited. *)
             failwith
               (Printf.sprintf
                  "codegen: STATIC on %s is unsampled [TBD] (C114 places static cells below the pool; E48B6 adds the FIXED CHARACTER case and E20B/E20D the BIT(1) one, but only those two initialiser encodings have DR bytes; line %d)"
