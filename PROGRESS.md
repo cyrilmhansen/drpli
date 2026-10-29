@@ -122,3 +122,30 @@ Commands to start either way:
   `git rev-parse HEAD` -> expect `992ccad` or a descendant; `git status --porcelain=v1` -> expect
   clean (or only handoff files); `python3 tools/e2e_gate.py` -> **1098 byte-exact / 0 fail**.
 <!-- guard:end checkpoint -->
+
+## Verified evidence
+
+Measured by the session that closed E2E-48/P1 (2026-10-29/30), not quoted from a report:
+
+- `python3 tools/e2e_gate.py` at HEAD `992ccad` -> **1098 byte-exact / 0 fail of 1098**; negative
+  panel 184/184 refused; divergence 9/9; coverage 102 rows / 0 errors; census `--verify` clean
+  (EXACT 15, DIFFERS 0, REFUSED 26, UNEXPECTED 0); rc=0. Three earlier gate runs in the same
+  session, before registration, each measured 1074/0.
+- 24-probe sweep (`pli80c.exe probes/$n.PLI` then whole-file `cmp` vs `golden/e48p1/$n/$n.REL`)
+  -> **24 BYTE-IDENTICAL**; it was 14/24 when this session started.
+- `dune build` rc=0; warning multiset compared cache-neutrally against the `df4b9c8` tree in a
+  scratch copy -> identical (kinds 11/26/27/32/39/57/8/9 = 22/15/28/2/14/2/17/26).
+- `tools/corpus_census.py --check <prev>` twice -> counts IDENTICAL both times; five `msg` deltas,
+  all of them the compiler advancing (CREATE, REPORT, MPMCALLB, EXPR2/FSCAN/LOAN2 wording).
+- Authorities read: `spec/lab-evidence/e2e48-p1/RESULTS.md` sections 1-6, `golden/e48p1/`,
+  claims **C309-C316** in `spec/CLAIMS.md`.
+
+## Blockers
+
+- None scientific is open, and nothing is half-edited; the tree is clean at this boundary.
+- What limits further parity is **missing evidence**, never a licence to guess: the CREATE-vs-E48
+  SCVCM load-order discriminator (18-byte `LXI H,var / XCHG` vs 17-byte `LXI H,lit / LXI D,var`)
+  was not varied by any probe in this bank, so CREATE's completion stays `[TBD]` until an E48C
+  round measures it (C310). Same for the store forms and PUT shapes listed in C310/C313/C314.
+- CREATE's measured blocker is front-end: `pli80c.ml` does no `%include` expansion, so
+  `get list (name)` (from `artefacts/RECORD.DCL`) refuses on an unbound name. Proposed, unverified.
