@@ -1,0 +1,37 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E48A2
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E48A2
+
+   1 a 0000 E48A2:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-48/P1] THE NEGATED BIT TEST IN AN IF, WITH AN ELSE.
+   4 a 0006      CREATE:35 has `if ^eofile then do; ... end;' with NO else;
+   5 a 0006      this asks whether the ELSE is reached through the same
+   6 a 0006      5-byte chain, which no object in the tree shows. */
+   7 c 0006   dcl b bit(1) static initial('0'b);
+   8 c 0006   if ^b then
+   9 c 000D      put list('T');
+  10 c 0027   else
+  11 c 0027      put list('F');
+  12 c 003E   stop;
+  13 a 0041 end E48A2;
+
+CODE SIZE = 0041
+DATA AREA = 0003
+FREE SYMS = 38B0
+END  COMPILATION
+
