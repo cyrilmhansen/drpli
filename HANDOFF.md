@@ -329,22 +329,25 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 15
-checkpoint-id: g15-a84fe43da892
-checkpoint-kind: auto
+checkpoint-generation: 16
+checkpoint-id: g16-11770efd5736
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3859, session 01a18976-b266-7470-93c0-80ebbd864437)
-checkpointed: 2026-10-29T21:39:58.715Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-1466, session 01a18976-b266-7470-93c0-80ebbd864437)
+checkpointed: 2026-10-29T21:41:29.488Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1787dca1b54d6dc01dcc96ebea9756c3e6ea6ee3265d7743801f8cd954804c08
+source-progress: 71b8fa8f5de8d2849e4a3ee69115f4c8084b64c17804eb5775ac1258677533c0
 source-handoff: ae94c31c5a59dc78a0df297d8ebde4aad9925f5f03750ecfeaf757e41cf816b9
-source-learnings: 16aa736bf34559c215d1c6b75880be810202d53c535105f4c1cad6d8b7213ca4
+source-learnings: 82d4869ea1a313f73bc4c14009a31b696e7d8461f553d28941250556fe492740
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 
 
+readiness-by: session:01a18976-b266-7470-93c0-80ebbd864437
+readiness-at: 2026-10-29T21:41:29.490Z
+readiness-checkpoint: g16-11770efd5736
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -442,5 +445,5 @@ been re-measured since `7701f52`; the refusal WHY-strings of step 2 are NOT yet 
 **No half-finished edit exists** — `7701f52` is built, swept and committed; the tree is clean.
 
 ### Guard notes
-E2E-48/P1 CLOSED and committed (HEAD 1108af1, tree clean). Measured this session: 24 of 24 probes in golden/e48p1/ whole-file byte-identical (was 14/24 at start), all 24 registered on the byte panel, `python3 tools/e2e_gate.py` -> 1098 byte-exact / 0 fail, negative panel 184/184 refused, divergence 9/9, coverage 102 rows 0 errors, census --verify clean (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0). Claims C309-C316 written in spec/CLAIMS.md. Session commits in order: f839f52 census re-measured (the drift was CREATE ADVANCING past (^ eofile) and past the SCVCM store, not a regression), fa09b97 prescan demand bit_store_cond_bytes (my 371a12e store arm allocated a pool cell prescan_expr never counted because it has no Econd arm; E48A12 exact), df4b9c8 step 4 BIT(1) PUT item 3A cell / 06 01 / ?QB08C / ?PNBOP where ?PNBOP REPLACES the shared tail's ?PNCOP plus two Vbit1 classifier admissions (23/24), 613385b step 5 STATIC-on-CHARACTER (cell = full declared extent blank-padded 41 42 20, DATA 3 = 3 static + 0 pool, read at the declared length; 24/24), 992ccad panel + INVENTORY 1098 + claims, then handoff commits whose messages were corrected by amend because a guard auto-checkpoint had landed inside the commit window (see LEARNINGS). NEXT ACTION is in HANDOFF.md "Next action — E2E-48 round 2": either (1) pre-register an E48C round to MEASURE the CREATE-vs-E48 SCVCM load-order discriminator (18-byte LXI H,var/XCHG vs 17-byte LXI H,lit/LXI D,var; no probe varied it; commit predictions BEFORE the oracle run), or (2) write the five DRAFTED spec/COVERAGE.tsv rows whose exact 15-column format, validator rules (coverage_check:213 requires a MEASURED row's probes to be named by the row's own cited claim) and per-row probes/rel_parity/confidence/boundary text are recorded in HANDOFF item 2 — rows are NOT yet written (that session hit level 3 first), validate with tools/coverage_check.py then the gate (must stay 1098/0, rows 102 -> 107). Do NOT guess the [TBD] list in C310/C313/C314 (|c| in 1..3 store form, ='0'b as a value, ^(cond) in a store beyond ^(k=0), nested &, non-final bit PUT item, store into a STATIC CHARACTER, STATIC-on-CHARACTER VARYING — last two deliberately refused). Gate rows pin refusal TEXTS: "STATIC on CHAR(14) VARYING is unsampled" (E46F5), "STATIC on FIXED BINARY(15,0) is unsampled", "char var in multi-item PUT unproven" (E46M12), "store into BIT(1) from ident is unsampled" (N74), "condition form not in E2E-3b subset" (MB13/LR9/E32C3). CREATE is still NOT byte-exact: its measured blocker is front-end — pli80c.ml performs no %include expansion (only bin/pli80bind.ml does), so get list(name) from artefacts/RECORD.DCL refuses on an unbound name; proposed, fix unverified. Never rewrite a golden; stage explicit paths; no push authorized.
+E2E-48/P2c implementation: HANDOFF.md -> "Next action - E2E-48/P2c implementation" STATUS block. HEAD 5f03a2f (clean). Steps 1(a)(b)(c)+3 DONE and measured at 7701f52: dune rc=0, 6/9 golden/e48p2c byte-identical (C1,C2,C5,C6,C7,C9), 24/24 golden/e48p1 byte-identical. EXACT NEXT ACTION = sub-step 4a: widen store_char's qualified-DESTINATION gate for a VARYING internal member with a STRING-LITERAL source (licensed by golden/e48p2c/E48C3, whose golden differs from E48C2 only at the three module-name bytes 6/19/28); then 4b = STATIC-on-CHARACTER-VARYING placement (E48C8) + re-measure E46F5's pinned negative row through the tool write path; then step 2 refusal WHY-strings, step 5 sweep to 9/9, step 6 registration (SPECIMENS rows E48C1..C9 byte tier only, INVENTORY 1098->1107, claims C317..C320 + C310 annotation, census --check, FULL GATE expected 1107/0 — the 1098/0 figure is recorded only at 1595a10 and has NOT been re-run since 6130164). Do NOT implement RESULTS §3 shapes; TEST member-as-RIGHT stays refused via str_cmp_shape_rev's ?imem=false default. Never rewrite a golden; stage explicit paths; no push authorized; renewal 7/8.
 <!-- guard:end checkpoint -->

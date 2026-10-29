@@ -130,17 +130,17 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 15
-checkpoint-id: g15-a84fe43da892
-checkpoint-kind: auto
+checkpoint-generation: 16
+checkpoint-id: g16-11770efd5736
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-10-29T21:39:58.715Z
+checkpointed: 2026-10-29T21:41:29.488Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1787dca1b54d6dc01dcc96ebea9756c3e6ea6ee3265d7743801f8cd954804c08
+source-progress: 71b8fa8f5de8d2849e4a3ee69115f4c8084b64c17804eb5775ac1258677533c0
 source-handoff: ae94c31c5a59dc78a0df297d8ebde4aad9925f5f03750ecfeaf757e41cf816b9
-source-learnings: 16aa736bf34559c215d1c6b75880be810202d53c535105f4c1cad6d8b7213ca4
+source-learnings: 82d4869ea1a313f73bc4c14009a31b696e7d8461f553d28941250556fe492740
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 next-action: - E2E-48/P2c implementation (arms, registration, gate)
 
@@ -232,6 +232,9 @@ without its own pre-registered round.
 since `1595a10` (1098/0 is that HEAD's recorded figure, not the current one); the census has not
 been re-measured since `7701f52`; the refusal WHY-strings of step 2 are NOT yet updated.
 **No half-finished edit exists** — `7701f52` is built, swept and committed; the tree is clean.
+readiness-by: session:01a18976-b266-7470-93c0-80ebbd864437
+readiness-at: 2026-10-29T21:41:29.490Z
+readiness-checkpoint: g16-11770efd5736
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
