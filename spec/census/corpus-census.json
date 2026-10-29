@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "12e298f25a233548d4053392a6aa626b",
+ "binary_md5": "7eb8ee66db7eb2ed68099fb483c749bd",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,13 +15,9 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-10-28T18:16:55",
- "git_dirty_paths": [
-  "M ocaml/lib/codegen.ml",
-  " M tools/e2e_gate.py",
-  "?? golden/e42p2c/"
- ],
- "git_head": "de6ff2f3887bb20869a887c2be1b9fec28249aef",
+ "generated": "2026-10-29T20:44:21",
+ "git_dirty_paths": [],
+ "git_head": "e6f26931c8a92e975c7682b8292616ac50994962",
  "rows": [
   {
    "dir_present": true,
@@ -129,7 +125,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: condition form not in E2E-3b subset [TBD]: (^ eofile)\")",
+   "msg": "Fatal error: exception Failure(\"codegen: GET LIST of unknown variable name [TBD]\")",
    "name": "CREATE",
    "prn_present": true,
    "rel_bytes": 1792,
