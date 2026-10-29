@@ -93,8 +93,14 @@ final deployment checkpoint.
 ## Blockers
 
 - No scientific blocker was created or removed by this session.
-- Infrastructure blockers, if any, will be named here from Phase D/E results; an extension
-  that fails to load in the real Pi runtime is a failed deployment regardless of static checks.
+- **No infrastructure blocker remains from this deployment**: Phases A–E all passed, the guard
+  loads in the real runtime, and both the read-only and the writable validations behaved as
+  specified. Two conditions are recorded, not concealed:
+  (a) the level-3 auto-checkpoint test left the chain at generation 2 before the final
+  deployment checkpoint was written — an honest refresh, not a repeated uncontrolled one;
+  (b) `CONTEXT_GUARD_AUTO_RENEW=1` in the operator's launch environment overrides the project
+  config for any Pi process started from it (see `LEARNINGS.md`), so DRPLi launches must pass
+  `CONTEXT_GUARD_AUTO_RENEW=0` until the operator decides otherwise.
 
 ## Next action
 

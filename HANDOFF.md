@@ -101,3 +101,12 @@ implementation:
 - Whether `.agents/skills/pi-handoff/` is discovered at all is unresolved: the project is not
   trusted by the production profile, so skill discovery may remain inactive until the operator
   grants trust. Explicit `pi -e` loading does not depend on it.
+- **`CONTEXT_GUARD_AUTO_RENEW=1` is exported in this operator's interactive environment.** It
+  overrides `handoff.config.json` and would enable renewal *and* the model-initiated
+  `handoff_renew` path in any Pi process that inherits it. DRPLi policy is renewal OFF, so every
+  DRPLi launch must pass `CONTEXT_GUARD_AUTO_RENEW=0` (verified: the guard then reports
+  `renewal: policy enabled=false autoRenew=false`). This is a discovery about the environment, not
+  yet a lesson in `LEARNINGS.md`? — it is, in fact, recorded there under Accepted.
+- Managed checkpoint blocks were hand-edited **once**, deliberately, as the E2 test of the
+  level-3 auto-checkpoint preservation path (a `TEST-E2-*` marker, since superseded by the final
+  `/handoff` write). Outside such an explicit test, blocks are guard-written only.
