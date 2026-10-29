@@ -2140,6 +2140,22 @@ let bind_program (blk : Ast.block) : prog_layout =
        existing `named_of' precedent immediately above rather than adding a new
        recursion class. *)
     let arrs = bind_arrays b in
+    (* [E2E-48/P1 §4] STATIC rows live in a SEPARATE area (soff-relative offsets,
+       placed by codegen's sy_addrs, [C114] `[statics][pool][automatics]') and must
+       NOT charge this block's automatic span.  Charging them inflated pl_total by
+       the static extent whenever the statics dominated the `max(auto, pl_total)'
+       arm of the DEF-DATA-SIZE formula, double-counting every static byte:
+         E48B3  DR 0002 / mine 0003; E48A3 0003/0004; E48A4 0008/0009;
+         E48B5 0004/0005; E48B7 0005/0006  (golden/e48p1, RESULTS.md §4).
+       Every pre-existing specimen had the automatic area dominating the max, which
+       is why 1074 byte-exact objects never exposed it (LEARNINGS 2026-10-29).
+       FILE/ENTRY/LABEL rows are static-flagged with zero extent, so excluding
+       them here is a no-op for those classes. *)
+    let static_rows =
+      List.filter_map
+        (fun (n, _rt, _o, a) -> if a then None else Some n)
+        (bind_rows b)
+    in
     let row_sz (x, rt, _o) =
       match List.find_opt (fun (n, _lb, _ub, _ez) -> String.equal n x) arrs with
       | Some (_n, lb, ub, ez) -> (ub - lb + 1) * ez
@@ -2148,7 +2164,8 @@ let bind_program (blk : Ast.block) : prog_layout =
     let span =
       List.fold_left
         (fun m (x, rt, o) ->
-          if dedup x then m else max m (o - drop_of x + row_sz (x, rt, o)))
+          if dedup x || List.mem x static_rows then m
+          else max m (o - drop_of x + row_sz (x, rt, o)))
         0 nr
     in
     let named_base = base + (if nm <> None then 2 * nf else 0) in
