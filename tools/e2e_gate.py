@@ -5712,10 +5712,18 @@ def run_timeout(name, jobs):
     at `-j 6' it passes.  An arm the pool starved and an arm that genuinely never ends
     are different facts, and a gate that confuses them is worse than a serial one.
 
-    So the budget scales with the pool, EXCEPT for a name already pinned in HANG_ARMS:
-    those are known not to terminate, so a short timeout is pure savings -- 53 arms at
-    25 s instead of 120 s is most of the audit's wall time.  A pinned arm cannot mask a
-    NEW hang, because an unpinned arm gets the generous budget and has to blow that.
+    The budget scales with the pool, EXCEPT for a name already pinned in HANG_ARMS: those
+    are known to run on forever, so a short timeout is pure savings -- 51 arms at 25 s
+    instead of 332 s is most of the audit's wall time.  A pinned arm cannot mask a NEW
+    hang, because an unpinned arm gets the generous budget and has to blow it.
+
+    BUT THIS CONSTANT IS NOT SUFFICIENT, AND IS DELIBERATELY NOT TUNED UNTIL IT IS.
+    Audit build #4: `X202', `R907' and `LOAN1' -- three programs that terminate and whose
+    console is BYTE-EQUAL to DR's -- were each killed at the 136 s this function computes
+    for `-j 8', then ran clean at the 332 s the RETRY gives them.  Raising the base to 340
+    would silence those three and cost ~4 min per genuinely-hanging arm forever, and a
+    budget tuned until nothing fails has stopped detecting anything.  The retry in
+    `link_arm' is the mechanism that absorbs load; this function stays a detector.
     """
     if name in HANG_ARMS:
         return 25
