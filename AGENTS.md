@@ -39,18 +39,37 @@ document is the thing that must be corrected.
   never promoted into a DR rule; write `[TBD]`.
 - Compare **complete `.REL` files byte-for-byte**, not CODE segments alone.
 
-## Protected — never modify, move, clean, regenerate or reset
+## Preservation boundaries and authorized scientific work
 
-`artefacts/` (original distribution: `PLI.COM`, `LINK.COM`, `PLILIB.IRL`, …),
-`manuals/`, `extracted/`, `references/`,
-`oracle/` (`disks/`, `workspace/`, `work/`, `srctools/`, the `.py` harness),
-`golden/` (including everything it ignores), `probes/`, `build/`, `ocaml/_build/`,
-`thirdparty/` (nested git repos `PLI-2000`, `z80pack`),
-`spec/`, `tools/`, existing compiler sources,
-`/home/john/pli/` (Runes lab, QX-10 traces), `/home/john/services/rune-ci`.
+**Historical inputs and externally maintained sources — preserve.** Do not overwrite,
+regenerate or "repair" original DR distribution files in `artefacts/` (`PLI.COM`,
+`LINK.COM`, `PLILIB.IRL`, …), `manuals/`, `extracted/`, `references/`, or the
+original CP/M disk images in `oracle/disks/`. Existing oracle results and golden
+baselines are scientific evidence: never silently rewrite, replace or delete them.
+The nested repositories under `thirdparty/` (`PLI-2000`, `z80pack`) and the external
+`/home/john/pli/` and `/home/john/services/rune-ci` trees are out of scope
+unless explicitly authorized for a separate task.
 
-Never run `git clean`, `git reset --hard`, destructive checkouts, recursive cleanup, or
-`git add -A`. Ignored and generated data are evidence, not disposable files.
+**Scientific development — modification is expected and permitted.** The active compiler
+task may edit `ocaml/` compiler sources, `spec/` (including `spec/CLAIMS.md` and
+the machine-maintained ledgers), `tools/`, `probes/`, and the `oracle/` harness
+code (including its Python scripts). New probes, golden objects and evidence may
+be added as part of pre-registered, measured experiments. Corrections to prior
+evidence require explicit justification and a traceable record, not silent
+replacement. Follow `PROTOCOL.md`, verify results against the original oracle,
+and commit deliberately scoped changes. **Never treat scientific source trees
+as read-only merely because they also contain valuable evidence.**
+
+**Generated and ignored working state — preserve, not prohibit.** Authorized
+compiler experiments may create or update files in `oracle/workspace/`,
+`oracle/work/`, `build/`, `ocaml/_build/`, and `golden/` as required by the
+normal workflow. These directories also contain valuable ignored evidence:
+never blanket-clean, recursively regenerate, relocate or discard them. Inspect
+precise paths and effects before any operation.
+
+Never run `git clean`, `git reset --hard`, destructive checkouts, recursive cleanup,
+or `git add -A`. Stage explicit paths only. Ignored and generated data are
+not automatically disposable.
 
 ## Verification
 
