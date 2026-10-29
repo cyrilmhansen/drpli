@@ -167,43 +167,59 @@ pre-registered hypotheses and replace that section with one chosen, exact next s
 The renewal test window is closed; infrastructure needs nothing further this session.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 5
-checkpoint-id: g5-e13e44ea140a
+checkpoint-generation: 6
+checkpoint-id: g6-2401cb724047
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 2
-checkpointed: 2026-10-29T18:11:29.070Z
+checkpointed: 2026-10-29T18:51:00.231Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 93031c01c2ed5f95b67826d9cd92f0d400d436e921bc20b2b937e9d675778f65
-source-handoff: e0f6bba9928e0362253cd831b1b1e337a01ba4db67c5d70f9549090857aba524
-source-learnings: 3cbc63e02f60bff8668bcc549782a5dc7f4f3491c3c243e6724fcea2713e6f40
+source-progress: 52a3c0455591a5b4a2771956ae819f53efd5102e9201da2e01713a4b55432cf6
+source-handoff: fb47e4976b67c5f749535dbdb05d5bd2c05e25c026cb8240ece21603d734b304
+source-learnings: 7c0e8146fde39a8bbe29b79e661af80c7fa413d66c6c60f9013378b4475376db
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
-next-action: — E2E-48/P1, the exact continuation
+next-action: — E2E-48/P1 step 5, the exact continuation (codegen arms)
 
-1. `cd /home/john/projects/sushiworks/pli80 && git rev-parse HEAD` → expect `3401821…` or a
-   descendant; `git status --porcelain=v1` → expect only `?? golden/e48p1/`.
-2. Write `spec/lab-evidence/e2e48-p1/RESULTS.md` §1-§3 — prediction-vs-verdict over
-   `HYPOTHESES.md`'s P1-P15 and R1-R8, every byte reading re-derived from the goldens
-   (`python3 spec/lab-evidence/e2e42-p2b/chaindump.py golden/e48p1/<N>/<N>.REL`,
-   `python3 tools/reldump.py ...` for DATA sizes and chain fills). Keep the MISSes.
-3. Commit the evidence: `git add golden/e48p1 spec/lab-evidence/e2e48-p1/RESULTS.md && git
-   commit -m "E2E-48/P1 [dr]: 24-probe condition-form and DATA-area bank measured"` (nothing
-   pre-existing lives inside `golden/e48p1`; never `git add -A`).
-4. Fix the DATA-size double-count in `ocaml/lib/bind.ml` `section2`'s `span` (≈2146): exclude
-   STATIC-class rows (the `stc` decision is bind.ml ≈995; `bind_rows` carries the auto flag).
-   Rebuild, then `python3 tools/e2e_gate.py` must still print **1074 byte-exact / 0 fail**
-   before any codegen work — the fix may not move an existing specimen.
-5. Implement in `ocaml/lib/codegen.ml` only what a golden pins: `Eprefix(NegL, Eident Vbit1)`
-   test arm (`3A/B7/FA`) beside the existing `Vbit1` arm (≈7395); `b = (cond)` = materialiser +
-   `0x32` (replacing the refusal at ≈8220); the per-class materialisers measured in
-   `HANDOFF.md` → Last verified state (including DR's `DAD H` bias defect and the `ADI FF/SBB
-   A` negation); the `^(cond)` skip inversion `C2→CA`; the `&`-bit operand in `lower_bool`;
-   the `?QB08C/?PNBOP` bit PUT item; STATIC-on-CHARACTER per E48B6. Register `E48A*/E48B*` in
-   `tools/e2e_gate.py`'s `SPECIMENS` against `golden/e48p1/<N>/<N>.REL`.
-6. Write claims **C309+**, `INVENTORY.txt`/`COVERAGE.tsv` rows, run the gate, commit, re-run
-   `python3 tools/corpus_census.py --check` — CREATE is this phase's target EXACT (15 → 16).
-readiness-by: session:01a188bf-e7a9-7470-93c0-80d7f44bde5e
-readiness-at: 2026-10-29T18:11:29.074Z
-readiness-checkpoint: g5-e13e44ea140a
+All arm locations were read in-session (2026-10-29, commit a8d1c3a) — reuse them, do not re-explore:
+
+1. `ocaml/lib/codegen.ml` `lower_test_skip0`: beside the positive bare-bit arm (≈6993, emits
+   `0x3a / reloc / op_ora_a / op_jp / 2-byte slot`), add `Ast.Eprefix (Ast.NegL, x)` with
+   `x` unwrapped (parser gives `(^ b)` bare-Eident and `(^ (cond ...))` = Econd-wrapped):
+   - `Eident Vbit1` → same ladder, skip `0xfa` (JM) [E48A1/A2/A5/A12/B1/B7, CREATE 0052];
+   - `Ebinary(EqR Eq, Eident v, Enumber "0")` → `val_addr / 7E / 23 / B6 / 0xca` [E48A13 000F];
+   - `Ebinary(EqR Eq, Eident v, Enumber k)` kk ≥ 1 → `cmp_load_deref / hl_bias(-kk) / 7C / B5 /
+     0xca` [E48A13 002F pins kk=3 = DCX×3; hl_bias ≥4 = LXI B + op_dad_b 0x09 = E48A12/B1];
+   - anything else under NegL keeps refusing (name the shape).
+   DO-WHILE/IF skip targets need no change — the existing slot-fill machinery already emits
+   `00 00` + SET-LC/RELOC and matches DR (proved by the E48A3/A4 whole-file identity).
+2. The BIT(1) store arm (≈8210): replace the unconditional refusal after the `Ebit` literal
+   cases with a materialiser dispatch ending `32 <cell>` (STA, `d st 0x32; reloc st Data`):
+   - `str_cmp_shape st l rr` (varying = literal) → run `hl_fn(); de_fn(); MVI A,len;
+     call_ext "?SCVCM"` then `op_sui 01 / op_sbb_a` [E48A6/B8/B9 17 bytes — hl_fn is already
+     LXI H,lit / de_fn LXI D,var, the arm at ≈7200 proves it];
+   - `Ebinary(EqR Eq, Eident, Enumber "0")` → `val_addr / bin_zero_tail` (≈6507) [=0 → FF];
+   - `Ne 0` or `Eprefix(NegL, Econd(Eq k 0))` → `val_addr / 7E / 23 / B6 / 0xc6 0xff / 9f`
+     [E48A8/A11]; `Gt 0` → `21 k / 0xaf / 0xbe / 0x23 / 0x9e` [E48A9, no tail];
+   - `Eq k` kk ≥ 4 → `cmp_load_deref / hl_bias(-kk) / 7C / B5 / D6 01 / 9F` [E48A7 k=5];
+   - `Ebinary(EqR Eq, Eident Vbit1, Ebit "1")` → `0x3a reloc / E6 80 / D6 80 / D6 01 / 9F`
+     [E48A10]. Refuse everything else (the [TBD] list above).
+3. `lower_bool` (≈6545) And-arm: in the right-operand match chain add `Eident v when Vbit1` →
+   `d st op_push_psw; d st 0x3a; reloc st Data (addr_of ...)` before the shared
+   `pop_b / ana_b` [E48A14].
+4. PUT: refusal at ≈10317 → bit item `0x3a reloc / 0x06 0x01 / call_ext "?QB08C" /
+   call_ext "?PNBOP"` (after literal items' SLCTS/PNCOP, before QIOOP) [E48A15/A6/A7/B8].
+5. STATIC-on-CHARACTER per E48B6 (cell = full extent blank-padded, DATA 0000, pool 0, PUT
+   reads the cell with declared length) — locate the refusal first (bind/codegen "STATIC on
+   CHAR" text; gate NEG rows E46F5). Largest arm; do LAST or defer to a follow-up commit.
+6. Verify each step: `cd ocaml && opam exec --switch=default -- dune build`; compile probes to
+   `/tmp/e48fix/` (usage: `pli80c.exe IN.PLI OUT.REL`) and `cmp` against `golden/e48p1/N/N.REL`;
+   run `python3 tools/e2e_gate.py` (must stay 1074/0 until panel registration, then grows).
+7. Then: register `E48A*/E48B*` in `tools/e2e_gate.py` SPECIMENS; claims C309+ from RESULTS §3;
+   INVENTORY/COVERAGE rows; gate; `python3 tools/corpus_census.py --check`. CREATE EXACT likely
+   needs the [TBD] SCVCM load-order — if it blocks, measure the discriminator with a NEW
+   pre-registered probe round (E48C) before implementing, or report census honestly unchanged.
+readiness-by: session:01a188dc-98bf-7470-93c0-80da3659a612
+readiness-at: 2026-10-29T18:51:00.235Z
+readiness-checkpoint: g6-2401cb724047
 <!-- guard:end checkpoint -->
