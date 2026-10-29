@@ -10245,7 +10245,14 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
                console); no object carries a based operand behind an attach"
         | Vbit1 ->
             no_witness "a BIT(1) variable"
-              "the console route refuses this class too -- no DR sample prints a bit string"
+              "the CONSOLE route prints a bit item (E48A15/E48A6/E48A7/E48A8/E48A9/E48A11/E48B8, \
+               `LDA cell / MVI B,01 / ?QB08C / ?PNBOP' [E2E-48/P1 §3.5]), but NO object carries a \
+               bit item behind a file attach, and the named-file route is lowered only for the \
+               classes its own objects pin"
+              (* superseded text, kept as written: "the console route refuses this class too -- no
+                 DR sample puts a bit string".  E2E-48/P1 P15 falsified the second clause against
+                 the oracle; the first clause no longer holds either, and the refusal now rests on
+                 the absence of a FILE-route witness alone. *)
         | vk ->
             no_witness ("a variable bound as " ^ vk_name vk)
               "no object on either route carries it in a PUT item"
@@ -10321,6 +10328,13 @@ let lower_put_items_gen st ?(file : string option = None)
             (match vk_of st (String.lowercase_ascii n.Ast.orig) with
              | Vvar _ | Vbvar _ | Vfix _ -> true
              | Vint | Vbfix _ | Vbased _ -> true
+             (* [E2E-48/P1 §3.5] a BIT(1) item beside a string literal is DR-sampled at EIGHT
+                lists in golden/e48p1/ -- E48A6 002D, E48A7 twice (0026 and 0057), E48A8, E48A9,
+                E48A10, E48A11 and E48B8, each a `put list(<literal>, <bit>)' whose literal keeps
+                its own `LXI H,*S / MVI A,len / ?SLCTS / ?PNCOP' chain and whose bit keeps
+                `LDA / MVI B,01 / ?QB08C / ?PNBOP'.  Admitted on THAT witness, not because the
+                numeric rule generalises [C154]. *)
+             | Vbit1 -> true
              | _ -> false)
         (* [E2E-29/P2] V9 (`put list(s, i)'), VA (`put list(w, i)') and E29N23 (N23's exact shape)
          are DR goldens: each item keeps its own chain (LXI H/SLVTS/PNCOP then LHLD/MVI A,09/QICOP/
@@ -10346,6 +10360,11 @@ let lower_put_items_gen st ?(file : string option = None)
                             by DR, so classifying them as char items would refuse a program DR takes. *)
                          | Vbased _ -> false
                          | Vbfix _ -> false
+                         (* A BIT(1) item is neither a character var nor a numeric one: it has its
+                            own route (?QB08C/?PNBOP) and its own admission above.  Falling into
+                            the catch-all here is what answered "char var in multi-item PUT
+                            unproven" for E48A6/A7/A8/A9/A10/A11/B8, which DR compiles. *)
+                         | Vbit1 -> false
                          | _ -> true)
                       | _ -> false) items)
   in
@@ -10363,6 +10382,23 @@ let lower_put_items_gen st ?(file : string option = None)
             to flat and BASED varying items on their own goldens, and Vimem is deliberately absent \
             from that classifier"
      | None -> failwith "codegen: char var in multi-item PUT unproven [TBD]");
+  (* [E2E-48/P1 §3.5] every DR sample puts the bit item LAST -- nine sites, all of the form
+     `<other items> ; LDA cell ; MVI B,01 ; CALL ?QB08C ; CALL ?PNBOP ; CALL ?QIOOP'.  What DR
+     emits for a bit item that is NOT final -- a ?PNCOP after ?PNBOP? an item after it? -- has no
+     witness in this repository, so the shape refuses rather than guesses (PROTOCOL #5). *)
+  (match List.rev items with
+   | [] -> ()
+   | _last :: rest ->
+       if List.exists
+            (function
+              | PIvar n -> vk_of st (String.lowercase_ascii n.Ast.orig) = Vbit1
+              | _ -> false)
+            rest
+       then
+         failwith
+           "codegen: [TBD] a BIT(1) PUT item in a NON-FINAL position has no DR witness -- the nine \
+            sampled bit items (E48A15 000F, E48A6 0038, E48A7 002C and 005D, E48A8, E48A9, E48A10, \
+            E48A11, E48B8 0038) are each the LAST item before ?QIOOP");
   (* [E2E-41/P3b] two prologues, one chain.  Console (byte-frozen since [E2E-3a], and the shape
      every N3xx/R5xx specimen pins): LXI D,0252 ; LXI B,<continuation> ; CALL ?SYSPR.
      Named file (E16D/E17D 0023-002C): LXI H,<CB> [above] ; LXI D,0652 ; LXI B,<continuation> ;
@@ -10492,6 +10528,7 @@ let lower_put_items_gen st ?(file : string option = None)
                   ^ "print a pointer value; DR has no sample for outputting an address)")
            | vk ->
                (* single-item char var = the banked V101/V106 chain *)
+               let bit_item = match vk with Vbit1 -> true | _ -> false in
                (match vk with
                 | Vvar _ ->
                     d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
@@ -10523,14 +10560,32 @@ let lower_put_items_gen st ?(file : string option = None)
                          golden/e2e11 objects, none of which edits a structure member";
                     imem_str_op st n.Ast.orig m
                 | Vint -> assert false
-                (* [E2E-11 step 1a] a BIT(1) variable in a PUT list: DR has no
-                   sample here (E20A/E20B/E20D/E20E never print a bit cell), and
-                   falling into the inner match would raise Match_failure
-                   instead of a readable refusal.  Refuse explicitly. *)
+                (* [E2E-48/P1 §3.5] THE BIT ITEM IS A ROUTE.  P15 predicted `put list(b)' as
+                   dr-refuses on absence of a witness and DR ACCEPTED it -- the MISS is kept in
+                   spec/lab-evidence/e2e48-p1/RESULTS.md §1 and §3.5, and these are its bytes:
+                     E48A15 000F  3A *D(0000)  06 01  CD ?QB08C  CD ?PNBOP  CD ?QIOOP
+                   i.e. LDA <cell>, the STRING LENGTH in B (not A: the numeric items park widths
+                   in A, the bit item does not), the edit call, then its own tail ?PNBOP.
+                   Nine sites across seven probes agree (A6 0038, A7 002C and 005D, A8, A9, A10,
+                   A11, B8 0038, A15 000F).  What is NOT sampled keeps refusing: PUT EDIT (no
+                   ?EDTOV behind ?QB08C anywhere), a non-final bit item (guarded above) and a
+                   bit item behind a file attach (authorize_file_item refuses that class). *)
                 | Vbit1 ->
-                    failwith
-                      "codegen: PUT of a BIT(1) variable is unsampled [TBD]                        (no DR sample puts a bit string; the bit-list output                         edit form is E2E-11 step 3 territory)");
-               tail true ())
+                    if is_edit then
+                      failwith
+                        "codegen: PUT EDIT of a BIT(1) item is unsampled [TBD] (the eleven \
+                         golden/e2e11 format-table objects print no bit item, so ?EDTOV behind \
+                         ?QB08C has no witness)";
+                    d st 0x3a (* LDA *);
+                    reloc st Data (addr_of st n.Ast.orig);
+                    d st op_mvi_b; d st 0x01;
+                    call_ext st "?QB08C";
+                    call_ext st "?PNBOP");
+               (* DR's bit item carries its OWN tail.  `?PNBOP' REPLACES the shared ?PNCOP rather
+                  than adding to it: E48A15 0014-001A is `?QB08C / ?PNBOP / ?QIOOP' with nothing
+                  in between, and E48A6 0035 (?PNCOP of the literal item) then 0040 (?PNBOP) then
+                  0043 (?QIOOP) shows one tail per item, never two. *)
+               if not bit_item then tail true ())
       | PInum x ->
           (* [E2E-29/P1] A VARYING member reached through a pointer is a CHARACTER item, not a
              number, and classification above is syntax-only, so the decision is made HERE where
