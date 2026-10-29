@@ -104,3 +104,33 @@ The guard never writes this file.
   `spec/notes/e2e26-p1-pointer-based-address-model.md`, annotated in `spec/PERIMETER.md`): the
   trigger was narrower than the row implied. Kept here as the standing example of *do not turn an
   unreproduced observation into a rule*.
+
+## 2026-10-29 — renewal e2e test: successor-session observations (session 01a188a6, renewal 1/8)
+
+- **Accepted (measured):** Automatic renewal worked end-to-end. Parent session
+  `01a188a5-…f85d5` attested checkpoint `g2-470d507dbf6c`, called `handoff_renew` once, and the
+  successor started fresh with **no transcript replay**; its recovery prompt carried the correct
+  durable identity (parent id, chain id, attested checkpoint id).
+- **Accepted (measured):** The renewal counter is durable: `.pi-guard/renewal-state.json` shows
+  `renewalsDone: 1`, `renewedFromCheckpointId: g2-470d507dbf6c`,
+  `lastSuccessorSessionId: 01a188a6-36ee-708a-affc-0a4c9333a1c9`, `stopped: false`, on chain
+  `chain:01a188a5-…`.
+- **Accepted (measured):** Successor recovery from files alone worked — it identified and executed
+  the INFRA TEST WINDOW next action recovered solely from the durable files (highest claim in
+  `spec/CLAIMS.md`: **C308**; no scientific file touched).
+- **Accepted (measured):** The successor hit guard level 3 **immediately at session start** (three
+  thresholds crossed in one step, reported remaining ~9 000 of a declared 220 000 window); the
+  guard wrote an automatic, unattested checkpoint `g3-0c5843a47674` (`kind: auto`,
+  `content-delta: none`) into both managed files, preserving the prior substantive notes — the
+  auto-checkpoint preservation behaviour works on renewals too.
+- **Proposed [TBD]:** Why the successor's *fresh* context measured ~211k used at once. Candidates:
+  (a) the STQ model's API usage figures over-report prompt tokens for this harness's system+renewal
+  prompt, (b) an accounting artifact carrying parent usage across the switch. Measure: log the raw
+  per-turn usage fields in `.pi-guard/sessions/<successor>.json` and compare against a tokenizer
+  count of the successor's first prompt. Until measured, treat successor-start pressure as
+  unexplained — this is `unmeasured`, not a defect claim.
+- **Accepted (decision, per protocol):** The successor did **not** renew again — the authorized
+  procedure says the successor reports and stops; re-renewing while start-pressure is unexplained
+  risked burning the chain cap (8) in a renewal loop. Test-window closure (restore the real next
+  action from pre-test commit `a6eec67`, `/handoff` refresh, `/handoff ready`) remains an operator/
+  next-session step.

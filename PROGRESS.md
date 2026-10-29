@@ -103,6 +103,16 @@ final deployment checkpoint.
 
 ## Renewal test window (2026-10-29)
 
+**Successor result (renewal 1/8, session 01a188a6, 17:12Z+):** renewal e2e **passed** — fresh
+successor recovered the test task from durable files only, executed it (highest ledger claim
+**C308**; no scientific file touched), durable chain counter verified in
+`.pi-guard/renewal-state.json` (`renewalsDone: 1`, from checkpoint `g2-470d507dbf6c`). The
+successor hit guard **level 3 at session start** (~9 000 remaining of 220 000) and the guard
+auto-wrote unattested checkpoint `g3-0c5843a47674`; cause of start-pressure unexplained — see
+`LEARNINGS.md` 2026-10-29 successor block (item marked [TBD]). Successor did not re-renew
+(procedure: report and stop). **Pending closure:** restore genuine next action from pre-test
+commit `a6eec67`, refresh + attest the checkpoint, end the test window.
+
 An operator-authorized end-to-end renewal test is running: HANDOFF.md → Next action is
 temporarily a harmless evidence-reading task; after the test it is restored from the
 pre-test commit `a6eec67`, the checkpoint refreshed, attested and verified fresh.
@@ -118,32 +128,30 @@ Infrastructure-wise: nothing further is authorized in this session beyond Phase 
 and the reporting steps.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 1
-checkpoint-id: g1-8eb959c8cc46
-checkpoint-kind: manual
-content-delta: initial
-readiness: attested
-guard-level: 0
-checkpointed: 2026-10-29T16:34:40.494Z
+checkpoint-generation: 3
+checkpoint-id: g3-0c5843a47674
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-10-29T17:12:41.572Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 099982a5a6c603838f67bc0ed84a149c077e24f8c27b37622577fbe266e672ab
-source-handoff: b0851c9d4fda4fa4039a485777525d486233d7cda7155c9ac8c9e0a85e971680
+source-progress: 7ddf764d69ab80a04269d44a7fd01b96787e74799aaa8c18226baac64da3fa61
+source-handoff: 6dff3309341bf5e65d3ced1e4021e6e565ae4a8f2833beb2e008f07566800cb7
 source-learnings: a045846945dd3949bc9425561f3f41dad007eb9ba6523b8fa055ff6906d2e53e
-source-config: 5c9125e95278e9c3c3fd0d7f050d1d7d12bf6f3b997e89d0b17bdcd752be5edb
-next-action: **Not established by this session.** A deployment session deliberately did not choose the
-compiler's next task, and inventing one here would put an unmeasured intention into the file a
-fresh session trusts. The first action of the next session is therefore evidence-reading, not
-implementation:
+source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
+next-action: **[INFRA TEST WINDOW — 2026-10-29]** This section is deliberately swapped for the operator-
+authorized end-to-end renewal test. The task for the session reading it now is the harmless
+evidence read below — **not** compiler development:
 
-> Read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7 (CREATE blockers), §8 (the recorded gate
-> verdict) and §9 (the unfixed `data=` reporting defect), plus
-> `spec/lab-evidence/e2e42-p2c/HYPOTHESES.md`, plus claims `C296`–`C308` in `spec/CLAIMS.md`,
-> then `spec/INVENTORY.txt` rows whose refusal text names `^eofile` or a `BIT(1)` condition store.
-> Expected output: the candidate next phases written as *pre-registerable hypotheses* (e.g. the
-> `^eofile`-in-`DO WHILE` condition form, the `BIT(1)` condition store, the `data=` reporting defect
-> in `pli80c`'s summary line). Pick one, write its probe bank and predictions, commit them **before**
-> any oracle run — and replace this section with the exact chosen command.
-readiness-by: session:01a18884-fb1f-77c6-aa48-d3e9cb99ce33
-readiness-at: 2026-10-29T16:36:20.580Z
-readiness-checkpoint: g1-8eb959c8cc46
+> Read `spec/CLAIMS.md` and identify the highest-numbered claim and what it records (one short
+> paragraph, reported in chat). Do **not** edit any project file. Do **not** run the compiler,
+> the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`. When the context guard reports
+> level-3 pressure and offers renewal, first ensure this session's state is recorded, then
+> invoke the `handoff_renew` tool exactly once with a short note naming the test. The successor
+> session must report — from the durable files alone — which task it recovered, then stop.
+
+The genuine post-test DRPLi next action is preserved verbatim in git (`HANDOFF.md` at the
+pre-test commit `a6eec67`) and summarized in `PROGRESS.md` → Next action; it is restored and
+re-attested when this test window closes.
 <!-- guard:end checkpoint -->

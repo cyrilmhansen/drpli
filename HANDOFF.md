@@ -88,6 +88,14 @@ re-attested when this test window closes.
 
 ## Discoveries not yet incorporated
 
+- **Renewal e2e test 2026-10-29 — complete at the successor (renewal 1/8).** Durable chain,
+  attested-handoff recovery, file-only successor bootstrap and auto-checkpoint preservation all
+  verified working; successor start-pressure (~9 000 at once) is **unexplained [TBD]** and logged
+  in `LEARNINGS.md`. The INFRA TEST WINDOW in `## Next action` (both this file's prose and the
+  managed blocks) can now be closed: restore the genuine next action verbatim from pre-test commit
+  `a6eec67`, then `/handoff` refresh + `/handoff ready` to re-attest. Full test record:
+  `PROGRESS.md` → Renewal test window.
+
 - `AGENTS.md`'s reading order, the guard's managed-block rules and `PROTOCOL.md` Part 2 are new to
   this repository; nothing in `spec/` has been reconciled against them, and nothing in `spec/`
   needed reconciling (the guard writes no scientific file).
@@ -112,43 +120,41 @@ re-attested when this test window closes.
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 1
-checkpoint-id: g1-8eb959c8cc46
-checkpoint-kind: manual
-content-delta: initial
-readiness: attested
-status: checkpoint (guard level 0, remaining ~199903, session 01a18883-726f-71e4-ba24-0ff0b96e1a3c)
-checkpointed: 2026-10-29T16:34:40.494Z
+checkpoint-generation: 3
+checkpoint-id: g3-0c5843a47674
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~9000, session 01a188a6-36ee-708a-affc-0a4c9333a1c9)
+checkpointed: 2026-10-29T17:12:41.572Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 099982a5a6c603838f67bc0ed84a149c077e24f8c27b37622577fbe266e672ab
-source-handoff: b0851c9d4fda4fa4039a485777525d486233d7cda7155c9ac8c9e0a85e971680
+source-progress: 7ddf764d69ab80a04269d44a7fd01b96787e74799aaa8c18226baac64da3fa61
+source-handoff: 6dff3309341bf5e65d3ced1e4021e6e565ae4a8f2833beb2e008f07566800cb7
 source-learnings: a045846945dd3949bc9425561f3f41dad007eb9ba6523b8fa055ff6906d2e53e
-source-config: 5c9125e95278e9c3c3fd0d7f050d1d7d12bf6f3b997e89d0b17bdcd752be5edb
+source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 
 
-readiness-by: session:01a18884-fb1f-77c6-aa48-d3e9cb99ce33
-readiness-at: 2026-10-29T16:36:20.580Z
-readiness-checkpoint: g1-8eb959c8cc46
 ### Last verified state
-guard level 0; checkpoint requested (deployment validated in the real Pi runtime (Phase D read-only: no writes, no .pi-guard/, dry-run /handoff; Phase E writable: schema-v3 checkpoint current + identity-consistent + attested; level-3 auto-checkpoint preserved substantive notes). HEAD at commit time: ce8d19f on main, tree clean. Renewal OFF, enforceClosing OFF, readOnly now false. No compiler/oracle/golden/spec/tool file touched; no gate run.)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-**Not established by this session.** A deployment session deliberately did not choose the
-compiler's next task, and inventing one here would put an unmeasured intention into the file a
-fresh session trusts. The first action of the next session is therefore evidence-reading, not
-implementation:
+**[INFRA TEST WINDOW — 2026-10-29]** This section is deliberately swapped for the operator-
+authorized end-to-end renewal test. The task for the session reading it now is the harmless
+evidence read below — **not** compiler development:
 
-> Read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7 (CREATE blockers), §8 (the recorded gate
-> verdict) and §9 (the unfixed `data=` reporting defect), plus
-> `spec/lab-evidence/e2e42-p2c/HYPOTHESES.md`, plus claims `C296`–`C308` in `spec/CLAIMS.md`,
-> then `spec/INVENTORY.txt` rows whose refusal text names `^eofile` or a `BIT(1)` condition store.
-> Expected output: the candidate next phases written as *pre-registerable hypotheses* (e.g. the
-> `^eofile`-in-`DO WHILE` condition form, the `BIT(1)` condition store, the `data=` reporting defect
-> in `pli80c`'s summary line). Pick one, write its probe bank and predictions, commit them **before**
-> any oracle run — and replace this section with the exact chosen command.
+> Read `spec/CLAIMS.md` and identify the highest-numbered claim and what it records (one short
+> paragraph, reported in chat). Do **not** edit any project file. Do **not** run the compiler,
+> the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`. When the context guard reports
+> level-3 pressure and offers renewal, first ensure this session's state is recorded, then
+> invoke the `handoff_renew` tool exactly once with a short note naming the test. The successor
+> session must report — from the durable files alone — which task it recovered, then stop.
+
+The genuine post-test DRPLi next action is preserved verbatim in git (`HANDOFF.md` at the
+pre-test commit `a6eec67`) and summarized in `PROGRESS.md` → Next action; it is restored and
+re-attested when this test window closes.
 
 ### Guard notes
 deployment validated in the real Pi runtime (Phase D read-only: no writes, no .pi-guard/, dry-run /handoff; Phase E writable: schema-v3 checkpoint current + identity-consistent + attested; level-3 auto-checkpoint preserved substantive notes). HEAD at commit time: ce8d19f on main, tree clean. Renewal OFF, enforceClosing OFF, readOnly now false. No compiler/oracle/golden/spec/tool file touched; no gate run.
