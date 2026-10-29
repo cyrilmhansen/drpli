@@ -2962,11 +2962,26 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
         match e.Ast.e with
         | Ast.Eident n -> List.assoc_opt (String.lowercase_ascii n.Ast.orig) cx.pd_vars
         | Ast.Eqptr (_, f) -> List.assoc_opt (String.lowercase_ascii f.Ast.orig) cx.pd_vars
+        (* [E2E-48/P2c] the qualified spelling of an internal member is the same row (§2.4
+           measures it in TEST position at E48C9 0013), so the TEST demand must see it too. *)
+        | Ast.Eqstruct (b, f) ->
+            (match b.Ast.e with
+             | Ast.Eident bn ->
+                 List.assoc_opt
+                   (String.lowercase_ascii bn.Ast.orig ^ "."
+                   ^ String.lowercase_ascii f.Ast.orig) cx.pd_vars
+             | _ -> None)
         | _ -> None
       in
       let is_lit e = match e.Ast.e with Ast.Estring v -> Some v | _ -> None in
+      (* [E2E-48/P2c §2.4] an internal member LEFT of a literal in TEST position allocates the
+         literal's pool cell exactly as the store route does; only a VARYING member, because
+         §2.4's single golden is `2 name character(30) varying'. *)
       let is_var e =
-        match vkind_of_e e with Some (Vvar _) | Some (Vbvar _) -> true | _ -> false
+        match vkind_of_e e with
+        | Some (Vvar _) | Some (Vbvar _) -> true
+        | Some (Vimem m) -> m.varying
+        | _ -> false
       in
       let is_cell e = match vkind_of_e e with Some (Vvar _) -> true | _ -> false in
       let wants =
@@ -2997,15 +3012,42 @@ let bit_store_cond_bytes (cx : pdec_ctx) (lhs : Ast.expr) (rhs : Ast.expr) : int
   let kind_of e =
     match e.Ast.e with
     | Ast.Eident n -> List.assoc_opt (String.lowercase_ascii n.Ast.orig) cx.pd_vars
+    (* [E2E-48/P2c] the qualified spelling shares bind's row, so the DEMAND sees it too; a
+       prescan that counted only one spelling would break the pool invariant on the other
+       (C152/C179). *)
+    | Ast.Eqstruct (b, f) ->
+        (match b.Ast.e with
+         | Ast.Eident bn ->
+             List.assoc_opt
+               (String.lowercase_ascii bn.Ast.orig ^ "." ^ String.lowercase_ascii f.Ast.orig)
+               cx.pd_vars
+         | _ -> None)
     | _ -> None
+  in
+  (* ONE question -- "is this operand a varying class the lowering accepts in a STORE?" --
+     answered here and in `bit_cond_mat' from the same list of classes: flat Vvar cell (auto or
+     static, §2.2) or an internal VARYING member (§2.1/§2.3).  A based member (`Vbvar') and a
+     FIXED member are absent on purpose: §3 records their condition STORE as unmeasured, so
+     counting them here would demand bytes no lowering allocates. *)
+  let store_str_side e =
+    match kind_of (pdec_unwrap e) with
+    | Some (Vvar _) -> true
+    | Some (Vimem m) -> m.varying
+    | _ -> false
+  in
+  let lit_of e =
+    match (pdec_unwrap e).Ast.e with Ast.Estring v -> Some v | _ -> None
   in
   match kind_of lhs with
   | Some Vbit1 ->
       (match (pdec_unwrap rhs).Ast.e with
        | Ast.Ebinary (Ast.EqR Ast.Eq, l, r) ->
-           (match kind_of (pdec_unwrap l), (pdec_unwrap r).Ast.e with
-            | Some (Vvar _), Ast.Estring v -> pdec_str_cell cx v
-            | _ -> 0)
+           if (store_str_side l && lit_of r <> None)
+              || (lit_of l <> None && store_str_side r)
+           then
+             (match lit_of l with Some v -> pdec_str_cell cx v | None -> 0)
+             + (match lit_of r with Some v -> pdec_str_cell cx v | None -> 0)
+           else 0
        | _ -> 0)
   | _ -> 0
 
@@ -6820,6 +6862,14 @@ let str_side st (e : Ast.expr) =
        (* [E2E-29/P2] the unqualified spelling of a VARYING member (C4/C8 `if w = 'AB' then',
           `if w ^= 'ZZ' then') is the same read as `p->w', qualified by the record's DECLARED
           pointer; a bare-based record has no pointer, so it stays refused. *)
+       (* [E2E-48/P2c §2.1/§2.4] an INTERNAL level-numbered CHARACTER VARYING member, under
+          EITHER spelling ([C253]/[C258]: two keys, ONE cell -- bind registers `name' and
+          `rec.name' with the same offset).  It gets its OWN variant, NOT `Cell': the class
+          decides the bytes (RESULTS §2.1 -- 18 bytes with XCHG versus 17 without), and a
+          `Vimem' that was silently re-labelled `Vvar' would have handed every flat route --
+          ?SMVVM, ?SCVVM, the numeric ?IS22N arm -- a member they have no golden for.  A FIXED
+          member stays unclassified: E48C measures VARYING members only. *)
+       | Vimem m when m.varying -> Some (`Imem n.Ast.orig)
        | Vbvar (pn, k, _) when String.length pn > 0 -> Some (`Mem (pn, pn, k))
        | _ -> None)
   | Ast.Eqptr (b, f) ->
@@ -6829,6 +6879,15 @@ let str_side st (e : Ast.expr) =
              | Vbvar (pn, k, _) -> Some (`Mem (bn.Ast.orig, pn, k))
              | _ -> None)
         | _ -> None
+      end
+  (* [E2E-48/P2c] the OWNER-QUALIFIED spelling of an internal member resolves through the SAME
+     table entry as the bare one (`qref_key' is bind's own second key), so this arm adds no
+     address arithmetic and cannot make the two spellings drift. *)
+  | Ast.Eqstruct (b, f) ->
+      begin match qref_key st b f with
+        | Some k ->
+            (match vk_of st k with Vimem m when m.varying -> Some (`Imem k) | _ -> None)
+        | None -> None
       end
   | _ -> None
 
@@ -6852,10 +6911,34 @@ let str_cmp_shape st l r =
               reloc st Data (pool_str st bytes)),
             (fun () -> ()),
             Some v)
+  (* [E2E-48/P2c §2.1] THE MEMBER CLASS OF THE SCVCM STORE, measured four times in this bank
+     (E48C2 0013, E48C3 0013, E48C4 0027, E48C7 0013 -- four objects, IDENTICAL bytes) and now
+     also in TEST position (E48C9 0013).  DR addresses the member's OWN cell immediately
+     (`LXI H,*D', E46J21's rule for a member) and then parks it with XCHG before loading the
+     literal -- [C191]'s load-order law, proven here in STORE position too.  The discriminator
+     that [C310] left [TBD] is therefore the operand CLASS, not the position and not the
+     qualification: a FLAT cell (auto or static) keeps 17 bytes `LXI H,*S / LXI D,*D' and an
+     internal member takes 18 `LXI H,*D / EB / LXI H,*S'.  Same encoder as the BASED `Mem' arm
+     above, ONE instruction different in the address source, because one question must have one
+     owner [C179]. *)
+  | Some (`Imem k), Some (`Lit (v, bytes)) ->
+      Some ((fun () ->
+              d st op_lxi_h;
+              reloc st Data (addr_of st k);
+              d st op_xchg;
+              d st op_lxi_h;
+              reloc st Data (pool_str st bytes)),
+            (fun () -> ()),
+            Some v)
   | _ -> None
 
-(* left = literal, right = varying cell or member  ->  ?SCCVM with the length in B [C2, E29C9] *)
-let str_cmp_shape_rev st l r =
+(* left = literal, right = varying cell or member  ->  ?SCCVM with the length in B [C2, E29C9].
+   [E2E-48/P2c] `?imem' is NOT a style flag: RESULTS §2.3 measures the literal-left/?SCCVM store
+   on an internal member (E48C6 0013, NO XCHG -- HL is already the right operand's register),
+   while §3 records that the SAME orientation in TEST position has no golden.  The default is
+   therefore false, so the TEST route keeps refusing a member right, and only `bit_cond_mat'
+   passes true.  One encoder, two positions, one measured difference. *)
+let str_cmp_shape_rev ?(imem = false) st l r =
   match str_side st l, str_side st r with
   | Some (`Lit (v, bytes)), Some (`Cell a) ->
       Some ((fun () ->
@@ -6870,6 +6953,17 @@ let str_cmp_shape_rev st l r =
          NO XCHG here -- HL is already where the RIGHT operand belongs, which is the same rule that
          made C4 need XCHG when the member was on the LEFT.  One rule, two orientations [C167]. *)
       Some ((fun () -> (vbvar_addr ~qual:bn st pn k) ()),
+            (fun () ->
+              d st op_lxi_d;
+              reloc st Data (pool_str st bytes)),
+            v)
+  (* [E2E-48/P2c §2.3] internal member on the RIGHT of a literal in a STORE: E48C6 0013 is
+     `21 *D(rec.name cell) / 11 *S(lit) / 06 03 / cd ?SCCVM' -- the flat pair's bytes with the
+     member's OWN cell address and NO XCHG. *)
+  | Some (`Lit (v, bytes)), Some (`Imem k) when imem ->
+      Some ((fun () ->
+              d st op_lxi_h;
+              reloc st Data (addr_of st k)),
             (fun () ->
               d st op_lxi_d;
               reloc st Data (pool_str st bytes)),
@@ -7025,7 +7119,11 @@ let bit_cond_mat st (rhs : Ast.expr) =
      which the TEST route at lower_test_skip0's str_cmp_shape arm proves. *)
   | Ast.Ebinary (Ast.EqR Ast.Eq, l, r) ->
       (match str_side st (unwrap_e l), str_side st (unwrap_e r) with
-       | Some (`Cell _), Some (`Lit _) ->
+       (* [E2E-48/P2c] `Cell' = the flat 17-byte form [C310]; `Imem' = the internal-member
+          18-byte form §2.1, which needs NO new bytes here because `str_cmp_shape' owns the
+          whole head including its XCHG -- the tail below is identical for both classes
+          (`SUI 01 / SBB A / STA'), measured at E48C2/C3/C4/C7 001F. *)
+       | (Some (`Cell _) | Some (`Imem _)), Some (`Lit _) ->
            (match str_cmp_shape st (unwrap_e l) (unwrap_e r) with
             | Some (hl_fn, de_fn, Some lit) ->
                 Some
@@ -7034,6 +7132,22 @@ let bit_cond_mat st (rhs : Ast.expr) =
                     de_fn ();
                     d st op_mvi_a; d st (String.length lit);
                     call_ext st "?SCVCM";
+                    flag ())
+            | _ -> None)
+       (* [E2E-48/P2c §2.3] THE ORIENTATION, measured flat in E48C5 0013 and on an internal
+          member in E48C6 0013: literal LEFT switches helper to ?SCCVM and moves the length from
+          A to B -- [C191]'s register law verbatim in a store -- and the 00/FF tail is the SAME
+          [C095] `SUI 01 / SBB A'.  `~imem:true' is deliberate: this is the ONE route §2.3
+          measures a member right on; the TEST route keeps the default and refuses. *)
+       | Some (`Lit _), (Some (`Cell _) | Some (`Imem _)) ->
+           (match str_cmp_shape_rev ~imem:true st (unwrap_e l) (unwrap_e r) with
+            | Some (hl_fn, de_fn, lit) ->
+                Some
+                  (fun () ->
+                    hl_fn ();
+                    de_fn ();
+                    d st op_mvi_b; d st (String.length lit);
+                    call_ext st "?SCCVM";
                     flag ())
             | _ -> None)
        | _ ->
