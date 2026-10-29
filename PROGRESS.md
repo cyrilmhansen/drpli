@@ -215,20 +215,55 @@ pre-registered hypotheses and replace that section with one chosen, exact next s
 The renewal test window is closed; infrastructure needs nothing further this session.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 8
-checkpoint-id: g8-ca0d7b0cae81
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 9
+checkpoint-id: g9-49521ef3acb6
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-10-29T19:27:30.740Z
+checkpointed: 2026-10-29T19:33:11.148Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 52a3c0455591a5b4a2771956ae819f53efd5102e9201da2e01713a4b55432cf6
-source-handoff: fb47e4976b67c5f749535dbdb05d5bd2c05e25c026cb8240ece21603d734b304
-source-learnings: 7c0e8146fde39a8bbe29b79e661af80c7fa413d66c6c60f9013378b4475376db
+source-progress: e029e6e3d09400b519da970756395bb67f53d0377025a0b978eba6b94af92c29
+source-handoff: 1b28af5c24aaa1a60c49cdf30750886b3a541f61b5e976e29d6972c3503fd003
+source-learnings: 9b086586388c7011605fa654d8c94e5173ab68a5719f9d943520e80f92e552bd
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
-next-action: — E2E-48/P1 step 5, the exact continuation (codegen arms)
+next-action: — E2E-48/P1 step 5, resumed (steps 1-3 DONE at `371a12e`; step 4 open)
 
+**Steps 1-3 are committed and probe-verified: 14 of 24 goldens byte-identical. The successor's
+first job is the DIFF of the 10 that still differ, not new arms.** Never `git clean`/`reset`.
+
+0. `git status --porcelain=v1` → expect ONLY the three handoff files (or clean).
+   `cd ocaml && opam exec --switch=default -- dune build` → rc=0 (measured at `371a12e`).
+   `python3 tools/e2e_gate.py` → must still be **1074/0**; the gate has NOT been run since the
+   arms landed, and if it is not 1074/0 that regression outranks every other item here.
+1. For each differing probe (E48A6 A7 A8 A9 A10 A11 A12 A15 B6 B8) diff mine against the golden:
+   `python3 spec/lab-evidence/e2e42-p2b/chaindump.py /tmp/e48fix/N.REL` and the same on
+   `golden/e48p1/N/N.REL`. E48B9 is EXACT and carries TWO SCVCM stores while E48A6/A7/B8 differ
+   — that pair is the in-hand discriminator. Re-run the sweep afterwards:
+   `for n in E48A{1..15} E48B{1..9}; do … pli80c.exe ../probes/$n.PLI /tmp/e48fix/$n.REL; cmp vs
+   ../golden/e48p1/$n/$n.REL; done`.
+   Expected after the begin/end fix: E48A1/A2/A3/A4/A5/A13/B1/B7 EXACT (8), the store probes
+   (A6/A7/A8/A9/A11/A12/B8/B9) EXACT if `bit_cond_mat` matches the goldens, E48A10 EXACT, E48A14
+   EXACT (step 3), and E48A15/A10-PUT + E48B6 still refusing (steps 4/5 open). Read the
+   `cmp` failures with `python3 spec/lab-evidence/e2e42-p2b/chaindump.py` on both files; the
+   golden is the authority, never my output.
+2. Gate must stay **1074 byte-exact / 0 fail** before panel registration:
+   `python3 tools/e2e_gate.py`. Two negative-panel rows constrain the refusal TEXTS:
+   `N74_FIXED…`/`N74_BIT_TO_BIT_COPY` requires the substring
+   `"store into BIT(1) from ident is unsampled"` (my new message keeps that prefix — verified by
+   reading `tools/e2e_gate.py:1699-1717`, NOT by running the gate), and
+   `"condition form not in E2E-3b subset"` stays required at gate lines 1778/3157/4421 (MB13,
+   LR9, E32C3) — the catch-all in `lower_test_skip0` is still reachable for unpinned NegL shapes,
+   but my new inner refusal for `^(<other>)` has its OWN text; if a row breaks, keep the
+   catch-all reachable rather than editing the gate.
+3. Remaining arms (unchanged from the list below): step 4 the PUT bit item
+   (`3A reloc / 06 01 / ?QB08C / ?PNBOP`, refusal at the old ≈10317 `Vbit1 -> failwith`; note
+   `?PNBOP` REPLACES the shared `tail true ()`'s `?PNCOP`, and the `char_var_ok` classifier must
+   stop treating Vbit1 as a blocking char var — E48A6/A7/A8/A9/A10/B8 are 2-item `[literal,bit]`
+   console lists), and step 5 STATIC-on-CHARACTER (E48B6, largest, defer freely).
+4. Then panel registration, claims C309+, INVENTORY/COVERAGE, gate, census (items 6-7 below).
+
+Everything below is the predecessor's arm map, still accurate except where marked DONE above.
 All arm locations were read in-session (2026-10-29, commit a8d1c3a) — reuse them, do not re-explore:
 
 1. `ocaml/lib/codegen.ml` `lower_test_skip0`: beside the positive bare-bit arm (≈6993, emits
@@ -267,4 +302,7 @@ All arm locations were read in-session (2026-10-29, commit a8d1c3a) — reuse th
    INVENTORY/COVERAGE rows; gate; `python3 tools/corpus_census.py --check`. CREATE EXACT likely
    needs the [TBD] SCVCM load-order — if it blocks, measure the discriminator with a NEW
    pre-registered probe round (E48C) before implementing, or report census honestly unchanged.
+readiness-by: session:01a18900-db17-7470-93c0-80deb112c0f8
+readiness-at: 2026-10-29T19:33:11.152Z
+readiness-checkpoint: g9-49521ef3acb6
 <!-- guard:end checkpoint -->
