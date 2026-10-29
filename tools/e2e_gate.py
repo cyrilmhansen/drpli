@@ -3938,16 +3938,26 @@ REJECTS.update({
     # exactly what they are.  DR's verdicts are measured in golden/e42p2c/, E46N22 at its line 11 and
     # E46N23 at its line 7.
 })
-for _k in ("E46K1", "E46K2", "E46K3", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8", "E46K9",
+# [E2E-48/P2c step 6, renewal 8/8 successor] "E46K1" and "E46K3" are NO LONGER stamped by the loop
+# below, because they are no longer refusal rows: the RETIRE round pre-registered at 630e9be was
+# measured 2 ok / 2 (spec/lab-evidence/e2e48-p2c/RETIRE-RESULTS.md) and both whole objects are
+# byte-identical to golden/e48p2retire/, so both names are byte-exact SPECIMENS (promoted at
+# 1480d6f).  Leaving their NEG_META stamps in place made the panel's own REJECTS/NEG_META symmetry
+# audit (registration_audit, E2E-16) abort the gate -- verdict evidence for a row that no longer
+# exists.  The SUPERSEDED sentence inside the text below read: "K1/K5/K7/K8 all reach ONE stop (a
+# char store whose source is not a string literal, or a bare destination); K3/K14 reach the
+# comparison stop"; it is kept as written there, with the retired names removed from the list, and
+# the K1/K5/K7/K8 stop for the BARE destination is what E46K1's promotion measured away.
+for _k in ("E46K2", "E46K4", "E46K5", "E46K6", "E46K7", "E46K8", "E46K9",
            "E46K10", "E46K11", "E46K12", "E46K13", "E46K14", "E46K15"):
     NEG_META[_k] = ("unmeasured",
         "NEITHER verdict is known: golden/ holds no object and no transcript for this shape, so "
         "this row may NOT be read as DR rejecting it.  It records a stop THIS compiler imposes.  "
         "[E2E-42/P1e] bind now resolves both spellings of an internal CHARACTER member and codegen "
         "gives the member its OWN kind (Vimem) instead of reusing Vvar/Vfix, so a route accepts a "
-        "member only by naming that kind -- and these routes do not.  K1/K5/K7/K8 all reach ONE "
-        "stop (a char store whose source is not a string literal, or a bare destination); K3/K14 "
-        "reach the comparison stop; they are listed separately because each SOURCE is a different "
+        "member only by naming that kind -- and these routes do not.  K5/K7/K8 all reach ONE "
+        "stop (a char store whose source is not a string literal); K14 reaches the comparison stop; "
+        "they are listed separately because each SOURCE is a different "
         "shape a reader may try.  To retire a row: measure DR on it, then promote it to a "
         "byte-exact specimen or re-classify it as dr-refuses with DR's word attached.")
 
