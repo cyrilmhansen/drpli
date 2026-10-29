@@ -266,11 +266,14 @@ counting fix invalidates cached greens without being told to.
 | audit #2 | audit | `87c11db` | 1668 s | passed, `link_run 1072/1072`, `runtime_row_count 92` |
 | #36 | full | `87c11db`+docs | 81 s | passed, `runtime_row_count 71` (dedupe only, before the torn-line fix) |
 | #37 | full | `be3c447` | 80 s | passed, `runtime_row_count 70` -- the tearing bug, caught by the count disagreeing with the gate's own verdict line |
-| audit, final | audit | the commit that fixes both | — | the audit re-runs on the final SHA because BOTH panels share the stdout plumbing that section 9 fixes; a green for the runtime panel is not a green for the link panel's log |
+| audit #3 | audit | `96e67d1` | 1685 s | **failed**: `link_run 1071/1072` — V3 killed at 136 s; the count that moved, and the mislabelled `HANG_ARMS` it exposed (sections 9-11) |
+| audit #4 | audit | `a447e90` | 1660 s | **passed**: `link_run 1070/1070, 0 failed`, 1070 rows for 1070 arms, 3 retries fired (section 12) |
 
-The last row is deliberate: the stdout wrapper changes how every pooled panel reports, so
-the 27-minute audit is re-run on the fixed SHA rather than inherited from `87c11db`.  That
-is the cost of delegating, and it is paid by the builder.
+The last two rows are the point.  The audit re-runs on every SHA that changes how the panel
+reports, rather than being inherited from an older green — the stdout wrapper and the
+three-way run classification both change what the panel can SAY, so a green for an earlier
+plumbing is not a green for this one.  That is the cost of delegating, and it is paid by the
+builder: 1660 s of machine time, 0 s of anybody waiting.
 ## 11. Re-measuring my own "measured" set: run.py has THREE exit codes
 
 Section 3's table was built from `oracle/linkrun.py`'s status string, which was
@@ -367,3 +370,55 @@ The 51, with the tail each one produced while being killed:
 What this does NOT change: no byte claim, no specimen, no lowering.  1074 byte-exact objects
 and 184 refusals are unaffected.  What was wrong was the harness's vocabulary about the 55
 arms that produce no executed evidence, and the 4 arms that were mis-vocabularised.
+
+## 12. The builder proved the retry was necessary, not decorative
+
+Audit build #4 at the commit that added the three-way classification and the retry:
+**`link_run 1070/1070, 0 failed`, 1580.1 s**, all other panels clean, `runtime_row_count 71`.
+
+**The retry fired three times on the builder**, and each time the arm then produced a
+byte-equal console comparison against DR's own run:
+
+| specimen | first attempt | retry | result |
+|---|---|---|---|
+| `X202` | timeout at 136 s | clean at 332 s | `console BYTE-EQUAL (2 raw bytes)` |
+| `R907` | timeout at 136 s | clean at 332 s | `console BYTE-EQUAL (2 raw bytes)` |
+| `LOAN1` | timeout at 136 s | clean at 332 s | `console BYTE-EQUAL (1085 raw bytes)` — the full amortisation table |
+
+Three legitimately-terminating programs needed **2.4x** the budget a `-j 8` pool computes.
+Without the retry the audit would have reported three "non-terminating" arms and a red build
+about programs that run fine; with it, the row says recovery happened and the comparison is
+still made.  That is the evidence for the design, and it is also a correction to `run_timeout`:
+`40 + 12·jobs` is NOT generous enough for a builder under load, and the retry -- not a bigger
+constant -- is what makes the panel trustworthy, because a constant tuned until nothing fails
+stops detecting anything.
+
+**Rows equal the denominator.**  1070 `run :' lines for 1070 arms: 807 mine-run captures,
+212 console comparisons against DR, 51 pinned `TIMEOUT`.  That identity is the point of the
+"every arm prints a row" rule -- before it, a failing arm printed no line, and the panel's
+denominator was a number that depended on which arms passed.
+
+**Both exception categories reported**, and neither counted as a pass:
+`2 specimen(s) CANNOT be link-run (NO_LINK_ARMS)` and `2 specimen(s) LINK but CANNOT BE
+EXECUTED (NO_RUN_ARMS, cpmsim exits first)`.  1074 byte-exact objects minus 2 unbuildable
+minus 2 unexecutable = 1070 arms.
+
+## 13. What this phase changed about how I trust my own harness
+
+The chain of failures here is instructive in the wrong direction: I registered 55 arms as
+"does not terminate", wrote a measured transcript tail for each, and called the set measured
+evidence.  4 of the 55 were wrong, because the string I read (`timeout-or-hang`) was produced
+by a classifier that had already thrown away the distinction (`rc=1` vs `rc=2`) that decides
+what the fact *is*.  The transcript tails were right; the category was a label.
+
+Three rules fall out of it, and they are the reason this file exists separately from
+`RESULTS.md`:
+
+1. **Read the producer's contract, not the consumer's string.**  `run.py` documented three
+   exit codes at the top of itself the whole time.  The fix was not diligence in the gate; it
+   was noticing that `linkrun.py` had compressed a documented distinction.
+2. **A measurement whose unit is a label measures the label.**  Arithmetic catches this: a
+   "timeout" in 4.1 s on a 25-40 s budget is impossible, and 94.2-100.4 s for the real ones is
+   exactly what a 90 s kill looks like.
+3. **Transient failures need a policy, not a bigger constant.**  Retry once, say so in the
+   row, and let the second failure be the verdict.
