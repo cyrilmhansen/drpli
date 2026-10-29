@@ -5,11 +5,21 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
-**E2E-48/P1 step 5 — the golden-pinned codegen arms. IN PROGRESS, UNCOMMITTED, and the last
-edit is UNVERIFIED (the closing phase arrived before the rebuild).** Read
-`HANDOFF.md` → `## Last verified state — E2E-48/P1 step 5` and its `## Next action` item 0 before
-doing anything: the tree has one dirty file, `ocaml/lib/codegen.ml`, and the first job of the
-successor is `dune build` + the 24-probe `cmp` sweep, not new code.
+**E2E-48/P1 step 5 — the golden-pinned codegen arms. Steps 1-3 LANDED, COMMITTED at `371a12e`;
+steps 4-7 are open.** Measured in this session: `dune build` rc=0 (no new warning kinds) and the
+24-probe whole-`.REL` `cmp` sweep against `golden/e48p1/` gave **14 BYTE-IDENTICAL**
+(E48A1 A2 A3 A4 A5 A13 A14 B1 B2 B3 B4 B5 B7 B9) and **10 differing**
+(E48A6 A7 A8 A9 A10 A11 A12 A15 B6 B8). **The gate was NOT re-run after the arms** — the 1074/0
+figure is inherited from `a8d1c3a` and must be re-measured. Full detail in `HANDOFF.md` →
+`## Last verified state — E2E-48/P1 step 5`.
+
+*Steps 2 and 3 are accepted (probe-verified):* `bit_cond_mat` (the six §3.2 materialisers, None
+for every unpinned shape) and the `lower_bool` BIT(1) right operand `F5 / 3A / C1 / A0` under one
+`F2` — E48A14 (the conjunction) and E48B9 (two SCVCM stores) are byte-identical with them.
+They also caused a **dangling-match regression**: an unparenthesised inner `match rhs.Ast.e with`
+as an arm body absorbed the following `| Ast.Eident …` arms of the OUTER `match lhs.Ast.e`, so 15
+probes died with `Match_failure` at `codegen.ml:8026`, a line I never edited. Fixed with
+`begin … end` and **re-verified** (build + sweep); lesson in `LEARNINGS.md`.
 
 *Measured and committed this session (accepted):* after step 1 alone — the
 `Ast.Eprefix (Ast.NegL, x)` arm in `lower_test_skip0` (bare `^b` → `3A/B7/FA`; `^(k = 0)` →
@@ -26,6 +36,8 @@ materialisers + `STA`) and step 3 (the `lower_bool` BIT(1) right operand, `F5/3A
 arm of the OUTER `match lhs.Ast.e` into it and the outer match lost its DEC/varying/based arms.
 Fixed by wrapping in `begin … end`; **the rebuild after the fix never ran**. E48A10/A15 failed on
 the *expected* unimplemented-PUT reasons (steps 4/5 still open).
+
+*Written and now VERIFIED (accepted, probe-measured):* steps 2 and 3, as above.
 
 *Unchanged from the previous checkpoint (accepted):* goldens `ece657e` (24 programs, 15/15 + 9/9);
 `RESULTS.md` + `chaindump.py` fix `388673b`; the bind `span` double-count fix `a8d1c3a` with the

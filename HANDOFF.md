@@ -141,16 +141,19 @@ and never edit a golden.
   `= '0'b` as a materialised (stored) comparison (only `'1'b` pinned, E48A10); `^(cond)` in
   a STORE beyond `^(k = 0)`; nested `&` shapes beyond E48A14.
 
-## Next action — E2E-48/P1 step 5, resumed (codegen arms, HALF-DONE and UNCOMMITTED)
+## Next action — E2E-48/P1 step 5, resumed (steps 1-3 DONE at `371a12e`; step 4 open)
 
-**Do this in order; the first two commands are the verification the previous session ran out of
-budget for. Never `git clean`/`reset` — the uncommitted diff IS the work.**
+**Steps 1-3 are committed and probe-verified: 14 of 24 goldens byte-identical. The successor's
+first job is the DIFF of the 10 that still differ, not new arms.** Never `git clean`/`reset`.
 
-0. `cd /home/john/projects/sushiworks/pli80 && git status --porcelain=v1` → expect exactly one
-   dirty file, `ocaml/lib/codegen.ml` (uncommitted step-2/3 arms + the begin/end fix, all
-   UNVERIFIED). Then `cd ocaml && opam exec --switch=default -- dune build`.
-   Expect rc=0 and **no** new warning kinds.
-1. Re-run the whole-bank sweep and record the honest tally:
+0. `git status --porcelain=v1` → expect ONLY the three handoff files (or clean).
+   `cd ocaml && opam exec --switch=default -- dune build` → rc=0 (measured at `371a12e`).
+   `python3 tools/e2e_gate.py` → must still be **1074/0**; the gate has NOT been run since the
+   arms landed, and if it is not 1074/0 that regression outranks every other item here.
+1. For each differing probe (E48A6 A7 A8 A9 A10 A11 A12 A15 B6 B8) diff mine against the golden:
+   `python3 spec/lab-evidence/e2e42-p2b/chaindump.py /tmp/e48fix/N.REL` and the same on
+   `golden/e48p1/N/N.REL`. E48B9 is EXACT and carries TWO SCVCM stores while E48A6/A7/B8 differ
+   — that pair is the in-hand discriminator. Re-run the sweep afterwards:
    `for n in E48A{1..15} E48B{1..9}; do … pli80c.exe ../probes/$n.PLI /tmp/e48fix/$n.REL; cmp vs
    ../golden/e48p1/$n/$n.REL; done`.
    Expected after the begin/end fix: E48A1/A2/A3/A4/A5/A13/B1/B7 EXACT (8), the store probes
