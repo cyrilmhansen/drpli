@@ -5047,8 +5047,13 @@ and const_sub st n =
    the five objects of golden/e42p1d measure THREE uses and nothing else --
      PUT LIST     E46J6 (varying), E46J12 (fixed), E46J21 (varying, qualified spelling)
      OPEN TITLE   E46J11 (varying), E46J18 (fixed)
-     STORE        E46J21 only, and there only the QUALIFIED destination with a literal source
-   so those three are the whole authorization, each named below with its own object.  Everything
+     STORE        E46J21's QUALIFIED varying destination with a literal source, EXTENDED by
+                  golden/e48p2c/E48C2/C3/C4/C7 (E2E-48/P2c §2.1): the UNQUALIFIED destination of
+                  the SAME automatic VARYING member with a literal source is byte-identical
+                  (E48C3 differs from E48C2 only at the three module-name bytes) and so is the
+                  same store inside a `do while' body (E48C4).  A FIXED member still has NO store
+                  object and keeps its refusal.
+   so those uses are the whole authorization, each named below with its own object.  Everything
    else that a CHARACTER operand could be asked to do -- arithmetic, comparison, concatenation,
    subscript, EDIT, a whole-structure move, a file PUT -- has no DR object here and refuses BY
    NAME, because `Vimem' is not `Vvar' or `Vfix' and none of those routes matches it.
@@ -5056,14 +5061,6 @@ and const_sub st n =
    `imem_refuse' -- are defined ONCE, before lower_hl, because lower_hl's arithmetic arm is the
    earliest user and a second copy of the wording anywhere else would be exactly the duplication
    [C179] forbids. *)
-
-(* Was this reference the OWNER-QUALIFIED spelling of the member?  Answered by comparing the
-   source spelling against the owner/name pair bind recorded for the cell -- NOT by looking for a
-   dot in a table key, because a dotted key is only how bind STORES the qualified spelling and a
-   refusal that inspects it would be reasoning about a name rather than about a variable. *)
-let imem_qualified (nm : string) (m : mem_char) =
-  String.lowercase_ascii nm
-  = String.lowercase_ascii m.owner ^ "." ^ String.lowercase_ascii m.name
 
 (* [E2E-42/P1e-A] ONE encoder for BOTH authorized reads.  A member's string-preparation half is
    [C174]'s storage-class dispatch applied to the member's own cell, and DR's four objects say so
@@ -5110,10 +5107,14 @@ let store_char ?(dst : (unit -> unit) option = None) st name (k : vkind) (v : st
      route with a different ADDRESS and nothing else changes, and `addr_of' already returns the
      member's address because bind built the row.  What this arm decides is therefore not how to
      emit but WHAT TO ALLOW:
-       * the destination spelling: E46J21 stores through `rec.line'.  The BARE destination is not
-         in this bank -- the bare reads are (E46J6/J11/J12/J18) but no object stores through a bare
-         member name -- so it refuses as our conservative stop, not as a DR rejection.  That makes
-         the reads and the write deliberately asymmetric, and the asymmetry is the measured bank.
+       * the destination spelling: [E42/P1e-B record, SUPERSEDED by E2E-48/P2c] E46J21 stores
+         through `rec.line' and that bank had NO object storing through a bare member name (bare
+         READS are E46J6/J11/J12/J18), so the BARE destination refused as OUR conservative stop,
+         not as a DR rejection.  E2E-48/P2c measured the question: golden/e48p2c/E48C3 stores
+         `name = 'AB';' UNQUALIFIED and its whole file is byte-identical to E48C2's qualified one
+         apart from the three module-name bytes (offsets 6, 19, 28) -- RESULTS §1 P3, §2.1 -- and
+         E48C4 confirms the same bytes inside a `do while' body.  Qualification is a front-end
+         resolution matter; BOTH spellings of an automatic VARYING member take the ?SMCVM route.
        * the storage class: only VARYING has an object.  A FIXED member would take ?SMCCM, and no
          DR probe stores into a level-numbered fixed char member, so the route is unknown.
        * the source: store_char is only ever reached with a STRING LITERAL (lower_assign refuses
@@ -5127,13 +5128,12 @@ let store_char ?(dst : (unit -> unit) option = None) st name (k : vkind) (v : st
           imem_refuse "store" m
             "a FIXED member would take ?SMCCM into the member cell, and no DR object stores into a \
              level-numbered fixed CHARACTER member (E46J12/E46J18 only READ one)";
-        if not (imem_qualified name m) then
-          imem_refuse "store" m
-            ("the destination is spelled " ^ String.uppercase_ascii name
-             ^ ", unqualified: the BARE name is measured as a READ operand (E46J6/E46J11/E46J12/ \
-              E46J18) and never as a store destination, so this compiler does not hand it the \
-              ?SMCVM route on the strength of E46J21's QUALIFIED store alone -- write `"
-             ^ m.owner ^ "." ^ m.name ^ " = ...'");
+        (* [E2E-48/P2c step 4a] the qualified-DESTINATION gate is REMOVED for the licensed
+           shape -- a VARYING member with a STRING LITERAL source, both spellings -- licensed
+           by golden/e48p2c/E48C3 (RESULTS §1 P3, §2.1; see the destination-spelling bullet
+           above).  The FIXED-member refusal on the preceding line stays VERBATIM: §3 records
+           no fixed-member store object.  A BASED member never reaches this arm (Vbvar, not
+           Vimem) and keeps its own refusals. *)
         Vvar m.cap
     | k -> k
   in
