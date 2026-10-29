@@ -7,6 +7,42 @@ The guard never writes this file.
 
 ## Accepted
 
+- **A pre-flight ledger drift can hide the fact that nothing regressed.** The gate aborts at
+  `corpus census --verify` / coverage / prose checks **before** the byte panel compiles anything, so
+  a drift looks like "the gate number is unknown", not like "the compiler broke". This session the
+  drift was *progress*: CREATE's first-refusal message had moved from
+  `condition form not in E2E-3b subset [TBD]: (^ eofile)` to `GET LIST of unknown variable name`
+  because the `371a12e` arms lowered both earlier blockers. Read the recomputed message before
+  treating a drift as a regression; then re-measure the snapshot through the tool's own write path
+  (`--check PREV.json`, with PREV a copy of the old file so a *count* change still fails) and
+  record why. [accepted, measured 2026-10-29]
+- **Bisect an invariant failure with one-statement scratch programs, not by reading the failing
+  probe.** `E48A12`'s "prescan demanded 5, lowering allocated 8" became obvious at `/tmp/t_a.PLI`
+  (`b = (name = 'EOF');` alone: demanded 1, allocated 4). The same four scratch runs also produced
+  a fact the probes could not show: `if (name = 'EOF') then` still refuses in TEST position while
+  the identical compare lowers fine in STORE position — the two routes have separate demand paths.
+  [accepted, measured 2026-10-29]
+- **When a new item class has its own tail, check whether the shared tail is universal.** The
+  console-PUT item chain ends every arm with `tail true ()` (or `false`). DR's bit item carries
+  `?PNBOP` *instead of* `?PNCOP` (C313), so the shared emitter had to become conditional —
+  otherwise the bytes get both tails. Two lessons in one: (a) read the code that runs *after* the
+  match you are extending, not just the match; (b) a dropped `;` after `(match ...)` is a syntax
+  error the build catches immediately — write one arm, build, sweep.
+  [accepted, measured 2026-10-29]
+- **Refusal TEXTS are panel rows; grep before you loosen one.** Gate rows pin substrings of my own
+  messages (`"STATIC on CHAR(14) VARYING is unsampled"` for E46F5, `"STATIC on FIXED BINARY(15,0)
+  is unsampled"`, `"char var in multi-item PUT unproven"` for E46M12, `"store into BIT(1) from
+  ident is unsampled"` for N74). Loosening a classifier also has to be checked against the
+  negative rows' *sources*: `P052A/P053A/B/C` and `E46J10/J19` put `BIT(4)/(8)/(16)/(3)`, which are
+  a different class from `Vbit1`, so admitting `Vbit1` left 184/184 intact. Verified by grep, then
+  by running the panel. [accepted, measured 2026-10-29]
+- **Compare warning multisets between two CLEAN builds, and do it in a scratch tree.**
+  `cp -r ocaml /tmp/basebuild && git show <base>:ocaml/lib/codegen.ml > ...` then clean-build both
+  and `diff` the sorted `Warning N [name]` counts. This session both sides were
+  22/15/28/2/14/2/17/26 (kinds 11/26/27/32/39/57/8/9) — my edits added nothing, including the two
+  Warning 11s whose line numbers landed inside code I had just edited (pre-existing).
+  [accepted, measured 2026-10-29]
+
 - **In OCaml, an arm body that begins with an unparenthesised `match` silently steals the
   following arms of the enclosing `match`.** I added a `match rhs.Ast.e with …` as the body of the
   `| Ast.Eident n when … = Vbit1 ->` arm of `lower_assign`'s `match lhs.Ast.e`; OCaml parsed every
@@ -128,6 +164,16 @@ The guard never writes this file.
   "checkpoint recorded nothing new" — write the discoveries first, then refresh.
 
 ## Proposed
+
+- **CREATE's next blocker is a FRONT-END gap, not codegen.** Measured this session: after the
+  condition arms landed, CREATE stops at `codegen: GET LIST of unknown variable name [TBD]` for
+  `get list (name)`, and `name`/`addr`/`city`/`state`/`zip`/`phone` all come from
+  `%include 'record.dcl'` (RECORD.DCL exists in `artefacts/`). `bin/pli80c.ml` reads the source
+  text and never expands INCLUDE — that logic lives only in the separate `bin/pli80bind.ml` tool.
+  Proposed next round, NOT started: make the main pipeline resolve `%include` (search order and
+  case pinned by an oracle probe bank first), then re-measure CREATE's census row. Until then no
+  claim about CREATE parity is admissible. [proposed, unverified — the *cause* (no expansion in
+  pli80c) is measured, the fix and DR's search order are not]
 
 - **Tune `generationReserve` before trusting the levels.** `20000` is an initial policy number;
   the production model measures `contextWindow=220000`, `maxTokens=65536` (observed via

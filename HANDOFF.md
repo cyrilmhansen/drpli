@@ -98,125 +98,84 @@ not as fresh measurements):
   related to PUT. Also recorded, deliberately unfixed: `pli80c`'s `wrote … (data=N)` summary line
   reports a number that is not the DATA segment length.
 
-## Last verified state — E2E-48/P1 step 5 (codegen arms, session started 19:12 UTC)
+## Last verified state — E2E-48/P1 COMPLETE for the 24-probe bank (session started 19:36 UTC, 2026-10-29)
 
-**COMMITTED at `371a12e` (ocaml/lib/codegen.ml only).** VERIFIED BY MEASUREMENT IN THIS SESSION:
-`dune build` rc=0 with no new warning kinds, and the 24-probe sweep (`pli80c.exe` then whole-file
-`cmp` against `golden/e48p1/N/N.REL`) gave **14 BYTE-IDENTICAL** —
-E48A1 A2 A3 A4 A5 A13 **A14** B1 B2 B3 B4 B5 B7 **B9** — and **10 differing** —
-E48A6 A7 A8 A9 A10 A11 A12 A15 B6 B8. E48A14 exact proves the step-3 `&`-bit arm; E48B9 exact
-proves the §3.2 SCVCM store route on a plain cell. **The gate was NOT re-run after the arms**
-(1074/0 is inherited from `a8d1c3a` and must be re-measured before any panel registration).
+**All 24 probes of `golden/e48p1/` are now whole-file byte-identical**, and all 24 are REGISTERED
+on the byte panel. Measured in this session, in this order:
 
-Arms landed: the `Ast.Eprefix (Ast.NegL, x)` TEST arm (^bare bit -> 3A/B7/FA; ^(k=0) ->
-21/7E/23/B6/CA; ^(k=c) c>=1 -> cmp_load_deref/hl_bias(-c)/7C/B5/CA); `bit_cond_mat`, the §3.2
-store classifier returning None for every unpinned shape; the `lower_bool` BIT(1) right operand
-(`F5 / 3A / C1 / A0` under one `F2`); and the Vbit1 store arm rewritten as `begin match ... end`.
+- `f839f52` — the census drift the gate aborted on was PROGRESS, not regression: CREATE's
+  first-refusal message had moved past `(^ eofile)` (fixed by the `371a12e` NegL arm) and past
+  `eofile = (name = 'EOF')` (fixed by `bit_cond_mat`) to `GET LIST of unknown variable name [TBD]`.
+  Cause measured: `pli80c.ml` never expands `%include`, so `name` (RECORD.DCL) is unbound. Census
+  re-measured through `tools/corpus_census.py --check <prev copy>`; counts IDENTICAL.
+  Gate then measured **1074 byte-exact / 0 fail**, negative 184/184, divergence 9/9 — i.e. the
+  `371a12e` arms broke nothing.
+- `fa09b97` — `bit_store_cond_bytes` added to the prescan: my `371a12e` store arm allocated the
+  `?SCVCM` literal's pool cell but `prescan_expr` has no `Econd` arm, so it was never demanded.
+  Minimal measured repro: `b = (name = 'EOF');` demanded 1, allocated 4. **E48A12 became exact
+  (15/24).**
+- `df4b9c8` — step 4, the BIT(1) PUT item: `3A cell / 06 01 / CD ?QB08C / CD ?PNBOP`, nine sites
+  (A15 000F sole item, A6 0038, A7 002C+005D, A8, A9, A10, A11, B8 0038). `?PNBOP` REPLACES the
+  shared `tail true ()` `?PNCOP` (one tail per item: A6 0035 PNCOP, 0040 PNBOP, 0043 QIOOP). Two
+  classifier admissions (Vbit1 in `only_literals_and_chars`; Vbit1 -> false in the blocking
+  `List.exists`) plus three named refusals for unmeasured shapes (PUT EDIT, non-final bit item,
+  file attach). The `authorize_file_item` reason that claimed "the console route refuses this class
+  too" is kept as written and labelled SUPERSEDED (P15 falsified it). **23/24 exact.**
+- `613385b` — step 5, STATIC on CHARACTER per R6: `RTchar (n, false)` with a literal INITIAL no
+  longer than the extent, cell = full extent blank-padded (`41 42 20`), DATA 3 = 3 static + 0 pool,
+  read back by the existing Vfix PUT arm at the DECLARED length. Refused on purpose: no INITIAL, a
+  non-literal/longer initialiser, STATIC-on-CHARACTER **VARYING** (catch-all keeps its EXACT words
+  for gate rows E46F5 and the FIXED-BINARY(15,0) row), and a store INTO a static char (scratch s1
+  proved my automatic route would pool the literal beside the static cell, DATA 3 -> 5 — unmeasured).
+  Census re-measured: counts identical, 5 msg deltas (REPORT advanced to `OPEN option KEYED`,
+  MPMCALLB to `STATIC on POINTER MEMBER OF CPB@390`; EXPR2/FSCAN/LOAN2 same blocker). **24/24 exact.**
+- `992ccad` — panel + claims. 24 SPECIMENS rows (byte tier ONLY: no `spec/RUNTIME.txt` rows, because
+  this round captured .REL/.PRN evidence and eight probes read the console with `get list`),
+  `--update-inventory` wrote INVENTORY.txt (1098 entries), and claims **C309-C316** record RESULTS §3
+  as measured law with the [TBD] list inside C310. Final gate at this commit, measured:
+  **1098 byte-exact / 0 fail of 1098**, negative panel 184/184 refused, divergence 9/9, coverage
+  102 rows 0 errors, census `--verify` clean (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0), rc=0.
 
-That last rewrite fixed a **regression I caused and then verified fixed**: an unparenthesised
-`match rhs.Ast.e with` as an arm body absorbed every following `| Ast.Eident ...` arm of the OUTER
-`match lhs.Ast.e`, so 15 probes died with `Match_failure` at codegen.ml:8026 — a line I never
-edited. Lesson recorded in `LEARNINGS.md`; the fix is now build- and sweep-verified.
-
-NOT done: step 4 (PUT bit item — A15 refuses, and `char_var_ok` blocks the 2-item [literal,bit]
-lists A6/A7/A8/A9/A10/B8 put), step 5 (STATIC-on-CHARACTER — B6), panel registration, claims
-C309+, INVENTORY/COVERAGE, gate, census.
-
-**Successor's first job: diff each of the 10 differing probes against its golden with
-`python3 spec/lab-evidence/e2e42-p2b/chaindump.py` on BOTH files.** E48B9 (exact, two SCVCM
-stores) versus E48A6/A7/B8 (differ) is the discriminator already in hand; do not guess past it,
-and never edit a golden.
+Verification method notes for the successor: builds compared cache-neutrally (clean rebuild in a
+scratch tree vs `git show <base>:ocaml/lib/codegen.ml`, warning multiset 22/15/28/2/14/2/17/26 —
+unchanged); the sweep is
+`for n in E48A{1..15} E48B{1..9}; do ./ocaml/_build/default/bin/pli80c.exe probes/$n.PLI /tmp/x/$n.REL && cmp /tmp/x/$n.REL golden/e48p1/$n/$n.REL; done`.
 
 ## Unfinished operations — E2E-48/P1 (open at this checkpoint)
 
-- DONE since `ece657e`: `RESULTS.md` (prediction-vs-verdict, all bytes re-derived; MISSes kept:
-  P15 accepted, P6/P7/P11 spellings, the 8-byte miscount, the falsified "DAD defect" — §5);
-  chaindump.py:38 typo fixed in the same commit (388673b); bind span fix + gate (a8d1c3a).
-  Working tree clean at this checkpoint; `ocaml/` compiles (dune via `opam exec`).
-- OPEN: the codegen arms of HANDOFF "Next action" (none started yet — no half-edited file);
-  no `spec/CLAIMS.md` rows yet (next free id **C309**); no INVENTORY/COVERAGE rows; E48
-  specimens not in the panel; census not re-run for this phase.
-- `[TBD]` items that must NOT be guessed: the CREATE-vs-E48 SCVCM load-order discriminator;
-  the BIT-store materialiser for `k = c` with |c| ∈ {1,2,3} (only c=0 and |c|≥4 are pinned);
-  `= '0'b` as a materialised (stored) comparison (only `'1'b` pinned, E48A10); `^(cond)` in
-  a STORE beyond `^(k = 0)`; nested `&` shapes beyond E48A14.
+- **No half-finished edit.** Working tree clean at this checkpoint except the three handoff files.
+- OPEN (recorded, deliberately not started at this boundary): `spec/COVERAGE.tsv` rows for this
+  bank's COND/STOR/IO shapes. `coverage_check` passes without them (it validates citations, not
+  completeness), so this is a recorded gap, not a failing row.
+- `[TBD]` items that must NOT be guessed (all inside C310/C313/C314): the CREATE-vs-E48 SCVCM
+  load-order discriminator (18-byte `LXI H,var / XCHG / LXI H,lit` vs 17-byte `LXI H,lit / LXI D,var`
+  — no probe varied it); the BIT-store materialiser for `k = c` with |c| in {1,2,3}; `= '0'b` as a
+  materialised store; `^(cond)` in a STORE beyond `^(k = 0)`; nested `&` shapes beyond E48A14;
+  a bit PUT item that is not final; a store into a STATIC CHARACTER; STATIC-on-CHARACTER VARYING.
+- CREATE is NOT byte-exact. Its measured blocker is now front-end: `%include` is never expanded by
+  `pli80c.ml` (only `bin/pli80bind.ml` does), so `get list (name)` refuses with an unbound name.
 
-## Next action — E2E-48/P1 step 5, resumed (steps 1-3 DONE at `371a12e`; step 4 open)
+## Next action — E2E-48 round 2 (the [TBD] list), or the COVERAGE rows
 
-**Steps 1-3 are committed and probe-verified: 14 of 24 goldens byte-identical. The successor's
-first job is the DIFF of the 10 that still differ, not new arms.** Never `git clean`/`reset`.
+Steps 1-5 and panel registration are DONE; E2E-48/P1 is closed at 24/24 byte-identical and
+1098/0. Pick ONE, in this order of value:
 
-0. `git status --porcelain=v1` → expect ONLY the three handoff files (or clean).
-   `cd ocaml && opam exec --switch=default -- dune build` → rc=0 (measured at `371a12e`).
-   `python3 tools/e2e_gate.py` → must still be **1074/0**; the gate has NOT been run since the
-   arms landed, and if it is not 1074/0 that regression outranks every other item here.
-1. For each differing probe (E48A6 A7 A8 A9 A10 A11 A12 A15 B6 B8) diff mine against the golden:
-   `python3 spec/lab-evidence/e2e42-p2b/chaindump.py /tmp/e48fix/N.REL` and the same on
-   `golden/e48p1/N/N.REL`. E48B9 is EXACT and carries TWO SCVCM stores while E48A6/A7/B8 differ
-   — that pair is the in-hand discriminator. Re-run the sweep afterwards:
-   `for n in E48A{1..15} E48B{1..9}; do … pli80c.exe ../probes/$n.PLI /tmp/e48fix/$n.REL; cmp vs
-   ../golden/e48p1/$n/$n.REL; done`.
-   Expected after the begin/end fix: E48A1/A2/A3/A4/A5/A13/B1/B7 EXACT (8), the store probes
-   (A6/A7/A8/A9/A11/A12/B8/B9) EXACT if `bit_cond_mat` matches the goldens, E48A10 EXACT, E48A14
-   EXACT (step 3), and E48A15/A10-PUT + E48B6 still refusing (steps 4/5 open). Read the
-   `cmp` failures with `python3 spec/lab-evidence/e2e42-p2b/chaindump.py` on both files; the
-   golden is the authority, never my output.
-2. Gate must stay **1074 byte-exact / 0 fail** before panel registration:
-   `python3 tools/e2e_gate.py`. Two negative-panel rows constrain the refusal TEXTS:
-   `N74_FIXED…`/`N74_BIT_TO_BIT_COPY` requires the substring
-   `"store into BIT(1) from ident is unsampled"` (my new message keeps that prefix — verified by
-   reading `tools/e2e_gate.py:1699-1717`, NOT by running the gate), and
-   `"condition form not in E2E-3b subset"` stays required at gate lines 1778/3157/4421 (MB13,
-   LR9, E32C3) — the catch-all in `lower_test_skip0` is still reachable for unpinned NegL shapes,
-   but my new inner refusal for `^(<other>)` has its OWN text; if a row breaks, keep the
-   catch-all reachable rather than editing the gate.
-3. Remaining arms (unchanged from the list below): step 4 the PUT bit item
-   (`3A reloc / 06 01 / ?QB08C / ?PNBOP`, refusal at the old ≈10317 `Vbit1 -> failwith`; note
-   `?PNBOP` REPLACES the shared `tail true ()`'s `?PNCOP`, and the `char_var_ok` classifier must
-   stop treating Vbit1 as a blocking char var — E48A6/A7/A8/A9/A10/B8 are 2-item `[literal,bit]`
-   console lists), and step 5 STATIC-on-CHARACTER (E48B6, largest, defer freely).
-4. Then panel registration, claims C309+, INVENTORY/COVERAGE, gate, census (items 6-7 below).
+1. **Pre-register E48C to measure the SCVCM load-order discriminator** (the only [TBD] that blocks
+   a corpus program: CREATE's 18-byte store). Write the probe bank and the predictions, COMMIT them
+   BEFORE any oracle run (PROTOCOL #1), then measure with `oracle/batch.py --tag e48p2c` (needs
+   `--reuse` if the tag exists; it only ADDS programs). Candidates that vary the discriminator:
+   the same `eofile = (name = 'EOF')` store in a DO-WHILE body vs a straight-line body vs behind a
+   `put`; a VARYING **member** left operand (the `Mem` shape `bit_cond_mat` refuses today).
+   Expected output: new goldens + a claim that names the rule, or a recorded `dr-refuses` row.
+2. **`spec/COVERAGE.tsv` rows** for the shapes now lowered (categories COND/STOR/IO citing
+   C309-C314 and the E48* probes — the probes are on the panel now, so citations validate).
+   Then `python3 tools/coverage_check.py` and `python3 tools/e2e_gate.py` (must stay 1098/0).
+3. `%include` in the main pipeline (CREATE's real blocker) — bigger, and needs its own
+   pre-registered round for DR's search order/case rules.
 
-Everything below is the predecessor's arm map, still accurate except where marked DONE above.
-All arm locations were read in-session (2026-10-29, commit a8d1c3a) — reuse them, do not re-explore:
-
-1. `ocaml/lib/codegen.ml` `lower_test_skip0`: beside the positive bare-bit arm (≈6993, emits
-   `0x3a / reloc / op_ora_a / op_jp / 2-byte slot`), add `Ast.Eprefix (Ast.NegL, x)` with
-   `x` unwrapped (parser gives `(^ b)` bare-Eident and `(^ (cond ...))` = Econd-wrapped):
-   - `Eident Vbit1` → same ladder, skip `0xfa` (JM) [E48A1/A2/A5/A12/B1/B7, CREATE 0052];
-   - `Ebinary(EqR Eq, Eident v, Enumber "0")` → `val_addr / 7E / 23 / B6 / 0xca` [E48A13 000F];
-   - `Ebinary(EqR Eq, Eident v, Enumber k)` kk ≥ 1 → `cmp_load_deref / hl_bias(-kk) / 7C / B5 /
-     0xca` [E48A13 002F pins kk=3 = DCX×3; hl_bias ≥4 = LXI B + op_dad_b 0x09 = E48A12/B1];
-   - anything else under NegL keeps refusing (name the shape).
-   DO-WHILE/IF skip targets need no change — the existing slot-fill machinery already emits
-   `00 00` + SET-LC/RELOC and matches DR (proved by the E48A3/A4 whole-file identity).
-2. The BIT(1) store arm (≈8210): replace the unconditional refusal after the `Ebit` literal
-   cases with a materialiser dispatch ending `32 <cell>` (STA, `d st 0x32; reloc st Data`):
-   - `str_cmp_shape st l rr` (varying = literal) → run `hl_fn(); de_fn(); MVI A,len;
-     call_ext "?SCVCM"` then `op_sui 01 / op_sbb_a` [E48A6/B8/B9 17 bytes — hl_fn is already
-     LXI H,lit / de_fn LXI D,var, the arm at ≈7200 proves it];
-   - `Ebinary(EqR Eq, Eident, Enumber "0")` → `val_addr / bin_zero_tail` (≈6507) [=0 → FF];
-   - `Ne 0` or `Eprefix(NegL, Econd(Eq k 0))` → `val_addr / 7E / 23 / B6 / 0xc6 0xff / 9f`
-     [E48A8/A11]; `Gt 0` → `21 k / 0xaf / 0xbe / 0x23 / 0x9e` [E48A9, no tail];
-   - `Eq k` kk ≥ 4 → `cmp_load_deref / hl_bias(-kk) / 7C / B5 / D6 01 / 9F` [E48A7 k=5];
-   - `Ebinary(EqR Eq, Eident Vbit1, Ebit "1")` → `0x3a reloc / E6 80 / D6 80 / D6 01 / 9F`
-     [E48A10]. Refuse everything else (the [TBD] list above).
-3. `lower_bool` (≈6545) And-arm: in the right-operand match chain add `Eident v when Vbit1` →
-   `d st op_push_psw; d st 0x3a; reloc st Data (addr_of ...)` before the shared
-   `pop_b / ana_b` [E48A14].
-4. PUT: refusal at ≈10317 → bit item `0x3a reloc / 0x06 0x01 / call_ext "?QB08C" /
-   call_ext "?PNBOP"` (after literal items' SLCTS/PNCOP, before QIOOP) [E48A15/A6/A7/B8].
-5. STATIC-on-CHARACTER per E48B6 (cell = full extent blank-padded, DATA 0000, pool 0, PUT
-   reads the cell with declared length) — locate the refusal first (bind/codegen "STATIC on
-   CHAR" text; gate NEG rows E46F5). Largest arm; do LAST or defer to a follow-up commit.
-6. Verify each step: `cd ocaml && opam exec --switch=default -- dune build`; compile probes to
-   `/tmp/e48fix/` (usage: `pli80c.exe IN.PLI OUT.REL`) and `cmp` against `golden/e48p1/N/N.REL`;
-   run `python3 tools/e2e_gate.py` (must stay 1074/0 until panel registration, then grows).
-7. Then: register `E48A*/E48B*` in `tools/e2e_gate.py` SPECIMENS; claims C309+ from RESULTS §3;
-   INVENTORY/COVERAGE rows; gate; `python3 tools/corpus_census.py --check`. CREATE EXACT likely
-   needs the [TBD] SCVCM load-order — if it blocks, measure the discriminator with a NEW
-   pre-registered probe round (E48C) before implementing, or report census honestly unchanged.
-
+Commands to start either way:
+  `git rev-parse HEAD` -> expect `992ccad` or a descendant; `git status --porcelain=v1` -> expect
+  clean (or only handoff files); `python3 tools/e2e_gate.py` -> **1098 byte-exact / 0 fail**.
 
 ## Unfinished operations (Pi Handoff deployment)
 
