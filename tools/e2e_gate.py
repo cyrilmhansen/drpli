@@ -1350,6 +1350,26 @@ SPECIMENS.update({
     "E48B9":  ("probes/E48B9.PLI",  "golden/e48p1/E48B9/E48B9.REL"),
 })
 
+# [E2E-48/P2c] ROUND-3 BANK + RETIRE ROUND -- registered at step 6 by the renewal 7/8 successor.
+# E48C1..C9: whole-file byte-identical to golden/e48p2c/ (measured sweep 9/9, RESULTS §1/§2).
+# BYTE TIER ONLY: no spec/RUNTIME rows -- this bank captured .REL/.PRN evidence and probes touch
+# the console; an execution claim would be invented.
+# E46K1/E46K3: PROMOTED from the negative panel by the RETIRE round (RETIRE-RESULTS.md): DR
+# ACCEPTS both shapes (2 ok / 2 at tag e48p2retire) and my whole objects are byte-identical.
+SPECIMENS.update({
+    "E48C1":  ("probes/E48C1.PLI",  "golden/e48p2c/E48C1/E48C1.REL"),
+    "E48C2":  ("probes/E48C2.PLI",  "golden/e48p2c/E48C2/E48C2.REL"),
+    "E48C3":  ("probes/E48C3.PLI",  "golden/e48p2c/E48C3/E48C3.REL"),
+    "E48C4":  ("probes/E48C4.PLI",  "golden/e48p2c/E48C4/E48C4.REL"),
+    "E48C5":  ("probes/E48C5.PLI",  "golden/e48p2c/E48C5/E48C5.REL"),
+    "E48C6":  ("probes/E48C6.PLI",  "golden/e48p2c/E48C6/E48C6.REL"),
+    "E48C7":  ("probes/E48C7.PLI",  "golden/e48p2c/E48C7/E48C7.REL"),
+    "E48C8":  ("probes/E48C8.PLI",  "golden/e48p2c/E48C8/E48C8.REL"),
+    "E48C9":  ("probes/E48C9.PLI",  "golden/e48p2c/E48C9/E48C9.REL"),
+    "E46K1":  ("probes/E46K1.PLI",  "golden/e48p2retire/E46K1/E46K1.REL"),
+    "E46K3":  ("probes/E46K3.PLI",  "golden/e48p2retire/E46K3/E46K3.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -3808,12 +3828,13 @@ NEG_META["E46J14"] = ("my-gap",
 # TYPE, and the refusal is required independently of DR: bind holds TWO rows under the one bare key
 # and List.assoc would silently pick whichever came first, i.e. one of the two cells at random.
 REJECTS.update({
-    "E46K1":  (open("probes/E46K1.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "store of the internal CHARACTER member REC.LINE"),
+    # [E2E-48/P2c step 4a] the BARE-destination stop that made K1 a refusal was retired by
+    # golden/e48p2c/E48C3 (§1 P3, §2.1); the RETIRE round then MEASURED DR on E46K1 itself
+    # (2 ok / 2, whole-file byte-identical, golden/e48p2retire/) and the row is PROMOTED to a
+    # byte-exact SPECIMEN above -- its own INVENTORY retirement procedure executed, with DR's
+    # word attached. "E46K1" and "E46K3" are deliberately NO LONGER rows of this dict.
     "E46K2":  (open("probes/E46K2.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "store of the internal CHARACTER member REC.LINE"),
-    "E46K3":  (open("probes/E46K3.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "comparison of the internal CHARACTER member REC.LINE"),
     "E46K4":  (open("probes/E46K4.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "PUT EDIT of the internal CHARACTER member REC.LINE"),
     "E46K5":  (open("probes/E46K5.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),

@@ -7208,6 +7208,13 @@ classified `unmeasured` rather than `dr-refuses`.
   round-3 (E48C) candidate.  Also unmeasured: the store form for `k = c` with \|c\| in {1,2,3}
   (only c = 0 and \|c\| >= 4 are pinned), `= '0'b` as a stored value (only `'1'b`), `^(cond)`
   in a store beyond `^(k = 0)`, and nested `&` shapes beyond E48A14.
+* **ANNOTATION, E2E-48/P2c (2026-10-30): the load-order discriminator is ANSWERED.**  It is
+  the **operand CLASS**, not spelling or position: an internal VARYING record MEMBER takes the
+  18-byte `21 *D(member) / EB / 21 *S(lit) / 3E len / ?SCVCM` form (CREATE 008F and E48C2/C3/C4/C7
+  -- `spec/lab-evidence/e2e48-p2c/RESULTS.md` §2.1, §1 P3 proved qualification irrelevant);
+  a FLAT cell -- automatic (E48A6) or STATIC (E48C8) -- takes the 17-byte `21 *S(lit) /
+  11 *D(var)` form (§2.2). The OTHER [TBD] items of the bullet above were NOT varied by the
+  E48C bank and stay [TBD] (see also [C317]).
 * **Lowered.**  `bit_cond_mat` (`371a12e`) returns None for every unpinned shape, and its
   prescan demand twin `bit_store_cond_bytes` (`fa09b97`) closes the C152/C179 gap this arm
   opened -- E48A6..A12, B8, B9 whole-file byte-identical.
@@ -7294,3 +7301,57 @@ classified `unmeasured` rather than `dr-refuses`.
 * **Standing rule.**  A handoff summary is a pointer, never an authority: re-read the literal
   bytes an inherited claim cites before making it work.  RESULTS §5 keeps all three as written
   and labelled superseded (PROTOCOL #2).
+
+## C317 — THE SCVCM/SCCVM CONDITION-STORE CLASSES, MEASURED ON RECORD MEMBERS AND STATIC CELLS (E2E-48/P2c, §2.1-§2.3)
+
+* **Measured.**  Bank `golden/e48p2c/` (9 ok/9, `8c57856`), all bytes read from the `.REL`
+  records.  (1) MEMBER, both spellings, straight-line and in-loop, AUTOMATIC records: 18 bytes
+  `21 *D(member) / EB / 21 *S(lit) / 3E len / CD ?SCVCM / D6 01 / 9F / 32 *D(bit)` --
+  E48C2 0013, E48C3 0013 (unqualified `name`, whole file identical to E48C2 except the three
+  module-name bytes 6/19/28 -- §1 P3), E48C4 0027 (inside `do while(^b)`), E48C7 0013, plus
+  CREATE 008F.  (2) FLAT cell, auto OR static: the 17-byte form of [C310], now including a
+  STATIC varying cell `LXI D,*D(cell)` (E48C8 0006).  (3) LITERAL-LEFT orientation: SCCVM,
+  17 bytes `21 *D(var) / 11 *S(lit) / 06 len / CD ?SCCVM / D6 01 / 9F / 32` -- length in **B**,
+  HL = right operand, DE = left ([C191]'s register law in a store), and the MEMBER side needs
+  NO XCHG (E48C5 flat, E48C6 member).
+* **Lowered.**  Arms 1(a)(b)(c)+3 at `7701f52`, store-destination gate widened at `14c7321`
+  (4a); demand twins `bit_store_cond_bytes`/`prescan_cond` share the ONE class predicate.
+* **Still refused (§3):** a BASED member in either side of a condition store; member-as-RIGHT
+  in TEST position (`str_cmp_shape_rev` `?imem` defaults false; only `bit_cond_mat` passes true).
+
+## C318 — INTERNAL MEMBER COMPARE IN TEST POSITION: 15-BYTE SCVCM HEAD, `C2` SKIP TO THE NEXT STATEMENT (E2E-48/P2c, §2.4)
+
+* **Measured.**  E48C9 0013: `21 *D(rec) / EB / 21 *S(lit) / 3E 03 / CD ?SCVCM / C2 00 00`;
+  the skip word is SET-LC/RELOC-filled to the NEXT STATEMENT (0027 = the ?SYSPR prologue),
+  the [C309] no-else rule; then-body `21 *D(b) / 36 80`.
+* **Corroborated outside its bank** by the RETIRE round: E46K3's BARE spelling `if line = 'AB'`
+  (cap 14, literal len 2, record with a second member) is whole-file byte-identical to DR
+  (`golden/e48p2retire/`, `RETIRE-RESULTS.md`) -- §1 P3's spelling-invariance holds in TEST too.
+
+## C319 — STATIC ON CHARACTER VARYING: A 1+EXTENT CELL IN PLACE BELOW THE POOL, LEADING LENGTH BYTE, INITIAL NOT POOLED (E2E-48/P2c, §2.5)
+
+* **Measured.**  `dcl nm char(14) varying static initial('AB')` -> DATA *D(0001) = 15 bytes
+  `02 41 42 20x12` -- the initialiser's LENGTH byte plus the DECLARED EXTENT blank-padded,
+  in place, NOT pooled, NOT deduped; DEF-DATA-SIZE counts all 15 (E48C8, DEF-DATA-SIZE 0015
+  = 1+15 static + 3+2 pool).  Reads use the ordinary descriptor routes (`?SLVTS` in PUT;
+  `LXI D,*D(cell)` in the compare store).  This is [C314]'s E48B6 fixed-char law extended by
+  the leading length byte.
+* **Lowered.**  `Bind.RTchar (n, true)` placement arm at `3ee414a`; refused by NAME: no
+  INITIAL, non-literal initial, EMPTY `initial('')` (EXPR2/FSCAN's spelling -- zero-cell layout
+  unmeasured), longer-than-extent (truncation unmeasured), and `OPEN TITLE(<static varying>)`
+  (E46F5 now refuses THERE, negative row RE-MEASURED through the binary, never hand-edited).
+* **Store INTO a static CHARACTER (fixed or varying) stays [TBD]** (§3; s1 scratch: my route
+  would pool beside the static cell, DATA 3->5, unmeasured).
+
+## C320 — A FLAT LEVEL-0 STATIC DOES NOT CONTAMINATE A LATER AUTOMATIC STRUCTURE (E2E-48/P2c, §2.6; `my-gap` fixed at `6130164`)
+
+* **Measured.**  E48C7 DATA: statics `s`@0000 `41 42 20` and `b`@0003 in declaration order,
+  pool 0004..000C, `rec` AUTOMATIC at 000D; DEF-DATA-SIZE 002C = 13 + 31.  Manual 6.2 as cited
+  by [C242] is about STRUCTURE levels; a level-0 declaration is not a parent.
+* **Was `my-gap`:** `dcl_static_dcls` pushed flat level-0 STATICs onto the inheritance chain,
+  silently making every later `dcl 1 rec` STATIC (scratch proof + MPMCALLB census row).  Fixed
+  only AFTER the E48C7 golden existed.
+* **Panel consequence recorded:** widening the arms admitted two pinned negative rows (E46K1,
+  E46K3); both were RETIRED by their own INVENTORY procedure -- oracle measured 2 ok/2, my
+  objects byte-identical, promoted to SPECIMENS (`630e9be` prereg BEFORE the oracle run,
+  `golden/e48p2retire/`).  Negative panel is now 182 rows, byte panel 1109 specimens.
