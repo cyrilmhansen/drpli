@@ -57,11 +57,11 @@ never outranks the compiler work above; it changes no implementation strategy an
 
 ## Pending
 
-- Operator decisions (deliberately **not** taken by this session): project trust for `.pi/`
-  auto-loading and `.agents/skills/` discovery; tuning `generationReserve` against the real
-  budget (window 220 000, maxOutput 65 536 observed); whether to enable `enforceClosing`;
-  whether to enable renewal (currently **off**, and the shell that launches Pi here exports
-  `CONTEXT_GUARD_AUTO_RENEW=1`, which would override the config — see `LEARNINGS.md`); any push
+- **Operator decision taken 2026-10-29:** project trust granted (exact path, production
+  profile); renewal ENABLED (`enabled/autoRenew true`, `maxRenewals 8`,
+  `generationReserve 20000` retained); Pi auto-compaction disabled for this project only via
+  `.pi/settings.json` — global profile settings untouched. Remaining open decisions: tuning
+  `generationReserve` against the real budget, whether to enable `enforceClosing`, any push
   to GitHub (none authorized, none performed).
 - Open documentation item: `README.md` "Current status (rolling)" is stale at E2E-1/C067.
 - Compiler-side, as recorded by P2c (not started here): `CREATE` still fails on `^eofile` in a
@@ -98,13 +98,20 @@ final deployment checkpoint.
   specified. Two conditions are recorded, not concealed:
   (a) the level-3 auto-checkpoint test left the chain at generation 2 before the final
   deployment checkpoint was written — an honest refresh, not a repeated uncontrolled one;
-  (b) `CONTEXT_GUARD_AUTO_RENEW=1` in the operator's launch environment overrides the project
-  config for any Pi process started from it (see `LEARNINGS.md`), so DRPLi launches must pass
-  `CONTEXT_GUARD_AUTO_RENEW=0` until the operator decides otherwise.
+  (b) the inherited `CONTEXT_GUARD_AUTO_RENEW=1` is now neutralized for controlled launches
+  by stripping it (`env -u`); `handoff.config.json` is authoritative (see `PROTOCOL.md` → Load).
+
+## Renewal test window (2026-10-29)
+
+An operator-authorized end-to-end renewal test is running: HANDOFF.md → Next action is
+temporarily a harmless evidence-reading task; after the test it is restored from the
+pre-test commit `a6eec67`, the checkpoint refreshed, attested and verified fresh.
 
 ## Next action
 
-See `HANDOFF.md` → `## Next action`: read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7–§9,
+**[Test window 2026-10-29]** See `HANDOFF.md` → `## Next action` (currently the authorized
+renewal e2e test; the genuine DRPLi action below is preserved and restored afterwards).
+Genuine action: read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7–§9,
 `.../HYPOTHESES.md` and claims `C296`–`C308`, then write the candidate next phase as
 pre-registered hypotheses and replace that section with one chosen, exact next step.
 Infrastructure-wise: nothing further is authorized in this session beyond Phase D/E validation

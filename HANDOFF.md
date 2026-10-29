@@ -10,8 +10,8 @@ Manual prose wins over the managed block below it. Do not hand-edit the managed 
    cleaned (`AGENTS.md` → Protected).
 2. Read `AGENTS.md`, `PROTOCOL.md`, `GOAL.md`, then this file's `## Last verified state`, then
    `PROGRESS.md` and `LEARNINGS.md`.
-3. Check checkpoint freshness with `/handoff verify` (extension loaded explicitly — see
-   `PROTOCOL.md`). `stale` or `missing` means: re-derive state from commits and lab evidence,
+3. Check checkpoint freshness with `/handoff verify` (extension auto-loaded — the project is
+   trusted; see `PROTOCOL.md` → Load). `stale` or `missing` means: re-derive state from commits and lab evidence,
    then refresh with `/handoff`. Do not trust this file's managed block over its prose.
 4. Load the authoritative evidence for whatever you are about to do:
    `spec/CLAIMS.md` (claims ledger, C001…C308 at the time of writing),
@@ -71,19 +71,20 @@ not as fresh measurements):
 
 ## Next action
 
-**Not established by this session.** A deployment session deliberately did not choose the
-compiler's next task, and inventing one here would put an unmeasured intention into the file a
-fresh session trusts. The first action of the next session is therefore evidence-reading, not
-implementation:
+**[INFRA TEST WINDOW — 2026-10-29]** This section is deliberately swapped for the operator-
+authorized end-to-end renewal test. The task for the session reading it now is the harmless
+evidence read below — **not** compiler development:
 
-> Read `spec/lab-evidence/e2e42-p2c/RESULTS.md` §7 (CREATE blockers), §8 (the recorded gate
-> verdict) and §9 (the unfixed `data=` reporting defect), plus
-> `spec/lab-evidence/e2e42-p2c/HYPOTHESES.md`, plus claims `C296`–`C308` in `spec/CLAIMS.md`,
-> then `spec/INVENTORY.txt` rows whose refusal text names `^eofile` or a `BIT(1)` condition store.
-> Expected output: the candidate next phases written as *pre-registerable hypotheses* (e.g. the
-> `^eofile`-in-`DO WHILE` condition form, the `BIT(1)` condition store, the `data=` reporting defect
-> in `pli80c`'s summary line). Pick one, write its probe bank and predictions, commit them **before**
-> any oracle run — and replace this section with the exact chosen command.
+> Read `spec/CLAIMS.md` and identify the highest-numbered claim and what it records (one short
+> paragraph, reported in chat). Do **not** edit any project file. Do **not** run the compiler,
+> the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`. When the context guard reports
+> level-3 pressure and offers renewal, first ensure this session's state is recorded, then
+> invoke the `handoff_renew` tool exactly once with a short note naming the test. The successor
+> session must report — from the durable files alone — which task it recovered, then stop.
+
+The genuine post-test DRPLi next action is preserved verbatim in git (`HANDOFF.md` at the
+pre-test commit `a6eec67`) and summarized in `PROGRESS.md` → Next action; it is restored and
+re-attested when this test window closes.
 
 ## Discoveries not yet incorporated
 
@@ -98,15 +99,14 @@ implementation:
 - `generationReserve: 20000` in `handoff.config.json` is an **initial policy value**, not a
   verified fit for the model actually used on DRPLi. It should be checked against the real
   context window and max-output budget reported by `/guard status` before being treated as tuned.
-- Whether `.agents/skills/pi-handoff/` is discovered at all is unresolved: the project is not
-  trusted by the production profile, so skill discovery may remain inactive until the operator
-  grants trust. Explicit `pi -e` loading does not depend on it.
-- **`CONTEXT_GUARD_AUTO_RENEW=1` is exported in this operator's interactive environment.** It
-  overrides `handoff.config.json` and would enable renewal *and* the model-initiated
-  `handoff_renew` path in any Pi process that inherits it. DRPLi policy is renewal OFF, so every
-  DRPLi launch must pass `CONTEXT_GUARD_AUTO_RENEW=0` (verified: the guard then reports
-  `renewal: policy enabled=false autoRenew=false`). This is a discovery about the environment, not
-  yet a lesson in `LEARNINGS.md`? — it is, in fact, recorded there under Accepted.
+- **Resolved 2026-10-29 (operator decision):** project trust was granted for the exact path
+  `/home/john/projects/sushiworks/pli80` (plain `pi` from the project root now auto-discovers
+  the extension and the skill; verified in the session started 16:58 UTC — parent cmdline is
+  bare `pi`, guard loaded once). Renewal is ENABLED in `handoff.config.json`
+  (`enabled/autoRenew true`, `maxRenewals 8`) and Pi auto-compaction is disabled for this
+  project via `.pi/settings.json`. Controlled launches strip the inherited
+  `CONTEXT_GUARD_AUTO_RENEW=1` with `env -u CONTEXT_GUARD_AUTO_RENEW` so the project config is
+  authoritative (see `PROTOCOL.md` → Load).
 - Managed checkpoint blocks were hand-edited **once**, deliberately, as the E2 test of the
   level-3 auto-checkpoint preservation path (a `TEST-E2-*` marker, since superseded by the final
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.

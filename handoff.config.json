@@ -17,9 +17,9 @@
   "readOnly": false,
   "maxSessionStates": 0,
   "renewal": {
-    "enabled": false,
-    "autoRenew": false,
-    "maxRenewals": 2
+    "enabled": true,
+    "autoRenew": true,
+    "maxRenewals": 8
   },
   "files": {
     "goal": "GOAL.md",

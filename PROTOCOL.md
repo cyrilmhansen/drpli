@@ -65,15 +65,22 @@ source hashes) — never hand-write, hand-edit or copy one; regenerate it with `
 
 ### Load
 
+The project is trusted by the production profile, so a plain `pi` launched from the project
+root auto-discovers `context-guard`, the `.agents/skills/pi-handoff` skill and the project
+`.pi/settings.json` (which disables automatic compaction for **this project only**).
+Do **not** also load the extension with `-e`.
+
 ```bash
 cd /home/john/projects/sushiworks/pli80
-PI_CODING_AGENT_DIR=/home/john/.sushi/pi \
-pi -e .pi/extensions/context-guard/index.ts
+env -u CONTEXT_GUARD_AUTO_RENEW PI_CODING_AGENT_DIR=/home/john/.sushi/pi pi
 ```
 
-The project is not yet trusted by the production profile, so explicit `-e` loading is the
-supported path. Read-only audit sessions additionally set `CONTEXT_GUARD_READONLY=1` (and may
-redirect `CONTEXT_GUARD_STATE_DIR` outside the tree). Instructing a model "don't edit" is not
+`CONTEXT_GUARD_AUTO_RENEW=1` is exported in the operator's interactive environment and would
+otherwise mask `handoff.config.json`; controlled launches strip it (no other `CONTEXT_GUARD_*`
+override is set: `CONTEXT_GUARD_DISABLED`, `_ENFORCE`, `_READONLY`, `_STATE_DIR`,
+`_SYNTHETIC_REMAINING` are unset unless a specific test requires them). Read-only audit
+sessions additionally set `CONTEXT_GUARD_READONLY=1` (and may redirect
+`CONTEXT_GUARD_STATE_DIR` outside the tree). Instructing a model "don't edit" is not
 read-only; that env var is.
 
 ### Start of session
@@ -96,20 +103,49 @@ canonical file. Handoff must not change compiler implementation strategy.
 
 ### Context pressure (levels are on *usable remaining*, advisory budgets, not exact accounting)
 
-- **Level 1 (~≤30 000)** — prepare a checkpoint; update `PROGRESS.md`.
-- **Level 2 (~≤20 000)** — finish the current substantial task; open no new work.
-- **Level 3 (~≤10 000)** — prioritize durable handoff; update `HANDOFF.md` first; verify freshness.
+- **Level 1 (~≤30 000)** — ensure `PROGRESS.md` and the outstanding hypotheses are being
+  recorded.
+- **Level 2 (~≤20 000)** — prepare to stop the current scientific operation at a safe
+  boundary; open no new work.
+- **Level 3 (~≤10 000)** — update the exact durable state (`HANDOFF.md`/`PROGRESS.md` prose;
+  commit if the tree is dirty), then invoke the `handoff_renew` tool **instead of continuing
+  indefinitely**.
 - **Level 4 (~≤5 000)** — complete the handoff and conclude the session safely.
 
-**The closing phase is currently advisory, not enforced** (`enforceClosing: false`), because
+**The closing phase is advisory, not enforced** (`enforceClosing: false`), because
 DRPLi work is Bash/Git/compilation-heavy and an enforced tool allowlist would break legitimate
-research commands. **`autoCheckpointAtHandoffLevel`** is on after Phase E, so a level-3 crossing
+research commands. **`autoCheckpointAtHandoffLevel`** is on, so a level-3 crossing
 writes a checkpoint automatically; automatic checkpoints preserve the previous block's substantive
 "Last verified state" rather than overwriting manual notes.
 
-**Automatic session renewal is deliberately disabled** (`renewal.enabled: false`,
-`renewal.autoRenew: false`). Do not enable it, and do not change global Pi compaction settings
-(production `.sushi/pi` currently has compaction **enabled**), without a new operator decision.
+**Automatic session renewal is enabled** (operator decision 2026-10-29):
+`renewal.enabled: true`, `renewal.autoRenew: true`, `renewal.maxRenewals: 8` per chain
+(a bounded operating limit, not a claim of unlimited autonomy); `generationReserve: 20000`
+is retained for the initial live validation. Pi automatic compaction is disabled for this
+project via `.pi/settings.json`; the production profile's global settings are untouched and
+other projects keep compaction.
+
+Renewal discipline:
+
+- `autoRenew: true` only makes `handoff_renew` callable by the model; **it never forces a
+  switch at a threshold**. The level-3 rule above — write the durable state, then renew — is
+  what actually carries a session across.
+- **Never renew mid-oracle-experiment, mid-file-edit, or during an incomplete Git operation.**
+  Finish or explicitly suspend the operation at a safe boundary first.
+- **Never claim a gate passed unless its actual result was verified.**
+- The successor starts fresh (durable files only, no transcript replay). Before continuing it
+  must check Git HEAD, checkpoint freshness (`/handoff verify`), unfinished operations, the
+  relevant `spec/CLAIMS.md` claims and the exact next action, and must preserve this
+  scientific methodology and proceed with the same development objective.
+- If renewal is **refused or fails**, the guard names the reason; report it and preserve the
+  recovery state. Never silently fall back to compaction.
+- The renewal counter is **durable** (`.pi-guard/renewal-state.json`): it survives session
+  replacement and process restarts and is shared by everything using this stateDir; a new
+  independent session continues the same chain's count. At the cap, renewal refuses with
+  `capped`. Manage the budget explicitly: raise `renewal.maxRenewals` by operator decision,
+  or reset the state file only as a deliberate, recorded operator action. `/handoff renew
+  stop` durably stops the chain (survives replacement and restart); `/handoff renew resume`
+  clears it; `/handoff renew status` shows the chain.
 
 ### End of a substantial session
 

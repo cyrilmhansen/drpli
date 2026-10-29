@@ -23,7 +23,7 @@ document is the thing that must be corrected.
 ## Read in this order at session start
 
 1. `AGENTS.md` (this file)
-2. `PROTOCOL.md` — scientific rules and the handoff workflow
+2. `PROTOCOL.md` — scientific rules and the handoff workflow (incl. level-3 renewal rules)
 3. `GOAL.md` — objective + acceptance criteria (protected; do not edit)
 4. `HANDOFF.md` — recovery instructions and exact next action
 5. `PROGRESS.md` — current phase, completed/pending, blockers
@@ -65,23 +65,33 @@ compiler development or gate verification.
 
 ## Handoff / context-guard infrastructure
 
-Loaded explicitly (project is not yet trusted by the production Pi profile):
+The project is **trusted** by the production profile (exact-path entry for
+`/home/john/projects/sushiworks/pli80` in `/home/john/.sushi/pi/trust.json`). A plain `pi`
+launched from this directory auto-discovers `context-guard`, the `pi-handoff` skill and
+`.pi/settings.json` — do **not** also load the extension with `-e` (it must load exactly once).
+Controlled launches remove the inherited environment override:
 
 ```bash
 cd /home/john/projects/sushiworks/pli80
-PI_CODING_AGENT_DIR=/home/john/.sushi/pi \
-pi -e .pi/extensions/context-guard/index.ts
+env -u CONTEXT_GUARD_AUTO_RENEW PI_CODING_AGENT_DIR=/home/john/.sushi/pi pi
 ```
+
+`handoff.config.json` is authoritative; never let ambient `CONTEXT_GUARD_*` variables decide
+behaviour.
 
 - Config: `handoff.config.json`. Runtime state: `.pi-guard/` (git-ignored).
 - Commands: `/guard status`, `/guard simulate <n>`, `/handoff`, `/handoff verify`,
-  `/handoff ready [check]`. Reference: `.agents/skills/pi-handoff/`.
+  `/handoff ready [check]`, `/handoff renew [go|stop|resume|status]`. Reference: `.agents/skills/pi-handoff/`.
 - The guard writes managed checkpoint blocks **only** inside `HANDOFF.md` and
   `PROGRESS.md`; it never writes `GOAL.md` or `LEARNINGS.md`.
 - **Never hand-write or hand-edit a managed checkpoint block.** Never invent checkpoint
   metadata.
-- Session renewal is disabled by policy. Do not enable it, and do not change global Pi
-  compaction settings, without a new operator decision.
+- **Renewal enabled, compaction disabled (operator decision 2026-10-29):**
+  `renewal.enabled: true`, `renewal.autoRenew: true`, `renewal.maxRenewals: 8` (a bounded
+  operating limit, not unlimited autonomy); automatic Pi compaction is disabled for this
+  project only via `.pi/settings.json`. The pressure/renewal operating rules are in
+  `PROTOCOL.md` Part 2. Do not change the renewal policy or any **global** Pi setting
+  without a new operator decision.
 
 ## How to resume work
 
