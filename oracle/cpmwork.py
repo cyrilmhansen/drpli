@@ -137,18 +137,28 @@ class Run:
     def __init__(self, ws, tag):
         self.ws = ws
         tag = re.sub(r"[^A-Za-z0-9_.-]", "_", tag)
-        # unique-per-run: pick first free run-<tag>-<seq>; never clobber/reuse
+        # unique-per-run: take the first FREE run-<tag>-<seq>; never clobber/reuse.
+        # [E2E-42/P2c] This used to be `if not os.path.exists(base): break' followed by
+        # os.makedirs, which is a check-then-create window: two gate arms claiming the same tag
+        # concurrently both saw the slot free and one then died in FileExistsError.  The gate's
+        # slow arms are now run in parallel, so the CLAIM has to be the atomic operation --
+        # makedirs(exist_ok=False) either creates the dir or loses the race, and losing means
+        # taking the next slot.  Nothing about the guards changed: the symlink check still runs
+        # before the claim, and a slot held by anyone else is still never reused or removed.
         seq = 0
         while True:
             base = os.path.join(self.ws.root, f"run-{tag}-{seq:03d}")
             if os.path.islink(base):
                 raise SafetyError(f"run dir is a symlink, refusing: {base}")
-            if not os.path.exists(base):
+            try:
+                os.makedirs(base)
                 break
-            seq += 1
-            if seq > 999:
-                raise SafetyError(f"too many run dirs for tag {tag!r}")
-        os.makedirs(base)
+            except FileExistsError:
+                seq += 1
+                if seq > 999:
+                    raise SafetyError(f"too many run dirs for tag {tag!r}")
+            except NotADirectoryError:
+                raise SafetyError(f"run path is not a directory, refusing: {base}")
         self.dir = os.path.realpath(base)
         if not _is_under(self.ws.root, self.dir):
             raise SafetyError("run dir escaped workspace root")

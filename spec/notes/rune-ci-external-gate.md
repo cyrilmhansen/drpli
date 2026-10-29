@@ -46,11 +46,42 @@ right.  What was wrong or missing:
 
 ## What the service guarantees now
 
-* `GATE_ARGV = ["python3", "-u", "tools/e2e_gate.py", "--runtime"]` — the standard
-  command, asserted at import time not to contain `--link-run`.  **The repository's
-  gate is unchanged by this work**: same command, same panels, same expectations, and
-  the CI runs the strict panel only.  `--link-run` remains an explicit, exceptional
-  audit that no CI run starts.
+* **Two suites** ([E2E-42/P2c]), and the long arm is no longer anybody's laptop problem.
+  `rune_ci_common.gate_argv(suite)` is the single source:
+
+  | suite | command | what it is |
+  |---|---|---|
+  | `full` (default) | `--runtime -j 8` | the strict gate: byte panel, negatives, divergences, coverage, census, prose, and the 71-row runtime panel. ~2 min on a pool (was ~10 min serial). This is what a commit gets. |
+  | `audit` | `--runtime --link-run -j 8` | the strict gate PLUS the 817-arm DR-vs-mine link+run arm. ~10-20 min on a pool (was ~90 min serial). A scheduled audit, not a per-commit gate. |
+  | `smoke` | none | wiring only; runs no compiler panel and says so. |
+
+  The import-time assertion still holds, but per-suite: `--link-run` may never appear in
+  `GATE_ARGV` — it arrives only through `AUDIT_ARGV`, via `--suite audit`.  A mistyped
+  suite name resolves to the STRICT command, never to the audit.  `CI_VERSION` went
+  3 → 4 with this, which is what invalidates the cached greens recorded under the serial
+  command.
+
+  Why the audit needed a suite at all: `--link-run` used to be "an explicit, exceptional
+  audit that no CI run starts", which in practice meant it was run by an agent maybe once
+  per milestone, at ~90 minutes of wall clock, or — more often — not at all.  An arm that
+  nobody runs is not a gate.  It is now CI's job, on a pinned revision and a pinned
+  emulator.
+
+* **`--link-run` can fail, which it could not before.**  `link_arm` printed `.COM
+  DIFFERS! vs DR`, `CONSOLE DIFFERS` and `MISSING TRANSCRIPT` and returned nothing; the
+  gate's exit status came only from the byte panel.  Delegating that arm to CI would have
+  delegated a rubber stamp.  It now returns verdicts, plus two the old code could not see
+  (a nonzero link step, and no `.COM` at all — the latter used to read as "mine-only arm,
+  captured 0 raw output bytes", a pass).  Checked against the last full serial run: 0
+  DIFFERS, 0 CONSOLE DIFFERS, 0 MISSING, so no verdict that exists today changes.  What
+  changed is that 23 arms that had been silently proving nothing are now classified: 17
+  in `HANG_ARMS` (their transcripts end at their own command echo — they wait for input
+  the harness never sends) and 2 in `NO_LINK_ARMS` (10- and 12-character specimen names
+  that CP/M's 8.3 limit refuses).  Four more, `E29F/E29G/E29I/E29J`, were not a name
+  problem at all but a **missing companion module** — `link()` reads `SAME_TAG_OBJS`
+  companions at `golden/<tag>/<COMPANION>/<COMPANION>.REL` and nothing staged them, so
+  they linked with an unresolved reference; `link_arm` now compiles and stages `A`/`B`,
+  and those four execute for the first time (126, 45, 141 and 45 bytes of real output).
 * The revision is pinned three times over: the force payload carries `revision` and
   `requested_sha` as **top-level** fields (a nested `"properties"` dict is silently
   ignored by `control.force()`), `ci/verify_revision.py` fails the build if
@@ -77,11 +108,20 @@ right.  What was wrong or missing:
 ## Timings, and one number that looks wrong
 
 `ci/gate_runner.py` writes `build/ci/timing.json` (attached as a Buildbot log, so it
-is readable from any host that can reach the master) with per-step seconds, the six
-gate phases, the four panel counts, the census, and every runtime row with its
-seconds.  The runtime panel of a clean run is ~430s of a ~436s build: the panel is the
-cost, everything else is noise, which is the argument for keeping the gate off the
+is readable from any host that can reach the master) with per-step seconds, the gate
+phases, the panel counts (a fifth, `link_run`, exists on the audit suite), the census,
+and every runtime row with its seconds.  The runtime panel is the cost — ~588s serial
+of a ~595s build, now ~77s on a pool — which is the argument for keeping it off the
 editing path.
+
+**Per-row seconds are self-reported since [E2E-42/P2c].**  They used to be derived from
+the gap between consecutive timed output lines, which is a fair estimate while rows run
+one after another and is meaningless on a pool: with `-j 8` a row's "duration" became
+"how long until something else happened to finish".  `runtime_row` now times itself and
+prints `[12.3s]`, the wrapper parses that and marks the row
+`seconds_self_reported: true`, and only falls back to the gap when a line carries no
+suffix — so old logs still parse.  The runner also records `gate_jobs`, because a
+timing comparison between a `-j 1` and a `-j 8` build is not a comparison.
 
 `slowest` is reported over **timed output lines**, while `counts.runtime` counts
 **panel rows**.  E16D and E17D each print two timed lines — `FILE OK` for the emitted
@@ -89,14 +129,32 @@ disk file and `OK WROTE` for the write — but are one panel row each, so a clea
 reports `runtime 52/52` and 54 timed lines.  The client prints both, labelled; the
 discrepancy is the two-file-each specimens, not a lost row.
 
+The `link+run` panel runs **between** the byte panel and the negative panel, so it has
+its own phase bound and the negative panel's span starts where it ended — otherwise the
+audit reports ~10 minutes of emulator time as if the negative panel had spent it.
+
 ## Using it from here
 
 ```sh
+# the gate a commit gets, ~2 min
 /home/john/services/rune-ci/bin/rune-ci submit "$(git rev-parse HEAD)" --suite full
+# the long DR-vs-mine audit, delegated: ~800 arms, ~10-20 min, off your critical path
+/home/john/services/rune-ci/bin/rune-ci submit "$(git rev-parse HEAD)" --suite audit
 /home/john/services/rune-ci/bin/rune-ci status bs12       # non-blocking, any time
 /home/john/services/rune-ci/bin/rune-ci failures bs12     # names, or the infra reason
 /home/john/services/rune-ci/bin/rune-ci latest            # newest job + recent list
 ```
+
+**Local tiers, and what not to run by hand.**  Measured on this host (24 cores):
+
+| command | serial | `-j 8` | belongs to |
+|---|---|---|---|
+| `tools/e2e_gate.py` | 2.3 s | — | every edit; it is the fast tier and needs no emulator |
+| `tools/e2e_gate.py --runtime -j 8` | 588 s | 77 s | CI (`--suite full`); run locally only when you changed the panel itself |
+| `tools/e2e_gate.py --link-run --runtime -j 12` | ~90 min | ~10 min | CI (`--suite audit`); never on the editing path |
+
+The serial numbers are the reason this note existed at all: a 10-minute or 90-minute
+check gets skipped, and a skipped gate is a gate that does not exist.
 
 `status` exits 0 whether the build passed or failed (the CI did its job); non-zero
 means the *question* could not be answered: 2 usage, 3 master unreachable, 4 auth,

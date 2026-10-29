@@ -2,8 +2,27 @@
 """End-to-end gate: run the OCaml PL/I-80 front end (pli80c) and compare
 its .REL output, byte-for-byte, against the DR oracle golden .REL.
 
-  tools/e2e_gate.py                 # compile-only byte parity (no oracle)
-  tools/e2e_gate.py --link-run      # also LINK vs PLILIB + execute (oracle)
+Three tiers, because they cost three different things and only the first belongs
+on the editing path.  Measured on this host (24 cores), all against the same tree:
+
+  tools/e2e_gate.py                    ~2 s   byte panel + negatives + divergences
+                                         + coverage + census + prose.  No emulator.
+  tools/e2e_gate.py --runtime          ~10 min serial, ~1-2 min with -j 8.
+                                         71 rows, each LINKs and RUNs under cpmsim.
+                                         THIS is the CI's standard gate.
+  tools/e2e_gate.py --link-run         ~90 min serial, ~7 min with -j 12.  817 arms,
+                                         each of which links BOTH my object and DR's
+                                         and compares .COM bytes and raw console.
+                                         THIS IS A CI AUDIT; do not run it on a
+                                         laptop to decide whether to commit.
+
+The two slow tiers execute CP/M and are the reason they are not the default; the
+`--link-run` arm in particular reads DR's own goldens and is delegated to rune-ci
+(suite `audit'), which pins the emulator and both boot disks by SHA-256 so the
+verdict is about a known CP/M and not about whatever `cpmsim' is on PATH.  A tier
+that cannot fail is not a gate, so `--link-run` verdicts are now COLLECTED and
+feed the exit status: they used to be printed and thrown away, which meant 817
+arms could report `.COM DIFFERS! vs DR' and the run still exited 0.
 
 Specimens are fixed-bin integer-assignment programs for which the codegen
 subset is complete. Byte-identical .REL is the strongest independent
@@ -12,7 +31,8 @@ proof of semantic equivalence (same executable bytes => same execution).
 the isolated CP/M oracle through the hardened (shell=False, per-run
 workspace) harness.
 """
-import argparse, os, subprocess, sys, shutil, re
+import argparse, os, subprocess, sys, shutil, re, time
+import concurrent.futures as _fut
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CC = os.path.join(ROOT, "ocaml/_build/default/bin/pli80c.exe")
@@ -4962,121 +4982,173 @@ def runtime_load(path=RUNTIME_FILE):
     return rows
 
 
-def runtime_check(rows, verbose=True):
-    """Link and execute each row's object; return a list of failure strings."""
+def runtime_row(r, verbose=True):
+    """ONE runtime row: compile, link, execute, compare.  Returns failure strings.
+
+    [E2E-42/P2c] split out of `runtime_check' so the rows could run concurrently.  The body
+    is otherwise unchanged -- de-indented, with the six outer early-exits become
+    `return fails' -- and every row owns its own golden/e32rt_<name>/ directory, which is
+    what makes two rows safe to run at the same time.  `compile_one' writes
+    build/e2e-<pid>/<name>.REL, a per-PID scratch that is per-NAME inside it, so distinct
+    rows never collide there either.
+    """
     import re as _re
     fails = []
-    for r in rows:
-        name = r["name"]
-        src = r["source"] if os.path.exists(os.path.join(ROOT, r["source"])) \
-            else (SPECIMENS.get(name, (None, None))[0] or r["source"])
-        rel, rc, err = compile_one(name, src)
-        if rc != 0:
-            fails.append("RUNTIME %s: build refused (rc=%d) -- a runtime row must not "
-                         "silently degrade into a refusal: %s"
-                         % (name, rc, (err or "").strip().splitlines()[-1:][0][:70] if err else ""))
+    # [E2E-42/P2c] the row times ITSELF and prints its own duration.  The CI wrapper used to
+    # derive per-row seconds from the gap between consecutive timed lines, which is a fair
+    # estimate when rows run one after another and is meaningless on a pool -- with -j 8 the
+    # "duration" of a row became the interval between whoever happened to finish next.  A row
+    # that reports its own wall time is right in both modes.
+    _t0 = time.time()
+    name = r["name"]
+    src = r["source"] if os.path.exists(os.path.join(ROOT, r["source"])) \
+        else (SPECIMENS.get(name, (None, None))[0] or r["source"])
+    rel, rc, err = compile_one(name, src)
+    if rc != 0:
+        fails.append("RUNTIME %s: build refused (rc=%d) -- a runtime row must not "
+                     "silently degrade into a refusal: %s"
+                     % (name, rc, (err or "").strip().splitlines()[-1:][0][:70] if err else ""))
+        return fails
+    golden = os.path.join(ROOT, r["golden"])
+    if not os.path.exists(golden):
+        fails.append("RUNTIME %s: golden %s missing" % (name, r["golden"]))
+        return fails
+    exact = open(rel, "rb").read() == open(golden, "rb").read()
+    tag = "e32rt_%s" % name
+    d = os.path.join(ROOT, "golden", tag, name)
+    os.makedirs(d, exist_ok=True)
+    shutil.copy(rel, os.path.join(d, name + ".REL"))
+    prn = os.path.splitext(r["golden"])[0] + ".PRN"
+    if not os.path.exists(os.path.join(ROOT, prn)):
+        fails.append("RUNTIME %s: no PRN at %s (external refs cannot resolve)" % (name, prn))
+        return fails
+    shutil.copy(os.path.join(ROOT, prn), os.path.join(d, name + ".PRN"))
+    lr = subprocess.run([sys.executable, os.path.join(ROOT, "oracle", "linkrun.py"),
+                         "link", "--tag", tag, "--names", name, "--out", tag, "--reuse"],
+                        capture_output=True, text=True, cwd=ROOT)
+    com = os.path.join(ROOT, "golden", tag, name + ".COM")
+    if lr.returncode != 0 or not os.path.exists(com):
+        fails.append("RUNTIME %s: LINK failed rc=%d -- a .COM appearing is not the test "
+                     "[C137]: %s" % (name, lr.returncode, (lr.stdout or "")[-80:]))
+        return fails
+    rr = subprocess.run([sys.executable, os.path.join(ROOT, "oracle", "linkrun.py"),
+                         "run", "--tag", tag, "--out", tag, "--names", name, "--reuse"],
+                        capture_output=True, text=True, cwd=ROOT)
+    op = os.path.join(ROOT, "golden", tag, name + ".output.txt")
+    if not os.path.exists(op):
+        fails.append("RUNTIME %s: no console output file (run rc=%d)" % (name, rr.returncode))
+        return fails
+    raw = open(op, "rb").read()
+    if b"timeout-or-hang" in (rr.stdout or "").encode() or "timeout" in (rr.stdout or ""):
+        fails.append("RUNTIME %s: did not terminate -- execution must be observed to END "
+                     "[C205]" % name)
+        return fails
+    # raw console bytes are preserved; only CRLF->LF and PL/I edit-strip padding are
+    # normalised, because `put list' pads numerics with spaces.
+    norm = _re.sub(r" +", " ", raw.replace(b"\r\n", b"\n").decode("ascii", "replace"))
+    # [E2E-41/P1b] an expectation may also be NEGATIVE, written `!text'.  A program with
+    # no PUT statement prints nothing at all -- P081Q and P072H are `open / get / close'
+    # with no output -- and "the console is empty" is not an assertion: an empty expected
+    # string matches every transcript.  What IS assertable is the absence of the failure
+    # DR's file runtime reports when an OPEN cannot find its FCB: `UNDEFINED FILE (1),
+    # File: F=NUL' plus a traceback, measured in
+    # spec/lab-evidence/e2e41-p1/RUN-P081Q-no-F.DAT.txt.  A row that demands that text be
+    # ABSENT is a real test: the same staged-file machinery, run without the data file,
+    # fails it.
+    missing, forbidden = [], []
+    for e in r["expected"].split("|"):
+        if not e:
             continue
-        golden = os.path.join(ROOT, r["golden"])
-        if not os.path.exists(golden):
-            fails.append("RUNTIME %s: golden %s missing" % (name, r["golden"]))
-            continue
-        exact = open(rel, "rb").read() == open(golden, "rb").read()
-        tag = "e32rt_%s" % name
-        d = os.path.join(ROOT, "golden", tag, name)
-        os.makedirs(d, exist_ok=True)
-        shutil.copy(rel, os.path.join(d, name + ".REL"))
-        prn = os.path.splitext(r["golden"])[0] + ".PRN"
-        if not os.path.exists(os.path.join(ROOT, prn)):
-            fails.append("RUNTIME %s: no PRN at %s (external refs cannot resolve)" % (name, prn))
-            continue
-        shutil.copy(os.path.join(ROOT, prn), os.path.join(d, name + ".PRN"))
-        lr = subprocess.run([sys.executable, os.path.join(ROOT, "oracle", "linkrun.py"),
-                             "link", "--tag", tag, "--names", name, "--out", tag, "--reuse"],
-                            capture_output=True, text=True, cwd=ROOT)
-        com = os.path.join(ROOT, "golden", tag, name + ".COM")
-        if lr.returncode != 0 or not os.path.exists(com):
-            fails.append("RUNTIME %s: LINK failed rc=%d -- a .COM appearing is not the test "
-                         "[C137]: %s" % (name, lr.returncode, (lr.stdout or "")[-80:]))
-            continue
-        rr = subprocess.run([sys.executable, os.path.join(ROOT, "oracle", "linkrun.py"),
-                             "run", "--tag", tag, "--out", tag, "--names", name, "--reuse"],
-                            capture_output=True, text=True, cwd=ROOT)
-        op = os.path.join(ROOT, "golden", tag, name + ".output.txt")
-        if not os.path.exists(op):
-            fails.append("RUNTIME %s: no console output file (run rc=%d)" % (name, rr.returncode))
-            continue
-        raw = open(op, "rb").read()
-        if b"timeout-or-hang" in (rr.stdout or "").encode() or "timeout" in (rr.stdout or ""):
-            fails.append("RUNTIME %s: did not terminate -- execution must be observed to END "
-                         "[C205]" % name)
-            continue
-        # raw console bytes are preserved; only CRLF->LF and PL/I edit-strip padding are
-        # normalised, because `put list' pads numerics with spaces.
-        norm = _re.sub(r" +", " ", raw.replace(b"\r\n", b"\n").decode("ascii", "replace"))
-        # [E2E-41/P1b] an expectation may also be NEGATIVE, written `!text'.  A program with
-        # no PUT statement prints nothing at all -- P081Q and P072H are `open / get / close'
-        # with no output -- and "the console is empty" is not an assertion: an empty expected
-        # string matches every transcript.  What IS assertable is the absence of the failure
-        # DR's file runtime reports when an OPEN cannot find its FCB: `UNDEFINED FILE (1),
-        # File: F=NUL' plus a traceback, measured in
-        # spec/lab-evidence/e2e41-p1/RUN-P081Q-no-F.DAT.txt.  A row that demands that text be
-        # ABSENT is a real test: the same staged-file machinery, run without the data file,
-        # fails it.
-        missing, forbidden = [], []
-        for e in r["expected"].split("|"):
-            if not e:
-                continue
-            if e.startswith("file:"):
-                # [E2E-41/P3b] AN OUTPUT-FILE ASSERTION, spelled `file:<exported name>=<golden \
-                # path>'.  Console text alone cannot prove a `put file(f)' wrote anything -- the
-                # bytes that matter land in a CP/M file -- so this compares the file the run
-                # EXPORTED (oracle/linkrun.py's EXPORT_OUT -> golden/<tag>/<name>/) against a
-                # golden, whole file, exact length, trailing 0x1A fill included.  NO normalisation
-                # here, deliberately: the console assertion above collapses runs of spaces and
-                # CRLF because PUT pads numerics; a data file has no such licence.
-                # First user: E17D, whose own DR run left golden/e2e11iu/E17D/OUT.DAT at 128
-                # bytes [C280].
-                on_disk, _, goldp = e[5:].partition("=")
-                mine_f = os.path.join(ROOT, "golden", tag, name, on_disk)
-                gold_f = os.path.join(ROOT, goldp)
-                if not os.path.exists(gold_f):
-                    fails.append("RUNTIME %s: file assertion names a missing golden: %s"
-                                 % (name, goldp))
-                elif not os.path.exists(mine_f):
-                    d = os.path.join(ROOT, "golden", tag, name)
-                    got = " ".join(sorted(os.listdir(d))) if os.path.isdir(d) else "(no dir)"
-                    fails.append("RUNTIME %s: the run exported no %s; that directory holds %s "
-                                 "-- writing NOTHING must never pass a file assertion"
-                                 % (name, on_disk, got))
+        if e.startswith("file:"):
+            # [E2E-41/P3b] AN OUTPUT-FILE ASSERTION, spelled `file:<exported name>=<golden \
+            # path>'.  Console text alone cannot prove a `put file(f)' wrote anything -- the
+            # bytes that matter land in a CP/M file -- so this compares the file the run
+            # EXPORTED (oracle/linkrun.py's EXPORT_OUT -> golden/<tag>/<name>/) against a
+            # golden, whole file, exact length, trailing 0x1A fill included.  NO normalisation
+            # here, deliberately: the console assertion above collapses runs of spaces and
+            # CRLF because PUT pads numerics; a data file has no such licence.
+            # First user: E17D, whose own DR run left golden/e2e11iu/E17D/OUT.DAT at 128
+            # bytes [C280].
+            on_disk, _, goldp = e[5:].partition("=")
+            mine_f = os.path.join(ROOT, "golden", tag, name, on_disk)
+            gold_f = os.path.join(ROOT, goldp)
+            if not os.path.exists(gold_f):
+                fails.append("RUNTIME %s: file assertion names a missing golden: %s"
+                             % (name, goldp))
+            elif not os.path.exists(mine_f):
+                d = os.path.join(ROOT, "golden", tag, name)
+                got = " ".join(sorted(os.listdir(d))) if os.path.isdir(d) else "(no dir)"
+                fails.append("RUNTIME %s: the run exported no %s; that directory holds %s "
+                             "-- writing NOTHING must never pass a file assertion"
+                             % (name, on_disk, got))
+            else:
+                a, b = open(mine_f, "rb").read(), open(gold_f, "rb").read()
+                if a == b:
+                    if verbose:
+                        print("  runtime %-8s FILE OK  %s == %s  (%d bytes, byte for byte)"
+                              " [%.1fs]"
+                              % (name, on_disk, goldp, len(a), time.time() - _t0))
                 else:
-                    a, b = open(mine_f, "rb").read(), open(gold_f, "rb").read()
-                    if a == b:
-                        if verbose:
-                            print("  runtime %-8s FILE OK  %s == %s  (%d bytes, byte for byte)"
-                                  % (name, on_disk, goldp, len(a)))
-                    else:
-                        at = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]),
-                                  min(len(a), len(b)))
-                        fails.append("RUNTIME %s: %s differs from %s at byte %d (mine %d bytes, "
-                                     "golden %d): mine %r golden %r"
-                                     % (name, on_disk, goldp, at, len(a), len(b),
-                                        a[max(0, at - 4):at + 4], b[max(0, at - 4):at + 4]))
-                continue
-            if e.startswith("!"):
-                if e[1:] in norm:
-                    forbidden.append(e)
-            elif e not in norm:
-                missing.append(e)
-        if missing or forbidden:
-            fails.append("RUNTIME %s: expected %s, forbidden-but-present %s, got %r  [%s]"
-                         % (name, missing, forbidden, norm[:60],
-                            "byte-exact image" if exact else "shape-divergent"))
-        elif verbose:
-            print("  runtime %-8s OK  %-34s  [%s]"
-                  % (name, norm.strip()[:34].replace("\n", " "),
-                     "byte-exact image: run validates expectation+oracle, not my lowering"
-                     if exact else "NON-CIRCULAR: images differ, this run is evidence about mine"))
+                    at = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]),
+                              min(len(a), len(b)))
+                    fails.append("RUNTIME %s: %s differs from %s at byte %d (mine %d bytes, "
+                                 "golden %d): mine %r golden %r"
+                                 % (name, on_disk, goldp, at, len(a), len(b),
+                                    a[max(0, at - 4):at + 4], b[max(0, at - 4):at + 4]))
+            continue
+        if e.startswith("!"):
+            if e[1:] in norm:
+                forbidden.append(e)
+        elif e not in norm:
+            missing.append(e)
+    if missing or forbidden:
+        fails.append("RUNTIME %s: expected %s, forbidden-but-present %s, got %r  [%s]"
+                     % (name, missing, forbidden, norm[:60],
+                        "byte-exact image" if exact else "shape-divergent"))
+    elif verbose:
+        print("  runtime %-8s OK  %-34s  [%s] [%.1fs]"
+              % (name, norm.strip()[:34].replace("\n", " "),
+                 "byte-exact image: run validates expectation+oracle, not my lowering"
+                 if exact else "NON-CIRCULAR: images differ, this run is evidence about mine",
+                 time.time() - _t0))
     return fails
+
+
+def runtime_check(rows, verbose=True, jobs=1):
+    """Link and execute each row's object; return a list of failure strings.
+
+    jobs>1 runs the rows on a bounded pool.  Failures are collected IN ROW ORDER (the
+    futures are read back in submission order), so a parallel run reports exactly the list a
+    serial run would; only the interleaving of the per-row OK lines differs, and every one of
+    those lines names its specimen.  Default stays serial -- see the module docstring for
+    which tier belongs on the editing path and which belongs to CI.
+    """
+    if jobs <= 1:
+        fails = []
+        for r in rows:
+            fails += _safe_row(r, verbose)
+        return fails
+    with _fut.ThreadPoolExecutor(max_workers=jobs) as ex:
+        futs = [ex.submit(_safe_row, r, verbose) for r in rows]
+        out = [f.result() for f in futs]
+    return [m for row_fails in out for m in row_fails]
+
+
+def _safe_row(r, verbose):
+    """`runtime_row' with a harness fault turned into a failure instead of an abort.
+
+    Serially, one row raising killed the panel and the run.  Concurrently it would kill the
+    whole pool at the first `.result()' and report nothing about the other 70 rows, which is
+    the worst possible shape for a CI audit: one broken environment reads as "no verdict".
+    The exception is REPORTED, never converted into a pass -- [E2E-32/P3]'s own rule is that
+    a row must not silently degrade.
+    """
+    try:
+        return runtime_row(r, verbose)
+    except Exception as e:                       # noqa: BLE001 - reported, not swallowed
+        return ["RUNTIME %s: the row RAISED %s: %s -- a harness fault is not a pass"
+                % (r["name"], type(e).__name__, str(e)[:160])]
+
 
 
 def main():
@@ -5098,10 +5170,27 @@ def main():
     ap.add_argument("--runtime", action="store_true",
                     help="[E2E-32/P3] link and execute the spec/RUNTIME.txt panel and check "
                          "independently derived expectations (slow; opt-in)")
-    ap.add_argument("--only", nargs="*", metavar="NAME",
+    ap.add_argument("--only", action="extend", nargs="+", metavar="NAME",
                     help="restrict the --link-run arm to these specimens "
                          "(byte-parity compile still runs for all)")
+    # [E2E-42/P2c] `--only' was `action="store", nargs="*"', so `--only A --only B' kept only
+    # B and every other arm printed "skipped (--only filter)" -- an operator asks for a batch,
+    # gets a tier-1 run in three seconds, and reads it as a pass.  `extend' makes the repeated
+    # flag mean what it looks like.  A typo'd name still has to be caught, not silently
+    # filtered away, so an unknown name is now an error rather than a no-op.
+    ap.add_argument("-j", "--jobs", type=int, default=1,
+                    help="run the slow (CP/M) arms concurrently with up to N workers "
+                         "[default 1 = serial, the historical behaviour]")
     a = ap.parse_args()
+    if a.jobs < 1:
+        print("e2e gate: ABORTED -- --jobs must be >= 1")
+        return 2
+    if a.only:
+        unknown = [n for n in a.only if n not in SPECIMENS]
+        if unknown:
+            print(f"e2e gate: ABORTED -- --only names {unknown} are not registered "
+                  f"specimens; a filtered-away typo used to read as a clean run")
+            return 2
     # [E2E-11 step 4] the decoder this gate's DIAGNOSTICS rely on is itself under
     # test.  reldump.py once hid every (SEGMENT,ADDRESS) payload, so two files whose
     # LINK-CHAIN-ADDRESS targets differed printed as identical and I recorded a
@@ -5221,6 +5310,9 @@ def main():
             print("e2e gate: ABORTED -- reldump selftest failed")
             return 2
     ok = bad = 0
+    arms = []
+    filtered = 0
+    unauditable = []
     for name, (src, gold) in SPECIMENS.items():
         gp = os.path.join(ROOT, gold)
         if not os.path.exists(gp):
@@ -5249,12 +5341,44 @@ def main():
                   f"(mine={len(mine)}B dr={len(dr)}B)")
             bad += 1
         if a.link_run and exact and (a.only is None or name in a.only):
-            link_run(name, gp,
-                       output_check=(name in OUTPUT_CHECK))
+            if name in NO_LINK_ARMS:
+                unauditable.append(name)
+            else:
+                arms.append((name, gp, name in OUTPUT_CHECK))
         elif a.link_run and exact:
-            print(f"  link :    {name}: skipped (--only filter)")
+            filtered += 1
 
     print(f"e2e gate: {ok} byte-exact / {bad} fail of {len(SPECIMENS)}")
+    # [E2E-42/P2c] The CP/M arms used to run INLINE, one per specimen, inside the byte loop --
+    # 817 arms x ~6.6 s of cpmsim, ~90 minutes, and the reason I kept running it by hand was
+    # simply that nothing else did.  They now run as their own panel, after the byte count is
+    # printed (a byte regression is still reported first), and --jobs puts them on a pool.  The
+    # panel can also FAIL now, which is the precondition for CI being allowed to own it: see
+    # `link_arm', whose whole verdict used to be discarded.  It deliberately does NOT return
+    # early: the byte panel's failures have always been carried to the last line rather than
+    # short-circuiting, and the CI wrapper counts on the panels after a byte failure still
+    # printing a verdict (spec/notes/rune-ci-external-gate.md, "two counting rules").
+    link_fail = 0
+    if a.link_run:
+        print(f"e2e gate: link+run arm: {len(arms)} specimens selected"
+              + (f", {filtered} filtered out (--only)" if filtered else "")
+              + f", {a.jobs} worker(s)")
+        _la = link_arms(arms, jobs=a.jobs)
+        for m in _la:
+            print("e2e gate: %s" % m)
+        link_fail = len(_la)
+        if link_fail:
+            print(f"e2e gate: LINK-RUN PANEL {link_fail} fail of {len(arms)}")
+        else:
+            print(f"e2e gate: link+run panel {len(arms)}/{len(arms)} as recorded "
+                  f"(.COM bytes and raw console vs DR's own run)")
+        if unauditable:
+            # Named, and NOT folded into the denominator.  An arm that cannot be BUILT is a
+            # different fact from an arm that ran and disagreed, and it must read as
+            # neither a silent pass nor a permanent red.
+            print(f"e2e gate: {len(unauditable)} specimen(s) CANNOT be link-run "
+                  f"(registered in NO_LINK_ARMS): "
+                  + ", ".join(f"{n} -- {NO_LINK_ARMS[n]}" for n in unauditable))
     nbad = run_negatives()
     if nbad:
         print(f"e2e gate: NEGATIVE PANEL {nbad} fail")
@@ -5281,7 +5405,7 @@ def main():
         _rt = runtime_load()
         print("e2e gate: runtime panel (%d rows; the object executed is the one the byte "
               "check compares)" % len(_rt))
-        _rtf = runtime_check(_rt)
+        _rtf = runtime_check(_rt, jobs=a.jobs)
         for _x in _rtf:
             print("e2e gate: %s" % _x)
         if _rtf:
@@ -5290,49 +5414,263 @@ def main():
         print("e2e gate: runtime panel %d/%d as recorded (expectation + termination)"
               % (len(_rt), len(_rt)))
 
-    return 1 if bad else 0
+    return 1 if (bad or link_fail) else 0
 
 
-def link_run(name, dr_rel, output_check=False):
+# [E2E-42/P2c] arms whose run does NOT terminate on its own.  An arm the emulator has
+# to kill proves nothing about console output, so it must be either given a `--killon'
+# terminator in oracle/linkrun.py or recorded here with a reason -- never left to read
+# as a pass, which is what it did for all 17 of these before this set existed: the old
+# code printed "mine-only arm, captured 0 raw output bytes" and the gate exited 0,
+# because nothing consumed the arm's verdict.
+#
+# MEASURED, not guessed.  Each name was run alone and its transcript read: every one
+# ends at its OWN command echo (`D>R401\r\r\n') with no further byte -- a program that
+# starts and then waits for input the harness never sends.  That is a different fact
+# from "ran and printed nothing", and both are different from "crashed".
+#
+# These 17 are the reason the link-run panel was not, before this phase, evidence about
+# ANY of them.  They stay un-executed; the executed claims about file I/O live in
+# spec/RUNTIME.txt, where every row states its own expectation.
+_HANG_WHY = ("the transcript ends at its own command echo: the program starts and then "
+             "waits for input this harness does not send")
+HANG_ARMS = {
+    # [E2E-42/P2c] The arms the link+run panel has NEVER said anything about.  Before this
+    # set existed the old code printed "mine-only arm, captured 0 raw output bytes" for all
+    # of them and the gate exited 0, because nothing consumed the arm's verdict.
+    #
+    # Every reason below is TRANSCRIBED from that arm's own transcript tail, captured by
+    # running the arm ALONE (no pool), so "does not terminate" is a measured property of
+    # the program and not an excuse.  Most stop at their own command echo, or at a prompt
+    # asking for input this harness does not send -- `REVERSE' prints `What's up?', `TEST'
+    # prints `Type Three Numbers:'.  Evidence: spec/lab-evidence/e2e42-p2c/GATE-TIERS.md.
+    #
+    # Pinning them keeps the panel honest in BOTH directions: an arm NOT listed here gets
+    # the generous run timeout (`run_timeout') and fails loudly if it blows it, so a NEW
+    # hang cannot hide behind this set -- that is exactly how V5 was found, by the full
+    # audit rather than by the sample that seeded it.
+    #
+    # These arms remain UN-executed evidence.  The executed claims this project makes about
+    # file I/O live in spec/RUNTIME.txt, where every row states its own expectation.
+    "V5": "does not terminate -- cpmsim reports rc=2 timeout-or-hang in 4.1 s and the "
+          "transcript stops at the bare `D>' prompt, before the program's own command "
+          "echo, so nothing of V5 ever ran",
+    "E11B": 'does not terminate -- transcript ends: A>C: C> >>> D: D: D> D>E11B 7 A= 7^Z',
+    "E11E": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E11E ^Z',
+    "E29PD1": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E29PD1',
+    "E29PD2": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E29PD2',
+    "E30H1": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E30H1 ^Z',
+    "E32E1": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E32E1 ^Z',
+    "E32E2": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E32E2 ^Z',
+    "E34A2": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A2 ^Z',
+    "E34A3": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A3 ^Z',
+    "E34A4": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A4 ^Z',
+    "E34A5": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A5 ^Z',
+    "E34A6": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A6 ^Z',
+    "E34A7": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A7 ^Z',
+    "E34A8": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A8 ^Z',
+    "E35X2": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E35X2',
+    "E35X3": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E35X3',
+    "E35X5": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E35X5',
+    "E35Y3": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E35Y3',
+    "E36T14": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E36T14',
+    "E36T3": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E36T3',
+    "E36T4": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E36T4',
+    "E36T5": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E36T5',
+    "E36T7": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E36T7',
+    "N79GOTO": 'does not terminate -- transcript ends: Udo Munk) A>C: C> >>> D: D: D> D>N79GOTO ^Z',
+    "PD7": 'does not terminate -- transcript ends: 1988-2007 by Udo Munk) A>C: C> >>> D: D: D> D>',
+    "PD9": 'does not terminate -- transcript ends: 1988-2007 by Udo Munk) A>C: C> >>> D: D: D> D>',
+    "R1030": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>R1030',
+    "R3004": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>R3004 ^Z',
+    "R3065": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>R3065 ^Z',
+    "R3066": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>R3066 ^Z',
+    "R3100": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>R3100 ^Z',
+    "R3105": 'does not terminate -- transcript ends: X X X X X X X X X X X X X X X X X X X X X X X X X X X X',
+    "R401": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R401',
+    "R407": 'does not terminate -- transcript ends: -17560 )= -17560 f( -17559 )= -17559 f(',
+    "R408": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R408',
+    "R409": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R409',
+    "R410": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R410',
+    "R411": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R411',
+    "R412": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R412',
+    "R414": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R414',
+    "R415": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R415',
+    "R418": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R418',
+    "R419": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R419',
+    "R421": 'does not terminate -- transcript ends: 77 )= 6 f( 14678 )= 6 f( 1467',
+    "R422": 'does not terminate -- transcript ends: 4 )= 6 f( 16385 )= 6 f( 16386',
+    "R423": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R423',
+    "R424": 'does not terminate -- transcript ends: 6 f( -24333 )= 6 f( -24332 )= 6',
+    "R426": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R426',
+    "R427": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R427',
+    "R428": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R428',
+    "R431": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R431',
+    "REVERSE": 'does not terminate -- transcript ends: A>C: C> >>> D: D: D> D>REVERSE Whats up? ^Z',
+    "RFACT": 'does not terminate -- transcript ends: 1988-2007 by Udo Munk) A>C: C> >>> D: D: D> D>',
+    "TEST": 'does not terminate -- transcript ends: : C> >>> D: D: D> D>TEST Type Three Numbers: ^Z',
+}
+
+# [E2E-42/P2c] specimens the link+run arm CANNOT build at all, named so the panel says
+# so instead of counting them as arms that passed.  oracle/cpmwork.check_name enforces
+# CP/M's 8-character file name, so a 10- or 12-character specimen name dies in the link
+# step with `SAFETY: illegal CP/M name' -- no .COM, never, under this name.  (The four
+# E29 multi-module programs used to belong here too; they were not a name problem but a
+# MISSING COMPANION MODULE, and `link_arm' now stages `A'/`B' from SAME_TAG_OBJS, so
+# those four link and execute for real.)
+NO_LINK_ARMS = {
+    "N29_DECININT": "12 characters -- oracle/cpmwork.check_name enforces CP/M's 8.3 "
+                    "limit and refuses it in the link step",
+    "N4_SKIPVAR": "10 characters -- the same 8.3 refusal",
+}
+
+
+def run_timeout(name, jobs):
+    """Seconds the RUN step gets, per arm.  [E2E-42/P2c]
+
+    The harness timeout is a WALL-CLOCK budget, and a pool makes arms contend: measured
+    on this host, `V3` runs in 4.1 s alone and blew the stock 40 s timeout at `-j 12',
+    which would then have been reported as a non-terminating program.  It is not one --
+    at `-j 6' it passes.  An arm the pool starved and an arm that genuinely never ends
+    are different facts, and a gate that confuses them is worse than a serial one.
+
+    So the budget scales with the pool, EXCEPT for a name already pinned in HANG_ARMS:
+    those are known not to terminate, so a short timeout is pure savings -- 53 arms at
+    25 s instead of 120 s is most of the audit's wall time.  A pinned arm cannot mask a
+    NEW hang, because an unpinned arm gets the generous budget and has to blow that.
+    """
+    if name in HANG_ARMS:
+        return 25
+    return min(160, 40 + 12 * max(1, jobs))
+
+
+def link_arm(name, dr_rel, output_check=False, jobs=1):
     """Prove the runtime ABI by linking my .REL vs the historical PLILIB
     and executing under the isolated oracle, through the hardened harness.
     Also links+runs the DR golden .REL and compares BOTH the linked .COM
     bytes and the RAW console output region (whitespace and line endings
     preserved -- rc==0 alone is never accepted as proof).
     Uses transient golden/<e2e*> tags (removed after) so the DR corpus stays
-    the only permanent golden content."""
+    the only permanent golden content.
+
+    [E2E-42/P2c] TWO changes, both needed before this arm could be delegated to CI
+    instead of run by hand for an hour and a half.
+
+    1. IT RETURNS A VERDICT.  It used to print every failure string and return
+       nothing, and the caller did not look: `.COM DIFFERS! vs DR', `CONSOLE
+       DIFFERS' and `MISSING TRANSCRIPT' all printed while the gate exited 0, because
+       main()'s status came only from the byte panel's `bad'.  A test that cannot fail
+       is not a test, and delegating it to CI would have delegated a rubber stamp.
+       Those three are now returned, plus two the old code could not see at all -- a
+       link step that exits nonzero, and no .COM at all, which is how a crashed
+       harness used to read as "mine-only arm, captured 0 raw output bytes".  Checked
+       against the last full serial run (818 arms): 0 DIFFERS, 0 CONSOLE DIFFERS, 0
+       MISSING TRANSCRIPT -- so this changes no verdict that exists today; it only
+       makes the arm able to report one.
+    2. TAGS ARE PER-SPECIMEN.  Every arm shared golden/e2estage, e2elink, e2erun ...
+       and the `finally' block rmtree'd THE WHOLE TAG DIR, so two arms at once deleted
+       each other's objects mid-flight.  That shared state is what forced 817 arms to
+       run one at a time; with per-name tags an arm touches only directories named
+       after itself, which is what makes --jobs possible.
+    """
     gold = os.path.join(ROOT, "golden")
-    stage = os.path.join(gold, "e2estage", name)
-    stagedr = os.path.join(gold, "e2estagedr", name)
-    os.makedirs(stage, exist_ok=True)
+    tg = lambda base: f"{base}_{name}"
+    bad = []
+    hung = False
+    if name in NO_LINK_ARMS:
+        # An arm that cannot be built is not an arm that passed.  The panel used to put
+        # these in its denominator and say nothing about them.
+        return [f"LINK-ARM {name}: cannot be link-run at all -- {NO_LINK_ARMS[name]}"]
+    stage, stagedr = tg("e2estage"), tg("e2estagedr")
+    lk, lkdr, rn, rndr = tg("e2elink"), tg("e2elinkdr"), tg("e2erun"), tg("e2erundr")
+    # linkrun.py's link() reads its input at golden/<tag>/<NAME>/<NAME>.REL -- a per-name
+    # SUBDIR under the tag -- so the object is staged there, exactly as it was before this
+    # function was restructured.  What changed is only the TAG (`e2estage' -> `e2estage_<n>'),
+    # because the old shared tag plus a whole-tag rmtree is what made two arms in flight delete
+    # each other.  Getting this level wrong does not error loudly: link() finds no .REL, LINK
+    # fails on D:, no .COM is exported, and the arm reads as "captured 0 raw output bytes".
+    sd_stage, sd_stagedr = os.path.join(gold, stage, name), os.path.join(gold, stagedr, name)
+    os.makedirs(sd_stage, exist_ok=True)
     do_dr = output_check
     if do_dr:
-        os.makedirs(stagedr, exist_ok=True)
-        shutil.copyfile(dr_rel, os.path.join(stagedr, name + ".REL"))
+        os.makedirs(sd_stagedr, exist_ok=True)
+        shutil.copyfile(dr_rel, os.path.join(sd_stagedr, name + ".REL"))
     shutil.copyfile(os.path.join(OUT, name + ".REL"),
-                    os.path.join(stage, name + ".REL"))
+                    os.path.join(sd_stage, name + ".REL"))
+    # [E2E-42/P2c] MULTI-MODULE programs.  LINK 1.31 does NOT resolve a cross-module PL/I
+    # reference by searching D: -- the companion has to be NAMED on the LINK command line,
+    # which is what linkrun's SAME_TAG_OBJS does -- and link() reads it at
+    # golden/<tag>/<COMPANION>/<COMPANION>.REL.  Nothing staged that file, so E29F/E29G/
+    # E29I/E29J linked with an UNRESOLVED reference, LINK printed `UNDEFINED SYMBOLS:',
+    # and the arm still reported itself as a pass.  Staging the companion turns those four
+    # arms into real evidence; the [C137] undefined-symbol detector inside link() is what
+    # makes the failure loud if this ever breaks again.
+    companions = []
     try:
-        steps = [["link", "--tag", "e2estage", "--out", "e2elink",
-                  "--names", name],
-                 ["run", "--tag", "e2elink", "--out", "e2erun",
-                  "--names", name]]
+        if ROOT not in sys.path:
+            sys.path.insert(0, ROOT)
+        sys.path.insert(0, os.path.join(ROOT, "oracle"))
+        import linkrun as _lr
+        companions = list(_lr.SAME_TAG_OBJS.get(name, []))
+    except Exception as e:                        # noqa: BLE001 - reported, not swallowed
+        if companions or True:
+            bad.append(f"LINK-ARM {name}: could not read SAME_TAG_OBJS for companion "
+                       f"modules ({type(e).__name__}: {str(e)[:100]}) -- refusing to "
+                       f"link a multi-module program blind")
+    for comp in companions:
+        csrc = SPECIMENS.get(comp, (None, None))[0]
+        if not csrc:
+            bad.append(f"LINK-ARM {name}: companion module {comp!r} is not a registered "
+                       f"specimen, so it cannot be staged")
+            continue
+        crel, crc, cerr = compile_one(comp, csrc)
+        if crc != 0:
+            bad.append(f"LINK-ARM {name}: companion {comp!r} did not compile: "
+                       f"{(cerr or '').strip()[-120:]}")
+            continue
+        d = os.path.join(gold, stage, comp)
+        os.makedirs(d, exist_ok=True)
+        shutil.copyfile(crel, os.path.join(d, comp + ".REL"))
+    try:
+        steps = [["link", "--tag", stage, "--out", lk, "--names", name],
+                 ["run", "--tag", lk, "--out", rn, "--names", name,
+                  "--timeout", str(run_timeout(name, jobs))]]
         if do_dr:
-            steps += [["link", "--tag", "e2estagedr", "--out",
-                       "e2elinkdr", "--names", name],
-                      ["run", "--tag", "e2elinkdr", "--out",
-                       "e2erundr", "--names", name]]
-        for args in steps:
-            subprocess.run([sys.executable, "linkrun.py"] + args,
-                           cwd=os.path.join(ROOT, "oracle"),
-                           shell=False, capture_output=True, text=True)
+            steps += [["link", "--tag", stagedr, "--out", lkdr, "--names", name],
+                      ["run", "--tag", lkdr, "--out", rndr, "--names", name,
+                       "--timeout", str(run_timeout(name, jobs))]]
+        for st_args in steps:
+            r = subprocess.run([sys.executable, "linkrun.py"] + st_args,
+                               cwd=os.path.join(ROOT, "oracle"),
+                               shell=False, capture_output=True, text=True)
+            if r.returncode != 0 and st_args[0] == "link":
+                # A FAILED LINK IS A VERDICT, not a detail: this object is byte-exact
+                # against DR, so if it will not link then the ABI claim is unproven.
+                # `run' exiting nonzero is deliberately NOT fatal -- plenty of pinned
+                # specimens abort on purpose (R1019 prints `ERROR (1), Conversion' and
+                # a Traceback, and that transcript is the expectation).  The run's
+                # evidence is its transcript, checked below.
+                bad.append(f"LINK-ARM {name}: link step rc={r.returncode}: "
+                           f"{(r.stdout or r.stderr or '').strip()[-160:]}")
+            if st_args[0] == "run" and "timeout-or-hang" in (r.stdout or ""):
+                hung = True
+        com_mine = os.path.join(gold, lk, name + ".COM")
+        if not os.path.exists(com_mine):
+            bad.append(f"LINK-ARM {name}: no .COM was produced -- a missing image is a "
+                       f"broken arm, not a passing one (this used to print 'captured 0 "
+                       f"raw output bytes' and exit 0)")
+            return bad
         # 1) linked .COM bytes (DR arm only)
-        com_mine = os.path.join(gold, "e2elink", name + ".COM")
-        com_dr = os.path.join(gold, "e2elinkdr", name + ".COM")
-        if do_dr and os.path.exists(com_mine) and os.path.exists(com_dr):
-            same = (open(com_mine, "rb").read() ==
-                    open(com_dr, "rb").read())
-            print(f"  link :    {name}: .COM "
-                  f"{'IDENTICAL' if same else 'DIFFERS!'} vs DR")
+        com_dr = os.path.join(gold, lkdr, name + ".COM")
+        if do_dr:
+            if not os.path.exists(com_dr):
+                bad.append(f"LINK-ARM {name}: DR arm produced no .COM")
+            else:
+                same = (open(com_mine, "rb").read() == open(com_dr, "rb").read())
+                print(f"  link :    {name}: .COM "
+                      f"{'IDENTICAL' if same else 'DIFFERS!'} vs DR")
+                if not same:
+                    bad.append(f"LINK-ARM {name}: linked .COM DIFFERS from DR's")
         # 2) RAW console output comparison (no normalization applied)
         import re as _re
         def prog_out(tag):
@@ -5354,23 +5692,75 @@ def link_run(name, dr_rel, output_check=False):
                            clean, _re.S)
             return m.group(1) if m else None
         if do_dr:
-            om, od = prog_out("e2erun"), prog_out("e2erundr")
+            om, od = prog_out(rn), prog_out(rndr)
             if om is None or od is None:
                 print(f"  run  :    {name}: MISSING TRANSCRIPT")
+                bad.append(f"LINK-ARM {name}: MISSING TRANSCRIPT "
+                           f"(mine missing={om is None}, dr missing={od is None})")
             elif om == od:  # anchor verified both runs reached D>
                 print(f"  run  :    {name}: console BYTE-EQUAL "
                       f"({len(om)} raw bytes): {om!r}")
             else:
                 print(f"  run  :    {name}: CONSOLE DIFFERS mine={om!r} "
                       f"dr={od!r}")
+                bad.append(f"LINK-ARM {name}: CONSOLE DIFFERS from DR's run")
         else:
-            r0 = prog_out("e2erun")
-            print(f"  run  :    {name}: mine-only arm, captured "
-                  f"{0 if r0 is None else len(r0)} raw output bytes")
+            r0 = prog_out(rn)
+            if hung and name not in HANG_ARMS:
+                # A run the emulator had to KILL is not a pass and not a console
+                # comparison; it is an arm that proved nothing.  The old code printed
+                # "captured 0 raw output bytes" for it and exited 0.
+                bad.append(
+                    f"LINK-ARM {name}: the run did not terminate (cpmsim was killed on "
+                    f"timeout), so this arm compares nothing. Either give it a --killon "
+                    f"terminator in oracle/linkrun.py or register it in HANG_ARMS with the "
+                    f"reason it is expected to run on -- do not leave it unclassified")
+            elif hung:
+                print(f"  run  :    {name}: HANG, pinned -- {HANG_ARMS[name]}")
+            else:
+                print(f"  run  :    {name}: mine-only arm, captured "
+                      f"{0 if r0 is None else len(r0)} raw output bytes")
+                if r0 is None and not os.path.exists(
+                        os.path.join(gold, rn, name + ".transcript.txt")):
+                    bad.append(f"LINK-ARM {name}: mine-only arm produced no transcript "
+                               f"file -- the run never reached the output stage")
     finally:
-        for tag in ("e2estage", "e2estagedr", "e2elink", "e2elinkdr",
-                    "e2erun", "e2erundr"):
+        for tag in (stage, stagedr, lk, lkdr, rn, rndr):
             shutil.rmtree(os.path.join(gold, tag), ignore_errors=True)
+    return bad
+
+
+def link_arms(arms, jobs=1):
+    """Run the (name, dr_rel, output_check) arms; return failure strings.
+
+    [E2E-42/P2c] Serial by default, pool on demand.  Each arm is a chain of
+    subprocesses whose time goes inside cpmsim, so a thread pool is sufficient -- no
+    GIL is held while an emulator runs -- and the arms are independent now that
+    `link_arm' owns per-specimen tags.  Verdicts are collected in SUBMISSION order, so
+    the failure list cannot depend on how the pool happened to schedule.
+    """
+    if not arms:
+        return []
+    if jobs <= 1:
+        out = []
+        for (nm, gp, oc) in arms:
+            out += link_arm(nm, gp, output_check=oc, jobs=jobs)
+        return out
+    with _fut.ThreadPoolExecutor(max_workers=jobs) as ex:
+        futs = [ex.submit(_safe_arm, nm, gp, oc, jobs) for (nm, gp, oc) in arms]
+        res = [f.result() for f in futs]
+    return [m for arm in res for m in arm]
+
+
+def _safe_arm(name, dr_rel, output_check, jobs=1):
+    """`link_arm' with a harness fault reported as that arm's failure.  Same argument as
+    `_safe_row': one crashing specimen must not cost the other 800 their verdict, and must
+    not read as a pass either."""
+    try:
+        return link_arm(name, dr_rel, output_check=output_check, jobs=jobs)
+    except Exception as e:                       # noqa: BLE001 - reported, not swallowed
+        return [f"LINK-ARM {name}: the arm RAISED {type(e).__name__}: {str(e)[:160]} "
+                f"-- a harness fault is not a pass"]
 
 
 # ==================================================================== [E2E-35/P3]
