@@ -5,7 +5,40 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
-**E2E-48/P2c IMPLEMENTATION IN PROGRESS (renewal 6/8 successor, 2026-10-30); round 3 MEASURED.**
+**E2E-48/P2c IMPLEMENTATION (renewal 7/8 successor, 2026-10-30); arms 4a+4b+2 DONE, RETIRE round pre-registered, oracle owed.**
+Measured by THIS session, in order:
+- Re-verified inherited baseline at `c4d6a80`: dune rc=0; E48C sweep 6/9; e48p1 24/24.
+- **Step 4a** at `14c7321`: `store_char` admits the UNQUALIFIED destination of an automatic
+  VARYING member with a literal source (licensed by golden/e48p2c/E48C3 -- re-verified myself:
+  `cmp -l` shows ONLY bytes 6/19/28, the module-name bytes); FIXED-member refusal verbatim;
+  dead `imem_qualified` helper removed. Sweep 8/9, e48p1 24/24, warning multiset unchanged.
+- **Steps 4b+2** at `3ee414a`: `Bind.RTchar (n, true)` placement arm -- static varying cell =
+  [len][literal padded to extent with 0x20] IN PLACE, NOT pooled; `initial('')`/no-INITIAL/
+  over-extent/non-literal stay named refusions (§3). E46F5's declaration now lowers and the
+  program advances to `OPEN TITLE(nm)`, which refuses BY NAME (static-varying TITLE unmeasured,
+  §3); its REJECTS marker + NEG_META reason were RE-MEASURED through the binary, original record
+  kept as superseded. WHY-strings of `imem_refuse` and lower_open's k-arm updated to cite
+  golden/e48p2c. Sweep **9/9 E48C whole-file byte-identical** and 24/24 e48p1; full 184-row
+  REJECTS replication (gate loop semantics) shows EXACTLY two newly-admitted rows: **E46K1**
+  (bare member literal store -- licensed by §1 P3/§2.1) and **E46K3** (TEST member compare,
+  bare spelling -- licensed by §2.4 + P3; the 7701f52 arms had already admitted it unnoticed,
+  since the negative panel had not been run since `1595a10`).
+- **RETIRE round pre-registered** at `630e9be` (`RETIRE-HYPOTHESES.md` + `RETIRE-BASELINE-MINE.txt`,
+  predictions derived from golden bytes; BOTH committed BEFORE any oracle call): P-K1/P-K3 predict
+  DR ACCEPTS both, whole-file byte-identical to my 128-byte objects; falsification consequences
+  written. **THE ORACLE HAS NOT BEEN RUN YET ON E46K1/E46K3.**
+
+**EXACT NEXT ACTION**: `PLI_SRC=probes python3 oracle/batch.py E46K1 E46K3 --tag e48p2retire
+--switches '$L$D'` (NEW tag dir -- golden/e48p1 and golden/e48p2c are untouched); then `cmp` my
+objects to the goldens, write RETIRE-RESULTS.md (keep any MISS), then in tools/e2e_gate.py REMOVE
+the E46K1/E46K3 REJECTS rows and ADD 11 SPECIMENS rows (E48C1..C9 + K1/K3 if byte-exact), then
+step 6: `--update-inventory`, claims C317..C320 + C310 annotation, census
+`corpus_census.py --check <copy of prev>` (EXPR2/FSCAN/LOAN2/REPORT/MPMCALLB msgs expected to
+ADVANCE -- verify each), FULL GATE. **Expected numbers are CORRECTED by this session's discovery:
+byte panel 1098+11 = 1109 and negative 182/182** (the checkpoint's 1107/184 predated K1/K3); a
+DR refusal on K1/K3 instead re-classifies those rows dr-refuses and the gate stays 1107/184.
+
+(Previous boundary text, superseded above for work state but kept for lineage:)
 Of the licensed lowering steps, **1(a)(b)(c) and 3 are DONE** at `7701f52`:
 `str_side`'s new `Imem variant (an internal level-numbered CHARACTER VARYING member, BOTH
 spellings), the 18-byte member SCVCM head in `str_cmp_shape` (`LXI H,*D(member) / EB /
@@ -116,14 +149,13 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 ## Pending
 
-- **E2E-48/P2c sub-steps 4a then 4b, then 2/5/6/7** — `HANDOFF.md` → the STATUS block of
-  `## Next action - E2E-48/P2c implementation`. 4a = widen `store_char`'s qualified-
-  destination gate for a VARYING member with a STRING-LITERAL source (licensed by
-  golden/e48p2c/E48C3, which is byte-identical to E48C2 except its module name); 4b = the
-  STATIC-on-CHARACTER-VARYING placement, with E46F5's pinned refusal re-measured through the
-  tool's write path. Steps 1-3 are DONE at `7701f52` — do not redo them.
-- The five DRAFTED `spec/COVERAGE.tsv` rows from E2E-48/P1 (recorded in the previous
-  checkpoint's Next-action item 2) are STILL not written; new P2c rows may be drafted on top.
+- **RETIRE round oracle** (E46K1/E46K3) -- pre-registered at `630e9be`, NOT yet measured; then
+  gate promotion/retirement of the two rows per the measured verdict, then step 6 registration
+  (11 SPECIMENS rows if both accept, `--update-inventory`, claims C317..C320 + C310 annotation,
+  census `--check`, FULL GATE -- expected 1109/182, corrected from the checkpoint's 1107/184 by
+  this session's discovery; see Current phase).
+- Step 7 (lower priority): the five DRAFTED `spec/COVERAGE.tsv` rows (15-column format measured;
+  rows NOT yet written).
 - CREATE remains NOT byte-exact; its measured blocker is still the front-end `%include` gap
   (`pli80c.ml` never expands INCLUDE). Do NOT implement any unmeasured shape from the
   [TBD] list in RESULTS section 3.

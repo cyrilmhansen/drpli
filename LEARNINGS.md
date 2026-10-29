@@ -189,6 +189,30 @@ The guard never writes this file.
   (CREATE 008F, E48A6/A12, E29C4/C9, E46J21) instead of from memory is what made the residual
   misses informative (a size label) rather than fatal. [accepted, measured]
 
+## Accepted (E2E-48/P2c implementation, measured 2026-10-30, renewal 7/8 successor)
+
+- **`tools/mk_neg_panel.py` is an UNGUARDED WRITE tool: `--help` executes it.** It rewrites the
+  TRACKED, intentionally-FROZEN 65-row `negsrc/` snapshot from today's 184-entry REJECTS --
+  renumbering NGxx rows -- and `negsrc/NG14.PLI` is the SOURCE of byte-panel specimen
+  N29_DECININT (golden/negpanel1/NG14). The accidental regeneration would have silently
+  destroyed that specimen's source. Recovery was exact and non-destructive: `git restore --
+  negsrc/` (tree was clean at HEAD before the accident, so HEAD IS the prior state) + removing
+  precisely the 119 files listed by `git ls-files --others negsrc/`. RULE: never pass a flag to
+  a script that does not parse flags; read the script before invoking it on evidence dirs.
+  [accepted, measured 2026-10-30]
+- **A widening kills NEGATIVE rows, not just goldens -- replicate the whole panel before
+  believing any inherited count.** The checkpoint expected "negative 184/184 (E46F5 row
+  re-measured)"; a 15-line replication of the gate's own REJECTS loop (rc!=0 + marker substring,
+  importing `e2e_gate` as `mk_neg_panel` does) found E46K1 (admitted by step 4a) and E46K3
+  (already admitted by `7701f52`'s arms -- unnoticed because the full gate had not run since
+  `1595a10`). Each row's own INVENTORY prose names its retirement procedure (measure DR, then
+  promote or re-classify); the expected final numbers are therefore 1109 byte-exact / 182
+  refused, NOT the inherited 1107/184. Tell: markers are MESSAGE PREFIXES, so rewording a
+  refusal's WHY-text is panel-safe; widening a classifier is not. [accepted, measured 2026-10-30]
+
+
+(The two entries below belong to the 6/8 successor session and keep their original heading:)
+
 ## Accepted (E2E-48/P2c implementation, measured 2026-10-30, renewal 6/8 successor)
 
 - **Re-measure the inherited baseline before writing code; the handoff's numbers were recorded
