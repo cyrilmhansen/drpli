@@ -160,35 +160,42 @@ unchanged); the sweep is
 > items of that list are UNCHANGED and still must not be guessed. The COVERAGE rows remain
 > unwritten (now sub-task 7 of the current Next action).
 
-## Next action - E2E-48/P2c implementation (arms, registration, gate)
+## Next action - E2E-48/P2c step 6: census re-measure, inventory, FULL GATE
 
-> STATUS 2026-10-30 (renewal 6/8 successor, at commit `7701f52`): steps 1(a)(b)(c) and 3 are
-> **DONE and measured**. `7701f52` adds the `Imem variant to `str_side`, the 18-byte member
-> SCVCM arm to `str_cmp_shape`, the `~imem:true`-gated SCCVM arms to `str_cmp_shape_rev`, the
-> two `bit_cond_mat` orientation arms, and BOTH demand twins
-> (`bit_store_cond_bytes` rewritten as one class predicate over {flat Vvar, varying Vimem};
-> `prescan_cond`'s `is_var`/`vkind_of_e` extended for the qualified spelling). Measured at that
-> commit: `dune build` rc=0 with no new warnings; **6/9 E48C whole-file byte-identical**
-> (E48C1,C2,C5,C6,C7,C9 — includes the TEST-position arm 3 via the shared `str_cmp_shape`
-> encoder) and **24/24 `golden/e48p1/` still byte-identical**. The TEST route still refuses a
-> member on the RIGHT exactly as §3 requires (`str_cmp_shape_rev`'s `imem` parameter defaults
-> false and only `bit_cond_mat` passes true).
+> STATUS 2026-10-30 (renewal 7/8 successor, HEAD after the RETIRE+claims commit):
+> **Steps 1-5 DONE, RETIRE round DONE.** `14c7321` (4a store-destination widening, 8/9),
+> `3ee414a` (4b static-varying placement + TITLE-on-static named refusal + step-2 WHY-strings,
+> 9/9; E46F5 row RE-MEASURED through the binary), `630e9be` (RETIRE prereg BEFORE the oracle),
+> `1480d6f` (oracle measured 2 ok/2, E46K1/E46K3 whole-file byte-identical and PROMOTED;
+> SPECIMENS.update adds E48C1..C9 + K1/K3 = **1109 specimens**; REJECTS = **182 rows**;
+> claims **C317-C320** + C310 annotation written). Sweeps at HEAD: E48C 9/9, e48p1 24/24,
+> 181-row negative replication clean (E46F5's NEW marker verified separately against the
+> binary). `dune build` rc=0 with the inherited warning multiset unchanged (126 =
+> 22/15/28/2/14/2/17/26).
 >
-> **THE EXACT NEXT ACTION is now step 4a, then step 4, then steps 2/5/6/7:**
+> **THE EXACT NEXT ACTION is step 6, then step 7:**
+> 1. Census: `cp spec/census/corpus-census.json /tmp/census-prev.json && python3
+>    tools/corpus_census.py --check /tmp/census-prev.json` — counts MUST stay IDENTICAL
+>    (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0); EXPR2/FSCAN (now the EMPTY
+>    `initial('')` refusal), LOAN2 (advances past line 39 to its next genuine blocker),
+>    REPORT/MPMCALLB deltas are EXPECTED — read and verify EVERY msg delta in the tsv diff
+>    before committing the snapshot (+ spec/COVERAGE.tsv prose defer blocker names to the
+>    census; the LOAN2 sentence in row FILE.PUT_LIST_VAR now LAGS — correct or mark stale).
+> 2. `python3 tools/e2e_gate.py --update-inventory` (rewrites INVENTORY rows incl. K1/K3
+>    becoming byte-exact entries; 1098-entry figure was recorded at `1595a10` only).
+> 3. FULL GATE: `python3 tools/e2e_gate.py` — expect **1109 byte-exact / 0 fail**, negative
+>    **182/182**, divergence 9/9, coverage 102 rows 0 errors, census --verify clean, rc=0.
+>    The checkpoint's "1107/184" figure is SUPERSEDED by this session's K1/K3 discovery.
+>    Report measured numbers only.
+> 4. Step 7 (lower priority): the five DRAFTED spec/COVERAGE.tsv rows (15 columns; validator
+>    rule coverage_check:213; `manual_ref = NONE:<why>`; MEASURED rows must cite probes named
+>    by their OWN claims) -> `python3 tools/coverage_check.py`.
 >
-> 4a. `store_char` (ocaml/lib/codegen.ml, the `Vimem m` arm of the `let k = match k with`):
->     drop the `if not (imem_qualified name m) then imem_refuse "store" m (...)` gate for a
->     VARYING member whose source is a STRING LITERAL. Licensed by E48C3's golden, which
->     RESULTS §1 P3 records as byte-identical to E48C2 apart from the three module-name bytes
->     (verified: `cmp -l golden/e48p2c/E48C2/E48C2.REL golden/e48p2c/E48C3/E48C3.REL` -> offsets
->     6, 19, 28 only): DR's 0006 `LXI H,*D(0008) / LXI D,*D(0001) / MVI A,1E / MVI B,02 /
->     ?SMCVM` IS the unqualified destination. Keep the FIXED-member refusal verbatim, and update
->     the WHY-text of any refusal you narrow to cite golden/e48p2c/E48C3 (never silently).
->     Then E48C3 and E48C4 must reach `6/9 -> 8/9` on the sweep.
-> 4b. Step 4 (STATIC-on-CHARACTER-VARYING placement, E48C8) as written below, with its E46F5
->     negative-row consequence.
->
-> Everything below is the ORIGINAL step list; steps 1-3 are complete, so do not redo them.
+> Do NOT touch golden/e48p1, golden/e48p2c or golden/e48p2retire. Do NOT implement RESULTS §3
+> shapes; member-as-RIGHT in TEST and based-member condition stores stay refused. Do NOT start
+> `%include` without its own pre-registered round. Renewal 8/8 would be the LAST under the cap.
+
+(Original step list below, complete for steps 1-5; kept for lineage.)
 
 The round-3 battery is PRE-REGISTERED (`f9f21f2`), MEASURED 9 ok/9 and committed with
 `spec/lab-evidence/e2e48-p2c/RESULTS.md` (`8c57856`); the level-0 STATIC-chain my-gap fix is

@@ -5,7 +5,7 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
-**E2E-48/P2c IMPLEMENTATION (renewal 7/8 successor, 2026-10-30); arms 4a+4b+2 DONE, RETIRE round pre-registered, oracle owed.**
+**E2E-48/P2c STEP 6 OWED (renewal 7/8 successor, 2026-10-30); arms 4a/4b/2 + RETIRE round + claims DONE.**
 Measured by THIS session, in order:
 - Re-verified inherited baseline at `c4d6a80`: dune rc=0; E48C sweep 6/9; e48p1 24/24.
 - **Step 4a** at `14c7321`: `store_char` admits the UNQUALIFIED destination of an automatic
@@ -23,20 +23,23 @@ Measured by THIS session, in order:
   (bare member literal store -- licensed by §1 P3/§2.1) and **E46K3** (TEST member compare,
   bare spelling -- licensed by §2.4 + P3; the 7701f52 arms had already admitted it unnoticed,
   since the negative panel had not been run since `1595a10`).
-- **RETIRE round pre-registered** at `630e9be` (`RETIRE-HYPOTHESES.md` + `RETIRE-BASELINE-MINE.txt`,
-  predictions derived from golden bytes; BOTH committed BEFORE any oracle call): P-K1/P-K3 predict
-  DR ACCEPTS both, whole-file byte-identical to my 128-byte objects; falsification consequences
-  written. **THE ORACLE HAS NOT BEEN RUN YET ON E46K1/E46K3.**
+- **RETIRE round DONE**: pre-registered at `630e9be` (predictions derived from golden bytes,
+  committed BEFORE any oracle call), oracle `--tag e48p2retire` measured **2 ok / 2** and both
+  whole files **byte-identical** to my objects (P-K1/P-K3/P-G1 all HIT, RETIRE-RESULTS.md).
+  E46K1/E46K3 retired from REJECTS (now **182 rows**) and promoted with E48C1..C9 into
+  SPECIMENS (now **1109**, all paths verified present); claims **C317-C320** + C310
+  load-order annotation written. All committed at `1480d6f`; sweeps at that HEAD: E48C 9/9,
+  e48p1 24/24, 181-row negative replication clean + E46F5's new marker measured against the
+  binary; dune rc=0, warning multiset unchanged.
 
-**EXACT NEXT ACTION**: `PLI_SRC=probes python3 oracle/batch.py E46K1 E46K3 --tag e48p2retire
---switches '$L$D'` (NEW tag dir -- golden/e48p1 and golden/e48p2c are untouched); then `cmp` my
-objects to the goldens, write RETIRE-RESULTS.md (keep any MISS), then in tools/e2e_gate.py REMOVE
-the E46K1/E46K3 REJECTS rows and ADD 11 SPECIMENS rows (E48C1..C9 + K1/K3 if byte-exact), then
-step 6: `--update-inventory`, claims C317..C320 + C310 annotation, census
-`corpus_census.py --check <copy of prev>` (EXPR2/FSCAN/LOAN2/REPORT/MPMCALLB msgs expected to
-ADVANCE -- verify each), FULL GATE. **Expected numbers are CORRECTED by this session's discovery:
-byte panel 1098+11 = 1109 and negative 182/182** (the checkpoint's 1107/184 predated K1/K3); a
-DR refusal on K1/K3 instead re-classifies those rows dr-refuses and the gate stays 1107/184.
+**EXACT NEXT ACTION = step 6 (NOT yet done by this session): census re-measure, inventory,
+FULL GATE, then step 7.** Commands and expected results are in `HANDOFF.md` -> the STATUS block
+of `## Next action - E2E-48/P2c step 6`. **NOT re-run and therefore NOT claimed: the census
+snapshot (stale by design since 3ee414a), `--update-inventory`, and the FULL gate.** Expected
+gate numbers are CORRECTED by this session's discovery: **1109 byte-exact / 0 fail, negative
+182/182** (the inherited 1107/184 predated the K1/K3 promotions). The LOAN2 sentence in
+`spec/COVERAGE.tsv` row FILE.PUT_LIST_VAR now lags the census and must be corrected or marked
+stale per PROTOCOL's standing rule.
 
 (Previous boundary text, superseded above for work state but kept for lineage:)
 Of the licensed lowering steps, **1(a)(b)(c) and 3 are DONE** at `7701f52`:
