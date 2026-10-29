@@ -73,15 +73,15 @@ picks either the pre-registered E48C discriminator round, or the COVERAGE rows, 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 11
-checkpoint-id: g11-b58aa40e9fee
-checkpoint-kind: auto
+checkpoint-generation: 12
+checkpoint-id: g12-b9a7bfdfd150
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-10-29T20:12:44.744Z
+checkpointed: 2026-10-29T20:14:46.078Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: cee577b1760ea6379ccb2a0e9e06aa65351c103a38cf57d7ad610620b29d3b8a
+source-progress: 300ed1c3a101f42da5f851cdf78cabad91879c5fce93ee9e8078c56dd862995c
 source-handoff: d8c627c77f70e481592000c272fb50fb1f199abc65cddff8655668fe6dc8ee0e
 source-learnings: 123479d0c781a1ca2ebc186ad04a3754ce3ae21837dc4f1b878e5322e64f768d
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
@@ -121,6 +121,9 @@ Steps 1-5 and panel registration are DONE; E2E-48/P1 is closed at 24/24 byte-ide
 Commands to start either way:
   `git rev-parse HEAD` -> expect `992ccad` or a descendant; `git status --porcelain=v1` -> expect
   clean (or only handoff files); `python3 tools/e2e_gate.py` -> **1098 byte-exact / 0 fail**.
+readiness-by: session:01a18927-3b36-7470-93c0-80e28e177244
+readiness-at: 2026-10-29T20:14:46.080Z
+readiness-checkpoint: g12-b9a7bfdfd150
 <!-- guard:end checkpoint -->
 
 ## Verified evidence

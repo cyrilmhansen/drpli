@@ -270,22 +270,25 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 11
-checkpoint-id: g11-b58aa40e9fee
-checkpoint-kind: auto
+checkpoint-generation: 12
+checkpoint-id: g12-b9a7bfdfd150
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3620, session 01a18927-3b36-7470-93c0-80e28e177244)
-checkpointed: 2026-10-29T20:12:44.744Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-2520, session 01a18927-3b36-7470-93c0-80e28e177244)
+checkpointed: 2026-10-29T20:14:46.078Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: cee577b1760ea6379ccb2a0e9e06aa65351c103a38cf57d7ad610620b29d3b8a
+source-progress: 300ed1c3a101f42da5f851cdf78cabad91879c5fce93ee9e8078c56dd862995c
 source-handoff: d8c627c77f70e481592000c272fb50fb1f199abc65cddff8655668fe6dc8ee0e
 source-learnings: 123479d0c781a1ca2ebc186ad04a3754ce3ae21837dc4f1b878e5322e64f768d
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 
 
+readiness-by: session:01a18927-3b36-7470-93c0-80e28e177244
+readiness-at: 2026-10-29T20:14:46.080Z
+readiness-checkpoint: g12-b9a7bfdfd150
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -329,5 +332,5 @@ Commands to start either way:
   clean (or only handoff files); `python3 tools/e2e_gate.py` -> **1098 byte-exact / 0 fail**.
 
 ### Guard notes
-E2E-48/P1 step 5: codegen arms steps 1-3 are DONE, committed at 371a12e (ocaml/lib/codegen.ml) and probe-verified — 14 of 24 golden/e48p1 whole .REL files byte-identical (E48A1 A2 A3 A4 A5 A13 A14 B1 B2 B3 B4 B5 B7 B9); 10 still differ (E48A6 A7 A8 A9 A10 A11 A12 A15 B6 B8). dune build rc=0, no new warning kinds. THE GATE HAS NOT BEEN RE-RUN since these arms landed — run `python3 tools/e2e_gate.py` and require 1074/0 before registering anything; if it is not 1074/0 that regression outranks all other work. Next action is in HANDOFF.md "Next action — E2E-48/P1 step 5, resumed": diff each differing probe against its golden with spec/lab-evidence/e2e42-p2b/chaindump.py (both files) — E48B9 (EXACT, two SCVCM stores) vs E48A6/A7/B8 (differ) is the discriminator already in hand; then step 4 (PUT bit item: 3A reloc / 06 01 / ?QB08C / ?PNBOP replacing the shared tail's ?PNCOP, plus the char_var_ok classifier must stop treating Vbit1 as a blocking char var), step 5 (STATIC-on-CHARACTER per E48B6), panel registration, claims C309+, INVENTORY/COVERAGE, gate, census. Do NOT guess the [TBD] list in HANDOFF.md (CREATE-vs-E48 SCVCM load order; k=c |c|<=3 store form; ='0'b materialised; ^ in store beyond k=0; nested & shapes). Gate rows pin refusal TEXTS: "store into BIT(1) from ident is unsampled" (N74) and "condition form not in E2E-3b subset" (MB13/LR9/E32C3). LEARNINGS.md carries the new accepted lesson: an unparenthesised `match` as an OCaml arm body silently steals the enclosing match's later arms (compiles clean, died as Match_failure at a line I never edited) — write one arm, rebuild, re-sweep. Never rewrite goldens; stage explicit paths; do not push.
+E2E-48/P1 CLOSED and committed (HEAD 1108af1, tree clean). Measured this session: 24 of 24 probes in golden/e48p1/ whole-file byte-identical (was 14/24 at start), all 24 registered on the byte panel, `python3 tools/e2e_gate.py` -> 1098 byte-exact / 0 fail, negative panel 184/184 refused, divergence 9/9, coverage 102 rows 0 errors, census --verify clean (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0). Claims C309-C316 written in spec/CLAIMS.md. Session commits in order: f839f52 census re-measured (the drift was CREATE ADVANCING past (^ eofile) and past the SCVCM store, not a regression), fa09b97 prescan demand bit_store_cond_bytes (my 371a12e store arm allocated a pool cell prescan_expr never counted because it has no Econd arm; E48A12 exact), df4b9c8 step 4 BIT(1) PUT item 3A cell / 06 01 / ?QB08C / ?PNBOP where ?PNBOP REPLACES the shared tail's ?PNCOP plus two Vbit1 classifier admissions (23/24), 613385b step 5 STATIC-on-CHARACTER (cell = full declared extent blank-padded 41 42 20, DATA 3 = 3 static + 0 pool, read at the declared length; 24/24), 992ccad panel + INVENTORY 1098 + claims, then handoff commits whose messages were corrected by amend because a guard auto-checkpoint had landed inside the commit window (see LEARNINGS). NEXT ACTION is in HANDOFF.md "Next action — E2E-48 round 2": either (1) pre-register an E48C round to MEASURE the CREATE-vs-E48 SCVCM load-order discriminator (18-byte LXI H,var/XCHG vs 17-byte LXI H,lit/LXI D,var; no probe varied it; commit predictions BEFORE the oracle run), or (2) write the five DRAFTED spec/COVERAGE.tsv rows whose exact 15-column format, validator rules (coverage_check:213 requires a MEASURED row's probes to be named by the row's own cited claim) and per-row probes/rel_parity/confidence/boundary text are recorded in HANDOFF item 2 — rows are NOT yet written (that session hit level 3 first), validate with tools/coverage_check.py then the gate (must stay 1098/0, rows 102 -> 107). Do NOT guess the [TBD] list in C310/C313/C314 (|c| in 1..3 store form, ='0'b as a value, ^(cond) in a store beyond ^(k=0), nested &, non-final bit PUT item, store into a STATIC CHARACTER, STATIC-on-CHARACTER VARYING — last two deliberately refused). Gate rows pin refusal TEXTS: "STATIC on CHAR(14) VARYING is unsampled" (E46F5), "STATIC on FIXED BINARY(15,0) is unsampled", "char var in multi-item PUT unproven" (E46M12), "store into BIT(1) from ident is unsampled" (N74), "condition form not in E2E-3b subset" (MB13/LR9/E32C3). CREATE is still NOT byte-exact: its measured blocker is front-end — pli80c.ml performs no %include expansion (only bin/pli80bind.ml does), so get list(name) from artefacts/RECORD.DCL refuses on an unbound name; proposed, fix unverified. Never rewrite a golden; stage explicit paths; no push authorized.
 <!-- guard:end checkpoint -->
