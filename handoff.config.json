@@ -1,0 +1,30 @@
+{
+  "enabled": true,
+  "thresholds": {
+    "advisory": 30000,
+    "wrapUp": 20000,
+    "handoff": 10000,
+    "closing": 5000
+  },
+  "generationReserve": 20000,
+  "safetyReserve": 0,
+  "enforceClosing": false,
+  "closingAllowlist": ["write", "edit", "read"],
+  "protectGoal": true,
+  "autoCheckpointAtHandoffLevel": true,
+  "maxConsecutiveUnknown": 3,
+  "stateDir": ".pi-guard",
+  "readOnly": false,
+  "maxSessionStates": 0,
+  "renewal": {
+    "enabled": false,
+    "autoRenew": false,
+    "maxRenewals": 2
+  },
+  "files": {
+    "goal": "GOAL.md",
+    "progress": "PROGRESS.md",
+    "learnings": "LEARNINGS.md",
+    "handoff": "HANDOFF.md"
+  }
+}
