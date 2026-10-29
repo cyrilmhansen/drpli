@@ -1,0 +1,19 @@
+E48A13:
+  procedure options(main);
+  /* [E2E-48/P1] `if ^(k = 0) then' and `do while(^(n = 3))'.
+     The parser gives both an Econd around a relation; whether DR
+     has a NOT-condition lowering at all is UNMEASURED (the corpus
+     uses `^' only on bit cells and inside strings). */
+  dcl k fixed bin(15);
+  dcl n fixed bin(15);
+  k = 0;
+  n = 0;
+  if ^(k = 0) then
+     put list('A');
+  do while(^(n = 3));
+     n = n + 1;
+  end;
+  put list('N=', n);
+  stop;
+end E48A13;
+

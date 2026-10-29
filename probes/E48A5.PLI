@@ -1,0 +1,21 @@
+E48A5:
+  procedure options(main);
+  /* [E2E-48/P1] THE SAME NEGATED TEST ON AN AUTOMATIC BIT(1).
+     RETRIEVE:17/34 and DIOCOPY:40/109 declare `eofile bit(1)'
+     with NO static and test `^eofile'; their objects are in
+     golden/first8080u but neither compiles in this compiler for
+     OPEN/BASED reasons, so the automatic bit cell's test is
+     UNMEASURED here.  Prediction: identical 3A/B7/FA, one-byte
+     cell, AUTO STORAGE +1 ([C114]). */
+  dcl b bit(1);
+  dcl n fixed bin(15);
+  b = '0'b;
+  n = 0;
+  do while(^b);
+     n = n + 1;
+     if n = 2 then b = '1'b;
+  end;
+  put list('N=', n);
+  stop;
+end E48A5;
+

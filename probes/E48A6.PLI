@@ -1,0 +1,16 @@
+E48A6:
+  procedure options(main);
+  /* [E2E-48/P1] THE STORE OF A CONDITION INTO A BIT(1), exactly
+     CREATE:34: `eofile = (name = 'EOF')'.  DR at 008F-00A0, 16
+     bytes: LXI H,varying / XCHG / LXI H,literal / MVI A,n /
+     CALL ?SCVCM / SUI 01 / SBB A / STA cell.  The last three are
+     [C095]'s flag trick, then [C079]'s 32-with-inline-reloc
+     store; the store form (not the comparison) is the question. */
+  dcl b bit(1) static initial('0'b);
+  dcl name char(30) varying;
+  name = 'AB';
+  b = (name = 'EOF');
+  put list('B=', b);
+  stop;
+end E48A6;
+

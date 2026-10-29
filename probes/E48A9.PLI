@@ -1,0 +1,15 @@
+E48A9:
+  procedure options(main);
+  /* [E2E-48/P1] `b = (k > 0)'.  [C095] records `>' only as the
+     FIRST operand of a FLOAT conjunction, where DR uses the raw
+     signed-comparison byte AS the boolean and materialises
+     nothing.  Predicted UNMEASURED here, and a refusal
+     (`COMP REQ ?') is as informative as a lowering. */
+  dcl b bit(1) static initial('0'b);
+  dcl k fixed bin(15);
+  k = 3;
+  b = (k > 0);
+  put list('S=', b);
+  stop;
+end E48A9;
+

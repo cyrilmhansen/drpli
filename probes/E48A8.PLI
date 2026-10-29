@@ -1,0 +1,14 @@
+E48A8:
+  procedure options(main);
+  /* [E2E-48/P1] `b = (k ^= 0)'.  `^=' is DR's ASCII spelling of
+     NOT-EQUAL and its skip byte is the [C072] CA defect in every
+     context measured so far (integer var/literal, DEC, mod).  A
+     materialising `^=' has no sample: does the defect travel? */
+  dcl b bit(1) static initial('0'b);
+  dcl k fixed bin(15);
+  k = 3;
+  b = (k ^= 0);
+  put list('R=', b);
+  stop;
+end E48A8;
+

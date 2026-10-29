@@ -1,0 +1,12 @@
+E48A15:
+  procedure options(main);
+  /* [E2E-48/P1] `put list(b)' on a BIT(1).  No DR object in the
+     tree prints a bit string and my refusal text says so; this
+     probe turns that absence-of-witness into a MEASUREMENT.  A
+     .REL here would open a bit-output route this compiler has
+     never lowered; `COMP REQ ?' here is a dr-refuses row. */
+  dcl b bit(1) static initial('1'b);
+  put list(b);
+  stop;
+end E48A15;
+

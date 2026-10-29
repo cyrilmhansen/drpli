@@ -1,0 +1,16 @@
+E48A3:
+  procedure options(main);
+  /* [E2E-48/P1] CONTROL: the POSITIVE bare-bit test on a
+     STATIC bit, spelled directly (FLTPOLY2 measures this with a
+     %replace'd `true').  The skip byte is the open question:
+     [C112] writes JNZ for the `= 0'b' form, FLTPOLY2 0075 is JP
+     for the bare test, and the EXCLUSIVE-OR family keeps the
+     [C072] CA defect. */
+  dcl b bit(1) static initial('0'b);
+  if b then
+     put list('T');
+  else
+     put list('F');
+  stop;
+end E48A3;
+

@@ -1,0 +1,17 @@
+E48A7:
+  procedure options(main);
+  /* [E2E-48/P1] THE OTHER CONDITION CLASSES, one per statement,
+     all stored into the same bit cell.  `k = 0' is the class
+     [C095] pins as a boolean operand (LXI H / MOV A,M / INX H /
+     ORA M / SUI 01 / SBB A); whether the STA simply appends is
+     UNMEASURED.  `k = 5' has no boolean sample at all. */
+  dcl b bit(1) static initial('0'b);
+  dcl k fixed bin(15);
+  k = 0;
+  b = (k = 0);
+  put list('P=', b);
+  b = (k = 5);
+  put list('Q=', b);
+  stop;
+end E48A7;
+

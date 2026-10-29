@@ -1,0 +1,14 @@
+E48A2:
+  procedure options(main);
+  /* [E2E-48/P1] THE NEGATED BIT TEST IN AN IF, WITH AN ELSE.
+     CREATE:35 has `if ^eofile then do; ... end;' with NO else;
+     this asks whether the ELSE is reached through the same
+     5-byte chain, which no object in the tree shows. */
+  dcl b bit(1) static initial('0'b);
+  if ^b then
+     put list('T');
+  else
+     put list('F');
+  stop;
+end E48A2;
+

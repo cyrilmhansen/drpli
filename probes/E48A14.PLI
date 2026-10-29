@@ -1,0 +1,17 @@
+E48A14:
+  procedure options(main);
+  /* [E2E-48/P1] `if k = 0 & b then'.  [C095] pins the fixed-bin
+     and DECIMAL boolean operands; a BIT(1) operand has no sample,
+     and my `lower_bool' refuses it.  A bit cell is ONE byte, so
+     the 2-byte `= 0' tail cannot read it -- that is exactly why
+     this needs DR's own bytes. */
+  dcl b bit(1) static initial('1'b);
+  dcl k fixed bin(15);
+  k = 0;
+  if k = 0 & b then
+     put list('YES');
+  else
+     put list('NO');
+  stop;
+end E48A14;
+

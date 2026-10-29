@@ -1,0 +1,14 @@
+E48A11:
+  procedure options(main);
+  /* [E2E-48/P1] `b = ^(k = 0)'.  Distinct from P14: there `^'
+     negates a TEST, here it negates a VALUE.  Whether DR emits
+     CMA (0x2F) after the flag trick, inverts the compare, or
+     refuses is UNMEASURED. */
+  dcl b bit(1) static initial('0'b);
+  dcl k fixed bin(15);
+  k = 0;
+  b = ^(k = 0);
+  put list('V=', b);
+  stop;
+end E48A11;
+

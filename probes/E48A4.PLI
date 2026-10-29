@@ -1,0 +1,15 @@
+E48A4:
+  procedure options(main);
+  /* [E2E-48/P1] `b = '1'b' AND `b = '0'b' AS CONDITIONS, in one
+     object, on a STATIC bit.  E11D pins the ANI/SUI ladder
+     outside a loop; the skip byte it pins is JNZ, which is not
+     what a bare-bit test uses.  This row decides whether the
+     ladder keeps JNZ here. */
+  dcl b bit(1) static initial('0'b);
+  if b = '1'b then
+     put list('ONE');
+  if b = '0'b then
+     put list('ZERO');
+  stop;
+end E48A4;
+

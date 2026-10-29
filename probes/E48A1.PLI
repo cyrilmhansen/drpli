@@ -1,0 +1,19 @@
+E48A1:
+  procedure options(main);
+  /* [E2E-48/P1] THE NEGATED BIT TEST IN A LOOP HEAD.  CREATE:31
+     spells exactly this and DR carries it at 0052-0058 as
+     LDA/ORA/FA plus the 5-byte skip chain whose tail is
+     JMP-back.  Mine refuses it: `condition form not in
+     E2E-3b subset [TBD]: (^ eofile)'. */
+  dcl b bit(1) static initial('0'b);
+  dcl n fixed bin(15);
+  n = 0;
+  do while(^b);
+     n = n + 1;
+     put list('.');
+     if n = 3 then b = '1'b;
+  end;
+  put list('N=', n);
+  stop;
+end E48A1;
+

@@ -1,0 +1,21 @@
+E48A12:
+  procedure options(main);
+  /* [E2E-48/P1] THE COMBINATION CREATE USES: store the condition
+     result, then test its negation, in one loop.  If P1 and P6
+     both hold, this object should carry BOTH shapes and nothing
+     new; if DR emits something else for the pair, the two shapes
+     are not independent. */
+  dcl b bit(1) static initial('0'b);
+  dcl name char(30) varying;
+  dcl n fixed bin(15);
+  n = 0;
+  do while(^b);
+     n = n + 1;
+     name = 'AB';
+     b = (name = 'EOF');
+     if n = 4 then b = '1'b;
+  end;
+  put list('N=', n);
+  stop;
+end E48A12;
+

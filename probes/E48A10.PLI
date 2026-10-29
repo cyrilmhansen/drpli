@@ -1,0 +1,13 @@
+E48A10:
+  procedure options(main);
+  /* [E2E-48/P1] `f = (b = '1'b)'.  The ANI 80 / SUI 80 ladder
+     ([C112], E11D) has never been materialised into a byte; if
+     DR accepts, the boolean comes from SUI/SBB on the ladder's
+     result. */
+  dcl b bit(1) static initial('0'b);
+  dcl f bit(1);
+  f = (b = '1'b);
+  put list('U=', f);
+  stop;
+end E48A10;
+

@@ -1,0 +1,49 @@
+# E2E-48/P1 BASELINE -- this compiler at HEAD d609e01 (binary md5 72765a97), run BEFORE any oracle call.
+# Recorded to satisfy G3: every shape in the bank must still be refused by my compiler pre-change.
+jeu. 29 oct. 2026 17:57:38 UTC
+
+== E48A1
+Fatal error: exception Failure("codegen: condition form not in E2E-3b subset [TBD]: (^ b)")
+   rc=0
+== E48A2
+Fatal error: exception Failure("codegen: condition form not in E2E-3b subset [TBD]: (^ b)")
+   rc=0
+== E48A3
+wrote /tmp/e48base/E48A3.REL (384 bytes, code=65 data=0)
+   rc=0
+== E48A4
+wrote /tmp/e48base/E48A4.REL (384 bytes, code=73 data=0)
+   rc=0
+== E48A5
+Fatal error: exception Failure("codegen: condition form not in E2E-3b subset [TBD]: (^ b)")
+   rc=0
+== E48A6
+Fatal error: exception Failure("codegen: store into BIT(1) from condition is unsampled [TBD]                   (only the '1'b/'0'b literals are pinned by E20A)")
+   rc=0
+== E48A7
+Fatal error: exception Failure("codegen: store into BIT(1) from condition is unsampled [TBD]                   (only the '1'b/'0'b literals are pinned by E20A)")
+   rc=0
+== E48A8
+Fatal error: exception Failure("codegen: store into BIT(1) from condition is unsampled [TBD]                   (only the '1'b/'0'b literals are pinned by E20A)")
+   rc=0
+== E48A9
+Fatal error: exception Failure("codegen: store into BIT(1) from condition is unsampled [TBD]                   (only the '1'b/'0'b literals are pinned by E20A)")
+   rc=0
+== E48A10
+Fatal error: exception Failure("codegen: store into BIT(1) from condition is unsampled [TBD]                   (only the '1'b/'0'b literals are pinned by E20A)")
+   rc=0
+== E48A11
+Fatal error: exception Failure("codegen: store into BIT(1) from prefix operator is unsampled [TBD]                   (only the '1'b/'0'b literals are pinned by E20A)")
+   rc=0
+== E48A12
+Fatal error: exception Failure("codegen: condition form not in E2E-3b subset [TBD]: (^ b)")
+   rc=0
+== E48A13
+Fatal error: exception Failure("codegen: condition form not in E2E-3b subset [TBD]: (^ (cond (= k 0)))")
+   rc=0
+== E48A14
+Fatal error: exception Failure("codegen: conjunction operand not in the proven subset [TBD] (only a FIXED DECIMAL `= 0` and a 2-byte FIXED BINARY `= 0` are pinned as boolean-materializing operands [DECPOLY, R2025]; other relations have no DR sample)")
+   rc=0
+== E48A15
+Fatal error: exception Failure("codegen: PUT of a BIT(1) variable is unsampled [TBD]                        (no DR sample puts a bit string; the bit-list output                         edit form is E2E-11 step 3 territory)")
+   rc=0
