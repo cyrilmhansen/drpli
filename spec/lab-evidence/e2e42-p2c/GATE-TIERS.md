@@ -32,6 +32,14 @@ Two more silent shapes are now failures: a nonzero `link` step, and **no `.COM` 
 
 ## 3. The 55 arms that never terminate
 
+> **SUPERSEDED BY SECTION 11, AND KEPT AS WRITTEN.**  The table below is real output, but the
+> *category* is wrong: it was built from `linkrun.py`'s `"timeout-or-hang"` status string,
+> which merged `run.py`'s rc=1 (timeout) and rc=2 (the emulator died).  Re-measured by exit
+> code, 51 of these 55 are genuine timeouts, 2 are emulator deaths (`PD7`, `PD9`) and 2
+> terminate normally in ~4.2 s (`RFACT`, `V5`).  The reason strings are kept verbatim because
+> they are what the transcript showed at the time; the classification they were filed under was
+> not.  See [C308].
+
 `--link-run` covers 1072 specimens.  55 of them have never produced a console region to
 compare: the emulator is killed on timeout and the old harness called that a pass.  Each
 was run **alone** (no pool) and its transcript read, so "does not terminate" is measured
@@ -263,3 +271,99 @@ counting fix invalidates cached greens without being told to.
 The last row is deliberate: the stdout wrapper changes how every pooled panel reports, so
 the 27-minute audit is re-run on the fixed SHA rather than inherited from `87c11db`.  That
 is the cost of delegating, and it is paid by the builder.
+## 11. Re-measuring my own "measured" set: run.py has THREE exit codes
+
+Section 3's table was built from `oracle/linkrun.py`'s status string, which was
+
+    status = "done" if rc == 0 else "timeout-or-hang"
+
+while `oracle/run.py` documents, at the top of itself:
+
+    Exit codes: 0 = last ##WAIT matched, 1 = timeout, 2 = sim died.
+
+One label for two mechanisms.  So 55 arms were registered as "does not terminate" using a
+string that could not distinguish a program that ran forever from an emulator that exited.
+The tell was arithmetic: `V5`'s "timeout" arrived in **4.1 s** on a 25-40 s budget, and a
+timeout cannot arrive in 4.1 s.
+
+All 55 were then re-run **alone**, no pool, 90 s budget, and classified by exit code:
+
+| verdict | n | meaning |
+|---|---|---|
+| `timeout` (rc=1) | **51** | genuinely ran on; wall time 94.2-100.4 s against a 90 s budget |
+| `sim-died` (rc=2) | **2** | `PD7`, `PD9` -- cpmsim exited 4.1 s in; transcript stops at the bare `D>' prompt, before their own command echo |
+| `done` (rc=0) | **2** | `RFACT`, `V5` -- TERMINATE in ~4.2 s; `RFACT`'s row now reports 8751 raw console bytes |
+
+The 51, with the tail each one produced while being killed:
+
+| specimen | wall | transcript tail |
+|---|---|---|
+| `E11B` | 94.2 s | C> >>> D: D: D> D>E11B 7 A= 7^Z |
+| `E11E` | 94.2 s | do Munk) A>C: C> >>> D: D: D> D>E11E ^Z |
+| `E29PD1` | 94.2 s | do Munk) A>C: C> >>> D: D: D> D>E29PD1 |
+| `E29PD2` | 94.2 s | do Munk) A>C: C> >>> D: D: D> D>E29PD2 |
+| `E30H1` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>E30H1 ^Z |
+| `E32E1` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>E32E1 ^Z |
+| `E32E2` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>E32E2 ^Z |
+| `E34A2` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>E34A2 ^Z |
+| `E34A3` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>E34A3 ^Z |
+| `E34A4` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>E34A4 ^Z |
+| `E34A5` | 94.3 s | o Munk) A>C: C> >>> D: D: D> D>E34A5 ^Z |
+| `E34A6` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>E34A6 ^Z |
+| `E34A7` | 94.3 s | o Munk) A>C: C> >>> D: D: D> D>E34A7 ^Z |
+| `E34A8` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>E34A8 ^Z |
+| `E35X2` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>E35X2 |
+| `E35X3` | 94.3 s | Udo Munk) A>C: C> >>> D: D: D> D>E35X3 |
+| `E35X5` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>E35X5 |
+| `E35Y3` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>E35Y3 |
+| `E36T14` | 94.2 s | do Munk) A>C: C> >>> D: D: D> D>E36T14 |
+| `E36T3` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>E36T3 |
+| `E36T4` | 94.3 s | Udo Munk) A>C: C> >>> D: D: D> D>E36T4 |
+| `E36T5` | 94.3 s | Udo Munk) A>C: C> >>> D: D: D> D>E36T5 |
+| `E36T7` | 94.3 s | Udo Munk) A>C: C> >>> D: D: D> D>E36T7 |
+| `N79GOTO` | 94.2 s | Munk) A>C: C> >>> D: D: D> D>N79GOTO ^Z |
+| `R1030` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R1030 |
+| `R3004` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>R3004 ^Z |
+| `R3065` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>R3065 ^Z |
+| `R3066` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>R3066 ^Z |
+| `R3100` | 94.2 s | o Munk) A>C: C> >>> D: D: D> D>R3100 ^Z |
+| `R3105` | 94.6 s | X X X X X X X X X X X X X X X X X X X X X X X X X |
+| `R401` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R401 |
+| `R407` | 100.1 s | -29492 f( -29491 )= -29491 f( -29490 |
+| `R408` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R408 |
+| `R409` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R409 |
+| `R410` | 94.3 s | Udo Munk) A>C: C> >>> D: D: D> D>R410 |
+| `R411` | 94.3 s | Udo Munk) A>C: C> >>> D: D: D> D>R411 |
+| `R412` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R412 |
+| `R414` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R414 |
+| `R415` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R415 |
+| `R418` | 94.3 s | Udo Munk) A>C: C> >>> D: D: D> D>R418 |
+| `R419` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R419 |
+| `R421` | 100.1 s | = 6 f( 26154 )= 6 f( 261 |
+| `R422` | 100.0 s | 6 f( -13913 )= 6 f( -13912 |
+| `R423` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R423 |
+| `R424` | 100.4 s | 6 f( 7184 )= 6 f( 7185 )= |
+| `R426` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R426 |
+| `R427` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R427 |
+| `R428` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R428 |
+| `R431` | 94.2 s | Udo Munk) A>C: C> >>> D: D: D> D>R431 |
+| `REVERSE` | 94.2 s | C> >>> D: D: D> D>REVERSE Whats up? ^Z |
+| `TEST` | 94.2 s | > >>> D: D: D> D>TEST Type Three Numbers: ^Z |
+
+**Consequences, in order of importance.**
+
+1. `HANG_ARMS` is now 51 entries whose reasons are re-measured, and the four wrong ones are
+   gone: `PD7`/`PD9` are `NO_RUN_ARMS` (a third category, excluded from the denominator and
+   named on the panel's last line), `RFACT`/`V5` are not exceptions at all.
+2. `linkrun.run_status()` names all three codes, so the next person cannot inherit the
+   collapse.
+3. An unpinned arm the harness had to stop gets **one retry** with a doubled budget.
+   `RFACT` proved the need: `sim-died` at 52 s on one attempt, clean at 164 s on the next,
+   same code, same machine.  An arm that fails twice still fails.
+4. Every arm prints a row.  The failing audit build printed 1071 `run :' lines for a
+   1072-arm panel -- the failed arm produced no row at all, so the symptom of a failure was a
+   *missing* line.  The denominator of a panel must not depend on which arms passed.
+
+What this does NOT change: no byte claim, no specimen, no lowering.  1074 byte-exact objects
+and 184 refusals are unaffected.  What was wrong was the harness's vocabulary about the 55
+arms that produce no executed evidence, and the 4 arms that were mis-vocabularised.

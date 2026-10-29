@@ -7132,3 +7132,37 @@ classified `unmeasured` rather than `dr-refuses`.
   slowest CI design available is local, serial, and run by an agent, because every minute is someone
   waiting.  From this commit the rule is: edit against the 2-second tier, commit, and let rune-ci's
   `full` and `audit` suites own the emulator time.
+
+## C308 — "DID NOT TERMINATE" WAS A LABEL, NOT A MEASUREMENT: run.py HAS THREE EXIT CODES AND THE HARNESS USED TWO NAMES FOR THEM (E2E-42/P2c)
+
+* **The code was documented all along.**  `oracle/run.py`, line 12 of itself:
+  `Exit codes: 0 = last ##WAIT matched, 1 = timeout, 2 = sim died.`  `oracle/linkrun.py`
+  rendered that as `"done" if rc == 0 else "timeout-or-hang"` — one string for two different
+  facts.  rc=1 is a program that ran on and on; rc=2 is the EMULATOR EXITING (a guest reset, a
+  boot that never completed).  The gate then propagated the merged label into a verdict.
+* **The tell was arithmetic.**  `V5` was registered as "does not terminate" on the strength of
+  an `rc=2` that arrived in **4.1 seconds** on a 25-40 s budget.  A timeout cannot arrive in
+  4.1 s.  Every genuine rc=1 hang in the same set took 94.2-100.4 s against a 90 s budget.
+* **Re-measured, all 55, alone, 90 s budget, pool of 4** (`GATE-TIERS.md` section 11):
+  **51 = timeout (rc=1)**, **2 = sim-died (rc=2)** — `PD7`, `PD9`, transcript stops at the bare
+  `D>` prompt before their own command echo — **2 = done (rc=0)** — `RFACT`, `V5`, which
+  TERMINATE in ~4.2 s.  So 4 of 55 registered "non-terminators" were not non-terminators, and
+  `RFACT`'s row now reports 8751 raw console bytes.
+* **Three facts need three names.**  `HANG_ARMS` (51, ran on), `NO_RUN_ARMS` (2, cpmsim exits
+  before the program runs), `NO_LINK_ARMS` (2, the CP/M 8.3 name refusal).  `NO_RUN_ARMS` is
+  excluded from the panel's denominator and named on its last line: an arm that never ran is
+  not a pass, and calling it a failure would make the audit red for something that is not a
+  code defect.
+* **Transient ≠ property.**  The builder killed `V3` at 136 s on an arm that takes 4.1 s alone,
+  and `RFACT` reported `sim died` in 4.1 s on one attempt and `done` on the next.  An unpinned
+  arm that the harness had to stop now gets **one retry with a doubled budget**, and the row
+  says it recovered.  An arm that fails **twice** still fails, with "this is not pool
+  contention" in the message.  Failing an audit on a transient teaches people to ignore audits.
+* **Every arm prints a row.**  Only a pinned hang used to print one, so the failing build
+  showed 1071 `run :' lines for a 1072-arm panel and the failed arm looked like it had vanished
+  from the tree.  The row count is this panel's denominator; it cannot depend on which arms
+  passed.
+* **The general rule.**  I wrote 55 "measured" reasons and called them evidence, and they were
+  transcriptions of a classifier that could not tell two mechanisms apart.  A reason string is
+  only as good as the distinction its producer makes; when a harness collapses codes, everything
+  downstream inherits the collapse silently — including a claim file that says "measured".

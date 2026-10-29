@@ -5164,9 +5164,18 @@ def runtime_row(r, verbose=True):
         fails.append("RUNTIME %s: no console output file (run rc=%d)" % (name, rr.returncode))
         return fails
     raw = open(op, "rb").read()
-    if b"timeout-or-hang" in (rr.stdout or "").encode() or "timeout" in (rr.stdout or ""):
-        fails.append("RUNTIME %s: did not terminate -- execution must be observed to END "
-                     "[C205]" % name)
+    # [E2E-42/P2c] rc=1 and rc=2 are DIFFERENT facts -- see linkrun.run_status.  Saying
+    # "did not terminate" about a run where cpmsim itself exited is false, and a false
+    # reason on a failing row is worse than no reason.
+    so = rr.stdout or ""
+    if "sim-died" in so:
+        fails.append("RUNTIME %s: cpmsim DIED (run.py rc=2) before the session finished -- "
+                     "this is an emulator/boot failure, NOT a program that ran on forever "
+                     "[C308]" % name)
+        return fails
+    if "timeout" in so:
+        fails.append("RUNTIME %s: did not terminate (run.py rc=1 timeout) -- execution must "
+                     "be observed to END [C205]" % name)
         return fails
     # raw console bytes are preserved; only CRLF->LF and PL/I edit-strip padding are
     # normalised, because `put list' pads numerics with spaces.
@@ -5449,6 +5458,7 @@ def main():
     arms = []
     filtered = 0
     unauditable = []
+    unrunnable = []
     for name, (src, gold) in SPECIMENS.items():
         gp = os.path.join(ROOT, gold)
         if not os.path.exists(gp):
@@ -5479,6 +5489,13 @@ def main():
         if a.link_run and exact and (a.only is None or name in a.only):
             if name in NO_LINK_ARMS:
                 unauditable.append(name)
+            elif name in NO_RUN_ARMS:
+                # [E2E-42/P2c] It links, and its .COM could be compared, but cpmsim exits
+                # before the program runs -- so the arm has no console to check and belongs
+                # in the panel's denominator no more than an unbuildable one does.  Named
+                # separately, because "cannot be built" and "cannot be executed" are
+                # different facts and only the second one is about the emulator.
+                unrunnable.append(name)
             else:
                 arms.append((name, gp, name in OUTPUT_CHECK))
         elif a.link_run and exact:
@@ -5515,6 +5532,10 @@ def main():
             print(f"e2e gate: {len(unauditable)} specimen(s) CANNOT be link-run "
                   f"(registered in NO_LINK_ARMS): "
                   + ", ".join(f"{n} -- {NO_LINK_ARMS[n]}" for n in unauditable))
+        if unrunnable:
+            print(f"e2e gate: {len(unrunnable)} specimen(s) LINK but CANNOT BE EXECUTED "
+                  f"(registered in NO_RUN_ARMS, cpmsim exits first): "
+                  + ", ".join(f"{n} -- {NO_RUN_ARMS[n]}" for n in unrunnable))
     nbad = run_negatives()
     if nbad:
         print(f"e2e gate: NEGATIVE PANEL {nbad} fail")
@@ -5571,80 +5592,73 @@ def main():
 _HANG_WHY = ("the transcript ends at its own command echo: the program starts and then "
              "waits for input this harness does not send")
 HANG_ARMS = {
-    # [E2E-42/P2c] The arms the link+run panel has NEVER said anything about.  Before this
-    # set existed the old code printed "mine-only arm, captured 0 raw output bytes" for all
-    # of them and the gate exited 0, because nothing consumed the arm's verdict.
+    # [E2E-42/P2c] The 51 arms that GENUINELY DO NOT TERMINATE: run ALONE, with no pool
+    # and a 90 s budget, every one of these was killed on timeout and reported run.py
+    # rc=1.  Measured together in spec/lab-evidence/e2e42-p2c/GATE-TIERS.md section 11.
     #
-    # Every reason below is TRANSCRIBED from that arm's own transcript tail, captured by
-    # running the arm ALONE (no pool), so "does not terminate" is a measured property of
-    # the program and not an excuse.  Most stop at their own command echo, or at a prompt
-    # asking for input this harness does not send -- `REVERSE' prints `What's up?', `TEST'
-    # prints `Type Three Numbers:'.  Evidence: spec/lab-evidence/e2e42-p2c/GATE-TIERS.md.
+    # Each reason is that arm's own transcript tail, so "does not terminate" is a
+    # property of the program rather than an excuse for an arm that proved nothing.  Most
+    # stop at their own command echo; some print a line or two first (`R407' gets to its
+    # factoring loop).  `REVERSE' prints `What's up?' and `TEST' prints `Type Three
+    # Numbers:' -- programs that wait for input this harness does not send.
     #
-    # Pinning them keeps the panel honest in BOTH directions: an arm NOT listed here gets
-    # the generous run timeout (`run_timeout') and fails loudly if it blows it, so a NEW
-    # hang cannot hide behind this set -- that is exactly how V5 was found, by the full
-    # audit rather than by the sample that seeded it.
-    #
-    # These arms remain UN-executed evidence.  The executed claims this project makes about
-    # file I/O live in spec/RUNTIME.txt, where every row states its own expectation.
-    "V5": "does not terminate -- cpmsim reports rc=2 timeout-or-hang in 4.1 s and the "
-          "transcript stops at the bare `D>' prompt, before the program's own command "
-          "echo, so nothing of V5 ever ran",
-    "E11B": 'does not terminate -- transcript ends: A>C: C> >>> D: D: D> D>E11B 7 A= 7^Z',
-    "E11E": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E11E ^Z',
-    "E29PD1": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E29PD1',
-    "E29PD2": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E29PD2',
-    "E30H1": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E30H1 ^Z',
-    "E32E1": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E32E1 ^Z',
-    "E32E2": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E32E2 ^Z',
-    "E34A2": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A2 ^Z',
-    "E34A3": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A3 ^Z',
-    "E34A4": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A4 ^Z',
-    "E34A5": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A5 ^Z',
-    "E34A6": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A6 ^Z',
-    "E34A7": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A7 ^Z',
-    "E34A8": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E34A8 ^Z',
-    "E35X2": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E35X2',
-    "E35X3": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E35X3',
-    "E35X5": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E35X5',
-    "E35Y3": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E35Y3',
-    "E36T14": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>E36T14',
-    "E36T3": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E36T3',
-    "E36T4": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E36T4',
-    "E36T5": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E36T5',
-    "E36T7": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>E36T7',
-    "N79GOTO": 'does not terminate -- transcript ends: Udo Munk) A>C: C> >>> D: D: D> D>N79GOTO ^Z',
-    "PD7": 'does not terminate -- transcript ends: 1988-2007 by Udo Munk) A>C: C> >>> D: D: D> D>',
-    "PD9": 'does not terminate -- transcript ends: 1988-2007 by Udo Munk) A>C: C> >>> D: D: D> D>',
-    "R1030": 'does not terminate -- transcript ends: 7 by Udo Munk) A>C: C> >>> D: D: D> D>R1030',
-    "R3004": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>R3004 ^Z',
-    "R3065": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>R3065 ^Z',
-    "R3066": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>R3066 ^Z',
-    "R3100": 'does not terminate -- transcript ends: by Udo Munk) A>C: C> >>> D: D: D> D>R3100 ^Z',
-    "R3105": 'does not terminate -- transcript ends: X X X X X X X X X X X X X X X X X X X X X X X X X X X X',
-    "R401": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R401',
-    "R407": 'does not terminate -- transcript ends: -17560 )= -17560 f( -17559 )= -17559 f(',
-    "R408": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R408',
-    "R409": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R409',
-    "R410": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R410',
-    "R411": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R411',
-    "R412": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R412',
-    "R414": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R414',
-    "R415": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R415',
-    "R418": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R418',
-    "R419": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R419',
-    "R421": 'does not terminate -- transcript ends: 77 )= 6 f( 14678 )= 6 f( 1467',
-    "R422": 'does not terminate -- transcript ends: 4 )= 6 f( 16385 )= 6 f( 16386',
-    "R423": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R423',
-    "R424": 'does not terminate -- transcript ends: 6 f( -24333 )= 6 f( -24332 )= 6',
-    "R426": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R426',
-    "R427": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R427',
-    "R428": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R428',
-    "R431": 'does not terminate -- transcript ends: 07 by Udo Munk) A>C: C> >>> D: D: D> D>R431',
-    "REVERSE": 'does not terminate -- transcript ends: A>C: C> >>> D: D: D> D>REVERSE Whats up? ^Z',
-    "RFACT": 'does not terminate -- transcript ends: 1988-2007 by Udo Munk) A>C: C> >>> D: D: D> D>',
-    "TEST": 'does not terminate -- transcript ends: : C> >>> D: D: D> D>TEST Type Three Numbers: ^Z',
+    # Four arms this list USED to name are NOT in it, because the list had been built
+    # from a label rather than from a fact: `oracle/linkrun.py' collapsed run.py's rc=1
+    # (timeout) and rc=2 (the EMULATOR exited) into one string, "timeout-or-hang".  Two
+    # of the four (`PD7', `PD9') are rc=2 and are registered in NO_RUN_ARMS; the other
+    # two (`RFACT', `V5') TERMINATE IN ~4.2 s and are simply not exceptions at all.
+    # See [C308] -- this is why every reason below was re-measured, not transcribed.
+    "E11B": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'C> >>> D: D: D> D>E11B 7 A= 7^Z'",
+    "E11E": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'do Munk) A>C: C> >>> D: D: D> D>E11E ^Z'",
+    "E29PD1": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'do Munk) A>C: C> >>> D: D: D> D>E29PD1'",
+    "E29PD2": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'do Munk) A>C: C> >>> D: D: D> D>E29PD2'",
+    "E30H1": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E30H1 ^Z'",
+    "E32E1": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E32E1 ^Z'",
+    "E32E2": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E32E2 ^Z'",
+    "E34A2": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E34A2 ^Z'",
+    "E34A3": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E34A3 ^Z'",
+    "E34A4": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E34A4 ^Z'",
+    "E34A5": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E34A5 ^Z'",
+    "E34A6": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E34A6 ^Z'",
+    "E34A7": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E34A7 ^Z'",
+    "E34A8": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>E34A8 ^Z'",
+    "E35X2": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>E35X2'",
+    "E35X3": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>E35X3'",
+    "E35X5": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>E35X5'",
+    "E35Y3": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>E35Y3'",
+    "E36T14": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'do Munk) A>C: C> >>> D: D: D> D>E36T14'",
+    "E36T3": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>E36T3'",
+    "E36T4": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>E36T4'",
+    "E36T5": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>E36T5'",
+    "E36T7": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>E36T7'",
+    "N79GOTO": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Munk) A>C: C> >>> D: D: D> D>N79GOTO ^Z'",
+    "R1030": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R1030'",
+    "R3004": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>R3004 ^Z'",
+    "R3065": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>R3065 ^Z'",
+    "R3066": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>R3066 ^Z'",
+    "R3100": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'o Munk) A>C: C> >>> D: D: D> D>R3100 ^Z'",
+    "R3105": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'X X X X X X X X X X X X X X X X X X X X X X X X X'",
+    "R401": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R401'",
+    "R407": "ran on and was killed at 90 s (run.py rc=1); transcript ends: '-29492 f( -29491 )= -29491 f( -29490'",
+    "R408": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R408'",
+    "R409": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R409'",
+    "R410": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R410'",
+    "R411": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R411'",
+    "R412": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R412'",
+    "R414": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R414'",
+    "R415": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R415'",
+    "R418": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R418'",
+    "R419": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R419'",
+    "R421": "ran on and was killed at 90 s (run.py rc=1); transcript ends: '= 6 f( 26154 )= 6 f( 261'",
+    "R422": "ran on and was killed at 90 s (run.py rc=1); transcript ends: '6 f( -13913 )= 6 f( -13912'",
+    "R423": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R423'",
+    "R424": "ran on and was killed at 90 s (run.py rc=1); transcript ends: '6 f( 7184 )= 6 f( 7185 )='",
+    "R426": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R426'",
+    "R427": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R427'",
+    "R428": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R428'",
+    "R431": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'Udo Munk) A>C: C> >>> D: D: D> D>R431'",
+    "REVERSE": "ran on and was killed at 90 s (run.py rc=1); transcript ends: 'C> >>> D: D: D> D>REVERSE Whats up? ^Z'",
+    "TEST": "ran on and was killed at 90 s (run.py rc=1); transcript ends: '> >>> D: D: D> D>TEST Type Three Numbers: ^Z'",
 }
 
 # [E2E-42/P2c] specimens the link+run arm CANNOT build at all, named so the panel says
@@ -5654,10 +5668,38 @@ HANG_ARMS = {
 # E29 multi-module programs used to belong here too; they were not a name problem but a
 # MISSING COMPANION MODULE, and `link_arm' now stages `A'/`B' from SAME_TAG_OBJS, so
 # those four link and execute for real.)
+NO_RUN_ARMS = {
+    # [E2E-42/P2c] cpmsim ITSELF exits (run.py rc=2) after 4.1 s, before these programs ever
+    # get control -- their transcripts stop at the bare `D>' prompt, with no command echo.
+    # That is NOT "the program does not terminate": it is an arm that cannot produce an
+    # executed verdict at all, and the two facts used to share one label ("timeout-or-hang"),
+    # which is how PD7/PD9 ended up in HANG_ARMS describing a property they do not have.
+    #
+    # Like NO_LINK_ARMS, these are removed from the panel's DENOMINATOR and named on its last
+    # line.  Counting an arm that never ran as a pass would be the original sin again; calling
+    # it a failure would make the audit red for something that is not a code defect.  "Cannot
+    # be executed" is a third fact, and a harness that has three facts needs three names.
+    "PD7": "cpmsim exited on its own (run.py rc=2) 4.1 s into a 90 s budget; the transcript "
+           "stops at the bare `D>' prompt, before PD7's own command echo -- the program never "
+           "ran, so there is no console to compare",
+    "PD9": "cpmsim exited on its own (run.py rc=2) 4.1 s into a 90 s budget; the transcript "
+           "stops at the bare `D>' prompt, before PD9's own command echo -- the program never "
+           "ran, so there is no console to compare",
+}
+
+
 NO_LINK_ARMS = {
     "N29_DECININT": "12 characters -- oracle/cpmwork.check_name enforces CP/M's 8.3 "
                     "limit and refuses it in the link step",
     "N4_SKIPVAR": "10 characters -- the same 8.3 refusal",
+}
+
+
+HUNG_WHY = {
+    # run.py documents: 0 = last ##WAIT matched, 1 = timeout, 2 = sim died.  [C308]
+    "timeout": "cpmsim was killed on TIMEOUT (run.py rc=1) -- the program ran on",
+    "sim-died": "cpmsim ITSELF exited (run.py rc=2) -- an emulator/boot failure, NOT a "
+                "program that ran on forever",
 }
 
 
@@ -5713,6 +5755,8 @@ def link_arm(name, dr_rel, output_check=False, jobs=1):
     tg = lambda base: f"{base}_{name}"
     bad = []
     hung = False
+    recovered = None        # set when a retry cleared a transient emulator failure
+    hung_twice = False      # set when BOTH attempts had to be stopped
     if name in NO_LINK_ARMS:
         # An arm that cannot be built is not an arm that passed.  The panel used to put
         # these in its denominator and say nothing about them.
@@ -5775,10 +5819,22 @@ def link_arm(name, dr_rel, output_check=False, jobs=1):
             steps += [["link", "--tag", stagedr, "--out", lkdr, "--names", name],
                       ["run", "--tag", lkdr, "--out", rndr, "--names", name,
                        "--timeout", str(run_timeout(name, jobs))]]
+        def step(args):
+            return subprocess.run([sys.executable, "linkrun.py"] + args,
+                                  cwd=os.path.join(ROOT, "oracle"),
+                                  shell=False, capture_output=True, text=True)
+
+        def classify(so):
+            """`sim-died' / `timeout' / None, from run.py's documented codes. [C308]"""
+            so = so or ""
+            if "sim-died" in so:
+                return "sim-died"
+            if "timeout" in so:
+                return "timeout"
+            return None
+
         for st_args in steps:
-            r = subprocess.run([sys.executable, "linkrun.py"] + st_args,
-                               cwd=os.path.join(ROOT, "oracle"),
-                               shell=False, capture_output=True, text=True)
+            r = step(st_args)
             if r.returncode != 0 and st_args[0] == "link":
                 # A FAILED LINK IS A VERDICT, not a detail: this object is byte-exact
                 # against DR, so if it will not link then the ABI claim is unproven.
@@ -5788,8 +5844,42 @@ def link_arm(name, dr_rel, output_check=False, jobs=1):
                 # evidence is its transcript, checked below.
                 bad.append(f"LINK-ARM {name}: link step rc={r.returncode}: "
                            f"{(r.stdout or r.stderr or '').strip()[-160:]}")
-            if st_args[0] == "run" and "timeout-or-hang" in (r.stdout or ""):
-                hung = True
+            if st_args[0] == "run":
+                hung = classify(r.stdout)
+                # [E2E-42/P2c] ONE RETRY before anything is declared.
+                #
+                # The builder killed V3 at 136 s on an arm that takes 4.1 s alone, and V5
+                # reported `sim died' in 4.1 s on one run and passed on the next.  Neither is
+                # a property of the PROGRAM -- they are transients in a pool of emulators that
+                # each boot a 12 MB image.  Failing the audit on a transient teaches people to
+                # ignore the audit, so the arm gets one more attempt with a doubled budget,
+                # serially re-run, and the row says it happened.  An arm that fails TWICE is
+                # evidence, and it still fails.
+                # [E2E-42/P2c] EVERY ARM PRINTS A ROW: until now only a PINNED hang printed
+                # one, so a failing build showed 1071 `run :' lines for a 1072-arm panel and
+                # the missing arm looked like it had vanished from the tree.  The line count
+                # IS the audit's denominator; every arm must account for itself, pass or not.
+                if hung and name not in HANG_ARMS:
+                    # [E2E-42/P2c] ONE RETRY before anything is declared.  The builder killed
+                    # V3 at 136 s on an arm that takes 4.1 s alone, and RFACT reported
+                    # `sim died' in 4.1 s on one run and `done' on the next -- neither is a
+                    # property of the PROGRAM.  These are transients in a pool of emulators
+                    # that each boot a 12 MB image, and failing an audit on a transient
+                    # teaches people to ignore audits.  So an unpinned arm gets one more
+                    # attempt with a doubled budget, and the ROW SAYS it happened.  An arm
+                    # that fails twice is evidence, and it still fails.
+                    retry = list(st_args)
+                    budget = 2 * int(run_timeout(name, jobs)) + 60
+                    retry[retry.index("--timeout") + 1] = str(budget)
+                    hung2 = classify(step(retry).stdout)
+                    if not hung2:
+                        recovered = ("%s at %ss, retry clean at %ss"
+                                     % (hung, st_args[st_args.index("--timeout") + 1], budget))
+                        hung = None
+                    else:
+                        hung, hung_twice = hung2, True
+                # Reporting lives BELOW, after `prog_out' exists -- a row printed from
+                # inside this loop cannot see the transcript it describes.
         com_mine = os.path.join(gold, lk, name + ".COM")
         if not os.path.exists(com_mine):
             bad.append(f"LINK-ARM {name}: no .COM was produced -- a missing image is a "
@@ -5835,31 +5925,41 @@ def link_arm(name, dr_rel, output_check=False, jobs=1):
                            f"(mine missing={om is None}, dr missing={od is None})")
             elif om == od:  # anchor verified both runs reached D>
                 print(f"  run  :    {name}: console BYTE-EQUAL "
-                      f"({len(om)} raw bytes): {om!r}")
+                      f"({len(om)} raw bytes): {om!r}"
+                      + (f" [recovered on retry: {recovered}]" if recovered else ""))
             else:
                 print(f"  run  :    {name}: CONSOLE DIFFERS mine={om!r} "
                       f"dr={od!r}")
                 bad.append(f"LINK-ARM {name}: CONSOLE DIFFERS from DR's run")
         else:
+            # [E2E-42/P2c] EVERY ARM ACCOUNTS FOR ITSELF WITH A ROW.  Only a PINNED hang
+            # used to print one, so a failing build showed 1071 `run :' lines for a
+            # 1072-arm panel and the arm that failed looked like it had vanished from the
+            # tree.  The row count IS this audit's denominator; a panel whose denominator
+            # depends on which arms passed cannot be quoted.
             r0 = prog_out(rn)
+            note = f" (recovered on retry: {recovered})" if recovered else ""
             if hung and name not in HANG_ARMS:
-                # A run the emulator had to KILL is not a pass and not a console
-                # comparison; it is an arm that proved nothing.  The old code printed
-                # "captured 0 raw output bytes" for it and exited 0.
+                # An arm the harness had to stop is not a pass and not a console
+                # comparison; it is an arm that proved nothing.
                 bad.append(
-                    f"LINK-ARM {name}: the run did not terminate (cpmsim was killed on "
-                    f"timeout), so this arm compares nothing. Either give it a --killon "
-                    f"terminator in oracle/linkrun.py or register it in HANG_ARMS with the "
-                    f"reason it is expected to run on -- do not leave it unclassified")
+                    f"LINK-ARM {name}: {HUNG_WHY[hung]}"
+                    + (" -- on BOTH the first attempt and a retry with a doubled budget, so "
+                       "this is not pool contention" if hung_twice else "")
+                    + ", and this arm compares nothing. Either give it a --killon terminator "
+                      "in oracle/linkrun.py or register it in HANG_ARMS with the reason it is "
+                      "expected to run on -- do not leave it unclassified")
+                print(f"  run  :    {name}: {hung.upper()}, unpinned -- FAILURE{note}")
             elif hung:
-                print(f"  run  :    {name}: HANG, pinned -- {HANG_ARMS[name]}")
+                print(f"  run  :    {name}: {hung.upper()} -- {HANG_ARMS[name]}{note}")
             else:
-                print(f"  run  :    {name}: mine-only arm, captured "
-                      f"{0 if r0 is None else len(r0)} raw output bytes")
+                print(f"  run  :    {name}: mine run captured "
+                      f"{0 if r0 is None else len(r0)} raw console bytes{note}")
                 if r0 is None and not os.path.exists(
                         os.path.join(gold, rn, name + ".transcript.txt")):
-                    bad.append(f"LINK-ARM {name}: mine-only arm produced no transcript "
-                               f"file -- the run never reached the output stage")
+                    bad.append(f"LINK-ARM {name}: mine run produced no transcript file -- "
+                               f"the run never reached the output stage, so nothing "
+                               f"downstream can compare it")
     finally:
         for tag in (stage, stagedr, lk, lkdr, rn, rndr):
             shutil.rmtree(os.path.join(gold, tag), ignore_errors=True)

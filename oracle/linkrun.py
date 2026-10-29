@@ -189,6 +189,26 @@ def new_run(ws, tag):
     return run
 
 
+def run_status(rc):
+    """What a nonzero run actually WAS, from run.py's documented exit codes.
+
+    [E2E-42/P2c] This used to be `"done" if rc == 0 else "timeout-or-hang"', which merged
+    two different facts into one label.  `oracle/run.py' says at the top of itself:
+
+        Exit codes: 0 = last ##WAIT matched, 1 = timeout, 2 = sim died.
+
+    so rc=1 is a program that ran on and on, and rc=2 is the EMULATOR EXITING -- a guest
+    reset, a cpmsim crash, a boot that never completed.  Collapsing them made a dead
+    simulator look like a non-terminating program, and that mislabelling then propagated:
+    `V5' was pinned in the gate as "does not terminate" on the strength of an rc=2 that
+    arrived in 4.1 SECONDS -- a timeout cannot arrive in 4.1 s on a 25-40 s budget.  The
+    measurement was of a label, not of the thing.
+
+    Naming the codes is what lets a caller distinguish them, which is the whole point.
+    """
+    return {0: "done", 1: "timeout", 2: "sim-died"}.get(rc, f"unknown-rc-{rc}")
+
+
 def session(run, script_lines, timeout, out, name):
     script = os.path.join(run.dir, f"{name}.session.txt")
     with open(script, "w") as f:
@@ -468,7 +488,7 @@ def run_programs(ws, names, intag, outtag, timeout, reuse, killon=None, inputs=N
             seg = re.search(rf"{re.escape(n)}[^\n]*\r\r\n(.*?)(?=\nD>|I/O ran|\Z)",
                             clean, re.S)
             o = seg.group(1) if seg else ""
-            status = "done" if rc == 0 else "timeout-or-hang"
+            status = run_status(rc)
             out.write(".", f"{n}.output.txt", re.sub(r"\r\n?", "\n", o))
             captured = []
             for fn in EXPORT_OUT.get(n, []):
