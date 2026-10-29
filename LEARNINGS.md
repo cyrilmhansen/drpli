@@ -188,6 +188,19 @@ The guard never writes this file.
 - **Refresh `README.md`'s rolling status** from the ledger, or mark it explicitly historical, so
   no future agent mistakes E2E-1/C067 for the current state.
 
+- **`spec/COVERAGE.tsv` has 15 columns, not 14.** Its schema's first table omits `manual_ref`
+  (column 6); the second table and every existing row have it - read an existing row as the template,
+  not the prose table. `coverage_check` additionally requires a `MEASURED`/`SINGLE_SAMPLE` row's
+  probes to be named by one of the row's OWN cited claims. [accepted, measured 2026-10-29 by reading
+  the validator and `COND.GE_LE`; the rows themselves were NOT written - handed on]
+- **A level-3 automatic checkpoint can land inside your commit window and change what a commit
+  contains.** The guard's `checkpoint-kind: auto` refresh rewrote the managed blocks of HANDOFF.md
+  and PROGRESS.md (generation 10) between my edits, and a `git add HANDOFF.md && git commit` then
+  recorded THAT rewrite under a message describing prose I had not actually written - my python step
+  had aborted on an assertion. Message corrected by amend (local, unpushed). Tell: `git show --stat`
+  reports managed-block-sized deltas in the wrong files. Rule: after any guard-triggered write,
+  re-read `git status` and `git show --stat` before composing the message. [accepted, measured 2026-10-29]
+
 ## Falsified or superseded
 
 - **"File mtimes prove pre-registration"** — superseded by the committed-blob rule above (P2a).

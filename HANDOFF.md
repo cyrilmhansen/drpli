@@ -167,9 +167,24 @@ Steps 1-5 and panel registration are DONE; E2E-48/P1 is closed at 24/24 byte-ide
    the same `eofile = (name = 'EOF')` store in a DO-WHILE body vs a straight-line body vs behind a
    `put`; a VARYING **member** left operand (the `Mem` shape `bit_cond_mat` refuses today).
    Expected output: new goldens + a claim that names the rule, or a recorded `dr-refuses` row.
-2. **`spec/COVERAGE.tsv` rows** for the shapes now lowered (categories COND/STOR/IO citing
-   C309-C314 and the E48* probes — the probes are on the panel now, so citations validate).
-   Then `python3 tools/coverage_check.py` and `python3 tools/e2e_gate.py` (must stay 1098/0).
+2. **`spec/COVERAGE.tsv` rows** - started but NOT written (this session reached the format check
+   only, then hit level 3). Format facts MEASURED here, so do not re-derive them: **15** tab-separated
+   columns (`id category construct contract perimeter manual_ref dr_status mine_status rel_parity
+   runtime probes corpus boundary confidence provenance`); `manual_ref` is column 6, which the FIRST
+   table of `spec/COVERAGE-SCHEMA.md` omits - trust the second table and an existing row such as
+   `COND.GE_LE`. `probes` = comma-separated INVENTORY keys (E48A1..E48B9 are on the panel now, so they
+   resolve); `corpus` = names from the 44-program census (CREATE, EXPR2, FSCAN, LOAN2, MPMCALLB,
+   REPORT all qualify); `provenance` = space-separated `[Cnnn]` (C309-C316 exist); use
+   `manual_ref = NONE:<why>` to stay clear of the OCR page check. `tools/coverage_check.py` line 8 and
+   213: a `MEASURED`/`SINGLE_SAMPLE` row must name at least one probe that one of its OWN cited claims
+   also names - cite the claim carrying the specimen ([C313] names E48A15/A6/A7/B8). Drafted rows:
+   COND.BIT1_NEG_TEST (E48A1,A2,A5,A12,A13,B1,B7 EXACT:7, [C309][C311]); STOR.BIT1_COND_STORE
+   (E48A6..A12,B8,B9 EXACT:9, [C310], boundary = the load-order / |c|<=3 / ='0'b [TBD]s);
+   COND.AND_BIT1_OPERAND (E48A14 EXACT:1, SINGLE_SAMPLE, [C312]); IO.PUT_BIT1_ITEM (E48A15,A6,A7,B8
+   EXACT:4, runtime NONE because no transcript was captured, [C313]); DECL.STATIC_CHAR (E48B5,B6,B7
+   EXACT:3, mine_status PARTIAL because STATIC-on-CHARACTER VARYING still refuses, [C314]).
+   Validate with `python3 tools/coverage_check.py` (exit 0), then `python3 tools/e2e_gate.py`: the row
+   count goes 102 -> 107 and the byte panel must stay 1098 byte-exact / 0 fail.
 3. `%include` in the main pipeline (CREATE's real blocker) — bigger, and needs its own
    pre-registered round for DR's search order/case rules.
 
