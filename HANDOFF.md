@@ -173,7 +173,12 @@ unchanged); the sweep is
 > binary). `dune build` rc=0 with the inherited warning multiset unchanged (126 =
 > 22/15/28/2/14/2/17/26).
 >
-> **THE EXACT NEXT ACTION is step 6, then step 7:**
+> > NOTE (7/8 successor): step-6 item 1 (census --check) is DONE (counts IDENTICAL
+> 15/0/26/0, snapshot `014a736`); LOAN2 advanced to a NEW prescan my-gap
+> `variable i declared with conflicting kinds` (future round, recorded not lowered).
+> Items 2 (--update-inventory) and 3 (FULL GATE, expect **1109/0, negative 182/182** --
+> the 1107/184 in the older text is superseded by the K1/K3 promotions) are OWED.
+**THE EXACT NEXT ACTION is step 6, then step 7:**
 > 1. Census: `cp spec/census/corpus-census.json /tmp/census-prev.json && python3
 >    tools/corpus_census.py --check /tmp/census-prev.json` — counts MUST stay IDENTICAL
 >    (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0); EXPR2/FSCAN (now the EMPTY
@@ -336,22 +341,22 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 17
-checkpoint-id: g17-55346e17c951
+checkpoint-generation: 18
+checkpoint-id: g18-e469320c8d62
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~8999, session 01a1899c-bfe2-7470-93c0-80efada31a9a)
-checkpointed: 2026-10-29T22:18:19.054Z
+status: checkpoint (guard level 4, remaining ~4634, session 01a1899c-bfe2-7470-93c0-80efada31a9a)
+checkpointed: 2026-10-29T22:19:29.659Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 613ca6f88cd68354b61c6797893943423c5b6e3db1a2f3ff72081e9660aa9bfb
+source-progress: c994ff4745d9c8a042f283cdd40662850e028b1e1d964c6109b8e336847d7fba
 source-handoff: f089cb30c0701daf190245715f7bc796b7b3836df5afebcf55d69273207ffa6b
 source-learnings: 58874fda930af7a574f431b88ca96dc7c104830a3adc78d3539fbaaae9bf8fc1
 source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
 
 
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

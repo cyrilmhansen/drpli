@@ -335,3 +335,16 @@ The guard never writes this file.
   procedure alone.) Test-window closure (restore the real next
   action from pre-test commit `a6eec67`, `/handoff` refresh, `/handoff ready`) remains an operator/
   next-session step.
+
+## Closing (E2E-48/P2c step 6, renewal 7/8 successor, measured 2026-10-30)
+
+- **Accepted:** a census delta after a widening is READ, not just counted: LOAN2 ADVANCED
+  past the retired line-39 refusal into a NEW, previously shadowed prescan my-gap
+  (`variable i declared with conflicting kinds`). It is recorded for a FUTURE
+  pre-registered round, never lowered on faith. EXPR2/FSCAN deltas were the expected
+  EMPTY-`initial('')` named refusals. [measured at b78770d, snapshot `014a736`]
+- **Accepted:** census `--check` rewrites the snapshot AND count-guards in one call; the
+  prev-copy discipline caught nothing here because counts genuinely held (15/0/26/0).
+- **State owed by the successor (unverified, do not claim):** `--update-inventory` and the
+  FULL gate have NOT been run since the arms; expected 1109 byte-exact / 0 fail,
+  negative 182/182 (the inherited 1107/184 is falsified by the K1/K3 promotions).
