@@ -51,8 +51,8 @@ right.  What was wrong or missing:
 
   | suite | command | what it is |
   |---|---|---|
-  | `full` (default) | `--runtime -j 8` | the strict gate: byte panel, negatives, divergences, coverage, census, prose, and the 71-row runtime panel. ~2 min on a pool (was ~10 min serial). This is what a commit gets. |
-  | `audit` | `--runtime --link-run -j 8` | the strict gate PLUS the 817-arm DR-vs-mine link+run arm. ~10-20 min on a pool (was ~90 min serial). A scheduled audit, not a per-commit gate. |
+  | `full` (default) | `--runtime -j 8` | the strict gate: byte panel, negatives, divergences, coverage, census, prose, and the 71-row runtime panel. **81 s measured on the builder** (was ~10 min serial). This is what a commit gets. |
+  | `audit` | `--runtime --link-run -j 8` | the strict gate PLUS the **1072-arm** DR-vs-mine link+run arm. **1668 s measured on the builder** (was ~90 min serial, and never run by CI at all). A scheduled audit, not a per-commit gate. |
   | `smoke` | none | wiring only; runs no compiler panel and says so. |
 
   The import-time assertion still holds, but per-suite: `--link-run` may never appear in
@@ -138,7 +138,7 @@ audit reports ~10 minutes of emulator time as if the negative panel had spent it
 ```sh
 # the gate a commit gets, ~2 min
 /home/john/services/rune-ci/bin/rune-ci submit "$(git rev-parse HEAD)" --suite full
-# the long DR-vs-mine audit, delegated: ~800 arms, ~10-20 min, off your critical path
+# the long DR-vs-mine audit, delegated: 1072 arms, 1668 s on the builder, off your path
 /home/john/services/rune-ci/bin/rune-ci submit "$(git rev-parse HEAD)" --suite audit
 /home/john/services/rune-ci/bin/rune-ci status bs12       # non-blocking, any time
 /home/john/services/rune-ci/bin/rune-ci failures bs12     # names, or the infra reason
@@ -150,8 +150,15 @@ audit reports ~10 minutes of emulator time as if the negative panel had spent it
 | command | serial | `-j 8` | belongs to |
 |---|---|---|---|
 | `tools/e2e_gate.py` | 2.3 s | — | every edit; it is the fast tier and needs no emulator |
-| `tools/e2e_gate.py --runtime -j 8` | 588 s | 77 s | CI (`--suite full`); run locally only when you changed the panel itself |
-| `tools/e2e_gate.py --link-run --runtime -j 12` | ~90 min | ~10 min | CI (`--suite audit`); never on the editing path |
+| `tools/e2e_gate.py --runtime -j 8` | 588 s | **81 s on the builder** | CI (`--suite full`); run locally only when you changed the panel itself |
+| `tools/e2e_gate.py --link-run --runtime -j 8` | ~90 min | **1668 s on the builder** | CI (`--suite audit`); never on the editing path |
+
+The builder's own phase breakdown for that 1668 s is the entire argument for delegating:
+`byte_exact 1.6 s`, `runtime 74.2 s`, **`link_run 1588.1 s`**.  95 % of the cost is one
+panel, and it is now a COUNT -- `link_run: {passed: 1072, total: 1072, failed: 0}` -- where
+it used to print `DIFFERS!` into a log and return nothing.  `-j 12` is deliberately NOT the
+audit's pool size: measured on this host, `V3` runs in 4.1 s alone and blows a 40 s timeout
+at `-j 12`, so a bigger pool would invent hangs that are really starvation.
 
 The serial numbers are the reason this note existed at all: a 10-minute or 90-minute
 check gets skipped, and a skipped gate is a gate that does not exist.

@@ -162,3 +162,76 @@ to four times the stock one, while the known hangs cost the audit nothing extra.
 The rule this phase adopts: **an agent does not run the CP/M tiers on the critical path.**
 It commits, submits, and polls.  A 90-minute local run is not rigour, it is a reason to
 skip the check next time.
+
+## 8. What the builder did on the first try, and why it was not a gate failure
+
+Both suites were submitted at the commit that introduced them.  Both died in **2-3 seconds**
+in the `dune-build` step:
+
+    bash -c 'cd ocaml && dune build'
+    bash: ligne 1: dune: commande introuvable
+    program finished with exit code 127
+
+Nothing to do with the gate.  `dune` was on PATH only because the worker daemon had once
+been launched from a shell that ran `eval $(opam env)`; restarting the worker to pick up the
+new builder dropped that inherited PATH, and every build since would fail before reaching a
+panel.  `/proc/<worker>/environ` confirmed it: no `.opam/default/bin`.
+
+The fix is not "start the daemon from the right shell" — that is the same fragility with a
+step counter added.  `rune_ci_common.TOOLCHAIN_ENV` names the switch (`PATH`,
+`OPAM_SWITCH_PREFIX`, `CAML_LD_LIBRARY_PATH`) and the `dune-build` step gets it, so a build
+does not depend on how its daemon was launched.  Verified before shipping, not after:
+`env -i HOME=$HOME PATH=<switch>:/usr/bin:/bin … dune build` with `_build/default/bin`
+deleted first rebuilt the compiler from scratch, rc=0, 4.7 MB `pli80c.exe`.  The cpmtools the
+fixtures step needs (`mkfs.cpm`, `cpmcp`) resolve under the new PATH from `/usr/bin`.
+
+`ci_fingerprint()` now hashes `TOOLCHAIN_ENV` too, and `CI_VERSION` is `rune-ci/5`.  That is
+the gap the failure exposed: the fingerprint covered each suite's *argv*, so "same command,
+different environment" was invisible to it — a cached green for the command said nothing
+about the toolchain the command would find.
+
+Then, at the same SHA:
+
+| suite | build | wall | phases |
+|---|---|---|---|
+| `full` | #35 | **81 s** | byte 1.6 s, runtime 74.2 s, negatives/divergences/coverage sub-second |
+| `audit` | #2 | **1668 s** | byte 1.6 s, runtime 74.2 s, **link_run 1588.1 s** |
+
+Counts recorded by the audit: `byte_exact 1074/1074`, `refusals 184/184`, `divergences 9/9`,
+`coverage 102 rows 0 errors`, `runtime 71/71`, **`link_run 1072/1072, failed 0`**, census
+`EXACT 15 / DIFFERS 0 / REFUSED 26`, `gate_exit_code 0`, `failed_steps []`.
+
+`slowest_runtime` rows carry `seconds_self_reported: True`, which is the proof the timing fix
+matters under a pool: a gap between consecutive lines would have attributed one row's 8.3 s
+to whichever row happened to print next.
+
+## 9. The row count was wrong, and only the builder showed it
+
+`runtime_row_count` came back **92** for a **71**-row panel.  A runtime row that checks an
+exported file prints twice -- `runtime E46N13  FILE OK ...` and then `runtime E46N13  OK
+...` -- and `gate_runner` counted lines.  Same specimen four times in `slowest_runtime`.
+
+Local runs did not catch it because the gate's own `counts.runtime` (which I read) comes
+from the gate's verdict line, 71, while the wrapper's row count is derived independently --
+two numbers for one thing, and only one of them was wrong.  `_dedupe_rows` now merges by
+name: a row counts once, **fail sticks** if any of its lines failed, and the **longest**
+duration wins.  Verified on the builder after the fix: build #36 reports
+`runtime_row_count: 71`.
+
+`CI_VERSION` is `rune-ci/6`; the fingerprint already hashes `ci/gate_runner.py`, so this
+invalidates cached greens without being told to.
+
+## 10. Where this left the final SHA
+
+| build | suite | SHA | wall | result |
+|---|---|---|---|---|
+| #34 / audit #1 | full, audit | `87c11db` | 2-3 s | **failed**: `dune: commande introuvable` (section 8) |
+| #35 | full | `87c11db` | 81 s | passed |
+| audit #2 | audit | `87c11db` | 1668 s | passed, `link_run 1072/1072` |
+| #36 | full | final | 81 s | passed, `runtime_row_count 71` |
+
+The audit ran on `87c11db`, whose compiler, gate and panels are **byte-identical** to the
+final SHA (`git diff 87c11db HEAD -- tools/ ocaml/ oracle/` is empty); what the final commit
+adds is prose and evidence text, which is the tier the strict gate covers.  Re-running the
+27-minute audit over identical code would spend the worker's time to learn nothing, so the
+final SHA gets the strict gate and the audit stays where it is recorded.
