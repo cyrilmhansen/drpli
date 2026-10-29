@@ -1,0 +1,19 @@
+E48B9:
+  procedure options(main);
+  /* [E2E-48/P1 r2] the automatic bit cell's ADDRESS next to the
+     pool and next to a varying cell -- E48A5 put `b' at 0002 with
+     the 2-byte 'N=' pool below it; here the pool is bigger, so a
+     shift proves the automatics start ABOVE the pool ([C114]). */
+  dcl name char(30) varying;
+  dcl b bit(1);
+  name = 'ABCDEFGH';
+  b = (name = 'EOF');
+  do while(^b);
+     put list('.');
+     name = 'EOF';
+     b = (name = 'EOF');
+  end;
+  put list('DONE');
+  stop;
+end E48B9;
+

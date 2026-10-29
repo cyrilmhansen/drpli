@@ -1,0 +1,12 @@
+E48B6:
+  procedure options(main);
+  /* [E2E-48/P1 r2] A STATIC CHARACTER: my codegen refuses every
+     STATIC except BIT(1) ("unsampled [TBD]"), and EXPR2, FSCAN,
+     LOAN2, MPMCALLB and REPORT all stop there.  This measures
+     DR's cell for the simplest one -- the evidence the next phase
+     needs, whether or not this phase uses it. */
+  dcl s char(3) static initial('AB');
+  put list(s);
+  stop;
+end E48B6;
+

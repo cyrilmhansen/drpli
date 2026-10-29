@@ -1,0 +1,16 @@
+E48B7:
+  procedure options(main);
+  /* [E2E-48/P1 r2] TWO STATIC BITS and a STATIC FILE-like order:
+     static cell adjacency (b at 0000, c at 0001) with a literal
+     ABOVE them, i.e. the [C114] block order with two statics. */
+  dcl b bit(1) static initial('1'b);
+  dcl c bit(1) static initial('0'b);
+  if ^b then
+     put list('N');
+  if c then
+     put list('P');
+  else
+     put list('Q');
+  stop;
+end E48B7;
+

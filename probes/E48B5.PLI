@@ -1,0 +1,14 @@
+E48B5:
+  procedure options(main);
+  /* [E2E-48/P1 r2] TWO STATIC BITS, no automatics: does the
+     static section charge 2, or 1 (last-cell-wins)?  E20B/E20D
+     pinned one static only. */
+  dcl b bit(1) static initial('0'b);
+  dcl c bit(1) static initial('1'b);
+  if b then
+     put list('B');
+  if c then
+     put list('C');
+  stop;
+end E48B5;
+

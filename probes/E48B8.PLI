@@ -1,0 +1,14 @@
+E48B8:
+  procedure options(main);
+  /* [E2E-48/P1 r2] `name = 'AB'' THEN `b = (name = 'AB')': one
+     literal used by a varying store AND by the comparison.  If
+     DR dedups it to ONE cell the pool is 2 bytes, not 4, and the
+     SCVCM's MVI A operand names the same cell the store wrote. */
+  dcl b bit(1) static initial('0'b);
+  dcl name char(30) varying;
+  name = 'AB';
+  b = (name = 'AB');
+  put list('R=', b);
+  stop;
+end E48B8;
+

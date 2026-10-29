@@ -1,0 +1,14 @@
+E48B2:
+  procedure options(main);
+  /* [E2E-48/P1 r2] a bare `if b then do; ... end;' (positive,
+     no else) on a STATIC bit: the control for E48B1, and the
+     FLTPOLY2 shape spelled directly. */
+  dcl b bit(1) static initial('1'b);
+  if b then
+     do;
+     put list('Y');
+     end;
+  put list('E');
+  stop;
+end E48B2;
+

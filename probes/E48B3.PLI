@@ -1,0 +1,11 @@
+E48B3:
+  procedure options(main);
+  /* [E2E-48/P1 r2] THE MINIMAL STATIC CASE: one static bit, one
+     literal, no automatics, no stop.  If DR's DEF-DATA-SIZE is 2
+     the static cell is NOT part of bind's top section total; if
+     it is 3 my formula's shape is right and something else
+     charges the byte. */
+  dcl b bit(1) static initial('0'b);
+  put list('T');
+end E48B3;
+

@@ -142,3 +142,31 @@ different tail, and whether `^` is a condition operator at all.  A refusal on an
 of them is a `dr-refuses` row (and keeps CREATE's path narrow); a lowering that
 differs from the prediction is a new claim.  Nothing here is promoted into a rule
 without the oracle's own bytes.
+
+## Round 2 (E48B1..E48B9) -- written after round 1's oracle run, before round 2's
+
+Round 1 measured the shapes; three questions stayed open and round 1 also turned
+up a defect in **my** code that no previous specimen had ever exposed (see
+`RESULTS.md` §4).  These predictions are written and committed before
+`oracle/batch.py` is invoked on any E48B probe.
+
+| # | probe | question | PREDICTED DR answer | basis |
+|---|---|---|---|---|
+| R1 | E48B1 | `if ^b then do; ... end;` with NO else (CREATE:35's spelling) | the same 8-byte `3A/B7/FA <chain>` test head; the chain's target is the statement after the block | CREATE 00A1-00A8 |
+| R2 | E48B2 | positive bare `if b then do;` with no else | `3A/B7/F2 <chain>` | FLTPOLY2 0075 |
+| R3 | E48B3 | **DEF-DATA-SIZE with one STATIC bit and one literal and no automatics** | **2** -- [C114]'s `[statics][pool][automatics]` with zero automatics; DR's E48A3 already said `3` for two literals, i.e. 1 static + 2 pool | E48A3/E48A6 DR objects, [C114] |
+| R4 | E48B4 | static bit + one automatic fixed | size **4** = 1 static + 1 pool + 2 auto, addresses b@0000 'T'@0001 n@0002 | [C114], E48A5 (`b'@0002 above a 2-byte pool) |
+| R5 | E48B5 | two static bits, no automatics | size **4** = 2 statics + 2 pool bytes ('B','C'); cells adjacent at 0000/0001, initialisers 00 then 80 | E20B/E20D (one static each), [C114] |
+| R6 | E48B6 | `dcl s char(3) static initial('AB')` | **UNMEASURED**. Predicted ACCEPT with s at DATA 0000 carrying the two bytes `41 42` and the third byte of the cell... open whether the pool then starts at 0003 or 0004 (a static char(3) cell is 3 bytes; 'AB' as a PUT literal is a separate 2-byte cell). This row feeds the STATIC-on-CHARACTER gap, not this phase's CREATE path | none -- my compiler refuses the shape outright today |
+| R7 | E48B8 | one literal used by BOTH a varying store and a comparison | ONE pool cell (2 bytes, deduped by content [C152]); `?SMCVM`'s `LXI D` and `?SCVCM`'s `LXI H` name the same address | [C152], CREATE's `*D(0035)` reuse |
+| R8 | E48B9 | automatic bit + automatic varying + a loop that stores a condition then tests its negation | DATA = pool + (31 varying) + (1 bit) in declaration order, `b` ABOVE `name`; both shapes appear together, nothing new | E48A5, E48A6, CREATE |
+| G4 | all | DR writes a `.REL` for R1-R8 | accepted, `NO ERROR(S)` in both passes | as G1 |
+
+The **falsifiable core of R3-R5** is my own arithmetic, not DR's: my compiler
+currently prints `DEF-DATA-SIZE = sy_total + pool_total + max(auto, pl_total) +
+2*temps`, and `pl_total` (bind's top-block section total) is **1 for a STATIC
+bit**, which double-counts the static byte whenever the statics dominate the
+`max`.  If DR says 2 where I say 3, the `max` arm is wrong and must be fixed
+here, because every accepted E48 specimen depends on it.  If DR says 3, my number
+is right and E48A3's mismatch has another cause.  Either way the oracle decides,
+not my formula.

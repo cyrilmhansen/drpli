@@ -1,0 +1,20 @@
+E48B1:
+  procedure options(main);
+  /* [E2E-48/P1 r2] `if ^b then do; ... end;' with NO ELSE, which
+     is CREATE:35 exactly.  E48A2 measured the WITH-else form;
+     CREATE needs this one. */
+  dcl b bit(1) static initial('0'b);
+  dcl n fixed bin(15);
+  n = 0;
+  do while(^b);
+     n = n + 1;
+     if ^b then
+        do;
+        n = n + 1;
+        end;
+     if n = 4 then b = '1'b;
+  end;
+  put list('N=', n);
+  stop;
+end E48B1;
+

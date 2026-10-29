@@ -1,0 +1,15 @@
+E48B4:
+  procedure options(main);
+  /* [E2E-48/P1 r2] STATIC BIT + ONE AUTOMATIC, same literal.
+     Discriminates "statics are outside the section total" (DR
+     would be 1 + 1 + 2 = 4) from "the static byte is the
+     section" (DR would be 1 + 1 + 2 = 4 too) -- so read the
+     ADDRESSES, not just the size: b at 0000, 'T' at 0001, n at
+     0002 is the [C114] layout. */
+  dcl b bit(1) static initial('0'b);
+  dcl n fixed bin(15);
+  n = 1;
+  put list('T', n);
+  stop;
+end E48B4;
+
