@@ -441,25 +441,25 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 23
-checkpoint-id: g23-cda1093fa704
+checkpoint-generation: 24
+checkpoint-id: g24-7313bc9445df
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-867, session 01a18cf9-0979-7689-ae48-1a81433e67cf)
-checkpointed: 2026-10-30T13:38:40.869Z
+status: checkpoint (guard level 1, remaining ~14931, session 01a18d08-bc2c-7689-ae48-1a855f04fd0e)
+checkpointed: 2026-10-30T13:48:45.593Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5e8cf2359198aa92e0cc830af6c579f93cad9db8e310fa640df2df8b01013b71
+source-progress: b0a18d4ae8709ac77bdbcff7e3cad3b3d9113e2ca0cdad1fa866c96ba8f47776
 source-handoff: 9ab46486f15374e1151c46fe4df430d646f736760b62d599f978659eb304db2a
-source-learnings: 6c0a53d78f0ef0dc56c75a482b803a3feb20666668fa7747f83e3035ad297470
+source-learnings: 3c4f3b7ceca2b8b4377d556097f0bc1a5cc2a81ebdb29578ce5d13f2fd1c9cc6
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
-readiness-by: session:01a18cf9-0979-7689-ae48-1a81433e67cf
-readiness-at: 2026-10-30T13:38:40.873Z
-readiness-checkpoint: g23-cda1093fa704
+readiness-by: session:01a18d08-bc2c-7689-ae48-1a855f04fd0e
+readiness-at: 2026-10-30T13:48:45.597Z
+readiness-checkpoint: g24-7313bc9445df
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 1; checkpoint requested (finalize: Resume at PROGRESS.md Current phase STATUS block (session 01a18d08): write claims C321-C326 from spec/lab-evidence/e2e48-p2d/RESULTS.md s2 + appends to C310/C313/C317, commit; then arms a-f one-per-commit with cmp sweeps (D3/D5/D7 already byte-identical); then registration (SPECIMENS +10, E46F5 three-place promotion, NEG_META, --update-inventory, census --check, FULL GATE measured, COVERAGE rows). Build: eval $(opam env). Chain 1/8 this session.)
 
 ### Unfinished operations
 - (none recorded)
@@ -468,5 +468,5 @@ guard level 4; checkpoint requested (renewal tool refresh)
 (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
 ### Guard notes
-Resume at HANDOFF.md '## Next action - E2E-48/P2d step 5': claims C321+ from spec/lab-evidence/e2e48-p2d/RESULTS.md s2, then registration (SPECIMENS/REJECTS/NEG_META/--update-inventory/census --check/FULL GATE measured), then one-arm-per-commit lowering (cmp D3/D5 first — they already compile). Oracle round COMPLETE: golden/e48p2db 10/10 at d28ff5e; botched run 1 kept at golden/e48p2d. Build needs eval $(opam env). Every probe line must stay <=71 cols. Chain 0/8 this session; renewal budget resets only by operator.
+Resume at PROGRESS.md Current phase STATUS block (session 01a18d08): write claims C321-C326 from spec/lab-evidence/e2e48-p2d/RESULTS.md s2 + appends to C310/C313/C317, commit; then arms a-f one-per-commit with cmp sweeps (D3/D5/D7 already byte-identical); then registration (SPECIMENS +10, E46F5 three-place promotion, NEG_META, --update-inventory, census --check, FULL GATE measured, COVERAGE rows). Build: eval $(opam env). Chain 1/8 this session.
 <!-- guard:end checkpoint -->
