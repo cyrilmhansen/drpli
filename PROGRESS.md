@@ -5,6 +5,38 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+> **STATUS 2026-10-30 (session 01a18d83, renewal 5/8, HEAD `adbfa2a`).**
+> **STEP 4 REGISTRATION IS DONE AND MEASURED — the ONLY remaining item of E2E-48/P2d is the
+> COVERAGE rows.** Measured by THIS session, in order: (0) inherited state re-verified through
+> this binary before registering — `dune build` rc=0, clean-rebuild (scratch tree
+> `/tmp/scratch5/ocaml`) warning multiset unchanged **126 = 28/26/22/17/15/14/2/2**, sweeps
+> **E48D 10/10, e48p1 24/24, e48p2c 9/9, e48p2retire 2/2** whole-file byte-identical;
+> (1) ten rows registered in the gate's OWN panel dict — **the registration site is
+> `SPECIMENS.update({...})` in `tools/e2e_gate.py` (new block after the P2c block, lines
+> ~1376-1410), NOT `spec/SPECIMENS.tsv`, which is a stale 1-row file untouched since `ada03ca`**
+> (same as precedents `992ccad`/`f67cc6d`) — **byte tier ONLY: no `spec/RUNTIME.txt` row, no
+> `OUTPUT_CHECK` entry** (RESULTS §3: runtime length rewrite and empty-varying PUT output are
+> [TBD]); (2) `python3 tools/e2e_gate.py --update-inventory` → **INVENTORY 1301 rows = 1120
+> specimens + 181 refusals**, diff reviewed line by line: the only content changes are the ten
+> new `E48D1..D10` rows plus **E46F5's `refusal → specimen` row, the un-exported leftover of arm
+> (b) `6491981`** (the gate's `inventory_check` had been reporting exactly that one SUBSTITUTED
+> entry); (3) census `--check /tmp/census-prev.json`: **counts IDENTICAL (EXACT 15 / DIFFERS 0 /
+> REFUSED 26 / UNEXPECTED 0)** and BOTH msg deltas are genuine **ADVANCES** past arm (a), verified
+> as named stops, not regressions — EXPR2 `STATIC INITIAL value '' on CHAR(10) VARYING` →
+> **`ON ERROR is not implemented [TBD] (line 24)`**, FSCAN `... CHAR(80) VARYING` → **`PUT EDIT
+> operator X is unsampled [TBD]`**; (4) **FULL GATE MEASURED rc=0: 1120 byte-exact / 0 fail of
+> 1120, negative panel 181/181 refused, divergence 9/9, coverage 107 rows 0 errors, census
+> --verify clean, prose clean** — ACTUAL numbers, the inherited "~1120" is confirmed; plus
+> `registration_audit` → 1301 entries / 0 errors and `inventory_check` → `[]`.
+> **REMAINING (the exact next action): `spec/COVERAGE.tsv` rows for the six P2d shapes against
+> C321-C326, then `python3 tools/coverage_check.py` + a gate re-run.** Schema re-read this
+> session: 15 columns, `category` ∈ DECL/EXPR/FILE/COND/STOR/PROC/AGG/IO/TRAN/LOOP/OBJ/LEX/NEG/
+> RTME/BUILTIN; col 6 `manual_ref` = `NONE:<why>`; col 11 = probes this row is EXACT on, col 12 =
+> corpus names, col 13 = boundary prose, col 14 confidence, col 15 provenance cites; the validator
+> (`coverage_check.py:203-247`) requires that a MEASURED/SINGLE_SAMPLE row's cited claims mention
+> at least one of its col-11 probes (a stem match counts; a path citation is self-sufficient).
+> No compiler code changed this session; nothing is half-edited; tree clean except guard blocks.
+
 > **STATUS 2026-10-30 (session 01a18d51, renewal 4/8, HEAD `e21281a`).**
 > **ARM (f) DONE AND MEASURED — E2E-48/P2d LOWERING IS COMPLETE (arms a-f all landed).**
 > `e21281a`: TEST route `str_cmp_shape_rev` calls pass `~imem:true` ([C326] witness
@@ -341,17 +373,17 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 36
-checkpoint-id: g36-2951759af1de
+checkpoint-generation: 39
+checkpoint-id: g39-80d3cb2a2a6e
 checkpoint-kind: auto
-content-delta: none
+content-delta: new
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-10-30T15:12:54.048Z
+checkpointed: 2026-10-30T16:00:49.837Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 022c69dab8f42972459f6b0e7ca9a605e83a875716f20aebd0819d1da7688b08
-source-handoff: c15fdf8d14434497b2e46c5e232ede608f7fb139f505d43416e32389691cd610
-source-learnings: 616baedbc32a7ad7ea57ce416368d3b35c6adb467d8e98c12ca3147c2cba8069
+source-progress: 5dfa79082f6ea20fb83ed470eab605907d6b640792cc16ce5f1578f9b93476f1
+source-handoff: bdaef8a693ad11e5037230f9cc58e4c90021993880f712d2fd15cac817e83cd1
+source-learnings: 4f177ce8af8014f7161441243ac86976583d9fbd2b0af746e887c67020265f24
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 <!-- guard:end checkpoint -->

@@ -544,3 +544,34 @@ The guard never writes this file.
 - **accepted (infra)** the guard wrote a level-3 auto-checkpoint block mid-flow (committed
   separately as chore, per precedent); readiness attestation is a separate act — close with
   handoff_finalize, which refreshes AND attests synchronously.
+
+## 2026-10-30 — session 01a18d83 (renewal 5/8), E2E-48/P2d step 4 (registration + gate)
+
+- **Accepted (measured): the byte panel is registered in `tools/e2e_gate.py`, not in
+  `spec/SPECIMENS.tsv`.** That tsv is a stale 1-row file (363 bytes, last touched `ada03ca`,
+  E2E-39); the live registry is the `SPECIMENS` dict / `SPECIMENS.update({...})` blocks in the
+  gate script, and `--update-inventory` is what writes `spec/INVENTORY.txt`. Precedents
+  `992ccad` (24 rows) and `f67cc6d` confirm it. Handoff prose that says "spec/SPECIMENS.tsv:
+  add ..." is loose naming for the panel dict — the successor must not edit the tsv.
+  [accepted, measured 2026-10-30]
+- **Accepted (measured): an `inventory_check` SUBSTITUTED entry is a promotion leftover a count
+  cannot see.** After arm (b) `6491981` promoted E46F5, the committed INVENTORY still carried its
+  old `refusal` row, so `inventory_check` reported exactly ONE "entry SUBSTITUTED (same name,
+  different reference)" and nothing else. Any REJECTS→SPECIMENS promotion must be followed by
+  `--update-inventory` in the SAME cycle, or the next gate aborts. [accepted, measured 2026-10-30]
+- **Accepted (measured): a census ADVANCE past a retired refusal is the success signal, not a
+  regression.** Arm (a) removed the empty-`initial('')` stop, so EXPR2 moved to `ON ERROR is not
+  implemented [TBD] (line 24)` and FSCAN to `PUT EDIT operator X is unsampled [TBD]`, with the
+  EXACT/DIFFERS/REFUSED/UNEXPECTED counts unchanged (15/0/26/0). Reading only the counts would
+  have hidden both facts; reading only the diff would have misread them as drift. [accepted,
+  measured 2026-10-30]
+- **Accepted (method): re-measure the sweeps through the current binary BEFORE registering.**
+  Ten probes were cmp-verified against `golden/e48p2db/` plus 24/9/2 against earlier goldens, in
+  a scratch output dir, before the panel grew — registration then claims only what THIS binary
+  produces (the inherited 10/10 was true, but was not evidence until re-measured). [accepted]
+- **Open (proposed, NOT started): `spec/COVERAGE.tsv` rows for the six P2d shapes** (TITLE-static
+  [C323], static-char stores [C321], empty INITIAL [C322], |c|∈{2,3} store ladder [C324],
+  non-final bit PUT item [C325], member-as-RIGHT in TEST [C326]). Schema facts re-read from the
+  file and validator this session: 15 columns; MEASURED rows must have ≥1 col-11 probe mentioned by
+  their own cited claims (stem match counts); `manual_ref = NONE:<why>`.
+  [proposed — the next session's action]

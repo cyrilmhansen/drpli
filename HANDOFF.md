@@ -166,7 +166,51 @@ unchanged); the sweep is
 
 ## Next action (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
-## Next action - E2E-48/P2d: LOWER the three remaining arms (d)(e)(f), then register + FULL GATE
+## Next action - E2E-48/P2d step 7 ONLY: the six COVERAGE.tsv rows, `coverage_check`, gate re-run
+
+> **STATUS 2026-10-30 (renewal 5/8 successor, session 01a18d83, HEAD `adbfa2a`).** **STEP 4
+> (REGISTRATION + FULL GATE) IS DONE AND MEASURED. No lowering remains.** Measured by that
+> session: sweeps re-run through its own binary FIRST (E48D 10/10, e48p1 24/24, e48p2c 9/9,
+> e48p2retire 2/2 whole-file byte-identical; clean-rebuild scratch warning multiset 126 =
+> 28/26/22/17/15/14/2/2); the ten rows added to the gate's **`SPECIMENS` dict in
+> `tools/e2e_gate.py`** (NOT `spec/SPECIMENS.tsv` — that file is a stale 1-row artefact of
+> E2E-39; `992ccad`/`f67cc6d` are the precedents), byte tier ONLY, no RUNTIME/OUTPUT_CHECK rows;
+> `--update-inventory` → **INVENTORY 1301 = 1120 specimens + 181 refusals**, diff reviewed line by
+> line (ten new D rows + E46F5's `refusal → specimen`, the un-exported leftover of arm (b));
+> census `--check` → **counts IDENTICAL 15/0/26/0** with BOTH deltas verified as genuine
+> **ADVANCES** past arm (a) (EXPR2 → `ON ERROR … line 24`, FSCAN → `PUT EDIT operator X`);
+> **FULL GATE rc=0 = 1120 byte-exact / 0 fail, negative 181/181, divergence 9/9, coverage 107 rows
+> 0 errors, census --verify clean, prose clean**; `registration_audit` 1301 entries 0 errors;
+> `inventory_check` `[]`.
+
+**THE EXACT NEXT ACTION** (nothing else is owed by this phase; no code changes):
+1. Write the six `spec/COVERAGE.tsv` rows against the CURRENT ledger: TITLE on a STATIC operand
+   **[C323]** (probes E48D1,D2,D3 + E46F5), stores into STATIC CHARACTER **[C321]** (E48D6,D7,
+   D10's automatic `?SMCVM` site), empty `initial('')` **[C322]** (E48D4,D5), store ladder
+   |c| ∈ {2,3} **[C324]** (E48D8 — fold into/annotate the existing `STOR.BIT1_COND_STORE` row,
+   whose col-13 boundary text STILL says |c| ∈ {1,2,3} and stores into static cells are refused:
+   that clause is now FALSIFIED by C321/C322/C324 and must be corrected as a traceable append,
+   original kept), non-final BIT(1) PUT item **[C325]** (E48D9 — same for `IO.PUT_BIT1_ITEM`,
+   whose boundary names the non-final position as refused), member-as-RIGHT in TEST **[C326]**
+   (E48D10 — same for `COND.BIT1_NEG_TEST`/the compare row if it names the refusal).
+   Format: 15 tab-separated columns; `manual_ref = NONE:<why>`; col 11 = probes EXACT on this row;
+   col 12 = corpus names (must exist in the census); col 14 confidence; col 15 provenance cites the
+   claim ids AND the `spec/lab-evidence/e2e48-p2d/RESULTS.md` path. A MEASURED row needs ≥1 of its
+   col-11 probes mentioned by its cited claims (`tools/coverage_check.py:203-247`; stem matches
+   count, `E48D` is matched by any `E48D…` in the claim text).
+2. `python3 tools/coverage_check.py` (expect 0 errors) then `python3 tools/e2e_gate.py` — report
+   ACTUAL numbers (expect 1120/0 unchanged; coverage rows 107 → 113).
+3. Commit rows + PROGRESS/HANDOFF status; refresh + attest the checkpoint (`/handoff`,
+   `/handoff ready`) and close with `handoff_finalize`.
+**Standing:** byte tier only for this bank — no `spec/RUNTIME.txt`/`OUTPUT_CHECK` row may come from
+it (runtime length rewrite and empty-varying PUT output are [TBD]); never touch `golden/e48p1`,
+`e48p2c`, `e48p2d` (botched run, kept as evidence), `e48p2retire`, `e42p1c`, `first8080u`;
+implement no RESULTS §3 shape (`k = 1`, negative `c`, bit behind a file attach, BASED member in a
+condition store, over-extent INITIAL/store, member truthiness, member-vs-member, FIXED member
+compare); no `%include`/LOAN2 work without its own pre-registered round; no push; build needs
+`eval $(opam env)`; probes ≤71 columns.
+
+## Next action (superseded by the section above: step 4 registration is DONE and MEASURED at `adbfa2a`) — E2E-48/P2d: LOWER the three remaining arms (d)(e)(f), then register + FULL GATE
 
 **DONE + MEASURED this session (01a18cf9, renewal 2/8; each commit built with `eval $(opam env) &&
 dune build`, warning multiset unchanged 22/15/28/2/14/2/17/26, sweeps e48p1 24/24, e48c 9/9):**
@@ -602,17 +646,17 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 36
-checkpoint-id: g36-2951759af1de
+checkpoint-generation: 39
+checkpoint-id: g39-80d3cb2a2a6e
 checkpoint-kind: auto
-content-delta: none
+content-delta: new
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~4510, session 01a18d51-995d-754f-9c11-05dc2cba0b22)
-checkpointed: 2026-10-30T15:12:54.048Z
+status: checkpoint (guard level 4, remaining ~4754, session 01a18d83-5882-754f-9c11-05e11a05f757)
+checkpointed: 2026-10-30T16:00:49.837Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 022c69dab8f42972459f6b0e7ca9a605e83a875716f20aebd0819d1da7688b08
-source-handoff: c15fdf8d14434497b2e46c5e232ede608f7fb139f505d43416e32389691cd610
-source-learnings: 616baedbc32a7ad7ea57ce416368d3b35c6adb467d8e98c12ca3147c2cba8069
+source-progress: 5dfa79082f6ea20fb83ed470eab605907d6b640792cc16ce5f1578f9b93476f1
+source-handoff: bdaef8a693ad11e5037230f9cc58e4c90021993880f712d2fd15cac817e83cd1
+source-learnings: 4f177ce8af8014f7161441243ac86976583d9fbd2b0af746e887c67020265f24
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
@@ -626,5 +670,5 @@ guard level 4; checkpoint requested (auto at level 4)
 (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
 ### Guard notes
-E2E-48/P2d session close (01a18d44, renewal 3/8): HEAD ed3962a clean. Arms (d) 18a06c0, (e) 1e8acb2 committed+measured; D1-D9 byte-identical to golden/e48p2db; e48p1 24/24, e48c 9/9, negative panel 181/181 0 anomalies; dune clean rc=0, warning multiset 126 unchanged. Arm (f) NOT started: widen TEST str_cmp_shape_rev calls codegen.ml:7573/7575 to ~imem:true (encoder 6972-6979 already emits C326 bytes; supersede docstring 6941-6946 traceably; re-measure E46K14 marker through binary after; fix arm if moved). Then registration step 4: SPECIMENS E48D1..D10 byte-tier only, --update-inventory, census --check (EXPR2/FSCAN advance expected, read every delta), FULL GATE (report ACTUAL ~1119-1120/0, negative 181), COVERAGE rows + coverage_check + gate re-run. Build: eval $(opam env). No push. Full spec: HANDOFF.md Next action STATUS block.
+Successor: E2E-48/P2d lowering is COMPLETE (arms a-f; HEAD 45ec3b8, arm f = e21281a). D1-D10 10/10 whole-file byte-identical to golden/e48p2db; e48p1 24/24; e48c 9/9; E46K14 marker re-measured unchanged. NEXT = step 4 ONLY (no more lowering): SPECIMENS E48D1..D10 byte tier (NO RUNTIME rows) -> python3 tools/e2e_gate.py --update-inventory -> census cp spec/census/corpus-census.json /tmp/census-prev.json && python3 tools/corpus_census.py --check /tmp/census-prev.json (EXPR2/FSCAN expected to ADVANCE; re-read every delta) -> FULL GATE (report ACTUAL, expect ~1120/0, negative 181, divergence 9/9) -> registration_audit -> spec/COVERAGE.tsv rows vs C321-C326 + coverage_check + gate re-run. eval $(opam env) before dune. No push. Full spec: HANDOFF.md Next action STATUS (renewal 4/8).
 <!-- guard:end checkpoint -->
