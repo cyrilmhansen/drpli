@@ -493,3 +493,23 @@ The guard never writes this file.
 - **accepted** Session state at close: D1-D7 byte-identical, D8/D9/D10 refused by name; negative
   panel 181/181; registration_audit 1110/181; e48p1 24/24; e48c 9/9.  Arms (d)(e)(f) and the
   registration+gate are OWED and spelled out byte-by-byte in HANDOFF.md.
+
+## E2E-48/P2d arms (d)(e) (session 01a18d44, renewal 3/8, measured 2026-10-30)
+- **accepted** Arm (d) (`18a06c0`, [C324]): the store ladder for `k = c` with |c| in {2,3} needed
+  NO new bytes — `hl_bias` is ONE cost model (|b|<=3 INX/DCX repeat, >=4 LXI B+DAD B, [C143]) and
+  reusing `cmp_load_deref / hl_bias (-kk) / MOV A,H / ORA L / flag` emits E48D8's exact ladder.
+  The <=3 threshold is now MEASURED route-independent (store as well as TEST). k=1 and negative c
+  fall through to the named refusal (no witness). Verified first by scratch-probe code 0006..001E
+  byte-identical to the golden, then whole-file when (e) landed.
+- **accepted** Arm (e) (`1e8acb2`, [C325]): the non-final BIT(1) PUT guard was the third case of
+  "unmeasured dressed as a rule" in this phase family (P15, C313-premise, this) — the `df4b9c8`
+  per-item route was ALREADY position-independent (`bit_item` suppresses the shared tail for any
+  bit item), so the arm was the guard REMOVAL alone and D9 dropped byte-exact on the first build.
+  The falsified premise is kept verbatim in the superseded comment.
+- **accepted (method)** A per-arm HANDOFF expectation must be checked against the PROBE SOURCE,
+  not just the law: "after (d) expect D8 IDENTICAL" was jointly false — E48D8's
+  `put list('B=', b, 'C=', c)` carries a NON-FINAL bit item, so D8 only lands after (d)+(e).
+  The honest intermediate is "D8's refusal advances past the stores to the (e) marker" (measured).
+- **accepted** Full 181-row negative replication (gate write semantics, stderr matching) after
+  retiring a refusal: 0 anomalies — confirms the prior REJECTS audit that no row pinned the
+  non-final-bit text.

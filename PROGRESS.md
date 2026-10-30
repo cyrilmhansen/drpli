@@ -5,6 +5,25 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+> **STATUS 2026-10-30 (session 01a18d44, renewal 3/8, checkpointed after arms (d)(e)).**
+> **Arms (d) and (e) DONE, COMMITTED, MEASURED**: `18a06c0` store ladder |c| in {2,3} via the
+> ONE `hl_bias` authority ([C324]); `1e8acb2` non-final BIT(1) PUT item accepted, guard removed,
+> premise falsified by E48D9 kept verbatim ([C325]). Verified at HEAD: `dune clean && dune build`
+> rc=0, warning multiset unchanged (126 = 28/26/22/17/15/14/2/2); **D1-D9 whole-file byte-identical
+> to `golden/e48p2db/`** (D8 needed both arms -- the inherited "expect D8 after (d)" was jointly
+> false, recorded in LEARNINGS); e48p1 24/24; e48c 9/9; full negative panel **181/181 refused,
+> 0 anomalies** (gate CRLF+`^Z` semantics). Guard g30 committed as `547701d`.
+> **NEXT = arm (f)** (D10 TEST member-as-RIGHT via `str_cmp_shape_rev ~imem:true` at the TEST
+> callers codegen.ml:7557/7561; bytes `21 *D(member) / 11 *D(lit) / 06 len / CD ?SCCVM /
+> C2 fill->next stmt`, [C326]; RE-MEASURE E46K14's refusal through the binary afterwards -- if its
+> marker moved, FIX the arm, never silently re-pin), **then REGISTRATION + FULL GATE**:
+> SPECIMENS.update E48D1..D10 (byte tier ONLY, no RUNTIME rows), `--update-inventory`, census
+> `cp spec/census/corpus-census.json /tmp/census-prev.json && python3 tools/corpus_census.py
+> --check /tmp/census-prev.json` (EXPR2/FSCAN expected to ADVANCE past the empty-initial refusal --
+> re-read EVERY delta), FULL GATE (report ACTUAL; expect ~1119-1120 / 0 fail, negative 181),
+> COVERAGE.tsv rows for COND/STOR/IO/DECL shapes + `coverage_check` + gate re-run. No half-edited
+> state exists at this checkpoint; tree clean except guard blocks.
+
 > **STATUS 2026-10-30 (session 01a18cf9, renewal 2/8, closing at context critical).**
 > **E2E-48/P2d arms (a)(b)(c) DONE, COMMITTED, MEASURED.** `6545b5d` empty `initial('')` on STATIC
 > VARYING (D4, [C322]); `6491981` TITLE-on-STATIC class-invariance (D1/D2, [C323]) + **E46F5

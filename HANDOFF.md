@@ -189,13 +189,23 @@ dune build`, warning multiset unchanged 22/15/28/2/14/2/17/26, sweeps e48p1 24/2
   tree clean at HEAD; `ocaml/` builds.
 
 **EXACT NEXT ACTION (successor): three arms, ONE per commit, same build+cmp discipline, order (d)(e)(f):**
-1. **(d) D8 store ladder |c| ∈ {2,3}** ([C324]) in `bit_cond_mat` (ocaml/lib/codegen.ml:7105):
+
+> STATUS 2026-10-30 (renewal 3/8, session 01a18d44): **arms (d) and (e) are DONE and committed**
+> (`18a06c0` ladder |c|2,3 via the one `hl_bias` authority [C324]; `1e8acb2` non-final bit PUT item
+> accepted [C325], guard removed with its falsified premise kept verbatim). **D1-D9 whole-file
+> byte-identical to `golden/e48p2db/`**; sweeps 24/24 + 9/9; negative panel 181/181, 0 anomalies;
+> clean-rebuild warning multiset unchanged (126). D8's identity required BOTH arms (its
+> `put list('B=', b, ...)` carries a non-final bit item) — the per-step "expect D8 after (d)" was
+> jointly false, recorded in LEARNINGS. **Only step 3 (arm f) and step 4 (registration+gate)
+> remain.**
+1. **(d) D8 store ladder |c| ∈ {2,3}** ([C324]) — DONE `18a06c0` (with arm e for D8's put).
+   Original step text kept for lineage: in `bit_cond_mat` (ocaml/lib/codegen.ml:7105):
    the `bin_lit` arms today are `Some (v,0)` and `Some (v,kk) when kk >= 4` (the latter =
    `cmp_load_deref / hl_bias (-kk) / MOV A,H / ORA L / flag`). Add ONLY |kk| ∈ {2,3}: DR is
    `2A *D(k) / 2B ×|c| / 7C / B5 / D6 01 / 9F / 32 *D(b)` (D8 0006 with two `2B`, 0013 with three)
    — i.e. `cmp_load_deref` then `d st 0x2b` |c| times, then `op_mov_a_h / 0xb5 / flag ()`.
    `k = 1` and negative `c` STAY refused (§3, no witness). Expect D8 IDENTICAL.
-2. **(e) D9 non-final BIT(1) PUT item** ([C325]) — refusal text "a BIT(1) PUT item in a NON-FINAL
+2. **(e) D9 non-final BIT(1) PUT item** ([C325]) — DONE `1e8acb2`. Original step text kept: — refusal text "a BIT(1) PUT item in a NON-FINAL
    position has no DR witness" at codegen.ml:~10542 (its premise is falsified by D9). Route = the
    FINAL-bit bytes already landed in `df4b9c8` (`3A cell / 06 01 / CD ?QB08C / CD ?PNBOP`) with its
    OWN PNBOP tail, the following literal chain untouched, exactly ONE final `?QIOOP` (D9
