@@ -163,6 +163,28 @@ The guard never writes this file.
   change in GOAL/prose/LEARNINGS/config yields `content-delta: none`, and readiness then warns
   "checkpoint recorded nothing new" — write the discoveries first, then refresh.
 
+## Accepted (E2E-48/P2d arm f, measured 2026-10-30, renewal 4/8 successor)
+
+- **A handoff's "exact landing spec" is a hypothesis about the code, not a substitute for reading
+  it.** Arm (f) was specified as a two-site `~imem:true` widening only. Reading `prescan_cond`
+  showed the admitted shape ALLOCATES the literal's pool cell while its demand clause
+  (`is_cell b`) counted only flat `Vvar` rights — so the arm as specified would have compiled
+  D10 (whose literal is demanded by its own earlier store) but broken the C152 demand/layout
+  invariant on any program that compares a member against a literal appearing nowhere else.
+  Verified empirically BEFORE editing, with a scratch based-member TEST compare: "prescan demanded
+  0 pool bytes, lowering allocated 2". **accepted**: always run the fa09b97 demand-twin question
+  ("what does the new arm allocate?") against the prescan predicate, never against the inherited
+  task text.
+- **An existing golden can mask a demand gap by content-addressed dedup.** E29C9's
+  `if 'AB' = w then` (literal-left, BASED member right) has always been lowered through the same
+  uncounted clause; it passes only because `w = 'AB'` demands that cell first. **accepted**:
+  when widening a lowering predicate, test the shape ALONE, not only in the witness's program.
+- **A refusal-message edit must be re-measured against the pinned marker, not assumed safe.**
+  Rewriting the comparison WHY-string kept `imem_refuse`'s fixed prefix intact, and E46K14
+  (`if line then`, a different, unmeasured shape) was re-run through the new binary: marker
+  unchanged. **accepted**: the re-measure rule in the task text is what distinguishes "arm did not
+  move the gate" from "gate was silently re-pinned".
+
 ## Accepted (E2E-48/P2c session, measured 2026-10-30)
 
 - **Design a probe bank so it measures its axis EVEN IF a known my-defect is unfixed.** The

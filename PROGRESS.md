@@ -5,6 +5,25 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+> **STATUS 2026-10-30 (session 01a18d51, renewal 4/8, HEAD `e21281a`).**
+> **ARM (f) DONE AND MEASURED — E2E-48/P2d LOWERING IS COMPLETE (arms a-f all landed).**
+> `e21281a`: TEST route `str_cmp_shape_rev` calls pass `~imem:true` ([C326] witness
+> `golden/e48p2db/E48D10` 0013; no new encoder) **and `prescan_cond`'s literal-LEFT demand clause
+> widened `is_cell` → `is_var`** — the fa09b97 demand twin the inherited spec did not list. Cause
+> measured BEFORE the arm: a scratch literal-left/member-right TEST compare whose literal occurs
+> nowhere else died with "prescan demanded 0 pool bytes, lowering allocated 2" (C152 invariant);
+> E29C9 hid it because its store demands the same content-addressed cell (`pdec_str_cell` dedup →
+> no already-passing total changes). Verified at `e21281a`: `dune build` rc=0; **E48D1..D10 10/10
+> whole-file byte-identical**; e48p1 24/24; e48c 9/9; E46K14 (`if line then`) still refuses and its
+> pinned marker was RE-MEASURED through this binary (unchanged, not re-pinned); comparison
+> WHY-string superseded traceably (member truthiness, member-vs-member, FIXED member all still
+> unmeasured). Tree clean except guard blocks.
+> **NEXT = step 4 ONLY (no more lowering): SPECIMENS E48D1..D10 byte tier (no RUNTIME rows) →
+> `--update-inventory` → census `--check` (EXPR2/FSCAN expected to ADVANCE, re-read every delta) →
+> FULL GATE (report ACTUAL, expect ~1120/0, negative 181, divergence 9/9) → `registration_audit`
+> → `spec/COVERAGE.tsv` rows for the six new shapes vs C321-C326 + `coverage_check` + gate re-run.
+> Exact commands and prohibitions: HANDOFF.md → "## Next action" STATUS of 4/8.**
+
 > **STATUS 2026-10-30 (session 01a18d44, renewal 3/8, checkpointed after arms (d)(e)).**
 > **Arms (d) and (e) DONE, COMMITTED, MEASURED**: `18a06c0` store ladder |c| in {2,3} via the
 > ONE `hl_bias` authority ([C324]); `1e8acb2` non-final BIT(1) PUT item accepted, guard removed,
@@ -322,22 +341,19 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 34
-checkpoint-id: g34-4bf3ce75a57b
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 36
+checkpoint-id: g36-2951759af1de
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-10-30T14:57:54.637Z
+checkpointed: 2026-10-30T15:12:54.048Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 022c69dab8f42972459f6b0e7ca9a605e83a875716f20aebd0819d1da7688b08
 source-handoff: c15fdf8d14434497b2e46c5e232ede608f7fb139f505d43416e32389691cd610
 source-learnings: 616baedbc32a7ad7ea57ce416368d3b35c6adb467d8e98c12ca3147c2cba8069
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-readiness-by: session:01a18d44-fcdd-754f-9c11-05d86f54f4ae
-readiness-at: 2026-10-30T14:57:54.641Z
-readiness-checkpoint: g34-4bf3ce75a57b
 <!-- guard:end checkpoint -->
 
 ## Verified evidence

@@ -199,6 +199,42 @@ dune build`, warning multiset unchanged 22/15/28/2/14/2/17/26, sweeps e48p1 24/2
 > jointly false, recorded in LEARNINGS. **Only step 3 (arm f) and step 4 (registration+gate)
 > remain.**
 
+> STATUS 2026-10-30 (renewal 4/8 successor, session 01a18d51, HEAD `e21281a`): **ARM (f) IS DONE
+> AND MEASURED — all six arms (a)-(f) of E2E-48/P2d have landed; D1..D10 are 10/10 whole-file
+> byte-identical to `golden/e48p2db/`.** `e21281a` = TEST-route `str_cmp_shape_rev` calls widened
+> to `~imem:true` ([C326], encoder reused) **plus the prescan demand twin** — `prescan_cond`'s
+> literal-LEFT clause `is_cell b` → `is_var b`. That second half was NOT in the inherited spec and
+> is a REAL latent my-gap measured before the arm: a literal-left/member-right TEST compare whose
+> literal appears nowhere else died with "prescan demanded 0 pool bytes, lowering allocated 2"
+> (E29C9 masked it only because its store demands the same content-addressed cell). Sweeps at
+> `e21281a`: e48p1 24/24, e48c 9/9, E46K14 (`if line then`) STILL refuses and its pinned marker was
+> RE-MEASURED through this binary — unchanged, not re-pinned. Comparison WHY-string corrected
+> traceably (truthiness of a member, member-vs-member, FIXED members stay unmeasured).
+>
+> **EXACT NEXT ACTION (successor) = step 4 ONLY — REGISTRATION + GATE, no further lowering:**
+> 1. `cd ocaml && eval $(opam env) && dune build` (rc=0; warning multiset must stay 126 =
+>    28/26/22/17/15/14/2/2 — verify by clean rebuild, cache-neutral).
+> 2. `spec/SPECIMENS.tsv`: add E48D1..D10 at `golden/e48p2db/<n>/<n>.REL`, **byte tier ONLY — no
+>    `spec/RUNTIME.txt` rows from this round** (RESULTS §3: no runtime evidence was captured).
+> 3. `python3 tools/e2e_gate.py --update-inventory` (expect 1110 → 1120 rows; review the diff line
+>    by line: the only content changes should be the ten new specimen rows).
+> 4. Census: `cp spec/census/corpus-census.json /tmp/census-prev.json && python3
+>    tools/corpus_census.py --check /tmp/census-prev.json` — EXPR2/FSCAN are EXPECTED to ADVANCE
+>    past the empty-`initial('')` refusal (arm (a)); **re-read EVERY msg delta** and commit the
+>    snapshot. A corpus advance is not a regression.
+> 5. FULL GATE `python3 tools/e2e_gate.py` — **report ACTUAL numbers, never expected** (~1120/0
+>    byte tier, negative panel 181/181, divergence 9/9, coverage, census --verify, rc=0). Run
+>    `registration_audit` too: the REJECTS/NEG_META symmetry rule is invisible to counts.
+> 6. `spec/COVERAGE.tsv` rows for the six new shapes (COND/STOR/IO/DECL/TITLE) against the CURRENT
+>    ledger C321-C326, 15 columns, `manual_ref = NONE:<why>`, MEASURED rows cite probes named by
+>    their OWN claims → `python3 tools/coverage_check.py` → gate re-run. Then update PROGRESS /
+>    HANDOFF and close.
+> **Standing:** never touch golden/e48p1, e48p2c, e48p2d (botched run), e48p2retire, e42p1c,
+> first8080u; do NOT implement a RESULTS §3 shape (runtime length rewrite, `k = 1`/negative `c`,
+> bit behind a file attach, BASED member in a condition STORE, over-extent INITIAL/store, member
+> truthiness, member-vs-member, FIXED member compare); no `%include`/LOAN2 work without its own
+> pre-registered round; no push; probes ≤71 cols; build needs `eval $(opam env)`.
+
 > STATUS 2026-10-30 (renewal 3/8 successor close, HEAD 3172642, tree clean except
 > guard blocks): session committed arms (d) `18a06c0` and (e) `1e8acb2` (D1-D9 byte-identical;
 > sweeps 24/24+9/9; negative 181/181 0 anomalies; clean-build multiset 126 unchanged).
@@ -566,13 +602,13 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 34
-checkpoint-id: g34-4bf3ce75a57b
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~2559, session 01a18d44-fcdd-754f-9c11-05d86f54f4ae)
-checkpointed: 2026-10-30T14:57:54.637Z
+checkpoint-generation: 36
+checkpoint-id: g36-2951759af1de
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4510, session 01a18d51-995d-754f-9c11-05dc2cba0b22)
+checkpointed: 2026-10-30T15:12:54.048Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 022c69dab8f42972459f6b0e7ca9a605e83a875716f20aebd0819d1da7688b08
 source-handoff: c15fdf8d14434497b2e46c5e232ede608f7fb139f505d43416e32389691cd610
@@ -580,11 +616,8 @@ source-learnings: 616baedbc32a7ad7ea57ce416368d3b35c6adb467d8e98c12ca3147c2cba80
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
-readiness-by: session:01a18d44-fcdd-754f-9c11-05d86f54f4ae
-readiness-at: 2026-10-30T14:57:54.641Z
-readiness-checkpoint: g34-4bf3ce75a57b
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-48/P2d session close (01a18d44, renewal 3/8): HEAD ed3962a clean. Arms (d) 18a06c0, (e) 1e8acb2 committed+measured; D1-D9 byte-identical to golden/e48p2db; e48p1 24/24, e48c 9/9, negative panel 181/181 0 anomalies; dune clean rc=0, warning multiset 126 unchanged. Arm (f) NOT started: widen TEST str_cmp_shape_rev calls codegen.ml:7573/7575 to ~imem:true (encoder 6972-6979 already emits C326 bytes; supersede docstring 6941-6946 traceably; re-measure E46K14 marker through binary after; fix arm if moved). Then registration step 4: SPECIMENS E48D1..D10 byte-tier only, --update-inventory, census --check (EXPR2/FSCAN advance expected, read every delta), FULL GATE (report ACTUAL ~1119-1120/0, negative 181), COVERAGE rows + coverage_check + gate re-run. Build: eval $(opam env). No push. Full spec: HANDOFF.md Next action STATUS block.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
