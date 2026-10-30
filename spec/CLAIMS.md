@@ -7414,6 +7414,8 @@ classified `unmeasured` rather than `dr-refuses`.
   is FALSIFIED and the program promotes to the byte panel against its existing golden once
   the TITLE arm lands (three-place edit: REJECTS, NEG_META, SPECIMENS).
 
+* **MISCOUNT CORRECTED (2026-10-30, E2E-48/P2d step 7).**  The bullet above says the cell is `02 41 42 20x11` and is kept as written; `tools/reldump.py` on `golden/e48p2db/E48D1/E48D1.REL` and `golden/e42p1c/E46F5/E46F5.REL` shows DATA 0000..000E = `02 41 42` plus TWELVE `20` (15 bytes = 1 length byte + the declared extent 14), so the blank run is `x12`, which is [C319]'s E48C8 convention.  The LAW is unchanged (the initialised cell stands in place, class-invariant TITLE); P-D1's prediction text carried the same off-by-one and RESULTS §1's HIT stands, because the substantive prediction -- `?SLVTS`, w1 `0E50`, cell in place -- was right.
+
 ## C324 — STORE LADDER FOR `k = c` WITH \|c\| IN {2,3}: `LHLD k / DCX H x\|c\| / MOV A,H / ORA L`, THE <=3 THRESHOLD IS ROUTE-INDEPENDENT (E2E-48/P2d, §2.5; closes [C310]'s [TBD])
 
 * **Measured.**  E48D8 0006 (`b = (k = 2)`): `2A *D(k) / 2B 2B / 7C / B5 / D6 01 / 9F /
