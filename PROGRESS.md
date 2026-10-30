@@ -24,6 +24,12 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   leave it uncommitted and untouched. Standing prohibitions (goldens, §3 shapes, probes ≤71 cols
   CRLF+`^Z`, `eval $(opam env)`, never name a probe variable `c`, no push) are in HANDOFF.md.
 
+## Next action
+
+The ONE active, command-level spec lives in `HANDOFF.md` → `## Next action` (E2E-48/P2e arms
+3, 4, 5 NOT STARTED, then step 6). No competing action exists anywhere else; PROGRESS does not
+restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
+
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
 - E2E-48/P1 — 24/24 probes byte-identical + registered, claims C309–C316, gate 1098/0: `992ccad`.
@@ -94,24 +100,36 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   (rolling)" is stale (ends at E2E-1/C067); it was deliberately NOT touched by the Mission-1
   documentation consolidation. Never use it for status — the ledger and this file are authority.
 
+## Verified evidence
+
+Measured at the baseline session (2026-10-30, HEAD `f3a4c60`), not quoted from a report:
+arms 1–2 produce E48E1..E48E4 whole-file byte-identical (`cmp` at `d18c6ab`/`bab0d16`); E46K14's
+pinned refusal re-measured through the binary with gate CRLF+`^Z` semantics — marker unchanged,
+NOT re-pinned; regression sweeps e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2;
+clean-rebuild warning multiset 126 = 28/26/22/17/15/14/2/2 unchanged. FULL GATE figures
+(1120/0, negative 181/181, coverage 113/0, census 15/0/26/0) are recorded from `adbfa2a`/`218b474`
+and were NOT re-run by the documentation consolidation — the next gate measurement belongs to
+step 6 and must be reported ACTUAL. Round evidence: `golden/e48p2e/`,
+`spec/lab-evidence/e2e48-p2e/{RESULTS,HYPOTHESES,BASELINE-MINE}`; closed-round records:
+`docs/history/`.
+
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 49
-checkpoint-id: g49-ff86b8ca176c
+checkpoint-generation: 50
+checkpoint-id: g50-f1a6200dbc96
 checkpoint-kind: manual
 content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-10-30T18:40:57.206Z
+readiness: unattested
+guard-level: 0
+checkpointed: 2026-10-30T22:59:51.788Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 69e6925e1796ae4dfe62fef9f8c35ab55259751dcf1a2cc08718e063f666d8c1
-source-handoff: fa0f6649386472f2cc82b021bc652920ffdab9a399f4b27316a2fccd665dfac7
-source-learnings: 47d589d480b842477c9aa0d6d7f938da46ba2d5f144b4dfd1d0e5e15a6832fbb
-source-config: 5537d66535163979fcef1338bb101a3dab2ffd8b2eb0d467620ccc7f0c0ec616
-next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-readiness-by: session:01a18df8-1341-77c5-9d10-4a6bbf7e8fcd
-readiness-at: 2026-10-30T18:40:57.212Z
-readiness-checkpoint: g49-ff86b8ca176c
+source-progress: cba3b40e1d3d5248d5ad246df770514bfd22f5fff578d037f5e47e14acb96166
+source-handoff: e9d7c0a3602778c5b06d0e96f6c15b42874deed8f137670755760dbfde218417
+source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
+source-config: 0f0cc9c7af73d792e6af3120538e1c6254f8a81ee93993e3088a7e2c76d8ef80
+next-action: `. Closed-phase
+history is archived under `docs/history/` (index: `docs/history/README.md`); science is
+authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 <!-- guard:end checkpoint -->
 
 ## Blockers

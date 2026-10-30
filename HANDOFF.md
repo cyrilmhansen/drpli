@@ -32,7 +32,7 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Current scientific state — E2E-48/P2e lowering (verified at baseline `f3a4c60`, 2026-10-30)
+## Last verified state — E2E-48/P2e lowering (verified at baseline `f3a4c60`, 2026-10-30)
 
 - Arms 1 + 2 of the six RESULTS §2 arms are DONE, committed and measured (`d18c6ab`,
   `bab0d16`): E48E1..E48E4 whole-file byte-identical; E46K14's pinned refusal RE-MEASURED
@@ -114,6 +114,21 @@ own pre-registered round; **do not commit or revert `handoff.config.json` — th
 CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
 procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 
+## Unfinished operations
+
+- **No half-finished edit.** Arms 3, 4, 5 are NOT started; step 6 is OWED (claims C327+ — the
+  ledger ends at C326; NEG_META E46K14 dr-refuses re-classification; SPECIMENS registration of
+  the 7 probes byte tier only; `--update-inventory`; census `--check`; `coverage_check`;
+  `registration_audit`; FULL GATE reporting ACTUAL; COVERAGE rows; the [C296] `LXI H,*C(0000)`
+  correction) — all specified command-level in `## Next action`.
+- The working tree at this checkpoint carries ONLY the operator's `handoff.config.json` edit.
+
+## Discoveries not yet incorporated
+
+- None outstanding. Durable method lessons are already classified in `LEARNINGS.md`; compiler
+  law lives in `spec/CLAIMS.md` (C327+ owed by step 6, from `e2e48-p2e/RESULTS.md` §2 ONLY).
+  The stale `README.md` rolling status is recorded as deferred work in `PROGRESS.md` → Pending.
+
 ## History and pointers
 
 - Superseded next-action sections, closed phase records and the full renewal-hop status log:
@@ -124,32 +139,31 @@ procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 49
-checkpoint-id: g49-ff86b8ca176c
+checkpoint-generation: 50
+checkpoint-id: g50-f1a6200dbc96
 checkpoint-kind: manual
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~10749, session 01a18df8-1341-77c5-9d10-4a6bbf7e8fcd)
-checkpointed: 2026-10-30T18:40:57.206Z
+readiness: unattested
+status: checkpoint (guard level 0, remaining ~40000, session 01a18ed4-fe26-70c1-9a9a-b62385db7ea9)
+checkpointed: 2026-10-30T22:59:51.788Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 69e6925e1796ae4dfe62fef9f8c35ab55259751dcf1a2cc08718e063f666d8c1
-source-handoff: fa0f6649386472f2cc82b021bc652920ffdab9a399f4b27316a2fccd665dfac7
-source-learnings: 47d589d480b842477c9aa0d6d7f938da46ba2d5f144b4dfd1d0e5e15a6832fbb
-source-config: 5537d66535163979fcef1338bb101a3dab2ffd8b2eb0d467620ccc7f0c0ec616
+source-progress: cba3b40e1d3d5248d5ad246df770514bfd22f5fff578d037f5e47e14acb96166
+source-handoff: e9d7c0a3602778c5b06d0e96f6c15b42874deed8f137670755760dbfde218417
+source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
+source-config: 0f0cc9c7af73d792e6af3120538e1c6254f8a81ee93993e3088a7e2c76d8ef80
 
 
-readiness-by: session:01a18df8-1341-77c5-9d10-4a6bbf7e8fcd
-readiness-at: 2026-10-30T18:40:57.212Z
-readiness-checkpoint: g49-ff86b8ca176c
 ### Last verified state
-guard level 1; checkpoint requested (finalize: E2E-48/P2e lowering: arms 1+2 DONE at HEAD bab0d16 (E48E1..E48E4 byte-identical; E46K14 marker re-measured unchanged; WHY-string cites E48E6.PRN dr-refuses). Arms 3 ('0'b value 3A/E6 80/D6 01/9F/32 in bit_cond_mat Eq fallback), 4 (FIXED-member TEST via new ?SCCCM encoder + str_side ImemF variant + prescan literal-RIGHT demand twin, TEST only, Eq only), 5 (authorize_file_item admits Vbit1; supersede note at ~10616) NOT STARTED; then step 6 claims C327+ (C332 scope VARYING member only), NEG_META E46K14 loop-removal + dedicated dr-refuses stamp, SPECIMENS.update 7 probes byte tier only, --update-inventory, census --check, coverage_check, registration_audit, FULL GATE ACTUAL (baseline 1120/0, neg 181/181), COVERAGE rows. Renewal capped 8/8 — operator must reset or start successor manually.)
+guard level 0; checkpoint requested (finalize: Mission-1 docs consolidation applied at 519a362 (branch mission1-docs-consolidation): HANDOFF/PROGRESS reduced to current state with exactly one active ## Next action (E2E-48/P2e arms 3,4,5 then step 6 — spec unchanged), verbatim archives in docs/history/ (index README.md), selective-ledger recovery protocol, AGENTS/PROTOCOL de-numbered, GOAL+scientific trees untouched. Operator's handoff.config.json edit left uncommitted as instructed.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-(superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
+`. Closed-phase
+history is archived under `docs/history/` (index: `docs/history/README.md`); science is
+authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ### Guard notes
-E2E-48/P2e lowering: arms 1+2 DONE at HEAD bab0d16 (E48E1..E48E4 byte-identical; E46K14 marker re-measured unchanged; WHY-string cites E48E6.PRN dr-refuses). Arms 3 ('0'b value 3A/E6 80/D6 01/9F/32 in bit_cond_mat Eq fallback), 4 (FIXED-member TEST via new ?SCCCM encoder + str_side ImemF variant + prescan literal-RIGHT demand twin, TEST only, Eq only), 5 (authorize_file_item admits Vbit1; supersede note at ~10616) NOT STARTED; then step 6 claims C327+ (C332 scope VARYING member only), NEG_META E46K14 loop-removal + dedicated dr-refuses stamp, SPECIMENS.update 7 probes byte tier only, --update-inventory, census --check, coverage_check, registration_audit, FULL GATE ACTUAL (baseline 1120/0, neg 181/181), COVERAGE rows. Renewal capped 8/8 — operator must reset or start successor manually.
+Mission-1 docs consolidation applied at 519a362 (branch mission1-docs-consolidation): HANDOFF/PROGRESS reduced to current state with exactly one active ## Next action (E2E-48/P2e arms 3,4,5 then step 6 — spec unchanged), verbatim archives in docs/history/ (index README.md), selective-ledger recovery protocol, AGENTS/PROTOCOL de-numbered, GOAL+scientific trees untouched. Operator's handoff.config.json edit left uncommitted as instructed.
 <!-- guard:end checkpoint -->
