@@ -166,7 +166,63 @@ unchanged); the sweep is
 
 ## Next action (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
-## Next action - E2E-48/P2d step 4: LOWER six arms, one per commit, then step 3 registration + FULL GATE
+## Next action - E2E-48/P2d: LOWER the three remaining arms (d)(e)(f), then register + FULL GATE
+
+**DONE + MEASURED this session (01a18cf9, renewal 2/8; each commit built with `eval $(opam env) &&
+dune build`, warning multiset unchanged 22/15/28/2/14/2/17/26, sweeps e48p1 24/24, e48c 9/9):**
+- Baseline re-verified first: D3/D5/D7 byte-identical, all 7 named refusals reproduced verbatim.
+- `6545b5d` **(a)** E48D4 empty `initial('')` on STATIC VARYING — dropped only the
+  `String.length v > 0` guard in the `RTchar (n,true)` static placement; existing formula yields
+  `00 + n×20` in place ([C322]). D4 IDENTICAL.
+- `6491981` **(b)** TITLE on STATIC operand class-invariant ([C323]) — removed the 3ee414a refusal
+  in `lower_open`'s `Vvar` arm; my D1 == DR's E46F5 object except the 9 module-name bytes
+  (`cmp -l` offsets 4,5,6/18,19,20/26,27,28). **E46F5 PROMOTED** three-place (SPECIMENS cites
+  `golden/e42p1c/E46F5/E46F5.REL`; REJECTS row + NEG_META stamp removed, superseded text kept as
+  comments). Negative panel re-run with GATE semantics (CRLF + `^Z`, stderr): **181/181 refused,
+  0 anomalies**; `registration_audit` called directly: clean, **1110 specimens / 181 rejects**.
+- `a72ce43` **(c)** static FIXED store ([C321]) — retired the R6 refusal in `store_char`'s `Vfix`
+  arm; DR's head is the automatic V106 route verbatim (`21 *D(static cell)/11 *D(fresh pool)/
+  3E extent/06 len/CD ?SMCCM`), literal pooled. **No new encoder and NO prescan twin needed**
+  (the `Sstring` store demand at codegen.ml:~3127 is already class-independent — measured, not
+  assumed). D6 IDENTICAL. len=0/>cap/=cap refusals kept (RESULTS §3).
+- State: **D1–D7 whole-file byte-identical to `golden/e48p2db/`; D8/D9/D10 still refused by name**;
+  tree clean at HEAD; `ocaml/` builds.
+
+**EXACT NEXT ACTION (successor): three arms, ONE per commit, same build+cmp discipline, order (d)(e)(f):**
+1. **(d) D8 store ladder |c| ∈ {2,3}** ([C324]) in `bit_cond_mat` (ocaml/lib/codegen.ml:7105):
+   the `bin_lit` arms today are `Some (v,0)` and `Some (v,kk) when kk >= 4` (the latter =
+   `cmp_load_deref / hl_bias (-kk) / MOV A,H / ORA L / flag`). Add ONLY |kk| ∈ {2,3}: DR is
+   `2A *D(k) / 2B ×|c| / 7C / B5 / D6 01 / 9F / 32 *D(b)` (D8 0006 with two `2B`, 0013 with three)
+   — i.e. `cmp_load_deref` then `d st 0x2b` |c| times, then `op_mov_a_h / 0xb5 / flag ()`.
+   `k = 1` and negative `c` STAY refused (§3, no witness). Expect D8 IDENTICAL.
+2. **(e) D9 non-final BIT(1) PUT item** ([C325]) — refusal text "a BIT(1) PUT item in a NON-FINAL
+   position has no DR witness" at codegen.ml:~10542 (its premise is falsified by D9). Route = the
+   FINAL-bit bytes already landed in `df4b9c8` (`3A cell / 06 01 / CD ?QB08C / CD ?PNBOP`) with its
+   OWN PNBOP tail, the following literal chain untouched, exactly ONE final `?QIOOP` (D9
+   000F..0027). PUT EDIT and bit-behind-file-attach STAY refused.
+3. **(f) D10 member-as-RIGHT in TEST** ([C326]) — widen the TEST caller to the `~imem:true`
+   `str_cmp_shape_rev` (codegen.ml:6947) that `bit_cond_mat` already uses (callers at 7557/7561
+   pass the default); bytes `21 *D(member) / 11 *D(lit) / 06 len / CD ?SCCVM / C2 fill→next stmt`
+   (D10 0013→0027, C309 skip rule). AFTER the arm, RE-MEASURE E46K14's refusal through the binary
+   with gate CRLF semantics — if its marker moved, FIX the arm, never silently re-pin. A BASED
+   member in a condition store stays refused.
+4. **REGISTER + verify (report ACTUAL, never expected):** SPECIMENS.update E48D1..D10 at
+   `golden/e48p2db/<n>/<n>.REL` (byte tier ONLY — NO `spec/RUNTIME.txt` rows from this round);
+   `python3 tools/e2e_gate.py --update-inventory`; census
+   `cp spec/census/corpus-census.json /tmp/census-prev.json && python3 tools/corpus_census.py --check /tmp/census-prev.json`
+   (EXPR2/FSCAN expected to ADVANCE past the empty-initial refusal — re-read EVERY delta);
+   FULL GATE `python3 tools/e2e_gate.py` (expect ~1110+9 = 1119-ish / 0 fail, negative 181 —
+   REPORT THE MEASURED NUMBERS); then `spec/COVERAGE.tsv` rows for the new shapes +
+   `python3 tools/coverage_check.py` + gate re-run.
+
+**Standing:** never touch `golden/e48p1`, `e48p2c`, `e48p2d` (botched run), `e48p2retire`,
+`e42p1c`, `first8080u`; never implement a RESULTS §3 shape (runtime length rewrite, k=1/negative c,
+bit behind file attach, BASED cond-store, over-extent INITIAL/store); no `%include`/LOAN2 work; no
+push; probes ≤71 cols; build needs `eval $(opam env)`; handoff prose edits make the managed
+checkpoint stale — refresh + attest with `/handoff` then `/handoff ready`, close with
+`handoff_finalize` (renewal gate refuses a stale checkpoint).
+
+## Next action (superseded by the section above: arms (a)(b)(c) are DONE and committed as 6545b5d / 6491981 / a72ce43; E46F5 promoted; D1–D7 byte-identical)
 
 **Done and measured (session 01a18d08, renewals chain 1/8, HEAD `aa4b5b4`):** step 5a (D3/D5/D7
 byte-identical at `golden/e48p2db/`; D7 needs NO arm), REJECTS audit (ONE falsified row: E46F5;
@@ -482,25 +538,22 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 27
-checkpoint-id: g27-62a75c301d66
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~2289, session 01a18d08-bc2c-7689-ae48-1a855f04fd0e)
-checkpointed: 2026-10-30T13:52:29.329Z
+checkpoint-generation: 29
+checkpoint-id: g29-cfcc55a2186a
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3664, session 01a18d1b-7396-746a-a697-d518894eeaa6)
+checkpointed: 2026-10-30T14:10:16.823Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 91e22de8da32a930dfd15e78e0ad9d4660112ca7299c9f5a34cd86192661468e
 source-handoff: 2c12875491857ee8803f8ecdc0242080d4cbe1b25b5cc9a1136c2c05625b3458
-source-learnings: abc07c9c52785d9a16be114b8de97a3a3b89f873f89d9595cf613e5237aeb519
+source-learnings: 77c8d5e1adf08e3d6e443c7cbc3140cecbb064296e50dee258a5fd62f5b09c89
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
-readiness-by: session:01a18d08-bc2c-7689-ae48-1a855f04fd0e
-readiness-at: 2026-10-30T13:52:29.333Z
-readiness-checkpoint: g27-62a75c301d66
 ### Last verified state
-guard level 4; checkpoint requested (finalize: Session 01a18d08 closing at context critical. HEAD = last commit ("E2E-48/P2d [handoff]"); tree clean. Resume at HANDOFF.md '## Next action - E2E-48/P2d step 4': lower arms (a)-(f) ONE per commit vs golden/e48p2db (D4 empty varying initial; D1/D2 TITLE static + E46F5 three-place promotion; D6 ?SMCCM static store WITH prescan demand twin; D8 ladder DCX |c|2,3; D9 non-final bit item; D10 TEST member-as-RIGHT, then re-measure E46K14 through the binary), sweeps must keep e48p1 24/24 and e48c 9/9; then SPECIMENS +10, --update-inventory, census --check (EXPR2/FSCAN advance expected), FULL GATE (expect 1120/0, negative 181; report ACTUAL), COVERAGE rows. Claims C321-C326 committed aa4b5b4. Build needs eval $(opam env). Chain 1/8.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

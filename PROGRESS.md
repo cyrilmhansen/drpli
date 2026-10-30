@@ -5,13 +5,26 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
-> **STATUS 2026-10-30 (session 01a18d08, renewal 1/8, closing at context critical).** Steps 5a
-> and 2 DONE+COMMITTED: D3/D5/D7 byte-identical at golden/e48p2db (D7 free); claims C321-C326 +
-> appends to C310/C313/C314/C317 at `aa4b5b4`; REJECTS audit -> ONE falsified row (E46F5,
-> promote after TITLE arm; E46K14 stays). Guard g24 attested `35fe9fe`. **NEXT = the six
-> one-arm-per-commit lowerings (a)-(f) listed in HANDOFF.md '## Next action - E2E-48/P2d step 4',
-> then registration (SPECIMENS +10, --update-inventory, census --check, FULL GATE measured) and
-> COVERAGE rows.** No half-finished edit; ocaml/ untouched this session.
+> **STATUS 2026-10-30 (session 01a18cf9, renewal 2/8, closing at context critical).**
+> **E2E-48/P2d arms (a)(b)(c) DONE, COMMITTED, MEASURED.** `6545b5d` empty `initial('')` on STATIC
+> VARYING (D4, [C322]); `6491981` TITLE-on-STATIC class-invariance (D1/D2, [C323]) + **E46F5
+> promoted** by the three-place edit and verified whole-file byte-identical to
+> `golden/e42p1c/E46F5/E46F5.REL` through this binary (my D1 differs from DR's E46F5 only in the
+> 9 module-name bytes); `a72ce43` static FIXED store `?SMCCM` (D6, [C321]) — route identical to the
+> automatic V106 head, no new encoder, **no prescan demand twin needed** (measured).
+> Verified at HEAD: `dune build` rc=0 with the inherited warning multiset unchanged
+> (22/15/28/2/14/2/17/26); **D1–D7 whole-file byte-identical to `golden/e48p2db/`**; e48p1 24/24;
+> e48c 9/9; negative panel **181/181 refused, 0 anomalies** (gate CRLF+`^Z` semantics — my first
+> hand replication used LF and produced 5 FALSE anomalies from line-number shifts in the marker
+> texts); `registration_audit` clean at **1110 specimens / 181 rejects**. Tree clean; no
+> half-finished edit.
+> **NEXT = arms (d)(e)(f) one-per-commit, then registration + inventory + census + FULL GATE
+> (measured) + COVERAGE rows — see HANDOFF.md "## Next action - E2E-48/P2d: LOWER the three
+> remaining arms (d)(e)(f)" for the exact byte sequences, code sites and refusals to keep.**
+> Claims C321–C326 are committed (`aa4b5b4`); the ledger needs no new claims for (a)-(c).
+
+**E2E-48/P2d round 4: oracle MEASURED 10 ok/10, RESULTS written; arms (a)-(c) lowered; (d)-(f) +
+registration + gate OWED.**
 > **STATUS 2026-10-30 (session 01a18d08, renewal 1/8, step 5 in progress).** Measured THIS
 > session at HEAD (guard g23 committed as `4e510d1`, build rc=0): baseline re-verified -- D3/D5/**D7**
 > whole-file byte-identical to `golden/e48p2db/` (D7's `?SMCVM` store needs NO arm), the other 7
@@ -290,22 +303,19 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 27
-checkpoint-id: g27-62a75c301d66
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 29
+checkpoint-id: g29-cfcc55a2186a
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-10-30T13:52:29.329Z
+checkpointed: 2026-10-30T14:10:16.823Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 91e22de8da32a930dfd15e78e0ad9d4660112ca7299c9f5a34cd86192661468e
 source-handoff: 2c12875491857ee8803f8ecdc0242080d4cbe1b25b5cc9a1136c2c05625b3458
-source-learnings: abc07c9c52785d9a16be114b8de97a3a3b89f873f89d9595cf613e5237aeb519
+source-learnings: 77c8d5e1adf08e3d6e443c7cbc3140cecbb064296e50dee258a5fd62f5b09c89
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-readiness-by: session:01a18d08-bc2c-7689-ae48-1a855f04fd0e
-readiness-at: 2026-10-30T13:52:29.333Z
-readiness-checkpoint: g27-62a75c301d66
 <!-- guard:end checkpoint -->
 
 ## Verified evidence

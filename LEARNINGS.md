@@ -485,3 +485,11 @@ The guard never writes this file.
   through `st.stat_addrs`.  So arm (c) is very likely the removal of the `stat_addrs` refusal plus
   the prescan pool-demand twin (`fa09b97` rule), not a new encoder -- verify by cmp, not by
   reasoning.
+- **accepted** Arm (c) (`a72ce43`): the static FIXED char store needed NO new encoder and NO
+  prescan demand twin -- DR's D6 head is the automatic V106 route with a static destination
+  address, and the `Estring` store demand is already class-independent.  E48D6 whole-file
+  byte-identical on the first try; the earlier "mirror the demand in the prescan twin" note was
+  a precaution, not an omission (the fa09b97 rule was already satisfied).
+- **accepted** Session state at close: D1-D7 byte-identical, D8/D9/D10 refused by name; negative
+  panel 181/181; registration_audit 1110/181; e48p1 24/24; e48c 9/9.  Arms (d)(e)(f) and the
+  registration+gate are OWED and spelled out byte-by-byte in HANDOFF.md.
