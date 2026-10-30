@@ -5,6 +5,14 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+> **STATUS 2026-10-30 (session 01a18db4, chain 5/8, HEAD `47936e5`).** Recovery-only session:
+> verified boundary (HEAD descendant of `adbfa2a`, step-4 registration intact), committed the
+> uncommitted guard **g41** managed-block refresh (dev.3 config-hash advance) as `47936e5`,
+> re-read the step-7 evidence (C321–C326, RESULTS.md, validator rules, row inventory) and
+> recorded all validator facts the successor needs in HANDOFF.md → Next action STATUS block.
+> **No COVERAGE row was written; step 7 is OWED IN FULL.** Pressure hit L4 at session start;
+> renewing at 6/8 with the same exact next action.
+
 > **STATUS 2026-10-30 (session 01a18d83, renewal 5/8, HEAD `adbfa2a`).**
 > **STEP 4 REGISTRATION IS DONE AND MEASURED — the ONLY remaining item of E2E-48/P2d is the
 > COVERAGE rows.** Measured by THIS session, in order: (0) inherited state re-verified through
@@ -373,22 +381,19 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 41
-checkpoint-id: g41-abfaf290a433
-checkpoint-kind: manual
+checkpoint-generation: 43
+checkpoint-id: g43-fb795b546d34
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-10-30T16:43:15.061Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-10-30T16:51:52.113Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5dfa79082f6ea20fb83ed470eab605907d6b640792cc16ce5f1578f9b93476f1
-source-handoff: b432261f8528dd0d2978b4b452256f99818e922eb3675cf0f412c167cd29efd4
+source-progress: d2828efb5abab83875dcf135b2d3270e8504c02ab0c3a9a891f5a70a3b092774
+source-handoff: f216d6d7c14767ceddddd973db59408b4bc1c3fe0a3d0af2615bc917852879a8
 source-learnings: b1d5919fdf92eecd85a05003eb2f14c55ecebd7fb66a149b86a2f4b3b7b4f645
 source-config: 5fe3a5d9e0f24600539cd3ae1e830260140e99d369d964426e41d5df3b94a6d2
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-readiness-by: session:01a18db1-534d-739b-86ac-62c44c2f09e4
-readiness-at: 2026-10-30T16:43:15.066Z
-readiness-checkpoint: g41-abfaf290a433
 <!-- guard:end checkpoint -->
 
 ## Verified evidence

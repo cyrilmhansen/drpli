@@ -168,6 +168,26 @@ unchanged); the sweep is
 
 ## Next action - E2E-48/P2d step 7 ONLY: the six COVERAGE.tsv rows, `coverage_check`, gate re-run
 
+> **STATUS 2026-10-30 (recovery session 01a18db4, chain 5/8, HEAD `47936e5`, L4 before any
+> edit).** Session verified the boundary and committed the uncommitted guard g41
+> refresh+attestation (session 01a18db1's `/handoff finalize`; both diffs were pure managed
+> blocks, `source-config` advanced to the committed dev.3 `handoff.config.json` 5fe3a5d…) as
+> `47936e5`; tree clean. **ZERO COVERAGE rows written yet — step 7 OWED in full.** Evidence
+> re-read this session and CONFIRMED present: claims **C321–C326** at `spec/CLAIMS.md:7375-7441`
+> (each names its E48D probes); `spec/lab-evidence/e2e48-p2d/RESULTS.md` §1–§3 (8 laws, 2 kept
+> MISSes); COVERAGE.tsv has **107 data rows**, the correction targets are rows at lines
+> **108 `COND.BIT1_NEG_TEST`, 109 `STOR.BIT1_COND_STORE` (boundary text still claims |c|∈{1,2,3}
+> refused and stores-into-static refused — FALSIFIED by C321/C322/C324, correct as traceable
+> append), 111 `IO.PUT_BIT1_ITEM` (non-final clause falsified by C325), 112 `DECL.STATIC_CHAR`
+> (empty-initial and store-into-static clauses falsified by C321/C322)**; `AGG.INTERNAL_CHAR_MEMBER`
+> (line 105) also names member stores worth a coherence glance. Validator facts (read from
+> `tools/coverage_check.py`): E48D1..D10 are panel keys (INVENTORY) so col-11 entries resolve;
+> MEASURED/SINGLE_SAMPLE rows need ≥1 col-11 probe mentioned by a cited claim (stem match counts,
+> a path probe is self-sufficient); runtime col regex is
+> `^(NONE|(INDEPENDENT|DR_ORACLE|BOTH):\d+)$`; rel_parity `^(NONE|EXACT:\d+|DIVERGENT:\d+|MIXED:\d+/\d+)$`;
+> `coverage_check` REWRITES `spec/census/coverage-stats.json` on every run — check whether it
+> changes and commit that path when it does. Renewal hop 6/8 carries this step; everything below
+> unchanged.
 > **STATUS 2026-10-30 (renewal 5/8 successor, session 01a18d83, HEAD `adbfa2a`).** **STEP 4
 > (REGISTRATION + FULL GATE) IS DONE AND MEASURED. No lowering remains.** Measured by that
 > session: sweeps re-run through its own binary FIRST (E48D 10/10, e48p1 24/24, e48p2c 9/9,
@@ -646,25 +666,22 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 41
-checkpoint-id: g41-abfaf290a433
-checkpoint-kind: manual
+checkpoint-generation: 43
+checkpoint-id: g43-fb795b546d34
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~94904, session 01a18db1-534d-739b-86ac-62c44c2f09e4)
-checkpointed: 2026-10-30T16:43:15.061Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~1328, session 01a18db4-9f4c-7388-a8da-94e79c65763c)
+checkpointed: 2026-10-30T16:51:52.113Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5dfa79082f6ea20fb83ed470eab605907d6b640792cc16ce5f1578f9b93476f1
-source-handoff: b432261f8528dd0d2978b4b452256f99818e922eb3675cf0f412c167cd29efd4
+source-progress: d2828efb5abab83875dcf135b2d3270e8504c02ab0c3a9a891f5a70a3b092774
+source-handoff: f216d6d7c14767ceddddd973db59408b4bc1c3fe0a3d0af2615bc917852879a8
 source-learnings: b1d5919fdf92eecd85a05003eb2f14c55ecebd7fb66a149b86a2f4b3b7b4f645
 source-config: 5fe3a5d9e0f24600539cd3ae1e830260140e99d369d964426e41d5df3b94a6d2
 
 
-readiness-by: session:01a18db1-534d-739b-86ac-62c44c2f09e4
-readiness-at: 2026-10-30T16:43:15.066Z
-readiness-checkpoint: g41-abfaf290a433
 ### Last verified state
-guard level 0; checkpoint requested (finalize: /handoff verify /guard status)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
