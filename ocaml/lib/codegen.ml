@@ -7124,7 +7124,15 @@ let ptr_pair st a b =
      c < 0 (the ladder is witnessed at c=5, and at 2/3 via D8; negative c never);
      `= '0'b' as a VALUE (only the `= '1'b' ladder is materialised, §1 P10);
      a BASED varying MEMBER left of the SCVCM compare (§1 P6/R7 pin a PLAIN cell);
-     `^' over any condition other than `= 0' (§1 P11 pins `^(k = 0)' alone). *)
+     `^' over any condition other than `= 0' (§1 P11 pins `^(k = 0)' alone).
+   SUPERSEDED 2026-10-30 by [E2E-48/P2e §2.1] [C327] — the two clauses on `k = 1' and c < 0
+   stand above verbatim as the recorded state at P1/P2d, and round 5 measured BOTH classes
+   in the STORE: `k = 1' is ONE `DCX H' (golden/e48p2e/E48E1 0006) and `k = -2' walks UP
+   with two `INX H' (E48E2 0006 — the bias is -c, so a negative constant walks UP, threshold
+   on |bias| <= 3).  The ladder is sign-INDEPENDENT and `hl_bias' already keys on `abs b',
+   so arm 1 below merges the two admitted-class guards into ONE `abs kk >= 1' guard with NO
+   change to the bias encoder.  The `= '0'b'' clause is superseded by arm 3 (§2.3 [C329])
+   and the `^'-over-`= 0' clause by arm 2 (§2.2 [C328]). *)
 let bit_cond_mat st (rhs : Ast.expr) =
   let pint s = int_of_string_opt (String.concat "" (String.split_on_char '_' s)) in
   let flag () = d st op_sui; d st 0x01; d st op_sbb_a in
@@ -7132,12 +7140,32 @@ let bit_cond_mat st (rhs : Ast.expr) =
   let zero_read () = d st op_mov_a_m; d st op_inx_h; d st op_ora_m in
   (* the ONE operand pair this bank pins for the ladder classes: a plain FIXED ident cell and
      an integer literal that fits BIN(15).  A DEC or FLOAT ident is refused by the vk test --
-     §1 P7/P8/P9 sample `fixed bin(15)' and nothing else. *)
+     §1 P7/P8/P9 sample `fixed bin(15)' and nothing else.
+     [E2E-48/P2e §2.1, C327] the NEGATIVE spelling is folded: `k = -2' parses as
+     Eprefix(Minus, Enumber "2") (parser.ml:211), and E48E2's golden is that exact source —
+     the fold recognises the MEASURED shape, it adds no new one.  Same spelling-fold the
+     negative-literal store demand (`pdec_int_neg_lit_cell'), the PUT member step
+     ("a negative literal step arrives as Eprefix(Minus, Enumber)") and `over_lit_operand'
+     already perform. *)
   let bin_lit a b =
-    match (unwrap_e a).Ast.e, (unwrap_e b).Ast.e with
-    | Ast.Eident v, Ast.Enumber t ->
-        (match pint t with
-         | Some k when bin15_fits k && vk_of st v.Ast.orig = Vint -> Some (v, k)
+    let num_of e =
+      match e.Ast.e with
+      | Ast.Enumber t -> pint t
+      | Ast.Eprefix (Ast.Minus, inner) ->
+          (match (unwrap_e inner).Ast.e with
+           | Ast.Enumber t ->
+               (match pint t with
+                (* the `-0' SPELLING has no golden anywhere — the measured `= 0' memory form
+                   (E48A7 000C) spells a bare 0.  Fold only nonzero magnitudes. *)
+                | Some k when k <> 0 -> Some (-k)
+                | _ -> None)
+           | _ -> None)
+      | _ -> None
+    in
+    match num_of (unwrap_e a), num_of (unwrap_e b) with
+    | _, Some k ->
+        (match (unwrap_e a).Ast.e with
+         | Ast.Eident v when vk_of st v.Ast.orig = Vint && bin15_fits k -> Some (v, k)
          | _ -> None)
     | _ -> None
   in
@@ -7190,25 +7218,32 @@ let bit_cond_mat st (rhs : Ast.expr) =
                 value" [E2E-32/P1], and it spells `LXI H,<cell>' for a plain local, which is
                 exactly what the golden shows -- NOT `LHLD'. *)
              Some (fun () -> val_addr st v.Ast.orig (); bin_zero_tail st)
-         | Some (v, kk) when kk >= 2 && kk <= 3 ->
-             (* [E2E-48/P2d arm (d), C324] `k = c' with |c| in {2,3}: LHLD,k / DCX H x c /
+         | Some (v, kk) when abs kk >= 1 ->
+             (* `k = c', ANY |c| >= 1, BOTH signs: LHLD,k / bias -c / MOV A,H / ORA L /
+                SUI 01 / SBB A + STA.  One cost model, `hl_bias', is the whole ladder
+                (|b| <= 3 -> INX/DCX repeats, >= 4 -> LXI B,two's-complement + DAD B,
+                [C143]; the <= 3 threshold is ROUTE-INDEPENDENT — store at E48D8 [C324],
+                TEST at E48A13 = 3 vs E48A12 = 4 [C310]).  [E2E-48/P2e §2.1, C327] extends
+                the admitted CLASSES, not the encoder: `k = 1' = one DCX H (E48E1 0006),
+                `k = -2' = INX H twice (E48E2 0006), `k = 5' keeps the LXI B,FFFB head
+                (E48A7 003A).  This arm REPLACES the two guards `kk >= 2 && kk <= 3' and
+                `kk >= 4' (their bodies were already identical); their original comments
+                stand verbatim below as the recorded state at each landing.  `bin_lit' still
+                admits only constants `bin15_fits' ([-32768,32767]); `hl_bias' spells every
+                bias in that range as 16-bit two's complement, the mechanism [C143] pins.
+                [E2E-48/P2d arm (d), C324] "`k = c' with |c| in {2,3}: LHLD,k / DCX H x c /
                 MOV A,H / ORA L / SUI 01 / SBB A + STA [E48D8 0006 (c=2), 0013 (c=3)].  The
                 bytes come from the SAME authority as the kk >= 4 arm below: `hl_bias' is ONE
                 cost model (|b| <= 3 -> INX/DCX repeats, >= 4 -> LXI B + DAD B, [C143]) and
                 E48D8 shows the <= 3 threshold is ROUTE-INDEPENDENT -- it holds in the store
                 ladder exactly as in TEST (E48A13 = 3 vs E48A12 = 4). k = 1 and negative c
-                fall through: no witness (RESULTS §3). *)
-             Some
-               (fun () ->
-                 cmp_load_deref st v.Ast.orig;
-                 hl_bias st (-kk);
-                 d st op_mov_a_h; d st 0xb5 (* ORA L *);
-                 flag ())
-         | Some (v, kk) when kk >= 4 ->
-             (* `k = c', c >= 4, 15 bytes: LHLD,k / LXI B,65536-c / DAD B / MOV A,H / ORA L /
-                SUI 01 / SBB A [A7 003A at c=5] -- [C143]'s compare route, threshold >= 4, and
-                the bias IS applied (byte 0x09 = DAD B; §5 item 1 falsifies the inherited
-                "DAD H defect" reading). *)
+                fall through: no witness (RESULTS §3)."  — the last sentence SUPERSEDED by
+                C327 (E48E1/E48E2 measured both classes).
+                [P1, C143] "`k = c', c >= 4, 15 bytes: LHLD,k / LXI B,65536-c / DAD B /
+                MOV A,H / ORA L / SUI 01 / SBB A [A7 003A at c=5] -- [C143]'s compare route,
+                threshold >= 4, and the bias IS applied (byte 0x09 = DAD B; §5 item 1
+                falsifies the inherited 'DAD H defect' reading)."  — the >= 4 law still
+                holds, unchanged, inside the merged guard. *)
              Some
                (fun () ->
                  cmp_load_deref st v.Ast.orig;
