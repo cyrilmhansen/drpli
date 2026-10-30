@@ -268,77 +268,22 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 22
-checkpoint-id: g22-bc8c08743248
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 23
+checkpoint-id: g23-cda1093fa704
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-10-30T13:37:02.732Z
+checkpointed: 2026-10-30T13:38:40.869Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c36dcb401cbccdeb74d3356bbdbaf190ae087dd1aafe0307e885e25bcff3cb59
-source-handoff: 94241c6efd4589876918307aeb16dc8bbb122bb5db8e3b407b415446f92f09c8
-source-learnings: e8c472e3b067687131f75bf109916e34868653cc25ea0f1db95ac1a703009cb8
+source-progress: 5e8cf2359198aa92e0cc830af6c579f93cad9db8e310fa640df2df8b01013b71
+source-handoff: 9ab46486f15374e1151c46fe4df430d646f736760b62d599f978659eb304db2a
+source-learnings: 6c0a53d78f0ef0dc56c75a482b803a3feb20666668fa7747f83e3035ad297470
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
-next-action: - E2E-48/P2d: RUN THE PRE-REGISTERED ROUND-4 ORACLE (E48D1..D10)
-
-> **STATUS 2026-10-30 (renewal 8/8 successor, session closing; HEAD after this commit):**
-> **E2E-48/P2c IS CLOSED.** Step 6 and step 7 are DONE and MEASURED:
-> - `2d26c1b` committed the guard's g19 managed-block refresh as its own commit.
-> - `f67cc6d` — fixed the promotion leftover (`NEG_META` still stamped the two retired rows, which
->   aborted `registration_audit`'s REJECTS/NEG_META symmetry rule; counts 182 vs 184), ran
->   `--update-inventory` (INVENTORY **1291 rows = 1109 specimens + 182 refusals**, reviewed line by
->   line), and measured the **FULL GATE rc=0: 1109 byte-exact / 0 fail, negative 182/182,
->   divergence 9/9, coverage 102 rows 0 errors, census --verify clean (15/0/26/0)**. The inherited
->   "1107/184" is confirmed false.
-> - `ef0a198` — step 7: the five drafted COVERAGE rows written against the CURRENT ledger
->   (`COND.BIT1_NEG_TEST`, `STOR.BIT1_COND_STORE`, `COND.AND_BIT1_OPERAND`, `IO.PUT_BIT1_ITEM`,
->   `DECL.STATIC_CHAR`; 107 rows / 0 errors, gate re-run still 1109/0 rc=0) plus four stale blocker
->   sentences marked SUPERSEDED by pure appends (originals kept word-for-word, verified by
->   `git diff` + `startswith`).
-> - **Then two §3 "unmeasured" claims were FALSIFIED by artifacts already in the tree** (see
->   `LEARNINGS.md`): DR's object for `TITLE(<static varying>)` IS `golden/e42p1c/E46F5/E46F5.REL`
->   (CODE 68 / DATA 18, `?SLVTS`, w1 `0E50`, cell `02 41 42 20 x11` in place), and the EMPTY
->   `initial('')` static-varying cell IS `golden/first8080u/EXPR2/EXPR2.REL` DATA 000F = `00` +
->   ten `20`. E48F1/E46F5 differ in CODE only at the two `LXI H,*D` operand words.
-> - **Round 4 (E48D1..D10) is PRE-REGISTERED and the oracle has NOT been run.** Committed in the
->   closing commit of this session: `spec/lab-evidence/e2e48-p2d/mkprobes.py`, the ten
->   `probes/E48Dn.PLI` (CRLF, [C193] (b)), `BASELINE-MINE.txt` (my state at `ef0a198`: 7 named
->   refusals, 3 that already compile — D3 static-FIXED title, D5 empty fixed initial, D7 store into
->   static varying) and `HYPOTHESES.md` (P-D1..P-D10, every row derived from a listed committed
->   object; P-D6/P-D7 pool arithmetic flagged as the weakest derivations).
->
-> **THE EXACT NEXT ACTION** (a fresh session; **renewal is capped at 8/8, so `handoff_renew` will
-> refuse — the operator starts the successor manually or raises `renewal.maxRenewals` by decision**):
->
-> 1. Verify the boundary: `git rev-parse HEAD` (expect the P2d pre-registration commit or a
->    descendant), `git status --porcelain=v1` (expect clean or only guard blocks),
->    `ls probes/E48D{1..10}.PLI spec/lab-evidence/e2e48-p2d/`, and confirm the pre-registration is
->    the PREDECESSOR of any oracle call:
->    `git log --oneline --format='%h %s' -- probes/E48D1.PLI | tail -1`.
-> 2. `cd /home/john/projects/sushiworks/pli80/ocaml && eval $(opam env) && dune build` (the opam
->    PATH is NOT set in a renewal successor's shell) — rc=0, binary current.
-> 3. Run the oracle ONCE, exactly as pre-registered:
->    `PLI_SRC=probes python3 oracle/batch.py E48D1 E48D2 E48D3 E48D4 E48D5 E48D6 E48D7 E48D8 E48D9 E48D10 --tag e48p2d --switches '$L$D'`
->    (new tag — `golden/e48p2d` must not exist; never pass `--reuse` into an existing tag).
-> 4. Write `spec/lab-evidence/e2e48-p2d/RESULTS.md`: §1 the prediction-vs-verdict table over
->    P-D1..P-D10 (keep every MISS), §2 the laws read out of the `.REL` records with
->    `tools/reldump.py` / `spec/lab-evidence/e2e42-p2b/chaindump.py` (never a `.PRN` size), §3 what
->    the round did NOT measure. Commit goldens + report together.
-> 5. Only then lower what §2 measures — one arm per commit, `dune build` + `cmp` sweep after each,
->    and mirror every new pool-allocating shape in its prescan demand twin (the `fa09b97` rule).
->    E46F5's promotion, if D1/D2 land, is a THREE-place edit: `REJECTS`, `NEG_META`, `SPECIMENS`,
->    then `--update-inventory`, census `--check <copy of prev>` (counts MAY legitimately change
->    here — a corpus advance is not a regression, but re-read every delta) and the FULL GATE.
->
-> **Standing prohibitions unchanged:** do NOT touch `golden/e48p1`, `golden/e48p2c`,
-> `golden/e48p2retire`, `golden/e42p1c`, `golden/first8080u` or any other committed evidence; do
-> NOT implement a §3 shape on faith; a BASED member in a condition store and a bit item behind a
-> file attach stay refused (no witness anywhere); no `%include` work without its own
-> pre-registered round; the LOAN2 `conflicting kinds` prescan gap stays `proposed` (design change,
-> not an arm); no push is authorized.
-
-(Previous next-action section, kept for lineage — its steps 6 and 7 are DONE as measured above.)
+next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
+readiness-by: session:01a18cf9-0979-7689-ae48-1a81433e67cf
+readiness-at: 2026-10-30T13:38:40.873Z
+readiness-checkpoint: g23-cda1093fa704
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
