@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "662cbaeb0a99ae58368b800f6d77ff2a",
+ "binary_md5": "0614eaabd330cdfdc9b7e2ef665180f0",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,11 +15,14 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-10-29T23:18:19",
+ "generated": "2026-10-30T16:58:54",
  "git_dirty_paths": [
-  "?? golden/e48p2retire/"
+  "M HANDOFF.md",
+  " M PROGRESS.md",
+  " M spec/INVENTORY.txt",
+  " M tools/e2e_gate.py"
  ],
- "git_head": "b78770d035174b7bc0cd68b0fee448f279d833dd",
+ "git_head": "45ec3b8e865ccc7a4c6e4fc0b456f32b6e250186",
  "rows": [
   {
    "dir_present": true,
@@ -259,7 +262,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: [TBD] STATIC INITIAL value '' on CHAR(10) VARYING is unsampled -- E48C8 measures only a NON-EMPTY character literal not",
+   "msg": "Fatal error: exception Failure(\"codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line 24)\")",
    "name": "EXPR2",
    "prn_present": true,
    "rel_bytes": 2048,
@@ -319,7 +322,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: [TBD] STATIC INITIAL value '' on CHAR(80) VARYING is unsampled -- E48C8 measures only a NON-EMPTY character literal not",
+   "msg": "Fatal error: exception Failure(\"codegen: PUT EDIT operator X is unsampled [TBD] (only F and A formats are decoded from DR tables)\")",
    "name": "FSCAN",
    "prn_present": true,
    "rel_bytes": 1024,

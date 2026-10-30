@@ -1374,6 +1374,56 @@ SPECIMENS.update({
     "E46F5":  ("probes/E46F5.PLI",  "golden/e42p1c/E46F5/E46F5.REL"),
 })
 
+# ---------------------------------------------------------------------------
+# [E2E-48/P2d] ROUND-4 BANK -- STATIC-character placement/stores, TITLE on a STATIC
+# operand, the store ladder at |c| in {2,3}, a non-final BIT(1) PUT item, and a
+# member as the RIGHT operand of a TEST compare.  Ten programs, pre-registered at
+# 60cf463 (run 1 botched on the 71-column law and KEPT as evidence at golden/e48p2d/;
+# wrap amendment 60a2c06), measured 10 ok / 10 at tag e48p2db (d28ff5e).  All ten are
+# WHOLE-FILE byte-identical to their DR objects, each arm landed one per commit
+# (6545b5d a, 6491981 b, a72ce43 c, 18a06c0 d, 1e8acb2 e, e21281a f) and the sweep was
+# re-run at every step; spec/lab-evidence/e2e48-p2d/RESULTS.md keeps both MISSes (P-D6
+# route wording, P-D7 the falsified compile-time length rewrite).
+#
+# BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from this
+# round -- it captured .REL/.PRN evidence, and RESULTS §3 says the RUNTIME behaviour
+# (the varying length-byte rewrite, what an empty varying PUT prints) is [TBD] until a
+# link-run measures it (PROTOCOL #1).
+#
+#   E48D1/D2  TITLE on a STATIC CHARACTER VARYING, OUTPUT and INPUT: class-invariant,
+#             `?SLVTS' unchanged, w1 0E50 / 0E90; operand class moves no code byte
+#             but its own address ([C323]; D1 == DR's E46F5 object modulo module name).
+#   E48D3     TITLE on a STATIC CHARACTER FIXED: `21 *D(cell) / 3E 08 / ?SLCTS', the
+#             DECLARED extent, cell `41 42 20x6' in place ([C323]).
+#   E48D4/D5  EMPTY `initial('')': varying -> `00' + extent blanks IN PLACE (11 bytes);
+#             fixed -> extent blanks, no length byte (5); PUT reads at the DECLARED
+#             length; DATA totals 000F/0009 incl. the automatic `k' ([C322], §2.7 slack).
+#   E48D6     STORE into a STATIC FIXED cell: `21 *D(cell) / 11 *D(pool) / 3E extent /
+#             06 len / CD ?SMCCM' -- new opcode, literal POOLED beside the static cell
+#             ([C321] §2.1).
+#   E48D7     STORE into a STATIC VARYING cell: same head with `?SMCVM'; the DATA image
+#             KEEPS the INITIAL `02 41 42 20x8' -- no compile-time rewrite ([C321] §2.2).
+#   E48D8     `b = (k = 2)' / `c = (k = 3)': `2A *D(k) / 2B x|c| / 7C / B5 / D6 01 / 9F /
+#             32 *D(b)' -- the <=3 DCX regime is ROUTE-INDEPENDENT, closing [C310]'s
+#             [TBD]; `k = 1' and negative c stay refused ([C324]).
+#   E48D9     `put list(b, 'X')' -- NON-FINAL bit item accepted: own `?PNBOP' tail, the
+#             literal chain follows, exactly ONE `?QIOOP' ([C325]).
+#   E48D10    `if 'AB' = line then' -- member as RIGHT in TEST: `21 *D(member) /
+#             11 *D(pool) / 06 02 / ?SCCVM / C2 fill -> next statement' ([C326]).
+# ---------------------------------------------------------------------------
+SPECIMENS.update({
+    "E48D1":  ("probes/E48D1.PLI",  "golden/e48p2db/E48D1/E48D1.REL"),
+    "E48D2":  ("probes/E48D2.PLI",  "golden/e48p2db/E48D2/E48D2.REL"),
+    "E48D3":  ("probes/E48D3.PLI",  "golden/e48p2db/E48D3/E48D3.REL"),
+    "E48D4":  ("probes/E48D4.PLI",  "golden/e48p2db/E48D4/E48D4.REL"),
+    "E48D5":  ("probes/E48D5.PLI",  "golden/e48p2db/E48D5/E48D5.REL"),
+    "E48D6":  ("probes/E48D6.PLI",  "golden/e48p2db/E48D6/E48D6.REL"),
+    "E48D7":  ("probes/E48D7.PLI",  "golden/e48p2db/E48D7/E48D7.REL"),
+    "E48D8":  ("probes/E48D8.PLI",  "golden/e48p2db/E48D8/E48D8.REL"),
+    "E48D9":  ("probes/E48D9.PLI",  "golden/e48p2db/E48D9/E48D9.REL"),
+    "E48D10": ("probes/E48D10.PLI", "golden/e48p2db/E48D10/E48D10.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form

@@ -475,7 +475,7 @@ E46F1	specimen	probes/E46F1.PLI	golden/e42p1c/E46F1/E46F1.REL
 E46F2	specimen	probes/E46F2.PLI	golden/e42p1c/E46F2/E46F2.REL
 E46F3	specimen	probes/E46F3.PLI	golden/e42p1c/E46F3/E46F3.REL
 E46F4	specimen	probes/E46F4.PLI	golden/e42p1c/E46F4/E46F4.REL
-E46F5	refusal	E46F5:\n  procedure options(main);\n  dcl outf file, nm char(14) varying static initial('AB'), k fixed bin(15);\n  open file(outf) stream output title(nm);\n  put file(outf) list('X');\n  close file(outf);\nend E46F5;\n	DR COMPILES it (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site).  [E2E-42 RECORD, superseded below:] the refusal was NOT about TITLE -- line 3's `dcl nm char(14) varying static initial('AB')' hit [C114]'s STATIC-on-VARYING guard during DECLARATION layout and never reached lower_open; the row kept the two facts apart.]  E2E-48/P2c RESULTS §2.5 (golden/e48p2c/E48C8) MEASURED the static varying cell, so the declaration now lowers and the program advances to line 4, where OPEN TITLE(nm) on a STATIC CHARACTER VARYING operand refuses BY NAME (§3: no golden puts a static varying in a TITLE; the marker is the binary's measured output).  The gap MOVED from placement to operand route and is STILL a my-gap against DR's accepted object; no static-operand TITLE claim of any kind is admissible until an oracle round measures those bytes.
+E46F5	specimen	probes/E46F5.PLI	golden/e42p1c/E46F5/E46F5.REL
 E46G1	specimen	probes/E46G1.PLI	golden/e42p0b/E46G1/E46G1.REL
 E46G2	refusal	E46G2:\n  procedure options(main);\n  dcl f file, i fixed bin(15);\n  open file(f) input title('A') title('B');\n  get file(f) list(i);\nend E46G2;\n	DR diagnoses pass-2 CONFLICT and emits NO .REL [C285].  This panel row is perimeter PARITY, not a gap: the compiler refuses for the same reason DR does, and names the repeated keyword.  Counter-cases that keep the rule from being over-read: E46H1 `keyed direct input' (w1 = 0x058C), E46H3 `record input' and E46H4 `sequential input' (both 0x0590) are ACCEPTED by DR, so CONFLICT is repetition plus the exclusive mode group, not any two options side by side.
 E46G3	specimen	probes/E46G3.PLI	golden/e42p0b/E46G3/E46G3.REL
@@ -630,6 +630,16 @@ E48C6	specimen	probes/E48C6.PLI	golden/e48p2c/E48C6/E48C6.REL
 E48C7	specimen	probes/E48C7.PLI	golden/e48p2c/E48C7/E48C7.REL
 E48C8	specimen	probes/E48C8.PLI	golden/e48p2c/E48C8/E48C8.REL
 E48C9	specimen	probes/E48C9.PLI	golden/e48p2c/E48C9/E48C9.REL
+E48D1	specimen	probes/E48D1.PLI	golden/e48p2db/E48D1/E48D1.REL
+E48D10	specimen	probes/E48D10.PLI	golden/e48p2db/E48D10/E48D10.REL
+E48D2	specimen	probes/E48D2.PLI	golden/e48p2db/E48D2/E48D2.REL
+E48D3	specimen	probes/E48D3.PLI	golden/e48p2db/E48D3/E48D3.REL
+E48D4	specimen	probes/E48D4.PLI	golden/e48p2db/E48D4/E48D4.REL
+E48D5	specimen	probes/E48D5.PLI	golden/e48p2db/E48D5/E48D5.REL
+E48D6	specimen	probes/E48D6.PLI	golden/e48p2db/E48D6/E48D6.REL
+E48D7	specimen	probes/E48D7.PLI	golden/e48p2db/E48D7/E48D7.REL
+E48D8	specimen	probes/E48D8.PLI	golden/e48p2db/E48D8/E48D8.REL
+E48D9	specimen	probes/E48D9.PLI	golden/e48p2db/E48D9/E48D9.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

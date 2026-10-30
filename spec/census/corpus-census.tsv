@@ -18,12 +18,12 @@ DIORAND	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED w
 DTEST	ok	True	True	EXACT	384			
 ENTER	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 37) -- P0 measured 34 OPEN blocks in 24 DR objects (
 EXPR1	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line 18)")
-EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] STATIC INITIAL value '' on CHAR(10) VARYING is unsampled -- E48C8 measures only a NON-EMPTY character literal not
+EXPR2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line 24)")
 FDTEST	ok	True	True	EXACT	384			
 FFACT	ok	True	True	EXACT	512			
 FLTPOLY	ok	True	True	EXACT	1024			
 FLTPOLY2	ok	True	True	EXACT	1024			
-FSCAN	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] STATIC INITIAL value '' on CHAR(80) VARYING is unsampled -- E48C8 measures only a NON-EMPTY character literal not
+FSCAN	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT EDIT operator X is unsampled [TBD] (only F and A formats are decoded from DR tables)")
 IFACT	ok	True	True	EXACT	384			
 INVERT	diag	False	None	NO_ORACLE				Fatal error: exception Failure("codegen: [TBD] multi-dimensional or assumed-size array [C159] (DR's 2-D is row-major, la
 KEYFILE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 16) -- P0 measured 34 OPEN blocks in 24 DR objects (
