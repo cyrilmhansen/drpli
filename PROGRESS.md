@@ -5,6 +5,13 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+> **STATUS 2026-10-30 (session 01a18d08, renewal 1/8, closing at context critical).** Steps 5a
+> and 2 DONE+COMMITTED: D3/D5/D7 byte-identical at golden/e48p2db (D7 free); claims C321-C326 +
+> appends to C310/C313/C314/C317 at `aa4b5b4`; REJECTS audit -> ONE falsified row (E46F5,
+> promote after TITLE arm; E46K14 stays). Guard g24 attested `35fe9fe`. **NEXT = the six
+> one-arm-per-commit lowerings (a)-(f) listed in HANDOFF.md '## Next action - E2E-48/P2d step 4',
+> then registration (SPECIMENS +10, --update-inventory, census --check, FULL GATE measured) and
+> COVERAGE rows.** No half-finished edit; ocaml/ untouched this session.
 > **STATUS 2026-10-30 (session 01a18d08, renewal 1/8, step 5 in progress).** Measured THIS
 > session at HEAD (guard g23 committed as `4e510d1`, build rc=0): baseline re-verified -- D3/D5/**D7**
 > whole-file byte-identical to `golden/e48p2db/` (D7's `?SMCVM` store needs NO arm), the other 7
@@ -283,22 +290,19 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 24
-checkpoint-id: g24-7313bc9445df
-checkpoint-kind: manual
+checkpoint-generation: 26
+checkpoint-id: g26-06c5fc25c2ae
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-10-30T13:48:45.593Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-10-30T13:52:05.796Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b0a18d4ae8709ac77bdbcff7e3cad3b3d9113e2ca0cdad1fa866c96ba8f47776
-source-handoff: 9ab46486f15374e1151c46fe4df430d646f736760b62d599f978659eb304db2a
+source-handoff: 2c12875491857ee8803f8ecdc0242080d4cbe1b25b5cc9a1136c2c05625b3458
 source-learnings: 3c4f3b7ceca2b8b4377d556097f0bc1a5cc2a81ebdb29578ce5d13f2fd1c9cc6
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-readiness-by: session:01a18d08-bc2c-7689-ae48-1a855f04fd0e
-readiness-at: 2026-10-30T13:48:45.597Z
-readiness-checkpoint: g24-7313bc9445df
 <!-- guard:end checkpoint -->
 
 ## Verified evidence

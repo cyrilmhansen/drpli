@@ -443,3 +443,10 @@ The guard never writes this file.
   initial, (b) TITLE static-varying + E46F5 promotion, (c) static-FIXED store ?SMCCM with its
   prescan demand twin (fa09b97 rule), (d) store-ladder DCX 2/3, (e) non-final bit item,
   (f) TEST member-as-RIGHT SCCVM.
+
+## P2d step 2 close (session 01a18d08, committed aa4b5b4)
+- **accepted** Claims C321-C326 written ONLY from RESULTS s2 with per-golden citations; C310
+  |c|2,3 TBD closed by append; C313 non-final premise and C317 TEST refusal marked falsified/
+  retiring by append (originals verbatim). C321 records my-gaps D6/D7 refusals falsified by oracle.
+- **accepted** Handoff-file prose edits make the managed checkpoint stale -> renewal gate
+  reports not-authorized; correct close is durable prose, commit, then handoff_finalize.

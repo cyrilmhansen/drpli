@@ -166,7 +166,48 @@ unchanged); the sweep is
 
 ## Next action (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
-## Next action - E2E-48/P2d step 5: claims, registration, gate, then LOWERING
+## Next action - E2E-48/P2d step 4: LOWER six arms, one per commit, then step 3 registration + FULL GATE
+
+**Done and measured (session 01a18d08, renewals chain 1/8, HEAD `aa4b5b4`):** step 5a (D3/D5/D7
+byte-identical at `golden/e48p2db/`; D7 needs NO arm), REJECTS audit (ONE falsified row: E46F5;
+E46K14 `if line then` truthiness is a DIFFERENT unmeasured shape and STAYS pinned), step 2 claims
+**C321-C326** + appends to C310/C313/C314/C317 (`aa4b5b4`). Guard g24 attested (`35fe9fe`).
+Build `cd ocaml && eval $(opam env) && dune build` rc=0; baseline 7 refusals re-verified verbatim.
+
+**THE EXACT NEXT ACTION** (successor session): lower ONE arm per commit, each `dune build` +
+`cmp` sweep against `golden/e48p2db/E48Dn.REL` + the 24-probe e48p1 and 9-probe e48c loops
+(must stay 24/24, 9/9), in this order:
+1. **(a) empty `initial('')` on STATIC VARYING char** (D4): named refusal
+   `STATIC INITIAL value '' ... is unsampled` -> cell `00` + extent blanks IN PLACE, not pooled
+   ([C322]; D5's FIXED half already compiles exact). Then D4 cmp-identical.
+2. **(b) TITLE on STATIC varying operand, both modes** (D1/D2): [C323] class-invariant -- reuse the
+   AUTOMATIC `?SLVTS` route, operand = static cell. Then E46F5 promotes: THREE-place edit
+   (REJECTS remove row, NEG_META remove stamp, SPECIMENS add citing
+   `golden/e42p1c/E46F5/E46F5.REL`); verify E46F5 byte-identical through the binary.
+3. **(c) static FIXED char store via `?SMCCM`** (D6): head `21 *D(cell) / 11 *D(pool) /
+   3E extent / 06 len / CD ?SMCCM` ([C321]); literal POOLS -- mirror the demand in the prescan
+   twin (the `fa09b97` rule or the pool invariant dies).
+4. **(d) store ladder \|c\| in {2,3}** (D8): `bit_cond_mat` LHLD/DCX H x\|c\| arm, <=3 threshold
+   ([C324]); k=1 and negative c stay refused.
+5. **(e) non-final BIT(1) PUT item** (D9): own `?PNBOP` tail, following items keep their routes,
+   ONE `?QIOOP` ([C325]); PUT-EDIT and file-attach bit items stay refused.
+6. **(f) member-as-RIGHT in TEST** (D10): widen `str_cmp_shape_rev` `?imem` to the TEST route
+   under the single E48D10 witness ([C326]); AFTER the arm RE-MEASURE E46K14's refusal through
+   the binary -- if its marker changed, fix the arm, do not silently re-pin.
+Then REGISTER: SPECIMENS.update E48D1..D10 (byte tier ONLY, no RUNTIME rows) at `golden/e48p2db/`,
+`--update-inventory`, census `cp spec/census/corpus-census.json /tmp/census-prev.json &&
+python3 tools/corpus_census.py --check /tmp/census-prev.json` (EXPR2/FSCAN expected to ADVANCE
+past the empty-initial refusal -- re-read EVERY delta), FULL GATE `python3 tools/e2e_gate.py`
+(report ACTUAL; expect 1109+10+1(E46F5)=1120/0 if all arms land, negative panel 181 after E46F5
+promotion), then COVERAGE.tsv rows for the new shapes + `coverage_check` + gate re-run.
+**Never implement a §3 shape:** runtime length rewrite, k=1/negative c, bit-behind-file-attach,
+BASED cond-store, over-extent INITIAL/store. No push. Probes <=71 cols. HANDOFF/PROGRESS/LEARNINGS
+updated + finalize/renew at the end.
+
+(Previous next-action section, superseded -- its steps 2 and 5a are DONE as measured above; its
+"five REJECTS rows" figure was falsified by the audit to ONE.)
+
+## Next action (superseded) - E2E-48/P2d step 5: claims, registration, gate, then LOWERING
 
 **State (measured, this session):** oracle round COMPLETE and committed: `golden/e48p2db/` (10 ok/10)
 at `d28ff5e`, `spec/lab-evidence/e2e48-p2d/RESULTS.md` (prediction table: HITs on P-D1..5,8,9,10;
@@ -441,25 +482,22 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 24
-checkpoint-id: g24-7313bc9445df
-checkpoint-kind: manual
+checkpoint-generation: 26
+checkpoint-id: g26-06c5fc25c2ae
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~14931, session 01a18d08-bc2c-7689-ae48-1a855f04fd0e)
-checkpointed: 2026-10-30T13:48:45.593Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3554, session 01a18d08-bc2c-7689-ae48-1a855f04fd0e)
+checkpointed: 2026-10-30T13:52:05.796Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b0a18d4ae8709ac77bdbcff7e3cad3b3d9113e2ca0cdad1fa866c96ba8f47776
-source-handoff: 9ab46486f15374e1151c46fe4df430d646f736760b62d599f978659eb304db2a
+source-handoff: 2c12875491857ee8803f8ecdc0242080d4cbe1b25b5cc9a1136c2c05625b3458
 source-learnings: 3c4f3b7ceca2b8b4377d556097f0bc1a5cc2a81ebdb29578ce5d13f2fd1c9cc6
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
-readiness-by: session:01a18d08-bc2c-7689-ae48-1a855f04fd0e
-readiness-at: 2026-10-30T13:48:45.597Z
-readiness-checkpoint: g24-7313bc9445df
 ### Last verified state
-guard level 1; checkpoint requested (finalize: Resume at PROGRESS.md Current phase STATUS block (session 01a18d08): write claims C321-C326 from spec/lab-evidence/e2e48-p2d/RESULTS.md s2 + appends to C310/C313/C317, commit; then arms a-f one-per-commit with cmp sweeps (D3/D5/D7 already byte-identical); then registration (SPECIMENS +10, E46F5 three-place promotion, NEG_META, --update-inventory, census --check, FULL GATE measured, COVERAGE rows). Build: eval $(opam env). Chain 1/8 this session.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
