@@ -698,25 +698,25 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 46
-checkpoint-id: g46-d6ac3e4c3155
+checkpoint-generation: 47
+checkpoint-id: g47-52f93cd84cbc
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-230, session 01a18dba-2b4c-7388-a8da-94eb0e5e746e)
-checkpointed: 2026-10-30T17:18:25.119Z
+status: checkpoint (guard level 4, remaining ~-1556, session 01a18dba-2b4c-7388-a8da-94eb0e5e746e)
+checkpointed: 2026-10-30T17:18:48.923Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b43013b95a831d309ea3c825c3c6b9952df3573bee440cbd30aff82fc70feddc
-source-handoff: 9204d3abac4544360c51cfdd60a3da1a08dc6aa346c4eef124ec1167548af1ab
+source-handoff: 9faea53770d82458ca1bcba81a0879aa97d041f81440d8b8cd58ac329538ef97
 source-learnings: cc3267e69109be28937d76533df75490547c89203d810223b424164ce3c25f8b
 source-config: 5537d66535163979fcef1338bb101a3dab2ffd8b2eb0d467620ccc7f0c0ec616
 
 
 readiness-by: session:01a18dba-2b4c-7388-a8da-94eb0e5e746e
-readiness-at: 2026-10-30T17:18:25.124Z
-readiness-checkpoint: g46-d6ac3e4c3155
+readiness-at: 2026-10-30T17:18:48.929Z
+readiness-checkpoint: g47-52f93cd84cbc
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (finalize: Final close before the scheduled switch at renewal 7/8. HEAD 66e2f4b (or the last commit); tree clean except the operator's uncommitted handoff.config.json workingContextWindow edit. E2E-48/P2d step 7 DONE and MEASURED: coverage_check 113 rows/0 errors/0 warnings; FULL GATE rc=0 = 1120 byte-exact / 0 fail, negative 181/181, divergence 9/9, census 15/0/26/0, prose clean; no ocaml/ changes; no push authorized. Successor: read HANDOFF.md -> Next action (operator round choice A/B/C/D) and PROGRESS.md STATUS 01a18dba.)
 
 ### Unfinished operations
 - (none recorded)
@@ -725,5 +725,5 @@ guard level 4; checkpoint requested (renewal tool refresh)
 (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
 ### Guard notes
-E2E-48/P2d STEP 7 IS DONE AND MEASURED (phase CLOSED) at HEAD b7e3586: spec/COVERAGE.tsv 107->113 data rows (six new rows vs C321-C326), 19 traceable appends with originals verified as prefixes, [C323] blank-run miscount corrected in spec/CLAIMS.md, coverage_check 113 rows/0 errors/0 warnings, spec/census/coverage-stats.json committed, FULL GATE rc=0 = 1120 byte-exact / 0 fail, negative 181/181, divergence 9/9, census EXACT 15/DIFFERS 0/REFUSED 26/UNEXPECTED 0, prose clean. No ocaml/ code changed. NOTE: handoff.config.json is modified in the tree (workingContextWindow 95000 -> 145000) by the OPERATOR, not by me — do not commit or revert it without authorization. Next action = operator round choice A/B/C/D in HANDOFF.md; nothing is half-edited. Renewal 7/8.
+Final close before the scheduled switch at renewal 7/8. HEAD 66e2f4b (or the last commit); tree clean except the operator's uncommitted handoff.config.json workingContextWindow edit. E2E-48/P2d step 7 DONE and MEASURED: coverage_check 113 rows/0 errors/0 warnings; FULL GATE rc=0 = 1120 byte-exact / 0 fail, negative 181/181, divergence 9/9, census 15/0/26/0, prose clean; no ocaml/ changes; no push authorized. Successor: read HANDOFF.md -> Next action (operator round choice A/B/C/D) and PROGRESS.md STATUS 01a18dba.
 <!-- guard:end checkpoint -->
