@@ -232,123 +232,80 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 19
-checkpoint-id: g19-a1cadcc56d16
+checkpoint-generation: 20
+checkpoint-id: g20-c7953c1b298e
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-10-29T22:20:03.288Z
+guard-level: 0
+checkpointed: 2026-10-30T13:08:09.388Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c994ff4745d9c8a042f283cdd40662850e028b1e1d964c6109b8e336847d7fba
-source-handoff: a39efb8344f2f7f0e31201dde46a18027883e4984572581e278481d385ccd1ac
-source-learnings: ff8f82d25240122069672f7e7b66446ebf3f788d12a4edb5b686afb78e9363e4
-source-config: 8e66b82b71db399633cd776d6a5329e70c0eb09173121cfb303569d5f6ba6bf3
-next-action: - E2E-48/P2c step 6: census re-measure, inventory, FULL GATE
+source-progress: c36dcb401cbccdeb74d3356bbdbaf190ae087dd1aafe0307e885e25bcff3cb59
+source-handoff: 94241c6efd4589876918307aeb16dc8bbb122bb5db8e3b407b415446f92f09c8
+source-learnings: e8c472e3b067687131f75bf109916e34868653cc25ea0f1db95ac1a703009cb8
+source-config: 570cfc834ab220340b61cb3fe3a2bfb23d4d4e3c83048d265ec7166c5f1ccafe
+next-action: - E2E-48/P2d: RUN THE PRE-REGISTERED ROUND-4 ORACLE (E48D1..D10)
 
-> STATUS 2026-10-30 (renewal 7/8 successor, HEAD after the RETIRE+claims commit):
-> **Steps 1-5 DONE, RETIRE round DONE.** `14c7321` (4a store-destination widening, 8/9),
-> `3ee414a` (4b static-varying placement + TITLE-on-static named refusal + step-2 WHY-strings,
-> 9/9; E46F5 row RE-MEASURED through the binary), `630e9be` (RETIRE prereg BEFORE the oracle),
-> `1480d6f` (oracle measured 2 ok/2, E46K1/E46K3 whole-file byte-identical and PROMOTED;
-> SPECIMENS.update adds E48C1..C9 + K1/K3 = **1109 specimens**; REJECTS = **182 rows**;
-> claims **C317-C320** + C310 annotation written). Sweeps at HEAD: E48C 9/9, e48p1 24/24,
-> 181-row negative replication clean (E46F5's NEW marker verified separately against the
-> binary). `dune build` rc=0 with the inherited warning multiset unchanged (126 =
-> 22/15/28/2/14/2/17/26).
+> **STATUS 2026-10-30 (renewal 8/8 successor, session closing; HEAD after this commit):**
+> **E2E-48/P2c IS CLOSED.** Step 6 and step 7 are DONE and MEASURED:
+> - `2d26c1b` committed the guard's g19 managed-block refresh as its own commit.
+> - `f67cc6d` — fixed the promotion leftover (`NEG_META` still stamped the two retired rows, which
+>   aborted `registration_audit`'s REJECTS/NEG_META symmetry rule; counts 182 vs 184), ran
+>   `--update-inventory` (INVENTORY **1291 rows = 1109 specimens + 182 refusals**, reviewed line by
+>   line), and measured the **FULL GATE rc=0: 1109 byte-exact / 0 fail, negative 182/182,
+>   divergence 9/9, coverage 102 rows 0 errors, census --verify clean (15/0/26/0)**. The inherited
+>   "1107/184" is confirmed false.
+> - `ef0a198` — step 7: the five drafted COVERAGE rows written against the CURRENT ledger
+>   (`COND.BIT1_NEG_TEST`, `STOR.BIT1_COND_STORE`, `COND.AND_BIT1_OPERAND`, `IO.PUT_BIT1_ITEM`,
+>   `DECL.STATIC_CHAR`; 107 rows / 0 errors, gate re-run still 1109/0 rc=0) plus four stale blocker
+>   sentences marked SUPERSEDED by pure appends (originals kept word-for-word, verified by
+>   `git diff` + `startswith`).
+> - **Then two §3 "unmeasured" claims were FALSIFIED by artifacts already in the tree** (see
+>   `LEARNINGS.md`): DR's object for `TITLE(<static varying>)` IS `golden/e42p1c/E46F5/E46F5.REL`
+>   (CODE 68 / DATA 18, `?SLVTS`, w1 `0E50`, cell `02 41 42 20 x11` in place), and the EMPTY
+>   `initial('')` static-varying cell IS `golden/first8080u/EXPR2/EXPR2.REL` DATA 000F = `00` +
+>   ten `20`. E48F1/E46F5 differ in CODE only at the two `LXI H,*D` operand words.
+> - **Round 4 (E48D1..D10) is PRE-REGISTERED and the oracle has NOT been run.** Committed in the
+>   closing commit of this session: `spec/lab-evidence/e2e48-p2d/mkprobes.py`, the ten
+>   `probes/E48Dn.PLI` (CRLF, [C193] (b)), `BASELINE-MINE.txt` (my state at `ef0a198`: 7 named
+>   refusals, 3 that already compile — D3 static-FIXED title, D5 empty fixed initial, D7 store into
+>   static varying) and `HYPOTHESES.md` (P-D1..P-D10, every row derived from a listed committed
+>   object; P-D6/P-D7 pool arithmetic flagged as the weakest derivations).
 >
-> > NOTE (7/8 successor): step-6 item 1 (census --check) is DONE (counts IDENTICAL
-> 15/0/26/0, snapshot `014a736`); LOAN2 advanced to a NEW prescan my-gap
-> `variable i declared with conflicting kinds` (future round, recorded not lowered).
-> Items 2 (--update-inventory) and 3 (FULL GATE, expect **1109/0, negative 182/182** --
-> the 1107/184 in the older text is superseded by the K1/K3 promotions) are OWED.
-**THE EXACT NEXT ACTION is step 6, then step 7:**
-> 1. Census: `cp spec/census/corpus-census.json /tmp/census-prev.json && python3
->    tools/corpus_census.py --check /tmp/census-prev.json` — counts MUST stay IDENTICAL
->    (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0); EXPR2/FSCAN (now the EMPTY
->    `initial('')` refusal), LOAN2 (advances past line 39 to its next genuine blocker),
->    REPORT/MPMCALLB deltas are EXPECTED — read and verify EVERY msg delta in the tsv diff
->    before committing the snapshot (+ spec/COVERAGE.tsv prose defer blocker names to the
->    census; the LOAN2 sentence in row FILE.PUT_LIST_VAR now LAGS — correct or mark stale).
-> 2. `python3 tools/e2e_gate.py --update-inventory` (rewrites INVENTORY rows incl. K1/K3
->    becoming byte-exact entries; 1098-entry figure was recorded at `1595a10` only).
-> 3. FULL GATE: `python3 tools/e2e_gate.py` — expect **1109 byte-exact / 0 fail**, negative
->    **182/182**, divergence 9/9, coverage 102 rows 0 errors, census --verify clean, rc=0.
->    The checkpoint's "1107/184" figure is SUPERSEDED by this session's K1/K3 discovery.
->    Report measured numbers only.
-> 4. Step 7 (lower priority): the five DRAFTED spec/COVERAGE.tsv rows (15 columns; validator
->    rule coverage_check:213; `manual_ref = NONE:<why>`; MEASURED rows must cite probes named
->    by their OWN claims) -> `python3 tools/coverage_check.py`.
+> **THE EXACT NEXT ACTION** (a fresh session; **renewal is capped at 8/8, so `handoff_renew` will
+> refuse — the operator starts the successor manually or raises `renewal.maxRenewals` by decision**):
 >
-> Do NOT touch golden/e48p1, golden/e48p2c or golden/e48p2retire. Do NOT implement RESULTS §3
-> shapes; member-as-RIGHT in TEST and based-member condition stores stay refused. Do NOT start
-> `%include` without its own pre-registered round. Renewal 8/8 would be the LAST under the cap.
+> 1. Verify the boundary: `git rev-parse HEAD` (expect the P2d pre-registration commit or a
+>    descendant), `git status --porcelain=v1` (expect clean or only guard blocks),
+>    `ls probes/E48D{1..10}.PLI spec/lab-evidence/e2e48-p2d/`, and confirm the pre-registration is
+>    the PREDECESSOR of any oracle call:
+>    `git log --oneline --format='%h %s' -- probes/E48D1.PLI | tail -1`.
+> 2. `cd /home/john/projects/sushiworks/pli80/ocaml && eval $(opam env) && dune build` (the opam
+>    PATH is NOT set in a renewal successor's shell) — rc=0, binary current.
+> 3. Run the oracle ONCE, exactly as pre-registered:
+>    `PLI_SRC=probes python3 oracle/batch.py E48D1 E48D2 E48D3 E48D4 E48D5 E48D6 E48D7 E48D8 E48D9 E48D10 --tag e48p2d --switches '$L$D'`
+>    (new tag — `golden/e48p2d` must not exist; never pass `--reuse` into an existing tag).
+> 4. Write `spec/lab-evidence/e2e48-p2d/RESULTS.md`: §1 the prediction-vs-verdict table over
+>    P-D1..P-D10 (keep every MISS), §2 the laws read out of the `.REL` records with
+>    `tools/reldump.py` / `spec/lab-evidence/e2e42-p2b/chaindump.py` (never a `.PRN` size), §3 what
+>    the round did NOT measure. Commit goldens + report together.
+> 5. Only then lower what §2 measures — one arm per commit, `dune build` + `cmp` sweep after each,
+>    and mirror every new pool-allocating shape in its prescan demand twin (the `fa09b97` rule).
+>    E46F5's promotion, if D1/D2 land, is a THREE-place edit: `REJECTS`, `NEG_META`, `SPECIMENS`,
+>    then `--update-inventory`, census `--check <copy of prev>` (counts MAY legitimately change
+>    here — a corpus advance is not a regression, but re-read every delta) and the FULL GATE.
+>
+> **Standing prohibitions unchanged:** do NOT touch `golden/e48p1`, `golden/e48p2c`,
+> `golden/e48p2retire`, `golden/e42p1c`, `golden/first8080u` or any other committed evidence; do
+> NOT implement a §3 shape on faith; a BASED member in a condition store and a bit item behind a
+> file attach stay refused (no witness anywhere); no `%include` work without its own
+> pre-registered round; the LOAN2 `conflicting kinds` prescan gap stays `proposed` (design change,
+> not an arm); no push is authorized.
 
-(Original step list below, complete for steps 1-5; kept for lineage.)
-
-The round-3 battery is PRE-REGISTERED (`f9f21f2`), MEASURED 9 ok/9 and committed with
-`spec/lab-evidence/e2e48-p2c/RESULTS.md` (`8c57856`); the level-0 STATIC-chain my-gap fix is
-committed (`6130164`) with the census re-measured (counts IDENTICAL; MPMCALLB advanced one
-blocker). E48C1 is already whole-file byte-identical and 24/24 e48p1 probes are intact.
-THE PREVIOUS NEXT-ACTION SECTION ("E2E-48 round 2 ... Pick ONE") IS SUPERSEDED by this one;
-its item 2 (the five drafted COVERAGE rows) survives as sub-task 7 below.
-
-Implement ONLY what RESULTS section 2 measures; every RESULTS section 3 shape stays a named refusal:
-
-1. `bit_cond_mat` (ocaml/lib/codegen.ml:7005) - add exactly these arms, ONE AT A TIME,
-   `dune build` + `cmp` sweep after EACH (LEARNINGS rule):
-   (a) (internal varying MEMBER left, literal right) - both spellings, AUTOMATIC records only:
-       `LXI H,*D(member) / EB / LXI H,*S(lit) / MVI A,len / CALL ?SCVCM / D6 01 / 9F` (18 bytes
-       incl. the `32` STA the Vbit1 arm adds) - sites E48C2 0013, C3 0013, C4 0027, C7 0013;
-   (b) (literal left, flat Vvar cell right - auto OR static): `LXI H,*D(var) / LXI D,*S(lit) /
-       MVI B,len / CALL ?SCCVM / D6 01 / 9F` (17 bytes) - E48C5 0013, E48C8's SCVCM site stays
-       the flat LEFT form;
-   (c) (literal left, internal varying member right): same, member cell in HL, NO XCHG - E48C6.
-   A BASED member as either side of a condition STORE stays refused (unmeasured).
-   Mirror EVERY new pool-cell-allocating shape in `bit_store_cond_bytes` (codegen.ml:2996) -
-   prescan demand is ONE rule with lowering (C152/C179; the fa09b97 lesson: an arm without a
-   demand twin dies on the pool invariant).
-2. Widen the internal-member gate ONLY for the admitted shapes: the store-path `imem_in_e st rhs`
-   refusal at codegen.ml:8555 and the TEST-path comparison refusal at 7632 must consult the SAME
-   predicates as `bit_cond_mat` (one authority, never a second copy of the byte decision); every
-   other member use keeps `imem_refuse` verbatim. Update the refusal WHY-strings to cite
-   golden/e48p2c where the bank now measures a shape - corrections stay traceable, never silent.
-3. TEST position (E48C9): the 15-byte head `LXI H,*D(member) / EB / LXI H,*S / MVI A,len /
-   CALL ?SCVCM / C2 00 00` with the no-else skip to the NEXT STATEMENT (C309 rule); member-as-
-   RIGHT in TEST is UNMEASURED - keep refusing it.
-4. STATIC-on-CHARACTER-VARYING placement (RESULTS section 2.5, arm at codegen.ml:12861 region,
-   `Bind.RTchar (n, true)`): accept ONLY a non-empty string-literal INITIAL not longer than the
-   extent; cell = [len-byte][literal padded to n with 0x20] IN PLACE in the static zone, NOT
-   pooled; `initial('')` is unmeasured (EXPR2's spelling) - keep refusing it. CAUTION: E46F5's
-   declaration then passes and the program advances to `OPEN ... TITLE(nm)` - TITLE on a STATIC
-   varying is UNMEASURED, so E46F5 must refuse THERE; its negative-panel row pins the CURRENT
-   text and must be re-measured and updated through the tool's write path with an explicit
-   reason, never by hand-editing a verdict.
-5. Sweep after each arm: `for n in E48C{1..9}; do ./ocaml/_build/default/bin/pli80c.exe
-   probes/$n.PLI /tmp/sw/$n.REL && cmp /tmp/sw/$n.REL golden/e48p2c/$n/$n.REL; done` plus the
-   24-probe e48p1 loop - expect 9/9 and 24/24 byte-identical at the end.
-6. Registration: SPECIMENS.tsv byte-tier rows E48C1..C9 (NO spec/RUNTIME.txt rows - this bank
-   captured .REL/.PRN only), `python3 tools/e2e_gate.py --update-inventory` (INVENTORY 1098 ->
-   1107), claims C317..C320 in spec/CLAIMS.md (the six laws of RESULTS section 2) plus an
-   ANNOTATION on C310 marking its load-order [TBD] answered (keep the old text), census
-   re-measure via `tools/corpus_census.py --check <copy of prev>` (counts must stay IDENTICAL;
-   EXPR2/FSCAN/LOAN2/REPORT/MPMCALLB msg deltas are expected to ADVANCE - verify each message),
-   then `python3 tools/e2e_gate.py` -> expect **1107 byte-exact / 0 fail**, negative 184/184
-   (E46F5 row re-measured per step 4), divergence 9/9.
-7. Sub-task (carried over, lower priority): the five DRAFTED spec/COVERAGE.tsv rows in the
-   previous checkpoint's item 2 (format facts already MEASURED there: 15 columns, validator rule
-   at coverage_check:213, `manual_ref = NONE:<why>`); validate with `python3 tools/coverage_check.py`.
-
-Do NOT touch golden/e48p1 or golden/e48p2c. Do NOT start `%include` (CREATE's front-end blocker)
-without its own pre-registered round.
-
-**Unmeasured at the `7701f52` boundary (do NOT claim them):** the full gate has not been run
-since `1595a10` (1098/0 is that HEAD's recorded figure, not the current one); the census has not
-been re-measured since `7701f52`; the refusal WHY-strings of step 2 are NOT yet updated.
-**No half-finished edit exists** — `7701f52` is built, swept and committed; the tree is clean.
-readiness-by: session:01a1899c-bfe2-7470-93c0-80efada31a9a
-readiness-at: 2026-10-29T22:20:03.291Z
-readiness-checkpoint: g19-a1cadcc56d16
+(Previous next-action section, kept for lineage — its steps 6 and 7 are DONE as measured above.)
+readiness-by: session:01a18cec-171b-779f-bf43-034b10837135
+readiness-at: 2026-10-30T13:08:09.392Z
+readiness-checkpoint: g20-c7953c1b298e
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
