@@ -181,7 +181,9 @@ unchanged); the sweep is
 > corrected as an append in `spec/CLAIMS.md`. **MEASURED: `coverage_check` 113 rows / 0 errors /
 > 0 warnings; FULL GATE rc=0 = 1120 byte-exact / 0 fail of 1120, negative 181/181, divergence 9/9,
 > census EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0, prose clean** (log `/tmp/gate_p2d7.txt`).
-> No `ocaml/` file changed.
+> No `ocaml/` file changed. **Operator note:** `handoff.config.json` is MODIFIED in the working
+> tree at this boundary (`workingContextWindow` 95000 → 145000) by the operator, not by any session;
+> leave it uncommitted and untouched unless the operator authorises committing it.
 > **THE EXACT NEXT ACTION is a DECISION, not an arm.** Pick ONE, write its probe bank +
 > `HYPOTHESES.md` and commit them BEFORE any oracle call (PROTOCOL §1), then run it:
 > (A) `%include` expansion for CREATE (front-end my-gap; needs its own round);
@@ -696,22 +698,25 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 45
-checkpoint-id: g45-d0e7fa96a9f6
-checkpoint-kind: auto
+checkpoint-generation: 46
+checkpoint-id: g46-d6ac3e4c3155
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3332, session 01a18dba-2b4c-7388-a8da-94eb0e5e746e)
-checkpointed: 2026-10-30T17:17:13.972Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-230, session 01a18dba-2b4c-7388-a8da-94eb0e5e746e)
+checkpointed: 2026-10-30T17:18:25.119Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b43013b95a831d309ea3c825c3c6b9952df3573bee440cbd30aff82fc70feddc
-source-handoff: f216d6d7c14767ceddddd973db59408b4bc1c3fe0a3d0af2615bc917852879a8
-source-learnings: b1d5919fdf92eecd85a05003eb2f14c55ecebd7fb66a149b86a2f4b3b7b4f645
+source-handoff: 9204d3abac4544360c51cfdd60a3da1a08dc6aa346c4eef124ec1167548af1ab
+source-learnings: cc3267e69109be28937d76533df75490547c89203d810223b424164ce3c25f8b
 source-config: 5537d66535163979fcef1338bb101a3dab2ffd8b2eb0d467620ccc7f0c0ec616
 
 
+readiness-by: session:01a18dba-2b4c-7388-a8da-94eb0e5e746e
+readiness-at: 2026-10-30T17:18:25.124Z
+readiness-checkpoint: g46-d6ac3e4c3155
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -720,5 +725,5 @@ guard level 4; checkpoint requested (auto at level 4)
 (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
 ### Guard notes
-/handoff verify /guard status
+E2E-48/P2d STEP 7 IS DONE AND MEASURED (phase CLOSED) at HEAD b7e3586: spec/COVERAGE.tsv 107->113 data rows (six new rows vs C321-C326), 19 traceable appends with originals verified as prefixes, [C323] blank-run miscount corrected in spec/CLAIMS.md, coverage_check 113 rows/0 errors/0 warnings, spec/census/coverage-stats.json committed, FULL GATE rc=0 = 1120 byte-exact / 0 fail, negative 181/181, divergence 9/9, census EXACT 15/DIFFERS 0/REFUSED 26/UNEXPECTED 0, prose clean. No ocaml/ code changed. NOTE: handoff.config.json is modified in the tree (workingContextWindow 95000 -> 145000) by the OPERATOR, not by me — do not commit or revert it without authorization. Next action = operator round choice A/B/C/D in HANDOFF.md; nothing is half-edited. Renewal 7/8.
 <!-- guard:end checkpoint -->
