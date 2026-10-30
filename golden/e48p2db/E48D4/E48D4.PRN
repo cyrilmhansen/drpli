@@ -1,0 +1,35 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E48D4
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E48D4
+
+   1 a 0000 E48D4:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-48/P2d] the EMPTY literal on a STATIC CHARACTER VARYING.
+   4 a 0006      EXPR2's own DR object puts a zero length byte plus ten blank
+   5 a 0006      bytes at DATA 000F for char(10); this isolates the cell and
+   6 a 0006      the PUT read of it in a whole file I can compare. */
+   7 c 0006   dcl s char(10) varying static initial(''),
+   8 c 0006       k fixed bin(15);
+   9 c 0006   put list('S=', s);
+  10 c 0026   stop;
+  11 a 0029 end E48D4;
+
+CODE SIZE = 0029
+DATA AREA = 000F
+FREE SYMS = 38B9
+END  COMPILATION
+

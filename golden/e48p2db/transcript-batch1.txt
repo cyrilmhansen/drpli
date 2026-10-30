@@ -1,0 +1,56 @@
+
+>>> C:
+
+ #####    ###     #####    ###            #####    ###   #     #
+#     #  #   #   #     #  #   #          #     #    #    ##   ##
+#     # #     #  #     # #     #         #          #    # # # #
+ #####  #     #   #####  #     #  #####   #####     #    #  #  #
+#     # #     #  #     # #     #               #    #    #     #
+#     #  #   #   #     #  #   #          #     #    #    #     #
+ #####    ###     #####    ###            #####    ###   #     #
+
+Release 1.39, Copyright (C) 1987-2025 by Udo Munk and others
+
+CPU speed is unlimited, CPU executes undocumented instructions
+64K CP/M Vers. 2.2 (Z80 CBIOS V1.2 for Z80SIM, Copyright 1988-2007 by Udo Munk)
+
+A>C:
+C>
+>>> PLI D:E48D5 $L$D
+PLI D:E48D5 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:E48D6 $L$D
+PLI D:E48D6 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:E48D7 $L$D
+PLI D:E48D7 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> PLI D:E48D8 $L$D
+PLI D:E48D8 $L$D
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+C>
+>>> A:BYE (halt)
+
+C>A:BYE
+I/O ran for 10053 ms, waited for 0 ms
+CPU executed 45506065 t-states in 28 ms
+Clock frequency 1608.72 MHz
