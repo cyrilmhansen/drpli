@@ -7215,6 +7215,10 @@ classified `unmeasured` rather than `dr-refuses`.
   a FLAT cell -- automatic (E48A6) or STATIC (E48C8) -- takes the 17-byte `21 *S(lit) /
   11 *D(var)` form (§2.2). The OTHER [TBD] items of the bullet above were NOT varied by the
   E48C bank and stay [TBD] (see also [C317]).
+* **ANNOTATION 2, E2E-48/P2d (2026-10-30):** the store form for `k = c` with \|c\| in {2,3} is
+  now MEASURED -- `golden/e48p2db/E48D8` gives `LHLD k / DCX H x\|c\| / MOV A,H / ORA L /
+  D6 01 / 9F / 32`, the <=3 threshold route-independent; see [C324]. `k = 1` and negative `c`
+  in a store remain [TBD]; the other items of that [TBD] list are unchanged.
 * **Lowered.**  `bit_cond_mat` (`371a12e`) returns None for every unpinned shape, and its
   prescan demand twin `bit_store_cond_bytes` (`fa09b97`) closes the C152/C179 gap this arm
   opened -- E48A6..A12, B8, B9 whole-file byte-identical.
@@ -7252,6 +7256,10 @@ classified `unmeasured` rather than `dr-refuses`.
   are final), and a bit item behind a file attach (`authorize_file_item`).
 * **Lowered** at `df4b9c8`; all eight affected probes byte-identical, negative panel still
   184/184 (P052A/P053A/B/C and E46J10/J19 use BIT(4)/(8)/(16)/(3), which are not this class).
+* **ANNOTATION, E2E-48/P2d (2026-10-30):** the "bit item that is NOT the final item" clause
+  above is FALSIFIED -- `golden/e48p2db/E48D9` is the witness that DR ACCEPTS a non-final BIT(1)
+  item with its own `?PNBOP` tail; see [C325]. PUT EDIT and file-attach bit items stay refused
+  (still no witness).
 
 ## C314 — DATA AREA LAW, EXTENDED: STATIC BIT CELLS ARE ABSOLUTE AND ADJACENT, AND STATIC ON CHARACTER IS ACCEPTED AS A FULL-EXTENT BLANK-PADDED CELL (E2E-48/P1)
 
@@ -7265,6 +7273,11 @@ classified `unmeasured` rather than `dr-refuses`.
   pooled, the opposite of an automatic CHARACTER store, which pools and copies.  The PUT then
   reads the static cell at the DECLARED length, not the literal's: E48B6 000F
   `LXI H,*D(0000) / MVI A,03 / CD ?SLCTS` (`golden/e48p1/E48B6/E48B6.REL`).
+* **ANNOTATION, E2E-48/P2d §2.7 (2026-10-30): the layout "slack" is the automatics, not
+  padding.**  DATA = static cells (initials IN place) -> pool literals in code order ->
+  automatic variables zero-filled above; a `LINK-SET-LC data N` with no following DATA record
+  marks the hole (E48D1/D3/D4/D5 "unexplained +2" = the unused automatic `k`; E48A6's 0027
+  arithmetic confirmed).
 * **What R6 does NOT say.**  STATIC on CHARACTER **VARYING** is unmeasured (E46F5 and the
   corpus EXPR2/FSCAN/LOAN2 still stop there, and the gate pins that refusal text); a store
   INTO a static CHARACTER is unmeasured -- my automatic route would pool the literal beside the
@@ -7318,6 +7331,9 @@ classified `unmeasured` rather than `dr-refuses`.
   (4a); demand twins `bit_store_cond_bytes`/`prescan_cond` share the ONE class predicate.
 * **Still refused (§3):** a BASED member in either side of a condition store; member-as-RIGHT
   in TEST position (`str_cmp_shape_rev` `?imem` defaults false; only `bit_cond_mat` passes true).
+* **ANNOTATION, E2E-48/P2d (2026-10-30):** member-as-RIGHT in TEST is now MEASURED --
+  `golden/e48p2db/E48D10` ([C326]); the TEST refusal retires with its arm. A BASED member in a
+  condition store stays refused (no witness).
 
 ## C318 — INTERNAL MEMBER COMPARE IN TEST POSITION: 15-BYTE SCVCM HEAD, `C2` SKIP TO THE NEXT STATEMENT (E2E-48/P2c, §2.4)
 
@@ -7355,3 +7371,76 @@ classified `unmeasured` rather than `dr-refuses`.
   E46K3); both were RETIRED by their own INVENTORY procedure -- oracle measured 2 ok/2, my
   objects byte-identical, promoted to SPECIMENS (`630e9be` prereg BEFORE the oracle run,
   `golden/e48p2retire/`).  Negative panel is now 182 rows, byte panel 1109 specimens.
+
+## C321 — STORES INTO CHARACTER CELLS RUN THROUGH `?SMCCM`/`?SMCVM`; STATIC DESTINATIONS ARE ACCEPTED AND THE LITERAL POOLS BESIDE THEM (E2E-48/P2d, §2.1-§2.2)
+
+* **Measured.**  Bank `golden/e48p2db/` (10 ok/10, `d28ff5e`), bytes read from the `.REL`
+  records.  STORE into a STATIC CHARACTER **FIXED** (E48D6 0006): `21 *D(cell) /
+  11 *D(pool) / 3E <declared extent> / 06 <literal len> / CD ?SMCCM` -- 10 bytes, a NEW
+  opcode; the literal source IS pooled (fresh cell at first free DATA byte: `CD` at 0004
+  beside static `s`@0001..0003; DEF-DATA-SIZE 0008 = 4 static + 4 pool).  STORE into a
+  STATIC CHARACTER **VARYING** (E48D7 0006): same head, `3E 0A / 06 03 / CD ?SMCVM`; the
+  DATA image KEEPS the INITIAL cell `02 41 42 20x8` -- there is NO compile-time length-byte
+  rewrite (prediction P-D7 falsified, kept in RESULTS §1); any rewrite is RUNTIME and is
+  [TBD] until a link-run measures it.  The AUTOMATIC varying member store (E48D10 0006,
+  `3E 0E`) uses the same `?SMCVM` shape -- already lowered via [C317]'s arms, free this round.
+* **Was `my-gap`.**  My named refusals "store into a STATIC CHARACTER cell is unmeasured"
+  (D6) and the static-varying store (D7) were disproved by the oracle ACCEPTING both; D7
+  moreover was already byte-identical in my tree (step 5a, measured `1147ba2`).
+* **Still refused (§3):** src or INITIAL longer than the extent (truncation unmeasured);
+  a BASED member destination (no witness anywhere).
+
+## C322 — EMPTY `initial('')` ON A STATIC CHARACTER: FULL-EXTENT BLANKS IN PLACE; VARYING PREFIXES A ZERO LENGTH BYTE; PUT READS AT THE DECLARED LENGTH (E2E-48/P2d, §2.3)
+
+* **Measured.**  E48D4 `dcl s char(10) varying static initial('')` -> DATA 0000..000A =
+  `00` + ten `20`, IN PLACE, not pooled; the PUT read is `21 *D(0000) / CD ?SLVTS /
+  CD ?PNCOP`; DEF-DATA-SIZE 000F = 11 static + 2 pool (`'S='`) + 2 automatic `k` (§2.7).
+  This ISOLATES in a whole comparable file what `golden/first8080u/EXPR2/EXPR2.REL` DATA
+  000F showed.  E48D5 `dcl s char(5) static initial('')` (FIXED) -> 0000..0004 = five `20`,
+  no length byte, read `3E 05 / CD ?SLCTS` -- the FIXED half of the law was new; my
+  refusal (D4) was `my-gap`, D5 already compiled byte-identical.
+* **What this does NOT say.**  What an empty varying PUT actually PRINTS is runtime, [TBD].
+
+## C323 — TITLE WITH A STATIC OPERAND IS CLASS-INVARIANT ON BOTH SIDES: NO CODE BYTE CHANGES EXCEPT THE OPERAND ADDRESS (E2E-48/P2d, §2.4)
+
+* **Measured.**  E48D1 (`stream output title(nm)` on a STATIC varying cell) is whole-file
+  byte-identical to DR's accepted E46F5 object `golden/e42p1c/E46F5/E46F5.REL` modulo the
+  module-name bytes: `?SLVTS` title route, FILE word w1 = `0E50`, cell `02 41 42 20x11` in
+  place.  E48D2 (INPUT side) shows the orthogonal input word w1 = `0E90`
+  (`21 *D(0000) / CD ?SLVTS / 40 / C5 / 33 / 21 0E90`), the static-cell twin of [C288]'s
+  AUTOMATIC E46F1/E46F3 pair.
+* **Panel consequence.**  The negative row E46F5 pinned MY refusal ("TITLE(nm) on a STATIC
+  CHARACTER VARYING operand is unmeasured"), not a DR refusal; with this measurement the row
+  is FALSIFIED and the program promotes to the byte panel against its existing golden once
+  the TITLE arm lands (three-place edit: REJECTS, NEG_META, SPECIMENS).
+
+## C324 — STORE LADDER FOR `k = c` WITH \|c\| IN {2,3}: `LHLD k / DCX H x\|c\| / MOV A,H / ORA L`, THE <=3 THRESHOLD IS ROUTE-INDEPENDENT (E2E-48/P2d, §2.5; closes [C310]'s [TBD])
+
+* **Measured.**  E48D8 0006 (`b = (k = 2)`): `2A *D(k) / 2B 2B / 7C / B5 / D6 01 / 9F /
+  32 *D(b)`; 0013 (`c = (k = 3)`): identical with three `2B`.  The `DCX H` regime switch at
+  \|c\| <= 3 is the SAME threshold the TEST route uses ([C143]; E48A13 = 3 vs E48A12 = 4),
+  so the bias law is route-independent, not compare-specific.
+* **Still [TBD]:** `k = 1` in a store and negative `c` (neither varied by this bank); see
+  the append to [C310].
+
+## C325 — A NON-FINAL BIT(1) PUT ITEM IS ACCEPTED: OWN `?PNBOP` TAIL, FOLLOWING ITEMS KEEP THEIR ROUTES, ONE `?QIOOP` CLOSES (E2E-48/P2d, §2.6; falsifies my [C313] "no witness" premise)
+
+* **Measured.**  E48D9 (`put list(b, 'X')`) code 000F..0027: `3A *D(b) / 06 01 /
+  CD ?QB08C / CD ?PNBOP`, then the literal chain `21 *S / 3E 01 / CD ?SLCTS / CD ?PNCOP`,
+  then exactly ONE `CD ?QIOOP`.  [C313]'s one-tail-per-item law holds in the non-final
+  position; my refusal premise ("all nine samples are final, no DR witness") was `unmeasured`
+  dressed as a rule -- the same error class as P15, and D9 is the witness.
+* **Still refused:** a BIT(1) item under PUT EDIT (no sample) and a bit item behind a file
+  attach (no witness anywhere, §3).
+
+## C326 — MEMBER-AS-RIGHT IN TEST TAKES THE LITERAL-LEFT `?SCCVM` ORIENTATION UNCHANGED; `LXI H` IS ALWAYS THE INTERNAL CELL (E2E-48/P2d, §2.8)
+
+* **Measured.**  E48D10 0013 (`if 'AB' = line then`): `21 *D(member 0004) /
+  11 *D(pool 0000) / 06 02 / CD ?SCCVM / C2 fill -> 0027` -- the skip targets the NEXT
+  statement ([C309] no-else rule).  The orientation law is POSITION-independent within the
+  compare: `LXI H` carries the internal cell regardless of which side the member is written
+  on (extends [C317]/[C318]).
+* **Panel consequence.**  The TEST-route refusal of a member as RIGHT operand retires when
+  the arm lands; `str_cmp_shape_rev`'s `?imem` gate widens under this single witness.
+  E46K14 (`if line then`, truthiness of a CHARACTER VARYING member) is a DIFFERENT, still
+  unmeasured shape and stays pinned -- re-measured, not assumed, after the arm.
