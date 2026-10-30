@@ -450,3 +450,38 @@ The guard never writes this file.
   retiring by append (originals verbatim). C321 records my-gaps D6/D7 refusals falsified by oracle.
 - **accepted** Handoff-file prose edits make the managed checkpoint stale -> renewal gate
   reports not-authorized; correct close is durable prose, commit, then handoff_finalize.
+
+## E2E-48/P2d arms (a)+(b) (session 01a18cf9, renewal 2/8, measured 2026-10-30)
+- **accepted** Arm (a) (`6545b5d`) is a ONE-CHARACTER-class widening, not new code: the
+  `RTchar (n, true)` static placement already computed `len :: literal @ blanks-to-extent`, and
+  `initial('')` falls out of it unchanged as `00 + n x 20`.  Dropping the `String.length v > 0`
+  guard made E48D4 whole-file byte-identical; the no-INITIAL / non-literal / over-extent refusals
+  keep their (now re-cited) named texts.  Lesson: when a golden's bytes satisfy an existing
+  formula, the arm is the guard, not the encoder.
+- **accepted** Arm (b) (`6491981`): TITLE with a STATIC operand is CLASS-INVARIANT on both sides
+  ([C323]).  Measured proof, stronger than the RESULTS wording: `cmp -l` of MY E48D1 object
+  against DR's `golden/e42p1c/E46F5/E46F5.REL` shows EXACTLY 9 differing bytes (offsets 4,5,6 /
+  18,19,20 / 26,27,28) -- the three module-name fields and nothing else, i.e. my `LXI H,*D(cell)`
+  + `?SLVTS` prologue, my static cell placement and my DATA layout are all simultaneously right
+  for E46F5's shape.  E46F5 therefore promotes through the SAME binary with no further edit.
+- **accepted** The E46F5 retirement is a THREE-place edit and the order matters: SPECIMENS row
+  (citing DR's own `golden/e42p1c/E46F5/E46F5.REL`, not a new tag), REJECTS row removed with the
+  superseded text kept as a comment, NEG_META stamp removed (the `f67cc6d` symmetry lesson --
+  a leftover stamp aborts `registration_audit`).  Verified by calling `registration_audit`
+  directly as a module function (1110 specimens / 181 rejects, clean) instead of spending a full
+  gate run mid-phase.
+- **accepted (tooling lesson)** Re-running the negative panel by hand MUST reproduce the gate's
+  write semantics exactly: `src.replace("\n","\r\n").encode() + b"\x1a"` and stderr-only matching.
+  My first replication wrote bare LF and reported 5 false anomalies -- the line numbers INSIDE the
+  refusal texts shifted (DR-style sources count physical lines), not the refusals themselves.
+  Re-run with gate semantics: 181/181 refused, 0 anomalies.
+- **accepted** Baseline re-verified in this successor before any edit: `dune build` rc=0 (warning
+  multiset identical 22/15/28/2/14/2/17/26 = 126 after `dune clean`), D3/D5/D7 byte-identical, and
+  all 7 named refusals reproduced verbatim.
+- **proposed** Arm (c) observation, to be MEASURED before it is claimed: DR's static FIXED store
+  head (D6 `21 *D(cell) / 11 *D(pool) / 3E extent / 06 len / CD ?SMCCM`) is the SAME five
+  instructions my automatic route already emits (`golden/e2e3c/V106`), because `store_char`'s
+  default destination is `LXI H,<addr_of name>` and `addr_of` already resolves a static name
+  through `st.stat_addrs`.  So arm (c) is very likely the removal of the `stat_addrs` refusal plus
+  the prescan pool-demand twin (`fa09b97` rule), not a new encoder -- verify by cmp, not by
+  reasoning.
