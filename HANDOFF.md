@@ -538,29 +538,29 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 29
-checkpoint-id: g29-cfcc55a2186a
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3664, session 01a18d1b-7396-746a-a697-d518894eeaa6)
-checkpointed: 2026-10-30T14:10:16.823Z
+checkpoint-generation: 30
+checkpoint-id: g30-3a872f1db7a9
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-725, session 01a18d1b-7396-746a-a697-d518894eeaa6)
+checkpointed: 2026-10-30T14:44:25.766Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 91e22de8da32a930dfd15e78e0ad9d4660112ca7299c9f5a34cd86192661468e
-source-handoff: 2c12875491857ee8803f8ecdc0242080d4cbe1b25b5cc9a1136c2c05625b3458
-source-learnings: 77c8d5e1adf08e3d6e443c7cbc3140cecbb064296e50dee258a5fd62f5b09c89
+source-progress: 2792fb2eab8bc07ac982d52b678db51ace19103f7147a22721ac8570276ca5dc
+source-handoff: be1eefe06419bf5721a030948a0bab6adbd12c203170024fa6c1ea61fa114217
+source-learnings: 6a08303529ee56783883dc94640b8cd0f7dfdb2df7d4060c3f4b90085eddf2c4
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
+readiness-by: session:01a18d1b-7396-746a-a697-d518894eeaa6
+readiness-at: 2026-10-30T14:44:31.063Z
+readiness-checkpoint: g30-3a872f1db7a9
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (manual /handoff)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
 (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-
-### Guard notes
-Session 01a18d08 closing at context critical. HEAD = last commit ("E2E-48/P2d [handoff]"); tree clean. Resume at HANDOFF.md '## Next action - E2E-48/P2d step 4': lower arms (a)-(f) ONE per commit vs golden/e48p2db (D4 empty varying initial; D1/D2 TITLE static + E46F5 three-place promotion; D6 ?SMCCM static store WITH prescan demand twin; D8 ladder DCX |c|2,3; D9 non-final bit item; D10 TEST member-as-RIGHT, then re-measure E46K14 through the binary), sweeps must keep e48p1 24/24 and e48c 9/9; then SPECIMENS +10, --update-inventory, census --check (EXPR2/FSCAN advance expected), FULL GATE (expect 1120/0, negative 181; report ACTUAL), COVERAGE rows. Claims C321-C326 committed aa4b5b4. Build needs eval $(opam env). Chain 1/8.
 <!-- guard:end checkpoint -->
