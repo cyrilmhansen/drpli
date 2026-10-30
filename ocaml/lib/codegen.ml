@@ -2985,7 +2985,17 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
       in
       let is_cell e = match vkind_of_e e with Some (Vvar _) -> true | _ -> false in
       let wants =
-        (is_lit b <> None && is_var a) || (is_lit a <> None && is_cell b)
+        (* [E2E-48/P2d arm f] the literal-LEFT clause widened from `is_cell' to `is_var' with
+           the TEST route's ~imem:true: golden/e48p2db/E48D10 0013 ALLOCATES the literal's pool
+           cell through the member arm of `str_cmp_shape_rev', so under the old predicate a
+           program whose literal appears nowhere else died on the C152 demand/layout invariant
+           (measured here on a scratch based-member compare with no preceding store).  The
+           dedup in `pdec_str_cell' keeps every already-passing program's total unchanged
+           (E29C9 demanded 'AB' through its store; the compare now demands the SAME cell, 0
+           extra bytes).  `is_var' is exactly the set the TEST rev arm admits -- Vvar cell,
+           BASED member (the ungated [C2] `Mem' arm), internal VARYING member under ~imem --
+           and excludes what it refuses: a FIXED member is not `is_var' at all. *)
+        (is_lit b <> None && is_var a) || (is_lit a <> None && is_var b)
         || (is_cell a && is_cell b)
       in
       if not wants then 0
@@ -6943,7 +6953,18 @@ let str_cmp_shape st l r =
    on an internal member (E48C6 0013, NO XCHG -- HL is already the right operand's register),
    while §3 records that the SAME orientation in TEST position has no golden.  The default is
    therefore false, so the TEST route keeps refusing a member right, and only `bit_cond_mat'
-   passes true.  One encoder, two positions, one measured difference. *)
+   passes true.  One encoder, two positions, one measured difference.
+
+   SUPERSEDED 2026-10-30 by [E2E-48/P2d §2.8]/[C326] (the two sentences from "while §3 records"
+   to "passes true." above stand as written history; the original comment text is kept verbatim
+   for lineage): golden/e48p2db/E48D10 0013 MEASURES the literal-left/?SCCVM orientation on an
+   internal VARYING member in TEST position -- `21 *D(member cell) / 11 *D(pool literal) /
+   06 len / CD ?SCCVM / C2 fill -> next stmt' -- exactly the store's head with the [C309] skip,
+   so the orientation law is POSITION-independent and `lower_test_skip0' now passes ~imem:true
+   too.  `?imem' is STILL not a style flag: it stays the single gate for the member classes DR
+   has never sampled in a compare (a FIXED member, any member-vs-member compare, the truthiness
+   of a member), and the prescan_cond literal-left demand widened with it -- one rule,
+   demand and lowering, the fa09b97 law. *)
 let str_cmp_shape_rev ?(imem = false) st l r =
   match str_side st l, str_side st r with
   | Some (`Lit (v, bytes)), Some (`Cell a) ->
@@ -7146,7 +7167,10 @@ let bit_cond_mat st (rhs : Ast.expr) =
           member in E48C6 0013: literal LEFT switches helper to ?SCCVM and moves the length from
           A to B -- [C191]'s register law verbatim in a store -- and the 00/FF tail is the SAME
           [C095] `SUI 01 / SBB A'.  `~imem:true' is deliberate: this is the ONE route §2.3
-          measures a member right on; the TEST route keeps the default and refuses. *)
+          measures a member right on; the TEST route keeps the default and refuses.
+          SUPERSEDED 2026-10-30: [C326] measured the member right in TEST too, so
+          `lower_test_skip0' now passes ~imem:true as well; the last clause above is kept as
+          the recorded state of knowledge at §2.3. *)
        | Some (`Lit _), (Some (`Cell _) | Some (`Imem _)) ->
            (match str_cmp_shape_rev ~imem:true st (unwrap_e l) (unwrap_e r) with
             | Some (hl_fn, de_fn, lit) ->
@@ -7570,11 +7594,19 @@ let lower_test_skip0 st (c : Ast.expr) =
       st.last_imm <- None;
       let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
-      (match str_cmp_shape_rev st l rr with Some _ -> true | None -> false) ->
+      (match str_cmp_shape_rev ~imem:true st l rr with Some _ -> true | None -> false) ->
       (* literal on the LEFT, varying on the RIGHT: DR switches helper AND moves the length
-         operand from A to B [C2].  One orientation, one encoder. *)
+         operand from A to B [C2].  One orientation, one encoder.
+         [E2E-48/P2d arm f, C326] `~imem:true' widens this route to an internal level-numbered
+         VARYING member on the right, which golden/e48p2db/E48D10 0013 measures byte for byte:
+         `21 *D(0004) / 11 *D(0000) / 06 02 / CD ?SCCVM / C2 fill->0027'.  The encoder needs no
+         new bytes (its `Lit/Imem' arm is [C317]'s, measured in the store); what changes is only
+         which POSITION calls it, because [C326] measures the orientation as position-independent.
+         Everything else the gate keeps refusing -- a FIXED member, member-vs-member, and the
+         TRUTHINESS of a member (E46K14, whose marker was re-measured through this binary after
+         the arm and did NOT move) -- still falls to `imem_refuse "comparison"' below. *)
       let (hl_fn, de_fn, len) =
-        match str_cmp_shape_rev st l rr with Some x -> x | None -> assert false
+        match str_cmp_shape_rev ~imem:true st l rr with Some x -> x | None -> assert false
       in
       hl_fn ();
       de_fn ();
@@ -7768,8 +7800,10 @@ let lower_test_skip0 st (c : Ast.expr) =
       (match imem_in_e st c with
        | Some (_, m) ->
            imem_refuse "comparison" m
-             "string comparison is measured on FLAT variables (E2E-29's golden set) and on BASED \
-              members, never on an internal level-numbered one"
+             "a compare of a member with a string LITERAL is measured in BOTH orientations in BOTH \
+              positions ([C317]/[C318] store, [C326] TEST with the member on the right, \
+              golden/e48p2db/E48D10), and E46K14's shape -- the TRUTHINESS of a CHARACTER VARYING \
+              member, `if line then', with no compare at all -- has no DR object anywhere"
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
