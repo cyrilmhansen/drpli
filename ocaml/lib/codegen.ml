@@ -7282,13 +7282,29 @@ let bit_cond_mat st (rhs : Ast.expr) =
                d st 0x9e (* SBB M *))
        | _ -> None)
   (* `^(k = 0)' as a VALUE, 12 bytes: byte-IDENTICAL lowering to `k ^= 0' (A11 000C vs
-     A8 000C) -- §1 P11's predicted CMA / inverted compare / refusal are all falsified. *)
+     A8 000C) -- §1 P11's predicted CMA / inverted compare / refusal are all falsified.
+     [E2E-48/P2e §2.2, C328] the law EXTENDS to the ladder: a negated condition as a STORE
+     VALUE keeps the ladder HEAD and retargets only the TAIL to `ADI FF / SBB A' —
+     `^(k = 2)' = the [C324] repeat head + C6 FF/9F (golden/e48p2e/E48E3 0006) and `^(k = 5)'
+     = the [C143] LXI B head + C6 FF/9F (E48E4 0006).  Still no CMA (0x2F) anywhere.  The
+     NEGATIVE spelling `^(k = -c)' composes the two independently measured mechanisms (§2.1
+     sign-independent head, §2.2 tail retarget) and has NO witness of its own — recorded
+     [TBD] in C328's scope note, lowered here on the P2e landing plan's authority.
+     WHAT STAYS REFUSED (§3): `^=' over a ladder (E48's Ne arm admits `= 0' only) and
+     `^(string compare)' — neither has any object. *)
   | Ast.Eprefix (Ast.NegL, x) ->
       (match (unwrap_e x).Ast.e with
        | Ast.Ebinary (Ast.EqR Ast.Eq, a, b) ->
            (match bin_lit a b with
             | Some (v, 0) ->
                 Some (fun () -> val_addr st v.Ast.orig (); zero_read (); flag_neg ())
+            | Some (v, kk) when abs kk >= 1 ->
+                Some
+                  (fun () ->
+                    cmp_load_deref st v.Ast.orig;
+                    hl_bias st (-kk);
+                    d st op_mov_a_h; d st 0xb5 (* ORA L *);
+                    flag_neg ())
             | _ -> None)
        | _ -> None)
   | _ -> None
@@ -7838,7 +7854,14 @@ let lower_test_skip0 st (c : Ast.expr) =
              "a compare of a member with a string LITERAL is measured in BOTH orientations in BOTH \
               positions ([C317]/[C318] store, [C326] TEST with the member on the right, \
               golden/e48p2db/E48D10), and E46K14's shape -- the TRUTHINESS of a CHARACTER VARYING \
-              member, `if line then', with no compare at all -- has no DR object anywhere"
+              member, `if line then', with no compare at all -- has no DR object anywhere. \
+              SUPERSEDED 2026-10-30 by [E2E-48/P2e §2.6] [C332]: the sentence above stood as \
+              written until round 5 probed the class; golden/e48p2e/E48E6/E48E6.PRN shows DR \
+              ITSELF refusing `if line then' with `BIT REQ' and NO .REL, so the truthiness of a \
+              CHARACTER VARYING member is now a MEASURED dr-refuses law, not an unmeasured gap -- \
+              this named refusal stands as DR's own rule. Scope note: the sample is the VARYING \
+              MEMBER; a bare scalar char, `^' over one, one under `&', and the FIXED spelling stay \
+              unmeasured ([TBD], RESULTS §3)."
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
