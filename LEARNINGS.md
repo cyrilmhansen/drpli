@@ -644,3 +644,32 @@ The guard never writes this file.
 * **accepted (procedure)** — a `diag` oracle row (PRN but no `.REL`) is evidence, not a failed
   run: keep the directory, cite the PRN's error marker, and classify `dr-refuses` from it, while
   never quoting its `CODE SIZE` line as a byte fact (PROTOCOL §6).
+
+## Accepted (E2E-48/P2e lowering arms 1-2, measured 2026-10-30, renewal 8/8 successor)
+
+* **accepted** — a negative compare constant reaches codegen as
+  `Ast.Eprefix (Ast.Minus, Enumber)` (parser.ml:211), never as a signed `Enumber`:
+  arm 1's merged `abs kk >= 1` guard was inert for E48E2 (`k = -2`) until `bin_lit`
+  gained that spelling-fold.  The fold follows existing authorities
+  (`over_lit_operand`, `pdec_int_neg_lit_cell`, the PUT member step).  The TEST
+  route's `^(k = c)` arm still matches a bare `Enumber` only, so the negative
+  spelling stays refused there — E48E2 measured the STORE route, nothing more.
+* **accepted (guard kept)** — the fold refuses `k = -0`: the SPELLING has no golden
+  anywhere and the measured `= 0` memory form (E48A7 000C) spells a bare 0.  A fold
+  that rewrites representations must not smuggle an unmeasured spelling into a
+  measured value class.
+* **accepted** — `hl_bias` needed NO change for the sign law: it keys on `abs b` and
+  its LXI B branch spells any bias as 16-bit two's complement, so `k = -2` (bias +2)
+  walks UP with INX and `k = +5` keeps `11 FB FF`.  The merge of the {2,3} and >=4
+  guards was purely an admitted-CLASSES widening — two arms with byte-identical bodies.
+* **proposed (no direct witness; lowered on the landing plan)** — `^(k = -c)` as a
+  store VALUE composes §2.1's sign-independent head with §2.2's tail retarget; no
+  golden emits the NEGATION over a NEGATIVE ladder.  Recorded as a scope note inside
+  C328 and in the arm comment; if a future probe contradicts, the composition is the
+  thing that changes, not the two laws.
+* **accepted (panel mechanics)** — a REJECTS marker is a SUBSTRING of the refusal
+  HEADER (`imem_refuse` prints "codegen: <use> of the internal CHARACTER member
+  <NAME> (<class>) is unmeasured [TBD]"), so traceable appends to the per-site WHY
+  clause cannot move any pinned marker.  E46K14 was re-measured through the binary
+  with exact gate semantics (LF-normalise, rewrite CRLF + `^Z`, stderr): rc=2, no
+  `.REL`, `[TBD]` and the pinned marker present — unchanged, not re-pinned.

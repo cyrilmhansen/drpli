@@ -4,6 +4,36 @@ Manual prose wins over the managed block below it. Do not hand-edit the managed 
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
 ## Current phase
+> **STATUS 2026-10-30 (renewal 8/8 successor, session 01a18df8, HEAD `bab0d16`). E2E-48/P2e
+> LOWERING IN PROGRESS — arms 1 and 2 DONE AND MEASURED, arms 3/4/5 NOT STARTED, step 6
+> (claims/registration/gate) OWED.** `d18c6ab` arm 1: `bit_cond_mat` merges the {2,3} and >=4
+> class-guards into ONE `abs kk >= 1` arm (bodies were identical, `hl_bias` unchanged) and
+> `bin_lit` folds the `Eprefix(Minus,Enumber)` negative spelling (`-0` stays refused, no golden)
+> — E48E1/E48E2 whole-file byte-identical. `bab0d16` arm 2: NegL VALUE arm gains the ladder with
+> `flag_neg` (C6 FF/9F) — E48E3/E48E4 byte-identical; the `imem_refuse` comparison WHY-string now
+> cites `golden/e48p2e/E48E6/E48E6.PRN` as a MEASURED dr-refuses (append, original verbatim);
+> E46K14's refusal RE-MEASURED through the binary with gate CRLF+`^Z` semantics — pinned marker
+> byte-identical, NOT re-pinned. Sweeps at HEAD: E48E 4/7 exact + E48E5/E48E7/E48E8 refused by
+> name + E48E6 refused (correct), e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2;
+> clean-rebuild warning multiset 126 = 28/26/22/17/15/14/2/2 UNCHANGED. NEXT: arm 3 (`= '0'b`
+> VALUE: `3A/E6 80/D6 01/9F/32`, 11 bytes, the `'1'b` head WITHOUT `D6 80`, fallback of the Eq
+> arm ~7232); arm 4 (FIXED member TEST via NEW `?SCCCM` encoder `21 *D(member)/11 *D(lit)/06
+> len/3E cap/CD ?SCCCM`, new `str_side` FIXED variant, lower_test_skip0 arm Eq-ONLY, prescan
+> demand twin — widen the literal-RIGHT clause to admit a FIXED internal member, asymmetric:
+> member-LEFT stays refused per §3; store route keeps refusing); arm 5 (`authorize_file_item`
+> admits Vbit1, same chain, keep falsified premise visible; append supersede note at the
+> "WHAT STAYS REFUSED ... FILE ATTACH" sentence ~10616); then step 6: claims C327+ (C332 scope =
+> VARYING member only, §2.6's "(varying or fixed)" exceeds the sample — record as [TBD]),
+> NEG_META E46K14 unmeasured->dr-refuses BY REMOVING IT FROM THE LOOP and stamping a dedicated
+> entry (the E46K10 override lesson); NO REJECTS row for E48E6 (same shape as E46K14, already
+> pinned) unless the gate's write path demands one; SPECIMENS.update E48E1..E48E5,E48E7,E48E8
+> byte tier ONLY; --update-inventory; census --check (re-read EVERY delta); coverage_check;
+> registration_audit; FULL GATE reporting ACTUAL (baseline 1120/0, negative 181/181, divergence
+> 9/9, coverage 113); COVERAGE rows. [C296] `LXI H,<fcb>` -> `LXI H,*C(0000)` correction owed.
+> Renewal capped 8/8 — successor only by operator reset. Standing: goldens untouched, no §3
+> shapes, no push, `eval $(opam env)`, probes <=71 cols CRLF+^Z, never name a probe `c`, do not
+> commit/revert `handoff.config.json` (OPERATOR's 145000 edit).
+
 
 > **STATUS 2026-10-30 (session 01a18dd2, renewal 7/8, HEAD `e2b77ba`). OPERATOR CHOICE (D) WAS
 > TAKEN AND EXECUTED: E2E-48/P2e round 5 is PRE-REGISTERED, RUN and MEASURED. NO `ocaml/` CODE
@@ -436,22 +466,22 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 48
-checkpoint-id: g48-7cf796684766
+checkpoint-generation: 49
+checkpoint-id: g49-ff86b8ca176c
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 2
-checkpointed: 2026-10-30T17:59:13.066Z
+guard-level: 1
+checkpointed: 2026-10-30T18:40:57.206Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1dfa3db82d6d83289e784d72b026cc1e8af6bd4a15fae4e4009f72e2fabf1317
+source-progress: 69e6925e1796ae4dfe62fef9f8c35ab55259751dcf1a2cc08718e063f666d8c1
 source-handoff: fa0f6649386472f2cc82b021bc652920ffdab9a399f4b27316a2fccd665dfac7
-source-learnings: 8c1c9aaac6b6e2187583e8e966d4a852443da74bb2b41264567f8acf7514eae9
+source-learnings: 47d589d480b842477c9aa0d6d7f938da46ba2d5f144b4dfd1d0e5e15a6832fbb
 source-config: 5537d66535163979fcef1338bb101a3dab2ffd8b2eb0d467620ccc7f0c0ec616
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-readiness-by: session:01a18dd2-9636-77c5-9d10-4a6711d99c35
-readiness-at: 2026-10-30T17:59:13.070Z
-readiness-checkpoint: g48-7cf796684766
+readiness-by: session:01a18df8-1341-77c5-9d10-4a6bbf7e8fcd
+readiness-at: 2026-10-30T18:40:57.212Z
+readiness-checkpoint: g49-ff86b8ca176c
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
