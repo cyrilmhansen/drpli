@@ -261,12 +261,9 @@ The guard never writes this file.
   `None, None -> true`), so a member compare stops mis-routing instead of guessing. [accepted,
   measured 2026-10-30 at `7701f52`: 6/9 E48C byte-identical, 24/24 e48p1 intact]
 
-## Proposed (E2E-48/P2c session)
+## Proposed (E2E-48/P2c session) — ARCHIVED, SUPERSEDED
 
-- **The widening plan for the measured laws is written as the exact command-level next action in
-  `HANDOFF.md`** (arms in `bit_cond_mat`, the demand twin, the imem gate, the static-varying
-  placement, panel registration to 1107). The gate re-run at the post-census-fix HEAD is still
-  owed: the 1098/0 figure is recorded at `1595a10`, not at `6130164`. [proposed, unverified]
+- *superseded 2026-10-30/31, classification retained*: the widening plan in this section was EXECUTED (arms `14c7321`, `3ee414a`, `6545b5d`, `6491981`, `a72ce43`, `18a06c0`, `1e8acb2`, `e21281a`) and the owed gate measured (`f67cc6d`, `adbfa2a`). Original entry kept verbatim: `docs/history/2026-10-30-learnings-superseded.md` §1.
 
 ## Proposed
 
@@ -280,11 +277,7 @@ The guard never writes this file.
   claim about CREATE parity is admissible. [proposed, unverified — the *cause* (no expansion in
   pli80c) is measured, the fix and DR's search order are not]
 
-- **Tune `generationReserve` before trusting the levels.** `20000` is an initial policy number;
-  the production model measures `contextWindow=220000`, `maxTokens=65536` (observed via
-  `/guard status`), so the reserve is 9.1 % of the window and usable remaining starts at
-  ~199 900. Read that again on whichever model a session actually uses, then decide. A reserve is
-  a policy budget, not an output cap.
+- **Tune `generationReserve` before trusting the levels. — ARCHIVED, superseded by operator configuration**: every reserve/threshold/window/cap value is whatever `handoff.config.json` carries; read it and `/guard status` — durable documents quote no numbers. Original kept verbatim: `docs/history/2026-10-30-learnings-superseded.md` §2.
 - **Decide project trust separately from explicit loading.** `pi -e …` works without trust;
   `.pi/extensions/` auto-loading and `.agents/skills/pi-handoff/` discovery need operator trust.
   Review skill files before granting it (skills can instruct the model to run scripts).
@@ -418,9 +411,7 @@ The guard never writes this file.
   EMPTY-`initial('')` named refusals. [measured at b78770d, snapshot `014a736`]
 - **Accepted:** census `--check` rewrites the snapshot AND count-guards in one call; the
   prev-copy discipline caught nothing here because counts genuinely held (15/0/26/0).
-- **State owed by the successor (unverified, do not claim):** `--update-inventory` and the
-  FULL gate have NOT been run since the arms; expected 1109 byte-exact / 0 fail,
-  negative 182/182 (the inherited 1107/184 is falsified by the K1/K3 promotions).
+- **State owed by the successor (P2c step 6) — ARCHIVED, superseded by measurement** (`f67cc6d`: 1109/0, negative 182/182; corrected expectations re-measured at `adbfa2a`: 1120/0, 181/181). Original kept verbatim: `docs/history/2026-10-30-learnings-superseded.md` §3.
 
 ## E2E-48/P2d round (session 01a18cf9, 2026-10-30, through checkpoint g21+)
 - **accepted** DR truncates source lines past col 72; a >72-col comment loses its `*/` -> whole-file
@@ -461,10 +452,7 @@ The guard never writes this file.
   follow the P2c precedent -- claims first, arms one-per-commit with sweeps, THEN registration +
   census --check + FULL GATE + COVERAGE. Registration of 7 still-refusing probes before their arms
   would simply red the byte panel.
-- **proposed** (not yet done): claims C321-C326 drafted from RESULTS s2; arms (a) empty-varying
-  initial, (b) TITLE static-varying + E46F5 promotion, (c) static-FIXED store ?SMCCM with its
-  prescan demand twin (fa09b97 rule), (d) store-ladder DCX 2/3, (e) non-final bit item,
-  (f) TEST member-as-RIGHT SCCVM.
+- **proposed (P2d step 5: claims + arms list) — ARCHIVED, superseded by execution** (claims C321–C326 committed `aa4b5b4`; arms (a)–(f) `6545b5d`…`e21281a`; registration `adbfa2a`). Original kept verbatim: `docs/history/2026-10-30-learnings-superseded.md` §4.
 
 ## P2d step 2 close (session 01a18d08, committed aa4b5b4)
 - **accepted** Claims C321-C326 written ONLY from RESULTS s2 with per-golden citations; C310

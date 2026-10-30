@@ -91,7 +91,9 @@ current Git HEAD and a clean working tree, then run `/handoff verify`. Consult
 `PROTOCOL.md` before any unclear scientific/procedural action; consult
 `GOAL.md` and `LEARNINGS.md` selectively by evidence pointer. All six
 documents remain authoritative; defer reading rather than discarding their
-contents. Consult `spec/CLAIMS.md` and the exact `spec/lab-evidence/` report
+contents. Consult `spec/CLAIMS.md` SELECTIVELY — read only the cited claim ids
+(`grep -n '^## C<NNN>' spec/CLAIMS.md`; the ledgers exceed the working window and a
+bulk read is prohibited for recovery) — and the exact current `spec/lab-evidence/` report
 for the next scientific experiment. A stale/missing checkpoint is not authoritative:
 re-derive from commits/evidence, then refresh + attest with `/handoff finalize`.
 Do not begin the oracle in the middle of a handoff/maintenance operation.
@@ -106,32 +108,37 @@ put durable *working-method or environment* lessons in `LEARNINGS.md` (not compi
 that goes in the claims ledger). No transcript dumps, no duplicated descriptions: link to the
 canonical file. Handoff must not change compiler implementation strategy.
 
-### Context pressure — independent 95k working policy (Handoff dev.3)
+### Context pressure — config-driven working policy (Handoff dev.3; consolidated 2026-10-31)
 
-Pi/Sushi may declare a PHYSICAL context window of 220000 tokens. Handoff independently
-uses `workingContextWindow: 95000` as its OPERATIONAL ceiling and NEVER changes
-Pi/Sushi's physical context window. The 4096-token Pi output margin is computed
-against the physical window; Handoff uses `generationReserve: 0`, `safetyReserve: 0`.
-The guard's estimate remains advisory and is NOT an exact token count.
+Pi/Sushi may declare a PHYSICAL context window larger than the project's OPERATIONAL
+ceiling. Handoff uses `workingContextWindow` from `handoff.config.json` as that ceiling
+and NEVER changes Pi/Sushi's physical context window. The Pi output margin is computed
+against the physical window; the reserves that matter here are
+`generationReserve`/`safetyReserve` in the config. **This document deliberately quotes
+no numbers:** `handoff.config.json` and `/guard status` are authoritative for the working
+window, the physical window, the reserves and the threshold distances; re-read them at
+session start. The guard's estimate remains advisory and is NOT an exact token count.
 
-With the unchanged configured threshold distances of 19000/11000/7000/5000,
-the working-window crossing points are used >= 76000/84000/88000/90000:
+Alert levels are distances from usable remaining
+(usable = working window − estimated used − max(generationReserve, safetyReserve));
+the crossing points are computed from the config (check `/guard status`):
 
-- Level 1 (76k): record scientific results, evidence and exact next action.
-- Level 2 (84k): complete bounded work, do not start new substantial work.
-- Level 3 (88k): prioritize durable work, commit explicit paths and request
+- Level 1 (advisory/checkpoint): record scientific results, evidence and exact next action.
+- Level 2 (wrap-up): complete bounded work, do not start new substantial work.
+- Level 3 (handoff): prioritize durable work, commit explicit paths and request
   `handoff_renew` at the next safe boundary when the objective remains unfinished
   and renewal is permitted or safely preparable.
-- Level 4 (90k): prioritize the SAME continuation procedure; do not treat a stale
+- Level 4 (closing): prioritize the SAME continuation procedure; do not treat a stale
   checkpoint created by a legitimate prose edit as an irreversible refusal.
   `handoff_renew` can refresh and attest before switching. If renewal is genuinely
   unavailable, use `handoff_finalize` and stop cleanly.
 
-Closing remains advisory (`enforceClosing: false`); no tool is blocked by the guard.
-`renewal.enabled=true`, `renewal.autoRenew=true`, cap 8; project compaction remains
-disabled. The durable renewal counter and scientific checkpoints are NOT reset.
-Always inspect `/guard status` to verify both the 220k physical and 95k working
-windows. A threshold alert alone does NOT trigger a session switch.
+Closing enforcement and renewal enablement are config values: `enforceClosing`,
+`renewal.enabled`, `renewal.autoRenew`, `renewal.maxRenewals` — read the file; as decided
+on 2026-10-29, renewal is enabled with a bounded cap and project compaction remains
+disabled via `.pi/settings.json`. The durable renewal counter and scientific checkpoints
+are NOT reset by documentation work. Always inspect `/guard status` to verify the actual
+physical and working windows. A threshold alert alone does NOT trigger a session switch.
 
 Renewal discipline:
 
@@ -148,7 +155,8 @@ Renewal discipline:
 - If renewal is **refused or fails**, the guard names the reason; report it and preserve the
   recovery state, use `handoff_finalize` at a safe boundary, and conclude.
   Never silently fall back to compaction.
-- The renewal counter is **durable** (`.pi-guard/renewal-state.json`): it survives session
+- The renewal counter is **durable** (the renewal-state file under the configured
+  `stateDir`; closed chains are archived under `stateDir/archives/`): it survives session
   replacement and process restarts and is shared by everything using this stateDir; a new
   independent session continues the same chain's count. At the cap, renewal refuses with
   `capped`. Manage the budget explicitly: raise `renewal.maxRenewals` by operator decision,

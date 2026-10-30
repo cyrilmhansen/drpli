@@ -1,0 +1,464 @@
+# History: PROGRESS.md closed-phase log (STATUS stack, stale evidence and blockers records)
+
+Baseline commit: `f3a4c608189aabbee018a3b3c025cc0501de0288` (branch `main`, 2026-10-30). Extracted verbatim from the durable files on 2026-10-31 by the Mission-1 consolidation (operator-approved; branch `mission1-docs-consolidation`). Nothing below this line is edited: the excerpts are byte-identical to the named source line ranges at the baseline. They are RECORDS of superseded operational states, not current instructions.
+
+
+## Excerpt — PROGRESS.md, lines 7–410
+
+The full renewal-hop STATUS stack of the E2E-48 phase family (8/8 successor top block, then 7/8, 6/8, 5/8, 4/8, 3/8, 2/8, 1/8, chain-0/8, P2c-era blocks). Every measurement in it is also recorded by the lab-evidence RESULTS.md files and claims C309–C326; the top block's current facts were folded into PROGRESS.md '## Current phase'.
+
+> **STATUS 2026-10-30 (renewal 8/8 successor, session 01a18df8, HEAD `bab0d16`). E2E-48/P2e
+> LOWERING IN PROGRESS — arms 1 and 2 DONE AND MEASURED, arms 3/4/5 NOT STARTED, step 6
+> (claims/registration/gate) OWED.** `d18c6ab` arm 1: `bit_cond_mat` merges the {2,3} and >=4
+> class-guards into ONE `abs kk >= 1` arm (bodies were identical, `hl_bias` unchanged) and
+> `bin_lit` folds the `Eprefix(Minus,Enumber)` negative spelling (`-0` stays refused, no golden)
+> — E48E1/E48E2 whole-file byte-identical. `bab0d16` arm 2: NegL VALUE arm gains the ladder with
+> `flag_neg` (C6 FF/9F) — E48E3/E48E4 byte-identical; the `imem_refuse` comparison WHY-string now
+> cites `golden/e48p2e/E48E6/E48E6.PRN` as a MEASURED dr-refuses (append, original verbatim);
+> E46K14's refusal RE-MEASURED through the binary with gate CRLF+`^Z` semantics — pinned marker
+> byte-identical, NOT re-pinned. Sweeps at HEAD: E48E 4/7 exact + E48E5/E48E7/E48E8 refused by
+> name + E48E6 refused (correct), e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2;
+> clean-rebuild warning multiset 126 = 28/26/22/17/15/14/2/2 UNCHANGED. NEXT: arm 3 (`= '0'b`
+> VALUE: `3A/E6 80/D6 01/9F/32`, 11 bytes, the `'1'b` head WITHOUT `D6 80`, fallback of the Eq
+> arm ~7232); arm 4 (FIXED member TEST via NEW `?SCCCM` encoder `21 *D(member)/11 *D(lit)/06
+> len/3E cap/CD ?SCCCM`, new `str_side` FIXED variant, lower_test_skip0 arm Eq-ONLY, prescan
+> demand twin — widen the literal-RIGHT clause to admit a FIXED internal member, asymmetric:
+> member-LEFT stays refused per §3; store route keeps refusing); arm 5 (`authorize_file_item`
+> admits Vbit1, same chain, keep falsified premise visible; append supersede note at the
+> "WHAT STAYS REFUSED ... FILE ATTACH" sentence ~10616); then step 6: claims C327+ (C332 scope =
+> VARYING member only, §2.6's "(varying or fixed)" exceeds the sample — record as [TBD]),
+> NEG_META E46K14 unmeasured->dr-refuses BY REMOVING IT FROM THE LOOP and stamping a dedicated
+> entry (the E46K10 override lesson); NO REJECTS row for E48E6 (same shape as E46K14, already
+> pinned) unless the gate's write path demands one; SPECIMENS.update E48E1..E48E5,E48E7,E48E8
+> byte tier ONLY; --update-inventory; census --check (re-read EVERY delta); coverage_check;
+> registration_audit; FULL GATE reporting ACTUAL (baseline 1120/0, negative 181/181, divergence
+> 9/9, coverage 113); COVERAGE rows. [C296] `LXI H,<fcb>` -> `LXI H,*C(0000)` correction owed.
+> Renewal capped 8/8 — successor only by operator reset. Standing: goldens untouched, no §3
+> shapes, no push, `eval $(opam env)`, probes <=71 cols CRLF+^Z, never name a probe `c`, do not
+> commit/revert `handoff.config.json` (OPERATOR's 145000 edit).
+
+
+> **STATUS 2026-10-30 (session 01a18dd2, renewal 7/8, HEAD `e2b77ba`). OPERATOR CHOICE (D) WAS
+> TAKEN AND EXECUTED: E2E-48/P2e round 5 is PRE-REGISTERED, RUN and MEASURED. NO `ocaml/` CODE
+> HAS BEEN TOUCHED — lowering is NOT started, nothing is half-edited.** Measured by THIS session,
+> in order: (1) boundary verified (`dcc874d`, checkpoint g47 `current`/attested at session_start,
+> `dune build` rc=0, clean-rebuild warning multiset **126 = 28/26/22/17/15/14/2/2** unchanged);
+> (2) eight probes `probes/E48E1..E48E8.PLI` written by
+> `spec/lab-evidence/e2e48-p2e/mkprobes.py` (CRLF + `^Z`, every line <= 71 cols), predictions
+> P-E1..P-E8 and `BASELINE-MINE.txt` (my 8/8 named refusals re-recorded through this binary);
+> **PREDICTION SHA = `421656a`**, committed BEFORE any oracle call, `golden/e48p2e` verified
+> absent (PROTOCOL §1 #1); (3) ONE oracle run exactly as pre-registered -> **7 ok / 8**;
+> (4) goldens + `spec/lab-evidence/e2e48-p2e/RESULTS.md` committed TOGETHER at `e2b77ba`.
+> **E48E6 (`if line then`, a CHARACTER VARYING member as a bare condition) is DR-REFUSES:** PASS 2
+> prints `BIT REQ` and emits NO `.REL` — so E46K14's pinned refusal is now MEASURED law, not an
+> unmeasured gap (the P-E6 prediction that DR accepts was a MISS and is kept in §1).
+> Six laws measured (§2): the biased store ladder is **sign-independent** — `k = -2` walks UP with
+> `INX H ×2` (bias = `-c`, threshold on `|bias| <= 3`), `k = 1` is one `DCX H`; a **negated VALUE
+> keeps the ladder head and flips only the tail** (`^(k=2)`, `^(k=5)`: `C6 FF / 9F`, still no CMA);
+> `= '0'b' as a value is **11 bytes** `3A/E6 80/D6 01/9F/32` — it OMITS the `SUI 80` normaliser the
+> `'1'b` form has (P-E5 size MISS kept); a FIXED CHARACTER member in a TEST compare takes a **NEW
+> helper `?SCCCM`** with BOTH lengths (`21 *D(member) / 11 *D(pool) / 06 02 / 3E 03 / CD ?SCCCM /
+> C2 fill->next`); and a **BIT(1) PUT item behind a file attach is route-invariant** (`3A/06 01/
+> ?QB08C/?PNBOP` inside the `?SIOOP` frame, one `?QIOOP`).
+> **NEXT = lower the six §2 arms one-per-commit, then claims/registration/gate — the exact landing
+> spec is in `HANDOFF.md` → "Next action" (newest section).** Renewal 8/8 carries it (last hop
+> under the cap; after that the operator resets or raises it).
+
+> **STATUS 2026-10-30 (session 01a18dba, chain 6/8, HEAD `218b474`). E2E-48/P2d STEP 7 IS DONE
+> AND MEASURED — THE PHASE IS CLOSED.** Measured by THIS session, in order: `dune build` rc=0 on a
+> clean tree at `6efbb00`; ten `E48D1..D10` panel keys and `E46F5` re-verified as specimens in
+> `spec/INVENTORY.txt` before writing; then `spec/COVERAGE.tsv` **107 → 113 data rows** — six new
+> rows anchored one per claim (`STOR.CHAR_STATIC_STORE` [C321] E48D6,D7,D10 EXACT:3; 
+> `DECL.STATIC_CHAR_EMPTY_INIT` [C322] E48D4,D5 + the EXPR2 golden path EXACT:2; `FILE.OPEN_TITLE_STATIC`
+> [C323] E48D1,D2,D3,E46F5 EXACT:4; `STOR.BIT1_COND_LADDER_2_3` [C324] E48D8 EXACT:1 SINGLE_SAMPLE;
+> `IO.PUT_BIT1_NONFINAL_ITEM` [C325] E48D9,D8 EXACT:2; `COND.MEMBER_RIGHT_TEST` [C326] E48D10,C9,E46K3
+> EXACT:3 — all `runtime=NONE`, byte tier only). **Nineteen cell corrections were written as PURE
+> APPENDS with the original kept verbatim** (machine-verified: every old cell is a prefix of the new
+> one, the only exceptions being the four deliberate parity-count fixes) on `COND.BIT1_NEG_TEST`,
+> `STOR.BIT1_COND_STORE` (18→19), `IO.PUT_BIT1_ITEM` (4→6), `DECL.STATIC_CHAR` (5→12),
+> `AGG.INTERNAL_CHAR_MEMBER` (contract + boundary + probes 5→9), `NEG.MEMBER_USE_PERIMETER`,
+> `FILE.OPEN_TITLE_VAR` (4→5, E46F5 promoted), `FILE.PUT_LIST_VAR` (stale E46F5-negative sentence).
+> A byte dump (`tools/reldump.py` on E48D1 + E46F5) **FALSIFIED [C323]'s `02 41 42 20x11`** — the
+> varying char(14) cell is `02 41 42` + **twelve** `20` (15 bytes); corrected as a traceable append
+> in `spec/CLAIMS.md`, original kept, law unchanged. `coverage_check` → **113 rows, 0 errors, 0
+> warnings**; `spec/census/coverage-stats.json` rewritten and committed. **FULL GATE MEASURED rc=0:
+> 1120 byte-exact / 0 fail of 1120, negative 181/181, divergence 9/9, coverage 113/0, census counts
+> EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0, prose check clean** (log `/tmp/gate_p2d7.txt`).
+> NO COMPILER CODE CHANGED; tree clean at HEAD.
+> **NEXT (not started, needs the operator's choice):** the recorded open items are CREATE's front-end
+> `%include` gap, LOAN2's `conflicting kinds` prescan my-gap (design change, not an arm), and the
+> [TBD] list in RESULTS §3 (runtime length rewrite, `k = 1`/negative `c`, bit behind a file attach,
+> BASED member cond-store, over-extent INITIAL/store, member truthiness, member-vs-member, FIXED
+> member compare) — each needs its OWN pre-registered round; plus a NEW one noticed here: LOAN2's
+> `put list(clear, ...)` control-character (`by '^z'`) item type is unmeasured on any route.
+> Renewal 7/8 carries only that choice; nothing is half-edited.
+
+> **STATUS 2026-10-30 (session 01a18db4, chain 5/8, HEAD `47936e5`).** Recovery-only session:
+> verified boundary (HEAD descendant of `adbfa2a`, step-4 registration intact), committed the
+> uncommitted guard **g41** managed-block refresh (dev.3 config-hash advance) as `47936e5`,
+> re-read the step-7 evidence (C321–C326, RESULTS.md, validator rules, row inventory) and
+> recorded all validator facts the successor needs in HANDOFF.md → Next action STATUS block.
+> **No COVERAGE row was written; step 7 is OWED IN FULL.** Pressure hit L4 at session start;
+> renewing at 6/8 with the same exact next action.
+
+> **STATUS 2026-10-30 (session 01a18d83, renewal 5/8, HEAD `adbfa2a`).**
+> **STEP 4 REGISTRATION IS DONE AND MEASURED — the ONLY remaining item of E2E-48/P2d is the
+> COVERAGE rows.** Measured by THIS session, in order: (0) inherited state re-verified through
+> this binary before registering — `dune build` rc=0, clean-rebuild (scratch tree
+> `/tmp/scratch5/ocaml`) warning multiset unchanged **126 = 28/26/22/17/15/14/2/2**, sweeps
+> **E48D 10/10, e48p1 24/24, e48p2c 9/9, e48p2retire 2/2** whole-file byte-identical;
+> (1) ten rows registered in the gate's OWN panel dict — **the registration site is
+> `SPECIMENS.update({...})` in `tools/e2e_gate.py` (new block after the P2c block, lines
+> ~1376-1410), NOT `spec/SPECIMENS.tsv`, which is a stale 1-row file untouched since `ada03ca`**
+> (same as precedents `992ccad`/`f67cc6d`) — **byte tier ONLY: no `spec/RUNTIME.txt` row, no
+> `OUTPUT_CHECK` entry** (RESULTS §3: runtime length rewrite and empty-varying PUT output are
+> [TBD]); (2) `python3 tools/e2e_gate.py --update-inventory` → **INVENTORY 1301 rows = 1120
+> specimens + 181 refusals**, diff reviewed line by line: the only content changes are the ten
+> new `E48D1..D10` rows plus **E46F5's `refusal → specimen` row, the un-exported leftover of arm
+> (b) `6491981`** (the gate's `inventory_check` had been reporting exactly that one SUBSTITUTED
+> entry); (3) census `--check /tmp/census-prev.json`: **counts IDENTICAL (EXACT 15 / DIFFERS 0 /
+> REFUSED 26 / UNEXPECTED 0)** and BOTH msg deltas are genuine **ADVANCES** past arm (a), verified
+> as named stops, not regressions — EXPR2 `STATIC INITIAL value '' on CHAR(10) VARYING` →
+> **`ON ERROR is not implemented [TBD] (line 24)`**, FSCAN `... CHAR(80) VARYING` → **`PUT EDIT
+> operator X is unsampled [TBD]`**; (4) **FULL GATE MEASURED rc=0: 1120 byte-exact / 0 fail of
+> 1120, negative panel 181/181 refused, divergence 9/9, coverage 107 rows 0 errors, census
+> --verify clean, prose clean** — ACTUAL numbers, the inherited "~1120" is confirmed; plus
+> `registration_audit` → 1301 entries / 0 errors and `inventory_check` → `[]`.
+> **REMAINING (the exact next action): `spec/COVERAGE.tsv` rows for the six P2d shapes against
+> C321-C326, then `python3 tools/coverage_check.py` + a gate re-run.** Schema re-read this
+> session: 15 columns, `category` ∈ DECL/EXPR/FILE/COND/STOR/PROC/AGG/IO/TRAN/LOOP/OBJ/LEX/NEG/
+> RTME/BUILTIN; col 6 `manual_ref` = `NONE:<why>`; col 11 = probes this row is EXACT on, col 12 =
+> corpus names, col 13 = boundary prose, col 14 confidence, col 15 provenance cites; the validator
+> (`coverage_check.py:203-247`) requires that a MEASURED/SINGLE_SAMPLE row's cited claims mention
+> at least one of its col-11 probes (a stem match counts; a path citation is self-sufficient).
+> No compiler code changed this session; nothing is half-edited; tree clean except guard blocks.
+
+> **STATUS 2026-10-30 (session 01a18d51, renewal 4/8, HEAD `e21281a`).**
+> **ARM (f) DONE AND MEASURED — E2E-48/P2d LOWERING IS COMPLETE (arms a-f all landed).**
+> `e21281a`: TEST route `str_cmp_shape_rev` calls pass `~imem:true` ([C326] witness
+> `golden/e48p2db/E48D10` 0013; no new encoder) **and `prescan_cond`'s literal-LEFT demand clause
+> widened `is_cell` → `is_var`** — the fa09b97 demand twin the inherited spec did not list. Cause
+> measured BEFORE the arm: a scratch literal-left/member-right TEST compare whose literal occurs
+> nowhere else died with "prescan demanded 0 pool bytes, lowering allocated 2" (C152 invariant);
+> E29C9 hid it because its store demands the same content-addressed cell (`pdec_str_cell` dedup →
+> no already-passing total changes). Verified at `e21281a`: `dune build` rc=0; **E48D1..D10 10/10
+> whole-file byte-identical**; e48p1 24/24; e48c 9/9; E46K14 (`if line then`) still refuses and its
+> pinned marker was RE-MEASURED through this binary (unchanged, not re-pinned); comparison
+> WHY-string superseded traceably (member truthiness, member-vs-member, FIXED member all still
+> unmeasured). Tree clean except guard blocks.
+> **NEXT = step 4 ONLY (no more lowering): SPECIMENS E48D1..D10 byte tier (no RUNTIME rows) →
+> `--update-inventory` → census `--check` (EXPR2/FSCAN expected to ADVANCE, re-read every delta) →
+> FULL GATE (report ACTUAL, expect ~1120/0, negative 181, divergence 9/9) → `registration_audit`
+> → `spec/COVERAGE.tsv` rows for the six new shapes vs C321-C326 + `coverage_check` + gate re-run.
+> Exact commands and prohibitions: HANDOFF.md → "## Next action" STATUS of 4/8.**
+
+> **STATUS 2026-10-30 (session 01a18d44, renewal 3/8, checkpointed after arms (d)(e)).**
+> **Arms (d) and (e) DONE, COMMITTED, MEASURED**: `18a06c0` store ladder |c| in {2,3} via the
+> ONE `hl_bias` authority ([C324]); `1e8acb2` non-final BIT(1) PUT item accepted, guard removed,
+> premise falsified by E48D9 kept verbatim ([C325]). Verified at HEAD: `dune clean && dune build`
+> rc=0, warning multiset unchanged (126 = 28/26/22/17/15/14/2/2); **D1-D9 whole-file byte-identical
+> to `golden/e48p2db/`** (D8 needed both arms -- the inherited "expect D8 after (d)" was jointly
+> false, recorded in LEARNINGS); e48p1 24/24; e48c 9/9; full negative panel **181/181 refused,
+> 0 anomalies** (gate CRLF+`^Z` semantics). Guard g30 committed as `547701d`.
+> **NEXT = arm (f) NOT STARTED** (exact sites: codegen.ml:7573/7575 pass `~imem:true`;
+> encoder already at 6972-6979; docstring 6941-6946 superseded traceably; full spec in HANDOFF.md; bytes `21 *D(member) / 11 *D(lit) / 06 len / CD ?SCCVM /
+> C2 fill->next stmt`, [C326]; RE-MEASURE E46K14's refusal through the binary afterwards -- if its
+> marker moved, FIX the arm, never silently re-pin), **then REGISTRATION + FULL GATE**:
+> SPECIMENS.update E48D1..D10 (byte tier ONLY, no RUNTIME rows), `--update-inventory`, census
+> `cp spec/census/corpus-census.json /tmp/census-prev.json && python3 tools/corpus_census.py
+> --check /tmp/census-prev.json` (EXPR2/FSCAN expected to ADVANCE past the empty-initial refusal --
+> re-read EVERY delta), FULL GATE (report ACTUAL; expect ~1119-1120 / 0 fail, negative 181),
+> COVERAGE.tsv rows for COND/STOR/IO/DECL shapes + `coverage_check` + gate re-run. No half-edited
+> state exists at this checkpoint; tree clean except guard blocks.
+
+> **STATUS 2026-10-30 (session 01a18cf9, renewal 2/8, closing at context critical).**
+> **E2E-48/P2d arms (a)(b)(c) DONE, COMMITTED, MEASURED.** `6545b5d` empty `initial('')` on STATIC
+> VARYING (D4, [C322]); `6491981` TITLE-on-STATIC class-invariance (D1/D2, [C323]) + **E46F5
+> promoted** by the three-place edit and verified whole-file byte-identical to
+> `golden/e42p1c/E46F5/E46F5.REL` through this binary (my D1 differs from DR's E46F5 only in the
+> 9 module-name bytes); `a72ce43` static FIXED store `?SMCCM` (D6, [C321]) — route identical to the
+> automatic V106 head, no new encoder, **no prescan demand twin needed** (measured).
+> Verified at HEAD: `dune build` rc=0 with the inherited warning multiset unchanged
+> (22/15/28/2/14/2/17/26); **D1–D7 whole-file byte-identical to `golden/e48p2db/`**; e48p1 24/24;
+> e48c 9/9; negative panel **181/181 refused, 0 anomalies** (gate CRLF+`^Z` semantics — my first
+> hand replication used LF and produced 5 FALSE anomalies from line-number shifts in the marker
+> texts); `registration_audit` clean at **1110 specimens / 181 rejects**. Tree clean; no
+> half-finished edit.
+> **NEXT = arms (d)(e)(f) one-per-commit, then registration + inventory + census + FULL GATE
+> (measured) + COVERAGE rows — see HANDOFF.md "## Next action - E2E-48/P2d: LOWER the three
+> remaining arms (d)(e)(f)" for the exact byte sequences, code sites and refusals to keep.**
+> Claims C321–C326 are committed (`aa4b5b4`); the ledger needs no new claims for (a)-(c).
+
+**E2E-48/P2d round 4: oracle MEASURED 10 ok/10, RESULTS written; arms (a)-(c) lowered; (d)-(f) +
+registration + gate OWED.**
+> **STATUS 2026-10-30 (session 01a18d08, renewal 1/8, step 5 in progress).** Measured THIS
+> session at HEAD (guard g23 committed as `4e510d1`, build rc=0): baseline re-verified -- D3/D5/**D7**
+> whole-file byte-identical to `golden/e48p2db/` (D7's `?SMCVM` store needs NO arm), the other 7
+> probes carry their named refusals verbatim as in BASELINE-MINE-WRAPPED. All eight RESULTS §2
+> laws re-read from the literal `.REL` bytes. **REJECTS audit done (dicts live in
+> `tools/e2e_gate.py`): exactly ONE falsified row -- E46F5 (TITLE static-varying, promote after
+> the arm); E46K14's `if line then` is a DIFFERENT shape, stays pinned, re-measure after the D10
+> arm; no rows pin the other five refusals.** Order followed = P2c precedent: claims -> arms
+> one-per-commit (a empty-varying initial(''), b TITLE static + E46F5 promotion, c static-FIXED
+> store `?SMCCM` + prescan demand twin, d store ladder |c|2/3 DCX, e non-final bit item, f TEST
+> member-as-RIGHT SCCVM) -> THEN SPECIMENS registration, `--update-inventory`, census `--check`,
+> FULL GATE (expect 1109+10+1 = 1120 / 0 fail once all arms land; report ACTUAL), COVERAGE rows.
+> OWED next: write claims C321-C326 into spec/CLAIMS.md + appends to C310/C313/C317, commit; then
+> arm (a). Nothing half-edited; every refusal stays named until its arm lands.
+
+**E2E-48/P2d round 4: oracle MEASURED 10 ok/10, RESULTS written; next = claims C321+, registration
++ full gate, then lowering.**
+
+Measured this session (2026-10-30, chain 0/8, HEAD after these commits):
+
+- Infra: `8b637cd` committed the operator's `handoff.config.json` threshold change (19000/
+  11000/7000/5000 -> crossings 75k/83k/87k/89k on the 99k window); `142174c` guard g21 finalize
+  (g20 was stale ONLY on source-config hash -- the other four source hashes unchanged).
+- `67bf83c` **run 1 botched and kept**: tag `e48p2d`, 0 ok/10. Cause: each probe's purpose comment
+  was one 179..317-col line; DR truncates past col 72 so `*/` was lost -> `UNEXPECTED EOF`, no
+  `.REL`. No prediction scored.
+- `60a2c06` amendment BEFORE run 2: `mkprobes.py` wraps comments <=71 cols; code lines proven
+  byte-identical to 60cf463 by comment-stripped `cmp`; HYPOTHESES.md gained a dated amendment
+  section (originals untouched); `BASELINE-MINE-WRAPPED.txt` = same 7 refusals / 3 compiles.
+- `d28ff5e` **run 2**: tag `e48p2db`, **10 ok/10**, all `.REL` present, judged on bytes only.
+- RESULTS.md (with this phase's commit) scores P-D1..P-D10: **HIT** P-D1,2,3,4,5,9,10 and P-D8;
+  **P-D6 MISS on wording** (route is a new `?SMCCM` head, though ACCEPT+pool were right);
+  **P-D7 MISS** (predicted a DATA-image length-byte rewrite that does not exist -- the image keeps
+  the initial `02 41 42 20x8`; rewrite is runtime, [TBD]).
+
+**8 laws now measured (RESULTS.md s2, ledger not yet written):** static FIXED store
+`21 *D(cell) / 11 *D(pool) / 3E extent / 06 len / CD ?SMCCM`; static VARYING store `?SMCVM`
+(same head, and D10 0006 shows the automatic varying member store uses `?SMCVM` too); empty
+`initial('')` = varying `00`+extent blanks / FIXED all blanks, both IN PLACE, never pooled;
+TITLE on a STATIC operand is class-invariant (D1 == E46F5 bytes modulo module name; D2 input
+word `0E90`); store ladder for |c| in {2,3} = `2A / 2B x|c| / 7C / B5 / D6 01 / 9F / 32`
+(same <=3 threshold as TEST, [C310] TBD closed; c=1 and negative c still unmeasured); non-final
+BIT(1) PUT item ACCEPTED (`3A/06 01/?QB08C/?PNBOP` then the literal chain, one final `?QIOOP`);
+DATA "slack" = automatic cells above the pool marked by `LINK-SET-LC` holes (E48A6's 0027
+arithmetic confirmed); member-as-RIGHT TEST keeps the literal-left `?SCCVM` head, `LXI H` always
+the internal cell.
+
+**Still NOT measured (s3, [TBD], do not implement):** runtime length rewrite; `k = 1` / negative
+c in the store ladder; BIT(1) item behind a file attach; BASED member in a condition store;
+store/INITIAL longer than the extent. No `spec/RUNTIME.txt` row may come from this round.
+
+**E2E-48/P2c CLOSED (renewal 8/8 successor, 2026-10-30): steps 6 AND 7 are DONE and MEASURED.**
+Measured by THIS session, in order:
+- HEAD at session start `2bae05e` + the guard's uncommitted g19 managed-block refresh, committed as
+  its own commit `2d26c1b` (PROTOCOL Part 2 step 7). Tree clean.
+- Baseline re-verified at HEAD: `dune build` rc=0 (needs `eval $(opam env)` — the renewal
+  successor's shell does not carry the opam PATH; `dune: command introuvable` otherwise), E48C
+  sweep **9/9** whole-file byte-identical, e48p1 **24/24**, and the two RETIRE goldens E46K1/E46K3
+  byte-identical to `golden/e48p2retire/`.
+- **A real leftover of the promotion was found and fixed:** the retired rows' `NEG_META` entries
+  were still stamped by the loop at `tools/e2e_gate.py:3941`, so `registration_audit`'s
+  REJECTS/NEG_META **symmetry** rule aborted the gate (`negmeta-only=['E46K1','E46K3']`) — a count
+  cannot see it, only the audit can. Fixed by removing those two keys from the loop and keeping the
+  superseded sentence verbatim in a comment above it (`f67cc6d`).
+- **Step 6 item 2 DONE:** `python3 tools/e2e_gate.py --update-inventory` -> INVENTORY rewritten,
+  **1291 rows = 1109 specimens + 182 refusals**, reviewed line by line: the only content changes are
+  E46K1/E46K3 becoming specimen rows (goldens verified present), the nine new E48C rows, the
+  E46F5 verdict text the 7/8 successor had rewritten in `e2e_gate.py` at `3ee414a` but never
+  re-exported, and the shared E46K* prose.
+- **Step 6 item 3 DONE — FULL GATE MEASURED twice, both rc=0:** `1109 byte-exact / 0 fail of 1109`,
+  negative panel **182/182 refused**, divergence **9/9**, coverage **102 then 107 rows, 0 errors**,
+  census `--verify` clean (EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0), prose check clean.
+  The inherited "1107/184" is confirmed FALSE; 1109/182 is what the artifacts produce.
+- **Step 7 DONE (`ef0a198`):** the five drafted `spec/COVERAGE.tsv` rows written —
+  `COND.BIT1_NEG_TEST`, `STOR.BIT1_COND_STORE`, `COND.AND_BIT1_OPERAND`, `IO.PUT_BIT1_ITEM`,
+  `DECL.STATIC_CHAR` — with the CURRENT ledger (C309-C320), not the round-1 draft text: the STOR row
+  cites [C317]'s operand-CLASS law and lists E48C1..C8 + E46K1 (18 exact), `DECL.STATIC_CHAR` is
+  `PARTIAL` and cites [C314][C319][C320] with the empty-literal / store-into-static / TITLE
+  refusals named. Also corrected, each as a PURE APPEND with the original kept word-for-word:
+  FILE.PUT_LIST_VAR's CREATE and LOAN2 blocker sentences (LOAN2 now refuses in the prescan, CREATE
+  at `GET LIST of unknown variable name`), STOR.STATIC_MEMBER_INITIAL's and DECL.STATIC_INHERIT's
+  census blocker names, and DECL.STATIC_INITIAL's falsified `STATIC on character types has no sample
+  at all` clause. `coverage_check` 107 rows / 0 errors, gate re-run at that HEAD still 1109/0.
+
+**OPEN AT THIS BOUNDARY: no half-finished COMPILER edit; every commit above was made after its
+measurement.**
+
+**Round 4 (E2E-48/P2d) PRE-REGISTERED, oracle NOT RUN** (this session stopped at the
+pre-registration boundary on context pressure). Written and committed:
+`spec/lab-evidence/e2e48-p2d/mkprobes.py`, ten CRLF probes `probes/E48D1..D10.PLI`,
+`BASELINE-MINE.txt` (measured at `ef0a198`: D1/D2/D4/D6/D8/D9/D10 refuse with their named texts;
+**D3 static-FIXED title, D5 empty FIXED initial and D7 store into a static VARYING cell already
+COMPILE** -- my bytes for those three are unverified against any DR object), and `HYPOTHESES.md`
+P-D1..P-D10 derived only from committed goldens (`golden/e42p1c/E46F1/F2/F3/F5`,
+`golden/first8080u/EXPR2`, `golden/e48p2c/E48C8`; P-D6/P-D7 pool arithmetic flagged as the weakest
+derivations). Two §3 "unmeasured" claims were **FALSIFIED by artifacts already in the tree** during
+this work -- DR's accepted object for `TITLE(<static varying>)` is `golden/e42p1c/E46F5/E46F5.REL`,
+and the EMPTY-literal static-varying cell is `golden/first8080u/EXPR2/EXPR2.REL` DATA 000F = `00` +
+ten `20` (recorded in `LEARNINGS.md`). The `spec/CLAIMS.md` [C319]/RESULTS §3 annotations and the
+COVERAGE boundary sentences stay OWED -- they must be corrected with the round's OWN measurements,
+not pre-emptively from a prediction.
+**No oracle call was made in this session on any E48D probe; `golden/e48p2d` does not exist.**
+
+(Inherited boundary text, kept for lineage:)
+**E2E-48/P2c STEP 6 OWED (renewal 7/8 successor, 2026-10-30); arms 4a/4b/2 + RETIRE round + claims DONE.**
+Measured by THIS session, in order:
+- Re-verified inherited baseline at `c4d6a80`: dune rc=0; E48C sweep 6/9; e48p1 24/24.
+- **Step 4a** at `14c7321`: `store_char` admits the UNQUALIFIED destination of an automatic
+  VARYING member with a literal source (licensed by golden/e48p2c/E48C3 -- re-verified myself:
+  `cmp -l` shows ONLY bytes 6/19/28, the module-name bytes); FIXED-member refusal verbatim;
+  dead `imem_qualified` helper removed. Sweep 8/9, e48p1 24/24, warning multiset unchanged.
+- **Steps 4b+2** at `3ee414a`: `Bind.RTchar (n, true)` placement arm -- static varying cell =
+  [len][literal padded to extent with 0x20] IN PLACE, NOT pooled; `initial('')`/no-INITIAL/
+  over-extent/non-literal stay named refusions (§3). E46F5's declaration now lowers and the
+  program advances to `OPEN TITLE(nm)`, which refuses BY NAME (static-varying TITLE unmeasured,
+  §3); its REJECTS marker + NEG_META reason were RE-MEASURED through the binary, original record
+  kept as superseded. WHY-strings of `imem_refuse` and lower_open's k-arm updated to cite
+  golden/e48p2c. Sweep **9/9 E48C whole-file byte-identical** and 24/24 e48p1; full 184-row
+  REJECTS replication (gate loop semantics) shows EXACTLY two newly-admitted rows: **E46K1**
+  (bare member literal store -- licensed by §1 P3/§2.1) and **E46K3** (TEST member compare,
+  bare spelling -- licensed by §2.4 + P3; the 7701f52 arms had already admitted it unnoticed,
+  since the negative panel had not been run since `1595a10`).
+- **RETIRE round DONE**: pre-registered at `630e9be` (predictions derived from golden bytes,
+  committed BEFORE any oracle call), oracle `--tag e48p2retire` measured **2 ok / 2** and both
+  whole files **byte-identical** to my objects (P-K1/P-K3/P-G1 all HIT, RETIRE-RESULTS.md).
+  E46K1/E46K3 retired from REJECTS (now **182 rows**) and promoted with E48C1..C9 into
+  SPECIMENS (now **1109**, all paths verified present); claims **C317-C320** + C310
+  load-order annotation written. All committed at `1480d6f`; sweeps at that HEAD: E48C 9/9,
+  e48p1 24/24, 181-row negative replication clean + E46F5's new marker measured against the
+  binary; dune rc=0, warning multiset unchanged.
+
+**EXACT NEXT ACTION = step 6 (census DONE; inventory + FULL GATE owed), then step 7.**
+Census MEASURED at `b78770d` HEAD (snapshot committed `014a736`): counts **IDENTICAL**
+(15 EXACT / 0 DIFFERS / 26 REFUSED / 0 UNEXPECTED); three msg deltas ALL verified --
+EXPR2/FSCAN moved to the specific EMPTY-`initial('')` refusal (correct named stop),
+LOAN2 ADVANCED past line 39 to a NEW my-gap blocker (`variable i declared with
+conflicting kinds` in the prescan type map -- for a FUTURE pre-registered round, NOT
+lowered on faith); REPORT/MPMCALLB unchanged. REMAINING: (2) `python3 tools/e2e_gate.py
+--update-inventory`; (3) FULL GATE expecting **1109 / 0 fail, negative 182/182**
+(inherited 1107/184 SUPERSEDED by the K1/K3 promotions; report measured numbers only);
+(4) step 7 COVERAGE rows + fix/mark-stale the LOAN2 sentence in row FILE.PUT_LIST_VAR
+(it says LOAN2 refuses at line 39 -- census now says otherwise) and add a census line
+for the new `conflicting kinds` blocker if prose demands it.
+
+**Unmeasured at THIS boundary (do NOT claim): `--update-inventory` and the FULL gate
+have NOT been run since the arms landed.** No half-finished edit exists: HEAD is
+committed and the tree clean except guard-owned blocks.
+
+(Previous boundary text, superseded above for work state but kept for lineage:)
+Of the licensed lowering steps, **1(a)(b)(c) and 3 are DONE** at `7701f52`:
+`str_side`'s new `Imem variant (an internal level-numbered CHARACTER VARYING member, BOTH
+spellings), the 18-byte member SCVCM head in `str_cmp_shape` (`LXI H,*D(member) / EB /
+LXI H,*S(lit) / MVI A,len / ?SCVCM`), the 17-byte literal-left SCCVM arms in
+`str_cmp_shape_rev` gated by a new `?imem` parameter that ONLY `bit_cond_mat` passes true — so
+the TEST route still refuses member-as-RIGHT exactly as RESULTS §3 demands — the two
+`bit_cond_mat` orientation arms sharing the [C095] `D6 01 / 9F / STA` tail, and BOTH demand
+twins (`bit_store_cond_bytes` rewritten as one class predicate over {flat Vvar, varying Vimem};
+`prescan_cond`'s `is_var` + qualified-spelling lookup). Measured at `7701f52` by THIS session:
+`dune build` rc=0, no new warnings; sweep **6/9 E48C whole-file byte-identical** (C1,C2,C5,C6,
+C7,C9 — arm 3 arrives free through the shared encoder) and **24/24 `golden/e48p1/` intact**.
+Remaining: **E48C3/E48C4** stop at `store_char`'s qualified-DESTINATION gate (licensed to widen
+by golden/e48p2c/E48C3 — RESULTS §1 P3; `cmp -l` of the C2/C3 goldens shows ONLY the three
+module-name bytes 6/19/28 differ); **E48C8** stops at the STATIC-on-CHARACTER-VARYING
+placement (step 4, with E46F5's negative-row consequence). NOT re-run and therefore NOT
+claimed: the full gate (1098/0 is recorded at `1595a10` alone) and the census since `7701f52`;
+step 2's refusal WHY-string updates are unwritten. Exact next action: `HANDOFF.md` → the STATUS
+block of `## Next action - E2E-48/P2c implementation`, sub-step **4a**.
+
+(Original round-3 findings, superseded above for work state: the SCVCM
+load-order discriminator that [C310] left [TBD] is ANSWERED by the oracle: the operand CLASS
+decides (internal VARYING member -> 18-byte `LXI H,*D(member)/XCHG/LXI H,*S(lit)` — E48C2/C3/C4/C7
++ CREATE 008F; flat cell, auto or static -> 17-byte `LXI H,*S/LXI D,*D` — E48A6/E48C1/E48C8);
+qualification and loop position do NOT matter. Also measured: the SCCVM store route (literal left,
+17 bytes, length in B, member needs no XCHG — E48C5/C6), the first STATIC-on-CHARACTER-VARYING
+layout law (cell = 1-length byte + declared extent blank-padded IN PLACE below the pool, initial
+NOT pooled — E48C8), the internal-member compare in TEST position (15-byte head + C2 skip-to-next
+— E48C9), and DR's storage-class law that a flat level-0 STATIC does NOT contaminate a later
+`dcl 1 rec` (record is AUTOMATIC — E48C7).
+
+Commits this session: `f9f21f2` pre-registration (bank + HYPOTHESES + BASELINE-MINE, oracle NOT
+yet run), `8c57856` goldens `golden/e48p2c/` (9 ok/9) + `spec/lab-evidence/e2e48-p2c/RESULTS.md`
+(prediction vs verdict: 7 clean HITs; P5/P6 sequences HIT but my size LABEL said 16, actual 17 —
+arithmetic slip, kept as written per PROTOCOL #2), `6130164` my-gap fix of the level-0
+storage-class leak in `dcl_static_dcls` + census re-measured (counts IDENTICAL; ONE msg delta =
+MPMCALLB ADVANCED from `STATIC on POINTER MEMBER OF CPB@390` — the leak — to its next genuine
+`STATIC on FIXED BINARY(15,0) MEMBER OF STRINGQCB@82` blocker).
+
+Verified at `6130164`: dune rc=0; 24/24 e48p1 probes still whole-file byte-identical; E48C1
+byte-identical to its new golden; D2/D3 scratch (static-first record) compile. NOT yet re-run:
+the full gate (the pre-fix run aborted at census `--verify`, which the snapshot update now
+closes — the gate must be re-run and is expected to measure 1098/0).
+
+**Pending (this round):** the codegen arms RESULTS §2 licenses — `bit_cond_mat` member(SCVCM)/
+reverse(SCCVM) arms with their `bit_store_cond_bytes` prescan twins, the internal-member
+store/compare gate widenings (they must admit ONLY the measured shapes: based-member stores stay
+refused), the static-VARYING placement arm (careful: E46F5's pinned refusal text must survive via
+a named refusal at its `OPEN ... TITLE(nm)` step or its gate row re-measured explicitly), the
+TEST-position internal-member arm, then panel registration (SPECIMENS/INVENTORY 1098 -> 1107),
+claims C317+, census re-measure, gate.
+
+(Previous phase, closed: **E2E-48/P1: all 24 probes of `golden/e48p1/` byte-identical and
+registered. Gate measured 1098 byte-exact / 0 fail, negative 184/184, divergence 9/9, coverage
+102 rows 0 errors, census `--verify` clean.**)
+
+Commits this session (each verified by measurement, in order): `f839f52` census re-measured after
+`371a12e` (the drift was CREATE advancing, not regressing) · `fa09b97` prescan demand
+`bit_store_cond_bytes` (E48A12 exact; the store arm had allocated a pool cell the prescan never
+demanded) · `df4b9c8` step 4, the BIT(1) PUT item `LDA / MVI B,01 / ?QB08C / ?PNBOP` with its own
+tail replacing `?PNCOP` (23/24) · `613385b` step 5, STATIC-on-CHARACTER (full-extent blank-padded
+cell, 0 pool bytes, read at the declared length) + census re-measured (24/24) · `992ccad` panel
+registration (+24 SPECIMENS, INVENTORY 1098 via `--update-inventory`) and claims **C309-C316**.
+
+**Pending (recorded, not started):** (a) `spec/COVERAGE.tsv` rows citing C309-C314 and the E48*
+probes — `coverage_check` passes without them, so this is a documentation gap, not a red row;
+(b) the `[TBD]` list inside C310/C313/C314, which needs a NEW pre-registered round (E48C) — the
+CREATE-vs-E48 SCVCM load-order discriminator (18 vs 17 bytes) is the one that blocks a corpus
+program; (c) CREATE is still NOT byte-exact and its measured blocker is now front-end:
+`pli80c.ml` never expands `%include`, so `get list (name)` (declared in RECORD.DCL) refuses with an
+unbound name. Do not implement any of these before the oracle has measured them.
+
+## Excerpt — PROGRESS.md, lines 487–508
+
+'## Verified evidence' section as of baseline — a P2c-era record whose 'gate not re-run' claims were later measured at `f67cc6d` (1109/0, 182/182) and `adbfa2a` (1120/0, 181/181), final `218b474` (coverage 113/0).
+
+## Verified evidence
+
+Measured by the E2E-48/P2c session (2026-10-30), not quoted from a report:
+
+- Oracle `PLI_SRC=probes python3 oracle/batch.py E48C1..E48C9 --tag e48p2c --switches '$L$D'`
+  -> **9 ok / 9**, all `.REL` produced; pre-registration committed at `f9f21f2` BEFORE the run;
+  goldens committed at `8c57856` with RESULTS.md (prediction-vs-verdict: 7 clean HITs; P5/P6
+  sequence HIT with a 16-vs-17 size-label slip kept as written per PROTOCOL #2).
+- Laws read from the `.REL` records via chaindump/reldump: member store 18 bytes (E48C2/C3/C4/C7
+  + CREATE 008F); flat 17 (C1, A6, C8); SCCVM store 17 with `06 len`, no XCHG member-side (C5/C6);
+  C7 DATA `41 42 20 | 00 | pool 4..C | rec AUTO @000D`, DEF-DATA-SIZE 44; C8 `nm` cell 15 bytes
+  `02 41 42 20 x12`, DEF-DATA-SIZE 21; C9 head + `C2` skip to next statement 0027.
+- Leak fix `6130164`: D2/D3 scratch compile; 24/24 `golden/e48p1/` still whole-file
+  byte-identical; E48C1 whole-file byte-identical; census re-measured via
+  `tools/corpus_census.py --check <copy of prev>`: counts IDENTICAL (EXACT 15 / DIFFERS 0 /
+  REFUSED 26 / UNEXPECTED 0), ONE msg delta = MPMCALLB ADVANCED past the leak blocker to
+  `STATIC on FIXED BINARY(15,0) MEMBER OF STRINGQCB@82`.
+- Gate at baseline `1595a10` (before any edit this session): **1098 byte-exact / 0 fail**,
+  negative 184/184, divergence 9/9, coverage 102/0, census clean, rc=0. NOT yet re-run at
+  `6130164` - the first run aborted on the then-stale census snapshot, which the re-measure
+  above closed; a fresh full gate run is part of the pending registration step.
+
+## Excerpt — PROGRESS.md, lines 509–521
+
+'## Blockers' section as of baseline — several listed shapes were measured and implemented by P2d/P2e (member-as-RIGHT TEST, |c| 2–3 store ladder, non-final bit PUT item, TITLE on STATIC operand, empty initial(''), bit behind file attach); the current blocker list lives in PROGRESS.md.
+
+## Blockers
+
+- None scientific is open at this boundary, and nothing is half-edited; every commit above was
+  made only after its measurement.
+- The full gate must be RE-RUN at the P2c HEAD before this round can be called registered (the
+  1098/0 figure above is recorded from `1595a10`).
+- What limits further parity is **missing evidence**, never a licence to guess: RESULTS section 3
+  lists what P2c did NOT measure (based-member condition STORES, member-as-RIGHT in TEST
+  position, `^(cond)` stores, `k = c` with |c| in 1..3, `'0'b` as a value, nested `&`, non-final
+  bit PUT items, stores INTO static cells, `TITLE(<static varying>)`) - every one stays a named
+  refusal.
+- CREATE's measured blocker is front-end: `pli80c.ml` does no `%include` expansion, so
+  `get list (name)` (from `artefacts/RECORD.DCL`) refuses on an unbound name. Proposed, unverified.
+
+## Excerpt — PROGRESS.md, lines 450–452
+
+Pending bullet: retired lineage items (RETIRE round, step 6, step 7 — all measured at `1480d6f`/`f67cc6d`/`ef0a198`).
+
+- **DONE this session (kept for lineage):** the RETIRE round oracle (`630e9be` prereg -> 2 ok/2 ->
+  promoted at `1480d6f`), step 6 registration (`--update-inventory` + FULL GATE measured at
+  `f67cc6d`), and step 7's five COVERAGE rows (`ef0a198`).

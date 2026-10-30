@@ -24,7 +24,8 @@ document is the thing that must be corrected.
 
 Pi auto-loads this `AGENTS.md`. With `recovery.lean: true`, first read
 `HANDOFF.md` and `PROGRESS.md` for the current operation, validate the checkpoint
-with `/handoff verify`, then consult `spec/CLAIMS.md` and the specific evidence
+with `/handoff verify`, then consult `spec/CLAIMS.md` selectively — only the cited
+claim ids; never bulk-read a ledger — and the specific evidence
 for the NEXT action. `PROTOCOL.md` remains binding and must be consulted before
 any unfamiliar scientific procedure or policy decision; `GOAL.md` and
 `LEARNINGS.md` remain authoritative and are read selectively when relevant.
@@ -108,8 +109,11 @@ behaviour.
 - **Never hand-write or hand-edit a managed checkpoint block.** Never invent checkpoint
   metadata.
 - **Renewal enabled, compaction disabled (operator decision 2026-10-29):**
-  `renewal.enabled: true`, `renewal.autoRenew: true`, `renewal.maxRenewals: 8` (a bounded
-  operating limit, not unlimited autonomy); each new 8-hop experiment starts only after
+  renewal is enabled for this project with a bounded per-chain cap (an operating limit,
+  not unlimited autonomy). The authoritative values — `renewal.enabled`,
+  `renewal.autoRenew`, `renewal.maxRenewals`, `workingContextWindow`, reserves,
+  thresholds — live ONLY in `handoff.config.json`: read that file and `/guard status`,
+  never a document's quotation of them. Each new experiment chain starts only after
   the operator archives and resets the previous ignored renewal-state.json. Automatic Pi compaction is disabled for this
   project only via `.pi/settings.json`. The pressure/renewal operating rules are in
   `PROTOCOL.md` Part 2. Do not change the renewal policy or any **global** Pi setting
