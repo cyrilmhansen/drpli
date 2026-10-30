@@ -9689,22 +9689,15 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
         | Some vi ->
             (match vi.vk with
              | Vvar _ ->
-                 (* [E2E-48/P2c step 4 / RESULTS §3] the STATIC spelling of this operand is a
-                    DIFFERENT question from the automatic one: E48C8 measures the static varying
-                    CELL in a compare and in PUT LIST, but NO golden puts a static varying in a
-                    TITLE -- E46F5 is exactly this shape and its DR object shows the [C288]
-                    prologue only as a whole accepted program, never isolated per instruction.
-                    Borrowing the automatic route here would claim unmeasured layout bytes, so
-                    refuse by name and keep E46F5 a measured my-gap on the negative panel. *)
-                 if List.mem_assoc (String.lowercase_ascii n.Ast.orig) st.stat_addrs then
-                   failwith
-                     (Printf.sprintf
-                        "codegen: OPEN TITLE(%s) on a STATIC CHARACTER VARYING operand is \
-                         unmeasured [TBD] (line %d) -- the variable-title route [C288] is \
-                         measured on AUTOMATIC cells only (E46F1/E46F3/E46F4); E48C8 pins the \
-                         static varying cell's compare and PUT bytes but never its TITLE, and \
-                         DR's E46F5 object is not a per-instruction witness for this block"
-                        n.Ast.orig s.Ast.spos.Source.line);
+                 (* [E2E-48/P2d §2.4, [C323]] the TITLE operand's STORAGE CLASS changes no code
+                    byte: E48D1 (static varying, output) is E46F5's object byte-for-byte except
+                    the module-name bytes, and E48D2 (static varying, INPUT) keeps the same
+                    `LXI H,*D(cell) / CALL ?SLVTS' prologue with only the option word differing
+                    (w1 0E50 output / 0E90 input) — the [C288] option/operand orthogonality
+                    extends across storage classes.  The earlier refusal here (added at
+                    3ee414a when E48C8 measured only the cell) is RETIRED by these two goldens.
+                    The static name resolves through st.stat_addrs in addr_of, exactly as the
+                    compare/PUT routes already do. *)
                  d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                  call_ext st "?SLVTS"
              | Vfix cap ->

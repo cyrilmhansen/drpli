@@ -1368,6 +1368,10 @@ SPECIMENS.update({
     "E48C9":  ("probes/E48C9.PLI",  "golden/e48p2c/E48C9/E48C9.REL"),
     "E46K1":  ("probes/E46K1.PLI",  "golden/e48p2retire/E46K1/E46K1.REL"),
     "E46K3":  ("probes/E46K3.PLI",  "golden/e48p2retire/E46K3/E46K3.REL"),
+    # [E2E-48/P2d arm (b)] PROMOTED from REJECTS: golden/e48p2db/E48D1+E48D2 measure TITLE on a
+    # STATIC CHARACTER VARYING as class-invariant ([C323]), the arm landed, and E46F5 through THIS
+    # binary is whole-file byte-identical to DR's own object below (verified with cmp, not claimed).
+    "E46F5":  ("probes/E46F5.PLI",  "golden/e42p1c/E46F5/E46F5.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -4012,17 +4016,18 @@ NEG_META["E46L11"] = ("my-gap",
     "FLOAT is not in the four authorized classes and the mission's boundary list names it as "
     "outside P2a, so this stop is deliberate and its verdict is measured.")
 
-NEG_META["E46F5"] = ("my-gap",
-    "DR COMPILES it (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site).  "
-    "[E2E-42 RECORD, superseded below:] the refusal was NOT about TITLE -- line 3's `dcl nm "
-    "char(14) varying static initial('AB')' hit [C114]'s STATIC-on-VARYING guard during "
-    "DECLARATION layout and never reached lower_open; the row kept the two facts apart.]  "
-    "E2E-48/P2c RESULTS §2.5 (golden/e48p2c/E48C8) MEASURED the static varying cell, so the "
-    "declaration now lowers and the program advances to line 4, where OPEN TITLE(nm) on a "
-    "STATIC CHARACTER VARYING operand refuses BY NAME (§3: no golden puts a static varying in "
-    "a TITLE; the marker is the binary's measured output).  The gap MOVED from placement to "
-    "operand route and is STILL a my-gap against DR's accepted object; no static-operand TITLE "
-    "claim of any kind is admissible until an oracle round measures those bytes.")
+# [E2E-48/P2d arm (b)] NEG_META["E46F5"] is NO LONGER stamped: the row left REJECTS when the
+# TITLE-on-static arm landed, and the symmetry audit (registration_audit, E2E-16) aborts on a
+# verdict stamp without a row.  SUPERSEDED record kept as written -- it read: "DR COMPILES it
+# (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title site). [E2E-42 RECORD, superseded below:]
+# the refusal was NOT about TITLE -- line 3's `dcl nm char(14) varying static initial('AB')' hit
+# [C114]'s STATIC-on-VARYING guard during DECLARATION layout and never reached lower_open; the row
+# kept the two facts apart.  E2E-48/P2c RESULTS §2.5 (golden/e48p2c/E48C8) MEASURED the static
+# varying cell, so the declaration now lowers and the program advances to line 4, where OPEN
+# TITLE(nm) on a STATIC CHARACTER VARYING operand refuses BY NAME (§3).  The gap MOVED from
+# placement to operand route and is STILL a my-gap against DR's accepted object."  Both blockers
+# are now MEASURED away by golden/e48p2c/E48C8 (cell) and golden/e48p2db/E48D1/D2 (operand route,
+# [C323]); the my-gap is CLOSED and E46F5 is a byte-exact SPECIMEN above.
 
 NEG_META["E46H7"] = ("dr-refuses",
     "DR diagnoses pass-2 CONFLICT and emits NO .REL [C285]: `open file(f) input update' names "
@@ -4048,20 +4053,15 @@ NEG_META["E46H7"] = ("dr-refuses",
 # measured, which retires the older prose claim that "the four measured OUTPUTs that omit STREAM
 # are keyed or print rows" -- see [C287].
 REJECTS.update({
-    # E46F5, RE-MEASURED by E2E-48/P2c step 4: the pinned text MOVED because the blocker MOVED.
-    # [ORIGINAL RECORD, E2E-42/P0..P1b] the row pinned "STATIC on CHAR(14) VARYING is
-    # unsampled": what refused was line 3's `dcl nm char(14) varying static initial('AB')',
-    # hitting [C114]'s unsampled STATIC-on-VARYING guard before any OPEN code was emitted.
-    # golden/e48p2c/E48C8 (RESULTS §2.5) has since MEASURED the static varying CELL, so that
-    # declaration now lowers and the program advances to line 4's `open file(outf) stream
-    # output title(nm)'.  TITLE on a STATIC varying operand is UNMEASURED (§3), so it refuses
-    # BY NAME there -- the marker below is the compiler's ACTUAL measured output at this
-    # commit (re-run, not hand-written).  The case is still NOT a DR rejection and still a MY
-    # gap: DR ACCEPTS the whole program (golden/e42p1c/E46F5, w1 = 0x0E50, ?SLVTS at the title
-    # site); the gap is simply located one statement later.  See
-    # spec/notes/e2e42-p1b-variable-title.md.
-    "E46F5": (open("probes/E46F5.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-              "TITLE(nm) on a STATIC CHARACTER VARYING operand is unmeasured"),
+    # [E2E-48/P2d arm (b)] "E46F5" is NO LONGER a row of this dict: the STATIC-varying TITLE
+    # refusal it pinned was retired by golden/e48p2db/E48D1/E48D2 ([C323], class-invariant), the
+    # arm landed in codegen.ml, and E46F5 through THIS binary is whole-file byte-identical to
+    # golden/e42p1c/E46F5/E46F5.REL.  It is promoted to a byte-exact SPECIMEN (three-place edit:
+    # REJECTS row removed, NEG_META stamp removed, SPECIMENS row added citing DR's own object).
+    # [SUPERSEDED ROW, kept as written] it read: ("probes/E46F5.PLI", ...,
+    # "TITLE(nm) on a STATIC CHARACTER VARYING operand is unmeasured") -- with its step-4 comment
+    # recording that the ORIGINAL E2E-42 blocker was the [C114] declaration guard, later the
+    # operand route; both are now measured away.
     "E46H1": (open("probes/E46H1.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
               "OPEN option KEYED is outside"),
     "E46H3": (open("probes/E46H3.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
