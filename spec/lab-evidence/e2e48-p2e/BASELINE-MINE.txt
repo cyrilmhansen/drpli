@@ -1,0 +1,17 @@
+# E2E-48/P2e BASELINE-MINE -- my compiler on probes/E48E1..E48E8, recorded BEFORE any oracle call.
+# HEAD at recording time: dcc874d (ocaml/ unchanged since e21281a; tree clean except the guard's
+# managed blocks and the OPERATOR's uncommitted handoff.config.json edit -- not touched).
+# Binary: ocaml/_build/default/bin/pli80c.exe built with `eval $(opam env) && dune build', rc=0,
+# clean-rebuild warning multiset 126 (28/26/22/17/15/14/2/2) -- unchanged from the P2d close.
+# Invocation: ./ocaml/_build/default/bin/pli80c.exe probes/E48En.PLI /tmp/out/E48En.REL
+# Every message below is the FULL text of the first refusal line, whitespace-collapsed; the
+# verdicts are what HYPOTHESES.md predicts DR will contradict or confirm.  NO oracle run yet.
+
+E48E1: refused -- codegen: store into BIT(1) from condition is unsampled [TBD] (the '1'b/'0'b literals take LXI H/MVI M [E20A]; a CONDITION takes a per-class materialiser + STA, pinned for six classes by golden/e48p1/ [RESULTS.md s3.2]; anything else has no DR golden)
+E48E2: refused -- codegen: store into BIT(1) from condition is unsampled [TBD] (same text as E48E1)
+E48E3: refused -- codegen: store into BIT(1) from prefix operator is unsampled [TBD] (same family of text as E48E1; the arm says PREFIX because the expression's root is NegL)
+E48E4: refused -- codegen: store into BIT(1) from prefix operator is unsampled [TBD] (same text as E48E3)
+E48E5: refused -- codegen: store into BIT(1) from condition is unsampled [TBD] (same text as E48E1 -- the '0'b VALUE form is not in bit_cond_mat's admitted classes)
+E48E6: refused -- codegen: comparison of the internal CHARACTER member REC.LINE (CHARACTER VARYING) is unmeasured [TBD] -- ... no other member use has a DR object. ... E46K14's shape -- the TRUTHINESS of a CHARACTER VARYING member, `if line then', with no compare at all -- has no DR object anywhere
+E48E7: refused -- codegen: comparison of the internal CHARACTER member REC.NAME (CHARACTER FIXED) is unmeasured [TBD] -- same imem_refuse text; the FIXED spelling names the member class in the header
+E48E8: refused -- codegen: PUT FILE(OUTF) LIST of a BIT(1) variable has no byte-exact DR witness [TBD] (line 11) -- the named-file route is lowered only for the classes its own objects pin [C296]/[C297]; the CONSOLE route prints a bit item ([C313]/[C325]) but NO object carries a bit item behind a file attach

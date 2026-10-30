@@ -1,0 +1,15 @@
+E48E5:
+  procedure options(main);
+  /* [E2E-48/P2e] the bit-literal compare as a STORE VALUE: f = (b
+     = '0'b).  [C310] pins the '1'b value form (E48A10 0006,
+     LDA/ANI 80/SUI 80 then the flag tail); the '0'b spelling
+     exists as a TEST (E11D/E20B/E20E/E21A) but never as a
+     materialised value.  Does DR invert the mask, retarget the
+     tail, or refuse? */
+  dcl b bit(1) static initial('0'b);
+  dcl f bit(1) static initial('0'b);
+  f = (b = '0'b);
+  put list('F=', f);
+  stop;
+end E48E5;
+

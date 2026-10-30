@@ -1,0 +1,15 @@
+E48E8:
+  procedure options(main);
+  /* [E2E-48/P2e] a BIT(1) item behind a file attach: put
+     file(outf) list(b, 'X').  [C325] measures the non-final bit
+     item on the CONSOLE route with its own ?PNBOP tail and one
+     final ?QIOOP; [C296] measures the file statement as attach + N
+     item chains + one ?QIOOP.  No object combines the two. */
+  dcl b bit(1) static initial('0'b);
+  dcl outf file;
+  open file(outf) stream output title('E8OUT DAT');
+  put file(outf) list(b, 'X');
+  close file(outf);
+  stop;
+end E48E8;
+

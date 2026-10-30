@@ -1,0 +1,14 @@
+E48E1:
+  procedure options(main);
+  /* [E2E-48/P2e] store-ladder edge c = 1.  The materialiser is
+     witnessed at c = 0 (A7 000C), c = 2 and c = 3 (E48D8 [C324])
+     and c >= 4 (A7 003A [C143]); c = 1 itself has never appeared,
+     and hl_bias's |b| <= 3 threshold is measured in TEST (E48A13)
+     and in the STORE (E48D8) but only for |c| >= 2. */
+  dcl b bit(1) static initial('0'b);
+  dcl k fixed bin(15);
+  b = (k = 1);
+  put list('B=', b);
+  stop;
+end E48E1;
+

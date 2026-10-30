@@ -1,0 +1,12 @@
+E48E2:
+  procedure options(main);
+  /* [E2E-48/P2e] store-ladder edge with a NEGATIVE compare
+     constant: c = -2.  The ladder is never witnessed at a negative
+     c on either route ([C143] pins +5, [C324] pins +2/+3). */
+  dcl b bit(1) static initial('0'b);
+  dcl k fixed bin(15);
+  b = (k = -2);
+  put list('B=', b);
+  stop;
+end E48E2;
+

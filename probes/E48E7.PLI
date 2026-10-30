@@ -1,0 +1,18 @@
+E48E7:
+  procedure options(main);
+  /* [E2E-48/P2e] a literal-left TEST compare whose right operand
+     is a level-numbered FIXED CHARACTER member.  [C297] shows DR
+     accepting that member class on the PUT file route with MVI
+     A,declared-length / ?SLCTS, and [C326] measures the same
+     orientation on a VARYING member with ?SCCVM; no object names a
+     helper for a FIXED character compare. */
+  dcl
+    1 rec,
+      2 name char(3),
+      2 nxt fixed bin(15);
+  dcl k fixed bin(15);
+  if 'AB' = rec.name then k = 1;
+  put list('K=', k);
+  stop;
+end E48E7;
+

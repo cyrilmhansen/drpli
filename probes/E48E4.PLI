@@ -1,0 +1,14 @@
+E48E4:
+  procedure options(main);
+  /* [E2E-48/P2e] the same negated VALUE over the LXI B ladder: ^(k
+     = 5), i.e. the [C143] >= 4 head with the [C095]-negated tail
+     C6 FF/9F.  One statement only: the negated `= 0' form is
+     already pinned by E48A11, so this object isolates the ladder
+     head under `^'. */
+  dcl b bit(1) static initial('0'b);
+  dcl k fixed bin(15);
+  b = ^(k = 5);
+  put list('B=', b);
+  stop;
+end E48E4;
+

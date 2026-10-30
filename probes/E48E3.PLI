@@ -1,0 +1,13 @@
+E48E3:
+  procedure options(main);
+  /* [E2E-48/P2e] a negated condition as a STORE VALUE over the DCX
+     ladder: ^(k = 2).  [C310] pins the value negation ONLY for ^(k
+     = 0), where DR emits the ^=0 bytes ADI FF/SBB A with no ladder
+     at all; the ladder head under `^' has never been sampled. */
+  dcl b bit(1) static initial('0'b);
+  dcl k fixed bin(15);
+  b = ^(k = 2);
+  put list('B=', b);
+  stop;
+end E48E3;
+
