@@ -548,13 +548,13 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 31
-checkpoint-id: g31-a61a8ad4010e
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~11010, session 01a18d44-fcdd-754f-9c11-05d86f54f4ae)
-checkpointed: 2026-10-30T14:55:53.143Z
+checkpoint-generation: 32
+checkpoint-id: g32-eba3b5c605f1
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6673, session 01a18d44-fcdd-754f-9c11-05d86f54f4ae)
+checkpointed: 2026-10-30T14:56:40.721Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b2d794929d803bfb73916cb5c7d38b0ce78142037649377049fb20f6aaa99ca6
 source-handoff: d5fd211bd8496497ed37a5057394f9764b2b6c6e3a3bd5e569eab0fee82318bd
@@ -562,11 +562,8 @@ source-learnings: b188c7fb525792a1b7458fee01eaea584ccc29cb50b9e895313b682128d0d3
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
-readiness-by: session:01a18d44-fcdd-754f-9c11-05d86f54f4ae
-readiness-at: 2026-10-30T14:55:53.147Z
-readiness-checkpoint: g31-a61a8ad4010e
 ### Last verified state
-guard level 1; checkpoint requested (finalize: E2E-48/P2d: arms (d)(e) committed (18a06c0, 1e8acb2); D1-D9 byte-identical to golden/e48p2db; sweeps 24/24+9/9; negative 181/181; next = arm (f) D10 TEST member-as-RIGHT ([C326], str_cmp_shape_rev ~imem:true at TEST callers ~7557/7561, re-measure E46K14 after), then registration+inventory+census+FULL GATE+COVERAGE. Build needs eval $(opam env).)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
