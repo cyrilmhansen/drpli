@@ -646,25 +646,25 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 40
-checkpoint-id: g40-8a2ec9a0460c
+checkpoint-generation: 41
+checkpoint-id: g41-abfaf290a433
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~969, session 01a18d83-5882-754f-9c11-05e11a05f757)
-checkpointed: 2026-10-30T16:02:01.513Z
+status: checkpoint (guard level 0, remaining ~94904, session 01a18db1-534d-739b-86ac-62c44c2f09e4)
+checkpointed: 2026-10-30T16:43:15.061Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 5dfa79082f6ea20fb83ed470eab605907d6b640792cc16ce5f1578f9b93476f1
 source-handoff: b432261f8528dd0d2978b4b452256f99818e922eb3675cf0f412c167cd29efd4
 source-learnings: b1d5919fdf92eecd85a05003eb2f14c55ecebd7fb66a149b86a2f4b3b7b4f645
-source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
+source-config: 5fe3a5d9e0f24600539cd3ae1e830260140e99d369d964426e41d5df3b94a6d2
 
 
-readiness-by: session:01a18d83-5882-754f-9c11-05e11a05f757
-readiness-at: 2026-10-30T16:02:01.520Z
-readiness-checkpoint: g40-8a2ec9a0460c
+readiness-by: session:01a18db1-534d-739b-86ac-62c44c2f09e4
+readiness-at: 2026-10-30T16:43:15.066Z
+readiness-checkpoint: g41-abfaf290a433
 ### Last verified state
-guard level 4; checkpoint requested (finalize: Successor: E2E-48/P2d registration is DONE and MEASURED (HEAD 07e8dc6; panel commit adbfa2a). FULL GATE rc=0 = 1120 byte-exact / 0 fail, negative 181/181, divergence 9/9, coverage 107 rows 0 errors, census --verify clean (15/0/26/0), registration_audit 1301/0 errors. No lowering remains; no code changed since e21281a. ONLY remaining step = HANDOFF.md "## Next action - E2E-48/P2d step 7 ONLY": six spec/COVERAGE.tsv rows vs [C321]-[C326] (also correct the now-FALSIFIED |c| in {1,2,3} / store-into-static / non-final-bit clauses in the existing STOR.BIT1_COND_STORE, IO.PUT_BIT1_ITEM, COND.BIT1_NEG_TEST boundary prose as traceable appends), then coverage_check + gate re-run (report ACTUAL). Byte tier only — no RUNTIME/OUTPUT_CHECK row from this bank. eval $(opam env) before dune. No push.)
+guard level 0; checkpoint requested (finalize: /handoff verify /guard status)
 
 ### Unfinished operations
 - (none recorded)
@@ -673,5 +673,5 @@ guard level 4; checkpoint requested (finalize: Successor: E2E-48/P2d registratio
 (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
 ### Guard notes
-Successor: E2E-48/P2d registration is DONE and MEASURED (HEAD 07e8dc6; panel commit adbfa2a). FULL GATE rc=0 = 1120 byte-exact / 0 fail, negative 181/181, divergence 9/9, coverage 107 rows 0 errors, census --verify clean (15/0/26/0), registration_audit 1301/0 errors. No lowering remains; no code changed since e21281a. ONLY remaining step = HANDOFF.md "## Next action - E2E-48/P2d step 7 ONLY": six spec/COVERAGE.tsv rows vs [C321]-[C326] (also correct the now-FALSIFIED |c| in {1,2,3} / store-into-static / non-final-bit clauses in the existing STOR.BIT1_COND_STORE, IO.PUT_BIT1_ITEM, COND.BIT1_NEG_TEST boundary prose as traceable appends), then coverage_check + gate re-run (report ACTUAL). Byte tier only — no RUNTIME/OUTPUT_CHECK row from this bank. eval $(opam env) before dune. No push.
+/handoff verify /guard status
 <!-- guard:end checkpoint -->
