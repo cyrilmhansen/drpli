@@ -5,6 +5,32 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+> **STATUS 2026-10-30 (session 01a18dd2, renewal 7/8, HEAD `e2b77ba`). OPERATOR CHOICE (D) WAS
+> TAKEN AND EXECUTED: E2E-48/P2e round 5 is PRE-REGISTERED, RUN and MEASURED. NO `ocaml/` CODE
+> HAS BEEN TOUCHED — lowering is NOT started, nothing is half-edited.** Measured by THIS session,
+> in order: (1) boundary verified (`dcc874d`, checkpoint g47 `current`/attested at session_start,
+> `dune build` rc=0, clean-rebuild warning multiset **126 = 28/26/22/17/15/14/2/2** unchanged);
+> (2) eight probes `probes/E48E1..E48E8.PLI` written by
+> `spec/lab-evidence/e2e48-p2e/mkprobes.py` (CRLF + `^Z`, every line <= 71 cols), predictions
+> P-E1..P-E8 and `BASELINE-MINE.txt` (my 8/8 named refusals re-recorded through this binary);
+> **PREDICTION SHA = `421656a`**, committed BEFORE any oracle call, `golden/e48p2e` verified
+> absent (PROTOCOL §1 #1); (3) ONE oracle run exactly as pre-registered -> **7 ok / 8**;
+> (4) goldens + `spec/lab-evidence/e2e48-p2e/RESULTS.md` committed TOGETHER at `e2b77ba`.
+> **E48E6 (`if line then`, a CHARACTER VARYING member as a bare condition) is DR-REFUSES:** PASS 2
+> prints `BIT REQ` and emits NO `.REL` — so E46K14's pinned refusal is now MEASURED law, not an
+> unmeasured gap (the P-E6 prediction that DR accepts was a MISS and is kept in §1).
+> Six laws measured (§2): the biased store ladder is **sign-independent** — `k = -2` walks UP with
+> `INX H ×2` (bias = `-c`, threshold on `|bias| <= 3`), `k = 1` is one `DCX H`; a **negated VALUE
+> keeps the ladder head and flips only the tail** (`^(k=2)`, `^(k=5)`: `C6 FF / 9F`, still no CMA);
+> `= '0'b' as a value is **11 bytes** `3A/E6 80/D6 01/9F/32` — it OMITS the `SUI 80` normaliser the
+> `'1'b` form has (P-E5 size MISS kept); a FIXED CHARACTER member in a TEST compare takes a **NEW
+> helper `?SCCCM`** with BOTH lengths (`21 *D(member) / 11 *D(pool) / 06 02 / 3E 03 / CD ?SCCCM /
+> C2 fill->next`); and a **BIT(1) PUT item behind a file attach is route-invariant** (`3A/06 01/
+> ?QB08C/?PNBOP` inside the `?SIOOP` frame, one `?QIOOP`).
+> **NEXT = lower the six §2 arms one-per-commit, then claims/registration/gate — the exact landing
+> spec is in `HANDOFF.md` → "Next action" (newest section).** Renewal 8/8 carries it (last hop
+> under the cap; after that the operator resets or raises it).
+
 > **STATUS 2026-10-30 (session 01a18dba, chain 6/8, HEAD `218b474`). E2E-48/P2d STEP 7 IS DONE
 > AND MEASURED — THE PHASE IS CLOSED.** Measured by THIS session, in order: `dune build` rc=0 on a
 > clean tree at `6efbb00`; ten `E48D1..D10` panel keys and `E46F5` re-verified as specimens in

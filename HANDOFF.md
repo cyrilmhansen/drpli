@@ -166,7 +166,95 @@ unchanged); the sweep is
 
 ## Next action (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
-## Next action — E2E-48/P2d is CLOSED; the next round needs the OPERATOR's choice (nothing is owed, nothing is half-edited)
+## Next action — E2E-48/P2e: LOWER the six RESULTS §2 arms (NOT STARTED), then claims + registration + FULL GATE
+
+> **STATUS 2026-10-30 (renewal 7/8, session 01a18dd2, HEAD `e2b77ba`, tree clean except the
+> OPERATOR's `handoff.config.json` edit).** Round 5 is pre-registered (`421656a`), measured
+> (**7 ok / 8**) and committed with its goldens (`e2b77ba`). **No `ocaml/` file has been edited
+> for this round** — every E48E probe is still a named refusal of mine. Read
+> `spec/lab-evidence/e2e48-p2e/RESULTS.md` (§1 table, §2 six laws, §3 what stays unmeasured) and
+> `HYPOTHESES.md` before editing; claims are OWED (next free ids **C327+**).
+
+**EXACT NEXT ACTION — six arms, ONE per commit, `cd ocaml && eval $(opam env) && dune build` +
+the cmp sweep after EACH (LEARNINGS rule: one arm, one build, one sweep).**
+Sweep loop (expect E48E 7/7 after all arms; E48E6 must KEEP refusing):
+
+    for n in 1 2 3 4 5 7 8; do ./ocaml/_build/default/bin/pli80c.exe probes/E48E$n.PLI /tmp/sw/E48E$n.REL \
+      && cmp /tmp/sw/E48E$n.REL golden/e48p2e/E48E$n/E48E$n.REL && echo "E48E$n IDENTICAL"; done
+
+Then the regression sweeps: E48D1..D10 (`golden/e48p2db`) 10/10, E48C1..C9 9/9, e48p1 24/24,
+E46K1/K3 2/2 (`golden/e48p2retire`), and the FULL negative panel with GATE semantics (CRLF +
+`^Z`, stderr) — 181 rows, and E46K14's marker must NOT move (see arm 2).
+
+1. **Arm 1 — ladder classes** (`bit_cond_mat`, ocaml/lib/codegen.ml:7128; the two guard arms at
+   ~7196 `Some (v, kk) when kk >= 2 && kk <= 3` and ~7208 `when kk >= 4`). Replace both guards
+   with ONE `when abs kk >= 1` body — `cmp_load_deref st v.Ast.orig; hl_bias st (-kk);
+   mov_a_h / 0xb5 / flag ()` — which already yields E48E1 (`-1` -> one `DCX`), E48E2 (`+2` -> two
+   `INX`) and E48E4's head (`-5` -> `LXI B,FFFB / DAD`). **`hl_bias` (codegen.ml:6749) needs NO
+   change** — verified: it keys on `abs b`, so the sign law of §2.1 is already its law. Update the
+   docstring at ~7128-7146 (it states `k = 1` and `c < 0` as unmeasured) as a traceable
+   SUPERSEDED append, original kept. No pool bytes involved -> NO prescan twin needed.
+2. **Arm 2 — negated ladder VALUE** (`bit_cond_mat`'s `Ast.Eprefix (Ast.NegL, x)` arm at ~7252,
+   today `Some (v, 0)` only). Add the ladder body for `|kk| >= 1` with `flag_neg ()`
+   (`C6 FF / 9F`) — E48E3 0006 (`2A / 2B 2B / 7C / B5 / C6 FF / 9F / 32`) and E48E4 0006
+   (`2A / 11 FB FF / 09 / ... / C6 FF / 9F / 32`). Do NOT add `^=` over a ladder or `^(string
+   compare)` — §3 records neither. **AFTER this arm, RE-MEASURE E46K14's refusal through the
+   binary (gate CRLF+`^Z` semantics): its marker must be byte-identical; if it moved, FIX the arm,
+   never re-pin.** E46K14 is `dr-refuses` NOW (proved by E48E6's `BIT REQ`, no `.REL`), so the
+   `imem_refuse` WHY-string at codegen.ml:3895-3905 — which currently says the truthiness shape
+   "has no DR object anywhere" — must be corrected traceably to cite
+   `golden/e48p2e/E48E6/E48E6.PRN` as a MEASURED DR refusal (append, keep the original words).
+3. **Arm 3 — `= '0'b' VALUE** (the fallback inside `bit_cond_mat`'s `Eq` arm, ~7222-7232, which
+   admits only `Ast.Ebit "1"`). Emit for `Ast.Ebit "0"`: `3A *D(b) / E6 80 / D6 01 / 9F`
+   (E48E5 0006, 11 bytes incl. the `32` STA) — i.e. the `'1'b` head WITHOUT the `D6 80` step.
+   `bit_store_cond_bytes` demands nothing here (no pool cell), so no prescan change.
+4. **Arm 4 — FIXED member in TEST via `?SCCCM`** (the biggest arm; §2.4). `str_side` (6870)
+   classifies only `Vimem m when m.varying -> Some (`Imem name)`; add a FIXED-member variant that
+   carries `m.cap` (the declared extent IS in `mem_char`, codegen.ml:26-27). Add a new
+   literal-LEFT/fixed-RIGHT encoder producing exactly
+   `21 *D(member) / 11 *D(pool lit) / 06 len / 3E cap / CD ?SCCCM`, used by `lower_test_skip0`
+   (the guard at 7597 and the destructuring at 7609) — NOT by `bit_cond_mat`: §2.4 measures TEST
+   only and §3 says a fixed member in a STORE is unmeasured, so the STORE route must keep
+   refusing it. **THE DEMAND TWIN IS MANDATORY (the fa09b97/e21281a law):** `prescan_cond`'s
+   `is_var` (~2981) currently returns `m.varying`; widen it to admit a FIXED internal member
+   ONLY because the TEST route now admits it — demand and lowering stay ONE predicate, or the
+   C152 pool invariant dies. Verify DATA 000B for E48E7 against the golden.
+5. **Arm 5 — bit item behind a file attach** (`authorize_file_item`, refusal text quoted in
+   `BASELINE-MINE.txt` E48E8; the console bit chain already exists at ~10775 `Vbit1`). Admit
+   `Vbit1` on the file route and reuse the SAME chain bytes
+   (`3A *D(b) / 06 01 / CD ?QB08C / CD ?PNBOP`) inside [C296]'s frame; §2.5 + E46L3 prove the
+   chain is route-invariant. PUT EDIT of a bit item and every other unadmitted file class stay
+   refused. Keep the falsified premise of the removed guard visible as a SUPERSEDED comment.
+6. **Claims + registration + gate.** Record C327+ from RESULTS §2 ONLY (each citing its golden),
+   classify §2.6 as `dr-refuses` and arms 1-5 as `my-gap`; append the traceable correction to
+   **[C296]** ("`LXI H,<fcb>`" is really `LXI H,*C(0000)`, a CODE self-address — HYPOTHESES.md
+   §Prior-evidence has the byte dump) and to [C324]/[C310]'s [TBD] clauses (closed by
+   reference, originals kept). Register E48E1..E48E5, E48E7, E48E8 in the gate's own
+   `SPECIMENS.update({...})` dict in `tools/e2e_gate.py` (NOT `spec/SPECIMENS.tsv`, which is a
+   stale E2E-39 artefact; precedents `992ccad`/`f67cc6d`/`adbfa2a`), **BYTE TIER ONLY — no
+   `spec/RUNTIME.txt` and no `OUTPUT_CHECK` row may come from this round**. E48E6 is NOT a
+   specimen: it has no `.REL`; if a negative row for it is wanted it must go through the gate's
+   write path with an explicit reason, never by hand-editing a verdict. Then
+   `python3 tools/e2e_gate.py --update-inventory` (review the diff line by line), census
+   `cp spec/census/corpus-census.json /tmp/census-prev.json && python3 tools/corpus_census.py
+   --check /tmp/census-prev.json` (re-read EVERY msg delta; a corpus advance is not a
+   regression), `python3 tools/coverage_check.py`, `registration_audit`, and the FULL GATE
+   `python3 tools/e2e_gate.py` — **report ACTUAL numbers, never expected** (baseline was 1120/0,
+   negative 181/181, divergence 9/9, coverage 113 rows). Then `spec/COVERAGE.tsv` rows for the
+   five new shapes vs the new claims (15 columns, `manual_ref = NONE:<why>`, MEASURED rows cite
+   probes named by their OWN claims; `coverage_check` REWRITES
+   `spec/census/coverage-stats.json` — commit that path when it changes).
+
+**Standing:** never touch `golden/e48p1`, `e48p2c`, `e48p2d` (botched run), `e48p2db`,
+`e48p2retire`, `e42p1c`, `e42p2a`, `e42p2b`, `first8080u`, `e48p2e` (new goldens — evidence);
+implement NOTHING from RESULTS §3 (fixed member in a STORE, member-vs-member, BASED member in a
+condition, over-extent INITIAL/store, any runtime claim); no `%include`/LOAN2 work without its
+own pre-registered round; **do not commit or revert `handoff.config.json` — the
+`workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
+CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
+procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
+
+## Next action (superseded: choice (D) was taken and executed as E2E-48/P2e — prereg 421656a, oracle 7 ok/8, goldens+RESULTS at e2b77ba; lowering OWED per the section above)
 
 > **STATUS 2026-10-30 (renewal 6/8, session 01a18dba, HEAD `218b474`, tree clean).** **STEP 7 IS
 > DONE AND MEASURED.** Six COVERAGE rows written vs C321-C326 (`STOR.CHAR_STATIC_STORE`,

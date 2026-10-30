@@ -603,3 +603,44 @@ The guard never writes this file.
   items name a control character declared `clear by '^z'`; NO object (DR or mine) shows what `BY`
   compiles to, and my classifier may not even reach it (LOAN2 stops in the prescan). A future byte
   round should measure `BY`-declared items as PUT operands before any row claims them.
+
+## 2026-10-30 — E2E-48/P2e round 5 (prereg 421656a, oracle 7 ok/8, goldens+RESULTS e2b77ba), session 01a18dd2, renewal 7/8
+
+* **accepted (measured by the oracle)** — DR REFUSES a CHARACTER operand used as a bare
+  condition: `golden/e48p2e/E48E6/E48E6.PRN` prints `BIT REQ` at `if line then k = 1;` with
+  PASS 1 clean and **no `.REL`** (`status: diag`). E46K14's pinned refusal is therefore
+  `dr-refuses` law, not an unmeasured gap. My P-E6 prediction (ACCEPTS, inferred from [C297]'s
+  "DR admits operand classes I never asked about") is a **MISS and stays in §1** — an operand
+  class being legal in one use does not license it in every use.
+* **accepted** — the biased ladder's threshold keys on `|bias| = |-c|`, NOT on the sign or the
+  magnitude of the constant: `k = -2` -> `LHLD / INX H x2` and `k = 1` -> `LHLD / DCX H x1`
+  (E48E2/E48E1 0006). My `hl_bias` already implements exactly this (`abs b <= 3` -> repeats,
+  else `LXI B, b land 0xffff`), so the gap was in `bit_cond_mat`'s admitted CLASSES, never in
+  the encoder. Lesson: before blaming an encoder for a missing shape, read the guard that
+  selects it — the byte producer was already right.
+* **falsified (my prediction, kept)** — P-E5 predicted the `= '0'b' VALUE would be "a variant of
+  E48A10's 13 bytes". DR emits **11 bytes**: `3A / E6 80 / D6 01 / 9F / 32` — the `SUI 80`
+  normaliser the `'1'b` form uses is ABSENT. Consistent with [C112] high-bit justification
+  (`ANI 80` leaves 00/80, so `= '0'b` is `acc-1` and `= '1'b` is `(acc-128)-1`), but that
+  reasoning only exists post-measurement: the ledger must cite the object, not the arithmetic.
+* **accepted** — a NEW compare helper, `?SCCCM`, carries fixed-vs-literal character compares with
+  BOTH lengths (`06` literal length, `3E` DECLARED extent) — E48E7 0006. [C191]'s three helpers
+  (`?SCVCM/?SCCVM/?SCVVM`) are all pinned on varying-or-literal operands, so a FIXED operand is
+  a fourth member of the family, not a use of an existing one. My encoder set has no `?SCCCM`.
+* **accepted** — a BIT(1) PUT item behind a file attach keeps the CONSOLE chain verbatim
+  (`3A/06 01/?QB08C/?PNBOP`) inside [C296]'s `?SIOOP` frame (E48E8 0023..0048); item chains are
+  ROUTE-INVARIANT and the tail is chosen by item class. Independently corroborated by
+  `golden/e42p2a/E46L3`, where the SAME `?QICOP/?PNVOP` chain appears under both framings.
+* **accepted (ledger imprecision, to correct traceably)** — [C296]'s prose says the file attach
+  starts `LXI H,<fcb>`; the bytes are `21 *C(0000)`, a **CODE self-address** (E46M1 0023,
+  E46L3 0023, E48E8 0023). Re-deriving every quoted byte sequence from the golden BEFORE
+  committing a prediction caught this in HYPOTHESES.md while it was still a prediction, not
+  after it became a law — that ordering is the whole value of the pre-registration step.
+* **accepted (probe hygiene)** — do not name a probe variable `c`: `if c then` dies in my codegen
+  with `call to unknown c [TBD]` (a single-letter name read as a procedure call), which MASKED
+  the shape E48E4 was written to probe. A one-statement scratch build through the binary, run
+  before committing the baseline, found it: `dcl c bit(1) static initial('0'b); c = (k = 2);`
+  compiles fine, so the collision is specific to the bare-condition position.
+* **accepted (procedure)** — a `diag` oracle row (PRN but no `.REL`) is evidence, not a failed
+  run: keep the directory, cite the PRN's error marker, and classify `dr-refuses` from it, while
+  never quoting its `CODE SIZE` line as a byte fact (PROTOCOL §6).
