@@ -13031,10 +13031,15 @@ let rows_of (b : Ast.block) =
                routes: the compare store is the flat-class 17-byte SCVCM form (§2.2, admitted by
                step 1(b)) with `LXI D,*D(cell)' on the STATIC address, and `put list(nm)' is the
                ordinary descriptor read `LXI H,*D(cell) / ?SLVTS'.
-               ONE golden (golden/e48p2c/E48C8) pins the shape, so everything adjacent stays
-               refused by name: NO INITIAL, a non-literal initialiser, the EMPTY `initial('')'
-               spelling of EXPR2/FSCAN (DR's zero-length cell layout is unmeasured -- §3), and a
-               literal LONGER than the extent (truncation unmeasured). *)
+               [E2E-48/P2d §2.3, [C322], golden/e48p2db/E48D4] the EMPTY `initial('')' IS
+               measured: `dcl s char(10) varying static initial('')' places DATA 0000..000A =
+               `00 20x10' -- a ZERO length byte plus the full extent of blanks, IN PLACE, not
+               pooled -- and `put list(s)' reads it by the ordinary `LXI H,*D(cell) / ?SLVTS'
+               route (identical to E48C8's read of a non-empty static varying cell).  EXPR2's
+               corpus object (golden/first8080u/EXPR2/EXPR2.REL DATA 000F = `00' + ten `20')
+               agrees.  The cell formula below is UNCHANGED -- it produces exactly this.
+               Everything else adjacent stays refused by name: NO INITIAL, a non-literal
+               initialiser, and a literal LONGER than the extent (truncation unmeasured, §3). *)
             sy_addrs := !sy_addrs @ [(li, off)];
             sy_total := max !sy_total (off + n + 1);
             (match init_opt with
@@ -13043,8 +13048,7 @@ let rows_of (b : Ast.block) =
                    (Printf.sprintf
                       "codegen: [TBD] STATIC on %s with no INITIAL is unmeasured -- E48C8 samples \
                        only `initial(<character literal>)' (line %d)" (Bind.rty_str rt) line)
-             | Some { Ast.e = Ast.Estring v; _ }
-               when String.length v > 0 && String.length v <= n ->
+             | Some { Ast.e = Ast.Estring v; _ } when String.length v <= n ->
                  let bytes =
                    String.length v
                    :: List.init (String.length v) (fun i -> Char.code (String.get v i))
@@ -13054,10 +13058,10 @@ let rows_of (b : Ast.block) =
              | Some e ->
                  failwith
                    (Printf.sprintf
-                      "codegen: [TBD] STATIC INITIAL value %s on %s is unsampled -- E48C8 measures \
-                       only a NON-EMPTY character literal not longer than the declared extent; \
-                       the empty `initial('')' spelling (EXPR2/FSCAN) and DR's truncation of a \
-                       longer literal are unmeasured (line %d)"
+                      "codegen: [TBD] STATIC INITIAL value %s on %s is unsampled -- \
+                       golden/e48p2c/E48C8 + golden/e48p2db/E48D4 measure only a character \
+                       literal NOT LONGER than the declared extent (empty included, [C322]); \
+                       DR's truncation of a longer literal is unmeasured (line %d)"
                       (Format.asprintf "%a" Parser.pp_e e) (Bind.rty_str rt) line))
         | _ ->
             (* The catch-all keeps its EXACT words for the row that still needs them: one gate
