@@ -35,7 +35,10 @@ refusals never write); during enforced level-4 closing the model can only call i
 Tool: `handoff_finalize` (dev.2 D2) — model-driven closing without a switch: same
 synchronous refresh + attest machinery, no waitForIdle, no dispatch, no chain-state
 writes; callable during enforced closing regardless of `closingAllowlist` (it writes only
-managed blocks). At the exhausted renewal cap this is the safe path: finalize, then stop.
+managed blocks). It is NOT a substitute for renewal of an active, permitted chain:
+finish the bounded operation, preserve durable evidence, then call `handoff_renew` at a
+safe boundary if the objective continues. A missing/stale checkpoint may be prepared
+by that tool before the final gate. At the exhausted cap, finalize and stop.
 
 ## Configuration — `handoff.config.json` (project root; read once per `session_start`)
 
@@ -43,6 +46,7 @@ managed blocks). At the exhausted renewal cap this is the safe path: finalize, t
 |---|---|---|
 | `thresholds` | `{advisory:30000, wrapUp:20000, handoff:10000, closing:5000}` | usable-remaining crossings for levels 1–4 |
 | `generationReserve` | `"model"` (or number) | budget subtracted for the next completion; `"model"` = `ctx.model.maxTokens` |
+| `workingContextWindow` | `null` | optional guard-only positive integer work ceiling; clamped at the physical Pi window; no change to model config or Sushi |
 | `safetyReserve` | `0` | extra floor; effective reserve = `max(generationReserveResolved, safetyReserve)` |
 | `enforceClosing` | `true` | level 4 gates non-allowlisted tool calls |
 | `closingAllowlist` | `["write","edit","read"]` | tools permitted during enforced closing (add `handoff_renew` for renewal projects) |
@@ -72,7 +76,7 @@ for probes/forensics, dev.2 D5d). CLI flags: `--guard-synthetic <n>`,
 ## Budget arithmetic
 
 ```
-usable remaining = contextWindow − estimatedTokensUsed − max(generationReserveResolved, safetyReserve)
+usable remaining = min(Pi physical contextWindow, workingContextWindow ?? Pi physical contextWindow) − estimatedTokensUsed − max(generationReserveResolved, safetyReserve)
 ```
 
 - Pi 1.4.0 has **no exact remaining-context API**; `getContextUsage().tokens` is an

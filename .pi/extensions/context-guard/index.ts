@@ -89,7 +89,7 @@ export const CUSTOM_TYPE = "context-guard";
  * dev.2 D5d (P-9): the runtime identity carries a VERSION, never a milestone label.
  * `GUARD_VERSION` overrides it for probes/forensics without touching code.
  */
-export const DEFAULT_GUARD_VERSION = "0.1.0-dev.2";
+export const DEFAULT_GUARD_VERSION = "0.1.0-dev.3";
 export function guardVersion(env: Record<string, string | undefined> = process.env): string {
   const v = env.GUARD_VERSION;
   return typeof v === "string" && v.trim().length > 0 ? v.trim().slice(0, 40) : DEFAULT_GUARD_VERSION;
@@ -103,7 +103,7 @@ function renewalSafeInstructions(why: string, done: number, max: number): string
     case "already-renewed":
       return "This checkpoint already seeded a successor: refresh (/handoff) and re-attest (/handoff ready) before renewing again, or close with handoff_finalize.";
     case "not-authorized":
-      return "Renewal needs a current + attested checkpoint: run /handoff, then /handoff ready; meanwhile finish the durable prose and close with handoff_finalize.";
+      return "Renewal is not authorized NOW: preserve the durable prose and write the exact next action. This may be preparable: handoff_renew refreshes a missing/stale checkpoint and attempts attestation before the real gate. If readiness fails, correct the blocking checks or finalize and stop; do not infer permanent refusal from staleness alone.";
     case "stopped":
       return "The operator stop is durable on this chain (renewal stays refused until an operator /handoff renew resume); close with handoff_finalize.";
     case "read-only":
@@ -252,12 +252,13 @@ export default function contextGuard(pi: ExtensionAPI, overrides: GuardOverrides
     const config = g?.config ?? DEFAULT_CONFIG;
     const usage = ctx.getContextUsage?.();
     if (config.syntheticRemaining != null) {
-      return syntheticBudget(config.syntheticRemaining, usage?.contextWindow ?? ctx.model?.contextWindow ?? 0);
+      return syntheticBudget(config.syntheticRemaining, usage?.contextWindow ?? ctx.model?.contextWindow ?? 0, config.workingContextWindow);
     }
     return computeBudget({
       modelId: (ctx.model as { id?: string } | undefined)?.id ?? null,
       contextWindow: usage?.contextWindow ?? null,
       modelContextWindow: ctx.model?.contextWindow ?? null,
+      workingContextWindow: config.workingContextWindow,
       modelMaxOutputTokens: ctx.model?.maxTokens ?? null,
       tokens: usage?.tokens ?? null,
       percent: usage?.percent ?? null,
@@ -317,9 +318,11 @@ export default function contextGuard(pi: ExtensionAPI, overrides: GuardOverrides
       `context-guard status (session ${g.sessionId})`,
       `  mode: ${g.config.readOnly ? "READ-ONLY audit mode (no writes inside the project tree)" : canPersistState() ? "normal (runtime state persists)" : "normal (runtime state persistence disabled)"}${g.config.enabled ? "" : " — guard DISABLED"}`,
       `  model: ${m.modelId ?? "unknown"}`,
-      `  context window: ${m.contextWindow ?? "unknown"} (source: ${m.contextWindowSource}${m.modelContextWindow != null && m.modelContextWindow !== m.contextWindow ? `, ctx.model declares ${m.modelContextWindow}` : ""})`,
+      `  physical context window: ${m.physicalContextWindow ?? "unknown"} (Pi/provider; ctx.model declares ${m.modelContextWindow ?? "unknown"})`,
+      `  working context window: ${m.contextWindow ?? "unknown"} (source: ${m.contextWindowSource}${m.configuredWorkingContextWindow != null ? `, configured ${m.configuredWorkingContextWindow}` : ", inherited from Pi"}) — POLICY ONLY; Pi/Sushi window unchanged`,
       `  estimated used: ${m.tokensUsed ?? "unknown"} tokens (Pi estimate: last reported usage + chars/4 heuristic, not exact)`,
-      `  raw remaining: ${m.rawRemaining == null ? "unknown" : Math.floor(m.rawRemaining)} (window - used, no reserve subtracted)`,
+      `  raw remaining: ${m.rawRemaining == null ? "unknown" : Math.floor(m.rawRemaining)} (working window - used, no reserve subtracted)`,
+      `  physical raw remaining: ${m.physicalContextWindow == null || m.tokensUsed == null ? "unknown" : Math.floor(m.physicalContextWindow - m.tokensUsed)} (Pi physical window - used, does not subtract Pi's own safety margin)`,
       `  generation reserve: ${m.reserve.selected}${m.reserveFraction == null ? "" : ` = ${(m.reserveFraction * 100).toFixed(1)}% of the window`} (source: ${RESERVE_LABEL[m.reserve.source] ?? m.reserve.source}; safetyReserve ${m.reserve.safetyReserve})`,
       `  usable remaining: ${m.usableRemaining == null ? "unknown" : Math.floor(m.usableRemaining)} = window - used - reserve`,
       `  ${crossingPointsLine(crossingPoints({ contextWindow: m.contextWindow, reserve: m.reserve, thresholds: defaultThresholds(g.config.thresholds, { enforceClosing: g.config.enforceClosing }) }))}`,

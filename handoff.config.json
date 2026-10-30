@@ -6,7 +6,7 @@
     "handoff": 7000,
     "closing": 5000
   },
-  "generationReserve": 5000,
+  "generationReserve": 0,
   "safetyReserve": 0,
   "enforceClosing": false,
   "closingAllowlist": [
@@ -35,5 +35,6 @@
   "recovery": {
     "lean": true,
     "budgetTokens": 12000
-  }
+  },
+  "workingContextWindow": 95000
 }
