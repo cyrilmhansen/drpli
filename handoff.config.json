@@ -1,15 +1,19 @@
 {
   "enabled": true,
   "thresholds": {
-    "advisory": 30000,
-    "wrapUp": 20000,
-    "handoff": 10000,
+    "advisory": 20000,
+    "wrapUp": 12000,
+    "handoff": 8000,
     "closing": 5000
   },
-  "generationReserve": 20000,
+  "generationReserve": 5000,
   "safetyReserve": 0,
   "enforceClosing": false,
-  "closingAllowlist": ["write", "edit", "read"],
+  "closingAllowlist": [
+    "write",
+    "edit",
+    "read"
+  ],
   "protectGoal": true,
   "autoCheckpointAtHandoffLevel": true,
   "maxConsecutiveUnknown": 3,
@@ -19,12 +23,17 @@
   "renewal": {
     "enabled": true,
     "autoRenew": true,
-    "maxRenewals": 8
+    "maxRenewals": 8,
+    "testCommand": "cd ocaml && eval \"$(opam env)\" && dune build"
   },
   "files": {
     "goal": "GOAL.md",
     "progress": "PROGRESS.md",
     "learnings": "LEARNINGS.md",
     "handoff": "HANDOFF.md"
+  },
+  "recovery": {
+    "lean": true,
+    "budgetTokens": 12000
   }
 }

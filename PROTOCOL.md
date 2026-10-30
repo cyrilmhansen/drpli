@@ -83,13 +83,18 @@ sessions additionally set `CONTEXT_GUARD_READONLY=1` (and may redirect
 `CONTEXT_GUARD_STATE_DIR` outside the tree). Instructing a model "don't edit" is not
 read-only; that env var is.
 
-### Start of session
+### Start of session — DRPLi lean recovery
 
-Read `AGENTS.md` → `PROTOCOL.md` → `GOAL.md` → `HANDOFF.md` → `PROGRESS.md` →
-`LEARNINGS.md`; verify `git rev-parse HEAD` and a clean working tree; run `/handoff verify`;
-then consult `spec/CLAIMS.md` and the relevant `spec/notes/` + `spec/lab-evidence/` report for
-the task named in `## Next action`. **A `stale`/`missing` checkpoint is not authoritative** —
-re-derive the state from commits and evidence, then refresh.
+The project is trusted, so Pi loads `AGENTS.md` as project context. With
+`recovery.lean: true`, first read `HANDOFF.md` and `PROGRESS.md`, verify the
+current Git HEAD and a clean working tree, then run `/handoff verify`. Consult
+`PROTOCOL.md` before any unclear scientific/procedural action; consult
+`GOAL.md` and `LEARNINGS.md` selectively by evidence pointer. All six
+documents remain authoritative; defer reading rather than discarding their
+contents. Consult `spec/CLAIMS.md` and the exact `spec/lab-evidence/` report
+for the next scientific experiment. A stale/missing checkpoint is not authoritative:
+re-derive from commits/evidence, then refresh + attest with `/handoff finalize`.
+Do not begin the oracle in the middle of a handoff/maintenance operation.
 
 ### During work
 
@@ -101,29 +106,29 @@ put durable *working-method or environment* lessons in `LEARNINGS.md` (not compi
 that goes in the claims ledger). No transcript dumps, no duplicated descriptions: link to the
 canonical file. Handoff must not change compiler implementation strategy.
 
-### Context pressure (levels are on *usable remaining*, advisory budgets, not exact accounting)
+### Context pressure — experimental 95k window / 85k working target
 
-- **Level 1 (~≤30 000)** — ensure `PROGRESS.md` and the outstanding hypotheses are being
-  recorded.
-- **Level 2 (~≤20 000)** — prepare to stop the current scientific operation at a safe
-  boundary; open no new work.
-- **Level 3 (~≤10 000)** — update the exact durable state (`HANDOFF.md`/`PROGRESS.md` prose;
-  commit if the tree is dirty), then invoke the `handoff_renew` tool **instead of continuing
-  indefinitely**.
-- **Level 4 (~≤5 000)** — complete the handoff and conclude the session safely.
+The following crossings assume the model is declared with `contextWindow=95000`
+in Pi AND Sushi is serving `--ctx-size 95000`. This guard does NOT configure
+either of those windows. Verify `/guard status` before starting scientific work;
+if it still reads 220000, the target is NOT active and needs operator correction.
+`generationReserve=5000`; usable remaining = window - estimated used - reserve.
+Pi's usage number is an ESTIMATE, not an exact context meter.
 
-**The closing phase is advisory, not enforced** (`enforceClosing: false`), because
-DRPLi work is Bash/Git/compilation-heavy and an enforced tool allowlist would break legitimate
-research commands. **`autoCheckpointAtHandoffLevel`** is on, so a level-3 crossing
-writes a checkpoint automatically; automatic checkpoints preserve the previous block's substantive
-"Last verified state" rather than overwriting manual notes.
+- Level 1 (`remaining <= 20000`, about 70k used): record findings and exact next action.
+- Level 2 (`remaining <= 12000`, about 78k used): finish a bounded scientific operation; start no new substantial one.
+- Level 3 (`remaining <= 8000`, about 82k used): commit durable prose at a safe boundary; invoke `handoff_renew` if the real gate permits it.
+- Level 4 (`remaining <= 5000`, about 85k used): close safely; when renewal is unavailable or capped, call `handoff_finalize` instead.
 
-**Automatic session renewal is enabled** (operator decision 2026-10-29):
-`renewal.enabled: true`, `renewal.autoRenew: true`, `renewal.maxRenewals: 8` per chain
-(a bounded operating limit, not a claim of unlimited autonomy); `generationReserve: 20000`
-is retained for the initial live validation. Pi automatic compaction is disabled for this
-project via `.pi/settings.json`; the production profile's global settings are untouched and
-other projects keep compaction.
+Closing is **advisory, not enforced** (`enforceClosing: false`): no tool is blocked.
+`autoCheckpointAtHandoffLevel` is enabled; it preserves the manual prose.
+Renewal is enabled and model-initiated (`renewal.enabled=true`,
+`renewal.autoRenew=true`) but remains capped at **8 per chain**. This limit
+is unchanged. Automatic compaction stays disabled via project `.pi/settings.json`.
+The next campaign starts at 0/8 only after an operator archives the *ignored*
+`.pi-guard/renewal-state.json` and deliberately begins a new chain; the
+extension must NEVER silently reset it. The previous 8/8 campaign is historical.
+This is an experimental token policy, not a guarantee of 85k maximum.
 
 Renewal discipline:
 
@@ -138,7 +143,8 @@ Renewal discipline:
   relevant `spec/CLAIMS.md` claims and the exact next action, and must preserve this
   scientific methodology and proceed with the same development objective.
 - If renewal is **refused or fails**, the guard names the reason; report it and preserve the
-  recovery state. Never silently fall back to compaction.
+  recovery state, use `handoff_finalize` at a safe boundary, and conclude.
+  Never silently fall back to compaction.
 - The renewal counter is **durable** (`.pi-guard/renewal-state.json`): it survives session
   replacement and process restarts and is shared by everything using this stateDir; a new
   independent session continues the same chain's count. At the cap, renewal refuses with
@@ -156,10 +162,10 @@ Renewal discipline:
    never invented.
 4. Update `LEARNINGS.md` only for durable lessons.
 5. Record Git HEAD, relevant commits and the gate/evidence reports you actually read or ran.
-6. **Commit the prose** (explicit path lists only — never `git add -A`), then run `/handoff` to
-   refresh the managed block, `/handoff verify` (expect `current`), `/handoff ready check`, then
-   `/handoff ready` if every blocking requirement passes.
-7. If the refresh dirtied the tree, commit the managed-block refresh as its own commit.
+6. **Commit the prose** (explicit paths only — never `git add -A`), then run
+   `/handoff finalize` to refresh-if-stale and attest without switching sessions;
+   verify with `/handoff verify` (expect `current`). This also works at the cap.
+7. If finalization dirtied the tree, commit only the managed-block refresh as a separate commit.
 8. `git diff` the result: confirm no scientific file changed unexpectedly.
 
 A committed checkpoint must agree with its own manually authored recovery prose. **Never claim a

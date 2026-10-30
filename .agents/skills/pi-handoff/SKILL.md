@@ -12,10 +12,19 @@ alone** — no transcript replay, no lossy compaction.
 
 ## At session start
 
-1. Read the durable files in the order the project prescribes (typically
-   `AGENTS.md` → `PROTOCOL.md` → `GOAL.md` → `HANDOFF.md` → `PROGRESS.md` → `LEARNINGS.md`).
+1. Read the durable files in the order the project prescribes. Two recovery modes:
+   - **Full recovery (default, `recovery.lean: false`)** — read ALL six eagerly,
+     typically `AGENTS.md` → `PROTOCOL.md` → `GOAL.md` → `HANDOFF.md` → `PROGRESS.md`
+     → `LEARNINGS.md`.
+   - **Lean tiers (opt-in, dev.2 D4: `recovery.lean: true` or `CONTEXT_GUARD_LEAN=1`)**
+     — read the OPERATIONAL tier NOW (`HANDOFF.md`, `PROGRESS.md`); the METHODOLOGY
+     tier (`AGENTS.md`, `PROTOCOL.md`) when a procedure question arises; the ARCHIVE
+     tier (`GOAL.md`, `LEARNINGS.md`) by reference, on demand. Tiering DEFERS reading,
+     never drops authority: all six files stay authoritative and named, and an
+     explicit `renewal.recoveryPrompt` still overrides the successor body either way.
    In `HANDOFF.md`/`PROGRESS.md`, **manual prose always wins** over the
-   `<!-- guard:begin checkpoint -->` managed block.
+   `<!-- guard:begin checkpoint -->` managed block. The successor of a renewal receives
+   the matching recovery instruction automatically (tiered only when lean is on).
 2. Heed the guard's `session_start` notice (identity banner, checkpoint freshness:
    missing/corrupt/stale/current). If stale, refresh with `/handoff` — it rewrites only
    managed blocks; hand-authored text survives byte-for-byte.
@@ -31,7 +40,7 @@ remaining** = window − estimated used − max(generationReserve, safetyReserve
 | 1 (~≤30k remaining) | checkpoint | update PROGRESS.md (completed, blockers, exact next action) |
 | 2 (~≤20k) | wrap up | finish the current substantial task; open no new work |
 | 3 (~≤10k) | handoff | prioritize durable handoff: update HANDOFF.md before anything else; the guard also auto-checkpoints |
-| 4 (~≤5k) | **enforced closing** | only tools in `closingAllowlist` run (default write/edit/read; renewal-enabled projects add `handoff_renew`); finish checkpoints and stop |
+| 4 (~≤5k) | **enforced closing** | only tools in `closingAllowlist` run (default write/edit/read; renewal-enabled projects add `handoff_renew`); finish checkpoints and stop. With `enforceClosing:false` the same crossing alerts with ADVISORY wording and blocks nothing — alert text always matches live policy |
 
 A revocation notice means pressure dropped and a previous closing instruction is
 **historical**, not current policy.
@@ -44,6 +53,10 @@ A revocation notice means pressure dropped and a previous closing instruction is
 - `/handoff ready` — evaluate + attest handoff completeness (blocking:
   checkpoint-current, identity-consistent, next-action-recorded, durable-files-valid;
   warnings: content-delta=none, learnings-updated). Renewal requires attestation.
+- `/handoff finalize [notes]` or the `handoff_finalize` tool (dev.2 D2) — independent
+  closing: refresh-if-stale + readiness + attest in ONE synchronous step. Works with
+  renewal disabled, capped (8/8) or stopped; never switches sessions, touches chain
+  state, waits for idle, or bypasses readiness. At the cap this is the safe closing path.
 - Ritual: **commit first**, then refresh + attest the checkpoint; commit the managed-block
   refresh separately when it dirties the tree.
 - The guard never writes LEARNINGS.md or GOAL.md. Keep discoveries classified there
@@ -55,24 +68,32 @@ A revocation notice means pressure dropped and a previous closing instruction is
 - `/handoff renew [notes]` (operator) or the `handoff_renew` tool (model; needs
   `renewal.autoRenew: true`): waits for a safe boundary, refreshes + attests, persists
   chain state, then replaces the session. The successor starts **fresh** — identity
-  banner + deterministic recovery naming only durable files.
+  banner + deterministic recovery naming only durable files; the recovery body is the
+  full six-file read unless `recovery.lean` is enabled (D4 tiers) or a
+  `renewal.recoveryPrompt` overrides it.
 - `/handoff renew stop|resume|status` — durable operator stop (inherited by successors),
   resume, chain state view. Hard cap `maxRenewals` per chain; each checkpoint seeds at
   most one successor (idempotence); pending switches are cancellable.
 - Policy meanings are distinct: `renewal.enabled` (default **false**) switches the whole
   mechanism on — operator `/handoff renew` only; `renewal.autoRenew` (default **false**)
-  *additionally* authorizes the model path (registers the `RENEWAL AVAILABLE` hint at
-  level ≥ 3 and permits the `handoff_renew` tool). Pressure alerts alone NEVER force a
-  transition. The `handoff_renew` tool exists whenever the guard loads but refuses with
-  a named reason unless policy + gates allow; to be callable during enforced closing it
-  must be listed in `closingAllowlist`.
+  *additionally* authorizes the model path (permits the `handoff_renew` tool and the
+  level-≥3 renewal hint — which since dev.2 D5b only appears as `RENEWAL AVAILABLE` when
+  a full WRITE-FREE preview of the real gate passes, otherwise as `RENEWAL NOT AVAILABLE
+  (<reason>)` with concrete safe instructions, `handoff_finalize` at the cap). Pressure
+  alerts alone NEVER force a transition. The `handoff_renew` tool exists whenever the
+  guard loads but refuses with a named reason unless policy + gates allow; to be callable
+  during enforced closing it must be listed in `closingAllowlist`.
 
 ## Testing and audit without token spend
 
 - `/guard simulate <remainingTokens>` forces a threshold crossing; `/guard reset`
   re-arms alerts and re-baselines the GOAL hash (testing only).
 - `/guard status` prints the full budget breakdown, provenance, identity/readiness,
-  renewal line.
+  renewal line, the escalation crossing points in estimated used tokens (dev.2 D6) and
+  the recovery-cost meter (full vs lean tiers, chars/4 estimates, dev.2 D4).
+  `/guard events [n]` tails the structured diagnostics trail
+  (`<stateDir>/diagnostics.jsonl`; typed, bounded, never prompts/args/secrets;
+  `agent_settled.aborted` is recorded for attribution and NEVER auto-retried).
 - Read-only audit session: `CONTEXT_GUARD_READONLY=1 CONTEXT_GUARD_STATE_DIR=/tmp/...
   pi -e <ext>` — zero writes inside the project tree; checkpoints become reported dry
   runs. Instructing the model not to edit is NOT read-only; this mode is. Audit mode is

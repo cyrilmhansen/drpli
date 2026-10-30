@@ -20,16 +20,17 @@ document is the thing that must be corrected.
 - Long-term deliverable: `ocaml/` (dune project: `lib/lexer.ml`, `parser.ml`, `bind.ml`,
   `ir.ml`, `codegen.ml`, `rel80.ml`, `bin/pli80c.exe`).
 
-## Read in this order at session start
+## Session start — lean recovery (operator policy 2026-10-30)
 
-1. `AGENTS.md` (this file)
-2. `PROTOCOL.md` — scientific rules and the handoff workflow (incl. level-3 renewal rules)
-3. `GOAL.md` — objective + acceptance criteria (protected; do not edit)
-4. `HANDOFF.md` — recovery instructions and exact next action
-5. `PROGRESS.md` — current phase, completed/pending, blockers
-6. `LEARNINGS.md` — working-method and environment lessons
-7. `spec/CLAIMS.md` — **the authoritative evidence ledger** (claims C001…C308 at the
-   time of writing). Handoff files are pointers into it, never a substitute for it.
+Pi auto-loads this `AGENTS.md`. With `recovery.lean: true`, first read
+`HANDOFF.md` and `PROGRESS.md` for the current operation, validate the checkpoint
+with `/handoff verify`, then consult `spec/CLAIMS.md` and the specific evidence
+for the NEXT action. `PROTOCOL.md` remains binding and must be consulted before
+any unfamiliar scientific procedure or policy decision; `GOAL.md` and
+`LEARNINGS.md` remain authoritative and are read selectively when relevant.
+Lean recovery defers reading; it never relaxes the evidence/protection rules.
+On a stale checkpoint, reconstruct from current commits and authoritative evidence
+before `/handoff finalize`. Never trust obsolete managed-block instructions.
 
 ## Evidence rules (summary; full text in `PROTOCOL.md`)
 
@@ -100,14 +101,16 @@ behaviour.
 
 - Config: `handoff.config.json`. Runtime state: `.pi-guard/` (git-ignored).
 - Commands: `/guard status`, `/guard simulate <n>`, `/handoff`, `/handoff verify`,
-  `/handoff ready [check]`, `/handoff renew [go|stop|resume|status]`. Reference: `.agents/skills/pi-handoff/`.
+  `/handoff ready [check]`, `/handoff finalize`, `/guard events [n]`,
+  `/handoff renew [go|stop|resume|status]`. Reference: `.agents/skills/pi-handoff/`.
 - The guard writes managed checkpoint blocks **only** inside `HANDOFF.md` and
   `PROGRESS.md`; it never writes `GOAL.md` or `LEARNINGS.md`.
 - **Never hand-write or hand-edit a managed checkpoint block.** Never invent checkpoint
   metadata.
 - **Renewal enabled, compaction disabled (operator decision 2026-10-29):**
   `renewal.enabled: true`, `renewal.autoRenew: true`, `renewal.maxRenewals: 8` (a bounded
-  operating limit, not unlimited autonomy); automatic Pi compaction is disabled for this
+  operating limit, not unlimited autonomy); each new 8-hop experiment starts only after
+  the operator archives and resets the previous ignored renewal-state.json. Automatic Pi compaction is disabled for this
   project only via `.pi/settings.json`. The pressure/renewal operating rules are in
   `PROTOCOL.md` Part 2. Do not change the renewal policy or any **global** Pi setting
   without a new operator decision.

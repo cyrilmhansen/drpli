@@ -8,13 +8,17 @@ Manual prose wins over the managed block below it. Do not hand-edit the managed 
    `cd /home/john/projects/sushiworks/pli80 && git rev-parse --abbrev-ref HEAD && git rev-parse HEAD && git status --porcelain=v1 | wc -l`
    Expect branch `main` and an empty porcelain output; a dirty tree is investigated, never
    cleaned (`AGENTS.md` → Protected).
-2. Read `AGENTS.md`, `PROTOCOL.md`, `GOAL.md`, then this file's `## Last verified state`, then
-   `PROGRESS.md` and `LEARNINGS.md`.
+2. Lean recovery: Pi auto-loads `AGENTS.md`; read this file and `PROGRESS.md` NOW,
+   then the precise `spec/CLAIMS.md` claims and lab evidence for the next operation.
+   `PROTOCOL.md` governs all scientific procedure and is consulted when needed;
+   `GOAL.md` and `LEARNINGS.md` remain authoritative and are read selectively.
+   A deferred read never weakens the scientific protocol.
 3. Check checkpoint freshness with `/handoff verify` (extension auto-loaded — the project is
    trusted; see `PROTOCOL.md` → Load). `stale` or `missing` means: re-derive state from commits and lab evidence,
-   then refresh with `/handoff`. Do not trust this file's managed block over its prose.
+   then refresh and attest with `/handoff finalize` (dev.2). Do not trust this file's
+   managed block over its prose.
 4. Load the authoritative evidence for whatever you are about to do:
-   `spec/CLAIMS.md` (claims ledger, C001…C308 at the time of writing),
+   `spec/CLAIMS.md` (claims ledger, currently through C320),
    `spec/INVENTORY.txt`, `spec/COVERAGE.tsv`, `spec/RUNTIME.txt`, `spec/DIVERGENT.txt`,
    and the newest `spec/lab-evidence/e2e42-p2c/` reports.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`

@@ -27,7 +27,11 @@ export interface ThresholdsInput {
   closing: number;
 }
 
-export function defaultThresholds(t: ThresholdsInput): Threshold[] {
+export function defaultThresholds(t: ThresholdsInput, opts: { enforceClosing?: boolean } = {}): Threshold[] {
+  // dev.2 D5a: the level-4 alert must describe the ACTUAL policy. With
+  // enforceClosing:false nothing is blocked by the guard, so the alert is advisory
+  // wording only — claiming enforcement would misdirect a model that still has tools.
+  const enforcing = opts.enforceClosing !== false;
   return [
     {
       level: 1,
@@ -62,12 +66,15 @@ export function defaultThresholds(t: ThresholdsInput): Threshold[] {
     {
       level: 4,
       remainingBelow: t.closing,
-      kind: "enforced",
+      kind: enforcing ? "enforced" : "advisory",
       label: "closing",
-      guidance:
-        "CONTEXT CRITICAL (enforced): closing phase active — tools outside the checkpoint allowlist are blocked. Finalize and validate the handoff (/handoff, then /handoff verify), record any " +
-        "unresolved finding in LEARNINGS.md, do not start new experiments, and stop after this closing phase — a fresh session resumes from the files. " +
-        "Classify each item: accepted (verified), proposed (unverified) or falsified (disproven).",
+      guidance: enforcing
+        ? "CONTEXT CRITICAL (enforced): closing phase active — tools outside the checkpoint allowlist are blocked. Finalize and validate the handoff (/handoff, then /handoff verify), record any " +
+          "unresolved finding in LEARNINGS.md, do not start new experiments, and stop after this closing phase — a fresh session resumes from the files. " +
+          "Classify each item: accepted (verified), proposed (unverified) or falsified (disproven)."
+        : "CONTEXT CRITICAL (advisory — enforcement is disabled, the guard blocks nothing, closing is YOUR responsibility): finalize and validate the handoff now (/handoff, then /handoff verify), record any " +
+          "unresolved finding in LEARNINGS.md, do not start new experiments, and stop; a fresh session resumes from the files. " +
+          "Classify each item: accepted (verified), proposed (unverified) or falsified (disproven).",
     },
   ];
 }
@@ -339,6 +346,76 @@ export function nextThresholds(thresholds: Threshold[], remaining: number | null
   const wrap = (t: Threshold | undefined): (Threshold & { tokensUntil: number }) | null =>
     t ? { ...t, tokensUntil: Math.max(0, Math.ceil(remaining - t.remainingBelow)) } : null;
   return { nextCrossing: wrap(candidates[0]), nextAlert: wrap(candidates.find((t) => !spent.has(t.level))) };
+}
+
+export interface CrossingPoint {
+  /** 1..4, higher = more pressure */
+  level: GuardLevel;
+  label: string;
+  /** Live policy kind — with enforceClosing:false L4 is advisory (D5a honesty). */
+  kind: ThresholdKind;
+  /** The level activates when usable remaining drops to or below this value. */
+  remainingBelow: number;
+  /**
+   * Estimated used tokens at which usable remaining reaches `remainingBelow`:
+   * `window − reserve − remainingBelow` — the SAME arithmetic as `computeBudget`.
+   * May be ≤ 0: the level would already be active at session start.
+   */
+  usedAt: number;
+}
+
+export interface CrossingReport {
+  /** The resolved reserve whose value went into the arithmetic (provenance). */
+  reserve: ReserveSelection;
+  /** Ascending by usedAt = escalation order; EMPTY when the window is unknown. */
+  crossings: CrossingPoint[];
+}
+
+/**
+ * dev.2 D6: express the thresholds as the practical question — "at which USED-token
+ * count does each level fire?" Pure arithmetic over the DECLARED window and the
+ * resolved reserve, sharing `computeBudget`'s formula (usable = window − used −
+ * reserve). The guard does not own the window: it comes from the runtime model /
+ * provider and the guard never changes it; `used` is a Pi ESTIMATE (A-1/A-18), so
+ * crossing points are advisory budgets, never exact accounting.
+ */
+export function crossingPoints(input: {
+  contextWindow: number | null | undefined;
+  reserve: ReserveSelection;
+  thresholds: Threshold[];
+}): CrossingReport {
+  const window = numOrNull(input.contextWindow);
+  const crossings: CrossingPoint[] =
+    window == null || window <= 0
+      ? []
+      : input.thresholds
+          .map((t) => ({
+            level: t.level,
+            label: t.label,
+            kind: t.kind,
+            remainingBelow: t.remainingBelow,
+            usedAt: window - input.reserve.selected - t.remainingBelow,
+          }))
+          .sort((a, b) => a.usedAt - b.usedAt);
+  return { reserve: input.reserve, crossings };
+}
+
+/** One-line operator rendering for `/guard status` (dev.2 D6). */
+export function crossingPointsLine(report: CrossingReport): string {
+  const n = (x: number) => x.toLocaleString("en-US");
+  if (report.crossings.length === 0) {
+    return "threshold crossings: unavailable (context window unknown — the guard only reports the window declared by the model/provider; it never changes it)";
+  }
+  const parts = report.crossings.map(
+    (c) =>
+      `L${c.level} ${c.label} (${c.kind}) at used ≥ ${n(c.usedAt)}` +
+      (c.usedAt <= 0 ? " (!! ≤ 0: this level would already be active at session start — the reserve/threshold budget is too tight for this window)" : ""),
+  );
+  return (
+    `threshold crossings (estimated used, escalation order): ${parts.join("; ")} — ` +
+    `arithmetic: window − reserve − threshold (reserve ${n(report.reserve.selected)}, source: ${report.reserve.source}). ` +
+    "The guard never changes the model window (owned by the model/provider); these points are advisory policy budgets computed from Pi's estimated usage, not exact accounting."
+  );
 }
 
 export interface Transition {
