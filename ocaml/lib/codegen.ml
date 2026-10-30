@@ -5178,12 +5178,16 @@ let store_char ?(dst : (unit -> unit) option = None) st name (k : vkind) (v : st
          initial('AB'); s = 'XY';') grew DATA from 3 to 5, static 3 + pool 2 -- and DR has no
          object that shows what a static CHARACTER store costs.  Refuse rather than guess
          (PROTOCOL #5); a follow-up round measures it. *)
-      if List.mem_assoc (String.lowercase_ascii name) st.stat_addrs then
-        failwith
-          "codegen: [TBD] store into a STATIC CHARACTER cell is unmeasured -- E48B6 pins the \
-           declaration (`41 42 20', DATA 3 = 3 static + 0 pool) and the read (?SLCTS at the \
-           declared length), not a write; DR has no sample of a static CHARACTER destination"
-      else
+      (* [E2E-48/P2d §2.1, [C321]] DR ACCEPTS the static destination and the literal POOLS:
+         E48D6 `dcl s char(3) static initial('AB'); s = \'CD\';' gives code 0006
+         `21 *D(0001) / 11 *D(0004) / 3E 03 / 06 02 / CD ?SMCCM' -- the automatic V106 head
+         verbatim with the STATIC cell as the destination, and DATA 0004/0005 = `43 44' as a
+         FRESH pool cell beside the initialised static cell (DATA 0008 = 1 bit + 3 static +
+         2 store-literal + 2 PUT-literal).  The route needs no new encoder: store_char's default
+         destination is `LXI H,<addr_of name>' and addr_of resolves statics through st.stat_addrs,
+         and the prescan char-store demand at the Sstring arm is already class-independent, so
+         `\'CD\'' is demanded before it is allocated (the fa09b97 rule holds with no twin edit).
+         The len=0 / len>cap / len=cap refusals below stay: §3 measures no over-extent store. *)
       (* only the V106 shape (0 < len < cap) is proven for fixed *)
       if len = 0 || len > cap then
         failwith "codegen: fixed-char store form unproven [TBD]"
