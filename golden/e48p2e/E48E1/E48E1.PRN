@@ -1,0 +1,37 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E48E1
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E48E1
+
+   1 a 0000 E48E1:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-48/P2e] store-ladder edge c = 1.  The materialiser is
+   4 a 0006      witnessed at c = 0 (A7 000C), c = 2 and c = 3 (E48D8 [C324])
+   5 a 0006      and c >= 4 (A7 003A [C143]); c = 1 itself has never appeared,
+   6 a 0006      and hl_bias's |b| <= 3 threshold is measured in TEST (E48A13)
+   7 a 0006      and in the STORE (E48D8) but only for |c| >= 2. */
+   8 c 0006   dcl b bit(1) static initial('0'b);
+   9 c 0006   dcl k fixed bin(15);
+  10 c 0006   b = (k = 1);
+  11 c 0012   put list('B=', b);
+  12 c 0034   stop;
+  13 a 0037 end E48E1;
+
+CODE SIZE = 0037
+DATA AREA = 0005
+FREE SYMS = 38AE
+END  COMPILATION
+

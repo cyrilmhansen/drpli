@@ -1,0 +1,38 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E48E5
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E48E5
+
+   1 a 0000 E48E5:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-48/P2e] the bit-literal compare as a STORE VALUE: f = (b
+   4 a 0006      = '0'b).  [C310] pins the '1'b value form (E48A10 0006,
+   5 a 0006      LDA/ANI 80/SUI 80 then the flag tail); the '0'b spelling
+   6 a 0006      exists as a TEST (E11D/E20B/E20E/E21A) but never as a
+   7 a 0006      materialised value.  Does DR invert the mask, retarget the
+   8 a 0006      tail, or refuse? */
+   9 c 0006   dcl b bit(1) static initial('0'b);
+  10 c 0006   dcl f bit(1) static initial('0'b);
+  11 c 0006   f = (b = '0'b);
+  12 c 0011   put list('F=', f);
+  13 c 0033   stop;
+  14 a 0036 end E48E5;
+
+CODE SIZE = 0036
+DATA AREA = 0004
+FREE SYMS = 38AE
+END  COMPILATION
+

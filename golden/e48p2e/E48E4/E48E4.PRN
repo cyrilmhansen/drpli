@@ -1,0 +1,37 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E48E4
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E48E4
+
+   1 a 0000 E48E4:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-48/P2e] the same negated VALUE over the LXI B ladder: ^(k
+   4 a 0006      = 5), i.e. the [C143] >= 4 head with the [C095]-negated tail
+   5 a 0006      C6 FF/9F.  One statement only: the negated `= 0' form is
+   6 a 0006      already pinned by E48A11, so this object isolates the ladder
+   7 a 0006      head under `^'. */
+   8 c 0006   dcl b bit(1) static initial('0'b);
+   9 c 0006   dcl k fixed bin(15);
+  10 c 0006   b = ^(k = 5);
+  11 c 0015   put list('B=', b);
+  12 c 0037   stop;
+  13 a 003A end E48E4;
+
+CODE SIZE = 003A
+DATA AREA = 0005
+FREE SYMS = 38AE
+END  COMPILATION
+
