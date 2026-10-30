@@ -115,21 +115,24 @@ step 6 and must be reported ACTUAL. Round evidence: `golden/e48p2e/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 50
-checkpoint-id: g50-f1a6200dbc96
+checkpoint-generation: 51
+checkpoint-id: g51-23d103d23a1d
 checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 0
-checkpointed: 2026-10-30T22:59:51.788Z
+checkpointed: 2026-10-30T23:02:14.979Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: cba3b40e1d3d5248d5ad246df770514bfd22f5fff578d037f5e47e14acb96166
-source-handoff: e9d7c0a3602778c5b06d0e96f6c15b42874deed8f137670755760dbfde218417
+source-progress: 3f2642cd1a3146636712fab8af6d949009c1f546c08ea1b1ed079638459c184f
+source-handoff: 182831f43f13fdd6058c118e12da9214a344f779f72d812d4815d72ca8a83024
 source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
 source-config: 0f0cc9c7af73d792e6af3120538e1c6254f8a81ee93993e3088a7e2c76d8ef80
 next-action: `. Closed-phase
 history is archived under `docs/history/` (index: `docs/history/README.md`); science is
 authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
+readiness-by: session:01a18ed4-fe26-70c1-9a9a-b62385db7ea9
+readiness-at: 2026-10-30T23:02:14.982Z
+readiness-checkpoint: g51-23d103d23a1d
 <!-- guard:end checkpoint -->
 
 ## Blockers

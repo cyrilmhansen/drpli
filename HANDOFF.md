@@ -139,22 +139,25 @@ procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 50
-checkpoint-id: g50-f1a6200dbc96
+checkpoint-generation: 51
+checkpoint-id: g51-23d103d23a1d
 checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 status: checkpoint (guard level 0, remaining ~40000, session 01a18ed4-fe26-70c1-9a9a-b62385db7ea9)
-checkpointed: 2026-10-30T22:59:51.788Z
+checkpointed: 2026-10-30T23:02:14.979Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: cba3b40e1d3d5248d5ad246df770514bfd22f5fff578d037f5e47e14acb96166
-source-handoff: e9d7c0a3602778c5b06d0e96f6c15b42874deed8f137670755760dbfde218417
+source-progress: 3f2642cd1a3146636712fab8af6d949009c1f546c08ea1b1ed079638459c184f
+source-handoff: 182831f43f13fdd6058c118e12da9214a344f779f72d812d4815d72ca8a83024
 source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
 source-config: 0f0cc9c7af73d792e6af3120538e1c6254f8a81ee93993e3088a7e2c76d8ef80
 
 
+readiness-by: session:01a18ed4-fe26-70c1-9a9a-b62385db7ea9
+readiness-at: 2026-10-30T23:02:14.982Z
+readiness-checkpoint: g51-23d103d23a1d
 ### Last verified state
-guard level 0; checkpoint requested (finalize: Mission-1 docs consolidation applied at 519a362 (branch mission1-docs-consolidation): HANDOFF/PROGRESS reduced to current state with exactly one active ## Next action (E2E-48/P2e arms 3,4,5 then step 6 — spec unchanged), verbatim archives in docs/history/ (index README.md), selective-ledger recovery protocol, AGENTS/PROTOCOL de-numbered, GOAL+scientific trees untouched. Operator's handoff.config.json edit left uncommitted as instructed.)
+guard level 0; checkpoint requested (finalize: Mission-1 docs consolidation complete (519a362 + e2549e5, branch mission1-docs-consolidation): HANDOFF/PROGRESS reduced to current state; exactly ONE active ## Next action (E2E-48/P2e arms 3,4,5 then step 6 — landing spec kept verbatim); verbatim archives + index under docs/history/ (baseline f3a4c608); selective-ledger recovery protocol; AGENTS/PROTOCOL quote no numbers (handoff.config.json sole numeric authority); GOAL + all scientific trees zero-diff; operator config edit preserved unstaged.)
 
 ### Unfinished operations
 - (none recorded)
@@ -165,5 +168,5 @@ history is archived under `docs/history/` (index: `docs/history/README.md`); sci
 authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ### Guard notes
-Mission-1 docs consolidation applied at 519a362 (branch mission1-docs-consolidation): HANDOFF/PROGRESS reduced to current state with exactly one active ## Next action (E2E-48/P2e arms 3,4,5 then step 6 — spec unchanged), verbatim archives in docs/history/ (index README.md), selective-ledger recovery protocol, AGENTS/PROTOCOL de-numbered, GOAL+scientific trees untouched. Operator's handoff.config.json edit left uncommitted as instructed.
+Mission-1 docs consolidation complete (519a362 + e2549e5, branch mission1-docs-consolidation): HANDOFF/PROGRESS reduced to current state; exactly ONE active ## Next action (E2E-48/P2e arms 3,4,5 then step 6 — landing spec kept verbatim); verbatim archives + index under docs/history/ (baseline f3a4c608); selective-ledger recovery protocol; AGENTS/PROTOCOL quote no numbers (handoff.config.json sole numeric authority); GOAL + all scientific trees zero-diff; operator config edit preserved unstaged.
 <!-- guard:end checkpoint -->
