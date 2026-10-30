@@ -436,22 +436,22 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 47
-checkpoint-id: g47-52f93cd84cbc
+checkpoint-generation: 48
+checkpoint-id: g48-7cf796684766
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-10-30T17:18:48.923Z
+guard-level: 2
+checkpointed: 2026-10-30T17:59:13.066Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b43013b95a831d309ea3c825c3c6b9952df3573bee440cbd30aff82fc70feddc
-source-handoff: 9faea53770d82458ca1bcba81a0879aa97d041f81440d8b8cd58ac329538ef97
-source-learnings: cc3267e69109be28937d76533df75490547c89203d810223b424164ce3c25f8b
+source-progress: 1dfa3db82d6d83289e784d72b026cc1e8af6bd4a15fae4e4009f72e2fabf1317
+source-handoff: fa0f6649386472f2cc82b021bc652920ffdab9a399f4b27316a2fccd665dfac7
+source-learnings: 8c1c9aaac6b6e2187583e8e966d4a852443da74bb2b41264567f8acf7514eae9
 source-config: 5537d66535163979fcef1338bb101a3dab2ffd8b2eb0d467620ccc7f0c0ec616
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-readiness-by: session:01a18dba-2b4c-7388-a8da-94eb0e5e746e
-readiness-at: 2026-10-30T17:18:48.929Z
-readiness-checkpoint: g47-52f93cd84cbc
+readiness-by: session:01a18dd2-9636-77c5-9d10-4a6711d99c35
+readiness-at: 2026-10-30T17:59:13.070Z
+readiness-checkpoint: g48-7cf796684766
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
