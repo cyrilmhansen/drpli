@@ -1,9 +1,9 @@
 {
   "enabled": true,
   "thresholds": {
-    "advisory": 20000,
-    "wrapUp": 12000,
-    "handoff": 8000,
+    "advisory": 19000,
+    "wrapUp": 11000,
+    "handoff": 7000,
     "closing": 5000
   },
   "generationReserve": 5000,
