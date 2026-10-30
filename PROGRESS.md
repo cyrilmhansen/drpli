@@ -5,6 +5,21 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+> **STATUS 2026-10-30 (session 01a18d08, renewal 1/8, step 5 in progress).** Measured THIS
+> session at HEAD (guard g23 committed as `4e510d1`, build rc=0): baseline re-verified -- D3/D5/**D7**
+> whole-file byte-identical to `golden/e48p2db/` (D7's `?SMCVM` store needs NO arm), the other 7
+> probes carry their named refusals verbatim as in BASELINE-MINE-WRAPPED. All eight RESULTS §2
+> laws re-read from the literal `.REL` bytes. **REJECTS audit done (dicts live in
+> `tools/e2e_gate.py`): exactly ONE falsified row -- E46F5 (TITLE static-varying, promote after
+> the arm); E46K14's `if line then` is a DIFFERENT shape, stays pinned, re-measure after the D10
+> arm; no rows pin the other five refusals.** Order followed = P2c precedent: claims -> arms
+> one-per-commit (a empty-varying initial(''), b TITLE static + E46F5 promotion, c static-FIXED
+> store `?SMCCM` + prescan demand twin, d store ladder |c|2/3 DCX, e non-final bit item, f TEST
+> member-as-RIGHT SCCVM) -> THEN SPECIMENS registration, `--update-inventory`, census `--check`,
+> FULL GATE (expect 1109+10+1 = 1120 / 0 fail once all arms land; report ACTUAL), COVERAGE rows.
+> OWED next: write claims C321-C326 into spec/CLAIMS.md + appends to C310/C313/C317, commit; then
+> arm (a). Nothing half-edited; every refusal stays named until its arm lands.
+
 **E2E-48/P2d round 4: oracle MEASURED 10 ok/10, RESULTS written; next = claims C321+, registration
 + full gate, then lowering.**
 

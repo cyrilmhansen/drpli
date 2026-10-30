@@ -415,3 +415,31 @@ The guard never writes this file.
 - **falsified** P-D7's "DATA image rewrites the leading length byte" -- the image keeps the INITIAL;
   rewrite would be runtime ([TBD]). And my refusal premise "non-final bit item has no witness" --
   D9 is the witness. Three earlier "no golden exists" claims were already falsified at prereg.
+
+## E2E-48/P2d step 5 (session 01a18d08, renewal 1/8, measured 2026-10-30)
+- **accepted** Step 5a sweep at HEAD (after committing guard g23 as `4e510d1`): D3, D5 AND D7 are
+  all whole-file byte-identical to `golden/e48p2db/` -- D7 (store into a static VARYING cell via
+  `?SMCVM`) needed NO lowering, one more free arm than the inherited note listed.
+- **accepted** REJECTS audit (measured by loading `tools/e2e_gate.py` as a module -- the dicts
+  live there, SPECIMENS 1109 / REJECTS 182): only TWO rows cite this round's refusal texts --
+  E46F5 (TITLE on STATIC varying, FALSIFIED by D1/D2, promote after the TITLE arm: three-place
+  edit) and E46K14 (`if line then` truthiness of a varying member -- a DIFFERENT shape D10 does
+  NOT measure; stays on the panel, re-measure its marker after the D10 arm). No REJECTS row pins
+  empty-INITIAL, static-CHAR store, store-ladder |c|2/3 or non-final-bit-item.
+- **falsified** the inherited "REMOVE the five now-falsified REJECTS rows" figure -- the audit the
+  same sentence demanded ("audit which REJECTS cite exactly those refusals") returns 1 removal,
+  not 5.
+- **accepted** All eight RESULTS s2 laws re-read from the literal `.REL` bytes myself (C316 rule):
+  D6 `21*D(0001)/11*D(0004)/3E 03/06 02/CD ?SMCCM`; D7 keeps image `02 41 42 20x8` (no compile-time
+  rewrite); D4 `00`+ten `20` in place then pool then auto k (DATA 000F=11+2+2); D5 five `20`;
+  D8 `2A*D(k)/2B x2/x3/7C/B5/D6 01/9F/32`; D9 `?QB08C/?PNBOP` then literal chain then ONE `?QIOOP`;
+  D10 `?SMCVM` (auto member store, free) + `?SCCVM` + C2 skip.
+- **accepted (procedure)** Execution order deviation, deliberate and justified: the HANDOFF step-3
+  gate figure "1109+new exact / 0 fail" is only reachable AFTER all six lowering arms land, so I
+  follow the P2c precedent -- claims first, arms one-per-commit with sweeps, THEN registration +
+  census --check + FULL GATE + COVERAGE. Registration of 7 still-refusing probes before their arms
+  would simply red the byte panel.
+- **proposed** (not yet done): claims C321-C326 drafted from RESULTS s2; arms (a) empty-varying
+  initial, (b) TITLE static-varying + E46F5 promotion, (c) static-FIXED store ?SMCCM with its
+  prescan demand twin (fa09b97 rule), (d) store-ladder DCX 2/3, (e) non-final bit item,
+  (f) TEST member-as-RIGHT SCCVM.
