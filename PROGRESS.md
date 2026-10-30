@@ -385,7 +385,7 @@ checkpoint-generation: 43
 checkpoint-id: g43-fb795b546d34
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-10-30T16:51:52.113Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -394,6 +394,9 @@ source-handoff: f216d6d7c14767ceddddd973db59408b4bc1c3fe0a3d0af2615bc917852879a8
 source-learnings: b1d5919fdf92eecd85a05003eb2f14c55ecebd7fb66a149b86a2f4b3b7b4f645
 source-config: 5fe3a5d9e0f24600539cd3ae1e830260140e99d369d964426e41d5df3b94a6d2
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
+readiness-by: session:01a18db4-9f4c-7388-a8da-94e79c65763c
+readiness-at: 2026-10-30T16:52:09.906Z
+readiness-checkpoint: g43-fb795b546d34
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
