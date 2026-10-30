@@ -1,6 +1,9 @@
 E48D3:
   procedure options(main);
-  /* [E2E-48/P2d] STATIC on CHARACTER (FIXED) as an OPEN TITLE operand -- E46F2 is the automatic fixed witness (the LXI H / MVI A,08 / ?SLCTS sequence); does DR pass the DECLARED length here too, and place the initialised cell in the static zone? */
+  /* [E2E-48/P2d] STATIC on CHARACTER (FIXED) as an OPEN TITLE
+     operand -- E46F2 is the automatic fixed witness (the LXI H /
+     MVI A,08 / ?SLCTS sequence); does DR pass the DECLARED length
+     here too, and place the initialised cell in the static zone? */
   dcl outf file,
       nm char(8) static initial('AB'),
       k fixed bin(15);

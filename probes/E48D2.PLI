@@ -1,6 +1,9 @@
 E48D2:
   procedure options(main);
-  /* [E2E-48/P2d] the SAME operand on the INPUT side -- [C288] measured option/operand orthogonality on AUTOMATIC cells (E46F1 output vs E46F3 input); this asks whether a STATIC cell is class-invariant on the input side too. */
+  /* [E2E-48/P2d] the SAME operand on the INPUT side -- [C288]
+     measured option/operand orthogonality on AUTOMATIC cells
+     (E46F1 output vs E46F3 input); this asks whether a STATIC cell
+     is class-invariant on the input side too. */
   dcl inf file,
       nm char(14) varying static initial('AB'),
       k fixed bin(15);

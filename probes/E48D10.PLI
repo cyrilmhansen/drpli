@@ -1,6 +1,10 @@
 E48D10:
   procedure options(main);
-  /* [E2E-48/P2d] an internal CHARACTER VARYING member as the RIGHT operand of a TEST compare -- [C318] measures member-LEFT in TEST and [C317] measures literal-LEFT in a STORE; TEST with the member on the right is the same orientation, unmeasured there. */
+  /* [E2E-48/P2d] an internal CHARACTER VARYING member as the RIGHT
+     operand of a TEST compare -- [C318] measures member-LEFT in
+     TEST and [C317] measures literal-LEFT in a STORE; TEST with
+     the member on the right is the same orientation, unmeasured
+     there. */
   dcl
     1 rec,
       2 line char(14) varying,

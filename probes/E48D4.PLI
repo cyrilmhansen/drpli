@@ -1,6 +1,9 @@
 E48D4:
   procedure options(main);
-  /* [E2E-48/P2d] the EMPTY literal on a STATIC CHARACTER VARYING.  EXPR2's own DR object puts a zero length byte plus ten blank bytes at DATA 000F for char(10); this isolates the cell and the PUT read of it in a whole file I can compare. */
+  /* [E2E-48/P2d] the EMPTY literal on a STATIC CHARACTER VARYING.
+     EXPR2's own DR object puts a zero length byte plus ten blank
+     bytes at DATA 000F for char(10); this isolates the cell and
+     the PUT read of it in a whole file I can compare. */
   dcl s char(10) varying static initial(''),
       k fixed bin(15);
   put list('S=', s);

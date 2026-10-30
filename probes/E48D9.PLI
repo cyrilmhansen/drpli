@@ -1,6 +1,9 @@
 E48D9:
   procedure options(main);
-  /* [E2E-48/P2d] a BIT(1) PUT item that is NOT the final item -- all nine sites of [C313] are final, so the tail question (the bit tail replacing the shared literal tail, and then what follows) is unmeasured. */
+  /* [E2E-48/P2d] a BIT(1) PUT item that is NOT the final item --
+     all nine sites of [C313] are final, so the tail question (the
+     bit tail replacing the shared literal tail, and then what
+     follows) is unmeasured. */
   dcl b bit(1) static initial('0'b);
   dcl k fixed bin(15);
   put list(b, 'X');

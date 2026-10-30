@@ -1,0 +1,15 @@
+# E2E-48/P2d BASELINE-MINE-WRAPPED -- my compiler on the WRAPPED probes (comment lines <=71 cols).
+# Re-recorded after the wrap amendment (see HYPOTHESES.md amendment section); code lines are
+# byte-identical to the 60cf463 probes (verified per-file with cmp on comment-stripped extracts),
+# so the verdicts are the same as BASELINE-MINE.txt; only cited line numbers moved.
+# Recorded against HEAD 67bf83c's tree (ocaml/ unchanged since ef0a198); NO oracle call in this session yet.
+E48D1: refused -- codegen: OPEN TITLE(nm) on a STATIC CHARACTER VARYING operand is unmeasured [TBD] (line 9)
+E48D2: refused -- codegen: OPEN TITLE(nm) on a STATIC CHARACTER VARYING operand is unmeasured [TBD] (line 10)
+E48D3: COMPILED (384 bytes)
+E48D4: refused -- codegen: [TBD] STATIC INITIAL value '' on CHAR(10) VARYING is unsampled (line 7)
+E48D5: COMPILED (256 bytes)
+E48D6: refused -- codegen: [TBD] store into a STATIC CHARACTER cell is unmeasured
+E48D7: COMPILED (256 bytes)
+E48D8: refused -- codegen: store into BIT(1) from condition is unsampled [TBD]
+E48D9: refused -- codegen: [TBD] a BIT(1) PUT item in a NON-FINAL position has no DR witness
+E48D10: refused -- codegen: comparison of the internal CHARACTER member REC.LINE (CHARACTER VARYING) is unmeasured [TBD]

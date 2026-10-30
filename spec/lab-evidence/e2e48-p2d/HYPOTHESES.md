@@ -87,3 +87,27 @@ Expected first output: the batch's own ok/refused tally. Then write `RESULTS.md`
 prediction-vs-verdict table over P-D1..P-D10, re-read every accepted `.REL` with
 `tools/reldump.py` / `spec/lab-evidence/e2e42-p2b/chaindump.py`, and commit goldens + report
 TOGETHER. Lowering may only touch what §2 measures.
+
+## Amendment (measured 2026-10-30, before the SECOND oracle call; original text above untouched)
+
+The FIRST oracle run (tag `e48p2d`) failed mechanically, not scientifically: each probe carried
+its purpose comment as ONE line of 179..317 columns, DR truncates source lines past column 72
+(the measured law of `spec/lab-evidence/e2e42-p2b/RESULTS.md` §6), so every `*/` was cut, every
+comment ran to end-of-file, and all ten probes died `UNEXPECTED EOF` with NO `.REL`
+(`golden/e48p2d/`, 0 ok / 10, committed as evidence at `67bf83c` per the `e42p2b4` precedent).
+
+Fix: `mkprobes.py` now wraps the comment to <=71 columns per line (E48C1's continuation style)
+and the ten `probes/E48Dn.PLI` were regenerated. **The code lines are byte-identical to the
+60cf463 submission** (verified per file: comment-stripped extracts compare equal with `cmp`),
+so **P-D1..P-D10 above stand unchanged**. My baseline on the wrapped probes is recorded in
+`BASELINE-MINE-WRAPPED.txt`: same 7 refusals / 3 compiles as `BASELINE-MINE.txt`; only cited
+line numbers in two refusal messages moved with the wrap.
+
+Per the e42p2b §0-rule (a rewritten probe gets its own tag and its own committed prediction,
+the old artifact stays), the SECOND submission runs under tag **`e48p2db`**:
+
+    PLI_SRC=probes python3 oracle/batch.py E48D1 E48D2 E48D3 E48D4 E48D5 E48D6 E48D7 E48D8 \
+        E48D9 E48D10 --tag e48p2db --switches '$L$D'
+
+`RESULTS.md` §1 will score P-D1..P-D10 against the `e48p2db` verdicts and will state this
+botched-run lineage explicitly.

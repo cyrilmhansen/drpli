@@ -1,6 +1,8 @@
 E48D1:
   procedure options(main);
-  /* [E2E-48/P2d] static CHARACTER VARYING as an OPEN TITLE operand, OUTPUT side -- E46F5's own shape, re-measured with a distinct module name so the object is a fresh witness. */
+  /* [E2E-48/P2d] static CHARACTER VARYING as an OPEN TITLE
+     operand, OUTPUT side -- E46F5's own shape, re-measured with a
+     distinct module name so the object is a fresh witness. */
   dcl outf file,
       nm char(14) varying static initial('AB'),
       k fixed bin(15);

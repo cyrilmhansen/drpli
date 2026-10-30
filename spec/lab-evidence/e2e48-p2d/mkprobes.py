@@ -12,20 +12,41 @@ spec/lab-evidence/e2e48-p2c/RESULTS.md section 3 list), and every prediction in
 HYPOTHESES.md is derived from a committed DR object, never from memory.
 """
 import os
+import textwrap
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PROBES = os.path.join(ROOT, "..", "..", "..", "probes")
 
 HDR = """E48D{n}:
   procedure options(main);
-  /* [E2E-48/P2d] {note} */
-"""
+{comment}"""
 
 DECL_B = "  dcl b bit(1) static initial('0'b);\n"
 
 
+def wrapped_comment(note, width=71):
+    """DR truncates source lines past column 72 (e2e42-p2b RESULTS s6; re-measured
+    by the botched first P2d run, golden/e48p2d: a 179..317-column single-line
+    comment lost its '*/' and each probe died UNEXPECTED EOF).  Emit the purpose
+    comment as multiple lines, every one <= 71 columns, E48C1's style."""
+    segs = textwrap.wrap("[E2E-48/P2d] " + note, width=width - 9)
+    lines = []
+    for i, seg in enumerate(segs):
+        if i == 0:
+            lines.append("  /* " + seg)
+        elif i == len(segs) - 1:
+            lines.append("     " + seg + " */")
+        else:
+            lines.append("     " + seg)
+    if len(segs) == 1:
+        lines = ["  /* " + segs[0] + " */"]
+    assert max(len(x) for x in lines) <= width, lines
+    return "\n".join(lines) + "\n"
+
+
 def probe(n, note, decls, body, tail):
-    return (HDR.format(n=n, note=note) + decls + body + tail).replace("\n", "\r\n")
+    return (HDR.format(n=n, comment=wrapped_comment(note))
+            + decls + body + tail).replace("\n", "\r\n")
 
 
 P = {}
@@ -121,7 +142,7 @@ P[7] = probe(
 # ---- the biased-compare materialiser in a STORE (|c| in {1,2,3})
 P[8] = probe(
     8,
-    "the the biased integer compare materialiser with |c| in 2 and 3 in a STORE -- [C310] pins only c = 0 "
+    "the biased integer compare materialiser with |c| in 2 and 3 in a STORE -- [C310] pins only c = 0 "
     "and |c| >= 4 there, while the TEST route [C143] switches to `DCX H x c' at |c| <= 3 "
     "(E48A13 = 3 vs E48A12 = 4). Two targets, so each site is addressable.",
     DECL_B + "  dcl c bit(1) static initial('0'b),\n"

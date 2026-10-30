@@ -1,6 +1,9 @@
 E48D5:
   procedure options(main);
-  /* [E2E-48/P2d] EMPTY literal on a STATIC CHARACTER (FIXED) -- the corpus witnesses (EXPR2:19, FSCAN:12/19) are all VARYING, so the fixed empty cell is unmeasured: five blanks, or a zero-length cell? */
+  /* [E2E-48/P2d] EMPTY literal on a STATIC CHARACTER (FIXED) --
+     the corpus witnesses (EXPR2:19, FSCAN:12/19) are all VARYING,
+     so the fixed empty cell is unmeasured: five blanks, or a zero-
+     length cell? */
   dcl s char(5) static initial(''),
       k fixed bin(15);
   put list('S=', s);
