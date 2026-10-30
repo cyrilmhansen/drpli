@@ -9,8 +9,9 @@ stays in that table (PROTOCOL #2).
       every emitted line <= 71 columns -- the measured law that killed P2d run 1)
     baseline of MY compiler recorded in BASELINE-MINE.txt at HEAD dcc874d (NO oracle call)
     the commit that adds probes/E48E*.PLI + mkprobes.py + this file + BASELINE-MINE.txt is
-      the PREDICTION SHA, recorded here when known: (fill in at commit time, see below),
-      committed BEFORE any oracle invocation; `golden/e48p2e' does not exist at that commit.
+      the PREDICTION SHA is **421656a** (`git log --format=%h -- probes/E48E1.PLI | tail -1`),
+      committed BEFORE any oracle invocation; `golden/e48p2e' did not exist at that commit
+      (verified with ls) and this fill-in commit is still an ancestor of the oracle run.
 
 ## What this round is
 
