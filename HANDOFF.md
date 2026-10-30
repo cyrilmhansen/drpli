@@ -198,6 +198,24 @@ dune build`, warning multiset unchanged 22/15/28/2/14/2/17/26, sweeps e48p1 24/2
 > `put list('B=', b, ...)` carries a non-final bit item) — the per-step "expect D8 after (d)" was
 > jointly false, recorded in LEARNINGS. **Only step 3 (arm f) and step 4 (registration+gate)
 > remain.**
+
+> STATUS 2026-10-30 (renewal 3/8 successor close, HEAD 3172642, tree clean except
+> guard blocks): session committed arms (d) `18a06c0` and (e) `1e8acb2` (D1-D9 byte-identical;
+> sweeps 24/24+9/9; negative 181/181 0 anomalies; clean-build multiset 126 unchanged).
+> **ARM (f) NOT STARTED — exact landing spec (read from code, no edit yet):** TEST route
+> `lower_test_skip0` arm at ocaml/lib/codegen.ml:7572-7585 matches
+> `str_cmp_shape_rev st l rr` with the DEFAULT `imem=false`, so D10's
+> `if 'AB' = line then` declines it and falls to `imem_refuse "comparison"` at :7770 (the
+> message D10 prints today). Arm (f) = pass `~imem:true` at BOTH the guard (7573) and the
+> destructuring match (7575); the `Some (`Lit, `Imem k) when imem` encoder at :6972-6979
+> already emits `21 *D(member cell) / 11 *S(pool lit) / 06 len / ?SCCVM`, and the arm adds
+> `C2 fill + 2 slots` = exactly [C326]/E48D10 0013..0027 (skip to NEXT statement, [C309]).
+> Update the :6941-6946 docstring (it states the TEST refusal as current law — supersede
+> traceably). AFTER: re-measure E46K14 (`if line then` truthiness, different gate at 7770
+> fallback) through the binary with gate CRLF+^Z semantics; its marker must NOT move; if it
+> does, FIX the arm, never re-pin. Then step 4 registration: SPECIMENS E48D1..D10 byte tier
+> only, --update-inventory, census --check, FULL GATE (report ACTUAL), COVERAGE rows.
+> Build needs `eval $(opam env)`. No push.
 1. **(d) D8 store ladder |c| ∈ {2,3}** ([C324]) — DONE `18a06c0` (with arm e for D8's put).
    Original step text kept for lineage: in `bit_cond_mat` (ocaml/lib/codegen.ml:7105):
    the `bin_lit` arms today are `Some (v,0)` and `Some (v,kk) when kk >= 4` (the latter =
@@ -548,13 +566,13 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 32
-checkpoint-id: g32-eba3b5c605f1
+checkpoint-generation: 33
+checkpoint-id: g33-b95e3374c4e1
 checkpoint-kind: auto
 content-delta: none
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~6673, session 01a18d44-fcdd-754f-9c11-05d86f54f4ae)
-checkpointed: 2026-10-30T14:56:40.721Z
+status: checkpoint (guard level 4, remaining ~4801, session 01a18d44-fcdd-754f-9c11-05d86f54f4ae)
+checkpointed: 2026-10-30T14:57:14.366Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b2d794929d803bfb73916cb5c7d38b0ce78142037649377049fb20f6aaa99ca6
 source-handoff: d5fd211bd8496497ed37a5057394f9764b2b6c6e3a3bd5e569eab0fee82318bd
@@ -563,7 +581,7 @@ source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

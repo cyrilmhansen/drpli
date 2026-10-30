@@ -13,8 +13,8 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 > to `golden/e48p2db/`** (D8 needed both arms -- the inherited "expect D8 after (d)" was jointly
 > false, recorded in LEARNINGS); e48p1 24/24; e48c 9/9; full negative panel **181/181 refused,
 > 0 anomalies** (gate CRLF+`^Z` semantics). Guard g30 committed as `547701d`.
-> **NEXT = arm (f)** (D10 TEST member-as-RIGHT via `str_cmp_shape_rev ~imem:true` at the TEST
-> callers codegen.ml:7557/7561; bytes `21 *D(member) / 11 *D(lit) / 06 len / CD ?SCCVM /
+> **NEXT = arm (f) NOT STARTED** (exact sites: codegen.ml:7573/7575 pass `~imem:true`;
+> encoder already at 6972-6979; docstring 6941-6946 superseded traceably; full spec in HANDOFF.md; bytes `21 *D(member) / 11 *D(lit) / 06 len / CD ?SCCVM /
 > C2 fill->next stmt`, [C326]; RE-MEASURE E46K14's refusal through the binary afterwards -- if its
 > marker moved, FIX the arm, never silently re-pin), **then REGISTRATION + FULL GATE**:
 > SPECIMENS.update E48D1..D10 (byte tier ONLY, no RUNTIME rows), `--update-inventory`, census
@@ -322,13 +322,13 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 32
-checkpoint-id: g32-eba3b5c605f1
+checkpoint-generation: 33
+checkpoint-id: g33-b95e3374c4e1
 checkpoint-kind: auto
 content-delta: none
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-10-30T14:56:40.721Z
+guard-level: 4
+checkpointed: 2026-10-30T14:57:14.366Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b2d794929d803bfb73916cb5c7d38b0ce78142037649377049fb20f6aaa99ca6
 source-handoff: d5fd211bd8496497ed37a5057394f9764b2b6c6e3a3bd5e569eab0fee82318bd

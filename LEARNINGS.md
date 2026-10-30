@@ -513,3 +513,12 @@ The guard never writes this file.
 - **accepted** Full 181-row negative replication (gate write semantics, stderr matching) after
   retiring a refusal: 0 anomalies — confirms the prior REJECTS audit that no row pinned the
   non-final-bit text.
+
+- **accepted (code reading, session 01a18d44)** D10's refusal prints from `imem_refuse
+  "comparison"` (codegen.ml:7770) only because the TEST arm at 7572-7585 calls
+  `str_cmp_shape_rev` with default `imem=false`; the `~imem:true` encoder (6972-6979) is the
+  SAME one `bit_cond_mat` already uses for the store, so arm (f) is a two-call-site widening,
+  not new bytes. **proposed** until D10 cmps byte-identical and E46K14's marker is re-measured.
+- **accepted (infra)** the guard wrote a level-3 auto-checkpoint block mid-flow (committed
+  separately as chore, per precedent); readiness attestation is a separate act — close with
+  handoff_finalize, which refreshes AND attests synchronously.
