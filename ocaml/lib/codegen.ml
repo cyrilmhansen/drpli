@@ -7097,8 +7097,10 @@ let ptr_pair st a b =
    byte (§3.3) -- two mechanisms for one operator, both measured in the same 24 objects.
    The classifier returns None for every shape the bank does not pin, so the caller refuses BY
    NAME instead of guessing:
-     `k = c' with c in {1,2,3} (§1 P7 pins c=0 as the memory form and c=5 on the bias ladder);
-     c < 0 (the ladder is witnessed at c=5 only);
+     `k = 1' (§1 P7 pinned c=0 as the memory form and c=5 on the bias ladder; the
+     DCX-ladder regime c in {2,3} is NOW pinned by golden/e48p2db/E48D8 [C324] and lowered
+     below; c = 1 itself still has no witness);
+     c < 0 (the ladder is witnessed at c=5, and at 2/3 via D8; negative c never);
      `= '0'b' as a VALUE (only the `= '1'b' ladder is materialised, §1 P10);
      a BASED varying MEMBER left of the SCVCM compare (§1 P6/R7 pin a PLAIN cell);
      `^' over any condition other than `= 0' (§1 P11 pins `^(k = 0)' alone). *)
@@ -7164,6 +7166,20 @@ let bit_cond_mat st (rhs : Ast.expr) =
                 value" [E2E-32/P1], and it spells `LXI H,<cell>' for a plain local, which is
                 exactly what the golden shows -- NOT `LHLD'. *)
              Some (fun () -> val_addr st v.Ast.orig (); bin_zero_tail st)
+         | Some (v, kk) when kk >= 2 && kk <= 3 ->
+             (* [E2E-48/P2d arm (d), C324] `k = c' with |c| in {2,3}: LHLD,k / DCX H x c /
+                MOV A,H / ORA L / SUI 01 / SBB A + STA [E48D8 0006 (c=2), 0013 (c=3)].  The
+                bytes come from the SAME authority as the kk >= 4 arm below: `hl_bias' is ONE
+                cost model (|b| <= 3 -> INX/DCX repeats, >= 4 -> LXI B + DAD B, [C143]) and
+                E48D8 shows the <= 3 threshold is ROUTE-INDEPENDENT -- it holds in the store
+                ladder exactly as in TEST (E48A13 = 3 vs E48A12 = 4). k = 1 and negative c
+                fall through: no witness (RESULTS §3). *)
+             Some
+               (fun () ->
+                 cmp_load_deref st v.Ast.orig;
+                 hl_bias st (-kk);
+                 d st op_mov_a_h; d st 0xb5 (* ORA L *);
+                 flag ())
          | Some (v, kk) when kk >= 4 ->
              (* `k = c', c >= 4, 15 bytes: LHLD,k / LXI B,65536-c / DAD B / MOV A,H / ORA L /
                 SUI 01 / SBB A [A7 003A at c=5] -- [C143]'s compare route, threshold >= 4, and
