@@ -575,3 +575,31 @@ The guard never writes this file.
   file and validator this session: 15 columns; MEASURED rows must have ≥1 col-11 probe mentioned by
   their own cited claims (stem match counts); `manual_ref = NONE:<why>`.
   [proposed — the next session's action]
+
+## 2026-10-30 — E2E-48/P2d step 7 (COVERAGE rows), session 01a18dba, chain 6/8
+
+* **accepted (verified this session)** — `spec/COVERAGE.tsv` `rel_parity=EXACT:n` counts the
+  byte-exact whole objects a row's contract covers, NOT the number of col-11 keys (a row may list
+  corpus names or paths that do not compile: `FILE.OPEN_TITLE_VAR` listed 9 keys at `EXACT:4`).
+  Editing the count is therefore a *claim*, and each of my five count changes is justified in the
+  same cell's boundary append with the specimen that licenses it.
+* **accepted** — the validator appends to col 11 must be comma-separated: `coverage_check` treats
+  `E48B8+E48D8` as ONE probe key and errors. Measured: 3 errors → 0 after the fix.
+* **falsified (ledger, corrected traceably)** — `[C323]`'s cell text `02 41 42 20x11` for a
+  `char(14) varying static` cell: `tools/reldump.py` on `golden/e48p2db/E48D1/E48D1.REL` and
+  `golden/e42p1c/E46F5/E46F5.REL` shows `02 41 42` + TWELVE `20` = 15 bytes (1 length + extent).
+  The blank-run notation had already been copied into P-D1's prediction, which was still scored HIT
+  because the substantive prediction was right — a reminder that a HIT score does not audit notation.
+* **falsified (coverage rows, kept as superseded appends)** — seven active rows asserted clauses the
+  P2c/P2d rounds disproved: member-as-RIGHT in TEST, `|c| ∈ {1,2,3}` in a store, stores into STATIC
+  CHARACTER cells, non-final BIT(1) PUT items, empty `initial('')`, TITLE on a STATIC operand, and
+  `AGG.INTERNAL_CHAR_MEMBER`'s "DR lowers exactly three uses". The lesson: a promotion (E46F5, E46K1,
+  E46K3) leaves stale prose in EVERY row that cited the old refusal, so `grep` the falsified words
+  across `spec/COVERAGE.tsv` before closing a round, not just the one row the notes named.
+* **accepted (procedure)** — writing rows programmatically and asserting `new_cell.startswith(old_cell)`
+  for every corrected cell is the cheap machine proof that an "append" really preserved the original
+  (PROTOCOL §2); it caught nothing here but makes the claim auditable in the commit message.
+* **proposed (unverified, do not adopt)** — LOAN2's `put list(clear, ...)`/`put file(output) list(clear)`
+  items name a control character declared `clear by '^z'`; NO object (DR or mine) shows what `BY`
+  compiles to, and my classifier may not even reach it (LOAN2 stops in the prescan). A future byte
+  round should measure `BY`-declared items as PUT operands before any row claims them.

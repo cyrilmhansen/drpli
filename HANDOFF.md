@@ -166,6 +166,36 @@ unchanged); the sweep is
 
 ## Next action (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
 
+## Next action — E2E-48/P2d is CLOSED; the next round needs the OPERATOR's choice (nothing is owed, nothing is half-edited)
+
+> **STATUS 2026-10-30 (renewal 6/8, session 01a18dba, HEAD `218b474`, tree clean).** **STEP 7 IS
+> DONE AND MEASURED.** Six COVERAGE rows written vs C321-C326 (`STOR.CHAR_STATIC_STORE`,
+> `DECL.STATIC_CHAR_EMPTY_INIT`, `FILE.OPEN_TITLE_STATIC`, `STOR.BIT1_COND_LADDER_2_3`,
+> `IO.PUT_BIT1_NONFINAL_ITEM`, `COND.MEMBER_RIGHT_TEST`; 15 columns, `manual_ref=NONE:<why>` or the
+> verified `p60:9.5` cite, byte tier so `runtime=NONE`), plus **19 traceable appends** correcting the
+> falsified boundary/contract clauses on lines formerly 108/109/111/112 and on
+> `AGG.INTERNAL_CHAR_MEMBER`, `NEG.MEMBER_USE_PERIMETER`, `FILE.OPEN_TITLE_VAR`, `FILE.PUT_LIST_VAR`
+> (originals verified byte-preserved as prefixes; the only non-append cells are the four deliberate
+> parity-count fixes 4→5, 5→9, 18→19, 4→6, 5→12). `[C323]`'s `20x11` blank-run was falsified by a
+> direct `reldump` of `golden/e48p2db/E48D1` and `golden/e42p1c/E46F5` (twelve `20`, 15 bytes) and
+> corrected as an append in `spec/CLAIMS.md`. **MEASURED: `coverage_check` 113 rows / 0 errors /
+> 0 warnings; FULL GATE rc=0 = 1120 byte-exact / 0 fail of 1120, negative 181/181, divergence 9/9,
+> census EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0, prose clean** (log `/tmp/gate_p2d7.txt`).
+> No `ocaml/` file changed.
+> **THE EXACT NEXT ACTION is a DECISION, not an arm.** Pick ONE, write its probe bank +
+> `HYPOTHESES.md` and commit them BEFORE any oracle call (PROTOCOL §1), then run it:
+> (A) `%include` expansion for CREATE (front-end my-gap; needs its own round);
+> (B) LOAN2's `variable i declared with conflicting kinds` prescan scope my-gap (design change,
+> ~15 `pd_vars` call sites);
+> (C) a RUNTIME round for the RESULTS §3 [TBD] list (length rewrite of `?SMCVM`, empty-varying PUT
+> output) — the only path that can lift these shapes from byte tier to `spec/RUNTIME.txt`;
+> (D) a small byte round for the still-unmeasured bit/char edges (`k = 1`, negative `c`, bit behind
+> a file attach, BASED member cond-store, over-extent INITIAL/store, member truthiness,
+> member-vs-member, FIXED member compare, and LOAN2's `by '^z'` control-character PUT item).
+> Standing: never touch `golden/e48p1|e48p2c|e48p2d|e48p2db|e48p2retire|e42p1c|first8080u`; no
+> guessing at a [TBD]; no push; build needs `eval $(opam env)`; probes ≤71 columns (run 1 died on
+> that); renewal 7/8.
+
 ## Next action - E2E-48/P2d step 7 ONLY: the six COVERAGE.tsv rows, `coverage_check`, gate re-run
 
 > **STATUS 2026-10-30 (recovery session 01a18db4, chain 5/8, HEAD `47936e5`, L4 before any
@@ -666,23 +696,20 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 43
-checkpoint-id: g43-fb795b546d34
+checkpoint-generation: 45
+checkpoint-id: g45-d0e7fa96a9f6
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~1328, session 01a18db4-9f4c-7388-a8da-94e79c65763c)
-checkpointed: 2026-10-30T16:51:52.113Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3332, session 01a18dba-2b4c-7388-a8da-94eb0e5e746e)
+checkpointed: 2026-10-30T17:17:13.972Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d2828efb5abab83875dcf135b2d3270e8504c02ab0c3a9a891f5a70a3b092774
+source-progress: b43013b95a831d309ea3c825c3c6b9952df3573bee440cbd30aff82fc70feddc
 source-handoff: f216d6d7c14767ceddddd973db59408b4bc1c3fe0a3d0af2615bc917852879a8
 source-learnings: b1d5919fdf92eecd85a05003eb2f14c55ecebd7fb66a149b86a2f4b3b7b4f645
-source-config: 5fe3a5d9e0f24600539cd3ae1e830260140e99d369d964426e41d5df3b94a6d2
+source-config: 5537d66535163979fcef1338bb101a3dab2ffd8b2eb0d467620ccc7f0c0ec616
 
 
-readiness-by: session:01a18db4-9f4c-7388-a8da-94e79c65763c
-readiness-at: 2026-10-30T16:52:09.906Z
-readiness-checkpoint: g43-fb795b546d34
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 

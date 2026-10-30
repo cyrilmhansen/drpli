@@ -5,6 +5,35 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+> **STATUS 2026-10-30 (session 01a18dba, chain 6/8, HEAD `218b474`). E2E-48/P2d STEP 7 IS DONE
+> AND MEASURED — THE PHASE IS CLOSED.** Measured by THIS session, in order: `dune build` rc=0 on a
+> clean tree at `6efbb00`; ten `E48D1..D10` panel keys and `E46F5` re-verified as specimens in
+> `spec/INVENTORY.txt` before writing; then `spec/COVERAGE.tsv` **107 → 113 data rows** — six new
+> rows anchored one per claim (`STOR.CHAR_STATIC_STORE` [C321] E48D6,D7,D10 EXACT:3; 
+> `DECL.STATIC_CHAR_EMPTY_INIT` [C322] E48D4,D5 + the EXPR2 golden path EXACT:2; `FILE.OPEN_TITLE_STATIC`
+> [C323] E48D1,D2,D3,E46F5 EXACT:4; `STOR.BIT1_COND_LADDER_2_3` [C324] E48D8 EXACT:1 SINGLE_SAMPLE;
+> `IO.PUT_BIT1_NONFINAL_ITEM` [C325] E48D9,D8 EXACT:2; `COND.MEMBER_RIGHT_TEST` [C326] E48D10,C9,E46K3
+> EXACT:3 — all `runtime=NONE`, byte tier only). **Nineteen cell corrections were written as PURE
+> APPENDS with the original kept verbatim** (machine-verified: every old cell is a prefix of the new
+> one, the only exceptions being the four deliberate parity-count fixes) on `COND.BIT1_NEG_TEST`,
+> `STOR.BIT1_COND_STORE` (18→19), `IO.PUT_BIT1_ITEM` (4→6), `DECL.STATIC_CHAR` (5→12),
+> `AGG.INTERNAL_CHAR_MEMBER` (contract + boundary + probes 5→9), `NEG.MEMBER_USE_PERIMETER`,
+> `FILE.OPEN_TITLE_VAR` (4→5, E46F5 promoted), `FILE.PUT_LIST_VAR` (stale E46F5-negative sentence).
+> A byte dump (`tools/reldump.py` on E48D1 + E46F5) **FALSIFIED [C323]'s `02 41 42 20x11`** — the
+> varying char(14) cell is `02 41 42` + **twelve** `20` (15 bytes); corrected as a traceable append
+> in `spec/CLAIMS.md`, original kept, law unchanged. `coverage_check` → **113 rows, 0 errors, 0
+> warnings**; `spec/census/coverage-stats.json` rewritten and committed. **FULL GATE MEASURED rc=0:
+> 1120 byte-exact / 0 fail of 1120, negative 181/181, divergence 9/9, coverage 113/0, census counts
+> EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0, prose check clean** (log `/tmp/gate_p2d7.txt`).
+> NO COMPILER CODE CHANGED; tree clean at HEAD.
+> **NEXT (not started, needs the operator's choice):** the recorded open items are CREATE's front-end
+> `%include` gap, LOAN2's `conflicting kinds` prescan my-gap (design change, not an arm), and the
+> [TBD] list in RESULTS §3 (runtime length rewrite, `k = 1`/negative `c`, bit behind a file attach,
+> BASED member cond-store, over-extent INITIAL/store, member truthiness, member-vs-member, FIXED
+> member compare) — each needs its OWN pre-registered round; plus a NEW one noticed here: LOAN2's
+> `put list(clear, ...)` control-character (`by '^z'`) item type is unmeasured on any route.
+> Renewal 7/8 carries only that choice; nothing is half-edited.
+
 > **STATUS 2026-10-30 (session 01a18db4, chain 5/8, HEAD `47936e5`).** Recovery-only session:
 > verified boundary (HEAD descendant of `adbfa2a`, step-4 registration intact), committed the
 > uncommitted guard **g41** managed-block refresh (dev.3 config-hash advance) as `47936e5`,
@@ -381,22 +410,19 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 43
-checkpoint-id: g43-fb795b546d34
+checkpoint-generation: 45
+checkpoint-id: g45-d0e7fa96a9f6
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-10-30T16:51:52.113Z
+checkpointed: 2026-10-30T17:17:13.972Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d2828efb5abab83875dcf135b2d3270e8504c02ab0c3a9a891f5a70a3b092774
+source-progress: b43013b95a831d309ea3c825c3c6b9952df3573bee440cbd30aff82fc70feddc
 source-handoff: f216d6d7c14767ceddddd973db59408b4bc1c3fe0a3d0af2615bc917852879a8
 source-learnings: b1d5919fdf92eecd85a05003eb2f14c55ecebd7fb66a149b86a2f4b3b7b4f645
-source-config: 5fe3a5d9e0f24600539cd3ae1e830260140e99d369d964426e41d5df3b94a6d2
+source-config: 5537d66535163979fcef1338bb101a3dab2ffd8b2eb0d467620ccc7f0c0ec616
 next-action: (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
-readiness-by: session:01a18db4-9f4c-7388-a8da-94e79c65763c
-readiness-at: 2026-10-30T16:52:09.906Z
-readiness-checkpoint: g43-fb795b546d34
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
