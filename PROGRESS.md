@@ -232,18 +232,18 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 20
-checkpoint-id: g20-c7953c1b298e
+checkpoint-generation: 21
+checkpoint-id: g21-1590a468a5d0
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 0
-checkpointed: 2026-10-30T13:08:09.388Z
+checkpointed: 2026-10-30T13:22:33.609Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c36dcb401cbccdeb74d3356bbdbaf190ae087dd1aafe0307e885e25bcff3cb59
 source-handoff: 94241c6efd4589876918307aeb16dc8bbb122bb5db8e3b407b415446f92f09c8
 source-learnings: e8c472e3b067687131f75bf109916e34868653cc25ea0f1db95ac1a703009cb8
-source-config: 570cfc834ab220340b61cb3fe3a2bfb23d4d4e3c83048d265ec7166c5f1ccafe
+source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 next-action: - E2E-48/P2d: RUN THE PRE-REGISTERED ROUND-4 ORACLE (E48D1..D10)
 
 > **STATUS 2026-10-30 (renewal 8/8 successor, session closing; HEAD after this commit):**
@@ -303,9 +303,9 @@ next-action: - E2E-48/P2d: RUN THE PRE-REGISTERED ROUND-4 ORACLE (E48D1..D10)
 > not an arm); no push is authorized.
 
 (Previous next-action section, kept for lineage — its steps 6 and 7 are DONE as measured above.)
-readiness-by: session:01a18cec-171b-779f-bf43-034b10837135
-readiness-at: 2026-10-30T13:08:09.392Z
-readiness-checkpoint: g20-c7953c1b298e
+readiness-by: session:01a18cf9-0979-7689-ae48-1a81433e67cf
+readiness-at: 2026-10-30T13:22:33.615Z
+readiness-checkpoint: g21-1590a468a5d0
 <!-- guard:end checkpoint -->
 
 ## Verified evidence
