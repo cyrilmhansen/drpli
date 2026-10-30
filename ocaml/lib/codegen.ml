@@ -10492,7 +10492,9 @@ let lower_put_items_gen st ?(file : string option = None)
                 E48A10, E48A11 and E48B8, each a `put list(<literal>, <bit>)' whose literal keeps
                 its own `LXI H,*S / MVI A,len / ?SLCTS / ?PNCOP' chain and whose bit keeps
                 `LDA / MVI B,01 / ?QB08C / ?PNBOP'.  Admitted on THAT witness, not because the
-                numeric rule generalises [C154]. *)
+                numeric rule generalises [C154].  ANNOTATION (E2E-48/P2d D9, [C325]): the
+                admission is position-independent -- E48D9 000F puts the BIT FIRST
+                (`put list(b, X)') and DR accepts with the same per-item bytes. *)
              | Vbit1 -> true
              | _ -> false)
         (* [E2E-29/P2] V9 (`put list(s, i)'), VA (`put list(w, i)') and E29N23 (N23's exact shape)
@@ -10541,23 +10543,20 @@ let lower_put_items_gen st ?(file : string option = None)
             to flat and BASED varying items on their own goldens, and Vimem is deliberately absent \
             from that classifier"
      | None -> failwith "codegen: char var in multi-item PUT unproven [TBD]");
-  (* [E2E-48/P1 §3.5] every DR sample puts the bit item LAST -- nine sites, all of the form
-     `<other items> ; LDA cell ; MVI B,01 ; CALL ?QB08C ; CALL ?PNBOP ; CALL ?QIOOP'.  What DR
-     emits for a bit item that is NOT final -- a ?PNCOP after ?PNBOP? an item after it? -- has no
-     witness in this repository, so the shape refuses rather than guesses (PROTOCOL #5). *)
-  (match List.rev items with
-   | [] -> ()
-   | _last :: rest ->
-       if List.exists
-            (function
-              | PIvar n -> vk_of st (String.lowercase_ascii n.Ast.orig) = Vbit1
-              | _ -> false)
-            rest
-       then
-         failwith
-           "codegen: [TBD] a BIT(1) PUT item in a NON-FINAL position has no DR witness -- the nine \
-            sampled bit items (E48A15 000F, E48A6 0038, E48A7 002C and 005D, E48A8, E48A9, E48A10, \
-            E48A11, E48B8 0038) are each the LAST item before ?QIOOP");
+  (* [E2E-48/P1 §3.5 -> FALSIFIED by E2E-48/P2d/E48D9, [C325]] THE SUPERSEDED PREMISE, kept as
+     written: "every DR sample puts the bit item LAST -- nine sites, all of the form `<other
+     items> ; LDA cell ; MVI B,01 ; CALL ?QB08C ; CALL ?PNBOP ; CALL ?QIOOP'.  What DR emits for
+     a bit item that is NOT final -- a ?PNCOP after ?PNBOP? an item after it? -- has no witness
+     in this repository, so the shape refuses rather than guesses (PROTOCOL #5)."  A guard
+     refusing NON-FINAL bit items stood here.  D9 is the witness that falsifies it: code
+     000F..0027 shows `put list(b, X)' lowering the non-final bit with its OWN `?PNBOP' tail,
+     the following literal keeping its `LXI H,*S / MVI A,len / ?SLCTS / ?PNCOP' chain, and
+     exactly ONE `?QIOOP' closing -- [C313]'s one-tail-per-item law is POSITION-independent and
+     the per-item loop below already emits those bytes (`bit_item' suppresses the shared tail
+     for ANY bit item, in any position).  "No witness" was `unmeasured' dressed as a rule --
+     the same error class as P15.  WHAT STAYS REFUSED (no witness anywhere, RESULTS §3): a
+     BIT(1) item under PUT EDIT (the is_edit arm in the item loop) and a bit item behind a
+     FILE ATTACH (authorize_file_item's Vbit1 no_witness). *)
   (* [E2E-41/P3b] two prologues, one chain.  Console (byte-frozen since [E2E-3a], and the shape
      every N3xx/R5xx specimen pins): LXI D,0252 ; LXI B,<continuation> ; CALL ?SYSPR.
      Named file (E16D/E17D 0023-002C): LXI H,<CB> [above] ; LXI D,0652 ; LXI B,<continuation> ;
@@ -10727,8 +10726,10 @@ let lower_put_items_gen st ?(file : string option = None)
                    in A, the bit item does not), the edit call, then its own tail ?PNBOP.
                    Nine sites across seven probes agree (A6 0038, A7 002C and 005D, A8, A9, A10,
                    A11, B8 0038, A15 000F).  What is NOT sampled keeps refusing: PUT EDIT (no
-                   ?EDTOV behind ?QB08C anywhere), a non-final bit item (guarded above) and a
-                   bit item behind a file attach (authorize_file_item refuses that class). *)
+                   ?EDTOV behind ?QB08C anywhere) and a bit item behind a file attach
+                   (authorize_file_item refuses that class).  NON-FINAL POSITION was refused here
+                   too until golden/e48p2db/E48D9 measured it ([C325]) -- the retired guard above
+                   the item loop keeps the falsified premise as written. *)
                 | Vbit1 ->
                     if is_edit then
                       failwith
