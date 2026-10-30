@@ -164,7 +164,43 @@ unchanged); the sweep is
 > items of that list are UNCHANGED and still must not be guessed. The COVERAGE rows remain
 > unwritten (now sub-task 7 of the current Next action).
 
-## Next action - E2E-48/P2d: RUN THE PRE-REGISTERED ROUND-4 ORACLE (E48D1..D10)
+## Next action (superseded by the section below: its steps 1-4 are DONE — run 1 botched (e48p2d, kept), wrap amendment 60a2c06, run 2 = 10 ok/10 at golden/e48p2db committed d28ff5e, RESULTS.md written)
+
+## Next action - E2E-48/P2d step 5: claims, registration, gate, then LOWERING
+
+**State (measured, this session):** oracle round COMPLETE and committed: `golden/e48p2db/` (10 ok/10)
+at `d28ff5e`, `spec/lab-evidence/e2e48-p2d/RESULTS.md` (prediction table: HITs on P-D1..5,8,9,10;
+P-D6 route-wording and P-D7 image-rewrite MISSes kept). My tree: HEAD contains infra `8b637cd`,
+`142174c` (config + g21), then the round commits. ocaml/ UNCHANGED since ef0a198 — the new shapes
+are still my named refusals (7 of them; D3/D5 already compile and must be cmp-verified against
+their NEW goldens as step 5a).
+
+**Steps (exact):**
+1. **5a free check first:** build (`cd ocaml && eval "$(opam env)" && dune build`) and cmp my
+   E48D3/D5 outputs to `golden/e48p2db/E48D{3,5}/` — they already compile; if byte-identical they
+   need only registration, no lowering.
+2. Record claims **C321+** in spec/CLAIMS.md from RESULTS.md §2 ONLY (each cites its golden;
+   §3 stays [TBD]; §2.7 slack law may fold into an existing layout claim or a method note).
+   Mark [C310]'s |c|2..3 [TBD] closed by reference (append, don't rewrite).
+3. Register: add the 10 probes to SPECIMENS (byte tier only, NO RUNTIME rows), REMOVE the five
+   now-falsified REJECTS rows whose refusal this round measured (static-varying TITLE D1/D2,
+   empty INITIAL D4, bit-item-non-final D9, member-RIGHT TEST D10 — audit which REJECTS cite
+   exactly those refusals), update NEG_META accordingly, `--update-inventory`, then census
+   `--check <copy of prev>` (counts legitimately change) and the FULL GATE `python3 tools/e2e_gate.py`
+   (expect 1109+new exact / 0 fail; report ACTUAL numbers). E46F5's REJECTS retirement, if it is
+   one, is the THREE-place edit (REJECTS, NEG_META, SPECIMENS).
+4. LOWER one arm per commit, `dune build` + cmp sweep after each, mirroring every pool-allocating
+   shape in the prescan demand twin (the fa09b97 rule): (a) empty INITIAL on static char both
+   classes; (b) TITLE on static varying (both modes); (c) static-fixed store `?SMCCM` head
+   [LXI H,cell / LXI D,pool / MVI A,extent / MVI B,len]; (d) static-varying store `?SMCVM`
+   (same for automatic varying members per D10 0006); (e) store-ladder |c|2,3 DCX arm; (f) non-final
+   bit PUT item (own PNBOP tail).
+5. COVERAGE.tsv rows for the new shapes when registered; re-run coverage_check + gate; update
+   PROGRESS/HANDOFF; full gate must be reported MEASURED, never expected.
+
+**Prohibitions unchanged:** no RUNTIME rows from this round; runtime length-rewrite is [TBD];
+BASED-in-cond-store and bit-behind-file-attach stay refused; never touch golden/e48p2d (botched
+run evidence) or earlier goldens; no %include/LOAN2 work; no push; renewal chain 0/8 this session.
 
 > **STATUS 2026-10-30 (renewal 8/8 successor, session closing; HEAD after this commit):**
 > **E2E-48/P2c IS CLOSED.** Step 6 and step 7 are DONE and MEASURED:
@@ -405,13 +441,13 @@ implementation:
   `/handoff` write). Outside such an explicit test, blocks are guard-written only.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 21
-checkpoint-id: g21-1590a468a5d0
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~84705, session 01a18cf9-0979-7689-ae48-1a81433e67cf)
-checkpointed: 2026-10-30T13:22:33.609Z
+checkpoint-generation: 22
+checkpoint-id: g22-bc8c08743248
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4194, session 01a18cf9-0979-7689-ae48-1a81433e67cf)
+checkpointed: 2026-10-30T13:37:02.732Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c36dcb401cbccdeb74d3356bbdbaf190ae087dd1aafe0307e885e25bcff3cb59
 source-handoff: 94241c6efd4589876918307aeb16dc8bbb122bb5db8e3b407b415446f92f09c8
@@ -419,11 +455,8 @@ source-learnings: e8c472e3b067687131f75bf109916e34868653cc25ea0f1db95ac1a703009c
 source-config: a16817433633f508b54b8283f85b9a6e9ccbf6e9e467d894145b0d5fc921889d
 
 
-readiness-by: session:01a18cf9-0979-7689-ae48-1a81433e67cf
-readiness-at: 2026-10-30T13:22:33.615Z
-readiness-checkpoint: g21-1590a468a5d0
 ### Last verified state
-guard level 0; checkpoint requested (finalize: New session start: config committed (8b637cd), thresholds matched to 99k window; resuming E2E-48/P2d oracle batch run.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

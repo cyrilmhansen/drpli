@@ -5,6 +5,42 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase
 
+**E2E-48/P2d round 4: oracle MEASURED 10 ok/10, RESULTS written; next = claims C321+, registration
++ full gate, then lowering.**
+
+Measured this session (2026-10-30, chain 0/8, HEAD after these commits):
+
+- Infra: `8b637cd` committed the operator's `handoff.config.json` threshold change (19000/
+  11000/7000/5000 -> crossings 75k/83k/87k/89k on the 99k window); `142174c` guard g21 finalize
+  (g20 was stale ONLY on source-config hash -- the other four source hashes unchanged).
+- `67bf83c` **run 1 botched and kept**: tag `e48p2d`, 0 ok/10. Cause: each probe's purpose comment
+  was one 179..317-col line; DR truncates past col 72 so `*/` was lost -> `UNEXPECTED EOF`, no
+  `.REL`. No prediction scored.
+- `60a2c06` amendment BEFORE run 2: `mkprobes.py` wraps comments <=71 cols; code lines proven
+  byte-identical to 60cf463 by comment-stripped `cmp`; HYPOTHESES.md gained a dated amendment
+  section (originals untouched); `BASELINE-MINE-WRAPPED.txt` = same 7 refusals / 3 compiles.
+- `d28ff5e` **run 2**: tag `e48p2db`, **10 ok/10**, all `.REL` present, judged on bytes only.
+- RESULTS.md (with this phase's commit) scores P-D1..P-D10: **HIT** P-D1,2,3,4,5,9,10 and P-D8;
+  **P-D6 MISS on wording** (route is a new `?SMCCM` head, though ACCEPT+pool were right);
+  **P-D7 MISS** (predicted a DATA-image length-byte rewrite that does not exist -- the image keeps
+  the initial `02 41 42 20x8`; rewrite is runtime, [TBD]).
+
+**8 laws now measured (RESULTS.md s2, ledger not yet written):** static FIXED store
+`21 *D(cell) / 11 *D(pool) / 3E extent / 06 len / CD ?SMCCM`; static VARYING store `?SMCVM`
+(same head, and D10 0006 shows the automatic varying member store uses `?SMCVM` too); empty
+`initial('')` = varying `00`+extent blanks / FIXED all blanks, both IN PLACE, never pooled;
+TITLE on a STATIC operand is class-invariant (D1 == E46F5 bytes modulo module name; D2 input
+word `0E90`); store ladder for |c| in {2,3} = `2A / 2B x|c| / 7C / B5 / D6 01 / 9F / 32`
+(same <=3 threshold as TEST, [C310] TBD closed; c=1 and negative c still unmeasured); non-final
+BIT(1) PUT item ACCEPTED (`3A/06 01/?QB08C/?PNBOP` then the literal chain, one final `?QIOOP`);
+DATA "slack" = automatic cells above the pool marked by `LINK-SET-LC` holes (E48A6's 0027
+arithmetic confirmed); member-as-RIGHT TEST keeps the literal-left `?SCCVM` head, `LXI H` always
+the internal cell.
+
+**Still NOT measured (s3, [TBD], do not implement):** runtime length rewrite; `k = 1` / negative
+c in the store ladder; BIT(1) item behind a file attach; BASED member in a condition store;
+store/INITIAL longer than the extent. No `spec/RUNTIME.txt` row may come from this round.
+
 **E2E-48/P2c CLOSED (renewal 8/8 successor, 2026-10-30): steps 6 AND 7 are DONE and MEASURED.**
 Measured by THIS session, in order:
 - HEAD at session start `2bae05e` + the guard's uncommitted g19 managed-block refresh, committed as
@@ -232,13 +268,13 @@ unbound name. Do not implement any of these before the oracle has measured them.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 21
-checkpoint-id: g21-1590a468a5d0
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-10-30T13:22:33.609Z
+checkpoint-generation: 22
+checkpoint-id: g22-bc8c08743248
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-10-30T13:37:02.732Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c36dcb401cbccdeb74d3356bbdbaf190ae087dd1aafe0307e885e25bcff3cb59
 source-handoff: 94241c6efd4589876918307aeb16dc8bbb122bb5db8e3b407b415446f92f09c8
@@ -303,9 +339,6 @@ next-action: - E2E-48/P2d: RUN THE PRE-REGISTERED ROUND-4 ORACLE (E48D1..D10)
 > not an arm); no push is authorized.
 
 (Previous next-action section, kept for lineage — its steps 6 and 7 are DONE as measured above.)
-readiness-by: session:01a18cf9-0979-7689-ae48-1a81433e67cf
-readiness-at: 2026-10-30T13:22:33.615Z
-readiness-checkpoint: g21-1590a468a5d0
 <!-- guard:end checkpoint -->
 
 ## Verified evidence

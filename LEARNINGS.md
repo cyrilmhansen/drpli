@@ -399,3 +399,19 @@ The guard never writes this file.
 - **State owed by the successor (unverified, do not claim):** `--update-inventory` and the
   FULL gate have NOT been run since the arms; expected 1109 byte-exact / 0 fail,
   negative 182/182 (the inherited 1107/184 is falsified by the K1/K3 promotions).
+
+## E2E-48/P2d round (session 01a18cf9, 2026-10-30, through checkpoint g21+)
+- **accepted** DR truncates source lines past col 72; a >72-col comment loses its `*/` -> whole-file
+  `UNEXPECTED EOF`, no .REL. Run 1 (tag e48p2d, kept at 67bf83c) died exactly this way, 0/10.
+  Procedure law: every probe line <=71 cols; verify with awk BEFORE any oracle call.
+- **accepted** e42p2b rewritten-probe rule worked again: wrap fix (code lines cmp-identical) + NEW
+  tag e48p2db + HYPOTHESES.md dated amendment; run 2 = 10 ok/10. Old artifacts stay committed.
+- **accepted** 8 new laws in spec/lab-evidence/e2e48-p2d/RESULTS.md s2: static-fixed store =
+  ?SMCCM(A=extent,B=len, literal pooled); static-varying store = ?SMCVM; empty initial('') cells
+  (varying 00+blanks, fixed all-blanks, both IN PLACE); TITLE static-operand class-invariant
+  (w0E50/w0E90); store ladder |c|2,3 = DCX H x|c| (threshold route-independent, [C310] TBD closed);
+  non-final BIT(1) PUT item ACCEPTED (own ?PNBOP, one final ?QIOOP); DATA slack = automatics above
+  pool (LINK-SET-LC holes, not padding); member-as-RIGHT TEST keeps ?SCCVM orientation.
+- **falsified** P-D7's "DATA image rewrites the leading length byte" -- the image keeps the INITIAL;
+  rewrite would be runtime ([TBD]). And my refusal premise "non-final bit item has no witness" --
+  D9 is the witness. Three earlier "no golden exists" claims were already falsified at prereg.
