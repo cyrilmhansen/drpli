@@ -32,14 +32,20 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Last verified state — E2E-48/P2e lowering (verified at baseline `f3a4c60`, 2026-10-30)
+## Last verified state — E2E-48/P2e lowering (verified at `e49902a`, 2026-10-31)
 
-- Arms 1 + 2 of the six RESULTS §2 arms are DONE, committed and measured (`d18c6ab`,
-  `bab0d16`): E48E1..E48E4 whole-file byte-identical; E46K14's pinned refusal RE-MEASURED
-  through the binary with gate CRLF+`^Z` semantics — marker unchanged, NOT re-pinned; its
-  `imem_refuse` WHY-string now cites `golden/e48p2e/E48E6/E48E6.PRN` as a MEASURED dr-refuses
-  (append, original verbatim). **Arms 3, 4, 5 are NOT STARTED; step 6 (claims/registration/
-  gate/COVERAGE) is OWED.** No `ocaml/` edit is half-done.
+- Arms 1 + 2 + 3 of the six RESULTS §2 arms are DONE, committed and measured (`d18c6ab`,
+  `bab0d16`, `e49902a`): E48E1..E48E5 whole-file byte-identical; E46K14's pinned refusal
+  RE-MEASURED through the binary with gate CRLF+`^Z` semantics — marker unchanged, NOT
+  re-pinned (re-run at `e49902a`: 181/181, 0 anomalies, marker unmoved); its `imem_refuse`
+  WHY-string cites `golden/e48p2e/E48E6/E48E6.PRN` as a MEASURED dr-refuses (append,
+  original verbatim); the NEG_META *category* re-classification (unmeasured -> dr-refuses)
+  is still step-6 work. Arm 3 (`e49902a`, RESULTS §2.3): `bit_cond_mat`'s `Eq` fallback
+  admits `Ast.Ebit "0"` on a `Vbit1` left — `3A *D(b) / E6 80 / D6 01 / 9F` + the caller's
+  `STA` = 11 bytes (E48E5 0006..0010, the `'1'b` head WITHOUT the `D6 80` step); no pool
+  cell demanded, prescan untouched; E48E6 KEEPS refusing through the new binary (no
+  `.REL`). **Arms 4, 5 are NOT STARTED; step 6 (claims/registration/gate/COVERAGE) is
+  OWED.** No `ocaml/` edit is half-done.
 - Laws and refusals: `spec/lab-evidence/e2e48-p2e/RESULTS.md` §2 (six laws) and §3 (what
   stays unmeasured) are the authority; claims are owed as C327+ (next action step 6).
 - E48E6 (`if line then`, CHARACTER VARYING member as bare condition) is **dr-refuses**
@@ -47,15 +53,18 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 - Regression baselines in force: e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2;
   FULL GATE baseline 1120 byte-exact / 0 fail (`adbfa2a`), negative 181/181, divergence 9/9,
   coverage 113 rows 0 errors (`218b474`), census 15/0/26/0; clean-rebuild warning multiset 126.
+  EVERY one re-measured at `e49902a` (arm 3) with identical ACTUALS (rc=0).
 
-## Next action — E2E-48/P2e: LOWER arms 3, 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
+## Next action — E2E-48/P2e: LOWER arms 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
 
 > Arm numbering keeps the round's ids: arms 1–2 landed at `d18c6ab`/`bab0d16` (specs archived
-> in `docs/history/2026-10-30-next-actions.md`); references below to "arm 1"/"arm 2" mean that
+> in `docs/history/2026-10-30-next-actions.md`) and arm 3 at `e49902a` (spec + measured closure
+> archived in `docs/history/2026-10-31-p2e-arm3-closed.md`); references to a landed arm mean
 > completed, measured work. **ONE arm per commit**, `cd ocaml && eval $(opam env) && dune build`
 > + the cmp sweep after EACH (LEARNINGS rule: one arm, one build, one sweep).
 
-Sweep loop (expect E48E 7/7 after all arms; E48E6 must KEEP refusing):
+Sweep loop (expect E48E 7/7 after all arms; at `e49902a` E48E1..E48E5 are exact and
+E48E7/E48E8 refuse by name — arms 4/5; E48E6 must KEEP refusing):
 
     for n in 1 2 3 4 5 7 8; do ./ocaml/_build/default/bin/pli80c.exe probes/E48E$n.PLI /tmp/sw/E48E$n.REL \
       && cmp /tmp/sw/E48E$n.REL golden/e48p2e/E48E$n/E48E$n.REL && echo "E48E$n IDENTICAL"; done
@@ -64,10 +73,10 @@ Then the regression sweeps: E48D1..D10 (`golden/e48p2db`) 10/10, E48C1..C9 9/9, 
 E46K1/K3 2/2 (`golden/e48p2retire`), and the FULL negative panel with GATE semantics (CRLF +
 `^Z`, stderr) — 181 rows, and E46K14's marker must NOT move (see arm 2).
 
-3. **Arm 3 — `= '0'b' VALUE** (the fallback inside `bit_cond_mat`'s `Eq` arm, ~7222-7232, which
-   admits only `Ast.Ebit "1"`). Emit for `Ast.Ebit "0"`: `3A *D(b) / E6 80 / D6 01 / 9F`
-   (E48E5 0006, 11 bytes incl. the `32` STA) — i.e. the `'1'b` head WITHOUT the `D6 80` step.
-   `bit_store_cond_bytes` demands nothing here (no pool cell), so no prescan change.
+(Step 3 — arm 3 `= '0'b' VALUE` — is DONE and measured at `e49902a`; its verbatim spec and
+the actuals are archived in `docs/history/2026-10-31-p2e-arm3-closed.md`. Numbering below
+keeps the round's ids.)
+
 4. **Arm 4 — FIXED member in TEST via `?SCCCM`** (the biggest arm; §2.4). `str_side` (6870)
    classifies only `Vimem m when m.varying -> Some (`Imem name)`; add a FIXED-member variant that
    carries `m.cap` (the declared extent IS in `mem_char`, codegen.ml:26-27). Add a new
@@ -116,7 +125,8 @@ procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 
 ## Unfinished operations
 
-- **No half-finished edit.** Arms 3, 4, 5 are NOT started; step 6 is OWED (claims C327+ — the
+- **No half-finished edit.** Arm 3 landed and was measured at `e49902a`; arms 4, 5 are NOT
+  started; step 6 is OWED (claims C327+ — the
   ledger ends at C326; NEG_META E46K14 dr-refuses re-classification; SPECIMENS registration of
   the 7 probes byte tier only; `--update-inventory`; census `--check`; `coverage_check`;
   `registration_audit`; FULL GATE reporting ACTUAL; COVERAGE rows; the [C296] `LXI H,*C(0000)`

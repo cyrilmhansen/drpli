@@ -3,22 +3,29 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-48/P2e lowering (verified at baseline `f3a4c60`, 2026-10-30)
+## Current phase — E2E-48/P2e lowering (verified at `e49902a`, 2026-10-31)
 
-- **Arms 1 + 2 DONE and measured**: `d18c6ab` (`bit_cond_mat` merged `abs kk >= 1` arm;
+- **Arms 1 + 2 + 3 DONE and measured**: `d18c6ab` (`bit_cond_mat` merged `abs kk >= 1` arm;
   `bin_lit` folds `Eprefix(Minus,Enumber)`; bare `-0` stays refused, no golden — E48E1/E48E2
-  whole-file byte-identical) and `bab0d16` (NegL VALUE arm gains the ladder with `flag_neg`
+  whole-file byte-identical), `bab0d16` (NegL VALUE arm gains the ladder with `flag_neg`
   `C6 FF/9F` — E48E3/E48E4 byte-identical; E46K14 marker re-measured unchanged; WHY-string
-  cites `golden/e48p2e/E48E6/E48E6.PRN` as MEASURED dr-refuses). Laws owed as claims C327/C328
-  by step 6 — the ledger ends at C326.
-- **Arms 3, 4, 5 NOT STARTED; step 6 OWED.** The single exact, command-level landing spec is
-  `HANDOFF.md` → its single level-2 Next-action heading (arm 3 `= '0'b` VALUE 11 bytes; arm 4 FIXED-member TEST via a
+  cites `golden/e48p2e/E48E6/E48E6.PRN` as MEASURED dr-refuses) and `e49902a` (arm 3,
+  RESULTS §2.3: `bit_cond_mat`'s `Eq` fallback admits `Ast.Ebit "0"` on a `Vbit1` left —
+  `3A *D(b) / E6 80 / D6 01 / 9F` + the caller's `STA` = 11 bytes, E48E5 0006..0010, the
+  `'1'b` head WITHOUT the `D6 80` step; no pool cell demanded, prescan untouched; E48E5
+  whole-file byte-identical; E48E6 keeps refusing, no `.REL`). Laws owed as claims
+  C327/C328/C329 by step 6 — the ledger ends at C326.
+- **Arms 4, 5 NOT STARTED; step 6 OWED.** The single exact, command-level landing spec is
+  `HANDOFF.md` → its single level-2 Next-action heading (arm 4 FIXED-member TEST via a
   NEW `?SCCCM` encoder + prescan demand twin; arm 5 `authorize_file_item` admits Vbit1; step 6
   claims C327+ / NEG_META E46K14 dr-refuses stamp / SPECIMENS.update 7 probes byte tier only /
   --update-inventory / census --check / coverage_check / registration_audit / FULL GATE reporting
   ACTUAL / COVERAGE rows; [C296] `LXI H,<fcb>` → `LXI H,*C(0000)` correction owed).
-- Sweeps at HEAD: E48E 4/7 exact + E48E5/E48E7/E48E8 refused by name + E48E6 refused (correct);
-  e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2; clean-rebuild warning multiset
+- Sweeps at HEAD `e49902a`: E48E 5/7 exact (E48E1..E48E5) + E48E7/E48E8 refused by name
+  (arms 4/5) + E48E6 refused (correct — dr-refuses, no `.REL`); e48p1 24/24, e48p2c 9/9,
+  e48p2db 10/10, e48p2retire 2/2; negative panel 181/181 0 anomalies, E46K14 marker unmoved;
+  compile-tier FULL GATE rc=0 ACTUALS 1120 byte-exact / 0 fail, divergence 9/9, coverage
+  113 rows 0 errors, census 15/0/26/0; clean scratch-tree rebuild warning multiset
   126 = 28/26/22/17/15/14/2/2 UNCHANGED.
 - No half-edited state. Working tree carries ONLY the operator's `handoff.config.json` edit —
   leave it uncommitted and untouched. Standing prohibitions (goldens, §3 shapes, probes ≤71 cols
@@ -28,7 +35,7 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 The ONE active, command-level spec lives in `HANDOFF.md` → its single level-2 Next-action
 heading (E2E-48/P2e arms
-3, 4, 5 NOT STARTED, then step 6). No competing action exists anywhere else; PROGRESS does not
+4, 5 NOT STARTED, then step 6). No competing action exists anywhere else; PROGRESS does not
 restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
 
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
@@ -42,7 +49,8 @@ restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate author
   INVENTORY 1301: `adbfa2a`; COVERAGE 113 rows 0 errors: `218b474`.
 - E2E-48/P2e round 5 — pre-registration `421656a` committed BEFORE the oracle; one run
   7 ok / 8 (E48E6 `BIT REQ` = dr-refuses; P-E6 MISS kept in RESULTS §1); goldens + RESULTS
-  `e2b77ba`; lowering arms 1–2 `d18c6ab`/`bab0d16`.
+  `e2b77ba`; lowering arms 1–3 `d18c6ab`/`bab0d16`/`e49902a` (arm-3 spec archived in
+  `docs/history/2026-10-31-p2e-arm3-closed.md`).
 
 ## Completed
 
