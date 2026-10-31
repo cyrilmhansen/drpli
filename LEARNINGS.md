@@ -661,3 +661,29 @@ The guard never writes this file.
   clause cannot move any pinned marker.  E46K14 was re-measured through the binary
   with exact gate semantics (LF-normalise, rewrite CRLF + `^Z`, stderr): rc=2, no
   `.REL`, `[TBD]` and the pinned marker present — unchanged, not re-pinned.
+
+## Accepted (E2E-48/P2e arm 4, measured 2026-10-31 at `046046a`, session renewal 1/12)
+
+* **accepted (my-compiler mechanics, verified by a temporary debug executable)** —
+  [C258]'s parser fold delivers the QUALIFIED spelling `rec.name` as a SINGLE
+  `Eident` keyed `"rec.name"`; an `Eqstruct` node only survives for a NON-ident
+  base. A `str_side` classifier that wants "qualified only" must therefore gate on
+  `lowercase n.Ast.orig <> lowercase m.name` (mem_char's own contract — `m.name` is
+  the prefix-stripped bare name), NOT on the AST node kind. My first attempt
+  classified only `Eqstruct` and silently missed the arm — the refusal at
+  `imem_refuse "comparison"` was the ONLY visible clue (a false guard is
+  indistinguishable from an unclassified class). Debug route: temporary
+  `bin/dbgq.exe` printing the condition AST + the `Codegen.rows_of` table (both
+  exported); removed before the commit.
+* **accepted (demand-twin discipline, one step deeper than fa09b97)** — the prescan
+  predicate must replicate the lowering's SPELLING gate, not just its class:
+  `vkind_of_e` resolves BOTH spellings (two keys, one cell), so a class-only
+  widening of `prescan_cond` would demand pool bytes for the bare FIXED spelling
+  the TEST route still refuses. `is_test_right` embeds the same `orig <> m.name`
+  test and widens ONLY the literal-LEFT clause (member-LEFT stays refused, §3).
+* **accepted (synthesis precedent reused)** — the `^=`/CA skip byte for `?SCCCM`
+  is not itself sampled; accepting Eq|Ne follows exactly how [C326] shipped the
+  varying rev arm (E48D10 pinned only Eq) on [C072]'s family law "DR's ^= skip is
+  CA everywhere". The synthesis and its scope are written into the arm comment and
+  the `imem_refuse` ADDENDUM so a future contradicting probe names the composition,
+  not the laws.

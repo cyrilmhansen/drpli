@@ -32,10 +32,10 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Last verified state — E2E-48/P2e lowering (verified at `e49902a`, 2026-10-31)
+## Last verified state — E2E-48/P2e lowering (verified at `046046a`, 2026-10-31)
 
-- Arms 1 + 2 + 3 of the six RESULTS §2 arms are DONE, committed and measured (`d18c6ab`,
-  `bab0d16`, `e49902a`): E48E1..E48E5 whole-file byte-identical; E46K14's pinned refusal
+- Arms 1 + 2 + 3 + 4 of the six RESULTS §2 arms are DONE, committed and measured (`d18c6ab`,
+  `bab0d16`, `e49902a`, `046046a`): E48E1..E48E5 + E48E7 byte-identical. ARM 4 (`046046a`, §2.4): str_side admits QUALIFIED fixed member as `ImemF (key,cap)` (spelling gate orig<>m.name; [C258] fold = ONE Eident key, LEARNINGS 2026-10-31); str_cmp_shape_fix = 21 *D(member)/11 *D(pool)/06 len/3E cap/CD ?SCCCM + [C309] skip, TEST-ONLY; demand twin is_test_right widens ONLY literal-LEFT clause of prescan_cond; DATA 000B = golden. Gate at 046046a rc=0 ACTUALS: 1120/0, 181/181 E46K14 UNMOVED, 9/9, 113/0, 15/0/26/0, sweeps 45/45, multiset 126; E46K14's pinned refusal
   RE-MEASURED through the binary with gate CRLF+`^Z` semantics — marker unchanged, NOT
   re-pinned (re-run at `e49902a`: 181/181, 0 anomalies, marker unmoved); its `imem_refuse`
   WHY-string cites `golden/e48p2e/E48E6/E48E6.PRN` as a MEASURED dr-refuses (append,
@@ -44,8 +44,7 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   admits `Ast.Ebit "0"` on a `Vbit1` left — `3A *D(b) / E6 80 / D6 01 / 9F` + the caller's
   `STA` = 11 bytes (E48E5 0006..0010, the `'1'b` head WITHOUT the `D6 80` step); no pool
   cell demanded, prescan untouched; E48E6 KEEPS refusing through the new binary (no
-  `.REL`). **Arms 4, 5 are NOT STARTED; step 6 (claims/registration/gate/COVERAGE) is
-  OWED.** No `ocaml/` edit is half-done.
+  `.REL`). **ARM 5 NOT STARTED; step 6 (claims C327..C332/registration/gate/COVERAGE) OWED.** No `ocaml/` edit is half-done.
 - Laws and refusals: `spec/lab-evidence/e2e48-p2e/RESULTS.md` §2 (six laws) and §3 (what
   stays unmeasured) are the authority; claims are owed as C327+ (next action step 6).
 - E48E6 (`if line then`, CHARACTER VARYING member as bare condition) is **dr-refuses**
@@ -55,7 +54,7 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   coverage 113 rows 0 errors (`218b474`), census 15/0/26/0; clean-rebuild warning multiset 126.
   EVERY one re-measured at `e49902a` (arm 3) with identical ACTUALS (rc=0).
 
-## Next action — E2E-48/P2e: LOWER arms 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
+## Next action — E2E-48/P2e: LOWER ARM 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
 
 > Arm numbering keeps the round's ids: arms 1–2 landed at `d18c6ab`/`bab0d16` (specs archived
 > in `docs/history/2026-10-30-next-actions.md`) and arm 3 at `e49902a` (spec + measured closure
@@ -63,8 +62,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 > completed, measured work. **ONE arm per commit**, `cd ocaml && eval $(opam env) && dune build`
 > + the cmp sweep after EACH (LEARNINGS rule: one arm, one build, one sweep).
 
-Sweep loop (expect E48E 7/7 after all arms; at `e49902a` E48E1..E48E5 are exact and
-E48E7/E48E8 refuse by name — arms 4/5; E48E6 must KEEP refusing):
+Sweep loop (expect E48E 7/7 after arm 5; at `046046a` E48E1..E48E5 + E48E7 are exact and
+E48E8 refuses by name — arm 5; E48E6 must KEEP refusing):
 
     for n in 1 2 3 4 5 7 8; do ./ocaml/_build/default/bin/pli80c.exe probes/E48E$n.PLI /tmp/sw/E48E$n.REL \
       && cmp /tmp/sw/E48E$n.REL golden/e48p2e/E48E$n/E48E$n.REL && echo "E48E$n IDENTICAL"; done
@@ -121,12 +120,12 @@ condition, over-extent INITIAL/store, any runtime claim); no `%include`/LOAN2 wo
 own pre-registered round; **do not commit or revert `handoff.config.json` — the
 `workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
 CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
-procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
+procedure call — see LEARNINGS); renewal values live ONLY in handoff.config.json / /guard status.
 
 ## Unfinished operations
 
-- **No half-finished edit.** Arm 3 landed and was measured at `e49902a`; arms 4, 5 are NOT
-  started; step 6 is OWED (claims C327+ — the
+- **No half-finished edit.** Arm 4 landed at `046046a`; ARM 5 NOT started; step 6 OWED
+  (claims C327..C332 — the
   ledger ends at C326; NEG_META E46K14 dr-refuses re-classification; SPECIMENS registration of
   the 7 probes byte tier only; `--update-inventory`; census `--check`; `coverage_check`;
   `registration_audit`; FULL GATE reporting ACTUAL; COVERAGE rows; the [C296] `LXI H,*C(0000)`
@@ -149,25 +148,22 @@ procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 54
-checkpoint-id: g54-011edfd02410
-checkpoint-kind: manual
+checkpoint-generation: 55
+checkpoint-id: g55-c050d1713012
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~48156, session 01a190b0-ed02-7601-99f6-9f40edbb9f5c)
-checkpointed: 2026-10-31T07:06:55.982Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3403, session 01a190c8-8620-70b4-8abc-b0e6eaf3f9e9)
+checkpointed: 2026-10-31T07:36:05.952Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 8634e7823656cf985cdec836d79af2b98d7789ea87e87742e5afbe15904c2a72
 source-handoff: f042d1f4c8fc1c36fe914833697735051a0f0e3f6ea525f334e380767ca7a05c
-source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
+source-learnings: 36f809e0856e14d3d4ead98ec9ad6cbb6ba8a3e0a42f0414d6a154fc7c719326
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a190b0-ed02-7601-99f6-9f40edbb9f5c
-readiness-at: 2026-10-31T07:06:55.987Z
-readiness-checkpoint: g54-011edfd02410
 ### Last verified state
-guard level 0; checkpoint requested (finalize)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

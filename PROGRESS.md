@@ -3,7 +3,17 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-48/P2e lowering (verified at `e49902a`, 2026-10-31)
+## Current phase — E2E-48/P2e lowering (verified at `046046a`, 2026-10-31)
+
+- **Arm 4 DONE at `046046a`** (§2.4 ?SCCCM TEST + demand twin; E48E7 exact; gate 1120/0,
+neg 181/181 E46K14 unmoved, div 9/9, cov 113/0, census 15/0/26/0, sweeps 45/45, multiset 126).
+REMAINING: arm 5 (§2.5: authorize_file_item admits Vbit1 behind file attach; reuse console
+chain 3A *D(b)/06 01/CD ?QB08C/CD ?PNBOP inside [C296] frame; PUT EDIT bit + other classes keep
+refusing; falsified guard premise stays visible as SUPERSEDED comment) then step 6 (claims
+C327..C332 from RESULTS §2 ONLY, arms my-gap + §2.6 dr-refuses; [C296] LXI H,<fcb> correction;
+NEG_META E46K14 category; SPECIMENS.update 7 probes BYTE TIER ONLY; --update-inventory;
+census --check; coverage_check; registration_audit; FULL GATE ACTUALS; COVERAGE rows 15 cols).
+Command-level spec: HANDOFF ## Next action steps 5-6.
 
 - **Arms 1 + 2 + 3 DONE and measured**: `d18c6ab` (`bit_cond_mat` merged `abs kk >= 1` arm;
   `bin_lit` folds `Eprefix(Minus,Enumber)`; bare `-0` stays refused, no golden — E48E1/E48E2
@@ -15,7 +25,7 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   `'1'b` head WITHOUT the `D6 80` step; no pool cell demanded, prescan untouched; E48E5
   whole-file byte-identical; E48E6 keeps refusing, no `.REL`). Laws owed as claims
   C327/C328/C329 by step 6 — the ledger ends at C326.
-- **Arms 4, 5 NOT STARTED; step 6 OWED.** The single exact, command-level landing spec is
+- **Arm 5 NOT STARTED; step 6 OWED.** (arm 4 DONE above) The single exact, command-level landing spec is
   `HANDOFF.md` → its single level-2 Next-action heading (arm 4 FIXED-member TEST via a
   NEW `?SCCCM` encoder + prescan demand twin; arm 5 `authorize_file_item` admits Vbit1; step 6
   claims C327+ / NEG_META E46K14 dr-refuses stamp / SPECIMENS.update 7 probes byte tier only /
@@ -124,17 +134,17 @@ step 6 and must be reported ACTUAL. Round evidence: `golden/e48p2e/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 54
-checkpoint-id: g54-011edfd02410
-checkpoint-kind: manual
+checkpoint-generation: 55
+checkpoint-id: g55-c050d1713012
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-10-31T07:06:55.982Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-10-31T07:36:05.952Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 8634e7823656cf985cdec836d79af2b98d7789ea87e87742e5afbe15904c2a72
 source-handoff: f042d1f4c8fc1c36fe914833697735051a0f0e3f6ea525f334e380767ca7a05c
-source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
+source-learnings: 36f809e0856e14d3d4ead98ec9ad6cbb6ba8a3e0a42f0414d6a154fc7c719326
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-48/P2e: LOWER arms 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
 
@@ -203,9 +213,6 @@ own pre-registered round; **do not commit or revert `handoff.config.json` — th
 `workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
 CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
 procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
-readiness-by: session:01a190b0-ed02-7601-99f6-9f40edbb9f5c
-readiness-at: 2026-10-31T07:06:55.987Z
-readiness-checkpoint: g54-011edfd02410
 <!-- guard:end checkpoint -->
 
 ## Blockers
