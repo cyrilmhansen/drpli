@@ -3,52 +3,31 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-48/P2e STEP 6 COMMITTED (`809af8d`, `0e64c8b`); FULL GATE run + ACTUAL report OWED (see HANDOFF ## Next action)
+## Current phase — E2E-48/P2e CLOSED; FULL GATE rc=0 measured in-session at `0749fa6` (2026-10-31); awaiting OPERATOR's next-round choice
 
-- Step 6 landed: claims C327..C332 (my-gap x5 + C332 dr-refuses; bytes re-derived from
-goldens this session); [C296] COMMON-reloc ANNOTATION (round 5's CODE-self-address
-misreading superseded traceably — [C296] annotation, HYPOTHESES addendum, LEARNINGS);
-appends [C310]/[C313]/[C324]/[C325]; NEG_META[E46K14] dr-refuses override after the K
-loop; SPECIMENS E48E byte tier only (7 probes; E48E6 not a specimen); inventory 1127
-reviewed; census --check identical 15/0/26/0; coverage_check 118 rows 0 errors; 5 new
-COVERAGE rows + 6 annotated rows + coverage-stats.json committed.
-- ONLY remaining: run FULL GATE `python3 tools/e2e_gate.py`, report ACTUAL (expected
-1127/0 byte-exact after registration — the run decides), then close the phase prose.
-- Tree: operator's handoff.config.json edit ONLY (never stage/commit/revert). No push.
-
-## Prior arms — closed records
-- **Arms 1 + 2 + 3 DONE and measured**: `d18c6ab` (`bit_cond_mat` merged `abs kk >= 1` arm;
-  `bin_lit` folds `Eprefix(Minus,Enumber)`; bare `-0` stays refused, no golden — E48E1/E48E2
-  whole-file byte-identical), `bab0d16` (NegL VALUE arm gains the ladder with `flag_neg`
-  `C6 FF/9F` — E48E3/E48E4 byte-identical; E46K14 marker re-measured unchanged; WHY-string
-  cites `golden/e48p2e/E48E6/E48E6.PRN` as MEASURED dr-refuses) and `e49902a` (arm 3,
-  RESULTS §2.3: `bit_cond_mat`'s `Eq` fallback admits `Ast.Ebit "0"` on a `Vbit1` left —
-  `3A *D(b) / E6 80 / D6 01 / 9F` + the caller's `STA` = 11 bytes, E48E5 0006..0010, the
-  `'1'b` head WITHOUT the `D6 80` step; no pool cell demanded, prescan untouched; E48E5
-  whole-file byte-identical; E48E6 keeps refusing, no `.REL`). Laws owed as claims
-  C327/C328/C329 by step 6 — the ledger ends at C326.
-- **Arm 5 NOT STARTED; step 6 OWED.** (arm 4 DONE above) The single exact, command-level landing spec is
-  `HANDOFF.md` → its single level-2 Next-action heading (arm 4 FIXED-member TEST via a
-  NEW `?SCCCM` encoder + prescan demand twin; arm 5 `authorize_file_item` admits Vbit1; step 6
-  claims C327+ / NEG_META E46K14 dr-refuses stamp / SPECIMENS.update 7 probes byte tier only /
-  --update-inventory / census --check / coverage_check / registration_audit / FULL GATE reporting
-  ACTUAL / COVERAGE rows; [C296] `LXI H,<fcb>` → `LXI H,*C(0000)` correction owed).
-- Sweeps at HEAD `e49902a`: E48E 5/7 exact (E48E1..E48E5) + E48E7/E48E8 refused by name
-  (arms 4/5) + E48E6 refused (correct — dr-refuses, no `.REL`); e48p1 24/24, e48p2c 9/9,
-  e48p2db 10/10, e48p2retire 2/2; negative panel 181/181 0 anomalies, E46K14 marker unmoved;
-  compile-tier FULL GATE rc=0 ACTUALS 1120 byte-exact / 0 fail, divergence 9/9, coverage
-  113 rows 0 errors, census 15/0/26/0; clean scratch-tree rebuild warning multiset
-  126 = 28/26/22/17/15/14/2/2 UNCHANGED.
-- No half-edited state. Working tree carries ONLY the operator's `handoff.config.json` edit —
-  leave it uncommitted and untouched. Standing prohibitions (goldens, §3 shapes, probes ≤71 cols
-  CRLF+`^Z`, `eval $(opam env)`, never name a probe variable `c`, no push) are in HANDOFF.md.
+- The round's ONE remaining debt ran and was verified THIS session: FULL compile-tier gate
+  `python3 tools/e2e_gate.py` **rc=0**, ACTUAL **1127 byte-exact / 0 fail of 1127** (the seven
+  P2e byte-tier specimens E48E1..E48E5, E48E7, E48E8 all BYTE-EXACT in the panel), negative
+  **181/181** (E46K14 prints `[dr-refuses]`, pinned marker unmoved), divergence **9/9**,
+  coverage **118 rows, 0 errors, 0 warnings**, census **15/0/26/0**, file prose clean.
+  `dune build` rc=0 on this tree.
+- Science: the round's laws are C327..C332 (from RESULTS §2 ONLY); §3 shapes stay unmeasured
+  and NOT implemented; goldens untouched; E48E6 is a measured dr-refuses, not a specimen.
+- Commits: prereg `421656a`, oracle + goldens `e2b77ba`, arms 1–5 `d18c6ab`/`bab0d16`/
+  `e49902a`/`046046a`/`c215ea0`, step 6 `809af8d`+`0e64c8b`, docs `0749fa6`; superseded
+  working-state prose archived verbatim in `docs/history/2026-10-31-p2e-closed.md`.
+- NOT re-measured this session (recorded, not assumed): clean scratch-tree rebuild warning
+  multiset — last measured 126 = 28/26/22/17/15/14/2/2 at `c215ea0`.
+- Tree: operator's `handoff.config.json` edit ONLY (never stage/commit/revert). No push.
+  Standing prohibitions (goldens, §3 shapes, probes ≤71 cols CRLF+`^Z`, `eval $(opam env)`,
+  never name a probe variable `c`, no push) are in HANDOFF.md.
 
 ## Next action
 
-The ONE active, command-level spec lives in `HANDOFF.md` → its single level-2 Next-action
-heading (E2E-48/P2e arms
-4, 5 NOT STARTED, then step 6). No competing action exists anywhere else; PROGRESS does not
-restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
+The ONE active spec lives in `HANDOFF.md` → its single level-2 Next-action heading: the
+E2E-48/P2e round is CLOSED, a successor session awaits the OPERATOR's named round, records
+state and stops. No competing action exists anywhere else; PROGRESS does not restate it
+(PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
 
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
@@ -63,6 +42,10 @@ restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate author
   7 ok / 8 (E48E6 `BIT REQ` = dr-refuses; P-E6 MISS kept in RESULTS §1); goldens + RESULTS
   `e2b77ba`; lowering arms 1–3 `d18c6ab`/`bab0d16`/`e49902a` (arm-3 spec archived in
   `docs/history/2026-10-31-p2e-arm3-closed.md`).
+- E2E-48/P2e CLOSED — arm 4 `046046a`, arm 5 `c215ea0`, step 6 `809af8d`+`0e64c8b`, docs
+  `0749fa6`; claims C327–C332, inventory 1127, coverage 118 rows 0 errors; FULL compile-tier
+  GATE rc=0 ACTUAL 1127/0 (neg 181/181, div 9/9, census 15/0/26/0, prose clean) measured at
+  `0749fa6` 2026-10-31; closing prose archived in `docs/history/2026-10-31-p2e-closed.md`.
 
 ## Completed
 
@@ -123,30 +106,31 @@ restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate author
 
 ## Verified evidence
 
-Measured at the baseline session (2026-10-30, HEAD `f3a4c60`), not quoted from a report:
-arms 1–2 produce E48E1..E48E4 whole-file byte-identical (`cmp` at `d18c6ab`/`bab0d16`); E46K14's
-pinned refusal re-measured through the binary with gate CRLF+`^Z` semantics — marker unchanged,
-NOT re-pinned; regression sweeps e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2;
-clean-rebuild warning multiset 126 = 28/26/22/17/15/14/2/2 unchanged. FULL GATE figures
-(1120/0, negative 181/181, coverage 113/0, census 15/0/26/0) are recorded from `adbfa2a`/`218b474`
-and were NOT re-run by the documentation consolidation — the next gate measurement belongs to
-step 6 and must be reported ACTUAL. Round evidence: `golden/e48p2e/`,
+Measured by THIS session (2026-10-31, HEAD `0749fa6`), not quoted from a report: the FULL
+compile-tier gate rc=0 with the ACTUALs recorded in Current phase (byte panel 1127/0 incl.
+all seven E48E byte-tier specimens; negative 181/181 with E46K14 `[dr-refuses]` and its
+marker unmoved; divergence 9/9; coverage 118 rows 0 errors; census 15/0/26/0; prose panel
+clean) and `dune build` rc=0 on this tree. Per-arm measured ACTUALS (whole-file `cmp` at
+`d18c6ab`..`c215ea0`, regression sweeps 45/45, E46K14 marker re-measurement through the
+binary, warning multiset 126) stand recorded in git log and dated `LEARNINGS.md` sections;
+the superseded working-state prose is archived in `docs/history/2026-10-31-p2e-closed.md`.
+Round evidence: `golden/e48p2e/`,
 `spec/lab-evidence/e2e48-p2e/{RESULTS,HYPOTHESES,BASELINE-MINE}`; closed-round records:
 `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 62
-checkpoint-id: g62-084ed7b0c916
+checkpoint-generation: 63
+checkpoint-id: g63-84ac6f3924e4
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-10-31T15:49:27.325Z
+checkpointed: 2026-10-31T15:50:12.984Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 97a384c521b7216ef7d4ae81256018c6200858179a119d352cba7284cb5c470b
 source-handoff: aec8d333d3360349ab44258d27d5b35b2a77417406e4b6ad515703af0cf8f3bd
-source-learnings: 9afe3635eeaeeb410e3cb30f468815221fb1a26fc29ed4a80ced4f5b74847503
+source-learnings: a406124d9f88614fd7d3b5ea43c083f01cad16b07484c2bb33b94c27f99a31a8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-48/P2e STEP 6 COMMITTED (`809af8d` + `0e64c8b`); ONE step remains: FULL GATE
 
@@ -168,8 +152,8 @@ next-action: — E2E-48/P2e STEP 6 COMMITTED (`809af8d` + `0e64c8b`); ONE step r
 revert the operator's `handoff.config.json` edit; renewal values live ONLY in
 `handoff.config.json` / `/guard status`.
 readiness-by: session:01a19293-88a6-70b4-8abc-b0ee77b4885e
-readiness-at: 2026-10-31T15:49:27.327Z
-readiness-checkpoint: g62-084ed7b0c916
+readiness-at: 2026-10-31T15:50:12.987Z
+readiness-checkpoint: g63-84ac6f3924e4
 <!-- guard:end checkpoint -->
 
 ## Blockers
@@ -184,5 +168,3 @@ readiness-checkpoint: g62-084ed7b0c916
 - CREATE is NOT byte-exact; measured front-end blocker: `pli80c.ml` never expands `%include`
   (proposal in `LEARNINGS.md` is `proposed, unverified` — needs its own pre-registered round).
 - LOAN2's `conflicting kinds` prescan my-gap is a design change, not an arm (see Pending).
-- Step 6 debts: claims C327+ unwritten; the [C296] `LXI H,<fcb>` → `LXI H,*C(0000)` traceable
-  correction owed; E46K14's NEG_META re-classification owed.

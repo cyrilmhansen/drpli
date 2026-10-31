@@ -740,3 +740,20 @@ The guard never writes this file.
   coverage_check passed at 118 rows BEFORE the full gate ran, and the FULL GATE at HEAD
   `0e64c8b` (reporting ACTUAL numbers) is the ONE remaining debt, specified command-level in
   HANDOFF.md ## Next action.
+
+## Accepted (E2E-48/P2e round close — FULL GATE measured, 2026-10-31, session renewal 4/12)
+
+* **accepted** — the successor of a renewal hop must re-derive HEAD rather than trust the
+  predecessor note's quoted commit: the note said "at HEAD `0e64c8b`" but HEAD was `0749fa6`
+  (a documentation commit over identical gate inputs). Verified by `git log` + `git diff`
+  that the working-tree delta was ONLY guard-written managed blocks plus the operator's
+  standing `handoff.config.json` edit, so the gate run remained valid for the step-6 tree.
+* **accepted** — a phase-close prose rewrite in HANDOFF/PROGRESS is safe to do at level 4
+  because `file_prose_check.py` polices only its ACTIVE list (codegen.ml, parser.ml,
+  PERIMETER, COVERAGE.tsv, e2e_gate.py); the handoff docs are not pattern-checked. The
+  gate's ACTUAL numbers were re-verified from the captured log (`grep` counts matched the
+  summary lines: 1127 BYTE-EXACT rows, `1127 byte-exact / 0 fail`) before any prose claimed
+  them — PROTOCOL: never claim a gate passed without verified actuals.
+* **accepted (convention)** — superseded durable-doc sections are archived VERBATIM from the
+  committed blob (`git show <commit>:HANDOFF.md`), not from the dirty working file: the live
+  managed blocks differ from every commit and must never leak into a history record.
