@@ -124,18 +124,18 @@ step 6 and must be reported ACTUAL. Round evidence: `golden/e48p2e/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 53
-checkpoint-id: g53-32e1e304f583
+checkpoint-generation: 54
+checkpoint-id: g54-011edfd02410
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 0
-checkpointed: 2026-10-31T06:56:46.343Z
+checkpointed: 2026-10-31T07:06:55.982Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 8634e7823656cf985cdec836d79af2b98d7789ea87e87742e5afbe15904c2a72
 source-handoff: f042d1f4c8fc1c36fe914833697735051a0f0e3f6ea525f334e380767ca7a05c
 source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
-source-config: 0f0cc9c7af73d792e6af3120538e1c6254f8a81ee93993e3088a7e2c76d8ef80
+source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-48/P2e: LOWER arms 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
 
 > Arm numbering keeps the round's ids: arms 1–2 landed at `d18c6ab`/`bab0d16` (specs archived
@@ -204,8 +204,8 @@ own pre-registered round; **do not commit or revert `handoff.config.json` — th
 CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
 procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 readiness-by: session:01a190b0-ed02-7601-99f6-9f40edbb9f5c
-readiness-at: 2026-10-31T06:56:46.346Z
-readiness-checkpoint: g53-32e1e304f583
+readiness-at: 2026-10-31T07:06:55.987Z
+readiness-checkpoint: g54-011edfd02410
 <!-- guard:end checkpoint -->
 
 ## Blockers

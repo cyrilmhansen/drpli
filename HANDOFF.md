@@ -149,25 +149,25 @@ procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 53
-checkpoint-id: g53-32e1e304f583
+checkpoint-generation: 54
+checkpoint-id: g54-011edfd02410
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 0, remaining ~55732, session 01a190b0-ed02-7601-99f6-9f40edbb9f5c)
-checkpointed: 2026-10-31T06:56:46.343Z
+status: checkpoint (guard level 0, remaining ~48156, session 01a190b0-ed02-7601-99f6-9f40edbb9f5c)
+checkpointed: 2026-10-31T07:06:55.982Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 8634e7823656cf985cdec836d79af2b98d7789ea87e87742e5afbe15904c2a72
 source-handoff: f042d1f4c8fc1c36fe914833697735051a0f0e3f6ea525f334e380767ca7a05c
 source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
-source-config: 0f0cc9c7af73d792e6af3120538e1c6254f8a81ee93993e3088a7e2c76d8ef80
+source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a190b0-ed02-7601-99f6-9f40edbb9f5c
-readiness-at: 2026-10-31T06:56:46.346Z
-readiness-checkpoint: g53-32e1e304f583
+readiness-at: 2026-10-31T07:06:55.987Z
+readiness-checkpoint: g54-011edfd02410
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-48/P2e ARM 3 COMPLETE and measured at e49902a (docs prose 1c81e98): '= '0'b' VALUE lowered per RESULTS s2.3 in bit_cond_mat's Eq fallback (3A/E6 80/D6 01/9F + caller STA, 11 bytes, E48E5 whole-file byte-identical; no pool demand, prescan untouched). ACTUALS: E48E sweep 5/7 exact (E48E1..5), E48E7/E48E8 refuse by name (arms 4/5 NOT STARTED), E48E6 KEEPS refusing no .REL; e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2; negative panel 181/181 0 anomalies, E46K14 marker unmoved; clean scratch rebuild multiset 126 unchanged; compile-tier FULL GATE rc=0 actuals 1120/1120 byte-exact, divergence 9/9, coverage 113 rows 0 errors, census 15/0/26/0. NEXT: HANDOFF ## Next action step 4 = arm 4 (?SCCCM FIXED-member TEST encoder + prescan demand twin), then arm 5, then step 6 (claims C327+, NEG_META E46K14 re-class, SPECIMENS byte tier only, inventory/census/coverage/audit, FULL GATE ACTUALS, COVERAGE rows). Operator config edit preserved unstaged; no push; renewal autoRenew:false.)
+guard level 0; checkpoint requested (finalize)
 
 ### Unfinished operations
 - (none recorded)
@@ -240,7 +240,4 @@ own pre-registered round; **do not commit or revert `handoff.config.json` — th
 `workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
 CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
 procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
-
-### Guard notes
-E2E-48/P2e ARM 3 COMPLETE and measured at e49902a (docs prose 1c81e98): '= '0'b' VALUE lowered per RESULTS s2.3 in bit_cond_mat's Eq fallback (3A/E6 80/D6 01/9F + caller STA, 11 bytes, E48E5 whole-file byte-identical; no pool demand, prescan untouched). ACTUALS: E48E sweep 5/7 exact (E48E1..5), E48E7/E48E8 refuse by name (arms 4/5 NOT STARTED), E48E6 KEEPS refusing no .REL; e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2; negative panel 181/181 0 anomalies, E46K14 marker unmoved; clean scratch rebuild multiset 126 unchanged; compile-tier FULL GATE rc=0 actuals 1120/1120 byte-exact, divergence 9/9, coverage 113 rows 0 errors, census 15/0/26/0. NEXT: HANDOFF ## Next action step 4 = arm 4 (?SCCCM FIXED-member TEST encoder + prescan demand twin), then arm 5, then step 6 (claims C327+, NEG_META E46K14 re-class, SPECIMENS byte tier only, inventory/census/coverage/audit, FULL GATE ACTUALS, COVERAGE rows). Operator config edit preserved unstaged; no push; renewal autoRenew:false.
 <!-- guard:end checkpoint -->
