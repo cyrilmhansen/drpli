@@ -124,26 +124,28 @@ step 6 and must be reported ACTUAL. Round evidence: `golden/e48p2e/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 52
-checkpoint-id: g52-ae1a170251b3
+checkpoint-generation: 53
+checkpoint-id: g53-32e1e304f583
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 0
-checkpointed: 2026-10-31T00:02:57.734Z
+checkpointed: 2026-10-31T06:56:46.343Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b9c99cc1738bcd4ca66ec98080dd0d40782c0b3cf0a2c54b664dc32f41990a08
-source-handoff: a5c9150c17c39e7538352ad244b2f8859ad0517b6d6764f6871046081e0da28c
+source-progress: 8634e7823656cf985cdec836d79af2b98d7789ea87e87742e5afbe15904c2a72
+source-handoff: f042d1f4c8fc1c36fe914833697735051a0f0e3f6ea525f334e380767ca7a05c
 source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
 source-config: 0f0cc9c7af73d792e6af3120538e1c6254f8a81ee93993e3088a7e2c76d8ef80
-next-action: — E2E-48/P2e: LOWER arms 3, 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
+next-action: — E2E-48/P2e: LOWER arms 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
 
 > Arm numbering keeps the round's ids: arms 1–2 landed at `d18c6ab`/`bab0d16` (specs archived
-> in `docs/history/2026-10-30-next-actions.md`); references below to "arm 1"/"arm 2" mean that
+> in `docs/history/2026-10-30-next-actions.md`) and arm 3 at `e49902a` (spec + measured closure
+> archived in `docs/history/2026-10-31-p2e-arm3-closed.md`); references to a landed arm mean
 > completed, measured work. **ONE arm per commit**, `cd ocaml && eval $(opam env) && dune build`
 > + the cmp sweep after EACH (LEARNINGS rule: one arm, one build, one sweep).
 
-Sweep loop (expect E48E 7/7 after all arms; E48E6 must KEEP refusing):
+Sweep loop (expect E48E 7/7 after all arms; at `e49902a` E48E1..E48E5 are exact and
+E48E7/E48E8 refuse by name — arms 4/5; E48E6 must KEEP refusing):
 
     for n in 1 2 3 4 5 7 8; do ./ocaml/_build/default/bin/pli80c.exe probes/E48E$n.PLI /tmp/sw/E48E$n.REL \
       && cmp /tmp/sw/E48E$n.REL golden/e48p2e/E48E$n/E48E$n.REL && echo "E48E$n IDENTICAL"; done
@@ -152,10 +154,10 @@ Then the regression sweeps: E48D1..D10 (`golden/e48p2db`) 10/10, E48C1..C9 9/9, 
 E46K1/K3 2/2 (`golden/e48p2retire`), and the FULL negative panel with GATE semantics (CRLF +
 `^Z`, stderr) — 181 rows, and E46K14's marker must NOT move (see arm 2).
 
-3. **Arm 3 — `= '0'b' VALUE** (the fallback inside `bit_cond_mat`'s `Eq` arm, ~7222-7232, which
-   admits only `Ast.Ebit "1"`). Emit for `Ast.Ebit "0"`: `3A *D(b) / E6 80 / D6 01 / 9F`
-   (E48E5 0006, 11 bytes incl. the `32` STA) — i.e. the `'1'b` head WITHOUT the `D6 80` step.
-   `bit_store_cond_bytes` demands nothing here (no pool cell), so no prescan change.
+(Step 3 — arm 3 `= '0'b' VALUE` — is DONE and measured at `e49902a`; its verbatim spec and
+the actuals are archived in `docs/history/2026-10-31-p2e-arm3-closed.md`. Numbering below
+keeps the round's ids.)
+
 4. **Arm 4 — FIXED member in TEST via `?SCCCM`** (the biggest arm; §2.4). `str_side` (6870)
    classifies only `Vimem m when m.varying -> Some (`Imem name)`; add a FIXED-member variant that
    carries `m.cap` (the declared extent IS in `mem_char`, codegen.ml:26-27). Add a new
@@ -201,9 +203,9 @@ own pre-registered round; **do not commit or revert `handoff.config.json` — th
 `workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
 CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
 procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
-readiness-by: session:01a18f18-f7db-70fd-bf5a-eff1b343972f
-readiness-at: 2026-10-31T00:02:57.738Z
-readiness-checkpoint: g52-ae1a170251b3
+readiness-by: session:01a190b0-ed02-7601-99f6-9f40edbb9f5c
+readiness-at: 2026-10-31T06:56:46.346Z
+readiness-checkpoint: g53-32e1e304f583
 <!-- guard:end checkpoint -->
 
 ## Blockers

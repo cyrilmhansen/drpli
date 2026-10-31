@@ -149,38 +149,40 @@ procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 52
-checkpoint-id: g52-ae1a170251b3
+checkpoint-generation: 53
+checkpoint-id: g53-32e1e304f583
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 0, remaining ~40000, session 01a18f18-f7db-70fd-bf5a-eff1b343972f)
-checkpointed: 2026-10-31T00:02:57.734Z
+status: checkpoint (guard level 0, remaining ~55732, session 01a190b0-ed02-7601-99f6-9f40edbb9f5c)
+checkpointed: 2026-10-31T06:56:46.343Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b9c99cc1738bcd4ca66ec98080dd0d40782c0b3cf0a2c54b664dc32f41990a08
-source-handoff: a5c9150c17c39e7538352ad244b2f8859ad0517b6d6764f6871046081e0da28c
+source-progress: 8634e7823656cf985cdec836d79af2b98d7789ea87e87742e5afbe15904c2a72
+source-handoff: f042d1f4c8fc1c36fe914833697735051a0f0e3f6ea525f334e380767ca7a05c
 source-learnings: dff47b3bc4c6177a18669d93bce31273c268afbf2848eaf71e74ec2b83f4a92c
 source-config: 0f0cc9c7af73d792e6af3120538e1c6254f8a81ee93993e3088a7e2c76d8ef80
 
 
-readiness-by: session:01a18f18-f7db-70fd-bf5a-eff1b343972f
-readiness-at: 2026-10-31T00:02:57.738Z
-readiness-checkpoint: g52-ae1a170251b3
+readiness-by: session:01a190b0-ed02-7601-99f6-9f40edbb9f5c
+readiness-at: 2026-10-31T06:56:46.346Z
+readiness-checkpoint: g53-32e1e304f583
 ### Last verified state
-guard level 0; checkpoint requested (finalize: Mission-2 audit corrections applied (operator-approved, branch mission1-docs-consolidation): FAIL-2 archive addendum 7beb633 restores the one dropped baseline PROGRESS bullet verbatim (19/19 excerpts now byte-verified against f3a4c608); FAIL-1 prose fix 93c5bca removes the four inline heading-substring traps so guard extraction lands on the single real level-2 Next-action heading (upstream pi-handoff issue #8 remains OPEN and unfixed — workaround only). Scientific landing spec re-verified byte-identical (baseline HANDOFF 180-187/207-255); all protected trees zero-diff vs f3a4c608; arms 3/4/5 and step 6 remain NOT STARTED/OWED; operator config edit preserved unstaged; no renewal, no push.)
+guard level 0; checkpoint requested (finalize: E2E-48/P2e ARM 3 COMPLETE and measured at e49902a (docs prose 1c81e98): '= '0'b' VALUE lowered per RESULTS s2.3 in bit_cond_mat's Eq fallback (3A/E6 80/D6 01/9F + caller STA, 11 bytes, E48E5 whole-file byte-identical; no pool demand, prescan untouched). ACTUALS: E48E sweep 5/7 exact (E48E1..5), E48E7/E48E8 refuse by name (arms 4/5 NOT STARTED), E48E6 KEEPS refusing no .REL; e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2; negative panel 181/181 0 anomalies, E46K14 marker unmoved; clean scratch rebuild multiset 126 unchanged; compile-tier FULL GATE rc=0 actuals 1120/1120 byte-exact, divergence 9/9, coverage 113 rows 0 errors, census 15/0/26/0. NEXT: HANDOFF ## Next action step 4 = arm 4 (?SCCCM FIXED-member TEST encoder + prescan demand twin), then arm 5, then step 6 (claims C327+, NEG_META E46K14 re-class, SPECIMENS byte tier only, inventory/census/coverage/audit, FULL GATE ACTUALS, COVERAGE rows). Operator config edit preserved unstaged; no push; renewal autoRenew:false.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-48/P2e: LOWER arms 3, 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
+— E2E-48/P2e: LOWER arms 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
 
 > Arm numbering keeps the round's ids: arms 1–2 landed at `d18c6ab`/`bab0d16` (specs archived
-> in `docs/history/2026-10-30-next-actions.md`); references below to "arm 1"/"arm 2" mean that
+> in `docs/history/2026-10-30-next-actions.md`) and arm 3 at `e49902a` (spec + measured closure
+> archived in `docs/history/2026-10-31-p2e-arm3-closed.md`); references to a landed arm mean
 > completed, measured work. **ONE arm per commit**, `cd ocaml && eval $(opam env) && dune build`
 > + the cmp sweep after EACH (LEARNINGS rule: one arm, one build, one sweep).
 
-Sweep loop (expect E48E 7/7 after all arms; E48E6 must KEEP refusing):
+Sweep loop (expect E48E 7/7 after all arms; at `e49902a` E48E1..E48E5 are exact and
+E48E7/E48E8 refuse by name — arms 4/5; E48E6 must KEEP refusing):
 
     for n in 1 2 3 4 5 7 8; do ./ocaml/_build/default/bin/pli80c.exe probes/E48E$n.PLI /tmp/sw/E48E$n.REL \
       && cmp /tmp/sw/E48E$n.REL golden/e48p2e/E48E$n/E48E$n.REL && echo "E48E$n IDENTICAL"; done
@@ -189,10 +191,10 @@ Then the regression sweeps: E48D1..D10 (`golden/e48p2db`) 10/10, E48C1..C9 9/9, 
 E46K1/K3 2/2 (`golden/e48p2retire`), and the FULL negative panel with GATE semantics (CRLF +
 `^Z`, stderr) — 181 rows, and E46K14's marker must NOT move (see arm 2).
 
-3. **Arm 3 — `= '0'b' VALUE** (the fallback inside `bit_cond_mat`'s `Eq` arm, ~7222-7232, which
-   admits only `Ast.Ebit "1"`). Emit for `Ast.Ebit "0"`: `3A *D(b) / E6 80 / D6 01 / 9F`
-   (E48E5 0006, 11 bytes incl. the `32` STA) — i.e. the `'1'b` head WITHOUT the `D6 80` step.
-   `bit_store_cond_bytes` demands nothing here (no pool cell), so no prescan change.
+(Step 3 — arm 3 `= '0'b' VALUE` — is DONE and measured at `e49902a`; its verbatim spec and
+the actuals are archived in `docs/history/2026-10-31-p2e-arm3-closed.md`. Numbering below
+keeps the round's ids.)
+
 4. **Arm 4 — FIXED member in TEST via `?SCCCM`** (the biggest arm; §2.4). `str_side` (6870)
    classifies only `Vimem m when m.varying -> Some (`Imem name)`; add a FIXED-member variant that
    carries `m.cap` (the declared extent IS in `mem_char`, codegen.ml:26-27). Add a new
@@ -240,5 +242,5 @@ CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`**
 procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
 
 ### Guard notes
-Mission-2 audit corrections applied (operator-approved, branch mission1-docs-consolidation): FAIL-2 archive addendum 7beb633 restores the one dropped baseline PROGRESS bullet verbatim (19/19 excerpts now byte-verified against f3a4c608); FAIL-1 prose fix 93c5bca removes the four inline heading-substring traps so guard extraction lands on the single real level-2 Next-action heading (upstream pi-handoff issue #8 remains OPEN and unfixed — workaround only). Scientific landing spec re-verified byte-identical (baseline HANDOFF 180-187/207-255); all protected trees zero-diff vs f3a4c608; arms 3/4/5 and step 6 remain NOT STARTED/OWED; operator config edit preserved unstaged; no renewal, no push.
+E2E-48/P2e ARM 3 COMPLETE and measured at e49902a (docs prose 1c81e98): '= '0'b' VALUE lowered per RESULTS s2.3 in bit_cond_mat's Eq fallback (3A/E6 80/D6 01/9F + caller STA, 11 bytes, E48E5 whole-file byte-identical; no pool demand, prescan untouched). ACTUALS: E48E sweep 5/7 exact (E48E1..5), E48E7/E48E8 refuse by name (arms 4/5 NOT STARTED), E48E6 KEEPS refusing no .REL; e48p1 24/24, e48p2c 9/9, e48p2db 10/10, e48p2retire 2/2; negative panel 181/181 0 anomalies, E46K14 marker unmoved; clean scratch rebuild multiset 126 unchanged; compile-tier FULL GATE rc=0 actuals 1120/1120 byte-exact, divergence 9/9, coverage 113 rows 0 errors, census 15/0/26/0. NEXT: HANDOFF ## Next action step 4 = arm 4 (?SCCCM FIXED-member TEST encoder + prescan demand twin), then arm 5, then step 6 (claims C327+, NEG_META E46K14 re-class, SPECIMENS byte tier only, inventory/census/coverage/audit, FULL GATE ACTUALS, COVERAGE rows). Operator config edit preserved unstaged; no push; renewal autoRenew:false.
 <!-- guard:end checkpoint -->
