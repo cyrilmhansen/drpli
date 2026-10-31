@@ -120,47 +120,50 @@ literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT, over-extent lite
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 64
-checkpoint-id: g64-994f3db1f7d5
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~72837, session 01a192a7-7efe-70b4-8abc-b0f23bdb2a52)
-checkpointed: 2026-10-31T16:01:33.021Z
+checkpoint-generation: 66
+checkpoint-id: g66-487495b2e408
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4033, session 01a19445-2627-704c-9bbd-41fe19a81649)
+checkpointed: 2026-10-31T23:50:55.048Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 18467d0bdb9ea66368fd82c861782fc504ccf21166379366b61f8e7ef958050b
-source-handoff: 1760ab27164392c6824c97240319731d41b99f26a4cacede995e7b7e26b20933
-source-learnings: 56c54d2d71aa3b6d71ae3be0c85ca917b1c4b178c7fe8b78832d892ec0e06bf1
+source-progress: 709b60b7ffcd2d9e69d68ba96f186e8a641ca3ce03c7d927f97a2dddd779f239
+source-handoff: 9c6ac47b842acfdb3d1d95c8dfa31a2856e987c124eb629d0a831e4d02422391
+source-learnings: aaf0cbe5e1ea2596649b58d021372e099e910814f17b9b61a393b266168864c0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a192a7-7efe-70b4-8abc-b0f23bdb2a52
-readiness-at: 2026-10-31T16:01:33.024Z
-readiness-checkpoint: g64-994f3db1f7d5
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-48/P2e round CLOSED and verified this session: FULL compile-tier GATE python3 tools/e2e_gate.py rc=0 at HEAD 0749fa6 with ACTUAL 1127 byte-exact / 0 fail of 1127 (seven E48E byte-tier specimens in panel), negative 181/181 (E46K14 [dr-refuses], marker unmoved), divergence 9/9, coverage 118 rows 0 errors, census 15/0/26/0, prose clean; dune build rc=0. Closing prose committed at 5417de0 (HANDOFF/PROGRESS rewritten, docs/history/2026-10-31-p2e-closed.md archive, LEARNINGS close notes, ledger pointer now C332, no ids owed). NOT re-measured (recorded): clean-rebuild warning multiset (last 126 at c215ea0). Next action: await the OPERATOR's next-round choice; successor without instruction records state and stops. Goldens untouched; RESULTS s3 shapes not implemented; tree carries only the operator handoff.config.json edit after this refresh — never stage/commit/revert it; no push.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-48/P2e CLOSED; awaiting the OPERATOR's next-round choice (no compiler work is authorized meanwhile)
+— E2E-49/P1: arm 2 (bare spelling) then step 6 (ledger) + FULL GATE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
 
-1. **No new scientific action is authorized in this repository until the operator names the
-   next round.** Candidate pool (all from `spec/lab-evidence/e2e48-p2e/RESULTS.md` §3, each
-   needing its OWN pre-registered round — hypotheses committed BEFORE any oracle run,
-   PROTOCOL): member-vs-member compares; `?SCCCM` in a STORE or with the member on the LEFT;
-   literal-vs-literal fixed compares; BASED members in conditions; over-extent INITIAL/store;
-   `BIT REQ` acceptance elsewhere (bare scalar `char`, `^`, `&`); PUT EDIT of a bit item;
-   `^(k = -c)` composition. Separate recorded debts, NOT arms: CREATE's `%include` front-end
-   gap and LOAN2's scope-aware prescan (PROGRESS → Pending).
-2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
-   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
-   (`/handoff verify`), and STOP — record state, do not invent work.
-3. Standing: goldens untouched; §3 shapes NOT implemented (missing evidence is the limit,
-   never a licence to guess); no push; never stage/commit/revert the operator's
-   `handoff.config.json` edit; renewal values live ONLY in `handoff.config.json` /
-   `/guard status`.
+**ACTIVE PLAN (exact, also in PROGRESS.md → Current phase):** lineage = prediction SHA
+`9b3d860`, fill-in `0e9cc3d`, oracle run + goldens + `spec/lab-evidence/e2e49-p1/RESULTS.md`
+(4 ok / 4, all ACCEPTS, no dr-refuses) at `c8285cb`, arm 1 lowering at `fee935e` with
+ACTUALS E49A1/A3/A4 whole-file BYTE-EXACT, E49A2 still refuses (arm 2's object), E48E7
+regression exact, E48 sweep 43/43, dune rc=0. Measured laws (RESULTS s2): inverted fixed
+TEST = `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len / CD ?SCCCM / skip`; length
+immediates POSITIONAL (B = LEFT, A = RIGHT) — falsifies [C330]'s capacity-in-A reading
+(append labelled correction at C330, keep text); name does not flip; ^= CA measured;
+over-extent literal accepted, pooled whole. (1) ARM 2: `str_side` Eident admits BARE fixed
+as new `ImemFb (orig,cap)`; `str_cmp_shape_fix` member-LEFT arm matches `ImemF`/`ImemFb`,
+literal-RIGHT arm keeps `ImemF` only (bare member-RIGHT unmeasured); widen `is_test_left`
+in the SAME commit; annotate superseded bare sentences; build, E49A2 whole-file cmp, no
+output moves elsewhere, commit codegen.ml with ACTUALS. (2) STEP 6: claims C333..C336 from
+RESULTS s2 ONLY + C330 correction; INVENTORY 4 specimen rows after E48E8; census
+re-snapshot; 4 COVERAGE.tsv rows; commit; then FULL gate `python3 tools/e2e_gate.py`
+(expect 1131 byte-exact; negative 181/181 E46K14 marker unmoved; div 9/9; coverage 0
+errors) and record ACTUALS. (3) CLOSE: rewrite this + PROGRESS with real ACTUALS, archive
+superseded prose to docs/history/, commit, /handoff finalize, renew or stop. OUT OF SCOPE,
+keep refusing (e2e49-p1 RESULTS s3): STORE fixed member, member-vs-member,
+literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT
+([TBD]), `^( )`; NO RUNTIME row; no push; never touch the operator config edit.
 
 ### Guard notes
 E2E-48/P2e round CLOSED and verified this session: FULL compile-tier GATE python3 tools/e2e_gate.py rc=0 at HEAD 0749fa6 with ACTUAL 1127 byte-exact / 0 fail of 1127 (seven E48E byte-tier specimens in panel), negative 181/181 (E46K14 [dr-refuses], marker unmoved), divergence 9/9, coverage 118 rows 0 errors, census 15/0/26/0, prose clean; dune build rc=0. Closing prose committed at 5417de0 (HANDOFF/PROGRESS rewritten, docs/history/2026-10-31-p2e-closed.md archive, LEARNINGS close notes, ledger pointer now C332, no ids owed). NOT re-measured (recorded): clean-rebuild warning multiset (last 126 at c215ea0). Next action: await the OPERATOR's next-round choice; successor without instruction records state and stops. Goldens untouched; RESULTS s3 shapes not implemented; tree carries only the operator handoff.config.json edit after this refresh — never stage/commit/revert it; no push.
