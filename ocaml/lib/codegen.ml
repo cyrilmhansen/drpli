@@ -2992,7 +2992,12 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
          with the member on the LEFT: no object". QUALIFIED means `orig <> m.name' ([C258]: the
          parser folds `rec.name' into ONE ident key; `m.name' is the bare member name), mirroring
          `str_side''s `ImemF' arms exactly — a BARE fixed member keeps demanding nothing because
-         it keeps refusing. *)
+         it keeps refusing.
+         SUPERSEDED in part 2026-11-01 by [E2E-49/P1 arm 1]: "a FIXED member on the LEFT of a
+         literal stays refused / no object" is closed by golden/e49p1/E49A1 (RESULTS s2.1);
+         the literal-RIGHT clause gained the mirror twin `is_test_left' below, admitted on
+         exactly the QUALIFIED set `str_cmp_shape_fix's member-left arm matches. The BARE
+         clause stands for this commit: E49A2's bare-spelling object lands with arm 2. *)
       let is_test_right e =
         match vkind_of_e e with
         | Some (Vimem m) when not m.varying ->
@@ -3003,6 +3008,25 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
              | Ast.Eqstruct _ -> true
              | _ -> false)
         | _ -> is_var e
+      in
+      (* [E2E-49/P1 arm 1 -- RESULTS s2.1] the MIRROR twin of `is_test_right': the
+         literal-RIGHT clause now admits the QUALIFIED internal FIXED member written on
+         the LEFT, because golden/e49p1/E49A1 0006 allocates the literal's pool cell
+         through `str_cmp_shape_fix's new member-left arm.  Demand and lowering stay ONE
+         predicate (the fa09b97/e21281a law): this is exactly that arm's admitted set --
+         QUALIFIED spellings only, since the BARE fixed member on the LEFT of a literal
+         has no object until arm 2 -- and a VARYING left is already covered by `is_var'
+         in the clause above, so nothing widens beyond the lowering. *)
+      let is_test_left e =
+        match vkind_of_e e with
+        | Some (Vimem m) when not m.varying ->
+            (match e.Ast.e with
+             | Ast.Eident n ->
+                 String.lowercase_ascii n.Ast.orig
+                 <> String.lowercase_ascii m.name
+             | Ast.Eqstruct _ -> true
+             | _ -> false)
+        | _ -> false
       in
       let is_cell e = match vkind_of_e e with Some (Vvar _) -> true | _ -> false in
       let wants =
@@ -3016,10 +3040,14 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
            extra bytes).  `is_var' is exactly the set the TEST rev arm admits -- Vvar cell,
            BASED member (the ungated [C2] `Mem' arm), internal VARYING member under ~imem --
            and excludes what it refuses: a FIXED member is not `is_var' at all. *)
-        (* [E2E-48/P2e arm 4] the literal-LEFT clause widened to `is_test_right' — see its
+        (* [E2E-48/P2e arm 4] the literal-LEFT clause widened to `is_test_right' -- see its
            comment: one rule, demand and lowering. The comment above this line stands as
-           written: `is_var' itself still excludes FIXED members. *)
-        (is_lit b <> None && is_var a) || (is_lit a <> None && is_test_right b)
+           written: `is_var' itself still excludes FIXED members.
+           [E2E-49/P1 arm 1] the literal-RIGHT clause gained `is_test_left' (and nothing
+           else): the qualified FIXED member on the LEFT is demanded exactly where
+           `str_cmp_shape_fix' admits it. *)
+        (is_lit b <> None && is_var a) || (is_lit b <> None && is_test_left a)
+        || (is_lit a <> None && is_test_right b)
         || (is_cell a && is_cell b)
       in
       if not wants then 0
@@ -6911,10 +6939,15 @@ let str_side st (e : Ast.expr) =
           member stays unclassified: E48C measures VARYING members only.
           [E2E-48/P2e arm 4] the FIXED class IS now classified -- but ONLY under the qualified
           spelling (`ImemF' below, under BOTH node kinds): golden/e48p2e/E48E7, the one
-          FIXED-member compare object, spells it `rec.name' -- which [C258]'s parser fold
-          delivers as the SINGLE key `rec.name' through THIS arm -- and no probe ever put a
-          BARE fixed member in a compare; `mem_char''s own contract answers "was this
-          reference qualified" by comparing the two names, and that is the gate used here. *)
+          FIXED-member compare object at the time of writing, spells it `rec.name' -- which
+          [C258]'s parser fold delivers as the SINGLE key `rec.name' through THIS arm -- and
+          no probe ever put a BARE fixed member in a compare; `mem_char''s own contract
+          answers "was this reference qualified" by comparing the two names, and that is the
+          gate used here.
+          [E2E-49/P1 arm 1] E48E7 is no longer "the one" object: golden/e49p1/E49A1/E49A3/
+          E49A4 measure the SAME qualified spelling with the operands INVERTED, lowered by
+          `str_cmp_shape_fix's member-left arm; the qualification gate itself is unchanged
+          at this arm (the BARE spelling is arm 2's object, RESULTS s2.4). *)
        | Vimem m when m.varying -> Some (`Imem n.Ast.orig)
        | Vimem m when String.lowercase_ascii n.Ast.orig <> String.lowercase_ascii m.name ->
            Some (`ImemF (n.Ast.orig, m.cap))
@@ -7054,7 +7087,15 @@ let str_cmp_shape_rev ?(imem = false) st l r =
    matches `ImemF' and each keeps refusing through `imem_refuse'.  Over-extent literals
    (len > cap) are not gated here, matching the varying family's ungated `MVI len' arms --
    DR's verdict for that compare was never sampled ([TBD]; the bytes below are the same
-   template for any len/cap pair). *)
+   template for any len/cap pair).
+   SUPERSEDED in part 2026-11-01 by [E2E-49/P1]: "member-LEFT ... have no object" was true
+   of every compare object until this round measured the inversion in TEST (golden/e49p1,
+   RESULTS s2.1) -- the member-LEFT TEST arm below is now admitted, while the fixed member
+   in a STORE, member-vs-member and truthiness keep refusing per RESULTS s3; and the
+   "A is the destination/capacity, B is the source length" reading of E48E7 is FALSIFIED
+   as a class law by the positional law of RESULTS s2.2 (B = LEFT operand's attribute,
+   A = RIGHT's), which happened to read that way while the literal was left.  Both
+   sentences stand above as written history; [C330] carries the same labelled correction. *)
 let str_cmp_shape_fix st l r =
   match str_side st l, str_side st r with
   | Some (`Lit (v, bytes)), Some (`ImemF (k, cap)) ->
@@ -7064,7 +7105,31 @@ let str_cmp_shape_fix st l r =
             (fun () ->
               d st op_lxi_d;
               reloc st Data (pool_str st bytes)),
-            v, cap)
+            String.length v, cap)
+  (* [E2E-49/P1 arm 1 -- RESULTS s2.1/s2.2/s2.6] the INVERSION: QUALIFIED FIXED member
+     LEFT, literal RIGHT, TEST position.  golden/e49p1/E49A1 0006 (and E49A3 with its
+     CA skip, E49A4 with an over-extent literal) measure
+       `LXI H,*D(member cell) / XCHG / LXI H,*D(pooled literal) / MVI B,<extent> /
+        MVI A,<literal length> / CALL ?SCCCM / skip'
+     -- [C191]'s FINAL-register law intact (HL ends on the RIGHT operand, DE on the LEFT)
+     and its "a member needs XCHG only when it is the left operand" clause now measured
+     for the FIXED class with *D operands on both sides, so the staging is an
+     ORIENTATION law, not an artifact of the varying family's symbol-pool loads (E48C9).
+     The length immediates are POSITIONAL (RESULTS s2.2, five compare objects, one law):
+     B carries the LEFT operand's attribute and A the RIGHT's -- this falsifies [C330]'s
+     class-polarity reading of E48E7, kept as written at that claim's correction.  The
+     helper NAME does not flip (s2.3): the CC pair names two fixed-class operands and
+     carries no orientation.  TEST only: STOREs and member-vs-member keep refusing.
+     Over-extent here (len > cap, E49A4) is MEASURED accepted, literal pooled whole. *)
+  | Some (`ImemF (k, cap)), Some (`Lit (v, bytes)) ->
+      Some ((fun () ->
+              d st op_lxi_h;
+              reloc st Data (addr_of st k);
+              d st op_xchg),
+            (fun () ->
+              d st op_lxi_h;
+              reloc st Data (pool_str st bytes)),
+            cap, String.length v)
   | _ -> None
 
 (* [E2E-34/P4] CHARACTER VARYING vs CHARACTER VARYING, every operand pair DR
@@ -7763,14 +7828,20 @@ let lower_test_skip0 st (c : Ast.expr) =
          [C326] made for the varying rev arm.  The pool DEMAND twin is `is_test_right' in
          `prescan_cond' -- one predicate, demand and lowering.  Member-LEFT fixed,
          member-vs-member, a fixed member in a STORE value and its truthiness have NO object
-         (§3) and still fall to the `imem_refuse "comparison"' site below. *)
-      let (hl_fn, de_fn, len, cap) =
+         (§3) and still fall to the `imem_refuse "comparison"' site below.
+         [E2E-49/P1 arm 1] the last sentence's first clause is superseded: the inversion IS
+         now measured (golden/e49p1/E49A1 =/E49A3 ^=/E49A4 over-extent, RESULTS s2.1/s2.5/
+         s2.6) and the encoder returns the length immediates POSITIONALLY (B = the LEFT
+         operand's attribute, A = the RIGHT's), so this arm lowers BOTH orientations and the
+         synthesis above became a measurement: E49A3 0014 is `ca'.  Member-vs-member, the
+         STORE value and truthiness keep falling to the refusal site. *)
+      let (hl_fn, de_fn, b_len, a_len) =
         match str_cmp_shape_fix st l rr with Some x -> x | None -> assert false
       in
       hl_fn ();
       de_fn ();
-      d st op_mvi_b; d st (String.length len);
-      d st op_mvi_a; d st cap;
+      d st op_mvi_b; d st b_len;
+      d st op_mvi_a; d st a_len;
       call_ext st "?SCCCM";
       d st (if r = Ast.Eq then 0xc2 else 0xca);
       st.last_imm <- None;
@@ -7975,7 +8046,13 @@ let lower_test_skip0 st (c : Ast.expr) =
               use now HAS an object -- golden/e48p2e/E48E7 0006 measures the qualified FIXED \
               member on the RIGHT of a string literal in TEST via `?SCCCM' and this route \
               lowers it; member-LEFT, member-vs-member, the fixed member in a STORE value and \
-              every truthiness shape still have NO object and refuse here."
+              every truthiness shape still have NO object and refuse here.  ADDENDUM \
+              2026-11-01 [E2E-49/P1 arm 1, RESULTS s2.1]: the member-LEFT clause of that \
+              sentence is now MEASURED and lowered -- golden/e49p1/E49A1 0006 stages the \
+              qualified fixed member through XCHG (`21 *D(member) / EB / 21 *D(pool) / 06 cap \
+              / 3E len / ?SCCCM'), E49A3 pins the CA skip and E49A4 the accepted over-extent \
+              literal; member-vs-member, the fixed member in a STORE value and every \
+              truthiness shape still have NO object and refuse here."
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
