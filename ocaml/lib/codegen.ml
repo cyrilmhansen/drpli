@@ -3010,8 +3010,8 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
    `bit_cond_mat' allocates exactly ONE pool cell in this position: the string literal of a
    `varying = literal' compare, whose 17 bytes (?SCVCM + SUI 01 / SBB A + STA) are pinned at five
    golden sites (E48A6 0013, E48A12 0027, E48B8 0013, E48B9 0013 and 004F).  Every other class it
-   accepts (k = 0, k = c with c >= 4, k ^= 0, k > 0, b = '1'b) is built from immediates and
-   declared cells and allocates nothing, so it demands nothing.
+   accepts (k = 0, k = c with c >= 4, k ^= 0, k > 0, b = '1'b, and since P2e arm 3 b = '0'b)
+   is built from immediates and declared cells and allocates nothing, so it demands nothing.
 
    This arm was MISSING, and the invariant caught it, exactly as [C152]/[C179] intend: E48A12 died
    with "prescan demanded 5 pool bytes, lowering allocated 8" -- 3 = 'EOF', which `prescan_expr',
@@ -7260,6 +7260,24 @@ let bit_cond_mat st (rhs : Ast.expr) =
                       d st 0x3a; reloc st Data (addr_of st v.Ast.orig);
                       d st 0xe6 (* ANI *); d st 0x80;
                       d st 0xd6 (* SUI *); d st 0x80;
+                      flag ())
+              (* [E2E-48/P2e §2.3 — claim C329 owed by step 6] `f = (b = '0'b)', 11 bytes
+                 INCLUDING the caller's `STA': LDA / ANI 80 / SUI 01 / SBB A [E48E5
+                 0006..0010] — the `'1'b' head of [C310] WITHOUT the `SUI 80' normaliser.
+                 Semantics agree: `b' is high-bit justified, so after `ANI 80' the accumulator
+                 holds 00 or 80; a bit VALUE is 128, `= '0'b' is `accumulator - 1' and
+                 `= '1'b' is `(accumulator - 128) - 1'.  The tail is the SAME [C095] flag
+                 trick (`D6 01 / 9F' via `flag ()').  The `'0'b' spelling was measured only as
+                 a TEST before this round (E11D/E20B/E20E/E21A); E48E5 is its first VALUE
+                 witness — before this arm it was the `my-gap' listed in the refusal note
+                 above (§1 P10), superseded as that comment records.  NO pool cell is
+                 demanded (`bit_store_cond_bytes' counts only string-vs-literal compares), so
+                 demand and lowering remain ONE predicate and the prescan needs no change. *)
+              | Ast.Eident v, Ast.Ebit "0" when vk_of st v.Ast.orig = Vbit1 ->
+                  Some
+                    (fun () ->
+                      d st 0x3a; reloc st Data (addr_of st v.Ast.orig);
+                      d st 0xe6 (* ANI *); d st 0x80;
                       flag ())
               | _ -> None))
   (* `k ^= 0', 12 bytes: the `= 0' read with the NEGATED tail [A8 000C].  §1 P8's open question
