@@ -121,7 +121,7 @@ commit goldens + report TOGETHER.  Lowering may only touch what §2 measures.
 
 ## Prediction-SHA fill-in
 
-PREDICTION SHA: `<filled by the child commit, before any oracle call>` — the commit that
+PREDICTION SHA: **9b3d860** — the commit that
 added probes/E49A1..E49A4.PLI + mkprobes.py + this file + BASELINE-MINE.txt
 (`git log --format=%h -- probes/E49A1.PLI | tail -1`); the fill-in commit naming it is
 this commit's child and is an ancestor of the oracle run.
