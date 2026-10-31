@@ -54,99 +54,48 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   coverage 113 rows 0 errors (`218b474`), census 15/0/26/0; clean-rebuild warning multiset 126.
   EVERY one re-measured at `e49902a` (arm 3) with identical ACTUALS (rc=0).
 
-## Next action — E2E-48/P2e STEP 6 ONLY (arms 1–5 DONE and committed)
+## Next action — E2E-48/P2e STEP 6 COMMITTED (`809af8d` + `0e64c8b`); ONE step remains: FULL GATE
 
-Arm 5 landed at `c215ea0` (E48E8 byte-identical; E48E 7/7; FULL compile-tier GATE rc=0
-1120/0, neg 181/181 E46K14 marker unmoved, div 9/9, cov 113/0, census 15/0/26/0,
-multiset 126). The command-level remainder is restated in `PROGRESS.md` → Current
-phase; headline order:
+1. Run the FULL compile-tier gate: `cd /home/john/projects/sushiworks/pli80 &&
+   python3 tools/e2e_gate.py` — **report ACTUAL numbers, never expected** (before this
+   round's registration it was 1120/0; the 7 new byte-tier specimens make 1127 expected,
+   but only the run decides). Expect negative 181/181 (E46K14 stays a refusal row, now
+   dr-refuses, marker re-measured unmoved), divergence 9/9, coverage 118 rows 0 errors,
+   census 15/0/26/0, prose clean, rc=0. The binary is built (`eval "$(opam env)" &&
+   dune build` in ocaml/ was rc=0 this session; rebuild if the tree moved).
+2. If rc=0: rewrite the HANDOFF/PROGRESS manual prose to close the phase (the managed
+   block refreshes via /handoff or handoff_finalize; never hand-edit it), note that the
+   E2E-48/P2e round is COMPLETE, and let the OPERATOR choose the next round (candidates
+   are RESULTS §3: member-vs-member, BASED member, over-extent INITIAL/store, PUT EDIT
+   bit item, `^(k = -c)` composition probe, `%include`/LOAN2 — each needs its own
+   pre-registered round). If the gate FAILS: do not patch prose around it — classify the
+   delta against the panels, fix only what the ACTUAL indicts, re-run, commit.
+3. Standing: goldens untouched; §3 shapes NOT implemented; no push; never stage/commit/
+revert the operator's `handoff.config.json` edit; renewal values live ONLY in
+`handoff.config.json` / `/guard status`.
 
-1. **Claims C327..C332** in `spec/CLAIMS.md` from `e2e48-p2e/RESULTS.md` §2 ONLY, each
-citing its `golden/e48p2e/` object; C327-C331 `my-gap`, C332 (§2.6, `BIT REQ`,
-golden/e48p2e/E48E6/E48E6.PRN) `dr-refuses`.
-2. **Corrections, appended, originals kept**: [C296] — VERIFIED FINDING supersedes the
-checkpoint's wording: `*C` in chaindump means COMMON (chaindump.py:147), reldump shows
-`RELOC common 0x0` at 0023 of E46M1 AND E48E8, my `load_file_cb` emits
-`reloc st Common 0`; the operand is the COMMON-group base (the FCB), NOT "a CODE
-self-address" — append the accurate spelling and label round 5's misreading
-superseded; fix HYPOTHESES.md §Prior-evidence and this file's prose the same way.
-Append closers to [C310] (→C328/C329/C327), [C313]/[C325] (file-attach bit clause →
-C331), [C324] (k=1, negative c → C327).
-3. **Gate**: NEG_META["E46K14"] override AFTER the E46K2..K15 loop (e2e_gate.py:~4006;
-precedent E46K10) = ("dr-refuses", DR's word `BIT REQ` + .PRN + [C332]); new
-`SPECIMENS.update({...})` block registering E48E1..E48E5,E48E7,E48E8 BYTE TIER ONLY
-(E48E6 is NOT a specimen; no RUNTIME/OUTPUT_CHECK row from this round).
-4. `python3 tools/e2e_gate.py --update-inventory` (review diff line-by-line); census cp
-`/tmp/census-prev.json` + `--check` (re-read every msg delta); `coverage_check.py`;
-`registration_audit`; FULL GATE — report ACTUAL (was 1120/0; expect +7 after
-registration).
-5. `spec/COVERAGE.tsv`: five new rows (ids/probes/claims in PROGRESS) + SUPERSEDED
-annotations on IO.PUT_BIT1_ITEM, STOR.BIT1_COND_STORE, COND.BIT1_NEG_TEST,
-AGG.INTERNAL_CHAR_MEMBER, NEG.MEMBER_USE_PERIMETER (truthiness UNTESTED→REJECTS
-[C332]), FILE.PUT_LIST_VAR; commit `spec/census/coverage-stats.json` if rewritten.
+## Step 6 record (this session, verified)
 
-**Standing rules unchanged (see prior text):** goldens untouched; §3 shapes not
-implemented; no push; probes ≤71 cols CRLF+^Z; `eval $(opam env)`; never name a probe
-`c`; operator's `handoff.config.json` edit stays uncommitted.
-
-(Step 3 — arm 3 `= '0'b' VALUE` — is DONE and measured at `e49902a`; its verbatim spec and
-the actuals are archived in `docs/history/2026-10-31-p2e-arm3-closed.md`. Numbering below
-keeps the round's ids.)
-
-4. **Arm 4 — FIXED member in TEST via `?SCCCM`** (the biggest arm; §2.4). `str_side` (6870)
-   classifies only `Vimem m when m.varying -> Some (`Imem name)`; add a FIXED-member variant that
-   carries `m.cap` (the declared extent IS in `mem_char`, codegen.ml:26-27). Add a new
-   literal-LEFT/fixed-RIGHT encoder producing exactly
-   `21 *D(member) / 11 *D(pool lit) / 06 len / 3E cap / CD ?SCCCM`, used by `lower_test_skip0`
-   (the guard at 7597 and the destructuring at 7609) — NOT by `bit_cond_mat`: §2.4 measures TEST
-   only and §3 says a fixed member in a STORE is unmeasured, so the STORE route must keep
-   refusing it. **THE DEMAND TWIN IS MANDATORY (the fa09b97/e21281a law):** `prescan_cond`'s
-   `is_var` (~2981) currently returns `m.varying`; widen it to admit a FIXED internal member
-   ONLY because the TEST route now admits it — demand and lowering stay ONE predicate, or the
-   C152 pool invariant dies. Verify DATA 000B for E48E7 against the golden.
-5. **Arm 5 — bit item behind a file attach** (`authorize_file_item`, refusal text quoted in
-   `BASELINE-MINE.txt` E48E8; the console bit chain already exists at ~10775 `Vbit1`). Admit
-   `Vbit1` on the file route and reuse the SAME chain bytes
-   (`3A *D(b) / 06 01 / CD ?QB08C / CD ?PNBOP`) inside [C296]'s frame; §2.5 + E46L3 prove the
-   chain is route-invariant. PUT EDIT of a bit item and every other unadmitted file class stay
-   refused. Keep the falsified premise of the removed guard visible as a SUPERSEDED comment.
-6. **Claims + registration + gate.** Record C327+ from RESULTS §2 ONLY (each citing its golden),
-   classify §2.6 as `dr-refuses` and arms 1-5 as `my-gap`; append the traceable correction to
-   **[C296]** ("`LXI H,<fcb>`" is really `LXI H,*C(0000)`, a CODE self-address — HYPOTHESES.md
-   §Prior-evidence has the byte dump) and to [C324]/[C310]'s [TBD] clauses (closed by
-   reference, originals kept). Register E48E1..E48E5, E48E7, E48E8 in the gate's own
-   `SPECIMENS.update({...})` dict in `tools/e2e_gate.py` (NOT `spec/SPECIMENS.tsv`, which is a
-   stale E2E-39 artefact; precedents `992ccad`/`f67cc6d`/`adbfa2a`), **BYTE TIER ONLY — no
-   `spec/RUNTIME.txt` and no `OUTPUT_CHECK` row may come from this round**. E48E6 is NOT a
-   specimen: it has no `.REL`; if a negative row for it is wanted it must go through the gate's
-   write path with an explicit reason, never by hand-editing a verdict. Then
-   `python3 tools/e2e_gate.py --update-inventory` (review the diff line by line), census
-   `cp spec/census/corpus-census.json /tmp/census-prev.json && python3 tools/corpus_census.py
-   --check /tmp/census-prev.json` (re-read EVERY msg delta; a corpus advance is not a
-   regression), `python3 tools/coverage_check.py`, `registration_audit`, and the FULL GATE
-   `python3 tools/e2e_gate.py` — **report ACTUAL numbers, never expected** (baseline was 1120/0,
-   negative 181/181, divergence 9/9, coverage 113 rows). Then `spec/COVERAGE.tsv` rows for the
-   five new shapes vs the new claims (15 columns, `manual_ref = NONE:<why>`, MEASURED rows cite
-   probes named by their OWN claims; `coverage_check` REWRITES
-   `spec/census/coverage-stats.json` — commit that path when it changes).
-
-**Standing:** never touch `golden/e48p1`, `e48p2c`, `e48p2d` (botched run), `e48p2db`,
-`e48p2retire`, `e42p1c`, `e42p2a`, `e42p2b`, `first8080u`, `e48p2e` (new goldens — evidence);
-implement NOTHING from RESULTS §3 (fixed member in a STORE, member-vs-member, BASED member in a
-condition, over-extent INITIAL/store, any runtime claim); no `%include`/LOAN2 work without its
-own pre-registered round; **do not commit or revert `handoff.config.json` — the
-`workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
-CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
-procedure call — see LEARNINGS); renewal values live ONLY in handoff.config.json / /guard status.
+- Claims C327..C332 appended to spec/CLAIMS.md from RESULTS §2 ONLY, bytes re-derived
+  this session from the goldens with chaindump.py/reldump.py (accepted); [C296]
+  ANNOTATION carries the VERIFIED spelling: attach operand `21 *C(0000)` = `RELOC
+  common 0x0` at 0023 of BOTH E46M1 and E48E8, `load_file_cb` (codegen.ml:1229) emits
+  `reloc st Common 0` — round 5's "CODE self-address" is labelled superseded in the
+  [C296] annotation, the HYPOTHESES.md addendum (original kept verbatim) and LEARNINGS.
+- Appends (originals kept): [C310] ANNOTATION 3, [C313] ANNOTATION 2, [C324], [C325].
+- e2e_gate.py: SPECIMENS.update E48E1..E48E5,E48E7,E48E8 BYTE TIER ONLY (E48E6 NOT a
+  specimen); NEG_META["E46K14"] = ("dr-refuses", BIT REQ + .PRN + [C332]) override
+  AFTER the K2..K15 loop (E46K10 precedent). --update-inventory reviewed line-by-line:
+  7 specimen rows + E46K14 reason swap, total 1127. census --check: counts identical
+  15/0/26/0 (metadata-only json delta committed). coverage_check: 118 rows 0 errors;
+  5 new rows + 6 annotated rows committed with coverage-stats.json at `0e64c8b`.
+- NOT re-run this session: the FULL GATE (owed above) and the clean-rebuild warning
+  multiset re-check.
 
 ## Unfinished operations
 
-- **No half-finished edit.** Arm 4 landed at `046046a`; ARM 5 NOT started; step 6 OWED
-  (claims C327..C332 — the
-  ledger ends at C326; NEG_META E46K14 dr-refuses re-classification; SPECIMENS registration of
-  the 7 probes byte tier only; `--update-inventory`; census `--check`; `coverage_check`;
-  `registration_audit`; FULL GATE reporting ACTUAL; COVERAGE rows; the [C296] `LXI H,*C(0000)`
-  correction) — all specified command-level in the single active Next-action section above.
+- **No half-finished edit.** Step 6 is COMMITTED (`809af8d`, `0e64c8b`); the ONE
+  unfinished item is the FULL GATE run + ACTUAL report above. Nothing else is owed.
 - The working tree at this checkpoint carries ONLY the operator's `handoff.config.json` edit.
 
 ## Discoveries not yet incorporated
@@ -165,95 +114,50 @@ procedure call — see LEARNINGS); renewal values live ONLY in handoff.config.js
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 58
-checkpoint-id: g58-a424d5db55b4
-checkpoint-kind: auto
+checkpoint-generation: 62
+checkpoint-id: g62-084ed7b0c916
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3588, session 01a190ef-2349-70b4-8abc-b0ea2391b327)
-checkpointed: 2026-10-31T15:27:02.215Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~981, session 01a19293-88a6-70b4-8abc-b0ee77b4885e)
+checkpointed: 2026-10-31T15:49:27.325Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 47e440890ca9e5207172094c8f1d1e4136e84b59bda592ee282f8bc60637081b
-source-handoff: 6ddff0e016a27705216d585d0311864068c446ae5c738c3cc411629d31053655
+source-progress: 97a384c521b7216ef7d4ae81256018c6200858179a119d352cba7284cb5c470b
+source-handoff: aec8d333d3360349ab44258d27d5b35b2a77417406e4b6ad515703af0cf8f3bd
 source-learnings: 9afe3635eeaeeb410e3cb30f468815221fb1a26fc29ed4a80ced4f5b74847503
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19293-88a6-70b4-8abc-b0ee77b4885e
+readiness-at: 2026-10-31T15:49:27.327Z
+readiness-checkpoint: g62-084ed7b0c916
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-48/P2e: LOWER ARM 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
+— E2E-48/P2e STEP 6 COMMITTED (`809af8d` + `0e64c8b`); ONE step remains: FULL GATE
 
-> Arm numbering keeps the round's ids: arms 1–2 landed at `d18c6ab`/`bab0d16` (specs archived
-> in `docs/history/2026-10-30-next-actions.md`) and arm 3 at `e49902a` (spec + measured closure
-> archived in `docs/history/2026-10-31-p2e-arm3-closed.md`); references to a landed arm mean
-> completed, measured work. **ONE arm per commit**, `cd ocaml && eval $(opam env) && dune build`
-> + the cmp sweep after EACH (LEARNINGS rule: one arm, one build, one sweep).
-
-Sweep loop (expect E48E 7/7 after arm 5; at `046046a` E48E1..E48E5 + E48E7 are exact and
-E48E8 refuses by name — arm 5; E48E6 must KEEP refusing):
-
-    for n in 1 2 3 4 5 7 8; do ./ocaml/_build/default/bin/pli80c.exe probes/E48E$n.PLI /tmp/sw/E48E$n.REL \
-      && cmp /tmp/sw/E48E$n.REL golden/e48p2e/E48E$n/E48E$n.REL && echo "E48E$n IDENTICAL"; done
-
-Then the regression sweeps: E48D1..D10 (`golden/e48p2db`) 10/10, E48C1..C9 9/9, e48p1 24/24,
-E46K1/K3 2/2 (`golden/e48p2retire`), and the FULL negative panel with GATE semantics (CRLF +
-`^Z`, stderr) — 181 rows, and E46K14's marker must NOT move (see arm 2).
-
-(Step 3 — arm 3 `= '0'b' VALUE` — is DONE and measured at `e49902a`; its verbatim spec and
-the actuals are archived in `docs/history/2026-10-31-p2e-arm3-closed.md`. Numbering below
-keeps the round's ids.)
-
-4. **Arm 4 — FIXED member in TEST via `?SCCCM`** (the biggest arm; §2.4). `str_side` (6870)
-   classifies only `Vimem m when m.varying -> Some (`Imem name)`; add a FIXED-member variant that
-   carries `m.cap` (the declared extent IS in `mem_char`, codegen.ml:26-27). Add a new
-   literal-LEFT/fixed-RIGHT encoder producing exactly
-   `21 *D(member) / 11 *D(pool lit) / 06 len / 3E cap / CD ?SCCCM`, used by `lower_test_skip0`
-   (the guard at 7597 and the destructuring at 7609) — NOT by `bit_cond_mat`: §2.4 measures TEST
-   only and §3 says a fixed member in a STORE is unmeasured, so the STORE route must keep
-   refusing it. **THE DEMAND TWIN IS MANDATORY (the fa09b97/e21281a law):** `prescan_cond`'s
-   `is_var` (~2981) currently returns `m.varying`; widen it to admit a FIXED internal member
-   ONLY because the TEST route now admits it — demand and lowering stay ONE predicate, or the
-   C152 pool invariant dies. Verify DATA 000B for E48E7 against the golden.
-5. **Arm 5 — bit item behind a file attach** (`authorize_file_item`, refusal text quoted in
-   `BASELINE-MINE.txt` E48E8; the console bit chain already exists at ~10775 `Vbit1`). Admit
-   `Vbit1` on the file route and reuse the SAME chain bytes
-   (`3A *D(b) / 06 01 / CD ?QB08C / CD ?PNBOP`) inside [C296]'s frame; §2.5 + E46L3 prove the
-   chain is route-invariant. PUT EDIT of a bit item and every other unadmitted file class stay
-   refused. Keep the falsified premise of the removed guard visible as a SUPERSEDED comment.
-6. **Claims + registration + gate.** Record C327+ from RESULTS §2 ONLY (each citing its golden),
-   classify §2.6 as `dr-refuses` and arms 1-5 as `my-gap`; append the traceable correction to
-   **[C296]** ("`LXI H,<fcb>`" is really `LXI H,*C(0000)`, a CODE self-address — HYPOTHESES.md
-   §Prior-evidence has the byte dump) and to [C324]/[C310]'s [TBD] clauses (closed by
-   reference, originals kept). Register E48E1..E48E5, E48E7, E48E8 in the gate's own
-   `SPECIMENS.update({...})` dict in `tools/e2e_gate.py` (NOT `spec/SPECIMENS.tsv`, which is a
-   stale E2E-39 artefact; precedents `992ccad`/`f67cc6d`/`adbfa2a`), **BYTE TIER ONLY — no
-   `spec/RUNTIME.txt` and no `OUTPUT_CHECK` row may come from this round**. E48E6 is NOT a
-   specimen: it has no `.REL`; if a negative row for it is wanted it must go through the gate's
-   write path with an explicit reason, never by hand-editing a verdict. Then
-   `python3 tools/e2e_gate.py --update-inventory` (review the diff line by line), census
-   `cp spec/census/corpus-census.json /tmp/census-prev.json && python3 tools/corpus_census.py
-   --check /tmp/census-prev.json` (re-read EVERY msg delta; a corpus advance is not a
-   regression), `python3 tools/coverage_check.py`, `registration_audit`, and the FULL GATE
-   `python3 tools/e2e_gate.py` — **report ACTUAL numbers, never expected** (baseline was 1120/0,
-   negative 181/181, divergence 9/9, coverage 113 rows). Then `spec/COVERAGE.tsv` rows for the
-   five new shapes vs the new claims (15 columns, `manual_ref = NONE:<why>`, MEASURED rows cite
-   probes named by their OWN claims; `coverage_check` REWRITES
-   `spec/census/coverage-stats.json` — commit that path when it changes).
-
-**Standing:** never touch `golden/e48p1`, `e48p2c`, `e48p2d` (botched run), `e48p2db`,
-`e48p2retire`, `e42p1c`, `e42p2a`, `e42p2b`, `first8080u`, `e48p2e` (new goldens — evidence);
-implement NOTHING from RESULTS §3 (fixed member in a STORE, member-vs-member, BASED member in a
-condition, over-extent INITIAL/store, any runtime claim); no `%include`/LOAN2 work without its
-own pre-registered round; **do not commit or revert `handoff.config.json` — the
-`workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
-CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
-procedure call — see LEARNINGS); renewal values live ONLY in handoff.config.json / /guard status.
+1. Run the FULL compile-tier gate: `cd /home/john/projects/sushiworks/pli80 &&
+   python3 tools/e2e_gate.py` — **report ACTUAL numbers, never expected** (before this
+   round's registration it was 1120/0; the 7 new byte-tier specimens make 1127 expected,
+   but only the run decides). Expect negative 181/181 (E46K14 stays a refusal row, now
+   dr-refuses, marker re-measured unmoved), divergence 9/9, coverage 118 rows 0 errors,
+   census 15/0/26/0, prose clean, rc=0. The binary is built (`eval "$(opam env)" &&
+   dune build` in ocaml/ was rc=0 this session; rebuild if the tree moved).
+2. If rc=0: rewrite the HANDOFF/PROGRESS manual prose to close the phase (the managed
+   block refreshes via /handoff or handoff_finalize; never hand-edit it), note that the
+   E2E-48/P2e round is COMPLETE, and let the OPERATOR choose the next round (candidates
+   are RESULTS §3: member-vs-member, BASED member, over-extent INITIAL/store, PUT EDIT
+   bit item, `^(k = -c)` composition probe, `%include`/LOAN2 — each needs its own
+   pre-registered round). If the gate FAILS: do not patch prose around it — classify the
+   delta against the panels, fix only what the ACTUAL indicts, re-run, commit.
+3. Standing: goldens untouched; §3 shapes NOT implemented; no push; never stage/commit/
+revert the operator's `handoff.config.json` edit; renewal values live ONLY in
+`handoff.config.json` / `/guard status`.
 
 ### Guard notes
-Arm 4 landed+measured at 046046a (E48E7 byte-identical; gate 1120/0, neg 181/181 E46K14 unmoved, sweeps 45/45, multiset 126). NEXT: HANDOFF ## Next action — arm 5 (authorize_file_item admits Vbit1, console chain in [C296] frame) then step 6 (claims C327..C332, [C296] correction, SPECIMENS byte tier only, inventory/census/coverage/audit, FULL GATE ACTUALS, COVERAGE rows). Tree: operator config edit only.
+E2E-48/P2e step 6 COMMITTED at 809af8d (claims C327..C332 from RESULTS §2; [C296] COMMON-reloc annotation — round 5's CODE-self-address misreading superseded traceably; appends [C310]/[C313]/[C324]/[C325]; NEG_META[E46K14]=dr-refuses override after the K2..K15 loop; SPECIMENS.update E48E1..E48E5,E48E7,E48E8 BYTE TIER ONLY; --update-inventory reviewed line-by-line, 1127 rows; census --check counts identical 15/0/26/0) and 0e64c8b (5 new COVERAGE rows STOR.BIT1_COND_LADDER_SIGN/STOR.BIT1_COND_NEG_LADDER/STOR.BIT1_ZERO_LIT_VALUE/COND.FIXED_MEMBER_TEST_SCCCM/IO.PUT_BIT1_FILE_ITEM + 6 annotated rows, coverage_check 118 rows 0 errors, coverage-stats.json committed). Build rc=0 this session. ONLY remaining work: FULL GATE run `python3 tools/e2e_gate.py` at HEAD 0e64c8b — report ACTUAL (before registration 1120/0; expect 1127/0, neg 181/181 E46K14 marker unmoved, div 9/9, cov 118/0, census 15/0/26/0, multiset 126 not re-checked); if rc=0, rewrite HANDOFF/PROGRESS closing prose and finalize. Exact spec in HANDOFF.md ## Next action. Tree: operator handoff.config.json edit only — never stage/commit/revert it. No push. Goldens untouched; §3 shapes not implemented.
 <!-- guard:end checkpoint -->

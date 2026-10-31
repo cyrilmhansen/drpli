@@ -718,3 +718,25 @@ The guard never writes this file.
   is not data — read the tag table before turning tool output into a correction;
   the durable docs were the wrong source here and AGENTS.md's rule applied: the
   repository wins, the documents get corrected.
+
+## Accepted (E2E-48/P2e step 6 execution, verified 2026-10-31, session renewal 3/12)
+
+* **accepted** — the owed [C296] correction was landed with IN-SESSION re-derivation, not by
+  trusting the checkpoint: `tools/reldump.py` on `golden/e42p2b/E46M1/E46M1.REL` and
+  `golden/e48p2e/E48E8/E48E8.REL` printed `RELOC common 0x0` covering code 0023 in both, and
+  `chaindump.py:147`'s tag table was re-read — confirming the COMMON reading (not round 5's
+  "CODE self-address"). The correction is recorded traceably in [C296]'s ANNOTATION, an
+  HYPOTHESES.md addendum (prediction text kept verbatim) and the falsified LEARNINGS entry.
+* **accepted (panel mechanics)** — when one NEG perimeter row covers shapes whose measured
+  verdicts SPLIT (E46K1/K3 = DR accepts, E46K14 = DR `BIT REQ`, thirteen still untested), the
+  row's `dr_status` column stays `UNTESTED` for the whole perimeter and the per-shape verdicts
+  live in SUPERSEDED/boundary prose with claim cites; flipping the column would assert one
+  verdict for fifteen shapes — [C256]'s error class in a column.
+* **accepted (inventory mechanics)** — `--update-inventory` keys a refusal row's identity on
+  its NEG_META reason TEXT, so a category re-classification (E46K14 unmeasured -> dr-refuses)
+  correctly shows up as a substitution in the reviewed diff; a re-classification therefore must
+  always be followed by the inventory update + `--check`, never a hand-edit of the file.
+* **accepted** — step 6 landed as two commits (`809af8d` ledger+gate, `0e64c8b` COVERAGE+stats);
+  coverage_check passed at 118 rows BEFORE the full gate ran, and the FULL GATE at HEAD
+  `0e64c8b` (reporting ACTUAL numbers) is the ONE remaining debt, specified command-level in
+  HANDOFF.md ## Next action.
