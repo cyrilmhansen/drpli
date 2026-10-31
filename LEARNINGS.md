@@ -163,6 +163,28 @@ The guard never writes this file.
   change in GOAL/prose/LEARNINGS/config yields `content-delta: none`, and readiness then warns
   "checkpoint recorded nothing new" — write the discoveries first, then refresh.
 
+## Accepted (E2E-49/P1 session, measured 2026-11-01, inversion round)
+
+- **Discriminating-probe design beats verdict-only probing.** E48E7's single object left
+  three readings indistinguishable (HL=right vs HL=internal-cell vs class-polarity of the
+  length bytes); writing the operand INVERSION was the minimal move that separated all
+  three at once, and it paid off: the answer was a FOURTH shape no form predicted. A
+  pre-registered falsifier list that NAMES the surprising bytes ("`EB` anywhere",
+  "a different helper", "a TRUNCATED pool literal") converts an encoding MISS into a
+  recorded, scoreable result — P-A1 scored HIT(verdict)/MISS(encoding) with zero prose
+  rewritting (PROTOCOL #2 kept the MISS in §1).
+- **One sample cannot separate a class law from a positional law.** [C330]'s
+  "A=capacity, B=source-length" reading was a coincidence of its literal-left sample; the
+  positional law (B = LEFT operand's attribute, A = RIGHT's) explains ALL five compare
+  objects (?SCVCM/?SCCVM/?SCCCM both orientations, over-extent included) — the ledger
+  correction goes at [C330] labelled falsified, text kept (step 6). Method: when a law is
+  read from ONE orientation, write the mirror probe before generalising.
+- **Raw-byte diffs of bit-packed `.REL` files are misleading** (re-confirmed): the A1-vs-
+  E48E7 raw diff is ~200 bytes of noise; authority stays with `tools/reldump.py` /
+  `chaindump.py` segment views, and "byte-identical except the module name" must be
+  counted as the THREE name-field bytes (PROG-NAME/EXTDEF/DEF-PUBLIC), not asserted
+  loosely (PROTOCOL #6).
+
 ## Accepted (E2E-48/P2d arm f, measured 2026-10-30, renewal 4/8 successor)
 
 - **A handoff's "exact landing spec" is a hypothesis about the code, not a substitute for reading

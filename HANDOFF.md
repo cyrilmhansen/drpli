@@ -31,7 +31,7 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Last verified state — E2E-48/P2e CLOSED (FULL GATE measured in-session at `0749fa6`, 2026-10-31)
+## Last verified state — E2E-49/P1 IN FLIGHT (arm 1 landed at `fee935e`; FULL GATE not yet run this round; prior P2e record follows, superseded)
 
 - The round's ONE remaining debt — the FULL compile-tier gate `python3 tools/e2e_gate.py` — was
   run to completion **this session** at HEAD `0749fa6` (tree = step-6 commits `809af8d`+`0e64c8b`
@@ -54,7 +54,31 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   step-6 record, prior-arms prose, verified-evidence, stale debts bullet) archived verbatim in
   `docs/history/2026-10-31-p2e-closed.md`.
 
-## Next action — E2E-48/P2e CLOSED; awaiting the OPERATOR's next-round choice (no compiler work is authorized meanwhile)
+## Next action — E2E-49/P1: arm 2 (bare spelling) then step 6 (ledger) + FULL GATE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
+
+**ACTIVE PLAN (exact, also in PROGRESS.md → Current phase):** lineage = prediction SHA
+`9b3d860`, fill-in `0e9cc3d`, oracle run + goldens + `spec/lab-evidence/e2e49-p1/RESULTS.md`
+(4 ok / 4, all ACCEPTS, no dr-refuses) at `c8285cb`, arm 1 lowering at `fee935e` with
+ACTUALS E49A1/A3/A4 whole-file BYTE-EXACT, E49A2 still refuses (arm 2's object), E48E7
+regression exact, E48 sweep 43/43, dune rc=0. Measured laws (RESULTS s2): inverted fixed
+TEST = `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len / CD ?SCCCM / skip`; length
+immediates POSITIONAL (B = LEFT, A = RIGHT) — falsifies [C330]'s capacity-in-A reading
+(append labelled correction at C330, keep text); name does not flip; ^= CA measured;
+over-extent literal accepted, pooled whole. (1) ARM 2: `str_side` Eident admits BARE fixed
+as new `ImemFb (orig,cap)`; `str_cmp_shape_fix` member-LEFT arm matches `ImemF`/`ImemFb`,
+literal-RIGHT arm keeps `ImemF` only (bare member-RIGHT unmeasured); widen `is_test_left`
+in the SAME commit; annotate superseded bare sentences; build, E49A2 whole-file cmp, no
+output moves elsewhere, commit codegen.ml with ACTUALS. (2) STEP 6: claims C333..C336 from
+RESULTS s2 ONLY + C330 correction; INVENTORY 4 specimen rows after E48E8; census
+re-snapshot; 4 COVERAGE.tsv rows; commit; then FULL gate `python3 tools/e2e_gate.py`
+(expect 1131 byte-exact; negative 181/181 E46K14 marker unmoved; div 9/9; coverage 0
+errors) and record ACTUALS. (3) CLOSE: rewrite this + PROGRESS with real ACTUALS, archive
+superseded prose to docs/history/, commit, /handoff finalize, renew or stop. OUT OF SCOPE,
+keep refusing (e2e49-p1 RESULTS s3): STORE fixed member, member-vs-member,
+literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT
+([TBD]), `^( )`; NO RUNTIME row; no push; never touch the operator config edit.
+
+### Superseded (E2E-48/P2e close, kept as written)
 
 1. **No new scientific action is authorized in this repository until the operator names the
    next round.** Candidate pool (all from `spec/lab-evidence/e2e48-p2e/RESULTS.md` §3, each

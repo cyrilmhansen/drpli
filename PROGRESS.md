@@ -3,7 +3,60 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-48/P2e CLOSED; FULL GATE rc=0 measured in-session at `0749fa6` (2026-10-31); awaiting OPERATOR's next-round choice
+## Current phase — E2E-49/P1 IN FLIGHT (operand-inverted FIXED compares; oracle done 4/4 ACCEPTS; arm 1 editing)
+
+- Pre-registration COMMITTED: prediction SHA **`9b3d860`** (probes/E49A1..E49A4.PLI +
+  mkprobes.py + HYPOTHESES.md + BASELINE-MINE.txt), fill-in child **`0e9cc3d`**; both are
+  ancestors of the single oracle run. My baseline refused all four (rc=2, imem_refuse
+  "comparison").
+- Oracle run COMMITTED at **`c8285cb`** (goldens `golden/e49p1/` + `spec/lab-evidence/
+  e2e49-p1/RESULTS.md` together): **4 ok / 4**, all PRNs clean both passes — NO dr-refuses
+  this round; every gap is `my-gap`. Measured (RESULTS s2): (1) member-left fixed TEST is
+  `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len / CD ?SCCCM / skip` — XCHG staging
+  confirms [C191]'s HL=right/DE=left and the member-left-XCHG clause for the FIXED class;
+  (2) the length immediates are POSITIONAL (B = LEFT operand's attribute, A = RIGHT's) —
+  this FALSIFIES [C330]'s class-polarity reading; correction must be APPENDED at C330
+  keeping the falsified text (PROTOCOL #2); (3) helper name does not flip with orientation;
+  (4) bare spelling E49A2 byte-identical to E49A1 except the 3 module-name field bytes;
+  (5) `^=` skip CA measured in the family (E49A3 0014 = ca) — arm-4's [C072] synthesis
+  became measurement; (6) over-extent literal ACCEPTED, 'ABCD' pooled WHOLE, DATA 000D
+  (E49A4). CODE 66 = E48E7's 65 + EB. P-A1 scored HIT(verdict)/MISS(encoding): none of
+  the three pre-registered forms; the EB falsifier fired.
+- **ARM 1 IN PROGRESS, UNCOMMITTED**: `ocaml/lib/codegen.ml` edited — `str_cmp_shape_fix`
+  now returns `(hl_fn, de_fn, b_len:int, a_len:int)` and gained the member-LEFT arm
+  (`ImemF`, `Lit`) → LXI H,*D(member)/XCHG/LXI H,*D(pool)/06 cap/3E len; lower_test_skip0
+  arm updated to the int pair; prescan `is_test_left` twin added (QUALIFIED only, mirrors
+  the arm exactly) and `wants` gained `(is_lit b <> None && is_test_left a)`; superseded
+  sentences annotated in the str_side/arm-4-header/prescan/lower_test comments and the
+  imem_refuse "comparison" WHY gained an ADDENDUM (originals kept verbatim). NOT yet
+  built or byte-tested at this checkpoint.
+- NEXT (exact): (a) `cd ocaml && eval "$(opam env)" && dune build`; (b) run
+  `./ocaml/_build/default/bin/pli80c.exe probes/E49An.PLI /tmp/out49/E49An.REL` and
+  `cmp` WHOLE FILES against `golden/e49p1/E49An/E49An.REL` for n=1,3,4 (expect byte-exact;
+  E49A2 must STILL refuse at arm 1 — bare is arm 2) plus regression `cmp` on E48E7
+  (literal-left unchanged) and a quick sweep e48p1/e48p2c/e48p2db/e48p2retire; commit arm 1
+  with ACTUALS. (c) ARM 2: admit the BARE fixed spelling as `ImemFb (orig, cap)` in
+  `str_side`'s Eident arm ONLY for the member-LEFT orientation (bare member-RIGHT has no
+  object — keep the `orig <> m.name` gate on the `ImemF` arms; `str_cmp_shape_fix`
+  member-left arm matches both `ImemF` and `ImemFb`; widen `is_test_left` to both
+  spellings in the SAME commit — one predicate law); E49A2 whole-file cmp; annotate the
+  "no probe ever put a BARE fixed member in a compare" sentence as superseded.
+  (d) STEP 6 ledger: claims C333.. (one per RESULTS s2 law, derived from s2 ONLY) + the
+  C330 positional-correction append; INVENTORY specimens E49A1..A4 (byte tier), census
+  re-snapshot, COVERAGE rows (schema spec/COVERAGE-SCHEMA.md), audit counts. (e) FULL
+  compile-tier gate `python3 tools/e2e_gate.py` (expect 1131 byte-exact after registration,
+  negative 181/181 with E46K14 marker unmoved, div 9/9, coverage 0 errors, census check) —
+  record ACTUALS. (f) rewrite HANDOFF/PROGRESS closing prose, commit managed-block refresh
+  via /handoff finalize, renew or close.
+- Out of scope, keep refusing (RESULTS s3): fixed member in STORE (both orientations),
+  member-vs-member, literal-vs-literal fixed, BASED members, truthiness of a fixed member,
+  bare member-RIGHT, over-extent literal-LEFT (ungated template stays [TBD]), `^( )`
+  composition. NO `spec/RUNTIME.txt` row may come from this round.
+- Standing: goldens untouched except the NEW `golden/e49p1`; no push; never
+  stage/commit/revert the operator's `handoff.config.json` edit; renewal values live ONLY
+  in `handoff.config.json` / `/guard status`.
+
+## Superseded working-state prose — E2E-48/P2e close record (archive verbatim to docs/history/ at this round's step 6, per convention)
 
 - The round's ONE remaining debt ran and was verified THIS session: FULL compile-tier gate
   `python3 tools/e2e_gate.py` **rc=0**, ACTUAL **1127 byte-exact / 0 fail of 1127** (the seven
