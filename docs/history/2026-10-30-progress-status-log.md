@@ -462,3 +462,18 @@ Pending bullet: retired lineage items (RETIRE round, step 6, step 7 — all meas
 - **DONE this session (kept for lineage):** the RETIRE round oracle (`630e9be` prereg -> 2 ok/2 ->
   promoted at `1480d6f`), step 6 registration (`--update-inventory` + FULL GATE measured at
   `f67cc6d`), and step 7's five COVERAGE rows (`ef0a198`).
+
+## Excerpt — PROGRESS.md, lines 463–465 (Mission-2 addendum, appended 2026-10-31)
+
+Restored verbatim by the Mission-2 consolidation audit (operator-approved correction FAIL-2): this
+Pending bullet was dropped by the Mission-1 consolidation without being archived, breaking the
+'everything consolidated out is archived verbatim' invariant. HISTORICAL STATUS: superseded and
+falsified as an operational instruction — the closed chain state was subsequently archived by the
+operator and a fresh renewal chain started at 0 under the configured cap; `handoff.config.json` and
+`/guard status` remain the sole numeric authority (this record quotes the numbers only because the
+baseline prose is restored byte-exact). Nothing below this line is edited: byte-identical to
+`f3a4c608:PROGRESS.md` lines 463–465.
+
+- **Renewal budget is EXHAUSTED (8/8, `maxRenewals: 8`).** `handoff_renew` will refuse with
+  `capped`; the operator must either raise the cap by decision or start the successor session
+  manually. Nothing about the science changes; the durable files are the recovery path either way.
