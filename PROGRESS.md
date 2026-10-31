@@ -3,18 +3,51 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-48/P2e lowering (verified at `046046a`, 2026-10-31)
+## Current phase — E2E-48/P2e: ARM 5 DONE at `c215ea0`; STEP 6 IN PROGRESS (nothing of it committed yet)
 
-- **Arm 4 DONE at `046046a`** (§2.4 ?SCCCM TEST + demand twin; E48E7 exact; gate 1120/0,
-neg 181/181 E46K14 unmoved, div 9/9, cov 113/0, census 15/0/26/0, sweeps 45/45, multiset 126).
-REMAINING: arm 5 (§2.5: authorize_file_item admits Vbit1 behind file attach; reuse console
-chain 3A *D(b)/06 01/CD ?QB08C/CD ?PNBOP inside [C296] frame; PUT EDIT bit + other classes keep
-refusing; falsified guard premise stays visible as SUPERSEDED comment) then step 6 (claims
-C327..C332 from RESULTS §2 ONLY, arms my-gap + §2.6 dr-refuses; [C296] LXI H,<fcb> correction;
-NEG_META E46K14 category; SPECIMENS.update 7 probes BYTE TIER ONLY; --update-inventory;
-census --check; coverage_check; registration_audit; FULL GATE ACTUALS; COVERAGE rows 15 cols).
-Command-level spec: HANDOFF ## Next action steps 5-6.
+- **Arm 5 DONE and measured at `c215ea0`** (§2.5: `authorize_file_item` admits Vbit1 on
+the file route; one admission line, no new encoder — the item loop's bit chain is
+route-independent already; falsified premises kept as SUPERSEDED comments; no_witness
+class-list names E48E8). ACTUALS at c215ea0: E48E **7/7** whole-file byte-identical
+(E48E6 rc=2, no .REL, keeps refusing — correct); regression 45/45 (e48p1 24/24, e48p2c
+9/9, e48p2db 10/10, e48p2retire 2/2); FULL compile-tier GATE rc=0: 1120/1120 byte-exact
+(E48E probes NOT yet registered), negative 181/181 with E46K14's marker UNMOVED,
+divergence 9/9, coverage 113/0, census 15/0/26/0, prose clean; clean-rebuild warning
+multiset 126 = 28/26/22/17/15/14/2/2 UNCHANGED. No half-edited `ocaml/` state.
+- **DISCOVERY that changes step 6 (verified, see LEARNINGS 2026-10-31):** the owed
+[C296] correction as worded in the g56 checkpoint ("`LXI H,*C(0000)`, a CODE
+self-address") is a MISREADING of chaindump: `chaindump.py:147` tags `*C` = COMMON and
+`*CODE` = CODE; `reldump` on golden/e42p2b/E46M1 and golden/e48p2e/E48E8 shows
+`RELOC common 0x0` at code 0023, matching `load_file_cb`'s `reloc st Common 0`
+(whole-file-identical objects). The operand is the COMMON group base where the FCB
+lives — [C296]'s `<fcb>` prose is right about the ROLE; append the accurate byte
+spelling, keep round 5's misreading labelled superseded; correct HYPOTHESES.md
+§Prior-evidence and the HANDOFF spec the same traceable way.
+- **Step 6 remaining (command-level spec: HANDOFF ## Next action):** claims
+C327..C332 from RESULTS §2 ONLY (C327 §2.1 ladder sign-independence + |bias|<=3 from
+-c; C328 §2.2 negated value keeps ladder head, tail C6 FF/9F; C329 §2.3 `= '0'b'` 11-
+byte value; C330 §2.4 ?SCCCM fixed-compare BOTH lengths; C331 §2.5 bit chain route-
+invariant; C327-C331 `my-gap`, C332 §2.6 DR refuses char truthiness `BIT REQ`
+= dr-refuses, cite golden/e48p2e/E48E6/E48E6.PRN); appends to [C296]/[C310]/[C313]/
+[C324]/[C325] (corrections + superseded clauses, originals kept); HYPOTHESES.md
+addendum; NEG_META["E46K14"] = ("dr-refuses", ...) override AFTER the E46K2..K15 loop
+at tools/e2e_gate.py:~4006 (precedent: the E46K10 override right after it); register
+E48E1..E48E5,E48E7,E48E8 in a NEW SPECIMENS.update block styled on the E48D bank
+(~line 1415) — BYTE TIER ONLY, E48E6 is NOT a specimen; --update-inventory (review
+diff line-by-line); census cp+--check (re-read every msg delta); coverage_check;
+registration_audit; FULL GATE reporting ACTUAL (was 1120/0, expect +7 on registration);
+then COVERAGE rows: 5 new rows — STOR.BIT1_COND_LADDER_SIGN (E48E1,E48E2,[C327]),
+STOR.BIT1_COND_NEG_LADDER (E48E3,E48E4,[C328]), STOR row for `f=(b='0'b')` (E48E5,
+[C329], SINGLE_SAMPLE), COND.FIXED_MEMBER_TEST_SCCCM (E48E7,[C330], SINGLE_SAMPLE),
+IO row for `put file(f) list(b,..)` (E48E8,[C331], SINGLE_SAMPLE) — 15 cols, manual_ref
+NONE:<why>, probes only on-panel after registration; coverage_check rewrites
+spec/census/coverage-stats.json — commit it when changed; SUPERSEDED annotations on
+IO.PUT_BIT1_ITEM, STOR.BIT1_COND_STORE, COND.BIT1_NEG_TEST, AGG.INTERNAL_CHAR_MEMBER,
+NEG.MEMBER_USE_PERIMETER (dr_status UNTESTED->REJECTS for the truthiness shape,
+[C332]), FILE.PUT_LIST_VAR's BIT(1) refusal clause. Tree carries ONLY the operator's
+handoff.config.json edit. No push.
 
+## Prior arms — closed records
 - **Arms 1 + 2 + 3 DONE and measured**: `d18c6ab` (`bit_cond_mat` merged `abs kk >= 1` arm;
   `bin_lit` folds `Eprefix(Minus,Enumber)`; bare `-0` stays refused, no golden — E48E1/E48E2
   whole-file byte-identical), `bab0d16` (NegL VALUE arm gains the ladder with `flag_neg`
@@ -134,17 +167,17 @@ step 6 and must be reported ACTUAL. Round evidence: `golden/e48p2e/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 56
-checkpoint-id: g56-824e2f35be98
-checkpoint-kind: manual
+checkpoint-generation: 58
+checkpoint-id: g58-a424d5db55b4
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-10-31T07:39:09.903Z
+checkpointed: 2026-10-31T15:27:02.215Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d81b3e840429c563bf729034580014c2ccfbcadb2e12afd69578ef561c72dff9
+source-progress: 47e440890ca9e5207172094c8f1d1e4136e84b59bda592ee282f8bc60637081b
 source-handoff: 6ddff0e016a27705216d585d0311864068c446ae5c738c3cc411629d31053655
-source-learnings: 36f809e0856e14d3d4ead98ec9ad6cbb6ba8a3e0a42f0414d6a154fc7c719326
+source-learnings: 9afe3635eeaeeb410e3cb30f468815221fb1a26fc29ed4a80ced4f5b74847503
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-48/P2e: LOWER ARM 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
 
@@ -213,9 +246,6 @@ own pre-registered round; **do not commit or revert `handoff.config.json` — th
 `workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
 CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
 procedure call — see LEARNINGS); renewal values live ONLY in handoff.config.json / /guard status.
-readiness-by: session:01a190c8-8620-70b4-8abc-b0e6eaf3f9e9
-readiness-at: 2026-10-31T07:39:09.907Z
-readiness-checkpoint: g56-824e2f35be98
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -687,3 +687,34 @@ The guard never writes this file.
   CA everywhere". The synthesis and its scope are written into the arm comment and
   the `imem_refuse` ADDENDUM so a future contradicting probe names the composition,
   not the laws.
+
+## Accepted + falsified-premise found (E2E-48/P2e arm 5 and step-6 prep, measured 2026-10-31, session renewal 2/12)
+
+* **accepted (arm 5 landed)** — `c215ea0`: `authorize_file_item` admits `Vbit1` on the
+  file route; E48E8 whole-file byte-identical. ONE admission line, no new encoder —
+  the item loop's `bit_item` chain (`3A *D / 06 01 / ?QB08C / ?PNBOP`) was already
+  route-independent, exactly as RESULTS §2.5 + E46L3 predict. Precedent reused from
+  E46L7 (P2b): on this route a class gap is authorization, not bytes.
+* **accepted (per-arm actuals)** — at `c215ea0`: E48E 7/7 exact, E48E6 rc=2 no `.REL`
+  (keeps refusing, correct dr-refuses); regression 45/45 (e48p1 24/24, e48p2c 9/9,
+  e48p2db 10/10, e48p2retire 2/2); FULL compile-tier GATE rc=0: 1120/1120 byte-exact
+  (E48E probes not yet registered), negative 181/181 with E46K14's marker UNMOVED,
+  divergence 9/9, coverage 113 rows 0 errors, census 15/0/26/0, prose check clean;
+  clean-rebuild warning multiset 126 = 28/26/22/17/15/14/2/2 unchanged.
+* **FALSIFIED (premise in the checkpoint's own owed-correction, verified 2026-10-31)**
+  — the [C296] correction owed by step 6 was stated as "`LXI H,<fcb>` is really
+  `LXI H,*C(0000)`, a CODE self-address" (HYPOTHESES.md §Prior-evidence; HANDOFF
+  step 6). Re-derivation says otherwise: in `chaindump.py` the tag table at
+  `spec/lab-evidence/e2e42-p2b/chaindump.py:147` maps `{data:*D, common:*C,
+  code:*CODE}` — `*C` is **COMMON**, not CODE. `tools/reldump.py` on
+  `golden/e42p2b/E46M1/E46M1.REL` AND `golden/e48p2e/E48E8/E48E8.REL` shows
+  `RELOC common 0x0` covering the attach operand at code 0023, and my own
+  `load_file_cb` emits `reloc st Common 0` — byte-identical whole files. So the
+  operand is a COMMON-segment reloc to offset 0 of the SEL-COMMON-selected group
+  (where the FCB lives), and [C296]'s prose `<fcb>` is right about the ROLE. The
+  owed correction must append the accurate spelling (COMMON reloc `*C(0000)`) and
+  keep, labelled superseded, BOTH the vague `<fcb>` phrasing and round 5's
+  "CODE self-address" misreading. Lesson (method, accepted): a tool's abbreviation
+  is not data — read the tag table before turning tool output into a correction;
+  the durable docs were the wrong source here and AGENTS.md's rule applied: the
+  repository wins, the documents get corrected.
