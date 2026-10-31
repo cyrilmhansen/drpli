@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "0614eaabd330cdfdc9b7e2ef665180f0",
+ "binary_md5": "8413b5727e05068152541f8ef36660e5",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,14 +15,17 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-10-30T16:58:54",
+ "generated": "2026-10-31T16:43:54",
  "git_dirty_paths": [
   "M HANDOFF.md",
   " M PROGRESS.md",
+  " M handoff.config.json",
+  " M spec/CLAIMS.md",
   " M spec/INVENTORY.txt",
+  " M spec/lab-evidence/e2e48-p2e/HYPOTHESES.md",
   " M tools/e2e_gate.py"
  ],
- "git_head": "45ec3b8e865ccc7a4c6e4fc0b456f32b6e250186",
+ "git_head": "6ea15e408776dfcfce3e6b126fe8a1d841216263",
  "rows": [
   {
    "dir_present": true,

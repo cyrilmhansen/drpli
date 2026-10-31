@@ -6821,6 +6821,18 @@ classified `unmeasured` rather than `dr-refuses`.
   E46M26, E46L11); an item on a file this compiler did not open (E46K10); and a MULTI-ITEM list on
   the CONSOLE containing a member or a decimal beside a character (E46M16, E46M12 — both DR-accepted,
   both console-route work outside this phase).
+* **ANNOTATION, E2E-48/P2e (2026-10-31): the exact byte spelling of `LXI H,<fcb>`.**  The
+  attach's first instruction is `21 *C(0000)` and its operand is a RELOC to offset 0 of the
+  COMMON group selected by the file's `LINK-SEL-COMMON` -- the area where the FCB lives -- so
+  `<fcb>` describes the ROLE correctly and this annotation adds the spelling.  Re-derived this
+  round: `tools/reldump.py` shows `RELOC common 0x0` covering code 0023 in BOTH
+  `golden/e42p2b/E46M1/E46M1.REL` and `golden/e48p2e/E48E8/E48E8.REL`, and this compiler's own
+  `load_file_cb` (`ocaml/lib/codegen.ml:1229`) emits `reloc st Common 0` in a whole-file
+  byte-identical object.  Round 5's `spec/lab-evidence/e2e48-p2e/HYPOTHESES.md`
+  §Prior-evidence read the same chaindump line as "a CODE self-address" -- SUPERSEDED: the tag
+  table at `spec/lab-evidence/e2e42-p2b/chaindump.py:147` maps `{data:*D, common:*C, code:*CODE}`,
+  so `*C` is COMMON and a CODE reference spells `*CODE`; the misreading and its correction are
+  kept as records in that file's addendum and in LEARNINGS (2026-10-31).
 
 ## C297 — A STRUCTURE MEMBER IS AN OPERAND ON THE FILE ROUTE, AND A FIXED CHARACTER MEMBER CARRIES ITS DECLARED LENGTH (E2E-42/P2b)
 
@@ -7222,6 +7234,11 @@ classified `unmeasured` rather than `dr-refuses`.
 * **Lowered.**  `bit_cond_mat` (`371a12e`) returns None for every unpinned shape, and its
   prescan demand twin `bit_store_cond_bytes` (`fa09b97`) closes the C152/C179 gap this arm
   opened -- E48A6..A12, B8, B9 whole-file byte-identical.
+* **ANNOTATION 3, E2E-48/P2e (2026-10-31): the surviving [TBD] items of the bullet above are
+  CLOSED.**  `k = c` at \|c\| = 1 and at a NEGATIVE constant are measured by [C327] (E48E1,
+  E48E2); `= '0'b'` as a stored value by [C329] (E48E5); `^(cond)` in a store beyond `^(k = 0)`,
+  both ladder regimes, by [C328] (E48E3, E48E4).  Nested `&` shapes beyond E48A14 remain [TBD]
+  untouched, and the load-order question stays as ANNOTATION 1 answered it.
 
 ## C311 — `^` OVER A GENERAL CONDITION IN TEST POSITION INVERTS THE SKIP BYTE ONLY: `C2` -> `CA` (E2E-48/P1)
 
@@ -7260,6 +7277,10 @@ classified `unmeasured` rather than `dr-refuses`.
   above is FALSIFIED -- `golden/e48p2db/E48D9` is the witness that DR ACCEPTS a non-final BIT(1)
   item with its own `?PNBOP` tail; see [C325]. PUT EDIT and file-attach bit items stay refused
   (still no witness).
+* **ANNOTATION 2, E2E-48/P2e (2026-10-31): the "bit item behind a file attach" clause is
+  CLOSED.**  `golden/e48p2e/E48E8/E48E8.REL` is the witness -- DR ACCEPTS, the chain is
+  ROUTE-INVARIANT and the bit keeps `?PNBOP` inside the `?SIOOP` frame; see [C331] (arm
+  `c215ea0`). The PUT EDIT clause stands (still no witness).
 
 ## C314 — DATA AREA LAW, EXTENDED: STATIC BIT CELLS ARE ABSOLUTE AND ADJACENT, AND STATIC ON CHARACTER IS ACCEPTED AS A FULL-EXTENT BLANK-PADDED CELL (E2E-48/P1)
 
@@ -7424,6 +7445,10 @@ classified `unmeasured` rather than `dr-refuses`.
   so the bias law is route-independent, not compare-specific.
 * **Still [TBD]:** `k = 1` in a store and negative `c` (neither varied by this bank); see
   the append to [C310].
+* **ANNOTATION, E2E-48/P2e (2026-10-31): this [TBD] is CLOSED.**  `k = 1` (E48E1) and negative
+  `c` (E48E2) are measured by [C327]: the bias is `-c` and sign-INDEPENDENT, the repeat regime
+  is \|bias\| <= 3 for both signs, and \|bias\| >= 4 spells `LXI B,two's-complement(-c)` either
+  way (E48E4 re-confirms `= 5 -> 11 FB FF`).
 
 ## C325 — A NON-FINAL BIT(1) PUT ITEM IS ACCEPTED: OWN `?PNBOP` TAIL, FOLLOWING ITEMS KEEP THEIR ROUTES, ONE `?QIOOP` CLOSES (E2E-48/P2d, §2.6; falsifies my [C313] "no witness" premise)
 
@@ -7434,6 +7459,9 @@ classified `unmeasured` rather than `dr-refuses`.
   dressed as a rule -- the same error class as P15, and D9 is the witness.
 * **Still refused:** a BIT(1) item under PUT EDIT (no sample) and a bit item behind a file
   attach (no witness anywhere, §3).
+* **ANNOTATION, E2E-48/P2e (2026-10-31): of those two clauses, the file-attach one is CLOSED**
+  -- `golden/e48p2e/E48E8/E48E8.REL` combines this row's item chain with [C296]'s frame
+  byte-for-byte; see [C331]. PUT EDIT stays refused (no witness).
 
 ## C326 — MEMBER-AS-RIGHT IN TEST TAKES THE LITERAL-LEFT `?SCCVM` ORIENTATION UNCHANGED; `LXI H` IS ALWAYS THE INTERNAL CELL (E2E-48/P2d, §2.8)
 
@@ -7446,3 +7474,118 @@ classified `unmeasured` rather than `dr-refuses`.
   the arm lands; `str_cmp_shape_rev`'s `?imem` gate widens under this single witness.
   E46K14 (`if line then`, truthiness of a CHARACTER VARYING member) is a DIFFERENT, still
   unmeasured shape and stays pinned -- re-measured, not assumed, after the arm.
+
+## C327 — STORE LADDER AT \|c\| = 1 AND AT A NEGATIVE CONSTANT: THE BIAS IS SIGN-INDEPENDENT, THE REPEAT REGIME IS \|bias\| <= 3 AND THE BIAS IS `-c`, NOT `c` (E2E-48/P2e §2.1; closes [C324]'s remaining [TBD])
+
+* **Measured.**  E48E1 code 0006 (`b = (k = 1)`): `2A *D(k) / 2B / 7C / B5 / D6 01 / 9F /
+  32 *D(b)` — ONE `DCX H`: the bias is `-c = -1` and the cell walks DOWN one step.  E48E2 code
+  0006 (`b = (k = -2)`): `2A *D(k) / 23 23 / 7C / B5 / D6 01 / 9F / 32 *D(b)` — the SAME ladder
+  with two `INX H`, because `-c = +2`: a NEGATIVE constant biases UP with `INX`, and `|c| = 2`
+  stays inside the repeat regime.  The `LXI B` regime likewise spells the two's complement of
+  `-c` for both signs — [C143]'s `= 5` is `11 FB FF` (bias `-5`), re-confirmed by E48E4's head.
+  The ladder is therefore `|c| <= 3 -> INX/DCX repeats, |c| >= 4 -> LXI B,two's-complement(-c) /
+  DAD B` for BOTH signs, exactly [C143]'s cost model with the bias's sign flipped by the
+  constant's sign.  `golden/e48p2e/E48E1/E48E1.REL`, `golden/e48p2e/E48E2/E48E2.REL`
+  (CODE 55/56, DATA 5 each).
+* **P-E2 kept its MISS visible** (RESULTS §1): the verdict (ACCEPTS) hit; my predicted encoding
+  (`LXI B,0002 / DAD B`) did not — DR walks UP with `INX` instead.  The absence of a
+  negative-constant witness was an unmeasured sign, never a licence to refuse the shape.
+* **What this does NOT say.**  Nothing about the spelling `-0` (no golden anywhere; it stays
+  refused), and nothing about a NEGATIVE constant on the TEST route — E48E2 measured the STORE
+  route only (§3).
+* **Lowered.**  Arm 1 at `d18c6ab`: `bit_cond_mat`'s merged `abs kk >= 1` arm admits the ladder
+  class and `bin_lit` folds the parser's `Eprefix (Minus, Enumber)` spelling (a negative literal
+  never arrives as a signed `Enumber`).  The bias encoder `hl_bias` ALREADY implemented this
+  rule verbatim (`abs b <= 3 -> repeats`, else `LXI B, b land 0xffff`) — the gap was in the
+  admitted CLASSES, not in the encoder.  E48E1/E48E2 whole-file byte-identical.
+
+## C328 — A NEGATED CONDITION AS A STORE VALUE KEEPS THE LADDER HEAD AND RETARGETS ONLY THE FLAG TAIL: `C6 FF / 9F`, NEVER `CMA` (E2E-48/P2e §2.2; extends [C310] to both ladder regimes)
+
+* **Measured.**  E48E3 code 0006 (`b = ^(k = 2)`): `2A *D(k) / 2B 2B / 7C / B5 / C6 FF / 9F /
+  32 *D(b)` — [C324]'s `DCX` head UNCHANGED with [C095]'s negated tail `ADI FF / SBB A` in place
+  of `SUI 01 / SBB A`.  E48E4 code 0006 (`b = ^(k = 5)`): `2A *D(k) / 11 FB FF / 09 / 7C / B5 /
+  C6 FF / 9F / 32 *D(b)` — the same rule over the `LXI B / DAD B` head.  No `CMA` (0x2F) appears
+  in ANY E48 object across P1/P2c/P2d/P2e: `^` in a value is the flag-polarity flip, never an
+  operand complement.  `golden/e48p2e/E48E3/E48E3.REL`, `golden/e48p2e/E48E4/E48E4.REL`
+  (CODE 56/58, DATA 5 each).
+* **Scope note.**  The rule now holds for `= 0` ([C310]) AND both ladder regimes (this claim).
+  `^(k = -c)` as a value COMPOSES §2.1's sign-independent head with this tail retarget, but no
+  golden emits a NEGATION over a NEGATIVE ladder: that composition is recorded in the arm comment
+  as a scope note (LEARNINGS 2026-10-30), not as measured law.
+* **Lowered.**  Arm 2 at `bab0d16`: the NegL VALUE arm gained the ladder with `flag_neg`'s
+  `C6 FF / 9F` tail.  E48E3/E48E4 whole-file byte-identical; E46K14's pinned negative marker
+  re-measured through the binary and UNMOVED.
+
+## C329 — `= '0'b' AS A MATERIALISED VALUE IS 11 BYTES: NO `SUI 80` NORMALISER, THE FLAG ARITHMETIC SUBTRACTS THE 1 DIRECTLY (E2E-48/P2e §2.3)
+
+* **Measured.**  E48E5 code 0006..0010 (`f = (b = '0'b')`): `3A *D(b) / E6 80 / D6 01 / 9F /
+  32 *D(f)` — six of the eleven bytes are the [C095] flag tail.  Against [C310]'s `'1'b` value
+  (E48A10 0006, 13 bytes `3A / E6 80 / D6 80 / D6 01 / 9F / 32`) the `'0'b` form OMITS the
+  `SUI 80` normaliser and subtracts the 1 directly; the semantics agree: `b` is high-bit
+  justified, so after `ANI 80` the accumulator is `00` or `80`, a bit VALUE is 128, and
+  `= '1'b'` is `(acc − 128) − 1` while `= '0'b'` is `acc − 1`.  `golden/e48p2e/E48E5/E48E5.REL`
+  (CODE 54, DATA 4): the bit literal demands NO pool cell.
+* **P-E5's byte guess is kept as a MISS** (RESULTS §1): I predicted a variant of the 13-byte
+  `'1'b` form; the object is 11 bytes.
+* **Lowered.**  Arm 3 at `e49902a`: `bit_cond_mat`'s `Eq` fallback admits `Ast.Ebit "0"` on a
+  `Vbit1` left.  E48E5 whole-file byte-identical; E48E6 kept refusing through the new binary.
+
+## C330 — A FIXED CHARACTER OPERAND IN A COMPARE TAKES A NEW HELPER, `?SCCCM`, CARRYING BOTH LENGTHS: `MVI B,<literal len>` AND `MVI A,<DECLARED extent>` (E2E-48/P2e §2.4)
+
+* **Measured.**  E48E7 code 0006 (`if 'AB' = rec.name then`): `21 *D(member cell) /
+  11 *D(pooled literal) / 06 02 / 3E 03 / CD ?SCCCM / C2 00 00` with the skip filled to `001C`,
+  the NEXT statement ([C309]'s no-else rule).  This is [C191]'s fixed-vs-literal counterpart in
+  the `?SCVCM`/`?SCCVM` family — the `CC` pair names the two FIXED operands — and it is the
+  FIRST object anywhere that compares a FIXED character through a helper.  The register law is
+  [C191]'s as [C326] restated it: `LXI H` carries the INTERNAL CELL regardless of side, `LXI D`
+  the pool literal, the LITERAL's length in B and the DECLARED extent in A (the
+  capacity-in-A/length-in-B polarity of [C191]/[C197] in a compare).  DATA 000B: pool `'AB'` at
+  0000 and `'K='` at 0002, then the AUTOMATIC record frame (member `name` at 0004, `k` at 0009)
+  — [C314]'s layout law unchanged.  `golden/e48p2e/E48E7/E48E7.REL` (CODE 65).
+* **What this does NOT license** (RESULTS §3): `?SCCCM` in a STORE, a FIXED member on the LEFT
+  of a TEST, a fixed-literal-vs-fixed-literal compare, member-vs-member, and any BASED member in
+  a condition — no object; the STORE route keeps refusing.
+* **Lowered.**  Arm 4 at `046046a`: `str_side` admits a QUALIFIED fixed member as `ImemF (key,
+  cap)` — the spelling gate is `orig <> m.name`, because [C258]'s fold delivers a qualified
+  spelling as ONE `Eident` key; the new TEST-only encoder `str_cmp_shape_fix` emits
+  `21/11/06/3E/CD + [C309] skip`; the prescan demand twin `is_test_right` widens the
+  literal-LEFT clause ONLY (demand and lowering stay ONE predicate — the fa09b97/e21281a law, or
+  the C152 pool invariant dies).  The `^=`/`CA` skip follows [C072]'s family law as a synthesis,
+  recorded as [C326]'s arm recorded his.  DATA 000B verified against the golden; E48E7
+  whole-file byte-identical.
+
+## C331 — A BIT(1) PUT ITEM BEHIND A FILE ATTACH IS ACCEPTED: THE ITEM CHAIN IS ROUTE-INVARIANT, THE TAIL IS CHOSEN BY ITEM CLASS (E2E-48/P2e §2.5; closes [C313]/[C325]'s no-witness clause)
+
+* **Measured.**  E48E8 code 0023..0047 (`put file(outf) list(b, 'X')`): the [C296] frame
+  `21 *C(0000) / 11 52 06 / 01 *CODE(0048) / CD ?SIOOP`, then the bit chain `3A *D(b) / 06 01 /
+  CD ?QB08C / CD ?PNBOP` — byte-for-byte [C313]/[C325]'s CONSOLE chain — then the literal chain
+  `21 *D(000A) / 3E 01 / CD ?SLCTS / CD ?PNCOP`, then ONE `CD ?QIOOP` closing the STATEMENT.
+  CODE 81, DATA 11; `golden/e48p2e/E48E8/E48E8.REL`.  The bit item's tail is `?PNBOP` on the
+  file route too: tails are chosen by ITEM CLASS, not by route — corroborated independently by
+  `golden/e42p2a/E46L3`, whose `?QICOP / ?PNVOP` numeric chain appears under both the `?SIOOP`
+  frame and the `?SYSPR` prologue.
+* **Lowered.**  Arm 5 at `c215ea0`: ONE admission line — `authorize_file_item` admits `Vbit1` —
+  no new encoder; the item loop's bit chain was route-independent already (the E46L7 precedent:
+  on this route a class gap is authorization, not bytes).  The removed guard's falsified premise
+  stays visible as a SUPERSEDED comment.  E48E8 whole-file byte-identical.
+* **Still refused:** a BIT(1) item under PUT EDIT (no witness), and every other unadmitted file
+  item class (EXPRESSION, SUBSCRIPTED, FLOAT, POINTER, whole structure — [C296]/[C301]).
+
+## C332 — DR REFUSES A CHARACTER MEMBER USED AS A BARE CONDITION: `BIT REQ` UNDER THE STATEMENT, 1 ERROR, NO `.REL` (E2E-48/P2e §2.6, `dr-refuses`)
+
+* **Measured.**  E48E6 (`if line then k = 1;` on `2 line char(14) varying`): PASS 1 clean
+  (`NO ERROR(S) IN PASS 1`); PASS 2 echoes `14 c  if line then k = 1;`, prints `BIT REQ` with
+  `?` under the statement, `1 ERROR(S) IN PASS 2`, and produces NO `.REL` — the directory holds
+  only `golden/e48p2e/E48E6/E48E6.PRN`.  A `diag` row is evidence (LEARNINGS 2026-10-30): the
+  verdict is the refusal; the PRN's `CODE SIZE` line is a rendering and is quoted for NOTHING
+  (PROTOCOL #6).
+* **Panel consequence.**  E46K14's shape (`if line then`, the original key) is therefore DR law,
+  and its negative-panel row is RE-CLASSIFIED `unmeasured` -> `dr-refuses` with DR's word and
+  the `.PRN` attached (`NEG_META["E46K14"]` override, following the E46K10 override precedent —
+  the K2..K15 loop's generality must not overwrite a measured verdict).  The row STAYS on the
+  refusal panel: this compiler keeps refusing, and a refusal with DR's own word attached is
+  still a refusal with the SAME verdict.  My mechanism is codegen's `imem_refuse`; DR's is pass
+  2 — same verdict, different stage, exactly the asymmetry [C301] pins for `COMP REQ`.
+* **What this does NOT say** (RESULTS §3): nothing about the truthiness of a bare scalar `char`
+  variable, of `^` over one, of `&` under one, or of a FIXED member — the only witness refuses a
+  CHARACTER VARYING member as a bare condition.  What `BIT REQ` accepts elsewhere is unmeasured.

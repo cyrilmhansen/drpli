@@ -117,3 +117,19 @@ into an existing tag.  Then write `RESULTS.md` §1 as a prediction-vs-verdict ta
 P-E1..P-E8, re-read every accepted `.REL` with `tools/reldump.py` /
 `spec/lab-evidence/e2e42-p2b/chaindump.py` (never a `.PRN` size, PROTOCOL #6), and commit
 goldens + report TOGETHER.  Lowering may only touch what §2 measures.
+
+## Addendum (post-run, 2026-10-31): correction to the [C296] bullet of §Prior-evidence
+
+The bullet above is kept EXACTLY as it stood when the oracle was called (it is the round's
+prediction record).  Its sentence that the attach's first instruction `LXI H,*C(0000)` is "a CODE
+self-address, NOT `<fcb>` as [C296]'s prose words it" is SUPERSEDED.  The bytes `21 00 00` at
+code 0023 carry a relocation whose type is COMMON, not CODE: the tag table at
+`spec/lab-evidence/e2e42-p2b/chaindump.py:147` maps `{data:*D, common:*C, code:*CODE}`, and
+`tools/reldump.py` prints `RELOC common 0x0` for that operand in BOTH
+`golden/e42p2b/E46M1/E46M1.REL` and `golden/e48p2e/E48E8/E48E8.REL` (re-derived 2026-10-31).
+This compiler's own `load_file_cb` (`ocaml/lib/codegen.ml:1229`) emits `reloc st Common 0` in
+whole-file byte-identical objects.  So the operand is offset 0 of the COMMON group selected by
+the file's `LINK-SEL-COMMON` -- the area where the FCB lives -- and [C296]'s `<fcb>` prose was
+right about the ROLE; the owed correction is recorded at [C296]'s ANNOTATION, and the method
+lesson (read a tool's tag table before turning its abbreviations into a correction) is accepted
+in LEARNINGS.md (2026-10-31, with round 5's misreading kept there labelled falsified).

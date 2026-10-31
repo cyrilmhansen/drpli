@@ -1424,6 +1424,54 @@ SPECIMENS.update({
     "E48D10": ("probes/E48D10.PLI", "golden/e48p2db/E48D10/E48D10.REL"),
 })
 
+# ---------------------------------------------------------------------------
+# [E2E-48/P2e] ROUND-5 BANK -- bit/char edges: the store ladder at c = 1 and at a
+# NEGATIVE constant, negated ladder VALUES, the materialised `= '0'b'' VALUE, a
+# FIXED record member in a TEST compare through a NEW helper (?SCCCM), and a
+# BIT(1) item behind a file attach.  Eight probes, pre-registered at 421656a
+# (BEFORE any oracle call; golden/e48p2e did not exist then), measured one batch
+# 7 ok / 8 at tag e48p2e (goldens committed with RESULTS.md at e2b77ba).  All
+# SEVEN accepted probes are WHOLE-FILE byte-identical to DR; lowering arms 1-5
+# landed one per commit (d18c6ab, bab0d16, e49902a, 046046a, c215ea0) and the
+# sweep was re-run at every step (E48E 7/7 at c215ea0).  RESULTS §1 keeps every
+# MISS (P-E2's encoding, P-E5's shape, P-E6's verdict).
+#
+# E48E6 is NOT registered here and is NOT a specimen: DR REFUSED it (`BIT REQ'
+# in pass 2, NO .REL -- golden/e48p2e/E48E6/E48E6.PRN, [C332]); the directory is
+# kept as evidence.  It is not a negative-panel row either -- the panel carries
+# the same shape under its original key E46K14, whose NEG_META entry below is
+# re-classified dr-refuses with DR's word attached.
+#
+# BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from
+# this round -- the round captured .REL/.PRN evidence under $L$D and RESULTS §3
+# makes NO runtime claim (PROTOCOL #1).
+#
+#   E48E1     `b = (k = 1)': `2A *D(k) / 2B / 7C / B5 / D6 01 / 9F / 32 *D(b)' --
+#             ONE DCX H; bias is `-c', ladder sign-INDEPENDENT ([C327]).
+#   E48E2     `b = (k = -2)': the SAME ladder with TWO INX H (bias +2); the <=3
+#             repeat regime holds for negative constants too ([C327]).
+#   E48E3/E4  `b = ^(k = 2)' / `b = ^(k = 5)': ladder head UNCHANGED, tail
+#             retargeted to `C6 FF / 9F'; no CMA anywhere ([C328], [C095]).
+#   E48E5     `f = (b = '0'b')': `3A *D(b) / E6 80 / D6 01 / 9F / 32 *D(f)' --
+#             11 bytes, the `D6 80' normaliser of [C310]'s `'1'b'' form OMITTED
+#             ([C329]).
+#   E48E7     `if 'AB' = rec.name then' (FIXED member): `21 *D(member) / 11
+#             *D(pool) / 06 02 / 3E 03 / CD ?SCCCM / C2 fill -> next stmt' --
+#             NEW helper, literal length in B AND declared extent in A ([C330]).
+#   E48E8     `put file(outf) list(b, 'X')': [C296] frame + the console bit
+#             chain `3A/06 01/?QB08C/?PNBOP' verbatim, one `?QIOOP' -- chains
+#             are ROUTE-INVARIANT, tail chosen by item class ([C331]).
+# ---------------------------------------------------------------------------
+SPECIMENS.update({
+    "E48E1":  ("probes/E48E1.PLI",  "golden/e48p2e/E48E1/E48E1.REL"),
+    "E48E2":  ("probes/E48E2.PLI",  "golden/e48p2e/E48E2/E48E2.REL"),
+    "E48E3":  ("probes/E48E3.PLI",  "golden/e48p2e/E48E3/E48E3.REL"),
+    "E48E4":  ("probes/E48E4.PLI",  "golden/e48p2e/E48E4/E48E4.REL"),
+    "E48E5":  ("probes/E48E5.PLI",  "golden/e48p2e/E48E5/E48E5.REL"),
+    "E48E7":  ("probes/E48E7.PLI",  "golden/e48p2e/E48E7/E48E7.REL"),
+    "E48E8":  ("probes/E48E8.PLI",  "golden/e48p2e/E48E8/E48E8.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -4039,6 +4087,25 @@ NEG_META["E46K10"] = ("my-gap",
     "itself, because E16D/E17D are the only COMPLETE objects it is byte-exact against.  Lowering the no-open attach "
     "is a real change with a real witness now, and it belongs to its own sub-phase rather than to "
     "the multi-item claim.  The marker is re-pinned to the guard that now fires.")
+
+# [E2E-48/P2e step 6] THE SAME OVERRIDE DISCIPLINE FOR E46K14 (predecessor: the E46K10 entry
+# right above -- a dedicated entry must FOLLOW the K2..K15 loop, which re-stamps "NEITHER
+# verdict is known" onto everything, or the loop silently overwrites measured verdicts).
+NEG_META["E46K14"] = ("dr-refuses",
+    "DR REFUSES it in pass 2 -- the pre-registered round 5 asked the SAME shape under a fresh "
+    "module name (E48E6, `if line then k = 1;', probes committed at 421656a BEFORE any oracle "
+    "call): PASS 1 clean, PASS 2 echoes `14 c  if line then k = 1;', prints `BIT REQ' with `?' "
+    "under the statement, `1 ERROR(S) IN PASS 2', and produces NO .REL "
+    "(golden/e48p2e/E48E6/E48E6.PRN) -- [C332].  So the loop's `NEITHER verdict is known' is "
+    "FALSE for this row: the shape is DR law, my named refusal (`comparison of the internal "
+    "CHARACTER member REC.LINE', codegen's imem_refuse) is CORRECT LAW, and the row stays on the "
+    "refusal panel -- both sides refuse.  The mechanism differs by STAGE (DR dies in pass 2's "
+    "BIT REQ requirement, I die at the class gate), the asymmetry [C301] pins for `COMP REQ'.  "
+    "The pinned marker was RE-MEASURED, not assumed, after the round's arms landed (bab0d16, "
+    "e49902a, c215ea0 gates: 181/181, 0 anomalies, marker UNMOVED); only the CATEGORY moved.  "
+    "What stays UNMEASURED (RESULTS §3): truthiness of a bare scalar char variable, of `^' over "
+    "one, of `&' under one, and of a FIXED member -- `BIT REQ' is measured ONLY as a CHARACTER "
+    "VARYING member as a bare condition.")
 
 # [E2E-42/P2b] NEG_META["E46L7"] IS GONE WITH ITS ROW: E46L7 left the negatives panel when the
 # FILE route authorized a structure MEMBER, and it is a byte-exact SPECIMEN now --
