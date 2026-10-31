@@ -1,7 +1,7 @@
 # HANDOFF.md — DRPLi
 
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
-This file is the recovery entry point: exactly ONE active `## Next action`. Closed-phase
+This file is the recovery entry point: exactly ONE active Next-action heading at level 2. Closed-phase
 history is archived under `docs/history/` (index: `docs/history/README.md`); science is
 authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
@@ -120,7 +120,7 @@ procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
   ledger ends at C326; NEG_META E46K14 dr-refuses re-classification; SPECIMENS registration of
   the 7 probes byte tier only; `--update-inventory`; census `--check`; `coverage_check`;
   `registration_audit`; FULL GATE reporting ACTUAL; COVERAGE rows; the [C296] `LXI H,*C(0000)`
-  correction) — all specified command-level in `## Next action`.
+  correction) — all specified command-level in the single active Next-action section above.
 - The working tree at this checkpoint carries ONLY the operator's `handoff.config.json` edit.
 
 ## Discoveries not yet incorporated

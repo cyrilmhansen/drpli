@@ -12,7 +12,7 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   cites `golden/e48p2e/E48E6/E48E6.PRN` as MEASURED dr-refuses). Laws owed as claims C327/C328
   by step 6 — the ledger ends at C326.
 - **Arms 3, 4, 5 NOT STARTED; step 6 OWED.** The single exact, command-level landing spec is
-  `HANDOFF.md` → `## Next action` (arm 3 `= '0'b` VALUE 11 bytes; arm 4 FIXED-member TEST via a
+  `HANDOFF.md` → its single level-2 Next-action heading (arm 3 `= '0'b` VALUE 11 bytes; arm 4 FIXED-member TEST via a
   NEW `?SCCCM` encoder + prescan demand twin; arm 5 `authorize_file_item` admits Vbit1; step 6
   claims C327+ / NEG_META E46K14 dr-refuses stamp / SPECIMENS.update 7 probes byte tier only /
   --update-inventory / census --check / coverage_check / registration_audit / FULL GATE reporting
@@ -26,7 +26,8 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Next action
 
-The ONE active, command-level spec lives in `HANDOFF.md` → `## Next action` (E2E-48/P2e arms
+The ONE active, command-level spec lives in `HANDOFF.md` → its single level-2 Next-action
+heading (E2E-48/P2e arms
 3, 4, 5 NOT STARTED, then step 6). No competing action exists anywhere else; PROGRESS does not
 restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
 
