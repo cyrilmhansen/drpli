@@ -1,0 +1,18 @@
+E49A2:
+  procedure options(main);
+  /* [E2E-49/P1] the inverted compare under the BARE member
+     spelling: [C253]/[C258] fold `name' and `rec.name' to ONE
+     cell, and [C318]'s corroboration (E46K3, golden/e48p2retire)
+     proved spelling-invariance for a VARYING member in TEST; the
+     FIXED spelling in a compare has NEVER been sampled bare -- my
+     str_side admits only the qualified form (orig <> m.name). */
+  dcl
+    1 rec,
+      2 name char(3),
+      2 nxt fixed bin(15);
+  dcl k fixed bin(15);
+  if name = 'AB' then k = 1;
+  put list('K=', k);
+  stop;
+end E49A2;
+

@@ -1,0 +1,13 @@
+# E2E-49/P1 BASELINE-MINE -- my compiler on probes/E49A1..E49A4, recorded BEFORE any oracle call.
+# HEAD at recording time: f1e863c (ocaml/ unchanged since 046046a's arm 4; tree clean except the
+# guard's managed blocks and the OPERATOR's uncommitted handoff.config.json edit -- not touched).
+# Binary: ocaml/_build/default/bin/pli80c.exe built with `eval $(opam env) && dune build', rc=0.
+# Invocation: ./ocaml/_build/default/bin/pli80c.exe probes/E49An.PLI /tmp/out49/E49An.REL
+# Every message below is the FULL text of the first refusal line, whitespace-collapsed; rc=2 for
+# all four. The verdicts are what HYPOTHESES.md predicts DR will contradict or confirm.
+# NO oracle run yet.
+
+E49A1: refused (rc=2) -- codegen: comparison of the internal CHARACTER member REC.NAME (CHARACTER FIXED) is unmeasured [TBD] -- same imem_refuse text as E48E7's pre-arm baseline; its final sentence names THIS shape as unobjected: "member-LEFT, member-vs-member, the fixed member in a STORE value and every truthiness shape still have NO object and refuse here"
+E49A2: refused (rc=2) -- identical imem_refuse "comparison" text (the bare spelling resolves through bind to the same REC.NAME cell; str_side's ImemF arms admit ONLY the qualified spelling, so the bare inverted compare never reaches str_cmp_shape_fix)
+E49A3: refused (rc=2) -- identical imem_refuse "comparison" text (Ne on a fixed member-left literal pair; no ^=-specific arm exists for the FIXED family, str_cmp_shape_fix matches Eq/Ne only for the LITERAL-left orientation)
+E49A4: refused (rc=2) -- identical imem_refuse "comparison" text (the over-extent literal never reaches any gate: no encoder admits the member-left orientation at all)
