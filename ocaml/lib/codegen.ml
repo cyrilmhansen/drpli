@@ -10561,8 +10561,9 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
           named-file route is lowered for an ANY-LENGTH list of the classes its objects pin: the \
           two literal classes of E16D/E17D, the four variable classes of `golden/e42p2a/' \
           (E46L1 CHARACTER VARYING, E46L2 CHARACTER FIXED, E46L3 FIXED BINARY, E46L4 FIXED \
-          DECIMAL) and, since [E2E-42/P2b], the internal CHARACTER members of \
-          `golden/e42p2b/' (E46M16 varying + binary, E46M17 FIXED, E46M18 QUALIFIED).  \
+          DECIMAL), since [E2E-42/P2b] the internal CHARACTER members of `golden/e42p2b/' \
+          (E46M16 varying + binary, E46M17 FIXED, E46M18 QUALIFIED), and since [E2E-48/P2e] \
+          the BIT(1) item of `golden/e48p2e/' (E48E8).  \
           A list is refused as a WHOLE, item by item, before the attach is emitted.  %s"
          fu what ln why)
   in
@@ -10609,15 +10610,23 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
               "a based read goes through its pointer cell (S3, V6, V7 measure that on the \
                console); no object carries a based operand behind an attach"
         | Vbit1 ->
-            no_witness "a BIT(1) variable"
-              "the CONSOLE route prints a bit item (E48A15/E48A6/E48A7/E48A8/E48A9/E48A11/E48B8, \
-               `LDA cell / MVI B,01 / ?QB08C / ?PNBOP' [E2E-48/P1 §3.5]), but NO object carries a \
-               bit item behind a file attach, and the named-file route is lowered only for the \
-               classes its own objects pin"
-              (* superseded text, kept as written: "the console route refuses this class too -- no
-                 DR sample puts a bit string".  E2E-48/P1 P15 falsified the second clause against
-                 the oracle; the first clause no longer holds either, and the refusal now rests on
-                 the absence of a FILE-route witness alone. *)
+            ()  (* [E2E-48/P2e arm 5] ADMITTED on E48E8 (golden/e48p2e/E48E8/E48E8.REL
+               0023..0048, RESULTS §2.5): `LXI H,*C(0000) / LXI D,0652 / LXI B,*CODE(0048) /
+               CALL ?SIOOP', then the bit chain `LDA *D(b) / MVI B,01 / CALL ?QB08C / CALL
+               ?PNBOP', then the literal chain `LXI H,*D(000A) / MVI A,01 / CALL ?SLCTS / CALL
+               ?PNCOP', then ONE `CALL ?QIOOP' and the continuation triple.  THE TAIL IS CHOSEN
+               BY ITEM CLASS, NOT BY ROUTE: the bit chain is byte-for-byte the CONSOLE chain of
+               [C313]/[C325] inside the file frame of [C296] -- no new encoder; the item loop's
+               `bit_item' arm is route-independent already.  Corroborated independently by
+               golden/e42p2a/E46L3, where the same ?QICOP/?PNVOP chain appears under both
+               framings.  What STAYS refused: PUT EDIT of a bit item (the is_edit arms) and
+               every other unadmitted class (RESULTS §3).  SUPERSEDED premise of the refusal
+               this arm removes, kept as written: "the CONSOLE route prints a bit item (E48A15/
+               E48A6/E48A7/E48A8/E48A9/E48A11/E48B8, `LDA cell / MVI B,01 / ?QB08C / ?PNBOP'
+               [E2E-48/P1 §3.5]), but NO object carries a bit item behind a file attach, and the
+               named-file route is lowered only for the classes its own objects pin" -- E48E8 IS
+               that object.  An earlier layer of the same refusal, falsified by E2E-48/P1 P15:
+               "the console route refuses this class too -- no DR sample puts a bit string". *)
         | vk ->
             no_witness ("a variable bound as " ^ vk_name vk)
               "no object on either route carries it in a PUT item"
@@ -10762,7 +10771,9 @@ let lower_put_items_gen st ?(file : string option = None)
      for ANY bit item, in any position).  "No witness" was `unmeasured' dressed as a rule --
      the same error class as P15.  WHAT STAYS REFUSED (no witness anywhere, RESULTS §3): a
      BIT(1) item under PUT EDIT (the is_edit arm in the item loop) and a bit item behind a
-     FILE ATTACH (authorize_file_item's Vbit1 no_witness). *)
+     FILE ATTACH (authorize_file_item's Vbit1 no_witness).  ANNOTATION ([E2E-48/P2e arm 5]):
+     the FILE ATTACH case is since ADMITTED on E48E8 -- the sentence above records D9's state;
+     see authorize_file_item's Vbit1 arm.  PUT EDIT of a bit item still refuses. *)
   (* [E2E-41/P3b] two prologues, one chain.  Console (byte-frozen since [E2E-3a], and the shape
      every N3xx/R5xx specimen pins): LXI D,0252 ; LXI B,<continuation> ; CALL ?SYSPR.
      Named file (E16D/E17D 0023-002C): LXI H,<CB> [above] ; LXI D,0652 ; LXI B,<continuation> ;
