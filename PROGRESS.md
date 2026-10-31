@@ -134,19 +134,19 @@ step 6 and must be reported ACTUAL. Round evidence: `golden/e48p2e/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 55
-checkpoint-id: g55-c050d1713012
-checkpoint-kind: auto
+checkpoint-generation: 56
+checkpoint-id: g56-824e2f35be98
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-10-31T07:36:05.952Z
+checkpointed: 2026-10-31T07:39:09.903Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 8634e7823656cf985cdec836d79af2b98d7789ea87e87742e5afbe15904c2a72
-source-handoff: f042d1f4c8fc1c36fe914833697735051a0f0e3f6ea525f334e380767ca7a05c
+source-progress: d81b3e840429c563bf729034580014c2ccfbcadb2e12afd69578ef561c72dff9
+source-handoff: 6ddff0e016a27705216d585d0311864068c446ae5c738c3cc411629d31053655
 source-learnings: 36f809e0856e14d3d4ead98ec9ad6cbb6ba8a3e0a42f0414d6a154fc7c719326
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-48/P2e: LOWER arms 4, 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
+next-action: — E2E-48/P2e: LOWER ARM 5 (NOT STARTED), then step 6 (claims + registration + FULL GATE)
 
 > Arm numbering keeps the round's ids: arms 1–2 landed at `d18c6ab`/`bab0d16` (specs archived
 > in `docs/history/2026-10-30-next-actions.md`) and arm 3 at `e49902a` (spec + measured closure
@@ -154,8 +154,8 @@ next-action: — E2E-48/P2e: LOWER arms 4, 5 (NOT STARTED), then step 6 (claims 
 > completed, measured work. **ONE arm per commit**, `cd ocaml && eval $(opam env) && dune build`
 > + the cmp sweep after EACH (LEARNINGS rule: one arm, one build, one sweep).
 
-Sweep loop (expect E48E 7/7 after all arms; at `e49902a` E48E1..E48E5 are exact and
-E48E7/E48E8 refuse by name — arms 4/5; E48E6 must KEEP refusing):
+Sweep loop (expect E48E 7/7 after arm 5; at `046046a` E48E1..E48E5 + E48E7 are exact and
+E48E8 refuses by name — arm 5; E48E6 must KEEP refusing):
 
     for n in 1 2 3 4 5 7 8; do ./ocaml/_build/default/bin/pli80c.exe probes/E48E$n.PLI /tmp/sw/E48E$n.REL \
       && cmp /tmp/sw/E48E$n.REL golden/e48p2e/E48E$n/E48E$n.REL && echo "E48E$n IDENTICAL"; done
@@ -212,7 +212,10 @@ condition, over-extent INITIAL/store, any runtime claim); no `%include`/LOAN2 wo
 own pre-registered round; **do not commit or revert `handoff.config.json` — the
 `workingContextWindow` 95000 -> 145000 edit is the OPERATOR's**; no push; probes <= 71 cols and
 CRLF + `^Z`; build needs `eval $(opam env)`; **never name a probe variable `c`** (it reads as a
-procedure call — see LEARNINGS); renewal 8/8 is the LAST hop under the cap.
+procedure call — see LEARNINGS); renewal values live ONLY in handoff.config.json / /guard status.
+readiness-by: session:01a190c8-8620-70b4-8abc-b0e6eaf3f9e9
+readiness-at: 2026-10-31T07:39:09.907Z
+readiness-checkpoint: g56-824e2f35be98
 <!-- guard:end checkpoint -->
 
 ## Blockers
