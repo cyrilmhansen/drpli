@@ -158,25 +158,25 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.<!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 105
-checkpoint-id: g105-79f429eaaa1e
-checkpoint-kind: auto
+checkpoint-generation: 106
+checkpoint-id: g106-552a3a513d2f
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~784, session 01a197ee-87fd-71b9-af89-5382032498ec)
-checkpointed: 2026-11-01T18:25:45.690Z
+status: checkpoint (guard level 4, remaining ~-4678, session 01a197ee-87fd-71b9-af89-5382032498ec)
+checkpointed: 2026-11-01T18:38:21.228Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b81279506177d6a53fd8553649225a3d90285baef13bd8c61d24df77f38fdc66
 source-handoff: 3cc5c050a3710ce08f14b3a3d4f4669fc60339a0b30b5abdadac7663e3edcb93
-source-learnings: e5da46210cc6488a300292055fef430d5c3c53b82ffb7acb0c0070bae4cc2868
+source-learnings: 7ba35ed95ad06808024f336d0c2c98d7e51ad56e875ffa21445565262b41e89a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a197ee-87fd-71b9-af89-5382032498ec
-readiness-at: 2026-11-01T18:26:00.271Z
-readiness-checkpoint: g105-79f429eaaa1e
+readiness-at: 2026-11-01T18:38:21.233Z
+readiness-checkpoint: g106-552a3a513d2f
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize)
 
 ### Unfinished operations
 - (none recorded)
@@ -241,7 +241,4 @@ guard level 4; checkpoint requested (auto at level 4)
   `5c52bba` (identical at HEAD `b5f792c`) — `docs/history/2026-11-01-e49p4-closed.md`).
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.
-
-### Guard notes
-E2E-49/P4 OPERATOR-AUTHORIZED DOCUMENTARY CLOSE is the ONLY remaining work (HEAD 5c52bba). Read first: HANDOFF.md Next action 2 (full close sequence + authorization boundaries) and PROGRESS.md Current phase STATUS. Nothing of the CLOSE started. Findings to carry: (1) PLAN s6 heading does NOT match grep '^## 6' -- use grep -in close spec/lab-evidence/e2e49-p4/PLAN.md and read the section fully before archiving; (2) archive TWO superseded prose generations VERBATIM (arms-era AND this step-6-era/close-auth-era HANDOFF+PROGRESS sections), EACH block byte-verified against its stated git range via git show <range>:<file> BEFORE replacing into docs/history/2026-11-01-e49p4-closed.md -- exact pattern: docs/history/2026-11-01-e49p3-closed.md (two-generation close) and its README index row; (3) rewrite HANDOFF/PROGRESS to the P4 CLOSED state with ONE Next action = no-active-round stub (confirm HEAD/tree, verify checkpoint, record, STOP; candidate pool from e49p4 RESULTS s3 named refusals + standing proposals; equal-attribute > collapse never sampled); (4) docs/history/README.md index row; (5) commit docs-only, then handoff_finalize, STOP. NEVER push; no compiler/ocaml/golden/ledger/probe byte; no oracle/gate runs (docs-only session); no operator-only Pi slash commands; handoff.config.json operator standing edit never touched/staged/committed/reverted; never git clean/reset/add -A; guard auto-checkpoint g102 was guard-written -- never hand-edit managed blocks. Step-6 state (all landed, gate-verified 1174/0 rc=0 at 5b0ccde, ledger ends C351) is fully recorded in PROGRESS/HANDOFF/LEARNINGS dated 2026-11-01.
 <!-- guard:end checkpoint -->
