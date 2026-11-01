@@ -877,3 +877,19 @@ The guard never writes this file.
 * **proposed (for a later round)** — bank the out-of-scope refusals as NEG-panel rows so the
   boundary stops living in scratch: the mm STORE, the fixed truthiness, literal-vs-literal and
   the `>` relation on a member pair. Each refusal text already names its own missing object.
+
+## 2026-11-01 — E2E-49/P2 step-6 part 2a: COVERAGE rows (renewal 1/12, HEAD `adcf143`)
+
+* **accepted** — three new COVERAGE rows landed and `tools/coverage_check.py` rc=0 on **125 rows,
+  0 errors, 0 warnings** (measured this session): `COND.FIXED_MEMBER_MEMBER_TEST` (MEASURED/
+  EXACT:5), `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE` (MEASURED/EXACT:3, the scope warning written
+  INTO the `boundary` column so the literal-template limit travels with the contract),
+  `COND.CMP_INVERSION_SELECTS_SLOT` (SINGLE_SAMPLE/EXACT:2 — honest grade: one inverted pair, the
+  same discipline as [C335]'s row).
+* **accepted (procedure)** — a `MEASURED` row's `probes` must be nameable in at least ONE cited
+  claim (coverage_check's traceability rule): citing the claims that literally print those probe
+  names ([C337]/[C338]/[C340]/[C341]) satisfies it.
+* **unfinished, recorded not guessed** — the widening of `COND.CMP_LENGTHS_POSITIONAL` and the
+  three labelled SUPERSEDED clauses (`COND.FIXED_MEMBER_TEST_SCCCM`, `COND.FIXED_MEMBER_LEFT_TEST`,
+  `COND.BIT1_NEG_TEST` still call member-vs-member unmeasured) are OWED as the next act; the FULL
+  compile-tier gate has STILL never been run this round.

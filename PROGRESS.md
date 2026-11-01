@@ -44,20 +44,23 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   specimen rows (panel **1136**); census re-snapshot counts UNCHANGED 15/0/26/0 (metadata only);
   plus one citation fix in the arm comment (the bundling clause cited [C167], an array-extent
   claim, loosely — it now cites [C340], the law the bytes actually measure).
-- NEXT (exact): (1) COVERAGE rows in `spec/COVERAGE.tsv` — 3 NEW rows `COND.FIXED_MEMBER_MEMBER_TEST`
-  (MEASURED, EXACT:5, probes E49B1..B5), `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE` (MEASURED,
-  EXACT:3, probes E49B1,E49B2,E49B5), `COND.CMP_INVERSION_SELECTS_SLOT` (SINGLE_SAMPLE, EXACT:2,
-  probes E49B1,E49B2); WIDEN `COND.CMP_LENGTHS_POSITIONAL` (add E49B3,E49B4 to probes, EXACT:6 ->
-  EXACT:8, labelled clause naming [C339] and the dead MIN/MAX/class readings); APPEND labelled
-  SUPERSEDED clauses to the boundary columns of `COND.FIXED_MEMBER_TEST_SCCCM`,
-  `COND.FIXED_MEMBER_LEFT_TEST` and `COND.BIT1_NEG_TEST` (each names member-vs-member as
-  unmeasured/refused), originals verbatim. Then `python3 tools/coverage_check.py` must exit 0
-  (expect 125 rows, 0 errors). (2) FULL gate `python3 tools/e2e_gate.py` — expect byte panel
-  **1136 byte-exact / 0 fail**, negative **181/181** with E46K14 `[dr-refuses]` marker UNMOVED,
-  divergence **9/9**, census 15/0/26/0, prose clean; record the ACTUALS AS PRINTED. (3) COMMIT,
-  then CLOSE: rewrite HANDOFF/PROGRESS prose, archive the superseded prose verbatim from the
-  committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README index row, LEARNINGS close
-  notes, ledger-end pointer past **C341**, `/handoff finalize`.
+- DONE — STEP 6 part 2a (uncommitted `spec/COVERAGE.tsv` at HEAD `adcf143`): the THREE new rows
+  landed and `python3 tools/coverage_check.py` rc=0 on 125 rows, 0 errors, 0 warnings (measured by
+  THIS session): `COND.FIXED_MEMBER_MEMBER_TEST` (MEASURED, EXACT:5, E49B1..B5),
+  `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE` (MEASURED, EXACT:3, E49B1,B2,B5, scope warning IN the
+  boundary column), `COND.CMP_INVERSION_SELECTS_SLOT` (SINGLE_SAMPLE, EXACT:2, E49B1,B2).
+- NEXT (exact, in order): (1) commit the COVERAGE rows with the ACTUAL above.
+  (2) STILL OWED in COVERAGE — the WIDENING of `COND.CMP_LENGTHS_POSITIONAL` (add E49B3,E49B4 to
+  `probes`, `rel_parity` EXACT:6 -> EXACT:8, append a labelled clause naming [C339] and the dead
+  MIN/MAX/class readings) and the three labelled SUPERSEDED clauses in the `boundary` columns of
+  `COND.FIXED_MEMBER_TEST_SCCCM`, `COND.FIXED_MEMBER_LEFT_TEST` and `COND.BIT1_NEG_TEST`, each of
+  which STILL says member-vs-member is unmeasured/refused (falsified by [C337] — keep the
+  originals verbatim); then `coverage_check` again (expect 0 errors). (3) FULL gate
+  `python3 tools/e2e_gate.py` — expect byte panel **1136 byte-exact / 0 fail**, negative
+  **181/181** (E46K14 `[dr-refuses]`, marker UNMOVED), divergence **9/9**, census 15/0/26/0, prose
+  clean; record ACTUALS AS PRINTED; commit. (4) CLOSE: prose rewrite, archive superseded prose
+  verbatim from committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README index row,
+  LEARNINGS close notes, ledger-end pointer past **C341**, `/handoff finalize`.
 - Keep refusing (RESULTS §3): any BARE spelling in a member-vs-member pair; the equal-extent
   collapse for member-vs-literal; STORE; literal-vs-literal; BASED; truthiness; over-extent;
   relations beyond `=`/`^=`; `^( )`. BYTE TIER ONLY — no `spec/RUNTIME.txt` row from this round.
@@ -191,30 +194,39 @@ closed-round records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 74
-checkpoint-id: g74-999150cf6329
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 76
+checkpoint-id: g76-d9076dc64171
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-01T02:35:07.622Z
+checkpointed: 2026-11-01T02:56:49.078Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4e37911283356bdde8b701c044cd1f70a31ed8aaf4523ef029ffde5d7e746693
-source-handoff: be96168bacd57e9957d9d5884b7b6df1d94a7c81bf7c059dad9c889fa14dffdc
-source-learnings: c44737a635cdb1694aab0e3ccdb40f113d391c595ab5651804afdf3cfda5d3ad
+source-progress: 9cd347d4f86346ec1f925955da656415b46bb71ad5e9a6d98036a454f49b7cc5
+source-handoff: c1dfe8ed160e76ba78d09990a57e38cb9ccb001c949e97acdc1d1cd02e0c2dd5
+source-learnings: b60cfc454e4ae25fa7b137c38ce5dd07f534045a8c5e4f0b869673b7e3eb440f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P2 [arm 1]: implement the measured member-vs-member lowering
+next-action: — E2E-49/P2 [step 6 part 2]: COVERAGE rows, FULL gate, then CLOSE
 
-1. ARM 1 (the only authorized scientific action now): implement EXACTLY what
-   `spec/lab-evidence/e2e49-p2/RESULTS.md` §2 measures — file:line plan in PROGRESS →
-   Current phase: `op_mov_a_b = 0x78`; encoder `str_cmp_shape_fix_mm` gated to the
-   QUALIFIED-qualified pair `ImemF/ImemF` ONLY (any BARE side keeps refusing — RESULTS
-   §3); stack-parked head bundled in written order; `06 b` then collapse `78` iff
-   `capl = capr` ELSE `3E a`; `?SCCCM`; skip C2/CA + [C309] slot; NO prescan change (no
-   pooled literal); labelled ADDENDA at the superseded sentences, originals verbatim.
-   Verify: `dune build`; whole-file `cmp` of all five `.REL` vs `golden/e49p2/`; E48/E49
-   sweeps; full INVENTORY-driven registered-panel sweep; out-of-scope refusals rc=2 with
-   the E46K14 marker UNMOVED. Commit the arm ALONE with measured ACTUALS.
+1. COVERAGE rows in `spec/COVERAGE.tsv` (exact plan in PROGRESS → Current phase): 3 NEW rows
+   (`COND.FIXED_MEMBER_MEMBER_TEST` MEASURED EXACT:5; `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE`
+   MEASURED EXACT:3 with the scope warning in its boundary; `COND.CMP_INVERSION_SELECTS_SLOT`
+   SINGLE_SAMPLE EXACT:2), widen `COND.CMP_LENGTHS_POSITIONAL` (+E49B3,E49B4, EXACT:8), and append
+   labelled SUPERSEDED clauses to the boundary columns of `COND.FIXED_MEMBER_TEST_SCCCM`,
+   `COND.FIXED_MEMBER_LEFT_TEST` and `COND.BIT1_NEG_TEST` (each still calls member-vs-member
+   unmeasured/refused), originals verbatim. `python3 tools/coverage_check.py` must exit 0 (expect
+   125 rows, 0 errors).
+2. FULL gate `python3 tools/e2e_gate.py` — expect byte panel **1136 byte-exact / 0 fail**, negative
+   **181/181** with E46K14 `[dr-refuses]` marker UNMOVED, divergence **9/9**, coverage rows 0
+   errors, census **15/0/26/0**, prose clean. Record the ACTUALS AS PRINTED, then commit.
+3. CLOSE: rewrite HANDOFF/PROGRESS prose (IN FLIGHT → CLOSED + SUPERSEDED), archive the superseded
+   prose verbatim from the committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README
+   index row, LEARNINGS close notes, ledger-end pointer past **C341**, `/handoff finalize`.
+4. Standing: goldens untouched except this round's; §3 shapes NOT implemented (missing evidence is
+   the limit, never a licence to guess); probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune;
+   never name a probe variable `c`; no push; never stage/commit/revert the operator's
+   `handoff.config.json` edit; renewal values live ONLY in `handoff.config.json` / `/guard status`;
+   NO `spec/RUNTIME.txt` row from this round.
 2. Then STEP 6: claims C337.. derived ONLY from RESULTS §2; SPECIMENS bank E49B1..B5 in
    `tools/e2e_gate.py`; INVENTORY via sanctioned `--update-inventory` (5 rows after
    E49A4, panel 1136); census re-snapshot; COVERAGE rows; FULL gate
@@ -228,9 +240,6 @@ next-action: — E2E-49/P2 [arm 1]: implement the measured member-vs-member lowe
    push; never stage/commit/revert the operator's `handoff.config.json` edit; renewal
    values live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt`
    row from this round.
-readiness-by: session:01a194de-4c92-7103-bf3c-ac8aa379f9a9
-readiness-at: 2026-11-01T02:35:07.625Z
-readiness-checkpoint: g74-999150cf6329
 <!-- guard:end checkpoint -->
 
 ## Blockers
