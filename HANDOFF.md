@@ -125,14 +125,20 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Unfinished operations
 
-- None — the E2E-49/P1 round is CLOSED (FULL GATE rc=0 measured at `0a8ceff`).
+- **E2E-49/P2 IN FLIGHT** — oracle run measured and committed (goldens + RESULTS at
+  `62f5622`); NO lowering arm implemented yet (`ocaml/` unchanged since `b044b7c`); FULL
+  gate OWED at step 6, never claimed this round. Exact next action = ARM 1 above.
 
 ## Discoveries not yet incorporated
 
-- None outstanding. Compiler law: `spec/CLAIMS.md` C309..C336 (E2E-48 family C309..C332,
-  E2E-49/P1 C333..C336, each round derived from its own RESULTS §2 ONLY); durable method
-  lessons are classified in `LEARNINGS.md`. The stale `README.md` rolling status remains
-  recorded as deferred work in `PROGRESS.md` → Pending.
+- Compiler law: `spec/CLAIMS.md` C309..C336 — the E2E-49/P2 claims C337.. are OWED at
+  step 6, to be derived ONLY from `spec/lab-evidence/e2e49-p2/RESULTS.md` §2 (rounds
+  derive from their own RESULTS §2 ONLY). Method lessons accepted in `LEARNINGS.md`
+  (E2E-49/P2 session section): parking is a per-shape property (enumerate MECHANISMS
+  when laws coincide); the equal-extent collapse `06 n/78` is member-vs-member ONLY;
+  `cmp -l` is octal/1-based. FALSIFIED, kept as written in RESULTS §1 + HYPOTHESES:
+  forms H-S and H-M. The stale `README.md` rolling status remains recorded as deferred
+  work in `PROGRESS.md` → Pending.
 
 ## History and pointers
 
@@ -145,13 +151,13 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 71
-checkpoint-id: g71-4f3557084b8e
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 2, remaining ~7995, session 01a194de-4c92-7103-bf3c-ac8aa379f9a9)
-checkpointed: 2026-11-01T02:33:27.273Z
+checkpoint-generation: 73
+checkpoint-id: g73-ed76ff1249d8
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4867, session 01a194de-4c92-7103-bf3c-ac8aa379f9a9)
+checkpointed: 2026-11-01T02:34:03.182Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 4e37911283356bdde8b701c044cd1f70a31ed8aaf4523ef029ffde5d7e746693
 source-handoff: d3699fdff6b91fa2c0861190036038c92c8c8cb79790f8cdd206148db5707a62
@@ -159,11 +165,8 @@ source-learnings: c44737a635cdb1694aab0e3ccdb40f113d391c595ab5651804afdf3cfda5d3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a194de-4c92-7103-bf3c-ac8aa379f9a9
-readiness-at: 2026-11-01T02:33:27.277Z
-readiness-checkpoint: g71-4f3557084b8e
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
