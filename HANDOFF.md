@@ -31,52 +31,74 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Last verified state — E2E-49/P1 IN FLIGHT (arm 1 landed at `fee935e`; FULL GATE not yet run this round; prior P2e record follows, superseded)
+## Last verified state — E2E-49/P1 IN FLIGHT (arms 1+2 landed: `fee935e`, `b044b7c`; FULL GATE not yet run this round; prior P2e record follows, superseded)
 
-- The round's ONE remaining debt — the FULL compile-tier gate `python3 tools/e2e_gate.py` — was
-  run to completion **this session** at HEAD `0749fa6` (tree = step-6 commits `809af8d`+`0e64c8b`
-  plus documentation commits; `dune build` rc=0 beforehand): **rc=0**. ACTUALS, as printed by the
-  run: byte panel **1127 byte-exact / 0 fail of 1127** — the seven P2e byte-tier specimens
-  `E48E1`..`E48E5`,`E48E7`,`E48E8` are all `BYTE-EXACT` whole-file rows inside the panel —
-  negative panel **181/181** refused (E46K14's row prints `[dr-refuses]`, pinned marker
-  `comparison of the internal CHARACTER member REC.LINE` unmoved), divergence panel **9/9**,
-  coverage **118 rows, 0 errors, 0 warnings**, census **EXACT 15 / DIFFERS 0 / REFUSED 26 /
-  UNEXPECTED 0**, file prose **5 active files clean**. NOT re-measured this session (recorded,
-  not assumed): the clean scratch-tree rebuild warning multiset (last measured 126 =
-  28/26/22/17/15/14/2/2 at `c215ea0`).
-- Science authority: claims **C327..C332** (`spec/CLAIMS.md`) derived ONLY from
-  `spec/lab-evidence/e2e48-p2e/RESULTS.md` §2; §3 lists what stays unmeasured and those shapes
-  stay NOT implemented. E48E6 is a measured `dr-refuses` (`BIT REQ`, no `.REL`), is NOT a
-  specimen, and E46K14 keeps its refusal row. Goldens were not touched this round.
-- Landing chain: pre-registration `421656a`, oracle run + goldens `e2b77ba`, arms 1–5
-  `d18c6ab`/`bab0d16`/`e49902a`/`046046a`/`c215ea0`, step 6 `809af8d`+`0e64c8b`, handoff docs
-  `0749fa6`. Superseded closing-era prose (old Last-verified-state, FULL-GATE next action,
-  step-6 record, prior-arms prose, verified-evidence, stale debts bullet) archived verbatim in
+- Arm 2 measured at `b044b7c` (this session, after `dune build` rc=0): E49A1..E49A4 ALL
+  whole-file BYTE-EXACT vs `golden/e49p1` (E49A2 flipped from rc=2 to exact — the arm's
+  object); E48-family sweep **52/52** 0 DIFF (e48p1+e48p2c+e48p2db+e48p2retire+e48p2e,
+  incl. E48E7 literal-left regression); the **full registered specimen panel 1127/1127
+  BYTE-EXACT, 0 fail** (every `spec/INVENTORY.txt` specimen row re-compiled and whole-file
+  `cmp`'d — direct proof no output moved elsewhere); out-of-scope refusals re-measured
+  through the binary (bare member-RIGHT, fixed truthiness bare+qualified, fixed STORE
+  target, member-vs-member, literal-vs-literal, flag-trick over a bare fixed member) all
+  rc=2 named refusals; E46K14 marker `comparison of the internal CHARACTER member
+  REC.LINE` UNMOVED. FULL gate NOT run — owed at step 6, never claimed.
+- The prior round's FULL-gate record (HEAD `0749fa6`, rc=0): byte panel **1127 byte-exact /
+  0 fail of 1127**, negative panel **181/181** refused (E46K14's row prints `[dr-refuses]`,
+  pinned marker unmoved), divergence panel **9/9**, coverage **118 rows, 0 errors, 0
+  warnings**, census **EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0**, file prose **5
+  active files clean**. NOT re-measured this session (recorded, not assumed): the clean
+  scratch-tree rebuild warning multiset (last measured 126 = 28/26/22/17/15/14/2/2 at
+  `c215ea0`).
+- Science authority: this round's claims are NOT YET in the ledger — step 6 derives
+  **C333..C336** from `spec/lab-evidence/e2e49-p1/RESULTS.md` §2 ONLY plus the labelled
+  positional-law correction APPENDED at C330 (keep the falsified text, PROTOCOL #2).
+  E48 family remains C309..C332; the ledger CURRENTLY ENDS at **C332**. Goldens were not
+  touched except the NEW `golden/e49p1`.
+- Landing chain: pre-registration `9b3d860`, fill-in `0e9cc3d`, oracle run + goldens +
+  RESULTS `c8285cb`, arm 1 `fee935e`, arm 2 `b044b7c`. Superseded closing-era prose
+  (old Last-verified-state, FULL-GATE next action, step-6 record, prior-arms prose,
+  verified-evidence, stale debts bullet) archived verbatim in
   `docs/history/2026-10-31-p2e-closed.md`.
 
-## Next action — E2E-49/P1: arm 2 (bare spelling) then step 6 (ledger) + FULL GATE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
+## Next action — E2E-49/P1: STEP 6 (ledger + registration) then FULL GATE, then CLOSE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
 
 **ACTIVE PLAN (exact, also in PROGRESS.md → Current phase):** lineage = prediction SHA
 `9b3d860`, fill-in `0e9cc3d`, oracle run + goldens + `spec/lab-evidence/e2e49-p1/RESULTS.md`
-(4 ok / 4, all ACCEPTS, no dr-refuses) at `c8285cb`, arm 1 lowering at `fee935e` with
-ACTUALS E49A1/A3/A4 whole-file BYTE-EXACT, E49A2 still refuses (arm 2's object), E48E7
-regression exact, E48 sweep 43/43, dune rc=0. Measured laws (RESULTS s2): inverted fixed
-TEST = `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len / CD ?SCCCM / skip`; length
-immediates POSITIONAL (B = LEFT, A = RIGHT) — falsifies [C330]'s capacity-in-A reading
-(append labelled correction at C330, keep text); name does not flip; ^= CA measured;
-over-extent literal accepted, pooled whole. (1) ARM 2: `str_side` Eident admits BARE fixed
-as new `ImemFb (orig,cap)`; `str_cmp_shape_fix` member-LEFT arm matches `ImemF`/`ImemFb`,
-literal-RIGHT arm keeps `ImemF` only (bare member-RIGHT unmeasured); widen `is_test_left`
-in the SAME commit; annotate superseded bare sentences; build, E49A2 whole-file cmp, no
-output moves elsewhere, commit codegen.ml with ACTUALS. (2) STEP 6: claims C333..C336 from
-RESULTS s2 ONLY + C330 correction; INVENTORY 4 specimen rows after E48E8; census
-re-snapshot; 4 COVERAGE.tsv rows; commit; then FULL gate `python3 tools/e2e_gate.py`
-(expect 1131 byte-exact; negative 181/181 E46K14 marker unmoved; div 9/9; coverage 0
-errors) and record ACTUALS. (3) CLOSE: rewrite this + PROGRESS with real ACTUALS, archive
-superseded prose to docs/history/, commit, /handoff finalize, renew or stop. OUT OF SCOPE,
-keep refusing (e2e49-p1 RESULTS s3): STORE fixed member, member-vs-member,
-literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT
-([TBD]), `^( )`; NO RUNTIME row; no push; never touch the operator config edit.
+(4 ok / 4, all ACCEPTS, no dr-refuses) at `c8285cb`, arm 1 (qualified member-LEFT lowering,
+XCHG staging, positional lengths, `is_test_left` twin) at `fee935e`, arm 2 (BARE fixed
+spelling member-LEFT as new `str_side` variant `ImemFb`; `str_cmp_shape_fix` member-left arm
+= or-pattern `ImemF`/`ImemFb`, literal-RIGHT arm keeps `ImemF` alone; `is_test_left` widened
+in the SAME commit; numeric ?IS22N ident-vs-ident guard now refuses bare-fixed pairs it used
+to mis-lower) at `b044b7c` — ACTUALS at `b044b7c`: dune rc=0; E49A1..A4 ALL four whole-file
+BYTE-EXACT; E48 sweep 52/52; registered panel 1127/1127 BYTE-EXACT 0 fail; out-of-scope
+refusals re-measured rc=2 (bare member-RIGHT, fixed truthiness bare+qualified, STORE,
+member-vs-member, literal-vs-literal, flag-trick); E46K14 marker UNMOVED. Measured laws
+(RESULTS s2): inverted fixed TEST = `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len /
+CD ?SCCCM / skip`; length immediates POSITIONAL (B = LEFT, A = RIGHT) — falsifies [C330]'s
+class-polarity reading; name does not flip; ^= CA measured; bare spelling byte-identical but
+module-name bytes; over-extent literal accepted, pooled whole. **(1) STEP 6:** claims
+**C333..C336** derived ONLY from RESULTS §2 (predecessor mapping: C333 = s2.1 incl. s2.3
+no-name-flip and s2.5 CA skip; C334 = s2.2 positional law; C335 = s2.4 spelling invariance
++ bare-RIGHT gate asymmetry; C336 = s2.6 over-extent ACCEPT member-left; regroup ONLY if the
+evidence demands it — ids contiguous from C333, ledger ends at the last one) + the labelled
+correction APPENDED at **C330** (keep falsified text verbatim, PROTOCOL #2); **INVENTORY**
+4 specimen rows E49A1..A4 after the E48E8 row (or `python3 tools/e2e_gate.py
+--update-inventory`, the sanctioned tool, then inspect the diff precisely); census
+re-snapshot `python3 tools/corpus_census.py` + record counts (expect EXACT 15 / DIFFERS 0 /
+REFUSED 26 / UNEXPECTED 0; the 1127-row sweep already proves no specimen moved);
+**COVERAGE.tsv** 4 rows (schema `spec/COVERAGE-SCHEMA.md`, validator rules
+`tools/coverage_check.py:203-247`; expect 122 rows 0 errors); commit ledger work. **(2)
+FULL GATE** `python3 tools/e2e_gate.py` (expect **1131** byte-exact / 0 fail; negative
+181/181 E46K14 marker unmoved; div 9/9; coverage 0 errors; census check; prose panel) —
+record ACTUALS as printed, never claim unverified. **(3) CLOSE:** rewrite HANDOFF + PROGRESS
+with real ACTUALS, archive superseded prose VERBATIM from committed blobs (not the dirty
+managed blocks) to `docs/history/2026-11-01-e49p1-closed.md` + README index row, LEARNINGS
+close notes, commit, `/handoff finalize`, renew or stop. OUT OF SCOPE, keep refusing
+(RESULTS s3): STORE fixed member both orientations, member-vs-member, literal-vs-literal,
+BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT ([TBD]), `^( )`; NO
+`spec/RUNTIME.txt` row from this round; no push; never stage/commit/revert the operator's
+`handoff.config.json` edit.
 
 ### Superseded (E2E-48/P2e close, kept as written)
 
@@ -124,7 +146,7 @@ checkpoint-generation: 66
 checkpoint-id: g66-487495b2e408
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 status: checkpoint (guard level 4, remaining ~4033, session 01a19445-2627-704c-9bbd-41fe19a81649)
 checkpointed: 2026-10-31T23:50:55.048Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -134,6 +156,9 @@ source-learnings: aaf0cbe5e1ea2596649b58d021372e099e910814f17b9b61a393b266168864
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19445-2627-704c-9bbd-41fe19a81649
+readiness-at: 2026-10-31T23:51:20.848Z
+readiness-checkpoint: g66-487495b2e408
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 

@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P1 IN FLIGHT (operand-inverted FIXED compares; oracle done 4/4 ACCEPTS; arm 1 editing)
+## Current phase — E2E-49/P1 IN FLIGHT (oracle done 4/4 ACCEPTS; ARMS 1+2 LANDED `fee935e`/`b044b7c`; next = STEP 6 ledger + FULL GATE, then CLOSE)
 
 - Pre-registration COMMITTED: prediction SHA **`9b3d860`** (probes/E49A1..E49A4.PLI +
   mkprobes.py + HYPOTHESES.md + BASELINE-MINE.txt), fill-in child **`0e9cc3d`**; both are
@@ -22,32 +22,47 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   became measurement; (6) over-extent literal ACCEPTED, 'ABCD' pooled WHOLE, DATA 000D
   (E49A4). CODE 66 = E48E7's 65 + EB. P-A1 scored HIT(verdict)/MISS(encoding): none of
   the three pre-registered forms; the EB falsifier fired.
-- **ARM 1 IN PROGRESS, UNCOMMITTED**: `ocaml/lib/codegen.ml` edited — `str_cmp_shape_fix`
-  now returns `(hl_fn, de_fn, b_len:int, a_len:int)` and gained the member-LEFT arm
-  (`ImemF`, `Lit`) → LXI H,*D(member)/XCHG/LXI H,*D(pool)/06 cap/3E len; lower_test_skip0
-  arm updated to the int pair; prescan `is_test_left` twin added (QUALIFIED only, mirrors
-  the arm exactly) and `wants` gained `(is_lit b <> None && is_test_left a)`; superseded
-  sentences annotated in the str_side/arm-4-header/prescan/lower_test comments and the
-  imem_refuse "comparison" WHY gained an ADDENDUM (originals kept verbatim). NOT yet
-  built or byte-tested at this checkpoint.
-- NEXT (exact): (a) `cd ocaml && eval "$(opam env)" && dune build`; (b) run
-  `./ocaml/_build/default/bin/pli80c.exe probes/E49An.PLI /tmp/out49/E49An.REL` and
-  `cmp` WHOLE FILES against `golden/e49p1/E49An/E49An.REL` for n=1,3,4 (expect byte-exact;
-  E49A2 must STILL refuse at arm 1 — bare is arm 2) plus regression `cmp` on E48E7
-  (literal-left unchanged) and a quick sweep e48p1/e48p2c/e48p2db/e48p2retire; commit arm 1
-  with ACTUALS. (c) ARM 2: admit the BARE fixed spelling as `ImemFb (orig, cap)` in
-  `str_side`'s Eident arm ONLY for the member-LEFT orientation (bare member-RIGHT has no
-  object — keep the `orig <> m.name` gate on the `ImemF` arms; `str_cmp_shape_fix`
-  member-left arm matches both `ImemF` and `ImemFb`; widen `is_test_left` to both
-  spellings in the SAME commit — one predicate law); E49A2 whole-file cmp; annotate the
-  "no probe ever put a BARE fixed member in a compare" sentence as superseded.
-  (d) STEP 6 ledger: claims C333.. (one per RESULTS s2 law, derived from s2 ONLY) + the
-  C330 positional-correction append; INVENTORY specimens E49A1..A4 (byte tier), census
-  re-snapshot, COVERAGE rows (schema spec/COVERAGE-SCHEMA.md), audit counts. (e) FULL
-  compile-tier gate `python3 tools/e2e_gate.py` (expect 1131 byte-exact after registration,
-  negative 181/181 with E46K14 marker unmoved, div 9/9, coverage 0 errors, census check) —
-  record ACTUALS. (f) rewrite HANDOFF/PROGRESS closing prose, commit managed-block refresh
-  via /handoff finalize, renew or close.
+- **ARM 1 LANDED at `fee935e`** (ACTUALS: E49A1/A3/A4 whole-file BYTE-EXACT, E49A2 still
+  refused — arm 2's object — E48E7 exact, E48 sweep 43/43, dune rc=0): `str_cmp_shape_fix`
+  returns `(hl_fn, de_fn, b_len, a_len)` POSITIONALLY (B = LEFT's attribute, A = RIGHT's,
+  RESULTS s2.2); member-LEFT arm added (`ImemF`, `Lit`) → LXI H,*D(member)/XCHG/LXI
+  H,*D(pool)/06 cap/3E len; `is_test_left` prescan twin; WHY/comments annotated.
+- **ARM 2 LANDED at `b044b7c`**: `str_side` Eident admits the BARE fixed spelling as NEW
+  variant `ImemFb (orig,cap)` (`| Vimem m ->` catch-all after the qualified `ImemF` arm);
+  `str_cmp_shape_fix` member-LEFT arm = or-pattern `Some (`ImemF ..) | Some (`ImemFb ..)`,
+  literal-RIGHT arm keeps `ImemF` ALONE (bare member-RIGHT unmeasured, RESULTS s3 —
+  `is_test_right` qualification gate deliberately NOT widened); `is_test_left` widened to
+  BOTH spellings in the SAME commit (one predicate, demand and lowering); superseded bare
+  sentences annotated verbatim-kept (str_side, arm-1 prescan note, fix-arm comment,
+  lower_test_skip0 note, imem_refuse comparison WHY arm-2 ADDENDUM). Side effect
+  recorded: the numeric ?IS22N ident-vs-ident guard (`str_side None,None`) now REFUSES
+  bare-fixed-member pairs it used to mis-lower numerically — refusal widened exactly to
+  the admitted set; no measured object was lost (proved below).
+  ACTUALS at `b044b7c` (measured THIS session): `dune build` rc=0; E49A1/E49A2/E49A3/E49A4
+  ALL whole-file BYTE-EXACT vs `golden/e49p1` (E49A2 flipped rc=2 → exact); E48-family
+  sweep **52/52** 0 DIFF incl. E48E7; **full registered specimen panel 1127/1127
+  BYTE-EXACT, 0 fail** (every INVENTORY specimen row re-compiled + whole-file `cmp` —
+  direct proof no output moved elsewhere); out-of-scope refusals re-measured through the
+  binary — bare member-RIGHT, fixed truthiness (bare and qualified), fixed STORE target,
+  member-vs-member, literal-vs-literal, flag-trick — all rc=2 named refusals; E46K14
+  marker `comparison of the internal CHARACTER member REC.LINE` UNMOVED. FULL gate NOT
+  run — owed at step 6, never claimed.
+- NEXT (exact): (a) STEP 6 ledger — claims **C333..C336** derived ONLY from
+  `spec/lab-evidence/e2e49-p1/RESULTS.md` §2 (suggested mapping: C333 = s2.1 incl. s2.3 +
+  s2.5; C334 = s2.2 positional law; C335 = s2.4 spelling invariance + bare-RIGHT gate; C336
+  = s2.6 over-extent ACCEPT member-left) + labelled correction APPENDED at **C330**
+  (positional law falsifies its class-polarity reading; keep falsified text verbatim,
+  PROTOCOL #2); (b) registration: INVENTORY 4 specimen rows E49A1..A4 after E48E8 (manual
+  or `python3 tools/e2e_gate.py --update-inventory` then inspect diff), census re-snapshot
+  `python3 tools/corpus_census.py` (expect EXACT 15/DIFFERS 0/REFUSED 26/UNEXPECTED 0),
+  COVERAGE.tsv 4 rows (schema `spec/COVERAGE-SCHEMA.md`, validator
+  `tools/coverage_check.py:203-247`, expect 122 rows 0 errors); commit; (c) FULL gate
+  `python3 tools/e2e_gate.py` — expect **1131** byte-exact / 0 fail, negative 181/181,
+  div 9/9, coverage 0 errors, census check, prose clean — record ACTUALS as printed;
+  (d) CLOSE: rewrite HANDOFF/PROGRESS with real ACTUALS, archive superseded prose VERBATIM
+  from committed blobs to `docs/history/2026-11-01-e49p1-closed.md` + README index row,
+  LEARNINGS close notes, commit, `/handoff finalize`, renew or stop; update HANDOFF
+  recovery pointer (ledger end) after the claims land.
 - Out of scope, keep refusing (RESULTS s3): fixed member in STORE (both orientations),
   member-vs-member, literal-vs-literal fixed, BASED members, truthiness of a fixed member,
   bare member-RIGHT, over-extent literal-LEFT (ungated template stays [TBD]), `^( )`
@@ -177,7 +192,7 @@ checkpoint-generation: 66
 checkpoint-id: g66-487495b2e408
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-10-31T23:50:55.048Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -208,6 +223,9 @@ superseded prose to docs/history/, commit, /handoff finalize, renew or stop. OUT
 keep refusing (e2e49-p1 RESULTS s3): STORE fixed member, member-vs-member,
 literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT
 ([TBD]), `^( )`; NO RUNTIME row; no push; never touch the operator config edit.
+readiness-by: session:01a19445-2627-704c-9bbd-41fe19a81649
+readiness-at: 2026-10-31T23:51:20.848Z
+readiness-checkpoint: g66-487495b2e408
 <!-- guard:end checkpoint -->
 
 ## Blockers
