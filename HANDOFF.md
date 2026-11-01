@@ -129,67 +129,56 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 85
-checkpoint-id: g85-f6fd5eb45946
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~2313, session 01a19625-de56-7195-ad35-f2e0a06dc69a)
-checkpointed: 2026-11-01T08:31:22.279Z
+checkpoint-generation: 86
+checkpoint-id: g86-e56287b70f9d
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-1628, session 01a19625-de56-7195-ad35-f2e0a06dc69a)
+checkpointed: 2026-11-01T08:32:51.239Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 23b5d3328c26a3ab792d0299d5a9b54bdcf0aaa27d6bc25aa84b1f71c0535260
-source-handoff: 396eb253e73a501f2491614c65ed927f77a0f01be8b223e425980adebab2003d
-source-learnings: ba49cf6cd34ae11486c9bb41f79ff0d77587dc4477e39e0fc46ff9e2df0c8d08
+source-progress: 75675b27000253f53b8252394aac5b81c642a8e500a62b4201f2d3430133ae0c
+source-handoff: 98a97e23bbc661c3a676617e4cb1d3952be4ff40a48364e8de442312b972e970
+source-learnings: 0e9546083252414218189547c0f2d2d29e710069c54fbf45630972441a94e1f1
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19625-de56-7195-ad35-f2e0a06dc69a
+readiness-at: 2026-11-01T08:32:51.243Z
+readiness-checkpoint: g86-e56287b70f9d
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: E2E-49/P3 step 6 + FULL gate LANDED (2a 8d3b024, 2b 8771e1e, 2c 4df35bb [C104] citation correction, gate record 1f611f5, close-partial b07be23; gate rc=0 at 4df35bb: panel 1150/0, neg 181/181 E46K14 UNMOVED, div 9/9, cov 129/0/0, census 15/0/26/0, prose 5 clean). NEXT per HANDOFF -> Next action item 2: byte-verify draft archive docs/history/2026-11-01-e49p3-closed.md vs git show 4df35bb (fix blank-line artifact if diff fails), rewrite HANDOFF/PROGRESS/LEARNINGS to the CLOSED record (ledger ends C347), fix stale P2-era Verified-evidence/Blockers wording (superseded text verbatim in archive), then /handoff finalize. Byte tier only; goldens untouched except e49p3; never touch operator handoff.config.json edit; no push.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-49/P3 step 6: part 1 DONE (`4b51bc0`); remaining = COVERAGE (2a/2b), FULL gate record, CLOSE
+— E2E-49/P3 FULL GATE LANDED; CLOSE prose completion owed (this session, context exhausted)
 
-1. DONE: arms a `a540fa7` / b `0a1b80c` / c `cde3258` (each ALONE, 14/14 goldens
-   whole-file BYTE-EXACT, gate rc=0 at each; E49E1/E2 needed NO code). STEP 6 PART 1
-   `4b51bc0`: claims **C342..C347** from `spec/lab-evidence/e2e49-p3/RESULTS.md` s2 ONLY
-   (one claim per numbered law; ledger now ENDS at C347) + labelled CORRECTION appends,
-   originals verbatim, at [C335] (bare RIGHT admitted), [C336] (literal-LEFT over-extent
-   measured), [C337] (bare sides AND relations beyond `=`/`^=`), [C338] (scope warning
-   dead); SPECIMENS +14; sanctioned `--update-inventory` -> panel **1150** (+14 rows);
-   census re-snapshot counts UNCHANGED 15/0/26/0 (head `1da795d`, md5 `335d69c6`). FULL
-   compile-tier gate **rc=0 measured at `4b51bc0`**, ACTUALS AS PRINTED: byte panel
-   **1150 byte-exact / 0 fail of 1150** (all fourteen print `BYTE-EXACT ... (256 bytes)`),
-   negative **181/181** (E46K14 pinned marker UNMOVED), divergence **9/9**, coverage
-   **125 rows, 0 errors, 0 warnings**, census unchanged, prose **5 active files clean**;
-   `dune build` rc=0. No `ocaml/` byte changed in part 1.
-2. REMAINING — PART 2a (commit ALONE): FOUR NEW COVERAGE rows in `spec/COVERAGE.tsv`:
-   `COND.FIXED_CMP_COLLAPSE_BOTH_TEMPLATES` (E49C1..C4, EXACT:4, MEASURED, [C342]/[C343]),
-   `COND.FIXED_CMP_QUALIFICATION_INVISIBLE` (E49D1..D4, EXACT:4, MEASURED, [C344]),
-   `COND.FIXED_CMP_OVER_EXTENT_LITERAL_LEFT` (E49E1,E49E2, EXACT:2, SINGLE_SAMPLE, [C345]),
-   `COND.FIXED_RELATION_MEMBER_PAIR` (E49F1..F4, EXACT:4, MEASURED, [C346]); then
-   `python3 tools/coverage_check.py` rc=0 (expect 129 rows, 0 errors). PART 2b (commit
-   ALONE): widen `COND.CMP_LENGTHS_POSITIONAL` (+E49F2,E49F4 -> EXACT:10, provenance
-   +[C346] +e2e49-p3 RESULTS, EXTENDED clause) and add labelled SUPERSEDED clauses
-   (falsified text verbatim, PROTOCOL #2) to `COND.FIXED_MEMBER_TEST_SCCCM` (CA + collapse
-   measured on THIS template; bare RIGHT admitted), `COND.FIXED_MEMBER_BARE_LEFT`
-   ("left side only" was MY evidence boundary), `COND.FIXED_CMP_OVER_EXTENT` (literal-LEFT
-   measured), `COND.FIXED_MEMBER_MEMBER_TEST` (bare sides; relations beyond `=`/`^=`),
-   `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE` (scope warning dead). 15 columns per the file
-   header (id category construct contract perimeter manual_ref dr_status mine_status
-   rel_parity runtime probes corpus boundary confidence provenance); no tabs inside fields,
-   probes must be panel keys, every [Cnnn] must exist; model commits `8c1d2ee` / `d5983e8`.
-3. FULL gate at the final part-2 tree, record ACTUALS AS PRINTED in a gate-record commit
-   updating PROGRESS (model `8926b83`), then CLOSE: archive superseded prose verbatim to
-   `docs/history/`, rewrite HANDOFF/PROGRESS to CLOSED, LEARNINGS close notes,
-   `/handoff finalize`.
-4. Standing: probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no var named `c`;
-   goldens untouched except e49p3; NO spec/RUNTIME.txt row from the compare families;
-   never touch the operator's `handoff.config.json` edit; renewal values ONLY in
-   `handoff.config.json` / `/guard status`; no push.
+1. LANDED and MEASURED: step 6 parts 2a `8d3b024` (four COVERAGE rows + stats snapshot,
+   coverage_check rc=0, 129 rows 0/0), 2b `8771e1e` (widening +E49F2,E49F4 -> EXACT:10 +
+   five labelled SUPERSEDED clauses, originals verbatim), 2c `4df35bb` (labelled CITATION
+   CORRECTION at [C346]: numeric ORDER law is [C104], not [C115]; legacy [C027]/[C072] are
+   NOT resolvable by coverage_check load_claims — never cite them in provenance).
+   FULL compile-tier gate rc=0 measured at `4df35bb`, ACTUALS AS PRINTED: byte panel
+   1150/0 (all fourteen e49p3 BYTE-EXACT 256 bytes), negative 181/181 (E46K14 marker
+   UNMOVED), divergence 9/9, coverage 129/0/0, census UNCHANGED 15/0/26/0, prose 5 clean.
+   Gate-record commit `1f611f5` (message complete; its PROGRESS prose update FAILED to
+   apply — heading assert — fix in the CLOSE commit).
+2. REMAINING — finish CLOSE: archive file `docs/history/2026-11-01-e49p3-closed.md` is
+   WRITTEN but verify it against `git show 4df35bb:HANDOFF.md` / `:PROGRESS.md` (my join
+   fix collapsed blank lines; re-extract verbatim if it fails a diff); rewrite HANDOFF
+   Last-verified/Next-action/Unfinished to the CLOSED record (ledger ends C347, panel
+   1150, coverage 129); rewrite PROGRESS Current phase to CLOSED, fix its stale P2
+   Verified-evidence numbers (1150/129 at 4df35bb) and the Blockers refusal list (bare
+   spellings outside relations, relations beyond =/^= on the QUALIFIED pair, and both
+   literal-template collapses are now MEASURED [C342..C347] — keep superseded wording
+   verbatim in the archive); LEARNINGS close notes; then `/handoff finalize`.
+3. Standing: byte tier only (no spec/RUNTIME.txt row); goldens untouched except e49p3;
+   never touch the operator's handoff.config.json edit; renewal values ONLY in
+   `handoff.config.json`/`/guard status`; probes <=71 cols CRLF+^Z; eval $(opam env)
+   before dune; no push.
 
 ### Guard notes
-E2E-49/P3 ARMS ALL LANDED at HEAD 1da795d (arm a a540fa7, arm b 0a1b80c, arm c cde3258, docs checkpoint 1da795d): 14/14 golden/e49p3 objects whole-file BYTE-EXACT, FULL gate rc=0 at arm c (panel 1136/0, neg 181/181 E46K14 marker UNMOVED, div 9/9, cov 125/0/0, census 15/0/26/0, prose 5 clean), dune build rc=0, working tree clean except the operator's handoff.config.json edit. NEXT = STEP 6 ONLY (exact procedure in HANDOFF.md -> Next action item 2): claims from C342 derived ONLY from spec/lab-evidence/e2e49-p3/RESULTS.md s2 (ledger ends at C341, ~line 7699 block is P2's, mimic C337..C341 format); SPECIMENS +14 in tools/e2e_gate.py in the E49A/E49B round-bank style citing pre-registration 3659f5d (probes/E49{C1..C4,D1..D4,E1..E2,F1..F4}.PLI -> golden/e49p3/<N>/<N>.REL); sanctioned python3 tools/e2e_gate.py --update-inventory (panel 1136->1150); census re-snapshot per commit 0abf1c1's recipe; COVERAGE rows + labelled SUPERSEDED clauses (C338 scope, P1 left-side-only asymmetry, relations-beyond-=/^=) with originals verbatim per PROTOCOL #2; FULL compile-tier gate with ACTUALS AS PRINTED; then CLOSE per HANDOFF item 3 (archive superseded prose verbatim to docs/history/, rewrite HANDOFF/PROGRESS to CLOSED, LEARNINGS close notes, /handoff finalize). Discipline: no spec/RUNTIME.txt rows; bare-in-relation and every RESULTS s3 shape keep refusing; never touch the operator's handoff.config.json edit; no push.
+E2E-49/P3 step 6 + FULL gate LANDED (2a 8d3b024, 2b 8771e1e, 2c 4df35bb [C104] citation correction, gate record 1f611f5, close-partial b07be23; gate rc=0 at 4df35bb: panel 1150/0, neg 181/181 E46K14 UNMOVED, div 9/9, cov 129/0/0, census 15/0/26/0, prose 5 clean). NEXT per HANDOFF -> Next action item 2: byte-verify draft archive docs/history/2026-11-01-e49p3-closed.md vs git show 4df35bb (fix blank-line artifact if diff fails), rewrite HANDOFF/PROGRESS/LEARNINGS to the CLOSED record (ledger ends C347), fix stale P2-era Verified-evidence/Blockers wording (superseded text verbatim in archive), then /handoff finalize. Byte tier only; goldens untouched except e49p3; never touch operator handoff.config.json edit; no push.
 <!-- guard:end checkpoint -->
