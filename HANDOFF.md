@@ -164,13 +164,16 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 ## Unfinished operations
 
 - E2E-50/P2 steps 3–8 (steps 0–2 delivered: bootstrap `459f51e`; audit document
-  `docs/emulator-audit.md` landed at renewal hop 1). FIRST ACTION for the successor: confirm
-  HEAD/tree, then step 3 — design the functional-test specification format under
-  `spec/functional/` (independence law: BYTE ≠ correct, exit 0 ≠ correct; failure-origin
-  attribution among compiler/runtime/emulator/source/undefined must be MEASURED, never
-  assumed), consulting `docs/emulator-audit.md` §4/§7 for the emulator facts the harness must
-  encode (typed-failure discipline; stdout valid only at exit 0; the runtime BDOS census of a
-  linked .COM is UNMEASURED until step 6).
+  `docs/emulator-audit.md` landed at `97ad1f0`). FIRST ACTION for the successor: confirm
+  HEAD/tree, then step 3 — WRITE the functional-test spec format: `spec/functional/tests/README.md`
+  (schema `pli80-functional/1`, verdict law PASS/FAIL/BLOCKED/UNKNOWN, skipped-stage-never-PASS,
+  typed failure-origin attribution from evidence only, the E2E-11 UNDEFINED-SYMBOLS link law)
+  + the `docs/functional-testing.md` deliverable; design inputs are the hop-1 LEARNINGS
+  §§ (console PUT-LIST format law: 10-wide right-justified numeric field, blank separator,
+  no line-terminate without SKIP, gate normalization ` +`->` ` reused; supported subset
+  rows AGG.ARRAY_1D_FIXED/AGG.VAR_INDEX_LADDER/LOOP.DO_TO_BY/IO.PUT_LIST_FIXED/IO.PUT_SKIP;
+  MUST avoid AGG.MULTIDIM and EXPR.K_PLUS_X; LOOP.TRAVERSAL_RELOAD is DIVERGENT). Then steps
+  4–8 per the sequence.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE `%include`);
   this round does not touch them.
 - At this boundary: no half-finished Git operation, no emulator process running, `ocaml/` untouched.

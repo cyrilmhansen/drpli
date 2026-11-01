@@ -37,6 +37,16 @@ Two-package matrix delivered (§6); the single hard Package-A blocker is the ope
 decision on the UNLICENSED lab — decided by nobody here. Next: step 3 (functional-test spec
 format under `spec/functional/`).
 
+**Step-3 groundwork probed (same hop, later):** console PUT-LIST byte law measured from stored
+goldens (10-wide right-justified numeric field, blank item separator, statements share one line
+until SKIP; gate normalization ` +`->` ` adopted as harness v1 law); TABLE-feasible capability
+subset surveyed from COVERAGE (1-D arrays + var-index ladder + DO TO BY + PUT LIST/SKIP all
+SUPPORTED; MULTIDIM/K_PLUS_X refused, TRAVERSAL_RELOAD divergent — corpus design honors this);
+oracle harness machinery (cpmwork Workspace/Run, LINK.COM+PLILIB.IRL staging, cpmsim resolution,
+the E2E-11 UNDEFINED-SYMBOLS trap) surveyed for the step-5/6 harness. Design PROPOSED in
+LEARNINGS hop-1 §§: JSON spec `pli80-functional/1` under `spec/functional/tests/` + independent
+`reference.py` + typed verdicts. All committed findings at `97ad1f0` + this checkpoint commit.
+
 ## Previous phase — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`; close docs-only)
 
 Functional dashboard round COMPLETE, docs-only and evidence-only: compiler, oracle, LINK-80,

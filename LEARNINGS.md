@@ -1530,3 +1530,50 @@ The guard never writes this file.
   above; the audit-doc owed item (#6) is DELIVERED. Standing: #1 (runtime BDOS census —
   step 6 measurement), #3 (node dependency trees — deliberately out of scope), #5 (exercisers
   as optional Lane A script — decision owed with the harness).
+
+### E2E-50/P2 hop 1 (later in the same session) — step-3 groundwork probes (accepted unless marked)
+
+- **ACCEPTED: console `PUT LIST` byte-format law, measured from stored golden outputs.**
+  `golden/e32rt_E32B1/E32B1.output.txt` (39 bytes, od-verified) = `a=        12 b=        10
+  c=        14\n`: a CHARACTER literal prints UNQUOTED at natural width; a FIXED numeric item
+  occupies a **10-position right-justified field** (E32C8 single digits show 9 spaces; the
+  negative E32B2 `c= -2` shows sign inline in the same field); items are separated by that
+  one blank; THREE separate `put list(...)` statements produced ONE line — statements do NOT
+  line-terminate (SKIP governs lines). The gate's runtime comparison law (quoted from
+  `tools/e2e_gate.py` ~5631): `norm = re.sub(" +", " ", raw.replace(b"\r\n", b"\n"))` and
+  "an empty expected is never an assertion". The P2 harness will adopt the SAME normalization
+  (documented, one blank collapsing) for v1 assertions; exact-byte modes stay available.
+- **ACCEPTED: capability survey for the TABLE corpus** (rows re-read from `spec/COVERAGE.tsv`):
+  `AGG.ARRAY_1D_FIXED` SUPPORTED (EXACT:30), `AGG.VAR_INDEX_LADDER` SUPPORTED, `LOOP.DO_TO_BY`
+  / `DO_WHILE_UNTIL` / `REPEAT_CLAUSE` SUPPORTED, `IO.PUT_LIST_FIXED` / `IO.PUT_SKIP` SUPPORTED,
+  `EXPR.REL_FIXED_EQ_K` SUPPORTED, the ordered-relation-with-literal family SUPPORTED since
+  [C348]. REFUSED rows the corpus MUST avoid: `AGG.MULTIDIM` (2-D arrays!), `EXPR.K_PLUS_X`,
+  `EXPR.REL_VAR_EQ_EXPR` (UNTESTED side too). `LOOP.TRAVERSAL_RELOAD` is DIVERGENT — flagged;
+  keep loop bounds constant in v1.
+- **ACCEPTED: harness machinery survey** (`oracle/linkrun.py`, `oracle/cpmwork.py` re-read):
+  Workspace/Run safety classes (symlink guards, atomic run-claim, copy-never-move seeds,
+  fresh-mkfs scratch disks, export with no clobber); `TOOLS = [LINK.COM, LIB.COM, RMAC.COM,
+  PLILIB.IRL]` imported from `artefacts/` onto C:; `LINK D:<NAME>` batched on D:; cpmsim
+  resolution `$CPMSIM` > `thirdparty/z80pack/cpmsim/cpmsim` > `~/pli/cpm/z80pack/...` (binary
+  present, 2024-09 build); per-program run sessions with scripted console (DEFAULT_INPUT =
+  one ^Z EOF; `INPUTS` dictionary per program; prompt-sync lesson: a stale `D>` echo can
+  satisfy a `##WAIT` — the harness pins an explicit fresh-prompt sync). The **E2E-11 link
+  trap** is the founding precedent for P2's attribution law: LINK-80 prints
+  `UNDEFINED SYMBOLS:` and STILL WRITES A .COM that dies silently with rc=0 — so "a .COM
+  appeared" is NEVER link success; the P2 spec format must parse the UNDEFINED-SYMBOLS
+  segment out of the link transcript (cap lesson: never let a 120-char display window cut
+  the diagnostic).
+- **PROPOSED (design, unverified): step-3 spec format.** One JSON spec per test under
+  `spec/functional/tests/` (`spec: "pli80-functional/1"`), fields: id/family/title,
+  provenance (original work, author, date), source file + sha256 + CRLF/^Z encoding,
+  limits (compile/link/run timeouts, `run_max_steps`), lanes with substrate+toolchain
+  (A = free core, hand-crafted original .COM fixture run under the audited emulator;
+  B = my compiler -> .REL -> historical LINK-80+PLILIB -> .COM), expected = reference-derived
+  lines with an explicit `derivation` naming an INDEPENDENT Python reference script
+  (`reference.py`, stdlib-only) committed beside the spec — never a capture; verdict law
+  PASS/FAIL/BLOCKED/UNKNOWN with skipped-stage-never-PASS and typed attribution
+  source|compiler|runtime-lib|emulator|host|undefined, each attribution only from typed
+  evidence. `docs/functional-testing.md` carries the same law in prose.
+- **ACCEPTED: step-2 audit commit landed at `97ad1f0`** (docs/emulator-audit.md + HANDOFF
+  step-1/2 brackets LANDED + LEARNINGS hop-1 entries; prose check rc=0; guard blocks
+  untouched vs HEAD verified byte-identical before the commit).
