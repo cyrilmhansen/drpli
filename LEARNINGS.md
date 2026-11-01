@@ -1103,3 +1103,34 @@ The guard never writes this file.
 - lesson (accepted): selective ledger reads still cost heavily; grep COVERAGE rows
   with narrow line ranges and read claims per-id blocks only — budget ~4k/session
   was consumed before the first write here.
+
+## E2E-49/P4 run — findings (2026-11-01, session 01a196ee, accepted unless marked)
+
+- ACCEPTED — the [C346] ORDER law REKEYS the literal templates: `>`/`<=` swap and the
+  swap decides STAGED-EB vs DIRECT-11 by the FIRST LOWERED operand (G3 direct/`06 02
+  3E 03`, G4 staged/`06 03 3E 02`); H-A-or falsified at all four discriminating rows.
+  [C342] collapse and [C346] BRANCH law transfer to the literal-relation family;
+  [C345] over-extent pooling transfers under `<=` (DATA 0010, pool WHOLE).
+- ACCEPTED — qualification invisibility ([C344]) transfers to ordered relations: every
+  bare mix is byte-equal to its qualified twin but the PACKED MODULE-NAME fields
+  (file offsets 4..6, 18..19, 26..28; these 256-byte .REL objects carry NO checksum
+  field — measured). H4 (`nb >= na`) == golden F3 (`rec.na <= rec.nb`): the lowered
+  pair+strictness is the canonical object; likewise I5==I6.
+- ACCEPTED — [C346] arm-c bytes TRANSFER to the whole unequal-extent matrix: all six
+  I rows WHOLE-FILE byte-exact vs my baseline; NO arm was needed (first round where a
+  refused-panel prediction landed zero-arm on an already-shipped encoder).
+- ACCEPTED — DR ACCEPTS `^( <string compare> )`; the object is the COMPLEMENT's object
+  byte-equal (J1≡E49B5, J3≡E49C4, J4≡E49F2, J2≡F1 head with skip da). H-D-inv vs
+  H-D-simpl are BYTE-CONVERGENT on these four shapes — the pre-registered
+  non-separability holds; claims must word the law so both readings stay admissible.
+  H-D-extra falsified (no CMA/extra CALL/branch).
+- ACCEPTED — 24 HIT / 0 MISS: the value of per-row byte predictions written blind;
+  only pre-registered ALTERNATIVES died (H-A-or, H-B-gate/mixed, H-D-extra/refuse).
+- PROPOSED (procedure lesson) — write BASELINE/RESULTS evidence files with plain
+  `--` ASCII (never em-dashes) and re-grep any exact-match edit target BEFORE the
+  commit: two failed python exact-match patches this session came from unicode
+  dashes introduced by the write tool; a garbled §2.4 sentence needed a traceable
+  follow-up repair commit `9799f1d` because the draft artifact rode into `13fca5b`.
+- PROPOSED — keep the twin-comparison diff helper (reldump head + byte-offset diff vs
+  named goldens) as the standard RESULTS §1 tool; it cleanly separated name bytes,
+  skip bytes and *D-slot bytes in one pass.

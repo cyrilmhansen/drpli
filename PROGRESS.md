@@ -3,9 +3,42 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P4 IN FLIGHT (authorized 2026-11-01; PLAN at spec/lab-evidence/e2e49-p4/PLAN.md; NOT yet pre-registered)
+## Current phase — E2E-49/P4 IN FLIGHT: pre-registration + oracle run + RESULTS LANDED; ARMS owed
 
-- Bootstrap MEASURED this session (accepted): HEAD b1f72d6 == expected; tree clean
+- ACCEPTED (measured this session): pre-registration `328eb3f` (24 probes CRLF+^Z
+  <=71col verified; BASELINE-MINE with the ACTUAL binary at 398fa2c: A/B/D all refuse
+  rc=2 by name, C accepts on arm-c bytes; HYPOTHESES per-row) committed BEFORE any
+  oracle call. ONE grouped run tag e49p4 -> 24 ok/24, NO dr-refuses, all PRN clean
+  both passes. Goldens+RESULTS `13fca5b`, wording repair `9799f1d`. Verdicts (every
+  row HIT; falsified alternatives recorded): **Panel A** H-A-sw CONFIRMED, H-A-or
+  FALSIFIED at G3..G6 (ORDER law rekeys the literal template: lowered member-first
+  = staged EB / literal-first = direct 11; positional immediates + [C342] collapse on
+  LOWERED operands; BRANCH d2/da; [C345] over-extent pooled WHOLE). **Panel B**
+  H-B-invis CONFIRMED (bare mixes == qualified twins byte-for-byte but packed name
+  bytes offsets 4..6/18..19/26..28; H4 == golden F3: the LOWERED pair is canonical).
+  **Panel C** whole-file cmp ZERO differing bytes vs my arm-c baseline -> NO ARM
+  (transfer measured; I5==I6 but names). **Panel D** DR ACCEPTS `^( )` on string
+  heads; each object == the complement's object byte-equal (J1≡B5, J3≡C4, J4≡F2,
+  J2≡F1-head+skip da); H-D-inv/H-D-simpl BYTE-CONVERGENT (non-separable, stated);
+  H-D-extra FALSIFIED. Classification: 18 my-gap (G,H,J), 6 exact (I), 0 dr-refuses.
+- NEXT ACTION (step 4, three arms by MECHANISM, each ALONE, whole-file goldens +
+  regression sweep + out-of-scope rc=2 + FULL gate rc=0 per arm): (a) widen
+  `str_cmp_shape_fix_rel` (codegen.ml ~7302) to match `ImemFb` BOTH sides (H1..H6;
+  no prescan twin); (b) NEW ordered-relation-with-LITERAL route off the
+  `str_cmp_shape_fix` Eq/Ne arms for Lt/Le/Gt/Ge keyed on the FIRST LOWERED operand
+  (staged EB vs direct 11, positional pair + collapse, skip d2/da) — prescan DEMAND
+  twins `is_test_left`/`is_test_right` (~3000-3076) widen IN THE SAME COMMIT
+  ([C152]); (c) NegL arm `lower_test_skip0` (~7736): accept string compares under
+  `^` by rewriting to the complement (Eq->Ne, Lt->Ge, Le->Gt, Gt->Le) and lowering
+  the complement object verbatim. Then step 6: claims C348.. from RESULTS §2 ONLY
+  (D-panel claim must state the inv/simpl non-separability); SPECIMENS +24 (panel
+  expected 1174 — ACTUAL printed number governs); `--update-inventory`; census; new
+  COVERAGE rows (byte tier); FULL gate ACTUALS; CLOSE per PLAN §6. NEVER push.
+- Superseded bootstrap block below (pre-run expectations, PROPOSED at the time):
+
+<!-- phase-p4-bootstrap-marker -->
+
+- (superseded 2026-11-01 by the run above) Bootstrap MEASURED this session (accepted): HEAD b1f72d6 == expected; tree clean
   except the operator handoff.config.json edit; checkpoint g87 CURRENT (prose-hash
   recompute + guard session state); fresh session, renewal chain state absent
   (done 0/12 per config). E2E-49/P4 opened: PLAN.md committed with HANDOFF/PROGRESS
@@ -183,20 +216,56 @@ records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 89
-checkpoint-id: g89-db496a27f9de
+checkpoint-generation: 90
+checkpoint-id: g90-6690bc80014d
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-01T11:45:18.453Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-01T12:11:59.335Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b1cc7ad6f855f16883e9d664b3fea2cd132d47634c2e1c705dfec1bc4c29d882
-source-handoff: 49deaffc4e0066970c808f72a91fc61fce06499d28ca1cec5464b832f0f4b7a1
+source-handoff: ece9ed79f817c46c76f51f2caffd004503d8a90517cacd3dd96287e8d9764ca3
 source-learnings: c540e3bf96d4d628dccde2eb21f321005398993b4f11dc7f3a0fc4618c0700a8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P4 ACTIVE (OPERATOR-AUTHORIZED 2026-11-01): composite CHARACTER FIXED / TEST campaign, four panels, 24 specimens
+next-action: — E2E-49/P4 ACTIVE: run LANDED (24 ok/24, 24 HIT/0 MISS); ARMS owed next
 
+0. LANDED this session: pre-registration `328eb3f` (24 probes + mkprobes.py +
+   HYPOTHESES + BASELINE-MINE, measured with the ACTUAL binary, committed BEFORE the
+   oracle); ONE grouped batch run tag e49p4 -> **24 ok / 24, NO dr-refuses**; goldens +
+   RESULTS committed together `13fca5b` (+ wording repair `9799f1d`). Verdicts: Panel A
+   **H-A-sw CONFIRMED** (the ORDER law REKEYS the literal template: lowered member-first
+   = staged EB, lowered literal-first = direct 11; H-A-or FALSIFIED at G3..G6), positional
+   immediates on LOWERED operands, [C342] collapse at 3/3 in BOTH literal templates under
+   all four relations, BRANCH d2/da transfers, [C345] over-extent pooled WHOLE; Panel B
+   **H-B-invis CONFIRMED** (bare mixes == qualified twins byte-for-byte but packed name
+   bytes; H4 `nb >= na` == golden F3); Panel C **WHOLE-FILE BYTE-EXACT vs my arm-c
+   baseline, NO ARM** (transfer MEASURED, I5==I6 but names); Panel D DR **ACCEPTS** `^( )`
+   on string heads, each object is the COMPLEMENT's object byte-equal (J1≡B5, J3≡C4,
+   J4≡F2, J2≡F1-head+da); H-D-inv/H-D-simpl BYTE-CONVERGENT (pre-registered
+   non-separability — claims must not prefer a reading); H-D-extra FALSIFIED.
+   Classification: 18 `my-gap` (G1..G8,H1..H6,J1..J4), 6 already-byte-exact (I), 0
+   dr-refuses. Evidence: `spec/lab-evidence/e2e49-p4/{BASELINE-MINE.txt,HYPOTHESES.md,RESULTS.md}`,
+   `golden/e49p4/`.
+   NEXT (step 4, PLAN): THREE arms by MECHANISM, each ALONE with whole-file byte
+   verification + regression sweep + FULL gate rc=0 before the next:
+   (a) widen `str_cmp_shape_fix_rel` (codegen.ml ~7302) from `ImemF/ImemF` to also
+       match `ImemFb` on BOTH sides — H1..H6 are byte-equal to the qualified lowering,
+       NO prescan twin (member pair pools no literal); verify H* goldens whole-file
+       byte-exact + F*/I* regression + out-of-scope still rc=2.
+   (b) NEW route for ORDERED relations with a LITERAL side: extend the Eq/Ne literal
+       pair (`str_cmp_shape_fix` arms) to `Lt/Le/Gt/Ge` — key template on FIRST LOWERED
+       operand (member-first = staged EB, literal-first = direct), positional pair +
+       collapse on LOWERED operands, skip d2/da; the prescan DEMAND twins
+       `is_test_left`/`is_test_right` (~3000-3076) MUST widen IN THE SAME COMMIT
+       ([C152] one-predicate invariant).
+   (c) NegL arm of `lower_test_skip0` (~7736): accept string compares by rewriting
+       `^(op)` to the complement (Eq->Ne, Lt->Ge, Le->Gt, Gt->Le) and lowering exactly
+       the complement object (J1≡B5, J2≡F1+da, J3≡C4, J4≡F2); NO extra bytes.
+   Then step 6 (claims from C348 from RESULTS §2 ONLY; SPECIMENS +24 in e2e_gate
+   (panel expected 1150+24=1174 — the ACTUAL printed number governs); sanctioned
+   `--update-inventory`; census re-snapshot; COVERAGE rows; FULL gate ACTUALS) and
+   CLOSE per PLAN. NEVER push.
 1. READ `spec/lab-evidence/e2e49-p4/PLAN.md` FIRST — it is the durable, complete
    plan: bank E49G1..G8 (ordered relations with a LITERAL, both orientations),
    E49H1..H6 (BARE spellings in ordered relations), E49I1..I6 (unequal-extent
@@ -216,9 +285,6 @@ next-action: — E2E-49/P4 ACTIVE (OPERATOR-AUTHORIZED 2026-11-01): composite CH
    touch the operator's `handoff.config.json` edit; renewal values ONLY in
    handoff.config.json / /guard status; `eval $(opam env)` before dune; never
    git clean/reset/add -A; NO PUSH.
-readiness-by: session:01a196da-fa99-71b9-af89-536a51a8a317
-readiness-at: 2026-11-01T11:45:31.805Z
-readiness-checkpoint: g89-db496a27f9de
 <!-- guard:end checkpoint -->
 
 ## Blockers
