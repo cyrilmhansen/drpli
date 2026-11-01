@@ -3071,7 +3071,17 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
            [E2E-49/P3 arm b, RESULTS s2.3] `is_test_right' NOW widened WITH its lowering
            arm: E49D4 (`'AB' = na') is the BARE fixed member on the RIGHT, DR ACCEPTS it
            on E48E7's template and POOLS 'AB' (DATA 000E), so demand follows lowering —
-           no new `wants' disjunct, the clause already calls `is_test_right'. *)
+           no new `wants' disjunct, the clause already calls `is_test_right'.
+           [E2E-49/P4 arm b, RESULTS s2.1] ORDERED relations with a LITERAL side are now
+           LOWERED by `str_cmp_shape_fix_lit_rel' (qualified member, both written
+           orientations; the over-extent G5/G6 rows demand the WHOLE pooled literal per
+           [C345]): this clause is keyed on `EqR _' -- EVERY relational operator -- so the
+           demand ALREADY mirrors the admitted set and NO prescan code changed; the
+           [C152] demand/layout invariant is verified by all eight G goldens compiling
+           clean. The twins admit the BARE spelling too (the Eq/Ne arms' set); a bare
+           side in a relation-with-literal is UNMEASURED (P4 s3) and REFUSES at lowering,
+           so its demand is moot -- a refused program emits nothing. When that shape is
+           measured, the LOWERING arm widens WITH the demand, one predicate. *)
         (is_lit b <> None && is_var a) || (is_lit b <> None && is_test_left a)
         || (is_lit a <> None && is_test_right b)
         || (is_cell a && is_cell b)
@@ -7345,6 +7355,73 @@ let str_cmp_shape_fix_rel st rop l r =
             fcap, scap, skip)
   | _ -> None
 
+(* [E2E-49/P4 arm b -- RESULTS s1 P-G1..P-G8, s2.1] ORDERED RELATION with a LITERAL
+   operand, TEST position: golden/e49p4/E49G1..G8 measure all four relations in BOTH
+   written orientations on the two `?SCCCM' literal templates of [C330]/[C333]. THE
+   ORDER LAW REKEYS THE TEMPLATE (H-A-sw CONFIRMED; H-A-or -- written orientation keys
+   the template -- FALSIFIED at all four discriminating rows G3..G6): the template
+   follows the operand pair AS LOWERED, exactly as the `>'/`<=' swap reorders the
+   member-pair loads in [C346]:
+     lowered member-first  ->  STAGED  `21 *D(member) / EB / 21 *D(pool)'
+       (G1 `na < 'ABC'', G4 `'AB' > na', G6 `'ABCD' <= na', G7 `na >= 'ABC''),
+     lowered literal-first ->  DIRECT  `21 *D(member) / 11 *D(pool)'
+       (G2 `'ABC' < na', G3 `na > 'AB'', G5 `na <= 'ABCD'', G8 `'ABC' >= na').
+   BOTH templates load the member cell with `21' FIRST, so the [C340] `*D' record-slot
+   order (member, pool) is identical in either orientation -- only the staging byte
+   (`EB') and the second load's register pair (`21' vs `11') differ; [C191]'s FINAL-
+   register law holds on the LOWERED pair (HL ends on the lowered RIGHT operand, DE on
+   the left). LENGTHS POSITIONAL ON THE LOWERED OPERANDS (B = first lowered attribute,
+   A = second): G3 `06 02 / 3E 03', G4 `06 03 / 3E 02', G5 `06 04 / 3E 03', G6 `06 03 /
+   3E 04'; the [C342] EQUAL-ATTRIBUTE COLLAPSE `06 n / 78' is measured in BOTH literal
+   templates under ALL FOUR relations (G1/G2/G7/G8, 3/3) -- [C342] keys on the two
+   numbers, not the relation. BRANCH law TRANSFERS from [C346]: strict `<'/`>' skip JNC
+   0xd2 (G1..G4), weak `<='/`>=' skip JC 0xda (G5..G8), each with the [C309] fill slot.
+   [C345] TRANSFERS: the over-extent literal `ABCD' (4 > char(3)) is ACCEPTED and
+   POOLED WHOLE (G5/G6 DATA 0010, no truncation, no min/max, no refusal). Sizes CODE
+   65/66 staged, 64/65 direct -- the head-size law of [C347]. ADMISSION IS THE
+   QUALIFIED MEMBER `ImemF' AGAINST A LITERAL -- deliberately STRICTER than the Eq/Ne
+   arms: every G object writes the member QUALIFIED, and a BARE side in a relation-
+   with-literal is UNMEASURED (RESULTS s3) and keeps refusing through `imem_refuse'.
+   TEST only: the STORE (either orientation), literal-vs-literal, BASED members,
+   truthiness and `^( )' over these shapes all keep refusing (s3). NO prescan change:
+   the `prescan_cond' `wants' clause is keyed on `EqR _' (EVERY relational operator) and
+   its `is_test_left'/`is_test_right' twins already demand the pooled literal for
+   exactly this admitted set -- demand and lowering stay ONE predicate ([C152]), verified
+   by the demand/layout consistency check passing on all eight goldens. *)
+let str_cmp_shape_fix_lit_rel st rop l r =
+  match str_side st l, str_side st r with
+  | Some (`Lit (v, bytes)), Some (`ImemF (k, cap))
+  | Some (`ImemF (k, cap)), Some (`Lit (v, bytes)) ->
+      let swap = match rop with Ast.Gt | Ast.Le -> true | _ -> false in
+      let member_left =
+        match str_side st l with Some (`ImemF _) -> true | _ -> false
+      in
+      (* Template keyed on the FIRST LOWERED operand (s2.1): written member-first AND
+         un-swapped, or written literal-first AND swapped, both lower the member first. *)
+      let staged = member_left <> swap in
+      let llen = String.length v in
+      let (b_len, a_len) = if staged then (cap, llen) else (llen, cap) in
+      let skip =
+        match rop with Ast.Lt | Ast.Gt -> 0xd2 (* JNC -- strict, G1..G4 *) | _ -> 0xda
+      in
+      (* ONE bundled thunk: both templates load the member cell FIRST with `21', so the
+         member `*D' record precedes the pool `*D' record in either orientation [C340].
+         STAGED parks the member with XCHG and loads the pool again into HL (7 bytes);
+         DIRECT is 6 -- LXI D itself takes the pool immediate, NO second `LXI H'. *)
+      Some ((fun () ->
+              d st op_lxi_h;
+              reloc st Data (addr_of st k);
+              if staged then begin
+                d st op_xchg;
+                d st op_lxi_h;
+                reloc st Data (pool_str st bytes)
+              end else begin
+                d st op_lxi_d;
+                reloc st Data (pool_str st bytes)
+              end),
+            b_len, a_len, skip)
+  | _ -> None
+
 (* [E2E-34/P4] CHARACTER VARYING vs CHARACTER VARYING, every operand pair DR
    has been made to show.  The three kinds of operand that can appear:
      `Imm a   -- a varying cell whose ADDRESS is its own data address (main-locals
@@ -8139,6 +8216,28 @@ let lower_test_skip0 st (c : Ast.expr) =
       d st skip;
       st.last_imm <- None;
       let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR ((Ast.Lt | Ast.Le | Ast.Gt | Ast.Ge) as rop), l, rr) when
+      (match str_cmp_shape_fix_lit_rel st rop l rr with Some _ -> true | None -> false) ->
+      (* [E2E-49/P4 arm b -- RESULTS s2.1] the ORDERED RELATION with a LITERAL side: the
+         encoder comment and the eight goldens E49G1..G8 name every byte. SAME helper
+         `?SCCCM' and SAME two literal templates as the Eq/Ne arms above, but the ORDER
+         law REKEYS the template -- lowered member-first stages `EB', lowered
+         literal-first is direct `11' (H-A-or falsified at G3..G6); positional length pair
+         ON THE LOWERED OPERANDS with the [C342] equal-attribute COLLAPSE; skip JNC `d2'
+         for `<'/`>', JC `da' for `<='/`>=' ([C346]'s BRANCH law), then the [C309] fill
+         slot. A relation whose member side is BARE, or that pairs two LITERALS, or that
+         sits in a STORE, does not reach this arm and keeps refusing (P4 s3). *)
+      let (head_fn, b_len, a_len, skip) =
+        match str_cmp_shape_fix_lit_rel st rop l rr with Some x -> x | None -> assert false
+      in
+      head_fn ();
+      d st op_mvi_b; d st b_len;
+      if b_len = a_len then d st op_mov_a_b
+      else begin d st op_mvi_a; d st a_len end;
+      call_ext st "?SCCCM";
+      d st skip;
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
       (match str_cmp_shape_vv st l rr with Some _ -> true | None -> false) ->
       (* both sides vary: ?SCVVM, no length operand.  [E2E-34/P4] the shape function now
@@ -8378,10 +8477,19 @@ let lower_test_skip0 st (c : Ast.expr) =
               qualification mix of the member pair inside an ORDERED relation byte-identical \
               to the qualified twin but the packed module-name fields ([C344] transfers to \
               the relation family; H4 `nb >= na' == golden F3 -- the LOWERED pair is \
-              canonical), and `str_cmp_shape_fix_rel' now matches `ImemFb' on BOTH sides. A \
-              relation with a LITERAL operand still had NO object at this arm (P4 s3) and \
-              refuses here until arm b, as do the STORE value, literal-vs-literal, BASED \
-              members, `^( )' over a string compare (P4 panel D lands with arm c) and every \
+              canonical), and `str_cmp_shape_fix_rel' now matches `ImemFb' on BOTH sides. \
+              ADDENDUM 2026-11-01 [E2E-49/P4 arm b, RESULTS s1 P-G1..P-G8, s2.1]: the \
+              relation-with-LITERAL boundary is now MEASURED for the QUALIFIED member -- \
+              golden/e49p4/E49G1..G8 lower `<', `>', `<=', `>=' against a string literal in \
+              BOTH written orientations through the SAME two `?SCCCM' literal templates \
+              (the ORDER law REKEYS the template: lowered member-first stages `EB', \
+              lowered literal-first is direct `11'; positional immediates on the LOWERED \
+              operands with the [C342] collapse; strict skip JNC d2, weak JC da; \
+              over-extent literal accepted and pooled WHOLE per [C345]) and the new \
+              `str_cmp_shape_fix_lit_rel' arm lowers exactly that set. A relation with a \
+              BARE member side AND a LITERAL operand is still UNMEASURED (P4 s3) and \
+              refuses here, as do the STORE value, literal-vs-literal, BASED members, \
+              `^( )' over a string compare (P4 panel D lands with arm c) and every \
               truthiness shape."
        | None ->
            failwith
