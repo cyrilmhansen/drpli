@@ -3,7 +3,51 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P1 CLOSED (2026-11-01; FULL compile-tier GATE rc=0 measured at `0a8ceff`; awaiting the operator's named round)
+## Current phase — E2E-49/P2 IN FLIGHT (member-vs-member FIXED compares in TEST; oracle run measured, arms NOT yet implemented)
+
+- Round authorized by the OPERATOR 2026-11-01. Pre-registration `3bd9417` (probes
+  E49B1..E49B5 + mkprobes.py + HYPOTHESES.md + BASELINE-MINE.txt at HEAD `7fa763b`: all
+  five refused rc=2 — all gaps `my-gap`) committed BEFORE any oracle call; prediction-SHA
+  fill-in child `586c240`; ONE run `--tag e49p2 --switches '$L$D'` -> **5 ok / 5, NO
+  dr-refuses**; goldens + `spec/lab-evidence/e2e49-p2/RESULTS.md` committed together at
+  `62f5622`.
+- MEASURED laws (RESULTS §2 ONLY): §2.1 member-vs-member takes `?SCCCM` with head
+  `21 *D(left cell) / E5 (PUSH H) / 21 *D(right cell) / D1 (POP D)` — the [C141] STACK
+  parking, NOT [C333]'s XCHG: BOTH pre-registered forms (H-S direct, H-M staged) were
+  falsified, a fourth shape again; [C191] final law survives (HL=right, DE=left), load
+  order is the WRITTEN order. §2.2 EQUAL-EXTENT COLLAPSE: equal extents emit
+  `06 n / 78 (MOV A,B)`, no `MVI A`; unequal extents keep the two immediates — measured
+  ONLY member-vs-member, the member-vs-literal equal-length case stays [TBD] and the
+  literal template keeps two immediates. §2.3 [C334] positional law confirmed on an
+  all-member pair (B3 `06 03 / 3E 02`, B4 `06 02 / 3E 03`; min/max/class falsifiers dead).
+  §2.4 inversion swaps the two `*D` reloc slots (B1 vs B2 differ only name bytes + those
+  slots). §2.5 `^=` skip CA in the stacked head (B5, fill -> 001D). §2.6 CODE 66 (collapse,
+  17-byte head) / 67 (two immediates, 18-byte head), DATA 000C [C314] unchanged.
+- NEXT: arm 1 in `ocaml/lib/codegen.ml` — add `op_mov_a_b = 0x78` next to `op_mov_b_a`
+  (~line 636); new encoder `str_cmp_shape_fix_mm` after `str_cmp_shape_fix` (~line 7170)
+  matching ONLY `Some (`ImemF _, Some (`ImemF _)` (BARE `ImemFb` on EITHER side stays
+  refused — unmeasured, RESULTS §3); new `Eq|Ne` TEST arm in `lower_test_skip0` directly
+  AFTER the `str_cmp_shape_fix` arm (~line 7880): head thunk (lxi_h/reloc/push_h/
+  lxi_h/reloc/pop_d bundled in ORDER), `op_mvi_b`+capl, then `op_mov_a_b` IF capl=capr
+  ELSE `op_mvi_a`+capr, `call_ext "?SCCCM"`, skip C2/CA, `st.last_imm <- None`, slot.
+  NO prescan twin (no pooled literal — demand law untouched). Annotate the superseded
+  "member-vs-member keeps refusing" sentences (str_cmp_shape_fix header, imem_refuse
+  WHY) with labelled ADDENDA, originals verbatim (PROTOCOL #2). Verify: dune build; each
+  E49B*.REL whole-file `cmp` byte-exact vs golden/e49p2; E48+E49 sweeps; full registered-
+  panel sweep via INVENTORY rows; out-of-scope refusals still rc=2 (bare-anywhere mm, the
+  STORE, truthiness, literal-vs-literal, BASED; E46K14 marker UNMOVED).
+- Then STEP 6: claims C337.. derived ONLY from RESULTS §2; SPECIMENS bank E49B1..B5 in
+  `tools/e2e_gate.py`; INVENTORY via sanctioned `--update-inventory` (5 rows after
+  E49A4); census re-snapshot; COVERAGE rows; FULL gate `python3 tools/e2e_gate.py`
+  (expect byte panel **1136**, neg 181/181, div 9/9); record ACTUALS; CLOSE (prose,
+  docs/history archive, LEARNINGS, `/handoff finalize`).
+- Keep refusing (RESULTS §3): any BARE spelling in a member-vs-member pair; the
+  equal-extent collapse for member-vs-literal; STORE; literal-vs-literal; BASED;
+  truthiness; over-extent; relations beyond `=`/`^=`; `^( )`. BYTE TIER ONLY — no
+  `spec/RUNTIME.txt` row from this round. No push; operator `handoff.config.json` edit
+  stays unstaged.
+
+### SUPERSEDED — E2E-49/P1 CLOSED (2026-11-01; FULL compile-tier GATE rc=0 measured at `0a8ceff`)
 
 - Round: operand-inverted FIXED compares (member LEFT of a literal in TEST), probes
   E49A1..A4 pre-registered `9b3d860` BEFORE any oracle call, fill-in `0e9cc3d`, ONE run

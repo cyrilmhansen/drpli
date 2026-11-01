@@ -163,6 +163,28 @@ The guard never writes this file.
   change in GOAL/prose/LEARNINGS/config yields `content-delta: none`, and readiness then warns
   "checkpoint recorded nothing new" — write the discoveries first, then refresh.
 
+## Accepted (E2E-49/P2 session, measured 2026-11-01, member-vs-member round)
+
+* **accepted (measured)** — a PARKING MECHANISM is a per-shape property, never a
+  transferable law: E49B1 falsified BOTH pre-registered heads (direct `21 rt/11 lt` by
+  [E29C6] analogy and staged `21 lt/EB/21 rt` by literal extrapolation of [C333]) and DR
+  answered with the [C141] STACK pattern `21 lt / E5 / 21 rt / D1`. Same lesson as P1
+  ("the answer was a FOURTH shape"), now twice confirmed: when two recorded laws COINCIDE
+  on every existing object, the round must enumerate the mechanisms themselves — staging,
+  direct-materialization, stack parking, even a peephole — as separate candidates, not
+  just register-order variants.
+* **accepted (measured)** — the EQUAL-EXTENT COLLAPSE `MVI B,n / MOV A,B` (`06 n / 78`)
+  is a length-pair ENCODING law found nowhere in the five prior `?SCCCM` objects; it fires
+  on member-vs-member pairs with `capl = capr` (3 objects) and NOT on unequal extents (2
+  objects). Scope discipline: member-vs-literal with literal length == extent has NEVER
+  run, so the existing two-immediate literal template must not adopt the collapse — the
+  gate lives in the NEW encoder only. Precedent that DR owns such peepholes: `op_mov_b_a`
+  0x47 in the len==cap STORE ([V102/V103]).
+* **accepted (method)** — `cmp -l` prints OCTAL byte values at ONE-BASED offsets: convert
+  before quoting raw offsets in a RESULTS table, and expect module-name DIFFERENCES to
+  move between adjacent bytes when the probe-name digit pair changes bit-packing (B1-vs-B2
+  differs at 0x06/0x13/0x1c, B1-vs-B5 at 0x05/0x13/0x1b).
+
 ## Accepted (E2E-49/P1 session, measured 2026-11-01, inversion round)
 
 - **Discriminating-probe design beats verdict-only probing.** E48E7's single object left
