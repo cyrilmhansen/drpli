@@ -141,56 +141,51 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 86
-checkpoint-id: g86-e56287b70f9d
+checkpoint-generation: 87
+checkpoint-id: g87-ea50c16651d4
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-1628, session 01a19625-de56-7195-ad35-f2e0a06dc69a)
-checkpointed: 2026-11-01T08:32:51.239Z
+status: checkpoint (guard level 0, remaining ~33905, session 01a196c1-58c5-7707-bd33-f161cb1ab038)
+checkpointed: 2026-11-01T11:16:53.930Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 75675b27000253f53b8252394aac5b81c642a8e500a62b4201f2d3430133ae0c
-source-handoff: 98a97e23bbc661c3a676617e4cb1d3952be4ff40a48364e8de442312b972e970
-source-learnings: 0e9546083252414218189547c0f2d2d29e710069c54fbf45630972441a94e1f1
+source-progress: eb65fc178f540d61f4aaa431eb9465d04b596d4dfc8d4f20bf61cc75c5c8538e
+source-handoff: 6ecdf433717421cd279a534d009a27e9d76801262b1ed2cf274a3513055e2ec6
+source-learnings: 3c1f82f00f1bbee3e271eb35b576df6bcfef1d33d0b0bd097fb7a3df29b595cd
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19625-de56-7195-ad35-f2e0a06dc69a
-readiness-at: 2026-11-01T08:32:51.243Z
-readiness-checkpoint: g86-e56287b70f9d
+readiness-by: session:01a196c1-58c5-7707-bd33-f161cb1ab038
+readiness-at: 2026-11-01T11:16:53.932Z
+readiness-checkpoint: g87-ea50c16651d4
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-49/P3 step 6 + FULL gate LANDED (2a 8d3b024, 2b 8771e1e, 2c 4df35bb [C104] citation correction, gate record 1f611f5, close-partial b07be23; gate rc=0 at 4df35bb: panel 1150/0, neg 181/181 E46K14 UNMOVED, div 9/9, cov 129/0/0, census 15/0/26/0, prose 5 clean). NEXT per HANDOFF -> Next action item 2: byte-verify draft archive docs/history/2026-11-01-e49p3-closed.md vs git show 4df35bb (fix blank-line artifact if diff fails), rewrite HANDOFF/PROGRESS/LEARNINGS to the CLOSED record (ledger ends C347), fix stale P2-era Verified-evidence/Blockers wording (superseded text verbatim in archive), then /handoff finalize. Byte tier only; goldens untouched except e49p3; never touch operator handoff.config.json edit; no push.)
+guard level 0; checkpoint requested (finalize: E2E-49/P3 CLOSE COMPLETE (docs-only session): two-generation archive docs/history/2026-11-01-e49p3-closed.md byte-verified (11/11 blocks byte-exact vs git ranges at 4df35bb/c140277), draft blank-line join artifact repaired, README index row added (commit 739cd10); HANDOFF/PROGRESS rewritten to the CLOSED record (ledger C347, panel 1150/0, coverage 129/0/0, gate rc=0 measured by the step-6 session at 4df35bb recorded 1f611f5; Next action = AWAIT OPERATOR, no active round; Blockers updated per RESULTS s3, superseded wording verbatim in archive); LEARNINGS dated close notes (commit 1ff755e). No compiler/oracle/gate run; no ocaml/golden/claim/COVERAGE/config byte touched; operator handoff.config.json edit preserved unstaged; no push. Session stops here per mission.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-49/P3 FULL GATE LANDED; CLOSE prose completion owed (this session, context exhausted)
+— E2E-49/P3 CLOSED: no active round, await the OPERATOR
 
-1. LANDED and MEASURED: step 6 parts 2a `8d3b024` (four COVERAGE rows + stats snapshot,
-   coverage_check rc=0, 129 rows 0/0), 2b `8771e1e` (widening +E49F2,E49F4 -> EXACT:10 +
-   five labelled SUPERSEDED clauses, originals verbatim), 2c `4df35bb` (labelled CITATION
-   CORRECTION at [C346]: numeric ORDER law is [C104], not [C115]; legacy [C027]/[C072] are
-   NOT resolvable by coverage_check load_claims — never cite them in provenance).
-   FULL compile-tier gate rc=0 measured at `4df35bb`, ACTUALS AS PRINTED: byte panel
-   1150/0 (all fourteen e49p3 BYTE-EXACT 256 bytes), negative 181/181 (E46K14 marker
-   UNMOVED), divergence 9/9, coverage 129/0/0, census UNCHANGED 15/0/26/0, prose 5 clean.
-   Gate-record commit `1f611f5` (message complete; its PROGRESS prose update FAILED to
-   apply — heading assert — fix in the CLOSE commit).
-2. REMAINING — finish CLOSE: archive file `docs/history/2026-11-01-e49p3-closed.md` is
-   WRITTEN but verify it against `git show 4df35bb:HANDOFF.md` / `:PROGRESS.md` (my join
-   fix collapsed blank lines; re-extract verbatim if it fails a diff); rewrite HANDOFF
-   Last-verified/Next-action/Unfinished to the CLOSED record (ledger ends C347, panel
-   1150, coverage 129); rewrite PROGRESS Current phase to CLOSED, fix its stale P2
-   Verified-evidence numbers (1150/129 at 4df35bb) and the Blockers refusal list (bare
-   spellings outside relations, relations beyond =/^= on the QUALIFIED pair, and both
-   literal-template collapses are now MEASURED [C342..C347] — keep superseded wording
-   verbatim in the archive); LEARNINGS close notes; then `/handoff finalize`.
-3. Standing: byte tier only (no spec/RUNTIME.txt row); goldens untouched except e49p3;
-   never touch the operator's handoff.config.json edit; renewal values ONLY in
-   `handoff.config.json`/`/guard status`; probes <=71 cols CRLF+^Z; eval $(opam env)
-   before dune; no push.
+1. No scientific work is authorised in this or a successor session until the OPERATOR
+   names a round. A successor session without an operator instruction: confirm HEAD and a
+   clean tree (a dirty `handoff.config.json` is the operator's standing edit — never
+   touch), run `/handoff verify`, record state here and STOP. Do not run the compiler,
+   the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py` on your own initiative.
+2. Candidate pool for the operator's NEXT named round (NOT authorisations; the measured
+   boundaries live in `PROGRESS.md` → Blockers and Pending): the P3 RESULTS §3 remainders
+   — STOREs (either orientation), literal-vs-literal, BASED members, fixed truthiness,
+   `^( )`, BARE spellings inside ordered relations, relations with a LITERAL operand,
+   STRICT/WEAK unequal-extent combinations beyond F2/F4; the standing `proposed` items in
+   `LEARNINGS.md` (bank the out-of-scope member-pair refusals as NEG-panel rows;
+   discriminating probes for the bundled-thunk codegen invariant); the LOAN2 scope-aware
+   prescan design change; the CREATE `%include` front-end gap; the stale `README.md`
+   rolling status.
+3. Standing: byte tier only (no `spec/RUNTIME.txt` row from the compare families);
+   goldens untouched except `golden/e49p3`; never touch the operator's
+   `handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard
+   status`; probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no push.
 
 ### Guard notes
-E2E-49/P3 step 6 + FULL gate LANDED (2a 8d3b024, 2b 8771e1e, 2c 4df35bb [C104] citation correction, gate record 1f611f5, close-partial b07be23; gate rc=0 at 4df35bb: panel 1150/0, neg 181/181 E46K14 UNMOVED, div 9/9, cov 129/0/0, census 15/0/26/0, prose 5 clean). NEXT per HANDOFF -> Next action item 2: byte-verify draft archive docs/history/2026-11-01-e49p3-closed.md vs git show 4df35bb (fix blank-line artifact if diff fails), rewrite HANDOFF/PROGRESS/LEARNINGS to the CLOSED record (ledger ends C347), fix stale P2-era Verified-evidence/Blockers wording (superseded text verbatim in archive), then /handoff finalize. Byte tier only; goldens untouched except e49p3; never touch operator handoff.config.json edit; no push.
+E2E-49/P3 CLOSE COMPLETE (docs-only session): two-generation archive docs/history/2026-11-01-e49p3-closed.md byte-verified (11/11 blocks byte-exact vs git ranges at 4df35bb/c140277), draft blank-line join artifact repaired, README index row added (commit 739cd10); HANDOFF/PROGRESS rewritten to the CLOSED record (ledger C347, panel 1150/0, coverage 129/0/0, gate rc=0 measured by the step-6 session at 4df35bb recorded 1f611f5; Next action = AWAIT OPERATOR, no active round; Blockers updated per RESULTS s3, superseded wording verbatim in archive); LEARNINGS dated close notes (commit 1ff755e). No compiler/oracle/gate run; no ocaml/golden/claim/COVERAGE/config byte touched; operator handoff.config.json edit preserved unstaged; no push. Session stops here per mission.
 <!-- guard:end checkpoint -->
