@@ -254,17 +254,17 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 116
-checkpoint-id: g116-8e567e89b8eb
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-11-01T22:17:36.144Z
+checkpoint-generation: 118
+checkpoint-id: g118-cae9c7641cad
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-01T22:18:35.444Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7f6f75c2ce4fa122889387dbe474fbc754eb8cbccd2ba0109aca1e487c9de5ae
 source-handoff: adad4db931de8875cf5029e096737e4975d84f6b96d3b84ced67f2637e143404
-source-learnings: 3e7a2dfca60a7c863b23f5571453226b812747c3eccaa18238d90fe18db41ce1
+source-learnings: 056536ef5880a134840942c4132848db0de36580f2a05e15ade68cc90847d1cc
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-50/P2 ACTIVE (operator mission brief, bootstrapped 2026-11-02)
 
@@ -319,9 +319,6 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
-readiness-by: session:01a19919-fc82-7280-b553-bda9890e392f
-readiness-at: 2026-11-01T22:17:36.149Z
-readiness-checkpoint: g116-8e567e89b8eb
 <!-- guard:end checkpoint -->
 
 ## Blockers

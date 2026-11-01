@@ -214,25 +214,22 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 116
-checkpoint-id: g116-8e567e89b8eb
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~11140, session 01a19919-fc82-7280-b553-bda9890e392f)
-checkpointed: 2026-11-01T22:17:36.144Z
+checkpoint-generation: 118
+checkpoint-id: g118-cae9c7641cad
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6768, session 01a19919-fc82-7280-b553-bda9890e392f)
+checkpointed: 2026-11-01T22:18:35.444Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7f6f75c2ce4fa122889387dbe474fbc754eb8cbccd2ba0109aca1e487c9de5ae
 source-handoff: adad4db931de8875cf5029e096737e4975d84f6b96d3b84ced67f2637e143404
-source-learnings: 3e7a2dfca60a7c863b23f5571453226b812747c3eccaa18238d90fe18db41ce1
+source-learnings: 056536ef5880a134840942c4132848db0de36580f2a05e15ade68cc90847d1cc
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19919-fc82-7280-b553-bda9890e392f
-readiness-at: 2026-11-01T22:17:36.149Z
-readiness-checkpoint: g116-8e567e89b8eb
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
@@ -293,5 +290,5 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 `git clean`/`reset --hard`/`add -A`; no push.
 
 ### Guard notes
-E2E-50/P2 renewal hop 2. Durable state: HANDOFF.md -> Unfinished operations FIRST ACTION = step 3 (write spec/functional/tests/README.md schema pli80-functional/1 + docs/functional-testing.md), all design inputs recorded in LEARNINGS.md § "2026-11-02 — E2E-50/P2 bootstrap + emulator audit reconnaissance" (hop-1 subsections: console PUT-LIST byte law, TABLE-feasible capability subset, oracle harness machinery incl. E2E-11 UNDEFINED-SYMBOLS trap, PROPOSED JSON spec design). Commits: 459f51e bootstrap, 38c8e5d recon, 9c779a4 open questions, fb9a523 steer, e35ac9g/g113, 3beda25 g115, 97ad1f0 (steps 1-2 DELIVERED: docs/emulator-audit.md), 0e4ae5b (step-3 groundwork + checkpoint). Then steps 4-8: TABLE-00/01 corpus (1-D arrays, DO TO, scalar compares, PUT LIST; avoid MULTIDIM/K_PLUS_X; TRAVERSAL_RELOAD divergent), tools/functional_runner.py + hostile tests, Lane A hand-crafted .COM fixture via Runes pli80-run (remember: output discarded on error paths — stdout valid only at exit 0; use --trace for BDOS census), Lane B via local pli80c + historical LINK-80/PLILIB under cpmsim (workspace machinery in oracle/cpmwork.py; restricted tools user-supplied, never packaged), minimal reporting, close. Hard limits unchanged: no compiler implementation changes, no push, no GOAL/handoff.config edits, no oracle campaign, DR binaries never distributable, UNKNOWN/BLOCKED never rendered PASS, /home/john/pli/* read-only (building lab tests touches only ignored _build).
+Hop 1 closed: steps 1-2 delivered (97ad1f0), step-3 groundwork + boundary records landed (0e4ae5b, 9e0a522, 9b8c05d). Successor FIRST ACTION: step 3 per HANDOFF Unfinished operations.
 <!-- guard:end checkpoint -->
