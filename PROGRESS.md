@@ -271,13 +271,13 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 120
-checkpoint-id: g120-996a06560f54
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 121
+checkpoint-id: g121-6b423b904b20
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-guard-level: 2
-checkpointed: 2026-11-01T22:49:27.789Z
+guard-level: 3
+checkpointed: 2026-11-01T22:49:47.301Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a0352f5c2ab49f51671662be56dfc95d261c7df684c41a0c02f8af9d9aad61fd
 source-handoff: eb8019539e6de1f8dce93147f1d09ede33f7a4b38a6ecdf3869b97b23347d5cd
@@ -349,8 +349,8 @@ Boundary law: never renew mid-Git-operation or while an emulator process runs; `
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
 readiness-by: session:01a19931-dc06-7280-b553-bdac19f6b52f
-readiness-at: 2026-11-01T22:49:27.792Z
-readiness-checkpoint: g120-996a06560f54
+readiness-at: 2026-11-01T22:49:47.309Z
+readiness-checkpoint: g121-6b423b904b20
 <!-- guard:end checkpoint -->
 
 ## Blockers

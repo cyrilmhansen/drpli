@@ -237,13 +237,13 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 120
-checkpoint-id: g120-996a06560f54
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 121
+checkpoint-id: g121-6b423b904b20
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 2, remaining ~8128, session 01a19931-dc06-7280-b553-bdac19f6b52f)
-checkpointed: 2026-11-01T22:49:27.789Z
+status: checkpoint (guard level 3, remaining ~6448, session 01a19931-dc06-7280-b553-bdac19f6b52f)
+checkpointed: 2026-11-01T22:49:47.301Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a0352f5c2ab49f51671662be56dfc95d261c7df684c41a0c02f8af9d9aad61fd
 source-handoff: eb8019539e6de1f8dce93147f1d09ede33f7a4b38a6ecdf3869b97b23347d5cd
@@ -252,10 +252,10 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a19931-dc06-7280-b553-bdac19f6b52f
-readiness-at: 2026-11-01T22:49:27.792Z
-readiness-checkpoint: g120-996a06560f54
+readiness-at: 2026-11-01T22:49:47.309Z
+readiness-checkpoint: g121-6b423b904b20
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
