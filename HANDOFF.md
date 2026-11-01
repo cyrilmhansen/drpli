@@ -145,52 +145,56 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 70
-checkpoint-id: g70-5b5572a0b3e4
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 71
+checkpoint-id: g71-4f3557084b8e
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4861, session 01a1946d-2fad-704c-9bbd-42078c146c52)
-checkpointed: 2026-11-01T00:29:16.794Z
+status: checkpoint (guard level 2, remaining ~7995, session 01a194de-4c92-7103-bf3c-ac8aa379f9a9)
+checkpointed: 2026-11-01T02:33:27.273Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e3ac18edcda488086e872e2d1e32f02a692bdb97d870491b5893183fdf817555
-source-handoff: 057939ec81da0ae1da3eaf6d2c22ef64e48bc819fa6279e8eb18c2e20a98d847
-source-learnings: 056b49d7ef6c4074962b795266d7bb772715b2033b4f19c0610b1be04c0b0567
+source-progress: 4e37911283356bdde8b701c044cd1f70a31ed8aaf4523ef029ffde5d7e746693
+source-handoff: d3699fdff6b91fa2c0861190036038c92c8c8cb79790f8cdd206148db5707a62
+source-learnings: c44737a635cdb1694aab0e3ccdb40f113d391c595ab5651804afdf3cfda5d3ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1946d-2fad-704c-9bbd-42078c146c52
-readiness-at: 2026-11-01T00:29:25.070Z
-readiness-checkpoint: g70-5b5572a0b3e4
+readiness-by: session:01a194de-4c92-7103-bf3c-ac8aa379f9a9
+readiness-at: 2026-11-01T02:33:27.277Z
+readiness-checkpoint: g71-4f3557084b8e
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-49/P1 is CLOSED; NO new scientific action is authorized until the OPERATOR names the next round
+— E2E-49/P2 [arm 1]: implement the measured member-vs-member lowering
 
-1. Candidate pool (each needs its OWN pre-registered round — hypotheses committed BEFORE
-   any oracle run, PROTOCOL). From `spec/lab-evidence/e2e49-p1/RESULTS.md` §3: `?SCCCM` in
-   a STORE (either orientation) and any fixed-member store value; member-vs-member
-   compares; literal-vs-literal fixed compares; BASED members in conditions; truthiness
-   of a FIXED member (bare or qualified — [C332] measured only the VARYING `BIT REQ`); a
-   BARE fixed member on the RIGHT of a literal; over-extent in the LITERAL-LEFT
-   orientation and over-extent INITIAL/STORE; `^( ... )` composition. Still open from
-   `spec/lab-evidence/e2e48-p2e/RESULTS.md` §3: `^=` over a ladder, bare `-0` spelling,
-   runtime length rewrite, empty-varying PUT output, `BIT REQ` acceptance elsewhere, PUT
-   EDIT of a bit item. Separate recorded debts, NOT arms: CREATE's `%include` front-end
-   gap and LOAN2's scope-aware prescan (PROGRESS → Pending).
-2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
-   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
-   (`/handoff verify`), and STOP — record state, do not invent work.
+1. ARM 1 (the only authorized scientific action now): implement EXACTLY what
+   `spec/lab-evidence/e2e49-p2/RESULTS.md` §2 measures — file:line plan in PROGRESS →
+   Current phase: `op_mov_a_b = 0x78`; encoder `str_cmp_shape_fix_mm` gated to the
+   QUALIFIED-qualified pair `ImemF/ImemF` ONLY (any BARE side keeps refusing — RESULTS
+   §3); stack-parked head bundled in written order; `06 b` then collapse `78` iff
+   `capl = capr` ELSE `3E a`; `?SCCCM`; skip C2/CA + [C309] slot; NO prescan change (no
+   pooled literal); labelled ADDENDA at the superseded sentences, originals verbatim.
+   Verify: `dune build`; whole-file `cmp` of all five `.REL` vs `golden/e49p2/`; E48/E49
+   sweeps; full INVENTORY-driven registered-panel sweep; out-of-scope refusals rc=2 with
+   the E46K14 marker UNMOVED. Commit the arm ALONE with measured ACTUALS.
+2. Then STEP 6: claims C337.. derived ONLY from RESULTS §2; SPECIMENS bank E49B1..B5 in
+   `tools/e2e_gate.py`; INVENTORY via sanctioned `--update-inventory` (5 rows after
+   E49A4, panel 1136); census re-snapshot; COVERAGE rows; FULL gate
+   `python3 tools/e2e_gate.py` (expect byte panel **1136**, neg 181/181, div 9/9);
+   record ACTUALS; then CLOSE (prose rewrite, archive superseded prose verbatim from
+   committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README index row,
+   LEARNINGS close notes, ledger-end pointer past C336, `/handoff finalize`).
 3. Standing: goldens untouched except newly added round goldens; §3 shapes NOT
    implemented (missing evidence is the limit, never a licence to guess); probes ≤71
    cols CRLF+`^Z`; `eval $(opam env)` before dune; never name a probe variable `c`; no
    push; never stage/commit/revert the operator's `handoff.config.json` edit; renewal
-   values live ONLY in `handoff.config.json` / `/guard status`.
+   values live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt`
+   row from this round.
 
 ### Guard notes
-E2E-49/P1 arms 1+2 landed (fee935e, b044b7c); HEAD f0d592b. Durable state is current: HANDOFF Next-action and PROGRESS Current phase carry measured ACTUALS (E49A1..A4 all four whole-file byte-exact vs golden/e49p1; E48 sweep 52/52; registered panel 1127/1127 byte-exact; out-of-scope refusals rc=2 re-measured; E46K14 marker unmoved; dune rc=0; FULL gate OWED, never claimed). Exact next action = STEP 6: claims C333..C336 from spec/lab-evidence/e2e49-p1/RESULTS.md s2 ONLY + labelled positional-law correction APPENDED at C330 keeping falsified text (PROTOCOL #2); INVENTORY 4 specimen rows after E48E8; census re-snapshot python3 tools/corpus_census.py; COVERAGE.tsv 4 rows (schema spec/COVERAGE-SCHEMA.md); commit; then FULL gate python3 tools/e2e_gate.py (expect 1131 byte-exact, neg 181/181, div 9/9, coverage 122 rows 0 errors) and record ACTUALS; then CLOSE (prose rewrite, archive superseded prose verbatim from committed blobs to docs/history/2026-11-01-e49p1-closed.md + README index, LEARNINGS close notes, update HANDOFF ledger-end pointer past C332, /handoff finalize, stop or await operator). Keep refusing: STORE, member-vs-member, literal-vs-literal, BASED, truthiness, bare member-RIGHT, over-extent literal-LEFT, ^( ); no RUNTIME row; no push; never touch the operator handoff.config.json edit.
+E2E-49/P2 IN FLIGHT at 1416f52 (HEAD; goldens+RESULTS at 62f5622, pre-registration 3bd9417, fill-in 586c240). Oracle measured: 5 ok / 5, NO dr-refuses, all five my-gap. NEXT ACTION = ARM 1 exactly per spec/lab-evidence/e2e49-p2/RESULTS.md s2 (plan in HANDOFF Next-action + PROGRESS Current phase): op_mov_a_b=0x78; str_cmp_shape_fix_mm matching ONLY (ImemF,ImemF) qualified-qualified (any BARE side keeps refusing, s3); head 21 *D(left)/E5/21 *D(right)/D1; MVI B capl then MOV A,B iff capl=capr else MVI A capr; CD ?SCCCM; skip C2/CA fill->next; NO prescan change. Verify whole-file cmp vs golden/e49p2 for all five, E48/E49 sweeps, full INVENTORY panel (expect 1131 current + 5 new), refusals rc=2, E46K14 marker unmoved; commit arm alone. Then STEP 6: claims C337.. from s2 ONLY, SPECIMENS bank, --update-inventory, census, COVERAGE, FULL gate (expect 1136), record ACTUALS, CLOSE (archive prose to docs/history/2026-11-01-e49p2-closed.md, ledger-end pointer past C336, /handoff finalize). Both pre-registered forms were FALSIFIED (fourth shape: stack parking E5/D1); equal-extent collapse is member-vs-member ONLY -- never extend to the literal template (unmeasured). No RUNTIME row; no push; never touch the operator handoff.config.json edit.
 <!-- guard:end checkpoint -->

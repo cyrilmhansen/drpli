@@ -175,42 +175,46 @@ closed-round records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 70
-checkpoint-id: g70-5b5572a0b3e4
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 71
+checkpoint-id: g71-4f3557084b8e
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-01T00:29:16.794Z
+guard-level: 2
+checkpointed: 2026-11-01T02:33:27.273Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e3ac18edcda488086e872e2d1e32f02a692bdb97d870491b5893183fdf817555
-source-handoff: 057939ec81da0ae1da3eaf6d2c22ef64e48bc819fa6279e8eb18c2e20a98d847
-source-learnings: 056b49d7ef6c4074962b795266d7bb772715b2033b4f19c0610b1be04c0b0567
+source-progress: 4e37911283356bdde8b701c044cd1f70a31ed8aaf4523ef029ffde5d7e746693
+source-handoff: d3699fdff6b91fa2c0861190036038c92c8c8cb79790f8cdd206148db5707a62
+source-learnings: c44737a635cdb1694aab0e3ccdb40f113d391c595ab5651804afdf3cfda5d3ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P1 is CLOSED; NO new scientific action is authorized until the OPERATOR names the next round
+next-action: — E2E-49/P2 [arm 1]: implement the measured member-vs-member lowering
 
-1. Candidate pool (each needs its OWN pre-registered round — hypotheses committed BEFORE
-   any oracle run, PROTOCOL). From `spec/lab-evidence/e2e49-p1/RESULTS.md` §3: `?SCCCM` in
-   a STORE (either orientation) and any fixed-member store value; member-vs-member
-   compares; literal-vs-literal fixed compares; BASED members in conditions; truthiness
-   of a FIXED member (bare or qualified — [C332] measured only the VARYING `BIT REQ`); a
-   BARE fixed member on the RIGHT of a literal; over-extent in the LITERAL-LEFT
-   orientation and over-extent INITIAL/STORE; `^( ... )` composition. Still open from
-   `spec/lab-evidence/e2e48-p2e/RESULTS.md` §3: `^=` over a ladder, bare `-0` spelling,
-   runtime length rewrite, empty-varying PUT output, `BIT REQ` acceptance elsewhere, PUT
-   EDIT of a bit item. Separate recorded debts, NOT arms: CREATE's `%include` front-end
-   gap and LOAN2's scope-aware prescan (PROGRESS → Pending).
-2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
-   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
-   (`/handoff verify`), and STOP — record state, do not invent work.
+1. ARM 1 (the only authorized scientific action now): implement EXACTLY what
+   `spec/lab-evidence/e2e49-p2/RESULTS.md` §2 measures — file:line plan in PROGRESS →
+   Current phase: `op_mov_a_b = 0x78`; encoder `str_cmp_shape_fix_mm` gated to the
+   QUALIFIED-qualified pair `ImemF/ImemF` ONLY (any BARE side keeps refusing — RESULTS
+   §3); stack-parked head bundled in written order; `06 b` then collapse `78` iff
+   `capl = capr` ELSE `3E a`; `?SCCCM`; skip C2/CA + [C309] slot; NO prescan change (no
+   pooled literal); labelled ADDENDA at the superseded sentences, originals verbatim.
+   Verify: `dune build`; whole-file `cmp` of all five `.REL` vs `golden/e49p2/`; E48/E49
+   sweeps; full INVENTORY-driven registered-panel sweep; out-of-scope refusals rc=2 with
+   the E46K14 marker UNMOVED. Commit the arm ALONE with measured ACTUALS.
+2. Then STEP 6: claims C337.. derived ONLY from RESULTS §2; SPECIMENS bank E49B1..B5 in
+   `tools/e2e_gate.py`; INVENTORY via sanctioned `--update-inventory` (5 rows after
+   E49A4, panel 1136); census re-snapshot; COVERAGE rows; FULL gate
+   `python3 tools/e2e_gate.py` (expect byte panel **1136**, neg 181/181, div 9/9);
+   record ACTUALS; then CLOSE (prose rewrite, archive superseded prose verbatim from
+   committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README index row,
+   LEARNINGS close notes, ledger-end pointer past C336, `/handoff finalize`).
 3. Standing: goldens untouched except newly added round goldens; §3 shapes NOT
    implemented (missing evidence is the limit, never a licence to guess); probes ≤71
    cols CRLF+`^Z`; `eval $(opam env)` before dune; never name a probe variable `c`; no
    push; never stage/commit/revert the operator's `handoff.config.json` edit; renewal
-   values live ONLY in `handoff.config.json` / `/guard status`.
-readiness-by: session:01a1946d-2fad-704c-9bbd-42078c146c52
-readiness-at: 2026-11-01T00:29:25.070Z
-readiness-checkpoint: g70-5b5572a0b3e4
+   values live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt`
+   row from this round.
+readiness-by: session:01a194de-4c92-7103-bf3c-ac8aa379f9a9
+readiness-at: 2026-11-01T02:33:27.277Z
+readiness-checkpoint: g71-4f3557084b8e
 <!-- guard:end checkpoint -->
 
 ## Blockers
