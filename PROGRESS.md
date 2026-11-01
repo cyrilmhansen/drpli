@@ -213,17 +213,17 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 107
-checkpoint-id: g107-71325f875e00
-checkpoint-kind: auto
+checkpoint-generation: 108
+checkpoint-id: g108-c548067d9c99
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-01T18:56:22.191Z
+checkpointed: 2026-11-01T18:57:43.330Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 78524d08983728d0049803a3d97cd96fff4a71ed41fce1935df1149f36cd3ca1
-source-handoff: d23a918f9e0698b977f319a83696c605faa866cd04e257cd6d61e1befb0c4a0a
-source-learnings: 61acc14f8a14d36eb129e838fb5578d873deda885eda2e6a703770d77f661db2
+source-handoff: 4aa5035a62dcf143b0848e3a4cb66087cab8a7a451a23cc5616c7602fb90b609
+source-learnings: f8ab8ff7e0a3cb211248ceb7b07bd4f006c0d4a74dd5496260450b2edef8141c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-50/P1 ACTIVE: functional capability inventory and progress dashboard
 
@@ -235,15 +235,27 @@ next-action: — E2E-50/P1 ACTIVE: functional capability inventory and progress 
    changes, new oracle campaigns, PLILIB reimplementation, starting E2E-50/P2, push, or touching
    the operator's `handoff.config.json` edit. **No PL/I-80 tutorial exists for this project** —
    do not search for one, do not invent one, and do not treat tutorial work as a prerequisite.
-1. Exact next action. With the deliverables committed, run
-   `python3 tools/test_functional_dashboard.py` (must print `ok`), then
-   `python3 tools/functional_dashboard.py --check` (must exit 0 with the report unchanged), then
-   `python3 tools/coverage_check.py` and `python3 tools/file_prose_check.py`. If all pass, CLOSE
-   this round: archive this Next action byte-verified against its stated commit into
-   `docs/history/`, rewrite HANDOFF/PROGRESS to E2E-50/P1 CLOSED, add the
-   `docs/history/README.md` index row, `handoff_finalize`, STOP. If `--check` reports drift,
-   regenerate with `python3 tools/functional_dashboard.py --write` and read the diff — never
-   hand-edit the generated report.
+1. Exact next action (work state: `spec/functional/README.md` and `spec/functional/capabilities.tsv`
+   are WRITTEN but uncommitted and unvalidated; nothing else of the round exists yet).
+   (a) Validate every `coverage_rows` id in `spec/functional/capabilities.tsv` against
+   `spec/COVERAGE.tsv` field 1, and every `corpus_programs` name against the rows of
+   `spec/census/corpus-census.json` — fix any miss (a bad id is my error, not a ledger fact).
+   (b) Write `spec/functional/programs.tsv` (id, source path, origin HISTORICAL/FOCUSED/MICROPROBE,
+   capability ids) reusing existing sources only (`artefacts/`, `probes/`, `e1?src/`, `negsrc/`).
+   (c) Write `tools/functional_dashboard.py` — read-only inputs listed in `spec/functional/README.md`;
+   derives stages BYTE/LINK/RUN from `spec/INVENTORY.txt` + `panel_keys.load()` + the committed
+   census/coverage snapshots + `spec/RUNTIME.txt` + `NEG_META` via importing the gate module
+   (never recompiling); views A–E; deterministic ordering; `--write` and `--check`; UNKNOWN must
+   never be rendered as success — plus `tools/test_functional_dashboard.py` covering classification,
+   aggregation, missing-data and unmapped-row handling.
+   (d) Generate `docs/functional-status.md`. (e) Replace the stale `README.md` "Current status
+   (rolling)" section with a short accurate overview + links (`spec/CLAIMS.md`, `PROGRESS.md`,
+   `docs/functional-status.md`). (f) Run `python3 tools/test_functional_dashboard.py`,
+   `python3 tools/functional_dashboard.py --check`, `python3 tools/coverage_check.py`,
+   `python3 tools/file_prose_check.py`. (g) Commit explicit paths (never `add -A`), then CLOSE:
+   byte-verified archive of this Next action into `docs/history/`, HANDOFF/PROGRESS rewritten to
+   E2E-50/P1 CLOSED, index row, `handoff_finalize`, STOP. Do NOT run the compiler, the oracle,
+   LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`; no E2E-50/P2; no push.
 2. Candidate pool for the operator's NEXT named round (E2E-50/P2 choice; NOT an authorisation —
    the ranked shortlist with its evidence classes lives in `docs/functional-status.md` §E, and the
    measured boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
@@ -296,6 +308,9 @@ next-action: — E2E-50/P1 ACTIVE: functional capability inventory and progress 
   `5c52bba` (identical at HEAD `b5f792c`) — `docs/history/2026-11-01-e49p4-closed.md`).
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.
+readiness-by: session:01a1986a-d6ce-704f-a8a8-ce68a32c5abf
+readiness-at: 2026-11-01T18:57:43.333Z
+readiness-checkpoint: g108-c548067d9c99
 <!-- guard:end checkpoint -->
 
 ## Blockers
