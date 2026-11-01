@@ -1615,6 +1615,104 @@ SPECIMENS.update({
     "E49F4":  ("probes/E49F4.PLI",  "golden/e49p3/E49F4/E49F4.REL"),
 })
 
+# ---------------------------------------------------------------------------
+# [E2E-49/P4] ROUND BANK -- the relations-and-negation bank: ORDERED RELATIONS
+# with a LITERAL (G), QUALIFICATION inside a relation (H), the complete
+# unequal-extent relation matrix (I), and `^( )' over a string compare (J).
+# Twenty-four probes, pre-registered at 328eb3f (BEFORE any oracle call;
+# `git log --format=%h -- probes/E49G1.PLI | tail -1`, BASELINE-MINE.txt recorded
+# against the ACTUAL binary at 398fa2c: A/B/D rows refused rc=2 by name, the C
+# rows accepted on my arm-c bytes), measured in ONE grouped campaign 24 ok / 24
+# at tag e49p4 (goldens + RESULTS.md at 13fca5b, traceable wording repair
+# 9799f1d) -- NO dr-refuses at all, every .PRN clean in both
+# passes; EIGHTEEN my-gap rows (G1..G8 rel-with-literal, H1..H6 bare sides in a
+# relation, J1..J4 negated compares) and SIX already-byte-exact rows (I1..I6,
+# whole-file cmp against my own baseline: NO ARM).  All twenty-four objects are
+# WHOLE-FILE byte-identical to DR; arms c515377 (a: H), ec904c1 (b: G) and
+# 47c2194 (c: J) landed each on its own commit, sweep 47/47 at arm c.  RESULTS
+# §1 scored 24 HIT / 0 MISS; the falsified ALTERNATIVES are kept there: H-A-or
+# (the WRITTEN orientation keys the template) at G3..G6, H-D-extra (extra bytes
+# under `^') at every J row.
+#
+# BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from
+# this round -- RESULTS §3 makes NO runtime claim (what ?SCCCM returns and how
+# JNC/JC/JZ read it is NOT claimed; PROTOCOL #1).
+#
+#   E49G1     `if rec.na < 'ABC'' (staged, 3/3 EQUAL): the ORDER law REKEYS the
+#             literal template -- `<'/`>=' keep written order, `>'/`<=' swap and
+#             the template follows the LOWERED pair ([C348]).  Lowered member-
+#             first = STAGED `21 *D(0005)/EB/21 *D(0000)/06 03/78/CD ?SCCCM/
+#             D2 -> 001C', CODE 65, DATA 000F; the [C342] collapse rides all
+#             four relations.
+#   E49G2     `if 'ABC' < rec.na': lowered literal-first -> DIRECT `21 *D(0005)/
+#             11 *D(0000)/06 03/78', D2 -> 001B, CODE 64.  G1/G7 and G2/G8 pair
+#             the two templates under strict and weak skips.
+#   E49G3     `if rec.na > 'AB'': SWAPPED, so the DIRECT head carries the
+#             LOWERED pair `06 02/3E 03' -- H-A-or FALSIFIED (byte 0009 is `11',
+#             not `EB'); CODE 65 ([C348]).
+#   E49G4     `if 'AB' > rec.na': swap lowers the MEMBER first -> STAGED
+#             `06 03/3E 02', D2 -> 001D, CODE 66.
+#   E49G5     `if rec.na <= 'ABCD'': swapped -> direct, weak skip JC `da'; the
+#             OVER-EXTENT literal POOLED WHOLE (DATA 0010) -- [C345] transfers
+#             to relations ([C348]).
+#   E49G6     `if 'ABCD' <= rec.na': swapped -> staged `06 03/3E 04', da,
+#             DATA 0010, CODE 66.
+#   E49G7     `if rec.na >= 'ABC'': `>=' does NOT swap; staged collapse, skip
+#             alone separates G1/G7 (file offset 87: D2 vs DA).
+#   E49G8     `if 'ABC' >= rec.na': direct collapse, da, CODE 64.
+#   E49H1     `if na < rec.nb'  H2 `rec.na > nb'  H3 `na <= nb'  H5 `na > rec.s2'
+#             H6 `s2 <= rec.na': EVERY qualification mix of the member pair
+#             inside an ORDERED relation is ACCEPTED, each object byte-identical
+#             to its qualified twin but the packed name fields (offsets 4..6,
+#             18..19, 26..28; these objects carry NO checksum field) -- [C344]
+#             transfers to the relation family ([C349], arm c515377: the rel arm
+#             admits ImemFb BOTH sides, zero new bytes).
+#   E49H4     `if nb >= na': byte-identical (but names) to golden E49F3
+#             (`rec.na <= rec.nb') AND to H3 -- TWO WRITTEN SPELLINGS, ONE
+#             OBJECT: the LOWERED pair plus strictness is canonical ([C349]).
+#   E49I1..I6 the COMPLETE unequal-extent 4-relation x 2-orientation matrix at
+#             extents 3/2 -- every golden WHOLE-FILE byte-identical to my
+#             pre-registered baseline .REL: NO ARM.  ORDER law (written I1/I2/
+#             I6, swapped I3/I4/I5), positional `06 03/3E 02'-`06 02/3E 03' with
+#             NO collapse at 3/2, BRANCH d2/da, CODE 67, DATA 000C, fill ->
+#             001E; I5 (`s2 <= na') == I6 (`na >= s2') but names ([C350]).
+#   E49J1     `if ^(rec.na = rec.nb)' == golden E49B5 (`^=' stacked collapse,
+#             CA) but names; E49J3 `^('ABC' = rec.na)' == golden E49C4 (direct
+#             collapse, CA, CODE 64) -- `^( =' is the `^=' object ([C351]).
+#   E49J2     `if ^(rec.na < rec.nb)': F1's written-order collapsed head with
+#             the WEAK skip da -> 001D; H-D-extra FALSIFIED -- no CMA, no second
+#             CALL, no extra branch ([C351]).
+#   E49J4     `if ^(rec.na <= rec.s2)': byte-equal to golden E49F2 (`>', SWAPPED
+#             `06 02/3E 03', strict d2 -> 001E) -- the skip byte follows the
+#             (possibly flipped) relation, NEVER the negation syntax ([C351]).
+# ---------------------------------------------------------------------------
+SPECIMENS.update({
+    "E49G1":  ("probes/E49G1.PLI",  "golden/e49p4/E49G1/E49G1.REL"),
+    "E49G2":  ("probes/E49G2.PLI",  "golden/e49p4/E49G2/E49G2.REL"),
+    "E49G3":  ("probes/E49G3.PLI",  "golden/e49p4/E49G3/E49G3.REL"),
+    "E49G4":  ("probes/E49G4.PLI",  "golden/e49p4/E49G4/E49G4.REL"),
+    "E49G5":  ("probes/E49G5.PLI",  "golden/e49p4/E49G5/E49G5.REL"),
+    "E49G6":  ("probes/E49G6.PLI",  "golden/e49p4/E49G6/E49G6.REL"),
+    "E49G7":  ("probes/E49G7.PLI",  "golden/e49p4/E49G7/E49G7.REL"),
+    "E49G8":  ("probes/E49G8.PLI",  "golden/e49p4/E49G8/E49G8.REL"),
+    "E49H1":  ("probes/E49H1.PLI",  "golden/e49p4/E49H1/E49H1.REL"),
+    "E49H2":  ("probes/E49H2.PLI",  "golden/e49p4/E49H2/E49H2.REL"),
+    "E49H3":  ("probes/E49H3.PLI",  "golden/e49p4/E49H3/E49H3.REL"),
+    "E49H4":  ("probes/E49H4.PLI",  "golden/e49p4/E49H4/E49H4.REL"),
+    "E49H5":  ("probes/E49H5.PLI",  "golden/e49p4/E49H5/E49H5.REL"),
+    "E49H6":  ("probes/E49H6.PLI",  "golden/e49p4/E49H6/E49H6.REL"),
+    "E49I1":  ("probes/E49I1.PLI",  "golden/e49p4/E49I1/E49I1.REL"),
+    "E49I2":  ("probes/E49I2.PLI",  "golden/e49p4/E49I2/E49I2.REL"),
+    "E49I3":  ("probes/E49I3.PLI",  "golden/e49p4/E49I3/E49I3.REL"),
+    "E49I4":  ("probes/E49I4.PLI",  "golden/e49p4/E49I4/E49I4.REL"),
+    "E49I5":  ("probes/E49I5.PLI",  "golden/e49p4/E49I5/E49I5.REL"),
+    "E49I6":  ("probes/E49I6.PLI",  "golden/e49p4/E49I6/E49I6.REL"),
+    "E49J1":  ("probes/E49J1.PLI",  "golden/e49p4/E49J1/E49J1.REL"),
+    "E49J2":  ("probes/E49J2.PLI",  "golden/e49p4/E49J2/E49J2.REL"),
+    "E49J3":  ("probes/E49J3.PLI",  "golden/e49p4/E49J3/E49J3.REL"),
+    "E49J4":  ("probes/E49J4.PLI",  "golden/e49p4/E49J4/E49J4.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
