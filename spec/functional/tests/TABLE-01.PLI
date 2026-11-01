@@ -1,0 +1,44 @@
+/* TABLE-01 - ORIGINAL DRPLi work (E2E-50/P2, 2026-11-02). */
+/* Family TABLE: stable rank-placement sort of 8 fixed     */
+/* values with negatives and duplicates; asserts ordering, */
+/* multiplicity, sum invariance, low/high against the      */
+/* independently sorted reference (reference.py:table01).  */
+/* Scalar compares only (AB11/LR9 element-compare refusal). */
+table01: procedure options(main);
+  declare t(8) fixed, u(8) fixed, i fixed, j fixed, n fixed;
+  declare x fixed, y fixed, r fixed, s fixed, lo fixed, hi fixed;
+  t(1) = 4;
+  t(2) = -3;
+  t(3) = 7;
+  t(4) = -3;
+  t(5) = 0;
+  t(6) = 7;
+  t(7) = 12;
+  t(8) = 1;
+  n = 8;
+  do i = 1 to 8;
+     x = t(i);
+     r = 0;
+     do j = 1 to 8;
+        y = t(j);
+        if y < x then r = r + 1;
+        if y = x then do;
+           if j < i then r = r + 1;
+        end;
+     end;
+     r = r + 1;
+     u(r) = x;
+  end;
+  lo = u(1);
+  hi = u(8);
+  put list('SORTED:', u(1), ' ', u(2), ' ', u(3), ' ', u(4), ' ',
+         u(5), ' ', u(6), ' ', u(7), ' ', u(8));
+  s = 0;
+  do i = 1 to 8;
+     x = u(i);
+     s = s + x;
+  end;
+  put skip list('SUM=', s, 'N=', n, 'LOW=', lo, 'HIGH=', hi);
+  stop;
+end table01;
+

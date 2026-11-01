@@ -1,0 +1,50 @@
+{
+  "spec": "pli80-functional/1",
+  "id": "TABLE-01",
+  "family": "TABLE",
+  "title": "stable rank-placement sort of 8 values (negatives, duplicates): ordering, multiplicity, count, sum, extremes",
+  "provenance": {
+    "origin": "original",
+    "author": "DRPLi E2E-50/P2 step 4 corpus",
+    "date": "2026-11-02",
+    "note": "written for this project; independently specified; no third-party import"
+  },
+  "source": {
+    "file": "TABLE-01.PLI",
+    "sha256": "67f53bb8ea06f5605018d9b969ffb2004075954014d111924a10f336f430d8f2",
+    "encoding": "CRLF, ^Z-terminated, <=71 columns"
+  },
+  "capabilities": [
+    "AGG.ARRAY_1D_FIXED",
+    "AGG.VAR_INDEX_LADDER",
+    "LOOP.DO_TO_BY",
+    "IO.PUT_LIST_FIXED",
+    "IO.PUT_SKIP",
+    "EXPR.SELF_ADD_LADDER",
+    "EXPR.ADD_PRESERVE_ROUTE"
+  ],
+  "limits": {
+    "compile_timeout_s": 60,
+    "link_timeout_s": 120,
+    "run_timeout_s": 120,
+    "run_max_steps": 4000000
+  },
+  "console_input": "^Z",
+  "lanes": [
+    {
+      "lane": "B",
+      "substrate": "cpmsim:z80pack",
+      "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+      "link_targets": ["TABLE01"]
+    }
+  ],
+  "expected": {
+    "derivation": "reference.py:table01",
+    "normalization": "collapse-spaces-v1",
+    "console": [
+      "SORTED: -3 -3 0 1 4 7 7 12",
+      "SUM= 25 N= 8 LOW= -3 HIGH= 12"
+    ]
+  },
+  "notes": "Reference sequence is Python's OWN sorted multiset (reference.py:table01) -\nthe PL/I rank-placement algorithm is under test, never the reference. The two\nduplicates (-3 twice, 7 twice) must both appear (multiplicity); SUM= 25 and\nN= 8 over the sorted table prove no slot was overwritten or lost (rank\ncollisions would duplicate or drop an element). Nested indexed DO is the\ntimes-two composition of the measured LOOP.DO_TO_BY shape. Scalar compares only\n(G114B-backed strict relations); array-element compares (AB11/LR9 refusals),\n>=, <= (COND.GE_LE), literal-left (COND.LITERAL_LEFT), multidim, K_PLUS_X and\ntraversal reload are deliberately absent. Compile-checked at authoring against\nthe current binary: 1536-byte .REL (code=627 data=50)."
+}

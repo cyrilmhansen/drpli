@@ -47,6 +47,23 @@ the E2E-11 UNDEFINED-SYMBOLS trap) surveyed for the step-5/6 harness. Design PRO
 LEARNINGS hop-1 §§: JSON spec `pli80-functional/1` under `spec/functional/tests/` + independent
 `reference.py` + typed verdicts. All committed findings at `97ad1f0` + this checkpoint commit.
 
+**Renewal hop 2 (this chain): steps 3+4 LANDED.** `spec/functional/tests/README.md` (schema
+`pli80-functional/1`: laws L1 BYTE≠correct / L2 exit-0≠correct with the [C137]
+UNDEFINED-SYMBOLS + never-[:120]-slice law / L3 capture≠expectation with the reference
+double-check; stage chain with spec-declared not-applicable; PASS/FAIL/BLOCKED/UNKNOWN,
+skipped-stage-never-PASS, [C308] witness-class law; typed attribution enum evidence-only;
+v1 stream assertion stricter than the gate substring law, documented deviation; v1 perimeter
+from COVERAGE) + `docs/functional-testing.md` (same law in prose + architecture + status).
+TABLE corpus: `TABLE-00.{PLI,json}` (traverse/aggregate: sum/pos-count/max/N/first/last;
+`if x > 0` REFUSED by my guard `compare > k<=0 form unproven [TBD]` — measured against the
+local binary, DR status UNMEASURED, corpus compares against variable z=0), `TABLE-01.{PLI,json}`
+(stable rank sort, scalar-copy compares honouring AB11/LR9 refusals, negatives+duplicates;
+compiles 1536 B) + `reference.py` (independent stdlib derivations; validation: parse/id/sha256/
+capabilities/derive==expected ALL pass; reference prints the 4 expected lines). Both compile;
+DR outputs E32B1 dr-vs-mine byte-identical (re-verified); TABLE-02 withheld pending EXECUTED
+verification. No compiler/oracle/LINK-80/cpmsim/gate run (local pli80c on new corpus only);
+no ocaml/ledger/golden byte; lab read-only verified; operator config untouched; no push.
+
 ## Previous phase — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`; close docs-only)
 
 Functional dashboard round COMPLETE, docs-only and evidence-only: compiler, oracle, LINK-80,
@@ -254,13 +271,13 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 118
-checkpoint-id: g118-cae9c7641cad
+checkpoint-generation: 119
+checkpoint-id: g119-9b41fca7ddd7
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-01T22:18:35.444Z
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-01T22:19:04.061Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7f6f75c2ce4fa122889387dbe474fbc754eb8cbccd2ba0109aca1e487c9de5ae
 source-handoff: adad4db931de8875cf5029e096737e4975d84f6b96d3b84ced67f2637e143404
@@ -319,6 +336,9 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
+readiness-by: session:01a19919-fc82-7280-b553-bda9890e392f
+readiness-at: 2026-11-01T22:19:04.067Z
+readiness-checkpoint: g119-9b41fca7ddd7
 <!-- guard:end checkpoint -->
 
 ## Blockers

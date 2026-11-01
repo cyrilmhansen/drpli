@@ -1,0 +1,32 @@
+/* TABLE-00 - ORIGINAL DRPLi work (E2E-50/P2, 2026-11-02). */
+/* Family TABLE: 1-D fixed array, constant-bound DO TO     */
+/* traverse, scalar compares, PUT LIST/SKIP aggregates.    */
+/* Spec: TABLE-00.json; expected derived independently by  */
+/* reference.py:table00 (L3). No DR/third-party material.  */
+table00: procedure options(main);
+  declare t(6) fixed, i fixed, x fixed, z fixed;
+  declare s fixed, c fixed, m fixed, n fixed, fl fixed, ll fixed;
+  t(1) = 12;
+  t(2) = -7;
+  t(3) = 0;
+  t(4) = 12;
+  t(5) = -23;
+  t(6) = 5;
+  s = 0;
+  c = 0;
+  n = 6;
+  z = 0;
+  m = t(1);
+  do i = 1 to 6;
+     x = t(i);
+     s = s + x;
+     if x > z then c = c + 1;
+     if x > m then m = x;
+  end;
+  fl = t(1);
+  ll = t(6);
+  put list('SUM=', s, 'POS=', c, 'MAX=', m);
+  put skip list('N=', n, 'FIRST=', fl, 'LAST=', ll);
+  stop;
+end table00;
+

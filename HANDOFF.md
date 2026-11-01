@@ -141,10 +141,22 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   excluded (open question CLOSED); no license decided, no restricted asset copied]
 - 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
   correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
-  undefined must be measured, never assumed). [pending]
+  undefined must be measured, never assumed). [**LANDED** hop 2: `spec/functional/tests/README.md`
+  schema `pli80-functional/1` + `docs/functional-testing.md`; independence laws L1/L2/L3 (L2 =
+  [C137] UNDEFINED-SYMBOLS law + never-truncate-the-transcript corollary); stage chain
+  SOURCE→DERIVATION→COMPILE→LINK→RUN→ASSERT with spec-declared not-applicable; verdict law
+  PASS/FAIL/BLOCKED/UNKNOWN, skipped-stage-never-PASS; typed attribution enum from evidence
+  only; gate comparison law quoted at `tools/e2e_gate.py:5646-5685`, the v1 stream law is
+  deliberately stricter (documented deviation); v1 capability perimeter fixed from COVERAGE]
 - 4. TABLE corpus: TABLE-00 (traverse/aggregate), TABLE-01 (sort; ordering, multiplicity,
   count, sum, independently computed reference sequence), TABLE-02 only if 0/1 verify; fixed
-  inputs incl. negatives/duplicates; provenance headers; original work recorded as such. [pending]
+  inputs incl. negatives/duplicates; provenance headers; original work recorded as such. [**LANDED**
+  hop 2: `spec/functional/tests/TABLE-00.{PLI,json}`, `TABLE-01.{PLI,json}`, `reference.py`
+  (stdlib-only; table01 expects Python's OWN sorted multiset). Original-work provenance headers,
+  CRLF+`^Z`≤71 cols, sha256-pinned sources, capabilities all re-validated against COVERAGE;
+  scalar-copy stable rank sort honours the AB11/LR9 element-compare refusals. Spec-validation
+  checks all pass; both compile against the current binary (896 B code=358 data=30 / 1536 B
+  code=627 data=50). TABLE-02 WITHHELD: "verify" means executed step-6 evidence, not compiling]
 - 5. Harness `tools/functional_runner.py` + tests proving absent deps, timeouts, malformed
   output and mismatched assertions cannot be mistaken for success. [pending]
 - 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
@@ -163,20 +175,31 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 ## Unfinished operations
 
-- E2E-50/P2 steps 3–8 (steps 0–2 delivered: bootstrap `459f51e`; audit document
-  `docs/emulator-audit.md` landed at `97ad1f0`). FIRST ACTION for the successor: confirm
-  HEAD/tree, then step 3 — WRITE the functional-test spec format: `spec/functional/tests/README.md`
-  (schema `pli80-functional/1`, verdict law PASS/FAIL/BLOCKED/UNKNOWN, skipped-stage-never-PASS,
-  typed failure-origin attribution from evidence only, the E2E-11 UNDEFINED-SYMBOLS link law)
-  + the `docs/functional-testing.md` deliverable; design inputs are the hop-1 LEARNINGS
-  §§ (console PUT-LIST format law: 10-wide right-justified numeric field, blank separator,
-  no line-terminate without SKIP, gate normalization ` +`->` ` reused; supported subset
-  rows AGG.ARRAY_1D_FIXED/AGG.VAR_INDEX_LADDER/LOOP.DO_TO_BY/IO.PUT_LIST_FIXED/IO.PUT_SKIP;
-  MUST avoid AGG.MULTIDIM and EXPR.K_PLUS_X; LOOP.TRAVERSAL_RELOAD is DIVERGENT). Then steps
-  4–8 per the sequence.
+- E2E-50/P2 steps 5–8 (steps 0–4 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec format,
+  law, TABLE corpus and reference in the hop-2 commit). **FIRST ACTION for the successor: step
+  5 — write `tools/functional_runner.py`** implementing exactly `spec/functional/tests/README.md`:
+  fail-closed schema validation (unknown fields are errors); SOURCE sha256 check; DERIVATION
+  double-check via `reference.py:derive()`; COMPILE via the local `pli80c.exe`; LINK through the
+  `oracle/cpmwork.py` Workspace machinery applying `oracle/linkrun.py` `parse_undefined` to the
+  FULL segment — never a [:120] slice; RUN per lane; ASSERT = complete normalized stream,
+  collapse-spaces-v1 (README § 4); verdicts per § 8 (skipped/unrun stage never PASS; timeouts
+  record WHICH termination witness class, [C308] lesson); typed attribution per § 9 (Lane A
+  stdout valid only at exit 0 — failure evidence needs `--trace`). Plus the hostile test suite
+  proving absent deps, timeouts, malformed output and mismatched assertions cannot be mistaken
+  for success, and the audit § 2.20 determinism double-run proof (lane-labelled).
+  Then step 6 (Lane A hand-crafted .COM fixture under the audited emulator; Lane B TABLE attempt
+  via local compiler + historical LINK-80/PLILIB under cpmsim — restricted tools user-supplied,
+  never packaged; measure the linked-program BDOS census, open question #1; never the oracle
+  campaign), step 7 (minimal reporting reusing the P1 model; no COVERAGE promotion), step 8
+  (report measured/failed/unmeasured + bounded P3 proposal + CLOSE with byte-verified archive +
+  finalize). Hard limits unchanged: no compiler implementation changes, no push, no GOAL or
+  handoff.config.json edits, no oracle campaign or full runtime tier, DR binaries never
+  distributable, UNKNOWN/BLOCKED never rendered PASS, `/home/john/pli/*` read-only (lab builds
+  touch only its ignored `_build`).
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE `%include`);
   this round does not touch them.
-- At this boundary: no half-finished Git operation, no emulator process running, `ocaml/` untouched.
+- At this boundary: no half-finished Git operation, no emulator process running, `ocaml/`
+  untouched (build only).
 
 ## Discoveries not yet incorporated
 
@@ -214,13 +237,13 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 118
-checkpoint-id: g118-cae9c7641cad
+checkpoint-generation: 119
+checkpoint-id: g119-9b41fca7ddd7
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6768, session 01a19919-fc82-7280-b553-bda9890e392f)
-checkpointed: 2026-11-01T22:18:35.444Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~4675, session 01a19919-fc82-7280-b553-bda9890e392f)
+checkpointed: 2026-11-01T22:19:04.061Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7f6f75c2ce4fa122889387dbe474fbc754eb8cbccd2ba0109aca1e487c9de5ae
 source-handoff: adad4db931de8875cf5029e096737e4975d84f6b96d3b84ced67f2637e143404
@@ -228,8 +251,11 @@ source-learnings: 056536ef5880a134840942c4132848db0de36580f2a05e15ade68cc90847d1
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19919-fc82-7280-b553-bda9890e392f
+readiness-at: 2026-11-01T22:19:04.067Z
+readiness-checkpoint: g119-9b41fca7ddd7
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

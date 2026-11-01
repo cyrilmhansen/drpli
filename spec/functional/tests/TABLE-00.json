@@ -1,0 +1,50 @@
+{
+  "spec": "pli80-functional/1",
+  "id": "TABLE-00",
+  "family": "TABLE",
+  "title": "1-D fixed array traverse: sum, positive count, max; extent and endpoints",
+  "provenance": {
+    "origin": "original",
+    "author": "DRPLi E2E-50/P2 step 4 corpus",
+    "date": "2026-11-02",
+    "note": "written for this project; independently specified; no third-party import"
+  },
+  "source": {
+    "file": "TABLE-00.PLI",
+    "sha256": "c8d307587e30177336c5d5ee5fe95b723ef8cc0373bef8d7700cd87a60facc37",
+    "encoding": "CRLF, ^Z-terminated, <=71 columns"
+  },
+  "capabilities": [
+    "AGG.ARRAY_1D_FIXED",
+    "AGG.VAR_INDEX_LADDER",
+    "LOOP.DO_TO_BY",
+    "IO.PUT_LIST_FIXED",
+    "IO.PUT_SKIP",
+    "EXPR.SELF_ADD_LADDER",
+    "EXPR.ADD_PRESERVE_ROUTE"
+  ],
+  "limits": {
+    "compile_timeout_s": 60,
+    "link_timeout_s": 120,
+    "run_timeout_s": 120,
+    "run_max_steps": 4000000
+  },
+  "console_input": "^Z",
+  "lanes": [
+    {
+      "lane": "B",
+      "substrate": "cpmsim:z80pack",
+      "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+      "link_targets": ["TABLE00"]
+    }
+  ],
+  "expected": {
+    "derivation": "reference.py:table00",
+    "normalization": "collapse-spaces-v1",
+    "console": [
+      "SUM= -1 POS= 3 MAX= 12",
+      "N= 6 FIRST= 12 LAST= 5"
+    ]
+  },
+  "notes": "Fixed inputs include negatives, a zero and a duplicate (12 twice). Scalar\ncompares are variable-left, variable operands: the strict scalar relations are\nbacked by the byte-exact panel specimens probes/G114B.PLI (golden/e2e3b/G114B)\nand artefacts/E35W5.PLI (golden/e35w). Shapes deliberately absent, all measured\nrefusals or divergences: array-element compares (AB11/LR9 pinned refusals),\n>= / <= scalars (COND.GE_LE refused), literal-left (COND.LITERAL_LEFT refused),\nk<=0 literal (corpus-compile measurement 2026-11-02: mine refuses\n'compare > k<=0 form unproven [TBD]'), multidim, K_PLUS_X store, traversal\nreload. Compile-checked at authoring against the current binary: 896-byte .REL\n(code=358 data=30)."
+}

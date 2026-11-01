@@ -1578,3 +1578,75 @@ The guard never writes this file.
 - **ACCEPTED: step-2 audit commit landed at `97ad1f0`** (docs/emulator-audit.md + HANDOFF
   step-1/2 brackets LANDED + LEARNINGS hop-1 entries; prose check rc=0; guard blocks
   untouched vs HEAD verified byte-identical before the commit).
+
+### E2E-50/P2 hop 2 (renewal session, 2026-11-02) — steps 3+4: spec format, law, TABLE corpus (accepted unless marked)
+
+- **ACCEPTED: recovery boundary.** HEAD `ecc6158` (g117 finalize commit); guard checkpoint
+  g119-9b41fca7ddd7 (attested) re-verified fresh by replaying the guard
+  strip+rstrip+sha256 law — ALL FIVE source hashes MATCH (GOAL/LEARNINGS/config whole,
+  HANDOFF/PROGRESS prose-only). `dune build` rc=0 before any touch; `ocaml/` sources untouched.
+- **ACCEPTED (new measurement): DR-side verification of the console PUT-LIST byte law.**
+  `cmp golden/e32b_E32B1_dr/E32B1.output.txt golden/e32rt_E32B1/E32B1.output.txt` →
+  byte-identical (39 bytes; od re-confirmed `a=        12 b=        10 c=        14\n`): the
+  hop-1 law (10-wide right-justified numeric field, one-blank item separator, unquoted
+  CHARACTER literals at natural width, no line-terminate without SKIP, final `\n` at
+  terminate) now stands on BOTH the DR-run golden and my run golden.
+- **ACCEPTED (ledger cross-checks for the spec doc):** DIVERGENT.txt carries exactly **9 data
+  rows** (the file's 11 non-`#` lines = 1 column-header + 1 blank; gate panel 9/9 consistent);
+  RUNTIME.txt 71 data rows; all twelve COVERAGE ids cited by the hop-1 survey exist exactly
+  once; `oracle/linkrun.py` machinery re-confirmed at cited lines (`DEFAULT_INPUT=["\\x1a"]:97`,
+  `parse_undefined:245-258` with `[:120]`-truncation lesson comment 238-241, `selftest:260+`,
+  stale-`##WAIT` echo lesson 468); `oracle/cpmwork.py` symlink refusal, atomic run-claim,
+  copy-never-move (`shutil.copyfile:184`), fresh-mkfs scratch disks + clobber guards all
+  present; lab `bin/main.ml:104-115` flush-on-Ok/exit-1-without-flush re-read (lab HEAD
+  `43e38ba`, status pattern unchanged — read-only checks only).
+- **ACCEPTED: gate expected-item law measured from code** (`tools/e2e_gate.py:5646-5685`):
+  pipe-items are matched as ordered SUBSTRINGS (`e in norm`), negatives `!text` as
+  absence-of-substring, `file:<name>=<golden>` whole-byte with NO normalization, and an
+  empty item is skipped (never an assertion). The P2 functional v1 law is deliberately
+  STRICTER (complete normalized stream, exact line sequence; single trailing empty element
+  ignored — matching E32B1's unconditional final `\n`) and the deviation is documented in
+  `spec/functional/tests/README.md` § 4.
+- **LANDED (step 3): `spec/functional/tests/README.md`** — schema `pli80-functional/1`: the
+  three independence laws (BYTE ≠ correct L1; exit 0 ≠ correct L2 with the `[C137]`
+  UNDEFINED-SYMBOLS link law and the never-truncate-the-transcript corollary; capture ≠
+  expectation L3 with the two-way reference double-check); stage chain SOURCE→DERIVATION→
+  COMPILE→LINK→RUN→ASSERT with not-applicable declared BY THE SPEC in advance; verdict law
+  PASS/FAIL/BLOCKED/UNKNOWN (skipped/unrun stage never PASS; timeout records WHICH
+  termination witness class — [C308] lesson); typed attribution enum
+  source|compiler|runtime-lib|emulator|host|undefined admissible ONLY from typed signals;
+  Lane A/B substrate+toolchain labelling; v1 capability perimeter from COVERAGE.
+- **LANDED (step 3): `docs/functional-testing.md`** — same law in prose + architecture,
+  corpus constraints, relationship to canonical ledgers (functional PASS never promotes a
+  COVERAGE row or becomes a claim), status table, redistribution boundary (emulator run vs
+  ship; DR tools user-supplied never packaged).
+- **LANDED (step 4): TABLE-00 + TABLE-01 corpus** — `spec/functional/tests/{TABLE-00,TABLE-01}`
+  `.PLI` (original work, provenance headers, CRLF+`^Z`≤71 cols) + `.json` specs (sha256-pinned
+  sources, capabilities all re-validated against COVERAGE, limits, Lane B, collapse-spaces-v1
+  expected) + `reference.py` (stdlib-only independent derivations: table00 aggregate, table01
+  Python's OWN `sorted` multiset). Corpus validation measured: JSON parse, id==basename,
+  source sha256 match, every capability id exists in COVERAGE and none is forbidden,
+  `derive()` == spec expected, non-empty console — ALL PASS; reference prints
+  `SUM= -1 POS= 3 MAX= 12 | N= 6 FIRST= 12 LAST= 5` and
+  `SORTED: -3 -3 0 1 4 7 7 12 | SUM= 25 N= 8 LOW= -3 HIGH= 12`. TABLE-02 NOT created — the
+  mission gates it on 00/01 VERIFYING (execution evidence, step 6), not on compiling.
+- **ACCEPTED (measured against my OWN binary, corpus-authoring probe):** the scalar compare
+  `if x > 0` (strict `>` with literal 0) REFUSES with `codegen: compare > k<=0 form unproven
+  [TBD]`; the variable-operand scalar forms (`if x > z` with z a fixed variable, `if y = x`,
+  `if j < i`) compile. Classification: my-gap-adjacent **unproven-form guard in MY codegen**;
+  DR's verdict on `> 0` is UNMEASURED — NOT promoted to any rule (PROTOCOL #4). Corpus design
+  consequence: positive-count compares against a zero-valued variable `z`. Compile evidence
+  at authoring: TABLE-00 → 896-byte .REL (code=358 data=30), TABLE-01 → 1536-byte .REL
+  (code=627 data=50), both rc=0 against the current binary.
+- **ACCEPTED (design corollaries, honoured in the corpus):** numeric element-compares are the
+  pinned AB11 (`(> ` reason) and LR9 refusals — TABLE-01 sorts by stable rank placement with
+  scalar copies only; nested indexed DO is the twice-composition of measured `LOOP.DO_TO_BY`;
+  adjacent-numeric item separators are never assumed (literal `' '` interleaves) because the
+  one-blank law is measured for literal-adjacent items only; leading-space/trailing-space
+  expected lines avoided (single put statement per logical line).
+- **PROPOSED (for step 5, unverified until the hostile tests run):** harness hardening —
+  malformed/unknown-field spec JSON must fail closed; absent dependency = BLOCKED by name;
+  timeout vs hang vs emulator-death distinguished per [C308]; verdicts cannot be laundered:
+  rendering functions must have explicit BLOCKED/UNKNOWN branches and tests that a lane with
+  an unexecuted stage prints PASS never. Determinism proof (audit § 2.20) owed: double-run
+  equality inside the harness, lane-labelled.
