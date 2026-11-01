@@ -3,97 +3,42 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P1 IN FLIGHT (oracle done 4/4 ACCEPTS; ARMS 1+2 LANDED `fee935e`/`b044b7c`; next = STEP 6 ledger + FULL GATE, then CLOSE)
+## Current phase — E2E-49/P1 CLOSED (2026-11-01; FULL compile-tier GATE rc=0 measured at `0a8ceff`; awaiting the operator's named round)
 
-- Pre-registration COMMITTED: prediction SHA **`9b3d860`** (probes/E49A1..E49A4.PLI +
-  mkprobes.py + HYPOTHESES.md + BASELINE-MINE.txt), fill-in child **`0e9cc3d`**; both are
-  ancestors of the single oracle run. My baseline refused all four (rc=2, imem_refuse
-  "comparison").
-- Oracle run COMMITTED at **`c8285cb`** (goldens `golden/e49p1/` + `spec/lab-evidence/
-  e2e49-p1/RESULTS.md` together): **4 ok / 4**, all PRNs clean both passes — NO dr-refuses
-  this round; every gap is `my-gap`. Measured (RESULTS s2): (1) member-left fixed TEST is
-  `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len / CD ?SCCCM / skip` — XCHG staging
-  confirms [C191]'s HL=right/DE=left and the member-left-XCHG clause for the FIXED class;
-  (2) the length immediates are POSITIONAL (B = LEFT operand's attribute, A = RIGHT's) —
-  this FALSIFIES [C330]'s class-polarity reading; correction must be APPENDED at C330
-  keeping the falsified text (PROTOCOL #2); (3) helper name does not flip with orientation;
-  (4) bare spelling E49A2 byte-identical to E49A1 except the 3 module-name field bytes;
-  (5) `^=` skip CA measured in the family (E49A3 0014 = ca) — arm-4's [C072] synthesis
-  became measurement; (6) over-extent literal ACCEPTED, 'ABCD' pooled WHOLE, DATA 000D
-  (E49A4). CODE 66 = E48E7's 65 + EB. P-A1 scored HIT(verdict)/MISS(encoding): none of
-  the three pre-registered forms; the EB falsifier fired.
-- **ARM 1 LANDED at `fee935e`** (ACTUALS: E49A1/A3/A4 whole-file BYTE-EXACT, E49A2 still
-  refused — arm 2's object — E48E7 exact, E48 sweep 43/43, dune rc=0): `str_cmp_shape_fix`
-  returns `(hl_fn, de_fn, b_len, a_len)` POSITIONALLY (B = LEFT's attribute, A = RIGHT's,
-  RESULTS s2.2); member-LEFT arm added (`ImemF`, `Lit`) → LXI H,*D(member)/XCHG/LXI
-  H,*D(pool)/06 cap/3E len; `is_test_left` prescan twin; WHY/comments annotated.
-- **ARM 2 LANDED at `b044b7c`**: `str_side` Eident admits the BARE fixed spelling as NEW
-  variant `ImemFb (orig,cap)` (`| Vimem m ->` catch-all after the qualified `ImemF` arm);
-  `str_cmp_shape_fix` member-LEFT arm = or-pattern `Some (`ImemF ..) | Some (`ImemFb ..)`,
-  literal-RIGHT arm keeps `ImemF` ALONE (bare member-RIGHT unmeasured, RESULTS s3 —
-  `is_test_right` qualification gate deliberately NOT widened); `is_test_left` widened to
-  BOTH spellings in the SAME commit (one predicate, demand and lowering); superseded bare
-  sentences annotated verbatim-kept (str_side, arm-1 prescan note, fix-arm comment,
-  lower_test_skip0 note, imem_refuse comparison WHY arm-2 ADDENDUM). Side effect
-  recorded: the numeric ?IS22N ident-vs-ident guard (`str_side None,None`) now REFUSES
-  bare-fixed-member pairs it used to mis-lower numerically — refusal widened exactly to
-  the admitted set; no measured object was lost (proved below).
-  ACTUALS at `b044b7c` (measured THIS session): `dune build` rc=0; E49A1/E49A2/E49A3/E49A4
-  ALL whole-file BYTE-EXACT vs `golden/e49p1` (E49A2 flipped rc=2 → exact); E48-family
-  sweep **52/52** 0 DIFF incl. E48E7; **full registered specimen panel 1127/1127
-  BYTE-EXACT, 0 fail** (every INVENTORY specimen row re-compiled + whole-file `cmp` —
-  direct proof no output moved elsewhere); out-of-scope refusals re-measured through the
-  binary — bare member-RIGHT, fixed truthiness (bare and qualified), fixed STORE target,
-  member-vs-member, literal-vs-literal, flag-trick — all rc=2 named refusals; E46K14
-  marker `comparison of the internal CHARACTER member REC.LINE` UNMOVED. FULL gate NOT
-  run — owed at step 6, never claimed.
-- NEXT (exact): (a) STEP 6 ledger — claims **C333..C336** derived ONLY from
-  `spec/lab-evidence/e2e49-p1/RESULTS.md` §2 (suggested mapping: C333 = s2.1 incl. s2.3 +
-  s2.5; C334 = s2.2 positional law; C335 = s2.4 spelling invariance + bare-RIGHT gate; C336
-  = s2.6 over-extent ACCEPT member-left) + labelled correction APPENDED at **C330**
-  (positional law falsifies its class-polarity reading; keep falsified text verbatim,
-  PROTOCOL #2); (b) registration: INVENTORY 4 specimen rows E49A1..A4 after E48E8 (manual
-  or `python3 tools/e2e_gate.py --update-inventory` then inspect diff), census re-snapshot
-  `python3 tools/corpus_census.py` (expect EXACT 15/DIFFERS 0/REFUSED 26/UNEXPECTED 0),
-  COVERAGE.tsv 4 rows (schema `spec/COVERAGE-SCHEMA.md`, validator
-  `tools/coverage_check.py:203-247`, expect 122 rows 0 errors); commit; (c) FULL gate
-  `python3 tools/e2e_gate.py` — expect **1131** byte-exact / 0 fail, negative 181/181,
-  div 9/9, coverage 0 errors, census check, prose clean — record ACTUALS as printed;
-  (d) CLOSE: rewrite HANDOFF/PROGRESS with real ACTUALS, archive superseded prose VERBATIM
-  from committed blobs to `docs/history/2026-11-01-e49p1-closed.md` + README index row,
-  LEARNINGS close notes, commit, `/handoff finalize`, renew or stop; update HANDOFF
-  recovery pointer (ledger end) after the claims land.
-- Out of scope, keep refusing (RESULTS s3): fixed member in STORE (both orientations),
-  member-vs-member, literal-vs-literal fixed, BASED members, truthiness of a fixed member,
-  bare member-RIGHT, over-extent literal-LEFT (ungated template stays [TBD]), `^( )`
-  composition. NO `spec/RUNTIME.txt` row may come from this round.
-- Standing: goldens untouched except the NEW `golden/e49p1`; no push; never
-  stage/commit/revert the operator's `handoff.config.json` edit; renewal values live ONLY
-  in `handoff.config.json` / `/guard status`.
-
-## Superseded working-state prose — E2E-48/P2e close record (archive verbatim to docs/history/ at this round's step 6, per convention)
-
-- The round's ONE remaining debt ran and was verified THIS session: FULL compile-tier gate
-  `python3 tools/e2e_gate.py` **rc=0**, ACTUAL **1127 byte-exact / 0 fail of 1127** (the seven
-  P2e byte-tier specimens E48E1..E48E5, E48E7, E48E8 all BYTE-EXACT in the panel), negative
-  **181/181** (E46K14 prints `[dr-refuses]`, pinned marker unmoved), divergence **9/9**,
-  coverage **118 rows, 0 errors, 0 warnings**, census **15/0/26/0**, file prose clean.
-  `dune build` rc=0 on this tree.
-- Science: the round's laws are C327..C332 (from RESULTS §2 ONLY); §3 shapes stay unmeasured
-  and NOT implemented; goldens untouched; E48E6 is a measured dr-refuses, not a specimen.
-- Commits: prereg `421656a`, oracle + goldens `e2b77ba`, arms 1–5 `d18c6ab`/`bab0d16`/
-  `e49902a`/`046046a`/`c215ea0`, step 6 `809af8d`+`0e64c8b`, docs `0749fa6`; superseded
-  working-state prose archived verbatim in `docs/history/2026-10-31-p2e-closed.md`.
-- NOT re-measured this session (recorded, not assumed): clean scratch-tree rebuild warning
-  multiset — last measured 126 = 28/26/22/17/15/14/2/2 at `c215ea0`.
-- Tree: operator's `handoff.config.json` edit ONLY (never stage/commit/revert). No push.
-  Standing prohibitions (goldens, §3 shapes, probes ≤71 cols CRLF+`^Z`, `eval $(opam env)`,
-  never name a probe variable `c`, no push) are in HANDOFF.md.
+- Round: operand-inverted FIXED compares (member LEFT of a literal in TEST), probes
+  E49A1..A4 pre-registered `9b3d860` BEFORE any oracle call, fill-in `0e9cc3d`, ONE run
+  4 ok/4, all ACCEPTS, no dr-refuses (goldens + RESULTS `c8285cb`); my baseline refused
+  all four — every gap `my-gap`.
+- Ledger at `0a8ceff`: C333 (XCHG staging = ORIENTATION law, measured for the FIXED class
+  with *D operands; helper name carries no orientation; `^=` CA measured in the ?SCCCM
+  family), C334 (length immediates POSITIONAL — B = LEFT attribute, A = RIGHT; falsifies
+  [C330]'s class-polarity reading; labelled CORRECTION appended at C330, falsified text
+  kept, PROTOCOL #2), C335 (bare-vs-qualified byte-identical but three module-name field
+  bytes; admission deliberately asymmetric — bare member-RIGHT keeps refusing), C336
+  (over-extent literal ACCEPTED, pooled WHOLE, member-left; literal-LEFT stays [TBD]).
+- Arms: `fee935e` (member-LEFT lowering + positional return tuple + `is_test_left` twin),
+  `b044b7c` (bare `ImemFb` variant, or-pattern member-LEFT arm, same-commit prescan
+  widening, ?IS22N guard refusal widened exactly to the admitted set).
+- Registration at `0a8ceff`: SPECIMENS bank E49A1..A4; INVENTORY via sanctioned
+  `--update-inventory` (exactly 4 rows, panel 1131 entries); census re-snapshot counts
+  UNCHANGED 15/0/26/0; COVERAGE 4 rows + labelled SUPERSEDED note on
+  COND.FIXED_MEMBER_TEST_SCCCM.
+- FULL GATE at `0a8ceff` rc=0: 1131 byte-exact / 0 fail (E49A1..A4 BYTE-EXACT), negative
+  181/181 (E46K14 `[dr-refuses]`, marker UNMOVED), divergence 9/9, coverage 122 rows
+  0 errors 0 warnings, census 15/0/26/0, prose 5 files clean. `dune build` rc=0. BYTE
+  TIER ONLY — no `spec/RUNTIME.txt` row from this round.
+- Close: superseded prose (this round AND the P2e close record AND the old Blockers)
+  archived verbatim from committed blobs in `docs/history/2026-11-01-e49p1-closed.md`;
+  README index row added; LEARNINGS close notes. No push.
+- Keep refusing (e2e49-p1 §3 + e2e48-p2e §3): fixed member in STORE (both orientations),
+  member-vs-member, literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT,
+  over-extent literal-LEFT, over-extent INITIAL/STORE, `^( )`, `^=` over a ladder, bare
+  `-0`, runtime length rewrite, empty-varying PUT output, PUT EDIT bit item.
 
 ## Next action
 
 The ONE active spec lives in `HANDOFF.md` → its single level-2 Next-action heading: the
-E2E-48/P2e round is CLOSED, a successor session awaits the OPERATOR's named round, records
+E2E-49/P1 round is CLOSED, a successor session awaits the OPERATOR's named round, records
 state and stops. No competing action exists anywhere else; PROGRESS does not restate it
 (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
 
@@ -174,69 +119,86 @@ state and stops. No competing action exists anywhere else; PROGRESS does not res
 
 ## Verified evidence
 
-Measured by THIS session (2026-10-31, HEAD `0749fa6`), not quoted from a report: the FULL
-compile-tier gate rc=0 with the ACTUALs recorded in Current phase (byte panel 1127/0 incl.
-all seven E48E byte-tier specimens; negative 181/181 with E46K14 `[dr-refuses]` and its
-marker unmoved; divergence 9/9; coverage 118 rows 0 errors; census 15/0/26/0; prose panel
-clean) and `dune build` rc=0 on this tree. Per-arm measured ACTUALS (whole-file `cmp` at
-`d18c6ab`..`c215ea0`, regression sweeps 45/45, E46K14 marker re-measurement through the
-binary, warning multiset 126) stand recorded in git log and dated `LEARNINGS.md` sections;
-the superseded working-state prose is archived in `docs/history/2026-10-31-p2e-closed.md`.
-Round evidence: `golden/e48p2e/`,
-`spec/lab-evidence/e2e48-p2e/{RESULTS,HYPOTHESES,BASELINE-MINE}`; closed-round records:
-`docs/history/`.
+Measured by THIS session (2026-11-01, HEAD `0a8ceff`), not quoted from a report: the FULL
+compile-tier gate rc=0 with the ACTUALS recorded in Current phase (byte panel 1131/0 incl.
+all four E49A specimens; negative 181/181 with E46K14 `[dr-refuses]` marker unmoved; 9/9;
+coverage 122 rows 0 errors; census 15/0/26/0; prose clean); `coverage_check.py` rc=0;
+`file_prose_check.py` rc=0; `dune build` rc=0 on this tree. Per-arm ACTUALS (whole-file
+`cmp` at `fee935e`/`b044b7c`, E48 sweep 52/52, full registered-panel sweep 1127/1127,
+out-of-scope refusals rc=2) stand in git log and dated `LEARNINGS.md` sections. Round
+evidence: `golden/e49p1/`, `spec/lab-evidence/e2e49-p1/{RESULTS,HYPOTHESES,BASELINE-MINE}`;
+closed-round records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 66
-checkpoint-id: g66-487495b2e408
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 68
+checkpoint-id: g68-45f884d368c6
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-10-31T23:50:55.048Z
+guard-level: 0
+checkpointed: 2026-11-01T00:05:46.022Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 709b60b7ffcd2d9e69d68ba96f186e8a641ca3ce03c7d927f97a2dddd779f239
-source-handoff: 9c6ac47b842acfdb3d1d95c8dfa31a2856e987c124eb629d0a831e4d02422391
-source-learnings: aaf0cbe5e1ea2596649b58d021372e099e910814f17b9b61a393b266168864c0
+source-progress: c8c3082b925c9f1c90283d8ac24c8ceb703435e36faa00ab0218f24792a0dc6e
+source-handoff: df7ba04ec9256b632d1626a7deb6dfc6edf38754790539fd892a2823e3a19909
+source-learnings: 00ebd303e70eed1558edb3886ce8d68e999996ca4669d0d9c3aa78f865212fdb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P1: arm 2 (bare spelling) then step 6 (ledger) + FULL GATE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
+next-action: — E2E-49/P1: STEP 6 (ledger + registration) then FULL GATE, then CLOSE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
 
 **ACTIVE PLAN (exact, also in PROGRESS.md → Current phase):** lineage = prediction SHA
 `9b3d860`, fill-in `0e9cc3d`, oracle run + goldens + `spec/lab-evidence/e2e49-p1/RESULTS.md`
-(4 ok / 4, all ACCEPTS, no dr-refuses) at `c8285cb`, arm 1 lowering at `fee935e` with
-ACTUALS E49A1/A3/A4 whole-file BYTE-EXACT, E49A2 still refuses (arm 2's object), E48E7
-regression exact, E48 sweep 43/43, dune rc=0. Measured laws (RESULTS s2): inverted fixed
-TEST = `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len / CD ?SCCCM / skip`; length
-immediates POSITIONAL (B = LEFT, A = RIGHT) — falsifies [C330]'s capacity-in-A reading
-(append labelled correction at C330, keep text); name does not flip; ^= CA measured;
-over-extent literal accepted, pooled whole. (1) ARM 2: `str_side` Eident admits BARE fixed
-as new `ImemFb (orig,cap)`; `str_cmp_shape_fix` member-LEFT arm matches `ImemF`/`ImemFb`,
-literal-RIGHT arm keeps `ImemF` only (bare member-RIGHT unmeasured); widen `is_test_left`
-in the SAME commit; annotate superseded bare sentences; build, E49A2 whole-file cmp, no
-output moves elsewhere, commit codegen.ml with ACTUALS. (2) STEP 6: claims C333..C336 from
-RESULTS s2 ONLY + C330 correction; INVENTORY 4 specimen rows after E48E8; census
-re-snapshot; 4 COVERAGE.tsv rows; commit; then FULL gate `python3 tools/e2e_gate.py`
-(expect 1131 byte-exact; negative 181/181 E46K14 marker unmoved; div 9/9; coverage 0
-errors) and record ACTUALS. (3) CLOSE: rewrite this + PROGRESS with real ACTUALS, archive
-superseded prose to docs/history/, commit, /handoff finalize, renew or stop. OUT OF SCOPE,
-keep refusing (e2e49-p1 RESULTS s3): STORE fixed member, member-vs-member,
-literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT
-([TBD]), `^( )`; NO RUNTIME row; no push; never touch the operator config edit.
-readiness-by: session:01a19445-2627-704c-9bbd-41fe19a81649
-readiness-at: 2026-10-31T23:51:20.848Z
-readiness-checkpoint: g66-487495b2e408
+(4 ok / 4, all ACCEPTS, no dr-refuses) at `c8285cb`, arm 1 (qualified member-LEFT lowering,
+XCHG staging, positional lengths, `is_test_left` twin) at `fee935e`, arm 2 (BARE fixed
+spelling member-LEFT as new `str_side` variant `ImemFb`; `str_cmp_shape_fix` member-left arm
+= or-pattern `ImemF`/`ImemFb`, literal-RIGHT arm keeps `ImemF` alone; `is_test_left` widened
+in the SAME commit; numeric ?IS22N ident-vs-ident guard now refuses bare-fixed pairs it used
+to mis-lower) at `b044b7c` — ACTUALS at `b044b7c`: dune rc=0; E49A1..A4 ALL four whole-file
+BYTE-EXACT; E48 sweep 52/52; registered panel 1127/1127 BYTE-EXACT 0 fail; out-of-scope
+refusals re-measured rc=2 (bare member-RIGHT, fixed truthiness bare+qualified, STORE,
+member-vs-member, literal-vs-literal, flag-trick); E46K14 marker UNMOVED. Measured laws
+(RESULTS s2): inverted fixed TEST = `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len /
+CD ?SCCCM / skip`; length immediates POSITIONAL (B = LEFT, A = RIGHT) — falsifies [C330]'s
+class-polarity reading; name does not flip; ^= CA measured; bare spelling byte-identical but
+module-name bytes; over-extent literal accepted, pooled whole. **(1) STEP 6:** claims
+**C333..C336** derived ONLY from RESULTS §2 (predecessor mapping: C333 = s2.1 incl. s2.3
+no-name-flip and s2.5 CA skip; C334 = s2.2 positional law; C335 = s2.4 spelling invariance
++ bare-RIGHT gate asymmetry; C336 = s2.6 over-extent ACCEPT member-left; regroup ONLY if the
+evidence demands it — ids contiguous from C333, ledger ends at the last one) + the labelled
+correction APPENDED at **C330** (keep falsified text verbatim, PROTOCOL #2); **INVENTORY**
+4 specimen rows E49A1..A4 after the E48E8 row (or `python3 tools/e2e_gate.py
+--update-inventory`, the sanctioned tool, then inspect the diff precisely); census
+re-snapshot `python3 tools/corpus_census.py` + record counts (expect EXACT 15 / DIFFERS 0 /
+REFUSED 26 / UNEXPECTED 0; the 1127-row sweep already proves no specimen moved);
+**COVERAGE.tsv** 4 rows (schema `spec/COVERAGE-SCHEMA.md`, validator rules
+`tools/coverage_check.py:203-247`; expect 122 rows 0 errors); commit ledger work. **(2)
+FULL GATE** `python3 tools/e2e_gate.py` (expect **1131** byte-exact / 0 fail; negative
+181/181 E46K14 marker unmoved; div 9/9; coverage 0 errors; census check; prose panel) —
+record ACTUALS as printed, never claim unverified. **(3) CLOSE:** rewrite HANDOFF + PROGRESS
+with real ACTUALS, archive superseded prose VERBATIM from committed blobs (not the dirty
+managed blocks) to `docs/history/2026-11-01-e49p1-closed.md` + README index row, LEARNINGS
+close notes, commit, `/handoff finalize`, renew or stop. OUT OF SCOPE, keep refusing
+(RESULTS s3): STORE fixed member both orientations, member-vs-member, literal-vs-literal,
+BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT ([TBD]), `^( )`; NO
+`spec/RUNTIME.txt` row from this round; no push; never stage/commit/revert the operator's
+`handoff.config.json` edit.
+readiness-by: session:01a1945f-fc13-704c-9bbd-4203be4ee638
+readiness-at: 2026-11-01T00:05:46.026Z
+readiness-checkpoint: g68-45f884d368c6
 <!-- guard:end checkpoint -->
 
 ## Blockers
 
-- Nothing is half-edited at this boundary; every item below is recorded evidence, not a guess.
+- Nothing is half-edited at this boundary; every item below is recorded evidence, not a
+  guess.
 - **Missing evidence is the limit, never a licence to guess** (`PROTOCOL.md` #4). The
-  E2E-48/P2e RESULTS §3 shapes stay named refusals until a pre-registered round measures them:
-  FIXED member in a condition STORE, member-vs-member compare, BASED member in a condition,
-  over-extent INITIAL/store, `^=` over a ladder, `^(string compare)`, bare `-0` spelling,
-  runtime length rewrite, empty-varying PUT output. No `spec/RUNTIME.txt` row may come from
-  this phase family.
-- CREATE is NOT byte-exact; measured front-end blocker: `pli80c.ml` never expands `%include`
-  (proposal in `LEARNINGS.md` is `proposed, unverified` — needs its own pre-registered round).
+  E2E-49/P1 RESULTS §3 and E2E-48/P2e §3 shapes stay named refusals until a
+  pre-registered round measures them: FIXED member in a STORE (either orientation),
+  member-vs-member, literal-vs-literal fixed, BASED member in a condition, fixed-member
+  truthiness, BARE fixed member on the RIGHT, over-extent literal-LEFT, over-extent
+  INITIAL/store, `^=` over a ladder, `^(string compare)`, bare `-0` spelling, runtime
+  length rewrite, empty-varying PUT output. No `spec/RUNTIME.txt` row may come from
+  these families.
+- CREATE is NOT byte-exact; measured front-end blocker: `pli80c.ml` never expands
+  `%include` (proposal in `LEARNINGS.md` is `proposed, unverified` — needs its own
+  pre-registered round).
 - LOAN2's `conflicting kinds` prescan my-gap is a design change, not an arm (see Pending).

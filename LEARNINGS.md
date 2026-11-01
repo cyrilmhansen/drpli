@@ -802,3 +802,22 @@ The guard never writes this file.
   qualification question in the type: every route that refused `ImemF' by matching
   explicit variants refuses `ImemFb' the same way, and the single widened arm is greppable
   as an or-pattern. Same discipline as `Imem' vs `Cell' ([C253] era).
+
+## 2026-11-01 — E2E-49/P1 CLOSE (step 6 + FULL GATE + archive; session renewal 6/12, HEAD `0a8ceff`)
+
+* **accepted** — a one-sample claim can encode TWO laws (class vs position) and no amount
+  of re-reading separates them: only a discriminating probe (invert the operand order)
+  did. [C330]'s "literal length in B, extent in A" was a positional coincidence; [C334]
+  falsifies it and the labelled CORRECTION append keeps the falsified text verbatim
+  (PROTOCOL #2) — the pattern to reuse: write the reading, then design the inversion.
+* **accepted (tool fact)** — `coverage_check.py` cannot resolve claim ids written in
+  `spec/CLAIMS.md`'s early table-row format (e.g. C072): citing one in a COVERAGE
+  `provenance` column is a hard ERROR; mention such ids in prose columns only.
+* **accepted (procedure)** — the step-6 registration cycle order that validates cleanly:
+  claims first (COVERAGE provenance cites must exist) -> gate SPECIMENS block ->
+  `--update-inventory` (preflight coverage errors NOT fatal under that flag; it never
+  compiles) -> census re-snapshot -> COVERAGE rows -> `coverage_check` -> commit -> FULL
+  gate. Archive extraction from `git show HEAD:<file>` with an `in`-substring byte
+  verification per range is cheap insurance against prose drift between blob and file.
+* **proposed (unverified, for the next round)** — the `?SCCCM` STORE and bare-RIGHT shapes
+  are the obvious E2E-49 follow-ups (RESULTS §3); each still needs its own pre-registration.

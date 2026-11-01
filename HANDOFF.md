@@ -20,48 +20,110 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    Do not trust this file's managed block over its prose.
 4. Load evidence SELECTIVELY — the ledgers are far larger than the working window; a
    complete read of any of them is prohibited for recovery:
-   - `spec/CLAIMS.md`: read ONLY cited claim ids — `grep -n '^## C332' spec/CLAIMS.md` etc.; the
-     E2E-48/P2e block starts at `grep -n '^## C327'` (~line 7478); the whole E2E-48 family is
-     C309..C332. The ledger CURRENTLY ENDS at **C332** — no claim ids are owed.
+   - `spec/CLAIMS.md`: read ONLY cited claim ids — `grep -n '^## C336' spec/CLAIMS.md` etc.;
+     the E2E-49/P1 block starts at `grep -n '^## C333'` (~line 7610); the E2E-48 family is
+     C309..C332, E2E-49/P1 is C333..C336. The ledger CURRENTLY ENDS at **C336** — no claim
+     ids are owed. [C330] carries the labelled E2E-49/P1 CORRECTION append (positional
+     length law); the falsified text is kept as written (PROTOCOL #2).
    - `spec/COVERAGE.tsv`: header + `grep` the row KEY being edited (15 columns; schema
      `spec/COVERAGE-SCHEMA.md`; validator rules at `tools/coverage_check.py:203-247`).
    - `spec/INVENTORY.txt`: `grep` the specimen/refusal name only. `spec/RUNTIME.txt` and
      `spec/DIVERGENT.txt`: only rows named by the task.
-   - Current round evidence: `spec/lab-evidence/e2e48-p2e/{RESULTS.md,HYPOTHESES.md,BASELINE-MINE.txt}`.
+   - Latest round evidence: `spec/lab-evidence/e2e49-p1/{RESULTS.md,HYPOTHESES.md,BASELINE-MINE.txt}`
+     (round CLOSED); prior rounds under `spec/lab-evidence/e2e48-*/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Last verified state — E2E-49/P1 IN FLIGHT (arms 1+2 landed: `fee935e`, `b044b7c`; FULL GATE not yet run this round; prior P2e record follows, superseded)
+## Last verified state — E2E-49/P1 CLOSED (FULL compile-tier GATE rc=0 measured at `0a8ceff`, 2026-11-01)
 
-- Arm 2 measured at `b044b7c` (this session, after `dune build` rc=0): E49A1..E49A4 ALL
-  whole-file BYTE-EXACT vs `golden/e49p1` (E49A2 flipped from rc=2 to exact — the arm's
-  object); E48-family sweep **52/52** 0 DIFF (e48p1+e48p2c+e48p2db+e48p2retire+e48p2e,
-  incl. E48E7 literal-left regression); the **full registered specimen panel 1127/1127
-  BYTE-EXACT, 0 fail** (every `spec/INVENTORY.txt` specimen row re-compiled and whole-file
-  `cmp`'d — direct proof no output moved elsewhere); out-of-scope refusals re-measured
-  through the binary (bare member-RIGHT, fixed truthiness bare+qualified, fixed STORE
-  target, member-vs-member, literal-vs-literal, flag-trick over a bare fixed member) all
-  rc=2 named refusals; E46K14 marker `comparison of the internal CHARACTER member
-  REC.LINE` UNMOVED. FULL gate NOT run — owed at step 6, never claimed.
-- The prior round's FULL-gate record (HEAD `0749fa6`, rc=0): byte panel **1127 byte-exact /
-  0 fail of 1127**, negative panel **181/181** refused (E46K14's row prints `[dr-refuses]`,
-  pinned marker unmoved), divergence panel **9/9**, coverage **118 rows, 0 errors, 0
-  warnings**, census **EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0**, file prose **5
-  active files clean**. NOT re-measured this session (recorded, not assumed): the clean
-  scratch-tree rebuild warning multiset (last measured 126 = 28/26/22/17/15/14/2/2 at
-  `c215ea0`).
-- Science authority: this round's claims are NOT YET in the ledger — step 6 derives
-  **C333..C336** from `spec/lab-evidence/e2e49-p1/RESULTS.md` §2 ONLY plus the labelled
-  positional-law correction APPENDED at C330 (keep the falsified text, PROTOCOL #2).
-  E48 family remains C309..C332; the ledger CURRENTLY ENDS at **C332**. Goldens were not
-  touched except the NEW `golden/e49p1`.
-- Landing chain: pre-registration `9b3d860`, fill-in `0e9cc3d`, oracle run + goldens +
-  RESULTS `c8285cb`, arm 1 `fee935e`, arm 2 `b044b7c`. Superseded closing-era prose
-  (old Last-verified-state, FULL-GATE next action, step-6 record, prior-arms prose,
-  verified-evidence, stale debts bullet) archived verbatim in
-  `docs/history/2026-10-31-p2e-closed.md`.
+- Gate ACTUALS as printed at `0a8ceff`: byte panel **1131 byte-exact / 0 fail of 1131**
+  (E49A1..A4 all four BYTE-EXACT vs `golden/e49p1`), negative panel **181/181** refused
+  (E46K14 prints `[dr-refuses]`, pinned marker `comparison of the internal CHARACTER
+  member REC.LINE` UNMOVED), divergence panel **9/9**, coverage **122 rows, 0 errors,
+  0 warnings**, census **EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0**, file prose
+  **5 active files clean**. `dune build` rc=0 on this tree. Runtime/link-run tiers
+  remain delegated to the external rune-ci builders (unchanged policy).
+- Landing chain: pre-registration `9b3d860`, fill-in `0e9cc3d`, ONE oracle run 4 ok/4 —
+  all ACCEPTS, no dr-refuses — goldens + RESULTS `c8285cb`, arm 1 `fee935e` (member-LEFT
+  lowering, XCHG staging, positional lengths, `is_test_left` twin), arm 2 `b044b7c` (bare
+  spelling `ImemFb`; admission deliberately ASYMMETRIC — bare member-RIGHT keeps refusing;
+  the numeric ?IS22N guard widened to refuse exactly the admitted set), learnings `f95b872`,
+  step 6 `0a8ceff` (claims C333..C336 from RESULTS §2 ONLY + labelled C330 correction +
+  INVENTORY 4 rows via the sanctioned `--update-inventory`, census re-snapshot counts
+  unchanged, COVERAGE 4 rows + SUPERSEDED note).
+- Byte tier ONLY: NO `spec/RUNTIME.txt` row came or comes from this round (RESULTS §3).
+- Working tree at this checkpoint: ONLY the operator's `handoff.config.json` edit plus the
+  guard-written managed-block refresh; never stage, commit or revert the config edit.
 
-## Next action — E2E-49/P1: STEP 6 (ledger + registration) then FULL GATE, then CLOSE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
+## Next action — E2E-49/P1 is CLOSED; NO new scientific action is authorized until the OPERATOR names the next round
+
+1. Candidate pool (each needs its OWN pre-registered round — hypotheses committed BEFORE
+   any oracle run, PROTOCOL). From `spec/lab-evidence/e2e49-p1/RESULTS.md` §3: `?SCCCM` in
+   a STORE (either orientation) and any fixed-member store value; member-vs-member
+   compares; literal-vs-literal fixed compares; BASED members in conditions; truthiness
+   of a FIXED member (bare or qualified — [C332] measured only the VARYING `BIT REQ`); a
+   BARE fixed member on the RIGHT of a literal; over-extent in the LITERAL-LEFT
+   orientation and over-extent INITIAL/STORE; `^( ... )` composition. Still open from
+   `spec/lab-evidence/e2e48-p2e/RESULTS.md` §3: `^=` over a ladder, bare `-0` spelling,
+   runtime length rewrite, empty-varying PUT output, `BIT REQ` acceptance elsewhere, PUT
+   EDIT of a bit item. Separate recorded debts, NOT arms: CREATE's `%include` front-end
+   gap and LOAN2's scope-aware prescan (PROGRESS → Pending).
+2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
+   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
+   (`/handoff verify`), and STOP — record state, do not invent work.
+3. Standing: goldens untouched except newly added round goldens; §3 shapes NOT
+   implemented (missing evidence is the limit, never a licence to guess); probes ≤71
+   cols CRLF+`^Z`; `eval $(opam env)` before dune; never name a probe variable `c`; no
+   push; never stage/commit/revert the operator's `handoff.config.json` edit; renewal
+   values live ONLY in `handoff.config.json` / `/guard status`.
+
+## Unfinished operations
+
+- None — the E2E-49/P1 round is CLOSED (FULL GATE rc=0 measured at `0a8ceff`).
+
+## Discoveries not yet incorporated
+
+- None outstanding. Compiler law: `spec/CLAIMS.md` C309..C336 (E2E-48 family C309..C332,
+  E2E-49/P1 C333..C336, each round derived from its own RESULTS §2 ONLY); durable method
+  lessons are classified in `LEARNINGS.md`. The stale `README.md` rolling status remains
+  recorded as deferred work in `PROGRESS.md` → Pending.
+
+## History and pointers
+
+- Superseded next-action sections, closed phase records and the full renewal-hop status
+  log: `docs/history/README.md` (index; baseline extraction at `f3a4c60`; P2e closing-era
+  prose `docs/history/2026-10-31-p2e-closed.md`; E2E-49/P1 closing-era prose AND the P2e
+  close record `docs/history/2026-11-01-e49p1-closed.md`).
+- Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
+  this file. The guard writes the managed block below via Handoff commands only.
+
+<!-- guard:begin checkpoint -->
+checkpoint-schema: 3
+checkpoint-generation: 68
+checkpoint-id: g68-45f884d368c6
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 0, remaining ~36857, session 01a1945f-fc13-704c-9bbd-4203be4ee638)
+checkpointed: 2026-11-01T00:05:46.022Z
+source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
+source-progress: c8c3082b925c9f1c90283d8ac24c8ceb703435e36faa00ab0218f24792a0dc6e
+source-handoff: df7ba04ec9256b632d1626a7deb6dfc6edf38754790539fd892a2823e3a19909
+source-learnings: 00ebd303e70eed1558edb3886ce8d68e999996ca4669d0d9c3aa78f865212fdb
+source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
+
+
+readiness-by: session:01a1945f-fc13-704c-9bbd-4203be4ee638
+readiness-at: 2026-11-01T00:05:46.026Z
+readiness-checkpoint: g68-45f884d368c6
+### Last verified state
+guard level 0; checkpoint requested (renewal refresh (model))
+
+### Unfinished operations
+- (none recorded)
+
+### Next action
+— E2E-49/P1: STEP 6 (ledger + registration) then FULL GATE, then CLOSE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
 
 **ACTIVE PLAN (exact, also in PROGRESS.md → Current phase):** lineage = prediction SHA
 `9b3d860`, fill-in `0e9cc3d`, oracle run + goldens + `spec/lab-evidence/e2e49-p1/RESULTS.md`
@@ -100,96 +162,6 @@ BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT ([TBD]), `^
 `spec/RUNTIME.txt` row from this round; no push; never stage/commit/revert the operator's
 `handoff.config.json` edit.
 
-### Superseded (E2E-48/P2e close, kept as written)
-
-1. **No new scientific action is authorized in this repository until the operator names the
-   next round.** Candidate pool (all from `spec/lab-evidence/e2e48-p2e/RESULTS.md` §3, each
-   needing its OWN pre-registered round — hypotheses committed BEFORE any oracle run,
-   PROTOCOL): member-vs-member compares; `?SCCCM` in a STORE or with the member on the LEFT;
-   literal-vs-literal fixed compares; BASED members in conditions; over-extent INITIAL/store;
-   `BIT REQ` acceptance elsewhere (bare scalar `char`, `^`, `&`); PUT EDIT of a bit item;
-   `^(k = -c)` composition. Separate recorded debts, NOT arms: CREATE's `%include` front-end
-   gap and LOAN2's scope-aware prescan (PROGRESS → Pending).
-2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
-   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
-   (`/handoff verify`), and STOP — record state, do not invent work.
-3. Standing: goldens untouched; §3 shapes NOT implemented (missing evidence is the limit,
-   never a licence to guess); no push; never stage/commit/revert the operator's
-   `handoff.config.json` edit; renewal values live ONLY in `handoff.config.json` /
-   `/guard status`.
-
-## Unfinished operations
-
-- None — the E2E-48/P2e round is CLOSED (FULL GATE rc=0 measured at `0749fa6`). The working
-  tree at this checkpoint carries ONLY the operator's `handoff.config.json` edit plus the
-  guard-written managed-block refresh; never stage, commit or revert the config edit.
-
-## Discoveries not yet incorporated
-
-- None outstanding. Compiler law: `spec/CLAIMS.md` C309..C332 (E2E-48 family, derived per
-  round from that round's RESULTS §2 ONLY); durable method lessons are classified in
-  `LEARNINGS.md`. The stale `README.md` rolling status remains recorded as deferred work in
-  `PROGRESS.md` → Pending.
-
-## History and pointers
-
-- Superseded next-action sections, closed phase records and the full renewal-hop status log:
-  `docs/history/README.md` (index; baseline extraction at `f3a4c60`, P2e closing-era prose
-  added at the round close 2026-10-31: `docs/history/2026-10-31-p2e-closed.md`).
-- Renewal: the E2E-48 phase chain closed at its configured cap; state archived under
-  `.pi-guard/archives/`. Effective renewal values are in `handoff.config.json` (authoritative) —
-  never this file. The guard writes the managed block below via Handoff commands only.
-
-<!-- guard:begin checkpoint -->
-checkpoint-schema: 3
-checkpoint-generation: 66
-checkpoint-id: g66-487495b2e408
-checkpoint-kind: auto
-content-delta: none
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4033, session 01a19445-2627-704c-9bbd-41fe19a81649)
-checkpointed: 2026-10-31T23:50:55.048Z
-source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 709b60b7ffcd2d9e69d68ba96f186e8a641ca3ce03c7d927f97a2dddd779f239
-source-handoff: 9c6ac47b842acfdb3d1d95c8dfa31a2856e987c124eb629d0a831e4d02422391
-source-learnings: aaf0cbe5e1ea2596649b58d021372e099e910814f17b9b61a393b266168864c0
-source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-
-
-readiness-by: session:01a19445-2627-704c-9bbd-41fe19a81649
-readiness-at: 2026-10-31T23:51:20.848Z
-readiness-checkpoint: g66-487495b2e408
-### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
-
-### Unfinished operations
-- (none recorded)
-
-### Next action
-— E2E-49/P1: arm 2 (bare spelling) then step 6 (ledger) + FULL GATE (prior P2e "await operator" text below is SUPERSEDED by the operator's 2026-10-31 authorization of this round)
-
-**ACTIVE PLAN (exact, also in PROGRESS.md → Current phase):** lineage = prediction SHA
-`9b3d860`, fill-in `0e9cc3d`, oracle run + goldens + `spec/lab-evidence/e2e49-p1/RESULTS.md`
-(4 ok / 4, all ACCEPTS, no dr-refuses) at `c8285cb`, arm 1 lowering at `fee935e` with
-ACTUALS E49A1/A3/A4 whole-file BYTE-EXACT, E49A2 still refuses (arm 2's object), E48E7
-regression exact, E48 sweep 43/43, dune rc=0. Measured laws (RESULTS s2): inverted fixed
-TEST = `21 *D(member) / EB / 21 *D(pool) / 06 extent / 3E len / CD ?SCCCM / skip`; length
-immediates POSITIONAL (B = LEFT, A = RIGHT) — falsifies [C330]'s capacity-in-A reading
-(append labelled correction at C330, keep text); name does not flip; ^= CA measured;
-over-extent literal accepted, pooled whole. (1) ARM 2: `str_side` Eident admits BARE fixed
-as new `ImemFb (orig,cap)`; `str_cmp_shape_fix` member-LEFT arm matches `ImemF`/`ImemFb`,
-literal-RIGHT arm keeps `ImemF` only (bare member-RIGHT unmeasured); widen `is_test_left`
-in the SAME commit; annotate superseded bare sentences; build, E49A2 whole-file cmp, no
-output moves elsewhere, commit codegen.ml with ACTUALS. (2) STEP 6: claims C333..C336 from
-RESULTS s2 ONLY + C330 correction; INVENTORY 4 specimen rows after E48E8; census
-re-snapshot; 4 COVERAGE.tsv rows; commit; then FULL gate `python3 tools/e2e_gate.py`
-(expect 1131 byte-exact; negative 181/181 E46K14 marker unmoved; div 9/9; coverage 0
-errors) and record ACTUALS. (3) CLOSE: rewrite this + PROGRESS with real ACTUALS, archive
-superseded prose to docs/history/, commit, /handoff finalize, renew or stop. OUT OF SCOPE,
-keep refusing (e2e49-p1 RESULTS s3): STORE fixed member, member-vs-member,
-literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT, over-extent literal-LEFT
-([TBD]), `^( )`; NO RUNTIME row; no push; never touch the operator config edit.
-
 ### Guard notes
-E2E-48/P2e round CLOSED and verified this session: FULL compile-tier GATE python3 tools/e2e_gate.py rc=0 at HEAD 0749fa6 with ACTUAL 1127 byte-exact / 0 fail of 1127 (seven E48E byte-tier specimens in panel), negative 181/181 (E46K14 [dr-refuses], marker unmoved), divergence 9/9, coverage 118 rows 0 errors, census 15/0/26/0, prose clean; dune build rc=0. Closing prose committed at 5417de0 (HANDOFF/PROGRESS rewritten, docs/history/2026-10-31-p2e-closed.md archive, LEARNINGS close notes, ledger pointer now C332, no ids owed). NOT re-measured (recorded): clean-rebuild warning multiset (last 126 at c215ea0). Next action: await the OPERATOR's next-round choice; successor without instruction records state and stops. Goldens untouched; RESULTS s3 shapes not implemented; tree carries only the operator handoff.config.json edit after this refresh — never stage/commit/revert it; no push.
+E2E-49/P1 arms 1+2 landed (fee935e, b044b7c); HEAD f0d592b. Durable state is current: HANDOFF Next-action and PROGRESS Current phase carry measured ACTUALS (E49A1..A4 all four whole-file byte-exact vs golden/e49p1; E48 sweep 52/52; registered panel 1127/1127 byte-exact; out-of-scope refusals rc=2 re-measured; E46K14 marker unmoved; dune rc=0; FULL gate OWED, never claimed). Exact next action = STEP 6: claims C333..C336 from spec/lab-evidence/e2e49-p1/RESULTS.md s2 ONLY + labelled positional-law correction APPENDED at C330 keeping falsified text (PROTOCOL #2); INVENTORY 4 specimen rows after E48E8; census re-snapshot python3 tools/corpus_census.py; COVERAGE.tsv 4 rows (schema spec/COVERAGE-SCHEMA.md); commit; then FULL gate python3 tools/e2e_gate.py (expect 1131 byte-exact, neg 181/181, div 9/9, coverage 122 rows 0 errors) and record ACTUALS; then CLOSE (prose rewrite, archive superseded prose verbatim from committed blobs to docs/history/2026-11-01-e49p1-closed.md + README index, LEARNINGS close notes, update HANDOFF ledger-end pointer past C332, /handoff finalize, stop or await operator). Keep refusing: STORE, member-vs-member, literal-vs-literal, BASED, truthiness, bare member-RIGHT, over-extent literal-LEFT, ^( ); no RUNTIME row; no push; never touch the operator handoff.config.json edit.
 <!-- guard:end checkpoint -->
