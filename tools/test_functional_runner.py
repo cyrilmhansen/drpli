@@ -993,6 +993,5 @@ if FAILED:
     for f in FAILED:
         print("  - " + f)
     sys.exit(1)
-print("all functional_runner hostile checks passed (evidence kept under %s)")
-      % TMP)
+print("all functional_runner hostile checks passed (evidence kept under %s)" % TMP)
 sys.exit(0)
