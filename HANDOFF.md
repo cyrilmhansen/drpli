@@ -158,7 +158,17 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   checks all pass; both compile against the current binary (896 B code=358 data=30 / 1536 B
   code=627 data=50). TABLE-02 WITHHELD: "verify" means executed step-6 evidence, not compiling]
 - 5. Harness `tools/functional_runner.py` + tests proving absent deps, timeouts, malformed
-  output and mismatched assertions cannot be mistaken for success. [pending]
+  output and mismatched assertions cannot be mistaken for success. [**PART 1 LANDED** hop 3
+  `8523eda`: harness implements README §3/4/5/8/9/11 mechanically — fail-closed validation,
+  SOURCE sha256+encoding, DERIVATION in its own process, COMPILE via local `pli80c.exe -d`,
+  LINK through `oracle/cpmwork.py` Workspace with `parse_undefined` on the FULL segment,
+  lane-labelled RUN ([C308] witnesses done/timeout/sim-died/wall-clock-timeout), complete-stream
+  `collapse-spaces-v1` ASSERT with `!text` negatives, unrun/skipped stage never PASS,
+  attribution never narrowed (assert mismatch = `undefined`), `--double-run` determinism proof,
+  `--stages` ceiling, all external layers injectable. Measured: py_compile rc=0, --help rc=0,
+  bounded real run `--stages SOURCE,DERIVATION` on TABLE-00/01 -> SOURCE+DERIVATION pass, both
+  verdicts UNKNOWN (COMPILE unrun), PASS=0. **PART 2 OWED:** hostile suite
+  `tools/test_functional_runner.py` (see Unfinished operations for the 13 required cases)]
 - 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
   permit; Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB, dependency lane
   labelled; classify and preserve blockers honestly. Never substitute an unlabelled emulator.
@@ -175,9 +185,31 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 ## Unfinished operations
 
-- E2E-50/P2 steps 5–8 (steps 0–4 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec format,
-  law, TABLE corpus and reference in the hop-2 commit). **FIRST ACTION for the successor: step
-  5 — write `tools/functional_runner.py`** implementing exactly `spec/functional/tests/README.md`:
+- E2E-50/P2 steps 5(part 2)–8 (steps 0–4 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec
+  format, law, TABLE corpus and reference in the hop-2 commit `a6163ef`; **harness step-5 part 1
+  LANDED hop 3 at `8523eda`**). **FIRST ACTION for the successor: step 5 part 2 — write
+  `tools/test_functional_runner.py`** (hostile suite over the landed harness, `check()`-style like
+  `tools/test_functional_dashboard.py`, NO compiler/LINK-80/cpmsim/emulator process — every
+  external layer is injectable via `Host(subprocess_run=, sim_session=, link_deps=,
+  workspace_factory=, run_factory=)`):
+  (1) absent deps → BLOCKED named by path, never PASS; (2) wall-clock timeout vs `timeout`(rc=1)
+  vs `sim-died`(rc=2) → three distinct witnesses, none PASS; (3) malformed output (no
+  `>>> LINK D:` segment / no console anchor) → UNKNOWN; (4) UNDEFINED SYMBOLS beyond char 120 in
+  the FULL segment + a .COM present → FAIL (L2/[C137]); (5) assertion mismatch → FAIL with
+  attribution `undefined` (never narrowed); (6) unknown spec field / `null` required field /
+  empty `expected.console` / forbidden or REFUSED-or-DIVERGENT capability / lane-A `link_targets`
+  / lane-B `artifact` / multi link_target / `file_expectations` → spec FAIL attr `source` with NO
+  lane stage run; (7) source or artifact sha256 mismatch → SOURCE FAIL `source`; (8) derivation
+  drift → FAIL `source`; (9) `--stages` ceiling → unrun stage ⇒ UNKNOWN, never PASS; (10) Lane A
+  rc≠0 ⇒ stdout discarded (audit 2.18), typed runner-error ⇒ FAIL `emulator`, unclassified ⇒
+  UNKNOWN; (11) `--double-run` equal ⇒ PASS possible, differing ⇒ UNKNOWN; (12) positive control:
+  stubbed PASS reachable end-to-end (else the suite is vacuous); (13) `render_line`/records never
+  print PASS for BLOCKED/UNKNOWN. Then step 6 (Lane A hand-crafted .COM fixture + Lane B TABLE
+  attempt via local compiler + historical LINK-80/PLILIB under cpmsim, BDOS census = open
+  question #1), step 7 (minimal reporting, no COVERAGE promotion), step 8 (report + bounded P3
+  proposal + CLOSE + finalize). Harness defects seen but NOT yet fixed (verify first): compile
+  `-d` banner parse is optional; Lane A artifact identity recorded by hash; `evidence:` printed
+  relative to repo root (ugly for /tmp roots).
   fail-closed schema validation (unknown fields are errors); SOURCE sha256 check; DERIVATION
   double-check via `reference.py:derive()`; COMPILE via the local `pli80c.exe`; LINK through the
   `oracle/cpmwork.py` Workspace machinery applying `oracle/linkrun.py` `parse_undefined` to the
@@ -237,13 +269,13 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 121
-checkpoint-id: g121-6b423b904b20
+checkpoint-generation: 123
+checkpoint-id: g123-ce69913aab80
 checkpoint-kind: auto
 content-delta: none
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6448, session 01a19931-dc06-7280-b553-bdac19f6b52f)
-checkpointed: 2026-11-01T22:49:47.301Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4452, session 01a1994d-fc31-7280-b553-bdb03f5739c4)
+checkpointed: 2026-11-01T23:13:57.360Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a0352f5c2ab49f51671662be56dfc95d261c7df684c41a0c02f8af9d9aad61fd
 source-handoff: eb8019539e6de1f8dce93147f1d09ede33f7a4b38a6ecdf3869b97b23347d5cd
@@ -251,11 +283,8 @@ source-learnings: b5e3a8db7e6c7af9c1e11c91eae03c879176dbb2f9d1bef558f1eac294a13d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19931-dc06-7280-b553-bdac19f6b52f
-readiness-at: 2026-11-01T22:49:47.309Z
-readiness-checkpoint: g121-6b423b904b20
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

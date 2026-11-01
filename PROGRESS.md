@@ -37,6 +37,8 @@ Two-package matrix delivered (§6); the single hard Package-A blocker is the ope
 decision on the UNLICENSED lab — decided by nobody here. Next: step 3 (functional-test spec
 format under `spec/functional/`).
 
+**Renewal hop 3 (this chain): step 5 PART 1 LANDED** at `8523eda` — `tools/functional_runner.py` implements `spec/functional/tests/README.md` mechanically (fail-closed schema validation incl. unknown-field rejection and `file_expectations` refused as unimplemented; SOURCE sha256-before-execution + declared-encoding token checks; DERIVATION in a separate process with drift = FAIL/`source` and no lane executed; COMPILE via local `pli80c.exe -d` with message-shape attribution measured against the real binary — `Failure("codegen: ...")` = compiler, `Pli80.Parser.Parse_error` = source, `Sys_error` = host; LINK via `oracle/cpmwork.py` Workspace + `linkrun.new_run`, `parse_undefined` on the FULL segment [C137]; lane-labelled RUN with [C308] witness classes; complete-stream `collapse-spaces-v1` ASSERT; `--double-run` determinism proof comparing CONSOLE CAPTURE bytes not transcripts; `--stages` ceiling; every external layer injectable for the hostile suite). Measured this hop: py_compile rc=0, --help rc=0, bounded `--stages SOURCE,DERIVATION` over the corpus → 2 UNKNOWN (unrun COMPILE ⇒ never PASS), PASS=0, DERIVATION reproduces both specs. **Step 5 PART 2 (hostile suite) and steps 6–8 remain.** No oracle/LINK-80/cpmsim/gate/rune-ci run; `ocaml/` untouched (build only).
+
 **Step-3 groundwork probed (same hop, later):** console PUT-LIST byte law measured from stored
 goldens (10-wide right-justified numeric field, blank item separator, statements share one line
 until SKIP; gate normalization ` +`->` ` adopted as harness v1 law); TABLE-feasible capability
@@ -271,13 +273,13 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 121
-checkpoint-id: g121-6b423b904b20
+checkpoint-generation: 123
+checkpoint-id: g123-ce69913aab80
 checkpoint-kind: auto
 content-delta: none
-readiness: attested
-guard-level: 3
-checkpointed: 2026-11-01T22:49:47.301Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-01T23:13:57.360Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a0352f5c2ab49f51671662be56dfc95d261c7df684c41a0c02f8af9d9aad61fd
 source-handoff: eb8019539e6de1f8dce93147f1d09ede33f7a4b38a6ecdf3869b97b23347d5cd
@@ -348,9 +350,6 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
-readiness-by: session:01a19931-dc06-7280-b553-bdac19f6b52f
-readiness-at: 2026-11-01T22:49:47.309Z
-readiness-checkpoint: g121-6b423b904b20
 <!-- guard:end checkpoint -->
 
 ## Blockers

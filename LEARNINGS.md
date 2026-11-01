@@ -1650,3 +1650,31 @@ The guard never writes this file.
   rendering functions must have explicit BLOCKED/UNKNOWN branches and tests that a lane with
   an unexecuted stage prints PASS never. Determinism proof (audit § 2.20) owed: double-run
   equality inside the harness, lane-labelled.
+
+### E2E-50/P2 hop 3 (renewal session, 2026-11-02) — step 5 part 1: the harness (accepted unless marked)
+
+- **ACCEPTED (measured against the local binary, bounded compile probes in /tmp):** my compiler's
+  failure-message SHAPES that the attribution classifier keys on are
+  `Fatal error: exception Failure("codegen: compare > k<=0 form unproven [TBD]")` (rc=2),
+  `Fatal error: exception Pli80.Parser.Parse_error(_, "expected identifier")` (rc=2) and
+  `Fatal error: exception Sys_error("<file>: No such file or directory")` (rc=2); success prints
+  nothing unless `-d`, which appends `PROGRAM <name> CODE=<n> DATA=<n> ITEMS=<n> -> <n> bytes`.
+  `pli80c` with no args exits 2. These are the typed signals README §9 admits; the classifier
+  never infers an origin from anything else.
+- **ACCEPTED (harness law, implemented + measured):** an unrun stage yields UNKNOWN, never PASS —
+  proven by the bounded `--stages SOURCE,DERIVATION` run over TABLE-00/01 (2 UNKNOWN, PASS=0);
+  DERIVATION reproduces both specs' expected lists from `reference.py` in a separate process.
+- **ACCEPTED (design decision, README-corollary):** Lane B v1 allows EXACTLY ONE `link_target` —
+  the schema pins ONE hashed `source`, so a multi-module expectation is underivable; a Lane A spec
+  declaring a non-default `console_input` is a spec error because the audited emulator has no
+  console input (audit §2.12). Both are recorded as fail-closed validations.
+- **ACCEPTED (design decision):** attribution for an ASSERT mismatch is HARD-WIRED to `undefined`
+  in v1. Narrowing to `runtime-lib` needs a discriminating run (README §9 rule 2) and the
+  linked-program BDOS census is UNMEASURED (audit §4); the harness therefore refuses to reason.
+- **PROPOSED (unverified until the hostile suite runs):** all step-5 hardening claims of hop 2
+  (unknown-field fail-closure, absent-dep BLOCKED, [C308] witness separation, no laundering in
+  rendering, double-run determinism proof) are implemented but NOT yet proven by tests — the
+  13-case suite list is in `HANDOFF.md` → Unfinished operations.
+- **PROPOSED (harness polish, unverified):** `evidence:` is printed relative to the repo root (a
+  /tmp root prints many `../`); the `-d` size banner is optional in the record; Lane A artifact
+  hash identity is recorded in `substrate_identity`. Fix only if step 6 shows it matters.
