@@ -7254,7 +7254,13 @@ let str_cmp_shape_fix st l r =
    module-name fields and checksum, so the match below now admits `ImemFb' on BOTH sides; an
    all-member pair still pools no literal (D1..D3 DATA 000C, s2.6) and needs no prescan twin.
    Relations beyond `='/`^=' are MEASURED by [E2E-49/P3 arm c] for the QUALIFIED pair only —
-   a BARE side in a relation keeps refusing (s3). *)
+   a BARE side in a relation keeps refusing (s3).
+   SUPERSEDED in part 2026-11-01 by [E2E-49/P4 arm a, RESULTS s1/s2.2]: the BARE-side clause
+   is closed — golden/e49p4/E49H1..H6 measure EVERY qualification mix of the pair inside an
+   ORDERED relation byte-identical to its qualified twin but the packed module-name fields
+   (H4 `nb >= na' == golden F3: the LOWERED pair is canonical across qualification AND
+   orientation); `str_cmp_shape_fix_rel' now admits `ImemFb' on BOTH sides. Relations with a
+   LITERAL operand stayed refused until [E2E-49/P4 arm b]. *)
 let str_cmp_shape_fix_mm st l r =
   match str_side st l, str_side st r with
   (* [E2E-49/P3 arm b -- RESULTS s2.3] BOTH sides admit the BARE spelling `ImemFb':
@@ -7298,10 +7304,28 @@ let str_cmp_shape_fix_mm st l r =
    and a BARE side in an ORDERED relation has NO object (RESULTS s3), so `ImemFb' matches
    NOTHING here and those pairs keep refusing through `imem_refuse'; relations with a
    LITERAL operand are likewise unmeasured (s3) and refuse.  TEST only: the STORE, the
-   truthiness, `^( )' composition and over-extent in relations keep refusing per s3. *)
+   truthiness, `^( )' composition and over-extent in relations keep refusing per s3.
+   SUPERSEDED in part 2026-11-01 by [E2E-49/P4 arm a, RESULTS s1 P-H1..P-H6, s2.2]: the
+   QUALIFIED-QUALIFIED admission sentence above stands as written history —
+   golden/e49p4/E49H1 (`na < rec.nb'), H2 (`rec.na > nb'), H3 (`na <= nb'), H4 (`nb >= na'),
+   H5 (`na > rec.s2'), H6 (`s2 <= rec.na') measure EVERY qualification mix (bare-left,
+   bare-right, bare/bare) in the ordered relations, each ACCEPTED and byte-identical to its
+   qualified twin but the packed module-name fields (file offsets 4..6/18..19/26..28; these
+   256-byte objects carry no checksum field): [C344] transfers to the relation family,
+   H-B-gate/H-B-mixed FALSIFIED. The match below now admits `ImemFb' on BOTH sides — ONE
+   bundled thunk, NO new bytes (the ORDER law holds on the bare spelling: H2 swaps and
+   collapses like its qualified twin; H4 `nb >= na' lands on golden F3's object — the
+   LOWERED pair is canonical across qualification AND orientation, s2.2). An all-member
+   pair still pools NO literal (H rows DATA 000C), so there is still NO prescan twin.
+   Relations with a LITERAL operand were still unmeasured at THIS arm and kept refusing
+   (P4 RESULTS s3) until arm b. *)
 let str_cmp_shape_fix_rel st rop l r =
   match str_side st l, str_side st r with
-  | Some (`ImemF (lk, capl)), Some (`ImemF (rk, capr)) ->
+  (* [E2E-49/P4 arm a -- RESULTS s1 P-H1..P-H6, s2.2] BOTH sides admit the BARE spelling
+     `ImemFb', exactly as `str_cmp_shape_fix_mm' has since P3 arm b: E49H1..H6 are
+     byte-identical to their qualified twins but the module-name bytes. *)
+  | (Some (`ImemF (lk, capl)) | Some (`ImemFb (lk, capl))),
+    (Some (`ImemF (rk, capr)) | Some (`ImemFb (rk, capr))) ->
       let swap = match rop with Ast.Gt | Ast.Le -> true | _ -> false in
       let (fk, fcap, sk, scap) =
         if swap then (rk, capr, lk, capl) else (lk, capl, rk, capr)
@@ -8098,7 +8122,12 @@ let lower_test_skip0 st (c : Ast.expr) =
          unchanged (H-D-CX falsified); skip JNC `d2' for `<'/`>', JC `da' for `<='/`>=',
          then the [C309] fill slot.  A relation with a BARE side or a LITERAL operand does
          not reach this arm -- the encoder matches `ImemF/ImemF' alone and the pair keeps
-         falling to the `imem_refuse "comparison"' site (s3). *)
+         falling to the `imem_refuse "comparison"' site (s3).
+         SUPERSEDED in part 2026-11-01 by [E2E-49/P4 arm a, RESULTS s1/s2.2]: the BARE-side
+         clause is closed -- the encoder now admits `ImemFb' on BOTH sides and E49H1..H6
+         lower through THIS arm byte-identical to their qualified twins but the module-name
+         fields; a relation with a LITERAL operand still did not reach this arm at arm a and
+         kept refusing (P4 s3) until arm b. *)
       let (head_fn, b_len, a_len, skip) =
         match str_cmp_shape_fix_rel st rop l rr with Some x -> x | None -> assert false
       in
@@ -8343,7 +8372,17 @@ let lower_test_skip0 st (c : Ast.expr) =
               the LOWERED operands with the equal-attribute collapse) and the new \
               `str_cmp_shape_fix_rel' arm lowers exactly that set; a relation with a BARE \
               side or a LITERAL operand has NO object (s3) and refuses here, as do the \
-              STORE value, literal-vs-literal, BASED members and every truthiness shape."
+              STORE value, literal-vs-literal, BASED members and every truthiness shape.  \
+              ADDENDUM 2026-11-01 [E2E-49/P4 arm a, RESULTS s1 P-H1..P-H6, s2.2]: the \
+              BARE-side clause is now superseded -- golden/e49p4/E49H1..H6 measure EVERY \
+              qualification mix of the member pair inside an ORDERED relation byte-identical \
+              to the qualified twin but the packed module-name fields ([C344] transfers to \
+              the relation family; H4 `nb >= na' == golden F3 -- the LOWERED pair is \
+              canonical), and `str_cmp_shape_fix_rel' now matches `ImemFb' on BOTH sides. A \
+              relation with a LITERAL operand still had NO object at this arm (P4 s3) and \
+              refuses here until arm b, as do the STORE value, literal-vs-literal, BASED \
+              members, `^( )' over a string compare (P4 panel D lands with arm c) and every \
+              truthiness shape."
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
