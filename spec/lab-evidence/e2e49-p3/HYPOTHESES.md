@@ -208,5 +208,7 @@ measures. **No runtime semantics** may be claimed from `.REL` bytes: NO
 
 ## Prediction-SHA fill-in
 
-(To be written by the fill-in commit immediately after the pre-registration commit,
-BEFORE any oracle invocation.)
+PREDICTION SHA: **3659f5d** — the commit that added
+probes/E49C1..C4,E49D1..D4,E49E1..E2,E49F1..F4.PLI + mkprobes.py + this file +
+BASELINE-MINE.txt (`git log --format=%h -- probes/E49C1.PLI | tail -1`); the fill-in
+commit naming it is this commit's child and is an ancestor of the oracle run.
