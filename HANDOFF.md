@@ -208,13 +208,13 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 113
-checkpoint-id: g113-4308f1e44641
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 115
+checkpoint-id: g115-3d39846f732e
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 2, remaining ~8272, session 01a19902-5793-7280-b553-bda51e005404)
-checkpointed: 2026-11-01T21:52:25.453Z
+status: checkpoint (guard level 4, remaining ~4798, session 01a19902-5793-7280-b553-bda51e005404)
+checkpointed: 2026-11-01T21:52:59.512Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: dd064a4a956f3460f0c49ce7926d123b3e45acc281d1443aaab7979b127cd515
 source-handoff: e66309a9cf512a761432a865891b8fe41d95014873cbf48f34ffb5f203fb71ed
@@ -223,10 +223,10 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a19902-5793-7280-b553-bda51e005404
-readiness-at: 2026-11-01T21:52:25.456Z
-readiness-checkpoint: g113-4308f1e44641
+readiness-at: 2026-11-01T21:52:59.519Z
+readiness-checkpoint: g115-3d39846f732e
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
