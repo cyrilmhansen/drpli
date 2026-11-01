@@ -177,7 +177,7 @@ checkpoint-generation: 81
 checkpoint-id: g81-77b95c8b990e
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
 checkpointed: 2026-11-01T07:22:49.996Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -212,6 +212,9 @@ next-action: — E2E-49/P3 IN FLIGHT: implement the three arms, then step 6 and 
    `c`; goldens untouched except e49p3; NO spec/RUNTIME.txt row from the compare
    families; never touch the operator's `handoff.config.json` edit; renewal values
    ONLY in `handoff.config.json` / `/guard status`; no push.
+readiness-by: session:01a195e9-4828-7195-ad35-f2d4b10efaf5
+readiness-at: 2026-11-01T07:23:09.456Z
+readiness-checkpoint: g81-77b95c8b990e
 <!-- guard:end checkpoint -->
 
 ## Blockers
