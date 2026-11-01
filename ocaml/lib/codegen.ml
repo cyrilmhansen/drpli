@@ -7130,7 +7130,14 @@ let str_cmp_shape_rev ?(imem = false) st l r =
    (one encoder per measured shape), and its two immediates stay intact: the equal-extent
    collapse `06 n / 78' is measured member-vs-member ONLY and the member-vs-literal equal-length
    case is UNMEASURED (RESULTS s2.2 scope warning, s3).  The fixed member in a STORE and every
-   truthiness shape keep refusing per s3. *)
+   truthiness shape keep refusing per s3.
+   SUPERSEDED in part 2026-11-01 by [E2E-49/P3 arm a, RESULTS s2.1]: "its two immediates stay
+   intact ... the member-vs-literal equal-length case is UNMEASURED" was [C338]'s [TBD], and
+   golden/e49p3/E49C1/C3 (staged `EB') and E49C2/C4 (direct `11') MEASURE it: at EQUAL positional
+   attributes BOTH literal templates COLLAPSE to `06 n / 78'.  The collapse is a `?SCCCM'
+   LENGTH-PAIR law keyed on the EQUALITY of the two attributes, whatever their source (extent or
+   literal length) — H-AK-M/H-AK-L FALSIFIED, H-AC-M/H-AC-L CONFIRMED.  Unequal pairs keep two
+   immediates: E48E7 2/3, E49A1/A3 3/2, E49A4 3/4, E49D4 2/3, E49E1/E2 4/3. *)
 let str_cmp_shape_fix st l r =
   match str_side st l, str_side st r with
   | Some (`Lit (v, bytes)), Some (`ImemF (k, cap)) ->
@@ -7196,6 +7203,10 @@ let str_cmp_shape_fix st l r =
    member-vs-LITERAL pair whose literal length EQUALS the extent is UNMEASURED (RESULTS s2.2 scope
    warning, s3), so `str_cmp_shape_fix' above KEEPS its two immediates and this rule must NOT be
    extended to the literal template.
+   SUPERSEDED 2026-11-01 by [E2E-49/P3 arm a, RESULTS s2.1]: that scope sentence was the P2 reading
+   and stands as written history; E49C1..C4 MEASURED the member-vs-literal equal-length case and
+   BOTH literal templates collapse exactly like this one — the condition is the EQUALITY of the two
+   positional attributes, not the member-pair class.
    ADMISSION IS QUALIFIED-QUALIFIED ONLY: every object of this round writes BOTH members
    qualified; bare-bare, bare-qualified and qualified-bare pairs have NO object (RESULTS s3) and
    keep refusing -- the P1 asymmetry (the BARE spelling admitted member-LEFT-of-a-literal) is
@@ -7933,14 +7944,23 @@ let lower_test_skip0 st (c : Ast.expr) =
          above is now superseded: the QUALIFIED-QUALIFIED pair is MEASURED (golden/e49p2) and is
          lowered by the NEXT arm through `str_cmp_shape_fix_mm' -- NOT here, because it takes no
          pooled literal and parks on the STACK instead of `EB'.  The STORE value, the truthiness
-         and any member pair with a BARE side keep falling to the refusal site (s3). *)
+         and any member pair with a BARE side keep falling to the refusal site (s3).
+         [E2E-49/P3 arm a, RESULTS s2.1/s2.6] the two immediates below became CONDITIONAL: at
+         EQUAL positional attributes this template collapses to `06 n / 78' in BOTH orientations —
+         staged member-left (E49C1 `= /E49C3 `^=', CODE 65, was 66) and direct literal-left
+         (E49C2/E49C4, CODE 64, was 65).  The [C338] TBD is settled: the collapse is a `?SCCCM'
+         LENGTH-PAIR law keyed on equality of the attributes, whatever their source; unequal
+         objects (E48E7, E49A*, and this round's E49D4, E49E1/E2) keep `MVI B / MVI A'. *)
       let (hl_fn, de_fn, b_len, a_len) =
         match str_cmp_shape_fix st l rr with Some x -> x | None -> assert false
       in
       hl_fn ();
       de_fn ();
       d st op_mvi_b; d st b_len;
-      d st op_mvi_a; d st a_len;
+      (* [E2E-49/P3 arm a -- RESULTS s2.1] equal attributes: `MOV A,B', NO `MVI A' anywhere —
+         the same collapse byte measured member-vs-member by [C338] (E49B1/B2/B5). *)
+      if b_len = a_len then d st op_mov_a_b
+      else begin d st op_mvi_a; d st a_len end;
       call_ext st "?SCCCM";
       d st (if r = Ast.Eq then 0xc2 else 0xca);
       st.last_imm <- None;
@@ -7953,6 +7973,9 @@ let lower_test_skip0 st (c : Ast.expr) =
          bundled thunk (stack parking [C141], written order, [C191] final registers); the length
          pair is POSITIONAL [C334] with the measured equal-extent COLLAPSE to `MOV A,B' (s2.2),
          measured on member-vs-member ONLY -- the arm above keeps two immediates for a literal.
+         SUPERSEDED in part 2026-11-01 by [E2E-49/P3 arm a, RESULTS s2.1]: the arm above now
+         COLLAPSES too when the positional pair is equal (E49C1..C4) — equality of the attributes
+         is the whole condition.
          `=' C2 / `^=' CA (s2.5 extends [C333] s2.5 to the stacked head) and the [C309] fill.
          Admission is QUALIFIED-QUALIFIED: `str_cmp_shape_fix_mm' matches `ImemF/ImemF' alone, so
          any BARE side (RESULTS s3) falls through to the refusal site, exactly as the encoder
