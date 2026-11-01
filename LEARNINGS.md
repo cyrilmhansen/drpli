@@ -988,3 +988,52 @@ The guard never writes this file.
   census re-snapshot; COVERAGE rows + labelled SUPERSEDED clauses where P1/P2
   boundaries were falsified (C338 scope, P1 left-side-only, relations-beyond);
   FULL compile-tier gate with ACTUALS AS PRINTED; then CLOSE per HANDOFF.
+
+## 2026-11-01 — E2E-49/P3 step 6 part 1 LANDED (ledger + registration; renewal 3/12, HEAD `4b51bc0`)
+
+* **accepted (landed)** — step 6 part 1 committed ALONE at `4b51bc0`: claims
+  **C342..C347** appended to `spec/CLAIMS.md`, derived ONLY from
+  `spec/lab-evidence/e2e49-p3/RESULTS.md` s2 (six numbered laws, one claim each:
+  C342 collapse = LENGTH-PAIR law in BOTH literal templates; C343 CA on the direct
+  template + the [C309] fill in all fourteen; C344 qualification invisible in every
+  measured encoding, bare RIGHT of a literal admitted; C345 over-extent literal-LEFT
+  accepted, pooled whole, NO ARM; C346 ordered relations -- same helper/parking, ORDER
+  law (`<`,`>=` written; `>`,`<=` swapped) and BRANCH law (strict JNC d2 / weak JC da),
+  positional on LOWERED operands, collapse inside relations; C347 sizes and the
+  [C314] DATA frame in all fourteen).  Labelled CORRECTION appends with the falsified
+  text kept VERBATIM (PROTOCOL #2) at [C335], [C336], [C337], [C338].
+* **accepted (registration)** — SPECIMENS +14 (E49C1..C4/D1..D4/E1..E2/F1..F4 ->
+  golden/e49p3), sanctioned `--update-inventory` wrote exactly 14 rows, panel
+  **1136 -> 1150** entries; census re-snapshot with counts **UNCHANGED** EXACT 15 /
+  DIFFERS 0 / REFUSED 26 / UNEXPECTED 0 (metadata only: head 1da795d, binary md5
+  335d69c6).  Recipe: `cp spec/census/corpus-census.json /tmp/census-prev-p3.json &&
+  python3 tools/corpus_census.py --check /tmp/census-prev-p3.json`.
+* **accepted (measured here)** — ACTUALS on the committed part-1 tree: `dune build`
+  rc=0; FULL compile-tier gate `python3 tools/e2e_gate.py` rc=0 with byte panel
+  **1150 byte-exact / 0 fail of 1150** (all fourteen e49p3 specimens print
+  `BYTE-EXACT ... (256 bytes)`), negative **181/181** with the E46K14 `[dr-refuses]`
+  pinned marker UNMOVED, divergence **9/9**, coverage **125 rows, 0 errors, 0
+  warnings**, census unchanged, prose **5 active files clean**.  No `ocaml/` byte
+  changed in this commit.
+* **accepted (evidence cross-check)** — the RESULTS s2.1 wording "six collapse
+  objects" NAMES SEVEN (B1,B2,B5,C1,C2,C3,C4); a mechanical scan of the goldens'
+  code bytes confirms `06 n / 78` with no `MVI A` in exactly those seven (plus
+  D1..D3, which are byte-identical to B1, and F1/F3, 12 collapse objects in all).
+  The slip is recorded as a COUNT NOTE inside [C342] and the evidence file is left
+  untouched -- the honest handling of an arithmetic error in a protected record.
+* **accepted (reading lesson)** — RESULTS s0's "eight B/D rows / four A rows / two
+  C rows" uses BASELINE-MINE's PANEL letters (A=C-probes, B=D-probes, C=E-probes,
+  D=F-probes), not the probe letters; it looked like a typo until the baseline file
+  was read.  Round documents cross-reference panel labels across files; check the
+  referenced file before "correcting" an apparent slip.
+* **proposed (part 2 plan, unchanged from the arms' evidence)** — four NEW COVERAGE
+  rows: COND.FIXED_CMP_COLLAPSE_BOTH_TEMPLATES (E49C1..C4, EXACT:4, MEASURED),
+  COND.FIXED_CMP_QUALIFICATION_INVISIBLE (E49D1..D4, EXACT:4, MEASURED),
+  COND.FIXED_CMP_OVER_EXTENT_LITERAL_LEFT (E49E1,E49E2, EXACT:2, SINGLE_SAMPLE -- only
+  two objects), COND.FIXED_RELATION_MEMBER_PAIR (E49F1..F4, EXACT:4, MEASURED); then
+  widen COND.CMP_LENGTHS_POSITIONAL (+E49F2,E49F4 -> EXACT:10, +[C346]) and add labelled
+  SUPERSEDED clauses to rows COND.FIXED_MEMBER_TEST_SCCCM, COND.FIXED_MEMBER_BARE_LEFT,
+  COND.FIXED_CMP_OVER_EXTENT, COND.FIXED_MEMBER_MEMBER_TEST,
+  COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE -- originals verbatim, 15-column layout per the
+  file header (id category construct contract perimeter manual_ref dr_status
+  mine_status rel_parity runtime probes corpus boundary confidence provenance).

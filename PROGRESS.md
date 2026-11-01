@@ -3,38 +3,34 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P3 IN FLIGHT (ALL THREE ARMS LANDED, committed ALONE; step 6 owed)
+## Current phase — E2E-49/P3 step 6 IN FLIGHT: part 1 LANDED (`4b51bc0`); COVERAGE 2a/2b + FULL gate record + CLOSE owed
 
 - Chain: pre-registration `3659f5d` (14 probes E49C1..C4/D1..D4/E1..E2/F1..F4 +
-  mkprobes.py + HYPOTHESES.md + BASELINE-MINE at 685741c) committed BEFORE any oracle
-  call; fill-in `0a46824`; ONE grouped batch run, tag `e49p3`, **14 ok / 14 — NO
-  dr-refuses**; goldens + `spec/lab-evidence/e2e49-p3/RESULTS.md` `ad90425`.
-- Measured laws (RESULTS s2): collapse `06 n/78` is a LENGTH-PAIR law — BOTH literal
-  templates collapse at equal attributes ([C338] TBD settled; H-AK falsified); CA on
-  the direct template (C4/E2); qualification INVISIBLE — D1/D2/D3 == E49B1, D4 admits
-  bare-RIGHT-of-literal (P1 asymmetry was evidence boundary, not a DR gate);
-  over-extent literal-LEFT accepted whole and **byte-identical to my baseline
-  (E49E1/E2: NO ARM)**; relations `< > <= >=` ACCEPTED on the stacked ?SCCCM head —
-  `<`/`>=` written order, `>`/`<=` SWAPPED, strict skip JNC `d2` / weak JC `da`,
-  lengths positional on lowered operands, collapse applies (?CX* prior falsified).
-- Classification: 12 `my-gap` (C1..C4 collapse; D1..D4 admission; F1..F4 relations),
-  2 already byte-exact (E1/E2), 0 `dr-refuses`. NO spec/RUNTIME.txt row from this
-  round.
-- **ARMS LANDED (2026-11-01, this session):** a `a540fa7` collapse `06 n/78` in BOTH
-  literal templates (E49C1..C4 whole-file BYTE-EXACT); b `0a1b80c` `ImemFb` admitted in
-  `str_cmp_shape_fix_mm` + the Lit-LEFT arm of `str_cmp_shape_fix`, mirrored in
-  `is_test_right` in the SAME commit (E49D1..D4 BYTE-EXACT; bare-in-relation and bare-mm
-  STORE still rc=2); c `cde3258` NEW `str_cmp_shape_fix_rel` + caller route, EqR
-  (Lt|Le|Gt|Ge) QUALIFIED-QUALIFIED `ImemF/ImemF` ONLY, `</>=` written / `>`,`<=` swapped,
-  JNC `d2` strict / JC `da` weak, positional lengths on LOWERED operands with the equal
-  collapse (E49F1..F4 BYTE-EXACT). ALL 14 e49p3 goldens byte-exact; E46K14 pinned marker
-  UNMOVED; FULL gate rc=0 at each arm (panel 1136/0, neg 181/181, div 9/9, cov 125/0/0,
-  census 15/0/26/0, prose 5 clean). LEARNINGS 2026-11-01 "ARMS LANDED" section carries
-  the classified ACTUALS.
-- NEXT: step 6 — claims from **C342** (RESULTS s2 ONLY), SPECIMENS +14, sanctioned
-  `--update-inventory` (panel -> 1150), census re-snapshot, COVERAGE rows + labelled
-  SUPERSEDED clauses, FULL compile-tier gate record; then CLOSE. Exact procedure in
-  `HANDOFF.md` → Next action.
+  mkprobes.py + HYPOTHESES.md + BASELINE-MINE at 685741c) BEFORE any oracle call; fill-in
+  `0a46824`; ONE grouped batch run, tag `e49p3`, **14 ok / 14 — NO dr-refuses**; goldens +
+  RESULTS `ad90425`; arms a `a540fa7`, b `0a1b80c`, c `cde3258` (each ALONE, 14/14
+  whole-file BYTE-EXACT, gate rc=0 at each; E49E1/E2 needed NO code).
+- STEP 6 PART 1 `4b51bc0` (no `ocaml/` byte changed): claims **C342..C347** derived ONLY
+  from RESULTS s2 (collapse = LENGTH-PAIR law in BOTH literal templates; CA + [C309] fill
+  measured on the direct template; qualification invisible, bare RIGHT of a literal
+  admitted; over-extent literal-LEFT accepted/pooled whole, NO ARM; ordered relations with
+  the ORDER law (`<`,`>=` written / `>`,`<=` swapped) and BRANCH law (strict JNC `d2`, weak
+  JC `da`) and positional lengths on LOWERED operands; sizes + [C314] DATA in all
+  fourteen), labelled CORRECTION appends with originals verbatim at [C335]/[C336]/[C337]/
+  [C338], SPECIMENS +14, sanctioned `--update-inventory` (panel **1150**, exactly +14
+  rows), census re-snapshot counts UNCHANGED **15/0/26/0** (head `1da795d`, md5
+  `335d69c6`). COUNT NOTE: RESULTS s2.1 says "six collapse objects" and NAMES SEVEN —
+  recorded in [C342], evidence file untouched.
+- ACTUALS measured by THIS session on the committed part-1 tree: `dune build` rc=0; FULL
+  compile-tier gate `python3 tools/e2e_gate.py` **rc=0** — byte panel **1150 byte-exact /
+  0 fail of 1150**, negative **181/181** (E46K14 `[dr-refuses]` pinned marker UNMOVED),
+  divergence **9/9**, coverage **125 rows, 0 errors, 0 warnings**, census unchanged
+  15/0/26/0, prose **5 active files clean**.
+- NEXT: step 6 parts 2a/2b (COVERAGE rows + widening + labelled SUPERSEDED clauses) and
+  the final FULL gate record, then CLOSE. EXACT procedure and planned row ids in
+  `HANDOFF.md` -> Next action items 2-3.
+- Working tree at this boundary: the guard's managed blocks in HANDOFF.md/PROGRESS.md plus
+  the OPERATOR's `handoff.config.json` edit (never staged, never touched).
 
 ## Previous phase — E2E-49/P2 CLOSED (FULL compile-tier gate rc=0 measured at HEAD `d5983e8`, recorded `8926b83`)
 
@@ -184,48 +180,47 @@ dated `LEARNINGS.md` sections. Round evidence: `golden/e49p2/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 81
-checkpoint-id: g81-77b95c8b990e
-checkpoint-kind: auto
+checkpoint-generation: 82
+checkpoint-id: g82-eb070d852cef
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-01T07:22:49.996Z
+guard-level: 2
+checkpointed: 2026-11-01T07:47:06.190Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 96a225725466ab7e0026ce263cb8295323668314f64e17dcc8498e2d10fea8a2
-source-handoff: ef59e7df0436c69bb1511a8f6339f8e84ecc539a9c8a396f1b74b070362ba639
-source-learnings: 2070ed6feb37d0132e2c0fac3e0af95dad5182fd6a1c71b26e680d589da5e561
+source-progress: 48a8de5ecac96154fb79e4e692eb3312bacee30d36b8179dd40b83fddbbe8f5f
+source-handoff: dd029d2a91aea64d93c7fd540cfc274109a1c702602ecc3ce2b10be5aca54d83
+source-learnings: 429a1fdac726660656c505cec218e5de3240902bd8316ee9648ee46fa987b766
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P3 IN FLIGHT: implement the three arms, then step 6 and CLOSE
+next-action: — E2E-49/P3 step 6 IN FLIGHT: claims, registration, COVERAGE, FULL gate; then CLOSE
 
-1. ARMS (each committed ALONE, whole-file `cmp` against `golden/e49p3/<N>/<N>.REL`,
-   then regression: `dune build`; gate `--only` over E48/E49 families and the
-   registered panel; expect panel 1136 unchanged until step 6 registers +14):
-   a. Collapse in BOTH literal templates of `str_cmp_shape_fix`: when the positional
-      pair is EQUAL emit `06 n / 78` (RESULTS s2.1; E49C1..C4). Unequal objects
-      (E48E7/E49A*/E49D4/E49E*) keep two immediates — no regression there.
-   b. Admit `ImemFb` in `str_cmp_shape_fix_mm` and in the literal-RIGHT arm of
-      `str_cmp_shape_fix`, mirrored in the prescan demand twin `is_test_right`
-      (RESULTS s2.3; E49D1..D4 byte-identical to E49B1/E48E7-template objects).
-   c. NEW relations route: `EqR (Lt|Le|Gt|Ge)` with QUALIFIED-QUALIFIED `ImemF/ImemF`
-      ONLY (bare-in-relation UNMEASURED — keep refusing), stacked head, `<`/`>=`
-      written order and `>`/`<=` SWAPPED, positional lengths ON THE LOWERED OPERANDS
-      with the equal collapse, skip JNC `0xd2` strict / JC `0xda` weak, [C309] fill
-      (RESULTS s2.5; E49F1..F4).
-   E49E1/E2 need NO code (already byte-exact).
-2. STEP 6: claims from **C342** derived ONLY from RESULTS §2; SPECIMENS bank +14 in
-   `tools/e2e_gate.py`; sanctioned `--update-inventory`; census re-snapshot; COVERAGE
-   rows + labelled SUPERSEDED clauses where P1/P2 boundaries are falsified; FULL
-   compile-tier gate, record ACTUALS AS PRINTED.
+1. ARMS DONE (each committed ALONE, 14/14 goldens whole-file BYTE-EXACT, gate rc=0 at
+   each): a `a540fa7` (collapse in BOTH literal templates, E49C1..C4), b `0a1b80c`
+   (`ImemFb` in fix_mm + Lit-LEFT arm + `is_test_right` twin, E49D1..D4), c `cde3258`
+   (`str_cmp_shape_fix_rel` + EqR Lt/Le/Gt/Ge route QUALIFIED-QUALIFIED ONLY, swap
+   `>`/`<=`, JNC d2/JC da, positional-collapse on LOWERED operands, E49F1..F4).
+   E49E1/E2 needed NO code. Panel stayed 1136/0, neg 181/181 (E46K14 marker UNMOVED),
+   bare-in-relation / rel-with-literal / relation-in-STORE / bare-mm STORE all rc=2.
+2. STEP 6 (the active work): claims from **C342** derived ONLY from
+   `spec/lab-evidence/e2e49-p3/RESULTS.md` §2 (the P3 block starts at the end of the
+   C341 entry; mimic the C337..C341 format; the ledger currently ENDS at C341). Then
+   SPECIMENS bank +14 in `tools/e2e_gate.py` (round-bank comment style of E49A/E49B,
+   pre-registration cite `3659f5d`, probes/E49{C1..C4,D1..D4,E1..E2,F1..F4}.PLI ->
+   golden/e49p3/<N>/<N>.REL); sanctioned `python3 tools/e2e_gate.py --update-inventory`
+   (panel 1136 -> 1150); census re-snapshot per the P2 recipe (commit `0abf1c1` shows
+   the exact commands); COVERAGE rows (new EXACT entries for the collapse law, the
+   qualification fold, relations) + labelled SUPERSEDED clauses where P1/P2 boundaries
+   were falsified (C338 scope, P1 left-side-only, relations-beyond-=^=) — PROTOCOL #2,
+   originals verbatim; then FULL compile-tier gate, record ACTUALS AS PRINTED.
 3. CLOSE: archive superseded prose verbatim to `docs/history/`, rewrite HANDOFF/
    PROGRESS to CLOSED, LEARNINGS close notes, `/handoff finalize`.
 4. Standing: probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no var named
    `c`; goldens untouched except e49p3; NO spec/RUNTIME.txt row from the compare
    families; never touch the operator's `handoff.config.json` edit; renewal values
    ONLY in `handoff.config.json` / `/guard status`; no push.
-readiness-by: session:01a195e9-4828-7195-ad35-f2d4b10efaf5
-readiness-at: 2026-11-01T07:23:09.456Z
-readiness-checkpoint: g81-77b95c8b990e
+readiness-by: session:01a195fd-fc1b-7195-ad35-f2d9fed8e5b7
+readiness-at: 2026-11-01T07:47:06.193Z
+readiness-checkpoint: g82-eb070d852cef
 <!-- guard:end checkpoint -->
 
 ## Blockers
