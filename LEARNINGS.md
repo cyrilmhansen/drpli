@@ -1678,3 +1678,13 @@ The guard never writes this file.
 - **PROPOSED (harness polish, unverified):** `evidence:` is printed relative to the repo root (a
   /tmp root prints many `../`); the `-d` size banner is optional in the record; Lane A artifact
   hash identity is recorded in `substrate_identity`. Fix only if step 6 shows it matters.
+
+## 2026-11-02 — E2E-50/P2 renewal hop 4 (step 5 part 2, hostile suite)
+
+**ACCEPTED (measured, `d40aafb`/`149c6e2`, suite rc=0, 148 checks, zero external processes):**
+- The step-5 part-1 harness had TWO laundered/broken paths the suite exposed: `_rname` referenced 7x but never defined (attempted Lane A RUN raised NameError and crashed run_test; Lane B caught it and reported harness-exception/UNKNOWN — a silent no-PASS but unusable path), and `assert_stream` eagerly formatted `got[None]` (TypeError) when streams differed only by length. Both fixed, both pinned by checks (C12/C11, C5).
+- Host(link_deps=...) takes a LIST, not a callable (returned verbatim) — hostile-suite authoring fact.
+- --stages gates COMPILE/LINK/RUN only; DERIVATION and ASSERT always execute (evaluation stages). A SOURCE..RUN ceiling therefore yields an evidence-backed PASS; README 8 keys on execution, not the CLI list — no laundering, but the --stages help text overpromises.
+- [C137] trap re-proven mechanically: linkrun.parse_undefined(FULL)==[PLIINP] while the [:120] slice reads clean; harness FAILs the deep-UNDEFINED link before ever exporting.
+
+**PROPOSED (unverified):** fix the `--stages` CLI help wording; consider gating DERIVATION/ASSERT under the ceiling for strict smoke symmetry.
