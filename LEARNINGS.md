@@ -1204,3 +1204,45 @@ The guard never writes this file.
   round before committing — 0a46824 crept into my round-bank header and was caught.
 - PROPOSED (unverified): none new. The P3-era proposals (bank out-of-scope member-pair
   refusals as NEG rows; bundled-head invariant per-shape) stay proposals.
+
+## 2026-11-01 — E2E-49/P4 step-6 completion (renewal-5 session, accepted unless marked)
+
+- ACCEPTED (measured): STEP 6 COMPLETE. Registration `cc43963` (SPECIMENS +24 round
+  bank, sanctioned `--update-inventory` 1150 -> 1174 entries / 1359 lines, census
+  re-snapshot counts UNCHANGED 15/0/26/0, metadata only head e13311c binary bc6c5e9b);
+  part 2a `dbaf004` (COND.FIXED_RELATION_LITERAL G1..G8 EXACT:8,
+  COND.FIXED_RELATION_QUALIFICATION H1..H6 EXACT:6, COND.FIXED_RELATION_UNEQUAL_MATRIX
+  I1..I6 EXACT:6, COND.FIXED_CMP_NEGATED_COMPLEMENT J1..J4 EXACT:4 — all MEASURED,
+  byte tier; 133 rows); part 2b `5aeac87` (CMP_LENGTHS_POSITIONAL +G3..G6 EXACT:14 and
+  four labelled SUPERSEDED/WIDENED clauses, all five quotes byte-checked against the
+  pre-edit blob `cc43963`, [C104] cited, never legacy [C027]/[C072]); part 2c `5b0ccde`
+  (labelled [E2E-49/P4 WORDING CORRECTION] at [C348] — BOTH quoted slips (the ledger
+  sentence and RESULTS §2.1 "...now measured for all four relations.") resolved
+  whitespace-normalized before insert; evidence file untouched, [C342] COUNT NOTE
+  precedent). FULL compile-tier gate rc=0 measured by THIS session at HEAD `5b0ccde`,
+  ACTUALS AS PRINTED: byte panel 1174 byte-exact / 0 fail of 1174 (all 24 e49p4
+  specimens BYTE-EXACT 256 bytes whole-file), negative 181/181 with the E46K14
+  [dr-refuses] pinned marker UNMOVED, divergence 9/9, coverage 133 rows 0 errors
+  0 warnings, census counts UNCHANGED, prose 5 active files clean; `dune build` rc=0.
+- ACCEPTED (gate design, first time written down): `tools/e2e_gate.py` prints the
+  coverage/census/prose panels, then runs the INVENTORY integrity check BEFORE the
+  expensive byte panel and ABORTS rc=2 when SPECIMENS leads spec/INVENTORY.txt — the
+  24-entry "ADDED without an inventory update" list IS the registration check working
+  as designed. The byte-panel ACTUAL therefore always comes from the run AFTER the
+  sanctioned `--update-inventory` (same cycle as P3 `4b51bc0`, now measured and
+  understood: the pre-write rc=2 is not a failure to chase).
+- FALSIFIED (wording, mine, this session): my part-2b draft for COND.FIXED_CMP_
+  COLLAPSE_BOTH_TEMPLATES claimed equal-attribute "`>` AND `<=` at 3/3 inside a
+  relation NEVER SAMPLED in any bank" — the `<=` half is FALSE: E49F3
+  (`rec.na <= rec.nb`) collapses at 3/3 on the STACKED template ([C346]). Fixed in
+  the committed row by amending my OWN unpushed commit (55053bd -> 5aeac87); the
+  falsified wording survives verbatim in that superseded message and is recorded
+  traceably here and in the gate-record commit (9799f1d precedent — history NOT
+  rewritten). Lesson: every "NEVER SAMPLED" sentence must enumerate its witnesses
+  against the ledger before it is committed.
+- ACCEPTED (tooling): `tools/coverage_check.py` rewrites spec/census/coverage-stats.
+  json on every rc=0 run; MEASURED rows need at least one cited probe token to appear
+  in the cited claims/notes text (stem matching accepts `E49G1..G8` for token E49G1);
+  `rel_parity EXACT:n` is not machine-checked against the probes list but house
+  convention keeps them equal (CMP_LENGTHS_POSITIONAL now 14/14).
+- PROPOSED: none new. Standing P3-era proposals unchanged.

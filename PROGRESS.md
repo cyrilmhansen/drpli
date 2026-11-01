@@ -3,7 +3,37 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P4 IN FLIGHT: ARMS a/b/c ALL LANDED; step 6 IN PROGRESS (claims committed; registration/inventory/census/COVERAGE/FULL-gate + CLOSE owed)
+## Current phase — E2E-49/P4: STEP 6 COMPLETE (all parts landed; FULL gate rc=0 ACTUALS at `5b0ccde`); ONE step OWED — CLOSE per PLAN §6
+
+- STATUS 2026-11-01 (this renewal-5 session, accepted): **STEP 6 DONE end to end.**
+  Registration `cc43963` (SPECIMENS +24 round bank; sanctioned `--update-inventory`
+  panel 1150 -> 1174 entries; census re-snapshot counts UNCHANGED 15/0/26/0, metadata
+  only). COVERAGE part 2a `dbaf004` (four new rows RELATION_LITERAL G EXACT:8,
+  RELATION_QUALIFICATION H EXACT:6, RELATION_UNEQUAL_MATRIX I EXACT:6,
+  CMP_NEGATED_COMPLEMENT J EXACT:4; 133 rows 0/0; stats re-snapshotted). Part 2b
+  `5aeac87` (CMP_LENGTHS_POSITIONAL +G3..G6 EXACT:14 + four labelled SUPERSEDED/
+  WIDENED clauses; all five quotes byte-checked vs the pre-edit blob `cc43963`;
+  [C104] cited, never legacy). Part 2c `5b0ccde` (labelled WORDING CORRECTION at
+  [C348]: "ALL FOUR relations" contradicts its own enumeration — collapse witnesses
+  F1 `<`, F3 `<=`, G1/G2 `<`, G7/G8 `>=`; equal-attribute `>` NEVER sampled; RESULTS
+  §2.1 slip quoted verbatim, evidence untouched). TRACEABLE SLIP (PROTOCOL #2,
+  9799f1d precedent): part 2b's ORIGINAL message (55053bd, amended to 5aeac87 before
+  anything referenced it) says "`>` AND `<=` at 3/3 ... NEVER SAMPLED" — the `<=` half
+  is FALSE (F3 collapses at 3/3 stacked); the committed row text and the [C348]
+  correction are the governing truth. FULL compile-tier gate rc=0 measured by THIS
+  session at HEAD `5b0ccde`, ACTUALS AS PRINTED: byte panel **1174 byte-exact / 0
+  fail of 1174** (all 24 e49p4 specimens whole-file BYTE-EXACT 256 bytes), negative
+  **181/181** (E46K14 `[dr-refuses]` marker UNMOVED), divergence **9/9**, coverage
+  **133 rows 0 errors 0 warnings**, census counts UNCHANGED **15/0/26/0**, prose
+  **5 active files clean**; `dune build` rc=0. MEASURED GATE DESIGN (first time
+  recorded): the gate prints coverage/census/prose, then the INVENTORY integrity
+  check ABORTS rc=2 BEFORE the byte panel while SPECIMENS leads INVENTORY.txt — the
+  panel ACTUAL comes from the post-`--update-inventory` run (the P3 `4b51bc0` cycle,
+  now understood). **ONE STEP OWED: CLOSE per PLAN §6** — byte-verified archive of
+  the superseded arms-era AND step-6-era prose against stated git ranges into
+  `docs/history/2026-11-01-e49p4-closed.md`, rewrite HANDOFF/PROGRESS/LEARNINGS, add
+  the `docs/history/README.md` index row, leave ONE active Next action, run
+  `handoff_finalize`, STOP. NEVER push; no P5; byte tier only.
 
 - STATUS 2026-11-01 (this renewal-4 session, accepted): step 6 part 1b COMMITTED at
   `9c42f3b`: FOUR labelled [E2E-49/P4 CORRECTION(S)] blocks appended at [C335]/[C337]/
@@ -267,17 +297,17 @@ records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 98
-checkpoint-id: g98-37c7c821b417
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 100
+checkpoint-id: g100-f3ad491aa9c1
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-01T13:24:09.177Z
+checkpointed: 2026-11-01T13:26:46.074Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5d4e26be2b6a5132a19061543d6976c5ec7a91c60e48e59e3d94831d38c88262
-source-handoff: 6139c36eab87abc1eaa0c5db62446af203dbf5c63d6d9129c1e0c995f1384788
-source-learnings: 3155fc57b9c8dc776afb1f5dd41faa7076c82f4ff6c3e8b3e499c9db42859898
+source-progress: becf1f9fd08520c5585e48de9291ee933b65bed486a305436c295240ff98e0bc
+source-handoff: f1f92c45ebfdfd604cca2e36d6c6c25cc8e1b1bbeca656333fdf9000f0aa0302
+source-learnings: 7e285c25b3b51b33790f35d55558c64f2139b6f26d24c192c3fc64c636bea140
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-49/P4: ARMS a/b/c ALL LANDED; STEP 6 IN PROGRESS (claims `aec53e1`; registration/inventory/census/COVERAGE/FULL-gate owed), then CLOSE
 
@@ -287,26 +317,45 @@ next-action: — E2E-49/P4: ARMS a/b/c ALL LANDED; STEP 6 IN PROGRESS (claims `a
    gate rc=0 at every arm (panel 1150, e49p4 UNregistered). Step 6 part 1 `aec53e1`:
    claims **C348..C351** from RESULTS §2 ONLY; ledger ENDS at **C351** — no claim ids
    are owed.
-2. NEXT CONCRETE STEPS (step 6 remainder, per spec/lab-evidence/e2e49-p4/PLAN.md §Procedure
-   5; commit parts in the P3 style 4b51bc0/8d3b024/8771e1e): (i) SPECIMENS round-bank
-   block +24 rows (E49G1..G8/H1..H6/I1..I6/J1..J4 vs golden/e49p4/<n>/<n>.REL) in
-   tools/e2e_gate.py — panel expected 1174 but the ACTUAL printed number governs, never
-   invent; (ii) sanctioned `python3 tools/e2e_gate.py --update-inventory` (spec/
-   INVENTORY.txt rows); (iii) census re-snapshot per the `4b51bc0` recipe (counts UNLESS
-   changed are reprinted by the gate); (iv) COVERAGE.tsv rows — byte tier only, widenings
-   carry labelled SUPERSEDED clauses with quotes byte-checked against the pre-edit blob,
-   provenance ids resolve via tools/coverage_check.py, the numeric ORDER law is [C104]
-   NEVER legacy [C027]/[C072]; (v) FULL compile-tier gate rc=0 with ACTUALS AS PRINTED.
-   Then CLOSE per PLAN §Procedure 6: archive superseded prose byte-verified vs stated git
-   ranges BEFORE replacing (generations: arms-era + step-6-era), rewrite
-   HANDOFF/PROGRESS/LEARNINGS, docs/history/README.md index row, exactly ONE active Next
-   action, `/handoff finalize`, STOP.
+2. NEXT CONCRETE STEPS (step 6 remainder; HEAD NOW `9c42f3b` = ledger part 1b: FOUR
+   labelled [E2E-49/P4 CORRECTION(S)] blocks at [C335]/[C337]/[C344]/[C346], quotes
+   byte-checked; dune rc=0; ocaml/ untouched). DIRTY NOW: tools/e2e_gate.py holds the
+   UNCOMMITTED SPECIMENS +24 round-bank block (E49G1..G8/H1..H6/I1..I6/J1..J4 vs
+   golden/e49p4/<n>/<n>.REL; P4 had NO separate fill-in commit -- pre-registration
+   328eb3f, BASELINE-MINE binary 398fa2c, goldens+RESULTS 13fca5b, repair 9799f1d, arms
+   c515377/ec904c1/47c2194). Sequence: (i) run `python3 tools/e2e_gate.py` on that tree
+   -- the ACTUAL printed panel governs (expected 1174); all 24 must print BYTE-EXACT
+   256 bytes; (ii) sanctioned `python3 tools/e2e_gate.py --update-inventory`;
+   (iii) census re-snapshot per the `4b51bc0` recipe (`python3 tools/corpus_census.py`;
+   counts expected UNCHANGED 15/0/26/0 -- the gate reprints actuals); commit (i)-(iii)
+   as ONE registration commit (4b51bc0 style); (iv) COVERAGE part 2a: FOUR new rows
+   COND.FIXED_RELATION_LITERAL (E49G1..G8, EXACT:8, MEASURED, [C348]),
+   COND.FIXED_RELATION_QUALIFICATION (E49H1..H6, EXACT:6, MEASURED, [C349]),
+   COND.FIXED_RELATION_UNEQUAL_MATRIX (E49I1..I6, EXACT:6, MEASURED, [C350]),
+   COND.FIXED_CMP_NEGATED_COMPLEMENT (E49J1..J4, EXACT:4, MEASURED, [C351]); byte tier
+   only; `python3 tools/coverage_check.py` rc=0 re-snapshots coverage-stats.json
+   (expected 133 rows 0/0); (v) part 2b widenings + labelled SUPERSEDED clauses, quotes
+   byte-checked vs the pre-edit blob: COND.CMP_LENGTHS_POSITIONAL EXTENDED +G3..G6
+   EXACT:14; COND.FIXED_CMP_QUALIFICATION_INVISIBLE, COND.FIXED_RELATION_MEMBER_PAIR,
+   COND.FIXED_MEMBER_MEMBER_TEST, COND.FIXED_CMP_COLLAPSE_BOTH_TEMPLATES; cite [C104]
+   NEVER legacy [C027]/[C072]; (vi) part 2c: labelled WORDING CORRECTION at [C348]
+   (4df35bb style): its collapse sentence says ALL FOUR relations but enumerates only
+   G1/G2 (`<`) and G7/G8 (`>=`); family witnesses F1 `<`, F3 `<=`, G1/G2 `<`, G7/G8
+   `>=`; equal-attribute `>` NEVER sampled; RESULTS s2.1 carries the same slip -- quote
+   both verbatim, evidence file untouched; (vii) FULL gate rc=0, ACTUALS AS PRINTED;
+   then CLOSE per PLAN s6: archive superseded prose (arms-era + step-6-era) byte-
+   verified vs stated git ranges BEFORE replacing into docs/history/, rewrite
+   HANDOFF/PROGRESS/LEARNINGS, docs/history/README.md index row, ONE active Next
+   action, handoff_finalize, STOP.
 3. Standing boundaries: operator authorization covers arms→consolidation→CLOSE across
    renewals; NOT P5, NOT push, NOT STORE/BASED/truthiness/literal-vs-literal/runtime
    (RESULTS §3 shapes keep refusing BY NAME). Byte tier only. `eval $(opam env)` before
    dune; goldens untouched (golden/e49p4 complete since `13fca5b`); never git
    clean/reset/add -A; the dirty handoff.config.json is the OPERATOR's standing edit —
    never touch/stage/commit/revert it.
+readiness-by: session:01a19735-c0cb-71b9-af89-537a8f523410
+readiness-at: 2026-11-01T13:26:46.078Z
+readiness-checkpoint: g100-f3ad491aa9c1
 <!-- guard:end checkpoint -->
 
 ## Blockers
