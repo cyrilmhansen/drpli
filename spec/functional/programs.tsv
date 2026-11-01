@@ -1,0 +1,81 @@
+# spec/functional/programs.tsv -- representative-program inventory (E2E-50/P1 ANNOTATION, not a ledger).
+# Columns (tab-separated): id  source  origin  capabilities  note
+#   id           inventory/census name when the entry is panel-registered; otherwise a stable local id.
+#   source       existing file path (artefacts/, probes/, e1?src/, negsrc/) -- validated to exist.
+#   origin       HISTORICAL (DR distribution census program) | FOCUSED (meaningful whole program
+#                exercising a recognizable capability) | MICROPROBE (round-bank probe written to
+#                discriminate a codegen hypothesis). COUNTS ARE NEVER SUMMED ACROSS CLASSES.
+#   capabilities capability ids from capabilities.tsv (semicolon-separated), or NONE.
+#   note         why the entry is representative; verdicts are NEVER written here -- derived.
+# HISTORICAL capability ids are the INVERSION of the corpus_programs citations in capabilities.tsv;
+# NONE means no capability cites that program (absence is not a verdict). Registration kind is not
+# asserted here -- tools/functional_dashboard.py resolves names via panel_keys.load()/census/RUNTIME.
+id	source	origin	capabilities	note
+A	artefacts/A.PLI	HISTORICAL	ARITH.FIXED_INT;COND.EQUALITY;DECL.PROG_STRUCTURE	historical corpus program (census)
+ACK	artefacts/ACK.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+ACKTST	artefacts/ACKTST.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+ALLTST	artefacts/ALLTST.PLI	HISTORICAL	STOR.POINTER	historical corpus program (census)
+ANNUITY	artefacts/ANNUITY.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+CALL	artefacts/CALL.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+COPY	artefacts/COPY.PLI	HISTORICAL	AGG.STRUCTURE;DECL.FILE_DECL;IO.FILE_SEQUENTIAL	historical corpus program (census)
+COPYLPT	artefacts/COPYLPT.PLI	HISTORICAL	DECL.FILE_DECL;IO.FILE_SEQUENTIAL	historical corpus program (census)
+CREATE	artefacts/CREATE.PLI	HISTORICAL	COND.BIT1;IO.FILE_SEQUENTIAL	historical corpus program (census)
+DECPOLY	artefacts/DECPOLY.PLI	HISTORICAL	ARITH.DECIMAL;TYPE.CONVERT_EXPR	historical corpus program (census)
+DEMO	artefacts/DEMO.PLI	HISTORICAL	AGG.ARRAY_1D;ARITH.FIXED_INT;DECL.SCALAR_TYPES;FLOW.BRANCH_LOOP;IO.CONSOLE	historical corpus program (census)
+DEPREC	artefacts/DEPREC.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+DFACT	artefacts/DFACT.PLI	HISTORICAL	PROC.CALL	historical corpus program (census)
+DIOCALLS	artefacts/DIOCALLS.PLI	HISTORICAL	DECL.SCOPE_QUALIFY;IO.DIRECT_KEYED	historical corpus program (census)
+DIOCOPY	artefacts/DIOCOPY.PLI	HISTORICAL	STOR.POINTER	historical corpus program (census)
+DIORAND	artefacts/DIORAND.PLI	HISTORICAL	STOR.POINTER	historical corpus program (census)
+DTEST	artefacts/DTEST.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+ENTER	artefacts/ENTER.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+EXPR1	artefacts/EXPR1.PLI	HISTORICAL	COND.ON_UNIT	historical corpus program (census)
+EXPR2	artefacts/EXPR2.PLI	HISTORICAL	COND.ON_UNIT;DECL.STORAGE_STATIC	historical corpus program (census)
+FDTEST	artefacts/FDTEST.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+FFACT	artefacts/FFACT.PLI	HISTORICAL	ARITH.FLOAT	historical corpus program (census)
+FLTPOLY	artefacts/FLTPOLY.PLI	HISTORICAL	ARITH.FLOAT;TYPE.CONVERT_EXPR	historical corpus program (census)
+FLTPOLY2	artefacts/FLTPOLY2.PLI	HISTORICAL	ARITH.FLOAT;COND.BIT1	historical corpus program (census)
+FSCAN	artefacts/FSCAN.PLI	HISTORICAL	DECL.STORAGE_STATIC	historical corpus program (census)
+IFACT	artefacts/IFACT.PLI	HISTORICAL	FLOW.BRANCH_LOOP;IO.CONSOLE	historical corpus program (census)
+INVERT	artefacts/INVERT.PLI	HISTORICAL	AGG.MULTIDIM	historical corpus program (census)
+KEYFILE	artefacts/KEYFILE.PLI	HISTORICAL	IO.DIRECT_KEYED;IO.FILE_SEQUENTIAL	historical corpus program (census)
+LABELS	artefacts/LABELS.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+LOAN1	artefacts/LOAN1.PLI	HISTORICAL	DECL.PROG_STRUCTURE;FLOW.BRANCH_LOOP;IO.CONSOLE	historical corpus program (census)
+LOAN2	artefacts/LOAN2.PLI	HISTORICAL	COND.BIT1;DECL.STORAGE_STATIC;IO.FILE_SEQUENTIAL	historical corpus program (census)
+MAININVT	artefacts/MAININVT.PLI	HISTORICAL	AGG.MULTIDIM	historical corpus program (census)
+MPMCALLA	artefacts/MPMCALLA.PLI	HISTORICAL	OBJ.REL_OUTPUT;PROC.CALL;PROC.EXTERNAL_LINK	historical corpus program (census)
+MPMCALLB	artefacts/MPMCALLB.PLI	HISTORICAL	AGG.STRUCTURE;DECL.SCOPE_QUALIFY;DECL.STORAGE_STATIC;PROC.CALL;PROC.EXTERNAL_LINK	historical corpus program (census)
+NETWORK	artefacts/NETWORK.PLI	HISTORICAL	AGG.ARRAY_1D;AGG.STRUCTURE;ARITH.FIXED_INT;BUILTIN.USE;COND.ON_UNIT;DECL.PROG_STRUCTURE;DECL.SCALAR_TYPES;FLOW.BRANCH_LOOP;IO.CONSOLE;OBJ.REL_OUTPUT;PROC.CALL;STOR.LINKED_STRUCTURE;STOR.POINTER	historical corpus program (census)
+OPTIMIST	artefacts/OPTIMIST.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+REPORT	artefacts/REPORT.PLI	HISTORICAL	IO.DIRECT_KEYED	historical corpus program (census)
+RETRIEVE	artefacts/RETRIEVE.PLI	HISTORICAL	DECL.FILE_DECL;IO.FILE_SEQUENTIAL	historical corpus program (census)
+REVERSE	artefacts/REVERSE.PLI	HISTORICAL	AGG.STRUCTURE;BUILTIN.USE;DECL.SCALAR_TYPES;IO.CONSOLE;TYPE.STRING_CONCAT	historical corpus program (census)
+REVERT	artefacts/REVERT.PLI	HISTORICAL	COND.ON_UNIT	historical corpus program (census)
+RFACT	artefacts/RFACT.PLI	HISTORICAL	ARITH.FLOAT;TYPE.CONVERT_EXPR	historical corpus program (census)
+SAMPLE	artefacts/SAMPLE.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+TEST	artefacts/TEST.PLI	HISTORICAL	COND.EQUALITY;DECL.PROG_STRUCTURE;DECL.SCALAR_TYPES	historical corpus program (census)
+UPDATE	artefacts/UPDATE.PLI	HISTORICAL	NONE	historical corpus program (census); cited by no capability
+E16C	e13src/E16C.PLI	FOCUSED	IO.FILE_SEQUENTIAL;DECL.FILE_DECL	complete OPEN/GET/PUT program (stream, TITLE)
+E22A02	e13src/E22A02.PLI	FOCUSED	ARITH.FIXED_INT	scalar arithmetic with constant tracking
+N4	e16src/N4.PLI	FOCUSED	PROC.CALL	call of a valued internal procedure in an expression
+DO1	e24src/DO1.PLI	FOCUSED	PROC.CALL;DECL.PROG_STRUCTURE	nested procedure called by reference (by-value copyin)
+DO2	e24src/DO2.PLI	FOCUSED	FLOW.BRANCH_LOOP;PROC.CALL	DO j = x TO 5 loop inside a nested procedure
+ST1	e15src/ST1.PLI	FOCUSED	DECL.SCALAR_TYPES;DECL.PROG_STRUCTURE	bare FIXED scalar declaration and assignment
+AB1	e21src/AB1.PLI	FOCUSED	AGG.ARRAY_1D	1-D FIXED array, constant subscript read
+AR1	e23src/AR1.PLI	FOCUSED	AGG.ARRAY_1D	1-D FIXED array declaration in a whole program
+MB28	e18src/MB28.PLI	FOCUSED	ARITH.FIXED_INT	expression ladder n*3 + n*2 (parking/const tracking)
+PASSARAY	e20src/PASSARAY.PLI	FOCUSED	AGG.ARRAY_1D;PROC.CALL	passes array members as actual arguments (its stated purpose)
+E34A2	artefacts/E34A2.PLI	FOCUSED	COND.ON_UNIT	ON-unit shape probe (ENDFILE family cited by COVERAGE)
+E35N1	artefacts/E35N1.PLI	FOCUSED	COND.ON_UNIT	ON ENDFILE(<file>) witness cited by COND.ON_ENDFILE_ONLY
+E35N2	artefacts/E35N2.PLI	FOCUSED	COND.ON_UNIT	ON ENDFILE + REVERT witness cited by COND.ON_ENDFILE_ONLY/COND.REVERT
+E36R1	artefacts/E36R1.PLI	FOCUSED	COND.ON_UNIT;FLOW.BRANCH_LOOP	on endfile(sysin) goto loop -- committed source, NOT panel-registered
+E36T6	artefacts/E36T6.PLI	FOCUSED	COND.ON_UNIT;FLOW.BRANCH_LOOP	ON-unit + label + nested procedure
+E46D1	probes/E46D1.PLI	FOCUSED	IO.FILE_SEQUENTIAL;DECL.FILE_DECL	two named stream INPUT files opened and GET
+E46N11	probes/E46N11.PLI	MICROPROBE	IO.FILE_SEQUENTIAL	PUT FILE ... SKIP ladder bank probe
+E46K14	probes/E46K14.PLI	MICROPROBE	AGG.STRUCTURE	internal CHARACTER member truthiness -- pinned [dr-refuses] negative
+E48A14	probes/E48A14.PLI	MICROPROBE	COND.COMPOSE;COND.BIT1	`k = 0 & b' with a BIT(1) operand -- the sole & witness
+E48E6	probes/E48E6.PLI	MICROPROBE	IO.CONSOLE	PUT EDIT of a BIT item: DR REFUSED (`BIT REQ'), NOT registered [C332]
+E49G1	probes/E49G1.PLI	MICROPROBE	COND.STRING_RELATION	ordered relation on a literal, ?SCCCM template bank G
+E49H1	probes/E49H1.PLI	MICROPROBE	COND.STRING_COMPARE	BARE spelling inside an ordered relation, bank H
+E49I1	probes/E49I1.PLI	MICROPROBE	COND.STRING_COMPARE;COND.STRING_RELATION	unequal-extent relation matrix, bank I
+E49J1	probes/E49J1.PLI	MICROPROBE	COND.BIT1	negated compare ^( ) on the complement object, bank J

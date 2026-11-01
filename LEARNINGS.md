@@ -1359,3 +1359,28 @@ The guard never writes this file.
   its tests, `spec/functional/programs.tsv` and `docs/functional-status.md` are NOT yet written.
   **Proposed, unverified:** the ids/names in `capabilities.tsv` were typed from the ledgers and need
   an automated cross-check before any report quotes them.
+
+**[E2E-50/P1 CORRECTION(S)] (measured 2026-11-02 by the dashboard session, HEAD `9cc0e1c`):**
+
+- "20 distinct program names" is **FALSIFIED**: `spec/RUNTIME.txt` carries **71 rows across 71
+  distinct names** (one row per name; `sort | uniq -c` max count 1). The kind split 46/23/2 and
+  "only NETWORK among the historical corpus" both RE-VERIFIED unchanged.
+- "36 programmer-facing capabilities" (this section and the `8385605` commit message) is
+  **FALSIFIED**: `spec/functional/capabilities.tsv` has **30** data rows. The file is the
+  authority; the count quoted in prose was wrong as typed.
+- The cross-check the section demanded was RUN and found FOUR typed misses, all fixed in the
+  annotation (a bad id is my error, never a ledger fact): `FILE.GET_LIST_FILE` → `IO.GET_LIST_FILE`,
+  `FILE.RECORD_KEYED` → `IO.RECORD_KEYED` (wrong category prefix), `negatives` removed from
+  COND.EQUALITY (not a census name), and `E35N1` removed from COND.ON_UNIT (a specimen, not one
+  of the 44 census programs) replaced by census programs whose sources were READ to contain
+  ON-units (`NETWORK,REVERT,EXPR1,EXPR2`). The COND.ON_UNIT boundary note's attribution
+  "ON ERROR refuses (EXPR1/EXPR2/UPDATE/OPTIMIST)" was also **partly false as written**: the
+  census blocker messages name ON ERROR only for EXPR1/EXPR2; UPDATE refuses on `OPEN option
+  UPDATE` and OPTIMIST on a 9-byte-element array, and `grep -icE '\bon\b'` over both sources is
+  ZERO — neither contains an ON-unit. Post-fix validation: every cited id exists in
+  `spec/COVERAGE.tsv` field 1 and every cited program name is one of the 44 census rows (0 misses,
+  now enforced on every dashboard run, not as a one-off).
+- `tools/panel_keys.py` ends with an UNGUARDED `main()` call: importing it runs its CLI on the
+  importer's argv (measured — it printed on `--write`). The dashboard execs the source minus the
+  trailing call, reusing `load`/`classify` without the side effect; `spec/functional/README.md`'
+  "read by panel_keys.load()" wording stays accurate in spirit for that reason.
