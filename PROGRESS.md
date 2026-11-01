@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P2 IN FLIGHT (arm 1 LANDED byte-exact; step 6 part 1 committed; COVERAGE rows + FULL gate owed)
+## Current phase — E2E-49/P2 IN FLIGHT (step 6 parts 1/2a/2b committed; FULL gate rc=0 at `d5983e8`; CLOSE owed)
 
 - Round authorized by the OPERATOR 2026-11-01. Pre-registration `3bd9417` (probes
   E49B1..E49B5 + mkprobes.py + HYPOTHESES.md + BASELINE-MINE.txt at HEAD `7fa763b`: all
@@ -49,18 +49,27 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   THIS session): `COND.FIXED_MEMBER_MEMBER_TEST` (MEASURED, EXACT:5, E49B1..B5),
   `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE` (MEASURED, EXACT:3, E49B1,B2,B5, scope warning IN the
   boundary column), `COND.CMP_INVERSION_SELECTS_SLOT` (SINGLE_SAMPLE, EXACT:2, E49B1,B2).
-- NEXT (exact, in order): (1) commit the COVERAGE rows with the ACTUAL above.
-  (2) STILL OWED in COVERAGE — the WIDENING of `COND.CMP_LENGTHS_POSITIONAL` (add E49B3,E49B4 to
-  `probes`, `rel_parity` EXACT:6 -> EXACT:8, append a labelled clause naming [C339] and the dead
-  MIN/MAX/class readings) and the three labelled SUPERSEDED clauses in the `boundary` columns of
-  `COND.FIXED_MEMBER_TEST_SCCCM`, `COND.FIXED_MEMBER_LEFT_TEST` and `COND.BIT1_NEG_TEST`, each of
-  which STILL says member-vs-member is unmeasured/refused (falsified by [C337] — keep the
-  originals verbatim); then `coverage_check` again (expect 0 errors). (3) FULL gate
-  `python3 tools/e2e_gate.py` — expect byte panel **1136 byte-exact / 0 fail**, negative
-  **181/181** (E46K14 `[dr-refuses]`, marker UNMOVED), divergence **9/9**, census 15/0/26/0, prose
-  clean; record ACTUALS AS PRINTED; commit. (4) CLOSE: prose rewrite, archive superseded prose
-  verbatim from committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README index row,
-  LEARNINGS close notes, ledger-end pointer past **C341**, `/handoff finalize`.
+- DONE — STEP 6 part 2b at `d5983e8`: `COND.CMP_LENGTHS_POSITIONAL` WIDENED (probes +E49B3,E49B4,
+  rel_parity EXACT:6 -> EXACT:8, provenance +[C339] +e2e49-p2 RESULTS, labelled EXTENDED clause
+  naming the dead MIN/MAX/class readings) and labelled SUPERSEDED clauses [E2E-49/P2, 2026-11-01]
+  appended to the boundary columns of `COND.FIXED_MEMBER_TEST_SCCCM`, `COND.FIXED_MEMBER_LEFT_TEST`
+  and `COND.BIT1_NEG_TEST` — each names the falsified "member-vs-member unmeasured/refused"
+  sentence per [C337], originals kept verbatim (PROTOCOL #2). `coverage_check.py` rc=0 on 125 rows,
+  0 errors, 0 warnings.
+- DONE — FULL compile-tier gate measured by THIS session at HEAD `d5983e8`, `python3
+  tools/e2e_gate.py` rc=0, ACTUALS AS PRINTED: byte panel **1136 byte-exact / 0 fail of 1136**
+  (all five new specimens print `BYTE-EXACT E49B<n>: .REL == DR oracle (256 bytes)`; E49A4 still
+  exact); negative panel **181/181 refused**, E46K14 prints `refused [TBD] (comparison of the
+  internal CHARACTER member REC.LINE) [dr-refuses]` — the pinned marker UNMOVED; divergence panel
+  **9/9 as recorded**; coverage panel `coverage_check: 125 rows, 0 errors, 0 warnings`; corpus
+  census counts UNCHANGED `EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0` (HISTORICAL 44,
+  AUTHENTIC 41, DR_REJECTED 3, NOSRC 0, NO_ORACLE 3, dirs_present 44, sha_unverified 0); file
+  prose check **5 active files clean (7 forbidden assertions, 8 pinned markers, [C280] banner, no
+  duplicate provenance cites)**.
+- NEXT (exact, in order): CLOSE — HANDOFF/PROGRESS prose rewrite (IN FLIGHT -> CLOSED +
+  SUPERSEDED), archive the superseded prose verbatim from committed blobs to
+  `docs/history/2026-11-01-e49p2-closed.md` + README index row, LEARNINGS close notes, ledger-end
+  pointer past **C341**, `/handoff finalize`.
 - Keep refusing (RESULTS §3): any BARE spelling in a member-vs-member pair; the equal-extent
   collapse for member-vs-literal; STORE; literal-vs-literal; BASED; truthiness; over-extent;
   relations beyond `=`/`^=`; `^( )`. BYTE TIER ONLY — no `spec/RUNTIME.txt` row from this round.
