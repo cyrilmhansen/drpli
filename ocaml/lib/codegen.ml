@@ -2996,8 +2996,15 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
          SUPERSEDED in part 2026-11-01 by [E2E-49/P1 arm 1]: "a FIXED member on the LEFT of a
          literal stays refused / no object" is closed by golden/e49p1/E49A1 (RESULTS s2.1);
          the literal-RIGHT clause gained the mirror twin `is_test_left' below, admitted on
-         exactly the QUALIFIED set `str_cmp_shape_fix's member-left arm matches. The BARE
-         clause stands for this commit: E49A2's bare-spelling object lands with arm 2. *)
+         exactly the QUALIFIED set `str_cmp_shape_fix's member-left arm matched at that
+         arm. The BARE
+         clause stands for this commit: E49A2's bare-spelling object lands with arm 2.
+         [E2E-49/P1 arm 2, RESULTS s2.4/s3] arm 2 LANDED and this gate still stands, for a
+         sharper reason than "no object yet": E49A2 admits the BARE spelling on the LEFT
+         only; a bare fixed member on the RIGHT of a literal is UNMEASURED, so
+         `is_test_right' keeps its qualification gate and `str_cmp_shape_fix's
+         literal-RIGHT arm keeps matching `ImemF' alone — demand still mirrors lowering
+         exactly on both sides. *)
       let is_test_right e =
         match vkind_of_e e with
         | Some (Vimem m) when not m.varying ->
@@ -3016,14 +3023,17 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
          predicate (the fa09b97/e21281a law): this is exactly that arm's admitted set --
          QUALIFIED spellings only, since the BARE fixed member on the LEFT of a literal
          has no object until arm 2 -- and a VARYING left is already covered by `is_var'
-         in the clause above, so nothing widens beyond the lowering. *)
+         in the clause above, so nothing widens beyond the lowering.
+         SUPERSEDED in part 2026-11-01 by [E2E-49/P1 arm 2, RESULTS s2.4]: E49A2 is the
+         BARE member-LEFT object, so the twin widened to BOTH spellings in the SAME
+         commit that admitted `ImemFb' in the lowering -- one predicate, demand and
+         lowering. The `Eident' arm below no longer asks the qualification question;
+         it mirrors `str_cmp_shape_fix's widened member-left arm exactly. *)
       let is_test_left e =
         match vkind_of_e e with
         | Some (Vimem m) when not m.varying ->
             (match e.Ast.e with
-             | Ast.Eident n ->
-                 String.lowercase_ascii n.Ast.orig
-                 <> String.lowercase_ascii m.name
+             | Ast.Eident _ -> true
              | Ast.Eqstruct _ -> true
              | _ -> false)
         | _ -> false
@@ -3045,7 +3055,10 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
            written: `is_var' itself still excludes FIXED members.
            [E2E-49/P1 arm 1] the literal-RIGHT clause gained `is_test_left' (and nothing
            else): the qualified FIXED member on the LEFT is demanded exactly where
-           `str_cmp_shape_fix' admits it. *)
+           `str_cmp_shape_fix' admits it.
+           [E2E-49/P1 arm 2] `is_test_left' widened to the BARE spelling with the lowering
+           arm (E49A2); `is_test_right' did NOT — a bare member on the RIGHT keeps
+           demanding nothing because it keeps refusing (RESULTS s3). *)
         (is_lit b <> None && is_var a) || (is_lit b <> None && is_test_left a)
         || (is_lit a <> None && is_test_right b)
         || (is_cell a && is_cell b)
@@ -6947,10 +6960,22 @@ let str_side st (e : Ast.expr) =
           [E2E-49/P1 arm 1] E48E7 is no longer "the one" object: golden/e49p1/E49A1/E49A3/
           E49A4 measure the SAME qualified spelling with the operands INVERTED, lowered by
           `str_cmp_shape_fix's member-left arm; the qualification gate itself is unchanged
-          at this arm (the BARE spelling is arm 2's object, RESULTS s2.4). *)
+          at this arm (the BARE spelling is arm 2's object, RESULTS s2.4).
+          [E2E-49/P1 arm 2 -- RESULTS s2.4] the sentence "no probe ever put a BARE fixed
+          member in a compare" above is now SUPERSEDED: golden/e49p1/E49A2 measures the
+          BARE spelling, member-LEFT, byte-identical to E49A1 but for the module-name
+          bytes ([C253]/[C258] one-key-one-cell fold invisible to the compare encoding).
+          The bare member gets its OWN variant `ImemFb', NOT a second `ImemF': the
+          qualification question stays recorded in the type, so ONLY
+          `str_cmp_shape_fix's member-left arm matches both spellings; the literal-RIGHT
+          arm keeps `ImemF' alone (a BARE fixed member on the RIGHT has no object,
+          RESULTS s3), and every other consumer of `str_side' matches explicit variants
+          and keeps refusing `ImemFb' exactly as it refused the unclassified bare member
+          before. *)
        | Vimem m when m.varying -> Some (`Imem n.Ast.orig)
        | Vimem m when String.lowercase_ascii n.Ast.orig <> String.lowercase_ascii m.name ->
            Some (`ImemF (n.Ast.orig, m.cap))
+       | Vimem m -> Some (`ImemFb (n.Ast.orig, m.cap))
        | Vbvar (pn, k, _) when String.length pn > 0 -> Some (`Mem (pn, pn, k))
        | _ -> None)
   | Ast.Eqptr (b, f) ->
@@ -7120,8 +7145,14 @@ let str_cmp_shape_fix st l r =
      class-polarity reading of E48E7, kept as written at that claim's correction.  The
      helper NAME does not flip (s2.3): the CC pair names two fixed-class operands and
      carries no orientation.  TEST only: STOREs and member-vs-member keep refusing.
-     Over-extent here (len > cap, E49A4) is MEASURED accepted, literal pooled whole. *)
-  | Some (`ImemF (k, cap)), Some (`Lit (v, bytes)) ->
+     Over-extent here (len > cap, E49A4) is MEASURED accepted, literal pooled whole.
+     [E2E-49/P1 arm 2 -- RESULTS s2.4] the member side of THIS arm now admits BOTH
+     spellings, `ImemF' and `ImemFb': E49A2 (`if name = ...') is byte-identical to
+     E49A1 (`if rec.name = ...') but for the three module-name field bytes, so the
+     qualification of a member-LEFT fixed operand does not touch the encoding. The
+     literal-RIGHT arm above deliberately STILL matches `ImemF' only — a bare fixed
+     member on the right of a literal has no object (RESULTS s3) and keeps refusing. *)
+  | (Some (`ImemF (k, cap)) | Some (`ImemFb (k, cap))), Some (`Lit (v, bytes)) ->
       Some ((fun () ->
               d st op_lxi_h;
               reloc st Data (addr_of st k);
@@ -7834,7 +7865,10 @@ let lower_test_skip0 st (c : Ast.expr) =
          s2.6) and the encoder returns the length immediates POSITIONALLY (B = the LEFT
          operand's attribute, A = the RIGHT's), so this arm lowers BOTH orientations and the
          synthesis above became a measurement: E49A3 0014 is `ca'.  Member-vs-member, the
-         STORE value and truthiness keep falling to the refusal site. *)
+         STORE value and truthiness keep falling to the refusal site.
+         [E2E-49/P1 arm 2, RESULTS s2.4] the fixed member on the LEFT is now admitted under
+         BOTH spellings (`ImemF' and the new `ImemFb'); E49A2 lowers through this same arm
+         with no new bytes — the fold of [C253]/[C258] is invisible to the encoding. *)
       let (hl_fn, de_fn, b_len, a_len) =
         match str_cmp_shape_fix st l rr with Some x -> x | None -> assert false
       in
@@ -8052,7 +8086,12 @@ let lower_test_skip0 st (c : Ast.expr) =
               qualified fixed member through XCHG (`21 *D(member) / EB / 21 *D(pool) / 06 cap \
               / 3E len / ?SCCCM'), E49A3 pins the CA skip and E49A4 the accepted over-extent \
               literal; member-vs-member, the fixed member in a STORE value and every \
-              truthiness shape still have NO object and refuse here."
+              truthiness shape still have NO object and refuse here.  ADDENDUM \
+              2026-11-01 [E2E-49/P1 arm 2, RESULTS s2.4]: the member-LEFT route now admits \
+              the BARE spelling too (golden/e49p1/E49A2, byte-identical to E49A1 but the \
+              module-name bytes); a BARE fixed member on the RIGHT of a literal is still \
+              UNMEASURED and refuses here, as do member-vs-member, the STORE value and \
+              every truthiness shape."
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
