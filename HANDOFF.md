@@ -267,22 +267,25 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 126
-checkpoint-id: g126-faf989c7cc97
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4371, session 01a19966-0c69-7280-b553-bdb4b4627f07)
-checkpointed: 2026-11-01T23:54:01.177Z
+checkpoint-generation: 127
+checkpoint-id: g127-26ab40bbd259
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-9293, session 01a19966-0c69-7280-b553-bdb4b4627f07)
+checkpointed: 2026-11-01T23:58:30.904Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: be7b25a5e4c01701156dcb8fdcc889e95933b10d1459971b941bfa85e79e21b3
-source-handoff: 28fa98ba1724308f5f84324f9d14d8ddd81e004e7773d833d984dbdf2426e735
-source-learnings: a773bcba50497c9dc11d00fcfb94ac9be6fc14f97c1403651039b2f5a56a7d45
+source-progress: 6279802bec70f51499077dfa2c04e01ed929c52eed51d5e09f300e9205c14879
+source-handoff: 2a0593de3e5e7e1a2d58d21858854ea91f0053ae11482b12eb44f2ee43c817c5
+source-learnings: 27060cc2da0842b610fda54100fe3846d02f2ea9d97d7ee8544814c36edf2160
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19966-0c69-7280-b553-bdb4b4627f07
+readiness-at: 2026-11-01T23:58:30.906Z
+readiness-checkpoint: g127-26ab40bbd259
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: E2E-50/P2 hop 4 close. HEAD fa868d7: step 5 PART 2 LANDED (suite d40aafb+149c6e2, 148 checks rc=0, no external process; harness defects _rname & assert_stream fixed; hop-4 prose+learnings 5a0fe96/fa868d7). FIRST ACTION = step 6 execution evidence (Lane A hand-crafted .COM fixture via audited emulator; Lane B TABLE attempt via local pli80c + user-supplied LINK-80/PLILIB under cpmsim, bounded+lane-labelled, BDOS census open question #1; NEVER the oracle campaign/full runtime tier). Then steps 7-8. Limits unchanged: no compiler impl changes, no push, no GOAL/handoff.config edits, /home/john/pli/* read-only, DR binaries never distributable, no renew mid-git-op or while emulator runs.)
 
 ### Unfinished operations
 - (none recorded)
@@ -364,5 +367,5 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 `git clean`/`reset --hard`/`add -A`; no push.
 
 ### Guard notes
-E2E-50/P2 renewal hop 4. HEAD 8766f76 (prose) on top of 8523eda (step 5 PART 1 = tools/functional_runner.py LANDED, py_compile rc=0, bounded --stages SOURCE,DERIVATION run: TABLE-00/01 both UNKNOWN via unrun COMPILE, never PASS). FIRST ACTION = step 5 PART 2: write tools/test_functional_runner.py, check()-style like tools/test_functional_dashboard.py, NO compiler/LINK-80/cpmsim/emulator process — inject Host(subprocess_run=, sim_session=, link_deps=, workspace_factory=, run_factory=). 13 required cases are enumerated in HANDOFF.md → Unfinished operations (absent deps→BLOCKED named; wall-clock vs timeout rc=1 vs sim-died rc=2 distinct witnesses; malformed transcript→UNKNOWN; UNDEFINED SYMBOLS past char 120 + .COM present→FAIL [C137]; assert mismatch→FAIL attr undefined never narrowed; fail-closed validation classes; sha mismatches; derivation drift; --stages ceiling never PASS; Lane A stdout discarded at rc!=0 (audit 2.18); --double-run equal→PASS possible, differing→UNKNOWN; a stubbed end-to-end PASS positive control; rendering never launders BLOCKED/UNKNOWN into PASS). Then steps 6–8. Hard limits unchanged: no compiler implementation changes, no push, no GOAL/handoff.config edits, no oracle campaign/full runtime tier/rune-ci, DR binaries never distributable, /home/john/pli/* read-only, never renew mid-git-op or while an emulator process runs. Suspected harness polish items (unverified): '../'-heavy evidence path printing; optional -d banner; record Lane A artifact hash in substrate_identity.
+E2E-50/P2 hop 4 close. HEAD fa868d7: step 5 PART 2 LANDED (suite d40aafb+149c6e2, 148 checks rc=0, no external process; harness defects _rname & assert_stream fixed; hop-4 prose+learnings 5a0fe96/fa868d7). FIRST ACTION = step 6 execution evidence (Lane A hand-crafted .COM fixture via audited emulator; Lane B TABLE attempt via local pli80c + user-supplied LINK-80/PLILIB under cpmsim, bounded+lane-labelled, BDOS census open question #1; NEVER the oracle campaign/full runtime tier). Then steps 7-8. Limits unchanged: no compiler impl changes, no push, no GOAL/handoff.config edits, /home/john/pli/* read-only, DR binaries never distributable, no renew mid-git-op or while emulator runs.
 <!-- guard:end checkpoint -->

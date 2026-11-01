@@ -273,17 +273,17 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 126
-checkpoint-id: g126-faf989c7cc97
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 127
+checkpoint-id: g127-26ab40bbd259
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-01T23:54:01.177Z
+checkpointed: 2026-11-01T23:58:30.904Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: be7b25a5e4c01701156dcb8fdcc889e95933b10d1459971b941bfa85e79e21b3
-source-handoff: 28fa98ba1724308f5f84324f9d14d8ddd81e004e7773d833d984dbdf2426e735
-source-learnings: a773bcba50497c9dc11d00fcfb94ac9be6fc14f97c1403651039b2f5a56a7d45
+source-progress: 6279802bec70f51499077dfa2c04e01ed929c52eed51d5e09f300e9205c14879
+source-handoff: 2a0593de3e5e7e1a2d58d21858854ea91f0053ae11482b12eb44f2ee43c817c5
+source-learnings: 27060cc2da0842b610fda54100fe3846d02f2ea9d97d7ee8544814c36edf2160
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-50/P2 ACTIVE (operator mission brief, bootstrapped 2026-11-02)
 
@@ -345,8 +345,7 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   attribution never narrowed (assert mismatch = `undefined`), `--double-run` determinism proof,
   `--stages` ceiling, all external layers injectable. Measured: py_compile rc=0, --help rc=0,
   bounded real run `--stages SOURCE,DERIVATION` on TABLE-00/01 -> SOURCE+DERIVATION pass, both
-  verdicts UNKNOWN (COMPILE unrun), PASS=0. **PART 2 OWED:** hostile suite
-  `tools/test_functional_runner.py` (see Unfinished operations for the 13 required cases)]
+  verdicts UNKNOWN (COMPILE unrun), PASS=0. **PART 2 LANDED hop 4 `d40aafb`+`149c6e2`:** hostile suite `tools/test_functional_runner.py`, 148 checks rc=0, no external process (pure oracle import); the suite FOUND two harness defects, fixed in the same commit: `_rname` undefined (attempted Lane A RUN crashed, Lane B laundered harness-exception) and eager first_diff=None TypeError in `assert_stream` on differ-by-length streams. Measured nuance: DERIVATION/ASSERT are evaluation stages unaffected by `--stages`; a SOURCE..RUN ceiling PASSes on earned ASSERT evidence]
 - 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
   permit; Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB, dependency lane
   labelled; classify and preserve blockers honestly. Never substitute an unlabelled emulator.
@@ -360,6 +359,9 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
+readiness-by: session:01a19966-0c69-7280-b553-bdb4b4627f07
+readiness-at: 2026-11-01T23:58:30.906Z
+readiness-checkpoint: g127-26ab40bbd259
 <!-- guard:end checkpoint -->
 
 ## Blockers
