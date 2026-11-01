@@ -1550,6 +1550,71 @@ SPECIMENS.update({
     "E49B5":  ("probes/E49B5.PLI",  "golden/e49p2/E49B5/E49B5.REL"),
 })
 
+# ---------------------------------------------------------------------------
+# [E2E-49/P3] ROUND BANK -- the composite FIXED/TEST bank: the equal-attribute
+# COLLAPSE in both literal templates (C), QUALIFICATION in every slot (D),
+# literal-LEFT over-extent (E), and ORDERED RELATIONS on the qualified member
+# pair (F).  Fourteen probes, pre-registered at 3659f5d (BEFORE any oracle call;
+# `git log --format=%h -- probes/E49C1.PLI | tail -1`, BASELINE-MINE.txt recorded
+# at 685741c), filled in at 0a46824, measured in ONE grouped campaign 14 ok / 14
+# at tag e49p3 (goldens + RESULTS.md at ad90425) -- NO dr-refuses at all, every
+# .PRN clean in both passes; TWELVE my-gap rows (C1..C4 collapse, D1..D4 bare
+# admission, F1..F4 relations) and TWO already-byte-exact rows (E1/E2, whole-file
+# cmp against my own baseline: NO ARM).  All fourteen objects are WHOLE-FILE
+# byte-identical to DR; arms a540fa7 (a), 0a1b80c (b) and cde3258 (c) landed each
+# on its own commit, 14/14 exact at the last.  RESULTS §1 keeps the MISSes: the
+# written-order length pair of P-F2 and both H-AK keep-two-immediates readings.
+#
+# BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from
+# this round -- RESULTS §3 makes NO runtime claim (what ?SCCCM returns and how
+# JNC/JC read it is NOT claimed; PROTOCOL #1).
+#
+#   E49C1     `if rec.na = 'ABC'' (staged, 3/3 EQUAL): the collapse reaches the
+#             literal template -- `21 *D(0005) / EB / 21 *D(0000) / 06 03 / 78 /
+#             CD ?SCCCM / C2 -> 001C', CODE 65, DATA 000F ([C342]).
+#   E49C2     `if 'ABC' = rec.na' (DIRECT template): collapses too, `21 *D(0005)
+#             / 11 *D(0000) / 06 03 / 78', CODE 64 ([C342]).
+#   E49C3/C4  the same two heads under `^=': CA at 0013 (staged) and 0012 (direct)
+#             -- [C072]'s law MEASURED on the direct template ([C343]).
+#   E49D1     `if na = rec.nb'  E49D2 `if rec.na = nb'  E49D3 `if na = nb': the
+#             bare/qualified quartet -- all three byte-identical to E49B1 but the
+#             packed module-name bytes and the checksum ([C253]/[C258] fold, one
+#             cell one encoding, [C344]).
+#   E49D4     `if 'AB' = na': the BARE member admitted in the RIGHT slot of the
+#             direct template (unequal 2/3 keeps two immediates, CODE 65, DATA
+#             000E) -- the P1 "left side only" note was an evidence boundary, not
+#             a DR gate ([C344]).
+#   E49E1     `if 'ABCD' = rec.na': over-extent literal-LEFT ACCEPTED and pooled
+#             WHOLE, byte-identical to my baseline -- NO ARM ([C345]).
+#   E49E2     `^=' on that pair: same bytes, 0xca at 0013 ([C343], [C345]).
+#   E49F1     `if rec.na < rec.nb': stacked head of [C337] VERBATIM, WRITTEN
+#             order, collapse `06 03 / 78', skip JNC d2 -> 001D, CODE 66; the
+#             ?CX* prior is FALSIFIED, the helper stays ?SCCCM ([C346]).
+#   E49F2     `if rec.na > rec.s2': operands SWAPPED (s2 loaded FIRST), lengths
+#             POSITIONAL ON THE LOWERED operands `06 02 / 3E 03', JNC d2, CODE 67
+#             ([C346]; P-F2's written-order prediction is a recorded MISS).
+#   E49F3     `if rec.na <= rec.nb': SWAPPED, collapsed `06 03 / 78', weak skip
+#             JC da -> 001D ([C346]).
+#   E49F4     `if rec.s2 >= rec.na': WRITTEN order, `06 02 / 3E 03', JC da, CODE
+#             67 -- `>=' does NOT swap ([C346]).
+# ---------------------------------------------------------------------------
+SPECIMENS.update({
+    "E49C1":  ("probes/E49C1.PLI",  "golden/e49p3/E49C1/E49C1.REL"),
+    "E49C2":  ("probes/E49C2.PLI",  "golden/e49p3/E49C2/E49C2.REL"),
+    "E49C3":  ("probes/E49C3.PLI",  "golden/e49p3/E49C3/E49C3.REL"),
+    "E49C4":  ("probes/E49C4.PLI",  "golden/e49p3/E49C4/E49C4.REL"),
+    "E49D1":  ("probes/E49D1.PLI",  "golden/e49p3/E49D1/E49D1.REL"),
+    "E49D2":  ("probes/E49D2.PLI",  "golden/e49p3/E49D2/E49D2.REL"),
+    "E49D3":  ("probes/E49D3.PLI",  "golden/e49p3/E49D3/E49D3.REL"),
+    "E49D4":  ("probes/E49D4.PLI",  "golden/e49p3/E49D4/E49D4.REL"),
+    "E49E1":  ("probes/E49E1.PLI",  "golden/e49p3/E49E1/E49E1.REL"),
+    "E49E2":  ("probes/E49E2.PLI",  "golden/e49p3/E49E2/E49E2.REL"),
+    "E49F1":  ("probes/E49F1.PLI",  "golden/e49p3/E49F1/E49F1.REL"),
+    "E49F2":  ("probes/E49F2.PLI",  "golden/e49p3/E49F2/E49F2.REL"),
+    "E49F3":  ("probes/E49F3.PLI",  "golden/e49p3/E49F3/E49F3.REL"),
+    "E49F4":  ("probes/E49F4.PLI",  "golden/e49p3/E49F4/E49F4.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form

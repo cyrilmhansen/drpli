@@ -7678,6 +7678,19 @@ classified `unmeasured` rather than `dr-refuses`.
   panel sweep at `b044b7c` (1127/1127 BYTE-EXACT) proves no measured object was lost.
   E49A2 flipped from my rc=2 refusal to whole-file BYTE-EXACT.
 
+> **[E2E-49/P3 CORRECTION — the bare RIGHT slot is admitted, see [C344].]**  The Scope note above
+> ("§2.4 measures the MEMBER-LEFT orientation only.  A BARE fixed member on the RIGHT of a literal
+> is still NO OBJECT (RESULTS §3): [C330]'s qualification gate stays the only witness there, and
+> this compiler keeps refusing that spelling.") is FALSIFIED and kept as written.  E49D4 (`if 'AB'
+> = na`) is ACCEPTED on [C330]'s direct template — CODE 65, DATA 000E — and E49D1/D2/D3 are
+> byte-identical to E49B1 across every combination of bare and qualified sides of a member pair
+> (E2E-49/P3 §1, §2.3).  The asymmetry was MY evidence boundary, not a DR boundary: the fold is
+> invisible to EVERY measured compare encoding of this family.  Arm `0a1b80c` admits `ImemFb` in
+> the literal-left arm and in both sides of the member-pair arm, with the prescan demand twin
+> widened in the same commit.  What SURVIVES of the scope note: it was correct as a record of what
+> P1 measured (a bare member on the right had no object THEN), and the BARE spelling in an ORDERED
+> relation still has no object and still refuses (E2E-49/P3 RESULTS §3).
+
 ## C336 — AN OVER-EXTENT LITERAL IN A FIXED COMPARE IS ACCEPTED AND POOLED WHOLE — NO REFUSAL, NO TRUNCATION (MEMBER-LEFT) (E2E-49/P1 §2.6; answers the member-left [TBD])
 
 * **Measured.**  E49A4 (`if rec.name = 'ABCD'` against `char(3)`): ACCEPTED.
@@ -7695,6 +7708,15 @@ classified `unmeasured` rather than `dr-refuses`.
   the existing skip-byte rules ([C072]/[C309]) and the positional length template emit
   E49A4 whole-file BYTE-EXACT at `fee935e` (P-A4 scored HIT on verdict AND on the
   position-law byte pair `06 03 / 3E 04`).
+
+> **[E2E-49/P3 CORRECTION — the literal-LEFT over-extent verdict is MEASURED, see [C345].]**  The
+> bullet above ("the LITERAL-LEFT over-extent compare keeps its ungated template — that verdict is
+> still an extrapolation, `unmeasured`") is FALSIFIED and kept as written.  E49E1 (`if 'ABCD' =
+> rec.na`) and E49E2 (`^=`) are ACCEPTED and pooled WHOLE, `'ABCD'` intact at DATA 0000..0003 under
+> `06 04 / 3E 03` (E2E-49/P3 §1, §2.4), and both objects came out byte-identical to the `.REL` this
+> compiler already emitted — the extrapolation happened to be right, and it is now a measurement.
+> What SURVIVES unchanged: over-extent in INITIAL and in a STORE is still `unmeasured`, and no
+> runtime padding/truncation claim comes from either orientation.
 
 ## C337 — A MEMBER-vs-MEMBER FIXED COMPARE IN TEST IS ACCEPTED THROUGH `?SCCCM` AND PARKS BOTH CELL ADDRESSES ON THE STACK (`PUSH H`/`POP D`), NOT THROUGH `XCHG` (E2E-49/P2 §2.1, §2.5)
 
@@ -7728,6 +7750,19 @@ classified `unmeasured` rather than `dr-refuses`.
   `Eq|Ne` TEST arm emits the length pair and `CALL ?SCCCM` with the `C2`/`CA` skip.  No prescan
   twin exists — an all-member pair pools no literal ([C341]).  E49B1/E49B5 whole-file BYTE-EXACT.
 
+> **[E2E-49/P3 CORRECTIONS — the bare sides and the ordered relations are MEASURED, see [C344] and
+> [C346].]**  Two stops in the "What this does NOT say" bullet above are FALSIFIED and kept as
+> written.  (1) "nothing about a member pair with ANY BARE side — bare-bare, bare-qualified and
+> qualified-bare have no object and keep refusing": E49D1/D2/D3 ARE those three objects and DR
+> accepts all three byte-identically to E49B1, so the fold is invisible in this shape too, and arm
+> `0a1b80c` admits them ([C344]).  (2) "relations beyond `=`/`^=`": E49F1..F4 measure `<`, `>`,
+> `<=`, `>=` on the qualified pair through the SAME stacked head and the SAME `?SCCCM` helper, with
+> an operand-ORDER law (`>`,`<=` swapped) and a BRANCH law (strict JNC `d2`, weak JC `da`) — arm
+> `cde3258` ([C346]).  Everything else in this claim stands: the stacked parking, the per-shape
+> reading of `EB`, the `CA` skip, and the refusals that remain — `?SCCCM` in a STORE,
+> literal-vs-literal, BASED members, fixed-member truthiness, over-extent in a member pair, and a
+> BARE side in an ORDERED relation, which deliberately still refuses ([C344], [C346], RESULTS §3).
+
 ## C338 — EQUAL EXTENTS COLLAPSE THE COMPARE LENGTH PAIR TO `MVI B,<extent> / MOV A,B` — MEASURED MEMBER-vs-MEMBER ONLY (E2E-49/P2 §2.2)
 
 * **Measured.**  In THREE objects (E49B1, E49B2, E49B5 — `char(3)` vs `char(3)`) the length pair
@@ -7748,6 +7783,19 @@ classified `unmeasured` rather than `dr-refuses`.
   `MVI B,<left extent>` then `MOV A,B` IFF `capl = capr`, else `MVI A,<right extent>`.  The
   condition is tested on the two EXTENTS the encoder returns, never on operand class, and only the
   member-vs-member route consults it — `str_cmp_shape_fix` is untouched.
+
+> **[E2E-49/P3 CORRECTION — the collapse is a LENGTH-PAIR law, see [C342].]**  This claim's SCOPE
+> WARNING is FALSIFIED and kept as written.  The probe it asked for — "one pre-registered probe
+> with `char(3)` against a 3-char literal in TEST" — ran as E49C1/E49C3 (staged, member-left) and
+> E49C2/E49C4 (direct, literal-left), and DR COLLAPSES in both: `06 03 / 78` with no `MVI A`, CODE
+> 65 and 64 (E2E-49/P3 §1, §2.1).  The condition is the EQUALITY OF THE TWO POSITIONAL ATTRIBUTES
+> whatever their source, not member-vs-member; the sentence "the literal template therefore KEEPS
+> its two immediates and this law must NOT be extended to it" is dead, and so is the extrapolation
+> it excused ("my member-vs-literal arms emit `06 n / 3E n` even when the two numbers are equal")
+> — that was a `my-gap`, closed at arm `a540fa7`.  What SURVIVES: every measurement in the
+> Measured bullet (the member-vs-member objects, the unequal-extent pairs, the peephole reading)
+> and the equality test on the two NUMBERS rather than on operand class, which this round
+> generalises instead of contradicting.
 
 ## C339 — [C334]'s POSITIONAL LENGTH LAW HOLDS ON AN ALL-MEMBER PAIR, WHERE BOTH ATTRIBUTES ARE DECLARED EXTENTS (E2E-49/P2 §2.3)
 
@@ -7800,3 +7848,146 @@ classified `unmeasured` rather than `dr-refuses`.
   ABSENCE of a `prescan_cond` twin for this arm is the implementation of "no literal is pooled" —
   demand and lowering stay one predicate (the fa09b97/e21281a law).  All five objects are
   whole-file BYTE-EXACT at `b1e9221`, with DATA 000C in each.
+
+## C342 — THE EQUAL-ATTRIBUTE COLLAPSE IS A `?SCCCM` LENGTH-PAIR LAW, NOT A MEMBER-PAIR PECULIARITY: IT COLLAPSES IN BOTH LITERAL TEMPLATES (E2E-49/P3 §2.1; settles [C338]'s [TBD])
+
+* **Measured.**  E49C1 (`if rec.na = 'ABC'` — a `char(3)` member STAGED LEFT of a three-char
+  literal, so the two positional attributes are EQUAL): `21 *D(cell 0005) / EB / 21 *D(pool 0000) /
+  06 03 / 78 / CD ?SCCCM / C2 fill -> 001C` — ONE immediate plus `MOV A,B` and NO `MVI A` anywhere
+  in the head; CODE 65, DATA 000F.  E49C2 (`if 'ABC' = rec.na`, [C330]'s DIRECT `11` template)
+  carries the SAME collapse — `21 *D(0005) / 11 *D(0000) / 06 03 / 78 / CD ?SCCCM / C2 -> 001B`,
+  CODE 64 — and E49C3/E49C4 carry it under `^=` ([C343]).  The collapse therefore lives in ALL
+  THREE templates of the family — stacked member-vs-member ([C338]: E49B1/B2/B5), staged
+  member-vs-literal (E49C1/C3) and direct literal-vs-member (E49C2/C4) — and its condition is the
+  EQUALITY OF THE TWO POSITIONAL ATTRIBUTES, whatever their source (declared extent or literal
+  length).  Unequal attributes keep BOTH immediates in every template: E48E7 2/3, E49A1/A3 3/2,
+  E49A4 3/4, E49B3/B4 3/2 and 2/3, E49D4 2/3, E49E1/E2 4/3, E49F2/F4 2/3 (§2.1).  This SETTLES the
+  [TBD] that [C338]'s scope warning recorded; of the two readings pre-registered for it, H-AK
+  ("keep two immediates") is FALSIFIED in BOTH orientations (H-AK-M, H-AK-L) and H-AC ("collapse")
+  is CONFIRMED in both (§1).
+* **COUNT NOTE (recorded, not silently corrected).**  §2.1 writes "six collapse objects" and then
+  NAMES SEVEN — B1,B2,B5,C1,C2,C3,C4.  This claim follows the NAMES: each of the seven is a golden
+  whose head carries `06 n / 78` with no `MVI A`, and the two relation objects of §2.5 (E49F1/F3)
+  make NINE collapse witnesses across the family in all.  The arithmetic slip is quoted as written
+  in the evidence file (PROTOCOL #2); nothing there was rewritten.
+* **What this does NOT say** (RESULTS §3): nothing about STOREs in either orientation, nothing
+  about literal-vs-literal compares, BASED members or the truthiness of a FIXED member, and nothing
+  about who pads or truncates at RUNTIME — byte tier, no `spec/RUNTIME.txt` row.
+* **Lowered.**  Arm a at `a540fa7`: ONE change point at the `str_cmp_shape_fix` TEST caller, which
+  emits `MVI B,<left attribute>` then `MOV A,B` IFF the two positional attributes are equal and
+  `MVI A,<right attribute>` otherwise.  BOTH literal templates run through that caller, so no
+  per-template duplicate exists and the test is on the two NUMBERS, never on operand class.
+  E49C1..C4 whole-file BYTE-EXACT at `a540fa7`; the member-vs-member objects of [C338] are
+  untouched.  A labelled correction is appended at [C338].
+
+## C343 — `CA` IS THE `^=` SKIP BYTE ON THE DIRECT LITERAL-LEFT TEMPLATE TOO: [C072]'S FAMILY LAW IS MEASURED IN THAT ORIENTATION, AND THE FILL IS THE NEXT STATEMENT IN ALL FOURTEEN OBJECTS (E2E-49/P3 §2.2)
+
+* **Measured.**  E49C4 (`if 'ABC' ^= rec.na`) carries the skip byte `0xca` at code 0012 on the
+  collapsed 15-byte direct head, its operand pair filled to `001B`; E49E2 (`if 'ABCD' ^= rec.na`)
+  carries `0xca` at 0013 on the two-immediate direct head, filled to `001C` (§1, §2.2).  [C072]'s
+  rule — the negation changes ONLY the skip byte — is thus MEASURED on the template where [C330]
+  carried it as a SYNTHESIS; the staged member-left template already had its witness (E49A3,
+  [C333]) and the stacked member-vs-member head too (E49B5, [C337]).  THE FILL IS THE NEXT
+  STATEMENT ([C309]) IN ALL FOURTEEN objects of this round (§2.2): `001C` (C1/C3, D4, E1/E2),
+  `001B` (C2/C4), `001D` (D1..D3, F1/F3), `001E` (F2/F4) — every one of them the statement that
+  follows the `IF`, verified from the `LINK-SET-LC`/`RELOC code` pair of each golden.
+* **What this does NOT say** (RESULTS §3): the two operand bytes stay `00 00` in the head and are
+  filled by the deferred pair — nothing is claimed here about `^=` in a STORE, about `^( )`
+  composition, or about any runtime behaviour.
+* **Lowered.**  NO new code: the `C2`/`CA` selection is [C072]'s existing route in the TEST arms of
+  `str_cmp_shape_fix`; this round converts the last synthesis of that family into a measurement.
+
+## C344 — QUALIFICATION OF AN INTERNAL FIXED MEMBER IS INVISIBLE TO EVERY MEASURED COMPARE ENCODING: THE BARE SPELLING IS ADMITTED IN BOTH MEMBER SLOTS AND IN THE RIGHT SLOT OF THE DIRECT TEMPLATE (E2E-49/P3 §2.3; falsifies [C335]'s and [C337]'s bare-side refusals)
+
+* **Measured.**  Three spellings of the member pair — E49D1 (`if na = rec.nb`), E49D2 (`if rec.na =
+  nb`), E49D3 (`if na = nb`) — are whole-file byte-identical to E49B1 (`if rec.na = rec.nb`) but
+  for the packed module-name fields and the record checksums: a byte-QUARTET on ONE stacked head
+  (§1, §2.3).  The [C253]/[C258] one-key-one-cell fold leaves no trace in the member-vs-member
+  shape either, exactly as [C335] measured it for a member LEFT of a literal.  E49D4 (`if 'AB' =
+  na`) admits the BARE member in the RIGHT slot of the DIRECT template — `21 *D(0004 na) / 11
+  *D(0000 'AB') / 06 02 / 3E 03 / CD ?SCCCM / C2 -> 001C`, CODE 65, DATA 000E — with UNEQUAL
+  attributes keeping both immediates ([C342]).  The P1 "admission is ASYMMETRIC on purpose" reading
+  was MY EVIDENCE BOUNDARY, not a DR gate: bare spellings now have objects for bare-left-of-literal
+  (E49A2, [C335]), bare-right-of-literal (E49D4) and every combination inside a member pair
+  (D1/D2/D3).  One cell, one encoding (§2.3).
+* **What this does NOT say** (RESULTS §3): BARE spellings in an ORDERED RELATION have NO object —
+  every F probe writes BOTH members qualified — so the relation arm admits the QUALIFIED pair
+  alone and every other bare spelling keeps refusing: a bare member pair in a STORE is refused
+  (rc=2 measured at `0a1b80c`), and BASED members and fixed truthiness stay unmeasured.
+* **Lowered.**  Arm b at `0a1b80c`: `ImemFb` is admitted at BOTH sides of `str_cmp_shape_fix_mm`
+  and at the member side of the Lit-LEFT arm of `str_cmp_shape_fix`, and the prescan DEMAND twin
+  `is_test_right` drops its qualification gate in the SAME commit so demand and lowering stay ONE
+  predicate — E49D4 POOLS `'AB'`, and the [C152] demand/layout invariant dies if lowering asks for
+  a cell the prescan never demanded.  E49D1..D4 whole-file BYTE-EXACT at `0a1b80c`; labelled
+  corrections are appended at [C335] and [C337].
+
+## C345 — AN OVER-EXTENT LITERAL WRITTEN LEFT IS ACCEPTED AND POOLED WHOLE: [C336]'S FINDING TRANSFERS TO THE LITERAL-LEFT ORIENTATION BY MEASUREMENT, NOT EXTRAPOLATION (E2E-49/P3 §2.4; NO ARM NEEDED)
+
+* **Measured.**  E49E1 (`if 'ABCD' = rec.na` against `char(3)`) is ACCEPTED, and the whole `.REL`
+  is BYTE-IDENTICAL to the object my compiler emitted BEFORE the oracle ran (BASELINE-MINE.txt,
+  recorded at `685741c`): `'ABCD'` intact at DATA 0000..0003 — pooled WHOLE, no truncation — under
+  the positional pair `06 04 / 3E 03` ([C334]) on the direct template, CODE 65, DATA 0010, [C314]'s
+  pool-first frame.  E49E2 (`^=` on the same pair) is identical but for `0xca` at 0013 ([C343]).
+  [C336]'s member-left finding is now MEASURED in the literal-left orientation, and all three
+  pre-registered falsifiers are FALSIFIED: H-CR (refusal), H-CT (truncation), H-CN (not pooled)
+  (§1, §2.4).
+* **What this does NOT say** (RESULTS §3): over-extent in INITIAL or in a STORE stays unmeasured;
+  who truncates or pads AT RUNTIME is not claimed — byte tier only.
+* **Lowered.**  NO ARM: the existing literal-left template already reproduced both objects
+  byte-for-byte, which is why §4 classifies these two rows as "already byte-exact" rather than
+  `my-gap`.  A labelled correction is appended at [C336].
+
+## C346 — ORDERED RELATIONS ON FIXED CHARACTER MEMBERS TAKE THE SAME `?SCCCM` HELPER AND THE SAME STACKED PARKING AS `=`, WITH AN OPERAND-ORDER LAW AND A BRANCH-BYTE LAW (E2E-49/P3 §2.5; falsifies the `?CX*` prior and [C337]'s relations-beyond-`=`/`^=` stop)
+
+* **Measured — the head.**  E49F1 (`if rec.na < rec.nb`) takes the stacked member-vs-member head of
+  [C337] VERBATIM — `21 *D(0002 na) / E5 / 21 *D(0005 nb) / D1 / 06 03 / 78 / CD ?SCCCM`, skip
+  operand filled to `001D`, CODE 66, DATA 000C.  The helper NAME does not change with the relation:
+  no `?CX*` family appears anywhere in these four objects, so the PLILIB prior pre-registered as
+  H-D-CX is FALSIFIED and H-D-SC (same helper, stacked head) is confirmed (§2.5).
+* **ORDER law.**  `<` and `>=` take the operands in WRITTEN order; `>` and `<=` are LOWERED with the
+  operands SWAPPED — E49F2 (`rec.na > rec.s2`) loads `*D(0008 s2)` FIRST and `*D(0002 na)` second,
+  E49F3 (`rec.na <= rec.nb`) loads `nb` first.  This is the numeric family's `a > b` as `b < a`
+  rule ([C115]) MEASURED for characters; because the swap moves the loads it moves the two `*D`
+  relocation records with them, so [C340]'s slot law holds under a swap too.
+* **BRANCH law.**  Strict relations skip with JNC `0xd2` (E49F1 `<`, E49F2 `>`); weak relations skip
+  with JC `0xda` (E49F3 `<=`, E49F4 `>=`) (§2.5).  The skip byte follows the RELATION, as `C2`/`CA`
+  do in [C333]/[C337]/[C343]; the parking and the helper do not.
+* **LENGTHS ARE POSITIONAL ON THE OPERANDS AS LOWERED.**  E49F2 carries `06 02 / 3E 03` — B from
+  `s2`, which the SWAP moved to the left — and E49F4 carries the SAME pair with `s2` written LEFT
+  (`06 02 / 3E 03`, no swap).  My pre-registered written-order prediction for F2 (`06 03 / 3E 02`)
+  is FALSIFIED (§1 P-F2): [C334]/[C339]'s positional law reads the pair off the LOWERED operands.
+  Equal extents COLLAPSE inside relations as well (`06 03 / 78` in F1/F3), so [C342]'s law is keyed
+  on the two numbers, not on the relation.
+* **What this does NOT say** (RESULTS §3): NO runtime semantics — what `?SCCCM` returns and how
+  JNC/JC read it is NOT claimed, and no `spec/RUNTIME.txt` row may come from this family.  Bare
+  spellings in a relation have no object (all four F probes write both members qualified) and the
+  arm admits the QUALIFIED pair ONLY; ordered relations with a LITERAL operand have no object;
+  `<>`/`><` spellings, unequal-extent strict/weak combinations beyond F2/F4's single pair, and the
+  collapse in a swapped head with unequal lengths (measured once) are unmeasured; a relation inside
+  a STORE keeps refusing (rc=2 measured at `cde3258`).
+* **Lowered.**  Arm c at `cde3258`: the new encoder `str_cmp_shape_fix_rel` matches `ImemF/ImemF`
+  ALONE — deliberately STRICTER than the Eq/Ne member-pair arm, so no unmeasured spelling can reach
+  a relation — and returns ONE bundled stacked-head thunk in LOWERED order plus the positional
+  length pair (with [C342]'s collapse) and the relation-keyed skip byte; the caller routes
+  `EqR (Lt|Le|Gt|Ge)` for the qualified pair, placed after the Eq/Ne route and before the
+  `?SCVVM`/numeric routes so no unmeasured pair falls through to the `?IS22N` guards.  No prescan
+  twin: a member pair pools no literal ([C341]).  E49F1..F4 whole-file BYTE-EXACT at `cde3258`; a
+  labelled correction is appended at [C337].
+
+## C347 — HEAD SIZE FOLLOWS THE LENGTH PAIR IN EVERY TEMPLATE, AND DATA STAYS [C314]'S POOL-FIRST FRAME IN ALL FOURTEEN OBJECTS (E2E-49/P3 §2.6)
+
+* **Measured.**  Collapsed heads: STAGED 16 bytes -> CODE 65 (0x41, E49C1/C3), DIRECT 15 bytes ->
+  CODE 64 (0x40, E49C2/C4), STACKED 17 bytes -> CODE 66 (0x42, E49D1..D3, E49F1/F3).  The
+  NON-collapsed stacked head is 18 bytes -> CODE 67 (0x43, E49F2/F4); the direct head with TWO
+  immediates is CODE 65 (E49D4, E49E1/E2) (§2.6).  Collapsing saves exactly ONE byte against the
+  same shape with unequal attributes — E49C1's 65 against E49A1's 66, E49C2's 64 against E48E7's
+  65 — and the head size, not the relation, is what moves CODE.  DATA in all fourteen objects is
+  [C314]'s pool-first frame: `000F` in the C panel (`'ABC'` pooled at 0000..0002, `'K='` at
+  0003..0004), `000C` in D1..D3 and F1..F4 (NO compare literal is pooled — a member pair has
+  none, [C341]), `000E` in D4 (`'AB'`), `0010` in E1/E2 (`'ABCD'` pooled WHOLE, [C345]).
+* **What this does NOT say** (RESULTS §3): the DATA layout of a member pair in a STORE, of a BASED
+  member, or of a literal-vs-literal compare is unmeasured; nothing here licenses a runtime claim.
+* **Lowered.**  NO new law code: sizes and fills fall out of the heads arms a/b/c emit, and the
+  deliberate ABSENCE of prescan twins for the member-pair arms is the implementation of "no literal
+  is pooled".  All fourteen objects are whole-file BYTE-EXACT at `cde3258`, with the CODE and DATA
+  sizes above read out of each golden (`LINK-DEF-CODE-SIZE`, `LINK-DEF-DATA-SIZE`).
