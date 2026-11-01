@@ -20,6 +20,12 @@ text quoted (PROTOCOL #2). No scientific claim, golden, ledger or `ocaml/` byte 
 emulator audit target is confirmed: `/home/john/pli/lab` (Runes `pli80_lab` dune project —
 `lib/i8080`, `lib/cpm`, `lib/runner`, `lib/trace`), READ-ONLY this round.
 
+Step 1 reconnaissance DONE: lab identity/shape, BDOS coverage, decoder status, license evidence
+and the lab's own suite RE-RUN (7 executables rc=0 incl. 976,272-case alu_flags) are recorded
+accepted in `LEARNINGS.md` § 2026-11-02; `docs/emulator-audit.md` (steps 1–2 deliverable) owed.
+Boundary facts: lab HEAD `43e38ba`, single-author git history, NO LICENSE file (operator decision,
+never added here); building tests writes only the lab's gitignored `_build/`.
+
 ## Previous phase — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`; close docs-only)
 
 Functional dashboard round COMPLETE, docs-only and evidence-only: compiler, oracle, LINK-80,

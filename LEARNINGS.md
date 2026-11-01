@@ -1384,3 +1384,82 @@ The guard never writes this file.
   importer's argv (measured — it printed on `--write`). The dashboard execs the source minus the
   trailing call, reusing `load`/`classify` without the side effect; `spec/functional/README.md`'
   "read by panel_keys.load()" wording stays accurate in spirit for that reason.
+
+## 2026-11-02 — E2E-50/P2 bootstrap + emulator audit reconnaissance (accepted unless marked)
+
+- **ACCEPTED (measured this session): checkpoint freshness law replay.** The guard hashes
+  HANDOFF/PROGRESS manual prose as `sha256(stripManagedSection(content).replace(/\s+$/,""))`
+  (`.pi/extensions/context-guard/checkpoint.ts:578-617`); GOAL/LEARNINGS/config hash whole.
+  Replaying that law on HEAD `942aa78` reproduced g111's `source-handoff`/`source-progress`
+  exactly → g111 was **current + attested**; HEAD stood at `942aa78` (one attest commit past the
+  mission brief's reported `4eb6582`).
+- **ACCEPTED: P1 close prose contained real defects `4eb6582` declared non-existent.** Byte read
+  of HEAD showed THREE inline-glued HANDOFF headings (`verification.## Discoveries`,
+  `Pending.## History and pointers`, `golden/e49p4.## Next action`) plus THREE blankless PROGRESS
+  headings and one glued guard-marker line, all in MANUAL prose. `4eb6582`'s message sentence that
+  the `## Discoveries` pair "does NOT exist in the manual region" is therefore **falsified**; the
+  close session evidently measured the guard's own rendering (which duplicates the Next action and
+  carries `###` headings) instead of the manual region. Lesson: when auditing "does defect X
+  exist", hash/locate in the stripped manual region ONLY. Fixed in bootstrap commit `459f51e`;
+  falsified text kept here verbatim (PROTOCOL #2).
+- **ACCEPTED: the emulator's identity and shape.** The audit target is `/home/john/pli/lab`
+  ("Runes", dune project `pli80_lab`, 197 commits, single author Cyril M. Hansen = the operator,
+  HEAD `43e38ba`). The execution stack is `lib/i8080` (decode/alu/flags/cpu/state/memory/bus/step/
+  timing, ~700 lines core), `lib/cpm` (bdos/fcb/filesystem/loader/personality), `lib/runner`,
+  `lib/trace`. It is an **8080 concrete CPU core plus a minimal deterministic CP/M 2.2
+  transient-process userspace runner** — NOT a complete CP/M emulator: no CCP, no BIOS, no disk
+  images; BDOS is trapped at guest PC 0005H and termination at PC 0000H (warm boot) or function 0.
+  CLI: `pli80-run [--trace F] [--max-steps N] prog.COM`; default budget `max_steps=100_000`
+  (exercisers needed 4_000_000_000 via CLI). Memory model: flat 64 KiB, typed out-of-range errors,
+  no wrapping `load`.
+- **ACCEPTED: BDOS coverage measured by code read.** Implemented: 0,2,9,11,12,15,16,19,20,21,22,26;
+  functions >40 get the CP/M 2.2 out-of-range zero-return fallback; every other number returns the
+  typed error `Unsupported_function` (never a silent success). **Console INPUT (1, 10) is
+  MISSING**, so interactive PL/I GET paths cannot run there; random I/O (23-25), search first/next
+  (17,18), rename (23), login vector (24) are MISSING. Filesystem is memory-backed 128-byte
+  logical records keyed drive/user/name — no physical allocation geometry.
+- **ACCEPTED: decoder covers all 256 opcodes; undocumented aliases are explicitly UNVERIFIED.**
+  `test/cpu_core.exe` prints "Opcode coverage: 256 supported, none intentionally unsupported".
+  Opcodes 0x08,0x10,0x18,0x20,0x28,0x30,0x38,0xcb,0xd9,0xdd,0xed,0xfd decode as historically
+  *reported* aliases (NOP/JMP/RET/CALL) with this comment in decode.ml: "historically reported 8080
+  behaviors, supplied as a work list for later confirmation. They have not been experimentally
+  verified by this project" → classify alias SEMANTICS as UNTESTED (decoding+execution exist).
+- **ACCEPTED: the lab's own test suite passes on this host.** Built and ran (only writes to the
+  lab's gitignored `_build/`): alu_flags (976,272 exhaustive cases vs an independent bit-ripple
+  reference), primitives, cpu_core, cpu_interrupts, timing, cpm_runner (loader bounds, BDOS errors
+  incl. Unsupported_function 7, sequential files, extent snapshots, HELLO integration, warm-boot,
+  step-limit, halted CPU), trace_format — ALL rc=0 with opam switch 5.4.0 / dune. `daa_superzazu.c`
+  is an optional non-Dune audit harness against the external MIT superzazu/8080 library — the
+  library is NOT vendored.
+- **ACCEPTED: independent corroboration record (pre-existing, not re-run here).**
+  `docs/i8080-exercisers.md`: TST8080, 8080PRE, CPUTEST and 8080EXM (all 25 CRC groups) PASS under
+  the runner, cross-checked against pinned superzazu/8080 commit `274ffd7…` with identical success
+  and CRCs; the four .COMs are deliberately NOT committed. Corroboration, not proof; step counts
+  differ by shim design only.
+- **ACCEPTED: license picture (evidence-backed).** Runes lab: **no LICENSE anywhere** → code is
+  operator-original (single-author git history, no vendored third-party sources in lib/) but
+  licensing UNRESOLVED — an operator decision, must not be made by this round. z80pack
+  (`thirdparty/z80pack/LICENSE`): MIT, © 1987–2025 Udo Munk and others (relicensed from the old
+  "freely distributable but not for profit" terms) → CONFIRMED REDISTRIBUTABLE with attribution.
+  superzazu/8080: MIT (primary source checked: github LICENSE, © 2018 Nicolas Allemand) → usable as
+  a labelled comparison emulator. Exerciser binaries: TST8080 (Microcosm, © notice, NO explicit
+  grant), CPUTEST (SuperSoft © 1981, no license found) → RESTRICTED/UNRESOLVED; 8080PRE/8080EXM
+  source GPL-2.0-or-later, binary status not separately assessed. CP/M 2.2 system binaries (inside
+  z80pack disk images and mirrored in `oracle/disks/*.dsk`): Caldera 1997/98 conditional release
+  (not OSI; a 2022 informal e-mail relaxation exists on cpm.z80.de) → REDISTRIBUTABLE SUBJECT TO
+  CONDITIONS / needs legal care. DR PL/I-80 v1.4, LINK-80, PLILIB.IRL (`artefacts/`, banner
+  "Copyright 1980–1982 Digital Research"): NOT covered by the Caldera CP/M release → RESTRICTED;
+  Lane B only, user-supplied, never in a release artifact.
+- **ACCEPTED: `research/annotated-assembly` (14M) reconstructs the four historical DR compiler
+  images with byte-exact verification** — derivative of proprietary DR binaries → EXCLUDED from any
+  free-core package. `research/minimal-baseline` (17M), `research/host-compiler` (25M) similarly
+  relate to DR images (proposed, quick du/README scan only — classify precisely when the audit doc
+  is written). Lab `tools/{annotated-assembly,provenance-explorer}` are node frontends with
+  unbuilt/unchecked dependency trees → LICENSE/PROVENANCE UNRESOLVED, out of emulator-core scope.
+- **PROPOSED (unverified): what the PL/I runtime actually calls.** Pure PUT LIST output plausibly
+  needs only BDOS 2 + terminate, so a Runes-hosted Lane-B TABLE run *might* work; anything reading
+  stdin needs the missing functions 1/10 → BLOCKED there but fine under cpmsim. Must be MEASURED
+  (run linked .COM under `pli80-run`, expect typed `Unsupported_function N`), not assumed.
+- **METHOD NOTE: running the lab's tests writes only its ignored `_build/`** — compatible with the
+  "external tree read-only" rule (no tracked file changed; verified `git status` pattern unchanged:
+  3 pre-existing untracked entries).

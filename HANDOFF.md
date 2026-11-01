@@ -127,10 +127,15 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 - 1. Emulator technical audit — Intel 8080 core, CP/M BDOS/BIOS, COM loading, console, files,
   determinism, limits, tests — capability matrix IMPLEMENTED/PARTIAL/MISSING/UNTESTED/
   KNOWN DEFECT into `docs/emulator-audit.md`; safe lab tests may be RUN (never infer
-  correctness from presence of code). [pending]
+  correctness from presence of code). [reconnaissance DONE; measured findings incl. the re-run
+  of the lab's 7 test executables (all rc=0) are recorded in `LEARNINGS.md`
+  § "2026-11-02 — E2E-50/P2 bootstrap + emulator audit"; the audit DOCUMENT is owed —
+  write it from those entries, re-verifying each cited file]
 - 2. License/redistribution audit → two-package matrix (free core / historical-compat) in the
   same document; record blockers, recommend options, decide no operator-level license.
-  Do NOT copy restricted assets into any prospective package. [pending]
+  Do NOT copy restricted assets into any prospective package. [evidence gathered in the same
+  LEARNINGS section — lab UNLICENSED (single-author history), z80pack MIT, superzazu/8080 MIT,
+  DR binaries RESTRICTED, CP/M system Caldera-conditional, exercisers mixed; matrix write owed]
 - 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
   correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
   undefined must be measured, never assumed). [pending]
@@ -155,8 +160,9 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 ## Unfinished operations
 
-- E2E-50/P2 steps 1–8 above; none of `docs/emulator-audit.md`, `docs/functional-testing.md`,
-  `tests/functional/`, `tools/functional_runner.py` exists until its step lands.
+- E2E-50/P2 steps 1–8: `docs/emulator-audit.md` (technical matrix + redistribution matrix) is
+  the immediate owed artifact, written from the 2026-11-02 `LEARNINGS.md` section; then steps
+  3–8 per the sequence above.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE `%include`);
   this round does not touch them.
 - At this boundary: no half-finished Git operation, no emulator process running, `ocaml/` untouched.
