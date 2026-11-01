@@ -1246,3 +1246,38 @@ The guard never writes this file.
   `rel_parity EXACT:n` is not machine-checked against the probes list but house
   convention keeps them equal (CMP_LENGTHS_POSITIONAL now 14/14).
 - PROPOSED: none new. Standing P3-era proposals unchanged.
+
+## 2026-11-01 — E2E-49/P4 CLOSE (docs-only closing session; no compiler/oracle/gate run)
+
+- ACCEPTED (measured): the CLOSE landed — four-generation archive
+  `docs/history/2026-11-01-e49p4-closed.md`, 16/16 blocks BYTE-EXACT against
+  `git show <commit>:<file>` (extract = heading line .. last content line before the next
+  level-2 heading OR the guard managed block, trailing blanks excluded). The independent
+  re-read pass over the WRITTEN archive caught one real artifact: the last block's body
+  initially swallowed the footer — a verifier must cut the body at the footer marker before
+  comparing, or the final block always "mismatches".
+- ACCEPTED (method): count superseded prose GENERATIONS by SHA-256 over the extracted level-2
+  sections at each docs commit BEFORE planning the archive, and verify cross-generation identity
+  claims the same way instead of asserting them. Deduplicate: identical blocks archived ONCE with
+  the shared provenance in the annotation; a heading whose whole body survives verbatim inside a
+  later archived block is archived heading-only (verified as a line-for-line subset).
+- FALSIFIED (as a plan, written by me at `5c52bba`): "archive TWO superseded prose generations
+  (arms-era + step-6/close-auth-era)". Measured truth: FOUR distinct HANDOFF Next-action/Unfinished
+  states — `19ab4e0`, `e13311c`, `882f77c` (prose carried at `cbdcbe2`), `5c52bba` (identical at HEAD
+  `b5f792c`) — because every renewal hop REWROTE the Next action in place rather than appending. The
+  falsified wording stands verbatim in the archived Next action and in that commit message
+  (PROTOCOL #2).
+- FALSIFIED (documentation defect, mine, `5c52bba`; kept verbatim in the archive and repaired in the
+  live file): replacing a SENTENCE inside `## Unfinished operations` dropped "The tree is dirty ONLY"
+  and left a dangling fragment. Lesson: rewrite WHOLE level-2 sections mechanically (splice by
+  heading index) and read the section back for continuity; never patch prose by line ranges.
+- ACCEPTED (stale prose found by the survey): `PROGRESS.md` → `## Next action` still said
+  "E2E-49/P4 ACTIVE, pre-registration owed first" from the bootstrap `bc6ee4f` through all four
+  generations — appending STATUS bullets does NOT update structural stubs; they must be rewritten
+  at every phase transition. Fixed at this close; the superseded stub is archived.
+- ACCEPTED (tooling): sections whose naive range spans the guard managed block (`## Verified
+  evidence`, `## History and pointers`) must EXCLUDE the block, or a cross-generation "identical
+  prose" claim silently compares guard text. The splice kept BOTH managed blocks byte-identical to
+  `b5f792c` (the P3 close's swallowed-block lesson re-applied).
+- PROPOSED (unverified): retain a repo-side archive builder/verifier (the P3 and P4 closes each
+  re-invented one in /tmp) only if a third close needs it; no tool was added in this session.
