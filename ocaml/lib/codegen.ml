@@ -634,6 +634,8 @@ let op_pop_d = 0xd1
 let op_mvi_a = 0x3e
 let op_mvi_b = 0x06
 let op_mov_b_a = 0x47   (* [V102/V103] len==cap store peephole *)
+let op_mov_a_b = 0x78   (* [E2E-49/P2 arm 1, RESULTS s2.2] equal-extent member-vs-member fixed
+                           compare collapse: MVI B,n then MOV A,B, NO MVI A (E49B1 0010). *)
 let op_mvi_m = 0x36     (* [V104] MVI M,00: empty-varying store *)
 
 (* [E2E-23] DR's zero-store pair.  The tracker is set here and ONLY here -- an unclassified byte
@@ -7120,7 +7122,15 @@ let str_cmp_shape_rev ?(imem = false) st l r =
    "A is the destination/capacity, B is the source length" reading of E48E7 is FALSIFIED
    as a class law by the positional law of RESULTS s2.2 (B = LEFT operand's attribute,
    A = RIGHT's), which happened to read that way while the literal was left.  Both
-   sentences stand above as written history; [C330] carries the same labelled correction. *)
+   sentences stand above as written history; [C330] carries the same labelled correction.
+   ADDENDUM 2026-11-01 [E2E-49/P2 arm 1, RESULTS s2.1/s2.2]: the clause "member-vs-member ...
+   keep refusing" above is now SUPERSEDED for the QUALIFIED-QUALIFIED pair --
+   golden/e49p2/E49B1..B5 measure it and `str_cmp_shape_fix_mm' below lowers it through the
+   STACK parking (`E5/D1'), not this template's `EB'.  This encoder still matches NO member-pair
+   (one encoder per measured shape), and its two immediates stay intact: the equal-extent
+   collapse `06 n / 78' is measured member-vs-member ONLY and the member-vs-literal equal-length
+   case is UNMEASURED (RESULTS s2.2 scope warning, s3).  The fixed member in a STORE and every
+   truthiness shape keep refusing per s3. *)
 let str_cmp_shape_fix st l r =
   match str_side st l, str_side st r with
   | Some (`Lit (v, bytes)), Some (`ImemF (k, cap)) ->
@@ -7145,6 +7155,9 @@ let str_cmp_shape_fix st l r =
      class-polarity reading of E48E7, kept as written at that claim's correction.  The
      helper NAME does not flip (s2.3): the CC pair names two fixed-class operands and
      carries no orientation.  TEST only: STOREs and member-vs-member keep refusing.
+     ADDENDUM 2026-11-01 [E2E-49/P2 arm 1, RESULTS s2.1]: the member-vs-member clause of that
+     sentence is now MEASURED and lowered -- by `str_cmp_shape_fix_mm', NOT by this arm, which
+     keeps matching a literal on one side; the STORE clause stands (s3).
      Over-extent here (len > cap, E49A4) is MEASURED accepted, literal pooled whole.
      [E2E-49/P1 arm 2 -- RESULTS s2.4] the member side of THIS arm now admits BOTH
      spellings, `ImemF' and `ImemFb': E49A2 (`if name = ...') is byte-identical to
@@ -7161,6 +7174,47 @@ let str_cmp_shape_fix st l r =
               d st op_lxi_h;
               reloc st Data (pool_str st bytes)),
             cap, String.length v)
+  | _ -> None
+
+(* [E2E-49/P2 arm 1 -- RESULTS s2.1/s2.2/s2.3/s2.4/s2.5/s2.6] BOTH operands QUALIFIED internal
+   FIXED members, in TEST position ONLY.  golden/e49p2/E49B1 0006 measures
+     `LXI H,*D(LEFT cell) / PUSH H / LXI H,*D(RIGHT cell) / POP D / MVI B,<left extent> /
+      MOV A,B / CALL ?SCCCM / C2 fill -> 001D'
+   -- the [C141] STACK parking, NOT [C333]'s `EB' staging: BOTH pre-registered forms of this
+   round (H-S direct right-first, H-M staged) are FALSIFIED, a fourth shape again (RESULTS s1).
+   [C191]'s FINAL-register law survives (HL ends on the RIGHT operand, DE on the LEFT) and the
+   load order is the WRITTEN order; the written side also selects the relocation SLOT (s2.4 --
+   E49B1 vs E49B2 differ ONLY in the module-name bytes and the two swapped `*D' records), so the
+   whole head is ONE bundled thunk emitted in DR's order; splitting it across hl_fn/de_fn would
+   reorder the relocations [C167].
+   EQUAL-EXTENT COLLAPSE (s2.2): when the two declared extents are equal the length pair is
+   `06 n / 78 (MOV A,B)' with NO `MVI A' anywhere (E49B1/B2/B5, all 3/3); when they differ the two
+   immediates return and the head is one byte LONGER (E49B3 `06 03 / 3E 02', E49B4 `06 02 /
+   3E 03', CODE 67 vs 66), and [C334]'s POSITIONAL law holds on a pair where BOTH attributes are
+   extents: B = LEFT, A = RIGHT (s2.3; the MIN/MAX/class-keyed readings are falsified by the data).
+   SCOPE: the collapse is measured on member-vs-member objects ONLY.  Whether `?SCCCM' collapses a
+   member-vs-LITERAL pair whose literal length EQUALS the extent is UNMEASURED (RESULTS s2.2 scope
+   warning, s3), so `str_cmp_shape_fix' above KEEPS its two immediates and this rule must NOT be
+   extended to the literal template.
+   ADMISSION IS QUALIFIED-QUALIFIED ONLY: every object of this round writes BOTH members
+   qualified; bare-bare, bare-qualified and qualified-bare pairs have NO object (RESULTS s3) and
+   keep refusing -- the P1 asymmetry (the BARE spelling admitted member-LEFT-of-a-literal) is
+   untouched and no `ImemFb' appears in the match below.  `^=' skips with CA in this stacked head
+   too (s2.5, E49B5 0014), the extension of [C333] s2.5.  TEST only: the STORE, literal-vs-literal,
+   BASED members, truthiness and over-extent stay refused per s3.  Relations beyond `='/`^=' are
+   unprobed and are excluded by the CALLER's guard.  NO prescan twin: an all-member pair pools no
+   literal, so the pool DEMAND law is unchanged (DATA 000C in all five objects, s2.6). *)
+let str_cmp_shape_fix_mm st l r =
+  match str_side st l, str_side st r with
+  | Some (`ImemF (lk, capl)), Some (`ImemF (rk, capr)) ->
+      Some ((fun () ->
+              d st op_lxi_h;
+              reloc st Data (addr_of st lk);
+              d st op_push_h;
+              d st op_lxi_h;
+              reloc st Data (addr_of st rk);
+              d st op_pop_d),
+            capl, capr)
   | _ -> None
 
 (* [E2E-34/P4] CHARACTER VARYING vs CHARACTER VARYING, every operand pair DR
@@ -7839,7 +7893,13 @@ let lower_test_skip0 st (c : Ast.expr) =
          which POSITION calls it, because [C326] measures the orientation as position-independent.
          Everything else the gate keeps refusing -- a FIXED member, member-vs-member, and the
          TRUTHINESS of a member (E46K14, whose marker was re-measured through this binary after
-         the arm and did NOT move) -- still falls to `imem_refuse "comparison"' below. *)
+         the arm and did NOT move) -- still falls to `imem_refuse "comparison"' below.
+         ADDENDUM 2026-11-01 [E2E-49/P2 arm 1, RESULTS s2.1]: the member-vs-member clause of that
+         sentence is superseded -- a QUALIFIED-QUALIFIED FIXED pair is lowered by the NEW
+         `str_cmp_shape_fix_mm' arm further down (stack parking, `?SCCCM'), never by this
+         `?SCCVM' route; a FIXED member (literal-vs-member) is lowered by the `str_cmp_shape_fix'
+         arm since [E2E-48/P2e arm 4] and [E2E-49/P1].  A member pair with ANY bare side and the
+         truthiness of a member still fall to the refusal site. *)
       let (hl_fn, de_fn, len) =
         match str_cmp_shape_rev ~imem:true st l rr with Some x -> x | None -> assert false
       in
@@ -7868,7 +7928,12 @@ let lower_test_skip0 st (c : Ast.expr) =
          STORE value and truthiness keep falling to the refusal site.
          [E2E-49/P1 arm 2, RESULTS s2.4] the fixed member on the LEFT is now admitted under
          BOTH spellings (`ImemF' and the new `ImemFb'); E49A2 lowers through this same arm
-         with no new bytes — the fold of [C253]/[C258] is invisible to the encoding. *)
+         with no new bytes — the fold of [C253]/[C258] is invisible to the encoding.
+         [E2E-49/P2 arm 1, RESULTS s2.1] the "member-vs-member" clause of the P1-arm-1 sentence
+         above is now superseded: the QUALIFIED-QUALIFIED pair is MEASURED (golden/e49p2) and is
+         lowered by the NEXT arm through `str_cmp_shape_fix_mm' -- NOT here, because it takes no
+         pooled literal and parks on the STACK instead of `EB'.  The STORE value, the truthiness
+         and any member pair with a BARE side keep falling to the refusal site (s3). *)
       let (hl_fn, de_fn, b_len, a_len) =
         match str_cmp_shape_fix st l rr with Some x -> x | None -> assert false
       in
@@ -7876,6 +7941,30 @@ let lower_test_skip0 st (c : Ast.expr) =
       de_fn ();
       d st op_mvi_b; d st b_len;
       d st op_mvi_a; d st a_len;
+      call_ext st "?SCCCM";
+      d st (if r = Ast.Eq then 0xc2 else 0xca);
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
+      (match str_cmp_shape_fix_mm st l rr with Some _ -> true | None -> false) ->
+      (* [E2E-49/P2 arm 1 -- RESULTS s2.1/s2.2/s2.5] the member-vs-member FIXED pair in TEST:
+         `21 *D(left cell) / E5 / 21 *D(right cell) / D1 / 06 capl / [78 | 3E capr] / CD ?SCCCM /
+         skip' -- the encoder comment and the five goldens name every byte.  The head is ONE
+         bundled thunk (stack parking [C141], written order, [C191] final registers); the length
+         pair is POSITIONAL [C334] with the measured equal-extent COLLAPSE to `MOV A,B' (s2.2),
+         measured on member-vs-member ONLY -- the arm above keeps two immediates for a literal.
+         `=' C2 / `^=' CA (s2.5 extends [C333] s2.5 to the stacked head) and the [C309] fill.
+         Admission is QUALIFIED-QUALIFIED: `str_cmp_shape_fix_mm' matches `ImemF/ImemF' alone, so
+         any BARE side (RESULTS s3) falls through to the refusal site, exactly as the encoder
+         refuses it -- one predicate, demand and lowering (no prescan twin exists because no
+         literal is pooled here). *)
+      let (head_fn, capl, capr) =
+        match str_cmp_shape_fix_mm st l rr with Some x -> x | None -> assert false
+      in
+      head_fn ();
+      d st op_mvi_b; d st capl;
+      if capl = capr then d st op_mov_a_b
+      else begin d st op_mvi_a; d st capr end;
       call_ext st "?SCCCM";
       d st (if r = Ast.Eq then 0xc2 else 0xca);
       st.last_imm <- None;
@@ -8091,7 +8180,14 @@ let lower_test_skip0 st (c : Ast.expr) =
               the BARE spelling too (golden/e49p1/E49A2, byte-identical to E49A1 but the \
               module-name bytes); a BARE fixed member on the RIGHT of a literal is still \
               UNMEASURED and refuses here, as do member-vs-member, the STORE value and \
-              every truthiness shape."
+              every truthiness shape.  ADDENDUM 2026-11-01 [E2E-49/P2 arm 1, RESULTS s2.1/s2.3]: \
+              the member-vs-member clause is now superseded for the QUALIFIED-QUALIFIED FIXED \
+              pair -- golden/e49p2/E49B1 (=/collapse), E49B2 (inverted relocations), E49B3/B4 \
+              (unequal extents, positional immediates) and E49B5 (^=) measure `21 *D(left) / E5 / \
+              21 *D(right) / D1 / 06 capl / [78 or 3E capr] / CD ?SCCCM' and the new \
+              `str_cmp_shape_fix_mm' arm lowers exactly that set.  A member pair with ANY BARE \
+              side is still UNMEASURED (s3) and refuses here, as do the STORE value, \
+              literal-vs-literal, BASED members and every truthiness shape."
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
