@@ -1,0 +1,37 @@
+# E2E-49/P3 BASELINE-MINE -- my compiler on probes/E49C1..C4, E49D1..D4, E49E1..E2, E49F1..F4,
+# recorded BEFORE any oracle call.
+# HEAD at recording time: 685741c (E2E-49/P2 CLOSED boundary; ocaml/ unchanged since arm 1
+# b1e9221; tree clean except the guard's managed blocks and the OPERATOR's uncommitted
+# handoff.config.json edit -- not touched).
+# Binary: ocaml/_build/default/bin/pli80c.exe built with `eval $(opam env) && dune build', rc=0.
+# Invocation: ./ocaml/_build/default/bin/pli80c.exe probes/E49Xn.PLI /tmp/out49p3/E49Xn.REL
+# Accepted rows: head bytes read back with tools/reldump.py from the emitted .REL (never a
+# listing). Refused rows: the FIRST refusal line, whitespace-collapsed; rc=2 measured with the
+# rc of the binary itself (bash PIPESTATUS lesson: a pipeline rc belongs to `head').
+# NO oracle run yet.
+
+## Panel A -- equal-length member-vs-literal: ALL FOUR ACCEPT on my templates (two immediates, no collapse)
+E49C1: accepted (rc=0), CODE 66, DATA 000F -- 0006 `21 *D(0005 na) / EB / 21 *D(0000 pool) / 06 03 / 3E 03 / CD ?SCCCM / C2 fill -> 001D'. Route: str_cmp_shape_fix member-left arm (ImemF/Lit); the [C338] collapse is NOT extended to the literal template (scope warning in the encoder comment). This is my H-AK-M candidate object.
+E49C2: accepted (rc=0), CODE 65, DATA 000F -- 0006 `21 *D(0005) / 11 *D(0000) / 06 03 / 3E 03 / CD ?SCCCM / C2 fill -> 001C'. Route: str_cmp_shape_fix literal-left arm (Lit/ImemF), E48E7's direct template. My H-AK-L candidate.
+E49C3: accepted (rc=0), CODE 66, DATA 000F -- E49C1's head with skip byte 0xca at 0014, fill -> 001D ([C072]/[C333] synthesis carried in the arm).
+E49C4: accepted (rc=0), CODE 65, DATA 000F -- E49C2's head with 0xca at 0013, fill -> 001C.
+
+## Panel B -- qualification: ALL FOUR refuse (rc=2), identical imem_refuse "comparison" text
+E49D1: refused (rc=2) -- `codegen: comparison of the internal CHARACTER member REC.NA (CHARACTER FIXED) is unmeasured [TBD] -- ...' naming REC.NA (bare LEFT, qualified right: str_side yields `ImemFb'/`ImemF'; no arm admits a member pair with a bare side -- str_cmp_shape_fix_mm matches ImemF/ImemF ONLY).
+E49D2: refused (rc=2) -- identical text naming REC.NA (qualified left, bare right).
+E49D3: refused (rc=2) -- identical text naming REC.NA (bare/bare).
+E49D4: refused (rc=2) -- identical text naming REC.NA (literal LEFT, BARE member right: the literal-left arm of str_cmp_shape_fix keeps `ImemF' alone -- the P1 asymmetry gate).
+
+## Panel C -- literal-LEFT over-extent: BOTH ACCEPT on my templates (pooled whole, positional)
+E49E1: accepted (rc=0), CODE 65, DATA 0010 -- 0006 `21 *D(0006 na) / 11 *D(0000 'ABCD') / 06 04 / 3E 03 / CD ?SCCCM / C2 fill -> 001C'. The literal template is UNGATED for len > cap (arm-4 comment: DR's verdict was never sampled there -- [TBD]); pool holds 'ABCD' whole (prescan pools the literal as written). This is my H-CE candidate object.
+E49E2: accepted (rc=0), CODE 65, DATA 0010 -- E49E1's head with 0xca at 0013, fill -> 001C ([C072] synthesis, never sampled on this template).
+
+## Panel D -- ordered relations: ALL FOUR refuse (rc=2), identical imem_refuse text
+E49F1: refused (rc=2) -- text naming REC.NA (`<' on a member pair: the Econd string arms match EqR (Eq|Ne) ONLY; the numeric ?IS22N arms are guarded OFF for string operands (str_side Some -- E2E-34/P4 guard), so it falls to the refusal site).
+E49F2: refused (rc=2) -- text naming REC.NA (`>' , unequal extents).
+E49F3: refused (rc=2) -- text naming REC.NA (`<=').
+E49F4: refused (rc=2) -- text naming REC.S2 (`>=', shorter member written LEFT).
+
+# Classification if DR accepts a refused row: `my-gap' (PROTOCOL #3); if DR refuses an
+# accepted-by-me row: a DR law my templates must mirror (arm decision after RESULTS); rows
+# where my object and DR's agree byte-for-byte need NO arm at all (E49E1/E2 are candidates).

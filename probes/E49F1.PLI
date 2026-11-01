@@ -1,0 +1,21 @@
+E49F1:
+  procedure options(main);
+  /* [E2E-49/P3] ORDERED RELATION `< ' between two qualified FIXED
+     members, equal extents. NEVER probed: helper, parking, branch
+     byte are ALL open.  Candidates: ?SCCCM + a flag-conditional
+     skip (C2/CA are equality branches, cannot express <); a
+     DIFFERENT helper (PLILIB.IRL shows a second ?CX* family -- a
+     prior from a preserved historical input, not a law); or a
+     PASS-2 refusal like E48E6's BIT REQ. Nothing from =/^= may be
+     presupposed. */
+  dcl
+    1 rec,
+      2 na char(3),
+      2 nb char(3),
+      2 s2 char(2);
+  dcl k fixed bin(15);
+  if rec.na < rec.nb then k = 1;
+  put list('K=', k);
+  stop;
+end E49F1;
+

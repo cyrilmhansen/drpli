@@ -1,0 +1,20 @@
+E49C1:
+  procedure options(main);
+  /* [E2E-49/P3] member LEFT, literal RIGHT, lengths EQUAL (char(3)
+     vs 'ABC').  [C338] measures the equal-extent collapse `06 n /
+     78' member-vs-member ONLY and its scope warning names THIS
+     shape [TBD]: E49A1/A3/A4 (3/2, 3/2, 3/4) always carried two
+     immediates because the lengths differed.  H-AK-M keeps `EB /
+     06 03 / 3E 03' (CODE 66, E49A1's template); H-AC-M collapses
+     to `06 03 / 78' (CODE 65).  One byte decides it. */
+  dcl
+    1 rec,
+      2 na char(3),
+      2 nb char(3),
+      2 s2 char(2);
+  dcl k fixed bin(15);
+  if rec.na = 'ABC' then k = 1;
+  put list('K=', k);
+  stop;
+end E49C1;
+
