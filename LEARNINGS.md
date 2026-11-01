@@ -1134,3 +1134,52 @@ The guard never writes this file.
 - PROPOSED — keep the twin-comparison diff helper (reldump head + byte-offset diff vs
   named goldens) as the standard RESULTS §1 tool; it cleanly separated name bytes,
   skip bytes and *D-slot bytes in one pass.
+
+## E2E-49/P4 arms — session notes (2026-11-01, renew 2 chain)
+
+- ACCEPTED: Arm a `c515377` landed exactly as P3 arm c's method (alone, whole-file cmp,
+  sweep 29/29, named refusals rc=2, FULL gate rc=0 1150/0). [C344] invisibility confirmed
+  to transfer to the relation family in CODE as well as in goldens.
+- ACCEPTED (byte law, measured against goldens before commit): the DIRECT literal-relation
+  head is SIX bytes — `21 *D(member) / 11 *D(pool)`: LXI D itself carries the *D(pool)
+  operand; a bare `11` followed by a second `21 *D(pool)` is 7 bytes and lands CODE 65
+  where every direct golden says 64. Caught ONLY by whole-file cmp at the four direct
+  rows (G2/G3/G5/G8); staged rows (G1/G4/G6/G7) were exact from the start.
+- ACCEPTED: prescan demand for ordered-relations-with-literal needs NO predicate change —
+  `prescan_cond` `wants` is keyed on `EqR _` (EVERY relational operator) and
+  `is_test_left`/`is_test_right` (widened for BOTH spellings at P3 arm b) already demand
+  exactly the fixed-vs-literal set arm b lowers; the [C152] demand/layout invariant passes
+  on all eight G goldens. The inherited note "twins MUST widen in the same commit" is
+  FALSIFIED for this arm — widening was already complete; the SAME-COMMIT invariant is
+  preserved by ANNOTATING the twins, not editing them.
+- PROPOSED (arm c design, evidence-tight): NegL admits ONLY the goldened rewrites
+  ^(Eq)->Ne, ^(Lt)->Ge, ^(Le)->Gt, gated to UNNEGATED-GOLDEN shapes (J1/J3 = `=`; J2 = `<`
+  mm-qualified; J4 = `<=` unequal mm-qualified literal-left Eq len<=cap only); ^(Gt), ^(Ge),
+  ^(Ne) double-negation, ^( ) with a literal in a RELATION, ^( ) over BARE spellings or
+  OVER-EXTENT keep refusing — P4 RESULTS s3 and PROTOCOL #4 (the predecessor note's
+  "Gt->Le" map entry has NO golden witness; deviation recorded). Complement is lowered by
+  REUSING the existing arms via recursion on a synthesized complement Expr — zero new
+  byte patterns; demand is op-independent so prescan needs nothing.
+- ACCEPTED (procedure): grep-based tail extraction of the gate log garbled interleaved
+  multi-command output; re-grep the saved log with ONE clean pattern before quoting ACTUALS.
+
+## 2026-11-01 — E2E-49/P4 arms b/c + step-6 part 1 (renewal-3 session)
+
+- ACCEPTED (measured): arm b `ec904c1` landed G1..G8 whole-file BYTE-EXACT — the DIRECT
+  `?SCCCM` literal head is SIX bytes because LXI D (`11`) itself carries the `*D(pool)`
+  operand; the 7-byte version (bare `11` + second `21`) mismatched CODE 65 vs 64 at
+  exactly the four direct rows. Arm c `47c2194` landed J1..J4 BYTE-EXACT (CODE 66/66/64/67
+  per RESULTS) via ONE recursion on the synthesized complement expr (`lower_test_skip0`
+  now `let rec`); `negl_str_compl` admits ONLY the four goldened rewrites. Sweep 47/47;
+  FULL gate rc=0 at both arms (panel 1150 — e49p4 unregistered until step 6).
+- FALSIFIED (as instructions, PROTOCOL #4): the inherited "prescan DEMAND twins MUST widen
+  IN THE SAME COMMIT" (the `wants` clause is keyed on `EqR _` — already mirrors; [C152]
+  verified) and the predecessor plan's "Gt->Le" NegL entry (NO golden; ^(>), ^(>=), ^( ^= )
+  keep refusing by name — 9 scratch negations measured rc=2).
+- ACCEPTED: step 6 part 1 `aec53e1` — claims C348..C351 from RESULTS §2 ONLY; ledger ENDS
+  at C351. C351 states the ^( )=complement law WITHOUT preferring the inv/simpl reading
+  (pre-registered byte-convergence).
+- PROPOSAL (infra lesson, unverified as a rule): when excising superseded HANDOFF prose by
+  `str.index`, the FIRST occurrence may be text THIS edit just inserted (my excise cut to
+  my own new heading and duplicated the block; repaired by line-range sed after inspecting
+  the damage) — search AFTER the edit anchor or use line ranges.

@@ -3,7 +3,38 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P4 IN FLIGHT: pre-registration + oracle run + RESULTS LANDED; ARMS owed
+## Current phase — E2E-49/P4 IN FLIGHT: ARMS a/b/c ALL LANDED; step 6 IN PROGRESS (claims committed; registration/inventory/census/COVERAGE/FULL-gate + CLOSE owed)
+
+- STATUS 2026-11-01 (renewal-3 session, accepted): **ALL THREE ARMS LANDED, each ALONE with
+  whole-file goldens + sweep + out-of-scope rc=2 + FULL gate rc=0**: arm a `c515377` (rel arm
+  widened to ImemFb BOTH sides; H1..H6 exact; sweep 29/29; gate 1150/0). Arm b `ec904c1`
+  (`str_cmp_shape_fix_lit_rel`: QUALIFIED ImemF vs LITERAL ONLY, template keyed on FIRST LOWERED
+  operand staged-EB/direct-11, positional pair + [C342] collapse, d2/da, SIX-byte direct head —
+  LXI D carries the *D(pool) operand itself; G1..G8 BYTE-EXACT; sweep A..I 35/35 (43/43 incl. G);
+  out-of-scope rc=2 J1..J4 + scratch bare+literal-rel + lit-lit-rel + rel-in-STORE; FULL gate
+  rc=0 1150/0, neg 181/181 E46K14 UNMOVED, cov 129/0/0, census 15/0/26/0). Arm c `47c2194`
+  (NegL arm admits ONLY the four goldened rewrites ^(Eq)->Ne [mm pair = J1, literal-LEFT
+  qualified right len<=cap = J3], ^(Lt)->Ge mm = J2, ^(Le)->Gt mm = J4 — NO ^(Gt)/^(Ge)/^(Ne)
+  [no golden; predecessor "Gt->Le" entry FALSIFIED as instruction, PROTOCOL #4]; lowering is ONE
+  recursion on the synthesized complement expr, lower_test_skip0 now `let rec`, ZERO new bytes;
+  prescan UNTOUCHED — Eprefix descends, literal-LEFT twin already demands J3's cell; J1..J4
+  BYTE-EXACT CODE 66/66/64/67 per RESULTS; sweep 47/47 incl. G,H,I; 9 scratch negations refused
+  rc=2 by name; FULL gate rc=0 1150/0, neg 181/181, div 9/9, cov 129/0/0, census 15/0/26/0,
+  prose clean). MEASURED at arm b: FALSIFIED inherited note "prescan DEMAND twins MUST widen in
+  the same commit" — `wants` keyed on `EqR _`, twins already mirror; [C152] verified.
+  **STEP 6 OPENED**: part 1 `aec53e1` — claims **C348..C351** appended from RESULTS s2 ONLY,
+  ledger now ENDS at **C351** (C348 rel+literal rekey; C349 canonicality/qualification-invis
+  transfer; C350 I-matrix no-arm transfer incl. I5==I6; C351 ^( )=complement object, inv/simpl
+  NON-SEPARABILITY honored — claim prefers no reading).
+  OWED (step 6 parts 2..): SPECIMENS +24 (G1..G8,H1..H6,I1..I6,J1..J4) round-bank block in
+  tools/e2e_gate.py (panel expected 1150+24=1174 — the ACTUAL printed number governs); sanctioned
+  `python3 tools/e2e_gate.py --update-inventory`; census re-snapshot per the 4b51bc0 recipe
+  (counts UNLESS changed); COVERAGE rows (byte tier; widenings with labelled SUPERSEDED clauses,
+  quotes byte-checked vs the pre-edit blob, cite [C104] never legacy); FULL gate rc=0 with
+  ACTUALS AS PRINTED; then CLOSE per PLAN s6: byte-verified archive of superseded prose vs stated
+  git ranges, HANDOFF/PROGRESS/LEARNINGS rewritten, docs/history/README.md index row, ONE active
+  Next action, handoff_finalize, STOP. NEVER push; no P5. Old bullets below are the run-era record;
+  superseded wording above the STATUS line stands as history per PROTOCOL #2 (archive at CLOSE).
 
 - ACCEPTED (measured this session): pre-registration `328eb3f` (24 probes CRLF+^Z
   <=71col verified; BASELINE-MINE with the ACTUAL binary at 398fa2c: A/B/D all refuse
@@ -216,19 +247,28 @@ records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 90
-checkpoint-id: g90-6690bc80014d
-checkpoint-kind: auto
+checkpoint-generation: 94
+checkpoint-id: g94-8a7bc7cdd49f
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-01T12:11:59.335Z
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-01T12:38:24.393Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b1cc7ad6f855f16883e9d664b3fea2cd132d47634c2e1c705dfec1bc4c29d882
-source-handoff: ece9ed79f817c46c76f51f2caffd004503d8a90517cacd3dd96287e8d9764ca3
-source-learnings: c540e3bf96d4d628dccde2eb21f321005398993b4f11dc7f3a0fc4618c0700a8
+source-progress: 946f687217d3fc194cbb3b39236d10a398e9f5eb8baf7e61fcb043a67398479c
+source-handoff: 0d708967a5e36b1b2b3f1e180c86d73a1275fd89b4b900e8ca2867b7a509a08c
+source-learnings: a33c9d64bb4a8a48f0cd9e5f50412532b66b0a6499894d71ed6c0cb289e479ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P4 ACTIVE: run LANDED (24 ok/24, 24 HIT/0 MISS); ARMS owed next
+next-action: — E2E-49/P4 ACTIVE: ARM a LANDED `c515377`; ARM b code-complete (G1..G8 BYTE-EXACT) — verification+commit OWED; then ARM c, step 6, CLOSE
+
+0a. STATE: see `PROGRESS.md` Current phase STATUS (authoritative this session): arm a
+   committed alone with FULL gate rc=0; arm b = new `str_cmp_shape_fix_lit_rel` encoder
+   (QUALIFIED member vs LITERAL ONLY; staged-EB/direct-11 keyed on FIRST LOWERED operand,
+   positional pair + [C342] collapse, d2/da; direct head SIX bytes — `11` carries the pool
+   operand) + caller arm + annotations; prescan twins needed NO change ([C152] verified;
+   "twins MUST widen" falsified). ARM b OWED: sweep A..I, out-of-scope rc=2 (J rows,
+   bare+literal scratch, lit-lit scratch, rel-in-STORE), FULL gate rc=0, commit ALONE.
+   ARM c per PROGRESS spec (only ^(Eq)->Ne, ^(Lt)->Ge, ^(Le)->Gt; NO un-witnessed rewrites).
 
 0. LANDED this session: pre-registration `328eb3f` (24 probes + mkprobes.py +
    HYPOTHESES + BASELINE-MINE, measured with the ACTUAL binary, committed BEFORE the
@@ -285,6 +325,9 @@ next-action: — E2E-49/P4 ACTIVE: run LANDED (24 ok/24, 24 HIT/0 MISS); ARMS ow
    touch the operator's `handoff.config.json` edit; renewal values ONLY in
    handoff.config.json / /guard status; `eval $(opam env)` before dune; never
    git clean/reset/add -A; NO PUSH.
+readiness-by: session:01a19707-67fc-71b9-af89-5373c8b376a8
+readiness-at: 2026-11-01T12:38:24.397Z
+readiness-checkpoint: g94-8a7bc7cdd49f
 <!-- guard:end checkpoint -->
 
 ## Blockers
