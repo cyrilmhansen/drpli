@@ -651,6 +651,11 @@ E49A1	specimen	probes/E49A1.PLI	golden/e49p1/E49A1/E49A1.REL
 E49A2	specimen	probes/E49A2.PLI	golden/e49p1/E49A2/E49A2.REL
 E49A3	specimen	probes/E49A3.PLI	golden/e49p1/E49A3/E49A3.REL
 E49A4	specimen	probes/E49A4.PLI	golden/e49p1/E49A4/E49A4.REL
+E49B1	specimen	probes/E49B1.PLI	golden/e49p2/E49B1/E49B1.REL
+E49B2	specimen	probes/E49B2.PLI	golden/e49p2/E49B2/E49B2.REL
+E49B3	specimen	probes/E49B3.PLI	golden/e49p2/E49B3/E49B3.REL
+E49B4	specimen	probes/E49B4.PLI	golden/e49p2/E49B4/E49B4.REL
+E49B5	specimen	probes/E49B5.PLI	golden/e49p2/E49B5/E49B5.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

@@ -7695,3 +7695,108 @@ classified `unmeasured` rather than `dr-refuses`.
   the existing skip-byte rules ([C072]/[C309]) and the positional length template emit
   E49A4 whole-file BYTE-EXACT at `fee935e` (P-A4 scored HIT on verdict AND on the
   position-law byte pair `06 03 / 3E 04`).
+
+## C337 — A MEMBER-vs-MEMBER FIXED COMPARE IN TEST IS ACCEPTED THROUGH `?SCCCM` AND PARKS BOTH CELL ADDRESSES ON THE STACK (`PUSH H`/`POP D`), NOT THROUGH `XCHG` (E2E-49/P2 §2.1, §2.5)
+
+* **Measured.**  E49B1 code 0006 (`if rec.na = rec.nb` — two internal FIXED CHARACTER members,
+  both written QUALIFIED, extents 3/3): `21 *D(LEFT cell 0002) / E5 (PUSH H) / 21 *D(RIGHT cell
+  0005) / D1 (POP D) / 06 03 / 78 (see [C338]) / CD ?SCCCM / C2 fill -> 001D` (the NEXT statement,
+  [C309]); CODE 66, DATA 000C.  The parking MECHANISM is the [C141] stack pattern — "the first
+  goes on the stack, never in a register across a load" — and NOT [C333]'s `EB` staging: BOTH
+  forms pre-registered for this round (H-S direct right-first `21 *D(nb) / 11 *D(na)`, H-M staged
+  `21 *D(na) / EB / 21 *D(nb)`) are FALSIFIED by the object; this is the family's fourth distinct
+  shape.  [C191]'s FINAL-register law survives unchanged (HL ends on the RIGHT operand, DE on the
+  LEFT) and the LOAD order is the WRITTEN order (left first, [C334]'s family continues), so the
+  register law and the load order hold while the parking rule moved.  `golden/e49p2/E49B1/E49B1.REL`.
+* **`XCHG` is not the general member-parking rule.**  [C333]'s `EB` is measured ONLY where the
+  OTHER operand is a POOLED LITERAL (E49A1/A2/A3/A4); when BOTH operands are internal cells DR
+  parks on the stack — the same choice the VARYING family made for both-load pairs (E34C5/C6/C7).
+  No mechanism is claimed beyond the six objects that exist.
+* **`^=` skips with `CA` in this stacked head too** (§2.5): E49B5 0014 = `0xca` with the SAME
+  17-byte head and the same `001D` fill; E49B1 and E49B5 differ only in the module-name bytes, the
+  skip byte and its record checksum.  This extends [C333]'s §2.5 measurement (member-vs-literal)
+  to the member-vs-member form; the skip byte continues to follow the RELATION, not the parking.
+* **What this does NOT say** (RESULTS §3): nothing about a member pair with ANY BARE side —
+  bare-bare, bare-qualified and qualified-bare have no object and keep refusing; nothing about
+  `?SCCCM` in a STORE, literal-vs-literal, BASED members, fixed-member truthiness, over-extent or
+  relations beyond `=`/`^=`.  BYTE TIER ONLY: what `?SCCCM` does with unequal B/A at runtime is
+  not claimed, so no `spec/RUNTIME.txt` row comes from this family.
+* **Lowered.**  Arm 1 at `b1e9221`: the new encoder `str_cmp_shape_fix_mm` matches the
+  QUALIFIED-qualified pair `ImemF/ImemF` ALONE and returns ONE bundled head thunk in DR's written
+  order -- the two `*D` records must land in the written order, which is exactly what [C340]
+  measures; the new
+  `Eq|Ne` TEST arm emits the length pair and `CALL ?SCCCM` with the `C2`/`CA` skip.  No prescan
+  twin exists — an all-member pair pools no literal ([C341]).  E49B1/E49B5 whole-file BYTE-EXACT.
+
+## C338 — EQUAL EXTENTS COLLAPSE THE COMPARE LENGTH PAIR TO `MVI B,<extent> / MOV A,B` — MEASURED MEMBER-vs-MEMBER ONLY (E2E-49/P2 §2.2)
+
+* **Measured.**  In THREE objects (E49B1, E49B2, E49B5 — `char(3)` vs `char(3)`) the length pair
+  is `06 03 / 78`: ONE immediate plus `MOV A,B`, with no `MVI A` anywhere in the head.  When the
+  extents DIFFER the two immediates return and the head is one byte LONGER — E49B3 `06 03 / 3E 02`,
+  E49B4 `06 02 / 3E 03`, CODE 67 against CODE 66 (§2.6).  The collapse is a second instance of the
+  register-reuse peephole already measured for STORES as `MOV B,A` ([V102]/[V103],
+  `op_mov_b_a` = `0x47`); here the same identity test runs on the two extents of a compare.
+* **SCOPE WARNING (this is the claim's boundary, not an aside).**  Every equal-length FIXED object
+  that exists is member-vs-member: whether `?SCCCM` collapses a member-vs-LITERAL pair whose
+  literal length EQUALS the declared extent is UNMEASURED ([TBD]; E48E7/E49A1/A2/A3 are 2 vs 3 and
+  E49A4 is 3 vs 4).  The literal template therefore KEEPS its two immediates and this law must NOT
+  be extended to it — my member-vs-literal arms emit `06 n / 3E n` even when the two numbers are
+  equal, which is an extrapolation already licensed by [C330]'s ungated length arms, not a new
+  claim about DR.  What WOULD measure it: one pre-registered probe with `char(3)` against a 3-char
+  literal in TEST.
+* **Lowered.**  Arm 1 at `b1e9221`: `op_mov_a_b` = `0x78` joins `op_mov_b_a`; the TEST arm emits
+  `MVI B,<left extent>` then `MOV A,B` IFF `capl = capr`, else `MVI A,<right extent>`.  The
+  condition is tested on the two EXTENTS the encoder returns, never on operand class, and only the
+  member-vs-member route consults it — `str_cmp_shape_fix` is untouched.
+
+## C339 — [C334]'s POSITIONAL LENGTH LAW HOLDS ON AN ALL-MEMBER PAIR, WHERE BOTH ATTRIBUTES ARE DECLARED EXTENTS (E2E-49/P2 §2.3)
+
+* **Measured.**  E49B3 (`if rec.na = rec.s2`, `char(3)` LEFT vs `char(2)` RIGHT) carries `06 03 /
+  3E 02`; E49B4 (`if rec.s2 = rec.na`) carries `06 02 / 3E 03` — the pair SWAPS WITH THE OPERANDS.
+  This is the first evidence in which BOTH attributes are declared extents ([C334] was measured on
+  member-vs-literal pairs, where one number is a literal's length), and it eliminates the three
+  readings that the earlier samples left open: MIN (`06 02 / 3E 02`), MAX (`06 03 / 3E 03`) and any
+  CLASS-keyed polarity.  `MVI B` = the LEFT operand's attribute, `MVI A` = the RIGHT's, five
+  compare objects and now seven.
+* **What this does NOT say** (RESULTS §3): nothing about STORES ([C191]/[C197]'s capacity-in-A
+  reading stands there, untouched), nothing about which operand `?SCCCM` truncates or pads at
+  runtime — byte tier only.
+* **Lowered.**  NO new law code: the encoder returns the two extents POSITIONALLY (`capl` from the
+  left side, `capr` from the right) exactly as [C334]'s arm does for a literal; E49B3/E49B4 are
+  whole-file BYTE-EXACT at `b1e9221`.
+
+## C340 — THE INVERSION IS NOT ENCODING-BLIND: THE SIDE AN OPERAND IS WRITTEN ON SELECTS ITS RELOCATION SLOT (E2E-49/P2 §2.4)
+
+* **Measured.**  E49B2 (`if rec.nb = rec.na`) is E49B1's head with the member-cell relocations in
+  the OTHER order — the FIRST `21` carries `*D(0005)` (nb, now LEFT) and the SECOND `*D(0002)`
+  (na, RIGHT).  Whole-file `cmp -l` shows E49B1 vs E49B2 differing ONLY in the module-name bytes
+  (raw 0x06/0x13/0x1c) plus the two swapped member-cell relocation records (raw 0x3a/0x3e/0x3f) and
+  the record checksums.  The pre-registered falsifier for this round — "the two relocations come
+  out byte-identical, so the encoding is orientation-blind" — did NOT fire: the written side
+  selects the slot (first `LXI H` slot = the LEFT operand's cell, second = the RIGHT's).  This is
+  the relocation-level counterpart of [C334]'s positional law and it holds in the stacked head,
+  where the two operands are loaded in turn rather than staged in a register.
+* **What this does NOT say** (RESULTS §3): it says nothing about the bare/qualified question
+  ([C335]'s fold invariance was measured member-LEFT-of-literal only), and nothing about which
+  helper a member pair takes when one side is a literal ([C330]/[C333] carry that).
+* **Lowered.**  NO new law code: arm 1's bundled thunk emits `LXI H` + relocation for the LEFT
+  cell first and the RIGHT cell second, so the two `*D` records follow the written order; E49B2 is
+  whole-file BYTE-EXACT at `b1e9221` (the same object also confirms the equal-extent collapse
+  [C338]).
+
+## C341 — HEAD SIZE FOLLOWS THE LENGTH PAIR, AND A MEMBER-vs-MEMBER COMPARE POOLS NO LITERAL: DATA STAYS THE DECLARATION FRAME (E2E-49/P2 §2.6)
+
+* **Measured.**  The collapsed (equal-extent) head is 17 bytes -> CODE 66 (0x42); the two-immediate
+  (unequal-extent) head is 18 bytes -> CODE 67 (0x43).  E49B1's 66 equals E49A1's 66 only by
+  coincidence of offsets: `E5 + D1` costs one byte MORE than `EB`, and the collapse saves one byte
+  back.  DATA is `000C` in ALL FIVE objects — `'K='@0000, na@0002, nb@0005, s2@0008, k@000A` —
+  [C314]'s pool-first layout with the literal that the PUT LIST demands, and NO compare literal
+  pooled because there is none: a member-vs-member compare allocates no pool cell, so the
+  prescan DEMAND law ([C152]'s family) is untouched by this shape.  The `[C309]` fill lands on
+  001D for the 17-byte head and 001E for the 18-byte head, always the next statement.
+* **What this does NOT say** (RESULTS §3): the DATA layout of a member pair in a STORE, or of a
+  BASED member in a condition, is unmeasured; nothing here licenses a runtime claim.
+* **Lowered.**  NO new code: sizes and the fill fall out of the emitted head, and the deliberate
+  ABSENCE of a `prescan_cond` twin for this arm is the implementation of "no literal is pooled" —
+  demand and lowering stay one predicate (the fa09b97/e21281a law).  All five objects are
+  whole-file BYTE-EXACT at `b1e9221`, with DATA 000C in each.

@@ -1510,6 +1510,46 @@ SPECIMENS.update({
     "E49A4":  ("probes/E49A4.PLI",  "golden/e49p1/E49A4/E49A4.REL"),
 })
 
+# ---------------------------------------------------------------------------
+# [E2E-49/P2] ROUND BANK -- member-vs-member FIXED compares in TEST: TWO internal
+# FIXED CHARACTER members, BOTH written QUALIFIED.  Five probes, pre-registered at
+# 3bd9417 (BEFORE any oracle call; `git log --format=%h -- probes/E49B1.PLI | tail -1`,
+# and golden/e49p2 verified absent at that commit and at the prediction-SHA fill-in
+# child 586c240), measured in ONE campaign 5 ok / 5 at tag e49p2 (goldens committed
+# WITH RESULTS.md at 62f5622) -- NO dr-refuses this round; every gap was my-gap
+# (BASELINE-MINE.txt: my baseline at 7fa763b refused all five).  All FIVE objects are
+# WHOLE-FILE byte-identical to DR; arm 1 landed at b1e9221, where the E48/E49 sweep
+# measured 61/61 and the then-FULL registered panel 1131/1131 (these five rows are the
+# +5 that make it 1136).  RESULTS §1 keeps BOTH pre-registered forms as MISSes -- the
+# parking is the [C141] STACK and the equal extents COLLAPSE.
+#
+# BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from this
+# round -- RESULTS §3 makes NO runtime claim (what ?SCCCM does with unequal B/A is not
+# claimed; PROTOCOL #1).
+#
+#   E49B1     `if rec.na = rec.nb' (equal extents 3/3): `21 *D(left cell) / E5 /
+#             21 *D(right cell) / D1 / 06 03 / 78 / CD ?SCCCM / C2 fill -> next' --
+#             STACK parking, NOT [C333]'s EB; both listed forms falsified ([C337]).
+#             CODE 66, DATA 000C ([C341]).
+#   E49B2     `if rec.nb = rec.na': B1's head with the two member-cell *D
+#             relocations SWAPPED IN THEIR SLOTS -- the written side selects the
+#             slot, the encoding is NOT orientation-blind ([C340]).
+#   E49B3     `if rec.na = rec.s2' (3 vs 2): the two immediates RETURN, `06 03 /
+#             3E 02' POSITIONAL ([C339]); 18-byte head, CODE 67 ([C341]).
+#   E49B4     `if rec.s2 = rec.na': B3's pair SWAPPED WITH THE OPERANDS, `06 02 /
+#             3E 03' -- the MIN/MAX/class-keyed readings are falsified by the data
+#             ([C339]); the equal-extent collapse is member-vs-member ONLY ([C338]).
+#   E49B5     `if rec.na ^= rec.nb': skip CA in the STACKED head, fill -> 001D --
+#             [C333] §2.5's CA extends to this shape ([C337]).
+# ---------------------------------------------------------------------------
+SPECIMENS.update({
+    "E49B1":  ("probes/E49B1.PLI",  "golden/e49p2/E49B1/E49B1.REL"),
+    "E49B2":  ("probes/E49B2.PLI",  "golden/e49p2/E49B2/E49B2.REL"),
+    "E49B3":  ("probes/E49B3.PLI",  "golden/e49p2/E49B3/E49B3.REL"),
+    "E49B4":  ("probes/E49B4.PLI",  "golden/e49p2/E49B4/E49B4.REL"),
+    "E49B5":  ("probes/E49B5.PLI",  "golden/e49p2/E49B5/E49B5.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form

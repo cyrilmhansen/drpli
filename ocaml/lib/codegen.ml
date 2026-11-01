@@ -7185,8 +7185,8 @@ let str_cmp_shape_fix st l r =
    [C191]'s FINAL-register law survives (HL ends on the RIGHT operand, DE on the LEFT) and the
    load order is the WRITTEN order; the written side also selects the relocation SLOT (s2.4 --
    E49B1 vs E49B2 differ ONLY in the module-name bytes and the two swapped `*D' records), so the
-   whole head is ONE bundled thunk emitted in DR's order; splitting it across hl_fn/de_fn would
-   reorder the relocations [C167].
+   whole head is ONE bundled thunk emitted in DR's order; splitting it across hl_fn/de_fn
+   would land the two `*D' records in the wrong slots -- the slot law is [C340].
    EQUAL-EXTENT COLLAPSE (s2.2): when the two declared extents are equal the length pair is
    `06 n / 78 (MOV A,B)' with NO `MVI A' anywhere (E49B1/B2/B5, all 3/3); when they differ the two
    immediates return and the head is one byte LONGER (E49B3 `06 03 / 3E 02', E49B4 `06 02 /
