@@ -8004,3 +8004,130 @@ classified `unmeasured` rather than `dr-refuses`.
   deliberate ABSENCE of prescan twins for the member-pair arms is the implementation of "no literal
   is pooled".  All fourteen objects are whole-file BYTE-EXACT at `cde3258`, with the CODE and DATA
   sizes above read out of each golden (`LINK-DEF-CODE-SIZE`, `LINK-DEF-DATA-SIZE`).
+
+## C348 — AN ORDERED RELATION WITH A LITERAL OPERAND IS ACCEPTED ON BOTH `?SCCCM` LITERAL TEMPLATES, AND THE ORDER LAW REKEYS THE TEMPLATE: THE LOWERED PAIR, NOT THE WRITTEN PAIR, SELECTS STAGING AND THE IMMEDIATES (E2E-49/P4 §2.1; falsifies H-A-or; extends [C346] to the literal family)
+
+* **Measured — the rekey.**  E49G1..G8 take every ordered relation between a QUALIFIED internal
+  FIXED member and a string literal in BOTH written orientations.  The template follows the operand
+  pair AS LOWERED, exactly as the `>`/`<=` swap reorders the member-pair loads in [C346]:
+  lowered member-first -> STAGED `21 *D(member) / EB / 21 *D(pool)` (G1 `na < 'ABC'`, G4 `'AB' > na`
+  — the swap lowers the member first — G6 `'ABCD' <= na` swapped, G7 `na >= 'ABC'`); lowered
+  literal-first -> DIRECT `21 *D(member) / 11 *D(pool)` (G2 `'ABC' < na`, G3 `na > 'AB'` swapped,
+  G5 `na <= 'ABCD'` swapped, G8 `'ABC' >= na`).  `<`/`>=` keep written order; `>`/`<=` swap —
+  [C104]'s numeric rule again.  The pre-registered alternative H-A-or ("the WRITTEN orientation
+  keys the template") is FALSIFIED at all four discriminating rows G3..G6 (§1 P-G3..P-G6: G3's byte
+  at 0009 is `11`, not `EB`).
+* **LENGTHS POSITIONAL ON THE LOWERED OPERANDS.**  G3 `06 02 / 3E 03`, G4 `06 03 / 3E 02`, G5
+  `06 04 / 3E 03`, G6 `06 03 / 3E 04` — B carries the FIRST LOWERED attribute, A the second
+  ([C334]/[C339]/[C346] unchanged, now with a literal operand).  The [C342] equal-attribute
+  COLLAPSE `06 03 / 78` is measured in BOTH literal templates under ALL FOUR relations (G1/G2/G7/G8
+  at 3/3): the collapse keys on the equality of the two numbers, never on the relation.
+* **BRANCH and SIZES.**  Strict `<`/`>` skip JNC `0xd2` (G1..G4), weak `<=`/`>=` skip JC `0xda`
+  (G5..G8) — [C346]'s BRANCH law transfers.  Skip-operand slots and fills: staged collapse
+  `13/14-15 -> 001C`, staged pair `14/15-16 -> 001D`, direct collapse `12/13-14 -> 001B`, direct
+  pair `13/14-15 -> 001C`; CODE 65/66 staged and 64/65 direct — head size follows the length pair
+  ([C347]).  DATA is [C314]'s pool-first frame shifted by the compare literal: `000F` with `'ABC'`,
+  `000E` with `'AB'`, `0010` with `'ABCD'` (§2.1, §2.5; `k = 1` stays the six-byte
+  `21 01 00 22 *D(k)` and the fill stays the next statement [C309]).
+* **[C345] TRANSFERS to relations.**  The over-extent literal `'ABCD'` (4 > char(3)) is ACCEPTED
+  under `<=` in BOTH orientations and POOLED WHOLE (DATA 0010) — no truncation, no min/max
+  immediate, no refusal (§2.1).
+* **[C340] holds under the rekey.**  Both templates load the member cell FIRST with `21`, so the
+  `*D` record order (member, pool) is identical in either orientation; only the staging byte and
+  the second load's REGISTER pair differ (`21`/`EB` vs `11`) (§2.1).
+* **What this does NOT say** (RESULTS §3): NO runtime semantics — what `?SCCCM` returns and how
+  JNC/JC read it is NOT claimed, and no `spec/RUNTIME.txt` row may come from this family.  A relation
+  whose MEMBER side is a BARE spelling is UNMEASURED (the G bank writes the member qualified in all
+  eight objects; §3 records bare spellings sampled only at `=` by E49D4); ordered relations with a
+  literal at UNEQUAL attributes under `>=`/`<` beyond G3..G6's `>`/`<=` sample, a relation in a
+  STORE, literal-vs-literal, BASED members, truthiness, `<>`/`><`, and `^( )` over a relation with a
+  literal are all unmeasured.
+* **Lowered.**  Arm b at `ec904c1`: the new encoder `str_cmp_shape_fix_lit_rel` admits ONLY the
+  QUALIFIED `ImemF` against a LITERAL (deliberately stricter than the Eq/Ne arms — the bare-side
+  shape stays refused until measured), keys the template on the FIRST LOWERED operand, emits the
+  positional pair with [C342]'s collapse and the relation-keyed skip; the DIRECT head is SIX bytes
+  — LXI D (`11`) itself carries the `*D(pool)` operand (a first version emitted a 7-byte head and
+  mismatched exactly at the four direct rows).  NO prescan change: the `wants` clause of
+  `prescan_cond` is keyed on `EqR _` (EVERY relation) and the demand twins already mirror the
+  admitted set — the pre-registered "twins MUST widen in the same commit" note is FALSIFIED as an
+  instruction, [C152]'s one-predicate invariant VERIFIED.  E49G1..G8 whole-file BYTE-EXACT at
+  `ec904c1`.
+
+## C349 — QUALIFICATION INVISIBILITY TRANSFERS TO THE ORDERED-RELATION FAMILY, AND THE LOWERED PAIR IS CANONICAL ACROSS QUALIFICATION AND ORIENTATION: TWO WRITTEN SPELLINGS, ONE OBJECT (E2E-49/P4 §2.2; extends [C344]; falsifies H-B-gate/H-B-mixed)
+
+* **Measured.**  E49H1 (`na < rec.nb`), H2 (`rec.na > nb`), H3 (`na <= nb`), H4 (`nb >= na`),
+  H5 (`na > rec.s2`), H6 (`s2 <= rec.na`) — EVERY qualification mix of the member pair inside an
+  ordered relation — are ACCEPTED and each object is the law-constructed QUALIFIED twin
+  byte-for-byte EXCEPT the packed module-name fields (file offsets 4..6, 18..19, 26..28; these
+  256-byte objects carry NO checksum field).  [C344]'s "the encoding never asks who qualified the
+  reference" law is now measured in the relation family too (§1 P-H1..P-H6).
+* **CANONICALITY.**  E49H4 (`nb >= na`) is byte-identical (but names) to golden E49F3
+  (`rec.na <= rec.nb`) AND to E49H3 (`na <= nb`): `>=` written nb-left lowers the SAME pair, in the
+  SAME order, under the SAME weak strictness, as `<=` written na-left.  What DR lowers is the
+  LOWERED PAIR plus the relation's strictness — written qualification and the written choice
+  between `<=` and `>=` leave NO byte trace (§2.2).  H2 additionally shows the ORDER law holds on
+  the BARE spelling: `rec.na > nb` swaps and collapses `06 03 / 78` exactly like its qualified
+  construction.
+* **What this does NOT say** (RESULTS §3): the qualification x orientation x relation grid is
+  sampled at H's SIX points, not exhaustively; `<>`/`><` spellings and the truthiness of a member
+  pair keep refusing; NO runtime claim.
+* **Lowered.**  Arm a at `c515377`: `str_cmp_shape_fix_rel` widened from `ImemF/ImemF` to admit
+  `ImemFb` on BOTH sides — NO new bytes and NO prescan twin (an all-member pair pools no literal,
+  [C341]; DATA 000C in all six H objects).  E49H1..H6 whole-file BYTE-EXACT at `c515377`; a
+  labelled SUPERSEDED/ADDENDUM is appended at [C346]'s and [C344]'s boundary sentences via the
+  encoder comments (the claims themselves stand as written).
+
+## C350 — THE [C346] RELATION LAWS ARE MEASURED ON THE COMPLETE UNEQUAL-EXTENT 4-RELATION x 2-ORIENTATION MATRIX: DR'S OBJECTS ARE BYTE-IDENTICAL TO THE ARM-C BASELINE, AND `<=`-SWAPPED EQUALS `>=`-WRITTEN (E2E-49/P4 §2.3; NO ARM NEEDED)
+
+* **Measured.**  E49I1 (`rec.na < rec.s2`), I2 (`rec.s2 < rec.na`), I3 (`rec.s2 > rec.na`),
+  I4 (`rec.na <= rec.s2`), I5 (`rec.s2 <= rec.na`), I6 (`rec.na >= rec.s2`) — every cell of the
+  matrix at extents 3/2 — are ACCEPTED, and each golden is WHOLE-FILE byte-identical (ZERO
+  differing bytes) to the `.REL` my arm-c compiler had already produced at the pre-registration
+  baseline: stacked member head `21/E5/21/D1` in LOWERED order (written `s2`-first at I2/I5 by
+  swap... precisely: written-order loads I1 `na` first, I2 `s2` first, I6 `na` first; swapped loads
+  I3, I4, I5), positional pair `06 03 / 3E 02` or `06 02 / 3E 03` with NO collapse at 3/2, BRANCH
+  `d2` strict / `da` weak, DATA 000C, CODE 67, fill `-> 001E` (§1 P-I1..P-I6, §2.3).
+  [C346]'s ORDER and BRANCH laws TRANSFER across the matrix with zero exceptions — measured, not
+  extrapolated.
+* **CANONICALITY, QUALIFIED.**  E49I5 (`rec.s2 <= rec.na`) and E49I6 (`rec.na >= rec.s2`) are
+  byte-equal but the packed module names: the same lowered pair (`na` first) under the same weak
+  strictness reached from TWO DIFFERENT relations — [C349]'s canonicality reading measured on the
+  QUALIFIED spelling too (§2.3).
+* **What this does NOT say** (RESULTS §3): the collapse in a swapped head with UNEQUAL lengths
+  cannot exist by construction (collapse needs equal numbers, measured only at 3/3); NO runtime
+  claim.
+* **Lowered.**  NO arm: my existing `cde3258` encoder produced all six objects and the round
+  MEASURED the transfer (classification: 6 already-byte-exact rows, §4).  Verification against the
+  goldens re-run whole-file at `47c2194`: E49I1..I6 BYTE-EXACT.
+
+## C351 — `^( ... )` OVER A FIXED CHARACTER STRING COMPARE IS ACCEPTED AND LANDS ON THE COMPLEMENT'S OBJECT BYTE-FOR-BYTE: THE SKIP BYTE FOLLOWS THE (POSSIBLY FLIPPED) RELATION, NEVER THE NEGATION SYNTAX (E2E-49/P4 §2.4; falsifies H-D-extra; H-D-inv/H-D-simpl BYTE-CONVERGENT — this claim prefers NO reading)
+
+* **Measured.**  E49J1 (`^(rec.na = rec.nb)`), J2 (`^(rec.na < rec.nb)`), J3 (`^('ABC' = rec.na)`),
+  J4 (`^(rec.na <= rec.s2)`): DR compiles all four with NO ERROR in both passes, and each object is
+  the UN-NEGATED COMPLEMENT's object byte-for-byte but the packed names — J1 == golden E49B5
+  (`^=` stacked collapse, `CA`), J3 == golden E49C4 (`^=` direct collapse, `CA`), J2 == golden
+  E49F1's written-order collapsed head with the skip byte `da` (exactly what an un-negated `na >= nb`
+  member pair carries under [C346]/[C349] — and NOT F3, which is the swapped `<=` load order), J4 ==
+  golden E49F2 byte-equal (`>`, SWAPPED `06 02 / 3E 03`, strict `d2`) (§1 P-J1..P-J4, §2.4).
+  NO head of the negated relation's OWN lowered order appears anywhere in the four objects.
+* **H-D-extra FALSIFIED.**  No CMA, no second CALL, no extra branch: the head bytes, CODE size,
+  DATA size and fill ALL equal the complement's (§2.4).
+* **PRE-REGISTERED NON-SEPARABILITY (binding on this claim).**  The two readings — H-D-inv ("keep
+  the head, invert the skip") and H-D-simpl ("rewrite the relation to its complement") — are
+  BYTE-CONVERGENT on all four shapes (J1: `=` head + CA == `^=` head; J2: `<`-written head + weak
+  skip == `>=` written head; J4: swapped `06 02/3E 03` head + strict skip == `>` head).  The objects
+  CANNOT distinguish them and NOTHING in this claim may prefer one; only the law as stated —
+  negation lands on the complement's object — is measured (§1 count note, §2.4).
+* **Branch-law consistency.**  Negated weak skips JC, negated strict skips JNC, `=`/`^=` keep
+  C2/CA: the skip byte always follows the relation, never the `^` ([C343]/[C346] extended through
+  the composition) (§2.4).
+* **What this does NOT say** (RESULTS §3): NO golden exists for `^( ^= )` double negation, `^( > )`,
+  `^( >= )`, `^( )` over a BARE member side, over an OVER-EXTENT literal in `=`, with the member
+  written LEFT of the literal in `=`, over a relation WITH A LITERAL operand, over
+  literal-vs-literal, VARYING or BASED compares — those shapes are UNMEASURED and this compiler
+  keeps refusing them BY NAME at the negated-TEST site; nothing here is a runtime claim.
+* **Lowered.**  Arm c at `47c2194`: a NegL arm in `lower_test_skip0` admits ONLY the four goldened
+  shapes through the predicate `negl_str_compl` and lowers by ONE recursion on the SYNTHESIZED
+  complement expression — ZERO new bytes; the complement arms of [C337]/[C342]/[C346] emit the
+  object and the skip byte is chosen BY THE RELATION inside those arms, realizing §2.4's law
+  structurally.  E49J1..J4 whole-file BYTE-EXACT at `47c2194`.
