@@ -205,13 +205,13 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 110
-checkpoint-id: g110-a62a17994535
+checkpoint-generation: 111
+checkpoint-id: g111-8390f09cccc9
 checkpoint-kind: auto
-content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-01T19:26:42.585Z
+content-delta: none
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-01T19:27:13.882Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 60683014d988badc79801f13c56b6d88bb6d28f2c2060a3b212aaf621c65e2ee
 source-handoff: 8a02d240c6d19f739cc2bcbef8bd1e0aaf692cd6a8e13846e4b1c919a104ee53
@@ -238,6 +238,9 @@ authorisation; any round needs the operator's authorization and PROTOCOL pre-reg
 Standing: never run compiler/oracle/gate in infrastructure sessions; never touch the operator's
 `handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard status`;
 never `git clean`/`reset --hard`/`add -A`; no push.
+readiness-by: session:01a19879-f9d3-704f-a8a8-ce6c10803c9c
+readiness-at: 2026-11-01T19:27:20.513Z
+readiness-checkpoint: g111-8390f09cccc9
 <!-- guard:end checkpoint -->
 
 ## Blockers

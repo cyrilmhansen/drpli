@@ -163,13 +163,13 @@ never `git clean`/`reset --hard`/`add -A`; no push.
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.<!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 110
-checkpoint-id: g110-a62a17994535
+checkpoint-generation: 111
+checkpoint-id: g111-8390f09cccc9
 checkpoint-kind: auto
-content-delta: new
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6369, session 01a19879-f9d3-704f-a8a8-ce6c10803c9c)
-checkpointed: 2026-11-01T19:26:42.585Z
+content-delta: none
+readiness: attested
+status: checkpoint (guard level 4, remaining ~4101, session 01a19879-f9d3-704f-a8a8-ce6c10803c9c)
+checkpointed: 2026-11-01T19:27:13.882Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 60683014d988badc79801f13c56b6d88bb6d28f2c2060a3b212aaf621c65e2ee
 source-handoff: 8a02d240c6d19f739cc2bcbef8bd1e0aaf692cd6a8e13846e4b1c919a104ee53
@@ -177,8 +177,11 @@ source-learnings: f6d88d7910a9d8de8d5e20b2df750ed89733ed00e14404087e57be25908465
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19879-f9d3-704f-a8a8-ce6c10803c9c
+readiness-at: 2026-11-01T19:27:20.513Z
+readiness-checkpoint: g111-8390f09cccc9
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
