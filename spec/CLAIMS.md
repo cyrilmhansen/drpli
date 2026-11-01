@@ -7691,6 +7691,21 @@ classified `unmeasured` rather than `dr-refuses`.
 > P1 measured (a bare member on the right had no object THEN), and the BARE spelling in an ORDERED
 > relation still has no object and still refuses (E2E-49/P3 RESULTS §3).
 
+> **[E2E-49/P4 CORRECTION — the BARE spelling inside an ORDERED RELATION is MEASURED, see
+> [C349].]**  The final sentence above — "the BARE spelling in an ORDERED relation still has
+> no object and still refuses (E2E-49/P3 RESULTS §3)" — is FALSIFIED and kept as written.
+> E49H1 (`if na < rec.nb`), E49H2 (`if rec.na > nb`), E49H3 (`if na <= nb`), E49H4 (`if nb
+> >= na`), E49H5 (`if na > rec.s2`) and E49H6 (`if s2 <= rec.na`) — EVERY qualification mix
+> of the member pair inside an ordered relation — are ACCEPTED and land on the
+> law-constructed QUALIFIED twin byte-for-byte except the packed module-name fields (offsets
+> 4..6, 18..19, 26..28; these 256-byte objects carry no checksum field), and arm `c515377`
+> widened `str_cmp_shape_fix_rel` to `ImemFb` on BOTH sides with NO new bytes
+> (E2E-49/P4 §1, §2.2).  What SURVIVES: the rest of this block, including the bare member
+> pair in a STORE (still refused; rc=2 re-measured by name at `c515377`) and the P1 record
+> itself; and a BARE member in a relation WITH A LITERAL stays unmeasured — every G probe
+> writes the member QUALIFIED and arm `ec904c1` admits the qualified `ImemF` alone, so that
+> spelling still refuses (E2E-49/P4 RESULTS §3).
+
 ## C336 — AN OVER-EXTENT LITERAL IN A FIXED COMPARE IS ACCEPTED AND POOLED WHOLE — NO REFUSAL, NO TRUNCATION (MEMBER-LEFT) (E2E-49/P1 §2.6; answers the member-left [TBD])
 
 * **Measured.**  E49A4 (`if rec.name = 'ABCD'` against `char(3)`): ACCEPTED.
@@ -7762,6 +7777,18 @@ classified `unmeasured` rather than `dr-refuses`.
 > reading of `EB`, the `CA` skip, and the refusals that remain — `?SCCCM` in a STORE,
 > literal-vs-literal, BASED members, fixed-member truthiness, over-extent in a member pair, and a
 > BARE side in an ORDERED relation, which deliberately still refuses ([C344], [C346], RESULTS §3).
+
+> **[E2E-49/P4 CORRECTION — the BARE side in an ORDERED relation is MEASURED, see [C349].]**
+> The last clause of the surviving list above — "a BARE side in an ORDERED relation, which
+> deliberately still refuses ([C344], [C346], RESULTS §3)" — is FALSIFIED and kept as
+> written: E49H1..H6 measure bare-left, bare-right and bare/bare spellings inside `<`, `>`,
+> `<=`, `>=`, all ACCEPTED on the same stacked objects as their qualified twins (byte-
+> identical but the packed name fields), and the ORDER law holds on the bare spelling —
+> E49H2 (`rec.na > nb`) swaps and collapses `06 03 / 78` exactly like its qualified
+> construction (E2E-49/P4 §2.2; arm `c515377`).  What SURVIVES of the P3 list: `?SCCCM` in a
+> STORE, literal-vs-literal, BASED members, fixed-member truthiness and over-extent in a
+> member pair all still have NO object and keep refusing BY NAME at every E2E-49/P4 arm
+> (RESULTS §3); a BARE member against a LITERAL inside a RELATION also stays unmeasured (§3).
 
 ## C338 — EQUAL EXTENTS COLLAPSE THE COMPARE LENGTH PAIR TO `MVI B,<extent> / MOV A,B` — MEASURED MEMBER-vs-MEMBER ONLY (E2E-49/P2 §2.2)
 
@@ -7921,6 +7948,18 @@ classified `unmeasured` rather than `dr-refuses`.
   a cell the prescan never demanded.  E49D1..D4 whole-file BYTE-EXACT at `0a1b80c`; labelled
   corrections are appended at [C335] and [C337].
 
+> **[E2E-49/P4 CORRECTION — the ORDERED RELATION is one of the measured encodings too, see
+> [C349].]**  The first clause of the "What this does NOT say" bullet above — "BARE
+> spellings in an ORDERED RELATION have NO object — every F probe writes BOTH members
+> qualified — so the relation arm admits the QUALIFIED pair alone and every other bare
+> spelling keeps refusing" — is FALSIFIED and kept as written.  E2E-49/P4 bank H wrote the
+> pair in every mix inside four relations and DR accepted every one, each object identical
+> to the qualified twin but the packed name fields — qualification invisibility now
+> MEASURED for the relation family (§1 P-H1..P-H6, §2.2; arm `c515377`, NO new bytes).
+> What SURVIVES: the bare member pair in a STORE (rc=2, re-measured at `c515377`), a BARE
+> member in a relation WITH A LITERAL (unmeasured; arm `ec904c1` admits the qualified
+> `ImemF` alone), BASED members and fixed truthiness.
+
 ## C345 — AN OVER-EXTENT LITERAL WRITTEN LEFT IS ACCEPTED AND POOLED WHOLE: [C336]'S FINDING TRANSFERS TO THE LITERAL-LEFT ORIENTATION BY MEASUREMENT, NOT EXTRAPOLATION (E2E-49/P3 §2.4; NO ARM NEEDED)
 
 * **Measured.**  E49E1 (`if 'ABCD' = rec.na` against `char(3)`) is ACCEPTED, and the whole `.REL`
@@ -7986,6 +8025,28 @@ classified `unmeasured` rather than `dr-refuses`.
 > [C104]).  Nothing else changes here: the ORDER law, the P-F2 falsification, the BRANCH law and
 > [C340]'s relocation consequence stand exactly as recorded, and the COVERAGE row
 > COND.FIXED_RELATION_MEMBER_PAIR cites [C104].
+
+> **[E2E-49/P4 CORRECTIONS — the relation arm's admission, the literal operand and the
+> unequal-extent matrix are MEASURED, see [C348], [C349], [C350].]**  Three clauses of the
+> "What this does NOT say" bullet above are FALSIFIED and kept as written.  (1) "Bare
+> spellings in a relation have no object (all four F probes write both members qualified)
+> and the arm admits the QUALIFIED pair ONLY": E49H1..H6 accept EVERY qualification mix and
+> land on the same objects as the qualified twins — arm `c515377` widened
+> `str_cmp_shape_fix_rel` to `ImemFb` on both sides, NO new bytes ([C349]).  (2) "ordered
+> relations with a LITERAL operand have no object": E49G1..G8 measure every relation x
+> orientation between a qualified member and a literal; the ORDER law REKEYS the literal
+> template — lowered member-first STAGES with `EB`, lowered literal-first loads DIRECT with
+> `11` — the immediates stay positional on the LOWERED operands, the [C342] collapse rides
+> BOTH templates under the relations sampled at equal attributes (G1/G2 `<`, G7/G8 `>=`),
+> and the over-extent literal is POOLED WHOLE under `<=` in both orientations ([C348], arm
+> `ec904c1`).  (3) "unequal-extent strict/weak combinations beyond F2/F4's single pair":
+> E49I1..I6 measure the COMPLETE 4-relation x 2-orientation matrix at extents 3/2 and every
+> golden is WHOLE-FILE byte-identical to the object this compiler already emitted — the
+> transfer is MEASURED, not extrapolated, and NO arm was needed ([C350]).  What SURVIVES:
+> NO runtime claim; `<>`/`><` spellings; a BARE member in a relation WITH A LITERAL (P4
+> §3); equal-attribute collapse under `>` specifically — never sampled in any bank (see the
+> labelled wording correction owed at [C348]); and a relation inside a STORE, which still
+> refuses — rc=2 re-measured by name at arms `c515377` and `ec904c1`.
 
 ## C347 — HEAD SIZE FOLLOWS THE LENGTH PAIR IN EVERY TEMPLATE, AND DATA STAYS [C314]'S POOL-FIRST FRAME IN ALL FOURTEEN OBJECTS (E2E-49/P3 §2.6)
 
