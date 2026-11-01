@@ -158,22 +158,25 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.<!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 104
-checkpoint-id: g104-ae0927cccda9
+checkpoint-generation: 105
+checkpoint-id: g105-79f429eaaa1e
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6916, session 01a197ee-87fd-71b9-af89-5382032498ec)
-checkpointed: 2026-11-01T18:24:14.225Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~784, session 01a197ee-87fd-71b9-af89-5382032498ec)
+checkpointed: 2026-11-01T18:25:45.690Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b81279506177d6a53fd8553649225a3d90285baef13bd8c61d24df77f38fdc66
-source-handoff: dad86360465b3c6525ad60839b83db34a9c83f500f97a93ac75c323b081fcef2
-source-learnings: 6711447c9ce6a1060d4b9715449c1946830eb6fd7844607fc63aa400d14a52c1
+source-handoff: 3cc5c050a3710ce08f14b3a3d4f4669fc60339a0b30b5abdadac7663e3edcb93
+source-learnings: e5da46210cc6488a300292055fef430d5c3c53b82ffb7acb0c0070bae4cc2868
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a197ee-87fd-71b9-af89-5382032498ec
+readiness-at: 2026-11-01T18:26:00.271Z
+readiness-checkpoint: g105-79f429eaaa1e
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
