@@ -39,12 +39,13 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
      `spec/lab-evidence/e2e48-*/` and `spec/lab-evidence/e2e49-p{1,2,3}/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
-6. **E2E-50/P1 (active).** The functional dashboard reads existing canonical evidence only
-   (`spec/INVENTORY.txt`, `spec/COVERAGE.tsv`, `spec/census/corpus-census.json`,
-   `spec/census/coverage-stats.json`, `spec/RUNTIME.txt`, `spec/DIVERGENT.txt`,
-   `tools/panel_keys.py`) plus the annotations in `spec/functional/`; it writes only
-   `docs/functional-status.md` and never runs the compiler, the oracle or the gate. Do not
-   re-derive census or panel numbers by compiling.
+6. **E2E-50/P2 (active).** Functional-testing foundation + emulator/redistribution audit. The
+   external Runes lab `/home/john/pli/lab` (and `/home/john/pli/cpm`, `/home/john/pli/runes-full-runs`)
+   is **READ-ONLY** this round: never commit, edit, clean, reformat or relocate anything there.
+   Compiler/LINK/emulator runs occur ONLY as the P2 harness defines them (bounded, isolated,
+   lane-labelled); never the oracle campaign, the full CP/M runtime tier or Rune CI builders.
+   The P1 dashboard (`tools/functional_dashboard.py`) stays read-only over canonical evidence
+   and regenerates only `docs/functional-status.md`.
 
 ## Last verified state — E2E-49/P4 CLOSED (FULL compile-tier gate rc=0 measured by the step-6 session at HEAD `5b0ccde`, recorded `882f77c`; CLOSE prose + byte-verified four-generation archive completed by the docs-only closing session — ledger ENDS at C351, byte panel 1174, coverage 133 rows)
 
@@ -104,39 +105,63 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Verified evidence and the P3-era Blockers — archived verbatim, every block byte-verified
   against its stated git range (16/16 BYTE-EXACT), in
   `docs/history/2026-11-01-e49p4-closed.md`. Goldens untouched except this round's
-  `golden/e49p4`.## Next action — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`, close this commit)
+  `golden/e49p4`.
 
-The functional dashboard round is COMPLETE: validation fixes + `spec/functional/programs.tsv`
-(68 programs, 3 origin classes never summed) + `tools/functional_dashboard.py` (reads canonical
-evidence only, imports the gate module, compiles/runs NOTHING, deterministic, UNKNOWN never
-rendered as success) + `tools/test_functional_dashboard.py` (30/30) + generated
-`docs/functional-status.md` (views A–E) + the replaced `README.md` status section + the labelled
-[E2E-50/P1 CORRECTION(S)] in `LEARNINGS.md`. Evidence-infrastructure audit in `LEARNINGS.md`
-2026-11-02. Superseded prose archived byte-verified in
-`docs/history/2026-11-02-e50p1-closed.md`.
+## Next action — E2E-50/P2 ACTIVE (operator mission brief, bootstrapped 2026-11-02)
 
-NO active round exists. A successor session without an operator instruction confirms HEAD and the
-tree, runs `/handoff verify`, records state and STOPS. The ranked candidate shortlist for the
-operator's E2E-50/P2 choice lives in `docs/functional-status.md` §E (regenerate:
-`python3 tools/functional_dashboard.py --check`; `--write` after any ledger change); the measured
-boundaries live in `PROGRESS.md` → Blockers and Pending. This is a shortlist, NOT an
-authorisation; any round needs the operator's authorization and PROTOCOL pre-registration.
+**Mission (EXPLICIT OPERATOR AUTHORIZATION E2E-50/P2).** Establish the first practical foundation
+for testing PL/I-80 programs by FUNCTIONAL correctness, independent of byte-for-byte DR
+target: (1) audit the project's own 8080/CP/M emulator (the Runes lab at `/home/john/pli/lab`,
+READ-ONLY) — technical capability matrix + provenance/license/redistribution audit; (2) a small
+progressive ORIGINAL corpus (family **TABLE**) with independently specified expected behaviour;
+(3) a minimal deterministic execution/validation harness with two lanes (A redistributable core,
+B historical PL/I compatibility) and typed verdicts PASS/FAIL/BLOCKED/UNKNOWN — a skipped stage
+is never PASS. Deliverable docs: `docs/emulator-audit.md`, `docs/functional-testing.md`.
+NOT authorized: compiler implementation changes, PLILIB reimplementation, mass benchmark porting,
+third-party benchmark import before rights are verified, changes to `GOAL.md`,
+`handoff.config.json`, global Pi config, external Runes sources; NO push, NO automatic P3.
 
-Standing: never run compiler/oracle/gate in infrastructure sessions; never touch the operator's
-`handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard status`;
-never `git clean`/`reset --hard`/`add -A`; no push.
+Durable sequence (completed evidence in brackets; explicit-path commits only):
+- 0. Documentary bootstrap: P1 close-out inconsistencies measured at HEAD and fixed; this
+  mission recorded as the single authority. [landed in the bootstrap commit]
+- 1. Emulator technical audit — Intel 8080 core, CP/M BDOS/BIOS, COM loading, console, files,
+  determinism, limits, tests — capability matrix IMPLEMENTED/PARTIAL/MISSING/UNTESTED/
+  KNOWN DEFECT into `docs/emulator-audit.md`; safe lab tests may be RUN (never infer
+  correctness from presence of code). [pending]
+- 2. License/redistribution audit → two-package matrix (free core / historical-compat) in the
+  same document; record blockers, recommend options, decide no operator-level license.
+  Do NOT copy restricted assets into any prospective package. [pending]
+- 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
+  correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
+  undefined must be measured, never assumed). [pending]
+- 4. TABLE corpus: TABLE-00 (traverse/aggregate), TABLE-01 (sort; ordering, multiplicity,
+  count, sum, independently computed reference sequence), TABLE-02 only if 0/1 verify; fixed
+  inputs incl. negatives/duplicates; provenance headers; original work recorded as such. [pending]
+- 5. Harness `tools/functional_runner.py` + tests proving absent deps, timeouts, malformed
+  output and mismatched assertions cannot be mistaken for success. [pending]
+- 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
+  permit; Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB, dependency lane
+  labelled; classify and preserve blockers honestly. Never substitute an unlabelled emulator.
+  [pending]
+- 7. Minimal functional-results reporting (reuse P1 model or a separate small report; NO
+  reporting-system rewrite; scientific verdicts unchanged; no COVERAGE promotion without
+  evidence). [pending]
+- 8. Verification + short report (measured / failed / unmeasured), bounded P3 proposal, CLOSE
+  (byte-verified archive per convention), `handoff_finalize`, STOP. [pending]
+
+Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
+read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
+`git clean`/`reset --hard`/`add -A`; no push.
 
 ## Unfinished operations
 
-- (none) — E2E-49/P4 is CLOSED: arms a/b/c (`c515377`/`ec904c1`/`47c2194`), claims C348..C351
-  plus the four labelled P4 CORRECTION blocks (`9c42f3b`) and the [C348] WORDING CORRECTION
-  (`5b0ccde`), registration (panel 1174), COVERAGE (133 rows, 0 errors, 0 warnings), the FULL
-  compile-tier gate (rc=0 measured at `5b0ccde`, recorded `882f77c`) and the CLOSE
-  (four-generation archive `docs/history/2026-11-01-e49p4-closed.md` byte-verified block by
-  block — 16/16 —, HANDOFF/PROGRESS/LEARNINGS rewritten, `docs/history/README.md` index
-  updated) all landed. Standing debts live in `PROGRESS.md` → Pending; the candidate pool lives
-  in the Next action above. Nothing in `ocaml/` is half-edited and no scientific byte awaits
-  verification.## Discoveries not yet incorporated
+- E2E-50/P2 steps 1–8 above; none of `docs/emulator-audit.md`, `docs/functional-testing.md`,
+  `tests/functional/`, `tools/functional_runner.py` exists until its step lands.
+- Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE `%include`);
+  this round does not touch them.
+- At this boundary: no half-finished Git operation, no emulator process running, `ocaml/` untouched.
+
+## Discoveries not yet incorporated
 
 - (none in the ledger) — every E2E-49/P4 discovery is incorporated: laws C348..C351 in
   `spec/CLAIMS.md` (derived ONLY from `spec/lab-evidence/e2e49-p4/RESULTS.md` §2), the four new
@@ -147,8 +172,15 @@ never `git clean`/`reset --hard`/`add -A`; no push.
   NEG-panel rows; "emit the head as ONE bundled thunk in written order" stays a codegen
   invariant evidenced per-shape — no ledger claim until discriminating probes exist; the [C351]
   inv/simpl readings are recorded as BYTE-CONVERGENT (pre-registered non-separability honoured,
-  no reading preferred). The stale `README.md` rolling status remains recorded as deferred work
-  in `PROGRESS.md` → Pending.## History and pointers
+  no reading preferred). P2 BOOTSTRAP MEASUREMENT (falsification, kept per PROTOCOL #2): commit
+  `4eb6582` asserted the second glued heading pair `## Discoveries` "does NOT exist in the manual
+  region — FALSIFIED by direct measurement"; a byte read of HEAD `942aa78` shows the manual
+  glue pairs (`verification.## Discoveries`, `Pending.## History and pointers`) and the
+  `golden/e49p4.## Next action` pair, ALL THREE are in the manual region — the close session
+  measured only the guard's own rendering. Corrected in the
+  P2 bootstrap commit; `4eb6582`'s commit message stands as written (immutable record).
+
+## History and pointers
 
 - Superseded next-action sections, closed phase records and the full renewal-hop status
   log: `docs/history/README.md` (index; baseline extraction at `f3a4c60`; P2e closing-era
@@ -161,7 +193,9 @@ never `git clean`/`reset --hard`/`add -A`; no push.
   `e13311c`, the step-6-era CLOSE instruction at `882f77c`, the close-authorized prose at
   `5c52bba` (identical at HEAD `b5f792c`) — `docs/history/2026-11-01-e49p4-closed.md`).
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
-  this file. The guard writes the managed block below via Handoff commands only.<!-- guard:begin checkpoint -->
+  this file. The guard writes the managed block below via Handoff commands only.
+
+<!-- guard:begin checkpoint -->
 checkpoint-schema: 3
 checkpoint-generation: 111
 checkpoint-id: g111-8390f09cccc9

@@ -3,7 +3,24 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`; close docs-only)
+## Current phase — E2E-50/P2 ACTIVE (operator mission brief 2026-11-02; functional-testing foundation + emulator/redistribution audit)
+
+Mission, the durable step sequence 0–8 and the prohibitions live ONLY in `HANDOFF.md` → Next
+action (single operational authority). Step 0 (documentary bootstrap) lands with this commit:
+measured and fixed at HEAD `942aa78` — PROGRESS `## Next action` still declaring P1 ACTIVE
+(stale: P1 is CLOSED at `4cad695`/`4eb6582`, checkpoint g111 verified current + attested this
+session by prose-hash replay of the guard's own strip+sha256 law); the stale HANDOFF sentence
+recording the README rolling status as deferred work (P1 replaced it; no README item exists in
+Pending); three blankless headings in PROGRESS, three inline glued headings in HANDOFF
+(incl. `golden/e49p4.## Next action`) and one glued guard-marker line (the only residual
+blankless heading, `### Last verified state`, is INSIDE the guard's own rendering — never
+hand-edited). `4eb6582`'s assertion that the `## Discoveries` pair "does NOT
+exist in the manual region" is FALSIFIED by byte read of HEAD and corrected with the falsified
+text quoted (PROTOCOL #2). No scientific claim, golden, ledger or `ocaml/` byte touched. The
+emulator audit target is confirmed: `/home/john/pli/lab` (Runes `pli80_lab` dune project —
+`lib/i8080`, `lib/cpm`, `lib/runner`, `lib/trace`), READ-ONLY this round.
+
+## Previous phase — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`; close docs-only)
 
 Functional dashboard round COMPLETE, docs-only and evidence-only: compiler, oracle, LINK-80,
 cpmsim, Rune CI and the gate were NEVER RUN this round; no ocaml/golden/ledger/COVERAGE/INVENTORY/
@@ -18,7 +35,7 @@ dashboard `--check` rc=0, `coverage_check.py` rc=0 (133 rows 0/0), `file_prose_c
 E2E-50/P2 candidate pool is the §E shortlist in `docs/functional-status.md` (a shortlist, never an
 authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
-## Previous phase — E2E-49/P4 CLOSED (FULL compile-tier gate rc=0 measured by the step-6 session at HEAD `5b0ccde`, recorded `882f77c`; CLOSE completed by the docs-only closing session — ledger C348..C351, byte panel 1174, coverage 133 rows)
+## Earlier phase — E2E-49/P4 CLOSED (FULL compile-tier gate rc=0 measured by the step-6 session at HEAD `5b0ccde`, recorded `882f77c`; CLOSE completed by the docs-only closing session — ledger C348..C351, byte panel 1174, coverage 133 rows)
 
 - Round (OPERATOR-authorized 2026-11-01; PLAN committed at bootstrap `bc6ee4f`): composite
   FIXED/TEST bank — ordered relations with a LITERAL (panel G, E49G1..G8), BARE spellings in
@@ -76,13 +93,17 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
   an operator instruction confirms HEAD and tree, runs `/handoff verify`, records state and
   STOPS; candidate pool in `HANDOFF.md` → Next action. No push; no P5; operator
   `handoff.config.json` edit stays unstaged.
+
 ## Next action
 
-The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: **E2E-50/P1
-is ACTIVE with items 1a–f LANDED at `4cad695`; only the item 1(g) documentary CLOSE is owed**
-(byte-verified archive, CLOSED rewrite of HANDOFF/PROGRESS, history index row, `handoff_finalize`,
-STOP). No competing action exists anywhere else; PROGRESS does not restate it
+The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: **E2E-50/P2
+is ACTIVE; step 0 (documentary bootstrap) lands with this commit, steps 1–8 owed** (emulator
+technical + redistribution audit, functional-test spec format, TABLE corpus with independent
+expectations, harness with typed verdicts, Lane A/B execution evidence, minimal results
+reporting, close report + bounded P3 proposal). No competing action exists anywhere else;
+PROGRESS does not restate it
 (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
+
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
 - E2E-48/P1 — 24/24 probes byte-identical + registered, claims C309–C316, gate 1098/0: `992ccad`.
@@ -127,6 +148,7 @@ STOP). No competing action exists anywhere else; PROGRESS does not restate it
 
 
 - E2E-50/P1 CLOSED — functional dashboard (evidence-infrastructure audit; capability taxonomy 30 rows validated; 68-program inventory in 3 origin classes; deterministic read-only dashboard + 30 tests; generated docs/functional-status.md views A–E incl. ranked §E candidate shortlist; stale README rolling status replaced; labelled LEARNINGS corrections incl. RUNTIME 71-names falsification). Deliverables `4cad695`; no compiler/oracle/gate run; no scientific byte.
+
 ## Completed
 
 *Scientific — recorded, not re-run by this session:*
