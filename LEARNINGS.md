@@ -893,3 +893,31 @@ The guard never writes this file.
   three labelled SUPERSEDED clauses (`COND.FIXED_MEMBER_TEST_SCCCM`, `COND.FIXED_MEMBER_LEFT_TEST`,
   `COND.BIT1_NEG_TEST` still call member-vs-member unmeasured) are OWED as the next act; the FULL
   compile-tier gate has STILL never been run this round.
+
+## 2026-11-01 — E2E-49/P2 CLOSE (step 6 part 2b + FULL GATE + archive; renewal 2/12, gate measured at HEAD `d5983e8`, record `8926b83`)
+
+* **accepted (procedure)** — the close order that stayed honest end to end: commit the COVERAGE
+  widening + labelled SUPERSEDED clauses with the validator ACTUAL (`d5983e8`); run the FULL
+  gate on THAT committed tree and record the ACTUALS AS PRINTED in a dedicated record commit
+  (`8926b83`); only THEN rewrite the durable prose and archive the superseded text byte-for-byte
+  from the committed blobs (`git show 8926b83:HANDOFF.md` / `:PROGRESS.md`, per-range substring
+  assertions). The archive captures the gate record itself, so nothing at close has to be
+  quoted from memory.
+* **accepted** — the three boundary-column corrections landed in one act after [C337] falsified
+  their "member-vs-member stays refused/unmeasured" sentences (`COND.FIXED_MEMBER_TEST_SCCCM`,
+  `COND.FIXED_MEMBER_LEFT_TEST`, `COND.BIT1_NEG_TEST`), originals verbatim (PROTOCOL #2);
+  `COND.CMP_LENGTHS_POSITIONAL` widened to EXACT:8 on E49B3/E49B4 with an EXTENDED clause
+  naming the dead MIN/MAX/class readings ([C339]). ACTUALS: `coverage_check.py` rc=0 — 125 rows,
+  0 errors, 0 warnings; FULL gate rc=0 — 1136 byte-exact / 0 fail, negative 181/181 with the
+  E46K14 `[dr-refuses]` pinned marker UNMOVED, divergence 9/9, census 15/0/26/0, prose
+  5 active files clean.
+* **accepted (prose hygiene)** — in-flight durable files carry stale P1-era statements (the
+  PROGRESS next-action stub still said "await operator"; Verified evidence was frozen at
+  `0a8ceff`; the Blockers list still called member-vs-member unmeasured; the HANDOFF claim
+  pointer said the ledger ENDS at C336). Close corrects them IN PLACE and preserves the old
+  wording verbatim in `docs/history/2026-11-01-e49p2-closed.md` — a labelled correction plus
+  archive, never a silent rewrite; the ledger-end pointer now names C341.
+* **proposed (for the next round)** — [C338]'s scope warning names the cheapest discriminating
+  probe left in this family: `char(3)` against a 3-char LITERAL in TEST decides whether the
+  equal-extent collapse is a mechanism or an operand-class rule. It needs its own
+  pre-registration; until then the literal template keeps its two immediates.

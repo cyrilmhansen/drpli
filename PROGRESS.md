@@ -3,114 +3,49 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P2 IN FLIGHT (step 6 parts 1/2a/2b committed; FULL gate rc=0 at `d5983e8`; CLOSE owed)
+## Current phase — E2E-49/P2 CLOSED (FULL compile-tier gate rc=0 measured at HEAD `d5983e8`, recorded `8926b83`; CLOSE prose + archive in the commit that carries this text)
 
-- Round authorized by the OPERATOR 2026-11-01. Pre-registration `3bd9417` (probes
-  E49B1..E49B5 + mkprobes.py + HYPOTHESES.md + BASELINE-MINE.txt at HEAD `7fa763b`: all
-  five refused rc=2 — all gaps `my-gap`) committed BEFORE any oracle call; prediction-SHA
-  fill-in child `586c240`; ONE run `--tag e49p2 --switches '$L$D'` -> **5 ok / 5, NO
-  dr-refuses**; goldens + `spec/lab-evidence/e2e49-p2/RESULTS.md` committed together at
-  `62f5622`.
-- MEASURED laws (RESULTS §2 ONLY): §2.1 member-vs-member takes `?SCCCM` with head
-  `21 *D(left cell) / E5 (PUSH H) / 21 *D(right cell) / D1 (POP D)` — the [C141] STACK
-  parking, NOT [C333]'s XCHG: BOTH pre-registered forms (H-S direct, H-M staged) were
-  falsified, a fourth shape again; [C191] final law survives (HL=right, DE=left), load
-  order is the WRITTEN order. §2.2 EQUAL-EXTENT COLLAPSE: equal extents emit
-  `06 n / 78 (MOV A,B)`, no `MVI A`; unequal extents keep the two immediates — measured
-  ONLY member-vs-member, the member-vs-literal equal-length case stays [TBD] and the
-  literal template keeps two immediates. §2.3 [C334] positional law confirmed on an
-  all-member pair (B3 `06 03 / 3E 02`, B4 `06 02 / 3E 03`; min/max/class falsifiers dead).
-  §2.4 inversion swaps the two `*D` reloc slots (B1 vs B2 differ only name bytes + those
-  slots). §2.5 `^=` skip CA in the stacked head (B5, fill -> 001D). §2.6 CODE 66 (collapse,
-  17-byte head) / 67 (two immediates, 18-byte head), DATA 000C [C314] unchanged.
-- DONE — ARM 1 at `b1e9221` (codegen only, committed ALONE as required): `op_mov_a_b = 0x78`;
-  encoder `str_cmp_shape_fix_mm` matching `ImemF/ImemF` ONLY; stacked head as ONE bundled thunk
-  in written order; `06 capl` then `78` iff `capl = capr` ELSE `3E capr`; `?SCCCM`; C2/CA +
-  [C309] fill; NO prescan change; labelled ADDENDA at every superseded "member-vs-member keeps
-  refusing" sentence (str_cmp_shape_fix header + member-left arm, both TEST arm comments,
-  imem_refuse WHY), originals verbatim. MEASURED ACTUALS on that tree: `dune build` rc=0; all
-  five `.REL` whole-file `cmp` BYTE-EXACT vs `golden/e49p2/`; E48/E49 sweep over every `e48*/e49*`
-  golden that has a `.REL` + a `probes/` source = 61 byte-exact / 0 fail; FULL registered-panel
-  sweep from `spec/INVENTORY.txt` = 1131 byte-exact / 0 fail (scratch script
-  `/tmp/e49p2arm/panel_sweep.py`, not repo infra); out-of-scope refusals ALL rc=2 — bare-LEFT mm,
-  qualified/bare mm, bare-bare mm, mm STORE, fixed-member truthiness, literal-vs-literal, mm with
-  `>`; E46K14 rc=2 with the pinned marker UNMOVED. Re-verified after registration: the
-  member-vs-literal arms still emit `06 n / 3E n` with EQUAL numbers (scratch `if rec.na = 'ABC'`
-  and `if 'ABC' = rec.na`), i.e. the collapse did NOT leak into the literal template.
-- DONE — STEP 6 part 1 at `0abf1c1`: claims **C337..C341** derived ONLY from RESULTS §2 (C337
-  §2.1 stack parking + §2.5 CA; C338 §2.2 equal-extent collapse WITH the scope warning; C339 §2.3
-  positional law on an all-member pair; C340 §2.4 written side selects the `*D` slot; C341 §2.6
-  head size + NO pooled literal); SPECIMENS bank E49B1..B5; `--update-inventory` wrote exactly 5
-  specimen rows (panel **1136**); census re-snapshot counts UNCHANGED 15/0/26/0 (metadata only);
-  plus one citation fix in the arm comment (the bundling clause cited [C167], an array-extent
-  claim, loosely — it now cites [C340], the law the bytes actually measure).
-- DONE — STEP 6 part 2a (uncommitted `spec/COVERAGE.tsv` at HEAD `adcf143`): the THREE new rows
-  landed and `python3 tools/coverage_check.py` rc=0 on 125 rows, 0 errors, 0 warnings (measured by
-  THIS session): `COND.FIXED_MEMBER_MEMBER_TEST` (MEASURED, EXACT:5, E49B1..B5),
-  `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE` (MEASURED, EXACT:3, E49B1,B2,B5, scope warning IN the
-  boundary column), `COND.CMP_INVERSION_SELECTS_SLOT` (SINGLE_SAMPLE, EXACT:2, E49B1,B2).
-- DONE — STEP 6 part 2b at `d5983e8`: `COND.CMP_LENGTHS_POSITIONAL` WIDENED (probes +E49B3,E49B4,
-  rel_parity EXACT:6 -> EXACT:8, provenance +[C339] +e2e49-p2 RESULTS, labelled EXTENDED clause
-  naming the dead MIN/MAX/class readings) and labelled SUPERSEDED clauses [E2E-49/P2, 2026-11-01]
-  appended to the boundary columns of `COND.FIXED_MEMBER_TEST_SCCCM`, `COND.FIXED_MEMBER_LEFT_TEST`
-  and `COND.BIT1_NEG_TEST` — each names the falsified "member-vs-member unmeasured/refused"
-  sentence per [C337], originals kept verbatim (PROTOCOL #2). `coverage_check.py` rc=0 on 125 rows,
-  0 errors, 0 warnings.
-- DONE — FULL compile-tier gate measured by THIS session at HEAD `d5983e8`, `python3
-  tools/e2e_gate.py` rc=0, ACTUALS AS PRINTED: byte panel **1136 byte-exact / 0 fail of 1136**
-  (all five new specimens print `BYTE-EXACT E49B<n>: .REL == DR oracle (256 bytes)`; E49A4 still
-  exact); negative panel **181/181 refused**, E46K14 prints `refused [TBD] (comparison of the
-  internal CHARACTER member REC.LINE) [dr-refuses]` — the pinned marker UNMOVED; divergence panel
-  **9/9 as recorded**; coverage panel `coverage_check: 125 rows, 0 errors, 0 warnings`; corpus
-  census counts UNCHANGED `EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0` (HISTORICAL 44,
-  AUTHENTIC 41, DR_REJECTED 3, NOSRC 0, NO_ORACLE 3, dirs_present 44, sha_unverified 0); file
-  prose check **5 active files clean (7 forbidden assertions, 8 pinned markers, [C280] banner, no
-  duplicate provenance cites)**.
-- NEXT (exact, in order): CLOSE — HANDOFF/PROGRESS prose rewrite (IN FLIGHT -> CLOSED +
-  SUPERSEDED), archive the superseded prose verbatim from committed blobs to
-  `docs/history/2026-11-01-e49p2-closed.md` + README index row, LEARNINGS close notes, ledger-end
-  pointer past **C341**, `/handoff finalize`.
-- Keep refusing (RESULTS §3): any BARE spelling in a member-vs-member pair; the equal-extent
-  collapse for member-vs-literal; STORE; literal-vs-literal; BASED; truthiness; over-extent;
-  relations beyond `=`/`^=`; `^( )`. BYTE TIER ONLY — no `spec/RUNTIME.txt` row from this round.
-  No push; operator `handoff.config.json` edit stays unstaged.
-
-### SUPERSEDED — E2E-49/P1 CLOSED (2026-11-01; FULL compile-tier GATE rc=0 measured at `0a8ceff`)
-
-- Round: operand-inverted FIXED compares (member LEFT of a literal in TEST), probes
-  E49A1..A4 pre-registered `9b3d860` BEFORE any oracle call, fill-in `0e9cc3d`, ONE run
-  4 ok/4, all ACCEPTS, no dr-refuses (goldens + RESULTS `c8285cb`); my baseline refused
-  all four — every gap `my-gap`.
-- Ledger at `0a8ceff`: C333 (XCHG staging = ORIENTATION law, measured for the FIXED class
-  with *D operands; helper name carries no orientation; `^=` CA measured in the ?SCCCM
-  family), C334 (length immediates POSITIONAL — B = LEFT attribute, A = RIGHT; falsifies
-  [C330]'s class-polarity reading; labelled CORRECTION appended at C330, falsified text
-  kept, PROTOCOL #2), C335 (bare-vs-qualified byte-identical but three module-name field
-  bytes; admission deliberately asymmetric — bare member-RIGHT keeps refusing), C336
-  (over-extent literal ACCEPTED, pooled WHOLE, member-left; literal-LEFT stays [TBD]).
-- Arms: `fee935e` (member-LEFT lowering + positional return tuple + `is_test_left` twin),
-  `b044b7c` (bare `ImemFb` variant, or-pattern member-LEFT arm, same-commit prescan
-  widening, ?IS22N guard refusal widened exactly to the admitted set).
-- Registration at `0a8ceff`: SPECIMENS bank E49A1..A4; INVENTORY via sanctioned
-  `--update-inventory` (exactly 4 rows, panel 1131 entries); census re-snapshot counts
-  UNCHANGED 15/0/26/0; COVERAGE 4 rows + labelled SUPERSEDED note on
-  COND.FIXED_MEMBER_TEST_SCCCM.
-- FULL GATE at `0a8ceff` rc=0: 1131 byte-exact / 0 fail (E49A1..A4 BYTE-EXACT), negative
-  181/181 (E46K14 `[dr-refuses]`, marker UNMOVED), divergence 9/9, coverage 122 rows
-  0 errors 0 warnings, census 15/0/26/0, prose 5 files clean. `dune build` rc=0. BYTE
-  TIER ONLY — no `spec/RUNTIME.txt` row from this round.
-- Close: superseded prose (this round AND the P2e close record AND the old Blockers)
-  archived verbatim from committed blobs in `docs/history/2026-11-01-e49p1-closed.md`;
-  README index row added; LEARNINGS close notes. No push.
-- Keep refusing (e2e49-p1 §3 + e2e48-p2e §3): fixed member in STORE (both orientations),
-  member-vs-member, literal-vs-literal, BASED, fixed truthiness, bare member-RIGHT,
-  over-extent literal-LEFT, over-extent INITIAL/STORE, `^( )`, `^=` over a ladder, bare
-  `-0`, runtime length rewrite, empty-varying PUT output, PUT EDIT bit item.
+- Round (OPERATOR-authorized 2026-11-01): member-vs-member FIXED CHARACTER compares in
+  TEST. Pre-registration `3bd9417` committed BEFORE any oracle call (probes E49B1..B5,
+  HYPOTHESES, BASELINE-MINE at `7fa763b`: baseline refused all five rc=2 — every gap
+  `my-gap`, NO dr-refuses); fill-in `586c240`; ONE oracle run 5 ok / 5; goldens +
+  `spec/lab-evidence/e2e49-p2/RESULTS.md` `62f5622`; docs `1416f52`.
+- Arm 1 `b1e9221` (codegen only, committed ALONE): `op_mov_a_b = 0x78`; encoder
+  `str_cmp_shape_fix_mm` matching the QUALIFIED pair `ImemF/ImemF` ONLY; stacked head as
+  ONE bundled thunk in written order; collapse `06 capl / 78` iff `capl = capr` else
+  `3E capr`; `?SCCCM`; C2/CA + [C309] fill; NO prescan change. ACTUALS on that tree:
+  five goldens whole-file BYTE-EXACT; E48/E49 sweep 61/61; registered panel 1131/1131;
+  out-of-scope refusals rc=2; collapse verified NOT to leak into the literal template.
+- Step 6: part 1 `0abf1c1` (claims C337..C341 from RESULTS §2 ONLY; SPECIMENS E49B1..B5;
+  sanctioned `--update-inventory` 5 rows → panel **1136**; census re-snapshot counts
+  UNCHANGED 15/0/26/0); part 2a `8c1d2ee` (3 new COVERAGE rows); part 2b `d5983e8`
+  (widening of `COND.CMP_LENGTHS_POSITIONAL` to EXACT:8 + three labelled SUPERSEDED
+  clauses — PROTOCOL #2, originals verbatim).
+- FULL gate at `d5983e8` rc=0, ACTUALS as printed: byte panel **1136 byte-exact / 0 fail
+  of 1136**, negative **181/181** (E46K14 `[dr-refuses]`, marker UNMOVED), divergence
+  **9/9**, coverage **125 rows, 0 errors, 0 warnings**, census **15/0/26/0**, prose
+  **5 active files clean**. `dune build` rc=0. BYTE TIER ONLY — no `spec/RUNTIME.txt` row
+  came or comes from this round.
+- Laws: [C337] stacked-cell parking in the member-vs-member `?SCCCM` head (per-shape
+  mechanism; `EB` only vs pooled literals); [C338] equal-extent collapse `06 n/78`,
+  member-vs-member ONLY — literal template keeps two immediates (equal-length literal
+  case [TBD]); [C339] positional lengths on an all-member pair; [C340] written side
+  selects the `*D` slot; [C341] head size follows the length pair, member pair pools no
+  literal (DATA 000C, [C314]).
+- Keep refusing (RESULTS §3): ANY BARE spelling in a member pair; the equal-extent
+  collapse for member-vs-literal; STORE; literal-vs-literal; BASED; fixed truthiness;
+  over-extent; relations beyond `=`/`^=`; `^( )`.
+- NEXT: NO active round — a successor session without an operator instruction confirms
+  HEAD and tree, runs `/handoff verify`, records state and STOPS; candidate pool in
+  `HANDOFF.md` → Next action. Superseded prose (this round's IN FLIGHT sections AND the
+  surviving P1 closing-era sections AND the stale P1-era stubs/evidence/Blockers) is
+  archived verbatim in `docs/history/2026-11-01-e49p2-closed.md`. No push; operator
+  `handoff.config.json` edit stays unstaged.
 
 ## Next action
 
 The ONE active spec lives in `HANDOFF.md` → its single level-2 Next-action heading: the
-E2E-49/P1 round is CLOSED, a successor session awaits the OPERATOR's named round, records
+E2E-49/P2 round is CLOSED, a successor session awaits the OPERATOR's named round, records
 state and stops. No competing action exists anywhere else; PROGRESS does not restate it
 (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
 
@@ -131,6 +66,16 @@ state and stops. No competing action exists anywhere else; PROGRESS does not res
   `0749fa6`; claims C327–C332, inventory 1127, coverage 118 rows 0 errors; FULL compile-tier
   GATE rc=0 ACTUAL 1127/0 (neg 181/181, div 9/9, census 15/0/26/0, prose clean) measured at
   `0749fa6` 2026-10-31; closing prose archived in `docs/history/2026-10-31-p2e-closed.md`.
+- E2E-49/P1 CLOSED — operand-inverted FIXED compares (member LEFT of literal): pre-registration
+  `9b3d860` before the oracle; run 4 ok/4; arms `fee935e`/`b044b7c`; claims C333–C336 + labelled
+  C330 CORRECTION; registration panel 1131, coverage 122 rows; FULL GATE rc=0 1131/0 (neg 181/181,
+  div 9/9, cov 122/0/0, census 15/0/26/0, prose clean) measured at `0a8ceff`; archive
+  `docs/history/2026-11-01-e49p1-closed.md`.
+- E2E-49/P2 CLOSED — member-vs-member FIXED TEST compares: pre-registration `3bd9417` before the
+  oracle; run 5 ok/5; arm 1 `b1e9221` (stacked parking + equal-extent collapse); claims C337–C341;
+  registration panel 1136, coverage 125 rows 0 errors (`0abf1c1`/`8c1d2ee`/`d5983e8`); FULL GATE
+  rc=0 **1136/0** (neg 181/181, div 9/9, cov 125/0/0, census 15/0/26/0, prose clean) measured at
+  `d5983e8`; archive `docs/history/2026-11-01-e49p2-closed.md`.
 
 ## Completed
 
@@ -191,15 +136,18 @@ state and stops. No competing action exists anywhere else; PROGRESS does not res
 
 ## Verified evidence
 
-Measured by THIS session (2026-11-01, HEAD `0a8ceff`), not quoted from a report: the FULL
-compile-tier gate rc=0 with the ACTUALS recorded in Current phase (byte panel 1131/0 incl.
-all four E49A specimens; negative 181/181 with E46K14 `[dr-refuses]` marker unmoved; 9/9;
-coverage 122 rows 0 errors; census 15/0/26/0; prose clean); `coverage_check.py` rc=0;
-`file_prose_check.py` rc=0; `dune build` rc=0 on this tree. Per-arm ACTUALS (whole-file
-`cmp` at `fee935e`/`b044b7c`, E48 sweep 52/52, full registered-panel sweep 1127/1127,
-out-of-scope refusals rc=2) stand in git log and dated `LEARNINGS.md` sections. Round
-evidence: `golden/e49p1/`, `spec/lab-evidence/e2e49-p1/{RESULTS,HYPOTHESES,BASELINE-MINE}`;
-closed-round records: `docs/history/`.
+Measured by THIS session (2026-11-01), not quoted from a report: `dune build` rc=0 on this
+tree; the FULL compile-tier gate rc=0 at HEAD `d5983e8` with the ACTUALS recorded in
+Current phase (byte panel 1136 byte-exact / 0 fail of 1136 incl. all five E49B specimens
+whole-file at 256 bytes; negative 181/181 with the E46K14 `[dr-refuses]` pinned marker
+UNMOVED; divergence 9/9; coverage 125 rows 0 errors 0 warnings; census EXACT 15 / DIFFERS
+0 / REFUSED 26 / UNEXPECTED 0; prose 5 active files clean); `coverage_check.py` rc=0 and
+`file_prose_check.py` rc=0 on the close tree. Per-arm ACTUALS (whole-file `cmp` at
+`b1e9221`, sweeps 61/61 and 1131/1131, out-of-scope refusals rc=2) stand in git log and
+dated `LEARNINGS.md` sections. Round evidence: `golden/e49p2/`,
+`spec/lab-evidence/e2e49-p2/{RESULTS,HYPOTHESES,BASELINE-MINE}`; earlier rounds
+`spec/lab-evidence/e2e49-p1/` and `spec/lab-evidence/e2e48-*/`; closed-round records:
+`docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
@@ -262,13 +210,17 @@ readiness-checkpoint: g77-33e42d6497d7
 - Nothing is half-edited at this boundary; every item below is recorded evidence, not a
   guess.
 - **Missing evidence is the limit, never a licence to guess** (`PROTOCOL.md` #4). The
-  E2E-49/P1 RESULTS §3 and E2E-48/P2e §3 shapes stay named refusals until a
-  pre-registered round measures them: FIXED member in a STORE (either orientation),
-  member-vs-member, literal-vs-literal fixed, BASED member in a condition, fixed-member
-  truthiness, BARE fixed member on the RIGHT, over-extent literal-LEFT, over-extent
-  INITIAL/store, `^=` over a ladder, `^(string compare)`, bare `-0` spelling, runtime
-  length rewrite, empty-varying PUT output. No `spec/RUNTIME.txt` row may come from
-  these families.
+  E2E-49/P2 RESULTS §3 shapes (with the surviving P1 §3 and P2e §3 entries) stay named
+  refusals until a pre-registered round measures them: ANY BARE spelling in a
+  member-vs-member pair, the equal-extent collapse for member-vs-LITERAL ([C338] scope
+  warning), FIXED member in a STORE (either orientation), literal-vs-literal fixed, BASED
+  member in a condition, fixed-member truthiness, BARE fixed member on the RIGHT,
+  over-extent in every orientation incl. INITIAL/STORE, relations beyond `=`/`^=`, `^=`
+  over a ladder, `^(string compare)`, bare `-0` spelling, runtime length rewrite,
+  empty-varying PUT output, PUT EDIT of a bit item. `member-vs-member` itself is NO
+  LONGER on this list — E49B1..B5 measured it ([C337]); the P1-era wording is preserved
+  verbatim in `docs/history/2026-11-01-e49p2-closed.md`. No `spec/RUNTIME.txt` row may
+  come from these families.
 - CREATE is NOT byte-exact; measured front-end blocker: `pli80c.ml` never expands
   `%include` (proposal in `LEARNINGS.md` is `proposed, unverified` — needs its own
   pre-registered round).
