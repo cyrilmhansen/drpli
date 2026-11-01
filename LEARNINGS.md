@@ -1463,3 +1463,20 @@ The guard never writes this file.
 - **METHOD NOTE: running the lab's tests writes only its ignored `_build/`** — compatible with the
   "external tree read-only" rule (no tracked file changed; verified `git status` pattern unchanged:
   3 pre-existing untracked entries).
+
+### E2E-50/P2 open questions (proposed/unverified — for the successor, never adopt silently)
+
+- What BDOS calls does a LINK-80'd PL/I-80 image actually make at runtime? Hypothesis
+  (PROPOSED): pure PUT LIST output needs only function 2 + terminate; stdin paths need 1/10.
+  MUST be measured (`pli80-run` on a linked .COM; expect typed `Unsupported_function N`),
+  never assumed — the harness must record the observed call sequence per program.
+- `research/minimal-baseline` (17M) and `research/host-compiler` (25M) in the lab: quick scan
+  suggests DR-image derivation, but their redistribution classification is NOT yet evidenced —
+  inspect before any free-core inclusion decision.
+- Lab `tools/{annotated-assembly,provenance-explorer}` node dependencies: NOT audited
+  (UNRESOLVED; out of emulator-core scope for now).
+- `/home/john/pli/cpm/QX10CPMPlus`: license/status NOT examined (UNRESOLVED).
+- Whether to add the 4 public exercisers as an OPTIONAL user-supplied Lane A acceptance script
+  in DRPLi (hashes + URLs already in the lab doc; binaries themselves must never be committed).
+- `docs/emulator-audit.md` OWED: write the capability matrix + two-package redistribution matrix
+  from the accepted 2026-11-02 entries above, re-verifying each cited file/path at write time.
