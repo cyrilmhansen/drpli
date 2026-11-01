@@ -233,17 +233,17 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 112
-checkpoint-id: g112-cccc28199da8
+checkpoint-generation: 113
+checkpoint-id: g113-4308f1e44641
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 0
-checkpointed: 2026-11-01T21:41:26.944Z
+guard-level: 2
+checkpointed: 2026-11-01T21:52:25.453Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9a875b2aeecf84dbfe7e695bd900daf09c6db5e1e295734cd0284297d085d745
-source-handoff: 412cb66a044c5177808768004fb53862ec27ddb6d98b5f52c48713fa2b086dc7
-source-learnings: f6d88d7910a9d8de8d5e20b2df750ed89733ed00e14404087e57be25908465e6
+source-progress: dd064a4a956f3460f0c49ce7926d123b3e45acc281d1443aaab7979b127cd515
+source-handoff: e66309a9cf512a761432a865891b8fe41d95014873cbf48f34ffb5f203fb71ed
+source-learnings: 4ceba92bb908cf025c644c39bbedd42fed21c15905a6c540f29b67602225efd6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-50/P2 ACTIVE (operator mission brief, bootstrapped 2026-11-02)
 
@@ -265,10 +265,15 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 - 1. Emulator technical audit — Intel 8080 core, CP/M BDOS/BIOS, COM loading, console, files,
   determinism, limits, tests — capability matrix IMPLEMENTED/PARTIAL/MISSING/UNTESTED/
   KNOWN DEFECT into `docs/emulator-audit.md`; safe lab tests may be RUN (never infer
-  correctness from presence of code). [pending]
+  correctness from presence of code). [reconnaissance DONE; measured findings incl. the re-run
+  of the lab's 7 test executables (all rc=0) are recorded in `LEARNINGS.md`
+  § "2026-11-02 — E2E-50/P2 bootstrap + emulator audit"; the audit DOCUMENT is owed —
+  write it from those entries, re-verifying each cited file]
 - 2. License/redistribution audit → two-package matrix (free core / historical-compat) in the
   same document; record blockers, recommend options, decide no operator-level license.
-  Do NOT copy restricted assets into any prospective package. [pending]
+  Do NOT copy restricted assets into any prospective package. [evidence gathered in the same
+  LEARNINGS section — lab UNLICENSED (single-author history), z80pack MIT, superzazu/8080 MIT,
+  DR binaries RESTRICTED, CP/M system Caldera-conditional, exercisers mixed; matrix write owed]
 - 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
   correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
   undefined must be measured, never assumed). [pending]
@@ -291,8 +296,8 @@ Boundary law: never renew mid-Git-operation or while an emulator process runs; `
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
 readiness-by: session:01a19902-5793-7280-b553-bda51e005404
-readiness-at: 2026-11-01T21:41:26.947Z
-readiness-checkpoint: g112-cccc28199da8
+readiness-at: 2026-11-01T21:52:25.456Z
+readiness-checkpoint: g113-4308f1e44641
 <!-- guard:end checkpoint -->
 
 ## Blockers

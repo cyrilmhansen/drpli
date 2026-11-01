@@ -208,25 +208,25 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 112
-checkpoint-id: g112-cccc28199da8
+checkpoint-generation: 113
+checkpoint-id: g113-4308f1e44641
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 0, remaining ~69288, session 01a19902-5793-7280-b553-bda51e005404)
-checkpointed: 2026-11-01T21:41:26.944Z
+status: checkpoint (guard level 2, remaining ~8272, session 01a19902-5793-7280-b553-bda51e005404)
+checkpointed: 2026-11-01T21:52:25.453Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9a875b2aeecf84dbfe7e695bd900daf09c6db5e1e295734cd0284297d085d745
-source-handoff: 412cb66a044c5177808768004fb53862ec27ddb6d98b5f52c48713fa2b086dc7
-source-learnings: f6d88d7910a9d8de8d5e20b2df750ed89733ed00e14404087e57be25908465e6
+source-progress: dd064a4a956f3460f0c49ce7926d123b3e45acc281d1443aaab7979b127cd515
+source-handoff: e66309a9cf512a761432a865891b8fe41d95014873cbf48f34ffb5f203fb71ed
+source-learnings: 4ceba92bb908cf025c644c39bbedd42fed21c15905a6c540f29b67602225efd6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a19902-5793-7280-b553-bda51e005404
-readiness-at: 2026-11-01T21:41:26.947Z
-readiness-checkpoint: g112-cccc28199da8
+readiness-at: 2026-11-01T21:52:25.456Z
+readiness-checkpoint: g113-4308f1e44641
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-50/P2 ACTIVE, step 0 landed at 459f51e; steps 1-8 owed per HANDOFF.md -> Next action. Next: read-only emulator technical audit of /home/john/pli/lab (lib/i8080, lib/cpm, lib/runner, lib/trace) into docs/emulator-audit.md.)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -252,10 +252,15 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 - 1. Emulator technical audit — Intel 8080 core, CP/M BDOS/BIOS, COM loading, console, files,
   determinism, limits, tests — capability matrix IMPLEMENTED/PARTIAL/MISSING/UNTESTED/
   KNOWN DEFECT into `docs/emulator-audit.md`; safe lab tests may be RUN (never infer
-  correctness from presence of code). [pending]
+  correctness from presence of code). [reconnaissance DONE; measured findings incl. the re-run
+  of the lab's 7 test executables (all rc=0) are recorded in `LEARNINGS.md`
+  § "2026-11-02 — E2E-50/P2 bootstrap + emulator audit"; the audit DOCUMENT is owed —
+  write it from those entries, re-verifying each cited file]
 - 2. License/redistribution audit → two-package matrix (free core / historical-compat) in the
   same document; record blockers, recommend options, decide no operator-level license.
-  Do NOT copy restricted assets into any prospective package. [pending]
+  Do NOT copy restricted assets into any prospective package. [evidence gathered in the same
+  LEARNINGS section — lab UNLICENSED (single-author history), z80pack MIT, superzazu/8080 MIT,
+  DR binaries RESTRICTED, CP/M system Caldera-conditional, exercisers mixed; matrix write owed]
 - 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
   correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
   undefined must be measured, never assumed). [pending]
@@ -279,5 +284,5 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 `git clean`/`reset --hard`/`add -A`; no push.
 
 ### Guard notes
-E2E-50/P2 ACTIVE, step 0 landed at 459f51e; steps 1-8 owed per HANDOFF.md -> Next action. Next: read-only emulator technical audit of /home/john/pli/lab (lib/i8080, lib/cpm, lib/runner, lib/trace) into docs/emulator-audit.md.
+E2E-50/P2 renewal hop 1. Durable state: HANDOFF.md -> Next action FIRST ACTION; LEARNINGS.md 2026-11-02 sections hold all accepted audit recon + open questions. Commits: 459f51e (bootstrap), aded7b3 (g112), 38c8e5d (recon), 9c779a4 (open questions), plus this guard block commit. Do: write docs/emulator-audit.md from LEARNINGS entries, re-verifying cited lab paths read-only (/home/john/pli/lab, HEAD 43e38ba; NEVER edit external tree; building lab tests writes only ignored _build and may be skipped — suite already rc=0). Then steps 3-8 (spec format, TABLE corpus, harness, Lane A/B evidence, minimal reporting, close). Hard limits: no compiler changes, no push, no GOAL.md/handoff.config.json edits, no oracle campaign, DR binaries never in distributable artifacts, UNKNOWN/BLOCKED never rendered as PASS.
 <!-- guard:end checkpoint -->
