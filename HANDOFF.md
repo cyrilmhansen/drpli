@@ -142,47 +142,51 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 88
-checkpoint-id: g88-dc38393a779b
+checkpoint-generation: 89
+checkpoint-id: g89-db496a27f9de
 checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6121, session 01a196da-fa99-71b9-af89-536a51a8a317)
-checkpointed: 2026-11-01T11:44:32.564Z
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~3265, session 01a196da-fa99-71b9-af89-536a51a8a317)
+checkpointed: 2026-11-01T11:45:18.453Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: eb65fc178f540d61f4aaa431eb9465d04b596d4dfc8d4f20bf61cc75c5c8538e
-source-handoff: 6ecdf433717421cd279a534d009a27e9d76801262b1ed2cf274a3513055e2ec6
-source-learnings: 3c1f82f00f1bbee3e271eb35b576df6bcfef1d33d0b0bd097fb7a3df29b595cd
+source-progress: b1cc7ad6f855f16883e9d664b3fea2cd132d47634c2e1c705dfec1bc4c29d882
+source-handoff: 49deaffc4e0066970c808f72a91fc61fce06499d28ca1cec5464b832f0f4b7a1
+source-learnings: c540e3bf96d4d628dccde2eb21f321005398993b4f11dc7f3a0fc4618c0700a8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a196da-fa99-71b9-af89-536a51a8a317
+readiness-at: 2026-11-01T11:45:31.805Z
+readiness-checkpoint: g89-db496a27f9de
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-49/P3 CLOSED: no active round, await the OPERATOR
+— E2E-49/P4 ACTIVE (OPERATOR-AUTHORIZED 2026-11-01): composite CHARACTER FIXED / TEST campaign, four panels, 24 specimens
 
-1. No scientific work is authorised in this or a successor session until the OPERATOR
-   names a round. A successor session without an operator instruction: confirm HEAD and a
-   clean tree (a dirty `handoff.config.json` is the operator's standing edit — never
-   touch), run `/handoff verify`, record state here and STOP. Do not run the compiler,
-   the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py` on your own initiative.
-2. Candidate pool for the operator's NEXT named round (NOT authorisations; the measured
-   boundaries live in `PROGRESS.md` → Blockers and Pending): the P3 RESULTS §3 remainders
-   — STOREs (either orientation), literal-vs-literal, BASED members, fixed truthiness,
-   `^( )`, BARE spellings inside ordered relations, relations with a LITERAL operand,
-   STRICT/WEAK unequal-extent combinations beyond F2/F4; the standing `proposed` items in
-   `LEARNINGS.md` (bank the out-of-scope member-pair refusals as NEG-panel rows;
-   discriminating probes for the bundled-thunk codegen invariant); the LOAN2 scope-aware
-   prescan design change; the CREATE `%include` front-end gap; the stale `README.md`
-   rolling status.
-3. Standing: byte tier only (no `spec/RUNTIME.txt` row from the compare families);
-   goldens untouched except `golden/e49p3`; never touch the operator's
-   `handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard
-   status`; probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no push.
+1. READ `spec/lab-evidence/e2e49-p4/PLAN.md` FIRST — it is the durable, complete
+   plan: bank E49G1..G8 (ordered relations with a LITERAL, both orientations),
+   E49H1..H6 (BARE spellings in ordered relations), E49I1..I6 (unequal-extent
+   relation matrix), E49J1..J4 (negated compares); shared P3 DECL+tail; hypotheses
+   (H-A-sw/H-A-or/H-A-refuse; H-B-invis vs gate/mixed; C = arm-c transfer;
+   H-D-inv/H-D-simpl/H-D-extra/H-D-refuse); the exact oracle command (tag `e49p4`,
+   never `--reuse`); step-6 method (claims from C348, SPECIMENS +24,
+   `--update-inventory`, census, COVERAGE, FULL gate ACTUALS); close procedure.
+   Authorization covers measurement→arms→consolidation→closure across renewals;
+   NOT P5, NOT push, NOT STORE/BASED/truthiness/literal-vs-literal/runtime.
+2. NEXT CONCRETE STEP (nothing of P4 measured yet): PREREGISTER — clone P3
+   mkprobes.py into e2e49-p4/, generate probes (CRLF+^Z, <=71 cols), record
+   BASELINE-MINE.txt with the ACTUAL binary (expected from CODE READING, unverified:
+   A/B/D refuse rc=2, C accepts on arm-c bytes), write HYPOTHESES.md, COMMIT ALL
+   BEFORE any oracle call. Then ONE grouped `oracle/batch.py ... --tag e49p4`.
+3. Standing: byte tier only; goldens untouched except new `golden/e49p4`; never
+   touch the operator's `handoff.config.json` edit; renewal values ONLY in
+   handoff.config.json / /guard status; `eval $(opam env)` before dune; never
+   git clean/reset/add -A; NO PUSH.
 
 ### Guard notes
 E2E-49/P3 CLOSE COMPLETE (docs-only session): two-generation archive docs/history/2026-11-01-e49p3-closed.md byte-verified (11/11 blocks byte-exact vs git ranges at 4df35bb/c140277), draft blank-line join artifact repaired, README index row added (commit 739cd10); HANDOFF/PROGRESS rewritten to the CLOSED record (ledger C347, panel 1150/0, coverage 129/0/0, gate rc=0 measured by the step-6 session at 4df35bb recorded 1f611f5; Next action = AWAIT OPERATOR, no active round; Blockers updated per RESULTS s3, superseded wording verbatim in archive); LEARNINGS dated close notes (commit 1ff755e). No compiler/oracle/gate run; no ocaml/golden/claim/COVERAGE/config byte touched; operator handoff.config.json edit preserved unstaged; no push. Session stops here per mission.
