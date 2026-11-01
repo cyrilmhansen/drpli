@@ -1087,3 +1087,19 @@ The guard never writes this file.
   them verbatim; never hand-write checkpoint content.
 - standing (unchanged): no golden, claim, ledger, COVERAGE or `ocaml/` byte was touched
   by the CLOSE; the operator's `handoff.config.json` edit stays unstaged; no push.
+
+## 2026-11-01 — E2E-49/P4 open (bootstrap session; no science run yet)
+- accepted (verified): HEAD b1f72d6; clean tree except operator edit; checkpoint g87
+  current via prose-hash recompute (strip managed block, rstrip, sha256; GOAL/
+  LEARNINGS/config hash whole) — reproduces /handoff verify without the slash.
+- accepted (procedural): PLAN.md is the durable campaign carrier across renewals;
+  authorization lives in HANDOFF Next action + PLAN, never only in a prompt.
+- proposed (UNVERIFIED code-reading baseline): P4 Panels A/B/D refuse rc=2 at the
+  imem_refuse/NegL sites, C accepts via str_cmp_shape_fix_rel — must be re-recorded
+  with the actual binary in BASELINE-MINE.txt before preregistration.
+- falsified (session expectation): the g87 close prose 'await the OPERATOR' no
+  longer describes the mission; P4 is authorized. Superseded text is the archive
+  generation owed at P4 close.
+- lesson (accepted): selective ledger reads still cost heavily; grep COVERAGE rows
+  with narrow line ranges and read claims per-id blocks only — budget ~4k/session
+  was consumed before the first write here.

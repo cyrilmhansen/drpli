@@ -3,42 +3,27 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P3 CLOSED (FULL compile-tier gate rc=0 measured by the step-6 session at HEAD `4df35bb`, recorded `1f611f5`; CLOSE completed by the docs-only closing session — ledger C342..C347, panel 1150, coverage 129 rows)
+## Current phase — E2E-49/P4 IN FLIGHT (authorized 2026-11-01; PLAN at spec/lab-evidence/e2e49-p4/PLAN.md; NOT yet pre-registered)
 
-- Round (OPERATOR-authorized 2026-11-01): composite FIXED/TEST bank — equal-attribute
-  collapse in both literal templates (C-panel), qualification invisibility (D-panel),
-  over-extent literal-LEFT (E-panel), ordered relations (F-panel). Pre-registration
-  `3659f5d` committed BEFORE any oracle call (14 probes + mkprobes.py + HYPOTHESES +
-  BASELINE-MINE at `685741c`); fill-in `0a46824`; ONE grouped batch run, tag `e49p3`,
-  **14 ok / 14 — NO dr-refuses** (12 `my-gap`; E49E1/E2 already byte-exact, whole-file
-  `cmp` ZERO differing bytes); goldens + `spec/lab-evidence/e2e49-p3/RESULTS.md`
-  `ad90425`.
-- Arms (each committed ALONE, 14/14 goldens whole-file BYTE-EXACT, gate rc=0 at each): a
-  `a540fa7` (collapse in BOTH literal templates), b `0a1b80c` (`ImemFb` in `str_cmp_shape_fix_mm`
-  + Lit-LEFT arm + `is_test_right` twin), c `cde3258` (`str_cmp_shape_fix_rel` + EqR Lt/Le/
-  Gt/Ge route QUALIFIED-QUALIFIED ONLY, swap `>`/`<=`, JNC `d2`/JC `da`, positional-collapse
-  on LOWERED operands). E49E1/E2 needed NO code.
-- Step 6: part 1 `4b51bc0` (claims C342..C347 from RESULTS §2 ONLY; labelled CORRECTION
-  appends, originals verbatim, at [C335]/[C336]/[C337]/[C338]; SPECIMENS +14; sanctioned
-  `--update-inventory` 14 rows → panel **1150**; census re-snapshot counts UNCHANGED
-  15/0/26/0); part 2a `8d3b024` (four new COVERAGE rows); part 2b `8771e1e`
-  (`COND.CMP_LENGTHS_POSITIONAL` widened to EXACT:10 + five labelled SUPERSEDED clauses);
-  part 2c `4df35bb` (labelled CITATION CORRECTION at [C346]: the numeric ORDER law is
-  [C104], not mis-cited [C115]; legacy [C027]/[C072] are NOT resolvable by
-  coverage_check load_claims — never cite them in provenance).
-- FULL compile-tier gate at `4df35bb` rc=0, ACTUALS as printed: byte panel **1150
-  byte-exact / 0 fail of 1150**, negative **181/181** (E46K14 `[dr-refuses]`, pinned
-  marker UNMOVED), divergence **9/9**, coverage **129 rows, 0 errors, 0 warnings**, census
-  **15/0/26/0**, prose **5 active files clean**. `dune build` rc=0. BYTE TIER ONLY — no
-  `spec/RUNTIME.txt` row came or comes from this round.
-- CLOSE (docs-only session): superseded prose archived byte-verified (11/11 blocks
-  byte-exact vs their stated git ranges) in `docs/history/2026-11-01-e49p3-closed.md` —
-  two generations, the in-flight prose at `4df35bb` and the close-owed prose at `c140277`;
-  HANDOFF/PROGRESS rewritten to CLOSED; LEARNINGS close notes; `docs/history/README.md`
-  index row added. NEXT: NO active round — a successor session without an operator
-  instruction confirms HEAD and tree, runs `/handoff verify`, records state and STOPS;
-  candidate pool in `HANDOFF.md` → Next action. No push; operator `handoff.config.json`
-  edit stays unstaged.
+- Bootstrap MEASURED this session (accepted): HEAD b1f72d6 == expected; tree clean
+  except the operator handoff.config.json edit; checkpoint g87 CURRENT (prose-hash
+  recompute + guard session state); fresh session, renewal chain state absent
+  (done 0/12 per config). E2E-49/P4 opened: PLAN.md committed with HANDOFF/PROGRESS
+  pointers; HANDOFF Next action = P4 ACTIVE (the P3 CLOSED record it replaced is
+  preserved verbatim in docs/history/2026-11-01-e49p3-closed.md — archive verified
+  at close; treat this as accepted only after that grep).
+- UNVERIFIED (proposed, from code reading ONLY — verify by running the binary in
+  BASELINE-MINE before preregistering): str_cmp_shape_fix_rel (codegen.ml:7302)
+  matches ImemF/ImemF only → Panels A/B refuse rc=2; Panel C accepts on arm-c bytes
+  (predictions in PLAN §Panel C); NegL arm (~7736) refuses string compares → Panel D
+  refuses. Prescan twins is_test_left/is_test_right (~3000-3076) must widen IN THE
+  SAME COMMIT as any literal-relation lowering (one predicate, [C152]).
+- NEXT STEP: pre-registration commit (probes E49G*/H*/I*/J*.PLI + mkprobes.py +
+  HYPOTHESES.md + BASELINE-MINE.txt) BEFORE any oracle call; then the single
+  grouped batch run tag e49p4. Full procedure, commands and boundaries:
+  spec/lab-evidence/e2e49-p4/PLAN.md and HANDOFF.md -> Next action.
+- P3 CLOSED record (gate rc=0 measured at 4df35bb, recorded 1f611f5; panel 1150/0,
+  coverage 129/0/0, ledger C347): unchanged below, byte-preserved from the close.
 
 ## Previous phase — E2E-49/P2 CLOSED (FULL compile-tier gate rc=0 measured at HEAD `d5983e8`, recorded `8926b83`)
 
@@ -81,10 +66,8 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Next action
 
-The ONE active spec lives in `HANDOFF.md` → its single level-2 Next-action heading: the
-E2E-49/P3 round is CLOSED, a successor session awaits the OPERATOR's named round, records
-state and stops. No competing action exists anywhere else; PROGRESS does not restate it
-(PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
+The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: E2E-49/P4
+ACTIVE, pre-registration owed first; PLAN at spec/lab-evidence/e2e49-p4/PLAN.md.
 
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
@@ -200,13 +183,13 @@ records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 87
-checkpoint-id: g87-ea50c16651d4
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-11-01T11:16:53.930Z
+checkpoint-generation: 88
+checkpoint-id: g88-dc38393a779b
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-01T11:44:32.564Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: eb65fc178f540d61f4aaa431eb9465d04b596d4dfc8d4f20bf61cc75c5c8538e
 source-handoff: 6ecdf433717421cd279a534d009a27e9d76801262b1ed2cf274a3513055e2ec6
@@ -232,9 +215,6 @@ next-action: — E2E-49/P3 CLOSED: no active round, await the OPERATOR
    goldens untouched except `golden/e49p3`; never touch the operator's
    `handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard
    status`; probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no push.
-readiness-by: session:01a196c1-58c5-7707-bd33-f161cb1ab038
-readiness-at: 2026-11-01T11:16:53.932Z
-readiness-checkpoint: g87-ea50c16651d4
 <!-- guard:end checkpoint -->
 
 ## Blockers
