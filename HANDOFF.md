@@ -214,25 +214,25 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 115
-checkpoint-id: g115-3d39846f732e
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 116
+checkpoint-id: g116-8e567e89b8eb
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4798, session 01a19902-5793-7280-b553-bda51e005404)
-checkpointed: 2026-11-01T21:52:59.512Z
+status: checkpoint (guard level 1, remaining ~11140, session 01a19919-fc82-7280-b553-bda9890e392f)
+checkpointed: 2026-11-01T22:17:36.144Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: dd064a4a956f3460f0c49ce7926d123b3e45acc281d1443aaab7979b127cd515
-source-handoff: e66309a9cf512a761432a865891b8fe41d95014873cbf48f34ffb5f203fb71ed
-source-learnings: 4ceba92bb908cf025c644c39bbedd42fed21c15905a6c540f29b67602225efd6
+source-progress: 7f6f75c2ce4fa122889387dbe474fbc754eb8cbccd2ba0109aca1e487c9de5ae
+source-handoff: adad4db931de8875cf5029e096737e4975d84f6b96d3b84ced67f2637e143404
+source-learnings: 3e7a2dfca60a7c863b23f5571453226b812747c3eccaa18238d90fe18db41ce1
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19902-5793-7280-b553-bda51e005404
-readiness-at: 2026-11-01T21:52:59.519Z
-readiness-checkpoint: g115-3d39846f732e
+readiness-by: session:01a19919-fc82-7280-b553-bda9890e392f
+readiness-at: 2026-11-01T22:17:36.149Z
+readiness-checkpoint: g116-8e567e89b8eb
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -258,15 +258,18 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 - 1. Emulator technical audit — Intel 8080 core, CP/M BDOS/BIOS, COM loading, console, files,
   determinism, limits, tests — capability matrix IMPLEMENTED/PARTIAL/MISSING/UNTESTED/
   KNOWN DEFECT into `docs/emulator-audit.md`; safe lab tests may be RUN (never infer
-  correctness from presence of code). [reconnaissance DONE; measured findings incl. the re-run
-  of the lab's 7 test executables (all rc=0) are recorded in `LEARNINGS.md`
-  § "2026-11-02 — E2E-50/P2 bootstrap + emulator audit"; the audit DOCUMENT is owed —
-  write it from those entries, re-verifying each cited file]
+  correctness from presence of code). [**LANDED** at renewal hop 1: `docs/emulator-audit.md`
+  §1-4 capability matrix rows 2.1–2.20; every cited lab path/line re-verified read-only at
+  write time (lab HEAD `43e38ba` unchanged); new accepted measurements in `LEARNINGS.md`
+  § hop-1 subsection — notably `pli80-run` DISCARDS buffered program output on every error
+  path (stdout valid only at exit 0; failure evidence needs `--trace`)]
 - 2. License/redistribution audit → two-package matrix (free core / historical-compat) in the
   same document; record blockers, recommend options, decide no operator-level license.
-  Do NOT copy restricted assets into any prospective package. [evidence gathered in the same
-  LEARNINGS section — lab UNLICENSED (single-author history), z80pack MIT, superzazu/8080 MIT,
-  DR binaries RESTRICTED, CP/M system Caldera-conditional, exercisers mixed; matrix write owed]
+  Do NOT copy restricted assets into any prospective package. [**LANDED** in the same
+  document §5-7: single hard Package-A blocker = operator license decision on the UNLICENSED
+  lab; `research/{minimal-baseline,host-compiler}` now classified DR-image derivatives from
+  re-read READMEs (open question CLOSED); QX10CPMPlus classified proprietary/unresolved,
+  excluded (open question CLOSED); no license decided, no restricted asset copied]
 - 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
   correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
   undefined must be measured, never assumed). [pending]
@@ -290,5 +293,5 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 `git clean`/`reset --hard`/`add -A`; no push.
 
 ### Guard notes
-E2E-50/P2 renewal hop 1. Durable state: HANDOFF.md -> Next action FIRST ACTION; LEARNINGS.md 2026-11-02 sections hold all accepted audit recon + open questions. Commits: 459f51e (bootstrap), aded7b3 (g112), 38c8e5d (recon), 9c779a4 (open questions), plus this guard block commit. Do: write docs/emulator-audit.md from LEARNINGS entries, re-verifying cited lab paths read-only (/home/john/pli/lab, HEAD 43e38ba; NEVER edit external tree; building lab tests writes only ignored _build and may be skipped — suite already rc=0). Then steps 3-8 (spec format, TABLE corpus, harness, Lane A/B evidence, minimal reporting, close). Hard limits: no compiler changes, no push, no GOAL.md/handoff.config.json edits, no oracle campaign, DR binaries never in distributable artifacts, UNKNOWN/BLOCKED never rendered as PASS.
+E2E-50/P2 renewal hop 2. Durable state: HANDOFF.md -> Unfinished operations FIRST ACTION = step 3 (write spec/functional/tests/README.md schema pli80-functional/1 + docs/functional-testing.md), all design inputs recorded in LEARNINGS.md § "2026-11-02 — E2E-50/P2 bootstrap + emulator audit reconnaissance" (hop-1 subsections: console PUT-LIST byte law, TABLE-feasible capability subset, oracle harness machinery incl. E2E-11 UNDEFINED-SYMBOLS trap, PROPOSED JSON spec design). Commits: 459f51e bootstrap, 38c8e5d recon, 9c779a4 open questions, fb9a523 steer, e35ac9g/g113, 3beda25 g115, 97ad1f0 (steps 1-2 DELIVERED: docs/emulator-audit.md), 0e4ae5b (step-3 groundwork + checkpoint). Then steps 4-8: TABLE-00/01 corpus (1-D arrays, DO TO, scalar compares, PUT LIST; avoid MULTIDIM/K_PLUS_X; TRAVERSAL_RELOAD divergent), tools/functional_runner.py + hostile tests, Lane A hand-crafted .COM fixture via Runes pli80-run (remember: output discarded on error paths — stdout valid only at exit 0; use --trace for BDOS census), Lane B via local pli80c + historical LINK-80/PLILIB under cpmsim (workspace machinery in oracle/cpmwork.py; restricted tools user-supplied, never packaged), minimal reporting, close. Hard limits unchanged: no compiler implementation changes, no push, no GOAL/handoff.config edits, no oracle campaign, DR binaries never distributable, UNKNOWN/BLOCKED never rendered PASS, /home/john/pli/* read-only (building lab tests touches only ignored _build).
 <!-- guard:end checkpoint -->
