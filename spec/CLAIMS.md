@@ -8114,6 +8114,32 @@ classified `unmeasured` rather than `dr-refuses`.
   instruction, [C152]'s one-predicate invariant VERIFIED.  E49G1..G8 whole-file BYTE-EXACT at
   `ec904c1`.
 
+> **[E2E-49/P4 WORDING CORRECTION — "ALL FOUR relations" in the collapse bullet contradicts
+> its own enumeration; the equal-attribute `>` was never sampled and is NOT claimed.]**  The
+> LENGTHS bullet says "The [C342] equal-attribute COLLAPSE `06 03 / 78` is measured in BOTH
+> literal templates under ALL FOUR relations (G1/G2/G7/G8 at 3/3): the collapse keys on the
+> equality of the two numbers, never on the relation."  The sentence is kept as written.  The enumeration it carries names FOUR PROBES OF TWO RELATIONS: G1 (`rec.na < 'ABC'`)
+> and G2 (`'ABC' < rec.na`) are `<`; G7 (`rec.na >= 'ABC'`) and G8 (`'ABC' >= rec.na`) are `>=`.
+> The relations `>` and `<=` appear in this bank ONLY at UNEQUAL attributes — G3 at 2/3, G4 at
+> 3/2, G5 at 4/3, G6 at 3/4 — and all four keep BOTH immediates, so the equal-attribute `>` was
+> NEVER sampled in any bank (G, F, B, C, D or E), and the equal-attribute `<=` was sampled at 3/3
+> in the STACKED member-pair template only — E49F3 (`rec.na <= rec.nb`) collapses per [C346] —
+> never at 3/3 in either literal template.  The collapse witnesses in this family are exactly
+> F1 `<`, F3 `<=`, G1/G2 `<`, G7/G8 `>=`.  What the measurement supports is therefore: the
+> collapse rides ORDERED RELATIONS in both literal templates under `<` and `>=`, in the stacked
+> template under `<` and `<=`, and under every qualification mix (E49H2/H4 collapse like their
+> qualified constructions, [C349]) — keyed on the NUMERIC EQUALITY of the two positional
+> attributes, never on the relation — and NOTHING here extends it to an un-sampled relation.
+> The boundary of [C346] ("equal-attribute collapse under `>` specifically — never sampled in any
+> bank") and the witness list in the COVERAGE row COND.FIXED_CMP_COLLAPSE_BOTH_TEMPLATES govern
+> this wording.  E2E-49/P4 RESULTS section 2.1 carries the SAME slip — "Equal attributes COLLAPSE
+> to `06 03 / 78` in BOTH literal templates under relations (G1/G2/G7/G8) — [C342] keys on the
+> two numbers, not the relation, now measured for all four relations." — and the evidence file is
+> kept EXACTLY as written (PROTOCOL #2, the [C342] COUNT NOTE precedent): nothing in
+> spec/lab-evidence/e2e49-p4/ was rewritten.  Nothing else changes here: the REKEY law, the
+> positional immediates, the BRANCH law, the [C345] transfer, the sizes and DATA readings, and
+> the Lowered arm text stand exactly as recorded.
+
 ## C349 — QUALIFICATION INVISIBILITY TRANSFERS TO THE ORDERED-RELATION FAMILY, AND THE LOWERED PAIR IS CANONICAL ACROSS QUALIFICATION AND ORIENTATION: TWO WRITTEN SPELLINGS, ONE OBJECT (E2E-49/P4 §2.2; extends [C344]; falsifies H-B-gate/H-B-mixed)
 
 * **Measured.**  E49H1 (`na < rec.nb`), H2 (`rec.na > nb`), H3 (`na <= nb`), H4 (`nb >= na`),
