@@ -1574,6 +1574,7 @@ The guard never writes this file.
   PASS/FAIL/BLOCKED/UNKNOWN with skipped-stage-never-PASS and typed attribution
   source|compiler|runtime-lib|emulator|host|undefined, each attribution only from typed
   evidence. `docs/functional-testing.md` carries the same law in prose.
+- **ACCEPTED: hop-1 boundary state.** Steps 1-2 delivered at `97ad1f0`; step-3 groundwork prose at `0e4ae5b`; guard checkpoint g116-8e567e89b8eb refreshed+attested (renewal hop 2 authorized, cap 3/12) and committed at `9e0a522`; freshness re-verified by replaying the guard hash law (five source hashes MATCH). At the switch: no half-finished Git operation, no emulator process ever launched, `ocaml/` untouched (only `dune build` rc=0), tree clean except the operator's unstaged `handoff.config.json`.
 - **ACCEPTED: step-2 audit commit landed at `97ad1f0`** (docs/emulator-audit.md + HANDOFF
   step-1/2 brackets LANDED + LEARNINGS hop-1 entries; prose check rc=0; guard blocks
   untouched vs HEAD verified byte-identical before the commit).
