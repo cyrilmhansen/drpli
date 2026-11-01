@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P3 IN FLIGHT (OPERATOR-authorized composite CHARACTER FIXED / TEST campaign; pre-registration + oracle + analysis LANDED; implementation owed)
+## Current phase — E2E-49/P3 IN FLIGHT (ALL THREE ARMS LANDED, committed ALONE; step 6 owed)
 
 - Chain: pre-registration `3659f5d` (14 probes E49C1..C4/D1..D4/E1..E2/F1..F4 +
   mkprobes.py + HYPOTHESES.md + BASELINE-MINE at 685741c) committed BEFORE any oracle
@@ -19,11 +19,22 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   lengths positional on lowered operands, collapse applies (?CX* prior falsified).
 - Classification: 12 `my-gap` (C1..C4 collapse; D1..D4 admission; F1..F4 relations),
   2 already byte-exact (E1/E2), 0 `dr-refuses`. NO spec/RUNTIME.txt row from this
-  round. LEARNINGS 2026-11-01 section carries the classified discoveries + the
-  3-arm plan (PROPOSED, not yet implemented).
-- NEXT: the three arms and step 6 (claims C342+, SPECIMENS/INVENTORY registration +14,
-  COVERAGE rows, FULL compile-tier gate) — exact procedure in `HANDOFF.md` → Next
-  action. Superseded E2E-49/P2 CLOSED prose archived at close.
+  round.
+- **ARMS LANDED (2026-11-01, this session):** a `a540fa7` collapse `06 n/78` in BOTH
+  literal templates (E49C1..C4 whole-file BYTE-EXACT); b `0a1b80c` `ImemFb` admitted in
+  `str_cmp_shape_fix_mm` + the Lit-LEFT arm of `str_cmp_shape_fix`, mirrored in
+  `is_test_right` in the SAME commit (E49D1..D4 BYTE-EXACT; bare-in-relation and bare-mm
+  STORE still rc=2); c `cde3258` NEW `str_cmp_shape_fix_rel` + caller route, EqR
+  (Lt|Le|Gt|Ge) QUALIFIED-QUALIFIED `ImemF/ImemF` ONLY, `</>=` written / `>`,`<=` swapped,
+  JNC `d2` strict / JC `da` weak, positional lengths on LOWERED operands with the equal
+  collapse (E49F1..F4 BYTE-EXACT). ALL 14 e49p3 goldens byte-exact; E46K14 pinned marker
+  UNMOVED; FULL gate rc=0 at each arm (panel 1136/0, neg 181/181, div 9/9, cov 125/0/0,
+  census 15/0/26/0, prose 5 clean). LEARNINGS 2026-11-01 "ARMS LANDED" section carries
+  the classified ACTUALS.
+- NEXT: step 6 — claims from **C342** (RESULTS s2 ONLY), SPECIMENS +14, sanctioned
+  `--update-inventory` (panel -> 1150), census re-snapshot, COVERAGE rows + labelled
+  SUPERSEDED clauses, FULL compile-tier gate record; then CLOSE. Exact procedure in
+  `HANDOFF.md` → Next action.
 
 ## Previous phase — E2E-49/P2 CLOSED (FULL compile-tier gate rc=0 measured at HEAD `d5983e8`, recorded `8926b83`)
 

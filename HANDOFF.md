@@ -72,27 +72,26 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   `docs/history/2026-11-01-e49p2-closed.md`. Goldens untouched except this round's
   `golden/e49p2`.
 
-## Next action — E2E-49/P3 IN FLIGHT: implement the three arms, then step 6 and CLOSE
+## Next action — E2E-49/P3 step 6 IN FLIGHT: claims, registration, COVERAGE, FULL gate; then CLOSE
 
-1. ARMS (each committed ALONE, whole-file `cmp` against `golden/e49p3/<N>/<N>.REL`,
-   then regression: `dune build`; gate `--only` over E48/E49 families and the
-   registered panel; expect panel 1136 unchanged until step 6 registers +14):
-   a. Collapse in BOTH literal templates of `str_cmp_shape_fix`: when the positional
-      pair is EQUAL emit `06 n / 78` (RESULTS s2.1; E49C1..C4). Unequal objects
-      (E48E7/E49A*/E49D4/E49E*) keep two immediates — no regression there.
-   b. Admit `ImemFb` in `str_cmp_shape_fix_mm` and in the literal-RIGHT arm of
-      `str_cmp_shape_fix`, mirrored in the prescan demand twin `is_test_right`
-      (RESULTS s2.3; E49D1..D4 byte-identical to E49B1/E48E7-template objects).
-   c. NEW relations route: `EqR (Lt|Le|Gt|Ge)` with QUALIFIED-QUALIFIED `ImemF/ImemF`
-      ONLY (bare-in-relation UNMEASURED — keep refusing), stacked head, `<`/`>=`
-      written order and `>`/`<=` SWAPPED, positional lengths ON THE LOWERED OPERANDS
-      with the equal collapse, skip JNC `0xd2` strict / JC `0xda` weak, [C309] fill
-      (RESULTS s2.5; E49F1..F4).
-   E49E1/E2 need NO code (already byte-exact).
-2. STEP 6: claims from **C342** derived ONLY from RESULTS §2; SPECIMENS bank +14 in
-   `tools/e2e_gate.py`; sanctioned `--update-inventory`; census re-snapshot; COVERAGE
-   rows + labelled SUPERSEDED clauses where P1/P2 boundaries are falsified; FULL
-   compile-tier gate, record ACTUALS AS PRINTED.
+1. ARMS DONE (each committed ALONE, 14/14 goldens whole-file BYTE-EXACT, gate rc=0 at
+   each): a `a540fa7` (collapse in BOTH literal templates, E49C1..C4), b `0a1b80c`
+   (`ImemFb` in fix_mm + Lit-LEFT arm + `is_test_right` twin, E49D1..D4), c `cde3258`
+   (`str_cmp_shape_fix_rel` + EqR Lt/Le/Gt/Ge route QUALIFIED-QUALIFIED ONLY, swap
+   `>`/`<=`, JNC d2/JC da, positional-collapse on LOWERED operands, E49F1..F4).
+   E49E1/E2 needed NO code. Panel stayed 1136/0, neg 181/181 (E46K14 marker UNMOVED),
+   bare-in-relation / rel-with-literal / relation-in-STORE / bare-mm STORE all rc=2.
+2. STEP 6 (the active work): claims from **C342** derived ONLY from
+   `spec/lab-evidence/e2e49-p3/RESULTS.md` §2 (the P3 block starts at the end of the
+   C341 entry; mimic the C337..C341 format; the ledger currently ENDS at C341). Then
+   SPECIMENS bank +14 in `tools/e2e_gate.py` (round-bank comment style of E49A/E49B,
+   pre-registration cite `3659f5d`, probes/E49{C1..C4,D1..D4,E1..E2,F1..F4}.PLI ->
+   golden/e49p3/<N>/<N>.REL); sanctioned `python3 tools/e2e_gate.py --update-inventory`
+   (panel 1136 -> 1150); census re-snapshot per the P2 recipe (commit `0abf1c1` shows
+   the exact commands); COVERAGE rows (new EXACT entries for the collapse law, the
+   qualification fold, relations) + labelled SUPERSEDED clauses where P1/P2 boundaries
+   were falsified (C338 scope, P1 left-side-only, relations-beyond-=^=) — PROTOCOL #2,
+   originals verbatim; then FULL compile-tier gate, record ACTUALS AS PRINTED.
 3. CLOSE: archive superseded prose verbatim to `docs/history/`, rewrite HANDOFF/
    PROGRESS to CLOSED, LEARNINGS close notes, `/handoff finalize`.
 4. Standing: probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no var named

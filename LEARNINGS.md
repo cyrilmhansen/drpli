@@ -957,3 +957,34 @@ The guard never writes this file.
   C) a new relations route (EqR Lt/Le/Gt/Ge, QUALIFIED-QUALIFIED ImemF/ImemF only —
   bare-in-relation is UNMEASURED and must keep refusing) emitting swap-or-written
   order, stacked parking, positional-with-collapse lengths, JNC/JC skip, [C309] fill.
+
+## 2026-11-01 — E2E-49/P3 ARMS LANDED (a/b/c committed ALONE; step 6 owed)
+
+* **accepted (arm a `a540fa7`)** — the equal-attribute collapse in BOTH literal
+  templates of `str_cmp_shape_fix` (caller emits `06 n / 78` iff b_len = a_len):
+  E49C1..C4 whole-file BYTE-EXACT; panel 1136/0 unchanged; gate rc=0. The collapse
+  is one LENGTH-PAIR law across all three `?SCCCM` templates (staged EB, direct 11,
+  stacked E5/D1) — [C338] TBD settled in code as well as in evidence.
+* **accepted (arm b `0a1b80c`)** — `ImemFb` admitted in `str_cmp_shape_fix_mm`
+  (both sides) and in the Lit-LEFT arm of `str_cmp_shape_fix`, mirrored in
+  `is_test_right` in the SAME commit (one predicate, demand and lowering):
+  E49D1..D4 BYTE-EXACT; bare-in-relation, bare-mm STORE and every s3 shape still
+  rc=2; E46K14 marker UNMOVED; panel 1136/0, negative 181/181, gate rc=0.
+* **accepted (arm c `cde3258`)** — new encoder `str_cmp_shape_fix_rel` + caller
+  route for EqR (Lt|Le|Gt|Ge) matching QUALIFIED-QUALIFIED `ImemF/ImemF` ONLY:
+  stacked head bundled in LOWERED order (the `>`/`<=` swap moves the *D relocation
+  slots too — [C340] holds under swap), positional lengths on the lowered operands
+  with the equal collapse, JNC `d2` strict / JC `da` weak, [C309] fill:
+  E49F1..F4 BYTE-EXACT (14/14 of the round now), rel-with-literal / bare-bare
+  relation / relation-in-STORE all rc=2, gate rc=0 (panel 1136/0, neg 181/181,
+  div 9/9, cov 125/0/0, census 15/0/26/0, prose 5 clean).
+* **accepted (procedure)** — the three-arm, one-commit-each discipline with a FULL
+  gate run at every arm caught nothing this round but remains the cheap invariant
+  net; scratch /tmp probes (never committed, never registered) are the right way to
+  re-pin out-of-scope refusals without touching the probe bank.
+* **owed (step 6, next session)** — claims from **C342** derived ONLY from
+  RESULTS s2; SPECIMENS bank +14 in tools/e2e_gate.py (E49C1..F4, round-bank
+  comment style of E49B); sanctioned `--update-inventory` (panel 1136 -> 1150);
+  census re-snapshot; COVERAGE rows + labelled SUPERSEDED clauses where P1/P2
+  boundaries were falsified (C338 scope, P1 left-side-only, relations-beyond);
+  FULL compile-tier gate with ACTUALS AS PRINTED; then CLOSE per HANDOFF.
