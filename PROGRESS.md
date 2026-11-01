@@ -151,58 +151,47 @@ dated `LEARNINGS.md` sections. Round evidence: `golden/e49p2/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 77
-checkpoint-id: g77-33e42d6497d7
+checkpoint-generation: 78
+checkpoint-id: g78-1b72c36b40c7
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-01T02:59:03.728Z
+guard-level: 0
+checkpointed: 2026-11-01T03:19:44.645Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4d47278f060662af94945320347d7294c98eab7741337fea1d00b6ae2f15357d
-source-handoff: bc4843745ef5dc0c9f97ed1bf70721cbeea3699cc063b5911be089c4c1a24f3f
-source-learnings: 6f3884ce88cde2a0d20101d34f80373ec5e48fdb862e856ff5b4746126ee20d2
+source-progress: 55e9941c4988b8d60c5c866dab55fa3335d6c311d06aa3e4ee996900e1011dc2
+source-handoff: 54d12600052a2ad9901f0f1bde81c38461c5a1f124ee11b6fbc936f31f597374
+source-learnings: 5667698bed5d92670a8ffd3369cde314f683693191ed573f515213571f5ba976
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P2 [step 6 part 2]: COVERAGE rows, FULL gate, then CLOSE
+next-action: — E2E-49/P2 CLOSED; await the OPERATOR's named round
 
-1. COVERAGE rows in `spec/COVERAGE.tsv` (exact plan in PROGRESS → Current phase): 3 NEW rows
-   (`COND.FIXED_MEMBER_MEMBER_TEST` MEASURED EXACT:5; `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE`
-   MEASURED EXACT:3 with the scope warning in its boundary; `COND.CMP_INVERSION_SELECTS_SLOT`
-   SINGLE_SAMPLE EXACT:2), widen `COND.CMP_LENGTHS_POSITIONAL` (+E49B3,E49B4, EXACT:8), and append
-   labelled SUPERSEDED clauses to the boundary columns of `COND.FIXED_MEMBER_TEST_SCCCM`,
-   `COND.FIXED_MEMBER_LEFT_TEST` and `COND.BIT1_NEG_TEST` (each still calls member-vs-member
-   unmeasured/refused), originals verbatim. `python3 tools/coverage_check.py` must exit 0 (expect
-   125 rows, 0 errors).
-2. FULL gate `python3 tools/e2e_gate.py` — expect byte panel **1136 byte-exact / 0 fail**, negative
-   **181/181** with E46K14 `[dr-refuses]` marker UNMOVED, divergence **9/9**, coverage rows 0
-   errors, census **15/0/26/0**, prose clean. Record the ACTUALS AS PRINTED, then commit.
-   STATUS measured at `8c1d2ee`: the 3 NEW COVERAGE rows are LANDED and
-   `coverage_check.py` rc=0 on **125 rows, 0 errors, 0 warnings**; the WIDENING of
-   `COND.CMP_LENGTHS_POSITIONAL` and the three labelled SUPERSEDED clauses are still OWED.
-3. CLOSE: rewrite HANDOFF/PROGRESS prose (IN FLIGHT → CLOSED + SUPERSEDED), archive the superseded
-   prose verbatim from the committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README
-   index row, LEARNINGS close notes, ledger-end pointer past **C341**, `/handoff finalize`.
-4. Standing: goldens untouched except this round's; §3 shapes NOT implemented (missing evidence is
-   the limit, never a licence to guess); probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune;
-   never name a probe variable `c`; no push; never stage/commit/revert the operator's
-   `handoff.config.json` edit; renewal values live ONLY in `handoff.config.json` / `/guard status`;
-   NO `spec/RUNTIME.txt` row from this round.
-2. Then STEP 6: claims C337.. derived ONLY from RESULTS §2; SPECIMENS bank E49B1..B5 in
-   `tools/e2e_gate.py`; INVENTORY via sanctioned `--update-inventory` (5 rows after
-   E49A4, panel 1136); census re-snapshot; COVERAGE rows; FULL gate
-   `python3 tools/e2e_gate.py` (expect byte panel **1136**, neg 181/181, div 9/9);
-   record ACTUALS; then CLOSE (prose rewrite, archive superseded prose verbatim from
-   committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README index row,
-   LEARNINGS close notes, ledger-end pointer past C336, `/handoff finalize`).
+1. Candidate pool (each item needs its OWN pre-registered round — hypotheses committed
+   BEFORE any oracle call, PROTOCOL). From `spec/lab-evidence/e2e49-p2/RESULTS.md` §3:
+   any BARE spelling in a member-vs-member pair (bare-bare, bare-qualified,
+   qualified-bare); the equal-extent collapse for member-vs-LITERAL (`char(3)` against a
+   3-char literal in TEST — one probe settles [C338]'s [TBD]); `?SCCCM` in a STORE
+   (either orientation) and any fixed-member store value; literal-vs-literal fixed
+   compares; BASED members in conditions; the truthiness of a FIXED member; over-extent
+   member pairs; relations beyond `=`/`^=`; `^( ... )` composition. Still open from
+   `spec/lab-evidence/e2e49-p1/RESULTS.md` §3 and `spec/lab-evidence/e2e48-p2e/RESULTS.md`
+   §3: a BARE fixed member on the RIGHT of a literal (P1 asymmetry), over-extent
+   literal-LEFT and over-extent INITIAL/STORE, `^=` over a ladder, bare `-0` spelling,
+   runtime length rewrite, empty-varying PUT output, `BIT REQ` acceptance elsewhere, PUT
+   EDIT of a bit item. The P1 §3 entry "member-vs-member" is MEASURED now ([C337]) and
+   leaves the pool. Separate recorded debts, NOT arms: CREATE's `%include` front-end gap
+   and LOAN2's scope-aware prescan (PROGRESS → Pending).
+2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
+   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
+   (`/handoff verify`), and STOP — record state, do not invent work.
 3. Standing: goldens untouched except newly added round goldens; §3 shapes NOT
-   implemented (missing evidence is the limit, never a licence to guess); probes ≤71
-   cols CRLF+`^Z`; `eval $(opam env)` before dune; never name a probe variable `c`; no
-   push; never stage/commit/revert the operator's `handoff.config.json` edit; renewal
-   values live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt`
-   row from this round.
-readiness-by: session:01a194f5-edec-7103-bf3c-ac8e3f151b95
-readiness-at: 2026-11-01T02:59:03.732Z
-readiness-checkpoint: g77-33e42d6497d7
+   implemented (missing evidence is the limit, never a licence to guess); probes ≤71 cols
+   CRLF+`^Z`; `eval $(opam env)` before dune; never name a probe variable `c`; no push;
+   never stage/commit/revert the operator's `handoff.config.json` edit; renewal values
+   live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt` row may
+   come from the compare families until a runtime round measures them.
+readiness-by: session:01a1950c-7ba6-7103-bf3c-ac92bd64aa79
+readiness-at: 2026-11-01T03:19:44.648Z
+readiness-checkpoint: g78-1b72c36b40c7
 <!-- guard:end checkpoint -->
 
 ## Blockers
