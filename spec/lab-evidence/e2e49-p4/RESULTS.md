@@ -119,9 +119,10 @@ admissible.
   un-negated `na >= nb` member pair would carry under §2.1/§2.3 — and NOT F3, which is
   the swapped `<=` load order);
   `^(rec.na <= rec.s2)` == E49F2 (`>`, swapped, `06 02/3E 03`, JNC d2).
-- The lowering is therefore: **negation flips the relation to its complement WITHOUT
-  changing the lowered pair** — the skip byte is inverted on the head the un-negated
-  relation would NOT have produced... H-D-inv and H-D-simpl coincide exactly here, as
+- The lowering is therefore: **negation flips the relation to its complement and
+  the object is the complement's head with the complement's skip byte** (J4 is
+  byte-equal to golden E49F2's `>' object; no head of the NEGATED relation's own
+  lowered order appears anywhere in the four objects). H-D-inv and H-D-simpl coincide exactly here, as
   pre-registered (J1: `=` head + CA == `^=` head; J2: `<`-written head + weak skip ==
   `>=` written head; J4: swapped `06 02/3E 03` head + strict skip == `>` head). Both
   readings stay admissible; NO claim may prefer one. H-D-extra FALSIFIED: no CMA, no
