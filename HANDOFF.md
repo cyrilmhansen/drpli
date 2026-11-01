@@ -34,13 +34,20 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Last verified state — E2E-49/P2 IN FLIGHT (oracle run measured at `62f5622`; NO gate run yet this round)
+## Last verified state — E2E-49/P2 IN FLIGHT (arm 1 + step-6 part 1 committed at `0abf1c1`; FULL gate still OWED, never run this round)
 
-- HEAD `62f5622` (chain: pre-registration `3bd9417`, prediction-SHA fill-in `586c240`,
-  oracle run + goldens + `spec/lab-evidence/e2e49-p2/RESULTS.md` committed together
-  `62f5622`). Working tree: only the operator's `handoff.config.json` edit plus this
-  session's prose. NO arms implemented yet — `ocaml/` unchanged since `b044b7c`; the FULL
-  gate has NOT been run this round and nothing about it may be claimed until it is.
+- HEAD `0abf1c1` (chain: pre-registration `3bd9417`, fill-in `586c240`, oracle run + goldens +
+  RESULTS `62f5622`, docs `1416f52`, **ARM 1 `b1e9221`**, **step 6 part 1 `0abf1c1`**). Working
+  tree: only the operator's `handoff.config.json` edit, the guard's managed blocks and this
+  session's prose. ARM 1 IS LANDED and `ocaml/` changed at `b1e9221`; step-6 part 1 changed NO
+  compiler behaviour. The FULL compile-tier gate has NOT been run this round and nothing about it
+  may be claimed until it is. `dune build` rc=0 measured on this tree.
+- ARM 1 ACTUALS measured at `b1e9221`: all five `.REL` whole-file `cmp` BYTE-EXACT vs
+  `golden/e49p2/`; E48/E49 sweep 61 byte-exact / 0 fail; INVENTORY-driven registered-panel sweep
+  1131/1131 (pre-registration count); out-of-scope refusals all rc=2 (bare-anywhere mm, mm STORE,
+  fixed truthiness, literal-vs-literal, mm `>`); E46K14 marker UNMOVED; the collapse verified NOT
+  to leak into the literal template. Registration ACTUALS at `0abf1c1`: `--update-inventory` wrote
+  exactly 5 specimen rows (panel **1136**), census counts UNCHANGED 15/0/26/0.
 - Measured: E49B1..B5 all ACCEPTED (5 ok / 5, both passes clean; NO `dr-refuses`; every
   gap `my-gap`, baseline refused all five). Laws in RESULTS §2: member-vs-member takes
   `?SCCCM` with head `21 *D(left cell) / E5 (PUSH H) / 21 *D(right cell) / D1 (POP D)` —
@@ -75,18 +82,27 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 - Working tree at this checkpoint: ONLY the operator's `handoff.config.json` edit plus the
   guard-written managed-block refresh; never stage, commit or revert the config edit.
 
-## Next action — E2E-49/P2 [arm 1]: implement the measured member-vs-member lowering
+## Next action — E2E-49/P2 [step 6 part 2]: COVERAGE rows, FULL gate, then CLOSE
 
-1. ARM 1 (the only authorized scientific action now): implement EXACTLY what
-   `spec/lab-evidence/e2e49-p2/RESULTS.md` §2 measures — file:line plan in PROGRESS →
-   Current phase: `op_mov_a_b = 0x78`; encoder `str_cmp_shape_fix_mm` gated to the
-   QUALIFIED-qualified pair `ImemF/ImemF` ONLY (any BARE side keeps refusing — RESULTS
-   §3); stack-parked head bundled in written order; `06 b` then collapse `78` iff
-   `capl = capr` ELSE `3E a`; `?SCCCM`; skip C2/CA + [C309] slot; NO prescan change (no
-   pooled literal); labelled ADDENDA at the superseded sentences, originals verbatim.
-   Verify: `dune build`; whole-file `cmp` of all five `.REL` vs `golden/e49p2/`; E48/E49
-   sweeps; full INVENTORY-driven registered-panel sweep; out-of-scope refusals rc=2 with
-   the E46K14 marker UNMOVED. Commit the arm ALONE with measured ACTUALS.
+1. COVERAGE rows in `spec/COVERAGE.tsv` (exact plan in PROGRESS → Current phase): 3 NEW rows
+   (`COND.FIXED_MEMBER_MEMBER_TEST` MEASURED EXACT:5; `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE`
+   MEASURED EXACT:3 with the scope warning in its boundary; `COND.CMP_INVERSION_SELECTS_SLOT`
+   SINGLE_SAMPLE EXACT:2), widen `COND.CMP_LENGTHS_POSITIONAL` (+E49B3,E49B4, EXACT:8), and append
+   labelled SUPERSEDED clauses to the boundary columns of `COND.FIXED_MEMBER_TEST_SCCCM`,
+   `COND.FIXED_MEMBER_LEFT_TEST` and `COND.BIT1_NEG_TEST` (each still calls member-vs-member
+   unmeasured/refused), originals verbatim. `python3 tools/coverage_check.py` must exit 0 (expect
+   125 rows, 0 errors).
+2. FULL gate `python3 tools/e2e_gate.py` — expect byte panel **1136 byte-exact / 0 fail**, negative
+   **181/181** with E46K14 `[dr-refuses]` marker UNMOVED, divergence **9/9**, coverage rows 0
+   errors, census **15/0/26/0**, prose clean. Record the ACTUALS AS PRINTED, then commit.
+3. CLOSE: rewrite HANDOFF/PROGRESS prose (IN FLIGHT → CLOSED + SUPERSEDED), archive the superseded
+   prose verbatim from the committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README
+   index row, LEARNINGS close notes, ledger-end pointer past **C341**, `/handoff finalize`.
+4. Standing: goldens untouched except this round's; §3 shapes NOT implemented (missing evidence is
+   the limit, never a licence to guess); probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune;
+   never name a probe variable `c`; no push; never stage/commit/revert the operator's
+   `handoff.config.json` edit; renewal values live ONLY in `handoff.config.json` / `/guard status`;
+   NO `spec/RUNTIME.txt` row from this round.
 2. Then STEP 6: claims C337.. derived ONLY from RESULTS §2; SPECIMENS bank E49B1..B5 in
    `tools/e2e_gate.py`; INVENTORY via sanctioned `--update-inventory` (5 rows after
    E49A4, panel 1136); census re-snapshot; COVERAGE rows; FULL gate
@@ -125,9 +141,10 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Unfinished operations
 
-- **E2E-49/P2 IN FLIGHT** — oracle run measured and committed (goldens + RESULTS at
-  `62f5622`); NO lowering arm implemented yet (`ocaml/` unchanged since `b044b7c`); FULL
-  gate OWED at step 6, never claimed this round. Exact next action = ARM 1 above.
+- **E2E-49/P2 IN FLIGHT** — arm 1 LANDED byte-exact (`b1e9221`) and step-6 part 1 is committed
+  (claims C337..C341, SPECIMENS, INVENTORY 1136, census re-snapshot, at `0abf1c1`); the COVERAGE
+  rows and the FULL compile-tier gate are OWED, and the gate has never been run this round — no
+  gate result may be quoted for it.
 
 ## Discoveries not yet incorporated
 
@@ -151,22 +168,25 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 73
-checkpoint-id: g73-ed76ff1249d8
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4867, session 01a194de-4c92-7103-bf3c-ac8aa379f9a9)
-checkpointed: 2026-11-01T02:34:03.182Z
+checkpoint-generation: 74
+checkpoint-id: g74-999150cf6329
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-48, session 01a194de-4c92-7103-bf3c-ac8aa379f9a9)
+checkpointed: 2026-11-01T02:35:07.622Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 4e37911283356bdde8b701c044cd1f70a31ed8aaf4523ef029ffde5d7e746693
-source-handoff: d3699fdff6b91fa2c0861190036038c92c8c8cb79790f8cdd206148db5707a62
+source-handoff: be96168bacd57e9957d9d5884b7b6df1d94a7c81bf7c059dad9c889fa14dffdc
 source-learnings: c44737a635cdb1694aab0e3ccdb40f113d391c595ab5651804afdf3cfda5d3ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a194de-4c92-7103-bf3c-ac8aa379f9a9
+readiness-at: 2026-11-01T02:35:07.625Z
+readiness-checkpoint: g74-999150cf6329
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)

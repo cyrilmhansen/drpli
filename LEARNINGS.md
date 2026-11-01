@@ -843,3 +843,37 @@ The guard never writes this file.
   verification per range is cheap insurance against prose drift between blob and file.
 * **proposed (unverified, for the next round)** — the `?SCCCM` STORE and bare-RIGHT shapes
   are the obvious E2E-49 follow-ups (RESULTS §3); each still needs its own pre-registration.
+
+## 2026-11-01 — E2E-49/P2 arm 1 + step-6 part 1 (session renewal 1/12, HEAD `0abf1c1`)
+
+* **accepted** — a MEASURED shape lands in one compile when the head is emitted as ONE
+  bundled thunk in DR's written order: arm 1 (`b1e9221`) produced all five `golden/e49p2`
+  objects whole-file byte-exact on the first run, including the two swapped `*D` relocation
+  records of the inverted pair (E49B2). Splitting a sequence across `hl_fn`/`de_fn` is what
+  reorders relocations; the slot law is now a claim, [C340], not an assumption.
+* **accepted (procedure)** — the cheap sweep that catches collateral damage is the
+  INVENTORY-driven panel re-compile, NOT only the round's own goldens: 1131 specimen rows
+  re-compiled and whole-file `cmp`'d, 0 fail, plus a targeted E48/E49 sweep (61 byte-exact /
+  0 fail over every `e48*/e49*` golden that has a `.REL` and a `probes/` source — note that
+  `golden/e48p2d/*` and `golden/e48p2e/E48E6` are PRN-only: refusals/retirements, so the
+  skip count is a fact about the bank, not a failure). Write the sweep as scratch
+  (`/tmp`), never as repo infra; the gate stays the authority.
+* **accepted (procedure)** — refusing what was NOT measured is checked with SCRATCH sources
+  outside `probes/`: adding a probe file is a pre-registration act and may not be smuggled in
+  with an arm. Seven scratch shapes (bare-LEFT mm, qualified/bare mm, bare-bare mm, mm STORE,
+  fixed truthiness, literal-vs-literal, mm with `>`) all returned rc=2 after the arm, and two
+  more scratch programs proved the equal-extent collapse did NOT leak into the literal
+  template (`if rec.na = 'ABC'` and `if 'ABC' = rec.na` still emit `06 03 / 3E 03`).
+* **falsified (my own citation hygiene)** — a citation copied from a neighbouring comment is
+  not a verified citation: the new encoder's bundling clause inherited `[C167]` from the
+  VARYING table's comment, but [C167] is the array-EXTENT claim ("a rule verified only in the
+  orientation that conceals its bug is not verified") and says nothing about emission order.
+  Corrected at `0abf1c1` to cite [C340], the claim whose bytes actually establish the slot
+  order. PROTOCOL #10 applies to comments too: audit the cited text, not the convention.
+* **proposed (unverified)** — there is NO ledger claim for "the head must be emitted in DR's
+  order / bundling prevents relocation reordering": it is a codegen invariant evidenced
+  per-shape (the two `*D` slots). If a future round wants it as a law, it needs its own
+  discriminating probes; until then keep citing the per-shape slot claims.
+* **proposed (for a later round)** — bank the out-of-scope refusals as NEG-panel rows so the
+  boundary stops living in scratch: the mm STORE, the fixed truthiness, literal-vs-literal and
+  the `>` relation on a member pair. Each refusal text already names its own missing object.
