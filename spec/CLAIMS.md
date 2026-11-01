@@ -7554,6 +7554,23 @@ classified `unmeasured` rather than `dr-refuses`.
   recorded as [C326]'s arm recorded his.  DATA 000B verified against the golden; E48E7
   whole-file byte-identical.
 
+> **[E2E-49/P1 CORRECTION — the POSITIONAL length law, see [C334].]**  The polarity reading
+> in the Measured bullet ("the LITERAL's length in B and the DECLARED extent in A (the
+> capacity-in-A/length-in-B polarity of [C191]/[C197] in a compare)") is FALSIFIED as a
+> compare law: the two length immediates are POSITIONAL — `MVI B` carries the LEFT operand's
+> attribute and `MVI A` the RIGHT's.  E48E7 merely *has* the literal on the left; in the
+> member-left objects (E49A1/E49A3) B carries the extent and A the literal length
+> (E2E-49/P1 §2.2, five compare objects, one rule — the VARYING family already obeyed the
+> same positional law, [C318]/[C191]).  "A is the destination/capacity, B the source
+> length" was a positional coincidence of this single sample, carried over from the
+> STORE; nothing about the store polarity itself is re-examined here.  EVERY measurement
+> in this claim stays true as an observation — E48E7's bytes `06 02 / 3E 03` are
+> untouched, only the reading is superseded (falsified text kept as written, PROTOCOL #2).
+> Likewise "The register law is [C191]'s as [C326] restated it: `LXI H` carries the
+> INTERNAL CELL regardless of side" survives only as a statement about the FIRST load:
+> with the member on the left the loaded cell is staged through `XCHG` and MOVES to DE
+> (§2.1, [C333]).
+
 ## C331 — A BIT(1) PUT ITEM BEHIND A FILE ATTACH IS ACCEPTED: THE ITEM CHAIN IS ROUTE-INVARIANT, THE TAIL IS CHOSEN BY ITEM CLASS (E2E-48/P2e §2.5; closes [C313]/[C325]'s no-witness clause)
 
 * **Measured.**  E48E8 code 0023..0047 (`put file(outf) list(b, 'X')`): the [C296] frame
@@ -7589,3 +7606,92 @@ classified `unmeasured` rather than `dr-refuses`.
 * **What this does NOT say** (RESULTS §3): nothing about the truthiness of a bare scalar `char`
   variable, of `^` over one, of `&` under one, or of a FIXED member — the only witness refuses a
   CHARACTER VARYING member as a bare condition.  What `BIT REQ` accepts elsewhere is unmeasured.
+
+## C333 — A FIXED COMPARE WITH THE MEMBER ON THE LEFT IS ACCEPTED, ITS CELL STAGED THROUGH `XCHG`; NEITHER THE HELPER NAME NOR THE FINAL REGISTERS CARRY ORIENTATION (E2E-49/P1 §2.1, §2.3, §2.5)
+
+* **Measured.**  E49A1 code 0006 (`if rec.name = 'AB'` — the member written LEFT of the
+  literal): `21 *D(member cell 0004) / EB / 21 *D(pool 0000) / 06 03 / 3E 02 / CD ?SCCCM /
+  C2 fill -> 001D` (the NEXT statement, [C309]); CODE 66 = E48E7's 65 bytes plus the one
+  `EB`, DATA 000B.  [C191]'s FINAL-register law survives the inversion — HL ENDS ON THE
+  RIGHT operand (the pool literal), DE on the LEFT (the member) — and its clause "a member
+  needs `XCHG` only when it is the left operand" is now measured **for the FIXED class with
+  `*D` operands on both sides**: the staging is an ORIENTATION law, not an artifact of the
+  VARYING family's `21 *S(lit)` symbol-pool loads (E48C9).  [C326]'s wording "`LXI H`
+  carries the internal cell" survives only as a statement about the FIRST load — the
+  loaded cell then MOVES to DE.  `golden/e49p1/E49A1/E49A1.REL`.
+* **The name does not flip** (§2.3): `?SCCCM` serves member-left and member-right alike.
+  [C191]'s "the helper name says what the LEFT is" applies to the POSITION of the `V` —
+  which operand is VARYING — not to the member-vs-literal side: the `CC` pair names two
+  fixed-class operands and carries no orientation.
+* **`^=` skips with `CA` in this family** (§2.5): E49A3 0014 = `0xca`, fill = next
+  statement `001D` ([C309]) — this converts the [C072] SYNTHESIS recorded at [C330]'s arm
+  into a MEASURED law, in the inverted form.  `golden/e49p1/E49A3/E49A3.REL`.
+* **What this does NOT say** (RESULTS §3): nothing about `?SCCCM` in a STORE (either
+  orientation), nothing about member-vs-member or literal-vs-literal fixed compares —
+  no object; those routes keep refusing.
+* **Lowered.**  Arm 1 at `fee935e`: `str_cmp_shape_fix` gained a member-LEFT arm emitting
+  `21 *D(member) / EB` then `21 *D(pool)`; both orientations are arms of ONE encoder, and
+  `lower_test_skip0` emits `06 b / 3E a` from the positional return tuple (the length law
+  is [C334]).  The prescan demand twin `is_test_left` was added mirroring the arm exactly
+  (qualified spellings only until arm 2's object).  E49A1/E49A3 whole-file BYTE-EXACT.
+
+## C334 — THE COMPARE LENGTH IMMEDIATES ARE POSITIONAL: `MVI B` CARRIES THE LEFT OPERAND'S ATTRIBUTE, `MVI A` THE RIGHT'S (E2E-49/P1 §2.2; falsifies [C330]'s class-polarity reading, correction appended there)
+
+* **Measured.**  Four objects, one law: E48E7 literal-LEFT — `06 02` is the LITERAL's
+  length, `3E 03` the member's extent; E49A1/E49A3 member-LEFT — `06 03` is the EXTENT,
+  `3E 02` the literal's length; E49A4 member-LEFT — `06 03` extent, `3E 04` for the
+  4-char literal.  B and A follow the SIDE THE OPERAND IS WRITTEN ON, not the class of
+  the operand.
+  [C330]'s reading "A is the destination/capacity, B the source length" (carried from
+  [C191]/[C197] STORES) is FALSIFIED as a compare law — it was a positional coincidence
+  of one sample.  The VARYING family already obeys the same positional law: `?SCVCM`
+  literal-RIGHT keeps the literal length in A ([C318], E48C9), `?SCCVM` literal-LEFT
+  keeps it in B ([C191], E48D10) — five compare objects, one rule.
+* **What this does NOT say:** nothing about STORES — [C191]/[C197]'s capacity-in-A/
+  length-in-B there is untouched by this falsification; no inverted fixed STORE object
+  exists (RESULTS §3).
+* **Lowered.**  Arm 1 at `fee935e`: `str_cmp_shape_fix` returns `(hl_fn, de_fn, b_len,
+  a_len)` POSITIONALLY — `b_len` = the LEFT operand's attribute, `a_len` = the RIGHT's —
+  with no class-based polarity computation; all four E49 objects emit the golden pairs
+  byte-exactly.
+
+## C335 — BARE AND QUALIFIED SPELLINGS OF THE INVERTED FIXED COMPARE ARE BYTE-IDENTICAL: THE [C253]/[C258] FOLD IS INVISIBLE TO THE COMPARE ENCODING (E2E-49/P1 §2.4)
+
+* **Measured.**  E49A2 (`if name = 'AB'`) is whole-file byte-identical to E49A1
+  (`if rec.name = 'AB'`) except the THREE module-name field bytes (raw offsets 0x06,
+  0x13, 0x1c — the final char of `E49A1` vs `E49A2` inside the bit-packed LINK-PROG-NAME /
+  LINK-EXTDEF / LINK-DEF-PUBLIC records, RESULTS §1 P-A2).  Qualification leaves no trace
+  in the fixed compare: the one-key-one-cell fold is invisible to DR's encoding,
+  extending [C318]'s E46K3 corroboration (VARYING, TEST) to the FIXED class.
+  `golden/e49p1/E49A2/E49A2.REL`.
+* **Scope note.**  §2.4 measures the MEMBER-LEFT orientation only.  A BARE fixed member on
+  the RIGHT of a literal is still NO OBJECT (RESULTS §3): [C330]'s qualification gate
+  stays the only witness there, and this compiler keeps refusing that spelling.
+* **Lowered.**  Arm 2 at `b044b7c`: `str_side` admits the bare fixed spelling as a NEW
+  variant `ImemFb` — not a re-used `ImemF`, so qualification stays IN THE TYPE and every
+  explicit-variant match refuses the bare form structurally; the member-LEFT arm is the
+  or-pattern `Some (`ImemF _) | Some (`ImemFb _)` with NO new bytes, the literal-RIGHT arm
+  keeps `ImemF` alone, and `is_test_left` widened in the SAME commit (one predicate,
+  demand and lowering).  Recorded side effect: the numeric `?IS22N` ident-vs-ident guard
+  (`str_side None,None`) now REFUSES bare-fixed-member pairs it used to mis-lower
+  numerically — the refusal widened exactly to the admitted set, and the full registered-
+  panel sweep at `b044b7c` (1127/1127 BYTE-EXACT) proves no measured object was lost.
+  E49A2 flipped from my rc=2 refusal to whole-file BYTE-EXACT.
+
+## C336 — AN OVER-EXTENT LITERAL IN A FIXED COMPARE IS ACCEPTED AND POOLED WHOLE — NO REFUSAL, NO TRUNCATION (MEMBER-LEFT) (E2E-49/P1 §2.6; answers the member-left [TBD])
+
+* **Measured.**  E49A4 (`if rec.name = 'ABCD'` against `char(3)`): ACCEPTED.
+  `'ABCD'` occupies DATA 0000..0003 untouched — the literal is pooled WHOLE — while
+  `MVI B,03` (extent, LEFT operand) and `MVI A,04` (literal length, RIGHT operand) travel
+  side by side under [C334]'s positional law; CODE is the same 66 bytes as E49A1 with
+  `C2` fill -> `001D`; DATA 000D, frame name@0006, nxt@0009, k@000B ([C314] pool-first
+  layout).  This answers the [TBD] recorded in [C330]'s family — the ungated length arms,
+  "DR's verdict was never sampled" — FOR THE MEMBER-LEFT ORIENTATION: DR neither refuses
+  nor truncates.  `golden/e49p1/E49A4/E49A4.REL`.
+* **What this does NOT say** (§2.6, RESULTS §3): the LITERAL-LEFT over-extent compare
+  keeps its ungated template — that verdict is still an extrapolation, `unmeasured`;
+  over-extent INITIAL/STORE likewise.
+* **Lowered.**  NO new code: arm 1's member-LEFT lowering already carries this object —
+  the existing skip-byte rules ([C072]/[C309]) and the positional length template emit
+  E49A4 whole-file BYTE-EXACT at `fee935e` (P-A4 scored HIT on verdict AND on the
+  position-law byte pair `06 03 / 3E 04`).

@@ -1472,6 +1472,44 @@ SPECIMENS.update({
     "E48E8":  ("probes/E48E8.PLI",  "golden/e48p2e/E48E8/E48E8.REL"),
 })
 
+# ---------------------------------------------------------------------------
+# [E2E-49/P1] ROUND BANK -- operand-INVERTED FIXED compares: the member written
+# LEFT of a literal in TEST.  Four probes, pre-registered at 9b3d860 (BEFORE
+# any oracle call; golden/e49p1 did not exist then), prediction-SHA fill-in
+# child 0e9cc3d, measured ONE batch 4 ok / 4 at tag e49p1 (goldens committed
+# with RESULTS.md at c8285cb) -- NO dr-refuses this round; every gap was
+# my-gap (BASELINE-MINE.txt: my baseline refused all four).  All FOUR objects
+# are WHOLE-FILE byte-identical to DR; lowering arms landed one per commit
+# (fee935e member-LEFT qualified lowering + POSITIONAL lengths, b044b7c BARE
+# spelling as the new str_side variant ImemFb) and the sweep was re-run at
+# every step (E48 52/52 and the FULL registered panel 1127/1127 at b044b7c).
+# RESULTS §1 keeps the MISS (P-A1: none of the three pre-registered forms --
+# the EB falsifier fired).
+#
+# BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from
+# this round -- RESULTS §3 makes NO runtime claim (?SCCCM's behaviour with B/A
+# at runtime is not claimed; PROTOCOL #1).
+#
+#   E49A1     `if rec.name = 'AB'' (member LEFT): `21 *D(member) / EB / 21
+#             *D(pool) / 06 extent / 3E len / CD ?SCCCM / C2 fill -> next' --
+#             XCHG staging is an ORIENTATION law, measured for the FIXED class
+#             with *D operands ([C333], [C191]); lengths POSITIONAL ([C334]).
+#   E49A2     `if name = 'AB'' (BARE spelling): byte-identical to E49A1 but
+#             the THREE module-name field bytes -- the [C253]/[C258] fold is
+#             invisible to the compare encoding ([C335]).
+#   E49A3     `^=' over the inverted pair: skip byte CA MEASURED in the
+#             ?SCCCM family -- [C072]'s synthesis becomes law ([C333]).
+#   E49A4     OVER-EXTENT literal 'ABCD' vs char(3): ACCEPTED, pooled WHOLE,
+#             `06 03 / 3E 04' ([C336]); the member-left [TBD] is answered,
+#             the literal-left verdict stays [TBD].
+# ---------------------------------------------------------------------------
+SPECIMENS.update({
+    "E49A1":  ("probes/E49A1.PLI",  "golden/e49p1/E49A1/E49A1.REL"),
+    "E49A2":  ("probes/E49A2.PLI",  "golden/e49p1/E49A2/E49A2.REL"),
+    "E49A3":  ("probes/E49A3.PLI",  "golden/e49p1/E49A3/E49A3.REL"),
+    "E49A4":  ("probes/E49A4.PLI",  "golden/e49p1/E49A4/E49A4.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
