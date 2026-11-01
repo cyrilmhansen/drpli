@@ -7272,6 +7272,55 @@ let str_cmp_shape_fix_mm st l r =
             capl, capr)
   | _ -> None
 
+(* [E2E-49/P3 arm c -- RESULTS s2.5/s2.6] ORDERED RELATIONS `<' `>' `<=' `>=' between two
+   QUALIFIED internal FIXED members, in TEST position ONLY.  golden/e49p3/E49F1..F4 measure
+   the SAME stacked helper and head parking as [C337]'s `='/`^=' -- `?SCCCM', NO `?CX*' family
+   (the PLILIB.IRL symbol reading was a PRIOR, now FALSIFIED: H-D-CX dead, H-D-SC confirmed
+   with relation-specific branches) -- with TWO relation-specific laws:
+   (a) ORDER -- `<` and `>=' lower the operands in WRITTEN order (F1 `na < nb' 0006:
+   `21 *D(0002 na) / E5 / 21 *D(0005 nb)'; F4 `s2 >= na': `21 *D(0008 s2) / E5 / 21 *D(0002 na)'),
+   `>' and `<=' are lowered SWAPPED (F2 `na > s2': `21 *D(0008 s2) / E5 / 21 *D(0002 na)';
+   F3 `na <= nb': `21 *D(0005 nb) / E5 / 21 *D(0002 na)') -- the numeric family's
+   "DR evaluates `a > b' as `b < a'" rule ([C115]'s pairing) is now MEASURED for characters;
+   (b) BRANCH -- STRICT relations (`<', `>') skip with JNC `0xd2' (F1 0014, F2 0015), WEAK
+   relations (`<=', `>=') with JC `0xda' (F3 0014, F4 0015), each followed by the [C309] fill
+   to the next statement.
+   The length pair stays POSITIONAL ([C334]/[C339]) ON THE OPERANDS AS LOWERED -- after any
+   swap B carries the LOWERED-LEFT attribute and A the lowered-right's: F2 `06 02 / 3E 03'
+   (s2 lowered left), F4 the same `06 02 / 3E 03' (s2 written left); P-F2's written-order
+   prediction `06 03 / 3E 02' is FALSIFIED (RESULTS s1).  The [C338]/[E2E-49/P3 arm a]
+   EQUAL-attribute COLLAPSE `06 n / 78' applies in this head too (F1/F3, both 3/3) — the
+   collapse is the `?SCCCM' LENGTH-PAIR law, keyed on equality whatever the relation.
+   Sizes: collapsed stacked head 17 bytes (CODE 66, F1/F3), non-collapsed 18 (CODE 67,
+   F2/F4); DATA 000C in all four — no literal pooled, so NO prescan twin (the pool DEMAND
+   law is untouched).  ADMISSION IS QUALIFIED-QUALIFIED `ImemF/ImemF' ONLY — deliberately
+   STRICTER than `str_cmp_shape_fix_mm' above: every F object writes BOTH members qualified
+   and a BARE side in an ORDERED relation has NO object (RESULTS s3), so `ImemFb' matches
+   NOTHING here and those pairs keep refusing through `imem_refuse'; relations with a
+   LITERAL operand are likewise unmeasured (s3) and refuse.  TEST only: the STORE, the
+   truthiness, `^( )' composition and over-extent in relations keep refusing per s3. *)
+let str_cmp_shape_fix_rel st rop l r =
+  match str_side st l, str_side st r with
+  | Some (`ImemF (lk, capl)), Some (`ImemF (rk, capr)) ->
+      let swap = match rop with Ast.Gt | Ast.Le -> true | _ -> false in
+      let (fk, fcap, sk, scap) =
+        if swap then (rk, capr, lk, capl) else (lk, capl, rk, capr)
+      in
+      let skip =
+        match rop with Ast.Lt | Ast.Gt -> 0xd2 (* JNC -- strict, F1/F2 *) | _ -> 0xda
+      in
+      (* ONE bundled thunk in LOWERED order [C340]: the swap must also swap the `*D'
+         relocation slots, and splitting across hl_fn/de_fn would land them wrong. *)
+      Some ((fun () ->
+              d st op_lxi_h;
+              reloc st Data (addr_of st fk);
+              d st op_push_h;
+              d st op_lxi_h;
+              reloc st Data (addr_of st sk);
+              d st op_pop_d),
+            fcap, scap, skip)
+  | _ -> None
+
 (* [E2E-34/P4] CHARACTER VARYING vs CHARACTER VARYING, every operand pair DR
    has been made to show.  The three kinds of operand that can appear:
      `Imm a   -- a varying cell whose ADDRESS is its own data address (main-locals
@@ -8039,6 +8088,28 @@ let lower_test_skip0 st (c : Ast.expr) =
       d st (if r = Ast.Eq then 0xc2 else 0xca);
       st.last_imm <- None;
       let slot = st.lc in d st 0; d st 0; slot
+  | Ast.Ebinary (Ast.EqR ((Ast.Lt | Ast.Le | Ast.Gt | Ast.Ge) as rop), l, rr) when
+      (match str_cmp_shape_fix_rel st rop l rr with Some _ -> true | None -> false) ->
+      (* [E2E-49/P3 arm c -- RESULTS s2.5] the ORDERED RELATION on the QUALIFIED-QUALIFIED
+         FIXED pair: the encoder comment and the four goldens E49F1..F4 name every byte.
+         The head is the SAME stacked parking (`21 *D / E5 / 21 *D / D1') as the arm above,
+         in LOWERED order (the encoder swapped `>'/`<=' [C115]'s rule); lengths POSITIONAL
+         on the lowered operands with the equal-attribute COLLAPSE (s2.1/s2.5); `?SCCCM'
+         unchanged (H-D-CX falsified); skip JNC `d2' for `<'/`>', JC `da' for `<='/`>=',
+         then the [C309] fill slot.  A relation with a BARE side or a LITERAL operand does
+         not reach this arm -- the encoder matches `ImemF/ImemF' alone and the pair keeps
+         falling to the `imem_refuse "comparison"' site (s3). *)
+      let (head_fn, b_len, a_len, skip) =
+        match str_cmp_shape_fix_rel st rop l rr with Some x -> x | None -> assert false
+      in
+      head_fn ();
+      d st op_mvi_b; d st b_len;
+      if b_len = a_len then d st op_mov_a_b
+      else begin d st op_mvi_a; d st a_len end;
+      call_ext st "?SCCCM";
+      d st skip;
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
       (match str_cmp_shape_vv st l rr with Some _ -> true | None -> false) ->
       (* both sides vary: ?SCVVM, no length operand.  [E2E-34/P4] the shape function now
@@ -8264,7 +8335,15 @@ let lower_test_skip0 st (c : Ast.expr) =
               and E49D4 admits the BARE member RIGHT of a literal; both lowering arms now \
               match `ImemFb'.  An ORDERED relation with a BARE side still has NO object \
               (s3) and refuses here, as do the STORE value, literal-vs-literal, BASED \
-              members and every truthiness shape."
+              members and every truthiness shape.  ADDENDUM 2026-11-01 [E2E-49/P3 arm c, \
+              RESULTS s2.5]: the relations-beyond-`='/`^=' boundary is now MEASURED for \
+              the QUALIFIED-QUALIFIED pair in TEST -- golden/e49p3/E49F1..F4 lower `<', \
+              `>', `<=', `>=' through the SAME stacked `?SCCCM' head (`<'/`>=' written \
+              order, `>'/`<=' SWAPPED, JNC d2 strict / JC da weak, positional lengths on \
+              the LOWERED operands with the equal-attribute collapse) and the new \
+              `str_cmp_shape_fix_rel' arm lowers exactly that set; a relation with a BARE \
+              side or a LITERAL operand has NO object (s3) and refuses here, as do the \
+              STORE value, literal-vs-literal, BASED members and every truthiness shape."
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
