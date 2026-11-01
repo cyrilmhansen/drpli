@@ -3,7 +3,30 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P4 CLOSED (FULL compile-tier gate rc=0 measured by the step-6 session at HEAD `5b0ccde`, recorded `882f77c`; CLOSE completed by the docs-only closing session — ledger C348..C351, byte panel 1174, coverage 133 rows)
+## Current phase — E2E-50/P1 ACTIVE (functional capability inventory and progress dashboard; operator-authorized 2026-11-02)
+
+- **Scope (OPERATOR brief).** A functional assessment and tooling campaign: audit the existing
+  evidence infrastructure, define a programmer-facing capability taxonomy, inventory representative
+  programs, and build a deterministic dashboard (`tools/functional_dashboard.py`,
+  annotations in `spec/functional/`, generated `docs/functional-status.md`) that aggregates the
+  canonical ledgers instead of duplicating them. NO compiler behaviour change, NO new oracle
+  campaign, NO PLILIB work, NO push, NO E2E-50/P2. The scientific baseline below (measured at
+  `5b0ccde`) is unchanged by this round and is NOT re-run here.
+- **Audit findings (measured by this session at HEAD `5247656`, recorded in `LEARNINGS.md`**
+  → 2026-11-02): `spec/SPECIMENS.tsv` is a 1-row legacy file (last touched `ada03ca`), NOT the
+  registration authority — `tools/e2e_gate.py` `SPECIMENS`/`REJECTS` (1174 + 181) and the
+  gate-maintained `spec/INVENTORY.txt` are; the negative classification (`my-gap` 123 /
+  `dr-refuses` 47 / `unmeasured` 11) exists ONLY in the assembled `NEG_META` dicts and is read by
+  importing the gate module (measured: empty stdout, tree unchanged); `spec/census/corpus-census.json`
+  carries the 44-program per-program blocker messages and `spec/census/coverage-stats.json` the
+  COVERAGE tallies, both gate-verified snapshots, so the dashboard reuses them instead of
+  recompiling; `tools/panel_keys.py:load()` resolves any cited name to exact/divergent/refused.
+- **Deliverables in flight:** taxonomy + capability→row/program mapping in `spec/functional/`,
+  the dashboard tool and its tests, `docs/functional-status.md`, and the stale `README.md`
+  "Current status (rolling)" replacement (the last item was recorded as deferred work in Pending
+  since Mission 1 and is authorized here).
+
+## Previous phase — E2E-49/P4 CLOSED (FULL compile-tier gate rc=0 measured by the step-6 session at HEAD `5b0ccde`, recorded `882f77c`; CLOSE completed by the docs-only closing session — ledger C348..C351, byte panel 1174, coverage 133 rows)
 
 - Round (OPERATOR-authorized 2026-11-01; PLAN committed at bootstrap `bc6ee4f`): composite
   FIXED/TEST bank — ordered relations with a LITERAL (panel G, E49G1..G8), BARE spellings in
@@ -63,9 +86,9 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
   `handoff.config.json` edit stays unstaged.
 ## Next action
 
-The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: the
-E2E-49/P4 round is CLOSED, a successor session awaits the OPERATOR's named round, records
-state and stops. No competing action exists anywhere else; PROGRESS does not restate it
+The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: **E2E-50/P1 is
+ACTIVE** (functional dashboard); the exact command sequence a successor runs at the close boundary
+is written there. No competing action exists anywhere else; PROGRESS does not restate it
 (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
@@ -190,28 +213,40 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 106
-checkpoint-id: g106-552a3a513d2f
-checkpoint-kind: manual
+checkpoint-generation: 107
+checkpoint-id: g107-71325f875e00
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-01T18:38:21.228Z
+checkpointed: 2026-11-01T18:56:22.191Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b81279506177d6a53fd8553649225a3d90285baef13bd8c61d24df77f38fdc66
-source-handoff: 3cc5c050a3710ce08f14b3a3d4f4669fc60339a0b30b5abdadac7663e3edcb93
-source-learnings: 7ba35ed95ad06808024f336d0c2c98d7e51ad56e875ffa21445565262b41e89a
+source-progress: 78524d08983728d0049803a3d97cd96fff4a71ed41fce1935df1149f36cd3ca1
+source-handoff: d23a918f9e0698b977f319a83696c605faa866cd04e257cd6d61e1befb0c4a0a
+source-learnings: 61acc14f8a14d36eb129e838fb5578d873deda885eda2e6a703770d77f661db2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P4 CLOSED: no active round, await the OPERATOR
+next-action: — E2E-50/P1 ACTIVE: functional capability inventory and progress dashboard
 
-1. No scientific work is authorised in this or a successor session until the OPERATOR names a
-   round. A successor session without an operator instruction: confirm HEAD and a clean tree (a
-   dirty `handoff.config.json` is the operator's standing edit — never touch, never stage, never
-   commit, never revert it), run `/handoff verify`, record the state here and STOP. Do not run
-   the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py` on your own
-   initiative; do not invoke operator-only Pi slash commands.
-2. Candidate pool for the operator's NEXT named round (NOT authorisations; the measured
-   boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
+0. **Round.** E2E-49/P4 is CLOSED (its close record and the candidate pool below stay in
+   `docs/history/2026-11-01-e49p4-closed.md`). The OPERATOR has authorized **E2E-50/P1**:
+   build a reproducible FUNCTIONAL dashboard (`tools/functional_dashboard.py`, annotations in
+   `spec/functional/`, generated `docs/functional-status.md`), audit the existing evidence
+   infrastructure, and rank next compiler candidates. **NOT authorized:** compiler behaviour
+   changes, new oracle campaigns, PLILIB reimplementation, starting E2E-50/P2, push, or touching
+   the operator's `handoff.config.json` edit. **No PL/I-80 tutorial exists for this project** —
+   do not search for one, do not invent one, and do not treat tutorial work as a prerequisite.
+1. Exact next action. With the deliverables committed, run
+   `python3 tools/test_functional_dashboard.py` (must print `ok`), then
+   `python3 tools/functional_dashboard.py --check` (must exit 0 with the report unchanged), then
+   `python3 tools/coverage_check.py` and `python3 tools/file_prose_check.py`. If all pass, CLOSE
+   this round: archive this Next action byte-verified against its stated commit into
+   `docs/history/`, rewrite HANDOFF/PROGRESS to E2E-50/P1 CLOSED, add the
+   `docs/history/README.md` index row, `handoff_finalize`, STOP. If `--check` reports drift,
+   regenerate with `python3 tools/functional_dashboard.py --write` and read the diff — never
+   hand-edit the generated report.
+2. Candidate pool for the operator's NEXT named round (E2E-50/P2 choice; NOT an authorisation —
+   the ranked shortlist with its evidence classes lives in `docs/functional-status.md` §E, and the
+   measured boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
    STORE value or target with any of the new shapes, literal-vs-literal in any relation, BASED
    members, fixed-member truthiness, `<>`/`><` spellings, `&`/`|` composition of conditions,
    `^( )` over a relation WITH A LITERAL, `^( )` over an over-extent or bare spelling,
@@ -261,9 +296,6 @@ next-action: — E2E-49/P4 CLOSED: no active round, await the OPERATOR
   `5c52bba` (identical at HEAD `b5f792c`) — `docs/history/2026-11-01-e49p4-closed.md`).
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.
-readiness-by: session:01a197ee-87fd-71b9-af89-5382032498ec
-readiness-at: 2026-11-01T18:38:21.233Z
-readiness-checkpoint: g106-552a3a513d2f
 <!-- guard:end checkpoint -->
 
 ## Blockers

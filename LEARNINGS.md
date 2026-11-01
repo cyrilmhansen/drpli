@@ -1295,3 +1295,67 @@ The guard never writes this file.
   `8b5524f` commit carries a false verification sentence, corrected here and never rewritten
   (PROTOCOL #2). LESSON: run the assert IMMEDIATELY before `git add`, and if it prints False,
   name the guard-written delta in the message instead of claiming identity.
+
+## 2026-11-02 — E2E-50/P1 audit of the evidence infrastructure (functional dashboard session)
+
+**Accepted (measured by this session at HEAD `5247656`, all by reading files / importing a module
+— no compiler, no oracle, no gate run):**
+
+- `spec/SPECIMENS.tsv` is **one row** (E39P1, last touched `ada03ca`, E2E-39/P2). It is NOT the
+  specimen registration and the E2E-50 brief's assumption that it is a live source is **falsified**:
+  the registration authority is `tools/e2e_gate.py` (`SPECIMENS` 1174 entries, `REJECTS` 181) plus
+  the gate-maintained snapshot `spec/INVENTORY.txt` (1174 `specimen` + 181 `refusal` rows, 4
+  tab-fields; the gate aborts when the two disagree). Round banks (e49p4's 24) are registered in
+  `SPECIMENS.update({...})` blocks in the Python file, which is why "SPECIMENS +24" in the P4 log
+  touched `spec/INVENTORY.txt` and `tools/e2e_gate.py`, never the TSV.
+- `spec/INVENTORY.txt` refusal rows carry the negative's **source text inline** in field 3 (not a
+  path), so a functional tool cannot resolve a negative's file from the inventory; the path form is
+  only used by `specimen` rows.
+- The `dr-refuses` / `my-gap` / `unmeasured` classification of the 181 negatives exists **only** in
+  the assembled `NEG_META` dicts (`tools/e2e_gate.py:2909` + the per-episode dicts merged at 3098-3103
+  and later updates): 123 `my-gap`, 47 `dr-refuses`, 11 `unmeasured`. `ast`-parsing the literal dicts
+  would under-count exactly as `tools/panel_keys.py` documents for `SPECIMENS` (entries arrive through
+  loops and `.update()`); `spec/INVENTORY.txt` field 4 is prose, not a controlled vocabulary. Chosen
+  route: import the gate module — **measured safe** (stdout empty, no tree change, nothing compiled),
+  and fall back to an explicit annotation if the import ever fails.
+- `spec/census/corpus-census.json` (gate-verified by `corpus_census.py --verify`, counts 15/0/26/0
+  over 44 HISTORICAL / 41 AUTHENTIC / 3 DR_REJECTED) already carries **per-program blocker text** —
+  name, dr_verdict, rel_present, sha_ok, mine (EXACT/REFUSED/NO_ORACLE), mine_bytes, msg — so the
+  representative-program view needs NO recompilation. `spec/census/coverage-stats.json` likewise
+  already aggregates COVERAGE.tsv by category/status/parity/runtime/confidence.
+- `spec/RUNTIME.txt` = 71 rows (46 `independent`, 23 `dr_oracle`, 2 `non-circular`) — 20 distinct
+  program names, and only NETWORK among the historical corpus. `spec/DIVERGENT.txt` = 9 rows.
+  `spec/notes/negative-panel-taxonomy.md` is from the **65-row era** (11 dr-refuses / 54 my-gap) and
+  its numbers are superseded by the 181-row measurement above; the file stays as a method record.
+- `tools/blocker_audit.py` ranks candidates by **first refusal** and its own docstring says that is
+  meaningless (a program needs several features at once); `spec/notes/e2e11-step5-gap-ranking.md` is
+  the era-11 ranking, stale in counts but sound in method. Neither is a functional ledger.
+- **What the tooling cannot answer today:** nothing in the repository maps evidence to a
+  *programmer-facing capability* — COVERAGE.tsv rows are named after compiler mechanisms
+  (`COND.FIXED_CMP_COLLAPSE_BOTH_TEMPLATES`, `STOR.BIT1_COND_LADDER_2_3`), and no file answers
+  "which real programs can a PL/I-80 programmer compile and run?". Stage-level facts (does a
+  program parse? bind? emit?) are recorded only inside refusal *messages* and per-round RESULTS §3
+  prose. A `REFUSED` census row proves "no object was emitted" but not WHICH stage stopped it — the
+  message names the stage (`codegen:`, `bind`, `Pli80.Parser.Parse_error`), and that is the only
+  machine-readable stage signal.
+- `COVERAGE.tsv` `rel_parity` counts are hand-maintained per row and have drifted three times
+  (`panel_keys.py` exists precisely because of it); a generated functional report therefore recomputes
+  parity from `spec/INVENTORY.txt` per cited name and reports disagreement instead of trusting the
+  row's own number.
+
+**Proposed (this round's design decision, verified only by its own tests):**
+
+- The capability layer is a **mapping annotation**, not a second ledger: `spec/functional/` holds the
+  taxonomy and the capability→COVERAGE-row/capability→program tables, every capability status is
+  *derived* from canonical rows (never asserted), and an unmapped COVERAGE row is reported as
+  UNMAPPED rather than silently dropped or promoted. If the annotation and a ledger ever disagree,
+  the ledger wins and the annotation is the thing to fix.
+
+- **E2E-50/P1 work state (accepted):** audit complete; `spec/functional/README.md` (canonical
+  sources, the six verification stages and what each may NOT be inferred from, three origin
+  classes) and `spec/functional/capabilities.tsv` (36 programmer-facing capabilities, mapping each
+  to existing `spec/COVERAGE.tsv` row ids and census program names, **no status column** — status is
+  derived by the tool) are written but uncommitted and unvalidated; `tools/functional_dashboard.py`,
+  its tests, `spec/functional/programs.tsv` and `docs/functional-status.md` are NOT yet written.
+  **Proposed, unverified:** the ids/names in `capabilities.tsv` were typed from the ledgers and need
+  an automated cross-check before any report quotes them.

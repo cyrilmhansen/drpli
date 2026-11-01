@@ -39,6 +39,12 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
      `spec/lab-evidence/e2e48-*/` and `spec/lab-evidence/e2e49-p{1,2,3}/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
+6. **E2E-50/P1 (active).** The functional dashboard reads existing canonical evidence only
+   (`spec/INVENTORY.txt`, `spec/COVERAGE.tsv`, `spec/census/corpus-census.json`,
+   `spec/census/coverage-stats.json`, `spec/RUNTIME.txt`, `spec/DIVERGENT.txt`,
+   `tools/panel_keys.py`) plus the annotations in `spec/functional/`; it writes only
+   `docs/functional-status.md` and never runs the compiler, the oracle or the gate. Do not
+   re-derive census or panel numbers by compiling.
 
 ## Last verified state — E2E-49/P4 CLOSED (FULL compile-tier gate rc=0 measured by the step-6 session at HEAD `5b0ccde`, recorded `882f77c`; CLOSE prose + byte-verified four-generation archive completed by the docs-only closing session — ledger ENDS at C351, byte panel 1174, coverage 133 rows)
 
@@ -98,16 +104,40 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Verified evidence and the P3-era Blockers — archived verbatim, every block byte-verified
   against its stated git range (16/16 BYTE-EXACT), in
   `docs/history/2026-11-01-e49p4-closed.md`. Goldens untouched except this round's
-  `golden/e49p4`.## Next action — E2E-49/P4 CLOSED: no active round, await the OPERATOR
+  `golden/e49p4`.## Next action — E2E-50/P1 ACTIVE: functional capability inventory and progress dashboard
 
-1. No scientific work is authorised in this or a successor session until the OPERATOR names a
-   round. A successor session without an operator instruction: confirm HEAD and a clean tree (a
-   dirty `handoff.config.json` is the operator's standing edit — never touch, never stage, never
-   commit, never revert it), run `/handoff verify`, record the state here and STOP. Do not run
-   the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py` on your own
-   initiative; do not invoke operator-only Pi slash commands.
-2. Candidate pool for the operator's NEXT named round (NOT authorisations; the measured
-   boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
+0. **Round.** E2E-49/P4 is CLOSED (its close record and the candidate pool below stay in
+   `docs/history/2026-11-01-e49p4-closed.md`). The OPERATOR has authorized **E2E-50/P1**:
+   build a reproducible FUNCTIONAL dashboard (`tools/functional_dashboard.py`, annotations in
+   `spec/functional/`, generated `docs/functional-status.md`), audit the existing evidence
+   infrastructure, and rank next compiler candidates. **NOT authorized:** compiler behaviour
+   changes, new oracle campaigns, PLILIB reimplementation, starting E2E-50/P2, push, or touching
+   the operator's `handoff.config.json` edit. **No PL/I-80 tutorial exists for this project** —
+   do not search for one, do not invent one, and do not treat tutorial work as a prerequisite.
+1. Exact next action (work state: `spec/functional/README.md` and `spec/functional/capabilities.tsv`
+   are WRITTEN but uncommitted and unvalidated; nothing else of the round exists yet).
+   (a) Validate every `coverage_rows` id in `spec/functional/capabilities.tsv` against
+   `spec/COVERAGE.tsv` field 1, and every `corpus_programs` name against the rows of
+   `spec/census/corpus-census.json` — fix any miss (a bad id is my error, not a ledger fact).
+   (b) Write `spec/functional/programs.tsv` (id, source path, origin HISTORICAL/FOCUSED/MICROPROBE,
+   capability ids) reusing existing sources only (`artefacts/`, `probes/`, `e1?src/`, `negsrc/`).
+   (c) Write `tools/functional_dashboard.py` — read-only inputs listed in `spec/functional/README.md`;
+   derives stages BYTE/LINK/RUN from `spec/INVENTORY.txt` + `panel_keys.load()` + the committed
+   census/coverage snapshots + `spec/RUNTIME.txt` + `NEG_META` via importing the gate module
+   (never recompiling); views A–E; deterministic ordering; `--write` and `--check`; UNKNOWN must
+   never be rendered as success — plus `tools/test_functional_dashboard.py` covering classification,
+   aggregation, missing-data and unmapped-row handling.
+   (d) Generate `docs/functional-status.md`. (e) Replace the stale `README.md` "Current status
+   (rolling)" section with a short accurate overview + links (`spec/CLAIMS.md`, `PROGRESS.md`,
+   `docs/functional-status.md`). (f) Run `python3 tools/test_functional_dashboard.py`,
+   `python3 tools/functional_dashboard.py --check`, `python3 tools/coverage_check.py`,
+   `python3 tools/file_prose_check.py`. (g) Commit explicit paths (never `add -A`), then CLOSE:
+   byte-verified archive of this Next action into `docs/history/`, HANDOFF/PROGRESS rewritten to
+   E2E-50/P1 CLOSED, index row, `handoff_finalize`, STOP. Do NOT run the compiler, the oracle,
+   LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`; no E2E-50/P2; no push.
+2. Candidate pool for the operator's NEXT named round (E2E-50/P2 choice; NOT an authorisation —
+   the ranked shortlist with its evidence classes lives in `docs/functional-status.md` §E, and the
+   measured boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
    STORE value or target with any of the new shapes, literal-vs-literal in any relation, BASED
    members, fixed-member truthiness, `<>`/`><` spellings, `&`/`|` composition of conditions,
    `^( )` over a relation WITH A LITERAL, `^( )` over an over-extent or bare spelling,
@@ -158,40 +188,49 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.<!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 106
-checkpoint-id: g106-552a3a513d2f
-checkpoint-kind: manual
+checkpoint-generation: 107
+checkpoint-id: g107-71325f875e00
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-4678, session 01a197ee-87fd-71b9-af89-5382032498ec)
-checkpointed: 2026-11-01T18:38:21.228Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4243, session 01a1986a-d6ce-704f-a8a8-ce68a32c5abf)
+checkpointed: 2026-11-01T18:56:22.191Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b81279506177d6a53fd8553649225a3d90285baef13bd8c61d24df77f38fdc66
-source-handoff: 3cc5c050a3710ce08f14b3a3d4f4669fc60339a0b30b5abdadac7663e3edcb93
-source-learnings: 7ba35ed95ad06808024f336d0c2c98d7e51ad56e875ffa21445565262b41e89a
+source-progress: 78524d08983728d0049803a3d97cd96fff4a71ed41fce1935df1149f36cd3ca1
+source-handoff: d23a918f9e0698b977f319a83696c605faa866cd04e257cd6d61e1befb0c4a0a
+source-learnings: 61acc14f8a14d36eb129e838fb5578d873deda885eda2e6a703770d77f661db2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a197ee-87fd-71b9-af89-5382032498ec
-readiness-at: 2026-11-01T18:38:21.233Z
-readiness-checkpoint: g106-552a3a513d2f
 ### Last verified state
-guard level 4; checkpoint requested (finalize)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-49/P4 CLOSED: no active round, await the OPERATOR
+— E2E-50/P1 ACTIVE: functional capability inventory and progress dashboard
 
-1. No scientific work is authorised in this or a successor session until the OPERATOR names a
-   round. A successor session without an operator instruction: confirm HEAD and a clean tree (a
-   dirty `handoff.config.json` is the operator's standing edit — never touch, never stage, never
-   commit, never revert it), run `/handoff verify`, record the state here and STOP. Do not run
-   the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py` on your own
-   initiative; do not invoke operator-only Pi slash commands.
-2. Candidate pool for the operator's NEXT named round (NOT authorisations; the measured
-   boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
+0. **Round.** E2E-49/P4 is CLOSED (its close record and the candidate pool below stay in
+   `docs/history/2026-11-01-e49p4-closed.md`). The OPERATOR has authorized **E2E-50/P1**:
+   build a reproducible FUNCTIONAL dashboard (`tools/functional_dashboard.py`, annotations in
+   `spec/functional/`, generated `docs/functional-status.md`), audit the existing evidence
+   infrastructure, and rank next compiler candidates. **NOT authorized:** compiler behaviour
+   changes, new oracle campaigns, PLILIB reimplementation, starting E2E-50/P2, push, or touching
+   the operator's `handoff.config.json` edit. **No PL/I-80 tutorial exists for this project** —
+   do not search for one, do not invent one, and do not treat tutorial work as a prerequisite.
+1. Exact next action. With the deliverables committed, run
+   `python3 tools/test_functional_dashboard.py` (must print `ok`), then
+   `python3 tools/functional_dashboard.py --check` (must exit 0 with the report unchanged), then
+   `python3 tools/coverage_check.py` and `python3 tools/file_prose_check.py`. If all pass, CLOSE
+   this round: archive this Next action byte-verified against its stated commit into
+   `docs/history/`, rewrite HANDOFF/PROGRESS to E2E-50/P1 CLOSED, add the
+   `docs/history/README.md` index row, `handoff_finalize`, STOP. If `--check` reports drift,
+   regenerate with `python3 tools/functional_dashboard.py --write` and read the diff — never
+   hand-edit the generated report.
+2. Candidate pool for the operator's NEXT named round (E2E-50/P2 choice; NOT an authorisation —
+   the ranked shortlist with its evidence classes lives in `docs/functional-status.md` §E, and the
+   measured boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
    STORE value or target with any of the new shapes, literal-vs-literal in any relation, BASED
    members, fixed-member truthiness, `<>`/`><` spellings, `&`/`|` composition of conditions,
    `^( )` over a relation WITH A LITERAL, `^( )` over an over-extent or bare spelling,
