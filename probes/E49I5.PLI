@@ -1,0 +1,16 @@
+E49I5:
+  procedure options(main);
+  /* [E2E-49/P4] `rec.s2 <= rec.na' -- swapped weak, written short-
+     first: lowered loads na first, `06 03 / 3E 02', JC da.  Fourth
+     witness for the weak skip byte at unequal extents. */
+  dcl
+    1 rec,
+      2 na char(3),
+      2 nb char(3),
+      2 s2 char(2);
+  dcl k fixed bin(15);
+  if rec.s2 <= rec.na then k = 1;
+  put list('K=', k);
+  stop;
+end E49I5;
+

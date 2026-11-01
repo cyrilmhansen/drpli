@@ -1,0 +1,20 @@
+E49G2:
+  procedure options(main);
+  /* [E2E-49/P4] G1's INVERSION: literal LEFT, member RIGHT, `<',
+     equal attributes.  H-A-or keeps the DIRECT literal-left head
+     `21 *D(member) / 11 *D(pool)' (E48E7/C2's template, CODE 65);
+     H-A-sw says `< ' is written-order too, so the same direct head
+     is predicted HERE as well -- this row separates the hypotheses
+     only where a swap would occur (G3..G6); refusal of any row is
+     H-A-refuse, DR's boundary. */
+  dcl
+    1 rec,
+      2 na char(3),
+      2 nb char(3),
+      2 s2 char(2);
+  dcl k fixed bin(15);
+  if 'ABC' < rec.na then k = 1;
+  put list('K=', k);
+  stop;
+end E49G2;
+

@@ -1,0 +1,20 @@
+E49H1:
+  procedure options(main);
+  /* [E2E-49/P4] BARE LEFT, qualified RIGHT in an ordered relation:
+     `na < rec.nb'.  [C344] proved qualification INVISIBLE to every
+     measured compare encoding (= and ^=, both templates); [C346]'s
+     rel arm deliberately admits QUALIFIED pairs only, so this
+     spelling is unmeasured.  H-B-invis: byte-identical to the
+     E49F1 golden but the module-name bytes and checksum (stacked
+     head, collapse 06 03 / 78, JNC d2). */
+  dcl
+    1 rec,
+      2 na char(3),
+      2 nb char(3),
+      2 s2 char(2);
+  dcl k fixed bin(15);
+  if na < rec.nb then k = 1;
+  put list('K=', k);
+  stop;
+end E49H1;
+

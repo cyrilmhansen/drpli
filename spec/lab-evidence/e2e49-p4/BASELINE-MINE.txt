@@ -1,0 +1,50 @@
+# E2E-49/P4 BASELINE-MINE -- my compiler on probes/E49G1..G8, E49H1..H6, E49I1..I6,
+# E49J1..J4, recorded BEFORE any oracle call.
+# HEAD at recording time: 398fa2c (E2E-49/P4 OPEN; ocaml/ unchanged since arm c
+# cde3258; tree clean except the guard's managed blocks and the OPERATOR's
+# uncommitted handoff.config.json edit -- not touched).
+# Binary: ocaml/_build/default/bin/pli80c.exe rebuilt on this tree with
+# `eval $(opam env) && cd ocaml && dune build' (rc=0).
+# Invocation: ./ocaml/_build/default/bin/pli80c.exe probes/E49Xn.PLI /tmp/out49p4/E49Xn.REL
+# Accepted rows: head bytes read back with tools/reldump.py from the emitted .REL (never a
+# listing). Refused rows: the FIRST refusal line (named member / named form), rc of the
+# binary itself measured WITHOUT a pipeline (bash PIPESTATUS lesson in LEARNINGS).
+# NO oracle run yet.
+
+## Panel A -- ordered relations with a LITERAL operand: ALL EIGHT refuse (rc=2)
+E49G1: refused (rc=2) -- `codegen: comparison of the internal CHARACTER member REC.NA (CHARACTER FIXED) is unmeasured [TBD] -- ...' naming REC.NA (`rec.na < 'ABC'': str_cmp_shape_fix_rel matches QUALIFIED ImemF/ImemF ONLY; a Lit side yields str_side None -> no arm -> imem_refuse "comparison"). My H-A-* hypotheses have NO baseline object.
+E49G2: refused (rc=2) -- identical named refusal REC.NA (literal LEFT `'ABC' < rec.na'').
+E49G3: refused (rc=2) -- REC.NA (`rec.na > 'AB'').
+E49G4: refused (rc=2) -- REC.NA (`'AB' > rec.na').
+E49G5: refused (rc=2) -- REC.NA (`rec.na <= 'ABCD'', over-extent literal).
+E49G6: refused (rc=2) -- REC.NA (`'ABCD' <= rec.na').
+E49G7: refused (rc=2) -- REC.NA (`rec.na >= 'ABC'').
+E49G8: refused (rc=2) -- REC.NA (`'ABC' >= rec.na').
+
+## Panel B -- BARE spellings in ordered relations: ALL SIX refuse (rc=2)
+E49H1: refused (rc=2) -- named REC.NA (bare LEFT `na < rec.nb''). str_cmp_shape_fix_rel deliberately admits ImemF/ImemF only; ImemFb matches NOTHING in the relation arm ([C346] "Lowered" bullet).
+E49H2: refused (rc=2) -- named REC.NA (`rec.na > nb', bare RIGHT).
+E49H3: refused (rc=2) -- named REC.NA (bare/bare `na <= nb').
+E49H4: refused (rc=2) -- named REC.NB (bare/bare `nb >= na'; the refusal names the FIRST member the route inspects -- here NB).
+E49H5: refused (rc=2) -- named REC.NA (bare LEFT, unequal extents `na > rec.s2').
+E49H6: refused (rc=2) -- named REC.S2 (bare LEFT `s2 <= rec.na'; names S2, the written-left member).
+
+## Panel C -- unequal-extent relation matrix (QUALIFIED): ALL SIX ACCEPT on my arm-c bytes
+Head layout in all six: 0006 `21 *D(first lowered) / E5 / 21 *D(second lowered) / D1 / 06 <first cap> / 3E <second cap> / CD ?SCCCM / <skip> fill -> 001E'; CODE 67 (unequal attributes: NO collapse, [C346]); DATA 000C (member pair pools no literal, [C341]/[C314]); skip-operand fill -> 001E.
+E49I1: accepted (rc=0) -- `rec.na < rec.s2', `< ' = WRITTEN order: *D(0002 na) first, *D(0008 s2) second; immediates 06 03 / 3E 02; strict skip JNC 0xd2; fill -> 001E. == PLAN prediction I1 (written 06 03/3E 02 JNC).
+E49I2: accepted (rc=0) -- `rec.s2 < rec.na', written order: *D(0008) / *D(0002); 06 02 / 3E 03; JNC d2; fill -> 001E. == PLAN prediction I2.
+E49I3: accepted (rc=0) -- `rec.s2 > rec.na', `> ' SWAPPED: lowered loads na(0002) FIRST, s2(0008) second; 06 03 / 3E 02; JNC d2; fill -> 001E. == PLAN prediction I3.
+E49I4: accepted (rc=0) -- `rec.na <= rec.s2', `<= ' SWAPPED: *D(0008 s2) first, *D(0002 na) second; 06 02 / 3E 03; weak skip JC 0xda; fill -> 001E. == PLAN prediction I4.
+E49I5: accepted (rc=0) -- `rec.s2 <= rec.na', swapped: *D(0002) first, *D(0008) second; 06 03 / 3E 02; JC da; fill -> 001E. == PLAN prediction I5.
+E49I6: accepted (rc=0) -- `rec.na >= rec.s2', `>= ' WRITTEN order: *D(0002) / *D(0008); 06 03 / 3E 02; JC da; fill -> 001E. == PLAN prediction I6.
+
+## Panel D -- negated compares: ALL FOUR refuse (rc=2), named negated-TEST refusal
+E49J1: refused (rc=2) -- `codegen: negated TEST form has no DR golden [TBD]: ^((= rec.na rec.nb)) (the skip-byte inversion CA is pinned only for a bare BIT(1) cell ... and a FIXED `= c' [E48A13]; a bit-literal ladder, DEC, FLOAT or string operand under `^' has no witness in golden/e48p1/)' -- the lower_test_skip0 Eprefix(NegL,...) arm refuses string compares BY NAME.
+E49J2: refused (rc=2) -- same text naming `^((< rec.na rec.nb))'.
+E49J3: refused (rc=2) -- same text naming `^((= 'ABC' rec.na))'.
+E49J4: refused (rc=2) -- same text naming `^((<= rec.na rec.s2))'.
+
+# Classification if DR accepts a refused row: `my-gap' (PROTOCOL #3); if DR refuses an
+# accepted-by-me row: a DR law my templates must mirror (arm decision after RESULTS);
+# rows where my object and DR's agree byte-for-byte need NO arm at all (Panel C is the
+# pre-registered candidate: arm-c [C346] bytes were predicted to transfer).

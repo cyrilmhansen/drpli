@@ -1,0 +1,17 @@
+E49I2:
+  procedure options(main);
+  /* [E2E-49/P4] `rec.s2 < rec.na' -- shorter member written LEFT,
+     written order.  Positional law on lowered operands: `06 02 /
+     3E 03'; strict JNC d2.  The orientation completion of the `< '
+     cell. */
+  dcl
+    1 rec,
+      2 na char(3),
+      2 nb char(3),
+      2 s2 char(2);
+  dcl k fixed bin(15);
+  if rec.s2 < rec.na then k = 1;
+  put list('K=', k);
+  stop;
+end E49I2;
+
