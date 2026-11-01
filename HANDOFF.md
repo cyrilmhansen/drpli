@@ -170,68 +170,61 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 100
-checkpoint-id: g100-f3ad491aa9c1
+checkpoint-generation: 101
+checkpoint-id: g101-8bac6e532779
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-3873, session 01a19735-c0cb-71b9-af89-537a8f523410)
-checkpointed: 2026-11-01T13:26:46.074Z
+status: checkpoint (guard level 2, remaining ~8595, session 01a1974a-8641-71b9-af89-537ee68a4f52)
+checkpointed: 2026-11-01T13:49:21.795Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: becf1f9fd08520c5585e48de9291ee933b65bed486a305436c295240ff98e0bc
-source-handoff: f1f92c45ebfdfd604cca2e36d6c6c25cc8e1b1bbeca656333fdf9000f0aa0302
-source-learnings: 7e285c25b3b51b33790f35d55558c64f2139b6f26d24c192c3fc64c636bea140
+source-progress: 4da88ee2049b4c860245ec62e0825b716b4b0337fcd17bd0ab7f58a548b05341
+source-handoff: 1963046857e2c2305f0ec0716b35f1a35c69d725035e3482ad038913276f6639
+source-learnings: 6711447c9ce6a1060d4b9715449c1946830eb6fd7844607fc63aa400d14a52c1
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19735-c0cb-71b9-af89-537a8f523410
-readiness-at: 2026-11-01T13:26:46.078Z
-readiness-checkpoint: g100-f3ad491aa9c1
+readiness-by: session:01a1974a-8641-71b9-af89-537ee68a4f52
+readiness-at: 2026-11-01T13:49:21.798Z
+readiness-checkpoint: g101-8bac6e532779
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 2; checkpoint requested (finalize: E2E-49/P4 STEP 6 COMPLETE; ONLY CLOSE OWED. HEAD 882f77c (gate record: FULL compile-tier gate rc=0 MEASURED at 5b0ccde, ACTUALS AS PRINTED: byte panel 1174 byte-exact / 0 fail of 1174, all 24 e49p4 BYTE-EXACT 256 bytes; neg 181/181 E46K14 UNMOVED; div 9/9; cov 133 rows 0/0; census UNCHANGED 15/0/26/0; prose 5 clean; dune rc=0). Chain landed: claims aec53e1 (C348..C351) + ledger corrections 9c42f3b + registration cc43963 + COVERAGE 2a dbaf004 (four rows) + 2b 5aeac87 (EXACT:14 + four SUPERSEDED clauses, quotes byte-checked vs cc43963) + 2c 5b0ccde (WORDING CORRECTION at [C348]; equal-attribute gt NEVER sampled, le IS sampled by F3 -- the 55053bd message slip is recorded traceably, history untouched). CLOSE per spec/lab-evidence/e2e49-p4/PLAN.md s6: archive superseded arms-era AND step-6-era HANDOFF/PROGRESS prose VERBATIM into docs/history/2026-11-01-e49p4-closed.md, EACH block byte-verified vs its stated git range BEFORE replacing (pattern: docs/history/2026-11-01-e49p3-closed.md two-generation close); rewrite HANDOFF/PROGRESS (P4 CLOSED record, ONE Next action = no-active-round stub: confirm HEAD/tree, /handoff verify, record, STOP; candidate pool = RESULTS s3 named refusals: STORE/BASED/truthiness/literal-vs-literal, <>/>, ^( gt )/^( ge )/^( ne ), equal-attribute gt collapse, bank-negated-refusals proposal); add docs/history/README.md index row; then handoff_finalize and STOP. NEVER push; no P5 without operator authorization; byte tier only; eval $(opam env) before dune; never git clean/reset/add -A; handoff.config.json is the OPERATOR's standing edit -- never touch/stage/commit/revert.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-49/P4: ARMS a/b/c ALL LANDED; STEP 6 IN PROGRESS (claims `aec53e1`; registration/inventory/census/COVERAGE/FULL-gate owed), then CLOSE
+— E2E-49/P4: STEP 6 ALL LANDED; ONE step OWED: CLOSE per PLAN §6, then STOP
 
-1. STATE (authoritative: `PROGRESS.md` Current phase STATUS): arm a `c515377`, arm b
-   `ec904c1`, arm c `47c2194` — each committed ALONE, whole-file goldens BYTE-EXACT,
-   sweep 47/47 at arm c, out-of-scope rc=2 by name (incl. 9 scratch negations), FULL
-   gate rc=0 at every arm (panel 1150, e49p4 UNregistered). Step 6 part 1 `aec53e1`:
-   claims **C348..C351** from RESULTS §2 ONLY; ledger ENDS at **C351** — no claim ids
-   are owed.
-2. NEXT CONCRETE STEPS (step 6 remainder; HEAD NOW `9c42f3b` = ledger part 1b: FOUR
-   labelled [E2E-49/P4 CORRECTION(S)] blocks at [C335]/[C337]/[C344]/[C346], quotes
-   byte-checked; dune rc=0; ocaml/ untouched). DIRTY NOW: tools/e2e_gate.py holds the
-   UNCOMMITTED SPECIMENS +24 round-bank block (E49G1..G8/H1..H6/I1..I6/J1..J4 vs
-   golden/e49p4/<n>/<n>.REL; P4 had NO separate fill-in commit -- pre-registration
-   328eb3f, BASELINE-MINE binary 398fa2c, goldens+RESULTS 13fca5b, repair 9799f1d, arms
-   c515377/ec904c1/47c2194). Sequence: (i) run `python3 tools/e2e_gate.py` on that tree
-   -- the ACTUAL printed panel governs (expected 1174); all 24 must print BYTE-EXACT
-   256 bytes; (ii) sanctioned `python3 tools/e2e_gate.py --update-inventory`;
-   (iii) census re-snapshot per the `4b51bc0` recipe (`python3 tools/corpus_census.py`;
-   counts expected UNCHANGED 15/0/26/0 -- the gate reprints actuals); commit (i)-(iii)
-   as ONE registration commit (4b51bc0 style); (iv) COVERAGE part 2a: FOUR new rows
-   COND.FIXED_RELATION_LITERAL (E49G1..G8, EXACT:8, MEASURED, [C348]),
-   COND.FIXED_RELATION_QUALIFICATION (E49H1..H6, EXACT:6, MEASURED, [C349]),
-   COND.FIXED_RELATION_UNEQUAL_MATRIX (E49I1..I6, EXACT:6, MEASURED, [C350]),
-   COND.FIXED_CMP_NEGATED_COMPLEMENT (E49J1..J4, EXACT:4, MEASURED, [C351]); byte tier
-   only; `python3 tools/coverage_check.py` rc=0 re-snapshots coverage-stats.json
-   (expected 133 rows 0/0); (v) part 2b widenings + labelled SUPERSEDED clauses, quotes
-   byte-checked vs the pre-edit blob: COND.CMP_LENGTHS_POSITIONAL EXTENDED +G3..G6
-   EXACT:14; COND.FIXED_CMP_QUALIFICATION_INVISIBLE, COND.FIXED_RELATION_MEMBER_PAIR,
-   COND.FIXED_MEMBER_MEMBER_TEST, COND.FIXED_CMP_COLLAPSE_BOTH_TEMPLATES; cite [C104]
-   NEVER legacy [C027]/[C072]; (vi) part 2c: labelled WORDING CORRECTION at [C348]
-   (4df35bb style): its collapse sentence says ALL FOUR relations but enumerates only
-   G1/G2 (`<`) and G7/G8 (`>=`); family witnesses F1 `<`, F3 `<=`, G1/G2 `<`, G7/G8
-   `>=`; equal-attribute `>` NEVER sampled; RESULTS s2.1 carries the same slip -- quote
-   both verbatim, evidence file untouched; (vii) FULL gate rc=0, ACTUALS AS PRINTED;
-   then CLOSE per PLAN s6: archive superseded prose (arms-era + step-6-era) byte-
-   verified vs stated git ranges BEFORE replacing into docs/history/, rewrite
-   HANDOFF/PROGRESS/LEARNINGS, docs/history/README.md index row, ONE active Next
-   action, handoff_finalize, STOP.
+1. STATE (authoritative: `PROGRESS.md` Current phase STATUS 2026-11-01 renewal-5):
+   step 6 is COMPLETE end to end — claims `aec53e1` (C348..C351) + ledger corrections
+   `9c42f3b` (four labelled P4 CORRECTION blocks) + registration `cc43963` (SPECIMENS
+   +24, sanctioned `--update-inventory` panel **1174**, census re-snapshot counts
+   UNCHANGED 15/0/26/0) + COVERAGE part 2a `dbaf004` (four rows, **133/0/0**) + part
+   2b `5aeac87` (EXTENDED CMP_LENGTHS_POSITIONAL to EXACT:14 + four labelled
+   SUPERSEDED/WIDENED clauses, quotes byte-checked vs pre-edit blob) + part 2c
+   `5b0ccde` (labelled WORDING CORRECTION at [C348]; `<=` is sampled at 3/3 — F3 —
+   only equal-attribute `>` was NEVER sampled; the superseded 55053bd message wording
+   stands as written, recorded traceably). FULL compile-tier gate **rc=0 measured at
+   HEAD `5b0ccde`**, ACTUALS AS PRINTED: byte panel **1174 byte-exact / 0 fail of
+   1174** (all 24 e49p4 specimens BYTE-EXACT 256 bytes), negative **181/181**
+   (E46K14 `[dr-refuses]` UNMOVED), divergence **9/9**, coverage **133 rows 0/0**,
+   census UNCHANGED, prose **5 files clean**; `dune build` rc=0.
+2. NEXT CONCRETE STEP — THE CLOSE ONLY (PLAN §6): (a) identify the superseded prose
+   generations — the arms-era HANDOFF/PROGRESS sections and this step-6-era prose —
+   and archive them VERBATIM into `docs/history/2026-11-01-e49p4-closed.md`, EACH
+   block byte-verified against its stated git range (use `git show <range>:<file>`;
+   verify BEFORE replacing; the two-generation P3 close
+   `docs/history/2026-11-01-e49p3-closed.md` is the pattern); (b) rewrite
+   HANDOFF.md (Closed-state section, ONE Next action = the no-active-round stub:
+   successor without operator instruction confirms HEAD/tree, `/handoff verify`,
+   records state, STOPS; candidate pool: RESULTS §3 named refusals, STORE/BASED/
+   truthiness/literal-vs-literal, `<>`/`><`, `^( > )`/`^( >= )`/`^( ^= )`, equal-
+   attribute `>` collapse, bank-the-negated-refusals proposal) and PROGRESS.md
+   (P4 CLOSED record; P2/P3 previous-phase prose moves to history); update
+   LEARNINGS.md only if new findings arise during the close; (c) add the
+   `docs/history/README.md` index row; (d) run `handoff_finalize`; (e) STOP. No P5
+   without operator authorization.
 3. Standing boundaries: operator authorization covers arms→consolidation→CLOSE across
    renewals; NOT P5, NOT push, NOT STORE/BASED/truthiness/literal-vs-literal/runtime
    (RESULTS §3 shapes keep refusing BY NAME). Byte tier only. `eval $(opam env)` before
@@ -240,5 +233,5 @@ guard level 4; checkpoint requested (renewal refresh (model))
    never touch/stage/commit/revert it.
 
 ### Guard notes
-E2E-49/P4 step 6: ledger part 1b LANDED (9c42f3b — four labelled P4 CORRECTION blocks at [C335]/[C337]/[C344]/[C346], quotes byte-checked; dune rc=0). Docs e13311c. TREE DIRTY ONLY IN: tools/e2e_gate.py UNCOMMITTED SPECIMENS +24 round-bank block + operator handoff.config.json (never touch) + guard blocks. OWED NEXT (exact sequence in HANDOFF Next action 2): (i) python3 tools/e2e_gate.py on that tree — ACTUAL printed panel governs (expected 1174), all 24 e49p4 BYTE-EXACT 256 bytes; (ii) sanctioned --update-inventory; (iii) census re-snapshot (tools/corpus_census.py, counts expected 15/0/26/0); commit (i)-(iii) as ONE registration commit 4b51bc0 style; (iv) COVERAGE part 2a FOUR new rows RELATION_LITERAL(G,H8 EXACT:8)/RELATION_QUALIFICATION(H EXACT:6)/RELATION_UNEQUAL_MATRIX(I EXACT:6)/CMP_NEGATED_COMPLEMENT(J EXACT:4) all MEASURED byte-tier, coverage_check expect 133/0/0; (v) part 2b widenings: CMP_LENGTHS_POSITIONAL EXTENDED +G3..G6 EXACT:14 + SUPERSEDED clauses at FIXED_CMP_QUALIFICATION_INVISIBLE, FIXED_RELATION_MEMBER_PAIR, FIXED_MEMBER_MEMBER_TEST, FIXED_CMP_COLLAPSE_BOTH_TEMPLATES (quotes byte-checked vs pre-edit blob; cite [C104] NEVER legacy); (vi) part 2c labelled WORDING CORRECTION at [C348]: 'ALL FOUR relations' contradicts own G1/G2/G7/G8 enumeration — equal-attribute '>' never sampled; RESULTS §2.1 slip quoted verbatim, evidence untouched; (vii) FULL gate rc=0 ACTUALS AS PRINTED. Then CLOSE per PLAN §6 (two-generation byte-verified archive arms-era+step-6-era into docs/history/, rewrite HANDOFF/PROGRESS/LEARNINGS, README index row, ONE Next action, handoff_finalize, STOP). NEVER push, no P5, byte tier only, eval $(opam env) before dune, never git clean/reset/add -A, never touch handoff.config.json.
+E2E-49/P4 STEP 6 COMPLETE; ONLY CLOSE OWED. HEAD 882f77c (gate record: FULL compile-tier gate rc=0 MEASURED at 5b0ccde, ACTUALS AS PRINTED: byte panel 1174 byte-exact / 0 fail of 1174, all 24 e49p4 BYTE-EXACT 256 bytes; neg 181/181 E46K14 UNMOVED; div 9/9; cov 133 rows 0/0; census UNCHANGED 15/0/26/0; prose 5 clean; dune rc=0). Chain landed: claims aec53e1 (C348..C351) + ledger corrections 9c42f3b + registration cc43963 + COVERAGE 2a dbaf004 (four rows) + 2b 5aeac87 (EXACT:14 + four SUPERSEDED clauses, quotes byte-checked vs cc43963) + 2c 5b0ccde (WORDING CORRECTION at [C348]; equal-attribute gt NEVER sampled, le IS sampled by F3 -- the 55053bd message slip is recorded traceably, history untouched). CLOSE per spec/lab-evidence/e2e49-p4/PLAN.md s6: archive superseded arms-era AND step-6-era HANDOFF/PROGRESS prose VERBATIM into docs/history/2026-11-01-e49p4-closed.md, EACH block byte-verified vs its stated git range BEFORE replacing (pattern: docs/history/2026-11-01-e49p3-closed.md two-generation close); rewrite HANDOFF/PROGRESS (P4 CLOSED record, ONE Next action = no-active-round stub: confirm HEAD/tree, /handoff verify, record, STOP; candidate pool = RESULTS s3 named refusals: STORE/BASED/truthiness/literal-vs-literal, <>/>, ^( gt )/^( ge )/^( ne ), equal-attribute gt collapse, bank-negated-refusals proposal); add docs/history/README.md index row; then handoff_finalize and STOP. NEVER push; no P5 without operator authorization; byte tier only; eval $(opam env) before dune; never git clean/reset/add -A; handoff.config.json is the OPERATOR's standing edit -- never touch/stage/commit/revert.
 <!-- guard:end checkpoint -->
