@@ -3,7 +3,29 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P2 CLOSED (FULL compile-tier gate rc=0 measured at HEAD `d5983e8`, recorded `8926b83`; CLOSE prose + archive in the commit that carries this text)
+## Current phase — E2E-49/P3 IN FLIGHT (OPERATOR-authorized composite CHARACTER FIXED / TEST campaign; pre-registration + oracle + analysis LANDED; implementation owed)
+
+- Chain: pre-registration `3659f5d` (14 probes E49C1..C4/D1..D4/E1..E2/F1..F4 +
+  mkprobes.py + HYPOTHESES.md + BASELINE-MINE at 685741c) committed BEFORE any oracle
+  call; fill-in `0a46824`; ONE grouped batch run, tag `e49p3`, **14 ok / 14 — NO
+  dr-refuses**; goldens + `spec/lab-evidence/e2e49-p3/RESULTS.md` `ad90425`.
+- Measured laws (RESULTS s2): collapse `06 n/78` is a LENGTH-PAIR law — BOTH literal
+  templates collapse at equal attributes ([C338] TBD settled; H-AK falsified); CA on
+  the direct template (C4/E2); qualification INVISIBLE — D1/D2/D3 == E49B1, D4 admits
+  bare-RIGHT-of-literal (P1 asymmetry was evidence boundary, not a DR gate);
+  over-extent literal-LEFT accepted whole and **byte-identical to my baseline
+  (E49E1/E2: NO ARM)**; relations `< > <= >=` ACCEPTED on the stacked ?SCCCM head —
+  `<`/`>=` written order, `>`/`<=` SWAPPED, strict skip JNC `d2` / weak JC `da`,
+  lengths positional on lowered operands, collapse applies (?CX* prior falsified).
+- Classification: 12 `my-gap` (C1..C4 collapse; D1..D4 admission; F1..F4 relations),
+  2 already byte-exact (E1/E2), 0 `dr-refuses`. NO spec/RUNTIME.txt row from this
+  round. LEARNINGS 2026-11-01 section carries the classified discoveries + the
+  3-arm plan (PROPOSED, not yet implemented).
+- NEXT: the three arms and step 6 (claims C342+, SPECIMENS/INVENTORY registration +14,
+  COVERAGE rows, FULL compile-tier gate) — exact procedure in `HANDOFF.md` → Next
+  action. Superseded E2E-49/P2 CLOSED prose archived at close.
+
+## Previous phase — E2E-49/P2 CLOSED (FULL compile-tier gate rc=0 measured at HEAD `d5983e8`, recorded `8926b83`)
 
 - Round (OPERATOR-authorized 2026-11-01): member-vs-member FIXED CHARACTER compares in
   TEST. Pre-registration `3bd9417` committed BEFORE any oracle call (probes E49B1..B5,
@@ -151,47 +173,45 @@ dated `LEARNINGS.md` sections. Round evidence: `golden/e49p2/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 78
-checkpoint-id: g78-1b72c36b40c7
-checkpoint-kind: manual
+checkpoint-generation: 81
+checkpoint-id: g81-77b95c8b990e
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-11-01T03:19:44.645Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-01T07:22:49.996Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 55e9941c4988b8d60c5c866dab55fa3335d6c311d06aa3e4ee996900e1011dc2
-source-handoff: 54d12600052a2ad9901f0f1bde81c38461c5a1f124ee11b6fbc936f31f597374
-source-learnings: 5667698bed5d92670a8ffd3369cde314f683693191ed573f515213571f5ba976
+source-progress: 96a225725466ab7e0026ce263cb8295323668314f64e17dcc8498e2d10fea8a2
+source-handoff: ef59e7df0436c69bb1511a8f6339f8e84ecc539a9c8a396f1b74b070362ba639
+source-learnings: 2070ed6feb37d0132e2c0fac3e0af95dad5182fd6a1c71b26e680d589da5e561
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: — E2E-49/P2 CLOSED; await the OPERATOR's named round
+next-action: — E2E-49/P3 IN FLIGHT: implement the three arms, then step 6 and CLOSE
 
-1. Candidate pool (each item needs its OWN pre-registered round — hypotheses committed
-   BEFORE any oracle call, PROTOCOL). From `spec/lab-evidence/e2e49-p2/RESULTS.md` §3:
-   any BARE spelling in a member-vs-member pair (bare-bare, bare-qualified,
-   qualified-bare); the equal-extent collapse for member-vs-LITERAL (`char(3)` against a
-   3-char literal in TEST — one probe settles [C338]'s [TBD]); `?SCCCM` in a STORE
-   (either orientation) and any fixed-member store value; literal-vs-literal fixed
-   compares; BASED members in conditions; the truthiness of a FIXED member; over-extent
-   member pairs; relations beyond `=`/`^=`; `^( ... )` composition. Still open from
-   `spec/lab-evidence/e2e49-p1/RESULTS.md` §3 and `spec/lab-evidence/e2e48-p2e/RESULTS.md`
-   §3: a BARE fixed member on the RIGHT of a literal (P1 asymmetry), over-extent
-   literal-LEFT and over-extent INITIAL/STORE, `^=` over a ladder, bare `-0` spelling,
-   runtime length rewrite, empty-varying PUT output, `BIT REQ` acceptance elsewhere, PUT
-   EDIT of a bit item. The P1 §3 entry "member-vs-member" is MEASURED now ([C337]) and
-   leaves the pool. Separate recorded debts, NOT arms: CREATE's `%include` front-end gap
-   and LOAN2's scope-aware prescan (PROGRESS → Pending).
-2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
-   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
-   (`/handoff verify`), and STOP — record state, do not invent work.
-3. Standing: goldens untouched except newly added round goldens; §3 shapes NOT
-   implemented (missing evidence is the limit, never a licence to guess); probes ≤71 cols
-   CRLF+`^Z`; `eval $(opam env)` before dune; never name a probe variable `c`; no push;
-   never stage/commit/revert the operator's `handoff.config.json` edit; renewal values
-   live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt` row may
-   come from the compare families until a runtime round measures them.
-readiness-by: session:01a1950c-7ba6-7103-bf3c-ac92bd64aa79
-readiness-at: 2026-11-01T03:19:44.648Z
-readiness-checkpoint: g78-1b72c36b40c7
+1. ARMS (each committed ALONE, whole-file `cmp` against `golden/e49p3/<N>/<N>.REL`,
+   then regression: `dune build`; gate `--only` over E48/E49 families and the
+   registered panel; expect panel 1136 unchanged until step 6 registers +14):
+   a. Collapse in BOTH literal templates of `str_cmp_shape_fix`: when the positional
+      pair is EQUAL emit `06 n / 78` (RESULTS s2.1; E49C1..C4). Unequal objects
+      (E48E7/E49A*/E49D4/E49E*) keep two immediates — no regression there.
+   b. Admit `ImemFb` in `str_cmp_shape_fix_mm` and in the literal-RIGHT arm of
+      `str_cmp_shape_fix`, mirrored in the prescan demand twin `is_test_right`
+      (RESULTS s2.3; E49D1..D4 byte-identical to E49B1/E48E7-template objects).
+   c. NEW relations route: `EqR (Lt|Le|Gt|Ge)` with QUALIFIED-QUALIFIED `ImemF/ImemF`
+      ONLY (bare-in-relation UNMEASURED — keep refusing), stacked head, `<`/`>=`
+      written order and `>`/`<=` SWAPPED, positional lengths ON THE LOWERED OPERANDS
+      with the equal collapse, skip JNC `0xd2` strict / JC `0xda` weak, [C309] fill
+      (RESULTS s2.5; E49F1..F4).
+   E49E1/E2 need NO code (already byte-exact).
+2. STEP 6: claims from **C342** derived ONLY from RESULTS §2; SPECIMENS bank +14 in
+   `tools/e2e_gate.py`; sanctioned `--update-inventory`; census re-snapshot; COVERAGE
+   rows + labelled SUPERSEDED clauses where P1/P2 boundaries are falsified; FULL
+   compile-tier gate, record ACTUALS AS PRINTED.
+3. CLOSE: archive superseded prose verbatim to `docs/history/`, rewrite HANDOFF/
+   PROGRESS to CLOSED, LEARNINGS close notes, `/handoff finalize`.
+4. Standing: probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no var named
+   `c`; goldens untouched except e49p3; NO spec/RUNTIME.txt row from the compare
+   families; never touch the operator's `handoff.config.json` edit; renewal values
+   ONLY in `handoff.config.json` / `/guard status`; no push.
 <!-- guard:end checkpoint -->
 
 ## Blockers

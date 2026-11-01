@@ -921,3 +921,39 @@ The guard never writes this file.
   probe left in this family: `char(3)` against a 3-char LITERAL in TEST decides whether the
   equal-extent collapse is a mechanism or an operand-class rule. It needs its own
   pre-registration; until then the literal template keeps its two immediates.
+
+## 2026-11-01 — E2E-49/P3 (composite FIXED/TEST bank, IN FLIGHT: oracle + analysis landed)
+
+* **accepted (law, RESULTS s2.1)** — the equal-extent collapse `06 n / 78` is a
+  ?SCCCM LENGTH-PAIR law keyed on EQUALITY OF THE TWO ATTRIBUTES, not on operand
+  class: measured in the staged member-vs-literal template (E49C1/C3, CODE 65) and
+  the direct literal-left template (E49C2/C4, CODE 64). [C338]'s [TBD] is settled;
+  the KEEP hypotheses (H-AK-M/H-AK-L) are FALSIFIED. The literal template's two
+  immediates stay only while the attributes DIFFER (11 unequal objects).
+* **accepted (law, RESULTS s2.3)** — qualification is INVISIBLE to every measured
+  ?SCCCM encoding: D1/D2/D3 == E49B1 but module-name bytes (bare/qualified,
+  qualified/bare, bare/bare), and D4 admits the BARE member RIGHT of a literal.
+  FALSIFIED: the P1 "left-side-only" scope note read as a DR gate — it was an
+  evidence boundary. My `ImemF`-only gates (fix_mm and str_cmp_shape_fix literal-
+  right arm) and the `is_test_right` prescan twin are the my-gaps to widen.
+* **accepted (law, RESULTS s2.5 — the round's biggest new family)** — ordered
+  relations `< > <= >=` on FIXED member pairs take the SAME stacked head and the
+  SAME `?SCCCM` helper (PLILIB `?CX*` prior FALSIFIED), with TWO relation laws:
+  `<`/`>=` lower WRITTEN order, `>`/`<=` SWAP the operands (the numeric family's
+  rule, now measured for characters); strict relations skip with JNC `d2`, weak
+  with JC `da`. Lengths are POSITIONAL ON THE OPERANDS AS LOWERED (F2 `06 02/3E 03`
+  falsified my as-written prediction) and the collapse applies to relations too.
+* **accepted (no-arm row)** — E49E1/E2 (over-extent literal LEFT, pooled whole,
+  positional) are byte-identical to my BASELINE objects: [C336] transfers BY
+  MEASUREMENT; register them without touching codegen.
+* **accepted (procedure)** — a composite operator-authorized bank (4 panels in ONE
+  pre-registration, ONE grouped batch.py call) works cleanly; the `cmp` against
+  BASELINE-MINE objects instantly separates no-gap rows (E1/E2) from gaps (12).
+  Recording the pipeline rc separately from the binary rc (PIPESTATUS) mattered.
+* **proposed (arm plan, NOT yet implemented)** — three coherent arms, each verified
+  against golden/e49p3 by whole-file cmp: A) collapse in BOTH literal templates of
+  str_cmp_shape_fix (b_len = a_len -> `06 n/78`); B) admit `ImemFb` in fix_mm and in
+  the literal-RIGHT arm of str_cmp_shape_fix + mirror in demand (`is_test_right`);
+  C) a new relations route (EqR Lt/Le/Gt/Ge, QUALIFIED-QUALIFIED ImemF/ImemF only —
+  bare-in-relation is UNMEASURED and must keep refusing) emitting swap-or-written
+  order, stacked parking, positional-with-collapse lengths, JNC/JC skip, [C309] fill.

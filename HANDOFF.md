@@ -72,32 +72,33 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   `docs/history/2026-11-01-e49p2-closed.md`. Goldens untouched except this round's
   `golden/e49p2`.
 
-## Next action — E2E-49/P2 CLOSED; await the OPERATOR's named round
+## Next action — E2E-49/P3 IN FLIGHT: implement the three arms, then step 6 and CLOSE
 
-1. Candidate pool (each item needs its OWN pre-registered round — hypotheses committed
-   BEFORE any oracle call, PROTOCOL). From `spec/lab-evidence/e2e49-p2/RESULTS.md` §3:
-   any BARE spelling in a member-vs-member pair (bare-bare, bare-qualified,
-   qualified-bare); the equal-extent collapse for member-vs-LITERAL (`char(3)` against a
-   3-char literal in TEST — one probe settles [C338]'s [TBD]); `?SCCCM` in a STORE
-   (either orientation) and any fixed-member store value; literal-vs-literal fixed
-   compares; BASED members in conditions; the truthiness of a FIXED member; over-extent
-   member pairs; relations beyond `=`/`^=`; `^( ... )` composition. Still open from
-   `spec/lab-evidence/e2e49-p1/RESULTS.md` §3 and `spec/lab-evidence/e2e48-p2e/RESULTS.md`
-   §3: a BARE fixed member on the RIGHT of a literal (P1 asymmetry), over-extent
-   literal-LEFT and over-extent INITIAL/STORE, `^=` over a ladder, bare `-0` spelling,
-   runtime length rewrite, empty-varying PUT output, `BIT REQ` acceptance elsewhere, PUT
-   EDIT of a bit item. The P1 §3 entry "member-vs-member" is MEASURED now ([C337]) and
-   leaves the pool. Separate recorded debts, NOT arms: CREATE's `%include` front-end gap
-   and LOAN2's scope-aware prescan (PROGRESS → Pending).
-2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
-   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
-   (`/handoff verify`), and STOP — record state, do not invent work.
-3. Standing: goldens untouched except newly added round goldens; §3 shapes NOT
-   implemented (missing evidence is the limit, never a licence to guess); probes ≤71 cols
-   CRLF+`^Z`; `eval $(opam env)` before dune; never name a probe variable `c`; no push;
-   never stage/commit/revert the operator's `handoff.config.json` edit; renewal values
-   live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt` row may
-   come from the compare families until a runtime round measures them.
+1. ARMS (each committed ALONE, whole-file `cmp` against `golden/e49p3/<N>/<N>.REL`,
+   then regression: `dune build`; gate `--only` over E48/E49 families and the
+   registered panel; expect panel 1136 unchanged until step 6 registers +14):
+   a. Collapse in BOTH literal templates of `str_cmp_shape_fix`: when the positional
+      pair is EQUAL emit `06 n / 78` (RESULTS s2.1; E49C1..C4). Unequal objects
+      (E48E7/E49A*/E49D4/E49E*) keep two immediates — no regression there.
+   b. Admit `ImemFb` in `str_cmp_shape_fix_mm` and in the literal-RIGHT arm of
+      `str_cmp_shape_fix`, mirrored in the prescan demand twin `is_test_right`
+      (RESULTS s2.3; E49D1..D4 byte-identical to E49B1/E48E7-template objects).
+   c. NEW relations route: `EqR (Lt|Le|Gt|Ge)` with QUALIFIED-QUALIFIED `ImemF/ImemF`
+      ONLY (bare-in-relation UNMEASURED — keep refusing), stacked head, `<`/`>=`
+      written order and `>`/`<=` SWAPPED, positional lengths ON THE LOWERED OPERANDS
+      with the equal collapse, skip JNC `0xd2` strict / JC `0xda` weak, [C309] fill
+      (RESULTS s2.5; E49F1..F4).
+   E49E1/E2 need NO code (already byte-exact).
+2. STEP 6: claims from **C342** derived ONLY from RESULTS §2; SPECIMENS bank +14 in
+   `tools/e2e_gate.py`; sanctioned `--update-inventory`; census re-snapshot; COVERAGE
+   rows + labelled SUPERSEDED clauses where P1/P2 boundaries are falsified; FULL
+   compile-tier gate, record ACTUALS AS PRINTED.
+3. CLOSE: archive superseded prose verbatim to `docs/history/`, rewrite HANDOFF/
+   PROGRESS to CLOSED, LEARNINGS close notes, `/handoff finalize`.
+4. Standing: probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no var named
+   `c`; goldens untouched except e49p3; NO spec/RUNTIME.txt row from the compare
+   families; never touch the operator's `handoff.config.json` edit; renewal values
+   ONLY in `handoff.config.json` / `/guard status`; no push.
 
 ## Unfinished operations
 
@@ -129,57 +130,55 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 78
-checkpoint-id: g78-1b72c36b40c7
-checkpoint-kind: manual
+checkpoint-generation: 81
+checkpoint-id: g81-77b95c8b990e
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~30777, session 01a1950c-7ba6-7103-bf3c-ac92bd64aa79)
-checkpointed: 2026-11-01T03:19:44.645Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3661, session 01a195e9-4828-7195-ad35-f2d4b10efaf5)
+checkpointed: 2026-11-01T07:22:49.996Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 55e9941c4988b8d60c5c866dab55fa3335d6c311d06aa3e4ee996900e1011dc2
-source-handoff: 54d12600052a2ad9901f0f1bde81c38461c5a1f124ee11b6fbc936f31f597374
-source-learnings: 5667698bed5d92670a8ffd3369cde314f683693191ed573f515213571f5ba976
+source-progress: 96a225725466ab7e0026ce263cb8295323668314f64e17dcc8498e2d10fea8a2
+source-handoff: ef59e7df0436c69bb1511a8f6339f8e84ecc539a9c8a396f1b74b070362ba639
+source-learnings: 2070ed6feb37d0132e2c0fac3e0af95dad5182fd6a1c71b26e680d589da5e561
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1950c-7ba6-7103-bf3c-ac92bd64aa79
-readiness-at: 2026-11-01T03:19:44.648Z
-readiness-checkpoint: g78-1b72c36b40c7
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-49/P2 CLOSED at 29243e3 (step 6 part 2b d5983e8: COVERAGE widening EXACT:8 + 3 labelled SUPERSEDED clauses, coverage_check rc=0 125 rows 0 errors; FULL gate rc=0 MEASURED at d5983e8, recorded 8926b83: byte panel 1136/0 with E49B1..B5 byte-exact, negative 181/181 E46K14 marker UNMOVED, divergence 9/9, census 15/0/26/0, prose clean; close: archive docs/history/2026-11-01-e49p2-closed.md byte-verified from 8926b83 blobs + README row, HANDOFF/PROGRESS prose CLOSED-era rewrite, ledger-end pointer C341, LEARNINGS close notes). NEXT: await the OPERATOR's named round -- successor without an instruction confirms HEAD/tree, /handoff verify, records state, STOPS. Candidate pool in HANDOFF Next action (bare-spelling member pairs, char(3)-vs-3-char-literal collapse probe per [C338] TBD, STORE, literal-vs-literal, BASED, truthiness, over-extent, relations beyond =/^=, ^( ), P2e debts). Discipline: eval $(opam env) before dune; keep refusing every RESULTS s3 shape; NO spec/RUNTIME.txt row from the compare families; goldens untouched except e49p2; never touch the operator's handoff.config.json edit; no push.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-49/P2 CLOSED; await the OPERATOR's named round
+— E2E-49/P3 IN FLIGHT: implement the three arms, then step 6 and CLOSE
 
-1. Candidate pool (each item needs its OWN pre-registered round — hypotheses committed
-   BEFORE any oracle call, PROTOCOL). From `spec/lab-evidence/e2e49-p2/RESULTS.md` §3:
-   any BARE spelling in a member-vs-member pair (bare-bare, bare-qualified,
-   qualified-bare); the equal-extent collapse for member-vs-LITERAL (`char(3)` against a
-   3-char literal in TEST — one probe settles [C338]'s [TBD]); `?SCCCM` in a STORE
-   (either orientation) and any fixed-member store value; literal-vs-literal fixed
-   compares; BASED members in conditions; the truthiness of a FIXED member; over-extent
-   member pairs; relations beyond `=`/`^=`; `^( ... )` composition. Still open from
-   `spec/lab-evidence/e2e49-p1/RESULTS.md` §3 and `spec/lab-evidence/e2e48-p2e/RESULTS.md`
-   §3: a BARE fixed member on the RIGHT of a literal (P1 asymmetry), over-extent
-   literal-LEFT and over-extent INITIAL/STORE, `^=` over a ladder, bare `-0` spelling,
-   runtime length rewrite, empty-varying PUT output, `BIT REQ` acceptance elsewhere, PUT
-   EDIT of a bit item. The P1 §3 entry "member-vs-member" is MEASURED now ([C337]) and
-   leaves the pool. Separate recorded debts, NOT arms: CREATE's `%include` front-end gap
-   and LOAN2's scope-aware prescan (PROGRESS → Pending).
-2. A successor session WITHOUT an operator instruction: confirm HEAD and tree
-   (`git rev-parse HEAD && git status --porcelain=v1`), verify checkpoint freshness
-   (`/handoff verify`), and STOP — record state, do not invent work.
-3. Standing: goldens untouched except newly added round goldens; §3 shapes NOT
-   implemented (missing evidence is the limit, never a licence to guess); probes ≤71 cols
-   CRLF+`^Z`; `eval $(opam env)` before dune; never name a probe variable `c`; no push;
-   never stage/commit/revert the operator's `handoff.config.json` edit; renewal values
-   live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt` row may
-   come from the compare families until a runtime round measures them.
+1. ARMS (each committed ALONE, whole-file `cmp` against `golden/e49p3/<N>/<N>.REL`,
+   then regression: `dune build`; gate `--only` over E48/E49 families and the
+   registered panel; expect panel 1136 unchanged until step 6 registers +14):
+   a. Collapse in BOTH literal templates of `str_cmp_shape_fix`: when the positional
+      pair is EQUAL emit `06 n / 78` (RESULTS s2.1; E49C1..C4). Unequal objects
+      (E48E7/E49A*/E49D4/E49E*) keep two immediates — no regression there.
+   b. Admit `ImemFb` in `str_cmp_shape_fix_mm` and in the literal-RIGHT arm of
+      `str_cmp_shape_fix`, mirrored in the prescan demand twin `is_test_right`
+      (RESULTS s2.3; E49D1..D4 byte-identical to E49B1/E48E7-template objects).
+   c. NEW relations route: `EqR (Lt|Le|Gt|Ge)` with QUALIFIED-QUALIFIED `ImemF/ImemF`
+      ONLY (bare-in-relation UNMEASURED — keep refusing), stacked head, `<`/`>=`
+      written order and `>`/`<=` SWAPPED, positional lengths ON THE LOWERED OPERANDS
+      with the equal collapse, skip JNC `0xd2` strict / JC `0xda` weak, [C309] fill
+      (RESULTS s2.5; E49F1..F4).
+   E49E1/E2 need NO code (already byte-exact).
+2. STEP 6: claims from **C342** derived ONLY from RESULTS §2; SPECIMENS bank +14 in
+   `tools/e2e_gate.py`; sanctioned `--update-inventory`; census re-snapshot; COVERAGE
+   rows + labelled SUPERSEDED clauses where P1/P2 boundaries are falsified; FULL
+   compile-tier gate, record ACTUALS AS PRINTED.
+3. CLOSE: archive superseded prose verbatim to `docs/history/`, rewrite HANDOFF/
+   PROGRESS to CLOSED, LEARNINGS close notes, `/handoff finalize`.
+4. Standing: probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no var named
+   `c`; goldens untouched except e49p3; NO spec/RUNTIME.txt row from the compare
+   families; never touch the operator's `handoff.config.json` edit; renewal values
+   ONLY in `handoff.config.json` / `/guard status`; no push.
 
 ### Guard notes
-E2E-49/P2 CLOSED at 29243e3 (step 6 part 2b d5983e8: COVERAGE widening EXACT:8 + 3 labelled SUPERSEDED clauses, coverage_check rc=0 125 rows 0 errors; FULL gate rc=0 MEASURED at d5983e8, recorded 8926b83: byte panel 1136/0 with E49B1..B5 byte-exact, negative 181/181 E46K14 marker UNMOVED, divergence 9/9, census 15/0/26/0, prose clean; close: archive docs/history/2026-11-01-e49p2-closed.md byte-verified from 8926b83 blobs + README row, HANDOFF/PROGRESS prose CLOSED-era rewrite, ledger-end pointer C341, LEARNINGS close notes). NEXT: await the OPERATOR's named round -- successor without an instruction confirms HEAD/tree, /handoff verify, records state, STOPS. Candidate pool in HANDOFF Next action (bare-spelling member pairs, char(3)-vs-3-char-literal collapse probe per [C338] TBD, STORE, literal-vs-literal, BASED, truthiness, over-extent, relations beyond =/^=, ^( ), P2e debts). Discipline: eval $(opam env) before dune; keep refusing every RESULTS s3 shape; NO spec/RUNTIME.txt row from the compare families; goldens untouched except e49p2; never touch the operator's handoff.config.json edit; no push.
+status
 <!-- guard:end checkpoint -->
