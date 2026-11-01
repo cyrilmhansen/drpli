@@ -1037,3 +1037,22 @@ The guard never writes this file.
   COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE -- originals verbatim, 15-column layout per the
   file header (id category construct contract perimeter manual_ref dr_status
   mine_status rel_parity runtime probes corpus boundary confidence provenance).
+
+## 2026-11-01 — E2E-49/P3 step-6 parts 2a/2b/2c + gate (closing session, truncated)
+- accepted (measured this session): parts 2a/2b/2c landed as `8d3b024`/`8771e1e`/`4df35bb`;
+  coverage_check rc=0 at 129 rows 0 errors 0 warnings at each step; FULL compile-tier gate
+  rc=0 at `4df35bb` (panel 1150/0, neg 181/181 E46K14 UNMOVED, div 9/9, cov 129/0/0,
+  census 15/0/26/0, prose 5 clean); every quoted SUPERSEDED sentence byte-checked verbatim.
+- accepted (validator procedure): provenance column [Cnnn] cites are resolved ONLY against
+  coverage_check load_claims; legacy ids [C072]/[C027] are NOT resolvable and must not be
+  cited in provenance (contract/boundary prose mentions are unchecked).
+- falsified (citation, not measurement): [C346]'s `([C115])` for the numeric a>b-as-b<a
+  rule — C115 is the STATIC-cell pool-base law; the measured rule is [C104] (FLOAT,
+  right-first for > and <=, echoed by [C247] as legacy [C027]). Labelled correction
+  committed at `4df35bb`, original kept verbatim (PROTOCOL #2).
+- accepted (procedural lesson): exact-string asserts on em-dash headings FAILED mid-CLOSE
+  — anchor section rewrites on ASCII line prefixes (## Current phase etc.), never on
+  dash-bearing full strings; and a failed file rewrite must ABORT its commit (mine
+  committed `1f611f5` with only managed blocks — prose fix owed).
+- proposed (unchanged, standing): bank out-of-scope member-pair refusals as NEG rows;
+  bundled-thunk codegen invariant stays evidence-per-shape; README rolling status stale.

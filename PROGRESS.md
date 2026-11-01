@@ -3,34 +3,16 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P3 step 6 IN FLIGHT: part 1 LANDED (`4b51bc0`); COVERAGE 2a/2b + FULL gate record + CLOSE owed
+## Current phase — E2E-49/P3: step 6 + FULL gate LANDED; CLOSE prose completion owed
 
-- Chain: pre-registration `3659f5d` (14 probes E49C1..C4/D1..D4/E1..E2/F1..F4 +
-  mkprobes.py + HYPOTHESES.md + BASELINE-MINE at 685741c) BEFORE any oracle call; fill-in
-  `0a46824`; ONE grouped batch run, tag `e49p3`, **14 ok / 14 — NO dr-refuses**; goldens +
-  RESULTS `ad90425`; arms a `a540fa7`, b `0a1b80c`, c `cde3258` (each ALONE, 14/14
-  whole-file BYTE-EXACT, gate rc=0 at each; E49E1/E2 needed NO code).
-- STEP 6 PART 1 `4b51bc0` (no `ocaml/` byte changed): claims **C342..C347** derived ONLY
-  from RESULTS s2 (collapse = LENGTH-PAIR law in BOTH literal templates; CA + [C309] fill
-  measured on the direct template; qualification invisible, bare RIGHT of a literal
-  admitted; over-extent literal-LEFT accepted/pooled whole, NO ARM; ordered relations with
-  the ORDER law (`<`,`>=` written / `>`,`<=` swapped) and BRANCH law (strict JNC `d2`, weak
-  JC `da`) and positional lengths on LOWERED operands; sizes + [C314] DATA in all
-  fourteen), labelled CORRECTION appends with originals verbatim at [C335]/[C336]/[C337]/
-  [C338], SPECIMENS +14, sanctioned `--update-inventory` (panel **1150**, exactly +14
-  rows), census re-snapshot counts UNCHANGED **15/0/26/0** (head `1da795d`, md5
-  `335d69c6`). COUNT NOTE: RESULTS s2.1 says "six collapse objects" and NAMES SEVEN —
-  recorded in [C342], evidence file untouched.
-- ACTUALS measured by THIS session on the committed part-1 tree: `dune build` rc=0; FULL
-  compile-tier gate `python3 tools/e2e_gate.py` **rc=0** — byte panel **1150 byte-exact /
-  0 fail of 1150**, negative **181/181** (E46K14 `[dr-refuses]` pinned marker UNMOVED),
-  divergence **9/9**, coverage **125 rows, 0 errors, 0 warnings**, census unchanged
-  15/0/26/0, prose **5 active files clean**.
-- NEXT: step 6 parts 2a/2b (COVERAGE rows + widening + labelled SUPERSEDED clauses) and
-  the final FULL gate record, then CLOSE. EXACT procedure and planned row ids in
-  `HANDOFF.md` -> Next action items 2-3.
-- Working tree at this boundary: the guard's managed blocks in HANDOFF.md/PROGRESS.md plus
-  the OPERATOR's `handoff.config.json` edit (never staged, never touched).
+- 2a `8d3b024`, 2b `8771e1e`, 2c `4df35bb`, gate record `1f611f5`. FULL gate rc=0 at
+  `4df35bb` ACTUALS AS PRINTED: 1150/0 byte panel (14 e49p3 specimens BYTE-EXACT,
+  256 bytes), 181/181 neg (E46K14 UNMOVED), 9/9 div, coverage 129/0/0, census 15/0/26/0
+  unchanged, prose 5 clean, dune rc=0. Ledger ends C347.
+- OWED: CLOSE completion — exact steps in `HANDOFF.md` -> Next action item 2 (verify the
+  draft archive `docs/history/2026-11-01-e49p3-closed.md` byte-for-byte, rewrite
+  HANDOFF/PROGRESS/LEARNINGS to CLOSED, `/handoff finalize`). Context exhausted; successor
+  or this-session follow-up completes it. No `ocaml/` byte or golden changed since arms.
 
 ## Previous phase — E2E-49/P2 CLOSED (FULL compile-tier gate rc=0 measured at HEAD `d5983e8`, recorded `8926b83`)
 
@@ -180,13 +162,13 @@ dated `LEARNINGS.md` sections. Round evidence: `golden/e49p2/`,
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 83
-checkpoint-id: g83-b16760fc3d85
+checkpoint-generation: 85
+checkpoint-id: g85-f6fd5eb45946
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-01T08:06:11.614Z
+checkpointed: 2026-11-01T08:31:22.279Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 23b5d3328c26a3ab792d0299d5a9b54bdcf0aaa27d6bc25aa84b1f71c0535260
 source-handoff: 396eb253e73a501f2491614c65ed927f77a0f01be8b223e425980adebab2003d
@@ -231,9 +213,6 @@ next-action: — E2E-49/P3 step 6: part 1 DONE (`4b51bc0`); remaining = COVERAGE
    goldens untouched except e49p3; NO spec/RUNTIME.txt row from the compare families;
    never touch the operator's `handoff.config.json` edit; renewal values ONLY in
    `handoff.config.json` / `/guard status`; no push.
-readiness-by: session:01a19613-d27f-7195-ad35-f2dcd4a4011e
-readiness-at: 2026-11-01T08:06:30.010Z
-readiness-checkpoint: g83-b16760fc3d85
 <!-- guard:end checkpoint -->
 
 ## Blockers
