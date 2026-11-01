@@ -171,22 +171,25 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 76
-checkpoint-id: g76-d9076dc64171
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4969, session 01a194f5-edec-7103-bf3c-ac8e3f151b95)
-checkpointed: 2026-11-01T02:56:49.078Z
+checkpoint-generation: 77
+checkpoint-id: g77-33e42d6497d7
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-2094, session 01a194f5-edec-7103-bf3c-ac8e3f151b95)
+checkpointed: 2026-11-01T02:59:03.728Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9cd347d4f86346ec1f925955da656415b46bb71ad5e9a6d98036a454f49b7cc5
-source-handoff: c1dfe8ed160e76ba78d09990a57e38cb9ccb001c949e97acdc1d1cd02e0c2dd5
-source-learnings: b60cfc454e4ae25fa7b137c38ce5dd07f534045a8c5e4f0b869673b7e3eb440f
+source-progress: 4d47278f060662af94945320347d7294c98eab7741337fea1d00b6ae2f15357d
+source-handoff: bc4843745ef5dc0c9f97ed1bf70721cbeea3699cc063b5911be089c4c1a24f3f
+source-learnings: 6f3884ce88cde2a0d20101d34f80373ec5e48fdb862e856ff5b4746126ee20d2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a194f5-edec-7103-bf3c-ac8e3f151b95
+readiness-at: 2026-11-01T02:59:03.732Z
+readiness-checkpoint: g77-33e42d6497d7
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -205,6 +208,9 @@ guard level 4; checkpoint requested (auto at level 4)
 2. FULL gate `python3 tools/e2e_gate.py` — expect byte panel **1136 byte-exact / 0 fail**, negative
    **181/181** with E46K14 `[dr-refuses]` marker UNMOVED, divergence **9/9**, coverage rows 0
    errors, census **15/0/26/0**, prose clean. Record the ACTUALS AS PRINTED, then commit.
+   STATUS measured at `8c1d2ee`: the 3 NEW COVERAGE rows are LANDED and
+   `coverage_check.py` rc=0 on **125 rows, 0 errors, 0 warnings**; the WIDENING of
+   `COND.CMP_LENGTHS_POSITIONAL` and the three labelled SUPERSEDED clauses are still OWED.
 3. CLOSE: rewrite HANDOFF/PROGRESS prose (IN FLIGHT → CLOSED + SUPERSEDED), archive the superseded
    prose verbatim from the committed blobs to `docs/history/2026-11-01-e49p2-closed.md` + README
    index row, LEARNINGS close notes, ledger-end pointer past **C341**, `/handoff finalize`.
@@ -228,5 +234,5 @@ guard level 4; checkpoint requested (auto at level 4)
    row from this round.
 
 ### Guard notes
-E2E-49/P2 IN FLIGHT at 1416f52 (HEAD; goldens+RESULTS at 62f5622, pre-registration 3bd9417, fill-in 586c240). Oracle measured: 5 ok / 5, NO dr-refuses, all five my-gap. NEXT ACTION = ARM 1 exactly per spec/lab-evidence/e2e49-p2/RESULTS.md s2 (plan in HANDOFF Next-action + PROGRESS Current phase): op_mov_a_b=0x78; str_cmp_shape_fix_mm matching ONLY (ImemF,ImemF) qualified-qualified (any BARE side keeps refusing, s3); head 21 *D(left)/E5/21 *D(right)/D1; MVI B capl then MOV A,B iff capl=capr else MVI A capr; CD ?SCCCM; skip C2/CA fill->next; NO prescan change. Verify whole-file cmp vs golden/e49p2 for all five, E48/E49 sweeps, full INVENTORY panel (expect 1131 current + 5 new), refusals rc=2, E46K14 marker unmoved; commit arm alone. Then STEP 6: claims C337.. from s2 ONLY, SPECIMENS bank, --update-inventory, census, COVERAGE, FULL gate (expect 1136), record ACTUALS, CLOSE (archive prose to docs/history/2026-11-01-e49p2-closed.md, ledger-end pointer past C336, /handoff finalize). Both pre-registered forms were FALSIFIED (fourth shape: stack parking E5/D1); equal-extent collapse is member-vs-member ONLY -- never extend to the literal template (unmeasured). No RUNTIME row; no push; never touch the operator handoff.config.json edit.
+E2E-49/P2 IN FLIGHT at HEAD 09582f5 (arm 1 b1e9221: five golden/e49p2 objects whole-file BYTE-EXACT, E48/E49 sweep 61/61, registered-panel sweep 1131/1131, out-of-scope refusals rc=2, E46K14 marker UNMOVED; step-6 part 1 0abf1c1: claims C337..C341 from RESULTS s2 ONLY + SPECIMENS E49B1..B5 + --update-inventory 5 rows panel 1136 + census UNCHANGED 15/0/26/0; part 2a 8c1d2ee: 3 NEW COVERAGE rows, coverage_check rc=0 125 rows 0 errors). NEXT ACTION (exact order, see PROGRESS Current phase): (1) widen COND.CMP_LENGTHS_POSITIONAL (add E49B3,E49B4 to probes, rel_parity EXACT:6 -> EXACT:8, labelled clause naming [C339] and the dead MIN/MAX/class readings) and append labelled SUPERSEDED clauses to the boundary columns of COND.FIXED_MEMBER_TEST_SCCCM, COND.FIXED_MEMBER_LEFT_TEST and COND.BIT1_NEG_TEST -- all three still say member-vs-member is unmeasured/refused, falsified by [C337]; keep the originals verbatim (PROTOCOL #2). Then python3 tools/coverage_check.py (expect 125 rows 0 errors) and commit. (2) FULL gate python3 tools/e2e_gate.py -- expect byte panel 1136 byte-exact / 0 fail, negative 181/181 with E46K14 [dr-refuses] marker UNMOVED, divergence 9/9, census 15/0/26/0, prose clean; record ACTUALS AS PRINTED, commit. (3) CLOSE: archive superseded HANDOFF/PROGRESS prose verbatim from committed blobs to docs/history/2026-11-01-e49p2-closed.md + README index row, LEARNINGS close notes, ledger-end pointer past C341, /handoff finalize. Discipline: eval $(opam env) before dune; do NOT extend the equal-extent collapse to the literal template (unmeasured, [C338] scope warning); keep refusing every RESULTS s3 shape; NO spec/RUNTIME.txt row from this round; goldens untouched except e49p2; never touch the operator's handoff.config.json edit; no push.
 <!-- guard:end checkpoint -->
