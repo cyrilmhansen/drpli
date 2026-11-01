@@ -1,0 +1,20 @@
+E49B3:
+  procedure options(main);
+  /* [E2E-49/P2] member-vs-member with UNEQUAL extents, the LONGER
+     one on the LEFT: char(3) vs char(2).  [C334]'s positional law
+     (B = LEFT operand's attribute, A = RIGHT's) was measured only
+     on member-vs-literal pairs; here both attributes are DECLARED
+     extents, so the pair predicts `06 03 / 3E 02'.  Falsifiers:
+     `06 02 / 3E 03' (side-inverted), `06 02 / 3E 02' (min), `06 03
+     / 3E 03' (max), refusal. */
+  dcl
+    1 rec,
+      2 na char(3),
+      2 nb char(3),
+      2 s2 char(2);
+  dcl k fixed bin(15);
+  if rec.na = rec.s2 then k = 1;
+  put list('K=', k);
+  stop;
+end E49B3;
+

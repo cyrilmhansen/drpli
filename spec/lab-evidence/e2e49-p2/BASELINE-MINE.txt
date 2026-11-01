@@ -1,0 +1,16 @@
+# E2E-49/P2 BASELINE-MINE -- my compiler on probes/E49B1..E49B5, recorded BEFORE any oracle call.
+# HEAD at recording time: 7fa763b (ocaml/ unchanged since b044b7c's arm 2; tree clean except the
+# guard's managed blocks and the OPERATOR's uncommitted handoff.config.json edit -- not touched).
+# Binary: ocaml/_build/default/bin/pli80c.exe built with `eval $(opam env) && dune build', rc=0.
+# Invocation: ./ocaml/_build/default/bin/pli80c.exe probes/E49Bn.PLI /tmp/out49p2/E49Bn.REL
+# Every message below is the FIRST refusal line, whitespace-collapsed; rc=2 for all five.
+# The verdicts are what HYPOTHESES.md predicts DR will contradict or confirm.
+# NO oracle run yet.
+
+E49B1: refused (rc=2) -- codegen: comparison of the internal CHARACTER member REC.NA (CHARACTER FIXED) is unmeasured [TBD] -- the standard imem_refuse "comparison" text; its last ADDENDUM (E2E-49/P1 arm 2) names THIS shape explicitly: "as do member-vs-member, the STORE value and every truthiness shape". Route: str_side classifies BOTH sides as `ImemF'; no str_cmp_shape/rev/fix/vv arm matches a (member, member) pair; the numeric ?IS22N guard (str_side None,None) declines it; the fall-through calls imem_refuse.
+E49B2: refused (rc=2) -- identical imem_refuse "comparison" text naming REC.NB (the inversion of E49B1; same classifier, same refusal site).
+E49B3: refused (rc=2) -- identical imem_refuse "comparison" text naming REC.NA (unequal extents char(3)/char(2); no encoder admits the pair, so no length law is even reached).
+E49B4: refused (rc=2) -- identical imem_refuse "comparison" text naming REC.S2 (inversion of E49B3).
+E49B5: refused (rc=2) -- identical imem_refuse "comparison" text naming REC.NA (Ne on a member-vs-member pair; the ?SCCCM route matches Eq/Ne only for member-vs-literal orientations).
+
+# All five gaps, if DR accepts, are `my-gap' (PROTOCOL #1 #3); if DR refuses, `dr-refuses'.
