@@ -167,8 +167,7 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   attribution never narrowed (assert mismatch = `undefined`), `--double-run` determinism proof,
   `--stages` ceiling, all external layers injectable. Measured: py_compile rc=0, --help rc=0,
   bounded real run `--stages SOURCE,DERIVATION` on TABLE-00/01 -> SOURCE+DERIVATION pass, both
-  verdicts UNKNOWN (COMPILE unrun), PASS=0. **PART 2 OWED:** hostile suite
-  `tools/test_functional_runner.py` (see Unfinished operations for the 13 required cases)]
+  verdicts UNKNOWN (COMPILE unrun), PASS=0. **PART 2 LANDED hop 4 `d40aafb`+`149c6e2`:** hostile suite `tools/test_functional_runner.py`, 148 checks rc=0, no external process (pure oracle import); the suite FOUND two harness defects, fixed in the same commit: `_rname` undefined (attempted Lane A RUN crashed, Lane B laundered harness-exception) and eager first_diff=None TypeError in `assert_stream` on differ-by-length streams. Measured nuance: DERIVATION/ASSERT are evaluation stages unaffected by `--stages`; a SOURCE..RUN ceiling PASSes on earned ASSERT evidence]
 - 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
   permit; Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB, dependency lane
   labelled; classify and preserve blockers honestly. Never substitute an unlabelled emulator.
@@ -187,8 +186,7 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 - E2E-50/P2 steps 5(part 2)–8 (steps 0–4 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec
   format, law, TABLE corpus and reference in the hop-2 commit `a6163ef`; **harness step-5 part 1
-  LANDED hop 3 at `8523eda`**). **FIRST ACTION for the successor: step 5 part 2 — write
-  `tools/test_functional_runner.py`** (hostile suite over the landed harness, `check()`-style like
+  LANDED hop 3 at `8523eda`**). **Step 5 PART 2 LANDED hop 4 (`d40aafb`,`149c6e2`): 13 required cases, 148 checks, rc=0, NO compiler/LINK-80/cpmsim/emulator process; harness defects `_rname` and `assert_stream` first_diff=None found by the suite and fixed. FIRST ACTION for the successor: step 6** — Lane A hand-crafted .COM fixture + Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB under cpmsim (bounded, lane-labelled; BDOS census = open question #1); then steps 7–8. (hostile suite over the landed harness, `check()`-style like
   `tools/test_functional_dashboard.py`, NO compiler/LINK-80/cpmsim/emulator process — every
   external layer is injectable via `Host(subprocess_run=, sim_session=, link_deps=,
   workspace_factory=, run_factory=)`):
@@ -269,13 +267,13 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 124
-checkpoint-id: g124-9311bb8f05ae
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-916, session 01a1994d-fc31-7280-b553-bdb03f5739c4)
-checkpointed: 2026-11-01T23:15:39.239Z
+checkpoint-generation: 126
+checkpoint-id: g126-faf989c7cc97
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4371, session 01a19966-0c69-7280-b553-bdb4b4627f07)
+checkpointed: 2026-11-01T23:54:01.177Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: be7b25a5e4c01701156dcb8fdcc889e95933b10d1459971b941bfa85e79e21b3
 source-handoff: 28fa98ba1724308f5f84324f9d14d8ddd81e004e7773d833d984dbdf2426e735
@@ -283,11 +281,8 @@ source-learnings: a773bcba50497c9dc11d00fcfb94ac9be6fc14f97c1403651039b2f5a56a7d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1994d-fc31-7280-b553-bdb03f5739c4
-readiness-at: 2026-11-01T23:15:39.245Z
-readiness-checkpoint: g124-9311bb8f05ae
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
@@ -353,8 +348,7 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   attribution never narrowed (assert mismatch = `undefined`), `--double-run` determinism proof,
   `--stages` ceiling, all external layers injectable. Measured: py_compile rc=0, --help rc=0,
   bounded real run `--stages SOURCE,DERIVATION` on TABLE-00/01 -> SOURCE+DERIVATION pass, both
-  verdicts UNKNOWN (COMPILE unrun), PASS=0. **PART 2 OWED:** hostile suite
-  `tools/test_functional_runner.py` (see Unfinished operations for the 13 required cases)]
+  verdicts UNKNOWN (COMPILE unrun), PASS=0. **PART 2 LANDED hop 4 `d40aafb`+`149c6e2`:** hostile suite `tools/test_functional_runner.py`, 148 checks rc=0, no external process (pure oracle import); the suite FOUND two harness defects, fixed in the same commit: `_rname` undefined (attempted Lane A RUN crashed, Lane B laundered harness-exception) and eager first_diff=None TypeError in `assert_stream` on differ-by-length streams. Measured nuance: DERIVATION/ASSERT are evaluation stages unaffected by `--stages`; a SOURCE..RUN ceiling PASSes on earned ASSERT evidence]
 - 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
   permit; Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB, dependency lane
   labelled; classify and preserve blockers honestly. Never substitute an unlabelled emulator.
