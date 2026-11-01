@@ -156,96 +156,58 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 94
-checkpoint-id: g94-8a7bc7cdd49f
-checkpoint-kind: manual
+checkpoint-generation: 95
+checkpoint-id: g95-8faeff503094
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~3361, session 01a19707-67fc-71b9-af89-5373c8b376a8)
-checkpointed: 2026-11-01T12:38:24.393Z
+status: checkpoint (guard level 3, remaining ~6968, session 01a1971e-3f91-71b9-af89-5377807d6c04)
+checkpointed: 2026-11-01T13:03:19.456Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 946f687217d3fc194cbb3b39236d10a398e9f5eb8baf7e61fcb043a67398479c
-source-handoff: 0d708967a5e36b1b2b3f1e180c86d73a1275fd89b4b900e8ca2867b7a509a08c
-source-learnings: a33c9d64bb4a8a48f0cd9e5f50412532b66b0a6499894d71ed6c0cb289e479ad
+source-progress: 5d4e26be2b6a5132a19061543d6976c5ec7a91c60e48e59e3d94831d38c88262
+source-handoff: 6139c36eab87abc1eaa0c5db62446af203dbf5c63d6d9129c1e0c995f1384788
+source-learnings: 3155fc57b9c8dc776afb1f5dd41faa7076c82f4ff6c3e8b3e499c9db42859898
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19707-67fc-71b9-af89-5373c8b376a8
-readiness-at: 2026-11-01T12:38:24.397Z
-readiness-checkpoint: g94-8a7bc7cdd49f
+readiness-by: session:01a1971e-3f91-71b9-af89-5377807d6c04
+readiness-at: 2026-11-01T13:03:37.435Z
+readiness-checkpoint: g95-8faeff503094
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-49/P4 ACTIVE: ARM a LANDED `c515377`; ARM b code-complete (G1..G8 BYTE-EXACT) — verification+commit OWED; then ARM c, step 6, CLOSE
+— E2E-49/P4: ARMS a/b/c ALL LANDED; STEP 6 IN PROGRESS (claims `aec53e1`; registration/inventory/census/COVERAGE/FULL-gate owed), then CLOSE
 
-0a. STATE: see `PROGRESS.md` Current phase STATUS (authoritative this session): arm a
-   committed alone with FULL gate rc=0; arm b = new `str_cmp_shape_fix_lit_rel` encoder
-   (QUALIFIED member vs LITERAL ONLY; staged-EB/direct-11 keyed on FIRST LOWERED operand,
-   positional pair + [C342] collapse, d2/da; direct head SIX bytes — `11` carries the pool
-   operand) + caller arm + annotations; prescan twins needed NO change ([C152] verified;
-   "twins MUST widen" falsified). ARM b OWED: sweep A..I, out-of-scope rc=2 (J rows,
-   bare+literal scratch, lit-lit scratch, rel-in-STORE), FULL gate rc=0, commit ALONE.
-   ARM c per PROGRESS spec (only ^(Eq)->Ne, ^(Lt)->Ge, ^(Le)->Gt; NO un-witnessed rewrites).
-
-0. LANDED this session: pre-registration `328eb3f` (24 probes + mkprobes.py +
-   HYPOTHESES + BASELINE-MINE, measured with the ACTUAL binary, committed BEFORE the
-   oracle); ONE grouped batch run tag e49p4 -> **24 ok / 24, NO dr-refuses**; goldens +
-   RESULTS committed together `13fca5b` (+ wording repair `9799f1d`). Verdicts: Panel A
-   **H-A-sw CONFIRMED** (the ORDER law REKEYS the literal template: lowered member-first
-   = staged EB, lowered literal-first = direct 11; H-A-or FALSIFIED at G3..G6), positional
-   immediates on LOWERED operands, [C342] collapse at 3/3 in BOTH literal templates under
-   all four relations, BRANCH d2/da transfers, [C345] over-extent pooled WHOLE; Panel B
-   **H-B-invis CONFIRMED** (bare mixes == qualified twins byte-for-byte but packed name
-   bytes; H4 `nb >= na` == golden F3); Panel C **WHOLE-FILE BYTE-EXACT vs my arm-c
-   baseline, NO ARM** (transfer MEASURED, I5==I6 but names); Panel D DR **ACCEPTS** `^( )`
-   on string heads, each object is the COMPLEMENT's object byte-equal (J1≡B5, J3≡C4,
-   J4≡F2, J2≡F1-head+da); H-D-inv/H-D-simpl BYTE-CONVERGENT (pre-registered
-   non-separability — claims must not prefer a reading); H-D-extra FALSIFIED.
-   Classification: 18 `my-gap` (G1..G8,H1..H6,J1..J4), 6 already-byte-exact (I), 0
-   dr-refuses. Evidence: `spec/lab-evidence/e2e49-p4/{BASELINE-MINE.txt,HYPOTHESES.md,RESULTS.md}`,
-   `golden/e49p4/`.
-   NEXT (step 4, PLAN): THREE arms by MECHANISM, each ALONE with whole-file byte
-   verification + regression sweep + FULL gate rc=0 before the next:
-   (a) widen `str_cmp_shape_fix_rel` (codegen.ml ~7302) from `ImemF/ImemF` to also
-       match `ImemFb` on BOTH sides — H1..H6 are byte-equal to the qualified lowering,
-       NO prescan twin (member pair pools no literal); verify H* goldens whole-file
-       byte-exact + F*/I* regression + out-of-scope still rc=2.
-   (b) NEW route for ORDERED relations with a LITERAL side: extend the Eq/Ne literal
-       pair (`str_cmp_shape_fix` arms) to `Lt/Le/Gt/Ge` — key template on FIRST LOWERED
-       operand (member-first = staged EB, literal-first = direct), positional pair +
-       collapse on LOWERED operands, skip d2/da; the prescan DEMAND twins
-       `is_test_left`/`is_test_right` (~3000-3076) MUST widen IN THE SAME COMMIT
-       ([C152] one-predicate invariant).
-   (c) NegL arm of `lower_test_skip0` (~7736): accept string compares by rewriting
-       `^(op)` to the complement (Eq->Ne, Lt->Ge, Le->Gt, Gt->Le) and lowering exactly
-       the complement object (J1≡B5, J2≡F1+da, J3≡C4, J4≡F2); NO extra bytes.
-   Then step 6 (claims from C348 from RESULTS §2 ONLY; SPECIMENS +24 in e2e_gate
-   (panel expected 1150+24=1174 — the ACTUAL printed number governs); sanctioned
-   `--update-inventory`; census re-snapshot; COVERAGE rows; FULL gate ACTUALS) and
-   CLOSE per PLAN. NEVER push.
-1. READ `spec/lab-evidence/e2e49-p4/PLAN.md` FIRST — it is the durable, complete
-   plan: bank E49G1..G8 (ordered relations with a LITERAL, both orientations),
-   E49H1..H6 (BARE spellings in ordered relations), E49I1..I6 (unequal-extent
-   relation matrix), E49J1..J4 (negated compares); shared P3 DECL+tail; hypotheses
-   (H-A-sw/H-A-or/H-A-refuse; H-B-invis vs gate/mixed; C = arm-c transfer;
-   H-D-inv/H-D-simpl/H-D-extra/H-D-refuse); the exact oracle command (tag `e49p4`,
-   never `--reuse`); step-6 method (claims from C348, SPECIMENS +24,
-   `--update-inventory`, census, COVERAGE, FULL gate ACTUALS); close procedure.
-   Authorization covers measurement→arms→consolidation→closure across renewals;
-   NOT P5, NOT push, NOT STORE/BASED/truthiness/literal-vs-literal/runtime.
-2. NEXT CONCRETE STEP (nothing of P4 measured yet): PREREGISTER — clone P3
-   mkprobes.py into e2e49-p4/, generate probes (CRLF+^Z, <=71 cols), record
-   BASELINE-MINE.txt with the ACTUAL binary (expected from CODE READING, unverified:
-   A/B/D refuse rc=2, C accepts on arm-c bytes), write HYPOTHESES.md, COMMIT ALL
-   BEFORE any oracle call. Then ONE grouped `oracle/batch.py ... --tag e49p4`.
-3. Standing: byte tier only; goldens untouched except new `golden/e49p4`; never
-   touch the operator's `handoff.config.json` edit; renewal values ONLY in
-   handoff.config.json / /guard status; `eval $(opam env)` before dune; never
-   git clean/reset/add -A; NO PUSH.
+1. STATE (authoritative: `PROGRESS.md` Current phase STATUS): arm a `c515377`, arm b
+   `ec904c1`, arm c `47c2194` — each committed ALONE, whole-file goldens BYTE-EXACT,
+   sweep 47/47 at arm c, out-of-scope rc=2 by name (incl. 9 scratch negations), FULL
+   gate rc=0 at every arm (panel 1150, e49p4 UNregistered). Step 6 part 1 `aec53e1`:
+   claims **C348..C351** from RESULTS §2 ONLY; ledger ENDS at **C351** — no claim ids
+   are owed.
+2. NEXT CONCRETE STEPS (step 6 remainder, per spec/lab-evidence/e2e49-p4/PLAN.md §Procedure
+   5; commit parts in the P3 style 4b51bc0/8d3b024/8771e1e): (i) SPECIMENS round-bank
+   block +24 rows (E49G1..G8/H1..H6/I1..I6/J1..J4 vs golden/e49p4/<n>/<n>.REL) in
+   tools/e2e_gate.py — panel expected 1174 but the ACTUAL printed number governs, never
+   invent; (ii) sanctioned `python3 tools/e2e_gate.py --update-inventory` (spec/
+   INVENTORY.txt rows); (iii) census re-snapshot per the `4b51bc0` recipe (counts UNLESS
+   changed are reprinted by the gate); (iv) COVERAGE.tsv rows — byte tier only, widenings
+   carry labelled SUPERSEDED clauses with quotes byte-checked against the pre-edit blob,
+   provenance ids resolve via tools/coverage_check.py, the numeric ORDER law is [C104]
+   NEVER legacy [C027]/[C072]; (v) FULL compile-tier gate rc=0 with ACTUALS AS PRINTED.
+   Then CLOSE per PLAN §Procedure 6: archive superseded prose byte-verified vs stated git
+   ranges BEFORE replacing (generations: arms-era + step-6-era), rewrite
+   HANDOFF/PROGRESS/LEARNINGS, docs/history/README.md index row, exactly ONE active Next
+   action, `/handoff finalize`, STOP.
+3. Standing boundaries: operator authorization covers arms→consolidation→CLOSE across
+   renewals; NOT P5, NOT push, NOT STORE/BASED/truthiness/literal-vs-literal/runtime
+   (RESULTS §3 shapes keep refusing BY NAME). Byte tier only. `eval $(opam env)` before
+   dune; goldens untouched (golden/e49p4 complete since `13fca5b`); never git
+   clean/reset/add -A; the dirty handoff.config.json is the OPERATOR's standing edit —
+   never touch/stage/commit/revert it.
 
 ### Guard notes
 E2E-49/P4 IN FLIGHT, operator-authorized through CLOSE (never push; no P5). TREE STATE: ocaml/lib/codegen.ml has UNCOMMITTED ARM b edits (new encoder str_cmp_shape_fix_lit_rel + caller arm + prescan/refusal annotations) — verified: dune build rc=0, E49G1..G8 ALL whole-file BYTE-EXACT vs golden/e49p4 (direct head fixed to SIX bytes: 11 *D(pool) carries the operand; staged EB rows were exact first try). Handoff prose current in PROGRESS (STATUS block) + LEARNINGS (dated arm notes). NEXT = finish ARM b ALONE: (1) regression sweep A1..A4,B*,C*,D*,E*,F*,H*,I* compile+whole-file cmp (expect 35/35); (2) out-of-scope rc=2: E49J1..J4 (named negated refusal), scratch /tmp bare-member+literal relation (na < 'ABC' — must STILL refuse: arm b admits ImemF only), literal-vs-literal relation, rel-in-STORE; (3) FULL gate python3 tools/e2e_gate.py rc=0 (panel STILL 1150 — e49p4 unregistered; neg 181 E46K14 UNMOVED; cov 129/0/0; census 15/0/26/0); (4) commit ALONE in cde3258/c515377 style citing RESULTS s2.1 per-byte ACTUALS incl. the 6-vs-7-byte direct-head measurement and the FALSIFIED "prescan twins MUST widen" (EqR _ clause already mirrors; [C152] verified). THEN ARM c (spec in PROGRESS/HANDOFF): NegL arm of lower_test_skip0 admits ONLY goldened rewrites ^(Eq)->Ne (literal rows: literal-LEFT, ImemF right, len<=cap only = J3; qualified mm pair = J1), ^(Lt)->Ge qualified mm = J2, ^(Le)->Gt qualified mm = J4 — NO Gt->Le/Ge->Lt/Ne->Eq (no golden; predecessor note FALSIFIED by protocol #4); lower by recursion on synthesized complement EqR expr, zero new bytes; J goldens byte-exact, gate rc=0, commit alone. THEN step 6 per PLAN (claims C348.. from RESULTS s2 ONLY; SPECIMENS +24 in tools/e2e_gate.py, ACTUAL panel governs (expected 1174); sanctioned --update-inventory; census re-snapshot; COVERAGE rows w/ labelled SUPERSEDED clauses, cite [C104] not legacy; FULL gate ACTUALS) and CLOSE per PLAN s6 (byte-verified archive, ledger ends at new last claim). eval $(opam env) before dune; byte tier only; never git clean/reset/add -A; never touch handoff.config.json.
