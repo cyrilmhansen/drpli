@@ -271,17 +271,17 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 119
-checkpoint-id: g119-9b41fca7ddd7
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 120
+checkpoint-id: g120-996a06560f54
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-01T22:19:04.061Z
+guard-level: 2
+checkpointed: 2026-11-01T22:49:27.789Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7f6f75c2ce4fa122889387dbe474fbc754eb8cbccd2ba0109aca1e487c9de5ae
-source-handoff: adad4db931de8875cf5029e096737e4975d84f6b96d3b84ced67f2637e143404
-source-learnings: 056536ef5880a134840942c4132848db0de36580f2a05e15ade68cc90847d1cc
+source-progress: a0352f5c2ab49f51671662be56dfc95d261c7df684c41a0c02f8af9d9aad61fd
+source-handoff: eb8019539e6de1f8dce93147f1d09ede33f7a4b38a6ecdf3869b97b23347d5cd
+source-learnings: b5e3a8db7e6c7af9c1e11c91eae03c879176dbb2f9d1bef558f1eac294a13dd8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-50/P2 ACTIVE (operator mission brief, bootstrapped 2026-11-02)
 
@@ -317,10 +317,22 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   excluded (open question CLOSED); no license decided, no restricted asset copied]
 - 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
   correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
-  undefined must be measured, never assumed). [pending]
+  undefined must be measured, never assumed). [**LANDED** hop 2: `spec/functional/tests/README.md`
+  schema `pli80-functional/1` + `docs/functional-testing.md`; independence laws L1/L2/L3 (L2 =
+  [C137] UNDEFINED-SYMBOLS law + never-truncate-the-transcript corollary); stage chain
+  SOURCE→DERIVATION→COMPILE→LINK→RUN→ASSERT with spec-declared not-applicable; verdict law
+  PASS/FAIL/BLOCKED/UNKNOWN, skipped-stage-never-PASS; typed attribution enum from evidence
+  only; gate comparison law quoted at `tools/e2e_gate.py:5646-5685`, the v1 stream law is
+  deliberately stricter (documented deviation); v1 capability perimeter fixed from COVERAGE]
 - 4. TABLE corpus: TABLE-00 (traverse/aggregate), TABLE-01 (sort; ordering, multiplicity,
   count, sum, independently computed reference sequence), TABLE-02 only if 0/1 verify; fixed
-  inputs incl. negatives/duplicates; provenance headers; original work recorded as such. [pending]
+  inputs incl. negatives/duplicates; provenance headers; original work recorded as such. [**LANDED**
+  hop 2: `spec/functional/tests/TABLE-00.{PLI,json}`, `TABLE-01.{PLI,json}`, `reference.py`
+  (stdlib-only; table01 expects Python's OWN sorted multiset). Original-work provenance headers,
+  CRLF+`^Z`≤71 cols, sha256-pinned sources, capabilities all re-validated against COVERAGE;
+  scalar-copy stable rank sort honours the AB11/LR9 element-compare refusals. Spec-validation
+  checks all pass; both compile against the current binary (896 B code=358 data=30 / 1536 B
+  code=627 data=50). TABLE-02 WITHHELD: "verify" means executed step-6 evidence, not compiling]
 - 5. Harness `tools/functional_runner.py` + tests proving absent deps, timeouts, malformed
   output and mismatched assertions cannot be mistaken for success. [pending]
 - 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
@@ -336,9 +348,9 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
-readiness-by: session:01a19919-fc82-7280-b553-bda9890e392f
-readiness-at: 2026-11-01T22:19:04.067Z
-readiness-checkpoint: g119-9b41fca7ddd7
+readiness-by: session:01a19931-dc06-7280-b553-bdac19f6b52f
+readiness-at: 2026-11-01T22:49:27.792Z
+readiness-checkpoint: g120-996a06560f54
 <!-- guard:end checkpoint -->
 
 ## Blockers
