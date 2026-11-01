@@ -3,7 +3,22 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-49/P4: STEP 6 COMPLETE (all parts landed; FULL gate rc=0 ACTUALS at `5b0ccde`); ONE step OWED — CLOSE per PLAN §6
+## Current phase — E2E-49/P4: STEP 6 COMPLETE; OPERATOR-AUTHORIZED DOCUMENTARY CLOSE IN PROGRESS (nothing of the CLOSE done yet)
+
+- STATUS 2026-11-01 (renewal-6 successor session, accepted): OPERATOR AUTHORIZED the
+  documentary CLOSE ONLY (no experiments, no compiler changes, no P5, no push, no
+  operator-only slash commands). Verified at session start: HEAD `cbdcbe2` (= guard
+  attestation of g101 after `882f77c`), tree dirty ONLY in `handoff.config.json`
+  (operator standing edit — never touch). FINDING: the PLAN §6 heading does not match
+  `^## 6`-style greps — locate via `grep -in close spec/lab-evidence/e2e49-p4/PLAN.md`
+  and read it fully before archiving. Session died at context pressure before starting
+  the archive; the CLOSE sequence stands in full in HANDOFF.md → Next action 2: two-
+  generation byte-verified archive (arms-era + step-6-era prose) into
+  `docs/history/2026-11-01-e49p4-closed.md` (pattern: the P3 two-generation close
+  `docs/history/2026-11-01-e49p3-closed.md`; verify every block against its stated
+  `git show <range>:<file>` BEFORE replacing), then rewrite HANDOFF/PROGRESS/LEARNINGS
+  (P4 CLOSED record; ONE Next action = no-active-round stub), add the
+  `docs/history/README.md` index row, `handoff_finalize`, STOP.
 
 - STATUS 2026-11-01 (this renewal-5 session, accepted): **STEP 6 DONE end to end.**
   Registration `cc43963` (SPECIMENS +24 round bank; sanctioned `--update-inventory`
@@ -297,13 +312,13 @@ records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 101
-checkpoint-id: g101-8bac6e532779
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-01T13:49:21.795Z
+checkpoint-generation: 102
+checkpoint-id: g102-ad98769d1fa6
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-01T16:23:33.210Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 4da88ee2049b4c860245ec62e0825b716b4b0337fcd17bd0ab7f58a548b05341
 source-handoff: 1963046857e2c2305f0ec0716b35f1a35c69d725035e3482ad038913276f6639
@@ -346,9 +361,6 @@ next-action: — E2E-49/P4: STEP 6 ALL LANDED; ONE step OWED: CLOSE per PLAN §6
    dune; goldens untouched (golden/e49p4 complete since `13fca5b`); never git
    clean/reset/add -A; the dirty handoff.config.json is the OPERATOR's standing edit —
    never touch/stage/commit/revert it.
-readiness-by: session:01a1974a-8641-71b9-af89-537ee68a4f52
-readiness-at: 2026-11-01T13:49:21.798Z
-readiness-checkpoint: g101-8bac6e532779
 <!-- guard:end checkpoint -->
 
 ## Blockers
