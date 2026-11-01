@@ -779,3 +779,26 @@ The guard never writes this file.
 * **accepted (convention)** — superseded durable-doc sections are archived VERBATIM from the
   committed blob (`git show <commit>:HANDOFF.md`), not from the dirty working file: the live
   managed blocks differ from every commit and must never leak into a history record.
+
+## Accepted (E2E-49/P1 arm 2 — bare spelling landed, measured 2026-11-01 at `b044b7c`, session renewal 5/12)
+
+* **accepted** — widening a SHARED classifier's admitted set must be audited at EVERY
+  consumer before an arm is called safe: making `str_side' return `Some `ImemFb'' for a
+  BARE fixed member silently changed the numeric ?IS22N ident-vs-ident guard
+  (`str_side None,None`) from mis-lowering bare-fixed pairs numerically to refusing them.
+  The refusal widened to exactly the newly admitted set — a good outcome here — but only
+  the enumeration of all six `str_side' call sites plus the FULL registered-panel sweep
+  (1127/1127 specimen rows re-compiled and whole-file `cmp`'d, 0 fail) turned "no output
+  moved elsewhere" from an assumption into a measurement. That sweep is the cheap
+  equivalent of the gate's byte panel (rows from `spec/INVENTORY.txt`, awk +
+  `xargs -P8 -n2`); a `|`-delimited single-argument form breaks inside `sh -c` because the
+  pipe is parsed before `set --` — pass the two paths as separate xargs arguments.
+* **accepted (law in code)** — demand and lowering stay ONE predicate: arm 2 widened
+  `is_test_left` (prescan) in the SAME commit as the `ImemFb` lowering arm (the fa09b97
+  law), and deliberately did NOT widen `is_test_right` or the literal-RIGHT arm — an
+  orientation with no object (RESULTS s3) keeps both its demand and its refusal, so the
+  predicate mirrors the lowering exactly on both sides in both spellings.
+* **accepted** — a new str_side VARIANT (`ImemFb`), not a re-use of `ImemF`, keeps the
+  qualification question in the type: every route that refused `ImemF' by matching
+  explicit variants refuses `ImemFb' the same way, and the single widened arm is greppable
+  as an or-pattern. Same discipline as `Imem' vs `Cell' ([C253] era).
