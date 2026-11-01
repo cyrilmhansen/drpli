@@ -1183,3 +1183,24 @@ The guard never writes this file.
   `str.index`, the FIRST occurrence may be text THIS edit just inserted (my excise cut to
   my own new heading and duplicated the block; repaired by line-range sed after inspecting
   the damage) — search AFTER the edit anchor or use line ranges.
+
+## 2026-11-01 — E2E-49/P4 step-6 renewal-4 session
+
+- ACCEPTED (measured): the four [E2E-49/P4 CORRECTION(S)] ledger blocks at [C335]/
+  [C337]/[C344]/[C346] (commit 9c42f3b) — every quoted falsified sentence resolved
+  against the pre-edit blob via whitespace-normalized grep that also strips the
+  blockquote continuation marker `\n> `; two initial "MISS" verdicts were pure wrap
+  artifacts of that marker, not missing text. Recipe for quoting a wrapped blockquote
+  sentence: normalize both sides the same way before the byte-check.
+- FALSIFIED (wording, mine this session): [C348] says the [C342] collapse is "measured
+  in BOTH literal templates under ALL FOUR relations (G1/G2/G7/G8 at 3/3)" — its own
+  enumeration names only `<` and `>=`; equal-attribute `>` was NEVER sampled in any bank
+  (witnesses: F1 `<`, F3 `<=`, G1/G2 `<`, G7/G8 `>=`). The identical overstatement lives
+  in RESULTS §2.1 ("...now measured for all four relations"). Fix owed as a labelled
+  WORDING CORRECTION at [C348] (4df35bb style), evidence file untouched; do not copy the
+  "all four relations" phrase into any COVERAGE row — name G1/G2/G7/G8.
+- LESSON (accepted): P4 had NO separate fill-in commit (chain 328eb3f -> 13fca5b); a
+  P3-cloned comment header must re-verify every cited SHA against `git log` for THIS
+  round before committing — 0a46824 crept into my round-bank header and was caught.
+- PROPOSED (unverified): none new. The P3-era proposals (bank out-of-scope member-pair
+  refusals as NEG rows; bundled-head invariant per-shape) stay proposals.

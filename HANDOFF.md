@@ -92,20 +92,36 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    gate rc=0 at every arm (panel 1150, e49p4 UNregistered). Step 6 part 1 `aec53e1`:
    claims **C348..C351** from RESULTS §2 ONLY; ledger ENDS at **C351** — no claim ids
    are owed.
-2. NEXT CONCRETE STEPS (step 6 remainder, per spec/lab-evidence/e2e49-p4/PLAN.md §Procedure
-   5; commit parts in the P3 style 4b51bc0/8d3b024/8771e1e): (i) SPECIMENS round-bank
-   block +24 rows (E49G1..G8/H1..H6/I1..I6/J1..J4 vs golden/e49p4/<n>/<n>.REL) in
-   tools/e2e_gate.py — panel expected 1174 but the ACTUAL printed number governs, never
-   invent; (ii) sanctioned `python3 tools/e2e_gate.py --update-inventory` (spec/
-   INVENTORY.txt rows); (iii) census re-snapshot per the `4b51bc0` recipe (counts UNLESS
-   changed are reprinted by the gate); (iv) COVERAGE.tsv rows — byte tier only, widenings
-   carry labelled SUPERSEDED clauses with quotes byte-checked against the pre-edit blob,
-   provenance ids resolve via tools/coverage_check.py, the numeric ORDER law is [C104]
-   NEVER legacy [C027]/[C072]; (v) FULL compile-tier gate rc=0 with ACTUALS AS PRINTED.
-   Then CLOSE per PLAN §Procedure 6: archive superseded prose byte-verified vs stated git
-   ranges BEFORE replacing (generations: arms-era + step-6-era), rewrite
-   HANDOFF/PROGRESS/LEARNINGS, docs/history/README.md index row, exactly ONE active Next
-   action, `/handoff finalize`, STOP.
+2. NEXT CONCRETE STEPS (step 6 remainder; HEAD NOW `9c42f3b` = ledger part 1b: FOUR
+   labelled [E2E-49/P4 CORRECTION(S)] blocks at [C335]/[C337]/[C344]/[C346], quotes
+   byte-checked; dune rc=0; ocaml/ untouched). DIRTY NOW: tools/e2e_gate.py holds the
+   UNCOMMITTED SPECIMENS +24 round-bank block (E49G1..G8/H1..H6/I1..I6/J1..J4 vs
+   golden/e49p4/<n>/<n>.REL; P4 had NO separate fill-in commit -- pre-registration
+   328eb3f, BASELINE-MINE binary 398fa2c, goldens+RESULTS 13fca5b, repair 9799f1d, arms
+   c515377/ec904c1/47c2194). Sequence: (i) run `python3 tools/e2e_gate.py` on that tree
+   -- the ACTUAL printed panel governs (expected 1174); all 24 must print BYTE-EXACT
+   256 bytes; (ii) sanctioned `python3 tools/e2e_gate.py --update-inventory`;
+   (iii) census re-snapshot per the `4b51bc0` recipe (`python3 tools/corpus_census.py`;
+   counts expected UNCHANGED 15/0/26/0 -- the gate reprints actuals); commit (i)-(iii)
+   as ONE registration commit (4b51bc0 style); (iv) COVERAGE part 2a: FOUR new rows
+   COND.FIXED_RELATION_LITERAL (E49G1..G8, EXACT:8, MEASURED, [C348]),
+   COND.FIXED_RELATION_QUALIFICATION (E49H1..H6, EXACT:6, MEASURED, [C349]),
+   COND.FIXED_RELATION_UNEQUAL_MATRIX (E49I1..I6, EXACT:6, MEASURED, [C350]),
+   COND.FIXED_CMP_NEGATED_COMPLEMENT (E49J1..J4, EXACT:4, MEASURED, [C351]); byte tier
+   only; `python3 tools/coverage_check.py` rc=0 re-snapshots coverage-stats.json
+   (expected 133 rows 0/0); (v) part 2b widenings + labelled SUPERSEDED clauses, quotes
+   byte-checked vs the pre-edit blob: COND.CMP_LENGTHS_POSITIONAL EXTENDED +G3..G6
+   EXACT:14; COND.FIXED_CMP_QUALIFICATION_INVISIBLE, COND.FIXED_RELATION_MEMBER_PAIR,
+   COND.FIXED_MEMBER_MEMBER_TEST, COND.FIXED_CMP_COLLAPSE_BOTH_TEMPLATES; cite [C104]
+   NEVER legacy [C027]/[C072]; (vi) part 2c: labelled WORDING CORRECTION at [C348]
+   (4df35bb style): its collapse sentence says ALL FOUR relations but enumerates only
+   G1/G2 (`<`) and G7/G8 (`>=`); family witnesses F1 `<`, F3 `<=`, G1/G2 `<`, G7/G8
+   `>=`; equal-attribute `>` NEVER sampled; RESULTS s2.1 carries the same slip -- quote
+   both verbatim, evidence file untouched; (vii) FULL gate rc=0, ACTUALS AS PRINTED;
+   then CLOSE per PLAN s6: archive superseded prose (arms-era + step-6-era) byte-
+   verified vs stated git ranges BEFORE replacing into docs/history/, rewrite
+   HANDOFF/PROGRESS/LEARNINGS, docs/history/README.md index row, ONE active Next
+   action, handoff_finalize, STOP.
 3. Standing boundaries: operator authorization covers arms→consolidation→CLOSE across
    renewals; NOT P5, NOT push, NOT STORE/BASED/truthiness/literal-vs-literal/runtime
    (RESULTS §3 shapes keep refusing BY NAME). Byte tier only. `eval $(opam env)` before
@@ -156,13 +172,13 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 95
-checkpoint-id: g95-8faeff503094
+checkpoint-generation: 98
+checkpoint-id: g98-37c7c821b417
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6968, session 01a1971e-3f91-71b9-af89-5377807d6c04)
-checkpointed: 2026-11-01T13:03:19.456Z
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4427, session 01a19735-c0cb-71b9-af89-537a8f523410)
+checkpointed: 2026-11-01T13:24:09.177Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 5d4e26be2b6a5132a19061543d6976c5ec7a91c60e48e59e3d94831d38c88262
 source-handoff: 6139c36eab87abc1eaa0c5db62446af203dbf5c63d6d9129c1e0c995f1384788
@@ -170,11 +186,8 @@ source-learnings: 3155fc57b9c8dc776afb1f5dd41faa7076c82f4ff6c3e8b3e499c9db428598
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1971e-3f91-71b9-af89-5377807d6c04
-readiness-at: 2026-11-01T13:03:37.435Z
-readiness-checkpoint: g95-8faeff503094
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

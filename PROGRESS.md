@@ -5,6 +5,26 @@ This file tracks *working state*; compiler behaviour itself belongs to `spec/CLA
 
 ## Current phase — E2E-49/P4 IN FLIGHT: ARMS a/b/c ALL LANDED; step 6 IN PROGRESS (claims committed; registration/inventory/census/COVERAGE/FULL-gate + CLOSE owed)
 
+- STATUS 2026-11-01 (this renewal-4 session, accepted): step 6 part 1b COMMITTED at
+  `9c42f3b`: FOUR labelled [E2E-49/P4 CORRECTION(S)] blocks appended at [C335]/[C337]/
+  [C344]/[C346] (falsified sentences quoted verbatim, byte-checked via whitespace-
+  normalized grep with blockquote `\n> ` continuation markers stripped; dune rc=0; no
+  ocaml byte touched; ledger still ENDS at C351). NEW FINDING (falsified wording, owed
+  as part 2c, 4df35bb style): [C348]'s collapse sentence "measured in BOTH literal
+  templates under ALL FOUR relations (G1/G2/G7/G8 at 3/3)" contradicts its own
+  enumeration -- `<` (G1/G2) and `>=` (G7/G8) only; equal-attribute `>` NEVER sampled in
+  any bank (family collapse witnesses: F1 `<`, F3 `<=`, G1/G2 `<`, G7/G8 `>=`); RESULTS
+  §2.1 carries the same slip -- evidence file kept as written (PROTOCOL #2, [C342] COUNT
+  NOTE precedent). UNCOMMITTED IN TREE: tools/e2e_gate.py SPECIMENS +24 round-bank block
+  (registered comment verified against 328eb3f/398fa2c/13fca5b/9799f1d/c515377/ec904c1/
+  47c2194; P4 had NO fill-in commit unlike P3's 0a46824 -- wording fixed before commit).
+  OWED NEXT (exact sequence in HANDOFF Next action 2): gate-on-that-tree (ACTUAL panel
+  governs, expected 1174) + --update-inventory + census re-snapshot as ONE registration
+  commit; COVERAGE part 2a FOUR new rows (RELATION_LITERAL G, RELATION_QUALIFICATION H,
+  RELATION_UNEQUAL_MATRIX I, CMP_NEGATED_COMPLEMENT J; coverage_check rc=0, expected
+  133/0/0); part 2b widenings (CMP_LENGTHS_POSITIONAL +G3..G6 EXACT:14; four SUPERSEDED
+  clauses; cite [C104]); part 2c [C348] wording correction; FULL gate ACTUALS; CLOSE per
+  PLAN s6; STOP. NEVER push; no P5; byte tier only.
 - STATUS 2026-11-01 (renewal-3 session, accepted): **ALL THREE ARMS LANDED, each ALONE with
   whole-file goldens + sweep + out-of-scope rc=2 + FULL gate rc=0**: arm a `c515377` (rel arm
   widened to ImemFb BOTH sides; H1..H6 exact; sweep 29/29; gate 1150/0). Arm b `ec904c1`
@@ -247,13 +267,13 @@ records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 95
-checkpoint-id: g95-8faeff503094
+checkpoint-generation: 98
+checkpoint-id: g98-37c7c821b417
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
-guard-level: 3
-checkpointed: 2026-11-01T13:03:19.456Z
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-01T13:24:09.177Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 5d4e26be2b6a5132a19061543d6976c5ec7a91c60e48e59e3d94831d38c88262
 source-handoff: 6139c36eab87abc1eaa0c5db62446af203dbf5c63d6d9129c1e0c995f1384788
@@ -287,9 +307,6 @@ next-action: — E2E-49/P4: ARMS a/b/c ALL LANDED; STEP 6 IN PROGRESS (claims `a
    dune; goldens untouched (golden/e49p4 complete since `13fca5b`); never git
    clean/reset/add -A; the dirty handoff.config.json is the OPERATOR's standing edit —
    never touch/stage/commit/revert it.
-readiness-by: session:01a1971e-3f91-71b9-af89-5377807d6c04
-readiness-at: 2026-11-01T13:03:37.435Z
-readiness-checkpoint: g95-8faeff503094
 <!-- guard:end checkpoint -->
 
 ## Blockers
