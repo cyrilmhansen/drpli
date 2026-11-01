@@ -273,17 +273,17 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 123
-checkpoint-id: g123-ce69913aab80
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 124
+checkpoint-id: g124-9311bb8f05ae
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-01T23:13:57.360Z
+checkpointed: 2026-11-01T23:15:39.239Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a0352f5c2ab49f51671662be56dfc95d261c7df684c41a0c02f8af9d9aad61fd
-source-handoff: eb8019539e6de1f8dce93147f1d09ede33f7a4b38a6ecdf3869b97b23347d5cd
-source-learnings: b5e3a8db7e6c7af9c1e11c91eae03c879176dbb2f9d1bef558f1eac294a13dd8
+source-progress: be7b25a5e4c01701156dcb8fdcc889e95933b10d1459971b941bfa85e79e21b3
+source-handoff: 28fa98ba1724308f5f84324f9d14d8ddd81e004e7773d833d984dbdf2426e735
+source-learnings: a773bcba50497c9dc11d00fcfb94ac9be6fc14f97c1403651039b2f5a56a7d45
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-50/P2 ACTIVE (operator mission brief, bootstrapped 2026-11-02)
 
@@ -336,7 +336,17 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   checks all pass; both compile against the current binary (896 B code=358 data=30 / 1536 B
   code=627 data=50). TABLE-02 WITHHELD: "verify" means executed step-6 evidence, not compiling]
 - 5. Harness `tools/functional_runner.py` + tests proving absent deps, timeouts, malformed
-  output and mismatched assertions cannot be mistaken for success. [pending]
+  output and mismatched assertions cannot be mistaken for success. [**PART 1 LANDED** hop 3
+  `8523eda`: harness implements README §3/4/5/8/9/11 mechanically — fail-closed validation,
+  SOURCE sha256+encoding, DERIVATION in its own process, COMPILE via local `pli80c.exe -d`,
+  LINK through `oracle/cpmwork.py` Workspace with `parse_undefined` on the FULL segment,
+  lane-labelled RUN ([C308] witnesses done/timeout/sim-died/wall-clock-timeout), complete-stream
+  `collapse-spaces-v1` ASSERT with `!text` negatives, unrun/skipped stage never PASS,
+  attribution never narrowed (assert mismatch = `undefined`), `--double-run` determinism proof,
+  `--stages` ceiling, all external layers injectable. Measured: py_compile rc=0, --help rc=0,
+  bounded real run `--stages SOURCE,DERIVATION` on TABLE-00/01 -> SOURCE+DERIVATION pass, both
+  verdicts UNKNOWN (COMPILE unrun), PASS=0. **PART 2 OWED:** hostile suite
+  `tools/test_functional_runner.py` (see Unfinished operations for the 13 required cases)]
 - 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
   permit; Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB, dependency lane
   labelled; classify and preserve blockers honestly. Never substitute an unlabelled emulator.
@@ -350,6 +360,9 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
+readiness-by: session:01a1994d-fc31-7280-b553-bdb03f5739c4
+readiness-at: 2026-11-01T23:15:39.245Z
+readiness-checkpoint: g124-9311bb8f05ae
 <!-- guard:end checkpoint -->
 
 ## Blockers
