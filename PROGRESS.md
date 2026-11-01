@@ -175,13 +175,13 @@ closed-round records: `docs/history/`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 71
-checkpoint-id: g71-4f3557084b8e
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-01T02:33:27.273Z
+checkpoint-generation: 73
+checkpoint-id: g73-ed76ff1249d8
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-01T02:34:03.182Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 4e37911283356bdde8b701c044cd1f70a31ed8aaf4523ef029ffde5d7e746693
 source-handoff: d3699fdff6b91fa2c0861190036038c92c8c8cb79790f8cdd206148db5707a62
@@ -212,9 +212,6 @@ next-action: — E2E-49/P2 [arm 1]: implement the measured member-vs-member lowe
    push; never stage/commit/revert the operator's `handoff.config.json` edit; renewal
    values live ONLY in `handoff.config.json` / `/guard status`; NO `spec/RUNTIME.txt`
    row from this round.
-readiness-by: session:01a194de-4c92-7103-bf3c-ac8aa379f9a9
-readiness-at: 2026-11-01T02:33:27.277Z
-readiness-checkpoint: g71-4f3557084b8e
 <!-- guard:end checkpoint -->
 
 ## Blockers
