@@ -7974,6 +7974,19 @@ classified `unmeasured` rather than `dr-refuses`.
   twin: a member pair pools no literal ([C341]).  E49F1..F4 whole-file BYTE-EXACT at `cde3258`; a
   labelled correction is appended at [C337].
 
+> **[E2E-49/P3 CITATION CORRECTION — the numeric ordering law invoked above is [C104], not
+> [C115].]**  The ORDER-law bullet says "This is the numeric family's `a > b` as `b < a` rule
+> ([C115]) MEASURED for characters"; the citation is a clerical slip and the sentence is kept as
+> written.  `## C115` in this ledger is the STATIC-cell pool-base-shift law (E2E-11 step 1a-ii)
+> and says nothing about relation lowering.  The measured numeric ordering law is [C104] — DR's
+> FLOAT relations push the RIGHT operand first for `a > b` and `a <= b` and the LEFT first for
+> `a < b` and `a >= b` (E2E-10 step 3, R3070..R3073) — the same rule cited inside [C247]'s E2E-37-era
+> block as legacy [C027] ("DR evaluates a>b as b<a"), whose pre-consolidation
+> entry no longer exists as a resolvable id in this file (the COVERAGE validator can only see
+> [C104]).  Nothing else changes here: the ORDER law, the P-F2 falsification, the BRANCH law and
+> [C340]'s relocation consequence stand exactly as recorded, and the COVERAGE row
+> COND.FIXED_RELATION_MEMBER_PAIR cites [C104].
+
 ## C347 — HEAD SIZE FOLLOWS THE LENGTH PAIR IN EVERY TEMPLATE, AND DATA STAYS [C314]'S POOL-FIRST FRAME IN ALL FOURTEEN OBJECTS (E2E-49/P3 §2.6)
 
 * **Measured.**  Collapsed heads: STAGED 16 bytes -> CODE 65 (0x41, E49C1/C3), DIRECT 15 bytes ->
