@@ -7752,7 +7752,52 @@ let bit_cond_mat st (rhs : Ast.expr) =
        | _ -> None)
   | _ -> None
 
-let lower_test_skip0 st (c : Ast.expr) =
+(* [E2E-49/P4 arm c -- RESULTS s1 P-J1..P-J4, s2.4] ADMISSIBLE SET for `^ ( )' over a FIXED
+   CHARACTER string compare in TEST position.  DR ACCEPTS the four goldened shapes and each J
+   object is the COMPLEMENT's object BYTE-EQUAL (s2.4): negation flips the relation to its
+   complement and the skip byte ALWAYS follows the (possibly flipped) relation, never the
+   negation syntax.  This predicate returns the complement relation for exactly the GOLDENED
+   set -- PROTOCOL #4, nothing un-witnessed:
+     ^(=) -> ^=   on the QUALIFIED member pair (J1 `^(rec.na = rec.nb)' == golden E49B5), and
+                  on LITERAL-LEFT vs QUALIFIED member RIGHT with length <= extent (J3
+                  `^('ABC' = rec.na)' == golden E49C4; the 3/3 collapse point is what J3
+                  measures, the len < cap half of the family rides the ALREADY-MEASURED direct
+                  template of E48E7/E49D4 -- the complement object exists, only its negated
+                  SPELLING is new);
+     ^(<) -> >=   on the QUALIFIED member pair ONLY (J2 `^(rec.na < rec.nb)' == golden E49F1's
+                  written-order stacked head with the WEAK skip da -- `>=' does not swap);
+     ^(<=) -> >   on the QUALIFIED member pair ONLY (J4 `^(rec.na <= rec.s2)' == golden E49F2:
+                  `>' swaps, s2 lowered left, `06 02 / 3E 03', strict d2).
+   NOT admitted -- UNMEASURED (RESULTS s3) and they keep refusing at the named negated-TEST
+   site: `^( ^= )' double negation, `^( > )' and `^( >= )' (the predecessor plan's "Gt->Le"
+   entry has NO golden -- FALSIFIED as an instruction by PROTOCOL #4), `^( )' over ANY bare
+   member side, over a LITERAL inside a RELATION, member-LEFT `^( = )' (J3 spells the literal
+   left and NOTHING else), OVER-EXTENT `^( = )', literal-vs-literal, VARYING and BASED pairs.
+   The two readings of the law, H-D-inv (keep the head, invert the skip) and H-D-simpl (rewrite
+   to the complement), are BYTE-CONVERGENT on all four shapes -- pre-registered
+   non-separability: the recursion below realizes the identical object either way and NO claim
+   may prefer a reading (s2.4). *)
+let negl_str_compl st rop l r =
+  let qmm () =
+    match str_side st l, str_side st r with
+    | Some (`ImemF _), Some (`ImemF _) -> true
+    | _ -> false
+  in
+  match rop with
+  | Ast.Eq ->
+      if qmm () then Some Ast.Ne (* J1 == E49B5 *)
+      else
+        (match str_side st l, str_side st r with
+         (* J3 == E49C4: literal LEFT, QUALIFIED fixed RIGHT, len <= cap. *)
+         | Some (`Lit (v, _)), Some (`ImemF (_, cap))
+           when String.length v <= cap ->
+             Some Ast.Ne
+         | _ -> None)
+  | Ast.Lt when qmm () -> Some Ast.Ge (* J2 == E49F1 head + weak skip *)
+  | Ast.Le when qmm () -> Some Ast.Gt (* J4 == E49F2 *)
+  | _ -> None
+
+let rec lower_test_skip0 st (c : Ast.expr) =
   (* [E2E-10] every shape handled below is FIXED or DECIMAL.  A FLOAT
      operand must refuse here: reading `2.5` as an integer constant crashed
      (R3045), and a float variable pair silently took the FIXED compare
@@ -7859,14 +7904,43 @@ let lower_test_skip0 st (c : Ast.expr) =
            d st op_mov_a_h; d st 0xb5; (* ORA L *)
            d st 0xca;
            let slot = st.lc in d st 0; d st 0; slot
+       (* [E2E-49/P4 arm c -- RESULTS s1 P-J1..P-J4, s2.4] the GOLDENED string compares under
+          `^': the object is the COMPLEMENT's object byte-equal (J1 == golden E49B5, J3 ==
+          E49C4, J2 == E49F1's head with the weak skip da, J4 == E49F2), so the lowering is ONE
+          recursion on the SYNTHESIZED complement expression -- ZERO new bytes: the complement
+          arms of [C337]/[C346]/[C342] already name every byte and the skip byte is chosen BY
+          THE RELATION inside those arms, exactly the s2.4 law ("the skip byte ALWAYS follows
+          the (possibly flipped) relation, never the negation syntax"). H-D-inv and H-D-simpl
+          coincide on all four shapes (pre-registered non-separability; this mechanism realizes
+          the identical object either way, no claim may prefer a reading). `negl_str_compl'
+          admits ONLY the four goldened shapes; everything else falls to the named refusal
+          below (s3). NO prescan change: `prescan_cond' descends `Eprefix' and its
+          literal-LEFT twin already demands J3's pooled cell exactly where C4 demands it (one
+          predicate, demand and lowering, [C152]); the mm rows pool no literal. *)
+       | Ast.Ebinary (Ast.EqR rop, l, rr) when
+           (match negl_str_compl st rop l rr with Some _ -> true | None -> false) ->
+         let comp =
+           match negl_str_compl st rop l rr with Some c -> c | None -> assert false
+         in
+         lower_test_skip0 st { xu with Ast.e = Ast.Ebinary (Ast.EqR comp, l, rr) }
        | inner ->
            ignore inner;
+           (* The sentence below stood as written from [E2E-48/P1] until [E2E-49/P4 arm c]:
+              "... a bit-literal ladder, DEC, FLOAT or string operand under `^' has no witness
+              in golden/e48p1/" -- TRUE then; the four FIXED-CHARACTER shapes of
+              golden/e49p4/E49J1..J4 now lower through the complement arm above and never reach
+              this text. The message names what STILL refuses here (s3). *)
            failwith
              (Format.asprintf
                 "codegen: negated TEST form has no DR golden [TBD]: ^(%a) (the skip-byte \
                  inversion CA is pinned only for a bare BIT(1) cell (FA, [E48A1/A2/A5/A12/B1/B7]) \
-                 and a FIXED `= c' ([E48A13]); a bit-literal ladder, DEC, FLOAT or string \
-                 operand under `^' has no witness in golden/e48p1/"
+                 and a FIXED `= c' ([E48A13]); the FIXED-CHARACTER string acceptance under `^' \
+                 is pinned ONLY for the four shapes of golden/e49p4/E49J1..J4 ([C143]-era text \
+                 from [E2E-48/P1], superseded in part by [E2E-49/P4 arm c, RESULTS s2.4]: the \
+                 complement recursion above); a bit-literal ladder, DEC or FLOAT operand, \
+                 `^( ^= )'/`^( > )'/`^( >= )', `^( = )' member-LEFT or OVER-EXTENT, a BARE side, \
+                 a LITERAL in a RELATION, literal-vs-literal, VARYING or BASED pairs under `^' \
+                 have NO witness and refuse)"
                 Parser.pp_e xu))
   (* [E2E-11 step 1a] BIT(1) equality against a bit literal, matched BEFORE the
      fixed/decimal ladders on purpose: a bit cell is 1 byte, and the generic
@@ -8490,7 +8564,18 @@ let lower_test_skip0 st (c : Ast.expr) =
               BARE member side AND a LITERAL operand is still UNMEASURED (P4 s3) and \
               refuses here, as do the STORE value, literal-vs-literal, BASED members, \
               `^( )' over a string compare (P4 panel D lands with arm c) and every \
-              truthiness shape."
+              truthiness shape. ADDENDUM 2026-11-01 [E2E-49/P4 arm c, RESULTS s1 \
+              P-J1..P-J4, s2.4]: the `^( )' clause above was arm b's forward pointer and \
+              stands as written history -- panel D LANDED: DR ACCEPTS `^( )' over a string \
+              compare and each measured object IS the complement's object byte-equal (J1 \
+              == E49B5, J3 == E49C4, J2 == E49F1's head with the weak skip, J4 == E49F2). \
+              Those four shapes lower through the NegL complement recursion in \
+              `lower_test_skip0' and NEVER reach this site; the negated forms still \
+              UNMEASURED (s3) -- `^( ^= )', `^( > )', `^( >= )', `^( )' over a BARE side, \
+              over a LITERAL in a RELATION, member-LEFT or OVER-EXTENT `^( = )', \
+              literal-vs-literal and VARYING/BASED pairs -- refuse at the NAMED \
+              negated-TEST site in `lower_test_skip0' (the NegL match answers them before \
+              any comparison route can), not here."
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
