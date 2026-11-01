@@ -3006,14 +3006,21 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
          only; a bare fixed member on the RIGHT of a literal is UNMEASURED, so
          `is_test_right' keeps its qualification gate and `str_cmp_shape_fix's
          literal-RIGHT arm keeps matching `ImemF' alone — demand still mirrors lowering
-         exactly on both sides. *)
+         exactly on both sides.
+         SUPERSEDED in part 2026-11-01 by [E2E-49/P3 arm b, RESULTS s2.3]: the RIGHT-side
+         gate came out with golden/e49p3/E49D4 — DR admits the BARE fixed member RIGHT of
+         a literal; `is_test_right' below now admits BOTH spellings exactly as its
+         lowering arm does. *)
       let is_test_right e =
         match vkind_of_e e with
         | Some (Vimem m) when not m.varying ->
+            (* [E2E-49/P3 arm b, RESULTS s2.3] the qualification gate came out: E49D4
+               measured the BARE fixed member RIGHT of a literal and DR admitted it —
+               the P1 "left side only" scope was an EVIDENCE boundary, not a DR gate.
+               This now mirrors `is_test_left' exactly; demand and lowering stay ONE
+               predicate. *)
             (match e.Ast.e with
-             | Ast.Eident n ->
-                 String.lowercase_ascii n.Ast.orig
-                 <> String.lowercase_ascii m.name
+             | Ast.Eident _ -> true
              | Ast.Eqstruct _ -> true
              | _ -> false)
         | _ -> is_var e
@@ -3060,7 +3067,11 @@ let rec prescan_cond (cx : pdec_ctx) (c : Ast.expr) =
            `str_cmp_shape_fix' admits it.
            [E2E-49/P1 arm 2] `is_test_left' widened to the BARE spelling with the lowering
            arm (E49A2); `is_test_right' did NOT — a bare member on the RIGHT keeps
-           demanding nothing because it keeps refusing (RESULTS s3). *)
+           demanding nothing because it keeps refusing (RESULTS s3).
+           [E2E-49/P3 arm b, RESULTS s2.3] `is_test_right' NOW widened WITH its lowering
+           arm: E49D4 (`'AB' = na') is the BARE fixed member on the RIGHT, DR ACCEPTS it
+           on E48E7's template and POOLS 'AB' (DATA 000E), so demand follows lowering —
+           no new `wants' disjunct, the clause already calls `is_test_right'. *)
         (is_lit b <> None && is_var a) || (is_lit b <> None && is_test_left a)
         || (is_lit a <> None && is_test_right b)
         || (is_cell a && is_cell b)
@@ -6973,7 +6984,15 @@ let str_side st (e : Ast.expr) =
           arm keeps `ImemF' alone (a BARE fixed member on the RIGHT has no object,
           RESULTS s3), and every other consumer of `str_side' matches explicit variants
           and keeps refusing `ImemFb' exactly as it refused the unclassified bare member
-          before. *)
+          before.
+          SUPERSEDED in part 2026-11-01 by [E2E-49/P3 arm b, RESULTS s2.3]: the sentence
+          above stands as written history. golden/e49p3/E49D4 IS a BARE fixed member on
+          the RIGHT of a literal and DR admits it; the Lit-LEFT arm of `str_cmp_shape_fix'
+          now matches BOTH spellings, and `str_cmp_shape_fix_mm' admits `ImemFb' on BOTH
+          sides (E49D1/D2/D3, byte-identical to E49B1 but the module-name fields — the
+          [C253]/[C258] fold is INVISIBLE to every measured compare encoding, s2.3). An
+          ORDERED relation with a BARE side still has no object (s3) and every OTHER
+          consumer of `str_side' keeps refusing `ImemFb'. *)
        | Vimem m when m.varying -> Some (`Imem n.Ast.orig)
        | Vimem m when String.lowercase_ascii n.Ast.orig <> String.lowercase_ascii m.name ->
            Some (`ImemF (n.Ast.orig, m.cap))
@@ -7140,7 +7159,16 @@ let str_cmp_shape_rev ?(imem = false) st l r =
    immediates: E48E7 2/3, E49A1/A3 3/2, E49A4 3/4, E49D4 2/3, E49E1/E2 4/3. *)
 let str_cmp_shape_fix st l r =
   match str_side st l, str_side st r with
-  | Some (`Lit (v, bytes)), Some (`ImemF (k, cap)) ->
+  (* [E2E-49/P3 arm b -- RESULTS s2.3] the member side of THIS arm now admits BOTH
+     spellings, exactly as the member-LEFT arm has since P1 arm 2: golden/e49p3/E49D4
+     (`if 'AB' = na then') is the BARE fixed member RIGHT of a literal, ACCEPTED on
+     E48E7's direct template (`21 *D(0004 na) / 11 *D(0000 'AB') / 06 02 / 3E 03 / CD
+     ?SCCCM / C2 -> 001C', CODE 65, DATA 000E) — unequal 2/3 keeps two immediates. The
+     P1 "left side only" scope was MY evidence boundary, not a DR gate; the
+     [C253]/[C258] fold stays INVISIBLE to the encoding (one cell, one encoding). The
+     prescan DEMAND twin `is_test_right' widens in THIS SAME commit -- one predicate,
+     demand and lowering. *)
+  | Some (`Lit (v, bytes)), (Some (`ImemF (k, cap)) | Some (`ImemFb (k, cap))) ->
       Some ((fun () ->
               d st op_lxi_h;
               reloc st Data (addr_of st k)),
@@ -7171,7 +7199,11 @@ let str_cmp_shape_fix st l r =
      E49A1 (`if rec.name = ...') but for the three module-name field bytes, so the
      qualification of a member-LEFT fixed operand does not touch the encoding. The
      literal-RIGHT arm above deliberately STILL matches `ImemF' only — a bare fixed
-     member on the right of a literal has no object (RESULTS s3) and keeps refusing. *)
+     member on the right of a literal has no object (RESULTS s3) and keeps refusing.
+     SUPERSEDED in part 2026-11-01 by [E2E-49/P3 arm b, RESULTS s2.3]: golden/e49p3/E49D4
+     IS the bare fixed member on the right of a literal and DR ADMITS it on this family's
+     direct template; the Lit-LEFT arm above now matches BOTH spellings and its prescan
+     twin widened in the same commit. *)
   | (Some (`ImemF (k, cap)) | Some (`ImemFb (k, cap))), Some (`Lit (v, bytes)) ->
       Some ((fun () ->
               d st op_lxi_h;
@@ -7214,10 +7246,22 @@ let str_cmp_shape_fix st l r =
    too (s2.5, E49B5 0014), the extension of [C333] s2.5.  TEST only: the STORE, literal-vs-literal,
    BASED members, truthiness and over-extent stay refused per s3.  Relations beyond `='/`^=' are
    unprobed and are excluded by the CALLER's guard.  NO prescan twin: an all-member pair pools no
-   literal, so the pool DEMAND law is unchanged (DATA 000C in all five objects, s2.6). *)
+   literal, so the pool DEMAND law is unchanged (DATA 000C in all five objects, s2.6).
+   SUPERSEDED in part 2026-11-01 by [E2E-49/P3 arm b, RESULTS s2.3]: "ADMISSION IS
+   QUALIFIED-QUALIFIED ONLY ... no `ImemFb' appears in the match below" was the P2 boundary and
+   stands as written history — golden/e49p3/E49D1/D2/D3 measure EVERY qualification mix of the
+   member pair (bare/qualified, qualified/bare, bare/bare) BYTE-IDENTICAL to E49B1 but the packed
+   module-name fields and checksum, so the match below now admits `ImemFb' on BOTH sides; an
+   all-member pair still pools no literal (D1..D3 DATA 000C, s2.6) and needs no prescan twin.
+   Relations beyond `='/`^=' are MEASURED by [E2E-49/P3 arm c] for the QUALIFIED pair only —
+   a BARE side in a relation keeps refusing (s3). *)
 let str_cmp_shape_fix_mm st l r =
   match str_side st l, str_side st r with
-  | Some (`ImemF (lk, capl)), Some (`ImemF (rk, capr)) ->
+  (* [E2E-49/P3 arm b -- RESULTS s2.3] BOTH sides admit the BARE spelling `ImemFb':
+     E49D1 (`na = rec.nb'), E49D2 (`rec.na = nb'), E49D3 (`na = nb') — every mix lowers
+     through the SAME stacked head, byte-identical to E49B1 but the name fields. *)
+  | (Some (`ImemF (lk, capl)) | Some (`ImemFb (lk, capl))),
+    (Some (`ImemF (rk, capr)) | Some (`ImemFb (rk, capr))) ->
       Some ((fun () ->
               d st op_lxi_h;
               reloc st Data (addr_of st lk);
@@ -7980,7 +8024,10 @@ let lower_test_skip0 st (c : Ast.expr) =
          Admission is QUALIFIED-QUALIFIED: `str_cmp_shape_fix_mm' matches `ImemF/ImemF' alone, so
          any BARE side (RESULTS s3) falls through to the refusal site, exactly as the encoder
          refuses it -- one predicate, demand and lowering (no prescan twin exists because no
-         literal is pooled here). *)
+         literal is pooled here).
+         [E2E-49/P3 arm b, RESULTS s2.3] that admission sentence is SUPERSEDED: the encoder
+         now matches BOTH spellings on BOTH sides (E49D1/D2/D3 are byte-identical to E49B1
+         but the module-name fields), still with no literal pooled and no prescan twin. *)
       let (head_fn, capl, capr) =
         match str_cmp_shape_fix_mm st l rr with Some x -> x | None -> assert false
       in
@@ -8210,7 +8257,14 @@ let lower_test_skip0 st (c : Ast.expr) =
               21 *D(right) / D1 / 06 capl / [78 or 3E capr] / CD ?SCCCM' and the new \
               `str_cmp_shape_fix_mm' arm lowers exactly that set.  A member pair with ANY BARE \
               side is still UNMEASURED (s3) and refuses here, as do the STORE value, \
-              literal-vs-literal, BASED members and every truthiness shape."
+              literal-vs-literal, BASED members and every truthiness shape.  ADDENDUM \
+              2026-11-01 [E2E-49/P3 arm b, RESULTS s2.3]: the BARE clause is now superseded \
+              for `=' and `^=' -- golden/e49p3/E49D1/D2/D3 measure EVERY qualification mix \
+              of the member pair byte-identical to E49B1 but the packed module-name fields, \
+              and E49D4 admits the BARE member RIGHT of a literal; both lowering arms now \
+              match `ImemFb'.  An ORDERED relation with a BARE side still has NO object \
+              (s3) and refuses here, as do the STORE value, literal-vs-literal, BASED \
+              members and every truthiness shape."
        | None ->
            failwith
              (Format.asprintf "codegen: condition form not in E2E-3b subset [TBD]: %a" Parser.pp_e c))
