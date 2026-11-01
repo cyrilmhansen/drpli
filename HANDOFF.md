@@ -20,102 +20,112 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    Do not trust this file's managed block over its prose.
 4. Load evidence SELECTIVELY — the ledgers are far larger than the working window; a
    complete read of any of them is prohibited for recovery:
-   - `spec/CLAIMS.md`: read ONLY cited claim ids — `grep -n '^## C341' spec/CLAIMS.md` etc.;
-     the E2E-49/P2 block starts at `grep -n '^## C337'` (~line 7699); the E2E-48 family is
-     C309..C332, E2E-49/P1 is C333..C336, E2E-49/P2 is C337..C341. The ledger CURRENTLY
-     ENDS at **C341** — no claim ids are owed. [C330] carries the labelled E2E-49/P1
-     CORRECTION append (positional length law); the falsified text is kept as written
-     (PROTOCOL #2).
+   - `spec/CLAIMS.md`: read ONLY cited claim ids — `grep -n '^## C347' spec/CLAIMS.md` etc.;
+     the E2E-49/P3 block starts at `grep -n '^## C342'`; the E2E-48 family is C309..C332,
+     E2E-49/P1 is C333..C336, E2E-49/P2 is C337..C341, E2E-49/P3 is C342..C347. The ledger
+     CURRENTLY ENDS at **C347** — no claim ids are owed. [C330] carries the labelled
+     E2E-49/P1 CORRECTION append (positional length law); [C335]–[C338] carry labelled P3
+     CORRECTION appends and [C346] a labelled CITATION CORRECTION (the numeric ORDER law is
+     [C104], never cite legacy [C027]/[C072] in provenance); falsified text is kept as
+     written (PROTOCOL #2).
    - `spec/COVERAGE.tsv`: header + `grep` the row KEY being edited (15 columns; schema
      `spec/COVERAGE-SCHEMA.md`; validator rules at `tools/coverage_check.py:203-247`).
    - `spec/INVENTORY.txt`: `grep` the specimen/refusal name only. `spec/RUNTIME.txt` and
      `spec/DIVERGENT.txt`: only rows named by the task.
-   - Latest round evidence: `spec/lab-evidence/e2e49-p2/{RESULTS.md,HYPOTHESES.md,BASELINE-MINE.txt}`
-     (round CLOSED); prior rounds under `spec/lab-evidence/e2e48-*/` and `e2e49-p1/`.
+   - Latest round evidence: `spec/lab-evidence/e2e49-p3/{RESULTS.md,HYPOTHESES.md,BASELINE-MINE.txt}`
+     (round CLOSED); prior rounds under `spec/lab-evidence/e2e48-*/`, `e2e49-p1/` and
+     `e2e49-p2/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 
-## Last verified state — E2E-49/P2 CLOSED (FULL compile-tier gate rc=0 measured by the closing session at HEAD `d5983e8`, recorded `8926b83`; CLOSE prose + archive in the commit that carries this text)
+## Last verified state — E2E-49/P3 CLOSED (FULL compile-tier gate rc=0 measured by the step-6 session at HEAD `4df35bb`, recorded `1f611f5`; CLOSE prose + byte-verified two-generation archive completed by the docs-only closing session — ledger ENDS at C347, byte panel 1150, coverage 129 rows)
 
-- Landing chain: pre-registration `3bd9417` (probes E49B1..B5 + HYPOTHESES + BASELINE-MINE
-  at `7fa763b`: all five refused rc=2 — every gap `my-gap`) committed BEFORE any oracle
-  call; fill-in `586c240`; ONE oracle run 5 ok / 5, NO dr-refuses; goldens + RESULTS
-  `62f5622`; docs `1416f52`; ARM 1 (codegen only, landed ALONE) `b1e9221` — five `.REL`
-  whole-file BYTE-EXACT, E48/E49 sweep 61/61, registered-panel sweep 1131/1131,
-  out-of-scope refusals rc=2, E46K14 marker UNMOVED; step 6 part 1 `0abf1c1` (claims
-  C337..C341 from RESULTS §2 ONLY, SPECIMENS bank, `--update-inventory` 5 rows — panel
-  1136 — census re-snapshot counts UNCHANGED); part 2a `8c1d2ee` (3 new COVERAGE rows);
-  part 2b `d5983e8` (`COND.CMP_LENGTHS_POSITIONAL` widened to EXACT:8 + three labelled
-  SUPERSEDED clauses); gate-record commit `8926b83`. Working tree at this boundary: ONLY
-  the operator's `handoff.config.json` edit, the guard's managed blocks and this prose.
-- FULL compile-tier gate ACTUALS AS PRINTED at `d5983e8` (rc=0): byte panel **1136
-  byte-exact / 0 fail of 1136** (E49B1..B5 each `BYTE-EXACT ... (256 bytes)`); negative
-  panel **181/181 refused**, E46K14 prints `refused [TBD] (comparison of the internal
-  CHARACTER member REC.LINE) [dr-refuses]` — pinned marker UNMOVED; divergence panel
-  **9/9**; coverage `coverage_check: 125 rows, 0 errors, 0 warnings`; census counts
-  UNCHANGED **EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0**; file prose **5 active
-  files clean**. `dune build` rc=0. Runtime/link-run tiers remain delegated to the
-  external rune-ci builders (unchanged policy). BYTE TIER ONLY: no `spec/RUNTIME.txt`
+- Landing chain: pre-registration `3659f5d` (14 probes E49C1..C4/D1..D4/E1..E2/F1..F4 +
+  mkprobes.py + HYPOTHESES + BASELINE-MINE at `685741c`) committed BEFORE any oracle call;
+  fill-in `0a46824`; ONE grouped batch run, tag `e49p3`, **14 ok / 14, NO dr-refuses**
+  (12 `my-gap`; E49E1/E2 already byte-exact, NO arm); goldens + RESULTS `ad90425`; arms a
+  `a540fa7` / b `0a1b80c` / c `cde3258` (each ALONE, 14/14 goldens whole-file BYTE-EXACT,
+  gate rc=0 at each); step 6 part 1 `4b51bc0` (claims C342..C347 from RESULTS §2 ONLY,
+  labelled CORRECTION appends with originals verbatim at [C335]/[C336]/[C337]/[C338],
+  SPECIMENS bank +14, sanctioned `--update-inventory` 14 rows — panel **1150** — census
+  re-snapshot counts UNCHANGED); part 2a `8d3b024` (four COVERAGE rows, 129/0/0); part 2b
+  `8771e1e` (`COND.CMP_LENGTHS_POSITIONAL` widened to EXACT:10 + five labelled SUPERSEDED
+  clauses); part 2c `4df35bb` (labelled CITATION CORRECTION at [C346]); gate record
+  `1f611f5`; close-partial `b07be23`; guard refresh `c140277`. Working tree at this
+  boundary: ONLY the operator's `handoff.config.json` edit, the guard's managed blocks and
+  this prose.
+- FULL compile-tier gate ACTUALS AS PRINTED at `4df35bb` (rc=0): byte panel **1150
+  byte-exact / 0 fail of 1150** (all fourteen e49p3 specimens print `BYTE-EXACT ... (256
+  bytes)`); negative panel **181/181 refused**, E46K14 prints `refused [TBD] (comparison
+  of the internal CHARACTER member REC.LINE) [dr-refuses]` — pinned marker UNMOVED;
+  divergence panel **9/9**; coverage `coverage_check: 129 rows, 0 errors, 0 warnings`;
+  census counts UNCHANGED **EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0**; file prose
+  **5 active files clean**. `dune build` rc=0. Runtime/link-run tiers remain delegated to
+  the external rune-ci builders (unchanged policy). BYTE TIER ONLY: no `spec/RUNTIME.txt`
   row came or comes from this round.
-- Science landed: [C337] member-vs-member TEST takes `?SCCCM` with BOTH cells PARKED ON
-  THE STACK (`21 *D(left)/E5/21 *D(right)/D1`) — parking is a per-shape property, `EB` is
-  measured only vs a pooled literal, both pre-registered forms falsified; [C338]
-  equal-extent collapse `06 n / 78` MEASURED member-vs-member ONLY (scope warning in the
-  claim and in the COVERAGE boundary: the literal template KEEPS two immediates, the
-  equal-length literal case is [TBD]); [C339] positional length law on an all-member pair
-  (MIN/MAX/class readings dead); [C340] the written side selects the `*D` relocation slot;
-  [C341] head size follows the length pair and a member pair pools NO literal (DATA 000C,
-  [C314]).
-- Superseded prose — the P2 in-flight sections AND the surviving P1 closing-era sections
-  (self-labelled "archive at P2 close"), the stale P1-era next-action stub, the
-  P1-frozen Verified evidence and the P1-era Blockers wording — archived verbatim in
-  `docs/history/2026-11-01-e49p2-closed.md`. Goldens untouched except this round's
-  `golden/e49p2`.
+- Science landed: [C342] the equal-attribute collapse `06 n / 78` is a `?SCCCM`
+  LENGTH-PAIR law measured in BOTH literal templates (settles [C338]'s [TBD]; COUNT NOTE:
+  RESULTS §2.1 says "six", names seven — recorded in the claim, evidence untouched);
+  [C343] `CA` is the `^=` skip on the DIRECT template too and the fill is the next
+  statement ([C309]) in all fourteen; [C344] qualification of an internal FIXED member is
+  INVISIBLE to every measured compare encoding — bare sides admitted (falsifies the
+  [C335]/[C337] bare-side refusals); [C345] over-extent literal written LEFT accepted and
+  pooled whole, NO ARM ([C336] transfers by measurement); [C346] ordered relations take
+  the same `?SCCCM` helper and stacked parking, ORDER law (`<`/`>=` written, `>`/`<=`
+  swapped — the [C104] numeric rule for characters) and BRANCH law (strict JNC `d2`, weak
+  JC `da`), lengths positional on the LOWERED operands; [C347] head size follows the
+  length pair in every template, DATA stays [C314]'s pool-first frame.
+- Superseded prose — the P2 closing-era Last-verified-state, BOTH generations of the P3
+  in-flight/close-owed HANDOFF next actions and PROGRESS current phases, the surviving P2
+  CLOSED previous-phase record (frozen wording; an identical copy still lives in
+  `PROGRESS.md` until the next close), the stale P2-era next-action stub, the P2-frozen
+  Verified evidence and the P2-era Blockers wording — archived verbatim, every block
+  byte-verified against its stated git range, in
+  `docs/history/2026-11-01-e49p3-closed.md`. Goldens untouched except this round's
+  `golden/e49p3`.
 
-## Next action — E2E-49/P3 FULL GATE LANDED; CLOSE prose completion owed (this session, context exhausted)
+## Next action — E2E-49/P3 CLOSED: no active round, await the OPERATOR
 
-1. LANDED and MEASURED: step 6 parts 2a `8d3b024` (four COVERAGE rows + stats snapshot,
-   coverage_check rc=0, 129 rows 0/0), 2b `8771e1e` (widening +E49F2,E49F4 -> EXACT:10 +
-   five labelled SUPERSEDED clauses, originals verbatim), 2c `4df35bb` (labelled CITATION
-   CORRECTION at [C346]: numeric ORDER law is [C104], not [C115]; legacy [C027]/[C072] are
-   NOT resolvable by coverage_check load_claims — never cite them in provenance).
-   FULL compile-tier gate rc=0 measured at `4df35bb`, ACTUALS AS PRINTED: byte panel
-   1150/0 (all fourteen e49p3 BYTE-EXACT 256 bytes), negative 181/181 (E46K14 marker
-   UNMOVED), divergence 9/9, coverage 129/0/0, census UNCHANGED 15/0/26/0, prose 5 clean.
-   Gate-record commit `1f611f5` (message complete; its PROGRESS prose update FAILED to
-   apply — heading assert — fix in the CLOSE commit).
-2. REMAINING — finish CLOSE: archive file `docs/history/2026-11-01-e49p3-closed.md` is
-   WRITTEN but verify it against `git show 4df35bb:HANDOFF.md` / `:PROGRESS.md` (my join
-   fix collapsed blank lines; re-extract verbatim if it fails a diff); rewrite HANDOFF
-   Last-verified/Next-action/Unfinished to the CLOSED record (ledger ends C347, panel
-   1150, coverage 129); rewrite PROGRESS Current phase to CLOSED, fix its stale P2
-   Verified-evidence numbers (1150/129 at 4df35bb) and the Blockers refusal list (bare
-   spellings outside relations, relations beyond =/^= on the QUALIFIED pair, and both
-   literal-template collapses are now MEASURED [C342..C347] — keep superseded wording
-   verbatim in the archive); LEARNINGS close notes; then `/handoff finalize`.
-3. Standing: byte tier only (no spec/RUNTIME.txt row); goldens untouched except e49p3;
-   never touch the operator's handoff.config.json edit; renewal values ONLY in
-   `handoff.config.json`/`/guard status`; probes <=71 cols CRLF+^Z; eval $(opam env)
-   before dune; no push.
+1. No scientific work is authorised in this or a successor session until the OPERATOR
+   names a round. A successor session without an operator instruction: confirm HEAD and a
+   clean tree (a dirty `handoff.config.json` is the operator's standing edit — never
+   touch), run `/handoff verify`, record state here and STOP. Do not run the compiler,
+   the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py` on your own initiative.
+2. Candidate pool for the operator's NEXT named round (NOT authorisations; the measured
+   boundaries live in `PROGRESS.md` → Blockers and Pending): the P3 RESULTS §3 remainders
+   — STOREs (either orientation), literal-vs-literal, BASED members, fixed truthiness,
+   `^( )`, BARE spellings inside ordered relations, relations with a LITERAL operand,
+   STRICT/WEAK unequal-extent combinations beyond F2/F4; the standing `proposed` items in
+   `LEARNINGS.md` (bank the out-of-scope member-pair refusals as NEG-panel rows;
+   discriminating probes for the bundled-thunk codegen invariant); the LOAN2 scope-aware
+   prescan design change; the CREATE `%include` front-end gap; the stale `README.md`
+   rolling status.
+3. Standing: byte tier only (no `spec/RUNTIME.txt` row from the compare families);
+   goldens untouched except `golden/e49p3`; never touch the operator's
+   `handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard
+   status`; probes ≤71 cols CRLF+`^Z`; `eval $(opam env)` before dune; no push.
 
 ## Unfinished operations
 
-- (none SCIENTIFIC) — E2E-49/P3 step 6 + gate landed; the only open item is the CLOSE
-  prose completion described in the Next action above (docs commit owed by THIS session). - (none) — E2E-49/P2 is CLOSED: arms, claims C337..C341, registration (panel 1136),
-  COVERAGE (125 rows, 0 errors) and the FULL compile-tier gate (rc=0 measured at
-  `d5983e8`, recorded `8926b83`) all landed. Standing debts live in `PROGRESS.md` →
-  Pending; the candidate pool lives in the Next action above.
+- (none) — E2E-49/P3 is CLOSED: arms a/b/c (`a540fa7`/`0a1b80c`/`cde3258`), claims
+  C342..C347, registration (panel 1150), COVERAGE (129 rows, 0 errors, 0 warnings), the
+  FULL compile-tier gate (rc=0 measured at `4df35bb`, recorded `1f611f5`) and the CLOSE
+  (two-generation archive `docs/history/2026-11-01-e49p3-closed.md` byte-verified
+  block-by-block, HANDOFF/PROGRESS/LEARNINGS rewritten, `docs/history/README.md` index
+  updated) all landed. Standing debts live in `PROGRESS.md` → Pending; the candidate pool
+  lives in the Next action above.
 
 ## Discoveries not yet incorporated
 
-- (none in the ledger) — every E2E-49/P2 discovery is incorporated: laws C337..C341 in
-  `spec/CLAIMS.md` (derived ONLY from `spec/lab-evidence/e2e49-p2/RESULTS.md` §2), the
-  COVERAGE rows and labelled SUPERSEDED clauses in `spec/COVERAGE.tsv` (125 rows, 0
-  errors). Open PROPOSALS (classified `proposed` in `LEARNINGS.md`, NOT law): bank the
-  out-of-scope member-vs-member refusals as NEG-panel rows; "emit the head as ONE bundled
-  thunk in written order" stays a codegen invariant evidenced per-shape — no ledger claim
-  until discriminating probes exist. The stale `README.md` rolling status remains recorded
-  as deferred work in `PROGRESS.md` → Pending.
+- (none in the ledger) — every E2E-49/P3 discovery is incorporated: laws C342..C347 in
+  `spec/CLAIMS.md` (derived ONLY from `spec/lab-evidence/e2e49-p3/RESULTS.md` §2), the
+  four new COVERAGE rows, the widening and the five labelled SUPERSEDED clauses in
+  `spec/COVERAGE.tsv` (129 rows, 0 errors, 0 warnings). Open PROPOSALS (classified
+  `proposed` in `LEARNINGS.md`, NOT law): bank the out-of-scope member-pair refusals as
+  NEG-panel rows; "emit the head as ONE bundled thunk in written order" stays a codegen
+  invariant evidenced per-shape — no ledger claim until discriminating probes exist. The
+  stale `README.md` rolling status remains recorded as deferred work in `PROGRESS.md` →
+  Pending.
 
 ## History and pointers
 
@@ -123,7 +133,9 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   log: `docs/history/README.md` (index; baseline extraction at `f3a4c60`; P2e closing-era
   prose `docs/history/2026-10-31-p2e-closed.md`; E2E-49/P1 closing-era prose AND the P2e
   close record `docs/history/2026-11-01-e49p1-closed.md`; E2E-49/P2 closing-era prose AND
-  the surviving P1 closing-era sections `docs/history/2026-11-01-e49p2-closed.md`).
+  the surviving P1 closing-era sections `docs/history/2026-11-01-e49p2-closed.md`;
+  E2E-49/P3 two-generation close archive — in-flight prose at `4df35bb` AND the
+  close-owed prose at `c140277` — `docs/history/2026-11-01-e49p3-closed.md`).
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.
 

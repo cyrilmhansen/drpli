@@ -1056,3 +1056,34 @@ The guard never writes this file.
   committed `1f611f5` with only managed blocks — prose fix owed).
 - proposed (unchanged, standing): bank out-of-scope member-pair refusals as NEG rows;
   bundled-thunk codegen invariant stays evidence-per-shape; README rolling status stale.
+
+## 2026-11-01 — E2E-49/P3 CLOSE (docs-only closing session, no science run)
+- accepted (measured this session): the `b07be23` draft archive's four first-generation
+  sections passed byte-verification against `git show 4df35bb:HANDOFF.md` /
+  `:PROGRESS.md` UNCHANGED — the feared blank-line collapse lived only in the draft
+  header join, never inside a source block; the archive was rebuilt mechanically from
+  git in the house layout (# title, RECORD note carrying the `1f611f5` gate ACTUALS,
+  per-block `## From <file> — <heading> (lines X–Y at <commit>)` provenance annotations,
+  verification footer) and COMPLETED with seven second-generation blocks extracted from
+  `c140277` — the prose `b07be23` itself obsoleted (close-owed next action, Unfinished,
+  Discoveries, Current phase) plus the P2-frozen stub, Verified evidence and Blockers —
+  archived verbatim BEFORE replacement. Re-verification: 11/11 blocks byte-exact.
+- accepted (close prose): HANDOFF/PROGRESS rewritten to the CLOSED record (ledger C347,
+  panel 1150, coverage 129); PROGRESS Verified evidence now names the step-6 session as
+  the measurer of the `4df35bb` gate ACTUALS (NOT re-run by this session — docs-only,
+  no compiler/oracle/gate executed) and lists only this session's docs measurements;
+  Blockers updated per RESULTS §3 — shapes measured by [C342]–[C346] removed, every
+  superseded sentence preserved verbatim in the archive.
+- accepted (procedural lesson): a close-partial commit creates a SECOND superseded
+  prose generation; the closing archive must capture every generation replaced on the
+  way to the final text, not just the one remembered — diff the durable files across
+  all boundary commits (`git diff 4df35bb c140277 -- HANDOFF.md PROGRESS.md`) and
+  archive each obsoleted section from its own commit.
+- accepted (guard-block preservation): a full-section rewrite anchored on `^## `
+  headings silently swallowed the PROGRESS managed block (it sits INSIDE the tail of the
+  `## Verified evidence` section); it was restored byte-identical from `c140277` and both
+  files' blocks re-verified byte-identical after every prose rewrite. Lesson: when
+  replacing whole sections, check for embedded `<!-- guard:... -->` blocks and restore
+  them verbatim; never hand-write checkpoint content.
+- standing (unchanged): no golden, claim, ledger, COVERAGE or `ocaml/` byte was touched
+  by the CLOSE; the operator's `handoff.config.json` edit stays unstaged; no push.
