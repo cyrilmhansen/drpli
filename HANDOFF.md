@@ -197,52 +197,76 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 111
-checkpoint-id: g111-8390f09cccc9
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 112
+checkpoint-id: g112-cccc28199da8
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4101, session 01a19879-f9d3-704f-a8a8-ce6c10803c9c)
-checkpointed: 2026-11-01T19:27:13.882Z
+status: checkpoint (guard level 0, remaining ~69288, session 01a19902-5793-7280-b553-bda51e005404)
+checkpointed: 2026-11-01T21:41:26.944Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 60683014d988badc79801f13c56b6d88bb6d28f2c2060a3b212aaf621c65e2ee
-source-handoff: 8a02d240c6d19f739cc2bcbef8bd1e0aaf692cd6a8e13846e4b1c919a104ee53
+source-progress: 9a875b2aeecf84dbfe7e695bd900daf09c6db5e1e295734cd0284297d085d745
+source-handoff: 412cb66a044c5177808768004fb53862ec27ddb6d98b5f52c48713fa2b086dc7
 source-learnings: f6d88d7910a9d8de8d5e20b2df750ed89733ed00e14404087e57be25908465e6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19879-f9d3-704f-a8a8-ce6c10803c9c
-readiness-at: 2026-11-01T19:27:20.513Z
-readiness-checkpoint: g111-8390f09cccc9
+readiness-by: session:01a19902-5793-7280-b553-bda51e005404
+readiness-at: 2026-11-01T21:41:26.947Z
+readiness-checkpoint: g112-cccc28199da8
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 0; checkpoint requested (finalize: E2E-50/P2 ACTIVE, step 0 landed at 459f51e; steps 1-8 owed per HANDOFF.md -> Next action. Next: read-only emulator technical audit of /home/john/pli/lab (lib/i8080, lib/cpm, lib/runner, lib/trace) into docs/emulator-audit.md.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`, close this commit)
+— E2E-50/P2 ACTIVE (operator mission brief, bootstrapped 2026-11-02)
 
-The functional dashboard round is COMPLETE: validation fixes + `spec/functional/programs.tsv`
-(68 programs, 3 origin classes never summed) + `tools/functional_dashboard.py` (reads canonical
-evidence only, imports the gate module, compiles/runs NOTHING, deterministic, UNKNOWN never
-rendered as success) + `tools/test_functional_dashboard.py` (30/30) + generated
-`docs/functional-status.md` (views A–E) + the replaced `README.md` status section + the labelled
-[E2E-50/P1 CORRECTION(S)] in `LEARNINGS.md`. Evidence-infrastructure audit in `LEARNINGS.md`
-2026-11-02. Superseded prose archived byte-verified in
-`docs/history/2026-11-02-e50p1-closed.md`.
+**Mission (EXPLICIT OPERATOR AUTHORIZATION E2E-50/P2).** Establish the first practical foundation
+for testing PL/I-80 programs by FUNCTIONAL correctness, independent of byte-for-byte DR
+target: (1) audit the project's own 8080/CP/M emulator (the Runes lab at `/home/john/pli/lab`,
+READ-ONLY) — technical capability matrix + provenance/license/redistribution audit; (2) a small
+progressive ORIGINAL corpus (family **TABLE**) with independently specified expected behaviour;
+(3) a minimal deterministic execution/validation harness with two lanes (A redistributable core,
+B historical PL/I compatibility) and typed verdicts PASS/FAIL/BLOCKED/UNKNOWN — a skipped stage
+is never PASS. Deliverable docs: `docs/emulator-audit.md`, `docs/functional-testing.md`.
+NOT authorized: compiler implementation changes, PLILIB reimplementation, mass benchmark porting,
+third-party benchmark import before rights are verified, changes to `GOAL.md`,
+`handoff.config.json`, global Pi config, external Runes sources; NO push, NO automatic P3.
 
-NO active round exists. A successor session without an operator instruction confirms HEAD and the
-tree, runs `/handoff verify`, records state and STOPS. The ranked candidate shortlist for the
-operator's E2E-50/P2 choice lives in `docs/functional-status.md` §E (regenerate:
-`python3 tools/functional_dashboard.py --check`; `--write` after any ledger change); the measured
-boundaries live in `PROGRESS.md` → Blockers and Pending. This is a shortlist, NOT an
-authorisation; any round needs the operator's authorization and PROTOCOL pre-registration.
+Durable sequence (completed evidence in brackets; explicit-path commits only):
+- 0. Documentary bootstrap: P1 close-out inconsistencies measured at HEAD and fixed; this
+  mission recorded as the single authority. [landed in the bootstrap commit]
+- 1. Emulator technical audit — Intel 8080 core, CP/M BDOS/BIOS, COM loading, console, files,
+  determinism, limits, tests — capability matrix IMPLEMENTED/PARTIAL/MISSING/UNTESTED/
+  KNOWN DEFECT into `docs/emulator-audit.md`; safe lab tests may be RUN (never infer
+  correctness from presence of code). [pending]
+- 2. License/redistribution audit → two-package matrix (free core / historical-compat) in the
+  same document; record blockers, recommend options, decide no operator-level license.
+  Do NOT copy restricted assets into any prospective package. [pending]
+- 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
+  correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
+  undefined must be measured, never assumed). [pending]
+- 4. TABLE corpus: TABLE-00 (traverse/aggregate), TABLE-01 (sort; ordering, multiplicity,
+  count, sum, independently computed reference sequence), TABLE-02 only if 0/1 verify; fixed
+  inputs incl. negatives/duplicates; provenance headers; original work recorded as such. [pending]
+- 5. Harness `tools/functional_runner.py` + tests proving absent deps, timeouts, malformed
+  output and mismatched assertions cannot be mistaken for success. [pending]
+- 6. Execution evidence: Lane A free-core fixture via the audited emulator where facilities
+  permit; Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB, dependency lane
+  labelled; classify and preserve blockers honestly. Never substitute an unlabelled emulator.
+  [pending]
+- 7. Minimal functional-results reporting (reuse P1 model or a separate small report; NO
+  reporting-system rewrite; scientific verdicts unchanged; no COVERAGE promotion without
+  evidence). [pending]
+- 8. Verification + short report (measured / failed / unmeasured), bounded P3 proposal, CLOSE
+  (byte-verified archive per convention), `handoff_finalize`, STOP. [pending]
 
-Standing: never run compiler/oracle/gate in infrastructure sessions; never touch the operator's
-`handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard status`;
-never `git clean`/`reset --hard`/`add -A`; no push.
+Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
+read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
+`git clean`/`reset --hard`/`add -A`; no push.
 
 ### Guard notes
-E2E-50/P1 ACTIVE (functional dashboard). HEAD 8385605 committed; tree clean except the operator's unstaged handoff.config.json (never touch/stage/commit/revert it). DONE: evidence-infrastructure audit (in LEARNINGS.md 2026-11-02 sections) + spec/functional/README.md (canonical sources, six stages, three origin classes) + spec/functional/capabilities.tsv (36 capabilities -> COVERAGE row ids + census program names, no status column). TODO in exact order (HANDOFF.md -> Next action item 1 a–g): (a) validate every coverage_rows id against spec/COVERAGE.tsv field 1 and every corpus_programs name against spec/census/corpus-census.json rows and fix misses; (b) write spec/functional/programs.tsv reusing existing sources only; (c) write tools/functional_dashboard.py (read-only inputs, derives stages from INVENTORY + panel_keys.load() + committed census/coverage snapshots + RUNTIME.txt + NEG_META via importing the gate module — NEVER recompile or run the gate; deterministic; --write/--check; UNKNOWN never rendered as success) + tools/test_functional_dashboard.py; (d) generate docs/functional-status.md (views A–E incl. ranked candidate shortlist for E2E-50/P2); (e) replace the stale README.md "Current status (rolling)" section; (f) run the two dashboard checks + coverage_check.py + file_prose_check.py; (g) commit explicit paths then CLOSE (byte-verified archive into docs/history/, HANDOFF/PROGRESS to CLOSED, index row, handoff_finalize, STOP). Prohibited: compiler/oracle/LINK-80/cpmsim/rune-ci/e2e_gate runs, compiler behaviour changes, new oracle campaigns, PLILIB work, starting P2, push, editing handoff.config.json. No PL/I-80 tutorial exists — do not invent one.
+E2E-50/P2 ACTIVE, step 0 landed at 459f51e; steps 1-8 owed per HANDOFF.md -> Next action. Next: read-only emulator technical audit of /home/john/pli/lab (lib/i8080, lib/cpm, lib/runner, lib/trace) into docs/emulator-audit.md.
 <!-- guard:end checkpoint -->
