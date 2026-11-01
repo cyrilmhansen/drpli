@@ -104,54 +104,29 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Verified evidence and the P3-era Blockers — archived verbatim, every block byte-verified
   against its stated git range (16/16 BYTE-EXACT), in
   `docs/history/2026-11-01-e49p4-closed.md`. Goldens untouched except this round's
-  `golden/e49p4`.## Next action — E2E-50/P1 ACTIVE: functional capability inventory and progress dashboard
+  `golden/e49p4`.## Next action — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`, close this commit)
 
-0. **Round.** E2E-49/P4 is CLOSED (its close record and the candidate pool below stay in
-   `docs/history/2026-11-01-e49p4-closed.md`). The OPERATOR has authorized **E2E-50/P1**:
-   build a reproducible FUNCTIONAL dashboard (`tools/functional_dashboard.py`, annotations in
-   `spec/functional/`, generated `docs/functional-status.md`), audit the existing evidence
-   infrastructure, and rank next compiler candidates. **NOT authorized:** compiler behaviour
-   changes, new oracle campaigns, PLILIB reimplementation, starting E2E-50/P2, push, or touching
-   the operator's `handoff.config.json` edit. **No PL/I-80 tutorial exists for this project** —
-   do not search for one, do not invent one, and do not treat tutorial work as a prerequisite.
-1. Exact next action (work state: `spec/functional/README.md` and `spec/functional/capabilities.tsv`
-   are COMMITTED at `8385605` but UNVALIDATED; nothing else of the round exists yet).
-   (a) Validate every `coverage_rows` id in `spec/functional/capabilities.tsv` against
-   `spec/COVERAGE.tsv` field 1, and every `corpus_programs` name against the rows of
-   `spec/census/corpus-census.json` — fix any miss (a bad id is my error, not a ledger fact).
-   (b) Write `spec/functional/programs.tsv` (id, source path, origin HISTORICAL/FOCUSED/MICROPROBE,
-   capability ids) reusing existing sources only (`artefacts/`, `probes/`, `e1?src/`, `negsrc/`).
-   (c) Write `tools/functional_dashboard.py` — read-only inputs listed in `spec/functional/README.md`;
-   derives stages BYTE/LINK/RUN from `spec/INVENTORY.txt` + `panel_keys.load()` + the committed
-   census/coverage snapshots + `spec/RUNTIME.txt` + `NEG_META` via importing the gate module
-   (never recompiling); views A–E; deterministic ordering; `--write` and `--check`; UNKNOWN must
-   never be rendered as success — plus `tools/test_functional_dashboard.py` covering classification,
-   aggregation, missing-data and unmapped-row handling.
-   (d) Generate `docs/functional-status.md`. (e) Replace the stale `README.md` "Current status
-   (rolling)" section with a short accurate overview + links (`spec/CLAIMS.md`, `PROGRESS.md`,
-   `docs/functional-status.md`). (f) Run `python3 tools/test_functional_dashboard.py`,
-   `python3 tools/functional_dashboard.py --check`, `python3 tools/coverage_check.py`,
-   `python3 tools/file_prose_check.py`. (g) Commit explicit paths (never `add -A`), then CLOSE:
-   byte-verified archive of this Next action into `docs/history/`, HANDOFF/PROGRESS rewritten to
-   E2E-50/P1 CLOSED, index row, `handoff_finalize`, STOP. Do NOT run the compiler, the oracle,
-   LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`; no E2E-50/P2; no push.
-2. Candidate pool for the operator's NEXT named round (E2E-50/P2 choice; NOT an authorisation —
-   the ranked shortlist with its evidence classes lives in `docs/functional-status.md` §E, and the
-   measured boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
-   STORE value or target with any of the new shapes, literal-vs-literal in any relation, BASED
-   members, fixed-member truthiness, `<>`/`><` spellings, `&`/`|` composition of conditions,
-   `^( )` over a relation WITH A LITERAL, `^( )` over an over-extent or bare spelling,
-   `^(` `^=` `)` double negation, ordered relations with a literal at UNEQUAL attributes beyond
-   the G3..G6 sample, bare spellings in the equal-length literal template under a relation;
-   the equal-attribute `>` collapse inside a relation (NEVER sampled — the [C348] correction);
-   the standing `proposed` items in `LEARNINGS.md` (bank the out-of-scope member-pair and
-   negated-TEST refusals as NEG-panel rows; discriminating probes for the bundled-thunk codegen
-   invariant); the LOAN2 scope-aware prescan design change; the CREATE `%include` front-end
-   gap; the stale `README.md` rolling status.
-3. Standing: byte tier only (no `spec/RUNTIME.txt` row from the compare families); goldens
-   untouched except `golden/e49p4`; never touch the operator's `handoff.config.json` edit;
-   renewal values ONLY in `handoff.config.json` / `/guard status`; probes ≤71 cols CRLF+`^Z`;
-   `eval $(opam env)` before dune; never `git clean`/`reset --hard`/`add -A`; no push.## Unfinished operations
+The functional dashboard round is COMPLETE: validation fixes + `spec/functional/programs.tsv`
+(68 programs, 3 origin classes never summed) + `tools/functional_dashboard.py` (reads canonical
+evidence only, imports the gate module, compiles/runs NOTHING, deterministic, UNKNOWN never
+rendered as success) + `tools/test_functional_dashboard.py` (30/30) + generated
+`docs/functional-status.md` (views A–E) + the replaced `README.md` status section + the labelled
+[E2E-50/P1 CORRECTION(S)] in `LEARNINGS.md`. Evidence-infrastructure audit in `LEARNINGS.md`
+2026-11-02. Superseded prose archived byte-verified in
+`docs/history/2026-11-02-e50p1-closed.md`.
+
+NO active round exists. A successor session without an operator instruction confirms HEAD and the
+tree, runs `/handoff verify`, records state and STOPS. The ranked candidate shortlist for the
+operator's E2E-50/P2 choice lives in `docs/functional-status.md` §E (regenerate:
+`python3 tools/functional_dashboard.py --check`; `--write` after any ledger change); the measured
+boundaries live in `PROGRESS.md` → Blockers and Pending. This is a shortlist, NOT an
+authorisation; any round needs the operator's authorization and PROTOCOL pre-registration.
+
+Standing: never run compiler/oracle/gate in infrastructure sessions; never touch the operator's
+`handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard status`;
+never `git clean`/`reset --hard`/`add -A`; no push.
+
+## Unfinished operations
 
 - (none) — E2E-49/P4 is CLOSED: arms a/b/c (`c515377`/`ec904c1`/`47c2194`), claims C348..C351
   plus the four labelled P4 CORRECTION blocks (`9c42f3b`) and the [C348] WORDING CORRECTION
@@ -188,113 +163,48 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 - Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
   this file. The guard writes the managed block below via Handoff commands only.<!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 108
-checkpoint-id: g108-c548067d9c99
-checkpoint-kind: manual
+checkpoint-generation: 110
+checkpoint-id: g110-a62a17994535
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-489, session 01a1986a-d6ce-704f-a8a8-ce68a32c5abf)
-checkpointed: 2026-11-01T18:57:43.330Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6369, session 01a19879-f9d3-704f-a8a8-ce6c10803c9c)
+checkpointed: 2026-11-01T19:26:42.585Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 78524d08983728d0049803a3d97cd96fff4a71ed41fce1935df1149f36cd3ca1
-source-handoff: 4aa5035a62dcf143b0848e3a4cb66087cab8a7a451a23cc5616c7602fb90b609
-source-learnings: f8ab8ff7e0a3cb211248ceb7b07bd4f006c0d4a74dd5496260450b2edef8141c
+source-progress: 60683014d988badc79801f13c56b6d88bb6d28f2c2060a3b212aaf621c65e2ee
+source-handoff: 8a02d240c6d19f739cc2bcbef8bd1e0aaf692cd6a8e13846e4b1c919a104ee53
+source-learnings: f6d88d7910a9d8de8d5e20b2df750ed89733ed00e14404087e57be25908465e6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1986a-d6ce-704f-a8a8-ce68a32c5abf
-readiness-at: 2026-11-01T18:57:43.333Z
-readiness-checkpoint: g108-c548067d9c99
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— E2E-50/P1 ACTIVE: functional capability inventory and progress dashboard
+— E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`, close this commit)
 
-0. **Round.** E2E-49/P4 is CLOSED (its close record and the candidate pool below stay in
-   `docs/history/2026-11-01-e49p4-closed.md`). The OPERATOR has authorized **E2E-50/P1**:
-   build a reproducible FUNCTIONAL dashboard (`tools/functional_dashboard.py`, annotations in
-   `spec/functional/`, generated `docs/functional-status.md`), audit the existing evidence
-   infrastructure, and rank next compiler candidates. **NOT authorized:** compiler behaviour
-   changes, new oracle campaigns, PLILIB reimplementation, starting E2E-50/P2, push, or touching
-   the operator's `handoff.config.json` edit. **No PL/I-80 tutorial exists for this project** —
-   do not search for one, do not invent one, and do not treat tutorial work as a prerequisite.
-1. Exact next action (work state: `spec/functional/README.md` and `spec/functional/capabilities.tsv`
-   are WRITTEN but uncommitted and unvalidated; nothing else of the round exists yet).
-   (a) Validate every `coverage_rows` id in `spec/functional/capabilities.tsv` against
-   `spec/COVERAGE.tsv` field 1, and every `corpus_programs` name against the rows of
-   `spec/census/corpus-census.json` — fix any miss (a bad id is my error, not a ledger fact).
-   (b) Write `spec/functional/programs.tsv` (id, source path, origin HISTORICAL/FOCUSED/MICROPROBE,
-   capability ids) reusing existing sources only (`artefacts/`, `probes/`, `e1?src/`, `negsrc/`).
-   (c) Write `tools/functional_dashboard.py` — read-only inputs listed in `spec/functional/README.md`;
-   derives stages BYTE/LINK/RUN from `spec/INVENTORY.txt` + `panel_keys.load()` + the committed
-   census/coverage snapshots + `spec/RUNTIME.txt` + `NEG_META` via importing the gate module
-   (never recompiling); views A–E; deterministic ordering; `--write` and `--check`; UNKNOWN must
-   never be rendered as success — plus `tools/test_functional_dashboard.py` covering classification,
-   aggregation, missing-data and unmapped-row handling.
-   (d) Generate `docs/functional-status.md`. (e) Replace the stale `README.md` "Current status
-   (rolling)" section with a short accurate overview + links (`spec/CLAIMS.md`, `PROGRESS.md`,
-   `docs/functional-status.md`). (f) Run `python3 tools/test_functional_dashboard.py`,
-   `python3 tools/functional_dashboard.py --check`, `python3 tools/coverage_check.py`,
-   `python3 tools/file_prose_check.py`. (g) Commit explicit paths (never `add -A`), then CLOSE:
-   byte-verified archive of this Next action into `docs/history/`, HANDOFF/PROGRESS rewritten to
-   E2E-50/P1 CLOSED, index row, `handoff_finalize`, STOP. Do NOT run the compiler, the oracle,
-   LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`; no E2E-50/P2; no push.
-2. Candidate pool for the operator's NEXT named round (E2E-50/P2 choice; NOT an authorisation —
-   the ranked shortlist with its evidence classes lives in `docs/functional-status.md` §E, and the
-   measured boundaries live in `PROGRESS.md` → Blockers and Pending): the P4 RESULTS §3 remainders —
-   STORE value or target with any of the new shapes, literal-vs-literal in any relation, BASED
-   members, fixed-member truthiness, `<>`/`><` spellings, `&`/`|` composition of conditions,
-   `^( )` over a relation WITH A LITERAL, `^( )` over an over-extent or bare spelling,
-   `^(` `^=` `)` double negation, ordered relations with a literal at UNEQUAL attributes beyond
-   the G3..G6 sample, bare spellings in the equal-length literal template under a relation;
-   the equal-attribute `>` collapse inside a relation (NEVER sampled — the [C348] correction);
-   the standing `proposed` items in `LEARNINGS.md` (bank the out-of-scope member-pair and
-   negated-TEST refusals as NEG-panel rows; discriminating probes for the bundled-thunk codegen
-   invariant); the LOAN2 scope-aware prescan design change; the CREATE `%include` front-end
-   gap; the stale `README.md` rolling status.
-3. Standing: byte tier only (no `spec/RUNTIME.txt` row from the compare families); goldens
-   untouched except `golden/e49p4`; never touch the operator's `handoff.config.json` edit;
-   renewal values ONLY in `handoff.config.json` / `/guard status`; probes ≤71 cols CRLF+`^Z`;
-   `eval $(opam env)` before dune; never `git clean`/`reset --hard`/`add -A`; no push.## Unfinished operations
+The functional dashboard round is COMPLETE: validation fixes + `spec/functional/programs.tsv`
+(68 programs, 3 origin classes never summed) + `tools/functional_dashboard.py` (reads canonical
+evidence only, imports the gate module, compiles/runs NOTHING, deterministic, UNKNOWN never
+rendered as success) + `tools/test_functional_dashboard.py` (30/30) + generated
+`docs/functional-status.md` (views A–E) + the replaced `README.md` status section + the labelled
+[E2E-50/P1 CORRECTION(S)] in `LEARNINGS.md`. Evidence-infrastructure audit in `LEARNINGS.md`
+2026-11-02. Superseded prose archived byte-verified in
+`docs/history/2026-11-02-e50p1-closed.md`.
 
-- (none) — E2E-49/P4 is CLOSED: arms a/b/c (`c515377`/`ec904c1`/`47c2194`), claims C348..C351
-  plus the four labelled P4 CORRECTION blocks (`9c42f3b`) and the [C348] WORDING CORRECTION
-  (`5b0ccde`), registration (panel 1174), COVERAGE (133 rows, 0 errors, 0 warnings), the FULL
-  compile-tier gate (rc=0 measured at `5b0ccde`, recorded `882f77c`) and the CLOSE
-  (four-generation archive `docs/history/2026-11-01-e49p4-closed.md` byte-verified block by
-  block — 16/16 —, HANDOFF/PROGRESS/LEARNINGS rewritten, `docs/history/README.md` index
-  updated) all landed. Standing debts live in `PROGRESS.md` → Pending; the candidate pool lives
-  in the Next action above. Nothing in `ocaml/` is half-edited and no scientific byte awaits
-  verification.## Discoveries not yet incorporated
+NO active round exists. A successor session without an operator instruction confirms HEAD and the
+tree, runs `/handoff verify`, records state and STOPS. The ranked candidate shortlist for the
+operator's E2E-50/P2 choice lives in `docs/functional-status.md` §E (regenerate:
+`python3 tools/functional_dashboard.py --check`; `--write` after any ledger change); the measured
+boundaries live in `PROGRESS.md` → Blockers and Pending. This is a shortlist, NOT an
+authorisation; any round needs the operator's authorization and PROTOCOL pre-registration.
 
-- (none in the ledger) — every E2E-49/P4 discovery is incorporated: laws C348..C351 in
-  `spec/CLAIMS.md` (derived ONLY from `spec/lab-evidence/e2e49-p4/RESULTS.md` §2), the four new
-  COVERAGE rows, the `COND.CMP_LENGTHS_POSITIONAL` extension and the labelled SUPERSEDED/
-  WIDENED clauses in `spec/COVERAGE.tsv` (133 rows, 0 errors, 0 warnings), and the labelled
-  corrections at [C335]/[C337]/[C344]/[C346]/[C348]. Open PROPOSALS (classified `proposed` in
-  `LEARNINGS.md`, NOT law): bank the out-of-scope member-pair and negated-TEST refusals as
-  NEG-panel rows; "emit the head as ONE bundled thunk in written order" stays a codegen
-  invariant evidenced per-shape — no ledger claim until discriminating probes exist; the [C351]
-  inv/simpl readings are recorded as BYTE-CONVERGENT (pre-registered non-separability honoured,
-  no reading preferred). The stale `README.md` rolling status remains recorded as deferred work
-  in `PROGRESS.md` → Pending.## History and pointers
-
-- Superseded next-action sections, closed phase records and the full renewal-hop status
-  log: `docs/history/README.md` (index; baseline extraction at `f3a4c60`; P2e closing-era
-  prose `docs/history/2026-10-31-p2e-closed.md`; E2E-49/P1 closing-era prose AND the P2e
-  close record `docs/history/2026-11-01-e49p1-closed.md`; E2E-49/P2 closing-era prose AND
-  the surviving P1 closing-era sections `docs/history/2026-11-01-e49p2-closed.md`;
-  E2E-49/P3 two-generation close archive — in-flight prose at `4df35bb` AND the
-  close-owed prose at `c140277` — `docs/history/2026-11-01-e49p3-closed.md`;
-  E2E-49/P4 four-generation close archive — the arms-era Next actions at `19ab4e0` and
-  `e13311c`, the step-6-era CLOSE instruction at `882f77c`, the close-authorized prose at
-  `5c52bba` (identical at HEAD `b5f792c`) — `docs/history/2026-11-01-e49p4-closed.md`).
-- Renewal: effective renewal values are in `handoff.config.json` (authoritative) — never
-  this file. The guard writes the managed block below via Handoff commands only.
+Standing: never run compiler/oracle/gate in infrastructure sessions; never touch the operator's
+`handoff.config.json` edit; renewal values ONLY in `handoff.config.json` / `/guard status`;
+never `git clean`/`reset --hard`/`add -A`; no push.
 
 ### Guard notes
 E2E-50/P1 ACTIVE (functional dashboard). HEAD 8385605 committed; tree clean except the operator's unstaged handoff.config.json (never touch/stage/commit/revert it). DONE: evidence-infrastructure audit (in LEARNINGS.md 2026-11-02 sections) + spec/functional/README.md (canonical sources, six stages, three origin classes) + spec/functional/capabilities.tsv (36 capabilities -> COVERAGE row ids + census program names, no status column). TODO in exact order (HANDOFF.md -> Next action item 1 a–g): (a) validate every coverage_rows id against spec/COVERAGE.tsv field 1 and every corpus_programs name against spec/census/corpus-census.json rows and fix misses; (b) write spec/functional/programs.tsv reusing existing sources only; (c) write tools/functional_dashboard.py (read-only inputs, derives stages from INVENTORY + panel_keys.load() + committed census/coverage snapshots + RUNTIME.txt + NEG_META via importing the gate module — NEVER recompile or run the gate; deterministic; --write/--check; UNKNOWN never rendered as success) + tools/test_functional_dashboard.py; (d) generate docs/functional-status.md (views A–E incl. ranked candidate shortlist for E2E-50/P2); (e) replace the stale README.md "Current status (rolling)" section; (f) run the two dashboard checks + coverage_check.py + file_prose_check.py; (g) commit explicit paths then CLOSE (byte-verified archive into docs/history/, HANDOFF/PROGRESS to CLOSED, index row, handoff_finalize, STOP). Prohibited: compiler/oracle/LINK-80/cpmsim/rune-ci/e2e_gate runs, compiler behaviour changes, new oracle campaigns, PLILIB work, starting P2, push, editing handoff.config.json. No PL/I-80 tutorial exists — do not invent one.
