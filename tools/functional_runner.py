@@ -944,6 +944,17 @@ LANE_A_TYPED_ERRORS = (
 )
 
 
+def _rname(ctx, base):
+    """Evidence basename within the per-lane dir: `run' on the first execution, `run2' on the
+    determinism double-run (ctx.run_seq = 2).  The second capture must never overwrite the
+    first -- rerun_lane compares the two console captures byte-for-byte, so BOTH have to
+    survive on disk.  [Defect fixed at hop 4: the name was referenced 7 times by step-5 part 1
+    but never defined -- every attempted Lane A RUN raised NameError (lane B caught it and
+    reported harness-exception/UNKNOWN; lane A crashed the runner).  Measured by
+    tools/test_functional_runner.py, which exercises both lanes.]"""
+    return base if ctx.run_seq <= 1 else "%s%d" % (base, ctx.run_seq)
+
+
 def _run_lane_a(ctx):
     exe = ctx.host.pli80_run_path()
     if ctx.host.missing(exe):
@@ -1080,12 +1091,16 @@ def assert_stream(ctx):
         extra = got[len(want):]
         absent = want[len(got):]
         first_diff = next((i for i, (a, b) in enumerate(zip(got, want)) if a != b), None)
-        why = ("forbidden-present:%s" % ",".join(missing) if not missing else
-               "line %d differs (got %r, want %r)" % (first_diff, got[first_diff], want[first_diff]))
+        # [hop-4 defect fix] the OLD code formatted `line %d differs (got[first_diff]...)' with
+        # first_diff=None whenever the streams differed ONLY in length (a missing/extra line)
+        # -- TypeError: list indices must be integers. Measured by
+        # tools/test_functional_runner.py case C5 (ASSERT-SHORT / ASSERT-EXTRA).
         if missing:
             why = "forbidden-present:%s" % ",".join(missing)
         elif absent or extra:
             why = ("missing lines %r / extra lines %r" % (absent, extra))
+        else:
+            why = "line %d differs (got %r, want %r)" % (first_diff, got[first_diff], want[first_diff])
         # README section 9 rule 2: narrowing `undefined' -> `runtime-lib' needs a DISCRIMINATING
         # RUN; the v1 harness has none (the linked-program BDOS census is UNMEASURED,
         # docs/emulator-audit.md 4), so no reasoning may assign an origin here.
