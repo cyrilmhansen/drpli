@@ -127,15 +127,18 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 - 1. Emulator technical audit — Intel 8080 core, CP/M BDOS/BIOS, COM loading, console, files,
   determinism, limits, tests — capability matrix IMPLEMENTED/PARTIAL/MISSING/UNTESTED/
   KNOWN DEFECT into `docs/emulator-audit.md`; safe lab tests may be RUN (never infer
-  correctness from presence of code). [reconnaissance DONE; measured findings incl. the re-run
-  of the lab's 7 test executables (all rc=0) are recorded in `LEARNINGS.md`
-  § "2026-11-02 — E2E-50/P2 bootstrap + emulator audit"; the audit DOCUMENT is owed —
-  write it from those entries, re-verifying each cited file]
+  correctness from presence of code). [**LANDED** at renewal hop 1: `docs/emulator-audit.md`
+  §1-4 capability matrix rows 2.1–2.20; every cited lab path/line re-verified read-only at
+  write time (lab HEAD `43e38ba` unchanged); new accepted measurements in `LEARNINGS.md`
+  § hop-1 subsection — notably `pli80-run` DISCARDS buffered program output on every error
+  path (stdout valid only at exit 0; failure evidence needs `--trace`)]
 - 2. License/redistribution audit → two-package matrix (free core / historical-compat) in the
   same document; record blockers, recommend options, decide no operator-level license.
-  Do NOT copy restricted assets into any prospective package. [evidence gathered in the same
-  LEARNINGS section — lab UNLICENSED (single-author history), z80pack MIT, superzazu/8080 MIT,
-  DR binaries RESTRICTED, CP/M system Caldera-conditional, exercisers mixed; matrix write owed]
+  Do NOT copy restricted assets into any prospective package. [**LANDED** in the same
+  document §5-7: single hard Package-A blocker = operator license decision on the UNLICENSED
+  lab; `research/{minimal-baseline,host-compiler}` now classified DR-image derivatives from
+  re-read READMEs (open question CLOSED); QX10CPMPlus classified proprietary/unresolved,
+  excluded (open question CLOSED); no license decided, no restricted asset copied]
 - 3. Functional-test specification format under `spec/functional/` (independence law: BYTE ≠
   correct, exit 0 ≠ correct; failure-origin attribution among compiler/runtime/emulator/source/
   undefined must be measured, never assumed). [pending]
@@ -160,14 +163,14 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 ## Unfinished operations
 
-- E2E-50/P2 steps 1–8. FIRST ACTION for the successor (renewal hop 1 of the P2 chain):
-  confirm HEAD (expect `9c779a4` + guard block commit), tree clean except the operator's
-  `handoff.config.json`; then WRITE `docs/emulator-audit.md` — technical capability matrix
-  (IMPLEMENTED/PARTIAL/MISSING/UNTESTED/KNOWN DEFECT) + two-package redistribution matrix —
-  from the ACCEPTED entries in `LEARNINGS.md` §§ 2026-11-02 E2E-50/P2 (re-verify each cited
-  lab path at write time; lab is READ-ONLY; its tests already re-ran rc=0 this chain), keep
-  PROPOSED items labelled, add the blockers/release-readiness path; commit explicit paths.
-  Then steps 3–8 per the sequence above.
+- E2E-50/P2 steps 3–8 (steps 0–2 delivered: bootstrap `459f51e`; audit document
+  `docs/emulator-audit.md` landed at renewal hop 1). FIRST ACTION for the successor: confirm
+  HEAD/tree, then step 3 — design the functional-test specification format under
+  `spec/functional/` (independence law: BYTE ≠ correct, exit 0 ≠ correct; failure-origin
+  attribution among compiler/runtime/emulator/source/undefined must be MEASURED, never
+  assumed), consulting `docs/emulator-audit.md` §4/§7 for the emulator facts the harness must
+  encode (typed-failure discipline; stdout valid only at exit 0; the runtime BDOS census of a
+  linked .COM is UNMEASURED until step 6).
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE `%include`);
   this round does not touch them.
 - At this boundary: no half-finished Git operation, no emulator process running, `ocaml/` untouched.

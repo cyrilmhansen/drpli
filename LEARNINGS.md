@@ -1480,3 +1480,53 @@ The guard never writes this file.
   in DRPLi (hashes + URLs already in the lab doc; binaries themselves must never be committed).
 - `docs/emulator-audit.md` OWED: write the capability matrix + two-package redistribution matrix
   from the accepted 2026-11-02 entries above, re-verifying each cited file/path at write time.
+
+### E2E-50/P2 hop 1 (renewal session, 2026-11-02) — audit-document measurements (accepted unless marked)
+
+- **ACCEPTED: every cited lab coordinate re-verified read-only at write time** (fresh session,
+  lab HEAD still `43e38ba`, status pattern unchanged): BDOS dispatch set {0,2,9,11,12,15,16,19,
+  20,21,22,26} at `bdos.ml:124-249`; `bdos_function_limit = 40` (119) with zero-return fallback
+  (250-254) and typed `Unsupported_function` (255); extent crossing 127→128 modelled (89-91);
+  A→L/B→H alias on Continue (261-265); warm boot `0x0000` / BDOS `0x0005` / tail≤127 /
+  `install_page_zero` (`personality.ml:7,8,11,55`); loader `0x0100` + `Program_too_large`
+  (`loader.ml:1-10`); memory `size = 0x10000` (`memory.ml:3`); `default_max_steps = 100_000`
+  (`runner.ml:141`), step count includes host transitions (196); decoder alias comment
+  verbatim re-read (`decode.ml:24-29`); filesystem keys drive 0-15/user 0-31/128-byte records/
+  max 65,536 records (`filesystem.ml:4-18`).
+- **ACCEPTED (new): `pli80-run` discards buffered program output on every error path.**
+  `bin/main.ml:104-121`: program stdout is accumulated in a Buffer and flushed ONLY on
+  `Ok`; any runner error (unsupported BDOS, step limit, CPU halt, load error, bad tail)
+  prints `pli80-run: …` to stderr and `exit 1` WITHOUT flushing the buffer; CLI misuse
+  exits 2. Harness law follows: stdout is valid evidence only at exit 0; failure-side
+  evidence requires `--trace`. Recorded as KNOWN LIMIT row 2.18 of the audit, not a defect
+  of correctness.
+- **ACCEPTED (new): distribution classification of the remaining `research/` directories.**
+  `research/minimal-baseline/README.md` re-read: byte-level coverage census of the historical
+  DR images ("94,720 historical bytes remain exact", RAW/DECODED/STRUCTURED/UNDERSTOOD over
+  image bytes) → DR-image derivative evidence, EXCLUDED from free core. `research/host-compiler`
+  pass READMEs re-read ("Faithful host compiler boundary reconnaissance", native shadow
+  reconstruction packets from the historical images) → same classification. This CLOSES open
+  question 2 of the bootstrap list.
+- **ACCEPTED (new): `/home/john/pli/cpm/QX10CPMPlus` classified.** README.TXT re-read verbatim:
+  "QX-10 CP/M Plus Supplied by MML Systems Ltd. Version 3.1A (01:Jun:84)", TD0 images compiled
+  by Fred Jan Kraan (2004-06-30) "straight from Don Maslin's collection", no license grant.
+  → proprietary-lineage CP/M Plus + QX10 derivative, status UNRESOLVED, EXCLUDED from both
+  packages. This CLOSES open question 4 (as classified-unresolved: excluded, no grant found).
+- **ACCEPTED (new): lab BDOS census facts relevant to Lane B** (read in full from
+  `/home/john/pli/lab/docs/pli80-cpm-surface.md`): the dynamic compile census of `PLI OPTIMIST`
+  used BDOS {2,11,12,15,16,19,20,21,22,26} + one CP/M-Plus-only fn 108 at exit, ALL within the
+  Runes implemented set; authentic CP/M 2.2 (z80pack cpmsim 1.39) ran `PLI OPTIMIST` to
+  completion with `OPTIMIST.REL` byte-identical (1,408 bytes, SHA-256 `5fca1ffe…`) to the
+  QX-10 reference; static-only sites fn 1/5/9/25 sit outside the observed compile path; LINK
+  and any *linked user program* census remain UNMEASURED — the open question 1 debt stands for
+  step 6. FN 5 (list output) missing means `$L` listing runs would abort with a typed error.
+- **ACCEPTED: `docs/emulator-audit.md` LANDED** (steps 1–2 deliverable): capability matrix
+  rows 2.1–2.20 (IMPLEMENTED/PARTIAL/MISSING/UNTESTED + typed-failure and KNOWN LIMIT rows),
+  executed-evidence section, Lane B feasibility §4, license evidence table §5, two-package
+  matrix §6 (Package A single hard blocker = the operator license decision on the unlicensed
+  lab; Package B = user-supplied-only), blockers path §7. PROPOSED items stay labelled
+  (exerciser acceptance script option; determinism proof owed to the step-5 harness).
+- **OPEN QUESTIONS CLOSED this hop:** #2 (research classification) and #4 (QX10CPMPlus) as
+  above; the audit-doc owed item (#6) is DELIVERED. Standing: #1 (runtime BDOS census —
+  step 6 measurement), #3 (node dependency trees — deliberately out of scope), #5 (exercisers
+  as optional Lane A script — decision owed with the harness).

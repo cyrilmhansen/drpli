@@ -26,6 +26,17 @@ accepted in `LEARNINGS.md` § 2026-11-02; `docs/emulator-audit.md` (steps 1–2 
 Boundary facts: lab HEAD `43e38ba`, single-author git history, NO LICENSE file (operator decision,
 never added here); building tests writes only the lab's gitignored `_build/`.
 
+**Renewal hop 1 (this chain): steps 1–2 LANDED.** `docs/emulator-audit.md` written from the
+accepted recon, every cited lab path/line re-verified read-only at write time, plus new accepted
+measurements (hop-1 subsection of the same LEARNINGS §): the `pli80-run` output-discards-on-error
+law (stdout valid only at exit 0), precise DR-image-derivative classification of
+`research/{minimal-baseline,host-compiler}`, QX10CPMPlus proprietary/unresolved, and the lab's
+dynamic BDOS census facts ({2,11,12,15,16,19,20,21,22,26}+fn108-Plus for `PLI OPTIMIST`, all
+inside the Runes implemented set; linked-program census still UNMEASURED — step-6 debt).
+Two-package matrix delivered (§6); the single hard Package-A blocker is the operator license
+decision on the UNLICENSED lab — decided by nobody here. Next: step 3 (functional-test spec
+format under `spec/functional/`).
+
 ## Previous phase — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`; close docs-only)
 
 Functional dashboard round COMPLETE, docs-only and evidence-only: compiler, oracle, LINK-80,
