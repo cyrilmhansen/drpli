@@ -1,0 +1,43 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E49C1
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E49C1
+
+   1 a 0000 E49C1:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-49/P3] member LEFT, literal RIGHT, lengths EQUAL (char(3)
+   4 a 0006      vs 'ABC').  [C338] measures the equal-extent collapse `06 n /
+   5 a 0006      78' member-vs-member ONLY and its scope warning names THIS
+   6 a 0006      shape [TBD]: E49A1/A3/A4 (3/2, 3/2, 3/4) always carried two
+   7 a 0006      immediates because the lengths differed.  H-AK-M keeps `EB /
+   8 a 0006      06 03 / 3E 03' (CODE 66, E49A1's template); H-AC-M collapses
+   9 a 0006      to `06 03 / 78' (CODE 65).  One byte decides it. */
+  10 c 0006   dcl
+  11 c 0006     1 rec,
+  12 c 0006       2 na char(3),
+  13 c 0006       2 nb char(3),
+  14 c 0006       2 s2 char(2);
+  15 c 0006   dcl k fixed bin(15);
+  16 c 0006   if rec.na = 'ABC' then k = 1;
+  17 c 001C   put list('K=', k);
+  18 c 003E   stop;
+  19 a 0041 end E49C1;
+
+CODE SIZE = 0041
+DATA AREA = 000F
+FREE SYMS = 386E
+END  COMPILATION
+

@@ -1,0 +1,41 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E49F4
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E49F4
+
+   1 a 0000 E49F4:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-49/P3] ordered relation `>= ' with UNEQUAL extents and
+   4 a 0006      the SHORTER member on the LEFT.  The inversion pair of F2 for
+   5 a 0006      the positional law, and the fourth relation's own branch
+   6 a 0006      encoding; refusal of any row is DR's boundary, recorded as
+   7 a 0006      such. */
+   8 c 0006   dcl
+   9 c 0006     1 rec,
+  10 c 0006       2 na char(3),
+  11 c 0006       2 nb char(3),
+  12 c 0006       2 s2 char(2);
+  13 c 0006   dcl k fixed bin(15);
+  14 c 0006   if rec.s2 >= rec.na then k = 1;
+  15 c 001E   put list('K=', k);
+  16 c 0040   stop;
+  17 a 0043 end E49F4;
+
+CODE SIZE = 0043
+DATA AREA = 000C
+FREE SYMS = 3888
+END  COMPILATION
+
