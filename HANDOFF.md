@@ -160,9 +160,14 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 ## Unfinished operations
 
-- E2E-50/P2 steps 1–8: `docs/emulator-audit.md` (technical matrix + redistribution matrix) is
-  the immediate owed artifact, written from the 2026-11-02 `LEARNINGS.md` section; then steps
-  3–8 per the sequence above.
+- E2E-50/P2 steps 1–8. FIRST ACTION for the successor (renewal hop 1 of the P2 chain):
+  confirm HEAD (expect `9c779a4` + guard block commit), tree clean except the operator's
+  `handoff.config.json`; then WRITE `docs/emulator-audit.md` — technical capability matrix
+  (IMPLEMENTED/PARTIAL/MISSING/UNTESTED/KNOWN DEFECT) + two-package redistribution matrix —
+  from the ACCEPTED entries in `LEARNINGS.md` §§ 2026-11-02 E2E-50/P2 (re-verify each cited
+  lab path at write time; lab is READ-ONLY; its tests already re-ran rc=0 this chain), keep
+  PROPOSED items labelled, add the blockers/release-readiness path; commit explicit paths.
+  Then steps 3–8 per the sequence above.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE `%include`);
   this round does not touch them.
 - At this boundary: no half-finished Git operation, no emulator process running, `ocaml/` untouched.
