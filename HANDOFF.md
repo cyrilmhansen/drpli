@@ -20,10 +20,13 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    Do not trust this file's managed block over its prose.
 4. Load evidence SELECTIVELY — the ledgers are far larger than the working window; a
    complete read of any of them is prohibited for recovery:
-   - `spec/CLAIMS.md`: read ONLY cited claim ids — `grep -n '^## C351' spec/CLAIMS.md` etc.;
+   - `spec/CLAIMS.md`: read ONLY cited claim ids — `grep -n '^## C352' spec/CLAIMS.md` etc.;
      the E2E-49/P4 block starts at `grep -n '^## C348'`; the E2E-48 family is C309..C332,
      E2E-49/P1 is C333..C336, E2E-49/P2 is C337..C341, E2E-49/P3 is C342..C347, E2E-49/P4 is
-     C348..C351. The ledger CURRENTLY ENDS at **C351** — no claim ids are owed. [C330] carries
+     C348..C351. The ledger CURRENTLY ENDS at **C352** (fc01-framing console-framing law,
+     commit `1e9fad6`) — no claim ids are owed; [C352] is the RUNTIME law cited by every
+     functional expectation containing blank lines. The E2E-49/P4 block starts at
+     `grep -n '^## C348'`. [C330] carries
      the labelled E2E-49/P1 CORRECTION append (positional length law); [C335]–[C338] carry
      labelled P3 CORRECTION appends and [C346] a labelled CITATION CORRECTION (the numeric
      ORDER law is [C104], never cite legacy [C027]/[C072] in provenance); [C335]/[C337]/
@@ -47,7 +50,22 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    `/home/john/pli/*` (Runes lab `/home/john/pli/lab`, `/home/john/pli/cpm`,
    `/home/john/pli/runes-full-runs`) is READ-ONLY for this project
    unless an operator brief authorizes otherwise.
-## Last verified state — FS-01 CLOSED (2026-11-02; first two functional PASSes, lane B; hostile suite 194/194; no scientific byte changed)
+## Last verified state — FC-01 hop 2, fc01-framing round CLOSED (2026-11-02; HEAD `1e9fad6`;
+ledger ENDS C352; Batch-A Lane-B executed: 8/8 ASSERT FAIL = spec expectation defects, NOT
+compiler gaps; no OCaml byte changed)
+
+- Hop 2 commits: `da029ec` pre-registration (probes FCPS1/2/3 + HYPOTHESES + BASELINE-MINE,
+  my objects linked/run under DR LINK-80+PLILIB, goldens `golden/fc01ps-my*`) committed
+  BEFORE any DR PLI.COM call; `1e9fad6` oracle round (DR accepted 3 ok/3, FCPS1 console
+  `X=         1\r\n\r\n` -> H1 ACCEPTED / H2 FALSIFIED kept as written; my .REL whole-file
+  BYTE-EXACT to DR on all three; claim [C352]; `spec/lab-evidence/fc01-framing/RESULTS.md`
+  § 1-3; coverage 133 rows 0/0 and prose 5 clean MEASURED on this tree). Batch-A first-run
+  FAIL records (8 FAIL, attr=undefined, ASSERT-only; LINK/RUN witnessed `done`) kept as
+  written in `build/fc01/batchA/records.json` + evidence dirs (ignored working state,
+  never laundered; README § 8/§ 9).
+- Superseded FS-01-era state below is KEPT AS WRITTEN (PROTOCOL #2).
+
+### Superseded: FS-01 CLOSED (2026-11-02; first two functional PASSes, lane B; hostile suite 194/194; no scientific byte changed)
 
 - FS-01 (operator-authorized bounded mission, baseline HEAD `876ed9e`) landing chain (explicit
   paths, no push): harness F1 fix + C15 pins `d8a0ec1`; TABLE-01 revision + derived expectation
@@ -74,36 +92,49 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## Next action — FC-01 ACTIVE (operator mission; baseline `4fd448a`)
+## Next action — FC-01 ACTIVE (operator mission; baseline `4fd448a`; HEAD `1e9fad6` after the fc01-framing round)
 
 FC-01: original representative functional corpus (15-25 programs), autonomous across renewals.
-Hop 1 done: 8 Batch-A programs + specs + reference derivations committed (sources hashed,
-SOURCE/DERIVATION/COMPILE pass; see `docs/functional-results.md` § 6 if present, else PROGRESS).
-NEXT: (1) run Lane B full chain: `python3 tools/functional_runner.py --lane B --tests MATH-00
-PROC-00 HIST-00 PTR-00 STRNG-00 DEC-00 FLT-00 TABLE-02 --evidence build/fc01/batchA`; record
-ACTUAL verdicts (never launder), commit a results section. (2) Batch B blocker probes as specs
-(BUILTIN-00 LENGTH/SUBSTR; STRCAT-00 `||`; COND-00 `|`; DEC-01 fractional literal; FLT-01
-computed compare; EDIT-00 PUT EDIT) — compile-FAIL is the deliverable; keep messages verbatim.
-(3) File family: extend tools/functional_runner.py minimally (lane-B stage_files, expected.
-file_expectations byte-checks; mirror oracle/linkrun.py STAGE_IN/EXPORT_OUT conventions:
-input named from FILE variable, output from TITLE first token no ext [C279]) + hostile-suite
-cases in tools/test_functional_runner.py; then FILE-00/01 + ONUNIT-00 (ON ENDFILE(<file>)).
-(4) Keep corpus overview + 4 metrics updated (docs + this prose). Constraints: no OCaml compiler
-changes; goldens/artefacts untouched; explicit-path commits; no push; renew at safe boundaries
-per handoff.config.json cap; `/home/john/pli/*` read-only.
+Hop 1: 8 Batch-A programs committed (`cae1a50`). Hop 2 (this chain, `da029ec` oracle
+pre-registration + `1e9fad6` oracle round): Lane-B chain EXECUTED — 8/8 FAIL at ASSERT ONLY,
+all framing artifacts (leading blank line 8/8: first executed put is `PUT SKIP LIST`; MATH-00
+also trailing blank: final bare `PUT SKIP;`). fc01-framing oracle round MEASURED the law:
+H1 accepted / H2 falsified, [C352]; my FCPS .REL byte-exact to DR on all three probes — the
+FAILs are SPEC expectation defects, NOT compiler/runtime gaps. Batch-A FAIL records and
+evidence stay on record (build/fc01/batchA; never laundered).
+NEXT: (1) harness schema extension — `""` entries in `expected.console` = exact blank line
+(tools/functional_runner.py validation ~line 385; README § 3/§ 4 representation note + § 6
+framing-law amendment citing [C352]/FCPS/E29PS1); hostile-suite case C16 (schema + ASSERT
+blank-line semantics, complete-stream law NOT weakened; suite prints its measured count).
+(2) Re-derive reference.py (7 programs prepend ""; MATH-00 also appends ""), update the 8 spec
+JSONs (programs UNCHANGED, source shas stand), rerun Lane B `--evidence build/fc01/batchA2`,
+record ACTUAL verdicts, commit + `docs/functional-results.md` § 6. (3) Batch B blocker probes
+as specs (BUILTIN-00 LENGTH/SUBSTR; STRCAT-00 `||`; COND-00 `|`; DEC-01 fractional literal;
+FLT-01 computed compare; EDIT-00 PUT EDIT) — compile-FAIL is the deliverable; keep messages
+verbatim. (4) File-I/O harness extension (stage_files/file_expectations mirroring
+oracle/linkrun.py STAGE_IN/EXPORT_OUT: input named from FILE variable, output from TITLE first
+token no ext [C279]) + FILE-00/01/ONUNIT-00 (ON ENDFILE(<file>)). (5) Keep corpus overview +
+4 metrics updated (docs + this prose). Constraints: no OCaml compiler changes; goldens/
+artefacts untouched (new fc01-framing goldens are ADDITIVE evidence); explicit-path commits;
+no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*` read-only.
 ## Unfinished operations
 
-- (none) — FS-01 delivered: F1 harness fix + C15 pins, TABLE-01 revision + derived expectation,
-  Lane-B PASS×2 with double-run, Lane-A unchanged, `docs/functional-results.md` § 5 record.
+- FC-01 hop 2 IN FLIGHT at this boundary: the `""` blank-line schema extension,
+  README § 3/§ 4/§ 6 amendment, reference.py + 8 spec JSONs re-derivation, hostile-suite C16
+  and the Lane-B rerun are NOT YET DONE (exact procedure: HANDOFF Next action 1–2 +
+  PROGRESS Next action). Nothing half-edited in Git; no emulator process running; the
+  fc01-framing oracle round is CLOSED and committed (`da029ec`, `1e9fad6`).
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
-  `%include`); FS-01 did not touch them.
-- At this boundary: no half-finished Git operation, no emulator process running, `ocaml/`
-  untouched (pre-existing build reused).
+  `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
 ## Discoveries not yet incorporated
 
-- (none in the ledger) — FS-01 findings are recorded in `docs/functional-results.md` § 5 and
-  `LEARNINGS.md` § 2026-11-02 FS-01. Ledger ENDS at C351; the F2 PLILIB wrap observation stays
-  `proposed` until an oracle round declares it (FS-01 deliberately did NOT characterize it).
+- fc01-framing findings FULLY recorded: [C352] in the ledger,
+  `spec/lab-evidence/fc01-framing/RESULTS.md` § 1–3, LEARNINGS 2026-11-02 FC-01 hop 2
+  (accepted law; falsified H2 kept as written). OPEN: the proposed `""` blank-line
+  representation in `expected.console` and README § 4/§ 6 amendment (in flight — see Next
+  action 1; NOT yet implemented); the GET-echo "two extra newlines" observation stays
+  PROPOSED/uncharacterized (no claim); FCPS1..3 SPECIMENS registration stays owed to a gate
+  hop; no RUNTIME.txt row came from this round.
 ## History and pointers
 
 - Superseded next-action sections, closed phase records and the full renewal-hop status
@@ -124,17 +155,17 @@ per handoff.config.json cap; `/home/john/pli/*` read-only.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 135
-checkpoint-id: g135-acc56411c7a2
+checkpoint-generation: 137
+checkpoint-id: g137-e4d12b5a01a4
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~6500, session 01a19b0a-724c-7388-bbdc-4f26e3937539)
-checkpointed: 2026-11-02T07:20:08.538Z
+status: checkpoint (guard level 3, remaining ~6850, session 01a19b22-0ad7-7388-bbdc-4f2b694f80cf)
+checkpointed: 2026-11-02T07:54:40.026Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 825580d1a9ddf38ad27fab0646959947a6e79a7940c6afde03839e86ff4bd528
-source-handoff: c41743fc2bf4e0c95cf1a50c8b0fb11b2b01c492aeaa132861397704a65af895
-source-learnings: 677fdf0d532d7f117a8e57f4d064b678784e0ce82c2ab34b5e022669873d0362
+source-progress: faac7d245c0363cc1d265358c463e23fbcc32e92143ec9d1ddaba8b63c81c3f8
+source-handoff: 505358553d9a03e98ee7dbd8da81f4b53357dc157f1aa026f8f25e6369ccc84d
+source-learnings: e0641f4f8e01b3146d12bfcb4a87f53a44529e9f4c4af5b276fa81bbbb5a9e21
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 

@@ -3,12 +3,18 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 ACTIVE (operator-authorized long-running corpus mission; baseline HEAD `4fd448a`)
+## Current phase — FC-01 ACTIVE (operator-authorized long-running corpus mission; baseline HEAD `4fd448a`; this hop: Batch-A Lane-B first run + fc01-framing oracle round, HEAD now `1e9fad6`)
 
-FC-01: build 15–25 original representative functional PL/I programs via the Lane-B harness.
-Batch A (8 programs: MATH-00 PROC-00 HIST-00 PTR-00 STRNG-00 DEC-00 FLT-00 TABLE-02) is
-written, hashed, specced, and passes SOURCE+DERIVATION+COMPILE; LINK/RUN/ASSERT NOT YET EXECUTED.
-Full state and next action: `HANDOFF.md` → Next action.
+FC-01 hop 2 done so far: Batch-A Lane-B full chain EXECUTED (8/8 FAIL at ASSERT only — every
+test LINKed and RUN to `done`; all content lines matched; artifacts are stream-framing blank
+lines). fc01-framing oracle round CLOSED with evidence: H1 accepted, H2 falsified, claim
+**C352** (exit chain prints exactly one final CRLF unconditionally; first-statement SKIP prints
+its leading CRLF; my FCPS .REL byte-exact to DR). Classification: all 8 FAILs are SPEC
+expectation defects (reference derivations omitted framing), NOT compiler/runtime gaps.
+IN FLIGHT: harness schema extension ("" blank-line entries in expected.console), README § 4/§ 6
+amendment, reference.py + 8 spec JSONs re-derivation, hostile-suite C16, then Lane-B rerun and
+`docs/functional-results.md` § 6. Batch A programs themselves are UNCHANGED (sources still
+valid).
 
 ## Previous phase — FS-01 CLOSED (2026-11-02; first two functional PASSes, Lane B; baseline HEAD `876ed9e`)
 
@@ -119,14 +125,22 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-FC-01 IS ACTIVE (operator mission, this session chain): run Lane B LINK/RUN/ASSERT for the
-eight Batch-A specs (`python3 tools/functional_runner.py --lane B --tests MATH-00 PROC-00
-HIST-00 PTR-00 STRNG-00 DEC-00 FLT-00 TABLE-02 --evidence build/fc01/batchA`), record actual
-verdicts in `docs/functional-results.md` § 6 + commit; then Batch B blocker probes (BUILTIN-00,
-STRCAT-00/PROBE-CAT facts, COND-00 `|`, DEC-01 fractional-literal, FLT-01 computed compare,
-EDIT-00), then the file-I/O family — which needs the smallest harness extension (lane-B
-`stage_files` + `file_expectations`, mirroring oracle/linkrun.py STAGE_IN/EXPORT_OUT measured
-conventions) plus hostile-suite cases. Prior FS-01/E2E-50/P2 close instructions are historical.
+FC-01 IS ACTIVE (operator mission, this session chain). Framing law is MEASURED ([C352]);
+continue exactly: (1) extend `tools/functional_runner.py` schema — `expected.console` entries
+become strings with `""` = an exact blank line (bare `!` still rejected); amend README § 3/§ 4
+(documented representation) and § 6 (framing law, cite [C352]/FCPS/E29PS1, evidence-backed
+addition, falsified text untouched); (2) add hostile-suite case C16 (schema accept ""; reject
+non-string; reject bare "!"; ASSERT: leading/trailing blank match, EXTRA/MISSING blank FAILs —
+complete-stream law NOT weakened); suite must print its own measured count; (3) re-derive
+reference.py math00/proc00/hist00/ptr00/strng00/dec00/flt00/tab02 to include the framing blank
+lines (7x leading ""; MATH-00 also trailing ""), update the 8 spec JSONs (source sha UNCHANGED
+— programs untouched), run `tools/test_functional_runner.py` then the Lane-B chain
+`python3 tools/functional_runner.py --lane B --tests MATH-00 PROC-00 HIST-00 PTR-00 STRNG-00
+DEC-00 FLT-00 TABLE-02 --evidence build/fc01/batchA2` recording ACTUAL verdicts (never
+launder; old FAIL records stay); (4) commit results + `docs/functional-results.md` § 6;
+(5) then Batch B blocker probes (BUILTIN-00, STRCAT-00/PROBE-CAT, COND-00, DEC-01, FLT-01,
+EDIT-00) and the file-I/O harness extension + FILE-00/01/ONUNIT-00 per the standing plan.
+Prior FS-01/E2E-50/P2 close instructions are historical.
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
 - E2E-48/P1 — 24/24 probes byte-identical + registered, claims C309–C316, gate 1098/0: `992ccad`.
@@ -244,17 +258,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 135
-checkpoint-id: g135-acc56411c7a2
+checkpoint-generation: 137
+checkpoint-id: g137-e4d12b5a01a4
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
 guard-level: 3
-checkpointed: 2026-11-02T07:20:08.538Z
+checkpointed: 2026-11-02T07:54:40.026Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 825580d1a9ddf38ad27fab0646959947a6e79a7940c6afde03839e86ff4bd528
-source-handoff: c41743fc2bf4e0c95cf1a50c8b0fb11b2b01c492aeaa132861397704a65af895
-source-learnings: 677fdf0d532d7f117a8e57f4d064b678784e0ce82c2ab34b5e022669873d0362
+source-progress: faac7d245c0363cc1d265358c463e23fbcc32e92143ec9d1ddaba8b63c81c3f8
+source-handoff: 505358553d9a03e98ee7dbd8da81f4b53357dc157f1aa026f8f25e6369ccc84d
+source-learnings: e0641f4f8e01b3146d12bfcb4a87f53a44529e9f4c4af5b276fa81bbbb5a9e21
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`

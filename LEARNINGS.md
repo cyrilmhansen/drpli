@@ -1917,3 +1917,33 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   file_expectations) mirroring oracle/linkrun.py STAGE_IN/EXPORT_OUT: input files are named
   from the FILE variable (INF.DAT), OUTPUT files from the TITLE first token, NO extension
   ([C279]). Console-GET echo may pollute the complete-stream capture — untested.
+
+## 2026-11-02 — FC-01 hop 2 (Batch-A Lane-B first run + fc01-framing oracle round)
+
+- ACCEPTED (measured, fc01-framing round, claim [C352], `spec/lab-evidence/fc01-framing/`):
+  console exit framing — the exit chain prints EXACTLY ONE final CRLF UNCONDITIONALLY: closes an
+  unterminated line (E32B1) AND fires an extra CRLF after a line a final bare `PUT SKIP;` just
+  terminated (FCPS1 DR console `X=         1\r\n\r\n`). Leading shape: a first executed
+  `PUT SKIP LIST` prints its own CRLF (FCPS3; bare spelling already E29PS1 [C192], both sides).
+- FALSIFIED (kept as written in HYPOTHESES.md, PROTOCOL #2): H2 "exit flush only when the line
+  is unterminated" — predicted FCPS1 single trailing `\r\n`; DR printed double (pre-registered
+  at `da029ec` BEFORE the first oracle call; oracle evidence landed `1e9fad6`).
+- ACCEPTED (byte tier): my `.REL` is DR's whole-file BYTE-EXACT for all three FCPS probes
+  (256/256, 256/256, 384/384 B) ⇒ identical `.COM`; per [C205] the DR console RUN is the witness
+  OF THE LAW, the byte comparison is the witness that MY COMPILER emits DR's object.
+- ACCEPTED: Batch-A Lane-B first run (build/fc01/batchA, 8 FAIL attr=undefined) is entirely an
+  EXPECTATION defect: 8/8 programs start with `PUT SKIP LIST` (missing leading "" entry),
+  MATH-00 additionally ends with bare `PUT SKIP;` (missing trailing ""). Content lines all
+  matched; no compiler/runtime gap; the FAILs stay on record — never laundered (§ 8/§ 9).
+- ACCEPTED (method): every pre-existing "ends \n\n" golden is CONTAMINATED as a framing witness
+  — GET input lines add TWO newlines (echo CR→CRLF + a terminator; mid-stream shape in
+  golden/e29dr_runB/REVERSE.output.txt) and golden/run1/A embeds the `D>` prompt itself. Console
+  framing laws need PURE-PUT probes.
+- PROPOSED (in flight, unimplemented at checkpoint): represent blank lines in
+  `expected.console` via "" entries — schema currently rejects them
+  (tools/functional_runner.py:385 `_is_str`); plan: strings-only + "" = exact blank line,
+  bare "!" rejected; README § 4 documented deviation (split_stream ignores ONE trailing
+  empty element) stands; reference.py + 8 spec JSONs re-derived from § 6 + [C352] (never
+  captured, L3); hostile-suite C16; then Lane-B rerun.
+- PROPOSED: FCPS1..FCPS3 are SPECIMENS registration candidates (byte-exact today) for a later
+  gate hop; no RUNTIME.txt row and no registration in this hop (PROTOCOL #4).
