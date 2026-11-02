@@ -2202,19 +2202,26 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   product C*(20A+S) with the ORIGINAL starts is 114000 in year 1 (>32767) and even the
   /P-first intermediate X/P ≥ 12000 for C=5 at P=95 — NO decomposition fits; the exact
   nested-floor identity holds ONLY in the order floor(floor(X/P)/100)=floor(X/(P*100))
-  (reverse order falsified by X=20700,P=230: 90 vs 90? no: X//100//230=0 ≠ 90 — and the
-  one-step exactness floor(X/P)/100 needs P ≥ 100, proved by 100r1 < 100P). Therefore the
+  (reverse order FALSE: X=20700, P=230 gives floor(X/P)/100 = 90 but floor(X/100)/230 = 0;
+  it is exact only when the lost tail r1·P + r2 < P·100, which holds for P ≥ 100 — the
+  same P ≥ 100 condition makes the ONE-step route floor(X/P)/100 = floor(X/(P·100)) exact,
+  proved by 100·r1 < 100·P). Therefore the
   port SCALES the opening pot (DECLARED adaptation): A=300 (H=900/Y=3), S≈2400, P=95, I=5;
   the script keeps 20A+S ≤ 6553 (so C*u ≤ 32767 for C≤5) by selling/feed-drawing every
-  year; year-1 d = 55 (feed 1100 → cap 55, d=100−55=45… simulator tunes), and ALL
+  year; year-1 starved d = 45 (p=100 after arrivals, feed 1100 → cap 55, d=100−55=45 ≤
+  floor(.45·100)=45 → survives by one bushel), and ALL
   intermediates are ASSERTED < 32767 in reference.py. The original P=95/S=2800/H=3000
   dynamics are NOT reproducible in bin15 cells — recorded, not hidden.
 - ACCEPTED (design, replaces the predecessor sketch): a NEGATIVE E is impossible after the
   first harvest (S post-harvest ≥ H ≥ 2·seed) so `d = s − e` never truncates-toward-zero
   differently from BASIC floor; the E=H−S print in the YEAR-1 report can go negative only
   if the script lets S > H at harvest — the tuned script keeps year-1 s post-harvest ≥ h.
-  RND sites become a declared formula draw: `gg=gg+1; w=gg*37+11; v=w−(w/k)*k` (k=10 price/
-  plague, k=5 yield/rats/births — mod-7 invariant ⇒ same value for k=5 and k=10 per gg);
+  RND sites become a declared formula draw: `gg=gg+1; w=gg*37+11; v=w−(w/k)*k` (k=10 for
+  the price and plague sites, k=5 for yield/rats/births). PROPOSED, NOT ADOPTED: the two
+  widths agree when w ≡ 0 or 1 (mod 10) — w=111 (v=1) and w=120 (v=0) were checked by hand,
+  w=48 was checked to DISAGREE (v10=8, v5=3); every site draws its OWN gg in source order
+  (5 gg's per year) so this coincidence is never relied on, and the reference mirrors the
+  per-site k the program actually uses;
   plague q = v−3 (range −3..6 EXACTLY the original's INT range; the 15% probability is NOT
   reproduced — declared RNG substitution). Parity 522: `t5=c/2; if t5*2=c then rats`.
   552: `t7=(p*45)/100; if d>t7 then impeach` (integers: d>floor(.45p) ⟺ d>.45p exactly).
