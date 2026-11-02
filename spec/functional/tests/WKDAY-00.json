@@ -1,0 +1,60 @@
+{
+  "spec": "pli80-functional/1",
+  "id": "WKDAY-00",
+  "family": "CORPUS",
+  "title": "adapted BASIC Weekday: post-1582 day-of-week, WAS/IS/WILL-BE tense, Friday-the-13th branch, 30-day-month age, SLEEP/EAT/PLAY/RELAX split, retirement year",
+  "provenance": {
+    "origin": "third-party",
+    "author": "DRPLi FC-01 corpus - adaptation of the BASIC Weekday listing (coding-horror/basic-computer-games 95_Weekday, public-domain-era source; license UNVERIFIED - recorded as unverified, not asserted)",
+    "date": "2026-11-02",
+    "note": "Adaptation, not an import: the algorithm is re-expressed in PL/I-80; no upstream bytes are copied into any tracked file. Research copy build/functional/fc01-sources/basic/WEEKDAY.bas, sha256 ccb9a9e5c44eb38ded6cc025686d7c172cb693e84cdc3e232e4cc557d546c909 (pinned by SHA256SUMS, rc=0 measured 2026-11-02); upstream URL in build/functional/fc01-sources/URLS.tsv line 2 (moving main branch; bytes pinned are the retrieved ones). Rights review per README section 5.1 remains an explicit FC-01 deliverable."
+  },
+  "source": {
+    "file": "WKDAY-00.PLI",
+    "sha256": "7c23640d15bd0b1c12990a8f0d9492d0910c9332c4aac926d8d6712e442aafc3",
+    "encoding": "CRLF, ^Z-terminated, <=71 columns"
+  },
+  "capabilities": [
+    "DECL.FIXED_BIN15",
+    "AGG.ARRAY_1D_FIXED",
+    "AGG.VAR_INDEX_LADDER",
+    "DECL.CHAR_VARYING",
+    "EXPR.REL_FIXED_EQ_K",
+    "EXPR.SELF_ADD_LADDER",
+    "EXPR.ADD_PRESERVE_ROUTE",
+    "IO.PUT_LIST_FIXED",
+    "IO.PUT_SKIP"
+  ],
+  "limits": {
+    "compile_timeout_s": 60,
+    "link_timeout_s": 120,
+    "run_timeout_s": 120,
+    "run_max_steps": 4000000
+  },
+  "console_input": "^Z",
+  "lanes": [
+    {
+      "lane": "B",
+      "substrate": "cpmsim:z80pack",
+      "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+      "link_targets": ["WKDAY00"]
+    }
+  ],
+  "expected": {
+    "derivation": "reference.py:wkday00",
+    "normalization": "collapse-spaces-v1",
+    "console": [
+      "",
+      "DATE 7/16/1969 WAS A WEDNESDAY.",
+      "",
+      "AGE 9 YEARS 8 MONTHS 8 DAYS",
+      "TOTAL DAYS 3537",
+      "YOU HAVE SLEPT 3 YEARS 4 MONTHS 22 DAYS",
+      "YOU HAVE EATEN 1 YEARS 7 MONTHS 26 DAYS",
+      "YOU HAVE PLAYED/STUDIED 2 YEARS 2 MONTHS 23 DAYS",
+      "YOU HAVE RELAXED 2 YEARS 4 MONTHS 27 DAYS",
+      "YOU MAY RETIRE IN 2034"
+    ]
+  },
+  "notes": "FC-01 OPERATOR OVERRIDE corpus, program 1 of 8 (Weekday, BASIC).\nADAPTATION / DOCUMENTED UNSUPPORTED-FEATURE CHANGES (the required removal list):\n(1) console INPUT (BASIC lines 140/250) REPLACED by the fixed declared dates TODAY\n3/24/1979 and TARGET 7/16/1969 - the v1 corpus is pure-PUT and console-GET echo\nframing is UNMEASURED (README section 7, emulator audit);\n(2) DEF FNA/FNB inlined as x/(y/4)*4 and x-(x/7)*7 routes - built-ins are refused\n(BUILTIN-00 measures the LENGTH refusal);\n(3) READ/DATA month table replaced by literal assignments t(1)=0..t(12)=5;\n(4) TAB() banner/retire positioning and zone-formatted headers/dash rules DROPPED\n(no counted PUT EDIT / column PUT - EDIT-00 measures the counted-SKIP refusal);\nlabels are carried inline on each data line instead;\n(5) GOTO/GOSUB structure re-expressed as IF/DO flag ladders (goto is supported;\nthe port is clearer without it);\n(6) the 30-day-month / 365-year calendar convention and ALL original arithmetic\nquirks (dead `if b = 0 then b = 6` branch, the K-borrow RELAXED residual printed\nas k5,k6,k7 rather than a recomputed decomposition of a8-summed leftovers) are\nKEPT as the original's DECLARED behaviour, not corrected;\n(7) SUBSTITUTION (recorded): the tense encoding (Y1*12+M1)*31+D1 vs (Y*12+M)*31+D\nreaches 736305 and OVERFLOWS the 2-byte FIXED BINARY(15) cell, so the program uses\nthe equivalent lexicographic sign test on (Y,M,D); equivalence holds for valid\ndates (|D1-D| < 31 and 31*|M1-M| + |D1-D| < 372) and the reference ASSERTS both\ntests agree for the fixed inputs;\n(8) INT(F*A8) with fractional F (.35/.17/.23 - fractional literals refused, see\nDEC-01) becomes the EXACT integer identity (a8/100)*f + (((a8-(a8/100)*100)*f)/100)\non f = 35/17/23, which keeps every product inside bin(15) (max 1295); the\nreference asserts floor(a8*f/100) equals it.\nAll division operands are NON-NEGATIVE (BASIC INT = floor = FIXED truncate there);\ndivisors are literals 100/4/7/365/30/2 on the measured n/k and x-(x/k)*k shapes.\nFraming [C352]: first output statement is put skip list -> leading \"\"; final\nstatement is a non-bare PUT SKIP LIST -> exit closes the line once, NO trailing \"\".\nThe 79-col wrap stays avoided: widest derived line is 54 raw content columns, the\nwidest possible rendered numeric line (PLAYED/STUDIED + three 10-col fields) is 73.\nThe pre-1582 refusal, HAPPY BIRTHDAY, IS/WILL BE and WORKED/PLAYED branches are\ncompile-only under the fixed inputs (derived stream follows the executed path).\nWeekday port independently cross-checked against Python datetime for 10 dates\nincluding both century-leap branches (1900-01-01 MONDAY, 2000-02-29 TUESDAY);\nderived, never captured (L3)."
+}

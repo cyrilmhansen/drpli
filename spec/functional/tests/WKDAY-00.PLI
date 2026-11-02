@@ -1,0 +1,221 @@
+/* WKDAY-00 - FC-01 corpus adaptation, 2026-11-02.         */
+/* Original: BASIC "Weekday", Creative Computing           */
+/* MORRISTOWN NJ.  Research copy: build/functional/        */
+/* fc01-sources/basic/WEEKDAY.bas (upstream                */
+/* coding-horror/basic-computer-games 95_Weekday,          */
+/* weekday.bas sha256 ccb9a9e5..., licence UNVERIFIED).    */
+/* Adaptation (recorded in WKDAY-00.json notes): console   */
+/* INPUT replaced by FIXED dates TODAY 3,24,1979 /         */
+/* TARGET 7/16/1969; DEF FNA/FNB inlined; READ/DATA        */
+/* literal-assigned; TAB()/banner PUTs dropped; GOTO/      */
+/* GOSUB re-expressed as IF/DO; the 30-day-month and       */
+/* 365-year convention KEPT as declared behaviour.  All    */
+/* division operands non-negative (BASIC INT = floor =     */
+/* FIXED truncate there).  The (Y*12+M)*31+D tense         */
+/* encoding overflows FIXED BINARY(15); replaced by the    */
+/* equivalent lexicographic sign test (RECORDED).          */
+/* Expected values: reference.py:wkday00, derived from an  */
+/* independent Python port cross-checked against           */
+/* datetime.                                               */
+wkday00: procedure options(main);
+  declare m1 fixed bin(15), d1 fixed bin(15), y1 fixed bin(15);
+  declare m fixed bin(15), d fixed bin(15), y fixed bin(15);
+  declare i1 fixed bin(15), i2 fixed bin(15), y2 fixed bin(15);
+  declare y3 fixed bin(15), a fixed bin(15), b fixed bin(15);
+  declare t1 fixed bin(15), q fixed bin(15), r fixed bin(15);
+  declare ok fixed bin(15), ga fixed bin(15), st fixed bin(15);
+  declare i5 fixed bin(15), i6 fixed bin(15), i7 fixed bin(15);
+  declare a8 fixed bin(15), k1 fixed bin(15), e fixed bin(15);
+  declare k5 fixed bin(15), k6 fixed bin(15), k7 fixed bin(15);
+  declare f fixed bin(15), lab fixed bin(15);
+  declare t(12) fixed bin(15);
+  declare ds character(11) varying;
+  m1 = 3;   d1 = 24;  y1 = 1979;   /* TODAY (INPUT replaced)  */
+  m = 7;    d = 16;   y = 1969;    /* TARGET (INPUT replaced) */
+  ds = '7/16/1969';
+  t(1) = 0;   t(2) = 3;   t(3) = 3;   t(4) = 6;
+  t(5) = 1;   t(6) = 4;   t(7) = 6;   t(8) = 2;
+  t(9) = 5;   t(10) = 0;  t(11) = 3;  t(12) = 5;
+  ok = 1;
+  if y < 1582 then ok = 0;         /* lines 1300/1310 guard   */
+  if ok = 1 then do;
+     i1 = (y - 1500) / 100;
+     a = i1 * 5;
+     q = (i1 + 3) / 4;
+     a = a + q;
+     i2 = a / 7;
+     i2 = a - i2 * 7;              /* FNB(A) mod route        */
+     y2 = y / 100;
+     y3 = y - y2 * 100;
+     a = y3 / 4;
+     a = a + y3 + d;
+     a = a + t(m);
+     a = a + i2;
+     b = a / 7;
+     b = a - b * 7;
+     b = b + 1;
+     q = 0;                        /* leap-adjust region      */
+     if m > 2 then q = 1;
+     if q = 0 then do;
+        if y3 = 0 then do;
+           r = i1 - 1;
+           t1 = r / 4;
+           t1 = r - t1 * 4;        /* FNA of century-1        */
+           if t1 = 0 then q = 2;
+        end;
+        if y3 > 0 then do;
+           t1 = y / 4;
+           t1 = y - t1 * 4;        /* FNA(Y), full year       */
+           if t1 = 0 then q = 2;
+        end;
+        if q = 2 then do;
+           if b = 0 then b = 6;    /* unreachable as upstream */
+           b = b - 1;
+        end;
+     end;
+     if b = 0 then b = 7;
+     st = 1;                       /* 1 WAS, 2 IS, 3 WILL BE  */
+     if y1 < y then st = 3;
+     if y1 = y then do;
+        if m1 < m then st = 3;
+        if m1 = m then do;
+           if d1 < d then st = 3;
+           if d1 = d then st = 2;
+        end;
+     end;
+     i5 = y1 - y;
+     i6 = m1 - m;
+     i7 = d1 - d;
+     if i7 < 0 then do;
+        i6 = i6 - 1;
+        i7 = i7 + 30;
+     end;
+     if i6 < 0 then do;
+        i5 = i5 - 1;
+        i6 = i6 + 12;
+     end;
+     ga = 1;
+     if i5 < 0 then ga = 0;        /* line 820 exit           */
+     a8 = i5 * 365;
+     a8 = a8 + i6 * 30;
+     t1 = i6 / 2;
+     a8 = a8 + i7 + t1;
+     put skip list('DATE', ds);
+     if st = 1 then put list(' WAS A ');
+     if st = 2 then put list(' IS A ');
+     if st = 3 then put list(' WILL BE A ');
+     if b = 1 then put list('SUNDAY.');
+     if b = 2 then put list('MONDAY.');
+     if b = 3 then put list('TUESDAY.');
+     if b = 4 then put list('WEDNESDAY.');
+     if b = 5 then put list('THURSDAY.');
+     if b = 6 then do;
+        if d = 13 then put list('FRIDAY THE THIRTEENTH - BEWARE!');
+        else put list('FRIDAY.');
+     end;
+     if b = 7 then put list('SATURDAY.');
+     if ga = 1 then do;
+        put skip;
+        if i7 = 0 then do;
+           if i6 = 0 then put skip list('***HAPPY BIRTHDAY***');
+        end;
+        put skip list('AGE', i5, 'YEARS', i6, 'MONTHS', i7, 'DAYS');
+        put skip list('TOTAL DAYS', a8);
+        k5 = i5;
+        k6 = i6;
+        k7 = i7;
+        f = 35;
+        q = a8 / 100;
+        r = a8 - q * 100;
+        k1 = r * f;
+        k1 = k1 / 100;
+        k1 = k1 + q * f;           /* INT(F*A8), bin15-safe   */
+        i5 = k1 / 365;
+        k1 = k1 - i5 * 365;
+        i6 = k1 / 30;
+        i7 = k1 - i6 * 30;
+        k5 = k5 - i5;
+        k6 = k6 - i6;
+        k7 = k7 - i7;
+        if k7 < 0 then do;
+           k7 = k7 + 30;
+           k6 = k6 - 1;
+        end;
+        if k6 < 1 then do;
+           k6 = k6 + 12;
+           k5 = k5 - 1;
+        end;
+        put skip list('YOU HAVE SLEPT', i5, 'YEARS');
+        put list(i6, 'MONTHS');
+        put list(i7, 'DAYS');
+        f = 17;
+        q = a8 / 100;
+        r = a8 - q * 100;
+        k1 = r * f;
+        k1 = k1 / 100;
+        k1 = k1 + q * f;
+        i5 = k1 / 365;
+        k1 = k1 - i5 * 365;
+        i6 = k1 / 30;
+        i7 = k1 - i6 * 30;
+        k5 = k5 - i5;
+        k6 = k6 - i6;
+        k7 = k7 - i7;
+        if k7 < 0 then do;
+           k7 = k7 + 30;
+           k6 = k6 - 1;
+        end;
+        if k6 < 1 then do;
+           k6 = k6 + 12;
+           k5 = k5 - 1;
+        end;
+        put skip list('YOU HAVE EATEN', i5, 'YEARS');
+        put list(i6, 'MONTHS');
+        put list(i7, 'DAYS');
+        f = 23;
+        lab = 1;
+        if k5 > 3 then lab = 2;    /* label BEFORE subtraction */
+        if k5 > 9 then lab = 3;
+        q = a8 / 100;
+        r = a8 - q * 100;
+        k1 = r * f;
+        k1 = k1 / 100;
+        k1 = k1 + q * f;
+        i5 = k1 / 365;
+        k1 = k1 - i5 * 365;
+        i6 = k1 / 30;
+        i7 = k1 - i6 * 30;
+        k5 = k5 - i5;
+        k6 = k6 - i6;
+        k7 = k7 - i7;
+        if k7 < 0 then do;
+           k7 = k7 + 30;
+           k6 = k6 - 1;
+        end;
+        if k6 < 1 then do;
+           k6 = k6 + 12;
+           k5 = k5 - 1;
+        end;
+        if lab = 1 then put skip list('YOU HAVE PLAYED');
+        if lab = 2 then put skip list('YOU HAVE PLAYED/STUDIED');
+        if lab = 3 then put skip list('YOU HAVE WORKED/PLAYED');
+        put list(i5, 'YEARS');
+        put list(i6, 'MONTHS');
+        put list(i7, 'DAYS');
+        if k6 = 12 then do;
+           k5 = k5 + 1;
+           k6 = 0;
+        end;
+        put skip list('YOU HAVE RELAXED');
+        put list(k5, 'YEARS');
+        put list(k6, 'MONTHS');
+        put list(k7, 'DAYS');
+        e = y + 65;
+        put skip list('YOU MAY RETIRE IN', e);
+     end;
+  end;
+  if ok = 0 then put skip list('NOT PREPARED TO GIVE');
+  if ok = 0 then put list('DAY OF WEEK PRIOR TO MDLXXXII.');
+  stop;
+end wkday00;
+

@@ -251,12 +251,157 @@ def fx01():
     return ["FX-01 BEFORE-TYPED-ERROR"]
 
 
+# ------------------------------------------------- FC-01 corpus: adapted historical programs
+# FC-01 OPERATOR OVERRIDE hop (2026-11-02): WKDAY-00 is an ADAPTATION of the BASIC
+# "Weekday" program (Creative Computing; research copy
+# build/functional/fc01-sources/basic/WEEKDAY.bas, upstream sha256 ccb9a9e5...,
+# licence UNVERIFIED -- recorded, not asserted).  Law L3: the expected stream below is
+# derived from an independent Python port of the ORIGINAL algorithm, never captured
+# from any run.  The port is validated against Python datetime (stdlib, independent
+# of this program) for 10 dates including both century-leap branches.
+
+WKDAY_T = [0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5]   # DATA 0,3,3,6,1,4,6,2,5,0,3,5
+WKDAY_NAMES = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY",
+               "THURSDAY", "FRIDAY", "SATURDAY"]
+WKDAY_TODAY = (3, 24, 1979)    # fixed TODAY  (console INPUT replaced)
+WKDAY_TARGET = (7, 16, 1969)   # fixed TARGET (console INPUT replaced)
+
+
+def _wkday_b(m, d, y):
+    """Day index b (1=SUNDAY..7=SATURDAY) by the ORIGINAL BASIC algorithm, integer
+    form.  BASIC INT() is floor; every division operand here is non-negative, so
+    floor == the PL/I FIXED truncate the program relies on (declared contract)."""
+    def fint(x, n):
+        assert x >= 0
+        return x // n
+    i1 = fint(y - 1500, 100)
+    a = i1 * 5 + fint(i1 + 3, 4)        # BASIC float .75 tail is mod-invariant (>=0)
+    i2 = a - fint(a, 7) * 7
+    y2 = fint(y, 100)
+    y3 = y - y2 * 100
+    a = fint(y3, 4) + y3 + d + WKDAY_T[m - 1] + i2
+    b = a - fint(a, 7) * 7 + 1
+    if m <= 2:
+        if y3 == 0:
+            aa = i1 - 1
+            leap = (aa - fint(aa, 4) * 4) == 0
+        else:
+            leap = (y - fint(y, 4) * 4) == 0
+        if leap:
+            if b == 0:
+                b = 6                   # dead upstream too (b >= 1): kept as declared
+            b = b - 1
+    if b == 0:
+        b = 7
+    return b
+
+
+def _wkday_split(k1):
+    """Original subroutine 1370: I5 = INT(K1/365), I6 = INT(K1/30) of the remainder,
+    I7 the residual days."""
+    i5 = k1 // 365
+    k1 -= i5 * 365
+    i6 = k1 // 30
+    i7 = k1 - i6 * 30
+    return i5, i6, i7
+
+
+def _wkday_block(a8, f100, k5, k6, k7):
+    """One INT(F*A8) block with F = f100/100, in pure integer arithmetic.  The exact
+    identity floor(a8*f/100) = q*f + floor(r*f/100) (q = a8//100, r = a8-q*100) keeps
+    every product inside FIXED BINARY(15); both sides are computed and asserted."""
+    k1 = (a8 // 100) * f100 + (((a8 - (a8 // 100) * 100) * f100) // 100)
+    assert k1 == (a8 * f100) // 100     # identity holds for a8 >= 0
+    out = _wkday_split(k1)
+    k5 -= out[0]
+    k6 -= out[1]
+    k7 -= out[2]
+    if k7 < 0:                          # lines 1450-1470 (K7 >= 0 test inverted)
+        k7 += 30
+        k6 -= 1
+    if k6 <= 0:                         # line 1480 IF K6>0 THEN 1510, inverted
+        k6 += 12
+        k5 -= 1
+    return out, (k5, k6, k7)
+
+
+def wkday00():
+    """WKDAY-00: the complete normalized console stream (collapse-spaces-v1) of the
+    adapted Weekday program for the fixed pair TODAY 3/24/1979, TARGET 7/16/1969.
+
+    Framing [C352]: first output statement is `put skip list('DATE', ds)` -> leading
+    ""; the final statement is a PUT SKIP LIST whose content ends unterminated and is
+    closed by exactly one exit CRLF -> NO trailing "" entry.  Format law README
+    section 6: literals at natural width, fixed numerics right-justified in a field,
+    one space between items after normalization."""
+    import datetime
+    m1, d1, y1 = WKDAY_TODAY
+    m, d, y = WKDAY_TARGET
+    b = _wkday_b(m, d, y)
+    name = WKDAY_NAMES[b - 1]
+    # independent cross-check of the port against Python's own calendar
+    assert name == datetime.date(y, m, d).strftime("%A").upper()
+    for cm, cd, cy in [(3, 24, 1979), (1, 1, 1970), (2, 29, 1980), (12, 31, 1999),
+                       (1, 1, 1900), (2, 29, 2000), (12, 25, 2023), (1, 1, 1583),
+                       (3, 1, 1700)]:
+        assert WKDAY_NAMES[_wkday_b(cm, cd, cy) - 1] == \
+            datetime.date(cy, cm, cd).strftime("%A").upper()
+    # tense: the original arithmetic encoding vs the bin15-safe lexicographic sign
+    # test the PL/I program uses -- proven equivalent for valid dates (|D1-D| < 31,
+    # 31*|M1-M| + |D1-D| < 372) and asserted here for the fixed inputs
+    st = 1
+    if y1 < y:
+        st = 3
+    if y1 == y:
+        if m1 < m:
+            st = 3
+        if m1 == m:
+            if d1 < d:
+                st = 3
+            if d1 == d:
+                st = 2
+    u = (y1 * 12 + m1) * 31 + d1
+    v = (y * 12 + m) * 31 + d
+    assert (u > v) == (st == 1) and (u == v) == (st == 2) and (u < v) == (st == 3)
+    tense = {1: "WAS", 2: "IS", 3: "WILL BE"}[st]
+    # age with 30-day-month borrows (the ORIGINAL convention, kept as declared)
+    i5, i6, i7 = y1 - y, m1 - m, d1 - d
+    if i7 < 0:
+        i6 -= 1
+        i7 += 30
+    if i6 < 0:
+        i5 -= 1
+        i6 += 12
+    assert i5 >= 0                      # ga = 1 path is the only one reached
+    a8 = i5 * 365 + i6 * 30 + i7 + i6 // 2
+    sleep, (k5, k6, k7) = _wkday_block(a8, 35, i5, i6, i7)
+    eat, (k5, k6, k7) = _wkday_block(a8, 17, k5, k6, k7)
+    lab = 1 if k5 <= 3 else (2 if k5 <= 9 else 3)
+    play, (k5, k6, k7) = _wkday_block(a8, 23, k5, k6, k7)
+    if k6 == 12:                        # lines 1530-1560
+        k5 += 1
+        k6 = 0
+    return ["",
+            "DATE %d/%d/%d %s A %s." % (m, d, y, tense, name),
+            "",
+            "AGE %d YEARS %d MONTHS %d DAYS" % (i5, i6, i7),
+            "TOTAL DAYS %d" % a8,
+            "YOU HAVE SLEPT %d YEARS %d MONTHS %d DAYS" % sleep,
+            "YOU HAVE EATEN %d YEARS %d MONTHS %d DAYS" % eat,
+            ["YOU HAVE PLAYED", "YOU HAVE PLAYED/STUDIED",
+             "YOU HAVE WORKED/PLAYED"][lab - 1]
+            + " %d YEARS %d MONTHS %d DAYS" % play,
+            "YOU HAVE RELAXED %d YEARS %d MONTHS %d DAYS" % (k5, k6, k7),
+            "YOU MAY RETIRE IN %d" % (y + 65)]
+
+
 DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
                "flt00": flt00, "tab02": tab02,
                "builtin00": builtin00, "strcat00": strcat00, "cond00": cond00,
                "dec01": dec01, "flt01": flt01, "edit00": edit00,
+               "wkday00": wkday00,
                "fx00": fx00, "fx01": fx01}
 
 
@@ -271,3 +416,5 @@ if __name__ == "__main__":
     for _n in sorted(DERIVATIONS):
         for _l in DERIVATIONS[_n]():
             print("%s: %s" % (_n, _l))
+
+
