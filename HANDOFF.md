@@ -211,7 +211,17 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   no COVERAGE/CLAIMS change). HONESTY MEASUREMENT: the prose "148 checks" was FALSIFIED — the HEAD
   artifact printed 171; the suite now self-counts, so documents must quote the artifact.]
 - 8. Verification + short report (measured / failed / unmeasured), bounded P3 proposal, CLOSE
-  (byte-verified archive per convention), `handoff_finalize`, STOP. [pending]
+  (byte-verified archive per convention), `handoff_finalize`, STOP. [**PART 1 LANDED** hop 7
+  `d648bcd`: `spec/lab-evidence/e2e50-p2/REPORT.md` — delivered table, MEASURED / FALSIFIED /
+  UNMEASURED sections, boundary compliance, and the bounded P3 proposal (P3-a anchor fix, P3-b
+  declare F2 from the oracle side, P3-c free-core BDOS 25 + license decision, P3-d TABLE-02 — all
+  PROPOSALS, no execution). **FULL COMPILE-TIER GATE rc=0 measured by this session at HEAD
+  `545dcf1`, ACTUALS AS PRINTED:** byte panel **1174 byte-exact / 0 fail of 1174** (independent
+  cross-check `grep -c BYTE-EXACT` = 1174), negative **181/181** with the E46K14 `[dr-refuses]`
+  pinned marker UNMOVED, divergence **9/9**, coverage **133 rows 0 errors 0 warnings**, census
+  **EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0** (UNCHANGED), prose **5 active files clean**.
+  **REMAINING (close only):** the byte-verified archive + CLOSED rewrite + `handoff_finalize` —
+  see Unfinished operations.]
 
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
@@ -219,7 +229,7 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 ## Unfinished operations
 
-- E2E-50/P2 step 8 ONLY remains (steps 0–7 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec
+- E2E-50/P2 step 8 CLOSE ONLY remains (steps 0–7 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec
   format, law, TABLE corpus and reference in the hop-2 commit `a6163ef`; **harness step-5 part 1
   LANDED hop 3 at `8523eda`**). **Step 5 PART 2 LANDED hop 4 (`d40aafb`,`149c6e2`): 13 required cases, 148 checks, rc=0, NO compiler/LINK-80/cpmsim/emulator process; harness defects `_rname` and `assert_stream` first_diff=None found by the suite and fixed. **Step 6
   EXECUTED hop 6** (runs bounded and lane-labelled; Lane A via the audited emulator, Lane B via
@@ -242,7 +252,29 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
   report (measured / failed / unmeasured), the BOUNDED P3 proposal (F1 anchor fix, F2 declared
   from the oracle side, BDOS-25 free-core question, TABLE-02 — all proposals, no execution),
   the byte-verified close archive of the superseded prose under `docs/history/`, then
-  `handoff_finalize` and STOP. No push; no automatic P3. (hostile suite over the landed harness, `check()`-style like
+  `handoff_finalize` and STOP. No push; no automatic P3.
+  **STEP-8 CLOSE PROCEDURE for the successor (exact, bounded; no compiler/oracle/gate/emulator
+  run is needed — the gate ACTUALS are already recorded at `d648bcd`):**
+  (1) `git rev-parse HEAD` must be `d648bcd` (or a descendant) and the tree clean apart from the
+  operator's `handoff.config.json` edit and the guard's managed blocks; `/handoff verify` the
+  checkpoint (refresh + re-attest if stale).
+  (2) Archive the superseded prose VERBATIM into `docs/history/2026-11-02-e50p2-closed.md`: the
+  HANDOFF `## Next action` mission brief + durable sequence and `## Unfinished operations` as they
+  stand at `d648bcd` (and any earlier generation you find superseded mid-round: the hop-5 and
+  arms-era instructions quoted in PROGRESS), the PROGRESS `## Current phase` hop stack and its
+  `## Next action` prose; add an index row to `docs/history/README.md`.
+  (3) BYTE-VERIFY every archived block: re-extract each stated region with
+  `git show <rev>:<file>` and `cmp` it against the written block — report n/n BYTE-EXACT from the
+  measurement, never from intent (the e49p4 precedent measured "two planned" as four actual
+  generations).
+  (4) Rewrite HANDOFF Next action / PROGRESS Current phase to **E2E-50/P2 CLOSED** with the last
+  verified state (gate ACTUALS above, ledger ENDS at C351 unchanged, byte panel 1174, coverage
+  133, suite 182 checks self-counted) and the next action = NO active round: a successor without
+  an operator instruction confirms HEAD/tree, `/handoff verify`, records state, STOPS; the P3
+  candidate list is `spec/lab-evidence/e2e50-p2/REPORT.md` §5 (a shortlist, never an
+  authorisation).
+  (5) LEARNINGS close note (accepted: gate rc=0 ACTUALS at `545dcf1`; the round's falsifications
+  already recorded hops 6–7), then `handoff_finalize` and STOP. No push. (hostile suite over the landed harness, `check()`-style like
   `tools/test_functional_dashboard.py`, NO compiler/LINK-80/cpmsim/emulator process — every
   external layer is injectable via `Host(subprocess_run=, sim_session=, link_deps=,
   workspace_factory=, run_factory=)`):

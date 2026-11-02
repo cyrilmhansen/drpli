@@ -1830,3 +1830,18 @@ expectation may only change by LAW, never by capture (L3); free-core BDOS 25 sup
 host PLILIB programs (subject to the operator package/license decision); TABLE-02 stays withheld
 until a program VERIFIES by execution; `--stages` help wording + DERIVATION/ASSERT ceiling
 symmetry (hop-4 proposal) remain open.
+
+## 2026-11-02 — E2E-50/P2 renewal hop 7, step 8 part 1 (gate verification + round report)
+
+**ACCEPTED (measured by this session):** the FULL compile-tier gate ran rc=0 at HEAD `545dcf1`
+(recorded `d648bcd`): byte panel **1174 byte-exact / 0 fail of 1174** (cross-checked by counting
+`BYTE-EXACT` lines in the captured stdout = 1174), negative **181/181** with the pinned E46K14
+`[dr-refuses]` marker UNMOVED, divergence **9/9**, coverage **133 rows 0/0**, census
+**EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0** (unchanged — the round touched no scientific
+byte), prose **5 active files clean**. Round report `spec/lab-evidence/e2e50-p2/REPORT.md`.
+**Technique learned (accepted):** capture the gate's stdout to a file (`build/gate-step8.out`) and
+re-derive the headline numbers from the artifact (`grep -c`) rather than trusting the summary line
+alone — PROTOCOL #10 applied to a gate run.
+**OPEN (not a discovery, a limit):** the CLOSE (byte-verified archive + CLOSED rewrite + finalize)
+was NOT performed at this hop; the exact procedure is recorded in `HANDOFF.md` → Unfinished
+operations so the successor needs no compiler/oracle/gate run at all.

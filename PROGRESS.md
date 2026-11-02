@@ -115,7 +115,14 @@ bounded TABLE-01 COMPILE+LINK probes and one Lane A FX-00 run — never the orac
 runtime tier or Rune CI; no COVERAGE/CLAIMS/RUNTIME/INVENTORY/census byte.
 **FIRST ACTION for the successor: step 8** — `python3 tools/e2e_gate.py` (compile tier; record
 ACTUALS AS PRINTED), the short round report (measured/failed/unmeasured), the BOUNDED P3 proposal
-(no execution), the byte-verified close archive under `docs/history/`, `handoff_finalize`, STOP.
+(no execution), the byte-verified close archive under `docs/history/`, `handoff_finalize`, STOP. **PART 1 LANDED (this session):** the gate ran rc=0 at HEAD `545dcf1` with ACTUALS AS PRINTED
+(byte panel **1174/0** of 1174, independently cross-checked by `grep -c BYTE-EXACT`; negative
+**181/181** with E46K14 `[dr-refuses]` UNMOVED; divergence **9/9**; coverage **133/0/0**; census
+**15/0/26/0** UNCHANGED; prose **5 active clean**) and `spec/lab-evidence/e2e50-p2/REPORT.md`
+landed at `d648bcd` with the bounded P3 proposal (P3-a–P3-d, PROPOSALS ONLY). **REMAINING: the
+CLOSE only** — follow `HANDOFF.md` → Unfinished operations step-8 CLOSE procedure (archive
+verbatim, byte-verify by `cmp` against the stated revs, rewrite to CLOSED, index row, LEARNINGS
+close note, `handoff_finalize`, STOP). No compiler/oracle/gate/emulator run is needed to close.
 
 **Step-3 groundwork probed (same hop, later):** console PUT-LIST byte law measured from stored
 goldens (10-wide right-justified numeric field, blank item separator, statements share one line
