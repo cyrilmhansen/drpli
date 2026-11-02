@@ -3,7 +3,27 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; baseline HEAD `e7d758c`; WKDAY-00 PASS at rev3; gate + commit owed at this boundary; program 2 = HAMM-00)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 landed `610a8df` (COMPILE FAIL recorded, `my-gap`); HANG-00 design LANDED this boundary; program 3 implementation owed at renewal 12/12 = chain cap)
+
+HANG-00 DESIGN HOP LANDED (2026-11-03, renewal 11/12; read `LEARNINGS.md` § "2026-11-03 —
+FC-01 CORPUS HANG-00 design hop" FIRST — it carries the complete port contract, fixed 23-value
+script, capabilities, removals, five unwitnessed shapes and steps 1-10). EXACT NEXT (successor,
+renewal 12/12 = CONFIGURED CAP): implementation hop per those steps — simulator
+`build/fc01-scratch/hang00_sim.py` (HAMM byte model, echo law) -> LF draft -> CRLF/^Z/<=71/no
+apostrophes `spec/functional/tests/HANG-00.PLI` -> `reference.py:hang00` + DERIVATIONS -> diff
+vs simulator BEFORE JSON -> `HANG-00.json` (link_target HANG00, sha pin, console_input 23 CR
+values + bare `^Z`, notes = removals + unwitnessed list) -> `--stages source,derivation` ->
+lane B `--evidence build/fc01/corp5 --json-out build/fc01/corp5/records.json` ACTUALS verbatim
+-> docs § 10 + § 1 -> `python3 tools/e2e_gate.py` compile tier ACTUALS -> explicit-path commit
+(never handoff.config.json; no push). THEN CLOSE THE CHAIN with handoff_finalize — no renewal
+past 12/12 without an operator reset; programs 4-8 (AMAZ-00, TICT-00, LIFE-00, DHRY-00, FFT-00)
+stay queued; HAMM-00 rev2 subtraction-loop stays PROPOSED. Constraints unchanged (no ocaml/
+harness changes; ledger ends C352; functional runs are NOT DR claims; FAIL stays classified;
+third-party bytes never tracked; operator `handoff.config.json` stays unstaged).
+
+(HAMM-00 rev1 landed: see the archived paragraph below, superseded only in its NEXT line.)
+
+### Superseded phase body (hop-4 era, kept as written per PROTOCOL #2)
 
 FC-01 hop 4 done so far: Batch-B REV2 landed `a5815a8` — FLT-01 rev2 (direct `(a + b) = 6.5`
 compare) and BUILTIN-00 rev2 (LENGTH first, SUBSTR store dropped) both executed to their
@@ -562,17 +582,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 172
-checkpoint-id: g172-af58f543582f
+checkpoint-generation: 173
+checkpoint-id: g173-1d75595a1954
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-02T15:33:31.483Z
+guard-level: 0
+checkpointed: 2026-11-02T15:44:56.547Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0f31b6339723012c3e9cc8ac5d4ac24cd19b4de36078fba93e8d3c166f275e3c
-source-handoff: 60169896ffda581509fef06cfd54044c435d6cf847881967c849657c37f34b71
-source-learnings: ec5097be8702ee719f68d5b60d0ee306b4ba30919611c6f07930ecae0e21b4a2
+source-progress: 0c86f6e406d19e9eae70c29e147ee5d17152959deba41c17ab8c3912a88e9b9c
+source-handoff: 2fd7ec6b632943fe1e21fea5226e67ba1fe3e1dfbf1d360e511953f0c0ae91dd
+source-learnings: c97e5bf4a4ef579817dfc4a3245e6331f9c754e63f5ddb5663d1354dcb9397e4
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -596,9 +616,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19c7e-08a3-7761-bfc4-e282a3bbf68b
-readiness-at: 2026-11-02T15:33:31.486Z
-readiness-checkpoint: g172-af58f543582f
+readiness-by: session:01a19ce5-2a5d-7761-bfc4-e2869ccffee5
+readiness-at: 2026-11-02T15:44:56.551Z
+readiness-checkpoint: g173-1d75595a1954
 <!-- guard:end checkpoint -->
 
 ## Blockers

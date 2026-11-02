@@ -2770,3 +2770,109 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   corpus procedure. Build rc=0, compiler edce9e0e..., HEAD at hop-7 start 5772b8a.
 - STATUS: nothing promoted to any ledger (ends C352; functional runs are NOT DR claims);
   no ocaml/harness byte touched; third-party bytes untracked; renewal chain 10/12.
+
+## 2026-11-03 — FC-01 CORPUS HANG-00 design hop (feature analysis; full port contract; fixed script)
+
+- RIGHTS/UPSTREAM: `build/functional/fc01-sources/basic/HANGMAN.bas` sha256
+  `86595fe2340b987330dadbdc1daf3207f775cd4a4e4f74d68e05eebc307cae3e` (SHA256SUMS pinned, rc=0
+  measured 2026-11-02); URLS.tsv line 4 (`coding-horror/basic-computer-games` 44_Hangman, moving
+  main branch); licence UNVERIFIED, recorded as such (README § 5.1 rights review is an explicit
+  FC-01 deliverable). Upstream bytes stay untracked; the port is an adaptation.
+- ORIGINAL FLOW (read from the listing this hop): 50 DATA words; random `Q=INT(N*RND)+1` with
+  used-word redraw `U(Q)=1` (100-115); exhaustion guard `IF C<N` prints `YOU DID ALL THE
+  WORDS!!` + STOP (95-97); 12x12 char drawing grid, gallows pole column `(I,1)="X"` I=1..12,
+  top row `(1,1..7)="X"`, rope `(2,7)="X"` (70-90); per-turn display = `HERE ARE THE LETTERS
+  YOU USED:` + comma-joined used letters (NO trailing comma, no spaces) + dash/letter row +
+  blanks (170-200); `INPUT` letter guess (210); used-scan -> `YOU GUESSED THAT LETTER
+  BEFORE!` -> GOTO 170, else slot fills T1+1 (220-250); hit letters fill D$ (260-280); miss ->
+  M+1 -> two blanks + sorry + `ON M GOTO` 10-text ladder + `ON M GOTO` 10-draw ladder + full
+  grid print + `IF M<>10 THEN 170` else lose (290-410-470-580-600); all letters found ->
+  `YOU FOUND THE WORD!` -> continuation INPUT (300-310-390-370); hit-but-incomplete -> board
+  reprint + word-guess INPUT interlude, WRONG -> back to 170, RIGHT -> `RIGHT!! IT TOOK YOU
+  T1 GUESSES!` (320-360); continuation NO -> two blanks + `IT'S BEEN FUN!  BYE FOR NOW.` ->
+  999 END (380); 610 prints a half-line then GOTO 370 (quirk); 620 `TYPE YES OR NO` is DEAD
+  (nothing jumps to it: 380 goes to 999) and 990 `BYE NOW` is reachable only through that dead
+  620 — both dropped as dead code, declared.
+- PORT CONTRACT (every change DECLARED, never silent):
+  (1) WORDS -> 3 (declared reduction): GUM = 71,85,77; FLY = 70,76,89; SLEEPER =
+      83,76,69,69,80,69,82 (codes stored in `w(21) fixed bin(15)`, lengths `wl(3) = 3,3,7`,
+      `N = 3`); READ/DATA -> literal assignments (WKDAY precedent); `RND` + redraw ->
+      SEQUENTIAL rounds q = 1..N (declared; no RNG, no U(Q) array).
+  (2) ALL letters are INTEGER ASCII codes at runtime: guess board `d(20)` (hidden = 45), used
+      codes `u(26)` with count `nu`. NO character arrays and NO array-element char compares
+      (pinned-avoided per STRNG-00 notes); every array member is loaded into a scalar before
+      comparison and before arithmetic (HIST-00 measured pattern).
+  (3) LETTER PRINTING via nested helper `show: procedure(c)` (PROC.CALL_COPYIN measured;
+      AGG.ELEM_AS_ACTUAL `call p(a(i))` measured): 34 branches `if c = n then ch = 'X';` over
+      `ch char(1) varying` — A-Z (65..90) plus 32 space, 44 comma, 45 dash, 46 dot, 40 `('`,
+      41 `)'`, 47 `/`, 92 `\` — then ONE bare `put list(ch);`. Literal->char-varying store,
+      natural-width varying PUT and char-vs-literal/varying compares are lane-B RUN-measured
+      (STRNG-00 PASS; WKDAY-00 rev3 PASS `ds = '7/16/1969'`). UNWITNESSED first use: several
+      consecutive no-SKIP PUT LISTs continuing ONE output line (PUT->GET mid-line continuation
+      is oracle-transcript-measured; PUT->PUT is not).
+  (4) INPUT: guesses = numeric ASCII code via FIXED `get` (COVERAGE IO.GET_LIST: only FIXED,
+      DEC and FLOAT console-target routes are described — CHARACTER GET is UNMEASURED, avoided);
+      continuation = numeric 1 (another word) / 0 (bye). This is also the FIRST corpus program
+      intended to REACH RUN with a GET (HAMM-00 stopped at COMPILE) — the measured echo law
+      (implementation hop start: consumed line echoes `L\r` then CRLF; consumed `^Z` echoes as
+      literal `^Z` + `\r\r\n`; UNCONSUMED `^Z` never captured) applies to the expected stream.
+  (5) DROPPED/REPLACED (declared): word-guess interlude 320/330-360 (needs multi-char string
+      GET — unmeasured; a hit-but-incomplete year goes straight to the per-turn display, and a
+      word is won ONLY by finding all letters); the 610 half-line quirk -> one declared
+      continuation prompt `WANT ANOTHER WORD (1=YES 0=NO)` after every word; TAB banner 10/20
+      (no measured positioned PUT); dead 620/990; line 25 `PRINT:PRINT:PRINT` -> three bare
+      `put skip;` (framing law [C352]).
+  (6) APOSTROPHE REWRITES (no-apostrophes law): 400 `ISN'T` -> `IS NOT`; 460 `HERE'S ...
+      YOU'RE HUNG!!` -> `HERE IS ... YOU ARE HUNG!!` (keep the TWO `!!` counts of the source:
+      both 455-460 messages end `!!`? — 460 ends `YOU'RE HUNG!!`; 455 `ONE FOOT` NO bangs;
+      transcribe bang-counts literally from lines 415-460 when authoring); 380 `IT'S BEEN FUN!`
+      -> `IT HAS BEEN FUN!`.
+  (7) `ON M GOTO` x2 -> `if m = n then ...` ladders. [C209] ON-GOTO is implemented and
+      DR-byte-exact (E34A2..A7, E32E2) but its lane-B RUNTIME dispatch is UNMEASURED — avoided
+      by design. Weak tests are strict-compare shift forms with positive constants
+      (`m <> 10` -> `t1 = m + 1; if t1 < 12 then goto display;`; `COND.GE_LE` REFUSED; `<>`
+      stays missing-evidence). NO DIVISION ANYWHERE — the measured
+      `codegen: DIV by non-constant [TBD]` refusal and the /365-class literal-divisor trap are
+      both avoided by construction.
+  (8) GRID flattened `p(144)` fixed codes, index `(I-1)*12 + J` (AGG.ARRAY_1D_FIXED +
+      AGG.VAR_INDEX_LADDER): blank 32; pole p(1,13,25,37,49,61,73,85,97,109,121,133) = 88;
+      top p(1..7) = 88; rope p(19) = 88. Stage cells (recomputed THIS hop, literal indices):
+      M1 30,31,32=45; 41=40, 42=46, 44=46, 45=41; 54,55,56=45. M2 67,79,91,103=88.
+      M3 39,52,65,78=92. M4 47,58,69,80=47. M5 114,125=47. M6 116,129=92. M7 35=92. M8 27=47.
+      M9 142=92, 143=45. M10 135=45, 136=47. Grid print = per row 12 `call show(p(...))` +
+      `put skip;`; after rows two blank lines, then `if t1 < 12 then goto display;` else lose.
+  (9) FIXED GAME SCRIPT (23 GET values + bare unconsumed `^Z`): word 1 GUM: 71(hit),85(hit),
+      71(BEFORE! repeat),77(hit -> complete -> FOUND -> cont 1); word 2 FLY: 70(hit),65(miss
+      M=1 head),76(hit),89(hit -> FOUND -> cont 1); word 3 SLEEPER: 69(hit x3),88(miss1),
+      83(hit),86(2),87(3),65(4),66(5),67(6),68(7),81(8),84(9),90(10 -> HUNG -> LOSE -> word
+      printed -> cont 1) -> C=N -> `YOU DID ALL THE WORDS!!` -> stop. Feature mask (9): win x2,
+      hang-lose, repeat-guess, multi-hit letter, stage-text+full-grid x10, used-list commas,
+      continuation loop, exhaustion guard, empty-used first display. The `if w = 0` bye branch
+      compiles but is NOT executed by this script (declared).
+- CAPABILITIES for the JSON (validate each id against a SUPPORTED COVERAGE row before
+  writing; cite NONE for goto-in-IF or ON-GOTO, WKDAY ordered-compare precedent):
+  DECL.FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED, AGG.VAR_INDEX_LADDER,
+  LOOP.DO_TO_BY, LOOP.DO_WHILE_UNTIL, IO.GET_LIST, IO.PUT_LIST_FIXED, IO.PUT_SKIP,
+  EXPR.REL_FIXED_EQ_K, EXPR.SELF_ADD_LADDER, EXPR.VARYING_X_VARYING, PROC.CALL_COPYIN.
+- UNWITNESSED shapes flagged for rev1 (a FAIL stays classified, never laundered): (a) FIRST
+  corpus lane-B RUN of a numeric GET with echo; (b) consecutive no-SKIP PUT LISTs on one line;
+  (c) goto-in-IF (HAMM carry-over, still unrun); (d) do-while containing calls/nested DO;
+  (e) single-char varying PUT width (row PUTs are measured at 5-11 chars).
+- NEXT (implementation hop — successor session, chain 12/12 = CONFIGURED CAP, no renewal
+  beyond it without an operator reset): (1) scratch simulator `build/fc01-scratch/hang00_sim.py`
+  on the HAMM byte model (Stream: skip=`\r\n`, single-item puts emit the char/`%10d`-natural
+  bytes, echo `L\r` + `\r\n`, exit appends one `\r\n` [C352], normalize `re.sub(' +',' ',
+  raw.replace('\r\n','\n'))`, drop ONE trailing empty; chk all intermediates <= 32767 — trivial
+  here); (2) LF draft `build/fc01-scratch/HANG-00.draft.pli`, convert CRLF + bare `^Z`, <=71
+  cols, apostrophe-free; (3) `reference.py:hang00` mirroring the port statement-for-statement
+  + DERIVATIONS; (4) diff derivation vs simulator stream BEFORE writing JSON; (5)
+  `HANG-00.json` (link_target HANG00, sha pin, console_input `71\r85\r...\r1\r^Z`, notes =
+  removals (1)-(9) above + unwitnessed list); (6) `--stages source,derivation`; (7) lane B
+  `--evidence build/fc01/corp5 --json-out build/fc01/corp5/records.json` ACTUALS verbatim;
+  (8) docs § 10 + § 1 row; (9) `python3 tools/e2e_gate.py` compile tier; (10) explicit-path
+  commit (never handoff.config.json); then CLOSE THE CHAIN: `/handoff finalize` /
+  handoff_finalize (chain done=12/12 — no further renewal; further programs need an operator
+  reset or instruction). Programs 4-8 (AMAZ-00, TICT-00, LIFE-00, DHRY-00, FFT-00) stay queued.
+- STATUS: nothing promoted to any ledger (ends C352); no ocaml/harness byte touched; NO
+  compiler/emulator/gate run this design hop (read-only analysis); third-party bytes
+  untracked; renewal chain 11/12 (this session).
