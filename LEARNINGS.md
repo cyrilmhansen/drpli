@@ -2636,3 +2636,80 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - STATUS: nothing promoted to any ledger (ends C352); no ocaml/harness byte touched; no emulator
   run this hop (the scratch re-run is the derivation path only); tracked changes this hop are
   these durable documents.
+
+## 2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 6 (complete PL/I port DRAFTED on disk; framing/line law derived; three shapes have NO lane-B witness yet)
+
+- ACCEPTED (state): HEAD `39f1d6b`, `dune build` rc=0, compiler `edce9e0e…`; tree clean except
+  the operator `handoff.config.json` and the guard blocks. hop-5 one-liner RE-RUN: 211 lines,
+  46 fed values (max 1588), verdict not-too-bad P1=7 L=10 D1=41 n=4, mask all eight, final
+  store 1928. `HAMMURABI.bas` sha256 verified `93fea01f8b63766a83919653f798932ba33d4ca2654b70e87a54653d60c73831`;
+  URL = `URLS.tsv` line 3 (`43_Hammurabi/hammurabi.bas`).
+- ACCEPTED (deliverable written this hop, IGNORED scratch): **`build/fc01-scratch/HAMM-00.draft.pli`**
+  is the COMPLETE port in LF form — 21 decl temps, labels `ytop rp2 buy byok sell selok fed0 plant
+  pl2 pl3 pl4 hrv imp fink sum mbad ner bad bye`. It must be converted to CRLF + bare `^Z` and
+  width-checked (<=71) before landing as `spec/functional/tests/HAMM-00.PLI`; nothing about its
+  bytes has been measured yet.
+- ACCEPTED (line/framing law used to author it): the port mirrors the simulator op-for-op —
+  `st.skip()` -> `put skip;`, `st.put(items)` -> `put list(items);`, prompt = `put list(prompt)`
+  with NO skip (the GET echo `L\r\r\n` closes the line); content is NEVER `put skip list(...)`
+  in this port, because skip-before vs skip-after differ by one CRLF at every line join and the
+  1:1 spelling removes all bookkeeping. Blank-line counts derived from the stream: 3 (0-2), 3
+  (5-7), 1 (14), 1 (21, BASIC 400), 1 (23, BASIC 430), 2 (28-29) before each later report,
+  1 (202, BASIC 875), 1 before each fink line, 2 at `bye:` (209,210 + exit CRLF).
+- ACCEPTED (three deliberate port choices): (a) z is incremented AFTER the report (BASIC 215
+  order), so the year-11 report prints the 10-year figures before `t2 = z + 1; if t2 > 11 then
+  goto sum;`; (b) `qq` (last accepted FEED amount) is never overwritten by the 310 price draw,
+  so BASIC 540 `C=INT(Q/20)` is `t3 = qq / 20; c = t3;`; (c) the 880/885/890/892/895/896 ladder
+  uses `t3 = p1 + 100` / `t2 = l + 100` and offsets 133/107/110/109/103/110 — exact for the
+  whole-bin15 range (verified algebraically, not run).
+- ACCEPTED (dead stores kept): BASIC 331/350 `C=0` and 430 `C=1` are provably dead (C is
+  overwritten by the 800 subroutine at 511 before any read) and are kept in the port as declared
+  upstream behaviour, mirrored in the reference.
+- ACCEPTED (shape witnesses from PASSed lane-B corpus programs): member-vs-member strict ordered
+  compares (TABLE-01 `if y < x`, MATH-00 `if a > b`, HIST-00 `if c > mx`, WKDAY `if y1 < y`);
+  ordered compare vs a positive literal (WKDAY rev2 `t2 > 1`, `k6 < 1`; refusal is only for k<=0,
+  `codegen.ml:8037`); constant divisors <=127 (WKDAY rev3: /5 /30 /73 /100 /4 /7 — a divisor
+  outside -128..127 is SILENTLY MISCOMPILED); `a - b*7` and `x = x + k` mod/arithmetic shapes
+  (WKDAY). All 8 planned `capabilities` ids exist with mine=ACCEPTS, parity=SUPPORTED,
+  dr!=UNTESTED: DECL.FIXED_BIN15 IO.PUT_LIST_FIXED IO.PUT_SKIP IO.GET_LIST TRAN.GOTO_SAME_BLOCK
+  EXPR.REL_FIXED_EQ_K EXPR.SELF_ADD_LADDER EXPR.ADD_PRESERVE_ROUTE (none forbidden). README
+  section 7 "v1 corpus is pure-PUT, no GET" is the E2E-50/P2 perimeter, superseded for the FC-01
+  corpus by the harness `console_input` support (record this in the spec notes).
+- PROPOSED / UNWITNESSED (first lane-B use; a FAIL stays classified, never laundered):
+  (1) `if <cond> then goto <label>;` — TRAN.GOTO_SAME_BLOCK is EXACT:12 on DR goldens (E36T11,
+  E36T12, N79GOTO; corpus DEMO) but NO functional test has used goto; (2) VARIABLE divisors at
+  births `t1 = x / p`, P1 `x = x / p` / `p1 = u / z`, `l = a / p`; (3) adjacent-literal PUT LIST
+  items (the 862/970 splits) — hop 5 normalization-invariance argument stands (seam is one space
+  under either reading) but the COMPILE is unverified; (4) the `if c = 2 then e = s / 2;` rats
+  dispatch; (5) the `t3/t4` +100/-100 guard against the plague-halving double-execution route
+  (hop-2 discovery) — asserted to be value-idempotent, not run.
+- NEXT (successor — authoring is all that remains; do not re-design):
+  (1) `python3` convert `build/fc01-scratch/HAMM-00.draft.pli` to
+  `spec/functional/tests/HAMM-00.PLI` = CRLF bytes + trailing `^Z`, assert max line <=71 and
+  no `'` anywhere in the file, then compute its sha256;
+  (2) add `hamm00()` to `spec/functional/tests/reference.py`: byte model `skip = "\r\n"`,
+  items `" ".join` with fixed numerics `"%10d"`, echo `L + "\r\r\n"`, exit appends one `"\r\n"`,
+  then `re.sub(" +"," ",raw.replace("\r\n","\n")).split("\n")` and drop ONE trailing `""`;
+  drive it from the declared starts (P=95,S=1500,H=900,E=-600,Y=3,A=300,I=5,Q=1,GG=2) and the
+  46-value script, mirroring the draft statement-for-statement, `chk` every intermediate
+  (-32767..32767) and assert each nested-floor identity on the PORT route
+  (`floor(floor(x/p)/100)+1 == x//(100*p)+1`, `(z-1)*p1 + d*100//p // z` vs float within 2.0,
+  `p*8*r//100`); use a local sim class with an `emit` flag so the compile-only branches
+  (`bad:`/`fink:`/`ner:`/fantastic/`imp:`) can be exercised without polluting the main
+  derivation; register `"hamm00": hamm00` in DERIVATIONS; then DIFF its output against the
+  hop-5 one-liner stream (re-run: `python3 -c "import json,sys; sys.path.insert(0,
+  'build/fc01-scratch'); import hamm00_sim as H; c=json.load(open('build/fc01-scratch/spine_t_300.json'));
+  L,I,S=H.run_script(c['s0'],c['g0'],c['plans']); print(json.dumps(L)); print(repr(''.join(v+'\r' for v in I)+'^Z'))"`)
+  and save both to `build/fc01-scratch/hamm00_expected.json` BEFORE writing the JSON;
+  (3) `HAMM-00.json` per hop 5 (family CORPUS, encoding `CRLF, ^Z-terminated, <=71 columns`,
+  console_input = the 46 CR-terminated values + bare `^Z` — first values `0\r301\r0\r1352\r298\r
+  200\r43\r0\r0\r700\r300...`, limits 60/120/120/4000000, link_targets ["HAMM00"],
+  derivation `reference.py:hamm00`, normalization collapse-spaces-v1, console = the 211 lines,
+  notes = hop-5 removal/substitution list + the five unwitnessed shapes above + the README
+  section 7 GET supersession);
+  (4) `python3 tools/functional_runner.py --stages source,derivation --tests HAMM-00`;
+  (5) lane B `--evidence build/fc01/corp4 --json-out build/fc01/corp4/records.json`, ACTUALS
+  verbatim; (6) `docs/functional-results.md` section 9 + section 1 row; (7) `python3
+  tools/e2e_gate.py` compile tier; (8) explicit-path commit (never `handoff.config.json`); no push.
+- STATUS: nothing promoted to any ledger (ends C352); no ocaml/harness byte touched; no
+  compiler/oracle/emulator/gate run this hop; tracked changes are these durable documents only.

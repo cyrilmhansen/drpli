@@ -122,6 +122,21 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+## HAMM-00 hop 6 state — PORT DRAFTED (2026-11-03, renewal 9/12, HEAD `39f1d6b`; build rc=0, compiler `edce9e0e…`)
+
+Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 6" FIRST. The whole
+port now exists as ignored scratch `build/fc01-scratch/HAMM-00.draft.pli` (LF; convert to CRLF +
+bare `^Z`, check <=71 cols and zero apostrophes, then pin its sha256 as
+`spec/functional/tests/HAMM-00.PLI`). The 1:1 `put list(x); put skip;` line law, the blank-line
+counts, the three port choices (z++ after the report, `qq` preserved for BASIC 540, the +100
+verdict ladder), the kept dead stores, the verified capability ids and the FIVE lane-B-unwitnessed
+shapes (goto-in-IF, variable divisors, adjacent-literal PUT LIST, the `c = 2/4` rats dispatch, the
+t3/t4 idempotence guard) are recorded there. NEXT = that section's steps 1-8: reference.py:hamm00
+(byte model + chk + nested-floor asserts, DIFF against the hop-5 simulator one-liner before any
+JSON) -> HAMM-00.json -> `--stages source,derivation` -> lane B `--evidence build/fc01/corp4`
+ACTUALS verbatim -> docs § 9 + § 1 row -> compile-tier gate -> explicit-path commit. No
+ocaml/harness changes; no push; ledger ends C352; operator `handoff.config.json` stays unstaged.
+
 ## HAMM-00 hop 5 state — AUTHORING PLAN FINAL (2026-11-03, renewal 8/12, HEAD `7957474`; build rc=0, compiler `edce9e0e…`)
 
 Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 5" FIRST — it
@@ -288,16 +303,16 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 166
-checkpoint-id: g166-86f810fd9c93
+checkpoint-generation: 168
+checkpoint-id: g168-3fb74a7607ab
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~4339, session 01a19c52-2f19-7761-bfc4-e27b2bfcb6b5)
-checkpointed: 2026-11-02T13:15:18.415Z
+status: checkpoint (guard level 4, remaining ~4909, session 01a19c67-d7de-7761-bfc4-e27e0271de33)
+checkpointed: 2026-11-02T13:38:35.374Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 335a317e95ea84217e7d0812f2f7e625c48a09ba9ac4786a4c985d42804ac7f8
-source-handoff: 9328efeed1a19f6bf0350b6722237876c3a29ca4ef85eaad8781ed7827055910
+source-progress: 4112db2491b04003b3dbb480b85d48312d8ba631a5fe825d1519a0a8d5751943
+source-handoff: 2005bd4cd6ee2f7c3ea11bdf36996737b5779eb69e49589b3acdf2f468deba38
 source-learnings: 32d335a6ff53ef6d6b1448ff81a0b08e572d6707fa07c8e4ed51d70004ae7411
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
@@ -333,5 +348,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FC-01 CORPUS HAMM-00 (program 2, Hammurabi): DESIGN COMPLETE and committed at cb223ba. Implement from LEARNINGS.md section "2026-11-03 — FC-01 CORPUS HAMM-00 design hop" (read it FIRST — echo environment law from golden/e32rt_NETWORK + e29dr_runB transcripts, GET/GOTO confirmed shapes, bin15 scaling analysis A=300/S~2400/P=95, draw formula gg*37+11, parity/impeach reconstructions, script plan) + PROGRESS.md Next action. Steps: prototype reference.py:hamm00 simulator in build/fc01-scratch (iterate 10-year script: complaints, plague, rats-even draw, starvation bounds, assert all intermediates <32767; stream = PUTs + echo lines with trailing CR + C352 framing), then HAMM-00.PLI (CRLF ^Z <=71, header naming HAMMURABI.bas sha 93fea01f...) + HAMM-00.json (provenance third-party licence UNVERIFIED, capabilities incl IO.GET_LIST/TRAN.GOTO_SAME_BLOCK, console_input numeric lines + ^Z), --stages source,derivation, then lane B --evidence build/fc01/corp4, ACTUALS verbatim, docs/functional-results.md new section + section-1 row, e2e_gate compile tier, explicit-path commit. Corpus rule: literal divisors <=127, ordered-compare constants >=1 (shift forms for <0/>0); variable divisors (p,c,z) run-unwitnessed — first corpus use. Constraints: no ocaml changes, no harness changes, no push, operator handoff.config.json stays unstaged, third-party bytes never tracked, ledger ends C352 (functional runs are NOT DR claims), renew at safe boundaries (chain 3/12 used).
+HAMM-00 hop 5 CLOSED at 39f1d6b (docs only; tree clean except operator handoff.config.json — never stage). Author the HAMM-00 triple NOW from LEARNINGS.md § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 5" (read FIRST — exact one-liner regenerates the 211-line expected stream + console_input from build/fc01-scratch/hamm00_sim.py + spine_t_300.json; re-verified byte-stable: g0=2 s0=1500, verdict not-too-bad P1=7 L=10 D1=41, all 8 features, 46 fed values max 1588) plus the hop-4 § port law. Steps: (1) spec/functional/tests/HAMM-00.PLI (CRLF bare ^Z <=71 cols, strict compares only, t=x+1 weak forms, plague t1=q+4>4, negative guard t1=qq+20000<20000, impeach t2=(p*45)/100, rats dispatch c=2/c=4, literal divisors 2/4/5/10/20/45/100, variable division at births x/p, P1 (d*100)/p, (u+x)/z, l=a/p [flagged first use], no apostrophes, adjacent-literal split for the 862/970 long lines [PROPOSED — FAIL stays classified]); (2) reference.py:hamm00 mirroring the port statement-for-statement, diff against simulator output BEFORE writing JSON, register in DERIVATIONS; (3) HAMM-00.json (console_input = 46 CR-terminated values + bare ^Z, capabilities DECL.FIXED_BIN15 IO.PUT_LIST_FIXED IO.PUT_SKIP IO.GET_LIST TRAN.GOTO_SAME_BLOCK EXPR.REL_FIXED_EQ_K EXPR.SELF_ADD_LADDER EXPR.ADD_PRESERVE_ROUTE, link_targets [HAMM00], notes = full removal/substitution list); (4) --stages source,derivation; (5) lane B --evidence build/fc01/corp4 --json-out build/fc01/corp4/records.json ACTUALS verbatim; (6) docs/functional-results.md § 9 + § 1 row; (7) python3 tools/e2e_gate.py compile tier; (8) explicit-path commit. Constraints: no ocaml/harness changes, no push, ledger ends C352 (functional runs are NOT DR claims), operator handoff.config.json unstaged, third-party bytes never tracked, renew at safe boundaries. Build verified rc=0, compiler edce9e0e….
 <!-- guard:end checkpoint -->

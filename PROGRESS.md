@@ -238,6 +238,22 @@ build/fc01/corp4`, docs § 9 + § 1 row, `python3 tools/e2e_gate.py` compile tie
 commit. No ocaml/harness changes, no push, operator `handoff.config.json` stays unstaged,
 third-party bytes never tracked.
 
+HAMM-00 IMPLEMENTATION HOP 6 STATE (2026-11-03, renewal 9/12; HEAD `39f1d6b`, build rc=0,
+compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…implementation hop 6": the COMPLETE port is
+DRAFTED on disk at `build/fc01-scratch/HAMM-00.draft.pli` (LF; must be converted to CRLF + bare
+`^Z`, width-checked <=71, apostrophe-free, then sha256-pinned); the 1:1 line/framing law
+(`put list(x); put skip;`, prompt = `put list(prompt)` with no skip, blank-line counts), the
+three port choices (z++ after the report, `qq` preserved for 540, the +100 ladder offsets), the
+kept dead stores, the verified capability ids, and the FIVE unwitnessed shapes (goto-in-IF,
+variable divisors, adjacent-literal PUT LIST, the `c = 2/4` rats dispatch, the t3/t4
+idempotence guard) are all there. NOTHING tracked has been authored yet — no HAMM-00.PLI/.json,
+no `reference.py:hamm00`. EXACT NEXT = hop-6 § NEXT steps 1-8 (convert draft -> reference.py +
+diff its stream against the hop-5 simulator one-liner -> HAMM-00.json -> `--stages
+source,derivation` -> lane B `--evidence build/fc01/corp4` ACTUALS verbatim -> docs § 9 + § 1 ->
+compile-tier gate -> explicit-path commit). Constraints unchanged: no ocaml/harness changes, no
+push, ledger ends C352, functional runs are NOT DR claims, a FAIL stays classified never
+laundered, operator `handoff.config.json` stays unstaged, third-party bytes never tracked.
+
 HAMM-00 IMPLEMENTATION HOP 2 IN FLIGHT (2026-11-03, renewal 5/12; HEAD `9c91e9f`, build
 rc=0, compiler `edce9e0e…`, checkpoint g159 verified CURRENT by hash replay). Read FIRST
 `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 2": the PUT-LIST
@@ -522,16 +538,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 166
-checkpoint-id: g166-86f810fd9c93
+checkpoint-generation: 168
+checkpoint-id: g168-3fb74a7607ab
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-02T13:15:18.415Z
+checkpointed: 2026-11-02T13:38:35.374Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 335a317e95ea84217e7d0812f2f7e625c48a09ba9ac4786a4c985d42804ac7f8
-source-handoff: 9328efeed1a19f6bf0350b6722237876c3a29ca4ef85eaad8781ed7827055910
+source-progress: 4112db2491b04003b3dbb480b85d48312d8ba631a5fe825d1519a0a8d5751943
+source-handoff: 2005bd4cd6ee2f7c3ea11bdf36996737b5779eb69e49589b3acdf2f468deba38
 source-learnings: 32d335a6ff53ef6d6b1448ff81a0b08e572d6707fa07c8e4ed51d70004ae7411
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
