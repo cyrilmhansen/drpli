@@ -1789,3 +1789,44 @@ verification, not on prose (PROTOCOL #10).
   pass, the wrap must be declared as an independently stated law first.
 - The `--stages` help wording overpromise (hop 4) and ceiling symmetry for DERIVATION/ASSERT
   remain proposed; the FX-01 discarded-stdout evidence path works as designed.
+
+## 2026-11-02 — E2E-50/P2 renewal hop 7 (verify + commit step 6, step 7 landed)
+
+**ACCEPTED (measured, `958c204`/`cdc5d13`, evidence in `spec/lab-evidence/e2e50-p2/step7/RESULTS.md`):**
+- The step-6 §3 cpmcp leak is a REAL, reproducible harness defect and the fix is behaviour-safe:
+  PRE-fix probe printed `len 128` as the runner's FIRST stdout line (leak reproduced); POST-fix,
+  prediction committed beforehand, printed zero foreign lines with verdict `UNKNOWN` (ceiling) and
+  rc=1 UNCHANGED. `Run.export()`'s `ok` bool is the sole contract of every caller
+  (`batch.py:135`, `linkrun.py:352/442/497`, `functional_runner.py:888`), so redirecting the child
+  removes noise without weakening any failure path (PROTOCOL #8). Root cause of the string itself
+  (external cpmtools build) stays `proposed`.
+- Lane A substrate resolution MEASURED on the real substrate after the repair:
+  `Host().pli80_run_path()` → `_build/default/bin/main.exe`, sha256 prefix `da2b34b9d0125764` —
+  byte-identical to the step-6 audited runner; `FX-00` run WITHOUT `--pli80-run` → lane A PASS,
+  capture identical to step 6. Fallback candidates are now a pinned module constant.
+- The harness CLI's stdout grammar is CLOSED (record / `evidence:` / `verdicts:` only) and the
+  pin is NON-VACUOUS: a simulated chatty child printing `len 128` is caught by the detector while
+  the verdict stays PASS and rc stays 0. Law learned: **noise must never be evidence in either
+  direction** — a foreign line neither launders a FAIL nor voids a PASS, but it must be visible.
+  `main(host=)` is the test seam that makes CLI-level pins possible without spawning anything.
+- First independently re-verified renewal hand-off: hop 6 executed step 6 but was cut off before
+  committing; hop 7 re-derived every ACTUAL read-only from the PRESERVED evidence (od/cmp/grep/wc,
+  census JSONs, lab HEAD + untracked pattern, runner sha256) and only then committed
+  (`68348ac`). The practice is sound: `PROTOCOL.md` #10 (audit artifacts, not summaries) works in
+  the successor direction too. Note for the record: a naive single-space `grep 'PLILIB RQST'`
+  MISSES the real multi-space `PLILIB   RQST` layout — LINK-80 output is column-formatted; verify
+  greps against the artifact, not against your memory of its spacing.
+
+**FALSIFIED (kept as written, PROTOCOL #2):** the suite-size quotation "148 checks" repeated in
+HANDOFF/PROGRESS/LEARNINGS since hop 4 — measured from the HEAD artifact at hop 7 the suite
+printed **171** PASS lines (rc=0). It was accurate at hop 4 only; the copies were not
+re-measurements. Structural fix: `check()` now counts and the summary prints the total (182 with
+C14), so a document must quote the artifact's own number.
+
+**PROPOSED (step 8 / P3 candidates, unexecuted):** fix F1 properly in the Lane B anchor law (the
+`(?=\nD>)` cut should not consume the program's trailing newline) and pin both directions; declare
+F2 (DR PLILIB 79-col wrap) from the oracle side before re-declaring TABLE-01's expectation — an
+expectation may only change by LAW, never by capture (L3); free-core BDOS 25 support to let lane A
+host PLILIB programs (subject to the operator package/license decision); TABLE-02 stays withheld
+until a program VERIFIES by execution; `--stages` help wording + DERIVATION/ASSERT ceiling
+symmetry (hop-4 proposal) remain open.

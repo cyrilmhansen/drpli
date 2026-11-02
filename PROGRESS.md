@@ -90,6 +90,33 @@ FAIL=1, Lane B FAIL=2. LEARNINGS hop-6 section records ACCEPTED/FALSIFIED/PROPOS
 **FIRST ACTION for the successor: step 7** (minimal functional-results reporting + the cpmcp stdio
 debt + hostile-suite stdout pin), then step 8 (report, bounded P3 proposal, CLOSE, finalize).
 
+**Renewal hop 7 (this chain): step 6 committed + step 7 LANDED.** Renewal cut hop 6 off AFTER the
+runs and AFTER writing `step6/RESULTS.md` but BEFORE committing it; this session re-derived every
+ACTUAL read-only from the preserved evidence (`od`, `cmp`, `grep`, `wc`, census JSONs, the lab HEAD
++ untracked pattern, the runner sha256 `da2b34b9…`) and only then committed `68348ac`, then
+recorded hop-6 knowledge (`ec9d396`). Step 7 then landed in two commits. **Part 1 `958c204`:** the
+§3 debt PAID — `cpmwork.Run.export()` redirects cpmcp stdio (DEVNULL/STDOUT) symmetrically with
+import_local/mkfs; the `ok` bool stays the ONLY contract of every caller so no gate loses the
+ability to fail; PRE-FIX reproduction measured (`len 128` as the runner's first stdout line,
+verdict UNKNOWN by ceiling, rc=1); the falsified hop-5 Lane A fallback replaced by the MEASURED
+`LANE_A_CANDIDATES`; `main(host=)` test seam; hostile suite **+C14 = 182 checks rc=0** pinning
+(a) the export redirection, (b) the resolver behaviour under a scoped `isfile` stub, (c) that the
+CLI stdout carries ONLY rendered records, non-vacuously (a simulated chatty child is CAUGHT while
+the verdict stays PASS — noise is never evidence in either direction). The suite now SELF-COUNTS:
+the prose "148 checks" was FALSIFIED by measurement (the HEAD artifact printed **171**).
+**Part 2 `cdc5d13`:** `step7/RESULTS.md` (pre/post-fix ACTUALS in committed order, PROTOCOL #1) +
+`docs/functional-results.md` (the SMALL report of the four executed verdicts and the census probe,
+F1/F2 framing, honest limits, P3 candidates as proposals only; the P1 dashboard was deliberately
+NOT extended) + README pointers, with the stale README round line corrected. Lane A re-probed on
+the real substrate WITHOUT `--pli80-run`: FX-00 **PASS**, capture identical to step 6. Measured
+this step: py_compile rc=0 x3, suite 182 rc=0, dashboard tests rc=0, dashboard --check rc=0,
+file_prose_check rc=0 (5 active clean), `dune build` rc=0. External processes in step 7: two
+bounded TABLE-01 COMPILE+LINK probes and one Lane A FX-00 run — never the oracle campaign, the
+runtime tier or Rune CI; no COVERAGE/CLAIMS/RUNTIME/INVENTORY/census byte.
+**FIRST ACTION for the successor: step 8** — `python3 tools/e2e_gate.py` (compile tier; record
+ACTUALS AS PRINTED), the short round report (measured/failed/unmeasured), the BOUNDED P3 proposal
+(no execution), the byte-verified close archive under `docs/history/`, `handoff_finalize`, STOP.
+
 **Step-3 groundwork probed (same hop, later):** console PUT-LIST byte law measured from stored
 goldens (10-wide right-justified numeric field, blank item separator, statements share one line
 until SKIP; gate normalization ` +`->` ` adopted as harness v1 law); TABLE-feasible capability

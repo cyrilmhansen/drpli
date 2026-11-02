@@ -198,7 +198,18 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   linked-program census UNMEASURED.]
 - 7. Minimal functional-results reporting (reuse P1 model or a separate small report; NO
   reporting-system rewrite; scientific verdicts unchanged; no COVERAGE promotion without
-  evidence). [pending]
+  evidence). [**LANDED** hop 7: `958c204` + `cdc5d13` — the step-6 §3 debt PAID and MEASURED
+  (pre-fix probe printed `len 128` on the runner's stdout; the prediction was committed BEFORE the
+  post-fix run, which printed ZERO foreign lines with verdict/rc UNCHANGED; `cpmwork.Run.export()`
+  now redirects cpmcp stdio symmetrically with import_local/mkfs, the `ok` bool contract intact so
+  no gate weakens). Lane A fallback repaired to the MEASURED `LANE_A_CANDIDATES` (hop-6
+  falsification) and proven on the real substrate: `FX-00` WITHOUT `--pli80-run` -> lane A **PASS**,
+  capture identical to step 6. Hostile suite +C14: CLI stdout grammar CLOSED (record/evidence/
+  verdicts only), non-vacuous via a simulated chatty child; **171 → 182 checks**, rc=0. Report =
+  `docs/functional-results.md` (a rendering of step6/step7 `RESULTS.md`, four executed verdicts +
+  the census probe, F1/F2 framing, honest limits, P3 candidates as proposals; NO dashboard rewrite,
+  no COVERAGE/CLAIMS change). HONESTY MEASUREMENT: the prose "148 checks" was FALSIFIED — the HEAD
+  artifact printed 171; the suite now self-counts, so documents must quote the artifact.]
 - 8. Verification + short report (measured / failed / unmeasured), bounded P3 proposal, CLOSE
   (byte-verified archive per convention), `handoff_finalize`, STOP. [pending]
 
@@ -208,7 +219,7 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 ## Unfinished operations
 
-- E2E-50/P2 steps 7–8 remain (steps 0–6 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec
+- E2E-50/P2 step 8 ONLY remains (steps 0–7 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec
   format, law, TABLE corpus and reference in the hop-2 commit `a6163ef`; **harness step-5 part 1
   LANDED hop 3 at `8523eda`**). **Step 5 PART 2 LANDED hop 4 (`d40aafb`,`149c6e2`): 13 required cases, 148 checks, rc=0, NO compiler/LINK-80/cpmsim/emulator process; harness defects `_rname` and `assert_stream` first_diff=None found by the suite and fixed. **Step 6
   EXECUTED hop 6** (runs bounded and lane-labelled; Lane A via the audited emulator, Lane B via
@@ -221,7 +232,17 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
   model or a separate small report; NO reporting-system rewrite; scientific verdicts unchanged; NO
   COVERAGE promotion) plus the step-6 §3 debt: capture/DEVNULL cpmcp stdio in
   `oracle/cpmwork.py export()` and a hostile-suite pin that runner stdout carries ONLY rendered
-  records; then step 8 (report + bounded P3 proposal + CLOSE + finalize). (hostile suite over the landed harness, `check()`-style like
+  records; then step 8 (report + bounded P3 proposal + CLOSE + finalize). **Step 7 LANDED hop 7
+  (`958c204`, `cdc5d13`): the cpmcp debt measured/fixed/re-measured, the Lane A fallback repaired
+  and proven on the real substrate (FX-00 PASS with no `--pli80-run`), the hostile suite at 182
+  checks with the CLI stdout grammar pinned closed and non-vacuously, and the small report
+  `docs/functional-results.md` delivered. FIRST ACTION for the successor: step 8** — verification
+  (`python3 tools/e2e_gate.py`, compile tier only: the round touched no scientific byte, but the
+  round's own harness/doc changes must pass the gate; record ACTUALS as printed), the short round
+  report (measured / failed / unmeasured), the BOUNDED P3 proposal (F1 anchor fix, F2 declared
+  from the oracle side, BDOS-25 free-core question, TABLE-02 — all proposals, no execution),
+  the byte-verified close archive of the superseded prose under `docs/history/`, then
+  `handoff_finalize` and STOP. No push; no automatic P3. (hostile suite over the landed harness, `check()`-style like
   `tools/test_functional_dashboard.py`, NO compiler/LINK-80/cpmsim/emulator process — every
   external layer is injectable via `Host(subprocess_run=, sim_session=, link_deps=,
   workspace_factory=, run_factory=)`):
