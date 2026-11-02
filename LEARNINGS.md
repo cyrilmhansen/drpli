@@ -3265,3 +3265,92 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - STATE: NOTHING tracked authored yet for TICT-00; no lane run; ledger ends C352; nothing
   laundered; operator handoff.config.json untouched; no push. AMAZ-00 rev1 LANDED PASS at
   `b309e3c` (see prior section).
+
+## 2026-11-03 — FC-01 CORPUS TICT-00 implementation hop (cross-check model BUILT; game tree MEASURED; port mapping and script DECIDED)
+
+- ACCEPTED (source re-verified this hop): `sha256sum -c SHA256SUMS` rc=0 (10/10 files, measured
+  again on this tree); `basic/TICTACTOE2.bas` sha `9945f459…` matches the hop-start pin; listing
+  re-read in full (114 lines). Build verified `dune build` rc=0, compiler sha `edce9e0e…`, HEAD
+  `c6c699b` clean except the operator `handoff.config.json` and the guard-managed blocks.
+- ACCEPTED (INDEPENDENT model built, ignored scratch):
+  `build/fc01-scratch/tict00_bas.py` is a line-for-line transcription of the BASIC with the
+  UPSTREAM semantics intact — board values `-1/0/1`, `G=-1` (computer) / `G=1` (human), string
+  `C$` choice, `INT((M-1)/3)` division, real `GOSUB 1000`/`RETURN` (the printer FALLS THROUGH into
+  the win/draw detector, so a win or draw never returns), `ON I GOTO 1180,1200,1170` dispatch and
+  the BASIC `PRINT` concatenation law (trailing `;` keeps the line open, bare `PRINT` = newline);
+  `TAB()` dropped (same documented adaptation as the port). Every BASIC line number executed is
+  instrumented in `lines_seen`.
+- MEASURED (exhaustive game-tree search over that model, `tict00_dfs.py`/`tict00_full.py`:
+  choice X and O, every legal move, up to two occupied/out-of-range retries): the reachable
+  terminal set is **{COMPUTER win 1350, DRAW 1400, QUIT 502}** — **the HUMAN win (1200) is
+  UNREACHABLE in any play** (92k/82k terminal runs, 0 HUMAN). Consequences, all measured the same
+  way: lines 1112 (`IF S(I)=1 THEN 1200`) and 1137 (same in the column pass) never fire, and
+  **1180 (`ON I GOTO 1180,1200,1170` diagonal dispatch) NEVER fires in any play** — the
+  corner-block rules 171-174 always stop a diagonal before it completes. This is a property of
+  the ADAPTED PROGRAM, read off my own model of the upstream listing; it is NOT a DR claim and
+  nothing goes to any ledger (ends C352).
+- MEASURED (maximal coverage): the terminal run firing the most BASIC lines is
+  **`O, 2, 9, 7, 1, 10, 1, 4`** — 94 instrumented lines, **2 occupied messages** (the value 10
+  takes 503→506, the repeated 1 takes 505→506), ending in the **DRAW** at 1400 with the board
+  full `[-1,1,-1,1,-1,-1,1,-1,1]`; 119 BASIC-model lines. The O-first draw beats every X-first
+  script (69-72 pre-instrumentation lines) because it also exercises the machine's opening
+  (102) and the second scan pass (112-116/175). Unreached lines of this port are exactly the
+  unreachable-by-any-play set above plus 104/105, 133/138, 156/158, 163/168, 187/189, 475
+  (the X-choice branch) — recorded, not hidden.
+- DECIDED (port value mapping — the key adaptation; ACCEPTED by construction against the measured
+  compare law): the board cells become `1 = computer, 2 = empty, 3 = human` (was `-1/0/1`) and the
+  scan owner `g = 1` (first pass, computer) / `g = 3` (second pass, human), `h = 3` / `h = 1`.
+  Why: the hop-start probe batch measured that my compiler refuses `= -1` and any ordered
+  compare with a non-positive literal right side, so the literal `-1` in 1012 (`IF S(I)<>-1`) and
+  in every `S(x)=-1` test is unrepresentable; remapping keeps EVERY compare a positive literal.
+  `<>` tests rewrite to the measured `= k` + explicit goto form (the AMAZ-00 precedent). The
+  numeric semantics are unchanged: only the encoding of three symbolic marks moves.
+- FALSIFIED (my own first transcription, two defects, both corrected in place — PROTOCOL #2 keeps
+  the record): (i) I mapped a GOSUB-1000 terminal return to `L = 2000`, which SKIPPED the terminal
+  `PRINT` lines, so `I WIN, TURKEY!!!`/`YOU BEAT ME!! GOOD GAME.`/`IT'S A DRAW. THANK YOU.` were
+  never emitted (the model "ended" with no message — visible as a 118-line stream ending on blank
+  lines); the BASIC jumps to 1200/1350/1400, which print and THEN go to 2000. (ii) I treated line
+  1400's `PRINT"IT'S A DRAW. THANK YOU."` as leaving the line open; a BASIC `PRINT` without a
+  trailing `;` TERMINATES its line, so the draw line is closed by the program itself and the
+  exit CRLF [C352] yields ONE trailing blank (the port therefore ends the draw path with
+  `put skip;`, NOT an unterminated line — the earlier "unterminated final line" framing reading
+  for TICT-00 is superseded).
+- PROPOSED port structure (unchanged from hop start, now detailed): flat goto state machine in the
+  main block mirroring the BASIC line numbers in the label names (`l100/l102/.../l1095i/l1150/
+  ldiag/l1170/l1200/l1350/l1400/l2000`); `GOSUB 1000` becomes `r = 1/2; goto l1000;` with the
+  1170 RETURN dispatched by `if r = 1 then goto l205;` (goto across an ACTIVE DO is never used);
+  the row scan `FOR J=1 TO 7 STEP 3 / FOR K=1 TO 3` (BY-3 refused) becomes top-level `j = j + 3`
+  with `if k < 3`/`if j < 7` guarded-block continuations (shapes05 form); the two `FOR I` scans
+  that EXIT to a mid-line target (177, 1150) become guarded found-flag DO loops followed by
+  top-level flag dispatch (`if f = 1 then goto ...;`); the 1012/1016/1018 cell printer and the
+  1020/1030/1050/1060 separator logic are label-free guarded blocks with a `b1` "last-in-row"
+  flag; the board printer+detector stays in the MAIN block (not a procedure) because a nested
+  procedure calling a SIBLING nested procedure is unwitnessed — declared risk avoidance;
+  `character(1) varying` + the 2-branch show ladder (X/O) for `P$`/`Q$` (HANG-00 witnessed);
+  apostrophes rewritten (`DO YOU WANT X OR O`, `IT IS A DRAW. THANK YOU.`); numeric choice GET
+  `1 = X (human first) / 2 = O (computer first)` replaces the string `C$` GET (CHARACTER console
+  GET UNMEASURED) — both documented in the spec notes.
+- STATE: cross-check model + coverage search DONE (ignored scratch); NO port simulator written yet,
+  NO tracked file authored, no lane run, no gate run. Ledger ends C352; nothing laundered;
+  operator `handoff.config.json` untouched/unstaged; no push; chain renewal 4/12.
+
+## 2026-11-03 — FC-01 CORPUS TICT-00 implementation hop, continuation (port simulator WRITTEN, first cross-check run)
+
+- ACCEPTED (scratch, not evidence): `build/fc01-scratch/tict00_sim.py` written — statement-for-
+  statement model of the PL/I port (mapped values 1/2/3, flat label machine, HAMM/HANG byte
+  model: skip=CRLF, leading-separator blank when the line is open, GET echo `%d\r\r\n`, exit
+  appends one CRLF [C352]); two model bugs found and fixed in place (missing `self.m = m` after
+  the human GET, and an invalid `L(177c)` token).
+- MEASURED (first cross-check, script `2,9,7,1,10,1,4`): both models agree on the terminal
+  (COMPUTER win 1350) and on every line modulo spaces and the GET-echo `\r`, EXCEPT the port has
+  85 lines vs the BASIC model's 84 — UNRESOLVED, the successor must find the extra line
+  (candidate: the last board print / exit-CRLF framing on the terminal path, or a missing
+  blank from BASIC 1080's three PRINTs vs the port's). NOTE the script I first tried
+  (`O,2,9,7,1,10,1,4`, the coverage-search winner ending in a DRAW) was passed to the BASIC
+  model WITHOUT its leading `2` in this cross-check (choice `O` + moves `9,7,1,10,1,4`), which
+  is why this run ends in a computer win, not a draw — re-verify with the SAME script on both
+  sides before concluding anything.
+- PROPOSED (unverified): the numeric choice mapping 1 = X (human moves first, BASIC 475),
+  2 = O (computer moves first, BASIC 60) — needs a pre-compile + lane witness.
+- STATE: no tracked file authored yet; no scratch pre-compile of the port shapes yet; ledger
+  ends C352; nothing laundered; operator handoff.config.json unstaged; no push; renewal 4/12.

@@ -330,6 +330,33 @@ yet; NO PASS claimed. EXACT NEXT (steps 1-6: JSON -> source,derivation -> lane B
 `LEARNINGS.md` 2026-11-02 AMAZ-00 implementation hop. Constraints unchanged; ledger
 ends C352; operator handoff.config.json untouched/unstaged; no push.
 
+## TICT-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, continuation chain hop 4; HEAD `c6c699b`; build rc=0, compiler `edce9e0e…`; NOTHING tracked authored yet, no lane run, no gate run)
+
+Read `LEARNINGS.md` § "…TICT-00 implementation hop" (two sections: hop-start contract + the
+continuation record) FIRST. DONE this hop: sources re-verified rc=0; independent line-for-line
+BASIC model `build/fc01-scratch/tict00_bas.py` (instrumented by BASIC line number, real
+GOSUB/RETURN fall-through, `INT((M-1)/3)`, values -1/0/1) + exhaustive game-tree searches
+(`tict00_dfs.py`, `tict00_full.py`): MEASURED that the HUMAN win (1200) is UNREACHABLE in any
+play, that 1180/1112/1137 never fire, and that the max-coverage terminal script is
+`O, 2, 9, 7, 1, 10, 1, 4` (94 BASIC lines fired, 2 occupied messages via 503 and 505, ending
+DRAW at 1400). Port model `build/fc01-scratch/tict00_sim.py` written on the HAMM/HANG byte model
+with the DECIDED value mapping (1=computer, 2=empty, 3=human; g=1 first pass / g=3 second pass) —
+first cross-check run agrees modulo spaces/echo-`\r` and on the terminal, but the port has 85
+lines vs 84: UNRESOLVED and the two models were fed DIFFERENT scripts in that run (the port got
+the leading `2` choice, the BASIC model got `O` + the remaining moves), so re-run the same script
+through both before trusting either. Two model bugs found and fixed (missing `self.m`, bad
+token). EXACT NEXT (steps 2-11 in `PROGRESS.md` → Next action): re-run the identical script on
+both models and find the line-count difference → pre-compile the risky port shapes in ignored
+scratch → LF draft → CRLF/^Z/≤1-col/apostrophe-free `spec/functional/tests/TICT-00.PLI` + sha pin
+→ `reference.py:_Tict00Port`/`tict00()` + DERIVATIONS diffed vs the simulator BEFORE the JSON →
+`TICT-00.json` (link_target TICT00, `console_input 2\r9\r7\r1\r10\r1\r4\r^Z` if the DRAW script is
+confirmed, notes = value mapping + numeric choice + apostrophe rewrites + unreachable
+1200/1180/1112/1137 + unreached-line list) → `--stages source,derivation` → lane B
+`build/fc01/corp7` (+corp7-double if PASS, ACTUALS verbatim, a FAIL stays classified) → docs § 12
++ § 1 row → compile-tier gate → explicit-path commit. Then LIFE-00, DHRY-00 (never execute the
+`.SHAR`), FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness changes; ledger ends
+C352; third-party bytes never tracked; operator `handoff.config.json` never staged; no push.
+
 ## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-framing→fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json` — renewals AVAILABLE on the continuation chain (operator reset 2026-11-03); use `handoff_renew`, not terminal finalization. **WKDAY-00 DONE — rev3 lane-B PASS
 (2026-11-03; docs § 8, evidence build/fc01/corp1..corp3).** Program 2 (Hammurabi → `HAMM-00`):
 **rev1 RECORDED 2026-11-03** (hops 2–7, this chain; started as the implementation hop at
@@ -490,25 +517,22 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 183
-checkpoint-id: g183-1a8e23378e6b
-checkpoint-kind: manual
+checkpoint-generation: 185
+checkpoint-id: g185-3f2576e2e1fa
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-1770, session 01a19d8b-9c43-727a-91c8-56dddf34a6ca)
-checkpointed: 2026-11-02T21:20:37.932Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~1845, session 01a19e3a-cf6d-7601-8f9d-90c492ad489c)
+checkpointed: 2026-11-02T22:38:41.966Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4b653d976a1b92953bdd27e22c4e1ba16708accb62d79fd98292b6bd17566d91
-source-handoff: b2a35fa101bac59e7e5b0c0ab0aac013709814dbff5d7676254653c1a36edb0e
-source-learnings: 3d965777ebbe7d19993f94a365d084169f7b2d507601cbb6bb426f92cee6b464
+source-progress: 37138a092f07508fa0071cbe0ff2d51c16244f566f9a44ae6d027a8bddf1a97d
+source-handoff: c06bc0ab92f4b244e59a6e99ccdd34b32a3b6cadf35c4a34f6c7af1efbbbf34c
+source-learnings: ed823f897af72092781d2aed50ff5dd163568c86c7f5e288bf4e6385e3898677
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19d8b-9c43-727a-91c8-56dddf34a6ca
-readiness-at: 2026-11-02T21:20:37.942Z
-readiness-checkpoint: g183-1a8e23378e6b
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
@@ -538,5 +562,5 @@ guard level 4; checkpoint requested (renewal refresh (model))
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-AMAZ-00 IN FLIGHT, committed INCOMPLETE at 948f5e5 (pinned AMAZ-00.PLI sha 0c0abfab... compiles rc=0 5760 B; reference.py:amaz00 diff-vs-simulator BYTE-EQUAL 18 lines, all invariants PASS; corrections: entrance col 1, framing 8 leading blanks + 1 trailing, falsifications in LEARNINGS 2026-11-02 AMAZ-00 implementation hop). EXACT NEXT (PROGRESS -> Next action): (1) AMAZ-00.json (link_target AMAZ00, sha pin, console_input bare ^Z, 18 expected lines, derivation reference.py:amaz00, collapse-spaces-v1, limits as HANG-00, capabilities grep-verified SUPPORTED rows only, notes = removal/substitution list); (2) --stages source,derivation; (3) lane B build/fc01/corp6 (+double-run if PASS, ACTUALS verbatim, FAIL stays classified); (4) docs/functional-results.md sec 11 + sec 1 row; (5) e2e_gate compile tier; (6) explicit-path commit; then TICT-00 (pick listing after reading), LIFE-00, DHRY-00 (never execute .SHAR), FFT-00. Constraints: no ocaml/harness changes; ledger ends C352; third-party bytes untracked; operator handoff.config.json never staged; no push; renew at safe boundaries.
+TICT-00 hop start LANDED at c6c699b (continuation chain hop 3; docs-only). AMAZ-00 rev1 LANDED lane-B PASS at b309e3c (hop 2; corp6 + corp6-double byte-equal, gate rc=0 1174/0 181/181 9/9 133/0/0 15/0/26/0 prose 5 clean). EXACT NEXT = TICT-00 IMPLEMENTATION hop: read LEARNINGS § "2026-11-02 — FC-01 CORPUS TICT-00 hop start" FIRST (base TICTACTOE2.bas sha 9945f459... chosen — v1 has NO terminal path; measured port shapes: DO BY 3 refused -> (jj-1)*3+1; '> var' and '= k<=0' refused -> shift idiom t2=t1+1/if t2=0; expression-left = refused; ACCEPTED scalar=scalar equality, guarded multi-stmt DO blocks, s(i)=-1 stores; PROPOSED flat goto state machine, numeric choice GET 1=X/2=O replaces string C$ GET, apostrophes rewritten, found-flag loop exits, script must reach ONE legitimate END). Steps 1-11 in PROGRESS -> Next action: simulator build/fc01-scratch/tict00_sim.py -> scratch pre-compiles -> draft -> pin TICT-00.PLI -> reference.py mirror + diff vs simulator BEFORE JSON -> TICT-00.json (link_target TICT00) -> --stages source,derivation -> lane B build/fc01/corp7 (+corp7-double if PASS, ACTUALS verbatim, FAIL stays classified) -> docs sec 12 + sec 1 row -> e2e_gate compile tier -> explicit-path commit. Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness changes; ledger ends C352; third-party bytes untracked; operator handoff.config.json never staged; no push; renew only at safe boundaries (chain renewal 3/12 used).
 <!-- guard:end checkpoint -->

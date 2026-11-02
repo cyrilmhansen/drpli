@@ -195,7 +195,43 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-TICT-00 HOP START COMPLETE (2026-11-02, continuation chain hop 3; this commit). BOTH listings
+TICT-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, continuation chain hop 4; HEAD `c6c699b`,
+build rc=0, compiler `edce9e0e…`, checkpoint g184 attested CURRENT at session start).
+Read FIRST `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS TICT-00 implementation hop" — it carries
+the MEASURED game-tree result (the HUMAN win 1200 is UNREACHABLE in any play; 1180 never fires;
+1112/1137 never fire), the CHOSEN script `O,2,9,7,1,10,1,4` → DRAW at 1400 with 2 occupied
+messages and 94/94+ reachable BASIC lines fired, the port value mapping (`1`=computer,
+`2`=empty, `3`=human; `g`=1 first pass / `g`=3 second pass, `h` the complement) that makes every
+compare a positive literal, the two FALSIFIED transcription defects in the cross-check model, and
+the detailed flat-machine port structure (printer+detector kept in the MAIN block via an `r`
+return-address variable because sibling-nested-procedure calls are unwitnessed).
+DONE this hop: `sha256sum -c SHA256SUMS` rc=0; listing re-read; independent BASIC model
+`build/fc01-scratch/tict00_bas.py` (line-for-line, instrumented, fixed) + coverage searches
+`tict00_dfs.py`/`tict00_full.py`/`tict00_cand.py`; HANG-00 idiom survey.
+NOTHING tracked authored yet: no `TICT-00.PLI`, no `TICT-00.json`, no `reference.py:tict00`.
+EXACT NEXT (hop-start steps 2-11 continued): (2) port simulator
+`build/fc01-scratch/tict00_sim.py` on the HAMM/HANG byte model (`skip`=`\r\n`, `put` =
+leading-separator blank when the line is open, `get` echo `%d\r\r\n`, exit appends one `\r\n`
+[C352]) — cross-check its collapse-normalized stream against `tict00_bas.py` (only the two
+prompts may differ: `DO YOU WANT 'X' OR 'O'` vs the numeric prompt, plus the GET echo text);
+(3) pre-compile the risky shapes in ignored scratch BEFORE pinning (flat top-level goto machine
+with ~40 labels, `if a = b then` scalar=scalar in a DO body, `s(i) = 1` variable-index store,
+the 2-branch show ladder, the `r`-dispatch return, the occupied-retry loop-back);
+(4) LF draft -> CRLF + bare ^Z + <=71 cols + apostrophe-free `spec/functional/tests/TICT-00.PLI`,
+pin sha256; (5) `reference.py:_Tict00Port`/`tict00()` + `DERIVATIONS`, diff vs the simulator
+BEFORE the JSON; (6) `TICT-00.json` (link_target TICT00, `console_input`
+`2\r9\r7\r1\r10\r1\r4\r^Z`, capabilities grep-verified SUPPORTED/dr=ACCEPTS rows only, notes =
+full removal/substitution list incl. the value mapping, the numeric choice GET, the apostrophe
+rewrites, the unreachable 1200/1180/1112/1137 and the unreached-line list); (7) `python3
+tools/functional_runner.py --stages source,derivation --tests TICT-00`; (8) lane B
+`--evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json` (+ `--double-run` into
+`corp7-double` if PASS), ACTUALS verbatim, a FAIL stays classified never laundered; (9) `docs
+/functional-results.md` § 12 + § 1 row; (10) `python3 tools/e2e_gate.py` compile tier ACTUALS;
+(11) explicit-path commit (NEVER `handoff.config.json`; no push). Then LIFE-00, DHRY-00 (never
+execute the `.SHAR`), FFT-00. No ocaml/harness changes; ledger ends C352; third-party bytes never
+tracked.
+
+SUPERSEDED-BY-ABOVE: TICT-00 HOP START COMPLETE (2026-11-02, continuation chain hop 3; this commit). BOTH listings
 READ and sha-verified; **BASE CHOSEN: TICTACTOE2.bas** (sha `9945f459…`) — TICTACTOE1
 (`e1125402…`) NEVER terminates (win/draw both GOTO 210; the only stop is GET-at-^Z-EOF,
 UNMEASURED) so no finite complete stream can be derived — decision + full analysis + the
@@ -804,17 +840,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 183
-checkpoint-id: g183-1a8e23378e6b
-checkpoint-kind: manual
+checkpoint-generation: 185
+checkpoint-id: g185-3f2576e2e1fa
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-02T21:20:37.932Z
+checkpointed: 2026-11-02T22:38:41.966Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4b653d976a1b92953bdd27e22c4e1ba16708accb62d79fd98292b6bd17566d91
-source-handoff: b2a35fa101bac59e7e5b0c0ab0aac013709814dbff5d7676254653c1a36edb0e
-source-learnings: 3d965777ebbe7d19993f94a365d084169f7b2d507601cbb6bb426f92cee6b464
+source-progress: 37138a092f07508fa0071cbe0ff2d51c16244f566f9a44ae6d027a8bddf1a97d
+source-handoff: c06bc0ab92f4b244e59a6e99ccdd34b32a3b6cadf35c4a34f6c7af1efbbbf34c
+source-learnings: ed823f897af72092781d2aed50ff5dd163568c86c7f5e288bf4e6385e3898677
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -838,9 +874,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19d8b-9c43-727a-91c8-56dddf34a6ca
-readiness-at: 2026-11-02T21:20:37.942Z
-readiness-checkpoint: g183-1a8e23378e6b
 <!-- guard:end checkpoint -->
 
 ## Blockers
