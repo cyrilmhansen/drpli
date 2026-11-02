@@ -361,25 +361,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 173
-checkpoint-id: g173-1d75595a1954
+checkpoint-generation: 174
+checkpoint-id: g174-bafbebfa6e81
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 0, remaining ~64076, session 01a19ce5-2a5d-7761-bfc4-e2869ccffee5)
-checkpointed: 2026-11-02T15:44:56.547Z
+status: checkpoint (guard level 1, remaining ~13746, session 01a19ce5-2a5d-7761-bfc4-e2869ccffee5)
+checkpointed: 2026-11-02T16:01:01.010Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0c86f6e406d19e9eae70c29e147ee5d17152959deba41c17ab8c3912a88e9b9c
-source-handoff: 2fd7ec6b632943fe1e21fea5226e67ba1fe3e1dfbf1d360e511953f0c0ae91dd
-source-learnings: c97e5bf4a4ef579817dfc4a3245e6331f9c754e63f5ddb5663d1354dcb9397e4
+source-progress: a9f45b995a2d9ce8eacc9a9b94fd22ae057620a2f9f3d3818c3ac5a9d9dbcb8e
+source-handoff: 762c048442b902bbadaa2f6419a2fbbc4998a38695f81f5177994a81b44d4c2c
+source-learnings: 5c00bf13d22d20fa975050bff3ee348902496a49c11c0b8a5deb44acd2b3ba59
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a19ce5-2a5d-7761-bfc4-e2869ccffee5
-readiness-at: 2026-11-02T15:44:56.551Z
-readiness-checkpoint: g173-1d75595a1954
+readiness-at: 2026-11-02T16:01:01.020Z
+readiness-checkpoint: g174-bafbebfa6e81
 ### Last verified state
-guard level 0; checkpoint requested (finalize: HAMM-00 rev1 LANDED (610a8df triple+docs+LEARNINGS, b6ffc92 prose hash-record). Lane B FAIL attr=compiler 'codegen: DIV by non-constant [TBD]' = my-gap, kept classified; gate rc=0 1174/0,181/181,9/9,133/0/0,15/0/26/0,prose 5. NEXT: HANG-00 (Hangman) DESIGN hop in-session: read build/functional/fc01-sources/basic/HANGMAN.bas + URLS.tsv + NOTES.txt, rights review README 5.1, feature/capability analysis (corpus laws: literal divisors <=127, variable DIV measured refused, constants >=1 strict compares, <=71 cols, no apostrophes, GET echo law), derive fixed inputs + expected stream, write LEARNINGS design section + docs/PROGRESS/HANDOFF prose, commit design hop; then triple -> --stages source,derivation -> lane B build/fc01/corp5 -> docs sec 10 + sec 1 -> gate -> explicit-path commit. Renewal chain 11/12; ledger ends C352; no ocaml/harness changes; never stage handoff.config.json; no push.)
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -409,5 +409,5 @@ guard level 0; checkpoint requested (finalize: HAMM-00 rev1 LANDED (610a8df trip
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-HAMM-00 rev1 LANDED (610a8df triple+docs+LEARNINGS, b6ffc92 prose hash-record). Lane B FAIL attr=compiler 'codegen: DIV by non-constant [TBD]' = my-gap, kept classified; gate rc=0 1174/0,181/181,9/9,133/0/0,15/0/26/0,prose 5. NEXT: HANG-00 (Hangman) DESIGN hop in-session: read build/functional/fc01-sources/basic/HANGMAN.bas + URLS.tsv + NOTES.txt, rights review README 5.1, feature/capability analysis (corpus laws: literal divisors <=127, variable DIV measured refused, constants >=1 strict compares, <=71 cols, no apostrophes, GET echo law), derive fixed inputs + expected stream, write LEARNINGS design section + docs/PROGRESS/HANDOFF prose, commit design hop; then triple -> --stages source,derivation -> lane B build/fc01/corp5 -> docs sec 10 + sec 1 -> gate -> explicit-path commit. Renewal chain 11/12; ledger ends C352; no ocaml/harness changes; never stage handoff.config.json; no push.
+HANG-00 DESIGN LANDED (f491cb4; HAMM-00 rev1 landed 610a8df, prose b6ffc92). You are renewal 12/12 = configured cap: NO renewal after you. Read LEARNINGS.md § "2026-11-03 — FC-01 CORPUS HANG-00 design hop" FIRST — it is the complete, self-contained implementation contract (steps 1-10): scratch simulator build/fc01-scratch/hang00_sim.py on the HAMM byte model + echo law; LF draft -> CRLF/bare ^Z/<=71 cols/no apostrophes spec/functional/tests/HANG-00.PLI; reference.py:hang00 + DERIVATIONS; diff derivation vs simulator BEFORE writing HANG-00.json (link_target HANG00, sha pin, console_input 23 CR-joined codes 71,85,71,77,1,70,65,76,89,1,69,88,83,86,87,65,66,67,68,81,84,90,1 + bare ^Z, notes = removals/unwitnessed); validate every capability id against a SUPPORTED COVERAGE row; cite NO id for goto-in-IF or ON-GOTO; no division anywhere; strict compares, constants >=1; apostrophe rewrites IS NOT / HERE IS...YOU ARE / IT HAS BEEN FUN; stage-cell indices per the design section; grid print via nested show(c) 34-branch char(1)-varying ladder, consecutive no-SKIP PUTs = unwitnessed first use. Then --stages source,derivation; lane B --evidence build/fc01/corp5 --json-out build/fc01/corp5/records.json ACTUALS verbatim (FAIL stays classified); docs/functional-results.md § 10 + § 1 row; python3 tools/e2e_gate.py compile tier; explicit-path commit (NEVER handoff.config.json; no push). Finally CLOSE THE CHAIN: handoff_finalize (do NOT call handoff_renew — cap reached). Verify build first: cd ocaml && eval "$(opam env)" && dune build. Ledger ends C352; functional runs are NOT DR claims; third-party bytes never tracked; programs 4-8 stay queued; HAMM-00 rev2 subtraction-loop stays PROPOSED.
 <!-- guard:end checkpoint -->
