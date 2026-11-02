@@ -358,17 +358,17 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 130
-checkpoint-id: g130-6f9e6b656448
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 131
+checkpoint-id: g131-46049167bd73
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-guard-level: 3
-checkpointed: 2026-11-02T00:42:17.762Z
+guard-level: 1
+checkpointed: 2026-11-02T01:18:40.071Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 233e7c231b24365bc885b68e185871658808bc39b2ef4424a7c50fe452f3cb81
-source-handoff: a2ea2d6d6c74ea617bc8b3b819c75077da3764f15b483046f628d3641a7fbf6f
-source-learnings: 393b17b3db8b05b1be95365ef28116db1e6137bc623b18b5bec60c7787cf2ac5
+source-progress: 6c786836472422375f4d49b0251b1e6b0af6cf7d6ad4e6de7d3892ebaebc1188
+source-handoff: 91545486e6315283483788c62dbbd43fad9144435f631001f899e58da81a2cd1
+source-learnings: 7c20ad5f942dbcae8486e25b37f9deaa3587dd66d27dd3d702e2efe67e4ef89b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: — E2E-50/P2 ACTIVE (operator mission brief, bootstrapped 2026-11-02)
 
@@ -442,19 +442,56 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   still fails closed; hostile suite rc=0 148 checks unchanged), and the harness `--census`
   substrate probe for audit open question 1. **EXECUTION REMAINS**: build pli80-run in the lab's
   ignored `_build`, run Lane A (FX-00 double-run determinism, FX-01 typed error), then Lane B
-  TABLE-00/01 COMPILE->LINK->RUN->ASSERT, then the census probe of the exported .COM.]
+  TABLE-00/01 COMPILE->LINK->RUN->ASSERT, then the census probe of the exported .COM.
+  **PART 2 LANDED — EXECUTED** hop 6, verified read-only against the preserved evidence and
+  committed by the successor hop 7 at `68348ac` (`spec/lab-evidence/e2e50-p2/step6/RESULTS.md`;
+  evidence roots ignored under `build/functional/`): FX-00 **PASS** + double-run capture `cmp`
+  rc=0 (audit 2.20 proved EXECUTED; call total 14 — PLAN's written "13" an arithmetic slip,
+  distribution correct, kept); FX-01 **FAIL attr=`emulator`** as intended (first executed typed
+  attribution; audit 2.18 CONFIRMED and STRENGTHENED — the discarded capture is 0 bytes though
+  the trace shows the fn-9 banner written at step 3); **first functional execution of a
+  DRPLi-compiled PL/I program**: TABLE-00/01 COMPILE 896/1536 B, LINK PASS (FULL segments ZERO
+  `UNDEFINED` lines, `PLILIB   RQST` present, .COM 7552/7808 B), RUN `done` rc=0, **ASSERT FAIL
+  attr=`undefined`** (never narrowed) — CONTENT ≡ REFERENCE for both programs, semantics clean;
+  both FAILs are FRAMING: F1 harness anchor law (terminal lone CR after the `(?=\nD>)` cut) and
+  F2 measured DR PLILIB 79-column print-wrap (guest-written CRLF proven; promotion needs its own
+  oracle round). **Census:** BOTH linked .COMs issue BDOS **25 as their FIRST call** (PLILIB
+  init) and the audited emulator fails typed rc=1 — "pure-PUT" census hypothesis FALSIFIED, audit
+  open question 1 ANSWERED-partial: the free core cannot host PLILIB programs; full
+  linked-program census UNMEASURED.]
 - 7. Minimal functional-results reporting (reuse P1 model or a separate small report; NO
   reporting-system rewrite; scientific verdicts unchanged; no COVERAGE promotion without
-  evidence). [pending]
+  evidence). [**LANDED** hop 7: `958c204` + `cdc5d13` — the step-6 §3 debt PAID and MEASURED
+  (pre-fix probe printed `len 128` on the runner's stdout; the prediction was committed BEFORE the
+  post-fix run, which printed ZERO foreign lines with verdict/rc UNCHANGED; `cpmwork.Run.export()`
+  now redirects cpmcp stdio symmetrically with import_local/mkfs, the `ok` bool contract intact so
+  no gate weakens). Lane A fallback repaired to the MEASURED `LANE_A_CANDIDATES` (hop-6
+  falsification) and proven on the real substrate: `FX-00` WITHOUT `--pli80-run` -> lane A **PASS**,
+  capture identical to step 6. Hostile suite +C14: CLI stdout grammar CLOSED (record/evidence/
+  verdicts only), non-vacuous via a simulated chatty child; **171 → 182 checks**, rc=0. Report =
+  `docs/functional-results.md` (a rendering of step6/step7 `RESULTS.md`, four executed verdicts +
+  the census probe, F1/F2 framing, honest limits, P3 candidates as proposals; NO dashboard rewrite,
+  no COVERAGE/CLAIMS change). HONESTY MEASUREMENT: the prose "148 checks" was FALSIFIED — the HEAD
+  artifact printed 171; the suite now self-counts, so documents must quote the artifact.]
 - 8. Verification + short report (measured / failed / unmeasured), bounded P3 proposal, CLOSE
-  (byte-verified archive per convention), `handoff_finalize`, STOP. [pending]
+  (byte-verified archive per convention), `handoff_finalize`, STOP. [**PART 1 LANDED** hop 7
+  `d648bcd`: `spec/lab-evidence/e2e50-p2/REPORT.md` — delivered table, MEASURED / FALSIFIED /
+  UNMEASURED sections, boundary compliance, and the bounded P3 proposal (P3-a anchor fix, P3-b
+  declare F2 from the oracle side, P3-c free-core BDOS 25 + license decision, P3-d TABLE-02 — all
+  PROPOSALS, no execution). **FULL COMPILE-TIER GATE rc=0 measured by this session at HEAD
+  `545dcf1`, ACTUALS AS PRINTED:** byte panel **1174 byte-exact / 0 fail of 1174** (independent
+  cross-check `grep -c BYTE-EXACT` = 1174), negative **181/181** with the E46K14 `[dr-refuses]`
+  pinned marker UNMOVED, divergence **9/9**, coverage **133 rows 0 errors 0 warnings**, census
+  **EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0** (UNCHANGED), prose **5 active files clean**.
+  **REMAINING (close only):** the byte-verified archive + CLOSED rewrite + `handoff_finalize` —
+  see Unfinished operations.]
 
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
-readiness-by: session:01a199a1-ce37-7280-b553-bdbd546b7e10
-readiness-at: 2026-11-02T00:54:27.590Z
-readiness-checkpoint: g130-6f9e6b656448
+readiness-by: session:01a199c0-2008-7280-b553-bdc13929ba82
+readiness-at: 2026-11-02T01:18:40.075Z
+readiness-checkpoint: g131-46049167bd73
 <!-- guard:end checkpoint -->
 
 ## Blockers
