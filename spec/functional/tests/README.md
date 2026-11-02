@@ -74,7 +74,7 @@ required field.
 | `title` | Y | string | one-line description of what is functionally checked |
 | `provenance` | Y | object | § 5 |
 | `source` | Y | object | `{"file": "<rel path>", "sha256": "<hex of file bytes>", "encoding": "<form>"}`; the harness verifies the hash BEFORE any execution; mismatch is a spec/source-stage failure, attribution `source` |
-| `capabilities` | Y | array of COVERAGE ids | every row the test exercises; each must exist in `spec/COVERAGE.tsv` and must not be on the forbidden list (§ 7) |
+| `capabilities` | Y | array of COVERAGE ids | every row the test exercises; each must exist in `spec/COVERAGE.tsv` and must not be on the forbidden list (§ 7). **[E2E-50/P2 step 6 amendment]** A **Lane-A-only substrate fixture** (hand-encoded assembly, no compiler) exercises no PL/I construct, so § 7 has nothing to validate and the array MAY be empty there and only there; any spec with a lane B still requires a non-empty array (fail closed). Original rule text: "`capabilities` must be a non-empty array", kept as written per PROTOCOL #2. |
 | `limits` | Y | object | `{"compile_timeout_s": n, "link_timeout_s": n, "run_timeout_s": n, "run_max_steps": n}` — all positive integers; timeouts are FAIL-with-attribution material, never a retry prompt (§ 8) |
 | `lanes` | Y | array (≥1) | § 5.2 lane entries; the verdict of a test is per-lane |
 | `console_input` | N | string | console stdin for the run stage; DEFAULT `"^Z"` (one EOF), the `oracle/linkrun.py` convention (`DEFAULT_INPUT`); Lane A specs may omit it (the audited emulator provides no console input at all — `docs/emulator-audit.md` § 2.12) |

@@ -1,0 +1,42 @@
+{
+  "spec": "pli80-functional/1",
+  "id": "FX-00",
+  "family": "FIXTURE",
+  "title": "Lane A substrate control: hand-encoded .COM under the audited emulator (BDOS 9/2/11/12/0)",
+  "provenance": {
+    "origin": "original",
+    "author": "DRPLi E2E-50/P2 step 6 substrate fixture",
+    "date": "2026-11-02",
+    "note": "original DRPLi work; no compiler, no Digital Research content, no third-party code"
+  },
+  "source": {
+    "file": "FX-00.asm",
+    "sha256": "83c5372b6c5d33579c83840679da2e1ca5b2c3b3e3217ee2e869d77532181d32",
+    "encoding": "LF, ASCII, <=71 columns"
+  },
+  "capabilities": [],
+  "limits": {
+    "compile_timeout_s": 60,
+    "link_timeout_s": 120,
+    "run_timeout_s": 30,
+    "run_max_steps": 200000
+  },
+  "lanes": [
+    {
+      "lane": "A",
+      "substrate": "runes:pli80-run",
+      "toolchain": "hand-crafted original .COM fixture; no compiler, no DR libraries",
+      "artifact": "spec/functional/fixtures/FX-00.COM",
+      "artifact_sha256": "d2b576cb3a3c00ea238ea539e3a065c2939ba1bfd78b5699455f2025c7d600fd"
+    }
+  ],
+  "expected": {
+    "derivation": "reference.py:fx00",
+    "normalization": "collapse-spaces-v1",
+    "console": [
+      "FX-00 CORE OK",
+      "BDOS2-OK"
+    ]
+  },
+  "notes": "Lane A machinery + substrate control (README 5.2: COMPILE/LINK are not-applicable by the lane shape). Exercises audit rows 2.7 (COM load at 0100H), 2.9 (BDOS 9/2/11/12), 2.17 (trace), 2.18 (stdout valid only at exit 0). capabilities is empty by the README 3 Lane-A-only amendment: this fixture is assembly, it exercises NO PL/I construct, so the v1 capability perimeter has nothing to validate. compile_timeout_s/link_timeout_s are required by schema but unused on this lane. Expected console is the text the SOURCE declares (L3), never a capture."
+}

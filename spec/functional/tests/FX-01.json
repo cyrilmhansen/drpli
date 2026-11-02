@@ -1,0 +1,41 @@
+{
+  "spec": "pli80-functional/1",
+  "id": "FX-01",
+  "family": "FIXTURE",
+  "title": "Lane A negative control: BDOS 1 is unimplemented on the audited emulator (typed error)",
+  "provenance": {
+    "origin": "original",
+    "author": "DRPLi E2E-50/P2 step 6 substrate fixture",
+    "date": "2026-11-02",
+    "note": "original DRPLi work; no compiler, no Digital Research content, no third-party code"
+  },
+  "source": {
+    "file": "FX-01.asm",
+    "sha256": "537ff1151000c312681a479bd7713aac4fe13ba844d97df5700e24598d3887bb",
+    "encoding": "LF, ASCII, <=71 columns"
+  },
+  "capabilities": [],
+  "limits": {
+    "compile_timeout_s": 60,
+    "link_timeout_s": 120,
+    "run_timeout_s": 30,
+    "run_max_steps": 200000
+  },
+  "lanes": [
+    {
+      "lane": "A",
+      "substrate": "runes:pli80-run",
+      "toolchain": "hand-crafted original .COM fixture; no compiler, no DR libraries",
+      "artifact": "spec/functional/fixtures/FX-01.COM",
+      "artifact_sha256": "c555bdad3b1a7c746102b53be4e28b60c8df61fce1d8a4aaf98be240a99409c5"
+    }
+  ],
+  "expected": {
+    "derivation": "reference.py:fx01",
+    "normalization": "collapse-spaces-v1",
+    "console": [
+      "FX-01 BEFORE-TYPED-ERROR"
+    ]
+  },
+  "notes": "INTENDED VERDICT: FAIL with attribution emulator. The declared stream can never complete because BDOS 1 is absent from the audited dispatch (audit 2.12) and the runner fails typed (audit 2.11). This is the executed proof of the README 9 `emulator' attribution and of the audit 2.18 stdout-discard law on the REAL substrate (the hostile suite proves the same paths on stubs). A FAIL here is correct evidence, never a passing test, and no report may render it as anything but FAIL."
+}

@@ -229,9 +229,17 @@ def validate_spec(obj, *, basename, coverage):
 
     # capabilities (sections 3 + 7)
     caps = obj.get("capabilities")
+    # [E2E-50/P2 step 6 AMENDMENT] A Lane-A-ONLY substrate fixture is hand-encoded assembly:
+    # it exercises NO PL/I construct, so the capability perimeter (section 7) has nothing to
+    # validate and the empty array is legal THERE.  The law is unchanged for every spec with a
+    # lane B (or both lanes) -- fail closed.  (Old text: `if not caps: P.append("capabilities
+    # must be a non-empty array")', kept as written per PROTOCOL #2.)
+    lane_labels = [l.get("lane") for l in (obj.get("lanes") or []) if isinstance(l, dict)]
+    lane_a_only = bool(lane_labels) and all(l == "A" for l in lane_labels)
     if isinstance(caps, list):
-        if not caps:
-            P.append("capabilities must be a non-empty array")
+        if not caps and not lane_a_only:
+            P.append("capabilities must be a non-empty array (empty is legal ONLY for a "
+                     "Lane-A-only substrate fixture -- README section 3 amendment)")
         for c in caps:
             if not _is_str(c):
                 P.append("capabilities entries must be strings")
@@ -1256,6 +1264,71 @@ def _blocked_record(basename, lane_entry, why, detail, host, tdir):
                    [Stage("SOURCE", "blocked", "host", why, detail)], host, tdir)
 
 
+# --------------------------------------------------------------------------- substrate probe
+def parse_bdos_census(trace_text):
+    """BDOS census from a Runes structured trace (`docs/emulator-audit.md` 2.17):
+    `BDOS\t<step>\t<fn>\t<DE>` call events plus the `TERM\t<step>\tbdos:<n>` witness.
+    Returns (ordered_call_list, counted_set, term_witness).  A trace with no BDOS events
+    yields an EMPTY census -- absence of a witness is evidence of nothing (README 8)."""
+    calls, term = [], None
+    for line in trace_text.splitlines():
+        f = line.split("\t")
+        if len(f) >= 3 and f[0] == "BDOS":
+            calls.append(int(f[2]))
+        elif len(f) >= 3 and f[0] == "TERM" and f[2].startswith("bdos:"):
+            term = int(f[2][5:])
+    return calls, sorted(set(calls)), term
+
+
+def bdos_census(host, com_path, evidence, max_steps, timeout=60):
+    """MEASUREMENT of open question 1 (`docs/emulator-audit.md` 4 + 7.3): which BDOS
+    functions a program actually calls on the audited emulator.  This is a SUBSTRATE PROBE,
+    not a functional verdict: it never produces PASS/FAIL and never touches a spec lane.
+    Artifacts produced by the historical toolchain (Lane B `.COM`) may be probed here, but the
+    record must say so -- the image embeds PLILIB and is never distributable."""
+    exe = host.pli80_run_path()
+    rec = {"probe": "bdos-census", "emulator": exe, "artifact": com_path,
+           "note": "substrate probe, NOT a lane verdict (README 11)"}
+    if host.missing(exe):
+        rec["status"] = "blocked"
+        rec["why"] = "pli80-run absent (user-supplied; --pli80-run or PLI80_RUN)"
+        return rec
+    if host.missing(com_path):
+        rec["status"] = "blocked"
+        rec["why"] = "artifact absent: %s" % com_path
+        return rec
+    trace = os.path.join(evidence, "census.trace.txt")
+    argv = [exe, "--trace", trace, "--max-steps", str(max_steps), com_path]
+    rc, out, err, witness = host.run_argv(argv, timeout=timeout)
+    rec.update(rc=rc, witness=witness, sha256=sha256_file(com_path),
+               stdout_bytes=len(out or b""),
+               stderr=(err or b"").decode("latin-1", "replace").strip()[:400])
+    if witness != "exited":
+        rec["status"] = "unknown"
+        rec["why"] = "emulator process did not terminate normally (%s)" % witness
+        return rec
+    if not os.path.isfile(trace):
+        rec["status"] = "unknown"
+        rec["why"] = "no trace file: the census cannot be read from missing evidence"
+        return rec
+    calls, census, term = parse_bdos_census(open(trace, encoding="latin-1").read())
+    rec.update(status="measured", calls=calls, census=census, term_witness=term,
+               trace=os.path.relpath(trace, ROOT),
+               stdout_valid_at_exit0=bool(rc == 0))
+    return rec
+
+
+def render_census(rec):
+    if rec["status"] != "measured":
+        return "census %-7s %s: %s" % (rec["status"], os.path.basename(rec["artifact"]),
+                                       rec.get("why", ""))
+    return ("census %s: functions %s (calls=%d, term=bdos:%s, rc=%d, stdout %d bytes %s)"
+            % (os.path.basename(rec["artifact"]),
+               ",".join(str(c) for c in rec["census"]) or "NONE",
+               len(rec["calls"]), rec["term_witness"], rec["rc"], rec["stdout_bytes"],
+               "VALID" if rec["stdout_valid_at_exit0"] else "DISCARDED (audit 2.18)"))
+
+
 # --------------------------------------------------------------------------- CLI
 def parse_stage_ceiling(text):
     if not text:
@@ -1289,6 +1362,10 @@ def main(argv=None):
                     help="run + assert twice and require byte-equal console capture "
                          "(docs/emulator-audit.md 2.20 determinism proof)")
     ap.add_argument("--json-out", default=None, help="also write the records as JSON here")
+    ap.add_argument("--census", nargs="+", default=None, metavar="PROGRAM.COM",
+                    help="BDOS census SUBSTRATE PROBE (not a verdict): run each program under "
+                         "pli80-run --trace and record the observed BDOS call sequence "
+                         "(docs/emulator-audit.md 4, open question 1)")
     ap.add_argument("--quiet", action="store_true")
     a = ap.parse_args(argv)
 
@@ -1307,6 +1384,19 @@ def main(argv=None):
     os.makedirs(evidence_root, exist_ok=True)
     host = Host(compiler=a.compiler, pli80_run=a.pli80_run, cpmsim=a.cpmsim,
                 artefacts=a.artefacts, seeds=a.seeds)
+    if a.census:
+        # A probe measures the substrate; it produces no spec verdict and no exit-code claim.
+        recs = []
+        for i, com in enumerate(a.census):
+            cdir = os.path.join(evidence_root, "census-%d" % i)
+            os.makedirs(cdir, exist_ok=True)
+            rec = bdos_census(host, com, cdir, max_steps=4000000)
+            recs.append(rec)
+            print(render_census(rec))
+            host.write_evidence(cdir, "census.json", json.dumps(rec, indent=1) + "\n",
+                                binary=False)
+        print("evidence: %s" % os.path.relpath(evidence_root, ROOT))
+        return 0 if all(r["status"] == "measured" for r in recs) else 1
     coverage = read_coverage_ids()
     all_records = []
     counts = {v: 0 for v in VERDICTS}
