@@ -405,25 +405,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 176
-checkpoint-id: g176-9424109c2993
-checkpoint-kind: auto
+checkpoint-generation: 177
+checkpoint-id: g177-4c0b42e017fe
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4235, session 01a19cfe-d308-7761-bfc4-e28a0dfb6235)
-checkpointed: 2026-11-02T16:26:49.957Z
+status: checkpoint (guard level 2, remaining ~8501, session 01a19d3a-aea7-727a-91c8-56d549ecc023)
+checkpointed: 2026-11-02T17:32:40.440Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 47c50d3790e934f66dbcfdec992acee55aeb231b4d1e72e8785030d1a5c06d07
+source-progress: 7907e8dcf59010819ef3d3a376c33df642adda4bc36964a76deddfc761aed282
 source-handoff: 80e4a15a9db24ec65d9640590199eab314a7cf38cb24e80b5de3cb290ae921bf
-source-learnings: ddca50d6c072819f478eea051a83dbe8e7ef4919c6309aa4ce579a567701be98
+source-learnings: 478bdbfdbb28e519c0daccc23681248cc263dbfa4ed62a1c5787a68a7c56cd71
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19cfe-d308-7761-bfc4-e28a0dfb6235
-readiness-at: 2026-11-02T16:27:22.175Z
-readiness-checkpoint: g176-9424109c2993
+readiness-by: session:01a19d3a-aea7-727a-91c8-56d549ecc023
+readiness-at: 2026-11-02T17:32:40.446Z
+readiness-checkpoint: g177-4c0b42e017fe
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (finalize: FC-01 HANG-00 continuation chain hop 1 in flight: simulator rewritten (4 framing falsifications), design-hop m<>10 shift falsified (direct m<10), shapes02 compile-witnessed, LF draft authored; owed: CRLF conversion, reference.py mirror, diff, JSON, --stages source,derivation, lane B corp5, docs §10, gate, commit; then AMAZ-00.)
 
 ### Unfinished operations
 - (none recorded)
@@ -453,5 +453,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-HANG-00 DESIGN LANDED (f491cb4; HAMM-00 rev1 landed 610a8df, prose b6ffc92). You are renewal 12/12 = configured cap: NO renewal after you. Read LEARNINGS.md § "2026-11-03 — FC-01 CORPUS HANG-00 design hop" FIRST — it is the complete, self-contained implementation contract (steps 1-10): scratch simulator build/fc01-scratch/hang00_sim.py on the HAMM byte model + echo law; LF draft -> CRLF/bare ^Z/<=71 cols/no apostrophes spec/functional/tests/HANG-00.PLI; reference.py:hang00 + DERIVATIONS; diff derivation vs simulator BEFORE writing HANG-00.json (link_target HANG00, sha pin, console_input 23 CR-joined codes 71,85,71,77,1,70,65,76,89,1,69,88,83,86,87,65,66,67,68,81,84,90,1 + bare ^Z, notes = removals/unwitnessed); validate every capability id against a SUPPORTED COVERAGE row; cite NO id for goto-in-IF or ON-GOTO; no division anywhere; strict compares, constants >=1; apostrophe rewrites IS NOT / HERE IS...YOU ARE / IT HAS BEEN FUN; stage-cell indices per the design section; grid print via nested show(c) 34-branch char(1)-varying ladder, consecutive no-SKIP PUTs = unwitnessed first use. Then --stages source,derivation; lane B --evidence build/fc01/corp5 --json-out build/fc01/corp5/records.json ACTUALS verbatim (FAIL stays classified); docs/functional-results.md § 10 + § 1 row; python3 tools/e2e_gate.py compile tier; explicit-path commit (NEVER handoff.config.json; no push). Finally CLOSE THE CHAIN: handoff_finalize (do NOT call handoff_renew — cap reached). Verify build first: cd ocaml && eval "$(opam env)" && dune build. Ledger ends C352; functional runs are NOT DR claims; third-party bytes never tracked; programs 4-8 stay queued; HAMM-00 rev2 subtraction-loop stays PROPOSED.
+FC-01 HANG-00 continuation chain hop 1 in flight: simulator rewritten (4 framing falsifications), design-hop m<>10 shift falsified (direct m<10), shapes02 compile-witnessed, LF draft authored; owed: CRLF conversion, reference.py mirror, diff, JSON, --stages source,derivation, lane B corp5, docs §10, gate, commit; then AMAZ-00.
 <!-- guard:end checkpoint -->

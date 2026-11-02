@@ -145,7 +145,35 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-HANG-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, renewal 12/12 = CONFIGURED CHAIN CAP; HEAD
+HANG-00 IMPLEMENTATION — CONTINUATION CHAIN HOP 1 IN FLIGHT (2026-11-03; new chain after
+the operator reset; HEAD `704c4cc`; build rc=0, compiler `edce9e0e…`; operator
+`handoff.config.json` edit unstaged/untouched). Read FIRST `LEARNINGS.md` § "2026-11-03 —
+FC-01 CORPUS HANG-00 continuation chain, hop 1" — it supersedes framing details of both
+prior HANG hops. DONE this hop: simulator REWRITTEN with correct framing (four
+falsifications listed there; 329 normalized lines, script fully consumed, exit law
+[C352]); design-hop shift `t1=m+1; t1<12` FALSIFIED -> port uses direct `if m < 10 then
+goto disp;`; nested-DO and single-statement-do-block shapes COMPILE-witnessed in ignored
+scratch `build/fc01-scratch/shapes02.pli` (rc=0, 640 B); capability list TRIMMED to 12
+validated ids; complete LF draft authored at `build/fc01-scratch/HANG-00.draft.pli`
+(statements mirror the simulator exactly; gotos never cross an active DO). EXACT NEXT
+(same hop): (1) convert draft -> CRLF + bare ^Z, verify <=71 cols and ZERO apostrophes
+and that the draft's every `put list` is single-item, pin sha256, write
+`spec/functional/tests/HANG-00.PLI`; (2) append `reference.py` `_Hang00Port` statement
+mirror + `hang00()` + DERIVATIONS entry (same byte laws as the simulator; assert
+329 lines, verdict path win/win/hang, script consumed, exit framing); (3) diff
+`derive('hang00')` vs simulator lines BEFORE writing `HANG-00.json` (link_target HANG00,
+sha pin, console_input `71\r85\r71\r77\r1\r70\r65\r76\r89\r1\r69\r88\r83\r86\r87\r65\r66\r67\r68\r81\r84\r90\r1\r^Z`,
+12 caps, notes = removals + separator adaptation + unwitnessed shapes + m<10 correction);
+(4) `python3 tools/functional_runner.py --stages source,derivation --tests HANG-00`;
+(5) lane B `--evidence build/fc01/corp5 --json-out build/fc01/corp5/records.json`
+ACTUALS verbatim (a FAIL stays classified, never laundered; FIRST corpus GET-at-RUN is
+the risky stage); (6) `docs/functional-results.md` § 10 + § 1 row; (7)
+`python3 tools/e2e_gate.py` compile tier ACTUALS; (8) explicit-path commit (NEVER
+`handoff.config.json`; no push). THEN program 4 AMAZ-00 (maze) per the standing corpus
+procedure; HAMM-00 rev2 stays PROPOSED. No ocaml/harness changes; ledger ends C352;
+third-party bytes never tracked; renew only at safe boundaries per `handoff.config.json`.
+
+SUPERSEDED-BY-ABOVE: HANG-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, renewal 12/12 = CONFIGURED CHAIN CAP; HEAD
 `a78aed5`, build rc=0, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "2026-11-03 — FC-01
 CORPUS HANG-00 implementation hop (renewal 12/12 …)": the design hop's step-1 byte model is
 FALSIFIED (one blank precedes every PUT LIST item that is not the first since the last line
@@ -610,17 +638,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 176
-checkpoint-id: g176-9424109c2993
-checkpoint-kind: auto
+checkpoint-generation: 177
+checkpoint-id: g177-4c0b42e017fe
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-02T16:26:49.957Z
+guard-level: 2
+checkpointed: 2026-11-02T17:32:40.440Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 47c50d3790e934f66dbcfdec992acee55aeb231b4d1e72e8785030d1a5c06d07
+source-progress: 7907e8dcf59010819ef3d3a376c33df642adda4bc36964a76deddfc761aed282
 source-handoff: 80e4a15a9db24ec65d9640590199eab314a7cf38cb24e80b5de3cb290ae921bf
-source-learnings: ddca50d6c072819f478eea051a83dbe8e7ef4919c6309aa4ce579a567701be98
+source-learnings: 478bdbfdbb28e519c0daccc23681248cc263dbfa4ed62a1c5787a68a7c56cd71
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -644,9 +672,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19cfe-d308-7761-bfc4-e28a0dfb6235
-readiness-at: 2026-11-02T16:27:22.175Z
-readiness-checkpoint: g176-9424109c2993
+readiness-by: session:01a19d3a-aea7-727a-91c8-56d549ecc023
+readiness-at: 2026-11-02T17:32:40.446Z
+readiness-checkpoint: g177-4c0b42e017fe
 <!-- guard:end checkpoint -->
 
 ## Blockers

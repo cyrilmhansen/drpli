@@ -2958,3 +2958,57 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   an operator reset).
 - STATUS: nothing promoted to any ledger (ends C352 — functional runs are not DR claims); no
   ocaml/harness byte touched; third-party bytes untracked; ledger prose only + ignored scratch.
+
+## 2026-11-03 — FC-01 CORPUS HANG-00 continuation chain, hop 1 (simulator REWRITTEN; design-hop shift FALSIFIED; draft authored)
+
+- New chain (operator reset after the closed 12/12). Build verified rc=0, compiler
+  `edce9e0e…`; HEAD `704c4cc`; operator `handoff.config.json` edit untouched/unstaged.
+- ACCEPTED: re-read HANGMAN.bas line-by-line and rewrote the ignored scratch simulator
+  `build/fc01-scratch/hang00_sim.py` (now returns (Stream, leftover-script); asserts full
+  consumption). FALSIFIED in the renewal-12/12 version: (i) a leading `skip` per display
+  iteration (BASIC 170 prints the header DIRECTLY after the guess-echo-closed line);
+  (ii) THREE skips before SORRY (400 = PRINT:PRINT:PRINT -> exactly TWO blanks);
+  (iii) leading skips before FOUND/DUP/ALLEXT (390/230/97 all print directly);
+  (iv) trailing skip after ALLEXT (97 PRINT terminates, STOP exit appends one CRLF [C352]
+  -> no trailing blank entry). Measured stream: 329 normalized lines, raw 6369 B incl
+  exit CRLF; console_input
+  `71\r85\r71\r77\r1\r70\r65\r76\r89\r1\r69\r88\r83\r86\r87\r65\r66\r67\r68\r81\r84\r90\r1\r^Z` (unchanged 23-value script).
+- FALSIFIED (design hop §(7)): the shift `t1 = m + 1; if t1 < 12 then goto display;` for
+  BASIC `IF M<>10` is an off-by-one — m+1 < 12 ⇔ m ≤ 10, ALWAYS true in the port domain
+  (m is bounded by 10 by construction), so the lose path could never fire. Correction:
+  direct strict `if m < 10 then goto disp;` (m≠10 ⇔ m<10 under m≤10). Var<literal strict
+  compare with constant ≥1 is a PASS-witnessed shape (WKDAY rev3 `if t2 < 30`).
+- ACCEPTED (compile-witnessed this hop, ignored scratch `build/fc01-scratch/shapes02.pli`,
+  rc=0, shapes02.REL 640 B code=326 data=304): nested `do k`..`do j`..`end;`..`end;` with
+  `call show(x)` inside and `put skip;` at the outer step; `if m = 7 then do; <one store>;
+  end;` single-statement do-block; `if x = 71 then x = 1;` var=var... literal store form.
+  Lane-B RUN of nested DO stays unwitnessed (flagged).
+- ACCEPTED: capability list TRIMMED to the 12 ids the final port actually exercises (drop
+  AGG.ELEM_AS_ACTUAL — no call-with-member-actual (member→scalar first); drop
+  LOOP.DO_WHILE_UNTIL — no DO WHILE in the port; drop EXPR.VARYING_X_VARYING — no varying
+  compare). The 12: DECL.FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED,
+  AGG.VAR_INDEX_LADDER, LOOP.DO_TO_BY, IO.GET_LIST, IO.PUT_LIST_FIXED, IO.PUT_SKIP,
+  EXPR.REL_FIXED_EQ_K, EXPR.SELF_ADD_LADDER, PROC.CALL_COPYIN, TRAN.GOTO_SAME_BLOCK — all
+  re-validated dr=ACCEPTS/mine=SUPPORTED, none forbidden. Var=var and var<var compares
+  cite NO id (TABLE-02/MATH-00/WKDAY RUN-witnessed at lane B; no citable row —
+  EXPR.REL_VAR_EQ_EXPR is dr-UNTESTED, fail closed).
+- AUTHORED: LF draft `build/fc01-scratch/HANG-00.draft.pli` — statement-for-statement port:
+  goto labels sel/disp/cont/miss/fin (no goto crosses an ACTIVE DO loop — DUP/dash checks
+  set flag vars `du`/`dsh`, scanned then goto from flat context); three literal word arrays
+  + `cur(7)` copy (member→scalar into `x` first); dense `u(26)`/`nu` replaces the BASIC
+  first-empty-slot scan; 10-rung text ladder; 10-rung literal stage-cell store ladder
+  (indices verified against 480-570 by hand); flat grid walk `b = b + 1` (no division,
+  single-variable subscript); nested `show` ladder 34 branches (32,40,41,44,45,46,47,
+  92 + A-Z); every PUT is single-item (`put list(item);` + explicit `put skip;`).
+  Apostrophe rewrites IS NOT / IT IS / LET US / HERE IS...YOU ARE / IT HAS BEEN.
+- NEXT (same hop, owed): convert draft -> CRLF + bare ^Z + verify <=71 cols, zero
+  apostrophes, widest line -> pin sha256 as `spec/functional/tests/HANG-00.PLI`; add
+  `reference.py:_Hang00Port` statement mirror + `hang00()` + DERIVATIONS entry (byte model
+  IDENTICAL to the simulator laws); DIFF mirror-vs-simulator lines BEFORE writing
+  `HANG-00.json` (link_target HANG00, 12 caps, console_input above, notes = removals
+  (1)-(9) + FALSIFIED separator model adaptation + unwitnessed list + m<10 correction);
+  `--stages source,derivation --tests HANG-00`; lane B `--evidence build/fc01/corp5
+  --json-out build/fc01/corp5/records.json` ACTUALS verbatim (FAIL stays classified);
+  docs/functional-results.md § 10 + § 1 row; `python3 tools/e2e_gate.py` compile tier;
+  explicit-path commit (never handoff.config.json; no push); then program 4 AMAZ-00.
+  Ledger stays C352 (functional runs are not DR claims); third-party bytes untracked.
