@@ -2073,3 +2073,49 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   all on lane B through the harness `console_input` path (the schema supports the field; no adapted
   program has ever used it). If a later program genuinely needs input, that is its OWN recorded
   limitation, not a licence to extend the harness.
+
+## 2026-11-02 — FC-01 CORPUS hop (WKDAY-00 triple authored; lane-B execution owed)
+
+- ACCEPTED (od-verified this hop, `golden/e32rt_E32B1/E32B1.output.txt` raw bytes
+  `a=        12 b=        10 c=        14\n`): a fixed numeric prints in its 10-col
+  field and PLILIB emits ONE space after the field before the next item; a literal is
+  followed by the field's own right-justify padding (no extra separator). After
+  collapse-spaces-v1 every item boundary is exactly one space — the WKDAY derivation
+  relies on this, plus leading/trailing spaces INSIDE literals (`' WAS A '`) to make
+  cross-PUT-statement boundaries robust to the unmeasured M2PS boundary-separator
+  question (either way the collapsed line is identical).
+- ACCEPTED (from the PASS-proven Batch-A sources, re-read this hop): shapes an
+  adaptation may use — `if … then …; else put list(...)` (MATH-00), `^=` in a
+  DO WHILE condition (MATH-00), array reads inside expressions (`(v(i)-1)/20+1`,
+  HIST-00), remainder reconstruction `r = n - q*3` (MATH-00), several
+  `name fixed bin(15)` items in ONE declare statement (TABLE-01 style; STRNG-00
+  member), grouped declare WITH precision (`declare (i,j) fixed binary(6)`,
+  probe P003 — DR-accepted), chained `a = a + b + c` (ADD_PRESERVE_ROUTE row,
+  a+b+c measured).
+- ACCEPTED (verified): the Weekday integer port matches Python `datetime` on 10
+  dates INCLUDING both century-leap branches — 1900-01-01 MONDAY and 2000-02-29
+  TUESDAY exercise the y3=0 / (i1-1) mod 4 path; BASIC float `/4`/`/100` tails are
+  mod-invariant for non-negative A (proved + asserted in reference.py); the
+  lexicographic tense substitution equals the original (Y*12+M)*31+D encoding for
+  valid dates and both are asserted to agree for the fixed inputs.
+- FALSIFIED (kept as written, PROTOCOL #2): an intermediate hop-relaxation
+  derivation "RELAXED = a8 minus the three K1 totals decomposed cleanly" gave
+  2y 5m 6d and, via a wrong borrow order, once 2y 9m 16d. The UPSTREAM prints the
+  K5/K6/K7 residual after the three subroutine borrow-adjustments = 2y 4m 27d —
+  the reference and program now port the K-borrow ladder verbatim (its total
+  drift 877 != 886 is the ORIGINAL's declared quirk, kept, not corrected). The
+  predecessor's SLEEP 3/4/22, EAT 1/7/26, PLAY 2/2/23, retire 2034, b=4 WEDNESDAY,
+  age 9/8/8, A8=3537 ALL CONFIRMED.
+- ACCEPTED (measured): bin15 overflow is REAL and unavoidable in a literal port —
+  the tense encoding reaches 736305 > 32767; the (a8/100)*f + ((a8%100)*f)/100
+  identity keeps every product <= 1295 (asserted). Max intermediates: 3720 (tense,
+  dropped), 3537 (a8), 3285 (i5*365).
+- PROPOSED (compile-only in WKDAY-00, NOT yet witnessed by my compiler): nested DO
+  depth 4 (ok-do > ga-do > if-k7-do), `if b = 6 then do; if/else put; end;`, mid-stream
+  bare `put skip;`. If any refuses at lane B, that refusal is recorded evidence
+  (my-gap), expectation unchanged until re-derived.
+- LANDED: triple committed `c95cff4` (program sha 7c23640d…, JSON, reference.py);
+  `--stages source,derivation` rc=0 with UNKNOWN@COMPILE ceiling (as designed).
+  NEXT (successor): lane B full run to build/fc01/corp1, record ACTUALS verbatim,
+  docs/functional-results.md section 8 + section 1 row, `python3 tools/e2e_gate.py`
+  compile tier, commit docs; then program 2 (Hammurabi HAMM-00) per PROGRESS.

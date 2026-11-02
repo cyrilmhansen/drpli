@@ -162,12 +162,12 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 - FC-01 hop 5 (file-I/O harness extension, FILE-00/01, the pre-registered fc01-fileio oracle
   round, ONUNIT-00) is **CANCELLED by operator directive 2026-11-02** and is NOT owed. Nothing was
   half-edited, nothing was deleted: no hop-5 code, spec, fixture or probe ever existed.
-- ACTIVE: FC-01 CORPUS — the eight adapted historical programs. NO program written yet at this
-  boundary; the FIRST one (Weekday → `WKDAY-00`) is FULLY DESIGNED and its expected values are
-  already derived independently and cross-checked against Python `datetime` (PROGRESS.md →
-  `WKDAY-00 exact`; LEARNINGS.md § 2026-11-02 override section, PROPOSED entry). Rights/provenance
-  review per program (README § 5.1) and the unsupported-feature record are explicit deliverables;
-  the BASIC upstream licences are UNVERIFIED and are recorded as such, not asserted.
+- ACTIVE: FC-01 CORPUS — the eight adapted historical programs. WKDAY-00 triple LANDED
+  `c95cff4` (program + JSON + `reference.py:wkday00`, derivation checks rc=0 at the
+  source/derivation ceiling); lane-B EXECUTION still owed — exact remaining steps in
+  `PROGRESS.md` → Next action hop status. Rights/provenance review per program (README § 5.1)
+  and the unsupported-feature record are explicit deliverables; the BASIC upstream licences
+  are UNVERIFIED and are recorded as such, not asserted.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
   `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
 
@@ -201,25 +201,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 148
-checkpoint-id: g148-785ae1c52a87
-checkpoint-kind: manual
+checkpoint-generation: 149
+checkpoint-id: g149-6bc87fbacfbb
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~1951, session 01a19b7a-6c7e-7761-bfc4-e25a0cf95825)
-checkpointed: 2026-11-02T09:23:57.777Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6551, session 01a19b93-039b-7761-bfc4-e25f01e5d16a)
+checkpointed: 2026-11-02T09:58:23.189Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e961f191dde25ecaa752007af62a3ad7f75f4e87be6708676181dce3b2e3beb1
-source-handoff: 877a2c292936ca3c4e6cebac4ae7f684c30728cf4dd67090da2f7e07390243a8
-source-learnings: 3fcd0c1f1f41d59726d13920f90ee4ad7fcf55ceeec4a04a831aca41b27647f0
+source-progress: f716541948e4450d3d451de427ea1954e91e5d2ac3d18bdace2bbfa3a936e1be
+source-handoff: 9d71ee2957bf60dfdd239437e9edbd693d8f95e72894ff3253a15222c0217b42
+source-learnings: 49f3c4af14655ee28ce6aed120c7c54a74a0da0ea4192b55bd386ef3c7155cb6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19b7a-6c7e-7761-bfc4-e25a0cf95825
-readiness-at: 2026-11-02T09:23:57.783Z
-readiness-checkpoint: g148-785ae1c52a87
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

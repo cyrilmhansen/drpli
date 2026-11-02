@@ -135,6 +135,17 @@ hop-4 file-I/O survey + PROPOSED design stay in `LEARNINGS.md` as a RECORD, canc
 NEW PRIORITY — **adapt the eight operator-selected historical programs into a representative
 PL/I-80 functional corpus**, autonomously across renewals:
 
+**HOP STATUS 2026-11-02 (this chain):** WKDAY-00 steps 1–3 LANDED at `c95cff4` (program sha
+`7c23640d…`, JSON, `reference.py:wkday00`; derivation asserts datetime on 10 dates, the tense
+substitution and the F-identity; `--stages source,derivation` rc=0). REMAINING NOW: (a) run
+`python3 tools/functional_runner.py --lane B --tests WKDAY-00 --evidence build/fc01/corp1
+--json-out build/fc01/corp1/records.json` and record ACTUALS verbatim (verdict/stage/
+attribution/byte sizes; a COMPILE refusal is a my-gap finding, expectations stay as derived
+until re-derived with reason); (b) `docs/functional-results.md` § 8 + § 1 row; (c)
+`python3 tools/e2e_gate.py` compile tier, record ACTUALS as printed; (d) commit explicit paths;
+(e) proceed to HAMM-00 (Hammurabi, program 2) per the exact procedure below. Details in
+LEARNINGS 2026-11-02 CORPUS hop.
+
 | # | program | original | corpus id | note |
 |---|---|---|---|---|
 | 1 | Weekday | BASIC | `WKDAY-00` | START HERE — design fully derived, see § "WKDAY-00 exact" below |
@@ -358,17 +369,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 148
-checkpoint-id: g148-785ae1c52a87
-checkpoint-kind: manual
+checkpoint-generation: 149
+checkpoint-id: g149-6bc87fbacfbb
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-02T09:23:57.777Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-02T09:58:23.189Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e961f191dde25ecaa752007af62a3ad7f75f4e87be6708676181dce3b2e3beb1
-source-handoff: 877a2c292936ca3c4e6cebac4ae7f684c30728cf4dd67090da2f7e07390243a8
-source-learnings: 3fcd0c1f1f41d59726d13920f90ee4ad7fcf55ceeec4a04a831aca41b27647f0
+source-progress: f716541948e4450d3d451de427ea1954e91e5d2ac3d18bdace2bbfa3a936e1be
+source-handoff: 9d71ee2957bf60dfdd239437e9edbd693d8f95e72894ff3253a15222c0217b42
+source-learnings: 49f3c4af14655ee28ce6aed120c7c54a74a0da0ea4192b55bd386ef3c7155cb6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -392,9 +403,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19b7a-6c7e-7761-bfc4-e25a0cf95825
-readiness-at: 2026-11-02T09:23:57.783Z
-readiness-checkpoint: g148-785ae1c52a87
 <!-- guard:end checkpoint -->
 
 ## Blockers
