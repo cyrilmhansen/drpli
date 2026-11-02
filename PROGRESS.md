@@ -205,6 +205,7 @@ messages and 94/94+ reachable BASIC lines fired, the port value mapping (`1`=com
 compare a positive literal, the two FALSIFIED transcription defects in the cross-check model, and
 the detailed flat-machine port structure (printer+detector kept in the MAIN block via an `r`
 return-address variable because sibling-nested-procedure calls are unwitnessed).
+BLOCKER FIRST (see LEARNINGS continuation §): the port model gave 85 collapse-normalized lines vs the BASIC model's 84 — the two were fed DIFFERENT scripts in that run; re-run the identical script through both and fix the port model before anything else.
 DONE this hop: `sha256sum -c SHA256SUMS` rc=0; listing re-read; independent BASIC model
 `build/fc01-scratch/tict00_bas.py` (line-for-line, instrumented, fixed) + coverage searches
 `tict00_dfs.py`/`tict00_full.py`/`tict00_cand.py`; HANG-00 idiom survey.
@@ -840,17 +841,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 185
-checkpoint-id: g185-3f2576e2e1fa
-checkpoint-kind: auto
+checkpoint-generation: 186
+checkpoint-id: g186-0e4999679cc4
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-02T22:38:41.966Z
+checkpointed: 2026-11-02T22:40:29.411Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 37138a092f07508fa0071cbe0ff2d51c16244f566f9a44ae6d027a8bddf1a97d
-source-handoff: c06bc0ab92f4b244e59a6e99ccdd34b32a3b6cadf35c4a34f6c7af1efbbbf34c
-source-learnings: ed823f897af72092781d2aed50ff5dd163568c86c7f5e288bf4e6385e3898677
+source-handoff: 4d56e1a7bfe576bac7286bcb2c1c039e97a714fc59074906a760045ca6c38f90
+source-learnings: 50b81e8afb9dafb9dcfbf0580bb3154c772663404387d36e4d16f07ba4c6002f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -874,6 +875,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a19e3a-cf6d-7601-8f9d-90c492ad489c
+readiness-at: 2026-11-02T22:40:29.419Z
+readiness-checkpoint: g186-0e4999679cc4
 <!-- guard:end checkpoint -->
 
 ## Blockers
