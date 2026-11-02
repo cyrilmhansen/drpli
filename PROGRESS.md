@@ -374,7 +374,7 @@ checkpoint-generation: 152
 checkpoint-id: g152-1efc9582843c
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 guard-level: 3
 checkpointed: 2026-11-02T10:30:44.244Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -404,6 +404,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a19bb2-a51b-7761-bfc4-e2633770e95f
+readiness-at: 2026-11-02T10:31:06.593Z
+readiness-checkpoint: g152-1efc9582843c
 <!-- guard:end checkpoint -->
 
 ## Blockers
