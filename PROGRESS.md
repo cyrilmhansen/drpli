@@ -125,22 +125,27 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-FC-01 IS ACTIVE (operator mission, this session chain). Framing law is MEASURED ([C352]);
-continue exactly: (1) extend `tools/functional_runner.py` schema — `expected.console` entries
-become strings with `""` = an exact blank line (bare `!` still rejected); amend README § 3/§ 4
-(documented representation) and § 6 (framing law, cite [C352]/FCPS/E29PS1, evidence-backed
-addition, falsified text untouched); (2) add hostile-suite case C16 (schema accept ""; reject
-non-string; reject bare "!"; ASSERT: leading/trailing blank match, EXTRA/MISSING blank FAILs —
-complete-stream law NOT weakened); suite must print its own measured count; (3) re-derive
-reference.py math00/proc00/hist00/ptr00/strng00/dec00/flt00/tab02 to include the framing blank
-lines (7x leading ""; MATH-00 also trailing ""), update the 8 spec JSONs (source sha UNCHANGED
-— programs untouched), run `tools/test_functional_runner.py` then the Lane-B chain
-`python3 tools/functional_runner.py --lane B --tests MATH-00 PROC-00 HIST-00 PTR-00 STRNG-00
-DEC-00 FLT-00 TABLE-02 --evidence build/fc01/batchA2` recording ACTUAL verdicts (never
-launder; old FAIL records stay); (4) commit results + `docs/functional-results.md` § 6;
-(5) then Batch B blocker probes (BUILTIN-00, STRCAT-00/PROBE-CAT, COND-00, DEC-01, FLT-01,
-EDIT-00) and the file-I/O harness extension + FILE-00/01/ONUNIT-00 per the standing plan.
-Prior FS-01/E2E-50/P2 close instructions are historical.
+FC-01 hop 3 PARTLY DONE at this boundary. LANDED+COMMITTED: framing schema `51d64bd`
+(suite 211/211 measured); Batch-A re-derivation `122981a`; Batch-A Lane-B rerun **8/8 PASS**
++ double-run byte-equal, docs § 6 `38216e3`; Batch-B 6 probe specs/programs/derivations +
+ACTUALS `2c67c05` (build/fc01/batchB: 5 typed COMPILE FAILs attr=compiler, messages
+verbatim; FLT-01 rev1 PASS = probe-design falsification, kept as written).
+EXACT NEXT (hop 4): (1) FLT-01 REV2 — rewrite spec/functional/tests/FLT-01.PLI replacing
+`c = a + b; ... if c = 6.5` with `declare (a,b) float binary(24); ... if (a + b) = 6.5
+then hits = 1;` (CRLF join + \x1a end, ≤71 cols, header notes rev1 falsification);
+refresh source.sha256 + notes in FLT-01.json (surgical edit; NOT json round-trippable per
+LEARNINGS hop 3). BUILTIN-00 REV2 — move `n = length(s);` FIRST (before any char store of
+a non-literal) so the built-in refusal itself is measured; drop `t = substr(...)` store.
+(2) rerun only those two: python3 tools/functional_runner.py --lane B --tests FLT-01
+BUILTIN-00 --evidence build/fc01/batchB-rev2 --json-out build/fc01/batchB-rev2/records.json;
+record ACTUAL verdicts (never launder rev1). (3) docs/functional-results.md § 7: Batch-B
+ACTUALS table (all six incl rev1 PASS falsification + rev2 verdicts) + § 1 rows. (4) commit
+explicit paths. THEN the standing plan: file-I/O harness extension (stage_files/
+file_expectations mirroring oracle/linkrun.py STAGE_IN/EXPORT_OUT; input name from FILE
+variable, output from TITLE first token no ext [C279]) + FILE-00/01/ONUNIT-00, then corpus
+overview + 4 metrics. Constraints unchanged: NO ocaml compiler changes; goldens/artefacts
+untouched; explicit-path commits; no push; operator handoff.config.json stays unstaged;
+cap per handoff.config.json.
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
 - E2E-48/P1 — 24/24 probes byte-identical + registered, claims C309–C316, gate 1098/0: `992ccad`.
@@ -258,17 +263,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 137
-checkpoint-id: g137-e4d12b5a01a4
-checkpoint-kind: auto
+checkpoint-generation: 142
+checkpoint-id: g142-25ea1d801462
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-02T07:54:40.026Z
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-02T08:28:17.364Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: faac7d245c0363cc1d265358c463e23fbcc32e92143ec9d1ddaba8b63c81c3f8
-source-handoff: 505358553d9a03e98ee7dbd8da81f4b53357dc157f1aa026f8f25e6369ccc84d
-source-learnings: e0641f4f8e01b3146d12bfcb4a87f53a44529e9f4c4af5b276fa81bbbb5a9e21
+source-progress: 02d8805845ee7fceff50ee959fbd9d4a9b61cbff38e72206307a54fde24a9db1
+source-handoff: d07f19e637888f37dfdbc7afce17d3281c65c0a3e6642374ff2050d40a68d74b
+source-learnings: 62a72f5f0e75ff9154bf7b0985e552664852dac06640719a59f03a11d79a1912
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -292,6 +297,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a19b41-bc89-7388-bbdc-4f2ea8e5a736
+readiness-at: 2026-11-02T08:28:17.367Z
+readiness-checkpoint: g142-25ea1d801462
 <!-- guard:end checkpoint -->
 
 ## Blockers

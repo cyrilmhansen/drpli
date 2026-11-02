@@ -92,9 +92,9 @@ compiler gaps; no OCaml byte changed)
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## Next action — FC-01 ACTIVE (operator mission; baseline `4fd448a`; HEAD `1e9fad6` after the fc01-framing round)
+## Next action — FC-01 hop 3 LANDED (commits `51d64bd` schema/C16 211/211; `122981a` re-derivation; `38216e3` Batch-A **8/8 Lane-B PASS** + docs § 6; `2c67c05` Batch-B 6 probes: 5 typed COMPILE FAILs verbatim, FLT-01 rev1 PASS = probe falsification). HOP 4 EXACT PROCEDURE: `PROGRESS.md` → Next action (FLT-01/BUILTIN-00 REV2 + rerun batchB-rev2, docs § 7, then file-I/O harness extension + FILE-00/01/ONUNIT-00).
 
-FC-01: original representative functional corpus (15-25 programs), autonomous across renewals.
+FC-01 hop 2 (historical, kept as written): original representative functional corpus (15-25 programs), autonomous across renewals.
 Hop 1: 8 Batch-A programs committed (`cae1a50`). Hop 2 (this chain, `da029ec` oracle
 pre-registration + `1e9fad6` oracle round): Lane-B chain EXECUTED — 8/8 FAIL at ASSERT ONLY,
 all framing artifacts (leading blank line 8/8: first executed put is `PUT SKIP LIST`; MATH-00
@@ -119,11 +119,11 @@ artefacts untouched (new fc01-framing goldens are ADDITIVE evidence); explicit-p
 no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*` read-only.
 ## Unfinished operations
 
-- FC-01 hop 2 IN FLIGHT at this boundary: the `""` blank-line schema extension,
-  README § 3/§ 4/§ 6 amendment, reference.py + 8 spec JSONs re-derivation, hostile-suite C16
-  and the Lane-B rerun are NOT YET DONE (exact procedure: HANDOFF Next action 1–2 +
-  PROGRESS Next action). Nothing half-edited in Git; no emulator process running; the
-  fc01-framing oracle round is CLOSED and committed (`da029ec`, `1e9fad6`).
+- FC-01 hop 4 owed: FLT-01 REV2 (direct `(a + b) = 6.5`) + BUILTIN-00 REV2 (length first),
+  rerun to build/fc01/batchB-rev2, docs/functional-results.md § 7 — exact procedure in
+  `PROGRESS.md` Next action. Nothing half-edited in Git at this boundary; rev1 evidence
+  (incl. the FLT-01 PASS) stays on record as written. File-I/O extension + FILE-00/01/
+  ONUNIT-00 follow. No compiler process running.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
   `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
 ## Discoveries not yet incorporated
@@ -155,22 +155,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 137
-checkpoint-id: g137-e4d12b5a01a4
-checkpoint-kind: auto
+checkpoint-generation: 142
+checkpoint-id: g142-25ea1d801462
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6850, session 01a19b22-0ad7-7388-bbdc-4f2b694f80cf)
-checkpointed: 2026-11-02T07:54:40.026Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1189, session 01a19b41-bc89-7388-bbdc-4f2ea8e5a736)
+checkpointed: 2026-11-02T08:28:17.364Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: faac7d245c0363cc1d265358c463e23fbcc32e92143ec9d1ddaba8b63c81c3f8
-source-handoff: 505358553d9a03e98ee7dbd8da81f4b53357dc157f1aa026f8f25e6369ccc84d
-source-learnings: e0641f4f8e01b3146d12bfcb4a87f53a44529e9f4c4af5b276fa81bbbb5a9e21
+source-progress: 02d8805845ee7fceff50ee959fbd9d4a9b61cbff38e72206307a54fde24a9db1
+source-handoff: d07f19e637888f37dfdbc7afce17d3281c65c0a3e6642374ff2050d40a68d74b
+source-learnings: 62a72f5f0e75ff9154bf7b0985e552664852dac06640719a59f03a11d79a1912
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19b41-bc89-7388-bbdc-4f2ea8e5a736
+readiness-at: 2026-11-02T08:28:17.367Z
+readiness-checkpoint: g142-25ea1d801462
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -200,5 +203,5 @@ guard level 3; checkpoint requested (auto at level 3)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FS-01 CLOSED at 5c71a01 (chain d8a0ec1 harness F1 fix + C15 194/194; 5b29957 TABLE-01 output-only revision sha 4881f187..., expectation derived not captured; a0e2a96 docs/functional-results.md sec 5; 5c71a01 handoff prose). TABLE-00 PASS, TABLE-01 PASS (Lane B, all stages typed success, double-run byte-equal, evidence build/functional/fs01* ignored working state); Lane A unchanged FX-00 PASS / FX-01 FAIL emulator. P2 FAIL evidence preserved; wrap law stays proposed; no compiler/golden/ledger byte; operator handoff.config.json unstaged; successor WITHOUT operator instruction: confirm HEAD/tree, verify, record, STOP.
+FC-01 hop 3 CLOSED-OUT: framing schema 51d64bd (suite 211/211 measured), re-derivation 122981a, Batch-A 8/8 Lane-B PASS + double-run + docs sec 6 (38216e3), Batch-B probes 2c67c05 (5 COMPILE FAILs verbatim in build/fc01/batchB; FLT-01 rev1 PASS = probe falsification kept as written). HOP 4 per PROGRESS.md Next action: FLT-01 REV2 direct (a+b)=6.5 + BUILTIN-00 REV2 length-first, rerun --lane B --tests FLT-01 BUILTIN-00 --evidence build/fc01/batchB-rev2, docs sec 7 + sec 1 rows, commit; then file-I/O harness extension (STAGE_IN/EXPORT_OUT mirror, input=FILE var name, output=TITLE first token no ext [C279]) + FILE-00/01/ONUNIT-00. No ocaml changes; explicit paths; no push; operator config edit stays unstaged.
 <!-- guard:end checkpoint -->
