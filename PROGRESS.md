@@ -138,8 +138,7 @@ c=2/4 rats dispatch NOT reached — still unmeasured. `docs/functional-results.m
 written from these ACTUALS; FULL compile-tier gate rc=0 twice, ACTUALS byte panel **1174/0 of
 1174**, negative **181/181**, divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**,
 prose **5 active clean** (log `build/gate-hamm00.log`). rev2 subtraction-loop division
-PROPOSED (derived stream identical; port change only), NOT executed this hop. COMMIT at this
-boundary: explicit paths `spec/functional/tests/HAMM-00.PLI`, `spec/functional/tests/HAMM-00.json`,
+PROPOSED (derived stream identical; port change only), NOT executed this hop. COMMITTED at this boundary (`610a8df`): explicit paths `spec/functional/tests/HAMM-00.PLI`, `spec/functional/tests/HAMM-00.json`,
 `spec/functional/tests/reference.py`, `docs/functional-results.md`, `LEARNINGS.md`,
 `PROGRESS.md`, `HANDOFF.md` — NEVER `handoff.config.json`; no push. NEXT: program 3 **HANG-00**
 (Hangman) — read `build/functional/fc01-sources/basic/HANGMAN.bas` + `URLS.tsv`/`NOTES.txt`,

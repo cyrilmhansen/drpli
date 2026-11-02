@@ -122,7 +122,7 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## HAMM-00 rev1 recorded — LANE-B COMPILE FAIL (`my-gap`), docs § 9 + gate green, COMMIT OWED (2026-11-03, renewal 11/12; HEAD `5772b8a`; build rc=0, compiler `edce9e0e…`)
+## HAMM-00 rev1 landed — LANE-B COMPILE FAIL (`my-gap`) recorded; triple + docs § 9 + gate green; committed `610a8df` (2026-11-03, renewal 11/12; execution HEAD `5772b8a`; build rc=0, compiler `edce9e0e…`)
 
 Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 hop 7" FIRST (now carries the
 lane-B MEASURED entry). Lane B executed at `build/fc01/corp4/` (`records.json`, HEAD `5772b8a`,
@@ -136,7 +136,7 @@ rats dispatch NOT reached — still unmeasured. rev2 PROPOSED (subtraction-loop 
 stream identical) — recorded, NOT executed. `docs/functional-results.md` § 9 + § 1 row written;
 FULL compile-tier gate rc=0 twice, ACTUALS: byte panel **1174/0 of 1174**, negative **181/181**,
 divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**, prose **5 active clean**
-(log `build/gate-hamm00.log`). COMMIT OWED at this boundary: explicit paths
+(log `build/gate-hamm00.log`). COMMITTED at this boundary: explicit paths
 `spec/functional/tests/HAMM-00.PLI` (sha `cc25fe75…`), `HAMM-00.json`,
 `spec/functional/tests/reference.py`, `docs/functional-results.md`, `LEARNINGS.md`,
 `PROGRESS.md`, `HANDOFF.md` prose — NEVER `handoff.config.json`; no push. Then program 3
