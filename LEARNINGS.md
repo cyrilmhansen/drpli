@@ -1972,3 +1972,44 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   docs/functional-results.md §7 (Batch-B ACTUALS table incl. rev1 falsification) + §1 rows.
 - ACCEPTED (method): spec JSONs are NOT json.dump round-trippable (indent=1 differs from
   committed bytes) — edit console/notes surgically; generator output IS dump-clean.
+
+## 2026-11-02 — FC-01 hop 4 (Batch-B REV2 landed; file-I/O survey for the harness extension)
+
+- ACCEPTED (landed `a5815a8`): Batch-B REV2 measures the named blockers verbatim through lane B.
+  FLT-01 rev2 (sha `30da237c…`) refuses with `codegen: computed FLOAT operand in a comparison is
+  unsampled [TBD] …nothing is emitted before this refusal)`; BUILTIN-00 rev2 (sha `8b90ff2c…`,
+  LENGTH first, SUBSTR store dropped) refuses with `codegen: expression form not in int subset
+  [TBD]` — the built-in itself, not the char-store path. Both COMPILE FAIL attr=`compiler`,
+  records at `build/fc01/batchB-rev2/` (git HEAD `91dd3a7`, compiler `edce9e0e…`); rev1
+  `build/fc01/batchB/` kept as written (PROTOCOL #2). docs/functional-results.md § 7 + six § 1
+  rows; prose 5 clean; dashboard --check rc=0. BUILTIN-00 expectation re-derived `["", "LEN= 10"]`
+  with reference.py in the SAME commit (DERIVATION two-way check passed both records).
+- MEASURED LAW, cited from existing claims (no new oracle this sub-hop; design inputs for the
+  file-I/O extension): OUTPUT file name = TITLE first token, NO extension ([C279], E16D `E16OUT`);
+  INPUT FCB name = the FILE variable's own name + `.DAT` (e13dat E16x rows; P081Q `dcl f file` →
+  F.DAT). Fixtures on disk: `e13dat/INF.DAT` = `7\r\n8\r\n9\r\n^Z` (10 B), `e41dat/F.DAT` =
+  `17\r\n^Z` (5 B). File PUT content law [C295]: char items arrive APOSTROPHE-QUOTED, items of
+  separate PUT statements separated by ONE BLANK, NO line termination unless SKIP ([C300]:
+  `list('A'); skip; list('B')` → `'A'\r\n'B'` — no blank after a skip; consecutive lists →
+  `'A' 'B'` E46N16); numeric literal field = digits+3 right-justified ([C280]); written stream
+  files observed at EXACTLY 128 bytes = payload + 0x1A tail (E16D/E17D/E46L rows; the CAUSE of
+  128 stays unmeasured [C279](b) — keep derived payloads strictly <128 B, never on a multiple).
+- PROPOSED (harness design, NOT yet implemented): top-level `stage_files`: [{disk:"d", name F8.3
+  (`F83_RE` allows NO extension), `file` spec-dir-relative, `sha256`}] — fixture sha verified at
+  SOURCE before any execution; `expected.file_expectations`: [{name, derivation
+  "reference.py:<fn>", `raw` latin-1 byte string, non-empty}] — two-way DERIVATION check (drift
+  = source FAIL), export AFTER RUN but BEFORE `run.cleanup()` (the lane-B run dir is destroyed in
+  `finally`), byte-compare at ASSERT (folded into ASSERT, no new stage); missing file or byte
+  mismatch → FAIL attr=`undefined` (§ 9 rule 2, no discriminating run). cpmwork contract:
+  `export()` writes `dst_dir/basename(on_disk)` and REFUSES a pre-existing dst unless
+  allow_clobber ⇒ double-run exports need a per-seq subdir; callers use ONLY the truthiness of
+  the return; the hostile-suite FakeRun stub returns a PATH and its import/export record
+  `self.calls` — extend stubs when pinning cases.
+- UNMEASURED (BLOCKS ONUNIT-00 expectation): ON ENDFILE(<named file>) firing has NEVER executed
+  on DR. COPYLPT's `on endfile(sourcefile/printfile)` handlers are BEGIN-block bodies — outside
+  my accepted class (COND.ON_ENDFILE_ONLY); every measured ON-unit (E32E1 statement, E35N1/E30E2
+  goto, NETWORK) is SYSIN; E18A measures only the UNHANDLED named-file EOF (terminal abort
+  banner); [C110] (handler runs once, GET completes unassigned, control to NEXT statement) is
+  SYSIN-measured. Per hop-2 precedent ONUNIT-00 needs its own PRE-REGISTERED oracle round
+  (fc01-fileio): probes + HYPOTHESES + BASELINE-MINE + new linkrun STAGE_IN/EXPORT_OUT entries
+  committed BEFORE any DR PLI.COM call; only then derive the expectation.

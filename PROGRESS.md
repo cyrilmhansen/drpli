@@ -3,18 +3,18 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 ACTIVE (operator-authorized long-running corpus mission; baseline HEAD `4fd448a`; this hop: Batch-A Lane-B first run + fc01-framing oracle round, HEAD now `1e9fad6`)
+## Current phase — FC-01 ACTIVE (operator-authorized long-running corpus mission; baseline HEAD `4fd448a`; this hop: Batch-B REV2 LANDED `a5815a8` + file-I/O survey complete; harness extension IN FLIGHT, no code written yet)
 
-FC-01 hop 2 done so far: Batch-A Lane-B full chain EXECUTED (8/8 FAIL at ASSERT only — every
-test LINKed and RUN to `done`; all content lines matched; artifacts are stream-framing blank
-lines). fc01-framing oracle round CLOSED with evidence: H1 accepted, H2 falsified, claim
-**C352** (exit chain prints exactly one final CRLF unconditionally; first-statement SKIP prints
-its leading CRLF; my FCPS .REL byte-exact to DR). Classification: all 8 FAILs are SPEC
-expectation defects (reference derivations omitted framing), NOT compiler/runtime gaps.
-IN FLIGHT: harness schema extension ("" blank-line entries in expected.console), README § 4/§ 6
-amendment, reference.py + 8 spec JSONs re-derivation, hostile-suite C16, then Lane-B rerun and
-`docs/functional-results.md` § 6. Batch A programs themselves are UNCHANGED (sources still
-valid).
+FC-01 hop 4 done so far: Batch-B REV2 landed `a5815a8` — FLT-01 rev2 (direct `(a + b) = 6.5`
+compare) and BUILTIN-00 rev2 (LENGTH first, SUBSTR store dropped) both executed to their
+DELIVERABLE typed COMPILE FAIL attr=`compiler` with the named-blocker refusals verbatim
+(`build/fc01/batchB-rev2/`, HEAD `91dd3a7` at execution); rev1 `build/fc01/batchB/` kept as
+written; docs § 7 + six § 1 rows; prose 5 clean; dashboard rc=0. The full file-I/O survey
+(naming laws [C279]/E16x, content laws [C295]/[C300]/[C280], 128-B pad fact, fixtures, cpmwork
+export/import contracts, proposed schema design, the ONUNIT-00 evidence gap) is recorded in
+LEARNINGS 2026-11-02 hop 4 — read it before implementing.
+IN FLIGHT: the harness extension itself — NO code written yet at this boundary. (Hop 2/3
+state superseded here; archived records unchanged.)
 
 ## Previous phase — FS-01 CLOSED (2026-11-02; first two functional PASSes, Lane B; baseline HEAD `876ed9e`)
 
@@ -125,27 +125,29 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-FC-01 hop 3 PARTLY DONE at this boundary. LANDED+COMMITTED: framing schema `51d64bd`
-(suite 211/211 measured); Batch-A re-derivation `122981a`; Batch-A Lane-B rerun **8/8 PASS**
-+ double-run byte-equal, docs § 6 `38216e3`; Batch-B 6 probe specs/programs/derivations +
-ACTUALS `2c67c05` (build/fc01/batchB: 5 typed COMPILE FAILs attr=compiler, messages
-verbatim; FLT-01 rev1 PASS = probe-design falsification, kept as written).
-EXACT NEXT (hop 4): (1) FLT-01 REV2 — rewrite spec/functional/tests/FLT-01.PLI replacing
-`c = a + b; ... if c = 6.5` with `declare (a,b) float binary(24); ... if (a + b) = 6.5
-then hits = 1;` (CRLF join + \x1a end, ≤71 cols, header notes rev1 falsification);
-refresh source.sha256 + notes in FLT-01.json (surgical edit; NOT json round-trippable per
-LEARNINGS hop 3). BUILTIN-00 REV2 — move `n = length(s);` FIRST (before any char store of
-a non-literal) so the built-in refusal itself is measured; drop `t = substr(...)` store.
-(2) rerun only those two: python3 tools/functional_runner.py --lane B --tests FLT-01
-BUILTIN-00 --evidence build/fc01/batchB-rev2 --json-out build/fc01/batchB-rev2/records.json;
-record ACTUAL verdicts (never launder rev1). (3) docs/functional-results.md § 7: Batch-B
-ACTUALS table (all six incl rev1 PASS falsification + rev2 verdicts) + § 1 rows. (4) commit
-explicit paths. THEN the standing plan: file-I/O harness extension (stage_files/
-file_expectations mirroring oracle/linkrun.py STAGE_IN/EXPORT_OUT; input name from FILE
-variable, output from TITLE first token no ext [C279]) + FILE-00/01/ONUNIT-00, then corpus
-overview + 4 metrics. Constraints unchanged: NO ocaml compiler changes; goldens/artefacts
-untouched; explicit-path commits; no push; operator handoff.config.json stays unstaged;
-cap per handoff.config.json.
+FC-01 hop 4 PARTLY DONE. LANDED: Batch-B REV2 `a5815a8` (FLT-01 direct `(a+b)=6.5` refuses
+verbatim 'computed FLOAT operand in a comparison is unsampled'; BUILTIN-00 length-first refuses
+'int subset'; both COMPILE FAIL attr=compiler at build/fc01/batchB-rev2; docs § 7 + § 1 rows;
+LEARNINGS hop-4 section carries the full file-I/O survey — READ IT FIRST).
+EXACT NEXT (hop 5):
+(1) Harness extension tools/functional_runner.py — design is in LEARNINGS 2026-11-02 hop 4
+(PROPOSED): `stage_files` top-level field + `expected.file_expectations` implementation,
+SOURCE sha pin, DERIVATION two-way check (reference.py `derive()` must accept the file funcs
+— return a latin-1 string; json round-trips it), export in _run_lane_b AFTER RUN and BEFORE
+run.cleanup() into per-seq subdir (cpmwork export refuses clobber), ASSERT byte-compare,
+Lane-B-only validation, README § 3/§ 4 amendments, hostile-suite case C17 (FakeRun stub
+export returns a PATH — pin calls via run.calls), suite self-count printed.
+(2) FILE-00 (output; E16D shape, title 'F00OUT DAT', derived payload per [C295]/[C300]/[C280],
+<128 B, 0x1A pad) + FILE-01 (input; dcl inf file → stage INF.DAT fixture `7\r\n8\r\n` + ^Z,
+gets print X1/X2) specs/programs/derivations; run lane B → build/fc01/fileAB; docs § 8.
+(3) ONUNIT-00 ONLY AFTER a pre-registered fc01-fileio oracle round measures DR named-file
+ENDFILE firing (hop-2 pattern: probes FCFO* + HYPOTHESES + BASELINE-MINE + linkrun.py
+STAGE_IN/EXPORT_OUT entries committed BEFORE any DR PLI.COM call; claim C353+; results in
+spec/lab-evidence/fc01-fileio/). Named-file ON firing is UNMEASURED — do NOT derive an
+expectation without it.
+Constraints unchanged: NO ocaml compiler changes; goldens/artefacts untouched (new fc01-fileio
+goldens would be ADDITIVE); explicit-path commits; no push; operator handoff.config.json stays
+unstaged; cap per handoff.config.json.
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
 - E2E-48/P1 — 24/24 probes byte-identical + registered, claims C309–C316, gate 1098/0: `992ccad`.
@@ -263,17 +265,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 142
-checkpoint-id: g142-25ea1d801462
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 144
+checkpoint-id: g144-ece046fef644
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-02T08:28:17.364Z
+checkpointed: 2026-11-02T08:52:21.293Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 02d8805845ee7fceff50ee959fbd9d4a9b61cbff38e72206307a54fde24a9db1
-source-handoff: d07f19e637888f37dfdbc7afce17d3281c65c0a3e6642374ff2050d40a68d74b
-source-learnings: 62a72f5f0e75ff9154bf7b0985e552664852dac06640719a59f03a11d79a1912
+source-progress: e2e64e7d6dd3d2838e51666054df31b222c0a81b2cac2b9e5065740edf28383a
+source-handoff: 970cda3f71d8db6836c0f380c64cdeff43ea8adb1d731d84eabc4597853cb703
+source-learnings: becc891867a66ae423d8a66d1e773645a0a131abbdd836f724187057b07ccd2a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -297,9 +299,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19b41-bc89-7388-bbdc-4f2ea8e5a736
-readiness-at: 2026-11-02T08:28:17.367Z
-readiness-checkpoint: g142-25ea1d801462
 <!-- guard:end checkpoint -->
 
 ## Blockers

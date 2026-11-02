@@ -50,9 +50,19 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    `/home/john/pli/*` (Runes lab `/home/john/pli/lab`, `/home/john/pli/cpm`,
    `/home/john/pli/runes-full-runs`) is READ-ONLY for this project
    unless an operator brief authorizes otherwise.
-## Last verified state — FC-01 hop 2, fc01-framing round CLOSED (2026-11-02; HEAD `1e9fad6`;
-ledger ENDS C352; Batch-A Lane-B executed: 8/8 ASSERT FAIL = spec expectation defects, NOT
-compiler gaps; no OCaml byte changed)
+## Last verified state — FC-01 hop 4 PARTLY DONE (2026-11-02; HEAD `a5815a8`; ledger ENDS C352; Batch-B REV2 2/2 deliverable COMPILE FAILs; file-I/O survey complete, harness extension NOT yet started; no OCaml byte changed)
+
+- Hop 4 landed `a5815a8`: FLT-01 REV2 (direct `(a + b) = 6.5`, sha `30da237c…`) + BUILTIN-00
+  REV2 (LENGTH first, sha `8b90ff2c…`, expectation re-derived `["", "LEN= 10"]` with
+  reference.py in the SAME commit) executed to typed COMPILE FAIL attr=`compiler`, messages
+  verbatim in `build/fc01/batchB-rev2/records.json` (HEAD `91dd3a7` at execution, compiler
+  `edce9e0e…`); rev1 `build/fc01/batchB/` kept as written (FLT-01 rev1 PASS = probe
+  falsification, PROTOCOL #2); docs § 7 + six § 1 rows; prose 5 clean; dashboard rc=0.
+- File-I/O measured-law inventory, PROPOSED schema design and the ONUNIT-00 **evidence gap**
+  (DR named-file ON ENDFILE firing NEVER measured — pre-registered fc01-fileio round required
+  first) are in `LEARNINGS.md` § 2026-11-02 FC-01 hop 4 — READ IT BEFORE IMPLEMENTING.
+
+### Superseded prose below kept as written (PROTOCOL #2; full record in git `91dd3a7`)
 
 - Hop 2 commits: `da029ec` pre-registration (probes FCPS1/2/3 + HYPOTHESES + BASELINE-MINE,
   my objects linked/run under DR LINK-80+PLILIB, goldens `golden/fc01ps-my*`) committed
@@ -92,7 +102,13 @@ compiler gaps; no OCaml byte changed)
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## Next action — FC-01 hop 3 LANDED (commits `51d64bd` schema/C16 211/211; `122981a` re-derivation; `38216e3` Batch-A **8/8 Lane-B PASS** + docs § 6; `2c67c05` Batch-B 6 probes: 5 typed COMPILE FAILs verbatim, FLT-01 rev1 PASS = probe falsification). HOP 4 EXACT PROCEDURE: `PROGRESS.md` → Next action (FLT-01/BUILTIN-00 REV2 + rerun batchB-rev2, docs § 7, then file-I/O harness extension + FILE-00/01/ONUNIT-00).
+## Next action — FC-01 hop 5 EXACT PROCEDURE: `PROGRESS.md` → Next action. (1) implement the file-I/O harness extension per the PROPOSED design in LEARNINGS hop 4 (stage_files + expected.file_expectations; SOURCE sha pin; DERIVATION two-way; export AFTER RUN, BEFORE run.cleanup(), per-seq subdir; ASSERT byte-compare attr=undefined; Lane-B-only; README § 3/§ 4 amendments; hostile-suite C17, printed self-count). (2) FILE-00/FILE-01 specs+programs+derivations from MEASURED laws only ([C295] quotes/[C300] skip/[C280] widths/[C279] naming; payload <128 B, 0x1A pad; input FCB = FILE-variable name + .DAT), run lane B → build/fc01/fileAB, docs § 8. (3) ONUNIT-00 ONLY after a PRE-REGISTERED fc01-fileio oracle round (hop-2 pattern; probes FCFO* + HYPOTHESES + BASELINE-MINE + linkrun.py STAGE_IN/EXPORT_OUT entries committed BEFORE any DR PLI.COM call; claims C353+) measures DR named-file ENDFILE firing — that behavior is UNMEASURED and must not be extrapolated from SYSIN [C110].
+
+(Hop 4 LANDED: Batch-B REV2 `a5815a8` — FLT-01/BUILTIN-00 named blockers measured verbatim
+(build/fc01/batchB-rev2); rev1 batchB kept as written incl. the FLT-01 PASS falsification;
+docs § 7 + § 1 rows; file-I/O survey in LEARNINGS hop 4. Hop 3 LANDED: framing schema
+`51d64bd` suite 211/211; re-derivation `122981a`; Batch-A **8/8 Lane-B PASS** + docs § 6
+`38216e3`; Batch-B rev1 probes `2c67c05`.)
 
 FC-01 hop 2 (historical, kept as written): original representative functional corpus (15-25 programs), autonomous across renewals.
 Hop 1: 8 Batch-A programs committed (`cae1a50`). Hop 2 (this chain, `da029ec` oracle
@@ -119,22 +135,23 @@ artefacts untouched (new fc01-framing goldens are ADDITIVE evidence); explicit-p
 no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*` read-only.
 ## Unfinished operations
 
-- FC-01 hop 4 owed: FLT-01 REV2 (direct `(a + b) = 6.5`) + BUILTIN-00 REV2 (length first),
-  rerun to build/fc01/batchB-rev2, docs/functional-results.md § 7 — exact procedure in
-  `PROGRESS.md` Next action. Nothing half-edited in Git at this boundary; rev1 evidence
-  (incl. the FLT-01 PASS) stays on record as written. File-I/O extension + FILE-00/01/
-  ONUNIT-00 follow. No compiler process running.
+- FC-01 hop 5 owed: file-I/O harness extension (NO code written at this boundary; design
+  PROPOSED in LEARNINGS hop 4), then FILE-00/FILE-01, then the pre-registered fc01-fileio
+  oracle round BEFORE ONUNIT-00. Nothing half-edited; HEAD `a5815a8` tree clean apart from the
+  operator's `handoff.config.json`. No compiler process running.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
   `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
+
 ## Discoveries not yet incorporated
 
-- fc01-framing findings FULLY recorded: [C352] in the ledger,
-  `spec/lab-evidence/fc01-framing/RESULTS.md` § 1–3, LEARNINGS 2026-11-02 FC-01 hop 2
-  (accepted law; falsified H2 kept as written). OPEN: the proposed `""` blank-line
-  representation in `expected.console` and README § 4/§ 6 amendment (in flight — see Next
-  action 1; NOT yet implemented); the GET-echo "two extra newlines" observation stays
-  PROPOSED/uncharacterized (no claim); FCPS1..3 SPECIMENS registration stays owed to a gate
-  hop; no RUNTIME.txt row came from this round.
+- Hop 4 file-I/O survey (naming [C279]/E16x, content [C295]/[C300]/[C280], 128-B pad fact with
+  unestablished cause [C279](b), cpmwork export/import contracts, proposed `stage_files`/
+  `file_expectations` schema, ONUNIT-00 UNMEASURED blocker) lives in `LEARNINGS.md` hop 4 —
+  PROPOSED, not adopted; README § 3/§ 4 amendments belong to the implementing commit.
+- fc01-framing findings stay fully recorded ([C352], RESULTS § 1–3, LEARNINGS hop 2); the
+  GET-echo "two extra newlines" observation stays PROPOSED/uncharacterized; FCPS1..3
+  SPECIMENS registration stays owed to a gate hop.
+
 ## History and pointers
 
 - Superseded next-action sections, closed phase records and the full renewal-hop status
@@ -155,25 +172,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 142
-checkpoint-id: g142-25ea1d801462
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~1189, session 01a19b41-bc89-7388-bbdc-4f2ea8e5a736)
-checkpointed: 2026-11-02T08:28:17.364Z
+checkpoint-generation: 144
+checkpoint-id: g144-ece046fef644
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4608, session 01a19b5f-f3dd-7388-bbdc-4f32a1ce7b53)
+checkpointed: 2026-11-02T08:52:21.293Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 02d8805845ee7fceff50ee959fbd9d4a9b61cbff38e72206307a54fde24a9db1
-source-handoff: d07f19e637888f37dfdbc7afce17d3281c65c0a3e6642374ff2050d40a68d74b
-source-learnings: 62a72f5f0e75ff9154bf7b0985e552664852dac06640719a59f03a11d79a1912
+source-progress: e2e64e7d6dd3d2838e51666054df31b222c0a81b2cac2b9e5065740edf28383a
+source-handoff: 970cda3f71d8db6836c0f380c64cdeff43ea8adb1d731d84eabc4597853cb703
+source-learnings: becc891867a66ae423d8a66d1e773645a0a131abbdd836f724187057b07ccd2a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19b41-bc89-7388-bbdc-4f2ea8e5a736
-readiness-at: 2026-11-02T08:28:17.367Z
-readiness-checkpoint: g142-25ea1d801462
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
