@@ -2119,3 +2119,35 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   NEXT (successor): lane B full run to build/fc01/corp1, record ACTUALS verbatim,
   docs/functional-results.md section 8 + section 1 row, `python3 tools/e2e_gate.py`
   compile tier, commit docs; then program 2 (Hammurabi HAMM-00) per PROGRESS.
+
+## 2026-11-02 — FC-01 CORPUS hop 2 (WKDAY-00 executed to PASS; two compiler gaps measured)
+
+- MEASURED `my-gap` (rev1, build/fc01/corp1, verbatim): `Fatal error: exception Failure("codegen:
+  compare > k<=0 form unproven [TBD]")` on `if y3 > 0` — ordered compares against a constant ≤ 0
+  REFUSE for plain scalars (codegen.ml:8037; sibling sites refuse `< 0` and `^= 0` alike). DR's
+  bytes for `x > 0` are UNMEASURED — no claim; corpus rule: adapt around it.
+- MEASURED `my-gap`, SILENT MISCOMPILE (rev2, build/fc01/corp2 — the most dangerous class: rc=0,
+  wrong answer): `x / <constant>` lowers via `MVI A,lowbyte; PUSH H; MOV L,A; ADD A; SBB A;
+  MOV H,A; POP D; CALL ?ID22N` (codegen.ml ~5004-5012, goldens [P071B/P080A] sampled only small
+  constants) — the sign-extension idiom is correct ONLY for constants −128..127. Byte evidence in
+  the linked WKDAY00.COM: all three `k1 / 365` sites emit `MVI A,109` (365 mod 256) at CALL 1F80
+  while every ≤127 divisor (2/4/7/30/100) is exact; 1237/109=11, 601/109=5, 813/109=7 reproduce
+  the wrong SLEEP/EAT/PLAY lines exactly. The ASSERT-stage attribution law (README 9.2) kept
+  `undefined`; the .COM byte-level discriminating run narrows it to `compiler` honestly.
+  PROPOSED (not adopted): the codegen arm should REFUSE |n|>127 until a pre-registered oracle
+  round measures DR's 16-bit constant-divisor form — an OCaml change, out of FC-01 scope.
+- ACCEPTED (proven by execution, rev3 PASS): equivalent-shape corpus workarounds — shift
+  compares `x < 0` → `x+N < N` (Lt/ident/kk ladder, N=30/12/500) and `x > 0` → `x+1 > 1`;
+  divisor split `k1/365` → `t2 = k1/5; i5 = t2/73` (365=5·73; floor(floor(k/5)/73)=floor(k/365)
+  for k≥0; k1≥0 in every executed block); `i5 * 365` multiplication is FULL 16-bit (LXI D both
+  bytes) and was already correct.
+- ACCEPTED (shapes previously PROPOSED compile-only, now witnessed end-to-end): nested DO depth
+  4, `if b = 6 then do; if/else put; end;`, mid-stream bare `put skip;`, ident-vs-ident ordered
+  compares (`y1 < y` via the cmp_pair/?IS22N arm), grouped declares — all fine on lane B.
+- MEASURED (first adapted historical program PASS): WKDAY-00 rev3 SOURCE sha 2263d38f…, .REL
+  7552 B (bb28bf87…), WKDAY00.COM 11008 B (2634414b…), console 410 B, complete-stream 10 lines
+  ([C352] framing exact: leading "", no trailing), `parse_undefined=[]`, RUN `done`; `--double-run`
+  capture byte-equal (cmp rc=0). Compiler `edce9e0e…` at HEAD `e7d758c`. NO expectation was
+  re-derived: all three revisions preserved the derived behaviour; DERIVATION passed in every record.
+- CORPUS RULE (proposed, cheap to obey): adapted programs must keep literal divisors ≤ 127 and
+  ordered-compare constants ≥ 1; record any substitution in the spec `notes`.

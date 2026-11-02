@@ -13,7 +13,15 @@
 /* division operands non-negative (BASIC INT = floor =     */
 /* FIXED truncate there).  The (Y*12+M)*31+D tense         */
 /* encoding overflows FIXED BINARY(15); replaced by the    */
-/* equivalent lexicographic sign test (RECORDED).          */
+/* equivalent lexicographic sign test (RECORDED).          */
+/* REV2 (lane-B hop): my compiler refuses ordered        */
+/* compares with a constant <= 0 (unproven DR byte form);  */
+/* each such test became an equivalent shift test on t2    */
+/* (x < 0 became x+N < N; y3 > 0 became y3+1 > 1).         */
+/* REV3 (lane-B corp2): a constant divisor > 127 is        */
+/* MISCOMPILED by my compiler (emits the sign-extended low */
+/* byte: /365 ran as /109, measured in WKDAY00.COM);       */
+/* k1 / 365 became (k1 / 5) / 73 -- equal for k1 >= 0.     */
 /* Expected values: reference.py:wkday00, derived from an  */
 /* independent Python port cross-checked against           */
 /* datetime.                                               */
@@ -22,7 +30,8 @@ wkday00: procedure options(main);
   declare m fixed bin(15), d fixed bin(15), y fixed bin(15);
   declare i1 fixed bin(15), i2 fixed bin(15), y2 fixed bin(15);
   declare y3 fixed bin(15), a fixed bin(15), b fixed bin(15);
-  declare t1 fixed bin(15), q fixed bin(15), r fixed bin(15);
+  declare t1 fixed bin(15), t2 fixed bin(15), q fixed bin(15);
+  declare r fixed bin(15);
   declare ok fixed bin(15), ga fixed bin(15), st fixed bin(15);
   declare i5 fixed bin(15), i6 fixed bin(15), i7 fixed bin(15);
   declare a8 fixed bin(15), k1 fixed bin(15), e fixed bin(15);
@@ -63,7 +72,8 @@ wkday00: procedure options(main);
            t1 = r - t1 * 4;        /* FNA of century-1        */
            if t1 = 0 then q = 2;
         end;
-        if y3 > 0 then do;
+        t2 = y3 + 1;              /* rev2: y3>0 <=> y3+1>1 */
+        if t2 > 1 then do;
            t1 = y / 4;
            t1 = y - t1 * 4;        /* FNA(Y), full year       */
            if t1 = 0 then q = 2;
@@ -86,16 +96,19 @@ wkday00: procedure options(main);
      i5 = y1 - y;
      i6 = m1 - m;
      i7 = d1 - d;
-     if i7 < 0 then do;
+     t2 = i7 + 30;                /* rev2: i7<0 <=> i7+30<30 */
+     if t2 < 30 then do;
         i6 = i6 - 1;
-        i7 = i7 + 30;
+        i7 = t2;
      end;
-     if i6 < 0 then do;
+     t2 = i6 + 12;                /* rev2: i6<0 <=> i6+12<12 */
+     if t2 < 12 then do;
         i5 = i5 - 1;
-        i6 = i6 + 12;
+        i6 = t2;
      end;
      ga = 1;
-     if i5 < 0 then ga = 0;        /* line 820 exit           */
+     t2 = i5 + 500;              /* rev2: i5<0 <=> i5+500<500 */
+     if t2 < 500 then ga = 0;   /* line 820 exit           */
      a8 = i5 * 365;
      a8 = a8 + i6 * 30;
      t1 = i6 / 2;
@@ -130,15 +143,17 @@ wkday00: procedure options(main);
         k1 = r * f;
         k1 = k1 / 100;
         k1 = k1 + q * f;           /* INT(F*A8), bin15-safe   */
-        i5 = k1 / 365;
+        t2 = k1 / 5;                /* rev3: 365 = 5*73, */
+        i5 = t2 / 73;               /* both divisors <= 127 */
         k1 = k1 - i5 * 365;
         i6 = k1 / 30;
         i7 = k1 - i6 * 30;
         k5 = k5 - i5;
         k6 = k6 - i6;
         k7 = k7 - i7;
-        if k7 < 0 then do;
-           k7 = k7 + 30;
+        t2 = k7 + 30;             /* rev2: k7<0 <=> k7+30<30 */
+        if t2 < 30 then do;
+           k7 = t2;
            k6 = k6 - 1;
         end;
         if k6 < 1 then do;
@@ -154,15 +169,17 @@ wkday00: procedure options(main);
         k1 = r * f;
         k1 = k1 / 100;
         k1 = k1 + q * f;
-        i5 = k1 / 365;
+        t2 = k1 / 5;                /* rev3: 365 = 5*73, */
+        i5 = t2 / 73;               /* both divisors <= 127 */
         k1 = k1 - i5 * 365;
         i6 = k1 / 30;
         i7 = k1 - i6 * 30;
         k5 = k5 - i5;
         k6 = k6 - i6;
         k7 = k7 - i7;
-        if k7 < 0 then do;
-           k7 = k7 + 30;
+        t2 = k7 + 30;             /* rev2: k7<0 <=> k7+30<30 */
+        if t2 < 30 then do;
+           k7 = t2;
            k6 = k6 - 1;
         end;
         if k6 < 1 then do;
@@ -181,15 +198,17 @@ wkday00: procedure options(main);
         k1 = r * f;
         k1 = k1 / 100;
         k1 = k1 + q * f;
-        i5 = k1 / 365;
+        t2 = k1 / 5;                /* rev3: 365 = 5*73, */
+        i5 = t2 / 73;               /* both divisors <= 127 */
         k1 = k1 - i5 * 365;
         i6 = k1 / 30;
         i7 = k1 - i6 * 30;
         k5 = k5 - i5;
         k6 = k6 - i6;
         k7 = k7 - i7;
-        if k7 < 0 then do;
-           k7 = k7 + 30;
+        t2 = k7 + 30;             /* rev2: k7<0 <=> k7+30<30 */
+        if t2 < 30 then do;
+           k7 = t2;
            k6 = k6 - 1;
         end;
         if k6 < 1 then do;

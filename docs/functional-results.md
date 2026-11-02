@@ -36,6 +36,7 @@ cpmsim, user-supplied and never packaged).
 | DEC-01 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | fractional DEC literal in additive position refused (§ 7) |
 | FLT-01 | B | rev1 SOURCE→…→ASSERT; rev2 SOURCE→DERIVATION→COMPILE | rev1 **PASS** (probe falsification); rev2 **FAIL** (deliverable) | `compiler` | rev1 compared via a variable — the proven cell route; rev2 puts `(a + b)` DIRECT in the compare and measures the computed-FLOAT-operand refusal (§ 7) |
 | EDIT-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | PUT EDIT counted `SKIP(1)` refused — only the bare form is sampled (§ 7) |
+| WKDAY-00 | B | rev1 COMPILE; rev2 →RUN→ASSERT; rev3 SOURCE→…→RUN→ASSERT | rev1 **FAIL**, rev2 **FAIL**, rev3 **PASS** (corpus program 1 of 8; § 8) | rev1 `compiler`; rev2 narrowed to `compiler` by the byte-level discriminating run | adapted BASIC Weekday; rev1 measured the `> 0` refusal, rev2 the silent `/365` low-byte miscompile (both `my-gap`), rev3 passes with complete-stream match, 10 lines, double-run byte-equal |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -265,3 +266,54 @@ COND-00 DEC-01 FLT-01 EDIT-00 --evidence build/fc01/batchB
 --json-out build/fc01/batchB/records.json`; rev2 `python3 tools/functional_runner.py
 --lane B --tests FLT-01 BUILTIN-00 --evidence build/fc01/batchB-rev2
 --json-out build/fc01/batchB-rev2/records.json`.
+
+## 8. FC-01 CORPUS hop (2026-11-02): WKDAY-00 — first adapted historical program; three revisions; two compiler gaps measured
+
+Program 1 of the operator's eight (Weekday, BASIC, `coding-horror/basic-computer-games`
+95_Weekday; adaptation, upstream bytes never tracked; rights review per README § 5.1 stays an
+explicit FC-01 deliverable and the upstream licence is UNVERIFIED, recorded as such). The triple
+(kept as written) landed at `c95cff4`; the console expectation was DERIVED (`reference.py:wkday00`,
+cross-checked against Python `datetime` on 10 dates including both century-leap branches), never
+captured (L3). All three executions ran on compiler sha256 `edce9e0e…` at git HEAD `e7d758c`;
+evidence roots `build/fc01/corp1`, `build/fc01/corp2`, `build/fc01/corp3` (+`corp3-double`) —
+ignored working state, kept as written, never laundered.
+
+* **rev1 — COMPILE FAIL, attr `compiler` (`build/fc01/corp1/`, source sha `7c23640d…`):**
+  `Fatal error: exception Failure("codegen: compare > k<=0 form unproven [TBD]")` — the first
+  ordered compare against `0` (`if y3 > 0`) hits the unprobed bias case (`codegen.ml:8037`: DR's
+  plain-scalar `> 0' has no golden). `my-gap`; expectations unchanged.
+* **rev2 — six-stage chain ran; ASSERT FAIL, attr `undefined` (`build/fc01/corp2/`, source sha
+  `b6fdf6aa…`):** every `> 0`/`< 0` test became the equivalent shift test on a new temp
+  (`x < 0` → `x+N < N`; `y3 > 0` → `y3+1 > 1`; ranges verified). COMPILE/LINK/RUN passed; the
+  first three lines matched (`DATE 7/16/1969 WAS A WEDNESDAY.`, `AGE 9 YEARS 8 MONTHS 8 DAYS`,
+  `TOTAL DAYS 3537`) and framing was exact (10 lines, leading blank, no trailing blank), but line
+  5 got `YOU HAVE SLEPT 11 YEARS -92 MONTHS -18 DAYS` (want `3 YEARS 4 MONTHS 22 DAYS`).
+  **A DISCRIMINATING BYTE-LEVEL RUN NARROWS THE ATTRIBUTION TO `compiler`:** in the linked
+  `WKDAY00.COM` every `?ID22N` (CALL `1F80`) constant-divisor site emits
+  `MVI A,lowbyte; PUSH H; MOV L,A; ADD A; SBB A; MOV H,A; POP D` — a sign-extension idiom that is
+  correct only for constants −128..127; the three `k1 / 365` sites emitted `MVI A,109`
+  (`365 mod 256`) while every ≤127 divisor (`2, 4, 7, 30, 100`) emitted correctly.
+  `1237/109=11`, `601/109=5`, `813/109=7` reproduce the wrong SLEEP/EAT/PLAY lines exactly. This
+  is a **SILENT MISCOMPILE** (`my-gap`, no refusal) — constant divisors outside the byte-signed
+  range have NO golden ([P071B/P080A] sampled only small constants); DR's behaviour for `/365` is
+  UNMEASURED and nothing is claimed.
+* **rev3 — PASS (`build/fc01/corp3/`, source sha `2263d38f…`):** each `k1 / 365` became
+  `t2 = k1 / 5; i5 = t2 / 73` (365 = 5·73; `floor(floor(k/5)/73) = floor(k/365)` for `k ≥ 0`,
+  and `k1 = INT(f·a8/100) ≥ 0` in every executed block). All six stages passed; ACTUALS:
+  `.REL` 7552 B (sha256 `bb28bf87…`), `WKDAY00.COM` 11008 B (sha256 `2634414b…`), console
+  410 bytes, complete-stream 10 lines, `parse_undefined=[]`, RUN `done` witness.
+  `--double-run` (`build/fc01/corp3-double/`): PASS again, capture **byte-equal** to corp3 (`cmp`
+  rc=0).
+
+The documented unsupported-feature/removal list lives in `WKDAY-00.json` `notes` items (1)–(10)
+(console INPUT → fixed dates; DEF FNA/FNB inlined; READ/DATA → literal assignments; TAB()/banner
+dropped; GOTO/GOSUB → IF/DO; original calendar quirks KEPT as declared behaviour; the bin15
+tense-encoding substitution; integer-identity fractional multipliers; the rev2 shift compares;
+the rev3 divisor split). **No expectation was re-derived** — all three revisions preserved the
+derived behaviour exactly; the DERIVATION two-way check passed in every record.
+
+Commands: rev1 `python3 tools/functional_runner.py --lane B --tests WKDAY-00 --evidence
+build/fc01/corp1 --json-out build/fc01/corp1/records.json`; rev2 `... --evidence build/fc01/corp2
+--json-out build/fc01/corp2/records.json`; rev3 `... --evidence build/fc01/corp3 --json-out
+build/fc01/corp3/records.json`; double-run `... --double-run --evidence build/fc01/corp3-double
+--json-out build/fc01/corp3-double/records.json`.

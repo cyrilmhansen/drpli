@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 ACTIVE (operator-authorized long-running corpus mission; baseline HEAD `4fd448a`; this hop: Batch-B REV2 LANDED `a5815a8` + file-I/O survey complete; harness extension IN FLIGHT, no code written yet)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; baseline HEAD `e7d758c`; WKDAY-00 PASS at rev3; gate + commit owed at this boundary; program 2 = HAMM-00)
 
 FC-01 hop 4 done so far: Batch-B REV2 landed `a5815a8` — FLT-01 rev2 (direct `(a + b) = 6.5`
 compare) and BUILTIN-00 rev2 (LENGTH first, SUBSTR store dropped) both executed to their
@@ -135,16 +135,17 @@ hop-4 file-I/O survey + PROPOSED design stay in `LEARNINGS.md` as a RECORD, canc
 NEW PRIORITY — **adapt the eight operator-selected historical programs into a representative
 PL/I-80 functional corpus**, autonomously across renewals:
 
-**HOP STATUS 2026-11-02 (this chain):** WKDAY-00 steps 1–3 LANDED at `c95cff4` (program sha
-`7c23640d…`, JSON, `reference.py:wkday00`; derivation asserts datetime on 10 dates, the tense
-substitution and the F-identity; `--stages source,derivation` rc=0). REMAINING NOW: (a) run
-`python3 tools/functional_runner.py --lane B --tests WKDAY-00 --evidence build/fc01/corp1
---json-out build/fc01/corp1/records.json` and record ACTUALS verbatim (verdict/stage/
-attribution/byte sizes; a COMPILE refusal is a my-gap finding, expectations stay as derived
-until re-derived with reason); (b) `docs/functional-results.md` § 8 + § 1 row; (c)
-`python3 tools/e2e_gate.py` compile tier, record ACTUALS as printed; (d) commit explicit paths;
-(e) proceed to HAMM-00 (Hammurabi, program 2) per the exact procedure below. Details in
-LEARNINGS 2026-11-02 CORPUS hop.
+**HOP STATUS 2026-11-03 (this chain):** WKDAY-00 COMPLETE — rev3 **PASS** on lane B
+(build/fc01/corp3; double-run byte-equal; source sha `2263d38f…`; docs § 8 + § 1 row written).
+Rev1 measured the `> 0` refusal (corp1), rev2 the SILENT `/365` low-byte miscompile (corp2,
+narrowed to `compiler` by the .COM byte run) — both `my-gap`, kept as written; NO expectation
+re-derived. REMAINING NOW: (a) run `python3 tools/e2e_gate.py` (compile tier) and record ACTUALS
+as printed; (b) explicit-path commit (`spec/functional/tests/WKDAY-00.PLI`, `WKDAY-00.json`,
+`docs/functional-results.md`, `LEARNINGS.md`, this file); (c) refresh+attest the checkpoint
+(`/handoff finalize` or `handoff_finalize`), renew at the safe boundary; (d) proceed to HAMM-00
+(Hammurabi, program 2) per the exact procedure below, applying the corpus rule: literal divisors
+≤ 127, ordered-compare constants ≥ 1 (LEARNINGS 2026-11-02 CORPUS hop 2). Details in
+LEARNINGS 2026-11-02 CORPUS hop 2.
 
 | # | program | original | corpus id | note |
 |---|---|---|---|---|
@@ -369,13 +370,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 149
-checkpoint-id: g149-6bc87fbacfbb
+checkpoint-generation: 150
+checkpoint-id: g150-c6289059787d
 checkpoint-kind: auto
-content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-02T09:58:23.189Z
+content-delta: none
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-02T09:58:58.577Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: f716541948e4450d3d451de427ea1954e91e5d2ac3d18bdace2bbfa3a936e1be
 source-handoff: 9d71ee2957bf60dfdd239437e9edbd693d8f95e72894ff3253a15222c0217b42
@@ -403,6 +404,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a19b93-039b-7761-bfc4-e25f01e5d16a
+readiness-at: 2026-11-02T09:58:58.584Z
+readiness-checkpoint: g150-c6289059787d
 <!-- guard:end checkpoint -->
 
 ## Blockers
