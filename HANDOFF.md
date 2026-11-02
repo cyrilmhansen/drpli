@@ -275,22 +275,25 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 128
-checkpoint-id: g128-8772855d407f
+checkpoint-generation: 129
+checkpoint-id: g129-ce0fd5e4a294
 checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6203, session 01a1998d-901a-7280-b553-bdb811ee9cdf)
-checkpointed: 2026-11-02T00:19:58.454Z
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~3424, session 01a1998d-901a-7280-b553-bdb811ee9cdf)
+checkpointed: 2026-11-02T00:20:46.581Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 6279802bec70f51499077dfa2c04e01ed929c52eed51d5e09f300e9205c14879
-source-handoff: 2a0593de3e5e7e1a2d58d21858854ea91f0053ae11482b12eb44f2ee43c817c5
-source-learnings: 27060cc2da0842b610fda54100fe3846d02f2ea9d97d7ee8544814c36edf2160
+source-progress: 233e7c231b24365bc885b68e185871658808bc39b2ef4424a7c50fe452f3cb81
+source-handoff: a2ea2d6d6c74ea617bc8b3b819c75077da3764f15b483046f628d3641a7fbf6f
+source-learnings: 393b17b3db8b05b1be95365ef28116db1e6137bc623b18b5bec60c7787cf2ac5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1998d-901a-7280-b553-bdb811ee9cdf
+readiness-at: 2026-11-02T00:20:59.950Z
+readiness-checkpoint: g129-ce0fd5e4a294
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
