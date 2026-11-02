@@ -125,7 +125,61 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-FC-01 hop 4 PARTLY DONE. LANDED: Batch-B REV2 `a5815a8` (FLT-01 direct `(a+b)=6.5` refuses
+**FC-01 OPERATOR OVERRIDE (2026-11-02). HOP 5 IS CANCELLED — do NOT implement `stage_files`,
+`expected.file_expectations`, FILE-00/FILE-01, the fc01-fileio oracle round or ONUNIT-00.**
+Nothing of it had begun (measured at `6a35b9c`: no `stage_files` anywhere in
+`tools/functional_runner.py`; `file_expectations` is only the pre-existing fail-closed rejection
+at lines 127/398-400). Hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand untouched; the
+hop-4 file-I/O survey + PROPOSED design stay in `LEARNINGS.md` as a RECORD, cancelled as a plan.
+
+NEW PRIORITY — **adapt the eight operator-selected historical programs into a representative
+PL/I-80 functional corpus**, autonomously across renewals:
+
+| # | program | original | corpus id | note |
+|---|---|---|---|---|
+| 1 | Weekday | BASIC | `WKDAY-00` | START HERE |
+| 2 | Hammurabi | BASIC | `HAMM-00` | |
+| 3 | Hangman | BASIC | `HANG-00` | |
+| 4 | Amazing | BASIC | `AMAZ-00` | maze: 2-D grid ⇒ AGG.MULTIDIM is REFUSED; flatten or record |
+| 5 | Tic-Tac-Toe | BASIC | `TICT-00` | two upstream listings (tictactoe1/2) |
+| 6 | Life | BASIC | `LIFE-00` | |
+| 7 | Dhrystone | Pascal | `DHRY-00` | upstream is a .SHAR; do NOT execute it |
+| 8 | FFT | PL/I (Rosetta) | `FFT-00` | `pli/FFT-reference.pli` |
+
+Sources: `build/functional/fc01-sources/` (ignored working state; operator's
+`fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02). They are RESEARCH
+COPIES: read `NOTES.txt` — the BASIC URLs are a moving branch and `dhry-pascal.shar` must never be
+run. Upstream bytes are NEVER copied into tracked files: each program is an ADAPTATION with
+`provenance.origin: "third-party"`, the upstream URL and licence recorded in `provenance.note`,
+and the algorithm re-expressed in PL/I-80.
+
+EXACT PROCEDURE per program (reuse the harness AS IT STANDS — no new infrastructure, no runner
+edits):
+1. Read the upstream listing; write the behavioural spec FIRST (fixed inputs, complete expected
+   console stream) into `spec/functional/tests/reference.py:<id>` — derived, never captured (L3).
+2. Write `<ID>.PLI`: CRLF, `^Z`-terminated, ≤ 71 columns, header comment naming the adaptation and
+   its upstream; keep every line inside the measured 79-col PLILIB wrap; obey README § 7 and the
+   pinned-refusal list already in the Batch-A notes.
+3. Write `<ID>.json` (schema `pli80-functional/1`; Lane B; `capabilities` = real COVERAGE ids, no
+   forbidden/REFUSED/DIVERGENT/UNTESTED rows). Set `console_input` when the program reads — the
+   harness already supports it (`^Z` default; `##SEND`).
+4. Run `python3 tools/functional_runner.py --lane B --tests <ID> --evidence build/fc01/corp<N>
+   --json-out build/fc01/corp<N>/records.json`; record ACTUALS (verdict, stage, attribution, byte
+   sizes) — PASS/FAIL/BLOCKED/UNKNOWN as measured, never laundered. Where the harness CANNOT test
+   the program adequately, RECORD the limitation in `docs/functional-results.md` and move on; do
+   not extend the harness.
+5. Update `docs/functional-results.md` (new section per batch) + § 1 rows; run the fast tier
+   `python3 tools/e2e_gate.py` (compile tier only — runtime/link-run stay delegated to rune-ci,
+   and existing CI results do NOT cover new corpus programs unless explicitly added there).
+6. Commit explicit paths only; renew at the safe boundary per `handoff.config.json`.
+
+Standing constraints: NO `ocaml/` changes; goldens/`artefacts/`/`oracle/disks/` untouched; no push;
+no new CI framework; no mass documentation cleanup; operator `handoff.config.json` stays UNSTAGED;
+compiler-gap findings are classified `my-gap`/`dr-refuses`/`unmeasured` (PROTOCOL #3) and recorded
+without promoting anything to `spec/CLAIMS.md` (ledger still ends at C352) — a functional run is not
+a DR claim.
+
+(Superseded hop-5 instruction, kept as written per PROTOCOL #2: FC-01 hop 4 PARTLY DONE. LANDED: Batch-B REV2 `a5815a8` (FLT-01 direct `(a+b)=6.5` refuses
 verbatim 'computed FLOAT operand in a comparison is unsampled'; BUILTIN-00 length-first refuses
 'int subset'; both COMPILE FAIL attr=compiler at build/fc01/batchB-rev2; docs § 7 + § 1 rows;
 LEARNINGS hop-4 section carries the full file-I/O survey — READ IT FIRST).
@@ -265,16 +319,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 144
-checkpoint-id: g144-ece046fef644
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 145
+checkpoint-id: g145-dd0e3f3441c5
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-02T08:52:21.293Z
+checkpointed: 2026-11-02T08:53:12.693Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: e2e64e7d6dd3d2838e51666054df31b222c0a81b2cac2b9e5065740edf28383a
-source-handoff: 970cda3f71d8db6836c0f380c64cdeff43ea8adb1d731d84eabc4597853cb703
+source-handoff: b9fffb809c45601f9f70c23375ca91791b8786aa2994f47f4fdc20d457bae3d2
 source-learnings: becc891867a66ae423d8a66d1e773645a0a131abbdd836f724187057b07ccd2a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
@@ -299,6 +353,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a19b5f-f3dd-7388-bbdc-4f32a1ce7b53
+readiness-at: 2026-11-02T08:53:12.696Z
+readiness-checkpoint: g145-dd0e3f3441c5
 <!-- guard:end checkpoint -->
 
 ## Blockers

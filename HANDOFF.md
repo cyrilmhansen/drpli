@@ -50,8 +50,28 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    `/home/john/pli/*` (Runes lab `/home/john/pli/lab`, `/home/john/pli/cpm`,
    `/home/john/pli/runes-full-runs`) is READ-ONLY for this project
    unless an operator brief authorizes otherwise.
-## Last verified state — FC-01 hop 4 PARTLY DONE (2026-11-02; HEAD `a5815a8`; ledger ENDS C352; Batch-B REV2 2/2 deliverable COMPILE FAILs; file-I/O survey complete, harness extension NOT yet started; no OCaml byte changed)
+## Last verified state — FC-01 OPERATOR OVERRIDE (2026-11-02; HEAD `6a35b9c`; ledger ENDS C352; hop 5 CANCELLED before it began; new priority = eight adapted historical programs; no OCaml byte changed)
 
+- **OPERATOR OVERRIDE (FC-01, 2026-11-02).** The planned HOP 5 work is CANCELLED: do NOT
+  implement `stage_files`/`expected.file_expectations`, FILE-00/01 or the fc01-fileio oracle
+  round; do NOT start ONUNIT-00. New priority: **adapt eight operator-selected historical
+  programs into a representative PL/I-80 functional corpus** (Weekday, Hammurabi, Hangman,
+  Amazing, Tic-Tac-Toe, Life — BASIC; Dhrystone — Pascal; FFT — Rosetta Code PL/I), preserving
+  essential functionality, documenting unsupported features instead of silently removing them,
+  and prioritising adaptation + functional measurement + compiler-gap identification.
+- **Interruption record (measured, not assumed): there was no hop-5 work to interrupt.** At HEAD
+  `6a35b9c` the tree carried only the operator's `handoff.config.json` edit and the g145 managed
+  block; `stage_files` appears NOWHERE in `tools/functional_runner.py` and `file_expectations`
+  exists only as the pre-existing fail-closed rejection (`tools/functional_runner.py:127,
+  398-400`), shipped before this directive. No FILE-00/01 or ONUNIT-00 spec, program, fixture or
+  probe was ever created and no fc01-fileio round was pre-registered or run — nothing is
+  half-edited and nothing was deleted. The hop-4 file-I/O survey and its PROPOSED schema stay in
+  `LEARNINGS.md` § 2026-11-02 hop 4 **as a record**: the plan is cancelled, the measured laws are
+  not.
+- Sources fetched and verified: `build/functional/fc01-sources/` — 10 files, `sha256sum -c
+  SHA256SUMS` all OK measured 2026-11-02 (7 BASIC listings, `dhry-pascal.shar`,
+  `fft-rosettagit.md`, extracted `FFT-reference.pli`). Third-party bytes stay OUTSIDE tracked
+  files; any derivative work must record origin + licence (README § 5.1 rights rule).
 - Hop 4 landed `a5815a8`: FLT-01 REV2 (direct `(a + b) = 6.5`, sha `30da237c…`) + BUILTIN-00
   REV2 (LENGTH first, sha `8b90ff2c…`, expectation re-derived `["", "LEN= 10"]` with
   reference.py in the SAME commit) executed to typed COMPILE FAIL attr=`compiler`, messages
@@ -102,7 +122,11 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## Next action — FC-01 hop 5 EXACT PROCEDURE: `PROGRESS.md` → Next action. (1) implement the file-I/O harness extension per the PROPOSED design in LEARNINGS hop 4 (stage_files + expected.file_expectations; SOURCE sha pin; DERIVATION two-way; export AFTER RUN, BEFORE run.cleanup(), per-seq subdir; ASSERT byte-compare attr=undefined; Lane-B-only; README § 3/§ 4 amendments; hostile-suite C17, printed self-count). (2) FILE-00/FILE-01 specs+programs+derivations from MEASURED laws only ([C295] quotes/[C300] skip/[C280] widths/[C279] naming; payload <128 B, 0x1A pad; input FCB = FILE-variable name + .DAT), run lane B → build/fc01/fileAB, docs § 8. (3) ONUNIT-00 ONLY after a PRE-REGISTERED fc01-fileio oracle round (hop-2 pattern; probes FCFO* + HYPOTHESES + BASELINE-MINE + linkrun.py STAGE_IN/EXPORT_OUT entries committed BEFORE any DR PLI.COM call; claims C353+) measures DR named-file ENDFILE firing — that behavior is UNMEASURED and must not be extrapolated from SYSIN [C110].
+## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json`. First program: Weekday (BASIC) → `WKDAY-00`.
+
+## Superseded next action (FC-01 hop 5) — kept as written per PROTOCOL #2; CANCELLED by the operator override above, never started
+
+FC-01 hop 5 EXACT PROCEDURE: `PROGRESS.md` → Next action. (1) implement the file-I/O harness extension per the PROPOSED design in LEARNINGS hop 4 (stage_files + expected.file_expectations; SOURCE sha pin; DERIVATION two-way; export AFTER RUN, BEFORE run.cleanup(), per-seq subdir; ASSERT byte-compare attr=undefined; Lane-B-only; README § 3/§ 4 amendments; hostile-suite C17, printed self-count). (2) FILE-00/FILE-01 specs+programs+derivations from MEASURED laws only ([C295] quotes/[C300] skip/[C280] widths/[C279] naming; payload <128 B, 0x1A pad; input FCB = FILE-variable name + .DAT), run lane B → build/fc01/fileAB, docs § 8. (3) ONUNIT-00 ONLY after a PRE-REGISTERED fc01-fileio oracle round (hop-2 pattern; probes FCFO* + HYPOTHESES + BASELINE-MINE + linkrun.py STAGE_IN/EXPORT_OUT entries committed BEFORE any DR PLI.COM call; claims C353+) measures DR named-file ENDFILE firing — that behavior is UNMEASURED and must not be extrapolated from SYSIN [C110].
 
 (Hop 4 LANDED: Batch-B REV2 `a5815a8` — FLT-01/BUILTIN-00 named blockers measured verbatim
 (build/fc01/batchB-rev2); rev1 batchB kept as written incl. the FLT-01 PASS falsification;
@@ -135,10 +159,12 @@ artefacts untouched (new fc01-framing goldens are ADDITIVE evidence); explicit-p
 no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*` read-only.
 ## Unfinished operations
 
-- FC-01 hop 5 owed: file-I/O harness extension (NO code written at this boundary; design
-  PROPOSED in LEARNINGS hop 4), then FILE-00/FILE-01, then the pre-registered fc01-fileio
-  oracle round BEFORE ONUNIT-00. Nothing half-edited; HEAD `a5815a8` tree clean apart from the
-  operator's `handoff.config.json`. No compiler process running.
+- FC-01 hop 5 (file-I/O harness extension, FILE-00/01, the pre-registered fc01-fileio oracle
+  round, ONUNIT-00) is **CANCELLED by operator directive 2026-11-02** and is NOT owed. Nothing was
+  half-edited, nothing was deleted: no hop-5 code, spec, fixture or probe ever existed.
+- ACTIVE: FC-01 CORPUS — the eight adapted historical programs. In flight at this boundary: the
+  Weekday adaptation (`WKDAY-00`). Per program, the rights/provenance review (README § 5.1) and
+  the unsupported-feature record are explicit deliverables.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
   `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
 
@@ -172,22 +198,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 144
-checkpoint-id: g144-ece046fef644
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4608, session 01a19b5f-f3dd-7388-bbdc-4f32a1ce7b53)
-checkpointed: 2026-11-02T08:52:21.293Z
+checkpoint-generation: 145
+checkpoint-id: g145-dd0e3f3441c5
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1607, session 01a19b5f-f3dd-7388-bbdc-4f32a1ce7b53)
+checkpointed: 2026-11-02T08:53:12.693Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: e2e64e7d6dd3d2838e51666054df31b222c0a81b2cac2b9e5065740edf28383a
-source-handoff: 970cda3f71d8db6836c0f380c64cdeff43ea8adb1d731d84eabc4597853cb703
+source-handoff: b9fffb809c45601f9f70c23375ca91791b8786aa2994f47f4fdc20d457bae3d2
 source-learnings: becc891867a66ae423d8a66d1e773645a0a131abbdd836f724187057b07ccd2a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19b5f-f3dd-7388-bbdc-4f32a1ce7b53
+readiness-at: 2026-11-02T08:53:12.696Z
+readiness-checkpoint: g145-dd0e3f3441c5
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -217,5 +246,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FC-01 hop 3 CLOSED-OUT: framing schema 51d64bd (suite 211/211 measured), re-derivation 122981a, Batch-A 8/8 Lane-B PASS + double-run + docs sec 6 (38216e3), Batch-B probes 2c67c05 (5 COMPILE FAILs verbatim in build/fc01/batchB; FLT-01 rev1 PASS = probe falsification kept as written). HOP 4 per PROGRESS.md Next action: FLT-01 REV2 direct (a+b)=6.5 + BUILTIN-00 REV2 length-first, rerun --lane B --tests FLT-01 BUILTIN-00 --evidence build/fc01/batchB-rev2, docs sec 7 + sec 1 rows, commit; then file-I/O harness extension (STAGE_IN/EXPORT_OUT mirror, input=FILE var name, output=TITLE first token no ext [C279]) + FILE-00/01/ONUNIT-00. No ocaml changes; explicit paths; no push; operator config edit stays unstaged.
+FC-01 hop 4 CLOSED-OUT at 6a35b9c: Batch-B REV2 a5815a8 (FLT-01 direct (a+b)=6.5 refusal + BUILTIN-00 length-first 'int subset' refusal, both COMPILE FAIL attr=compiler verbatim in build/fc01/batchB-rev2; rev1 batchB kept as written; docs sec 7 + sec 1 rows; prose 5 clean; dashboard rc=0). HOP 5 per PROGRESS.md Next action: (1) implement file-I/O harness extension per PROPOSED design in LEARNINGS 2026-11-02 hop 4 (stage_files + expected.file_expectations; SOURCE sha pin; DERIVATION two-way; export AFTER RUN BEFORE run.cleanup() into per-seq subdir; ASSERT byte-compare attr=undefined; Lane-B-only; README sec 3/sec 4 amendments; hostile-suite C17 with printed self-count); (2) FILE-00/01 specs+programs+derivations from measured laws ONLY ([C295] quotes, [C300] skip, [C280] digits+3, [C279] naming, pad to 128 with 0x1A, payload strictly <128; input FCB = FILE-var name + .DAT; fixtures e13dat INF.DAT=7\r\n8\r\n9\r\n^Z, e41dat F.DAT=17\r\n^Z), run lane B -> build/fc01/fileAB, docs sec 8; (3) ONUNIT-00 ONLY after pre-registered fc01-fileio oracle round (hop-2 pattern, DA-before-DR: probes FCFO* + HYPOTHESES + BASELINE-MINE + linkrun.py STAGE_IN/EXPORT_OUT entries committed BEFORE any DR PLI.COM call; claims C353+) measures DR named-file ENDFILE firing - UNMEASURED, never extrapolate from SYSIN [C110]. No ocaml changes; explicit paths; no push; operator config edit stays unstaged.
 <!-- guard:end checkpoint -->
