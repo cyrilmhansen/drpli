@@ -201,22 +201,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 147
-checkpoint-id: g147-70a512b7c484
-checkpoint-kind: auto
+checkpoint-generation: 148
+checkpoint-id: g148-785ae1c52a87
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4170, session 01a19b7a-6c7e-7761-bfc4-e25a0cf95825)
-checkpointed: 2026-11-02T09:23:26.935Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1951, session 01a19b7a-6c7e-7761-bfc4-e25a0cf95825)
+checkpointed: 2026-11-02T09:23:57.777Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: e961f191dde25ecaa752007af62a3ad7f75f4e87be6708676181dce3b2e3beb1
-source-handoff: 343b08fd48bc8a12743f18f1deb5f9524a2fd1d1029f1f87497085266f342a3c
+source-handoff: 877a2c292936ca3c4e6cebac4ae7f684c30728cf4dd67090da2f7e07390243a8
 source-learnings: 3fcd0c1f1f41d59726d13920f90ee4ad7fcf55ceeec4a04a831aca41b27647f0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19b7a-6c7e-7761-bfc4-e25a0cf95825
+readiness-at: 2026-11-02T09:23:57.783Z
+readiness-checkpoint: g148-785ae1c52a87
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -246,5 +249,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FC-01 hop 4 CLOSED-OUT at 6a35b9c: Batch-B REV2 a5815a8 (FLT-01 direct (a+b)=6.5 refusal + BUILTIN-00 length-first 'int subset' refusal, both COMPILE FAIL attr=compiler verbatim in build/fc01/batchB-rev2; rev1 batchB kept as written; docs sec 7 + sec 1 rows; prose 5 clean; dashboard rc=0). HOP 5 per PROGRESS.md Next action: (1) implement file-I/O harness extension per PROPOSED design in LEARNINGS 2026-11-02 hop 4 (stage_files + expected.file_expectations; SOURCE sha pin; DERIVATION two-way; export AFTER RUN BEFORE run.cleanup() into per-seq subdir; ASSERT byte-compare attr=undefined; Lane-B-only; README sec 3/sec 4 amendments; hostile-suite C17 with printed self-count); (2) FILE-00/01 specs+programs+derivations from measured laws ONLY ([C295] quotes, [C300] skip, [C280] digits+3, [C279] naming, pad to 128 with 0x1A, payload strictly <128; input FCB = FILE-var name + .DAT; fixtures e13dat INF.DAT=7\r\n8\r\n9\r\n^Z, e41dat F.DAT=17\r\n^Z), run lane B -> build/fc01/fileAB, docs sec 8; (3) ONUNIT-00 ONLY after pre-registered fc01-fileio oracle round (hop-2 pattern, DA-before-DR: probes FCFO* + HYPOTHESES + BASELINE-MINE + linkrun.py STAGE_IN/EXPORT_OUT entries committed BEFORE any DR PLI.COM call; claims C353+) measures DR named-file ENDFILE firing - UNMEASURED, never extrapolate from SYSIN [C110]. No ocaml changes; explicit paths; no push; operator config edit stays unstaged.
+FC-01 OPERATOR OVERRIDE landed (b38d8c0, dc48aa6): HOP 5 CANCELLED (never existed — measured), new priority = eight adapted historical programs. NEXT ACTION is fully specified in PROGRESS.md → "WKDAY-00 exact" + LEARNINGS.md § 2026-11-02 override section: write spec/functional/tests/WKDAY-00.{PLI,json} + reference.py:wkday00 (expected values ALREADY derived independently and cross-checked against datetime; do not re-derive), run lane B to build/fc01/corp1, record ACTUALS + docs/functional-results.md § 8, then e2e_gate compile tier. Reuse the harness as it stands — NO test-infrastructure work, NO ocaml changes, no push, operator handoff.config.json stays unstaged, third-party upstream bytes never tracked.
 <!-- guard:end checkpoint -->
