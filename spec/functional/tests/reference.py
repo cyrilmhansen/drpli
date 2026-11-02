@@ -183,9 +183,11 @@ def tab02():
 # expectation judges it honestly.
 
 def builtin00():
-    """BUILTIN-00: LENGTH(char(10)) is the extent 10; SUBSTR(s,1,3) of 'hello' is 'hel'
-    (t is char(3), extent == value, no unmeasured padding question)."""
-    return ["", "LEN= 10 SUB= hel"]
+    """BUILTIN-00 (rev2, FC-01 hop 4): LENGTH(char(10)) is the EXTENT 10, independent of
+    the stored value.  The rev1 SUBSTR store is DROPPED -- its char-store refusal fired
+    before the built-in path (falsification kept as written, build/fc01/batchB); the
+    extent law stands unchanged."""
+    return ["", "LEN= 10"]
 
 
 def strcat00():

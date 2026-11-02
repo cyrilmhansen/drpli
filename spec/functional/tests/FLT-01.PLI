@@ -1,20 +1,24 @@
-/* FLT-01 - ORIGINAL DRPLi work (FC-01 hop 3, 2026-11-02).   */
-/* BLOCKER PROBE: a COMPUTED float operand in a comparison   */
-/* (c = a + b, then c = 6.5).  MEASURED MY-COMPILER refusal  */
-/* ('computed FLOAT operand in a comparison is unsampled',   */
-/* FC-01 hop 1 scratch logs).  Deliverable: typed COMPILE    */
-/* FAIL, message verbatim (README sec 9).  FUTURE design:    */
-/* 2.5 + 4.0 = 6.5, exactly representable in FLOAT           */
-/* BINARY(24); the count prints as a proven fixed-bin num.   */
-/* Framing blank per [C352]; derived, never captured (L3).   */
+/* FLT-01 - ORIGINAL DRPLi work (FC-01 hop 4 REV2,           */
+/* 2026-11-02).  BLOCKER PROBE: a COMPUTED float expression   */
+/* DIRECT in a comparison: if (a + b) = 6.5.  Rev1 stored     */
+/* c = a + b first and compared the VARIABLE, a proven cell   */
+/* route, and unexpectedly PASSED -- a probe-design           */
+/* falsification KEPT AS WRITTEN (build/fc01/batchB, hop 3).  */
+/* Rev2 puts the SUM ITSELF in the compare so the measured    */
+/* my-compiler refusal ('computed FLOAT operand in a         */
+/* comparison is unsampled') is what is under test.           */
+/* Deliverable: typed COMPILE FAIL, message verbatim          */
+/* (README sec 9).  FUTURE design: 2.5 + 4.0 = 6.5 is         */
+/* exactly representable in FLOAT BINARY(24); the count       */
+/* prints as a proven fixed-bin num.  Framing blank per       */
+/* [C352]; derived, never captured (L3).                      */
 flt01: procedure options(main);
-  declare (a, b, c) float binary(24);
+  declare (a, b) float binary(24);
   declare hits fixed bin;
   a = 2.5;
   b = 4.0;
-  c = a + b;
   hits = 0;
-  if c = 6.5 then hits = 1;
+  if (a + b) = 6.5 then hits = 1;
   put skip list('FLT1OK=', hits);
   stop;
 end flt01;

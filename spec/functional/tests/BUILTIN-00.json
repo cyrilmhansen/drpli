@@ -2,7 +2,7 @@
  "spec": "pli80-functional/1",
  "id": "BUILTIN-00",
  "family": "BUILTIN",
- "title": "built-in LENGTH/SUBSTR blocker probe (extent 10, 'hel')",
+ "title": "built-in LENGTH blocker probe (extent 10)",
  "provenance": {
   "origin": "original",
   "author": "DRPLi FC-01 corpus (hop 3)",
@@ -11,7 +11,7 @@
  },
  "source": {
   "file": "BUILTIN-00.PLI",
-  "sha256": "ad88373fa6038745ee14992c411af564b3ef36b102dadd7c70bbbb1c814d6c5c",
+  "sha256": "8b90ff2c729619d2db34903a7801eae2e35b608832b687c216bc142ae939c176",
   "encoding": "CRLF, ^Z-terminated, <=71 columns"
  },
  "capabilities": [
@@ -40,8 +40,8 @@
   "normalization": "collapse-spaces-v1",
   "console": [
    "",
-   "LEN= 10 SUB= hel"
+   "LEN= 10"
   ]
  },
- "notes": "FC-01 Batch B BLOCKER probe (hop 3). Deliverable: the typed COMPILE FAIL with my compiler's refusal message recorded VERBATIM (README sec 9; the construct is a MEASURED my-compiler refusal from FC-01 hop 1 scratch logs -- my-gap, no DR statement). Expected stream is the FUTURE design derived from the declared semantics + README sec 6 format and framing laws ([C352]), never captured (L3). All other constructs are proven Batch-A shapes."
+ "notes": "FC-01 Batch B BLOCKER probe (hop 4 REV2). Rev1 (sha ad88373f..., build/fc01/batchB) stored t = substr(s,1,3) first and the CHAR-STORE refusal fired BEFORE the built-in path -- a probe-design falsification KEPT AS WRITTEN. Rev2 drops the SUBSTR store and calls n = length(s) before any non-literal char store so the built-in refusal ITSELF is measured. Deliverable: the typed COMPILE FAIL with my compiler's refusal message recorded VERBATIM (README sec 9; every documented built-in except ADDR and bare NULL is a MEASURED my-compiler refusal, spec/coverage-builtin-sweep.tsv -- my-gap, no DR statement). Expected stream is the FUTURE design derived from the declared semantics + README sec 6 format and framing laws ([C352]), never captured (L3). All other constructs are proven Batch-A shapes."
 }

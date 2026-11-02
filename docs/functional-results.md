@@ -1,7 +1,7 @@
 # Functional Results — what has actually been executed
 
 **E2E-50/P2 step 7 deliverable** (2026-11-02), **FS-01 addendum** (2026-11-02, § 5), **FC-01
-addendum** (2026-11-02, § 6). A deliberately SMALL report.
+addenda** (2026-11-02, §§ 6–7). A deliberately SMALL report.
 
 This page **renders** evidence; it is not a ledger and it decides nothing. The authorities are
 `spec/lab-evidence/e2e50-p2/step6/RESULTS.md` (execution ACTUALS) and
@@ -30,6 +30,12 @@ cpmsim, user-supplied and never packaged).
 | DEC-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | five FIXED DEC(9,2) decimal identities; 2 lines; double-run byte-equal |
 | FLT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | six FLOAT BINARY(24) identities; 2 lines; double-run byte-equal |
 | TABLE-02 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | LAST-match search, not-found, slice sum, reverse copy; 4 lines; double-run byte-equal |
+| BUILTIN-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | rev2 measures the built-in LENGTH refusal verbatim; rev1 hit the char-store refusal first — probe fixed at hop 4 (§ 7) |
+| STRCAT-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | `\|\|` concatenation refuses on the char-store path; message verbatim (§ 7) |
+| COND-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | `\|`-composed condition refused, the `\|` form shown in the message (§ 7) |
+| DEC-01 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | fractional DEC literal in additive position refused (§ 7) |
+| FLT-01 | B | rev1 SOURCE→…→ASSERT; rev2 SOURCE→DERIVATION→COMPILE | rev1 **PASS** (probe falsification); rev2 **FAIL** (deliverable) | `compiler` | rev1 compared via a variable — the proven cell route; rev2 puts `(a + b)` DIRECT in the compare and measures the computed-FLOAT-operand refusal (§ 7) |
+| EDIT-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | PUT EDIT counted `SKIP(1)` refused — only the bare form is sampled (§ 7) |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -191,3 +197,71 @@ never laundered (README § 8/§ 9).
   validates expectations, per [C205] it is not a compiler-semantics claim), `spec/COVERAGE.tsv`.
   FCPS1..3 SPECIMENS registration stays owed to a gate hop. No functional PASS here promotes any
   ledger row.
+
+## 7. FC-01 hops 3–4 (2026-11-02): Batch-B blocker probes — measured my-compiler refusals, messages verbatim
+
+Batch B is SIX blocker probes (specs + programs + derivations landed at `2c67c05`), one per
+named FC-01 blocker class. A blocker probe's DELIVERABLE is the typed COMPILE FAIL with my
+compiler's refusal message recorded VERBATIM (README § 9) — these FAILs are correct evidence,
+never failures of the test. Each `expected.console` is the FUTURE design derived from the
+declared semantics plus the README § 6 format law and the [C352] framing (leading `""`), never
+captured (L3). Sources are CRLF/^Z/≤71 columns; DERIVATION two-way check passed in every record.
+
+**Rev1 run (hop 3)** — git HEAD `38216e3` at execution (spec diff uncommitted, landed
+immediately after as `2c67c05`); compiler sha256 `edce9e0e…`; evidence root
+`build/fc01/batchB/` (ignored working state, KEPT AS WRITTEN); verdicts PASS=1 FAIL=5:
+
+* `BUILTIN-00` — COMPILE fail, attr `compiler`:
+  `Fatal error: exception Failure("codegen: char store from non-literal [TBD]")` — but this is
+  the **wrong** refusal: rev1 stored `t = substr(s,1,3)` FIRST and codegen refused the char
+  store before the built-in path was reached. Rev2 owed.
+* `STRCAT-00` — COMPILE fail, attr `compiler`, same `char store from non-literal [TBD]`
+  message. Honest note: the `||` construct itself refuses ON the char-store path (a `char(n)`
+  store of a concatenation); the concatenation value path is therefore NOT separately
+  isolated by this probe — recorded as measured.
+* `COND-00` — COMPILE fail, attr `compiler`:
+  `Fatal error: exception Failure("codegen: condition form not in E2E-3b subset [TBD]: (| (cond (= i 2)) (cond (= i 5)))")` —
+  the `|` composition named in the message: deliverable met.
+* `DEC-01` — COMPILE fail, attr `compiler`:
+  `Fatal error: exception Failure("codegen: fractional DEC literal aligned to a decimal partner [TBD] (only an integral literal is pinned in additive or compare position [R608/R507])")` —
+  deliverable met.
+* `FLT-01` — **UNEXPECTEDLY PASSED** (all six stages): .REL 384 B (code=113 data=14,
+  items=152), `FLT01.COM` 7680 B (sha256 `f5d6a3f6…`), 21 console bytes, complete-stream
+  match, 2 lines. This is a **probe-design falsification kept as written** (PROTOCOL #2):
+  rev1 computed `c = a + b` into a variable and compared the VARIABLE — a proven cell route —
+  so the shape under test (the computed expression itself in the compare) was never exercised.
+  The PASS says nothing new about the blocker; rev1 records stay on disk, never laundered.
+* `EDIT-00` — COMPILE fail, attr `compiler`:
+  `Fatal error: exception Failure("codegen: PUT EDIT counted SKIP/PAGE is unsampled [TBD] (only the bare form's second byte 0xFF has been observed)")` —
+  `SKIP(1)` named in the expectation is exactly what refused; deliverable met.
+
+**Rev2 run (hop 4)** — the two mis-isolating probes revised and re-run ALONE; git HEAD
+`91dd3a7` at execution (spec diff uncommitted, landed immediately after in this commit);
+compiler sha256 `edce9e0e…`; evidence root `build/fc01/batchB-rev2/`; verdicts PASS=0 FAIL=2;
+both chains stopped at COMPILE (LINK/RUN/ASSERT unrun):
+
+| test | source (rev2) | verdict | refusal message (verbatim) |
+|---|---|---|---|
+| FLT-01 | `FLT-01.PLI` sha256 `30da237c…`, 1147 B — `if (a + b) = 6.5` DIRECT compare | COMPILE FAIL, attr `compiler` | `Fatal error: exception Failure("codegen: computed FLOAT operand in a comparison is unsampled [TBD] (every DR float compare sample addresses two cells or two formal derefs [R3070-R3077, R3079, FLTPOLY]; a comparison against an accumulator value has none -- so nothing is emitted before this refusal)")` |
+| BUILTIN-00 | `BUILTIN-00.PLI` sha256 `8b90ff2c…`, 1094 B — SUBSTR store dropped, `n = length(s)` FIRST | COMPILE FAIL, attr `compiler` | `Fatal error: exception Failure("codegen: expression form not in int subset [TBD]")` |
+
+Both rev2 refusals are the **named blockers themselves** measured: the computed-FLOAT-compare
+shape (FLT-01) and the built-in LENGTH call as an expression form (BUILTIN-00). The BUILTIN-00
+expectation was re-derived with the SUBSTR item removed — `["", "LEN= 10"]` (the extent law:
+`LENGTH` of `char(10)` is 10 whatever is stored); `reference.py:builtin00` updated in the same
+commit; the DERIVATION stage passed under both rev2 records. The future designs
+(`FLT1OK= 1`, `LEN= 10`) remain asserted expectations for when the blockers are armed.
+
+**Classification and limits.** These FAILs are `my-gap` evidence in the strongest available
+functional form: my compiler's own `[TBD]` markers, byte-verbatim, produced through the
+lane-B harness chain. They are NOT DR statements — no oracle ran in this hop — so NOTHING is
+promoted to a claim: `spec/CLAIMS.md` still ends at **C352**; `spec/COVERAGE.tsv` is unchanged
+(133 rows); `ocaml/`, goldens, `artefacts/` and `oracle/disks/` untouched. The rev1 evidence
+root `build/fc01/batchB/` stays on disk unmodified beside `build/fc01/batchB-rev2/` —
+revisions ADD evidence, they never rewrite it.
+
+Commands: rev1 `python3 tools/functional_runner.py --lane B --tests BUILTIN-00 STRCAT-00
+COND-00 DEC-01 FLT-01 EDIT-00 --evidence build/fc01/batchB
+--json-out build/fc01/batchB/records.json`; rev2 `python3 tools/functional_runner.py
+--lane B --tests FLT-01 BUILTIN-00 --evidence build/fc01/batchB-rev2
+--json-out build/fc01/batchB-rev2/records.json`.

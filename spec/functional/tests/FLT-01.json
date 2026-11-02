@@ -11,7 +11,7 @@
  },
  "source": {
   "file": "FLT-01.PLI",
-  "sha256": "b756b91870a1f0b4c0f1ec441748640cf4c70e5a4303199c6a405bab1de30aa0",
+  "sha256": "30da237cf4f095b70d39d711936ae42b3aedd6adee215eb45685161f80fdc690",
   "encoding": "CRLF, ^Z-terminated, <=71 columns"
  },
  "capabilities": [
@@ -43,5 +43,5 @@
    "FLT1OK= 1"
   ]
  },
- "notes": "FC-01 Batch B BLOCKER probe (hop 3). Deliverable: the typed COMPILE FAIL with my compiler's refusal message recorded VERBATIM (README sec 9; the construct is a MEASURED my-compiler refusal from FC-01 hop 1 scratch logs -- my-gap, no DR statement). Expected stream is the FUTURE design derived from the declared semantics + README sec 6 format and framing laws ([C352]), never captured (L3). All other constructs are proven Batch-A shapes."
+ "notes": "FC-01 Batch B BLOCKER probe (hop 4 REV2). Rev1 (sha b756b918..., build/fc01/batchB) stored c = a + b and compared the VARIABLE -- the proven cell route -- and PASSED: a probe-design falsification KEPT AS WRITTEN. Rev2 places the SUM EXPRESSION itself in the compare so the measured my-compiler refusal ('computed FLOAT operand in a comparison is unsampled', FC-01 hop 1 scratch logs -- my-gap, no DR statement) is under test. Deliverable: the typed COMPILE FAIL with my compiler's refusal message recorded VERBATIM (README sec 9). Expected stream is the FUTURE design derived from the declared semantics + README sec 6 format and framing laws ([C352]), never captured (L3). All other constructs are proven Batch-A shapes."
 }

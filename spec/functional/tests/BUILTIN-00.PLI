@@ -1,22 +1,23 @@
-/* BUILTIN-00 - ORIGINAL DRPLi work (FC-01 hop 3, 2026-11-02).*/
-/* BLOCKER PROBE: LENGTH and SUBSTR built-ins.  Every        */
-/* documented built-in except ADDR and bare NULL is a        */
-/* MEASURED MY-COMPILER refusal (spec/coverage-builtin-sweep */
-/* .tsv; BUILTIN.DOCUMENTED_SET is PARTIAL).  The deliverable*/
-/* is the typed COMPILE FAIL with the refusal message        */
-/* verbatim (README sec 9).  Everything else here is a       */
-/* proven Batch-A shape.  FUTURE design: LENGTH(char(10))    */
-/* is the EXTENT 10; SUBSTR(s,1,3) of 'hello' is 'hel'.      */
-/* Derived from declared semantics + sec 6 laws ([C352]      */
-/* framing), never captured (L3).                            */
+/* BUILTIN-00 - ORIGINAL DRPLi work (FC-01 hop 4 REV2,       */
+/* 2026-11-02).  BLOCKER PROBE: the LENGTH built-in.  Rev1    */
+/* stored t = substr(s,1,3) FIRST and the CHAR-STORE          */
+/* refusal ('char store from non-literal') fired BEFORE the   */
+/* built-in path (build/fc01/batchB, hop 3).  Rev2 drops the  */
+/* SUBSTR store and calls n = length(s) before any            */
+/* non-literal char store, so the built-in refusal ITSELF is  */
+/* what is measured.  Every documented built-in except ADDR   */
+/* and bare NULL is a MEASURED MY-COMPILER refusal            */
+/* (spec/coverage-builtin-sweep.tsv; BUILTIN.DOCUMENTED_SET   */
+/* is PARTIAL).  Deliverable: typed COMPILE FAIL, message     */
+/* verbatim (README sec 9).  FUTURE design: LENGTH of         */
+/* char(10) is the EXTENT 10.  Framing blank per [C352];      */
+/* derived, never captured (L3).                              */
 builtin0: procedure options(main);
   declare s char(10);
-  declare t char(3);
   declare n fixed bin;
-  s = 'hello';
-  t = substr(s, 1, 3);
   n = length(s);
-  put skip list('LEN=', n, 'SUB=', t);
+  s = 'hello';
+  put skip list('LEN=', n);
   stop;
 end builtin0;
 
