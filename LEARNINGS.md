@@ -1845,3 +1845,24 @@ alone — PROTOCOL #10 applied to a gate run.
 **OPEN (not a discovery, a limit):** the CLOSE (byte-verified archive + CLOSED rewrite + finalize)
 was NOT performed at this hop; the exact procedure is recorded in `HANDOFF.md` → Unfinished
 operations so the successor needs no compiler/oracle/gate run at all.
+
+## 2026-11-02 — E2E-50/P2 CLOSE (docs-only closing session)
+
+**ACCEPTED (measured by this session):** FULL compile-tier gate rc=0 ACTUALS at HEAD `545dcf1`
+(1174/0 byte panel, 181/181 negative E46K14 UNMOVED, 9/9 divergence, cov 133/0/0, census
+15/0/26/0 unchanged, prose 5 clean) — recorded `d648bcd`, NOT re-run here (docs-only; the
+mission forbids compiler/oracle/gate/emulator runs at close). Checkpoint g131 verified current
+by replaying the guard's prose law (strip managed block, rstrip trailing whitespace, SHA-256)
+— HANDOFF and PROGRESS both match. The close archive measured **23/23 blocks BYTE-EXACT** by
+independent re-extraction from the stated revs + `cmp`; the planned archive scope ("d648bcd
+generation + whatever measurement finds") grew to 8 Next-action, 7 Unfinished, 8 Current-phase
+and 2 stub generations, with lost-wording fragments (the `[pending]` line set preserved via
+the whole bootstrap generation, the step-5 PART-2-OWED couplet, five Unfinished-operations
+openings, three PROGRESS hop-status lines) archived as exact line-range fragments; a
+line-level completeness sweep found 0 unarchived lines.
+**Technique (accepted):** generation census by SHA-256 of mechanically-extracted sections plus
+a line-subset containment sweep is a cheap, complete way to find which mid-round rewrites
+actually lost wording — far cheaper than archiving every generation whole.
+**Accepted boundary:** round closes with NO scientific byte changed; ledger ENDS at C351; P3
+candidates remain PROPOSALS (`REPORT.md` §5). No active round; successor with no operator
+instruction confirms, verifies, records, STOPS. No push.

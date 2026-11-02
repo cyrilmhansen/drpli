@@ -3,154 +3,21 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-50/P2 ACTIVE (operator mission brief 2026-11-02; functional-testing foundation + emulator/redistribution audit)
+## Current phase — E2E-50/P2 CLOSED (2026-11-02; functional-testing foundation + emulator/redistribution audit; FULL compile-tier gate rc=0 measured at `545dcf1`, recorded `d648bcd`; CLOSE by this docs-only session)
 
-Mission, the durable step sequence 0–8 and the prohibitions live ONLY in `HANDOFF.md` → Next
-action (single operational authority). Step 0 (documentary bootstrap) lands with this commit:
-measured and fixed at HEAD `942aa78` — PROGRESS `## Next action` still declaring P1 ACTIVE
-(stale: P1 is CLOSED at `4cad695`/`4eb6582`, checkpoint g111 verified current + attested this
-session by prose-hash replay of the guard's own strip+sha256 law); the stale HANDOFF sentence
-recording the README rolling status as deferred work (P1 replaced it; no README item exists in
-Pending); three blankless headings in PROGRESS, three inline glued headings in HANDOFF
-(incl. `golden/e49p4.## Next action`) and one glued guard-marker line (the only residual
-blankless heading, `### Last verified state`, is INSIDE the guard's own rendering — never
-hand-edited). `4eb6582`'s assertion that the `## Discoveries` pair "does NOT
-exist in the manual region" is FALSIFIED by byte read of HEAD and corrected with the falsified
-text quoted (PROTOCOL #2). No scientific claim, golden, ledger or `ocaml/` byte touched. The
-emulator audit target is confirmed: `/home/john/pli/lab` (Runes `pli80_lab` dune project —
-`lib/i8080`, `lib/cpm`, `lib/runner`, `lib/trace`), READ-ONLY this round.
-
-Step 1 reconnaissance DONE: lab identity/shape, BDOS coverage, decoder status, license evidence
-and the lab's own suite RE-RUN (7 executables rc=0 incl. 976,272-case alu_flags) are recorded
-accepted in `LEARNINGS.md` § 2026-11-02; `docs/emulator-audit.md` (steps 1–2 deliverable) owed.
-Boundary facts: lab HEAD `43e38ba`, single-author git history, NO LICENSE file (operator decision,
-never added here); building tests writes only the lab's gitignored `_build/`.
-
-**Renewal hop 1 (this chain): steps 1–2 LANDED.** `docs/emulator-audit.md` written from the
-accepted recon, every cited lab path/line re-verified read-only at write time, plus new accepted
-measurements (hop-1 subsection of the same LEARNINGS §): the `pli80-run` output-discards-on-error
-law (stdout valid only at exit 0), precise DR-image-derivative classification of
-`research/{minimal-baseline,host-compiler}`, QX10CPMPlus proprietary/unresolved, and the lab's
-dynamic BDOS census facts ({2,11,12,15,16,19,20,21,22,26}+fn108-Plus for `PLI OPTIMIST`, all
-inside the Runes implemented set; linked-program census still UNMEASURED — step-6 debt).
-Two-package matrix delivered (§6); the single hard Package-A blocker is the operator license
-decision on the UNLICENSED lab — decided by nobody here. Next: step 3 (functional-test spec
-format under `spec/functional/`).
-
-**Renewal hop 3 (this chain): step 5 PART 1 LANDED** at `8523eda` — `tools/functional_runner.py` implements `spec/functional/tests/README.md` mechanically (fail-closed schema validation incl. unknown-field rejection and `file_expectations` refused as unimplemented; SOURCE sha256-before-execution + declared-encoding token checks; DERIVATION in a separate process with drift = FAIL/`source` and no lane executed; COMPILE via local `pli80c.exe -d` with message-shape attribution measured against the real binary — `Failure("codegen: ...")` = compiler, `Pli80.Parser.Parse_error` = source, `Sys_error` = host; LINK via `oracle/cpmwork.py` Workspace + `linkrun.new_run`, `parse_undefined` on the FULL segment [C137]; lane-labelled RUN with [C308] witness classes; complete-stream `collapse-spaces-v1` ASSERT; `--double-run` determinism proof comparing CONSOLE CAPTURE bytes not transcripts; `--stages` ceiling; every external layer injectable for the hostile suite). Measured this hop: py_compile rc=0, --help rc=0, bounded `--stages SOURCE,DERIVATION` over the corpus → 2 UNKNOWN (unrun COMPILE ⇒ never PASS), PASS=0, DERIVATION reproduces both specs. **Renewal hop 4: step 5 PART 2 LANDED** at `d40aafb`+`149c6e2` — `tools/test_functional_runner.py`, 148 check() assertions, rc=0, zero external processes (every layer injected via Host(); oracle imported PURE). All 13 cases pass, incl. the C137 [:120]-vs-FULL-segment side-by-side proof, four distinct [C308] witnesses, audit-2.18 discarded-stdout law, --double-run capture comparison, 34 fail-closed mutations, stubbed end-to-end PASS positive control on BOTH lanes. The suite FOUND and the commit FIXED two hop-3 defects: `_rname` referenced 7x never defined (Lane A RUN NameError; Lane B laundered harness-exception/UNKNOWN — reproduced pre-fix) and `assert_stream` eager got[first_diff] with first_diff=None TypeError on differ-by-length streams. Measured (accepted): DERIVATION/ASSERT ignore the --stages ceiling (evaluation stages) — README 8 keys on execution so the c9c PASS is earned; the --stages help wording overpromises (PROPOSED wording fix). **Renewal hop 5 (this chain): step 6 PART 1 LANDED** at `690c3a1` — pre-registration PLAN.md
-(all predicted verdicts committed BEFORE any run), Lane A fixtures FX-00/FX-01 (original
-hand-encoded .COM + annotated .asm listings from ONE op table, `--check` rc=0), specs +
-`reference.py:fx00/fx01` (declared expectations, L3), the labelled README §3 amendment
-(`capabilities: []` legal ONLY for Lane-A-only substrate fixtures; lane B still fails closed;
-suite rc=0 148 checks after the change) and the harness `--census` BDOS substrate probe
-(audit open question 1). Accepted/falsified items in LEARNINGS hop 5 (MVI=0x06|reg<<3 verified
-against the lab decoder; my first draft 0xE8=RRC falsified before any run). **(superseded by hop 6 below —
-kept verbatim per PROTOCOL #2) STEPS 6(execution)
-–8 REMAIN. FIRST ACTION for the successor:** build the audited emulator
-`cd /home/john/pli/lab && eval "$(opam env)" && dune build bin/main.exe` (touches ONLY the
-lab's gitignored `_build`; verify lab HEAD `43e38ba` + the same three untracked entries after),
-then run Lane A: `python3 tools/functional_runner.py --tests FX-00 FX-01 --double-run` (FX-00
-PASS expected; FX-01 FAIL attr=emulator is the INTENDED outcome); then Lane B
-`--tests TABLE-00 TABLE-01` (compile->link->run->assert, bounded); then `--census
-build/functional/<stamp>/TABLE-00-*/lane-B/TABLE00.COM` for open question 1; record ACTUALS in
-`spec/lab-evidence/e2e50-p2/step6/RESULTS.md` (falsified predictions stay), then steps 7–8. No oracle/LINK-80/cpmsim/gate/rune-ci run; `ocaml/` untouched (build only).
-
-**Renewal hop 6 (executed) + hop 7 (this chain, verification + landing): step 6 PART 2 LANDED.**
-Hop 6 built the audited emulator in the lab's ignored `_build` (`dune build bin/main.exe` rc=0
-→ `_build/default/bin/main.exe`, sha256 `da2b34b9…`; the hop-5 note that this yields
-`pli80-run.exe` is FALSIFIED — dune rejects the public name), verified the lab read-only BEFORE
-and AFTER (HEAD `43e38ba`, the same three untracked entries), ran the three bounded lane-labelled
-commands, and wrote `spec/lab-evidence/e2e50-p2/step6/RESULTS.md`. Renewal cut hop 6 off BEFORE
-the commit; hop 7 independently re-verified every ACTUAL read-only from the preserved evidence
-(`od`, `cmp`, `grep`, `wc`, census JSONs, runner hash) and committed it at `68348ac`. ACTUALS:
-FX-00 **PASS**, console capture byte-exact as declared, double-run `cmp` rc=0 — audit §2.20
-determinism proved EXECUTED for the first time (call total 14; PLAN's written "13" an arithmetic
-slip, distribution correct, kept). FX-01 **FAIL attr=`emulator`** — the INTENDED outcome and the
-first executed typed attribution; audit §2.18 confirmed and strengthened on the real substrate:
-the discarded capture is 0 bytes although the trace shows the fn-9 banner already written at step
-3. **First functional execution of a DRPLi-compiled PL/I program** (and first PLILIB run of the
-round): TABLE-00/01 COMPILE 896 B (code=358 data=30) / 1536 B (code=627 data=50), LINK PASS with
-ZERO `UNDEFINED` lines in the FULL segments and `PLILIB   RQST` present, .COM 7552/7808 B, RUN
-`done` rc=0 (prompt-sync `D>`), ASSERT **FAIL attr=`undefined`** both — attribution never
-narrowed. **CONTENT ≡ REFERENCE for both programs**: every aggregate and the complete sorted
-multiset (negatives + duplicates) match the independent `reference.py` derivation; the two FAILs
-are FRAMING only — F1 the harness anchor law (the `(?=\nD>)` cut leaves a terminal lone `\r`;
-invisible under the gate substring law, exposed by the stricter v1 stream law as designed) and F2
-a MEASURED DR PLILIB print-wrap law (8-item line wraps after item 6 at 79 columns, CRLF proven
-guest-written; historical-runtime formatting, NOT my-gap, NOT a compiler defect; promotion needs
-its own pre-registered oracle round). **Census (audit open question 1):** BOTH linked .COMs issue
-BDOS **25 as their first call** and the audited emulator fails typed — the "pure-PUT needs fn 2
-+ terminate only" hypothesis FALSIFIED; the free core cannot host PLILIB programs (Package-A
-blocker measured); full linked-program census UNMEASURED. Also measured: Workspace SAFETY
-correctly BLOCKED a /tmp evidence root (attr=`host`, fail-closed); `len 128` from cpmcp leaks onto
-the runner's stdout during TABLE-01 LINK (`oracle/cpmwork.py:216` `export()` runs cpmcp with
-check=False and no capture — mechanism accepted, root cause proposed; STEP-7 DEBT). Runner rc=1
-whenever any FAIL is present; census probe rc=0 (not a verdict). Verdict tallies: Lane A PASS=1
-FAIL=1, Lane B FAIL=2. LEARNINGS hop-6 section records ACCEPTED/FALSIFIED/PROPOSED.
-**FIRST ACTION for the successor: step 7** (minimal functional-results reporting + the cpmcp stdio
-debt + hostile-suite stdout pin), then step 8 (report, bounded P3 proposal, CLOSE, finalize).
-
-**Renewal hop 7 (this chain): step 6 committed + step 7 LANDED.** Renewal cut hop 6 off AFTER the
-runs and AFTER writing `step6/RESULTS.md` but BEFORE committing it; this session re-derived every
-ACTUAL read-only from the preserved evidence (`od`, `cmp`, `grep`, `wc`, census JSONs, the lab HEAD
-+ untracked pattern, the runner sha256 `da2b34b9…`) and only then committed `68348ac`, then
-recorded hop-6 knowledge (`ec9d396`). Step 7 then landed in two commits. **Part 1 `958c204`:** the
-§3 debt PAID — `cpmwork.Run.export()` redirects cpmcp stdio (DEVNULL/STDOUT) symmetrically with
-import_local/mkfs; the `ok` bool stays the ONLY contract of every caller so no gate loses the
-ability to fail; PRE-FIX reproduction measured (`len 128` as the runner's first stdout line,
-verdict UNKNOWN by ceiling, rc=1); the falsified hop-5 Lane A fallback replaced by the MEASURED
-`LANE_A_CANDIDATES`; `main(host=)` test seam; hostile suite **+C14 = 182 checks rc=0** pinning
-(a) the export redirection, (b) the resolver behaviour under a scoped `isfile` stub, (c) that the
-CLI stdout carries ONLY rendered records, non-vacuously (a simulated chatty child is CAUGHT while
-the verdict stays PASS — noise is never evidence in either direction). The suite now SELF-COUNTS:
-the prose "148 checks" was FALSIFIED by measurement (the HEAD artifact printed **171**).
-**Part 2 `cdc5d13`:** `step7/RESULTS.md` (pre/post-fix ACTUALS in committed order, PROTOCOL #1) +
-`docs/functional-results.md` (the SMALL report of the four executed verdicts and the census probe,
-F1/F2 framing, honest limits, P3 candidates as proposals only; the P1 dashboard was deliberately
-NOT extended) + README pointers, with the stale README round line corrected. Lane A re-probed on
-the real substrate WITHOUT `--pli80-run`: FX-00 **PASS**, capture identical to step 6. Measured
-this step: py_compile rc=0 x3, suite 182 rc=0, dashboard tests rc=0, dashboard --check rc=0,
-file_prose_check rc=0 (5 active clean), `dune build` rc=0. External processes in step 7: two
-bounded TABLE-01 COMPILE+LINK probes and one Lane A FX-00 run — never the oracle campaign, the
-runtime tier or Rune CI; no COVERAGE/CLAIMS/RUNTIME/INVENTORY/census byte.
-**FIRST ACTION for the successor: step 8** — `python3 tools/e2e_gate.py` (compile tier; record
-ACTUALS AS PRINTED), the short round report (measured/failed/unmeasured), the BOUNDED P3 proposal
-(no execution), the byte-verified close archive under `docs/history/`, `handoff_finalize`, STOP. **PART 1 LANDED (this session):** the gate ran rc=0 at HEAD `545dcf1` with ACTUALS AS PRINTED
-(byte panel **1174/0** of 1174, independently cross-checked by `grep -c BYTE-EXACT`; negative
-**181/181** with E46K14 `[dr-refuses]` UNMOVED; divergence **9/9**; coverage **133/0/0**; census
-**15/0/26/0** UNCHANGED; prose **5 active clean**) and `spec/lab-evidence/e2e50-p2/REPORT.md`
-landed at `d648bcd` with the bounded P3 proposal (P3-a–P3-d, PROPOSALS ONLY). **REMAINING: the
-CLOSE only** — follow `HANDOFF.md` → Unfinished operations step-8 CLOSE procedure (archive
-verbatim, byte-verify by `cmp` against the stated revs, rewrite to CLOSED, index row, LEARNINGS
-close note, `handoff_finalize`, STOP). No compiler/oracle/gate/emulator run is needed to close.
-
-**Step-3 groundwork probed (same hop, later):** console PUT-LIST byte law measured from stored
-goldens (10-wide right-justified numeric field, blank item separator, statements share one line
-until SKIP; gate normalization ` +`->` ` adopted as harness v1 law); TABLE-feasible capability
-subset surveyed from COVERAGE (1-D arrays + var-index ladder + DO TO BY + PUT LIST/SKIP all
-SUPPORTED; MULTIDIM/K_PLUS_X refused, TRAVERSAL_RELOAD divergent — corpus design honors this);
-oracle harness machinery (cpmwork Workspace/Run, LINK.COM+PLILIB.IRL staging, cpmsim resolution,
-the E2E-11 UNDEFINED-SYMBOLS trap) surveyed for the step-5/6 harness. Design PROPOSED in
-LEARNINGS hop-1 §§: JSON spec `pli80-functional/1` under `spec/functional/tests/` + independent
-`reference.py` + typed verdicts. All committed findings at `97ad1f0` + this checkpoint commit.
-
-**Renewal hop 2 (this chain): steps 3+4 LANDED.** `spec/functional/tests/README.md` (schema
-`pli80-functional/1`: laws L1 BYTE≠correct / L2 exit-0≠correct with the [C137]
-UNDEFINED-SYMBOLS + never-[:120]-slice law / L3 capture≠expectation with the reference
-double-check; stage chain with spec-declared not-applicable; PASS/FAIL/BLOCKED/UNKNOWN,
-skipped-stage-never-PASS, [C308] witness-class law; typed attribution enum evidence-only;
-v1 stream assertion stricter than the gate substring law, documented deviation; v1 perimeter
-from COVERAGE) + `docs/functional-testing.md` (same law in prose + architecture + status).
-TABLE corpus: `TABLE-00.{PLI,json}` (traverse/aggregate: sum/pos-count/max/N/first/last;
-`if x > 0` REFUSED by my guard `compare > k<=0 form unproven [TBD]` — measured against the
-local binary, DR status UNMEASURED, corpus compares against variable z=0), `TABLE-01.{PLI,json}`
-(stable rank sort, scalar-copy compares honouring AB11/LR9 refusals, negatives+duplicates;
-compiles 1536 B) + `reference.py` (independent stdlib derivations; validation: parse/id/sha256/
-capabilities/derive==expected ALL pass; reference prints the 4 expected lines). Both compile;
-DR outputs E32B1 dr-vs-mine byte-identical (re-verified); TABLE-02 withheld pending EXECUTED
-verification. No compiler/oracle/LINK-80/cpmsim/gate run (local pli80c on new corpus only);
-no ocaml/ledger/golden byte; lab read-only verified; operator config untouched; no push.
-
+Round COMPLETE. Mission, the durable step sequence 0–8 and every hop record (incl. the
+falsified-prediction text kept per PROTOCOL #2) are archived VERBATIM and byte-verified —
+**23/23 blocks BYTE-EXACT**, completeness sweep over all 8 Next-action / 7 Unfinished /
+8 Current-phase / 2 Next-action-stub generations: 0 unarchived lines — in
+`docs/history/2026-11-02-e50p2-closed.md`. Last verified state, landing chain and executed
+verdicts (FX-00 PASS + determinism; FX-01 FAIL/`emulator` intended; TABLE-00/01 first
+functional execution of a DRPLi-compiled program, CONTENT ≡ REFERENCE, ASSERT FAILs framing
+F1/F2 attr=`undefined`; census BDOS-25 free-core blocker measured) live in `HANDOFF.md` →
+Last verified state; round report `spec/lab-evidence/e2e50-p2/REPORT.md`. No scientific byte,
+claim, COVERAGE row, INVENTORY/RUNTIME/census entry or golden changed; `ocaml/` untouched.
+**No active round**: a successor without an operator instruction confirms HEAD/tree,
+`/handoff verify`, records state and STOPS. P3 shortlist `spec/lab-evidence/e2e50-p2/REPORT.md`
+§5 — never an authorisation. Operator `handoff.config.json` edit stays unstaged; no push.
 ## Previous phase — E2E-50/P1 CLOSED (2026-11-02; deliverables `4cad695`; close docs-only)
 
 Functional dashboard round COMPLETE, docs-only and evidence-only: compiler, oracle, LINK-80,
@@ -227,14 +94,10 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: **E2E-50/P2
-is ACTIVE; steps 0–6 LANDED** (bootstrap; emulator technical + redistribution audit; the
-functional-test spec format and law; the TABLE corpus with independent expectations; the harness
-plus hostile suite; step 6 execution evidence at `68348ac`); **steps 7–8 owed** (minimal
-results reporting incl. the cpmcp stdio debt, then report + bounded P3 proposal + CLOSE). No competing action exists anywhere else;
-PROGRESS does not restate it
-(PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
-
+The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: **NO
+ACTIVE ROUND** (E2E-50/P2 CLOSED 2026-11-02). A successor without an operator instruction
+confirms HEAD/tree, runs `/handoff verify`, records state and STOPS. PROGRESS does not
+restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
 - E2E-48/P1 — 24/24 probes byte-identical + registered, claims C309–C316, gate 1098/0: `992ccad`.
@@ -336,35 +199,29 @@ PROGRESS does not restate it
 
 ## Verified evidence
 
-The FULL compile-tier gate rc=0 at HEAD `5b0ccde` with ACTUALS AS PRINTED (byte panel 1174
-byte-exact / 0 fail of 1174 incl. all twenty-four e49p4 specimens whole-file at 256 bytes;
-negative 181/181 with the E46K14 `[dr-refuses]` pinned marker UNMOVED; divergence 9/9;
-coverage 133 rows 0 errors 0 warnings; census EXACT 15 / DIFFERS 0 / REFUSED 26 / UNEXPECTED 0;
-prose 5 active files clean; `dune build` rc=0) was MEASURED by the step-6 session and recorded
-at `882f77c` — NOT re-run since and not re-runnable in a docs-only session; no scientific byte
-changed after `5b0ccde` (`ocaml/` untouched since arm c `47c2194`; goldens complete since
-`13fca5b`). Measured by THIS closing session (docs-only, 2026-11-01): git HEAD `b5f792c` with a
-clean tree apart from the operator's `handoff.config.json` edit; the `5c52bba` prose == the HEAD
-prose in BOTH `HANDOFF.md` and `PROGRESS.md` (only the guard managed blocks differ); the sixteen
-archive blocks re-extracted and byte-compared to their stated git ranges at
-`19ab4e0`/`e13311c`/`882f77c`/`5c52bba` — ALL BYTE-EXACT (16/16, independent re-read of the
-written archive); each cross-generation identity claim in the annotations computed by SHA-256
-over the extracted sections, and both superseded PROGRESS Current-phase bodies verified as
-line-for-line subsets of the close-era block. Per-arm ACTUALS (whole-file `cmp` at each arm, the
-47/47 sweep, the out-of-scope refusals rc=2) stand in git log and dated `LEARNINGS.md` sections.
-Round evidence: `golden/e49p4/`,
-`spec/lab-evidence/e2e49-p4/{RESULTS,HYPOTHESES,BASELINE-MINE,mkprobes.py,PLAN}`; earlier rounds
-`spec/lab-evidence/e2e49-p{1,2,3}/` and `spec/lab-evidence/e2e48-*/`; closed-round records:
-`docs/history/`.
+The FULL compile-tier gate rc=0 at HEAD `545dcf1` with ACTUALS AS PRINTED (byte panel 1174
+byte-exact / 0 fail of 1174; negative 181/181, E46K14 `[dr-refuses]` UNMOVED; divergence 9/9;
+coverage 133/0/0; census 15/0/26/0 UNCHANGED; prose 5 active clean) was MEASURED by the
+step-8 session and recorded at `d648bcd` — NOT re-run by this docs-only close (the mission
+required no compiler/oracle/gate/emulator run to close). Measured by THIS closing session
+(2026-11-02): HEAD `e7664ed`, tree clean apart from the operator's `handoff.config.json`
+edit; checkpoint g131 **current** via replay of the guard's strip+rstrip SHA-256 prose law;
+the 23 close-archive blocks re-extracted from `459f51e`/`a6163ef`/`149c6e2`/`690c3a1`/
+`218c9be`/`ec9d396`/`545dcf1`/`d648bcd`/`68831ff`/HEAD and byte-compared — **23/23
+BYTE-EXACT**; every line lost by any superseded generation verified present verbatim in the
+archive. Round evidence: `spec/lab-evidence/e2e50-p2/{PLAN.md,step6/RESULTS.md,
+step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots under
+`build/functional/`; earlier rounds `spec/lab-evidence/e2e48-*/`, `e2e49-p*/`; closed-round
+records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 131
-checkpoint-id: g131-46049167bd73
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-11-02T01:18:40.071Z
+checkpoint-generation: 132
+checkpoint-id: g132-76450297b5b7
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-02T01:47:40.884Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 6c786836472422375f4d49b0251b1e6b0af6cf7d6ad4e6de7d3892ebaebc1188
 source-handoff: 91545486e6315283483788c62dbbd43fad9144435f631001f899e58da81a2cd1
@@ -489,9 +346,6 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
-readiness-by: session:01a199c0-2008-7280-b553-bdc13929ba82
-readiness-at: 2026-11-02T01:18:40.075Z
-readiness-checkpoint: g131-46049167bd73
 <!-- guard:end checkpoint -->
 
 ## Blockers
@@ -519,7 +373,23 @@ readiness-checkpoint: g131-46049167bd73
   composition over the four goldened compare shapes ([C351], the un-witnessed negations above
   keep refusing) — the P3-era wording is preserved verbatim in
   `docs/history/2026-11-01-e49p4-closed.md`.
+- E2E-50/P2 functional axis (measured, recorded; no byte-tier effect): Lane-B ASSERT framing
+  F1 (harness anchor law — P3-a proposal) and F2 (DR PLILIB 79-col print-wrap — declare from
+  the oracle side before any expectation change, P3-b); the free core cannot host PLILIB
+  programs (BDOS 25 first call, measured; full census UNMEASURED); Package-A licensing =
+  operator decision. Details `spec/lab-evidence/e2e50-p2/REPORT.md` §2/§4/§5.
 - CREATE is NOT byte-exact; measured front-end blocker: `pli80c.ml` never expands
   `%include` (proposal in `LEARNINGS.md` is `proposed, unverified` — needs its own
   pre-registered round).
 - LOAN2's `conflicting kinds` prescan my-gap is a design change, not an arm (see Pending).
+
+- E2E-50/P2 CLOSED — functional-testing foundation + emulator/redistribution audit: audits
+  `docs/emulator-audit.md`/`docs/functional-testing.md`/`docs/functional-results.md`; schema
+  `pli80-functional/1` + TABLE-00/01 + FX-00/01 + `reference.py` under `spec/functional/tests/`;
+  harness `tools/functional_runner.py` + hostile suite 182 checks self-counting; executed
+  verdicts FX-00 PASS, FX-01 FAIL/`emulator` (intended), TABLE-00/01 first functional execution
+  of a DRPLi-compiled program (CONTENT ≡ REFERENCE; ASSERT FAILs framing F1/F2, attr
+  `undefined`); census BDOS-25 free-core blocker measured. Deliverables `d648bcd` (+`68831ff`);
+  FULL GATE rc=0 1174/0 (neg 181/181, div 9/9, cov 133/0/0, census 15/0/26/0, prose clean)
+  measured at `545dcf1`, recorded `d648bcd`; 23-block byte-verified close archive
+  `docs/history/2026-11-02-e50p2-closed.md`.
