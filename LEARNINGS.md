@@ -3160,3 +3160,49 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   `x_entrance` reporting bug (last drawn X) FALSIFIED the "entrance X=2 interior"
   observation — true entrance at 160 is column 1 for gg0=0; asserts corrected and
   re-passed. JSON/lane B/docs sec 11/gate remain OWED (successor).
+
+## 2026-11-02 — FC-01 CORPUS AMAZ-00 COMPLETION hop (triple landed; lane-B **PASS** on the first run; gate green)
+
+- LANDED (this hop, successor to `948f5e5`/`708ce33`): `spec/functional/tests/AMAZ-00.json`
+  written from the ALREADY-PINNED program + derivation — schema `pli80-functional/1`, Lane B,
+  link_target AMAZ00, sha pin `0c0abfab…` (7327 B), `console_input` bare `^Z` (pure-PUT: the
+  upstream listing has NO walk INPUT phase — hop-start falsification, kept as written),
+  normalization `collapse-spaces-v1`, expected = the 18 derived lines copied VERBATIM from
+  `reference.derive('amaz00')` (8 leading "", border, 4x(cell,wall) rows, trailing ""), limits
+  as HANG-00 (60/120/120/4000000). Capabilities TRIMMED to the 9 shapes actually in the port,
+  each re-verified this hop as a COVERAGE row with dr=ACCEPTS / mine=SUPPORTED:
+  DECL.FIXED_BIN15, AGG.ARRAY_1D_FIXED, AGG.VAR_INDEX_LADDER, LOOP.DO_TO_BY,
+  IO.PUT_LIST_FIXED, IO.PUT_SKIP, EXPR.REL_FIXED_EQ_K, EXPR.SELF_ADD_LADDER,
+  TRAN.GOTO_SAME_BLOCK. IO.GET_LIST deliberately NOT cited (no GET in this program); the
+  strict `<` compares cite no id (no ordered-compare row exists — WKDAY precedent).
+- MEASURED `--stages source,derivation --tests AMAZ-00`: no failures; verdict line
+  `UNKNOWN [COMPILE: stage ceiling]` (the ceiling is the designed behaviour of --stages);
+  SOURCE.sha256.txt == pinned sha; DERIVATION.lines.txt == spec, 18 lines (verified by diff,
+  evidence `build/functional/20261102T212519Z/`).
+- MEASURED lane B `build/fc01/corp6/` (HEAD `708ce33`, compiler sha `edce9e0e…`),
+  ACTUALS verbatim: SOURCE pass (sha256+encoding verified), DERIVATION pass (derivation ==
+  spec), COMPILE pass (rc=0, non-empty .REL, code=3166 data=58 items=3212 bytes=5760,
+  AMAZ00.REL sha256 `fbf6fead…`), LINK pass (`AMAZ00.COM 10368 bytes` sha256
+  `c701652d012b2728…`, `done, parse_undefined=[]`), RUN pass (`done`; **189 console bytes** =
+  exactly the raw count the independent simulator + implementation hop recorded), ASSERT pass
+  (complete-stream match, 18 lines). Verdict line: `verdicts: PASS=1 FAIL=0 BLOCKED=0
+  UNKNOWN=0`. **AMAZ-00 rev1 = lane-B PASS on the first run** — corpus program 4 of 8.
+- MEASURED determinism double-run `build/fc01/corp6-double/`: PASS, verdict line identical;
+  the two `run.console.bin` captures byte-equal (`cmp` rc=0).
+- FIRST lane-B RUN of the flat goto state-machine generator and of nested `DO TO` print loops
+  with if/else single-item PUTs (both were COMPILE-witnessed pre-pin at `948f5e5`); the
+  separator-space adaptation and the 8-leading/1-trailing framing [C352] rendered exactly as
+  derived under collapse-spaces-v1.
+- MEASURED FULL compile-tier gate `python3 tools/e2e_gate.py` rc=0 after the docs update,
+  ACTUALS as printed (`build/gate-amaz00.log`): byte panel **1174 byte-exact / 0 fail of
+  1174**, negative **181/181**, divergence **9/9**, coverage **133 rows 0/0**, census
+  **15/0/26/0**, prose **5 active files clean**.
+- NOTHING promoted to any ledger (ends C352 — a functional run is not DR evidence); no
+  `ocaml/` or harness byte changed; source and expectation NOT altered to obtain the PASS;
+  nothing laundered; third-party research bytes stay untracked; operator `handoff.config.json`
+  stays unstaged; no push.
+- NEXT: program 5 **TICT-00** (Tic-Tac-Toe, BASIC; TWO upstream listings tictactoe1/2 — READ
+  BOTH at hop start and pick before designing; same procedure: rights note per README § 5.1,
+  design inside the measured subset, independent simulator, mirror-diff BEFORE the JSON,
+  `--stages source,derivation`, lane B `build/fc01/corp7`, docs § 12 + § 1, gate, explicit-path
+  commit). Then LIFE-00, DHRY-00 (never execute the `.SHAR`), FFT-00.

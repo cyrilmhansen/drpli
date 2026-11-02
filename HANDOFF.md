@@ -272,7 +272,34 @@ build/fc01/corp4` ACTUALS verbatim -> docs/functional-results.md § 9 + § 1 row
 `python3 tools/e2e_gate.py` compile tier -> explicit-path commit (never `handoff.config.json`);
 no push; ledger ends C352; no ocaml/harness changes; third-party bytes never tracked.
 
-## AMAZ-00 IMPLEMENTATION IN FLIGHT — committed INCOMPLETE (2026-11-02, operator checkpoint instruction; renewal 2/12)
+## AMAZ-00 rev1 LANDED — lane-B **PASS** on the first run (2026-11-02; continuation chain hop 2; execution HEAD `708ce33`; renewals AVAILABLE — use `handoff_renew` at safe boundaries)
+
+Hop 2 of the continuation chain finished AMAZ-00 (program 4 of 8, Amazing maze) exactly as the
+in-flight hop left it: pinned program sha `0c0abfab…` (7327 B, pure-PUT — the upstream listing
+has NO walk INPUT phase), `reference.py:amaz00` byte-equal to the independent simulator (18
+lines, all maze invariants asserted). This hop authored `AMAZ-00.json` (link_target AMAZ00, sha
+pin, `console_input` bare `^Z`, 18 expected lines copied verbatim from the derivation, normal-
+ization `collapse-spaces-v1`, limits as HANG-00, 9 capabilities each re-verified SUPPORTED/
+dr=ACCEPTS this hop — no IO.GET_LIST: no GET in this program), passed `--stages source,
+derivation` (SOURCE pin + derivation == spec 18 lines), and ran lane B `build/fc01/corp6/`
+(HEAD `708ce33`, compiler `edce9e0e…`): SOURCE/DERIVATION/COMPILE (rc=0, 5760 B, code=3166
+data=58)/LINK (`AMAZ00.COM` 10368 B, `parse_undefined=[]`)/RUN (`done`, **189 console bytes =
+exactly the simulator's predicted raw count**)/ASSERT (complete-stream match, 18 lines) —
+`verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`; double-run `build/fc01/corp6-double/`
+byte-equal (`cmp` rc=0). FIRST lane-B RUN of the flat goto state-machine generator and of
+nested `DO TO` print loops with if/else single-item PUTs — both run-witnessed PASSing; the
+separator-space adaptation and 8-leading/1-trailing framing [C352] rendered as derived. FULL
+compile-tier gate rc=0: byte panel **1174/0**, negative **181/181**, divergence **9/9**,
+coverage **133 rows 0/0**, census **15/0/26/0**, prose **5 clean** (`build/gate-amaz00.log`).
+No ocaml/harness byte changed; nothing laundered; ledger ends C352; operator `handoff.config.
+json` untouched/unstaged; no push. Full record: `LEARNINGS.md` § "…AMAZ-00 COMPLETION hop" +
+`docs/functional-results.md` § 11. **NEXT = program 5 TICT-00** (Tic-Tac-Toe, BASIC — TWO
+upstream listings tictactoe1/2: read BOTH, pick and record why; if the chosen version uses
+character INPUT for moves, adapt to numeric GET (run-witnessed laws) and document); exact
+steps in `PROGRESS.md` → Next action; then LIFE-00, DHRY-00 (NEVER execute the `.SHAR`),
+FFT-00. Record limitations honestly; do NOT extend the harness.
+
+## Superseded: AMAZ-00 IMPLEMENTATION IN FLIGHT — committed INCOMPLETE (2026-11-02, operator checkpoint instruction; renewal 2/12; kept as written per PROTOCOL #2 — superseded by the LANDED section above)
 
 Pinned `spec/functional/tests/AMAZ-00.PLI` (sha `0c0abfab…`, 7327 B, CRLF+^Z, <=71,
 apostrophe-free; scratch-compile rc=0, 5760 B) + `reference.py:_Amaz00Port`/`amaz00()`
@@ -301,8 +328,14 @@ section above. Program 3 **HANG-00 rev1 LANDED — lane-B PASS on the first run 
 (continuation chain hop 1; state section above; full record `LEARNINGS.md` § "…hop 1
 COMPLETION" + docs § 10): triple committed at this boundary (sha `3e55a44c…`, derivation ==
 spec 329 lines never captured, 12 capabilities); evidence `build/fc01/corp5/` + byte-equal
-double-run; first corpus GET+echo RUN; gate rc=0. EXACT NEXT: program 4 **AMAZ-00** (Amazing,
-BASIC) — steps 1-12 in `PROGRESS.md` → Next action; then TICT-00, LIFE-00, DHRY-00, FFT-00.
+double-run; first corpus GET+echo RUN; gate rc=0. Program 4 **AMAZ-00 rev1 LANDED — lane-B
+PASS on the first run 2026-11-02** (continuation chain hop 2; state section above; full record
+`LEARNINGS.md` § "…AMAZ-00 COMPLETION hop" + docs § 11): triple committed (pure-PUT, bare `^Z`,
+9 capabilities, derivation == spec 18 lines never captured; program + reference landed `948f5e5`/
+`708ce33`, JSON this hop), evidence `build/fc01/corp6/` + byte-equal double-run, gate rc=0.
+EXACT NEXT: program 5 **TICT-00** (Tic-Tac-Toe, BASIC — two upstream listings, read both and
+pick) — steps 1-12 in `PROGRESS.md` → Next action; then LIFE-00, DHRY-00 (never execute the
+`.SHAR`), FFT-00.
 Corpus laws unchanged and now ALL run-witnessed: literal divisors ≤ 127 (variable DIV MEASURED
 refused), ordered-compare constants ≥ 1, strict compares (`COND.GE_LE` refused), no apostrophes,
 ≤ 71 cols, single-item `put list` with the leading-blank separator law across statements, GET
@@ -439,22 +472,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 181
-checkpoint-id: g181-d01adc749de3
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~2957, session 01a19d8b-9c43-727a-91c8-56dddf34a6ca)
-checkpointed: 2026-11-02T21:12:15.321Z
+checkpoint-generation: 183
+checkpoint-id: g183-1a8e23378e6b
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-1770, session 01a19d8b-9c43-727a-91c8-56dddf34a6ca)
+checkpointed: 2026-11-02T21:20:37.932Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4bcd695ad6dd7184501a89ac8252ab7a110492e21f44165ccdbf19b24d4b70cb
-source-handoff: ed877a004514f868b1a592c7d1122c094a0dd5febb9376d46ff73f37a395a74c
-source-learnings: aeee173d6240fb9850ade1f373368f5aee994f854ed1ac4d7d13a6f8502ddc79
+source-progress: 4b653d976a1b92953bdd27e22c4e1ba16708accb62d79fd98292b6bd17566d91
+source-handoff: b2a35fa101bac59e7e5b0c0ab0aac013709814dbff5d7676254653c1a36edb0e
+source-learnings: 3d965777ebbe7d19993f94a365d084169f7b2d507601cbb6bb426f92cee6b464
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19d8b-9c43-727a-91c8-56dddf34a6ca
+readiness-at: 2026-11-02T21:20:37.942Z
+readiness-checkpoint: g183-1a8e23378e6b
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
@@ -484,5 +520,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-HANG-00 rev1 PASS landed (commit e72873a: triple + docs §10 + gate rc=0 1174/0,181/181,9/9,133/0/0,census 15/0/26/0,prose 5 clean; lane B build/fc01/corp5 PASS all 6 stages, RUN 6369 bytes = simulator's exact raw prediction; double-run byte-equal; first corpus GET+echo RUN). AMAZ-00 hop start committed (069684c): AMAZING.bas sha 3f6fa3f2 verified; FALSIFIED walk-phase assumption — listing is generation+print only, so AMAZ-00 is PURE-PUT (console_input bare ^Z); PROPOSED design in LEARNINGS § "AMAZ-00 hop start" (READ FIRST): H=V=4 literals, flat w(16)/vv(16) (AGG.MULTIDIM refused), declared gg*37+11 draws with literal divisors 2/3/4, ON-GOTO->if ladders, TAB banner + dimension INPUT/retry dropped (documented), separator-space adaptation, 4 leading blanks [C352], no trailing blank. EXACT NEXT: steps (2)-(12) in PROGRESS → Next action: scratch simulator amaz00_sim.py (statement mirror + invariants: C ends at 17, all 16 cells visited, entrance gap at X, exit opened on column V) -> LF draft + scratch pre-compile -> pinned AMAZ-00.PLI -> reference.py:amaz00 + DERIVATIONS -> diff BEFORE JSON -> AMAZ-00.json -> --stages source,derivation -> lane B build/fc01/corp6 (+double-run if PASS) -> docs §11 + §1 row -> e2e_gate compile tier -> explicit-path commit; then TICT-00 (two listings: tictactoe1/2 — pick after reading), LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00. Constraints: no ocaml/harness changes, ledger ends C352, FAIL stays classified never laundered, third-party bytes untracked, operator handoff.config.json never staged, no push; renewals available this chain — renew at safe boundaries, keep concise human-readable report at each boundary.
+AMAZ-00 IN FLIGHT, committed INCOMPLETE at 948f5e5 (pinned AMAZ-00.PLI sha 0c0abfab... compiles rc=0 5760 B; reference.py:amaz00 diff-vs-simulator BYTE-EQUAL 18 lines, all invariants PASS; corrections: entrance col 1, framing 8 leading blanks + 1 trailing, falsifications in LEARNINGS 2026-11-02 AMAZ-00 implementation hop). EXACT NEXT (PROGRESS -> Next action): (1) AMAZ-00.json (link_target AMAZ00, sha pin, console_input bare ^Z, 18 expected lines, derivation reference.py:amaz00, collapse-spaces-v1, limits as HANG-00, capabilities grep-verified SUPPORTED rows only, notes = removal/substitution list); (2) --stages source,derivation; (3) lane B build/fc01/corp6 (+double-run if PASS, ACTUALS verbatim, FAIL stays classified); (4) docs/functional-results.md sec 11 + sec 1 row; (5) e2e_gate compile tier; (6) explicit-path commit; then TICT-00 (pick listing after reading), LIFE-00, DHRY-00 (never execute .SHAR), FFT-00. Constraints: no ocaml/harness changes; ledger ends C352; third-party bytes untracked; operator handoff.config.json never staged; no push; renew at safe boundaries.
 <!-- guard:end checkpoint -->

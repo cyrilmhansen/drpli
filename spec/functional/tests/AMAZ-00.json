@@ -1,0 +1,70 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "AMAZ-00",
+ "family": "CORPUS",
+ "title": "adapted BASIC Amazing maze generator (generation-and-print only version): flat 4x4 recursive-backtracker walk as a goto state machine with declared integer draws and literal divisors, border/cell/wall rows rendered under the measured PUT LIST separator law, DO TO print phase",
+ "provenance": {
+  "origin": "third-party",
+  "author": "DRPLi FC-01 corpus - adaptation of the BASIC Amazing listing (coding-horror/basic-computer-games 02_Amazing, Creative Computing/Morristown NJ; public-domain-era source; license UNVERIFIED - recorded as unverified, not asserted)",
+  "date": "2026-11-02",
+  "note": "Adaptation, not an import: algorithm re-expressed in PL/I-80; no upstream bytes copied into any tracked file. Research copy build/functional/fc01-sources/basic/AMAZING.bas, sha256 3f6fa3f264d148267a8216a4d9b57bdbaf2cf0c7fb346a4b60a8fe00728cd9f7 (pinned by SHA256SUMS rc=0 measured 2026-11-02); upstream URL in URLS.tsv line 1 (moving main branch). Rights review per README section 5.1 remains an explicit FC-01 deliverable."
+ },
+ "source": {
+  "file": "AMAZ-00.PLI",
+  "sha256": "0c0abfab0a728861e808a175982530669e9feb99d342b016f84d6d51c9430c9d",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "DECL.FIXED_BIN15",
+  "AGG.ARRAY_1D_FIXED",
+  "AGG.VAR_INDEX_LADDER",
+  "LOOP.DO_TO_BY",
+  "IO.PUT_LIST_FIXED",
+  "IO.PUT_SKIP",
+  "EXPR.REL_FIXED_EQ_K",
+  "EXPR.SELF_ADD_LADDER",
+  "TRAN.GOTO_SAME_BLOCK"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "console_input": "^Z",
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "AMAZ00"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:amaz00",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   "",
+   ". .-- .-- .-- .",
+   "I I I",
+   ": : :-- : .",
+   "I I I I",
+   ": :-- : : .",
+   "I I I",
+   ": : :-- :-- .",
+   "I I I",
+   ":-- :-- : :-- .",
+   ""
+  ]
+ },
+ "notes": "FC-01 OPERATOR OVERRIDE corpus, program 4 of 8 (Amazing, BASIC).\nSCOPE: this upstream listing (AMAZING.bas sha 3f6fa3f2...) is generation-and-print\nONLY - banner, dimension INPUT, random maze generation, maze print, END. There is\nNO player walk / direction-INPUT phase, so AMAZ-00 is a PURE-PUT program and\nconsole_input is the bare ^Z (the earlier assumption of a walk phase is FALSIFIED,\nkept as written in LEARNINGS 2026-11-03 AMAZ-00 hop start; PROTOCOL #2).\nADAPTATION / DOCUMENTED UNSUPPORTED-FEATURE CHANGES (removal/substitution list):\n(1) TAB(28)/TAB(15) banner (BASIC 10/20) DROPPED - no counted PUT;\nFILE.PUT_POSITION/counted EDIT refused (EDIT-00 measures the counted refusal).\n(2) Dimension INPUT (BASIC 100) and the MEANINGLESS-DIMENSIONS retry (102-104)\nDROPPED: CHARACTER console GET is UNMEASURED; H = 4, V = 4 are DECLARED literal\nFIXED constants instead (declared substitution, not hidden).\n(3) The 2-D arrays W(H,V), V(H,V) (BASIC 110) are flattened to w(16)/vv(16) with\nindex (r-1)*4 + s - AGG.MULTIDIM is a pinned refusal (Batch-A).\n(4) RND REPLACEMENT (declared): every INT(RND(1)*k+1) draw becomes the HAMM-00\nidiom gg = gg + 1; t1 = gg*37 + 11; x = t1 - (t1/k)*k + 1 with LITERAL divisors\n4/3/2 only (variable DIV is MEASURED refused on my compiler, HAMM-00 rev1). Seed\ngg0 = 0 declared. The sequence has period 12 mod 12, so exactly 12 distinct mazes\nexist per grid (measured in the independent scratch simulator over gg0 0..885 and\n5x4/4x5/6x4 sweeps to 400).\n(5) ON X GOTO dispatch became if ladders (HANG-00 pattern); the generator is a\nflat goto state machine in one block mirroring the BASIC line numbers in label\nnames (sel/carve/print map 1:1; TRAN.GOTO_SAME_BLOCK run-witnessed from HANG-00).\n(6) MEASURED MY-COMPILER PORT SHAPES (not DR claims): a condition may not contain\na member reference - every visited test loads t1 = w(b) first (member-in-\ncondition refuses); subscripts must be a simple variable or variable+1 [C159], so\nthe up/left/down moves go through b2 = b - 4 / b - 1 / b + 4 temporaries; the\nBASIC <>0 tests are rewritten as measured = 0 forms (ordered compare with\nconstant 0 is refused); vv updaters use the default-store + conditional-\noverwrite form (vv(b) = 3; if t1 = 0 then vv(b) = 2;) avoiding ELSE.\n(7) SEPARATOR LAW ADAPTATION (declared, same as HANG-00): under the MEASURED\nleading-blank law (one blank precedes every PUT LIST item that is not the first\nsince the last line start, ACROSS statements - Batch-A PASS captures, DR goldens\ngolden/e32rt_E32B1 == e32b_E32B1_dr) the border, cell and wall rows render\nSPACE-separated single-item literals; collapse-spaces-v1 keeps the stream honest\nand the wall structure (I vs blank, :-- vs :  ) survives the collapse.\n(8) FRAMING: BASIC 30 has 4 PRINTs and 120/130/140/150 four more => 8 bare PUT\nSKIP => expectation STARTS with 8 blank lines [C352]; the final PRINT '.'\n(BASIC 1071) closes its line and the exit CRLF [C352] yields ONE trailing blank\nline - 18 normalized lines total. The earlier 4-leading/no-trailing reading is\nFALSIFIED, kept as written (PROTOCOL #2).\n(9) EXIT BRANCH UNREACHED: with gg0 = 0 the walk always ends z = 1 (the BASIC 960\nquirk fires first), so the exit-open draw 1011..1014 NEVER runs and the bottom-\nborder exit gap at column 3 comes from 980 (code-0 stuck cell -> 1); n980 = 1,\nn975 = 0; 12 draws total, gg_final = 12; all 37 BASIC labels are covered by the\nport's reachable paths.\n(10) DERIVED ASSERTIONS (reference.py, never captured): C terminates at H*V+1 =\n17, w is a permutation of 1..16, vv values in {0..3}, entrance gap at column 1\n(measured; the simulator's earlier column-2 report was a sim bug - FALSIFIED and\ncorrected), z = 1, 1011..1014 unreached, bottom gap at column 3, and BFS from the\nentrance reaches all 16 cells (connectivity). The derivation was diffed BYTE-EQUAL\nagainst the independent instrumented simulator build/fc01-scratch/amaz00_sim.py\nBEFORE this JSON was written (LEARNINGS 2026-11-02 AMAZ-00 implementation hop).\n(11) First lane-B RUN of the flat goto generator and of nested DO TO print loops\nwith if/else single-item PUTs (both COMPILE-witnessed pre-pin at rc=0, 5760 B\ncode=3166 data=58); expected stream derived from the declared design via\nreference.py:amaz00, never captured (L3); a FAIL stays classified, never\nlaundered."
+}

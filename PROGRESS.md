@@ -3,7 +3,33 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 **PASS** this boundary — continuation chain hop 1 COMPLETE; NEXT program 4 AMAZ-00)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 **PASS** this boundary — program 4 of 8; NEXT program 5 TICT-00)
+
+AMAZ-00 LANDED **PASS** (2026-11-02, continuation chain hop 2; triple + docs § 11 + gate + this
+prose committed this hop; full measured record: `LEARNINGS.md` § "…AMAZ-00 COMPLETION hop" and
+`docs/functional-results.md` § 11). The pinned program (`0c0abfab…`, 7327 B) + derivation
+(`reference.py:amaz00`, byte-equal to the independent simulator, 18 lines) landed at `948f5e5`/
+`708ce33`; this hop wrote `AMAZ-00.json` (pure-PUT, bare `^Z`, 9 re-validated SUPPORTED
+capabilities), passed `--stages source,derivation`, and ran lane B `build/fc01/corp6/` (HEAD
+`708ce33`, compiler `edce9e0e…`): all six stages PASS — COMPILE rc=0 5760 B (code=3166
+data=58), LINK `AMAZ00.COM` 10368 B `parse_undefined=[]`, RUN **189 console bytes** = exactly
+the simulator's predicted raw count, ASSERT complete-stream match 18 lines; `verdicts: PASS=1
+FAIL=0 BLOCKED=0 UNKNOWN=0`; double-run `build/fc01/corp6-double/` byte-equal (`cmp` rc=0).
+FIRST lane-B RUN of the flat goto generator and nested DO TO print loops — run-witnessed
+PASSing. FULL compile-tier gate rc=0: byte panel 1174/0, negative 181/181, divergence 9/9,
+coverage 133 rows 0/0, census 15/0/26/0, prose 5 clean (`build/gate-amaz00.log`). No
+ocaml/harness byte changed; nothing laundered; ledger ends C352.
+
+EXACT NEXT: program 5 **TICT-00** (Tic-Tac-Toe, BASIC) per the standing corpus procedure
+(PROGRESS.md → Next action below; operator directive: execute pragmatically, prioritize a
+completed adaptation over preparatory analysis). Then programs 6-8 (LIFE-00, DHRY-00 — never
+execute the `.SHAR`, FFT-00); HAMM-00 rev2 subtraction-loop stays PROPOSED. Constraints
+unchanged (no ocaml/harness changes; ledger ends C352; functional runs are NOT DR claims; FAIL
+stays classified, never laundered; third-party bytes never tracked; operator
+`handoff.config.json` stays unstaged; renew only at safe boundaries per `handoff.config.json` —
+renewals available this chain, use `handoff_renew`).
+
+Superseded phase body (HANG-00 hop 1 era, kept as written per PROTOCOL #2):
 
 HANG-00 LANDED **PASS** (2026-11-03, continuation chain hop 1 completion; HEAD `94ebbdb` at
 execution; triple + docs § 10 + gate + this prose committed this hop; full measured record:
@@ -167,8 +193,40 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-AMAZ-00 IMPLEMENTATION IN FLIGHT (2026-11-02, renewal 2/12; committed INCOMPLETE by
-operator instruction; NO lane run, NO JSON, NOTHING claimed PASS). DONE+VERIFIED:
+TICT-00 HOP START — program 5 of 8 (Tic-Tac-Toe, BASIC). NOTHING read or authored yet for this
+program beyond the standing table note "two upstream listings (tictactoe1/2)". EXACT STEPS per
+the standing corpus procedure (PROGRESS § Current phase table + HANG/AMAZ precedents):
+(1) verify `sha256sum -c SHA256SUMS` rc=0 in `build/functional/fc01-sources/` for the Tic-Tac-Toe
+file(s); READ BOTH upstream listings (`basic/` — tictactoe1/2 per the operator table), pick the
+richer/more testable one and RECORD the choice + why; rights note per README § 5.1 (licence
+UNVERIFIED, recorded as such; no upstream bytes in tracked files); if the chosen version has
+character INPUT (moves as 1-9 or coordinates), record: CHARACTER console GET is UNMEASURED —
+adapt moves to numeric GET like HANG-00 (the GET+echo laws are run-witnessed) or to a declared
+fixed script; player-vs-player vs player-vs-computer decides how much logic to keep.
+(2) design INSIDE the measured corpus subset: literal divisors ≤ 127 only (variable DIV MEASURED
+refused, HAMM-00 rev1); ordered-compare constants ≥ 1, strict compares only (COND.GE_LE
+refused); no apostrophes in literals (rewrite contractions); ≤ 71 cols; every `put list`
+single-item under the MEASURED leading-blank separator law (rows render space-separated,
+collapse-spaces-v1); NO multi-item or member-in-condition (load member to scalar first);
+subscripts simple var or var+1 [C159] (b2 temps otherwise); AGG.MULTIDIM refused — flatten any
+3x3 board to 9 cells; ON-GOTO/if-chains → if ladders; goto never crosses an ACTIVE DO
+(HANG-00 idiom); framing: leading bare PUT SKIPs → leading "" lines [C352]; final output that
+closes a line + exit CRLF → trailing "" (MATH-00 precedent).
+(3) independent scratch simulator `build/fc01-scratch/tict00_sim.py` on the AMAZ/HANG byte model;
+(4) LF draft + scratch pre-compile (shape check only); (5) CRLF + bare ^Z + <=71 +
+apostrophe-free `spec/functional/tests/TICT-00.PLI`, pin sha256; (6) `reference.py` mirror +
+DERIVATIONS entry, diff vs simulator BEFORE the JSON; (7) `TICT-00.json` (link_target TICT00,
+console_input from the chosen script, capabilities grep-verified SUPPORTED/dr=ACCEPTS rows only,
+notes = full removal/substitution list); (8) `python3 tools/functional_runner.py --stages
+source,derivation --tests TICT-00`; (9) lane B `--evidence build/fc01/corp7
+--json-out build/fc01/corp7/records.json` (+ `--double-run` into corp7-double if it PASSES),
+ACTUALS verbatim, a FAIL stays classified never laundered; (10) `docs/functional-results.md`
+§ 12 + § 1 row; (11) `python3 tools/e2e_gate.py` compile tier; (12) explicit-path commit
+(NEVER `handoff.config.json`; no push). Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00.
+No ocaml/harness changes; ledger ends C352; third-party bytes never tracked.
+
+SUPERSEDED-BY-ABOVE (kept as written): AMAZ-00 IMPLEMENTATION IN FLIGHT — CLOSED: landed
+**PASS** at this boundary (see Current phase and LEARNINGS AMAZ-00 COMPLETION hop). DONE+VERIFIED:
 `spec/functional/tests/AMAZ-00.PLI` pinned (sha256 0c0abfab0a728861e808a175982530669e9feb99d342b016f84d6d51c9430c9d,
 7327 B, 338 lines, CRLF+bare ^Z, <=71 cols, apostrophe-free, single-item puts; compiles
 rc=0 5760 B code=3166 data=58); `reference.py:_Amaz00Port`/`amaz00()` + DERIVATIONS
@@ -721,17 +779,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 181
-checkpoint-id: g181-d01adc749de3
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 183
+checkpoint-id: g183-1a8e23378e6b
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-02T21:12:15.321Z
+checkpointed: 2026-11-02T21:20:37.932Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4bcd695ad6dd7184501a89ac8252ab7a110492e21f44165ccdbf19b24d4b70cb
-source-handoff: ed877a004514f868b1a592c7d1122c094a0dd5febb9376d46ff73f37a395a74c
-source-learnings: aeee173d6240fb9850ade1f373368f5aee994f854ed1ac4d7d13a6f8502ddc79
+source-progress: 4b653d976a1b92953bdd27e22c4e1ba16708accb62d79fd98292b6bd17566d91
+source-handoff: b2a35fa101bac59e7e5b0c0ab0aac013709814dbff5d7676254653c1a36edb0e
+source-learnings: 3d965777ebbe7d19993f94a365d084169f7b2d507601cbb6bb426f92cee6b464
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -755,6 +813,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a19d8b-9c43-727a-91c8-56dddf34a6ca
+readiness-at: 2026-11-02T21:20:37.942Z
+readiness-checkpoint: g183-1a8e23378e6b
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -39,6 +39,7 @@ cpmsim, user-supplied and never packaged).
 | WKDAY-00 | B | rev1 COMPILE; rev2 →RUN→ASSERT; rev3 SOURCE→…→RUN→ASSERT | rev1 **FAIL**, rev2 **FAIL**, rev3 **PASS** (corpus program 1 of 8; § 8) | rev1 `compiler`; rev2 narrowed to `compiler` by the byte-level discriminating run | adapted BASIC Weekday; rev1 measured the `> 0` refusal, rev2 the silent `/365` low-byte miscompile (both `my-gap`), rev3 passes with complete-stream match, 10 lines, double-run byte-equal |
 | HAMM-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (corpus program 2 of 8; § 9) | `compiler` | adapted BASIC Hammurabi; rev1 measures the variable-divisor DIV refusal verbatim (`my-gap`, first corpus use, flagged run-unwitnessed in the spec notes); expectation NOT laundered; LINK/RUN/ASSERT unrun |
 | HANG-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 3 of 8; § 10) | — | adapted BASIC Hangman; FIRST corpus lane-B RUN of numeric `GET LIST` + echo — the measured echo/framing laws held on my own binary; complete-stream match 329 lines; the 6369-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
+| AMAZ-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 4 of 8; § 11) | — | adapted BASIC Amazing (generation-and-print-only version — no walk INPUT phase, so PURE-PUT with bare `^Z`); flat 4×4 backtracker via goto state machine, declared draws with literal divisors 4/3/2; complete-stream match 18 lines; the 189-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -438,3 +439,59 @@ capped); lane B `python3 tools/functional_runner.py --lane B --tests HANG-00 --e
 build/fc01/corp5 --json-out build/fc01/corp5/records.json`; determinism
 `python3 tools/functional_runner.py --lane B --tests HANG-00 --evidence build/fc01/corp5-double
 --json-out build/fc01/corp5-double/records.json --double-run`.
+
+## 11. FC-01 CORPUS AMAZ-00 hop (2026-11-02): program 4 (Amazing, BASIC); PASS on the first lane-B run
+
+Program 4 of the operator's eight (Amazing, `coding-horror/basic-computer-games` 02_Amazing,
+Creative Computing/Morristown NJ; research copy `build/functional/fc01-sources/basic/AMAZING.bas`
+sha256 `3f6fa3f264d148267a8216a4d9b57bdbaf2cf0c7fb346a4b60a8fe00728cd9f7`, `sha256sum -c
+SHA256SUMS` rc=0 measured at the hop start; upstream licence UNVERIFIED and recorded as such per
+README § 5.1; no upstream bytes in any tracked file). **Scope falsification carried from the
+listing read** (LEARNINGS 2026-11-03 hop start, kept as written per PROTOCOL #2): this upstream
+version has NO player-walk/direction-INPUT phase — banner → dimension INPUT → generation → print
+→ END — so AMAZ-00 is a **PURE-PUT** program, `console_input` = bare `^Z`; the design assumption
+of 4 leading blanks / no trailing blank was also falsified at the implementation hop (8 leading
+blanks from BASIC 30 + 120–150, one trailing blank from the exit CRLF [C352], 18 lines total).
+
+The triple: `spec/functional/tests/AMAZ-00.PLI` 7327 B, 338 lines, widest ≤ 71, CRLF + bare `^Z`,
+apostrophe-free, every `put list` single-item, sha256
+`0c0abfab0a728861e808a175982530669e9feb99d342b016f84d6d51c9430c9d` (pinned in the spec) — the
+2-D arrays flattened to `w(16)/vv(16)` (AGG.MULTIDIM is a pinned refusal), H = V = 4 DECLARED
+literals (dimension INPUT dropped and documented), every `RND` draw replaced by the declared
+`gg = gg + 1; t1 = gg*37 + 11; x = t1 - (t1/k)*k + 1` with literal divisors 4/3/2 (variable DIV
+measured refused, HAMM-00 rev1), `ON X GOTO` → if ladders, the generator a flat goto state
+machine mirroring the BASIC line numbers; measured my-compiler port shapes: member→scalar before
+every condition, `b2` temporaries for subscripts other than simple-var/`var+1` [C159], `<> 0`
+tests rewritten as `= 0`. `reference.py:amaz00` — statement-for-statement mirror + maze
+invariants (C ends at 17, w a permutation of 1..16, vv ∈ {0..3}, entrance gap column 1 — the
+sim's earlier column-2 report was its own reporting bug, falsified and corrected — z = 1,
+1011..1014 unreached, bottom exit gap column 3, BFS connectivity) — measured BYTE-EQUAL to the
+independent scratch simulator `build/fc01-scratch/amaz00_sim.py` (18 lines) BEFORE any JSON was
+written; `AMAZ-00.json` (schema `pli80-functional/1`, Lane B, 9 grep-verified SUPPORTED
+capability ids, notes (1)–(11) = the full removal/substitution list: TAB banner dropped,
+dimension INPUT/retry dropped and declared, RND replacement, separator-space adaptation, exit
+branch unreached with gg0 = 0).
+
+* **rev1 — PASS (`build/fc01/corp6/`, HEAD `708ce33`, compiler sha `edce9e0e…`):** every stage ran
+  and passed — SOURCE (sha256+encoding verified), DERIVATION (derivation == spec), COMPILE
+  (`rc=0, non-empty .REL`, 5760 B, code=3166 data=58), LINK (`AMAZ00.COM 10368 bytes
+  sha256=c701652d012b2728…`, `done, parse_undefined=[]`), RUN (`done`; **189 console bytes** —
+  exactly the raw count the independent simulator predicts), ASSERT (complete-stream match,
+  18 lines). Verdict line as executed: `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`.
+  Determinism double-run `build/fc01/corp6-double/` PASS (`verdicts: PASS=1 FAIL=0 BLOCKED=0
+  UNKNOWN=0`); the two `run.console.bin` captures are byte-equal (`cmp` rc=0).
+* First lane-B RUN of the flat goto generator and of nested `DO TO` print loops with if/else
+  single-item PUTs (both COMPILE-witnessed pre-pin); the space-separated border/cell/wall rows
+  (separator-law adaptation) rendered exactly as derived under collapse-spaces-v1, the 8 leading
+  and 1 trailing framing blanks [C352] included.
+* Nothing here promotes a claim: the ledger still ends at C352 and a functional run is not DR
+  evidence (the draw-period-12 and unreached-exit measurements live in the spec notes and
+  LEARNINGS, not the ledger). No `ocaml/` or harness byte changed; the source was NOT altered to
+  obtain the PASS; no expectation was laundered.
+
+Commands: derivation gate `python3 tools/functional_runner.py --stages source,derivation
+--tests AMAZ-00` (no failures; verdict line `UNKNOWN [COMPILE: stage ceiling]` = later stages
+capped); lane B `python3 tools/functional_runner.py --lane B --tests AMAZ-00 --evidence
+build/fc01/corp6 --json-out build/fc01/corp6/records.json`; determinism
+`python3 tools/functional_runner.py --lane B --tests AMAZ-00 --evidence
+build/fc01/corp6-double --json-out build/fc01/corp6-double/records.json --double-run`.
