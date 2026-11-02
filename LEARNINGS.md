@@ -3155,3 +3155,8 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - ADDED (unverified yet): `reference.py:_Amaz00Port` statement-for-statement
   mirror + `amaz00()` + DERIVATIONS entry — NOT yet diffed against the simulator,
   no JSON, no `--stages source,derivation`, no lane B run.
+- ACCEPTED (this boundary, committed `948f505`... precisely 948f5e5): reference
+  mirror vs instrumented simulator diff executed: BYTE-EQUAL, 18 lines; the sim's
+  `x_entrance` reporting bug (last drawn X) FALSIFIED the "entrance X=2 interior"
+  observation — true entrance at 160 is column 1 for gg0=0; asserts corrected and
+  re-passed. JSON/lane B/docs sec 11/gate remain OWED (successor).
