@@ -38,6 +38,7 @@ cpmsim, user-supplied and never packaged).
 | EDIT-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | PUT EDIT counted `SKIP(1)` refused — only the bare form is sampled (§ 7) |
 | WKDAY-00 | B | rev1 COMPILE; rev2 →RUN→ASSERT; rev3 SOURCE→…→RUN→ASSERT | rev1 **FAIL**, rev2 **FAIL**, rev3 **PASS** (corpus program 1 of 8; § 8) | rev1 `compiler`; rev2 narrowed to `compiler` by the byte-level discriminating run | adapted BASIC Weekday; rev1 measured the `> 0` refusal, rev2 the silent `/365` low-byte miscompile (both `my-gap`), rev3 passes with complete-stream match, 10 lines, double-run byte-equal |
 | HAMM-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (corpus program 2 of 8; § 9) | `compiler` | adapted BASIC Hammurabi; rev1 measures the variable-divisor DIV refusal verbatim (`my-gap`, first corpus use, flagged run-unwitnessed in the spec notes); expectation NOT laundered; LINK/RUN/ASSERT unrun |
+| HANG-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 3 of 8; § 10) | — | adapted BASIC Hangman; FIRST corpus lane-B RUN of numeric `GET LIST` + echo — the measured echo/framing laws held on my own binary; complete-stream match 329 lines; the 6369-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -377,3 +378,63 @@ Commands: derivation gate `python3 tools/functional_runner.py --stages source,de
 --tests HAMM-00` (no failures; verdict line `UNKNOWN [COMPILE: stage ceiling]` = later stages
 capped); lane B `python3 tools/functional_runner.py --lane B --tests HAMM-00 --evidence
 build/fc01/corp4 --json-out build/fc01/corp4/records.json`.
+
+## 10. FC-01 CORPUS continuation hop 1 (2026-11-03): HANG-00 — program 3 (Hangman, BASIC); PASS on the first lane-B run
+
+Program 3 of the operator's eight (Hangman, `coding-horror/basic-computer-games` 44_Hangman,
+Creative Computing/Morristown NJ; research copy `build/functional/fc01-sources/basic/HANGMAN.bas`
+sha256 `86595fe2…`, upstream licence UNVERIFIED and recorded as such per README § 5.1; no
+upstream bytes in any tracked file). The design hop fixed the port contract (three declared words
+GUM/FLY/SLEEPER as ASCII code tables played SEQUENTIALLY — the declared replacement for `RND`
+and the used-word redraw — all-letter integer state, the nested 34-branch `show` procedure for
+every displayed character, a flattened 12×12 code grid with literal stage-cell stores and a
+walking counter, NO division anywhere, strict compares only, a fixed 23-value numeric GET script
+ending in the `YOU DID ALL THE WORDS!!` exit). Two model falsifications shaped the byte stream
+and stay recorded per PROTOCOL #2: the design hop's no-separator `put list` model (the MEASURED
+leading-blank law forces the dash/letter row, the used-letter row and every grid row to render
+SPACE-separated — a declared adaptation, notes (8); no separator-free route exists) and its
+`t1 = m + 1; t1 < 12` shift for BASIC `IF M<>10` (always true in the domain — the port uses the
+direct strict `if m < 10`).
+
+The triple: `spec/functional/tests/HANG-00.PLI` 7508 B, 295 lines, widest 70, CRLF + bare `^Z`,
+apostrophe-free, sha256 `3e55a44cb4ab5a21ab20f75a9ca4fd5ad67b4d4f0e71afb4dc199405a2a3c04b`
+(pinned in the spec); `reference.py:hang00` — statement-for-statement mirror with the measured
+byte laws (single-item separator law ACROSS statements, `L\r\r\n` echo closing the line, exit
+CRLF [C352]) — its 329-line stream MEASURED BYTE-EQUAL to the independent scratch simulator
+before any JSON was written, plus game-state invariants (win/win/hang results, 11 grid displays,
+2 FOUND lines, dup caught once, LOSE names SLEEPER, script consumed exactly, 23 CR-terminated
+echo lines); `HANG-00.json` (schema `pli80-functional/1`, Lane B, 12 re-validated capability ids,
+`console_input` = 23 CR-terminated ASCII codes then a bare never-consumed `^Z`, notes (1)–(12) =
+the full removal/substitution list: TAB banner dropped, 50-word table reduced to 3, character
+GET UNMEASURED → numeric-code GET, word-guess interlude/610 quirk/dead 620+990 dropped, ON M
+GOTO → if ladders, apostrophes rewritten, the cw=0 `BYE FOR NOW` branch compile-only under this
+script).
+
+* **rev1 — PASS (`build/fc01/corp5/`, HEAD `94ebbdb`, compiler sha `edce9e0e…`):** every stage
+  ran and passed — SOURCE (sha256+encoding verified), DERIVATION (derivation == spec), COMPILE
+  (`rc=0, non-empty .REL`, 7936 B, code=3550 data=174), LINK (`HANG00.COM 12160 bytes
+  sha256=669ed009…`, `done, parse_undefined=[]`), RUN (`done`; **6369 console bytes** — exactly
+  the raw byte count the independent simulator predicts, including the exit CRLF), ASSERT
+  (complete-stream match, 329 lines). Verdict line as executed: `verdicts: PASS=1 FAIL=0
+  BLOCKED=0 UNKNOWN=0`. Determinism double-run `build/fc01/corp5-double/` PASSes all eight stage
+  entries; the two `run.console.bin` captures are byte-equal (`cmp` rc=0).
+* This is the **first corpus lane-B RUN of `GET LIST` with echo on my own compiled binary**: the
+  numeric GET + `L\r\r\n` echo law (previously measured only from DR goldens and transcripts) and
+  the "consumed GET closes the line" law held — headers/FOUND/DUP/ALLEXT print DIRECTLY after
+  echoes, and the three leading bare `PUT SKIP`s give the three leading blank lines [C352] as
+  derived. The five shapes flagged lane-B-unwitnessed at the design hop (numeric GET+echo RUN,
+  nested `show` procedure PUTting its own `character(1) varying`, nested DO ×2 rendering,
+  goto-in-IF, the stage ladder with calls inside DO loops) are now **run-witnessed PASSing**; the
+  space-separated grid rows (separator-law adaptation) rendered as derived, trailing collapsed
+  blanks included.
+* Nothing here promotes a claim: the ledger still ends at C352 and a functional run is not DR
+  evidence. No `ocaml/` or harness byte changed; the source was NOT altered to obtain the PASS
+  (the pre-pin scratch compile rc=0 checked my own syntax, not the expectation); no expectation
+  was laundered.
+
+Commands: derivation gate `python3 tools/functional_runner.py --stages source,derivation
+--tests HANG-00` (no failures; verdict line `UNKNOWN [COMPILE: stage ceiling]` = later stages
+capped); lane B `python3 tools/functional_runner.py --lane B --tests HANG-00 --evidence
+build/fc01/corp5 --json-out build/fc01/corp5/records.json`; determinism
+`python3 tools/functional_runner.py --lane B --tests HANG-00 --evidence build/fc01/corp5-double
+--json-out build/fc01/corp5-double/records.json --double-run`.

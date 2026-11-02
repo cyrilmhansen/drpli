@@ -122,7 +122,33 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## HANG-00 implementation hop IN FLIGHT — CLOSED AT CHAIN CAP (2026-11-03, renewal 12/12; docs commit `8ddd6c7`; build verified rc=0, compiler `edce9e0e…`; NO lane run, NO gate run this hop)
+## HANG-00 rev1 **PASS** — continuation chain hop 1 COMPLETE (2026-11-03; the operator's renewal reset ended the capped chain recorded below; HEAD `94ebbdb` at execution; renewals AVAILABLE — use `handoff_renew` at safe boundaries, not terminal finalization)
+
+Hop 1 of the continuation chain finished the OWED HANG-00 triple exactly as contracted and it
+executed to **PASS** on the FIRST lane-B run: `spec/functional/tests/HANG-00.PLI`
+(sha `3e55a44cb4ab5a21ab20f75a9ca4fd5ad67b4d4f0e71afb4dc199405a2a3c04b`, 7508 B, 295 lines,
+≤70 cols, CRLF+^Z, apostrophe-free, all PUTs single-item), `reference.py:hang00` (329-line
+stream byte-equal to the independent simulator, diffed BEFORE the JSON, plus game-state
+invariants), `HANG-00.json` (12 validated capabilities, link_target HANG00, 23 CR-terminated
+values + bare `^Z`, notes (1)–(12)). Lane B `build/fc01/corp5/` (HEAD `94ebbdb`, compiler
+`edce9e0e…`): SOURCE/DERIVATION/COMPILE (rc=0, 7936 B, code=3550 data=174)/LINK (`HANG00.COM`
+12160 B, `parse_undefined=[]`)/RUN (`done`, **6369 console bytes = exactly the raw count the
+simulator predicts**)/ASSERT (329-line complete-stream match) — `verdicts: PASS=1 FAIL=0
+BLOCKED=0 UNKNOWN=0`; double-run `build/fc01/corp5-double/` byte-equal (`cmp` rc=0). FIRST
+corpus lane-B RUN of numeric `GET LIST` + echo on my own binary — the measured echo/framing
+laws held; all five previously lane-B-unwitnessed HANG shapes (GET+echo, nested `show` with its
+own varying cell, nested DO ×2, goto-in-IF, stage ladder with calls in DO) are now
+run-witnessed PASSing. FULL compile-tier gate rc=0: byte panel **1174/0**, negative **181/181**,
+divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**, prose **5 clean**
+(`build/gate-hang00.log`). No ocaml/harness byte changed; nothing laundered; ledger ends C352;
+operator `handoff.config.json` untouched/unstaged; no push. Full measured record:
+`LEARNINGS.md` § "…HANG-00 continuation chain hop 1 COMPLETION" + `docs/functional-results.md`
+§ 10. **NEXT = program 4 AMAZ-00** — exact steps in `PROGRESS.md` → Next action (flatten the
+maze grid — `AGG.MULTIDIM` REFUSED; NO division; numeric direction GET — CHARACTER GET stays
+UNMEASURED; declared draw or fixed script replaces RND; corpus byte laws now all run-witnessed;
+2-D maze is the known hard shape — record limitations honestly, do NOT extend the harness).
+
+## Superseded: HANG-00 implementation hop IN FLIGHT — CLOSED AT CHAIN CAP (2026-11-03, renewal 12/12; docs commit `8ddd6c7`; build verified rc=0, compiler `edce9e0e…`; NO lane run, NO gate run this hop; kept as written per PROTOCOL #2 — the operator reset that followed makes "no successor exists" obsolete)
 
 Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HANG-00 implementation hop (renewal 12/12 =
 CHAIN CAP)" FIRST — it supersedes parts of the design-hop contract below. Measured this hop
@@ -242,7 +268,7 @@ build/fc01/corp4` ACTUALS verbatim -> docs/functional-results.md § 9 + § 1 row
 `python3 tools/e2e_gate.py` compile tier -> explicit-path commit (never `handoff.config.json`);
 no push; ledger ends C352; no ocaml/harness changes; third-party bytes never tracked.
 
-## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-framing→fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json`. **WKDAY-00 DONE — rev3 lane-B PASS
+## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-framing→fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json` — renewals AVAILABLE on the continuation chain (operator reset 2026-11-03); use `handoff_renew`, not terminal finalization. **WKDAY-00 DONE — rev3 lane-B PASS
 (2026-11-03; docs § 8, evidence build/fc01/corp1..corp3).** Program 2 (Hammurabi → `HAMM-00`):
 **rev1 RECORDED 2026-11-03** (hops 2–7, this chain; started as the implementation hop at
 renewal 4/12). Triple committed at this boundary (`HAMM-00.PLI` sha `cc25fe75…`,
@@ -254,18 +280,16 @@ division, flagged run-unwitnessed in spec note (10); classified `my-gap`
 written, never laundered; ledger ends C352. docs § 9 + § 1 row written; FULL compile-tier gate
 rc=0 (1174/0, 181/181, 9/9, 133/0/0, census 15/0/26/0, prose 5 clean). rev2 subtraction-loop
 PROPOSED, NOT executed. Full record: `LEARNINGS.md` § 2026-11-03 HAMM-00 hops + the rev1 state
-section above. Program 3 **HANG-00 (Hangman, BASIC) DESIGN HOP LANDED 2026-11-03** — the
-complete port contract, fixed 23-value game script, capability list, removals and the five
-unwitnessed shapes are in `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HANG-00 design hop"
-(read that section FIRST). EXACT NEXT: the HANG-00 IMPLEMENTATION hop — that section's steps
-1-10 (scratch simulator on the HAMM byte model -> LF draft -> triple with `reference.py:hang00`
--> derivation-vs-simulator diff BEFORE the JSON -> `--stages source,derivation` -> lane B
-`--evidence build/fc01/corp5` ACTUALS verbatim -> docs § 10 + § 1 -> compile-tier gate ->
-explicit-path commit). **The implementation session runs at renewal 12/12, the configured cap:
-land HANG-00, then close the chain with handoff_finalize — no renewal past 12/12 without an
-operator reset.** Corpus laws unchanged: literal divisors ≤ 127 (variable DIV now MEASURED
-refused — HANG has NO division by design), ordered-compare constants ≥ 1, strict compares
-(`COND.GE_LE` refused), no apostrophes, ≤ 71 cols, a FAIL stays classified never laundered.
+section above. Program 3 **HANG-00 rev1 LANDED — lane-B PASS on the first run 2026-11-03**
+(continuation chain hop 1; state section above; full record `LEARNINGS.md` § "…hop 1
+COMPLETION" + docs § 10): triple committed at this boundary (sha `3e55a44c…`, derivation ==
+spec 329 lines never captured, 12 capabilities); evidence `build/fc01/corp5/` + byte-equal
+double-run; first corpus GET+echo RUN; gate rc=0. EXACT NEXT: program 4 **AMAZ-00** (Amazing,
+BASIC) — steps 1-12 in `PROGRESS.md` → Next action; then TICT-00, LIFE-00, DHRY-00, FFT-00.
+Corpus laws unchanged and now ALL run-witnessed: literal divisors ≤ 127 (variable DIV MEASURED
+refused), ordered-compare constants ≥ 1, strict compares (`COND.GE_LE` refused), no apostrophes,
+≤ 71 cols, single-item `put list` with the leading-blank separator law across statements, GET
+echo `L\r\r\n` closes the line, exit CRLF [C352]; a FAIL stays classified never laundered.
 
 ## HAMM-00 hop 4 state — RICH SPINE FOUND (2026-11-03, renewal 7/12, HEAD `9cbd8dc`; build rc=0, compiler `edce9e0e…`)
 
@@ -362,16 +386,9 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
   executed:** subtraction-loop division at the four variable-divisor sites (derived stream
   identical; a port change, not a compiler change). Rights/provenance review per program
   (README § 5.1) and the unsupported-feature record stay explicit deliverables; the BASIC
-  upstream licences are UNVERIFIED and are recorded as such, not asserted. Program 3 HANG-00
-  DESIGN HOP LANDED (state section above; `LEARNINGS.md` § HANG-00 design hop). The IMPLEMENTATION
-  hop ran at renewal 12/12 = the CONFIGURED CAP and CLOSED the chain at `8ddd6c7` with durable
-  prose only: the design hop's no-separator byte model is FALSIFIED (measured Batch-A PASS
-  captures + DR's own `e32rt_E32B1`/`e32b_E32B1_dr` goldens), every risky shape is COMPILE-
-  witnessed in ignored scratch, and the HANG-00 triple (`spec/functional/tests/HANG-00.PLI`,
-  `HANG-00.json`, `reference.py:hang00`) is still OWED, as are the derivation/simulator diff,
-  lane B `build/fc01/corp5`, docs § 10 + § 1, the compile-tier gate and the commit. NO renewal is
-  possible past 12/12 without an operator reset (`renewal.maxRenewals` in `handoff.config.json`
-  or the ignored `.pi-guard` renewal state) — that change is an OPERATOR decision, never mine.
+  upstream licences are UNVERIFIED and are recorded as such, not asserted. Program 3
+  **HANG-00 rev1 LANDED lane-B PASS** (continuation chain hop 1, state section above; the
+capped-chain record below is kept as written and superseded by the operator reset).
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
   `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
 
@@ -405,13 +422,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 177
-checkpoint-id: g177-4c0b42e017fe
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 178
+checkpoint-id: g178-82408127df05
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 2, remaining ~8501, session 01a19d3a-aea7-727a-91c8-56d549ecc023)
-checkpointed: 2026-11-02T17:32:40.440Z
+status: checkpoint (guard level 3, remaining ~6105, session 01a19d3a-aea7-727a-91c8-56d549ecc023)
+checkpointed: 2026-11-02T17:33:22.068Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7907e8dcf59010819ef3d3a376c33df642adda4bc36964a76deddfc761aed282
 source-handoff: 80e4a15a9db24ec65d9640590199eab314a7cf38cb24e80b5de3cb290ae921bf
@@ -420,10 +437,10 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a19d3a-aea7-727a-91c8-56d549ecc023
-readiness-at: 2026-11-02T17:32:40.446Z
-readiness-checkpoint: g177-4c0b42e017fe
+readiness-at: 2026-11-02T18:11:46.830Z
+readiness-checkpoint: g178-82408127df05
 ### Last verified state
-guard level 2; checkpoint requested (finalize: FC-01 HANG-00 continuation chain hop 1 in flight: simulator rewritten (4 framing falsifications), design-hop m<>10 shift falsified (direct m<10), shapes02 compile-witnessed, LF draft authored; owed: CRLF conversion, reference.py mirror, diff, JSON, --stages source,derivation, lane B corp5, docs §10, gate, commit; then AMAZ-00.)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

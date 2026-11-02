@@ -1,0 +1,296 @@
+/* HANG-00 - FC-01 corpus adaptation, 2026-11-03.           */
+/* Original: BASIC "Hangman", Creative Computing            */
+/* MORRISTOWN NJ.  Research copy: build/functional/         */
+/* fc01-sources/basic/HANGMAN.bas (upstream                 */
+/* coding-horror/basic-computer-games 44_Hangman,           */
+/* hangman.bas sha256 86595fe2..., licence UNVERIFIED).     */
+/* ADAPTATION (full removal/substitution list is in         */
+/* HANG-00.json notes): the TAB banner (10/20) is dropped;  */
+/* 50 DATA words are reduced to 3 (GUM, FLY, SLEEPER)       */
+/* chosen SEQUENTIALLY (no RND, no used-word redraw); every */
+/* letter is an INTEGER ASCII code (no character arrays);   */
+/* printing routes every character through the nested       */
+/* SHOW procedure, a 34-branch literal->char(1)-varying     */
+/* ladder with one natural-width PUT LIST; BASIC INPUT is   */
+/* replaced by console GET LIST of a fixed 23-value ASCII   */
+/* script; the word-guess interlude (320-360), the 610      */
+/* half-line quirk and the dead 620/990 are dropped; ISN'T, */
+/* IT'S, HERE'S and YOU'RE are rewritten WITHOUT            */
+/* apostrophes; ON M GOTO became if ladders; the 12x12      */
+/* char grid is flattened to p(144) codes with literal      */
+/* stage-cell stores and a walking row counter (NO          */
+/* division anywhere); every compare is STRICT (m<>10 is   */
+/* m<10 in the domain m<=10).  Under the MEASURED PUT LIST  */
+/* leading-blank separator law the dash/letter row, the     */
+/* used-letter row and every grid row render               */
+/* SPACE-separated (declared adaptation; no separator-free  */
+/* route exists).  Expected stream: reference.py:hang00,    */
+/* derived from the declared design, never captured.        */
+hang00: procedure options(main);
+  declare (q, n, m, t1, nu, g, x, r, i, j, k, b, cw) fixed bin(15);
+  declare (du, dsh) fixed bin(15);
+  declare wlit character(9) varying;
+  declare cur(7) fixed bin(15);
+  declare dgum(3) fixed bin(15);
+  declare dfly(3) fixed bin(15);
+  declare dslep(7) fixed bin(15);
+  declare d(20) fixed bin(15);
+  declare u(26) fixed bin(15);
+  declare p(144) fixed bin(15);
+  dgum(1) = 71;
+  dgum(2) = 85;
+  dgum(3) = 77;
+  dfly(1) = 70;
+  dfly(2) = 76;
+  dfly(3) = 89;
+  dslep(1) = 83;
+  dslep(2) = 76;
+  dslep(3) = 69;
+  dslep(4) = 69;
+  dslep(5) = 80;
+  dslep(6) = 69;
+  dslep(7) = 82;
+  put skip;
+  put skip;
+  put skip;
+  q = 0;
+sel:
+  q = q + 1;
+  if q > 3 then goto fin;
+  if q = 1 then do;
+     n = 3;
+     wlit = 'GUM';
+     do i = 1 to 3;
+        x = dgum(i);
+        cur(i) = x;
+     end;
+  end;
+  if q = 2 then do;
+     n = 3;
+     wlit = 'FLY';
+     do i = 1 to 3;
+        x = dfly(i);
+        cur(i) = x;
+     end;
+  end;
+  if q = 3 then do;
+     n = 7;
+     wlit = 'SLEEPER';
+     do i = 1 to 7;
+        x = dslep(i);
+        cur(i) = x;
+     end;
+  end;
+  nu = 0;
+  m = 0;
+  t1 = 0;
+  do i = 1 to 20;
+     d(i) = 45;
+  end;
+  do i = 1 to 144;
+     p(i) = 32;
+  end;
+  p(1) = 88;
+  p(13) = 88;
+  p(25) = 88;
+  p(37) = 88;
+  p(49) = 88;
+  p(61) = 88;
+  p(73) = 88;
+  p(85) = 88;
+  p(97) = 88;
+  p(109) = 88;
+  p(121) = 88;
+  p(133) = 88;
+  p(2) = 88;
+  p(3) = 88;
+  p(4) = 88;
+  p(5) = 88;
+  p(6) = 88;
+  p(7) = 88;
+  p(19) = 88;
+disp:
+  put list('HERE ARE THE LETTERS YOU USED:');
+  put skip;
+  do i = 1 to nu;
+     x = u(i);
+     call show(x);
+     if i < nu then call show(44);
+  end;
+  put skip;
+  put skip;
+  do i = 1 to n;
+     x = d(i);
+     call show(x);
+  end;
+  put skip;
+  put skip;
+  put list('WHAT IS YOUR GUESS (ASCII CODE) ');
+  get list(g);
+  du = 0;
+  do i = 1 to nu;
+     x = u(i);
+     if x = g then du = 1;
+  end;
+  if du = 1 then do;
+     put list('YOU GUESSED THAT LETTER BEFORE!');
+     put skip;
+     goto disp;
+  end;
+  nu = nu + 1;
+  u(nu) = g;
+  t1 = t1 + 1;
+  r = 0;
+  do i = 1 to n;
+     x = cur(i);
+     if x = g then do;
+        d(i) = g;
+        r = r + 1;
+     end;
+  end;
+  if r = 0 then goto miss;
+  dsh = 0;
+  do i = 1 to n;
+     x = d(i);
+     if x = 45 then dsh = 1;
+  end;
+  if dsh = 1 then goto disp;
+  put list('YOU FOUND THE WORD!');
+  put skip;
+  goto cont;
+miss:
+  m = m + 1;
+  put skip;
+  put skip;
+  put list('SORRY, THAT LETTER IS NOT IN THE WORD.');
+  put skip;
+  if m = 1 then put list('FIRST, WE DRAW A HEAD');
+  if m = 2 then put list('NOW WE DRAW A BODY.');
+  if m = 3 then put list('NEXT WE DRAW AN ARM.');
+  if m = 4 then put list('THIS TIME IT IS THE OTHER ARM.');
+  if m = 5 then put list('NOW, LET US DRAW THE RIGHT LEG.');
+  if m = 6 then put list('THIS TIME WE DRAW THE LEFT LEG.');
+  if m = 7 then put list('NOW WE PUT UP A HAND.');
+  if m = 8 then put list('NEXT THE OTHER HAND.');
+  if m = 9 then put list('NOW WE DRAW ONE FOOT');
+  if m = 10 then put list('HERE IS THE OTHER FOOT -- YOU ARE HUNG!!');
+  put skip;
+  if m = 1 then do;
+     p(30) = 45;
+     p(31) = 45;
+     p(32) = 45;
+     p(41) = 40;
+     p(42) = 46;
+     p(44) = 46;
+     p(45) = 41;
+     p(54) = 45;
+     p(55) = 45;
+     p(56) = 45;
+  end;
+  if m = 2 then do;
+     p(67) = 88;
+     p(79) = 88;
+     p(91) = 88;
+     p(103) = 88;
+  end;
+  if m = 3 then do;
+     p(39) = 92;
+     p(52) = 92;
+     p(65) = 92;
+     p(78) = 92;
+  end;
+  if m = 4 then do;
+     p(47) = 47;
+     p(58) = 47;
+     p(69) = 47;
+     p(80) = 47;
+  end;
+  if m = 5 then do;
+     p(114) = 47;
+     p(125) = 47;
+  end;
+  if m = 6 then do;
+     p(116) = 92;
+     p(129) = 92;
+  end;
+  if m = 7 then do;
+     p(35) = 92;
+  end;
+  if m = 8 then do;
+     p(27) = 47;
+  end;
+  if m = 9 then do;
+     p(142) = 92;
+     p(143) = 45;
+  end;
+  if m = 10 then do;
+     p(135) = 45;
+     p(136) = 47;
+  end;
+  b = 0;
+  do k = 1 to 12;
+     do j = 1 to 12;
+        b = b + 1;
+        x = p(b);
+        call show(x);
+     end;
+     put skip;
+  end;
+  put skip;
+  put skip;
+  if m < 10 then goto disp;
+  put list('SORRY, YOU LOSE.  THE WORD WAS ');
+  put list(wlit);
+  put skip;
+cont:
+  put list('WANT ANOTHER WORD (1=YES 0=NO) ');
+  get list(cw);
+  if cw = 1 then goto sel;
+  put skip;
+  put list('IT HAS BEEN FUN!  BYE FOR NOW.');
+  put skip;
+  stop;
+fin:
+  put list('YOU DID ALL THE WORDS!!');
+  stop;
+  show: procedure (c);
+    declare c fixed bin(15);
+    declare ch character(1) varying;
+    if c = 32 then ch = ' ';
+    if c = 40 then ch = '(';
+    if c = 41 then ch = ')';
+    if c = 44 then ch = ',';
+    if c = 45 then ch = '-';
+    if c = 46 then ch = '.';
+    if c = 47 then ch = '/';
+    if c = 65 then ch = 'A';
+    if c = 66 then ch = 'B';
+    if c = 67 then ch = 'C';
+    if c = 68 then ch = 'D';
+    if c = 69 then ch = 'E';
+    if c = 70 then ch = 'F';
+    if c = 71 then ch = 'G';
+    if c = 72 then ch = 'H';
+    if c = 73 then ch = 'I';
+    if c = 74 then ch = 'J';
+    if c = 75 then ch = 'K';
+    if c = 76 then ch = 'L';
+    if c = 77 then ch = 'M';
+    if c = 78 then ch = 'N';
+    if c = 79 then ch = 'O';
+    if c = 80 then ch = 'P';
+    if c = 81 then ch = 'Q';
+    if c = 82 then ch = 'R';
+    if c = 83 then ch = 'S';
+    if c = 84 then ch = 'T';
+    if c = 85 then ch = 'U';
+    if c = 86 then ch = 'V';
+    if c = 87 then ch = 'W';
+    if c = 88 then ch = 'X';
+    if c = 89 then ch = 'Y';
+    if c = 90 then ch = 'Z';
+    if c = 92 then ch = '\';
+    put list(ch);
+  end show;
+end hang00;
+

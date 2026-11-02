@@ -3,7 +3,29 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 landed `610a8df` (COMPILE FAIL recorded, `my-gap`); HANG-00 design LANDED this boundary; program 3 implementation owed at renewal 12/12 = chain cap)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 **PASS** this boundary — continuation chain hop 1 COMPLETE; NEXT program 4 AMAZ-00)
+
+HANG-00 LANDED **PASS** (2026-11-03, continuation chain hop 1 completion; HEAD `94ebbdb` at
+execution; triple + docs § 10 + gate + this prose committed this hop; full measured record:
+`LEARNINGS.md` § "…HANG-00 continuation chain hop 1 COMPLETION" and `docs/functional-results.md`
+§ 10). Lane B `build/fc01/corp5/` (double-run `build/fc01/corp5-double/` byte-equal): all six
+stages PASS — SOURCE sha `3e55a44c…`, DERIVATION == spec (329 lines), COMPILE rc=0 7936 B
+(code=3550 data=174), LINK `HANG00.COM` 12160 B `parse_undefined=[]`, RUN 6369 console bytes
+(= the simulator's predicted raw count), ASSERT complete-stream match. FIRST corpus lane-B RUN
+of numeric GET + echo — the measured echo law held on my own binary; all five previously
+lane-B-unwitnessed HANG shapes are now run-witnessed PASSing. FULL compile-tier gate rc=0:
+byte panel 1174/0, negative 181/181, divergence 9/9, coverage 133 rows 0/0, census 15/0/26/0,
+prose 5 clean (`build/gate-hang00.log`).
+
+EXACT NEXT: program 4 **AMAZ-00** (Amazing maze, BASIC) per the standing corpus procedure
+(PROGRESS.md → Next action below; operator directive: prioritize completed adaptations over
+preparatory analysis). Then programs 5-8 (TICT-00, LIFE-00, DHRY-00, FFT-00); HAMM-00 rev2
+subtraction-loop stays PROPOSED. Constraints unchanged (no ocaml/harness changes; ledger ends
+C352; functional runs are NOT DR claims; FAIL stays classified, never laundered; third-party
+bytes never tracked; operator `handoff.config.json` stays unstaged; renew only at safe
+boundaries per `handoff.config.json` — renewals available this chain, use `handoff_renew`).
+
+### Superseded phase body (HANG-00 design-hop era, kept as written per PROTOCOL #2)
 
 HANG-00 DESIGN HOP LANDED (2026-11-03, renewal 11/12; read `LEARNINGS.md` § "2026-11-03 —
 FC-01 CORPUS HANG-00 design hop" FIRST — it carries the complete port contract, fixed 23-value
@@ -145,9 +167,35 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-HANG-00 IMPLEMENTATION — CONTINUATION CHAIN HOP 1 IN FLIGHT (2026-11-03; new chain after
-the operator reset; HEAD `704c4cc`; build rc=0, compiler `edce9e0e…`; operator
-`handoff.config.json` edit unstaged/untouched). Read FIRST `LEARNINGS.md` § "2026-11-03 —
+AMAZ-00 (program 4, Amazing maze, BASIC) — standing corpus procedure, operator directive
+2026-11-03: execute pragmatically, prioritize a completed adaptation over preparatory analysis;
+record ACTUALS verbatim; never alter the program or expectation to obtain a PASS. Steps:
+(1) read `build/functional/fc01-sources/basic/AMAZING.bas` (+ `URLS.tsv`/`NOTES.txt`; verify
+`sha256sum -c SHA256SUMS` rc=0 for that file); rights note per README § 5.1 (licence UNVERIFIED,
+recorded as such); (2) design INSIDE the measured subset — 2-D grid ⇒ `AGG.MULTIDIM` REFUSED,
+flatten like the HANG stage grid (literal row/col strides, NO division — variable DIV is
+MEASURED refused; strict compares only, constants ≥ 1; literal divisors ≤ 127 if any; every
+`put list` single-item with the MEASURED leading-blank separator law across statements; numeric
+GET + echo laws now RUN-witnessed — but the maze needs a fixed-length MOVES/SEED-like script or
+deterministic maze parameters: the BASIC RND route must be replaced by a DECLARED integer draw
+(HAMM `gg*37+11` idiom) or a fixed script; width ≤ 71 cols, no apostrophes; the maze EXIT/move
+direction INPUT (LETTERS) is CHARACTER console GET — UNMEASURED — adapt to numeric direction
+codes like HANG, and record it); (3) independent scratch simulator
+`build/fc01-scratch/amaz00_sim.py` on the HANG byte model (skip=CRLF, separator blank, echo
+`L\r\r\n` closes line, exit CRLF [C352], collapse-spaces-v1/drop-one-empty); (4) LF draft +
+scratch pre-compile (syntax/shape check of MY port before pinning only); (5) CRLF + bare ^Z +
+≤71 + apostrophe-free `spec/functional/tests/AMAZ-00.PLI`, pin sha256; (6)
+`reference.py:_Amaz00Port`/`amaz00()` + DERIVATIONS, diff vs simulator BEFORE the JSON; (7)
+`AMAZ-00.json` (link_target AMAZ00, capabilities only from SUPPORTED/dr-ACCEPTS COVERAGE rows,
+console_input + notes = removal/substitution list); (8) `python3 tools/functional_runner.py
+--stages source,derivation --tests AMAZ-00`; (9) lane B `--evidence build/fc01/corp6
+--json-out build/fc01/corp6/records.json` (+ `--double-run` into corp6-double if it PASSES);
+(10) `docs/functional-results.md` § 11 + § 1 row; (11) `python3 tools/e2e_gate.py` compile tier;
+(12) explicit-path commit (NEVER `handoff.config.json`; no push). If a stage FAILs: keep it,
+classify `my-gap`/`dr-refuses`/`unmeasured`, record and move on — do NOT extend the harness.
+
+SUPERSEDED-BY-ABOVE: HANG-00 IMPLEMENTATION — CONTINUATION CHAIN HOP 1 COMPLETE (was: IN
+FLIGHT; landed PASS this boundary, see Current phase and LEARNINGS hop-1 COMPLETION §). Read FIRST `LEARNINGS.md` § "2026-11-03 —
 FC-01 CORPUS HANG-00 continuation chain, hop 1" — it supersedes framing details of both
 prior HANG hops. DONE this hop: simulator REWRITTEN with correct framing (four
 falsifications listed there; 329 normalized lines, script fully consumed, exit law
@@ -638,13 +686,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 177
-checkpoint-id: g177-4c0b42e017fe
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 178
+checkpoint-id: g178-82408127df05
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-guard-level: 2
-checkpointed: 2026-11-02T17:32:40.440Z
+guard-level: 3
+checkpointed: 2026-11-02T17:33:22.068Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7907e8dcf59010819ef3d3a376c33df642adda4bc36964a76deddfc761aed282
 source-handoff: 80e4a15a9db24ec65d9640590199eab314a7cf38cb24e80b5de3cb290ae921bf
@@ -673,8 +721,8 @@ next-action: ` below. TABLE-00 and
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 readiness-by: session:01a19d3a-aea7-727a-91c8-56d549ecc023
-readiness-at: 2026-11-02T17:32:40.446Z
-readiness-checkpoint: g177-4c0b42e017fe
+readiness-at: 2026-11-02T18:11:46.830Z
+readiness-checkpoint: g178-82408127df05
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -3012,3 +3012,54 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   docs/functional-results.md § 10 + § 1 row; `python3 tools/e2e_gate.py` compile tier;
   explicit-path commit (never handoff.config.json; no push); then program 4 AMAZ-00.
   Ledger stays C352 (functional runs are not DR claims); third-party bytes untracked.
+
+## 2026-11-03 — FC-01 CORPUS HANG-00 continuation chain hop 1 COMPLETION (triple authored; lane-B **PASS** on the first run; first corpus RUN of numeric GET + echo)
+
+- Operator directive this hop: execute the owed steps immediately, prioritize completed
+  adaptations over further preparatory analysis, record ACTUALS without altering the program to
+  obtain a PASS. All steps 1-8 of hop 1's NEXT landed in this session; no design re-analysis.
+- MEASURED (source conversion, authoring-time check): draft -> CRLF + bare `^Z`, 7508 B, 295
+  lines, widest 70, zero content apostrophes (116 quote delimiters, all paired), every `put list`
+  single-item (paren/quote scan). Pre-pin scratch compile of the WHOLE draft: rc=0,
+  `HANG00.REL`-shaped 7936 B code=3550 data=174 — a SYNTAX/shape check of my own port before
+  pinning, NOT an expectation change; the tracked bytes are unchanged since. Pinned sha256
+  `3e55a44cb4ab5a21ab20f75a9ca4fd5ad67b4d4f0e71afb4dc199405a2a3c04b` as
+  `spec/functional/tests/HANG-00.PLI`.
+- MEASURED (mirror vs simulator, BEFORE any JSON): `reference.py:_Hang00Port` + `hang00()` +
+  `DERIVATIONS["hang00"]` produced 329 normalized lines BYTE-EQUAL to the rewritten scratch
+  simulator's 329 lines (diff positions NONE); independent game-state invariants asserted:
+  results == [win, win, hang], exit == allext, 23 GETs consumed exactly, 11 grid top-rows
+  (1 + 10), 2 FOUND, 1 DUP, LOSE collapses to `SORRY, YOU LOSE. THE WORD WAS SLEEPER`, no FUN
+  line under this script; the cw=0 `bye:` branch verified compile-only in the mirror (ends
+  `IT HAS BEEN FUN! BYE FOR NOW.` + one trailing blank). `HANG-00.json` written FROM the
+  derivation (spec == derive(), 23 echo lines carry the trailing CR), 12 validated capabilities,
+  link_target HANG00, notes (1)-(12).
+- MEASURED (lane B, `build/fc01/corp5/`, HEAD `94ebbdb`, compiler `edce9e0e…`): **PASS**, every
+  stage: SOURCE sha256+encoding verified; DERIVATION derivation == spec; COMPILE rc=0, 7936 B
+  (code=3550 data=174); LINK `HANG00.COM` 12160 B sha `669ed009…`, `done, parse_undefined=[]`;
+  RUN `done`, **6369 console bytes — exactly the raw byte count (incl. exit CRLF) the simulator
+  independently predicts**; ASSERT complete-stream match 329 lines. `verdicts: PASS=1 FAIL=0
+  BLOCKED=0 UNKNOWN=0` rc=0. Determinism double-run `build/fc01/corp5-double/` PASS, both
+  `run.console.bin` byte-equal (`cmp` rc=0).
+- ACCEPTED (run-witnessed for the FIRST time in this corpus): numeric `GET LIST` + echo at RUN on
+  my own binary — the DR-golden-measured echo law (`L\r\r\n`, consumed GET CLOSES the line, no
+  separator after an echo; header/FOUND/DUP/ALLEXT print DIRECTLY) held against the derived
+  stream; nested `show` procedure PUTting its own `character(1) varying`; nested DO ×2 grid
+  rendering; `goto` in single-statement `then do; ... end;` and in plain `if`; the 10-rung stage
+  ladder with `call` inside DO loops; three-leading-blank framing and the no-trailing-blank
+  ALLEXT exit ([C352]). The SPACE-separated grid/dash/letter rows (declared separator
+  adaptation, incl. collapsed single-trailing-blank grid lines) rendered exactly as derived.
+- Gate (compile tier, FULL) at this tree rc=0, ACTUALS as printed: byte panel **1174/0 of 1174**,
+  negative **181/181**, divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**,
+  prose **5 active clean** (log `build/gate-hang00.log`). `dune build` rc=0 at session start.
+- NOTHING promoted to `spec/CLAIMS.md` (functional runs are not DR claims; ledger ends C352); no
+  `ocaml/`, harness, golden or artefact byte changed; no expectation laundered (the PASS arrived
+  unmodified); operator `handoff.config.json` untouched/unstaged; third-party research bytes stay
+  in ignored `build/`.
+- NEXT: program 4 AMAZ-00 (Amazing maze, BASIC) per the standing corpus procedure — read
+  `build/functional/fc01-sources/basic/AMAZING.bas`, rights note per README § 5.1, then a
+  PRAGMATIC design (2-D grid constraint: `AGG.MULTIDIM` is REFUSED — flatten to p(rows*cols)
+  like the HANG stage grid; movement/direction word/exit framing all ride the NOW
+  run-witnessed GET+echo laws), scratch simulator on the HANG byte model, triple, diff BEFORE
+  JSON, lane B `build/fc01/corp6`, docs § 11 + § 1 row, compile-tier gate, explicit-path commit.
+  HAMM-00 rev2 stays PROPOSED; programs 5-8 queued.

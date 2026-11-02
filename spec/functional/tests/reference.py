@@ -840,13 +840,268 @@ def hamm00():
     return lines
 
 
+# ---------------------------------------------------------------------------
+# HANG-00 (FC-01 corpus program 3, 2026-11-03): adapted BASIC Hangman.
+# Statement-for-statement mirror of HANG-00.PLI on the MEASURED console byte
+# laws (README section 6 + Batch-A PASS captures + DR e32rt_E32B1 golden + the
+# HAMM-00 echo contract): `put skip;` emits exactly "\r\n"; ONE blank precedes
+# every single-item `put list(item);` that is not the first item printed since
+# the last line start (ACROSS statements -- the law that FALSIFIED the design
+# hop's no-separator model); a consumed GET line L echoes as L + "\r\r\n" and
+# CLOSES the line (no separator blank after an echo); the exit appends exactly
+# one "\r\n" ([C352]); normalization collapse-spaces-v1, split, drop ONE
+# trailing empty.  Derived, never captured (L3).
+
+HANG00_SCRIPT = [71, 85, 71, 77, 1,            # GUM: hit, hit, dup, hit, cont-yes
+                 70, 65, 76, 89, 1,            # FLY: hit, miss M=1, hit, hit, cont-yes
+                 69, 88, 83, 86, 87, 65, 66, 67, 68, 81, 84, 90,
+                 1]                            # hung (M=1..10), cont-yes -> ALL THE WORDS
+
+HANG00_DGUM = [71, 85, 77]                     # dgum(1..3)  literal stores
+HANG00_DFLY = [70, 76, 89]                     # dfly(1..3)
+HANG00_DSLEP = [83, 76, 69, 69, 80, 69, 82]    # dslep(1..7)
+
+
+def _hang00_show_table():
+    """The 34 branches of the nested show: procedure (c) ladder."""
+    ch = {c: chr(c) for c in range(65, 91)}
+    ch.update({32: ' ', 40: '(', 41: ')', 44: ',', 45: '-', 46: '.', 47: '/',
+               92: '\\'})
+    assert len(ch) == 34
+    return ch
+
+
+HANG00_CH = _hang00_show_table()
+
+HANG00_TEXT = {                                # m = 1..10 literal ladder (415..460)
+    1: "FIRST, WE DRAW A HEAD",                # no period, as upstream
+    2: "NOW WE DRAW A BODY.",
+    3: "NEXT WE DRAW AN ARM.",
+    4: "THIS TIME IT IS THE OTHER ARM.",       # apostrophe rewritten
+    5: "NOW, LET US DRAW THE RIGHT LEG.",      # apostrophe rewritten
+    6: "THIS TIME WE DRAW THE LEFT LEG.",
+    7: "NOW WE PUT UP A HAND.",
+    8: "NEXT THE OTHER HAND.",
+    9: "NOW WE DRAW ONE FOOT",                 # no bangs, as upstream
+    10: "HERE IS THE OTHER FOOT -- YOU ARE HUNG!!",   # apostrophes rewritten
+}
+
+HANG00_HEADER = "HERE ARE THE LETTERS YOU USED:"        # 170
+HANG00_GUESSP = "WHAT IS YOUR GUESS (ASCII CODE) "      # 210 (numeric adaptation)
+HANG00_DUP = "YOU GUESSED THAT LETTER BEFORE!"          # 230
+HANG00_SORRY = "SORRY, THAT LETTER IS NOT IN THE WORD."  # 400 (apostrophe rewritten)
+HANG00_FOUND = "YOU FOUND THE WORD!"                    # 390
+HANG00_CONTP = "WANT ANOTHER WORD (1=YES 0=NO) "        # 370 (numeric adaptation)
+HANG00_LOSE = "SORRY, YOU LOSE.  THE WORD WAS "         # 600 (610 half-line dropped)
+HANG00_FUN = "IT HAS BEEN FUN!  BYE FOR NOW."           # 380 (apostrophe rewritten)
+HANG00_ALLEXT = "YOU DID ALL THE WORDS!!"               # 97
+
+# stage-cell literal store ladders m = 1..10 (470/480..570), indices verified
+# against the listing in the implementation hop
+HANG00_STAGE = {1: [(30, 45), (31, 45), (32, 45), (41, 40), (42, 46), (44, 46),
+                    (45, 41), (54, 45), (55, 45), (56, 45)],
+                2: [(67, 88), (79, 88), (91, 88), (103, 88)],
+                3: [(39, 92), (52, 92), (65, 92), (78, 92)],
+                4: [(47, 47), (58, 47), (69, 47), (80, 47)],
+                5: [(114, 47), (125, 47)],
+                6: [(116, 92), (129, 92)],
+                7: [(35, 92)],
+                8: [(27, 47)],
+                9: [(142, 92), (143, 45)],
+                10: [(135, 45), (136, 47)]}
+
+
+def _hang00_finalize(raw):
+    norm = _hamm00_re.sub(rb" +", b" ",
+                          (raw + "\r\n").encode().replace(b"\r\n", b"\n")).decode()
+    lines = norm.split("\n")
+    if lines and lines[-1] == "":
+        lines = lines[:-1]
+    return lines
+
+
+class _Hang00Port:
+    """Statement-for-statement mirror of HANG-00.PLI (labels sel/disp/cont/miss/fin
+    kept in the same order; goto-in-IF replaced by flag vars in the PLI exactly as
+    here; every PUT is a single-item `put list(...)` statement)."""
+
+    def __init__(self, script):
+        self.script = list(script)
+        self.raw = ""
+        self.nget = 0
+        self.results = []          # 'win'/'hang' per played word
+        self.exit = None           # 'bye' (cw = 0) or 'allext' (q > 3)
+
+    def skip(self):
+        self.raw += "\r\n"                        # put skip;
+
+    def put(self, item):
+        if self.raw and not self.raw.endswith("\r\n"):
+            self.raw += " "                       # measured leading-separator law
+        self.raw += item                          # put list(item);
+
+    def get(self):
+        assert self.script, "GET past the end of the declared script"
+        v = self.script.pop(0)
+        assert 0 <= v <= _HAMM00_B15              # fixed bin(15) cell domain
+        self.nget += 1
+        self.raw += "%d\r\r\n" % v                # consumed GET echo closes the line
+        return v
+
+    def show(self, c):
+        self.put(HANG00_CH[c])                    # nested show: one put list(ch);
+
+    def run(self):
+        self.skip(); self.skip(); self.skip()     # three bare PUT SKIPs (framing [C352])
+        q = 0
+        while True:                               # sel:
+            q = q + 1
+            if q > 3:                             # fin:
+                self.put(HANG00_ALLEXT)
+                self.exit = "allext"
+                return self                       # stop;
+            if q == 1:
+                n = 3
+                wlit = "GUM"
+                cur = [0] * 8
+                for i in range(1, 4):
+                    x = HANG00_DGUM[i - 1]
+                    cur[i] = x
+            elif q == 2:
+                n = 3
+                wlit = "FLY"
+                cur = [0] * 8
+                for i in range(1, 4):
+                    x = HANG00_DFLY[i - 1]
+                    cur[i] = x
+            else:
+                n = 7
+                wlit = "SLEEPER"
+                cur = [0] * 8
+                for i in range(1, 8):
+                    x = HANG00_DSLEP[i - 1]
+                    cur[i] = x
+            nu = 0
+            m = 0
+            t1 = 0                                # dead upstream counter, kept
+            d = [0] + [45] * 20
+            p = [32] * 145
+            for k in (1, 13, 25, 37, 49, 61, 73, 85, 97, 109, 121, 133):
+                p[k] = 88                         # pole
+            for k in (2, 3, 4, 5, 6, 7):
+                p[k] = 88                         # top (p(1) already stored)
+            p[19] = 88                            # rope
+            u = []                                # dense u(26)/nu model
+            while True:                           # disp:
+                self.put(HANG00_HEADER)           # 170 prints DIRECTLY (no blank)
+                self.skip()
+                for i in range(1, nu + 1):        # 180/190 used letters, comma between
+                    x = u[i - 1]
+                    self.show(x)
+                    if i < nu:
+                        self.show(44)
+                self.skip()                       # 200 closes the letters line
+                self.skip()
+                for i in range(1, n + 1):         # dash/letter row (SPACE-separated:
+                    x = d[i]                      # declared separator adaptation)
+                    self.show(x)
+                self.skip()                       # 200 closes the row
+                self.skip()
+                self.put(HANG00_GUESSP)           # 210 INPUT -> GET LIST (numeric code)
+                g = self.get()
+                du = 0                            # 220 scan (flag var; no goto in DO)
+                for i in range(1, nu + 1):
+                    x = u[i - 1]
+                    if x == g:
+                        du = 1
+                if du == 1:
+                    self.put(HANG00_DUP)          # 230 prints DIRECTLY
+                    self.skip()
+                    continue                      # goto disp
+                nu = nu + 1                       # 250 u(nu) = g; t1 = t1 + 1
+                u.append(g)
+                t1 = t1 + 1
+                r = 0
+                for i in range(1, n + 1):         # 260..280
+                    x = cur[i]
+                    if x == g:
+                        d[i] = g
+                        r = r + 1
+                if r == 0:                        # miss:
+                    m = m + 1                     # 400 two blanks then SORRY
+                    self.skip()
+                    self.skip()
+                    self.put(HANG00_SORRY)
+                    self.skip()
+                    self.put(HANG00_TEXT[m])      # 410/415..460 ON M GOTO -> if ladder
+                    self.skip()
+                    for idx, code in HANG00_STAGE[m]:   # 470/480..570
+                        p[idx] = code
+                    assert 1 <= m <= 10
+                    b = 0                         # 580/590 grid walk, NO division
+                    for k in range(1, 13):
+                        for j in range(1, 13):
+                            b = b + 1
+                            x = p[b]
+                            self.show(x)
+                        self.skip()
+                    self.skip()
+                    self.skip()
+                    # BASIC 590 IF M<>10: in this port m <= 10 by construction, so
+                    # m <> 10 is EXACTLY m < 10 -- direct strict compare (the design
+                    # hop's t1 = m + 1; t1 < 12 shift was FALSIFIED: always true).
+                    if m < 10:
+                        continue                  # goto disp
+                    self.put(HANG00_LOSE)         # 600 (610 dropped, declared)
+                    self.put(wlit)
+                    self.skip()
+                    self.results.append("hang")
+                else:
+                    dsh = 0                       # 300 dash scan (flag var)
+                    for i in range(1, n + 1):
+                        x = d[i]
+                        if x == 45:
+                            dsh = 1
+                    if dsh == 1:
+                        continue                  # goto disp   (320 interlude dropped)
+                    self.put(HANG00_FOUND)        # 390 prints DIRECTLY
+                    self.skip()
+                    self.results.append("win")
+                self.put(HANG00_CONTP)            # 370 INPUT -> GET LIST
+                cw = self.get()
+                if cw == 1:
+                    break                         # goto sel
+                self.skip()                       # 380
+                self.put(HANG00_FUN)
+                self.skip()
+                self.exit = "bye"
+                return self                       # stop;
+        # while True (sel) -- unreachable except via goto sel (break above)
+
+
+def hang00():
+    """HANG-00: the complete normalized console stream (collapse-spaces-v1) of the
+    adapted Hangman program for the declared 3-word sequential table (GUM, FLY,
+    SLEEPER) and the fixed 23-value GET script.  Derived, never captured (L3)."""
+    assert len(HANG00_SCRIPT) == 23
+    port = _Hang00Port(HANG00_SCRIPT).run()
+    assert not port.script and port.nget == 23    # script consumed exactly
+    assert port.results == ["win", "win", "hang"]
+    assert port.exit == "allext"
+    lines = _hang00_finalize(port.raw)
+    assert len(lines) == 329, len(lines)
+    assert lines[:3] == ["", "", ""]             # leading framing [C352]
+    assert lines[-1] == HANG00_ALLEXT             # exit CRLF closes ALLEXT: no blank
+    return lines
+
+
 DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
                "flt00": flt00, "tab02": tab02,
                "builtin00": builtin00, "strcat00": strcat00, "cond00": cond00,
                "dec01": dec01, "flt01": flt01, "edit00": edit00,
-               "wkday00": wkday00, "hamm00": hamm00,
+               "wkday00": wkday00, "hamm00": hamm00, "hang00": hang00,
                "fx00": fx00, "fx01": fx01}
 
 
