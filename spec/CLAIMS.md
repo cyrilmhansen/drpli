@@ -8218,3 +8218,38 @@ classified `unmeasured` rather than `dr-refuses`.
   complement expression — ZERO new bytes; the complement arms of [C337]/[C342]/[C346] emit the
   object and the skip byte is chosen BY THE RELATION inside those arms, realizing §2.4's law
   structurally.  E49J1..J4 whole-file BYTE-EXACT at `47c2194`.
+
+## C352 — CONSOLE LINE FRAMING AT PROGRAM START AND EXIT IS MEASURED ON DR'S OWN OBJECTS: A FIRST-STATEMENT `PUT SKIP LIST` PRINTS A LEADING CRLF, AND THE EXIT CHAIN PRINTS EXACTLY ONE FINAL CRLF UNCONDITIONALLY — ALSO AFTER A FINAL BARE `PUT SKIP;` (fc01-framing; H2 conditional-flush FALSIFIED; MY `.REL` BYTE-EXACT TO DR'S ON ALL THREE PROBES)
+
+* **Measured.**  FCPS1 (`put list('X=', x); put skip; stop;`), FCPS2 (`put list('Y=', y); stop;`,
+  unterminated control), FCPS3 (`put skip list('L=', l); put list('M=', m); stop;`) compiled by
+  DR PLI.COM v1.4 (`3 ok / 3`, NO refusal), linked with DR LINK-80 1.31 + PLILIB.IRL, run under
+  cpmsim with the prompt-sync session law; console regions cut by the FS-01 anchor law
+  (program's final CRLF retained, prompt never captured):
+  FCPS1 `X=         1\r\n\r\n`, FCPS2 `Y=         2\r\n`, FCPS3 `\r\nL=         1 M=         2\r\n`
+  (`golden/fc01ps-r/FCPS?.{output.txt,transcript.txt}`, raw witnesses in RESULTS § 2.1).
+* **The law.**  A `PUT SKIP` — bare or `PUT SKIP LIST` — executed as the FIRST output statement
+  prints its own CRLF (leading blank line; FCPS3 on the LIST spelling, E29PS1 [C192] on the bare
+  spelling, both sides byte-identical); each SKIP prints exactly one CRLF; and the program-exit
+  chain appends EXACTLY ONE final newline REGARDLESS of line state — closing an unterminated
+  final line (the measured E32B1 behaviour cited in `spec/functional/tests/README.md` § 4) and
+  firing an additional CRLF after a line a final `PUT SKIP;` had just terminated (FCPS1).
+* **H2 FALSIFIED.**  The conditional reading ("flush only when the line is unterminated")
+  predicted FCPS1 `X=         1\r\n`; DR printed `\r\n\r\n` (pre-registered in HYPOTHESES.md at
+  `da029ec`, kept as written per PROTOCOL #2).
+* **Byte tier.**  My compiler's whole-file `.REL` objects equal DR's EXACTLY for all three
+  shapes (256/256, 256/256, 384/384 B; `golden/fc01ps/FCPS?/FCPS?.REL` vs
+  `golden/fc01ps-my/FCPS?/FCPS?.REL`), so the linked images are identical and console equality
+  is by construction on these objects; the DR run is nevertheless recorded as the primary
+  witness OF THE LAW and the byte comparison as the witness that MY COMPILER EMITS DR'S OBJECT
+  for skip-at-start, skip-at-end and unterminated-at-end shapes. Per [C205] the run validates
+  the expectation and DR, not my lowering — the byte comparison does.
+* **Consequence recorded, not claimed here.**  The FC-01 Batch-A Lane-B ASSERT FAILs of
+  2026-11-02 are expectation defects (reference derivations omitted framing), NOT compiler or
+  runtime gaps (RESULTS § 2.3); the harness/schema correction is functional work, never
+  capture-derived (L3).
+* **What this does NOT say** (RESULTS § 3): NOTHING about GET/input-echo framing (the REVERSE
+  transcripts show TWO extra newlines per input line — recorded, uncharacterized), about
+  `PUT FILE` streams, about SKIP counts greater than 1 at exit, or about PAGE boundaries; no
+  `spec/RUNTIME.txt` row and no SPECIMENS registration came from this round (registration
+  candidates noted for a later gate hop).
