@@ -179,7 +179,23 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
   still fails closed; hostile suite rc=0 148 checks unchanged), and the harness `--census`
   substrate probe for audit open question 1. **EXECUTION REMAINS**: build pli80-run in the lab's
   ignored `_build`, run Lane A (FX-00 double-run determinism, FX-01 typed error), then Lane B
-  TABLE-00/01 COMPILE->LINK->RUN->ASSERT, then the census probe of the exported .COM.]
+  TABLE-00/01 COMPILE->LINK->RUN->ASSERT, then the census probe of the exported .COM.
+  **PART 2 LANDED — EXECUTED** hop 6, verified read-only against the preserved evidence and
+  committed by the successor hop 7 at `68348ac` (`spec/lab-evidence/e2e50-p2/step6/RESULTS.md`;
+  evidence roots ignored under `build/functional/`): FX-00 **PASS** + double-run capture `cmp`
+  rc=0 (audit 2.20 proved EXECUTED; call total 14 — PLAN's written "13" an arithmetic slip,
+  distribution correct, kept); FX-01 **FAIL attr=`emulator`** as intended (first executed typed
+  attribution; audit 2.18 CONFIRMED and STRENGTHENED — the discarded capture is 0 bytes though
+  the trace shows the fn-9 banner written at step 3); **first functional execution of a
+  DRPLi-compiled PL/I program**: TABLE-00/01 COMPILE 896/1536 B, LINK PASS (FULL segments ZERO
+  `UNDEFINED` lines, `PLILIB   RQST` present, .COM 7552/7808 B), RUN `done` rc=0, **ASSERT FAIL
+  attr=`undefined`** (never narrowed) — CONTENT ≡ REFERENCE for both programs, semantics clean;
+  both FAILs are FRAMING: F1 harness anchor law (terminal lone CR after the `(?=\nD>)` cut) and
+  F2 measured DR PLILIB 79-column print-wrap (guest-written CRLF proven; promotion needs its own
+  oracle round). **Census:** BOTH linked .COMs issue BDOS **25 as their FIRST call** (PLILIB
+  init) and the audited emulator fails typed rc=1 — "pure-PUT" census hypothesis FALSIFIED, audit
+  open question 1 ANSWERED-partial: the free core cannot host PLILIB programs; full
+  linked-program census UNMEASURED.]
 - 7. Minimal functional-results reporting (reuse P1 model or a separate small report; NO
   reporting-system rewrite; scientific verdicts unchanged; no COVERAGE promotion without
   evidence). [pending]
@@ -192,9 +208,20 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 ## Unfinished operations
 
-- E2E-50/P2 steps 5(part 2)–8 (steps 0–4 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec
+- E2E-50/P2 steps 7–8 remain (steps 0–6 delivered: bootstrap `459f51e`; audit `97ad1f0`; spec
   format, law, TABLE corpus and reference in the hop-2 commit `a6163ef`; **harness step-5 part 1
-  LANDED hop 3 at `8523eda`**). **Step 5 PART 2 LANDED hop 4 (`d40aafb`,`149c6e2`): 13 required cases, 148 checks, rc=0, NO compiler/LINK-80/cpmsim/emulator process; harness defects `_rname` and `assert_stream` first_diff=None found by the suite and fixed. FIRST ACTION for the successor: step 6** — Lane A hand-crafted .COM fixture + Lane B TABLE attempt via local compiler + historical LINK-80/PLILIB under cpmsim (bounded, lane-labelled; BDOS census = open question #1); then steps 7–8. (hostile suite over the landed harness, `check()`-style like
+  LANDED hop 3 at `8523eda`**). **Step 5 PART 2 LANDED hop 4 (`d40aafb`,`149c6e2`): 13 required cases, 148 checks, rc=0, NO compiler/LINK-80/cpmsim/emulator process; harness defects `_rname` and `assert_stream` first_diff=None found by the suite and fixed. **Step 6
+  EXECUTED hop 6** (runs bounded and lane-labelled; Lane A via the audited emulator, Lane B via
+  local compiler + historical LINK-80/PLILIB under cpmsim); ACTUALS verified read-only against the
+  preserved evidence and committed hop 7 at `68348ac` — FX-00 PASS + determinism proved; FX-01
+  FAIL/`emulator` intended (audit 2.18 confirmed, strengthened); first functional execution of
+  DRPLi-compiled TABLE-00/01 (content ≡ reference; ASSERT FAILs are framing F1/F2, attribution
+  stays `undefined`); census fn-25 blocker measured (free core cannot host PLILIB programs).
+  **FIRST ACTION for the successor: step 7** — minimal functional-results reporting (reuse the P1
+  model or a separate small report; NO reporting-system rewrite; scientific verdicts unchanged; NO
+  COVERAGE promotion) plus the step-6 §3 debt: capture/DEVNULL cpmcp stdio in
+  `oracle/cpmwork.py export()` and a hostile-suite pin that runner stdout carries ONLY rendered
+  records; then step 8 (report + bounded P3 proposal + CLOSE + finalize). (hostile suite over the landed harness, `check()`-style like
   `tools/test_functional_dashboard.py`, NO compiler/LINK-80/cpmsim/emulator process — every
   external layer is injectable via `Host(subprocess_run=, sim_session=, link_deps=,
   workspace_factory=, run_factory=)`):
@@ -275,13 +302,13 @@ read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; 
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 129
-checkpoint-id: g129-ce0fd5e4a294
+checkpoint-generation: 130
+checkpoint-id: g130-6f9e6b656448
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 4, remaining ~3424, session 01a1998d-901a-7280-b553-bdb811ee9cdf)
-checkpointed: 2026-11-02T00:20:46.581Z
+status: checkpoint (guard level 3, remaining ~6796, session 01a199a1-ce37-7280-b553-bdbd546b7e10)
+checkpointed: 2026-11-02T00:42:17.762Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 233e7c231b24365bc885b68e185871658808bc39b2ef4424a7c50fe452f3cb81
 source-handoff: a2ea2d6d6c74ea617bc8b3b819c75077da3764f15b483046f628d3641a7fbf6f
@@ -289,11 +316,11 @@ source-learnings: 393b17b3db8b05b1be95365ef28116db1e6137bc623b18b5bec60c7787cf2a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1998d-901a-7280-b553-bdb811ee9cdf
-readiness-at: 2026-11-02T00:20:59.950Z
-readiness-checkpoint: g129-ce0fd5e4a294
+readiness-by: session:01a199a1-ce37-7280-b553-bdbd546b7e10
+readiness-at: 2026-11-02T00:54:27.590Z
+readiness-checkpoint: g130-6f9e6b656448
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

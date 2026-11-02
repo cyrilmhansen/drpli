@@ -44,7 +44,8 @@ hand-encoded .COM + annotated .asm listings from ONE op table, `--check` rc=0), 
 (`capabilities: []` legal ONLY for Lane-A-only substrate fixtures; lane B still fails closed;
 suite rc=0 148 checks after the change) and the harness `--census` BDOS substrate probe
 (audit open question 1). Accepted/falsified items in LEARNINGS hop 5 (MVI=0x06|reg<<3 verified
-against the lab decoder; my first draft 0xE8=RRC falsified before any run). **STEPS 6(execution)
+against the lab decoder; my first draft 0xE8=RRC falsified before any run). **(superseded by hop 6 below —
+kept verbatim per PROTOCOL #2) STEPS 6(execution)
 –8 REMAIN. FIRST ACTION for the successor:** build the audited emulator
 `cd /home/john/pli/lab && eval "$(opam env)" && dune build bin/main.exe` (touches ONLY the
 lab's gitignored `_build`; verify lab HEAD `43e38ba` + the same three untracked entries after),
@@ -53,6 +54,41 @@ PASS expected; FX-01 FAIL attr=emulator is the INTENDED outcome); then Lane B
 `--tests TABLE-00 TABLE-01` (compile->link->run->assert, bounded); then `--census
 build/functional/<stamp>/TABLE-00-*/lane-B/TABLE00.COM` for open question 1; record ACTUALS in
 `spec/lab-evidence/e2e50-p2/step6/RESULTS.md` (falsified predictions stay), then steps 7–8. No oracle/LINK-80/cpmsim/gate/rune-ci run; `ocaml/` untouched (build only).
+
+**Renewal hop 6 (executed) + hop 7 (this chain, verification + landing): step 6 PART 2 LANDED.**
+Hop 6 built the audited emulator in the lab's ignored `_build` (`dune build bin/main.exe` rc=0
+→ `_build/default/bin/main.exe`, sha256 `da2b34b9…`; the hop-5 note that this yields
+`pli80-run.exe` is FALSIFIED — dune rejects the public name), verified the lab read-only BEFORE
+and AFTER (HEAD `43e38ba`, the same three untracked entries), ran the three bounded lane-labelled
+commands, and wrote `spec/lab-evidence/e2e50-p2/step6/RESULTS.md`. Renewal cut hop 6 off BEFORE
+the commit; hop 7 independently re-verified every ACTUAL read-only from the preserved evidence
+(`od`, `cmp`, `grep`, `wc`, census JSONs, runner hash) and committed it at `68348ac`. ACTUALS:
+FX-00 **PASS**, console capture byte-exact as declared, double-run `cmp` rc=0 — audit §2.20
+determinism proved EXECUTED for the first time (call total 14; PLAN's written "13" an arithmetic
+slip, distribution correct, kept). FX-01 **FAIL attr=`emulator`** — the INTENDED outcome and the
+first executed typed attribution; audit §2.18 confirmed and strengthened on the real substrate:
+the discarded capture is 0 bytes although the trace shows the fn-9 banner already written at step
+3. **First functional execution of a DRPLi-compiled PL/I program** (and first PLILIB run of the
+round): TABLE-00/01 COMPILE 896 B (code=358 data=30) / 1536 B (code=627 data=50), LINK PASS with
+ZERO `UNDEFINED` lines in the FULL segments and `PLILIB   RQST` present, .COM 7552/7808 B, RUN
+`done` rc=0 (prompt-sync `D>`), ASSERT **FAIL attr=`undefined`** both — attribution never
+narrowed. **CONTENT ≡ REFERENCE for both programs**: every aggregate and the complete sorted
+multiset (negatives + duplicates) match the independent `reference.py` derivation; the two FAILs
+are FRAMING only — F1 the harness anchor law (the `(?=\nD>)` cut leaves a terminal lone `\r`;
+invisible under the gate substring law, exposed by the stricter v1 stream law as designed) and F2
+a MEASURED DR PLILIB print-wrap law (8-item line wraps after item 6 at 79 columns, CRLF proven
+guest-written; historical-runtime formatting, NOT my-gap, NOT a compiler defect; promotion needs
+its own pre-registered oracle round). **Census (audit open question 1):** BOTH linked .COMs issue
+BDOS **25 as their first call** and the audited emulator fails typed — the "pure-PUT needs fn 2
++ terminate only" hypothesis FALSIFIED; the free core cannot host PLILIB programs (Package-A
+blocker measured); full linked-program census UNMEASURED. Also measured: Workspace SAFETY
+correctly BLOCKED a /tmp evidence root (attr=`host`, fail-closed); `len 128` from cpmcp leaks onto
+the runner's stdout during TABLE-01 LINK (`oracle/cpmwork.py:216` `export()` runs cpmcp with
+check=False and no capture — mechanism accepted, root cause proposed; STEP-7 DEBT). Runner rc=1
+whenever any FAIL is present; census probe rc=0 (not a verdict). Verdict tallies: Lane A PASS=1
+FAIL=1, Lane B FAIL=2. LEARNINGS hop-6 section records ACCEPTED/FALSIFIED/PROPOSED.
+**FIRST ACTION for the successor: step 7** (minimal functional-results reporting + the cpmcp stdio
+debt + hostile-suite stdout pin), then step 8 (report, bounded P3 proposal, CLOSE, finalize).
 
 **Step-3 groundwork probed (same hop, later):** console PUT-LIST byte law measured from stored
 goldens (10-wide right-justified numeric field, blank item separator, statements share one line
@@ -158,10 +194,10 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 ## Next action
 
 The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: **E2E-50/P2
-is ACTIVE; step 0 (documentary bootstrap) lands with this commit, steps 1–8 owed** (emulator
-technical + redistribution audit, functional-test spec format, TABLE corpus with independent
-expectations, harness with typed verdicts, Lane A/B execution evidence, minimal results
-reporting, close report + bounded P3 proposal). No competing action exists anywhere else;
+is ACTIVE; steps 0–6 LANDED** (bootstrap; emulator technical + redistribution audit; the
+functional-test spec format and law; the TABLE corpus with independent expectations; the harness
+plus hostile suite; step 6 execution evidence at `68348ac`); **steps 7–8 owed** (minimal
+results reporting incl. the cpmcp stdio debt, then report + bounded P3 proposal + CLOSE). No competing action exists anywhere else;
 PROGRESS does not restate it
 (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
 
@@ -288,13 +324,13 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 129
-checkpoint-id: g129-ce0fd5e4a294
+checkpoint-generation: 130
+checkpoint-id: g130-6f9e6b656448
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-02T00:20:46.581Z
+guard-level: 3
+checkpointed: 2026-11-02T00:42:17.762Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 233e7c231b24365bc885b68e185871658808bc39b2ef4424a7c50fe452f3cb81
 source-handoff: a2ea2d6d6c74ea617bc8b3b819c75077da3764f15b483046f628d3641a7fbf6f
@@ -382,9 +418,9 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
-readiness-by: session:01a1998d-901a-7280-b553-bdb811ee9cdf
-readiness-at: 2026-11-02T00:20:59.950Z
-readiness-checkpoint: g129-ce0fd5e4a294
+readiness-by: session:01a199a1-ce37-7280-b553-bdbd546b7e10
+readiness-at: 2026-11-02T00:54:27.590Z
+readiness-checkpoint: g130-6f9e6b656448
 <!-- guard:end checkpoint -->
 
 ## Blockers

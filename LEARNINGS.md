@@ -1722,3 +1722,70 @@ capabilities amendment; `pli80-run.exe` still has to be built in the lab's ignor
 (`dune build bin/main.exe` → `_build/default/bin/pli80-run.exe`) — Lane A RUN is BLOCKED
 (`emulator-absent`) until then. `run_max_steps` is honoured only on Lane A; cpmsim has no step
 budget (recorded honestly in the Lane B result record).
+
+## 2026-11-02 — E2E-50/P2 renewal hop 6 (step 6 EXECUTED: Lane A + Lane B + census)
+
+Hop 6 ran the bounded, lane-labelled step-6 execution and wrote
+`spec/lab-evidence/e2e50-p2/step6/RESULTS.md`; renewal cut it off before the commit. The
+successor (hop 7, this session) verified every ACTUAL read-only against the preserved
+evidence (`od`, `cmp`, `grep`, `wc`, the census JSONs, the lab HEAD/untracked pattern and the
+runner sha256) and committed RESULTS.md at `68348ac`. Classification below keys on that
+verification, not on prose (PROTOCOL #10).
+
+**ACCEPTED (executed evidence, `68348ac`):**
+- Audit §2.20 determinism law PROVEN EXECUTED for the first time: FX-00 `run.console.bin` ==
+  `run2.console.bin` (`cmp` rc=0), console capture byte-exact as declared, trace term `bdos:0`.
+- Audit §2.18 CONFIRMED ON THE REAL SUBSTRATE, and stronger than the code read suggested: on the
+  error path `pli80-run` discards even output ALREADY BUFFERED before the failing call — FX-01's
+  `.discarded-stdout.bin` is 0 bytes although the trace shows the fn-9 banner written at step 3
+  (`BDOS 3 9 0112`) before the failing fn 1. Failure evidence therefore requires `--trace`.
+- First executed typed attribution: FX-01 FAIL attr=`emulator` from the typed runner error
+  (`pli80-run: unsupported BDOS function 1`), chain stopped at RUN, ASSERT never judged
+  missing evidence. A FAIL here is correct evidence, never a pass.
+- FIRST FUNCTIONAL EXECUTION of a DRPLi-compiled PL/I program, and the first PLILIB program run
+  in this round: TABLE-00/01 COMPILE 896 B (code=358 data=30) / 1536 B (code=627 data=50), LINK
+  PASS with ZERO UNDEFINED lines in the FULL segments and `PLILIB   RQST` present, .COM 7552 /
+  7808 B exported, RUN `done` rc=0 with the prompt-sync session returning `D>`.
+- **Semantics clean:** CONTENT ≡ REFERENCE for both programs — every aggregate and the complete
+  sorted multiset (incl. negatives + duplicates) matches the independent `reference.py`
+  derivation exactly. Both ASSERT FAILs are FRAMING only, and the attribution stayed
+  `undefined` per policy (never narrowed).
+- F1 (harness anchor law): the Lane B `(?=\nD>)` console cut splits the program's final CRLF —
+  the `\n` goes with the prompt, a lone `\r` survives `normalize_v1` (`\r\n`→`\n` only). Pure
+  harness artifact; invisible under the gate substring law, exposed by the deliberately stricter
+  v1 stream law exactly as designed. TABLE-00's FAIL is F1 ALONE (verified: capture ends `5 \r`).
+- F2 (DR PLILIB print-wrap law, measured): TABLE-01's 8-item PUT LIST line wrapped after item 6
+  at 79 columns with a GUEST-written single `\r\n` (pty ONLCR doubling visible elsewhere in the
+  transcript proves the CR is guest- not host-written). Item cells: label 7 cols, first numeric
+  right-ends col 16, subsequent items +12 cols; the first continuation item prints with an
+  8-space leading gap. Classification: historical-runtime (DR PLILIB) formatting — NOT a
+  compiler defect, NOT my-gap. Promotion to a claim needs its own pre-registered oracle round.
+- **Audit open question 1 ANSWERED (partially) + census hypothesis FALSIFIED:** the FIRST BDOS
+  call of BOTH linked .COMs is fn 25 (trace `BDOS 58 25 FFFA`); the audited emulator fails typed
+  `unsupported BDOS function 25` rc=1. A LINK-80'd PLILIB program CANNOT run on the free core —
+  blocked at init. The PROPOSED "pure-PUT needs fn 2 + terminate only" hypothesis is dead; the
+  full linked-program census on the audited emulator remains UNMEASURED. Audit §4 line 116's
+  static-only "(1, 5, 9, 25)" is now DYNAMIC on the linked-program path (the OPTIMIST census was
+  a transient compiler — a different substrate class).
+- Workspace SAFETY correctly refused a /tmp evidence root at LINK import (fail-closed
+  BLOCKED attr=`host`, no lane executed); in-repo `build/functional/…` is the working root.
+
+**FALSIFIED (kept as written, PROTOCOL #2):**
+- hop-5 learned prose: `dune build bin/main.exe` produces `_build/default/bin/pli80-run.exe` —
+  it does NOT (dune: `Error: Don't know how to build pli80-run.exe` for the public name); the
+  audited binary is `_build/default/bin/main.exe` (sha256 `da2b34b9…`), passed explicitly.
+- PLAN.md FX-00 call total "13 calls" — actual 14; the PLAN's own distribution (1×9 + 10×2 +
+  1×11 + 1×12 + 1×0) sums to 14, so the written total was an arithmetic slip, distribution
+  correct.
+
+**PROPOSED / STEP-7 DEBT (recorded, not yet measured):**
+- cpmcp stdio leak: `len 128` printed on the RUNNER'S stdout during TABLE-01's LINK stage only
+  (reproduced twice; TABLE-00 never). Mechanism accepted (`oracle/cpmwork.py:216` `export()`
+  runs cpmcp with `check=False` and NO capture — host-tool chatter inherits the harness stdio);
+  the string itself is an external cpmtools debug print (`strings` on the cpmsim binary finds no
+  such format); ROOT CAUSE proposed. Fix = capture/DEVNULL cpmcp stdio + a hostile-suite pin that
+  runner stdout carries ONLY rendered records.
+- F2 amendment: expectations must NEVER be edited to match a capture (L3); if TABLE-01 is to
+  pass, the wrap must be declared as an independently stated law first.
+- The `--stages` help wording overpromise (hop 4) and ceiling symmetry for DERIVATION/ASSERT
+  remain proposed; the FX-01 discarded-stdout evidence path works as designed.
