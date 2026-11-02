@@ -2713,3 +2713,60 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   tools/e2e_gate.py` compile tier; (8) explicit-path commit (never `handoff.config.json`); no push.
 - STATUS: nothing promoted to any ledger (ends C352); no ocaml/harness byte touched; no
   compiler/oracle/emulator/gate run this hop; tracked changes are these durable documents only.
+
+## 2026-11-03 — FC-01 CORPUS HAMM-00 hop 7 (TRIPLE AUTHORED; draft plague-guard FALSIFIED; derivation == simulator byte-stable)
+
+- FALSIFIED (hop-6 draft plague block, kept as written per PROTOCOL #2): the `t2=p/2;
+  t3=t2+100; p=t2; t4=t3+100; p=t4-100` chain computes X/4+100, NOT the BASIC 228 single
+  INT(P/2) (hop-4 population walk 100->35->26->24->23->23 requires ONE halving; year-2 report
+  would print 125 vs 51). The "t3/t4 idempotence guard" was NOT value-idempotent — arithmetic
+  check, one line. Final port uses `p = p / 2;` only. Unwitnessed-shape list therefore has FOUR
+  items, not five (goto-in-IF, variable divisors, adjacent-literal PUT LIST, c=2/4 dispatch).
+- FALSIFIED (draft): undeclared temp `r` in mbad 965-draw (implicit FLOAT would change
+  semantics) -> replaced by `v` (free at that site, same draw idiom). Two ner: literals were
+  72 cols (>71) -> split into adjacent-literal pairs (same normalization-invariant seam law as
+  862/970; seam asserts single space either way).
+- ACCEPTED (measured this hop): my FIRST reference draft had its own bug — a stale `gg`
+  resync before each draw group (removed; gg lives ONLY in self.gg). bad:/bye: expected lines
+  showed the collapse rule bites DOUBLE spaces inside literals too ("HAMURABI:  I" -> one).
+- ACCEPTED (deliverables on disk, UNCOMMITTED): `spec/functional/tests/HAMM-00.PLI` 8362 B,
+  311 lines, widest 69, CRLF+bare ^Z, apostrophe-free, sha256
+  cc25fe75021f656a4559aff6b3e1ddb0793925609ffc9f0593d60395e0f6ba74 (pin in HAMM-00.json);
+  `reference.py:hamm00` (+DERIVATIONS) script-driven statement-for-statement port mirror with
+  chk/nested-floor/shift-form/ladder-exhaustive asserts and _hamm00_exercise_compile_only;
+  `HAMM-00.json` (console_input 46 CR values+bare ^Z, 211 lines, limits 60/120/120/4000000,
+  capabilities the 8 verified ids, notes = hop-5 removal list + 4 unwitnessed shapes + README
+  sec 7 GET supersession + plague-guard falsification). MEASURED: `hamm00()` output EQUALS the
+  hop-5 simulator one-liner stream (211 lines) and console_input EQUALS the simulator's; both
+  saved to build/fc01-scratch/hamm00_expected.json. Converter scratch:
+  build/fc01-scratch/mk_hamm00_pli.py (idempotent; asserts everything above).
+- MEASURED (stage run): `python3 tools/functional_runner.py --stages source,derivation
+  --tests HAMM-00` printed NO source/derivation failures (verdict line `UNKNOWN [COMPILE:
+  stage ceiling]` = later stages capped, evidence build/functional/20261102T153223Z) — read
+  the runner output/exit code semantics at the lane-B hop if in doubt.
+- MEASURED (lane B, hop-7 successor session, renewal 11/12, HEAD `5772b8a`, compiler
+  `edce9e0e…`, evidence `build/fc01/corp4/`): `HAMM-00 lane B FAIL attr=compiler
+  [COMPILE: refusal rc=2 -- compiler message recorded verbatim: Fatal error: exception
+  Failure("codegen: DIV by non-constant [TBD]")]`; verdicts PASS=0 FAIL=1; SOURCE pass
+  (sha `cc25fe75…` + encoding), DERIVATION pass (derivation == spec, 211 lines), LINK/RUN/
+  ASSERT unrun (chain stopped by COMPILE). The flagged variable-divisor shape (spec note (10))
+  is now MEASURED as refused: `ocaml/lib/codegen.ml:4997-5010` lowers DIV by CONSTANT only
+  (golden family `[P071B/P080A]`), variable divisor failswith `[TBD]` — classified `my-gap`,
+  expectation NOT laundered, nothing promoted to any ledger (DR behaviour on variable DIV stays
+  UNMEASURED; a functional run is not a DR claim). goto-in-IF, adjacent-literal PUT LIST and the
+  c=2/4 rats dispatch were NOT reached and stay unmeasured. PROPOSED rev2 (NOT executed this
+  hop): repeated-subtraction loops at the four sites (all operands non-negative and asserted,
+  floor semantics preserved, derived stream identical) — a port change, not a compiler change.
+  docs/functional-results.md § 9 + § 1 row written from these ACTUALS.
+- NEXT (successor, exact): (1) lane B `python3 tools/functional_runner.py --lane B --tests
+  HAMM-00 --evidence build/fc01/corp4 --json-out build/fc01/corp4/records.json`; ACTUALS
+  VERBATIM (variable division + goto-in-IF + adjacent-literal are run-unwitnessed — a FAIL
+  stays classified my-gap/unmeasured, NEVER laundered; a refusal message goes into docs notes);
+  (2) docs/functional-results.md sec 9 + sec 1 row (WKDAY sec 8 style; record the plague-guard
+  falsification and the four unwitnessed shapes); (3) `python3 tools/e2e_gate.py` compile tier,
+  record ACTUALS; (4) explicit-path commit: spec/functional/tests/HAMM-00.PLI, HAMM-00.json,
+  reference.py, docs/functional-results.md, LEARNINGS.md, PROGRESS.md, HANDOFF.md prose —
+  NEVER handoff.config.json; no push. Then program 3 HANG-00 (Hangman) per the standing
+  corpus procedure. Build rc=0, compiler edce9e0e..., HEAD at hop-7 start 5772b8a.
+- STATUS: nothing promoted to any ledger (ends C352; functional runs are NOT DR claims);
+  no ocaml/harness byte touched; third-party bytes untracked; renewal chain 10/12.

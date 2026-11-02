@@ -125,6 +125,31 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+HAMM-00 rev1 RECORDED (2026-11-03, renewal 11/12; HEAD `5772b8a` at execution; build rc=0,
+compiler `edce9e0e…`). Lane B executed (`build/fc01/corp4/records.json`, git_head `5772b8a`):
+SOURCE pass (sha `cc25fe75…` + encoding), DERIVATION pass (derivation == spec, 211 lines),
+COMPILE **FAIL** attr=`compiler` witness `refusal rc=2` message verbatim `Fatal error: exception
+Failure("codegen: DIV by non-constant [TBD]")`; LINK/RUN/ASSERT unrun; `verdicts: PASS=0
+FAIL=1`. Classified `my-gap` (`ocaml/lib/codegen.ml:4997-5010` — DIV lowered by CONSTANT only,
+`[P071B/P080A]`); the four variable-divisor sites were flagged run-unwitnessed in spec note
+(10); expectation NOT laundered; nothing promoted to any ledger (ends C352 — a functional run
+is not a DR claim; DR variable-DIV stays UNMEASURED). goto-in-IF / adjacent-literal PUT LIST /
+c=2/4 rats dispatch NOT reached — still unmeasured. `docs/functional-results.md` § 9 + § 1 row
+written from these ACTUALS; FULL compile-tier gate rc=0 twice, ACTUALS byte panel **1174/0 of
+1174**, negative **181/181**, divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**,
+prose **5 active clean** (log `build/gate-hamm00.log`). rev2 subtraction-loop division
+PROPOSED (derived stream identical; port change only), NOT executed this hop. COMMIT at this
+boundary: explicit paths `spec/functional/tests/HAMM-00.PLI`, `spec/functional/tests/HAMM-00.json`,
+`spec/functional/tests/reference.py`, `docs/functional-results.md`, `LEARNINGS.md`,
+`PROGRESS.md`, `HANDOFF.md` — NEVER `handoff.config.json`; no push. NEXT: program 3 **HANG-00**
+(Hangman) — read `build/functional/fc01-sources/basic/HANGMAN.bas` + `URLS.tsv`/`NOTES.txt`,
+rights review (README § 5.1), DESIGN hop first (corpus laws: literal divisors ≤ 127 — variable
+DIV now MEASURED refused; ordered-compare constants ≥ 1; strict compares only; ≤ 71 cols; no
+apostrophes; GET echo law measured), then triple → `--stages source,derivation` → lane B
+`--evidence build/fc01/corp5` → docs § 10 + § 1 → gate → explicit-path commit. Constraints
+unchanged (no ocaml/harness changes; ledger C352; no push; FAIL stays classified; renewal chain
+11/12 — renew only at safe boundaries per `handoff.config.json`).
+
 **FC-01 OPERATOR OVERRIDE (2026-11-02). HOP 5 IS CANCELLED — do NOT implement `stage_files`,
 `expected.file_expectations`, FILE-00/FILE-01, the fc01-fileio oracle round or ONUNIT-00.**
 
@@ -538,17 +563,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 168
-checkpoint-id: g168-3fb74a7607ab
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 172
+checkpoint-id: g172-af58f543582f
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-02T13:38:35.374Z
+checkpointed: 2026-11-02T15:33:31.483Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4112db2491b04003b3dbb480b85d48312d8ba631a5fe825d1519a0a8d5751943
-source-handoff: 2005bd4cd6ee2f7c3ea11bdf36996737b5779eb69e49589b3acdf2f468deba38
-source-learnings: 32d335a6ff53ef6d6b1448ff81a0b08e572d6707fa07c8e4ed51d70004ae7411
+source-progress: 0f31b6339723012c3e9cc8ac5d4ac24cd19b4de36078fba93e8d3c166f275e3c
+source-handoff: 60169896ffda581509fef06cfd54044c435d6cf847881967c849657c37f34b71
+source-learnings: ec5097be8702ee719f68d5b60d0ee306b4ba30919611c6f07930ecae0e21b4a2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -572,6 +597,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a19c7e-08a3-7761-bfc4-e282a3bbf68b
+readiness-at: 2026-11-02T15:33:31.486Z
+readiness-checkpoint: g172-af58f543582f
 <!-- guard:end checkpoint -->
 
 ## Blockers

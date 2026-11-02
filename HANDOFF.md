@@ -122,6 +122,27 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+## HAMM-00 rev1 recorded — LANE-B COMPILE FAIL (`my-gap`), docs § 9 + gate green, COMMIT OWED (2026-11-03, renewal 11/12; HEAD `5772b8a`; build rc=0, compiler `edce9e0e…`)
+
+Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 hop 7" FIRST (now carries the
+lane-B MEASURED entry). Lane B executed at `build/fc01/corp4/` (`records.json`, HEAD `5772b8a`,
+compiler `edce9e0e…`): SOURCE pass (sha `cc25fe75…`), DERIVATION pass (== spec, 211 lines),
+COMPILE **FAIL** attr=`compiler` witness `refusal rc=2`, message verbatim `Fatal error: exception
+Failure("codegen: DIV by non-constant [TBD]")`; LINK/RUN/ASSERT unrun; `verdicts: PASS=0
+FAIL=1`. Classified `my-gap` (`ocaml/lib/codegen.ml:4997-5010` lowers DIV by CONSTANT only,
+`[P071B/P080A]`); expectation NOT laundered; ledger ends C352 (a functional run is not a DR
+claim; DR variable-DIV stays UNMEASURED). goto-in-IF, adjacent-literal PUT LIST and the c=2/4
+rats dispatch NOT reached — still unmeasured. rev2 PROPOSED (subtraction-loop division, derived
+stream identical) — recorded, NOT executed. `docs/functional-results.md` § 9 + § 1 row written;
+FULL compile-tier gate rc=0 twice, ACTUALS: byte panel **1174/0 of 1174**, negative **181/181**,
+divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**, prose **5 active clean**
+(log `build/gate-hamm00.log`). COMMIT OWED at this boundary: explicit paths
+`spec/functional/tests/HAMM-00.PLI` (sha `cc25fe75…`), `HAMM-00.json`,
+`spec/functional/tests/reference.py`, `docs/functional-results.md`, `LEARNINGS.md`,
+`PROGRESS.md`, `HANDOFF.md` prose — NEVER `handoff.config.json`; no push. Then program 3
+HANG-00 (Hangman) per the standing corpus procedure (design hop first). No ocaml/harness
+changes; third-party bytes never tracked.
+
 ## HAMM-00 hop 6 state — PORT DRAFTED (2026-11-03, renewal 9/12, HEAD `39f1d6b`; build rc=0, compiler `edce9e0e…`)
 
 Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 6" FIRST. The whole
@@ -162,19 +183,25 @@ no push; ledger ends C352; no ocaml/harness changes; third-party bytes never tra
 
 ## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-framing→fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json`. **WKDAY-00 DONE — rev3 lane-B PASS
 (2026-11-03; docs § 8, evidence build/fc01/corp1..corp3).** Program 2 (Hammurabi → `HAMM-00`):
-implementation hop STARTED 2026-11-03 (this chain, renewal 4/12). Read `LEARNINGS.md`
-§ "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop start" FIRST — it RE-MEASURES the echo
-witnesses byte-exact (consumed ^Z echoes as the literal chars `^Z` + `\r\r\n`, falsifying the
-design hop's blank-row claim; unconsumed ^Z never captured — verified against corp3) and
-FALSIFIES parts of the design hop's year-1 script (S≈2400 violates the 20a+s≤6553 bound at the
-declared year-1 births draw c=5; year-1 rats draw is ODD; the d=45 survival is right but needs a
-tuned opening store s0≈600-900). Everything else in the design hop § stands (draw formula,
-shift/compare idioms, `COND.GE_LE` REFUSED → strict-compare forms only, goto same-block, GET
-shape, removals list). EXACT NEXT: build `build/fc01-scratch/hamm00.py` simulator with TUNED
-starts; iterate to a rich path (complaints, ≥1 plague year, ≥1 EVEN rats year — NOT year 1,
-≥1 skip-year, asserts all intermediates ≤ 32767); emit expected lines (echo = `L\r`) +
-console_input + PL/I skeleton; write HAMM-00.PLI/.json; `--stages source,derivation`; lane B
-`--evidence build/fc01/corp4`; docs § 9 + § 1; gate; explicit-path commit.
+**rev1 RECORDED 2026-11-03** (hops 2–7, this chain; started as the implementation hop at
+renewal 4/12). Triple committed at this boundary (`HAMM-00.PLI` sha `cc25fe75…`,
+`HAMM-00.json`, `reference.py:hamm00` — derivation == spec, 211 lines, never captured). Lane B
+`build/fc01/corp4/` executed to **COMPILE FAIL attr=`compiler`**, message verbatim `Fatal error:
+exception Failure("codegen: DIV by non-constant [TBD]")` — first corpus use of VARIABLE
+division, flagged run-unwitnessed in spec note (10); classified `my-gap`
+(`ocaml/lib/codegen.ml:4997-5010` lowers DIV by CONSTANT only, `[P071B/P080A]`), kept as
+written, never laundered; ledger ends C352. docs § 9 + § 1 row written; FULL compile-tier gate
+rc=0 (1174/0, 181/181, 9/9, 133/0/0, census 15/0/26/0, prose 5 clean). rev2 subtraction-loop
+PROPOSED, NOT executed. Full record: `LEARNINGS.md` § 2026-11-03 HAMM-00 hops + the rev1 state
+section above. EXACT NEXT: program 3 **HANG-00 (Hangman, BASIC)** per the standing corpus
+procedure — read `build/functional/fc01-sources/basic/HANGMAN.bas` (+ `URLS.tsv`, `NOTES.txt`),
+rights/provenance review per README § 5.1, DESIGN hop first (fixed inputs or GET per the measured
+echo law; feature analysis vs the measured capability set — corpus laws: literal divisors ≤ 127
+only, ordered-compare constants ≥ 1, strict compares (`COND.GE_LE` refused), VARIABLE division
+now MEASURED refused — design around it and RECORD the gap; ≤ 71 cols, no apostrophes), then the
+triple → `--stages source,derivation` → lane B `--evidence build/fc01/corp5` → docs § 10 + § 1 →
+gate → explicit-path commit. Renewal chain 11/12 — renew only at a safe boundary per
+`handoff.config.json`.
 
 ## HAMM-00 hop 4 state — RICH SPINE FOUND (2026-11-03, renewal 7/12, HEAD `9cbd8dc`; build rc=0, compiler `edce9e0e…`)
 
@@ -262,14 +289,17 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
   half-edited, nothing was deleted: no hop-5 code, spec, fixture or probe ever existed.
 - ACTIVE: FC-01 CORPUS — the eight adapted historical programs. WKDAY-00 COMPLETE at rev3
   lane-B PASS (evidence build/fc01/corp1..corp3 + corp3-double, ignored; docs § 8 + § 1 row);
-  committed `21c9f69`, gate ACTUALS recorded there. HAMM-00 (Hammurabi, program 2) DESIGN IS
-  COMPLETE AND COMMITTED: measured console-GET echo environment law, GET/GOTO shape
-  confirmations, bin15 scaling analysis and the full port design are in `LEARNINGS.md`
-  § 2026-11-03 HAMM-00 design hop — the successor reads that section and implements the
-  triple (prototype simulator → HAMM-00.PLI/.json → derivation check → lane B corp4 →
-  docs § 9 + § 1 → gate → commit). Rights/provenance review per program (README § 5.1)
-  and the unsupported-feature record are explicit deliverables; the BASIC upstream licences
-  are UNVERIFIED and are recorded as such, not asserted.
+  committed `21c9f69`, gate ACTUALS recorded there. HAMM-00 (Hammurabi, program 2) rev1
+  RECORDED at this boundary (triple + docs § 9 + § 1 + gate): derivation-green spec
+  (`cc25fe75…`, 211 lines, never captured), lane-B **COMPILE FAIL attr=`compiler`** —
+  variable-divisor DIV refused verbatim (`codegen: DIV by non-constant [TBD]`), classified
+  `my-gap`, kept as written, expectation never laundered; design/port record and every
+  falsification live in `LEARNINGS.md` § 2026-11-03 HAMM-00 hops. **rev2 PROPOSED, NOT
+  executed:** subtraction-loop division at the four variable-divisor sites (derived stream
+  identical; a port change, not a compiler change). Rights/provenance review per program
+  (README § 5.1) and the unsupported-feature record stay explicit deliverables; the BASIC
+  upstream licences are UNVERIFIED and are recorded as such, not asserted. Next: program 3
+  HANG-00 design hop.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
   `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
 
@@ -303,22 +333,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 168
-checkpoint-id: g168-3fb74a7607ab
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4909, session 01a19c67-d7de-7761-bfc4-e27e0271de33)
-checkpointed: 2026-11-02T13:38:35.374Z
+checkpoint-generation: 172
+checkpoint-id: g172-af58f543582f
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1275, session 01a19c7e-08a3-7761-bfc4-e282a3bbf68b)
+checkpointed: 2026-11-02T15:33:31.483Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4112db2491b04003b3dbb480b85d48312d8ba631a5fe825d1519a0a8d5751943
-source-handoff: 2005bd4cd6ee2f7c3ea11bdf36996737b5779eb69e49589b3acdf2f468deba38
-source-learnings: 32d335a6ff53ef6d6b1448ff81a0b08e572d6707fa07c8e4ed51d70004ae7411
+source-progress: 0f31b6339723012c3e9cc8ac5d4ac24cd19b4de36078fba93e8d3c166f275e3c
+source-handoff: 60169896ffda581509fef06cfd54044c435d6cf847881967c849657c37f34b71
+source-learnings: ec5097be8702ee719f68d5b60d0ee306b4ba30919611c6f07930ecae0e21b4a2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19c7e-08a3-7761-bfc4-e282a3bbf68b
+readiness-at: 2026-11-02T15:33:31.486Z
+readiness-checkpoint: g172-af58f543582f
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -348,5 +381,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-HAMM-00 hop 5 CLOSED at 39f1d6b (docs only; tree clean except operator handoff.config.json — never stage). Author the HAMM-00 triple NOW from LEARNINGS.md § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 5" (read FIRST — exact one-liner regenerates the 211-line expected stream + console_input from build/fc01-scratch/hamm00_sim.py + spine_t_300.json; re-verified byte-stable: g0=2 s0=1500, verdict not-too-bad P1=7 L=10 D1=41, all 8 features, 46 fed values max 1588) plus the hop-4 § port law. Steps: (1) spec/functional/tests/HAMM-00.PLI (CRLF bare ^Z <=71 cols, strict compares only, t=x+1 weak forms, plague t1=q+4>4, negative guard t1=qq+20000<20000, impeach t2=(p*45)/100, rats dispatch c=2/c=4, literal divisors 2/4/5/10/20/45/100, variable division at births x/p, P1 (d*100)/p, (u+x)/z, l=a/p [flagged first use], no apostrophes, adjacent-literal split for the 862/970 long lines [PROPOSED — FAIL stays classified]); (2) reference.py:hamm00 mirroring the port statement-for-statement, diff against simulator output BEFORE writing JSON, register in DERIVATIONS; (3) HAMM-00.json (console_input = 46 CR-terminated values + bare ^Z, capabilities DECL.FIXED_BIN15 IO.PUT_LIST_FIXED IO.PUT_SKIP IO.GET_LIST TRAN.GOTO_SAME_BLOCK EXPR.REL_FIXED_EQ_K EXPR.SELF_ADD_LADDER EXPR.ADD_PRESERVE_ROUTE, link_targets [HAMM00], notes = full removal/substitution list); (4) --stages source,derivation; (5) lane B --evidence build/fc01/corp4 --json-out build/fc01/corp4/records.json ACTUALS verbatim; (6) docs/functional-results.md § 9 + § 1 row; (7) python3 tools/e2e_gate.py compile tier; (8) explicit-path commit. Constraints: no ocaml/harness changes, no push, ledger ends C352 (functional runs are NOT DR claims), operator handoff.config.json unstaged, third-party bytes never tracked, renew at safe boundaries. Build verified rc=0, compiler edce9e0e….
+HAMM-00 hop 7: triple AUTHORED, derivation == simulator (211 lines), UNCOMMITTED. Read LEARNINGS.md § "2026-11-03 — FC-01 CORPUS HAMM-00 hop 7" FIRST. NEXT: lane B --tests HAMM-00 --evidence build/fc01/corp4 --json-out build/fc01/corp4/records.json ACTUALS verbatim (4 unwitnessed shapes; FAIL stays classified) -> docs/functional-results.md § 9 + § 1 -> python3 tools/e2e_gate.py compile tier -> explicit-path commit (spec/functional/tests/HAMM-00.PLI sha cc25fe75…, HAMM-00.json, reference.py, docs, LEARNINGS, PROGRESS, HANDOFF prose; NEVER handoff.config.json; no push) -> then HANG-00. No ocaml/harness changes; ledger ends C352; renewal chain 10/12.
 <!-- guard:end checkpoint -->

@@ -37,6 +37,7 @@ cpmsim, user-supplied and never packaged).
 | FLT-01 | B | rev1 SOURCE→…→ASSERT; rev2 SOURCE→DERIVATION→COMPILE | rev1 **PASS** (probe falsification); rev2 **FAIL** (deliverable) | `compiler` | rev1 compared via a variable — the proven cell route; rev2 puts `(a + b)` DIRECT in the compare and measures the computed-FLOAT-operand refusal (§ 7) |
 | EDIT-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | PUT EDIT counted `SKIP(1)` refused — only the bare form is sampled (§ 7) |
 | WKDAY-00 | B | rev1 COMPILE; rev2 →RUN→ASSERT; rev3 SOURCE→…→RUN→ASSERT | rev1 **FAIL**, rev2 **FAIL**, rev3 **PASS** (corpus program 1 of 8; § 8) | rev1 `compiler`; rev2 narrowed to `compiler` by the byte-level discriminating run | adapted BASIC Weekday; rev1 measured the `> 0` refusal, rev2 the silent `/365` low-byte miscompile (both `my-gap`), rev3 passes with complete-stream match, 10 lines, double-run byte-equal |
+| HAMM-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (corpus program 2 of 8; § 9) | `compiler` | adapted BASIC Hammurabi; rev1 measures the variable-divisor DIV refusal verbatim (`my-gap`, first corpus use, flagged run-unwitnessed in the spec notes); expectation NOT laundered; LINK/RUN/ASSERT unrun |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -317,3 +318,62 @@ build/fc01/corp1 --json-out build/fc01/corp1/records.json`; rev2 `... --evidence
 --json-out build/fc01/corp2/records.json`; rev3 `... --evidence build/fc01/corp3 --json-out
 build/fc01/corp3/records.json`; double-run `... --double-run --evidence build/fc01/corp3-double
 --json-out build/fc01/corp3-double/records.json`.
+
+## 9. FC-01 CORPUS hops 2–7 (2026-11-03): HAMM-00 — program 2 (Hammurabi, BASIC); triple authored derivation-green; rev1 measures the variable-division gap
+
+Program 2 of the operator's eight (Hammurabi, `coding-horror/basic-computer-games` 02_Hammurabi;
+research copy `build/functional/fc01-sources/basic/HAMMURABI.bas` sha256 `93fea01f…`, upstream
+licence UNVERIFIED and recorded as such per README § 5.1; no upstream bytes in any tracked file).
+The design hops (LEARNINGS 2026-11-03, design + implementation hops 2–7) derived a 10-year spine
+with ALL EIGHT corpus features (skip, starve, buy/sell/feed/plant complaints, plague, rats) under
+the declared RNG `gg = gg + 1; w = gg*37 + 11; c = w − (w/k)*k` (seed `gg = 2`) and scaled opening
+potentials `P = 95, S = 1500, H = 900, Y = 3, A = 300, I = 5, Q = 1`; verdict `not-too-bad`
+(`P1 = 7, L = 10, D1 = 41`), every intermediate ≤ 32767.
+
+The triple (all kept as written, none laundered): `spec/functional/tests/HAMM-00.PLI` 8362 B,
+311 lines, widest 69, CRLF + bare `^Z`, apostrophe-free, sha256 `cc25fe75…` (pinned in the
+spec); `reference.py:hamm00` — statement-for-statement port mirror of the script with
+chk/nested-floor/shift-form/ladder-exhaustive asserts — its 211-line stream and `console_input`
+MEASURED EQUAL to the independent scratch simulator before any JSON was written (L3: derived,
+never captured); `HAMM-00.json` (schema `pli80-functional/1`, Lane B, 8 verified capability ids,
+`console_input` = 46 CR-terminated values then a bare never-consumed `^Z`, notes (1)–(15) = the
+full removal/substitution list: banner+bells+TAB spacing dropped, `RANDOM` → declared integer
+draw, negative year-1 rat figure `E = −600` declared, integer `P1/L/965` routes, strict-compare
+shift forms only (`COND.GE_LE` is REFUSED by my compiler), rats dispatch `c = 2 → s/2`,
+`c = 4 → s/4`, dead stores kept, the 862/970 report lines and the two 72-col `ner:` literals
+split into adjacent-literal items of one PUT LIST (seam = one space under either separator
+reading; compile of literal-literal adjacency UNVERIFIED, PROPOSED).
+
+Two authoring falsifications are kept per PROTOCOL #2: the hop-6 plague "idempotence guard"
+(`t2 = p/2; t3 = t2+100; t4 = t3+100; p = t4−100`) computes X/4+100, NOT the BASIC 228 single
+`INT(P/2)` — one arithmetic line, the final port halves once; the draft's undeclared temp `r`
+in the 965 draw would have been implicit FLOAT — replaced by `v`.
+
+* **rev1 — COMPILE FAIL, attr `compiler` (`build/fc01/corp4/`, HEAD `5772b8a`, compiler sha
+  `edce9e0e…`):** SOURCE pass (sha256+encoding verified), DERIVATION pass (derivation == spec),
+  then witness `refusal rc=2` with the message verbatim:
+  `Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")`. LINK/RUN/ASSERT
+  `unrun` (chain stopped by COMPILE). This is the **first corpus use of VARIABLE division** —
+  the four sites (`t1 = x / p`, `x = x / p`, `p1 = u / z`, `l = a / p`) were flagged
+  run-unwitnessed in spec note (10) precisely so this outcome would stay classified. `my-gap`:
+  `codegen.ml:4997-5010` lowers DIV by CONSTANT only (golden family `[P071B/P080A]`); variable
+  divisor = no golden → failwith. **Not** a DR claim: DR's behaviour on variable DIV is
+  UNMEASURED by this project's oracle rounds, and a functional run is not evidence for the
+  ledger (which still ends at C352). The expectation was NOT re-derived; the verdict line
+  `verdicts: PASS=0 FAIL=1` stands exactly as executed.
+
+Three of the four declared unwitnessed shapes (goto-in-IF, adjacent-literal PUT LIST, the
+`c = 2/4` rats dispatch) were **not reached** — they stay unmeasured; only the variable-divisor
+shape is now measured as refused.
+
+**rev2 PROPOSAL (recorded, NOT executed this hop):** replace the four variable-divisor sites
+with repeated-subtraction loops over measured shapes only (add/compare/assign); all four
+operands are non-negative and asserted, so `floor` semantics are preserved and the derived
+211-line stream would be IDENTICAL — no expectation change. This is a port change, not a
+compiler change (the no-`ocaml/`-edits boundary stands); deferred per the corpus procedure
+("record the gap and move on"), while HAMM-00 stays active in `PROGRESS.md`.
+
+Commands: derivation gate `python3 tools/functional_runner.py --stages source,derivation
+--tests HAMM-00` (no failures; verdict line `UNKNOWN [COMPILE: stage ceiling]` = later stages
+capped); lane B `python3 tools/functional_runner.py --lane B --tests HAMM-00 --evidence
+build/fc01/corp4 --json-out build/fc01/corp4/records.json`.

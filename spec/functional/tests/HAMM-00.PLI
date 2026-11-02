@@ -1,0 +1,312 @@
+/* HAMM-00 - FC-01 corpus adaptation, 2026-11-03.          */
+/* Original: BASIC "Hammurabi", Creative Computing         */
+/* MORRISTOWN NJ.  Research copy: build/functional/        */
+/* fc01-sources/basic/HAMMURABI.bas (upstream              */
+/* coding-horror/basic-computer-games 43_Hammurabi,        */
+/* hammurabi.bas sha256 93fea01f..., licence UNVERIFIED).  */
+/* ADAPTATION (full removal/substitution list is in        */
+/* HAMM-00.json notes): the TAB banner (10/20) and the     */
+/* year report line 217 are dropped; the CHR(7) bells at   */
+/* 990 are dropped; the 965 literal is written without an  */
+/* APOSTROPHE (WAS NOT); BASIC INPUT is replaced by        */
+/* console GET of a fixed 46-value script; RND(1) is       */
+/* replaced by the declared draw (GG=GG+1; W=GG*37+11;     */
+/* V=W-(W/K)*K) with seed GG=2; the opening pot is scaled   */
+/* to P=95, S=1500, H=900, Y=3, A=300 (=H/Y as upstream),  */
+/* I=5, Q=1, so the year-1 report prints a NEGATIVE rat     */
+/* figure E=H-S=-600 (declared); P1, L and the 965 count   */
+/* take the INTEGER FIXED route.  Every compare is STRICT  */
+/* against a member or a literal >= 1: weak tests are      */
+/* t=x+1 then a<t, the plague test Q>0 is t1=q+4 then      */
+/* t1>4, the negative-input test Q<0 is t1=q+20000 then    */
+/* t1<20000.  Divisors are the literals 2/5/10/20/45/100;  */
+/* the rats site dispatches on C; births, P1 and L divide  */
+/* by a VARIABLE (first corpus use, flagged).  The two     */
+/* 862/970 literals exceed the column budget and are split */
+/* into adjacent literal items of one PUT LIST (the seam   */
+/* is one space under either separator reading).           */
+/* Expected stream: reference.py:hamm00, derived from the  */
+/* declared script, never captured.                        */
+hamm00: procedure options(main);
+  declare z fixed bin(15), p fixed bin(15), a fixed bin(15);
+  declare s fixed bin(15), h fixed bin(15), e fixed bin(15);
+  declare y fixed bin(15), i fixed bin(15), q fixed bin(15);
+  declare d fixed bin(15), c fixed bin(15), p1 fixed bin(15);
+  declare d1 fixed bin(15), gg fixed bin(15), l fixed bin(15);
+  declare qq fixed bin(15), n fixed bin(15), w fixed bin(15);
+  declare v fixed bin(15), u fixed bin(15), x fixed bin(15);
+  declare t1 fixed bin(15), t2 fixed bin(15), t3 fixed bin(15);
+  declare t4 fixed bin(15);
+  put skip;
+  put skip;
+  put skip;
+  put list('TRY YOUR HAND AT GOVERNING ANCIENT SUMERIA');
+  put skip;
+  put list('FOR A TEN-YEAR TERM OF OFFICE.');
+  put skip;
+  put skip;
+  d1 = 0;
+  p1 = 0;
+  z = 0;
+  p = 95;
+  s = 1500;
+  h = 900;
+  e = h - s;
+  y = 3;
+  a = 300;
+  i = 5;
+  q = 1;
+  gg = 2;
+ytop:
+  d = 0;
+  put skip;
+  put skip;
+  put list('HAMURABI:  I BEG TO REPORT TO YOU,');
+  put skip;
+  p = p + i;
+  t1 = q + 4;
+  if t1 > 4 then goto rp2;
+  p = p / 2;
+  put list('A HORRIBLE PLAGUE STRUCK!  HALF THE PEOPLE DIED.');
+  put skip;
+rp2:
+  put list('POPULATION IS NOW', p);
+  put skip;
+  put list('THE CITY NOW OWNS ', a, 'ACRES.');
+  put skip;
+  put list('YOU HARVESTED', y, 'BUSHELS PER ACRE.');
+  put skip;
+  put list('THE RATS ATE', e, 'BUSHELS.');
+  put skip;
+  put list('YOU NOW HAVE ', s, 'BUSHELS IN STORE.');
+  put skip;
+  put skip;
+  z = z + 1;
+  t2 = z + 1;
+  if t2 > 11 then goto sum;
+  gg = gg + 1;
+  w = gg * 37;
+  w = w + 11;
+  v = w / 10;
+  v = w - v * 10;
+  y = v + 17;
+  put list('LAND IS TRADING AT', y, 'BUSHELS PER ACRE.');
+  put skip;
+buy:
+  put list('HOW MANY ACRES DO YOU WISH TO BUY ');
+  get list(qq);
+  t1 = qq + 20000;
+  if t1 < 20000 then goto bad;
+  u = y * qq;
+  t2 = s + 1;
+  if u < t2 then goto byok;
+  put list('HAMURABI:  THINK AGAIN.  YOU HAVE ONLY');
+  put skip;
+  put list(s, 'BUSHELS OF GRAIN.  NOW THEN,');
+  put skip;
+  goto buy;
+byok:
+  if qq = 0 then goto sell;
+  a = a + qq;
+  s = s - u;
+  c = 0;
+  goto fed0;
+sell:
+  put list('HOW MANY ACRES DO YOU WISH TO SELL ');
+  get list(qq);
+  t1 = qq + 20000;
+  if t1 < 20000 then goto bad;
+  if qq < a then goto selok;
+  put list('HAMURABI:  THINK AGAIN.  YOU OWN ONLY');
+  put skip;
+  put list(a, 'ACRES.  NOW THEN,');
+  put skip;
+  goto sell;
+selok:
+  a = a - qq;
+  u = y * qq;
+  s = s + u;
+  c = 0;
+fed0:
+  put skip;
+  put list('HOW MANY BUSHELS DO YOU WISH TO FEED YOUR PEOPLE ');
+  get list(qq);
+  t1 = qq + 20000;
+  if t1 < 20000 then goto bad;
+  t2 = s + 1;
+  if qq < t2 then goto fedok;
+  put list('HAMURABI:  THINK AGAIN.  YOU HAVE ONLY');
+  put skip;
+  put list(s, 'BUSHELS OF GRAIN.  NOW THEN,');
+  put skip;
+  goto fed0;
+fedok:
+  s = s - qq;
+  c = 1;
+  put skip;
+plant:
+  put list('HOW MANY ACRES DO YOU WISH TO PLANT WITH SEED ');
+  get list(d);
+  if d = 0 then goto hrv;
+  t1 = d + 20000;
+  if t1 < 20000 then goto bad;
+  t2 = a + 1;
+  if d < t2 then goto pl2;
+  put list('HAMURABI:  THINK AGAIN.  YOU OWN ONLY');
+  put skip;
+  put list(a, 'ACRES.  NOW THEN,');
+  put skip;
+  goto plant;
+pl2:
+  t1 = d / 2;
+  t2 = s + 1;
+  if t1 < t2 then goto pl3;
+  put list('HAMURABI:  THINK AGAIN.  YOU HAVE ONLY');
+  put skip;
+  put list(s, 'BUSHELS OF GRAIN.  NOW THEN,');
+  put skip;
+  goto plant;
+pl3:
+  u = p * 10;
+  if d < u then goto pl4;
+  put list('BUT YOU HAVE ONLY', p,
+           'PEOPLE TO TEND THE FIELDS!  NOW THEN,');
+  put skip;
+  goto plant;
+pl4:
+  s = s - t1;
+hrv:
+  gg = gg + 1;
+  w = gg * 37;
+  w = w + 11;
+  v = w / 5;
+  v = w - v * 5;
+  y = v + 1;
+  h = d * y;
+  e = 0;
+  gg = gg + 1;
+  w = gg * 37;
+  w = w + 11;
+  v = w / 5;
+  v = w - v * 5;
+  c = v + 1;
+  if c = 2 then e = s / 2;
+  if c = 4 then e = s / 4;
+  s = s - e;
+  s = s + h;
+  gg = gg + 1;
+  w = gg * 37;
+  w = w + 11;
+  v = w / 5;
+  v = w - v * 5;
+  c = v + 1;
+  u = a * 20;
+  u = u + s;
+  x = c * u;
+  t1 = x / p;
+  t2 = t1 / 100;
+  i = t2 + 1;
+  t3 = qq / 20;
+  c = t3;
+  gg = gg + 1;
+  w = gg * 37;
+  w = w + 11;
+  v = w / 10;
+  v = w - v * 10;
+  q = v - 3;
+  if p < c then goto ytop;
+  d = p - c;
+  t1 = p * 45;
+  t2 = t1 / 100;
+  if d > t2 then goto imp;
+  u = z - 1;
+  u = u * p1;
+  x = d * 100;
+  x = x / p;
+  u = u + x;
+  p1 = u / z;
+  d1 = d1 + d;
+  p = c;
+  goto ytop;
+imp:
+  put skip;
+  put list('YOU STARVED', d, 'PEOPLE IN ONE YEAR!!!');
+  put skip;
+fink:
+  put list('DUE TO THIS EXTREME MISMANAGEMENT YOU HAVE NOT ONLY');
+  put skip;
+  put list('BEEN IMPEACHED AND THROWN OUT OF OFFICE BUT YOU HAVE');
+  put skip;
+  put list('ALSO BEEN DECLARED NATIONAL FINK!!!!');
+  put skip;
+  goto bye;
+sum:
+  put list('IN YOUR 10-YEAR TERM OF OFFICE,', p1, 'PERCENT OF THE');
+  put skip;
+  put list('POPULATION STARVED PER YEAR ON THE AVERAGE,',
+           ' I.E. A TOTAL OF');
+  put skip;
+  put list(d1, 'PEOPLE DIED!!');
+  put skip;
+  l = a / p;
+  put list('YOU STARTED WITH 10 ACRES PER PERSON AND ENDED WITH');
+  put skip;
+  put list(l, 'ACRES PER PERSON.');
+  put skip;
+  put skip;
+  t3 = p1 + 100;
+  if t3 > 133 then goto fink;
+  t2 = l + 100;
+  if t2 < 107 then goto fink;
+  if t3 > 110 then goto ner;
+  if t2 < 109 then goto ner;
+  if t3 > 103 then goto mbad;
+  if t2 < 110 then goto mbad;
+  put list('A FANTASTIC PERFORMANCE!!!  CHARLEMANGE, DISRAELI, AND');
+  put skip;
+  put list('JEFFERSON COMBINED COULD NOT HAVE DONE BETTER!');
+  put skip;
+  goto bye;
+mbad:
+  put list('YOUR PERFORMANCE COULD HAVE BEEN SOMEWHAT BETTER, BUT');
+  put skip;
+  gg = gg + 1;
+  w = gg * 37;
+  w = w + 11;
+  v = w / 10;
+  v = w - v * 10;
+  n = p * 8;
+  n = n * v;
+  n = n / 100;
+  put list('REALLY WAS NOT TOO BAD AT ALL.', n, 'PEOPLE');
+  put skip;
+  put list('WOULD DEARLY LIKE TO SEE YOU ASSASSINATED BUT',
+           ' WE ALL HAVE OUR');
+  put skip;
+  put list('TRIVIAL PROBLEMS.');
+  put skip;
+  goto bye;
+ner:
+  put list('YOUR HEAVY-HANDED PERFORMANCE SMACKS',
+           ' OF NERO AND IVAN IV.');
+  put skip;
+  put list('THE PEOPLE (REMAINING) FIND YOU AN',
+           ' UNPLEASANT RULER, AND,');
+  put skip;
+  put list('FRANKLY, HATE YOUR GUTS!!');
+  put skip;
+  goto bye;
+bad:
+  put skip;
+  put list('HAMURABI:  I CANNOT DO WHAT YOU WISH.');
+  put skip;
+  put list('GET YOURSELF ANOTHER STEWARD!!!!!');
+  put skip;
+bye:
+  put skip;
+  put list('SO LONG FOR NOW.');
+  put skip;
+  put skip;
+  stop;
+end hamm00;
+

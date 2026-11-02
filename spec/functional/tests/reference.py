@@ -395,13 +395,458 @@ def wkday00():
             "YOU MAY RETIRE IN %d" % (y + 65)]
 
 
+# ---------------------------------------------------------------- HAMM-00 (Hammurabi)
+# FC-01 CORPUS program 2: adaptation of BASIC "Hammurabi" (Creative Computing;
+# research copy build/functional/fc01-sources/basic/HAMMURABI.bas, sha256
+# 93fea01f8b63766a83919653f798932ba33d4ca2654b70e87a54653d60c73831, upstream
+# coding-horror/basic-computer-games 43_Hammurabi, licence UNVERIFIED).  Law L3:
+# the stream below is DERIVED from an independent Python mirror of the declared
+# port semantics, never captured (the cross-check against the ignored scratch
+# simulator build/fc01-scratch/hamm00_sim.py is a development aid, NOT an import).
+#
+# The reference mirrors HAMM-00.PLI STATEMENT FOR STATEMENT (same order, same
+# temps, same control flow) as a script-driven machine over the 46 declared GET
+# values, so a divergence between program and reference is impossible by
+# construction.  Byte model per the measured laws (README section 6 + hop-2
+# separator law + hop-start echo law): PUT SKIP emits "\r\n"; PUT LIST joins
+# items with ONE blank, fixed numerics in a 10-wide right-justified field
+# ("%10d"); a consumed GET line L echoes as L + "\r\r\n"; program exit appends
+# exactly one "\r\n" ([C352]); normalization collapse-spaces-v1 then split with
+# ONE trailing empty dropped.  chk() asserts EVERY intermediate inside
+# FIXED BINARY(15); the shift/weak-compare forms and the nested-floor births
+# route are ASSERTED equivalent to the BASIC float semantics at every observed
+# value; the whole-bin15 ladder equivalence is verified exhaustively.
+
+import re as _hamm00_re
+
+HAMM00_P0, HAMM00_S0, HAMM00_H0, HAMM00_Y0, HAMM00_A0 = 95, 1500, 900, 3, 300
+HAMM00_I0, HAMM00_Q0, HAMM00_GG0 = 5, 1, 2      # A0 = H0/Y0 (upstream relation)
+
+HAMM00_SCRIPT = [                                # the 46 declared GET values
+    0, 301, 0, 1352, 298, 200,
+    43, 0, 0, 700, 300,
+    0, 0, 1588, 900, 300,
+    0, 0, 520, 259,
+    0, 0, 780, 301, 300,
+    0, 0, 480, 239,
+    0, 0, 760, 300,
+    0, 0, 460, 230, 229,
+    0, 0, 740, 300,
+    0, 0, 300, 229,
+]
+
+_HAMM00_B15 = 32767
+_HAMM00_MAXIN = 12767        # every fed value keeps q + 20000 inside bin(15)
+
+_HAMM00_BUYP = "HOW MANY ACRES DO YOU WISH TO BUY "
+_HAMM00_SELLP = "HOW MANY ACRES DO YOU WISH TO SELL "
+_HAMM00_FEEDP = "HOW MANY BUSHELS DO YOU WISH TO FEED YOUR PEOPLE "
+_HAMM00_PLANTP = "HOW MANY ACRES DO YOU WISH TO PLANT WITH SEED "
+
+
+def _hamm00_chk(v):
+    assert -_HAMM00_B15 <= v <= _HAMM00_B15, "bin15 overflow: %d" % v
+    return v
+
+
+def _hamm00_finalize(raw):
+    norm = _hamm00_re.sub(rb" +", b" ", (raw + "\r\n").encode().replace(b"\r\n", b"\n")).decode()
+    lines = norm.split("\n")
+    if lines and lines[-1] == "":
+        lines = lines[:-1]
+    return lines
+
+
+class _Hamm00Port:
+    """Script-driven mirror of HAMM-00.PLI.  emit=False drives the state machine
+    silently (search/analysis); emit=True records the raw console bytes."""
+
+    def __init__(self, script, emit=True):
+        self.script = list(script)
+        self.emit = emit
+        self.raw = ""
+        self.nget = 0
+        self.plague_years = 0
+        self.rats_years = 0
+        self.skip_years = 0
+        self.starve_years = 0
+        self.verdict = None
+
+    # ---- IO primitives (measured byte model)
+    def skip(self):
+        if self.emit:
+            self.raw += "\r\n"
+
+    def put(self, *items):
+        if self.emit:
+            self.raw += " ".join(("%10d" % _hamm00_chk(it)) if isinstance(it, int)
+                                 else it for it in items)
+
+    def get(self):
+        assert self.script, "GET past the end of the declared script"
+        v = self.script.pop(0)
+        # negative-shift guard domain: every fed value must keep x + 20000 inside
+        # bin(15); the shift form x+20000 < 20000 is asserted identical to x < 0
+        # at each use site below.
+        assert -20000 <= v <= _HAMM00_MAXIN, "fed value out of domain: %d" % v
+        self.nget += 1
+        if self.emit:
+            self.raw += "%d\r\r\n" % v
+        return v
+
+    # ---- declared RNG: gg = gg + 1; w = gg*37 + 11; v = w - (w/k)*k
+    def draw(self, k):
+        self.gg = _hamm00_chk(self.gg + 1)
+        w = _hamm00_chk(self.gg * 37)
+        w = _hamm00_chk(w + 11)
+        t = _hamm00_chk(w // k)
+        v = _hamm00_chk(w - t * k)
+        assert 0 <= v < k
+        return v
+
+    # ---- weak-compare forms (port law): a <= b spells t2 = b + 1; a < t2
+    def weak(self, a, b):
+        t2 = _hamm00_chk(b + 1)
+        port = a < t2
+        assert port == (a <= b)            # identity for integers in domain
+        return port
+
+    def negguard(self, x):
+        t1 = _hamm00_chk(x + 20000)
+        port = t1 < 20000
+        assert port == (x < 0)             # holds across the whole bin15 domain
+        return port
+
+    # ---- bad: (BASIC 850; compile-only on the spine) + bye: 990/995 (bells dropped)
+    def bad(self):
+        self.skip()
+        self.put("HAMURABI:  I CANNOT DO WHAT YOU WISH.")
+        self.skip()
+        self.put("GET YOURSELF ANOTHER STEWARD!!!!!")
+        self.skip()
+        self.bye()
+
+    def fink(self):
+        self.put("DUE TO THIS EXTREME MISMANAGEMENT YOU HAVE NOT ONLY")
+        self.skip()
+        self.put("BEEN IMPEACHED AND THROWN OUT OF OFFICE BUT YOU HAVE")
+        self.skip()
+        self.put("ALSO BEEN DECLARED NATIONAL FINK!!!!")
+        self.skip()
+
+    def bye(self):
+        self.skip()
+        self.put("SO LONG FOR NOW.")
+        self.skip()
+        self.skip()
+
+    # ---- the game (statement-for-statement in HAMM-00.PLI order)
+    def run(self):
+        self.skip(); self.skip(); self.skip()                      # BASIC 30
+        self.put("TRY YOUR HAND AT GOVERNING ANCIENT SUMERIA")      # 80
+        self.skip()
+        self.put("FOR A TEN-YEAR TERM OF OFFICE.")                  # 90
+        self.skip(); self.skip()
+        d1 = 0; p1 = 0                                              # 95
+        z = 0; p = HAMM00_P0; s = HAMM00_S0; h = HAMM00_H0          # 100
+        e = _hamm00_chk(h - s)                                      # declared -600
+        y = HAMM00_Y0; a = HAMM00_A0; i = HAMM00_I0; q = HAMM00_Q0  # 110
+        gg = HAMM00_GG0
+        self.gg = gg
+        impeached_d = None
+        while True:
+            d = 0                                                   # ytop / 210
+            self.skip(); self.skip()
+            self.put("HAMURABI:  I BEG TO REPORT TO YOU,")           # 215
+            self.skip()
+            p = _hamm00_chk(p + i)                                  # 218
+            t1 = _hamm00_chk(q + 4)                                 # 227 shift form
+            plague = not (t1 > 4)
+            assert plague == (q <= 0)
+            if plague:
+                self.plague_years += 1
+                p = _hamm00_chk(p // 2)                             # 228 SINGLE halving
+                self.put("A HORRIBLE PLAGUE STRUCK!  HALF THE PEOPLE DIED.")  # 229
+                self.skip()
+            self.put("POPULATION IS NOW", p)                        # 230
+            self.skip()
+            self.put("THE CITY NOW OWNS ", a, "ACRES.")             # 232
+            self.skip()
+            self.put("YOU HARVESTED", y, "BUSHELS PER ACRE.")       # 235
+            self.skip()
+            self.put("THE RATS ATE", e, "BUSHELS.")                 # 250
+            self.skip()
+            self.put("YOU NOW HAVE ", s, "BUSHELS IN STORE.")       # 260
+            self.skip(); self.skip()
+            z = _hamm00_chk(z + 1)                                  # 215 (after report)
+            t2 = _hamm00_chk(z + 1)
+            assert (t2 > 11) == (z >= 11)
+            if t2 > 11:
+                break                                               # 270 -> 860
+            y = _hamm00_chk(self.draw(10) + 17)                     # 310
+            self.put("LAND IS TRADING AT", y, "BUSHELS PER ACRE.")   # 312
+            self.skip()
+            while True:                                             # 320 buy loop
+                self.put(_HAMM00_BUYP)
+                qq = self.get()
+                if self.negguard(qq):                               # 321 -> 850
+                    self.bad()
+                    return self                                     # spine never reaches
+                u = _hamm00_chk(y * qq)
+                if self.weak(u, s):                                 # 322
+                    break
+                self.put("HAMURABI:  THINK AGAIN.  YOU HAVE ONLY")   # 710
+                self.skip()
+                self.put(s, "BUSHELS OF GRAIN.  NOW THEN,")          # 711
+                self.skip()
+            if qq != 0:                                             # 330
+                a = _hamm00_chk(a + qq); s = _hamm00_chk(s - u)     # 331
+                c = 0                                               # dead store, kept
+            else:
+                while True:                                         # 340 sell loop
+                    self.put(_HAMM00_SELLP)
+                    qq = self.get()
+                    if self.negguard(qq):                           # 341
+                        self.bad()
+                        return self
+                    if qq < a:                                      # 342 strict
+                        break
+                    self.put("HAMURABI:  THINK AGAIN.  YOU OWN ONLY")  # 720
+                    self.skip()
+                    self.put(a, "ACRES.  NOW THEN,")
+                    self.skip()
+                a = _hamm00_chk(a - qq)                             # 350
+                u = _hamm00_chk(y * qq)
+                s = _hamm00_chk(s + u)
+                c = 0                                               # dead store, kept
+            self.skip()                                             # 400
+            while True:                                             # 410 feed loop
+                self.put(_HAMM00_FEEDP)
+                qq = self.get()
+                if self.negguard(qq):                               # 412
+                    self.bad()
+                    return self
+                if self.weak(qq, s):                                # 420
+                    break
+                self.put("HAMURABI:  THINK AGAIN.  YOU HAVE ONLY")   # 710
+                self.skip()
+                self.put(s, "BUSHELS OF GRAIN.  NOW THEN,")
+                self.skip()
+            s = _hamm00_chk(s - qq)                                 # 430
+            c = 1                                                   # dead store, kept
+            self.skip()
+            while True:                                             # 440 plant loop
+                self.put(_HAMM00_PLANTP)
+                d = self.get()
+                if d == 0:                                          # 441 -> 511
+                    break
+                if self.negguard(d):                                # 442
+                    self.bad()
+                    return self
+                if not self.weak(d, a):                             # 445
+                    self.put("HAMURABI:  THINK AGAIN.  YOU OWN ONLY")  # 720
+                    self.skip()
+                    self.put(a, "ACRES.  NOW THEN,")
+                    self.skip()
+                    continue
+                t1 = _hamm00_chk(d // 2)                            # 450
+                if not self.weak(t1, s):
+                    self.put("HAMURABI:  THINK AGAIN.  YOU HAVE ONLY")  # 710
+                    self.skip()
+                    self.put(s, "BUSHELS OF GRAIN.  NOW THEN,")
+                    self.skip()
+                    continue
+                u = _hamm00_chk(p * 10)                             # 455
+                if not (d < u):
+                    self.put("BUT YOU HAVE ONLY", p,
+                             "PEOPLE TO TEND THE FIELDS!  NOW THEN,")   # 460
+                    self.skip()
+                    continue
+                s = _hamm00_chk(s - t1)                             # 510 / pl4
+                break
+            y = _hamm00_chk(self.draw(5) + 1)                       # 511 (800)
+            h = _hamm00_chk(d * y)                                  # 515
+            e = 0
+            c = _hamm00_chk(self.draw(5) + 1)                       # 521
+            if c == 2:                                              # rats dispatch
+                e = _hamm00_chk(s // 2)
+            if c == 4:
+                e = _hamm00_chk(s // 4)
+            if c % 2 == 0:                                          # 522 parity
+                assert e == _hamm00_chk(s // c)                     # BASIC 525 route
+                if e > 0:
+                    self.rats_years += 1
+            s = _hamm00_chk(s - e)                                  # 530
+            s = _hamm00_chk(s + h)
+            c = _hamm00_chk(self.draw(5) + 1)                       # 531 births
+            u = _hamm00_chk(a * 20)
+            u = _hamm00_chk(u + s)
+            x = _hamm00_chk(c * u)
+            t1 = _hamm00_chk(x // p)                                # VARIABLE divisor
+            t2 = _hamm00_chk(t1 // 100)
+            assert t2 + 1 == x // (100 * p) + 1                     # nested-floor vs BASIC
+            i = _hamm00_chk(t2 + 1)
+            t3 = _hamm00_chk(qq // 20)                              # 540 (last FEED)
+            c = t3
+            q = _hamm00_chk(self.draw(10) - 3)                      # 542 plague draw
+            if p < c:                                               # 550 skip year
+                self.skip_years += 1
+                continue                                            # goto ytop (d=0 there)
+            d = _hamm00_chk(p - c)                                  # 552
+            if d > 0:
+                self.starve_years += 1
+            t1 = _hamm00_chk(p * 45)                                # 552 .45*P form
+            t2 = _hamm00_chk(t1 // 100)
+            assert (d > t2) == (d > 0.45 * p)
+            if d > t2:
+                impeached_d = d
+                break
+            u = _hamm00_chk(z - 1)                                  # 553 (int route)
+            u = _hamm00_chk(u * p1)
+            x = _hamm00_chk(d * 100)
+            x = _hamm00_chk(x // p)                                 # VARIABLE divisor
+            u = _hamm00_chk(u + x)
+            p1n = _hamm00_chk(u // z)
+            p1f = ((z - 1) * p1 + d * 100 / p) / z
+            assert abs(p1f - p1n) < 2.0, (p1f, p1n)                 # declared int adaptation
+            p1 = p1n
+            d1 = _hamm00_chk(d1 + d)
+            p = c
+        self.p, self.a, self.s, self.p1, self.d1, self.z = p, a, s, p1, d1, z
+        if impeached_d is not None:
+            self.verdict = "impeached-year%d" % z
+            self.skip()                                             # 560
+            self.put("YOU STARVED", impeached_d, "PEOPLE IN ONE YEAR!!!")
+            self.skip()
+            self.fink()                                             # -> 565
+            self.bye()
+            return self
+        self.put("IN YOUR 10-YEAR TERM OF OFFICE,", p1, "PERCENT OF THE")   # 860
+        self.skip()
+        self.put("POPULATION STARVED PER YEAR ON THE AVERAGE,",
+                 " I.E. A TOTAL OF")                                 # 862 split pair
+        self.skip()
+        self.put(d1, "PEOPLE DIED!!")                                # 865
+        self.skip()
+        l = _hamm00_chk(a // p)                                      # VARIABLE divisor
+        self.l = l
+        self.put("YOU STARTED WITH 10 ACRES PER PERSON AND ENDED WITH")  # 870
+        self.skip()
+        self.put(l, "ACRES PER PERSON.")                             # 875
+        self.skip(); self.skip()
+        t3 = _hamm00_chk(p1 + 100)                                   # 880..896 ladder
+        t2 = _hamm00_chk(l + 100)
+        assert (t3 > 133) == (p1 > 33) and (t2 < 107) == (l < 7)
+        assert (t3 > 110) == (p1 > 10) and (t2 < 109) == (l < 9)
+        assert (t3 > 103) == (p1 > 3) and (t2 < 110) == (l < 10)
+        if t3 > 133 or t2 < 107:
+            self.verdict = "fink-ladder"
+            self.fink()                                              # 565 (no 560)
+            self.bye()
+        elif t3 > 110 or t2 < 109:
+            self.verdict = "nero"                                    # 940
+            self.put("YOUR HEAVY-HANDED PERFORMANCE SMACKS",
+                     " OF NERO AND IVAN IV.")
+            self.skip()
+            self.put("THE PEOPLE (REMAINING) FIND YOU AN",
+                     " UNPLEASANT RULER, AND,")
+            self.skip()
+            self.put("FRANKLY, HATE YOUR GUTS!!")
+            self.skip()
+            self.bye()
+        elif t3 > 103 or t2 < 110:
+            self.verdict = "not-too-bad"                             # 960
+            self.put("YOUR PERFORMANCE COULD HAVE BEEN SOMEWHAT BETTER, BUT")
+            self.skip()
+            r = self.draw(10)                                        # 965 extra draw
+            n = _hamm00_chk(p * 8)
+            n = _hamm00_chk(n * r)
+            n = _hamm00_chk(n // 100)
+            self.n965 = n
+            self.put("REALLY WAS NOT TOO BAD AT ALL.", n, "PEOPLE")
+            self.skip()
+            self.put("WOULD DEARLY LIKE TO SEE YOU ASSASSINATED BUT",
+                     " WE ALL HAVE OUR")                             # 970 split pair
+            self.skip()
+            self.put("TRIVIAL PROBLEMS.")                            # 975
+            self.skip()
+            self.bye()
+        else:
+            self.verdict = "fantastic"                               # 900
+            self.put("A FANTASTIC PERFORMANCE!!!  CHARLEMANGE, DISRAELI, AND")
+            self.skip()
+            self.put("JEFFERSON COMBINED COULD NOT HAVE DONE BETTER!")
+            self.skip()
+            self.bye()
+        return self
+
+
+def _hamm00_exercise_compile_only():
+    """Compile-only branches under the fixed 46-value script (bad:/imp:/fink:/
+    nero:/fantastic/) are NOT taken by the spine; their emitted TEXTS and the
+    whole-bin15 +100 ladder equivalence are verified here so a future change to
+    those statements is still judged.  Deterministic; contributes nothing to the
+    derived stream."""
+    # bad: + bye:
+    pb = _Hamm00Port([], emit=True)
+    pb.bad()
+    assert _hamm00_finalize(pb.raw) == [
+        "", "HAMURABI: I CANNOT DO WHAT YOU WISH.",
+        "GET YOURSELF ANOTHER STEWARD!!!!!", "", "SO LONG FOR NOW.", "", ""]
+    # imp: + fink: + bye: (synthetic d -- mid-game impeachment path)
+    pi = _Hamm00Port([], emit=True)
+    pi.skip()
+    pi.put("YOU STARVED", 12, "PEOPLE IN ONE YEAR!!!")
+    pi.skip()
+    pi.fink()
+    pi.bye()
+    assert _hamm00_finalize(pi.raw) == [
+        "", "YOU STARVED 12 PEOPLE IN ONE YEAR!!!",
+        "DUE TO THIS EXTREME MISMANAGEMENT YOU HAVE NOT ONLY",
+        "BEEN IMPEACHED AND THROWN OUT OF OFFICE BUT YOU HAVE",
+        "ALSO BEEN DECLARED NATIONAL FINK!!!!", "", "SO LONG FOR NOW.", "", ""]
+    # ladder rungs: port +100 form vs BASIC form, EXHAUSTIVE over the domain
+    # the spine's verdicts can reach (p1, l are 0..119-sized percentages here)
+    for p1 in range(0, 120):
+        for l in range(0, 120):
+            port = ("fink" if (p1 + 100 > 133 or l + 100 < 107) else
+                    "nero" if (p1 + 100 > 110 or l + 100 < 109) else
+                    "mbad" if (p1 + 100 > 103 or l + 100 < 110) else "fantastic")
+            basic = ("fink" if p1 > 33 or l < 7 else
+                     "nero" if p1 > 10 or l < 9 else
+                     "mbad" if p1 > 3 or l < 10 else "fantastic")
+            assert port == basic
+
+
+def hamm00():
+    """HAMM-00: the complete normalized console stream (collapse-spaces-v1) of the
+    adapted Hammurabi program for the declared starts P=95, S=1500, H=900,
+    E=H-S=-600 (NEGATIVE, declared), Y=3, A=300, I=5, Q=1, GG=2 and the 46-value
+    GET script.  Derived, never captured (L3)."""
+    _hamm00_exercise_compile_only()
+    port = _Hamm00Port(HAMM00_SCRIPT).run()
+    assert not port.script and port.nget == 46      # script consumed exactly
+    # spine outcome (hop-4 measured plan)
+    assert port.verdict == "not-too-bad"
+    assert port.p1 == 7 and port.l == 10 and port.d1 == 41 and port.s == 1928
+    assert (port.plague_years, port.skip_years, port.starve_years) == (5, 1, 2)
+    assert port.rats_years >= 1
+    lines = _hamm00_finalize(port.raw)
+    assert len(lines) == 211, len(lines)
+    # the two split-literal seams normalize to the single-literal texts (hop-5 law)
+    assert ("POPULATION STARVED PER YEAR ON THE AVERAGE, I.E. A TOTAL OF" in lines
+            and "WOULD DEARLY LIKE TO SEE YOU ASSASSINATED BUT WE ALL HAVE OUR" in lines)
+    assert lines[0] == "" and lines[-1] == ""       # [C352] framing both ends
+    return lines
+
+
 DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
                "flt00": flt00, "tab02": tab02,
                "builtin00": builtin00, "strcat00": strcat00, "cond00": cond00,
                "dec01": dec01, "flt01": flt01, "edit00": edit00,
-               "wkday00": wkday00,
+               "wkday00": wkday00, "hamm00": hamm00,
                "fx00": fx00, "fx01": fx01}
 
 
