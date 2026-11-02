@@ -272,6 +272,19 @@ build/fc01/corp4` ACTUALS verbatim -> docs/functional-results.md § 9 + § 1 row
 `python3 tools/e2e_gate.py` compile tier -> explicit-path commit (never `handoff.config.json`);
 no push; ledger ends C352; no ocaml/harness changes; third-party bytes never tracked.
 
+## AMAZ-00 IMPLEMENTATION IN FLIGHT — committed INCOMPLETE (2026-11-02, operator checkpoint instruction; renewal 2/12)
+
+Pinned `spec/functional/tests/AMAZ-00.PLI` (sha `0c0abfab…`, 7327 B, CRLF+^Z, <=71,
+apostrophe-free; scratch-compile rc=0, 5760 B) + `reference.py:_Amaz00Port`/`amaz00()`
+(derivation == independent simulator, BYTE-EQUAL 18 lines; all maze invariants PASS:
+C=17, permutation, entrance col 1, z=1, 980 fired, 1011..1014 UNREACHED, bottom gap
+[3], connectivity). FALSIFIED since hop start: entrance is column 1 (sim reporting bug);
+framing is 8 leading blanks + 1 trailing (not 4/none). NOTHING run on lane B; NO JSON
+yet; NO PASS claimed. EXACT NEXT (steps 1-6: JSON -> source,derivation -> lane B corp6
+-> docs sec 11 -> gate -> explicit-path commit) in `PROGRESS.md` -> Next action and
+`LEARNINGS.md` 2026-11-02 AMAZ-00 implementation hop. Constraints unchanged; ledger
+ends C352; operator handoff.config.json untouched/unstaged; no push.
+
 ## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-framing→fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json` — renewals AVAILABLE on the continuation chain (operator reset 2026-11-03); use `handoff_renew`, not terminal finalization. **WKDAY-00 DONE — rev3 lane-B PASS
 (2026-11-03; docs § 8, evidence build/fc01/corp1..corp3).** Program 2 (Hammurabi → `HAMM-00`):
 **rev1 RECORDED 2026-11-03** (hops 2–7, this chain; started as the implementation hop at
@@ -426,25 +439,22 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 179
-checkpoint-id: g179-ec6bb05dadbe
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~11259, session 01a19d75-d211-727a-91c8-56d89ecea4c5)
-checkpointed: 2026-11-02T18:34:51.494Z
+checkpoint-generation: 181
+checkpoint-id: g181-d01adc749de3
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~2957, session 01a19d8b-9c43-727a-91c8-56dddf34a6ca)
+checkpointed: 2026-11-02T21:12:15.321Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 4bcd695ad6dd7184501a89ac8252ab7a110492e21f44165ccdbf19b24d4b70cb
 source-handoff: ed877a004514f868b1a592c7d1122c094a0dd5febb9376d46ff73f37a395a74c
-source-learnings: ab222886a9e503e10e7d3537806cf31c4338ed21e5ee593788445b07ee805c6d
+source-learnings: aeee173d6240fb9850ade1f373368f5aee994f854ed1ac4d7d13a6f8502ddc79
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19d75-d211-727a-91c8-56d89ecea4c5
-readiness-at: 2026-11-02T18:34:51.501Z
-readiness-checkpoint: g179-ec6bb05dadbe
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

@@ -167,7 +167,35 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-AMAZ-00 (program 4, Amazing maze, BASIC) — LISTING READ this boundary (143 lines, sha
+AMAZ-00 IMPLEMENTATION IN FLIGHT (2026-11-02, renewal 2/12; committed INCOMPLETE by
+operator instruction; NO lane run, NO JSON, NOTHING claimed PASS). DONE+VERIFIED:
+`spec/functional/tests/AMAZ-00.PLI` pinned (sha256 0c0abfab0a728861e808a175982530669e9feb99d342b016f84d6d51c9430c9d,
+7327 B, 338 lines, CRLF+bare ^Z, <=71 cols, apostrophe-free, single-item puts; compiles
+rc=0 5760 B code=3166 data=58); `reference.py:_Amaz00Port`/`amaz00()` + DERIVATIONS
+registered; derivation diffed against instrumented scratch simulator: BYTE-EQUAL, 18
+lines (8 x "", ". .-- .-- .-- .", 4x(cell,wall), ""); all invariants pass (C=17,
+permutation, entrance col 1 (FALSIFIED: earlier 'col 2' was a sim reporting bug), z=1,
+n980=1, 1011..1014 UNREACHED, bottom gap [3], connectivity BFS; 12 draws, gg<=885).
+FALSIFIED also: '4 leading blanks/no trailing' -> 8 leading + 1 trailing [C352].
+MEASURED my-compiler refusals (port-shape, NOT DR claims): member-in-condition refuses;
+subscripts must be simple var or var+1 [C159] (w(b-4)/w(b+4) refuse; b2 temps used).
+NEXT (successor): (1) AMAZ-00.json (schema pli80-functional/1, link_target AMAZ00, sha
+pin above, console_input "^Z", expected 18 lines, derivation reference.py:amaz00,
+collapse-spaces-v1, limits as HANG-00, capabilities grep-verified SUPPORTED/dr=ACCEPTS
+candidates DECL.FIXED_BIN15 AGG.ARRAY_1D_FIXED LOOP.DO_TO_BY IO.PUT_LIST_FIXED
+IO.PUT_SKIP EXPR.REL_FIXED_EQ_K EXPR.SELF_ADD_LADDER TRAN.GOTO_SAME_BLOCK; notes =
+removal/substitution list incl. banner dropped, dimension INPUT dropped H=V=4 declared,
+flat arrays (AGG.MULTIDIM refused), gg*37+11 literal-divisor draws 4/3/2 seed 0, ON-GOTO
+-> ladders, <>0->scalar-temps, separator adaptation, exit-branch unreached).
+(2) functional_runner --stages source,derivation --tests AMAZ-00. (3) lane B
+--evidence build/fc01/corp6 (+corp6-double if PASS), ACTUALS verbatim, FAIL stays
+classified. (4) docs/functional-results.md sec 11 + sec 1 row. (5) e2e_gate compile
+tier. (6) explicit-path commit (never handoff.config.json; no push). Then TICT-00,
+LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00. No ocaml/harness changes; ledger
+ends C352; third-party bytes never tracked. Full record: LEARNINGS.md 2026-11-02
+AMAZ-00 implementation hop.
+
+SUPERSEDED-BY-ABOVE (kept as written): AMAZ-00 hop-start: LISTING READ (143 lines, sha this boundary (143 lines, sha
 `3f6fa3f2…` verified; full analysis + PROPOSED design in `LEARNINGS.md` § "AMAZ-00 hop start"
 — READ IT FIRST; operator directive: execute pragmatically, prioritize a completed adaptation
 over preparatory analysis; never alter program/expectation to obtain a PASS). TWO corrections
@@ -693,17 +721,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 179
-checkpoint-id: g179-ec6bb05dadbe
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-11-02T18:34:51.494Z
+checkpoint-generation: 181
+checkpoint-id: g181-d01adc749de3
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-02T21:12:15.321Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 4bcd695ad6dd7184501a89ac8252ab7a110492e21f44165ccdbf19b24d4b70cb
 source-handoff: ed877a004514f868b1a592c7d1122c094a0dd5febb9376d46ff73f37a395a74c
-source-learnings: ab222886a9e503e10e7d3537806cf31c4338ed21e5ee593788445b07ee805c6d
+source-learnings: aeee173d6240fb9850ade1f373368f5aee994f854ed1ac4d7d13a6f8502ddc79
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -727,9 +755,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19d75-d211-727a-91c8-56d89ecea4c5
-readiness-at: 2026-11-02T18:34:51.501Z
-readiness-checkpoint: g179-ec6bb05dadbe
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -3116,3 +3116,42 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   not steps, governs on cpmsim; RUN stage is not correctness per harness L2).
 - STATE: nothing tracked authored yet for AMAZ-00 (no .PLI, no .json, no reference.py amaz00);
   no simulator written; no lane run; ledger ends C352; HANG-00 landed PASS at commit `e72873a`.
+
+## 2026-11-02 — FC-01 CORPUS AMAZ-00 implementation hop (draft PINNED, reference ADDED; diff/JSON/lane B OWED)
+
+- ACCEPTED (measured from the listing, line 250): `IF W(R,S)=0 THEN 210` means an
+  UNVISITED cell KEEPS the scan going; the walk RESUMES at the next VISITED cell.
+  FALSIFIED: the hop-start reading "scan finds the next unvisited cell".
+- MEASURED (scratch `build/fc01-scratch/amaz00_sim.py`, instrumented label state
+  machine + independent maze invariants): draw `(gg*37+11) mod k + 1` has period 12
+  over residues mod 12 => exactly 12 distinct mazes per grid; for H=V=4 and every
+  gg0 in 0..885 (and 5x4/4x5/6x4 sweep to 400) the walk ALWAYS ends with `z=1` —
+  the 960 quirk fires first, so 1011..1014 (exit-open draw) is UNREACHED; the
+  bottom-border exit gap comes from 980 (code-0 stuck cell -> 1) or 975 (stuck ->
+  3). gg0=0 chosen: 37/37 labels covered, entrance X=2 (interior), gap at column 3,
+  12 draws total, gg_final=12, termination via mv910's 950 check on the 16th visit,
+  n980=1/n975=0. All mazes: C ends at 17, w a permutation of 1..16, vv in {0..3},
+  BFS from entrance reaches all 16 cells (asserted in sim AND reference).
+- FALSIFIED (hop-start design): "4 leading blanks" — BASIC 30 has 4 PRINTs AND
+  120/130/140/150 four more => 8 bare `put skip;` => expectation STARTS with 8 "";
+  and the final `PRINT "."` (1071) CLOSES its line, so the exit CRLF [C352] yields
+  a TRAILING "" line (MATH-00 precedent). 18 lines total for gg0=0 (189 raw bytes).
+- MEASURED shape law (my compiler, scratch pre-compiles; NOT DR claims): a
+  condition may not contain a member reference — `if w(b) = 0` refuses
+  `codegen: condition form not in E2E-3b subset`; must load `t1 = w(b2);` first
+  (HIST-00 member->scalar pattern, now measured for the = 0 test too).
+  Subscripts: only simple variable or variable+1 [C159] — `w(b-4)`, `w(b+4)`,
+  `w(b-1)` REFUSE; `w(b+1)` and `w(b2)` after `b2 = b - 4;` are fine. Adjacent
+  labels and label-before-END compile. `if cond then put list(a); else put list(b);`
+  is the measured WKDAY-00/MATH-00 form and compiles inside DOs; the BASIC
+  `IF V=0 THEN .. ELSE ..` vv-updates are ported with the DEFAULT-STORE +
+  conditional-overwrite form (`vv(b)=3; if t1=0 then vv(b)=2;`) avoiding else.
+- PINNED: `spec/functional/tests/AMAZ-00.PLI` CRLF+bare ^Z, 338 lines, widest <=71,
+  every literal apostrophe-free, every put single-item; sha256
+  `0c0abfab0a728861e808a175982530669e9feb99d342b016f84d6d51c9430c9d` (7327 B);
+  pinned file compiles rc=0 to 5760 B (code=3166 data=58) — same object as the
+  scratch draft. Flat layout idx(r,s) = (r-1)*4 + s (r = BASIC column 1..4,
+  s = BASIC row 1..4; moves L=-4,U=-1,R=+4,D=+1 via b2).
+- ADDED (unverified yet): `reference.py:_Amaz00Port` statement-for-statement
+  mirror + `amaz00()` + DERIVATIONS entry — NOT yet diffed against the simulator,
+  no JSON, no `--stages source,derivation`, no lane B run.

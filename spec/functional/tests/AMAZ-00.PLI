@@ -1,0 +1,339 @@
+/* AMAZ-00 - FC-01 corpus adaptation, 2026-11-02.           */
+/* Original: BASIC "AMAZING PROGRAM", Creative Computing     */
+/* MORRISTOWN NJ.  Research copy: build/functional/          */
+/* fc01-sources/basic/AMAZING.bas (upstream                  */
+/* coding-horror/basic-computer-games 02_Amazing,            */
+/* amazing.bas sha256 3f6fa3f2..., licence UNVERIFIED).      */
+/* ADAPTATION (full removal/substitution list is in          */
+/* AMAZ-00.json notes): the TAB(28)/TAB(15) banner (10/20)   */
+/* is dropped; the dimension INPUT (100) and the             */
+/* MEANINGLESS-DIMENSIONS retry (102-104) are dropped and    */
+/* H=4, V=4 are DECLARED literals; the 2-D arrays W(H,V),    */
+/* V(H,V) are flattened to w(16)/vv(16), index (r-1)*4+s     */
+/* (AGG.MULTIDIM is a pinned refusal); every RND draw        */
+/* becomes the declared integer draw gg = gg + 1;            */
+/* t1 = gg*37 + 11 with LITERAL divisors 4/3/2 (variable     */
+/* DIV is measured refused); ON X GOTO became if ladders;    */
+/* the <>0 visited tests are rewritten with the measured     */
+/* = 0 shape (ordered compare with constant 0 is refused);   */
+/* the walk is a flat goto state machine keeping the BASIC   */
+/* line numbers in the label names; the print phase (1015)   */
+/* uses DO TO loops with if/else PUTs.  Under the MEASURED   */
+/* PUT LIST leading-blank separator law the border, cell     */
+/* and wall rows render SPACE-separated (declared            */
+/* adaptation; the wall structure I vs blank and :-- vs :    */
+/* survives the collapse).  Expected stream:                 */
+/* reference.py:amaz00, derived, never captured.             */
+amazo0: procedure options(main);
+  declare (r, s, x, c, q, z, i, j, b, b2, t1, gg) fixed bin(15);
+  declare w(16) fixed bin(15);
+  declare vv(16) fixed bin(15);
+  put skip;
+  put skip;
+  put skip;
+  put skip;
+  put skip;
+  put skip;
+  put skip;
+  put skip;
+  gg = 0;
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 4) * 4 + 1;
+  do i = 1 to 4;
+     if i = x then put list('.  ');
+     else put list('.--');
+  end;
+  put list('.');
+  put skip;
+  c = 1;
+  b = (x - 1) * 4 + 1;
+  w(b) = c;
+  c = c + 1;
+  r = x;
+  s = 1;
+  goto l260;
+l210:
+  if r < 4 then goto l240;
+  if s < 4 then goto l230;
+  r = 1;
+  s = 1;
+  goto l250;
+l230:
+  r = 1;
+  s = s + 1;
+  goto l250;
+l240:
+  r = r + 1;
+l250:
+  b = (r - 1) * 4 + s;
+  t1 = w(b);
+  if t1 = 0 then goto l210;
+l260:
+  if r = 1 then goto l530;
+  b2 = b - 4;
+  t1 = w(b2);
+  if t1 = 0 then goto l270;
+  goto l530;
+l270:
+  if s = 1 then goto l390;
+  b2 = b - 1;
+  t1 = w(b2);
+  if t1 = 0 then goto l290;
+  goto l390;
+l290:
+  if r = 4 then goto l330;
+  b2 = b + 4;
+  t1 = w(b2);
+  if t1 = 0 then goto l310;
+  goto l330;
+l310:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 3) * 3 + 1;
+  if x = 1 then goto mv790;
+  if x = 2 then goto mv820;
+  goto mv860;
+l330:
+  if s < 4 then goto l340;
+  if z = 1 then goto l370;
+  q = 1;
+  goto l350;
+l340:
+  t1 = w(b + 1);
+  if t1 = 0 then goto l350;
+  goto l370;
+l350:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 3) * 3 + 1;
+  if x = 1 then goto mv790;
+  if x = 2 then goto mv820;
+  goto mv910;
+l370:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 2) * 2 + 1;
+  if x = 1 then goto mv790;
+  goto mv820;
+l390:
+  if r = 4 then goto l470;
+  b2 = b + 4;
+  t1 = w(b2);
+  if t1 = 0 then goto l405;
+  goto l470;
+l405:
+  if s < 4 then goto l420;
+  if z = 1 then goto l450;
+  q = 1;
+  goto l430;
+l420:
+  t1 = w(b + 1);
+  if t1 = 0 then goto l430;
+  goto l450;
+l430:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 3) * 3 + 1;
+  if x = 1 then goto mv790;
+  if x = 2 then goto mv860;
+  goto mv910;
+l450:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 2) * 2 + 1;
+  if x = 1 then goto mv790;
+  goto mv860;
+l470:
+  if s < 4 then goto l490;
+  if z = 1 then goto l520;
+  q = 1;
+  goto l500;
+l490:
+  t1 = w(b + 1);
+  if t1 = 0 then goto l500;
+  goto l520;
+l500:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 2) * 2 + 1;
+  if x = 1 then goto mv790;
+  goto mv910;
+l520:
+  goto mv790;
+l530:
+  if s = 1 then goto l670;
+  b2 = b - 1;
+  t1 = w(b2);
+  if t1 = 0 then goto l545;
+  goto l670;
+l545:
+  if r = 4 then goto l610;
+  b2 = b + 4;
+  t1 = w(b2);
+  if t1 = 0 then goto l550;
+  goto l610;
+l550:
+  if s < 4 then goto l560;
+  if z = 1 then goto l590;
+  q = 1;
+  goto l570;
+l560:
+  t1 = w(b + 1);
+  if t1 = 0 then goto l570;
+  goto l590;
+l570:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 3) * 3 + 1;
+  if x = 1 then goto mv820;
+  if x = 2 then goto mv860;
+  goto mv910;
+l590:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 2) * 2 + 1;
+  if x = 1 then goto mv820;
+  goto mv860;
+l610:
+  if s < 4 then goto l630;
+  if z = 1 then goto l660;
+  q = 1;
+  goto l640;
+l630:
+  t1 = w(b + 1);
+  if t1 = 0 then goto l640;
+  goto l660;
+l640:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 2) * 2 + 1;
+  if x = 1 then goto mv820;
+  goto mv910;
+l660:
+  goto mv820;
+l670:
+  if r = 4 then goto l740;
+  b2 = b + 4;
+  t1 = w(b2);
+  if t1 = 0 then goto l685;
+  goto l740;
+l685:
+  if s < 4 then goto l700;
+  if z = 1 then goto l730;
+  q = 1;
+  goto l710;
+l700:
+  t1 = w(b + 1);
+  if t1 = 0 then goto l710;
+  goto l730;
+l710:
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 2) * 2 + 1;
+  if x = 1 then goto mv860;
+  goto mv910;
+l730:
+  goto mv860;
+l740:
+  if s < 4 then goto l760;
+  if z = 1 then goto l780;
+  q = 1;
+  goto l770;
+l760:
+  t1 = w(b + 1);
+  if t1 = 0 then goto l770;
+  goto l780;
+l770:
+  goto mv910;
+l780:
+  goto l1000;
+mv790:
+  b = (r - 1) * 4 + s - 4;
+  w(b) = c;
+  c = c + 1;
+  vv(b) = 2;
+  r = r - 1;
+  if c = 17 then goto l1010;
+  q = 0;
+  goto l260;
+mv820:
+  b = (r - 1) * 4 + s - 1;
+  w(b) = c;
+  c = c + 1;
+  vv(b) = 1;
+  s = s - 1;
+  if c = 17 then goto l1010;
+  q = 0;
+  goto l260;
+mv860:
+  b = (r - 1) * 4 + s;
+  b2 = b + 4;
+  w(b2) = c;
+  c = c + 1;
+  t1 = vv(b);
+  vv(b) = 3;
+  if t1 = 0 then vv(b) = 2;
+  r = r + 1;
+  b = b + 4;
+  if c = 17 then goto l1010;
+  goto l530;
+mv910:
+  if q = 1 then goto l960;
+  b = (r - 1) * 4 + s;
+  w(b + 1) = c;
+  c = c + 1;
+  t1 = vv(b);
+  vv(b) = 3;
+  if t1 = 0 then vv(b) = 1;
+  s = s + 1;
+  b = b + 1;
+  if c = 17 then goto l1010;
+  goto l260;
+l960:
+  z = 1;
+  b = (r - 1) * 4 + s;
+  t1 = vv(b);
+  if t1 = 0 then goto l980;
+  vv(b) = 3;
+  q = 0;
+  goto l1000;
+l980:
+  vv(b) = 1;
+  q = 0;
+  r = 1;
+  s = 1;
+  goto l250;
+l1000:
+  goto l210;
+l1010:
+  if z = 1 then goto l1015;
+  gg = gg + 1;
+  t1 = gg * 37 + 11;
+  x = t1 - (t1 / 4) * 4 + 1;
+  b = (x - 1) * 4 + 4;
+  t1 = vv(b);
+  vv(b) = 3;
+  if t1 = 0 then vv(b) = 1;
+l1015:
+  do j = 1 to 4;
+     put list('I');
+     do i = 1 to 4;
+        b = (i - 1) * 4 + j;
+        t1 = vv(b);
+        if t1 < 2 then put list('  I');
+        else put list('   ');
+     end;
+     put skip;
+     do i = 1 to 4;
+        b = (i - 1) * 4 + j;
+        t1 = vv(b);
+        t1 = t1 - (t1 / 2) * 2;
+        if t1 = 1 then put list(':  ');
+        else put list(':--');
+     end;
+     put list('.');
+     put skip;
+  end;
+end amazo0;
+

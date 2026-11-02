@@ -1095,6 +1095,475 @@ def hang00():
     return lines
 
 
+AMAZ00_GG0 = 0        # declared draw seed (RND substitution, see AMAZ-00.json)
+
+
+def _amaz00_finalize(raw):
+    norm = _hamm00_re.sub(rb" +", b" ",
+                          (raw + "\r\n").encode().replace(b"\r\n", b"\n")).decode()
+    lines = norm.split("\n")
+    if lines and lines[-1] == "":
+        lines = lines[:-1]
+    return lines
+
+
+class _Amaz00Port:
+    """Statement-for-statement mirror of AMAZ-00.PLI: same labels (l210..l1015,
+    mv790..mv910), same order, same temps (b, b2, t1), same default-store vv
+    rewrites, same b bookkeeping at mv860/mv910.  Byte model per the measured
+    laws (README section 6 + hop-2 separator law + [C352] framing): PUT SKIP
+    emits "\r\n"; a single-item PUT LIST is preceded by ONE blank unless it is
+    the first item printed since the last line start; program exit appends
+    exactly one "\r\n"; collapse-spaces-v1 then split with ONE trailing empty
+    dropped.  Pure PUT program: no GET, no echo."""
+
+    def __init__(self, gg0=AMAZ00_GG0):
+        self.raw = ""
+        self.gg = gg0
+        self.ndraw = 0
+        self.w = [0] * 17
+        self.vv = [0] * 17
+        self.n960 = 0
+        self.n980 = 0
+        self.n975 = 0
+        self.exit_exec = False      # did 1011..1014 run?  (z == 0 path)
+        self.steps = 0
+
+    def skip(self):
+        self.raw += "\r\n"                        # put skip;
+
+    def put(self, item):
+        if self.raw and not self.raw.endswith("\r\n"):
+            self.raw += " "                       # measured leading-separator law
+        self.raw += item                          # put list(item);
+
+    def draw(self, k):
+        # gg = gg + 1; t1 = gg * 37 + 11; x = t1 - (t1 / k) * k + 1  (k literal)
+        self.gg += 1
+        self.ndraw += 1
+        assert self.gg <= 885, "draw past the bin15 headroom guard"
+        t = self.gg * 37 + 11
+        assert 0 <= t <= 32767, "gg*37+11 overflows fixed bin(15)"
+        return t % k + 1
+
+    def run(self):
+        w, vv = self.w, self.vv
+        for _ in range(8):                        # eight bare PUT SKIPs
+            self.skip()                           # (BASIC 30 x4 + 120..150 x4)
+        gg = self.gg
+        x = q = z = 0
+        gg += 1
+        t1 = gg * 37 + 11
+        x = t1 - (t1 // 4) * 4 + 1                # 160 entrance column
+        self.ndraw += 1
+        assert 0 <= t1 <= 32767
+        entrance = x
+        for i in range(1, 5):                     # 165..190 top border
+            if i == x:
+                self.put(".  ")
+            else:
+                self.put(".--")
+        self.put(".")
+        self.skip()                               # 190 PRINT "."
+        c = 1                                     # 195
+        b = (x - 1) * 4 + 1
+        w[b] = c
+        c += 1
+        r = x                                     # 200
+        s = 1
+        lab = "l260"
+        while lab != "l1015":
+            self.steps += 1
+            assert self.steps < 100000, "walk did not terminate"
+            if lab == "l210":                     # 210..220
+                if r < 4:
+                    lab = "l240"
+                elif s < 4:
+                    lab = "l230"
+                else:
+                    r, s = 1, 1
+                    lab = "l250"
+            elif lab == "l230":                   # 230
+                r, s = 1, s + 1
+                lab = "l250"
+            elif lab == "l240":                   # 240
+                r = r + 1
+                lab = "l250"
+            elif lab == "l250":                   # 250
+                b = (r - 1) * 4 + s
+                t1 = w[b]
+                lab = "l210" if t1 == 0 else "l260"
+            elif lab == "l260":                   # 260..265
+                if r == 1:
+                    lab = "l530"
+                else:
+                    b2 = b - 4
+                    t1 = w[b2]
+                    lab = "l270" if t1 == 0 else "l530"
+            elif lab == "l270":                   # 270..280
+                if s == 1:
+                    lab = "l390"
+                else:
+                    b2 = b - 1
+                    t1 = w[b2]
+                    lab = "l290" if t1 == 0 else "l390"
+            elif lab == "l290":                   # 290..320
+                if r == 4:
+                    lab = "l330"
+                else:
+                    b2 = b + 4
+                    t1 = w[b2]
+                    if t1 == 0:
+                        gg += 1
+                        self.ndraw += 1
+                        t1 = gg * 37 + 11
+                        assert 0 <= t1 <= 32767
+                        x = t1 - (t1 // 3) * 3 + 1
+                        lab = "mv790" if x == 1 else ("mv820" if x == 2 else "mv860")
+                    else:
+                        lab = "l330"
+            elif lab == "l330":                   # 330..338
+                if s < 4:
+                    lab = "l340"
+                elif z == 1:
+                    lab = "l370"
+                else:
+                    q = 1
+                    lab = "l350"
+            elif lab == "l340":                   # 340
+                t1 = w[b + 1]
+                lab = "l350" if t1 == 0 else "l370"
+            elif lab == "l350":                   # 350..360
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 3) * 3 + 1
+                lab = "mv790" if x == 1 else ("mv820" if x == 2 else "mv910")
+            elif lab == "l370":                   # 370..380
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 2) * 2 + 1
+                lab = "mv790" if x == 1 else "mv820"
+            elif lab == "l390":                   # 390..400
+                if r == 4:
+                    lab = "l470"
+                else:
+                    b2 = b + 4
+                    t1 = w[b2]
+                    lab = "l405" if t1 == 0 else "l470"
+            elif lab == "l405":                   # 405..415
+                if s < 4:
+                    lab = "l420"
+                elif z == 1:
+                    lab = "l450"
+                else:
+                    q = 1
+                    lab = "l430"
+            elif lab == "l420":                   # 420
+                t1 = w[b + 1]
+                lab = "l430" if t1 == 0 else "l450"
+            elif lab == "l430":                   # 430..440
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 3) * 3 + 1
+                lab = "mv790" if x == 1 else ("mv860" if x == 2 else "mv910")
+            elif lab == "l450":                   # 450..460
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 2) * 2 + 1
+                lab = "mv790" if x == 1 else "mv860"
+            elif lab == "l470":                   # 470..485
+                if s < 4:
+                    lab = "l490"
+                elif z == 1:
+                    lab = "l520"
+                else:
+                    q = 1
+                    lab = "l500"
+            elif lab == "l490":                   # 490
+                t1 = w[b + 1]
+                lab = "l500" if t1 == 0 else "l520"
+            elif lab == "l500":                   # 500..510
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 2) * 2 + 1
+                lab = "mv790" if x == 1 else "mv910"
+            elif lab == "l520":                   # 520
+                lab = "mv790"
+            elif lab == "l530":                   # 530..540
+                if s == 1:
+                    lab = "l670"
+                else:
+                    b2 = b - 1
+                    t1 = w[b2]
+                    lab = "l545" if t1 == 0 else "l670"
+            elif lab == "l545":                   # 545..547
+                if r == 4:
+                    lab = "l610"
+                else:
+                    b2 = b + 4
+                    t1 = w[b2]
+                    lab = "l550" if t1 == 0 else "l610"
+            elif lab == "l550":                   # 550..554
+                if s < 4:
+                    lab = "l560"
+                elif z == 1:
+                    lab = "l590"
+                else:
+                    q = 1
+                    lab = "l570"
+            elif lab == "l560":                   # 560
+                t1 = w[b + 1]
+                lab = "l570" if t1 == 0 else "l590"
+            elif lab == "l570":                   # 570..580
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 3) * 3 + 1
+                lab = "mv820" if x == 1 else ("mv860" if x == 2 else "mv910")
+            elif lab == "l590":                   # 590..600
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 2) * 2 + 1
+                lab = "mv820" if x == 1 else "mv860"
+            elif lab == "l610":                   # 610..625
+                if s < 4:
+                    lab = "l630"
+                elif z == 1:
+                    lab = "l660"
+                else:
+                    q = 1
+                    lab = "l640"
+            elif lab == "l630":                   # 630
+                t1 = w[b + 1]
+                lab = "l640" if t1 == 0 else "l660"
+            elif lab == "l640":                   # 640..650
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 2) * 2 + 1
+                lab = "mv820" if x == 1 else "mv910"
+            elif lab == "l660":                   # 660
+                lab = "mv820"
+            elif lab == "l670":                   # 670..680
+                if r == 4:
+                    lab = "l740"
+                else:
+                    b2 = b + 4
+                    t1 = w[b2]
+                    lab = "l685" if t1 == 0 else "l740"
+            elif lab == "l685":                   # 685..695
+                if s < 4:
+                    lab = "l700"
+                elif z == 1:
+                    lab = "l730"
+                else:
+                    q = 1
+                    lab = "l710"
+            elif lab == "l700":                   # 700
+                t1 = w[b + 1]
+                lab = "l710" if t1 == 0 else "l730"
+            elif lab == "l710":                   # 710..720
+                gg += 1
+                self.ndraw += 1
+                t1 = gg * 37 + 11
+                assert 0 <= t1 <= 32767
+                x = t1 - (t1 // 2) * 2 + 1
+                lab = "mv860" if x == 1 else "mv910"
+            elif lab == "l730":                   # 730
+                lab = "mv860"
+            elif lab == "l740":                   # 740..755
+                if s < 4:
+                    lab = "l760"
+                elif z == 1:
+                    lab = "l780"
+                else:
+                    q = 1
+                    lab = "l770"
+            elif lab == "l760":                   # 760
+                t1 = w[b + 1]
+                lab = "l770" if t1 == 0 else "l780"
+            elif lab == "l770":                   # 770
+                lab = "mv910"
+            elif lab == "l780":                   # 780
+                lab = "l1000"
+            elif lab == "mv790":                  # 790..815 (one column LEFT)
+                b = (r - 1) * 4 + s - 4
+                w[b] = c
+                c += 1
+                vv[b] = 2
+                r = r - 1
+                if c == 17:
+                    lab = "l1010"
+                else:
+                    q = 0
+                    lab = "l260"
+            elif lab == "mv820":                  # 820..850 (one row UP)
+                b = (r - 1) * 4 + s - 1
+                w[b] = c
+                c += 1
+                vv[b] = 1
+                s = s - 1
+                if c == 17:
+                    lab = "l1010"
+                else:
+                    q = 0
+                    lab = "l260"
+            elif lab == "mv860":                  # 860..905 (one column RIGHT)
+                b = (r - 1) * 4 + s
+                b2 = b + 4
+                w[b2] = c
+                c += 1
+                t1 = vv[b]
+                vv[b] = 3                         # default store (no else form needed)
+                if t1 == 0:
+                    vv[b] = 2
+                r = r + 1
+                b = b + 4
+                if c == 17:
+                    lab = "l1010"
+                else:
+                    lab = "l530"                  # 905: Q deliberately NOT reset
+            elif lab == "mv910":                  # 910..955 (one row DOWN)
+                if q == 1:
+                    lab = "l960"
+                else:
+                    b = (r - 1) * 4 + s
+                    w[b + 1] = c
+                    c += 1
+                    t1 = vv[b]
+                    vv[b] = 3
+                    if t1 == 0:
+                        vv[b] = 1
+                    s = s + 1
+                    b = b + 1
+                    if c == 17:
+                        lab = "l1010"
+                    else:
+                        lab = "l260"              # 955: Q NOT reset
+            elif lab == "l960":                   # 960..975
+                z = 1
+                b = (r - 1) * 4 + s
+                t1 = vv[b]
+                self.n960 += 1
+                if t1 == 0:
+                    lab = "l980"
+                else:
+                    self.n975 += 1
+                    vv[b] = 3
+                    q = 0
+                    lab = "l1000"
+            elif lab == "l980":                   # 980
+                self.n980 += 1
+                vv[b] = 1
+                q = 0
+                r, s = 1, 1
+                lab = "l250"
+            elif lab == "l1000":                  # 1000
+                lab = "l210"
+            elif lab == "l1010":                  # 1010..1014
+                if z == 1:
+                    lab = "l1015"
+                else:
+                    gg += 1
+                    self.ndraw += 1
+                    t1 = gg * 37 + 11
+                    assert 0 <= t1 <= 32767
+                    x = t1 - (t1 // 4) * 4 + 1
+                    b = (x - 1) * 4 + 4
+                    t1 = vv[b]
+                    vv[b] = 3
+                    if t1 == 0:
+                        vv[b] = 1
+                    self.exit_exec = True
+                    lab = "l1015"
+            else:                                 # fail closed on any typo
+                raise AssertionError("unknown label %r" % lab)
+        self.gg_final = gg
+        # 1015..1072 maze print (DO TO loops, if/else single-item PUTs)
+        for j in range(1, 5):
+            self.put("I")
+            for i in range(1, 5):
+                b = (i - 1) * 4 + j
+                t1 = vv[b]
+                if t1 < 2:
+                    self.put("  I")
+                else:
+                    self.put("   ")
+            self.skip()                           # 1041 PRINT
+            for i in range(1, 5):
+                b = (i - 1) * 4 + j
+                t1 = vv[b]
+                t1 = t1 - (t1 // 2) * 2           # vv mod 2 (literal divisor)
+                if t1 == 1:
+                    self.put(":  ")
+                else:
+                    self.put(":--")
+            self.put(".")                         # 1071 PRINT "."
+            self.skip()
+        self.entrance = entrance
+        self.c_end = c
+        self.z_end = z
+        return self
+
+
+def amaz00():
+    """AMAZ-00: the complete normalized console stream (collapse-spaces-v1) of
+    the adapted Amazing maze generator for the declared 4x4 grid and draw seed
+    gg0 = 0.  Derived from the declared design by a statement-for-statement
+    mirror of AMAZ-00.PLI, never captured (L3); the maze STRUCTURE is then
+    checked by independent invariants (visit permutation, wall-code domain,
+    connectivity BFS from the entrance, bottom exit gap) exactly as in the
+    ignored scratch simulator build/fc01-scratch/amaz00_sim.py."""
+    port = _Amaz00Port().run()
+    # ---- maze invariants (independent of the byte stream) ----
+    assert port.c_end == 17, "C ended at %d (must be H*V+1)" % port.c_end
+    assert sorted(port.w[1:]) == list(range(1, 17)), "visit order not a permutation"
+    for i in range(1, 17):
+        assert port.vv[i] in (0, 1, 2, 3), "wall code out of domain at %d" % i
+    assert port.ndraw == 12 and port.gg_final == 12
+    assert port.entrance == 1 and port.z_end == 1
+    assert port.n960 == 1 and port.n980 == 1 and port.n975 == 0
+    assert port.exit_exec is False      # 1011..1014 UNREACHED at this seed
+    # connectivity: right wall open iff vv >= 2; bottom wall open iff vv odd
+    def idx(r, s):
+        return (r - 1) * 4 + s
+    seen = {(port.entrance, 1)}
+    stack = [(port.entrance, 1)]
+    while stack:
+        rr, ss = stack.pop()
+        for a, bb, ok in ((rr + 1, ss, port.vv[idx(rr, ss)] >= 2 and rr < 4),
+                          (rr - 1, ss, port.vv[idx(rr - 1, ss)] >= 2 and rr > 1),
+                          (rr, ss + 1, port.vv[idx(rr, ss)] % 2 == 1 and ss < 4),
+                          (rr, ss - 1, port.vv[idx(rr, ss - 1)] % 2 == 1 and ss > 1)):
+            if ok and (a, bb) not in seen:
+                seen.add((a, bb))
+                stack.append((a, bb))
+    assert len(seen) == 16, "maze not connected: %d cells reached" % len(seen)
+    gaps = [r2 for r2 in range(1, 5) if port.vv[idx(r2, 4)] % 2 == 1]
+    assert gaps == [3], "bottom-border exit gaps %s" % gaps
+    # ---- stream framing (measured laws) ----
+    lines = _amaz00_finalize(port.raw)
+    assert lines[:8] == [""] * 8, "8 leading blank lines [C352]"
+    assert lines[8] == ". .-- .-- .-- ."          # entrance gap collapsed at col 1
+    assert lines[-1] == ""                        # final PUT SKIP + exit CRLF
+    assert len(lines) == 18, len(lines)
+    return lines
+
+
 DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
@@ -1102,6 +1571,7 @@ DERIVATIONS = {"table00": table00, "table01": table01,
                "builtin00": builtin00, "strcat00": strcat00, "cond00": cond00,
                "dec01": dec01, "flt01": flt01, "edit00": edit00,
                "wkday00": wkday00, "hamm00": hamm00, "hang00": hang00,
+               "amaz00": amaz00,
                "fx00": fx00, "fx01": fx01}
 
 
