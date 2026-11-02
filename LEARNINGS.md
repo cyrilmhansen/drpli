@@ -2315,3 +2315,62 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   `--stages source,derivation`, lane B `--evidence build/fc01/corp4`, docs § 9 + § 1 row, gate,
   explicit-path commit. Constraints unchanged (no ocaml, no harness edits, no push, ledger ends
   C352, third-party bytes never tracked).
+
+## 2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 2 (PUT-LIST separator measured from the stored capture; draw-residue analysis; simulator smoke falsifies the 1300 overclaim)
+
+- ACCEPTED (item-separator law, measured THIS hop by `od` on the stored PASS capture
+  `build/functional/20261102T002522Z/TABLE-00-*/lane-B/run.console.bin` + its source): items
+  inside ONE `PUT LIST` statement are joined by EXACTLY ONE blank emitted by PLILIB between
+  items (`'SUM='` (no leading space in the literal) + ' ' + 10-wide right-justified field
+  `        -1` + ' ' + `'POS='`); a numeric at LINE END has NO trailing blank before the
+  CRLF (`MAX=        12\r\n` — the SKIP emits CRLF directly). Fixed numeric = `%10d` + the
+  inter-item blank is what makes WKDAY's `'...SLEPT', i5, 'YEARS'` render "3 YEARS".
+  The byte simulator joins items with one blank accordingly; literal-literal adjacency stays
+  UNMEASURED and HAMM-00 deliberately uses no adjacent-literal PUT.
+- ACCEPTED (console_input sending convention, from `oracle/linkrun.py` INPUTS table +
+  `tools/functional_runner.py:_send_input`): each GET-consumed line ends with CR; the runner
+  maps spec `\r` -> `\\r`, `^Z` -> `\\x1a`. FLTPOLY2's note pins [C113]: a ^Z that must be
+  CONSUMED as EOF needs its own preceding CR — HAMM-00 never consumes ^Z (design rule), so
+  console_input = "".join(line+"\r" for each fed line) + "^Z" with the ^Z bare.
+  NETWORK's 9-entry script confirms multi-line numeric GET driving.
+- ACCEPTED (draw-residue analysis of the declared formula `w=gg*37+11`): 37 ≡ 2 (mod 5) so
+  v5 = (2·gg+1) mod 5 depends ONLY on gg mod 5; with EXACTLY FIVE draws per year (price,
+  yield, rats, births, plague — verified against the BASIC trace: every year, including a
+  550 skip-year, consumes all five before the skip test), each ROLE is locked to one residue
+  class for the whole game and the seed g0 picks them all: plague is EITHER every-other-year
+  (g0 mod 10 ∈ {0,2,3,5,7,8}) or NEVER (g0 ∈ {1,4,6,9} — v10 pair avoids {0,1,2}); the rats
+  draw is EVEN in every year iff g0 ≡ 3 or 4 (mod 5) (c2=2 or 4), ODD every year otherwise.
+  g0=3 gives rats c=2, yield 5, births c3=1 (bound 20a+s ≤ 32767 — generous), plague years
+  3,5,7,9, price alternating 26/21.
+- FALSIFIED (the design hop's requirement "≥1 EVEN rats draw — NOT year 1"): under the
+  fixed 5-draw cadence the rats residue is CONSTANT across all years — an even rats year is
+  either year 1 too or never; the only cadence break (965's extra RND) lands AFTER all
+  harvests. PROPOSED resolution: declare g0 ≡ 3 (mod 5) and accept rats-every-year (≥1 holds;
+  "not year 1" dropped as unachievable without inventing a draw cadence the original does not
+  have — recorded, not hidden). If the rats-every-year dynamics starve the game too hard,
+  g0 ≡ 4 (rats c=4, s/4 eaten) is the alternative residue.
+- FALSIFIED (design's overclaim figure "1300 at price 25" as a UNIVERSAL buy claim): with
+  seed g0=3 the price alternates 26/21; at y=26 the product 26*1300 = 33800 OVERFLOWS the
+  bin15 cell — caught by the simulator's chk() on the FIRST smoke run. Buy claims must
+  satisfy y*claim ≤ 32767 (claim ≤ floor(32767/y) ≈ 1260 at y=26); the simulator now bounds
+  every attempt through chk. Similarly the negative-guard shift form t=q+20000 needs the
+  LIVE q ≤ 12767 — asserted in get() for every fed value (script never feeds negatives).
+- ACCEPTED (structure facts for the port): the 880/885 summary ladder jumps to 565 which
+  prints ONLY the three FINK lines (560's YOU STARVED line belongs to the 552 in-game
+  impeachment path ONLY); the 227 plague test spells as strict t = q+4 > 4 (q ∈ −3..6 →
+  t ∈ 1..10, constant ≥ 1, never negative — the WKDAY rev2 shift law); the nested-floor
+  births route must ASSERT equality with `x//(100*p)` at the OBSERVED value every year
+  (plague halves p below 100 in some years — e.g. x=5250, p=77: port route gives 6,
+  BASIC semantics floor(5250/7700)=... 5250/7700=0.68→0; port 5250//77=68//100=0+1=1 vs
+  single floor 0+1=1 AGREES at this point — agreement is per-value, not per-p — the
+  simulator asserts the observed case, the design's p≥100 rule is a sufficient condition
+  only). P1 is FLOAT in BASIC; the port's all-integer P1 route is a DECLARED rounding
+  adaptation the reference asserts |float−int| < 2 at every step; L=A/P likewise integer.
+- ACCEPTED (simulator state): `build/fc01-scratch/hamm00.py` written (ignored working
+  state) — byte-level Stream model, Fail-exception script search, per-site draw with chk
+  bounds, rich-path predicate (plague≥1, rats≥1, skip≥1, d>0 year with d≤.45p, buy+sell+
+  feed complaints, ≥1 plant complaint, verdict path ≠ fink-ladder). First smoke run FAILed
+  exactly on the 33800 product (recorded above); the search (g0 ∈ {3,4}, S0 sweep, DFS over
+  per-year sell/feed/plant menus with claim=s+1 / a+1 always-failing forms) is the NEXT
+  action; nothing has been promoted to any ledger (functional runs are not DR claims;
+  ledger still ends C352).

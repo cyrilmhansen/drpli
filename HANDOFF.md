@@ -138,6 +138,23 @@ starts; iterate to a rich path (complaints, ≥1 plague year, ≥1 EVEN rats yea
 console_input + PL/I skeleton; write HAMM-00.PLI/.json; `--stages source,derivation`; lane B
 `--evidence build/fc01/corp4`; docs § 9 + § 1; gate; explicit-path commit.
 
+## HAMM-00 hop 2 state (2026-11-03, renewal 5/12, HEAD `9c91e9f`; checkpoint g159 verified CURRENT by hash replay; build rc=0, compiler `edce9e0e…`)
+
+Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 2" FIRST:
+PUT-LIST inter-item single-blank separator + `%10d` fields MEASURED from the stored
+TABLE-00 raw capture (accepted); console_input convention (each GET line ends CR, trailing
+`^Z` bare/never consumed, [C113] quoted) accepted; draw residues locked per role under the
+5-draws/year cadence — rats-even-not-year-1 FALSIFIED (proposed: g0 ≡ 3 mod 5, rats c=2
+every year, yield 5, births c3=1 → bound 20a+s ≤ 32767, plague years 3,5,7,9, prices
+26/21); the design's 1300 buy overclaim FALSIFIED at price 26 (33800 overflow, caught by
+chk on the first smoke run); 880/885 ladder goes to 565 WITHOUT the 560 line; integer
+P1/L adaptation asserted vs float. `build/fc01-scratch/hamm00.py` written (ignored):
+byte-level Stream, run(), rich() predicate; searches NOT yet run. EXACT NEXT and full
+procedure are in `PROGRESS.md` → Next action (search g0/S0/DFS → emit expected +
+console_input + skeleton → HAMM-00.PLI/.json + reference.py:hamm00 → source,derivation →
+lane B corp4 → docs § 9 + § 1 → gate → explicit-path commit). No ocaml/harness changes;
+no push; ledger ends C352; operator `handoff.config.json` stays unstaged.
+
 ## Superseded next action (FC-01 hop 5) — kept as written per PROTOCOL #2; CANCELLED by the operator override above, never started
 
 FC-01 hop 5 EXACT PROCEDURE: `PROGRESS.md` → Next action. (1) implement the file-I/O harness extension per the PROPOSED design in LEARNINGS hop 4 (stage_files + expected.file_expectations; SOURCE sha pin; DERIVATION two-way; export AFTER RUN, BEFORE run.cleanup(), per-seq subdir; ASSERT byte-compare attr=undefined; Lane-B-only; README § 3/§ 4 amendments; hostile-suite C17, printed self-count). (2) FILE-00/FILE-01 specs+programs+derivations from MEASURED laws only ([C295] quotes/[C300] skip/[C280] widths/[C279] naming; payload <128 B, 0x1A pad; input FCB = FILE-variable name + .DAT), run lane B → build/fc01/fileAB, docs § 8. (3) ONUNIT-00 ONLY after a PRE-REGISTERED fc01-fileio oracle round (hop-2 pattern; probes FCFO* + HYPOTHESES + BASELINE-MINE + linkrun.py STAGE_IN/EXPORT_OUT entries committed BEFORE any DR PLI.COM call; claims C353+) measures DR named-file ENDFILE firing — that behavior is UNMEASURED and must not be extrapolated from SYSIN [C110].
@@ -219,25 +236,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 159
-checkpoint-id: g159-4a8040305cce
+checkpoint-generation: 160
+checkpoint-id: g160-edbd982beaa5
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~3910, session 01a19be9-e0bf-7761-bfc4-e26bb0eb4471)
-checkpointed: 2026-11-02T11:26:44.037Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6820, session 01a19c03-9d8d-7761-bfc4-e26ee7d3f66c)
+checkpointed: 2026-11-02T11:54:41.267Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 6f716abf869c64fa96496b0dd0f7bb55c2ea36f8b740a3801756fa4927964d8e
+source-progress: bd8f5c070f0492c921bc159e2ae1a3232deef2ff287effe07016ceca661ca996
 source-handoff: 283b11f6dc02459f3a9e57b7ba40331de71a7381e206952707c8b328ebd0ac49
-source-learnings: 3b69c0f9737df3271372c22f56709fd075c79c71ad844a8e5b0965ccf9284ca5
+source-learnings: 899e3a9d0ed49b35c020ee00b44a7241ef59f40790c4054ba82954aee806203c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19be9-e0bf-7761-bfc4-e26bb0eb4471
-readiness-at: 2026-11-02T11:27:04.295Z
-readiness-checkpoint: g159-4a8040305cce
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
