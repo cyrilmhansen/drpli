@@ -426,25 +426,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 178
-checkpoint-id: g178-82408127df05
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 179
+checkpoint-id: g179-ec6bb05dadbe
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 3, remaining ~6105, session 01a19d3a-aea7-727a-91c8-56d549ecc023)
-checkpointed: 2026-11-02T17:33:22.068Z
+status: checkpoint (guard level 1, remaining ~11259, session 01a19d75-d211-727a-91c8-56d89ecea4c5)
+checkpointed: 2026-11-02T18:34:51.494Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7907e8dcf59010819ef3d3a376c33df642adda4bc36964a76deddfc761aed282
-source-handoff: 80e4a15a9db24ec65d9640590199eab314a7cf38cb24e80b5de3cb290ae921bf
-source-learnings: 478bdbfdbb28e519c0daccc23681248cc263dbfa4ed62a1c5787a68a7c56cd71
+source-progress: 4bcd695ad6dd7184501a89ac8252ab7a110492e21f44165ccdbf19b24d4b70cb
+source-handoff: ed877a004514f868b1a592c7d1122c094a0dd5febb9376d46ff73f37a395a74c
+source-learnings: ab222886a9e503e10e7d3537806cf31c4338ed21e5ee593788445b07ee805c6d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19d3a-aea7-727a-91c8-56d549ecc023
-readiness-at: 2026-11-02T18:11:46.830Z
-readiness-checkpoint: g178-82408127df05
+readiness-by: session:01a19d75-d211-727a-91c8-56d89ecea4c5
+readiness-at: 2026-11-02T18:34:51.501Z
+readiness-checkpoint: g179-ec6bb05dadbe
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -474,5 +474,5 @@ guard level 3; checkpoint requested (auto at level 3)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FC-01 HANG-00 continuation chain hop 1 in flight: simulator rewritten (4 framing falsifications), design-hop m<>10 shift falsified (direct m<10), shapes02 compile-witnessed, LF draft authored; owed: CRLF conversion, reference.py mirror, diff, JSON, --stages source,derivation, lane B corp5, docs §10, gate, commit; then AMAZ-00.
+HANG-00 rev1 PASS landed (commit e72873a: triple + docs §10 + gate rc=0 1174/0,181/181,9/9,133/0/0,census 15/0/26/0,prose 5 clean; lane B build/fc01/corp5 PASS all 6 stages, RUN 6369 bytes = simulator's exact raw prediction; double-run byte-equal; first corpus GET+echo RUN). AMAZ-00 hop start committed (069684c): AMAZING.bas sha 3f6fa3f2 verified; FALSIFIED walk-phase assumption — listing is generation+print only, so AMAZ-00 is PURE-PUT (console_input bare ^Z); PROPOSED design in LEARNINGS § "AMAZ-00 hop start" (READ FIRST): H=V=4 literals, flat w(16)/vv(16) (AGG.MULTIDIM refused), declared gg*37+11 draws with literal divisors 2/3/4, ON-GOTO->if ladders, TAB banner + dimension INPUT/retry dropped (documented), separator-space adaptation, 4 leading blanks [C352], no trailing blank. EXACT NEXT: steps (2)-(12) in PROGRESS → Next action: scratch simulator amaz00_sim.py (statement mirror + invariants: C ends at 17, all 16 cells visited, entrance gap at X, exit opened on column V) -> LF draft + scratch pre-compile -> pinned AMAZ-00.PLI -> reference.py:amaz00 + DERIVATIONS -> diff BEFORE JSON -> AMAZ-00.json -> --stages source,derivation -> lane B build/fc01/corp6 (+double-run if PASS) -> docs §11 + §1 row -> e2e_gate compile tier -> explicit-path commit; then TICT-00 (two listings: tictactoe1/2 — pick after reading), LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00. Constraints: no ocaml/harness changes, ledger ends C352, FAIL stays classified never laundered, third-party bytes untracked, operator handoff.config.json never staged, no push; renewals available this chain — renew at safe boundaries, keep concise human-readable report at each boundary.
 <!-- guard:end checkpoint -->
