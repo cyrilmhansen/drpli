@@ -3,7 +3,25 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-50/P2 CLOSED (2026-11-02; functional-testing foundation + emulator/redistribution audit; FULL compile-tier gate rc=0 measured at `545dcf1`, recorded `d648bcd`; CLOSE by this docs-only session)
+## Current phase — FS-01 CLOSED (2026-11-02; first two functional PASSes, Lane B; baseline HEAD `876ed9e`)
+
+FS-01 (operator mission "first two functional PASSes") COMPLETE: TABLE-00 and TABLE-01 **PASS**
+on Lane B. F1 fixed in the harness (`tools/functional_runner.py` `_run_lane_b` anchor law —
+program's final CRLF retained, prompt never captured, newline-less terminator →
+`console-terminator-ambiguous` UNKNOWN fail-closed; hostile suite C15, 12 checks, suite self-count
+**194** all pass). F2 isolated by a TABLE-01 **output-statements-only** revision (two ~54-column
+labelled lines; algorithm/inputs/invariants unchanged; source sha `4881f187…`; expectation
+DERIVED from declared design + README § 6 law, never captured; PLILIB wrap law stays `proposed`).
+Executed ACTUALS + evidence roots in `docs/functional-results.md` § 5 and `HANDOFF.md`;
+baseline FAIL reproduction, PASS run, `--double-run` (byte-equal) and Lane-A unchanged check
+(FX-00 PASS / FX-01 FAIL `emulator`) under `build/functional/fs01*` (ignored).
+P2 FAIL evidence preserved; no compiler/golden/ledger/COVERAGE/`ocaml/` byte touched.
+**No active round**: a successor without an operator instruction confirms HEAD/tree,
+`/handoff verify`, records state and STOPS. Open items = `docs/functional-results.md` § 3/§ 5 +
+`spec/lab-evidence/e2e50-p2/REPORT.md` § 5 (P3-b law declaration, P3-c BDOS-25/license, P3-d
+TABLE-02 remain PROPOSALS; P3-a DONE by FS-01). Operator `handoff.config.json` edit stays
+unstaged; no push.
+## Previous phase — E2E-50/P2 CLOSED (2026-11-02; functional-testing foundation + emulator/redistribution audit; FULL compile-tier gate rc=0 measured at `545dcf1`, recorded `d648bcd`; CLOSE completed by a docs-only session)
 
 Round COMPLETE. Mission, the durable step sequence 0–8 and every hop record (incl. the
 falsified-prediction text kept per PROTOCOL #2) are archived VERBATIM and byte-verified —
@@ -95,9 +113,10 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 ## Next action
 
 The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: **NO
-ACTIVE ROUND** (E2E-50/P2 CLOSED 2026-11-02). A successor without an operator instruction
-confirms HEAD/tree, runs `/handoff verify`, records state and STOPS. PROGRESS does not
-restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate authority).
+ACTIVE ROUND** (FS-01 CLOSED 2026-11-02; prior E2E-50/P2 CLOSED same day). A successor without
+an operator instruction confirms HEAD/tree, runs `/handoff verify`, records state and STOPS.
+PROGRESS does not restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate
+authority).
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
 - E2E-48/P1 — 24/24 probes byte-identical + registered, claims C309–C316, gate 1098/0: `992ccad`.

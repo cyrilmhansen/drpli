@@ -1866,3 +1866,32 @@ actually lost wording — far cheaper than archiving every generation whole.
 **Accepted boundary:** round closes with NO scientific byte changed; ledger ENDS at C351; P3
 candidates remain PROPOSALS (`REPORT.md` §5). No active round; successor with no operator
 instruction confirms, verifies, records, STOPS. No push.
+
+## 2026-11-02 — FS-01: first two functional PASSes (harness F1 fix + TABLE-01 output revision)
+
+**ACCEPTED (measured):** the F1 terminal-`\r` was a pure harness anchor artifact: the FS-01
+baseline reproduced both P2 FAIL frames byte-for-byte from the real transcripts, and od showed the
+measured shape is ONE guest-written `\r\n` between program end and prompt (`...LAST= 5\r\nD>`).
+New extraction law `NAME[^\n]*\r\r\n(.*?)(?=D>|I/O ran|\Z)` retains the program's final newline
+and never captures the prompt; the fail-closed counterpart requires the captured region to END in
+a newline before its terminator, else `RUN UNKNOWN console-terminator-ambiguous` (a newline is
+never invented; the suspect capture is kept as evidence). Extra/missing/wrapped lines and doubled
+`\r\r\n` residues still FAIL — the complete-stream law is untouched. Hostile suite C15 pins both
+directions (12 checks, 194 self-counted, all pass).
+
+**ACCEPTED (measured):** FIRST FUNCTIONAL PASSes of DRPLi-compiled programs on lane B: TABLE-00
+(.REL 896 B, COM 7552 B, 93 console bytes, 2 lines) and TABLE-01 rev FS-01 (.REL 1536 B
+code=644 data=50 — algorithm unchanged, only the output statements; COM 7808 B, 178 console
+bytes, 3 lines), every stage typed-success, `--double-run` console captures byte-equal for both.
+Lane A fixtures unchanged (FX-00 PASS, FX-01 FAIL `emulator` intended).
+
+**Technique (accepted):** ISOLATE ≠ CHARACTERIZE. A functional test can be freed from a measured
+historical-runtime framing behaviour by re-designing the *declared program output*, without ever
+promoting that behaviour to a law: TABLE-01's sorted values moved onto two ~54-column labelled
+lines, the expected text was derived from the README § 6 field law BEFORE the run (the raw od then
+confirmed the predicted 10-column layout), the superseded source sha and its P2 FAIL evidence are
+recorded in the spec JSON, and the PLILIB 79-col wrap stays `proposed`. L3 holds because the
+expectation follows the declared design + independent derivation, never a capture.
+
+**OPEN (unchanged):** ASSERT-mismatch attribution still hard-wired `undefined` (no discriminating
+run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchanged.
