@@ -120,43 +120,53 @@ while an emulator runs; renewal values ONLY in `handoff.config.json`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 133
-checkpoint-id: g133-694fb6b0f23f
+checkpoint-generation: 134
+checkpoint-id: g134-8670cffbd6b1
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-2972, session 01a199d7-21e8-7280-b553-bdc514e83dbf)
-checkpointed: 2026-11-02T01:49:48.373Z
+status: checkpoint (guard level 2, remaining ~9993, session 01a19ab0-a226-737d-a44a-126b617c91da)
+checkpointed: 2026-11-02T05:42:58.426Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e9c7fb89a8a2a6e96af0619d6476ee80c985701791e935849cd17c3a85d8e9ff
-source-handoff: c5f96641b77765c3f979a53f3e1fd30585301702b437910b71d91e30fef2f426
-source-learnings: ca97f3157ab61678a8d0451860092d3bae0d2e6e6431478275cc026701cba9c0
+source-progress: d51d63a0ccb3c98a63290ac3f66f520f2b2f8aaa80de8111d6c59dbc6ebe433e
+source-handoff: c41743fc2bf4e0c95cf1a50c8b0fb11b2b01c492aeaa132861397704a65af895
+source-learnings: 677fdf0d532d7f117a8e57f4d064b678784e0ce82c2ab34b5e022669873d0362
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a199d7-21e8-7280-b553-bdc514e83dbf
-readiness-at: 2026-11-02T01:49:48.375Z
-readiness-checkpoint: g133-694fb6b0f23f
+readiness-by: session:01a19ab0-a226-737d-a44a-126b617c91da
+readiness-at: 2026-11-02T05:42:58.429Z
+readiness-checkpoint: g134-8670cffbd6b1
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-50/P2 CLOSED (step-8 close landed at fb817df: 23/23 byte-verified archive docs/history/2026-11-02-e50p2-closed.md, completeness sweep 0 unarchived lines; HANDOFF/PROGRESS rewritten to NO ACTIVE ROUND with the gate ACTUALS recorded at d648bcd; LEARNINGS close note; ledger C351 unchanged; no compiler/oracle/gate/emulator run; no push). Successor WITHOUT an operator instruction: confirm HEAD/tree, /handoff verify, record state, STOP. P3 shortlist = spec/lab-evidence/e2e50-p2/REPORT.md section 5 (proposals, never an authorisation).)
+guard level 2; checkpoint requested (finalize: FS-01 CLOSED at 5c71a01 (chain d8a0ec1 harness F1 fix + C15 194/194; 5b29957 TABLE-01 output-only revision sha 4881f187..., expectation derived not captured; a0e2a96 docs/functional-results.md sec 5; 5c71a01 handoff prose). TABLE-00 PASS, TABLE-01 PASS (Lane B, all stages typed success, double-run byte-equal, evidence build/functional/fs01* ignored working state); Lane A unchanged FX-00 PASS / FX-01 FAIL emulator. P2 FAIL evidence preserved; wrap law stays proposed; no compiler/golden/ledger byte; operator handoff.config.json unstaged; successor WITHOUT operator instruction: confirm HEAD/tree, verify, record, STOP.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-— NO ACTIVE ROUND (E2E-50/P2 CLOSED 2026-11-02)
-
-A successor WITHOUT an explicit operator instruction: confirm HEAD/tree (`git rev-parse HEAD &&
-git status --porcelain=v1`; a dirty `handoff.config.json` is the OPERATOR's standing edit — never
-stage, clean, revert or commit it), run `/handoff verify`, record state, and **STOP**. No
-E2E-50/P3, no compiler/oracle/LINK-80/cpmsim/emulator/gate work without operator authorization.
-If authorized: shortlist = `spec/lab-evidence/e2e50-p2/REPORT.md` §5 (P3-a anchor fix; P3-b
-declare PLILIB wrap law from the oracle; P3-c BDOS 25 + license decision; P3-d TABLE-02) —
-PROPOSALS, never an authorisation. Standing debts unchanged (`PROGRESS.md` → Pending: LOAN2
-prescan, CREATE `%include`). Boundary: `/home/john/pli/*` read-only; never
-`git clean`/`reset --hard`/`add -A`; explicit-path commits; no push; never renew mid-Git-op or
-while an emulator runs; renewal values ONLY in `handoff.config.json`.
+` below. TABLE-00 and
+  TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
+  (`_run_lane_b`: capture now ends at `D>`/`I/O ran`/`\Z` WITHOUT eating the program's final CRLF;
+  a region not newline-terminated before its terminator is `console-terminator-ambiguous` UNKNOWN,
+  fail closed) with hostile-suite case C15 (12 checks; suite self-count **194**, all pass), and
+  (b) a TABLE-01 **output-statements-only** revision isolating the test from PLILIB's measured
+  79-col wrap (source sha256 `4881f187ef1ad9651c48950b76a6cdd959fdcc980ef989580a0fbfa43c0b0863`,
+  1366 B, CRLF/^Z/≤71 cols; algorithm/inputs/invariants unchanged; expectation derived from the
+  declared design + README § 6 law via `reference.py:table01`, never captured). Executed ACTUALS:
+  TABLE-00 .REL 896 B, COM 7552 B, 93 console bytes, complete-stream 2 lines; TABLE-01 .REL 1536 B
+  (code=644 data=50), COM 7808 B, 178 console bytes, 3 lines; LINK both `parse_undefined=[]`;
+  RUN `done` witness; `--double-run` captures byte-equal. Evidence roots (ignored working state,
+  gitignored `build/`): baseline FAIL reproduction `build/functional/fs01-baseline/`, PASS run
+  `build/functional/fs01/`, double-run `build/functional/fs01-double/`, Lane-A unchanged check
+  `build/functional/fs01-laneA/` (FX-00 PASS, FX-01 FAIL `emulator` intended). Report:
+  `docs/functional-results.md` § 5.
+- Preserved/untouched: P2 FAIL evidence `spec/lab-evidence/e2e50-p2/step6/RESULTS.md`; all
+  goldens, `artefacts/`, `oracle/disks/`, manuals, `ocaml/`, `spec/CLAIMS.md` (ledger ENDS C351),
+  `spec/COVERAGE.tsv`; PLILIB wrap law stays `proposed` (NOT characterized — FS-01 boundary).
+  Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
+- Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
+  15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-E2E-50/P2 CLOSED (step-8 close landed at fb817df: 23/23 byte-verified archive docs/history/2026-11-02-e50p2-closed.md, completeness sweep 0 unarchived lines; HANDOFF/PROGRESS rewritten to NO ACTIVE ROUND with the gate ACTUALS recorded at d648bcd; LEARNINGS close note; ledger C351 unchanged; no compiler/oracle/gate/emulator run; no push). Successor WITHOUT an operator instruction: confirm HEAD/tree, /handoff verify, record state, STOP. P3 shortlist = spec/lab-evidence/e2e50-p2/REPORT.md section 5 (proposals, never an authorisation).
+FS-01 CLOSED at 5c71a01 (chain d8a0ec1 harness F1 fix + C15 194/194; 5b29957 TABLE-01 output-only revision sha 4881f187..., expectation derived not captured; a0e2a96 docs/functional-results.md sec 5; 5c71a01 handoff prose). TABLE-00 PASS, TABLE-01 PASS (Lane B, all stages typed success, double-run byte-equal, evidence build/functional/fs01* ignored working state); Lane A unchanged FX-00 PASS / FX-01 FAIL emulator. P2 FAIL evidence preserved; wrap law stays proposed; no compiler/golden/ledger byte; operator handoff.config.json unstaged; successor WITHOUT operator instruction: confirm HEAD/tree, verify, record, STOP.
 <!-- guard:end checkpoint -->
