@@ -200,6 +200,19 @@ explicit-path commit. A FAIL stays classified, never laundered. Constraints unch
 ocaml/harness changes, no push, ledger ends C352, operator `handoff.config.json` stays unstaged,
 third-party bytes never tracked.
 
+HAMM-00 IMPLEMENTATION HOP 5 STATE (2026-11-03, renewal 8/12; HEAD `7957474`, build rc=0,
+checkpoint g165 attested at start). Spine RE-VERIFIED byte-stable via the scratch one-liner in
+`LEARNINGS.md` § "...implementation hop 5" (READ THAT SECTION FIRST — it carries the exact
+regeneration command for the 211 expected lines + console_input, the harness contracts, the
+verified capabilities list, the adjacent-literal split for the two >71-col literals [PROPOSED,
+unverified compile], and the complete statement-for-statement port plan). NOTHING authored yet:
+no HAMM-00.PLI/.json/reference.py:hamm00 exist. EXACT NEXT = the hop-5 § NEXT steps 1-8: triple
+-> --stages source,derivation (diff derivation vs simulator stream first) -> lane B
+--evidence build/fc01/corp4, ACTUALS verbatim -> docs § 9 + § 1 -> compile-tier gate ->
+explicit-path commit. Constraints unchanged: no ocaml/harness changes, no push, ledger ends C352,
+functional runs are NOT DR claims, a FAIL stays classified never laundered, operator
+handoff.config.json stays unstaged, third-party bytes never tracked.
+
 HAMM-00 IMPLEMENTATION HOP 4 STATE — RICH SPINE FOUND (2026-11-03, renewal 7/12; HEAD
 `9cbd8dc`, build rc=0, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "2026-11-03 — FC-01
 CORPUS HAMM-00 implementation hop 4" — it contains the COMPLETE plan. Hop 3's "no rich path"
@@ -509,17 +522,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 164
-checkpoint-id: g164-3c3faa102b9f
+checkpoint-generation: 166
+checkpoint-id: g166-86f810fd9c93
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-02T12:52:02.014Z
+guard-level: 4
+checkpointed: 2026-11-02T13:15:18.415Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 335a317e95ea84217e7d0812f2f7e625c48a09ba9ac4786a4c985d42804ac7f8
-source-handoff: 9ce12745272283e88e121735ff19df49bd18728b337f95b3f9b8a96a52a7ff8a
-source-learnings: fdb559ca4bc36b37156484034357b94207496073ab4cf5743aad33e3dde38cdf
+source-handoff: 9328efeed1a19f6bf0350b6722237876c3a29ca4ef85eaad8781ed7827055910
+source-learnings: 32d335a6ff53ef6d6b1448ff81a0b08e572d6707fa07c8e4ed51d70004ae7411
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`

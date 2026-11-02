@@ -2535,3 +2535,104 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   `--evidence build/fc01/corp4 --json-out build/fc01/corp4/records.json`, ACTUALS verbatim, never
   laundered; (5) `docs/functional-results.md` § 9 + § 1 row; (6) `python3 tools/e2e_gate.py`
   compile tier ACTUALS; (7) explicit-path commit — never stage `handoff.config.json`; no push.
+
+## 2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 5 (triple authoring START: spine re-reproduced byte-stable; harness contracts read; the long-literal width problem and its normalization-invariant split [PROPOSED])
+
+- ACCEPTED (state): HEAD `7957474`, `dune build` rc=0, checkpoint g165 attested; scratch
+  `build/fc01-scratch/hamm00_sim.py` + `spine_t_300.json` intact and RE-RUN this hop:
+  `run_script(1500, 2, plans)` reproduces hop 4 EXACTLY — 211 normalized lines, 46 fed values
+  (max 1588), verdict not-too-bad, P1=7, D1=41, L=10, mask all eight, final store 1928.
+  THE FULL 211-LINE EXPECTED STREAM AND THE EXACT console_input STRING WERE PRINTED THIS HOP
+  and are reproducible with:
+  `python3 -c "import json,sys; sys.path.insert(0,'build/fc01-scratch'); import hamm00_sim as H; c=json.load(open('build/fc01-scratch/spine_t_300.json')); L,I,S=H.run_script(c['s0'],c['g0'],c['plans']); print(json.dumps(L)); print(repr(''.join(v+'\r' for v in I)+'^Z'))"`
+  (console_input = every fed value followed by CR — 46 CRs — then bare `^Z`; echo lines in the
+  expected list carry the trailing `\r`, e.g. `"HOW MANY ACRES DO YOU WISH TO BUY 0\r"`).
+- ACCEPTED (harness contracts, read from `tools/functional_runner.py` THIS hop, no run):
+  Lane-B capture regex `"%s[^\n]*\r\r\n(.*?)(?=D>|I/O ran|\Z)"` INCLUDES the GET echoes inside
+  the console region; `_send_input` maps `^Z`->`\x1a` and CR/LF->`\r`; `check_encoding` enforces
+  ONLY the tokens the spec's `encoding` string declares (CRLF/^Z/`<=N col`/ASCII); the derivation
+  two-way check imports reference.py in a subprocess and compares to `expected.console`; the
+  capture must end with `\n` (FS-01 anchor law) — our stream ends `SO LONG FOR NOW.\r\n` + blank
+  + exit `\r\n` so it does. `##WAIT \nD>` after the input SEND assumes the program terminates
+  (prompt returns) — spine y11 exits to summary, fine.
+- ACCEPTED (COVERAGE ids verified to exist, fail-closed validation of `capabilities`): use
+  DECL.FIXED_BIN15, IO.PUT_LIST_FIXED, IO.PUT_SKIP, IO.GET_LIST, TRAN.GOTO_SAME_BLOCK,
+  EXPR.REL_FIXED_EQ_K, EXPR.SELF_ADD_LADDER, EXPR.ADD_PRESERVE_ROUTE — exactly the WKDAY-00
+  pattern plus GET/GOTO. There is NO coverage row for FIXED-BINARY ordered compares (numeric or
+  member-vs-member); the WKDAY-00 PASS compiled them anyway — cite none of them (row-less
+  shapes stay unclaimed). `artefacts/NETWORK.PLI` (historical corpus, DR-accepted) shows inline
+  statement labels (`eol: revert ...;`), `if .. then goto`, `else`, and MULTI-LINE
+  `put list(a,\n b);` continuations within <=79 cols.
+- PROPOSED (THE WIDTH PROBLEM + resolution — NOT yet compile-verified): BASIC's summary line 862
+  literal `POPULATION STARVED PER YEAR ON THE AVERAGE, I.E. A TOTAL OF` (59 ch) and line 970
+  `WOULD DEARLY LIKE TO SEE YOU ASSASSINATED BUT WE ALL HAVE OUR` (61 ch) do NOT fit a <=71-col
+  `put list('<lit>');` (74/76 cols even at indent 0; the FANTASTIC line (54) fits at 69).
+  RESOLUTION: split each into TWO ADJACENT CHARACTER LITERAL items of ONE put list, breaking at
+  a word boundary and giving the SECOND literal the leading space:
+  `put list('POPULATION STARVED PER YEAR ON THE AVERAGE,',\n         ' I.E. A TOTAL OF');` and
+  `put list('WOULD DEARLY LIKE TO SEE YOU ASSASSINATED BUT',\n         ' WE ALL HAVE OUR');`.
+  This is normalization-INVARIANT: whether the harness-measured inter-item separator law
+  (one blank, TABLE-00) or pure concatenation applies to literal-literal adjacency (UNMEASURED —
+  hop 2 note "port uses none"), the seam under collapse-spaces-v1 is exactly ONE space either
+  way, so the expected line is `... AVERAGE, I.E. A TOTAL OF` in both readings. Adjacent-literal
+  PUT LIST COMPILE is unverified (no refusal known; the item chain takes the same shapes) — a
+  compile FAIL would be a classified my-gap, never laundered. reference.py:hamm00 must emit raw
+  `lit1 + " " + lit2` (hop-2 join law) and assert the normalized line is identical to the
+  single-literal text.
+- ACCEPTED (port skeleton fully planned against the simulator, statement-for-statement; the
+  hop-4 compare/division law holds for EVERY site): temps t1..t4 per WKDAY rev2 style; price/yield
+  /rats/births/plague/965 draws inline `gg = gg + 1; w = gg*37+11; v = w - (w/k)*k;` (k literal);
+  plague `t1 = q + 4; if t1 > 4 then goto rep2;`; negative-input shift `t1 = qq + 20000; if t1 <
+  20000 then goto bad;` (ALL 46 fed values <= 1588 <= 12767 -> no overflow; this is why the
+  simulator asserts MAXFEEDLINE=12767 on every fed value INCLUDING complaint claims); weak
+  accepts `u = y*qq; t2 = s + 1; if u < t2` (buy), strict member pair `if qq < a` (sell),
+  `if fed < t2` (feed), `if d < t2` (acres), seed `t1 = d/2; if t1 < t2`; people `u = 10*p;
+  if d < u`; rats dispatch `if c = 2 then e = s/2; if c = 4 then e = s/4;` (NO parity temps —
+  equal-extent of BASIC INT(C/2)=C/2 for c in 1..5); births `u = 20*a + s; x = c*u; t1 = x/p;
+  i = t1/100 + 1` (nested-floor asserted vs x/(p*100) at p>=100 AND per OBSERVED residues in the
+  port's year order — reference asserts equality for the spine's actual (x,p) pairs);
+  540 `c = fed/20`; impeach `t1 = p*45; t2 = t1/100; if d > t2`; P1 `u = (z-1)*p1; x = (d*100)/p;
+  p1 = (u+x)/z` (nested-floor vs (z-1)*p1 + d*100/p single-step, asserted per year); skip-year
+  `if p < c then goto yr;` leaves d = 0 (re-set at yr: per BASIC 210); z11 exit AFTER the report
+  block (`if z = 11 then goto sum;`) with p already including i and plague.
+- PROPOSED (impeachment complaint, compile-only branch, derived THIS hop): BASIC 560 is reached
+  ONLY after a complaint fired at the plant prompt, so the faithful branch feeds ONE more value
+  (a claim that PASSED acres+seed — the 465 re-prompt at 460 has no PRINT, so its own claim
+  printed nothing): plant prompt, GET e, then 710 or 720 text by `claim = max(9000, 6563, s+1,
+  1024)`; seed-variant iff `2*claim+2 < a+1` (people-variant unreachable: 10p >= 9000 > a; its
+  text 460 is still covered by year 8). The spine NEVER takes this path — console_input has
+  exactly 46 values either way. The 850 branch (bad:) prints blank+CANNOT+STEWARD (each
+  line-terminated) then falls to endgame; fink2: (565-567) and bye: (990 blank, bells DROPPED,
+  SO LONG, blank) close every path.
+- NEXT (successor, exact — authoring is ALL THAT REMAINS for HAMM-00): (1) write
+  `spec/functional/tests/HAMM-00.PLI` per this skeleton + hop-4 spine (CRLF, bare ^Z, <=71 cols,
+  header naming HAMMURABI.bas sha 93fea01f...; literals from the simulator texts; NO apostrophes
+  — `REALLY WAS NOT TOO BAD AT ALL.`; `hamm00: procedure options(main);` + `stop;` at bye:,
+  `end hamm00;`); (2) add `hamm00()` to `spec/functional/tests/reference.py` mirroring the port
+  statement-for-statement (import-free byte model: skip=`\r\n`, items joined ONE space, `%10d`,
+  echo `L\r\r\n`, exit one `\r\n`, normalize+split+drop-one-empty; chk every intermediate;
+  nested-floor asserts per observed value; the two split-literal seams asserted single-space)
+  and register `"hamm00": hamm00` in DERIVATIONS; its output MUST byte-equal the 211-line stream
+  from the one-liner above (diff them); (3) `HAMM-00.json`: schema pli80-functional/1, family
+  CORPUS, source sha256 of the final bytes, encoding `"CRLF, ^Z-terminated, <=71 columns"`,
+  capabilities as ACCEPTED above, limits like WKDAY (compile 60/link 120/run 120/steps 4000000 —
+  HAMM is 211 lines + 46 GETs, keep run_max_steps 4000000), lane B link_targets ["HAMM00"],
+  console_input the exact string, expected.derivation "reference.py:hamm00", normalization
+  collapse-spaces-v1, console = the 211 lines; notes = full removal/substitution list (TAB banner
+  10/20 dropped, 217 dropped, CHR(7) bells dropped, apostrophe rewrite WASN'T->WAS NOT, scaled
+  opening A=300/H=900/S0=1500 (year-1 report prints NEGATIVE e = -600, declared), RNG formula
+  gg*37+11 with seed g0=2 declared, plague ~30% not 15% (declared residue), rats EVERY year
+  (c=2 residue), integer P1/L/n adaptations asserted, negative-input 850 + impeach 560 +
+  fink/nero/fantastic branches compile-only under the fixed script, VARIABLE division first
+  corpus use at births x/p, P1 (d*100)/p and (u+x)/z and l=a/p — flagged run-unwitnessed,
+  adjacent-literal split PROPOSED/unverified, strict-compare-only law); (4)
+  `python3 tools/functional_runner.py --stages source,derivation --tests HAMM-00`; (5) lane B
+  `python3 tools/functional_runner.py --lane B --tests HAMM-00 --evidence build/fc01/corp4
+  --json-out build/fc01/corp4/records.json` (this RUNS the compiler+LINK-80+cpmsim — the
+  session's actual task is corpus development, permitted); ACTUALS verbatim, a FAIL stays
+  classified; (6) `docs/functional-results.md` new section 9 + section 1 row; (7)
+  `python3 tools/e2e_gate.py` compile tier ACTUALS; (8) explicit-path commit (the triple,
+  reference.py, docs, LEARNINGS, PROGRESS, HANDOFF prose — NEVER handoff.config.json); no push.
+- STATUS: nothing promoted to any ledger (ends C352); no ocaml/harness byte touched; no emulator
+  run this hop (the scratch re-run is the derivation path only); tracked changes this hop are
+  these durable documents.

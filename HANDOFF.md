@@ -122,6 +122,29 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+## HAMM-00 hop 5 state — AUTHORING PLAN FINAL (2026-11-03, renewal 8/12, HEAD `7957474`; build rc=0, compiler `edce9e0e…`)
+
+Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 5" FIRST — it
+carries the EXACT one-liner that regenerates the 211-line expected stream + the exact
+`console_input` string from `build/fc01-scratch/hamm00_sim.py` + `spine_t_300.json` (re-verified
+byte-stable this hop: verdict not-too-bad, P1=7, L=10, D1=41, all 8 mask features, 46 fed values
+max 1588), the harness contracts read from `tools/functional_runner.py` (Lane-B capture includes
+GET echoes; echo lines in `expected.console` carry the trailing `\r`; `check_encoding` enforces
+only the declared tokens), the verified `capabilities` id list (no ordered-compare row exists —
+cite none, WKDAY precedent), and the ONE new design finding: the two 59/61-char BASIC literals
+(862/970) don't fit <=71-col `put list` lines — PROPOSED resolution is the adjacent-literal split
+whose seam is normalization-invariant (one space either way); compile of literal-literal adjacency
+is UNVERIFIED, a FAIL stays classified. Every compare/division/shift site is planned statement-for-
+statement (hop-4 + hop-5 §§). NEXT: author `HAMM-00.PLI` (CRLF/^Z/<=71, `hamm00: procedure
+options(main);`, no apostrophes, split literals as above) + `reference.py:hamm00` (diff its output
+against the simulator one-liner BEFORE writing the JSON) + `HAMM-00.json` (console_input = 46
+values each CR-terminated then bare `^Z`; notes = full removal/substitution list incl. variable
+division first use flagged, negative e=-600 declared, bells/TAB/217 dropped, integer P1/L/n,
+adjacent-literal split PROPOSED) -> `--stages source,derivation` -> lane B `--evidence
+build/fc01/corp4` ACTUALS verbatim -> docs/functional-results.md § 9 + § 1 row ->
+`python3 tools/e2e_gate.py` compile tier -> explicit-path commit (never `handoff.config.json`);
+no push; ledger ends C352; no ocaml/harness changes; third-party bytes never tracked.
+
 ## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-framing→fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json`. **WKDAY-00 DONE — rev3 lane-B PASS
 (2026-11-03; docs § 8, evidence build/fc01/corp1..corp3).** Program 2 (Hammurabi → `HAMM-00`):
 implementation hop STARTED 2026-11-03 (this chain, renewal 4/12). Read `LEARNINGS.md`
@@ -265,22 +288,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 164
-checkpoint-id: g164-3c3faa102b9f
+checkpoint-generation: 166
+checkpoint-id: g166-86f810fd9c93
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~6541, session 01a19c38-d4ec-7761-bfc4-e27702a10282)
-checkpointed: 2026-11-02T12:52:02.014Z
+status: checkpoint (guard level 4, remaining ~4339, session 01a19c52-2f19-7761-bfc4-e27b2bfcb6b5)
+checkpointed: 2026-11-02T13:15:18.415Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 335a317e95ea84217e7d0812f2f7e625c48a09ba9ac4786a4c985d42804ac7f8
-source-handoff: 9ce12745272283e88e121735ff19df49bd18728b337f95b3f9b8a96a52a7ff8a
-source-learnings: fdb559ca4bc36b37156484034357b94207496073ab4cf5743aad33e3dde38cdf
+source-handoff: 9328efeed1a19f6bf0350b6722237876c3a29ca4ef85eaad8781ed7827055910
+source-learnings: 32d335a6ff53ef6d6b1448ff81a0b08e572d6707fa07c8e4ed51d70004ae7411
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
