@@ -204,25 +204,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 150
-checkpoint-id: g150-c6289059787d
+checkpoint-generation: 152
+checkpoint-id: g152-1efc9582843c
 checkpoint-kind: auto
 content-delta: none
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4396, session 01a19b93-039b-7761-bfc4-e25f01e5d16a)
-checkpointed: 2026-11-02T09:58:58.577Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6903, session 01a19bb2-a51b-7761-bfc4-e2633770e95f)
+checkpointed: 2026-11-02T10:30:44.244Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f716541948e4450d3d451de427ea1954e91e5d2ac3d18bdace2bbfa3a936e1be
-source-handoff: 9d71ee2957bf60dfdd239437e9edbd693d8f95e72894ff3253a15222c0217b42
-source-learnings: 49f3c4af14655ee28ce6aed120c7c54a74a0da0ea4192b55bd386ef3c7155cb6
+source-progress: 33c7d13ef9a46b05eeff20494c3d2e98aa938d261fa9de2557cb575577029bbd
+source-handoff: c10b8231bfd931d7e7ab4cc45cad2df610ef6c5a2bd7ced4a77277b4621a449a
+source-learnings: d8e931a27ea3cf0c604118c763a8a2a74249e0f8b499cb6f30f66592d22c22dd
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19b93-039b-7761-bfc4-e25f01e5d16a
-readiness-at: 2026-11-02T09:58:58.584Z
-readiness-checkpoint: g150-c6289059787d
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
@@ -252,5 +249,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FC-01 OPERATOR OVERRIDE landed (b38d8c0, dc48aa6): HOP 5 CANCELLED (never existed — measured), new priority = eight adapted historical programs. NEXT ACTION is fully specified in PROGRESS.md → "WKDAY-00 exact" + LEARNINGS.md § 2026-11-02 override section: write spec/functional/tests/WKDAY-00.{PLI,json} + reference.py:wkday00 (expected values ALREADY derived independently and cross-checked against datetime; do not re-derive), run lane B to build/fc01/corp1, record ACTUALS + docs/functional-results.md § 8, then e2e_gate compile tier. Reuse the harness as it stands — NO test-infrastructure work, NO ocaml changes, no push, operator handoff.config.json stays unstaged, third-party upstream bytes never tracked.
+FC-01 CORPUS: WKDAY-00 rev3 lane-B PASS committed at 21c9f69 (rev1 >0 refusal corp1; rev2 silent /365->109 miscompile corp2; rev3 /5,/73 split PASS, double-run byte-equal; docs §8 + row; gate rc=0 1174/0, 181/181, 9/9, 133/0/0, census 15/0/26/0, prose 5 clean; LEARNINGS CORPUS hop 2). NEXT: HAMM-00 per PROGRESS Next action (corpus rule: literal divisors <=127, ordered-compare constants >=1; read WEEKDAY source dir NOTES.txt/URLS.tsv; hammurabi.bas in build/functional/fc01-sources/basic/). Constraints unchanged: no ocaml, no harness changes, no push, operator config unstaged, ledger ends C352.
 <!-- guard:end checkpoint -->
