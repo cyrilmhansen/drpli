@@ -1,7 +1,7 @@
 # Functional Results — what has actually been executed
 
-**E2E-50/P2 step 7 deliverable** (2026-11-02), **FS-01 addendum** (2026-11-02, § 5). A
-deliberately SMALL report.
+**E2E-50/P2 step 7 deliverable** (2026-11-02), **FS-01 addendum** (2026-11-02, § 5), **FC-01
+addendum** (2026-11-02, § 6). A deliberately SMALL report.
 
 This page **renders** evidence; it is not a ledger and it decides nothing. The authorities are
 `spec/lab-evidence/e2e50-p2/step6/RESULTS.md` (execution ACTUALS) and
@@ -22,6 +22,14 @@ cpmsim, user-supplied and never packaged).
 | FX-01 | A | SOURCE→DERIVATION→RUN | **FAIL** | `emulator` | INTENDED outcome: the free core has no BDOS 1, and the runner fails typed. A FAIL here is correct evidence, never a pass |
 | TABLE-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FS-01; was FAIL at E2E-50/P2 close) | — | all six stages ran with typed success; ASSERT complete-stream match after the harness F1 anchor fix (§ 5) |
 | TABLE-01 | B | SOURCE→…→RUN→ASSERT | **PASS** (FS-01; was FAIL at E2E-50/P2 close) | — | revised source (output statements only, § 5) prints three short lines; complete-stream match; determinism double-run byte-equal |
+| MATH-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA — spec framing defect, § 6) | — | gcd/division/accumulation semantics; complete-stream match incl. [C352] framing blanks (4 lines); double-run byte-equal |
+| PROC-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | factorials/fibonacci/helper-value PUT; 3 lines; double-run byte-equal |
+| HIST-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | bucket histogram + peak scan; 4 lines; double-run byte-equal |
+| PTR-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | self-referential structure chain walk (sums of squares, null test); 2 lines; double-run byte-equal |
+| STRNG-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | string rotation + equality hits, CHARACTER member PUT; 3 lines; double-run byte-equal |
+| DEC-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | five FIXED DEC(9,2) decimal identities; 2 lines; double-run byte-equal |
+| FLT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | six FLOAT BINARY(24) identities; 2 lines; double-run byte-equal |
+| TABLE-02 | B | SOURCE→…→RUN→ASSERT | **PASS** (FC-01 hop 3; was FAIL at batchA) | — | LAST-match search, not-found, slice sum, reverse copy; 4 lines; double-run byte-equal |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -51,7 +59,9 @@ the measured wrap — not by declaring the wrap law, which stays `proposed`.)*
 
 * Four executed verdicts, from one round, on two programs and two substrate fixtures. That is a
   **foundation**, not coverage: the v1 perimeter (what a spec may even declare) is fixed by
-  `spec/COVERAGE.tsv`, and the corpus is 2 programs of one family.
+  `spec/COVERAGE.tsv`, and the corpus is 2 programs of one family. *(FC-01 hop 3 supersession,
+  § 6: Batch-A adds **8 more executed PASSes** across 6 more families — twelve programs total;
+  still a corpus, still not coverage.)*
 * Attribution of an ASSERT mismatch is hard-wired to `undefined` — narrowing it to
   `runtime-lib` needs a discriminating run that has not happened.
 * Lane B runs on the **historical** toolchain; lane A cannot host PLILIB programs (BDOS 25 at
@@ -121,3 +131,63 @@ still hard-wired `undefined` (no discriminating run); the v1 PLILIB wrap law is 
 unclaimed; the free core still cannot host PLILIB programs (BDOS 25 at init); the corpus is two
 programs of one family — a foundation, not coverage; no functional PASS promotes a COVERAGE row
 or becomes a DR claim.
+
+## 6. FC-01 hop 3 (2026-11-02): framing amendment — Batch-A executes 8/8 PASS on lane B
+
+Hop 2 executed the 8 Batch-A programs on lane B: **8/8 FAIL at ASSERT only** — every LINK and
+RUN stage ran to its typed witness and EVERY content line matched the reference; the deltas
+were stream-framing blank lines. The fc01-framing oracle round then MEASURED the law on DR's
+own objects (`[C352]`: a first-statement `PUT SKIP` prints its own leading CRLF; the exit chain
+appends exactly one final CRLF unconditionally, also after a final bare `PUT SKIP;` — H2
+conditional-flush falsified and kept as written; my FCPS `.REL`s byte-exact to DR's on all
+three shapes). The FAILs were therefore classified **spec expectation defects**, not compiler
+or runtime gaps. The `build/fc01/batchA/` FAIL records and evidence stay ON RECORD as written —
+never laundered (README § 8/§ 9).
+
+* **Schema amendment (representation, derived from [C352], never captured):** `expected.console`
+  entries are STRINGS and `""` is a legal entry asserting an **exact blank line** at its
+  position; a bare `"!"` is rejected (negatives are `!text`), non-string entries are rejected,
+  and the empty-list and **complete-stream laws are NOT weakened** — an extra or missing blank
+  still FAILs (`tools/functional_runner.py`; README § 3/§ 4 representation amendment + § 6
+  framing-law paragraph citing `[C352]`/FCPS1-3/E29PS1 `[C192]`).
+* **Hostile suite:** new case **C16** (16 checks: schema accept/reject; ASSERT PASS on the
+  FCPS3 leading-blank and FCPS1 trailing-blank shapes with the captures pinned byte-exact;
+  FAIL on unexpected/missing blanks and on a whitespace-only line; `!text` still composes),
+  plus the C6 mutation swap (obsolete `""`-rejected pin → non-string and bare-`!` rejections,
+  net +1). Suite self-count: **211 checks, all passing** (MEASURED from the run, was 194);
+  `python3 tools/test_functional_runner.py` rc=0.
+* **Re-derivation:** all 8 Batch-A expectations gain the leading `""` (every program's first
+  executed output statement is `put skip list(...)`, verified statement-by-statement against
+  the committed sources); **MATH-00** also gains the trailing `""` (final bare `put skip;` +
+  the unconditional exit CRLF). The **programs are UNCHANGED** — source shas stand; only
+  `reference.py` and the 8 spec JSONs were re-derived (DERIVATION two-way check green before
+  any lane ran).
+* **Executed verdicts** (git HEAD `7cf920c` as recorded in every record; the harness/spec
+  diff was uncommitted at execution and landed immediately after as `51d64bd` + `122981a`;
+  compiler `pli80c.exe` sha256 `edce9e0e…`; cpmsim
+  sha256 `5b882561…`; evidence root `build/fc01/batchA2/`, ignored working state; every LINK
+  `parse_undefined=[]`, every RUN `done` witness):
+
+  | test | COMPILE `.REL` | LINK `.COM` | RUN console | ASSERT |
+  |---|---|---|---|---|
+  | MATH-00 | pass, 1280 B (code=422 data=18) | `MATH00.COM` 7808 B | 93 B | complete-stream match, 4 lines (leading + trailing blank) |
+  | PROC-00 | pass, 1024 B (code=391 data=10) | `PROC00.COM` 7936 B | 57 B | complete-stream match, 3 lines |
+  | HIST-00 | pass, 1280 B (code=526 data=40) | `HIST00.COM` 7808 B | 107 B | complete-stream match, 4 lines |
+  | PTR-00 | pass, 768 B (code=339 data=14) | `PTR00.COM` 7552 B | 52 B | complete-stream match, 2 lines |
+  | STRNG-00 | pass, 768 B (code=289 data=101) | `STRNG00.COM` 7552 B | 34 B | complete-stream match, 3 lines |
+  | DEC-00 | pass, 1792 B (code=625 data=54) | `DEC00.COM` 8320 B | 20 B | complete-stream match, 2 lines |
+  | FLT-00 | pass, 1024 B (code=387 data=40) | `FLT00.COM` 8320 B | 20 B | complete-stream match, 2 lines |
+  | TABLE-02 | pass, 1280 B (code=548 data=34) | `TAB02.COM` 7680 B | 93 B | complete-stream match, 4 lines |
+
+* **Determinism:** `--double-run` over all eight → 8/8 PASS again, second console captures
+  byte-equal (`build/fc01/batchA2-double/`). **Unchanged specs unaffected:** FX-00, FX-01,
+  TABLE-00, TABLE-01 pass SOURCE+DERIVATION under the new validator (bounded ceiling ⇒ honest
+  UNKNOWN verdicts, never PASS).
+* Commands: `python3 tools/functional_runner.py --lane B --tests MATH-00 PROC-00 HIST-00
+  PTR-00 STRNG-00 DEC-00 FLT-00 TABLE-02 --evidence build/fc01/batchA2
+  --json-out build/fc01/batchA2/records.json` (+ `--double-run` variant).
+* **Untouched by this hop:** `ocaml/`, all goldens, `artefacts/`, `oracle/disks/`,
+  `spec/CLAIMS.md` (ledger still ends at **C352** — no new claim came from execution; the run
+  validates expectations, per [C205] it is not a compiler-semantics claim), `spec/COVERAGE.tsv`.
+  FCPS1..3 SPECIMENS registration stays owed to a gate hop. No functional PASS here promotes any
+  ledger row.
