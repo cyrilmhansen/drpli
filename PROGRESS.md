@@ -167,6 +167,39 @@ renew at safe boundary. No ocaml/harness changes; ledger ends C352; no push; ope
 handoff.config.json stays unstaged; third-party bytes never tracked. (Prior: HAMM-00 DESIGN
 committed cb223ba/6571212; WKDAY-00 rev3 PASS `21c9f69`.)
 
+HAMM-00 IMPLEMENTATION HOP 3 STATE (2026-11-03, renewal 6/12; HEAD `a5ef608`, build rc=0,
+compiler `edce9e0e…`, checkpoint g161 verified CURRENT by hash replay). Read FIRST
+`LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 3": hop 2's draw-residue
+table is FALSIFIED (off-by-one draw index — rats fire ONLY at `g0 ≡ 2 or 3 (mod 5)`, c=2 or c=4,
+and EVERY year; `g0 ≡ 4` gives NO rats; yield = `(2 g0 mod 5)+1`, so g0=3 → yield 2 / g0=2 →
+yield 5; plague years 3,5,7,9 at g0=3 and 2,4,6,8,10 at g0=2; births c=1 at g0=3 → births bound
+`20a+s ≤ 32767`). Complaint paths are STATE-FREE → search the accepted-amount SPINE first, then
+insert complaints (firability conditions listed in that section). Letting P collapse every year
+is FALSIFIED as a verdict strategy (every year feeds ~44% into P1 → 880 `P1>33` → FINK); the
+survivable rich shape is one/two survived starve years + the rest SKIP years (`feed ≥ 20(p+1)`)
+with acreage kept `a ≥ 7 p_final`. Simulator rewritten as state-based `build/fc01-scratch/hamm00_sim.py`
+(silent/emit modes, 6-bit mask, `DUMMY` plan for the year-11 report, `MAXFEEDLINE=12767`, hop-2
+bugs fixed: `starve_years` never populated; 865 `PEOPLE DIED!!` and 950 `HATE YOUR GUTS!!` both
+take TWO bangs, 567 FOUR). MEASURED SEARCH RESULT this hop: NO rich spine found — DFS
+(`hamm00_dfs.py`, budget 30000) reports NO spine at (g0,s0) = (3,900/1200/1500), (2,900), (7,900),
+(8,900), and exactly ONE spine at g0=2, s0=1500 whose mask is {skip,starve} with
+verdict `impeached-year10` (a LEGITIMATE complete path per the design hop) but whose complaint
+insertion FAILED → `rich_g2_s1500.json` NOT written, `spine` only. UNRESOLVED QUESTION: is the
+failure the menu, the mask goal, or the bin15 bounds? Next hop should (a) run the spine search
+over a WIDER sweep (g0 ∈ {2,3} × s0 ∈ {600..2400 step 100}, budget ≥ 300k, and let
+`verdict ∈ {nero,not-too-bad,fantastic,impeached-yearN≥5}` all count as acceptable — the
+complaint-firability filter must also try LATER years and all three plant-complaint kinds),
+(b) if still nothing, RELAX the declared adaptation legally and record it: e.g. a larger opening
+store `s0` with the year-1 report printing a negative `e = 900 − s0` (allowed: `%10d` prints the
+sign; declared, not hidden), or `H` declared as `2*A*Y` so `e ≥ 0` at any `s0`, or an
+accepted-buy year followed by a sell-complaint year so the sell complaint is firable, and
+(c) ONLY then emit expected lines + console_input + skeleton → `spec/functional/tests/HAMM-00.PLI`
+/`.json` + `reference.py:hamm00`/`DERIVATIONS` → `--stages source,derivation` → lane B
+`--evidence build/fc01/corp4` → docs § 9 + § 1 row → `python3 tools/e2e_gate.py` compile tier →
+explicit-path commit. A FAIL stays classified, never laundered. Constraints unchanged: no
+ocaml/harness changes, no push, ledger ends C352, operator `handoff.config.json` stays unstaged,
+third-party bytes never tracked.
+
 HAMM-00 IMPLEMENTATION HOP 2 IN FLIGHT (2026-11-03, renewal 5/12; HEAD `9c91e9f`, build
 rc=0, compiler `edce9e0e…`, checkpoint g159 verified CURRENT by hash replay). Read FIRST
 `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 2": the PUT-LIST
@@ -451,16 +484,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 160
-checkpoint-id: g160-edbd982beaa5
+checkpoint-generation: 161
+checkpoint-id: g161-eabfea340059
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-02T11:54:41.267Z
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-02T11:55:09.636Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: bd8f5c070f0492c921bc159e2ae1a3232deef2ff287effe07016ceca661ca996
-source-handoff: 283b11f6dc02459f3a9e57b7ba40331de71a7381e206952707c8b328ebd0ac49
+source-handoff: 5b54547bafba58b7ba98810d943455c2ba9e9308e39da51ca1ba0886eadec089
 source-learnings: 899e3a9d0ed49b35c020ee00b44a7241ef59f40790c4054ba82954aee806203c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
@@ -485,6 +518,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a19c03-9d8d-7761-bfc4-e26ee7d3f66c
+readiness-at: 2026-11-02T11:55:20.840Z
+readiness-checkpoint: g161-eabfea340059
 <!-- guard:end checkpoint -->
 
 ## Blockers

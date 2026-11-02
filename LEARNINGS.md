@@ -2316,6 +2316,80 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   explicit-path commit. Constraints unchanged (no ocaml, no harness edits, no push, ledger ends
   C352, third-party bytes never tracked).
 
+## 2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 3 (draw-residue OFF-BY-ONE falsified; complaints are STATE-FREE -> spine-then-complaint decomposition; game economics of the port)
+
+- FALSIFIED (hop 2's draw-residue table, by recomputing the DECLARED formula `w=gg*37+11`,
+  `v=w-(w/k)*k` with `gg` incremented BEFORE each draw, five draws per year in SOURCE order
+  price(310,k=10) yield(511,k=5) rats(521,k=5) births(531,k=5) plague(542,k=10), year z drawing
+  `gg = g0 + 5(z-1) + 1..+5`). The rats draw is `gg ≡ g0+3 (mod 5)`, so
+  `v5 = (2g0+2) mod 5` and `c = v5+1` gives, by `g0 mod 5`: 0→c=3 (odd), 1→c=5 (odd),
+  **2→c=2 (even, rats eat s/2)**, **3→c=4 (even, rats eat s/4)**, 4→c=1 (odd, never rats).
+  Hop 2's "rats EVEN iff g0 ≡ 3 or 4 (mod 5) (c2=2 or 4)" is therefore WRONG on both counts
+  (off-by-one draw index: g0≡4 gives NO rats at all, and g0=3 gives c=4 not c=2). Yield is
+  `gg ≡ g0+2` → `y = (2 g0 mod 5)+1`: g0≡0→1, 1→3, **2→5**, **3→2**, 4→4. Births
+  `gg ≡ g0+4` → c: 0→5, 1→2, 2→4, 3→1, 4→3. Hop 2's OTHER g0=3 claims RECOMPUTE CORRECT:
+  price alternates 26 (z odd) / 21 (z even), plague fires in years **3,5,7,9** (year z+1 reads
+  year z's draw; `v10=(7gg+1) mod 10 ≤ 3` ⇔ `gg ≡ 0,3,6,7 (mod 10)`), births residue c=1 →
+  the births bound is `20a+s ≤ 32767` (NOT the design's 6553, which applies at c=5). For
+  g0≡2: plague years 2,4,6,8,10, prices alternate 19/24, rats eat HALF the store every year.
+  CONSEQUENCE for the requirement "≥1 EVEN rats year": only g0 ≡ 2 or 3 admit rats at all,
+  and they fire EVERY year — hop 2's conclusion ("rats-every-year, drop not-year-1") STANDS,
+  reached by a corrected derivation.
+- ACCEPTED (structural lever that makes the search tractable): EVERY complaint path is
+  STATE-FREE. A failing attempt (710 grain, 720 acres, 460 people) prints its text and
+  re-prompts at the SAME loop; no state variable changes. So the script search splits into
+  (i) a spine DFS over ACCEPTED amounts only (buy/sell/feed/plant) and (ii) a post-hoc
+  insertion of complaint attempts, each valid iff its claim value is firable at that year:
+  buy `claim = s/y + 1` (needs `s ≤ 12767` for the feed-line bound and `y*claim ≤ 32767`),
+  sell `claim = a+1`, feed `claim = s+1` (≤ 12767), plant acres-claim `a+1`, plant seed-claim
+  `2s+2` (needs `≤ a`), plant people-claim `10p` (needs `≤ a` and `5p ≤ s`). The sell loop is
+  reached ONLY when the accepted BUY is 0 (330 → 340), so a sell complaint needs a year whose
+  accepted buy is 0.
+- ACCEPTED (game economics of the port, drives the script design): line 555 `P=C` makes the
+  NEXT year's population exactly `feed/20` in a non-skip year — the feed amount IS the
+  population lever; a skip year (550 `IF P<C THEN 210`) leaves P UNCHANGED and does NOT
+  accumulate D1/P1; a plague year halves P at the report. Store dynamics at g0=3 are
+  `s_next = 0.75*(s − feed − plant/2) + 2*plant` (yield 2, rats c=4): the 25%/yr rats leak
+  makes SELLING land the main grain source (21–26 per acre vs 2 bushels/acre/yr harvest).
+- FALSIFIED (hop 2's implicit "survive 10 years cheaply by letting P collapse"): collapsing P
+  by feeding ~0.55P every year makes EVERY year contribute ~44-45 percent to P1, and the 860
+  ladder `880 IF P1>33 THEN 565` then lands on the FINK line — exactly the verdict rich() must
+  avoid. The survivable rich shape is instead: ONE (or two) starved-but-survived years early
+  (`d = p − feed/20 ≤ floor(.45 p)`, contributes 45 + 40 = ~85 → P1 ≈ 8.5 over 10 years), the
+  remaining years SKIP (`feed ≥ 20(p+1)`), plus acreage kept at `a ≥ 7*p_final` so
+  `L = A/P ≥ 7` (selling ALL land is fatal to the verdict, not only to the harvest). Target
+  verdicts: P1 ≤ 10 and L ≥ 9 → `not-too-bad` (960/965 — also exercises the EXTRA draw at 965,
+  the only cadence break in the game); P1 ≤ 3 and L ≥ 10 → `fantastic`; P1 ∈ 11..33 or L ∈ 7..8
+  → `nero`.
+- ACCEPTED (simulator rewrite, ignored scratch `build/fc01-scratch/hamm00_sim.py`): state-based
+  `Sim` + `year(sim, plan, st=None, inp=None)` (silent mode = state-only for search; emit mode
+  = byte-level Stream), `summary/fink/endgame`, `run_script(s0,g0,plans)` which feeds a `DUMMY`
+  plan for the year-11 report (270 → 860 consumes no menu), a 6-bit `mask`
+  (skip/starve/buy-c/sell-c/feed-c/plant-c) and `chk` on EVERY intermediate plus `MAXFEEDLINE =
+  12767` on every fed value (the `q+20000 < 20000` negative-shift guard must stay in bin15).
+  Two bugs in hop 2's file FIXED here: (a) `rich()` demanded `starve_years` but `run()` NEVER
+  populated it — now bit B_STARVE is set at 552 whenever `d > 0`; (b) BASIC text fidelity —
+  line 865 prints `PEOPLE DIED!!` (TWO bangs) and line 950 `FRANKLY, HATE YOUR GUTS!!` (TWO),
+  hop 2 had one each; 567 keeps FOUR.
+- MEASURED (witness re-read this hop, no new run): `golden/e32rt_NETWORK/NETWORK.transcript.txt`
+  `cat -A` confirms the echo law `L^M^M$` (= `L\r\r\n`) on every consumed GET line, the
+  CONSUMED `^Z` row as the literal two characters `^Z` + `\r\r\n` (again falsifying any 0x1A
+  reading), and unformatted FIXED numerics in a 10-column field (`       30 miles to Boston`).
+  OBSERVATION, UNVERIFIED and NOT relied on: the same transcript renders
+  `Type Destination Paris` with a SINGLE blank after a literal that (in the source) ends with a
+  space — so the inter-item blank for CHARACTER-varying items after a space-terminated literal
+  is not settled by this witness. HAMM-00 uses ONLY character-literal + fixed-numeric items, so
+  the port does not depend on it; left as `[TBD]`, no claim.
+- STATUS (search, this hop): `hamm00_bfs.py` bounded BFS (2500 states/layer) at g0=3, s0=900
+  found a spine ONLY with verdict `impeached-year1` (mask=starve) — a real bug found and fixed
+  (the BFS expanded ALREADY-DONE states, so "mask ⊇ skip+starve" was reported from a game that
+  ended in year 1; now terminal states are carried, never expanded, and goals require
+  `verdict is None` at z=10). `hamm00_dfs.py` (heuristic menu: feeds aimed at the missing mask
+  bit, sells ascending, plants descending, cap 90/year, memo, complaint insertion) is WRITTEN
+  but NOT YET RUN — no rich path has been found and NOTHING this hop has been promoted to any
+  ledger (functional runs are not DR claims; ledger still ends C352). No ocaml byte, no harness
+  byte, no tracked file touched except these durable documents.
+
 ## 2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 2 (PUT-LIST separator measured from the stored capture; draw-residue analysis; simulator smoke falsifies the 1300 overclaim)
 
 - ACCEPTED (item-separator law, measured THIS hop by `od` on the stored PASS capture

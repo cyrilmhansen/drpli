@@ -138,6 +138,21 @@ starts; iterate to a rich path (complaints, ≥1 plague year, ≥1 EVEN rats yea
 console_input + PL/I skeleton; write HAMM-00.PLI/.json; `--stages source,derivation`; lane B
 `--evidence build/fc01/corp4`; docs § 9 + § 1; gate; explicit-path commit.
 
+## HAMM-00 hop 3 state (2026-11-03, renewal 6/12, HEAD `a5ef608`; checkpoint g161 CURRENT by hash replay; build rc=0, compiler `edce9e0e…`)
+
+Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 3" and
+`PROGRESS.md` → Next action "HOP 3 STATE" FIRST — hop 2's draw-residue table is FALSIFIED
+(off-by-one: rats fire ONLY at `g0 ≡ 2,3 (mod 5)`, every year; `g0 ≡ 4` = NO rats; yield
+`= (2 g0 mod 5)+1`), the "let P collapse" verdict strategy is FALSIFIED (P1 > 33 → FINK), and
+complaints are STATE-FREE (search the accepted-amount spine, then insert complaints). The
+simulator is rewritten state-based in ignored scratch `build/fc01-scratch/hamm00_sim.py` +
+`hamm00_dfs.py`; hop-2 bugs fixed (starve bit never set; `DIED!!`/`GUTS!!` bang counts).
+MEASURED THIS HOP: no rich path found — NO spine at (g0,s0) ∈ {(3,900),(3,1200),(3,1500),
+(2,900),(7,900),(8,900)} and one spine at (2,1500) with mask {skip,starve}, verdict
+`impeached-year10`, complaint insertion failing. NOTHING is promoted to any ledger; no tracked
+file changed except these durable docs; no ocaml/harness byte touched; no emulator run this hop.
+EXACT NEXT (wider sweep + legal adaptation relaxations, then the triple) is in `PROGRESS.md`.
+
 ## HAMM-00 hop 2 state (2026-11-03, renewal 5/12, HEAD `9c91e9f`; checkpoint g159 verified CURRENT by hash replay; build rc=0, compiler `edce9e0e…`)
 
 Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 2" FIRST:
@@ -236,22 +251,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 160
-checkpoint-id: g160-edbd982beaa5
+checkpoint-generation: 161
+checkpoint-id: g161-eabfea340059
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6820, session 01a19c03-9d8d-7761-bfc4-e26ee7d3f66c)
-checkpointed: 2026-11-02T11:54:41.267Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~4941, session 01a19c03-9d8d-7761-bfc4-e26ee7d3f66c)
+checkpointed: 2026-11-02T11:55:09.636Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: bd8f5c070f0492c921bc159e2ae1a3232deef2ff287effe07016ceca661ca996
-source-handoff: 283b11f6dc02459f3a9e57b7ba40331de71a7381e206952707c8b328ebd0ac49
+source-handoff: 5b54547bafba58b7ba98810d943455c2ba9e9308e39da51ca1ba0886eadec089
 source-learnings: 899e3a9d0ed49b35c020ee00b44a7241ef59f40790c4054ba82954aee806203c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a19c03-9d8d-7761-bfc4-e26ee7d3f66c
+readiness-at: 2026-11-02T11:55:20.840Z
+readiness-checkpoint: g161-eabfea340059
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
