@@ -1,0 +1,14 @@
+FCPS2:
+  procedure options(main);
+  /* [FC-01] control for the trailing-framing pair: program
+     text ends UNTERMINATED (no explicit SKIP).  Both H1 and
+     H2 predict exactly one final newline here -- the measured
+     E32B1 exit behaviour (README section 4).  A deviation on
+     either side invalidates the session capture law, not the
+     hypotheses. */
+  dcl y fixed;
+  y = 2;
+  put list('Y=', y);
+  stop;
+end FCPS2;
+

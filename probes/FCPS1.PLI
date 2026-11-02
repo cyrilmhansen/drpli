@@ -1,0 +1,15 @@
+FCPS1:
+  procedure options(main);
+  /* [FC-01] trailing-framing probe. The last executed output
+     statement is a bare PUT SKIP; does the linked program then
+     still emit a final line at exit?  H1 (unconditional exit
+     CRLF) predicts one blank line after 'X= 1'; H2 (flush only
+     on an unterminated line) predicts none.  See
+     spec/lab-evidence/fc01-framing/HYPOTHESES.md */
+  dcl x fixed;
+  x = 1;
+  put list('X=', x);
+  put skip;
+  stop;
+end FCPS1;
+

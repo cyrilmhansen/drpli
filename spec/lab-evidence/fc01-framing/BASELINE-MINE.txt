@@ -1,0 +1,34 @@
+# fc01-framing BASELINE-MINE — measured with the ACTUAL binary BEFORE any oracle call
+
+Compiler: `ocaml/_build/default/bin/pli80c.exe` sha256 `edce9e0e3e1e5054…` (as-built, the FS-01
+binary). Link/run: DR LINK-80 1.31 + PLILIB.IRL under cpmsim via `oracle/linkrun.py` (my objects
+only — this file records MY side; DR objects were not compiled at this point).
+Console regions extracted from the transcripts with the FS-01 anchor law
+(`NAME…\r\r\n` to `D>|I/O ran|\Z`, final CRLF retained, prompt never captured), bytes latin-1.
+
+## Compile (rc=0 all three)
+
+| probe | .REL size | .REL sha256 | .COM size | .COM sha256 |
+|-------|-----------|-------------|-----------|-------------|
+| FCPS1 | 256 | `f6214226e9ea2e3bfbb1621f3c12ebe74c809d54b28f8113553df705b85b7f05` | 7168 | `15a69aec5d0f884886c1e701631ed6ff55f5eff81436c09632f13088310cdf84` |
+| FCPS2 | 256 | `b50cfbfe4fe3ca50acf3d0d90df9b534e3cd8dedc2ec237f7d4426b254887059` | 6912 | `91c573488f9c7e5ed01cb476037346c40e62d51a9b66cec2150b1652e9f8d954` |
+| FCPS3 | 384 | `5f2c6c119bf5274b928973bf52ec912810612efe5270c68a73d7d3d231ebbae8` | 7168 | `c7ba4d0de4ea87eabaeca5572065c23067ce1a7d18d1fa3aa92112aa6f64b33a` |
+
+## Console ACTUALS (raw, repr)
+
+- FCPS1: `b'X=         1\r\n\r\n'`  — trailing DOUBLE CRLF (the MATH-00 artifact, reproduced
+  with the minimal shape)
+- FCPS2: `b'Y=         2\r\n'`      — control: single final CRLF (agrees with measured E32B1)
+- FCPS3: `b'\r\nL=         1 M=         2\r\n'` — leading blank + single final (agrees with
+  E29PS1 on the leading side)
+
+RUN witnesses: rc=0 `done` for all three (linkrun `run`, one session per program).
+
+Stored `.output.txt` (linkrun `\r\n?`->`\n` normalization): FCPS1 `X=         1\n\n`,
+FCPS2 `Y=         2\n`, FCPS3 `\nL=         1 M=         2\n`.
+
+## Standing question for the oracle side
+
+H1 predicts DR FCPS1 console `X=         1\n\n`; H2 predicts `X=         1\n`.
+FCPS2/FCPS3 must be byte-equal to my side under BOTH hypotheses (controls for the capture law).
+REL comparison: whole-file byte equality recorded per probe after DR compiles the same sources.

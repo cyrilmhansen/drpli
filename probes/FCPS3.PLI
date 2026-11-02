@@ -1,0 +1,17 @@
+FCPS3:
+  procedure options(main);
+  /* [FC-01] leading-framing probe on the PUT SKIP LIST
+     spelling: the FIRST executed output statement carries the
+     SKIP.  The measured bare-skip law (E29PS1: DR and mine
+     byte-identical) predicts a leading blank line here too;
+     predicted stream: blank, 'L= 1', 'M= 2' (M unterminated,
+     exit closes it). */
+  dcl l fixed;
+  dcl m fixed;
+  l = 1;
+  m = 2;
+  put skip list('L=', l);
+  put list('M=', m);
+  stop;
+end FCPS3;
+
