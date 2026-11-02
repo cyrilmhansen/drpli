@@ -137,7 +137,7 @@ PL/I-80 functional corpus**, autonomously across renewals:
 
 | # | program | original | corpus id | note |
 |---|---|---|---|---|
-| 1 | Weekday | BASIC | `WKDAY-00` | START HERE |
+| 1 | Weekday | BASIC | `WKDAY-00` | START HERE — design fully derived, see § "WKDAY-00 exact" below |
 | 2 | Hammurabi | BASIC | `HAMM-00` | |
 | 3 | Hangman | BASIC | `HANG-00` | |
 | 4 | Amazing | BASIC | `AMAZ-00` | maze: 2-D grid ⇒ AGG.MULTIDIM is REFUSED; flatten or record |
@@ -172,6 +172,45 @@ edits):
    `python3 tools/e2e_gate.py` (compile tier only — runtime/link-run stay delegated to rune-ci,
    and existing CI results do NOT cover new corpus programs unless explicitly added there).
 6. Commit explicit paths only; renew at the safe boundary per `handoff.config.json`.
+
+**WKDAY-00 exact (first program; everything needed is already derived — LEARNINGS 2026-11-02
+override section, PROPOSED entry; read that entry, do not re-derive from scratch):**
+1. `spec/functional/tests/WKDAY-00.PLI`: CRLF, `^Z`, ≤ 71 cols; header comment naming
+   `build/functional/fc01-sources/basic/WEEKDAY.bas` as the adapted original (upstream URL
+   `https://raw.githubusercontent.com/coding-horror/basic-computer-games/main/95_Weekday/weekday.bas`,
+   sha256 `ccb9a9e5…`); `wkday00: procedure options(main);`; declare all FIXED scalars +
+   `t(12) fixed` (month table 0,3,3,6,1,4,6,2,5,0,3,5 literal-assigned — no `READ`/`DATA`, no
+   `INITIAL`); TODAY=3/24/1979, TARGET=7/16/1969, both FIXED **non-negative** operands only; every
+   `INT(x/n)` becomes `x / n`; `A - (A/7)*7` for mod-7 exactly as the original does it; the
+   `M > 2` / leap-adjust branch (`T1 = Y - (Y/4)*4`) and the `B = 0 → 7` fix-up verbatim; the
+   was/is/will-be compare `(Y1*12+M1)*31+D1` vs `(Y*12+M)*31+D` — keep operands small enough for
+   FIXED BINARY(15) or the multiply overflows: use it only if measured to fit, else replace with
+   the equivalent sign-of-difference test and RECORD the substitution; day name by 7 `if b = n`
+   branches printing literals; Friday-the-13th literal branch; the pre-1582 refusal literal; the
+   30-month/365-year age arithmetic (`A8 = I5*365 + I6*30 + I7 + I6/2`) and the three `.35/.17/.23`
+   blocks as `K1 = A8*F/100` with integer F literals 35/17/23 (NO fractional literals — refused).
+   First output statement `put skip list(...)` ⇒ expectation starts `""`; end with a non-SKIP PUT
+   so no trailing `""`. Every line ≤ ~60 raw cols.
+2. `reference.py:wkday00` — Python port ALREADY verified against `datetime` (3/24/1979 Sat,
+   1/1/1970 Thu, 2/29/1980 Fri, 12/31/1999 Fri, 7/4/1776 Thu); derived values for the chosen pair:
+   `b = 4` → WEDNESDAY (7/16/1969 real weekday is Wednesday — agrees), WAS (1969 < 1979),
+   age 9 y 8 m 8 d, `A8 = 3537`, SLEEP 3/4/22, EAT 1/7/26, PLAY 2/2/23, retire 2034.
+3. `WKDAY-00.json`: `provenance.origin: "third-party"`, author "DRPLi FC-01 corpus — adaptation of
+   the BASIC Weekday listing (coding-horror/basic-computer-games 95_Weekday, public-domain-era
+   source; license UNVERIFIED — record in note)", note naming `build/functional/fc01-sources/
+   URLS.tsv` + `SHA256SUMS` (`ccb9a9e5…`); `capabilities` from SUPPORTED rows only (e.g.
+   `AGG.ARRAY_1D_FIXED`, `AGG.VAR_INDEX_LADDER`, `LOOP.DO_TO_BY`, `IO.PUT_LIST_FIXED`,
+   `IO.PUT_SKIP`, `EXPR.REL_FIXED_EQ_K`, `DECL.FIXED_BIN15`); link_target `WKDAY00`; sha256 of the
+   committed .PLI bytes.
+4. `python3 tools/functional_runner.py --lane B --tests WKDAY-00 --evidence build/fc01/corp1
+   --json-out build/fc01/corp1/records.json` → record ACTUALS as executed; then docs
+   `docs/functional-results.md` § 8 + § 1 row; `python3 tools/e2e_gate.py` (compile tier only).
+5. Documented unsupported/removal list for WKDAY-00 (must appear in the spec `notes` AND docs
+   § 8): console `INPUT` (×2) replaced by fixed declared dates; `DEF FNA/FNB` inlined (built-ins/
+   function refs refused); `READ`/`DATA` → literal assignments; `TAB()` positioning and the
+   banner `PRINT`s dropped (no column PUT — `FILE.PUT_POSITION`/counted EDIT refused); `GOTO`/
+   `GOSUB` structure re-expressed as `IF`/`DO` (goto is supported, but the port is clearer); the
+   original's 30-day-month/365-year calendar convention KEPT as declared behaviour, not corrected.
 
 Standing constraints: NO `ocaml/` changes; goldens/`artefacts/`/`oracle/disks/` untouched; no push;
 no new CI framework; no mass documentation cleanup; operator `handoff.config.json` stays UNSTAGED;
@@ -319,17 +358,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 145
-checkpoint-id: g145-dd0e3f3441c5
-checkpoint-kind: manual
+checkpoint-generation: 147
+checkpoint-id: g147-70a512b7c484
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-02T08:53:12.693Z
+checkpointed: 2026-11-02T09:23:26.935Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e2e64e7d6dd3d2838e51666054df31b222c0a81b2cac2b9e5065740edf28383a
-source-handoff: b9fffb809c45601f9f70c23375ca91791b8786aa2994f47f4fdc20d457bae3d2
-source-learnings: becc891867a66ae423d8a66d1e773645a0a131abbdd836f724187057b07ccd2a
+source-progress: e961f191dde25ecaa752007af62a3ad7f75f4e87be6708676181dce3b2e3beb1
+source-handoff: 343b08fd48bc8a12743f18f1deb5f9524a2fd1d1029f1f87497085266f342a3c
+source-learnings: 3fcd0c1f1f41d59726d13920f90ee4ad7fcf55ceeec4a04a831aca41b27647f0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -353,9 +392,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19b5f-f3dd-7388-bbdc-4f32a1ce7b53
-readiness-at: 2026-11-02T08:53:12.696Z
-readiness-checkpoint: g145-dd0e3f3441c5
 <!-- guard:end checkpoint -->
 
 ## Blockers

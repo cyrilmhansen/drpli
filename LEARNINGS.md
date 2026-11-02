@@ -2013,3 +2013,63 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   SYSIN-measured. Per hop-2 precedent ONUNIT-00 needs its own PRE-REGISTERED oracle round
   (fc01-fileio): probes + HYPOTHESES + BASELINE-MINE + new linkrun STAGE_IN/EXPORT_OUT entries
   committed BEFORE any DR PLI.COM call; only then derive the expectation.
+
+## 2026-11-02 — FC-01 OPERATOR OVERRIDE (hop 5 cancelled) + corpus pre-work for WKDAY-00
+
+- ACCEPTED (measured at `6a35b9c`, before any new work): **there was no hop-5 work to interrupt.**
+  `stage_files` appears NOWHERE in `tools/functional_runner.py`; `file_expectations` exists only as
+  the pre-existing fail-closed rejection (`functional_runner.py:127` in `EXP_ALLOWED`, `:398-400`
+  "declared in README section 3 but is NOT implemented"), which shipped long before this directive.
+  No FILE-00/01, no ONUNIT-00, no `fc01-fileio` probe or HYPOTHESES existed. Nothing half-edited,
+  nothing deleted; the hop-4 survey + PROPOSED schema in the section above stay as a RECORD — the
+  plan is cancelled, the measured laws are not.
+- ACCEPTED (operator decision, recorded verbatim in HANDOFF/PROGRESS): new priority is **eight
+  adapted historical programs** (Weekday/Hammurabi/Hangman/Amazing/Tic-Tac-Toe/Life from BASIC,
+  Dhrystone from Pascal, FFT from Rosetta Code PL/I) into the existing functional corpus; **no
+  renewal cycle is to be spent on test infrastructure** — reuse `tools/functional_runner.py` as it
+  stands and RECORD any place it cannot test a program, then move on. No `ocaml/` changes, no push,
+  no new CI framework. rune-ci owns runtime/link-run (`spec/notes/rune-ci-external-gate.md`) and
+  existing CI results cover new corpus programs ONLY if explicitly added there.
+- ACCEPTED (verified, not trusted): sources present and byte-pinned — `sha256sum -c SHA256SUMS`
+  all-OK on 10 files in `build/functional/fc01-sources/` (7 BASIC, `pascal/dhry-pascal.shar`,
+  `pli/fft-rosettagit.md`, extracted `pli/FFT-reference.pli`), all plain ASCII LF. They are
+  RESEARCH COPIES under `build/` (ignored): upstream bytes are NEVER copied into tracked files;
+  each adaptation is a derivative work carrying `provenance.origin: "third-party"`, the upstream
+  URL and licence in `provenance.note`, and a header comment naming its source. `dhry-pascal.shar`
+  is a shell archive — `NOTES.txt` and the operator's script both forbid executing it.
+- ACCEPTED (working method, cheap and reusable): verify a fetched corpus with `sha256sum -c` and a
+  structural sanity grep (line count, `file` for line endings, BASIC line-number regex) BEFORE
+  planning an adaptation; and port the original algorithm to Python first to obtain independently
+  derived expected values (law L3) rather than reading numbers off any run.
+- MEASURED (my compiler, at `edce9e0e…`, from the already-recorded Batch-A/B ACTUALS — the shapes
+  an adaptation must avoid or must pin): refused = multidim arrays (`AGG.MULTIDIM`), `>=`/`<=`
+  relations, literal-left compares, array-element compares, `k + x` store, `|` condition
+  composition, all documented built-ins except ADDR/NULL (`length`, `substr`, `mod`, `int` are OUT),
+  `||` concatenation, fractional DEC literals in arithmetic, computed FLOAT compare operands,
+  counted `PUT EDIT`/`SKIP(n)`. Available and PASS-proven on lane B: 1-D FIXED arrays with a
+  variable index, `DO TO/BY`, `DO WHILE`, scalar ordered/equality relations, `PUT LIST`/`PUT SKIP
+  LIST` with the [C352] framing blanks, recursive procedures returning FIXED, CHARACTER VARYING
+  assign/compare, structures/pointers, FIXED DEC integral identities, FLOAT BINARY(24) identities.
+  ⇒ Consequence for this batch: **integer-only arithmetic with hand-rolled division/truncation**
+  (no `INT()`, no `MOD`), **1-D index math with a pre-multiplied stride variable** (no 2-D arrays),
+  and every truncation contract restated in the reference derivation, not inherited from BASIC.
+- PROPOSED (WKDAY-00 design, NOT yet written, NOT yet run — the successor's first action):
+  Weekday's essential functionality is the post-1582 day-of-week algorithm plus the
+  was/is/will-be tense and the Friday-the-13th note. Console `INPUT` is REPLACED by fixed declared
+  dates (harness README § 7: pure-PUT v1 corpus; console-GET echo framing stays UNMEASURED), and
+  `INT(A/B)` becomes the measured integer-division form `a/b` on FIXED, with truncation toward zero
+  asserted for the non-negative operands only — the BASIC `INT` (floor) and PL/I FIXED division
+  (truncate) differ for NEGATIVE operands, so the adaptation keeps every division operand
+  non-negative and the reference derives with Python `//` only on non-negatives. Python port of the
+  original algorithm verified against `datetime` for 3/24/1979, 1/1/1970, 2/29/1980, 12/31/1999 and
+  7/4/1776 (all agree); the pre-1582 branch prints the original's refusal line. Planned fixed
+  dates: TODAY = 3/24/1979, TARGET = 7/16/1969 → b=4 (WEDNESDAY), age 9y 8m 8d, `A8 = 3537` days,
+  SLEEP(.35)=3y 4m 22d, EAT(.17)=1y 7m 26d, PLAY/STUDY(.23)=2y 2m 23d, retire 2034 — all derived
+  independently above, never captured. Note the 30-month/365-year convention is the ORIGINAL's
+  declared arithmetic and must be stated as such, not "corrected" to real calendar lengths.
+- OPEN (unmeasured, must not be assumed): whether `PUT LIST` of a CHARACTER VARYING value longer
+  than ~60 columns, or a `PUT LIST` containing 8+ items, trips PLILIB's proposed 79-col wrap in an
+  adapted game program — keep lines short as FS-01 did; and whether `GET LIST` from console works at
+  all on lane B through the harness `console_input` path (the schema supports the field; no adapted
+  program has ever used it). If a later program genuinely needs input, that is its OWN recorded
+  limitation, not a licence to extend the harness.
