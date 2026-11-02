@@ -90,7 +90,9 @@ LINK_OK_TR = ">>> LINK D:TABLE00\nLINK-80 V1.3\nNO ERRORS\n>>> HALT\n"
 # slice reads CLEAN, the FULL segment names the symbol, and LINK wrote the .COM anyway.
 LINK_UNDEF_TR = (">>> LINK D:TABLE00\n" + "-" * 130 +
                  "\nUNDEFINED SYMBOLS:\nPLIINP\nABSOLUTE LINK END\n>>> HALT\n")
-# RUN transcripts: anchor law `NAME[^\n]*\r\r\n(.*?)(?=\nD>|I/O ran|\Z)' (oracle/linkrun.py:488).
+# RUN transcripts: FS-01 anchor law `NAME[^\n]*\r\r\n(.*?)(?=D>|I/O ran|\Z)' + a fail-closed
+# newline guard on the cut (functional_runner _run_lane_b).  The historical shape
+# (oracle/linkrun.py:488 / FS-01 baseline od) is ONE guest `\r\n' between program end and prompt.
 RUN_OK_TR = ">>> CP/M-80 2.2\nD>TABLE00\r\r\nSUM=6\r\nN=2\r\n"
 RUN_BAD_TR = ">>> CP/M-80 2.2\nD>TABLE00\r\r\nSUM=5\r\nN=2\r\n"      # wrong value -> ASSERT
 RUN_NOANCHOR_TR = ">>> CP/M-80 2.2\nD>TABLE00\n(no console region here)\n"
@@ -1075,6 +1077,81 @@ viol = stdout_violations(out2)
 check("C14c the detector CATCHES inherited-child chatter (not vacuous)", viol == ["len 128"])
 check("C14c a chatty child does not change the verdict or rc (it is noise, not evidence)",
       rc2 == 0 and re.search(r"lane B  +PASS", out2) is not None)
+
+# ================= C15 (FS-01): the console-anchoring law -- final newline kept, prompt
+# never captured, ambiguous cuts fail closed.  F1 (step6/RESULTS.md section 2): the old cut
+# `(?=\nD>)' ate the LF of the program's last CRLF and left a lone CR in the capture.  The two
+# directions are pinned here: VALID transcripts keep the program's final newline and stay PASS
+# end-to-end; MALFORMED/AMBIGUOUS ones never launder into PASS.
+print("== C15: FS-01 console extraction -- newline retained, prompt excluded, ambiguity closes")
+# C15a positive: the measured real shape -- program ends CRLF, prompt follows immediately.
+w = World("c15a")
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\nSUM=6\r\nN=2\r\nD>")}
+rec = w.run(obj=w.make_obj("F1-PROMPT"))[0]
+check("C15a valid prompt-terminated stream PASSes end-to-end (no F1 residue)",
+      rec["verdict"] == "PASS" and statuses(rec)["RUN"] == "pass" and
+      stage_of(rec, "ASSERT")["witness"] == "complete-stream match")
+check("C15a the capture retains the program's FINAL newline",
+      open(os.path.join(w.edir(rec), "run.console.bin"), "rb").read() == b"SUM=6\r\nN=2\r\n")
+check("C15a no terminal lone \r survives into the normalized stream",
+      not open(os.path.join(w.edir(rec), "ASSERT.console.norm.txt")).read().endswith("\r"))
+# C15b: everything AFTER the prompt (stale echoes, cpmsim stats) is never captured and never
+# hides output -- the cut sits exactly at the first prompt byte.
+w = World("c15b")
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\nSUM=6\r\nN=2\r\nD>\r\r\nD>A:BYE\r\r\n"
+                          "I/O ran for 4020 ms\r\n")}
+rec = w.run(obj=w.make_obj("F1-TAIL"))[0]
+check("C15b prompt and post-prompt transcript tail stay OUT of the capture",
+      rec["verdict"] == "PASS" and
+      open(os.path.join(w.edir(rec), "run.console.bin"), "rb").read() == b"SUM=6\r\nN=2\r\n")
+# C15c ambiguous: the prompt arrives with NO newline separating it from the program's last
+# bytes -- program end and prompt start are inseparable; the harness must refuse to guess.
+w = World("c15c")
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\nSUM=6\r\nN=2D>")}
+rec = w.run(obj=w.make_obj("F1-AMBIG"))[0]
+check("C15c prompt glued to the last line -> RUN UNKNOWN console-terminator-ambiguous",
+      rec["verdict"] == "UNKNOWN" and statuses(rec)["RUN"] == "unknown" and
+      stage_of(rec, "RUN")["witness"] == "console-terminator-ambiguous" and
+      rec["attribution"] == "undefined")
+check("C15c ASSERT never evaluates an ambiguous capture (chain stops at RUN)",
+      statuses(rec)["ASSERT"] == "unrun")
+check("C15c the suspect capture is kept as evidence, unmodified",
+      open(os.path.join(w.edir(rec), "run.console.ambiguous.bin"), "rb").read()
+      == b"SUM=6\r\nN=2")
+# C15d truncated transcript (no prompt): the old F1 residue (lone CR at end) is NOT silently
+# completed into a newline -- UNKNOWN, never PASS, never fabricated.
+w = World("c15d")
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\nSUM=6\r\nN=2\r")}
+rec = w.run(obj=w.make_obj("F1-TRUNC"))[0]
+check("C15d truncated transcript ending in a lone CR -> UNKNOWN (no newline invented)",
+      rec["verdict"] == "UNKNOWN" and
+      stage_of(rec, "RUN")["witness"] == "console-terminator-ambiguous")
+# C15e the complete-stream law is NOT weakened by the fix: an extra line before the prompt
+# still FAILs, and it is still captured (nothing hidden by the new cut).
+w = World("c15e")
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\nSUM=6\r\nN=2\r\nEXTRA\r\nD>")}
+rec = w.run(obj=w.make_obj("F1-EXTRA"))[0]
+check("C15e extra output line before the prompt still FAILs the complete-stream law",
+      rec["verdict"] == "FAIL" and statuses(rec)["ASSERT"] == "fail" and
+      "extra lines" in stage_of(rec, "ASSERT")["detail"])
+check("C15e the extra line survives INTO the capture (the fix hides nothing)",
+      open(os.path.join(w.edir(rec), "run.console.bin"), "rb").read()
+      == b"SUM=6\r\nN=2\r\nEXTRA\r\n")
+# C15f doubled-CRLF terminator (echo-doubling shape): classified, but the residue still FAILs
+# the stream law -- fail closed, never laundered to PASS.
+w = World("c15f")
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\nSUM=6\r\nN=2\r\r\nD>")}
+rec = w.run(obj=w.make_obj("F1-DOUBLE"))[0]
+check("C15f doubled-CRLF terminator -> ASSERT FAIL (lone \r residue survives normalization)",
+      rec["verdict"] == "FAIL" and statuses(rec)["ASSERT"] == "fail")
+# C15g the `I/O ran' alternative terminator (cpmsim tail without a prompt) still works and
+# keeps the program's final newline.
+w = World("c15g")
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\nSUM=6\r\nN=2\r\nI/O ran for 4020 ms\r\n")}
+rec = w.run(obj=w.make_obj("F1-IORAN"))[0]
+check("C15g I/O-ran terminator: region cut before the tail, final newline kept",
+      rec["verdict"] == "PASS" and
+      open(os.path.join(w.edir(rec), "run.console.bin"), "rb").read() == b"SUM=6\r\nN=2\r\n")
 
 # --------------------------------------------------------------------------- summary
 print()

@@ -1046,12 +1046,33 @@ def _run_lane_b(ctx):
                          "the pty driver itself did not terminate (run_timeout_s=%d)" % timeout, ev)
         witness = TERMINATION_WITNESS.get(rc, "unknown-rc-%d" % rc)
         clean = re.sub(r">>> [^\n]*\n", "", tr)
-        seg = re.search(r"%s[^\n]*\r\r\n(.*?)(?=\nD>|I/O ran|\Z)" % re.escape(target), clean, re.S)
+        # FS-01 anchor law (the F1 fix).  The E2E-50/P2 cut `(?=\nD>|...)' consumed the LF of
+        # the program's FINAL CRLF into the prompt anchor and stranded a lone CR in the capture
+        # (step6/RESULTS.md section 2, F1; od-verified in the FS-01 baseline: the real
+        # transcript carries ONE guest-written `\r\n' between program end and prompt,
+        # `...LAST= 5\r\nD>').  The region now runs to the first terminator (prompt / `I/O ran'
+        # / end of transcript) WITHOUT eating a preceding newline: the program's final newline
+        # is retained and the prompt is still never captured.  Fail-closed counterpart: a
+        # region whose terminator is NOT preceded by a newline is an ambiguous cut (program end
+        # and transcript end are no longer separable) -> UNKNOWN, never PASS; the suspect
+        # capture is still written as evidence.  The normalization/split/complete-stream laws
+        # are untouched -- extra, missing or wrapped lines still FAIL the assertion.
+        seg = re.search(r"%s[^\n]*\r\r\n(.*?)(?=D>|I/O ran|\Z)" % re.escape(target), clean, re.S)
         if seg is None:
             return Stage("RUN", "unknown", "undefined", "no-console-anchor",
                          "transcript carries no console region for %s (rc=%d witness=%s)"
                          % (target, rc, witness), ev)
-        ctx.console_raw = seg.group(1).encode("latin-1", "replace")
+        cap = seg.group(1)
+        if not cap.endswith("\n"):
+            p_bad = ctx.host.write_evidence(
+                ctx.evidence, _rname(ctx, "run") + ".console.ambiguous.bin",
+                cap.encode("latin-1", "replace"))
+            return Stage("RUN", "unknown", "undefined", "console-terminator-ambiguous",
+                         "console region (%d bytes) ends WITHOUT a newline before its terminator "
+                         "(transcript tail %r): the program's final newline was never witnessed "
+                         "-- refusing to guess (FS-01 anchor law)"
+                         % (len(cap), clean[seg.end():seg.end() + 12]), ev + [p_bad])
+        ctx.console_raw = cap.encode("latin-1", "replace")
         ctx.run_witness = witness
         p = ctx.host.write_evidence(ctx.evidence, _rname(ctx, "run") + ".console.bin", ctx.console_raw)
         if witness == "timeout":
