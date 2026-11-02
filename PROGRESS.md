@@ -145,6 +145,34 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+HANG-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, renewal 12/12 = CONFIGURED CHAIN CAP; HEAD
+`a78aed5`, build rc=0, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "2026-11-03 — FC-01
+CORPUS HANG-00 implementation hop (renewal 12/12 …)": the design hop's step-1 byte model is
+FALSIFIED (one blank precedes every PUT LIST item that is not the first since the last line
+start, ACROSS statements — three stored Batch-A PASS captures + DR's own
+`golden/e32rt_E32B1`/`e32b_E32B1_dr` witness), so the dash row, the used-letter row and every
+grid row render SPACE-separated (declared adaptation); a consumed GET CLOSES the line (HAMM-00
+committed expectation); every risky shape (nested `show` procedure with its own local
+`character(1) varying` + PUT, variable DO bound, call-in-IF, do-while over calls, goto-in-IF,
+`get list`, member→scalar) is COMPILE-witnessed in `build/fc01-scratch/shapes01.pli` (rc=0,
+1280 B, code=500 data=17); state stays INTEGER codes with three literal-indexed word arrays
+plus a `wlit` varying word string; capability list validated citable.
+EXACT NEXT = design hop steps 1-10 WITH the separator law folded into the simulator AND the
+mirror: scratch `build/fc01-scratch/hang00_sim.py` (independent game model) →
+`build/fc01-scratch/mk_hang00_pli.py` generator → LF draft → CRLF + bare ^Z + <=71 cols +
+apostrophe-free `spec/functional/tests/HANG-00.PLI` → `reference.py:hang00` statement-for-
+statement mirror + `DERIVATIONS` entry → diff mirror vs simulator BEFORE writing `HANG-00.json`
+(link_target HANG00, sha pin, `console_input` = 23 CR-terminated codes
+`71,85,71,77,1,70,65,76,89,1,69,88,83,86,87,65,66,67,68,81,84,90,1` + bare `^Z`, notes =
+removals/unwitnessed/FALSIFIED separator model) → `python3 tools/functional_runner.py --stages
+source,derivation --tests HANG-00` → lane B `--evidence build/fc01/corp5
+--json-out build/fc01/corp5/records.json` ACTUALS verbatim (a FAIL stays classified, never
+laundered) → `docs/functional-results.md` § 10 + § 1 row → `python3 tools/e2e_gate.py` compile
+tier ACTUALS → explicit-path commit (NEVER `handoff.config.json`; no push).
+**CHAIN CLOSED AT THIS CAP: call `handoff_finalize`, NOT `handoff_renew` — no successor session
+exists without an operator reset of `renewal` state; programs 4-8 (AMAZ-00, TICT-00, LIFE-00,
+DHRY-00, FFT-00) stay queued and HAMM-00 rev2 stays PROPOSED.**
+
 HAMM-00 rev1 RECORDED (2026-11-03, renewal 11/12; HEAD `5772b8a` at execution; build rc=0,
 compiler `edce9e0e…`). Lane B executed (`build/fc01/corp4/records.json`, git_head `5772b8a`):
 SOURCE pass (sha `cc25fe75…` + encoding), DERIVATION pass (derivation == spec, 211 lines),

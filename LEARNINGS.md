@@ -2876,3 +2876,85 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - STATUS: nothing promoted to any ledger (ends C352); no ocaml/harness byte touched; NO
   compiler/emulator/gate run this design hop (read-only analysis); third-party bytes
   untracked; renewal chain 11/12 (this session).
+
+## 2026-11-03 — FC-01 CORPUS HANG-00 implementation hop (renewal 12/12 = CHAIN CAP): design-hop byte model FALSIFIED; every risky shape COMPILE-witnessed; word table re-decided
+
+- BUILD VERIFIED FIRST as instructed: `cd ocaml && eval "$(opam env)" && dune build` rc=0,
+  compiler `pli80c.exe` sha256 `edce9e0e3e1e5054…` (identical to the HAMM-00 execution record);
+  HEAD `a78aed5`, tree clean except the OPERATOR's `handoff.config.json` edit (unstaged,
+  never touched).
+- **FALSIFIED (the design hop's step-1 byte model).** That section says single-item PUTs emit
+  only the char/`%10d` bytes, i.e. consecutive no-SKIP `put list(ch);` concatenate with NO
+  separator ("A,B,C"). Three STORED Lane-B PASS captures refute it:
+  `build/fc01/batchA2/PROC-00-*/lane-B/run.console.bin` = `\r\nSUMFAC=      5913 FIB10=        55\r\n…`
+  (one blank between the last item of one PUT statement and the first item of the NEXT
+  statement), `HIST-00-*/run.console.bin` = `…B2=         2 B3=         0\r\n` (same), and
+  `TABLE-02-*/run.console.bin`. DR's own witness agrees: `golden/e32rt_E32B1/E32B1.output.txt`
+  = `a=        12 b=        10 c=        14\n`, byte-identical to the DR-object run golden
+  `golden/e32b_E32B1_dr/` — three separate PUT statements on ONE line, ONE blank between items.
+  ACCEPTED LAW (README § 6 restated exactly): **one blank precedes every PUT LIST item that is
+  not the first item printed since the last line start** — line starts are created by SKIP and
+  (measured below) by a consumed GET. It applies ACROSS statements, so a letter board can never
+  be rendered separator-free.
+- **CONSEQUENCE, DECLARED ADAPTATION (rev1 design change):** the dash/letter row, the used-letter
+  row and every grid ROW render SPACE-separated (`- - -`, `A , B , C`, `X X X X X X X` + collapsed
+  trailing blanks). The derivation models the separator, so the expectation is still DERIVED from
+  the declared design + the measured law, never captured (L3). The alternative routes are all
+  dead: `||` concatenation is a measured FAIL (STRCAT-00), SUBSTR/LENGTH are measured FAILS
+  (BUILTIN-00), counted PUT EDIT is a measured FAIL (EDIT-00, IO.PUT_EDIT PARTIAL), and a
+  multi-item PUT of a record's INTERNAL varying member is a measured refusal
+  (`codegen: char var in multi-item PUT unproven [TBD]`, `ocaml/lib/codegen.ml:11360`); a
+  varying item in an ordinary multi-item PUT is fine (STRNG-00 PASS prints `W=', w, 'HITS=', hits`).
+- **ACCEPTED (new witness): a consumed GET line leaves the line CLOSED.** In the committed
+  HAMM-00 expectation the line after the echo starts with NO leading blank
+  (`HOW MANY ACRES DO YOU WISH TO BUY 0\r` then `HAMURABI:  THINK AGAIN. …` collapsed from the
+  two-space spelling); the echo law's own `\r\r\n` terminates the line. So no separator blank is
+  modelled after a GET.
+- **COMPILE-WITNESSED THIS HOP (scratch only, NOT tracked bytes).** `build/fc01-scratch/shapes01.pli`
+  (CRLF + bare ^Z) compiles rc=0 → `shapes01.REL` 1280 bytes, code=500 data=17, `?SMCVM`
+  literal→varying stores, `?SLVTS`/`?SYSPR` single varying PUT, nested `show: procedure (c)` whose
+  BODY does the `put list(ch);` of its OWN local `character(1) varying`, `call show(i)` inside
+  `do i = 1 to n;` with a VARIABLE bound, `call show(44)` literal actual, `call show(x)` where x
+  came from `x = u(i)` (member→scalar), `if x = 3 then call show(x);`, `do while (x < 5); … call
+  show(x); end;`, `get list(g)`, and `if x < 4 then goto top;` (goto-in-IF). This kills the
+  design hop's compile-side worries about the helper shape; lane-B RUN of those shapes is still
+  unwitnessed and stays flagged.
+- **RE-DECIDED vs the design hop (each change recorded here, none silent):**
+  (a) WORDS are three SEPARATE arrays `dgum(3)`, `dfly(3)`, `dslep(7)` plus per-word literal
+  `wlit` (`'GUM'/'FLY'/'SLEEPER'`, char(9) varying) selected by `if q = n then do; … end;`,
+  INSTEAD of the design's packed `w(21)` + `ws(3)` start table: the packed form needs
+  `st + i - 1` subscript arithmetic and a member-loaded `>`-compare (`q > n`), and the corpus
+  law pins literal-indexed subscripting. The 34-code `show` ladder, the 12x12 flattened
+  `p(144)` with the recomputed stage indices (M1 30,31,32,41,42,44,45,54,55,56; M2 67,79,91,103;
+  M3 39,52,65,78; M4 47,58,69,80; M5 114,125; M6 116,129; M7 35; M8 27; M9 142,143; M10 135,136;
+  static pole 1,13,25,37,49,61,73,85,97,109,121,133, top 1..7, rope 19) and the row base
+  `b = (k - 1) * 12` (literal multiply, NO division anywhere) all stand.
+  (b) State stays INTEGER EXACTLY as the design hop specified (guess `g`, used codes `u(26)`,
+  dash board `d(20)` with the 45 sentinel, three literal-indexed word arrays `dgum(3)`,
+  `dfly(3)`, `dslep(7)` of ASCII codes, grid `p(144)` of codes); only the WORD STRING printed at
+  a win/lose is a varying literal (`wlit character(9) varying` = 'GUM'/'FLY'/'SLEEPER'), because
+  a CHARACTER varying ARRAY element cannot be selected without SUBSTR (a measured refusal), so
+  codes + the one 34-branch `show(c)` ladder is the only route. The design's packed `w(21)`
+  table is replaced by the three per-word arrays solely to drop the `st + i - 1` subscript
+  arithmetic and the member-loaded `q > n` compare.
+  (c) Guess/board state stays INTEGER as designed (d(i) = 45 dash sentinel, u(26) codes,
+  compare member→scalar→compare) — the pinned array-element-compare refusal (HIST-00 note).
+- CAPABILITY LIST VALIDATED against the ledger (every id exists, dr=ACCEPTS, mine=SUPPORTED,
+  none FORBIDDEN): DECL.FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED,
+  AGG.VAR_INDEX_LADDER, AGG.ELEM_AS_ACTUAL, LOOP.DO_TO_BY, LOOP.DO_WHILE_UNTIL, IO.GET_LIST,
+  IO.PUT_LIST_FIXED, IO.PUT_SKIP, EXPR.REL_FIXED_EQ_K, EXPR.SELF_ADD_LADDER,
+  EXPR.VARYING_X_VARYING, PROC.CALL_COPYIN, TRAN.GOTO_SAME_BLOCK. Cite NONE for goto-in-IF or
+  ON-GOTO (runtime dispatch unmeasured), none for ordered var>var (WKDAY/HIST precedent: the
+  corpus cites nothing for it).
+- NEXT (unchanged, steps 1-10 of the design hop, WITH the separator law folded into the
+  simulator/mirror): scratch `build/fc01-scratch/hang00_sim.py` → LF draft → CRLF/^Z/<=71/
+  apostrophe-free `spec/functional/tests/HANG-00.PLI` → `reference.py:hang00` + DERIVATIONS →
+  diff derivation vs simulator BEFORE `HANG-00.json` (link_target HANG00, sha pin, console_input
+  `71\r85\r71\r77\r1\r70\r65\r76\r89\r1\r69\r88\r83\r86\r87\r65\r66\r67\r68\r81\r84\r90\r1\r^Z`,
+  notes = removals (1)-(9) + the FALSIFIED separator model + the five unwitnessed shapes) →
+  `--stages source,derivation` → lane B `--evidence build/fc01/corp5` ACTUALS verbatim →
+  docs § 10 + § 1 → `python3 tools/e2e_gate.py` compile tier → explicit-path commit →
+  `handoff_finalize` (chain 12/12: NO renewal is possible after this session; programs 4-8 need
+  an operator reset).
+- STATUS: nothing promoted to any ledger (ends C352 — functional runs are not DR claims); no
+  ocaml/harness byte touched; third-party bytes untracked; ledger prose only + ignored scratch.
