@@ -34,7 +34,9 @@ What it does, per spec and per lane (README section 8 stage chain):
   * ASSERT (section 4): the COMPLETE normalized console stream -- `collapse-spaces-v1` is the
     gate's own law verbatim (tools/e2e_gate.py:5632), the line sequence must match with no extra
     and no missing line, a single trailing empty element is ignored (the measured E32B1
-    final-\\n), and `!text` entries assert absence.  `exact` mode compares raw bytes.
+    final-\\n), and `!text` entries assert absence.  Entries are STRINGS; "" is a legal entry
+    asserting an EXACT blank line at that position (FC-01 hop 3, framing law [C352]); a bare
+    "!" is rejected.  `exact` mode compares raw bytes.
 
 Verdict law (section 8): PASS only when EVERY APPLICABLE stage ran and produced typed success
 evidence and ASSERT matched.  A skipped, unrun, blocked or unclassified stage is NEVER a PASS --
@@ -380,9 +382,19 @@ def validate_spec(obj, *, basename, coverage):
                 P.append("expected.console must be a non-empty array (an empty expected list "
                          "matches every transcript and is never an assertion)")
             else:
+                # [FC-01 hop 3] entries are STRINGS and "" is LEGAL: it asserts an exact blank
+                # line at its position in the complete stream (measured framing law [C352]:
+                # first-statement PUT SKIP prints a leading CRLF; the exit chain appends one
+                # final CRLF unconditionally, also after a final bare PUT SKIP).  The list itself
+                # must still be non-empty (the empty-expected trap above) and a bare "!" is not
+                # a negative entry -- `!text' is (README section 4).
                 for e in console:
-                    if not _is_str(e):
-                        P.append("expected.console entries must be non-empty strings")
+                    if not isinstance(e, str):
+                        P.append("expected.console entries must be strings (\"\" = exact blank "
+                                 "line); got %r" % (e,))
+                    elif e == "!":
+                        P.append("expected.console bare \"!\" is not an entry -- negative "
+                                 "entries are \"!text\" (README section 4)")
         fe = exp.get("file_expectations")
         if fe not in (None, [], {}):
             P.append("expected.file_expectations is declared in README section 3 but is NOT "
@@ -1105,7 +1117,10 @@ def _run_lane_b(ctx):
 
 def assert_stream(ctx):
     """README section 4: the COMPLETE normalized stream.  Positive entries must equal the line
-    sequence exactly (no extra, no missing line); `!text' entries assert absence from the stream."""
+    sequence exactly (no extra, no missing line); `!text' entries assert absence from the stream.
+    A "" positive entry asserts an EXACT blank line (an empty element of the split stream) at
+    that position -- it is matched positionally like any other line; the complete-stream law and
+    the single-ignored-trailing-empty-element rule (E32B1 exit \\n, [C352]) are UNCHANGED."""
     exp = ctx.spec["expected"]
     if ctx.console_raw is None:
         return Stage("ASSERT", "unknown", "undefined", "no captured stream",

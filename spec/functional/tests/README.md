@@ -78,7 +78,7 @@ required field.
 | `limits` | Y | object | `{"compile_timeout_s": n, "link_timeout_s": n, "run_timeout_s": n, "run_max_steps": n}` — all positive integers; timeouts are FAIL-with-attribution material, never a retry prompt (§ 8) |
 | `lanes` | Y | array (≥1) | § 5.2 lane entries; the verdict of a test is per-lane |
 | `console_input` | N | string | console stdin for the run stage; DEFAULT `"^Z"` (one EOF), the `oracle/linkrun.py` convention (`DEFAULT_INPUT`); Lane A specs may omit it (the audited emulator provides no console input at all — `docs/emulator-audit.md` § 2.12) |
-| `expected` | Y | object | § 4: `derivation`, `normalization`, `console` (non-empty array), optional `file_expectations` |
+| `expected` | Y | object | § 4: `derivation`, `normalization`, `console` (non-empty array of strings; a `""` entry is a legal EXACT blank line — **[FC-01 hop-3 amendment]**, see § 4), optional `file_expectations` |
 | `notes` | N | string | design rationale, cross-references |
 
 ## 4. The expected block — reference derivation
@@ -108,6 +108,17 @@ required field.
   law is adopted: an empty expected string matches every transcript
   (`tools/e2e_gate.py:5628-5636`). Where absence must be asserted, use a NEGATIVE entry
   `"!text"` (same spelling the gate has used since [E2E-41/P1b]), which is a real test.
+- **Entry representation [FC-01 hop-3 amendment].** `expected.console` entries are STRINGS.
+  `""` is a LEGAL entry asserting an EXACT blank line at its position in the complete normalized
+  stream (matched positionally, like any other line; a whitespace-only line is NOT blank — after
+  `collapse-spaces-v1` it is `" "` and mismatches). A bare `"!"` is rejected (a negative entry
+  must carry text). The empty-LIST rule above is unchanged, and the COMPLETE-STREAM law is NOT
+  weakened: an extra or missing blank line still FAILs. This representation exists because the
+  measured console framing law [C352] (§ 6) puts real blank lines at stream start and, for
+  programs ending in a bare `PUT SKIP`, at stream end; the original rule text ("entries must be
+  non-empty strings") is superseded by this amendment and is kept here as written per
+  PROTOCOL #2 — it was falsified not as evidence but as a schema restriction that could not
+  express the measured stream (§ 6 framing law, `spec/lab-evidence/fc01-framing/RESULTS.md`).
 - Line semantics: **v1 asserts the COMPLETE normalized console stream.** The normalized
   bytes are split on `\n`; the expected list must equal that sequence of lines, in order,
   with no extra and no missing line. One documented deviation from the gate, deliberate and
@@ -183,6 +194,27 @@ od-verified stored goldens; re-verified 2026-11-02 hop-2: DR-side run golden
 
 With `collapse-spaces-v1` normalization these become plain single-space expected strings;
 under `"exact"` the full field layout is asserted.
+
+**Framing law at stream start and exit** — measured on DR's own objects, accepted as
+`[C352]` (fc01-framing round 2026-11-02, `spec/lab-evidence/fc01-framing/RESULTS.md` § 1-3;
+probes FCPS1/FCPS2/FCPS3, goldens `golden/fc01ps-r/`; the bare-skip-at-start spelling was
+already measured by E29PS1 `[C192]`; my `.REL` objects are byte-exact to DR's on all three
+shapes):
+
+- a `PUT SKIP` — bare or `PUT SKIP LIST` — executed as the FIRST output statement prints its
+  own leading CRLF: the normalized stream BEGINS with a blank line, so a conforming expectation
+  starts with a `""` entry (measured FCPS3 `\r\nL=...`; E29PS1 bare spelling);
+- each `SKIP` prints exactly one CRLF (a `PUT SKIP LIST` after an open line closes it and starts
+  a new one — the line-structure § 6 already describes);
+- the program-exit chain appends EXACTLY ONE final newline REGARDLESS of line state: it closes
+  an unterminated final line (the E32B1 behaviour the § 4 trailing-empty-element rule encodes)
+  AND it fires AGAIN after a final bare `PUT SKIP;` had just terminated the line — so a program
+  ending in a bare `PUT SKIP` ends with a trailing blank line, an extra `""` entry (measured
+  FCPS1 `X=         1\r\n\r\n`; the conditional-flush reading was pre-registered as H2 and is
+  FALSIFIED, kept as written per PROTOCOL #2).
+
+Expectations are still DERIVED, never captured (L3): the framing entries above follow from the
+program's declared statement sequence plus this measured law, before any lane runs.
 
 ## 7. Corpus capability perimeter (v1, from `spec/COVERAGE.tsv`)
 

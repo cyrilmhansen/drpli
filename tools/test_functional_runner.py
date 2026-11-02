@@ -587,7 +587,10 @@ mut("missing required field", lambda o: o.pop("provenance"), "missing required f
 mut("wrong schema tag", lambda o: o.update(spec="pli80-functional/2"), "pli80-functional/1")
 mut("id != basename", lambda o: o.update(id="OTHER"), "must equal the spec basename")
 mut("empty expected.console", lambda o: o["expected"].update(console=[]), "non-empty array")
-mut("empty console entry", lambda o: o["expected"].update(console=[""]), "non-empty strings")
+mut("non-string console entry [FC-01 hop 3: '' is now LEGAL, non-strings still refused]",
+    lambda o: o["expected"].update(console=["SUM=6", 7]), "must be strings")
+mut("bare '!' console entry (negative needs text)",
+    lambda o: o["expected"].update(console=["SUM=6", "!"]), 'bare "!"')
 mut("forbidden cap AGG.MULTIDIM (in coverage!)",
     lambda o: o.update(capabilities=["AGG.MULTIDIM"]), "forbidden in v1")
 mut("forbidden cap EXPR.K_PLUS_X", lambda o: o.update(capabilities=["EXPR.K_PLUS_X"]), "forbidden in v1")
@@ -1152,6 +1155,93 @@ rec = w.run(obj=w.make_obj("F1-IORAN"))[0]
 check("C15g I/O-ran terminator: region cut before the tail, final newline kept",
       rec["verdict"] == "PASS" and
       open(os.path.join(w.edir(rec), "run.console.bin"), "rb").read() == b"SUM=6\r\nN=2\r\n")
+
+# ================= C16 (FC-01 hop 3): the "" blank-line entry -- schema acceptance AND the
+# ASSERT semantics it earns.  The framing law [C352] puts real blank lines at stream start
+# (first-statement PUT SKIP) and, after a final bare PUT SKIP, at stream end (unconditional
+# exit CRLF).  Complete-stream law is NOT weakened: an extra or missing blank still FAILs.
+print("== C16: blank-line entries -- schema \"\" accepted; ASSERT exact-blank semantics; "
+      "complete-stream law NOT weakened ([C352])")
+wsch = World("c16sch")
+for pos, con in (("leading", ["", "SUM=6", "N=2"]),
+                 ("interior", ["SUM=6", "", "N=2"]),
+                 ("trailing", ["SUM=6", "N=2", ""])):
+    obj = wsch.make_obj("BLK-%s" % pos[:4].upper())
+    obj["expected"]["console"] = list(con)
+    probs = fr.validate_spec(obj, basename=obj["id"], coverage=COV)
+    check("C16a schema accepts a %s \"\" blank-line entry" % pos, probs == [])
+for label, con, want in (("non-string entry", ["SUM=6", 7], "must be strings"),
+                         ("bare '!' entry", ["!"], 'bare "!"'),
+                         ("null entry", [None], "must be strings")):
+    obj = wsch.make_obj("BLK-BAD")
+    obj["expected"]["console"] = list(con)
+    probs = fr.validate_spec(obj, basename=obj["id"], coverage=COV)
+    check("C16b schema still rejects %s" % label, any(want in p for p in probs))
+obj = wsch.make_obj("BLK-EMPTY")
+obj["expected"]["console"] = []
+check("C16b the empty-LIST rule is UNCHANGED (\"\" entries do not relax it)",
+      any("non-empty array" in p for p in fr.validate_spec(obj, basename=obj["id"],
+                                                            coverage=COV)))
+
+
+def blank_case(tag, want, tr, expect_pass, label):
+    w = World(tag)
+    w.derive_result = (0, json.dumps(want).encode())
+    w.sessions_map = {"run": (0, tr)}
+    exp = {"derivation": "reference.py:derive", "normalization": "collapse-spaces-v1",
+           "console": list(want)}
+    rec = w.run(obj=w.make_obj(tag.upper(), expected=exp))[0]
+    st = stage_of(rec, "ASSERT")
+    check("C16c %s -> verdict %s (witness %r)" % (label, "PASS" if expect_pass else "FAIL", 
+                                                  st["witness"] if st else "-"),
+          rec["verdict"] == ("PASS" if expect_pass else "FAIL") and
+          statuses(rec)["ASSERT"] == ("pass" if expect_pass else "fail"))
+    return w, rec
+
+
+# Measured shapes (FCPS3 at start, FCPS1 at end): the blank lines are REAL stream content.
+w, rec = blank_case("c16lead", ["", "SUM=6", "N=2"],
+                    "D>TABLE00\r\r\n\r\nSUM=6\r\nN=2\r\nD>", True,
+                    "leading blank expected and present ([C352] FCPS3 shape)")
+check("C16c the leading CRLF survives into the capture, prompt never",
+      open(os.path.join(w.edir(rec), "run.console.bin"), "rb").read()
+      == b"\r\nSUM=6\r\nN=2\r\n")
+w, rec = blank_case("c16trail", ["SUM=6", "N=2", ""],
+                    "D>TABLE00\r\r\nSUM=6\r\nN=2\r\n\r\nD>", True,
+                    "trailing blank expected and present ([C352] FCPS1 shape)")
+check("C16c the exit-chain double CRLF is captured verbatim (no laundering)",
+      open(os.path.join(w.edir(rec), "run.console.bin"), "rb").read()
+      == b"SUM=6\r\nN=2\r\n\r\n")
+# The complete-stream law is NOT weakened by the new representation: blanks are lines too.
+blank_case("c16extra", ["SUM=6", "N=2"],
+           "D>TABLE00\r\r\nSUM=6\r\n\r\nN=2\r\nD>", False,
+           "UNEXPECTED interior blank still FAILs (extra line)")
+blank_case("c16missing", ["", "SUM=6", "N=2"],
+           "D>TABLE00\r\r\nSUM=6\r\nN=2\r\nD>", False,
+           "expected leading blank MISSING from the stream still FAILs")
+blank_case("c16ws", ["SUM=6", "", "N=2"],
+           "D>TABLE00\r\r\nSUM=6\r\n \r\nN=2\r\nD>", False,
+           "a whitespace-only line is NOT an exact blank line (collapse-spaces-v1 keeps ' ')")
+# "" and '!text' coexist: the negative entry still asserts absence.
+w = World("c16neg")
+want = ["", "SUM=6", "N=2", "!BOOM"]
+w.derive_result = (0, json.dumps(want).encode())
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\n\r\nSUM=6\r\nN=2\r\nD>")}
+rec = w.run(obj=w.make_obj("C16NEG", expected={"derivation": "reference.py:derive",
+                                               "normalization": "collapse-spaces-v1",
+                                               "console": list(want)}))[0]
+check("C16d blank-line + negative entries compose (PASS, negative witnessed)",
+      rec["verdict"] == "PASS" and
+      "+1 negative(s)" in stage_of(rec, "ASSERT")["detail"])
+w = World("c16neg2")
+want = ["SUM=6", "N=2", "!\r"]  # '!text' with text after the bang; absence holds
+w.derive_result = (0, json.dumps(want).encode())
+w.sessions_map = {"run": (0, "D>TABLE00\r\r\nSUM=6\r\nN=2\r\nD>")}
+rec = w.run(obj=w.make_obj("C16NEG2", expected={"derivation": "reference.py:derive",
+                                                "normalization": "collapse-spaces-v1",
+                                                "console": list(want)}))[0]
+check("C16e bare-! rejection at schema level does not disturb '!text' handling",
+      rec["verdict"] == "PASS")
 
 # --------------------------------------------------------------------------- summary
 print()
