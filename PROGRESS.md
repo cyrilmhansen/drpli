@@ -127,6 +127,21 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 **FC-01 OPERATOR OVERRIDE (2026-11-02). HOP 5 IS CANCELLED — do NOT implement `stage_files`,
 `expected.file_expectations`, FILE-00/FILE-01, the fc01-fileio oracle round or ONUNIT-00.**
+
+HAMM-00 DESIGN COMPLETE (2026-11-03 design hop, this chain, renewal 3/12): the full port
+design, the MEASURED console-GET echo environment law (echo `L\r\r\n`, no PLILIB extra
+terminator, unconsumed ^Z never captured — from golden/e32rt_NETWORK + e29dr_runB transcripts;
+expected echo lines carry a trailing `\r`), the GET/GOTO shape confirmations, the bin15
+scaling analysis (A=300/S≈2400/P=95 declared adaptation; births order law
+floor(floor(X/P)/100)=floor(X/(P*100)) exact, reverse order FALSIFIED; P≥100 one-step
+exactness) and the draw/parity/impeach reconstructions are in LEARNINGS.md § 2026-11-03
+FC-01 CORPUS HAMM-00 design hop — READ THAT SECTION FIRST; everything needed to implement
+is there. EXACT NEXT: prototype reference.py:hamm00 in build/ (iterate the 10-year script to
+a rich path: complaints, plague, rats, starvation bounds, asserts all intermediates <32767),
+then write HAMM-00.PLI + HAMM-00.json per that section, --stages source,derivation, lane B
+--evidence build/fc01/corp4, docs § 9 + § 1 row, e2e_gate compile tier, explicit-path commit.
+No ocaml/harness changes; ledger ends C352; no push; operator handoff.config.json stays
+unstaged. (Nothing was half-edited at this renewal boundary; the design prose is committed.)
 Nothing of it had begun (measured at `6a35b9c`: no `stage_files` anywhere in
 `tools/functional_runner.py`; `file_expectations` is only the pre-existing fail-closed rejection
 at lines 127/398-400). Hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand untouched; the
@@ -370,17 +385,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 153
-checkpoint-id: g153-4be7abe6834a
+checkpoint-generation: 156
+checkpoint-id: g156-e07090695eff
 checkpoint-kind: auto
 content-delta: none
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-02T10:31:15.922Z
+checkpointed: 2026-11-02T10:57:46.326Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 33c7d13ef9a46b05eeff20494c3d2e98aa938d261fa9de2557cb575577029bbd
-source-handoff: c10b8231bfd931d7e7ab4cc45cad2df610ef6c5a2bd7ced4a77277b4621a449a
-source-learnings: d8e931a27ea3cf0c604118c763a8a2a74249e0f8b499cb6f30f66592d22c22dd
+source-progress: da2ea36fddf6e8a0e3d9178b01b49915913e7d111ef417e881be3dd41b8eb19d
+source-handoff: 074eab15371fdbd40918fafd1785381f40fe30fd40e27953e7d7259a067b4328
+source-learnings: d20e55e8bff1ecf7409001c02821a4b99fba70338d2276288dd1717946ca6f18
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`

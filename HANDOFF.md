@@ -125,7 +125,9 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 ## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json`. **WKDAY-00 DONE — rev3 lane-B PASS
 (2026-11-03; docs § 8, evidence build/fc01/corp1..corp3).** Next program: Hammurabi (BASIC) →
 `HAMM-00`, corpus rule applied (literal divisors ≤ 127, ordered-compare constants ≥ 1 —
-LEARNINGS CORPUS hop 2).
+LEARNINGS CORPUS hop 2). DESIGN COMPLETE 2026-11-03: implement from `LEARNINGS.md`
+§ 2026-11-03 FC-01 CORPUS HAMM-00 design hop (echo law, GET shapes, bin15 scaling, script
+plan) + `PROGRESS.md` → Next action; nothing else to re-derive.
 
 ## Superseded next action (FC-01 hop 5) — kept as written per PROTOCOL #2; CANCELLED by the operator override above, never started
 
@@ -167,8 +169,12 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
   half-edited, nothing was deleted: no hop-5 code, spec, fixture or probe ever existed.
 - ACTIVE: FC-01 CORPUS — the eight adapted historical programs. WKDAY-00 COMPLETE at rev3
   lane-B PASS (evidence build/fc01/corp1..corp3 + corp3-double, ignored; docs § 8 + § 1 row);
-  gate compile tier + explicit-path commit owed at this boundary. Program 2 = HAMM-00
-  (Hammurabi) per `PROGRESS.md` → Next action. Rights/provenance review per program (README § 5.1)
+  committed `21c9f69`, gate ACTUALS recorded there. HAMM-00 (Hammurabi, program 2) DESIGN IS
+  COMPLETE AND COMMITTED: measured console-GET echo environment law, GET/GOTO shape
+  confirmations, bin15 scaling analysis and the full port design are in `LEARNINGS.md`
+  § 2026-11-03 HAMM-00 design hop — the successor reads that section and implements the
+  triple (prototype simulator → HAMM-00.PLI/.json → derivation check → lane B corp4 →
+  docs § 9 + § 1 → gate → commit). Rights/provenance review per program (README § 5.1)
   and the unsupported-feature record are explicit deliverables; the BASIC upstream licences
   are UNVERIFIED and are recorded as such, not asserted.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
@@ -204,17 +210,17 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 153
-checkpoint-id: g153-4be7abe6834a
+checkpoint-generation: 156
+checkpoint-id: g156-e07090695eff
 checkpoint-kind: auto
 content-delta: none
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~4948, session 01a19bb2-a51b-7761-bfc4-e2633770e95f)
-checkpointed: 2026-11-02T10:31:15.922Z
+status: checkpoint (guard level 4, remaining ~4500, session 01a19bd0-be2c-7761-bfc4-e267170a0d43)
+checkpointed: 2026-11-02T10:57:46.326Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 33c7d13ef9a46b05eeff20494c3d2e98aa938d261fa9de2557cb575577029bbd
-source-handoff: c10b8231bfd931d7e7ab4cc45cad2df610ef6c5a2bd7ced4a77277b4621a449a
-source-learnings: d8e931a27ea3cf0c604118c763a8a2a74249e0f8b499cb6f30f66592d22c22dd
+source-progress: da2ea36fddf6e8a0e3d9178b01b49915913e7d111ef417e881be3dd41b8eb19d
+source-handoff: 074eab15371fdbd40918fafd1785381f40fe30fd40e27953e7d7259a067b4328
+source-learnings: d20e55e8bff1ecf7409001c02821a4b99fba70338d2276288dd1717946ca6f18
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
@@ -249,5 +255,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FC-01 CORPUS: WKDAY-00 rev3 lane-B PASS committed at 21c9f69 (rev1 >0 refusal corp1; rev2 silent /365->109 miscompile corp2; rev3 /5,/73 split PASS, double-run byte-equal; docs §8 + row; gate rc=0 1174/0, 181/181, 9/9, 133/0/0, census 15/0/26/0, prose 5 clean; LEARNINGS CORPUS hop 2). NEXT: HAMM-00 per PROGRESS Next action (corpus rule: literal divisors <=127, ordered-compare constants >=1; read WEEKDAY source dir NOTES.txt/URLS.tsv; hammurabi.bas in build/functional/fc01-sources/basic/). Constraints unchanged: no ocaml, no harness changes, no push, operator config unstaged, ledger ends C352.
+HAMM-00 design hop closed: console-GET echo environment law measured from archived DR transcripts, GET/GOTO shapes confirmed, bin15 scaling analysis done; full design in LEARNINGS.md 2026-11-03 HAMM-00 design hop. Next: prototype reference.py:hamm00, write triple, lane B corp4.
 <!-- guard:end checkpoint -->

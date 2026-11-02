@@ -2151,3 +2151,94 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   re-derived: all three revisions preserved the derived behaviour; DERIVATION passed in every record.
 - CORPUS RULE (proposed, cheap to obey): adapted programs must keep literal divisors ≤ 127 and
   ordered-compare constants ≥ 1; record any substitution in the spec `notes`.
+
+## 2026-11-03 — FC-01 CORPUS HAMM-00 design hop (console-GET echo law measured from archives; full port design derived)
+
+- ACCEPTED (state): build rc=0 at HEAD `624c5f1`, compiler sha `edce9e0e…` unchanged; tree
+  dirty ONLY in the guard's g153 readiness stamps + the operator's `handoff.config.json`;
+  WKDAY-00 fully closed at `21c9f69` (gate 1174/0 etc. recorded there — the PROGRESS "(a)/(b)
+  owed" items were already executed by the parent). HAMMURABI.bas research copy sha256
+  `93fea01f8b63766a83919653f798932ba33d4ca2654b70e87a54653d60c73831`, 119 lines, LF, line-numbered.
+- ACCEPTED (ENVIRONMENT law, read byte-exact THIS hop from two archived DR-object transcripts —
+  no new emulator run; cpmsim/CCP/PLILIB behaviour, NOT a compiler claim, so no CLAIMS entry;
+  this is what makes a GET-driven corpus expectation derivable): (1) every console line L
+  consumed by a PLILIB GET echoes into the capture as the exact bytes `L\r\r\n` (appended AT
+  the current position — no leading newline; the echo CLOSES the line; `^Z` echoes as the two
+  literal chars `^Z`): `golden/e32rt_NETWORK/NETWORK.transcript.txt`, `golden/e29dr_runB/
+  REVERSE.transcript.txt`. (2) The blank line seen after an echo is ONLY the next program
+  `put skip`'s own leading CRLF — PLILIB adds no extra terminator after a consumed record
+  (REVERSE byte analysis: echo `hello world .\r\r\n` + `\r\n` = the `put skip list('Actually, ')`
+  leading CRLF per [C352]). (3) A trailing `^Z` never consumed by the program is read by the
+  CCP AFTER the prompt and NEVER enters the captured region (WKDAY corp3 capture: 10 lines,
+  no `^Z` row, console_input was `^Z`). Under the harness's own normalize_v1+split_stream
+  (re-applied this hop to the raw NETWORK transcript: 28 lines) echo lines keep a TRAILING
+  `\r` inside the stream line (e.g. `'Boston,100,NewYork\r'`) — expected.console entries for
+  GET programs must spell that `\r`.
+- ACCEPTED (code reading, `ocaml/lib/codegen.ml:10007-10105`): console GET LIST lowers
+  FIXED BIN 2-byte targets as `?GNVOP / JP / ?QCIOP / SHLD` (EXACT specimens R903/R904 —
+  `get list(q)` on `fixed bin(15)` is a SUPPORTED shape); char-varying `?SSVFS`; mixed
+  char+fixed single-list REFUSED (negative row N44_GETFIXCHAR, my-gap); 1-byte fixed target
+  refused [TBD]. `TRAN.GOTO_SAME_BLOCK` is a SUPPORTED EXACT row (plain `goto L;` in-block
+  lowers to a direct JMP) — labels + goto are legal corpus shapes; `do while (x ^= y)`
+  witnessed (MATH-00 PASS).
+- ACCEPTED (BASIC trace of HAMMURABI.bas, whole program): initial Z=0 P=95 S=2800 H=3000
+  E=H−S=200 Y=3 A=H/Y=1000 I=5 Q=1 D1=0 P1=0; per year: 210 D=0 → 215 report (Z=Z+1) →
+  217 prints LAST year's D and I → 218 P=P+I → 227 plague iff Q≤0 (P=INT(P/2) + line) →
+  230–260 print P A Y E S (Y,A,E,S are PRE-year values at report; S is post-harvest) →
+  270 Z=11 → summary 860 → price 310 (C=INT(10*RND), Y=C+17) → BUY loop (321 Q<0→850;
+  322 Y*Q≤S else 710 complaint; 330 Q=0 → SELL loop 341 Q<0→850, 342 Q<A else 720;
+  331/350 update A,S,C=0) → FEED 410-430 (Q<0→850; Q≤S else 710; S=S−Q,C=1,blank) →
+  PLANT 440-460 (D=0→511; D<0→850; D≤A else 720; INT(D/2)≤S else 710; D<10*P else 460
+  people-complaint loop; 510 S=S−INT(D/2)) → HARVEST 511-533: GOSUB 800 (C=INT(RND*5)+1)
+  → Y=C, H=D*Y, E=0; GOSUB 800 again → rats iff INT(C/2)=C/2 i.e. C EVEN (E=INT(S/C));
+  S=S−E+H; GOSUB 800 third → I=INT(C*(20A+S)/P/100+1) → C=INT(Q/20) full bellies (Q still
+  the FEED amount) → Q=INT(10*(2*RND−.3)) plague draw ∈ −3..6 → 550 IF P<C THEN 210
+  (skip-year: D=0, P keeps value + next-year I added at 218; births line 533 ALREADY ran)
+  → 552 D=P−C; impeach iff D>.45*P → 553 P1=((Z−1)*P1+D*100/P)/Z → 555 P=C, D1=D1+D, loop
+  215. Summary 860-896: prints P1 (percent) and L=A/P, then the verdict ladder 880/885/890/
+  892/895/896; 565/940/960/900 texts; 990 blank + 10×CHR$(7) bells; 995 SO LONG FOR NOW.
+  + blank; NEGATIVE input → 850 steward text → 990.
+- ACCEPTED (bin15 bound analysis, the hard constraint on ANY faithful-scale port): the births
+  product C*(20A+S) with the ORIGINAL starts is 114000 in year 1 (>32767) and even the
+  /P-first intermediate X/P ≥ 12000 for C=5 at P=95 — NO decomposition fits; the exact
+  nested-floor identity holds ONLY in the order floor(floor(X/P)/100)=floor(X/(P*100))
+  (reverse order falsified by X=20700,P=230: 90 vs 90? no: X//100//230=0 ≠ 90 — and the
+  one-step exactness floor(X/P)/100 needs P ≥ 100, proved by 100r1 < 100P). Therefore the
+  port SCALES the opening pot (DECLARED adaptation): A=300 (H=900/Y=3), S≈2400, P=95, I=5;
+  the script keeps 20A+S ≤ 6553 (so C*u ≤ 32767 for C≤5) by selling/feed-drawing every
+  year; year-1 d = 55 (feed 1100 → cap 55, d=100−55=45… simulator tunes), and ALL
+  intermediates are ASSERTED < 32767 in reference.py. The original P=95/S=2800/H=3000
+  dynamics are NOT reproducible in bin15 cells — recorded, not hidden.
+- ACCEPTED (design, replaces the predecessor sketch): a NEGATIVE E is impossible after the
+  first harvest (S post-harvest ≥ H ≥ 2·seed) so `d = s − e` never truncates-toward-zero
+  differently from BASIC floor; the E=H−S print in the YEAR-1 report can go negative only
+  if the script lets S > H at harvest — the tuned script keeps year-1 s post-harvest ≥ h.
+  RND sites become a declared formula draw: `gg=gg+1; w=gg*37+11; v=w−(w/k)*k` (k=10 price/
+  plague, k=5 yield/rats/births — mod-7 invariant ⇒ same value for k=5 and k=10 per gg);
+  plague q = v−3 (range −3..6 EXACTLY the original's INT range; the 15% probability is NOT
+  reproduced — declared RNG substitution). Parity 522: `t5=c/2; if t5*2=c then rats`.
+  552: `t7=(p*45)/100; if d>t7 then impeach` (integers: d>floor(.45p) ⟺ d>.45p exactly).
+  All `x<0`/`x>0` tests use the proven shift forms (q+1<1, plague-guard t=q+1 … t≤1); every
+  division operand is provably non-negative (shift-verified); divisors: literals 2/3/5/10/
+  45/100/20 (all ≤127) + VARIABLES p (births/P1), c (rats), z (P1), p (L=A/P) — variable
+  division compiles (generic ?ID22N route) but is RUN-UNWITNESSED: first corpus use, flagged.
+- PROPOSED (script direction, tune in the simulator): year-1 buy OVER-CLAIM (e.g. 1300 at
+  price 25 → product 32500 ≤32767 and > S → 710 complaint) then BUY 0 → SELL complaint
+  (700 > A → 720) then sell ~600; feed complaint once (q > s → 710) then feed ≈1100;
+  plant complaint once (D > A → 720 or D ≥ 10P → 460 people branch) then plant ≤ A; aim
+  several survived years with d>0 (pop collapses via P=C, kept as declared dynamics),
+  at least one plague year (gg≡1,4,5,7,8,11… mod-10 v≤2) and one EVEN rats draw; the game
+  may end by IMPEACHMENT (560→565..567→990) — a legitimate complete path — or the 10-year
+  summary ladder; whichever the simulator lands on, the stream + echoes are DERIVED.
+  CHR$(7) bells and the TAB banner lines are DROPPED and DOCUMENTED (no measured bell-byte
+  PUT shape; README § 5.1 removal list).
+- NEXT (successor, exact): (1) prototype `reference.py:hamm00` in build/fc01-scratch first
+  (python3, iterate script+draws until bounds assert + a rich path; stream model = program
+  PUTs + `L\r` echo lines + [C352] framing); (2) write HAMM-00.PLI (CRLF/^Z/≤71, header
+  naming HAMMURABI.bas + sha 93fea01f…, scaled starts declared) and HAMM-00.json
+  (console_input = numeric lines `\r`-joined + `^Z`; capabilities from SUPPORTED rows incl.
+  IO.GET_LIST, TRAN.GOTO_SAME_BLOCK; notes = full removal/substitution list per this
+  section); (3) `--stages source,derivation` then lane B `--evidence build/fc01/corp4`,
+  ACTUALS verbatim; (4) docs § 9 + § 1 row, e2e_gate compile tier, explicit-path commit
+  (also commit this LEARNINGS + PROGRESS prose); constraints unchanged (no ocaml, no
+  harness edits, no push, ledger ends C352, functional runs are NOT DR claims).
