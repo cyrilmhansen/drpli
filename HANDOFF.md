@@ -272,6 +272,24 @@ build/fc01/corp4` ACTUALS verbatim -> docs/functional-results.md § 9 + § 1 row
 `python3 tools/e2e_gate.py` compile tier -> explicit-path commit (never `handoff.config.json`);
 no push; ledger ends C352; no ocaml/harness changes; third-party bytes never tracked.
 
+## TICT-00 hop start LANDED (2026-11-02; continuation chain hop 3; docs-only, no compiler/emulator run this hop beyond the ignored scratch pre-compiles)
+
+Both Tic-Tac-Toe listings sha-verified rc=0 and READ. **BASE CHOSEN: TICTACTOE2.bas** (sha
+`9945f459…`) — TICTACTOE1 (`e1125402…`) never terminates (win/draw both `GOTO 210`; the only
+stop would be GET-at-^Z-EOF, UNMEASURED), so no finite complete stream can be derived from it;
+the choice + why are recorded. Measured port shapes (my compiler, ignored scratch shapes03/04/
+05; NOT DR claims): `DO BY 3` refused → emulate `(jj-1)*3+1`; `> var` and `= -1` (k<=0) refused
+→ positive-literal compares + shift idiom `t2 = t1 + 1; if t2 = 0`; expression-left `=` refused
+(matches EXPR.REL_VAR_EQ_EXPR pinned REFUSED); ACCEPTED rc=0: scalar=scalar equality, guarded
+multi-statement DO blocks, `s(i) = -1` stores. PROPOSED design (numeric choice GET replaces
+string C$ GET; flat goto machine; found-flag loop exits; script must reach ONE legitimate END)
+is in `LEARNINGS.md` § "TICT-00 hop start" — READ IT FIRST. EXACT NEXT = that section's
+implementation hop steps 1-11 in `PROGRESS.md` → Next action (simulator → draft → pin →
+reference mirror diff BEFORE JSON → TICT-00.json → source,derivation → lane B corp7 → docs § 12
++ § 1 → gate → explicit-path commit), then LIFE-00, DHRY-00 (NEVER execute the `.SHAR`), FFT-00.
+Nothing tracked authored yet for TICT-00; ledger ends C352; nothing laundered; operator
+`handoff.config.json` untouched/unstaged; no push.
+
 ## AMAZ-00 rev1 LANDED — lane-B **PASS** on the first run (2026-11-02; continuation chain hop 2; execution HEAD `708ce33`; renewals AVAILABLE — use `handoff_renew` at safe boundaries)
 
 Hop 2 of the continuation chain finished AMAZ-00 (program 4 of 8, Amazing maze) exactly as the

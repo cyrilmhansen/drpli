@@ -3206,3 +3206,62 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   design inside the measured subset, independent simulator, mirror-diff BEFORE the JSON,
   `--stages source,derivation`, lane B `build/fc01/corp7`, docs § 12 + § 1, gate, explicit-path
   commit). Then LIFE-00, DHRY-00 (never execute the `.SHAR`), FFT-00.
+
+## 2026-11-02 — FC-01 CORPUS TICT-00 hop start (BOTH listings READ; v2 PICKED; port-shape probe batch measured)
+
+- ACCEPTED (source verified): `sha256sum -c SHA256SUMS` rc=0 for both files this hop;
+  `basic/TICTACTOE1.bas` sha `e1125402f6dc596dbef7390a98eba386f4b6885282d52a202333372cd15e7614`
+  (69 lines, URLS.tsv line 6), `basic/TICTACTOE2.bas` sha
+  `9945f459bb0b3ef5cbc5d36ee808d6bad321285bc1a692044a295f0ed5696b9d` (114 lines, line 7);
+  both 89_Tic-Tac-Toe, Creative Computing/Morristown NJ; licence UNVERIFIED, recorded as such;
+  no upstream bytes in tracked files.
+- DECIDED (recorded why): **BASE = TICTACTOE2.bas**. TICTACTOE1 (machine-goes-first, FNM(X)=
+  X-8*INT((X-1)/8) canned strategy, GOSUB 650/700 move print + INPUT) NEVER terminates - both
+  the win (730 -> GOTO 210) and draw (620 -> GOTO 210) paths restart the game, so the only stop
+  would be GET at ^Z EOF, behaviour UNMEASURED on lane B - a finite complete-stream expectation
+  cannot be derived from it. TICTACTOE2 is the classic Ahl-1971 full player-vs-machine game:
+  strategy subroutine 100-195 (center/corner/block scan with nested FOR J=1 TO 7 STEP 3 /
+  FOR K=1 TO 3 and GOTOs crossing the active loops), occupancy-checked numeric INPUT M (500-510),
+  board printer 1000-1080 (string vars P$/Q$, `---+---+---` and `!` separators), win/draw
+  detector 1095-1155 (member-equality rows/cols, centre+corner diagonals gated on G), and THREE
+  legitimate END routes: M=0 quit ("THANKS FOR THE GAME." 502), "I WIN, TURKEY!!!" (1350),
+  "YOU BEAT ME!! GOOD GAME." (1200), draw "IT'S A DRAW. THANK YOU." (1400).
+- ACCEPTED (read from v2, port constraints): INPUT C$ at 50 is a STRING GET - UNMEASURED;
+  substitution PROPOSED: numeric GET 1 = player wants X (player moves first), 2 = player O
+  (machine first), prompt states the code contract; apostrophe literals (50 quotes, 1400 IT'S)
+  need apostrophe-free rewrites (HANG-00 precedent); G/H swap at 175 (G=1:H=-1) drives the
+  second block-pass; 455 `IF J=7 AND K=3` and 113-115 compare-expression-against-M forms need
+  temp scalars.
+- MEASURED THIS HOP (my compiler, ignored scratch pre-compiles `build/fc01-scratch/shapes03/
+  04/05.pli`; PORT shapes, NOT DR claims):
+  * FALSIFIED for port use: `if m - 1 = 3` REFUSED (`condition form not in E2E-3b subset` -
+    an expression may not be the LEFT of `=`; matches pinned EXPR.REL_VAR_EQ_EXPR REFUSED, whose
+    law text says the nearest accepted shapes are a literal and a single other variable);
+    `do j = 1 to 7 by 3` REFUSED (`DO BY magnitude > 2 unproven`) - emulate STEP 3 with
+    `do jj = 1 to 3; j = (jj - 1) * 3 + 1;` (literal multiply, no division - ACCEPTED,
+    compiles in shapes03 rc=0); `if t1 > t2` REFUSED (`compare > k<=0 form unproven` -
+    ordered compare must have a POSITIVE LITERAL right side; var-var ordered compares are out);
+    `if t1 = -1` and `if g = -1` REFUSED (same k<=0 law) - use the SHIFT idiom `t2 = t1 + 1;
+    if t2 = 0 then ...` for equals-minus-one tests.
+  * ACCEPTED (compiled rc=0, shapes05 640 B code=314 data=18): scalar=scalar equality compares
+    (t1 = t2, m = j, m = b2 after temp); member stores with simple-var index incl. negative
+    literal (s(i) = -1, s(5) = -1); GUARDED MULTI-STATEMENT DO blocks (`if t1 = 0 then do;
+    ...; ...; end;`) inside DOs - the loop-body-with-flag idiom; goto-to-flat-label and
+    label-before-statement continue (lsq idiom) compile.
+  * Carried accepted from AMAZ-00 hop (re-confirmed this hop): member-in-condition refuses
+    (load t1 = s(i) first); subscripts simple var or var+1 only [C159] (b2 = i+2/b3 = i+3/
+    i+6 temps everywhere).
+- PROPOSED port design (NOT yet validated): flat goto state machine in one block mirroring the
+  BASIC line numbers (l50sel/l100comp/l450next/l500human/l1000disp/l1095win...), nested scans
+  as nested DO with found-flag + flat post-loop gotos (goto NEVER crosses an ACTIVE DO - HANG
+  discipline); moves/choice via numeric `get list` with the run-witnessed `L\r\r\n` echo law;
+  board rows render under the leading-blank separator law with collapse-spaces-v1 (the
+  `---+---+---` and `!` structure survives the collapse); a fixed numeric script chosen to
+  reach ONE legitimate END (candidate: quit-after-one-completed-game or a computer-win line);
+  independent simulator `build/fc01-scratch/tict00_sim.py` first, mirror diff BEFORE the JSON.
+  Unwitnessed shapes to pre-compile before pinning: P$-style `character(1) varying` assigned
+  from literals then PUT (WKDAY rev3/STRNG precedent says yes), `if ... then goto` inside DO
+  body (guard form preferred), string-literal `=`? (avoided via numeric choice anyway).
+- STATE: NOTHING tracked authored yet for TICT-00; no lane run; ledger ends C352; nothing
+  laundered; operator handoff.config.json untouched; no push. AMAZ-00 rev1 LANDED PASS at
+  `b309e3c` (see prior section).

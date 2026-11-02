@@ -3,10 +3,12 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 **PASS** this boundary — program 4 of 8; NEXT program 5 TICT-00)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 hop start LANDED — base v2 picked, contract in LEARNINGS; NEXT TICT-00 implementation hop)
 
-AMAZ-00 LANDED **PASS** (2026-11-02, continuation chain hop 2; triple + docs § 11 + gate + this
-prose committed this hop; full measured record: `LEARNINGS.md` § "…AMAZ-00 COMPLETION hop" and
+TICT-00 hop start LANDED (2026-11-02, continuation chain hop 3, this commit): both listings
+sha-verified, v2 PICKED (v1 has no terminal path), probe batch measured — full contract in
+LEARNINGS § "TICT-00 hop start". AMAZ-00 LANDED **PASS** (2026-11-02, continuation chain hop 2;
+triple + docs § 11 + gate + this prose committed this hop; full measured record: `LEARNINGS.md` § "…AMAZ-00 COMPLETION hop" and
 `docs/functional-results.md` § 11). The pinned program (`0c0abfab…`, 7327 B) + derivation
 (`reference.py:amaz00`, byte-equal to the independent simulator, 18 lines) landed at `948f5e5`/
 `708ce33`; this hop wrote `AMAZ-00.json` (pure-PUT, bare `^Z`, 9 re-validated SUPPORTED
@@ -193,8 +195,31 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-TICT-00 HOP START — program 5 of 8 (Tic-Tac-Toe, BASIC). NOTHING read or authored yet for this
-program beyond the standing table note "two upstream listings (tictactoe1/2)". EXACT STEPS per
+TICT-00 HOP START COMPLETE (2026-11-02, continuation chain hop 3; this commit). BOTH listings
+READ and sha-verified; **BASE CHOSEN: TICTACTOE2.bas** (sha `9945f459…`) — TICTACTOE1
+(`e1125402…`) NEVER terminates (win/draw both GOTO 210; the only stop is GET-at-^Z-EOF,
+UNMEASURED) so no finite complete stream can be derived — decision + full analysis + the
+measured port-shape probe batch (shapes03/04/05: BY-3 refused -> (jj-1)*3+1 emulate; `> var`
+and `= -1` refused -> shift idiom; scalar=scalar equality + guarded multi-statement DO blocks +
+s(i)=-1 stores ACCEPTED rc=0) in `LEARNINGS.md` § "TICT-00 hop start" — READ IT FIRST.
+EXACT NEXT (implementation hop): (1) design the PROPOSED port there (flat goto state machine,
+numeric choice GET replacing string C$ GET 1=X/2=O documented, apostrophe rewrites, b2/b3/b6
+temps, found-flag loop exits, fixed script reaching ONE legitimate END); (2) independent
+simulator `build/fc01-scratch/tict00_sim.py` on the HANG/AMAZ byte model; (3) pre-compile
+remaining risky shapes in ignored scratch BEFORE pinning; (4) LF draft -> pre-compile ->
+CRLF+bare^Z+<=71+apostrophe-free `spec/functional/tests/TICT-00.PLI` pin sha; (5)
+`reference.py` mirror + DERIVATIONS, diff vs simulator BEFORE JSON; (6) `TICT-00.json`
+(link_target TICT00, capabilities grep-verified SUPPORTED only); (7) `--stages
+source,derivation --tests TICT-00`; (8) lane B `--evidence build/fc01/corp7 --json-out
+build/fc01/corp7/records.json` (+ corp7-double if PASS), ACTUALS verbatim, FAIL stays
+classified; (9) docs § 12 + § 1 row; (10) `python3 tools/e2e_gate.py` compile tier; (11)
+explicit-path commit (NEVER handoff.config.json; no push). Then LIFE-00, DHRY-00 (never
+execute the .SHAR), FFT-00. No ocaml/harness changes; ledger ends C352; third-party bytes
+never tracked.
+
+SUPERSEDED-BY-ABOVE (kept as written): TICT-00 HOP START — program 5 of 8 (Tic-Tac-Toe, BASIC).
+NOTHING read or authored yet for this program beyond the standing table note "two upstream
+listings (tictactoe1/2)". EXACT STEPS per
 the standing corpus procedure (PROGRESS § Current phase table + HANG/AMAZ precedents):
 (1) verify `sha256sum -c SHA256SUMS` rc=0 in `build/functional/fc01-sources/` for the Tic-Tac-Toe
 file(s); READ BOTH upstream listings (`basic/` — tictactoe1/2 per the operator table), pick the
