@@ -30,13 +30,22 @@ TABLE01_INPUT = [4, -3, 7, -3, 0, 7, 12, 1]
 
 
 def table01():
-    """Specified semantics of TABLE-01.PLI: ascending ordering of the multiset
-    (multiplicity preserved -- two -3s and two 7s survive), the sum invariant over the
-    permutation, the count, and the low/high extremes.  Python's OWN sort is the
-    independent reference SEQUENCE; the PL/I program's rank-placement algorithm is
-    what is under test, never used here."""
+    """Specified semantics of TABLE-01.PLI (FS-01 output revision, 2026-11-02): ascending
+    ordering of the multiset (multiplicity preserved -- two -3s and two 7s survive), the sum
+    invariant over the permutation, the count, and the low/high extremes.  Python's OWN sort
+    is the independent reference SEQUENCE; the PL/I program's rank-placement algorithm is what
+    is under test, never used here.
+
+    Output DESIGN (declared by the revised program): the sorted values print on TWO short
+    labelled lines (items 1-4, then 5-8) plus the aggregate line, so no line approaches
+    PLILIB's measured 79-column wrap (E2E-50/P2 F2); algorithm, inputs and checked invariants
+    are UNCHANGED.  Expected text is derived from the README section 6 format law -- a
+    character literal prints unquoted at natural width, each fixed numeric prints in a
+    right-justified field, so under collapse-spaces-v1 every item boundary is exactly ONE
+    space: label, single space, space-separated values.  Derived, never captured (L3)."""
     srt = sorted(TABLE01_INPUT)                  # [-3, -3, 0, 1, 4, 7, 7, 12]
-    return ["SORTED: " + " ".join(str(v) for v in srt),
+    return ["SORTED 1-4: " + " ".join(str(v) for v in srt[0:4]),
+            "SORTED 5-8: " + " ".join(str(v) for v in srt[4:8]),
             "SUM= %d N= %d LOW= %d HIGH= %d"
             % (sum(TABLE01_INPUT), len(TABLE01_INPUT), srt[0], srt[-1])]
 

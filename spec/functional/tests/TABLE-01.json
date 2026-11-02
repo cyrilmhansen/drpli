@@ -7,11 +7,11 @@
     "origin": "original",
     "author": "DRPLi E2E-50/P2 step 4 corpus",
     "date": "2026-11-02",
-    "note": "written for this project; independently specified; no third-party import"
+    "note": "written for this project; independently specified; no third-party import; FS-01 2026-11-02 output-statement revision (see notes)"
   },
   "source": {
     "file": "TABLE-01.PLI",
-    "sha256": "67f53bb8ea06f5605018d9b969ffb2004075954014d111924a10f336f430d8f2",
+    "sha256": "4881f187ef1ad9651c48950b76a6cdd959fdcc980ef989580a0fbfa43c0b0863",
     "encoding": "CRLF, ^Z-terminated, <=71 columns"
   },
   "capabilities": [
@@ -42,9 +42,10 @@
     "derivation": "reference.py:table01",
     "normalization": "collapse-spaces-v1",
     "console": [
-      "SORTED: -3 -3 0 1 4 7 7 12",
+      "SORTED 1-4: -3 -3 0 1",
+      "SORTED 5-8: 4 7 7 12",
       "SUM= 25 N= 8 LOW= -3 HIGH= 12"
     ]
   },
-  "notes": "Reference sequence is Python's OWN sorted multiset (reference.py:table01) -\nthe PL/I rank-placement algorithm is under test, never the reference. The two\nduplicates (-3 twice, 7 twice) must both appear (multiplicity); SUM= 25 and\nN= 8 over the sorted table prove no slot was overwritten or lost (rank\ncollisions would duplicate or drop an element). Nested indexed DO is the\ntimes-two composition of the measured LOOP.DO_TO_BY shape. Scalar compares only\n(G114B-backed strict relations); array-element compares (AB11/LR9 refusals),\n>=, <= (COND.GE_LE), literal-left (COND.LITERAL_LEFT), multidim, K_PLUS_X and\ntraversal reload are deliberately absent. Compile-checked at authoring against\nthe current binary: 1536-byte .REL (code=627 data=50)."
+  "notes": "FS-01 REVISION (2026-11-02): OUTPUT STATEMENTS ONLY. The E2E-50/P2 source\n(sha256 67f53bb8ea06f5605018d9b969ffb2004075954014d111924a10f336f430d8f2) printed the\nsorted values on ONE long PUT LIST line and FAILed on framing: harness anchor residue\n(F1, fixed in the harness by FS-01) plus DR PLILIB's measured 79-column print-wrap\n(F2, spec/lab-evidence/e2e50-p2/step6/RESULTS.md section 2 - that FAIL evidence is\npreserved, not rewritten). The revised program splits the sorted values into TWO short\nlabelled lines ('SORTED 1-4:' via put list, 'SORTED 5-8:' via put skip list), each ~54\ncolumns raw and far inside the wrap; the rank-placement algorithm, the input values and\nthe checked invariants (ordering, multiplicity, sum, count, extremes) are UNCHANGED.\nExpected lines are DERIVED from the declared output design plus the README section 6\nformat law (reference.py:table01), never from a capture (L3); PLILIB's wrap law is NOT\ncharacterized or claimed here (FS-01 boundary). Reference sequence is Python's OWN\nsorted multiset - the PL/I rank-placement algorithm is under test, never the reference.\nThe two duplicates (-3 twice, 7 twice) must both appear (multiplicity); SUM= 25 and\nN= 8 over the sorted table prove no slot was overwritten or lost (rank collisions\nwould duplicate or drop an element). Nested indexed DO is the times-two composition of\nthe measured LOOP.DO_TO_BY shape. Scalar compares only (G114B-backed strict relations);\narray-element compares (AB11/LR9 refusals), >=, <= (COND.GE_LE), literal-left\n(COND.LITERAL_LEFT), multidim, K_PLUS_X and traversal reload are deliberately absent.\nOriginal P2 compile-check: 1536-byte .REL (code=627 data=50); the revised program\nre-compiles - actual sizes are recorded by the run evidence, not here."
 }
