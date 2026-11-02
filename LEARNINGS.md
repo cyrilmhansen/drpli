@@ -2448,3 +2448,90 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   per-year sell/feed/plant menus with claim=s+1 / a+1 always-failing forms) is the NEXT
   action; nothing has been promoted to any ledger (functional runs are not DR claims;
   ledger still ends C352).
+
+## 2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 4 (RICH SPINE FOUND — hop 3's failure was a SIMULATOR bug, not game economics; complaint firability; the port's compare/division law)
+
+- FALSIFIED (hop 3's "no rich path found / is the failure the menu, the mask goal, or the
+  bin15 bounds?"): it was neither — TWO BUGS in my own scratch code. (a) `hamm00_sim.year()`
+  emitted the BUY complaint only inside the `buy > 0` branch and the SELL complaint only in the
+  `else` branch, so with a menu that never buys, `cbuy` could NEVER fire (hop 3's "complaint
+  insertion FAILED" is fully explained). In HAMMURABI.bas the failing attempt and the accepted
+  amount are attempts in the SAME prompt loop (320/321/322/323/324), so a complaint is legal in
+  EVERY year whatever is finally accepted; fixed by moving both emission sites ahead of the
+  accepted branch (silent-mode-safe `eskip`/`eput` guards added; `summary` now runs silently).
+  (b) `hamm00_dfs.insert_complaints` had an UNCONDITIONAL `break` at the end of its combo loop
+  and another inside the kinds loop — it tried exactly ONE combo and ONE plant kind. Complaint
+  placement is now derived from the spine state, never searched blind.
+- ACCEPTED (THE RICH SPINE, measured in the simulator; g0=2, s0=1500, declared starts A=300,
+  H=900, Y=3, P=95, I=5, Q=1, D1=P1=0). Per year (buy, sell, feed, plant), complaint attempts
+  inline: **y1** buy 0, SELL-claim 301 then sell 0, feed **1352**, SEED-claim 298 then plant 200;
+  **y2** BUY-claim 43 then buy 0, sell 0, feed 700, plant 300; **y3** buy 0, sell 0, FEED-claim
+  1588 then feed **900** (= 20*(44+1) → SKIP year), plant 300; **y4** 0, 0, 520, 259; **y5** 0, 0,
+  780, ACRES-claim 301 then plant 300; **y6** 0, 0, 480, 239; **y7** 0, 0, 760, 300; **y8** 0, 0,
+  460, PEOPLE-claim 230 then plant 229; **y9** 0, 0, 740, 300; **y10** 0, 0, **300** (survived
+  starve d = 8 ≤ floor(23*45/100) = 10), plant 229. RESULT: mask = ALL EIGHT features (skip,
+  starve, buyc, sellc, feedc, plantc, plague, rats); verdict **not-too-bad** (P1 = 7 ≤ 10 and
+  L = A/P = 300/29 = 10 ≥ 9 → 895 `P1>3` → 960/965, which exercises the EXTRA draw — the only
+  cadence break in the game); D1 = 41; plague reports in years 2,4,6,8,10; rats eat EVERY year
+  (c=2 → s/2); final store 1928; stream **211 lines**, `console_input` **46 values** (max fed
+  1588 ≤ 12767), every intermediate ≤ 32767 under `chk`. Scratch (ignored):
+  `build/fc01-scratch/hamm00_sim.py` (fixed), `hamm00_build.py` (directive-driven builder +
+  tracer), `hamm00_plan.py` (per-year firability tracer), `spine_t_300.json`.
+- ACCEPTED (why g0=2 works where g0=3 stalled): yield 5 with rats c=2 gives store equilibrium
+  `s* ≈ 9.5*plant − feed` (~1900 at plant 300); g0=3 (yield 2, rats c=4) caps at
+  `s* = 4.5a − 3 feed ≈ 1950 at ZERO feed` — too lean to buy a skip year at p ≈ 100. At g0=2 the
+  binding constraint is the BIRTHS product `4*(20a + s) ≤ 32767` → `s ≤ 2191` at a=300, so the
+  plan rides the 1000..2000 band; the BASIC cap `d < 10*P` (line 455) is what automatically
+  throttles planting (and therefore the harvest) in the plague-halved low-p years. Population is
+  driven DOWN FOR FREE by the plague halvings (100 → 35 → 26 → 24 → 23 → 23) instead of by
+  starve years — starving to shrink P is hop 2/3's dead end because P1 pollutes.
+- ACCEPTED (P1 dilution law of the port, derived and verified): 553 runs ONLY in non-skip years,
+  so (i) a SKIP year PAUSES P1 while z advances (extra dilution later), (ii) an exactly-fed year
+  (c = p → d = 0) actively dilutes: the single year-1 contribution 33 with nine d=0 years lands
+  P1 = 3; adding the year-10 contribution 34 gives (9*4+34)/10 = 7 → not-too-bad. `fantastic`
+  (P1 ≤ 3 AND L ≥ 10) is reachable only by dropping the year-10 starve, and then p_final = 37 →
+  L = 8 → NERO; not-too-bad is therefore the richest verdict path (extra 965 draw + its `n PEOPLE`
+  numeric).
+- ACCEPTED (complaint firability conditions, verified on this spine): buy `s/y + 1` (needs
+  `y*claim > s` and `≤ 12767`); sell `a+1` — legal ONLY in a year whose accepted buy is 0
+  (330 → 340); feed `s+1`; plant-acres `a+1` (always firable); plant-seed `2s+2` needs
+  `2s+2 ≤ a`, i.e. the POST-FEED store ≤ 149 at a=300 — which is exactly why year 1 feeds 1352
+  and not 1340 (both give c = 67 and the same d = 33, but only the higher feed leaves a store
+  lean enough for the seed complaint); plant-people `10p` needs `10p ≤ a` AND `5p ≤ s` (year 8,
+  p=23). All five complaint TEXTS (710 grain at two sites, 720 acres at two sites, 460 people)
+  appear in one stream.
+- ACCEPTED (port compare/division law, from the pinned corpus refusals): every test the port
+  needs is a STRICT compare between two members or a member and a literal ≥ 1 — weak tests
+  become `t = x + 1; if a < t then` (the +1 is computed into a temp FIRST so no expression
+  operand reaches the compare); the plague test `Q>0` is the shift form `t = q + 4; if t > 4`;
+  `d > .45*P` is `t = (p*45)/100; if d > t`. Divisors: LITERALS 5/10 (draws, per-site `w-(w/k)*k`
+  with the literal k), 20 (line 540), 45/100, 2; the rats site becomes `if c = 2 then e = s/2;`
+  `if c = 4 then e = s/4;` (c ∈ 1..5, only even c eats) which REMOVES a run-unwitnessed variable
+  divisor. VARIABLE division is unavoidable at exactly three sites — births `t = x/p` (then
+  `i = t/100 + 1`), P1 `d*100/p` and `((z-1)*p1 + that)/z`, and `l = a/p` — first corpus use,
+  flagged in the spec notes.
+- PROPOSED (unverified until the compile stage runs): the `c = 2/4` dispatch form, the
+  member-vs-member strict compares, and the three variable divisions all COMPILE on my compiler;
+  nothing here is a DR claim.
+- STATUS: NOTHING promoted to any ledger (still ends C352; functional runs are not DR claims);
+  no ocaml byte, no harness byte, no emulator run this hop; the only tracked changes are these
+  durable documents.
+- NEXT (successor, exact): (1) write `spec/functional/tests/HAMM-00.PLI` implementing exactly the
+  spine above (CRLF, bare `^Z`, ≤ 71 cols; header names HAMMURABI.bas sha `93fea01f…` + the
+  declared scaling; GET shape `put list(prompt); get list(v);` on `fixed bin(15)`; same-block
+  labels + `goto` for the three prompt loops; no apostrophes — `REALLY WASN'T` → `REALLY WAS NOT`,
+  documented); (2) add `hamm00()` to `spec/functional/tests/reference.py` mirroring the port
+  statement-for-statement (byte model: skip = `\r\n`, ONE blank between PUT LIST items, `%10d`
+  numerics, echo `L\r\r\n`, exit appends one `\r\n` [C352], normalize+split+drop-one-empty) with
+  `chk` on every intermediate and the nested-floor assertion per observed value, register it in
+  `DERIVATIONS`; expected = the 211 lines with echo entries carrying the trailing `\r`; (3)
+  `HAMM-00.json` (schema `pli80-functional/1`, lane B, `console_input` = the 46 CR-joined values +
+  bare `^Z`, `capabilities` = SUPPORTED ids only — IO.GET_LIST, TRAN.GOTO_SAME_BLOCK,
+  DECL.FIXED_BIN15, IO.PUT_LIST_FIXED, IO.PUT_SKIP, EXPR.REL_* as actually used; notes = full
+  removal/substitution list: TAB banner, line 217 report line, CHR(7) bells, apostrophe rewrite,
+  integer P1/L route, declared RNG formula, plague 40% vs 15%, rats-every-year residue, negative
+  input 850 branch compile-only, scaled opening pot, variable-division first use); (4)
+  `python3 tools/functional_runner.py --stages source,derivation --tests HAMM-00` then lane B
+  `--evidence build/fc01/corp4 --json-out build/fc01/corp4/records.json`, ACTUALS verbatim, never
+  laundered; (5) `docs/functional-results.md` § 9 + § 1 row; (6) `python3 tools/e2e_gate.py`
+  compile tier ACTUALS; (7) explicit-path commit — never stage `handoff.config.json`; no push.

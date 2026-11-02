@@ -200,6 +200,31 @@ explicit-path commit. A FAIL stays classified, never laundered. Constraints unch
 ocaml/harness changes, no push, ledger ends C352, operator `handoff.config.json` stays unstaged,
 third-party bytes never tracked.
 
+HAMM-00 IMPLEMENTATION HOP 4 STATE — RICH SPINE FOUND (2026-11-03, renewal 7/12; HEAD
+`9cbd8dc`, build rc=0, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "2026-11-03 — FC-01
+CORPUS HAMM-00 implementation hop 4" — it contains the COMPLETE plan. Hop 3's "no rich path"
+was FALSIFIED as two simulator bugs (buy/sell complaints emitted inside the accepted-amount
+branch — a complaint is legal in EVERY year; and `insert_complaints`'s unconditional `break`
+tried one combo/one kind). MEASURED SPINE (simulator, ignored scratch
+`build/fc01-scratch/hamm00_sim.py` fixed + `hamm00_build.py` + `spine_t_300.json`): g0=2,
+s0=1500, A=300/H=900/Y=3/P=95/I=5/Q=1; per year (buy, sell, feed, plant) — y1 0, SELL-claim 301
++0, 1352, SEED-claim 298 +200; y2 BUY-claim 43 +0, 0, 700, 300; y3 0, 0, FEED-claim 1588 +900
+(SKIP), 300; y4 0,0,520,259; y5 0,0,780, ACRES-claim 301 +300; y6 0,0,480,239; y7 0,0,760,300;
+y8 0,0,460, PEOPLE-claim 230 +229; y9 0,0,740,300; y10 0,0,300 (survived starve d=8), 229.
+ALL EIGHT mask features (skip, starve, buyc, sellc, feedc, plantc, plague, rats), verdict
+**not-too-bad** (P1=7, L=10 → 960/965 extra draw), D1=41, 211 stream lines, 46 fed values (max
+1588), every intermediate ≤ 32767. Port law: strict compares only (`t = x+1; if a < t`, plague
+`t = q+4; if t > 4`, impeach `t = (p*45)/100; if d > t`); literal divisors 2/4/5/10/20/45/100
+with the rats site dispatched on c ∈ {2,4}; VARIABLE division unavoidable and flagged at exactly
+three sites (births `x/p`, P1 `d*100/p` and `/z`, `l = a/p`) — first corpus use, a FAIL stays
+classified. NOTHING promoted to any ledger (ends C352); no ocaml/harness byte; no emulator run
+this hop. EXACT NEXT (authoritative steps in that LEARNINGS § NEXT): write HAMM-00.PLI for this
+spine, `reference.py:hamm00` + `DERIVATIONS`, HAMM-00.json (console_input = 46 CR-joined values +
+bare `^Z`; removal/substitution notes), `--stages source,derivation`, lane B `--evidence
+build/fc01/corp4`, docs § 9 + § 1 row, `python3 tools/e2e_gate.py` compile tier, explicit-path
+commit. No ocaml/harness changes, no push, operator `handoff.config.json` stays unstaged,
+third-party bytes never tracked.
+
 HAMM-00 IMPLEMENTATION HOP 2 IN FLIGHT (2026-11-03, renewal 5/12; HEAD `9c91e9f`, build
 rc=0, compiler `edce9e0e…`, checkpoint g159 verified CURRENT by hash replay). Read FIRST
 `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 2": the PUT-LIST
@@ -484,17 +509,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 162
-checkpoint-id: g162-f6ef4a7d9e6d
+checkpoint-generation: 164
+checkpoint-id: g164-3c3faa102b9f
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 3
-checkpointed: 2026-11-02T12:24:46.597Z
+checkpointed: 2026-11-02T12:52:02.014Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 33cafd9270f5b7f38d3719ad0412a81ca4ddfecbf12b746122a9bdf12e07769c
+source-progress: 335a317e95ea84217e7d0812f2f7e625c48a09ba9ac4786a4c985d42804ac7f8
 source-handoff: 9ce12745272283e88e121735ff19df49bd18728b337f95b3f9b8a96a52a7ff8a
-source-learnings: d6a07c434f6486df6d397f40487b9ca2815a6bdc180b790e1c2c0545710b3552
+source-learnings: fdb559ca4bc36b37156484034357b94207496073ab4cf5743aad33e3dde38cdf
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -518,9 +543,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19c1d-7187-7761-bfc4-e273dd2d9896
-readiness-at: 2026-11-02T12:25:07.442Z
-readiness-checkpoint: g162-f6ef4a7d9e6d
 <!-- guard:end checkpoint -->
 
 ## Blockers

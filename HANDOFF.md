@@ -138,6 +138,20 @@ starts; iterate to a rich path (complaints, ≥1 plague year, ≥1 EVEN rats yea
 console_input + PL/I skeleton; write HAMM-00.PLI/.json; `--stages source,derivation`; lane B
 `--evidence build/fc01/corp4`; docs § 9 + § 1; gate; explicit-path commit.
 
+## HAMM-00 hop 4 state — RICH SPINE FOUND (2026-11-03, renewal 7/12, HEAD `9cbd8dc`; build rc=0, compiler `edce9e0e…`)
+
+Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 4" FIRST — it carries
+the COMPLETE verified 10-year plan, the complaint firability conditions, the port compare/division
+law and the exact next steps. Summary: hop 3's "no rich path" was FALSIFIED — two bugs in my own
+scratch simulator (buy/sell complaints emitted inside the accepted-amount branch; an unconditional
+`break` in `insert_complaints`). The fixed simulator finds a spine with ALL EIGHT features (skip,
+starve, buy/sell/feed/plant complaints incl. seed + acres + people variants, plague, rats) and the
+verdict **not-too-bad** at g0=2, s0=1500 (P1=7, L=10, D1=41, 211 stream lines, 46 fed values, every
+intermediate ≤ 32767). Nothing is promoted to any ledger (ends C352); no ocaml/harness byte touched;
+no emulator run this hop; the only tracked changes are these durable documents. NEXT: author the
+HAMM-00 triple (`.PLI` + `.json` + `reference.py:hamm00`), `--stages source,derivation`, lane B
+`build/fc01/corp4`, docs § 9 + § 1 row, compile-tier gate, explicit-path commit.
+
 ## HAMM-00 hop 3 state (2026-11-03, renewal 6/12, HEAD `a5ef608`; checkpoint g161 CURRENT by hash replay; build rc=0, compiler `edce9e0e…`)
 
 Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop 3" and
@@ -251,23 +265,20 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 162
-checkpoint-id: g162-f6ef4a7d9e6d
+checkpoint-generation: 164
+checkpoint-id: g164-3c3faa102b9f
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6579, session 01a19c1d-7187-7761-bfc4-e273dd2d9896)
-checkpointed: 2026-11-02T12:24:46.597Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6541, session 01a19c38-d4ec-7761-bfc4-e27702a10282)
+checkpointed: 2026-11-02T12:52:02.014Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 33cafd9270f5b7f38d3719ad0412a81ca4ddfecbf12b746122a9bdf12e07769c
+source-progress: 335a317e95ea84217e7d0812f2f7e625c48a09ba9ac4786a4c985d42804ac7f8
 source-handoff: 9ce12745272283e88e121735ff19df49bd18728b337f95b3f9b8a96a52a7ff8a
-source-learnings: d6a07c434f6486df6d397f40487b9ca2815a6bdc180b790e1c2c0545710b3552
+source-learnings: fdb559ca4bc36b37156484034357b94207496073ab4cf5743aad33e3dde38cdf
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19c1d-7187-7761-bfc4-e273dd2d9896
-readiness-at: 2026-11-02T12:25:07.442Z
-readiness-checkpoint: g162-f6ef4a7d9e6d
 ### Last verified state
 guard level 3; checkpoint requested (auto at level 3)
 
