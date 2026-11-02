@@ -141,7 +141,31 @@ a rich path: complaints, plague, rats, starvation bounds, asserts all intermedia
 then write HAMM-00.PLI + HAMM-00.json per that section, --stages source,derivation, lane B
 --evidence build/fc01/corp4, docs § 9 + § 1 row, e2e_gate compile tier, explicit-path commit.
 No ocaml/harness changes; ledger ends C352; no push; operator handoff.config.json stays
-unstaged. (Nothing was half-edited at this renewal boundary; the design prose is committed.)
+unstaged. HAMM-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, renewal 4/12). Read FIRST
+`LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop start": echo witnesses
+re-measured byte-exact (consumed ^Z echoes as literal `^Z` + `\r\r\n` — FALSIFIES the design
+hop's blank-row reading; unconsumed ^Z never captured — ACCEPTED, corp3 witness); the design
+hop's year-1 script is FALSIFIED at S≈2400 (births `5*(20*300+s') = 37250 > 32767` at the
+declared gg=4 draw c=5 — violates its own 20a+s≤6553 bound) and at the year-1 rats draw
+(gg=3 → c=3 ODD); the d=45 survival arithmetic is ACCEPTED but needs a tuned opening store
+(s0≈600-900, iterate). `COND.GE_LE` is REFUSED — port uses strict compares + shift/flag
+idioms only (constants ≥ 1); rest of the design hop § stands (draw formula gg*37+11, GET
+shape R903/NETWORK, goto same-block, bells/TAB dropped). EXACT NEXT: (1) build
+`build/fc01-scratch/hamm00.py` — byte-level stream model (skip=`\r\n`, text items: literals
+natural + fixed numerics `%10d`, echo=`L\r\r\n`, exit appends one `\r\n` [C352]; normalize
+`re.sub(' +',' ',raw.replace('\r\n','\n'))`, split `\n`, drop ONE trailing empty), game per
+the BASIC trace, asserts ALL intermediates ≤ 32767; iterate script to a rich path (price/feed
+complaints, plague year, EVEN rats year — not year 1, skip-year, d>0 year); emit expected
+lines (echo lines carry trailing `\r`) + console_input (lines joined `\r`, trailing `^Z`
+NEVER consumed) + PL/I statement skeleton. (2) HAMM-00.PLI (CRLF ^Z ≤71, header naming
+HAMMURABI.bas sha 93fea01f…) + HAMM-00.json (third-party, licence UNVERIFIED, capabilities
+from SUPPORTED rows incl IO.GET_LIST/TRAN.GOTO_SAME_BLOCK, notes = removal/substitution
+list). (3) `python3 tools/functional_runner.py --stages source,derivation --tests HAMM-00`,
+then lane B `--evidence build/fc01/corp4`, ACTUALS verbatim. (4) docs/functional-results.md
+§ 9 + § 1 row; `python3 tools/e2e_gate.py` compile tier ACTUALS; explicit-path commit;
+renew at safe boundary. No ocaml/harness changes; ledger ends C352; no push; operator
+handoff.config.json stays unstaged; third-party bytes never tracked. (Prior: HAMM-00 DESIGN
+committed cb223ba/6571212; WKDAY-00 rev3 PASS `21c9f69`.)
 Nothing of it had begun (measured at `6a35b9c`: no `stage_files` anywhere in
 `tools/functional_runner.py`; `file_expectations` is only the pre-existing fail-closed rejection
 at lines 127/398-400). Hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand untouched; the
@@ -385,17 +409,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 156
-checkpoint-id: g156-e07090695eff
+checkpoint-generation: 159
+checkpoint-id: g159-4a8040305cce
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
+content-delta: new
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-02T10:57:46.326Z
+checkpointed: 2026-11-02T11:26:44.037Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: da2ea36fddf6e8a0e3d9178b01b49915913e7d111ef417e881be3dd41b8eb19d
-source-handoff: 074eab15371fdbd40918fafd1785381f40fe30fd40e27953e7d7259a067b4328
-source-learnings: d20e55e8bff1ecf7409001c02821a4b99fba70338d2276288dd1717946ca6f18
+source-progress: 6f716abf869c64fa96496b0dd0f7bb55c2ea36f8b740a3801756fa4927964d8e
+source-handoff: 283b11f6dc02459f3a9e57b7ba40331de71a7381e206952707c8b328ebd0ac49
+source-learnings: 3b69c0f9737df3271372c22f56709fd075c79c71ad844a8e5b0965ccf9284ca5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -419,9 +443,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19bd0-be2c-7761-bfc4-e267170a0d43
-readiness-at: 2026-11-02T10:58:08.320Z
-readiness-checkpoint: g156-e07090695eff
 <!-- guard:end checkpoint -->
 
 ## Blockers

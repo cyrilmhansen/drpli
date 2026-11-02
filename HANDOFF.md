@@ -122,12 +122,21 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json`. **WKDAY-00 DONE — rev3 lane-B PASS
-(2026-11-03; docs § 8, evidence build/fc01/corp1..corp3).** Next program: Hammurabi (BASIC) →
-`HAMM-00`, corpus rule applied (literal divisors ≤ 127, ordered-compare constants ≥ 1 —
-LEARNINGS CORPUS hop 2). DESIGN COMPLETE 2026-11-03: implement from `LEARNINGS.md`
-§ 2026-11-03 FC-01 CORPUS HAMM-00 design hop (echo law, GET shapes, bin15 scaling, script
-plan) + `PROGRESS.md` → Next action; nothing else to re-derive.
+## Next action — FC-01 CORPUS (OPERATOR OVERRIDE, 2026-11-02): adapt the eight operator-selected historical programs into the existing functional corpus. HOP 5 IS CANCELLED — the file-I/O harness extension (`stage_files`, `expected.file_expectations`), FILE-00/FILE-01, the fc01-framing→fileio oracle round and ONUNIT-00 must NOT be started; the hop-4 close-out `6a35b9c` and Batch-B REV2 `a5815a8` stand. Exact procedure in `PROGRESS.md` → Next action. Sources: `build/functional/fc01-sources/` (ignored working state, fetched by the operator's `fc01-fetch-sources.sh`; `sha256sum -c SHA256SUMS` rc=0 measured 2026-11-02; read `URLS.tsv` + `NOTES.txt` before use). REUSE `tools/functional_runner.py` + `spec/functional/tests/` (schema `pli80-functional/1`) AS IT STANDS — **no renewal cycle is to be spent developing test infrastructure**; where the harness cannot test a program adequately, RECORD the limitation and move to the next program. Expensive runtime/link-run regression belongs to the external rune-ci Buildbot (`spec/notes/rune-ci-external-gate.md`); existing CI results validate new corpus programs ONLY if those tests are explicitly included there. Constraints: NO OCaml compiler changes; no push; no new CI framework; no mass documentation cleanup; explicit-path commits only; the operator's `handoff.config.json` edit stays unstaged; renew at safe boundaries per `handoff.config.json`. **WKDAY-00 DONE — rev3 lane-B PASS
+(2026-11-03; docs § 8, evidence build/fc01/corp1..corp3).** Program 2 (Hammurabi → `HAMM-00`):
+implementation hop STARTED 2026-11-03 (this chain, renewal 4/12). Read `LEARNINGS.md`
+§ "2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop start" FIRST — it RE-MEASURES the echo
+witnesses byte-exact (consumed ^Z echoes as the literal chars `^Z` + `\r\r\n`, falsifying the
+design hop's blank-row claim; unconsumed ^Z never captured — verified against corp3) and
+FALSIFIES parts of the design hop's year-1 script (S≈2400 violates the 20a+s≤6553 bound at the
+declared year-1 births draw c=5; year-1 rats draw is ODD; the d=45 survival is right but needs a
+tuned opening store s0≈600-900). Everything else in the design hop § stands (draw formula,
+shift/compare idioms, `COND.GE_LE` REFUSED → strict-compare forms only, goto same-block, GET
+shape, removals list). EXACT NEXT: build `build/fc01-scratch/hamm00.py` simulator with TUNED
+starts; iterate to a rich path (complaints, ≥1 plague year, ≥1 EVEN rats year — NOT year 1,
+≥1 skip-year, asserts all intermediates ≤ 32767); emit expected lines (echo = `L\r`) +
+console_input + PL/I skeleton; write HAMM-00.PLI/.json; `--stages source,derivation`; lane B
+`--evidence build/fc01/corp4`; docs § 9 + § 1; gate; explicit-path commit.
 
 ## Superseded next action (FC-01 hop 5) — kept as written per PROTOCOL #2; CANCELLED by the operator override above, never started
 
@@ -210,23 +219,20 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 156
-checkpoint-id: g156-e07090695eff
+checkpoint-generation: 159
+checkpoint-id: g159-4a8040305cce
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4500, session 01a19bd0-be2c-7761-bfc4-e267170a0d43)
-checkpointed: 2026-11-02T10:57:46.326Z
+content-delta: new
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3910, session 01a19be9-e0bf-7761-bfc4-e26bb0eb4471)
+checkpointed: 2026-11-02T11:26:44.037Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: da2ea36fddf6e8a0e3d9178b01b49915913e7d111ef417e881be3dd41b8eb19d
-source-handoff: 074eab15371fdbd40918fafd1785381f40fe30fd40e27953e7d7259a067b4328
-source-learnings: d20e55e8bff1ecf7409001c02821a4b99fba70338d2276288dd1717946ca6f18
+source-progress: 6f716abf869c64fa96496b0dd0f7bb55c2ea36f8b740a3801756fa4927964d8e
+source-handoff: 283b11f6dc02459f3a9e57b7ba40331de71a7381e206952707c8b328ebd0ac49
+source-learnings: 3b69c0f9737df3271372c22f56709fd075c79c71ad844a8e5b0965ccf9284ca5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19bd0-be2c-7761-bfc4-e267170a0d43
-readiness-at: 2026-11-02T10:58:08.320Z
-readiness-checkpoint: g156-e07090695eff
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
@@ -258,5 +264,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-HAMM-00 design hop closed: console-GET echo environment law measured from archived DR transcripts, GET/GOTO shapes confirmed, bin15 scaling analysis done; full design in LEARNINGS.md 2026-11-03 HAMM-00 design hop. Next: prototype reference.py:hamm00, write triple, lane B corp4.
+FC-01 CORPUS HAMM-00 (program 2, Hammurabi): DESIGN COMPLETE and committed at cb223ba. Implement from LEARNINGS.md section "2026-11-03 — FC-01 CORPUS HAMM-00 design hop" (read it FIRST — echo environment law from golden/e32rt_NETWORK + e29dr_runB transcripts, GET/GOTO confirmed shapes, bin15 scaling analysis A=300/S~2400/P=95, draw formula gg*37+11, parity/impeach reconstructions, script plan) + PROGRESS.md Next action. Steps: prototype reference.py:hamm00 simulator in build/fc01-scratch (iterate 10-year script: complaints, plague, rats-even draw, starvation bounds, assert all intermediates <32767; stream = PUTs + echo lines with trailing CR + C352 framing), then HAMM-00.PLI (CRLF ^Z <=71, header naming HAMMURABI.bas sha 93fea01f...) + HAMM-00.json (provenance third-party licence UNVERIFIED, capabilities incl IO.GET_LIST/TRAN.GOTO_SAME_BLOCK, console_input numeric lines + ^Z), --stages source,derivation, then lane B --evidence build/fc01/corp4, ACTUALS verbatim, docs/functional-results.md new section + section-1 row, e2e_gate compile tier, explicit-path commit. Corpus rule: literal divisors <=127, ordered-compare constants >=1 (shift forms for <0/>0); variable divisors (p,c,z) run-unwitnessed — first corpus use. Constraints: no ocaml changes, no harness changes, no push, operator handoff.config.json stays unstaged, third-party bytes never tracked, ledger ends C352 (functional runs are NOT DR claims), renew at safe boundaries (chain 3/12 used).
 <!-- guard:end checkpoint -->

@@ -2249,3 +2249,69 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   ACTUALS verbatim; (4) docs § 9 + § 1 row, e2e_gate compile tier, explicit-path commit
   (also commit this LEARNINGS + PROGRESS prose); constraints unchanged (no ocaml, no
   harness edits, no push, ledger ends C352, functional runs are NOT DR claims).
+
+## 2026-11-03 — FC-01 CORPUS HAMM-00 implementation hop start (echo witnesses RE-MEASURED byte-exact; the design's negative-echo claim FALSIFIED; year-1 arithmetic falsified twice)
+
+- ACCEPTED (state): HEAD `6571212`; `dune build` rc=0; compiler sha `edce9e0e…` unchanged; tree
+  dirty only in the guard's g157 stamps + the operator's `handoff.config.json`. `spec/COVERAGE.tsv`
+  rows re-read for the ids I intend to cite: `IO.GET_LIST` SUPPORTED EXACT:24 runtime INDEPENDENT:2
+  (corpus NETWORK, REVERSE); `TRAN.GOTO_SAME_BLOCK` SUPPORTED EXACT:12; `DECL.FIXED_BIN15`
+  SUPPORTED EXACT:120; `IO.PUT_LIST_FIXED` SUPPORTED EXACT:70 INDEPENDENT:8; `IO.PUT_SKIP`
+  SUPPORTED EXACT:6; `EXPR.REL_FIXED_EQ_K` SUPPORTED EXACT:28 INDEPENDENT:2;
+  `EXPR.SELF_ADD_LADDER` SUPPORTED EXACT:40; `EXPR.ADD_PRESERVE_ROUTE` SUPPORTED EXACT:10;
+  `LOOP.DO_WHILE_UNTIL`/`LOOP.REPEAT_CLAUSE` SUPPORTED. `COND.GE_LE` (`>=`, `<=` against a
+  literal) is REFUSED by my compiler — the HAMM-00 port therefore spells every weak test as a
+  STRICT compare plus a `+1` adjustment, matching the design's shift law.
+- ACCEPTED (echo law, re-measured THIS hop with `od`/`repr` on stored witnesses, not inherited):
+  a line consumed by a PLILIB GET echoes `L\r\r\n` — `golden/e29dr_runB/REVERSE.transcript.txt`
+  (`What's up? hello world .\r\r\n\r\nActually, `) and `golden/e32rt_NETWORK/NETWORK.transcript.txt`
+  (`Boston,100,NewYork\r\r\n`). Confirmed by REVERSE: the echo terminates the prompt line and PLILIB
+  adds NOTHING further — `put skip list` after a GET does emit its own CRLF, i.e. a visible blank
+  line follows every echo. Under `normalize_v1` + `split_stream` the echo survives as the stream
+  line `L\r` (one `\r` retained: `replace(b'\r\n',b'\n')` consumes the CRLF pair and leaves the
+  echoed CR as the preceding line's final byte). Expected entries for GET programs therefore spell
+  `L\r`.
+- **FALSIFIED (design hop's echo sub-claim, kept as written per PROTOCOL #2):** "the consumed `^Z`
+  row renders as an empty echo line (0x1A byte …)". `od -c golden/e32rt_NETWORK/NETWORK.transcript.txt`
+  gives the consumed EOF row as `^   Z  \r  \r  \n` — the ASCII bytes `^Z` (0x5E 0x5A), i.e. the
+  literal two characters, NOT a 0x1A byte, and the row is NOT blank. Consequence for the corpus:
+  a spec `console_input` whose `^Z` IS consumed contributes the stream line `^Z\r`, and PLILIB then
+  prints `END OF FILE (1), File: SYSIN=CON` plus a `Traceback:` line (witnessed at
+  `golden/run1/ANNUITY.transcript.txt`) and returns to CCP. HAMM-00 therefore ends its input on a
+  VALID path decision so the `^Z` is never consumed (design rule (3), re-verified against the WKDAY
+  corp3 capture: 410 bytes, no `^Z` row, no EOF message).
+- FALSIFIED (the design hop's year-1 script, by hand arithmetic on the declared draw formula
+  `w = gg*37 + 11`, `v = w - (w/k)*k`; sites in source order price gg=1, yield gg=2, rats gg=3,
+  births gg=4, plague gg=5). The design's reading that Q at line 540 is the FEED amount is CORRECT
+  (Q is overwritten by the buy INPUT at 321; my first-pass "Q=1" objection was itself wrong and is
+  superseded here per PROTOCOL #2). Year 1 with the declared starts `a=300, h=900, y=3, s~2400,
+  p=95, i=5, q=1`: draws give price `v10=8` -> 25 (the sketch's overclaim 1300 -> `y*q = 32500`
+  fits bin15 and > s -> 710 complaint AS DESIGNED), but yield `w=85, v5=0` -> `c = 1`; rats
+  `w=122, v5=2` -> `c = 3` ODD (no rats) — the design's "one EVEN rats draw" CANNOT land in year
+  1 under the declared formula — and births `w=159, v5=4` -> `c = 5`. With the sketch's feed 1100
+  and plant 300 (seed 150, harvest 300*1 = 300, e=0): `x = 5*(6000 + (2400-1100-150+300)) =
+  5*7450 = 37250 > 32767` — the declared scaling `A=300 / S~2400` VIOLATES the design's own bound
+  `20a+s <= 6553` at the c=5 draw. The d=45 boundary itself is RIGHT: feed 1100 ->
+  `c = floor(1100/20) = 55`, `p = 95+5 = 100`, `d = 45`, `floor(100*45/100) = 45`, `45 > 45` false
+  -> survives by one person — but it is UNREACHABLE with S=2400 because the births product
+  overflows BEFORE line 550; the opening store must come down (tune in the simulator, e.g. s0
+  ~600-900 with feed/plant rescaled, or keep 2400 only in years whose births draw is <= 4).
+- ACCEPTED (the bound that replaces them, derived THIS hop): the births product `c*(20a+s)` with
+  `c = v5+1` forces `20a + s ≤ floor(32767/c)`. At the worst draw `c = 5` that is `20a+s ≤ 6553`;
+  so with `a = 300` (`20a = 6000`) the post-harvest store must satisfy `s ≤ 553`, and the opening
+  pot must be SMALL, not 2400. The design's own figure `20A+S ≤ 6553` is retained; `S≈2400` is
+  dropped in favour of a tuned opening store. Year-1 survival additionally needs
+  `c = floor(feed/20) ≥ p` (the line-550 skip-year branch, which leaves `d = 0`) or
+  `p - c ≤ floor(.45p)`; the `floor(floor(x/p)/100) = floor(x/(100p))` identity used for births
+  holds only for `p ≥ 100`, so any year that reads births must have `p ≥ 100` or be proven safe
+  for the observed residues. All of this is asserted inside `reference.py:hamm00` before the
+  expected stream is derived.
+- PROPOSED (next, unchanged in shape): prototype the simulator in `build/fc01-scratch/hamm00.py`
+  (python3, stdlib only), iterate the fixed script to a rich path (≥1 price/feed/plant complaint,
+  ≥1 plague year, ≥1 EVEN rats draw, ≥1 skip-year, ≥1 non-zero `d`), assert every intermediate
+  ≤ 32767, then emit (a) the expected line list with echo lines as `L\r` and [C352] framing,
+  (b) the `console_input` string, (c) the PL/I statement skeleton with goto labels; port that
+  skeleton to HAMM-00.PLI by hand under the ≤71-col/CRLF/^Z law; (d) HAMM-00.json; (e)
+  `--stages source,derivation`, lane B `--evidence build/fc01/corp4`, docs § 9 + § 1 row, gate,
+  explicit-path commit. Constraints unchanged (no ocaml, no harness edits, no push, ledger ends
+  C352, third-party bytes never tracked).
