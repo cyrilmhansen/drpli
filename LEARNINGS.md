@@ -1895,3 +1895,25 @@ expectation follows the declared design + independent derivation, never a captur
 
 **OPEN (unchanged):** ASSERT-mismatch attribution still hard-wired `undefined` (no discriminating
 run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchanged.
+
+## 2026-11-02 — FC-01 hop 1 (capability survey + Batch A authored)
+- ACCEPTED (my-compiler ACTUALS, verbatim refusals in build/fc01/scratch logs; these are
+  DRPLi facts, NOT DR rules): refused shapes discovered while shaping Batch A —
+  fractional DEC literal as arithmetic operand ("decimal comparison literal scale unproven",
+  "fractional DEC literal aligned to a decimal partner"); computed FLOAT operand in a
+  comparison ("computed FLOAT operand in a comparison is unsampled"); array-element compare
+  in a condition ("condition form not in E2E-3b subset: (= (call t[i]) 17)"); multi-item PUT
+  with internal varying member (Vimem refusal); `a = a || b` ("char store from non-literal");
+  `|` condition composition ("(| (= i 2) (= i 5))"); ADD parked across a call (fixed by
+  copy-first scalar cells). Workarounds proven to compile: residual-to-zero DEC contracts with
+  expected values in literal-assigned cells; cell-to-cell float compares; scalar-copy compares.
+- ACCEPTED: every documented built-in except ADDR/NULL(bare) refuses at bind/codegen
+  (spec/coverage-builtin-sweep.tsv) — BUILTIN.USE is the biggest functional hole; BUILTIN-00
+  probe planned.
+- ACCEPTED: 8 new specs pass SOURCE+DERIVATION+COMPILE against the FS-01 binary
+  (pli80c.exe edce9e0e…); evidence build/fc01/batchA-smoke. LINK/RUN/ASSERT still UNEXECUTED.
+- ACCEPTED: TABLE-00 lane-B re-PASS at 4fd448a (build/fc01/sanity) — substrate live.
+- PROPOSED: file-I/O family needs the smallest lane-B harness extension (stage_files +
+  file_expectations) mirroring oracle/linkrun.py STAGE_IN/EXPORT_OUT: input files are named
+  from the FILE variable (INF.DAT), OUTPUT files from the TITLE first token, NO extension
+  ([C279]). Console-GET echo may pollute the complete-stream capture — untested.

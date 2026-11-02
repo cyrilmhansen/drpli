@@ -1,0 +1,44 @@
+/* DEC-00 - ORIGINAL DRPLi work (FC-01, 2026-11-02).         */
+/* FIXED DECIMAL(9,2) arithmetic verified through residual-  */
+/* to-ZERO comparisons (the pinned scaled-decimal condition  */
+/* form [R507/R607]).  Expected DEC values sit in separately */
+/* assigned literal CELLS because a fractional DEC literal   */
+/* as an arithmetic operand is a measured refusal (DEC-01    */
+/* probes it); cell-minus-cell is the pinned arithmetic      */
+/* shape.  Add, subtract, multiply by an integral literal,   */
+/* mixed DEC-with-BINARY, DO-loop accumulation.  No DEC      */
+/* print layout is assumed.  Expected: reference.py:dec00.   */
+dec00: procedure options(main);
+  declare (x,y,z,v,d) fixed decimal(9,2);
+  declare (e1,e2,e3,e4,e5) fixed decimal(9,2);
+  declare (tot,i) fixed;
+  x = 12.50;
+  y = 7.25;
+  e1 = 19.75;
+  e2 = 5.25;
+  e3 = 50.00;
+  e4 = 112.50;
+  e5 = 37.50;
+  tot = 0;
+  z = x + y;
+  d = z - e1;
+  if d = 0 then tot = tot + 1;
+  v = x - y;
+  d = v - e2;
+  if d = 0 then tot = tot + 1;
+  v = x * 4;
+  d = v - e3;
+  if d = 0 then tot = tot + 1;
+  z = 100 + x;
+  d = z - e4;
+  if d = 0 then tot = tot + 1;
+  v = 0.00;
+  do i = 1 to 3;
+     v = v + x;
+  end;
+  d = v - e5;
+  if d = 0 then tot = tot + 1;
+  put skip list('DECOK=', tot);
+  stop;
+end dec00;
+

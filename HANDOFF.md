@@ -74,19 +74,23 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## Next action — NO ACTIVE ROUND (FS-01 CLOSED 2026-11-02)
+## Next action — FC-01 ACTIVE (operator mission; baseline `4fd448a`)
 
-A successor WITHOUT an explicit operator instruction: confirm HEAD/tree (`git rev-parse HEAD &&
-git status --porcelain=v1`; a dirty `handoff.config.json` is the OPERATOR's standing edit — never
-stage, clean, revert or commit it), run `/handoff verify`, record state, and **STOP**.
-FS-01 is complete (both functional tests PASS with sound evidence) — do not continue it.
-If authorized: open items are `docs/functional-results.md` § 3/§ 5 (attribution still
-`undefined`; PLILIB wrap law undeclared — P3-b oracle round; BDOS-25/license P3-c; TABLE-02
-P3-d; F1-side P3-a is DONE) and `spec/lab-evidence/e2e50-p2/REPORT.md` §5 — PROPOSALS, never an
-authorisation. Standing debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
-`%include`). Boundary: `/home/john/pli/*` read-only; never
-`git clean`/`reset --hard`/`add -A`; explicit-path commits; no push; never renew mid-Git-op or
-while an emulator runs; renewal values ONLY in `handoff.config.json`.
+FC-01: original representative functional corpus (15-25 programs), autonomous across renewals.
+Hop 1 done: 8 Batch-A programs + specs + reference derivations committed (sources hashed,
+SOURCE/DERIVATION/COMPILE pass; see `docs/functional-results.md` § 6 if present, else PROGRESS).
+NEXT: (1) run Lane B full chain: `python3 tools/functional_runner.py --lane B --tests MATH-00
+PROC-00 HIST-00 PTR-00 STRNG-00 DEC-00 FLT-00 TABLE-02 --evidence build/fc01/batchA`; record
+ACTUAL verdicts (never launder), commit a results section. (2) Batch B blocker probes as specs
+(BUILTIN-00 LENGTH/SUBSTR; STRCAT-00 `||`; COND-00 `|`; DEC-01 fractional literal; FLT-01
+computed compare; EDIT-00 PUT EDIT) — compile-FAIL is the deliverable; keep messages verbatim.
+(3) File family: extend tools/functional_runner.py minimally (lane-B stage_files, expected.
+file_expectations byte-checks; mirror oracle/linkrun.py STAGE_IN/EXPORT_OUT conventions:
+input named from FILE variable, output from TITLE first token no ext [C279]) + hostile-suite
+cases in tools/test_functional_runner.py; then FILE-00/01 + ONUNIT-00 (ON ENDFILE(<file>)).
+(4) Keep corpus overview + 4 metrics updated (docs + this prose). Constraints: no OCaml compiler
+changes; goldens/artefacts untouched; explicit-path commits; no push; renew at safe boundaries
+per handoff.config.json cap; `/home/john/pli/*` read-only.
 ## Unfinished operations
 
 - (none) — FS-01 delivered: F1 harness fix + C15 pins, TABLE-01 revision + derived expectation,
@@ -120,25 +124,22 @@ while an emulator runs; renewal values ONLY in `handoff.config.json`.
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 134
-checkpoint-id: g134-8670cffbd6b1
-checkpoint-kind: manual
+checkpoint-generation: 135
+checkpoint-id: g135-acc56411c7a2
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 2, remaining ~9993, session 01a19ab0-a226-737d-a44a-126b617c91da)
-checkpointed: 2026-11-02T05:42:58.426Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6500, session 01a19b0a-724c-7388-bbdc-4f26e3937539)
+checkpointed: 2026-11-02T07:20:08.538Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d51d63a0ccb3c98a63290ac3f66f520f2b2f8aaa80de8111d6c59dbc6ebe433e
+source-progress: 825580d1a9ddf38ad27fab0646959947a6e79a7940c6afde03839e86ff4bd528
 source-handoff: c41743fc2bf4e0c95cf1a50c8b0fb11b2b01c492aeaa132861397704a65af895
 source-learnings: 677fdf0d532d7f117a8e57f4d064b678784e0ce82c2ab34b5e022669873d0362
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19ab0-a226-737d-a44a-126b617c91da
-readiness-at: 2026-11-02T05:42:58.429Z
-readiness-checkpoint: g134-8670cffbd6b1
 ### Last verified state
-guard level 2; checkpoint requested (finalize: FS-01 CLOSED at 5c71a01 (chain d8a0ec1 harness F1 fix + C15 194/194; 5b29957 TABLE-01 output-only revision sha 4881f187..., expectation derived not captured; a0e2a96 docs/functional-results.md sec 5; 5c71a01 handoff prose). TABLE-00 PASS, TABLE-01 PASS (Lane B, all stages typed success, double-run byte-equal, evidence build/functional/fs01* ignored working state); Lane A unchanged FX-00 PASS / FX-01 FAIL emulator. P2 FAIL evidence preserved; wrap law stays proposed; no compiler/golden/ledger byte; operator handoff.config.json unstaged; successor WITHOUT operator instruction: confirm HEAD/tree, verify, record, STOP.)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

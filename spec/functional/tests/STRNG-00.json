@@ -1,0 +1,52 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "STRNG-00",
+ "family": "STRNG",
+ "title": "CHARACTER VARYING rotation, equality tests, varying member print",
+ "provenance": {
+  "origin": "original",
+  "author": "DRPLi FC-01 corpus",
+  "date": "2026-11-02",
+  "note": "written for FC-01; independently specified; no third-party import"
+ },
+ "source": {
+  "file": "STRNG-00.PLI",
+  "sha256": "1116d1e996ffdc7077303b896f3481b8c8d0865a1904717f68161100df716a0b",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "DECL.CHAR_VARYING",
+  "EXPR.VARYING_X_VARYING",
+  "AGG.VARYING_MEMBER",
+  "DECL.MEMBER_SCOPE",
+  "IO.PUT_LIST_FIXED",
+  "IO.PUT_SKIP",
+  "EXPR.SELF_ADD_LADDER"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "console_input": "^Z",
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "STRNG00"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:strng00",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "W= beta HITS= 3",
+   "delta"
+  ]
+ },
+ "notes": "FC-01 original representative program. Expected stream derived from the declared design + README sec 6 format law, never captured (L3). All lines kept far inside the measured 79-col PLILIB wrap. Pinned refusals deliberately avoided in-program (probe programs carry them): array-element compares, >=/<=, literal-left, k+x store, | composition, built-ins, concatenation, DEC fractional-literal arithmetic operands, computed float compare operands, multi-item internal-member PUT, while-over-pointer reload."
+}

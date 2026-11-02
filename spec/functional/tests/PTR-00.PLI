@@ -1,0 +1,40 @@
+/* PTR-00 - ORIGINAL DRPLi work (FC-01, 2026-11-02).         */
+/* BASED linked records: allocate 5 nodes with set(p), chain */
+/* at the head, bounded traversal (CONSTANT bounds; the      */
+/* DO-WHILE-over-pointer-list reload is a pinned DIVERGENT   */
+/* row and is not used), sum of squares, null-after-full-    */
+/* walk test, then free every node.                          */
+/* Expected values: reference.py:ptr00 (pure Python list).   */
+ptr00: procedure options(main);
+  declare head pointer, p pointer, q pointer;
+  declare i fixed, s fixed, nz fixed, top fixed;
+  declare 1 node based,
+    2 val fixed,
+    2 nxt pointer;
+  head = null;
+  do i = 1 to 5;
+     allocate node set(q);
+     q->val = i * i;
+     q->nxt = head;
+     head = q;
+  end;
+  top = head->val;
+  s = 0;
+  p = head;
+  do i = 1 to 5;
+     s = s + p->val;
+     p = p->nxt;
+  end;
+  nz = 0;
+  if p = null then nz = 1;
+  p = head;
+  do i = 1 to 5;
+     q = p->nxt;
+     free p->node;
+     p = q;
+  end;
+  put skip list('SUMSQ=', s, 'TOP=', top);
+  put list('NULLX=', nz);
+  stop;
+end ptr00;
+

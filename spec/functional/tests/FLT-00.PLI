@@ -1,0 +1,39 @@
+/* FLT-00 - ORIGINAL DRPLi work (FC-01, 2026-11-02).         */
+/* FLOAT BINARY(24) arithmetic verified through cell-to-cell */
+/* equality only (every DR float-compare sample addresses two*/
+/* cells [R3070-R3077]; a computed comparison operand is a   */
+/* measured refusal).  Exactly representable values only;    */
+/* add, subtract, multiply, product-then-sum expression,     */
+/* accumulation loop.  No float print layout is assumed.     */
+/* Expected: reference.py:flt00 (Python float arithmetic).   */
+flt00: procedure options(main);
+  declare (a,b,c) float binary(24);
+  declare (e1,e2,e3,e4,e5,e6) float binary(24);
+  declare hits fixed;
+  declare i fixed;
+  hits = 0;
+  a = 2.5;
+  b = 4.0;
+  e1 = 10.25;
+  e2 = 6.5;
+  e3 = 1.5;
+  e4 = 10.0;
+  e5 = 6.5;
+  e6 = 6.5;
+  c = a * a + b;
+  if c = e1 then hits = hits + 1;
+  c = a + b;
+  if c = e2 then hits = hits + 1;
+  c = b - a;
+  if c = e3 then hits = hits + 1;
+  c = a * b;
+  if c = e4 then hits = hits + 1;
+  do i = 1 to 4;
+     a = a + 1.0;
+  end;
+  if a = e5 then hits = hits + 1;
+  if e2 = e6 then hits = hits + 1;
+  put skip list('FLTOK=', hits);
+  stop;
+end flt00;
+

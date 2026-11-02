@@ -1,0 +1,33 @@
+/* MATH-00 - ORIGINAL DRPLi work (FC-01, 2026-11-02).        */
+/* Integer arithmetic + branching contract: gcd by repeated  */
+/* subtraction (DO WHILE, scalar ordered/equality relations, */
+/* ELSE), division with a reconstructed remainder, a BY-step */
+/* accumulation, and a route chosen by a remainder test.     */
+/* Expected values: reference.py:math00 (math.gcd/divmod,    */
+/* derived independently of this program's algorithm).       */
+math00: procedure options(main);
+  declare (a,b,g,n,q,r,i,tot,avg) fixed;
+  a = 48;
+  b = 18;
+  do while (a ^= b);
+     if a > b then a = a - b;
+     else b = b - a;
+  end;
+  g = a;
+  n = 107;
+  q = n / 3;
+  r = n - q * 3;
+  tot = 0;
+  do i = 1 to 9 by 2;
+     tot = tot + i;
+  end;
+  avg = tot / 5;
+  put skip list('GCD=', g, 'QUO=', q);
+  put list('REM=', r);
+  put skip list('TOT=', tot, 'AVG=', avg);
+  if r = 0 then put list('ZERO-REM');
+  else put list('NONZERO-REM');
+  put skip;
+  stop;
+end math00;
+

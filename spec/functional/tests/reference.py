@@ -51,6 +51,113 @@ def table01():
 
 
 
+# ------------------------------------------------------- FC-01 corpus family (Lane B)
+# Original representative programs (mission FC-01, 2026-11-02).  Each function below
+# implements the program's SPECIFIED semantics in independent Python (stdlib only);
+# the PL/I algorithm is never consulted (law L3).  Format law per README section 6:
+# fixed numerics print right-justified in a field, literals at natural width, one
+# blank between items after collapse-spaces-v1 -- so every expected line below is
+# label + single-space-joined values.
+
+import math
+
+
+def math00():
+    """MATH-00: gcd(48,18) via math.gcd (the program uses repeated subtraction);
+    divmod(107,3); odd-step accumulation 1+3+5+7+9; integer mean; remainder route."""
+    g = math.gcd(48, 18)                      # 6
+    q, r = divmod(107, 3)                     # 35, 2
+    tot = sum(range(1, 10, 2))                # 25
+    avg = tot // 5                            # 5
+    return ["GCD= %d QUO= %d REM= %d" % (g, q, r),
+            "TOT= %d AVG= %d %s" % (tot, avg, "ZERO-REM" if r == 0 else "NONZERO-REM")]
+
+
+def proc00():
+    """PROC-00: sum of factorials 1..7 (math.factorial), iterative fib.
+    fib(10)=55; printed square term is sq(fib(4)) = 3*3 = 9."""
+    s = sum(math.factorial(i) for i in range(1, 8))       # 5913
+    def fibi(n):
+        a, b = 0, 1
+        for _ in range(n):
+            a, b = b, a + b
+        return a
+    return ["SUMFAC= %d FIB10= %d" % (s, fibi(10)),
+            "SQFIB4= %d" % (fibi(4) ** 2)]
+
+
+HIST00_VALUES = [3, 14, 15, 92, 65, 35, 89, 7, 23, 81]
+
+
+def hist00():
+    """HIST-00: bucket ((v-1)//20)+1 over HIST00_VALUES, 5 buckets; peak bucket is the
+    FIRST index attaining the max (the program scans with strict >)."""
+    h = [0] * 5
+    for v in HIST00_VALUES:
+        h[(v - 1) // 20] += 1                 # buckets 1..5 -> h[0..4]
+    mx = max(h)
+    mv = h.index(mx) + 1
+    return ["B1= %d B2= %d B3= %d" % tuple(h[0:3]),
+            "B4= %d B5= %d PEAK= %d" % (h[3], h[4], mv),
+            "MAXN= %d" % mx]
+
+
+def ptr00():
+    """PTR-00: 5 nodes prepended with val=i*i -> LIFO [25,16,9,4,1]; sum 55; TOP is the
+    last-prepended head 25; a full bounded walk ends at null -> NULLX= 1."""
+    stack = [i * i for i in range(1, 6)][::-1]
+    return ["SUMSQ= %d TOP= %d NULLX= %d" % (sum(stack), stack[0], 1)]
+
+
+def strng00():
+    """STRNG-00: rotate alpha/gamma/beta through a temp: w,x,y = beta,alpha,gamma.
+    Three equality hits; the w=x test is false (no +100).  rec.name prints alone."""
+    w, x, y = 'alpha', 'gamma', 'beta'
+    t = w
+    w = y
+    y = x
+    x = t
+    hits = (w == 'beta') + (x == 'alpha') + (y == 'gamma') + (100 if w == x else 0)
+    return ["W= %s HITS= %d" % (w, hits), "delta"]
+
+
+def dec00():
+    """DEC-00: five FIXED DEC(9,2) contracts checked with decimal.Decimal: sum,
+    difference, x*4, mixed 100+x, and a 3-step accumulation; count of exact matches."""
+    from decimal import Decimal
+    x, y = Decimal("12.50"), Decimal("7.25")
+    checks = [x + y == Decimal("19.75"),
+              x - y == Decimal("5.25"),
+              x * 4 == Decimal("50.00"),
+              Decimal(100) + x == Decimal("112.50"),
+              x + x + x == Decimal("37.50")]
+    return ["DECOK= %d" % sum(bool(c) for c in checks)]
+
+
+def flt00():
+    """FLT-00: six FLOAT BINARY(24) contracts, all exactly representable in a 24-bit
+    significand (2.5, 4.0, 10.25, 6.5, 1.5, 10.0): a*a+b, a+b, b-a, a*b, a+1 four
+    times, and an expected-cell identity.  Python float64 is exact for these."""
+    a, b = 2.5, 4.0
+    checks = [a * a + b == 10.25, a + b == 6.5, 4.0 - 2.5 == 1.5,
+              2.5 * 4.0 == 10.0, 2.5 + 4 * 1.0 == 6.5, 6.5 == 6.5]
+    return ["FLTOK= %d" % sum(bool(c) for c in checks)]
+
+
+TAB02_T = [22, -5, 17, 0, 31, -5]
+
+
+def tab02():
+    """TABLE-02: LAST-match linear search for 17 (index 3, 1-based); a not-found search
+    for 99 leaves 0; slice sum t[3..5] = 48; reverse copy u = reversed(t)."""
+    pos = max((i + 1 for i, v in enumerate(TAB02_T) if v == 17), default=0)
+    nf = max((i + 1 for i, v in enumerate(TAB02_T) if v == 99), default=0)
+    sl = sum(TAB02_T[2:5])
+    u = TAB02_T[::-1]
+    return ["POS= %d NF= %d" % (pos, nf), "SLICE= %d" % sl,
+            "R1= %d R2= %d R6= %d" % (u[0], u[1], u[5])]
+
+
 # ---------------------------------------------------------------- fixture family (Lane A)
 # The Lane A substrate fixtures are ORIGINAL hand-encoded .COM images written for this
 # round (spec/functional/tests/FX-*.asm, built by tools/mk_functional_fixture.py).  Their
@@ -79,6 +186,9 @@ def fx01():
 
 
 DERIVATIONS = {"table00": table00, "table01": table01,
+               "math00": math00, "proc00": proc00, "hist00": hist00,
+               "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
+               "flt00": flt00, "tab02": tab02,
                "fx00": fx00, "fx01": fx01}
 
 

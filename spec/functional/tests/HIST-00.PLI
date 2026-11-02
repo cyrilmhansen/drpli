@@ -1,0 +1,43 @@
+/* HIST-00 - ORIGINAL DRPLi work (FC-01, 2026-11-02).        */
+/* Histogram over a fixed table: bucket index by division    */
+/* with a variable subscript store, and peak selection via a */
+/* scalar copy (array-element compares are a pinned          */
+/* refusal).  Expected counts: reference.py:hist00 (Python   */
+/* integer division and max, independent of this lowering).  */
+hist00: procedure options(main);
+  declare v(10) fixed, h(5) fixed;
+  declare i fixed, k fixed, c fixed, mx fixed, mv fixed;
+  v(1) = 3;
+  v(2) = 14;
+  v(3) = 15;
+  v(4) = 92;
+  v(5) = 65;
+  v(6) = 35;
+  v(7) = 89;
+  v(8) = 7;
+  v(9) = 23;
+  v(10) = 81;
+  do i = 1 to 5;
+     h(i) = 0;
+  end;
+  do i = 1 to 10;
+     k = (v(i) - 1) / 20 + 1;
+     h(k) = h(k) + 1;
+  end;
+  mx = h(1);
+  mv = 1;
+  do i = 2 to 5;
+     c = h(i);
+     if c > mx then do;
+        mx = c;
+        mv = i;
+     end;
+  end;
+  put skip list('B1=', h(1), 'B2=', h(2));
+  put list('B3=', h(3));
+  put skip list('B4=', h(4), 'B5=', h(5));
+  put list('PEAK=', mv);
+  put skip list('MAXN=', mx);
+  stop;
+end hist00;
+

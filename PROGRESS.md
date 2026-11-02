@@ -3,7 +3,14 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FS-01 CLOSED (2026-11-02; first two functional PASSes, Lane B; baseline HEAD `876ed9e`)
+## Current phase — FC-01 ACTIVE (operator-authorized long-running corpus mission; baseline HEAD `4fd448a`)
+
+FC-01: build 15–25 original representative functional PL/I programs via the Lane-B harness.
+Batch A (8 programs: MATH-00 PROC-00 HIST-00 PTR-00 STRNG-00 DEC-00 FLT-00 TABLE-02) is
+written, hashed, specced, and passes SOURCE+DERIVATION+COMPILE; LINK/RUN/ASSERT NOT YET EXECUTED.
+Full state and next action: `HANDOFF.md` → Next action.
+
+## Previous phase — FS-01 CLOSED (2026-11-02; first two functional PASSes, Lane B; baseline HEAD `876ed9e`)
 
 FS-01 (operator mission "first two functional PASSes") COMPLETE: TABLE-00 and TABLE-01 **PASS**
 on Lane B. F1 fixed in the harness (`tools/functional_runner.py` `_run_lane_b` anchor law —
@@ -112,11 +119,14 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-The ONE active spec lives in `HANDOFF.md` -> its single level-2 Next-action heading: **NO
-ACTIVE ROUND** (FS-01 CLOSED 2026-11-02; prior E2E-50/P2 CLOSED same day). A successor without
-an operator instruction confirms HEAD/tree, runs `/handoff verify`, records state and STOPS.
-PROGRESS does not restate it (PROTOCOL: handoff docs point at claims/specs, never duplicate
-authority).
+FC-01 IS ACTIVE (operator mission, this session chain): run Lane B LINK/RUN/ASSERT for the
+eight Batch-A specs (`python3 tools/functional_runner.py --lane B --tests MATH-00 PROC-00
+HIST-00 PTR-00 STRNG-00 DEC-00 FLT-00 TABLE-02 --evidence build/fc01/batchA`), record actual
+verdicts in `docs/functional-results.md` § 6 + commit; then Batch B blocker probes (BUILTIN-00,
+STRCAT-00/PROBE-CAT facts, COND-00 `|`, DEC-01 fractional-literal, FLT-01 computed compare,
+EDIT-00), then the file-I/O family — which needs the smallest harness extension (lane-B
+`stage_files` + `file_expectations`, mirroring oracle/linkrun.py STAGE_IN/EXPORT_OUT measured
+conventions) plus hostile-suite cases. Prior FS-01/E2E-50/P2 close instructions are historical.
 ## Verified milestones (provenance: `docs/history/README.md`; evidence: `spec/lab-evidence/`)
 
 - E2E-48/P1 — 24/24 probes byte-identical + registered, claims C309–C316, gate 1098/0: `992ccad`.
@@ -234,15 +244,15 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 134
-checkpoint-id: g134-8670cffbd6b1
-checkpoint-kind: manual
+checkpoint-generation: 135
+checkpoint-id: g135-acc56411c7a2
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-02T05:42:58.426Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-02T07:20:08.538Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d51d63a0ccb3c98a63290ac3f66f520f2b2f8aaa80de8111d6c59dbc6ebe433e
+source-progress: 825580d1a9ddf38ad27fab0646959947a6e79a7940c6afde03839e86ff4bd528
 source-handoff: c41743fc2bf4e0c95cf1a50c8b0fb11b2b01c492aeaa132861397704a65af895
 source-learnings: 677fdf0d532d7f117a8e57f4d064b678784e0ce82c2ab34b5e022669873d0362
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
@@ -268,9 +278,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a19ab0-a226-737d-a44a-126b617c91da
-readiness-at: 2026-11-02T05:42:58.429Z
-readiness-checkpoint: g134-8670cffbd6b1
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -1,0 +1,52 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "MATH-00",
+ "family": "MATH",
+ "title": "integer gcd, division with reconstructed remainder, BY-step sum, remainder route",
+ "provenance": {
+  "origin": "original",
+  "author": "DRPLi FC-01 corpus",
+  "date": "2026-11-02",
+  "note": "written for FC-01; independently specified; no third-party import"
+ },
+ "source": {
+  "file": "MATH-00.PLI",
+  "sha256": "d1e9a64577753365a5a91e48b4a14e27e2835c49c2c055187d85f121ec68b7c6",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "LOOP.DO_WHILE_UNTIL",
+  "LOOP.DO_TO_BY",
+  "EXPR.REL_FIXED_EQ_K",
+  "EXPR.SELF_ADD_LADDER",
+  "EXPR.ADD_PRESERVE_ROUTE",
+  "IO.PUT_LIST_FIXED",
+  "IO.PUT_SKIP"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "console_input": "^Z",
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "MATH00"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:math00",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "GCD= 6 QUO= 35 REM= 2",
+   "TOT= 25 AVG= 5 NONZERO-REM"
+  ]
+ },
+ "notes": "FC-01 original representative program. Expected stream derived from the declared design + README sec 6 format law, never captured (L3). All lines kept far inside the measured 79-col PLILIB wrap. Pinned refusals deliberately avoided in-program (probe programs carry them): array-element compares, >=/<=, literal-left, k+x store, | composition, built-ins, concatenation, DEC fractional-literal arithmetic operands, computed float compare operands, multi-item internal-member PUT, while-over-pointer reload."
+}

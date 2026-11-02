@@ -1,0 +1,53 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "TABLE-02",
+ "family": "TABLE",
+ "title": "table search, not-found contract, slice sum, reverse copy",
+ "provenance": {
+  "origin": "original",
+  "author": "DRPLi FC-01 corpus",
+  "date": "2026-11-02",
+  "note": "written for FC-01; independently specified; no third-party import"
+ },
+ "source": {
+  "file": "TABLE-02.PLI",
+  "sha256": "f2f363d75a46105b9f63e85b89b64789a6e1c5c974e6cc53afa81de95c85b30c",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "AGG.ARRAY_1D_FIXED",
+  "AGG.VAR_INDEX_LADDER",
+  "LOOP.DO_TO_BY",
+  "EXPR.REL_FIXED_EQ_K",
+  "IO.PUT_LIST_FIXED",
+  "IO.PUT_SKIP",
+  "EXPR.SELF_ADD_LADDER"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "console_input": "^Z",
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "TAB02"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:tab02",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "POS= 3 NF= 0",
+   "SLICE= 48",
+   "R1= -5 R2= 31 R6= 22"
+  ]
+ },
+ "notes": "FC-01 original representative program. Expected stream derived from the declared design + README sec 6 format law, never captured (L3). All lines kept far inside the measured 79-col PLILIB wrap. Pinned refusals deliberately avoided in-program (probe programs carry them): array-element compares, >=/<=, literal-left, k+x store, | composition, built-ins, concatenation, DEC fractional-literal arithmetic operands, computed float compare operands, multi-item internal-member PUT, while-over-pointer reload."
+}

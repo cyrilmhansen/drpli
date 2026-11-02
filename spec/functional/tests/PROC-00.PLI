@@ -1,0 +1,39 @@
+/* PROC-00 - ORIGINAL DRPLi work (FC-01, 2026-11-02).        */
+/* Procedures: recursive FIXED fact/fib through copy-first   */
+/* operand cells (ADD parked across a call is a measured     */
+/* refusal), a valued helper called inside a PUT item, and   */
+/* accumulation of returned values into a scalar.            */
+/* Expected values: reference.py:proc00 (math.factorial and  */
+/* an iterative Python fib, independent of these recursions).*/
+proc00: procedure options(main);
+  declare i fixed, s fixed, t1 fixed, t2 fixed, t3 fixed;
+  s = 0;
+  do i = 1 to 7;
+     t3 = fact(i);
+     s = s + t3;
+  end;
+  t1 = fib(10);
+  t2 = fib(4);
+  put skip list('SUMFAC=', s);
+  put list('FIB10=', t1);
+  put skip list('SQFIB4=', sq(t2));
+  stop;
+  fact: procedure(n) returns(fixed) recursive;
+    declare n fixed;
+    if n = 0 then return (1);
+    return (n * fact(n - 1));
+  end fact;
+  fib: procedure(n) returns(fixed) recursive;
+    declare n fixed, x fixed, y fixed;
+    if n = 0 then return (0);
+    if n = 1 then return (1);
+    x = fib(n - 1);
+    y = fib(n - 2);
+    return (x + y);
+  end fib;
+  sq: procedure(z0) returns(fixed);
+    declare z0 fixed;
+    return (z0 * z0);
+  end sq;
+end proc00;
+

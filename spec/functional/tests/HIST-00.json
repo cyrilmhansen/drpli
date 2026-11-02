@@ -1,0 +1,52 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "HIST-00",
+ "family": "HIST",
+ "title": "histogram bucketing and peak selection over a fixed table",
+ "provenance": {
+  "origin": "original",
+  "author": "DRPLi FC-01 corpus",
+  "date": "2026-11-02",
+  "note": "written for FC-01; independently specified; no third-party import"
+ },
+ "source": {
+  "file": "HIST-00.PLI",
+  "sha256": "8cc1a3e4d48b4579ee9696b4c4e2f2a625840bec01d5b0c7a8ba59c7bb14c483",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "AGG.ARRAY_1D_FIXED",
+  "AGG.VAR_INDEX_LADDER",
+  "LOOP.DO_TO_BY",
+  "EXPR.SELF_ADD_LADDER",
+  "IO.PUT_LIST_FIXED",
+  "IO.PUT_SKIP"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "console_input": "^Z",
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "HIST00"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:hist00",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "B1= 4 B2= 2 B3= 0",
+   "B4= 1 B5= 3 PEAK= 1",
+   "MAXN= 4"
+  ]
+ },
+ "notes": "FC-01 original representative program. Expected stream derived from the declared design + README sec 6 format law, never captured (L3). All lines kept far inside the measured 79-col PLILIB wrap. Pinned refusals deliberately avoided in-program (probe programs carry them): array-element compares, >=/<=, literal-left, k+x store, | composition, built-ins, concatenation, DEC fractional-literal arithmetic operands, computed float compare operands, multi-item internal-member PUT, while-over-pointer reload."
+}

@@ -1,0 +1,37 @@
+/* STRNG-00 - ORIGINAL DRPLi work (FC-01, 2026-11-02).       */
+/* CHARACTER VARYING assignment, a three-way rotation through*/
+/* a temp, equality tests between varying cells and against  */
+/* literals, a VARYING member of a structure printed as the  */
+/* SINGLE item of its own statement (multi-item internal-   */
+/* member PUT is a measured refusal), and printing.          */
+/* No built-ins (every documented built-in except ADDR/NULL  */
+/* is refused; that gap is probed separately by BUILTIN-00). */
+/* Expected values: reference.py:strng00 (Python strings).   */
+strng00: procedure options(main);
+  declare w character(20) varying;
+  declare x character(20) varying;
+  declare y character(20) varying;
+  declare t character(20) varying;
+  declare hits fixed;
+  declare 1 rec,
+    2 name character(12) varying,
+    2 code fixed bin(15);
+  w = 'alpha';
+  x = 'gamma';
+  y = 'beta';
+  t = w;
+  w = y;
+  y = x;
+  x = t;
+  hits = 0;
+  if w = 'beta' then hits = hits + 1;
+  if x = 'alpha' then hits = hits + 1;
+  if y = 'gamma' then hits = hits + 1;
+  if w = x then hits = hits + 100;
+  rec.name = 'delta';
+  rec.code = 7;
+  put skip list('W=', w, 'HITS=', hits);
+  put skip list(rec.name);
+  stop;
+end strng00;
+

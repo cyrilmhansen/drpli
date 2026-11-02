@@ -1,0 +1,48 @@
+/* TABLE-02 - ORIGINAL DRPLi work (FC-01, 2026-11-02).       */
+/* Table search and transformation: last-match linear search */
+/* through a scalar copy (element-compare in a condition is  */
+/* a pinned refusal), a not-found contract (j stays 0), a    */
+/* slice sum, and a reverse copy with BY -1 and a running    */
+/* destination counter (literal-left k-x stores are refused, */
+/* so no `7 - i' appears).                                   */
+/* Expected: reference.py:tab02 (Python list operations).    */
+tab02: procedure options(main);
+  declare t(6) fixed, u(6) fixed;
+  declare i fixed, j fixed, k fixed, key fixed;
+  declare s fixed;
+  t(1) = 22;
+  t(2) = -5;
+  t(3) = 17;
+  t(4) = 0;
+  t(5) = 31;
+  t(6) = -5;
+  key = 17;
+  j = 0;
+  do i = 1 to 6;
+     k = t(i);
+     if k = key then j = i;
+  end;
+  put skip list('POS=', j);
+  j = 0;
+  do i = 1 to 6;
+     k = t(i);
+     if k = 99 then j = i;
+  end;
+  put list('NF=', j);
+  s = 0;
+  do i = 3 to 5;
+     k = t(i);
+     s = s + k;
+  end;
+  put skip list('SLICE=', s);
+  j = 0;
+  do i = 6 to 1 by -1;
+     k = t(i);
+     j = j + 1;
+     u(j) = k;
+  end;
+  put skip list('R1=', u(1), 'R2=', u(2));
+  put list('R6=', u(6));
+  stop;
+end tab02;
+

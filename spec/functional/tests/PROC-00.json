@@ -1,0 +1,53 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "PROC-00",
+ "family": "PROC",
+ "title": "recursive fact/fib and valued helper called in a PUT item",
+ "provenance": {
+  "origin": "original",
+  "author": "DRPLi FC-01 corpus",
+  "date": "2026-11-02",
+  "note": "written for FC-01; independently specified; no third-party import"
+ },
+ "source": {
+  "file": "PROC-00.PLI",
+  "sha256": "a63c61020907e0f5f7f3948280a4fb41b2854c50df8c2f089afe0f78dd2c7be1",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "DECL.RECURSIVE",
+  "PROC.CALL_AS_EXPRESSION",
+  "PROC.TAIL_RET",
+  "PROC.CALL_COPYIN",
+  "LOOP.DO_TO_BY",
+  "EXPR.SELF_ADD_LADDER",
+  "IO.PUT_LIST_FIXED",
+  "IO.PUT_SKIP"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "console_input": "^Z",
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "PROC00"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:proc00",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "SUMFAC= 5913 FIB10= 55",
+   "SQFIB4= 9"
+  ]
+ },
+ "notes": "FC-01 original representative program. Expected stream derived from the declared design + README sec 6 format law, never captured (L3). All lines kept far inside the measured 79-col PLILIB wrap. Pinned refusals deliberately avoided in-program (probe programs carry them): array-element compares, >=/<=, literal-left, k+x store, | composition, built-ins, concatenation, DEC fractional-literal arithmetic operands, computed float compare operands, multi-item internal-member PUT, while-over-pointer reload."
+}
