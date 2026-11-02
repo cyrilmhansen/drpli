@@ -42,8 +42,9 @@
   "derivation": "reference.py:dec00",
   "normalization": "collapse-spaces-v1",
   "console": [
+   "",
    "DECOK= 5"
   ]
  },
- "notes": "FC-01 original representative program. Expected stream derived from the declared design + README sec 6 format law, never captured (L3). All lines kept far inside the measured 79-col PLILIB wrap. Pinned refusals deliberately avoided in-program (probe programs carry them): array-element compares, >=/<=, literal-left, k+x store, | composition, built-ins, concatenation, DEC fractional-literal arithmetic operands, computed float compare operands, multi-item internal-member PUT, while-over-pointer reload."
+ "notes": "FC-01 original representative program. Expected stream derived from the declared design + README sec 6 format law AND framing law [C352] (leading blank: first output statement is PUT SKIP LIST), never captured (L3). All lines kept far inside the measured 79-col PLILIB wrap. Pinned refusals deliberately avoided in-program (probe programs carry them): array-element compares, >=/<=, literal-left, k+x store, | composition, built-ins, concatenation, DEC fractional-literal arithmetic operands, computed float compare operands, multi-item internal-member PUT, while-over-pointer reload."
 }

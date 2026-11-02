@@ -58,19 +58,33 @@ def table01():
 # fixed numerics print right-justified in a field, literals at natural width, one
 # blank between items after collapse-spaces-v1 -- so every expected line below is
 # label + single-space-joined values.
+#
+# FRAMING (FC-01 hop 3, 2026-11-02): README section 6 framing law, measured on DR's own
+# objects as [C352] (spec/lab-evidence/fc01-framing/; bare-skip spelling E29PS1 [C192]):
+# a PUT SKIP executed as the FIRST output statement prints its own leading CRLF (the
+# normalized stream opens with a blank line -> leading "" entry), and the program-exit
+# chain appends EXACTLY ONE final CRLF REGARDLESS of line state -- also after a final
+# bare PUT SKIP that had just terminated the line (-> one trailing "" entry).  Every
+# Batch-A program's first executed output statement is `put skip list(...)` -> leading
+# ""; MATH-00 additionally ends with a bare `put skip;` -> trailing "".  These entries
+# are DERIVED from the measured law plus each program's declared statement sequence,
+# never captured from any run (L3).
 
 import math
 
 
 def math00():
     """MATH-00: gcd(48,18) via math.gcd (the program uses repeated subtraction);
-    divmod(107,3); odd-step accumulation 1+3+5+7+9; integer mean; remainder route."""
+    divmod(107,3); odd-step accumulation 1+3+5+7+9; integer mean; remainder route.
+    Framing [C352]: leading "" (first output stmt is PUT SKIP LIST) AND trailing ""
+    (final bare PUT SKIP closes the line; the exit CRLF lands on the next line)."""
     g = math.gcd(48, 18)                      # 6
     q, r = divmod(107, 3)                     # 35, 2
     tot = sum(range(1, 10, 2))                # 25
     avg = tot // 5                            # 5
-    return ["GCD= %d QUO= %d REM= %d" % (g, q, r),
-            "TOT= %d AVG= %d %s" % (tot, avg, "ZERO-REM" if r == 0 else "NONZERO-REM")]
+    return ["", "GCD= %d QUO= %d REM= %d" % (g, q, r),
+            "TOT= %d AVG= %d %s" % (tot, avg, "ZERO-REM" if r == 0 else "NONZERO-REM"),
+            ""]
 
 
 def proc00():
@@ -82,8 +96,8 @@ def proc00():
         for _ in range(n):
             a, b = b, a + b
         return a
-    return ["SUMFAC= %d FIB10= %d" % (s, fibi(10)),
-            "SQFIB4= %d" % (fibi(4) ** 2)]
+    return ["", "SUMFAC= %d FIB10= %d" % (s, fibi(10)),
+            "SQFIB4= %d" % (fibi(4) ** 2)]   # first output stmt is PUT SKIP LIST ([C352])
 
 
 HIST00_VALUES = [3, 14, 15, 92, 65, 35, 89, 7, 23, 81]
@@ -97,7 +111,7 @@ def hist00():
         h[(v - 1) // 20] += 1                 # buckets 1..5 -> h[0..4]
     mx = max(h)
     mv = h.index(mx) + 1
-    return ["B1= %d B2= %d B3= %d" % tuple(h[0:3]),
+    return ["", "B1= %d B2= %d B3= %d" % tuple(h[0:3]),      # leading blank: [C352]
             "B4= %d B5= %d PEAK= %d" % (h[3], h[4], mv),
             "MAXN= %d" % mx]
 
@@ -106,7 +120,7 @@ def ptr00():
     """PTR-00: 5 nodes prepended with val=i*i -> LIFO [25,16,9,4,1]; sum 55; TOP is the
     last-prepended head 25; a full bounded walk ends at null -> NULLX= 1."""
     stack = [i * i for i in range(1, 6)][::-1]
-    return ["SUMSQ= %d TOP= %d NULLX= %d" % (sum(stack), stack[0], 1)]
+    return ["", "SUMSQ= %d TOP= %d NULLX= %d" % (sum(stack), stack[0], 1)]  # [C352]
 
 
 def strng00():
@@ -118,7 +132,7 @@ def strng00():
     y = x
     x = t
     hits = (w == 'beta') + (x == 'alpha') + (y == 'gamma') + (100 if w == x else 0)
-    return ["W= %s HITS= %d" % (w, hits), "delta"]
+    return ["", "W= %s HITS= %d" % (w, hits), "delta"]      # leading blank: [C352]
 
 
 def dec00():
@@ -131,7 +145,7 @@ def dec00():
               x * 4 == Decimal("50.00"),
               Decimal(100) + x == Decimal("112.50"),
               x + x + x == Decimal("37.50")]
-    return ["DECOK= %d" % sum(bool(c) for c in checks)]
+    return ["", "DECOK= %d" % sum(bool(c) for c in checks)]  # leading blank: [C352]
 
 
 def flt00():
@@ -141,7 +155,7 @@ def flt00():
     a, b = 2.5, 4.0
     checks = [a * a + b == 10.25, a + b == 6.5, 4.0 - 2.5 == 1.5,
               2.5 * 4.0 == 10.0, 2.5 + 4 * 1.0 == 6.5, 6.5 == 6.5]
-    return ["FLTOK= %d" % sum(bool(c) for c in checks)]
+    return ["", "FLTOK= %d" % sum(bool(c) for c in checks)]  # leading blank: [C352]
 
 
 TAB02_T = [22, -5, 17, 0, 31, -5]
@@ -154,7 +168,7 @@ def tab02():
     nf = max((i + 1 for i, v in enumerate(TAB02_T) if v == 99), default=0)
     sl = sum(TAB02_T[2:5])
     u = TAB02_T[::-1]
-    return ["POS= %d NF= %d" % (pos, nf), "SLICE= %d" % sl,
+    return ["", "POS= %d NF= %d" % (pos, nf), "SLICE= %d" % sl,   # leading blank: [C352]
             "R1= %d R2= %d R6= %d" % (u[0], u[1], u[5])]
 
 
