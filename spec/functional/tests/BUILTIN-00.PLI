@@ -1,0 +1,22 @@
+/* BUILTIN-00 - ORIGINAL DRPLi work (FC-01 hop 3, 2026-11-02).*/
+/* BLOCKER PROBE: LENGTH and SUBSTR built-ins.  Every        */
+/* documented built-in except ADDR and bare NULL is a        */
+/* MEASURED MY-COMPILER refusal (spec/coverage-builtin-sweep */
+/* .tsv; BUILTIN.DOCUMENTED_SET is PARTIAL).  The deliverable*/
+/* is the typed COMPILE FAIL with the refusal message        */
+/* verbatim (README sec 9).  Everything else here is a       */
+/* proven Batch-A shape.  FUTURE design: LENGTH(char(10))    */
+/* is the EXTENT 10; SUBSTR(s,1,3) of 'hello' is 'hel'.      */
+/* Derived from declared semantics + sec 6 laws ([C352]      */
+/* framing), never captured (L3).                            */
+builtin0: procedure options(main);
+  declare s char(10);
+  declare t char(3);
+  declare n fixed bin;
+  s = 'hello';
+  t = substr(s, 1, 3);
+  n = length(s);
+  put skip list('LEN=', n, 'SUB=', t);
+  stop;
+end builtin0;
+

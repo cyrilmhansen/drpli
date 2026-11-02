@@ -1,0 +1,46 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "EDIT-00",
+ "family": "EDIT",
+ "title": "PUT EDIT (skip(1), f(6)) probe (PARTIAL row; typed verdict recorded as it comes)",
+ "provenance": {
+  "origin": "original",
+  "author": "DRPLi FC-01 corpus (hop 3)",
+  "date": "2026-11-02",
+  "note": "written for FC-01; independently specified; no third-party import"
+ },
+ "source": {
+  "file": "EDIT-00.PLI",
+  "sha256": "0220d571a1876b816275bc0620b8ecc56957927a369aaf1765d1e4214f504eb2",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "IO.PUT_EDIT",
+  "IO.PUT_SKIP"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "EDIT00"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:edit00",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "",
+   " 42"
+  ]
+ },
+ "notes": "FC-01 Batch B BLOCKER probe (hop 3). Deliverable: the typed COMPILE FAIL with my compiler's refusal message recorded VERBATIM (README sec 9; the construct is a MEASURED my-compiler refusal from FC-01 hop 1 scratch logs -- my-gap, no DR statement). Expected stream is the FUTURE design derived from the declared semantics + README sec 6 format and framing laws ([C352]), never captured (L3). All other constructs are proven Batch-A shapes."
+}

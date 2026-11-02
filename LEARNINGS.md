@@ -1947,3 +1947,28 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   captured, L3); hostile-suite C16; then Lane-B rerun.
 - PROPOSED: FCPS1..FCPS3 are SPECIMENS registration candidates (byte-exact today) for a later
   gate hop; no RUNTIME.txt row and no registration in this hop (PROTOCOL #4).
+
+## 2026-11-02 — FC-01 hop 3 (framing schema landed; Batch-A 8/8 PASS; Batch-B probes executed)
+- ACCEPTED (executed): "" blank-line schema + README §3/§4/§6 amendments + hostile-suite C16
+  landed `51d64bd` (suite MEASURED 211/211); re-derived 8 expectations `122981a` (programs
+  UNCHANGED, shas stand); Batch-A Lane-B rerun build/fc01/batchA2: **8/8 PASS**
+  (complete-stream, LINK parse_undefined=[], RUN done); --double-run byte-equal; docs §6
+  `38216e3`. batchA FAIL records kept as written, never laundered.
+- ACCEPTED (my-compiler ACTUALS, verbatim in build/fc01/batchB.log; DRPLi facts, NOT DR
+  rules): Batch-B blockers compile-FAIL with attr=compiler — BUILTIN-00 & STRCAT-00
+  "char store from non-literal" (BUILTIN-00 hits the char STORE path before LENGTH/SUBSTR —
+  its probe isolates the wrong construct; a LENGTH/SUBSTR probe must avoid char stores of
+  non-literals); COND-00 "condition form not in E2E-3b subset [TBD]: (| (cond (= i 2))
+  (cond (= i 5)))"; DEC-01 "fractional DEC literal aligned to a decimal partner"; EDIT-00
+  "PUT EDIT counted SKIP/PAGE is unsampled (only the bare form's second byte 0xFF observed)"
+  — skip(1) COUNTED form refused; the bare SKIP form is what's measured.
+- FALSIFIED (probe design): FLT-01 rev1 PASSed — `c = a+b; if c = 6.5` is the PROVEN cell
+  route, NOT the hop-1 refusal shape "(a+b) = 6.5" direct-computed; rev1 re-measured the
+  workaround. Rev1 evidence stays on record as written (build/fc01/batchB).
+- PROPOSED (in flight at checkpoint, NOT landed): FLT-01 REV2 program (`if (a + b) = 6.5`,
+  exact CRLF/^Z/≤71 rewrite + sha refresh in FLT-01.json + notes) then rerun FLT-01 alone to
+  batchB; BUILTIN-00 REV2 (make LENGTH/SUBSTR the first blocked construct: n = length(s)
+  BEFORE any char store; drop t=substr store or route via literal-init). Then
+  docs/functional-results.md §7 (Batch-B ACTUALS table incl. rev1 falsification) + §1 rows.
+- ACCEPTED (method): spec JSONs are NOT json.dump round-trippable (indent=1 differs from
+  committed bytes) — edit console/notes surgically; generator output IS dump-clean.

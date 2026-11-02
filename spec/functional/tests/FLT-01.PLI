@@ -1,0 +1,21 @@
+/* FLT-01 - ORIGINAL DRPLi work (FC-01 hop 3, 2026-11-02).   */
+/* BLOCKER PROBE: a COMPUTED float operand in a comparison   */
+/* (c = a + b, then c = 6.5).  MEASURED MY-COMPILER refusal  */
+/* ('computed FLOAT operand in a comparison is unsampled',   */
+/* FC-01 hop 1 scratch logs).  Deliverable: typed COMPILE    */
+/* FAIL, message verbatim (README sec 9).  FUTURE design:    */
+/* 2.5 + 4.0 = 6.5, exactly representable in FLOAT           */
+/* BINARY(24); the count prints as a proven fixed-bin num.   */
+/* Framing blank per [C352]; derived, never captured (L3).   */
+flt01: procedure options(main);
+  declare (a, b, c) float binary(24);
+  declare hits fixed bin;
+  a = 2.5;
+  b = 4.0;
+  c = a + b;
+  hits = 0;
+  if c = 6.5 then hits = 1;
+  put skip list('FLT1OK=', hits);
+  stop;
+end flt01;
+

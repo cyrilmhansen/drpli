@@ -172,6 +172,56 @@ def tab02():
             "R1= %d R2= %d R6= %d" % (u[0], u[1], u[5])]
 
 
+# ---------------------------------------------------------------- Batch B blocker probes
+# FC-01 hop 3 (2026-11-02).  Six programs each exercise ONE construct that is a MEASURED
+# MY-COMPILER refusal (hop-1 scratch logs; classification `my-gap' against DR's manual;
+# NO DR statement here -- the oracle was not consulted for these shapes).  The DELIVERABLE
+# of each spec is the typed COMPILE FAIL with the refusal message recorded VERBATIM; the
+# expected stream below is the FUTURE design, derived from the declared semantics plus the
+# README sec 6 format and framing laws ([C352] leading "" -- every probe's first output
+# action is a SKIP), never captured (L3).  If a future arm makes a probe compile, the same
+# expectation judges it honestly.
+
+def builtin00():
+    """BUILTIN-00: LENGTH(char(10)) is the extent 10; SUBSTR(s,1,3) of 'hello' is 'hel'
+    (t is char(3), extent == value, no unmeasured padding question)."""
+    return ["", "LEN= 10 SUB= hel"]
+
+
+def strcat00():
+    """STRCAT-00: marker-only design -- fixed-char PUT extent layout is UNMEASURED, so no
+    value from c = a || b is derived."""
+    return ["", "CAT-ATTEMPTED"]
+
+
+def cond00():
+    """COND-00: | composition -- hits = #{i in 1..6 : i=2 or i=5} = 2."""
+    hits = len([i for i in range(1, 7) if i in (2, 5)])
+    return ["", "HITS= %d" % hits]
+
+
+def dec01():
+    """DEC-01: fractional literal operand -- 12.50 + 2.25 = 14.75 exactly (Decimal); the
+    residual-to-zero check sets ok = 1."""
+    from decimal import Decimal
+    ok = 1 if Decimal("12.50") + Decimal("2.25") - Decimal("14.75") == 0 else 0
+    return ["", "DEC1OK= %d" % ok]
+
+
+def flt01():
+    """FLT-01: computed compare operand -- 2.5 + 4.0 = 6.5, all three exactly
+    representable in a 24-bit significand (same reasoning as flt00)."""
+    ok = 1 if 2.5 + 4.0 == 6.5 else 0
+    return ["", "FLT1OK= %d" % ok]
+
+
+def edit00():
+    """EDIT-00: PUT EDIT(n) (SKIP(1), F(6)) -- SKIP(1) is the first output action ->
+    leading blank [C352]; F(6) of 42 is right-justified in 6 columns -> after
+    collapse-spaces-v1 the single line is ' 42'; exit closes it (no trailing blank)."""
+    return ["", " 42"]
+
+
 # ---------------------------------------------------------------- fixture family (Lane A)
 # The Lane A substrate fixtures are ORIGINAL hand-encoded .COM images written for this
 # round (spec/functional/tests/FX-*.asm, built by tools/mk_functional_fixture.py).  Their
@@ -203,6 +253,8 @@ DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
                "flt00": flt00, "tab02": tab02,
+               "builtin00": builtin00, "strcat00": strcat00, "cond00": cond00,
+               "dec01": dec01, "flt01": flt01, "edit00": edit00,
                "fx00": fx00, "fx01": fx01}
 
 

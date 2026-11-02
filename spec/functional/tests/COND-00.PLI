@@ -1,0 +1,20 @@
+/* COND-00 - ORIGINAL DRPLi work (FC-01 hop 3, 2026-11-02).  */
+/* BLOCKER PROBE: the | composition of conditions.  (p)|(q)  */
+/* is a MEASURED MY-COMPILER refusal (condition form not in  */
+/* the E2E-3b subset, FC-01 hop 1 scratch logs).  The        */
+/* deliverable is the typed COMPILE FAIL with the message    */
+/* verbatim (README sec 9).  Loop, equality-vs-literal and   */
+/* numeric PUT are proven Batch-A shapes.  FUTURE design:    */
+/* hits = count of i in 1..6 with i=2 or i=5 = 2.  Framing   */
+/* blank per [C352]; derived, never captured (L3).           */
+cond0: procedure options(main);
+  declare i fixed bin;
+  declare hits fixed bin;
+  hits = 0;
+  do i = 1 to 6;
+    if (i = 2) | (i = 5) then hits = hits + 1;
+  end;
+  put skip list('HITS=', hits);
+  stop;
+end cond0;
+

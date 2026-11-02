@@ -1,0 +1,48 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "DEC-01",
+ "family": "DEC",
+ "title": "fractional DEC literal arithmetic-operand blocker probe",
+ "provenance": {
+  "origin": "original",
+  "author": "DRPLi FC-01 corpus (hop 3)",
+  "date": "2026-11-02",
+  "note": "written for FC-01; independently specified; no third-party import"
+ },
+ "source": {
+  "file": "DEC-01.PLI",
+  "sha256": "d2d109c5c7e08c4b3ec33a8ed40b0c9cb0bde58d35c723b3ea565933bcbf77cd",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "EXPR.MIXED_DEC_BIN",
+  "EXPR.DE_CONST_TRACK",
+  "IO.PUT_LIST_FIXED",
+  "IO.PUT_SKIP"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "DEC01"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:dec01",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "",
+   "DEC1OK= 1"
+  ]
+ },
+ "notes": "FC-01 Batch B BLOCKER probe (hop 3). Deliverable: the typed COMPILE FAIL with my compiler's refusal message recorded VERBATIM (README sec 9; the construct is a MEASURED my-compiler refusal from FC-01 hop 1 scratch logs -- my-gap, no DR statement). Expected stream is the FUTURE design derived from the declared semantics + README sec 6 format and framing laws ([C352]), never captured (L3). All other constructs are proven Batch-A shapes."
+}

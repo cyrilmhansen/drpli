@@ -1,0 +1,18 @@
+/* EDIT-00 - ORIGINAL DRPLi work (FC-01 hop 3, 2026-11-02).  */
+/* BLOCKER PROBE: PUT EDIT with a (SKIP(1), F(6)) format.    */
+/* IO.PUT_EDIT is PARTIAL (pool law and picture item measured */
+/* on IFACT/LOAN1 shapes; the F(n) numeric layout used here  */
+/* is UNMEASURED end-to-end).  This probe records whatever    */
+/* typed verdict my compiler gives (README sec 9: refusal ->  */
+/* COMPILE FAIL message verbatim; acceptance -> LINK/RUN      */
+/* judge the derived stream).  F(6) of 42 is right-justified  */
+/* in 6 columns per README sec 6; after collapse-spaces-v1    */
+/* the line is ' 42'.  Leading blank: SKIP(1) is the first    */
+/* output action ([C352] shape); derived, never captured (L3).*/
+edit00: procedure options(main);
+  declare n fixed bin;
+  n = 42;
+  put edit(n) (skip(1), f(6));
+  stop;
+end edit00;
+

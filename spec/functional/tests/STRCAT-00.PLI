@@ -1,0 +1,19 @@
+/* STRCAT-00 - ORIGINAL DRPLi work (FC-01 hop 3, 2026-11-02).*/
+/* BLOCKER PROBE: the || concatenation operator.  Store of   */
+/* a || b is a MEASURED MY-COMPILER refusal ('char store     */
+/* from non-literal', FC-01 hop 1 scratch logs).  The        */
+/* deliverable is the typed COMPILE FAIL with the message    */
+/* verbatim (README sec 9).  FUTURE design prints a MARKER   */
+/* only: fixed-char PUT extent layout is UNMEASURED, so no   */
+/* value is derived here.  Framing blank from the first      */
+/* PUT SKIP LIST per [C352]; derived, never captured (L3).   */
+strcat0: procedure options(main);
+  declare (a, b) char(4);
+  declare c char(8);
+  a = 'ab1';
+  b = 'cd2';
+  c = a || b;
+  put skip list('CAT-ATTEMPTED');
+  stop;
+end strcat0;
+

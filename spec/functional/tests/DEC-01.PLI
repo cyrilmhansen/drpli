@@ -1,0 +1,23 @@
+/* DEC-01 - ORIGINAL DRPLi work (FC-01 hop 3, 2026-11-02).   */
+/* BLOCKER PROBE: a FRACTIONAL DEC literal as an arithmetic  */
+/* operand (x + 2.25).  MEASURED MY-COMPILER refusal         */
+/* ('fractional DEC literal aligned to a decimal partner',   */
+/* FC-01 hop 1 scratch logs); DEC-00's cell workaround       */
+/* exists precisely because of it.  Deliverable: typed       */
+/* COMPILE FAIL, message verbatim (README sec 9).  FUTURE    */
+/* design: 12.50 + 2.25 = 14.75 residual-to-zero against a   */
+/* literal-assigned cell (proven DEC-00 condition form).     */
+/* Framing blank per [C352]; derived, never captured (L3).   */
+dec01: procedure options(main);
+  declare (x, e) fixed decimal(9,2);
+  declare v fixed decimal(9,2);
+  declare ok fixed bin;
+  x = 12.50;
+  e = 14.75;
+  ok = 0;
+  v = x + 2.25;
+  if v - e = 0 then ok = 1;
+  put skip list('DEC1OK=', ok);
+  stop;
+end dec01;
+
