@@ -122,6 +122,44 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+## HANG-00 implementation hop IN FLIGHT — CLOSED AT CHAIN CAP (2026-11-03, renewal 12/12; docs commit `8ddd6c7`; build verified rc=0, compiler `edce9e0e…`; NO lane run, NO gate run this hop)
+
+Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HANG-00 implementation hop (renewal 12/12 =
+CHAIN CAP)" FIRST — it supersedes parts of the design-hop contract below. Measured this hop
+(**FALSIFIED**): the design hop's step-1 byte model, which assumed consecutive no-SKIP
+`put list(ch);` concatenate with NO separator, is WRONG — one blank precedes every PUT LIST item
+that is not the first item printed since the last line start, INCLUDING the first item of a
+following statement; witnesses are the three stored Batch-A PASS captures
+(`build/fc01/batchA2/{PROC-00,HIST-00,TABLE-02}-*/lane-B/run.console.bin`) and DR's own run
+goldens (`golden/e32rt_E32B1/E32B1.output.txt` byte-identical to `golden/e32b_E32B1_dr/`).
+**Consequence, DECLARED adaptation:** the dash/letter row, the used-letter row and every grid row
+render SPACE-separated (no separator-free route exists: `||`, SUBSTR/LENGTH, counted PUT EDIT and
+multi-item internal-member PUT are all measured refusals/FAILs). **ACCEPTED:** a consumed GET
+CLOSES the line (HAMM-00 committed expectation), so no separator blank follows an echo.
+**COMPILE-witnessed (ignored scratch, rc=0, `shapes01.REL` 1280 B code=500 data=17):** nested
+`show: procedure (c)` owning its own `character(1) varying` and doing the PUT; `call show(x)`
+inside `do i = 1 to n;` with a VARIABLE bound; `call show(44)` literal actual; member→scalar then
+`if x = 3 then call show(x);`; `do while` over calls; `get list(g)`; `if x < 4 then goto top;`
+(goto-in-IF). Lane-B RUN of all of these is STILL unwitnessed. **RE-DECIDED:** state stays
+INTEGER ASCII codes; words are three literal-indexed arrays `dgum(3)/dfly(3)/dslep(7)` plus
+`wlit character(9) varying` ('GUM'/'FLY'/'SLEEPER') instead of the packed `w(21)`+`ws(3)` (drops
+`st+i-1` subscript arithmetic and a member-loaded `>` compare); grid stays `p(144)` codes with
+the stage-cell indices verified from the listing (M1 30,31,32,41,42,44,45,54,55,56; M2 67,79,91,
+103; M3 39,52,65,78; M4 47,58,69,80; M5 114,125; M6 116,129; M7 35; M8 27; M9 142,143; M10 135,
+136; pole 1,13,…,133; top 1..7; rope 19; row base `(k-1)*12` — literal multiply, NO division).
+Capability list validated citable (all rows dr=ACCEPTS / mine=SUPPORTED): DECL.FIXED_BIN15,
+DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED, AGG.VAR_INDEX_LADDER, AGG.ELEM_AS_ACTUAL, LOOP.DO_TO_BY,
+LOOP.DO_WHILE_UNTIL, IO.GET_LIST, IO.PUT_LIST_FIXED, IO.PUT_SKIP, EXPR.REL_FIXED_EQ_K,
+EXPR.SELF_ADD_LADDER, EXPR.VARYING_X_VARYING, PROC.CALL_COPYIN, TRAN.GOTO_SAME_BLOCK.
+INDEPENDENT scratch game model written: `build/fc01-scratch/hang00_sim.py` (separator law, echo
+law, [C352] framing, 23-value script). NOTHING TRACKED IS AUTHORED YET: no `HANG-00.PLI`, no
+`HANG-00.json`, no `reference.py:hang00`; no lane run, no gate run; ledger ends C352; nothing
+laundered; operator `handoff.config.json` stays unstaged; no push.
+**CHAIN CLOSED: renewal gate reports 12/12 = `maxRenewals`; `handoff_renew` REFUSES, so there is
+no successor session. Resuming HANG-00 (steps 1-10, design hop § + the corrections above) needs an
+OPERATOR decision — raise `renewal.maxRenewals` or reset the ignored `.pi-guard` renewal state —
+followed by a fresh controlled `pi` launch.**
+
 ## HANG-00 design hop LANDED (2026-11-03, renewal 11/12; execution HEADs `610a8df`/`b6ffc92`; no compiler/emulator/gate run this hop)
 
 Read `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS HANG-00 design hop" FIRST — it carries the
@@ -325,9 +363,15 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
   identical; a port change, not a compiler change). Rights/provenance review per program
   (README § 5.1) and the unsupported-feature record stay explicit deliverables; the BASIC
   upstream licences are UNVERIFIED and are recorded as such, not asserted. Program 3 HANG-00
-  DESIGN HOP LANDED (state section above; `LEARNINGS.md` § HANG-00 design hop); implementation
-  owed at renewal 12/12 (chain cap — finalize after landing, no renewal past it without an
-  operator reset).
+  DESIGN HOP LANDED (state section above; `LEARNINGS.md` § HANG-00 design hop). The IMPLEMENTATION
+  hop ran at renewal 12/12 = the CONFIGURED CAP and CLOSED the chain at `8ddd6c7` with durable
+  prose only: the design hop's no-separator byte model is FALSIFIED (measured Batch-A PASS
+  captures + DR's own `e32rt_E32B1`/`e32b_E32B1_dr` goldens), every risky shape is COMPILE-
+  witnessed in ignored scratch, and the HANG-00 triple (`spec/functional/tests/HANG-00.PLI`,
+  `HANG-00.json`, `reference.py:hang00`) is still OWED, as are the derivation/simulator diff,
+  lane B `build/fc01/corp5`, docs § 10 + § 1, the compile-tier gate and the commit. NO renewal is
+  possible past 12/12 without an operator reset (`renewal.maxRenewals` in `handoff.config.json`
+  or the ignored `.pi-guard` renewal state) — that change is an OPERATOR decision, never mine.
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
   `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
 
@@ -361,25 +405,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 174
-checkpoint-id: g174-bafbebfa6e81
-checkpoint-kind: manual
+checkpoint-generation: 176
+checkpoint-id: g176-9424109c2993
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~13746, session 01a19ce5-2a5d-7761-bfc4-e2869ccffee5)
-checkpointed: 2026-11-02T16:01:01.010Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4235, session 01a19cfe-d308-7761-bfc4-e28a0dfb6235)
+checkpointed: 2026-11-02T16:26:49.957Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a9f45b995a2d9ce8eacc9a9b94fd22ae057620a2f9f3d3818c3ac5a9d9dbcb8e
-source-handoff: 762c048442b902bbadaa2f6419a2fbbc4998a38695f81f5177994a81b44d4c2c
-source-learnings: 5c00bf13d22d20fa975050bff3ee348902496a49c11c0b8a5deb44acd2b3ba59
+source-progress: 47c50d3790e934f66dbcfdec992acee55aeb231b4d1e72e8785030d1a5c06d07
+source-handoff: 80e4a15a9db24ec65d9640590199eab314a7cf38cb24e80b5de3cb290ae921bf
+source-learnings: ddca50d6c072819f478eea051a83dbe8e7ef4919c6309aa4ce579a567701be98
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a19ce5-2a5d-7761-bfc4-e2869ccffee5
-readiness-at: 2026-11-02T16:01:01.020Z
-readiness-checkpoint: g174-bafbebfa6e81
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
