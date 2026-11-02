@@ -1688,3 +1688,37 @@ The guard never writes this file.
 - [C137] trap re-proven mechanically: linkrun.parse_undefined(FULL)==[PLIINP] while the [:120] slice reads clean; harness FAILs the deep-UNDEFINED link before ever exporting.
 
 **PROPOSED (unverified):** fix the `--stages` CLI help wording; consider gating DERIVATION/ASSERT under the ceiling for strict smoke symmetry.
+
+## 2026-11-02 — E2E-50/P2 renewal hop 5 (step 6: fixtures + census probe + pre-registration)
+
+**ACCEPTED (measured without any external process; `690c3a1`):**
+- Lane A substrate fixtures are ORIGINAL hand-encoded 8080 images emitted by
+  `tools/mk_functional_fixture.py` from ONE op table; `--check` rc=0 proves the committed
+  `.asm` listing (BYTES lines + SHA256 + ≤71 cols + LF) and the `.COM` bytes agree.
+  FX-00.COM 109 B `d2b576cb…` (BDOS 9 banner, ten BDOS 2 chars, BDOS 11+12, BDOS 0);
+  FX-01.COM 45 B `c555bdad…` (banner, BDOS 1, BDOS 0 — the terminating call is unreachable).
+- 8080 MVI encoding law, verified against the audited decoder and the lab's own listing:
+  `lower_opcode` matches `opcode land 7` (4=INR, 5=DCR, 6=MVI with the register in bits 3-5),
+  so `MVI r,d = 0x06 | (r<<3)` and `MVI C,9 = 0E 09`. **FALSIFIED (mine, before any run):** my
+  first draft encoded MVI as `0xE0 | (r<<3)` — 0xE8 is RRC, not MVI C; corrected at authoring.
+- README § 3 amendment (labelled, old text kept per PROTOCOL #2): `capabilities: []` is legal
+  ONLY for a Lane-A-only substrate fixture — assembly exercises no PL/I construct, so the § 7
+  perimeter has nothing to validate; any spec with a lane B still fails closed. Hostile suite
+  rc=0 (148 checks) after the change; no pinned check broke, because the suite never had an
+  empty-capabilities case.
+- The harness gains `--census PROGRAM.COM` — a SUBSTRATE PROBE (never a verdict) that runs
+  `pli80-run --trace --max-steps 4000000` and parses `BDOS\t<step>\t<fn>\t<DE>` +
+  `TERM\t<step>\tbdos:<n>` into the observed call list/set, recording rc, witness, artifact
+  sha256 and whether stdout is valid (audit 2.18). This is the mechanical answer to audit open
+  question 1 (linked-program BDOS census).
+- Pre-registration `spec/lab-evidence/e2e50-p2/step6/PLAN.md` is committed BEFORE any emulator
+  or DR-tool run (PROTOCOL #1) and lists every predicted verdict, including that FX-01's
+  INTENDED outcome is FAIL/`emulator` (a FAIL there is correct evidence, never a pass).
+
+**UNVERIFIED / OWED (proposed):** the predictions in PLAN.md (FX-00 PASS + census {0,2,9,11,12};
+FX-01 FAIL/`emulator` + discarded stdout; TABLE-00/01 COMPILE/LINK/RUN pass, ASSERT unknown in
+advance); the `--stages` help-wording fix; two hostile-suite cases pinning BOTH sides of the
+capabilities amendment; `pli80-run.exe` still has to be built in the lab's ignored `_build`
+(`dune build bin/main.exe` → `_build/default/bin/pli80-run.exe`) — Lane A RUN is BLOCKED
+(`emulator-absent`) until then. `run_max_steps` is honoured only on Lane A; cpmsim has no step
+budget (recorded honestly in the Lane B result record).

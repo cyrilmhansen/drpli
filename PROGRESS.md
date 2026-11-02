@@ -37,7 +37,22 @@ Two-package matrix delivered (§6); the single hard Package-A blocker is the ope
 decision on the UNLICENSED lab — decided by nobody here. Next: step 3 (functional-test spec
 format under `spec/functional/`).
 
-**Renewal hop 3 (this chain): step 5 PART 1 LANDED** at `8523eda` — `tools/functional_runner.py` implements `spec/functional/tests/README.md` mechanically (fail-closed schema validation incl. unknown-field rejection and `file_expectations` refused as unimplemented; SOURCE sha256-before-execution + declared-encoding token checks; DERIVATION in a separate process with drift = FAIL/`source` and no lane executed; COMPILE via local `pli80c.exe -d` with message-shape attribution measured against the real binary — `Failure("codegen: ...")` = compiler, `Pli80.Parser.Parse_error` = source, `Sys_error` = host; LINK via `oracle/cpmwork.py` Workspace + `linkrun.new_run`, `parse_undefined` on the FULL segment [C137]; lane-labelled RUN with [C308] witness classes; complete-stream `collapse-spaces-v1` ASSERT; `--double-run` determinism proof comparing CONSOLE CAPTURE bytes not transcripts; `--stages` ceiling; every external layer injectable for the hostile suite). Measured this hop: py_compile rc=0, --help rc=0, bounded `--stages SOURCE,DERIVATION` over the corpus → 2 UNKNOWN (unrun COMPILE ⇒ never PASS), PASS=0, DERIVATION reproduces both specs. **Renewal hop 4: step 5 PART 2 LANDED** at `d40aafb`+`149c6e2` — `tools/test_functional_runner.py`, 148 check() assertions, rc=0, zero external processes (every layer injected via Host(); oracle imported PURE). All 13 cases pass, incl. the C137 [:120]-vs-FULL-segment side-by-side proof, four distinct [C308] witnesses, audit-2.18 discarded-stdout law, --double-run capture comparison, 34 fail-closed mutations, stubbed end-to-end PASS positive control on BOTH lanes. The suite FOUND and the commit FIXED two hop-3 defects: `_rname` referenced 7x never defined (Lane A RUN NameError; Lane B laundered harness-exception/UNKNOWN — reproduced pre-fix) and `assert_stream` eager got[first_diff] with first_diff=None TypeError on differ-by-length streams. Measured (accepted): DERIVATION/ASSERT ignore the --stages ceiling (evaluation stages) — README 8 keys on execution so the c9c PASS is earned; the --stages help wording overpromises (PROPOSED wording fix). Steps 6–8 remain; FIRST ACTION: step 6 execution evidence. No oracle/LINK-80/cpmsim/gate/rune-ci run; `ocaml/` untouched (build only).
+**Renewal hop 3 (this chain): step 5 PART 1 LANDED** at `8523eda` — `tools/functional_runner.py` implements `spec/functional/tests/README.md` mechanically (fail-closed schema validation incl. unknown-field rejection and `file_expectations` refused as unimplemented; SOURCE sha256-before-execution + declared-encoding token checks; DERIVATION in a separate process with drift = FAIL/`source` and no lane executed; COMPILE via local `pli80c.exe -d` with message-shape attribution measured against the real binary — `Failure("codegen: ...")` = compiler, `Pli80.Parser.Parse_error` = source, `Sys_error` = host; LINK via `oracle/cpmwork.py` Workspace + `linkrun.new_run`, `parse_undefined` on the FULL segment [C137]; lane-labelled RUN with [C308] witness classes; complete-stream `collapse-spaces-v1` ASSERT; `--double-run` determinism proof comparing CONSOLE CAPTURE bytes not transcripts; `--stages` ceiling; every external layer injectable for the hostile suite). Measured this hop: py_compile rc=0, --help rc=0, bounded `--stages SOURCE,DERIVATION` over the corpus → 2 UNKNOWN (unrun COMPILE ⇒ never PASS), PASS=0, DERIVATION reproduces both specs. **Renewal hop 4: step 5 PART 2 LANDED** at `d40aafb`+`149c6e2` — `tools/test_functional_runner.py`, 148 check() assertions, rc=0, zero external processes (every layer injected via Host(); oracle imported PURE). All 13 cases pass, incl. the C137 [:120]-vs-FULL-segment side-by-side proof, four distinct [C308] witnesses, audit-2.18 discarded-stdout law, --double-run capture comparison, 34 fail-closed mutations, stubbed end-to-end PASS positive control on BOTH lanes. The suite FOUND and the commit FIXED two hop-3 defects: `_rname` referenced 7x never defined (Lane A RUN NameError; Lane B laundered harness-exception/UNKNOWN — reproduced pre-fix) and `assert_stream` eager got[first_diff] with first_diff=None TypeError on differ-by-length streams. Measured (accepted): DERIVATION/ASSERT ignore the --stages ceiling (evaluation stages) — README 8 keys on execution so the c9c PASS is earned; the --stages help wording overpromises (PROPOSED wording fix). **Renewal hop 5 (this chain): step 6 PART 1 LANDED** at `690c3a1` — pre-registration PLAN.md
+(all predicted verdicts committed BEFORE any run), Lane A fixtures FX-00/FX-01 (original
+hand-encoded .COM + annotated .asm listings from ONE op table, `--check` rc=0), specs +
+`reference.py:fx00/fx01` (declared expectations, L3), the labelled README §3 amendment
+(`capabilities: []` legal ONLY for Lane-A-only substrate fixtures; lane B still fails closed;
+suite rc=0 148 checks after the change) and the harness `--census` BDOS substrate probe
+(audit open question 1). Accepted/falsified items in LEARNINGS hop 5 (MVI=0x06|reg<<3 verified
+against the lab decoder; my first draft 0xE8=RRC falsified before any run). **STEPS 6(execution)
+–8 REMAIN. FIRST ACTION for the successor:** build the audited emulator
+`cd /home/john/pli/lab && eval "$(opam env)" && dune build bin/main.exe` (touches ONLY the
+lab's gitignored `_build`; verify lab HEAD `43e38ba` + the same three untracked entries after),
+then run Lane A: `python3 tools/functional_runner.py --tests FX-00 FX-01 --double-run` (FX-00
+PASS expected; FX-01 FAIL attr=emulator is the INTENDED outcome); then Lane B
+`--tests TABLE-00 TABLE-01` (compile->link->run->assert, bounded); then `--census
+build/functional/<stamp>/TABLE-00-*/lane-B/TABLE00.COM` for open question 1; record ACTUALS in
+`spec/lab-evidence/e2e50-p2/step6/RESULTS.md` (falsified predictions stay), then steps 7–8. No oracle/LINK-80/cpmsim/gate/rune-ci run; `ocaml/` untouched (build only).
 
 **Step-3 groundwork probed (same hop, later):** console PUT-LIST byte law measured from stored
 goldens (10-wide right-justified numeric field, blank item separator, statements share one line
@@ -273,13 +288,13 @@ Round evidence: `golden/e49p4/`,
 `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 127
-checkpoint-id: g127-26ab40bbd259
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-01T23:58:30.904Z
+checkpoint-generation: 128
+checkpoint-id: g128-8772855d407f
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-02T00:19:58.454Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 6279802bec70f51499077dfa2c04e01ed929c52eed51d5e09f300e9205c14879
 source-handoff: 2a0593de3e5e7e1a2d58d21858854ea91f0053ae11482b12eb44f2ee43c817c5
@@ -359,9 +374,6 @@ Durable sequence (completed evidence in brackets; explicit-path commits only):
 Boundary law: never renew mid-Git-operation or while an emulator process runs; `/home/john/pli/*`
 read-only; the operator's `handoff.config.json` edit stays unstaged, untouched; never
 `git clean`/`reset --hard`/`add -A`; no push.
-readiness-by: session:01a19966-0c69-7280-b553-bdb4b4627f07
-readiness-at: 2026-11-01T23:58:30.906Z
-readiness-checkpoint: g127-26ab40bbd259
 <!-- guard:end checkpoint -->
 
 ## Blockers
