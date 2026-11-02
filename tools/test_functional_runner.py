@@ -51,9 +51,15 @@ os.environ.pop("PLI80_RUN", None)
 os.environ.pop("CPMSIM", None)
 
 FAILED = []
+TOTAL = 0
 
 
 def check(label, cond):
+    """Self-counting: the summary prints TOTAL, so a document can quote a MEASURED number
+    instead of a copy of the previous document's (the step-7 lesson: prose said "148 checks"
+    while the artifact printed 171)."""
+    global TOTAL
+    TOTAL += 1
     print(("PASS  " if cond else "FAIL  ") + label)
     if not cond:
         FAILED.append(label)
@@ -986,12 +992,97 @@ check("CLI lane A bounded run renders UNKNOWN (RUN unrun), never PASS",
       "  UNKNOWN" in out and "lane A" in out and rc == 1 and
       not re.search(r"lane A  +PASS", out))
 
+# ===================== C14 (step 7): the runner's stdout carries ONLY rendered records
+# The measured leak (step 6 RESULTS section 3): `oracle/cpmwork.py Run.export()' ran cpmcp with
+# check=False and NO capture, so an external cpmtools debug print ("len 128") inherited the
+# harness's stdout and appeared AHEAD of the rendered record.  Two sides are pinned here:
+# (a) the ROOT fix -- export()'s child stdio is redirected, verified on the source of the REAL
+#     oracle module (no child is spawned by this suite, so this is a source-level pin, stated
+#     honestly at its scope);
+# (b) the DETECTOR -- the CLI's stdout grammar is CLOSED: every non-empty line is a record, an
+#     `evidence:' line or the `verdicts:' census.  A simulated chatty child (a stub export that
+#     prints) proves the detector is NOT vacuous: foreign chatter is caught.
+print("== C14: runner stdout grammar is closed; cpmcp stdio redirection pinned")
+import inspect  # noqa: E402
+_ex = inspect.getsource(cpmwork.Run.export)
+check("C14a cpmwork.Run.export redirects the cpmcp child's stdout (step-7 leak fix)",
+      "stdout=subprocess.DEVNULL" in _ex and "stderr=subprocess.STDOUT" in _ex)
+check("C14a the failure contract is UNCHANGED: export still returns the file+size bool",
+      "ok = os.path.isfile(dst) and os.path.getsize(dst) > 0" in _ex and "return ok" in _ex)
+check("C14a the Lane A fallback list is exactly the two MEASURED paths",
+      fr.LANE_A_CANDIDATES == ("/home/john/pli/lab/_build/default/bin/main.exe",
+                               "/home/john/pli/lab/_build/install/default/bin/pli80-run"))
+check("C14a the FALSIFIED hop-5 name (dune public name + .exe) is nowhere in the list",
+      not any(os.path.basename(c) == "pli80-run.exe" for c in fr.LANE_A_CANDIDATES))
+_isf = fr.os.path.isfile
+try:
+    fr.os.path.isfile = lambda p: p == fr.LANE_A_CANDIDATES[1]
+    check("C14a the resolver falls back to the install name when the fresh build is absent",
+          fr.Host().pli80_run_path() == fr.LANE_A_CANDIDATES[1])
+    fr.os.path.isfile = lambda p: False
+    check("C14a with NEITHER candidate present the resolver returns '' (BLOCKED names it)",
+          fr.Host().pli80_run_path() == "")
+finally:
+    fr.os.path.isfile = _isf
+
+REC_RE = re.compile(r"^  \S+\s+lane [AB]\s+(PASS|FAIL|BLOCKED|UNKNOWN)\b")
+EV_RE = re.compile(r"^evidence: ")
+VD_RE = re.compile(r"^verdicts: PASS=\d+ +FAIL=\d+ +BLOCKED=\d+ +UNKNOWN=\d+$")
+
+
+def stdout_violations(text):
+    return [ln for ln in text.splitlines() if ln.strip()
+            and not (REC_RE.match(ln) or EV_RE.match(ln) or VD_RE.match(ln))]
+
+
+def cli_pass_run(evdir):
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = fr.main(["--spec-dir", w.spec_dir, "--tests", "CLI-G",
+                      "--stages", "SOURCE,DERIVATION,COMPILE,LINK,RUN,ASSERT",
+                      "--evidence", os.path.join(w.root, evdir), "--compiler", w.cc],
+                     host=w.host())
+    return rc, buf.getvalue()
+
+
+w = World("cli3")
+g = w.make_obj("CLI-G", caps=["AGG.ARRAY_1D_FIXED"])
+w.write_spec(g)
+rc, out = cli_pass_run("cli3-ev")
+check("C14b positive control at CLI level: the stubbed lane-B chain PASSes via main(host=)",
+      rc == 0 and re.search(r"lane B  +PASS", out) is not None)
+check("C14b the WHOLE stdout is rendered records only -- no foreign line",
+      stdout_violations(out) == [])
+_lines = out.splitlines()
+check("C14b record/evidence/verdicts all present (the grammar is not vacuously empty)",
+      any(REC_RE.match(l) for l in _lines) and any(EV_RE.match(l) for l in _lines)
+      and any(VD_RE.match(l) for l in _lines))
+# non-vacuity: make the stub child chatter on INHERITED stdout, exactly like the real cpmcp did.
+_orig_export = FakeRun.export
+
+
+def _chatty_export(self, drive, name, dest):
+    print("len 128")                      # the step-6 measured leak string
+    return _orig_export(self, drive, name, dest)
+
+
+FakeRun.export = _chatty_export
+try:
+    rc2, out2 = cli_pass_run("cli3-ev-chatty")
+finally:
+    FakeRun.export = _orig_export
+viol = stdout_violations(out2)
+check("C14c the detector CATCHES inherited-child chatter (not vacuous)", viol == ["len 128"])
+check("C14c a chatty child does not change the verdict or rc (it is noise, not evidence)",
+      rc2 == 0 and re.search(r"lane B  +PASS", out2) is not None)
+
 # --------------------------------------------------------------------------- summary
 print()
 if FAILED:
-    print("%d CHECK(S) FAILED:" % len(FAILED))
+    print("%d CHECK(S) FAILED out of %d:" % (len(FAILED), TOTAL))
     for f in FAILED:
         print("  - " + f)
     sys.exit(1)
-print("all functional_runner hostile checks passed (evidence kept under %s)" % TMP)
+print("all %d functional_runner hostile checks passed (evidence kept under %s)"
+      % (TOTAL, TMP))
 sys.exit(0)

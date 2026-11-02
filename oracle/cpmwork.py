@@ -224,9 +224,16 @@ class Run:
         if os.path.exists(dst) and not allow_clobber:
             raise SafetyError(
                 f"export would overwrite pre-existing file: {dst}")
+        # [E2E-50/P2 step 7] cpmcp stdio is REDIRECTED, like import_local/mkfs above.  With
+        # check=False and no capture the child inherited this process's stdout, so an external
+        # cpmtools debug print ("len 128", seen on the TABLE-01 LINK of step 6 RESULTS section 3)
+        # leaked into the CALLER'S stdout.  Failure detection is unchanged: the ok bool below is
+        # the only contract any caller uses (oracle/batch.py, oracle/linkrun.py, and
+        # tools/functional_runner.py all act on the return value, never on cpmcp chatter).
         subprocess.run([_tool("cpmcp"), "-f", FMT, disk,
                         f"0:{on_disk}", dst],
-                       shell=False, check=False)
+                       shell=False, check=False,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
         ok = os.path.isfile(dst) and os.path.getsize(dst) > 0
         if not ok and os.path.exists(dst) and not allow_clobber:
             # we created an empty stub this run; remove only OUR new file

@@ -81,6 +81,13 @@ ARTEFACTS_DEFAULT = os.path.join(ROOT, "artefacts")
 SEEDS_DEFAULT = os.path.join(ROOT, "oracle", "disks")
 EVIDENCE_ROOT_DEFAULT = os.path.join(ROOT, "build", "functional")
 
+# [E2E-50/P2 step 7] The Lane A emulator fallback, MEASURED paths only (docs/emulator-audit.md,
+# step 6 RESULTS section 0: the hop-5 fallback named a dune PUBLIC name that `dune build' does
+# not produce -- FALSIFIED; the built executable is bin/main.exe, and the install-directory name
+# carries no extension).  Pinned by tools/test_functional_runner.py C14a.
+LANE_A_CANDIDATES = ("/home/john/pli/lab/_build/default/bin/main.exe",
+                     "/home/john/pli/lab/_build/install/default/bin/pli80-run")
+
 # README section 7 -- forbidden by name in v1.
 FORBIDDEN_CAPS = ("AGG.MULTIDIM", "EXPR.K_PLUS_X", "LOOP.TRAVERSAL_RELOAD")
 # README section 7 -- the same perimeter expressed as COVERAGE status: a row my compiler
@@ -470,8 +477,11 @@ class Host:
         if env:
             return env
         # The audited lab build output (READ-ONLY external tree; never built by this harness).
-        cand = "/home/john/pli/lab/_build/default/bin/pli80-run.exe"
-        return cand if os.path.isfile(cand) else ""
+        # Both measured locations are offered, freshest first (see LANE_A_CANDIDATES).
+        for cand in LANE_A_CANDIDATES:
+            if os.path.isfile(cand):
+                return cand
+        return ""
 
     def cpmsim_path(self):
         if self._cpmsim:
@@ -1342,7 +1352,9 @@ def parse_stage_ceiling(text):
     return out
 
 
-def main(argv=None):
+def main(argv=None, *, host=None):
+    """`host=' is a TEST SEAM (step 7): the hostile suite injects its stub world here to pin the
+    CLI-level stdout grammar without spawning anything.  The CLI never uses it."""
     ap = argparse.ArgumentParser(description="E2E-50/P2 functional test harness (schema "
                                              "pli80-functional/1)")
     ap.add_argument("--spec-dir", default=SPEC_DIR_DEFAULT)
@@ -1382,8 +1394,9 @@ def main(argv=None):
     evidence_root = a.evidence or os.path.join(EVIDENCE_ROOT_DEFAULT,
                                                time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()))
     os.makedirs(evidence_root, exist_ok=True)
-    host = Host(compiler=a.compiler, pli80_run=a.pli80_run, cpmsim=a.cpmsim,
-                artefacts=a.artefacts, seeds=a.seeds)
+    if host is None:
+        host = Host(compiler=a.compiler, pli80_run=a.pli80_run, cpmsim=a.cpmsim,
+                    artefacts=a.artefacts, seeds=a.seeds)
     if a.census:
         # A probe measures the substrate; it produces no spec verdict and no exit-code claim.
         recs = []
