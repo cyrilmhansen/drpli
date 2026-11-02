@@ -143,10 +143,14 @@ divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**, prose **5 c
 (`build/gate-hang00.log`). No ocaml/harness byte changed; nothing laundered; ledger ends C352;
 operator `handoff.config.json` untouched/unstaged; no push. Full measured record:
 `LEARNINGS.md` § "…HANG-00 continuation chain hop 1 COMPLETION" + `docs/functional-results.md`
-§ 10. **NEXT = program 4 AMAZ-00** — exact steps in `PROGRESS.md` → Next action (flatten the
-maze grid — `AGG.MULTIDIM` REFUSED; NO division; numeric direction GET — CHARACTER GET stays
-UNMEASURED; declared draw or fixed script replaces RND; corpus byte laws now all run-witnessed;
-2-D maze is the known hard shape — record limitations honestly, do NOT extend the harness).
+§ 10. **NEXT = program 4 AMAZ-00** — listing ALREADY READ (sha `3f6fa3f2…` verified); scope
+FALSIFICATION: this upstream Amazing has NO walk/direction-INPUT phase — generation + print
+only, so AMAZ-00 is PURE-PUT (`console_input` bare `^Z`), H/V declared literals 4x4, flat
+arrays (`AGG.MULTIDIM` REFUSED), literal-divisor draws only, TAB banner + dimension INPUT
+DROPPED (documented), separator-space adaptation, 4 leading blanks [C352]. Full hop-start
+analysis + PROPOSED design: `LEARNINGS.md` § "AMAZ-00 hop start" — READ IT FIRST; exact steps
+in `PROGRESS.md` → Next action; then TICT-00, LIFE-00, DHRY-00, FFT-00. Record limitations
+honestly, do NOT extend the harness.
 
 ## Superseded: HANG-00 implementation hop IN FLIGHT — CLOSED AT CHAIN CAP (2026-11-03, renewal 12/12; docs commit `8ddd6c7`; build verified rc=0, compiler `edce9e0e…`; NO lane run, NO gate run this hop; kept as written per PROTOCOL #2 — the operator reset that followed makes "no successor exists" obsolete)
 

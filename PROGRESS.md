@@ -167,9 +167,16 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-AMAZ-00 (program 4, Amazing maze, BASIC) — standing corpus procedure, operator directive
-2026-11-03: execute pragmatically, prioritize a completed adaptation over preparatory analysis;
-record ACTUALS verbatim; never alter the program or expectation to obtain a PASS. Steps:
+AMAZ-00 (program 4, Amazing maze, BASIC) — LISTING READ this boundary (143 lines, sha
+`3f6fa3f2…` verified; full analysis + PROPOSED design in `LEARNINGS.md` § "AMAZ-00 hop start"
+— READ IT FIRST; operator directive: execute pragmatically, prioritize a completed adaptation
+over preparatory analysis; never alter program/expectation to obtain a PASS). TWO corrections
+to the steps below from that section: (i) FALSIFIED — this upstream listing has NO walk/direction
+INPUT phase (generation + print only): AMAZ-00 is a PURE-PUT program, `console_input` = bare
+`^Z`; (ii) the design fixes H=4,V=4 (or richer 5x4 if residues allow) as LITERAL constants,
+flattens W/V arrays (AGG.MULTIDIM refused), uses only literal-divisor draws (2/3/4), TAB banner
++ dimension INPUT + retry loop DROPPED (documented), separator-space adaptation, 4 leading
+blank lines [C352], NO trailing blank after the final `"."` row. Steps:
 (1) read `build/functional/fc01-sources/basic/AMAZING.bas` (+ `URLS.tsv`/`NOTES.txt`; verify
 `sha256sum -c SHA256SUMS` rc=0 for that file); rights note per README § 5.1 (licence UNVERIFIED,
 recorded as such); (2) design INSIDE the measured subset — 2-D grid ⇒ `AGG.MULTIDIM` REFUSED,

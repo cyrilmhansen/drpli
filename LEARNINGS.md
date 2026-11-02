@@ -3063,3 +3063,56 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   run-witnessed GET+echo laws), scratch simulator on the HANG byte model, triple, diff BEFORE
   JSON, lane B `build/fc01/corp6`, docs § 11 + § 1 row, compile-tier gate, explicit-path commit.
   HAMM-00 rev2 stays PROPOSED; programs 5-8 queued.
+
+## 2026-11-03 — FC-01 CORPUS AMAZ-00 hop start (listing READ; scope FALSIFICATION + port constraints measured from source)
+
+- MEASURED: research copy `build/functional/fc01-sources/basic/AMAZING.bas` sha256
+  `3f6fa3f264d148267a8216a4d9b57bdbaf2cf0c7fb346a4b60a8fe00728cd9f7`, `sha256sum -c SHA256SUMS`
+  rc=0 for this file (measured this hop); upstream URL `URLS.tsv` line 1
+  (coding-horror/basic-computer-games 02_Amazing, Creative Computing/Morristown NJ; licence
+  UNVERIFIED, recorded as such; no upstream bytes in tracked files).
+- FALSIFIED (my prior assumption, carried in PROGRESS.md's AMAZ-00 note and the design intuition
+  from the classic book version): **this listing has NO player walk phase.** Lines 10-1073 do
+  banner -> INPUT dimensions -> random maze GENERATION (recursive backtracker, W=visit-order,
+  V=carved-wall codes) -> maze PRINT (1015..1072) -> END. There is no direction INPUT, no step
+  count, no "back to the maze" gameplay. AMAZ-00 is therefore a PURE-PUT program (console_input
+  = bare `^Z` only) — the numeric-GET adaptation is NOT needed here (the GET+echo laws stay
+  run-witnessed from HANG-00 for later programs).
+- ACCEPTED (structure read from the listing, 143 lines):
+  (a) 100 INPUT "WHAT ARE YOUR WIDTH AND LENGTH";H,V with the 102-104 refusal/retry loop for
+  H=1 or V=1 ("MEANINGLESS DIMENSIONS.  TRY AGAIN."); (b) 110 DIM W(H,V),V(H,V) — 2-D arrays,
+  `AGG.MULTIDIM` is REFUSED by my compiler (Batch-A pinned refusal) => MUST flatten; (c) draws
+  `INT(RND(1)*H+1)` (160 top entrance X; 1011 exit row) and `INT(RND(1)*3+1)`/`INT(RND(1)*2+1)`
+  at the choice points with `ON X GOTO` dispatch => replaced by the HAMM declared integer draw
+  `gg=gg+1; w=gg*37+11; v=w-(w/k)*k` — legal ONLY with literal divisors, so H and V must become
+  DECLARED LITERAL constants in the port (variable divisors are MEASURED refused, HAMM-00 rev1);
+  ON-GOTO -> if ladders (HANG pattern); (d) carve logic 260..980 walks R,S over 1..H x 1..V with
+  wrap scan 210..250, backtracking via V-codes, `IF C=H*V+1 THEN 1010` termination;
+  (e) print: top border 165..190 (".--"/".  " per column + "."), then for J=1..V a cell line
+  ("I" + per cell "   " or "  I") and a wall line (":  " or ":--" + "."), 1015..1072; END exit.
+- PROPOSED port design (NOT yet validated end-to-end; recorded before implementation per the
+  operator's "prioritize completed adaptations" directive): declare `H = 4, V = 4` (or 5x4 if the
+  declared-draw residues give a richer maze) as literal FIXED constants; flat arrays
+  `w(16)/vv(16)` with index `(r-1)*4 + c` — literal multiply only, NO division anywhere in the
+  PORT itself (the draw mod uses literal divisors 2/3/4 via the `w-(w/k)*k` idiom); banner
+  TAB(28)/TAB(15) lines DROPPED (counted PUT refused, EDIT-00); dimension INPUT + retry loop
+  DROPPED (CHARACTER GET UNMEASURED; dimensions DECLARED, documented as substitution); draws =
+  declared gg sequence, seed declared; the whole generator is a goto-driven state machine in ONE
+  block (TRAN.GOTO_SAME_BLOCK run-witnessed; gotos must never cross an active DO — carve loop
+  1015..1072 uses DO TO, everything else flat labels, mirroring BASIC); separator law
+  adaptation: printed rows render items SINGLE-SPACE separated (same declared adaptation as
+  HANG's grid; "I"/"   "/"  I"/":  "/":--" as single-item `put list` literals — collapse-spaces-v1
+  keeps the stream honest and the wall STRUCTURE (I vs blank, ":--" vs ":  ") survives the
+  collapse). Exit framing: first executed output is `PRINT:PRINT:PRINT:PRINT` (line 30) =>
+  4 leading `put skip;` => expectation starts with 4 blanks [C352]; final output line 1072's
+  last `PRINT "."` closes a line, END appends one exit CRLF => no trailing blank entry.
+- BLOCKER for the implementation hop (must be solved, not assumed): the generator is LONG
+  (thousands of draw iterations for 16 cells is fine, but the derived expected stream must be
+  produced by a PYTHON statement-mirror of the port, then validated by INDEPENDENT maze
+  invariants: every cell visited exactly once (C ends at H*V+1=17), the printed border/wall
+  structure consistent with the vv codes, exit opened on column V, entrance gap at X). The
+  mirror is mechanical (labels sel/carve/print map 1:1 to PLI labels) — the risk is my own
+  transcription, caught by the invariant asserts, plus lane-B RUN of a heavy loop (wall-clock,
+  not steps, governs on cpmsim; RUN stage is not correctness per harness L2).
+- STATE: nothing tracked authored yet for AMAZ-00 (no .PLI, no .json, no reference.py amaz00);
+  no simulator written; no lane run; ledger ends C352; HANG-00 landed PASS at commit `e72873a`.
