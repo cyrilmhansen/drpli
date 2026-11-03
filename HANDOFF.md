@@ -42,35 +42,39 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
      `spec/lab-evidence/e2e48-*/` and `spec/lab-evidence/e2e49-p{1,2,3}/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
-6. **ACTIVE ROUND: E2E-51/P1** (operator brief 2026-11-04) — pre-registered at
-   commit `9bac977`; the oracle batch is OWED. See `## ACTIVE ROUND` below for the exact command.
+6. **ACTIVE ROUND: E2E-51/P1** (operator brief 2026-11-04) — oracle DONE (12/12 accepted,
+   goldens+RESULTS `b404b7e`); implementation arms OWED. See `## ACTIVE ROUND` below.
    (Historical: FS-01 and E2E-50/P2 CLOSED 2026-11-02.) The E2E-50/P3 shortlist is `spec/lab-evidence/e2e50-p2/REPORT.md` §5 — a
    shortlist, NEVER an authorisation (FS-01 already executed P3-a and a variant of P3-b's
    isolation aim; P3-b's law declaration, P3-c and P3-d remain proposals). Standing boundary:
    `/home/john/pli/*` (Runes lab `/home/john/pli/lab`, `/home/john/pli/cpm`,
    `/home/john/pli/runes-full-runs`) is READ-ONLY for this project
    unless an operator brief authorizes otherwise.
-## ACTIVE ROUND — E2E-51/P1 PRE-REGISTERED, oracle OWED (2026-11-04; HEAD `9bac977`; ledger ends C352)
+## ACTIVE ROUND — E2E-51/P1 ORACLE DONE (12/12 ACCEPTED), goldens+RESULTS at `b404b7e`, ARMS OWED (2026-11-04; HEAD `b404b7e`; ledger ends C352)
 
-Operator-authorized round: FIXED BINARY variable-divisor DIVISION. PRE-REGISTRATION LANDED
-(commit `9bac977`, the prediction SHA for every probes/E51*.PLI): 12 probes E51A..E51L,
-`spec/lab-evidence/e2e51-p1/{PLAN,HYPOTHESES,BASELINE-MINE}.txt|md` + mkprobes.py. KEY ACCEPTED
-finding (existing evidence, unclaimed before): `golden/f6probe/F005/F005.REL` proves DR ACCEPTS
-`z = a / b` binary, lowering `LHLD a / PUSH H / LHLD b / POP D / CALL ?ID22N / SHLD z`
-(CODE 0017, DATA 0006) — my `my-gap` is confirmed by BASELINE-MINE (A..K refuse: `DIV by
-non-constant [TBD]`; E51I additionally `condition form not in E2E-3b subset`; only E51L
-`a/3` control accepted, rc=0 128 B sha `bc2fd12e…`).
-EXACT NEXT ACTION (successor): run the ONE grouped oracle batch from the repo root
-`cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py
-E51A E51B E51C E51D E51E E51F E51G E51H E51I E51J E51K E51L --tag e51p1 --switches '$L$D'`
-(golden/e51p1 must NOT pre-exist — verified absent at `9bac977`; never --reuse; timeout evidence
-preserved, not retried), then RESULTS.md + classification (dr-refuses/my-gap/unmeasured), commit
-goldens+RESULTS TOGETHER, and ONLY THEN implement arms per HYPOTHESES verdicts (reuse the
-[C089]/[C141]/[C079]/[C072] machinery in ocaml/lib/codegen.ml near the Div arm, line ~5010),
-fast gate `python3 tools/e2e_gate.py`, claims from **C353**, SPECIMENS/COVERAGE/census/INVENTORY,
-then rerun HAMM-00 rev1 UNEDITED if byte-covered. **After P1 STOP — no P2/LOAN2/CREATE without
-an operator brief.** Never stage/clean/revert the operator's dirty `handoff.config.json`; no push;
-no destructive cleanup. Full state: `PROGRESS.md` → Next action + `LEARNINGS.md` § "E2E-51/P1 hop 1".
+Operator-authorized round: FIXED BINARY variable-divisor DIVISION. PRE-REGISTRATION `9bac977`;
+ONE grouped batch ran exactly as pre-registered -> **12 ok / 12, NO `dr-refuses` row** (every
+`.PRN` NO ERRORS both passes; E51L control whole-file byte-exact vs my baseline — harness
+validated). Goldens `golden/e51p1/` + `spec/lab-evidence/e2e51-p1/RESULTS.md` committed
+TOGETHER at `b404b7e`; predictions untouched. Classification: E51A..E51K = 11 `my-gap`.
+Two MISSes kept verbatim (RESULTS §1): E51B literal dividend takes the PARKED slot
+(`LXI H,const / PUSH / POP D`, H-B-stack) — H-B-de FALSIFIED; E51I equality skip byte is
+`C2` (JNZ, [C089] polarity) — predicted `CA` FALSIFIED. Laws for the arms are RESULTS §2
+(DIV parking law; quotient consumption via XCHG-P7 with F≡G identical; [C079] PUT tail;
+IS22N zero-test tail; IN20N negate-then-park; N303 1-byte interleave; P080A constant path
+unchanged). EXACT NEXT ACTION (successor): implement arm 1 in `ocaml/lib/codegen.ml` Div arm
+(~line 5010) per `LEARNINGS.md` § "E2E-51/P1 hop 2" — replace the `DIV by non-constant
+[TBD]` catch with the measured parking (MOD-shape `lower_hl l / PUSH H / lower_hl r / POP D
+/ CD ?ID22N` + E51K interleave), KEEP unmeasured operand classes refused; `dune build`;
+compile all 12 `probes/E51*.PLI` and `cmp` each whole-file vs its golden; ONLY mismatching
+lines earn further consumer arms (E51G right-first-XCHG in the general ADD arm; E51H PUT;
+E51I TEST) — decide empirically; each arm alone + regression sweep + FULL
+`python3 tools/e2e_gate.py` rc=0; claims from **C353** (RESULTS §2 only); SPECIMENS
+registration + sanctioned `--update-inventory`; census re-snapshot; COVERAGE rows;
+INVENTORY; then rerun HAMM-00 rev1 UNEDITED if byte-covered. **After P1 STOP — no
+P2/LOAN2/CREATE without an operator brief.** Never stage/clean/revert the operator's dirty
+`handoff.config.json`; no push; no destructive cleanup. Full state: `PROGRESS.md` → Next
+action + `LEARNINGS.md` § "E2E-51/P1 hop 2".
 
 ## Last verified state — FC-01 OPERATOR OVERRIDE (2026-11-02; HEAD `6a35b9c`; ledger ENDS C352; hop 5 CANCELLED before it began; new priority = eight adapted historical programs; no OCaml byte changed)
 

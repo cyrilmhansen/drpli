@@ -213,6 +213,30 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+## E2E-51/P1 IN FLIGHT — ORACLE DONE 12/12 ACCEPTED, goldens+RESULTS COMMITTED `b404b7e`; IMPLEMENTATION ARMS OWED (2026-11-04; HEAD `b404b7e`; compiler `edce9e0e…` built rc=0)
+
+Read `LEARNINGS.md` § "E2E-51/P1 hop 2" FIRST — it carries the batch ACTUALS, the two
+MISSes kept verbatim (E51B H-B-de falsified/H-B-stack HIT; E51I `C2` not `CA`), the
+RESULTS §2 laws and the full PROPOSED implementation analysis. DONE: pre-registration
+`9bac977`; ONE grouped batch (12 ok/12, no DR refusals, all `.PRN` NO ERRORS both passes);
+RESULTS.md + goldens committed TOGETHER at `b404b7e` (predictions untouched).
+OWED NOW, in order: (7) implement arm 1 in `ocaml/lib/codegen.ml` Div arm (~5010): replace
+`DIV by non-constant [TBD]` with the measured parking `lower_hl l / PUSH H / lower_hl r /
+POP D / CD ?ID22N` (+ E51K 1-byte interleave like MUL N303; keep unmeasured operand classes
+— deref/pointer formals, call divisors — REFUSED); `dune build`; compile every
+`probes/E51*.PLI` with `./ocaml/_build/default/bin/pli80c.exe` and `cmp` each .REL
+whole-file vs `golden/e51p1/<n>/<n>.REL`; ONLY lines that mismatch get further consumer
+arms (expected: E51G right-first+XCHG in the general ADD arm — resolve empirically, not by
+reasoning; E51H PUT item and E51I equality-TEST consumers); each arm independently
+committed with regression sweep + FULL `python3 tools/e2e_gate.py` rc=0; (9) claims from
+**C353** derived ONLY from RESULTS §2; SPECIMENS registration + sanctioned
+`--update-inventory`; census re-snapshot; COVERAGE rows; INVENTORY; (10) HAMM-00 rev1
+rerun UNEDITED if its forms are byte-covered (blocker = A-class store form). **STOP after
+P1.** No push; operator `handoff.config.json` dirty at HEAD — never stage/clean/revert it;
+goldens/ignored evidence never laundered.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 ## E2E-51/P1 IN FLIGHT — FIXED BINARY variable-divisor DIV (operator-authorized 2026-11-04; baseline HEAD `ac68352`; compiler `edce9e0e…` built rc=0)
 
 Read `LEARNINGS.md` § "E2E-51/P1 hop 1" FIRST — it carries the ACCEPTED F005 witness

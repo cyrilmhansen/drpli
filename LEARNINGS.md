@@ -5,6 +5,58 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-51/P1 hop 2 — ORACLE RUN 12/12 ACCEPTED, goldens+RESULTS committed `b404b7e`; arms OWED (2026-11-04; session renewed 1/12 from g237; build rc=0 compiler `edce9e0e…` re-verified this hop)
+
+MEASURED (accepted; full record in `spec/lab-evidence/e2e51-p1/RESULTS.md` §1-§2, goldens
+`golden/e51p1/`): the ONE grouped batch ran exactly as pre-registered (`9bac977` is the
+prediction SHA, verified) -> **12 ok / 12, every .PRN NO ERROR(S) in both passes — NO
+`dr-refuses` row exists in this bank.** Classification: 11 `my-gap` (A..K; BASELINE-MINE
+refused every one), E51L whole-file byte-exact at baseline (control green: harness and
+constant path valid before any other verdict was read — the pre-registered falsifier branch
+was NOT triggered). Sizes as predicted (DATA 0008 x11 + 0009 K; CODE 0017/0017/001C/001C/
+001F/001C/001C/0028/0027/001A/001B/001A). Two MISSes kept verbatim (PROTOCOL #2):
+(a) E51B primary H-B-de FALSIFIED — a LITERAL dividend does NOT go to DE; it takes the
+parked slot (`21 B0 04 / E5 / LHLD b / D1 / ID22N / SHLD`), competitor H-B-stack HIT;
+(b) E51I predicted jump byte `CA`, measured `C2` (JNZ) after `7C B5` — equality-of-helper-
+result uses the [C089] zero-test polarity, NOT the [C072] CA reading; forward-fixup triple
+`SET-LC 001C / RELOC code 0x24 / SET-LC 0024` as usual. DR-vs-F005 record streams for
+E51A match line-for-line modulo z reloc r6/DATA 0008 — F005 provenance CONFIRMED.
+E51F vs E51G: whole file differs ONLY at packed name-record bytes 5/17/25 (one bit, 'F'
+vs 'G') — orientation-free right-first evaluation HOLDS for DIV operands of an ADD.
+
+PROPOSED (implementation analysis, read off `ocaml/lib/codegen.ml` this hop, UNVERIFIED —
+no `ocaml/` byte changed yet): (1) arm 1 = replace the `_ -> failwith "codegen: DIV by
+non-constant [TBD]"` catch in the Div arm (~line 5010) with the measured parking
+`lower_hl st l; PUSH H; lower_hl st r; POP D; call_ext ?ID22N; st.last_imm <- None` —
+the same shape the MOD variable-divisor arm already emits (~5084) — plus the E51K
+1-byte-divisor interleave copied from the MUL [N303] case (`3A rN / E5 / 6F 87 9F 67 /
+D1`, keyed on `rvi.vk = Vint && rvi.size = 1` like MUL); guards MUST keep unmeasured
+operand classes refused (pointer-deref/formal operands — MUL's LXI-D exception at a deref
+LEFT has NO DIV witness; procedure-call operand in the divisor; DEC operands route elsewhere).
+(2) consumer open question — E51G (`c + a / b`) needs the general ADD arm's right-operand
+routing to lower a var-divisor-DIV RIGHT operand FIRST + XCHG (P7 isomorphism); today
+`add_left_needs_push r` maps any `Ebinary` to true -> left-first PARK, which matches the
+MUL witness MB34 but NOT the measured G. Resolve EMPIRICALLY, not by reasoning: build
+arm 1, compile all 12 probes, `cmp` each vs its golden; ONLY the lines that mismatch get
+a consumer arm, and every consumer change must regression-sweep the 1174-panel.
+(3) `call_ext`/bookkeeping: MOD/Eprefix set `st.last_imm <- None` explicitly after helper
+calls — mirror that in the Div arm.
+
+METHOD (accepted): the reldump-based extractor pattern `0x[0-9a-f]{2}` silently drops
+single-digit hex bytes (`0x1`, `0x9`) — read exact bytes from the full reldump listing,
+never from a hand-rolled regex table; and a whole-file `cmp -l` + bit-delta reading
+distinguishes packed name-record differences from real code differences in one step.
+
+OWED NEXT (exact order, from RESULTS/PLAN): (7) arms per measured evidence ONLY — commit
+each arm alone with whole-file golden verification + regression sweep + FULL
+`python3 tools/e2e_gate.py` rc=0; (9) claims from **C353** derived ONLY from RESULTS §2;
+SPECIMENS registration in `tools/e2e_gate.py` + sanctioned `--update-inventory`; census
+re-snapshot; COVERAGE rows; INVENTORY; (10) HAMM-00 rev1 rerun UNEDITED if its forms are
+byte-covered (its blocker is exactly the A-class `z = x / y` store form), functional
+vs byte evidence kept separate. **STOP after P1** — no P2/LOAN2/CREATE without an
+operator brief. Constraints unchanged: no push; operator `handoff.config.json` never
+staged/cleaned/reverted; goldens never laundered; renew only at safe boundaries.
+
 ## E2E-51/P1 hop 1 — FIXED BINARY variable-divisor DIV round STARTED (2026-11-04, operator-authorized; baseline HEAD `ac68352`, compiler rebuilt rc=0 sha `edce9e0e…`)
 
 ACCEPTED (measured from EXISTING committed evidence; no new oracle call yet):
