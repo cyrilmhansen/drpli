@@ -1,0 +1,34 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E51J
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E51J
+
+   1 a 0000 E51J:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-51/P1] SIGNED dividend: z = -a / b.  [C079] -x is <HL> /
+   4 a 0006      CALL ?IN20N.  H-J-in20 predicts LHLD a / CALL ?IN20N / PUSH H
+   5 a 0006      / LHLD b / POP D / CALL ?ID22N / SHLD z.  H-J-fuse: DR could
+   6 a 0006      negate after the divide (SAME quotient only if b divides
+   7 a 0006      evenly - bytes distinguish).  H-J-refuse. */
+   8 c 0006   dcl a fixed, b fixed, c fixed, z fixed;
+   9 c 0006   z = -a / b;
+  10 a 0017 end E51J;
+
+CODE SIZE = 001A
+DATA AREA = 0008
+FREE SYMS = 38BC
+END  COMPILATION
+

@@ -1,0 +1,35 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E51F
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E51F
+
+   1 a 0000 E51F:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-51/P1] QUOTIENT LEFT of an add: z = a / b + c, i.e. (a/b)
+   4 a 0006      + c.  [C141] P7 shows DR reading the var AFTER the left helper
+   5 a 0006      result with XCHG (call - var); ADD is commutative so H-F-xchg
+   6 a 0006      predicts <div> / XCHG / LHLD c / DAD D / SHLD z.  H-F-push
+   7 a 0006      (the P5 form): <div> / PUSH H / LHLD c / POP D / DAD D.  H-F-
+   8 a 0006      store stores then reloads.  Any DR refusal is H-F-refuse. */
+   9 c 0006   dcl a fixed, b fixed, c fixed, z fixed;
+  10 c 0006   z = a / b + c;
+  11 a 0019 end E51F;
+
+CODE SIZE = 001C
+DATA AREA = 0008
+FREE SYMS = 38BC
+END  COMPILATION
+

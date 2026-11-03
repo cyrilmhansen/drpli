@@ -1,0 +1,39 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E51A
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E51A
+
+   1 a 0000 E51A:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-51/P1] PRIMARY: FIXED BINARY variable-divisor DIVISION, z
+   4 a 0006      = a / b.  The EXISTING DR object golden/f6probe/F005/F005.REL
+   5 a 0006      (plain-fixed bank, one statement) lowers it LHLD a / PUSH H /
+   6 a 0006      LHLD b / POP D / CALL ?ID22N / SHLD z, CODE 0017.  Mine
+   7 a 0006      refuses codegen: DIV by non-constant [TBD] (the HAMM-00 rev1
+   8 a 0006      blocker).  This row repeats the settled shape inside the E51
+   9 a 0006      bank to tie the new objects to the old witness: predicted
+  10 a 0006      CODE-SEGMENT bytes EQUAL to F005 modulo the extra variable
+  11 a 0006      reloc and the module-name record; refusal by DR would falsify
+  12 a 0006      the F005 reading. */
+  13 c 0006   dcl a fixed, b fixed, c fixed, z fixed;
+  14 c 0006   z = a / b;
+  15 a 0014 end E51A;
+
+CODE SIZE = 0017
+DATA AREA = 0008
+FREE SYMS = 38BC
+END  COMPILATION
+

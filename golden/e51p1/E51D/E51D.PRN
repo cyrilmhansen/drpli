@@ -1,0 +1,37 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E51D
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E51D
+
+   1 a 0000 E51D:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-51/P1] VARIABLE dividend over a COMPOUND divisor: z = a /
+   4 a 0006      (b + c).  The dividend is already evidenced parked across a
+   5 a 0006      variable-divisor evaluation (F005); the question is whether
+   6 a 0006      the sum can be built INSIDE the parked region: H-D-inline
+   7 a 0006      predicts LHLD a / PUSH H / LHLD b / XCHG / LHLD c / DAD D /
+   8 a 0006      POP D / CALL ?ID22N / SHLD z.  H-D-temp predicts a
+   9 a 0006      materialised divisor cell; H-D-refuse a DR boundary on
+  10 a 0006      compound divisors (no binary witness exists either way today). */
+  11 c 0006   dcl a fixed, b fixed, c fixed, z fixed;
+  12 c 0006   z = a / (b + c);
+  13 a 0019 end E51D;
+
+CODE SIZE = 001C
+DATA AREA = 0008
+FREE SYMS = 38BC
+END  COMPILATION
+
