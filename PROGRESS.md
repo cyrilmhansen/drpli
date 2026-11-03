@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 **PASS** (hop 13, docs § 13) — 6 of 8 landed; DHRY-00 hop start LANDED (hop 14) + implementation hop LANDED (hop 15: shapes pre-compiled, lane-B DHP00/TP00 probes, formal-subscript store-LOSS found, layout law found); EXACT NEXT = DHRY-00 sims→draft→pin→reference→JSON→lane B corp9 (`.SHAR` NEVER executed), then FFT-00 — see `## DHRY-00 implementation hop LANDED` under Next action)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 PASS (hop 13, docs § 13); DHRY-00 **rev1 PASS** (hop 19, docs § 14 — rev0 lane-B FAIL was a pin ORDER bug kept as written, fixed by pure permutation, expectation never edited) — **7 of 8 landed**; EXACT NEXT = FFT-00 (program 8/8, Rosetta PL/I; construct audit vs the measured subset FIRST, naive-DFT cross-check, evidence corp10, docs § 15) — see `## DHRY-00 rev1 LANDED` under Next action and `LEARNINGS.md` § "…DHRY-00 hop 19")
 
 TICT-00 hop 7 landed step 3 only (2026-11-03, continuation chain hop 7): the hop-6 draft was
 converted (CRLF + bare ^Z, 499 lines, 9300 B, widest 64 <= 71, no in-literal apostrophes) and
@@ -213,7 +213,30 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-## DHRY-00 hop 18 LANDED — steps 5-6-7 DONE (draft rc=0 first try; PIN 9eae6915… byte-identical .REL; reference BYTE-EQUAL vs sim 57/57 lines BEFORE JSON); steps 8-11 OWED (2026-11-03; nothing committed yet this hop)
+## DHRY-00 rev1 LANDED — steps 8-11 DONE: program 7 of 8 **PASS** on lane B (2026-11-03; docs § 14 + gate rc=0; the rev0 ASSERT FAIL is kept as written; FFT-00 = program 8/8 OWED)
+
+Read `LEARNINGS.md` § "…DHRY-00 hop 19" FIRST — it carries every ACTUAL: the rev0 lane-B
+FAIL (`build/fc01/corp9/`, order-only ASSERT miss at line 12, values all correct — a
+GENERATOR bug in hop 18's table emission, FALSIFYING its "statement-for-statement" claim,
+kept as written PROTOCOL #2), the rev1 pure-permutation pin fix (new pin sha `fc6695cd…`,
+.REL geometry unchanged, expectation NEVER edited), the rev1 PASS
+(`build/fc01/corp9b/`: 57-line complete-stream match; the 1368-B RUN capture BYTE-IDENTICAL
+to the derived port raw sha `eebbed54…`; double-run byte-equal), and the JSON-via-script
+gate (`mk_dhry00_json.py` re-runs sim-vs-derive byte-equality and aborts on mismatch). Gate
+rc=0 in `build/gate-dhry00.log`: 1174/0, 181/181, 9/9, 133/0/0, 15/0/26/0, prose 5 clean.
+**NEXT = FFT-00 (program 8 of 8, Rosetta PL/I)** — the EXACT 11-step hop-start contract is
+the "EXACT NEXT" bullet of that LEARNINGS § (sha-verify + read whole listing; FIRST audit
+every construct against the measured subset — modern-PL/I builtins are NOT assumed to exist
+in PL/I-80 v1.4; simulator + INDEPENDENT naive-DFT cross-check; draft -> pin -> pin-vs-sim
+ORDER audit (the hop-19 lesson) -> reference diff BEFORE JSON -> JSON via script ->
+`--stages source,derivation` -> lane B `build/fc01/corp10` (+double) -> docs § 15 + § 1 ->
+gate `build/gate-fft00.log` -> explicit-path commit; then the corpus-close record). Then
+constraints unchanged: no `ocaml/`/harness byte; ledger ends C352; functional runs are NOT
+DR claims; FAILs stay classified, never laundered; NEVER re-run the retry-DFS; third-party
+bytes never tracked; operator `handoff.config.json` untouched/unstaged; no push; renew only
+at safe boundaries.
+
+SUPERSEDED-BY-ABOVE (kept as written):
 
 Read `LEARNINGS.md` § "…DHRY-00 hop 18" FIRST — it carries every ACTUAL, the four
 falsified-then-fixed drafting slips, the capability list and the exact steps 8-11 contract
@@ -1385,17 +1408,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 225
-checkpoint-id: g225-489b19b0d9b1
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 227
+checkpoint-id: g227-28a611c1f536
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-03T19:27:12.772Z
+checkpointed: 2026-11-03T19:30:15.668Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 53e47e0871b16fe4b503f75a5c1fcd1eeb2389c112b460d3b62a50599bb0d373
-source-handoff: 68d78970d107b989d91814176c384e5b2693dfd38f03a62dc5f1bf0b966dd3b2
-source-learnings: 4ef40c9014b11ca1f3c82f7f71e4fc620a5c85672c8db7dcb05f5885c9e9e7d0
+source-progress: 9ed8cd2d8eede603e2dc0fd9e2e2a1c418a7989ec765d0d64a23b63ccce6c1cc
+source-handoff: 4ff90a1b4d800997103c099d53f0b2bf2375bb6a3adbd7059f9e886fd6db8c16
+source-learnings: 110d899e106136be93d69f83007f6bb1a0691e3e319077f4d1684e9c190fa5b2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1419,6 +1442,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a1a2c9-2c92-7145-a841-b69c7a0d2e71
+readiness-at: 2026-11-03T19:30:15.683Z
+readiness-checkpoint: g227-28a611c1f536
 <!-- guard:end checkpoint -->
 
 ## Blockers

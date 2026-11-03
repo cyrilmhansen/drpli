@@ -42,6 +42,7 @@ cpmsim, user-supplied and never packaged).
 | AMAZ-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 4 of 8; § 11) | — | adapted BASIC Amazing (generation-and-print-only version — no walk INPUT phase, so PURE-PUT with bare `^Z`); flat 4×4 backtracker via goto state machine, declared draws with literal divisors 4/3/2; complete-stream match 18 lines; the 189-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | TICT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 5 of 8; § 12) | — | adapted BASIC Tic-Tac-Toe (TICTACTOE2 — chosen because TICTACTOE1 never terminates); FIRST lane-B RUN of the 121-label flat goto machine with variable-subscript stores, `call` inside the machine and the occupied-retry loop-back; numeric choice + move `GET LIST`s with echoes; complete-stream match 120 lines; the 1468-B raw RUN stream equals the independent simulator's raw bytes exactly; THREE `THAT SQUARE IS OCCUPIED.` messages at lines 86/91/96; double-run byte-equal |
 | LIFE-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 6 of 8; § 13) | — | adapted BASIC Game of Life (55_Life — bounded at 6 generations because upstream NEVER terminates); FIRST lane-B RUN of a `call` issued from inside a doubly-nested DO TO loop and of multi-numeric `PUT LIST` headers (9-wide fields) in an executed corpus spec; declared 18-cell pattern (glider/beacon/block/blinker), centre-inclusive BASIC 530..550 neighbour tally; complete-stream match 91 lines; the 4722-B raw RUN stream equals the independent simulator's raw bytes exactly (pops 18,20,18,20,18,20); double-run byte-equal |
+| DHRY-00 | B | rev0 SOURCE→…→RUN→ASSERT; rev1 SOURCE→…→RUN→ASSERT | rev0 **FAIL** (order-only ASSERT miss, kept as written), rev1 **PASS** (corpus program 7 of 8; § 14) | rev0 `undefined` as executed | adapted Pascal Dhrystone 2.1 (Weicker — the self-extracting `.SHAR` NEVER executed, members recovered read-only); rev0 FAIL diagnosed as a GENERATOR bug (final table emitted grouped by render mechanism, not in `Port.table` order — all 20 published values correct, row order wrong); rev1 is a PURE PERMUTATION of the same statement set (sorted-diff proven), expectation NOT edited; FIRST lane-B RUN of the 14-subroutine sibling call graph, numeric-GET echo keeping its `\r`, flag-goto `repeat…until` and subtraction-loop `div`; complete-stream match 57 lines; the 1368-B raw RUN stream is BYTE-IDENTICAL to the derived port raw (sha `eebbed54…`); double-run byte-equal |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -649,3 +650,100 @@ ceiling]`); lane B `python3 tools/functional_runner.py --tests LIFE-00 --evidenc
 build/fc01/corp8 --json-out build/fc01/corp8/records.json`; determinism
 `python3 tools/functional_runner.py --tests LIFE-00 --evidence build/fc01/corp8-double
 --json-out build/fc01/corp8-double/records.json --double-run`.
+
+## 14. FC-01 CORPUS DHRY-00 hop (2026-11-03, continuation chain hops 14–19): program 7 (Dhrystone 2.1, Pascal); rev0 FAILed on ORDER alone (generator bug), rev1 PASSed on the re-run
+
+Program 7 of the operator's eight: the **Dhrystone Benchmark, Version 2.1** Pascal
+reference implementation (Reinhold P. Weicker, Siemens AG). Research copy
+`build/functional/fc01-sources/pascal/dhry-pascal.shar` sha256 `c71a31b9…` (pinned by
+`SHA256SUMS`, rc=0 re-measured); the self-extracting `.SHAR` was **NEVER executed** — the
+6 members were recovered by a read-only Python here-doc decoder into ignored scratch
+(`dhry.p-2`, 504 lines, is the program; `dhry.p-1` the rationale). Upstream licence
+UNVERIFIED and recorded as such per README § 5.1; no upstream bytes in any tracked file.
+
+The port keeps the whole 11-subroutine benchmark and the canonical final-values table.
+Removals/substitutions (all declared, full list in the spec notes): the `clock` timing
+loop, the reals and the too-small-to-time branch are DROPPED (a deterministic complete
+stream cannot carry them); the terminal `readln(NumberOfRuns)` becomes ONE numeric
+`get list(numruns)` with `console_input "7\r^Z"` (N=7); the pointer/variant records become
+parallel AUTO arrays (`pcp/dsc/enm/inc(2)` + six 30-cell string positions over `sx(180)`,
+whole-record assignment via the `cp30` copy loop) because STATIC arrays are a measured
+refusal (`[C159/AB5]`) and uninitialized DATA contents are UNMEASURED on lane B (explicit
+zero-init loops required); VAR parameters write RESULT CELLS (`r2/r3/r6/r7/dvq`) the
+caller assigns back (`PROC.CALL_COPYIN` has no by-reference convention); the one
+variable-divisor `div` becomes the `divsub` subtraction loop (DIV-by-non-constant is the
+recorded HAMM-00 `my-gap` refusal); `do until` (refused) becomes label + flag-goto; the
+refused `if a > 0` in `proc3` became the exactly-equivalent domain ladder over
+`pcp ∈ {0,1,2}`; calls-in-conditions hoist to scalars; `<>`/`and`/`or`/`case`/`with`
+become branch swaps, nested ifs and ladders; chars/enums/bools are integer codes; the
+30-char strings print through the nested `putc`/`putstr` code ladders, `putstr` SKIPPING
+blank (code-32) cells so no line reaches the 79-column PLILIB wrap measured (lane-B
+witness; law PROPOSED) to fire at exactly 79; should-be constants print as CHARACTER
+literals because `put list(<numeric literal>)` is a measured `my-gap` refusal; Pascal
+apostrophes are dropped (`1ST`/`2ND`). Two compiler-side laws shaped the code: the LAYOUT
+LAW (all 14 nested definitions AFTER `stop;`) and the TP00 LAW (copy every formal to a
+local before subscripting — a formal-as-subscript store is silently lost, lane-B witness,
+`my-gap` class, NOT a DR claim).
+
+The triple: `spec/functional/tests/DHRY-00.PLI` 12301 B, 494 lines, widest 71 ≤ 71, CRLF +
+bare `^Z`, apostrophe-free — rev0 sha `9eae6915…`, **rev1 sha
+`fc6695cd087aacf3441619b3efe5a7375c8165757035c0a8ac74060f2995b81a`**; the pin-level compile
+witness is that its `.REL` is byte-identical to the ignored scratch draft (16384 B,
+code=7010, data=5510, rc=0). `reference.py:dhry00` is a statement-for-statement mirror of
+`dhry00_sim.Port` carrying the SAME invariants as the two independent models (the sim is
+itself cross-checked line-for-line against `dhry00_pascal_sim.py`); measured BEFORE any
+JSON: `derive('dhry00')` BYTE-EQUAL to `dhry00_sim.check(7)` on all **57 normalized
+lines**; the 20/20 published Dhrystone should-be column at N=7 (IntGlob 5, Bool TRUE,
+A, B, a1(8) 7, a2(8,7) 17, slot1 0/2/17/SOME-STRING, slot2 0/1/18/SOME-STRING, 5/13/7,
+EnumGlob 1, sg1 '1', sg2 '2'), the port FINAL STATE, exactly ONE GET, the echo line
+keeping its trailing CR (`7\r`), the ≤78-column frame law for every emitted segment, and
+the port raw identity **1368 B** (sim 1361 — the ONLY difference is the Array2Glob
+should-be row, printed via `%9d` by the port, identical after collapse-spaces-v1).
+`DHRY-00.json` was **generated via script** (`build/fc01-scratch/dhry00/mk_dhry00_json.py`,
+nothing hand-copied — it re-runs the sim-vs-derive byte-equality and ABORTS on any
+mismatch): link target `DHRY00`, normalization `collapse-spaces-v1`, limits as LIFE-00,
+15 capability ids each double-verified (`dr=ACCEPTS`/`mine=SUPPORTED` in
+`spec/COVERAGE.tsv` AND present in the pinned `.PLI`, comment-stripped) — the script also
+asserts NO `put list(<digit>)` item appears (gap workaround).
+
+* **rev0 — FAIL (`build/fc01/corp9/`, HEAD `30eecce`, compiler sha `edce9e0e…`), kept as
+  written:** every stage EXECUTED — SOURCE (12301 B), DERIVATION (== spec), COMPILE
+  (`rc=0`, 16384 B), LINK (`DHRY00.COM 21248 bytes sha256=8c300824…`, `done,
+  parse_undefined=[]`), RUN (`done`, 1368 console bytes) — and ASSERT FAILed at normalized
+  **line 12**: `got 'Array1Glob [8]: 7', want 'BoolGlob: TRUE'`; attribution stayed
+  `undefined` as executed (README § 9.2). Diagnosis (measured afterwards, not laundered):
+  the hop-18 GENERATOR had emitted the final table grouped by rendering mechanism
+  (numeric rows, then Bool/Char, then String rows) instead of `Port.table`'s canonical
+  Pascal order — a bug in MY program, not the compiler and not the expectation: the run
+  printed every published value CORRECTLY, in the wrong row order, faithfully executing
+  the pinned statements. The original Pascal (dhry.p-2 lines 417–462) and both models
+  agree on the canonical order.
+* **rev1 — PASS (`build/fc01/corp9b/`, same HEAD and compiler):** the fix permuted the
+  table emission ONLY — `diff <(sort old) <(sort new)` proves an exact statement-set
+  permutation, both drafts compile rc=0 with identical `.REL` geometry — and the
+  expectation was NOT touched. SOURCE (sha `fc6695cd…` + encoding verified), DERIVATION
+  (derivation == spec, 57 lines), COMPILE (`rc=0`, **16384 B, code=7010, data=5510,
+  items=8337**), LINK (`DHRY00.COM 21248 bytes sha256=7ff09a63…`, `done,
+  parse_undefined=[]`), RUN (`done`; **1368 console bytes** — and the stored capture is
+  BYTE-IDENTICAL to the derived port raw, sha256 `eebbed5406ed83d5…`), ASSERT
+  (complete-stream match, **57 lines**). Verdict line as executed:
+  `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`. Determinism double-run
+  `build/fc01/corp9b-double/` PASS; the two `run.console.bin` captures byte-equal
+  (`cmp` rc=0, sha `eebbed54…`).
+* First lane-B RUN witnesses: the full 14-subroutine sibling call graph executed as a
+  program (nested `proc1` calling `cp30/proc3/proc6/proc7` and the `f2` string-compare
+  loop under the LAYOUT law); the numeric-GET echo keeping its trailing CR in a corpus
+  spec; the flag-goto `repeat…until` emulation and the subtraction-loop `div` executed;
+  the 5510-byte AUTO data footprint surviving DR LINK-80 + PLILIB.
+* Nothing here promotes a claim: the ledger still ends at C352 and a functional run is not
+  DR evidence. No `ocaml/` or harness byte changed; the EXPECTATION was never edited (the
+  PROGRAM was corrected); the rev0 FAIL evidence stays in `build/fc01/corp9/` as written;
+  the hop-18 statement that the draft mirrored `Port.table` statement-for-statement is
+  corrected in LEARNINGS as written (PROTOCOL #2).
+
+Commands: derivation gate `python3 tools/functional_runner.py --stages source,derivation
+--tests DHRY-00` (no SOURCE/DERIVATION failure; verdict `UNKNOWN [COMPILE: stage
+ceiling]`); lane B `python3 tools/functional_runner.py --tests DHRY-00 --evidence
+build/fc01/corp9b --json-out build/fc01/corp9b/records.json`; determinism
+`python3 tools/functional_runner.py --tests DHRY-00 --evidence build/fc01/corp9b-double
+--json-out build/fc01/corp9b-double/records.json --double-run`.

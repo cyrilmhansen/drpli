@@ -4443,3 +4443,70 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   corp9-double if PASS) ACTUALS verbatim, FAIL stays classified never laundered; (10) docs
   functional-results.md sec 14 + sec 1 row; (11) gate -> build/gate-dhry00.log; explicit-path
   commit (NEVER handoff.config.json; no push). Then FFT-00. Constraints unchanged.
+
+## 2026-11-03 — FC-01 CORPUS DHRY-00 hop 19: steps 8-11 LANDED — rev0 lane-B FAIL (pin ORDER bug) -> rev1 **PASS**; JSON via script; gate rc=0; program 7 of 8 complete (FFT-00 OWED)
+
+- FALSIFIED (accepted measurement, hop-18 claim corrected, PROTOCOL #2 — hop-18 § kept as
+  written): hop 18 stated the draft was emitted "statement-for-statement from the `Port`
+  class"; **FALSE for the final-table ORDER** — `mk_dhry00_pli.py` emitted the table grouped
+  by rendering mechanism (13 numeric rows, then Bool/Char, then 4 string rows) instead of
+  `Port.table`'s canonical Pascal order. The step-7 contract (derive BYTE-EQUAL vs sim) only
+  cross-checks the TWO MODELS against each other; neither was checked against the PIN's
+  statement order. NEW PROCEDURE LESSON (accepted): after pin generation, audit pin-vs-sim
+  statement ORDER, not just model-vs-model stream equality — the lane-B ASSERT did this for
+  us and caught it.
+- MEASURED (accepted, lane-B ACTUALS, my compiler `edce9e0e…`, NOT DR claims; ledger ends
+  C352): **rev0 FAIL** `build/fc01/corp9/` (HEAD `30eecce`, pin sha `9eae6915…`): all six
+  stages EXECUTED — COMPILE rc=0 16384 B (code=7010 data=5510 items=8337), LINK
+  `DHRY00.COM 21248 B sha256=8c300824…` `parse_undefined=[]`, RUN `done` **1368 console
+  bytes**, ASSERT FAIL **line 12 only**: got `Array1Glob [8]: 7` want `BoolGlob: TRUE` —
+  EVERY published value printed correctly, row order wrong; attribution stayed `undefined`
+  as executed (README § 9.2). Evidence KEPT AS WRITTEN, never laundered.
+- REV1 FIX (accepted): table emission permuted in the generator ONLY —
+  `diff <(sort old) <(sort new)` = exact statement-set permutation (494 lines both); both
+  drafts compile rc=0 with IDENTICAL .REL geometry. New pin `spec/functional/tests/DHRY-00.PLI`
+  sha256 `fc6695cd087aacf3441619b3efe5a7375c8165757035c0a8ac74060f2995b81a` (12301 B, CRLF +
+  bare ^Z, widest 71), pin .REL byte-identical to draft .REL. **The expectation was NEVER
+  edited** — reference.py/sim already had the canonical order (matches dhry.p-2 lines
+  417..462); the PROGRAM was corrected to it.
+- **rev1 PASS** `build/fc01/corp9b/` (HEAD `30eecce` at execution, compiler `edce9e0e…`):
+  SOURCE sha `fc6695cd…`+encoding, DERIVATION == spec, COMPILE rc=0 (16384 B, code=7010,
+  data=5510, items=8337), LINK `DHRY00.COM 21248 B sha256=7ff09a63…` `parse_undefined=[]`,
+  RUN `done` **1368 console bytes = the EXACT port raw**, ASSERT complete-stream match
+  **57 lines**; `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`. Determinism double-run
+  `build/fc01/corp9b-double/` PASS; captures byte-equal (`cmp` rc=0, sha
+  `eebbed5406ed83d570d15ddfa0362f59582680b538268aaa0b397bfa54042410` — the stored RUN stream
+  is BYTE-IDENTICAL to the derived port raw, strongest stream witness in the corpus so far).
+  First lane-B RUN witnesses: full 14-subroutine sibling call graph (LAYOUT law), numeric-GET
+  echo keeping its trailing `\r` in a corpus spec, flag-goto `repeat…until` emulation,
+  subtraction-loop `div`, 5510-B AUTO data under DR LINK-80+PLILIB.
+- `DHRY-00.json` GENERATED VIA SCRIPT `build/fc01-scratch/dhry00/mk_dhry00_json.py` (LIFE
+  precedent; re-runs `dhry00_sim.check(7)` vs `derive('dhry00')` byte-equality and ABORTS on
+  mismatch; asserts pin sha, CRLF/^Z/≤71/apostrophe laws, asserts NO `put list(<digit>)`
+  item; 15 capability ids double-verified ACCEPTS/SUPPORTED AND present comment-stripped;
+  notes (1)-(18) incl. the full removal list and the rev1 record). `--stages
+  source,derivation`: `UNKNOWN [COMPILE: stage ceiling]`, no SOURCE/DERIVATION FAIL
+  (expected ceiling). Docs § 14 + § 1 row written from the records. FULL compile-tier gate
+  rc=0 `build/gate-dhry00.log`: byte panel **1174/0 of 1174**, negative **181/181**,
+  divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**, prose **5 active
+  clean** (measured AFTER the § 14 edit).
+- EXACT NEXT = FFT-00 (program 8 of 8, Rosetta Code PL/I — the ONLY native-PL/I source):
+  (1) `sha256sum -c SHA256SUMS` rc=0 in `build/functional/fc01-sources/`; read
+  `pli/FFT-reference.pli` WHOLE + `fft-rosettagit.md` provenance; since it is PL/I, FIRST
+  audit every construct against the measured subset/COVERAGE (this is PL/I-80 v1.4, not
+  modern PL/I — expect removals: likely builtins like COMPLEX/arithmetic-with-complex,
+  `%`/`**` forms, built-in string functions, possibly file GET/PUT and dynamic storage —
+  classify each as measured-accept / measured-refusal / unmeasured, NEVER assume);
+  (2) record hop-start analysis + PROPOSED design (bounded deterministic run, declared
+  inputs, corpus byte laws: sep blank, %9d numeric, echo law, [C352] exit CRLF, ≤78-col
+  emitted lines, ≤71-col source, apostrophe-free literals, single-item PUTs); (3) simulator
+  with INDEPENDENT cross-check (e.g. naive DFT in Python vs the port FFT model — the
+  transform result must be checked TWO ways); (4) pre-compile risky shapes; (5) draft ->
+  pin `spec/functional/tests/FFT-00.PLI` -> pin-vs-sim ORDER audit (the hop-19 lesson) ->
+  `reference.py:fft00` diffed BYTE-EQUAL vs sim BEFORE JSON -> `FFT-00.json` VIA SCRIPT ->
+  `--stages source,derivation` -> lane B `build/fc01/corp10` (+corp10-double if PASS) ->
+  docs § 15 + § 1 -> gate `build/gate-fft00.log` -> explicit-path commit; then the corpus
+  close (8/8): summary + any operator round-down. Constraints unchanged: no `ocaml/`/
+  harness byte; ledger ends C352; functional runs are NOT DR claims; FAILs stay classified
+  never laundered; NEVER re-run the retry-DFS; third-party bytes never tracked; operator
+  `handoff.config.json` untouched/unstaged; no push; renew only at safe boundaries.
