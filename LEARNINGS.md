@@ -4599,3 +4599,85 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - Constraints unchanged: no ocaml/harness byte; ledger ends C352; functional runs NOT DR
   claims; NEVER re-run the retry-DFS; third-party bytes untracked; operator
   handoff.config.json untouched/unstaged; no push; renew only at safe boundaries.
+
+## 2026-11-03 — FC-01 CORPUS FFT-00 hop 21: steps 5 + 6 LANDED (PINNED, order-audited, derivation BYTE-EQUAL vs the sim); JSON/--stages/lane-B/docs/gate OWED (2 tracked files authored, nothing committed yet)
+
+- STEP 5 DONE (accepted): `build/fc01-scratch/fft00/FFT-00.draft.pli` converted to
+  CRLF + bare `^Z` (122 lines, widest 71, no tabs/high bytes/trailing whitespace) and
+  PINNED as `spec/functional/tests/FFT-00.PLI` — 3400 bytes, sha256
+  `f58e471bcf5078cfc71f029c4879ba38150844b70970e9477b172375c85dce6c`. Compiling the
+  PINNED file: rc=0, `fft00_pin.REL` **3456 B, code=1476 data=48**, `cmp` BYTE-IDENTICAL
+  to the draft `.REL` — the encoding conversion changed nothing semantic (pin-level
+  compile witness, same convention as TICT/DHRY/LIFE pins).
+- STEP 5b DONE (accepted): the HOP-19 ORDER AUDIT, `build/fc01-scratch/fft00/order_audit.py`
+  (ignored scratch; rc=0, "ORDER AUDIT GREEN"). Two independent levels, both mechanical:
+  **(A) emission order** — the pinned main body is unrolled from the source (the LOOP regex
+  MUST include the trailing `;`: `^do (\w+) = (\d+) to (\d+)( by (\d+))?$;` — without it the
+  unroll silently returns the unexpanded list, a falsified first attempt of this audit) and
+  expanded into skip/item/num/dig/dash? tokens, with each `call prn` expanded to the pinned
+  prn block's own emission list; the sim is RUN with its `Out` subclass instrumented (spy
+  `num()` must call `Base.item(self, "%9d" % v)` directly, otherwise the inherited
+  `Out.num -> self.item` chain records the numeric twice; and `S.Out` rebound to the spy makes
+  `S.Out.skip(self)` recurse — capture the base class in a local BEFORE the swap). Result:
+  pin static expansion 142 tokens vs instrumented sim run 128 tokens, matching token-for-token
+  under greedy alignment of the 16 conditional `if sg = 1 then put list('-')` arms; the 2 arms
+  that fire equal the 2 negative Q6 components printed (xr/xi: -154, -26). **(B) statement
+  order + coverage** — a hand-written bijection of 78 pairs per block (MAIN, bf, prn, pdig),
+  each pin statement mapped to the sim line(s) that model it, checked with per-target-method
+  cursors (the 8 twiddle stores map to `Port.__INIT__`, i.e. target "INIT", because the sim
+  builds them in its constructor — ordering checked within that method); every non-declare pin
+  statement must be mapped and every non-plumbing sim line covered. Two deliberate
+  equivalences recorded in the map: the pin's `sg = 0; if t < z then sg = 1;` PAIR is folded
+  into the sim's single `sg = 1 if t < self.z else 0` ternary (pin→None for `sg = 0;`), and
+  the pin's `do i` output-loop BODY repeats twice per iteration in the pin source but once in
+  the sim's loop body, so the IM arm restarts the pin cursor after `put list('IM');`.
+- STEP 6 DONE (accepted): `reference.py` gained `FFT00_*` constants,
+  `_fft00_chk`/`_fft00_tdiv`/`_fft00_dft_naive`/`_Fft00Port`/`_fft00_finalize`/
+  `_fft00_parse_value`/`fft00()` + the `DERIVATIONS["fft00"]` entry — a
+  statement-for-statement mirror of the PIN, not of the sim. `derive('fft00')` is
+  **BYTE-EQUAL to `fft00_sim.check()` on all 13 normalized lines AND on the raw stream
+  (507 B, sha `87acbf18bcc785af8c638fa816e561362da40596b99849e3e1822a615817393e`)** —
+  measured BEFORE any JSON, as contracted. `fft00()` carries FOUR independent checks:
+  (1) port final state == the hand-published Q6 table `[(256,0),(64,-154),(0,0),(64,-26),
+  (0,0),(64,26),(0,0),(64,154)]`; (2) port vs a naive double DFT computed in reference.py
+  from the definition, worst component error ≤ declared TOL 0.02 (ACTUAL 0.0080); (3) the
+  DFT vs the analytical closed form (4, 1−(1+√2)i, 0, 1−(√2−1)i, 0, conj, 0, conj) to 1e-12;
+  (4) every PRINTED line re-parsed from its collapse-spaces-v1 tokens back to thousandths
+  and compared with toward-zero scaling of the table (`X 4 ... IM - 0 . 4 0 6` == −26·1000/64
+  = −406). Plus the structural invariants bf_calls==12, digits==48, 13 lines / 507 raw bytes,
+  the ≤78-column frame law per CRLF segment, and `max |rem*1000| ≤ 32767`.
+- NEW MEASURED RISK DOCUMENTED (accepted, my compiler + models, NOT a DR claim): the prn
+  digit path computes `rem * 1000` with 0 ≤ rem ≤ 63 ⇒ up to **63000, which EXCEEDS the
+  FIXED BIN(15) range**. On THIS input every rem is 0 or 26 (max 26000) so the port stays
+  in range — asserted by `_fft00_chk` inside the derivation AND by the `max_magnitude`
+  invariant. A future input with rem ≥ 33 would overflow; recorded so nobody reuses prn
+  blindly. (Division by 64 in bf never overflows here: |p| ≤ 256·64 = 16384.)
+- OWED (steps 7-11, EXACT, successor): (7) `spec/functional/tests/FFT-00.json` VIA SCRIPT —
+  copy the gates of `build/fc01-scratch/dhry00/mk_dhry00_json.py` (re-run sim-vs-derive
+  byte-equality and ABORT on mismatch; pin sha `f58e471b…`; CRLF/bare-^Z/≤71/apostrophe
+  laws; link_target **FFT00**; `console_input "^Z"` — pure PUT, no GET; collapse-spaces-v1;
+  capabilities grep-verified ACCEPTS/SUPPORTED in `spec/COVERAGE.tsv` AND present
+  comment-stripped in the .PLI — candidates DECL.FIXED_BIN15, DECL.CHAR_VARYING,
+  AGG.ARRAY_1D_FIXED, AGG.ELEM_AS_ACTUAL (`xr(i)`→prn… actually `t = xr(i)` is a member READ;
+  the ELEM_AS_ACTUAL idiom here is `call pdig(hh)`/`call bf(j, j2, w0r, w0i)` — VERIFY EACH ID
+  by grep and DROP any id whose construct is absent), LOOP.DO_TO_BY (the `do j = 1 to 7 by 2`
+  stage loop), EXPR.REL_FIXED_EQ_K, EXPR.REL_FIXED_LT_K? (verify — `if t < z` is
+  scalar-vs-scalar), IO.PUT_LIST_FIXED, IO.PUT_SKIP, PROC.CALL_COPYIN; notes = every removal
+  incl. COMPLEX/CONTROLLED/ALLOCATE-FREE/recursion/HBOUND/exp/COMPLEX/FIXED builtins/
+  FLOAT(18)/FIXED BINARY(31)/OPTIONS(REORDER)/whole-array actuals, the Q6 scale law, the
+  twiddle quantization 45/64, the sg-flag comparison gap, the FP00 runtime laws, the
+  `0 - 45` pool-mismatch crash witness, and the `rem*1000` bin15 bound);
+  then `python3 tools/functional_runner.py --stages source,derivation --tests FFT-00`;
+  (8) lane B `python3 tools/functional_runner.py --tests FFT-00 --evidence
+  build/fc01/corp10 --json-out build/fc01/corp10/records.json` (+ `--double-run`
+  build/fc01/corp10-double if PASS), ACTUALS verbatim, FAIL stays classified NEVER laundered,
+  expectation never edited to chase PASS; (9) `docs/functional-results.md` § 15 + the § 1 row;
+  (10) `python3 tools/e2e_gate.py` → `build/gate-fft00.log`; (11) explicit-path commit
+  (FFT-00.PLI, FFT-00.json, reference.py, docs, HANDOFF/PROGRESS/LEARNINGS — NEVER
+  `handoff.config.json`; no push), THEN THE CORPUS-CLOSE RECORD (8 of 8 landed or recorded).
+- THIS hop committed (explicit paths, no push): `spec/functional/tests/FFT-00.PLI` +
+  `spec/functional/tests/reference.py` + the three durable files, gate log
+  `build/gate-fft00-pin.log` (rc measured this hop, ACTUALS in the commit message).
+- Constraints unchanged: no `ocaml/`/harness byte; ledger ends C352; functional runs are NOT
+  DR claims; FAILs never laundered; NEVER re-run the retry-DFS; third-party bytes untracked;
+  operator `handoff.config.json` untouched/unstaged; no push; renew only at safe boundaries.

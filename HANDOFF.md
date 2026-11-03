@@ -122,7 +122,31 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## FFT-00 hop 20 LANDED — program 8 of 8 IN FLIGHT: construct audit + FP00 lane-B RUN laws MEASURED; sims 3-way GREEN; draft compiles rc=0; steps 5-11 OWED (2026-11-03; NOTHING tracked authored this hop)
+## FFT-00 hop 21 LANDED — steps 5+6 DONE (PIN + ORDER AUDIT + reference BYTE-EQUAL vs sim); JSON/--stages/lane-B/docs/gate/commit OWED (2026-11-03; 2 tracked files authored; gate rc=0 measured this hop)
+
+Read `LEARNINGS.md` § "…FFT-00 hop 21" FIRST — ACTUALS: pin `spec/functional/tests/FFT-00.PLI`
+(3400 B, 122 lines ≤71 cols, CRLF+bare ^Z, sha `f58e471bcf5078cfc71f029c4879ba38150844b70970e9477b172375c85dce6c`)
+compiles rc=0 **3456 B code=1476 data=48**, `cmp` BYTE-IDENTICAL to the draft .REL; the hop-19
+**ORDER AUDIT** (`build/fc01-scratch/fft00/order_audit.py`, rc=0 GREEN) passes on BOTH levels
+(emission tokens 142-vs-128 under greedy dash alignment, 2 dashes == 2 negative components;
+78-pair statement bijection in order, full coverage); `reference.py:_Fft00Port`/`fft00()` +
+`DERIVATIONS["fft00"]` — `derive('fft00')` BYTE-EQUAL vs `fft00_sim.check()` on ALL 13 lines AND
+raw 507 B sha `87acbf18…`, measured BEFORE any JSON; four independent value checks (published Q6
+table, naive DFT ≤ 0.0080 vs tol 0.02, analytic closed form to 1e-12, printed tokens reconstructed
+to thousandths); NEW documented risk — `prn` computes `rem*1000` up to 63000 > bin15 max, safe only
+because this input's rems are 0/26 (asserted). Gate rc=0 `build/gate-fft00-pin.log` (negative
+181/181, divergence 9/9, coverage 133 rows 0/0, census 15/0/26/0, prose 5 clean).
+**NEXT = steps 7-11** exactly as numbered in that §: `FFT-00.json` VIA SCRIPT (mk_dhry00_json.py
+gates; link_target FFT00, console_input bare `^Z`, capabilities grep-verified BOTH ways —
+`AGG.ELEM_AS_ACTUAL` needs a real member actual, check before citing; full removal notes) →
+`--stages source,derivation` → lane B `build/fc01/corp10` (+corp10-double if PASS) → docs § 15 +
+§ 1 → gate `build/gate-fft00.log` → explicit-path commit → corpus-close record (8 of 8).
+This hop commits `FFT-00.PLI` + `reference.py` + the three durable files. Constraints unchanged:
+no `ocaml/`/harness byte; ledger ends C352; functional runs NOT DR claims; FAILs never laundered;
+NEVER re-run the retry-DFS; third-party bytes untracked; operator `handoff.config.json`
+untouched/unstaged; no push; renew only at safe boundaries.
+
+## Superseded: FFT-00 hop 20 LANDED — program 8 of 8 IN FLIGHT: construct audit + FP00 lane-B RUN laws MEASURED; sims 3-way GREEN; draft compiles rc=0; steps 5-11 OWED (2026-11-03; NOTHING tracked authored this hop)
 
 Read `LEARNINGS.md` § "…FFT-00 hop 20" FIRST — ACTUALS: all 12 construct probes
 classified (COMPLEX, CONTROLLED/ALLOCATE, HBOUND, FIXED/EXP builtins, BINARY(31) —
@@ -961,17 +985,17 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 231
-checkpoint-id: g231-9029ab349216
+checkpoint-generation: 233
+checkpoint-id: g233-7582ff6a0ffb
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~3002, session 01a1a2fc-6118-7145-a841-b6a51e104aad)
-checkpointed: 2026-11-03T20:26:46.689Z
+status: checkpoint (guard level 4, remaining ~4922, session 01a1a318-3f3c-7145-a841-b6a95231f1b1)
+checkpointed: 2026-11-03T20:54:02.799Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 6c4a305b048fc5abc1a52fdfcc620f8651c7d051962a00b5dfa08fcc146e9439
 source-handoff: 7c8ed5df62a5171fdd87fe63f2646af89a5cb0d1028221e006cf083009008d3d
-source-learnings: bae64303e26c11f9f9670d513b2d71e9e389709cf738783a06a3a528047eacc1
+source-learnings: c0fa5fb94dbebb7aa00e9fbca3076cadb32a1e300b82291f851985b81e44fb2d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 

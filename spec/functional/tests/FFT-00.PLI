@@ -1,0 +1,123 @@
+/* FFT-00 - FC-01 corpus adaptation, 2026-11-03.                     */
+/* Original: Rosetta Code "Fast Fourier transform" PL/I reference,   */
+/* research copy build/functional/fc01-sources/pli/FFT-reference.pli */
+/* (fft-rosettagit.md provenance; third-party, never tracked).       */
+/* Adaptation (FFT-00.json notes): COMPLEX/CONTROLLED/ALLOCATE,      */
+/* recursion, HBOUND, exp/COMPLEX/FIXED builtins and FLOAT(18) are   */
+/* outside the measured subset; complex values become two parallel   */
+/* fixed bin(15) arrays in Q6 fixed point (scale 64), twiddles are   */
+/* precomputed integer constants, the recursive Cooley-Tukey becomes */
+/* an iterative radix-2 DIT pass over the bit-reversed seed, and     */
+/* fixed(data(i),25,12) becomes sign/integer/dot/three digits.       */
+fft00: procedure options(main);
+  declare (i, j, j2, k, z, t, sg) fixed bin(15);
+  declare (w0r, w0i, w1r, w1i, w2r, w2i, w3r, w3i) fixed bin(15);
+  declare xr(8) fixed bin(15);
+  declare xi(8) fixed bin(15);
+  z = 0;
+  do k = 1 to 8;
+    xr(k) = 0;
+    xi(k) = 0;
+  end;
+  xr(1) = 64;
+  xr(3) = 64;
+  xr(5) = 64;
+  xr(7) = 64;
+  w0r = 64;
+  w0i = 0;
+  w1r = 45;
+  w1i = -45;
+  w2r = 0;
+  w2i = -64;
+  w3r = -45;
+  w3i = -45;
+  put skip list('FFT-00 COOLEY-TUKEY N=8');
+  put skip list('SCALE 64 INPUT 1,1,1,1,0,0,0,0');
+  put skip;
+  do j = 1 to 7 by 2;
+    j2 = j + 1;
+    call bf(j, j2, w0r, w0i);
+  end;
+  call bf(1, 3, w0r, w0i);
+  call bf(2, 4, w2r, w2i);
+  call bf(5, 7, w0r, w0i);
+  call bf(6, 8, w2r, w2i);
+  call bf(1, 5, w0r, w0i);
+  call bf(2, 6, w1r, w1i);
+  call bf(3, 7, w2r, w2i);
+  call bf(4, 8, w3r, w3i);
+  do i = 1 to 8;
+    put skip;
+    put list('X');
+    put list(i);
+    put list('RE');
+    t = xr(i);
+    sg = 0;
+    if t < z then sg = 1;
+    call prn(t, sg);
+    put list('IM');
+    t = xi(i);
+    sg = 0;
+    if t < z then sg = 1;
+    call prn(t, sg);
+  end;
+  put skip;
+  stop;
+  bf: procedure (fi, fj, wr, wi);
+    declare (fi, fj, wr, wi) fixed bin(15);
+    declare (li, lj) fixed bin(15);
+    declare (ar, ai, br, bi, p1, p2, tr, p3, p4, ti) fixed bin(15);
+    li = fi;
+    lj = fj;
+    ar = xr(li);
+    ai = xi(li);
+    br = xr(lj);
+    bi = xi(lj);
+    p1 = br * wr;
+    p2 = bi * wi;
+    tr = (p1 - p2) / 64;
+    p3 = br * wi;
+    p4 = bi * wr;
+    ti = (p3 + p4) / 64;
+    xr(li) = ar + tr;
+    xi(li) = ai + ti;
+    xr(lj) = ar - tr;
+    xi(lj) = ai - ti;
+  end bf;
+  prn: procedure (v, sg);
+    declare (v, sg) fixed bin(15);
+    declare (s, ip, rem, th, hh, r2, t10, uu) fixed bin(15);
+    s = v;
+    if sg = 1 then put list('-');
+    if sg = 1 then s = 0 - s;
+    ip = s / 64;
+    rem = s - ip * 64;
+    th = (rem * 1000) / 64;
+    hh = th / 100;
+    r2 = th - hh * 100;
+    t10 = r2 / 10;
+    uu = r2 - t10 * 10;
+    put list(ip);
+    put list('.');
+    call pdig(hh);
+    call pdig(t10);
+    call pdig(uu);
+  end prn;
+  pdig: procedure (d);
+    declare d fixed bin(15);
+    declare ch character(1) varying;
+    ch = '0';
+    if d = 0 then ch = '0';
+    if d = 1 then ch = '1';
+    if d = 2 then ch = '2';
+    if d = 3 then ch = '3';
+    if d = 4 then ch = '4';
+    if d = 5 then ch = '5';
+    if d = 6 then ch = '6';
+    if d = 7 then ch = '7';
+    if d = 8 then ch = '8';
+    if d = 9 then ch = '9';
+    put list(ch);
+  end pdig;
+  end fft00;
+

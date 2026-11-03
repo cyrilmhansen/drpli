@@ -3181,6 +3181,284 @@ def dhry00():
     return lines
 
 
+# ---------------------------------------------------------------- FFT-00
+# FFT-00 (Rosetta Code "Fast Fourier transform", PL/I reference) -> PL/I-80.
+# The derivation mirrors the pinned FFT-00.PLI statement-for-statement (main
+# body, then bf / prn / pdig after `stop;`).  Byte model per the measured
+# corpus laws (README section 6 + the hop-2 separator law + the BIGA/FP00
+# 9-column numeric field incl. its sign + [C352]): PUT SKIP emits "\r\n"; ONE
+# blank precedes every PUT LIST item that is not the first item printed since
+# the last line start; a FIXED BIN(15) numeric item renders right-justified in
+# a NINE-column field WITH its sign; fixed-bin division TRUNCATES TOWARD ZERO
+# (all four: the FP00 lane-B RUN witness); program exit appends one "\r\n".
+# Numeric model: complex values are Q6 fixed point (scale 64) in TWO parallel
+# fixed bin(15) arrays xr/xi exactly as pinned; twiddles are the precomputed
+# integer constants (45 = trunc(64*cos(pi/4))); every "/ 64" rescale divides
+# exactly on this input, so the truncation direction is not load-bearing for
+# the RESULT -- but tdiv() still pins the measured law, and the prn digit path
+# DOES rely on it.  Three independent checks: the port state vs the hand-
+# published Q6 table, the port vs a naive double-precision DFT computed here
+# from the definition, and the printed tokens reconstructed back to thousandths
+# vs the table.  Pure PUT program: no GET, no echo.
+
+FFT00_SCALE = 64                # Q6 fixed-point scale (declared adaptation)
+FFT00_N = 8                     # transform length
+FFT00_TOL = 0.02                # declared per-component tolerance (Q6 twiddles)
+FFT00_B15_HI = 32767            # the FIXED BIN(15) range every intermediate
+FFT00_B15_LO = -32768           # is asserted inside (overflow would launder a gap)
+# the printed input, in NATURAL order (the Rosetta reference's data array):
+FFT00_INPUT = (1, 1, 1, 1, 0, 0, 0, 0)
+# hand-derived published Q6 result table, computed by hand from the butterfly
+# schedule BEFORE either model was run (the third check):
+FFT00_PUBLISHED = [(256, 0), (64, -154), (0, 0), (64, -26), (0, 0),
+                   (64, 26), (0, 0), (64, 154)]
+# the eight twiddle-scalar stores, in the pinned assignment order:
+FFT00_TWIDDLES = (("w0r", 64), ("w0i", 0), ("w1r", 45), ("w1i", -45),
+                  ("w2r", 0), ("w2i", -64), ("w3r", -45), ("w3i", -45))
+FFT00_RAW_BYTES = 507           # 505 pre-exit + the single exit CRLF [C352]
+FFT00_LINES = 13                # "", banner, scale line, "", 8 X-lines, ""
+
+
+def _fft00_chk(v, what):
+    assert FFT00_B15_LO <= v <= FFT00_B15_HI, "bin15 overflow (%s): %d" % (what, v)
+    return v
+
+
+def _fft00_tdiv(p, d):
+    """PL/I fixed-bin division: truncates TOWARD ZERO (FP00 lane-B witness:
+    -2881/64 = -45 and -2879/64 = -44)."""
+    q = abs(p) // abs(d)
+    return _fft00_chk(q if (p >= 0) == (d >= 0) else -q, "quotient")
+
+
+def _fft00_dft_naive(x):
+    """INDEPENDENT double-precision DFT computed straight from the definition --
+    no butterflies, no bit-reversal, no fixed point.  Cross-check only."""
+    import cmath
+    n = len(x)
+    return [complex(sum(x[k] * cmath.exp(complex(0, -2 * cmath.pi * j * k / n))
+                        for k in range(n)))
+            for j in range(n)]
+
+
+class _Fft00Port:
+    """Statement-for-statement mirror of the pinned FFT-00.PLI.
+
+    MAIN: zero-init loop, the four bit-reversed seed stores (x = 1,1,1,1,0,0,0,0
+    in DIT input order is 1,0,1,0,1,0,1,0 -> xr(1)=xr(3)=xr(5)=xr(7)=64), the
+    eight twiddle stores, the two banner PUTs, the three butterfly stages (one
+    DO TO BY 2 over adjacent pairs, then two explicit four-call groups), the
+    eight-line output loop (member -> scalar t, the MAIN-frame sign flag
+    `sg = 0; if t < z then sg = 1;` because a nested two-variable ordered
+    compare is an unsampled form on this compiler), and the closing PUT SKIP.
+    NESTED (after `stop;`): bf (TP00 formal copies li/lj first, four products,
+    two toward-zero rescales, four array stores), prn (sign, magnitude, integer
+    part, three digits) and pdig (the digit ladder through character(1) varying).
+    """
+
+    def __init__(self):
+        self.raw = ""
+        self.z = 0
+        self.xr = [0] * FFT00_N
+        self.xi = [0] * FFT00_N
+        self.w = dict(FFT00_TWIDDLES)
+        self.bf_calls = 0                 # instrumentation: 12 butterflies
+        self.digits = 0                   # instrumentation: 48 pdig emissions
+        self.max_magnitude = 0            # instrumentation: the digit-path bound
+
+    # ---- stream primitives (the measured byte laws)
+    def skip(self):                       # put skip;
+        self.raw += "\r\n"
+
+    def put(self, item):                  # ONE single-item put list(...)
+        if self.raw and not self.raw.endswith("\r\n"):
+            self.raw += " "               # measured leading-separator law
+        self.raw += ("%9d" % item) if isinstance(item, int) else item
+
+    # ---- nested bf(fi, fj, wr, wi) ----
+    def bf(self, fi, fj, wr, wi):
+        li = fi                           # TP00 law: copy the formal first
+        lj = fj
+        _fft00_chk(li, "li")
+        _fft00_chk(lj, "lj")
+        ar = self.xr[li - 1]
+        ai = self.xi[li - 1]
+        br = self.xr[lj - 1]
+        bi = self.xi[lj - 1]
+        p1 = _fft00_chk(br * wr, "p1")
+        p2 = _fft00_chk(bi * wi, "p2")
+        tr = _fft00_tdiv(_fft00_chk(p1 - p2, "p1-p2"), FFT00_SCALE)
+        p3 = _fft00_chk(br * wi, "p3")
+        p4 = _fft00_chk(bi * wr, "p4")
+        ti = _fft00_tdiv(_fft00_chk(p3 + p4, "p3+p4"), FFT00_SCALE)
+        self.xr[li - 1] = _fft00_chk(ar + tr, "xr(li)")
+        self.xi[li - 1] = _fft00_chk(ai + ti, "xi(li)")
+        self.xr[lj - 1] = _fft00_chk(ar - tr, "xr(lj)")
+        self.xi[lj - 1] = _fft00_chk(ai - ti, "xi(lj)")
+        self.bf_calls += 1
+
+    # ---- nested pdig(d): one digit through the pinned character ladder ----
+    def pdig(self, d):
+        ch = "0"
+        for k in range(10):
+            if d == k:
+                ch = str(k)
+        self.put(ch)
+        self.digits += 1
+
+    # ---- nested prn(v, sg): a Q6 value as sign / integer / '.' / three digits ----
+    def prn(self, v, sg):
+        s = v
+        if sg == 1:                       # formal-vs-literal EQ (the DHRY putc shape)
+            self.put("-")
+        if sg == 1:
+            s = _fft00_chk(0 - s, "magnitude")
+        ip = _fft00_tdiv(s, FFT00_SCALE)
+        rem = _fft00_chk(s - ip * FFT00_SCALE, "rem")
+        self.max_magnitude = max(self.max_magnitude, abs(rem * 1000))
+        th = _fft00_tdiv(_fft00_chk(rem * 1000, "rem*1000"), FFT00_SCALE)
+        hh = _fft00_tdiv(th, 100)
+        r2 = _fft00_chk(th - hh * 100, "r2")
+        t10 = _fft00_tdiv(r2, 10)
+        uu = _fft00_chk(r2 - t10 * 10, "uu")
+        self.put(ip)
+        self.put(".")
+        self.pdig(hh)
+        self.pdig(t10)
+        self.pdig(uu)
+
+    # ---- main body, statement-for-statement ----
+    def run(self):
+        self.z = 0                        # z = 0;
+        for k in range(1, FFT00_N + 1):   # do k = 1 to 8; xr(k) = 0; xi(k) = 0; end;
+            self.xr[k - 1] = 0
+            self.xi[k - 1] = 0
+        self.xr[0] = FFT00_SCALE          # xr(1) = 64;  (bit-reversed seed 1,0,1,0,
+        self.xr[2] = FFT00_SCALE          # xr(3) = 64;   1,0,1,0 x 64 for the input
+        self.xr[4] = FFT00_SCALE          # xr(5) = 64;   1,1,1,1,0,0,0,0)
+        self.xr[6] = FFT00_SCALE          # xr(7) = 64;
+        for (nm, val) in FFT00_TWIDDLES:  # the eight twiddle-scalar stores
+            self.w[nm] = val
+        self.skip()                       # put skip list('FFT-00 COOLEY-TUKEY N=8');
+        self.put("FFT-00 COOLEY-TUKEY N=8")
+        self.skip()                       # put skip list('SCALE 64 INPUT ...');
+        self.put("SCALE 64 INPUT 1,1,1,1,0,0,0,0")
+        self.skip()                       # put skip;
+        for j in range(1, FFT00_N, 2):    # do j = 1 to 7 by 2; j2 = j + 1; call bf;
+            j2 = j + 1
+            self.bf(j, j2, self.w["w0r"], self.w["w0i"])
+        self.bf(1, 3, self.w["w0r"], self.w["w0i"])      # stage 2 (m=4)
+        self.bf(2, 4, self.w["w2r"], self.w["w2i"])
+        self.bf(5, 7, self.w["w0r"], self.w["w0i"])
+        self.bf(6, 8, self.w["w2r"], self.w["w2i"])
+        self.bf(1, 5, self.w["w0r"], self.w["w0i"])      # stage 3 (m=8)
+        self.bf(2, 6, self.w["w1r"], self.w["w1i"])
+        self.bf(3, 7, self.w["w2r"], self.w["w2i"])
+        self.bf(4, 8, self.w["w3r"], self.w["w3i"])
+        for i in range(1, FFT00_N + 1):   # do i = 1 to 8;
+            self.skip()
+            self.put("X")
+            self.put(i)
+            self.put("RE")
+            t = self.xr[i - 1]            # t = xr(i); sg = 0; if t < z then sg = 1;
+            sg = 0
+            if t < self.z:
+                sg = 1
+            self.prn(t, sg)
+            self.put("IM")
+            t = self.xi[i - 1]            # t = xi(i); sg = 0; if t < z then sg = 1;
+            sg = 0
+            if t < self.z:
+                sg = 1
+            self.prn(t, sg)
+        self.skip()                       # put skip;
+        return self
+
+
+def _fft00_finalize(raw):
+    norm = _hamm00_re.sub(rb" +", b" ",
+                          (raw + "\r\n").encode().replace(b"\r\n", b"\n")).decode()
+    lines = norm.split("\n")
+    if lines and lines[-1] == "":
+        lines = lines[:-1]
+    return lines
+
+
+def _fft00_parse_value(tokens, at):
+    """Decode one printed Q6 value: [ '-' ] <int> '.' d d d -> (thousandths, next)."""
+    sign = 1
+    if tokens[at] == "-":
+        sign = -1
+        at += 1
+    ip = int(tokens[at])
+    assert tokens[at + 1] == ".", tokens[at:at + 4]
+    for d in tokens[at + 2:at + 5]:
+        assert len(d) == 1 and d.isdigit(), tokens[at:at + 5]
+    frac = int("".join(tokens[at + 2:at + 5]))
+    return sign * (ip * 1000 + frac), at + 5
+
+
+def fft00():
+    """FFT-00: the complete normalized console stream (collapse-spaces-v1) of the
+    adapted Rosetta Code FFT -- the 8-point transform of (1,1,1,1,0,0,0,0) in Q6
+    fixed point.  Derived from the declared design by a statement-for-statement
+    mirror of FFT-00.PLI, never captured (L3).  Checked by THREE independent
+    models: the port's final state vs the hand-published Q6 table; the port vs a
+    naive double-precision DFT computed here straight from the definition, within
+    the declared tolerance 0.02 (the Q6 twiddle quantization); and every PRINTED
+    token pair reconstructed back to thousandths and compared with the toward-zero
+    scaling of that same table.  Invariants: the 12-butterfly schedule, the 48
+    digit emissions, the FIXED BIN(15) range of every intermediate (asserted
+    inside the port), the 13-line / 507-byte framing and the <=78-column law."""
+    assert FFT00_N == 8 and FFT00_SCALE == 64
+    port = _Fft00Port().run()
+    assert port.bf_calls == 12, port.bf_calls
+    assert port.digits == 48, port.digits
+    got = [(port.xr[k], port.xi[k]) for k in range(FFT00_N)]
+    # (1) the hand-published Q6 table
+    assert got == FFT00_PUBLISHED, got
+    # (2) the independent naive DFT, within the declared Q6 tolerance
+    dft = _fft00_dft_naive(FFT00_INPUT)
+    worst = 0.0
+    for (q, (r, m)) in zip(dft, got):
+        worst = max(worst, abs(q.real - r / float(FFT00_SCALE)),
+                    abs(q.imag - m / float(FFT00_SCALE)))
+    assert worst <= FFT00_TOL, worst
+    # the DFT itself equals the analytical closed form (fourth check of the
+    # expected VALUES, computed without the port at all)
+    root2 = 2 ** 0.5
+    exact = [complex(4, 0), complex(1, -(1 + root2)), complex(0, 0),
+             complex(1, -(root2 - 1)), complex(0, 0),
+             complex(1, root2 - 1), complex(0, 0), complex(1, 1 + root2)]
+    for (a, b) in zip(dft, exact):
+        assert abs(a - b) < 1e-12, (a, b)
+    # (3) the printed tokens reconstruct to the table's own thousandths
+    lines = _fft00_finalize(port.raw)
+    raw = (port.raw + "\r\n").encode()
+    assert len(raw) == FFT00_RAW_BYTES, len(raw)
+    assert len(lines) == FFT00_LINES, len(lines)
+    assert lines[0] == "", lines[0]                     # first PUT SKIP [C352]
+    assert lines[1] == "FFT-00 COOLEY-TUKEY N=8", lines[1]
+    assert lines[2] == "SCALE 64 INPUT 1,1,1,1,0,0,0,0", lines[2]
+    assert lines[3] == "", lines[3]
+    assert lines[-1] == "" and lines[-2].startswith("X 8 "), lines[-2:]
+    for k in range(FFT00_N):
+        toks = lines[4 + k].split(" ")
+        assert toks[0] == "X" and toks[1] == str(k + 1) and toks[2] == "RE", toks
+        re_v, at = _fft00_parse_value(toks, 3)
+        assert toks[at] == "IM", toks
+        im_v, at = _fft00_parse_value(toks, at + 1)
+        assert at == len(toks), toks
+        assert re_v == _fft00_tdiv(FFT00_PUBLISHED[k][0] * 1000, FFT00_SCALE), toks
+        assert im_v == _fft00_tdiv(FFT00_PUBLISHED[k][1] * 1000, FFT00_SCALE), toks
+    # the digit path must stay inside bin15: rem*1000 is the largest magnitude
+    assert port.max_magnitude <= FFT00_B15_HI, port.max_magnitude
+    # frame law: no emitted line reaches the 79-column PLILIB wrap (PROPOSED)
+    for seg in raw.split(b"\r\n"):
+        assert len(seg) <= 78, (len(seg), seg)
+    return lines
+
+
 DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
@@ -3189,7 +3467,7 @@ DERIVATIONS = {"table00": table00, "table01": table01,
                "dec01": dec01, "flt01": flt01, "edit00": edit00,
                "wkday00": wkday00, "hamm00": hamm00, "hang00": hang00,
                "amaz00": amaz00, "tict00": tict00, "life00": life00,
-               "dhry00": dhry00,
+               "dhry00": dhry00, "fft00": fft00,
                "fx00": fx00, "fx01": fx01}
 
 

@@ -213,6 +213,34 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+## FFT-00 hop 21 LANDED — steps 5+6 DONE (pin + order audit + reference byte-equal vs sim); steps 7-11 OWED (2026-11-03)
+
+DONE this hop (ACTUALS in `LEARNINGS.md` § "…FFT-00 hop 21"): pin `spec/functional/tests/
+FFT-00.PLI` sha `f58e471b…` (3400 B, 122 lines ≤71, CRLF+bare ^Z) compiles rc=0 3456 B
+(code=1476 data=48), .REL byte-identical to the draft; `order_audit.py` GREEN (emission order +
+78-pair statement bijection, hop-19 lesson); `reference.py` gained `_Fft00Port`/`fft00()`/
+`DERIVATIONS["fft00"]`, `derive('fft00')` BYTE-EQUAL vs `fft00_sim.check()` (13 lines, raw 507 B
+sha `87acbf18…`) BEFORE any JSON; gate rc=0 `build/gate-fft00-pin.log`.
+OWED (steps 7-11, exact contract in that LEARNINGS §): (7) `FFT-00.json` VIA SCRIPT with the
+mk_dhry00_json.py gates (re-run sim-vs-derive byte-equality and abort on mismatch; pin sha;
+CRLF/^Z/≤71/apostrophe laws; `link_target FFT00`; `console_input "^Z"`; collapse-spaces-v1;
+capabilities grep-verified ACCEPTS/SUPPORTED in `spec/COVERAGE.tsv` AND present comment-stripped
+in the .PLI — verify `AGG.ELEM_AS_ACTUAL` really occurs before citing it; notes = every removal
+(COMPLEX/CONTROLLED/ALLOCATE/recursion/HBOUND/exp/FIXED/FLOAT(18)/BINARY(31)/REORDER/whole-array
+actual) + the Q6 scale + twiddle 45/64 + the sg-flag gap + the FP00 runtime laws + the `0 - 45`
+pool-mismatch crash witness + the `rem*1000` bin15 bound) → `python3 tools/functional_runner.py
+--stages source,derivation --tests FFT-00`; (8) lane B `python3 tools/functional_runner.py --tests
+FFT-00 --evidence build/fc01/corp10 --json-out build/fc01/corp10/records.json` (+ `--double-run`
+build/fc01/corp10-double if PASS), ACTUALS verbatim, FAIL stays classified never laundered,
+expectation never edited to chase PASS; (9) `docs/functional-results.md` § 15 + § 1 row; (10)
+`python3 tools/e2e_gate.py` → `build/gate-fft00.log`; (11) explicit-path commit (NEVER
+`handoff.config.json`; no push), THEN THE CORPUS-CLOSE RECORD (8 of 8).
+Constraints unchanged: no `ocaml/`/harness byte; ledger ends C352; functional runs NOT DR claims;
+NEVER re-run the retry-DFS; third-party bytes untracked; operator `handoff.config.json`
+untouched/unstaged; no push; renew only at safe boundaries.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 ## FFT-00 hop 20 LANDED — construct audit + FP00 lane-B laws MEASURED; sims 3-way GREEN; DRAFT rc=0; steps 5-11 OWED (2026-11-03; NOTHING tracked authored yet; program 8 of 8 IN FLIGHT)
 
 Read `LEARNINGS.md` § "…FFT-00 hop 20" FIRST — it carries every ACTUAL (12 construct
@@ -1435,17 +1463,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 231
-checkpoint-id: g231-9029ab349216
+checkpoint-generation: 233
+checkpoint-id: g233-7582ff6a0ffb
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-03T20:26:46.689Z
+checkpointed: 2026-11-03T20:54:02.799Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 6c4a305b048fc5abc1a52fdfcc620f8651c7d051962a00b5dfa08fcc146e9439
 source-handoff: 7c8ed5df62a5171fdd87fe63f2646af89a5cb0d1028221e006cf083009008d3d
-source-learnings: bae64303e26c11f9f9670d513b2d71e9e389709cf738783a06a3a528047eacc1
+source-learnings: c0fa5fb94dbebb7aa00e9fbca3076cadb32a1e300b82291f851985b81e44fb2d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
