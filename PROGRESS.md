@@ -213,45 +213,56 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-LIFE-00 STEP 2 IS **IN FLIGHT AND BLOCKED** (2026-11-03, hop 12, renewal 12/12 = CAP; this
-chain CLOSES here — continuing needs an operator renewal reset + a fresh controlled `pi`).
-Read FIRST `LEARNINGS.md` § "…LIFE-00 hop 12"; it carries the ACTUALS and the two
-falsifications. Measured this hop (ignored scratch only, NOTHING tracked authored, no lane run,
-no gate run, no `ocaml/` or harness byte changed): the rewritten
-`build/fc01-scratch/life00_sim.py` counts the CENTRE in the neighbour tally (upstream 530/540
-includes it — the hop-11 model omitted it and was FALSIFIED), uses the real beacon, renders
-dead cells `.` (DECIDED, rationale in that §), prints populations **18,20,18,20,18,20**, agrees
-with an INDEPENDENT unbounded Conway model on all 6 printed generations, and yields raw **4722
-B** / **91 normalized lines**. BLOCKER (unresolved): the new window-margin assertion FAILS —
-`live cell at col 1 (edge) g=0` (the glider's `(4,1)` cell sits on the interior edge; the
-line-for-line BASIC model `build/fc01-scratch/life00_bas.py` independently fires the upstream
-`Y1 < 3` clamp / INVALID! on the same pattern, which is why the port drops the dynamic box).
-EXACT NEXT (successor, after an operator renewal reset): (2b) shift the four declared patterns
-right by 2 columns (PROPOSED coordinates in the LEARNINGS § — glider (2,4),(3,5),(4,3),(4,4),
-(4,5); beacon (2,12),(2,13),(3,12),(4,15),(5,14),(5,15); blinker (8,17),(9,17),(10,17); block
-(10,27),(10,28),(11,27),(11,28)), re-run `python3 build/fc01-scratch/life00_sim.py` and require
-ALL assertions green (independent-model equality on gens 0..5, the gen-6 state inside the
-window, header cs == live, 30-token rows, 91 lines) and RECORD the new raw/line counts — the
-4722/91 numbers above belong to the CURRENT pattern and are superseded by the re-run; (3) LF
-draft mirroring the simulator statement-for-statement — remember `t2 = a(n); if t2 = 1 then s =
-s + 1;` for the centre BEFORE the `= 3`/`= 4` ladder, and the REQUIRED explicit zero-init `do i =
-1 to 448; a(i) = 0; end;` — then CRLF + bare ^Z + <=71 cols + apostrophe-free
-`spec/functional/tests/LIFE-00.PLI`, pin sha256; (4) `reference.py:_Life00Port` + `life00()` +
-`DERIVATIONS`, diff `derive('life00')` vs sim `norm()` BEFORE any JSON (use the measured sep
-blank + 9-wide right-justified numeric, NEVER `_Hamm00Port`'s `%10d`+join); (5) generate
-`LIFE-00.json` VIA SCRIPT (link_target LIFE00, console_input bare ^Z, capabilities
-grep-verified in `spec/COVERAGE.tsv` AND present in the .PLI, notes = INPUT/DONE/B$/LEN/LEFT$/
-RIGHT$/MID$ phase dropped, 24x70 -> 12x30 window, bounded 6 gens, dynamic-box/clamp/INVALID!
-removal, beacon correction and cs=18, centre-count falsification, one-blank pad, TAB banner
-dropped, dead-glyph `.`); (6) `python3 tools/functional_runner.py --stages source,derivation
---tests LIFE-00`; (7) lane B `--evidence build/fc01/corp8 --json-out build/fc01/corp8/records
-.json` (+corp8-double if PASS), ACTUALS verbatim, a FAIL stays classified and is NEVER
-laundered; (8) `docs/functional-results.md` § 13 + § 1 row; (9) `python3 tools/e2e_gate.py`
-compile tier -> `build/gate-life00.log`; (10) explicit-path commit (NEVER
-`handoff.config.json`; no push). Then DHRY-00 (NEVER execute the `.SHAR`) and FFT-00; HAMM-00
-rev2 stays PROPOSED. Constraints: no `ocaml/`/harness byte changed; ledger ends C352; NEVER
-re-run the retry-DFS search; third-party bytes never tracked; operator `handoff.config.json`
-untouched/unstaged; no push.
+LIFE-00 STEP 2 **DONE**, DRAFT (STEP 3) OWED (2026-11-03, hop 12 resumed in-session after the
+finalize — enforcement disabled, renewal still capped 12/12, so RE-FINALIZE at every safe
+boundary). Read FIRST `LEARNINGS.md` § "…LIFE-00 hop 12 step 2b LANDED" (it supersedes the §
+"…LIFE-00 hop 12" above it) and the corrected § "…LIFE-00 implementation hop (continuation chain
+hop 11)". MEASURED, ignored scratch only, nothing tracked authored yet, no lane run, no gate run,
+no `ocaml/`/harness byte changed: `build/fc01-scratch/life00_sim.py` is FINAL and every assertion
+PASSes — the hop-11 neighbour model was FALSIFIED (upstream 530/540 count the 3x3 INCLUDING the
+centre, so the eight-temp sum with the `= 3`/`= 4` ladder killed every cell with exactly two live
+neighbours; the fix is `t2 = a(n); if t2 = 1 then s = s + 1;` before that ladder); the four
+declared patterns are shifted right 2 columns so the window-margin invariant holds (glider
+(2,4),(3,5),(4,3),(4,4),(4,5); beacon (2,12),(2,13),(3,12),(4,15),(5,14),(5,15); block
+(10,27),(10,28),(11,27),(11,28); blinker (8,17),(9,17),(10,17)); populations **18,20,18,20,18,20**
+(declared initial cs **18**); port grids EQUAL an independent unbounded Conway model on all 6
+printed generations; stream ACTUALS raw **4722 B** (4720 pre-exit + one exit CRLF [C352]), **91
+normalized lines** = banner 2 + 3 blanks + 6 x (pad + header + 12 rows) + bottom pad + the
+exit-CRLF blank; headers `GENERATION <g> POPULATION <cs>`; each body row is 30 `.`/`*` positional
+tokens (dead glyph `.` DECIDED, rationale in LEARNINGS). The 18 flat seed indices `n = x*32+y+1`
+are **69, 77, 78, 102, 109, 132, 133, 134, 144, 175, 176, 274, 306, 338, 348, 349, 380, 381**.
+Machine-readable snapshot: `build/fc01-scratch/life00_sim.{json,out}`.
+EXACT NEXT = STEP 3 then 4-10: (3) LF draft mirroring the simulator STATEMENT-FOR-STATEMENT —
+`life00: procedure options(main);`, `declare a(448) fixed bin(15);`, the REQUIRED explicit
+zero-init `do i = 1 to 448; a(i) = 0; end;` (uninitialized static DATA contents are UNMEASURED on
+lane B), the 18 `a(k) = 1;` seeds above, the initial scan loop for cs, banner `put list('LIFE');
+put skip;` + `put list('CREATIVE COMPUTING  MORRISTOWN, NEW JERSEY'); put skip;` x3 `put skip;`,
+then `do g = 0 to 5;` with one `put skip;` pad, the four single-item header PUTs + `put skip;`,
+the print pass (nested `do x = 1 to 12;` / `do y = 1 to 30;`, `n = x * 32 + 1;` then `n = n + 1;`,
+member->scalar `t1 = a(n);`, `v = 0; if t1 = 1 then v = 1; if t1 = 3 then v = 1;`, `call
+cellprint(v);`, finalize `if t1 = 2 then a(n) = 0; if t1 = 3 then a(n) = 1;`, `put skip;` closing
+each row), the evolution pass (eight `nk = n +/- ...` temps + `t2 = a(nk); if t2 = 1 then s = s +
+1; if t2 = 2 then s = s + 1;` ladders PLUS the centre `t2 = a(n); if t2 = 1 then s = s + 1;`, then
+`s = 3` birth -> `a(n) = 3; cs = cs + 1;` and the alive `= 3`/`= 4` survive / die-to-2 ladder),
+`put skip;` bottom pad, `stop;`, and the nested `cellprint: procedure (q)` owning its own
+`character(1) varying` (`if q = 1 then ch = '*'; if q = 0 then ch = '.'; put list(ch);`) — compile
+it in ignored scratch FIRST (`build/fc01-scratch/life00*.pli`, MY compiler, NOT a DR claim; a
+refusal stays classified, never laundered), then convert to CRLF + bare ^Z + <=71 cols +
+apostrophe-free and PIN `spec/functional/tests/LIFE-00.PLI` with its sha256; (4) `reference.py
+:_Life00Port` + `life00()` + `DERIVATIONS` (sep blank + `%9d` numeric, NEVER `_Hamm00Port`'s
+`%10d`+join), diff `derive('life00')` vs sim `norm()` BEFORE any JSON; (5) `LIFE-00.json` VIA
+SCRIPT (link_target LIFE00, console_input bare ^Z, capabilities grep-verified in
+`spec/COVERAGE.tsv` AND present in the .PLI, full notes incl. the centre-count correction, the
+2-column shift, the dynamic-box/clamp/INVALID! removal, dead glyph `.`); (6) `python3
+tools/functional_runner.py --stages source,derivation --tests LIFE-00`; (7) lane B `--evidence
+build/fc01/corp8 --json-out build/fc01/corp8/records.json` (+corp8-double if PASS), ACTUALS
+verbatim, a FAIL stays classified `my-gap`/`dr-refuses`/`unmeasured` and is NEVER laundered; (8)
+`docs/functional-results.md` § 13 + § 1 row; (9) `python3 tools/e2e_gate.py` compile tier ->
+`build/gate-life00.log`; (10) explicit-path commit (NEVER `handoff.config.json`; no push). Reusable
+scratch lane-B runner: `build/fc01-scratch/run_bigarray_probe.py`. Then DHRY-00 (NEVER execute
+the `.SHAR`) and FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: ledger ends C352; NEVER re-run
+the retry-DFS search; third-party bytes never tracked; operator `handoff.config.json`
+untouched/unstaged; no push; RE-FINALIZE the handoff at each safe boundary (cap 12/12).
 
 SUPERSEDED-BY-ABOVE (kept as written):
 

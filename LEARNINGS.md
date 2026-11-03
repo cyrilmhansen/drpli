@@ -3979,3 +3979,46 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   third-party bytes never tracked; operator `handoff.config.json` untouched/unstaged; no push.
   Renewal 12/12 = CONFIGURED CAP: the successor needs an OPERATOR reset to continue, so this
   chain closes with `handoff_finalize`.
+
+## 2026-11-03 — FC-01 CORPUS LIFE-00 hop 12 step 2b LANDED (same session, resumed after the finalize; enforcement off, renewal still capped): window-margin blocker RESOLVED, simulator fully green
+
+- RESOLVED (the blocker recorded minutes earlier in this session): all four declared patterns are
+  shifted **right by 2 columns** in `build/fc01-scratch/life00_sim.py`, because the un-shifted
+  glider cell `(4,1)` sat on the interior edge `y=1` of the declared 12x30 window (and upstream's
+  own 301..307 clamp fires `Y1 < 3` / `INVALID!` on that pattern). Shifted coordinates (row,col),
+  shapes/periods/cell counts UNCHANGED: glider (2,4),(3,5),(4,3),(4,4),(4,5); beacon
+  (2,12),(2,13),(3,12),(4,15),(5,14),(5,15); block (10,27),(10,28),(11,27),(11,28); blinker
+  (8,17),(9,17),(10,17).
+- MEASURED ACTUALS of the FINAL simulator (ignored scratch; MY model, NOT DR claims; ledger ends
+  C352): raw **4722 B** (4720 pre-exit + the single exit CRLF [C352]), **91 normalized lines**
+  (= banner 2 + 3 blanks + 6 x (pad + header + 12 rows) + bottom pad + the exit-CRLF blank),
+  initial scan population **18**, printed header populations **18,20,18,20,18,20** (beacon flicker
+  6 -> 8 -> 6 on top of glider 5 + block 4 + blinker 3). EVERY assertion now PASSes: header `cs`
+  == print-pass live count on all 6 generations; port grid == an INDEPENDENT unbounded
+  simultaneous Conway model on all 6 printed generations; window margin (no live cell on
+  x=1/12 or y=1/30 and the never-printed gen-6 state still inside the window); block 4 stable /
+  glider 5 / blinker 3 / beacon 6-or-8; stream structure (6 header lines of the form
+  `GENERATION <g> POPULATION <cs>`, every body row 30 `.`/`*` positional tokens, stars == cs);
+  line-count identity `5 + 6*(2+12) + 2 = 91`; last line blank (exit CRLF).
+  First two rows render `. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .` (30 tokens).
+- ACCEPTED for the draft — the eight flat SEED indices `n = x*32 + y + 1` (1-based, interior
+  12x30, stride 32, a(448)): **69, 77, 78, 102, 109, 132, 133, 134, 144, 175, 176, 274, 306, 338,
+  348, 349, 380, 381** (18 stores of 1; verified by the simulator's own `flat seed indices` line).
+  The draft sets them as `a(k) = 1;` after the REQUIRED explicit zero-init loop `do i = 1 to 448;
+  a(i) = 0; end;`.
+- Machine-readable expectation snapshot (ignored): `build/fc01-scratch/life00_sim.json` (raw
+  bytes, the 91 normalized lines, the pops, the per-generation live-cell sets) +
+  `build/fc01-scratch/life00_sim.out` (the same 91 lines as text). `reference.py:_Life00Port`
+  must be diffed against THIS stream before any JSON is written.
+- OWED (steps 3-10, unchanged): LF draft mirroring the simulator statement-for-statement (centre
+  added to the tally with `t2 = a(n); if t2 = 1 then s = s + 1;` BEFORE the `= 3`/`= 4` ladder;
+  dead glyph `.`; `fixed bin(15)` numerics in the 9-wide field) -> pin `spec/functional/tests/
+  LIFE-00.PLI` (CRLF + bare ^Z, <=71 cols, apostrophe-free, sha256) -> `reference.py
+  _Life00Port`/`life00()`+`DERIVATIONS` diffed vs sim `norm()` -> `LIFE-00.json` VIA SCRIPT ->
+  `--stages source,derivation` -> lane B `build/fc01/corp8` (+double if PASS) -> docs § 13 + § 1
+  -> compile-tier gate `build/gate-life00.log` -> explicit-path commit. Then DHRY-00 (NEVER
+  execute the `.SHAR`) and FFT-00.
+- Constraints unchanged: no `ocaml/` or harness byte changed; nothing laundered; third-party bytes
+  never tracked; operator `handoff.config.json` untouched/unstaged; no push; NEVER re-run the
+  retry-DFS search; renewal cap 12/12 reached — this session continues only because enforcement
+  is disabled and the operator said "resume", so a re-finalize is required at every safe boundary.

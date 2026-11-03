@@ -122,32 +122,40 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## LIFE-00 hop 12 CLOSED AT CHAIN CAP — simulator FALSIFIED + REWRITTEN, step 2 BLOCKED on the window margin (2026-11-03, renewal 12/12; NOTHING tracked authored; no lane/gate run; no renewal without an operator reset)
+## LIFE-00 hop 12 — simulator FALSIFIED + REWRITTEN, step 2 **DONE** after the in-session resume; draft (step 3) OWED (2026-11-03, renewal 12/12 = CAP; NOTHING tracked authored; no lane/gate run)
 
-Read `LEARNINGS.md` § "…LIFE-00 hop 12" FIRST — it carries the ACTUALS. Measured (ignored
-scratch `build/fc01-scratch/life00_sim.py` + the new line-for-line `life00_bas.py`, MY work, NOT
-DR claims, ledger ends C352): (a) **FALSIFIED the hop-11 neighbour model** — upstream LIFE counts
-the 3x3 block INCLUDING the centre (530/540 have no self-exclusion), so the hop-11 eight-temp
-sum with the `= 3`/`= 4` ladder killed every cell with exactly two live neighbours (pops
-18,12,8,9,7,6); with the centre added the printed sequence is **18,20,18,20,18,20**, the block /
-glider / blinker / beacon invariants hold, the beacon flickers 6→8→6, and the port grids EQUAL an
-independent unbounded Conway model on all 6 printed generations. Raw **4722 B**, **91 normalized
-lines** for the CURRENT pattern. (b) Also falsified my own first cross-check model (a `Counter`
-tally that counted the centre is not Conway — it destroyed a 2x2 block). (c) **DECIDED** the open
-hop-11 question: dead cells render `.` — `collapse-spaces-v1` erases all column information from
-a blank background, `.` keeps 30 positional tokens per row (AMAZ-00 precedent); document as a
-cosmetic divergence in the JSON notes. (d) **BLOCKER, unresolved:** the new window-margin
-assertion fails — `live cell at col 1 (edge) g=0`; the glider's `(4,1)` cell sits on the interior
-edge and the line-for-line BASIC model independently fires upstream's `Y1 < 3` clamp / `INVALID!`
-on the same pattern (that machinery, plus the dynamic box, is a declared port removal). PROPOSED
-fix (NOT applied, NOT adopted): shift all four patterns right 2 columns and re-run until every
-assertion is green, RECORDING the new raw/line counts, before pinning anything. Steps 3-10 are
-unchanged in `PROGRESS.md` → `## Next action`, prefixed by step 2b. **Renewal is at the
-configured cap (12/12) and the gate refuses**, so this chain ends here: resuming needs an
-operator `renewal.maxRenewals` raise or an ignored `.pi-guard/renewal-state.json` reset plus a
-fresh controlled `pi` launch. No `ocaml/` or harness byte changed; nothing laundered; third-party
-bytes never tracked; operator `handoff.config.json` untouched/unstaged; no push; NEVER re-run the
-retry-DFS search.
+Read `LEARNINGS.md` § "…LIFE-00 hop 12 step 2b LANDED" FIRST (it supersedes the hop-12 blocker §
+below it). Measured in ignored scratch (`build/fc01-scratch/life00_sim.py`, `life00_bas.py`; MY
+models, NOT DR claims; ledger ends C352): (a) **FALSIFIED the hop-11 neighbour model** — upstream
+LIFE 530/540 count the 3x3 block **INCLUDING the centre**, so the eight-temp sum combined with the
+`= 3`/`= 4` ladder killed every live cell with exactly two live neighbours (the printed pops
+18,12,8,9,7,6 were a MODEL bug); the corrected port adds `t2 = a(n); if t2 = 1 then s = s + 1;`
+before that ladder and now prints **18,20,18,20,18,20**, EQUALS an independent unbounded Conway
+model on all 6 printed generations, and every structural assertion PASSes. My own first
+cross-check model was falsified too (a Counter tally that includes the centre is not Conway — it
+destroyed a 2x2 block). (b) **Blocker RESOLVED at step 2b:** all four patterns shifted right 2
+columns (glider (2,4),(3,5),(4,3),(4,4),(4,5); beacon (2,12),(2,13),(3,12),(4,15),(5,14),(5,15);
+block (10,27),(10,28),(11,27),(11,28); blinker (8,17),(9,17),(10,17)) so the window-margin
+invariant holds — the un-shifted glider `(4,1)` sat on the interior edge and upstream's own 301..307
+clamp fires `Y1 < 3` / `INVALID!` there, which is why the port drops the dynamic box (the
+line-for-line `life00_bas.py` measures that). (c) Stream ACTUALS: raw **4722 B** (4720 pre-exit +
+one exit CRLF [C352]), **91 normalized lines** (banner 2 + 3 blanks + 6 x (pad + header + 12 rows)
++ bottom pad + exit blank), header `GENERATION <g> POPULATION <cs>`, 30 `.`/`*` positional tokens
+per row; the **18 flat seed indices** `n = x*32+y+1` are 69, 77, 78, 102, 109, 132, 133, 134, 144,
+175, 176, 274, 306, 338, 348, 349, 380, 381. (d) **DECIDED:** dead cells render `.` —
+`collapse-spaces-v1` erases all column information from a blank background (AMAZ-00 precedent).
+**NEXT = step 3** (the LF draft, statement-for-statement, scratch-compile first, REQUIRED explicit
+zero-init `do i = 1 to 448; a(i) = 0; end;`) then steps 4-10 exactly as spelled out in
+`PROGRESS.md` → `## Next action`; then DHRY-00 (**NEVER execute the `.SHAR`**) and FFT-00.
+Renewal is capped (12/12) and the gate refuses; this session continues only because enforcement is
+disabled and the operator said "resume" — so **re-finalize at every safe boundary** and a fresh
+successor still needs an operator `renewal.maxRenewals` raise or `.pi-guard/renewal-state.json`
+reset. No `ocaml/` or harness byte changed; nothing laundered; third-party bytes never tracked;
+operator `handoff.config.json` untouched/unstaged; no push; NEVER re-run the retry-DFS search.
+
+### Superseded within hop 12 (kept as written, PROTOCOL #2)
+
+# ## LIFE-00 hop 12 CLOSED AT CHAIN CAP — simulator FALSIFIED + REWRITTEN, step 2 BLOCKED on the window margin (2026-11-03, renewal 12/12; NOTHING tracked authored; no lane/gate run; no renewal without an operator reset)
 
 ## Superseded: LIFE-00 implementation hop IN FLIGHT — shapes pre-compiled, simulator written, 3 falsifications (2026-11-03, continuation chain hop 11; steps 1-2 only; NOTHING tracked authored; closed at context exhaustion)
 
