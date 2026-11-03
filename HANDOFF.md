@@ -1034,25 +1034,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 237
-checkpoint-id: g237-49f5cf3c6f98
+checkpoint-generation: 238
+checkpoint-id: g238-c5ee214684d2
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~631, session 01a1a383-65db-7402-832b-2ae74c8fc6f9)
-checkpointed: 2026-11-03T22:50:41.225Z
+status: checkpoint (guard level 2, remaining ~8579, session 01a1a39b-e7d1-7402-832b-2aea890d3265)
+checkpointed: 2026-11-03T23:18:05.570Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c1e1917a576b1a86cbd8d1a7130b82e941210b9bd7459ca18fcf887f591db349
-source-handoff: 8cc8e62e8f3a9df7ba54175f61dbae508dddaa35608ac9ca9b762fc2ae901b4b
-source-learnings: b6065b6296aadc7f9084cb5df6c430a2228c169484c152439330738a4c9bf519
+source-progress: 84facc1dec37805d7d192655642a6d85c71fff2b8084341ab52b57cda8ddb315
+source-handoff: 7881186a7b9c37f312ba663b3ada8ba6ed97dc6808bf96de1b2de4a8c8c65646
+source-learnings: bcb93b2a855099f450c1ca3fcf3f699d3b7155d0a96c531fec2b0b5ca2a72058
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a383-65db-7402-832b-2ae74c8fc6f9
-readiness-at: 2026-11-03T22:50:41.237Z
-readiness-checkpoint: g237-49f5cf3c6f98
+readiness-by: session:01a1a39b-e7d1-7402-832b-2aea890d3265
+readiness-at: 2026-11-03T23:18:05.582Z
+readiness-checkpoint: g238-c5ee214684d2
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1082,5 +1082,5 @@ guard level 4; checkpoint requested (renewal tool refresh)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-E2E-51/P1: pre-registration committed (9bac977), handoff prose committed (0cd010b). NEXT: run the ONE grouped oracle batch exactly as written in HANDOFF.md ## ACTIVE ROUND (PLI_SRC=probes timeout 900 python3 oracle/batch.py E51A..E51L --tag e51p1 --switches '$L$D'), then RESULTS.md+classification, commit goldens+results together, implement arms only per evidence, gate, claims from C353, HAMM-00 rev1 rerun if covered. After P1 STOP. Never touch operator handoff.config.json; no push.
+E2E-51/P1 hop 3: oracle round COMPLETE and committed (goldens+RESULTS together at b404b7e, prose at 3e2328e). NEXT: implement arm 1 exactly as written in HANDOFF.md ## ACTIVE ROUND and LEARNINGS.md § "E2E-51/P1 hop 2" — Div parking arm in ocaml/lib/codegen.ml ~line 5010 (MOD-shape PUSH/POP park + E51K 1-byte interleave; unmeasured operand classes stay refused), dune build, compile all 12 probes/E51*.PLI, cmp each whole-file vs golden/e51p1/<n>/<n>.REL; only mismatching lines earn consumer arms (E51G right-first-XCHG decided EMPIRICALLY; H, I consumers). Each arm alone + regression sweep + full gate; claims from C353 (RESULTS §2 only); SPECIMENS+--update-inventory, census, COVERAGE, INVENTORY; HAMM-00 rev1 rerun UNEDITED if byte-covered. STOP after P1. Never touch operator handoff.config.json; no push.
 <!-- guard:end checkpoint -->
