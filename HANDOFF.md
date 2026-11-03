@@ -771,25 +771,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 207
-checkpoint-id: g207-0d2be497ac0d
+checkpoint-generation: 208
+checkpoint-id: g208-856c5226f99a
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-3067, session 01a1a16f-7f15-7601-8f9d-90e5dad3acd6)
-checkpointed: 2026-11-03T13:23:46.500Z
+status: checkpoint (guard level 4, remaining ~-16705, session 01a1a16f-7f15-7601-8f9d-90e5dad3acd6)
+checkpointed: 2026-11-03T15:53:57.594Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9b641598cb4871bfb76cb825b657e9c149a67e6d72fcef33dfbacd86ae9a3fd6
-source-handoff: 0449c45552329f45100454e3c1f50c9e73977d7a34b0d8f77591be528d5c395e
-source-learnings: 355f17f6b11855a1e7fc4d1609da07cd610b352c08e6c26196ff273bd9baa03f
+source-progress: 1e9cc942a6bea7faede3bc1d3ea9eadf2bebf8aeb62a35f343f59000904a26e8
+source-handoff: 95ffbafc67d48866f8d9683f75b4b810b07584e2e393e2439cd81b1cb750ba43
+source-learnings: 94035b83a72882a42130c40c6fd0d82bde18bcb320565b38943e90310e37ea95
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1a16f-7f15-7601-8f9d-90e5dad3acd6
-readiness-at: 2026-11-03T13:23:46.510Z
-readiness-checkpoint: g207-0d2be497ac0d
+readiness-at: 2026-11-03T15:53:57.608Z
+readiness-checkpoint: g208-856c5226f99a
 ### Last verified state
-guard level 4; checkpoint requested (finalize: Chain closed at the configured renewal cap (12/12). Durable state: HEAD ffb5ed9 (LEARNINGS/PROGRESS/HANDOFF carry the LIFE-00 hop-12 record: hop-11 neighbour-count model FALSIFIED — upstream LIFE counts the 3x3 INCLUDING the centre; rewritten build/fc01-scratch/life00_sim.py now gives pops 18,20,18,20,18,20, equals an independent unbounded Conway model on all 6 printed generations, raw 4722 B / 91 normalized lines; dead glyph DECIDED '.'; NEW line-for-line life00_bas.py measures why the dynamic box + clamps are dropped). OPEN BLOCKER for the successor (needs an OPERATOR renewal reset + fresh controlled pi): the window-margin assertion fails (live cell at col 1 (edge) g=0 — the glider (4,1) sits on the interior edge of the declared 12x30 window); step 2b = shift all four patterns right 2 columns, re-run the simulator until every assertion is green and record the NEW raw/line counts, then steps 3-10 (draft -> pin LIFE-00.PLI -> reference diff before the JSON -> JSON via script -> source,derivation -> lane B build/fc01/corp8 -> docs § 13 + § 1 -> gate build/gate-life00.log -> explicit-path commit). Never handoff.config.json (operator edit stays unstaged), no push, no ocaml/harness changes, ledger ends C352, NEVER re-run the retry-DFS search.)
+guard level 4; checkpoint requested (finalize: LIFE-00 step 2 CLOSED (window-margin blocker resolved: patterns shifted right 2 columns; life00_sim.py final, all assertions PASS — raw 4722 B, 91 normalized lines, pops 18/20/18/20/18/20, cs 18, seed indices 69,77,78,102,109,132,133,134,144,175,176,274,306,338,348,349,380,381; dead glyph '.' decided). Durable state at 52b7439. NEXT (successor, after an operator renewal reset — cap 12/12 reached): step 3 = LF draft mirroring the simulator statement-for-statement (explicit zero-init do i = 1 to 448; centre added to the neighbour tally BEFORE the = 3/= 4 ladder; nested cellprint with '.'/'*'), scratch-compile with MY compiler, then pin spec/functional/tests/LIFE-00.PLI (CRLF+bare ^Z, ≤71, apostrophe-free, sha256), steps 4-10 in PROGRESS → Next action (reference.py diffed vs sim norm() BEFORE the JSON; LIFE-00.json via script; --stages source,derivation; lane B build/fc01/corp8 +double; docs § 13 + § 1; compile-tier gate → build/gate-life00.log; explicit-path commit). Never handoff.config.json, no push, no ocaml/harness changes, ledger ends C352, NEVER re-run the retry-DFS search.)
 
 ### Unfinished operations
 - (none recorded)
@@ -819,5 +819,5 @@ guard level 4; checkpoint requested (finalize: Chain closed at the configured re
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-Chain closed at the configured renewal cap (12/12). Durable state: HEAD ffb5ed9 (LEARNINGS/PROGRESS/HANDOFF carry the LIFE-00 hop-12 record: hop-11 neighbour-count model FALSIFIED — upstream LIFE counts the 3x3 INCLUDING the centre; rewritten build/fc01-scratch/life00_sim.py now gives pops 18,20,18,20,18,20, equals an independent unbounded Conway model on all 6 printed generations, raw 4722 B / 91 normalized lines; dead glyph DECIDED '.'; NEW line-for-line life00_bas.py measures why the dynamic box + clamps are dropped). OPEN BLOCKER for the successor (needs an OPERATOR renewal reset + fresh controlled pi): the window-margin assertion fails (live cell at col 1 (edge) g=0 — the glider (4,1) sits on the interior edge of the declared 12x30 window); step 2b = shift all four patterns right 2 columns, re-run the simulator until every assertion is green and record the NEW raw/line counts, then steps 3-10 (draft -> pin LIFE-00.PLI -> reference diff before the JSON -> JSON via script -> source,derivation -> lane B build/fc01/corp8 -> docs § 13 + § 1 -> gate build/gate-life00.log -> explicit-path commit). Never handoff.config.json (operator edit stays unstaged), no push, no ocaml/harness changes, ledger ends C352, NEVER re-run the retry-DFS search.
+LIFE-00 step 2 CLOSED (window-margin blocker resolved: patterns shifted right 2 columns; life00_sim.py final, all assertions PASS — raw 4722 B, 91 normalized lines, pops 18/20/18/20/18/20, cs 18, seed indices 69,77,78,102,109,132,133,134,144,175,176,274,306,338,348,349,380,381; dead glyph '.' decided). Durable state at 52b7439. NEXT (successor, after an operator renewal reset — cap 12/12 reached): step 3 = LF draft mirroring the simulator statement-for-statement (explicit zero-init do i = 1 to 448; centre added to the neighbour tally BEFORE the = 3/= 4 ladder; nested cellprint with '.'/'*'), scratch-compile with MY compiler, then pin spec/functional/tests/LIFE-00.PLI (CRLF+bare ^Z, ≤71, apostrophe-free, sha256), steps 4-10 in PROGRESS → Next action (reference.py diffed vs sim norm() BEFORE the JSON; LIFE-00.json via script; --stages source,derivation; lane B build/fc01/corp8 +double; docs § 13 + § 1; compile-tier gate → build/gate-life00.log; explicit-path commit). Never handoff.config.json, no push, no ocaml/harness changes, ledger ends C352, NEVER re-run the retry-DFS search.
 <!-- guard:end checkpoint -->
