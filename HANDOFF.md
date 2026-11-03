@@ -805,13 +805,13 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 209
-checkpoint-id: g209-94a2077d9427
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 210
+checkpoint-id: g210-3c5c3eda9b41
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 2, remaining ~8222, session 01a1a24b-0eaa-7145-a841-b68999ebe2c6)
-checkpointed: 2026-11-03T17:06:40.599Z
+status: checkpoint (guard level 3, remaining ~6738, session 01a1a24b-0eaa-7145-a841-b68999ebe2c6)
+checkpointed: 2026-11-03T17:06:50.303Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 316d6cddbd80089ba9d8c5e8129d3d9f7a4c775597989c78771c1fd6b409218a
 source-handoff: a0c684162fd63d7697d30ba0f0784d791a4ec67e4b60a7efdababb28137ad43c
@@ -820,10 +820,10 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1a24b-0eaa-7145-a841-b68999ebe2c6
-readiness-at: 2026-11-03T17:06:40.610Z
-readiness-checkpoint: g209-94a2077d9427
+readiness-at: 2026-11-03T17:07:05.000Z
+readiness-checkpoint: g210-3c5c3eda9b41
 ### Last verified state
-guard level 2; checkpoint requested (finalize: LIFE-00 rev1 LANDED lane-B PASS (hop 13, commit 128a132): pinned LIFE-00.PLI sha fa4ab8cf…, derivation byte-equal vs simulator (91 lines, raw 4722 B), JSON via script (10 double-verified caps), corp8 PASS first run + corp8-double byte-equal, gate rc=0 1174/0. NEXT = DHRY-00 (NEVER execute the .SHAR; exact steps 1-11 in PROGRESS Next action; evidence corp9, docs § 14), then FFT-00. Renewal capped 12/12, enforcement disabled per operator — re-finalize at every safe boundary; fresh successor needs operator reset. handoff.config.json stays unstaged; no push.)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

@@ -1219,13 +1219,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 209
-checkpoint-id: g209-94a2077d9427
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 210
+checkpoint-id: g210-3c5c3eda9b41
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-guard-level: 2
-checkpointed: 2026-11-03T17:06:40.599Z
+guard-level: 3
+checkpointed: 2026-11-03T17:06:50.303Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 316d6cddbd80089ba9d8c5e8129d3d9f7a4c775597989c78771c1fd6b409218a
 source-handoff: a0c684162fd63d7697d30ba0f0784d791a4ec67e4b60a7efdababb28137ad43c
@@ -1254,8 +1254,8 @@ next-action: ` below. TABLE-00 and
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 readiness-by: session:01a1a24b-0eaa-7145-a841-b68999ebe2c6
-readiness-at: 2026-11-03T17:06:40.610Z
-readiness-checkpoint: g209-94a2077d9427
+readiness-at: 2026-11-03T17:07:05.000Z
+readiness-checkpoint: g210-3c5c3eda9b41
 <!-- guard:end checkpoint -->
 
 ## Blockers
