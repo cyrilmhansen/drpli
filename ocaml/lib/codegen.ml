@@ -4995,8 +4995,34 @@ let rec lower_hl st (e : Ast.expr) =
       end;
       call_ext st "?IM22N"
   | Ast.Ebinary (Ast.Div, l, r) ->
-      (* DIV by CONSTANT only [P071B/P080A]: zero-extend const into HL via
-         MVI A/PUSH/POP idiom, DE=lhs. DIV by variable = no golden -> reject.*)
+      (* DIV by CONSTANT [P071B/P080A]: zero-extend const into HL via
+         MVI A/PUSH/POP idiom, DE=lhs.  E51L re-pinned this path whole-file
+         (RESULTS 2.3: the two forms coexist; nothing here changes it).
+
+         [E2E-51/P1] VARIABLE divisor -- the measured DIV parking law
+         (spec/lab-evidence/e2e51-p1/RESULTS.md 2.1, goldens golden/e51p1):
+         evaluate the DIVIDEND into HL, `E5' (PUSH H), evaluate the DIVISOR
+         into HL, `D1' (POP D), `CD ?ID22N' -- the [C089] variable-divisor
+         MOD parking shape with the quotient helper (ABI `id22n DE,HL -> HL',
+         spec/notes/plilib-entrypoints.txt).  The dividend slot is evidenced
+         for a var load [E51A], an `LXI H,const' literal [E51B -- primary
+         H-B-de FALSIFIED: a literal dividend takes the PARKED slot, DR never
+         loads it into DE directly], a compound sum built first in HL
+         [E51C], a chained quotient (the first DIV's HL result is itself
+         PUSH-parked, ONE store) [E51E] and a unary-minus result -- `?IN20N'
+         runs BEFORE the park, negate-then-park, no fusion [E51J].  A
+         COMPOUND divisor is evaluated inside the parked region [E51D].  A
+         1-byte binary divisor takes the [C079]/[N303] interleave -- raw LDA,
+         PUSH H, sign-extend ladder, POP D -- verbatim from MUL [E51K].
+         Unmeasured operand classes stay refused BY NAME: a procedure call or
+         array element as the DIVISOR (no DIV witness; a call additionally
+         orders its anonymous-cell records before the surrounding code, the
+         C142-class problem the ADD/SUB arms still carry); deref, based or
+         qualified operands on either side -- MUL's deref-left LXI-D
+         exception [E2E-9 R2036] has NO DIV counterpart since E51B falsified
+         literal-in-DE, and no DIV object parks a ladder-produced value.
+         DEC/FLOAT identifiers refuse inside the generic Eident load [C161];
+         pure DEC trees never reach this arm (the store dispatch claims them). *)
       (match r.Ast.e with
        | Ast.Enumber c ->
            let n =
@@ -5007,7 +5033,42 @@ let rec lower_hl st (e : Ast.expr) =
            d st op_mvi_a; d st (n land 0xff);
            d st op_push_h; d st op_mov_l_a; d st op_add_a; d st op_sbb_a;
            d st op_mov_h_a; d st op_pop_d; call_ext st "?ID22N"
-       | _ -> failwith "codegen: DIV by non-constant [TBD]")
+       | Ast.Esuffix _ ->
+           failwith
+             ("codegen: DIV whose DIVISOR is a procedure call or array element \
+              unproven [TBD] (E2E-51/P1 measured no call/element operand in \
+              either DIV slot [golden/e51p1]; refusing, not guessing)")
+       | _ ->
+           if hl_operand_deref st l || hl_operand_deref st r
+              || writes_de st l || writes_de st r then
+             failwith
+               ("codegen: DIV with a pointer-deref, based or qualified operand \
+                unproven [TBD] (E2E-51/P1's bank is plain cells, literals, \
+                sums, negations and chained quotients only -- no ladder \
+                operand is evidenced in a DIV slot)");
+           lower_hl st l;
+           (match r.Ast.e with
+            | Ast.Eident rn ->
+                let rvi =
+                  List.assoc (String.lowercase_ascii rn.Ast.orig) st.vars
+                in
+                if rvi.vk = Vint && rvi.size = 1 then begin
+                  (* [E51K] the [N303] 1-byte interleave transfers MUL -> DIV \
+                     unchanged: raw LDA, PUSH H, ladder, POP D. *)
+                  d st 0x3a; reloc st Data (rvi.off + st.base);
+                  d st op_push_h;
+                  d st op_mov_l_a; d st op_add_a; d st op_sbb_a;
+                  d st op_mov_h_a;
+                  d st op_pop_d
+                end else begin
+                  d st op_push_h; lower_hl st r; d st op_pop_d
+                end
+            | _ -> d st op_push_h; lower_hl st r; d st op_pop_d);
+           call_ext st "?ID22N";
+           (* mirror the MOD/Eprefix helper-call bookkeeping: the quotient is
+              a runtime value, not a const -- E51B shows even a LITERAL
+              dividend arrives through the stack here *)
+           st.last_imm <- None)
   | Ast.Ebinary (Ast.Exp, l, r) ->
       (* EXPONENTIATION has two DISTINCT DR lowerings (probes e2eexp):
          - VARIABLE base:  a ** n => LHLD a; MVI A,n; CALL ?IEXOP [G102]
