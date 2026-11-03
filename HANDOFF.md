@@ -985,22 +985,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 233
-checkpoint-id: g233-7582ff6a0ffb
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4922, session 01a1a318-3f3c-7145-a841-b6a95231f1b1)
-checkpointed: 2026-11-03T20:54:02.799Z
+checkpoint-generation: 234
+checkpoint-id: g234-2b62ed1594f2
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1006, session 01a1a318-3f3c-7145-a841-b6a95231f1b1)
+checkpointed: 2026-11-03T20:55:15.078Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 6c4a305b048fc5abc1a52fdfcc620f8651c7d051962a00b5dfa08fcc146e9439
-source-handoff: 7c8ed5df62a5171fdd87fe63f2646af89a5cb0d1028221e006cf083009008d3d
+source-progress: 094ded800c38defad5f5d83090afc672aac11d65ee460504a8d4418ad07661fc
+source-handoff: cf91aae1576b30963a8cc9260d2af2506a21abfe8f09fc40e182900379a726e5
 source-learnings: c0fa5fb94dbebb7aa00e9fbca3076cadb32a1e300b82291f851985b81e44fb2d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a318-3f3c-7145-a841-b6a95231f1b1
+readiness-at: 2026-11-03T20:55:15.090Z
+readiness-checkpoint: g234-2b62ed1594f2
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1030,5 +1033,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-DHRY-00 rev1 LANDED (program 7 of 8, lane-B PASS; docs § 14; gate rc=0 build/gate-dhry00.log). Next = FFT-00 (program 8/8): start at PROGRESS.md Next action → "DHRY-00 rev1 LANDED"; exact 11-step contract in LEARNINGS.md § "…DHRY-00 hop 19" EXACT NEXT bullet (sha-verify + read pli/FFT-reference.pli whole; FIRST audit every construct vs the measured subset — modern Rosetta PL/I is NOT assumed to compile on PL/I-80 v1.4; simulator + INDEPENDENT naive-DFT cross-check; draft → pin → pin-vs-sim ORDER audit (hop-19 lesson) → reference.py:fft00 diffed BYTE-EQUAL vs sim BEFORE JSON → FFT-00.json VIA SCRIPT → --stages source,derivation → lane B build/fc01/corp10 (+double if PASS) → docs § 15 + § 1 row → gate build/gate-fft00.log → explicit-path commit; then the corpus-close record 8/8). Constraints: no ocaml/harness byte; ledger ends C352; functional runs NOT DR claims; FAILs stay classified never laundered (corp9 rev0 FAIL kept as written); NEVER re-run retry-DFS; third-party bytes untracked; operator handoff.config.json untouched/unstaged; no push. Pin sha fc6695cd087aacf3…; compiler edce9e0e…; HEAD bcd2c02 clean.
+FFT-00 hop 21 committed at 9c9dd38 (pin f58e471b…, order audit GREEN, derive('fft00') byte-equal vs fft00_sim 13 lines/507 B sha 87acbf18…; gate rc=0 build/gate-fft00-pin.log). START HERE: LEARNINGS.md § "…FFT-00 hop 21" steps 7-11 — FFT-00.json VIA SCRIPT (mk_dhry00_json.py gates; link FFT00, console_input bare ^Z, capabilities grep-verified BOTH ways — verify AGG.ELEM_AS_ACTUAL really occurs before citing), --stages source,derivation, lane B build/fc01/corp10 (+double if PASS), docs § 15 + § 1, gate build/gate-fft00.log, explicit-path commit, then corpus-close 8/8. Compiler edce9e0e…; ledger ends C352; no ocaml/harness byte; FAILs never laundered; never re-run retry-DFS; operator handoff.config.json unstaged; no push.
 <!-- guard:end checkpoint -->
