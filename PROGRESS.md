@@ -213,6 +213,39 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+## E2E-51/P1 ARMS 1+2 LANDED AND GATED (11/12 goldens byte-exact); ARM 3 (E51I TEST) + REGISTRATION OWED (2026-11-04; HEAD `7d17b63`; compiler rebuilt with both arms)
+
+DONE this session: **arm 1 `4ff1ea5`** (Div parking in `ocaml/lib/codegen.ml`:
+`lower_hl l / PUSH H / lower_hl r / POP D / CD ?ID22N`, E51K N303 1-byte interleave,
+`last_imm` cleared; unmeasured classes — Esuffix divisor, deref/based/qualified —
+refused BY NAME) made E51A,B,C,D,E,F,H,J,K,L **10/12 whole-file BYTE-EXACT ALONE**;
+**arm 2 `7d17b63`** (E51G ADD right-first+XCHG consumer, keyed exactly on the measured
+shape via `is_var_divisor_div`) made it **11/12**. FULL gate rc=0 at EACH arm alone
+(`build/gate-e51p1-arm1.log`, `build/gate-e51p1-arm2.log`: 1174/0, 181/181, 9/9,
+133 rows 0/0, census 15/0/26/0, prose 5). E51H needed NO consumer arm (existing PUT
+route already byte-exact — empirical resolution, kept as recorded).
+OWED NOW, in order:
+(1) **arm 3 = E51I TEST consumer**: the refusal is verbatim `condition form not in
+E2E-3b subset [TBD]: (= (/ a b) c)`; golden tail after `<div>` is `E5 / 2A r4 / D1 /
+CD ?IS22N / 7C / B5 / C2 <fwd> / 21 01 00 / 22 r6` + fixup triple `SET-LC 001C /
+RELOC code 0x24 / SET-LC 0024` (CODE 0027) — JNZ `C2` = [C089] polarity, the CA
+prediction was FALSIFIED at the oracle. Admit ONLY `Eq` with a measured-class
+variable-divisor-DIV left and plain-variable right; reuse the park/IS22N/zero-test/
+emit_triple machinery; everything else keeps refusing. Build, sweep all 12 probes
+(12/12 byte-exact expected), FULL gate rc=0, commit ALONE.
+(2) **registration**: claims from **C353** (RESULTS §2 ONLY); SPECIMENS registration of
+the 12 e51p1 probes in `tools/e2e_gate.py` + sanctioned `--update-inventory` (panel
+1174 -> 1186; run the gate again AFTER so the byte-panel ACTUAL is post-update); census
+re-snapshot via the tool's own write path; COVERAGE rows; INVENTORY.
+(3) **HAMM-00 rev1 rerun UNEDITED** — its blocker (`z = x / y` store, A-class) is now
+byte-covered; record the lane ACTUAL verdict (functional, NOT a DR claim), never launder.
+(4) Close prose + `/handoff` + attest, then **STOP after P1**.
+Full detail: `LEARNINGS.md` § "E2E-51/P1 hop 3". Constraints unchanged: no push;
+operator `handoff.config.json` dirty — never stage/clean/revert; goldens never
+laundered; renew only at safe boundaries.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 ## E2E-51/P1 IN FLIGHT — ORACLE DONE 12/12 ACCEPTED, goldens+RESULTS COMMITTED `b404b7e`; IMPLEMENTATION ARMS OWED (2026-11-04; HEAD `b404b7e`; compiler `edce9e0e…` built rc=0)
 
 Read `LEARNINGS.md` § "E2E-51/P1 hop 2" FIRST — it carries the batch ACTUALS, the two
@@ -1539,13 +1572,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 238
-checkpoint-id: g238-c5ee214684d2
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 239
+checkpoint-id: g239-45d6a40cbe3a
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-guard-level: 2
-checkpointed: 2026-11-03T23:18:05.570Z
+guard-level: 3
+checkpointed: 2026-11-03T23:18:24.141Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 84facc1dec37805d7d192655642a6d85c71fff2b8084341ab52b57cda8ddb315
 source-handoff: 7881186a7b9c37f312ba663b3ada8ba6ed97dc6808bf96de1b2de4a8c8c65646
@@ -1574,8 +1607,8 @@ next-action: ` below. TABLE-00 and
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 readiness-by: session:01a1a39b-e7d1-7402-832b-2aea890d3265
-readiness-at: 2026-11-03T23:18:05.582Z
-readiness-checkpoint: g238-c5ee214684d2
+readiness-at: 2026-11-03T23:18:47.381Z
+readiness-checkpoint: g239-45d6a40cbe3a
 <!-- guard:end checkpoint -->
 
 ## Blockers

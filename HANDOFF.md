@@ -50,32 +50,31 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    `/home/john/pli/*` (Runes lab `/home/john/pli/lab`, `/home/john/pli/cpm`,
    `/home/john/pli/runes-full-runs`) is READ-ONLY for this project
    unless an operator brief authorizes otherwise.
-## ACTIVE ROUND — E2E-51/P1 ORACLE DONE (12/12 ACCEPTED), goldens+RESULTS at `b404b7e`, ARMS OWED (2026-11-04; HEAD `b404b7e`; ledger ends C352)
+## ACTIVE ROUND — E2E-51/P1 ARMS 1+2 LANDED (11/12 goldens byte-exact), ARM 3 (E51I TEST) + REGISTRATION OWED (2026-11-04; HEAD `7d17b63`; ledger ends C352)
 
 Operator-authorized round: FIXED BINARY variable-divisor DIVISION. PRE-REGISTRATION `9bac977`;
-ONE grouped batch ran exactly as pre-registered -> **12 ok / 12, NO `dr-refuses` row** (every
-`.PRN` NO ERRORS both passes; E51L control whole-file byte-exact vs my baseline — harness
-validated). Goldens `golden/e51p1/` + `spec/lab-evidence/e2e51-p1/RESULTS.md` committed
-TOGETHER at `b404b7e`; predictions untouched. Classification: E51A..E51K = 11 `my-gap`.
-Two MISSes kept verbatim (RESULTS §1): E51B literal dividend takes the PARKED slot
-(`LXI H,const / PUSH / POP D`, H-B-stack) — H-B-de FALSIFIED; E51I equality skip byte is
-`C2` (JNZ, [C089] polarity) — predicted `CA` FALSIFIED. Laws for the arms are RESULTS §2
-(DIV parking law; quotient consumption via XCHG-P7 with F≡G identical; [C079] PUT tail;
-IS22N zero-test tail; IN20N negate-then-park; N303 1-byte interleave; P080A constant path
-unchanged). EXACT NEXT ACTION (successor): implement arm 1 in `ocaml/lib/codegen.ml` Div arm
-(~line 5010) per `LEARNINGS.md` § "E2E-51/P1 hop 2" — replace the `DIV by non-constant
-[TBD]` catch with the measured parking (MOD-shape `lower_hl l / PUSH H / lower_hl r / POP D
-/ CD ?ID22N` + E51K interleave), KEEP unmeasured operand classes refused; `dune build`;
-compile all 12 `probes/E51*.PLI` and `cmp` each whole-file vs its golden; ONLY mismatching
-lines earn further consumer arms (E51G right-first-XCHG in the general ADD arm; E51H PUT;
-E51I TEST) — decide empirically; each arm alone + regression sweep + FULL
-`python3 tools/e2e_gate.py` rc=0; claims from **C353** (RESULTS §2 only); SPECIMENS
-registration + sanctioned `--update-inventory`; census re-snapshot; COVERAGE rows;
-INVENTORY; then rerun HAMM-00 rev1 UNEDITED if byte-covered. **After P1 STOP — no
-P2/LOAN2/CREATE without an operator brief.** Never stage/clean/revert the operator's dirty
-`handoff.config.json`; no push; no destructive cleanup. Full state: `PROGRESS.md` → Next
-action + `LEARNINGS.md` § "E2E-51/P1 hop 2".
-
+ONE grouped batch -> **12 ok / 12, NO `dr-refuses` row**; goldens + `RESULTS.md` at `b404b7e`;
+E51A..E51K = 11 `my-gap`, E51L control byte-exact. Two MISSes kept verbatim (RESULTS §1):
+E51B literal dividend takes the PARKED slot (H-B-de FALSIFIED); E51I skip byte is `C2`
+(JNZ, [C089] polarity — predicted `CA` FALSIFIED). **DONE:** arm 1 `4ff1ea5` (Div parking
+`lower_hl l / PUSH H / lower_hl r / POP D / CD ?ID22N` + E51K N303 interleave; unmeasured
+classes — Esuffix divisor, deref/based/qualified — refused BY NAME) = **10/12 byte-exact
+ALONE** (E51H needed NO consumer arm — empirical); arm 2 `7d17b63` (E51G ADD right-first+XCHG
+via `is_var_divisor_div`, keyed exactly on the measured shape) = **11/12**. FULL gate rc=0 at
+each arm alone (`build/gate-e51p1-arm1.log`, `build/gate-e51p1-arm2.log`: 1174/0, 181/181,
+9/9, 133 rows 0/0, census 15/0/26/0, prose 5). **EXACT NEXT ACTION (successor):** arm 3 =
+E51I TEST consumer per `PROGRESS.md` -> Next action + `LEARNINGS.md` § "E2E-51/P1 hop 3"
+(golden tail `E5 / 2A r4 / D1 / CD ?IS22N / 7C / B5 / C2 <fwd> / 21 01 00 / 22 r6` + fixup
+triple `SET-LC 001C / RELOC code 0x24 / SET-LC 0024`, CODE 0027; admit ONLY `Eq` with a
+measured-class variable-divisor-DIV left and plain-variable right; everything else keeps
+refusing); build, sweep 12 probes (12/12 expected), FULL gate rc=0, commit ALONE; then
+claims from **C353** (RESULTS §2 ONLY); SPECIMENS registration + sanctioned
+`--update-inventory` (gate AGAIN after: panel 1174 -> 1186); census re-snapshot; COVERAGE
+rows; INVENTORY; then rerun HAMM-00 rev1 UNEDITED (its A-class store blocker is now
+byte-covered) and record the lane verdict. **After P1 STOP — no P2/LOAN2/CREATE without an
+operator brief.** Never stage/clean/revert the operator's dirty `handoff.config.json`; no
+push; no destructive cleanup; goldens/ignored evidence never laundered. Full state:
+`PROGRESS.md` -> Next action + `LEARNINGS.md` § "E2E-51/P1 hop 3".
 ## Last verified state — FC-01 OPERATOR OVERRIDE (2026-11-02; HEAD `6a35b9c`; ledger ENDS C352; hop 5 CANCELLED before it began; new priority = eight adapted historical programs; no OCaml byte changed)
 
 - **OPERATOR OVERRIDE (FC-01, 2026-11-02).** The planned HOP 5 work is CANCELLED: do NOT
@@ -1034,13 +1033,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 238
-checkpoint-id: g238-c5ee214684d2
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 239
+checkpoint-id: g239-45d6a40cbe3a
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 2, remaining ~8579, session 01a1a39b-e7d1-7402-832b-2aea890d3265)
-checkpointed: 2026-11-03T23:18:05.570Z
+status: checkpoint (guard level 3, remaining ~6830, session 01a1a39b-e7d1-7402-832b-2aea890d3265)
+checkpointed: 2026-11-03T23:18:24.141Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 84facc1dec37805d7d192655642a6d85c71fff2b8084341ab52b57cda8ddb315
 source-handoff: 7881186a7b9c37f312ba663b3ada8ba6ed97dc6808bf96de1b2de4a8c8c65646
@@ -1049,10 +1048,10 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1a39b-e7d1-7402-832b-2aea890d3265
-readiness-at: 2026-11-03T23:18:05.582Z
-readiness-checkpoint: g238-c5ee214684d2
+readiness-at: 2026-11-03T23:18:47.381Z
+readiness-checkpoint: g239-45d6a40cbe3a
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

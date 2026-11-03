@@ -5,6 +5,71 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-51/P1 hop 3 — ARMS 1+2 LANDED and gated (11/12 goldens byte-exact); arm 3 E51I TEST consumer OWED (2026-11-04; renewed 2/12 from g239; build rc=0 compiler was `edce9e0e…`, now rebuilt with the two arms)
+
+MEASURED (accepted; `ocaml/` changes judged only by whole-file `cmp` vs `golden/e51p1/`):
+- **Arm 1 `4ff1ea5` (Div parking)** alone made **10/12 whole-file BYTE-EXACT**
+  (A,B,C,D,E,F,H,J,K,L) — notably E51F and E51H needed NO consumer arm at all: the
+  general ADD XCHG route already matched F, and the existing PUT-item route already
+  produced the [C079] `3E 09 / ?QICOP / ?PNVOP / ?QIOOP` tail over the helper result
+  (the H "consumer" evaporated empirically — the predecessor's expectation of an H
+  arm was PROPOSED, not owed). The E51J negate-then-park and E51K interleave came
+  for free from `lower_hl st l` + the [N303]-keyed `Vint && size = 1` divisor match.
+  Guards kept the unmeasured classes refused BY NAME exactly as pre-briefed: Esuffix
+  divisor (call/array element) and deref/based/qualified on either side (keyed on
+  `hl_operand_deref || writes_de`, both defined BEFORE `lower_hl` so they are callable
+  there; DEC/FLOAT identifiers already refuse inside the generic Eident load [C161]).
+- **Arm 2 `7d17b63` (E51G ADD consumer, EMPIRICAL)**: the mismatch reading settled the
+  open question WITHOUT reasoning — mine was left-first PARK (46 bytes differ), the
+  golden is F-identical: `<div> / EB / 2A r(c) / 19 / 22`. New `is_var_divisor_div`
+  predicate + branch keyed ONLY on the measured shape (unwrapped Div, non-constant
+  divisor, accepted operand classes, plain non-ladder LEFT). After arm 2: **11/12
+  byte-exact**, only E51I remains (refusal verbatim:
+  `condition form not in E2E-3b subset [TBD]: (= (/ a b) c)`).
+- FULL compile-tier gate rc=0 AT EACH ARM ALONE: `build/gate-e51p1-arm1.log` and
+  `build/gate-e51p1-arm2.log` — byte panel **1174/0 of 1174**, negative **181/181**
+  (no row pinned the retired `DIV by non-constant` message, as pre-registered),
+  divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**, prose **5 clean**.
+
+METHOD (accepted): "only mismatching lines earn consumer arms" is worth real money —
+two of the three predicted consumer arms (F-adjacent, H-PUT) turned out to be already
+byte-exact from arm 1 alone; implementing them blind would have widened unmeasured
+routes. Reverting an arm by re-applying the edit in reverse (edit tool with swapped
+newText/oldText) is a clean way to gate each arm alone from ONE working tree.
+
+OWED NEXT (arm 3, then registration — STOP after P1):
+1. **E51I TEST consumer**: golden tail (RESULTS §1/§2.2) after `<div>` is
+   `E5 / 2A r4 (LHLD c) / D1 / CD ?IS22N / 7C / B5 / C2 <fwd> / 21 01 00 / 22 r6`,
+   then the forward-fixup triple `LINK-SET-LC code 001C / RELOC code 0x24 /
+   LINK-SET-LC code 0024 / CD ?STOPX`; CODE 0027. `C2` (JNZ) = the [C089] zero-test
+   polarity (skip THEN when HL != 0) — the predicted `CA` was FALSIFIED in the oracle
+   round. Find the `condition form not in E2E-3b subset` refusal site (grep the
+   message; the `^=`-TEST and IS22N compare arms are the neighbors), admit ONLY
+   `Eq` with a left operand that is a measured-class variable-divisor DIV and a
+   plain-variable right (the bank shape `if a / b = c then`), reusing the existing
+   park + IS22N + `7C B5` + forward-jump machinery (emit_triple). Everything else
+   in condition position keeps refusing. Build, sweep 12 probes (12/12 expected),
+   FULL gate rc=0, commit ALONE.
+2. **Registration (after ALL arms)**: claims from **C353** derived ONLY from
+   `spec/lab-evidence/e2e51-p1/RESULTS.md` §2 (law text; cite goldens + probes;
+   11 my-gap rows A..K closed, E51L control; the two MISSes stay as written);
+   SPECIMENS registration in `tools/e2e_gate.py` for the 12 `e51p1` specimens +
+   sanctioned `python3 tools/e2e_gate.py --update-inventory` (expect panel 1174 ->
+   1186; run the gate AGAIN after so the byte-panel ACTUAL is post-update — the
+   P4 `cc43963` cycle); census re-snapshot via the tool's own write path; COVERAGE
+   rows for the new capability classes (schema `spec/COVERAGE-SCHEMA.md`, validator
+   `tools/coverage_check.py:203-247`); INVENTORY.
+3. **HAMM-00 rev1 rerun UNEDITED** only if its blocker form (`z = x / y` store,
+   A-class) is now byte-covered by arm 1 — it is; rerun via the functional runner
+   lane (NOT a DR claim) and record the ACTUAL verdict; if it still FAILs for a
+   DIFFERENT reason, record it, never launder.
+4. Close: PROGRESS/HANDOFF/LEARNINGS prose, `/handoff` + attestation, **STOP after
+   P1** — no P2/LOAN2/CREATE without an operator brief.
+
+Constraints unchanged: operator `handoff.config.json` stays dirty/unstaged/untouched;
+no push; goldens/ignored evidence never laundered; claims only from oracle evidence;
+renew only at safe boundaries.
+
 ## E2E-51/P1 hop 2 — ORACLE RUN 12/12 ACCEPTED, goldens+RESULTS committed `b404b7e`; arms OWED (2026-11-04; session renewed 1/12 from g237; build rc=0 compiler `edce9e0e…` re-verified this hop)
 
 MEASURED (accepted; full record in `spec/lab-evidence/e2e51-p1/RESULTS.md` §1-§2, goldens
