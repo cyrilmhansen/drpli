@@ -122,7 +122,31 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## HANG-00 rev1 **PASS** — continuation chain hop 1 COMPLETE (2026-11-03; the operator's renewal reset ended the capped chain recorded below; HEAD `94ebbdb` at execution; renewals AVAILABLE — use `handoff_renew` at safe boundaries, not terminal finalization)
+## TICT-00 hop 7 — STEP 3 PIN LANDED (2026-11-03, continuation chain hop 7; `spec/functional/tests/TICT-00.PLI` pinned + compile-witnessed; reference/JSON/lane/docs/gate OWED at hop 8)
+
+Read `LEARNINGS.md` § "…TICT-00 implementation hop 7" FIRST. Measured this hop: the hop-6 draft
+converted and PINNED — CRLF + bare `^Z`, 499 lines, 9300 B, widest line 64 (<= 71), zero tabs /
+high bytes / trailing whitespace, no apostrophes inside literals; sha256
+`f9320f5a65d98fc3cc2a4aa4688444aab54cba25814ddbfa17ee5b2bd26c04e7`. Compiling the PINNED source:
+rc=0, `tict00.REL` **8704 bytes, code=4030 data=36**, `cmp` BYTE-IDENTICAL to the ignored
+scratch draft .REL — the encoding conversion changed nothing semantic (first pin-level compile
+witness). Re-ran the port simulator on the EXPLICIT script `2 2 9 7 1 10 1 4`: 120 normalized
+lines, 1468 raw bytes, terminal `draw`, script consumed, 8 gets, board `1,3,1,3,1,1,3,1,3`,
+**THREE** `THAT SQUARE IS OCCUPIED.` lines (86/91/96 — hop-5's "two" stays falsified), line 1
+`TIC-TAC-TOE` with NO leading blank, line 120 the exit-CRLF blank [C352]. NEW: full
+line-for-line audit of the port against the upstream `TICTACTOE2.bas` (all 94 statements)
+PASSes under the declared 1/2/3 value mapping, and two equivalence adaptations are recorded
+(the 113/114/115 three-test becomes `k = 1` + two compares — exactly one can fire because
+`j <= m <= j + 2`; `t1 / 3` truncates toward zero and equals BASIC `INT()` because `m >= 1` at
+l0112). Lane-B RUN of this machine is still UNWITNESSED; a FAIL stays classified, never
+laundered. OWED (hop 8): steps 4-10 in the hop-6/hop-7 LEARNINGS §§ (reference mirror +
+DERIVATIONS -> diff vs sim norm() BEFORE the JSON -> JSON generated VIA SCRIPT -> 
+`--stages source,derivation` -> lane B `build/fc01/corp7` (+double if PASS) -> docs § 12 + § 1 ->
+compile-tier gate -> explicit-path commit). No ocaml/harness byte changed; nothing laundered;
+ledger ends C352; third-party bytes never tracked; operator `handoff.config.json` untouched/
+unstaged; no push; NEVER re-run the retry-DFS search. Renewal 7/12 used — successor = hop 8.
+
+## Superseded: HANG-00 rev1 **PASS** — continuation chain hop 1 COMPLETE (2026-11-03; the operator's renewal reset ended the capped chain recorded below; HEAD `94ebbdb` at execution; renewals AVAILABLE — use `handoff_renew` at safe boundaries, not terminal finalization)
 
 Hop 1 of the continuation chain finished the OWED HANG-00 triple exactly as contracted and it
 executed to **PASS** on the FIRST lane-B run: `spec/functional/tests/HANG-00.PLI`

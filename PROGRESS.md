@@ -3,7 +3,18 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 hop 6: full-machine draft COMPILE-WITNESSED rc=0, pin/reference/JSON/lane/gate OWED at hop 7)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 hop 7: `TICT-00.PLI` PINNED sha `f9320f5a…`, compile byte-identical to the draft .REL (8704 B); reference/JSON/lane/docs/gate OWED at hop 8)
+
+TICT-00 hop 7 landed step 3 only (2026-11-03, continuation chain hop 7): the hop-6 draft was
+converted (CRLF + bare ^Z, 499 lines, 9300 B, widest 64 <= 71, no in-literal apostrophes) and
+pinned as `spec/functional/tests/TICT-00.PLI`, sha256
+`f9320f5a65d98fc3cc2a4aa4688444aab54cba25814ddbfa17ee5b2bd26c04e7`; compiling the PINNED file
+gives rc=0 / 8704 B / code=4030 data=36 and `cmp` shows a .REL BYTE-IDENTICAL to
+`build/fc01-scratch/tict00.REL`. The port was additionally audited line-for-line against
+`TICTACTOE2.bas` (all 94 BASIC statements) — PASS, with two equivalence adaptations recorded.
+Sim re-run on the explicit script reproduced 120 normalized lines / 1468 raw bytes / terminal
+`draw` / 8 gets / THREE occupied messages. Full record + exact owed steps 4-10:
+`LEARNINGS.md` § "…TICT-00 implementation hop 7" and → Next action.
 
 TICT-00 hop 6 closed at context exhaustion (2026-11-03, continuation chain hop 6, this
 commit chain): draft `build/fc01-scratch/TICT-00.draft.pli` mirrors `tict00_sim.py`
@@ -202,7 +213,44 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-TICT-00 DRAFT COMPILE-WITNESSED — PIN/REFERENCE/JSON/LANE OWED (2026-11-03, continuation
+TICT-00 PIN LANDED (step 3) — REFERENCE/JSON/LANE/DOCS/GATE OWED (2026-11-03, continuation
+chain hop 7 end; HEAD `586ee3c` at session start, build rc=0 verified, compiler `edce9e0e…`).
+Read FIRST `LEARNINGS.md` § "…TICT-00 implementation hop 7" — it carries this hop's measured
+record: `spec/functional/tests/TICT-00.PLI` is PINNED (sha
+`f9320f5a65d98fc3cc2a4aa4688444aab54cba25814ddbfa17ee5b2bd26c04e7`, 9300 B, 499 lines, CRLF +
+bare ^Z, widest 64 <= 71, no tabs/high bytes/trailing WS, no in-literal apostrophes) and its
+compile is byte-IDENTICAL (`cmp` rc=0) to the hop-6 draft .REL: rc=0, 8704 B, code=4030
+data=36. Sim re-run with the EXPLICIT script `2 2 9 7 1 10 1 4` reproduces 120 normalized
+lines / raw 1468 B / terminal draw / 8 gets / board `1,3,1,3,1,1,3,1,3` / **THREE** occupied
+lines (86/91/96); line 1 has NO leading blank and line 120 is the exit-CRLF blank [C352].
+NEW this hop: full line-for-line audit of the port against `TICTACTOE2.bas` PASSED, plus two
+equivalence adaptations to record in the JSON notes (the 113/114/115 three-test becomes `k = 1`
+default + two compares — exactly one can fire since `j <= m <= j+2`; and `t1 / 3` truncates
+toward zero, equal to BASIC `INT()` because `m >= 1` at l0112).
+EXACT NEXT = hop-6 § steps 4-10 (see the OWED list at the END of the hop-7 LEARNINGS §):
+(4) append `reference.py:_Tict00Port` (flat label machine mirroring the pinned .PLI
+statement-for-statement; skip `\r\n`, leading-separator blank when a line is open, echo
+`%d\r\r\n`, exit one `\r\n`) + `_tict00_finalize` (clone of `_hamm00_finalize` line 452 /
+`_amaz00_finalize` line 1101) + `tict00()` asserting 120 lines / draw / 8 gets / board / 3
+occupied / unreached labels 104,105,113? no — 104/105,133/138,156/158,163/168,187/189 and
+dead 1112/1137/1180/1200 never TERMINATE the run, register in `DERIVATIONS`; then diff
+`derive('tict00')` vs the sim `norm()` BEFORE any JSON; (5) generate `TICT-00.json` VIA SCRIPT
+from derive (link_target TICT00, console_input `2\r2\r9\r7\r1\r10\r1\r4\r^Z`, sha pin, collapse-
+spaces-v1, limits as HANG-00, capabilities grep-verified against `spec/COVERAGE.tsv` AND against
+statements actually present in the .PLI — board-init DO loop is the only `LOOP.DO_TO_BY`; verify
+or drop AGG.VAR_INDEX_LADDER; notes (1)..(n) incl. THREE occupied, the two equivalence
+adaptations, value mapping, numeric choice GET, IT IS rewrite, dead 1180/1200/1112/1137,
+unreached list, 1468-raw-byte/120-line prediction); (6) `python3 tools/functional_runner.py
+--stages source,derivation --tests TICT-00`; (7) lane B `--evidence build/fc01/corp7 --json-out
+build/fc01/corp7/records.json` (+ `--double-run` into corp7-double if PASS), ACTUALS verbatim,
+a FAIL stays classified never laundered; (8) `docs/functional-results.md` § 12 + § 1 row;
+(9) `python3 tools/e2e_gate.py` compile tier -> build/gate-tict00.log; (10) explicit-path commit
+(NEVER `handoff.config.json`; no push). Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00;
+HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness changes; ledger ends C352; NEVER
+re-run the retry-DFS search; renew only at safe boundaries (renewal 7/12 used — successor is
+hop 8).
+
+SUPERSEDED-BY-ABOVE (kept as written): TICT-00 DRAFT COMPILE-WITNESSED — PIN/REFERENCE/JSON/LANE OWED (2026-11-03, continuation
 chain hop 6 end; HEAD `824be64`, tree = managed blocks + operator `handoff.config.json`;
 compiler `edce9e0e…`, build rc=0 verified at session start). Read FIRST `LEARNINGS.md`
 § "…TICT-00 implementation hop 6" — it carries the full state: draft

@@ -1,0 +1,500 @@
+/* TICT-00 - FC-01 corpus adaptation, 2026-11-03.           */
+/* Original: BASIC "Tic-Tac-Toe" (TICTACTOE2.bas), Creative  */
+/* Computing MORRISTOWN NJ.  Research copy: build/           */
+/* functional/fc01-sources/basic/TICTACTOE2.bas (upstream    */
+/* coding-horror/basic-computer-games, sha256                */
+/* 9945f459..., licence UNVERIFIED - recorded as             */
+/* unverified, not asserted).  ADAPTATION (full removal/     */
+/* substitution list is in TICT-00.json notes): the string   */
+/* C$ choice GET becomes a NUMERIC console GET (1 = X,       */
+/* 2 = O); board cells are codes 1 = computer, 2 = empty,    */
+/* 3 = human so every compare has a positive literal or a    */
+/* scalar on the right; AND-gated IFs became f-count         */
+/* ladders with both members re-loaded at every label; the   */
+/* BASIC FOR loops are emulated as flat goto loops (NO       */
+/* BY-3, NO active DO crossed by a goto); TAB() banner       */
+/* offsets are dropped; IT'S is rewritten WITHOUT an         */
+/* apostrophe; the unreachable 1180/1200/1112/1137 routes    */
+/* are kept as faithful dead code; every put list is         */
+/* single-item under the MEASURED leading-blank separator    */
+/* law.  Expected stream: reference.py:tict00, derived       */
+/* from the declared design, never captured.                 */
+tict00: procedure options(main);
+  declare (i, j, k, m, c, g, h, r, f, t1, t2, t3) fixed bin(15);
+  declare (ps, qs, b1, b2, b3) fixed bin(15);
+  declare s(9) fixed bin(15);
+  do i = 1 to 9;
+     s(i) = 2;
+  end;
+l0002:
+  put list('TIC-TAC-TOE');
+  put skip;
+l0004:
+  put list('CREATIVE COMPUTING  MORRISTOWN, NEW JERSEY');
+  put skip;
+l0006:
+  put skip;
+  put skip;
+  put skip;
+l0008:
+  put list('THE BOARD IS NUMBERED:');
+  put skip;
+l0010:
+  put list(' 1  2  3');
+  put skip;
+l0012:
+  put list(' 4  5  6');
+  put skip;
+l0014:
+  put list(' 7  8  9');
+  put skip;
+l0016:
+  put skip;
+  put skip;
+  put skip;
+l0050:
+  put list('DO YOU WANT X OR O ENTER 1 FOR X 2 FOR O ');
+  get list(c);
+  if c = 1 then goto l0475;
+l0060:
+  ps = 79;
+  qs = 88;
+  goto l0100;
+l0100:
+  g = 1;
+  h = 3;
+  t1 = s(5);
+  if t1 = 2 then goto l0102;
+  goto l0103;
+l0102:
+  s(5) = 1;
+  goto l0195;
+l0103:
+  if t1 = 3 then goto l0104;
+  goto l0106;
+l0104:
+  t2 = s(1);
+  if t2 = 2 then goto l0105;
+  goto l0110;
+l0105:
+  s(1) = 1;
+  goto l0195;
+l0106:
+  f = 0;
+  t1 = s(2);
+  t2 = s(1);
+  if t1 = 3 then f = f + 1;
+  if t2 = 2 then f = f + 1;
+  if f = 2 then goto l0181;
+l0107:
+  f = 0;
+  t1 = s(4);
+  t2 = s(1);
+  if t1 = 3 then f = f + 1;
+  if t2 = 2 then f = f + 1;
+  if f = 2 then goto l0181;
+l0108:
+  f = 0;
+  t1 = s(6);
+  t2 = s(9);
+  if t1 = 3 then f = f + 1;
+  if t2 = 2 then f = f + 1;
+  if f = 2 then goto l0189;
+l0109:
+  f = 0;
+  t1 = s(8);
+  t2 = s(9);
+  if t1 = 3 then f = f + 1;
+  if t2 = 2 then f = f + 1;
+  if f = 2 then goto l0189;
+l0110:
+  if g = 3 then goto l0112;
+l0111:
+  goto l0118;
+l0112:
+  t1 = m - 1;
+  t1 = t1 / 3;
+  j = t1 * 3;
+  j = j + 1;
+  k = 1;
+l0113:
+  t2 = j + 1;
+  if t2 = m then k = 2;
+l0114:
+  t3 = j + 2;
+  if t3 = m then k = 3;
+l0116:
+  goto l0120;
+l0118:
+  j = 1;
+  k = 1;
+l0120:
+  t1 = s(j);
+  if t1 = g then goto l0122;
+  goto l0130;
+l0122:
+  b2 = j + 2;
+  t2 = s(b2);
+  if t2 = g then goto l0126;
+  goto l0135;
+l0126:
+  b1 = j + 1;
+  t1 = s(b1);
+  if t1 = 2 then goto l0128;
+  goto l0150;
+l0128:
+  s(b1) = 1;
+  goto l0195;
+l0130:
+  if t1 = h then goto l0150;
+l0131:
+  b2 = j + 2;
+  t2 = s(b2);
+  if t2 = g then goto l0132;
+  goto l0150;
+l0132:
+  b1 = j + 1;
+  t1 = s(b1);
+  if t1 = g then goto l0133;
+  goto l0150;
+l0133:
+  s(j) = 1;
+  goto l0195;
+l0135:
+  b2 = j + 2;
+  t2 = s(b2);
+  if t2 = 2 then goto l0136;
+  goto l0150;
+l0136:
+  b1 = j + 1;
+  t1 = s(b1);
+  if t1 = g then goto l0138;
+  goto l0150;
+l0138:
+  s(b2) = 1;
+  goto l0195;
+l0150:
+  t1 = s(k);
+  if t1 = g then goto l0152;
+  goto l0160;
+l0152:
+  b3 = k + 6;
+  t2 = s(b3);
+  if t2 = g then goto l0156;
+  goto l0165;
+l0156:
+  b2 = k + 3;
+  t1 = s(b2);
+  if t1 = 2 then goto l0158;
+  goto l0170;
+l0158:
+  s(b2) = 1;
+  goto l0195;
+l0160:
+  if t1 = h then goto l0170;
+l0161:
+  b3 = k + 6;
+  t2 = s(b3);
+  if t2 = g then goto l0162;
+  goto l0170;
+l0162:
+  b2 = k + 3;
+  t1 = s(b2);
+  if t1 = g then goto l0163;
+  goto l0170;
+l0163:
+  s(k) = 1;
+  goto l0195;
+l0165:
+  t2 = s(b3);
+  if t2 = 2 then goto l0166;
+  goto l0170;
+l0166:
+  b2 = k + 3;
+  t1 = s(b2);
+  if t1 = g then goto l0168;
+  goto l0170;
+l0168:
+  s(b3) = 1;
+  goto l0195;
+l0170:
+  goto l0450;
+l0171:
+  f = 0;
+  t1 = s(3);
+  t2 = s(7);
+  if t1 = g then f = f + 1;
+  if t2 = 2 then f = f + 1;
+  if f = 2 then goto l0187;
+l0172:
+  f = 0;
+  t1 = s(9);
+  t2 = s(1);
+  if t1 = g then f = f + 1;
+  if t2 = 2 then f = f + 1;
+  if f = 2 then goto l0181;
+l0173:
+  f = 0;
+  t1 = s(7);
+  t2 = s(3);
+  if t1 = g then f = f + 1;
+  if t2 = 2 then f = f + 1;
+  if f = 2 then goto l0183;
+l0174:
+  f = 0;
+  t1 = s(9);
+  t2 = s(1);
+  if t1 = 2 then f = f + 1;
+  if t2 = g then f = f + 1;
+  if f = 2 then goto l0189;
+l0175:
+  if g = 1 then goto l0175a;
+  goto l0176;
+l0175a:
+  g = 3;
+  h = 1;
+  goto l0110;
+l0176:
+  f = 0;
+  t1 = s(9);
+  t2 = s(3);
+  if t1 = 3 then f = f + 1;
+  if t2 = 2 then f = f + 1;
+  if f = 2 then goto l0182;
+  goto l0177;
+l0177:
+  i = 2;
+l0177c:
+  t1 = s(i);
+  if t1 = 2 then goto l0178;
+  if i = 9 then goto l0181;
+  i = i + 1;
+  goto l0177c;
+l0178:
+  s(i) = 1;
+  goto l0195;
+l0181:
+  s(1) = 1;
+  goto l0195;
+l0182:
+  t1 = s(1);
+  if t1 = 3 then goto l0177;
+l0183:
+  s(3) = 1;
+  goto l0195;
+l0187:
+  s(7) = 1;
+  goto l0195;
+l0189:
+  s(9) = 1;
+l0195:
+  put skip;
+  put list('THE COMPUTER MOVES TO...');
+  put skip;
+l0202:
+  r = 1;
+  goto l1000;
+l0205:
+  goto l0500;
+l0450:
+  if g = 3 then goto l0465;
+l0455:
+  f = 0;
+  if j = 7 then f = f + 1;
+  if k = 3 then f = f + 1;
+  if f = 2 then goto l0465;
+l0460:
+  if k < 3 then goto l0460k;
+  if j < 7 then goto l0460j;
+  goto l0465;
+l0460k:
+  k = k + 1;
+  goto l0120;
+l0460j:
+  j = j + 3;
+  k = 1;
+  goto l0120;
+l0465:
+  t1 = s(5);
+  if t1 = g then goto l0171;
+  goto l0175;
+l0475:
+  ps = 88;
+  qs = 79;
+l0500:
+  put skip;
+  put list('WHERE DO YOU MOVE ');
+  get list(m);
+l0502:
+  t1 = m + 1;
+  if t1 = 1 then goto l0502t;
+  goto l0503;
+l0502t:
+  put list('THANKS FOR THE GAME.');
+  put skip;
+  goto l2000;
+l0503:
+  if m > 9 then goto l0506;
+l0505:
+  t1 = s(m);
+  if t1 = 2 then goto l0510;
+  goto l0506;
+l0506:
+  put list('THAT SQUARE IS OCCUPIED.');
+  put skip;
+  put skip;
+  put skip;
+  goto l0500;
+l0510:
+  g = 3;
+  s(m) = 3;
+l0520:
+  r = 2;
+  goto l1000;
+l0530:
+  goto l0100;
+l1000:
+  put skip;
+  i = 1;
+l1002:
+  put list(' ');
+  t1 = s(i);
+  if t1 = 1 then goto l1012;
+  goto l1014;
+l1012:
+  call show(qs);
+  put list(' ');
+  goto l1020;
+l1014:
+  if t1 = 2 then goto l1016;
+  goto l1018;
+l1016:
+  put list('  ');
+  goto l1020;
+l1018:
+  call show(ps);
+  put list(' ');
+l1020:
+  b1 = 0;
+  if i = 3 then b1 = b1 + 1;
+  if i = 6 then b1 = b1 + 1;
+  if i = 9 then b1 = b1 + 1;
+  if b1 = 1 then goto l1022;
+  goto l1060;
+l1022:
+  if i = 9 then goto l1050;
+  goto l1030;
+l1030:
+  put skip;
+  put list('---+---+---');
+  put skip;
+l1040:
+  goto l1080;
+l1050:
+  goto l1080;
+l1060:
+  put list('!');
+l1080:
+  if i = 9 then goto l1085;
+  i = i + 1;
+  goto l1002;
+l1085:
+  put skip;
+  put skip;
+  put skip;
+  i = 1;
+l1100:
+  t1 = s(i);
+  b2 = i + 1;
+  t2 = s(b2);
+  if t1 = t2 then goto l1105;
+  goto l1115n;
+l1105:
+  b3 = i + 2;
+  t3 = s(b3);
+  if t1 = t3 then goto l1110;
+  goto l1115n;
+l1110:
+  if t1 = 1 then goto l1350;
+l1112:
+  if t1 = 3 then goto l1200;
+l1115n:
+  i = i + 3;
+  if i < 8 then goto l1100;
+l1115:
+  i = 1;
+l1125:
+  t1 = s(i);
+  b2 = i + 3;
+  t2 = s(b2);
+  if t1 = t2 then goto l1130;
+  goto l1150n;
+l1130:
+  b3 = i + 6;
+  t3 = s(b3);
+  if t1 = t3 then goto l1135;
+  goto l1150n;
+l1135:
+  if t1 = 1 then goto l1350;
+l1137:
+  if t1 = 3 then goto l1200;
+l1150n:
+  i = i + 1;
+  if i < 4 then goto l1125;
+l1150:
+  i = 1;
+l1151:
+  t1 = s(i);
+  if t1 = 2 then goto l1155;
+l1152n:
+  i = i + 1;
+  if i < 10 then goto l1151;
+l1152:
+  goto l1400;
+l1155:
+  t1 = s(5);
+  if t1 = g then goto l1160;
+  goto l1170;
+l1160:
+  f = 0;
+  t1 = s(1);
+  if t1 = g then f = f + 1;
+  t2 = s(9);
+  if t2 = g then f = f + 1;
+  if f = 2 then goto l1180;
+l1165:
+  f = 0;
+  t1 = s(3);
+  if t1 = g then f = f + 1;
+  t2 = s(7);
+  if t2 = g then f = f + 1;
+  if f = 2 then goto l1180;
+l1170:
+  if r = 1 then goto l0205;
+  goto l0530;
+l1180:
+  if g = 1 then goto l1350;
+  goto l1200;
+l1200:
+  put list('YOU BEAT ME!! GOOD GAME.');
+  put skip;
+  goto l2000;
+l1350:
+  put list('I WIN, TURKEY!!!');
+  put skip;
+  goto l2000;
+l1400:
+  put list('IT IS A DRAW. THANK YOU.');
+  put skip;
+l2000:
+  f = 0;
+  stop;
+  show: procedure (z);
+    declare z fixed bin(15);
+    declare pc character(1) varying;
+    if z = 79 then pc = 'O';
+    if z = 88 then pc = 'X';
+    put list(pc);
+  end show;
+end tict00;
+

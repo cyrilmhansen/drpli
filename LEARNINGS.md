@@ -3415,7 +3415,74 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
       retry-DFS game search. Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00;
       HAMM-00 rev2 stays PROPOSED.
 
-## 2026-11-03 — FC-01 CORPUS TICT-00 implementation hop, continuation chain hop 5 (CROSS-CHECK BLOCKER RESOLVED; port statement plan FINAL)
+## 2026-11-03 — FC-01 CORPUS TICT-00 implementation hop 7 (continuation chain hop 7; STEP 3 PIN LANDED — reference/JSON/lane/docs/gate OWED at hop 8)
+
+- ACCEPTED (step 3 DONE, measured): `spec/functional/tests/TICT-00.PLI` PINNED from the hop-6
+  draft — 9300 bytes, 499 lines, CRLF + bare `^Z` last byte, widest line **64** (<= 71), zero
+  tabs, zero high bytes, zero trailing-whitespace lines, no in-literal apostrophes (the only
+  apostrophes are inside `/* */` header comments; `check_encoding` enforces CRLF/^Z/<=71/ASCII
+  only — HANG-00 precedent). sha256
+  `f9320f5a65d98fc3cc2a4aa4688444aab54cba25814ddbfa17ee5b2bd26c04e7`.
+  Pinned-file COMPILE witness (my compiler, as-built `edce9e0e…`, `pli80c INPUT OUTPUT.REL` —
+  note the CLI takes positional INPUT OUTPUT, `-o` is NOT a flag): rc=0, **8704 bytes,
+  code=4030 data=36**, and `cmp` says the pinned .REL is BYTE-IDENTICAL to the ignored draft
+  `build/fc01-scratch/tict00.REL` — the CRLF/^Z conversion changed nothing semantic.
+  Build verified at session start: `dune build` rc=0.
+- ACCEPTED (re-verified this hop, independent re-run): port sim with the EXPLICIT script
+  `python3 build/fc01-scratch/tict00_sim.py 2 2 9 7 1 10 1 4` -> **120 normalized lines**, raw
+  1468 bytes, terminal `draw`, script consumed, 8 gets, final board
+  `[1,3,1,3,1,1,3,1,3]`; the stream carries **THREE** `THAT SQUARE IS OCCUPIED.` lines (normalized
+  lines 86, 91, 96) — re-confirms the hop-6 falsification of "two". Terminal lines: 119
+  `IT IS A DRAW. THANK YOU.`, 120 `""` (exit CRLF [C352]). Line 1 is `TIC-TAC-TOE` (NO leading
+  blank: the first executed PUT is a PUT LIST, unlike the Batch-A/HANG/AMAZ leading-blank case),
+  line 13 is `DO YOU WANT X OR O ENTER 1 FOR X 2 FOR O 2\r` (echo, trailing CR convention),
+  `WHERE DO YOU MOVE ` echoes at lines 25/45/65/85/90/95/100.
+- ACCEPTED (NEW this hop — full line-for-line audit of the pinned port against the upstream
+  BASIC listing, which I re-read in full at `build/functional/fc01-sources/basic/TICTACTOE2.bas`,
+  94 lines): every port label maps to its BASIC statement with the declared value mapping
+  (1 = computer <-> BASIC -1, 2 = empty <-> 0, 3 = human <-> 1) and each `<>` becomes the
+  equivalent positive-literal `=` plus the complementary goto:
+  100/102/103/104/105 (`IF S(5)<>0 THEN 103` -> `if t1 = 2 then goto l0102; goto l0103`) ✓;
+  106..109 AND-gates re-load BOTH members per label (BASIC 107 `S(4)=1 AND S(1)=0` -> port
+  re-stores `t2 = s(1)`) ✓; 120..168 scan tree ✓; 171..176/182/187/189 ✓; 177..181 first-free
+  ladder ✓; 195/202/205 ✓; 450/455/460/465 ✓; 500..530 ✓; printer 1000..1080 ✓ (BASIC
+  `IF S(I)<>-1 THEN 1014` -> `if t1 = 1 then goto l1012; goto l1014`; the b1 ladder reproduces
+  BASIC 1020 `IF I<>3 AND I<>6 THEN 1050` + 1050 `IF I=9 THEN 1080` exactly, and b1 can only
+  ever be 0 or 1 because i takes one value per visit) ✓; detector 1095..1180 fall-through ✓;
+  terminals 1200/1350/1400 ✓; 2000 `END` -> `f = 0; stop;` ✓.
+- ACCEPTED (two documented equivalence adaptations, carry into the JSON notes):
+  (i) BASIC 113/114/115 test the THREE forms `3*INT((M-1)/3)+1/+2/+3 = M`; the port sets
+  `k = 1` at l0112 and tests only `j+1 = m` and `j+2 = m`. EQUIVALENT because
+  `j = 3*floor((m-1)/3)+1` satisfies `j <= m <= j+2` for every `m` in 1..9, so exactly one of
+  the three compares can fire and the default `k = 1` IS the 113 test.
+  (ii) `t1 = m - 1; t1 = t1 / 3;` relies on PL/I FIXED BIN(15) division truncating toward zero;
+  `m >= 1` at l0112 (l0502 exits on m = 0, l0503 refuses m > 9, occupied retries), so
+  `m - 1 >= 0` and truncation == BASIC `INT()` ✓. The hop-3 measured refusal of `DO BY 3` and of
+  ordered compares against a VARIABLE right operand is why the loops/compares are flat and
+  positive-literal.
+- STATE AT THIS CHECKPOINT: tracked NEW file = `spec/functional/tests/TICT-00.PLI` (pinned,
+  compile-witnessed). STILL OWED (hop 8, steps 4-10 of the hop-6 §): `reference.py
+  :_Tict00Port`/`tict00()` + `DERIVATIONS` (flat label machine mirroring the pinned .PLI
+  statement-for-statement; byte laws = skip `\r\n`, leading-separator blank when a line is open,
+  echo `%d\r\r\n` closing the line, exit appends one `\r\n`; finalize via a `_tict00_finalize`
+  clone of `_hamm00_finalize`/`_amaz00_finalize` at lines 452/1101; assert 120 lines, terminal
+  draw, 8 gets, board, THREE occupied lines, unreached-label invariants) -> diff
+  `derive('tict00')` vs the sim `norm()` BEFORE the JSON -> generate `TICT-00.json` VIA SCRIPT
+  from derive (link_target TICT00, console_input `2\r2\r9\r7\r1\r10\r1\r4\r^Z`, sha pin above,
+  normalization collapse-spaces-v1, limits as HANG-00, capabilities grep-verified against
+  spec/COVERAGE.tsv rows — candidates in the hop-6 §; verify AGG.VAR_INDEX_LADDER or drop it,
+  and NOTE the port has NO LOOP.DO_TO_BY except the board-init `do i = 1 to 9; s(i) = 2; end;`,
+  no EXPR.SELF_ADD_LADDER? — verify each by grepping the actual .PLI statements, never cite an
+  unused id) -> `python3 tools/functional_runner.py --stages source,derivation --tests TICT-00`
+  -> lane B `--evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json` (+ `--double-run`
+  into corp7-double if PASS), ACTUALS verbatim -> `docs/functional-results.md` § 12 + § 1 row ->
+  `python3 tools/e2e_gate.py` compile tier (log build/gate-tict00.log) -> explicit-path commit
+  (NEVER `handoff.config.json`; no push).
+- Constraints unchanged: no ocaml/harness changes; ledger ends C352; functional runs are NOT DR
+  claims; a FAIL stays classified never laundered; third-party bytes never tracked; NEVER re-run
+  the retry-DFS game search; renew only at safe boundaries (renewal 7/12 in use).
+
+ (CROSS-CHECK BLOCKER RESOLVED; port statement plan FINAL)
 
 - ACCEPTED (blocker closed): the hop-4 "85 vs 84 lines" mismatch was ONE transcription
   defect in my port model `build/fc01-scratch/tict00_sim.py`: `occ()` emitted message +
