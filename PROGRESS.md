@@ -213,6 +213,38 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+LIFE-00 IMPLEMENTATION STEPS 2-10 (2026-11-03, continuation chain hop 11 end; step 1 shapes
+pre-compile **PASS** and the step-2 simulator is written; NOTHING tracked authored yet). Read
+FIRST `LEARNINGS.md` § "…LIFE-00 implementation hop (continuation chain hop 11)" — it carries the
+compile ACTUALS (`build/fc01-scratch/s10a.pli` -> s10a.REL 2944 B code=1504 DATA declared 985,
+rc=0, MY compiler edce9e0e, not DR claims), the simulator ACTUALS
+(`build/fc01-scratch/life00_sim.py`: raw 4722 B, 91 normalized lines, pops 18,12,8,9,7,6), the
+THREE falsifications of the hop-10 design (scalar `= 0` IS lane-B run-witnessed PASSing in
+AMAZ-00/HANG-00/WKDAY-00; the hop-10 "beacon" coordinates die out — the real beacon is
+(2,10),(2,11),(3,10),(4,13),(5,12),(5,13) with a 6->8->6 flicker; declared cs is 18, not 15), the
+re-measured numeric field law (separator blank + 9-column right-justified for fixed bin(15) — never
+copy `_Hamm00Port.put`'s `%10d`+join), the REQUIRED explicit zero-init loop (`do i = 1 to 448;
+a(i) = 0; end;` — uninitialized static DATA contents are UNMEASURED on lane B) and the OPEN
+PROPOSED dead-cell-glyph decision (' ' faithful but collapse-spaces-v1 erases the columns; '.'
+gives 30 positional tokens per row). EXACT STEPS: (2) settle beacon + glyph in the simulator,
+re-run, assert the window-margin and per-generation header==live invariants, record ACTUALS;
+(3) LF draft mirroring the simulator statement-for-statement -> CRLF + bare ^Z + <=71 cols +
+apostrophe-free `spec/functional/tests/LIFE-00.PLI`, pin sha256; (4) `reference.py:_Life00Port` +
+`life00()` + `DERIVATIONS`, diff `derive('life00')` vs sim `norm()` BEFORE any JSON; (5) generate
+`LIFE-00.json` VIA SCRIPT (link_target LIFE00, console_input bare ^Z, capabilities grep-verified in
+`spec/COVERAGE.tsv` AND present in the .PLI, notes = full removal/substitution list); (6) `python3
+tools/functional_runner.py --stages source,derivation --tests LIFE-00`; (7) lane B `--evidence
+build/fc01/corp8 --json-out build/fc01/corp8/records.json` (+corp8-double if PASS), ACTUALS
+verbatim, a FAIL stays classified `my-gap`/`dr-refuses`/`unmeasured` and is NEVER laundered;
+(8) `docs/functional-results.md` § 13 + § 1 row; (9) `python3 tools/e2e_gate.py` compile tier ->
+`build/gate-life00.log`; (10) explicit-path commit (NEVER `handoff.config.json`; no push). Reusable
+scratch lane-B runner: `build/fc01-scratch/run_bigarray_probe.py`. Then DHRY-00 (NEVER execute the
+`.SHAR`) and FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness byte changed;
+ledger ends C352; NEVER re-run the retry-DFS search; third-party bytes never tracked; operator
+`handoff.config.json` untouched/unstaged; no push; renewal 11/12 used — ONE renewal remains.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 LIFE-00 IMPLEMENTATION STEPS 1-10 (2026-11-03, continuation chain hop 10 end; big-array
 lane-B probe **PASSed** and the LIFE-00 design is **ADOPTED**; read FIRST `LEARNINGS.md`
 § "…big-array lane-B PROBE PASS + storage FALSIFICATION" — it carries the probe ACTUALS
@@ -1074,17 +1106,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 201
-checkpoint-id: g201-33d3e80d0e12
+checkpoint-generation: 203
+checkpoint-id: g203-e5cbe1daf24e
 checkpoint-kind: auto
-content-delta: none
+content-delta: new
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-03T12:14:55.570Z
+guard-level: 4
+checkpointed: 2026-11-03T12:41:25.263Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 102d22e133dc0887d028283fc9b591f9529d97e0c03d3a123b9d0d8b186d41f6
 source-handoff: a0013e643264dd4595c4c15b460f79392814d5b62a1bf089cda2c635f17c0d76
-source-learnings: 4a3c24ade54fa90256b05911ab2add5b1e4492258100980f71427ea517488f60
+source-learnings: 673ccddefbaa75d76aabfc96f8c4b4abb3ef3cbeba983380069d47a3e6dc61ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`

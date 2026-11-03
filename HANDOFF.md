@@ -122,7 +122,41 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## LIFE-00 big-array lane-B PROBE PASS + storage FALSIFICATION + design ADOPTED (2026-11-03, continuation chain hop 10)
+## LIFE-00 implementation hop IN FLIGHT — shapes pre-compiled, simulator written, 3 falsifications (2026-11-03, continuation chain hop 11; steps 1-2 only; NOTHING tracked authored; closed at context exhaustion)
+
+Read `LEARNINGS.md` § "…LIFE-00 implementation hop (continuation chain hop 11)" FIRST — it carries
+the ACTUALS. DONE: (1) risky-shape pre-compile PASS (ignored scratch `build/fc01-scratch/s10a.pli`
+-> s10a.REL 2944 B, code=1504, relstats DATA declared 985 = a(448)*2+scalars, rc=0, MY compiler
+edce9e0e, NOT DR claims): nested DO TO with incremental flat index, 8 neighbour-index temps
+`n1 = n - 33;` … `a(n1)`, member->scalar `= 1`/`= 2`/`= 0` ladders, `call cellprint(v)` INSIDE a
+doubly-nested DO, the 4-item single-item PUT header line. (2) independent simulator
+`build/fc01-scratch/life00_sim.py` (flat padded a(448), interior 12x30, n=x*32+y+1, ring never
+written, upstream 2-pass 2=dying/3=born + neighbours count 1 and 2, print pass finalizes, cs
+counted as upstream, bounded g=0..5, banner + 3 blanks, one blank pad per generation + bottom pad,
+exit CRLF [C352]): ACTUALS raw 4722 B, **91 normalized lines**, pops 18,12,8,9,7,6.
+THREE FALSIFICATIONS (hop-10 kept as written, PROTOCOL #2): (a) "equality-to-0 is PROPOSED-
+unwitnessed, avoid" — scalar `= 0` is lane-B RUN-witnessed PASSing in AMAZ-00 (17 lines),
+HANG-00, WKDAY-00; only an array MEMBER in a condition and ORDERED-vs-0 stay refused; (b) the
+hop-10 "beacon" coordinates are NOT a beacon (they die out, pops 6,10,6,2,0) — the real beacon is
+(2,10),(2,11),(3,10),(4,13),(5,12),(5,13), period 2, population flickering 6->8->6; (c) declared
+initial cs is **18** (5+6+4+3), not 15, and oscillates 18/20. Also MEASURED byte-by-byte from the
+stored BIGA witness: `fixed bin(15)` numeric item = separator blank + 9-column right-justified
+field — do NOT copy `_Hamm00Port.put`'s `%10d`+join (11 B/item, never lane-B verified, HAMM-00
+COMPILE FAILed). OPEN PROPOSED DECISION (not adopted): dead cells print ' ' (faithful but
+collapse-spaces-v1 destroys the column information) vs '.' (30 positional tokens per row, strictly
+stronger assertion; AMAZ-00 precedent). REQUIRED in the draft: explicit zero-init loop
+`do i = 1 to 448; a(i) = 0; end;` — the initial content of an uninitialized static DATA segment is
+UNMEASURED on lane B. OWED = steps 2-10 in that LEARNINGS § (settle beacon+glyph and re-run the sim
+with window-margin invariants -> draft -> pin `spec/functional/tests/LIFE-00.PLI` -> `reference.py
+:_Life00Port`/`life00()`+DERIVATIONS diffed vs sim norm() BEFORE the JSON -> `LIFE-00.json` VIA
+SCRIPT (link_target LIFE00, bare ^Z, grep-verified capabilities, full notes) -> `--stages source,
+derivation` -> lane B `build/fc01/corp8` (+double if PASS) -> docs § 13 + § 1 ->
+`python3 tools/e2e_gate.py` -> `build/gate-life00.log` -> explicit-path commit), then DHRY-00
+(NEVER execute the `.SHAR`) and FFT-00. No ocaml/harness byte changed; ledger ends C352; NEVER
+re-run the retry-DFS search; third-party bytes never tracked (SHA256SUMS rc=0 re-measured 10/10);
+operator `handoff.config.json` untouched/unstaged; no push; renewal 11/12 used.
+
+## Superseded: LIFE-00 big-array lane-B PROBE PASS + storage FALSIFICATION + design ADOPTED (2026-11-03, continuation chain hop 10)
 
 Read `LEARNINGS.md` § "…big-array lane-B PROBE PASS + storage FALSIFICATION" FIRST — it carries
 the verbatim probe ACTUALS and the full adopted LIFE-00 design. MEASURED: BIGA (TWO 1681-cell
@@ -702,22 +736,22 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 201
-checkpoint-id: g201-33d3e80d0e12
+checkpoint-generation: 203
+checkpoint-id: g203-e5cbe1daf24e
 checkpoint-kind: auto
-content-delta: none
+content-delta: new
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~6020, session 01a1a143-80cf-7601-8f9d-90dd1839d8e3)
-checkpointed: 2026-11-03T12:14:55.570Z
+status: checkpoint (guard level 4, remaining ~4185, session 01a1a155-efaa-7601-8f9d-90e1b7db4564)
+checkpointed: 2026-11-03T12:41:25.263Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 102d22e133dc0887d028283fc9b591f9529d97e0c03d3a123b9d0d8b186d41f6
 source-handoff: a0013e643264dd4595c4c15b460f79392814d5b62a1bf089cda2c635f17c0d76
-source-learnings: 4a3c24ade54fa90256b05911ab2add5b1e4492258100980f71427ea517488f60
+source-learnings: 673ccddefbaa75d76aabfc96f8c4b4abb3ef3cbeba983380069d47a3e6dc61ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

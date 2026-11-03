@@ -3838,3 +3838,84 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   verbatim, FAIL stays classified; (viii) docs/functional-results.md sec 13 + sec 1 row; (ix)
   compile-tier gate -> build/gate-life00.log; (x) explicit-path commit (NEVER handoff.config.json).
   Then DHRY-00 (NEVER execute the .SHAR) and FFT-00; HAMM-00 rev2 stays PROPOSED.
+
+## 2026-11-03 — FC-01 CORPUS LIFE-00 implementation hop (continuation chain hop 11; steps 1-2 IN FLIGHT; closed at context exhaustion)
+
+- ACCEPTED (COMPILE-witnessed on MY compiler edce9e0e, ignored scratch `build/fc01-scratch/s10a.pli`
+  -> s10a.REL 2944 B, code=1504, relstats DATA declared 0x3d9 = 985 = a(448)*2 + scalars; NOT DR
+  claims, ledger ends C352): every risky LIFE-00 shape compiles rc=0 — nested `do x = 1 to 12;` /
+  `do y = 1 to 30;` with the flat index maintained by `n = n + 32` / `n = n + 1`; the eight
+  neighbour indices as TEMPORARIES (`n1 = n - 33; ... n8 = n + 33;` then `t1 = a(n1);`); member->
+  scalar equality ladders `if t1 = 1 then s = s + 1;` / `if t1 = 2 then s = s + 1;`; equality-to-0
+  on a SCALAR (`if t1 = 0 then do;`, `if s = 0 then a(n) = 2;`); `if s = 4 then cs = cs + 1;`;
+  a nested procedure call INSIDE a doubly-nested DO (`call cellprint(v);`); a two-branch ladder
+  printer owning its own `character(1) varying`; and the multi single-item PUT header line
+  `put list('GENERATION'); put list(g); put list('POPULATION'); put list(cs); put skip;`.
+  Compile witness only: the nested-call-in-double-DO RUN shape is still lane-B UNWITNESSED.
+- **FALSIFIED (hop-10 design text kept as written per PROTOCOL #2): "equality-to-0 stays PROPOSED-
+  unwitnessed, AVOIDED".** Scalar `= 0` compares are lane-B RUN-witnessed PASSing in the committed
+  corpus: `spec/functional/tests/AMAZ-00.PLI` lines 71/76/82/88/104/123/132/154/168/174/183/205/219/
+  228/245/276/288/297/317 (`if t1 = 0 then goto lNNN;`, `if t1 = 0 then vv(b) = 2;`) — AMAZ-00 rev1
+  lane-B PASS, `build/fc01/corp6/`; `HANG-00.PLI` `if r = 0 then goto miss;` (PASS); `WKDAY-00.PLI`
+  line 68 `if q = 0 then do;` (rev3 PASS). What remains refused is an array MEMBER inside a
+  condition and ORDERED compares against 0 (COND.GE_LE), not `= 0`. LIFE-00 may therefore write the
+  death/birth ladder directly with `= 0`/`= 3`/`= 4` positive and zero literal compares.
+- **FALSIFIED (hop-10 declared initial pattern): the "beacon" coordinates are not a beacon and the
+  declared cs = 15 is wrong.** Verified by independent Python Life models in this hop's scratch:
+  upstream-standard glider (5 cells, period 4, translates one step diagonally per 4 gens) =
+  (2,2),(3,3),(4,1),(4,2),(4,3) OK; block (4, stable) = (10,25),(10,26),(11,25),(11,26) OK; blinker
+  (3, period 2) = (8,15),(9,15),(10,15) OK; the hop-10 "beacon" set (2,10),(2,11),(3,10),(3,13),
+  (4,11),(4,13) DIES OUT (pops 6,10,6,2,0). The real beacon is (0,0),(0,1),(1,0),(2,3),(3,2),(3,3)
+  -> offset to (2,10),(2,11),(3,10),(4,13),(5,12),(5,13) and MEASURED period-2 with population
+  alternating 6 -> 8 -> 6 (two 2x2 blocks form and break). Total declared population is therefore
+  5+6+4+3 = **18**, not 15, and it oscillates 18/20 across generations (beacon flicker).
+- ACCEPTED (measured numeric field law, re-counted byte-by-byte from the stored lane-B witness
+  `build/fc01-scratch/biga-evidence/run.console.bin`): a `fixed bin(15)` PUT LIST item renders as
+  the separator blank PLUS a NINE-column right-justified field — 'SUMA'+' '+5sp+'1681' = 14 B,
+  'A1681STILL'+' '+8sp+'1' = 20 B. This is the model used by the simulator. NOTE the two readings
+  (sep+9 vs a 10-wide field with no separator) are BYTE-IDENTICAL, so the choice is invisible in
+  the normalized stream; but `reference.py`'s `_Hamm00Port.put` uses `%10d` + a join blank, i.e.
+  11 bytes per numeric item — HAMM-00 never ran on lane B (COMPILE FAIL `my-gap`) so that width is
+  UNVERIFIED and must not be copied into LIFE-00.
+- WRITTEN this hop (ignored scratch only, NOTHING tracked authored): independent simulator
+  `build/fc01-scratch/life00_sim.py` — flat padded grid a(448), interior 12x30, n = x*32+y+1,
+  ring never written, upstream single-array 2-pass (marks 2=dying, 3=born; neighbours count 1 and
+  2 as alive, 3 not yet alive; the print pass finalizes 2->0, 3->1), cs counted exactly as upstream
+  (initial scan, then survivors+births in the evolution pass), bounded g = 0..5 (6 printed
+  generations, header BEFORE the print pass like BASIC 210), banner LIFE / CREATIVE COMPUTING
+  MORRISTOWN, NEW JERSEY + 3 blanks (TAB offsets dropped), one blank pad line before every
+  generation and one bottom pad after the loop, exit appends one CRLF [C352]. ACTUALS of the
+  current model: raw 4722 B including the exit CRLF, **91 normalized lines**, population sequence
+  18,12,8,9,7,6 with the WRONG (hop-10) beacon and per-generation header==live-count invariant
+  passing; re-run it after the beacon fix and record the new numbers (expected 18/20/18/20/18/20).
+- OPEN DECISION (PROPOSED, not adopted): dead-cell rendering. Printing ' ' for dead/dying cells is
+  faithful to upstream but `collapse-spaces-v1` (`re.sub(r" +", " ")`) COLLAPSES the dead cells
+  away, so a row asserts only the ORDER of stars, never their columns; printing '.' for dead cells
+  makes every collapsed row a 30-token positional rendering of the grid (each cell an independent
+  token, no run > 1 space), i.e. a strictly stronger assertion, at the cost of a cosmetic
+  divergence from the upstream blank background. AMAZ-00 precedent renders structure with '.'
+  literals. Decide, document in the JSON notes, and keep the simulator and reference.py identical.
+- OWED (successor = finish this program, steps 2-10): (2) settle the beacon coordinates + the dead-
+  cell glyph in `life00_sim.py`, re-run, and assert the glider/beacon/block/blinker invariants
+  (window margin: no live cell may reach x=12/x=1 or y=30/y=1 within 6 gens, else the padded ring
+  silently clips); (3) LF draft mirroring the simulator statement-for-statement -> CRLF + bare ^Z
+  + <=71 cols + apostrophe-free `spec/functional/tests/LIFE-00.PLI`, pin sha256 (explicit zero-init
+  loop `do i = 1 to 448; a(i) = 0; end;` is REQUIRED — the initial content of an un-initialized
+  static DATA segment is UNMEASURED on lane B, never assume zeros); (4) `reference.py:_Life00Port`
+  + `life00()` + `DERIVATIONS` and diff `derive('life00')` against the simulator norm() BEFORE any
+  JSON; (5) generate `LIFE-00.json` VIA SCRIPT (link_target LIFE00, console_input bare ^Z,
+  capabilities grep-verified in `spec/COVERAGE.tsv` AND present in the .PLI, notes = full removal/
+  substitution list incl. the INPUT/DONE/B$/LEN/LEFT$/RIGHT$/MID$ phase dropped, the 24x70 -> 12x30
+  window, the bounded 6 generations (upstream never terminates), the beacon-coordinate correction
+  and cs=18, the one-blank pad, TAB banner offsets dropped, the dead-cell glyph choice); (6)
+  `python3 tools/functional_runner.py --stages source,derivation --tests LIFE-00`; (7) lane B
+  `--evidence build/fc01/corp8 --json-out build/fc01/corp8/records.json` (+corp8-double if PASS),
+  ACTUALS verbatim, a FAIL stays classified never laundered, the expectation never edited to chase
+  a PASS; (8) `docs/functional-results.md` § 13 + § 1 row; (9) `python3 tools/e2e_gate.py` compile
+  tier -> `build/gate-life00.log`; (10) explicit-path commit (NEVER `handoff.config.json`; no
+  push). Then DHRY-00 (NEVER execute the `.SHAR`) and FFT-00; HAMM-00 rev2 stays PROPOSED.
+- Constraints: no `ocaml/` or harness byte changed this hop; ledger ends C352; NEVER re-run the
+  retry-DFS search; third-party bytes never tracked (sources `sha256sum -c SHA256SUMS` rc=0, 10/10
+  re-measured this hop, LIFE.bas `e268ed69...`); operator `handoff.config.json` untouched/unstaged;
+  no push; renewal 11/12 used at this session start — ONE renewal (12/12) remains on this chain,
+  spend it at THIS boundary; after that the successor must close with `handoff_finalize`.
