@@ -213,6 +213,33 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+## FFT-00 hop 20 LANDED — construct audit + FP00 lane-B laws MEASURED; sims 3-way GREEN; DRAFT rc=0; steps 5-11 OWED (2026-11-03; NOTHING tracked authored yet; program 8 of 8 IN FLIGHT)
+
+Read `LEARNINGS.md` § "…FFT-00 hop 20" FIRST — it carries every ACTUAL (12 construct
+probes: COMPLEX/CONTROLLED/HBOUND/FIXED/EXP/BINARY(31)/REORDER/whole-array-actual all
+REFUSED; recursion compiles, unwitnessed on lane B; `(m+31)/64` and negative-literal
+actuals ACCEPTED; `0 - 45` expression actual = pool-mismatch crash witness), the FP00
+lane-B RUN laws (negative %9d signed right-justified; division TRUNCATES TOWARD ZERO;
+signed multiply exact; scalar-vs-scalar `if b < z` runs), the falsified nested
+two-variable ordered compare (`if v < z` AND the swap `if z > v` both refuse — pointer
+deref both sides; FIX = sg flag computed in MAIN, formal-vs-literal `=` inside prn),
+and the exact owed steps 5-11: convert `build/fc01-scratch/fft00/FFT-00.draft.pli`
+(122 lines, ≤71 cols, rc=0 3456 B code=1476 data=48) to CRLF+bare^Z → pin
+`spec/functional/tests/FFT-00.PLI` + compile pin + `cmp` vs draft .REL → **pin-vs-sim
+ORDER audit** (hop-19 lesson) → `reference.py:_Fft00Port`/`fft00()`+DERIVATIONS diffed
+BYTE-EQUAL vs `fft00_sim.check()` (port==published Q6 table; ≤0.008 vs naive DFT tol
+0.02; 13 lines; raw 507 B) BEFORE JSON → `FFT-00.json` VIA SCRIPT (mk_dhry00_json.py
+gates copied; link_target FFT00, console_input bare `^Z`, capabilities grep-verified
+BOTH ways, full notes/removals) → `--stages source,derivation` → lane B
+`build/fc01/corp10` (+corp10-double if PASS) → docs § 15 + § 1 → gate
+`build/gate-fft00.log` → explicit-path commit → corpus-close record (8 of 8).
+Constraints unchanged: no `ocaml/`/harness byte; ledger ends C352; functional runs NOT
+DR claims; FAILs never laundered; NEVER re-run the retry-DFS; third-party bytes
+untracked; operator `handoff.config.json` untouched/unstaged; no push; renew only at
+safe boundaries.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 ## DHRY-00 rev1 LANDED — steps 8-11 DONE: program 7 of 8 **PASS** on lane B (2026-11-03; docs § 14 + gate rc=0; the rev0 ASSERT FAIL is kept as written; FFT-00 = program 8/8 OWED)
 
 Read `LEARNINGS.md` § "…DHRY-00 hop 19" FIRST — it carries every ACTUAL: the rev0 lane-B
@@ -1408,17 +1435,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 227
-checkpoint-id: g227-28a611c1f536
-checkpoint-kind: manual
+checkpoint-generation: 231
+checkpoint-id: g231-9029ab349216
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-03T19:30:15.668Z
+checkpointed: 2026-11-03T20:26:46.689Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9ed8cd2d8eede603e2dc0fd9e2e2a1c418a7989ec765d0d64a23b63ccce6c1cc
-source-handoff: 4ff90a1b4d800997103c099d53f0b2bf2375bb6a3adbd7059f9e886fd6db8c16
-source-learnings: 110d899e106136be93d69f83007f6bb1a0691e3e319077f4d1684e9c190fa5b2
+source-progress: 6c4a305b048fc5abc1a52fdfcc620f8651c7d051962a00b5dfa08fcc146e9439
+source-handoff: 7c8ed5df62a5171fdd87fe63f2646af89a5cb0d1028221e006cf083009008d3d
+source-learnings: bae64303e26c11f9f9670d513b2d71e9e389709cf738783a06a3a528047eacc1
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1442,9 +1469,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a2c9-2c92-7145-a841-b69c7a0d2e71
-readiness-at: 2026-11-03T19:30:15.683Z
-readiness-checkpoint: g227-28a611c1f536
 <!-- guard:end checkpoint -->
 
 ## Blockers

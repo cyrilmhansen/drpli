@@ -4510,3 +4510,92 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   harness byte; ledger ends C352; functional runs are NOT DR claims; FAILs stay classified
   never laundered; NEVER re-run the retry-DFS; third-party bytes never tracked; operator
   `handoff.config.json` untouched/unstaged; no push; renew only at safe boundaries.
+
+## 2026-11-03 — FC-01 CORPUS FFT-00 hop 20: construct audit MEASURED (12 probes), FP00 lane-B RUN laws MEASURED, both simulators GREEN (3-way), DRAFT compiles rc=0; steps 5-11 OWED (NOTHING tracked authored yet this hop)
+
+- STEP 1 DONE (accepted): `sha256sum -c SHA256SUMS` rc=0 (10/10) in build/functional/
+  fc01-sources/; `pli/FFT-reference.pli` (1137 B) read WHOLE + `fft-rosettagit.md`
+  provenance header read (Rosetta task 9235, "Derived from Fortran Rosetta Code",
+  recursive in-place Cooley-Tukey of (1,1,1,1,0,0,0,0), N=8). Build verified rc=0 at
+  session start; compiler edce9e0e….
+- MEASURED (accepted, MY compiler edce9e0e…, ignored scratch build/fc01-scratch/fft00/
+  f*.pli, NOT DR claims; ledger ends C352) — every Rosetta construct audited, none
+  assumed: **COMPLEX FLOAT(18)** REFUSED (`codegen: call to unknown complex [TBD]`);
+  **CONTROLLED+ALLOCATE/FREE** REFUSED (`call to unknown controlled [TBD]`); **HBOUND**
+  REFUSED (`expression form not in int subset [TBD]`); **FIXED builtin(f,25,12)** and
+  **EXP** REFUSED (same int-subset refusal); **FIXED BINARY(31)** REFUSED (`bind: FIXED
+  BINARY(31) exceeds DR's FIXED precision limit 15 (PL/I-80 V1.4 says NOT IMP) [TBD]`);
+  **OPTIONS(MAIN,REORDER)** REFUSED (`block option REORDER deferred [TBD]`); **whole-array
+  actual** `declare b(*)` + `call p(a)` PARSE-FAILS (`expected expression`); **recursive**
+  fixed-formal function COMPILES rc=0 (f6, 384 B — lane-B RUN still unwitnessed);
+  **`(m+31)/64` parenthesized dividend** ACCEPTED (f4); **negative-literal call actual**
+  `call p(45,-45)` ACCEPTED (f5b); **expression actual `0 - 45` REFUSED with an internal
+  `pool demand/layout mismatch: prescan demanded 2 pool bytes, lowering allocated 5` — NEW
+  my-gap-class crash witness (unmeasured; NOT a DR statement).
+- MEASURED (accepted, **lane-B RUN probe FP00**, evidence build/fc01-scratch/fft00/
+  fp00-evidence/, ignored; NOT DR claims): fp00 compile rc=0 2048 B (code=692 data=36);
+  LINK done `parse_undefined=[]` FP00.COM 8576 B sha b2636c84…; RUN done **172 console
+  bytes** sha c06c6238…; capture verbatim `\r\nM1=      2880 M2=      2880 M3=     -2880
+  M4=     -2880\r\nS1=         0 S2=     -5760\r\nQ0=       -45 Q1=       -45 Q2=       -44
+  \r\nZ=         0 W=         1\r\nV=       -45\r\n`. LAWS: signed 16-bit multiply exact
+  all four sign arms; sums exact; **negative fixed bin(15) PUT renders right-justified in
+  the 9-column field WITH its sign**; **fixed-bin division TRUNCATES TOWARD ZERO**
+  (-2881/64=-45, -2879/64=-44); scalar-vs-scalar `if b < z` (z a zero-valued variable)
+  RUNS correct; negative-literal store + formal copy-in + print all exact; separator law
+  holds across statements.
+- MEASURED/FALSIFIED (accepted, my compiler): the hop-20 first draft used `if v < z`
+  inside nested `prn` (v formal, z outer scalar) and its operand swap `if z > v` — BOTH
+  REFUSED `codegen: [TBD] pointer formal as the FIRST operand of a two-variable compare
+  is unsampled (DR always loads the plain operand first [E26F, E26G]; both-deref has no
+  sample at all)`. ⇒ An outer scalar read INSIDE a nested procedure is a deref-form
+  operand too: **nested two-variable ordered compares are unsampled in either order**.
+  FIX (draft compiles rc=0): compute the sign in MAIN as a flag (`t = xr(i); sg = 0;
+  if t < z then sg = 1;` — the FP00 same-frame shape) and pass it; inside prn use only
+  formal-vs-LITERAL equality (`if sg = 1 then …`, the DHRY putc shape).
+- ADOPTED design (from the above, all shapes lane-B or compile witnessed): FFT-00 =
+  iterative radix-2 DIT Cooley-Tukey, N=8, **Q6 fixed point scale 64** in TWO parallel
+  `fixed bin(15)` AUTO arrays xr(8)/xi(8); COMPLEX→parallel arrays, recursion→3 explicit
+  stage passes over the BIT-REVERSED seed (1,0,1,0,1,0,1,0)×64, twiddles = integer
+  constant scalars W^0=(64,0) W^1=(45,-45) W^2=(0,-64) W^3=(-45,-45) (45=trunc(64·√2/2);
+  √2 law recorded, cos/sin/exp absent ⇒ precomputed literals, declared adaptation);
+  every `/64` rescale is EXACT on this input (verified by the models) so no rounding
+  ambiguity; fixed(data(i),25,12) → `sign %9d '.' digit digit digit` via pdig digit
+  ladder; no GET (pure-PUT, console_input bare ^Z); exit CRLF [C352]. All emitted lines
+  ≤ 78 cols (no wrap model); draft ≤ 71 cols.
+- SIMULATORS (accepted): `fft00_dft.py` model A — naive double-precision DFT, asserted
+  EQUAL the analytical closed form (4, 1−(1+√2)i, 0, 1−(√2−1)i, 0, conj, 0, conj) to
+  1e-12. `fft00_sim.py` model B — port byte model, statement-for-statement mirror of the
+  draft (incl. the sg-flag fix); `check()` GREEN: port == hand-published Q6 table
+  [(256,0),(64,-154),(0,0),(64,-26),(0,0),(64,26),(0,0),(64,154)]; port vs naive DFT
+  worst component error **0.0080 ≤ declared TOL 0.02**; 13 normalized lines, all ≤78
+  cols; raw **507 B**; stream = "", banner, "SCALE 64 …", "", 8 X-lines, trailing "".
+- DRAFT (accepted): build/fc01-scratch/fft00/FFT-00.draft.pli, 122 lines LF, widest 71,
+  compile rc=0 **3456 B code=1476 data=48**; layout law honored (all main statements,
+  then `stop;`, then bf/prn/pdig); TP00 law (li/lj formal copies in bf).
+- OWED (steps 5-11, EXACT): (5) convert draft CRLF+bare ^Z → pin spec/functional/tests/
+  FFT-00.PLI, record sha256, compile the PIN and `cmp` vs draft .REL; then the HOP-19
+  ORDER AUDIT: diff the pin's executable-statement sequence against `Port.run`/`prn`/
+  `pdig`/`bf` statement order in fft00_sim.py (models-vs-stream equality is NOT enough);
+  (6) `reference.py:_Fft00Port`/`fft00()` + DERIVATIONS entry, `derive('fft00')` diffed
+  BYTE-EQUAL vs fft00_sim.check() lines/raw BEFORE any JSON (mirror the sg-flag statement
+  order exactly); (7) spec/functional/tests/FFT-00.json VIA SCRIPT (copy
+  build/fc01-scratch/dhry00/mk_dhry00_json.py gates: rerun sim-vs-derive byte-equality and
+  ABORT on mismatch; pin sha; CRLF/^Z/≤71/apostrophe laws; link_target FFT00;
+  console_input bare `^Z`; collapse-spaces-v1; capabilities grep-verified ACCEPTS/
+  SUPPORTED in spec/COVERAGE.tsv AND present comment-stripped in the .PLI — candidates
+  DECL.FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED, AGG.ELEM_AS_ACTUAL (xr(i)→prn),
+  AGG.VAR_INDEX_LADDER, LOOP.DO_TO(_BY), EXPR.REL_FIXED_EQ_K, IO.PUT_LIST_FIXED,
+  IO.PUT_SKIP, PROC.CALL_COPYIN (VERIFY EACH ID by grep before citing); notes = every
+  removal incl. COMPLEX/CONTROLLED/recursion/HBOUND/exp/FIXED/FLOAT(18)/BINARY(31)/
+  REORDER, the Q6 scale law, the twiddle quantization 45/64, the sg-flag comparison gap,
+  the fp00 runtime laws, and the pool-mismatch crash witness); `--stages source,derivation`;
+  (8) lane B `python3 tools/functional_runner.py --tests FFT-00 --evidence
+  build/fc01/corp10 --json-out build/fc01/corp10/records.json` (+ `--double-run`
+  corp10-double if PASS), ACTUALS verbatim, FAIL stays classified never laundered,
+  expectation never edited to chase PASS; (9) docs/functional-results.md § 15 + § 1 row;
+  (10) `python3 tools/e2e_gate.py` → build/gate-fft00.log; (11) explicit-path commit
+  (NEVER handoff.config.json; no push); THEN THE CORPUS CLOSE record (8/8 landed or
+  recorded) in docs § 15/§ 1 + HANDOFF/PROGRESS.
+- Constraints unchanged: no ocaml/harness byte; ledger ends C352; functional runs NOT DR
+  claims; NEVER re-run the retry-DFS; third-party bytes untracked; operator
+  handoff.config.json untouched/unstaged; no push; renew only at safe boundaries.

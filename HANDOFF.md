@@ -122,7 +122,31 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## DHRY-00 rev1 LANDED — program 7 of 8 **PASS** on lane B; steps 8-11 DONE (2026-11-03; docs § 14 + gate rc=0; rev0 ASSERT FAIL kept as written; FFT-00 = program 8/8 OWED)
+## FFT-00 hop 20 LANDED — program 8 of 8 IN FLIGHT: construct audit + FP00 lane-B RUN laws MEASURED; sims 3-way GREEN; draft compiles rc=0; steps 5-11 OWED (2026-11-03; NOTHING tracked authored this hop)
+
+Read `LEARNINGS.md` § "…FFT-00 hop 20" FIRST — ACTUALS: all 12 construct probes
+classified (COMPLEX, CONTROLLED/ALLOCATE, HBOUND, FIXED/EXP builtins, BINARY(31) —
+`exceeds DR's FIXED precision limit 15 … NOT IMP` —, OPTIONS(REORDER), whole-array
+actuals all REFUSED; recursion compiles rc=0 but is lane-B-unwitnessed and NOT used;
+`(m+31)/64` + negative-literal actuals ACCEPTED; `0 - 45` actual = my-gap pool-layout
+crash); FP00 lane-B RUN measured negative `%9d` signed rendering, toward-zero division,
+exact signed multiply, `if b < z` scalar compare; FALSIFIED draft shape: nested
+two-variable ordered compares refuse in EITHER order (both operands deref) — fixed via
+MAIN-computed sg flag + formal-vs-literal `=` inside prn (draft rc=0 3456 B,
+122 lines ≤71 cols). Simulators GREEN 3-way: port == hand-published Q6 table
+[(256,0),(64,-154),(0,0),(64,-26),(0,0),(64,26),(0,0),(64,154)], ≤0.008 vs independent
+naive DFT (tol 0.02), 13 normalized lines ≤78 cols, raw 507 B. **NEXT = steps 5-11**
+exactly as in that § and `PROGRESS.md` → `## Next action`: pin (CRLF+^Z) + compile-pin
+`cmp` + **pin-vs-sim ORDER audit** (hop-19 lesson) → `reference.py:fft00` BYTE-EQUAL vs
+sim BEFORE JSON → JSON via script (link FFT00, bare ^Z input, double-verified caps,
+full removal notes) → `--stages source,derivation` → lane B `build/fc01/corp10`
+(+double) → docs § 15 + § 1 → gate `build/gate-fft00.log` → explicit-path commit →
+corpus-close record (8 of 8). Constraints unchanged: no `ocaml/`/harness byte; ledger
+ends C352; functional runs NOT DR claims; FAILs never laundered; NEVER re-run the
+retry-DFS; third-party bytes untracked; operator `handoff.config.json`
+untouched/unstaged; no push; renew only at safe boundaries.
+
+## Superseded: DHRY-00 rev1 LANDED — program 7 of 8 **PASS** on lane B; steps 8-11 DONE (2026-11-03; docs § 14 + gate rc=0; rev0 ASSERT FAIL kept as written; FFT-00 = program 8/8 OWED)
 
 Read `LEARNINGS.md` § "…DHRY-00 hop 19" FIRST — ACTUALS: rev0 lane-B FAIL `build/fc01/corp9/`
 (order-only ASSERT miss at line 12 — hop 18's generator had grouped the final-table rows by
@@ -937,25 +961,22 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 227
-checkpoint-id: g227-28a611c1f536
-checkpoint-kind: manual
+checkpoint-generation: 231
+checkpoint-id: g231-9029ab349216
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-5837, session 01a1a2c9-2c92-7145-a841-b69c7a0d2e71)
-checkpointed: 2026-11-03T19:30:15.668Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3002, session 01a1a2fc-6118-7145-a841-b6a51e104aad)
+checkpointed: 2026-11-03T20:26:46.689Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9ed8cd2d8eede603e2dc0fd9e2e2a1c418a7989ec765d0d64a23b63ccce6c1cc
-source-handoff: 4ff90a1b4d800997103c099d53f0b2bf2375bb6a3adbd7059f9e886fd6db8c16
-source-learnings: 110d899e106136be93d69f83007f6bb1a0691e3e319077f4d1684e9c190fa5b2
+source-progress: 6c4a305b048fc5abc1a52fdfcc620f8651c7d051962a00b5dfa08fcc146e9439
+source-handoff: 7c8ed5df62a5171fdd87fe63f2646af89a5cb0d1028221e006cf083009008d3d
+source-learnings: bae64303e26c11f9f9670d513b2d71e9e389709cf738783a06a3a528047eacc1
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a2c9-2c92-7145-a841-b69c7a0d2e71
-readiness-at: 2026-11-03T19:30:15.683Z
-readiness-checkpoint: g227-28a611c1f536
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
@@ -985,5 +1006,5 @@ guard level 4; checkpoint requested (renewal refresh (model))
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-DHRY-00 hop 19: start at PROGRESS.md → Next action → "hop 18 LANDED"; steps 8-11 owed (DHRY-00.json via script from derive('dhry00') — echo line keeps trailing \r; --stages source,derivation; lane B build/fc01/corp9 +double if PASS; docs § 14 + § 1; gate build/gate-dhry00.log; explicit-path commit), then FFT-00. Pin sha 9eae6915…, reference byte-equal vs sim.check(7) 57/57, committed 30eecce. Constraints: no ocaml/harness byte; ledger ends C352; functional runs NOT DR claims; never re-run retry-DFS; third-party bytes untracked; operator handoff.config.json untouched/unstaged; no push.
+DHRY-00 rev1 LANDED (program 7 of 8, lane-B PASS; docs § 14; gate rc=0 build/gate-dhry00.log). Next = FFT-00 (program 8/8): start at PROGRESS.md Next action → "DHRY-00 rev1 LANDED"; exact 11-step contract in LEARNINGS.md § "…DHRY-00 hop 19" EXACT NEXT bullet (sha-verify + read pli/FFT-reference.pli whole; FIRST audit every construct vs the measured subset — modern Rosetta PL/I is NOT assumed to compile on PL/I-80 v1.4; simulator + INDEPENDENT naive-DFT cross-check; draft → pin → pin-vs-sim ORDER audit (hop-19 lesson) → reference.py:fft00 diffed BYTE-EQUAL vs sim BEFORE JSON → FFT-00.json VIA SCRIPT → --stages source,derivation → lane B build/fc01/corp10 (+double if PASS) → docs § 15 + § 1 row → gate build/gate-fft00.log → explicit-path commit; then the corpus-close record 8/8). Constraints: no ocaml/harness byte; ledger ends C352; functional runs NOT DR claims; FAILs stay classified never laundered (corp9 rev0 FAIL kept as written); NEVER re-run retry-DFS; third-party bytes untracked; operator handoff.config.json untouched/unstaged; no push. Pin sha fc6695cd087aacf3…; compiler edce9e0e…; HEAD bcd2c02 clean.
 <!-- guard:end checkpoint -->
