@@ -702,23 +702,20 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 199
-checkpoint-id: g199-6f1dbed6a267
+checkpoint-generation: 201
+checkpoint-id: g201-33d3e80d0e12
 checkpoint-kind: auto
 content-delta: none
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6853, session 01a1a128-f516-7601-8f9d-90d9c23931ef)
-checkpointed: 2026-11-03T11:55:18.073Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6020, session 01a1a143-80cf-7601-8f9d-90dd1839d8e3)
+checkpointed: 2026-11-03T12:14:55.570Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c4ccb8ca22240e5aa215c86ea5ba1b909310887cbc701e8767ac5b1cae3b6419
-source-handoff: 6e0262de21dc9adfd20b379db80b3168dc9c68dc8d33b2c26414052d676cd30c
-source-learnings: 58fc1cf95bfa2f8b76a87ea174c71ffa671aa6b58bc56e03329dc5a47a8fb730
+source-progress: 102d22e133dc0887d028283fc9b591f9529d97e0c03d3a123b9d0d8b186d41f6
+source-handoff: a0013e643264dd4595c4c15b460f79392814d5b62a1bf089cda2c635f17c0d76
+source-learnings: 4a3c24ade54fa90256b05911ab2add5b1e4492258100980f71427ea517488f60
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a128-f516-7601-8f9d-90d9c23931ef
-readiness-at: 2026-11-03T11:55:18.088Z
-readiness-checkpoint: g199-6f1dbed6a267
 ### Last verified state
 guard level 3; checkpoint requested (auto at level 3)
 
@@ -750,5 +747,5 @@ guard level 3; checkpoint requested (auto at level 3)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-Successor = TICT-00 DONE (committed dfbf07c: lane B corp7 PASS first run, 120 lines/1468 raw bytes, double-run byte-equal, docs § 12 + § 1 row, gate rc=0 build/gate-tict00.log) and LIFE-00 hop start MEASURED (committed 927ff18). Read LEARNINGS.md § "...LIFE-00 hop start" FIRST. NEXT ACTION (one bounded task, then stop or renew): the LANE-B BIG-ARRAY PROBE — `declare a(1681) fixed bin(15);` compiles rc=0 but the array is NOT in the .REL DATA segment (s6j 384 B code=101 data=6; s6l data=12) so a ~3360-byte grid is runtime-allocated and UNWITNESSED under DR LINK-80 + PLILIB on CP/M. Build the probe in ignored scratch only (a program that stores/reads several cells and prints a checksum), compile with ocaml/_build/default/bin/pli80c.exe (sha edce9e0e...), link+run under cpmsim via the lane-B harness/oracle/linkrun.py pattern, record ACTUALS verbatim (a FAIL stays classified my-gap/dr-refuses/unmeasured, never laundered, NOT a DR claim: ledger ends C352). Decide from that result whether LIFE-00 uses a 24x70 flat grid, a smaller declared grid, or another storage shape; write the LIFE-00 design record in LEARNINGS.md, then the 11-step corpus procedure (simulator -> shapes -> LF draft -> CRLF+bare ^Z+<=71+apostrophe-free spec/functional/tests/LIFE-00.PLI pin -> reference.py _Life00Port/life00()+DERIVATIONS diffed vs sim norm() BEFORE the JSON -> LIFE-00.json VIA SCRIPT (link target LIFE00, capabilities grep-verified in spec/COVERAGE.tsv AND present in the .PLI) -> --stages source,derivation -> lane B build/fc01/corp8 (+corp8-double if PASS) -> docs/functional-results.md § 13 + § 1 row -> python3 tools/e2e_gate.py compile tier -> build/gate-life00.log -> explicit-path commit). Other measured shapes: arithmetic DO bounds REFUSED (DO FROM form unproven), array member in condition REFUSED (member->scalar first), or-composed member tests fail to parse, literal-divisor DIV and CHARACTER VARYING literal compares ACCEPT. Scope falsification: upstream LIFE NEVER TERMINATES (640 GOTO 210, 650 END dead) so LIFE-00 needs a DECLARED bounded generation count + blank-row padding adaptation; string INPUT/LEN/LEFT$/RIGHT$/MID$ unportable (character GET UNMEASURED) — PROPOSED numeric GET LIST row encoding stays a proposal. Then DHRY-00 (NEVER execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness changes, explicit-path commits only, NEVER handoff.config.json (operator edit stays unstaged), no push, NEVER re-run the retry-DFS search, renewals 10/12 available on this chain.
+Successor = LIFE-00 hop 10 DONE (committed c097085): big-array lane-B probe PASS (BIGA.COM 15104 B, RUN done, 227 console bytes, all checksums correct — evidence ignored build/fc01-scratch/biga-evidence/), hop-9 runtime-allocation claim FALSIFIED (arrays ARE static DATA: relstats LINK-DEF-DATA-SIZE s6j/s6l = 4004/3374; compiler stderr DATA= header is not the declared size), fixed bin(15) PUT LIST field 9-wide right-justified MEASURED, LIFE-00 design ADOPTED (flat padded a(448) interior 12x30 n=x*32+y+1, single-array 2-pass 2/3 semantics, bounded 6 gens, declared glider+beacon+block+blinker cs=15, INPUT dropped, nested cellprint, C159-legal neighbour temps, positive-literal ladders, equality-to-0 stays PROPOSED). Read LEARNINGS.md § "...big-array lane-B PROBE PASS" FIRST, then PROGRESS.md → Next action steps 1-10: shapes pre-compile (s10*.pli: nested DO calling cellprint, a(k2+1), if s = 0) -> life00_sim.py (byte model incl. 9-wide numerics) -> LF draft -> pin spec/functional/tests/LIFE-00.PLI (CRLF+bare ^Z, <=71, apostrophe-free) -> reference.py _Life00Port/life00()+DERIVATIONS diffed vs sim norm() BEFORE the JSON -> LIFE-00.json VIA SCRIPT (link target LIFE00, console_input bare ^Z, capabilities grep-verified in spec/COVERAGE.tsv AND present in the .PLI) -> --stages source,derivation -> lane B build/fc01/corp8 (+corp8-double if PASS) -> docs/functional-results.md § 13 + § 1 row -> python3 tools/e2e_gate.py compile tier -> build/gate-life00.log -> explicit-path commit. Reusable scratch lane-B runner: build/fc01-scratch/run_bigarray_probe.py. Then DHRY-00 (NEVER execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness changes, explicit-path commits only, NEVER handoff.config.json (operator edit stays unstaged), no push, NEVER re-run the retry-DFS search, ledger ends C352, renewals 10/12 used on this chain.
 <!-- guard:end checkpoint -->
