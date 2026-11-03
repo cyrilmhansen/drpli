@@ -1008,25 +1008,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 234
-checkpoint-id: g234-2b62ed1594f2
+checkpoint-generation: 235
+checkpoint-id: g235-4be9f6716b93
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~1006, session 01a1a318-3f3c-7145-a841-b6a95231f1b1)
-checkpointed: 2026-11-03T20:55:15.078Z
+status: checkpoint (guard level 1, remaining ~12911, session 01a1a332-58b0-7145-a841-b6acf390b482)
+checkpointed: 2026-11-03T21:21:04.873Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 094ded800c38defad5f5d83090afc672aac11d65ee460504a8d4418ad07661fc
-source-handoff: cf91aae1576b30963a8cc9260d2af2506a21abfe8f09fc40e182900379a726e5
-source-learnings: c0fa5fb94dbebb7aa00e9fbca3076cadb32a1e300b82291f851985b81e44fb2d
+source-progress: 17c7e2258e3d33775ce1238765358993a47bc2285e2f69d6aa8ff7fc78fb6dd6
+source-handoff: 35447a767a1d19f0654f47e5bfd5e284c1e2c47d71d34cf2a82a3efd4ce73ed6
+source-learnings: 82cb669c4fb74a9790eb177ace1d1ad2c32e777fefc272987a7545bc67dbbfa2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a318-3f3c-7145-a841-b6a95231f1b1
-readiness-at: 2026-11-03T20:55:15.090Z
-readiness-checkpoint: g234-2b62ed1594f2
+readiness-by: session:01a1a332-58b0-7145-a841-b6acf390b482
+readiness-at: 2026-11-03T21:21:04.885Z
+readiness-checkpoint: g235-4be9f6716b93
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 1; checkpoint requested (finalize: FC-01 CORPUS COMPLETE at hop 22 (commit 63aca3d): FFT-00 rev1 lane-B PASS (corp10, RUN 507 B byte-identical to derived raw sha 87acbf18..., double-run byte-equal), JSON via script with all gates green (9 caps double-verified; AGG.ELEM_AS_ACTUAL falsified-absent and dropped), docs sec 15 + sec 1 + CORPUS CLOSE (7 PASSes + HAMM-00 rev1 recorded my-gap FAIL, 8/8), gate rc=0 build/gate-fft00.log. NO ACTIVE ROUND: successor WITHOUT an operator brief confirms HEAD/tree, /handoff verify, records state and STOPS. Proposals only: HAMM-00 rev2; FCPS1..3 SPECIMENS registration at a gate hop; README 5.1 rights review (due, all eight sources); E2E-50/P3 shortlist. Compiler edce9e0e...; ledger ends C352; no ocaml/harness byte; FAILs never laundered; never re-run retry-DFS; operator handoff.config.json unstaged; no push.)
 
 ### Unfinished operations
 - (none recorded)
@@ -1056,5 +1056,5 @@ guard level 4; checkpoint requested (renewal tool refresh)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FFT-00 hop 21 committed at 9c9dd38 (pin f58e471b…, order audit GREEN, derive('fft00') byte-equal vs fft00_sim 13 lines/507 B sha 87acbf18…; gate rc=0 build/gate-fft00-pin.log). START HERE: LEARNINGS.md § "…FFT-00 hop 21" steps 7-11 — FFT-00.json VIA SCRIPT (mk_dhry00_json.py gates; link FFT00, console_input bare ^Z, capabilities grep-verified BOTH ways — verify AGG.ELEM_AS_ACTUAL really occurs before citing), --stages source,derivation, lane B build/fc01/corp10 (+double if PASS), docs § 15 + § 1, gate build/gate-fft00.log, explicit-path commit, then corpus-close 8/8. Compiler edce9e0e…; ledger ends C352; no ocaml/harness byte; FAILs never laundered; never re-run retry-DFS; operator handoff.config.json unstaged; no push.
+FC-01 CORPUS COMPLETE at hop 22 (commit 63aca3d): FFT-00 rev1 lane-B PASS (corp10, RUN 507 B byte-identical to derived raw sha 87acbf18..., double-run byte-equal), JSON via script with all gates green (9 caps double-verified; AGG.ELEM_AS_ACTUAL falsified-absent and dropped), docs sec 15 + sec 1 + CORPUS CLOSE (7 PASSes + HAMM-00 rev1 recorded my-gap FAIL, 8/8), gate rc=0 build/gate-fft00.log. NO ACTIVE ROUND: successor WITHOUT an operator brief confirms HEAD/tree, /handoff verify, records state and STOPS. Proposals only: HAMM-00 rev2; FCPS1..3 SPECIMENS registration at a gate hop; README 5.1 rights review (due, all eight sources); E2E-50/P3 shortlist. Compiler edce9e0e...; ledger ends C352; no ocaml/harness byte; FAILs never laundered; never re-run retry-DFS; operator handoff.config.json unstaged; no push.
 <!-- guard:end checkpoint -->
