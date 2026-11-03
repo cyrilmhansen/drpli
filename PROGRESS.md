@@ -213,6 +213,48 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+LIFE-00 STEP 2 IS **IN FLIGHT AND BLOCKED** (2026-11-03, hop 12, renewal 12/12 = CAP; this
+chain CLOSES here — continuing needs an operator renewal reset + a fresh controlled `pi`).
+Read FIRST `LEARNINGS.md` § "…LIFE-00 hop 12"; it carries the ACTUALS and the two
+falsifications. Measured this hop (ignored scratch only, NOTHING tracked authored, no lane run,
+no gate run, no `ocaml/` or harness byte changed): the rewritten
+`build/fc01-scratch/life00_sim.py` counts the CENTRE in the neighbour tally (upstream 530/540
+includes it — the hop-11 model omitted it and was FALSIFIED), uses the real beacon, renders
+dead cells `.` (DECIDED, rationale in that §), prints populations **18,20,18,20,18,20**, agrees
+with an INDEPENDENT unbounded Conway model on all 6 printed generations, and yields raw **4722
+B** / **91 normalized lines**. BLOCKER (unresolved): the new window-margin assertion FAILS —
+`live cell at col 1 (edge) g=0` (the glider's `(4,1)` cell sits on the interior edge; the
+line-for-line BASIC model `build/fc01-scratch/life00_bas.py` independently fires the upstream
+`Y1 < 3` clamp / INVALID! on the same pattern, which is why the port drops the dynamic box).
+EXACT NEXT (successor, after an operator renewal reset): (2b) shift the four declared patterns
+right by 2 columns (PROPOSED coordinates in the LEARNINGS § — glider (2,4),(3,5),(4,3),(4,4),
+(4,5); beacon (2,12),(2,13),(3,12),(4,15),(5,14),(5,15); blinker (8,17),(9,17),(10,17); block
+(10,27),(10,28),(11,27),(11,28)), re-run `python3 build/fc01-scratch/life00_sim.py` and require
+ALL assertions green (independent-model equality on gens 0..5, the gen-6 state inside the
+window, header cs == live, 30-token rows, 91 lines) and RECORD the new raw/line counts — the
+4722/91 numbers above belong to the CURRENT pattern and are superseded by the re-run; (3) LF
+draft mirroring the simulator statement-for-statement — remember `t2 = a(n); if t2 = 1 then s =
+s + 1;` for the centre BEFORE the `= 3`/`= 4` ladder, and the REQUIRED explicit zero-init `do i =
+1 to 448; a(i) = 0; end;` — then CRLF + bare ^Z + <=71 cols + apostrophe-free
+`spec/functional/tests/LIFE-00.PLI`, pin sha256; (4) `reference.py:_Life00Port` + `life00()` +
+`DERIVATIONS`, diff `derive('life00')` vs sim `norm()` BEFORE any JSON (use the measured sep
+blank + 9-wide right-justified numeric, NEVER `_Hamm00Port`'s `%10d`+join); (5) generate
+`LIFE-00.json` VIA SCRIPT (link_target LIFE00, console_input bare ^Z, capabilities
+grep-verified in `spec/COVERAGE.tsv` AND present in the .PLI, notes = INPUT/DONE/B$/LEN/LEFT$/
+RIGHT$/MID$ phase dropped, 24x70 -> 12x30 window, bounded 6 gens, dynamic-box/clamp/INVALID!
+removal, beacon correction and cs=18, centre-count falsification, one-blank pad, TAB banner
+dropped, dead-glyph `.`); (6) `python3 tools/functional_runner.py --stages source,derivation
+--tests LIFE-00`; (7) lane B `--evidence build/fc01/corp8 --json-out build/fc01/corp8/records
+.json` (+corp8-double if PASS), ACTUALS verbatim, a FAIL stays classified and is NEVER
+laundered; (8) `docs/functional-results.md` § 13 + § 1 row; (9) `python3 tools/e2e_gate.py`
+compile tier -> `build/gate-life00.log`; (10) explicit-path commit (NEVER
+`handoff.config.json`; no push). Then DHRY-00 (NEVER execute the `.SHAR`) and FFT-00; HAMM-00
+rev2 stays PROPOSED. Constraints: no `ocaml/`/harness byte changed; ledger ends C352; NEVER
+re-run the retry-DFS search; third-party bytes never tracked; operator `handoff.config.json`
+untouched/unstaged; no push.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 LIFE-00 IMPLEMENTATION STEPS 2-10 (2026-11-03, continuation chain hop 11 end; step 1 shapes
 pre-compile **PASS** and the step-2 simulator is written; NOTHING tracked authored yet). Read
 FIRST `LEARNINGS.md` § "…LIFE-00 implementation hop (continuation chain hop 11)" — it carries the
@@ -1106,16 +1148,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 203
-checkpoint-id: g203-e5cbe1daf24e
+checkpoint-generation: 206
+checkpoint-id: g206-cdbc3f69f63f
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-03T12:41:25.263Z
+checkpointed: 2026-11-03T13:21:14.674Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 102d22e133dc0887d028283fc9b591f9529d97e0c03d3a123b9d0d8b186d41f6
-source-handoff: a0013e643264dd4595c4c15b460f79392814d5b62a1bf089cda2c635f17c0d76
+source-progress: f7d11338975e210043240d1fb6caa6bd66853d3ca96c19802d6ccaa9cb522a5c
+source-handoff: 568165f3dfce693671e1caf97a3316c527998fe185a9f1a738bb5b477578a785
 source-learnings: 673ccddefbaa75d76aabfc96f8c4b4abb3ef3cbeba983380069d47a3e6dc61ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and

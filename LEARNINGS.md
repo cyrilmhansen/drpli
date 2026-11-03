@@ -3919,3 +3919,63 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   re-measured this hop, LIFE.bas `e268ed69...`); operator `handoff.config.json` untouched/unstaged;
   no push; renewal 11/12 used at this session start — ONE renewal (12/12) remains on this chain,
   spend it at THIS boundary; after that the successor must close with `handoff_finalize`.
+
+## 2026-11-03 — FC-01 CORPUS LIFE-00 hop 12 (continuation chain, renewal 12/12 = CAP): simulator FALSIFIED and REWRITTEN; step 2 in flight, closed at context exhaustion
+
+- **FALSIFIED (hop-11 simulator, kept as written per PROTOCOL #2): "upstream single-array
+  2-pass semantics" as implemented by `life00_sim.py` was WRONG.** Upstream LIFE counts the
+  3x3 block **INCLUDING the centre** (BASIC 530/540 run `I=X-1 TO X+1`, `J=Y-1 TO Y+1` with no
+  self-exclusion; 550 `IF A(I,J)=1 OR A(I,J)=2 THEN C=C+1`), and the death test 590
+  `IF C<3 OR C>4` is therefore the Conway rule only because a live cell counts itself. The
+  hop-11 model summed only the EIGHT neighbour temps and still tested `= 3`/`= 4`, so every
+  live cell with exactly two live neighbours died: the beacon, blinker and glider all degraded
+  and the printed sequence was **18,12,8,9,7,6** instead of **18,20,18,20,18,20**. Consequence
+  for the DRAFT (must be written this way): after the eight `t1 = a(nk); if t1 = 1 then s = s
+  + 1; if t1 = 2 then s = s + 1;` blocks the centre is added too — `t2 = a(n); if t2 = 1 then
+  s = s + 1;` — and only then the `= 3`/`= 4` survive / die ladder.
+- **FALSIFIED (my own first cross-check model, same hop):** a textbook `Counter` model that
+  adds the centre to the neighbour tally (missing the `(0,0)` exclusion) is NOT Conway — it
+  lost the 2x2 block at g=1 (pop 18 -> 18 with the block gone). Two model bugs of exactly the
+  same kind, caught by insisting on agreement between independent implementations.
+- ACCEPTED (MEASURED by two independent models agreeing): the rewritten
+  `build/fc01-scratch/life00_sim.py` (centre counted, correct beacon, dead glyph `.`) prints
+  populations **18,20,18,20,18,20**; its per-generation live-cell sets equal an INDEPENDENT
+  unbounded set-based Conway model on all 6 printed generations (assertion
+  `port grid == independent Conway model on all 6 printed generations: PASS`); per-generation
+  header `cs` == live cells counted in the print pass on every generation; block stays 4
+  cells, glider 5 cells, blinker 3 cells, beacon flickers 6 -> 8 -> 6 (declared initial
+  population **18**, not the hop-10 15). Stream ACTUALS of the current model: **raw 4722
+  bytes** including the exit CRLF (4720 before it), **91 normalized lines** = banner 2 + 3
+  blanks + 6 x (pad + header + 12 rows) + bottom pad + the exit-CRLF blank, 12 rows x 30
+  `.`/`*` tokens per generation, header line `GENERATION <g> POPULATION <cs>` after
+  collapse-spaces-v1 (the 9-wide numeric field and the separator blank both collapse).
+- **OPEN BLOCKER found by the new invariant (not yet resolved):** the window-margin assertion
+  FAILS — `live cell at col 1 (edge) g=0`, i.e. the declared glider (its `(4,1)` cell) sits on
+  the interior edge of the 12x30 window, and the upstream listing's own edge test agrees the
+  pattern touches the boundary (see the BASIC model below). PROPOSED fix for the successor
+  (NOT applied, NOT adopted): shift the whole pattern right by 2 columns — glider
+  (2,4),(3,5),(4,3),(4,4),(4,5); beacon (2,12),(2,13),(3,12),(4,15),(5,14),(5,15); blinker
+  (8,17),(9,17),(10,17); block (10,27),(10,28),(11,27),(11,28) — then re-run the sim and
+  RE-ASSERT agreement with the independent Conway model on all 6 printed generations plus the
+  gen-6 (never printed) state staying inside the window. Do not pin anything before that
+  re-verification passes.
+- NEW scratch evidence (ignored, nothing tracked): `build/fc01-scratch/life00_bas.py` is a
+  line-for-line model of `LIFE.bas` including the dynamic bounding box (215/262..268/299/635),
+  the 301..307 clamps and the `I9` INVALID! flag. MEASURED consequence: fed the declared
+  pattern, the upstream machinery fires `Y1 < 3` (the glider is at column 1) and would print
+  `INVALID!` while the truncated box loses live cells (its own edge assertion fails at g=0 the
+  same way the port's does). This is why the port DROPS the box and scans the whole declared
+  window every generation — a DECLARED adaptation, never a silent removal. 229 normalized
+  lines for that (unadapted) model.
+- **DECIDED (was OPEN PROPOSED at hop 11): dead cells render `.` not `' '`.** Rationale: the
+  gate normalization `collapse-spaces-v1` (`re.sub(r" +", " ")`) collapses a blank background
+  so a row asserts only the ORDER of stars and loses every column; with `.` each row is 30
+  positional tokens (`AGG`/PUT-list rendering per the measured separator law) and a live cell
+  is still `*`, exactly as upstream prints. AMAZ-00 already renders structure with `.`
+  literals. The simulator and `reference.py:_Life00Port` must stay identical on this; the
+  choice goes into the `LIFE-00.json` notes as a declared cosmetic divergence.
+- Constraints: no `ocaml/` or harness byte changed this hop; no lane run, no gate run; NOTHING
+  tracked authored for LIFE-00; ledger ends C352; NEVER re-run the retry-DFS search;
+  third-party bytes never tracked; operator `handoff.config.json` untouched/unstaged; no push.
+  Renewal 12/12 = CONFIGURED CAP: the successor needs an OPERATOR reset to continue, so this
+  chain closes with `handoff_finalize`.

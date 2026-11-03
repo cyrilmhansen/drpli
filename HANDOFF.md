@@ -122,7 +122,34 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## LIFE-00 implementation hop IN FLIGHT — shapes pre-compiled, simulator written, 3 falsifications (2026-11-03, continuation chain hop 11; steps 1-2 only; NOTHING tracked authored; closed at context exhaustion)
+## LIFE-00 hop 12 CLOSED AT CHAIN CAP — simulator FALSIFIED + REWRITTEN, step 2 BLOCKED on the window margin (2026-11-03, renewal 12/12; NOTHING tracked authored; no lane/gate run; no renewal without an operator reset)
+
+Read `LEARNINGS.md` § "…LIFE-00 hop 12" FIRST — it carries the ACTUALS. Measured (ignored
+scratch `build/fc01-scratch/life00_sim.py` + the new line-for-line `life00_bas.py`, MY work, NOT
+DR claims, ledger ends C352): (a) **FALSIFIED the hop-11 neighbour model** — upstream LIFE counts
+the 3x3 block INCLUDING the centre (530/540 have no self-exclusion), so the hop-11 eight-temp
+sum with the `= 3`/`= 4` ladder killed every cell with exactly two live neighbours (pops
+18,12,8,9,7,6); with the centre added the printed sequence is **18,20,18,20,18,20**, the block /
+glider / blinker / beacon invariants hold, the beacon flickers 6→8→6, and the port grids EQUAL an
+independent unbounded Conway model on all 6 printed generations. Raw **4722 B**, **91 normalized
+lines** for the CURRENT pattern. (b) Also falsified my own first cross-check model (a `Counter`
+tally that counted the centre is not Conway — it destroyed a 2x2 block). (c) **DECIDED** the open
+hop-11 question: dead cells render `.` — `collapse-spaces-v1` erases all column information from
+a blank background, `.` keeps 30 positional tokens per row (AMAZ-00 precedent); document as a
+cosmetic divergence in the JSON notes. (d) **BLOCKER, unresolved:** the new window-margin
+assertion fails — `live cell at col 1 (edge) g=0`; the glider's `(4,1)` cell sits on the interior
+edge and the line-for-line BASIC model independently fires upstream's `Y1 < 3` clamp / `INVALID!`
+on the same pattern (that machinery, plus the dynamic box, is a declared port removal). PROPOSED
+fix (NOT applied, NOT adopted): shift all four patterns right 2 columns and re-run until every
+assertion is green, RECORDING the new raw/line counts, before pinning anything. Steps 3-10 are
+unchanged in `PROGRESS.md` → `## Next action`, prefixed by step 2b. **Renewal is at the
+configured cap (12/12) and the gate refuses**, so this chain ends here: resuming needs an
+operator `renewal.maxRenewals` raise or an ignored `.pi-guard/renewal-state.json` reset plus a
+fresh controlled `pi` launch. No `ocaml/` or harness byte changed; nothing laundered; third-party
+bytes never tracked; operator `handoff.config.json` untouched/unstaged; no push; NEVER re-run the
+retry-DFS search.
+
+## Superseded: LIFE-00 implementation hop IN FLIGHT — shapes pre-compiled, simulator written, 3 falsifications (2026-11-03, continuation chain hop 11; steps 1-2 only; NOTHING tracked authored; closed at context exhaustion)
 
 Read `LEARNINGS.md` § "…LIFE-00 implementation hop (continuation chain hop 11)" FIRST — it carries
 the ACTUALS. DONE: (1) risky-shape pre-compile PASS (ignored scratch `build/fc01-scratch/s10a.pli`
@@ -736,16 +763,16 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 203
-checkpoint-id: g203-e5cbe1daf24e
+checkpoint-generation: 206
+checkpoint-id: g206-cdbc3f69f63f
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~4185, session 01a1a155-efaa-7601-8f9d-90e1b7db4564)
-checkpointed: 2026-11-03T12:41:25.263Z
+status: checkpoint (guard level 4, remaining ~4561, session 01a1a16f-7f15-7601-8f9d-90e5dad3acd6)
+checkpointed: 2026-11-03T13:21:14.674Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 102d22e133dc0887d028283fc9b591f9529d97e0c03d3a123b9d0d8b186d41f6
-source-handoff: a0013e643264dd4595c4c15b460f79392814d5b62a1bf089cda2c635f17c0d76
+source-progress: f7d11338975e210043240d1fb6caa6bd66853d3ca96c19802d6ccaa9cb522a5c
+source-handoff: 568165f3dfce693671e1caf97a3316c527998fe185a9f1a738bb5b477578a785
 source-learnings: 673ccddefbaa75d76aabfc96f8c4b4abb3ef3cbeba983380069d47a3e6dc61ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
@@ -781,5 +808,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-Successor = LIFE-00 hop 10 DONE (committed c097085): big-array lane-B probe PASS (BIGA.COM 15104 B, RUN done, 227 console bytes, all checksums correct — evidence ignored build/fc01-scratch/biga-evidence/), hop-9 runtime-allocation claim FALSIFIED (arrays ARE static DATA: relstats LINK-DEF-DATA-SIZE s6j/s6l = 4004/3374; compiler stderr DATA= header is not the declared size), fixed bin(15) PUT LIST field 9-wide right-justified MEASURED, LIFE-00 design ADOPTED (flat padded a(448) interior 12x30 n=x*32+y+1, single-array 2-pass 2/3 semantics, bounded 6 gens, declared glider+beacon+block+blinker cs=15, INPUT dropped, nested cellprint, C159-legal neighbour temps, positive-literal ladders, equality-to-0 stays PROPOSED). Read LEARNINGS.md § "...big-array lane-B PROBE PASS" FIRST, then PROGRESS.md → Next action steps 1-10: shapes pre-compile (s10*.pli: nested DO calling cellprint, a(k2+1), if s = 0) -> life00_sim.py (byte model incl. 9-wide numerics) -> LF draft -> pin spec/functional/tests/LIFE-00.PLI (CRLF+bare ^Z, <=71, apostrophe-free) -> reference.py _Life00Port/life00()+DERIVATIONS diffed vs sim norm() BEFORE the JSON -> LIFE-00.json VIA SCRIPT (link target LIFE00, console_input bare ^Z, capabilities grep-verified in spec/COVERAGE.tsv AND present in the .PLI) -> --stages source,derivation -> lane B build/fc01/corp8 (+corp8-double if PASS) -> docs/functional-results.md § 13 + § 1 row -> python3 tools/e2e_gate.py compile tier -> build/gate-life00.log -> explicit-path commit. Reusable scratch lane-B runner: build/fc01-scratch/run_bigarray_probe.py. Then DHRY-00 (NEVER execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness changes, explicit-path commits only, NEVER handoff.config.json (operator edit stays unstaged), no push, NEVER re-run the retry-DFS search, ledger ends C352, renewals 10/12 used on this chain.
+Successor = LIFE-00 steps 2-10 (hop 12; renewal 12/12 = CONFIGURED CAP — after landing LIFE-00 close the chain with handoff_finalize, no further renewal without an operator reset). Durable state committed at 85ef7f0. Read FIRST LEARNINGS.md § "…LIFE-00 implementation hop (continuation chain hop 11)" then PROGRESS.md → Next action steps 2-10. Already DONE: step-1 shape pre-compile PASS (build/fc01-scratch/s10a.pli rc=0, 2944 B) and simulator build/fc01-scratch/life00_sim.py (raw 4722 B, 91 normalized lines). FALSIFIED hop-10 design items: scalar = 0 IS lane-B run-witnessed (AMAZ/HANG/WKDAY PASS); hop-10 beacon coordinates die out — real beacon (2,10),(2,11),(3,10),(4,13),(5,12),(5,13) flickers 6→8→6; initial cs = 18 not 15. OPEN PROPOSED (decide, do not adopt silently): dead-cell glyph ' ' vs '.' under collapse-spaces-v1. Draft MUST zero-init a(448) explicitly (uninitialized static DATA contents unmeasured). fixed bin(15) PUT LIST = separator blank + 9-wide right-justified (never copy _Hamm00Port %10d). Then pin LIFE-00.PLI (CRLF+bare ^Z, ≤71, apostrophe-free), reference.py _Life00Port/life00()+DERIVATIONS diffed vs sim norm() BEFORE the JSON, LIFE-00.json via script (link_target LIFE00, console_input bare ^Z, capabilities grep-verified in spec/COVERAGE.tsv AND present in the .PLI), --stages source,derivation, lane B build/fc01/corp8 (+corp8-double if PASS), docs § 13 + § 1 row, python3 tools/e2e_gate.py compile tier → build/gate-life00.log, explicit-path commit. Never handoff.config.json, no push, no ocaml/harness changes, ledger ends C352, NEVER re-run the retry-DFS search.
 <!-- guard:end checkpoint -->
