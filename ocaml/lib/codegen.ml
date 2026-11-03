@@ -3723,6 +3723,33 @@ let rec writes_de st (e : Ast.expr) =
   | _ -> false
   | _ -> false
 
+(* [E2E-51/P1 E51G] is this ADD RIGHT operand a variable-divisor DIV of the
+   measured parking shape?  E51G (`c + a / b') is BYTE-IDENTICAL to E51F
+   (`a / b + c') modulo the packed name bytes: DR evaluates the DIV FIRST,
+   XCHGs the quotient into DE, loads the left and DAD D
+   (spec/lab-evidence/e2e51-p1/RESULTS.md 2.2 -- the [C141] P7 isomorphism
+   holds for a helper RESULT, orientation-free right-first).  Deliberately
+   narrow:
+     * an UNWRAPPED Ast.Ebinary (Ast.Div,_,_) only -- a parenthesized
+       `c + (a/b)' is unsampled and keeps the C150 park route;
+     * a NON-CONSTANT divisor only -- the constant-divisor right operand
+       (`c + a/3') keeps its existing untouched route; the orientation-free
+       law was measured over the parking shape only;
+     * operand classes the Div arm refuses BY NAME (call/element divisor,
+       deref/based/qualified operands) return false here, so the ADD keeps
+       the park route and the Div refusal still fires at lowering time with
+       its own message -- the refusal classes are unchanged.
+   The caller-side guard additionally demands a plain, non-ladder LEFT. *)
+let is_var_divisor_div st (e : Ast.expr) =
+  match e.Ast.e with
+  | Ast.Ebinary (Ast.Div, dl, dr) ->
+      (match dr.Ast.e with
+       | Ast.Enumber _ | Ast.Esuffix _ -> false
+       | _ ->
+           not (hl_operand_deref st dl || hl_operand_deref st dr
+                || writes_de st dl || writes_de st dr))
+  | _ -> false
+
 (* [E2E-5c slice 2, CORRECTED by E2E-40/P3 [C260]] tail = the continuation address
    that follows the MAIN block (tail_addr in emit_program).  What this comment used
    to claim -- that DR routes an ADD through PUSH H/POP D when the evaluation
@@ -4901,6 +4928,18 @@ let rec lower_hl st (e : Ast.expr) =
              either way (console 31 = 7+(11+13)) -- which is exactly why execution could
              not find this [C264].  No claim is made about WHY DR orders it this way. *)
           lower_hl st r; d st op_push_h; lower_hl st l; d st op_pop_d; d st op_dad_d
+        end else if is_var_divisor_div st r
+                    && not (add_left_needs_push l)
+                    && not (writes_de st l) then begin
+          (* [E2E-51/P1 E51G] right-first + XCHG for a variable-divisor DIV
+             right operand: <div> / EB / <left> / 19 -- the E51F/E51G pair is
+             ONE object modulo the packed name bytes, so the P7 isomorphism
+             [C141] covers the DIV parking result too.  The C150 syntactic
+             left-first PARK rule is NOT widened or narrowed for any other
+             compound right: this branch fires only for the measured shape,
+             and the CALL-right arm above stays untouched. *)
+          lower_hl st r; d st op_xchg; lower_hl st l; d st op_dad_d;
+          st.last_imm <- None
         end else if add_left_needs_push r then begin
           lower_hl st l; d st op_push_h; lower_hl st r; d st op_pop_d; d st op_dad_d
         end else if rhs_is_imem st r then begin
