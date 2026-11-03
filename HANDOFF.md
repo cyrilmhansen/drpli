@@ -122,7 +122,35 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## DHRY-00 hop start LANDED — source extracted READ-ONLY + read; 8 port shapes MEASURED; design PROPOSED (2026-11-03, continuation chain hop 14; NOTHING tracked authored; no lane/gate run)
+## DHRY-00 implementation hop LANDED — shapes pre-compiled + lane-B RUN probes DHP00/TP00; TWO new `my-gap` classes MEASURED (queue-order layout law, formal-subscript store LOSS); simulator→draft OWED (2026-11-03, continuation chain hop 15; renewal 2/12; NOTHING tracked authored; no gate run)
+
+Read `LEARNINGS.md` § "…DHRY-00 implementation hop (continuation chain hop 15)" FIRST, then
+`PROGRESS.md` → `## Next action` → "DHRY-00 implementation hop LANDED" for the exact steps 4-11.
+Key measured facts this hop (ignored scratch `build/fc01-scratch/dhry00/`, my compiler
+`edce9e0e…`, NOT DR claims; ledger ends C352; build verified rc=0 this session): LAYOUT LAW
+(accepted) — sibling calls from nested-procedure bodies compile ONLY when ALL main-body
+statements precede ALL nested definitions (otherwise `codegen: call-site queue mismatch`;
+root cause read in `bind.ml`/`codegen.ml` call-queue consumption); lane-B RUN probe DHP00 PASS
+(COM 13568 B, 109 console bytes, every modeled value/column exact — nested outer-scalar and
+outer-AUTO-array writes, 5256 B data footprint, sibling calls, flat goto loops, ladder PUT all
+run-correct), BUT TP00 isolated a **silently lost array store when the subscript is the formal
+itself** (capture verbatim `\r\n        0         0         7         0         7\r\n`) — port
+rule: copy formal→local before subscripting (accepted as my-gap-class measurement, lane-B
+witnessed; `do while x <= 2` and `if d < 0` refusals falsified the hop-14 loop-conditions
+assumption; the proposed 79-col wrap FIRES at exactly 79 cols — port keeps lines ≤ 78). DHRY-00
+port design is now FULLY CONSTRAINED and PROPOSED in that LEARNINGS § (records = 2 slots x
+parallel AUTO arrays + flat sf(60) string codes, result cells for var-params, subtraction
+`div` via `if rr < yy`, N=7 via `get list` with `console_input 7\r^Z`, timing/reals dropped and
+documented). NEXT = steps 4-11 in PROGRESS (sims + triple cross-check -> draft -> pin ->
+reference diff BEFORE JSON -> JSON via script -> `--stages source,derivation` -> lane B
+`build/fc01/corp9` (+double) -> docs § 14 + § 1 -> gate `build/gate-dhry00.log` -> explicit-path
+commit), then FFT-00. Constraints unchanged: no `ocaml/`/harness byte; functional runs are NOT DR
+claims; FAILs stay classified never laundered; NEVER re-run the retry-DFS; third-party bytes never
+tracked; operator `handoff.config.json` untouched/unstaged; no push; renew only at safe
+boundaries (renewal 2/12 used at this session start; the checkpoint must be refreshed+attested —
+run `/handoff` then `/handoff ready` before any renewal).
+
+## Superseded: DHRY-00 hop start LANDED — source extracted READ-ONLY + read; 8 port shapes MEASURED; design PROPOSED (2026-11-03, continuation chain hop 14; NOTHING tracked authored; no lane/gate run)
 
 Read `LEARNINGS.md` § "…FC-01 CORPUS DHRY-00 hop start" FIRST, then `PROGRESS.md` → `## DHRY-00 hop
 start LANDED` for the exact owed steps. Measured this hop (ignored scratch, MY compiler, NOT DR
@@ -830,22 +858,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 212
-checkpoint-id: g212-83499c079631
-checkpoint-kind: auto
+checkpoint-generation: 216
+checkpoint-id: g216-ecf9e92d79b5
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6416, session 01a1a261-96b5-7145-a841-b68d3838c8de)
-checkpointed: 2026-11-03T17:33:52.173Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~2959, session 01a1a27a-6994-7145-a841-b691d1975277)
+checkpointed: 2026-11-03T18:04:37.099Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4778984005f61b23c01c6c17eb0f691c72e3d11e933547b4d7e2507528bf4884
-source-handoff: 598525a3f8a4e7095910806e74b3205358cb9eb1d64c746a3c439bd59605a5fa
-source-learnings: f8d83c1e321cb88ece3d2c824b3c16c52d7453affc2cb35a42cf17796ec7ae50
+source-progress: 5712695dc0ddb6b8938c3927746163a417f05682e20f59a385b961c94cf63021
+source-handoff: 884a48abe28b2a44c4bb4a9fe5374b75ff3e76c0a8cfc73ccc3675ab0a9bd51e
+source-learnings: 26e7e898d4a3d03167a96bd0e7836f90912be7af4a91d4266475ab5486e85981
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a27a-6994-7145-a841-b691d1975277
+readiness-at: 2026-11-03T18:04:37.115Z
+readiness-checkpoint: g216-ecf9e92d79b5
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -875,5 +906,5 @@ guard level 3; checkpoint requested (auto at level 3)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-LIFE-00 rev1 LANDED lane-B PASS (hop 13, commit 128a132): pinned LIFE-00.PLI sha fa4ab8cf…, derivation byte-equal vs simulator (91 lines, raw 4722 B), JSON via script (10 double-verified caps), corp8 PASS first run + corp8-double byte-equal, gate rc=0 1174/0. NEXT = DHRY-00 (NEVER execute the .SHAR; exact steps 1-11 in PROGRESS Next action; evidence corp9, docs § 14), then FFT-00. Renewal capped 12/12, enforcement disabled per operator — re-finalize at every safe boundary; fresh successor needs operator reset. handoff.config.json stays unstaged; no push.
+DHRY-00 implementation hop 15 LANDED (docs-only landing this session — nothing tracked authored yet, tree dirty ONLY with HANDOFF/PROGRESS/LEARNINGS prose + operator handoff.config.json; ocaml/ and harness untouched; no commit owed yet because no tracked artifact was created). Successor: execute PROGRESS.md → ## Next action → "DHRY-00 implementation hop LANDED" steps 4-11 (sims build/fc01-scratch/dhry00/dhry00_pascal_sim.py + dhry00_sim.py with triple cross-check N=7 -> LF draft DHRY-00.draft.pli -> pin spec/functional/tests/DHRY-00.PLI -> reference.py:_Dhry00Port diffed BYTE-EQUAL BEFORE JSON -> DHRY-00.json via script -> --stages source,derivation -> lane B build/fc01/corp9 (+double) -> docs § 14 + § 1 -> gate build/gate-dhry00.log -> explicit-path commit), then FFT-00 (build/functional/fc01-sources/pli/FFT-reference.pli, evidence corp10, docs § 15). READ FIRST LEARNINGS.md § "...DHRY-00 implementation hop (continuation chain hop 15)": LAYOUT LAW (main-body statements FIRST, all nested defs after stop; else call-site queue mismatch), TP00 LAW (copy formal->local before array subscript - formal-subscript stores are SILENTLY LOST; lane-B verbatim \r\n        0         0         7         0         7\r\n), do-while only with <, no <0 or <=, lines <=78 cols (79-col wrap fires, law stays proposed), scratch probe machinery reusable: build/fc01-scratch/dhry00_run_probe.py and tp00_run_probe.py. Build verified rc=0 (edce9e0e). Compiler v12.REL exists (nested if/goto, char(56) varying label, mixed put - lane-B run unwitnessed). Constraints: no ocaml/harness byte; ledger ends C352; functional runs are NOT DR claims; NEVER re-run retry-DFS; third-party bytes never tracked; .SHAR NEVER executed (source already extracted read-only in build/fc01-scratch/dhry00/); operator handoff.config.json untouched/unstaged; no push; renew only at safe boundaries.
 <!-- guard:end checkpoint -->

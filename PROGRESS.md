@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 **PASS** (hop 13, docs § 13) — 6 of 8 landed; DHRY-00 hop start LANDED (hop 14: source read-only-extracted + read, 8 shapes measured, design PROPOSED); EXACT NEXT = DHRY-00 simulator→…→lane B corp9 (Pascal `.SHAR` — NEVER execute it), then FFT-00)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 **PASS** (hop 13, docs § 13) — 6 of 8 landed; DHRY-00 hop start LANDED (hop 14) + implementation hop LANDED (hop 15: shapes pre-compiled, lane-B DHP00/TP00 probes, formal-subscript store-LOSS found, layout law found); EXACT NEXT = DHRY-00 sims→draft→pin→reference→JSON→lane B corp9 (`.SHAR` NEVER executed), then FFT-00 — see `## DHRY-00 implementation hop LANDED` under Next action)
 
 TICT-00 hop 7 landed step 3 only (2026-11-03, continuation chain hop 7): the hop-6 draft was
 converted (CRLF + bare ^Z, 499 lines, 9300 B, widest 64 <= 71, no in-literal apostrophes) and
@@ -213,7 +213,49 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-LIFE-00 **LANDED — lane-B PASS** (2026-11-03, continuation chain hop 13; this session's operator
+## DHRY-00 implementation hop LANDED (2026-11-03, continuation chain hop 15; shapes pre-compiled + lane-B RUN probes DHP00/TP00 MEASURED; NOTHING tracked authored; simulator OWED)
+
+Read FIRST `LEARNINGS.md` § "…DHRY-00 implementation hop (continuation chain hop 15)" — it carries
+the ACTUALS and the full draft contract. Measured (my compiler edce9e0e, ignored scratch
+`build/fc01-scratch/dhry00/`, NOT DR claims, ledger ends C352): (1) ACCEPTED — sibling nested
+procedure/function calls WORK ONLY with the LIFE-00 layout (ALL main-body statements first,
+ALL nested definitions after `stop;`): procedures-before-main REFUSE with `call-site queue
+mismatch` (bind queue = root sites first; v4b/v4c refused, v4d rc=0). (2) FALSIFIED — `do while
+intloc <= 2` REFUSED (only `<` forms in DO WHILE); `if d < 0` REFUSED (divsub uses
+`if rr < yy`). (3) ACCEPTED lane-B RUN (DHP00 COM 13568 B, RUN done 109 B; TP00 RUN done 53 B
+verbatim `\r\n        0         0         7         0         7\r\n`) — nested writes to outer
+scalars/arrays, 5256 B DHRY-size AUTO data, flat goto loops, code->char ladder PUT, return(rv)
+functions ALL RUN-CORRECT, BUT **FALSIFIED silent store-LOSS: a nested-procedure array store
+whose subscript is the FORMAL ITSELF writes nowhere — copy formal->local FIRST (TP00 law);
+literal and local-variable subscripts correct. (4) MEASURED the proposed 79-col PLILIB wrap
+FIRES at exactly 79 columns — the port keeps every line ≤ 78 so no wrap model is needed.
+EXACT NEXT (steps 4-11 of the standing contract, in `build/fc01-scratch/dhry00/`):
+(4) write `dhry00_pascal_sim.py` (line-for-line Pascal semantics) and `dhry00_sim.py` (port
+byte model: sep blank when line open, `%9d`, echo `%d\r\r\n`, exit appends one `\r\n` [C352],
+collapse-spaces-v1) — cross-check the two on the FINAL state for N=7 AND against the published
+should-be column (IntGlob 5, Bool TRUE, A, B, a1(8)=7, a2(8,7)=17, slot1 0/2/17/SOME-STRING,
+slot2 0/1/18/SOME-STRING, 5/13/7, EnumGlob 1, sg1=1ST, sg2=2ND); (5) LF draft
+`build/fc01-scratch/dhry00/DHRY-00.draft.pli` per the LEARNINGS draft contract (N=7 via
+`get list`; explicit zero-init EVERYTHING; every formal copied to a local before subscripting;
+reusable `c30` copy proc; flat label loops for `<=`-whiles; v12-compiled nested if/goto forms);
+scratch-compile with `../../../ocaml/_build/default/bin/pli80c.exe`;
+(6) convert CRLF+bare ^Z, <=71 cols, <=8-letter link name, zero tabs/high bytes, no in-literal
+apostrophes -> pin `spec/functional/tests/DHRY-00.PLI`, compile the PIN and `cmp` vs draft .REL;
+(7) `reference.py:_Dhry00Port`/`dhry00()`+DERIVATIONS, diff `derive('dhry00')` vs sim norm()
+BYTE-EQUAL BEFORE any JSON; (8) `DHRY-00.json` VIA SCRIPT (link_target DHRY00,
+console_input `7\r^Z`, capabilities grep-verified ACCEPTS/SUPPORTED in `spec/COVERAGE.tsv` AND
+present in the .PLI, notes = every removal incl. timing/reals/apostrophes/79-col law);
+`--stages source,derivation`; (9) lane B `python3 tools/functional_runner.py --tests DHRY-00
+--evidence build/fc01/corp9 --json-out build/fc01/corp9/records.json` (+`--double-run` into
+corp9-double if PASS), ACTUALS verbatim, FAIL stays classified never laundered; (10)
+`docs/functional-results.md` § 14 + § 1 row; (11) `python3 tools/e2e_gate.py` ->
+`build/gate-dhry00.log`; explicit-path commit (NEVER `handoff.config.json`; no push). Then
+FFT-00 (evidence corp10, docs § 15). Constraints: no `ocaml/`/harness byte; ledger ends C352;
+functional runs are NOT DR claims; NEVER re-run the retry-DFS; third-party bytes never tracked;
+renew at the safe boundary AFTER the commit (renewal 2/12 used by this session; gate currently
+reports the checkpoint needs refresh+attest — run `/handoff` then `/handoff ready`).
+
+SUPERSEDED-BY-ABOVE (kept as written): LIFE-00 **LANDED — lane-B PASS** (2026-11-03, continuation chain hop 13; this session's operator
 ask — "an actual Lane-B verdict, not another design step" — is DELIVERED). Read FIRST
 `LEARNINGS.md` § "…LIFE-00 completion hop LANDED". Measured: `spec/functional/tests/LIFE-00.PLI`
 PINNED sha `fa4ab8cf7ef4715861b9c8b2c70cfe4ce3c900b7d13289064a5c70ca1d2256f9` (4630 B, 150 lines,
@@ -1250,17 +1292,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 212
-checkpoint-id: g212-83499c079631
-checkpoint-kind: auto
+checkpoint-generation: 216
+checkpoint-id: g216-ecf9e92d79b5
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-03T17:33:52.173Z
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-03T18:04:37.099Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4778984005f61b23c01c6c17eb0f691c72e3d11e933547b4d7e2507528bf4884
-source-handoff: 598525a3f8a4e7095910806e74b3205358cb9eb1d64c746a3c439bd59605a5fa
-source-learnings: f8d83c1e321cb88ece3d2c824b3c16c52d7453affc2cb35a42cf17796ec7ae50
+source-progress: 5712695dc0ddb6b8938c3927746163a417f05682e20f59a385b961c94cf63021
+source-handoff: 884a48abe28b2a44c4bb4a9fe5374b75ff3e76c0a8cfc73ccc3675ab0a9bd51e
+source-learnings: 26e7e898d4a3d03167a96bd0e7836f90912be7af4a91d4266475ab5486e85981
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1284,6 +1326,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a1a27a-6994-7145-a841-b691d1975277
+readiness-at: 2026-11-03T18:04:37.115Z
+readiness-checkpoint: g216-ecf9e92d79b5
 <!-- guard:end checkpoint -->
 
 ## Blockers

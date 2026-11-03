@@ -4217,3 +4217,91 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   explicit-path commit. Then FFT-00. Constraints unchanged: no `ocaml/`/harness byte; ledger ends
   C352; functional runs are NOT DR claims; NEVER re-run the retry-DFS; third-party bytes never
   tracked; operator `handoff.config.json` untouched/unstaged; no push.
+
+## 2026-11-03 — FC-01 CORPUS DHRY-00 implementation hop (continuation chain hop 15; risky shapes pre-compiled + TWO lane-B RUN probes DHP00/TP00; TWO new compiler gaps MEASURED; NOTHING tracked authored; simulator OWED)
+
+- ACCEPTED (my compiler `edce9e0e…`, ignored scratch `build/fc01-scratch/dhry00/v*.pli`, NOT DR
+  claims, ledger ends C352): v3 `returns(fixed bin(15))` + single conditional `return (rv);` +
+  `t = f(x,y)` scalar assignment, rc=0 384 B; v6 repeat-until-as-label+flag-goto (goto jumping
+  FORWARD over CLOSED DO blocks, same top-level block) rc=0; v8 flat goto loop over `a2(2500)`
+  with precomputed simple-variable subscript + `if ii < 10` rc=0; v9 19-branch code->char ladder
+  with `put list(ch);` from a nested proc, called inside `do k = 1 to 60`, rc=0 1408 B;
+  v10b/divsub via `if rr < yy then goto dn` (scalar<scalar in IF, positive-literal-free) rc=0;
+  v11 `if a > 2`, `if a < 9`, `do while a < 5` all COMPILE rc=0; v12 (untruncated DO WHILE body,
+  nested `if..then goto` inside an if-then-DO, goto inside ACTIVE DO TO crossing out,
+  `character(56) varying` label assign+PUT, `put skip list('lit', num, 'lit')`, standalone
+  `put skip;` then `put list` continuing the fresh line) COMPILES rc=0 1152 B code=394 — lane-B
+  RUN of the v12 shapes is UNWITNESSED (the DHRY-00 draft avoids the goto-crosses-active-DO form).
+- FALSIFIED (hop-14 assumption that any do-while condition works): `do while intloc <= 2;`
+  REFUSED `codegen: condition form not in E2E-3b subset [TBD]: (<= intloc 2)` — only `<` (and the
+  E2E-3b forms) inside DO WHILE; `<=`/literal-order variants must become flat label+goto loops.
+  `if d < 0` REFUSED (`< 0 / negative const form unproven`) — subtraction division must test
+  `if rr < yy` (scalar vs scalar), never vs 0.
+- ACCEPTED (bind/codegen reading + probes): array subscripts must be a SIMPLE VARIABLE or
+  variable+1 (C159/AB8) — `arr(61 - n)`, `arr(ci - 64)`, `(i-1)*2+i`-as-subscript all REFUSED, but
+  stores `c = (a - 1) * 30 + 7;` into a scalar then `arr(c)` are fine; nested-procedure FORMALS
+  must be re-declared inside (undeclared actual => `codegen: [TBD] undeclared x`).
+- ACCEPTED (the DESIGN KILLER and its fix): a sibling call from INSIDE a nested procedure body
+  with the procedure definitions BEFORE the main body statements REFUSES with `codegen:
+  call-site queue mismatch [TBD]` (v4b procedure->procedure, v4c function->procedure). ROOT CAUSE
+  read in `ocaml/lib/bind.ml:2217-2270` + `codegen.ml:4138`: `st.calls` is queued root-block call
+  sites FIRST (textual order), then nested blocks in DFS order, while codegen consumes the queue
+  in EMISSION order (nested definitions emit before later main statements when they precede them
+  textually). FIX: LIFE-00-style layout — ALL main-body statements first, all nested procedure
+  definitions after `stop;`; forward sibling callees then resolve through the measured
+  CHAIN-ADDR path. v4d (main body first; g2->g1, f0->g2, literal and variable actuals) COMPILES
+  rc=0 — DHP00 below proves it RUNS. ⇒ DHRY-00 keeps ALL 11 subroutines as sibling nested
+  procedures in Pascal order with the main body first; the hop-14 fallback (flatten procedures,
+  destroying the call mix) is NOT needed.
+- ACCEPTED (LANE-B RUN PROBE DHP00 — first run-witness of nested procedures writing OUTER state):
+  via `build/fc01-scratch/dhry00_run_probe.py` (BIGA machinery verbatim), evidence
+  `build/fc01-scratch/dhp00-evidence/` (ignored): LINK done `parse_undefined=[]` DHP00.COM
+  13568 B sha `5b0ef3e56bc8dffe`, RUN done 109 console bytes sha `b86394e2e2961408`, capture
+  verbatim `'          D H  \r\n        1         8         0         8         8         0
+  3        17\r\n       18\r\n'`. RUN-witnessed PASSing: nested proc writes outer SCALAR
+  (s=8 ✓ exact model), writes outer AUTO ARRAY via local-variable and formal+literal subscripts
+  (sf 6,7 = D,H at exactly the modeled columns; intc=17,18 ✓), sibling proc->proc and
+  proc->function calls incl. inside nested DO TO loops, `return (rv)` functions, goto flat loop
+  over the DHRY-00-size data footprint (a1(50)+a2(2500)+sf(60)+intc(2) = DATA 5256 B survives
+  DR LINK-80+PLILIB), `do while nruns < 3`, nested code->char ladder PUT, multi-item PUT LIST.
+- FALSIFIED/MEASURED GAP (the probe's one wrong value): `t1v = a1(il)` printed 0 — TP00 isolated
+  it (`tp00_run_probe.py`, evidence `tp00-evidence/`, LINK done COM 12288 B, RUN done 53 B,
+  capture verbatim `'\r\n        0         0         7         0         7\r\n'`): a nested
+  procedure STORE to an outer AUTO array whose subscript is the FORMAL ITSELF is SILENTLY LOST —
+  `wform: a1(p)=7; a1(p+... )` left BOTH a1(8) and a1(9) at 0; copying the formal into a local
+  first (`wlocal: l = p; b1(l) = 7;` → b1(8)=7) and literal subscripts (`wlit` → c1(8)=7) are
+  correct. ⇒ HARD PORT RULE: in every nested procedure copy each formal into a local before using
+  it as an array subscript (read or write). Classified `my-gap` (my compiler's frame addressing);
+  NOT a DR claim; ledger stays C352.
+- MEASURED (lane B, my binary): the PROPOSED 79-col PLILIB wrap fired — the 8-item numeric line
+  (exactly 79 cols wide: 9 + 7*10) split after col 79 (`...3        17\r\n       18\r\n`). The
+  DHRY-00 final table keeps every emitted line ≤ 78 cols so the expectation needs NO wrap model;
+  the wrap law itself stays `proposed`, still not a DR claim.
+- PROPOSED (full draft contract, NOT yet adopted — successor executes): DHRY-00 = Dhrystone 2.1
+  Pascal adapted to one `dhry00: procedure options(main);`; state outer AUTO: a1(50), a2(2500)
+  flat `idx=(r-1)*50+c` ([8,7]=357), sg(60) (String1Glob 1..30, String2Glob 31..60), sf(60)
+  (record-slot strings, base `(slot-1)*30`), pcomp/discr/enumc/intc(2), intglob, int1g/int2g/
+  int3g, boolglob, char1g/char2g, enumglob, pointerglob=1, nextp=2, run loop vars, result cells
+  r2/r3/r6/r7; ALL scalars+arrays explicitly zero-init (uninitialized DATA contents UNMEASURED);
+  records = 2 slots, `nil`=0, Ident1..5=0..4 (ord-faithful); var-params via caller-assigned
+  result cells (PROC.CALL_COPYIN); ONE reusable nested `c30(frombase,to)` copy loop (whole-record
+  copy of Pascal Proc1 = 4 scalar cells + c30); `div` = subtraction loop with `if rr < yy`
+  (9 div 7 -> q=1); `<>` = branch swap; AND = nested if; case = if-ladder (Ident2 arm:
+  `if intglob > 100 then do; r6 = 0; end; else do; r6 = 3; end;`); while = `do while` only where
+  condition is `<` (main `do while int1g < int2g`), flat label+goto otherwise (f2 loop); every
+  formal used as subscript copied to a local FIRST (TP00 law); strings print as 30 single-char
+  ladder PUTs; labels via `character(56) varying` (v12 compiled; lane-B unwitnessed); BoolGlob via
+  TRUE/FALSE varying ladder; `readln` -> `get list(numruns)` with `console_input "7\r^Z"` (echo
+  law `%d\r\r\n`); TIMING lines, reals and the too-small branch DROPPED+documented; apostrophes
+  dropped (1ST/2ND, declared cosmetic); N=7 => Array2Glob[8,7]=17; expected stream derived TWICE
+  (line-for-line Pascal-semantics model + port byte model, both in
+  `build/fc01-scratch/dhry00_sim.py`/`dhry00_pascal_sim.py`) + the published should-be column as
+  the third check; all emitted lines ≤ 78 cols (no wrap model). OWED steps 4-11 (PROGRESS):
+  sims -> LF draft -> scratch compile -> CRLF+bare^Z+<=71+apostrophe-free pin
+  `spec/functional/tests/DHRY-00.PLI` (name ≤8 => link target DHRY00) -> `reference.py
+  :_Dhry00Port`/`dhry00()`+DERIVATIONS diffed BYTE-EQUAL vs sims BEFORE JSON -> `DHRY-00.json`
+  VIA SCRIPT (capabilities grep-verified in spec/COVERAGE.tsv AND present in the .PLI; notes =
+  full removal list) -> `--stages source,derivation` -> lane B `build/fc01/corp9` (+double if
+  PASS) -> docs § 14 + § 1 row -> gate `build/gate-dhry00.log` -> explicit-path commit. A FAIL
+  stays classified, never laundered. Renewal available (this session is renewal 2 of chain cap 12);
+  renew ONLY at a safe boundary (after the commit), never terminal-finalize while steps remain.
