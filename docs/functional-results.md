@@ -41,6 +41,7 @@ cpmsim, user-supplied and never packaged).
 | HANG-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 3 of 8; § 10) | — | adapted BASIC Hangman; FIRST corpus lane-B RUN of numeric `GET LIST` + echo — the measured echo/framing laws held on my own binary; complete-stream match 329 lines; the 6369-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | AMAZ-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 4 of 8; § 11) | — | adapted BASIC Amazing (generation-and-print-only version — no walk INPUT phase, so PURE-PUT with bare `^Z`); flat 4×4 backtracker via goto state machine, declared draws with literal divisors 4/3/2; complete-stream match 18 lines; the 189-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | TICT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 5 of 8; § 12) | — | adapted BASIC Tic-Tac-Toe (TICTACTOE2 — chosen because TICTACTOE1 never terminates); FIRST lane-B RUN of the 121-label flat goto machine with variable-subscript stores, `call` inside the machine and the occupied-retry loop-back; numeric choice + move `GET LIST`s with echoes; complete-stream match 120 lines; the 1468-B raw RUN stream equals the independent simulator's raw bytes exactly; THREE `THAT SQUARE IS OCCUPIED.` messages at lines 86/91/96; double-run byte-equal |
+| LIFE-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 6 of 8; § 13) | — | adapted BASIC Game of Life (55_Life — bounded at 6 generations because upstream NEVER terminates); FIRST lane-B RUN of a `call` issued from inside a doubly-nested DO TO loop and of multi-numeric `PUT LIST` headers (9-wide fields) in an executed corpus spec; declared 18-cell pattern (glider/beacon/block/blinker), centre-inclusive BASIC 530..550 neighbour tally; complete-stream match 91 lines; the 4722-B raw RUN stream equals the independent simulator's raw bytes exactly (pops 18,20,18,20,18,20); double-run byte-equal |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -566,3 +567,85 @@ lane B `python3 tools/functional_runner.py --tests TICT-00 --evidence build/fc01
 --json-out build/fc01/corp7/records.json`; determinism `python3 tools/functional_runner.py
 --tests TICT-00 --evidence build/fc01/corp7-double --json-out
 build/fc01/corp7-double/records.json --double-run`.
+
+## 13. FC-01 CORPUS LIFE-00 hop (2026-11-03, continuation chain hops 9–13): program 6 (Game of Life, BASIC); PASS on the first lane-B run
+
+Program 6 of the operator's eight (Game of Life, `coding-horror/basic-computer-games`
+55_Life, Creative Computing/Morristown NJ; research copy
+`build/functional/fc01-sources/basic/LIFE.bas` sha256 `e268ed69…`, `sha256sum -c
+SHA256SUMS` rc=0 measured at the hop start; upstream licence UNVERIFIED and recorded as
+such per README § 5.1; no upstream bytes in any tracked file). **Scope falsification
+recorded before designing** (hop 9): upstream LIFE NEVER terminates — line 640 `GOTO 210`
+loops forever and line 650 `END` is dead — so the port DECLARES a bounded run of six
+printed generations (`do g = 0 to 5;`), exactly as TICT-00 had to pick a terminating base.
+
+The triple: `spec/functional/tests/LIFE-00.PLI` 4630 B, 150 lines, widest 63 ≤ 71, CRLF +
+bare `^Z`, apostrophe-free, sha256
+`fa4ab8cf7ef4715861b9c8b2c70cfe4ce3c900b7d13289064a5c70ca1d2256f9` (pinned in the spec;
+the pin-level compile witness is that its `.REL` is byte-identical to the ignored scratch
+draft, `cmp` rc=0). The port holds the whole game in ONE flat padded array
+`a(448) fixed bin(15)` — declared 12×30 interior window, stride 32, index `n = x*32+y+1`,
+the unwritten ring absorbing all eight neighbour offsets without bounds tests — after the
+REQUIRED explicit zero-init loop (lane-B DATA contents are UNMEASURED, zeros never
+assumed) and 18 literal seed stores (glider, beacon, block, blinker, **shifted 2 columns
+right** because the window-margin invariant AND upstream's own 301..307 `Y1 < 3`/`INVALID!`
+clamp both fired on the un-shifted glider cell `(4,1)`). Upstream's pattern INPUT phase
+(`B$`, `LEN`/`LEFT$`/`RIGHT$`/`MID$`, the `DONE` sentinel) is DROPPED and documented
+(character GET UNMEASURED, SUBSTR/LENGTH measured refusals); the dynamic bounding box and
+the `INVALID!` flag are DROPPED (whole-window scan); TAB banner offsets dropped; the
+dynamic 225/295 blank padding fixed to ONE pad line per generation; dead cells render
+`.` — a DECLARED cosmetic divergence that keeps every row 30 positional tokens under
+collapse-spaces-v1. The two-pass single-array semantics (2 = marked-dying, 3 = marked-born,
+print pass finalizes) are kept faithfully — including the **centre in the neighbour
+tally**: BASIC 530/540 scan the 3×3 INCLUDING the cell itself and `590 IF C<3 OR C>4`
+is Conway only because a live cell counts itself (the hop-11 eight-only model was
+FALSIFIED — it killed every cell with two live neighbours); the live-cell ladder is
+`a(n) = 2` default + `= 3`/`= 4` restore, which also covers `s = 9` that an enumerated
+ladder would miss. `reference.py:life00` is a statement-for-statement mirror of the
+pinned source carrying the SAME invariants as the simulator; measured BEFORE any JSON:
+`derive('life00')` BYTE-EQUAL to the independent simulator
+`build/fc01-scratch/life00_sim.py` `norm()` on all 91 lines AND byte-equal on the raw
+4722-B stream; both models independently agree with an UNBOUNDED set-based Conway model
+on all 6 printed generations and with the gen-6 state staying inside the window; header
+`cs` == live cells counted in the print pass every generation; pops **18,20,18,20,18,20**
+(declared initial 18 — the hop-10 "beacon" coordinates die out and were FALSIFIED, the
+real beacon flickers 6→8→6); block 4 stable / glider 5 / blinker 3; every body row 30
+`.`/`*` tokens with stars == cs; line identity `5 + 6*(2+12) + 2 = 91`. `LIFE-00.json`
+was **generated via script from the derivation** (`build/fc01-scratch/mk_life00_json.py`,
+nothing hand-copied): link target `LIFE00`, pure-PUT `console_input "^Z"` (AMAZ-00
+precedent — the program executes no GET), normalization `collapse-spaces-v1`, limits as
+TICT-00, notes (1)–(16) carrying the full removal/substitution list, the two falsifications
+kept as written, and the double capability verification; 10 capability ids each verified
+twice — `dr=ACCEPTS` / `mine=SUPPORTED` in `spec/COVERAGE.tsv` AND present as a construct
+in the pinned `.PLI` (`IO.GET_LIST` and `TRAN.GOTO_SAME_BLOCK` deliberately NOT claimed —
+no GET and no GOTO execute; the generator also asserts no `by`/`else` in the code).
+
+* **rev1 — PASS (`build/fc01/corp8/`, HEAD `7651893`, compiler sha `edce9e0e…`):** every
+  stage ran and passed — SOURCE (sha256+encoding verified, 4630 bytes), DERIVATION
+  (derivation == spec, 91 lines), COMPILE (`rc=0, non-empty .REL`, **3200 B, code=1663,
+  data=38, items=1748**; relstats declared DATA segment `0x3ee` = 1006 bytes — the arrays
+  ARE static DATA per the hop-10 storage law), LINK (`LIFE00.COM 9856 bytes
+  sha256=73fe3f5ca121d9a3…`, `done, parse_undefined=[]`), RUN (`done`; **4722 console
+  bytes** — exactly the raw count the independent simulator predicts), ASSERT
+  (complete-stream match, 91 lines). Verdict line as executed:
+  `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`. Determinism double-run
+  `build/fc01/corp8-double/` PASS (same verdict line); the two `run.console.bin` captures
+  are byte-equal (`cmp` rc=0, sha256 `2658a5cded3f1e75…`).
+* First lane-B RUN (in an executed corpus spec) of a `call` issued from inside a
+  DOUBLY-NESTED DO TO loop (the nested `cellprint` printer — COMPILE-witnessed only at
+  s10a) and of multi-numeric single-item `PUT LIST` headers rendering in the measured
+  9-column right-justified field (BIGA ran the shape only as an ignored scratch probe);
+  the barred-framing laws held: banner on lines 1–2 with no leading blank, four blanks
+  before `GENERATION 0 POPULATION 18`, 12 rows of 30 tokens per generation, bottom pad +
+  the exit-CRLF blank [C352] as line 91.
+* Nothing here promotes a claim: the ledger still ends at C352 and a functional run is not
+  DR evidence. No `ocaml/` or harness byte changed; the source was NOT altered to obtain
+  the PASS; no expectation was laundered; the hop-10/hop-11 falsifications stay recorded
+  as written in LEARNINGS (PROTOCOL #2).
+
+Commands: derivation gate `python3 tools/functional_runner.py --stages source,derivation
+--tests LIFE-00` (no SOURCE/DERIVATION failure; verdict `UNKNOWN [COMPILE: stage
+ceiling]`); lane B `python3 tools/functional_runner.py --tests LIFE-00 --evidence
+build/fc01/corp8 --json-out build/fc01/corp8/records.json`; determinism
+`python3 tools/functional_runner.py --tests LIFE-00 --evidence build/fc01/corp8-double
+--json-out build/fc01/corp8-double/records.json --double-run`.

@@ -4022,3 +4022,99 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   never tracked; operator `handoff.config.json` untouched/unstaged; no push; NEVER re-run the
   retry-DFS search; renewal cap 12/12 reached — this session continues only because enforcement
   is disabled and the operator said "resume", so a re-finalize is required at every safe boundary.
+
+## 2026-11-03 — FC-01 CORPUS LIFE-00 completion hop LANDED (continuation chain hop 13; steps 3-10 DONE — program 6 of 8 PASSES; lane-B verdict MEASURED)
+
+- ACCEPTED (step 3, COMPILE-witnessed on MY compiler edce9e0e, ignored scratch, NOT DR claims,
+  ledger ends C352): the LF draft `build/fc01-scratch/LIFE-00.draft.pli` mirrors
+  `life00_sim.py` statement-for-statement and compiles rc=0 FULL PROGRAM FIRST TRY
+  (`life00.REL` 3200 B, code=1663, compiler-header data=38, relstats declared code 0x67f=1663
+  DATA 0x3ee=1006 — a(448)=896 B ARE in the static DATA section per the hop-10 law). Converted
+  to CRLF + bare ^Z (150 lines, widest 63 <= 71, no trailing WS, no apostrophe inside any
+  literal) and PINNED as `spec/functional/tests/LIFE-00.PLI` sha256
+  `fa4ab8cf7ef4715861b9c8b2c70cfe4ce3c900b7d13289064a5c70ca1d2256f9` (4630 B); compiling the
+  PINNED file gives a `.REL` BYTE-IDENTICAL to the draft (`cmp` rc=0). The draft implements:
+  explicit zero-init `do i = 1 to 448; a(i) = 0; end;`, the 18 literal seed stores
+  (69,77,78,102,109,132,133,134,144,175,176,274,306,338,348,349,380,381), the initial cs scan,
+  the banner + 3 blanks, `do g = 0 to 5;` with pad + four single-item header PUTs, the print
+  pass (member->scalar v ladder + `call cellprint(v)` + finalize 2->0/3->1), the evolution pass
+  (CENTRE `t2 = a(n); if t2 = 1 then s = s + 1;` plus the eight `n1..n8` neighbour temps each
+  with the separate `t2 = 1`/`t2 = 2` ladders — the hop-12 correction), the guarded birth
+  `if t1 = 0 then do; if s = 3 then a(n) = 3; if s = 3 then cs = cs + 1; end;` and the
+  DEFAULT-2/RESTORE live ladder `a(n) = 2; if s = 3/4 then a(n) = 1; if s = 3/4 then cs = cs + 1;`
+  (chosen deliberately over s10a's enumerated 0,1,2,5..8 death list, which would MISS `s = 9`
+  — centre plus all eight neighbours — and diverge from the simulator); bottom pad, `stop;`,
+  nested `cellprint` with the `.` dead glyph.
+- ACCEPTED (step 4, the required pre-JSON diff): `reference.py:_Life00Port`/`life00()`/
+  `_life00_finalize`/`_life00_conway_unbounded` + `DERIVATIONS["life00"]` landed;
+  `derive('life00')` is BYTE-EQUAL to the independent simulator `norm()` on all 91 lines AND
+  the raw streams are byte-equal (4722 B with the exit CRLF, 4720 pre-exit); the derivation
+  also matches the `life00_sim.out` snapshot byte-for-byte (normalized-stream sha256
+  `6403a575229f7d4b61538214f5972030df5429c58dd47bc339be42a11bc6171b`). Numeric PUTs use the
+  MEASURED sep-blank + `%9d` field (NEVER `_Hamm00Port`'s `%10d`+join); the reference mirrors
+  the pinned statements in order and carries the same independent invariants (unbounded set
+  Conway equality on all 6 printed gens, gen-6 state inside the window, header cs == print-pass
+  live, 18/20/18/20/18/20, block 4 / glider 5 / blinker 3 / beacon 6-8, 30-token rows with
+  stars == cs, line identity 5 + 6*(2+12) + 2 = 91).
+- ACCEPTED (step 5, VIA SCRIPT `build/fc01-scratch/mk_life00_json.py`, nothing hand-copied):
+  `spec/functional/tests/LIFE-00.json` — link target `LIFE00`, PURE-PUT `console_input "^Z"`
+  (AMAZ-00 precedent; the program executes no GET), `collapse-spaces-v1`, limits as TICT-00,
+  91-line `expected.console` generated straight from `derive('life00')`, notes (1)-(16) with
+  the FULL removal/substitution list (INPUT/B$/LEN/LEFT$/RIGHT$/MID$ phase dropped, 24x70 ->
+  declared 12x30 padded window n=x*32+y+1, bounded 6 generations vs the non-terminating
+  upstream, bounding-box + 301..307 clamps + INVALID! dropped with the reason, the beacon and
+  cs=18 corrections, the 2-column shift, the CENTRE-count correction, the two-pass marks, the
+  default-2/restore ladder incl. s=9 coverage, dead glyph `.`, TAB banner dropped, fixed
+  one-blank pad, zero-init requirement, framing 91 lines/4722 B, both falsifications kept as
+  written). Capability DOUBLE-VERIFICATION ran in the generator: 10 ids each `dr=ACCEPTS` +
+  `mine=SUPPORTED` in `spec/COVERAGE.tsv` AND present as a construct in the pinned .PLI
+  (DECL.FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED, AGG.VAR_INDEX_LADDER,
+  LOOP.DO_TO_BY, IO.PUT_LIST_FIXED, IO.PUT_SKIP, EXPR.REL_FIXED_EQ_K, EXPR.SELF_ADD_LADDER,
+  PROC.CALL_COPYIN); IO.GET_LIST and TRAN.GOTO_SAME_BLOCK are NOT claimed (no GET, no GOTO
+  execute) and the generator asserts no `get list`/`goto`/BY-loop/ELSE in the comment-stripped
+  code. ONE generator bug caught by its own check: the absent-construct regexes initially ran
+  over the COMMENTED source and the header prose "replaced by 18 literal seed stores" fired the
+  BY-loop check — fixed by stripping comments before the absence sweep (a tool bug, not a
+  program defect; the pinned .PLI never contained a BY).
+- ACCEPTED (step 6): `python3 tools/functional_runner.py --stages source,derivation --tests
+  LIFE-00` printed `LIFE-00    lane B  UNKNOWN  [COMPILE: stage ceiling]` /
+  `evidence: build/functional/20261103T165739Z` / `verdicts: PASS=0 FAIL=0 BLOCKED=0 UNKNOWN=1`
+  — the designed ceiling (AMAZ/TICT precedent); no SOURCE or DERIVATION FAIL means the sha pin
+  and derivation == spec both held.
+- ACCEPTED (step 7, THE HOP'S DELIVERABLE — the OPERATOR ASKED FOR A VERDICT, NOT A DESIGN):
+  `python3 tools/functional_runner.py --tests LIFE-00 --evidence build/fc01/corp8 --json-out
+  build/fc01/corp8/records.json` executed **PASS on the FIRST lane-B run**, verdict lines
+  verbatim `LIFE-00    lane B  PASS` / `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0` (rc=0).
+  Stage ACTUALS from `build/fc01/corp8/LIFE-00-20261103T165746Z/lane-B/` (HEAD `7651893`,
+  compiler `edce9e0e3e1e5054…`, cpmsim `5b8825615d352b78…`): SOURCE pass (`LIFE-00.PLI
+  (4630 bytes)`, sha256+encoding verified); DERIVATION pass (`derivation == spec`); COMPILE pass
+  (rc=0, **3200 B, code=1663 data=38 items=1748**, .REL sha `2045bb9f…`); LINK pass (`done,
+  parse_undefined=[]`, `LIFE00.COM 9856 bytes sha256=73fe3f5c…`); RUN pass (`done`, **4722
+  console bytes = exactly the simulator's predicted raw count**); ASSERT pass
+  (`complete-stream match`, **91 line(s)**). Determinism: `--double-run` into
+  `build/fc01/corp8-double/` PASS, the two `run.console.bin` captures byte-equal (`cmp` rc=0,
+  sha256 `2658a5cded3f1e75f6e1a66f156d51d62e4e946e4492e5c6e56b49e17dcf17a7`).
+- NEW lane-B RUN witnesses (each was COMPILE-witnessed or scratch-only before this hop): the
+  nested `cellprint` `call` issued from INSIDE a doubly-nested DO TO loop in an executed corpus
+  spec (s10a compiled it, BIGA ran no such call); the 9-wide numeric multi-item header in a
+  corpus spec (BIGA ran numeric PUTs only as an ignored scratch probe); the padded flat
+  `a(448)` with the evolving variable subscripts `a(n)`/`a(n1..n8)` and in-pass 2/3 mark
+  mutations; the centre-inclusive two-pass Conway dynamics end-to-end — the first-time-right
+  PASS is itself the strongest evidence that the hop-12 corrected model and the draft agree on
+  the real machine.
+- ACCEPTED (step 8): `docs/functional-results.md` § 13 + the § 1 LIFE-00 row (6 of 8 landed).
+- ACCEPTED (step 9): FULL compile-tier gate rc=0, ACTUALS as printed in
+  `build/gate-life00.log`: byte panel **1174 byte-exact / 0 fail of 1174**, negative **181/181**,
+  divergence **9/9**, coverage **133 rows, 0 errors, 0 warnings**, census **15/0/26/0**, prose
+  **5 active files clean**. Unchanged counts — no panel specimen registered, no `ocaml/` byte
+  touched.
+- Constraints honored: no `ocaml/` or harness byte changed (reference.py is corpus evidence, not
+  the harness); nothing laundered — the expectation was derived and diffed BEFORE the JSON, the
+  source was NOT altered to obtain the PASS; third-party bytes never tracked; ledger ends C352;
+  retry-DFS never re-run; operator `handoff.config.json` untouched/unstaged; no push; renewal
+  cap 12/12 stands — this session continues only under the operator's in-session resume, so the
+  handoff is RE-FINALIZED at this boundary.
+- NEXT (step 10 committed at this boundary): program 7 **DHRY-00** (Dhrystone, Pascal —
+  `build/functional/fc01-sources/pascal/dhry-pascal.shar`; **NEVER execute the `.SHAR`** —
+  extract by read-only means only), then program 8 FFT-00 (`pli/FFT-reference.pli`); HAMM-00
+  rev2 stays PROPOSED. Evidence root `build/fc01/corp9`, docs § 14.

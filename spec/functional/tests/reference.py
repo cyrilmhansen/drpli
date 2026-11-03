@@ -2456,6 +2456,244 @@ def tict00():
     return lines
 
 
+# ---------------------------------------------------------------- LIFE-00
+# Declared design constants (see LIFE-00.json notes; all measured against the
+# independent simulator build/fc01-scratch/life00_sim.py, which is itself
+# cross-checked against an unbounded set-based Conway model).
+LIFE00_W = 12                 # interior rows    x = 1..12
+LIFE00_H = 30                 # interior columns y = 1..30
+LIFE00_STRIDE = 32            # padded row stride: n = x*32 + y + 1, a(1)..a(448)
+LIFE00_GENS = 6               # bounded do g = 0 to 5;  (upstream NEVER terminates)
+# 18 flat seed indices of the declared pattern (glider, beacon, block, blinker,
+# all shifted 2 columns right so no live cell ever touches the window edge):
+LIFE00_SEEDS = [69, 77, 78, 102, 109, 132, 133, 134, 144, 175, 176, 274, 306,
+                338, 348, 349, 380, 381]
+LIFE00_INITIAL = [((k - 1) // 32, (k - 1) % 32) for k in LIFE00_SEEDS]
+LIFE00_NB = (-33, -32, -31, -1, 1, 31, 32, 33)   # n1..n8 offsets of the PL/I ladder
+LIFE00_POPS = [18, 20, 18, 20, 18, 20]           # beacon 6->8->6 flicker on 12 static
+LIFE00_RAW_BYTES = 4722       # 4720 pre-exit + the single exit CRLF [C352]
+LIFE00_LINES = 91             # 5 + 6*(1 pad + 1 header + 12 rows) + bottom pad + exit blank
+
+
+def _life00_conway_unbounded(gens):
+    """INDEPENDENT simultaneous-update Conway model on an UNBOUNDED grid - no flat
+    array, no marks, no byte model; the port's live-cell sets must equal it."""
+    cur = set(LIFE00_INITIAL)
+    out = []
+    for _ in range(gens):
+        out.append(frozenset(cur))
+        cnt = {}
+        for (x, y) in cur:
+            for dx in (-1, 0, 1):
+                for dy in (-1, 0, 1):
+                    if (dx, dy) != (0, 0):        # eight neighbours, NOT the centre
+                        cnt[(x + dx, y + dy)] = cnt.get((x + dx, y + dy), 0) + 1
+        cur = {p for p, c in cnt.items() if c == 3 or (p in cur and c == 2)}
+    return out
+
+
+def _life00_finalize(raw):
+    norm = _hamm00_re.sub(rb" +", b" ",
+                          (raw + "\r\n").encode().replace(b"\r\n", b"\n")).decode()
+    lines = norm.split("\n")
+    if lines and lines[-1] == "":
+        lines = lines[:-1]
+    return lines
+
+
+class _Life00Port:
+    """Statement-for-statement mirror of LIFE-00.PLI: explicit zero-init of the
+    448-cell padded flat grid, the 18 literal seed stores, the initial population
+    scan, the banner, then for g = 0..5 one blank pad, the four single-item header
+    PUTs, the PRINT pass (member -> scalar t1, v ladder, call cellprint, finalize
+    2->0 / 3->1) and the EVOLUTION pass (centre + eight n1..n8 neighbour temps each
+    counted by the separate t2 = 1 / t2 = 2 ladders exactly as BASIC 530..550, the
+    guarded birth ladder, and the default-2 survive-restore ladder for live cells,
+    which also covers s = 9).  Byte model per the measured corpus laws (README
+    section 6 + the hop-2 separator law + the BIGA 9-column numeric field +
+    [C352]): PUT SKIP emits "\r\n"; a single-item PUT LIST is preceded by ONE
+    blank unless it is the first item printed since the last line start; a FIXED
+    BIN(15) item renders right-justified in a NINE-column field; program exit
+    appends exactly one "\r\n".  Pure PUT program: no GET, no echo."""
+
+    def __init__(self):
+        self.raw = ""
+        self.a = [0] * 449                    # a(1)..a(448), 1-based like PL/I
+        self.stats = []                       # (g, header cs, live count in print pass)
+        self.grids = []                       # live-cell coordinates per printed gen
+        self.pop0 = None                      # initial scan population
+        self.cells = 0                        # total cell visits (both passes per gen)
+
+    def skip(self):
+        self.raw += "\r\n"                      # put skip;
+
+    def put(self, item):
+        if self.raw and not self.raw.endswith("\r\n"):
+            self.raw += " "                     # measured leading-separator law
+        self.raw += ("%9d" % item) if isinstance(item, int) else item
+
+    def cellprint(self, q):
+        # cellprint: procedure (q): declare ch character(1) varying;
+        #   if q = 1 then ch = '*';  if q = 0 then ch = '.';  put list(ch);
+        ch = ""
+        if q == 1:
+            ch = "*"
+        if q == 0:
+            ch = "."
+        self.put(ch)
+
+    def run(self):
+        a = self.a
+        # do i = 1 to 448; a(i) = 0; end;   (lane-B DATA contents are UNMEASURED;
+        #                                    the port zeroes explicitly in both models)
+        for i in range(1, 449):
+            a[i] = 0
+        for k in LIFE00_SEEDS:                  # a(69) = 1; ... a(381) = 1;
+            a[k] = 1
+        cs = 0                                  # initial population scan
+        for x in range(1, LIFE00_W + 1):
+            n = x * LIFE00_STRIDE + 1
+            for y in range(1, LIFE00_H + 1):
+                n = n + 1
+                t1 = a[n]
+                if t1 == 1:
+                    cs = cs + 1
+        self.pop0 = cs
+        self.put("LIFE")
+        self.skip()
+        self.put("CREATIVE COMPUTING  MORRISTOWN, NEW JERSEY")
+        self.skip()
+        self.skip()
+        self.skip()
+        self.skip()
+        for g in range(LIFE00_GENS):            # do g = 0 to 5;
+            self.skip()                         # fixed one-blank pad
+            self.put("GENERATION")
+            self.put(g)
+            self.put("POPULATION")
+            self.put(cs)
+            self.skip()
+            live = 0
+            cells = []
+            for x in range(1, LIFE00_W + 1):    # PRINT pass
+                n = x * LIFE00_STRIDE + 1
+                for y in range(1, LIFE00_H + 1):
+                    n = n + 1
+                    self.cells += 1
+                    t1 = a[n]
+                    v = 0
+                    if t1 == 1:
+                        v = 1
+                    if t1 == 3:
+                        v = 1
+                    self.cellprint(v)
+                    if t1 == 2:
+                        a[n] = 0
+                    if t1 == 3:
+                        a[n] = 1
+                    if v == 1:
+                        live += 1
+                        cells.append((x, y))    # instrumentation only
+                self.skip()
+            self.stats.append((g, cs, live))
+            self.grids.append(cells)
+            cs = 0                              # EVOLUTION pass
+            for x in range(1, LIFE00_W + 1):
+                n = x * LIFE00_STRIDE + 1
+                for y in range(1, LIFE00_H + 1):
+                    n = n + 1
+                    t1 = a[n]
+                    s = 0
+                    t2 = a[n]                   # the CENTRE, as BASIC 530..550 counts it
+                    if t2 == 1:
+                        s = s + 1
+                    for k in LIFE00_NB:         # n1..n8, each with the two-step ladder
+                        t2 = a[n + k]
+                        if t2 == 1:
+                            s = s + 1
+                        if t2 == 2:
+                            s = s + 1
+                    if t1 == 0:                 # guarded birth
+                        if s == 3:
+                            a[n] = 3
+                            cs = cs + 1
+                    if t1 == 1:                 # live: default-die mark, survive-restore
+                        a[n] = 2
+                        if s == 3:
+                            a[n] = 1
+                        if s == 4:
+                            a[n] = 1
+                        if s == 3:
+                            cs = cs + 1
+                        if s == 4:
+                            cs = cs + 1
+        self.skip()                             # bottom pad
+        return self
+
+
+def life00():
+    """LIFE-00: the complete normalized console stream (collapse-spaces-v1) of the
+    adapted Game of Life for the DECLARED pattern and the bounded 6 generations.
+    Derived from the declared design by a statement-for-statement mirror of
+    LIFE-00.PLI, never captured (L3); the GAME is then checked by independent
+    invariants: agreement of every printed generation with an UNBOUNDED set-based
+    Conway model computed here separately from the port, the per-generation header
+    population equal to the live cells counted in the print pass, the declared
+    18/20 flicker sequence, the window margin (no live cell on an interior edge and
+    the never-printed gen-6 state still inside), the stream structure (6 headers,
+    12 rows of 30 '.'/'*' positional tokens per generation, stars == cs) and the
+    91-line / 4722-byte identity."""
+    assert len(LIFE00_SEEDS) == 18
+    port = _Life00Port().run()
+    assert port.pop0 == 18, port.pop0               # declared initial population
+    pops = [cs for (g, cs, live) in port.stats]
+    assert pops == LIFE00_POPS, pops
+    for (g, cs, live) in port.stats:
+        assert cs == live == len(port.grids[g]), "cs/live mismatch at g=%d" % g
+    # ---- independent Conway cross-check (set model, unbounded, simultaneous)
+    tb = _life00_conway_unbounded(LIFE00_GENS + 1)
+    for g in range(LIFE00_GENS):
+        assert set(port.grids[g]) == tb[g], "port grid != Conway model at g=%d" % g
+    for (x, y) in tb[LIFE00_GENS]:                  # never printed, must stay inside
+        assert 2 <= x <= LIFE00_W - 1 and 2 <= y <= LIFE00_H - 1, \
+            "gen-6 state leaves the declared window: (%d,%d)" % (x, y)
+    for (g, cells) in enumerate(port.grids):
+        for (x, y) in cells:
+            assert 2 <= x <= LIFE00_W - 1 and 2 <= y <= LIFE00_H - 1, \
+                "live cell on the window edge at g=%d" % g
+        s = set(cells)
+        assert len([p for p in s if 9 <= p[0] <= 12 and 26 <= p[1] <= 29]) == 4  # block
+        assert len([p for p in s if p[0] <= 7 and p[1] <= 9]) == 5               # glider
+        assert len([p for p in s if 7 <= p[0] <= 11 and 15 <= p[1] <= 19]) == 3  # blinker
+        assert len([p for p in s if 1 <= p[0] <= 6 and 10 <= p[1] <= 17]) in (6, 8)  # beacon
+    # ---- stream structure
+    lines = _life00_finalize(port.raw)
+    raw = (port.raw + "\r\n").encode()
+    assert len(raw) == LIFE00_RAW_BYTES, len(raw)
+    assert len(port.raw.encode()) == LIFE00_RAW_BYTES - 2
+    assert len(lines) == LIFE00_LINES, len(lines)
+    assert lines[0] == "LIFE", lines[0]
+    assert lines[1] == "CREATIVE COMPUTING MORRISTOWN, NEW JERSEY", lines[1]
+    assert lines[2:5] == ["", "", ""], lines[2:5]
+    hdrs = [i for i, l in enumerate(lines) if l.startswith("GENERATION ")]
+    assert len(hdrs) == LIFE00_GENS, hdrs
+    for (k, i) in enumerate(hdrs):
+        assert lines[i] == "GENERATION %d POPULATION %d" % (k, pops[k]), lines[i]
+        assert lines[i - 1] == "", "no pad line before generation %d" % k
+        body = lines[i + 1:i + 1 + LIFE00_W]
+        assert len(body) == LIFE00_W
+        for row in body:
+            toks = row.split(" ")
+            assert len(toks) == LIFE00_H, (len(toks), row)
+            assert set(toks) <= {"*", "."}, row
+        stars = sum(1 for p in body for t in p.split(" ") if t == "*")
+        assert stars == pops[k], "row stars %d != cs %d at g=%d" % (stars, pops[k], k)
+    assert lines[hdrs[-1] + 1 + LIFE00_W] == "", "no bottom pad"
+    assert lines[-1] == ""                           # exit CRLF blank [C352]
+    assert len(lines) == 5 + LIFE00_GENS * (1 + 1 + LIFE00_W) + 2, len(lines)
+    return lines
+
+
 DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
@@ -2463,7 +2701,7 @@ DERIVATIONS = {"table00": table00, "table01": table01,
                "builtin00": builtin00, "strcat00": strcat00, "cond00": cond00,
                "dec01": dec01, "flt01": flt01, "edit00": edit00,
                "wkday00": wkday00, "hamm00": hamm00, "hang00": hang00,
-               "amaz00": amaz00, "tict00": tict00,
+               "amaz00": amaz00, "tict00": tict00, "life00": life00,
                "fx00": fx00, "fx01": fx01}
 
 

@@ -122,7 +122,38 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## LIFE-00 hop 12 — simulator FALSIFIED + REWRITTEN, step 2 **DONE** after the in-session resume; draft (step 3) OWED (2026-11-03, renewal 12/12 = CAP; NOTHING tracked authored; no lane/gate run)
+## LIFE-00 rev1 LANDED — lane-B **PASS** on the first run (2026-11-03, continuation chain hop 13; steps 3-10 DONE; program 6 of 8 complete; the operator's "actual verdict, not another design step" ask DELIVERED)
+
+Read `LEARNINGS.md` § "…LIFE-00 completion hop LANDED" FIRST; docs § 13 carries the full
+record. Measured ACTUALS: `spec/functional/tests/LIFE-00.PLI` PINNED sha256
+`fa4ab8cf7ef4715861b9c8b2c70cfe4ce3c900b7d13289064a5c70ca1d2256f9` (4630 B, 150 lines, widest
+63 ≤ 71, CRLF + bare ^Z, apostrophe-free; its .REL is byte-identical to the scratch draft,
+compile rc=0, 3200 B, code=1663, relstats declared DATA 0x3ee=1006 — a(448) IS static DATA);
+`reference.py:life00` mirrors the pinned statements and was diffed BYTE-EQUAL against the
+independent simulator `build/fc01-scratch/life00_sim.py` (91/91 normalized lines AND the
+4722-byte raw stream) BEFORE the JSON; `LIFE-00.json` GENERATED VIA SCRIPT
+(`build/fc01-scratch/mk_life00_json.py`) — link target LIFE00, pure-PUT bare `^Z`,
+`collapse-spaces-v1`, 10 double-verified capabilities (no GET/GOTO/BY/ELSE claimed), notes
+(1)-(16) with the full adaptation list (bounded 6 generations vs the non-terminating upstream,
+INPUT phase dropped, 12×30 padded window n=x*32+y+1, bounding-box/INVALID! dropped, patterns
+shifted 2 right, cs 18 → 18,20,18,20,18,20, CENTRE-inclusive neighbour tally per BASIC
+530..550, default-2/restore death ladder covering s=9, dead glyph `.`). Lane B
+`build/fc01/corp8/` (HEAD `7651893`, compiler `edce9e0e…`, cpmsim `5b882561…`): ALL SIX
+STAGES PASS — SOURCE sha+encoding, DERIVATION == spec, COMPILE rc=0 (3200 B, items=1748),
+LINK `LIFE00.COM 9856 B parse_undefined=[]`, RUN **4722 console bytes** (= exactly the
+predicted raw), ASSERT complete-stream match **91 lines**; `verdicts: PASS=1 FAIL=0 BLOCKED=0
+UNKNOWN=0`; double-run `build/fc01/corp8-double/` byte-equal (`cmp` rc=0, sha `2658a5cd…`).
+First lane-B RUN witnesses: the nested `cellprint` call from inside the doubly-nested DO TO
+loop, the 9-wide numeric corpus header line, and the centre-inclusive two-pass Conway marks.
+Full gate rc=0 (`build/gate-life00.log`): 1174/0, 181/181, 9/9, 133/0/0, census 15/0/26/0,
+prose 5 clean. No `ocaml/`/harness byte changed; nothing laundered; ledger ends C352.
+**NEXT = program 7 DHRY-00** (Dhrystone, Pascal — `pascal/dhry-pascal.shar`, **NEVER execute
+the .SHAR**, extract read-only; exact steps 1-11 in `PROGRESS.md` → Next action; evidence
+`build/fc01/corp9`, docs § 14), then FFT-00. Renewal cap 12/12 stands (this session continues
+only under the operator's in-session resume; RE-FINALIZE at every safe boundary; a fresh
+successor needs an operator reset).
+
+## Superseded: LIFE-00 hop 12 — simulator FALSIFIED + REWRITTEN, step 2 **DONE** after the in-session resume; draft (step 3) OWED (2026-11-03, renewal 12/12 = CAP; NOTHING tracked authored; no lane/gate run)
 
 Read `LEARNINGS.md` § "…LIFE-00 hop 12 step 2b LANDED" FIRST (it supersedes the hop-12 blocker §
 below it). Measured in ignored scratch (`build/fc01-scratch/life00_sim.py`, `life00_bas.py`; MY
@@ -632,9 +663,12 @@ PASS on the first run 2026-11-02** (continuation chain hop 2; state section abov
 `LEARNINGS.md` § "…AMAZ-00 COMPLETION hop" + docs § 11): triple committed (pure-PUT, bare `^Z`,
 9 capabilities, derivation == spec 18 lines never captured; program + reference landed `948f5e5`/
 `708ce33`, JSON this hop), evidence `build/fc01/corp6/` + byte-equal double-run, gate rc=0.
-EXACT NEXT: program 5 **TICT-00** (Tic-Tac-Toe, BASIC — two upstream listings, read both and
-pick) — steps 1-12 in `PROGRESS.md` → Next action; then LIFE-00, DHRY-00 (never execute the
-`.SHAR`), FFT-00.
+EXACT NEXT (updated this hop): programs 1-6 are LANDED (WKDAY rev3 PASS, HAMM rev1 `my-gap`
+FAIL recorded, HANG rev1 PASS, AMAZ rev1 PASS, TICT rev1 PASS, **LIFE-00 rev1 PASS** — docs
+§ 8-13, evidence corp1..corp8). **NEXT = program 7 DHRY-00** (Dhrystone, Pascal —
+`build/functional/fc01-sources/pascal/dhry-pascal.shar`; **NEVER EXECUTE the .SHAR**, extract
+by read-only means into ignored scratch), then program 8 FFT-00 (`pli/FFT-reference.pli`);
+HAMM-00 rev2 stays PROPOSED. Exact steps in `PROGRESS.md` → Next action.
 Corpus laws unchanged and now ALL run-witnessed: literal divisors ≤ 127 (variable DIV MEASURED
 refused), ordered-compare constants ≥ 1, strict compares (`COND.GE_LE` refused), no apostrophes,
 ≤ 71 cols, single-item `put list` with the leading-blank separator law across statements, GET

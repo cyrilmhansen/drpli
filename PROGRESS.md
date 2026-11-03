@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 hop 7: `TICT-00.PLI` PINNED sha `f9320f5a…`, compile byte-identical to the draft .REL (8704 B); reference/JSON/lane/docs/gate OWED at hop 8)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 **PASS** (hop 13, docs § 13) — 6 of 8 landed; EXACT NEXT = DHRY-00 (Pascal `.SHAR` — NEVER execute it), then FFT-00)
 
 TICT-00 hop 7 landed step 3 only (2026-11-03, continuation chain hop 7): the hop-6 draft was
 converted (CRLF + bare ^Z, 499 lines, 9300 B, widest 64 <= 71, no in-literal apostrophes) and
@@ -212,6 +212,66 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
   `handoff.config.json` edit stays unstaged.
 
 ## Next action
+
+LIFE-00 **LANDED — lane-B PASS** (2026-11-03, continuation chain hop 13; this session's operator
+ask — "an actual Lane-B verdict, not another design step" — is DELIVERED). Read FIRST
+`LEARNINGS.md` § "…LIFE-00 completion hop LANDED". Measured: `spec/functional/tests/LIFE-00.PLI`
+PINNED sha `fa4ab8cf7ef4715861b9c8b2c70cfe4ce3c900b7d13289064a5c70ca1d2256f9` (4630 B, 150 lines,
+widest 63, CRLF + bare ^Z, apostrophe-free; draft-compile .REL byte-identical); reference
+`derive('life00')` BYTE-EQUAL to the independent simulator (91 lines, raw 4722 B) BEFORE the
+JSON; `LIFE-00.json` generated VIA SCRIPT (10 double-verified capabilities; pure-PUT bare `^Z`);
+lane B `build/fc01/corp8/` **PASS on the FIRST run** — COMPILE rc=0 3200 B (code=1663 data=38
+items=1748), LINK `LIFE00.COM` 9856 B `parse_undefined=[]`, RUN **4722 console bytes** = exactly
+the predicted raw, ASSERT complete-stream match 91 lines, `verdicts: PASS=1 FAIL=0 BLOCKED=0
+UNKNOWN=0`; double-run `build/fc01/corp8-double/` byte-equal (sha `2658a5cd…`); full gate rc=0
+(1174/0, 181/181, 9/9, 133/0/0, 15/0/26/0, prose 5) in `build/gate-life00.log`; docs § 13 + § 1
+row. First lane-B RUN witnesses: nested `cellprint` call inside the doubly-nested DO, 9-wide
+numeric corpus headers, padded flat a(448) with in-pass 2/3 marks, centre-inclusive Conway.
+
+EXACT NEXT = program 7 **DHRY-00** (Dhrystone, Pascal) per the standing corpus procedure
+(PROGRESS § Current phase table + the LIFE/TICT/AMAZ precedents): (1) `sha256sum -c
+SHA256SUMS` rc=0 in `build/functional/fc01-sources/`; **NEVER execute
+`pascal/dhry-pascal.shar`** — it is a self-extracting shell archive and execution is forbidden by
+the operator table; extract the Pascal payload by READ-ONLY means only (e.g. `unshar`/`sharxf`
+if available, else manually decode the `echo`/`sed` here-doc payload; verify the extracted bytes
+against any CRC the shar records if cheap) into ignored scratch
+`build/fc01-scratch/dhry00/`; read the WHOLE listing; record a hop-start analysis in
+`LEARNINGS.md` (scope facts — e.g. the execution-count `NumberOfRunsWithNoMultiplication`/timer
+loop must become a DECLARED bounded count, the Pascal `record`/`procedure` parameter semantics vs
+the measured PL/I subset, any input; the corpus laws: literal divisors only, no apostrophes,
+≤ 71 cols, single-item `put list`, positive-literal + scalar `= 0` compares, member->scalar, no
+`|`/`&`-composed conditions, goto never crosses an ACTIVE DO, [C352] framing); (2) independent
+scratch simulator `build/fc01-scratch/dhry00_sim.py` on the measured byte model (skip=\r\n,
+separator blank when line open, 9-wide right-justified fixed bin(15) numerics — NEVER
+`%10d`+join — exit appends one \r\n, collapse-spaces-v1) with independent cross-checks
+(the Dhrystone result values are deterministic: derive them twice, e.g. a direct Python
+line-for-line model vs the port model, like LIFE's unbounded Conway check); (3) pre-compile risky
+shapes in ignored scratch BEFORE drafting; (4) LF draft mirroring the simulator
+statement-for-statement → scratch compile → CRLF + bare ^Z + ≤ 71 cols + apostrophe-free
+`spec/functional/tests/DHRY-00.PLI`, pin sha256, compile the PINNED file and `cmp` the .REL;
+(5) `reference.py:_Dhry00Port`/`dhry00()` + `DERIVATIONS`, diff `derive('dhry00')` vs sim
+`norm()` + raw bytes BEFORE any JSON; (6) `DHRY-00.json` VIA SCRIPT from derive (link target
+DHRY00, `console_input "^Z"` unless the program reads, capabilities grep-verified in
+`spec/COVERAGE.tsv` (ACCEPTS/SUPPORTED) AND present in the .PLI — strip comments before
+absence checks, the LIFE generator bug; full notes incl. every removal/substitution); (7)
+`python3 tools/functional_runner.py --stages source,derivation --tests DHRY-00`; (8) lane B
+`python3 tools/functional_runner.py --tests DHRY-00 --evidence build/fc01/corp9 --json-out
+build/fc01/corp9/records.json` (+ `--double-run` into corp9-double if PASS), ACTUALS verbatim,
+a FAIL stays classified `my-gap`/`dr-refuses`/`unmeasured`, NEVER laundered, the expectation
+never edited to chase a PASS; per the operator directive, if a GENUINE compiler limitation blocks
+execution, RECORD the failure promptly rather than spending another session designing around it;
+(9) `docs/functional-results.md` § 14 + § 1 row; (10) `python3 tools/e2e_gate.py` compile tier →
+`build/gate-dhry00.log`; (11) explicit-path commit (NEVER `handoff.config.json`; no push). Then
+FFT-00 (`pli/FFT-reference.pli`, Rosetta PL/I — the only non-BASIC/Pascal source, closer to
+native PL/I; evidence corp10, docs § 15); HAMM-00 rev2 subtraction-loop stays PROPOSED.
+Constraints: no `ocaml/`/harness byte changes; ledger ends C352; functional runs are NOT DR
+claims; NEVER re-run the retry-DFS search; third-party bytes never tracked; operator
+`handoff.config.json` stays untouched/unstaged; no push; renewal cap 12/12 stands — this session
+continues ONLY because enforcement is disabled and the operator said "implement now", so
+RE-FINALIZE (`handoff_finalize`) at every safe boundary and a fresh successor still needs an
+operator reset.
+
+SUPERSEDED-BY-ABOVE (kept as written):
 
 LIFE-00 STEP 2 **DONE**, DRAFT (STEP 3) OWED (2026-11-03, hop 12 resumed in-session after the
 finalize — enforcement disabled, renewal still capped 12/12, so RE-FINALIZE at every safe
