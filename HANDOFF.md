@@ -122,6 +122,32 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+## LIFE-00 hop start MEASURED (2026-11-03, continuation chain hop 9 tail; program 6 of 8; listing read + 6 port shapes measured; NO design adopted, NOTHING authored)
+
+Read `LEARNINGS.md` § "…LIFE-00 hop start" FIRST. `build/functional/fc01-sources/basic/LIFE.bas`
+sha `e268ed69…` verified (`sha256sum -c SHA256SUMS` rc=0, 10/10) and all 66 lines read.
+MEASURED on my compiler (ignored scratch `build/fc01-scratch/s6*.pli`, NOT DR claims, ledger
+ends C352): arithmetic `do` bounds `do i = x-1 to x+1` **REFUSED** (`DO FROM form unproven
+[TBD]`) — hoist bounds into temporaries; an array **member in a condition** (`if a(i) = 1`)
+**REFUSED** (`condition form not in E2E-3b subset`) — member→scalar first; `or`-composed member
+tests **fail to PARSE** (`expected THEN`); literal-divisor DIV and CHARACTER VARYING literal
+compares **ACCEPT**; and the surprise — `declare a(1681)/a(2000) fixed bin(15)` **compiles but
+the array is NOT in the .REL DATA segment** (data=6/12 B = scalars only), so a ~3360-byte grid
+is runtime-allocated and its behaviour under DR LINK-80 + PLILIB on CP/M is **UNWITNESSED on
+lane B**: the FIRST action of the next hop is a lane-B big-array RUN probe, ACTUALS verbatim.
+**Scope falsification by reading**: upstream LIFE **never terminates** (line 640 `GOTO 210`,
+line 650 `END` dead) and pads blank rows every generation (225/295), so a finite complete stream
+requires a DECLARED bounded generation count — recorded as an adaptation, like TICT-00's base
+choice. The unportable input phase (`DIM B$(24)`, string `INPUT`, `LEN/LEFT$/RIGHT$/MID$`, the
+`"DONE"` sentinel) has a PROPOSED numeric-`GET LIST` row-encoding replacement, NOT adopted.
+This hop also completed and committed **TICT-00 rev1 PASS** (steps 7-10, program 5 of 8) at
+`dfbf07c` — see the section below. Next: `PROGRESS.md` → `## Next action` (big-array probe →
+LIFE-00 design record → the 11-step corpus procedure, evidence `build/fc01/corp8`, docs § 13);
+then DHRY-00 (**NEVER execute the `.SHAR`**) and FFT-00; HAMM-00 rev2 stays PROPOSED. No
+`ocaml/` or harness byte changed; nothing laundered; ledger ends **C352**; third-party bytes
+never tracked; NEVER re-run the retry-DFS search; operator `handoff.config.json`
+untouched/unstaged; no push.
+
 ## TICT-00 rev1 LANDED — lane-B **PASS** on the first run (2026-11-03, continuation chain hop 9; steps 7-10 DONE; program 5 of 8 complete; renewals AVAILABLE)
 
 Read `LEARNINGS.md` § "…TICT-00 completion hop 9" FIRST. Hop 9 executed the owed contract exactly:

@@ -3695,3 +3695,63 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   and expectation were NOT touched to obtain the PASS; ledger ends C352 (a functional run is not
   DR evidence); third-party bytes never tracked (`sha256sum -c SHA256SUMS` rc=0 re-measured this
   hop); retry-DFS NOT re-run; operator `handoff.config.json` untouched/unstaged; no push.
+
+## 2026-11-03 — FC-01 CORPUS LIFE-00 hop start (program 6 of 8; listing read + first port-shape probes; NO design adopted yet)
+
+- ACCEPTED (inputs): `build/functional/fc01-sources/basic/LIFE.bas` sha256
+  `e268ed69874648a8f778655014433074f3ecdc8f4e93765f2132b20d73dda4a7` re-verified with
+  `sha256sum -c SHA256SUMS` rc=0 (10/10 OK) at this hop start; the WHOLE 66-line listing read
+  (lines 2..650). Upstream `coding-horror/basic-computer-games` 55_Life; licence UNVERIFIED,
+  recorded as such; no upstream bytes in any tracked file.
+- MEASURED at this hop (MY compiler only, ignored scratch `build/fc01-scratch/s6*.pli`,
+  compiler `edce9e0e…`; these are NOT DR claims — the ledger still ends C352):
+  1. `do i = x - 1 to x + 1;` (arithmetic FROM/TO bounds) is **REFUSED**:
+     `Fatal error: exception Failure("codegen: DO FROM form unproven [TBD]")`. Simple-variable
+     bounds ACCEPT: `lo = x - 1; hi = x + 1; do i = lo to hi;` compiles rc=0. ⇒ every LIFE
+     neighbour-scan loop must hoist its bounds into temporaries.
+  2. An array MEMBER used directly in a condition is **REFUSED**: `if a(i) = 1 then ...` →
+     `condition form not in E2E-3b subset [TBD]: (= (call a[i]) 1)`. The measured HANG-00
+     member→scalar law holds again: load `t1 = a(i);` first.
+  3. OR-composed conditions on members (`if a(t1) = 1 or a(t1) = 2 then`) **FAIL TO PARSE**
+     (`expected THEN`) — consistent with the pinned `|`-composition refusal (COND-00); the two
+     tests must be two separate `if`s (the C=counter site in LIFE 550 needs exactly that).
+  4. `declare a(2000) fixed bin(15);` **COMPILES** rc=0 (s6j: 384 B, code=101 **data=6**) and
+     `declare a(1681)` too (s6l rc=0, data=12). **NEW UNMEASURED RISK**: the array does NOT
+     appear in the .REL DATA segment (data counts 6/12 bytes = the scalars only), so its
+     storage is allocated at RUNTIME (stack/pool) — the behaviour of a ~3360-byte local array
+     under DR LINK-80 + PLILIB on CP/M is **UNWITNESSED on lane B**. LIFE's real grid is
+     24x70 = 1680 cells ⇒ a big-array lane-B RUN probe is REQUIRED before pinning anything.
+  5. Literal compare on CHARACTER VARYING ACCEPTS: `declare ch character(1) varying;`
+     `if ch = '*' then ...` and `if msg = 'GENERATION' then ...` both compile rc=0 (s6m,
+     512 B) — the row/DONE-sentinel logic can use varying compares IF a value ever reaches
+     them; CHARACTER console GET remains UNMEASURED (avoided as in HANG-00).
+  6. Literal divisor division ACCEPTS (`t1 = n / 2;`, s6n rc=0) — corpus law unchanged
+     (variable DIV is the measured HAMM-00 refusal).
+- PROPOSED port shape (NOT adopted; to be falsified/refined by the design hop): LIFE.bas
+  `DIM A(24,70), B$(24)` + `INPUT B$(C)` (string input, `LEN`, `LEFT$`, `RIGHT$`, `MID$`,
+  `"DONE"` sentinel, `<> " "` test) is unportable as written — character GET UNMEASURED,
+  SUBSTR/LENGTH are measured refusals. Candidate adaptation: a numeric `GET LIST` per row
+  encoding the row's cells as an integer (leading-1 sentinel preserves the width), decoded by
+  repeated divide-by-10/128-with-literal-divisor and subtract loops; grid flattened to ONE
+  1-D array with a declared stride; the `TAB(Y)` printer replaced by per-cell single-item
+  `put list` under the measured leading-separator blank + collapse-spaces-v1 laws; the
+  `TAB(34)`/`TAB(15)` banner dropped (HAMM/AMAZ precedent); 24x70 → a smaller DECLARED grid so
+  no printed line reaches the proposed 79-column PLILIB wrap (that law is `proposed`, NOT
+  characterized — FS-01 boundary — so exceeding it is forbidden by prudence); the `GOTO 270` /
+  `IF A(X,Y)<>1 THEN 270` forms → the measured positive-literal compares + the `t1 = x + 1;
+  if t1 = 0` shift idiom; `I9 = -1` (the INVALID! flag) → a positive-literal flag value.
+- FALSIFIED-BY-READING (scope facts, recorded before designing): the upstream LIFE has **no
+  termination at all** — line 640 `GOTO 210` loops forever (line 650 `END` is dead), so a finite
+  complete stream is IMPOSSIBLE without a declared generation limit; and it prints 24 rows plus
+  leading/trailing `PRINT` blank rows EVERY generation (lines 225/295), i.e. an infinite stream
+  of blank-line padding. Any LIFE-00 must therefore bound the generation count and record that
+  as an adaptation, exactly as TICT-00 had to pick a terminating base.
+- OWED (next hop): the big-array lane-B RUN probe (item 4) FIRST — if a 1681-element local
+  array cannot run, the whole port needs a smaller grid or static storage; then the full
+  hop-start design record (statement-by-statement port plan + script + simulator), then the
+  11-step corpus procedure (simulator → shapes → draft → pin → reference mirror diffed BEFORE
+  the JSON → JSON via script → source,derivation → lane B `build/fc01/corp8` → docs § 13 →
+  compile-tier gate → explicit-path commit).
+- Constraints: no ocaml/harness byte changed; ledger ends C352; third-party bytes never tracked;
+  operator `handoff.config.json` untouched/unstaged; no push; renewal 9/12 used by this session's
+  start, this hop does NOT consume another unless the successor is requested at a safe boundary.

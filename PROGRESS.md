@@ -213,7 +213,37 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-TICT-00 **PASS** LANDED (steps 7-10) — PROGRAM 5 OF 8 COMPLETE; NEXT = LIFE-00 HOP START
+LIFE-00 HOP START MEASURED — BIG-ARRAY LANE-B PROBE FIRST, THEN THE DESIGN RECORD
+(2026-11-03, continuation chain hop 9 end; TICT-00 LANDED and committed `dfbf07c`; build rc=0
+verified at session start, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…LIFE-00 hop
+start" — it carries the measured port shapes (`do i = x-1 to x+1` REFUSED
+`DO FROM form unproven`; array member in a condition REFUSED `condition form not in E2E-3b
+subset`; `or`-composed member tests FAIL TO PARSE; literal-divisor DIV and CHARACTER VARYING
+literal compares ACCEPT; `declare a(1681)/a(2000) fixed bin(15)` COMPILE but the array does NOT
+appear in the .REL DATA segment (data=6/12 bytes = scalars only) ⇒ runtime allocation, a
+~3360-byte local array under DR LINK-80 + PLILIB is **UNWITNESSED on lane B**), the scope
+falsification (upstream LIFE NEVER TERMINATES — line 640 `GOTO 210`, line 650 `END` dead, and
+lines 225/295 pad blank rows every generation) and the PROPOSED adaptation (numeric `GET LIST`
+row encoding with a leading-1 width sentinel, one flat grid array with a declared stride,
+per-cell single-item `put list` printer, TAB banner dropped, a bounded generation count, the
+positive-literal compare/shift idioms).
+EXACT NEXT: (1) **big-array lane-B RUN probe** in ignored scratch — a program with
+`declare a(1681) fixed bin(15);` that stores and reads several cells and prints a checksum,
+compiled with my compiler, linked by DR LINK-80 + PLILIB and run under cpmsim (the lane-B
+harness or `oracle/linkrun.py` pattern), because if a 3360-byte local array does not survive
+the substrate the port needs a smaller declared grid or a different storage shape; record the
+ACTUAL verbatim, a FAIL stays classified `my-gap`/`dr-refuses`/`unmeasured` and is NOT a DR
+claim (no ledger entry without a pre-registered oracle round); (2) then the full LIFE-00
+design record + simulator + the 11-step corpus procedure in the section below (draft → pin
+`spec/functional/tests/LIFE-00.PLI` → `reference.py:_Life00Port`/`life00()` diffed vs the
+simulator BEFORE the JSON → `LIFE-00.json` VIA SCRIPT → `--stages source,derivation` → lane B
+`build/fc01/corp8` (+double if PASS) → docs § 13 + § 1 row → compile-tier gate
+`build/gate-life00.log` → explicit-path commit). Then DHRY-00 (**NEVER execute the `.SHAR`**)
+and FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints unchanged: no ocaml/harness changes;
+ledger ends C352; NEVER re-run the retry-DFS search; third-party bytes never tracked; explicit-
+path commits only, NEVER `handoff.config.json`; no push; renew only at safe boundaries.
+
+SUPERSEDED-BY-ABOVE (kept as written): TICT-00 **PASS** LANDED (steps 7-10) — PROGRAM 5 OF 8 COMPLETE; NEXT = LIFE-00 HOP START
 (2026-11-03, continuation chain hop 9 end; HEAD `c837d7f` at execution, build rc=0 verified at
 session start, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…TICT-00 completion hop 9".
 Measured: lane B `build/fc01/corp7/` executed **PASS on the FIRST run** — SOURCE/DERIVATION/
