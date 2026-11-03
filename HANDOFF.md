@@ -122,7 +122,31 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## FFT-00 hop 21 LANDED — steps 5+6 DONE (PIN + ORDER AUDIT + reference BYTE-EQUAL vs sim); JSON/--stages/lane-B/docs/gate/commit OWED (2026-11-03; 2 tracked files authored; gate rc=0 measured this hop)
+## FC-01 CORPUS COMPLETE — FFT-00 rev1 lane-B **PASS** (program 8 of 8) LANDED at hop 22 — corpus closed 8/8; NO ACTIVE ROUND (2026-11-03; continuation chain hop 22; renewals 9/12 used)
+
+Read `LEARNINGS.md` § "…FFT-00 hop 22" FIRST — ACTUALS: `FFT-00.json` generated VIA
+SCRIPT (all gates green; 9 capabilities double-verified; `AGG.ELEM_AS_ACTUAL` and the
+nonexistent `EXPR.REL_FIXED_LT_K` FALSIFIED and dropped; bare-`^Z` pure-PUT);
+lane B `build/fc01/corp10/` **PASS on the first run** — COMPILE rc=0 3456 B (code=1476
+data=48 items=1739), LINK `FFT00.COM 9088 B parse_undefined=[]`, RUN **507 console
+bytes BYTE-IDENTICAL to the derived port raw** (sha `87acbf18…`), ASSERT complete-stream
+13 lines, `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`, double-run `corp10-double`
+byte-equal (`cmp` rc=0); docs § 15 + § 1 row + the **CORPUS CLOSE** subsection
+(seven PASSes + HAMM-00 rev1 recorded `my-gap` FAIL, all eight landed or recorded);
+gate rc=0 `build/gate-fft00.log` (1174/0, 181/181, 9/9, 133/0/0, 15/0/26/0, prose 5).
+The FC-01 operator override (2026-11-02) is DELIVERED.
+**SUCCESSOR: there is NO active round and NO pending instruction.** Confirm HEAD/tree,
+`/handoff verify`, record state and **STOP** — await an operator brief. Standing
+PROPOSALS (shortlist, NEVER authorizations): HAMM-00 rev2 subtraction loop; FCPS1..3
+SPECIMENS registration at a gate hop; README § 5.1 rights review for the eight corpus
+sources (explicit FC-01 deliverable, now due); E2E-50/P3 items per
+`spec/lab-evidence/e2e50-p2/REPORT.md` § 5; fc01-fileio/ONUNIT-00 stay CANCELLED.
+The ledger ends **C352**; nothing in this corpus promoted a DR claim.
+Constraints unchanged: no `ocaml/`/harness byte; functional runs NOT DR claims;
+FAILs never laundered; NEVER re-run the retry-DFS; third-party bytes untracked;
+operator `handoff.config.json` untouched/unstaged; no push.
+
+## Superseded: FFT-00 hop 21 LANDED — steps 5+6 DONE (PIN + ORDER AUDIT + reference BYTE-EQUAL vs sim); JSON/--stages/lane-B/docs/gate/commit OWED (2026-11-03; 2 tracked files authored; gate rc=0 measured this hop)
 
 Read `LEARNINGS.md` § "…FFT-00 hop 21" FIRST — ACTUALS: pin `spec/functional/tests/FFT-00.PLI`
 (3400 B, 122 lines ≤71 cols, CRLF+bare ^Z, sha `f58e471bcf5078cfc71f029c4879ba38150844b70970e9477b172375c85dce6c`)
@@ -938,20 +962,19 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 - FC-01 hop 5 (file-I/O harness extension, FILE-00/01, the pre-registered fc01-fileio oracle
   round, ONUNIT-00) is **CANCELLED by operator directive 2026-11-02** and is NOT owed. Nothing was
   half-edited, nothing was deleted: no hop-5 code, spec, fixture or probe ever existed.
-- ACTIVE: FC-01 CORPUS — the eight adapted historical programs. WKDAY-00 COMPLETE at rev3
-  lane-B PASS (evidence build/fc01/corp1..corp3 + corp3-double, ignored; docs § 8 + § 1 row);
-  committed `21c9f69`, gate ACTUALS recorded there. HAMM-00 (Hammurabi, program 2) rev1
-  RECORDED at this boundary (triple + docs § 9 + § 1 + gate): derivation-green spec
-  (`cc25fe75…`, 211 lines, never captured), lane-B **COMPILE FAIL attr=`compiler`** —
-  variable-divisor DIV refused verbatim (`codegen: DIV by non-constant [TBD]`), classified
-  `my-gap`, kept as written, expectation never laundered; design/port record and every
-  falsification live in `LEARNINGS.md` § 2026-11-03 HAMM-00 hops. **rev2 PROPOSED, NOT
-  executed:** subtraction-loop division at the four variable-divisor sites (derived stream
-  identical; a port change, not a compiler change). Rights/provenance review per program
-  (README § 5.1) and the unsupported-feature record stay explicit deliverables; the BASIC
-  upstream licences are UNVERIFIED and are recorded as such, not asserted. Program 3
-  **HANG-00 rev1 LANDED lane-B PASS** (continuation chain hop 1, state section above; the
-capped-chain record below is kept as written and superseded by the operator reset).
+- CLOSED: FC-01 CORPUS — the eight adapted historical programs are **8 of 8 LANDED OR
+  RECORDED** (operator override 2026-11-02, complete 2026-11-03, docs § 15 corpus close):
+  seven lane-B PASSes (WKDAY-00 rev3 § 8; HANG-00 rev1 § 10; AMAZ-00 rev1 § 11; TICT-00
+  rev1 § 12; LIFE-00 rev1 § 13; DHRY-00 rev1 § 14, rev0 order-only ASSERT FAIL kept as
+  written; FFT-00 rev1 § 15, `build/fc01/corp10/`, RUN capture byte-identical to the
+  derived 507-B raw sha `87acbf18…`) + one promptly recorded `my-gap` COMPILE FAIL
+  (HAMM-00 rev1 § 9, variable-divisor DIV, attr `compiler`, never laundered; rev2
+  subtraction loop stays PROPOSED, NOT executed). Evidence roots (ignored working
+  state): corp1..corp10 + double-runs; every PASS is a complete-stream match against a
+  DERIVED expectation with a byte-equal determinism double-run. Rights/provenance review
+  per program (README § 5.1) is an explicit FC-01 deliverable now DUE for all eight
+  sources (third-party, licences UNVERIFIED and recorded as such, never asserted;
+  third-party bytes never tracked).
 - Standing scientific debts unchanged (`PROGRESS.md` → Pending: LOAN2 prescan, CREATE
   `%include`); plus owed: FCPS1..3 SPECIMENS registration at a gate hop.
 

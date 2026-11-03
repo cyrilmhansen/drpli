@@ -43,6 +43,7 @@ cpmsim, user-supplied and never packaged).
 | TICT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 5 of 8; § 12) | — | adapted BASIC Tic-Tac-Toe (TICTACTOE2 — chosen because TICTACTOE1 never terminates); FIRST lane-B RUN of the 121-label flat goto machine with variable-subscript stores, `call` inside the machine and the occupied-retry loop-back; numeric choice + move `GET LIST`s with echoes; complete-stream match 120 lines; the 1468-B raw RUN stream equals the independent simulator's raw bytes exactly; THREE `THAT SQUARE IS OCCUPIED.` messages at lines 86/91/96; double-run byte-equal |
 | LIFE-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 6 of 8; § 13) | — | adapted BASIC Game of Life (55_Life — bounded at 6 generations because upstream NEVER terminates); FIRST lane-B RUN of a `call` issued from inside a doubly-nested DO TO loop and of multi-numeric `PUT LIST` headers (9-wide fields) in an executed corpus spec; declared 18-cell pattern (glider/beacon/block/blinker), centre-inclusive BASIC 530..550 neighbour tally; complete-stream match 91 lines; the 4722-B raw RUN stream equals the independent simulator's raw bytes exactly (pops 18,20,18,20,18,20); double-run byte-equal |
 | DHRY-00 | B | rev0 SOURCE→…→RUN→ASSERT; rev1 SOURCE→…→RUN→ASSERT | rev0 **FAIL** (order-only ASSERT miss, kept as written), rev1 **PASS** (corpus program 7 of 8; § 14) | rev0 `undefined` as executed | adapted Pascal Dhrystone 2.1 (Weicker — the self-extracting `.SHAR` NEVER executed, members recovered read-only); rev0 FAIL diagnosed as a GENERATOR bug (final table emitted grouped by render mechanism, not in `Port.table` order — all 20 published values correct, row order wrong); rev1 is a PURE PERMUTATION of the same statement set (sorted-diff proven), expectation NOT edited; FIRST lane-B RUN of the 14-subroutine sibling call graph, numeric-GET echo keeping its `\r`, flag-goto `repeat…until` and subtraction-loop `div`; complete-stream match 57 lines; the 1368-B raw RUN stream is BYTE-IDENTICAL to the derived port raw (sha `eebbed54…`); double-run byte-equal |
+| FFT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 8 of 8; § 15) | — | adapted Rosetta Code Fast Fourier Transform (PL/I reference): the recursive COMPLEX Cooley–Tukey of (1,1,1,1,0,0,0,0) re-expressed as an iterative radix-2 DIT in Q6 fixed point over two parallel `bin(15)` arrays with precomputed 45/64 integer twiddles (COMPLEX/CONTROLLED/recursion/`exp`/`FIXED(,25,12)` all MEASURED refusals or lane-B-unwitnessed — declared adaptations, never silent removals); pure-PUT bare `^Z`; FIRST lane-B RUN of signed Q6 arithmetic and toward-zero division executing as an integrated numeric transform whose every printed value is independently cross-checked (published Q6 table, naive double DFT, analytic closed form, token reconstruction); complete-stream match 13 lines; the 507-B raw RUN stream is BYTE-IDENTICAL to the derived port raw (sha `87acbf18…`); double-run byte-equal |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -747,3 +748,145 @@ ceiling]`); lane B `python3 tools/functional_runner.py --tests DHRY-00 --evidenc
 build/fc01/corp9b --json-out build/fc01/corp9b/records.json`; determinism
 `python3 tools/functional_runner.py --tests DHRY-00 --evidence build/fc01/corp9b-double
 --json-out build/fc01/corp9b-double/records.json --double-run`.
+
+## 15. FC-01 CORPUS FFT-00 hop (2026-11-03, continuation chain hops 20–22): program 8 (Fast Fourier Transform, Rosetta Code PL/I); PASS on the first lane-B run — THE CORPUS IS COMPLETE (8 of 8)
+
+Program 8 of the operator's eight: the **Rosetta Code "Fast Fourier transform"
+PL/I reference solution** (derived from the Fortran Rosetta entry; a recursive
+in-place Cooley–Tukey transform of (1,1,1,1,0,0,0,0), N=8). Research copy
+`build/functional/fc01-sources/pli/FFT-reference.pli` sha256 `9e8f8071…`
+(pinned by `SHA256SUMS`, rc=0 re-measured); provenance header
+`fft-rosettagit.md` sha256 `5c5afa8b…`, upstream URL in `URLS.tsv`. This is
+the only non-BASIC/Pascal source in the corpus — nominally closer to native
+PL/I, and that is exactly why the construct audit mattered: it is MODERN PL/I,
+not the 1980 subset. Upstream licence UNVERIFIED and recorded as such per
+README § 5.1; no upstream bytes in any tracked file.
+
+**Construct audit FIRST (hop 20, every refusal measured on the DRPLi compiler,
+NOT a DR claim):** `COMPLEX FLOAT(18)` REFUSED (`call to unknown complex
+[TBD]`); `CONTROLLED` + `ALLOCATE`/`FREE` REFUSED (`call to unknown controlled
+[TBD]`); `HBOUND` REFUSED and the `FIXED`/`EXP` builtins REFUSED (`expression
+form not in int subset [TBD]`); `FIXED BINARY(31)` REFUSED (`bind: … exceeds
+DR's FIXED precision limit 15 (PL/I-80 V1.4 says NOT IMP)`);
+`OPTIONS(MAIN,REORDER)` REFUSED (deferred); the whole-array actual
+(`declare b(*)` + `call p(a)`) PARSE-FAILS; the recursive `FFT` procedure
+COMPILES rc=0 but its lane-B RUN is unwitnessed — **not used**. Two shapes
+were accepted: `(m+31)/64` parenthesized dividends and negative-literal call
+actuals; the expression actual `0 - 45` produced a NEW `my-gap`-class internal
+crash witness (pool demand/layout mismatch: prescan demanded 2 pool bytes,
+lowering allocated 5). A falsified draft shape: nested two-variable ordered
+compares refuse in EITHER order (both operands deref) — the sign test runs in
+MAIN over same-frame scalars (`if t < z then sg = 1;`, the FP00 lane-B
+RUN-witnessed form) and `prn` uses only formal-vs-literal equality.
+
+The port is an **iterative radix-2 DIT Cooley–Tukey in Q6 fixed point (scale
+64)**: complex values become two parallel AUTO `fixed bin(15)` arrays
+`xr(8)/xi(8)` explicitly zero-initialised; recursion becomes three explicit
+stage passes (the `do j = 1 to 7 by 2` loop, then pairs (1,3)(2,4)(5,7)(6,8),
+then (1,5)(2,6)(3,7)(4,8)) — twelve `bf` butterflies; the `exp`/`I` twiddle
+expression becomes precomputed integer literals `W^0=(64,0) W^1=(45,-45)
+W^2=(0,-64) W^3=(-45,-45)` with `45 = trunc(64·√2/2)` (declared quantization;
+worst component error vs the exact DFT **0.0080 ≤ declared TOL 0.02**, and
+every `/64` rescale is EXACT on this input so no rounding ambiguity exists);
+`fixed(data(i),25,12)` becomes sign / `%9d` / `'.'` / three digits via the
+nested `prn` + `pdig` digit ladder. Documented risk (measured, asserted):
+`prn` computes `rem*1000` with `0 ≤ rem ≤ 63` — up to 63000, which EXCEEDS
+`FIXED BIN(15)`; safe ONLY because every rem on this input is 0 or 26
+(max 26000), asserted by the derivation's `max_magnitude` invariant so the
+printer is never reused blindly. The FP00 lane-B RUN probe (ignored evidence
+`build/fc01-scratch/fft00/fp00-evidence/`) measured the runtime laws the port
+relies on: signed 16-bit multiply exact in all four sign arms; fixed-bin
+division TRUNCATES TOWARD ZERO; negative `bin(15)` PUT renders right-justified
+in the 9-column field WITH its sign; scalar-vs-scalar `if b < z` runs.
+
+The triple: `spec/functional/tests/FFT-00.PLI` 3400 B, 122 lines, widest
+71 ≤ 71, CRLF + bare `^Z`, apostrophe-free, sha256
+`f58e471bcf5078cfc71f029c4879ba38150844b70970e9477b172375c85dce6c`; the
+pin-level compile witness is that its `.REL` is byte-identical to the ignored
+scratch draft (rc=0, 3456 B, code=1476, data=48). The hop-19 ORDER lesson was
+applied explicitly: `build/fc01-scratch/fft00/order_audit.py` (rc=0, ORDER
+AUDIT GREEN) verifies pin-vs-sim EMISSION ORDER (142 pin tokens vs 128
+instrumented sim tokens, matching under greedy alignment of the 16 conditional
+dash arms — the 2 that fire equal the 2 negative Q6 components) AND a 78-pair
+statement bijection per block (MAIN/bf/prn/pdig). `reference.py:fft00` is a
+statement-for-statement mirror of the PIN carrying four independent value
+checks — port final state == the hand-published Q6 table `[(256,0),(64,-154),
+(0,0),(64,-26),(0,0),(64,26),(0,0),(64,154)]`; port vs a naive double-precision
+DFT computed from the definition (≤ 0.02); that DFT vs the analytic closed
+form `(4, 1−(1+√2)i, 0, 1−(√2−1)i, 0, conj, 0, conj)` to 1e-12; every printed
+line re-parsed from its collapse-spaces-v1 tokens back to thousandths against
+toward-zero scaling of the table — plus the structural invariants
+(`bf_calls == 12`, `digits == 48`, 13 lines/507 raw bytes, ≤78-column frame
+law, `max |rem·1000| ≤ 32767`). Measured BEFORE any JSON: `derive('fft00')`
+BYTE-EQUAL to `fft00_sim.check()` on all **13 normalized lines AND the raw
+507-byte stream** (sha256 `87acbf18bcc785af8c638fa816e561362da40596b99849
+e3e1822a615817393e`). `FFT-00.json` was **generated via script**
+(`build/fc01-scratch/fft00/mk_fft00_json.py`, nothing hand-copied — it re-runs
+that byte-equality and ABORTS on any mismatch): link target `FFT00`,
+`console_input` bare `^Z` (pure PUT — the script asserts no GET exists),
+normalization `collapse-spaces-v1`, limits as DHRY-00, **9** capability ids
+each double-verified (`dr=ACCEPTS`/`mine=SUPPORTED` in `spec/COVERAGE.tsv` AND
+present comment-stripped in the pinned `.PLI`); TWO candidates were verified
+ABSENT and dropped — `AGG.ELEM_AS_ACTUAL` (every CALL actual in the pin is a
+scalar name) and `EXPR.REL_FIXED_LT_K` (no such ledger id exists; the
+scalar-vs-scalar `<` is an FP00 RUN law, not a capability claim); the script
+also asserts no `put list(<digit>)` item appears (the measured PUT-subset
+gap). Notes (1)–(16) carry the full removal/substitution list.
+
+* **rev1 — PASS (`build/fc01/corp10/`, HEAD `801cfd6`, compiler sha
+  `edce9e0e…`, cpmsim `5b882561…`):** SOURCE (sha `f58e471b…` + encoding
+  verified, 3400 B), DERIVATION (derivation == spec, 13 lines), COMPILE
+  (`rc=0`, **3456 B, code=1476, data=48, items=1739**), LINK (`FFT00.COM
+  9088 bytes sha256=9f86815d…`, `done, parse_undefined=[]`), RUN (`done`;
+  **507 console bytes** — and the stored capture is BYTE-IDENTICAL to the
+  derived port raw, sha256 `87acbf18…`), ASSERT (complete-stream match,
+  **13 lines**: "", banner, scale line, "", eight `X k RE … IM …` lines, "").
+  Verdict line as executed: `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`.
+  Determinism double-run `build/fc01/corp10-double/` PASS; the two captures
+  (`run.console.bin`, `run2.console.bin`) byte-equal (`cmp` rc=0, sha
+  `87acbf18…`). The stream shows the transform itself — e.g. line
+  `X 2 RE 1 . 0 0 0 IM - 2 . 4 0 6` (the Q6 rendering of `1−2.414i` at the
+  declared 45/64 quantization) and the signed 9-column negative law executing.
+* First lane-B RUN witnesses: the three-stage 12-butterfly schedule driven by
+  the `by 2` loop with four-scalar-actual `call bf`s; the computed sign test
+  and array-member variable-subscript reads feeding the nested `prn` printer,
+  which itself calls `pdig` once per digit; signed Q6 multiply/divide
+  (toward-zero) executing as one integrated numeric transform whose printed
+  values were independently cross-checked against the published analytic
+  result BEFORE execution.
+* Nothing here promotes a claim: the ledger still ends at C352 and a functional
+  run is not DR evidence. No `ocaml/` or harness byte changed; nothing was
+  laundered; the FAIL-class refusals in notes (2) stay classified as measured
+  on MY compiler (DR behaviour for them is UNMEASURED — an oracle round would
+  be needed to make DR claims about any of them).
+
+Commands: derivation gate `python3 tools/functional_runner.py --stages
+source,derivation --tests FFT-00` (no SOURCE/DERIVATION failure; verdict
+`UNKNOWN [COMPILE: stage ceiling]`); lane B `python3 tools/functional_runner.py
+--tests FFT-00 --evidence build/fc01/corp10 --json-out
+build/fc01/corp10/records.json`; determinism `python3
+tools/functional_runner.py --tests FFT-00 --evidence build/fc01/corp10-double
+--json-out build/fc01/corp10-double/records.json --double-run`.
+
+### Corpus close — FC-01 operator override: eight adapted historical programs, 8 of 8 LANDED OR RECORDED (2026-11-03)
+
+The operator's overridden priority (2026-11-02) — adapt eight operator-selected
+historical programs into a representative PL/I-80 functional corpus, preserving
+essential functionality and documenting unsupported features instead of
+silently removing them — is COMPLETE. Final tally of the eight: **seven lane-B
+PASSes** — WKDAY-00 rev3 (§ 8), HANG-00 rev1 (§ 10), AMAZ-00 rev1 (§ 11),
+TICT-00 rev1 (§ 12), LIFE-00 rev1 (§ 13), DHRY-00 rev1 (§ 14, after its rev0
+order-only ASSERT FAIL kept as written) and FFT-00 rev1 (§ 15); and **one
+promptly recorded `my-gap` COMPILE FAIL** — HAMM-00 rev1 (§ 9), the
+variable-divisor `DIV` blocker, attr `compiler`, never laundered, rev2
+subtraction-loop fix staying PROPOSED. Every PASS is a complete-stream match
+against an expectation DERIVED from a statement-for-statement reference mirror
+cross-checked against independent simulator model(s) BEFORE the JSON existed,
+with a byte-equal determinism double-run; every FAIL record is kept as
+executed. The round measured a long list of compiler-subset laws in scratch,
+classified accepted/falsified/my-gap and named program by program in
+LEARNINGS.md and the spec notes — NONE
+promoted to DR claims, the ledger still ends at C352. Rights review per
+README § 5.1 remains an explicit follow-up deliverable (all sources are
+third-party, unverified licences recorded as such, third-party bytes never
+tracked).

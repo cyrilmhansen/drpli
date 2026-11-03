@@ -4681,3 +4681,81 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - Constraints unchanged: no `ocaml/`/harness byte; ledger ends C352; functional runs are NOT
   DR claims; FAILs never laundered; NEVER re-run the retry-DFS; third-party bytes untracked;
   operator `handoff.config.json` untouched/unstaged; no push; renew only at safe boundaries.
+
+## 2026-11-03 — FC-01 CORPUS FFT-00 hop 22: steps 7-11 DONE — FFT-00 rev1 lane-B **PASS**, THE EIGHT-PROGRAM CORPUS IS COMPLETE (8 of 8 landed or recorded)
+
+- STEP 7 DONE (accepted): `spec/functional/tests/FFT-00.json` GENERATED VIA SCRIPT
+  (`build/fc01-scratch/fft00/mk_fft00_json.py`, mk_dhry00_json.py gates copied and
+  extended). Every gate MEASURED green before the file was written: pin sha
+  `f58e471b…` + CRLF/bare-^Z/<=71/apostrophe laws; the derive-vs-sim byte-equality
+  re-run inside the generator — `derive('fft00')` BYTE-EQUAL to `fft00_sim.check()`
+  on all 13 lines AND `port_raw == sim_raw.encode()` on the 507-byte stream (sha
+  `87acbf18…`); **9 capability ids double-verified** (ACCEPTS/SUPPORTED in
+  `spec/COVERAGE.tsv` AND present comment-stripped in the pin):
+  DECL.FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED, AGG.VAR_INDEX_LADDER
+  (`t = xr(i);`), LOOP.DO_TO_BY, EXPR.REL_FIXED_EQ_K, IO.PUT_LIST_FIXED,
+  IO.PUT_SKIP, PROC.CALL_COPYIN. TWO hop-21 candidates FALSIFIED and DROPPED by
+  grep: `AGG.ELEM_AS_ACTUAL` — NO call in the pin passes an array element as an
+  actual (`call \w+\([^)]*[A-Za-z_]\w*\(` matches nothing; every actual is a scalar
+  name; the predecessor's "verify before citing" warning was right);
+  `EXPR.REL_FIXED_LT_K` — the id does not exist in the ledger (the scalar-vs-scalar
+  `if t < z` is an FP00 RUN law, recorded in note (9), not a capability claim).
+  NEW generator assertions: NO `get` statement exists (pure PUT, `console_input`
+  bare `^Z`) and NO `put list(<digit>)` item (the measured PUT-subset gap).
+  link_target FFT00, limits as DHRY-00, normalization collapse-spaces-v1, notes
+  (1)-(16) carry the FULL removal list (COMPLEX/CONTROLLED/ALLOCATE-FREE/HBOUND/
+  FIXED+EXP builtins/FLOAT(18)/BINARY(31)/REORDER/whole-array actual/recursion),
+  the Q6 scale law, the 45/64 twiddle quantization, the sg-flag gap, the FP00
+  runtime laws, the `0 - 45` pool-mismatch crash witness, the `rem*1000` bin15
+  bound, the order-audit + derivation record, the [C352] framing and the
+  run-unwitnessed honesty note. `--stages source,derivation`: no SOURCE/DERIVATION
+  failure, verdict `UNKNOWN [COMPILE: stage ceiling]` (mode precedent).
+- STEP 8 DONE (accepted, executed): lane B `python3 tools/functional_runner.py
+  --tests FFT-00 --evidence build/fc01/corp10 --json-out
+  build/fc01/corp10/records.json` (HEAD `801cfd6`, compiler `edce9e0e…`, cpmsim
+  `5b882561…`) — **PASS on the FIRST run**: SOURCE (sha+encoding verified,
+  3400 B), DERIVATION (derivation == spec), COMPILE (`rc=0`, **3456 B, code=1476,
+  data=48, items=1739**), LINK (`FFT00.COM 9088 bytes sha256=9f86815d…`,
+  `done, parse_undefined=[]`), RUN (`done`, **507 console bytes** — the stored
+  `run.console.bin` is **BYTE-IDENTICAL to the derived port raw** sha256
+  `87acbf18bcc785af…`, the strongest stream witness in the corpus, DHRY-00 rev1
+  precedent), ASSERT (complete-stream match, **13 lines**: "", banner, scale
+  line, "", 8 X-lines, ""). `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`.
+  Determinism: `--double-run` `build/fc01/corp10-double/` PASS; `run.console.bin`
+  vs `run2.console.bin` byte-equal (`cmp` rc=0, sha `87acbf18…`). Executed stream
+  e.g. `X 2 RE 1 . 0 0 0 IM - 2 . 4 0 6` (Q6 rendering of 1−2.414i at the declared
+  45/64 quantization; the sign + 9-column negative law runs). NOTHING laundered:
+  source and expectation untouched from hop 21 to this PASS; no FAIL occurred.
+  FIRST lane-B RUN witnesses: the 12-butterfly three-stage schedule with the
+  four-scalar-actual `call bf` in a `by 2` loop; array-member variable-subscript
+  read + computed sign test feeding a nested printer (`prn`) that itself calls
+  `pdig` per digit; signed Q6 multiply/toward-zero division executing as one
+  integrated numeric transform independently cross-checked BEFORE execution.
+- STEP 9 DONE: `docs/functional-results.md` § 15 (full measured record, commands)
+  + the § 1 FFT-00 row + the **CORPUS CLOSE** subsection: 8 of 8 — seven lane-B
+  PASSes (WKDAY rev3, HANG rev1, AMAZ rev1, TICT rev1, LIFE rev1, DHRY rev1,
+  FFT rev1) + one promptly recorded `my-gap` COMPILE FAIL (HAMM rev1, variable
+  DIV; rev2 stays PROPOSED). TWO self-corrections made DURING drafting, kept
+  here per PROTOCOL #2: the close paragraph first (a) contained a garbled
+  six-versus-seven PASS tally with an inline "corrected as executed" clause —
+  replaced by the clean seven-PASS/one-FAIL enumeration; (b) claimed "the corpus
+  proved 33 previously lane-B-unexecuted shapes" — an UNMEASURED count, replaced
+  by "a long list of compiler-subset laws … named program by program". NEVER
+  write an ACTUAL without running the command (the hop-17 lesson re-applied).
+- STEP 10 DONE (accepted): FULL compile-tier gate rc=0 `build/gate-fft00.log`:
+  byte panel **1174/0 of 1174**, negative **181/181**, divergence **9/9**,
+  coverage **133 rows 0/0**, census **15/0/26/0** (HISTORICAL 44/AUTHENTIC 41),
+  prose **5 active files clean** — measured AFTER the § 15/§ 1 edits.
+- STEP 11 OWED at this boundary and executed by THIS hop's commit: explicit
+  paths ONLY (`FFT-00.json`, `docs/functional-results.md`, the three durable
+  files; NEVER `handoff.config.json`), no push.
+- STATUS: **FC-01 CORPUS (operator override 2026-11-02) IS COMPLETE.** No active
+  round exists; a successor WITHOUT an operator instruction confirms HEAD/tree,
+  runs `/handoff verify`, records state and STOPS. Open PROPOSALS only (never
+  authorizations): HAMM-00 rev2 subtraction loop; FCPS1..3 SPECIMENS registration
+  at a gate hop; the README § 5.1 rights review (explicit FC-01 deliverable, now
+  due for all eight sources); fc01-fileio/ONUNIT-00 stay CANCELLED; [C352] stays
+  the ledger tail — NOTHING in this corpus promoted a DR claim.
+- Constraints honored: no `ocaml/`/harness byte; ledger ends C352; functional runs
+  are NOT DR claims; FAILs kept as written; retry-DFS never re-run; third-party
+  bytes untracked; operator `handoff.config.json` untouched/unstaged; no push.

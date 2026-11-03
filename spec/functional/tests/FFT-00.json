@@ -1,0 +1,65 @@
+{
+ "spec": "pli80-functional/1",
+ "id": "FFT-00",
+ "family": "CORPUS",
+ "title": "adapted Rosetta Code Fast Fourier Transform (PL/I reference): 8-point Cooley-Tukey of (1,1,1,1,0,0,0,0) in Q6 fixed point over two parallel bin(15) arrays, iterative radix-2 DIT replacing the recursion, precomputed 45/64 integer twiddles, a sign-flag integer-dot-three-digit printer replacing fixed(,25,12), pure output with every PUT single-item",
+ "provenance": {
+  "origin": "third-party",
+  "author": "DRPLi FC-01 corpus - adaptation of the Rosetta Code 'Fast Fourier transform' PL/I reference solution (derived from the Fortran Rosetta Code entry; ad-si/RosettaGit mirror; licence UNVERIFIED - recorded as unverified, not asserted)",
+  "date": "2026-11-03",
+  "note": "Adaptation, not an import: the algorithm is re-expressed in PL/I-80 over a Q6 fixed-point model; no upstream bytes are copied into any tracked file. Research copy build/functional/fc01-sources/pli/FFT-reference.pli, sha256 9e8f8071927f124a321bd415019a4a33bd340d50fa831242ee605f61b39b3a05 (pinned by SHA256SUMS, rc=0 measured 2026-11-03); provenance header fft-rosettagit.md (sha256 5c5afa8b2258fac376679c15a5f80ade67c8378638c9958ab9caad38523795d4). Upstream URL in URLS.tsv. Rights review per README section 5.1 remains an explicit FC-01 deliverable."
+ },
+ "source": {
+  "file": "FFT-00.PLI",
+  "sha256": "f58e471bcf5078cfc71f029c4879ba38150844b70970e9477b172375c85dce6c",
+  "encoding": "CRLF, ^Z-terminated, <=71 columns"
+ },
+ "capabilities": [
+  "AGG.ARRAY_1D_FIXED",
+  "AGG.VAR_INDEX_LADDER",
+  "DECL.CHAR_VARYING",
+  "DECL.FIXED_BIN15",
+  "EXPR.REL_FIXED_EQ_K",
+  "IO.PUT_LIST_FIXED",
+  "IO.PUT_SKIP",
+  "LOOP.DO_TO_BY",
+  "PROC.CALL_COPYIN"
+ ],
+ "limits": {
+  "compile_timeout_s": 60,
+  "link_timeout_s": 120,
+  "run_timeout_s": 120,
+  "run_max_steps": 4000000
+ },
+ "console_input": "^Z",
+ "lanes": [
+  {
+   "lane": "B",
+   "substrate": "cpmsim:z80pack",
+   "toolchain": "pli80c -> .REL -> LINK-80 + PLILIB.IRL (user-supplied)",
+   "link_targets": [
+    "FFT00"
+   ]
+  }
+ ],
+ "expected": {
+  "derivation": "reference.py:fft00",
+  "normalization": "collapse-spaces-v1",
+  "console": [
+   "",
+   "FFT-00 COOLEY-TUKEY N=8",
+   "SCALE 64 INPUT 1,1,1,1,0,0,0,0",
+   "",
+   "X 1 RE 4 . 0 0 0 IM 0 . 0 0 0",
+   "X 2 RE 1 . 0 0 0 IM - 2 . 4 0 6",
+   "X 3 RE 0 . 0 0 0 IM 0 . 0 0 0",
+   "X 4 RE 1 . 0 0 0 IM - 0 . 4 0 6",
+   "X 5 RE 0 . 0 0 0 IM 0 . 0 0 0",
+   "X 6 RE 1 . 0 0 0 IM 0 . 4 0 6",
+   "X 7 RE 0 . 0 0 0 IM 0 . 0 0 0",
+   "X 8 RE 1 . 0 0 0 IM 2 . 4 0 6",
+   ""
+  ]
+ },
+ "notes": "FC-01 OPERATOR OVERRIDE corpus, program 8 of 8 (Fast Fourier\ntransform, Rosetta Code PL/I reference solution).\n(1) SOURCE ACCESS: the research copy build/functional/fc01-sources/pli/\nFFT-reference.pli (sha256 9e8f8071927f124a321bd415019a4a33bd340d50fa831242ee\n605f61b39b3a05, pinned by SHA256SUMS rc=0 measured 2026-11-03) came through\nthe fft-rosettagit.md mirror (URLS.tsv: https://raw.githubusercontent.com/\nad-si/RosettaGit/master/content/tasks/fast_fourier_transform.md; Rosetta task\nfast_fourier_transform, Derived from Fortran Rosetta Code; a recursive in-place\nCooley-Tukey of (1,1,1,1,0,0,0,0), N=8). Adaptation, not an import: NO upstream\nbytes are copied into any tracked file; licence UNVERIFIED - recorded as\nunverified, not asserted. Rights review per README section 5.1 remains an\nexplicit FC-01 deliverable.\n(2) CONSTRUCT AUDIT (hop 20, every refusal MEASURED on the DRPLi compiler,\nNOT a DR claim): COMPLEX FLOAT(18) REFUSED (codegen: call to unknown complex\n[TBD]); CONTROLLED + ALLOCATE/FREE REFUSED (call to unknown controlled [TBD]);\nHBOUND REFUSED (expression form not in int subset [TBD]); the FIXED builtin\n(fixed(data(i),25,12)) and EXP REFUSED (same int-subset refusal); FIXED\nBINARY(31) REFUSED (bind: exceeds DR's FIXED precision limit 15, PL/I-80 V1.4\nsays NOT IMP); OPTIONS(MAIN,REORDER) REFUSED (block option REORDER deferred);\nthe whole-array actual (declare b(*) + call p(a)) PARSE-FAILS; a recursive\nfixed-formal function COMPILES rc=0 but its lane-B RUN is unwitnessed - NOT\nused here.\n(3) COMPLEX -> two parallel AUTO arrays xr(8)/xi(8) fixed bin(15) in Q6 fixed\npoint, scale 64 (declared numerical adaptation); the input (1,1,1,1,0,0,0,0)\nbecomes the seed (64,0) x 4 + (0,0) x 4, explicitly zero-initialised in a loop\n(the initial content of an un-initialised static DATA segment is UNMEASURED\non lane B).\n(4) RECURSION -> iterative radix-2 DIT Cooley-Tukey: THREE explicit stages over\nbit-reversed pairs - stage 1 the do j = 1 to 7 by 2 loop (four butterflies,\nW^0); stage 2 pairs (1,3)(2,4)(5,7)(6,8) (W^0/W^2); stage 3 pairs (1,5)(2,6)\n(3,7)(4,8) (W^0/W^1/W^2/W^3). Twelve bf calls, asserted by the derivation.\n(5) TWIDDLE QUANTIZATION: no cos/sin/exp in the measured subset - the twiddles\nare precomputed integer literals W^0=(64,0), W^1=(45,-45), W^2=(0,-64),\nW^3=(-45,-45) with 45 = trunc(64*sqrt(2)/2) (45.25 -> 45; the sqrt law is\ncomputed in the derivation, declared adaptation). Worst component error vs the\nexact DFT 0.0080, inside the declared tolerance 0.02. Every /64 rescale is\nEXACT on this input (the models assert divisibility), so no rounding ambiguity\narises anywhere in the port.\n(6) SG-FLAG COMPARISON GAP (measured on my compiler, DR behaviour UNMEASURED,\nNOT a DR claim): nested two-variable ordered compares are unsampled in EITHER\norder (both operands deref: if v < z and its swap if z > v both REFUSE -\ncodegen [TBD] pointer formal as the FIRST operand of a two-variable compare\nis unsampled). FIX used by the pin: the sign test runs in MAIN over same-frame\nscalars (t = xr(i); sg = 0; if t < z then sg = 1; - the FP00 lane-B RUN-\nwitnessed shape) and prn uses only formal-vs-LITERAL equality (if sg = 1 then\n..., the DHRY putc-ladder shape).\n(7) EXPRESSION-ACTUAL GAP (measured, my-gap class crash witness, NOT a DR\nstatement): call p(0 - 45) REFUSED with an internal pool demand/layout\nmismatch (prescan demanded 2 pool bytes, lowering allocated 5); every CALL\nactual in this pin is a plain scalar name. Negative-literal stores (w1i = -45)\nand (m+31)/64-style parenthesized dividends were MEASURED ACCEPTED (hop 20).\n(8) THE EDIT: fixed(data(i),25,12) becomes sign / %9d integer / '.' / three\ndigits via nested prn + the pdig digit ladder (ip = s/64; rem = s - ip*64;\nth = (rem*1000)/64; hh/t10/uu by the same division law; if d = k then ch =\n'<k>'). MEASURED BOUND: the digit path computes rem*1000 with 0 <= rem <= 63,\nup to 63000 which EXCEEDS the FIXED BIN(15) range - safe ONLY because every\nrem on THIS input is 0 or 26 (max 26000); asserted by the derivation's\nmax_magnitude invariant so the prn printer is never reused blindly on another\ninput.\n(9) RUNTIME LAWS USED (FP00 lane-B RUN probe, evidence build/fc01-scratch/\nfft00/fp00-evidence/, my compiler edce9e0e..., NOT DR claims): signed 16-bit\nmultiply exact in all four sign arms; fixed-bin division TRUNCATES TOWARD ZERO\n(-2881/64=-45, -2879/64=-44); a negative fixed bin(15) PUT renders\nright-justified in the 9-column field WITH its sign; scalar-vs-scalar\nif b < z (z a zero-valued variable) RUNS correct; the single-item PUT\nseparator law holds across statements.\n(10) NO INPUT: pure-PUT program - console_input is a bare ^Z; the script\nasserts no GET statement exists.\n(11) FRAMING [C352]: 13 normalized lines = \"\", banner, scale line, \"\", 8\nX-lines, \"\"; the stream starts with ONE blank line (first PUT SKIP) and ends\nwith the PUT SKIP before stop plus the single exit CRLF. Every emitted segment\nis <= 78 columns, so the PROPOSED 79-column PLILIB wrap never fires (the wrap\nlaw stays proposed, not a DR claim).\n(12) DERIVATION: expected.console is GENERATED from reference.py:fft00, a\nstatement-for-statement mirror of THIS pinned source (including the sg-flag\nstatement order), and was diffed BYTE-EQUAL against the independent simulator\nbuild/fc01-scratch/fft00/fft00_sim.py check() on all 13 normalized lines AND\nthe raw 507-byte stream (sha 87acbf18...) BEFORE this JSON was written; this\nscript re-runs that byte-equality and aborts on any mismatch. In addition a\nhop-21 order audit (build/fc01-scratch/fft00/order_audit.py, rc=0 GREEN)\nverified pin-vs-sim emission ORDER (142-vs-128 tokens under greedy dash\nalignment; the 2 firing dash arms equal the 2 negative Q6 components) and a\n78-pair statement bijection - the hop-19 lesson (model-vs-model equality is\nNOT enough). Never captured (L3).\n(13) INDEPENDENT VALUE CHECKS carried by fft00(): (a) the port final state\nequals the hand-published Q6 table [(256,0),(64,-154),(0,0),(64,-26),(0,0),\n(64,26),(0,0),(64,154)] (= 4, 1-(1+sqrt2)i, 0, 1-(sqrt2-1)i, 0, conj, 0, conj\nscaled by 64); (b) the port vs a naive double-precision DFT computed straight\nfrom the definition, worst component error <= declared TOL 0.02 (ACTUAL\n0.0080); (c) that DFT vs the analytical closed form to 1e-12; (d) every\nPRINTED line re-parsed from its collapse-spaces-v1 tokens back to thousandths\nand compared with toward-zero scaling of the table. Structural invariants on\nEVERY derivation run: bf_calls == 12, digits == 48, the 13-line/507-byte\nframing, the <=78-column frame law, and max |rem*1000| <= 32767.\n(14) CAPABILITIES were grep-verified twice by this script: each id exists in\nspec/COVERAGE.tsv with dr_status=ACCEPTS and mine_status=SUPPORTED AND its\nconstruct appears in FFT-00.PLI with comments stripped. TWO candidates were\nverified ABSENT and DROPPED: AGG.ELEM_AS_ACTUAL (no call in the pin passes an\narray element as an actual - all actuals are scalar names) and\nEXPR.REL_FIXED_LT_K (no such ledger id exists; the scalar-vs-scalar < compare\nif t < z is an FP00 lane-B RUN law, recorded in (9), not a capability claim).\nThe script also asserts NO put list(<numeric literal>) item appears anywhere\n(the measured my-gap PUT-subset restriction, DHRY note (9)).\n(15) LAYOUT LAW (measured): ALL main-body statements precede ALL nested\ndefinitions (otherwise codegen: call-site queue mismatch); the three nested\nprocedures bf, prn, pdig follow stop;. TP00 LAW (measured lane-B witness,\nmy-gap class): a nested-procedure array store whose subscript is the FORMAL\nITSELF is silently lost - bf copies fi/fj to locals li/lj before any\nsubscript.\n(16) Lane-B RUN of THIS program - the 12-butterfly call sequence, the sg-flag\nprinter, the pdig ladder and the pin's .REL (compile rc=0, 3456 B, code=1476\ndata=48, byte-identical to the draft .REL; pin sha f58e471b...) - is\nUNWITNESSED until this spec executes; the closest shapes are lane-B RUN-\nwitnessed by the FP00 probe PASS. A FAIL stays classified (my-gap /\ndr-refuses / unmeasured), NEVER laundered, and the expectation is NOT edited\nto chase a PASS."
+}

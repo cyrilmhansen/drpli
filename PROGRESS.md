@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 PASS (hop 13, docs § 13); DHRY-00 **rev1 PASS** (hop 19, docs § 14 — rev0 lane-B FAIL was a pin ORDER bug kept as written, fixed by pure permutation, expectation never edited) — **7 of 8 landed**; EXACT NEXT = FFT-00 (program 8/8, Rosetta PL/I; construct audit vs the measured subset FIRST, naive-DFT cross-check, evidence corp10, docs § 15) — see `## DHRY-00 rev1 LANDED` under Next action and `LEARNINGS.md` § "…DHRY-00 hop 19")
+## Current phase — FC-01 CORPUS **COMPLETE** (operator override 2026-11-02, delivered 2026-11-03; eight adapted historical programs: WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 PASS (hop 13, docs § 13); DHRY-00 rev1 PASS (hop 19, docs § 14, rev0 order FAIL kept as written); FFT-00 rev1 **PASS** (hop 22, docs § 15 — lane B `build/fc01/corp10`, RUN capture 507 B byte-identical to the derived raw sha `87acbf18…`, double-run byte-equal) — **8 of 8 landed or recorded; NO ACTIVE ROUND**; successor without an operator instruction records state and STOPS; standing PROPOSALS: HAMM-00 rev2 subtraction loop, FCPS1..3 SPECIMENS registration at a gate hop, README § 5.1 rights review for the eight sources (due), E2E-50/P3 shortlist (`spec/lab-evidence/e2e50-p2/REPORT.md` § 5) — see `## Next action` and `LEARNINGS.md` § "…FFT-00 hop 22")
 
 TICT-00 hop 7 landed step 3 only (2026-11-03, continuation chain hop 7): the hop-6 draft was
 converted (CRLF + bare ^Z, 499 lines, 9300 B, widest 64 <= 71, no in-literal apostrophes) and
@@ -212,6 +212,40 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
   `handoff.config.json` edit stays unstaged.
 
 ## Next action
+
+## FC-01 CORPUS CLOSED — FFT-00 hop 22 LANDED (steps 7-11 DONE; program 8 of 8 **PASS**; corpus 8/8; NO ACTIVE ROUND — successor records state and STOPS) (2026-11-03)
+
+DONE this hop (ACTUALS in `LEARNINGS.md` § "…FFT-00 hop 22"): `FFT-00.json` GENERATED
+VIA SCRIPT (`build/fc01-scratch/fft00/mk_fft00_json.py`; gates: pin sha `f58e471b…`,
+CRLF/^Z/≤71/apostrophe laws, derive-vs-sim byte-equality RE-RUN and abort-on-mismatch
+— 13 lines + raw 507 B sha `87acbf18…`; 9 capability ids double-verified
+(DECL.FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED, AGG.VAR_INDEX_LADDER,
+LOOP.DO_TO_BY, EXPR.REL_FIXED_EQ_K, IO.PUT_LIST_FIXED, IO.PUT_SKIP, PROC.CALL_COPYIN);
+`AGG.ELEM_AS_ACTUAL` FALSIFIED-absent by grep and dropped, nonexistent
+`EXPR.REL_FIXED_LT_K` dropped; asserts no GET and no `put list(<digit>)`; link FFT00,
+`console_input "^Z"`, collapse-spaces-v1, notes (1)-(16) full removal list) →
+`--stages source,derivation` UNKNOWN [COMPILE: stage ceiling], no SOURCE/DERIVATION
+FAIL → lane B `build/fc01/corp10/` **PASS first run** (COMPILE rc=0 3456 B code=1476
+data=48 items=1739; LINK FFT00.COM 9088 B sha `9f86815d…` `parse_undefined=[]`; RUN
+done **507 console bytes BYTE-IDENTICAL to the derived port raw** sha `87acbf18…`;
+ASSERT 13-line complete-stream match; verdicts PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0) →
+double-run `build/fc01/corp10-double/` PASS, `cmp` rc=0 sha `87acbf18…` → docs
+`functional-results.md` § 15 + § 1 row + **CORPUS CLOSE** subsection (seven PASSes +
+HAMM-00 rev1 recorded `my-gap` FAIL; two drafting self-corrections kept as written:
+the six-vs-seven tally garble and an unmeasured "33 shapes" count) → FULL compile-tier
+gate rc=0 `build/gate-fft00.log` (1174/0, 181/181, 9/9, 133/0/0, 15/0/26/0, prose 5).
+**NEXT ACTION: none is authorized.** The FC-01 operator override is DELIVERED; a
+successor session WITHOUT an operator brief confirms HEAD/tree (`git status`; only the
+operator's `handoff.config.json` edit may be dirty), runs `/handoff verify`, records
+state and STOPS. Standing PROPOSALS (never authorizations): HAMM-00 rev2 subtraction
+loop; FCPS1..3 SPECIMENS registration at a gate hop; README § 5.1 rights review for the
+eight corpus sources (explicit deliverable, now DUE); E2E-50/P3 shortlist in
+`spec/lab-evidence/e2e50-p2/REPORT.md` § 5; fc01-fileio/ONUNIT-00 stay CANCELLED.
+Constraints unchanged: no `ocaml/`/harness byte; ledger ends C352; functional runs NOT
+DR claims; FAILs never laundered; NEVER re-run the retry-DFS; third-party bytes
+untracked; operator `handoff.config.json` untouched/unstaged; no push.
+
+SUPERSEDED-BY-ABOVE (kept as written):
 
 ## FFT-00 hop 21 LANDED — steps 5+6 DONE (pin + order audit + reference byte-equal vs sim); steps 7-11 OWED (2026-11-03)
 
