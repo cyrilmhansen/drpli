@@ -42,14 +42,36 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
      `spec/lab-evidence/e2e48-*/` and `spec/lab-evidence/e2e49-p{1,2,3}/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
-6. **No active round** (FS-01 CLOSED 2026-11-02; prior round E2E-50/P2 CLOSED same day). A
-   successor WITHOUT an operator instruction confirms HEAD/tree, runs `/handoff verify`, records
-   state and STOPS. The E2E-50/P3 shortlist is `spec/lab-evidence/e2e50-p2/REPORT.md` §5 — a
+6. **ACTIVE ROUND: E2E-51/P1** (operator brief 2026-11-04) — pre-registered at
+   commit `9bac977`; the oracle batch is OWED. See `## ACTIVE ROUND` below for the exact command.
+   (Historical: FS-01 and E2E-50/P2 CLOSED 2026-11-02.) The E2E-50/P3 shortlist is `spec/lab-evidence/e2e50-p2/REPORT.md` §5 — a
    shortlist, NEVER an authorisation (FS-01 already executed P3-a and a variant of P3-b's
    isolation aim; P3-b's law declaration, P3-c and P3-d remain proposals). Standing boundary:
    `/home/john/pli/*` (Runes lab `/home/john/pli/lab`, `/home/john/pli/cpm`,
    `/home/john/pli/runes-full-runs`) is READ-ONLY for this project
    unless an operator brief authorizes otherwise.
+## ACTIVE ROUND — E2E-51/P1 PRE-REGISTERED, oracle OWED (2026-11-04; HEAD `9bac977`; ledger ends C352)
+
+Operator-authorized round: FIXED BINARY variable-divisor DIVISION. PRE-REGISTRATION LANDED
+(commit `9bac977`, the prediction SHA for every probes/E51*.PLI): 12 probes E51A..E51L,
+`spec/lab-evidence/e2e51-p1/{PLAN,HYPOTHESES,BASELINE-MINE}.txt|md` + mkprobes.py. KEY ACCEPTED
+finding (existing evidence, unclaimed before): `golden/f6probe/F005/F005.REL` proves DR ACCEPTS
+`z = a / b` binary, lowering `LHLD a / PUSH H / LHLD b / POP D / CALL ?ID22N / SHLD z`
+(CODE 0017, DATA 0006) — my `my-gap` is confirmed by BASELINE-MINE (A..K refuse: `DIV by
+non-constant [TBD]`; E51I additionally `condition form not in E2E-3b subset`; only E51L
+`a/3` control accepted, rc=0 128 B sha `bc2fd12e…`).
+EXACT NEXT ACTION (successor): run the ONE grouped oracle batch from the repo root
+`cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py
+E51A E51B E51C E51D E51E E51F E51G E51H E51I E51J E51K E51L --tag e51p1 --switches '$L$D'`
+(golden/e51p1 must NOT pre-exist — verified absent at `9bac977`; never --reuse; timeout evidence
+preserved, not retried), then RESULTS.md + classification (dr-refuses/my-gap/unmeasured), commit
+goldens+RESULTS TOGETHER, and ONLY THEN implement arms per HYPOTHESES verdicts (reuse the
+[C089]/[C141]/[C079]/[C072] machinery in ocaml/lib/codegen.ml near the Div arm, line ~5010),
+fast gate `python3 tools/e2e_gate.py`, claims from **C353**, SPECIMENS/COVERAGE/census/INVENTORY,
+then rerun HAMM-00 rev1 UNEDITED if byte-covered. **After P1 STOP — no P2/LOAN2/CREATE without
+an operator brief.** Never stage/clean/revert the operator's dirty `handoff.config.json`; no push;
+no destructive cleanup. Full state: `PROGRESS.md` → Next action + `LEARNINGS.md` § "E2E-51/P1 hop 1".
+
 ## Last verified state — FC-01 OPERATOR OVERRIDE (2026-11-02; HEAD `6a35b9c`; ledger ENDS C352; hop 5 CANCELLED before it began; new priority = eight adapted historical programs; no OCaml byte changed)
 
 - **OPERATOR OVERRIDE (FC-01, 2026-11-02).** The planned HOP 5 work is CANCELLED: do NOT
@@ -1008,25 +1030,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 235
-checkpoint-id: g235-4be9f6716b93
-checkpoint-kind: manual
+checkpoint-generation: 236
+checkpoint-id: g236-9c6c9dedcb00
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~12911, session 01a1a332-58b0-7145-a841-b6acf390b482)
-checkpointed: 2026-11-03T21:21:04.873Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4389, session 01a1a383-65db-7402-832b-2ae74c8fc6f9)
+checkpointed: 2026-11-03T22:49:23.810Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 17c7e2258e3d33775ce1238765358993a47bc2285e2f69d6aa8ff7fc78fb6dd6
+source-progress: c1e1917a576b1a86cbd8d1a7130b82e941210b9bd7459ca18fcf887f591db349
 source-handoff: 35447a767a1d19f0654f47e5bfd5e284c1e2c47d71d34cf2a82a3efd4ce73ed6
-source-learnings: 82cb669c4fb74a9790eb177ace1d1ad2c32e777fefc272987a7545bc67dbbfa2
+source-learnings: b6065b6296aadc7f9084cb5df6c430a2228c169484c152439330738a4c9bf519
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a332-58b0-7145-a841-b6acf390b482
-readiness-at: 2026-11-03T21:21:04.885Z
-readiness-checkpoint: g235-4be9f6716b93
 ### Last verified state
-guard level 1; checkpoint requested (finalize: FC-01 CORPUS COMPLETE at hop 22 (commit 63aca3d): FFT-00 rev1 lane-B PASS (corp10, RUN 507 B byte-identical to derived raw sha 87acbf18..., double-run byte-equal), JSON via script with all gates green (9 caps double-verified; AGG.ELEM_AS_ACTUAL falsified-absent and dropped), docs sec 15 + sec 1 + CORPUS CLOSE (7 PASSes + HAMM-00 rev1 recorded my-gap FAIL, 8/8), gate rc=0 build/gate-fft00.log. NO ACTIVE ROUND: successor WITHOUT an operator brief confirms HEAD/tree, /handoff verify, records state and STOPS. Proposals only: HAMM-00 rev2; FCPS1..3 SPECIMENS registration at a gate hop; README 5.1 rights review (due, all eight sources); E2E-50/P3 shortlist. Compiler edce9e0e...; ledger ends C352; no ocaml/harness byte; FAILs never laundered; never re-run retry-DFS; operator handoff.config.json unstaged; no push.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
