@@ -1,0 +1,11 @@
+E51J:
+  procedure options(main);
+  /* [E2E-51/P1] SIGNED dividend: z = -a / b.  [C079] -x is <HL> /
+     CALL ?IN20N.  H-J-in20 predicts LHLD a / CALL ?IN20N / PUSH H
+     / LHLD b / POP D / CALL ?ID22N / SHLD z.  H-J-fuse: DR could
+     negate after the divide (SAME quotient only if b divides
+     evenly - bytes distinguish).  H-J-refuse. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = -a / b;
+end E51J;
+

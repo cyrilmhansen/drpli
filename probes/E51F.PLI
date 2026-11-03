@@ -1,0 +1,12 @@
+E51F:
+  procedure options(main);
+  /* [E2E-51/P1] QUOTIENT LEFT of an add: z = a / b + c, i.e. (a/b)
+     + c.  [C141] P7 shows DR reading the var AFTER the left helper
+     result with XCHG (call - var); ADD is commutative so H-F-xchg
+     predicts <div> / XCHG / LHLD c / DAD D / SHLD z.  H-F-push
+     (the P5 form): <div> / PUSH H / LHLD c / POP D / DAD D.  H-F-
+     store stores then reloads.  Any DR refusal is H-F-refuse. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = a / b + c;
+end E51F;
+

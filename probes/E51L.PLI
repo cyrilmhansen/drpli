@@ -1,0 +1,14 @@
+E51L:
+  procedure options(main);
+  /* [E2E-51/P1] CONSTANT-DIVISOR CONTROL: z = a / 3.  [C089]/P080A
+     already pin DR and my byte-exact lowering (LHLD a / MVI A,03 /
+     PUSH H / MOV L,A / ADD A / SBB A / MOV H,A / POP D / CALL
+     ?ID22N / SHLD z).  This row rides the SAME oracle batch as the
+     bank harness control: DR must accept and MINE must already be
+     byte-exact whole-file against the new E51L golden; any miss
+     means the batch or my constant path drifted, and every other
+     row must then be re-read with suspicion. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = a / 3;
+end E51L;
+

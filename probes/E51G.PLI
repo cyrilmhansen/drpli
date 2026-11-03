@@ -1,0 +1,14 @@
+E51G:
+  procedure options(main);
+  /* [E2E-51/P1] QUOTIENT RIGHT of an add: z = c + a / b.  [C141]
+     P1 evaluates the call RIGHT side FIRST for var + call, so H-G-
+     same predicts G byte-identical to F modulo relocs already
+     identical (same order a, b, c): <div> / XCHG / LHLD c / DAD D
+     / SHLD z.  H-G-leftfirst evaluates c into DE first (LHLD c /
+     XCHG after the div would then carry DIFFERENT bytes); a
+     difference between F and G falsifies orientation-free right-
+     first evaluation for DIV operands. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = c + a / b;
+end E51G;
+

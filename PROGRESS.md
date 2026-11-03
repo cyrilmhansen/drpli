@@ -213,6 +213,24 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+## E2E-51/P1 IN FLIGHT — FIXED BINARY variable-divisor DIV (operator-authorized 2026-11-04; baseline HEAD `ac68352`; compiler `edce9e0e…` built rc=0)
+
+Read `LEARNINGS.md` § "E2E-51/P1 hop 1" FIRST — it carries the ACCEPTED F005 witness
+(`golden/f6probe/F005/F005.REL` proves DR accepts `z = a / b` binary, PUSH H/LHLD/POP D/ID22N),
+the falsified historical-witness search, and the full PROPOSED byte-prediction table. DONE so
+far: round survey + `spec/lab-evidence/e2e51-p1/mkprobes.py` written (12 probes E51A..E51L,
+CRLF+bare ^Z, <=71 cols). OWED NOW, in order: (1) `python3 spec/lab-evidence/e2e51-p1/mkprobes.py`;
+(2) BASELINE-MINE.txt (per-probe positional compile, timeout 60, rc/refusal-verbatim or
+reldump of the .REL); (3) PLAN.md + HYPOTHESES.md; (4) explicit-path pre-registration commit
+BEFORE any DR call; (5) ONE grouped oracle batch `--tag e51p1 --switches '$L$D'` (golden/e51p1
+must not pre-exist; never --reuse; explicit timeout); (6) RESULTS.md + classification + commit;
+(7) implement arms ONLY per measured evidence; (8) `python3 tools/e2e_gate.py`; (9) claims
+C353+, COVERAGE/SPECIMENS/census/INVENTORY; (10) HAMM-00 rev1 rerun unedited if covered, else
+record as unmeasured-still. **After P1 STOP.** No push; operator `handoff.config.json` is the
+dirty file at HEAD — never stage/clean/revert it.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 ## FC-01 CORPUS CLOSED — FFT-00 hop 22 LANDED (steps 7-11 DONE; program 8 of 8 **PASS**; corpus 8/8; NO ACTIVE ROUND — successor records state and STOPS) (2026-11-03)
 
 DONE this hop (ACTUALS in `LEARNINGS.md` § "…FFT-00 hop 22"): `FFT-00.json` GENERATED
@@ -1497,17 +1515,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 235
-checkpoint-id: g235-4be9f6716b93
-checkpoint-kind: manual
+checkpoint-generation: 236
+checkpoint-id: g236-9c6c9dedcb00
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 1
-checkpointed: 2026-11-03T21:21:04.873Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-03T22:49:23.810Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 17c7e2258e3d33775ce1238765358993a47bc2285e2f69d6aa8ff7fc78fb6dd6
+source-progress: c1e1917a576b1a86cbd8d1a7130b82e941210b9bd7459ca18fcf887f591db349
 source-handoff: 35447a767a1d19f0654f47e5bfd5e284c1e2c47d71d34cf2a82a3efd4ce73ed6
-source-learnings: 82cb669c4fb74a9790eb177ace1d1ad2c32e777fefc272987a7545bc67dbbfa2
+source-learnings: b6065b6296aadc7f9084cb5df6c430a2228c169484c152439330738a4c9bf519
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1531,9 +1549,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a332-58b0-7145-a841-b6acf390b482
-readiness-at: 2026-11-03T21:21:04.885Z
-readiness-checkpoint: g235-4be9f6716b93
 <!-- guard:end checkpoint -->
 
 ## Blockers

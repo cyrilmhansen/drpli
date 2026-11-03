@@ -1,0 +1,13 @@
+E51H:
+  procedure options(main);
+  /* [E2E-51/P1] QUOTIENT consumed by a numeric PUT item: put
+     list(a / b).  [C079] pins the chain expr->HL / MVI A,width /
+     ?QICOP / ?PNVOP / ?QIOOP; expression items are accepted there
+     (N304 a+1).  Predicted: F005-style div lowering, then the C079
+     numeric tail with width 9 (bin(15) law w = min(9,
+     digits(32767)+4)).  H-H-refuse: DR refuses a DIV expression as
+     a PUT item. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  put list(a / b);
+end E51H;
+

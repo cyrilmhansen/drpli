@@ -1,0 +1,16 @@
+E51A:
+  procedure options(main);
+  /* [E2E-51/P1] PRIMARY: FIXED BINARY variable-divisor DIVISION, z
+     = a / b.  The EXISTING DR object golden/f6probe/F005/F005.REL
+     (plain-fixed bank, one statement) lowers it LHLD a / PUSH H /
+     LHLD b / POP D / CALL ?ID22N / SHLD z, CODE 0017.  Mine
+     refuses codegen: DIV by non-constant [TBD] (the HAMM-00 rev1
+     blocker).  This row repeats the settled shape inside the E51
+     bank to tie the new objects to the old witness: predicted
+     CODE-SEGMENT bytes EQUAL to F005 modulo the extra variable
+     reloc and the module-name record; refusal by DR would falsify
+     the F005 reading. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = a / b;
+end E51A;
+

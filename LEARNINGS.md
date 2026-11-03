@@ -5,6 +5,52 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-51/P1 hop 1 — FIXED BINARY variable-divisor DIV round STARTED (2026-11-04, operator-authorized; baseline HEAD `ac68352`, compiler rebuilt rc=0 sha `edce9e0e…`)
+
+ACCEPTED (measured from EXISTING committed evidence; no new oracle call yet):
+- **A DR object for binary var/var DIV ALREADY EXISTS, unclaimed by any ledger row:**
+  `golden/f6probe/F005/F005.REL` (source `probes/F005.PLI`, plain `fixed` bank,
+  `z = a / b;`). Decoded with `tools/reldump.py`: `01 00 02 / CD ?START / 2A r0 LHLD a /
+  E5 PUSH H / 2A r2 LHLD b / D1 POP D / CD ?ID22N / 22 r4 SHLD z / CD ?STOPX`; CODE 0017,
+  DATA SIZE 0006. DR ACCEPTED variable-divisor FIXED BINARY DIVISION — the lowering is the
+  [C089] MOD parking shape with ?ID22N. The f6 battery lives only in
+  `spec/notes/f6-probe-design.md`; no CLAIMS row cited F005 until this round.
+- Constant-divisor control bytes (P080A golden/probe48): `2A / 3E 03 / E5 / 6F / 87 / 9F /
+  67 / D1 / CD ?ID22N / 22` — [C089] ladder, MVI before the PUSH; mine byte-exact. ABI:
+  `id22n DE HL HL word/word divide` (spec/notes/plilib-entrypoints.txt:6).
+- FALSIFIED "a historical binary witness exists": every var-divisor `/` in artefacts/ is DEC
+  (LOAN2, ANNUITY, DEPREC, NG16/17/19) or FLOAT (INVERT, EXPR1/2). `spec/notes/codegen.md`
+  `int * / (var x var) ... [P080A]` is a STALE CONFLATION — P080A has only `a*b` and `a/3`;
+  the true witness is F005.
+- No negative/INVENTORY row pins the `DIV by non-constant` refusal; implementing support
+  retires nothing. E51*/e51p1 keys verified collision-free BEFORE writing ([C193]c).
+
+PROPOSED (pre-registered byte predictions for the E51 bank; shared bank
+`dcl a fixed, b fixed, c fixed, z fixed;` → DATA 0008; E51K adds 1-byte d at offset 8):
+A = F005-shape (PUSH H / LHLD / POP D / ID22N); B literal num: H-B-de `LHLD b / LXI D,04B0 /
+ID22N` vs H-B-stack LXI H+PUSH/POP vs H-B-conv decimal-pool; C `(a+b)/c` add-law-then-park,
+one store (vs temp); D `a/(b+c)` park across inline add; E chain: two ID22N, PUSH-parked
+quotient (vs store-reload); F `a/b+c` and G `c+a/b` predicted byte-IDENTICAL tails
+`<div> / XCHG / LHLD c / DAD D` ([C141] P7/P1 isomorphism — an F/G difference falsifies
+orientation-free right-first); H PUT tail `3E 09 / ?QICOP / ?PNVOP / ?QIOOP` [C079]; I
+condition div = `PUSH H/LHLD c/POP D/IS22N/7C/B5/CA` [C072] (DR refusal is the live
+competing outcome); J `-a/b` = `?IN20N` then park; K bin(7) divisor = N303 interleave
+`3A r8 / E5 / 6D / 87 / 9F / 67 / D1` + ID22N; L control `a/3` = P080A ladder, mine already
+byte-exact. 12 rows E51A..E51L via spec/lab-evidence/e2e51-p1/mkprobes.py (CRLF+bare ^Z,
+<=71 cols asserted).
+
+OWED (exact order): (1) run mkprobes.py; (2) BASELINE-MINE.txt — per probe
+`timeout 60 ./ocaml/_build/default/bin/pli80c.exe probes/E51X.PLI /tmp/out51/E51X.REL`,
+rc + FIRST refusal line or full .REL reldump; (3) PLAN.md + HYPOTHESES.md; (4) explicit-path
+pre-registration commit (probes + evidence dir + docs); (5) ONE oracle batch
+`PLI_SRC=probes python3 oracle/batch.py E51A..E51L --tag e51p1 --switches '$L$D'` with an
+explicit timeout, golden/e51p1 must NOT pre-exist, never --reuse; (6) RESULTS.md, classify
+dr-refuses/my-gap/unmeasured, commit goldens+results together; (7) ONLY THEN implement arms
+in ocaml/; (8) fast gate `python3 tools/e2e_gate.py`; (9) claims from **C353**, COVERAGE
+rows, SPECIMENS registration, census re-snapshot, INVENTORY; (10) rerun HAMM-00 rev1
+UNEDITED if its forms are covered, functional-vs-byte evidence kept separate. STOP after P1
+— no P2/LOAN2/CREATE without a new operator brief. No push.
+
 ## Accepted
 
 - **A pre-flight ledger drift can hide the fact that nothing regressed.** The gate aborts at

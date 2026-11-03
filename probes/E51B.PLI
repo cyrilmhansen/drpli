@@ -1,0 +1,13 @@
+E51B:
+  procedure options(main);
+  /* [E2E-51/P1] LITERAL dividend, VARIABLE divisor: z = 1200 / b.
+     Constant in DE is the MB3 multiply form (LHLD var / LXI D,k /
+     CALL ?IM22N); DIV needs dividend DE = 1200 and divisor HL = b,
+     so H-B-de predicts LHLD b / LXI D,x'04B0 / CALL ?ID22N / SHLD
+     z.  H-B-stack: LXI H,1200 / PUSH H / LHLD b / POP D / ID22N.
+     H-B-conv: decimal pool conversion (the LR12 out-of-range
+     family).  A DR refusal is H-B-refuse. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = 1200 / b;
+end E51B;
+

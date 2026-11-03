@@ -1,0 +1,13 @@
+E51C:
+  procedure options(main);
+  /* [E2E-51/P1] COMPOUND dividend over a VARIABLE divisor: z = (a
+     + b) / c.  The P071A add law (LHLD a / XCHG / LHLD b / DAD D)
+     leaves the sum in HL; the [C089] parking shape then applies to
+     the SUM: H-C-park predicts ...DAD D / PUSH H / LHLD c / POP D
+     / CALL ?ID22N / SHLD z, ONE store.  H-C-temp: DR materialises
+     the sum into a temp cell (an extra SHLD/LHLD pair).  H-C-
+     refuse: DR refuses a parenthesised dividend. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = (a + b) / c;
+end E51C;
+

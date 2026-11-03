@@ -1,0 +1,14 @@
+E51I:
+  procedure options(main);
+  /* [E2E-51/P1] QUOTIENT inside a condition: if a / b = c then z =
+     1.  Equality is [C072]: the IS22N sub then MOV A,H / ORA L
+     with the CA/JNZ skip family.  H-I-eq predicts <div> / PUSH H /
+     LHLD c / POP D / CALL ?IS22N / 7C / B5 / skip-CA-then-0000-LAD
+     / LXI H,1 / SHLD z.  H-I-refuse: an E2E-3b-style condition-
+     subset boundary in DR itself.  This is the FIRST binary
+     witness for a helper result as a compare operand; DEC compare
+     claims do not transfer. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  if a / b = c then z = 1;
+end E51I;
+

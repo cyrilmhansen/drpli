@@ -1,0 +1,25 @@
+# BASELINE-MINE — E2E-51/P1, measured 2026-11-03T22:47:55Z at HEAD ac68352, compiler ocaml/_build/default/bin/pli80c.exe sha256 edce9e0e3e1e5054274ce0847804bb2df8463fd80e5f002fcb87c22ffc90b541 (dune build rc=0)
+== E51A rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51B rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51C rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51D rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51E rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51F rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51G rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51H rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51I rc=2
+  Fatal error: exception Failure("codegen: condition form not in E2E-3b subset [TBD]: (= (/ a b) c)")
+== E51J rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51K rc=2
+  Fatal error: exception Failure("codegen: DIV by non-constant [TBD]")
+== E51L rc=0
+  ACCEPTED: 128 bytes sha256 bc2fd12e3c429201

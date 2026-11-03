@@ -1,0 +1,14 @@
+E51D:
+  procedure options(main);
+  /* [E2E-51/P1] VARIABLE dividend over a COMPOUND divisor: z = a /
+     (b + c).  The dividend is already evidenced parked across a
+     variable-divisor evaluation (F005); the question is whether
+     the sum can be built INSIDE the parked region: H-D-inline
+     predicts LHLD a / PUSH H / LHLD b / XCHG / LHLD c / DAD D /
+     POP D / CALL ?ID22N / SHLD z.  H-D-temp predicts a
+     materialised divisor cell; H-D-refuse a DR boundary on
+     compound divisors (no binary witness exists either way today). */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = a / (b + c);
+end E51D;
+

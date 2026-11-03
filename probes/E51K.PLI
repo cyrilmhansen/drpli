@@ -1,0 +1,14 @@
+E51K:
+  procedure options(main);
+  /* [E2E-51/P1] SMALLER-PRECISION divisor: d is fixed bin(7), ONE
+     storage byte (binder sizing per [C079] p<=7).  [N303] shows
+     the MUL 1-byte RHS interleave: raw LDA / PUSH H / sign-extend
+     ladder MOV L,A / ADD A / SBB A / MOV H,A / POP D.  H-K-ld
+     predicts the identical interleave with CALL ?ID22N; H-K-lhld a
+     plain LHLD (which would READ c TOO -- falsified instantly by
+     the reloc count); H-K-conv a conversion call; H-K-refuse. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  dcl d fixed bin(7);
+  z = a / d;
+end E51K;
+

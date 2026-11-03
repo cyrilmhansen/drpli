@@ -1,0 +1,13 @@
+E51E:
+  procedure options(main);
+  /* [E2E-51/P1] CHAINED DIVISION z = a / b / c (left-associative
+     (a/b)/c).  DEC chaining is accepted (NG17) but DEC scale laws
+     do not transfer to binary.  If DIV-chain feeding keeps the
+     quotient in HL across the next parking, H-E-push predicts two
+     ID22N calls with NO store between them; H-E-store predicts
+     SHLD z then LHLD z between the calls.  H-E-refuse: a DR binary
+     boundary. */
+  dcl a fixed, b fixed, c fixed, z fixed;
+  z = a / b / c;
+end E51E;
+
