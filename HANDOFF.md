@@ -1030,22 +1030,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 236
-checkpoint-id: g236-9c6c9dedcb00
-checkpoint-kind: auto
+checkpoint-generation: 237
+checkpoint-id: g237-49f5cf3c6f98
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4389, session 01a1a383-65db-7402-832b-2ae74c8fc6f9)
-checkpointed: 2026-11-03T22:49:23.810Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~631, session 01a1a383-65db-7402-832b-2ae74c8fc6f9)
+checkpointed: 2026-11-03T22:50:41.225Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c1e1917a576b1a86cbd8d1a7130b82e941210b9bd7459ca18fcf887f591db349
-source-handoff: 35447a767a1d19f0654f47e5bfd5e284c1e2c47d71d34cf2a82a3efd4ce73ed6
+source-handoff: 8cc8e62e8f3a9df7ba54175f61dbae508dddaa35608ac9ca9b762fc2ae901b4b
 source-learnings: b6065b6296aadc7f9084cb5df6c430a2228c169484c152439330738a4c9bf519
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a383-65db-7402-832b-2ae74c8fc6f9
+readiness-at: 2026-11-03T22:50:41.237Z
+readiness-checkpoint: g237-49f5cf3c6f98
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1075,5 +1078,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-FC-01 CORPUS COMPLETE at hop 22 (commit 63aca3d): FFT-00 rev1 lane-B PASS (corp10, RUN 507 B byte-identical to derived raw sha 87acbf18..., double-run byte-equal), JSON via script with all gates green (9 caps double-verified; AGG.ELEM_AS_ACTUAL falsified-absent and dropped), docs sec 15 + sec 1 + CORPUS CLOSE (7 PASSes + HAMM-00 rev1 recorded my-gap FAIL, 8/8), gate rc=0 build/gate-fft00.log. NO ACTIVE ROUND: successor WITHOUT an operator brief confirms HEAD/tree, /handoff verify, records state and STOPS. Proposals only: HAMM-00 rev2; FCPS1..3 SPECIMENS registration at a gate hop; README 5.1 rights review (due, all eight sources); E2E-50/P3 shortlist. Compiler edce9e0e...; ledger ends C352; no ocaml/harness byte; FAILs never laundered; never re-run retry-DFS; operator handoff.config.json unstaged; no push.
+E2E-51/P1: pre-registration committed (9bac977), handoff prose committed (0cd010b). NEXT: run the ONE grouped oracle batch exactly as written in HANDOFF.md ## ACTIVE ROUND (PLI_SRC=probes timeout 900 python3 oracle/batch.py E51A..E51L --tag e51p1 --switches '$L$D'), then RESULTS.md+classification, commit goldens+results together, implement arms only per evidence, gate, claims from C353, HAMM-00 rev1 rerun if covered. After P1 STOP. Never touch operator handoff.config.json; no push.
 <!-- guard:end checkpoint -->
