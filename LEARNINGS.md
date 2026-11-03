@@ -3354,3 +3354,86 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   2 = O (computer moves first, BASIC 60) — needs a pre-compile + lane witness.
 - STATE: no tracked file authored yet; no scratch pre-compile of the port shapes yet; ledger
   ends C352; nothing laundered; operator handoff.config.json unstaged; no push; renewal 4/12.
+
+## 2026-11-03 — FC-01 CORPUS TICT-00 implementation hop, continuation chain hop 5 (CROSS-CHECK BLOCKER RESOLVED; port statement plan FINAL)
+
+- ACCEPTED (blocker closed): the hop-4 "85 vs 84 lines" mismatch was ONE transcription
+  defect in my port model `build/fc01-scratch/tict00_sim.py`: `occ()` emitted message +
+  ONE blank, but BASIC 506 `PRINT"THAT SQUARE IS OCCUPIED.":PRINT:PRINT` = message line +
+  TWO blank lines, and l500's leading `PRINT` adds the third before the prompt. Fixed
+  (occ now `skip;skip;skip`). FALSIFIED (carried assumption): the hop-4 note that the two
+  models "were fed DIFFERENT scripts" was only half the story — the framing gap was real.
+- MEASURED (identical-script cross-check, 8/8 MATCH): BASIC model vs port model agree on
+  every collapse-normalized line EXCEPT (i) the two prompt texts + echo suffix (declared
+  adaptation), (ii) the apostrophe rewrites, (iii) the port's single trailing exit-CRLF
+  blank ([C352]; the BASIC content model does not model exit framing). Scripts matched:
+  draw coverage winner `O,2,9,7,1,10,1,4` <-> port `2,2,9,7,1,10,1,4` (BASIC 119 lines,
+  port 120); computer-win+occ `O,8,1,3,1,7`; computer-win+occ+oor `O,8,1,3,1,11,7`;
+  quit-O `O,0`; quit-X `X,0`; X-first computer win `X,1,2,4`; X-first draw
+  `X,1,2,6,7,8`; draw+1retry `O,2,9,7,1,1,4`. CHOSEN SPEC SCRIPT CONFIRMED: choice 2 (O),
+  moves 2,9,7,1,10,1,4 -> DRAW, 2 occupied messages, console_input
+  `2\r2\r9\r7\r1\r10\r1\r4\r^Z` (7 CR-terminated values + bare ^Z; predecessor's
+  `2\r9\r7\r1\r10\r1\r4\r^Z` dropped the first move 2 - corrected here).
+  Terminal boards agree across models (mapped 1/3 <-> BASIC -1/1).
+- FAILURE LESSON (recorded, PROPOSED avoid): my targeted 1180/diag coverage DFS allowing
+  ALL moves incl. occupied up to depth ~12 blew up combinatorially and was manually
+  interrupted after ~11 hours. The needed game-tree facts are ALREADY measured (hop-4
+  exhaustive search: 1200/1180/1112/1137 unreachable); the l1180 diag dispatch is KEPT as
+  faithful dead code; do NOT re-search - the 8-script cross-check above is the witness.
+- DECIDED (statement-level port plan; every idiom corpus-witnessed): flat goto machine,
+  labels l0002..l2000 mirroring BASIC lines; declares (i,j,k,m,c,g,h,r,f,t1,t2,t3,ps,qs,
+  b1,b2,b3) fixed bin(15) + s(9); board init `do i = 1 to 9; s(i) = 2; end;`. AND-gates
+  (106/107/108/109/171..176/1160/1165) = count ladder `f = 0; if t1 = a then f = f + 1;
+  if t2 = b then f = f + 1; if f = 2 then goto ...;` with BOTH members re-loaded at every
+  label (no stale-temp reuse). M=0 test via shift idiom `t1 = m + 1; if t1 = 1 then`.
+  Pass-2 j from m: `t1 = m - 1; t1 = t1 / 3; j = t1 * 3; j = j + 1;` (split statements,
+  literal divisor 3); k tests `t2 = j; t2 = j + 1; t2 = j + 2` scalar=scalar eq. Loop
+  exits flat: rows `i = i + 3; if i < 8 then goto l1100;` cols `if i < 4`; empty-scan
+  `if i < 10`; NEXT K,J via l0460k/l0460j labels. Printer l1000..l1080 flat manual loop:
+  per-cell branch labels l1012/l1014/l1016/l1018 (call show(qs/ps); put list(' ')),
+  l1020 `b1 = 0; if i = 3/6/9 then b1 = b1 + 1;` -> b1=3 goto l1080, b1=0 goto l1060
+  ('!'), else l1030 skip + '---+---+---' + skip (fallthrough l1040->l1080); after loop
+  three `put skip;` (1080 NEXT I:PRINT:PRINT:PRINT = close row + 2 blanks) then detector
+  FALLS THROUGH exactly like the BASIC (1095 rows -> 1115 cols -> 1150 empty-scan -> 1155
+  diag -> 1170 RETURN dispatch `if r = 1 then goto l0205; goto l0530;`). Terminals: l1200
+  'YOU BEAT ME!! GOOD GAME.' skip goto l2000; l1350 'I WIN, TURKEY!!!' skip goto l2000;
+  l1400 'IT IS A DRAW. THANK YOU.' + `put skip;` (falsified defect ii kept: the draw line
+  IS closed) then FALLS to l2000; l2000 = dead store `f = 0;` (label must own a
+  statement) as the only exit point. show: nested procedure (z) with `pc character(1)
+  varying`, ladder if z = 79 then pc = 'O'; if z = 88 then pc = 'X'; put list(pc); placed
+  after l2000, `end show;` then `end tict00;` (HANG-00 witnessed shape). goto NEVER
+  crosses an active DO (the init do-loop is closed before any label). Prompts:
+  `put list('DO YOU WANT X OR O ENTER 1 FOR X 2 FOR O '); get list(c);` and
+  `put skip; put list('WHERE DO YOU MOVE '); get list(m);` (echo law L\r\r\n closes the
+  line; expected echo lines carry trailing \r per HAMM-00 committed convention).
+  All goto/label spellings per HANG-00 (lowercase `goto`, label at col 0..2, statements
+  indented).
+- STATE: `tict00_sim.py` fixed (ignored scratch); NOTHING tracked authored yet this hop;
+  no PLI draft on disk yet, no pre-compile of the FULL program yet, no lane run, no gate
+  run. Ledger ends C352; nothing laundered; operator handoff.config.json unstaged; no
+  push; renewal 5/12 (this hop continues chain 01a19d3a). NEXT (exact): (1) write LF draft
+  `build/fc01-scratch/TICT-00.draft.pli` per the plan above, mirroring tict00_sim.py
+  statement-for-statement; (2) scratch pre-compile `dune exec ocaml/bin/pli80c.exe`
+  (rc=0 + size sanity, shapes already individually measured - full-program compile is the
+  new witness); (3) CRLF + bare ^Z + <=71 cols + zero in-literal apostrophes ->
+  `spec/functional/tests/TICT-00.PLI`, pin sha256 in the JSON; (4) `reference.py`
+  `_Tict00Port` + `tict00()` returning the normalized line list (same laws as sim:
+  skip=CRLF, separator blank when line open, echo `%d\r\r\n`, exit appends one CRLF) +
+  DERIVATIONS entry; diff derive('tict00') vs `tict00_sim.py` norm() BEFORE writing the
+  JSON (echo lines keep trailing \r per HAMM convention - match reference.py:hamm00
+  handling exactly); (5) TICT-00.json (link_target TICT00, console_input
+  `2\r2\r9\r7\r1\r10\r1\r4\r^Z`, expected.console = derivation lines verbatim,
+  normalization collapse-spaces-v1, capabilities grep-verify each row dr=ACCEPTS/
+  mine=SUPPORTED before citing - candidates DECL.FIXED_BIN15 DECL.CHAR_VARYING
+  AGG.ARRAY_1D_FIXED AGG.VAR_INDEX_LADDER LOOP.DO_TO_BY IO.GET_LIST IO.PUT_LIST_FIXED
+  IO.PUT_SKIP EXPR.REL_FIXED_EQ_K EXPR.SELF_ADD_LADDER PROC.CALL_COPYIN
+  TRAN.GOTO_SAME_BLOCK; notes (1)-(n): numeric choice GET 1=X/2=O, value mapping 1/2/3,
+  apostrophe rewrites, AND-ladder form, flat loops, TAB dropped, unreachable
+  1200/1180/1112/1137 kept dead, unreached lines 104/105,133/138,156/158,163/168,187/189,
+  475/X-branch, occupied 3-blank law, exit-CRLF trailing blank); (6) `python3
+  tools/functional_runner.py --stages source,derivation --tests TICT-00`; (7) lane B
+  `--evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json` (+ --double-run
+  corp7-double if PASS), ACTUALS verbatim, FAIL stays classified; (8) docs/functional-
+  results.md sec 12 + sec 1 row; (9) `python3 tools/e2e_gate.py` compile tier ACTUALS;
+  (10) explicit-path commit (NEVER handoff.config.json; no push). Then LIFE-00, DHRY-00
+  (never execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED.

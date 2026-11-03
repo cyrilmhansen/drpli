@@ -195,7 +195,33 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-TICT-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, continuation chain hop 4; HEAD `c6c699b`,
+TICT-00 CROSS-CHECK BLOCKER RESOLVED — DRAFT STEP IN FLIGHT (2026-11-03, continuation
+chain hop 5; HEAD `60e7038`, tree clean except managed blocks + operator
+`handoff.config.json`; compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…TICT-00
+implementation hop, continuation chain hop 5" — it carries the FIX (port `occ()` needed
+message + TWO blanks: BASIC 506 PRINT:PRINT:PRINT, l500 PRINT adds the third — models now
+MATCH 8/8 identical scripts under collapse-normalization, port = BASIC + one trailing
+exit-CRLF blank [C352]), the CONFIRMED spec script (choice 2 = O, moves 2,9,7,1,10,1,4 ->
+DRAW; `console_input 2\r2\r9\r7\r1\r10\r1\r4\r^Z` — the hop-4 note's string dropped the
+first move 2), the FAILURE LESSON (retry-DFS re-search blew up ~11h — NEVER re-search; the
+hop-4 exhaustive facts stand, l1180/1200/1112/1137 stay faithful dead code), and the
+COMPLETE statement-level port plan (flat label machine, f-count AND ladders with both
+members re-loaded per label, shift idiom for M=0, flat loop emulation i<8/i<4/i<10, printer
+l1002..l1080 manual loop with b1 ladder, detector fall-through, r-dispatch, l1400 closes
+with put skip and falls to l2000 = dead store, nested show after l2000, board init
+s(i)=2 via do loop). NEXT (hop-5 § NEXT steps 1-10): LF draft
+`build/fc01-scratch/TICT-00.draft.pli` -> full-program scratch pre-compile -> CRLF+bare^Z
++<=71+apostrophe-free `spec/functional/tests/TICT-00.PLI` pin sha -> `reference.py
+:_Tict00Port`/`tict00()`+DERIVATIONS, diff derive vs `tict00_sim.py` norm() BEFORE the JSON
+-> TICT-00.json (link_target TICT00, grep-verified capabilities, full notes) ->
+`--stages source,derivation` -> lane B `--evidence build/fc01/corp7 --json-out build/fc01
+/corp7/records.json` (+corp7-double if PASS; ACTUALS verbatim, FAIL stays classified) ->
+docs/functional-results.md § 12 + § 1 row -> `python3 tools/e2e_gate.py` compile tier ->
+explicit-path commit (NEVER handoff.config.json; no push). Then LIFE-00, DHRY-00 (never
+execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED. No ocaml/harness changes; ledger
+ends C352; third-party bytes never tracked.
+
+SUPERSEDED-BY-ABOVE (kept as written): TICT-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, continuation chain hop 4; HEAD `c6c699b`,
 build rc=0, compiler `edce9e0e…`, checkpoint g184 attested CURRENT at session start).
 Read FIRST `LEARNINGS.md` § "2026-11-03 — FC-01 CORPUS TICT-00 implementation hop" — it carries
 the MEASURED game-tree result (the HUMAN win 1200 is UNREACHABLE in any play; 1180 never fires;
@@ -841,16 +867,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 186
-checkpoint-id: g186-0e4999679cc4
+checkpoint-generation: 187
+checkpoint-id: g187-397e1cdc2e1e
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-02T22:40:29.411Z
+checkpointed: 2026-11-02T22:41:00.604Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 37138a092f07508fa0071cbe0ff2d51c16244f566f9a44ae6d027a8bddf1a97d
-source-handoff: 4d56e1a7bfe576bac7286bcb2c1c039e97a714fc59074906a760045ca6c38f90
+source-progress: 1e7b191a0bf676a887beb40ba8a37ac3eb0981ba7e751c36e392b0ea9b3801c3
+source-handoff: 14cb5dd62e5b83ccd20115e80a5890b9c033ae5098c0d1f44273c5b80a86e624
 source-learnings: 50b81e8afb9dafb9dcfbf0580bb3154c772663404387d36e4d16f07ba4c6002f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
@@ -876,8 +902,8 @@ next-action: ` below. TABLE-00 and
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 readiness-by: session:01a19e3a-cf6d-7601-8f9d-90c492ad489c
-readiness-at: 2026-11-02T22:40:29.419Z
-readiness-checkpoint: g186-0e4999679cc4
+readiness-at: 2026-11-02T22:41:00.614Z
+readiness-checkpoint: g187-397e1cdc2e1e
 <!-- guard:end checkpoint -->
 
 ## Blockers

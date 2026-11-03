@@ -330,7 +330,27 @@ yet; NO PASS claimed. EXACT NEXT (steps 1-6: JSON -> source,derivation -> lane B
 `LEARNINGS.md` 2026-11-02 AMAZ-00 implementation hop. Constraints unchanged; ledger
 ends C352; operator handoff.config.json untouched/unstaged; no push.
 
-## TICT-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, continuation chain hop 4; HEAD `c6c699b`; build rc=0, compiler `edce9e0e…`; NOTHING tracked authored yet, no lane run, no gate run)
+## TICT-00 CROSS-CHECK BLOCKER RESOLVED — draft step in flight (2026-11-03, continuation chain hop 5; HEAD `60e7038`; build verified at session start; NOTHING tracked authored yet, no lane run, no gate run)
+
+Read `LEARNINGS.md` § "…TICT-00 implementation hop, continuation chain hop 5" FIRST — it
+carries the FIX (port model `occ()` was one `skip` short: BASIC 506 = message + TWO blanks,
+l500 adds the third — `build/fc01-scratch/tict00_sim.py` corrected), the MEASURED result
+(port and BASIC models now MATCH on 8/8 identical scripts under collapse-normalization,
+modulo prompt text + echo, apostrophe rewrites, and the port's single trailing exit-CRLF
+blank [C352]), the CONFIRMED script (`console_input 2\r2\r9\r7\r1\r10\r1\r4\r^Z` — the
+hop-4 string dropped the first move 2), the FAILURE LESSON (a retry-DFS re-search blew up
+~11h and was aborted — the hop-4 exhaustive game-tree facts stand; 1180/1200/1112/1137 stay
+faithful dead code, NEVER re-search), and the COMPLETE statement-level port plan (flat label
+machine, f-count AND ladders, shift idiom, flat loops, manual printer loop, detector
+fall-through, r-dispatch, nested show, board init s(i)=2). EXACT NEXT = that section's steps
+1-10 (draft -> full scratch pre-compile -> pinned `TICT-00.PLI` -> reference mirror diffed vs
+simulator BEFORE the JSON -> `TICT-00.json` -> source,derivation -> lane B corp7 ACTUALS
+verbatim -> docs § 12 + § 1 -> compile-tier gate -> explicit-path commit). Then LIFE-00,
+DHRY-00 (never execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED. No ocaml/harness
+changes; ledger ends C352; nothing laundered; operator `handoff.config.json` untouched/
+staged; no push.
+
+## Superseded: TICT-00 IMPLEMENTATION HOP IN FLIGHT (2026-11-03, continuation chain hop 4; HEAD `c6c699b`; build rc=0, compiler `edce9e0e…`; NOTHING tracked authored yet, no lane run, no gate run)
 
 Read `LEARNINGS.md` § "…TICT-00 implementation hop" (two sections: hop-start contract + the
 continuation record) FIRST. DONE this hop: sources re-verified rc=0; independent line-for-line
@@ -517,25 +537,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 186
-checkpoint-id: g186-0e4999679cc4
+checkpoint-generation: 187
+checkpoint-id: g187-397e1cdc2e1e
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-3306, session 01a19e3a-cf6d-7601-8f9d-90c492ad489c)
-checkpointed: 2026-11-02T22:40:29.411Z
+status: checkpoint (guard level 4, remaining ~-4896, session 01a19e3a-cf6d-7601-8f9d-90c492ad489c)
+checkpointed: 2026-11-02T22:41:00.604Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 37138a092f07508fa0071cbe0ff2d51c16244f566f9a44ae6d027a8bddf1a97d
-source-handoff: 4d56e1a7bfe576bac7286bcb2c1c039e97a714fc59074906a760045ca6c38f90
+source-progress: 1e7b191a0bf676a887beb40ba8a37ac3eb0981ba7e751c36e392b0ea9b3801c3
+source-handoff: 14cb5dd62e5b83ccd20115e80a5890b9c033ae5098c0d1f44273c5b80a86e624
 source-learnings: 50b81e8afb9dafb9dcfbf0580bb3154c772663404387d36e4d16f07ba4c6002f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a19e3a-cf6d-7601-8f9d-90c492ad489c
-readiness-at: 2026-11-02T22:40:29.419Z
-readiness-checkpoint: g186-0e4999679cc4
+readiness-at: 2026-11-02T22:41:00.614Z
+readiness-checkpoint: g187-397e1cdc2e1e
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
