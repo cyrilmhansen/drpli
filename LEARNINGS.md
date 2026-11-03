@@ -3564,3 +3564,81 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   results.md sec 12 + sec 1 row; (9) `python3 tools/e2e_gate.py` compile tier ACTUALS;
   (10) explicit-path commit (NEVER handoff.config.json; no push). Then LIFE-00, DHRY-00
   (never execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED.
+
+## 2026-11-03 — FC-01 CORPUS TICT-00 implementation hop 8 (continuation chain hop 8; steps 4-6 LANDED — lane B / docs / gate / commit OWED)
+
+- ACCEPTED (step 4 DONE, the hop's main result): `reference.py` now carries
+  `_tict00_trunc_div`, `_tict00_finalize`, `_Tict00Port` (121-label dispatch) and
+  `tict00()` registered in `DERIVATIONS`. The label dispatch was generated
+  MECHANICALLY from the PINNED `spec/functional/tests/TICT-00.PLI` by the ignored
+  scratch tool `build/fc01-scratch/mk_tict00_mirror.py` and then hand-checked
+  statement by statement (NEW PROCEDURE: generating the mirror from the pinned
+  source, instead of hand-writing it, makes the UNREACHED labels faithful too — a
+  hand-written dead branch is invisible to a stream diff). Structural parity
+  measured: 121 labels, 341 label statements; the main-block region holds 348
+  semicolons = 341 + 3 declares + 3 board-init DO statements + 1 `stop;`.
+- ACCEPTED (diff BEFORE the JSON, as contracted): `_Tict00Port(TICT00_SCRIPT).run()`
+  finalized == `build/fc01-scratch/tict00_sim.py` `norm()` on ALL 120 normalized
+  lines, ZERO differing lines, raw 1468 bytes (incl. the exit CRLF). Two models,
+  different structure (flat label machine vs nested methods), byte-equal stream.
+- FALSIFIED (my own new assertion text, kept as written per PROTOCOL #2): I first
+  asserted `lines[12] == "DO YOU WANT X OR O ENTER 1 FOR X 2 FOR O 2"`; the committed
+  HAMM-00 convention is that an echo line carries the TRAILING `\r`, i.e.
+  `"...FOR O 2\r"` (collapse-spaces-v1 keeps the `\r`: the echo is `2\r\r\n` and only
+  `\r\n` becomes `\n`). Fixed to the measured form; the sim was never wrong.
+- ACCEPTED (derivation invariants, all measured green): 120 lines / terminal `draw` /
+  8 GETs / script fully consumed / board `1,3,1,3,1,1,3,1,3` / ps=79 qs=88 (choice 2) /
+  THREE occupied lines at 86, 91, 96 / line 1 `TIC-TAC-TOE` (no leading blank) /
+  line 120 the exit-CRLF blank [C352] / unreached labels l0475, l0104, l0105, l0133,
+  l0138, l0156, l0158, l0163, l0168, l0187, l0189, l0502t, l1180, l1200, l1350 hit 0,
+  while l1112 and l1137 ARE entered (an all-empty triple falls through them) and their
+  gotos never fire — exactly the hop-4 exhaustive-search finding, NOT re-searched.
+- ACCEPTED (step 5 DONE): `spec/functional/tests/TICT-00.json` GENERATED VIA SCRIPT
+  from `derive('tict00')` (console = the 120 derived lines; nothing hand-copied):
+  schema pli80-functional/1, link_target TICT00, sha pin
+  `f9320f5a65d98fc3cc2a4aa4688444aab54cba25814ddbfa17ee5b2bd26c04e7` (recomputed and
+  asserted equal), console_input `2\r2\r9\r7\r1\r10\r1\r4\r^Z`, collapse-spaces-v1,
+  limits as HANG-00, notes (1)-(15) = the full removal/substitution list incl. the
+  base-choice rationale, numeric choice GET, 1/2/3 value mapping, f-count AND-ladders,
+  flat loops/entry-label split, m=0 shift idiom + TAB drop, the TWO equivalence
+  adaptations (113/114/115 -> k=1 + two compares; `/3` truncation == INT() because
+  m >= 1), the IT IS rewrite, the three-blank occupied law, THREE occupied messages
+  (TWO stays falsified), dead 1180/1200/1112->1200/1137->1200 + the unreached-label
+  list, framing/1468-raw/120-line prediction, and the double capability verification.
+- ACCEPTED (capability verification, both directions): every cited id exists in
+  `spec/COVERAGE.tsv` with col7=ACCEPTS and col8=SUPPORTED (12 ids:
+  DECL.FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED, AGG.VAR_INDEX_LADDER,
+  LOOP.DO_TO_BY, IO.GET_LIST, IO.PUT_LIST_FIXED, IO.PUT_SKIP, EXPR.REL_FIXED_EQ_K,
+  EXPR.SELF_ADD_LADDER, PROC.CALL_COPYIN, TRAN.GOTO_SAME_BLOCK) AND its construct is
+  present in the pinned .PLI. AGG.VAR_INDEX_LADDER KEPT (s(i)/s(j)/s(k)/s(m)/s(b1..b3)
+  are variable subscripts); LOOP.DO_TO_BY is the board-init `do i = 1 to 9` ONLY;
+  EXPR.VARYING_X_VARYING and AGG.ELEM_AS_ACTUAL DROPPED (no varying compare; actuals
+  are scalars, never array elements). MEASURED SCHEMA FACT (for future greps):
+  COVERAGE.tsv rows have 15 columns and dr_status/mine_status are columns 7/8 —
+  not 4/6 as the prose column list implies (the leading `#` lines shift nothing; the
+  15-col row simply has perimeter=5, dr=6?? NO: measured by printing the row — col5
+  perimeter S, col6 = the P3-audit note, col7 ACCEPTS, col8 SUPPORTED, col9 parity,
+  col10 runtime; the validator reads the named header, my awk indices are the
+  empirical ones).
+- ACCEPTED (step 6 DONE, ACTUAL output verbatim): `python3 tools/functional_runner.py
+  --stages source,derivation --tests TICT-00` printed `TICT-00 lane B UNKNOWN
+  [COMPILE: stage ceiling]`, `evidence: build/functional/20261103T112342Z`,
+  `verdicts: PASS=0 FAIL=0 BLOCKED=0 UNKNOWN=1` — the designed stage ceiling (AMAZ-00
+  precedent); no FAIL at SOURCE or DERIVATION means the sha pin and derivation == spec
+  both held. NOTE: that run wrote NO records.json (the evidence dir holds only an
+  empty `lane-B/`); records need `--json-out`.
+- OWED (hop 9, exact): (7) lane B `python3 tools/functional_runner.py --tests TICT-00
+  --evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json` (+
+  `--double-run` into `build/fc01/corp7-double/` if PASS), ACTUALS verbatim — FIRST
+  lane-B RUN of this machine (variable-subscript stores + call-in-flat-machine + the
+  occupied retry loop); a FAIL stays classified `my-gap`/`dr-refuses`/`unmeasured`,
+  never laundered, and the expectation is NOT to be edited to chase a PASS; (8)
+  `docs/functional-results.md` § 12 + the § 1 row; (9) `python3 tools/e2e_gate.py`
+  compile tier -> `build/gate-tict00.log`; (10) explicit-path commit of
+  `spec/functional/tests/TICT-00.json`, `reference.py`, docs, LEARNINGS, PROGRESS,
+  HANDOFF (NEVER `handoff.config.json`; no push). Then LIFE-00, DHRY-00 (never execute
+  the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED.
+- Constraints: no ocaml/harness byte changed (reference.py is corpus evidence, not the
+  harness); ledger ends C352 (a functional run is not a DR claim); third-party bytes
+  never tracked; NEVER re-run the retry-DFS search; operator `handoff.config.json`
+  (maxRenewals 12, workingContextWindow 145000) untouched/unstaged; no push.

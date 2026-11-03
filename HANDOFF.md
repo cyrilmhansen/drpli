@@ -122,6 +122,40 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+## TICT-00 hop 8 — REFERENCE + JSON LANDED (2026-11-03, continuation chain hop 8; steps 4-6 DONE; lane B/docs/gate/commit OWED at hop 9)
+
+Read `LEARNINGS.md` § "…TICT-00 implementation hop 8" FIRST. `reference.py` gained
+`_Tict00Port` (121-label dispatch GENERATED MECHANICALLY from the pinned TICT-00.PLI by
+the ignored scratch tool `build/fc01-scratch/mk_tict00_mirror.py`, then hand-checked —
+NEW PROCEDURE: a generated mirror is faithful for UNREACHED labels too, which a
+hand-written mirror and a stream diff cannot guarantee), `_tict00_finalize`,
+`_tict00_trunc_div` and `tict00()` in `DERIVATIONS`. `derive('tict00')` is BYTE-EQUAL to
+the independent simulator norm() on all 120 normalized lines (raw 1468 B) — diffed
+BEFORE any JSON, as contracted — and every invariant is green (terminal draw, 8 GETs,
+script consumed, board 1,3,1,3,1,1,3,1,3, THREE occupied lines 86/91/96, line 1
+TIC-TAC-TOE with no leading blank, line 120 the exit-CRLF blank [C352], 15 unreached
+labels incl. l0475/l0502t/l1180/l1200/l1350, while l1112/l1137 ARE entered and never
+branch). `spec/functional/tests/TICT-00.json` was GENERATED VIA SCRIPT from the
+derivation (link_target TICT00, sha f9320f5a… recomputed and asserted, console_input
+`2\r2\r9\r7\r1\r10\r1\r4\r^Z`, collapse-spaces-v1, limits as HANG-00, notes (1)-(15)
+carrying the base choice, the numeric choice GET, the 1/2/3 value mapping, f-count
+AND-ladders, flat loops, the m=0 shift idiom, the TWO equivalence adaptations, the IT IS
+rewrite, the three-blank occupied law, THREE occupied messages, the dead/unreached route
+lists and the double capability verification; 12 ids each verified ACCEPTS/SUPPORTED in
+spec/COVERAGE.tsv AND present in the .PLI — AGG.VAR_INDEX_LADDER kept, LOOP.DO_TO_BY is
+the board-init loop only, EXPR.VARYING_X_VARYING and AGG.ELEM_AS_ACTUAL dropped).
+`--stages source,derivation` printed UNKNOWN [COMPILE: stage ceiling] with no SOURCE or
+DERIVATION FAIL (evidence build/functional/20261103T112342Z; that mode writes no
+records.json — `--json-out` is needed). FALSIFIED this hop (kept as written): my first
+echo-line assert omitted the trailing `\r`. Lane-B RUN of this machine is STILL
+unwitnessed. OWED (hop 9, steps 7-10): lane B build/fc01/corp7 (+corp7-double if PASS)
+ACTUALS verbatim, a FAIL stays classified never laundered -> docs § 12 + § 1 row ->
+compile-tier gate -> explicit-path commit. No ocaml/harness byte changed; nothing
+laundered; ledger ends C352; third-party bytes never tracked; operator
+handoff.config.json untouched/unstaged; no push; NEVER re-run the retry-DFS search.
+Renewal 8/12 used (this checkpoint had already seeded this session, so a second renewal
+from it is refused by the idempotence guard); successor = hop 9.
+
 ## TICT-00 hop 7 — STEP 3 PIN LANDED (2026-11-03, continuation chain hop 7; `spec/functional/tests/TICT-00.PLI` pinned + compile-witnessed; reference/JSON/lane/docs/gate OWED at hop 8)
 
 Read `LEARNINGS.md` § "…TICT-00 implementation hop 7" FIRST. Measured this hop: the hop-6 draft
@@ -582,13 +616,13 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 194
-checkpoint-id: g194-0a259c9d4a1a
+checkpoint-generation: 196
+checkpoint-id: g196-6d10eec8520c
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6915, session 01a1a104-4c0b-7601-8f9d-90d0311d9324)
-checkpointed: 2026-11-03T11:06:43.421Z
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4697, session 01a1a117-ac16-7601-8f9d-90d4aa1719d8)
+checkpointed: 2026-11-03T11:23:42.253Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 47acbfe3da9d28aa60da62347908e00ef971e76529d59bfcad722cf11166dcde
 source-handoff: e91d01a5f1e77cdb435b2e070abbfd7cb039512112758d1aaefadb0396077db0
@@ -596,11 +630,8 @@ source-learnings: 62a72829107fbb3ec19b48554fdc54c229e7fdb9b4db1df26748591f537d1f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a104-4c0b-7601-8f9d-90d0311d9324
-readiness-at: 2026-11-03T11:07:00.857Z
-readiness-checkpoint: g194-0a259c9d4a1a
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

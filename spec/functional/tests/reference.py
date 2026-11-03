@@ -1564,6 +1564,898 @@ def amaz00():
     return lines
 
 
+# --------------------------------------------------------------------------
+# TICT-00 (FC-01 corpus program 5, adapted BASIC Tic-Tac-Toe, TICTACTOE2.bas)
+#
+# DECLARED VALUE MAPPING (adaptation, not an import): a board cell is 1 = computer
+# (BASIC -1), 2 = empty (BASIC 0), 3 = human (BASIC 1); the scan owner g is 1 on the
+# computer pass and 3 on the human pass, h its complement.  Every compare then has a
+# POSITIVE literal or a scalar on its right, which is what my compiler accepts (the
+# hop-3 probes measured `= -1` and ordered compares against a VARIABLE right operand
+# refused; DO ... BY 3 refused, so the BASIC FOR loops are flat goto loops).
+#
+# The label dispatch below was generated MECHANICALLY from the pinned TICT-00.PLI
+# (build/fc01-scratch/mk_tict00_mirror.py) and hand-checked statement by statement, so
+# that the mirror is faithful for the labels this script never reaches as well as for
+# the ones it does; fall-through targets are the next label in source order exactly as
+# the .PLI emits them.
+
+TICT00_SCRIPT = [2, 2, 9, 7, 1, 10, 1, 4]     # choice 2 = O; moves 2,9,7,1,10,1,4
+TICT00_BOARD_END = [1, 3, 1, 3, 1, 1, 3, 1, 3]
+TICT00_RAW_BYTES = 1468                       # derived raw console bytes incl. exit CRLF
+TICT00_LINES = 120                            # derived normalized stream length
+_TICT00_MARK = {79: "O", 88: "X"}             # show: procedure (z) two-branch ladder
+_TICT00_B15 = 32767
+
+# Labels whose STATEMENTS the chosen script never reaches (derived, asserted below).
+TICT00_UNREACHED = ["l0475", "l0104", "l0105", "l0133", "l0138", "l0156", "l0158",
+                    "l0163", "l0168", "l0187", "l0189", "l0502t", "l1180", "l1200",
+                    "l1350"]
+
+
+def _tict00_trunc_div(a, b):
+    """FIXED BIN(15) '/' as the port uses it: the quotient truncates toward zero.
+    The only division site is l0112 (t1 = t1 / 3) where the dividend is m - 1 and
+    m >= 1 there (l0502 exits on m = 0, l0503 refuses m > 9, l0506 retries an
+    occupied square), so truncation == floor == BASIC INT((M-1)/3)."""
+    assert b != 0
+    q = abs(a) // abs(b)
+    return q if (a >= 0) == (b >= 0) else -q
+
+
+def _tict00_finalize(raw):
+    norm = _hamm00_re.sub(rb" +", b" ",
+                          (raw + "\r\n").encode().replace(b"\r\n", b"\n")).decode()
+    lines = norm.split("\n")
+    if lines and lines[-1] == "":
+        lines = lines[:-1]
+    return lines
+
+
+class _Tict00Port:
+    """Statement-for-statement mirror of TICT-00.PLI: the same 121 labels in the same
+    source order, the same temps (t1/t2/t3, b1/b2/b3), the same f-count AND-ladders
+    with BOTH members re-loaded at every label, the same fall-throughs (l0189 -> l0195,
+    l0475 -> l0500, l1018 -> l1020, l1060 -> l1080, l1110 -> l1112 -> l1115n, l1135 ->
+    l1137 -> l1150n, l1160 -> l1165 -> l1170, l1400 -> l2000).  Byte model per the
+    measured corpus laws (README section 6 + the hop-2 separator law + [C352]): PUT
+    SKIP emits "\\r\\n"; a single-item PUT LIST is preceded by ONE blank unless it is
+    the first item printed since the last line start; a consumed GET echoes
+    "<value>\\r\\r\\n" and closes the line; program exit appends exactly one "\\r\\n"."""
+
+    def __init__(self, script):
+        self.script = list(script)
+        self.raw = ""
+        self.nget = 0
+        self.s = [0] * 10                      # s(1)..s(9), value-mapped cells
+        self.hit = {}                          # label -> times entered (instrumentation)
+        self.terminal = None                   # 'draw'/'computer'/'human'/'quit'
+        self.steps = 0
+        self.i = self.j = self.k = self.m = self.c = 0
+        self.g = self.h = self.r = self.f = 0
+        self.t1 = self.t2 = self.t3 = 0
+        self.ps = self.qs = self.b1 = self.b2 = self.b3 = 0
+
+    def L(self, name):                         # instrumentation only: label entered
+        self.hit[name] = self.hit.get(name, 0) + 1
+
+    def skip(self):
+        self.raw += "\r\n"                      # put skip;
+
+    def put(self, item):
+        if self.raw and not self.raw.endswith("\r\n"):
+            self.raw += " "                     # measured leading-separator law
+        self.raw += item                        # put list(item);
+
+    def get(self):
+        assert self.script, "GET past the end of the declared script"
+        v = self.script.pop(0)
+        assert 0 <= v <= _TICT00_B15            # fixed bin(15) cell domain
+        self.nget += 1
+        self.raw += "%d\r\r\n" % v              # consumed GET echo closes the line
+        return v
+
+    def show(self, z):
+        # show: procedure (z): declare pc character(1) varying;
+        #   if z = 79 then pc = 'O';  if z = 88 then pc = 'X';  put list(pc);
+        pc = ""
+        if z == 79:
+            pc = "O"
+        if z == 88:
+            pc = "X"
+        assert pc, "show: code %r outside the two-branch ladder" % z
+        self.put(pc)
+
+    def run(self):
+        for self.i in range(1, 10):             # do i = 1 to 9; s(i) = 2; end;
+            self.s[self.i] = 2
+        lab = "l0002"
+        while True:
+            self.steps += 1
+            assert self.steps < 200000, "TICT-00 machine did not terminate"
+            self.L(lab)
+            if lab == "l0002":
+                self.put("TIC-TAC-TOE")
+                self.skip()
+                lab = "l0004"
+            elif lab == "l0004":
+                self.put("CREATIVE COMPUTING  MORRISTOWN, NEW JERSEY")
+                self.skip()
+                lab = "l0006"
+            elif lab == "l0006":
+                self.skip()
+                self.skip()
+                self.skip()
+                lab = "l0008"
+            elif lab == "l0008":
+                self.put("THE BOARD IS NUMBERED:")
+                self.skip()
+                lab = "l0010"
+            elif lab == "l0010":
+                self.put(" 1  2  3")
+                self.skip()
+                lab = "l0012"
+            elif lab == "l0012":
+                self.put(" 4  5  6")
+                self.skip()
+                lab = "l0014"
+            elif lab == "l0014":
+                self.put(" 7  8  9")
+                self.skip()
+                lab = "l0016"
+            elif lab == "l0016":
+                self.skip()
+                self.skip()
+                self.skip()
+                lab = "l0050"
+            elif lab == "l0050":
+                self.put("DO YOU WANT X OR O ENTER 1 FOR X 2 FOR O ")
+                self.c = self.get()
+                if self.c == 1:
+                    lab = "l0475"
+                    continue
+                lab = "l0060"
+            elif lab == "l0060":
+                self.ps = 79
+                self.qs = 88
+                lab = "l0100"
+                continue
+            elif lab == "l0100":
+                self.g = 1
+                self.h = 3
+                self.t1 = self.s[5]
+                if self.t1 == 2:
+                    lab = "l0102"
+                    continue
+                lab = "l0103"
+                continue
+            elif lab == "l0102":
+                self.s[5] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0103":
+                if self.t1 == 3:
+                    lab = "l0104"
+                    continue
+                lab = "l0106"
+                continue
+            elif lab == "l0104":
+                self.t2 = self.s[1]
+                if self.t2 == 2:
+                    lab = "l0105"
+                    continue
+                lab = "l0110"
+                continue
+            elif lab == "l0105":
+                self.s[1] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0106":
+                self.f = 0
+                self.t1 = self.s[2]
+                self.t2 = self.s[1]
+                if self.t1 == 3:
+                    self.f = self.f + 1
+                if self.t2 == 2:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0181"
+                    continue
+                lab = "l0107"
+            elif lab == "l0107":
+                self.f = 0
+                self.t1 = self.s[4]
+                self.t2 = self.s[1]
+                if self.t1 == 3:
+                    self.f = self.f + 1
+                if self.t2 == 2:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0181"
+                    continue
+                lab = "l0108"
+            elif lab == "l0108":
+                self.f = 0
+                self.t1 = self.s[6]
+                self.t2 = self.s[9]
+                if self.t1 == 3:
+                    self.f = self.f + 1
+                if self.t2 == 2:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0189"
+                    continue
+                lab = "l0109"
+            elif lab == "l0109":
+                self.f = 0
+                self.t1 = self.s[8]
+                self.t2 = self.s[9]
+                if self.t1 == 3:
+                    self.f = self.f + 1
+                if self.t2 == 2:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0189"
+                    continue
+                lab = "l0110"
+            elif lab == "l0110":
+                if self.g == 3:
+                    lab = "l0112"
+                    continue
+                lab = "l0111"
+            elif lab == "l0111":
+                lab = "l0118"
+                continue
+            elif lab == "l0112":
+                self.t1 = self.m - 1
+                self.t1 = _tict00_trunc_div(self.t1, 3)
+                self.j = self.t1 * 3
+                self.j = self.j + 1
+                self.k = 1
+                lab = "l0113"
+            elif lab == "l0113":
+                self.t2 = self.j + 1
+                if self.t2 == self.m:
+                    self.k = 2
+                lab = "l0114"
+            elif lab == "l0114":
+                self.t3 = self.j + 2
+                if self.t3 == self.m:
+                    self.k = 3
+                lab = "l0116"
+            elif lab == "l0116":
+                lab = "l0120"
+                continue
+            elif lab == "l0118":
+                self.j = 1
+                self.k = 1
+                lab = "l0120"
+            elif lab == "l0120":
+                self.t1 = self.s[self.j]
+                if self.t1 == self.g:
+                    lab = "l0122"
+                    continue
+                lab = "l0130"
+                continue
+            elif lab == "l0122":
+                self.b2 = self.j + 2
+                self.t2 = self.s[self.b2]
+                if self.t2 == self.g:
+                    lab = "l0126"
+                    continue
+                lab = "l0135"
+                continue
+            elif lab == "l0126":
+                self.b1 = self.j + 1
+                self.t1 = self.s[self.b1]
+                if self.t1 == 2:
+                    lab = "l0128"
+                    continue
+                lab = "l0150"
+                continue
+            elif lab == "l0128":
+                self.s[self.b1] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0130":
+                if self.t1 == self.h:
+                    lab = "l0150"
+                    continue
+                lab = "l0131"
+            elif lab == "l0131":
+                self.b2 = self.j + 2
+                self.t2 = self.s[self.b2]
+                if self.t2 == self.g:
+                    lab = "l0132"
+                    continue
+                lab = "l0150"
+                continue
+            elif lab == "l0132":
+                self.b1 = self.j + 1
+                self.t1 = self.s[self.b1]
+                if self.t1 == self.g:
+                    lab = "l0133"
+                    continue
+                lab = "l0150"
+                continue
+            elif lab == "l0133":
+                self.s[self.j] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0135":
+                self.b2 = self.j + 2
+                self.t2 = self.s[self.b2]
+                if self.t2 == 2:
+                    lab = "l0136"
+                    continue
+                lab = "l0150"
+                continue
+            elif lab == "l0136":
+                self.b1 = self.j + 1
+                self.t1 = self.s[self.b1]
+                if self.t1 == self.g:
+                    lab = "l0138"
+                    continue
+                lab = "l0150"
+                continue
+            elif lab == "l0138":
+                self.s[self.b2] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0150":
+                self.t1 = self.s[self.k]
+                if self.t1 == self.g:
+                    lab = "l0152"
+                    continue
+                lab = "l0160"
+                continue
+            elif lab == "l0152":
+                self.b3 = self.k + 6
+                self.t2 = self.s[self.b3]
+                if self.t2 == self.g:
+                    lab = "l0156"
+                    continue
+                lab = "l0165"
+                continue
+            elif lab == "l0156":
+                self.b2 = self.k + 3
+                self.t1 = self.s[self.b2]
+                if self.t1 == 2:
+                    lab = "l0158"
+                    continue
+                lab = "l0170"
+                continue
+            elif lab == "l0158":
+                self.s[self.b2] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0160":
+                if self.t1 == self.h:
+                    lab = "l0170"
+                    continue
+                lab = "l0161"
+            elif lab == "l0161":
+                self.b3 = self.k + 6
+                self.t2 = self.s[self.b3]
+                if self.t2 == self.g:
+                    lab = "l0162"
+                    continue
+                lab = "l0170"
+                continue
+            elif lab == "l0162":
+                self.b2 = self.k + 3
+                self.t1 = self.s[self.b2]
+                if self.t1 == self.g:
+                    lab = "l0163"
+                    continue
+                lab = "l0170"
+                continue
+            elif lab == "l0163":
+                self.s[self.k] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0165":
+                self.t2 = self.s[self.b3]
+                if self.t2 == 2:
+                    lab = "l0166"
+                    continue
+                lab = "l0170"
+                continue
+            elif lab == "l0166":
+                self.b2 = self.k + 3
+                self.t1 = self.s[self.b2]
+                if self.t1 == self.g:
+                    lab = "l0168"
+                    continue
+                lab = "l0170"
+                continue
+            elif lab == "l0168":
+                self.s[self.b3] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0170":
+                lab = "l0450"
+                continue
+            elif lab == "l0171":
+                self.f = 0
+                self.t1 = self.s[3]
+                self.t2 = self.s[7]
+                if self.t1 == self.g:
+                    self.f = self.f + 1
+                if self.t2 == 2:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0187"
+                    continue
+                lab = "l0172"
+            elif lab == "l0172":
+                self.f = 0
+                self.t1 = self.s[9]
+                self.t2 = self.s[1]
+                if self.t1 == self.g:
+                    self.f = self.f + 1
+                if self.t2 == 2:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0181"
+                    continue
+                lab = "l0173"
+            elif lab == "l0173":
+                self.f = 0
+                self.t1 = self.s[7]
+                self.t2 = self.s[3]
+                if self.t1 == self.g:
+                    self.f = self.f + 1
+                if self.t2 == 2:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0183"
+                    continue
+                lab = "l0174"
+            elif lab == "l0174":
+                self.f = 0
+                self.t1 = self.s[9]
+                self.t2 = self.s[1]
+                if self.t1 == 2:
+                    self.f = self.f + 1
+                if self.t2 == self.g:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0189"
+                    continue
+                lab = "l0175"
+            elif lab == "l0175":
+                if self.g == 1:
+                    lab = "l0175a"
+                    continue
+                lab = "l0176"
+                continue
+            elif lab == "l0175a":
+                self.g = 3
+                self.h = 1
+                lab = "l0110"
+                continue
+            elif lab == "l0176":
+                self.f = 0
+                self.t1 = self.s[9]
+                self.t2 = self.s[3]
+                if self.t1 == 3:
+                    self.f = self.f + 1
+                if self.t2 == 2:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0182"
+                    continue
+                lab = "l0177"
+                continue
+            elif lab == "l0177":
+                self.i = 2
+                lab = "l0177c"
+            elif lab == "l0177c":
+                self.t1 = self.s[self.i]
+                if self.t1 == 2:
+                    lab = "l0178"
+                    continue
+                if self.i == 9:
+                    lab = "l0181"
+                    continue
+                self.i = self.i + 1
+                lab = "l0177c"
+                continue
+            elif lab == "l0178":
+                self.s[self.i] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0181":
+                self.s[1] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0182":
+                self.t1 = self.s[1]
+                if self.t1 == 3:
+                    lab = "l0177"
+                    continue
+                lab = "l0183"
+            elif lab == "l0183":
+                self.s[3] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0187":
+                self.s[7] = 1
+                lab = "l0195"
+                continue
+            elif lab == "l0189":
+                self.s[9] = 1
+                lab = "l0195"
+            elif lab == "l0195":
+                self.skip()
+                self.put("THE COMPUTER MOVES TO...")
+                self.skip()
+                lab = "l0202"
+            elif lab == "l0202":
+                self.r = 1
+                lab = "l1000"
+                continue
+            elif lab == "l0205":
+                lab = "l0500"
+                continue
+            elif lab == "l0450":
+                if self.g == 3:
+                    lab = "l0465"
+                    continue
+                lab = "l0455"
+            elif lab == "l0455":
+                self.f = 0
+                if self.j == 7:
+                    self.f = self.f + 1
+                if self.k == 3:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l0465"
+                    continue
+                lab = "l0460"
+            elif lab == "l0460":
+                if self.k < 3:
+                    lab = "l0460k"
+                    continue
+                if self.j < 7:
+                    lab = "l0460j"
+                    continue
+                lab = "l0465"
+                continue
+            elif lab == "l0460k":
+                self.k = self.k + 1
+                lab = "l0120"
+                continue
+            elif lab == "l0460j":
+                self.j = self.j + 3
+                self.k = 1
+                lab = "l0120"
+                continue
+            elif lab == "l0465":
+                self.t1 = self.s[5]
+                if self.t1 == self.g:
+                    lab = "l0171"
+                    continue
+                lab = "l0175"
+                continue
+            elif lab == "l0475":
+                self.ps = 88
+                self.qs = 79
+                lab = "l0500"
+            elif lab == "l0500":
+                self.skip()
+                self.put("WHERE DO YOU MOVE ")
+                self.m = self.get()
+                lab = "l0502"
+            elif lab == "l0502":
+                self.t1 = self.m + 1
+                if self.t1 == 1:
+                    lab = "l0502t"
+                    continue
+                lab = "l0503"
+                continue
+            elif lab == "l0502t":
+                self.terminal = "quit"   # instrumentation: exit route
+                self.put("THANKS FOR THE GAME.")
+                self.skip()
+                lab = "l2000"
+                continue
+            elif lab == "l0503":
+                if self.m > 9:
+                    lab = "l0506"
+                    continue
+                lab = "l0505"
+            elif lab == "l0505":
+                self.t1 = self.s[self.m]
+                if self.t1 == 2:
+                    lab = "l0510"
+                    continue
+                lab = "l0506"
+                continue
+            elif lab == "l0506":
+                self.put("THAT SQUARE IS OCCUPIED.")
+                self.skip()
+                self.skip()
+                self.skip()
+                lab = "l0500"
+                continue
+            elif lab == "l0510":
+                self.g = 3
+                self.s[self.m] = 3
+                lab = "l0520"
+            elif lab == "l0520":
+                self.r = 2
+                lab = "l1000"
+                continue
+            elif lab == "l0530":
+                lab = "l0100"
+                continue
+            elif lab == "l1000":
+                self.skip()
+                self.i = 1
+                lab = "l1002"
+            elif lab == "l1002":
+                self.put(" ")
+                self.t1 = self.s[self.i]
+                if self.t1 == 1:
+                    lab = "l1012"
+                    continue
+                lab = "l1014"
+                continue
+            elif lab == "l1012":
+                self.show(self.qs)
+                self.put(" ")
+                lab = "l1020"
+                continue
+            elif lab == "l1014":
+                if self.t1 == 2:
+                    lab = "l1016"
+                    continue
+                lab = "l1018"
+                continue
+            elif lab == "l1016":
+                self.put("  ")
+                lab = "l1020"
+                continue
+            elif lab == "l1018":
+                self.show(self.ps)
+                self.put(" ")
+                lab = "l1020"
+            elif lab == "l1020":
+                self.b1 = 0
+                if self.i == 3:
+                    self.b1 = self.b1 + 1
+                if self.i == 6:
+                    self.b1 = self.b1 + 1
+                if self.i == 9:
+                    self.b1 = self.b1 + 1
+                if self.b1 == 1:
+                    lab = "l1022"
+                    continue
+                lab = "l1060"
+                continue
+            elif lab == "l1022":
+                if self.i == 9:
+                    lab = "l1050"
+                    continue
+                lab = "l1030"
+                continue
+            elif lab == "l1030":
+                self.skip()
+                self.put("---+---+---")
+                self.skip()
+                lab = "l1040"
+            elif lab == "l1040":
+                lab = "l1080"
+                continue
+            elif lab == "l1050":
+                lab = "l1080"
+                continue
+            elif lab == "l1060":
+                self.put("!")
+                lab = "l1080"
+            elif lab == "l1080":
+                if self.i == 9:
+                    lab = "l1085"
+                    continue
+                self.i = self.i + 1
+                lab = "l1002"
+                continue
+            elif lab == "l1085":
+                self.skip()
+                self.skip()
+                self.skip()
+                self.i = 1
+                lab = "l1100"
+            elif lab == "l1100":
+                self.t1 = self.s[self.i]
+                self.b2 = self.i + 1
+                self.t2 = self.s[self.b2]
+                if self.t1 == self.t2:
+                    lab = "l1105"
+                    continue
+                lab = "l1115n"
+                continue
+            elif lab == "l1105":
+                self.b3 = self.i + 2
+                self.t3 = self.s[self.b3]
+                if self.t1 == self.t3:
+                    lab = "l1110"
+                    continue
+                lab = "l1115n"
+                continue
+            elif lab == "l1110":
+                if self.t1 == 1:
+                    lab = "l1350"
+                    continue
+                lab = "l1112"
+            elif lab == "l1112":
+                if self.t1 == 3:
+                    lab = "l1200"
+                    continue
+                lab = "l1115n"
+            elif lab == "l1115n":
+                self.i = self.i + 3
+                if self.i < 8:
+                    lab = "l1100"
+                    continue
+                lab = "l1115"
+            elif lab == "l1115":
+                self.i = 1
+                lab = "l1125"
+            elif lab == "l1125":
+                self.t1 = self.s[self.i]
+                self.b2 = self.i + 3
+                self.t2 = self.s[self.b2]
+                if self.t1 == self.t2:
+                    lab = "l1130"
+                    continue
+                lab = "l1150n"
+                continue
+            elif lab == "l1130":
+                self.b3 = self.i + 6
+                self.t3 = self.s[self.b3]
+                if self.t1 == self.t3:
+                    lab = "l1135"
+                    continue
+                lab = "l1150n"
+                continue
+            elif lab == "l1135":
+                if self.t1 == 1:
+                    lab = "l1350"
+                    continue
+                lab = "l1137"
+            elif lab == "l1137":
+                if self.t1 == 3:
+                    lab = "l1200"
+                    continue
+                lab = "l1150n"
+            elif lab == "l1150n":
+                self.i = self.i + 1
+                if self.i < 4:
+                    lab = "l1125"
+                    continue
+                lab = "l1150"
+            elif lab == "l1150":
+                self.i = 1
+                lab = "l1151"
+            elif lab == "l1151":
+                self.t1 = self.s[self.i]
+                if self.t1 == 2:
+                    lab = "l1155"
+                    continue
+                lab = "l1152n"
+            elif lab == "l1152n":
+                self.i = self.i + 1
+                if self.i < 10:
+                    lab = "l1151"
+                    continue
+                lab = "l1152"
+            elif lab == "l1152":
+                lab = "l1400"
+                continue
+            elif lab == "l1155":
+                self.t1 = self.s[5]
+                if self.t1 == self.g:
+                    lab = "l1160"
+                    continue
+                lab = "l1170"
+                continue
+            elif lab == "l1160":
+                self.f = 0
+                self.t1 = self.s[1]
+                if self.t1 == self.g:
+                    self.f = self.f + 1
+                self.t2 = self.s[9]
+                if self.t2 == self.g:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l1180"
+                    continue
+                lab = "l1165"
+            elif lab == "l1165":
+                self.f = 0
+                self.t1 = self.s[3]
+                if self.t1 == self.g:
+                    self.f = self.f + 1
+                self.t2 = self.s[7]
+                if self.t2 == self.g:
+                    self.f = self.f + 1
+                if self.f == 2:
+                    lab = "l1180"
+                    continue
+                lab = "l1170"
+            elif lab == "l1170":
+                if self.r == 1:
+                    lab = "l0205"
+                    continue
+                lab = "l0530"
+                continue
+            elif lab == "l1180":
+                if self.g == 1:
+                    lab = "l1350"
+                    continue
+                lab = "l1200"
+                continue
+            elif lab == "l1200":
+                self.terminal = "human"  # instrumentation: exit route
+                self.put("YOU BEAT ME!! GOOD GAME.")
+                self.skip()
+                lab = "l2000"
+                continue
+            elif lab == "l1350":
+                self.terminal = "computer"  # instrumentation
+                self.put("I WIN, TURKEY!!!")
+                self.skip()
+                lab = "l2000"
+                continue
+            elif lab == "l1400":
+                self.terminal = "draw"   # instrumentation: exit route
+                self.put("IT IS A DRAW. THANK YOU.")
+                self.skip()
+                lab = "l2000"
+            elif lab == "l2000":
+                self.f = 0
+                break          # stop;
+        return self
+
+
+def tict00():
+    """TICT-00: the complete normalized console stream (collapse-spaces-v1) of the
+    adapted Tic-Tac-Toe game for the declared script (choice 2 = O, moves
+    2,9,7,1,10,1,4).  Derived from the declared design by a statement-for-statement
+    mirror of TICT-00.PLI, never captured (L3); the GAME is then checked by
+    independent invariants (terminal draw, script consumed, eight GETs, final board,
+    exactly three occupied messages, the labels this script never reaches and the two
+    hop-4 exhaustive-search dead routes)."""
+    assert len(TICT00_SCRIPT) == 8
+    port = _Tict00Port(TICT00_SCRIPT).run()
+    assert not port.script and port.nget == 8        # script consumed exactly
+    assert port.terminal == "draw"
+    assert port.s[1:] == TICT00_BOARD_END, port.s[1:]
+    assert port.ps == 79 and port.qs == 88           # choice 2 -> human X (88), comp O (79)
+    assert _tict00_trunc_div(8, 3) == 2 and _tict00_trunc_div(-8, 3) == -2
+    for lab in TICT00_UNREACHED:
+        assert port.hit.get(lab, 0) == 0, "label %s should be unreached" % lab
+    # 1112/1137 are ENTERED (an all-empty triple falls through them) but their gotos
+    # never fire -- the hop-4 exhaustive game-tree search measured 1200/1180/1112->1200
+    # /1137->1200 unreachable for any play.  Kept as faithful dead code.
+    assert port.hit.get("l1112", 0) > 0 and port.hit.get("l1137", 0) > 0
+    lines = _tict00_finalize(port.raw)
+    assert len((port.raw + "\r\n").encode()) == TICT00_RAW_BYTES, \
+        len((port.raw + "\r\n").encode())
+    assert len(lines) == TICT00_LINES, len(lines)
+    assert lines[0] == "TIC-TAC-TOE"                 # NO leading blank: first put is a PUT LIST
+    assert lines[1] == "CREATIVE COMPUTING MORRISTOWN, NEW JERSEY"
+    assert lines[12] == "DO YOU WANT X OR O ENTER 1 FOR X 2 FOR O 2\r"  # echo line 13 (trailing CR per the committed HAMM convention)
+    occ = [n for n, l in enumerate(lines, 1) if l == "THAT SQUARE IS OCCUPIED."]
+    assert occ == [86, 91, 96], occ                  # THREE (hop-5 "two" is falsified)
+    assert lines[118] == "IT IS A DRAW. THANK YOU."   # line 119
+    assert lines[-1] == ""                           # exit CRLF blank [C352]
+    return lines
+
+
 DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
@@ -1571,7 +2463,7 @@ DERIVATIONS = {"table00": table00, "table01": table01,
                "builtin00": builtin00, "strcat00": strcat00, "cond00": cond00,
                "dec01": dec01, "flt01": flt01, "edit00": edit00,
                "wkday00": wkday00, "hamm00": hamm00, "hang00": hang00,
-               "amaz00": amaz00,
+               "amaz00": amaz00, "tict00": tict00,
                "fx00": fx00, "fx01": fx01}
 
 

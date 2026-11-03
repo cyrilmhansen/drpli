@@ -213,7 +213,32 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-TICT-00 PIN LANDED (step 3) — REFERENCE/JSON/LANE/DOCS/GATE OWED (2026-11-03, continuation
+TICT-00 REFERENCE + JSON LANDED (steps 4-6) — LANE B / DOCS / GATE / COMMIT OWED
+(2026-11-03, continuation chain hop 8 end; HEAD `77c89c2` at session start, build rc=0
+verified, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…TICT-00 implementation
+hop 8". Measured: `reference.py:_Tict00Port`/`tict00()`/`_tict00_finalize`/
+`_tict00_trunc_div` + DERIVATIONS registered — the 121-label dispatch was GENERATED
+MECHANICALLY from the pinned .PLI (`build/fc01-scratch/mk_tict00_mirror.py`) and
+hand-checked, so unreached labels are mirrored too; `derive('tict00')` is BYTE-EQUAL to
+the independent simulator norm() on all 120 lines (raw 1468 B) — diffed BEFORE the JSON;
+all derivation invariants green (draw, 8 gets, board, THREE occupied 86/91/96, 15
+unreached labels, l1112/l1137 entered but never branching);
+`spec/functional/tests/TICT-00.json` GENERATED VIA SCRIPT (link_target TICT00, sha
+f9320f5a…, console_input `2\r2\r9\r7\r1\r10\r1\r4\r^Z`, collapse-spaces-v1, 12
+double-verified capabilities, notes (1)-(15)); `--stages source,derivation` printed the
+designed UNKNOWN [COMPILE: stage ceiling] with no SOURCE/DERIVATION FAIL (evidence
+build/functional/20261103T112342Z). FALSIFIED: my first echo-line assertion omitted the
+trailing `\r` (the committed HAMM convention) — fixed to the measured form.
+EXACT NEXT = hop-8 § steps 7-10: (7) lane B `--evidence build/fc01/corp7 --json-out
+build/fc01/corp7/records.json` (+corp7-double if PASS), ACTUALS verbatim, a FAIL stays
+classified never laundered and the expectation is never edited to chase a PASS; (8)
+docs/functional-results.md § 12 + § 1 row; (9) `python3 tools/e2e_gate.py` compile tier
+-> build/gate-tict00.log; (10) explicit-path commit (NEVER handoff.config.json; no
+push). Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00; HAMM-00 rev2 stays
+PROPOSED. Constraints: no ocaml/harness changes; ledger ends C352; NEVER re-run the
+retry-DFS search; renew only at safe boundaries (renewal 8/12 used — successor = hop 9).
+
+SUPERSEDED-BY-ABOVE (kept as written): TICT-00 PIN LANDED (step 3) — REFERENCE/JSON/LANE/DOCS/GATE OWED (2026-11-03, continuation
 chain hop 7 end; HEAD `586ee3c` at session start, build rc=0 verified, compiler `edce9e0e…`).
 Read FIRST `LEARNINGS.md` § "…TICT-00 implementation hop 7" — it carries this hop's measured
 record: `spec/functional/tests/TICT-00.PLI` is PINNED (sha
@@ -947,13 +972,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 194
-checkpoint-id: g194-0a259c9d4a1a
+checkpoint-generation: 196
+checkpoint-id: g196-6d10eec8520c
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
-guard-level: 3
-checkpointed: 2026-11-03T11:06:43.421Z
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-03T11:23:42.253Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 47acbfe3da9d28aa60da62347908e00ef971e76529d59bfcad722cf11166dcde
 source-handoff: e91d01a5f1e77cdb435b2e070abbfd7cb039512112758d1aaefadb0396077db0
@@ -981,9 +1006,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a104-4c0b-7601-8f9d-90d0311d9324
-readiness-at: 2026-11-03T11:07:00.857Z
-readiness-checkpoint: g194-0a259c9d4a1a
 <!-- guard:end checkpoint -->
 
 ## Blockers
