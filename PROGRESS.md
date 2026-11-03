@@ -3,7 +3,14 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 hop start LANDED — base v2 picked, contract in LEARNINGS; NEXT TICT-00 implementation hop)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 hop 6: full-machine draft COMPILE-WITNESSED rc=0, pin/reference/JSON/lane/gate OWED at hop 7)
+
+TICT-00 hop 6 closed at context exhaustion (2026-11-03, continuation chain hop 6, this
+commit chain): draft `build/fc01-scratch/TICT-00.draft.pli` mirrors `tict00_sim.py`
+statement-for-statement and FULL-PROGRAM COMPILES rc=0 (8704 B, code=4030 data=36 — first
+machine-wide witness); cross-check re-verified on the confirmed script (THREE occupied
+messages — hop-5 "two" FALSIFIED); nothing tracked authored, no lane/gate run. Full state
++ exact steps 3-10: `LEARNINGS.md` § "…TICT-00 implementation hop 6" and → Next action.
 
 TICT-00 hop start LANDED (2026-11-02, continuation chain hop 3, this commit): both listings
 sha-verified, v2 PICKED (v1 has no terminal path), probe batch measured — full contract in
