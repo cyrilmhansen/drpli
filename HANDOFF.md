@@ -122,7 +122,28 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## DHRY-00 hop 16 — BOTH SIMULATORS DONE + CROSS-CHECKED (step 4); draft (step 5) OWED (2026-11-03; NOTHING tracked authored; no lane/gate run; renewal 3/12)
+## DHRY-00 hop 17 — hop-16 docs COMMITTED `fe414f8`; 3 call shapes MEASURED; fabricated-ACTUAL bullet CORRECTED; step 5 (the LF draft) OWED (2026-11-03; NOTHING tracked authored beyond prose; no lane/gate run)
+
+Read `LEARNINGS.md` § "…DHRY-00 hop 17 (partial)" FIRST, then `PROGRESS.md` → `## Next action` →
+"DHRY-00 hop 17" for the exact step-5 contract. Verified this hop: `dune build` rc=0 with compiler
+`edce9e0e…`; `dhry00_sim.check(7)` GREEN (57 lines / 1361 raw bytes); `w1.pli` rc=0 4096 B.
+MEASURED (accepted, scratch, NOT DR claims, ledger ends C352): expression call actuals,
+array-member call actuals, member actuals into a function, and nested-procedure→sibling-function
+calls all COMPILE rc=0; FALSIFIED: `sx(v1 + k)` as an array subscript REFUSES ([C159]) — hoist the
+index into a scalar first (the checked `Port` model already does). CORRECTED (PROTOCOL #2): an
+earlier bullet of this hop recorded a scratch `DHRY-00.draft.pli`/`.REL` as existing — measured
+FALSE, NO draft and NO `mk_dhry00_pli.py` exist; the procedure lesson (never write an ACTUAL
+without running the command) is in that §. NEXT = step 5 exactly as hop 16 stated it (write
+`mk_dhry00_pli.py` → LF draft statement-for-statement from `dhry00_sim.Port` → scratch compile with
+POSITIONAL args → iterate to rc=0), then steps 6-11: pin `spec/functional/tests/DHRY-00.PLI` →
+`reference.py:_Dhry00Port` diffed BYTE-EQUAL vs the sim BEFORE the JSON → JSON via script →
+`--stages source,derivation` → lane B `build/fc01/corp9` (+double) → docs § 14 + § 1 → gate
+`build/gate-dhry00.log` → explicit-path commit; then FFT-00. Constraints unchanged: no `ocaml/`/
+harness byte; functional runs are NOT DR claims; FAILs stay classified never laundered; NEVER re-run
+the retry-DFS; third-party bytes never tracked; operator `handoff.config.json` untouched/unstaged;
+no push; renew only at safe boundaries.
+
+## Superseded: DHRY-00 hop 16 — BOTH SIMULATORS DONE + CROSS-CHECKED (step 4); draft (step 5) OWED (2026-11-03; NOTHING tracked authored; no lane/gate run; renewal 3/12)
 
 Read `LEARNINGS.md` § "…DHRY-00 hop 16" FIRST, then `PROGRESS.md` → `## Next action` → "DHRY-00 hop
 16" which carries the FULL statement-by-statement draft contract (steps 5-11). MEASURED on my
@@ -885,25 +906,22 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 220
-checkpoint-id: g220-ca2a51451ed2
-checkpoint-kind: manual
+checkpoint-generation: 222
+checkpoint-id: g222-601e2bf78fbe
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-8897, session 01a1a296-1e9d-7145-a841-b695ecb7fc77)
-checkpointed: 2026-11-03T18:38:41.190Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3103, session 01a1a2b4-d03f-7145-a841-b698843763ed)
+checkpointed: 2026-11-03T18:59:16.755Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3520e545669132c00839b8172e9e8f2eb702100f77897ca0755eabd6549d39c3
-source-handoff: 0b3fe79b2e1d8b5e334ede5a675ac05c1b8258426c86e2175720f15d069cd212
-source-learnings: effccecee491c90de050805c0f337fd1ca773c1ad95c74f25237c95053f3eb91
+source-progress: ac262e7973bf89f3feae467239b7c0ccec8beb7bbaa4145f64248ff49ae7a1ab
+source-handoff: 7c440aa9ba0865593fb33cde0f9f9289c72cc06b14e22d76e7a9e2984a24a8c6
+source-learnings: 45c4d5c0b96f1f2d1304ba71bcdee86993e016c5fe72867da098dbda068547ba
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a296-1e9d-7145-a841-b695ecb7fc77
-readiness-at: 2026-11-03T18:38:41.206Z
-readiness-checkpoint: g220-ca2a51451ed2
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

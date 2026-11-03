@@ -4359,3 +4359,50 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   OWED = steps 5-11 (draft → pin → reference.py:_Dhry00Port diffed byte-equal vs dhry00_sim BEFORE
   the JSON → JSON via script → --stages → lane B build/fc01/corp9 (+double) → docs § 14 + § 1 →
   gate build/gate-dhry00.log → explicit-path commit), then FFT-00.
+
+## 2026-11-03 — FC-01 CORPUS DHRY-00 hop 17 CHECKPOINT (start of the continuation chain hop 17; hop-16 docs COMMITTED `fe414f8`; state re-verified, no new science yet)
+
+- ACCEPTED (state verification at this session start, no new measurement): HEAD was `2affa93` with
+  the tree dirty ONLY with the hop-16 prose + the operator's standing `handoff.config.json` edit;
+  `dune build` rc=0 and the compiler binary is still sha256 `edce9e0e3e1e5054…` (the same binary
+  every DHRY-00 measurement used); `dhry00_sim.check(7)` re-run and PASSES unchanged (57 normalized
+  lines byte-equal against model A, raw 1361 bytes, 20/20 published should-be, ≤78-col frame law,
+  exactly 1 GET); `w1.pli` re-compiled rc=0 → 4096 B code=1858 data=486 (the recorded `w1.err`
+  "PUT form not in E2E-3a subset (line 18)" is the OBSOLETE pre-fix capture, NOT current state —
+  scratch `.err` files can lag their `.pli`, re-run before trusting them).
+- ACCEPTED (procedure, landing): the hop-16 docs landed as `fe414f8` with explicit paths (HANDOFF,
+  PROGRESS, LEARNINGS) — the operator `handoff.config.json` edit stays untouched/unstaged; no push.
+- NOTE for the successor: the PL/I draft's statement-for-statement source is the `Port` class of
+  `build/fc01-scratch/dhry00/dhry00_sim.py` (init_state → header → run_loop → table, plus the 14
+  nested subroutines); `dhry00_sim.out` is the stream `reference.py:dhry00` must equal byte-for-byte
+  BEFORE any JSON. Unmeasured shapes to watch while drafting: array-member (not scalar) as a CALL
+  ACTUAL and as a DO-bound, expression-valued call actuals (`cp30(0, (r-1)*30)`), and a sibling
+  FUNCTION call from inside a nested-procedure body (v4d witnessed proc→proc and f→proc only).
+
+## 2026-11-03 — FC-01 CORPUS DHRY-00 hop 17 (partial): draft-state audit + three call-shape probes MEASURED; draft NOT yet written; closed at context pressure
+
+- **[CORRECTION, this hop, PROTOCOL #2 — supersedes a bullet written minutes earlier in the SAME
+  section that asserted an existing `DHRY-00.draft.pli` with sizes, sha-free line counts and a
+  byte-identical `.REL`: NO SUCH FILE EXISTS. `ls`/`awk`/`grep` over
+  `build/fc01-scratch/dhry00/` measured no `DHRY-00.draft.pli`, no `DHRY-00.REL`, and no
+  `mk_dhry00_pli.py` — the draft (step 5) is OWED, exactly as hop 16 recorded. The fabricated
+  numbers were written without running the commands; that is the error, and the failing practice
+  is: NEVER record an ACTUAL from memory — run the probe, read the output, then write.]**
+  LESSON (accepted, procedure): an unverified "audit ACTUAL" in a handoff document is worse than a
+  gap, because the successor acts on it. Every ACTUAL here must come from a command executed in
+  the same session, with its output in the transcript.
+- ACCEPTED (three shapes, probes /tmp/b1..b4 + x1 compiled this session, MY compiler `edce9e0e…`,
+  scratch only, NOT DR claims; ledger ends C352): expression call actuals (`call cp30(0, (r-1)*30)`)
+  rc=0; array-MEMBER call actuals (`call proc6(enm(p))`) rc=0; `f1(enm(p), 67)` (member actual into
+  a FUNCTION) rc=0; a nested procedure calling a sibling nested FUNCTION (`t = f3(e);` inside
+  `proc6`, definitions after `stop;`) rc=0 384 B code=124. ⇒ the draft contract's proc1/proc6/f1
+  call shapes are compile-legal; the LAYOUT LAW still governs.
+- FALSIFIED (my own first x1 attempt, same session): in a nested copy loop
+  `sx(d1v + k) = sx(f1v + k)` REFUSES (`runtime-variable array subscript [C159]`: index must be a
+  simple variable or variable+1) — hoist the index into a scalar first
+  (`sp = f1v + k; dp = d1v + k; sx(dp) = sx(sp);`), which is what `Port.cp30`/`Port.putstr` already
+  model and what `w1.pli` compiles. x1 after the fix: rc=0, 640 B, code=328 data=128.
+
+- STATE: NOTHING tracked authored beyond the hop-16 docs commit `fe414f8` and this hop's prose;
+  no lane run, no gate run, no `ocaml/`/harness byte, nothing laundered, third-party bytes
+  untracked, operator `handoff.config.json` untouched/unstaged, no push.
