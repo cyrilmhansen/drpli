@@ -899,15 +899,15 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 192
-checkpoint-id: g192-eb1db02c684c
+checkpoint-generation: 193
+checkpoint-id: g193-60ad23b3ceb6
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-03T10:45:05.606Z
+checkpointed: 2026-11-03T10:45:54.507Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a770b3665372910e60de9e64712c387d7bdd17b754b3101bb2734bb83d49c26f
+source-progress: 2c5deed8d9cee131b67f310a919d2808df30a78144a2d77bdc60547d971db939
 source-handoff: d5952456da52ad4f32d8b5bd01e84346815f888d94d65b506a94b6d06183279e
 source-learnings: f25ba71d405d4e6ef139b7769fa6b875942af7495f608e05b33f90746ebd42c8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
@@ -934,8 +934,8 @@ next-action: ` below. TABLE-00 and
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 readiness-by: session:01a1a0ee-81a3-7601-8f9d-90cd109a5da8
-readiness-at: 2026-11-03T10:45:05.614Z
-readiness-checkpoint: g192-eb1db02c684c
+readiness-at: 2026-11-03T10:45:54.515Z
+readiness-checkpoint: g193-60ad23b3ceb6
 <!-- guard:end checkpoint -->
 
 ## Blockers

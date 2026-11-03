@@ -558,25 +558,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 192
-checkpoint-id: g192-eb1db02c684c
+checkpoint-generation: 193
+checkpoint-id: g193-60ad23b3ceb6
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-8565, session 01a1a0ee-81a3-7601-8f9d-90cd109a5da8)
-checkpointed: 2026-11-03T10:45:05.606Z
+status: checkpoint (guard level 4, remaining ~-11271, session 01a1a0ee-81a3-7601-8f9d-90cd109a5da8)
+checkpointed: 2026-11-03T10:45:54.507Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a770b3665372910e60de9e64712c387d7bdd17b754b3101bb2734bb83d49c26f
+source-progress: 2c5deed8d9cee131b67f310a919d2808df30a78144a2d77bdc60547d971db939
 source-handoff: d5952456da52ad4f32d8b5bd01e84346815f888d94d65b506a94b6d06183279e
 source-learnings: f25ba71d405d4e6ef139b7769fa6b875942af7495f608e05b33f90746ebd42c8
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1a0ee-81a3-7601-8f9d-90cd109a5da8
-readiness-at: 2026-11-03T10:45:05.614Z
-readiness-checkpoint: g192-eb1db02c684c
+readiness-at: 2026-11-03T10:45:54.515Z
+readiness-checkpoint: g193-60ad23b3ceb6
 ### Last verified state
-guard level 4; checkpoint requested (finalize: TICT-00 HOP 6 CLOSED AT CONTEXT EXHAUSTION (docs commit 1c95d09; HEAD 1c95d09; tree clean except operator handoff.config.json + managed block refresh). DONE this hop: LF draft build/fc01-scratch/TICT-00.draft.pli (statement-for-statement mirror of tict00_sim.py: flat l0002..l2000 machine, f-count AND ladders both members reloaded, M=0 shift idiom, flat loop emulation rows/cols/empty-scan, split BASIC double-duty lines into loop-next vs entry labels l1115n/l1150n/l1152n, printer b1 ladder, detector fall-through, r-dispatch l1170, terminals 1200/1350/1400, l1400 falls to l2000 f=0; stop;, nested show AFTER stop (HANG-00 shape - mainline must not fall into nested procedure), board init do-loop s(i)=2 closed before any label) FULL-PROGRAM COMPILED rc=0: build/fc01-scratch/tict00.REL 8704 B code=4030 data=36 (first machine-wide witness). CROSS-CHECK RE-VERIFIED identical script: port 2,2,9,7,1,10,1,4 DRAW 8 gets consumed vs BASIC O,2,9,7,1,10,1,4 -> 120 vs 119 norm lines, diffs ONLY prompt+echo texts, IT IS vs IT apostrophe, trailing exit-CRLF blank C352. FALSIFIED: hop-5 "2 occupied messages" -> THREE (moves 1,10,1). GOTCHA: tict00_sim.py __main__ default argv drops choice 2 - always pass full script. OWED (hop 7, LEARNINGS hop-6 steps 3-10): pin spec/functional/tests/TICT-00.PLI (CRLF+bare^Z+<=71) -> reference.py _Tict00Port/tict00()+DERIVATIONS diff vs sim norm() BEFORE JSON -> TICT-00.json GENERATED VIA SCRIPT from derive (link_target TICT00, console_input 2\r2\r9\r7\r1\r10\r1\r4\r^Z, grep-verified capabilities, notes incl THREE occupied + dead 1180/1200/1112/1137 + unreached 104/105,133/138,156/158,163/168,187/189) -> --stages source,derivation -> lane B build/fc01/corp7 (+double if PASS) -> docs sec 12 + sec 1 row -> e2e_gate compile tier -> explicit-path commit. NEVER re-run retry-DFS. Then LIFE-00, DHRY-00 (never execute .SHAR), FFT-00; HAMM-00 rev2 PROPOSED. Constraints: no ocaml/harness changes; ledger ends C352; functional runs not DR claims; third-party bytes never tracked; no push; renewal 6/12 used, successor hop 7.)
+guard level 4; checkpoint requested (finalize: Post-finalize amendment: PROGRESS.md current-phase header updated at commit 26200ca (hop-6 state: draft compile-witnessed rc=0 8704 B, steps 3-10 owed at hop 7; THREE occupied messages). Successor = TICT-00 hop 7 steps 3-10 per PROGRESS Next action + LEARNINGS hop-6 §; pin PLI -> reference mirror + diff vs sim norm (explicit script 2 2 9 7 1 10 1 4) -> TICT-00.json via script -> source,derivation -> lane B corp7 -> docs sec 12 -> gate -> explicit-path commit. NEVER re-run retry-DFS; no ocaml/harness changes; ledger ends C352; no push.)
 
 ### Unfinished operations
 - (none recorded)
@@ -606,5 +606,5 @@ guard level 4; checkpoint requested (finalize: TICT-00 HOP 6 CLOSED AT CONTEXT E
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-TICT-00 HOP 6 CLOSED AT CONTEXT EXHAUSTION (docs commit 1c95d09; HEAD 1c95d09; tree clean except operator handoff.config.json + managed block refresh). DONE this hop: LF draft build/fc01-scratch/TICT-00.draft.pli (statement-for-statement mirror of tict00_sim.py: flat l0002..l2000 machine, f-count AND ladders both members reloaded, M=0 shift idiom, flat loop emulation rows/cols/empty-scan, split BASIC double-duty lines into loop-next vs entry labels l1115n/l1150n/l1152n, printer b1 ladder, detector fall-through, r-dispatch l1170, terminals 1200/1350/1400, l1400 falls to l2000 f=0; stop;, nested show AFTER stop (HANG-00 shape - mainline must not fall into nested procedure), board init do-loop s(i)=2 closed before any label) FULL-PROGRAM COMPILED rc=0: build/fc01-scratch/tict00.REL 8704 B code=4030 data=36 (first machine-wide witness). CROSS-CHECK RE-VERIFIED identical script: port 2,2,9,7,1,10,1,4 DRAW 8 gets consumed vs BASIC O,2,9,7,1,10,1,4 -> 120 vs 119 norm lines, diffs ONLY prompt+echo texts, IT IS vs IT apostrophe, trailing exit-CRLF blank C352. FALSIFIED: hop-5 "2 occupied messages" -> THREE (moves 1,10,1). GOTCHA: tict00_sim.py __main__ default argv drops choice 2 - always pass full script. OWED (hop 7, LEARNINGS hop-6 steps 3-10): pin spec/functional/tests/TICT-00.PLI (CRLF+bare^Z+<=71) -> reference.py _Tict00Port/tict00()+DERIVATIONS diff vs sim norm() BEFORE JSON -> TICT-00.json GENERATED VIA SCRIPT from derive (link_target TICT00, console_input 2\r2\r9\r7\r1\r10\r1\r4\r^Z, grep-verified capabilities, notes incl THREE occupied + dead 1180/1200/1112/1137 + unreached 104/105,133/138,156/158,163/168,187/189) -> --stages source,derivation -> lane B build/fc01/corp7 (+double if PASS) -> docs sec 12 + sec 1 row -> e2e_gate compile tier -> explicit-path commit. NEVER re-run retry-DFS. Then LIFE-00, DHRY-00 (never execute .SHAR), FFT-00; HAMM-00 rev2 PROPOSED. Constraints: no ocaml/harness changes; ledger ends C352; functional runs not DR claims; third-party bytes never tracked; no push; renewal 6/12 used, successor hop 7.
+Post-finalize amendment: PROGRESS.md current-phase header updated at commit 26200ca (hop-6 state: draft compile-witnessed rc=0 8704 B, steps 3-10 owed at hop 7; THREE occupied messages). Successor = TICT-00 hop 7 steps 3-10 per PROGRESS Next action + LEARNINGS hop-6 §; pin PLI -> reference mirror + diff vs sim norm (explicit script 2 2 9 7 1 10 1 4) -> TICT-00.json via script -> source,derivation -> lane B corp7 -> docs sec 12 -> gate -> explicit-path commit. NEVER re-run retry-DFS; no ocaml/harness changes; ledger ends C352; no push.
 <!-- guard:end checkpoint -->
