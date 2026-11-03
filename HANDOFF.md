@@ -674,25 +674,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 197
-checkpoint-id: g197-ffce7f2131b8
+checkpoint-generation: 198
+checkpoint-id: g198-342e34c18972
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-2381, session 01a1a117-ac16-7601-8f9d-90d4aa1719d8)
-checkpointed: 2026-11-03T11:25:50.491Z
+status: checkpoint (guard level 2, remaining ~8412, session 01a1a128-f516-7601-8f9d-90d9c23931ef)
+checkpointed: 2026-11-03T11:54:52.834Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e5482cf87dd0598eebc2fde6d29d989950b7807ba845424e054ff7891936cb04
-source-handoff: 08bea8caf5e7feba7ed6a64af3f7da4a4c83e81d14abea53d27418c974474dd6
-source-learnings: b5c083401f269612c86243a90569cfe4c5db3b7a83d9c4d9459110f93cbf821a
+source-progress: c4ccb8ca22240e5aa215c86ea5ba1b909310887cbc701e8767ac5b1cae3b6419
+source-handoff: 6e0262de21dc9adfd20b379db80b3168dc9c68dc8d33b2c26414052d676cd30c
+source-learnings: 58fc1cf95bfa2f8b76a87ea174c71ffa671aa6b58bc56e03329dc5a47a8fb730
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a117-ac16-7601-8f9d-90d4aa1719d8
-readiness-at: 2026-11-03T11:25:50.500Z
-readiness-checkpoint: g197-ffce7f2131b8
+readiness-by: session:01a1a128-f516-7601-8f9d-90d9c23931ef
+readiness-at: 2026-11-03T11:54:52.846Z
+readiness-checkpoint: g198-342e34c18972
 ### Last verified state
-guard level 4; checkpoint requested (finalize: Hop 8 landed steps 4-6 (committed c837d7f): reference.py _Tict00Port mirror generated mechanically from the pinned .PLI, derive('tict00') byte-equal to the independent simulator on 120 lines (raw 1468 B), TICT-00.json generated via script, --stages source,derivation clean (UNKNOWN stage ceiling). Successor = TICT-00 hop 9, steps 7-10 ONLY: lane B --evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json (+corp7-double if PASS) ACTUALS verbatim, a FAIL stays classified never laundered; docs/functional-results.md § 12 + § 1 row; python3 tools/e2e_gate.py compile tier -> build/gate-tict00.log; explicit-path commit (NEVER handoff.config.json; no push). Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00. Read LEARNINGS.md § "...TICT-00 implementation hop 8" FIRST. No ocaml/harness changes; ledger ends C352; NEVER re-run the retry-DFS search.)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -722,5 +722,5 @@ guard level 4; checkpoint requested (finalize: Hop 8 landed steps 4-6 (committed
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-Hop 8 landed steps 4-6 (committed c837d7f): reference.py _Tict00Port mirror generated mechanically from the pinned .PLI, derive('tict00') byte-equal to the independent simulator on 120 lines (raw 1468 B), TICT-00.json generated via script, --stages source,derivation clean (UNKNOWN stage ceiling). Successor = TICT-00 hop 9, steps 7-10 ONLY: lane B --evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json (+corp7-double if PASS) ACTUALS verbatim, a FAIL stays classified never laundered; docs/functional-results.md § 12 + § 1 row; python3 tools/e2e_gate.py compile tier -> build/gate-tict00.log; explicit-path commit (NEVER handoff.config.json; no push). Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00. Read LEARNINGS.md § "...TICT-00 implementation hop 8" FIRST. No ocaml/harness changes; ledger ends C352; NEVER re-run the retry-DFS search.
+Successor = TICT-00 DONE (committed dfbf07c: lane B corp7 PASS first run, 120 lines/1468 raw bytes, double-run byte-equal, docs § 12 + § 1 row, gate rc=0 build/gate-tict00.log) and LIFE-00 hop start MEASURED (committed 927ff18). Read LEARNINGS.md § "...LIFE-00 hop start" FIRST. NEXT ACTION (one bounded task, then stop or renew): the LANE-B BIG-ARRAY PROBE — `declare a(1681) fixed bin(15);` compiles rc=0 but the array is NOT in the .REL DATA segment (s6j 384 B code=101 data=6; s6l data=12) so a ~3360-byte grid is runtime-allocated and UNWITNESSED under DR LINK-80 + PLILIB on CP/M. Build the probe in ignored scratch only (a program that stores/reads several cells and prints a checksum), compile with ocaml/_build/default/bin/pli80c.exe (sha edce9e0e...), link+run under cpmsim via the lane-B harness/oracle/linkrun.py pattern, record ACTUALS verbatim (a FAIL stays classified my-gap/dr-refuses/unmeasured, never laundered, NOT a DR claim: ledger ends C352). Decide from that result whether LIFE-00 uses a 24x70 flat grid, a smaller declared grid, or another storage shape; write the LIFE-00 design record in LEARNINGS.md, then the 11-step corpus procedure (simulator -> shapes -> LF draft -> CRLF+bare ^Z+<=71+apostrophe-free spec/functional/tests/LIFE-00.PLI pin -> reference.py _Life00Port/life00()+DERIVATIONS diffed vs sim norm() BEFORE the JSON -> LIFE-00.json VIA SCRIPT (link target LIFE00, capabilities grep-verified in spec/COVERAGE.tsv AND present in the .PLI) -> --stages source,derivation -> lane B build/fc01/corp8 (+corp8-double if PASS) -> docs/functional-results.md § 13 + § 1 row -> python3 tools/e2e_gate.py compile tier -> build/gate-life00.log -> explicit-path commit). Other measured shapes: arithmetic DO bounds REFUSED (DO FROM form unproven), array member in condition REFUSED (member->scalar first), or-composed member tests fail to parse, literal-divisor DIV and CHARACTER VARYING literal compares ACCEPT. Scope falsification: upstream LIFE NEVER TERMINATES (640 GOTO 210, 650 END dead) so LIFE-00 needs a DECLARED bounded generation count + blank-row padding adaptation; string INPUT/LEN/LEFT$/RIGHT$/MID$ unportable (character GET UNMEASURED) — PROPOSED numeric GET LIST row encoding stays a proposal. Then DHRY-00 (NEVER execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness changes, explicit-path commits only, NEVER handoff.config.json (operator edit stays unstaged), no push, NEVER re-run the retry-DFS search, renewals 10/12 available on this chain.
 <!-- guard:end checkpoint -->
