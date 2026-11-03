@@ -213,6 +213,52 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+## DHRY-00 hop 16 — SIMULATORS DONE (step 4); LF DRAFT (step 5) OWED (2026-11-03; NOTHING tracked authored; no lane/gate run)
+
+FIRST ACTION of the successor: commit the uncommitted hop-16 docs (`git add HANDOFF.md PROGRESS.md
+LEARNINGS.md` ONLY — NEVER `handoff.config.json`, no push) as `FC-01 CORPUS DHRY-00 hop 16: both
+simulators written and cross-checked (57 lines / 1361 raw bytes), w1 shape probe rc=0, put-list
+numeric-literal gap measured`; then step 5. Read FIRST `LEARNINGS.md` § "…DHRY-00 hop 16". Both models agree for N=7 (57 normalized lines,
+raw 1361 B) and every invariant is green; `build/fc01-scratch/dhry00/dhry00_sim.py::check(7)` is the
+regression gate for the draft, `dhry00_sim.out` is the stream reference `reference.py:dhry00` must be
+diffed byte-equal against BEFORE any JSON; `w1.pli` (rc=0 4096 B) pre-witnesses every remaining shape.
+NEW MEASURED GAP: `put list(<numeric literal>)` REFUSES (PUT form not in E2E-3a subset) -> the
+should-be numeric constants print as CHARACTER literals; codegen error line numbers are unreliable.
+EXACT NEXT (steps 5-11): (5) write `build/fc01-scratch/dhry00/mk_dhry00_pli.py` emitting the LF draft
+`dhry00/DHRY-00.draft.pli` statement-for-statement from the port model: declares (intglob,int1g,int2g,
+int3g)(boolg,char1g,char2g,enumg)(numruns,runidx,ci,z,tv,sb)(dvq,r2,r3,r6,r7) fixed bin(15) + arrays
+a1(50) a2(2500) sx(180) pcp(2) dsc(2) enm(2) inc(2); explicit zero-init loops; 120 literal string-code
+stores at sx bases 0/60/120/150 (4 per line); Pascal init pcp(1)=2 dsc(1)=0 enm(1)=2 inc(1)=40
+a2(357)=10; header = put skip / banner / put skip / put skip / prompt / put skip / `get list(numruns)`
+/ put skip / 'Execution starts,'+numruns+'runs through Dhrystone'/put skip; run loop `do runidx = 1 to
+numruns;` mirroring Port.run_loop (proc5,proc4,int1g=2,int2g=3,cp30(120,90),enumg=1,tv=f2(60,90),
+boolg=0+if tv=0 then boolg=1, do while int1g<int2g {int3g=5*int1g-int2g; call proc7(int1g,int2g);
+int3g=r7; int1g=int1g+1}, proc8(int1g,int3g), proc1(1), do ci=65 to char2g {tv=f1(ci,67); if enumg=tv
+then do; proc6(0); enumg=r6; cp30(150,90); int2g=runidx; intglob=runidx; end}, int2g=int2g*int1g,
+divsub(int2g,int3g), int1g=dvq, tv=int2g-int3g, tv=7*tv, int2g=tv-int1g, proc2(int1g), int1g=r2);
+final table = 'Execution ends' skip / 'Final values…' skip skip / rows per Port.table (label+value+skip
++ 'should be:' + literal + skip), Char rows via call putc, string rows = label line, put skip, call
+putstr(base), put skip, should-be literal; then `put skip; put skip; stop;` and ALL nested definitions
+AFTER the stop (LAYOUT LAW): proc5 proc4 proc7 proc8 proc1 proc3 proc6 proc2 f1 f2 f3 divsub cp30
+putc putstr, each with its OWN locals, EVERY formal copied to a local before ANY subscript (TP00 LAW),
+proc1 = r=pcp(p); dsc/enm/inc/pcp(r)=…(1); cp30(0,(r-1)*30); inc(p)=5; inc(r)=inc(p); pcp(r)=pcp(p);
+call proc3(r); if dsc(r)=0 then do; inc(r)=6; proc6(enm(p)); enm(r)=r6; pcp(r)=pcp(1); proc7(inc(r),10);
+inc(r)=r7; end. Compile the draft with `./ocaml/_build/default/bin/pli80c.exe IN OUT.REL` (POSITIONAL
+args, no -ob); then (6) convert CRLF+bare ^Z, <=71 cols, <=8-letter link name DHRY00 -> pin
+`spec/functional/tests/DHRY-00.PLI` + compile the PIN and `cmp` vs the draft .REL; (7) `reference.py
+:_Dhry00Port`/`dhry00()` + DERIVATIONS, `derive('dhry00')` BYTE-EQUAL vs `dhry00_sim.check(7)` lines
+BEFORE any JSON; (8) `DHRY-00.json` VIA SCRIPT (link_target DHRY00, console_input `7\r^Z`,
+capabilities grep-verified ACCEPTS/SUPPORTED in spec/COVERAGE.tsv AND present in the .PLI — comment-
+strip first; notes = every removal incl. timing/reals/apostrophes/label-line split/numeric-literal PUT
+gap); `--stages source,derivation`; (9) lane B `python3 tools/functional_runner.py --tests DHRY-00
+--evidence build/fc01/corp9 --json-out build/fc01/corp9/records.json` (+ --double-run corp9-double if
+PASS), ACTUALS verbatim, FAIL stays classified never laundered; (10) docs/functional-results.md § 14 +
+§ 1 row; (11) `python3 tools/e2e_gate.py` -> build/gate-dhry00.log; explicit-path commit (NEVER
+handoff.config.json; no push). Then FFT-00 (build/functional/fc01-sources/pli/FFT-reference.pli,
+evidence corp10, docs § 15). Constraints unchanged: no ocaml/harness byte; functional runs are NOT DR
+claims; NEVER re-run the retry-DFS; third-party bytes never tracked; renew only at safe boundaries.
+
+SUPERSEDED-BY-ABOVE (kept as written):
 ## DHRY-00 implementation hop LANDED (2026-11-03, continuation chain hop 15; shapes pre-compiled + lane-B RUN probes DHP00/TP00 MEASURED; NOTHING tracked authored; simulator OWED)
 
 Read FIRST `LEARNINGS.md` § "…DHRY-00 implementation hop (continuation chain hop 15)" — it carries
@@ -1292,17 +1338,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 216
-checkpoint-id: g216-ecf9e92d79b5
+checkpoint-generation: 220
+checkpoint-id: g220-ca2a51451ed2
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-03T18:04:37.099Z
+checkpointed: 2026-11-03T18:38:41.190Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5712695dc0ddb6b8938c3927746163a417f05682e20f59a385b961c94cf63021
-source-handoff: 884a48abe28b2a44c4bb4a9fe5374b75ff3e76c0a8cfc73ccc3675ab0a9bd51e
-source-learnings: 26e7e898d4a3d03167a96bd0e7836f90912be7af4a91d4266475ab5486e85981
+source-progress: 3520e545669132c00839b8172e9e8f2eb702100f77897ca0755eabd6549d39c3
+source-handoff: 0b3fe79b2e1d8b5e334ede5a675ac05c1b8258426c86e2175720f15d069cd212
+source-learnings: effccecee491c90de050805c0f337fd1ca773c1ad95c74f25237c95053f3eb91
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1326,9 +1372,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a27a-6994-7145-a841-b691d1975277
-readiness-at: 2026-11-03T18:04:37.115Z
-readiness-checkpoint: g216-ecf9e92d79b5
+readiness-by: session:01a1a296-1e9d-7145-a841-b695ecb7fc77
+readiness-at: 2026-11-03T18:38:41.206Z
+readiness-checkpoint: g220-ca2a51451ed2
 <!-- guard:end checkpoint -->
 
 ## Blockers

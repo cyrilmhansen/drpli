@@ -4305,3 +4305,57 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   PASS) -> docs § 14 + § 1 row -> gate `build/gate-dhry00.log` -> explicit-path commit. A FAIL
   stays classified, never laundered. Renewal available (this session is renewal 2 of chain cap 12);
   renew ONLY at a safe boundary (after the commit), never terminal-finalize while steps remain.
+
+## 2026-11-03 — FC-01 CORPUS DHRY-00 hop 16: BOTH SIMULATORS WRITTEN and MUTUALLY CROSS-CHECKED (step 4 DONE); pre-draft shape probe w1; 4 model falsifications; NOTHING tracked authored; draft OWED
+
+- ACCEPTED (ignored scratch `build/fc01-scratch/dhry00/`, MY compiler `edce9e0e…`, NOT DR claims,
+  ledger ends C352): **w1.pli COMPILES rc=0 (4096 B, code=1858 data=486)** — it carries every
+  remaining risky port shape: `do while a < b` with TWO VARIABLES (p_a rc=0), `do ii = lb to ub;`
+  with BOTH bounds in variables (hop-9 only refused EXPRESSION bounds), multi-statement lines
+  (`sx(1) = 68; sx(2) = 72; sx(3) = 82;`), `if c = 1 then put list('TRUE'); else put list('FALSE');`,
+  `if … then do; … end; else do; … end;`, a nested `putstr` calling sibling `putc` inside a DO TO
+  over outer `sx` with formal-derived local subscripts, the `cp30` copy loop, the `divsub`
+  subtraction loop (`if rr < ds then goto dd`), the flat `while il <= 2` replacement and the
+  whole-string compare ladder (`sgt`/`dif`, `if c1 < c2` / `if c1 > c2` scalar-scalar ordered
+  compares). Literal CONTENT is fine: `'^'`, `'^.'`, `'[8,7]:'`, `'A^B'`, punctuation, digits all
+  compile (p_f matrix).
+- **FALSIFIED (new `my-gap` class, w1/p_g/p_b probes): `put list(<numeric literal>)` REFUSES** —
+  `Fatal error: exception Failure("codegen: PUT form not in E2E-3a subset [TBD]")`; variables are
+  fine. CONSEQUENCE for the port: every Pascal `should be:  <constant>` numeric prints as a
+  CHARACTER literal (`put list('5');`) — normalized text is IDENTICAL under collapse-spaces-v1 —
+  or via a scalar. NOTE the codegen line attribution is UNRELIABLE (p_g reported line 3 for a
+  line-5 refusal), so bisect by hand.
+- ACCEPTED (step 4 DONE): the two independent sims now agree EXACTLY for N=7 —
+  `dhry00_pascal_sim.py` (line-for-line Pascal: heap records, variant `with`, packed String30,
+  value vs var params, `repeat..until`, `while <=`, `div`, whole-record assignment) and
+  `dhry00_sim.py` (the PORT byte model: integer codes, 2 parallel record slots `pcp/dsc/enm/inc`,
+  flat `a1(50)/a2(2500)/sx(180)`, result cells r2/r3/r6/r7, `cp30`/`divsub`/`putc`/`putstr`,
+  sep-blank + `%9d` + echo `%d\r\r\n` + exit `\r\n` [C352] + collapse-spaces-v1).
+  `S.check(7)` asserts (a) line-for-line equality of the port's 57 normalized lines against
+  model A's final state TRANSLATED into the port's line structure, (b) the 20-entry PUBLISHED
+  should-be column (IntGlob 5, Bool TRUE, A, B, a1(8)=7, a2[8,7]=17, slot1 0/2/17/SOME-STRING,
+  slot2 0/1/18/SOME-STRING, 5/13/7, EnumGlob 1), (c) port state invariants, (d) the frame law
+  (every emitted line ≤ 78 raw bytes — NO wrap model needed), (e) exactly 1 GET.
+  ACTUALS: **57 normalized lines, raw 1361 bytes**, snapshot `dhry00_sim.out`/`.json`.
+- FALSIFIED (model-A bugs found BY the cross-check, kept as written per PROTOCOL #2): (1) Pascal
+  Proc1 statement 1 `PointerParVal^.PointerComp^ := PointerGlob^` is a WHOLE-RECORD assignment to
+  the record the field POINTS AT (NP^ := PG^), NOT `par.pcomp := pg`; the wrong reading made PG
+  self-point and produced PG EnumComp 3/IntComp 18 against the published 2/17. (2) The port model
+  must WRITE THE RESULT CELL BACK in the caller (`enm[r] = r6` after `proc6`) — the first port
+  model dropped it and printed EnumComp 2 where Pascal gives 1. (3) Pascal prints a BLANK LINE
+  between the banner and the prompt (`writeln;` before `writeln('Please give…')`) — the first port
+  model dropped it (55/56-line mismatch). (4) `putstr`/`putc` need DIGIT ladder entries (48..57):
+  with the apostrophe dropped, String1Glob position 20 is '1' and a missing ladder arm silently
+  renders a blank, which collapse-spaces-v1 then ERASES into a merged token; the port ladder is
+  32,44,48-51,58,65,66,67,68,69,71,72,73,77,78,79,80,82,83,84,89.
+- PROPOSED port adaptations to carry into the draft (from the working models): strings are integer
+  code tables in ONE `sx(180)` at bases slot1=0 slot2=30 String1Glob=60 String2Glob=90 2ND-table=120
+  3RD-table=150; `putstr(frm)` PRINTS ONLY CODES > 32 (blanks are separators anyway — collapses to
+  the same text, and it removes the trailing-space artifact); each of the four STRING table entries
+  prints the label on ITS OWN line and the 30 characters on the NEXT line, because label+30 tokens
+  = ~88 raw bytes would CROSS the measured 79-column PLILIB wrap (uncharacterized law, forbidden);
+  `BoolGlob` via `if boolg = 1 then put list('TRUE'); else put list('FALSE');`; the timing/reals/
+  too-small block DROPPED; the Proc6 `case` arms as default-then-guard ladders (no ELSE needed).
+  OWED = steps 5-11 (draft → pin → reference.py:_Dhry00Port diffed byte-equal vs dhry00_sim BEFORE
+  the JSON → JSON via script → --stages → lane B build/fc01/corp9 (+double) → docs § 14 + § 1 →
+  gate build/gate-dhry00.log → explicit-path commit), then FFT-00.

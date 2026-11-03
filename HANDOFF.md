@@ -122,6 +122,33 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+## DHRY-00 hop 16 — BOTH SIMULATORS DONE + CROSS-CHECKED (step 4); draft (step 5) OWED (2026-11-03; NOTHING tracked authored; no lane/gate run; renewal 3/12)
+
+Read `LEARNINGS.md` § "…DHRY-00 hop 16" FIRST, then `PROGRESS.md` → `## Next action` → "DHRY-00 hop
+16" which carries the FULL statement-by-statement draft contract (steps 5-11). MEASURED on my
+compiler `edce9e0e…` in ignored scratch (NOT DR claims; ledger ends C352): `w1.pli` — every remaining
+risky shape — COMPILES rc=0 (4096 B, code=1858 data=486): DO WHILE with two VARIABLE operands, DO TO
+with both bounds in variables (only EXPRESSION bounds are refused), multi-statement lines, `if/then
+put/else put`, if/else DO-blocks, sibling `putstr`→`putc` inside a DO over outer `sx`, the `cp30`
+copy loop, the `divsub` subtraction loop, flat `<=`-loop replacements, scalar-vs-scalar ordered
+compares, and literals containing `^`, `^.`, `[8,7]`, punctuation and digits. NEW `my-gap` MEASURED:
+`put list(<numeric literal>)` REFUSES (`PUT form not in E2E-3a subset`) — the should-be constants
+print as character literals (identical after collapse-spaces-v1); codegen's reported LINE NUMBERS are
+unreliable, bisect by hand. STEP 4 IS DONE: `dhry00_pascal_sim.py` (line-for-line Pascal) and
+`dhry00_sim.py` (port byte model) PASS `check(7)` — 57 normalized lines byte-equal, raw **1361
+bytes**, the 20-entry published should-be column, the port-state invariants, the ≤78-column frame law
+(no wrap model) and exactly one GET; snapshot `build/fc01-scratch/dhry00/dhry00_sim.out`. FOUR model
+falsifications were found by the cross-check and fixed (the Pascal whole-record LHS is the record
+POINTED AT, not the field; the caller must write result cells back; Pascal prints a blank line
+between the banner and the prompt; the putc ladder NEEDS the digit arms or the '1'/'2'/'3' silently
+render blank and collapse away). NEXT = step 5: `mk_dhry00_pli.py` → LF draft → scratch compile →
+pin → `reference.py:_Dhry00Port` diffed BYTE-EQUAL vs the sim BEFORE the JSON → JSON via script →
+`--stages source,derivation` → lane B `build/fc01/corp9` (+double) → docs § 14 + § 1 → gate
+`build/gate-dhry00.log` → explicit-path commit; then FFT-00. Constraints unchanged: no `ocaml/`/
+harness byte; functional runs are NOT DR claims; FAILs stay classified never laundered; NEVER re-run
+the retry-DFS; third-party bytes never tracked; operator `handoff.config.json` untouched/unstaged;
+no push; renew only at safe boundaries.
+
 ## DHRY-00 implementation hop LANDED — shapes pre-compiled + lane-B RUN probes DHP00/TP00; TWO new `my-gap` classes MEASURED (queue-order layout law, formal-subscript store LOSS); simulator→draft OWED (2026-11-03, continuation chain hop 15; renewal 2/12; NOTHING tracked authored; no gate run)
 
 Read `LEARNINGS.md` § "…DHRY-00 implementation hop (continuation chain hop 15)" FIRST, then
@@ -858,25 +885,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 216
-checkpoint-id: g216-ecf9e92d79b5
+checkpoint-generation: 220
+checkpoint-id: g220-ca2a51451ed2
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~2959, session 01a1a27a-6994-7145-a841-b691d1975277)
-checkpointed: 2026-11-03T18:04:37.099Z
+status: checkpoint (guard level 4, remaining ~-8897, session 01a1a296-1e9d-7145-a841-b695ecb7fc77)
+checkpointed: 2026-11-03T18:38:41.190Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5712695dc0ddb6b8938c3927746163a417f05682e20f59a385b961c94cf63021
-source-handoff: 884a48abe28b2a44c4bb4a9fe5374b75ff3e76c0a8cfc73ccc3675ab0a9bd51e
-source-learnings: 26e7e898d4a3d03167a96bd0e7836f90912be7af4a91d4266475ab5486e85981
+source-progress: 3520e545669132c00839b8172e9e8f2eb702100f77897ca0755eabd6549d39c3
+source-handoff: 0b3fe79b2e1d8b5e334ede5a675ac05c1b8258426c86e2175720f15d069cd212
+source-learnings: effccecee491c90de050805c0f337fd1ca773c1ad95c74f25237c95053f3eb91
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a27a-6994-7145-a841-b691d1975277
-readiness-at: 2026-11-03T18:04:37.115Z
-readiness-checkpoint: g216-ecf9e92d79b5
+readiness-by: session:01a1a296-1e9d-7145-a841-b695ecb7fc77
+readiness-at: 2026-11-03T18:38:41.206Z
+readiness-checkpoint: g220-ca2a51451ed2
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
@@ -906,5 +933,5 @@ guard level 4; checkpoint requested (renewal tool refresh)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-DHRY-00 implementation hop 15 LANDED (docs-only landing this session — nothing tracked authored yet, tree dirty ONLY with HANDOFF/PROGRESS/LEARNINGS prose + operator handoff.config.json; ocaml/ and harness untouched; no commit owed yet because no tracked artifact was created). Successor: execute PROGRESS.md → ## Next action → "DHRY-00 implementation hop LANDED" steps 4-11 (sims build/fc01-scratch/dhry00/dhry00_pascal_sim.py + dhry00_sim.py with triple cross-check N=7 -> LF draft DHRY-00.draft.pli -> pin spec/functional/tests/DHRY-00.PLI -> reference.py:_Dhry00Port diffed BYTE-EQUAL BEFORE JSON -> DHRY-00.json via script -> --stages source,derivation -> lane B build/fc01/corp9 (+double) -> docs § 14 + § 1 -> gate build/gate-dhry00.log -> explicit-path commit), then FFT-00 (build/functional/fc01-sources/pli/FFT-reference.pli, evidence corp10, docs § 15). READ FIRST LEARNINGS.md § "...DHRY-00 implementation hop (continuation chain hop 15)": LAYOUT LAW (main-body statements FIRST, all nested defs after stop; else call-site queue mismatch), TP00 LAW (copy formal->local before array subscript - formal-subscript stores are SILENTLY LOST; lane-B verbatim \r\n        0         0         7         0         7\r\n), do-while only with <, no <0 or <=, lines <=78 cols (79-col wrap fires, law stays proposed), scratch probe machinery reusable: build/fc01-scratch/dhry00_run_probe.py and tp00_run_probe.py. Build verified rc=0 (edce9e0e). Compiler v12.REL exists (nested if/goto, char(56) varying label, mixed put - lane-B run unwitnessed). Constraints: no ocaml/harness byte; ledger ends C352; functional runs are NOT DR claims; NEVER re-run retry-DFS; third-party bytes never tracked; .SHAR NEVER executed (source already extracted read-only in build/fc01-scratch/dhry00/); operator handoff.config.json untouched/unstaged; no push; renew only at safe boundaries.
+DHRY-00 hop 16: step 4 DONE — both simulators written and mutually cross-checked (57 normalized lines byte-equal, raw 1361 B, published should-be 20/20, ≤78-col frame law green); snapshot build/fc01-scratch/dhry00/dhry00_sim.out + check(7) regression gate. w1.pli pre-witnesses every remaining risky shape (rc=0, 4096 B). NEW my-gap: put list(<numeric literal>) REFUSES; codegen error line numbers unreliable. NEXT = steps 5-11 in PROGRESS.md → Next action (mk_dhry00_pli.py → LF draft → scratch compile (POSITIONAL args: pli80c IN OUT.REL) → pin spec/functional/tests/DHRY-00.PLI → reference.py:_Dhry00Port diffed BYTE-EQUAL vs sim BEFORE JSON → JSON via script → --stages source,derivation → lane B build/fc01/corp9 (+double) → docs § 14 + § 1 → gate build/gate-dhry00.log → explicit-path commit), then FFT-00. Constraints: no ocaml/harness byte; ledger ends C352; functional runs are NOT DR claims; NEVER re-run retry-DFS; third-party bytes never tracked; operator handoff.config.json untouched/unstaged; no push.
 <!-- guard:end checkpoint -->
