@@ -122,7 +122,39 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## TICT-00 hop 8 — REFERENCE + JSON LANDED (2026-11-03, continuation chain hop 8; steps 4-6 DONE; lane B/docs/gate/commit OWED at hop 9)
+## TICT-00 rev1 LANDED — lane-B **PASS** on the first run (2026-11-03, continuation chain hop 9; steps 7-10 DONE; program 5 of 8 complete; renewals AVAILABLE)
+
+Read `LEARNINGS.md` § "…TICT-00 completion hop 9" FIRST. Hop 9 executed the owed contract exactly:
+lane B `python3 tools/functional_runner.py --tests TICT-00 --evidence build/fc01/corp7 --json-out
+build/fc01/corp7/records.json` (HEAD `c837d7f`, compiler `edce9e0e…`) → **PASS** — SOURCE (9300 B
+pin), DERIVATION (derivation == spec), COMPILE (`rc=0`, 8704 B, code=4030 data=36 items=4593),
+LINK (`TICT00.COM 12160 B sha256=945184ceb27b35b4…`, `parse_undefined=[]`), RUN (`done`, **1468
+console bytes = exactly the independent simulator's predicted raw count**), ASSERT
+(complete-stream match, 120 lines); `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`; determinism
+double-run `build/fc01/corp7-double/` PASS, the two `run.console.bin` captures byte-equal
+(`cmp` rc=0, sha256 `0f7f5819…`). FIRST lane-B RUN witnesses: the 121-label flat goto machine,
+variable-subscript stores, `call show(…)` from inside the machine, and the occupied retry
+loop-back (numeric `GET LIST` re-asked after the message) — the stored raw shows
+`WHERE DO YOU MOVE 1\r\r\nTHAT SQUARE IS OCCUPIED.\r\n\r\n\r\n` and THREE such messages
+(lines 86/91/96), exactly as derived; no PLILIB wrap fired (widest rendered line 25 cols).
+**Nothing was laundered**: the source and the expectation were not touched to obtain the PASS.
+`docs/functional-results.md` § 12 + the § 1 row written from the records; FULL compile-tier gate
+rc=0 — byte panel **1174/0 of 1174**, negative **181/181**, divergence **9/9**, coverage **133
+rows 0/0**, census **15/0/26/0**, prose **5 active clean** (`build/gate-tict00.log`, run AFTER the
+§ 12 edit). Corpus now **5 of 8 landed** (WKDAY-00 rev3 PASS, HAMM-00 rev1 `my-gap` COMPILE FAIL
+recorded, HANG-00 rev1 PASS, AMAZ-00 rev1 PASS, TICT-00 rev1 PASS). **NEXT = program 6 LIFE-00**
+(Game of Life, `build/functional/fc01-sources/basic/LIFE.bas`) — hop-start procedure (verify sha,
+read the whole listing, record scope falsifications + unsupported-feature documentation, decide
+the RND/input adaptation and a finite deterministic script, simulator -> shapes -> draft -> pin ->
+reference mirror diff BEFORE the JSON -> JSON via script -> `--stages source,derivation` -> lane B
+`build/fc01/corp8` -> docs § 13 + § 1 -> gate -> explicit-path commit) is in `PROGRESS.md` →
+`## Next action`; then DHRY-00 (**NEVER execute the `.SHAR`**) and FFT-00; HAMM-00 rev2 stays
+PROPOSED. Constraints unchanged: no `ocaml/` or harness byte changed; ledger ends **C352**; third-
+party bytes never tracked (`sha256sum -c SHA256SUMS` rc=0 re-measured); **NEVER re-run the
+retry-DFS search**; operator `handoff.config.json` untouched/unstaged; no push; renew only at safe
+boundaries (renewal 9/12 used — successor = LIFE-00 hop).
+
+## Superseded: TICT-00 hop 8 — REFERENCE + JSON LANDED (2026-11-03, continuation chain hop 8; steps 4-6 DONE; lane B/docs/gate/commit OWED at hop 9; the hop-9 section above supersedes this)
 
 Read `LEARNINGS.md` § "…TICT-00 implementation hop 8" FIRST. `reference.py` gained
 `_Tict00Port` (121-label dispatch GENERATED MECHANICALLY from the pinned TICT-00.PLI by
@@ -616,22 +648,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 196
-checkpoint-id: g196-6d10eec8520c
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4697, session 01a1a117-ac16-7601-8f9d-90d4aa1719d8)
-checkpointed: 2026-11-03T11:23:42.253Z
+checkpoint-generation: 197
+checkpoint-id: g197-ffce7f2131b8
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-2381, session 01a1a117-ac16-7601-8f9d-90d4aa1719d8)
+checkpointed: 2026-11-03T11:25:50.491Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 47acbfe3da9d28aa60da62347908e00ef971e76529d59bfcad722cf11166dcde
-source-handoff: e91d01a5f1e77cdb435b2e070abbfd7cb039512112758d1aaefadb0396077db0
-source-learnings: 62a72829107fbb3ec19b48554fdc54c229e7fdb9b4db1df26748591f537d1fb9
+source-progress: e5482cf87dd0598eebc2fde6d29d989950b7807ba845424e054ff7891936cb04
+source-handoff: 08bea8caf5e7feba7ed6a64af3f7da4a4c83e81d14abea53d27418c974474dd6
+source-learnings: b5c083401f269612c86243a90569cfe4c5db3b7a83d9c4d9459110f93cbf821a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a117-ac16-7601-8f9d-90d4aa1719d8
+readiness-at: 2026-11-03T11:25:50.500Z
+readiness-checkpoint: g197-ffce7f2131b8
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: Hop 8 landed steps 4-6 (committed c837d7f): reference.py _Tict00Port mirror generated mechanically from the pinned .PLI, derive('tict00') byte-equal to the independent simulator on 120 lines (raw 1468 B), TICT-00.json generated via script, --stages source,derivation clean (UNKNOWN stage ceiling). Successor = TICT-00 hop 9, steps 7-10 ONLY: lane B --evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json (+corp7-double if PASS) ACTUALS verbatim, a FAIL stays classified never laundered; docs/functional-results.md § 12 + § 1 row; python3 tools/e2e_gate.py compile tier -> build/gate-tict00.log; explicit-path commit (NEVER handoff.config.json; no push). Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00. Read LEARNINGS.md § "...TICT-00 implementation hop 8" FIRST. No ocaml/harness changes; ledger ends C352; NEVER re-run the retry-DFS search.)
 
 ### Unfinished operations
 - (none recorded)
@@ -661,5 +696,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-Post-finalize amendment: PROGRESS.md current-phase header updated at commit 26200ca (hop-6 state: draft compile-witnessed rc=0 8704 B, steps 3-10 owed at hop 7; THREE occupied messages). Successor = TICT-00 hop 7 steps 3-10 per PROGRESS Next action + LEARNINGS hop-6 §; pin PLI -> reference mirror + diff vs sim norm (explicit script 2 2 9 7 1 10 1 4) -> TICT-00.json via script -> source,derivation -> lane B corp7 -> docs sec 12 -> gate -> explicit-path commit. NEVER re-run retry-DFS; no ocaml/harness changes; ledger ends C352; no push.
+Hop 8 landed steps 4-6 (committed c837d7f): reference.py _Tict00Port mirror generated mechanically from the pinned .PLI, derive('tict00') byte-equal to the independent simulator on 120 lines (raw 1468 B), TICT-00.json generated via script, --stages source,derivation clean (UNKNOWN stage ceiling). Successor = TICT-00 hop 9, steps 7-10 ONLY: lane B --evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json (+corp7-double if PASS) ACTUALS verbatim, a FAIL stays classified never laundered; docs/functional-results.md § 12 + § 1 row; python3 tools/e2e_gate.py compile tier -> build/gate-tict00.log; explicit-path commit (NEVER handoff.config.json; no push). Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00. Read LEARNINGS.md § "...TICT-00 implementation hop 8" FIRST. No ocaml/harness changes; ledger ends C352; NEVER re-run the retry-DFS search.
 <!-- guard:end checkpoint -->

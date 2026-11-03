@@ -213,7 +213,43 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-TICT-00 REFERENCE + JSON LANDED (steps 4-6) — LANE B / DOCS / GATE / COMMIT OWED
+TICT-00 **PASS** LANDED (steps 7-10) — PROGRAM 5 OF 8 COMPLETE; NEXT = LIFE-00 HOP START
+(2026-11-03, continuation chain hop 9 end; HEAD `c837d7f` at execution, build rc=0 verified at
+session start, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…TICT-00 completion hop 9".
+Measured: lane B `build/fc01/corp7/` executed **PASS on the FIRST run** — SOURCE/DERIVATION/
+COMPILE (rc=0, 8704 B, code=4030 data=36, items=4593)/LINK (`TICT00.COM 12160 B`,
+`parse_undefined=[]`)/RUN (`done`, **1468 console bytes = exactly the simulator's predicted raw**)
+/ASSERT (complete-stream match, 120 lines); `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`;
+double-run `build/fc01/corp7-double/` byte-equal (`cmp` rc=0, console sha256 `0f7f5819…`).
+FIRST lane-B RUN witnesses: the 121-label flat goto machine, variable-subscript stores, `call`
+from inside the machine, and the occupied retry loop-back with the numeric GET echo re-asked
+(`WHERE DO YOU MOVE 1\r\r\nTHAT SQUARE IS OCCUPIED.\r\n\r\n\r\n`). docs § 12 + § 1 row written
+from the records; full compile-tier gate rc=0 (1174/0, 181/181, 9/9, 133/0/0, census 15/0/26/0,
+prose 5 clean) in `build/gate-tict00.log`. Corpus: 5 of 8 landed (WKDAY rev3 PASS, HAMM rev1
+`my-gap` FAIL recorded, HANG rev1 PASS, AMAZ rev1 PASS, TICT rev1 PASS).
+EXACT NEXT = program 6 **LIFE-00** (Game of Life, BASIC `build/functional/fc01-sources/basic/LIFE.bas`)
+per the standing corpus procedure: (1) `sha256sum -c SHA256SUMS` in the sources dir, read the WHOLE
+listing, record a hop-start analysis in `LEARNINGS.md` (scope falsifications, upstream behaviour,
+unsupported features to DOCUMENT rather than silently remove, the port-shape decisions under the
+measured corpus laws: literal divisors only, no apostrophes, ≤71 cols, single-item `put list`,
+numeric GET + echo, [C352] framing, flat goto machine where nested constructs are unwitnessed);
+(2) independent scratch simulator + a finite deterministic game script (BASIC LIFE uses `RND` and/or
+input and a `PRINT`-per-generation grid with carriage-control spacing — decide the adaptation and
+record it); (3) pre-compile risky shapes in ignored scratch; (4) LF draft -> CRLF + bare ^Z + <=71 +
+apostrophe-free `spec/functional/tests/LIFE-00.PLI`, pin sha; (5) `reference.py:_Life00Port`/
+`life00()` + `DERIVATIONS`, diff `derive` vs the simulator norm() BEFORE the JSON; (6) generate
+`LIFE-00.json` VIA SCRIPT from derive (link target LIFE00, capabilities grep-verified against
+`spec/COVERAGE.tsv` AND the pinned .PLI, full notes); (7) `--stages source,derivation`; (8) lane B
+`--evidence build/fc01/corp8 --json-out build/fc01/corp8/records.json` (+corp8-double if PASS),
+ACTUALS verbatim, a FAIL stays classified `my-gap`/`dr-refuses`/`unmeasured`, never laundered, the
+expectation never edited to chase a PASS; (9) `docs/functional-results.md` § 13 + § 1 row; (10)
+`python3 tools/e2e_gate.py` compile tier -> `build/gate-life00.log`; (11) explicit-path commit
+(NEVER `handoff.config.json`; no push). Then DHRY-00 (**NEVER execute the `.SHAR`** — extract by
+read-only means) and FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints unchanged: no ocaml/harness
+changes; ledger ends C352; NEVER re-run the retry-DFS search; third-party bytes never tracked;
+renew only at safe boundaries (renewal 9/12 used — successor = LIFE-00 hop).
+
+SUPERSEDED-BY-ABOVE (kept as written): TICT-00 REFERENCE + JSON LANDED (steps 4-6) — LANE B / DOCS / GATE / COMMIT OWED
 (2026-11-03, continuation chain hop 8 end; HEAD `77c89c2` at session start, build rc=0
 verified, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…TICT-00 implementation
 hop 8". Measured: `reference.py:_Tict00Port`/`tict00()`/`_tict00_finalize`/
@@ -972,17 +1008,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 196
-checkpoint-id: g196-6d10eec8520c
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 197
+checkpoint-id: g197-ffce7f2131b8
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-03T11:23:42.253Z
+checkpointed: 2026-11-03T11:25:50.491Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 47acbfe3da9d28aa60da62347908e00ef971e76529d59bfcad722cf11166dcde
-source-handoff: e91d01a5f1e77cdb435b2e070abbfd7cb039512112758d1aaefadb0396077db0
-source-learnings: 62a72829107fbb3ec19b48554fdc54c229e7fdb9b4db1df26748591f537d1fb9
+source-progress: e5482cf87dd0598eebc2fde6d29d989950b7807ba845424e054ff7891936cb04
+source-handoff: 08bea8caf5e7feba7ed6a64af3f7da4a4c83e81d14abea53d27418c974474dd6
+source-learnings: b5c083401f269612c86243a90569cfe4c5db3b7a83d9c4d9459110f93cbf821a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1006,6 +1042,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a1a117-ac16-7601-8f9d-90d4aa1719d8
+readiness-at: 2026-11-03T11:25:50.500Z
+readiness-checkpoint: g197-ffce7f2131b8
 <!-- guard:end checkpoint -->
 
 ## Blockers

@@ -40,6 +40,7 @@ cpmsim, user-supplied and never packaged).
 | HAMM-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (corpus program 2 of 8; § 9) | `compiler` | adapted BASIC Hammurabi; rev1 measures the variable-divisor DIV refusal verbatim (`my-gap`, first corpus use, flagged run-unwitnessed in the spec notes); expectation NOT laundered; LINK/RUN/ASSERT unrun |
 | HANG-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 3 of 8; § 10) | — | adapted BASIC Hangman; FIRST corpus lane-B RUN of numeric `GET LIST` + echo — the measured echo/framing laws held on my own binary; complete-stream match 329 lines; the 6369-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | AMAZ-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 4 of 8; § 11) | — | adapted BASIC Amazing (generation-and-print-only version — no walk INPUT phase, so PURE-PUT with bare `^Z`); flat 4×4 backtracker via goto state machine, declared draws with literal divisors 4/3/2; complete-stream match 18 lines; the 189-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
+| TICT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 5 of 8; § 12) | — | adapted BASIC Tic-Tac-Toe (TICTACTOE2 — chosen because TICTACTOE1 never terminates); FIRST lane-B RUN of the 121-label flat goto machine with variable-subscript stores, `call` inside the machine and the occupied-retry loop-back; numeric choice + move `GET LIST`s with echoes; complete-stream match 120 lines; the 1468-B raw RUN stream equals the independent simulator's raw bytes exactly; THREE `THAT SQUARE IS OCCUPIED.` messages at lines 86/91/96; double-run byte-equal |
 | census probe | A | substrate probe | *measured, not a verdict* | — | both linked `.COM`s call **BDOS 25 first** (PLILIB init); the free core refuses typed ⇒ a PLILIB program cannot run on lane A today |
 
 Step-7 re-probes (`step7/RESULTS.md` §1–2): the same `TABLE-01` COMPILE+LINK probe now prints **no
@@ -495,3 +496,73 @@ capped); lane B `python3 tools/functional_runner.py --lane B --tests AMAZ-00 --e
 build/fc01/corp6 --json-out build/fc01/corp6/records.json`; determinism
 `python3 tools/functional_runner.py --lane B --tests AMAZ-00 --evidence
 build/fc01/corp6-double --json-out build/fc01/corp6-double/records.json --double-run`.
+
+## 12. FC-01 CORPUS TICT-00 hop (2026-11-03, continuation chain hops 3–9): program 5 (Tic-Tac-Toe, BASIC); PASS on the first lane-B run
+
+Program 5 of the operator's eight (Tic-Tac-Toe, `coding-horror/basic-computer-games`
+06_TicTacToe, Creative Computing/Morristown NJ; research copy
+`build/functional/fc01-sources/basic/TICTACTOE2.bas` sha256 `9945f459…`, `sha256sum -c
+SHA256SUMS` rc=0 measured at the hop start; upstream licence UNVERIFIED and recorded as such per
+README § 5.1; no upstream bytes in any tracked file). **Base choice recorded** (LEARNINGS
+2026-11-02 TICT-00 hop start): BOTH upstream listings were read and **TICTACTOE2** was chosen —
+TICTACTOE1 (`e1125402…`) routes win AND draw back to `GOTO 210`, so its only stop would be a GET
+at ^Z-EOF, a behaviour DR never measured here; no finite complete stream can be derived from it.
+
+The triple: `spec/functional/tests/TICT-00.PLI` 9300 B, 499 lines, widest 64 ≤ 71, CRLF + bare
+`^Z`, apostrophe-free, sha256
+`f9320f5a65d98fc3cc2a4aa4688444aab54cba25814ddbfa17ee5b2bd26c04e7` (pinned in the spec; the
+pin-level compile witness is that its `.REL` is byte-identical to the ignored scratch draft).
+The port is a **flat label machine** `l0002..l2000` mirroring the BASIC line numbers with
+`goto`/`if … then goto`, and carries the corpus laws measured on the earlier programs: the
+BASIC cells −1/0/1 are remapped to `1` = computer, `2` = empty, `3` = human so every compare is
+against a positive literal (ordered compares `> var`, `= -1` are measured refusals); the three
+`ON`-style tests of BASIC 113/114/115 become `k = 1` plus two compares (exactly one can fire,
+`j <= m <= j + 2`); `DO BY 3` is emulated as `(jj-1)*3+1` (REFUSED shape); `M = 0` is tested with
+the shift idiom `t2 = t1 + 1; if t2 = 0`; `INT(m/3)` becomes `t1/3` — equal because `m >= 1` at
+that label; `RND` is absent upstream (the computer plays a fixed 9-pattern search); the IT'S
+apostrophe is rewritten `IT IS`. `reference.py:tict00` is a **mechanically generated**
+statement-for-statement mirror — `build/fc01-scratch/mk_tict00_mirror.py` emitted the 121-label
+dispatch from the pinned source and it was then hand-checked, so the *unreached* labels are
+faithful too (structural parity: 121 labels, 341 label statements; the main block holds 348
+semicolons = 341 + 3 declares + 3 board-init DO statements + 1 `stop;`). Measured invariants
+before any JSON: `derive('tict00')` BYTE-EQUAL to the independent simulator
+`build/fc01-scratch/tict00_sim.py` `norm()` on all 120 lines (raw 1468 B), terminal `DRAW`,
+8 GETs, script consumed, board `1,3,1,3,1,1,3,1,3`, THREE occupied lines at 86/91/96 (hop 5's
+"two" stays falsified), line 1 `TIC-TAC-TOE` with no leading blank, line 120 the exit-CRLF blank
+[C352], and 15 unreached labels (`l0475, l0104, l0105, l0133, l0138, l0156, l0158, l0163,
+l0168, l0187, l0189, l0502t, l1180, l1200, l1350`) while `l1112`/`l1137` ARE entered and their
+gotos never fire — the hop-4 exhaustive-game-tree result, not re-searched. `TICT-00.json` was
+**generated via script from the derivation** (nothing hand-copied): link target `TICT00`,
+`console_input 2\r2\r9\r7\r1\r10\r1\r4\r^Z` (choice 2 = O, moves 2,9,7,1,10,1,4),
+normalization `collapse-spaces-v1`, limits as HANG-00, notes (1)–(15) carrying the base choice,
+the numeric-choice-GET substitution, the value mapping, the f-count AND-ladders, the flat loops,
+the two equivalence adaptations, the occupied three-blank law, the dead/unreached label lists and
+the double capability verification; 12 capability ids each verified twice — `dr=ACCEPTS` /
+`mine=SUPPORTED` in `spec/COVERAGE.tsv` AND present as a construct in the pinned `.PLI`
+(`EXPR.VARYING_X_VARYING` and `AGG.ELEM_AS_ACTUAL` were dropped for not being present).
+
+* **rev1 — PASS (`build/fc01/corp7/`, HEAD `c837d7f`, compiler sha `edce9e0e…`):** every stage ran
+  and passed — SOURCE (sha256+encoding verified, 9300 bytes), DERIVATION (derivation == spec,
+  120 lines), COMPILE (`rc=0, non-empty .REL`, **8704 B, code=4030 data=36, items=4593**), LINK
+  (`TICT00.COM 12160 bytes sha256=945184ceb27b35b4…`, `done, parse_undefined=[]`), RUN (`done`;
+  **1468 console bytes** — exactly the raw count the independent simulator predicts), ASSERT
+  (complete-stream match, 120 lines). Verdict line as executed:
+  `verdicts: PASS=1 FAIL=0 BLOCKED=0 UNKNOWN=0`. Determinism double-run
+  `build/fc01/corp7-double/` PASS (same verdict line); the two `run.console.bin` captures are
+  byte-equal (`cmp` rc=0, sha256 `0f7f581931943edf…`).
+* First lane-B RUN of this machine class: variable-subscript stores in a flat goto state machine,
+  `call show(...)` issued from inside the machine, and the occupied-square retry loop-back
+  (a GET re-asked on the same output line region) — all run-witnessed PASSing. The numeric choice
+  GET echo renders as derived (`…FOR O 2\r`, [C352] framing unchanged: line 1 has no leading
+  blank, line 120 is the exit-CRLF blank).
+* Nothing here promotes a claim: the ledger still ends at C352 and a functional run is not DR
+  evidence (the game-tree reachability facts live in the spec notes and LEARNINGS, not the
+  ledger). No `ocaml/` or harness byte changed; the source was NOT altered to obtain the PASS;
+  no expectation was laundered; the failed first echo assertion is kept as written in LEARNINGS.
+
+Commands: derivation gate `python3 tools/functional_runner.py --stages source,derivation
+--tests TICT-00` (no SOURCE/DERIVATION failure; verdict `UNKNOWN [COMPILE: stage ceiling]`);
+lane B `python3 tools/functional_runner.py --tests TICT-00 --evidence build/fc01/corp7
+--json-out build/fc01/corp7/records.json`; determinism `python3 tools/functional_runner.py
+--tests TICT-00 --evidence build/fc01/corp7-double --json-out
+build/fc01/corp7-double/records.json --double-run`.

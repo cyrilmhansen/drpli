@@ -3642,3 +3642,56 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   harness); ledger ends C352 (a functional run is not a DR claim); third-party bytes
   never tracked; NEVER re-run the retry-DFS search; operator `handoff.config.json`
   (maxRenewals 12, workingContextWindow 145000) untouched/unstaged; no push.
+
+## 2026-11-03 — FC-01 CORPUS TICT-00 completion hop 9 (continuation chain hop 9; steps 7-10 DONE — program 5 of 8 PASSES)
+
+- ACCEPTED (step 7, the hop's main result): `TICT-00` executed to **PASS on its FIRST lane-B
+  run** — `python3 tools/functional_runner.py --tests TICT-00 --evidence build/fc01/corp7
+  --json-out build/fc01/corp7/records.json`, ACTUAL verdict lines verbatim:
+  `TICT-00    lane B  PASS` / `evidence: build/fc01/corp7` /
+  `verdicts: PASS=1  FAIL=0  BLOCKED=0  UNKNOWN=0` (rc=0). Stages, ACTUALS from
+  `build/fc01/corp7/records.json` (HEAD `c837d7fbfcc84db1e108520632745e7c3f317c47`, compiler
+  `edce9e0e3e1e5054…`, cpmsim `5b8825615d352b78…`, evidence
+  `build/fc01/corp7/TICT-00-20261103T112827Z/lane-B`): SOURCE pass (`TICT-00.PLI (9300 bytes)`,
+  sha256+encoding verified); DERIVATION pass (`derivation == spec`); COMPILE pass
+  (`rc=0, non-empty .REL`, `code=4030 data=36 items=4593 bytes=8704`); LINK pass (`done,
+  parse_undefined=[]`, `TICT00.COM 12160 bytes sha256=945184ceb27b35b4…`); RUN pass (`done`,
+  **1468 console bytes = exactly the raw count the independent simulator predicts**); ASSERT pass
+  (`complete-stream match`, `120 line(s)`). Determinism: `--double-run` into
+  `build/fc01/corp7-double/` PASS with the same verdict line, `double_run.equal: true`, and the
+  two `run.console.bin` captures byte-equal (`cmp` rc=0, both sha256
+  `0f7f581931943edf01512532304b1f22f0672b4e5fe1d9d01884fb6ddad1e193`).
+- MEASURED (first lane-B RUN witnesses — shapes COMPILE-witnessed pre-pin, now RUN-witnessed):
+  a 121-label flat goto state machine with (a) **variable-subscript stores** `s(i)/s(j)/s(k)/s(m)`,
+  (b) `call show(...)` issued from inside the machine, (c) the **occupied retry loop-back** — i.e.
+  a `GET LIST` re-asked after an error message on the same line region. The stored raw capture
+  shows the retry exactly as derived: `WHERE DO YOU MOVE 1\r\r\nTHAT SQUARE IS OCCUPIED.\r\n\r\n\r\n`
+  then the next prompt — numeric GET echo `%d\r\r\n` closing the line, the message, then THREE
+  CRLFs (the three-blank occupied law, spec note (11)); THREE such messages at lines 86/91/96.
+  No PLILIB 79-column wrap fired anywhere (widest rendered line 25 columns) — consistent with
+  [C352]-era framing laws, NOT a new claim.
+- ACCEPTED (step 8): `docs/functional-results.md` § 12 (the TICT-00 record: base choice and why,
+  the triple's pinned sha/geometry, every port adaptation, the mechanically generated mirror +
+  structural parity, the diff-before-JSON contract, the 15 unreached labels, the double-verified
+  capability list, all lane-B ACTUALS verbatim, the commands) and the § 1 verdict row for
+  `TICT-00` — written from the records, not from memory.
+- ACCEPTED (step 9, gate ACTUALS verbatim): `python3 tools/e2e_gate.py` compile tier rc=0 →
+  `build/gate-tict00.log`: byte panel `e2e gate: 1174 byte-exact / 0 fail of 1174`; negative
+  panel `181/181 refused`; divergence panel `9/9 as recorded (compiles, differs, shape pinned)`;
+  `coverage_check: 133 rows, 0 errors, 0 warnings`; census `{"HISTORICAL": 44, "AUTHENTIC": 41,
+  "DR_REJECTED": 3, "EXACT": 15, "DIFFERS": 0, "REFUSED": 26, "UNEXPECTED": 0, "NOSRC": 0,
+  "NO_ORACLE": 3, "dirs_present": 44, "sha_unverified": 0}`; `file prose check: 5 active files
+  clean (7 forbidden assertions, 8 pinned markers, [C280] banner, no duplicate provenance cites)`.
+  The prose check ran AFTER the § 12 edit, so the new section is itself gate-clean.
+- STEP 10: explicit-path commit (docs/functional-results.md, spec/functional/tests/TICT-00.json,
+  reference.py, LEARNINGS.md, PROGRESS.md, HANDOFF.md prose; NEVER `handoff.config.json`; no
+  push).
+- Corpus status after this hop: **5 of 8 landed** — WKDAY-00 rev3 PASS, HAMM-00 rev1 recorded
+  `my-gap` COMPILE FAIL, HANG-00 rev1 PASS, AMAZ-00 rev1 PASS, TICT-00 rev1 **PASS**. Remaining:
+  LIFE-00 (program 6), DHRY-00 (7 — NEVER execute the `.SHAR`), FFT-00 (8). HAMM-00 rev2 stays
+  PROPOSED.
+- Constraints re-observed: no `ocaml/` or harness byte changed (the build was verified rc=0 at
+  session start and `pli80c.exe` sha unchanged at `edce9e0e…`); nothing laundered — the source
+  and expectation were NOT touched to obtain the PASS; ledger ends C352 (a functional run is not
+  DR evidence); third-party bytes never tracked (`sha256sum -c SHA256SUMS` rc=0 re-measured this
+  hop); retry-DFS NOT re-run; operator `handoff.config.json` untouched/unstaged; no push.
