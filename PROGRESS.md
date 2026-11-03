@@ -1572,17 +1572,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 239
-checkpoint-id: g239-45d6a40cbe3a
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 240
+checkpoint-id: g240-bdb34d649d10
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-guard-level: 3
-checkpointed: 2026-11-03T23:18:24.141Z
+guard-level: 2
+checkpointed: 2026-11-03T23:42:38.804Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 84facc1dec37805d7d192655642a6d85c71fff2b8084341ab52b57cda8ddb315
-source-handoff: 7881186a7b9c37f312ba663b3ada8ba6ed97dc6808bf96de1b2de4a8c8c65646
-source-learnings: bcb93b2a855099f450c1ca3fcf3f699d3b7155d0a96c531fec2b0b5ca2a72058
+source-progress: c07fe415816cdd63cc7f2e147b86a4c706c0e6ca75d6711ef6ff55be85f3ebbc
+source-handoff: 1c52b59924549de4fddb6f9a758c0487c45713bdbbc198fa7314379d7f59079b
+source-learnings: 1a45f8d845f1bf1aabfce3e2dbb37fcc33378c784542c351f540d3ed0ef2f331
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1606,9 +1606,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a39b-e7d1-7402-832b-2aea890d3265
-readiness-at: 2026-11-03T23:18:47.381Z
-readiness-checkpoint: g239-45d6a40cbe3a
+readiness-by: session:01a1a3b5-415f-7402-832b-2aeefdb3b240
+readiness-at: 2026-11-03T23:42:38.816Z
+readiness-checkpoint: g240-bdb34d649d10
 <!-- guard:end checkpoint -->
 
 ## Blockers

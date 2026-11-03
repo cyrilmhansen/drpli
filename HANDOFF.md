@@ -1033,25 +1033,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 239
-checkpoint-id: g239-45d6a40cbe3a
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 240
+checkpoint-id: g240-bdb34d649d10
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 3, remaining ~6830, session 01a1a39b-e7d1-7402-832b-2aea890d3265)
-checkpointed: 2026-11-03T23:18:24.141Z
+status: checkpoint (guard level 2, remaining ~7608, session 01a1a3b5-415f-7402-832b-2aeefdb3b240)
+checkpointed: 2026-11-03T23:42:38.804Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 84facc1dec37805d7d192655642a6d85c71fff2b8084341ab52b57cda8ddb315
-source-handoff: 7881186a7b9c37f312ba663b3ada8ba6ed97dc6808bf96de1b2de4a8c8c65646
-source-learnings: bcb93b2a855099f450c1ca3fcf3f699d3b7155d0a96c531fec2b0b5ca2a72058
+source-progress: c07fe415816cdd63cc7f2e147b86a4c706c0e6ca75d6711ef6ff55be85f3ebbc
+source-handoff: 1c52b59924549de4fddb6f9a758c0487c45713bdbbc198fa7314379d7f59079b
+source-learnings: 1a45f8d845f1bf1aabfce3e2dbb37fcc33378c784542c351f540d3ed0ef2f331
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a39b-e7d1-7402-832b-2aea890d3265
-readiness-at: 2026-11-03T23:18:47.381Z
-readiness-checkpoint: g239-45d6a40cbe3a
+readiness-by: session:01a1a3b5-415f-7402-832b-2aeefdb3b240
+readiness-at: 2026-11-03T23:42:38.816Z
+readiness-checkpoint: g240-bdb34d649d10
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1081,5 +1081,5 @@ guard level 3; checkpoint requested (auto at level 3)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-E2E-51/P1 hop 3: oracle round COMPLETE and committed (goldens+RESULTS together at b404b7e, prose at 3e2328e). NEXT: implement arm 1 exactly as written in HANDOFF.md ## ACTIVE ROUND and LEARNINGS.md § "E2E-51/P1 hop 2" — Div parking arm in ocaml/lib/codegen.ml ~line 5010 (MOD-shape PUSH/POP park + E51K 1-byte interleave; unmeasured operand classes stay refused), dune build, compile all 12 probes/E51*.PLI, cmp each whole-file vs golden/e51p1/<n>/<n>.REL; only mismatching lines earn consumer arms (E51G right-first-XCHG decided EMPIRICALLY; H, I consumers). Each arm alone + regression sweep + full gate; claims from C353 (RESULTS §2 only); SPECIMENS+--update-inventory, census, COVERAGE, INVENTORY; HAMM-00 rev1 rerun UNEDITED if byte-covered. STOP after P1. Never touch operator handoff.config.json; no push.
+E2E-51/P1 hop 3: arms 1+2 LANDED and individually gated (4ff1ea5 Div parking = 10/12 whole-file byte-exact; 7d17b63 E51G ADD right-first+XCHG = 11/12; FULL gate rc=0 at each arm alone, logs build/gate-e51p1-arm{1,2}.log; docs e787595). NEXT: arm 3 E51I TEST consumer EXACTLY as written in PROGRESS.md ## Next action and LEARNINGS.md § "E2E-51/P1 hop 3" — refusal site grep "condition form not in E2E-3b subset"; golden tail E5/2A r4/D1/CD ?IS22N/7C/B5/C2 fwd/21 01 00/22 r6 + fixup triple SET-LC 001C/RELOC code 0x24/SET-LC 0024 (CODE 0027, [C089] JNZ polarity — CA FALSIFIED); admit ONLY Eq with measured-class var-divisor-DIV left + plain-variable right; build, sweep all 12 probes (12/12 expected), FULL gate rc=0, commit ALONE. Then registration: claims from C353 (RESULTS §2 ONLY), SPECIMENS + sanctioned --update-inventory (run gate AGAIN after; panel 1174->1186), census re-snapshot, COVERAGE rows, INVENTORY; then HAMM-00 rev1 rerun UNEDITED (A-class store blocker now byte-covered), record lane verdict. STOP after P1 — no P2/LOAN2/CREATE without an operator brief. Never touch operator handoff.config.json; no push; goldens never laundered.
 <!-- guard:end checkpoint -->
