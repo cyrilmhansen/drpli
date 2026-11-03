@@ -4118,3 +4118,102 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
   `build/functional/fc01-sources/pascal/dhry-pascal.shar`; **NEVER execute the `.SHAR`** —
   extract by read-only means only), then program 8 FFT-00 (`pli/FFT-reference.pli`); HAMM-00
   rev2 stays PROPOSED. Evidence root `build/fc01/corp9`, docs § 14.
+
+## 2026-11-03 — FC-01 CORPUS DHRY-00 hop start (program 7 of 8; source extracted READ-ONLY and read; 8 port shapes MEASURED; design PROPOSED, NOTHING adopted or authored)
+
+- ACCEPTED (read-only extraction, operator rule **NEVER execute the `.SHAR`**): the archive was
+  decoded by a pure-Python here-doc reader (match `sed >NAME <<'//GO.SYSIN DD NAME' 's/^-//'`,
+  strip one leading `-` per payload line, terminate on `//GO.SYSIN DD NAME`) into ignored scratch
+  `build/fc01-scratch/dhry00/`; NO shell ever touched the file. SIX members recovered:
+  `RATIONALE` 18500 B sha `2e05469e…`, `README_P` 2548 B `9247ca8e…`, `dhry.p-1` 22020 B
+  `81560a03…`, `dhry.p-2` 15281 B `c651628a…`, `dhry_c.dif` 4354 B `a669074a…`, `submit.frm`
+  180 B `ec4e33e1…`. `sha256sum -c SHA256SUMS` re-measured rc=0 (10/10) in
+  `build/functional/fc01-sources/`. Third-party bytes stay UNTRACKED (README § 5.1).
+  MEASURED FACT: `dhry.p-1` is header + the published statement/operand statistics ONLY and ends
+  "attach the program (file dhry.p-2) here"; `dhry.p-2` (504 lines) IS the program — Pascal
+  Version 2.1 (Weicker, 1988-05-25).
+- ACCEPTED (source scope facts, read in full): 11 subroutines (`Proc1`…`Proc8`, `Func1`…`Func3`)
+  declared `forward` then defined, called from a `for RunIndex := 1 to NumberOfRuns` measurement
+  loop; state is GLOBAL (the Pascal version has no nested blocks); records with a variant part
+  reached through `RecordPointer = ^RecordType` and two heap cells from `new`; enumerations
+  `Ident1..Ident5` printed through `ord` (0-based); `String30 = packed array[1..30] of char`
+  indexed per character (`String1ParRef[IntLoc]`) AND compared whole (`String1ParRef >
+  String2ParRef`); `Array2DimInteger = array[1..50,1..50]`; control forms `with`, `case`,
+  `repeat…until`, `while…do`, `for…to`; `readln(NumberOfRuns)` from the terminal; `clock`-based
+  timing plus real arithmetic for the two rate lines; apostrophes inside the literals
+  (`'DHRYSTONE PROGRAM, 1''ST STRING'`). The program prints its own canonical result table —
+  `IntGlob 5, BoolGlob TRUE, Char1Glob A, Char2Glob B, Array1Glob[8] 7, Array2Glob[8,7] =
+  NumberOfRuns + 10, PointerGlob Discr 0 / EnumComp 2 / IntComp 17 / 'DHRYSTONE PROGRAM, SOME
+  STRING', NextPointerGlob Discr 0 / EnumComp 1 / IntComp 18 / same string, Int1Glob 5, Int2Glob
+  13, Int3Glob 7, EnumGlob 1` — and by-hand tracing of `Proc1` confirms WHY the record copy
+  `PointerParVal^.PointerComp^ := PointerGlob^` is load-bearing (it initializes the second cell's
+  discriminant/fields, so the `Discr = Ident1` branch is entered and `Proc7` sees `IntGlob = 5`
+  set earlier by `Proc8`). ONE `div` in the whole program and its divisor is a VARIABLE
+  (`Int1Glob := Int2Glob div Int3Glob`) — the exact HAMM-00 `my-gap` blocker.
+- ACCEPTED (8 shapes MEASURED on MY compiler `edce9e0e…`, ignored scratch
+  `build/fc01-scratch/dhry00/t*.pli`/`u*.pli`, rc printed with the verbatim message; NOT DR
+  claims; ledger ends C352):
+  1. **`declare arr(N) static fixed bin(15);` REFUSED** — `codegen: [TBD] STATIC array is not
+     independently characterized [C159/AB5]` (rc=2, kills EVERY probe that declared one; static
+     SCALARS are unaffected — `u*` probes with plain autos compiled).
+  2. `do while a < b;` (variable-vs-variable ordered compare, no parens) **ACCEPTED** rc=0.
+  3. `a = f1(a, b)` value-returning internal called as a statement RHS, `returns(fixed bin(15))`,
+     `return (x + y)`, `end f1;` **ACCEPTED** rc=0 (256 B, code=52).
+  4. **`if a = f1(b, c) then` REFUSED** — `condition form not in E2E-3b subset [TBD]: (= a (call
+     f1[b, c]))`: a call inside a condition must be hoisted to a scalar first (the LIFE
+     member->scalar idiom generalized). Dhrystone's `if EnumGlob = Func1(CharIndex,'C')` therefore
+     becomes `t = f1(ci, 67); if enumglob = t then do; ... end;`.
+  5. **`do until (t = 3);` and `do until t = 3;` BOTH REFUSED** — `Parser: expected =` rc=2.
+     Pascal `repeat…until` (Proc2) must be a labelled loop + `if flag = 0 then goto top;` with the
+     until-condition pre-evaluated into a 0/1 scalar. `LOOP.DO_WHILE_UNTIL`'s UNTIL arm is evidently
+     only the `do <ctrl> = … until …` spelling — PROPOSED doc correction to that COVERAGE row.
+  6. Nested procedure WRITING an outer-block scalar (`p1x: procedure (u,v); a = 5;`) **COMPILE
+     rc=0** — outer-scope reference accepted at codegen.
+  7. Nested procedure WRITING an outer-block AUTO ARRAY element with a computed subscript
+     (`p1y: procedure (u); … arr(u) = 7;`) **COMPILE rc=0** — so Dhrystone's array state can live in
+     `main` and be touched by the procedures; LANE-B RUN of this shape is UNWITNESSED (frame
+     addressing through the static chain), a FAIL there stays classified, never laundered.
+  8. `do i = 1 to n;` with a VARIABLE upper bound **ACCEPTED** rc=0 (62 B code) — needed for both
+     the run loop and `for CharIndex := 'A' to Char2Glob`.
+  Also rc=0: `c = (a - 1) * 30 + 7;` parenthesized expression store, computed-subscript
+  read/write `arr(c) = a; n = arr(c) + 1;`, multi-item `put skip list('A=', a, 'B=', b);`,
+  `get list(n);`, `a = 5;` after a static-array-free declaration list.
+- PROPOSED (NOT adopted — the successor must re-validate by compile + lane-B evidence): DHRY-00
+  port design. (a) KEEP the 11 subroutines as sibling nested procedures of one
+  `dhry00: procedure options(main);` (Dhrystone's essence IS the call mix; PROC-00's
+  value-returning nested procedures are lane-B PASS witnesses). (b) Records/pointers → TWO
+  record slots indexed 1..2 with parallel auto arrays `pf/df/ef/inf(2)` (`nil` = 0, `Ident1..5` =
+  0..4 to keep the `ord`-based should-be numbers) and string fields in ONE flat code array
+  `sf(60)` (record r position p → `k = (r-1)*30 + p;` then `sf(k)`, hoisted-index law);
+  `new` disappears (static/auto storage, declared adaptation). (c) `var` parameters → the callee
+  writes a result cell and the CALLER assigns it back, because `PROC.CALL_COPYIN` states there is
+  NO by-reference convention ("there is no by-reference or array convention beyond
+  address-of-element"); `Proc8`'s array arguments are the global arrays themselves at its only
+  call site, so it touches the outer auto arrays directly (shape 7 above). (d) `div` by a
+  variable → subtraction-loop division (`call divsub(t, r); q = dqv;`) with the identity asserted
+  in the reference (HAMM-00 rev2 idea, finally executed). (e) `<>` → swap the branches and use `=`
+  (never `^=` on FIXED, unmeasured); AND-composed conditions (`CharLoc >= 'W' and CharLoc < 'Z'`)
+  → nested `if`; `case` → if-ladder; `with` → a `w` index temp. (f) Characters/enumerations/
+  booleans → ASCII and 0/1 integer codes (HANG-00 precedent); the four 30-char strings print as
+  30 positional character tokens via a `putchar` ladder (the separator law leaves NO
+  separator-free route) and apostrophes are dropped from the literals (`1ST`/`2ND`, declared
+  cosmetic divergence). (g) `readln(NumberOfRuns)` → numeric `get list(n)` (run-witnessed echo law,
+  `console_input "<value>\r^Z"`); `clock`/timing and the two real-arithmetic rate lines and the
+  "Measured time too small" branch are DROPPED and documented — they are unreproducible.
+- BLOCKER OPEN: with STATIC arrays refused (shape 1) the port must either keep all array state as
+  outer AUTO cells (shape 7, lane-B unwitnessed) or flatten the procedures into `main` (which
+  destroys the call mix that makes Dhrystone Dhrystone). Chosen: (a)+(b)+(c) with the AUTO shape,
+  and if lane B FAILs, the FAIL is recorded classified — per the operator directive, do NOT spend
+  another session designing around a genuine limitation.
+- OWED (exact steps 1-11 unchanged in `PROGRESS.md` → Next action): simulator
+  `build/fc01-scratch/dhry00_sim.py` on the measured byte model (sep blank + `%9d` + exit CRLF
+  [C352] + GET echo `%d\r\r\n`) with an INDEPENDENT cross-check (a line-for-line Pascal-semantics
+  model vs the port model, like LIFE's unbounded Conway check — the canonical result table above
+  is the third, published check); pre-compile the remaining risky shapes (esp. a whole-record copy
+  loop and a 17-branch code→char ladder); LF draft → pin `spec/functional/tests/DHRY-00.PLI`;
+  `reference.py:_Dhry00Port`/`dhry00()` diffed BYTE-EQUAL vs the sim BEFORE the JSON; JSON via
+  script (strip comments before capability absence checks); `--stages source,derivation`; lane B
+  `build/fc01/corp9` (+double if PASS); docs § 14 + § 1 row; gate → `build/gate-dhry00.log`;
+  explicit-path commit. Then FFT-00. Constraints unchanged: no `ocaml/`/harness byte; ledger ends
+  C352; functional runs are NOT DR claims; NEVER re-run the retry-DFS; third-party bytes never
+  tracked; operator `handoff.config.json` untouched/unstaged; no push.

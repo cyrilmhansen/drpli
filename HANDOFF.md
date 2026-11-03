@@ -122,7 +122,32 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## LIFE-00 rev1 LANDED — lane-B **PASS** on the first run (2026-11-03, continuation chain hop 13; steps 3-10 DONE; program 6 of 8 complete; the operator's "actual verdict, not another design step" ask DELIVERED)
+## DHRY-00 hop start LANDED — source extracted READ-ONLY + read; 8 port shapes MEASURED; design PROPOSED (2026-11-03, continuation chain hop 14; NOTHING tracked authored; no lane/gate run)
+
+Read `LEARNINGS.md` § "…FC-01 CORPUS DHRY-00 hop start" FIRST, then `PROGRESS.md` → `## DHRY-00 hop
+start LANDED` for the exact owed steps. Measured this hop (ignored scratch, MY compiler, NOT DR
+claims; ledger ends C352): the operator's `.SHAR` was NEVER executed — a pure-Python here-doc reader
+recovered the 6 members into `build/fc01-scratch/dhry00/` (`dhry.p-2`, 504 lines, is the Pascal
+Dhrystone 2.1 program; `dhry.p-1` is statistics only), `sha256sum -c SHA256SUMS` rc=0 (10/10), and
+8 shapes were probed: **STATIC array REFUSED** (`codegen: [TBD] STATIC array is not independently
+characterized [C159/AB5]` ⇒ array state must be outer AUTO), nested-procedure access to an outer
+AUTO array element **COMPILES** (lane-B RUN unwitnessed), `do while a < b` ACCEPTED, **`do until`
+REFUSED in both spellings** (`Parser: expected =` ⇒ `repeat…until` needs a label + flag-goto),
+**a call inside a condition REFUSED** (`condition form not in E2E-3b subset` ⇒ hoist to a scalar),
+`do i = 1 to n` with a variable bound, `get list(n)`, multi-item `put skip list('A=', a, 'B=', b)`,
+parenthesized-expression stores and computed subscripts all rc=0. PROPOSED (NOT adopted) port
+design + the two source-falsifications (the one variable-divisor `div` = the HAMM-00 `my-gap`
+blocker; timing/`clock` unreproducible ⇒ dropped and documented) are in those two sections.
+**NEXT = DHRY-00 steps 2-11** in `PROGRESS.md` → Next action (simulator + independent cross-check →
+pre-compile the remaining risky shapes → draft → pin `spec/functional/tests/DHRY-00.PLI` →
+`reference.py:dhry00` diffed BYTE-EQUAL vs the sim BEFORE the JSON → JSON via script →
+`--stages source,derivation` → lane B `build/fc01/corp9` (+double if PASS) → docs § 14 + § 1 row →
+gate `build/gate-dhry00.log` → explicit-path commit), then FFT-00. Constraints unchanged: no
+`ocaml/`/harness byte; functional runs are NOT DR claims; NEVER re-run the retry-DFS; third-party
+bytes never tracked; operator `handoff.config.json` untouched/unstaged; no push; renew only at safe
+boundaries.
+
+## Superseded: LIFE-00 rev1 LANDED — lane-B **PASS** on the first run (2026-11-03, continuation chain hop 13; steps 3-10 DONE; program 6 of 8 complete; the operator's "actual verdict, not another design step" ask DELIVERED)
 
 Read `LEARNINGS.md` § "…LIFE-00 completion hop LANDED" FIRST; docs § 13 carries the full
 record. Measured ACTUALS: `spec/functional/tests/LIFE-00.PLI` PINNED sha256
@@ -805,23 +830,20 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 210
-checkpoint-id: g210-3c5c3eda9b41
+checkpoint-generation: 212
+checkpoint-id: g212-83499c079631
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6738, session 01a1a24b-0eaa-7145-a841-b68999ebe2c6)
-checkpointed: 2026-11-03T17:06:50.303Z
+content-delta: new
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6416, session 01a1a261-96b5-7145-a841-b68d3838c8de)
+checkpointed: 2026-11-03T17:33:52.173Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 316d6cddbd80089ba9d8c5e8129d3d9f7a4c775597989c78771c1fd6b409218a
-source-handoff: a0c684162fd63d7697d30ba0f0784d791a4ec67e4b60a7efdababb28137ad43c
-source-learnings: 4faaa8d71acc05e7a731dd76273ccd1af7476d720b5becce2fefe991ac046b36
+source-progress: 4778984005f61b23c01c6c17eb0f691c72e3d11e933547b4d7e2507528bf4884
+source-handoff: 598525a3f8a4e7095910806e74b3205358cb9eb1d64c746a3c439bd59605a5fa
+source-learnings: f8d83c1e321cb88ece3d2c824b3c16c52d7453affc2cb35a42cf17796ec7ae50
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a24b-0eaa-7145-a841-b68999ebe2c6
-readiness-at: 2026-11-03T17:07:05.000Z
-readiness-checkpoint: g210-3c5c3eda9b41
 ### Last verified state
 guard level 3; checkpoint requested (auto at level 3)
 

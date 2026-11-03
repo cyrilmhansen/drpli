@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 **PASS** (hop 13, docs § 13) — 6 of 8 landed; EXACT NEXT = DHRY-00 (Pascal `.SHAR` — NEVER execute it), then FFT-00)
+## Current phase — FC-01 CORPUS ACTIVE (operator-authorized long-running corpus mission; WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 **PASS** (hop 13, docs § 13) — 6 of 8 landed; DHRY-00 hop start LANDED (hop 14: source read-only-extracted + read, 8 shapes measured, design PROPOSED); EXACT NEXT = DHRY-00 simulator→…→lane B corp9 (Pascal `.SHAR` — NEVER execute it), then FFT-00)
 
 TICT-00 hop 7 landed step 3 only (2026-11-03, continuation chain hop 7): the hop-6 draft was
 converted (CRLF + bare ^Z, 499 lines, 9300 B, widest 64 <= 71, no in-literal apostrophes) and
@@ -228,8 +228,39 @@ UNKNOWN=0`; double-run `build/fc01/corp8-double/` byte-equal (sha `2658a5cd…`)
 row. First lane-B RUN witnesses: nested `cellprint` call inside the doubly-nested DO, 9-wide
 numeric corpus headers, padded flat a(448) with in-pass 2/3 marks, centre-inclusive Conway.
 
-EXACT NEXT = program 7 **DHRY-00** (Dhrystone, Pascal) per the standing corpus procedure
-(PROGRESS § Current phase table + the LIFE/TICT/AMAZ precedents): (1) `sha256sum -c
+## DHRY-00 hop start LANDED (2026-11-03, continuation chain hop 14; steps 1-3 partial: source extracted READ-ONLY + read in full + 8 port shapes MEASURED; design PROPOSED, NOT adopted; NOTHING tracked authored; no lane run, no gate run)
+
+Read FIRST `LEARNINGS.md` § "…DHRY-00 hop start" — it carries the ACTUALS: shar decoded by a
+read-only Python here-doc reader into `build/fc01-scratch/dhry00/` (6 members, shas recorded;
+`dhry.p-1` = statistics only, `dhry.p-2` = the program; the `.SHAR` was NEVER executed;
+`sha256sum -c SHA256SUMS` rc=0 10/10), the full scope facts of the Pascal source (11 subroutines,
+variant records behind pointers, `ord`-based enum printing, 30-char packed strings indexed per
+character AND compared whole, 50x50 array, `with`/`case`/`repeat…until`, terminal
+`readln(NumberOfRuns)`, `clock` timing + reals, apostrophes in literals, the canonical
+should-be result table, and the ONE variable-divisor `div`), and the 8 measured shapes:
+STATIC ARRAY REFUSED (`codegen: [TBD] STATIC array is not independently characterized [C159/AB5]`)
+⇒ all array state must be outer AUTO; nested procedure reading/writing an outer AUTO ARRAY element
+COMPILES (lane-B RUN unwitnessed); `do while a < b` ACCEPTED; `do until` REFUSED in both spellings
+(`Parser: expected =`) ⇒ `repeat…until` becomes a label + `if flag = 0 then goto top`; a call
+inside a condition REFUSED ⇒ hoist to a scalar; `do i = 1 to n` with variable bound ACCEPTED;
+`get list(n)`, multi-item `put skip list('A=', a, 'B=', b)`, parenthesized-expression stores and
+computed subscripts ACCEPTED. PROPOSED design (re-validate, never adopt silently): keep the 11
+subroutines as sibling nested procedures over outer AUTO state; records = 2 slots in parallel
+arrays with 0-based enum codes and a flat 60-cell string-code array; `var` params → callee writes a
+result cell, caller assigns back (PROC.CALL_COPYIN: no by-reference convention); `div` →
+subtraction loop; `<>` → branch swap with `=`; AND → nested if; `case` → if-ladder; `with` → index
+temp; chars/bools/enum → integer codes; strings → 30 positional tokens via a `putchar` ladder;
+apostrophes dropped (`1ST`/`2ND`, declared); `readln` → numeric `get list`; timing lines + the
+too-small branch DROPPED and documented.
+EXACT NEXT = the numbered contract below (steps 1-2 are DONE; start at step 2's simulator, then 3
+pre-compile the remaining risky shapes — whole-record copy loop, 17-branch code→char ladder, the
+outer-auto-array lane-B shape), evidence `build/fc01/corp9`, docs § 14. Per the operator directive,
+if a GENUINE compiler limitation blocks execution RECORD the failure promptly; a FAIL stays
+classified, never laundered, the expectation never edited to chase a PASS.
+
+SUPERSEDED-BY-ABOVE (kept as written): EXACT NEXT = program 7 **DHRY-00** (Dhrystone, Pascal) per
+the standing corpus procedure (PROGRESS § Current phase table + the LIFE/TICT/AMAZ precedents):
+(1) `sha256sum -c
 SHA256SUMS` rc=0 in `build/functional/fc01-sources/`; **NEVER execute
 `pascal/dhry-pascal.shar`** — it is a self-extracting shell archive and execution is forbidden by
 the operator table; extract the Pascal payload by READ-ONLY means only (e.g. `unshar`/`sharxf`
@@ -1219,17 +1250,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 210
-checkpoint-id: g210-3c5c3eda9b41
+checkpoint-generation: 212
+checkpoint-id: g212-83499c079631
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
+content-delta: new
+readiness: unattested
 guard-level: 3
-checkpointed: 2026-11-03T17:06:50.303Z
+checkpointed: 2026-11-03T17:33:52.173Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 316d6cddbd80089ba9d8c5e8129d3d9f7a4c775597989c78771c1fd6b409218a
-source-handoff: a0c684162fd63d7697d30ba0f0784d791a4ec67e4b60a7efdababb28137ad43c
-source-learnings: 4faaa8d71acc05e7a731dd76273ccd1af7476d720b5becce2fefe991ac046b36
+source-progress: 4778984005f61b23c01c6c17eb0f691c72e3d11e933547b4d7e2507528bf4884
+source-handoff: 598525a3f8a4e7095910806e74b3205358cb9eb1d64c746a3c439bd59605a5fa
+source-learnings: f8d83c1e321cb88ece3d2c824b3c16c52d7453affc2cb35a42cf17796ec7ae50
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1253,9 +1284,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a24b-0eaa-7145-a841-b68999ebe2c6
-readiness-at: 2026-11-03T17:07:05.000Z
-readiness-checkpoint: g210-3c5c3eda9b41
 <!-- guard:end checkpoint -->
 
 ## Blockers
