@@ -213,6 +213,42 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+LIFE-00 IMPLEMENTATION STEPS 1-10 (2026-11-03, continuation chain hop 10 end; big-array
+lane-B probe **PASSed** and the LIFE-00 design is **ADOPTED**; read FIRST `LEARNINGS.md`
+§ "…big-array lane-B PROBE PASS + storage FALSIFICATION" — it carries the probe ACTUALS
+verbatim, the FALSIFIED hop-9 runtime-allocation claim (compiler stderr `DATA=` header is
+NOT the declared section size; relstats LINK-DEF-DATA-SIZE on s6j/s6l = 4004/3374 = arrays
+ARE static DATA; 6724 B survives DR LINK-80+PLILIB, BIGA.COM 15104 B RUN done 227 console
+bytes all checksums correct), the measured fixed bin(15) 9-column right-justified PUT LIST
+field, and the full adopted design: flat padded grid a(448) interior 12x30 index
+n = x*32+y+1, single-array 2-pass (2=dead-mark, 3=birth-mark, print finalizes), bounded
+`do g = 1 to 6;`, declared glider+beacon+block+blinker cs = 15, INPUT phase DROPPED
+(documented), nested cellprint varying-char printer (HANG show law), neighbour sums via
+[ C159 ]-legal temps (k1 = n-1; k2 = n-32; k3 = n+32; k2m = k2-1 etc.) + separate
+`= 1`/`= 2` ladders, death/birth positive-literal ladders (equality-to-0 stays PROPOSED-
+unwitnessed — avoid or pre-compile), header line put list('GENERATION'); put list(g);
+put list('POPULATION'); put list(cs); put skip; fixed ONE blank pad per generation
+(225/295 dynamic padding dropped, documented), exit blank [ C352 ]. EXACT STEPS: (1) pre-
+compile risky shapes in ignored scratch build/fc01-scratch/s10*.pli (nested DO calling
+cellprint, a(k2+1) var+1 subscript, if s = 0 equality); (2) simulator life00_sim.py on the
+measured byte model (skip=\r\n, separator blank when line open, numeric field 9-wide right-
+justified, exit \r\n, collapse-spaces-v1); (3) LF draft -> CRLF+bare^Z+<=71+apostrophe-free
+`spec/functional/tests/LIFE-00.PLI` pin sha; (4) `reference.py:_Life00Port`/`life00()` +
+DERIVATIONS diffed vs sim norm() BEFORE the JSON; (5) `LIFE-00.json` VIA SCRIPT (link_target
+LIFE00, console_input bare ^Z, capabilities grep-verified in spec/COVERAGE.tsv AND present
+in the .PLI, notes = full adaptation/removal list incl. the storage falsification); (6)
+`--stages source,derivation`; (7) lane B `--evidence build/fc01/corp8 --json-out
+build/fc01/corp8/records.json` (+corp8-double if PASS), ACTUALS verbatim, FAIL stays
+classified never laundered; (8) docs/functional-results.md § 13 + § 1 row; (9)
+`python3 tools/e2e_gate.py` compile tier -> build/gate-life00.log; (10) explicit-path commit
+(NEVER `handoff.config.json`; no push). Probe machinery REUSABLE: `build/fc01-scratch/
+run_bigarray_probe.py` copies the lane-B law for ad-hoc scratch runs. Then DHRY-00 (NEVER
+execute the `.SHAR`) and FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no ocaml/harness
+byte changes; ledger ends C352; NEVER re-run the retry-DFS search; third-party bytes never
+tracked; renewals 10/12 used — renew only at safe boundaries.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 LIFE-00 HOP START MEASURED — BIG-ARRAY LANE-B PROBE FIRST, THEN THE DESIGN RECORD
 (2026-11-03, continuation chain hop 9 end; TICT-00 LANDED and committed `dfbf07c`; build rc=0
 verified at session start, compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…LIFE-00 hop
@@ -1038,13 +1074,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 198
-checkpoint-id: g198-342e34c18972
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 199
+checkpoint-id: g199-6f1dbed6a267
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-guard-level: 2
-checkpointed: 2026-11-03T11:54:52.834Z
+guard-level: 3
+checkpointed: 2026-11-03T11:55:18.073Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c4ccb8ca22240e5aa215c86ea5ba1b909310887cbc701e8767ac5b1cae3b6419
 source-handoff: 6e0262de21dc9adfd20b379db80b3168dc9c68dc8d33b2c26414052d676cd30c
@@ -1073,8 +1109,8 @@ next-action: ` below. TABLE-00 and
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 readiness-by: session:01a1a128-f516-7601-8f9d-90d9c23931ef
-readiness-at: 2026-11-03T11:54:52.846Z
-readiness-checkpoint: g198-342e34c18972
+readiness-at: 2026-11-03T11:55:18.088Z
+readiness-checkpoint: g199-6f1dbed6a267
 <!-- guard:end checkpoint -->
 
 ## Blockers

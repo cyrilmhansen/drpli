@@ -122,7 +122,35 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-## LIFE-00 hop start MEASURED (2026-11-03, continuation chain hop 9 tail; program 6 of 8; listing read + 6 port shapes measured; NO design adopted, NOTHING authored)
+## LIFE-00 big-array lane-B PROBE PASS + storage FALSIFICATION + design ADOPTED (2026-11-03, continuation chain hop 10)
+
+Read `LEARNINGS.md` § "…big-array lane-B PROBE PASS + storage FALSIFICATION" FIRST — it carries
+the verbatim probe ACTUALS and the full adopted LIFE-00 design. MEASURED: BIGA (TWO 1681-cell
+`fixed bin(15)` local arrays, fill/sum/spot/mutate) lane-B PASS — COMPILE rc=0 3328 B, LINK
+witness done `parse_undefined=[]` BIGA.COM 15104 B, RUN done, 227 console bytes, ALL checksums
+right (SUMA/SUMB 1681, no aliasing, exit blank [C352]). **FALSIFIED (hop-9, kept as written):**
+"array NOT in the .REL DATA segment => runtime allocation" was read off the compiler's stderr
+`DATA=` header, which is NOT the declared section size — relstats LINK-DEF-DATA-SIZE on s6j/s6l
+themselves = 4004/3374 bytes: the arrays ARE statically DATA-allocated (relstats.py's docstring is
+the standing warning). 6724 B of static data survive DR LINK-80 + PLILIB on CP/M; also MEASURED:
+fixed bin(15) PUT LIST renders in a 9-column right-justified field. DESIGN ADOPTED: ONE flat
+padded grid a(448), interior 12x30 (70-col rows would cross the uncharacterized proposed 79-col
+wrap law — DECLARED smaller window, documented), upstream 2-pass 2/3 semantics kept, bounded 6
+generations (upstream never terminates), declared initial glider+beacon+block+blinker cs=15,
+string INPUT dropped (documented), nested `cellprint` varying-char printer, neighbour sums via
+[ C159 ]-legal temps + separate `= 1`/`= 2` ladders, death/birth as positive-literal ladders
+(equality-to-0 kept PROPOSED-unwitnessed and avoided), fixed framing per the hop record. Evidence
+all ignored scratch (`build/fc01-scratch/biga*`, `biga-evidence/`); NOTHING tracked authored yet for
+LIFE-00; no ocaml/harness byte changed; ledger ends C352; third-party bytes never tracked; NEVER
+re-run the retry-DFS search; operator `handoff.config.json` untouched/unstaged; no push.
+**NEXT = the LIFE-00 implementation steps 1-10** in that LEARNINGS § OWED (shapes pre-compile ->
+simulator -> draft -> pin `spec/functional/tests/LIFE-00.PLI` -> reference mirror diffed BEFORE the
+JSON -> JSON via script -> source,derivation -> lane B `build/fc01/corp8` (+double if PASS) ->
+docs § 13 + § 1 -> gate `build/gate-life00.log` -> explicit-path commit); then DHRY-00 (NEVER
+execute the `.SHAR`) and FFT-00; HAMM-00 rev2 stays PROPOSED. Renewal 10/12 used at this session's
+start; renew only at a safe boundary.
+
+## Superseded: LIFE-00 hop start MEASURED (2026-11-03, continuation chain hop 9 tail; program 6 of 8; listing read + 6 port shapes measured; NO design adopted, NOTHING authored)
 
 Read `LEARNINGS.md` § "…LIFE-00 hop start" FIRST. `build/functional/fc01-sources/basic/LIFE.bas`
 sha `e268ed69…` verified (`sha256sum -c SHA256SUMS` rc=0, 10/10) and all 66 lines read.
@@ -674,13 +702,13 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 198
-checkpoint-id: g198-342e34c18972
-checkpoint-kind: manual
-content-delta: new
+checkpoint-generation: 199
+checkpoint-id: g199-6f1dbed6a267
+checkpoint-kind: auto
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 2, remaining ~8412, session 01a1a128-f516-7601-8f9d-90d9c23931ef)
-checkpointed: 2026-11-03T11:54:52.834Z
+status: checkpoint (guard level 3, remaining ~6853, session 01a1a128-f516-7601-8f9d-90d9c23931ef)
+checkpointed: 2026-11-03T11:55:18.073Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c4ccb8ca22240e5aa215c86ea5ba1b909310887cbc701e8767ac5b1cae3b6419
 source-handoff: 6e0262de21dc9adfd20b379db80b3168dc9c68dc8d33b2c26414052d676cd30c
@@ -689,10 +717,10 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1a128-f516-7601-8f9d-90d9c23931ef
-readiness-at: 2026-11-03T11:54:52.846Z
-readiness-checkpoint: g198-342e34c18972
+readiness-at: 2026-11-03T11:55:18.088Z
+readiness-checkpoint: g199-6f1dbed6a267
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

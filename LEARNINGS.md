@@ -3755,3 +3755,86 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - Constraints: no ocaml/harness byte changed; ledger ends C352; third-party bytes never tracked;
   operator `handoff.config.json` untouched/unstaged; no push; renewal 9/12 used by this session's
   start, this hop does NOT consume another unless the successor is requested at a safe boundary.
+
+## 2026-11-03 — FC-01 CORPUS LIFE-00 big-array lane-B PROBE PASS + storage FALSIFICATION (continuation chain hop 10; design decisions ACCEPTED)
+
+- ACCEPTED (lane-B RUN, ignored scratch, MY compiler edce9e0e, NOT a DR claim; ledger ends C352):
+  the owed BIG-ARRAY probe. Program BIGA (`build/fc01-scratch/biga.pli` -> biga.pin.pli, 74 lines,
+  CRLF+bare ^Z, widest 32, apostrophe-free): TWO local `declare a(1681) fixed bin(15)` + b(1681),
+  variable-subscript fill loops 1..1681, member->scalar checksum loops, boundary mutations
+  `a(1681) = 7; b(1) = 3;`. Compile rc=0: BIGA.REL 3328 B, CODE=1107, compiler-header DATA=6732;
+  relstats DECLARED sizes code 0x453=1107, data 0x1AAB=**6827 bytes** (arrays INSIDE the declared
+  DATA segment). Lane B via `build/fc01-scratch/run_bigarray_probe.py` (copies the measured
+  functional_runner stage_link/_run_lane_b law: Workspace under build/fc01-scratch/biga-evidence,
+  DR tools from artefacts/, FULL-segment parse_undefined [C137], prompt-sync, CPMSIM_EXTRA=-u,
+  FS-01 anchor cut, run_status witnesses [C308]):
+  LINK rc=0 witness=done parse_undefined=[] BIGA.COM 15104 B sha256=2dedb80f172995b1...
+  RUN rc=0 witness=done, 227 console bytes sha256=f69faeec..., capture VERBATIM:
+  'PH1-FILL-A\r\nPH2-SUM-A\r\nSUMA      1681\r\nPH3-FILL-B\r\nPH4-SUM-B\r\nSUMB      1681\r\nA1         1\r\nA1681         1\r\nB1         1\r\nB1681         1\r\nA1681M         7\r\nB1M         3\r\nA1STILL         1\r\nB1681STILL         1\r\nPROBE-END\r\n\r\n'
+  ALL 10 checksums/spots correct: both 3362-byte arrays coexist WITHOUT aliasing, boundary stores
+  isolated, exit-CRLF blank [C352] present. 6724 bytes of static DATA survive DR LINK-80 + PLILIB
+  on CP/M.
+- **FALSIFIED (hop-9 note, kept as written per PROTOCOL #2): "the array is NOT in the .REL DATA
+  segment => runtime allocation".** The hop-9 reading came from the compiler's stderr header
+  `PROGRAM X CODE=.. DATA=..`, which is NOT the declared section size. relstats.py measure() on
+  the hop-9 sources themselves (s6j.rechk.REL / s6l.rechk.REL): LINK-DEF-DATA-SIZE = 0xfa4 = 4004
+  (2000*2 + scalars) and 0xd2e = 3374 (1681*2 + 12) — the arrays ARE statically DATA-allocated,
+  LINK-80 sizes the .COM from them (TICT-00.REL data declared 0x16f=367). tools/relstats.py's own
+  docstring is the standing warning against exactly this header-vs-declared confusion. There was
+  never a stack/pool overflow risk; the lane-B probe PASSes this hop.
+- ACCEPTED (measured output law, from BIGA + FCPS1 [C352] witnesses): fixed bin(15) PUT LIST
+  renders right-justified in a NINE-column field (separator blank then 9-wide: 'SUMA'+' '
+  +'      1681'... consistent across values 1,3,7,1681; DR FCPS1 'X=         1' agrees). Raw-line
+  budget for LIFE-00 header: 10+1+9+1+10+1+9 = 41 <= the proposed 79-col PLILIB wrap bound.
+- DECIDED LIFE-00 DESIGN (adopted this hop; supersedes the hop-9 PROPOSED sketch):
+  (1) STORAGE: ONE flat padded grid a(448) fixed bin(15); interior x=1..12, y=1..30; padded cell
+  index n = x*32 + y + 1 (ring of never-written cells absorbs all 8 neighbour offsets -33..+33
+  without bounds tests); single array, upstream 2-pass semantics (2=marked-dead, 3=marked-born,
+  print pass finalizes) kept — NO second array, NO b->a copy; upstream 24x70 -> 12x30 DECLARED
+  smaller window (documented adaptation: 70-cell raw rows = 139 B would cross the uncharacterized
+  proposed 79-col wrap law; FS-01 boundary forbids exceeding it).
+  (2) TERMINATION: bounded `do g = 1 to 6;` generations (upstream NEVER terminates — hop-9 scope
+  falsification); initial population DECLARED via literal-subscript stores (glider (2,2),(3,3),
+  (4,1),(4,2),(4,3); beacon (2,10),(2,11),(3,10),(3,13),(4,11),(4,13); block (10,25),(10,26),
+  (11,25),(11,26); blinker (8,15),(9,15),(10,15)), cs = 15; string INPUT/DONE/LEN/LEFT$/RIGHT$/
+  MID$/B$ phase DROPPED and documented (character GET UNMEASURED); no dynamic bbox tracking, no
+  clamping, I9/INVALID! stays 0 by construction for the declared script (documented).
+  (3) PRINTER: every interior cell prints ONE char ('*' live/born, ' ' dead/dying) via nested
+  `cellprint: procedure (q)` (q fixed bin(15); ch character(1) varying; `if q = 1 then ch = '*';
+  if q = 0 then ch = ' ';` — no ELSE) then `put list(ch);` (HANG-00 show law, run-witnessed);
+  per-cell state t1 = a(n) loaded first (member-in-condition REFUSED, hop-9); dying/birth
+  finalize via `if t1 = 2 then a(n) = 0;` / `if t1 = 3 then do; a(n) = 1; st1 = 1; end;` default-
+  +-overwrite idiom; rows framed by `put skip;` before each row (upstream 240 interleaved blanks).
+  (4) EVOLUTION (no gotos inside loops — unwitnessed): neighbour sum s via 8 (temp-index,
+  member->scalar, TWO separate equality ladders `if t1 = 1 then s = s + 1; if t1 = 2 then ...` —
+  OR-composition REFUSED, hop-9) counting 1s AND 2s faithfully; k1 = n-1; k2 = n-32; k3 = n+32;
+  loads a(k2-1)? NO — subscripts simple var or var+1 [C159]: k2m = k2 - 1; a(k2m), a(k2),
+  a(k2+1), a(k1), a(k1+1)? k1 = n+1 -> load n+1 as a(k1)... exact per-cell shape to be
+  COMPILE-WITNESSED in scratch before drafting (var+1 subscript in a(k2+1) form accepted per
+  HANG/AMAZ survey). Death/survive/birth as three positive-literal ladders: if s = 0 -> 2;
+  if s = 1 -> 2; if s = 2 -> a(n) = 0; if s = 4 or s > 4 -> ...; if s = 3 -> 3; final:
+  if s = 2 and t1 = 1 -> a(n) = 0; if s = 0 or s = 1 -> a(n) = 0; (s > 4 -> a(n) = 0; s = 4 &
+  t1 = 0 -> a(n) = 0; all positive-literal compares; ordered-vs-0 stays PROPOSED-unwitnessed,
+  AVOIDED; `s > 4` scalar>literal per TICT shapes). cs = 0; recount cs = cs + a(n) over interior.
+  (5) FRAMING: 200/210/225 adaptation = per generation ONE blank `put skip;` then header line
+  put list('GENERATION'); put list(g); put list('POPULATION'); put list(cs); put skip; (BASIC
+  comma-splice adaptation declared, like AMAZ separator law) then 12 rows; 225/295 blank-row
+  padding fixed to ONE per generation (dynamic counts dropped, documented). Final bottom pad +
+  exit CRLF -> trailing "" line [C352].
+- CONSTRAINTS: no ocaml/harness byte changed this hop (functional_runner/oracle read-only);
+  probe + draft material stays in ignored build/fc01-scratch + biga-evidence; third-party bytes
+  never tracked; retry-DFS NEVER re-run; operator handoff.config.json untouched/unstaged; no
+  push; renewals 10/12 used at this session start.
+- OWED (successor = LIFE-00 implementation steps): (i) pre-compile the risky shapes in ignored
+  scratch (nested DO with cellprint call, a(k2+1) var+1 subscript, `if s = 4` / `if s = 0`
+  equality-to-literal-0 — if REFUSED use the positive-literal shift ladder per TICT, s = 0 ->
+  via `if s1 = 1 then ...` flags); (ii) independent simulator build/fc01-scratch/life00_sim.py
+  (byte model: skip=\r\n, separator blank when line open, numeric field width 9 RIGHT-JUSTIFIED,
+  exit appends \r\n, collapse-spaces-v1); (iii) LF draft -> CRLF+bare^Z+<=71+apostrophe-free
+  spec/functional/tests/LIFE-00.PLI pin sha; (iv) reference.py:_Life00Port/life00() + DERIVATIONS
+  diffed vs sim norm() BEFORE the JSON; (v) LIFE-00.json VIA SCRIPT (link_target LIFE00,
+  console_input bare ^Z, capabilities grep-verified in spec/COVERAGE.tsv AND present in .PLI);
+  (vi) --stages source,derivation; (vii) lane B build/fc01/corp8 (+corp8-double if PASS), ACTUALS
+  verbatim, FAIL stays classified; (viii) docs/functional-results.md sec 13 + sec 1 row; (ix)
+  compile-tier gate -> build/gate-life00.log; (x) explicit-path commit (NEVER handoff.config.json).
+  Then DHRY-00 (NEVER execute the .SHAR) and FFT-00; HAMM-00 rev2 stays PROPOSED.
