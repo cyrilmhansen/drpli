@@ -330,7 +330,28 @@ yet; NO PASS claimed. EXACT NEXT (steps 1-6: JSON -> source,derivation -> lane B
 `LEARNINGS.md` 2026-11-02 AMAZ-00 implementation hop. Constraints unchanged; ledger
 ends C352; operator handoff.config.json untouched/unstaged; no push.
 
-## TICT-00 CROSS-CHECK BLOCKER RESOLVED — draft step in flight (2026-11-03, continuation chain hop 5; HEAD `60e7038`; build verified at session start; NOTHING tracked authored yet, no lane run, no gate run)
+## TICT-00 draft COMPILE-WITNESSED — hop 6 closed at context exhaustion (2026-11-03, continuation chain hop 6; HEAD `824be64`; nothing tracked authored, no lane run, no gate run, no commit this hop)
+
+Read `LEARNINGS.md` § "…TICT-00 implementation hop 6" FIRST — full state + exact steps 3-10.
+DONE: LF draft `build/fc01-scratch/TICT-00.draft.pli` mirrors `tict00_sim.py` statement-for-
+statement (flat l0002..l2000 machine, f-count AND ladders, M=0 shift idiom, flat loops, printer
+with b1 ladder + split loop-next/entry labels l1115n/l1150n/l1152n, detector fall-through,
+r-dispatch, terminals, l2000 `f = 0; stop;`, nested show after stop, board init s(i)=2) and
+FULL-PROGRAM COMPILES rc=0 (`tict00.REL` 8704 B code=4030 data=36 — first machine-wide witness;
+individual shapes were probes). Identical-script cross-check RE-VERIFIED on the CONFIRMED
+script (port `2,2,9,7,1,10,1,4` -> DRAW, 8 gets, script consumed; BASIC 119 vs port 120 lines,
+diffs only prompts+echo, IT IS vs IT'S, trailing exit-CRLF blank [C352]). FALSIFIED: "2
+occupied messages" — the script fires THREE (1 occupied, 10 oOR, 1 occupied). OWED (hop 7,
+steps 3-10): pin `spec/functional/tests/TICT-00.PLI` (CRLF/^Z/<=71) -> `reference.py
+:_Tict00Port`/`tict00()`+DERIVATIONS diffed vs sim norm() BEFORE JSON -> `TICT-00.json`
+GENERATED VIA SCRIPT from derive (link_target TICT00, console_input
+`2\r2\r9\r7\r1\r10\r1\r4\r^Z`, grep-verified capabilities, full notes incl. THREE occupied,
+unreachable 1180/1200/1112/1137 dead, unreached 104/105,133/138,156/158,163/168,187/189) ->
+`--stages source,derivation` -> lane B `build/fc01/corp7` (+double if PASS, ACTUALS verbatim)
+-> docs § 12 + § 1 -> compile-tier gate -> explicit-path commit (NEVER handoff.config.json;
+no push). NEVER re-run the retry-DFS search. Renewal 6/12 used; successor = hop 7.
+
+## Superseded: TICT-00 CROSS-CHECK BLOCKER RESOLVED — draft step in flight (2026-11-03, continuation chain hop 5; HEAD `60e7038`; build verified at session start; NOTHING tracked authored yet, no lane run, no gate run)
 
 Read `LEARNINGS.md` § "…TICT-00 implementation hop, continuation chain hop 5" FIRST — it
 carries the FIX (port model `occ()` was one `skip` short: BASIC 506 = message + TWO blanks,
@@ -537,13 +558,13 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 189
-checkpoint-id: g189-9b2d9f66225d
+checkpoint-generation: 191
+checkpoint-id: g191-6a1ce26afe05
 checkpoint-kind: auto
 content-delta: none
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~6342, session 01a19e6c-4ecc-7601-8f9d-90c9dc73c909)
-checkpointed: 2026-11-03T10:22:01.508Z
+status: checkpoint (guard level 4, remaining ~-1353, session 01a1a0ee-81a3-7601-8f9d-90cd109a5da8)
+checkpointed: 2026-11-03T10:42:39.196Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c6f613ee57f67f892e029ed4e8373fcd81e676b38ce9fa98e2cca2edb1c86639
 source-handoff: 40ec1df6389d412bf7553003e844523ff46d81ca06b4a11b6a10c45d3b40e626
@@ -552,7 +573,7 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

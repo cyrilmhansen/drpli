@@ -3355,6 +3355,66 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - STATE: no tracked file authored yet; no scratch pre-compile of the port shapes yet; ledger
   ends C352; nothing laundered; operator handoff.config.json unstaged; no push; renewal 4/12.
 
+## 2026-11-03 — FC-01 CORPUS TICT-00 implementation hop 6 (continuation chain hop 6; DRAFT COMPILE-WITNESSED; session ended at context exhaustion before pin/reference/JSON/lane/gate/commit)
+
+- ACCEPTED (measured this hop): full-program draft `build/fc01-scratch/TICT-00.draft.pli`
+  (LF, mirrors `tict00_sim.py` statement-for-statement per hop-5 plan: labels l0002..l2000,
+  f-count AND ladders with both members re-loaded, shift idiom `t1 = m + 1; if t1 = 1 then`
+  for M=0, flat loop emulation rows `i = i + 3; if i < 8`, cols `if i < 4`, empty-scan
+  `if i < 10`, l0460k/l0460j, printer l1000..l1085 with b1 ladder + l1022, detector
+  fall-through with l1115n/l1150n/l1152n loop-next labels (BASIC 1115/1150/1152 double-duty
+  lines split into next- and entry-labels; l1095 dropped as it has no branch targets),
+  r-dispatch at l1170, terminals 1200/1350/1400, l1400 put skip falls to l2000 dead store
+  `f = 0;` then `stop;` (HANG-00 attested shape — mainline must NOT fall into nested show),
+  nested `show: procedure (z)` with 2-branch pc ladder AFTER the stop, board init
+  `do i = 1 to 9; s(i) = 2; end;` before any label). Compiled rc=0: `pli80c -d`
+  -> `build/fc01-scratch/tict00.REL` **8704 bytes, code=4030 data=36**. FIRST full-program
+  compile witness of this machine (individual shapes were hop-3/4 probes).
+- ACCEPTED (re-verified): identical-script cross-check with the CONFIRMED spec script —
+  `python3 build/fc01-scratch/tict00_bas.py` script `O,2,9,7,1,10,1,4` = 119 normalized
+  lines; port sim `2,2,9,7,1,10,1,4` = 120; diffs ONLY line 13 prompt+echo, the six
+  WHERE-prompt echo suffixes, `IT IS` vs `IT'S`, + port trailing exit-CRLF blank [C352];
+  boards agree under mapping (terminal DRAW, script consumed, 8 gets).
+- FALSIFIED (minor, carry into JSON/docs): the hop-5 note "2 occupied messages" is WRONG —
+  the confirmed script fires **THREE** occupied messages (move 1 occupied, 10 out-of-range,
+  1 occupied again) at lines 86/91/96.
+- MEASURED (gotcha): `tict00_sim.py` `__main__` default argv is `[2,9,7,1,10,1,4]` (missing
+  the choice `2`) — ALWAYS pass the full script `2 2 9 7 1 10 1 4` explicitly.
+- STATE AT HOP END: draft exists and compiles; NOTHING tracked authored yet — no
+  `spec/functional/tests/TICT-00.PLI`, no JSON, no `reference.py:tict00`; no lane run, no
+  gate run, NO COMMIT this hop (HEAD still `824be64`; tree = managed blocks + operator
+  `handoff.config.json` only). Ledger ends C352; nothing laundered; no push; renewal 6/12.
+- EXACT NEXT (hop-5 § NEXT steps 3-10, step 2 now DONE):
+  (3) convert draft -> CRLF + bare `^Z`, verify <=71 cols + zero APOSTROPHE-FREE in-literal
+      (comments MAY carry apostrophes per HANG-00; check_encoding enforces only CRLF/^Z/<=71/ASCII),
+      write `spec/functional/tests/TICT-00.PLI`, pin sha256;
+  (4) append `reference.py` `_Tict00Port` + `tict00()` + DERIVATIONS entry (same byte laws
+      as tict00_sim.py: skip=CRLF, leading-separator blank when line open, echo `%d\r\r\n`,
+      exit append one CRLF; echo lines carry trailing `\r` — match `_hamm00_finalize`
+      handling exactly); diff `derive('tict00')` vs `tict00_sim.py` norm() BEFORE the JSON;
+  (5) generate `TICT-00.json` VIA SCRIPT (pull expected.console from derive to avoid
+      hand-copying 120 lines): link_target TICT00, console_input
+      `2\r2\r9\r7\r1\r10\r1\r4\r^Z`, normalization collapse-spaces-v1, limits as HANG-00,
+      capabilities grep-verify each row dr=ACCEPTS/mine=SUPPORTED first (candidates: DECL.
+      FIXED_BIN15, DECL.CHAR_VARYING, AGG.ARRAY_1D_FIXED, LOOP.DO_TO_BY, IO.GET_LIST,
+      IO.PUT_LIST_FIXED, IO.PUT_SKIP, EXPR.REL_FIXED_EQ_K, EXPR.SELF_ADD_LADDER,
+      PROC.CALL_COPYIN, TRAN.GOTO_SAME_BLOCK; AGG.VAR_INDEX_LADDER only if a row supports
+      variable-subscript ladders — verify, never cite an unsupported id); notes = value
+      mapping 1/2/3 + g=1/3, numeric choice GET 1=X/2=O, THREE occupied messages (corrected),
+      apostrophe rewrite IT IS, AND-ladder form, flat loops, TAB dropped, unreachable
+      1200/1180/1112/1137 kept dead, unreached lines 104/105,133/138,156/158,163/168,
+      187/189, 3-blank occupied law, exit-CRLF trailing blank, full-machine compile witness
+      8704 B at draft stage;
+  (6) `python3 tools/functional_runner.py --stages source,derivation --tests TICT-00`;
+  (7) lane B `--evidence build/fc01/corp7 --json-out build/fc01/corp7/records.json`
+      (+ `--double-run` into corp7-double if PASS), ACTUALS verbatim, FAIL stays classified;
+  (8) `docs/functional-results.md` sec 12 + sec 1 row;
+  (9) `python3 tools/e2e_gate.py` compile tier (log to build/gate-tict00.log; ACTUALS
+      byte panel/negative/divergence/coverage/census/prose);
+  (10) explicit-path commit (NEVER handoff.config.json; no push). NEVER re-run the
+      retry-DFS game search. Then LIFE-00, DHRY-00 (never execute the .SHAR), FFT-00;
+      HAMM-00 rev2 stays PROPOSED.
+
 ## 2026-11-03 — FC-01 CORPUS TICT-00 implementation hop, continuation chain hop 5 (CROSS-CHECK BLOCKER RESOLVED; port statement plan FINAL)
 
 - ACCEPTED (blocker closed): the hop-4 "85 vs 84 lines" mismatch was ONE transcription

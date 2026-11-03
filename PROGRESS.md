@@ -195,7 +195,32 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-TICT-00 CROSS-CHECK BLOCKER RESOLVED — DRAFT STEP IN FLIGHT (2026-11-03, continuation
+TICT-00 DRAFT COMPILE-WITNESSED — PIN/REFERENCE/JSON/LANE OWED (2026-11-03, continuation
+chain hop 6 end; HEAD `824be64`, tree = managed blocks + operator `handoff.config.json`;
+compiler `edce9e0e…`, build rc=0 verified at session start). Read FIRST `LEARNINGS.md`
+§ "…TICT-00 implementation hop 6" — it carries the full state: draft
+`build/fc01-scratch/TICT-00.draft.pli` mirrors `tict00_sim.py` statement-for-statement and
+compiles rc=0 (`tict00.REL` 8704 B, code=4030 data=36 — FIRST full-machine witness);
+identical-script cross-check RE-VERIFIED (BASIC 119 vs port 120 lines, diffs only
+prompts+echo, IT IS vs IT'S, trailing exit-CRLF blank; sim run with explicit script
+`2 2 9 7 1 10 1 4` — its __main__ default drops the choice 2); FALSIFIED: "2 occupied
+messages" -> THREE (moves 1, 10, 1 at lines 86/91/96). NOTHING tracked authored yet; no
+lane run, no gate run, no commit this hop. EXACT NEXT = hop-6 § steps 3-10 (convert draft
+-> CRLF+bare^Z+<=71 -> pin `spec/functional/tests/TICT-00.PLI` + sha -> `reference.py
+:_Tict00Port`/`tict00()`+DERIVATIONS (match `_hamm00_finalize` echo/\r handling), diff
+derive vs sim norm() BEFORE JSON -> generate `TICT-00.json` VIA SCRIPT from derive
+(link_target TICT00, console_input `2\r2\r9\r7\r1\r10\r1\r4\r^Z`, grep-verified capabilities,
+full notes incl THREE occupied messages + dead 1180/1200/1112/1137 + unreached
+104/105,133/138,156/158,163/168,187/189) -> `--stages source,derivation` -> lane B
+`build/fc01/corp7` (+corp7-double if PASS) ACTUALS verbatim -> docs sec 12 + sec 1 row ->
+`python3 tools/e2e_gate.py` compile tier -> explicit-path commit (NEVER
+handoff.config.json; no push). NEVER re-run the retry-DFS search. Then LIFE-00, DHRY-00
+(never execute the .SHAR), FFT-00; HAMM-00 rev2 stays PROPOSED. Constraints: no
+ocaml/harness changes; ledger ends C352; functional runs are NOT DR claims; third-party
+bytes never tracked; renew only at safe boundaries (renewal 6/12 used this hop;
+successor is hop 7).
+
+SUPERSEDED-BY-ABOVE (kept as written): TICT-00 CROSS-CHECK BLOCKER RESOLVED — DRAFT STEP IN FLIGHT (2026-11-03, continuation
 chain hop 5; HEAD `60e7038`, tree clean except managed blocks + operator
 `handoff.config.json`; compiler `edce9e0e…`). Read FIRST `LEARNINGS.md` § "…TICT-00
 implementation hop, continuation chain hop 5" — it carries the FIX (port `occ()` needed
@@ -867,13 +892,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 189
-checkpoint-id: g189-9b2d9f66225d
+checkpoint-generation: 191
+checkpoint-id: g191-6a1ce26afe05
 checkpoint-kind: auto
 content-delta: none
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-03T10:22:01.508Z
+guard-level: 4
+checkpointed: 2026-11-03T10:42:39.196Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c6f613ee57f67f892e029ed4e8373fcd81e676b38ce9fa98e2cca2edb1c86639
 source-handoff: 40ec1df6389d412bf7553003e844523ff46d81ca06b4a11b6a10c45d3b40e626
