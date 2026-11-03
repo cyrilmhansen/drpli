@@ -582,25 +582,25 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 193
-checkpoint-id: g193-60ad23b3ceb6
-checkpoint-kind: manual
+checkpoint-generation: 194
+checkpoint-id: g194-0a259c9d4a1a
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-11271, session 01a1a0ee-81a3-7601-8f9d-90cd109a5da8)
-checkpointed: 2026-11-03T10:45:54.507Z
+status: checkpoint (guard level 3, remaining ~6915, session 01a1a104-4c0b-7601-8f9d-90d0311d9324)
+checkpointed: 2026-11-03T11:06:43.421Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2c5deed8d9cee131b67f310a919d2808df30a78144a2d77bdc60547d971db939
-source-handoff: d5952456da52ad4f32d8b5bd01e84346815f888d94d65b506a94b6d06183279e
-source-learnings: f25ba71d405d4e6ef139b7769fa6b875942af7495f608e05b33f90746ebd42c8
+source-progress: 47acbfe3da9d28aa60da62347908e00ef971e76529d59bfcad722cf11166dcde
+source-handoff: e91d01a5f1e77cdb435b2e070abbfd7cb039512112758d1aaefadb0396077db0
+source-learnings: 62a72829107fbb3ec19b48554fdc54c229e7fdb9b4db1df26748591f537d1fb9
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a0ee-81a3-7601-8f9d-90cd109a5da8
-readiness-at: 2026-11-03T10:45:54.515Z
-readiness-checkpoint: g193-60ad23b3ceb6
+readiness-by: session:01a1a104-4c0b-7601-8f9d-90d0311d9324
+readiness-at: 2026-11-03T11:07:00.857Z
+readiness-checkpoint: g194-0a259c9d4a1a
 ### Last verified state
-guard level 4; checkpoint requested (finalize: Post-finalize amendment: PROGRESS.md current-phase header updated at commit 26200ca (hop-6 state: draft compile-witnessed rc=0 8704 B, steps 3-10 owed at hop 7; THREE occupied messages). Successor = TICT-00 hop 7 steps 3-10 per PROGRESS Next action + LEARNINGS hop-6 §; pin PLI -> reference mirror + diff vs sim norm (explicit script 2 2 9 7 1 10 1 4) -> TICT-00.json via script -> source,derivation -> lane B corp7 -> docs sec 12 -> gate -> explicit-path commit. NEVER re-run retry-DFS; no ocaml/harness changes; ledger ends C352; no push.)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
