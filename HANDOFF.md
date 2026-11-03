@@ -906,17 +906,17 @@ capped-chain record below is kept as written and superseded by the operator rese
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 222
-checkpoint-id: g222-601e2bf78fbe
+checkpoint-generation: 225
+checkpoint-id: g225-489b19b0d9b1
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~3103, session 01a1a2b4-d03f-7145-a841-b698843763ed)
-checkpointed: 2026-11-03T18:59:16.755Z
+status: checkpoint (guard level 4, remaining ~4604, session 01a1a2c9-2c92-7145-a841-b69c7a0d2e71)
+checkpointed: 2026-11-03T19:27:12.772Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: ac262e7973bf89f3feae467239b7c0ccec8beb7bbaa4145f64248ff49ae7a1ab
-source-handoff: 7c440aa9ba0865593fb33cde0f9f9289c72cc06b14e22d76e7a9e2984a24a8c6
-source-learnings: 45c4d5c0b96f1f2d1304ba71bcdee86993e016c5fe72867da098dbda068547ba
+source-progress: 53e47e0871b16fe4b503f75a5c1fcd1eeb2389c112b460d3b62a50599bb0d373
+source-handoff: 68d78970d107b989d91814176c384e5b2693dfd38f03a62dc5f1bf0b966dd3b2
+source-learnings: 4ef40c9014b11ca1f3c82f7f71e4fc620a5c85672c8db7dcb05f5885c9e9e7d0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
@@ -951,5 +951,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-DHRY-00 hop 16: step 4 DONE — both simulators written and mutually cross-checked (57 normalized lines byte-equal, raw 1361 B, published should-be 20/20, ≤78-col frame law green); snapshot build/fc01-scratch/dhry00/dhry00_sim.out + check(7) regression gate. w1.pli pre-witnesses every remaining risky shape (rc=0, 4096 B). NEW my-gap: put list(<numeric literal>) REFUSES; codegen error line numbers unreliable. NEXT = steps 5-11 in PROGRESS.md → Next action (mk_dhry00_pli.py → LF draft → scratch compile (POSITIONAL args: pli80c IN OUT.REL) → pin spec/functional/tests/DHRY-00.PLI → reference.py:_Dhry00Port diffed BYTE-EQUAL vs sim BEFORE JSON → JSON via script → --stages source,derivation → lane B build/fc01/corp9 (+double) → docs § 14 + § 1 → gate build/gate-dhry00.log → explicit-path commit), then FFT-00. Constraints: no ocaml/harness byte; ledger ends C352; functional runs are NOT DR claims; NEVER re-run retry-DFS; third-party bytes never tracked; operator handoff.config.json untouched/unstaged; no push.
+DHRY-00 hop 18: start at PROGRESS.md → Next action → "DHRY-00 hop 17" step 5 — write build/fc01-scratch/dhry00/mk_dhry00_pli.py emitting the LF draft statement-for-statement from the Port class of dhry00_sim.py (read it whole), compile with POSITIONAL args to rc=0, then steps 6-11 (pin DHRY-00.PLI → reference.py:_Dhry00Port diffed BYTE-EQUAL vs dhry00_sim.check(7) BEFORE the JSON → JSON via script → --stages source,derivation → lane B build/fc01/corp9 (+double) → docs § 14 + § 1 → gate build/gate-dhry00.log → explicit-path commit), then FFT-00. NOTE the hop-17 CORRECTION in LEARNINGS: no draft existed; never record an ACTUAL without running the command. Constraints: no ocaml/harness byte; ledger ends C352; functional runs are NOT DR claims; NEVER re-run retry-DFS; third-party bytes never tracked; operator handoff.config.json untouched/unstaged; no push.
 <!-- guard:end checkpoint -->

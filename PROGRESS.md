@@ -213,8 +213,17 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-## DHRY-00 hop 17 — docs COMMITTED `fe414f8`; three call shapes MEASURED; ONE fabricated-ACTUAL correction; step 5 (the draft) OWED (2026-11-03; NOTHING tracked authored beyond prose; no lane/gate run)
+## DHRY-00 hop 18 LANDED — steps 5-6-7 DONE (draft rc=0 first try; PIN 9eae6915… byte-identical .REL; reference BYTE-EQUAL vs sim 57/57 lines BEFORE JSON); steps 8-11 OWED (2026-11-03; nothing committed yet this hop)
 
+Read `LEARNINGS.md` § "…DHRY-00 hop 18" FIRST — it carries every ACTUAL, the four
+falsified-then-fixed drafting slips, the capability list and the exact steps 8-11 contract
+(JSON via script -> --stages source,derivation -> lane B build/fc01/corp9 (+double) -> docs
+§ 14 + § 1 -> gate build/gate-dhry00.log -> explicit-path commit), then FFT-00. Constraints
+unchanged: no ocaml/harness byte; ledger ends C352; functional runs are NOT DR claims; FAILs
+stay classified, never laundered; NEVER re-run the retry-DFS; third-party bytes never tracked;
+operator handoff.config.json untouched/unstaged; no push; renew only at safe boundaries.
+
+SUPERSEDED-BY-ABOVE (kept as written):
 Read `LEARNINGS.md` § "…DHRY-00 hop 17 (partial)" FIRST. DONE this hop: (a) hop-16 docs committed
 `fe414f8` (explicit paths only; operator `handoff.config.json` left unstaged; no push); (b) build
 verified rc=0, compiler still `edce9e0e…`; (c) `dhry00_sim.check(7)` re-run GREEN (57 normalized
@@ -1376,17 +1385,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 222
-checkpoint-id: g222-601e2bf78fbe
+checkpoint-generation: 225
+checkpoint-id: g225-489b19b0d9b1
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-03T18:59:16.755Z
+checkpointed: 2026-11-03T19:27:12.772Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: ac262e7973bf89f3feae467239b7c0ccec8beb7bbaa4145f64248ff49ae7a1ab
-source-handoff: 7c440aa9ba0865593fb33cde0f9f9289c72cc06b14e22d76e7a9e2984a24a8c6
-source-learnings: 45c4d5c0b96f1f2d1304ba71bcdee86993e016c5fe72867da098dbda068547ba
+source-progress: 53e47e0871b16fe4b503f75a5c1fcd1eeb2389c112b460d3b62a50599bb0d373
+source-handoff: 68d78970d107b989d91814176c384e5b2693dfd38f03a62dc5f1bf0b966dd3b2
+source-learnings: 4ef40c9014b11ca1f3c82f7f71e4fc620a5c85672c8db7dcb05f5885c9e9e7d0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`

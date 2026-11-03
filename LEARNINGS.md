@@ -4406,3 +4406,40 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - STATE: NOTHING tracked authored beyond the hop-16 docs commit `fe414f8` and this hop's prose;
   no lane run, no gate run, no `ocaml/`/harness byte, nothing laundered, third-party bytes
   untracked, operator `handoff.config.json` untouched/unstaged, no push.
+
+## 2026-11-03 — FC-01 CORPUS DHRY-00 hop 18: STEP 5 + 6 + 7 LANDED (draft, PIN, reference BYTE-EQUAL vs sim); JSON/lane/docs/gate OWED (NOTHING committed yet this hop)
+
+- ACCEPTED (ACTUALS, my compiler edce9e0e, scratch, NOT DR claims; ledger ends C352):
+  `mk_dhry00_pli.py` emits `DHRY-00.draft.pli` (493 lines, widest 71, LF, 120 verified string-code
+  stores) -> COMPILES rc=0 **16384 B code=7010 data=5510 FIRST TRY**; PINNED
+  `spec/functional/tests/DHRY-00.PLI` sha256 `9eae69157e1ef85b4a41030b2aee50a37130ed7dcbd2781462a407b65fd33652`
+  (12301 B, CRLF+bare ^Z), pin-compile .REL **BYTE-IDENTICAL** to the draft .REL.
+  `reference.py:_Dhry00Port`/`dhry00()`+DERIVATIONS added: `derive('dhry00')` **BYTE-EQUAL to
+  dhry00_sim.check(7) on all 57 normalized lines BEFORE any JSON** (contract step 7); every
+  published should-be (20/20), echo `7\r`, invariants and the <=78-col frame law assert green;
+  all other derivations still run OK. Port RAW = **1368 B** sha `eebbed5406ed83d5…` vs sim 1361:
+  the difference is ONLY the Array2Glob should-be row (PLI prints scalar via %9d; sim printed
+  2-char text) — identical after collapse-spaces-v1; DHRY00_RAW_BYTES=1368 is the port/pin law.
+- MEASURED (probe y1/y2, accepted scratch): zero-arg `call p1;`, `if..then..else` ASSIGNMENT,
+  and early `return (rv);` inside `if..then do;` all rc=0; **`if a > 0` REFUSES** (`compare >
+  k<=0 form unproven [TBD]`) -> proc3 nil-test became the domain ladder `r3=0; if t3a=1 then
+  r3=1; if t3a=2 then r3=2;` (pcp in {0,1,2} — exactly equivalent). FALSIFIED-then-fixed in-flight:
+  my first putstr printed code-32 items (would push label+30 tokens to 84 raw bytes, CROSSING the
+  79-col wrap — putstr keeps the sim's `if tv4 > 32` guard); first pin dropped the header
+  `put skip;` after 'runs through Dhrystone' (merged lines 7/8, 56 lines); my own should-be
+  assert compared prefixed vs bare strings; `sg1+19` vs `+20` off-by-one. Lesson kept: run the
+  command, read the output, THEN write.
+- CAPABILITIES for the JSON (all grep-verified ACCEPTS+SUPPORTED in spec/COVERAGE.tsv AND present
+  in the pin): DECL.FIXED_BIN15 DECL.CHAR_VARYING AGG.ARRAY_1D_FIXED AGG.VAR_INDEX_LADDER
+  AGG.ELEM_AS_ACTUAL LOOP.DO_TO_BY LOOP.DO_WHILE_UNTIL IO.GET_LIST IO.PUT_LIST_FIXED IO.PUT_SKIP
+  EXPR.REL_FIXED_EQ_K EXPR.SELF_ADD_LADDER PROC.CALL_COPYIN PROC.TAIL_RET TRAN.GOTO_SAME_BLOCK.
+  console_input `7\r^Z`; link_target DHRY00.
+- NEXT (hop 19, steps 8-11): (8) `DHRY-00.json` VIA SCRIPT in build/fc01-scratch/dhry00/
+  (mk_dhry00_json.py, LIFE precedent: lines from derive('dhry00'), echo line keeps trailing \r;
+  notes = every removal incl. timing/reals/apostrophes/numeric-literal-PUT gap/domain-ladder/
+  putstr-blank-skip/should-be-literals; sha 9eae6915… re-asserted) -> `python3
+  tools/functional_runner.py --stages source,derivation --tests DHRY-00`; (9) lane B
+  `--evidence build/fc01/corp9 --json-out build/fc01/corp9/records.json` (+ --double-run
+  corp9-double if PASS) ACTUALS verbatim, FAIL stays classified never laundered; (10) docs
+  functional-results.md sec 14 + sec 1 row; (11) gate -> build/gate-dhry00.log; explicit-path
+  commit (NEVER handoff.config.json; no push). Then FFT-00. Constraints unchanged.

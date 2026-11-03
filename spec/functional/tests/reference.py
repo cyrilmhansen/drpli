@@ -2694,6 +2694,493 @@ def life00():
     return lines
 
 
+# --------------------------------------------------------------------------
+# DHRY-00 (Dhrystone 2.1, Pascal -> PL/I-80).  The derivation mirrors the
+# pinned DHRY-00.PLI statement-for-statement (main body, then the 14 nested
+# definitions after `stop;`).  Byte model per the measured corpus laws
+# (README section 6 + the hop separator law + the BIGA 9-column numeric
+# field + the HAMM/HANG echo law + [C352]): PUT SKIP emits "\r\n"; ONE blank
+# precedes every PUT LIST item that is not the first item printed since the
+# last line start; a FIXED BIN(15) numeric item renders right-justified in a
+# NINE-column field ("%9d", NEVER "%10d"+join); a consumed GET line L echoes
+# as L + "\r\r\n" and CLOSES the line; program exit appends exactly one
+# "\r\n".  State uses the port's OWN encodings: integer codes for
+# chars/enums/booleans (Ident1..Ident5 = 0..4, nil = 0), the two records as
+# parallel slot arrays pcp/dsc/enm/inc over slots 1..2 with the StringComp
+# cells living inside sx (slot 1 at base 0, slot 2 at base 30), String1Glob
+# at 60, String2Glob at 90 and the two literal tables at 120/150; VAR
+# parameters via the outer result cells r2/r3/r6/r7; DIV by a subtraction
+# loop.  The published should-be column of the Pascal source is embedded
+# here as its own constants (DHRY00_SHOULD), the third check of the stream.
+
+DHRY00_NRUNS = 7                  # declared console_input script: one GET
+DHRY00_LINES = 57                 # normalized complete-stream length
+DHRY00_RAW_BYTES = 1368           # raw console bytes INCLUDING the exit CRLF (the
+#                                # port prints the Array2Glob should-be numeric
+#                                # as %9d; the sim's text form is 1361 -- both
+#                                # collapse-spaces-v1 to the SAME 57 lines)
+DHRY00_S_SOME = "DHRYSTONE PROGRAM, SOME STRING"    # sx(1..30)   slot 1
+DHRY00_S_1ST = "DHRYSTONE PROGRAM, 1ST STRING "     # sx(61..90)  String1Glob
+DHRY00_S_2ND = "DHRYSTONE PROGRAM, 2ND STRING "     # sx(121..150) literal
+DHRY00_S_3RD = "DHRYSTONE PROGRAM, 3RD STRING "     # sx(151..180) literal
+DHRY00_B = {"slot1": 0, "slot2": 30, "sg1": 60, "sg2": 90,
+            "2nd": 120, "3rd": 150}
+# the PL/I putc ladder, arm for arm (default ' ' + 22 literal arms).
+DHRY00_LADDER = {32: " ", 44: ",", 48: "0", 49: "1", 50: "2", 51: "3",
+                 58: ":", 65: "A", 66: "B", 67: "C", 68: "D", 69: "E",
+                 71: "G", 72: "H", 73: "I", 77: "M", 78: "N", 79: "O",
+                 80: "P", 82: "R", 83: "S", 84: "T", 89: "Y"}
+# published should-be column of the Pascal source (20 rows, in table order);
+# the Array2Glob row is NumberOfRuns + 10.
+DHRY00_SHOULD = ["5", "TRUE", "A", "B", "7", None, "0", "2", "17",
+                 "DHRYSTONE PROGRAM, SOME STRING",
+                 "0", "1", "18", "DHRYSTONE PROGRAM, SOME STRING",
+                 "5", "13", "7", "1",
+                 "DHRYSTONE PROGRAM, 1ST STRING",
+                 "DHRYSTONE PROGRAM, 2ND STRING"]
+
+
+def _dhry00_repl(raw):
+    norm = _hamm00_re.sub(rb" +", b" ",
+                          (raw + "\r\n").encode().replace(b"\r\n", b"\n")).decode()
+    lines = norm.split("\n")
+    if lines and lines[-1] == "":
+        lines = lines[:-1]
+    return lines
+
+
+class _Dhry00Port:
+    """Statement-for-statement mirror of the pinned DHRY-00.PLI."""
+
+    def __init__(self, nruns):
+        self.raw = ""
+        self.intglob = 0
+        self.int1g = 0
+        self.int2g = 0
+        self.int3g = 0
+        self.boolg = 0
+        self.char1g = 0
+        self.char2g = 0
+        self.enumg = 0
+        self.numruns = nruns
+        self.runidx = 0
+        self.ci = 0
+        self.z = 0
+        self.tv = 0
+        self.dvq = 0
+        self.r2 = 0
+        self.r3 = 0
+        self.r6 = 0
+        self.r7 = 0
+        self.a1 = [0] * 51                     # a1(1..50)
+        self.a2 = [0] * 2501                   # a2(1..2500), flat (r-1)*50+c
+        self.sx = [0] * 181                    # sx(1..180)
+        self.pcp = [0, 0, 0]
+        self.dsc = [0, 0, 0]
+        self.enm = [0, 0, 0]
+        self.inc = [0, 0, 0]
+        self.gets = 0
+
+    # ---- stream primitives (measured byte laws)
+    def skip(self):                            # put skip;
+        self.raw += "\r\n"
+
+    def put(self, item):                       # ONE single-item put list(...)
+        if self.raw and not self.raw.endswith("\r\n"):
+            self.raw += " "                    # measured leading-separator law
+        self.raw += ("%9d" % item) if isinstance(item, int) else item
+
+    def echo(self, v):                         # consumed GET line closes the line
+        self.raw += "%d\r\r\n" % v
+
+    # ---- nested definitions (after `stop;` in the .PLI)
+    def putc(self, v):                         # 22-arm ladder over ch character(1) varying
+        ch = " "
+        for k in sorted(DHRY00_LADDER):
+            if v == k:
+                ch = DHRY00_LADDER[k]
+        self.put(ch)
+
+    def putstr(self, frms):
+        for k4 in range(1, 31):
+            sp4 = frms + k4
+            tv4 = self.sx[sp4]
+            if tv4 > 32:                       # blanks skipped (frame law)
+                self.putc(tv4)
+
+    def cp30(self, frm, dst):
+        for k3 in range(1, 31):
+            sp3 = frm + k3
+            dp3 = dst + k3
+            self.sx[dp3] = self.sx[sp3]
+
+    def divsub(self, dv, ds):
+        self.dvq = 0
+        rr = dv
+        while True:                            # dl:
+            if rr < ds:
+                break                          # goto dd
+            rr = rr - ds
+            self.dvq = self.dvq + 1
+
+    def proc5(self):
+        self.char1g = 65
+        self.boolg = 0
+
+    def proc4(self):
+        bl = 0
+        if self.char1g == 65:
+            bl = 1
+        if bl == 1:
+            self.boolg = 1
+        self.char2g = 66
+
+    def proc7(self, p7v1, p7v2):
+        il7 = p7v1 + 2
+        self.r7 = p7v2 + il7
+
+    def proc8(self, p8v1, p8v2):
+        l8 = p8v1 + 5
+        v82 = p8v2
+        self.a1[l8] = v82
+        p18 = l8 + 1
+        self.a1[p18] = self.a1[l8]
+        p38 = l8 + 30
+        self.a1[p38] = l8
+        b8 = (l8 - 1) * 50
+        h8 = l8 + 2
+        ix8 = l8
+        while True:                            # p8a:
+            ix2 = b8 + ix8
+            self.a2[ix2] = l8
+            ix8 = ix8 + 1
+            if not ix8 < h8:
+                break                          # p8b:
+        m8 = l8 - 1
+        ix2 = b8 + m8
+        v22 = ix2
+        t8 = self.a2[v22]
+        t8 = t8 + 1
+        self.a2[v22] = t8
+        k8 = l8 + 20
+        b28 = (k8 - 1) * 50
+        ix2 = b28 + l8
+        self.a2[ix2] = self.a1[l8]
+        self.intglob = 5
+
+    def proc1(self, pv):
+        p1a = pv
+        r1a = self.pcp[p1a]
+        d1a = (r1a - 1) * 30
+        self.dsc[r1a] = self.dsc[1]
+        self.enm[r1a] = self.enm[1]
+        self.inc[r1a] = self.inc[1]
+        self.pcp[r1a] = self.pcp[1]
+        self.cp30(0, d1a)
+        self.inc[p1a] = 5
+        self.inc[r1a] = self.inc[p1a]
+        self.pcp[r1a] = self.pcp[p1a]
+        self.proc3(r1a)
+        tv1 = self.dsc[r1a]
+        if tv1 == 0:                           # Ident1
+            self.inc[r1a] = 6
+            self.proc6(self.enm[p1a])
+            self.enm[r1a] = self.r6
+            self.pcp[r1a] = self.pcp[1]
+            tv1 = self.inc[r1a]
+            self.proc7(tv1, 10)
+            self.inc[r1a] = self.r7
+
+    def proc3(self, p3tgt):
+        t3a = self.pcp[1]
+        t3b = p3tgt
+        self.r3 = 0
+        if t3a == 1:                           # domain ladder for `pcp(1) > 0`
+            self.r3 = 1
+        if t3a == 2:
+            self.r3 = 2
+        self.pcp[t3b] = self.r3
+        self.proc7(10, self.intglob)
+        self.inc[1] = self.r7
+
+    def proc6(self, p6ev):
+        e6 = p6ev
+        self.r6 = e6
+        t6 = self.f3(e6)
+        if t6 == 0:
+            self.r6 = 3                        # Ident4
+        if e6 == 0:
+            self.r6 = 0
+        if e6 == 1:                            # Ident2 arm
+            if self.intglob > 100:
+                self.r6 = 0
+            if self.intglob < 101:
+                self.r6 = 3
+        if e6 == 2:                            # Ident3 arm
+            self.r6 = 1
+        if e6 == 4:                            # Ident5 arm
+            self.r6 = 2
+
+    def proc2(self, pv2):
+        il2b = pv2 + 10
+        el2 = 1                                # any value but Ident1
+        while True:                            # p2t:  repeat ... until el2 = Ident1
+            if self.char1g == 65:
+                il2b = il2b - 1
+                self.r2 = il2b - self.intglob
+                el2 = 0
+            if el2 == 0:
+                break                          # goto p2x
+
+    def f1(self, c1v, c2v):
+        cl1 = c1v
+        cl2 = cl1
+        rv1 = 0                                # Ident1 (the <>-arm default)
+        if cl2 == c2v:
+            self.char1g = cl1
+            rv1 = 1                            # Ident2
+        return rv1
+
+    def f2(self, b1v, b2v):
+        v1f = b1v
+        v2f = b2v
+        rvf = 0
+        ilf = 2
+        clf = 0
+        while True:                            # f2l:
+            if ilf > 2:
+                break                          # f2x: / f2e: (adjacent labels)
+            sp1 = v1f + ilf
+            c1f = self.sx[sp1]
+            sp2 = v2f + ilf
+            c2f = self.sx[sp2]
+            if c1f < c2f:
+                break
+            if c1f > c2f:
+                break
+            clf = 65
+            ilf = ilf + 1
+        if clf > 86:                           # 'V'
+            if clf < 90:                       # 'Z'
+                ilf = 7
+        if clf == 82:                          # 'R'
+            rvf = 1
+            return rvf
+        sgf = 0
+        dif = 0
+        for k1f in range(1, 31):               # whole-string '>' compare
+            sp1 = v1f + k1f
+            c1f = self.sx[sp1]
+            sp2 = v2f + k1f
+            c2f = self.sx[sp2]
+            if dif == 0:
+                if c1f < c2f:
+                    dif = 2
+                if c1f > c2f:
+                    dif = 1
+                    sgf = 1
+        if sgf == 1:
+            ilf = ilf + 7
+            self.intglob = ilf
+            rvf = 1
+        return rvf
+
+    def f3(self, f3ev):
+        e3 = f3ev
+        rv3 = 0
+        if e3 == 2:                            # Ident3
+            rv3 = 1
+        return rv3
+
+    # ---- main body (statement order of the pinned file)
+    def run(self):
+        for self.z in range(1, 181):           # do z = 1 to 180; sx(z) = 0; end;
+            self.sx[self.z] = 0
+        for self.z in range(1, 51):            # do z = 1 to 50; a1(z) = 0; end;
+            self.a1[self.z] = 0
+        for self.z in range(1, 2501):          # do z = 1 to 2500; a2(z) = 0; end;
+            self.a2[self.z] = 0
+        self.pcp[1] = 0
+        self.pcp[2] = 0
+        self.dsc[1] = 0
+        self.dsc[2] = 0
+        self.enm[1] = 0
+        self.enm[2] = 0
+        self.inc[1] = 0
+        self.inc[2] = 0
+        for base, s in ((DHRY00_B["slot1"], DHRY00_S_SOME),
+                        (DHRY00_B["sg1"], DHRY00_S_1ST),
+                        (DHRY00_B["2nd"], DHRY00_S_2ND),
+                        (DHRY00_B["3rd"], DHRY00_S_3RD)):
+            for i, c in enumerate(ord(ch) for ch in s):   # the 120 literal stores
+                self.sx[base + i + 1] = c
+        self.pcp[1] = 2                        # RecordPtr / NextRecordPtr
+        self.dsc[1] = 0                        # Ident1
+        self.enm[1] = 2                        # Ident3
+        self.inc[1] = 40
+        self.a2[357] = 10                      # Array2Glob[8,7]
+        # header
+        self.skip()
+        self.put("Dhrystone Benchmark, Version 2.1 (Language: Pascal)")
+        self.skip()
+        self.skip()
+        self.put("Please give the number of runs through the benchmark:")
+        self.skip()
+        self.gets += 1                         # get list(numruns);
+        self.echo(self.numruns)
+        self.skip()
+        self.put("Execution starts,")
+        self.put(self.numruns)
+        self.put("runs through Dhrystone")
+        self.skip()
+        # run loop
+        for self.runidx in range(1, self.numruns + 1):
+            self.proc5()
+            self.proc4()
+            self.int1g = 2
+            self.int2g = 3
+            self.cp30(DHRY00_B["2nd"], DHRY00_B["sg2"])
+            self.enumg = 1                     # Ident2
+            self.tv = self.f2(DHRY00_B["sg1"], DHRY00_B["sg2"])
+            self.boolg = 0
+            if self.tv == 0:
+                self.boolg = 1
+            while self.int1g < self.int2g:     # do while int1g < int2g
+                self.int3g = 5 * self.int1g - self.int2g
+                self.proc7(self.int1g, self.int2g)
+                self.int3g = self.r7
+                self.int1g = self.int1g + 1
+            self.proc8(self.int1g, self.int3g)
+            self.proc1(1)
+            for self.ci in range(65, self.char2g + 1):
+                self.tv = self.f1(self.ci, 67)
+                if self.enumg == self.tv:
+                    self.proc6(0)              # Ident1
+                    self.enumg = self.r6
+                    self.cp30(DHRY00_B["3rd"], DHRY00_B["sg2"])
+                    self.int2g = self.runidx
+                    self.intglob = self.runidx
+            self.int2g = self.int2g * self.int1g
+            self.divsub(self.int2g, self.int3g)
+            self.int1g = self.dvq
+            self.tv = self.int2g - self.int3g
+            self.tv = 7 * self.tv
+            self.int2g = self.tv - self.int1g
+            self.proc2(self.int1g)
+            self.int1g = self.r2
+        # final table (row/should_be/strrow expanded inline as in the .PLI)
+        self.put("Execution ends")
+        self.skip()
+        self.put("Final values of the variables used in the benchmark:")
+        self.skip()
+        self.skip()
+        self.row("IntGlob:", self.intglob, "5")
+        self.put("BoolGlob:")
+        if self.boolg == 1:
+            self.put("TRUE")
+        else:
+            self.put("FALSE")
+        self.skip()
+        self.should_be("TRUE")
+        self.put("Char1Glob:")
+        self.putc(self.char1g)
+        self.skip()
+        self.should_be("A")
+        self.put("Char2Glob:")
+        self.putc(self.char2g)
+        self.skip()
+        self.should_be("B")
+        self.row("Array1Glob [8]:", self.a1[8], "7")
+        self.row("Array2Glob [8,7]:", self.a2[357], self.numruns + 10)
+        self.row("PointerGlob^.Discr:", self.dsc[1], "0")
+        self.row("PointerGlob^.EnumComp:", self.enm[1], "2")
+        self.row("PointerGlob^.IntComp:", self.inc[1], "17")
+        self.strrow("PointerGlob^.StringComp:", DHRY00_B["slot1"],
+                    "DHRYSTONE PROGRAM, SOME STRING")
+        self.row("NextPointerGlob^.Discr:", self.dsc[2], "0")
+        self.row("NextPointerGlob^.EnumComp:", self.enm[2], "1")
+        self.row("NextPointerGlob^.IntComp:", self.inc[2], "18")
+        self.strrow("NextPointerGlob^.StringComp:", DHRY00_B["slot2"],
+                    "DHRYSTONE PROGRAM, SOME STRING")
+        self.row("Int1Glob:", self.int1g, "5")
+        self.row("Int2Glob:", self.int2g, "13")
+        self.row("Int3Glob:", self.int3g, "7")
+        self.row("EnumGlob:", self.enumg, "1")
+        self.strrow("String1Glob:", DHRY00_B["sg1"],
+                    "DHRYSTONE PROGRAM, 1ST STRING")
+        self.strrow("String2Glob:", DHRY00_B["sg2"],
+                    "DHRYSTONE PROGRAM, 2ND STRING")
+        self.skip()
+        self.skip()
+        return self
+
+    def row(self, label, value, should):
+        self.put(label)
+        self.put(value)
+        self.skip()
+        self.should_be(should)
+
+    def should_be(self, text):
+        self.put("should be:")
+        self.put(text)
+        self.skip()
+
+    def strrow(self, label, base, should):
+        self.put(label)
+        self.skip()
+        self.putstr(base)
+        self.skip()
+        self.should_be(should)
+
+
+def dhry00():
+    """DHRY-00: the complete normalized console stream (collapse-spaces-v1) of
+    the adapted Dhrystone 2.1 for the declared run count N=7 (the single GET
+    reads the console_input script).  Derived from the declared design by a
+    statement-for-statement mirror of DHRY-00.PLI, never captured (L3).  The
+    stream is then checked by independent invariants: the port's FINAL STATE
+    against the published Dhrystone result column, the 20 should-be rows
+    themselves, the frame law (no emitted line reaches the 79-column PLILIB
+    wrap measured to fire at exactly 79), exactly one GET, and the 57-line /
+    1361-byte identity."""
+    port = _Dhry00Port(DHRY00_NRUNS).run()
+    # ---- published result column (Dhrystone 2.1 canonical values at N=7)
+    assert (port.intglob, port.boolg, port.char1g, port.char2g) == (5, 1, 65, 66)
+    assert port.a1[8] == 7 and port.a2[357] == DHRY00_NRUNS + 10
+    assert (port.dsc[1], port.enm[1], port.inc[1]) == (0, 2, 17)
+    assert (port.dsc[2], port.enm[2], port.inc[2]) == (0, 1, 18)
+    assert (port.int1g, port.int2g, port.int3g, port.enumg) == (5, 13, 7, 1)
+    # the two record strings hold SOME-STRING; the globs their declared tables
+    for base in (DHRY00_B["slot1"], DHRY00_B["slot2"]):
+        assert port.sx[base + 30] == 71 and port.sx[base + 20] == 83
+    assert port.sx[DHRY00_B["sg1"] + 20] == 49       # '1' of 1ST
+    assert port.sx[DHRY00_B["sg2"] + 20] == 50       # '2' of 2ND
+    assert port.gets == 1
+    # ---- stream
+    lines = _dhry00_repl(port.raw)
+    raw = (port.raw + "\r\n").encode()
+    assert len(raw) == DHRY00_RAW_BYTES, len(raw)
+    assert len(lines) == DHRY00_LINES, len(lines)
+    assert lines[0] == "" and lines[1] == \
+        "Dhrystone Benchmark, Version 2.1 (Language: Pascal)", lines[:2]
+    assert lines[3] == "Please give the number of runs through the benchmark:"
+    assert lines[4] == "%d\r" % DHRY00_NRUNS       # echo keeps its trailing CR
+    assert lines[6] == ("Execution starts, %d runs through Dhrystone"
+                        % DHRY00_NRUNS), lines[6]
+    assert lines[7] == "Execution ends"
+    assert lines[8] == "Final values of the variables used in the benchmark:"
+    assert lines[9] == ""
+    shoulds = [l[len("should be: "):] for l in lines if l.startswith("should be: ")]
+    want_should = [str(DHRY00_NRUNS + 10) if w is None else w
+                   for w in DHRY00_SHOULD]
+    assert shoulds == want_should, shoulds
+    assert lines[-3:] == ["", "", ""], lines[-3:]   # 2 skips + exit CRLF
+    # ---- frame law: no emitted line reaches the measured 79-column wrap
+    for seg in raw.split(b"\r\n"):
+        assert len(seg) <= 78, (len(seg), seg)
+    return lines
+
+
 DERIVATIONS = {"table00": table00, "table01": table01,
                "math00": math00, "proc00": proc00, "hist00": hist00,
                "ptr00": ptr00, "strng00": strng00, "dec00": dec00,
@@ -2702,6 +3189,7 @@ DERIVATIONS = {"table00": table00, "table01": table01,
                "dec01": dec01, "flt01": flt01, "edit00": edit00,
                "wkday00": wkday00, "hamm00": hamm00, "hang00": hang00,
                "amaz00": amaz00, "tict00": tict00, "life00": life00,
+               "dhry00": dhry00,
                "fx00": fx00, "fx01": fx01}
 
 
