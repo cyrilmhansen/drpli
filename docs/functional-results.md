@@ -37,7 +37,7 @@ cpmsim, user-supplied and never packaged).
 | FLT-01 | B | rev1 SOURCE→…→ASSERT; rev2 SOURCE→DERIVATION→COMPILE | rev1 **PASS** (probe falsification); rev2 **FAIL** (deliverable) | `compiler` | rev1 compared via a variable — the proven cell route; rev2 puts `(a + b)` DIRECT in the compare and measures the computed-FLOAT-operand refusal (§ 7) |
 | EDIT-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | PUT EDIT counted `SKIP(1)` refused — only the bare form is sampled (§ 7) |
 | WKDAY-00 | B | rev1 COMPILE; rev2 →RUN→ASSERT; rev3 SOURCE→…→RUN→ASSERT | rev1 **FAIL**, rev2 **FAIL**, rev3 **PASS** (corpus program 1 of 8; § 8) | rev1 `compiler`; rev2 narrowed to `compiler` by the byte-level discriminating run | adapted BASIC Weekday; rev1 measured the `> 0` refusal, rev2 the silent `/365` low-byte miscompile (both `my-gap`), rev3 passes with complete-stream match, 10 lines, double-run byte-equal |
-| HAMM-00 | B | SOURCE→RUN PASS, **ASSERT FAIL** | `undefined` | rev1 UNMODIFIED rerun 2026-11-04 (§ 16): DIV blocker GONE (COMPILE rc=0 12288 B, LINK/RUN pass, 6369 B); one extra blank line at the feed over-ask (§ 9 rev1 COMPILE FAIL kept as written; expectation never edited) |
+| HAMM-00 | B | rev1 SOURCE→RUN PASS, **ASSERT FAIL**; rev2 SOURCE→…→RUN→ASSERT | rev1 **FAIL** (kept, § 16); rev2 **PASS** (§ 17) | rev1 `undefined` as executed; rev2 — | rev1 UNMODIFIED rerun 2026-11-04 (§ 16): DIV blocker GONE (COMPILE rc=0 12288 B, LINK/RUN pass, 6369 B); one extra blank line at the feed over-ask (§ 9 rev1 COMPILE FAIL kept as written; expectation never edited). rev2 2026-11-04: reference-model `fed0:` loop-entry skip corrected, expectation RE-DERIVED (never captured), six-stage PASS + double-run byte-equal (§ 17) |
 | HANG-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 3 of 8; § 10) | — | adapted BASIC Hangman; FIRST corpus lane-B RUN of numeric `GET LIST` + echo — the measured echo/framing laws held on my own binary; complete-stream match 329 lines; the 6369-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | AMAZ-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 4 of 8; § 11) | — | adapted BASIC Amazing (generation-and-print-only version — no walk INPUT phase, so PURE-PUT with bare `^Z`); flat 4×4 backtracker via goto state machine, declared draws with literal divisors 4/3/2; complete-stream match 18 lines; the 189-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | TICT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 5 of 8; § 12) | — | adapted BASIC Tic-Tac-Toe (TICTACTOE2 — chosen because TICTACTOE1 never terminates); FIRST lane-B RUN of the 121-label flat goto machine with variable-subscript stores, `call` inside the machine and the occupied-retry loop-back; numeric choice + move `GET LIST`s with echoes; complete-stream match 120 lines; the 1468-B raw RUN stream equals the independent simulator's raw bytes exactly; THREE `THAT SQUARE IS OCCUPIED.` messages at lines 86/91/96; double-run byte-equal |
@@ -926,3 +926,69 @@ re-ask paths match (their loops have no leading skip). A rev2 expectation
 re-derivation (adding the loop-entry skip) is a PROPOSAL, NOT executed here —
 correcting derived evidence requires its own measured, traceable commit.
 No DR claim is promoted from any functional run; the ledger still ends at C355.
+
+## 17. E2E-51/P2 (2026-11-04): HAMM-00 rev2 — reference-model `fed0:` correction; expectation RE-DERIVED; six-stage lane-B **PASS** (functional, not a DR claim)
+
+Operator-authorized functional follow-up to § 16, scoped to the DERIVATION model
+only. `HAMM-00.PLI`, `ocaml/`, the runner, console normalization and ALL rev1
+evidence are UNTOUCHED; § 16's FAIL record stands as written (PROTOCOL #2).
+
+**Why rev1 was wrong.** The pinned source opens label `fed0:` (line 130) with
+`put skip;` (line 131) and re-enters it on every feed over-ask via `goto fed0`
+(line 142); the initial entries (byok: `goto fed0` line 113, selok: fall-through)
+pass the same skip. `reference.py:_Hamm00Port.run()` instead held that skip
+OUTSIDE the `while True` feed loop (rev1 comment `# 400`), so a retry re-prompted
+without the leading blank — the mirror was not statement-faithful for this ONE
+loop (buy/sell/plant retries re-enter AT their prompt and match; `fedok:`'s
+trailing skip is modelled after the loop, correct). § 16's diagnosis CONFIRMED.
+
+**The rev2 fix (commit `a21a586`, BEFORE any compiler/emulator run).** The
+`self.skip()` moved inside the feed loop as its first statement; the
+failure-branch output actions kept unchanged; the spine length assertion
+updated 211 → 212. `expected.console` in `HAMM-00.json` was then updated VIA
+SCRIPT from `reference.DERIVATIONS['hamm00']()` — derived, never captured (L3):
+the writer first proved byte-faithful round-trip on the rev1 file, so the JSON
+diff is exactly ONE added text line and zero removals.
+
+**Derived delta (independent of any capture).** Under the corrected semantics
+the feed prompt emits 11 times (10 year entries + 1 over-ask retry in year 3:
+stock 1587, asked 1588, retry 900), while rev1 skipped only 10 times; each fed0
+entry lands after a line already closed by CRLF, so the delta is EXACTLY ONE
+extra normalized blank line, derived at index 64 — between
+` 1587 BUSHELS OF GRAIN. NOW THEN,` and `HOW MANY BUSHELS ... 900` — and
+nothing else changes (211 → 212 lines). This PREDICTION was computed from the
+source before executing anything; only afterwards was it corroborated against
+the preserved rev1 measurement (the § 16 actual stream, normalized to 212
+lines, equals the rev2 derivation exactly — the extra `['']` of § 16 is the
+same index-64 line). Corroboration is EVIDENCE, not the source of the
+expectation.
+
+**ACTUALS (lane B, HEAD `a21a586`, compiler `f172d8eae2a7…`, cpmsim
+`5b882561…`).** Stage-capped pre-verification `--stages source,derivation`
+(evidence `build/fc01/hamm-rev2-srcder/`): SOURCE **pass** (8362 B pin, sha
+`cc25fe75021f…`), DERIVATION **pass** (derivation == spec), record verdict
+UNKNOWN by stage ceiling (as designed), runner rc=0. Full lane B
+(`build/fc01/hamm-rev2/`, records `records.json`; real exit code captured
+DIRECTLY, never via a pipeline: rc=0): **SOURCE, DERIVATION, COMPILE, LINK,
+RUN, ASSERT all PASS** — COMPILE rc=0 12288 B (code=3996 data=50 items=6091),
+LINK `HAMM00.COM 13440 B parse_undefined=[]`, RUN `done` 6369 console bytes,
+ASSERT complete-stream match **212 lines**; `verdicts: PASS=1 FAIL=0 BLOCKED=0
+UNKNOWN=0`. Determinism `--double-run` (`build/fc01/hamm-rev2-double/`, rc=0
+directly): PASS, the two `run.console.bin` captures byte-equal (`cmp` rc=0,
+raw sha256 `fddc5b2c5710…`). An independent third run
+(`build/fc01/hamm-rev2-rccheck/`) re-measured rc=0/PASS.
+
+**Regressions (all real exit codes).** Hostile suite `tools/test_functional_runner.py`
+rc=0 — **211/211** checks. Compile-tier gate `python3 tools/e2e_gate.py` rc=0
+(`build/gate-hamm00-rev2.log`): byte panel **1186/0 of 1186** (P1 panel intact),
+negative 181/181, divergence 9/9, coverage 136 rows 0/0, census 15/0/26/0,
+prose 5 active clean. `tools/test_functional_dashboard.py` rc=1 — ONE failing
+check, `integration: unmapped COVERAGE rows are listed, not dropped`, which
+hardcodes `cited by NO capability: **26**` while the current tree renders **29**
+(the three byte-tier DIV rows registered by E2E-51/P1 commit `216ea7a` carry no
+capability mapping). MEASURED PRE-EXISTING at P1 HEAD `1fc37d5` (full-tree
+archive re-run, rc=1 identical) and green at the pre-E2E-51 baseline `ac68352`
+(rc=0) — a P1-era stale fixture, NOT a P2 regression and not part of the
+compile-tier gate; left UNFIXED here as out of P2 scope, PROPOSED for the
+operator. HAMM-00 rev2 is a corrected DERIVATION plus a measured functional
+PASS; it promotes NO DR oracle claim (ledger still ends at C355).
