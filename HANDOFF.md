@@ -16,6 +16,20 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
  tree clean except operator config). E46N10 is a panel-EXACT specimen (384 B).
  **SUCCESSOR: subround P3-2 = PUT EDIT (LOAN2:115 verbatim `codegen: PUT EDIT deferred
  [TBD] (line 115; ... ?EDITF/?EDTOV/?QDDSL route family)`).** READ FIRST `LEARNINGS.md`
+ § "E2E-52/P3-2 evidence decode LANDED" (commit `59f9afa`) — it SUPERSEDES the survey
+ bullets below: LAW REVERSAL (`edit(L1)(L2)` = DATA then FORMAT; 115 DATA is `'|'` +
+ `100*m+y`, FORMATS are `a` + picture `p'99/99'`; predecessor data-item bullet FALSIFIED);
+ `clear` = `%replace` macro; P086K fully decoded (file tables = console law; DEC prep
+ `MVI A,05/?DLDOP/MVI A,08/MVI B,02/?QDCOP/?EDTOV` = existing p/p+3/s law — `MVI B,06`
+ FALSIFIED; `?EDTIV` one new routine; NO-open attach C282); barrier =
+ `lower_put_items_gen` `is_edit && file` guard (premise FALSIFIED) + `match_put_edit`
+ file-blindness + fmtq FIFO + `st.file_out` guard. Execute that § owed steps (1)-(5): byte-
+ list stmt-199 span 08F1-0950 + tables, check golden/e2e8/e2e11, **PLAN §P3-2 committed
+ BEFORE any ocaml/ byte**, then arm (PROPOSED P3-2a: file PUT+GET EDIT bare skip + literal
+ f/a + string/DEC items; picture-02/x/rep/V refuse BY NAME; specimen probes/P086K.PLI vs
+ golden/probe55/P086K 1197→1198; E41X8 retirement; LOAN2 STILL refuses 115 naming the
+ `02` record), sweep/refusals/registration/C360 measured-bytes-only. Prior section, kept
+ as written:
  § "E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT" — it
  carries the refusal site (codegen.ml:2646 in match_put_list_lit), the console EDIT
  state ([C090]; fmt_spec admits ONLY literal-width f/a + bare skip/page), and the
@@ -1280,23 +1294,20 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 283
-checkpoint-id: g283-516aa381fc9b
+checkpoint-generation: 286
+checkpoint-id: g286-c986499109cc
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4282, session 01a1a7bd-89fb-7427-a642-9c42b324e60d)
-checkpointed: 2026-11-04T18:28:18.309Z
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4656, session 01a1a7d2-1de8-7427-a642-9c47059ed586)
+checkpointed: 2026-11-04T18:50:28.107Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 511d202065a7ef26d8e3befd2564228f9e2f1298d45371412260501bfd578386
+source-progress: b37e80d1291e101843fa2789ba5949cc6ed8fb0a7c0b77a82baadaebe88777bc
 source-handoff: 2436f1845c7fc17ef56b74917b10a55a82ba2aa940a12c0438bf1214049431bd
-source-learnings: 2da33dce3d886e8632f21efbd2cb5ea51a3e6790297a41574fc007c7c10a31c9
+source-learnings: 83e4aa08a12307c6767312632559518c8ef9820e34cd3a985b9685d06f24825c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a7bd-89fb-7427-a642-9c42b324e60d
-readiness-at: 2026-11-04T18:28:28.989Z
-readiness-checkpoint: g283-516aa381fc9b
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
@@ -1366,5 +1377,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-1: arm adb749c + durables/registration-script f15c976 committed; tree clean except operator handoff.config.json. Execute LEARNINGS.md § "E2E-52/P3-1 ARM LANDED + registration IN FLIGHT" owed steps (1)-(7) exactly: --update-inventory 1196->1197 (diff ONE line), reg gate rc=0 1197/0 to build/gate-e52p3-reg.log, COVERAGE FILE.PUT_PAGE -> SUPPORTED/EXACT:1 + coverage_check rc=0 139 0/0 + stats own write path, claim C359 from measured bytes ONLY, RESULTS.md + PLAN §5 table row, explicit-path commits. Then CONTINUE campaign: subround P3-2 = PUT EDIT (LOAN2:115 verbatim blocker), PLAN pre-registered BEFORE any compiler byte (start: extract LOAN2:115, read match_put_edit/put_kind_str refusal, search golden/e2e11 + E2E-8 evidence). Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries; do not stop after registration.
+E2E-52/P3-2 evidence decode LANDED+COMMITTED (59f9afa; no ocaml/ byte; build rc=0 binary 34e8321a; HEAD 59f9afa; ledger ENDS C359; panel 1197/0). READ FIRST LEARNINGS.md § "E2E-52/P3-2 evidence decode LANDED" — it supersedes the parent brief's PROPOSED bullets: LAW REVERSAL (edit(DATAS)(FORMATS)), clear=%replace macro, a=FORMAT item no decl, P086K 512B fully decoded (file tables = console law; DEC prep = p/p+3/s existing law, MVI B,02 not 06; ?EDTIV new routine name; NO-open attach C282), 7 EDITF sites mapped, barrier = lower_put_items_gen is_edit&&file guard (premise FALSIFIED) + match_put_edit file-blindness + fmtq FIFO + st.file_out guard. OWED steps (1)-(5) in that §: byte-list stmt-199 span 08F1-0950 + remaining tables, check golden/e2e8/e2e11 for closer witnesses, write spec/lab-evidence/e2e52-p3/PLAN.md §P3-2 with pre-registered predictions and COMMIT BEFORE any ocaml/ byte, then arm P3-2a (file PUT+GET EDIT: bare skip + literal f/a formats + string/DEC items; picture-02/x/rep/V refuse BY NAME; panel specimen probes/P086K.PLI vs golden/probe55/P086K 1197->1198; E41X8 retirement candidate; LOAN2 rerun must still refuse 115 naming the 02-record), sweep, refusals, registration, C360 from measured bytes only. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (4/12 after this); campaign continues past every blocker.
 <!-- guard:end checkpoint -->
