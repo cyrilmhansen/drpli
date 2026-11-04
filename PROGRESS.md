@@ -443,36 +443,35 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-3 LANDED through ARM (`eef371b` pre-reg → `8edea80` oracle/RESULTS → `aae0f37` goldens → `d088cdb` arm, binary `c2c6282f5662cb19a3ce…` clean rebuild, sweep 75/75, 13/13 new-probe cmp rc=0, LOAN2 VERBATIM same fmt_spec catch); REGISTRATION OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-3 LANDED through ARM" FIRST — measured laws HE (b2 = digits after LAST V; HC/HD FALSIFIED by E52PJ `9.9`→00), b1 agree-class (E52PF dr-refuses p'9$9', NO golden), the P5 underclaim falsification, and the owed steps)
+### E2E-52/P3-3 CLOSED (registration chain `7294d09`→`a4eddd6`→`64e464b`→`4f5d509`→`794cfb2`, gate rc=0 1212/0, ledger ENDS C361); RENEWAL CAP 12/12 REACHED — CHAIN CLOSES (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-3 REGISTRATION LANDED — SUBROUND CLOSED at the 12/12 renewal cap" FIRST)
 
-Steps (all rc DIRECT, never a trailing pipeline):
-(1) `git rev-parse HEAD && git status --porcelain=v1` (only operator config may be dirty);
-  `cd ocaml && eval "$(opam env)" && dune build` rc=0, record WHICH build the sha came from;
-  re-measure P086J/P086K cmp rc=0 and one new-probe cmp (e.g. E52PM) before touching harness.
-(2) `tools/e2e_gate.py` SPECIMENS: add the 13 cmp-rc=0 probes E52PB..E52PE,E52PG..E52PL,
-  E52PM,E52PN,E52PO (golden paths `golden/e52p3/<N>/<N>.REL`, measured comments); DECIDE the
-  PROPOSED E52PF REJECTS row honestly (dr-refuses class; my refusal message is new — pin its
-  marker; E46K14 precedent); PA is NOT a specimen (my-gap refusal, P3-4 owns it).
-(3) sanctioned `--update-inventory` (expect 1199→1212 EXACTLY +13 specimen lines; +1 refusal
-  line if PF row lands) — diff inspected line-for-line; FULL gate REAL rc=0 to
-  `build/gate-e52p3c-reg.log` (expect 1212/0 — measure, never assert).
-(4) census re-snapshot via its OWN write path rc=0; LOAN2 message UNCHANGED (same catch text),
-  record ACTUAL verbatim.
-(5) claim **C361** in `spec/CLAIMS.md` from MEASURED bytes ONLY (the 25-record picture law:
-  shape/len/uppercase/b1/b2=HE/guards-class; cite probes + goldens; ledger ends C360) —
-  commit BEFORE the COVERAGE `IO.PUT_EDIT` rewrite (cite-resolution lesson); rewrite the row
-  to armed reality (picture no longer refuses; boundary names the still-refusing grouped/rep/
-  remote/counted/x/file-EXPRESSION forms with LOAN2's VERBATIM message); `coverage_check.py`
-  rc=0 DIRECT; stats via own write path.
-(6) `file_prose_check.py` rc=0 standalone; RESULTS §5-effects + PLAN §5 P3-3 progress rows;
-  durables (this § → CLOSED, LEARNINGS close note); explicit-path commits, never
-  handoff.config.json; renewals: 11/12 consumed, cap 12 — the successor hop is the LAST
-  auto-renewal; plan its close EARLY (finalize at cap, never past).
-Then subround **P3-4 = rep-groups `2(...)` (tables `80 n … 81`), `x(w)` `0B` records, and the
-file-route fixed-bin EXPRESSION item (PA bytes already pinned at LOAN2 0544-0558)** — PLAN
-section committed BEFORE any ocaml/ byte, probes under the standing campaign invocation.
-Constraints: no push; existing goldens never re-derived; operator handoff.config.json never
-staged; all rc DIRECT; pli80c POSITIONAL args; never hardcode LOAN2; CRLF probes.
+Registration executed in full THIS hop, every rc DIRECT: 13 SPECIMENS rows + E52PF
+dr-refuses REJECTS/NEG_META row (marker `picture $ after a digit specifier is dr-refuses`
+re-measured rc=2); `--update-inventory` EXACTLY 1199→1212 (+13 specimens) + 1 refusal
+(179→180); FULL gate REAL rc=0 `build/gate-e52p3c-reg.log` (1212/0 of 1212, negatives
+180/180, divergence 9/9, coverage 139/0/0, census 15/0/26/0, prose 5); census own write
+path rc=0 metadata-only, LOAN2 blocker VERBATIM UNCHANGED; **C361** from MEASURED BYTES
+ONLY committed BEFORE the COVERAGE rewrite (`64e464b`; b1=count{9,Z,$}−1-if-$, b2=count{9,Z}
+after the LAST V, len=text length, UPPER(text), concatenation, route-independent, PF
+dr-refuses positional law, no compile-time scale agreement); IO.PUT_EDIT EXACT:25 +
+coverage_check rc=0 (`4f5d509`); RESULTS §5 + PLAN §5 P3-3 row (`794cfb2`); prose rc=0
+twice. PA stays UNREGISTERED (P3-4 owns the file EXPRESSION item).
+
+**NEXT (P3-4, campaign continues):** subround **P3-4 = rep-groups `2(...)` → tables `80 n
+… 81` + `x(w)` → `0B w` + the file-route fixed-bin EXPRESSION item** (PA bytes already
+pinned at LOAN2.REL 0544-0558: `LHLD/LXI D,0064/?IM22N/XCHG/LHLD/DAD/MVI A,09/?QICOP/
+?EDTOV`). Execute: (1) `PLAN.md` §P3-4 + probes written from the LOAN2/P086K evidence and
+COMMITTED BEFORE any ocaml/ byte; grep probes/+INVENTORY for name collisions; verify the
+tag is UNUSED. (2) ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py
+<names> --tag e52p3d --switches '$L$D'`; classify every difference. (3) arm + sweep + LOAN2
+rerun VERBATIM (never fit). (4) registration (SPECIMENS, sanctioned --update-inventory, FULL
+gate rc=0 to build/gate-e52p3d-reg.log, census own write path) + claim **C362** from MEASURED
+bytes ONLY BEFORE the COVERAGE rewrite + coverage_check + prose rc=0 + RESULTS/PLAN rows +
+durables. Constraints: no push; existing goldens never re-derived; operator
+handoff.config.json never staged; all rc DIRECT; pli80c POSITIONAL; CRLF+bare ^Z probes ≤71
+cols. **RENEWALS 12/12 CONSUMED — this chain is CLOSED at the configured cap: a new hop
+requires the operator to archive and reset the ignored `.pi-guard` renewal-state.json (or
+raise the cap). Close this session via `handoff_finalize`; do NOT call `handoff_renew`.**
 
 SUPERSEDED-BY-ABOVE: ### E2E-52/P3-3 analysis LANDED (this hop, NOTHING committed, ZERO ocaml/ byte, ZERO oracle call); PLAN §P3-3 + probes + ONE grouped campaign OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-3 picture-record analysis COMPLETE" FIRST — it carries the full 12-record measured table, the surviving hypotheses HA2/HB8 (b1) and HC/HD (b2) with discriminators, the pairing precedents, the fmt_spec arm site, and the E52PA..E52PO probe bank)
 

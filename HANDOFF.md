@@ -7,6 +7,26 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-quinquies. **P3-3 FULLY CLOSED; RENEWAL CAP 12/12 REACHED — THIS IS THE FINAL HOP OF
+  CHAIN 01a1a795 (2026-11-05, successor of g307, renewal 12/12 consumed).** Registration
+  landed in full: `7294d09` (13 SPECIMENS E52PB..PE,PG..PL,PM,PN,PO + E52PF dr-refuses
+  REJECTS/NEG_META row, marker re-measured rc=2; sanctioned --update-inventory 1199->1212
+  EXACTLY +13+1; FULL gate REAL rc=0 DIRECT build/gate-e52p3c-reg.log 1212/0, 180/180, 9/9,
+  139/0/0, 15/0/26/0, prose 5) -> `a4eddd6` (census own write path rc=0, metadata-only, LOAN2
+  blocker VERBATIM UNCHANGED) -> `64e464b` (claim **C361** from MEASURED BYTES ONLY, BEFORE
+  the COVERAGE rewrite; ledger ENDS **C361**) -> `4f5d509` (IO.PUT_EDIT EXACT:25, falsified
+  clauses verbatim as HISTORICAL, coverage_check rc=0 139/0/0, stats not drifted) ->
+  `794cfb2` (RESULTS §5 + PLAN §5 P3-3 row; prose rc=0 twice). SUCCESSOR (only after the
+  OPERATOR archives/resets the ignored .pi-guard renewal-state.json or raises the cap): read
+  LEARNINGS.md § "E2E-52/P3-3 REGISTRATION LANDED — SUBROUND CLOSED at the 12/12 renewal cap"
+  and execute PROGRESS.md -> ## Next action = subround **P3-4** (rep-groups 80 n…81, x(w) 0B,
+  file-route EXPRESSION item; PA bytes pinned LOAN2 0544-0558): PLAN+probes COMMITTED BEFORE
+  any ocaml/ byte, one grouped campaign tag e52p3d (verify unused), arm+sweep+LOAN2 verbatim,
+  registration + claim C362 measured-bytes-only BEFORE the COVERAGE rewrite. Constraints
+  unchanged: no push; goldens never re-derived; operator handoff.config.json never staged;
+  all rc DIRECT; pli80c POSITIONAL; campaign continues. THIS session closes via
+  handoff_finalize — NEVER handoff_renew past the cap.
+
 0a-qua. **P3-3 LANDED THROUGH ARM; REGISTRATION OWED (2026-11-05, successor of g305, renewal
   11/12 consumed, cap 12).** Chain `eef371b` (PLAN §P3-3 + probes E52PA..E52PO committed BEFORE
   any ocaml/ byte) → `8edea80` (ONE grouped campaign tag e52p3 rc=0, **14 ok/15**; E52PF
