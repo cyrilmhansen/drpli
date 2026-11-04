@@ -8245,6 +8245,35 @@ let rec lower_test_skip0 st (c : Ast.expr) =
       d st (if r = Ast.Eq then op_jnz else 0xca);  (* [C072] `^=' skips with CA [F9] *)
       st.last_imm <- None;
       let slot = st.lc in d st 0; d st 0; slot
+  (* ---- [E2E-51/P1 arm 3] a measured variable-divisor DIV RESULT on the LEFT of `=' -------
+     E51I `if a / b = c then z = 1;' — golden/e51p1/E51I/E51I.REL, the ONLY object in the bank
+     with a helper RESULT as a compare operand (spec/lab-evidence/e2e51-p1/RESULTS.md §2.2).
+     Every byte is read off that golden: the quotient the Div arm leaves in HL is PARKED (`E5'),
+     the plain right operand is loaded (`2A r4'), `D1' moves it to DE and `CD ?IS22N' compares
+     (DE - HL), then the HL-zero test `7C / B5' and the skip.  The skip byte is `C2` (JNZ) as
+     MEASURED — my prediction `CA' from [C072] is FALSIFIED: an equality test on a helper RESULT
+     takes the [C089] zero-test polarity (skip the THEN-part while HL != 0), the same polarity as
+     the `mod(x,y) = 0' arm above, and the forward target is patched by the standard triple
+     (`SET-LC 001C / RELOC code 0x24 / SET-LC 0024'), CODE 0027.
+     Admission is EXACTLY the measured shape: relation `=' ONLY; LEFT an UNWRAPPED
+     variable-divisor DIV of the class the Div arm accepts (`is_var_divisor_div' — non-constant
+     non-call/element divisor, no deref/based/qualified operand either side); RIGHT a plain
+     fixed-binary automatic (`is_plain_num_auto').  Everything else — `^=' against a DIV, a DIV on
+     the RIGHT, a CONSTANT-divisor DIV in TEST, an ordered relation against a DIV, a literal or
+     member right operand — keeps falling through to the refusal site below, because DR has no
+     object for any of it (§3). *)
+  | Ast.Ebinary (Ast.EqR Ast.Eq, l, rr) when
+      is_var_divisor_div st l && is_plain_num_auto st rr ->
+      ignore (lower_hl st l);                      (* [C089]-class parking, quotient in HL *)
+      d st op_push_h;
+      cmp_load_deref st
+        (match (unwrap_e rr).Ast.e with Ast.Eident n -> n.Ast.orig | _ -> assert false);
+      d st op_pop_d;
+      call_ext st "?IS22N";
+      d st op_mov_a_h; d st 0xb5;                   (* ORA L — the HL-zero test *)
+      d st op_jnz;                                  (* E51I measured C2, NOT the CA prediction *)
+      st.last_imm <- None;
+      let slot = st.lc in d st 0; d st 0; slot
   | Ast.Ebinary (Ast.EqR ((Ast.Eq | Ast.Ne) as r), l, rr) when
       (match str_cmp_shape st l rr with Some _ -> true | None -> false) ->
       let (hl_fn, de_fn, len_src) =
