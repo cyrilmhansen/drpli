@@ -8558,3 +8558,80 @@ classified `unmeasured` rather than `dr-refuses`.
   itself refuses it on a PUT (`dr-refuses`, E46N21 pass-2 `SYNTAX ?`).  BYTE TIER ONLY:
   no object containing `?PAGOP` has been executed under cpmsim; there is no
   `spec/RUNTIME.txt` row for this claim.
+
+## C360 — A FILE `put/get … edit(L1)(L2)` LOWERES `L1` AS THE DATA LIST AND `L2` AS THE FORMAT LIST; THE FORMAT LIST BECOMES A PRESCAN-PREALLOCATED `*S` POOL TABLE (`80 00 | records | 81`, the console record law of [C090]) EMITTED IN SOURCE ORDER AHEAD OF THE FILE COMMON GROUP, WITH LOWERING-ALLOCATED POOL BLOCKS AFTER IT; THE ATTACH RUNS THROUGH `?SIOOP` WITH NO OPEN ANYWHERE IN THE PROGRAM ([C282]); THE PUT CALLS `?EDITF` AND PREPARES A DECIMAL VARIABLE WITH THE CONSOLE IMMEDIATE LAW `MVI A,p / ?DLDOP / MVI A,p+3 / MVI B,s / ?QDCOP` + `?EDTOV` TAIL + `?QIOOP` CLOSE; THE GET INSERTS `CALL ?EDTIV` BETWEEN `?EDITF` AND THE CONSOLE GET DEC TAIL `MVI B,s / ?QCDOP / LXI H,var / MVI A,p / ?DSTOP` (E2E-52/P3-2; MEASURED — P086K 512 B and P086J 256 B whole-file `cmp` rc=0, never fitted)
+
+* **Measured — the format-record law, file and console, from `golden/probe55/P086J/P086J.REL`**
+  (256 B sha256 `76524d50d426391ececa6f955fedbbcedf25f928a0c3f3f7bd248aeb50770aa3`,
+  DEF-CODE-SIZE `003D` = 61, DEF-DATA-SIZE `0010` = 16; probe `probes/P086J.PLI`
+  sha256 `949104bd…`: `d fixed decimal(7,2); d = 1.5; put edit(d)(f(9,2), a(4));`).
+  The prescan table `80 00 00 09 02 03 04 81` @`*S(0000)` pins, alongside [C090]:
+  header `80 00`; **`f(w,d)` = `00 w d`** (`00 09 02`); **`a(w)` = `03 w`** (`03 04`);
+  terminator `81`. The lowering-allocated DEC literal `50 01 00 00` sits at `0008`
+  (RTdec(7,2) width) and the variable cell `d` at `000C`. Statement `001F-0036`:
+  `LXI H,*S(0000)` / `CALL ?EDITF@0023` / `LXI H,*S(000C)` / `MVI A,07` /
+  `CALL ?DLDOP@002B` / `MVI A,0A` / `MVI B,02` / `CALL ?QDCOP@0032` /
+  `CALL ?EDTOV@0035` / `CALL ?QIOOP@0038` — the console DEC EDIT item prep is the
+  `p, p+3, s` immediate law (`p=7`: `07` then `0A`). **This object FALSIFIES my earlier
+  refusal premise that no DR sample passes a DEC variable through an EDIT list**; the FILE
+  tables (`80 00 00 05 01 81`, below) and the FILE `f(w,d)` (`00 05 01`) carry the same
+  encodings.
+* **Measured — the FILE statement bytes, from `golden/probe55/P086K/P086K.REL`** (512 B
+  sha256 `c79f196bc3b4c23690ad6291e4250268c7925500293ee3f5215a569a86781bff`,
+  DEF-CODE-SIZE `0065` = 101, DEF-DATA-SIZE `0012` = 18; probe `probes/P086K.PLI` sha256
+  `dab26a9a…`: `dcl f file, d fixed dec(5,2); d = 1.5; put file(f) edit(d)(f(5,1)); get
+  file(f) edit(d)(f(5,1));` — NO open statement anywhere). Pool: put table
+  `80 00 00 05 01 81` @`*S(0000)`, get table IDENTICAL @`*S(0006)`, DEC literal
+  `50 01 00` @`000C` (RTdec(5,2) width), `d` cell `000F`. PUT `0016-003C`: attach
+  `LXI H,*C(f)` / `LXI D,0652` / `LXI B,*CODE(003D)` / `CALL ?SIOOP@0020`, then
+  `LXI H,*S(0000)` / `CALL ?EDITF@0026`, then the DEC prep `LXI H,*S(000F)` / `MVI A,05` /
+  `CALL ?DLDOP@002E` / `MVI A,08` / `MVI B,02` / `CALL ?QDCOP@0035`, `CALL ?EDTOV@0038`,
+  `CALL ?QIOOP@003B`. GET `003D-0061`: attach `LXI D,0690` / `CALL ?SIOOP@0047`,
+  `LXI H,*S(0006)` / `CALL ?EDITF@004D` / **`CALL ?EDTIV@0050`** (`?EDTIV` — the one new
+  routine name on this route; its first measured appearance), `MVI B,02` /
+  `CALL ?QCDOP@0055` / `LXI H,*S(000F)` / `MVI A,05` / `CALL ?DSTOP@005D` /
+  `CALL ?QIOOP@0060`; continuation word `0062`, `?STOPX@0063`. The FILE route REUSES the
+  console DEC item and tail laws verbatim; the differences are the `?SIOOP` attach, the
+  table indirection through `*S`, and `?EDTIV` in the GET after `?EDITF`.
+* **Measured — the data/format ORDER and the no-OPEN attach.** In
+  `put file(f) edit(L1)(L2)` the FIRST parenthesised list carries the DATA items and the
+  SECOND the FORMAT items: P086K edits the declared decimal `d` through `f(5,1)`, and
+  LOAN2:115 `edit('|',100*m+y)(a,p'99/99')` has DATA `'|'` + `100*m+y` behind formats `a` +
+  picture ([E2E-52/P3-2 decode; the predecessor's reversed reading is kept falsified in
+  `LEARNINGS.md` § "E2E-52/P3-2 evidence decode LANDED"]). The attach needs NO OPEN:
+  `?SIOOP` at `0020`/`0047` with no `?OIOOP` in the object — the [C282] measured fact, now
+  carried by a whole panel-registered object on the EDIT route.
+* **Measured — the DATA-record ORDER law: the FILE COMMON group sits at the pool-PHASE
+  boundary, not at the head of DATA.** P086K's reldump emits
+  `SET-LC(data,0000)+6 / SET-LC(data,0006)+6` (both prescan-preallocated EDIT tables) /
+  `DEF-COMMON-SIZE abs 0023` COMMON `F` / `SEL-COMMON F` / `SET-LC(common,0000)+35 bytes`
+  (name tail `01 46` at common `0021-0022`) / `SET-LC(data,000C)+3` (the DEC literal the
+  EARLIER statement `d = 1.5` allocated at LOWERING time) / `DEF-DATA-SIZE 0012`.
+  Preallocated format tables precede the COMMON group; lowering-allocated blocks follow it.
+  Objects with NO EDIT table (E46N10, FLTPOLY2 — COMMON first, no tables) are structurally
+  unchanged, and the 75/75 zero-drift sweep measured exactly that. CORRECTION kept as
+  written: an intermediate reading of this golden took CODE `0x62` = 98 as the code size;
+  `0x62` is the ADDRESS of the last code record and DEF-CODE-SIZE is `0065` = 101 in both
+  objects — the recorded "+3 code bytes" divergence was FALSIFIED, the whole difference
+  was record ORDER.
+* **Measured — parity of MY lowering.** At the arm `a51fb93` (route) plus the order fix
+  `2686bcc`, on the clean-rebuild binary sha256 `748c434f…`: `pli80c probes/P086J.PLI` is
+  whole-file `cmp` rc=0 FIRST TRY, `probes/P086K.PLI` rc=0 after the order fix — both
+  never fitted to anything but the goldens. Registered as panel specimens `P086K` +
+  `P086J` (sanctioned `--update-inventory` 1197→1199, EXACTLY TWO lines); post-registration
+  FULL gate REAL rc=0 **1199 byte-exact / 0 of 1199** (`build/gate-e52p3b-reg.log`),
+  negatives **179/179** (E41X8 retired at `ff1c8f2`, MEASURED rc=0 — its composite
+  open+EDIT shape has NO golden, so its BYTES are NOT claimed here and never will be).
+* **What this does NOT say.** The picture record `02 A B len text` (LOAN2's own table
+  carries `02 04 00 05` + `39 39 2F 39 39` = `99/99`): `len` is the text length but the
+  operands `04 00 05` are UNDECODED — subround P3-3's job — and my compiler REFUSES
+  pictures BY NAME. `x(w)` = `0B w` is decoded from LOAN2's tables but NOT armed; nested
+  rep-groups (`80 n … 81`) are undecoded and refused (LOAN2's DATA rep-group at 212 compiles
+  to an INLINE DO LOOP — a distinct class). Counted `SKIP(n)`+EDIT and `PAGE`+EDIT have NO
+  DR object and refuse BY NAME; so do numeric-LITERAL EDIT data items, DEC FORMAL (deref)
+  items, fixed-bin EXPRESSION items on the FILE route (pinned inside LOAN2's golden at
+  `0544-0558` but never panel-isolable: that statement refuses on its picture first),
+  FLOAT/member/struct items, and remote formats. A format COUNT that is an expression
+  remains UNSAMPLED (the legacy clause of the COVERAGE row, still true). BYTE TIER ONLY:
+  no P086K/P086J object has been executed under cpmsim; there is no `spec/RUNTIME.txt` row
+  for this claim.
