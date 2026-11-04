@@ -5,6 +5,97 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-2 P086K FIXED (record ORDER, not bytes); sweep GREEN; refusal probes PARTLY FALSIFIED (2026-11-04, session 01a1a822, renewal 7/12; `ocaml/lib/codegen.ml` edited, UNCOMMITTED at this checkpoint)
+
+- **ACCEPTED (recovery).** HEAD `a51fb93` (the g294 arm WAS committed as unverified-WIP — the
+  predecessor note's "UNCOMMITTED / HEAD `1a1ceb6`" was stale); tree clean except the operator
+  `handoff.config.json`; `dune build` rc=0.
+- **FALSIFIED (the predecessor's +3-bytes diagnosis), kept verbatim:** "mine 512B code=101 vs
+  golden 98 (+3 bytes) … suspect a spurious second SEL-COMMON on the GET or a prescan table-count
+  miss". A record-for-record `tools/reldump.py` diff (mine `/tmp/p086k.rel` vs
+  `golden/probe55/P086K/P086K.REL`) shows **every CODE byte, every pool byte, DEF-CODE-SIZE
+  `code 0065`=101 and DEF-DATA-SIZE `abs 0012`=18 are IDENTICAL**; the golden's `0x62`=98 is the
+  ADDRESS of the last code record (the `?STOPX` CALL), not a size, and the compiler's own stdout
+  `code=101 data=3` is an internal report the panel never compares. The whole difference is
+  **record ORDER**: the golden emits `SET-LC(data,0000)+6 table bytes / SET-LC(data,0006)+6 table
+  bytes / DEF-COMMON-SIZE F / SEL-COMMON F / SET-LC(common,0)+35 bytes / SET-LC(data,000C)+3 DEC
+  literal bytes`, mine emitted the COMMON group before the whole DATA segment.
+- **MEASURED LAW (from the P086K golden alone, now hit byte-exact): the FILE COMMON group sits at
+  the prescan/lowering POOL-PHASE boundary, not at the head of DATA.** The prealloc'd format
+  tables (the [E2E-8] R1003/R1021/R1022 "all tables before any other pool item" pass) are emitted
+  BEFORE the COMMON group; the literal that the EARLIER statement `d = 1.5` allocated at lowering
+  time comes AFTER it. E46N10/FLTPOLY2 (a FILE with NO EDIT table, common first) stay exactly as
+  measured — with no tables the reordering cannot move a byte, and with no COMMON group the stream
+  is the same address-ordered one, so the change is structurally zero-drift.
+  Implemented in the module assembly: `prealloc_fmt_tables` now RETURNS its table-block count,
+  the pool is partitioned into static-init cells / table blocks / lowering blocks, and only the
+  measured shape (tables present + COMMON group present + no static cells + tables starting at
+  data 0000) reorders; every other combination of static cells or a non-zero table base RAISES
+  BY NAME as unmeasured.
+- **MEASURED: P086K whole-file `cmp` rc=0 (512 B) and P086J rc=0 (256 B) — both predictions now
+  HIT.** Zero-drift sweep `build/e52p3/sweep.py` (scratch, ignored) **75 specimens byte-exact /
+  0 FAIL**: E46N 19/19 (18 pre-P3-1 + the registered E46N10), E52A..J 10/10, E51A..L 12/12, R10
+  bank 34/34 (the inventory holds 34 R10* specimens, not 35 — one R10* row is a refusal). Boundary
+  markers intact rc=2: `E46K4` imem-EDIT text, `E46K15` "GET form not in E2E-3e subset [TBD]
+  (line 3)", `E46N21` LINE-with-count text. Warning histogram over `lib/codegen.ml` IDENTICAL to
+  `build/e52p3/arm-build-warnings.log` (70 warnings, per-kind counts equal). Binary
+  `748c434fafd8c01579…` — **LESSON: an `rm -rf _build` clean build gives a different exe sha than
+  the incremental build of the same source (`a353f6fc…`); record WHICH build a sha came from.**
+  The comparison method also matters: splitting dune's log with a regex under-counts (it dropped
+  14 baseline blocks); counting `Warning NN [name]` lines against the nearest preceding
+  `File "…"` line is the honest histogram.
+- **FALSIFIED (my own probe design), kept verbatim:** the "counted-SKIP+EDIT" and "PAGE+EDIT"
+  probes were written as `put file(f) edit(skip(3),d)(f(5,1))` and `edit(page,d)(f(5,1))`. THE
+  PARSER COLLECTS EDIT CONTROL ITEMS ONLY FROM THE STATEMENT-OPTION POSITION (lib/parser.ml
+  ~1036-1084: `ctl_items` come from `parse_ctl_items` before `EDIT`, and LOAN2 writes
+  `put file(output) skip edit …`); inside the data list `skip(3)` is a DATA item — it refused as
+  "PUT FILE(F) EDIT of an EXPRESSION or SUBSCRIPTED item" — and bare `page` reached BIND as an
+  identifier ("undeclared page"). Re-probe both in the option position: `put file(f) skip(3)
+  edit(d)(f(5,1));` and `put file(f) page edit(d)(f(5,1));` — those are what the arm's
+  `Pi_ctl ("SKIP",Some _)` / `Pi_ctl (k,_)` raises actually guard.
+- **ACCEPTED (refusals measured, scratch `build/e52p3/refusals/`, all rc=2):** picture format
+  `p'99/99'` → `codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture,
+  remote and rep-group formats are not decoded)` — NO line number, i.e. exactly the shape
+  predicted for LOAN2:115; `x(5)` → "PUT EDIT operator X is unsampled"; numeric literal `edit(42)`
+  → the matcher "cannot split" catch (it names the SHAPE, not "numeric literal" — a message-quality
+  gap, my-gap, not a DR fact); DEC formal → names "the FORMAL X … read through its pointer cell";
+  fixed-bin EXPRESSION → names the class and cites LOAN2 golden 0544-0558.
+- **MEASURED DEFECT (mine, recorded not fixed):** the two file-EDIT raises report `(line 2)` for
+  statements on lines 3 and 4 of my scratch probes. PROPOSED cause (UNCONFIRMED): the line counter
+  tracks CRLF terminators and these scratch files are LF; every tracked probe is CRLF and LOAN2's
+  real message carried the right line 115. Verify before pinning any new line-numbered marker.
+- **LOAN2 real EDIT syntax read this session (for later subrounds):** rep-groups are `2(...)` in
+  the FORMAT list (`(a,2(2(p'$zz,zzz,zz9v.99',a), …))` at 147, `2(a,p'99')` at 177, `2(a,p'b99v.99',
+  a,x(6))` at 195), never `(item)/n`; pictures `p'…'`; `x(15)`/`x(16)`; stmt 199 = six literals +
+  `(a)`; stmt 212 data rep-group `('---------------' do i = 1 to 4)`.
+- **ACCEPTED (the two option-position re-probes, run this session, rc=2 DIRECT):** `put file(f)
+  skip(3) edit(d)(f(5,1));` → `codegen: PUT FILE(F) EDIT with a COUNTED SKIP control item [TBD]
+  (line 4) -- the bare skip is measured ahead of a format table (LOAN2 golden 0529 MVI A,01/?SKPOP),
+  but counted SKIP+EDIT has no DR object: E46N9/E46N18 pin counts on the LIST route only`;
+  `put file(f) page edit(d)(f(5,1));` → `… with the control item PAGE [TBD] (line 4) -- only the
+  bare SKIP option is measured ahead of a format table; PAGE+EDIT has no witness anywhere (E46N10
+  pins bare PAGE on the LIST route alone)`. Both name their class AND carry the CORRECT line number
+  on CRLF sources — which corroborates (still PROPOSED, not proven) the LF-line-counter explanation
+  of the wrong `(line 2)` above.
+- **ACCEPTED (LOAN2 rerun UNMODIFIED, rc=2 DIRECT, sha `7be23ba3…`, golden `712cfcb2…` untouched):**
+  blocker MOVED past P3-1's `PUT EDIT deferred … (line 115)` to the VERBATIM
+  `codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and
+  rep-group formats are not decoded)` — exactly the fmt_spec catch the arm-design § predicted,
+  NO line number; recorded, never fitted. Evidence `build/e52p3/loan2-postfix-stderr.log`.
+- **OWED NEXT (successor, exact order, all rc DIRECT):** (1) E41X8 must now compile
+  rc=0 (inline source, NO golden — never claim its bytes) → retire REJECTS row `tools/e2e_gate.py`
+  ~2568 + `NEG_META["E41X8"]` ~4021, negatives 180→179; (2) commit the codegen fix explicit-path
+  FIRST (sweep is green NOW); (3) registration: SPECIMENS P086K+P086J (keep golden paths),
+  `--update-inventory` 1197→1199 EXACTLY TWO lines, FULL gate rc=0 1199/0 to
+  `build/gate-e52p3b-reg.log`; census via its OWN write path (record moved LOAN2/COPYLPT msgs
+  verbatim); COVERAGE `IO.PUT_EDIT` row (line 65) ONLY after verifying the IFACT/LOAN1 discrepancy
+  (LOAN1 has NO edit statement) + `coverage_check.py` rc=0; claim **C360** from the MEASURED bytes
+  only (the record-order law above + P086K/P086J); `file_prose_check.py` rc=0; RESULTS.md §+PLAN
+  §5 row; durables; explicit-path commits; no push; goldens never re-derived; operator config never
+  staged; renewals autonomous at safe boundaries (7/12 consumed, cap 12); campaign continues past
+  every blocker. **CLI/rc LESSON: `pli80c.exe IN.PLI OUT.REL` positional only, and `cmd 2>&1 | tee
+  f | head` reports TEE's status — LOAN2 looked rc=0 through a pipeline and is rc=2 DIRECT.**
+
 ## E2E-52/P3-2 evidence decode LANDED (session 01a1a7d2, renewal 3/12); PLAN §P3-2 owed BEFORE any ocaml/ byte
 
 - **ACCEPTED (durables).** HEAD `c25bce1` + g283 managed-block commit `cbf2fc0`; tree clean

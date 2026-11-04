@@ -3024,7 +3024,7 @@ let rec edit_stmts (ss : Ast.stmt list) : Ast.stmt list =
       | _ -> [])
     ss
 
-let prealloc_fmt_tables st (ss : Ast.stmt list) =
+let prealloc_fmt_tables st (ss : Ast.stmt list) : int =
   st.fmtq
     <- List.map
          (fun s ->
@@ -3034,7 +3034,10 @@ let prealloc_fmt_tables st (ss : Ast.stmt list) =
                (match match_get_edit s with
                 | Some (_, _, specs) -> pool_alloc st (fmt_table_bytes specs)
                 | None -> assert false))
-         (edit_stmts ss)
+         (edit_stmts ss);
+  (* [E2E-52/P3-2] the caller needs to know how many pool blocks THIS pass created,
+     after the fact, because `st.fmtq' is drained by lowering.  One block per table. *)
+  List.length st.fmtq
 
 
 (* GET LIST (varying);) — single varying data item, default stream,
@@ -14028,7 +14031,7 @@ let emit_program (progname : string) (auto_bytes : int)
   (* [E2E-8] DR allocates every PUT EDIT format table ahead of all other pool
      items [R1003/R1021/R1022], so the tables are reserved BEFORE any
      statement lowers. *)
-  prealloc_fmt_tables st stmts;
+  let n_fmt_blocks = prealloc_fmt_tables st stmts in
   (* lower prologue + body + epilogue into st.items (code segment) *)
   let ls = { labs = []; fwd = []; scope = 0; own = []; own_procs = []; chain = []
            ; on_pads = []; sp_cell = None; on_any = false } in
@@ -14260,24 +14263,57 @@ let emit_program (progname : string) (auto_bytes : int)
           SET-LC(data,0000) -- their first block does not start at 0.
      Both directions are consistent with per-block emission; neither is consistent
      with a group-existence condition. *)
+  let pool_sorted =
+    List.mapi (fun i x -> (i, x))
+      (List.sort (fun (a, _) (b, _) -> compare a b) st.pool)
+    (* each pool block: SET-LC(data,addr) for addr>0 then its bytes;
+       block 0 rides the header SET-LC(data,0) [G113] *)
+  in
+  let blk_recs (i, (addr, bs)) =
+    (* [E2E-16/C152] only the FIRST block rides the header's SET-LC(data,0).  A later
+       block at address 0 -- which happens exactly when an empty literal is stored twice
+       [PL16/PL17: two SET-LC(data,0000), zero DATA bytes] -- gets its own record. *)
+    (if addr > 0 || i > 0 then [Link (t_set_lc, Some (Data, addr), None)] else [])
+    @ List.map (fun v -> Data (v land 0xff)) bs
+  in
+  (* [E2E-52/P3-2] the blocks created by the prealloc pass are the pool blocks ABOVE
+     the static-initialiser cells and BELOW everything lowering allocates. *)
+  let n_static_blocks = List.length statics.sy_cells in
+  let fmt_grp, rest_grp =
+    List.partition
+      (fun (i, _) -> i >= n_static_blocks && i < n_static_blocks + n_fmt_blocks)
+      pool_sorted
+  in
+  (* MEASURED record order, `golden/probe55/P086K/P086K.REL` (512 B, reldump
+     build/e52p3/p086k-reldump.txt): DEF-PUBLIC / SET-LC(data,0000) + the 6-byte PUT
+     EDIT table / SET-LC(data,0006) + the 6-byte GET EDIT table / DEF-COMMON-SIZE F /
+     SEL-COMMON F / SET-LC(common,0) + 35 bytes / SET-LC(data,000C) + the 3-byte DEC
+     literal / DEF-DATA-SIZE 0012 / code.  The pre-allocated FORMAT TABLES are emitted
+     BEFORE the FILE COMMON group; the literal that the EARLIER statement (`d = 1.5')
+     allocated at lowering time comes AFTER it.  So the COMMON group sits at the
+     prescan/lowering phase boundary, not at the head of DATA whenever a FILE exists
+     (E46N10, FLTPOLY2 -- no EDIT table, common first -- stay exactly as measured).
+     When there is no COMMON group this reordering cannot move a byte: the tables are
+     already the lowest-address blocks, so the stream is the same address-ordered one. *)
+  let tables_before_common = fmt_grp <> [] && common_seg <> [] in
+  if
+    tables_before_common
+    && (n_static_blocks > 0
+        || (match fmt_grp with ((_, (0, _)) :: _) -> false | _ -> true))
+  then
+    failwith
+      ("codegen: [TBD] a FILE COMMON group with EDIT format tables above static-initialiser "
+       ^ "cells, or with a format-table group that does not start at data 0, is an unmeasured "
+       ^ ".REL record order [E2E-52/P3-2 measures P086K only: tables at data 0000, NO static "
+       ^ "cells]");
+  let pool_head = Link (t_set_lc, Some (Data, 0), None) in
   let data_seg =
-    if st.pool <> [] then
-      Link (t_set_lc, Some (Data, 0), None)
-      ::
-      (let sorted =
-         List.sort (fun (a, _) (b, _) -> compare a b) st.pool in
-       (* each pool block: SET-LC(data,addr) for addr>0 then its bytes;
-          block 0 rides the header SET-LC(data,0) [G113] *)
-       List.concat_map
-         (fun (i, (addr, bs)) ->
-           (* [E2E-16/C152] only the FIRST block rides the header's SET-LC(data,0).  A later
-              block at address 0 -- which happens exactly when an empty literal is stored twice
-              [PL16/PL17: two SET-LC(data,0000), zero DATA bytes] -- gets its own record. *)
-           (if addr > 0 || i > 0 then [Link (t_set_lc, Some (Data, addr), None)]
-            else [])
-           @ List.map (fun v -> Data (v land 0xff)) bs)
-         (List.mapi (fun i x -> (i, x)) sorted))
-    else []
+    if st.pool = [] then []
+    else if tables_before_common then pool_head :: List.concat_map blk_recs fmt_grp
+    else pool_head :: List.concat_map blk_recs pool_sorted
+  in
+  let data_grp_rest =
+    if tables_before_common then List.concat_map blk_recs rest_grp else []
   in
   let bridge =
     [ Link (t_def_data_size, Some (Abs, data_size), None)
@@ -14296,7 +14332,14 @@ let emit_program (progname : string) (auto_bytes : int)
     ; Link (t_end_program, Some end_prog_op, None)
     ; Link (t_end_file, None, None) ]
   in
-  (header @ common_seg @ data_seg @ bridge @ code_items @ tail, st.lc)
+  (* [E2E-52/P3-2] the DATA stream is split around the COMMON group only in the measured
+     P086K shape; every other program keeps E2E-11 step 2's header/COMMON/DATA order. *)
+  let body =
+    if tables_before_common then
+      header @ data_seg @ common_seg @ data_grp_rest
+    else header @ common_seg @ data_seg
+  in
+  (body @ bridge @ code_items @ tail, st.lc)
 
 (* build var_info rows from binder rows, keeping only fixed-bin scalars.
    NOTE: storage byte-size comes ONLY from Bind.bytes_of (the binder is the

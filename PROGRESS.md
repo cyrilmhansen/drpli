@@ -443,7 +443,38 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-2 ARM LANDED (uncommitted); P086J cmp rc=0 FIRST TRY; P086K MISSES AT BYTE 32 — DEBUG, SWEEP, REFUSALS, REGISTRATION OWED (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 ARM IMPLEMENTED" FIRST — it carries the full arm record, the falsified P1, the two mechanics lessons, and owed steps (1)-(7) exactly)
+### E2E-52/P3-2 P086K FIXED (DATA/COMMON record ORDER); SWEEP GREEN 75/75; E41X8 RETIREMENT + REGISTRATION OWED (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 P086K FIXED" FIRST — it carries the falsified +3-bytes diagnosis, the measured record-order law, the falsified probe design and the exact owed steps (1)-(5))
+
+Headline ACTUALS this hop (all rc DIRECT): `dune build` rc=0, binary `748c434fafd8c01579…`
+(CLEAN rebuild — an incremental build of the same source hashes differently, `a353f6fc…`; always
+say which build). P086K whole-file `cmp` **rc=0** (512 B, CODE 0x65=101, DATA 0x12=18); P086J
+**rc=0** (256 B). Zero-drift sweep **75 specimens byte-exact / 0 FAIL** (E46N 19/19, E52 10/10,
+E51 12/12, R10 bank 34/34); boundary markers intact rc=2 (E46K4 imem-EDIT, E46K15 GET-subset
+line 3, E46N21 LINE-with-count). Focused refusals rc=2 BY NAME: picture → the fmt_spec catch with
+NO line number; `x(5)` → operator X unsampled; counted SKIP+EDIT and PAGE+EDIT **in the
+statement-option position** (my first probes put them inside the data list and were FALSIFIED as
+probe designs — the parser collects EDIT controls only from the option position) → name the class
+with the CORRECT line 4 on CRLF sources; numeric literal → matcher "cannot split" catch; DEC
+formal → names the formal; fixed-bin EXPRESSION → names the class + cites LOAN2 0544-0558. LOAN2
+UNMODIFIED rc=2, next blocker VERBATIM: `codegen: PUT EDIT format item form unsampled [TBD]
+(counted, grouped, picture, remote and rep-group formats are not decoded)` — P3-1's "PUT EDIT
+deferred … (line 115)" is behind us, exactly as the arm-design § predicted.
+NEXT: (3) retire E41X8 (compiles rc=0 now; inline source, NO golden, never claim its bytes) from
+REJECTS `tools/e2e_gate.py:2568` + NEG_META 4021 → negatives 180→179; (4) commit the codegen fix
+explicit-path (sweep green NOW); (5) registration: SPECIMENS P086K+P086J, `--update-inventory`
+1197→1199 EXACTLY TWO lines, FULL gate rc=0 1199/0 to `build/gate-e52p3b-reg.log`, census via its
+OWN write path recording moved LOAN2/COPYLPT messages verbatim, COVERAGE `IO.PUT_EDIT` row ONLY
+after verifying the IFACT/LOAN1 discrepancy (LOAN1 has NO edit stmt) + coverage_check rc=0, claim
+**C360** from MEASURED bytes only, prose rc=0, RESULTS.md + PLAN §5 row, durables,
+explicit-path commits, no push. Campaign CONTINUES past every blocker: next LOAN2 classes =
+picture `02`-record decode, `x(w)` `0B` records, `2(...)` rep-groups, DEC-formal (deref) items,
+fixed-bin EXPRESSION items, then the PRINT/PAGESIZE OPENs at 54/56 — each with its own PLAN
+section committed BEFORE its byte. Constraints: no push; goldens never re-derived; operator
+`handoff.config.json` never staged; all rc DIRECT (never a trailing pipeline — `cmd | tee | head`
+reports tee's status); never hardcode LOAN2; renewals autonomous at safe boundaries (7/12
+consumed, cap 12).
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-2 ARM LANDED (uncommitted); P086J cmp rc=0 FIRST TRY; P086K MISSES AT BYTE 32 — DEBUG, SWEEP, REFUSALS, REGISTRATION OWED (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 ARM IMPLEMENTED" FIRST — it carries the full arm record, the falsified P1, the two mechanics lessons, and owed steps (1)-(7) exactly)
 
 Headline ACTUALS this session (all rc DIRECT): `dune build` rc=0 binary `a353f6fc7a48d185…`,
 warning histogram IDENTICAL to `build/e52p3/arm-build-warnings.log`; arm = contract (a)-(g)

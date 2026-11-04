@@ -7,6 +7,16 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-ter-2. **P086K FIXED — RECORD ORDER, NOT BYTES (2026-11-04, successor of g294, renewal 7/12
+  consumed).** The reldump diff proved every CODE and DATA byte of P086K already agreed with the
+  golden (the predecessor's "+3 code bytes" reading FALSIFIED: `0x62`=98 is the last code record's
+  ADDRESS, DEF-CODE-SIZE is `0065`=101 in both); the difference was that DR emits the prealloc'd
+  FORMAT TABLES before the FILE COMMON group and the lowering-allocated pool after it. Arm fixed,
+  `dune build` rc=0, P086K cmp **rc=0** (512 B), P086J **rc=0** (256 B), sweep **75/75 byte-exact**,
+  boundary markers intact, warning histogram identical, LOAN2 advanced VERBATIM to the fmt_spec
+  catch. SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-2 P086K FIXED" and execute `PROGRESS.md` →
+  `## Next action` (E41X8 retirement, commit, registration 1197→1199, C360 from measured bytes).
+
 0a-ter. **P3-2 ARM IMPLEMENTED, P086K DEBUG OWED (2026-11-04, successor of g291, renewal
  6/12 consumed).** Arm (a)-(g) landed in `ocaml/lib/codegen.ml` ONLY, UNCOMMITTED; build
  rc=0 binary `a353f6fc7a48d185…`, warning profile IDENTICAL. P086J cmp **rc=0 FIRST TRY**
