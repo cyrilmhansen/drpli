@@ -443,7 +443,26 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-2 P086K FIXED (DATA/COMMON record ORDER); SWEEP GREEN 75/75; E41X8 RETIREMENT + REGISTRATION OWED (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 P086K FIXED" FIRST — it carries the falsified +3-bytes diagnosis, the measured record-order law, the falsified probe design and the exact owed steps (1)-(5))
+### E2E-52/P3-2 REGISTERED (gate rc=0 1199/0, negatives 179/179, census recorded); COVERAGE IO.PUT_EDIT + C360 + RESULTS/PLAN OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-2 registration LANDED" FIRST — it carries the measured ACTUALS, the FALSIFIED IFACT/LOAN1 picture clause and the exact owed steps 1-6)
+
+LANDED this hop: `95b1fa6` g298 block; `ff1c8f2` E41X8 retired (MEASURED rc=0 384B, NO golden,
+bytes never claimed; negatives 180→179); `60ed349` SPECIMENS P086K+P086J, `--update-inventory`
+EXACTLY TWO lines 1197→1199, census own write-path rc=0 (LOAN2 blocker VERBATIM moved to
+`codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and
+rep-group formats are not decoded)`; COPYLPT unchanged), FULL gate REAL rc=0 DIRECT
+`build/gate-e52p3b-reg.log` (1199/0, 179/179, 9/9, 139 0/0, 15/0/26/0, prose 5).
+VERIFIED prerequisite: LOAN1 has NO edit stmt; IFACT's edit has NO picture — the `IO.PUT_EDIT`
+row's IFACT/LOAN1-picture clause is FALSIFIED.
+NEXT: (1) rewrite COVERAGE.tsv `IO.PUT_EDIT` (line 65) citing P086K/P086J, boundary naming the
+still-refusing picture/x/rep/counted/grouped/remote forms with LOAN2's verbatim message;
+`coverage_check.py` rc=0. (2) claim **C360** from MEASURED bytes ONLY (ledger ends C359; never
+claim E41X8 bytes). (3) `file_prose_check.py` rc=0. (4) RESULTS.md §P3-2 + PLAN.md §5 row.
+(5) durables, explicit-path commits. (6) subround P3-3 = picture `02` A/B decode — PLAN section
+committed BEFORE any ocaml/ byte. Constraints: no push; goldens never re-derived; operator
+`handoff.config.json` never staged; all rc DIRECT (never a trailing pipeline); never hardcode
+LOAN2; renewals autonomous (9/12, cap 12).
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-2 P086K FIXED (DATA/COMMON record ORDER); SWEEP GREEN 75/75; E41X8 RETIREMENT + REGISTRATION OWED (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 P086K FIXED" FIRST — it carries the falsified +3-bytes diagnosis, the measured record-order law, the falsified probe design and the exact owed steps (1)-(5))
 
 Headline ACTUALS this hop (all rc DIRECT): `dune build` rc=0, binary `748c434fafd8c01579…`
 (CLEAN rebuild — an incremental build of the same source hashes differently, `a353f6fc…`; always
@@ -2343,17 +2362,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 298
-checkpoint-id: g298-a23da895a056
-checkpoint-kind: manual
+checkpoint-generation: 300
+checkpoint-id: g300-ec7d5af03534
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-04T20:17:56.958Z
+checkpointed: 2026-11-04T20:37:51.574Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 2648d6e6cb3c551f8904663da69513e0907c9630e9445d296dbb17fa3bfb55ab
 source-handoff: 414f1402c921b00e546786d8a97ff512117a64b3852690673a17ef5d9c1e5c4b
-source-learnings: 742da2bf95d0f69d24896eebf3b5795b855c52752ba00b0cd4385ddf25b0496b
+source-learnings: f91864c23803850f6da37543821b21362fd8a5ec0d1268da737a799b5e967a11
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` step (2) (E41X8 retirement — it compiles rc=0 now, no golden, never claim its
   bytes; negatives 180→179) THEN step (3) registration. HEAD `2686bcc` (fix + durables); commit the
@@ -2673,9 +2692,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a822-13f6-7427-a642-9c57e477da4c
-readiness-at: 2026-11-04T20:17:56.976Z
-readiness-checkpoint: g298-a23da895a056
 <!-- guard:end checkpoint -->
 
 ## Blockers

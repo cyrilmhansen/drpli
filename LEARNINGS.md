@@ -5,6 +5,54 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-2 registration LANDED (E41X8 retired 179/179; P086K+P086J on the panel; gate rc=0 1199/0) (2026-11-05, session 01a1a836; NO ocaml/ byte this hop)
+
+- **ACCEPTED (recovery).** HEAD `2686bcc`; g298 block committed verbatim `95b1fa6`; `dune build`
+  rc=0, clean-rebuild binary `748c434fafd8c01579…` (matches the predecessor's hash). P086K
+  whole-file `cmp` **rc=0** (512 B) and P086J **rc=0** (256 B) RE-MEASURED this hop.
+- **ACCEPTED (PLAN §P3-2 P5, executed).** E41X8 inline source (extracted from the REJECTS literal
+  by AST) compiles **rc=0, 384 B, code=93 data=3** — the retirement condition was MEASURED, not
+  assumed. Row retired from REJECTS + NEG_META TOGETHER (symmetry audit) with retirement notes
+  kept as written history (E41X4/E46N10 convention); `--update-inventory` rc=0, diff EXACTLY ONE
+  line (`432d431`), refusal rows 180→**179**. Commit `ff1c8f2`. **The composite titled-OPEN+EDIT
+  shape has NO golden — its bytes are NOT claimed and it did NOT become a specimen.**
+- **ACCEPTED (PLAN §P3-2 P6, executed).** SPECIMENS `P086K`+`P086J` (probe55 EDIT bank, with
+  measured comments: record-order law, `f(w,d)`=`00 w d`, `?EDTIV` first panel emission,
+  `0x62`=98 is the last code record's ADDRESS not a size); `--update-inventory` rc=0 diff EXACTLY
+  TWO lines, specimen rows 1197→**1199**; census re-snapshotted via its OWN write path
+  (`corpus_census.py --check spec/census/corpus-census.json`) rc=0, counts IDENTICAL 15/0/26/0;
+  MOVED msg recorded VERBATIM — LOAN2: `PUT EDIT deferred [TBD] (line 115 …)` →
+  `codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and
+  rep-group formats are not decoded)`; **COPYLPT UNCHANGED**. FULL gate REAL **rc=0** DIRECT
+  `build/gate-e52p3b-reg.log`: byte panel **1199/0** incl. `BYTE-EXACT P086K (512)` +
+  `BYTE-EXACT P086J (256)`, negatives **179/179**, divergence 9/9, coverage 139 rows 0/0, census
+  15/0/26/0, prose 5. Commit `60ed349`. Campaign chain this hop: `95b1fa6` → `ff1c8f2` → `60ed349`.
+- **ACCEPTED (the P6 prerequisite DISCREPANCY, verified by direct grep).** `artefacts/LOAN1.PLI`
+  contains **NO edit statement at all** (only `put skip list`/`put list`); `artefacts/IFACT.PLI`'s
+  single EDIT is `put edit('factorial(',i,')=',F) (skip, a,f(2), a, f(7));` — **no picture**;
+  `N12_EMPTYFIX` is a REJECTS inline row (`"fixed-char store form"`). So the COVERAGE
+  `IO.PUT_EDIT` row's contract clause "the pool-layout law and the picture item are measured on
+  the IFACT/LOAN1 shapes" is **FALSIFIED**, and its probe cites are stale — the row rewrite must
+  cite P086K/P086J and state measured reality.
+- **ACCEPTED (procedure).** `--update-inventory` mode exits 0 after writing the inventory: the
+  byte/negative panels do NOT run in it (`inventory rewritten (N entries)` prints len(SPECIMENS)
+  only — the file holds N+refusals rows); the real measurements come from the FOLLOWING plain
+  full-gate run. Census `--verify` (gate arm) is read-only; `--check PREV.json` is its own write
+  path. Renewal idempotence: the successor of g298 CANNOT renew from g298 — refresh (new
+  generation) + re-attest, then renew.
+- **OWED NEXT (exact, all rc DIRECT):** (1) rewrite COVERAGE.tsv `IO.PUT_EDIT` (line 65):
+  probes P086K,P086J (+IFACT/LOAN1 removed or re-worded honestly), `mine_status=SUPPORTED` for
+  the armed subset with `rel_parity` honest, boundary naming the still-refusing picture/x/rep/
+  counted/grouped/remote forms with the LOAN2 verbatim message; `tools/coverage_check.py` rc=0.
+  (2) claim **C360** in spec/CLAIMS.md derived ONLY from the MEASURED bytes (ledger ends C359);
+  never cite [C027]/[C072] in provenance; NEVER claim E41X8's bytes. (3) `file_prose_check.py`
+  rc=0. (4) RESULTS.md §P3-2 + PLAN.md §5 table row. (5) durables + explicit-path commits.
+  (6) Campaign continues: subround **P3-3 = picture `02` record decode** (A/B operands
+  UNDECODED) — its PLAN section committed BEFORE any ocaml/ byte, oracle probes under the
+  standing LOAN2 brief. Constraints unchanged: no push; goldens never re-derived; operator
+  `handoff.config.json` never staged; all rc DIRECT (never a trailing pipeline); never hardcode
+  LOAN2; renewals autonomous at safe boundaries (9/12 consumed, cap 12).
+
 ## E2E-52/P3-2 P086K FIXED (record ORDER, not bytes); sweep GREEN; refusal probes PARTLY FALSIFIED (2026-11-04, session 01a1a822, renewal 7/12; `ocaml/lib/codegen.ml` edited, UNCOMMITTED at this checkpoint)
 
 - **ACCEPTED (recovery).** HEAD `a51fb93` (the g294 arm WAS committed as unverified-WIP — the
