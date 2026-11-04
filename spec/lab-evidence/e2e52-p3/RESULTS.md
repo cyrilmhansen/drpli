@@ -206,3 +206,22 @@ rc=0, **14 ok / 15**; goldens + PRNs at `golden/e52p3/<NAME>/`; reldumps (scratc
   predicted (11 unambiguous predictions, 11 HIT); PJ's unambiguous b2=01 prediction was
   FALSIFIED (measured 00 — the surprise kept verbatim, never fitted); PK/PL carried
   pre-registered dual branches and one branch hit each (HC/HD both dead, HE born).
+
+## 4. Arm + measured parity (binary `c2c6282f5662cb19a3ce…`, CLEAN rebuild; codegen.ml warnings 70 = P3-2 baseline count; full-log histogram FALSIFIED as a method — compare per-File, a clean build compiles every file)
+
+ONE new `Ast.Pi_pic` branch in `fmt_spec` (ocaml/lib/codegen.ml): record
+`02 b1 b2 len UPPER(text)`; b1 = count{9,Z,$} − (1 if any $); b2 = count{9,Z} after the
+LAST V (0 if none) — the rule HE born from E52PJ's falsification of HC and HD; GUARDS refuse
+BY NAME: chars outside {9,Z,$,V,.,B,comma,slash}; `$` after the first digit specifier
+(dr-refuses-consistent with E52PF); V without an adjacent `.` (unmeasured); len>255.
+- Whole-file cmp **rc=0 vs the new goldens: PB,PC,PD,PE,PG,PH,PI,PJ,PK,PL,PM,PN,PO — 13 of 13**.
+  P5 predicted an armable subset of 4 — an UNDERCLAIM, falsified: console fixed-bin-expression
+  items were already armed, so the scale-0 family matches too.
+- PA rc=2 BY NAME (file-route EXPRESSION item — boundary KEPT, P3-4 owns it); PF rc=2 BY NAME
+  (its refusal now mirrors DR's own refuse on that form).
+- LOAN2 rerun rc=2 VERBATIM: `codegen: PUT EDIT format item form unsampled [TBD] (counted,
+  grouped, picture, remote and rep-group formats are not decoded)` — the SAME static catch text
+  (P6 text prediction HIT); it now fires on the grouped/rep-group formats at 147/149 while still
+  listing "picture" — recorded message-quality my-gap, NEVER fitted.
+- Zero-drift sweep **75/75 byte-exact / 0 FAIL** (E46N 19/19 incl E46N10, E52A..J 10/10,
+  E51A..L 12/12, R10 34/34); P086J/P086K cmp rc=0; markers E46K4/E46K15/E46N21 rc=2 intact.

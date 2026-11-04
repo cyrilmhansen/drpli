@@ -2826,9 +2826,11 @@ let match_put_list_lit (s : Ast.stmt) =
        a(w)    -> 03 w      [R1008 a(5), R1020 a(3)]
        skip    -> 0C FF     [R1004, R1005, R1010, IFACT]
        page    -> 0F FF     [R1007]
+       p'pic'  -> 02 b1 b2 len UPPER(text)   [E2E-52/P3-3: 25 measured records,
+                   claim C361; operand rules and guards in fmt_spec below]
    UNPINNED and therefore not modelled: the header's second byte (0x00 in all
    11 samples), counted skip/page (skip(n) is unsampled), and every other edit
-   operator (x/b/e/v/i/n/m/c/p/picture/remote/rep-group).  Those refuse.
+   operator (x/b/e/v/i/n/m/c/p/remote/rep-group).  Those refuse.
 *)
 let fmt_w (e : Ast.expr) =
   match e.Ast.e with
@@ -2857,6 +2859,71 @@ let fmt_spec (it : Ast.put_item) : int list =
       failwith (Printf.sprintf
                   "codegen: PUT EDIT operator %s is unsampled [TBD] \
                    (only F and A formats are decoded from DR tables)" k)
+  | Ast.Pi_pic s ->
+      (* [E2E-52/P3-3] Picture record, MEASURED on 13 accepted new goldens
+         (golden/e52p3 E52PA..E52PO) plus 12 records in the existing goldens
+         (claim C361):  02 b1 b2 len UPPER(text)  where
+           len = character count (25/25; lowercase sources stored uppercase);
+           b1  = count{9,Z,$} minus 1 when any $ is present -- the digits-only
+                 reading is FALSIFIED (E52PE/PH and the multi-$ existing rows),
+                 and HA2/HB8 coincide on every accepted (leading-$) record;
+           b2  = count of {9,Z} digit specifiers AFTER the LAST V, 0 with no V
+                 (E52PJ FALSIFIED both "digits after last designator {. ,V}" and
+                 "count{V,.}": p'9.9' stores b2 = 00).
+         Refused BY NAME (guards on the measured evidence only): characters
+         outside {9,Z,$,V,.,B,comma,slash}; a $ after the first digit specifier
+         (E52PF MEASURED dr-refuses: DR prints a PICTURE error and emits NO .REL);
+         V without an adjacent . (p'9V9' never sampled); length > 255 unmeasured. *)
+      let up = String.map Char.uppercase_ascii s in
+      let n = String.length up in
+      let is_digit ch = ch = '9' || ch = 'Z' in
+      String.iter
+        (fun ch ->
+          match ch with
+          | '9' | 'Z' | '$' | 'V' | '.' | 'B' | ',' | '/' -> ()
+          | _ ->
+              failwith (Printf.sprintf
+                          "codegen: PUT EDIT picture character %c is unsampled \
+                           [TBD] (only 9, Z, $, V, ., B, comma and slash appear \
+                           in measured DR picture records)" ch))
+        up;
+      if n > 255 then
+        failwith "codegen: PUT EDIT picture longer than 255 characters \
+                  unmeasured [TBD]";
+      let first_digit = ref n in
+      String.iteri (fun i ch ->
+          if is_digit ch && !first_digit = n then first_digit := i) up;
+      String.iteri (fun i ch ->
+          if ch = '$' && i > !first_digit then
+            failwith "codegen: PUT EDIT picture $ after a digit specifier is \
+                      dr-refuses (E52PF: DR rejects p'9$9' with a PICTURE error and \
+                      emits NO .REL; only leading $ runs are measured accepted) \
+                      [TBD]") up;
+      String.iteri (fun i ch ->
+          if ch = 'V'
+             && not ((i + 1 < n && up.[i + 1] = '.')
+                     || (i > 0 && up.[i - 1] = '.')) then
+            failwith "codegen: PUT EDIT picture V without an adjacent . is \
+                      unmeasured [TBD] (every accepted DR record spells V. or .V)")
+        up;
+      let b1 =
+        let c = ref 0 in
+        String.iter (fun ch -> if is_digit ch || ch = '$' then incr c) up;
+        let dollars = String.exists (fun ch -> ch = '$') up in
+        !c - (if dollars then 1 else 0)
+      in
+      let b2 =
+        let last_v = ref (-1) in
+        String.iteri (fun i ch -> if ch = 'V' then last_v := i) up;
+        if !last_v < 0 then 0
+        else
+          let c = ref 0 in
+          for i = !last_v + 1 to n - 1 do
+            if is_digit up.[i] then incr c
+          done;
+          !c
+      in
+      0x02 :: b1 :: b2 :: n :: List.init n (fun i -> Char.code up.[i])
   | _ ->
       failwith "codegen: PUT EDIT format item form unsampled [TBD] \
                 (counted, grouped, picture, remote and rep-group formats \
