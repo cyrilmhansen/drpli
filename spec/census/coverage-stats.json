@@ -32,11 +32,11 @@
  "manual_none": 116,
  "manual_unverified": 0,
  "mine": {
-  "DIVERGENT": 4,
+  "DIVERGENT": 3,
   "NOT_ATTEMPTED": 3,
   "PARTIAL": 24,
   "REFUSED": 23,
-  "SUPPORTED": 85
+  "SUPPORTED": 86
  },
  "no_parity": 30,
  "no_runtime": 109,
