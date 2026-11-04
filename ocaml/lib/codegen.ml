@@ -11908,9 +11908,14 @@ and edit_num_cell st x =
       let nm = String.lowercase_ascii n.Ast.orig in
       not (List.mem nm st.deref)
       &&
-      match vk_of st nm with
-      | Vint -> true (* fixed-bin cell -- the PW/PX/PY/PZ declaration kind *)
-      | _ -> false
+      (* PARENTHESES REQUIRED: an unparenthesised trailing match swallows the
+         outer `| _ -> false' as an extra INNER arm (Warning 11) and leaves the
+         OUTER match non-exhaustive (Warning 8) -- the PA Match_failure of
+         e946242 (debug-fixed this hop; lib/dune's `-warn-error -a' let the
+         warnings through). *)
+      (match vk_of st nm with
+       | Vint -> true (* fixed-bin cell -- the PW/PX/PY/PZ declaration kind *)
+       | _ -> false)
   | _ -> false
 and edit_num_lit x =
   match (unwrap_e x).Ast.e with
