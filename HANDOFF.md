@@ -43,14 +43,17 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 6. **E2E-52/P1 IN FLIGHT (2026-11-04; operator brief: scope-aware DECIMAL pool prescan,
-LOAN2 defect).** Hop 1 measured the baseline and surveyed the architecture; NOTHING tracked
-authored yet; no compiler change made; renewals 0/12. **SUCCESSOR: execute the exact hop-2
-contract in `PROGRESS.md` → `## Next action` → "E2E-52/P1 IN FLIGHT"** (author
-`spec/lab-evidence/e2e52-p1/` pre-registration + `probes/E52*.PLI` + BASELINE-MINE, COMMIT
-BEFORE the one grouped `--tag e52p1` oracle campaign; then RESULTS.md, scope-aware prescan per
-the measured evidence, LOAN2 rerun UNMODIFIED, gate, registration; STOP after P1). Constraints:
-no push; preserve operator `handoff.config.json`; goldens/ignored evidence never overwritten;
-ledger ends **C355**; do not expand to other LOAN2 blockers.
+LOAN2 defect).** Hop 2 LANDED the PRE-REGISTRATION at `d1fbc16` (probes/E52A..J +
+PLAN/HYPOTHESES/mkprobes + BASELINE-MINE, committed BEFORE any DR call; `golden/e52p1`
+verified absent; no compiler change; renewals 1/12). BASELINE MEASURED: B/C/D/G/H/I rc=2
+conflicting-kinds (LOAN2 class); A/E/F/J compile today rc=0 (shas in BASELINE-MINE);
+literal-to-DEC-formal route EXISTS (scratch S2). **SUCCESSOR: execute the exact hop-3
+contract in `PROGRESS.md` → `## Next action` → "E2E-52/P1 IN FLIGHT"** (ONE grouped
+`--tag e52p1` oracle campaign; RESULTS.md + goldens committed TOGETHER; then the
+evidence-gated scope-aware prescan per PLAN §4; LOAN2 rerun UNMODIFIED; gate;
+registration from **C356**; STOP after P1). Constraints: no push; preserve operator
+`handoff.config.json`; goldens/ignored evidence never overwritten; ledger ends **C355**;
+do not expand to other LOAN2 blockers.
 
 **E2E-51/P2 CLOSED — operator-authorized functional follow-up (HAMM-00 rev2).** The P1
 hop-6 PROPOSED **DERIVATION fix** was executed under its own brief: in
@@ -1082,13 +1085,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 260
-checkpoint-id: g260-5aff4d9d3079
+checkpoint-generation: 261
+checkpoint-id: g261-773f8d9d4d81
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: unattested
-status: checkpoint (guard level 3, remaining ~6947, session 01a1a68d-ab16-7250-8e94-7a385782d860)
-checkpointed: 2026-11-04T12:58:55.095Z
+status: checkpoint (guard level 4, remaining ~4318, session 01a1a68d-ab16-7250-8e94-7a385782d860)
+checkpointed: 2026-11-04T12:59:38.989Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: d844d3ff1b0b7160d9f5c9d5e621e10ad2f7f3a568cfe6f435c9f294beedb469
 source-handoff: c8d79016af8a0ed77d5d68432e828f899ce5bb8aba346e2a48a2472d81474faa
@@ -1097,7 +1100,7 @@ source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
