@@ -1713,6 +1713,102 @@ SPECIMENS.update({
     "E49J4":  ("probes/E49J4.PLI",  "golden/e49p4/E49J4/E49J4.REL"),
 })
 
+# ---------------------------------------------------------------------------
+# [E2E-51/P1] ROUND BANK -- FIXED BINARY DIVISION WITH A VARIABLE DIVISOR:
+# the parking law (A..E, J, K), the QUOTIENT CONSUMERS (F, G, H, I) and the
+# constant-divisor control (L).  Twelve probes, pre-registered at 9bac977
+# (BEFORE any oracle call; `git log --format=%h -- probes/E51A.PLI | tail -1`;
+# BASELINE-MINE.txt recorded against the ACTUAL binary edce9e0e at ac68352:
+# A..H and J..K refused rc=2 `codegen: DIV by non-constant [TBD]`, I refused
+# `condition form not in E2E-3b subset [TBD]: (= (/ a b) c)', L was ALREADY
+# accepted at 128 B), measured in ONE grouped campaign 12 ok / 12 at tag e51p1
+# (goldens + RESULTS.md at b404b7e, predictions untouched) -- NO dr-refuses at
+# all, every .PRN printing NO ERROR(S) IN PASS 1 and NO ERROR(S) IN PASS 2;
+# ELEVEN my-gap rows (A..K) and ONE already-byte-exact control row (L, whole-file
+# cmp against my own baseline: ZERO differing bytes, sha bc2fd12e..., NO ARM).
+# All twelve objects are WHOLE-FILE byte-identical to DR; arms 4ff1ea5 (the
+# parking), 7d17b63 (the ADD consumer) and ee589cc (the TEST consumer) each
+# landed on its own commit and each was FULL-GATE rc=0 ALONE; sweep 12/12 at arm
+# 3, RE-VERIFIED 12/12 on the rebuilt binary f172d8eae2a7 at hop 5 (ocaml/
+# unchanged ee589cc..HEAD).  RESULTS §1 scored 10 clean HITs and TWO MISSes kept
+# verbatim: H-B-de FALSIFIED at E51B (the competitor H-B-stack is the HIT) and my
+# predicted `CA' skip byte FALSIFIED (measured `C2') at E51I.
+#
+# BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from
+# this round -- RESULTS §3 makes NO runtime claim (?ID22N's truncation direction
+# and zero-divisor behaviour are NOT claimed; PROTOCOL #1).
+#
+#   E51A      `z = a / b': LHLD a / PUSH H / LHLD b / POP D / CD ?ID22N / SHLD z
+#             -- [C089]'s variable-divisor MOD parking with the QUOTIENT helper;
+#             the DATA/RELOC/CHAIN-EXT record stream matches
+#             golden/f6probe/F005/F005.REL line-for-line modulo the z reloc
+#             (r4 -> r6, the extra bank cell c) and DATA 0006 -> 0008; CODE
+#             0017.  F005's provenance CONFIRMED by reproduction ([C353]).
+#   E51B      `z = 1200 / b': `21 B0 04 / E5 / 2A r2 / D1 / CD ?ID22N / 22 r6' --
+#             the LITERAL dividend takes the PARKED slot via LXI H then
+#             PUSH/POP; `LXI D' is NOT used, H-B-de FALSIFIED and kept as
+#             written; the dividend slot is "anything that leaves HL" ([C353]).
+#   E51C      `z = (a + b) / c': the add law THEN the park -- `2A r0/EB/2A r2/19/
+#             E5/2A r4/D1/CD ?ID22N/22 r6', exactly ONE `22' store; H-C-temp's
+#             materialised temp falsified ([C353]).
+#   E51D      `z = a / (b + c)': the `E5' at 0009 PRECEDES the divisor sum's own
+#             `EB/2A/19', which lands in HL immediately before `D1' -- a
+#             COMPOUND DIVISOR is built inside the parked region ([C353]).
+#   E51E      `z = a / b / c': TWO ?ID22N calls, ONE SHLD -- the quotient
+#             returned in HL is itself PUSH-parked as the second dividend;
+#             H-E-store falsified, and the [NG17] DEC chaining witness does NOT
+#             transfer ([C353]).
+#   E51F      `z = a / b + c': `<div> / EB / 2A r4 / 19 / 22 r6' -- [C141]'s P7
+#             isomorphism for a call in LEFT position; H-F-push (the P5 form) and
+#             H-F-store falsified ([C354]).
+#   E51G      `z = c + a / b': THE SAME OBJECT as F -- whole-file `cmp -l' shows
+#             ONLY bytes 5, 17, 25 (the three packed name records, one bit each
+#             F 0x46 vs G 0x47); DATA/RELOC/CHAIN-EXT/SET-LC IDENTICAL.  Right-
+#             first evaluation is ORIENTATION-FREE for DIV operands; H-G-leftfirst
+#             falsified ([C354], arm 7d17b63).
+#   E51H      `put list(a / b)': preamble `11 52 02 / 01 00 00 / CD ?SYSPR', the
+#             F005-shape div, then [C079]'s numeric tail `3E 09 / CD ?QICOP /
+#             CD ?PNVOP / CD ?QIOOP' and the cont triple `SET-LC 000A / RELOC
+#             code 0x25 / SET-LC 0025'; CODE 0028.  The [C079] width law holds
+#             over a HELPER RESULT exactly as over a var.  NO consumer arm -- the
+#             existing PUT route was byte-exact from arm 1 alone (the predicted
+#             "H arm" evaporated empirically) ([C354]).
+#   E51I      `if a / b = c then z = 1': after `<div>', `E5 / 2A r4 / D1 / CD
+#             ?IS22N / 7C / B5 / C2 <fwd> / 21 01 00 / 22 r6' plus the standard
+#             forward-fixup triple `SET-LC 001C / RELOC code 0x24 / SET-LC 0024';
+#             CODE 0027.  The skip byte is `C2' (JNZ) -- [C089]'s zero-test
+#             polarity; my `CA' reading of [C072] is FALSIFIED and kept as
+#             written ([C354], arm ee589cc: admits ONLY Eq + a measured-class DIV
+#             left + a plain-variable right; everything else keeps refusing).
+#   E51J      `z = -a / b': `2A r0 / CD ?IN20N / E5 / 2A r2 / D1 / CD ?ID22N /
+#             22 r6', the ?IN20N CHAIN-EXT at 000A PRECEDING ?ID22N at 0012 --
+#             NEGATE-THEN-PARK, no fusion with the divide; H-J-fuse falsified by
+#             offset order ([C353]).
+#   E51K      `z = a / d' with `d fixed bin(7)': `2A r0 / 3A r8 / E5 / 6F 87 9F
+#             67 / D1 / CD ?ID22N / 22 r6' with LINK-DEF-DATA-SIZE abs 0009 and
+#             the d-at-offset-8 inline data reloc -- the [C079]/[N303] 1-byte
+#             interleave transfers VERBATIM from MUL ([C353]).
+#   E51L      `z = a / 3': the P080A in-line ladder `3E k / E5 / 6F 87 9F 67 / D1
+#             / CD ?ID22N', CODE 001A, DATA 0008 -- my baseline .REL and DR's
+#             golden have ZERO differing bytes; the control row validates the
+#             batch harness and the constant path before any other verdict is
+#             read, and the round changes NOTHING on that path ([C355]).
+# ---------------------------------------------------------------------------
+SPECIMENS.update({
+    "E51A":  ("probes/E51A.PLI",  "golden/e51p1/E51A/E51A.REL"),
+    "E51B":  ("probes/E51B.PLI",  "golden/e51p1/E51B/E51B.REL"),
+    "E51C":  ("probes/E51C.PLI",  "golden/e51p1/E51C/E51C.REL"),
+    "E51D":  ("probes/E51D.PLI",  "golden/e51p1/E51D/E51D.REL"),
+    "E51E":  ("probes/E51E.PLI",  "golden/e51p1/E51E/E51E.REL"),
+    "E51F":  ("probes/E51F.PLI",  "golden/e51p1/E51F/E51F.REL"),
+    "E51G":  ("probes/E51G.PLI",  "golden/e51p1/E51G/E51G.REL"),
+    "E51H":  ("probes/E51H.PLI",  "golden/e51p1/E51H/E51H.REL"),
+    "E51I":  ("probes/E51I.PLI",  "golden/e51p1/E51I/E51I.REL"),
+    "E51J":  ("probes/E51J.PLI",  "golden/e51p1/E51J/E51J.REL"),
+    "E51K":  ("probes/E51K.PLI",  "golden/e51p1/E51K/E51K.REL"),
+    "E51L":  ("probes/E51L.PLI",  "golden/e51p1/E51L/E51L.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
