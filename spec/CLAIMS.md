@@ -8389,3 +8389,132 @@ classified `unmeasured` rather than `dr-refuses`.
   MEASURED the equality against a fresh DR golden (classification: 1 already-byte-exact row).
   Verification re-run whole-file at `ee589cc` (and again on the rebuilt binary `f172d8eae2a7…`
   at hop 5): E51L BYTE-EXACT.
+
+## C356 — THE DEC POOL PRESCAN TYPES EVERY VARIABLE REFERENCE AT ITS INNERMOST ENCLOSING DECLARATION EXACTLY AS LOWERING DOES; A SHADOWED NAME NEVER RAISES A CONFLICTING-KIND ERROR; RESOLUTION REACHES THROUGH INTERVENING SCOPES AND INTO CONDITION FORMS; NON-SHADOWED OUTER DECLARATIONS STAY VISIBLE (AN ACCUMULATION, NOT A REPLACEMENT) (E2E-52/P1 §2.1; falsifies H3-global-outer on five independent discriminators; H2-own-only falsified for DR by E52E and kept as the invariant the fix must not introduce)
+
+* **Measured — the lexical law.**  E52B (`probes/E52B.PLI`, golden
+  `golden/e52p1/E52B/E52B.REL`): outer `i dec(4,2)` / inner `i dec(9,2)`, both store `3` —
+  DR ACCEPTS and the inner store is typed at the INNER declaration (5-byte image
+  `00 03 00 00 00` @`0003`, precision descriptor `3E 09`, target `000B` = the inner cell);
+  the outer store keeps `3E 04`.  E52D (`golden/e52p1/E52D/E52D.REL`): binary outer /
+  `i dec(7,2)` inner — the inner DEC cell exists at all (`21 r0 / 3E 07 / ?DLDOP / 21 r6 /
+  3E 07 / ?DSTOP`).  E52C (`golden/e52p1/E52C/E52C.REL`): DEC outer / `i fixed bin` inner —
+  the inner store takes the BINARY-immediate route `21 03 00 / 22 r6` with NO
+  `?DLDOP`/`?DSTOP` in the nested procedure at all (CODE `0026`).  E52H
+  (`golden/e52p1/E52H/E52H.REL`): three scopes, innermost declares NO `x` — its store is
+  `21 r3 / 3E 09 / ?DLDOP` then `21 rb / 3E 09 / ?DSTOP`, the IDENTICAL operand pair to
+  mid's own store (the 5-byte MID image, precision `09`, target `000B`), NOT main's 3-byte
+  image: resolution passes THROUGH every intervening scope (§2.1, §1).
+* **Shadowing is never an error.**  DR compiled every cross-scope homonym in this bank —
+  the shape my prescan refused BY NAME (`codegen: variable <n> declared with conflicting
+  kinds; decimal pool prescan needs one unambiguous type map [TBD]`, `BASELINE-MINE.txt`
+  at `d1fbc16`) on all six `my-gap` rows B,C,D,G,H,I.  Every `.PRN` prints `NO ERROR(S) IN
+  PASS 1` and `NO ERROR(S) IN PASS 2` (§0) — the `[C193](a)`-style DUPLIC refusal precedent
+  does NOT transfer to shadowing.
+* **Conditions share the lexical map (prescan_cond).**  E52I
+  (`probes/E52I.PLI`, `golden/e52p1/E52I/E52I.REL`): mid declares `x dec(9,2)` but stores
+  nothing; the innermost `if x > 0 then x = 1` sizes BOTH the condition literal `0` and the
+  THEN-store literal `1` at the lexically resolved `dec(9,2)` — pool 3+5+5, DATA `0015`
+  (21); main-only sizing is falsified (§1, §2.1).
+* **Outer visibility = accumulation.**  E52E (`golden/e52p1/E52E/E52E.REL`): the inner
+  procedure writes the NON-shadowed outer `o dec(9,2)` — pool 5-byte image @`0000` plus the
+  `o` cell @`0005`, nested store `21 r0 / 3E 09 / ?DLDOP / 21 r5 / 3E 09 / ?DSTOP`, DATA
+  `000A`: the prescan environment keeps outer rows REACHABLE beneath the inner ones.  This
+  falsifies H2 (own-rows-only) for DR and is the invariant my fix must preserve — an
+  inner-first ACCUMULATION, not a replacement.
+* **Classification (PROTOCOL #3).**  SIX `my-gap` rows (B,C,D,G,H,I) and FOUR rows already
+  whole-file `cmp`-BYTE-EXACT against my baseline objects (A `8217250a…`, E `4fe89c7d…`,
+  F `8c09f2e7…`, J `0a3f6b6a…`); NO `dr-refuses` row exists in this bank (§0).
+* **What this does NOT say** (RESULTS §3): NOTHING about homonyms whose kinds are OUTSIDE
+  this bank — `CHARACTER`/`VARYING` vs DEC, arrays vs scalars, `STATIC`/`EXTERNAL`
+  attributes, pointer/deref forms, or a formal shadowing a name with a non-DEC outer kind;
+  those stay `[TBD]` and my compiler keeps refusing them BY NAME.  Nothing about whether
+  DR's own prescan is a separate pass or the same walk — only that its OBSERVABLE typing is
+  lexical, accumulation-based and shared by every consumer sampled (store, condition,
+  formal copy-in).  No runtime or link claim (byte tier only).
+* **Lowered.**  Arm `6a4c554` (`ocaml/lib/codegen.ml`, pre-registered PLAN §4): `pdec_ctx`
+  gains `pd_own`; `pd_vars` starts as TOP rows only; the prescan `Sproc` arm recurses with
+  `pd_vars = own @ cx.pd_vars` (assoc first-match = the lexical shadow lowering already
+  performs); the conflicting-kinds refusal KEPT verbatim for a clash WITHIN one block's own
+  rows.  Post-fix (`RESULTS.md` §5, binary `2785a1b6…`): E52B,C,D,H,I whole-file BYTE-EXACT,
+  E52E byte-identical to its BASELINE sha (the accumulation invariant holds), controls A/F/J
+  unchanged, E51A..L sweep 12/12.  E52G ADVANCES (blocker gone, pool half byte-identical)
+  but is NOT whole-file exact — condition-4 evidence stop, [C358].
+
+## C357 — THE DEC LITERAL POOL IS ONE PROGRAM-WIDE TABLE KEYED BY THE ENCODER BYTE IMAGE: DEDUP IS SCOPE-BLIND AND NAME-BLIND, CELLS ARE LAID IN SOURCE/STATEMENT ORDER AHEAD OF THE VARIABLE CELLS ACROSS SCOPE BOUNDARIES, AND CELL WIDTH AND `MVI A,p` DESCRIPTOR FOLLOW [R507] APPLIED TO THE LEXICALLY RESOLVED TARGET (E2E-52/P1 §2.2; falsifies H4-per-scope-pool twice, independently — A and F)
+
+* **Measured — scope-blind dedup.**  E52A (`probes/E52A.PLI`,
+  `golden/e52p1/E52A/E52A.REL`): `i dec(4,2)` outer AND inner, both store `3` — ONE 3-byte
+  pool cell `00 03 00` @`0000`, loaded by BOTH stores (`21 r0` twice); `LINK-DEF-DATA-SIZE
+  abs 0009` with the two variable cells (`0003`, `0006`) following the pool.  [C178]'s
+  encoder-image dedup extends across scope boundaries; the per-scope-pool rival (6-byte
+  pool, DATA 12) is falsified (§1).
+* **Measured — name-blind dedup.**  E52F (`golden/e52p1/E52F/E52F.REL`): DIFFERENT names
+  `a`/`b`, same type, same image — again ONE 3-byte cell loaded by both stores; DATA `0009`.
+  The pool key is the byte image, independent of the name and of the scope (§2.2).
+* **Source order, across scopes.**  Pool cells precede the variable cells and follow
+  statement order across scope boundaries: E52B main image @`0000` then inner image
+  @`0003`, variables at `0008`/`000B`; E52H main @`0000`, mid @`0003`, variables `0008`/
+  `000B`; E52I main store literal, THEN innermost condition literal, THEN innermost store
+  literal (`0000`/`0003`/`0008`), variables at `000D`/`0010` (§2.2).
+* **Width and descriptor at the resolved target.**  Cell width stays [R507]
+  `ceil((p+1)/2)` applied to the LEXICALLY resolved precision (B: 3 and 5; D: ONE 4-byte
+  cell `00 03 00 00` for `dec(7,2)`; G: 3 and 5; H: 3 and 5; I: 3, 5, 5) and the DEC helper
+  precision descriptor is `MVI A,p` of that same resolved precision — `04`, `07`, `09`
+  measured (§2.2).  E52J (`golden/e52p1/E52J/E52J.REL`, control) pins the settled
+  single-scope reading: three DISTINCT 5-byte cells for literals 3, 0, 1 + `d` @`000F`,
+  DATA `0014`.
+* **Classification.**  A and F were already whole-file BYTE-EXACT against my BASELINE
+  objects (`8217250a…`, `8c09f2e7…`) BEFORE any arm — HYPOTHESES falsification condition 3
+  NOT triggered: my existing program-wide image-keyed table already reproduces DR's dedup,
+  cell sizes and pool order on the single-scope and non-shadowed shapes; B, D, H, I became
+  byte-exact at arm `6a4c554` ([C356] routed the prescan typing to that same table).
+* **What this does NOT say** (RESULTS §3): nothing about pool behaviour for literal kinds
+  outside this bank's DEC/binary set; `[C179]` demand==allocation remains the settled
+  invariant of the consumer side, unchanged here; no runtime or link claim — byte tier only.
+* **Lowered.**  NO new pool-table arm: the dedup machinery ([C178], [R507], [R608]) was
+  already program-wide and correct on this evidence; the arm made the prescan TYPE at the
+  lexical target so the existing table receives the right images ([C356]).  Verified at
+  `RESULTS.md` §5: A/F/J byte-identical to BASELINE shas, B/D/H/I BYTE-EXACT vs goldens.
+
+## C358 — A DEC FORMAL THAT SHADOWS AN OUTER DEC NAME GETS NO VALUE CELL AT ALL: THE CALL MATERIALIZES IN THE CALLER'S DATA A 2-BYTE ARGUMENT-POINTER BLOCK HOLDING THE ABSOLUTE ADDRESS OF A MAIN-SIDE COPY-IN TEMP SIZED AT THE FORMAL'S PRECISION, THE COPY-IN IS A LOAD-AT-ACTUAL + STORE-AT-FORMAL PAIR, AND THE CALLEE DEREFERENCES THE BLOCK INTO ITS OWN 2-BYTE POINTER CELL (`5E 23 56 EB / 22 r12`) AND STORES THROUGH `LHLD` OF THAT CELL BEFORE `?DSTOP` — DATA TOTAL 20 FOR THIS SHAPE, NOT 16 (E2E-52/P1 §2.3; MEASURED, NOT FITTED — my "approx 16" prediction kept verbatim as the round's ONE MISS)
+
+* **Measured — the cell map** (E52G, `probes/E52G.PLI`, golden
+  `golden/e52p1/E52G/E52G.REL` 256 B sha256
+  `39b3d7cfe775c039d25b3791ed2f71b3e333509ca1193f3759ce46a850134c67`; the LOAN2
+  `current_year` shape: outer `i dec(4,2)` stores `3`, `call q(i)`, formal
+  `i dec(9,2)` stores `3`).  `LINK-DEF-DATA-SIZE abs 0014` = pool 3+5 @`0000`/`0003`
+  (the H1 pool CONFIRMED — [C357]) + outer `i` 3 B @`0008` + **2-byte argument-pointer
+  block @`000B`** (`LINK-SET-LC data 000B` + `RELOC data 0x000D` — the word holds the
+  absolute address `000D`) + **5-byte main-side copy-in temp @`000D`** + **2-byte formal
+  pointer cell @`0012`**; CODE `004A` (§1 MISS text, §2.3, §5).
+* **Measured — the copy-in pair.**  In MAIN, after the `i = 3` store: `21 r8 / 3E 04 /
+  CD ?DLDOP` (load the ACTUAL cell at ACTUAL precision) then `21 rd / 3E 09 / CD ?DSTOP`
+  (store into the temp at FORMAL precision).  The callee prologue `5E 23 56 EB / 22 r12`
+  (MOV E,H / INX H / MOV D,(HL) / XCHG / SHLD) copies the block word into its own pointer
+  cell; the formal's literal store is `21 r3 / 3E 09 / CD ?DLDOP` then **`2A r12`** `/
+  3E 09 / CD ?DSTOP` — `LHLD` of the POINTER cell, not `LXI H` of a value cell: [C131]'s
+  `?DSTOP` route with the pointer indirection (§2.3).
+* **Consequence for demand accounting.**  The literal cell for `i = 3` inside `q` is keyed
+  by the FORMAL's precision (5 B) and stays DISTINCT from main's 3-byte cell (pool 8
+  total), while the DATA total for the shape is 20, not 16 (§2.3).
+* **The MISS kept verbatim** (PROTOCOL #2, §1): the pre-registered prediction was "approx
+  16; formal-cell WIDTH on DR is itself an open measurement — do NOT fit to it, report
+  it"; measured `DATA 0014` (20).  Reported, never fitted.
+* **What this does NOT say** (RESULTS §3): the map is measured for THIS shape ONLY — DEC
+  formal, DEC actual, literal store; it is NOT a general formal-layout law ([C187] remains
+  the settled nested-layout claim).  Formal-vs-actual kinds outside DEC, arrays, pointer
+  formals and any RUNTIME behaviour are unmeasured ([C355]-style byte-tier scope; no
+  `spec/RUNTIME.txt` row).
+* **NOT lowered — condition-4 evidence stop (PROPOSED, never adopted).**  My post-arm
+  object (`6a4c554`; mine sha256
+  `6ea285ba7a26be6ae7ebe611609247275cd229e5b5496805b29ae372fcf1c764`) COMPILES (the
+  prescan blocker of [C356] is gone) and its POOL records are byte-identical to DR's, but
+  it is NOT whole-file exact: mine initialises the block @`000B` with `RELOC data 0x8`
+  (pointing at the outer cell directly), emits NO main-side copy-in pair, and places the
+  formal pointer cell at `000D` — `LINK-DEF-DATA-SIZE abs 000F`, `LINK-DEF-CODE-SIZE
+  code 003A` vs DR `0014`/`004A`; the full record-level reldump diff is in `RESULTS.md` §5.
+  The residual is a DIFFERENT lowering component outside pre-registered PLAN §4
+  ("do not expand"), so HYPOTHESES condition 4 fires for this row and the round STOPS at
+  evidence + a PROPOSAL: a main-side copy-in-temp arm at a future authorized hop.  E52G is
+  NOT registered as a gate specimen.
