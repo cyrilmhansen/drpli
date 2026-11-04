@@ -1103,36 +1103,40 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 262
-checkpoint-id: g262-711bbe743acb
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~2590, session 01a1a68d-ab16-7250-8e94-7a385782d860)
-checkpointed: 2026-11-04T13:00:12.233Z
+checkpoint-generation: 264
+checkpoint-id: g264-9d1e975182f5
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6288, session 01a1a6a5-fac0-7250-8e94-7a3da9f85ed6)
+checkpointed: 2026-11-04T13:18:27.768Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d844d3ff1b0b7160d9f5c9d5e621e10ad2f7f3a568cfe6f435c9f294beedb469
-source-handoff: b57c7b383a42ea5a6a84964521625f52b0d8fb6f748383c4bb58ec7f268f40a7
-source-learnings: 44c2d79973dbc257e914f67bb95abfc543eb5deeb57c566cce92da0b70bcfd7d
+source-progress: 3d913ee2df56fd0aa785815c71336e6f761d68503d537982061434bfb99ffc73
+source-handoff: 35205ea0fa0c8f1b52c67ecdef03e9536bd00809aab2dc2c9b30fe140019a10d
+source-learnings: 456d9ba261a98f6412c17a759577672c55b5e34d72effdc8065f029831160528
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a68d-ab16-7250-8e94-7a385782d860
-readiness-at: 2026-11-04T13:00:12.244Z
-readiness-checkpoint: g262-711bbe743acb
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-52/P1 hop 3: execute PROGRESS.md → Next action → "E2E-52/P1 IN FLIGHT" exactly. Pre-registration committed d1fbc16 BEFORE any DR call (probes/E52A..J + PLAN/HYPOTHESES/mkprobes/BASELINE-MINE; golden/e52p1 absent). Run the ONE grouped oracle campaign --tag e52p1 (never --reuse), inspect .PRNs/.RELs, write RESULTS.md, commit goldens+RESULTS together; then the evidence-gated scope-aware Sproc pd_vars accumulation per PLAN §4 (keep A/E/F/J byte-identical, [C179] invariant); LOAN2 rerun UNMODIFIED; gate (expect 1186/0,181,9,136); registration C356+ (claims ONLY from RESULTS §2; inventory before coverage; run all harness self-tests). STOP after P1; no push; preserve operator handoff.config.json.)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` → "E2E-52/P1 IN FLIGHT"** (ONE grouped
-`--tag e52p1` oracle campaign; RESULTS.md + goldens committed TOGETHER; then the
-evidence-gated scope-aware prescan per PLAN §4; LOAN2 rerun UNMODIFIED; gate;
-registration from **C356**; STOP after P1). Constraints: no push; preserve operator
-`handoff.config.json`; goldens/ignored evidence never overwritten; ledger ends **C355**;
-do not expand to other LOAN2 blockers.
+` ->
+"SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
+per PLAN §4 — `pd_vars` = top rows only, per-proc own rows via the SAME `rt_to_vk`, the
+`Sproc` arm recurses with `pd_vars = own @ cx.pd_vars`, all dedup refs INTACT; build; E52
+sweep byte-exact with A/E/F/J UNCHANGED to their BASELINE shas; E51A..L 12/12; LOAN2 rerun
+UNMODIFIED — record the next blocker, do NOT fix; FULL gate BEFORE registration; SPECIMENS
++ sanctioned `--update-inventory` + gate AGAIN; claims from **C356** ONLY from RESULTS §2;
+COVERAGE rows AFTER the inventory; census via its own write path; ALL harness self-tests
+(stale dashboard `**26**` check is PRE-EXISTING — record, never silently fix); STOP after
+P1). Constraints: no push; preserve operator `handoff.config.json` (dirty, never
+staged/cleaned/reverted); goldens/ignored evidence never overwritten or laundered; ledger
+ends **C355**; do not expand to other LOAN2 blockers; NEVER re-run the retry-DFS; if a DR
+object contradicts the fix direction, stop at evidence + a corrected PROPOSAL.
 
 **E2E-51/P2 CLOSED — operator-authorized functional follow-up (HAMM-00 rev2).** The P1
 hop-6 PROPOSED **DERIVATION fix** was executed under its own brief: in
@@ -1170,5 +1174,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P1 hop 3: execute PROGRESS.md → Next action → "E2E-52/P1 IN FLIGHT" exactly. Pre-registration committed d1fbc16 BEFORE any DR call (probes/E52A..J + PLAN/HYPOTHESES/mkprobes/BASELINE-MINE; golden/e52p1 absent). Run the ONE grouped oracle campaign --tag e52p1 (never --reuse), inspect .PRNs/.RELs, write RESULTS.md, commit goldens+RESULTS together; then the evidence-gated scope-aware Sproc pd_vars accumulation per PLAN §4 (keep A/E/F/J byte-identical, [C179] invariant); LOAN2 rerun UNMODIFIED; gate (expect 1186/0,181,9,136); registration C356+ (claims ONLY from RESULTS §2; inventory before coverage; run all harness self-tests). STOP after P1; no push; preserve operator handoff.config.json.
+E2E-52/P1 hop 4: execute PROGRESS.md -> "Next action" -> "SCOPE-AWARE PRESCAN IMPLEMENTATION OWED" exactly (3 numbered steps). Evidence is committed: oracle 10 ok/10 at e14d180, goldens golden/e52p1 (never re-derive/overwrite), spec/lab-evidence/e2e52-p1/RESULTS.md §1-§4 (H1-lexical CONFIRMED; H3 falsified 5x; H4 falsified 2x; H2 falsified for DR by E = fix invariant; E52G MISS DATA 20 kept verbatim, never fitted). Implementation = ONE small change in ocaml/lib/codegen.ml per PLAN §4: add pd_own to pdec_ctx (:1687, single construction site :13499); pd_vars = TOP rows only (replace proc_vk_rows fold at :13432-13452, keep the conflicting-kinds refusal for a clash WITHIN one procedure's OWN rows); prescan Sproc arm (:3300-3320) recurses with pd_vars = own @ cx.pd_vars using the SAME rt_to_vk; keep pd_img/pd_str/pd_fl/pd_procs/pd_fl_procs/const_cells/pool base INTACT; do not touch bind. Then dune build; compile probes/E52*.PLI to build/e52p1-mine/ and cmp whole-file vs golden/e52p1: expect B,C,D,G,H,I byte-exact and A/E/F/J UNCHANGED (8217250a/4fe89c7d/8c09f2e7/0a3f6b6a); sweep E51A..L (12/12 vs golden/e51p1); commit the arm ALONE. If any object contradicts H1, STOP at evidence + PROPOSAL — never fit. LOAN2 rerun UNMODIFIED: record the next blocker verbatim, do NOT fix. FULL gate BEFORE registration (expect 1186/0,181/181,9/9,136 rows 0/0,census 15/0/26/0,prose 5), then SPECIMENS + sanctioned --update-inventory + gate AGAIN, claims from C356 ONLY from RESULTS §2, COVERAGE rows AFTER inventory, census own write path, ALL harness self-tests (stale dashboard **26** check PRE-EXISTING — record, never silently fix). STOP after P1; no push; preserve operator handoff.config.json; NEVER re-run the retry-DFS.
 <!-- guard:end checkpoint -->
