@@ -154,3 +154,181 @@ section and nowhere else.
 | E52H | 256 | `85c41e0462293b4357c998645dadbad1f180e46a4dc84a7f86992ebd28060258` | refuses (my-gap) |
 | E52I | 384 | `0b57b024c2012b0ab674f1d04f93b244326f70a01e60796012b13144336bd027` | refuses (my-gap) |
 | E52J | 384 | `0a3f6b6a33ce56303448527897bc5e1b38fc3593f7295cc937ad20d17cf635ee` | byte-exact |
+
+## 5. Post-fix verification (arm `6a4c554`, re-measured in the registration session)
+
+Toolchain: `dune build` rc=0; `pli80c.exe` sha256
+`2785a1b64e730430a29ea29e3e803c33d40b3cb9f6ca3512f41aee05aeb815f2` — byte-identical to
+the binary that landed the arm (`6a4c554`), reproduced by a fresh build at HEAD `ceb302c`.
+The arm implements PLAN §4 exactly: `pdec_ctx` gains `pd_own`; `pd_vars` starts as TOP
+rows only; the prescan `Sproc` arm recurses with `pd_vars = own @ cx.pd_vars` (SAME
+`rt_to_vk`); the conflicting-kinds refusal KEPT verbatim for a clash WITHIN one block's
+own rows; `pd_img`/`pd_str`/`pd_fl`/`pd_procs`/`pd_fl_procs`/`const_cells`/pool base
+INTACT; `bind` untouched.
+
+All ten probes re-compiled with positional args to `build/e52p1-verify/`, each
+whole-file `cmp` against `golden/e52p1/<id>/<id>.REL`; every rc captured DIRECTLY (no
+pipeline). Goldens NOT re-derived; §1–§4 (predictions, MISS text, laws) NOT touched.
+
+| id | pre-fix (`BASELINE-MINE.txt`) | post-fix verdict | bytes | my sha256 (== golden unless noted) |
+|---|---|---|---|---|
+| E52A | rc=0, byte-exact control | **BYTE-EXACT — control UNCHANGED** | 256 | `8217250ad3cd2fcf496d293527294ab53f32320950e19cb5685a6226a6356fbe` |
+| E52B | rc=2 conflicting kinds | **BYTE-EXACT** (DATA 0x10 discriminator reproduced) | 256 | `bd67501d2cfbce6eb22a5a1e6b6a97fcae2aee99ed45f5688124fcb46e48bd4f` |
+| E52C | rc=2 conflicting kinds | **BYTE-EXACT** (inner binary-immediate CODE) | 256 | `b05639ae8187646fadcf4f98e4206a07f224132a1b2062a699ab11e149146ad5` |
+| E52D | rc=2 conflicting kinds | **BYTE-EXACT** (DATA 0x0A discriminator) | 256 | `433a37a2ef51c91a6d6971b85a67cfbc70135d68659436b6441841a042b34ae5` |
+| E52E | rc=0, byte-exact control | **BYTE-EXACT — control UNCHANGED** (H2 invariant holds: outer rows reachable) | 256 | `4fe89c7ddb0bb622c98b076d0613a009f71bb2834fc935423e7f6dfb74311bfc` |
+| E52F | rc=0, byte-exact control | **BYTE-EXACT — control UNCHANGED** | 256 | `8c09f2e7e66f6b81c31a53fb5f0ed2f73de18c02dbe2007fad6cdd6d7ad26900` |
+| E52G | rc=2 conflicting kinds | compiles rc=0; **NOT whole-file exact** — delta verbatim below; STOPPED at evidence per HYPOTHESES condition 4; NEVER fitted | 256 | mine `6ea285ba7a26be6ae7ebe611609247275cd229e5b5496805b29ae372fcf1c764` vs golden `39b3d7cfe775c039…` |
+| E52H | rc=2 conflicting kinds | **BYTE-EXACT** (binds THROUGH mid, `3E 09`) | 256 | `85c41e0462293b4357c998645dadbad1f180e46a4dc84a7f86992ebd28060258` |
+| E52I | rc=2 conflicting kinds | **BYTE-EXACT** (prescan_cond DATA 0x15) | 384 | `0b57b024c2012b0ab674f1d04f93b244326f70a01e60796012b13144336bd027` |
+| E52J | rc=0, byte-exact control | **BYTE-EXACT — control UNCHANGED** | 384 | `0a3f6b6a33ce56303448527897bc5e1b38fc3593f7295cc937ad20d17cf635ee` |
+
+**Nine specimens byte-exact (E52A,B,C,D,E,F,H,I,J); E52G NOT.** The four control shas are
+byte-IDENTICAL to their BASELINE-MINE shas (`8217250a`/`4fe89c7d`/`8c09f2e7`/`0a3f6b6a`) —
+the arm moved nothing outside the LOAN2 class. Regression sweep: all twelve
+`probes/E51*.PLI` compile and `cmp` **12/12 whole-file BYTE-EXACT** vs `golden/e51p1/`.
+
+### E52G residual (verbatim evidence, condition-4 stop for this row only)
+
+`cmp` first disagreement: `octet 43, ligne 1` (`cmp -l`: file byte 43, mine `0o170`,
+DR `0o240`). The pool records are **byte-identical on both sides** (data `0000–0007`:
+`00 03 00` @`0000` + `00 03 00 00 00` @`0003`, the `21 r0 / 3E 04 / ?DLDOP / 21 r8 /
+3E 04 / ?DSTOP` main store at code `0006–0015`), i.e. §2.1/§2.2 hold on my object. The
+residual is EXACTLY the §2.3 formal cell map: mine initialises the arg block
+`LINK-SET-LC data 000B` with `RELOC data 0x8` (pointing at the OUTER cell directly, NO
+main-side copy-in temp) and gives the callee a pointer cell at `000D`; DR writes
+`RELOC data 0xd` (block word = `0x000D`, the 5-byte main-side copy-in temp), emits the
+copy-in pair in MAIN (load at ACTUAL precision `3E 04 ?DLDOP`, store at FORMAL precision
+`3E 09 ?DSTOP` at code `0016–0025`), and places the formal pointer cell at `0012`.
+Declared sizes: mine `LINK-DEF-DATA-SIZE abs 000F` / `LINK-DEF-CODE-SIZE code 003A`;
+DR `abs 0014` / `code 004A`. Record-level diff of the two `tools/reldump.py` dumps
+(bit-offset column stripped; `<` mine, `>` DR):
+
+```text
+1c1
+< ===== build/e52p1-verify/E52G.REL (256 bytes, bits consumed 1583/2048)
+---
+> ===== golden/e52p1/E52G/E52G.REL (256 bytes, bits consumed 1879/2048)
+16c16
+< LINK-DEF-DATA-SIZE  abs 000F None
+---
+> LINK-DEF-DATA-SIZE  abs 0014 None
+41,43d40
+< LINK-SET-LC     data 000B None
+< RELOC          data  0x8
+< LINK-SET-LC     code 0016 None
+45,49c42,46
+< RELOC          data  0xb
+< DATA           code 0019 0xcd
+< DATA           code 001A 0x0
+< DATA           code 001B 0x0
+< DATA           code 001C 0xc3
+---
+> RELOC          data  0x8
+> DATA           code 0019 0x3e
+> DATA           code 001A 0x4
+> DATA           code 001B 0xcd
+> DATA           code 001C 0x0
+51,57c48,57
+< DATA           code 001E 0x0
+< LINK-CHAIN-ADDR  code 001A None
+< DATA           code 001F 0x5e
+< DATA           code 0020 0x23
+< DATA           code 0021 0x56
+< DATA           code 0022 0xeb
+< DATA           code 0023 0x22
+---
+> LINK-CHAIN-EXT  code 001C ?DLDOP
+> DATA           code 001E 0x21
+> RELOC          data  0xd
+> DATA           code 0021 0x3e
+> DATA           code 0022 0x9
+> DATA           code 0023 0xcd
+> DATA           code 0024 0x0
+> DATA           code 0025 0x0
+> LINK-CHAIN-EXT  code 0024 ?DSTOP
+> LINK-SET-LC     data 000B None
+58a59
+> LINK-SET-LC     code 0026 None
+60,64c61,65
+< RELOC          data  0x3
+< DATA           code 0029 0x3e
+< DATA           code 002A 0x9
+< DATA           code 002B 0xcd
+< DATA           code 002C 0x0
+---
+> RELOC          data  0xb
+> DATA           code 0029 0xcd
+> DATA           code 002A 0x0
+> DATA           code 002B 0x0
+> DATA           code 002C 0xc3
+66,83c67,99
+< LINK-CHAIN-EXT  code 002C ?DLDOP
+< DATA           code 002E 0x2a
+< RELOC          data  0xd
+< DATA           code 0031 0x3e
+< DATA           code 0032 0x9
+< DATA           code 0033 0xcd
+< DATA           code 0034 0x0
+< DATA           code 0035 0x0
+< LINK-CHAIN-EXT  code 0034 ?DSTOP
+< DATA           code 0036 0xc9
+< LINK-SET-LC     code 001D None
+< RELOC          code  0x37
+< LINK-SET-LC     code 0037 None
+< DATA           code 0037 0xcd
+< DATA           code 0038 0x0
+< DATA           code 0039 0x0
+< LINK-CHAIN-EXT  code 0038 ?STOPX
+< LINK-DEF-CODE-SIZE  code 003A None
+---
+> DATA           code 002E 0x0
+> LINK-CHAIN-ADDR  code 002A None
+> DATA           code 002F 0x5e
+> DATA           code 0030 0x23
+> DATA           code 0031 0x56
+> DATA           code 0032 0xeb
+> DATA           code 0033 0x22
+> RELOC          data  0x12
+> DATA           code 0036 0x21
+> RELOC          data  0x3
+> DATA           code 0039 0x3e
+> DATA           code 003A 0x9
+> DATA           code 003B 0xcd
+> DATA           code 003C 0x0
+> DATA           code 003D 0x0
+> LINK-CHAIN-EXT  code 003C ?DLDOP
+> DATA           code 003E 0x2a
+> RELOC          data  0x12
+> DATA           code 0041 0x3e
+> DATA           code 0042 0x9
+> DATA           code 0043 0xcd
+> DATA           code 0044 0x0
+> DATA           code 0045 0x0
+> LINK-CHAIN-EXT  code 0044 ?DSTOP
+> DATA           code 0046 0xc9
+> LINK-SET-LC     code 002D None
+> RELOC          code  0x47
+> LINK-SET-LC     code 0047 None
+> DATA           code 0047 0xcd
+> DATA           code 0048 0x0
+> DATA           code 0049 0x0
+> LINK-CHAIN-EXT  code 0048 ?STOPX
+> LINK-DEF-CODE-SIZE  code 004A None
+```
+
+H1 is NOT contradicted by this row (the lexical typing and pool-demand laws of §2.1/§2.2
+hold on my object); the delta belongs to a DIFFERENT lowering component — the main-side
+copy-in temp — outside pre-registered PLAN §4 and outside this arm ("do not expand"). Per
+HYPOTHESES condition 4 (read literally: "any E52 object not whole-file byte-exact") row G
+STOPS at evidence + a corrected PROPOSAL (a copy-in-temp arm at a future authorized hop);
+it was NEVER fitted and will NOT be implemented this round. §2.3 stays a measured DR law
+(read off the goldens), independent of my object.
+
+Context (measured at the arm hop, kept here for the registration record): the LOAN2 rerun
+UNMODIFIED advanced past the conflicting-kinds blocker to the next blocker verbatim —
+`codegen: PUT FILE with a bare PAGE control item [TBD] (line 99)` — RECORDED, NOT fixed;
+census counts UNCHANGED 15/0/26/0. The FULL pre-registration gate ran BEFORE registration
+with rc captured DIRECTLY: **REAL rc=0**, byte panel 1186/0 of 1186, negative 181/181,
+divergence 9/9, coverage 136 rows 0/0, census 15/0/26/0, prose 5
+(`build/gate-e52p1-pre-reg.log`).
