@@ -5010,3 +5010,42 @@ run); PLILIB wrap law awaits its oracle round; BDOS-25 free-core blocker unchang
 - Constraints honored: no `ocaml/`/harness byte; ledger ends C352; functional runs
   are NOT DR claims; FAILs kept as written; retry-DFS never re-run; third-party
   bytes untracked; operator `handoff.config.json` untouched/unstaged; no push.
+
+## E2E-51/P1 hop 5 (registration) — steps 1..4 LANDED, session closing at context exhaustion; post-coverage gate + HAMM-00 rerun + close OWED (2026-11-04; renewal 5/12 session; HEAD chain 890b1e4 -> 5ae44ca -> c56aee2 -> 216ea7a)
+
+MEASURED (accepted):
+- Step 1 `890b1e4`: claims C353 (DIV parking, RESULTS §2.1), C354 (quotient consumption §2.2,
+  incl. the `CA` MISS kept verbatim), C355 (constant-divisor control §2.3) appended — law text
+  derived ONLY from §2, NOT-say bullets ONLY from §3. The tail-anchor method worked: anchored on
+  the VERIFIED last line of C352 (`candidates noted for a later gate hop).`, cat -A checked), so
+  the hop-5-partial em-dash/anchor slip did not recur.
+- Sweep re-run THIS session on binary f172d8eae2a7…: 12/12 whole-file BYTE-EXACT vs golden/e51p1.
+- Step 2 `5ae44ca`: 12 SPECIMENS registered in tools/e2e_gate.py (e49p4-style comment block) +
+  sanctioned `--update-inventory` → INVENTORY 1174 -> 1186 (git diff measured: 12 added, 0
+  removed), then the gate run AGAIN post-update: rc=0, byte panel 1186/0 of 1186 (all twelve E51
+  rows BYTE-EXACT: 128 B x10, E51H/E51I 256 B), negative 181/181, divergence 9/9, coverage 133
+  rows 0/0, census 15/0/26/0, prose 5 (`build/gate-e51p1-reg.log`).
+- Step 3 `c56aee2`: census via `corpus_census.py --check` rc=0 — counts UNCHANGED
+  15/0/26/0 (metadata-only refresh: binary_md5 a28a95e6…, head 5ae44ca); `--verify` re-check
+  matches without writing. The pre-flight prediction (no corpus program is DIV-blocked) held.
+- Step 4 `216ea7a`: three rows (EXPR.DIV_VAR_PARK EXACT:7 PARTIAL MEASURED;
+  EXPR.DIV_RESULT_ADD EXACT:2 SUPPORTED MEASURED; COND.DIV_EQ_TEST EXACT:1 PARTIAL
+  SINGLE_SAMPLE) + IO.PUT_LIST_FIXED probes +E51H with rel_parity 70 -> 71 (hand-maintained
+  count, as pre-flight said the validator would not recompute). coverage_check rc=0, 136 rows
+  0 errors 0 warnings.
+METHOD (accepted): the edit tool matches every edits[].oldText against the ORIGINAL file, so two
+edits touching the same row must be MERGED into one block — my first COVERAGE append failed
+atomically on exactly that (a second edit whose anchor assumed an earlier edit had applied).
+Same class as the hop-5-partial anchor slip: nothing was half-applied, both failures were clean.
+
+OWED EXACTLY (successor, registration remainder only): (1) re-run `python3 tools/e2e_gate.py`
+AFTER the coverage rows and record the post-coverage ACTUALS (expect byte panel 1186/0,
+coverage 136 rows 0/0) in build/gate-e51p1-reg2.log; commit nothing new unless a number moved.
+(2) Step 5 HAMM-00 rev1 rerun UNEDITED: `python3 tools/functional_runner.py --tests HAMM-00
+--evidence build/fc01/hamm-rerun --json-out build/fc01/hamm-rerun/records.json` — its A-class
+`z = x / y` store blocker is now byte-covered by arm 1 (4ff1ea5/[C353]); record the ACTUAL lane
+verdict in docs/functional-results.md (functional, NOT a DR claim; a FAIL for a DIFFERENT reason
+is recorded, never laundered; the expectation is never edited to chase a PASS). (3) Step 6 close
+prose (HANDOFF/PROGRESS/LEARNINGS) + `/handoff` + attest, then STOP after P1 — no
+P2/LOAN2/CREATE without an operator brief. Constraints unchanged: never touch/stage/revert the
+operator's dirty handoff.config.json; no push; goldens never laundered; ledger ends C355.
