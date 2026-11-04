@@ -7,7 +7,26 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-0. **E2E-52/P2 CLOSED (2026-11-04; operator brief: DEC formal copy-in, E52G
+0. **E2E-52/P3 IN FLIGHT (2026-11-04; operator brief: LOAN2 progressive closure — extended
+multi-subround campaign; do NOT stop after one fix; renewals autonomous at safe
+boundaries).** Hop 1 LANDED: baseline verified (HEAD `6c44d8d`, compiler `85bf7a26…`,
+LOAN2 blocker verbatim `PUT FILE bare PAGE [TBD] (line 99)`, root cause = the E52/P1
+PRESCAN raises matcher refusals before lowering, masking the OPEN-PRINT stops at 54/56);
+durables `5c21f87`; **P3-1 step (a) DONE: `spec/lab-evidence/e2e52-p3/PLAN.md`
+pre-registered and committed `b4deba0` BEFORE any compiler byte — predictions: E46N10
+whole-file cmp rc=0 first try (CODE 62/DATA 10, bytes 0023-0034 with `?PAGOP`
+LINK-CHAIN-EXT at 0030, continuation `0035`), 1196/0 pre-reg gate, boundaries kept
+(counted PAGE, PAGE+items, non-leading, console PAGE, LINE all still refuse; E46N21 and
+N3_PAGE markers byte-pinned), census COPYLPT/LOAN2 lines predicted to MOVE (record
+ACTUAL), `--update-inventory` 1196→1197.** **SUCCESSOR: execute `PROGRESS.md` → `## Next
+action` → "P3-1 IN FLIGHT" steps (b)-(f) EXACTLY (edit list B1-B7 is there and in
+`LEARNINGS.md` § "E2E-52/P3 hop 1"), then CONTINUE the campaign: recompile LOAN2, next
+verbatim blocker expected OPEN option PRINT (lines 54/56) → subround P3-2. Constraints:
+no push; goldens never re-derived; operator `handoff.config.json` never staged; all rc
+DIRECT; ledger ends C358 (new claim C359 only AT registration, from measured bytes
+only); never hardcode LOAN2.** Item 0 below (P2 CLOSED, successor STOPs) kept as
+written but SUPERSEDED by this brief.
+1. **(Was item 0; kept as written)** **E2E-52/P2 CLOSED (2026-11-04; operator brief: DEC formal copy-in, E52G
 byte-exact closure; hop 2 registration session; chain `a365686` plan / `d67a263` arm /
 `c34c690`+`546c70a` hop-1 durables / `01bf2df` renewal / `dca9219` registration /
 `90582a5` COVERAGE / `755bf1c` RESULTS + this close prose).** **E52G is REGISTERED and
@@ -1230,25 +1249,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 276
-checkpoint-id: g276-67339b9ef923
-checkpoint-kind: manual
+checkpoint-generation: 277
+checkpoint-id: g277-84b3a9bd8bce
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~21569, session 01a1a772-4dd4-7057-855c-dfac6d57392a)
-checkpointed: 2026-11-04T17:02:11.643Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4842, session 01a1a795-8c87-7427-a642-9c3a8f208628)
+checkpointed: 2026-11-04T17:41:13.763Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f54717f25efb92b2398f53efd982ce25a364d95e1f749cec1449fb45a95629a3
+source-progress: 91626a731e670087841c6c622fabbd3d0ccdf17b6da9c2fcf95c049eb46a949b
 source-handoff: d0d98c782d0f8c7397f67cb24b204b3d900818302b697fcc6892236f26cdd1f3
-source-learnings: c5c8dfc0e4abf0674686ff7e48ff6a5a2b5a44b8073c9b1b5f740d7ab411efe0
+source-learnings: b2ad069e498ccbe5b9178a7f250f94cbf18278781bc1f514e75ea9aedc29edd0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a772-4dd4-7057-855c-dfac6d57392a
-readiness-at: 2026-11-04T17:02:11.654Z
-readiness-checkpoint: g276-67339b9ef923
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-52/P2 CLOSED at hop 2. Landed: E52G registration dca9219 (SPECIMENS + INVENTORY 1195->1196 exactly ONE line + post-registration FULL gate REAL rc=0 DIRECT build/gate-e52p2-reg.log: 1196 byte-exact / 0 of 1196, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5); COVERAGE row PROC.DEC_FORMAL_COPYIN_CELLMAP -> SUPPORTED + EXACT:1 (validator vocabulary; brief's ->EXACT applied via SUPPORTED), coverage_check rc=0 139 rows 0/0, stats own write path, 90582a5; LOAN2 UNMODIFIED blocker VERBATIM UNCHANGED (bare PAGE line 99), nothing fixed; RESULTS 755bf1c; close prose bc7b420; prose standalone rc=0; ledger ENDS C358, no new claim. Successor WITHOUT an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state, STOP. Standing proposals shortlist in HANDOFF item 0; E52G-in-DIVERGENT proposal OBSOLETE. No push; goldens never re-derived; NEVER re-run the retry-DFS; all rc DIRECT.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

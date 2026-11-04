@@ -443,7 +443,16 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3 subround P3-1 IN FLIGHT — bare PAGE on the named-file PUT; implementation OWED (2026-11-04; baseline HEAD `6c44d8d`; compiler `85bf7a26…`; NOTHING tracked authored yet except these durables)
+### E2E-52/P3 subround P3-1 IN FLIGHT — implementation steps (b)-(f) OWED, PLAN PRE-COMMITTED (2026-11-04; step (a) DONE: `spec/lab-evidence/e2e52-p3/PLAN.md` committed `b4deba0` BEFORE any compiler byte, on top of durables `5c21f87`; baseline was `6c44d8d`; compiler still `85bf7a26…` UNEDITED)
+
+SUCCESSOR: re-verify HEAD/tree, rebuild (`cd ocaml && eval "$(opam env)" && dune build`
+rc=0), then execute steps (b)-(f) below EXACTLY — all site numbers, pinned markers and
+the edit list B1-B7 are in this section and `LEARNINGS.md` § "E2E-52/P3 hop 1"; read
+those FIRST; do NOT bulk-read the ledger. AFTER P3-1 the CAMPAIGN CONTINUES: recompile
+LOAN2, capture the next verbatim blocker (expected class: OPEN option PRINT at lines
+54/56 — record, then plan subround P3-2 per the campaign loop; predictions commit before
+each fix; never stop merely because PAGE landed). No push; operator `handoff.config.json`
+never staged; goldens never re-derived; all rc DIRECT.
 
 Execute IN ORDER, all rc captured DIRECTLY (never trailing pipelines):
 (a) write `spec/lab-evidence/e2e52-p3/PLAN.md` — pre-registered predictions for E46N10
@@ -465,6 +474,19 @@ final catch-all message; `lower_put_items_gen` match at ~11636 gains `| Sk_page 
 they are console-only and must never see PAGE. NO other file, NO new encoder (reuse
 `call_ext`). Preserve: file-named PUTs never reach the console route; layout ownership
 (prescan `Pfile` arm already sums only item literals — page adds 0 pool bytes).
+    EXACT EDIT LIST (sites verified 2026-11-04): B1 line 2257 add `| Sk_page` to
+    `put_skip`; B2 `file_skip_of` add `| Ast.Pi_ctl ("PAGE", None) -> Some Sk_page` +
+    comment update; B3 `file_items` success branch (`| [] ->`) guard `skipn = Sk_page &&
+    rest <> []` -> named refusal "PAGE followed by items [TBD]", and rewrite ONLY the
+    narrative tail (the format string `is %s, unmeasured on the named-file route [TBD]
+    (line %d)` stays byte-identical — E46N21 marker lives inside it); B4 `bare_ctl_put`
+    FILE arm: `| "SKIP", _ | "PAGE", None ->` share the file_items route, new `| "PAGE",
+    Some _ -> failwith` counted refusal, catch-all message updated; B5
+    `lower_put_items_gen` (~11636) `| Sk_page ->` file route `call_ext st "?PAGOP"`,
+    console LOUD refusal; B6 `lower_put_lit`/`lower_cat` skip matches get loud
+    `Sk_page -> failwith` arms (unreachable, exhaustiveness); B7 LIST-arm empty-list
+    guard (~2667) message "SKIP" -> "SKIP or PAGE" (accuracy only). NO new encoder;
+    parser.ml/bind.ml/panel/goldens untouched.
 (c) `cd ocaml && eval "$(opam env)" && dune build` rc=0 (check NO new warnings — the
 warning profile is a checked artifact); compile probes/E46N10.PLI → `cmp` whole file vs
 `golden/e42p2c/E46N10/E46N10.REL` (expect rc=0 FIRST TRY per the model); recompile
@@ -2154,17 +2176,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 276
-checkpoint-id: g276-67339b9ef923
-checkpoint-kind: manual
+checkpoint-generation: 277
+checkpoint-id: g277-84b3a9bd8bce
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-11-04T17:02:11.643Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-04T17:41:13.763Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f54717f25efb92b2398f53efd982ce25a364d95e1f749cec1449fb45a95629a3
+source-progress: 91626a731e670087841c6c622fabbd3d0ccdf17b6da9c2fcf95c049eb46a949b
 source-handoff: d0d98c782d0f8c7397f67cb24b204b3d900818302b697fcc6892236f26cdd1f3
-source-learnings: c5c8dfc0e4abf0674686ff7e48ff6a5a2b5a44b8073c9b1b5f740d7ab411efe0
+source-learnings: b2ad069e498ccbe5b9178a7f250f94cbf18278781bc1f514e75ea9aedc29edd0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` -> "HOP 5 IN-FLIGHT ADDENDUM"
 steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
@@ -2226,9 +2248,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a772-4dd4-7057-855c-dfac6d57392a
-readiness-at: 2026-11-04T17:02:11.654Z
-readiness-checkpoint: g276-67339b9ef923
 <!-- guard:end checkpoint -->
 
 ## Blockers
