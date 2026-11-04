@@ -59,8 +59,20 @@ formal gets NO value cell (2-byte caller arg-pointer block @0x0B -> main-side 5-
 copy-in temp @0x0D; callee 2-byte POINTER cell @0012; literal store through `2A r12` +
 `?DSTOP`); reported, never fitted. `ocaml/` UNTOUCHED this hop. Evidence:
 `spec/lab-evidence/e2e52-p1/RESULTS.md` §1-§4 + `LEARNINGS.md` § "E2E-52/P1 hop 3".
-**SUCCESSOR: execute the exact hop-4 contract in `PROGRESS.md` -> `## Next action` ->
-"SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
+**SUCCESSOR: execute `PROGRESS.md` -> `## Next action` -> "HOP 5 IN-FLIGHT ADDENDUM"
+steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
+NO G) + INVENTORY 1186→1195 + post-update gate REAL rc=0 1195/0,181/181,9/9,136 0/0,
+15/0/26/0,prose 5 `edf4a25`; claims C356..C358 from RESULTS §2 only, ledger ENDS C358
+`7176ff8`; 3 COVERAGE rows, coverage_check rc=0 139 0/0 (rel_parity vocabulary:
+DIVERGENT:1, DIFFERS is malformed); checkpoints `564442e`/this. MEASURED open: dashboard
+rc=1, sole verbatim FAIL `integration: unmapped COVERAGE rows are listed, not dropped` —
+map the 3 rows in the dashboard capability map, NEVER paper over in prose; the stale
+`**26**` check did not reappear this run. E52G stays evidence-only (copy-in-temp
+PROPOSAL, never fitted). STOP after P1; no push; goldens never re-derived; NEVER re-run
+the retry-DFS; operator handoff.config.json never staged; all rc DIRECT.**
+
+SUPERSEDED-BY-ABOVE (kept as written): **SUCCESSOR: execute the exact hop-4 contract in
+`PROGRESS.md` -> `## Next action` -> "SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
 per PLAN §4 — `pd_vars` = top rows only, per-proc own rows via the SAME `rt_to_vk`, the
 `Sproc` arm recurses with `pd_vars = own @ cx.pd_vars`, all dedup refs INTACT; build; E52
 sweep byte-exact with A/E/F/J UNCHANGED to their BASELINE shas; E51A..L 12/12; LOAN2 rerun
@@ -1103,23 +1115,23 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 268
-checkpoint-id: g268-dc95c397fab7
+checkpoint-generation: 270
+checkpoint-id: g270-78fe0bad2023
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-11565, session 01a1a6b6-58aa-7250-8e94-7a41c50f0483)
-checkpointed: 2026-11-04T13:41:34.856Z
+status: checkpoint (guard level 4, remaining ~410, session 01a1a6cb-68ea-7250-8e94-7a45e6054bdb)
+checkpointed: 2026-11-04T14:05:15.032Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4ba6878f9a3d7af1faaba71498be3991b580efda36bd68f3ab2189a31657ea10
+source-progress: a727d17283e559d2e1aff06fb4018426107c9329ae99efce0fe917391294473e
 source-handoff: 35205ea0fa0c8f1b52c67ecdef03e9536bd00809aab2dc2c9b30fe140019a10d
-source-learnings: b7d322929ad006b55a48ad56e7df722f65e2cdd1d7ee5292041e209003647a01
+source-learnings: cc3c575e5cf7367be50f7dae25820063f27b45efdcd8399cee1728b5a96aa2f3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a6b6-58aa-7250-8e94-7a41c50f0483
-readiness-at: 2026-11-04T13:41:34.872Z
-readiness-checkpoint: g268-dc95c397fab7
+readiness-by: session:01a1a6cb-68ea-7250-8e94-7a45e6054bdb
+readiness-at: 2026-11-04T14:05:15.047Z
+readiness-checkpoint: g270-78fe0bad2023
 ### Last verified state
 guard level 4; checkpoint requested (renewal tool refresh)
 
@@ -1177,5 +1189,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P1 hop 5: execute PROGRESS.md -> "Next action" -> "hop 4 PARTIAL ... REGISTRATION + CLOSE OWED" exactly (7 numbered steps). Verified committed: arm 6a4c554 (pd_own scope-aware prescan; B,C,D,H,I byte-exact, A/E/F/J unchanged 8217250a/4fe89c7d/8c09f2e7/0a3f6b6a, E51 12/12, LOAN2 next blocker verbatim PUT FILE bare PAGE line 99 RECORDED NOT fixed, census re-snapshotted counts 15/0/26/0, pre-reg gate REAL rc=0 build/gate-e52p1-pre-reg.log). E52G = condition-4 evidence stop: residual is §2.3 formal cell map (copy-in temp) — NEVER fit, NEVER implement this round; register ONLY the 9 byte-exact specimens; claims from C356 ONLY from RESULTS §2; stale dashboard **26** check PRE-EXISTING — record, never fix; all rc captured DIRECTLY never through pipes; dune|head SIGPIPE lesson in LEARNINGS § hop 4. STOP after P1; no push; goldens never re-derived; NEVER re-run the retry-DFS; operator handoff.config.json never staged.
+E2E-52/P1 hop 6: execute PROGRESS.md -> "Next action" -> "HOP 5 IN-FLIGHT ADDENDUM" steps a-d exactly. Verified committed: step1 e2a9866 (RESULTS §5), step2 edf4a25 (9 SPECIMENS no G, INVENTORY 1195, gate rc=0 1195/0), step3 7176ff8 (claims C356..C358, ledger ENDS C358, prose rc=0), step4 rows (coverage 139 0/0 rc=0; DIVERGENT:1 vocabulary lesson), checkpoint 564442e. Dashboard rc=1 verbatim: only failure "integration: unmapped COVERAGE rows are listed, not dropped" — map the 3 new rows in tools/functional_dashboard.py capability map (inspect failing check first; never paper over in prose). Then census/stats own write paths if drifted, FULL gate rc DIRECT to build/gate-e52p1-reg2.log (expect 1195/0,181/181,9/9,139 0/0,15/0/26/0,prose 5), step-7 close prose E2E-52/P1 CLOSED (G OPEN my-gap + copy-in-temp PROPOSAL; PROPOSED never adopted: whether G joins spec/DIVERGENT.txt), attest, STOP after P1. No push; goldens never re-derived; NEVER re-run retry-DFS; no LOAN2 expansion; operator handoff.config.json never staged; rc always DIRECT.
 <!-- guard:end checkpoint -->
