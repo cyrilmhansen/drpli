@@ -7,6 +7,26 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0. **E2E-52/P2 IN FLIGHT (2026-11-04; operator brief: DEC formal copy-in, E52G
+byte-exact closure).** Hop 1 LANDED: plan pre-committed `a365686`; arm `d67a263`
+(Bind `cs_copies` owns the caller-side formal-precision copy-in temp; codegen emits the
+[C358] `?DLDOP/@actual + ?DSTOP/@temp` pair before the descriptor-word record and
+retargets the block word to the temp; every other DEC mismatch shape refuses BY NAME);
+durable record `c34c690`. MEASURED: E52G whole-file `cmp` rc=0 FIRST TRY (sha
+`39b3d7cf…` == golden `golden/e52p1/E52G/E52G.REL`, exactly the PLAN §4 prediction, never
+fitted); E52A..J 10/10 EXACT; E51A..L 12/12 EXACT; pre-registration FULL gate REAL rc=0
+DIRECT `build/gate-e52p2-prereg.log` (1195/0 of 1195, 181/181, 9/9, 139 rows 0/0, census
+15/0/26/0, prose 5). Binary `85bf7a26…`. **The successor executes `PROGRESS.md` -> `##
+Next action` -> "E2E-52/P2 hop 2 OWED" steps (a)-(e) exactly: register E52G
+(SPECIMENS + --update-inventory 1195->1196 + gate AGAIN, expect 1196), COVERAGE row
+`PROC.DEC_FORMAL_COPYIN_CELLMAP` -> EXACT:1 (no new rows), LOAN2 UNMODIFIED blocker
+record (fix NOTHING), RESULTS.md + close prose, STOP after P2.** Constraints unchanged:
+no push; goldens never re-derived; NEVER re-run the retry-DFS; operator
+`handoff.config.json` never staged; all rc DIRECT (a `dune build | tail` pipeline masked
+rc=1 TWICE this hop -- the rule is real); no PAGE/PUT FILE/ON-unit/EDIT work; no new
+claims (C358 states the law; ledger ENDS **C358**); dashboard `**26**` staleness
+recorded, never fixed.
+
 1. Confirm the repository and revision:
    `cd /home/john/projects/sushiworks/pli80 && git rev-parse --abbrev-ref HEAD && git rev-parse HEAD && git status --porcelain=v1`
    A dirty `handoff.config.json` is the OPERATOR's standing edit — investigate, never clean,
@@ -1152,25 +1172,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 272
-checkpoint-id: g272-6b059e276b81
-checkpoint-kind: manual
+checkpoint-generation: 273
+checkpoint-id: g273-75c60fb0d9da
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~26075, session 01a1a6e1-8cba-7250-8e94-7a4821b5fd5f)
-checkpointed: 2026-11-04T14:42:21.306Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6769, session 01a1a759-ab86-7057-855c-dfa9fdc758ac)
+checkpointed: 2026-11-04T16:42:33.643Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5d19baffeaad49c4a71757e74172d5088e1b045a04e0de51f5789743569dfb0d
+source-progress: 30c24846a00e55e84ae3bb28a2a2da379b2ee50db45b2215e702564b4dc4f86b
 source-handoff: 5453ba79fac60ff007a84b57b93e38587c1df8a3ec7b377b7e3c501f58ab5b0a
-source-learnings: 10f7952604ae2bb23591e54602e9de71fd98e8aae7a2a1197ea4cf4829ae269e
+source-learnings: c65867e9f3a2e486151bfcb7892eea0baa20b9f4b578a9aa8f6bc0e30985e052
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a6e1-8cba-7250-8e94-7a4821b5fd5f
-readiness-at: 2026-11-04T14:42:21.316Z
-readiness-checkpoint: g272-6b059e276b81
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-52/P1 CLOSED (hop 6 closing session). Landed: dashboard mapping fa0596c (3 E52 rows -> DECL.SCALAR_TYPES/ARITH.DECIMAL/PROC.CALL; status doc refreshed via own write path; unmapped 32->29), close 68a263f (PROGRESS Current-phase+Next action, HANDOFF item 6, LEARNINGS hop-6 section, census metadata-only). FULL gate REAL rc=0 DIRECT build/gate-e52p1-reg2.log: 1195/0 of 1195, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5; prose check rc=0 standalone; hostile suite rc=0 211/211; coverage_check rc=0; census --check rc=0. Known PRE-EXISTING recorded, NEVER fixed: test_functional_dashboard.py rc=1 sole verbatim FAIL 'integration: unmapped COVERAGE rows are listed, not dropped' (stale hardcoded **26** vs rendered **29**; refresh + mapping P1's 3 DIV rows stays PROPOSED). Ledger ENDS C358. E52G OPEN my-gap: never registered, never fitted; copy-in-temp arm and spec/DIVERGENT.txt membership PROPOSED, never adopted. Successor WITHOUT an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state, STOP. No push; goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2 blockers.)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
