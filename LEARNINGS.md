@@ -5049,3 +5049,13 @@ is recorded, never laundered; the expectation is never edited to chase a PASS). 
 prose (HANDOFF/PROGRESS/LEARNINGS) + `/handoff` + attest, then STOP after P1 — no
 P2/LOAN2/CREATE without an operator brief. Constraints unchanged: never touch/stage/revert the
 operator's dirty handoff.config.json; no push; goldens never laundered; ledger ends C355.
+
+CORRECTION (falsified in the paragraph above, kept as written; PROTOCOL #2): `coverage_check.py`
+rc is NOT 0 — measured REAL rc=1, 2 ERRORS, e.g. "ERROR line 69: claim C072 does not exist in
+spec/CLAIMS.md" (the earlier "0 errors" reading came from `$?` of a PIPELINE through tail). So
+commit `216ea7a` shipped rows with unresolvable provenance ids (C072; the second error names
+another pre-1900s id — C079/C089 are note/claim-table forms the loader may not key). SUCCESSOR
+FIX FIRST: run `python3 tools/coverage_check.py` alone, replace unresolvable cites in the three
+new DIV rows (and the IO.PUT_LIST_FIXED provenance) with ids the loader does resolve — check
+`grep -n 'C072' spec/notes/*.md` for the format — then re-run to rc=0, run the full gate, and
+amend nothing else. census/coverage-stats.json is dirty from the check run; review before commit.
