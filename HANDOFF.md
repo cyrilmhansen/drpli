@@ -7,6 +7,20 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-octies. **E2E-52/P3-4 PA FIXED — HEADLINE MET; REGISTRATION OWED (2026-11-05, fresh
+  chain hop 2/12).** Root cause of the PA crash: unparenthesised trailing inner match in
+  `edit_num_cell` swallowed the outer `| _ -> false` (non-exhaustive outer match; `-warn-error
+  -a` = warnings never fatal) — proven via `-dlambda`; stale-map and PIlit suspects FALSIFIED.
+  Fix `9b2d781` (codegen.ml only); binary `345644822818326f442a…`: **E52PA cmp rc=0 vs EXISTING
+  golden/e52p3/E52PA (sha `d7b4e7f3…`) = HEADLINE MET**; 9/9 cmps re-verified; sweep 89/89;
+  markers rc=2 intact; warnings 70 == baseline. LOAN2 ADVANCED VERBATIM to line-212 matcher-split
+  (DEC-147 prediction falsified; NOT fixed). Owed = registration steps (1)-(5) in `LEARNINGS.md`
+  § "PA FIX + SWEEP 89/89 + MARKERS + LOAN2 ADVANCED LANDED": SPECIMENS 10 + PU/PV dr-refuses
+  rows, --update-inventory 1212→1222, FULL gate rc=0 `build/gate-e52p3d-reg.log`, census own write
+  path, **C362 measured-bytes-only BEFORE** COVERAGE `IO.PUT_EDIT` (EXACT:25→35), coverage_check +
+  prose rc=0, RESULTS+PLAN rows. Ledger ENDS C361; goldens never re-derived; operator
+  handoff.config.json never staged; all rc DIRECT; no push; campaign continues.
+
 0a-septies. **E2E-52/P3-4 CAMPAIGN MEASURED + ARM LANDED; PA BLOCKER OWED (2026-11-05,
 fresh chain hop 1/12).** Campaign e52p3d rc=0 9 ok/11 (PU bare-x and PV x(255) are
 dr-refuses, no .REL); arm (codegen.ml, fmt_spec let rec repgrp `80 n…81`/count-1-FLATTENS

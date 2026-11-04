@@ -443,7 +443,25 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-4 campaign e52p3d MEASURED (9 ok/11) + ARM LANDED (9/9 new-probe cmp rc=0); PA MATCH_FAILURE BLOCKER OWED, then sweep/LOAN2/registration (2026-11-05; fresh chain hop 1/12; read `LEARNINGS.md` § "E2E-52/P3-4 campaign e52p3d MEASURED + arm LANDED" FIRST — it carries every measured byte, all verdicts (H2c/H5c/H6b + x(0)/x(128)-compile CONFIRMED; H2a/H2b/H4b-detail/H5a/H5b/H6a FALSIFIED verbatim) and the exact owed steps)
+### E2E-52/P3-4 PA FIXED — HEADLINE MET (PA cmp rc=0 vs existing golden, sha `d7b4e7f3…`); REGISTRATION OWED (2026-11-05; fresh chain hop 2/12; read `LEARNINGS.md` § "E2E-52/P3-4 PA FIX + SWEEP 89/89 + MARKERS + LOAN2 ADVANCED LANDED; REGISTRATION OWED" FIRST — it carries the root cause, every measured ACTUAL and the exact owed steps (1)-(5))
+
+LANDED this hop (all rc DIRECT): root cause = unparenthesised trailing inner match in
+`edit_num_cell` swallowed the outer `| _ -> false` (outer match non-exhaustive;
+`-warn-error -a` = warnings NOT fatal). Fix committed `9b2d781` (codegen.ml only). Binary
+`345644822818326f442a…`: **E52PA compile rc=0 384B, whole-file cmp rc=0 vs EXISTING
+golden/e52p3/E52PA = HEADLINE**; 9/9 accepted-probe cmps re-verified; sweep **89/89**
+(incl. P086J/K); markers E46K4/K15/N21/E52PF rc=2 intact; warnings 70 == baseline. LOAN2
+blocker ADVANCED VERBATIM to `PUT FILE(OUTPUT) EDIT shape [TBD] (line 212)` (prescan
+matcher split; DEC-147 prediction FALSIFIED at stage level; recorded, NOT fixed).
+**NEXT: execute `LEARNINGS.md` § above, owed steps (1)-(5): SPECIMENS 10 + PU/PV dr-refuses
+rows from ACTUAL stderr, --update-inventory 1212→1222 (+refusals), FULL gate rc=0 DIRECT
+build/gate-e52p3d-reg.log, census own write path (msgs WILL move), claim C362 MEASURED BYTES
+ONLY BEFORE the COVERAGE IO.PUT_EDIT rewrite (EXACT:25→35), coverage_check+prose rc=0,
+RESULTS §P3-4 + PLAN §5 rows, durables.** Constraints: no push; goldens NEVER re-derived;
+operator handoff.config.json NEVER staged; all rc DIRECT; pli80c POSITIONAL; renewals
+autonomous (2/12 consumed).
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-4 campaign e52p3d MEASURED (9 ok/11) + ARM LANDED (9/9 new-probe cmp rc=0); PA MATCH_FAILURE BLOCKER OWED, then sweep/LOAN2/registration (2026-11-05; fresh chain hop 1/12; read `LEARNINGS.md` § "E2E-52/P3-4 campaign e52p3d MEASURED + arm LANDED" FIRST — it carries every measured byte, all verdicts (H2c/H5c/H6b + x(0)/x(128)-compile CONFIRMED; H2a/H2b/H4b-detail/H5a/H5b/H6a FALSIFIED verbatim) and the exact owed steps)
 
 ACTUALS this hop (rc DIRECT): baseline build `c2c6282f…`, PA/PP..PZ refusals
 re-measured exactly pre-registered. ORACLE one grouped campaign rc=0 **9 ok/11**:

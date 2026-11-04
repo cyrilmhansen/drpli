@@ -5,6 +5,68 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-4 PA FIX + SWEEP 89/89 + MARKERS + LOAN2 ADVANCED LANDED; REGISTRATION OWED (2026-11-05, fresh chain hop 2/12; binary `345644822818326f442a…`)
+
+- **ACCEPTED (root cause of the PA Match_failure).** `edit_num_cell`'s Eident arm ended in an
+  UNPARENTHESISED trailing inner match (`&& match vk_of st nm with | Vint -> true | _ -> false`);
+  OCaml parsing makes the following `| _ -> false` an extra **INNER** arm (Warning 11
+  redundant-case), leaving the **OUTER** match with ONE arm — non-exhaustive (Warning 8). The
+  lambda (`ocamlopt -dlambda`, extracted by replaying dune's exact command) shows the compiled
+  `default: (raise (makeblock 0 Match_failure ["lib/codegen.ml" 11921 2]))`. `lib/dune` carries
+  `-warn-error -a` which **DISABLES** warnings-as-errors (a minus!), so `dune build` rc=0 passed
+  the broken code. Diagnosis chain: Obj instrumentation proved the scrutinee is a VALID
+  `Ebinary` (tag 7, size 3) and that a debug copy of the SAME match hit its wildcard while the
+  real one raised — impossible for a stale line map (clean rebuild, same hash). The
+  predecessor's two suspects (stale line map; PIlit `'|'` interaction) BOTH FALSIFIED: PA is
+  simply the FIRST probe feeding a NON-Eident node to `edit_num_cell`; the Add→operand→cell
+  path never fails on Eident-tagged operands, which is why PW/PX/PY/PZ passed with the bug in.
+- **ACCEPTED (warning-histogram fingerprint).** The recorded "codegen warnings 74 vs baseline
+  70 (+4)" was EXACTLY this bug: Warning 8 + Warning 11, each doubled byte+native compilation.
+  After the fix (`9b2d781`): **70 == P3-3 baseline**. Method re-proved: per-`File` histogram,
+  never full-log totals.
+- **ACCEPTED (fix + HEADLINE).** Fix = parenthesise the inner `vk_of` match, codegen.ml only,
+  with an in-code comment naming the trap. Binary `345644822818326f442a…`: E52PA compile rc=0,
+  **384 B, code=78 data=4**; whole-file `cmp` **rc=0** vs EXISTING
+  `golden/e52p3/E52PA/E52PA.REL` (both sha `d7b4e7f32b9cc71d…`) — **HEADLINE MET, never
+  fitted**; all 9 accepted-probe cmps (PP,PQ,PR,PS,PT,PW,PX,PY,PZ vs `golden/e52p3d/`)
+  RE-VERIFIED rc=0 on this final binary.
+- **ACCEPTED (sweep).** 89/89 byte-exact on the final binary, rows extracted by script from the
+  gate SPECIMENS dict: E52PB..PO 13, E46N1..N19 19, E52A..J 10, E51A..L 12, R10xx **33**
+  (the "R10 bank 34" count is a prior-record slip — 33 rows exist in the swept range), P086J/K
+  2. Boundary markers ALL intact rc=2 with pinned texts: E46K4 (member), E46K15 (GET form),
+  E46N21 (LINE-with-count), E52PF (picture `$`-after-digit dr-refuses mirror).
+- **ACCEPTED (LOAN2, UNMODIFIED positional).** Blocker **ADVANCED past** the fmt_spec
+  format-item catch (rep-groups and pictures now lower): ACTUAL verbatim
+  `codegen: PUT FILE(OUTPUT) EDIT shape [TBD] (line 212) -- an EDIT list the matcher cannot
+  split into data items plus a final wrapped format list: empty data, a trailing item after
+  the format list, or an item class classify_item does not name` rc=2. It fires in the
+  PRESCAN walk (`edit_stmts`/`match_put_edit`), so line 147's DEC formals are NEVER reached:
+  the PREDICTED next blocker (DEC FORMAL 147 via `authorize_file_edit_item`) is **FALSIFIED
+  at stage level**; the direction (blocker moves) held. `my-gap` (DR compiles LOAN2 whole);
+  recorded, NOT fixed, never claimed exact; evidence `build/e52p3d/LOAN2-mine-stderr.txt`.
+- **LESSON (harness).** In this project `-warn-error -a` means warnings are NEVER fatal — the
+  warning delta after an arm is a REAL signal (per-File histogram), and a Match_failure at a
+  syntactically exhaustive match is the signature of a swallowed arm, provable in minutes with
+  `-dlambda` (replay the `dune build --display=verbose` command with `-dlambda`; output is on
+  stderr).
+- **OWED NEXT (registration, exact):** (1) SPECIMENS rows for E52PA + E52PP..E52PZ (10 total,
+  measured comments; reldumps exist in `build/e52p3d/`), honest REJECTS/NEG_META rows for
+  **E52PU** (`SYNTAX ?`, bare-x) and **E52PV** (`BAD VAL`, x(255)) as dr-refuses — my messages
+  already refuse them BY NAME and the markers must come from the ACTUAL stderr texts; then
+  sanctioned `--update-inventory` 1212→1222 (+10 specimens) and +2 refusals if the rows land
+  (diff line-for-line). (2) FULL gate rc=0 DIRECT to `build/gate-e52p3d-reg.log` (expect
+  1222/0; negatives 180+2; watch the census counts too). (3) census via its OWN write path —
+  fmt_spec/X/PInum catch texts CHANGED and LOAN2's message MOVED, so census rows WILL shift.
+  (4) claim **C362** from MEASURED BYTES ONLY (rep-group `80 n…81` recursive + count-1
+  flattens; `x(w)=0B w` envelope; file-route fixed-bin EXPRESSION items incl. PX no-XCHG,
+  PZ literal-div accepted; PA==LOAN2 0544-0558) committed BEFORE the COVERAGE `IO.PUT_EDIT`
+  rewrite (cite-resolution lesson; EXACT:25→35 convention 25 prior + 10 new). (5) coverage_check
+  + prose rc=0 standalone DIRECT; RESULTS §P3-4 + PLAN §5 row with every falsified hypothesis
+  verbatim (H2a/H2b, H4b detail, H5a/H5b, H6a, and THIS hop's 147-prediction falsification);
+  durables. Constraints: no push; goldens NEVER re-derived; operator handoff.config.json NEVER
+  staged; all rc DIRECT (the `| tail` mask trap fired twice running); pli80c POSITIONAL;
+  renewals autonomous (this hop was 2/12).
+
 ## E2E-52/P3-4 campaign e52p3d MEASURED + arm LANDED (9/9 new-probe cmp rc=0); PA BLOCKER OWED (2026-11-05, fresh chain hop 1/12; uncommitted codegen.ml at checkpoint time)
 
 - **ACCEPTED (recovery + baseline).** HEAD `44af4c1` (g313 block), tree clean except
