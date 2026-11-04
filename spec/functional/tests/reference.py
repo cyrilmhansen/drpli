@@ -619,8 +619,15 @@ class _Hamm00Port:
                 u = _hamm00_chk(y * qq)
                 s = _hamm00_chk(s + u)
                 c = 0                                               # dead store, kept
-            self.skip()                                             # 400
+            # fed0 loop (HAMM-00.PLI lines 130-142): the `put skip;` at line 131
+            # is the loop's FIRST statement, so it runs on EVERY entry -- the
+            # initial one (byok: `goto fed0` / selok: fall-through, the old
+            # "# 400" position) AND every over-ask retry via `goto fed0`.
+            # rev2 correction: rev1 carried this skip OUTSIDE the loop, missing
+            # one blank line at each feed retry (the compiler matched the
+            # source; the DERIVATION did not).
             while True:                                             # 410 feed loop
+                self.skip()                                         # fed0: put skip
                 self.put(_HAMM00_FEEDP)
                 qq = self.get()
                 if self.negguard(qq):                               # 412
@@ -832,7 +839,8 @@ def hamm00():
     assert (port.plague_years, port.skip_years, port.starve_years) == (5, 1, 2)
     assert port.rats_years >= 1
     lines = _hamm00_finalize(port.raw)
-    assert len(lines) == 211, len(lines)
+    assert len(lines) == 212, len(lines)   # 211 rev1 + the fed0 entry skip on the
+    # single feed over-ask retry (11 fed0 entries, 10 feed-prompt years + 1 retry)
     # the two split-literal seams normalize to the single-literal texts (hop-5 law)
     assert ("POPULATION STARVED PER YEAR ON THE AVERAGE, I.E. A TOTAL OF" in lines
             and "WOULD DEARLY LIKE TO SEE YOU ASSASSINATED BUT WE ALL HAVE OUR" in lines)
