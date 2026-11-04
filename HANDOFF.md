@@ -1040,25 +1040,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 254
-checkpoint-id: g254-c4256dff95e9
+checkpoint-generation: 255
+checkpoint-id: g255-7fe79465091d
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~760, session 01a1a5c5-2b5c-7688-9802-a53fbb3c614a)
-checkpointed: 2026-11-04T09:29:16.911Z
+status: checkpoint (guard level 0, remaining ~55945, session 01a1a5e7-032d-7688-9802-a5432349e841)
+checkpointed: 2026-11-04T09:40:31.484Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 96c7315954cce172e29891ad6d40465b6f7832af2f2b70753350f8f64a55fa19
-source-handoff: ae8029de545d1902b66036aa1e0c868a9b9ab98620b657a78ef89095f42430ea
+source-progress: d5b97ababab707c43937411bd3986c891982c8a56352285b40c0158b4ef8d198
+source-handoff: 34fdffa468b6664208451cb0a240e92f482d6cd54fa7de335d6e9aa4ac1bcfc3
 source-learnings: 50809a74bffef9e7494c932abfb39f699f9cf02f6a1e71e12f570c06a0f3222e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a5c5-2b5c-7688-9802-a53fbb3c614a
-readiness-at: 2026-11-04T09:29:16.920Z
-readiness-checkpoint: g254-c4256dff95e9
+readiness-by: session:01a1a5e7-032d-7688-9802-a5432349e841
+readiness-at: 2026-11-04T09:40:31.499Z
+readiness-checkpoint: g255-7fe79465091d
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-51/P1 hop 6 committed at 0c61c8d: coverage cites fixed REAL rc=0 (136 rows 0/0); full gate REAL rc=0 1186/0/181/181/9/9/136-0-0/15-0-26-0/prose 5; HAMM-00 rev1 UNMODIFIED rerun DIV blocker GONE (COMPILE/LINK/RUN pass) ASSERT FAIL one extra blank — root cause ACCEPTED: reference.py _Hamm00Port fed0 loop not statement-faithful (source re-enters at leading put skip, line 131); my-gap derivation model; rev2 re-derivation PROPOSED only; docs § 16 + § 1 row landed. Successor (exact next in PROGRESS.md Next action): run tools/file_prose_check.py (fix only flags on new § 16), close prose (HANDOFF item-6 -> E2E-51/P1 CLOSED; PROGRESS -> no active round, successor records and STOPS; proposals: HAMM-00 rev2 derivation fix, FCPS1..3 registration, README § 5.1 rights review, E2E-50/P3 shortlist), commit explicit durable paths, attest, STOP after P1. No P2/LOAN2/CREATE without operator brief; never touch handoff.config.json; no push; ledger ends C355.)
+guard level 0; checkpoint requested (finalize: E2E-51/P1 CLOSED at 4468a9c (close prose + standalone prose-check rc=0 measured directly, build/prose-check-e51p1-close.log). FIXED BINARY variable-division compiler gap RESOLVED (12/12 goldens byte-exact, gate 1186/0, ledger ends C355). HAMM-00 rev1 ASSERT FAIL preserved with accepted suspected reference-model discrepancy (fed0 loop-entry skip vs prompt-first _Hamm00Port); rev2 subtraction-loop division is OBSOLETE — the live proposal is the rev2 derivation fix. NO ACTIVE ROUND: successor confirms HEAD/tree, /handoff verify, records state and STOPS; await operator brief. No push; operator handoff.config.json never staged.)
 
 ### Unfinished operations
 - (none recorded)
@@ -1088,5 +1088,5 @@ guard level 4; checkpoint requested (finalize: E2E-51/P1 hop 6 committed at 0c61
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-E2E-51/P1 hop 6 committed at 0c61c8d: coverage cites fixed REAL rc=0 (136 rows 0/0); full gate REAL rc=0 1186/0/181/181/9/9/136-0-0/15-0-26-0/prose 5; HAMM-00 rev1 UNMODIFIED rerun DIV blocker GONE (COMPILE/LINK/RUN pass) ASSERT FAIL one extra blank — root cause ACCEPTED: reference.py _Hamm00Port fed0 loop not statement-faithful (source re-enters at leading put skip, line 131); my-gap derivation model; rev2 re-derivation PROPOSED only; docs § 16 + § 1 row landed. Successor (exact next in PROGRESS.md Next action): run tools/file_prose_check.py (fix only flags on new § 16), close prose (HANDOFF item-6 -> E2E-51/P1 CLOSED; PROGRESS -> no active round, successor records and STOPS; proposals: HAMM-00 rev2 derivation fix, FCPS1..3 registration, README § 5.1 rights review, E2E-50/P3 shortlist), commit explicit durable paths, attest, STOP after P1. No P2/LOAN2/CREATE without operator brief; never touch handoff.config.json; no push; ledger ends C355.
+E2E-51/P1 CLOSED at 4468a9c (close prose + standalone prose-check rc=0 measured directly, build/prose-check-e51p1-close.log). FIXED BINARY variable-division compiler gap RESOLVED (12/12 goldens byte-exact, gate 1186/0, ledger ends C355). HAMM-00 rev1 ASSERT FAIL preserved with accepted suspected reference-model discrepancy (fed0 loop-entry skip vs prompt-first _Hamm00Port); rev2 subtraction-loop division is OBSOLETE — the live proposal is the rev2 derivation fix. NO ACTIVE ROUND: successor confirms HEAD/tree, /handoff verify, records state and STOPS; await operator brief. No push; operator handoff.config.json never staged.
 <!-- guard:end checkpoint -->

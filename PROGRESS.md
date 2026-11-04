@@ -1666,16 +1666,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 254
-checkpoint-id: g254-c4256dff95e9
+checkpoint-generation: 255
+checkpoint-id: g255-7fe79465091d
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-04T09:29:16.911Z
+guard-level: 0
+checkpointed: 2026-11-04T09:40:31.484Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 96c7315954cce172e29891ad6d40465b6f7832af2f2b70753350f8f64a55fa19
-source-handoff: ae8029de545d1902b66036aa1e0c868a9b9ab98620b657a78ef89095f42430ea
+source-progress: d5b97ababab707c43937411bd3986c891982c8a56352285b40c0158b4ef8d198
+source-handoff: 34fdffa468b6664208451cb0a240e92f482d6cd54fa7de335d6e9aa4ac1bcfc3
 source-learnings: 50809a74bffef9e7494c932abfb39f699f9cf02f6a1e71e12f570c06a0f3222e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
@@ -1700,9 +1700,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a5c5-2b5c-7688-9802-a53fbb3c614a
-readiness-at: 2026-11-04T09:29:16.920Z
-readiness-checkpoint: g254-c4256dff95e9
+readiness-by: session:01a1a5e7-032d-7688-9802-a5432349e841
+readiness-at: 2026-11-04T09:40:31.499Z
+readiness-checkpoint: g255-7fe79465091d
 <!-- guard:end checkpoint -->
 
 ## Blockers
