@@ -5,6 +5,43 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-3 LANDED through ARM (oracle + arm + sweep); REGISTRATION OWED (2026-11-05, session 01a1a872, renewal 11/12; chain `eef371b` pre-reg → `8edea80` oracle/RESULTS → `aae0f37` goldens → `d088cdb` arm)
+
+- **ACCEPTED (campaign).** ONE grouped batch tag `e52p3` rc=0: **14 ok / 15**; goldens
+  `golden/e52p3/` committed fresh; **E52PF `p'9$9'` is dr-refuses** — verbatim
+  `1 ERROR(S) IN PASS 1`, diagnostic `PICTURE ... ?` under the statement, NO `.REL` exists;
+  PF bytes claimed by NOTHING. Scale-mismatch expectation **FALSIFIED**: PJ `9.9`, PK `9V.9`,
+  PL `99V.999` vs `d fixed decimal(4,2)` all ACCEPTED — DR enforces NO picture-vs-item scale
+  agreement at compile time (3x measured). No second batch needed.
+- **ACCEPTED (b2 law HE).** `9.9` stores b2=**00**: HC (digits after last {. ,V}) and HD
+  (count{V,.}) **both FALSIFIED**; **b2 = count{9,Z} after the LAST V (0 with no V)** fits all
+  25 records (12 existing + 13 new). A bare `.` is not a b2 designator. V-without-`.` unmeasured.
+- **ACCEPTED (b1).** PF's refuse kills the HA2-vs-HB8 discriminator — the two rules AGREE on
+  every ACCEPTED record; PE re-falsifies digits-only (measured 02). Positional law measured:
+  `$` after the first {9,Z} specifier refused by DR; `$` after `B` and leading multi-$ runs with
+  commas accepted.
+- **ACCEPTED (arm, binary `c2c6282f5662cb19a3ce…` CLEAN rebuild).** One `Ast.Pi_pic` branch in
+  `fmt_spec`; whole-file **cmp rc=0 on ALL 13 accepted probes** PB..PE,PG..PL,PM,PN,PO — P5's
+  armable subset {PI,PM,PN,PO} was an **UNDERCLAIM, falsified** (console fixed-bin-expression
+  items were already armed). PA refuses BY NAME (file EXPRESSION item, boundary kept → P3-4);
+  PF refuses BY NAME consistently with DR; **LOAN2 rerun VERBATIM the SAME fmt_spec catch-all
+  text** (P6 text prediction HIT — fires now on grouped/rep-group 147/149, message still lists
+  "picture": message-quality my-gap recorded, never fitted); sweep 75/75 byte-exact; P086J/K
+  cmp rc=0; markers E46K4/K15/N21 intact.
+- **LESSON (falsified method).** Comparing FULL dune-log warning totals between a clean rebuild
+  and the incremental baseline log is meaningless (clean compiles every file): compare the
+  per-`File "..."` histogram — `lib/codegen.ml` = 70, identical.
+- **OWED NEXT (registration, exact):** (1) SPECIMENS rows for the 13 cmp-rc=0 probes (with
+  measured comments) + PROPOSED PF REJECTS row pinning my new `$`-after-digit refusal (dr-refuses
+  class, E46K14 precedent — decide honestly at the gate); (2) sanctioned `--update-inventory`
+  1199→1212 (+13 exactly; +1 refusal row if PF) then FULL gate rc=0 to
+  `build/gate-e52p3c-reg.log`; (3) census via own write path; (4) claim **C361** from MEASURED
+  bytes ONLY, committed BEFORE the COVERAGE `IO.PUT_EDIT` rewrite (cite-resolution lesson);
+  coverage_check rc=0; (5) prose rc=0 standalone; (6) RESULTS §5/PLAN §5 P3-3 rows; durables.
+  Then subround **P3-4 = rep-groups `2(...)`/`80 n…81` + `x(w)` `0B` + the PA file-route
+  EXPRESSION item** (bytes already pinned in LOAN2.REL). Constraints unchanged: no push; goldens
+  never re-derived; operator `handoff.config.json` never staged; all rc DIRECT; pli80c POSITIONAL;
+  renewals 11/12 consumed, cap 12 — the 12th hop must plan its own close (finalize at cap).
 ## E2E-52/P3-3 picture-record analysis COMPLETE; PLAN+probes OWED (2026-11-05, session 01a1a85d, renewal 10/12 consumed; ZERO ocaml/ byte, ZERO oracle call, NOTHING committed yet this hop)
 
 - **ACCEPTED (recovery).** HEAD `0d7468b` (g303 block); tree clean except operator config; `dune build` rc=0 binary `748c434fafd8c01579b1…` (matches recorded clean-rebuild hash); checkpoint attested at session_start.

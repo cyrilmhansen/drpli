@@ -7,6 +7,27 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-qua. **P3-3 LANDED THROUGH ARM; REGISTRATION OWED (2026-11-05, successor of g305, renewal
+  11/12 consumed, cap 12).** Chain `eef371b` (PLAN §P3-3 + probes E52PA..E52PO committed BEFORE
+  any ocaml/ byte) → `8edea80` (ONE grouped campaign tag e52p3 rc=0, **14 ok/15**; E52PF
+  `p'9$9'` MEASURED **dr-refuses** `PICTURE ?`, NO .REL; scale-mismatch expectation FALSIFIED —
+  PJ/PK/PL accepted) → `aae0f37` (goldens) → `d088cdb` (arm: ONE `Ast.Pi_pic` branch in
+  `fmt_spec`, `02 b1 b2 len UPPER(text)`; b1 = count{9,Z,$}−1-if-$; **b2 = count{9,Z} after the
+  LAST V** — rule HE, HC and HD both FALSIFIED by E52PJ `9.9`→00; guards refuse BY NAME: outside
+  {9,Z,$,V,.,B,comma,slash}, $-after-digit, V-without-dot; binary `c2c6282f5662cb19a3ce…` clean
+  rebuild; **13/13 accepted probes whole-file cmp rc=0** — P5's 4-probe subset an UNDERCLAIM,
+  falsified; PA/PF refuse by name; LOAN2 VERBATIM same fmt_spec catch (P6 HIT); sweep 75/75;
+  P086J/K rc=0; markers intact; codegen warnings 70 = baseline — per-File histogram is the honest
+  method, full-log totals FALSIFIED as comparison). Ledger ENDS C360; E52PF bytes claimed by
+  NOTHING. SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-3 LANDED through ARM" and execute
+  `PROGRESS.md` → `## Next action` steps (1)-(6): SPECIMENS 13 (+PROPOSED PF REJECTS row),
+  `--update-inventory` 1199→1212 (+1 if PF), FULL gate rc=0 `build/gate-e52p3c-reg.log`, census
+  own write path, claim **C361** from MEASURED bytes ONLY committed BEFORE the COVERAGE
+  `IO.PUT_EDIT` rewrite, coverage_check + prose rc=0, RESULTS §5/PLAN §5 rows, durables. THIS
+  CHAIN HAS ONE RENEWAL LEFT (12/12 = cap): the successor must plan its close early and use
+  `handoff_finalize` at the cap. Constraints: no push; goldens never re-derived; operator
+  `handoff.config.json` never staged; all rc DIRECT; pli80c POSITIONAL; campaign continues.
+
 0a-ter-4. **P3-2 FULLY LANDED; P3-3 (PICTURE `02` DECODE) OWED (2026-11-05, successor of g301,
   renewal 9/12 consumed).** Registration debt CLOSED at HEAD `0d93acc`: claim **C360** `19ce1f4`
   (MEASURED bytes only — reldump re-verified this session: `?DSTOP@005D`, `?STOPX@0063`,
@@ -1359,31 +1380,47 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 305
-checkpoint-id: g305-75d3f6bb923e
+checkpoint-generation: 307
+checkpoint-id: g307-619a3bbe780f
 checkpoint-kind: auto
-content-delta: none
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6667, session 01a1a85d-d85c-7427-a642-9c626c6b9e89)
-checkpointed: 2026-11-04T21:24:06.847Z
+content-delta: new
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4566, session 01a1a872-a055-7427-a642-9c6701282cac)
+checkpointed: 2026-11-04T21:48:56.596Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7836439d309b7056f727c9741113ff2a8adce701dce7e3cab7d74b6f418b1932
-source-handoff: 3006ece2854d0a054d2cbee9a0ae3776ea9a938c375f88abbb2e69ee7bbcf5e9
-source-learnings: 5608db98e6e0239d4445d5bd22df4182e09c442e1358cdca9833f1caa4086b96
+source-progress: 27dc2415d3c31a44fda1350ae661305fb60886d49d53f53356226f0816dd3aa9
+source-handoff: 92db4b711161ff682e6aaf03e1d01faa2b3447d6c0bad5cf744ecce92ce54681
+source-learnings: f866bf2d19bf213dd6fa5c6febfefffb245c9cc617a5be536674c2f8d911a384
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a85d-d85c-7427-a642-9c626c6b9e89
-readiness-at: 2026-11-04T21:24:06.863Z
-readiness-checkpoint: g305-75d3f6bb923e
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` = subround
+` steps (1)-(6): SPECIMENS 13 (+PROPOSED PF REJECTS row),
+  `--update-inventory` 1199→1212 (+1 if PF), FULL gate rc=0 `build/gate-e52p3c-reg.log`, census
+  own write path, claim **C361** from MEASURED bytes ONLY committed BEFORE the COVERAGE
+  `IO.PUT_EDIT` rewrite, coverage_check + prose rc=0, RESULTS §5/PLAN §5 rows, durables. THIS
+  CHAIN HAS ONE RENEWAL LEFT (12/12 = cap): the successor must plan its close early and use
+  `handoff_finalize` at the cap. Constraints: no push; goldens never re-derived; operator
+  `handoff.config.json` never staged; all rc DIRECT; pli80c POSITIONAL; campaign continues.
+
+0a-ter-4. **P3-2 FULLY LANDED; P3-3 (PICTURE `02` DECODE) OWED (2026-11-05, successor of g301,
+  renewal 9/12 consumed).** Registration debt CLOSED at HEAD `0d93acc`: claim **C360** `19ce1f4`
+  (MEASURED bytes only — reldump re-verified this session: `?DSTOP@005D`, `?STOPX@0063`,
+  DEF-CODE-SIZE `0065`=101, P086J table `80 00 00 09 02 03 04 81`; ledger ENDS C360; E41X8 bytes
+  never claimed); COVERAGE `IO.PUT_EDIT` `9e897e8` SUPPORTED + EXACT:12 + MEASURED, falsified
+  IFACT/LOAN1 clause kept verbatim as HISTORICAL, coverage_check rc=0 DIRECT 139/0/0
+  (`build/coverage-check-e52p3c-coverage.log`), stats own write path; RESULTS §P3-2 + PLAN §5
+  P3-2 row `0d93acc`; prose rc=0 standalone twice. P086K/P086J cmp rc=0 RE-MEASURED on binary
+  `748c434fafd8c01579b1…` (== predecessor clean-rebuild hash). LESSONS: claim commit must
+  PRECEDE the COVERAGE commit (validator resolves cites); never total the ledger via
+  `grep -c '^## C'` (file starts mid-index). SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-2
+  COVERAGE + C360 + RESULTS/PLAN LANDED" and execute `PROGRESS.md` → `## Next action` = subround
   **P3-3 = picture `02` decode**: PLAN §P3-3 COMMITTED BEFORE any ocaml/ byte; one-operand
   oracle probes (`p'9'`, `p'999'`, `p'ZZ9'`, `p'9V9'`, two pictures, picture + `a(w)`); arm +
   sweep + LOAN2 verbatim; C361 from measured bytes only. If a guard-block refresh lands
