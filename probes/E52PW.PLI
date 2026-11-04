@@ -1,0 +1,12 @@
+E52PW: procedure options(main);
+
+   /* E52PW (P3-4 FILE-route EXPRESSION item, ADDITION ONLY: */
+   /* the PA witness minus the multiply; H6 predicts accept with */
+   /* the existing lower_hl add + MVI A,09/?QICOP/?EDTOV) */
+
+   dcl f file, m fixed binary, y fixed binary;
+
+   put file(f) edit(m+y)(a);
+
+end E52PW;
+

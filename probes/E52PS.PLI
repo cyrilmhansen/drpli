@@ -1,0 +1,12 @@
+E52PS: procedure options(main);
+
+   /* E52PS (P3-4 rep-group COUNT-1 boundary: H2a predicts */
+   /* 80 01 03 FF 81 as-is; H2b DR REFUSES count 1; H2c the group */
+   /* folds to a bare 03 FF record) */
+
+   dcl f file;
+
+   put file(f) edit('|')(1(a));
+
+end E52PS;
+

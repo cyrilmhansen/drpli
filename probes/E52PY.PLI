@@ -1,0 +1,12 @@
+E52PY: procedure options(main);
+
+   /* E52PY (P3-4 FILE-route EXPRESSION item, SUBTRACTION: */
+   /* m-y; H6 predicts accept with the existing lower_hl */
+   /* subtract + MVI A,09/?QICOP/?EDTOV) */
+
+   dcl f file, m fixed binary, y fixed binary;
+
+   put file(f) edit(m-y)(a);
+
+end E52PY;
+

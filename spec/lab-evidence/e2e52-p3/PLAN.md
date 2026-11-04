@@ -293,3 +293,65 @@ P7. Registration: SPECIMENS += every new probe whose whole-file cmp is rc=0 (mea
     census via own write path; claim **C361** from MEASURED bytes ONLY, committed BEFORE
     the COVERAGE rewrite of `IO.PUT_EDIT` (cite-resolution lesson); coverage_check rc=0;
     prose rc=0.
+
+## Subround P3-4 — rep-groups `80 n…81`, `x(w)` = `0B w`, file-route EXPRESSION item
+
+### 1. Measured blocker (VERBATIM at HEAD, binary c2c6282f5662cb19a3ce…)
+`codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture,
+remote and rep-group formats are not decoded)` — fires at prescan on LOAN2 149's
+rep-group; PA refuses at `authorize_file_edit_item` PInum; x refuses at the fmt_spec
+catch-all. Ledger ENDS C361; tag `e52p3d` VERIFIED unused; names collision-grepped.
+
+### 2. The DR bytes (ALL from EXISTING goldens, re-read fresh this hop)
+- **Rep-group encoding MEASURED twice**: LOAN2 pool 0017 `80 00 | 03 FF | 80 02 |
+  80 02 | 02…$ZZ,ZZZ,ZZ9V.99 | 03 FF | 81 | 02…$ZZZ,ZZ9.V99 | 03 FF | 81 | 81`
+  (stmt 149 `2(2(p,a),p,a)` — nested, inner group closes with its OWN 81) and
+  DEPREC 0033/007B/009E: counts 02 and 04, SIBLING groups `80 02…81 80 02…81`,
+  nested `80 02 | 80 04 … 81 | items | 81`, groups containing skip/x/pic/a.
+  LAW: group = `80 n <records…> 81`, recursive, source order, NO flattening.
+- **x(w) = `0B w`** measured widths {02,03,05,06,08,09,0A,0B,0E,0F,10,13}
+  (LOAN2 0046/007C, DEPREC); bare `x` and w>19 UNMEASURED.
+- **PA witness verified** at golden/e52p3/E52PA/E52PA.REL 0032-0047 == LOAN2
+  0544-0558: `2A (LHLD) RELOC data 0F / 11 64 00 / CD ?IM22N / EB (XCHG) /
+  2A RELOC data 11 / 19 (DAD D) / 3E 09 / CD ?QICOP / CD ?EDTOV / CD ?QIOOP`;
+  table `80 00 03 FF 02 04 00 05 39 39 2F 39 39 81` at *S 0000; m/y cells 0F/11.
+  Console EDIT already lowers `100*m+y` byte-exact (E52PI cmp rc=0) — the file
+  arm needs ONLY `authorize_file_edit_item` admission; `lower_put_items_gen`
+  PInum path is route-independent.
+- LOAN2 177 ALSO pins plain bin vars (yp/y: LHLD/MVI A,09/?QICOP/?EDTOV at
+  07BA-07D9) but via PIvar — OUT of P3-4 perimeter (stays refused; P3-5).
+- Parser emits `Ast.Pi_repgrp (count_expr, items)` (parser.ml 939); prescan and
+  emission SHARE `fmt_table_bytes`; bind.ml `fmt_sz` already sizes repgrp 3+inner,
+  X 2 (STATIC-descriptor path, not the EDIT table).
+
+### 3. Probes E52PP..E52PZ (11; CRLF+^Z ≤71 cols) — predictions
+- PP file `2(a)` → table `80 00 80 02 03 FF 81 81`.
+- PQ file nested+sibling `a,2(2(a,a),a),2(x(3),a)` → `80 00 03 FF 80 02 80 02
+  03 FF 03 FF 81 03 FF 81 80 02 0B 03 03 FF 81 81`.
+- PR console `2(skip,a),p'99'` + expr item → `80 00 80 02 0C FF 03 FF 81 02 02
+  00 02 39 39 81`.
+- PS `1(a)` count-1: H2a `80 01 03 FF 81` / H2b REFUSED / H2c folded.
+- PT file `x(1),a,x(5)` → `80 00 0B 01 03 FF 0B 05 81`.
+- PU bare `x`: H5a `0B 00` / H5b `0B 01` / H5c REFUSED.
+- PV `x(128)`/`x(255)`/`x(0)` (3 tables): H4a all accept `0B w` / H4b refusal
+  above 19 — WHICH width first is the measurement.
+- PW file `m+y` → existing lower_hl add + `3E 09/?QICOP/?EDTOV` (H6).
+- PX file `100*m`: H6a `…?IM22N/EB/MVI A,09…` vs H6b no XCHG — settles result reg.
+- PY file `m-y` → existing subtract + QICOP/EDTOV (H6).
+- PZ file `m/3` → accept or REFUSE (division unmeasured on EDIT route anywhere).
+
+### 4. Arm (ocaml/lib/codegen.ml ONLY, after measurement)
+(a) fmt_spec `Pi_repgrp (c,is) -> [0x80; fmt_w c] @ concat_map fmt_spec is @ [0x81]`;
+(b) fmt_spec `Pi_fmt X` one-arg literal width -> `[0x0B; fmt_w w]`; bare-X and
+w-boundaries armed ONLY as PV/PT/PU measure; (c) authorize_file_edit_item PInum ->
+admit Ebinary/Econd arithmetic over fixed-bin cells (identifiers bound Vint/Vbfix,
+integer literals; ops admitted ONLY those PW/PX/PY(/PZ) measure; float/DEC/call/
+subscript/member shapes keep refusing BY NAME. PA cmp vs EXISTING golden is the
+whole-file test; no PA golden re-derivation.
+
+### 5. Boundaries KEPT (refuse BY NAME)
+`1(...)`-fold unless PS proves it; bare `x` unless PU proves it; widths beyond
+what PV measures; Pi_group (no count) never sampled; column(n) `0D w` decoded
+here but NOT armed (out of P3-4 brief); PIvar bin var on file route (LOAN2 177
+pins, P3-5 candidate); DEC formal a..e — LOAN2 147's expected NEXT blocker,
+record VERBATIM, never fit.

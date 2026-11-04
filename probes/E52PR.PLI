@@ -1,0 +1,12 @@
+E52PR: procedure options(main);
+
+   /* E52PR (P3-4 rep-group on the CONSOLE route with skip */
+   /* and a picture INSIDE the group; predicts table */
+   /* 80 00 80 02 0C FF 03 FF 81 02 02 00 02 39 39 81) */
+
+   dcl m fixed binary, y fixed binary;
+
+   put edit('|',100*m+y)(2(skip,a),p'99');
+
+end E52PR;
+

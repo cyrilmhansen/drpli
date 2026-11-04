@@ -1,0 +1,12 @@
+E52PZ: procedure options(main);
+
+   /* E52PZ (P3-4 FILE-route EXPRESSION item, DIVISION by a */
+   /* literal, m/3: UNMEASURED on any EDIT golden; accept or */
+   /* refusal is what this settles) */
+
+   dcl f file, m fixed binary;
+
+   put file(f) edit(m/3)(a);
+
+end E52PZ;
+

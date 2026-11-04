@@ -1,0 +1,10 @@
+E52PU: procedure options(main);
+
+   /* E52PU (P3-4 BARE x, no width, CONSOLE: H5a predicts */
+   /* 80 00 03 FF 0B 00 03 FF 81; H5b predicts 0B 01; */
+   /* H5c DR REFUSES) */
+
+   put edit('|')(a,x,a);
+
+end E52PU;
+

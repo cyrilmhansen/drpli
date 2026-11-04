@@ -1,0 +1,11 @@
+E52PP: procedure options(main);
+
+   /* E52PP (P3-4 rep-group, FILE route, count 2; H1 predicts */
+   /* table 80 00 80 02 03 FF 81 81) */
+
+   dcl f file;
+
+   put file(f) edit('|')(2(a));
+
+end E52PP;
+

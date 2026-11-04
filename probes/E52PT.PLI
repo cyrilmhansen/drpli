@@ -1,0 +1,11 @@
+E52PT: procedure options(main);
+
+   /* E52PT (P3-4 x(width) FILE route, widths 1 and 5; H4 */
+   /* predicts 80 00 0B 01 03 FF 0B 05 81) */
+
+   dcl f file;
+
+   put file(f) edit('|')(x(1),a,x(5));
+
+end E52PT;
+

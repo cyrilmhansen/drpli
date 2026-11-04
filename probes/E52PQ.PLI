@@ -1,0 +1,13 @@
+E52PQ: procedure options(main);
+
+   /* E52PQ (P3-4 nested and sibling rep-groups + x(3) inside */
+   /* a group, FILE route; H3 predicts LOAN2-149 recursive nesting: */
+   /* 80 00 03 FF 80 02 80 02 03 FF 03 FF 81 03 FF 81 80 02 */
+   /* 0B 03 03 FF 81 81) */
+
+   dcl f file;
+
+   put file(f) edit('|')(a,2(2(a,a),a),2(x(3),a));
+
+end E52PQ;
+

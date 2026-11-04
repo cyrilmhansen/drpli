@@ -1,0 +1,12 @@
+E52PX: procedure options(main);
+
+   /* E52PX (P3-4 FILE-route EXPRESSION item, MULTIPLY ONLY: */
+   /* 100*m; H6a IM22N leaves DE and DR emits XCHG; */
+   /* H6b IM22N returns HL directly -- this settles which) */
+
+   dcl f file, m fixed binary;
+
+   put file(f) edit(100*m)(a);
+
+end E52PX;
+

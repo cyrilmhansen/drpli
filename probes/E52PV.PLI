@@ -1,0 +1,12 @@
+E52PV: procedure options(main);
+
+   /* E52PV (P3-4 x width boundaries, console, three tables: */
+   /* x(128), x(255), x(0); H4a plain 0B w for all three; H4b a */
+   /* REFUSAL above the measured max 19 -- which width first) */
+
+   put edit('|')(x(128),a);
+   put edit('|')(x(255),a);
+   put edit('|')(x(0),a);
+
+end E52PV;
+
