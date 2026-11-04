@@ -1428,28 +1428,38 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 315
-checkpoint-id: g315-f49e512428de
-checkpoint-kind: auto
+checkpoint-generation: 316
+checkpoint-id: g316-516bb891965e
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4846, session 01a1a8d0-ecd6-753f-82d0-3145d66bcffd)
-checkpointed: 2026-11-04T23:33:47.905Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~2237, session 01a1a8d0-ecd6-753f-82d0-3145d66bcffd)
+checkpointed: 2026-11-04T23:34:36.862Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 3a44819e8f85b22ff1fc5915706ef3c1c50440be20161678c6df38a09a30c413
-source-handoff: 2713b00840e4ead565cbc6c48b316940191ccacc86073936ba2d85f8d0d9b747
+source-handoff: 07f02e10d34a7cc2cec7c396d2465d95f1b414c44493f43a6282691a19214c85
 source-learnings: 365d1780c5524b20b015fd6ccdbb998ec642fc1a442e2b4790fbd0817f7694b3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a8d0-ecd6-753f-82d0-3145d66bcffd
+readiness-at: 2026-11-04T23:34:36.884Z
+readiness-checkpoint: g316-516bb891965e
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` steps (1)-(6): baseline build+PA re-measure; ONE
+`
+and `LEARNINGS.md` § "P3-4 campaign e52p3d MEASURED + arm LANDED". Ledger ENDS C361;
+goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT;
+no push; campaign continues.
+
+0a-sexties. **E2E-52/P3-4 PRE-REGISTERED, CAMPAIGN OWED (2026-11-05, fresh chain;
+  operator reset renewal state; pre-reg `3ac7f41`, g310 block `6d83a36`).** Execute
+  `PROGRESS.md` → `## Next action` steps (1)-(6): baseline build+PA re-measure; ONE
   grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PP..E52PZ
   --tag e52p3d --switches '$L$D'`; classify H2/H4/H5/H6 verdicts, keep MISSes;
   arm PLAN §P3-4 §4 (codegen ONLY: fmt_spec Pi_repgrp `80 n…81` recursive — the
@@ -1861,5 +1871,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-4 campaign continues. Pre-registration LANDED at 3ac7f41 (PLAN §P3-4 + probes E52PP..E52PZ), durables at dd30c19, ledger ENDS C361, tree clean except operator handoff.config.json. Execute PROGRESS.md -> ## Next action steps (1)-(6): baseline build + PA rc=2 re-measure; ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PP E52PQ E52PR E52PS E52PT E52PU E52PV E52PW E52PX E52PY E52PZ --tag e52p3d --switches '$L$D'`; arm PLAN §4 (codegen only; parser node is Ast.Pi_repgrp NOT Pi_rep); headline = E52PA whole-file byte-exact vs EXISTING golden; sweep + LOAN2 blocker VERBATIM; registration + C362 measured-bytes-only BEFORE COVERAGE rewrite; gate rc=0 to build/gate-e52p3d-reg.log. Fresh renewal chain (operator reset), cap 12; no push; goldens never re-derived; all rc DIRECT; do not repeat P3-3 experiments.
+E2E-52/P3-4 continues (chain fresh, this hop was 1/12). Durable state committed: arm+LEARNINGS+PROGRESS+HANDOFF at e946242, goldens d73171b; ledger ENDS C361. Execute PROGRESS.md -> ## Next action steps (1)-(4): (1) DEBUG+FIX the PA blocker — `Fatal error: exception File "lib/codegen.ml", line 11906, characters 2-7: Pattern matching failed` at edit_num_cell's exhaustive match (suspect stale line map or PIlit '|'-item interaction; binary 898b191cb6224a6da1de...), then PA whole-file cmp rc=0 vs EXISTING golden/e52p3/E52PA/E52PA.REL = HEADLINE, re-verify the 9/9 cmps on the final binary; (2) sweep E52PB..PO/P086J/K/E46N/E52A..J/E51A..L/R10 (75+13 intact + new) + markers E46K4/K15/N21/E52PF rc=2; (3) LOAN2 rerun UNMODIFIED positional, record blocker VERBATIM (expect DEC FORMAL 147, do NOT fix); (4) registration: SPECIMENS 10 + honest PU/PV dr-refuses REJECTS rows, sanctioned --update-inventory, FULL gate rc=0 to build/gate-e52p3d-reg.log, census own write path, claim C362 MEASURED BYTES ONLY BEFORE COVERAGE IO.PUT_EDIT rewrite, coverage_check+prose rc=0, RESULTS+PLAN rows. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT (pipeline-masking trap fired again last hop); pli80c POSITIONAL; campaign continues.
 <!-- guard:end checkpoint -->

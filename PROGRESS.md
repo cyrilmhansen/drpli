@@ -2516,19 +2516,26 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 315
-checkpoint-id: g315-f49e512428de
-checkpoint-kind: auto
+checkpoint-generation: 316
+checkpoint-id: g316-516bb891965e
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-04T23:33:47.905Z
+checkpointed: 2026-11-04T23:34:36.862Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 3a44819e8f85b22ff1fc5915706ef3c1c50440be20161678c6df38a09a30c413
-source-handoff: 2713b00840e4ead565cbc6c48b316940191ccacc86073936ba2d85f8d0d9b747
+source-handoff: 07f02e10d34a7cc2cec7c396d2465d95f1b414c44493f43a6282691a19214c85
 source-learnings: 365d1780c5524b20b015fd6ccdbb998ec642fc1a442e2b4790fbd0817f7694b3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` steps (1)-(6): baseline build+PA re-measure; ONE
+next-action: `
+and `LEARNINGS.md` § "P3-4 campaign e52p3d MEASURED + arm LANDED". Ledger ENDS C361;
+goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT;
+no push; campaign continues.
+
+0a-sexties. **E2E-52/P3-4 PRE-REGISTERED, CAMPAIGN OWED (2026-11-05, fresh chain;
+  operator reset renewal state; pre-reg `3ac7f41`, g310 block `6d83a36`).** Execute
+  `PROGRESS.md` → `## Next action` steps (1)-(6): baseline build+PA re-measure; ONE
   grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PP..E52PZ
   --tag e52p3d --switches '$L$D'`; classify H2/H4/H5/H6 verdicts, keep MISSes;
   arm PLAN §P3-4 §4 (codegen ONLY: fmt_spec Pi_repgrp `80 n…81` recursive — the
@@ -2938,6 +2945,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1a8d0-ecd6-753f-82d0-3145d66bcffd
+readiness-at: 2026-11-04T23:34:36.884Z
+readiness-checkpoint: g316-516bb891965e
 <!-- guard:end checkpoint -->
 
 ## Blockers
