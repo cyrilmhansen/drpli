@@ -279,7 +279,42 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P1 hop 4 PARTIAL — ARM LANDED `6a4c554` (B,C,D,H,I byte-exact; A/E/F/J unchanged; E51 12/12; LOAN2 ADVANCED; census re-snapshotted; PRE-REG GATE rc=0); RESULTS §5 + REGISTRATION + CLOSE OWED (2026-11-04; renewals 3/12 used)
+### E2E-52/P1 hop 5 PARTIAL — steps 1-3 LANDED (`e2a9866` RESULTS §5; `68bba2d` g268 blocks; `edf4a25` 9 SPECIMENS + INVENTORY 1186→1195 + post-update gate **REAL rc=0** 1195/0; `7176ff8` claims **C356..C358**, ledger ENDS **C358**, prose rc=0); COVERAGE rows (4), census/stats (5), ALL harness self-tests (6), CLOSE prose + attest (7) OWED (2026-11-04; renewals 4/12 used)
+
+RE-VERIFIED this session at `ceb302c` (binary `2785a1b6…`, identical rebuild of arm
+`6a4c554`, dune rc=0): NINE specimens whole-file BYTE-EXACT vs `golden/e52p1`
+(A,B,C,D,E,F,H,I,J; controls A/E/F/J byte-identical to BASELINE shas
+`8217250a`/`4fe89c7d`/`8c09f2e7`/`0a3f6b6a`), E52G rc=0 NOT exact (mine `6ea285ba…`,
+DATA 000F vs 0014, CODE 003A vs 004A; residual EXACTLY the §2.3 cell map, full record
+reldump diff kept verbatim in RESULTS §5; condition-4 stop, NEVER fitted); E51 sweep
+12/12. `--update-inventory` diff = exactly 9 lines, NO E52G. Gate ACTUALS
+`build/gate-e52p1-reg.log`: 1195/0 of 1195, 181/181, 9/9, 136 rows 0/0, census
+15/0/26/0, prose 5.
+OWED EXACTLY (hop 5 remainder, in order; full ACTUALS in `LEARNINGS.md` § "E2E-52/P1
+hop 5 PARTIAL"): (4) append THREE COVERAGE rows to `spec/COVERAGE.tsv` AFTER the
+inventory update (done): DECL row [C356] lexical shadow/accumulation law (probes
+E52B,C,D,E,H,I, `EXACT:6`, corpus LOAN2, MEASURED); pool row [C357] image-keyed
+program-wide dedup (probes E52A,B,D,F,H,I, `EXACT:6`, MEASURED); PROC row [C358] DEC
+formal cell map — **E52G is NOT a panel key, cite the PATH
+`golden/e52p1/E52G/E52G.REL`; `mine_status=DIVERGENT`, `rel_parity=DIFFERS:1`,
+`confidence=SINGLE_SAMPLE`; NEVER cite G byte-exact**; schema
+`spec/COVERAGE-SCHEMA.md`, validator `tools/coverage_check.py` — run it, expect 139
+rows 0/0, rc captured DIRECTLY; commit rows + (if their own write paths move) stats.
+(5) census/stats via their OWN write paths only if head/binary moved
+(`corpus_census.py --check spec/census/corpus-census.json`). (6) ALL harness
+self-tests at this registration hop — `tools/test_functional_dashboard.py` rc=1 stale
+`**26**` check is PRE-EXISTING: record verbatim, NEVER silently fix; run the FULL gate
+AGAIN post-COVERAGE with rc DIRECT. (7) close prose (PROGRESS Current-phase + Next
+action + HANDOFF item-6: **E2E-52/P1 CLOSED** with G an OPEN `my-gap` + PROPOSAL
+(copy-in-temp arm at a future authorized hop; PROPOSED, never adopted: whether G joins
+`spec/DIVERGENT.txt`); standing PROPOSALS list retained: FCPS1..3 registration, README
+§ 5.1 rights review, E2E-50/P3 shortlist; dashboard `**26**` refresh; successor without
+an operator brief records state and STOPS) + refresh/attest via handoff_finalize +
+explicit-path commit of durable files. **STOP after P1**; no push; goldens never
+re-derived/overwritten; NEVER re-run the retry-DFS; do not expand to other LOAN2
+blockers; operator `handoff.config.json` never staged; all rc captured DIRECTLY.
+
+SUPERSEDED-BY-ABOVE (kept as written): ### E2E-52/P1 hop 4 PARTIAL — ARM LANDED `6a4c554` (B,C,D,H,I byte-exact; A/E/F/J unchanged; E51 12/12; LOAN2 ADVANCED; census re-snapshotted; PRE-REG GATE rc=0); RESULTS §5 + REGISTRATION + CLOSE OWED (2026-11-04; renewals 3/12 used)
 
 MEASURED this hop (accepted): scope-aware prescan arm (`pd_own` field +
 `pd_vars`=TOP-only + `Sproc` arm `pd_vars = own @ cx.pd_vars`, ONE file,

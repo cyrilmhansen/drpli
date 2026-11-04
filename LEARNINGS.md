@@ -5352,3 +5352,45 @@ OWED: the exact hop-5 contract in PROGRESS.md → Next action (RESULTS §5 appen
 RESULTS §2; COVERAGE rows after inventory; census via own write path if moved; ALL
 harness self-tests — stale dashboard **26** check PRE-EXISTING, record never fix;
 close prose; STOP after P1). Ledger still ends C355.
+
+## E2E-52/P1 hop 5 PARTIAL (2026-11-04; steps 1-3 LANDED; COVERAGE/census/self-tests/CLOSE OWED; renewals 4/12 used)
+
+MEASURED / ACCEPTED (this session, re-verification at HEAD `ceb302c` then the landing
+chain): `dune build` rc=0 reproduced the arm binary EXACTLY (`2785a1b6…`, identical to
+`6a4c554`'s). Full 10-probe re-compile to ignored `build/e52p1-verify/` (positional
+args, rc captured DIRECTLY): NINE whole-file BYTE-EXACT vs `golden/e52p1` (A,B,C,D,E,F,
+H,I,J — my shas equal the §4 golden shas), controls A/E/F/J byte-identical to BASELINE
+shas `8217250a`/`4fe89c7d`/`8c09f2e7`/`0a3f6b6a`; E52G rc=0 but DIFFERS (mine
+`6ea285ba…` vs golden `39b3d7cf…`; DATA 000F vs 0014, CODE 003A vs 004A; pool records
+and main store byte-identical — residual EXACTLY the §2.3 cell map: mine block@000B →
+`RELOC data 0x8` (outer cell directly), NO main-side copy-in pair, pointer cell @000D;
+DR block@000B → word 0x000D (5-byte temp), copy-in pair `21 r8/3E 04/?DLDOP/21 rd/
+3E 09/?DSTOP` at code 0016-0025, pointer @0012); E51A..L sweep 12/12.
+LANDED: step 1 `e2a9866` RESULTS §5 appended (10-row verdict table + FULL record-level
+reldump diff of E52G kept verbatim; §1-§4 untouched); guard checkpoint g268 blocks
+committed `68bba2d`; step 2 `edf4a25` SPECIMENS +9 (E52A..F,H,I,J — NO G), sanctioned
+`--update-inventory` panel 1186→**1195** (diff shows exactly the 9 lines), post-update
+FULL gate **REAL rc=0** captured DIRECTLY: `build/gate-e52p1-reg.log` — byte panel
+**1195/0 of 1195**, negative 181/181, divergence 9/9, coverage 136 rows 0/0, census
+15/0/26/0, prose 5; step 3 `7176ff8` claims **C356** (§2.1 lexical prescan law),
+**C357** (§2.2 one program-wide image-keyed pool law), **C358** (§2.3 DEC formal cell
+map, MEASURED-not-fitted, condition-4 NOT-lowered stop + copy-in-temp PROPOSAL);
+ledger ENDS **C358**; `file_prose_check.py` rc=0 STANDALONE (exit DIRECT).
+ACCEPTED (harness law read off `spec/COVERAGE-SCHEMA.md` + validator): COVERAGE `probes`
+entries must be PANEL keys or existing paths — **E52G is NOT a panel key** (deliberately
+unregistered), so the §2.3 row must cite the golden PATH `golden/e52p1/E52G/E52G.REL`,
+never the bare key `E52G`; `rel_parity` may then be `DIFFERS:1` (G never cited exact);
+MEASURED rows need ≥2 witnesses nameable in a cited claim; no hardcoded row counts in
+prose (schema warns three docs did exactly that in E2E-37).
+PROPOSED (row plan, NOT yet written — next action): (1) DECL row for [C356] lexical
+shadow/accumulation law, probes E52B,C,D,E,H,I, `EXACT:6`, corpus LOAN2; (2) row for
+[C357] image-keyed program-wide dedup (scope- AND name-blind, source order ahead of
+variables, [R507] width at resolved target), probes E52A,B,D,F,H,I, `EXACT:6`; (3) PROC
+row for [C358] formal cell map, `dr_status=ACCEPTS`, `mine_status=DIVERGENT`,
+`rel_parity=DIFFERS:1`, `confidence=SINGLE_SAMPLE`, boundary = copy-in-temp PROPOSAL +
+outside-DEC kinds UNMEASURED + byte tier only. Expect coverage 136→139, then
+`coverage_check.py` rc=0 BEFORE commit; census/stats via their OWN write paths only if
+moved; ALL harness self-tests at this registration hop (stale dashboard `**26**` check
+is PRE-EXISTING — record rc=1 verbatim, NEVER fix); then close prose (E2E-52/P1 CLOSED
+with G an OPEN my-gap + PROPOSAL; ALSO PROPOSED, never adopted: whether G joins
+spec/DIVERGENT.txt) + refresh/attest + commit; STOP after P1.
