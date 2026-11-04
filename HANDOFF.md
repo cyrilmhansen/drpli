@@ -1230,25 +1230,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 275
-checkpoint-id: g275-8ab72d3fbad2
+checkpoint-generation: 276
+checkpoint-id: g276-67339b9ef923
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~2791, session 01a1a759-ab86-7057-855c-dfa9fdc758ac)
-checkpointed: 2026-11-04T16:43:53.826Z
+status: checkpoint (guard level 0, remaining ~21569, session 01a1a772-4dd4-7057-855c-dfac6d57392a)
+checkpointed: 2026-11-04T17:02:11.643Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b1e643d14b0ef5a5222ac7448d99c0b5528092af87cb91749b4c73edeb6f609c
-source-handoff: 12e17ea74d2ca6c49d69640a0fb31383fe267525e3ff1a14c866807a82bac80b
-source-learnings: c65867e9f3a2e486151bfcb7892eea0baa20b9f4b578a9aa8f6bc0e30985e052
+source-progress: f54717f25efb92b2398f53efd982ce25a364d95e1f749cec1449fb45a95629a3
+source-handoff: d0d98c782d0f8c7397f67cb24b204b3d900818302b697fcc6892236f26cdd1f3
+source-learnings: c5c8dfc0e4abf0674686ff7e48ff6a5a2b5a44b8073c9b1b5f740d7ab411efe0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a759-ab86-7057-855c-dfa9fdc758ac
-readiness-at: 2026-11-04T16:43:53.836Z
-readiness-checkpoint: g275-8ab72d3fbad2
+readiness-by: session:01a1a772-4dd4-7057-855c-dfac6d57392a
+readiness-at: 2026-11-04T17:02:11.654Z
+readiness-checkpoint: g276-67339b9ef923
 ### Last verified state
-guard level 4; checkpoint requested (finalize: E2E-52/P2 hop 2 contract unchanged: PROGRESS ## Next action steps (a)-(e): register E52G + inventory 1195->1196 + gate AGAIN (expect 1196/0); COVERAGE row -> EXACT:1 (139 rows, no new); LOAN2 UNMODIFIED blocker verbatim, fix nothing; RESULTS.md + close prose; STOP after P2. All rc DIRECT.)
+guard level 0; checkpoint requested (finalize: E2E-52/P2 CLOSED at hop 2. Landed: E52G registration dca9219 (SPECIMENS + INVENTORY 1195->1196 exactly ONE line + post-registration FULL gate REAL rc=0 DIRECT build/gate-e52p2-reg.log: 1196 byte-exact / 0 of 1196, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5); COVERAGE row PROC.DEC_FORMAL_COPYIN_CELLMAP -> SUPPORTED + EXACT:1 (validator vocabulary; brief's ->EXACT applied via SUPPORTED), coverage_check rc=0 139 rows 0/0, stats own write path, 90582a5; LOAN2 UNMODIFIED blocker VERBATIM UNCHANGED (bare PAGE line 99), nothing fixed; RESULTS 755bf1c; close prose bc7b420; prose standalone rc=0; ledger ENDS C358, no new claim. Successor WITHOUT an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state, STOP. Standing proposals shortlist in HANDOFF item 0; E52G-in-DIVERGENT proposal OBSOLETE. No push; goldens never re-derived; NEVER re-run the retry-DFS; all rc DIRECT.)
 
 ### Unfinished operations
 - (none recorded)
@@ -1316,5 +1316,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P2 hop 2 contract unchanged: PROGRESS ## Next action steps (a)-(e): register E52G + inventory 1195->1196 + gate AGAIN (expect 1196/0); COVERAGE row -> EXACT:1 (139 rows, no new); LOAN2 UNMODIFIED blocker verbatim, fix nothing; RESULTS.md + close prose; STOP after P2. All rc DIRECT.
+E2E-52/P2 CLOSED at hop 2. Landed: E52G registration dca9219 (SPECIMENS + INVENTORY 1195->1196 exactly ONE line + post-registration FULL gate REAL rc=0 DIRECT build/gate-e52p2-reg.log: 1196 byte-exact / 0 of 1196, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5); COVERAGE row PROC.DEC_FORMAL_COPYIN_CELLMAP -> SUPPORTED + EXACT:1 (validator vocabulary; brief's ->EXACT applied via SUPPORTED), coverage_check rc=0 139 rows 0/0, stats own write path, 90582a5; LOAN2 UNMODIFIED blocker VERBATIM UNCHANGED (bare PAGE line 99), nothing fixed; RESULTS 755bf1c; close prose bc7b420; prose standalone rc=0; ledger ENDS C358, no new claim. Successor WITHOUT an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state, STOP. Standing proposals shortlist in HANDOFF item 0; E52G-in-DIVERGENT proposal OBSOLETE. No push; goldens never re-derived; NEVER re-run the retry-DFS; all rc DIRECT.
 <!-- guard:end checkpoint -->
