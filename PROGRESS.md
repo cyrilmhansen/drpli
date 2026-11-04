@@ -3,7 +3,18 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — **E2E-52/P1 CLOSED** (2026-11-04; operator-authorized scope-aware DEC pool prescan round, LOAN2 class; hop 6 closing session; ledger ENDS **C358**; **NO ACTIVE ROUND**)
+## Current phase — **E2E-52/P2 IN FLIGHT** (2026-11-04; operator brief: DEC formal copy-in, E52G closure; hop 1 LANDED arm `d67a263`; E52G BYTE-EXACT; registration + LOAN2 + RESULTS OWED)
+
+Hop 1 ACTUALS (see `LEARNINGS.md` § "E2E-52/P2 hop 1" for the full record): plan
+committed PRE-edit `a365686`; arm `d67a263` (Bind `cs_copies` allocation + codegen
+?DLDOP/?DSTOP pair + descriptor retarget, refusals by name outside the measured
+widening shape); E52G whole-file `cmp` rc=0 FIRST TRY vs `golden/e52p1` (sha
+`39b3d7cf…`, exactly the PLAN §4 prediction, never fitted); E52A..J 10/10 EXACT;
+E51A..L 12/12 EXACT; pre-reg FULL gate REAL rc=0 DIRECT `build/gate-e52p2-prereg.log`
+(1195/0, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5).
+**NEXT: execute `## Next action` hop-2 contract exactly. STOP after P2.**
+
+SUPERSEDED-BY-ABOVE (kept as written): ## Current phase — **E2E-52/P1 CLOSED** (2026-11-04; operator-authorized scope-aware DEC pool prescan round, LOAN2 class; hop 6 closing session; ledger ENDS **C358**; **NO ACTIVE ROUND**)
 
 Round delivered in full, every step measured and committed: pre-registration
 `d1fbc16` (probes E52A..J + PLAN/HYPOTHESES/mkprobes + BASELINE-MINE BEFORE any DR
@@ -338,6 +349,36 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+### E2E-52/P2 hop 2 OWED (2026-11-04; arm `d67a263` landed+gated; at HEAD after hop 1's durable commit; only operator `handoff.config.json` may be dirty)
+
+Execute IN ORDER, all rc captured DIRECTLY (never trailing pipelines):
+(a) register E52G: add `"E52G": ("probes/E52G.PLI", "golden/e52p1/E52G/E52G.REL")` to
+the LAST `SPECIMENS.update({...})` block in `tools/e2e_gate.py` (the e52p1 block ~line
+1894); run `python3 tools/e2e_gate.py --update-inventory` (expect INVENTORY 1195->1196,
+diff exactly ONE line E52G); rerun `timeout 3600 python3 tools/e2e_gate.py` to
+`build/gate-e52p2-reg.log`, expect REAL rc=0 and **1196 byte-exact / 0 of 1196**; commit
+explicit paths (gate script + INVENTORY).
+(b) update COVERAGE row `PROC.DEC_FORMAL_COPYIN_CELLMAP` (spec/COVERAGE.tsv line 144):
+`mine_status` DIVERGENT->EXACT and `rel_parity` DIVERGENT:1->EXACT:1 (validator
+vocabulary: EXACT:n|DIVERGENT:n|MIXED:e/d|NONE); E52G is NOW a panel key -- cite the
+specimen AND keep the golden path; rewrite the residual sentence to measured reality
+(copy-in temp implemented via Bind `cs_copies`; refusals unchanged for unmeasured
+forms); cites stay [C358] [C131] [C187]; NO new rows (139 stays). Run
+`python3 tools/coverage_check.py`, expect rc=0 139 rows 0/0; commit.
+(c) LOAN2: compile `artefacts/LOAN2.PLI` UNMODIFIED with pli80c.exe (positional args,
+scratch `build/e52p2/`), record the blocker line VERBATIM (last known: `codegen: PUT
+FILE with a bare PAGE control item [TBD] (line 99)`); advance/fix NOTHING; never claim
+LOAN2 exact.
+(d) write `spec/lab-evidence/e2e52-p2/RESULTS.md` (difference, mechanism,
+predictions-vs-measured, parity, E52A-J/E51 effects, gate actuals rc, LOAN2 blocker,
+NOT-say/remaining unsupported copy forms); NO new claim (C358 states the law; may add
+an implementation-landed NOTE to the C358 entry ONLY if justified -- default: no).
+(e) close prose (PROGRESS Current-phase + Next action + HANDOFF item 6 -> E2E-52/P2
+CLOSED; standing proposals kept incl. dashboard **26**), commit explicit paths, then
+handoff_finalize (or renew at the safe boundary if permitted). STOP after P2; no push;
+goldens never re-derived; operator handoff.config.json never staged.
+
+SUPERSEDED-BY-ABOVE (kept as written):
 ### E2E-52/P1 CLOSED — NO ACTIVE ROUND (2026-11-04; hop 6 closing session at HEAD `22b9c0c` + this close commit; ledger ENDS **C358**): successor confirms HEAD/tree (only the operator's `handoff.config.json` edit may be dirty), runs `/handoff verify`, records state and **STOPS** — await an operator brief
 
 The hop-6 contract below (steps a-d) is DONE in full: (a) the three E52 COVERAGE rows

@@ -5,6 +5,49 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P2 hop 1 (2026-11-04; DEC formal copy-in ARM LANDED, E52G BYTE-EXACT first try; registration OWED)
+
+ACCEPTED (measured this hop): operator brief opened P2 at HEAD `6de72c5` (checkpoint
+g272 verified current: GOAL/LEARNINGS/config source-hashes matched raw shas; HANDOFF/
+PROGRESS differ only by the embedded managed block). Plan committed BEFORE any compiler
+edit at `a365686`. The arm (`d67a263`, binary `85bf7a26…`): Bind owns the copy-in cell --
+`call_site` gains `cs_copies : int option list` (pool-exclusive offsets, allocated in
+section2's phase-2 pass by advancing the SAME `cur`; size = `bytes_of (RTdec(pf,sf))`, the
+single sizing authority). Trigger = internal non-recursive/non-RECURSIVE callee, bare
+`Eident` actual declared in the CALLER's own rows (not a caller formal/STATIC/array),
+`RTdec(pa,sa)` vs `RTdec(pf,sf)` with `sa=sf && pa<pf` ONLY. Codegen consumes the offset
+(never allocates), emits the [C358] pair `LXI H,*A(actual)/MVI A,ap/?DLDOP ; LXI
+H,*A(temp)/MVI A,pf/?DSTOP` BEFORE the `SET-LC data` block-init record, and retargets the
+descriptor word to the temp; any other mismatch (narrowing, scale-differ, forwarded
+pointer-formal, outer-scope actual, external entry) refuses BY NAME. ACTUALS: E52G
+whole-file `cmp` rc=0 FIRST TRY -- mine sha `39b3d7cf…` == golden, code 74=0x4A, DATA 20
+=0x14, exactly the PLAN §4 pre-registered prediction, NEVER fitted; E52A..J 10/10 EXACT;
+E51A..L 12/12 EXACT; pre-registration FULL gate REAL **rc=0** captured DIRECT to
+`build/gate-e52p2-prereg.log` (1195/0 of 1195, 181/181, 9/9, 139 rows 0/0, census
+15/0/26/0, prose 5).
+
+ACCEPTED (method): the golden's copy-in temp has NO DATA bytes (uninitialised cell, like
+every variable cell) -- only the block word gets a `RELOC data` in a data record; the
+pair's record ORDER in the file (pair code, then SET-LC data/RELOC/SET-LC code) falls out
+of emitting the pair immediately before the existing static-descriptor route.
+
+FALSIFIED (this hop, kept): `List.combine3` does NOT exist in this stdlib (build error;
+fixed with a local zip via List.map2+List.combine). And a `dune build | tail` pipeline
+MASKED rc=1 twice -- the standing rule (rc DIRECT, never trailing pipeline) bit again
+within minutes of being re-read; every rc in P2 is captured directly.
+
+PROPOSED (never adopted): none new beyond P1's standing list; the E27B forwarding route
+and equal-precision-different-scale DEC calls are now LOUD refusals where they were
+silent by-reference passes -- no panel specimen exercises either (gate 1195/0), so the
+refusal surface costs nothing today.
+
+OWED (hop 2, exact order): (1) register E52G in SPECIMENS (tools/e2e_gate.py last
+update-block style), `--update-inventory` expect 1195->1196, FULL gate AGAIN rc DIRECT;
+(2) update COVERAGE row PROC.DEC_FORMAL_COPYIN_CELLMAP to EXACT:1 (now a panel key),
+coverage_check rc DIRECT; (3) LOAN2 UNMODIFIED rerun -- record current blocker verbatim,
+fix NOTHING; (4) spec/lab-evidence/e2e52-p2/RESULTS.md + durable close prose; (5)
+finalize/renew per config. STOP after P2.
+
 ## E2E-52/P1 hop 1 (2026-11-04; baseline + architecture survey; NOTHING tracked authored; closed at context CRITICAL, renewing)
 
 MEASURED / accepted: HEAD `e15e325` clean (only operator `handoff.config.json` dirty);
