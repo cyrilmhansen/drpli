@@ -443,7 +443,29 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-2 (PUT EDIT) groundwork OWED — P3-1 CLOSED+REGISTERED (2026-11-04; renewal 3/12; read `LEARNINGS.md` § "E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT" FIRST — it carries every measured fact and the exact owed steps (1)-(7))
+### E2E-52/P3-2 evidence DECODED + CORRECTED; PLAN §P3-2 owed BEFORE any ocaml/ byte (2026-11-04; renewal 3/12; read `LEARNINGS.md` § "E2E-52/P3-2 evidence decode LANDED" FIRST — it supersedes the predecessor survey bullets below and carries the exact owed steps (1)-(5))
+
+DECED THIS SESSION (all rc/measured from existing goldens; NOTHING compiler-edited):
+`clear` = `%replace` macro (LOAN2:12), `a` = FORMAT item (the data/format order REVERSAL —
+LOAN2:115 DATA is `'|'` + `100*m+y`); LOAN2 *S(0007) table = console law `80 00 03 FF` +
+new picture record `02 04 00 05 "99/99"` + `81`; P086K 512 B FULLY decoded (both PUT and
+GET statements; file tables identical to console law; DEC prep = existing `p/p+3/s` law —
+the predecessor's `MVI B,06` FALSIFIED, bytes are `MVI A,08 / MVI B,02`; `?EDTIV` is the
+one new routine name); all 7 EDITF sites mapped to source lines 115/147/177/191/195/199/212
+(02FF is the console stmt at 85); barrier located: `lower_put_items_gen` guard ~11558 with
+FALSIFIED premise + `match_put_edit` file-blindness + fmtq FIFO + `st.file_out` open-guard
+vs P086K's NO-open attach (C282).
+SUCCESSOR: execute LEARNINGS owed steps (1)-(5) EXACTLY — byte-list stmt-199 span + remaining
+tables, check e2e8/e2e11 goldens for closer witnesses, write PLAN §P3-2 with pre-registered
+predictions and COMMIT BEFORE any ocaml/ byte, then arm (PROPOSED P3-2a: file PUT+GET EDIT,
+bare skip, literal f/a formats, string/DEC items; picture/x/rep/V refuse BY NAME; P086K panel
+specimen 1197→1198, E41X8 retirement candidate), sweep/refusals/LOAN2-verbatim/registration/
+C360 from measured bytes only. Constraints unchanged: no push; goldens never re-derived;
+operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals
+autonomous at safe boundaries; campaign continues past every blocker.
+
+SUPERSEDED-BY-ABOVE (kept as written; its "data items (a,p'99/99')" PROPOSED bullet was
+FALSIFIED this session by the data/format reversal above):
 
 P3-1 DELIVERED IN FULL: INVENTORY 1196->1197 one-line diff `e728175`; post-reg FULL gate REAL rc=0 **1197/0** (`build/gate-e52p3-reg.log`; negatives MEASURED 180/180 — the brief's 181/181 FALSIFIED, retire removes one row); claim **C359** `c410d18` (ledger ENDS C359, 182); COVERAGE FILE.PUT_PAGE SUPPORTED/EXACT:1 + stats own write path rc=0 `d3b8859`; RESULTS.md + PLAN §5 row `3e74d83`; prose rc=0 x2. Tree clean except operator `handoff.config.json`.
 P3-2 survey DONE so far (all in that LEARNINGS §): LOAN2:115 verbatim `put file(output) skip edit('|',100*m+y) (a,p'99/99');`; refusal site `match_put_list_lit` codegen.ml:2646; console EDIT EXISTS ([C090], fmt_spec = literal-width f/a only); **DR file-EDIT witnesses already in hand**: `golden/probe55/P086K/P086K.REL` re-dumped (attach 0652 + ?SIOOP/?EDITF table `80 00 00 05 01 81`/?DLDOP/?QDCOP/?EDTOV/?QIOOP, pool law holds, NO open needed) and `golden/first/LOAN2/LOAN2.REL` span 0522-055C (skip = MVI A,01/?SKPOP; `100*m+y` = LHLD/LXI D,0064/?IM22N/XCHG/LHLD/DAD/MVI A,09/?QICOP/?EDTOV); reldump at `build/e52p3/loan2-golden-reldump.txt` (ignored). E41X8 negative row pins the P086K shape — retirement candidate.

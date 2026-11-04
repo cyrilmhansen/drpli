@@ -5,6 +5,109 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-2 evidence decode LANDED (session 01a1a7d2, renewal 3/12); PLAN §P3-2 owed BEFORE any ocaml/ byte
+
+- **ACCEPTED (durables).** HEAD `c25bce1` + g283 managed-block commit `cbf2fc0`; tree clean
+  except operator config; `dune build` rc=0, binary `34e8321a…` (identical to P3-1 arm);
+  LOAN2 sha `7be23ba3…`, goldens untouched; ledger ends C359, panel 1197/0.
+- **ACCEPTED (`clear` and `a` resolved).** `clear` is a `%replace` TEXT macro (LOAN2.PLI line
+  12: `clear by '^z'`), NOT an identifier — no declaration to find. `a` has NO explicit
+  declaration anywhere (declare sites 14,38,144,170,210; `a` appears ONLY as a FORMAT item
+  — see the reversal below) — the predecessor's PROPOSED "data items a and p'99/99'" was
+  FALSIFIED, see next bullet. Whether DR gives LOAN2 a pool cell for `a` is moot: it is a
+  format keyword position, not a variable.
+- **ACCEPTED (LAW REVERSAL, from re-reading the syntax + P086K bytes independently).** In
+  `put file(f) edit(L1)(L2)` the FIRST list is the DATA items and the SECOND the FORMAT items
+  (P086K: `edit(d)(f(5,1))` — d the declared dec var is the data). Therefore LOAN2:115
+  `edit('|',100*m+y)(a,p'99/99')` = DATA: string literal `'|'` + fixed-bin expression
+  `100*m+y`; FORMATS: `a` + picture `p'99/99'`. Span 0539-0542 item1 prep is
+  `LXI H,*S(01EC)| | MVI A,01 / ?SLCTS / ?EDTOV` (the STRING DATA item; 01EC = 0x7C `|`, first
+  byte of the literal pool, `|Interest…` adjacency is pool packing) and 0544-0558 item2
+  `LHLD m(02BE) / LXI D,0064 / ?IM22N / XCHG / LHLD y / DAD D / MVI A,09 / ?QICOP / ?EDTOV`
+  — both fully pinned in the golden.
+- **ACCEPTED (LOAN2 *S(0007) table decoded to the CONSOLE law + one new record kind).**
+  Bytes (re-read with corrected regex — single-digit `0xN` records ARE all present; the
+  earlier `--` gaps were MY parser bug, reldump prints every data byte): `80 00 | 03 FF | 02
+  04 00 05 | 39 39 2F 39 39 | 81` = header `80 00` (identical to my fmt_table_bytes), `03 FF`
+  = `a` record IDENTICAL to console [C090], then picture record `02 04 00 05` + text `99/99`,
+  terminator `81`. Record kind `02` (picture) operand bytes `04 00 05` remain UNDECODED
+  (later subround). m's cell = data 02BE, y follows — both past DATA-size (uninitialized tail
+  after the pool: pool literals 0000..02BC, then variables; d-cell@000F-in-P086K shows vars
+  follow the pool bytes).
+- **ACCEPTED (P086K FULL decode, `build/e52p3/p086k-reldump.txt` — 512 B, NOT a panel
+  specimen; probes/P086K.PLI exists).** Pool: *S(0000) put table `80 00 00 05 01 81`, *S(0006)
+  get table IDENTICAL, *S(000C) = DEC literal 1.5 cell `50 01 00`, d cell 000F, DATA size 0012.
+  `d=1.5` = `?DLDOP/*S(000C) + ?DSTOP/*S(000F)` pair, MVI A,05 each — existing [C358]-era
+  assignment law. PUT stmt 0016-003C: attach `LXI H,*C / LXI D,0652 / LXI B,*CODE 003D /
+  ?SIOOP@0020` (NO open anywhere — C282 re-confirmed), `LXI H,*S(0000) / ?EDITF@0026`, DEC
+  prep `LXI H,d / MVI A,05 / ?DLDOP@002E / MVI A,08 / MVI B,02 / ?QDCOP@0035 / ?EDTOV@0038`,
+  close `?QIOOP@003B`. **FALSIFICATION: the predecessor wrote `MVI B,06` — WRONG, the byte
+  sequence is `3E 08 06 02` = MVI A,08 / MVI B,02** (06 is the MVI B opcode). The prep
+  operands are EXACTLY my console Vdec law `MVI A,p / ?DLDOP / MVI A,p+3 / MVI B,s / ?QDCOP`
+  at p=5,s=2 — the FILE EDIT route reuses the console DEC item prep with ?EDTOV tail.
+  GET stmt 003D-0061: attach `LXI D,0690 / ?SIOOP@0047`, `LXI H,*S(0006) / ?EDITF@004D`,
+  **`?EDTIV@0050` (routine name absent from codegen.ml — NEW call_ext)**, `MVI B,02 /
+  ?QCDOP@0055`, `LXI H,d / MVI A,05 / ?DSTOP`, `?QIOOP@0060`, continuation 0062 — the GET
+  DEC tail equals my existing console get law (codegen.ml 10315) with EDITF+EDTIV inserted
+  after attach.
+- **ACCEPTED (site map, EDITF link addresses → statements).** ?EDITF@02FF = LOAN2:85 CONSOLE
+  edit (existing route); @0537=115(table 0007), @0691=147 DISPLAY (table *S 0015; data items
+  `('|',a,'|',b,…,'|')` = 6 literals + 5 DEC formal items — visible at 0693+: LXH/MVI A,01/
+  SLCTS/EDTOV then 069E `LHLD …(0342-range)` etc.; table carries INNER `80 02 80 02 …` and
+  `02 0A …` records = rep-group `2(…)` + picture — UNDECODED kinds), @07A2=177 (formats
+  a,x(15),2(a,p'99'),a,p'$$$…',x(16),a), @083C=191 (x(19)), @087A=195 (yi/ir DEC items,
+  x-records, p'b99v.99'), @08FD=199 (SIX string data items + format `(a)` alone — pure
+  measured-subset statement: attach+skip+EDITF + 6×(LXI H,lit/MVI len/SLCTS/EDTOV) + QIOOP,
+  span 08F1-0950 to be byte-listed before PLAN), @095D=212 (2 literals + rep-group DATA item
+  `('---------------' do i = 1 to 4)` + format `(a)` — the DATA rep-group is its own class).
+- **ACCEPTED (mechanism inventory for the arm).** `lower_put_items_gen` (11544) ALREADY
+  implements attach+skip+`LXI H,*S(table)/?EDITF`+prep-with-?EDTOV-tail+?QIOOP for the
+  console EDIT and the file LIST separately; the ONLY barrier on the combined route is the
+  explicit guard at ~11558 `if is_edit && file <> None then failwith "PUT FILE ... EDIT has
+  no DR witness"` whose stated premise ("format table's bytes measured on the CONSOLE route
+  only") is FALSIFIED by P086K + LOAN2 tables; `match_put_edit` (2876) admits only
+  stream=None/on_opts=[] (must grow a file arm for FILE option + optional leading skip;
+  parser puts `skip` in `kind=Editsk` — check `Editsk of int option` vs Pi_ctl placement);
+  refusal catch at 2644 raises the campaign blocker; prescan Sput (~3324) tries
+  match_put_edit first. Pool FIFO: prealloc_fmt_tables/edit_stmts (2907+) must enqueue file
+  EDIT tables in SOURCE ORDER (P086K pins put-table then get-table). `authorize_file_item`
+  (11459) + `st.file_out` guard (12617) currently demand a lowered OUTPUT open — P086K's
+  NO-open attach is measured (C282) and E41X8's probe opens `stream output title('X Y')`
+  which DOES lower, so the guard question splits: panel specimen P086K needs the NO-open
+  attach accepted (LXI H,*C select + 0652 word — same bytes as E46N10's opened case, P0
+  section 10 SEL-COMMON law).
+- **PROPOSED (first arm P3-2a, NOT yet adopted — measure every byte into PLAN.md first).**
+  File PUT EDIT + file GET EDIT restricted to: leading bare skip (law already emitted on
+  file LIST), formats ONLY literal f(w)/f(w,d)/a/a(w) (console fmt_spec table law, P086K-pinned
+  on file route), data items ONLY string literals + DEC fixed-binary variables via the p/p+3/s
+  prep (?EDTOV tails); GET mirror (?EDTIV + MVI B,s/?QCDOP/LXI H,LHLD-prep/?DSTOP) for the
+  P086K shape; EVERYTHING else (x(), picture 02-record, rep-groups, V/QICOP-expression DATA —
+  hmm QICOP item prep IS pinned at 115; decide inclusion by whether the WHOLE statement can
+  be panel-tested, else refuse BY NAME) keeps refusing by name. Panel specimen candidate:
+  register `probes/P086K.PLI` vs `golden/probe55/P086K/P086K.REL` (1197→1198); E41X8
+  retirement candidate (verify its inline probe source compiles whole-file-first — NO golden
+  for it; it exits REJECTS/NEG_META as history prose per E46K1/K3 convention). LOAN2 rerun
+  will STILL refuse at 115 (picture format) — the message must NAME the unmeasured record
+  kinds (x/picture/rep) honestly; campaign step: then later subrounds for 02-record,
+  x-records, rep, and the PRINT opens at 54/56 stay queued behind ALL of them.
+- **MEASURED DISCREPANCY (kept, not fixed):** spec/COVERAGE.tsv `IO.PUT_EDIT` (line 65)
+  wording says the picture item is `measured on the IFACT/LOAN1 shapes` — LOAN1.PLI has NO
+  edit statement; verify what N12_EMPTYFIX/IFACT actually witness before touching that row
+  (record, never silently fix).
+- **OWED (successor, exact order):** (1) byte-list span 08F1-0950 (stmt 199: multi-item
+  string EDIT + format `a` — the cleanest file statement in the measured subset) and tables
+  @0015/@0047/@0072/@0079/@009d… SET-LC sites vs their statements; decode x() record kind
+  enough to NAME the refusal honestly. (2) check golden/e2e8/e2e11 console goldens + probes/
+  E46N*-era for anything closer to DEC-on-edit than P086K (step 3 of parent list). (3) write
+  `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 with pre-registered predictions (P086K whole-file
+  cmp expectations: code/data sizes 512B, per-statement byte lists, refusal boundaries, LOAN2
+  direction-only prediction) + progress row; COMMIT BEFORE any ocaml/ byte. (4) arm, E46N+
+  R10xx+E52+E41X8-boundary sweep, refusals, LOAN2 verbatim rerun, registration (SPECIMENS
+  P086K, --update-inventory 1197→1198 ONE line, reg gate), C360 from measured bytes only.
+  (5) renewals at safe boundaries (4/12 consumed at THIS checkpoint; cap in
+  handoff.config.json is authority). Constraints unchanged: no push; goldens never re-derived;
+  operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2.
+
 ## E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT (2026-11-04; session 01a1a7bd; continuation of chain 01a1a795)
 
 - **ACCEPTED (P3-1 CLOSED and registered).** Full landing chain, every rc DIRECT:
