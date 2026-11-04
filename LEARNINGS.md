@@ -5,6 +5,33 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P1 hop 1 (2026-11-04; baseline + architecture survey; NOTHING tracked authored; closed at context CRITICAL, renewing)
+
+MEASURED / accepted: HEAD `e15e325` clean (only operator `handoff.config.json` dirty);
+checkpoint g256 was CURRENT (replayed the guard strip+rstrip prose-hash law in python — keep
+that trick: raw file sha256 does NOT match checkpoint hashes by design); build rc=0 sha
+`271b9fc6…`; LOAN2 rc=2 `variable i declared with conflicting kinds …decimal pool prescan
+[TBD]` reproduced; LOAN2 DR goldens exist golden/first + first8080u (7680 B sha `712cfcb2…`,
+DATA 0x035A CODE 0x09A0) — DR ACCEPTS, so a global ambiguous-map model is already falsified
+by existing evidence; no probe/golden (script-surveyed) has cross-scope homonyms; no
+DIVERGENT/SPECIMENS LOAN2 row.
+ARCHITECTURE (read off source, accepted): prescan `pd_vars` (codegen.ml:13438) is ONE global
+name->vkind map (all procs' pl_rows via rt_to_vk @ top rows), refusing on kind clash; ~15
+consumers `List.assoc_opt ... cx.pd_vars`; Sproc arm (:3300) swaps pd_ret/pd_fl_ret only.
+LOWERING is ALREADY lexical: lower_proc (:11964) `st.vars <- attach proc_rows pl_rows @ saved`
+— inner-first assoc = shadow; arrays/members/deref accumulate too; offsets are absolute
+(section2 threading). So the fix is to mirror that accumulation in the prescan, not invent a
+new scope model. bind.ml: `outer_rows` param (:614) is DEAD — no caller passes it; pl_rows is
+own-block rows only; outer visibility exists ONLY via codegen's accumulated st.vars.
+Pool cell bytes = ceil((p+1)/2) (dec(4,2)=3,(5,2)=3,(7,2)=4,(9,2)=5,(10,2)=6,(11,2)=6); DEC
+store of bare literal allocates a TARGET-precision cell, dedup by packed byte image in cx.pd_img
+(program-wide refs shared across the walk); bin-target literal in bin15 range allocates nothing.
+Proposed (NOT adopted): E52A..J probe bank + implementation direction + exact hop-2 contract —
+read `PROGRESS.md` → Next action (written this hop, full detail there). C228 label shadowing is
+precedent only, never citable as a variable-scoping law. FALSIFIED-as-instruction: "just drop
+the conflicting-kinds exception" — demand must equal lowering allocation per scope or [C179]
+invariant aborts.
+
 ## E2E-51/P1 hop 5 (partial) — registration PRE-FLIGHT VERIFIED; mechanism facts MEASURED; claims NOT YET WRITTEN (2026-11-04; renewed 4/12 from g245; HEAD `05d7ff0`; NOTHING tracked authored this session yet)
 
 MEASURED (accepted):

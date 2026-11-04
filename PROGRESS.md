@@ -279,7 +279,77 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-51/P2 CLOSED — NO ACTIVE ROUND (2026-11-04; HAMM-00 rev2 LANDED `a21a586`, record `52f9a54`): successor confirms HEAD/tree, runs `/handoff verify`, records state and **STOPS** — await an operator brief
+### E2E-52/P1 IN FLIGHT — scope-aware DECIMAL pool prescan (operator-authorized 2026-11-04; session hop 1 ended at context exhaustion with NOTHING tracked authored; renewals 0/12 used)
+
+Mission (operator brief, verbatim scope): fix the LOAN2 name-to-type ambiguity in the DEC-pool
+prescan by MEASURING DR's scoping, then implementing scope-aware prescan if the oracle supports
+it. Stop after P1; no push; preserve operator `handoff.config.json` edit; never overwrite
+goldens; stale dashboard fixture stays out.
+
+DONE at hop 1 (all MEASURED, accepted): HEAD `e15e325` main, tree clean except operator config;
+checkpoint g256 verified current by replaying the guard strip+rstrip prose law; `dune build` rc=0
+(binary sha `271b9fc6…`); LOAN2 refusal REPRODUCED rc=2 `codegen: variable i declared with
+conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]`; LOAN2 goldens
+exist (`golden/first/LOAN2/LOAN2.REL` = `first8080u`, 7680 B, sha `712cfcb2…`, DATA 0x035A,
+CODE 0x09A0) — DR ACCEPTS; no SPECIMENS/DIVERGENT row for LOAN2 (it never compiled, so no row
+to remove); NO existing probe/golden has cross-scope homonyms (script-surveyed `probes/*.PLI`);
+[C228] proves LABELS shadow block-scope (precedent, not a variable law).
+
+NEXT (hop 2, exact):
+1. Author `spec/lab-evidence/e2e52-p1/{PLAN.md,HYPOTHESES.md,mkprobes.py}` + generated
+   `probes/E52*.PLI` + `BASELINE-MINE.txt` (run each probe through
+   `ocaml/_build/default/bin/pli80c.exe <probe> /tmp/x.REL`, record rc + message). Probe bank
+   design (10 rows, proposed, refine from hop-1 survey only; frame = lowercase main
+   `options(main)`, statements first then nested procs, `call q;` accepted spelling, CRLF+^Z,
+   ≤71 cols, no apostrophes in comments — [C193],[C118]):
+   E52A same name SAME type both scopes, both `i = 3` (control + cross-scope dedup: one 3-byte
+   cell predicted); E52B outer `i fixed dec(4,2)` / inner `i fixed dec(9,2)`, both `i = 3` (H1:
+   pool 3+5=8; H3-global: one 3-byte shared cell); E52C DEC outer / `i fixed bin` inner (H1:
+   inner store IMMEDIATE `LXI H,0003/SHLD`, pool 3; H3: pool 3 but `LXI H,*S`+DLDOP route —
+   CODE discriminator); E52D `i fixed bin` outer / `i fixed dec(7,2)` inner (H1 pool 4, H3 0);
+   E52E inner stores to NON-shadowed outer `o fixed dec(9,2)` (H2 local-only would miss the
+   5-byte cell; H1 sees outer); E52F different names same type same value across scopes (H4
+   dedup scope-breadth); E52G formal shadow: `q: procedure(i); dcl i fixed dec(9,2); i = 3;` vs
+   outer `i fixed dec(4,2); i = 3;` (LOAN2 current_year shape; note DEC-formal writes ARE
+   measured via [C131] `?DSTOP` route for a var source — check the LITERAL-to-formal path in
+   BASELINE-MINE before predicting acceptance); E52H nested-nested: main `x dec(4,2)`, mid proc
+   `x dec(9,2)` + store, inner proc no own x + same-value store (H1: dedup into mid's 5-byte
+   cell; own+main-only env: second 3-byte cell — pool 8 vs 6... MEASURE); E52I 3-level chain
+   where the MID declares and innermost reads shadowed name in a condition (prescan_cond
+   consumer) — only if E52G/H don't already separate H1/H2; E52J regression control NO shadowing,
+   equivalent pool demand (`do while` DEC-literal compare inside a proc — guards the existing
+   single-scope path). DEC cell bytes = ceil((p+1)/2) (dec(4,2)=3, (5,2)=3, (7,2)=4, (9,2)=5,
+   (10,2)=6, (11,2)=6 [R507,LOAN1]).
+2. Commit pre-registration (probes + evidence dir, explicit paths) BEFORE any DR call
+   (`git log --format=%h -- probes/E52A.PLI` proves ordering).
+3. ONE grouped campaign: `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900
+   python3 oracle/batch.py E52A E52B ... --tag e52p1 --switches '$L$D'` (golden/e52p1 must NOT
+   exist; no --reuse). Inspect .PRNs + complete .RELs (`tools/reldump.py`, whole-file cmp);
+   classify every row dr-refuses/my-gap/unmeasured; RESULTS.md keeps every MISS verbatim
+   (PROTOCOL #2). Commit goldens+RESULTS BEFORE any compiler change.
+4. Implementation (ONLY after evidence; prefer small structured change): the LOWERING is already
+   lexical — `lower_proc` (codegen.ml:11964) sets `st.vars <- Vinfo.attach proc_rows (mapped
+   pl_rows) @ saved` (~12210), inner-first assoc = shadow; arrays/members/deref similar.
+   The prescan outlier: `pd_vars` built global at codegen.ml:13438 from `proc_vk_rows` (all
+   procs' pl_rows via `rt_to_vk`) @ top rows and REFUSES homonym kind clashes; ~15 consumers
+   `List.assoc_opt ... cx.pd_vars` (1865,1905,2914,2933,2965-2974,3112-3121,3162,3179,3198);
+   `Sproc` arm (3300) already swaps pd_ret/pd_fl_ret. Direction: start `pd_vars` = top rows
+   ONLY; carry a per-proc-own-rows table (name -> rows-vk via the SAME `rt_to_vk`); in `Sproc`
+   recurse with `{ cx with pd_vars = own @ cx.pd_vars }` — assoc-first-match gives the same
+   lexical shadowing as lowering; keep dedup refs (pd_img/pd_str/pd_fl/pd_dec), pd_procs,
+   pd_fl_procs, const_cells, pool base INTACT. Do NOT modify bind (its `outer_rows` param is
+   dead — bind.ml:614/508 — do not resurrect without need). Invariants: single-scope path
+   unchanged; pool demand == lowering allocation; DATA offsets/relocs byte-exact; unsupported
+   constructs still refused by name.
+5. Verify: new accepted E52 specimens whole-file byte-exact vs golden/e52p1; rerun original
+   `artefacts/LOAN2.PLI` UNMODIFIED — record the exact next blocker if it advances (do NOT fix
+   it); FULL compile-tier gate `timeout 3600 python3 tools/e2e_gate.py` rc expected 0 with
+   baseline 1186/0, 181/181, 9/9, 136 rows, census 15/0/26/0, prose 5; register genuinely
+   verified specimens/claims (C356+) per PROTOCOL, sanctioned `--update-inventory`, coverage
+   rows; Rune CI only for runtime/link-run of a committed revision. Close prose + renew/finalize;
+   **STOP after E2E-52/P1**.
+
+### SUPERSEDED (kept as written): E2E-51/P2 CLOSED — NO ACTIVE ROUND (2026-11-04; HAMM-00 rev2 LANDED `a21a586`, record `52f9a54`): successor confirms HEAD/tree, runs `/handoff verify`, records state and **STOPS** — await an operator brief
 
 E2E-51/P2 is DONE in full and measured: reference-model `fed0:` correction + re-derived
 212-line expectation committed BEFORE execution (`a21a586`); SOURCE/DERIVATION
@@ -1714,43 +1784,62 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 256
-checkpoint-id: g256-cfffeeb012d8
+checkpoint-generation: 259
+checkpoint-id: g259-c2b73667e3dc
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 0
-checkpointed: 2026-11-04T11:12:51.616Z
+guard-level: 4
+checkpointed: 2026-11-04T12:33:41.302Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3348084bf4057d3647bee01340796596d1b532c368d2bee685cf90874e9a0a38
-source-handoff: 86f3de367ab87e30abb5f8d049c4d19b2c975139502500be507ba55998e74ffd
-source-learnings: 35b8ee2a8d82e8b36e1a76a6d8393e41d8aacc94588c3afdf524cd092adf4d5b
+source-progress: b07fdb28c2337fcdd0beccb9dc06d102ae009a6fd270ff901aed8f71530a675f
+source-handoff: c8d79016af8a0ed77d5d68432e828f899ce5bb8aba346e2a48a2472d81474faa
+source-learnings: ff859781e23a98d26204ae97e2da2394e59ec21dd899b3bfd0e18f38dcf4ece2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` below. TABLE-00 and
-  TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
-  (`_run_lane_b`: capture now ends at `D>`/`I/O ran`/`\Z` WITHOUT eating the program's final CRLF;
-  a region not newline-terminated before its terminator is `console-terminator-ambiguous` UNKNOWN,
-  fail closed) with hostile-suite case C15 (12 checks; suite self-count **194**, all pass), and
-  (b) a TABLE-01 **output-statements-only** revision isolating the test from PLILIB's measured
-  79-col wrap (source sha256 `4881f187ef1ad9651c48950b76a6cdd959fdcc980ef989580a0fbfa43c0b0863`,
-  1366 B, CRLF/^Z/≤71 cols; algorithm/inputs/invariants unchanged; expectation derived from the
-  declared design + README § 6 law via `reference.py:table01`, never captured). Executed ACTUALS:
-  TABLE-00 .REL 896 B, COM 7552 B, 93 console bytes, complete-stream 2 lines; TABLE-01 .REL 1536 B
-  (code=644 data=50), COM 7808 B, 178 console bytes, 3 lines; LINK both `parse_undefined=[]`;
-  RUN `done` witness; `--double-run` captures byte-equal. Evidence roots (ignored working state,
-  gitignored `build/`): baseline FAIL reproduction `build/functional/fs01-baseline/`, PASS run
-  `build/functional/fs01/`, double-run `build/functional/fs01-double/`, Lane-A unchanged check
-  `build/functional/fs01-laneA/` (FX-00 PASS, FX-01 FAIL `emulator` intended). Report:
-  `docs/functional-results.md` § 5.
-- Preserved/untouched: P2 FAIL evidence `spec/lab-evidence/e2e50-p2/step6/RESULTS.md`; all
-  goldens, `artefacts/`, `oracle/disks/`, manuals, `ocaml/`, `spec/CLAIMS.md` (ledger ENDS C351),
-  `spec/COVERAGE.tsv`; PLILIB wrap law stays `proposed` (NOT characterized — FS-01 boundary).
-  Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
-- Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
-  15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a62a-fffd-7322-9bba-088fb541d5dc
-readiness-at: 2026-11-04T11:12:51.632Z
-readiness-checkpoint: g256-cfffeeb012d8
+next-action: ` → "E2E-52/P1 IN FLIGHT"** (author
+`spec/lab-evidence/e2e52-p1/` pre-registration + `probes/E52*.PLI` + BASELINE-MINE, COMMIT
+BEFORE the one grouped `--tag e52p1` oracle campaign; then RESULTS.md, scope-aware prescan per
+the measured evidence, LOAN2 rerun UNMODIFIED, gate, registration; STOP after P1). Constraints:
+no push; preserve operator `handoff.config.json`; goldens/ignored evidence never overwritten;
+ledger ends **C355**; do not expand to other LOAN2 blockers.
+
+**E2E-51/P2 CLOSED — operator-authorized functional follow-up (HAMM-00 rev2).** The P1
+hop-6 PROPOSED **DERIVATION fix** was executed under its own brief: in
+`reference.py:_Hamm00Port.run()` the feed-loop entry `self.skip()` moved INSIDE the
+`while True` — the pinned source's `fed0:` label starts with `put skip;`
+(HAMM-00.PLI line 131) and re-enters it on every `goto fed0` over-ask retry (line 142),
+so rev1's prompt-first retry was NOT statement-faithful for that one loop (buy/sell/
+plant retries match; `fedok:`'s post-loop skip was already correct). `HAMM-00.json`
+`expected.console` RE-DERIVED VIA SCRIPT from `DERIVATIONS['hamm00']()` — derived, never
+captured (L3): delta EXACTLY one blank line at index 64 (year-3 over-ask: s=1587, asked
+1588, retry 900; 211→212 lines), predicted from source semantics BEFORE any execution,
+then corroborated (the preserved § 16 actual normalizes to the SAME 212-line stream).
+`HAMM-00.PLI`, `ocaml/`, the runner, console normalization and all rev1 evidence/goldens
+UNTOUCHED. Lane B `build/fc01/hamm-rev2/`: **SOURCE, DERIVATION, COMPILE, LINK, RUN,
+ASSERT ALL PASS** (COMPILE rc=0 12288 B code=3996, LINK `HAMM00.COM 13440 B
+parse_undefined=[]`, RUN 6369 B, ASSERT complete-stream 212 lines; runner rc=0 captured
+DIRECTLY); stage pre-verify `build/fc01/hamm-rev2-srcder/` SOURCE+DERIVATION pass;
+`--double-run` `build/fc01/hamm-rev2-double/` rc=0 PASS, captures byte-equal (`cmp` rc=0,
+sha `fddc5b2c…`); hostile suite rc=0 211/211; FULL compile-tier gate **rc=0**
+`build/gate-hamm00-rev2.log` (byte panel **1186/0 of 1186** intact, 181/181, 9/9, 136 0/0,
+census 15/0/26/0, prose 5). Record `docs/functional-results.md` § 17 + § 1 row; § 16's
+rev1 FAIL kept intact as written. NO DR claim promoted (ledger ENDS **C355**).
+**SUCCESSOR: NO active round and NO pending instruction.** Confirm HEAD/tree (only the
+operator's `handoff.config.json` edit may be dirty), `/handoff verify`, record state and
+**STOP** — await an operator brief. No LOAN2, CREATE, FCPS registration or other work
+without one; no push; goldens never laundered. Standing PROPOSALS (shortlist, NEVER
+authorizations): refresh the STALE `tools/test_functional_dashboard.py` check
+`cited by NO capability: **26**` (renders **29** since P1's `216ea7a` DIV rows — MEASURED
+pre-existing at `1fc37d5`, NOT a P2 regression; run ALL harness self-tests at future
+registration hops); FCPS1..3 SPECIMENS registration at a gate hop; README § 5.1 rights
+review for the eight corpus sources (due); E2E-50/P3 shortlist
+(`spec/lab-evidence/e2e50-p2/REPORT.md` § 5); fc01-fileio/ONUNIT-00 stay CANCELLED; the
+OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
+`LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
+working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1a672-c1ac-7250-8e94-7a3537b72547
+readiness-at: 2026-11-04T12:33:41.313Z
+readiness-checkpoint: g259-c2b73667e3dc
 <!-- guard:end checkpoint -->
 
 ## Blockers
