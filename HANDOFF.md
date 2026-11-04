@@ -1400,31 +1400,49 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 307
-checkpoint-id: g307-619a3bbe780f
+checkpoint-generation: 309
+checkpoint-id: g309-a10d427e62c9
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~4566, session 01a1a872-a055-7427-a642-9c6701282cac)
-checkpointed: 2026-11-04T21:48:56.596Z
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6841, session 01a1a88a-1b6b-7427-a642-9c6abb033d74)
+checkpointed: 2026-11-04T22:08:23.037Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 27dc2415d3c31a44fda1350ae661305fb60886d49d53f53356226f0816dd3aa9
-source-handoff: 92db4b711161ff682e6aaf03e1d01faa2b3447d6c0bad5cf744ecce92ce54681
-source-learnings: f866bf2d19bf213dd6fa5c6febfefffb245c9cc617a5be536674c2f8d911a384
+source-progress: c7df058229b5618201100a630f109dca6a3aa4fce980f9f72a223701c47f687f
+source-handoff: ef274962f854137cfb9923482334ba9e6bc326da7f80a2a4dd235da73cd35320
+source-learnings: 91958a6ffd545b84422a0b5ec03fe82879e44a07c7ef1b903653e27f6530b53e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a872-a055-7427-a642-9c6701282cac
-readiness-at: 2026-11-04T21:49:19.775Z
-readiness-checkpoint: g307-619a3bbe780f
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` steps (1)-(6): SPECIMENS 13 (+PROPOSED PF REJECTS row),
+= subround **P3-4** (rep-groups 80 n…81, x(w) 0B,
+  file-route EXPRESSION item; PA bytes pinned LOAN2 0544-0558): PLAN+probes COMMITTED BEFORE
+  any ocaml/ byte, one grouped campaign tag e52p3d (verify unused), arm+sweep+LOAN2 verbatim,
+  registration + claim C362 measured-bytes-only BEFORE the COVERAGE rewrite. Constraints
+  unchanged: no push; goldens never re-derived; operator handoff.config.json never staged;
+  all rc DIRECT; pli80c POSITIONAL; campaign continues. THIS session closes via
+  handoff_finalize — NEVER handoff_renew past the cap.
+
+0a-qua. **P3-3 LANDED THROUGH ARM; REGISTRATION OWED (2026-11-05, successor of g305, renewal
+  11/12 consumed, cap 12).** Chain `eef371b` (PLAN §P3-3 + probes E52PA..E52PO committed BEFORE
+  any ocaml/ byte) → `8edea80` (ONE grouped campaign tag e52p3 rc=0, **14 ok/15**; E52PF
+  `p'9$9'` MEASURED **dr-refuses** `PICTURE ?`, NO .REL; scale-mismatch expectation FALSIFIED —
+  PJ/PK/PL accepted) → `aae0f37` (goldens) → `d088cdb` (arm: ONE `Ast.Pi_pic` branch in
+  `fmt_spec`, `02 b1 b2 len UPPER(text)`; b1 = count{9,Z,$}−1-if-$; **b2 = count{9,Z} after the
+  LAST V** — rule HE, HC and HD both FALSIFIED by E52PJ `9.9`→00; guards refuse BY NAME: outside
+  {9,Z,$,V,.,B,comma,slash}, $-after-digit, V-without-dot; binary `c2c6282f5662cb19a3ce…` clean
+  rebuild; **13/13 accepted probes whole-file cmp rc=0** — P5's 4-probe subset an UNDERCLAIM,
+  falsified; PA/PF refuse by name; LOAN2 VERBATIM same fmt_spec catch (P6 HIT); sweep 75/75;
+  P086J/K rc=0; markers intact; codegen warnings 70 = baseline — per-File histogram is the honest
+  method, full-log totals FALSIFIED as comparison). Ledger ENDS C360; E52PF bytes claimed by
+  NOTHING. SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-3 LANDED through ARM" and execute
+  `PROGRESS.md` → `## Next action` steps (1)-(6): SPECIMENS 13 (+PROPOSED PF REJECTS row),
   `--update-inventory` 1199→1212 (+1 if PF), FULL gate rc=0 `build/gate-e52p3c-reg.log`, census
   own write path, claim **C361** from MEASURED bytes ONLY committed BEFORE the COVERAGE
   `IO.PUT_EDIT` rewrite, coverage_check + prose rc=0, RESULTS §5/PLAN §5 rows, durables. THIS
@@ -1790,5 +1808,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-3 pre-plan analysis LANDED at d9b0a2c (ZERO ocaml/ byte, ZERO oracle call). Measured ALL 02 picture records in existing goldens (12 distinct texts across LOAN2/ANNUITY/DEPREC; fresh reldumps build/e52p3/{ANNUITY,DEPREC}-golden-reldump.txt). Shape 02 b1 b2 len UPPER(text); b1=count{9,Z} FALSIFIED; surviving HA2 (count{9,Z,$}−1-if-$) vs HB8 ($ not at index 0) — probe p'9$9' settles; b2 HC (digits after last {.V}) vs HD (count{V,.}) — discriminators p'9V.9', p'99V.999'; len=text length; item prep FORMAT-INDEPENDENT; refusal site fmt_spec catch-all (Pi_pic flows there from prescan+lowering). NEXT per PROGRESS ## Next action: (1) write spec/lab-evidence/e2e52-p3/PLAN.md §P3-3 + probes E52PA..E52PO (CRLF+bare ^Z, ≤71 cols, collision-grep E52P* first; PA=LOAN2-115 mirror EVIDENCE-ONLY (PInum file refusal), PM/PN/PO armable subset with d fixed dec(4,2)) and COMMIT BEFORE any ocaml/ byte; (2) ONE grouped campaign PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PA..E52PO --tag e52p3 --switches '$L$D' (tag verified unused); (3) RESULTS §P3-3 verdicts; (4) arm ONE Pi_pic branch in fmt_spec + sweep + PM/PN/PO cmp + LOAN2 rerun VERBATIM (expect same fmt_spec catch text at rep-group 147/149); (5) registration: claim C361 from MEASURED bytes only BEFORE COVERAGE rewrite, gate rc=0, census own write path, prose rc=0. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; pli80c POSITIONAL args; renewals 10/12 consumed cap 12; campaign continues past every blocker.
+P3-3 FULLY CLOSED: registration chain 7294d09 (SPECIMENS 13 + PF dr-refuses row, inventory 1199->1212+1, FULL gate rc=0 1212/0 build/gate-e52p3c-reg.log) -> a4eddd6 (census own write path rc=0, LOAN2 VERBATIM unchanged) -> 64e464b (claim C361 measured-bytes-only BEFORE coverage) -> 4f5d509 (IO.PUT_EDIT EXACT:25, coverage_check 139/0/0, stats not drifted) -> 794cfb2 (RESULTS §5 + PLAN §5) -> 2bee971 (durables). Ledger ENDS C361. Renewal cap 12/12 REACHED: chain closes here; operator must reset .pi-guard renewal-state.json before the next hop. NEXT = P3-4 per PROGRESS ## Next action: rep-groups 80 n...81 + x(w) 0B + file-route fixed-bin EXPRESSION item (PA bytes pinned LOAN2 0544-0558); PLAN+probes committed BEFORE any ocaml/ byte; campaign tag e52p3d (verify unused). Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; pli80c POSITIONAL.
 <!-- guard:end checkpoint -->
