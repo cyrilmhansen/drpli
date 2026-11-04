@@ -3,7 +3,41 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — FC-01 CORPUS **COMPLETE** (operator override 2026-11-02, delivered 2026-11-03; eight adapted historical programs: WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 PASS (hop 13, docs § 13); DHRY-00 rev1 PASS (hop 19, docs § 14, rev0 order FAIL kept as written); FFT-00 rev1 **PASS** (hop 22, docs § 15 — lane B `build/fc01/corp10`, RUN capture 507 B byte-identical to the derived raw sha `87acbf18…`, double-run byte-equal) — **8 of 8 landed or recorded; NO ACTIVE ROUND**; successor without an operator instruction records state and STOPS; standing PROPOSALS: HAMM-00 rev2 subtraction loop, FCPS1..3 SPECIMENS registration at a gate hop, README § 5.1 rights review for the eight sources (due), E2E-50/P3 shortlist (`spec/lab-evidence/e2e50-p2/REPORT.md` § 5) — see `## Next action` and `LEARNINGS.md` § "…FFT-00 hop 22")
+## Current phase — E2E-51/P1 **CLOSED** (2026-11-04; operator-authorized FIXED BINARY variable-divisor DIVISION round; closing session at HEAD `0c61c8d` + this close-prose commit; ledger ENDS **C355**; **NO ACTIVE ROUND**)
+
+E2E-51/P1 delivered, all measured: oracle `b404b7e` 12 ok/12 no `dr-refuses`; arms
+`4ff1ea5` (Div parking, [C353]), `7d17b63` (E51G ADD right-first+XCHG), `ee589cc` (E51I TEST
+consumer — skip byte `C2`, the `CA` prediction FALSIFIED, [C089] polarity governs); sweep
+**12/12 whole-file BYTE-EXACT** vs `golden/e51p1/` — the FIXED BINARY variable-division
+**compiler gap is RESOLVED**; claims **C353..C355** (`890b1e4`, RESULTS §2 only, §3 stays
+unmeasured); SPECIMENS + sanctioned `--update-inventory` panel 1174→**1186** + post-update
+gate rc=0 (`5ae44ca`); census re-snapshot 15/0/26/0 (`c56aee2`); COVERAGE **136 rows 0/0**
+after the correction cycle (`216ea7a` shipped two unresolvable cites — coverage_check REAL
+rc=1, kept as written `d96e1f9`/`cc164a2`: the earlier rc=0 reading was a PIPELINE artifact;
+cites fixed `0c61c8d`, row bodies verbatim per PROTOCOL #2); FULL compile-tier gate REAL rc=0
+`build/gate-e51p1-reg2.log` (1186/0 of 1186, 181/181, 9/9, 136 0/0, census 15/0/26/0, prose
+5). CLOSING SESSION (this commit): `python3 tools/file_prose_check.py` run STANDALONE with
+the exit code captured DIRECTLY — **rc=0, 5 active files clean**
+(`build/prose-check-e51p1-close.log`); close prose HANDOFF item-6 + this file; attested via
+handoff_finalize.
+**HAMM-00 rev1 rerun UNMODIFIED — measured FAIL PRESERVED, never laundered (functional, NOT
+a DR claim):** DIV blocker GONE (COMPILE rc=0 12288 B code=3996, LINK `HAMM00.COM 13440 B`
+`parse_undefined=[]`, RUN done 6369 B) but **ASSERT FAIL `missing [] / extra ['']`** — one
+extra blank line at the feed over-ask; attr `undefined` as executed; expectation NEVER
+edited (evidence `build/fc01/hamm-rerun/`; record `docs/functional-results.md` § 16 + § 1
+row). Root cause ACCEPTED as a suspected **reference-model discrepancy, NOT a compiler gap**:
+the pinned source's `fed0:` loop re-enters at a leading `put skip;` (line 131,
+blank-THEN-prompt) while `reference.py:_Hamm00Port` is not statement-faithful there
+(prompt-first) — the DERIVATION missed one blank; the compiler matches the source. The rev2
+re-derivation (add the fed0 loop-entry skip) is a PROPOSAL, not executed.
+Successor WITHOUT an operator brief: confirm HEAD/tree (only the operator's
+`handoff.config.json` edit may be dirty), `/handoff verify`, record state and **STOP**. No
+E2E-51/P2/LOAN2/CREATE without an operator brief; no push; goldens never laundered; NEVER
+re-run the retry-DFS.
+
+### Superseded phase (kept as written per PROTOCOL #2; note: its standing proposal "HAMM-00 rev2 subtraction loop" is OBSOLETE — the compiler division gap it worked around was RESOLVED by E2E-51/P1 above; the live proposal is the rev2 DERIVATION fix)
+
+## Previous phase — FC-01 CORPUS **COMPLETE** (operator override 2026-11-02, delivered 2026-11-03; eight adapted historical programs: WKDAY-00 rev3 PASS; HAMM-00 rev1 COMPILE FAIL recorded `my-gap`; HANG-00 rev1 PASS; AMAZ-00 rev1 PASS; TICT-00 rev1 PASS (hop 9); LIFE-00 rev1 PASS (hop 13, docs § 13); DHRY-00 rev1 PASS (hop 19, docs § 14, rev0 order FAIL kept as written); FFT-00 rev1 **PASS** (hop 22, docs § 15 — lane B `build/fc01/corp10`, RUN capture 507 B byte-identical to the derived raw sha `87acbf18…`, double-run byte-equal) — **8 of 8 landed or recorded; NO ACTIVE ROUND**; successor without an operator instruction records state and STOPS; standing PROPOSALS: HAMM-00 rev2 subtraction loop, FCPS1..3 SPECIMENS registration at a gate hop, README § 5.1 rights review for the eight sources (due), E2E-50/P3 shortlist (`spec/lab-evidence/e2e50-p2/REPORT.md` § 5) — see `## Next action` and `LEARNINGS.md` § "…FFT-00 hop 22")
 
 TICT-00 hop 7 landed step 3 only (2026-11-03, continuation chain hop 7): the hop-6 draft was
 converted (CRLF + bare ^Z, 499 lines, 9300 B, widest 64 <= 71, no in-literal apostrophes) and
@@ -213,7 +247,22 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### Hop-6 closure status (2026-11-04; start HEAD `cc164a2`) — coverage cites FIXED rc=0; post-coverage FULL gate rc=0 (1186/0, 181/181, 9/9, 136 rows 0/0, census 15/0/26/0, prose 5; `build/gate-e51p1-reg2.log`); HAMM-00 rev1 UNMODIFIED rerun: DIV blocker GONE — COMPILE rc=0/LINK/RUN PASS, **ASSERT FAIL `missing [] / extra ['']`** (one extra blank line, blocker LOCATED + recorded in docs/functional-results.md NEW § 16 + § 1 row (both written, uncommitted)); attr `undefined`, expectation untouched, nothing laundered (`build/fc01/hamm-rerun/`). Full ACTUALS: `LEARNINGS.md` § "E2E-51/P1 hop 6 (closure)".
+### E2E-51/P1 CLOSED — NO ACTIVE ROUND (2026-11-04, closing session at HEAD `0c61c8d`): successor confirms HEAD/tree, runs `/handoff verify`, records state and **STOPS** — await an operator brief
+
+The hop-6 closure contract below (kept as written) is DONE in full: (1) prose check run
+STANDALONE, exit code captured DIRECTLY (no pipeline): **rc=0**, 5 active files clean,
+nothing to fix (`build/prose-check-e51p1-close.log`); (2)+(3) close prose in HANDOFF.md
+item-6 + this file (Current phase + Next action → CLOSED); (4) explicit-path commit of the
+durable files only (never `handoff.config.json`, no push), then attest via handoff_finalize.
+**Standing PROPOSALS (NEVER authorizations):** HAMM-00 rev2 **derivation fix** — add the
+`fed0:` loop-entry skip to `reference.py:_Hamm00Port` and re-derive the expectation (the OLD
+"rev2 subtraction-loop division" workaround is OBSOLETE: variable-divisor division now
+compiles byte-exact; do NOT propose or implement it); FCPS1..3 SPECIMENS registration at a
+gate hop; README § 5.1 rights review for the eight corpus sources (due); E2E-50/P3 shortlist
+(`spec/lab-evidence/e2e50-p2/REPORT.md` § 5); fc01-fileio/ONUNIT-00 stay CANCELLED. Ledger
+ENDS **C355**.
+
+### SUPERSEDED (kept as written; COMPLETED by the closing session above): Hop-6 closure status (2026-11-04; start HEAD `cc164a2`) — coverage cites FIXED rc=0; post-coverage FULL gate rc=0 (1186/0, 181/181, 9/9, 136 rows 0/0, census 15/0/26/0, prose 5; `build/gate-e51p1-reg2.log`); HAMM-00 rev1 UNMODIFIED rerun: DIV blocker GONE — COMPILE rc=0/LINK/RUN PASS, **ASSERT FAIL `missing [] / extra ['']`** (one extra blank line, blocker LOCATED + recorded in docs/functional-results.md NEW § 16 + § 1 row (both written, uncommitted)); attr `undefined`, expectation untouched, nothing laundered (`build/fc01/hamm-rerun/`). Full ACTUALS: `LEARNINGS.md` § "E2E-51/P1 hop 6 (closure)".
 
 OWED EXACTLY (successor, closure remainder): root cause ACCEPTED: pinned source `fed0:` loop re-enters at a leading `put skip;` (line 131) so the feed over-ask prints blank-THEN-prompt; `reference.py:_Hamm00Port` is not statement-faithful for that loop (prompt-first) — the DERIVATION, not the compiler, missed one blank (`my-gap` port model; rev2 re-derivation is a PROPOSAL, not executed). Remaining: (1) `python3 tools/file_prose_check.py`, fix only flags on my new § 16 prose; (2) commit ONE commit explicit paths `spec/COVERAGE.tsv spec/census/coverage-stats.json docs/functional-results.md HANDOFF.md PROGRESS.md LEARNINGS.md` — NEVER handoff.config.json, no push; (3) close prose: HANDOFF item-6 -> `E2E-51/P1 CLOSED`, PROGRESS Current-phase/Next action -> CLOSED no-active-round (successor verifies, records, STOPS; standing PROPOSALS: HAMM-00 rev2 derivation fix adding fed0 loop-entry skip, FCPS1..3 SPECIMENS registration, README § 5.1 rights review, E2E-50/P3 shortlist); (4) re-commit durable files, attest via handoff_finalize, STOP after P1** — no P2/LOAN2/CREATE without an operator brief. Ledger ENDS **C355**. Uncommitted working tree AT THIS CHECKPOINT: the two COVERAGE cite fixes, coverage-stats.json, LEARNINGS § above, HANDOFF/PROGRESS prose; `handoff.config.json` = OPERATOR's, never touch/stage/revert. dune: `/home/john/.opam/default/bin/dune`, run from `ocaml/`.
 ### SUPERSEDED (kept as written): hop-5 pre-flight status
@@ -1617,17 +1666,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 253
-checkpoint-id: g253-de600cc77d3e
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 254
+checkpoint-id: g254-c4256dff95e9
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-04T09:28:20.511Z
+checkpointed: 2026-11-04T09:29:16.911Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a6251ff155bd506d89f8555247d5e88b674d50a2ef68b4dd773b73b12a38ee34
+source-progress: 96c7315954cce172e29891ad6d40465b6f7832af2f2b70753350f8f64a55fa19
 source-handoff: ae8029de545d1902b66036aa1e0c868a9b9ab98620b657a78ef89095f42430ea
-source-learnings: 4fa2e2e4d0eb7919868cc14865228cc9e3681ecdb86c8ea2d4f5f5f7289b3047
+source-learnings: 50809a74bffef9e7494c932abfb39f699f9cf02f6a1e71e12f570c06a0f3222e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1651,6 +1700,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a1a5c5-2b5c-7688-9802-a53fbb3c614a
+readiness-at: 2026-11-04T09:29:16.920Z
+readiness-checkpoint: g254-c4256dff95e9
 <!-- guard:end checkpoint -->
 
 ## Blockers
