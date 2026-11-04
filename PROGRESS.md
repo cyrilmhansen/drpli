@@ -3,7 +3,48 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — **E2E-52/P2 CLOSED** (2026-11-04; operator brief: DEC formal copy-in,
+## Current phase — **E2E-52/P3 IN FLIGHT** (2026-11-04; operator brief: LOAN2 progressive
+closure — compile `artefacts/LOAN2.PLI` toward whole-file byte-exactness by repeated
+blocker→evidence→fix cycles; multi-subround campaign; renewals autonomous at safe
+boundaries; no push; preserve operator `handoff.config.json` (dirty, never staged)).
+
+**Baseline VERIFIED this session:** HEAD `6c44d8d` (P2 close + guard finalize g276,
+attested); tree clean except the operator config edit; `dune build` rc=0, compiler
+`85bf7a26…` (same binary as the P2 registration gate); `artefacts/LOAN2.PLI` sha
+`7be23ba3…` (unchanged, last touched Phase 0); golden `golden/first/LOAN2/LOAN2.REL`
+sha `712cfcb2…` untouched; ledger ends C358; 181 claims.
+
+**Subround P3-1 (PUT FILE bare PAGE) — evidence complete, implementation OWED.** LOAN2
+blocker reproduced VERBATIM: `codegen: PUT FILE with a bare PAGE control item [TBD] (line
+99)`. **KEY FACT: the raise comes from the E2E-52/P1 lexical PRESCAN (`prescan_stmt`
+calls `match_put_list_lit` → `bare_ctl_put` for EVERY Sput BEFORE lowering), not from
+`lower_stmt`** — which is why LOAN2's PRINT/PAGESIZE OPENs at lines 54/56 (rejected by
+`open_mode_word`, `open_subset_keys` = FILE/INPUT/STREAM/OUTPUT/TITLE) do NOT surface:
+the prescan dies at 99 first. After PAGE lands, LOAN2's blocker will move — the next
+verified blocker is expected to be the PRINT/PAGESIZE opens at 54/56 unless an earlier
+prescan refusal intervenes. Evidence: DR golden `golden/e42p2c/E46N10/E46N10.REL`
+(384 B, CODE 0x3E=62, DATA 0x0A=10) pins the statement at 0023-0034 = `LXI H,*C(common
+0) / LXI D,0652 / LXI B,*CODE(0035) / CALL ?SIOOP / CALL ?PAGOP / CALL ?QIOOP` with
+LINK-CHAIN-EXT ?SIOOP@002D, ?PAGOP@0030, ?QIOOP@0033; continuation word 0x35 = CLOSE.
+COPYLPT:53 (`put file(printfile) page;` inside an ON ENDFILE unit) carries the SAME 18
+bytes behind a PRINT open (0215-00226 per probe record, predict_p2c self-test
+`COPYLPT:53 = 18`). PAGE **with a count** and PAGE+items are UNMEASURED (manual
+syntax permits, no object) — they must keep refusing BY NAME; LINE stays dr-refuses
+(E46N21, marker `control item LINE with a count, unmeasured on the named-file route
+[TBD] (line 12)` must survive any message edit); console `put page;` stays refused
+(N3_PAGE negative, my-gap, marker `PUT form`). ?PAGOP appears in NO claim id —
+`grep -in pagop spec/CLAIMS.md` is EMPTY; the 18-byte law lives in
+e2e42-p2c/RESULTS §4 + COVERAGE row `FILE.PUT_PAGE` (line 60, currently REFUSED/NONE).
+Registration plan follows the E46K1/E46K3 RETIRE precedent: move `E46N10` from REJECTS
+(`tools/e2e_gate.py:4477`, marker `bare PAGE control item [TBD] (line 11)`) + delete its
+NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
+1196→1197, gate AGAIN, census re-snapshot via `corpus_census.py --check` (COPYLPT and
+LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
+C359 derived ONLY from the existing measured evidence.
+
+**Next: see `## Next action` → E2E-52/P3 subround P3-1 steps (a)-(f).**
+
+SUPERSEDED-BY-ABOVE: ## Current phase — **E2E-52/P2 CLOSED** (2026-11-04; operator brief: DEC formal copy-in,
 E52G byte-exact closure; hop 2 registration session; E52G REGISTERED and panel-EXACT;
 ledger ENDS **C358**, NO new claim; **NO ACTIVE ROUND**)
 
@@ -402,7 +443,52 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P2 CLOSED — NO ACTIVE ROUND (2026-11-04; hop 2 registration session at HEAD `755bf1c` + this close-prose commit; E52G REGISTERED, panel 1196 byte-exact / 0 of 1196; ledger ENDS **C358**): successor confirms HEAD/tree (only the operator's `handoff.config.json` edit may be dirty), runs `/handoff verify`, records state and **STOPS** — await an operator brief. Standing PROPOSALS and constraints live in `HANDOFF.md` item 0 and the Current-phase record above (shortlist, NEVER authorizations); the P1-era "E52G joins `spec/DIVERGENT.txt`" proposal is OBSOLETE (G is byte-exact and registered). No push; goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2 blockers; operator `handoff.config.json` never staged; all rc captured DIRECTLY.
+### E2E-52/P3 subround P3-1 IN FLIGHT — bare PAGE on the named-file PUT; implementation OWED (2026-11-04; baseline HEAD `6c44d8d`; compiler `85bf7a26…`; NOTHING tracked authored yet except these durables)
+
+Execute IN ORDER, all rc captured DIRECTLY (never trailing pipelines):
+(a) write `spec/lab-evidence/e2e52-p3/PLAN.md` — pre-registered predictions for E46N10
+whole-file cmp against the golden (CODE 62/DATA 10; statement bytes 0023-0034 exactly as
+the reldump above; ?PAGOP LINK-CHAIN-EXT record at 0030; continuation 0035), the refusal
+boundaries kept (PAGE(count), PAGE+items, console PAGE, LINE), and the predicted LOAN2
+next-blocker direction (blocker moves PAST line 99; expected OPEN-PRINT at 54 unless an
+earlier prescan stop appears — record the ACTUAL verbatim message, predict only the
+DIRECTION) + the P3 progress table header; commit BEFORE any ocaml/ edit.
+(b) implement in `ocaml/lib/codegen.ml` ONLY: new `Sk_page` constructor on `put_skip`
+(2257); `file_skip_of` admits `Pi_ctl("PAGE", None)` (counted PAGE still None); in
+`file_items` refuse `Sk_page` with non-empty rest BY NAME (PAGE+items unmeasured) and
+update the None-node narrative (PAGE no longer "does not lower" — counted PAGE is the
+unmeasured remainder; keep the E46N21 marker substring intact); `bare_ctl_put` FILE arm
+admits ("PAGE", None) through `file_items` and refuses counted PAGE by name, update the
+final catch-all message; `lower_put_items_gen` match at ~11636 gains `| Sk_page ->` =
+`call_ext st "?PAGOP"` on the file route, LOUD refusal on the console route; add loud
+`Sk_page` arms to `lower_put_lit` (3389) and `lower_cat` (10923) for exhaustiveness —
+they are console-only and must never see PAGE. NO other file, NO new encoder (reuse
+`call_ext`). Preserve: file-named PUTs never reach the console route; layout ownership
+(prescan `Pfile` arm already sums only item literals — page adds 0 pool bytes).
+(c) `cd ocaml && eval "$(opam env)" && dune build` rc=0 (check NO new warnings — the
+warning profile is a checked artifact); compile probes/E46N10.PLI → `cmp` whole file vs
+`golden/e42p2c/E46N10/E46N10.REL` (expect rc=0 FIRST TRY per the model); recompile
+E46N1..N9,N11..N19 vs their goldens (all must stay byte-exact; `cmp` each).
+(d) focused refusals: `put page;` console refuses (N3_PAGE wording path), counted PAGE
+refuses by name, `put file(f) page list('A')` refuses by name, E46N21 marker intact.
+RE-RUN LOAN2 UNMODIFIED: capture the ACTUAL new first refusal VERBATIM + rc; do NOT fix
+it this subround — record in the evidence file.
+(e) full gate `timeout 3600 python3 tools/e2e_gate.py > build/gate-e52p3-prereg.log`
+expect rc=0 **1196/0** (E46N10 NOT yet on the panel); commit compiler arm + PLAN/RESULTS
+record; then registration hop: SPECIMENS+REJECTS/NEG_META move, `--update-inventory`
+(1196→1197, exactly ONE line), gate AGAIN to `build/gate-e52p3-reg.log` rc=0 1197/0,
+census re-snapshot via its OWN write path (record moved COPYLPT/LOAN2 msgs), COVERAGE
+`FILE.PUT_PAGE` row → SUPPORTED/EXACT:1 + coverage_check rc=0, claim **C359** written
+from measured bytes ONLY (E46N10 golden + COPYLPT:53 span + my new object),
+`--update-inventory` unchanged count afterwards, commit explicit paths.
+(f) update the P3 progress table (`spec/lab-evidence/e2e52-p3/PROGRESS.md`) + durables;
+renew ONLY at a safe boundary if context demands; then proceed to the NEXT blocker per
+the campaign loop — do NOT stop after PAGE.
+Constraints: no push; goldens never re-derived/overwritten; operator
+`handoff.config.json` never staged; no hardcoded LOAN2 names/bytes/positions in the
+compiler; predictions commit BEFORE compiler edits; every rc direct.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P2 CLOSED — NO ACTIVE ROUND (2026-11-04; hop 2 registration session at HEAD `755bf1c` + this close-prose commit; E52G REGISTERED, panel 1196 byte-exact / 0 of 1196; ledger ENDS **C358**): successor confirms HEAD/tree (only the operator's `handoff.config.json` edit may be dirty), runs `/handoff verify`, records state and **STOPS** — await an operator brief. Standing PROPOSALS and constraints live in `HANDOFF.md` item 0 and the Current-phase record above (shortlist, NEVER authorizations); the P1-era "E52G joins `spec/DIVERGENT.txt`" proposal is OBSOLETE (G is byte-exact and registered). No push; goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2 blockers; operator `handoff.config.json` never staged; all rc captured DIRECTLY.
 
 SUPERSEDED-BY-ABOVE (kept as written; its steps (a)-(e) were EXECUTED IN FULL this hop — registration `dca9219`, COVERAGE `90582a5`, LOAN2 blocker recorded UNCHANGED, RESULTS `755bf1c`, close prose + finalize this): ### E2E-52/P2 hop 2 OWED (2026-11-04; renewed 1/12 from checkpoint g274; arm `d67a263` landed+gated, durable commits `a365686`/`d67a263`/`c34c690`/`546c70a`+this; at HEAD only operator `handoff.config.json` may be dirty)
 

@@ -5,6 +5,57 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3 hop 1 (2026-11-04; campaign STARTED — LOAN2 progressive closure; subround P3-1 bare PAGE; baseline + root cause MEASURED, implementation owed)
+
+- **ACCEPTED (verified this session).** HEAD `6c44d8d` + guard g276 attested finalize; tree
+clean except operator `handoff.config.json` (maxRenewals 12, workingContextWindow 145000 —
+the config, never a document, is authoritative). `dune build` rc=0; compiler `85bf7a26…`
+identical to the P2-registration binary; `artefacts/LOAN2.PLI` `7be23ba3…`, golden
+`golden/first/LOAN2/LOAN2.REL` `712cfcb2…`, both untouched (last git touch Phase 0). LOAN2
+blocker reproduced VERBATIM rc=2: `codegen: PUT FILE with a bare PAGE control item [TBD]
+(line 99)`.
+- **ACCEPTED (root cause, read in code + tested in scratch).** The line-99 raise fires in
+the **prescan**, not in `lower_stmt`: `prescan_stmt`'s `Sput` arm calls
+`match_put_list_lit` → `bare_ctl_put` for every PUT in lexical order (the E2E-52/P1
+pool-typing walk), so any matcher raise aborts the whole program before ANY lowering.
+Consequence for LOAN2: its `open ... print pagesize(0)` / `print` at lines 54/56 are
+`open_mode_word` refusals (`open_subset_keys` lacks PRINT/PAGESIZE — verified live: a
+scratch if/else with those opens still refuses `OPEN option PRINT is outside`), but they
+NEVER SURFACE while the prescan dies at 99. A scratch LF file also confirmed [C303] again:
+reported line numbers miscount on LF input (refusal said line 4 for line 7) — always test
+refusal line numbers on CRLF sources.
+- **ACCEPTED (evidence inventory for PAGE).** `grep -in pagop spec/CLAIMS.md` is EMPTY — no
+claim states the PAGE byte law today; it lives in `spec/lab-evidence/e2e42-p2c/RESULTS.md`
+§4 + the `FILE.PUT_PAGE` COVERAGE row (currently REFUSED/NONE). `tools/reldump.py` on
+`golden/e42p2c/E46N10/E46N10.REL` (384 B, CODE 0x3E, DATA 0x0A): 0023 `21 <RELOC common
+0x0>` / 0026 `11 52 06` / 0029 `01` + word @002A backpatched via `LINK-SET-LC code 002A` +
+`RELOC code 0x35` / 002C `cd` @002D `LINK-CHAIN-EXT ?SIOOP` / 002F `cd` @0030
+`LINK-CHAIN-EXT ?PAGOP` / 0032 `cd` @0033 `LINK-CHAIN-EXT ?QIOOP`; 0035 = CLOSE (LXI H,
+*C; CALL ?CIOOP), 003B CALL ?STOPX, CODE size 003E. E46N1 (bare SKIP) is 2 bytes LONGER
+(64 code): `MVI A,01` — PAGE differs from SKIP by NO-MVI and ?PAGOP-for-?SKPOP; ?PAGOP
+carries NO count operand (unlike ?SKPOP). COPYLPT:53 (`put file(printfile) page;` inside
+`on endfile(sourcefile)`) is the same 18 bytes behind a PRINT open.
+- **ACCEPTED (panel mechanics).** The E46N family is already SPECIMENS (`tools/e2e_gate.py`
+~1280); E46N10 sits in REJECTS (~4477, marker `bare PAGE control item [TBD] (line 11)`)
+with NEG_META my-gap prose (~4054) — retirement follows the E46K1/E46K3 precedent (move
+row, keep a comment, `--update-inventory`). The negative `N3_PAGE` (`put page list('X');`
+console) and `E46N21` (LINE, dr-refuses, marker
+`control item LINE with a count, unmeasured on the named-file route [TBD] (line 12)`)
+both PIN message substrings — any message edit must keep those exact substrings alive.
+The census (`spec/census/corpus-census.tsv`, byte-verified `msg` by `--verify`) carries
+COPYLPT's PAGE refusal line and will need the sanctioned re-snapshot write path
+(`--check PREV.json`) once the refusal moves.
+- **PROPOSED (the P3-1 design, committed to before implementing).** `Sk_page` constructor
+on `put_skip` (a control KIND, not an encoded skip — never model PAGE as a SKIP); admit
+ONLY bare `Pi_ctl("PAGE", None)` as the LEADING statement option; counted PAGE, PAGE+items
+and console PAGE keep refusing BY NAME as unmeasured; `lower_put_items_gen` emits
+`call_ext st "?PAGOP"` on the file route between ?SIOOP and the items/close (zero new
+encoders). Predicted: E46N10 whole-file cmp rc=0 first try (the shape agrees with the
+pre-registered P2c model), LOAN2 blocker moves past 99 (expected toward OPEN PRINT at 54).
+- **LESSON (campaign mechanics, operator brief 2026-11-04).** This is an extended
+campaign: do NOT stop at PAGE, do NOT ask authorization per cycle, keep each cycle
+narrow/reversible, evidence-first; stop conditions 1-4 in the brief.
+
 ## E2E-52/P2 hop 2 (closure) (2026-11-04; E52G REGISTERED panel-EXACT 1196/0; COVERAGE SUPPORTED/EXACT:1; LOAN2 UNCHANGED; ROUND CLOSED)
 
 ACCEPTED (measured this hop, every rc captured DIRECTLY — no pipeline used anywhere):
