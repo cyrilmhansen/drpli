@@ -37,7 +37,7 @@ cpmsim, user-supplied and never packaged).
 | FLT-01 | B | rev1 SOURCE→…→ASSERT; rev2 SOURCE→DERIVATION→COMPILE | rev1 **PASS** (probe falsification); rev2 **FAIL** (deliverable) | `compiler` | rev1 compared via a variable — the proven cell route; rev2 puts `(a + b)` DIRECT in the compare and measures the computed-FLOAT-operand refusal (§ 7) |
 | EDIT-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (blocker-probe deliverable) | `compiler` | PUT EDIT counted `SKIP(1)` refused — only the bare form is sampled (§ 7) |
 | WKDAY-00 | B | rev1 COMPILE; rev2 →RUN→ASSERT; rev3 SOURCE→…→RUN→ASSERT | rev1 **FAIL**, rev2 **FAIL**, rev3 **PASS** (corpus program 1 of 8; § 8) | rev1 `compiler`; rev2 narrowed to `compiler` by the byte-level discriminating run | adapted BASIC Weekday; rev1 measured the `> 0` refusal, rev2 the silent `/365` low-byte miscompile (both `my-gap`), rev3 passes with complete-stream match, 10 lines, double-run byte-equal |
-| HAMM-00 | B | SOURCE→DERIVATION→COMPILE | **FAIL** (corpus program 2 of 8; § 9) | `compiler` | adapted BASIC Hammurabi; rev1 measures the variable-divisor DIV refusal verbatim (`my-gap`, first corpus use, flagged run-unwitnessed in the spec notes); expectation NOT laundered; LINK/RUN/ASSERT unrun |
+| HAMM-00 | B | SOURCE→RUN PASS, **ASSERT FAIL** | `undefined` | rev1 UNMODIFIED rerun 2026-11-04 (§ 16): DIV blocker GONE (COMPILE rc=0 12288 B, LINK/RUN pass, 6369 B); one extra blank line at the feed over-ask (§ 9 rev1 COMPILE FAIL kept as written; expectation never edited) |
 | HANG-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 3 of 8; § 10) | — | adapted BASIC Hangman; FIRST corpus lane-B RUN of numeric `GET LIST` + echo — the measured echo/framing laws held on my own binary; complete-stream match 329 lines; the 6369-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | AMAZ-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 4 of 8; § 11) | — | adapted BASIC Amazing (generation-and-print-only version — no walk INPUT phase, so PURE-PUT with bare `^Z`); flat 4×4 backtracker via goto state machine, declared draws with literal divisors 4/3/2; complete-stream match 18 lines; the 189-B raw RUN stream equals the independent simulator's raw bytes exactly; double-run byte-equal |
 | TICT-00 | B | SOURCE→…→RUN→ASSERT | **PASS** (corpus program 5 of 8; § 12) | — | adapted BASIC Tic-Tac-Toe (TICTACTOE2 — chosen because TICTACTOE1 never terminates); FIRST lane-B RUN of the 121-label flat goto machine with variable-subscript stores, `call` inside the machine and the occupied-retry loop-back; numeric choice + move `GET LIST`s with echoes; complete-stream match 120 lines; the 1468-B raw RUN stream equals the independent simulator's raw bytes exactly; THREE `THAT SQUARE IS OCCUPIED.` messages at lines 86/91/96; double-run byte-equal |
@@ -890,3 +890,39 @@ promoted to DR claims, the ledger still ends at C352. Rights review per
 README § 5.1 remains an explicit follow-up deliverable (all sources are
 third-party, unverified licences recorded as such, third-party bytes never
 tracked).
+
+## 16. E2E-51/P1 hop 6 (2026-11-04): HAMM-00 rev1 rerun UNMODIFIED on lane B — DIV blocker GONE, new ASSERT blocker recorded (functional, not a DR claim)
+
+After arms 1-3 landed variable-divisor DIV (`[C353]`-`[C355]`, goldens
+`golden/e51p1/`, gate 1186/0), HAMM-00 rev1 was rerun EXACTLY as pinned — source
+`cc25fe75021f…` re-verified against § 9, spec and expectation UNTOUCHED —
+`python3 tools/functional_runner.py --tests HAMM-00 --evidence build/fc01/hamm-rerun
+--json-out build/fc01/hamm-rerun/records.json` at HEAD `cc164a2`, compiler
+`f172d8eae2a7…`, evidence `build/fc01/hamm-rerun/HAMM-00-20261104T092049Z/lane-B/`.
+
+**ACTUALS verbatim:** SOURCE pass (8362 B), DERIVATION pass (derivation == spec),
+**COMPILE pass rc=0** (code=3996 data=50 items=6091, 12288 B) — the § 9 blocker
+`codegen: DIV by non-constant [TBD]` is RESOLVED for all four variable-divisor
+store sites; LINK pass `HAMM00.COM 13440 B sha256=9daeaa52… parse_undefined=[]`;
+RUN pass `done`, **6369 console bytes**; **ASSERT FAIL** `assert-mismatch —
+missing lines [] / extra lines ['']`; verdict `PASS=0 FAIL=1`, attribution
+`undefined` (README 9.2: narrowing needs a discriminating run). The rev1 COMPILE
+FAIL record § 9 stands as written; nothing was laundered and the expectation was
+NOT edited to chase a PASS.
+
+**New blocker, located (accepted diagnosis, this session):** exactly ONE line
+differs in shape — the ACTUAL emits a BLANK LINE BEFORE the feed over-ask
+re-prompt (got lines 64-66: ` 1587 BUSHELS OF GRAIN. NOW THEN,` / `''` /
+`HOW MANY BUSHELS ... 900`) where the derived expectation has it AFTER (want
+64-65). Root cause read in the pinned source vs the mirror: the `fed0:` loop
+(§ 9 triple) RE-ENTERS at a leading `put skip;` (source line 131), so every
+over-ask iteration prints blank-then-prompt; `reference.py:_Hamm00Port`'s
+`while True` loop puts the prompt FIRST and skips only inside the THINK-AGAIN
+arm — the mirror is not statement-faithful for this loop, so the DERIVATION,
+not the compiler, missed the blank (the runtime stream matches the source
+semantics exactly; all 10 years, every value and the `NOT TOO BAD` verdict line
+agree). Classification: `my-gap` in the port derivation model; sell/plant/buy
+re-ask paths match (their loops have no leading skip). A rev2 expectation
+re-derivation (adding the loop-entry skip) is a PROPOSAL, NOT executed here —
+correcting derived evidence requires its own measured, traceable commit.
+No DR claim is promoted from any functional run; the ledger still ends at C355.

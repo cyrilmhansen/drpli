@@ -42,8 +42,7 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
      `spec/lab-evidence/e2e48-*/` and `spec/lab-evidence/e2e49-p{1,2,3}/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
-6. **ACTIVE ROUND: E2E-51/P1** (operator brief 2026-11-04) — oracle DONE (12/12 accepted,
-   goldens+RESULTS `b404b7e`); implementation arms OWED. See `## ACTIVE ROUND — E2E-51/P1: ALL 3 ARMS LANDED, 12/12 GOLDENS BYTE-EXACT; REGISTRATION OWED (2026-11-04; HEAD `ee589cc`; ledger ends C352)
+6. **ACTIVE ROUND: E2E-51/P1 — CLOSURE IN FLIGHT (hop 6; steps 1-2 DONE, step 3 half-done; 2026-11-04; start HEAD `cc164a2`; ledger ends C355)
 
 Operator-authorized round (FIXED BINARY variable-divisor DIVISION). Oracle `b404b7e` (12 ok/12,
 no `dr-refuses`); arms: 1 `4ff1ea5` (Div parking + [N303] interleave, unmeasured classes refused
@@ -60,13 +59,14 @@ postdate `--update-inventory`; rel_parity is format-checked only); `spec/CLAIMS.
 **C352** — a first 3-edit append failed ATOMICALLY on an em-dash anchor, NOTHING was written.
 Claim decomposition and row proposals are PROPOSED (not yet law) in `LEARNINGS.md` § "E2E-51/P1
 hop 5 (partial)" — the successor executes steps 1-6 sequenced there.
-**EXACT NEXT (successor): registration ONLY** — claims from **C353** (RESULTS §2 ONLY); SPECIMENS
-for the 12 e51p1 probes in `tools/e2e_gate.py` + sanctioned `--update-inventory` (panel 1174 ->
-1186, then gate AGAIN for the post-update ACTUAL); census re-snapshot; COVERAGE rows; INVENTORY;
-then **HAMM-00 rev1 rerun UNEDITED** (its A-class store blocker is now byte-covered), record the
-lane verdict. **After P1 STOP — no P2/LOAN2/CREATE without an operator brief.** Never
-stage/clean/revert the operator's dirty `handoff.config.json`; no push; goldens never laundered.
-Full state: `PROGRESS.md` -> Next action + `LEARNINGS.md` § "E2E-51/P1 hop 4".
+**EXACT NEXT (successor): LOCATE the one extra blank line in the HAMM-00 ASSERT (reproduce the
+harness collapse-spaces-v1 comparison; witnesses + full closure contract in `PROGRESS.md` ->
+Next action "Hop-6 closure status" and `LEARNINGS.md` § "E2E-51/P1 hop 6 (closure)")**, record
+the ACTUAL verdict + new blocker in `docs/functional-results.md` § 16 + § 1 row (expectation
+NEVER edited; nothing laundered), then commit explicit paths (COVERAGE cite fix, stats, docs,
+durable files — never `handoff.config.json`), close prose, attest, **STOP after P1**. No
+P2/LOAN2/CREATE without an operator brief; no push; goldens never laundered.
+Full state: `PROGRESS.md` -> Next action + `LEARNINGS.md` § "E2E-51/P1 hop 6 (closure)".
 ## Last verified state — FC-01 OPERATOR OVERRIDE (2026-11-02; HEAD `6a35b9c`; ledger ENDS C352; hop 5 CANCELLED before it began; new priority = eight adapted historical programs; no OCaml byte changed)
 
 - **OPERATOR OVERRIDE (FC-01, 2026-11-02).** The planned HOP 5 work is CANCELLED: do NOT
@@ -1025,25 +1025,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 246
-checkpoint-id: g246-b6378b595913
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 1, remaining ~13088, session 01a1a3e3-666b-7402-832b-2af600e8c496)
-checkpointed: 2026-11-04T00:24:08.625Z
+checkpoint-generation: 253
+checkpoint-id: g253-de600cc77d3e
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3650, session 01a1a5c5-2b5c-7688-9802-a53fbb3c614a)
+checkpointed: 2026-11-04T09:28:20.511Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 40ee0adb19c8733eb78b5f2857ee53b47a432243b1b228ea60d4738160b1276c
-source-handoff: 5d28a3607d30390d6cbd4a55b756eb51ec9736eed2c64f3f9d4b89285c7c0869
-source-learnings: 1dc26c9009f024cebcf79860e87439dec798f485c34b61ae2c74039f1e427102
+source-progress: a6251ff155bd506d89f8555247d5e88b674d50a2ef68b4dd773b73b12a38ee34
+source-handoff: ae8029de545d1902b66036aa1e0c868a9b9ab98620b657a78ef89095f42430ea
+source-learnings: 4fa2e2e4d0eb7919868cc14865228cc9e3681ecdb86c8ea2d4f5f5f7289b3047
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a3e3-666b-7402-832b-2af600e8c496
-readiness-at: 2026-11-04T00:24:08.635Z
-readiness-checkpoint: g246-b6378b595913
 ### Last verified state
-guard level 1; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
@@ -1073,5 +1070,5 @@ guard level 1; checkpoint requested (renewal tool refresh)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-E2E-51/P1 registration ONLY, steps 1-6 exactly as sequenced in LEARNINGS.md § "E2E-51/P1 hop 5 (partial)" and PROGRESS.md ## Next action -> hop-5 status: (1) append claims C353..C355 to spec/CLAIMS.md (decomposition proposed there; law text derived ONLY from spec/lab-evidence/e2e51-p1/RESULTS.md §2, §3 = NOT-say bullets; anchor edits on verified file-tail bytes — the ledger still ends C352, nothing was written last session), commit explicit path; (2) register 12 e51p1 SPECIMENS in tools/e2e_gate.py (comment block modeled on e49p4) + sanctioned --update-inventory (panel 1174->1186) then gate AGAIN post-update into build/gate-e51p1-reg.log, commit tools/e2e_gate.py + spec/INVENTORY.txt; (3) census re-snapshot via tools/corpus_census.py --check spec/census/corpus-census.json, record ACTUAL counts (expect 15/0/26/0 metadata-only, measure); (4) COVERAGE rows EXPR.DIV_VAR_PARK / EXPR.DIV_RESULT_ADD / COND.DIV_EQ_TEST + E51H added to IO.PUT_LIST_FIXED probes (rows MUST postdate inventory; coverage_check rc=0; gate again); (5) HAMM-00 rev1 rerun UNEDITED (build/fc01/hamm-rerun, records.json; functional verdict, NOT a DR claim, never launder a FAIL); docs/functional-results.md rerun record; (6) close prose + attest, then STOP after P1 — no P2/LOAN2/CREATE without an operator brief. Sweep re-verified 12/12 byte-exact this session on rebuilt binary f172d8eae2a7 (ocaml/ unchanged ee589cc..HEAD). Never touch/stage/revert operator handoff.config.json (dirty, standing edit); no push; goldens never laundered.
+E2E-51/P1 hop 6 closure: coverage cites fixed REAL rc=0 (136 rows 0/0), full gate REAL rc=0 1186/0 (build/gate-e51p1-reg2.log), HAMM-00 rev1 UNMODIFIED rerun DIV blocker GONE but ASSERT FAIL (one extra blank, location owed) — see PROGRESS.md Next action + LEARNINGS.md hop 6. Successor: finish step 3 record, commit explicit paths, close prose, attest, STOP after P1.
 <!-- guard:end checkpoint -->

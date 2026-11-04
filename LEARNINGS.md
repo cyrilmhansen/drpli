@@ -5059,3 +5059,61 @@ FIX FIRST: run `python3 tools/coverage_check.py` alone, replace unresolvable cit
 new DIV rows (and the IO.PUT_LIST_FIXED provenance) with ids the loader does resolve — check
 `grep -n 'C072' spec/notes/*.md` for the format — then re-run to rc=0, run the full gate, and
 amend nothing else. census/coverage-stats.json is dirty from the check run; review before commit.
+
+## E2E-51/P1 hop 6 (closure) — coverage cites FIXED to rc=0; post-coverage gate rc=0; HAMM-00 rev1 UNMODIFIED rerun COMPILES/LINKS/RUNs, FAILs ASSERT — session closing mid-step-3 diagnosis (2026-11-04; HEAD `cc164a2` at start; renewals NOT yet used this chain-hop)
+
+MEASURED (accepted, this session):
+- Step 1 LANDED (uncommitted): `spec/COVERAGE.tsv` line 67 provenance `[C079]` -> `[C080]`
+  (resolvable `## C080` records the P071A add/parking law the row invokes for E51C; the E51K
+  interleave law lives in [C353] itself, already cited) and line 69 `[C072]` -> `[C343]`
+  (resolvable E2E-49/P3 measurement of the [C072] CA skip-byte family law — the family the row
+  says does NOT cover this shape; same replacement pattern as rows 134-137; legacy ids never
+  appear in provenance, per the [C346] CITATION CORRECTION precedent). Row BODIES keep their
+  legacy `[C072]`/`[C079]` prose mentions verbatim (PROTOCOL #2; C354's own title does the same).
+  `python3 tools/coverage_check.py` run ALONE with redirect: REAL rc=0, 136 rows 0/0
+  (stats unchanged: MEASURED 109, SINGLE_SAMPLE 19). The validator WRITES
+  `spec/census/coverage-stats.json` on every run — the dirty file is the machine-maintained
+  post-`216ea7a` snapshot (COND 27->28, EXPR 13->15, ACCEPTS 119->122, PARTIAL 22->24,
+  SUPPORTED 81->83, rows 133->136); commit it with the row fix.
+- Step 2 LANDED: FULL compile-tier gate run DIRECT `python3 tools/e2e_gate.py` -> REAL rc=0,
+  `build/gate-e51p1-reg2.log`: byte panel **1186/0 of 1186** (all twelve E51 specimens
+  BYTE-EXACT: 128 B x10, E51H/E51I 256 B), negative 181/181, divergence 9/9, coverage
+  **136 rows 0/0**, census 15/0/26/0, prose 5 active clean. `dune build` rc=0 (binary
+  `f172d8eae2a7…` unchanged; dune lives at `/home/john/.opam/default/bin/dune`, root is `ocaml/`).
+- Step 3 PARTIAL: HAMM-00 rev1 rerun **UNMODIFIED** (pin sha `cc25fe75021f…` re-verified against
+  § 9 BEFORE the run; triple untouched; git status clean under spec/functional, tools/, ocaml/)
+  lane B `build/fc01/hamm-rerun/` at HEAD `cc164a2`: SOURCE pass, DERIVATION pass,
+  **COMPILE pass rc=0 code=3996 data=50 items=6091 bytes=12288** (the rev1 blocker
+  `codegen: DIV by non-constant [TBD]` is GONE — arm 1/C353 covers all four sites), LINK pass
+  `HAMM00.COM 13440 B sha256=9daeaa52… parse_undefined=[]`, RUN pass `done` **6369 console
+  bytes**, **ASSERT FAIL** `assert-mismatch — missing lines [] / extra lines ['']` — verdict
+  `PASS=0 FAIL=1`, attr `undefined` (README 9.2). NOTHING laundered; expectation untouched.
+  Diagnosis so far (accepted): raw tail hexdump = `...TRIVIAL PROBLEMS.\r\n\r\nSO LONG FOR
+  NOW.\r\n\r\n\r\n`; `DERIVATION.lines.txt` has 211 lines, the split got stream 213 fields;
+  a naive (non-collapsed) field diff shows the FIRST textual difference at field 8 — want
+  `HAMURABI: I BEG TO REPORT TO YOU,` got `HAMURABI:  I BEG TO REPORT TO YOU,` (TWO spaces) —
+  which `collapse-spaces-v1` ERASES, so it is NOT the assert cause; the harness (collapsed)
+  reports exactly ONE extra blank line. **UNRESOLVED: WHERE the extra blank sits.** The got
+  stream shows NO blank before `TRY YOUR HAND...` while the want list starts `['','','',...]`;
+  if the banner region nets +1 blank there, the leading-3-blanks derivation may be the wrong
+  model vs [C352]'s first-statement `PUT SKIP` law; the tail alone nets -1 blank vs want.
+  OWED FIRST ACTION (successor): reproduce the harness comparison EXACTLY (apply
+  collapse-spaces-v1, align want 211 vs got fields) to LOCATE the single extra blank; classify
+  `my-gap (derivation model)` vs `my-gap (compiler emission)` vs `unmeasured` against
+  [C352]/[C174] and PASSed corpus tails (WKDAY/TICT/LIFE/DHRY/FFT included their exit-CRLF
+  blank in the model); record ACTUALS verbatim in `docs/functional-results.md` NEW § 16 +
+  update the § 1 HAMM-00 row (rev1 rerun: COMPILE/LINK/RUN now PASS, ASSERT FAIL, new blocker;
+  never edit the expectation). Then step 4: close prose (HANDOFF/PROGRESS/LEARNINGS), commit
+  explicit paths (spec/COVERAGE.tsv, spec/census/coverage-stats.json, docs/functional-results.md,
+  durable files — NEVER handoff.config.json), attest via handoff_finalize, STOP after P1.
+Constraints unchanged: no ocaml/ or harness byte changed THIS session; goldens untouched;
+ledger ends C355; functional runs are NOT DR claims; FAIL never laundered; no push; operator
+`handoff.config.json` dirty — untouched/unstaged; NEVER re-run the retry-DFS.
+- Step 3 DONE (accepted): extra blank LOCATED via harness-identical comparison (normalize_v1 +
+  split_stream + difflib): ONE insert, want line 64 — feed over-ask prints blank BEFORE the
+  re-prompt (source `fed0:` label re-enters at leading `put skip;`, HAMM-00.PLI line 131);
+  `reference.py:_Hamm00Port` while-loop puts prompt FIRST — derivation mirror not
+  statement-faithful for this loop (its other three re-ask loops have no leading skip and
+  matched). Compiler emission matches the source semantics; all 10 years/values/verdict agree.
+  Classified `my-gap` (port derivation model) — NOT a compiler gap, NOT a DR claim; rev2
+  re-derivation stays PROPOSED. Recorded in docs/functional-results.md § 16 + § 1 row.

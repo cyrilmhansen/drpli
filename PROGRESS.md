@@ -213,9 +213,9 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### Hop-5 registration status (2026-11-04; HEAD `216ea7a`) — steps 1-4 LANDED (`890b1e4` claims C353..C355, `5ae44ca` SPECIMENS + inventory 1174->1186 + post-update gate rc=0 1186/0, `c56aee2` census 15/0/26/0 unchanged, `216ea7a` COVERAGE 136 rows 0/0); OWED = post-coverage full gate run, step 5 HAMM-00 rev1 UNEDITED rerun + docs record, step 6 close prose + attest, then STOP after P1. Full contract: `LEARNINGS.md` § "E2E-51/P1 hop 5 (registration)".
+### Hop-6 closure status (2026-11-04; start HEAD `cc164a2`) — coverage cites FIXED rc=0; post-coverage FULL gate rc=0 (1186/0, 181/181, 9/9, 136 rows 0/0, census 15/0/26/0, prose 5; `build/gate-e51p1-reg2.log`); HAMM-00 rev1 UNMODIFIED rerun: DIV blocker GONE — COMPILE rc=0/LINK/RUN PASS, **ASSERT FAIL `missing [] / extra ['']`** (one extra blank line, blocker LOCATED + recorded in docs/functional-results.md NEW § 16 + § 1 row (both written, uncommitted)); attr `undefined`, expectation untouched, nothing laundered (`build/fc01/hamm-rerun/`). Full ACTUALS: `LEARNINGS.md` § "E2E-51/P1 hop 6 (closure)".
 
-Verification ACTUALS this session (accepted): `dune build` rc=0 (binary `f172d8eae2a7…`); sweep 12/12 whole-file BYTE-EXACT vs `golden/e51p1/`; gate post-`--update-inventory` rc=0 (`build/gate-e51p1-reg.log`: 1186/0, 181/181, 9/9, 133 0/0 pre-rows, census 15/0/26/0, prose 5); `coverage_check.py` REAL rc=1 — 2 errors (unresolvable claim cites C072/second id in the new DIV rows); the earlier "rc=0 136 rows 0/0" was a PIPELINE `$?` artifact and is FALSIFIED (see LEARNINGS correction). FIX FIRST: make those cites resolve, reach rc=0, then the full gate. Ledger ENDS **C355**. Unfinished: the full gate has NOT been re-run since `216ea7a` (coverage-count line will read 136); HAMM-00 rerun NOT yet executed; close prose not yet written. Renewal was refused at this boundary (checkpoint g247 already seeded a successor) — successor needs `/handoff` + `/handoff ready` before any renew.
+OWED EXACTLY (successor, closure remainder): root cause ACCEPTED: pinned source `fed0:` loop re-enters at a leading `put skip;` (line 131) so the feed over-ask prints blank-THEN-prompt; `reference.py:_Hamm00Port` is not statement-faithful for that loop (prompt-first) — the DERIVATION, not the compiler, missed one blank (`my-gap` port model; rev2 re-derivation is a PROPOSAL, not executed). Remaining: (1) `python3 tools/file_prose_check.py`, fix only flags on my new § 16 prose; (2) commit ONE commit explicit paths `spec/COVERAGE.tsv spec/census/coverage-stats.json docs/functional-results.md HANDOFF.md PROGRESS.md LEARNINGS.md` — NEVER handoff.config.json, no push; (3) close prose: HANDOFF item-6 -> `E2E-51/P1 CLOSED`, PROGRESS Current-phase/Next action -> CLOSED no-active-round (successor verifies, records, STOPS; standing PROPOSALS: HAMM-00 rev2 derivation fix adding fed0 loop-entry skip, FCPS1..3 SPECIMENS registration, README § 5.1 rights review, E2E-50/P3 shortlist); (4) re-commit durable files, attest via handoff_finalize, STOP after P1** — no P2/LOAN2/CREATE without an operator brief. Ledger ENDS **C355**. Uncommitted working tree AT THIS CHECKPOINT: the two COVERAGE cite fixes, coverage-stats.json, LEARNINGS § above, HANDOFF/PROGRESS prose; `handoff.config.json` = OPERATOR's, never touch/stage/revert. dune: `/home/john/.opam/default/bin/dune`, run from `ocaml/`.
 ### SUPERSEDED (kept as written): hop-5 pre-flight status
 
 Verified this session: `dune build` rc=0 (rebuilt binary `f172d8eae2a7…`; `ocaml/` identical
@@ -1617,17 +1617,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 249
-checkpoint-id: g249-066d18d39fbc
+checkpoint-generation: 253
+checkpoint-id: g253-de600cc77d3e
 checkpoint-kind: auto
 content-delta: none
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-04T00:43:35.609Z
+checkpointed: 2026-11-04T09:28:20.511Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 40ee0adb19c8733eb78b5f2857ee53b47a432243b1b228ea60d4738160b1276c
-source-handoff: 395faf1386342a3c2babb4235545a14ae55867ac87273f425ad4abf2a1bd19df
-source-learnings: 1dc26c9009f024cebcf79860e87439dec798f485c34b61ae2c74039f1e427102
+source-progress: a6251ff155bd506d89f8555247d5e88b674d50a2ef68b4dd773b73b12a38ee34
+source-handoff: ae8029de545d1902b66036aa1e0c868a9b9ab98620b657a78ef89095f42430ea
+source-learnings: 4fa2e2e4d0eb7919868cc14865228cc9e3681ecdb86c8ea2d4f5f5f7289b3047
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`

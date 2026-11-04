@@ -3,9 +3,9 @@
   "ABI": 1,
   "AGG": 8,
   "BUILTIN": 1,
-  "COND": 27,
+  "COND": 28,
   "DECL": 21,
-  "EXPR": 13,
+  "EXPR": 15,
   "FILE": 12,
   "IO": 9,
   "LEX": 3,
@@ -19,35 +19,35 @@
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 107,
-  "SINGLE_SAMPLE": 18,
+  "MEASURED": 109,
+  "SINGLE_SAMPLE": 19,
   "UNREVIEWED": 5
  },
  "dr": {
-  "ACCEPTS": 119,
+  "ACCEPTS": 122,
   "ACCEPTS_DEFECT": 1,
   "REJECTS": 9,
   "UNTESTED": 4
  },
- "manual_none": 110,
+ "manual_none": 113,
  "manual_unverified": 0,
  "mine": {
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 3,
-  "PARTIAL": 22,
+  "PARTIAL": 24,
   "REFUSED": 23,
-  "SUPPORTED": 82
+  "SUPPORTED": 83
  },
  "no_parity": 30,
- "no_runtime": 103,
+ "no_runtime": 106,
  "perimeter": {
   "C": 2,
   "M": 16,
   "OPEN": 1,
-  "S": 114
+  "S": 117
  },
- "rows": 133,
- "single_sample": 18,
+ "rows": 136,
+ "single_sample": 19,
  "unreviewed": 5,
- "with_boundary": 133
+ "with_boundary": 136
 }
