@@ -1809,6 +1809,100 @@ SPECIMENS.update({
     "E51L":  ("probes/E51L.PLI",  "golden/e51p1/E51L/E51L.REL"),
 })
 
+# ---------------------------------------------------------------------------
+# [E2E-52/P1] ROUND BANK -- SCOPE-AWARE DEC POOL PRESCAN (the LOAN2 blocker
+# class): cross-scope homonyms and pool dedup across scope boundaries.  Ten
+# probes, pre-registered at d1fbc16 (BEFORE any oracle call;
+# `git log --format=%h -- probes/E52A.PLI | tail -1`; BASELINE-MINE.txt
+# recorded at HEAD 99845ae against binary f172d8ea: A/E/F/J already ACCEPTED
+# byte-exact at shas 8217250a/4fe89c7d/8c09f2e7/0a3f6b6a; B/C/D/G/H/I refused
+# rc=2 `codegen: variable <n> declared with conflicting kinds; decimal pool
+# prescan needs one unambiguous type map [TBD]'), measured in ONE grouped
+# campaign 10 ok / 10 at tag e52p1 (goldens + RESULTS.md committed TOGETHER at
+# e14d180, predictions untouched) -- NO dr-refuses at all, every .PRN printing
+# NO ERROR(S) IN PASS 1 and NO ERROR(S) IN PASS 2; SIX my-gap rows (B,C,D,G,H,I)
+# and FOUR already-byte-exact control rows (A,E,F,J), so HYPOTHESES
+# falsification condition 3 is NOT triggered.
+#
+# Models: H1-lexical CONFIRMED on all five pre-registered discriminators
+# (B DATA 0x10, C CODE inner binary-immediate, D DATA 0x0A, H CODE/reloc binds
+# THROUGH mid, I DATA 0x15 = lexical prescan_cond); H3-global-outer FALSIFIED
+# five times; H4-per-scope-pool FALSIFIED twice (A,F -- the DEC pool is ONE
+# program-wide IMAGE-keyed table, dedup scope-blind AND name-blind, cells laid
+# in source order ahead of the variables across scope boundaries); H2 (own
+# rows only) falsified for DR by E and kept as the invariant the fix must not
+# introduce.  ONE MISS kept verbatim (PROTOCOL #2): E52G predicted "approx 16"
+# DATA, measured 20 (0x14) -- DR gives a DEC formal NO value cell: 2-byte
+# arg-pointer block @0x0B -> 5-byte main-side copy-in temp @0x0D, callee
+# 2-byte POINTER cell @0012; reported, never fitted (RESULTS §1, §5).
+#
+# THE ARM: 6a4c554 implements pre-registered PLAN §4 as ONE small structured
+# change in ocaml/lib/codegen.ml: pdec_ctx gains pd_own (per-proc OWN rows via
+# the SAME rt_to_vk); pd_vars starts as TOP rows only; the prescan Sproc arm
+# recurses with pd_vars = own @ cx.pd_vars (assoc first-match = the lexical
+# shadow lowering already performs); the conflicting-kinds refusal KEPT verbatim
+# for a clash WITHIN one block's own rows; pd_img/pd_str/pd_fl/pd_procs/
+# pd_fl_procs/const_cells/pool base INTACT; bind untouched.  Post-fix sweep
+# (RESULTS §5, binary 2785a1b6, re-measured at ceb302c): the NINE rows below
+# whole-file BYTE-EXACT vs goldens; controls A/E/F/J byte-IDENTICAL to their
+# BASELINE shas; E51A..L regression sweep 12/12.
+#
+# E52G is DELIBERATELY NOT REGISTERED: it COMPILES now (the prescan blocker is
+# gone) and its POOL half is byte-identical to DR, but the whole file is not --
+# the residual is EXACTLY the §2.3 formal cell map (main-side copy-in temp), a
+# distinct lowering component outside PLAN §4.  HYPOTHESES condition 4 fires
+# for this row: it stops at evidence + a PROPOSAL (a copy-in-temp arm at a
+# future authorized hop), NEVER fitted; the golden stays registered evidence in
+# golden/e52p1/E52G/ and my divergent object stays in ignored build state.
+#
+# BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from
+# this round -- RESULTS §3 makes NO runtime or link claim.
+#
+#   E52A      same-name SAME-type homonym, both scopes store 3: ONE 3-byte pool
+#             cell `00 03 00' @0000 loaded (`21 r0') by BOTH stores; DATA 0009.
+#             Image dedup is scope-blind ([C178] extends across scopes); H4
+#             falsified ([C357]).
+#   E52B      `i dec(4,2)' outer / `i dec(9,2)' inner: TWO cells, pool 3+5 bytes
+#             @0000/@0003, inner store typed at the INNER declaration (5-byte
+#             image, precision `3E 09', target 000B); DATA 0010 -- the LOAN2
+#             image, precision `3E 09', target 000B); DATA 0010 -- the LOAN2
+#             class in miniature ([C356], pool widths [C357]).
+#   E52C      DEC outer / `i fixed bin' inner: inner store is the BINARY
+#             immediate `21 03 00 / 22 r6' with NO ?DLDOP/?DSTOP in the nested
+#             procedure; DATA 0008 ([C356]).
+#   E52D      binary outer / `i dec(7,2)' inner: ONE 4-byte pool cell
+#             (`00 03 00 00', ceil((7+1)/2) [R507]); inner `21 r0 / 3E 07 /
+#             DLDOP / 21 r6 / 3E 07 / DSTOP'; DATA 000A ([C356], [C357]).
+#   E52E      NON-shadowed outer write from inside the procedure: pool 5 + `o'
+#             cell 5, DATA 000A -- outer declarations stay VISIBLE (the fix
+#             must ACCUMULATE, not replace); falsifies H2 for DR ([C356]).
+#   E52F      different names `a'/'b', same type, same image: ONE pool cell
+#             loaded by both stores -- dedup is also NAME-BLIND ([C357]).
+#   E52H      three scopes, innermost declares NO x: binds THROUGH mid to the
+#             MID declaration (5-byte image, `3E 09', target 000B -- identical
+#             operand pair to mid's own store, NOT main's); DATA 0010 ([C356]).
+#   E52I      three scopes, CONSUMER row: mid declares x dec(9,2) but stores
+#             nothing; innermost `if x > 0 then x = 1' -- condition literal 0
+#             and store literal 1 BOTH sized at the lexically resolved dec(9,2);
+#             pool 3+5+5, DATA 0015 (21): the prescan_cond consumer shares the
+#             lexical map ([C356], pool order [C357]).
+#   E52J      NO shadowing control: `d dec(9,2)', three distinct 5-byte pool
+#             cells (3, 0, 1) + d @000F, DATA 0014 -- settled single-scope pool
+#             laws ([C178], [R507], [R608], [C179]) validated before any other
+#             verdict; my BASELINE object was already byte-identical.
+# ---------------------------------------------------------------------------
+SPECIMENS.update({
+    "E52A":  ("probes/E52A.PLI",  "golden/e52p1/E52A/E52A.REL"),
+    "E52B":  ("probes/E52B.PLI",  "golden/e52p1/E52B/E52B.REL"),
+    "E52C":  ("probes/E52C.PLI",  "golden/e52p1/E52C/E52C.REL"),
+    "E52D":  ("probes/E52D.PLI",  "golden/e52p1/E52D/E52D.REL"),
+    "E52E":  ("probes/E52E.PLI",  "golden/e52p1/E52E/E52E.REL"),
+    "E52F":  ("probes/E52F.PLI",  "golden/e52p1/E52F/E52F.REL"),
+    "E52H":  ("probes/E52H.PLI",  "golden/e52p1/E52H/E52H.REL"),
+    "E52I":  ("probes/E52I.PLI",  "golden/e52p1/E52I/E52I.REL"),
+    "E52J":  ("probes/E52J.PLI",  "golden/e52p1/E52J/E52J.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
