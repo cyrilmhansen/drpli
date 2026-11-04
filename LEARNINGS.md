@@ -5117,3 +5117,72 @@ ledger ends C355; functional runs are NOT DR claims; FAIL never laundered; no pu
   matched). Compiler emission matches the source semantics; all 10 years/values/verdict agree.
   Classified `my-gap` (port derivation model) — NOT a compiler gap, NOT a DR claim; rev2
   re-derivation stays PROPOSED. Recorded in docs/functional-results.md § 16 + § 1 row.
+
+## E2E-51/P2 (2026-11-04) — HAMM-00 rev2: reference-model `fed0:` correction LANDED, expectation RE-DERIVED, lane-B six-stage **PASS** + double-run byte-equal (functional, NOT a DR claim)
+
+Operator-authorized narrowly-scoped functional follow-up to E2E-51/P1 (the hop-6
+"rev2 DERIVATION fix" PROPOSAL, now authorized and executed). Scope discipline kept:
+`HAMM-00.PLI`, `ocaml/`, `tools/functional_runner.py`, console normalization and ALL
+historical evidence/goldens UNTOUCHED; § 16 rev1 FAIL evidence kept as written.
+
+- **Why rev1 was wrong (source-derived).** `HAMM-00.PLI` label `fed0:` (line 130)
+  STARTS with `put skip;` (line 131); the over-ask failure branch ends `goto fed0`
+  (line 142) and the initial entries (byok: `goto fed0` line 113; selok: fall-through)
+  enter the same statement — so the skip runs on EVERY fed0 entry (11 = 10 years +
+  1 retry over the declared 46-value script), NOT once per year. The rev1 mirror put
+  that skip OUTSIDE the `while True` feed loop (comment `# 400`): prompt-first retries.
+  The other three re-ask loops (`buy:`/`sell:`/`plant:`) start AT their prompt and were
+  (and stay) faithful — fed0 is the only statement-order discrepancy; the hop-6
+  diagnosis is CONFIRMED statement-by-statement.
+- **Correction (commit `a21a586`, BEFORE any compiler/emulator execution).** Minimal:
+  `self.skip()` moved as the FIRST statement inside the feed loop; failure-branch emits
+  unchanged; spine self-check `len(lines)` 211→212. `HAMM-00.json` `expected.console`
+  updated VIA SCRIPT from `reference.DERIVATIONS['hamm00']()` (L3: derived, never
+  captured); the writer was first proven byte-faithful (unchanged JSON round-trips
+  identically — this file has NO trailing newline, unlike WKDAY/TICT siblings); the JSON
+  text diff is exactly +1 line (`""`), 0 removed.
+- **Delta derived independently of the capture.** One fed0 retry exists: year 3, stock
+  s=1587, over-ask 1588, accepted 900. Each fed0 entry emits `\r\n` after a
+  CRLF-closed line -> exactly ONE extra normalized blank line at index 64 (between
+  ` 1587 BUSHELS OF GRAIN. NOW THEN,` and the retry prompt `HOW MANY BUSHELS ... 900`);
+  211 -> 212 lines; predicted from source semantics first, THEN corroborated: the § 16
+  preserved actual stream (runner-normalized `ASSERT.console.norm.txt`, 212 lines)
+  equals the rev2 derivation exactly — same single `''` insert at 64. Corroboration ≠
+  source: the capture was NEVER pasted into `expected`.
+- **Independent stage verification.** `--stages source,derivation`
+  (`build/fc01/hamm-rev2-srcder/`): SOURCE pass (8362 B, sha `cc25fe75…` unchanged),
+  DERIVATION pass (derivation == spec), record verdict UNKNOWN by stage ceiling (by
+  design), runner rc=0. reference.py full self-test (`python3 spec/functional/tests/
+  reference.py`, all 26 derivations) rc=0.
+- **Lane-B ACTUALS** (HEAD `a21a586`, compiler `f172d8eae2a7…`, cpmsim `5b882561…`):
+  `build/fc01/hamm-rev2/records.json` — ALL SIX STAGES PASS: SOURCE 8362 B; DERIVATION
+  derivation==spec; COMPILE rc=0 12288 B (code=3996 data=50 items=6091); LINK
+  `HAMM00.COM 13440 B parse_undefined=[]` (sha `9daeaa52…` — identical .COM to § 16,
+  as expected: neither source nor compiler changed); RUN `done` 6369 console bytes;
+  ASSERT complete-stream match **212 lines**; `verdicts: PASS=1 FAIL=0 BLOCKED=0
+  UNKNOWN=0`. Real exit code captured DIRECTLY to file (NO pipeline): rc=0, re-measured
+  on an independent third run `build/fc01/hamm-rev2-rccheck/` (rc=0, PASS).
+  Determinism `--double-run` `build/fc01/hamm-rev2-double/` rc=0 (direct): PASS; the
+  two `run.console.bin` captures byte-equal (`cmp` rc=0, raw sha256 `fddc5b2c…`).
+- **Regressions (real rc, direct capture).** Hostile suite `tools/test_functional_runner.py`
+  rc=0, **211/211** checks. FULL compile-tier gate `tools/e2e_gate.py` rc=0
+  (`build/gate-hamm00-rev2.log`): byte panel **1186/0 of 1186** (P1 panel intact),
+  negative 181/181, divergence 9/9, coverage 136 rows 0/0, census 15/0/26/0, prose 5
+  active clean. `tools/file_prose_check.py` standalone rc=0 after the § 17 prose
+  (`build/fc01/hamm-rev2-prep/prose-check-rev2.log`).
+- **MEASURED PRE-EXISTING dashboard failure, NOT caused by P2 (accepted diagnosis).**
+  `tools/test_functional_dashboard.py` rc=1, ONE failing check: integration
+  `unmapped COVERAGE rows are listed, not dropped` hardcodes `cited by NO capability:
+  **26**` while the tree renders **29**. Verified on a FULL `git archive` of P1 HEAD
+  `1fc37d5`: identical rc=1 failure; green rc=0 at pre-E2E-51 baseline `ac68352`; the
+  drift was introduced by E2E-51/P1 commit `216ea7a` (three byte-tier DIV rows
+  `EXPR.DIV_VAR_PARK`/`EXPR.DIV_RESULT_ADD`/`COND.DIV_EQ_TEST` carry no capability
+  mapping). The dashboard self-test is NOT part of the compile-tier gate, so P1's
+  rc=0 gate never witnessed it. Left UNFIXED here (out of P2 scope — no unrelated
+  changes); PROPOSED: refresh the stale fixture (26→29) at the next authorized tools
+  hop. Lesson kept: hardcoded aggregate counts in self-tests are drift-prone whenever
+  registration adds ledger rows — a gate hop SHOULD run ALL harness self-tests, not
+  only `e2e_gate.py`.
+- Classification: rev2 is a corrected DERIVATION + measured functional PASS; NO DR
+  oracle claim promoted; ledger still ends **C355**. Record:
+  `docs/functional-results.md` § 17 + § 1 row (commit `52f9a54`); § 16 kept intact.

@@ -3,7 +3,39 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-51/P1 **CLOSED** (2026-11-04; operator-authorized FIXED BINARY variable-divisor DIVISION round; closing session at HEAD `0c61c8d` + this close-prose commit; ledger ENDS **C355**; **NO ACTIVE ROUND**)
+## Current phase — E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
+
+E2E-51/P2 executed the P1 hop-6 "rev2 DERIVATION fix" proposal under an explicit
+operator brief. `reference.py:_Hamm00Port.run()`: the `fed0:` entry `self.skip()` moved
+INSIDE the feed loop (pinned source runs `put skip;` line 131 on EVERY entry incl.
+`goto fed0` retries; rev1 ran it once per year); failure-branch emits unchanged; spine
+assertion 211→212. `HAMM-00.json` `expected.console` RE-DERIVED VIA SCRIPT from
+`DERIVATIONS['hamm00']()` — never captured (L3): delta is EXACTLY one blank line at
+index 64 (year-3 over-ask: s=1587, asked 1588, retry 900), predicted from source
+semantics BEFORE execution, then corroborated by the preserved § 16 actual (equal
+212-line stream). `HAMM-00.PLI`/`ocaml/`/runner/normalization/evidence all UNTOUCHED.
+ACTUALS (rc captured DIRECTLY, never via a pipeline): stage pre-verify
+`--stages source,derivation` SOURCE+DERIVATION pass (build/fc01/hamm-rev2-srcder/);
+lane B `build/fc01/hamm-rev2/` **six-stage PASS** (COMPILE rc=0 12288 B code=3996,
+LINK `HAMM00.COM 13440 B parse_undefined=[]`, RUN 6369 B, ASSERT 212 lines,
+PASS=1 FAIL=0), runner rc=0; `--double-run` `build/fc01/hamm-rev2-double/` rc=0 PASS,
+captures byte-equal (`cmp` rc=0, sha `fddc5b2c…`); hostile suite rc=0 **211/211**;
+FULL compile-tier gate **rc=0** (`build/gate-hamm00-rev2.log`: 1186/0 of 1186, 181/181,
+9/9, 136 0/0, census 15/0/26/0, prose 5). Record: `docs/functional-results.md` § 17 +
+§ 1 row (`52f9a54`); § 16 rev1 FAIL kept intact. NO DR claim promoted.
+**Known pre-existing, MEASURED NOT-P2:** `tools/test_functional_dashboard.py` rc=1, one
+stale hardcoded check (`cited by NO capability: **26**` vs rendered **29**) — verified
+failing identically on a full archive of P1 HEAD `1fc37d5`, green at `ac68352`; the
+drift came from P1's `216ea7a` COVERAGE rows; refresh PROPOSED at a future authorized
+tools hop, deliberately NOT fixed here (no unrelated changes).
+Successor WITHOUT an operator brief: confirm HEAD/tree (only the operator's
+`handoff.config.json` edit may be dirty), `/handoff verify`, record state and **STOP**.
+No LOAN2/CREATE/FCPS registration without an operator brief; no push; goldens never
+laundered; NEVER re-run the retry-DFS.
+
+### Superseded phase (kept as written per PROTOCOL #2; its "rev2 DERIVATION fix" standing proposal is now LANDED by E2E-51/P2 above)
+
+## Previous phase — E2E-51/P1 **CLOSED** (2026-11-04; operator-authorized FIXED BINARY variable-divisor DIVISION round; closing session at HEAD `0c61c8d` + this close-prose commit; ledger ENDS **C355**; **NO ACTIVE ROUND**)
 
 E2E-51/P1 delivered, all measured: oracle `b404b7e` 12 ok/12 no `dr-refuses`; arms
 `4ff1ea5` (Div parking, [C353]), `7d17b63` (E51G ADD right-first+XCHG), `ee589cc` (E51I TEST
@@ -247,7 +279,23 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-51/P1 CLOSED — NO ACTIVE ROUND (2026-11-04, closing session at HEAD `0c61c8d`): successor confirms HEAD/tree, runs `/handoff verify`, records state and **STOPS** — await an operator brief
+### E2E-51/P2 CLOSED — NO ACTIVE ROUND (2026-11-04; HAMM-00 rev2 LANDED `a21a586`, record `52f9a54`): successor confirms HEAD/tree, runs `/handoff verify`, records state and **STOPS** — await an operator brief
+
+E2E-51/P2 is DONE in full and measured: reference-model `fed0:` correction + re-derived
+212-line expectation committed BEFORE execution (`a21a586`); SOURCE/DERIVATION
+pre-verified via stage ceiling (`build/fc01/hamm-rev2-srcder/`); lane B **six-stage PASS**
+rc=0 direct (`build/fc01/hamm-rev2/records.json`); `--double-run` PASS byte-equal
+(`build/fc01/hamm-rev2-double/`); hostile suite 211/211; FULL compile-tier gate rc=0
+(`build/gate-hamm00-rev2.log`, 1186/0 of 1186 — P1 panel intact); docs § 17 + § 1 row
+committed (`52f9a54`); § 16 rev1 FAIL kept intact; no DR claim promoted (ledger ENDS
+**C355**). **Standing PROPOSALS (NEVER authorizations):** refresh the stale
+`test_functional_dashboard.py` hardcoded `**26**` check (MEASURED pre-existing at P1 HEAD
+`1fc37d5`, drift from `216ea7a`; run ALL harness self-tests at future registration hops);
+FCPS1..3 SPECIMENS registration at a gate hop; README § 5.1 rights review for the eight
+corpus sources (due); E2E-50/P3 shortlist (`spec/lab-evidence/e2e50-p2/REPORT.md` § 5);
+fc01-fileio/ONUNIT-00 stay CANCELLED.
+
+### SUPERSEDED (kept as written; the "HAMM-00 rev2 derivation fix" proposal below was AUTHORIZED and LANDED as E2E-51/P2 above): E2E-51/P1 CLOSED — NO ACTIVE ROUND (2026-11-04, closing session at HEAD `0c61c8d`): successor confirms HEAD/tree, runs `/handoff verify`, records state and **STOPS** — await an operator brief
 
 The hop-6 closure contract below (kept as written) is DONE in full: (1) prose check run
 STANDALONE, exit code captured DIRECTLY (no pipeline): **rc=0**, 5 active files clean,

@@ -42,10 +42,46 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
      `spec/lab-evidence/e2e48-*/` and `spec/lab-evidence/e2e49-p{1,2,3}/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
-6. **NO ACTIVE ROUND — E2E-51/P1 CLOSED (2026-11-04; closure chain `890b1e4`→`0c61c8d` + this
-   close-prose commit; ledger ENDS **C355**; successor records state and STOPS)**
+6. **NO ACTIVE ROUND — E2E-51/P2 CLOSED (2026-11-04; HAMM-00 rev2 reference-model
+   correction LANDED: fix `a21a586`, record `52f9a54`; ledger ENDS **C355**; successor
+   records state and STOPS)**
 
-**E2E-51/P1 CLOSED — operator-authorized round (FIXED BINARY variable-divisor DIVISION).**
+**E2E-51/P2 CLOSED — operator-authorized functional follow-up (HAMM-00 rev2).** The P1
+hop-6 PROPOSED **DERIVATION fix** was executed under its own brief: in
+`reference.py:_Hamm00Port.run()` the feed-loop entry `self.skip()` moved INSIDE the
+`while True` — the pinned source's `fed0:` label starts with `put skip;`
+(HAMM-00.PLI line 131) and re-enters it on every `goto fed0` over-ask retry (line 142),
+so rev1's prompt-first retry was NOT statement-faithful for that one loop (buy/sell/
+plant retries match; `fedok:`'s post-loop skip was already correct). `HAMM-00.json`
+`expected.console` RE-DERIVED VIA SCRIPT from `DERIVATIONS['hamm00']()` — derived, never
+captured (L3): delta EXACTLY one blank line at index 64 (year-3 over-ask: s=1587, asked
+1588, retry 900; 211→212 lines), predicted from source semantics BEFORE any execution,
+then corroborated (the preserved § 16 actual normalizes to the SAME 212-line stream).
+`HAMM-00.PLI`, `ocaml/`, the runner, console normalization and all rev1 evidence/goldens
+UNTOUCHED. Lane B `build/fc01/hamm-rev2/`: **SOURCE, DERIVATION, COMPILE, LINK, RUN,
+ASSERT ALL PASS** (COMPILE rc=0 12288 B code=3996, LINK `HAMM00.COM 13440 B
+parse_undefined=[]`, RUN 6369 B, ASSERT complete-stream 212 lines; runner rc=0 captured
+DIRECTLY); stage pre-verify `build/fc01/hamm-rev2-srcder/` SOURCE+DERIVATION pass;
+`--double-run` `build/fc01/hamm-rev2-double/` rc=0 PASS, captures byte-equal (`cmp` rc=0,
+sha `fddc5b2c…`); hostile suite rc=0 211/211; FULL compile-tier gate **rc=0**
+`build/gate-hamm00-rev2.log` (byte panel **1186/0 of 1186** intact, 181/181, 9/9, 136 0/0,
+census 15/0/26/0, prose 5). Record `docs/functional-results.md` § 17 + § 1 row; § 16's
+rev1 FAIL kept intact as written. NO DR claim promoted (ledger ENDS **C355**).
+**SUCCESSOR: NO active round and NO pending instruction.** Confirm HEAD/tree (only the
+operator's `handoff.config.json` edit may be dirty), `/handoff verify`, record state and
+**STOP** — await an operator brief. No LOAN2, CREATE, FCPS registration or other work
+without one; no push; goldens never laundered. Standing PROPOSALS (shortlist, NEVER
+authorizations): refresh the STALE `tools/test_functional_dashboard.py` check
+`cited by NO capability: **26**` (renders **29** since P1's `216ea7a` DIV rows — MEASURED
+pre-existing at `1fc37d5`, NOT a P2 regression; run ALL harness self-tests at future
+registration hops); FCPS1..3 SPECIMENS registration at a gate hop; README § 5.1 rights
+review for the eight corpus sources (due); E2E-50/P3 shortlist
+(`spec/lab-evidence/e2e50-p2/REPORT.md` § 5); fc01-fileio/ONUNIT-00 stay CANCELLED; the
+OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
+`LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
+working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+
+### Superseded (kept as written; its **HAMM-00 rev2 DERIVATION FIX** proposal was AUTHORIZED and LANDED as E2E-51/P2 above): E2E-51/P1 CLOSED — operator-authorized round (FIXED BINARY variable-divisor DIVISION).**
 Oracle `b404b7e` (12 ok/12, no `dr-refuses`); arms: 1 `4ff1ea5` (Div parking + [N303]
 interleave, unmeasured classes refused BY NAME), 2 `7d17b63` (E51G ADD right-first+XCHG),
 3 `ee589cc` (E51I TEST consumer; skip byte `C2` — the `CA` prediction FALSIFIED, [C089]
