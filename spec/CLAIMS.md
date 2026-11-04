@@ -8518,3 +8518,43 @@ classified `unmeasured` rather than `dr-refuses`.
   ("do not expand"), so HYPOTHESES condition 4 fires for this row and the round STOPS at
   evidence + a PROPOSAL: a main-side copy-in-temp arm at a future authorized hop.  E52G is
   NOT registered as a gate specimen.
+
+## C359 — A BARE `put file(f) page;` IS A STATEMENT OPTION LOWERED TO EXACTLY 18 BYTES — THE [C304]-SHAPE ATTACH (`LXI H,*C(fname) / LXI D,0652 / LXI B,*CODE(<continuation>)` + `CALL ?SIOOP`) FOLLOWED IMMEDIATELY BY `CALL ?PAGOP` AND THE `CALL ?QIOOP` CLOSE: `?PAGOP` TAKES NO COUNT OPERAND AND NO `MVI A,n` PREAMBLE, AND THE WHOLE STATEMENT IS 2 BYTES SHORTER THAN THE BARE `skip` (E46N1 CODE 64 vs E46N10 CODE 62) BECAUSE PAGE CARRIES NO COUNT BYTE — A FILE PAGE IS A DISTINCT CONTROL KIND, NOT AN ENCODED SKIP (E2E-42/P2c goldens + COPYLPT:53 + E2E-52/P3-1; MEASURED)
+
+* **Measured — the statement bytes.**  `probes/E46N10.PLI` golden
+  `golden/e42p2c/E46N10/E46N10.REL` (384 B sha256
+  `75557545b43f2ad03f8f7ef93f0e5541d5958b7220699b64983a5a0ab0e31d61`, CODE `003E` = 62,
+  DATA `000A` = 10; [E2E-42/P2c]): at `0023-0034` the `put file(outf) page;` statement is
+  `21 r<common 0>` (`LXI H,*C(OUTF)`) / `11 52 06` (`LXI D,0652`) / `01` + word
+  `002A-002B` backpatched via `LINK-SET-LC code 002A` + `RELOC code 0x0035`
+  (`LXI B,*CODE`, continuation = the `close` statement at `0035`) / `CD` with
+  `LINK-CHAIN-EXT code 002D ?SIOOP` / `CD` with `LINK-CHAIN-EXT code 0030 ?PAGOP` /
+  `CD` with `LINK-CHAIN-EXT code 0033 ?QIOOP` (reldump read-out, PROTOCOL #6; the same
+  span is tabulated in `spec/lab-evidence/e2e52-p3/PLAN.md` §2, which was derived from
+  this object BEFORE any compiler byte of the P3-1 arm).
+* **Measured — corpus corroboration.**  `COPYLPT:53` (`put file(printfile) page;` inside
+  an `on endfile(sourcefile)` unit) carries the SAME 18 bytes behind a PRINT open at
+  `0215-0226` ([E2E-42/P2c] probe record; `predict_p2c.py` self-test span
+  `COPYLPT:53 = 18`).
+* **Measured — the SKIP contrast.**  `E46N1` (bare `skip`, byte-exact panel specimen,
+  CODE 64) is exactly 2 bytes LONGER than `E46N10` (CODE 62): the bare skip emits
+  `MVI A,01` before `CALL ?SKPOP`; PAGE emits NOTHING before `CALL ?PAGOP`, and
+  `?PAGOP` is chained name-only at its own site.  DR's object therefore separates PAGE
+  from SKIP at the KIND level, matching the manual syntax `PUT [FILE(fname)] [SKIP[nl]]
+  [PAGE[(p)]]` (`p93:10.3`) in which they are two different statement options.
+* **Measured — parity of MY lowering.**  At arm `adb749c` (binary sha256 `34e8321a…`)
+  `pli80c probes/E46N10.PLI` (source sha256 `7385c5ea…`) is whole-file `cmp` rc=0
+  against the golden — FIRST TRY, never fitted — and my reldump shows the first
+  `?PAGOP` `LINK-CHAIN-EXT` my compiler has ever emitted, at code `0030`, with the
+  continuation `SET-LC` at `0035` exactly as §2 above.  Registered as panel specimen
+  `E46N10` (INVENTORY 1197, post-registration gate REAL rc=0 1197/0,
+  `build/gate-e52p3-reg.log`).
+* **What this does NOT say** (`spec/lab-evidence/e2e52-p3/PLAN.md` §3, boundaries KEPT):
+  a PAGE **with a count** (`page(n)`) is UNMEASURED — no golden object carries one — and
+  refuses BY NAME; PAGE **followed by items** is UNMEASURED and refuses BY NAME;
+  a NON-LEADING PAGE is refused by the PARSER (`trailing PAGE control item before ';'`);
+  CONSOLE `put page` is UNMEASURED on any route and keeps its `PUT ITEM (PAGE) deferred`
+  refusal (negative `N3_PAGE` untouched).  `LINE` is outside this law entirely — DR
+  itself refuses it on a PUT (`dr-refuses`, E46N21 pass-2 `SYNTAX ?`).  BYTE TIER ONLY:
+  no object containing `?PAGOP` has been executed under cpmsim; there is no
+  `spec/RUNTIME.txt` row for this claim.
