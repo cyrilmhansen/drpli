@@ -5,6 +5,59 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-2 COVERAGE + C360 + RESULTS/PLAN LANDED (2026-11-05, session 01a1a849, renewal 9/12; ZERO ocaml/ byte; ledger ENDS C360)
+
+- **ACCEPTED (recovery).** HEAD `eb4bd80` (g301 block over `a952f4d`); tree clean except the
+  operator config; `dune build` rc=0, binary `748c434fafd8c01579b1…` — EQUALS the predecessor's
+  clean-rebuild hash, confirming the same source. RE-MEASURED this session: P086K whole-file
+  `cmp` rc=0 (512 B golden sha `c79f196bc3b4c236…`, probe sha `dab26a9a…`), P086J rc=0
+  (256 B sha `76524d50d426391e…`, probe sha `949104bd…`). Census LOAN2 message matches the
+  recorded VERBATIM blocker; IFACT census EXACT 384 B, LOAN1 EXACT 1536 B (no edit stmt).
+- **ACCEPTED (claim C360, `19ce1f4`).** Derived ONLY from re-verified bytes: this hop re-ran
+  `tools/reldump.py` on both goldens and read the chains fresh (`?DSTOP@005D`, `?QIOOP@0060`,
+  `?STOPX@0063`, DEF-CODE-SIZE `0065`=101, P086J table `80 00 00 09 02 03 04 81`, literal
+  `50 01 00 00`@0008, d cell 000C, DEF-DATA-SIZE 0010). Ledger ENDS **C360**. LESSON: NEVER
+  report the claims total from `grep -c '^## C' spec/CLAIMS.md` — the file starts mid-index
+  (C001-C078 live in `spec/notes/`); that grep counted 182 here and is NOT the ledger size.
+- **ACCEPTED (COVERAGE row, `9e897e8`).** `IO.PUT_EDIT`: PARTIAL→**SUPPORTED** (the row
+  convention, FILE.PUT_PAGE/PROC.DEC_FORMAL_COPYIN_CELLMAP precedent: SUPPORTED = every
+  specimen of the row byte-exact; refused forms belong in `boundary`), rel_parity EXACT:10→
+  **EXACT:12** (the historical 10 under its OWN counting convention + P086K + P086J — never
+  re-litigate a legacy count), probes `P086K,P086J,IFACT,R1009` (LOAN1 dropped — verified no
+  edit statement; N12_EMPTYFIX dropped — its refusal is a fixed-char STORE form, not evidence
+  for this row), corpus `IFACT,LOAN2`, confidence **MEASURED**, provenance
+  `[C090] [C282] [C360]` + note + PLAN/RESULTS. The FALSIFIED "measured on the IFACT/LOAN1
+  shapes" clause is kept VERBATIM as HISTORICAL (PROTOCOL #2). `coverage_check.py` rc=0 DIRECT
+  **139 rows 0/0** (`build/coverage-check-e52p3c-coverage.log`); stats via its own write path:
+  PARTIAL 24→23, SUPPORTED 87→88, MEASURED 111→112, SINGLE_SAMPLE 20→19; committed with the row.
+- **ACCEPTED (ordering lesson).** A row citing a NEW claim id cannot pass `coverage_check.py`
+  until the claim EXISTS in the ledger — so the claim commit MUST precede the COVERAGE commit
+  even when the owed-steps list names COVERAGE first (mirrors P3-1's actual chain `c410d18`→
+  `d3b8859`).
+- **ACCEPTED (evidence close, `0d93acc`).** `RESULTS.md` §P3-2 (predictions-vs-measured with
+  the P1 first-try falsification and the option-position probe-design falsification kept
+  verbatim; mechanism; LOAN2 moved-verbatim; NOT-say) + PLAN §5 cumulative progress-table
+  P3-2 row. `file_prose_check.py` rc=0 standalone twice
+  (`build/prose-check-e52p3c-claims.log`, `build/prose-check-e52p3c-evidence.log`), 5 active
+  files clean.
+- **P3-3 OWED NEXT (subround = picture `02`-record decode; exact):** (1) write
+  `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-3 — hypothesis space for the operands of
+  `02 04 00 05 | 39 39 2F 39 39` (p'99/99' in LOAN2's *S(0007) table): candidate roles for
+  `04`, `00`, `05` (picture length/flag/text length/justification); pre-register probes that
+  VARY ONE operand at a time (`p'9'`, `p'999'`, `p'ZZ9'`, `p'9V9'`, two pictures in one list,
+  picture beside `a(w)`), plus the codegen refusal removal site (fmt_spec catch) and the
+  boundary list; COMMIT THE PLAN BEFORE ANY ocaml/ BYTE. (2) ONE grouped oracle campaign
+  `--tag e52p3c` (or nearest unused) on the new probes under the standing LOAN2 brief; goldens
+  + RESULTS §P3-3 decode; classify every difference dr-refuses/my-gap/unmeasured. (3) arm +
+  sweep + LOAN2-rerun-VERBATIM (must move past the fmt_spec catch toward 147/177/195/212 or
+  the PRINT/PAGESIZE opens — record what it ACTUALLY prints, never fit). (4) registration +
+  claim C361 from MEASURED bytes only. Constraints unchanged: no push; existing goldens never
+  re-derived (NEW probes may ADD goldens); operator `handoff.config.json` never staged; all rc
+  DIRECT (never a trailing pipeline); `pli80c` positional args; EDIT controls only from the
+  statement-option position; state WHICH build a binary sha came from; never hardcode LOAN2;
+  renewals autonomous at safe boundaries (9/12 consumed, cap 12); campaign continues past
+  every blocker.
+
 ## E2E-52/P3-2 registration LANDED (E41X8 retired 179/179; P086K+P086J on the panel; gate rc=0 1199/0) (2026-11-05, session 01a1a836; NO ocaml/ byte this hop)
 
 - **ACCEPTED (recovery).** HEAD `2686bcc`; g298 block committed verbatim `95b1fa6`; `dune build`

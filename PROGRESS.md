@@ -443,7 +443,26 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-2 REGISTERED (gate rc=0 1199/0, negatives 179/179, census recorded); COVERAGE IO.PUT_EDIT + C360 + RESULTS/PLAN OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-2 registration LANDED" FIRST — it carries the measured ACTUALS, the FALSIFIED IFACT/LOAN1 picture clause and the exact owed steps 1-6)
+### E2E-52/P3-2 FULLY LANDED (C360 `19ce1f4`, COVERAGE `9e897e8` rc=0 139/0/0, RESULTS+PLAN `0d93acc`); SUBROUND P3-3 = PICTURE `02` DECODE OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-2 COVERAGE + C360 + RESULTS/PLAN LANDED" FIRST — it carries the measured ACTUALS and the exact P3-3 steps (1)-(4))
+
+Registration debt is CLOSED: claim C360 from MEASURED bytes only (ledger ENDS C360); `IO.PUT_EDIT`
+row SUPPORTED + EXACT:12 + MEASURED, falsified IFACT/LOAN1 clause kept verbatim as HISTORICAL,
+coverage_check rc=0 DIRECT 139 rows 0/0 (`build/coverage-check-e52p3c-coverage.log`), stats
+committed via own write path; RESULTS.md §P3-2 + PLAN §5 P3-2 row; prose rc=0 standalone twice.
+Chain: `19ce1f4` → `9e897e8` → `0d93acc` → durables. LESSONS: claim commit MUST precede the
+COVERAGE commit (validator resolves cites); never report the claims total via `grep -c '^## C'`
+(file starts mid-index).
+NEXT = P3-3, steps in that LEARNINGS §: (1) PLAN.md §P3-3 pre-registered and COMMITTED BEFORE
+any ocaml/ byte — decode operands of `02 04 00 05 | "99/99"` via one-operand-at-a-time oracle
+probes (`p'9'`, `p'999'`, `p'ZZ9'`, `p'9V9'`, two pictures, picture beside `a(w)`); (2) ONE
+grouped oracle campaign, goldens + RESULTS §P3-3 decode, classify all differences; (3) arm +
+sweep + LOAN2 rerun VERBATIM (record what it ACTUALLY prints, never fit); (4) registration +
+claim C361 from MEASURED bytes only. Constraints: no push; existing goldens never re-derived
+(NEW probes may add goldens); operator `handoff.config.json` never staged; all rc DIRECT; CRLF
+probes; EDIT controls only from the statement-option position; state WHICH build a sha came
+from; renewals autonomous (9/12 consumed, cap 12); campaign continues past every blocker.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-2 REGISTERED (gate rc=0 1199/0, negatives 179/179, census recorded); COVERAGE IO.PUT_EDIT + C360 + RESULTS/PLAN OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-2 registration LANDED" FIRST — it carries the measured ACTUALS, the FALSIFIED IFACT/LOAN1 picture clause and the exact owed steps 1-6)
 
 LANDED this hop: `95b1fa6` g298 block; `ff1c8f2` E41X8 retired (MEASURED rc=0 384B, NO golden,
 bytes never claimed; negatives 180→179); `60ed349` SPECIMENS P086K+P086J, `--update-inventory`
@@ -2362,19 +2381,33 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 301
-checkpoint-id: g301-e20d4d595bf0
-checkpoint-kind: manual
+checkpoint-generation: 303
+checkpoint-id: g303-4ffb83048f22
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-04T20:38:54.254Z
+checkpointed: 2026-11-04T21:00:27.557Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: dc1b6e63ed87c77941b7e4f375c2a98cf70f0fc9ff479649378700f83e507ab8
-source-handoff: 0fb392c0ea563e140cd6e34f1e444d0bf0be564bef7cb433d8b60086b37d9dd9
-source-learnings: f91864c23803850f6da37543821b21362fd8a5ec0d1268da737a799b5e967a11
+source-progress: 2123d1f56d264f4ba14b79e7d6a38d160cd6dbb02bbfb33a1840d1eb87da88a1
+source-handoff: 3006ece2854d0a054d2cbee9a0ae3776ea9a938c375f88abbb2e69ee7bbcf5e9
+source-learnings: 1fa6334bda86c46bc27616baaad6f18be16c23cb25f769cc24bba93026d9cbf6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: `
+next-action: ` = subround
+  **P3-3 = picture `02` decode**: PLAN §P3-3 COMMITTED BEFORE any ocaml/ byte; one-operand
+  oracle probes (`p'9'`, `p'999'`, `p'ZZ9'`, `p'9V9'`, two pictures, picture + `a(w)`); arm +
+  sweep + LOAN2 verbatim; C361 from measured bytes only. If a guard-block refresh lands
+  uncommitted, commit it VERBATIM first. Constraints: no push; existing goldens never re-derived
+  (NEW probes may add goldens); operator `handoff.config.json` never staged; all rc DIRECT;
+  renewals autonomous at safe boundaries (9/12 consumed, cap 12); campaign continues.
+
+0a-ter-3. **P3-2 REGISTERED; COVERAGE/C360 OWED (2026-11-05, successor of g298, renewal 9/12
+  consumed).** E41X8 retired MEASURED rc=0 (no golden, bytes never claimed; negatives 179);
+  SPECIMENS P086K+P086J registered; INVENTORY 1197→1199 EXACTLY TWO lines; census own write path
+  rc=0 with LOAN2's moved blocker recorded VERBATIM; FULL gate REAL rc=0 1199/0
+  (`build/gate-e52p3b-reg.log`). FALSIFIED: the `IO.PUT_EDIT` row's "picture measured on
+  IFACT/LOAN1" clause — LOAN1 has NO edit stmt, IFACT's has no picture. SUCCESSOR: read
+  `LEARNINGS.md` § "E2E-52/P3-2 registration LANDED" and execute `PROGRESS.md` → `## Next action`
   steps (1)-(6): COVERAGE rewrite + coverage_check rc=0, C360 from MEASURED bytes only, prose,
   RESULTS+PLAN §5, durables, then P3-3 (picture `02` decode, PLAN BEFORE bytes). HEAD `60ed349`;
   commit pending guard block first.
@@ -2705,9 +2738,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a836-0cfb-7427-a642-9c5a307e346a
-readiness-at: 2026-11-04T20:38:54.274Z
-readiness-checkpoint: g301-e20d4d595bf0
 <!-- guard:end checkpoint -->
 
 ## Blockers
