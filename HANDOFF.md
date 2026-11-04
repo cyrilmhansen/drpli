@@ -1254,22 +1254,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 280
-checkpoint-id: g280-da12fd08cb80
-checkpoint-kind: auto
+checkpoint-generation: 281
+checkpoint-id: g281-1edb131088b2
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3732, session 01a1a7a8-c699-7427-a642-9c3e44e4aad8)
-checkpointed: 2026-11-04T18:04:36.415Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-500, session 01a1a7a8-c699-7427-a642-9c3e44e4aad8)
+checkpointed: 2026-11-04T18:06:03.007Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7f16a150626ca512bad13679f40f955257f771386041682e2ff03d1fccb505d8
-source-handoff: be93fc2c716e6956dc37701edc7376efaf0190cfc348433b08e84e7e27482bb6
+source-progress: 30433a9e4950468fb08d25fb41986b9cc0f1bf400d12ab31c1d012d0ab55ddc7
+source-handoff: 149120e007bca9a85e0d703c14416baa4ea25a76544789a91382e9fcb40e9927
 source-learnings: 8f6ae9bbe94acb21a1fee5fe235425d8210a6f20986ca142fdb72ef7490b9e6f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a7a8-c699-7427-a642-9c3e44e4aad8
+readiness-at: 2026-11-04T18:06:03.024Z
+readiness-checkpoint: g281-1edb131088b2
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1337,5 +1340,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3 campaign, subround P3-1. PLAN.md pre-registered and committed (b4deba0); durables 5c21f87/3848a6c at HEAD. Execute PROGRESS.md -> ## Next action -> "P3-1 IN FLIGHT" steps (b)-(f) exactly (edit list B1-B7 there; evidence in LEARNINGS.md section "E2E-52/P3 hop 1" and spec/lab-evidence/e2e52-p3/PLAN.md). Rebuild first (dune build rc=0), implement only ocaml/lib/codegen.ml, verify E46N10 cmp rc=0 vs golden, focused refusals, prereg gate 1196/0, register (SPECIMENS + retire REJECTS/NEG_META rows, --update-inventory 1196->1197, gate 1197/0, census re-snapshot via corpus_census.py --check write path, COVERAGE FILE.PUT_PAGE -> SUPPORTED/EXACT:1, claim C359 from measured bytes only), then CONTINUE the campaign: recompile LOAN2, capture next verbatim blocker (expected OPEN option PRINT lines 54/56), plan subround P3-2. No push; operator handoff.config.json never staged; all rc captured DIRECTLY; goldens never re-derived; renewals autonomous at safe boundaries; do not stop after PAGE.
+E2E-52/P3-1: arm adb749c + durables/registration-script f15c976 committed; tree clean except operator handoff.config.json. Execute LEARNINGS.md § "E2E-52/P3-1 ARM LANDED + registration IN FLIGHT" owed steps (1)-(7) exactly: --update-inventory 1196->1197 (diff ONE line), reg gate rc=0 1197/0 to build/gate-e52p3-reg.log, COVERAGE FILE.PUT_PAGE -> SUPPORTED/EXACT:1 + coverage_check rc=0 139 0/0 + stats own write path, claim C359 from measured bytes ONLY, RESULTS.md + PLAN §5 table row, explicit-path commits. Then CONTINUE campaign: subround P3-2 = PUT EDIT (LOAN2:115 verbatim blocker), PLAN pre-registered BEFORE any compiler byte (start: extract LOAN2:115, read match_put_edit/put_kind_str refusal, search golden/e2e11 + E2E-8 evidence). Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries; do not stop after registration.
 <!-- guard:end checkpoint -->
