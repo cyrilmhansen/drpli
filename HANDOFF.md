@@ -42,18 +42,36 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
      `spec/lab-evidence/e2e48-*/` and `spec/lab-evidence/e2e49-p{1,2,3}/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
-6. **E2E-52/P1 IN FLIGHT (2026-11-04; operator brief: scope-aware DECIMAL pool prescan,
-LOAN2 defect).** Hop 2 LANDED the PRE-REGISTRATION at `d1fbc16` (probes/E52A..J +
-PLAN/HYPOTHESES/mkprobes + BASELINE-MINE, committed BEFORE any DR call; `golden/e52p1`
-verified absent; no compiler change; renewals 1/12). BASELINE MEASURED: B/C/D/G/H/I rc=2
-conflicting-kinds (LOAN2 class); A/E/F/J compile today rc=0 (shas in BASELINE-MINE);
-literal-to-DEC-formal route EXISTS (scratch S2). **SUCCESSOR: execute the exact hop-3
-contract in `PROGRESS.md` → `## Next action` → "E2E-52/P1 IN FLIGHT"** (ONE grouped
-`--tag e52p1` oracle campaign; RESULTS.md + goldens committed TOGETHER; then the
-evidence-gated scope-aware prescan per PLAN §4; LOAN2 rerun UNMODIFIED; gate;
-registration from **C356**; STOP after P1). Constraints: no push; preserve operator
-`handoff.config.json`; goldens/ignored evidence never overwritten; ledger ends **C355**;
-do not expand to other LOAN2 blockers.
+6. **E2E-52/P1 IN FLIGHT (2026-11-04; operator brief: scope-aware DEC pool prescan,
+LOAN2 defect).** Hop 2 LANDED the PRE-REGISTRATION at `d1fbc16` (probes/E52A..J + PLAN/
+HYPOTHESES/mkprobes + BASELINE-MINE, committed BEFORE any DR call). Hop 3 LANDED ORACLE +
+EVIDENCE at **`e14d180`**: ONE grouped `--tag e52p1` campaign **10 ok/10**, every `.PRN`
+`NO ERROR(S)` in both passes -> **zero `dr-refuses`**; six `my-gap` rows (B,C,D,G,H,I) and
+four rows already whole-file cmp-BYTE-EXACT vs mine (A/E/F/J — falsification condition 3
+NOT triggered). **H1-lexical CONFIRMED** on all five pre-registered discriminators (B DATA
+0x10, C CODE inner-binary-immediate, D DATA 0x0A, H CODE/reloc binds THROUGH mid, I DATA
+0x15 = lexical prescan_cond); **H3-global-outer falsified** five times; **H4-per-scope-pool
+falsified** twice (A,F — the DEC pool is ONE program-wide IMAGE-keyed table, dedup scope-
+and name-blind, source-order cells ahead of the variables across scope boundaries); **H2
+falsified for DR by E** and kept as the invariant my fix must not introduce. ONE MISS kept
+verbatim (PROTOCOL #2): E52G predicted "approx 16", measured **DATA 20 (0x14)** — a DEC
+formal gets NO value cell (2-byte caller arg-pointer block @0x0B -> main-side 5-byte
+copy-in temp @0x0D; callee 2-byte POINTER cell @0012; literal store through `2A r12` +
+`?DSTOP`); reported, never fitted. `ocaml/` UNTOUCHED this hop. Evidence:
+`spec/lab-evidence/e2e52-p1/RESULTS.md` §1-§4 + `LEARNINGS.md` § "E2E-52/P1 hop 3".
+**SUCCESSOR: execute the exact hop-4 contract in `PROGRESS.md` -> `## Next action` ->
+"SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
+per PLAN §4 — `pd_vars` = top rows only, per-proc own rows via the SAME `rt_to_vk`, the
+`Sproc` arm recurses with `pd_vars = own @ cx.pd_vars`, all dedup refs INTACT; build; E52
+sweep byte-exact with A/E/F/J UNCHANGED to their BASELINE shas; E51A..L 12/12; LOAN2 rerun
+UNMODIFIED — record the next blocker, do NOT fix; FULL gate BEFORE registration; SPECIMENS
++ sanctioned `--update-inventory` + gate AGAIN; claims from **C356** ONLY from RESULTS §2;
+COVERAGE rows AFTER the inventory; census via its own write path; ALL harness self-tests
+(stale dashboard `**26**` check is PRE-EXISTING — record, never silently fix); STOP after
+P1). Constraints: no push; preserve operator `handoff.config.json` (dirty, never
+staged/cleaned/reverted); goldens/ignored evidence never overwritten or laundered; ledger
+ends **C355**; do not expand to other LOAN2 blockers; NEVER re-run the retry-DFS; if a DR
+object contradicts the fix direction, stop at evidence + a corrected PROPOSAL.
 
 **E2E-51/P2 CLOSED — operator-authorized functional follow-up (HAMM-00 rev2).** The P1
 hop-6 PROPOSED **DERIVATION fix** was executed under its own brief: in

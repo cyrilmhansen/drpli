@@ -5238,3 +5238,75 @@ mid-vs-main resolution only via CODE/reloc (both models dedup onto an existing c
 hop-1 "pool 8 vs 6" phrasing FALSIFIED by design analysis, recorded here); E52I separates
 them via DATA size (21 vs 17). Next hop: ONE grouped `--tag e52p1` campaign, RESULTS.md +
 goldens committed together, then implementation strictly per evidence; STOP after P1.
+
+## E2E-52/P1 hop 3 (2026-11-04; ORACLE 10/10 ACCEPTED, goldens+RESULTS committed `e14d180`; implementation OWED; renewed 2/12)
+
+MEASURED / ACCEPTED (oracle evidence, byte tier only; everything below is from
+`golden/e52p1/*` + the `.PRN` listings, judged on COMPLETE `.REL` files with
+`tools/reldump.py` and whole-file `cmp`):
+- ONE grouped campaign exactly as pre-registered (`PLI_SRC=probes timeout 900 python3
+  oracle/batch.py E52A..E52J --tag e52p1 --switches '$L$D'`) -> **10 ok / 10**, rc=0,
+  27 s, internal batches 4/4/2, never `--reuse`, no timeout, no retry. Every `.PRN`
+  prints `NO ERROR(S) IN PASS 1` AND `NO ERROR(S) IN PASS 2` (grep -c = 2 on all ten) —
+  **ZERO `dr-refuses`**: DR accepts every cross-scope homonym shape in the bank, so the
+  LOAN2 blocker is unambiguously `my-gap`, and the `[C193](a)` DUPLIC-refusal precedent
+  does NOT transfer to shadowing.
+- Classification: six `my-gap` rows (B,C,D,G,H,I — DR objects exist, `BASELINE-MINE`
+  refuses each with the conflicting-kinds prescan blocker); four rows (A,E,F,J) are
+  **already whole-file cmp-BYTE-EXACT** vs mine (shas identical in mine and golden:
+  `8217250a`/`4fe89c7d`/`8c09f2e7`/`0a3f6b6a`) — HYPOTHESES falsification condition 3
+  NOT triggered, so the reused background laws ([C178] dedup, ceil((p+1)/2) [R507],
+  pool-before-automatics, source-order pool) are all valid before any other verdict.
+- **H1-lexical CONFIRMED on every pre-registered discriminator**: B DATA `0x10` (inner
+  store sizes its image at dec(9,2), precision byte `3E 09`, target `000B`); C CODE —
+  inner `fixed bin` store is `21 03 00 / 22 r6` (LXI H immediate + SHLD), NO ?DLDOP/
+  ?DSTOP in the nested proc at all, DATA `0008` both ways so only CODE separates (as
+  designed); D DATA `000A` (inner 4-byte dec(7,2) cell exists, outer store is the
+  binary immediate); H CODE/reloc — the innermost UNQUALIFIED write resolves THROUGH the
+  mid scope: `21 r3 / 3E 09 / DLDOP` + `21 rb / 3E 09 / DSTOP`, byte-for-byte the same
+  operand pair as MIDs own store (5-byte mid image, not main's 3-byte; mid cell, not
+  main's); I DATA `0015` = pool 3+5+5 → the **prescan_cond consumer** is lexical too
+  (condition literal `0` AND then-store literal `1` both sized dec(9,2)); G pool 3+5.
+- **H3-global-outer FALSIFIED** five independent times (B, C, D, H, I); **H4-per-scope
+  pool FALSIFIED** twice (A: same name/type/image in two scopes = ONE 3-byte cell;
+  F: different names, same image = ONE cell) — **the DEC pool is ONE program-wide,
+  image-keyed table: dedup is scope-blind AND name-blind**, and pool cells are laid in
+  source/statement order ahead of the variable cells ACROSS scope boundaries.
+- **H2-own-only falsified for DR by E** (inner writes the non-shadowed outer `o`: pool 5
+  + `o` 5 = DATA `000A`, my object already byte-exact); it survives as the INVARIANT my
+  fix must not introduce — the prescan environment is an ACCUMULATION (inner-first with
+  outer rows still reachable), not a replacement.
+- ONE MISS kept verbatim (PROTOCOL #2), E52G: predicted "DATA approx 16", measured **20
+  (0x14)**. The row's POOL half was right (3+5=8); what I had no evidence for is the
+  formal-cell map, which the probe was designed to REPORT and never fit: DR allocates NO
+  5-byte value cell for the DEC formal — caller side gets a 2-byte argument-pointer block
+  (`LINK-SET-LC data 000B` + `RELOC data 0x000D`) whose word addresses a **main-side
+  copy-in temp of the FORMALS precision** (5 B @`000D`), the callee gets a **2-byte
+  pointer cell** @`0012`, the copy-in is load-at-ACTUAL-precision (`3E 04`) + store-at-
+  FORMAL-precision (`3E 09`), the callee prologue is `5E 23 56 EB / 22 r12`
+  (MOV E,H / INX H / MOV D,(HL) / XCHG / SHLD) and the literal store reaches the target
+  through **`2A r12` (LHLD of the pointer cell)** before `?DSTOP`. 8 pool + 3 outer +
+  2 block + 5 temp + 2 pointer = 20. Consistent with [R709/R725]/[C131] pass-by-reference
+  decimals; the extra bytes are the block+pointer, which my "approx 16" omitted.
+- DEC precision descriptor measured across the bank: `MVI A,p` is the resolved PRECISION
+  (`04` for dec(4,2), `07` for dec(7,2), `09` for dec(9,2)) — already my behaviour (J
+  byte-exact).
+
+PROPOSED (implementation direction, pre-registered in PLAN §4, NOT yet made): add
+`pd_own : (string * (string * vkind) list) list` to `pdec_ctx` (ONE construction site,
+codegen.ml:13499); build per-proc own rows with the SAME `rt_to_vk`, keeping the
+conflicting-kinds refusal for a clash WITHIN one procedures OWN rows (a real ambiguity)
+while cross-scope shadowing becomes legal; `pd_vars` starts as TOP rows only; the prescan
+`Sproc` arm (~3300) recurses with `{ cx with pd_ret; pd_fl_ret; pd_vars = own @
+cx.pd_vars }` so `List.assoc_opt` first-match gives the same lexical shadow as
+`lower_proc` (~12198) `st.vars <- Vinfo.attach proc_rows (…) @ saved`. All ~15 pd_vars
+consumers are pure `List.assoc_opt` first-match (1865,1905,2914,2933,2965-2974,3112-3121,
+3162,3179,3198) so prepending is sufficient — verified by reading every site this hop.
+Invariants to hold: pd_img/pd_str/pd_fl dedup refs, pd_procs, pd_fl_procs, const_cells and
+the pool base INTACT; A/E/F/J byte-identical (shas above); [C179] demand == allocation;
+unsupported constructs still refused BY NAME; bind's dead `outer_rows` stays dead.
+NOT-SAY: nothing about runtime/link (no `.COM`, no RUNTIME row); nothing about CHAR/
+VARYING-vs-DEC or array-vs-scalar homonyms (stay `[TBD]`, must keep refusing); nothing
+about LOAN2 beyond its blocker — its rerun after the fix RECORDS the next blocker, never
+fixes it. Ledger still ends **C355**; claims start at **C356** and may be derived ONLY
+from RESULTS §2.

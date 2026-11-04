@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — **E2E-52/P1 IN FLIGHT** (operator-authorized 2026-11-04; scope-aware DEC pool prescan, LOAN2 class; pre-registration `d1fbc16`; oracle campaign OWED — see ## Next action). Prior: E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
+## Current phase — **E2E-52/P1 IN FLIGHT** (operator-authorized 2026-11-04; scope-aware DEC pool prescan, LOAN2 class; pre-registration `d1fbc16`; oracle 10/10 + goldens + RESULTS `e14d180`; IMPLEMENTATION OWED — see ## Next action). Prior: E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
 
 E2E-51/P2 executed the P1 hop-6 "rev2 DERIVATION fix" proposal under an explicit
 operator brief. `reference.py:_Hamm00Port.run()`: the `fed0:` entry `self.skip()` moved
@@ -279,7 +279,56 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P1 IN FLIGHT — PRE-REGISTRATION COMMITTED `d1fbc16`; ORACLE CAMPAIGN OWED (2026-11-04; hop 2 closed at context exhaustion; renewals 1/12 used)
+### E2E-52/P1 IN FLIGHT — ORACLE 10/10 ACCEPTED + goldens/RESULTS committed `e14d180`; SCOPE-AWARE PRESCAN IMPLEMENTATION OWED (2026-11-04; hop 3 closed at context pressure; renewals 2/12 used)
+
+Hop 3 LANDED (steps 1+2 of the contract below, `e14d180` — goldens + RESULTS committed
+TOGETHER BEFORE any compiler change; `ocaml/` UNTOUCHED, `dune build` rc=0 at session
+start, binary `f172d8ea…`): ONE grouped campaign `--tag e52p1` -> **10 ok / 10**, every
+`.PRN` `NO ERROR(S)` in both passes, **ZERO `dr-refuses`**. Verdicts in
+`spec/lab-evidence/e2e52-p1/RESULTS.md` §1/§2: six `my-gap` rows (B,C,D,G,H,I) and four
+rows already whole-file cmp-BYTE-EXACT vs mine (A/E/F/J — falsification condition 3 NOT
+triggered). **H1-lexical CONFIRMED** on all five pre-registered discriminators (B DATA
+0x10, C CODE `21 03 00 / 22 r6` inner binary immediate, D DATA 0x0A, H CODE/reloc binds
+THROUGH mid to `r3`/`rb` with `3E 09`, I DATA 0x15 = lexical prescan_cond); **H3
+global-outer FALSIFIED** five times; **H4 per-scope pool FALSIFIED** twice (A, F) — the
+DEC pool is ONE program-wide IMAGE-keyed table, dedup scope-blind and name-blind, cells
+laid in source order ahead of the variables across scope boundaries; **H2 falsified for
+DR by E** and kept as the invariant the fix must not introduce. ONE MISS kept verbatim
+(PROTOCOL #2): E52G predicted "approx 16", measured **20 (0x14)** — DR gives a DEC formal
+NO value cell: caller-side 2-byte arg-pointer block @0x0B -> main-side 5-byte copy-in
+temp @0x0D (load `3E 04` actual / store `3E 09` formal), callee 2-byte POINTER cell
+@0012, prologue `5E 23 56 EB / 22 r12`, store via `2A r12` + `?DSTOP`; reported, never
+fitted. Full ACTUALS + the read-off-source implementation sketch (all ~15 `pd_vars`
+consumers are pure `List.assoc_opt` first-match — verified by reading every site):
+`LEARNINGS.md` § "E2E-52/P1 hop 3".
+
+NEXT (hop 4, exact) = steps 3-5 of the hop-2 contract below, in that order:
+1. Implement PLAN §4 as ONE small structured change in `ocaml/lib/codegen.ml`: new
+   `pd_own : (string * (string * vkind) list) list` field in `pdec_ctx` (:1687, single
+   construction site :13499); per-proc own rows via the SAME `rt_to_vk`, clash refusal KEPT
+   for a duplicate-within-ONE-procedures-own-rows only; `pd_vars` = TOP rows only
+   (replace `proc_vk_rows` at :13432-13452); prescan `Sproc` arm (:3300-3320) recurses with
+   `{ cx with pd_ret = ret; pd_fl_ret = …; pd_vars = own @ cx.pd_vars }`. Keep pd_img/
+   pd_str/pd_fl/pd_procs/pd_fl_procs/const_cells/pool base INTACT; do NOT touch `bind`.
+2. `cd ocaml && eval "$(opam env)" && dune build`; compile all ten probes positionally to
+   `build/e52p1-mine/` and `cmp` whole-file vs `golden/e52p1/<n>/<n>.REL`: expect B,C,D,G,
+   H,I byte-exact and **A/E/F/J byte-identical to their BASELINE-MINE shas** (`8217250a`,
+   `4fe89c7d`, `8c09f2e7`, `0a3f6b6a`). If any E52 object is NOT byte-exact, or a control
+   moves, STOP at evidence + a corrected PROPOSAL (HYPOTHESES condition 4) — never fit
+   blindly. Then sweep `probes/E51*.PLI` (expect 12/12 vs `golden/e51p1/`) and commit the
+   arm ALONE.
+3. `artefacts/LOAN2.PLI` rerun UNMODIFIED — record the exact next blocker verbatim if it
+   advances, do NOT fix it. FULL gate `timeout 3600 python3 tools/e2e_gate.py` BEFORE
+   registration (expect 1186/0, 181/181, 9/9, 136 rows 0/0, census 15/0/26/0, prose 5);
+   then register: SPECIMENS block + sanctioned `--update-inventory`, gate AGAIN
+   post-update, claims from **C356** ONLY from RESULTS §2, COVERAGE rows AFTER the
+   inventory update, census via the tool's own write path, run ALL harness self-tests
+   (the stale dashboard `**26**` check is PRE-EXISTING — record, never silently fix).
+   Close prose + `/handoff` + attest; **STOP after P1**; no push; operator
+   `handoff.config.json` never staged; goldens never overwritten/laundered; NEVER re-run
+   the retry-DFS.
+
+SUPERSEDED-BY-ABOVE (kept as written): hop-2 contract, whose steps 1-2 are DONE:
 
 Hop 2 LANDED (committed `d1fbc16` BEFORE any DR call; `git log --format=%h --
 probes/E52A.PLI` proves order): `spec/lab-evidence/e2e52-p1/{PLAN.md,HYPOTHESES.md,
