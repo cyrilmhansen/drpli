@@ -1847,13 +1847,24 @@ SPECIMENS.update({
 # whole-file BYTE-EXACT vs goldens; controls A/E/F/J byte-IDENTICAL to their
 # BASELINE shas; E51A..L regression sweep 12/12.
 #
-# E52G is DELIBERATELY NOT REGISTERED: it COMPILES now (the prescan blocker is
-# gone) and its POOL half is byte-identical to DR, but the whole file is not --
-# the residual is EXACTLY the §2.3 formal cell map (main-side copy-in temp), a
-# distinct lowering component outside PLAN §4.  HYPOTHESES condition 4 fires
-# for this row: it stops at evidence + a PROPOSAL (a copy-in-temp arm at a
-# future authorized hop), NEVER fitted; the golden stays registered evidence in
-# golden/e52p1/E52G/ and my divergent object stays in ignored build state.
+# E52G WAS DELIBERATELY NOT REGISTERED in P1: it COMPILED (the prescan blocker
+# was gone) and its POOL half was byte-identical to DR, but the whole file was
+# not -- the residual was EXACTLY the §2.3 formal cell map (main-side copy-in
+# temp), a distinct lowering component outside PLAN §4.  HYPOTHESES condition 4
+# fired for this row: the round stopped at evidence + a PROPOSAL (a copy-in-temp
+# arm at a future authorized hop), NEVER fitted; the golden stayed registered
+# evidence in golden/e52p1/E52G/ and the divergent object stayed in ignored
+# build state.
+#
+# [E2E-52/P2] THAT PROPOSAL WAS AUTHORIZED AND LANDED: plan pre-committed
+# a365686 (spec/lab-evidence/e2e52-p2/PLAN.md, BEFORE any compiler edit); arm
+# d67a263 -- Bind `cs_copies` owns the caller-side formal-precision copy-in
+# temp; codegen emits the [C358] `?DLDOP/@actual + ?DSTOP/@temp' pair before
+# the descriptor-word record and retargets the block word to the temp; every
+# other DEC mismatch shape refuses BY NAME.  MEASURED: E52G whole-file `cmp'
+# rc=0 FIRST TRY vs the golden (sha 39b3d7cf..., exactly the PLAN §4
+# prediction, never fitted); E52A..J 10/10 EXACT; E51A..L 12/12 EXACT.  G is
+# registered below on that evidence.
 #
 # BYTE TIER ONLY: no spec/RUNTIME.txt row and no OUTPUT_CHECK entry comes from
 # this round -- RESULTS §3 makes NO runtime or link claim.
@@ -1878,6 +1889,14 @@ SPECIMENS.update({
 #             must ACCUMULATE, not replace); falsifies H2 for DR ([C356]).
 #   E52F      different names `a'/'b', same type, same image: ONE pool cell
 #             loaded by both stores -- dedup is also NAME-BLIND ([C357]).
+#   E52G      the LOAN2 `current_year' shape: outer `i dec(4,2)' stores 3,
+#             `call q(i)' with formal `i dec(9,2)' storing 3.  DR gives the DEC
+#             formal NO value cell: pool 3+5 @0000/0003 + outer i 3 B @0008 +
+#             2-byte argument-pointer block @000B holding the absolute address
+#             000D of a 5-byte main-side copy-in temp + formal POINTER cell
+#             @0012 (callee prologue `5E 23 56 EB / 22 r12', store through
+#             `2A r12' + `?DSTOP'); DATA 0014 ([C358]).  Registered at
+#             E2E-52/P2 after the copy-in-temp arm d67a263.
 #   E52H      three scopes, innermost declares NO x: binds THROUGH mid to the
 #             MID declaration (5-byte image, `3E 09', target 000B -- identical
 #             operand pair to mid's own store, NOT main's); DATA 0010 ([C356]).
@@ -1898,6 +1917,7 @@ SPECIMENS.update({
     "E52D":  ("probes/E52D.PLI",  "golden/e52p1/E52D/E52D.REL"),
     "E52E":  ("probes/E52E.PLI",  "golden/e52p1/E52E/E52E.REL"),
     "E52F":  ("probes/E52F.PLI",  "golden/e52p1/E52F/E52F.REL"),
+    "E52G":  ("probes/E52G.PLI",  "golden/e52p1/E52G/E52G.REL"),
     "E52H":  ("probes/E52H.PLI",  "golden/e52p1/E52H/E52H.REL"),
     "E52I":  ("probes/E52I.PLI",  "golden/e52p1/E52I/E52I.REL"),
     "E52J":  ("probes/E52J.PLI",  "golden/e52p1/E52J/E52J.REL"),

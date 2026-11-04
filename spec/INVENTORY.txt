@@ -712,6 +712,7 @@ E52C	specimen	probes/E52C.PLI	golden/e52p1/E52C/E52C.REL
 E52D	specimen	probes/E52D.PLI	golden/e52p1/E52D/E52D.REL
 E52E	specimen	probes/E52E.PLI	golden/e52p1/E52E/E52E.REL
 E52F	specimen	probes/E52F.PLI	golden/e52p1/E52F/E52F.REL
+E52G	specimen	probes/E52G.PLI	golden/e52p1/E52G/E52G.REL
 E52H	specimen	probes/E52H.PLI	golden/e52p1/E52H/E52H.REL
 E52I	specimen	probes/E52I.PLI	golden/e52p1/E52I/E52I.REL
 E52J	specimen	probes/E52J.PLI	golden/e52p1/E52J/E52J.REL
