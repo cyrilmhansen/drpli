@@ -1,0 +1,33 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52PJ
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52PJ
+
+   1 a 0000 E52PJ: procedure options(main);
+   2 a 0006    /* E52PJ (picture operand p'9.9': b2 discriminator vs comma;
+   3 a 0006       HC=HD=01; IF b2=00 the COMMA is a designator; scale
+   4 a 0006       mismatch vs d(4,2) may refuse (classified either way)) */
+   5 a 0006    /* P3-3 decimal family: d fixed decimal(4,2) mirrors LOAN2's yi;
+   6 a 0006       the picture operand under test is the ONE varying element. */
+   7 c 0006    dcl d fixed decimal(4,2);
+   8 c 0006    put edit(d)(p'9.9');
+   9 a 002A end E52PJ;
+
+CODE SIZE = 002D
+DATA AREA = 000D
+FREE SYMS = 38D4
+END  COMPILATION
+

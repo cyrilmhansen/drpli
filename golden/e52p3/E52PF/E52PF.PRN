@@ -1,0 +1,35 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52PF
+
+D: Disk Print
+L: List Source Program
+
+   8 b         put edit('|',100*m+y)(a,p'9$9');
+PICTURE                                    ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52PF
+
+   1 a 0000 E52PF: procedure options(main);
+   2 a 0006    /* E52PF (picture operand p'9$9': NON-LEADING $ discriminator;
+   3 a 0006       HA2 predicts 02, HB8 predicts 03 -- settles b1) */
+   4 a 0006    /* P3-3 scale-0 family: console EDIT, data = literal + fixed-bin
+   5 a 0006       expression (P086K/LOAN2-115 law), format = a + picture; the
+   6 a 0006       picture operand under test is the ONE varying element. */
+   7 c 0006    dcl m fixed binary, y fixed binary;
+   8 c 0006    put edit('|',100*m+y)(a,p'9$9');
+   9 a 003B end E52PF;
+
+CODE SIZE = 003E
+DATA AREA = 0011
+FREE SYMS = 38A6
+END  COMPILATION
+
