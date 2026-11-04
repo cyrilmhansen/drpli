@@ -5,6 +5,36 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-3 picture-record analysis COMPLETE; PLAN+probes OWED (2026-11-05, session 01a1a85d, renewal 10/12 consumed; ZERO ocaml/ byte, ZERO oracle call, NOTHING committed yet this hop)
+
+- **ACCEPTED (recovery).** HEAD `0d7468b` (g303 block); tree clean except operator config; `dune build` rc=0 binary `748c434fafd8c01579b1…` (matches recorded clean-rebuild hash); checkpoint attested at session_start.
+- **ACCEPTED (measured corpus — ALL `02` picture records in EXISTING goldens; `tools/reldump.py` on LOAN2.REL + fresh dumps `build/e52p3/{ANNUITY,DEPREC}-golden-reldump.txt`; record shape `02 b1 b2 len text`).** 13 instances / 12 distinct texts:
+  | text | len | b1 | b2 |
+  |---|---|---|---|
+  | `99/99` (LOAN2 116) | 05 | 04 | 00 |
+  | `99` (LOAN2 179) | 02 | 02 | 00 |
+  | `b99v.99` (195) | 07 | 04 | 02 |
+  | `$zzz,zz9.v99` (150) | 0C | 08 | 02 |
+  | `$zz,zzz,zz9v.99` (149) | 0F | 0A | 02 |
+  | `$$$,$$$,$$9V.99` (179) | 0F | 0A | 02 |
+  | `$$$,$$$,$$$V.99` (ANNUITY 56) | 0F | 0A | 02 |
+  | `$$,$$$,$$$V.99` (ANNUITY 66) | 0E | 09 | 02 |
+  | `ZZZ9` (ANNUITY 78) | 04 | 04 | 00 |
+  | `B$$,$$$,$$9.V99` (DEPREC 232) | 0F | 09 | 02 |
+  | `B99` (DEPREC 233) | 03 | 02 | 00 |
+  | `$Z,ZZZ,ZZ9V.99` (DEPREC 253/282, TWO tables) | 0E | 09 | 02 |
+  (All counts re-derived character-by-character; the earlier `$Z,ZZZ…` Z-count slip corrected this hop: Z=6, so the rule below fits 12/12 with NO exception.)
+- **FALSIFIED (hypothesis b1 = count{9,Z} — digits/Zs only):** the three multi-`$` records (`$$$,$$$,$$9V.99`: digits=3, measured b1=0A; `$$$,$$$,$$$V.99`: digits=2, b1=0A; `$$,$$$,$$$V.99`: digits=2, b1=09) refute it. Earlier ad-hoc counts (digits+Z only, $−groups subtraction) also die on these.
+- **ACCEPTED (surviving b1 rules, ALL 12 records):** HA2: b1 = count{9,Z,$} − (1 if any `$` else 0); HB8: b1 = count{9,Z} + count of `$` NOT at index 0. HA2 and HB8 AGREE wherever `$` is leading and DISAGREE only on `p'9$9'` (HA2=02, HB8=03) and on non-leading-multi `$`; probe PF settles.
+- **ACCEPTED (surviving len rule):** b3 = text length in characters (12/12); source lowercase is stored UPPERCASED (proved 5x: records C/D/E/J/L came from lowercase sources).
+- **ACCEPTED (b2 candidates, indistinguishable on existing data):** HC = count of digit chars {9,Z} after the last decimal designator {. ,V}; HD = count of {V,.} chars. All 12 existing decimal pictures carry BOTH V and `.` with exactly 2 trailing digits, and the no-decimal ones give 0 either way. Discriminators: `p'9V.9'` (HC=01, HD=02), `p'99V.999'` (HC=03, HD=02), `p'9V9'` (HC=01, HD=01).
+- **ACCEPTED (pairing precedents in the goldens — probe-legality anchors):** scale-0 picture `p'99/99'` ← FIXED BIN expression `100*m+y` (115); `p'99'` ← integer values yp/y (177-179 format/data alignment); scale-2 pictures ← `I` decimal and yi/ir `fixed decimal(4,2)` (195/196); `$`-pictures in ANNUITY/DEPREC ← decimal items.
+- **ACCEPTED (item preparation is FORMAT-INDEPENDENT — picture adds NO item bytes):** LOAN2 stmt 195 span 0895-08CE: DEC vars yi/ir under a list WITH `p'b99v.99'` carry the exact `LXI H / MVI A,04 / ?DLDOP / MVI A,07 / MVI B,02 / ?QDCOP / ?EDTOV` p/p+3/s law; literals carry `MVI A,len/?SLCTS/?EDTOV` as elsewhere; bin expr `100*m+y` `...MVI A,09/?QICOP/?EDTOV` (115, 0544-0558). So the P3-3 ARM = fmt_spec record emission ONLY (plus whatever the matcher/prescan need — both already flow `Ast.Pi_pic` through `fmt_table_bytes` into the refusal).
+- **ACCEPTED (refusal site).** `fmt_spec` (ocaml/lib/codegen.ml ~2843) catch-all `_ -> failwith "codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group formats are not decoded)"`; parser produces `Pi_pic of string` (parser.ml 948-957, both `p'..'` and `P('..')` spellings); prescan + lowering share `fmt_table_bytes`. `authorize_file_edit_item` (11753) stays: FILE-route items remain PIlit+Vdec ONLY (bin-expr refusal names LOAN2 0544-0558 and defers to a later subround).
+- **PROPOSED (probe bank E52PA..E52PO, 15 single-statement files, CRLF+^Z, ≤71 cols, skeletons per P086J/P086K; goldens → `golden/e52p3/`, tag VERIFIED unused; ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PA..E52PO --tag e52p3 --switches '$L$D'`):** PA file `put file(f) skip edit('|',100*m+y)(a,p'99/99');` (exact 115 mirror — EVIDENCE for P3-4, NOT armable: PInum on file route; never claim its bytes at P3-3); PB..PJ,PK scale-0 console `put edit('|',100*m+y)(a,p'X')` varying ONE operand: `9`,`999`,`zz9`,`$$9`(HA2:02 vs old digits-rule:01),`9$9`(HA2:02 vs HB8:03), two-picture+a framing, `$$$,$$$,$$9V.99` control (expect `02 0A 02 0F`); PG,PI..PM decimal family console/file with `d fixed decimal(4,2)` (yi mirror): `99V.99`,`9.9`,`9V.9`(HC/HD discriminator; scale-mismatch dr-refuse ACCEPTABLE as data, backup batch allowed),`99V.999`(discriminator), picture-ONLY first record (frames `80 00` header directly against a `02` record), PN file-route picture-only `put file(f) edit(d)(p'9V.99');`, PO file `put file(f) skip edit('|',d)(a,p'99/99');` (armable mirror of 115 minus the expression). Armable byte-match subset PM/PN/PO (armed item classes ONLY); every prediction per probe recorded in PLAN §P3-3 §3.
+- **PROPOSED (LOAN2 post-arm move):** prescan order means the NEXT stop is the SAME fmt_spec catch-all text at the first UNARMED record kind — stmt 147/149 rep-group `2(...)`/`x(...)` (message currently carries NO line number); record VERBATIM, never fit; P3-4 = rep/x records and/or the PA bin-expression item (bytes already pinned).
+- **LESSONS/hygiene this hop:** the earlier "grep regex missed single-digit records" and "`0x62`=code size" misreadings are dead — reldump prints every data byte; use the Python re-derivation snippet (stored in git with this §) over `paste`-window hacks; `PLI_SRC=probes` + `--switches '$L$D'` is the standing campaign invocation (e52p1/e51p1 precedent); batch REFUSES pre-existing tags without `--reuse`.
+
 ## E2E-52/P3-2 COVERAGE + C360 + RESULTS/PLAN LANDED (2026-11-05, session 01a1a849, renewal 9/12; ZERO ocaml/ byte; ledger ENDS C360)
 
 - **ACCEPTED (recovery).** HEAD `eb4bd80` (g301 block over `a952f4d`); tree clean except the

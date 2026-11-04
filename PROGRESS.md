@@ -443,7 +443,37 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-2 FULLY LANDED (C360 `19ce1f4`, COVERAGE `9e897e8` rc=0 139/0/0, RESULTS+PLAN `0d93acc`); SUBROUND P3-3 = PICTURE `02` DECODE OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-2 COVERAGE + C360 + RESULTS/PLAN LANDED" FIRST — it carries the measured ACTUALS and the exact P3-3 steps (1)-(4))
+### E2E-52/P3-3 analysis LANDED (this hop, NOTHING committed, ZERO ocaml/ byte, ZERO oracle call); PLAN §P3-3 + probes + ONE grouped campaign OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-3 picture-record analysis COMPLETE" FIRST — it carries the full 12-record measured table, the surviving hypotheses HA2/HB8 (b1) and HC/HD (b2) with discriminators, the pairing precedents, the fmt_spec arm site, and the E52PA..E52PO probe bank)
+
+Steps (all rc DIRECT, never a trailing pipeline):
+(1) Write `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-3 (measured-12-record table, hypotheses +
+    falsifiers, per-probe PREDICTED table bytes for E52PA..E52PO, arm = ONE `Ast.Pi_pic` branch
+    in `fmt_spec` emitting `02 b1 b2 len UPPER(text)` under the guard "picture chars outside
+    {9,Z,$,V,.,B,comma,slash} refuse BY NAME; non-leading `$` armed ONLY if PF measures it",
+    boundaries kept, predictions P1..P5 incl. LOAN2's same-catch rep-group move prediction)
+    and the probes themselves (CRLF+bare ^Z, ≤71 cols, skeletons copy P086J/P086K style);
+    `grep` probes/ + spec/INVENTORY.txt for E52P* collisions FIRST. COMMIT PLAN §P3-3 + probes
+    BEFORE ANY ocaml/ byte (explicit paths; commit the pending guard-block refresh VERBATIM
+    first if it lands uncommitted).
+(2) ONE grouped campaign: `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PA E52PB
+    E52PC E52PD E52PE E52PF E52PG E52PH E52PI E52PJ E52PK E52PL E52PM E52PN E52PO --tag e52p3
+    --switches '$L$D'` (tag verified UNUSED); goldens land golden/e52p3/; classify every
+    difference dr-refuses/my-gap/unmeasured; a SECOND bounded batch is allowed if PH/PL die on
+    scale mismatch and HC-vs-HD stays undecided.
+(3) RESULTS.md §P3-3: measured table bytes per probe + hypothesis verdicts (HA2 vs HB8, HC vs HD).
+(4) arm + sweep (E46N 19/19, R10xx, E52A..J, E51A..L, P086J/K cmp rc=0) + PM/PN/PO whole-file
+    cmp vs NEW goldens + LOAN2 rerun VERBATIM (record what it ACTUALLY prints; never fit;
+    PA bytes NEVER claimed — PInum on file route stays refused for P3-4).
+(5) registration: SPECIMENS (armable new probes only), sanctioned --update-inventory (expect
+    +2 lines if PN,PO... count what cmps rc=0), FULL gate rc=0 to build/gate-e52p3c-reg.log,
+    census own write path, claim **C361** from MEASURED bytes only (ledger ends C360) committed
+    BEFORE the COVERAGE rewrite of IO.PUT_EDIT (cite-resolution lesson) + coverage_check rc=0,
+    prose rc=0, RESULTS §5 row, durables, explicit-path commits.
+Constraints: no push; existing goldens never re-derived (NEW probes ADD goldens); operator
+handoff.config.json never staged; pli80c POSITIONAL args; state which build a sha came from;
+CRLF probes; renewals autonomous (10/12 consumed, cap 12); campaign continues past every blocker.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-2 FULLY LANDED (C360 `19ce1f4`, COVERAGE `9e897e8` rc=0 139/0/0, RESULTS+PLAN `0d93acc`); SUBROUND P3-3 = PICTURE `02` DECODE OWED (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-2 COVERAGE + C360 + RESULTS/PLAN LANDED" FIRST — it carries the measured ACTUALS and the exact P3-3 steps (1)-(4))
 
 Registration debt is CLOSED: claim C360 from MEASURED bytes only (ledger ENDS C360); `IO.PUT_EDIT`
 row SUPPORTED + EXACT:12 + MEASURED, falsified IFACT/LOAN1 clause kept verbatim as HISTORICAL,
