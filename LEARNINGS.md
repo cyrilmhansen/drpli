@@ -5,6 +5,83 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-4 campaign e52p3d MEASURED + arm LANDED (9/9 new-probe cmp rc=0); PA BLOCKER OWED (2026-11-05, fresh chain hop 1/12; uncommitted codegen.ml at checkpoint time)
+
+- **ACCEPTED (recovery + baseline).** HEAD `44af4c1` (g313 block), tree clean except
+  operator `handoff.config.json`; `dune build` rc=0 binary `c2c6282f…` == recorded P3-3
+  arm hash; PA rc=2 BY NAME at `authorize_file_edit_item`; PP/PS/PQ/PR rc=2 fmt_spec
+  catch-all; PT/PU/PV rc=2 "operator X is unsampled"; PW..PZ rc=2 file-EXPRESSION — all
+  captured to build/e52p3d/E52*-mine-stderr.txt BEFORE the campaign.
+- **ACCEPTED (ORACLE, one grouped campaign rc=0, tag e52p3d, 9 ok/11).** Eight probes
+  accepted `NO ERROR(S)` both passes WITH .REL (PP,PQ,PR,PS,PT,PW,PX,PY,PZ — each 256 B,
+  reldumps build/e52p3d/*-golden-reldump.txt). **E52PU dr-refuses**: bare `x` →
+  `SYNTAX ?` pass 1 (+ cascade `UNEXPECTED EOF`), NO .REL — H5c CONFIRMED, H5a/H5b moot.
+  **E52PV dr-refuses**: `x(255)` → `BAD VAL ?` pass 1, 1 ERROR, NO .REL — but the listing
+  MARKERS measure `x(128)` and `x(0)` COMPILE (`c` rows) — compile-acceptance measured,
+  their BYTES unmeasured (no object). H4b (refusal above 19) FALSIFIED in detail: refusal
+  boundary is at 255, not 20.
+- **ACCEPTED (measured laws).** (1) Rep-group `n(items)` → `80 n <records> 81` recursive,
+  source order, NO flattening: PP `2(a)` → table `80 00 80 02 03 FF 81 81`; PQ nested+
+  sibling+`0B 03`-in-group → `80 00 03 FF 80 02 80 02 03 FF 03 FF 81 03 FF 81 80 02 0B 03
+  03 FF 81 81` (24 B); PR console route identical law with skip `0C FF` + picture `02 02
+  00 02 39 39` INSIDE/after — route-independent. (2) **COUNT 1 FLATTENS**: PS `1(a)` →
+  `80 00 03 FF 81` — H2a (as-is `80 01…`) and H2b (refuse) BOTH FALSIFIED, H2c CONFIRMED.
+  (3) `x(w)` → `0B w`: PT file `x(1),a,x(5)` → `80 00 0B 01 03 FF 0B 05 81` exactly.
+  (4) File-EXPRESSION items ALL accepted incl. **literal division** (PZ): PW `m+y` =
+  `2A @m / EB / 2A @y / 19 / 3E 09 / ?QICOP / ?EDTOV`; PX `100*m` = `2A @m / 11 64 00 /
+  ?IM22N / 3E 09…` **NO XCHG** — **H6b CONFIRMED (?IM22N returns product in HL), H6a
+  FALSIFIED**; LOAN2's XCHG parks a product for the following sum operand. PY `m-y` =
+  `2A/EB/2A/?IS22N/3E 09…`; PZ `m/3` = `2A @m / 3E 03 / E5 / 6F / 87 / 9F / 67 / D1 /
+  ?ID22N / 3E 09…` (8-byte divisor preamble; semantics NOT decoded — byte tier only).
+- **ACCEPTED (arm, codegen.ml ONLY).** (a) `fmt_spec` `Ast.Pi_repgrp` branch (NOT Pi_rep —
+  the brief wording stays falsified): `n=1` → inner records spliced (no wrapper), `n≥2` →
+  `[0x80; fmt_w c] @ inner @ [0x81]`, count 0 refuses; `fmt_spec` became `let rec` (the
+  first build failed `Unbound value fmt_spec` — RC WAS MASKED BY A `| tail` PIPELINE,
+  the standing rule re-proved). (b) `Pi_fmt X [w] fcount=None` → `[0x0B; v]` for literal
+  `v ≤ 128` (PV accept envelope; >128 refuses BY NAME as unmeasured); BARE `x` refuses
+  naming the PU dr-refuse; `Pi_fmt` catch message updated (F, A, x(width)); fmt_spec final
+  catch message updated to "(counted, grouped and remote formats are not decoded)" —
+  census rows pin the OLD texts and WILL MOVE; re-snapshot via census own write path.
+  (c) `authorize_file_edit_item` PInum admitted by the new recursive shape authority
+  `edit_num_tree/edit_num_cell/edit_num_lit/edit_num_operand`: `+`/`-` over cells and
+  admitted trees (PA shape), `*` ONLY literal-left×cell, `/` ONLY cell/literal, parens
+  unwrapped; Vint non-deref cells only; everything else keeps refusing BY NAME with the
+  new message naming the admitted shapes. MEASURED: **9/9 accepted probes whole-file cmp
+  rc=0 FIRST TRY** on binary `898b191cb6224a6da1de…` — including PZ (my existing division
+  lowering already emits DR's exact divisor preamble) and PX (no-XCHG tail correct
+  already). Console arm-free controls un-changed-by-inspection so far.
+- **BLOCKER (my-gap in MY arm, open).** **PA now CRASHES**: `Fatal error: exception
+  File "lib/codegen.ml", line 11906, characters 2-7: Pattern matching failed` — a
+  Match_failure AT `match (unwrap_e x).Ast.e with Ast.Eident … | _ -> false` inside
+  `edit_num_cell`, which is SYNTACTICALLY EXACTLY EXHAUSTIVE. PA is the ONLY admitted
+  probe carrying a PIlit `'|'` data item beside the PInum — investigate first whether
+  the crash is really HERE (add `--backtrace`/debug, re-read the compiled line map; a
+  stale-map reading is possible) or whether a DIFFERENT `st`/`x` type reaches it
+  (e.g. prescan route, or a name whose vk lookup differs). PA cmp vs EXISTING golden
+  `golden/e52p3/E52PA/E52PA.REL` IS THE HEADLINE and is UNMET until fixed; goldens
+  NEVER re-derived.
+- **MEASURED environment note.** Clean-rebuild `lib/codegen.ml` warning count now **74**
+  vs the P3-3 baseline 70 (+4 — my new code; attribute at the sweep hop; per-File
+  histogram is the method, full-log totals are not).
+- **OWED NEXT (successor, exact):** (1) debug+fix the PA Match_failure (codegen.ml
+  only), rebuild, PA cmp rc=0 vs existing golden = headline; re-run 9/9 cmps on the
+  new binary. (2) sweep controls at the FINAL binary: E52PB..PO cmp rc=0, P086J/K, E46N
+  19/19, E52A..J 10/10, E51A..L 12/12, R10 bank 34/34 (expect 75+13 intact + PP..PZ new);
+  markers E46K4/K15/N21/E52PF rc=2. (3) LOAN2 rerun UNMODIFIED positional — record
+  ACTUAL next blocker VERBATIM (expected DEC FORMAL line 147 via authorize_file_edit_item
+  — classify, do NOT fix); COPYLPT watch. (4) registration: SPECIMENS for the 9 cmp-rc=0
+  probes + PA (10 total if PA lands), sanctioned `--update-inventory` 1212→1222 (+10
+  specimens; PF-style REJECTS/NEG_META rows for PU and PV are dr-refuses rows — decide
+  honestly, my messages already name their refusals, marker pinned from ACTUAL stderr),
+  FULL gate rc=0 DIRECT to build/gate-e52p3d-reg.log, census own write path rc=0 (LOAN2
+  +ACKTST/FSCAN msgs WILL move), claim **C362** from MEASURED bytes ONLY committed
+  BEFORE the COVERAGE `IO.PUT_EDIT` rewrite (cite lesson), coverage_check + prose rc=0,
+  RESULTS §P3-4 + PLAN §5 row (incl. every falsified hypothesis verbatim: H2a/H2b, H4b
+  detail, H5a/H5b, H6a), durables.
+  Constraints: no push; existing goldens NEVER re-derived; operator handoff.config.json
+  NEVER staged; all rc DIRECT (the masked-pipeline trap fired AGAIN this hop); pli80c
+  POSITIONAL; renewals autonomous (this was 1/12 of the fresh chain).
+
 ## E2E-52/P3-4 recovery + evidence decode + PRE-REGISTRATION LANDED (2026-11-05, fresh chain after operator reset; commit `3ac7f41`)
 - **ACCEPTED (recovery).** HEAD 0b78ead verified, ledger ENDS C361, gate-era counts
   recorded; g310 pending guard block committed VERBATIM `6d83a36`; freshness verified via

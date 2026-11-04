@@ -443,7 +443,40 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-4 PRE-REGISTERED at `3ac7f41`; CAMPAIGN e52p3d OWED NOW (2026-11-05; fresh chain — operator reset renewal state; read `LEARNINGS.md` § "E2E-52/P3-4 recovery + evidence decode + PRE-REGISTRATION LANDED" FIRST)
+### E2E-52/P3-4 campaign e52p3d MEASURED (9 ok/11) + ARM LANDED (9/9 new-probe cmp rc=0); PA MATCH_FAILURE BLOCKER OWED, then sweep/LOAN2/registration (2026-11-05; fresh chain hop 1/12; read `LEARNINGS.md` § "E2E-52/P3-4 campaign e52p3d MEASURED + arm LANDED" FIRST — it carries every measured byte, all verdicts (H2c/H5c/H6b + x(0)/x(128)-compile CONFIRMED; H2a/H2b/H4b-detail/H5a/H5b/H6a FALSIFIED verbatim) and the exact owed steps)
+
+ACTUALS this hop (rc DIRECT): baseline build `c2c6282f…`, PA/PP..PZ refusals
+re-measured exactly pre-registered. ORACLE one grouped campaign rc=0 **9 ok/11**:
+**PU dr-refuses** (bare `x` `SYNTAX ?`, no .REL), **PV dr-refuses** (`x(255)` `BAD VAL`,
+no .REL; listing markers measure `x(0)`/`x(128)` COMPILE — their bytes UNMEASURED).
+Goldens `golden/e52p3d/` (9×256 B), reldumps `build/e52p3d/`. ARM (codegen.ml ONLY,
+UNCOMMITTED at checkpoint): fmt_spec became `let rec`; `Pi_repgrp` → `80 n…81` recursive,
+**count-1 FLATTENS** (E52PS `80 00 03 FF 81` — no wrapper); `X(w)` → `0B w` literal
+w ≤ 128 only (bare-x refuses naming PU); `authorize_file_edit_item` PInum admitted via
+new `edit_num_tree/edit_num_cell/edit_num_lit/edit_num_operand` shape authority (Vint
+cells, lit×cell, cell/lit, +/- nested; all else refuses BY NAME). **9/9 accepted probes
+whole-file cmp rc=0 FIRST TRY** on binary `898b191c…` (PZ division and PX no-XCHG
+already byte-exact in existing lowering — H6b). **BLOCKER: PA now CRASHES `Fatal error:
+exception File "lib/codegen.ml", line 11906, characters 2-7: Pattern matching failed`
+— a Match_failure at `edit_num_cell`'s syntactically-EXHAUSTIVE `match (unwrap_e x).Ast.e
+with Ast.Eident … | _ -> false`; suspect stale line map or PIlit-`'|'`-item interaction;
+DEBUG FIRST, codegen.ml only.** PA cmp vs EXISTING `golden/e52p3/E52PA/E52PA.REL` =
+HEADLINE, unmet. codegen warnings 74 vs baseline 70 (+4 mine) — attribute at sweep.
+**NEXT (successor):** (1) fix PA, rebuild, PA cmp rc=0, re-verify 9/9 cmps on final
+binary. (2) sweep E52PB..PO/P086J/K/E46N 19/E52A..J/E51A..L/R10 (75+13 intact + new);
+markers E46K4/K15/N21/E52PF rc=2. (3) LOAN2 rerun UNMODIFIED positional, blocker
+VERBATIM (expect DEC FORMAL 147; classify, do NOT fix). (4) registration: SPECIMENS
+10 (PP..PZ+PA), sanctioned --update-inventory 1212→1222, honest REJECTS/NEG_META rows
+for PU+PV (dr-refuses; markers from ACTUAL stderr) then inventory +1 refusal if rows
+land, FULL gate rc=0 DIRECT `build/gate-e52p3d-reg.log`, census own write path (fmt_spec/
+X catch texts CHANGED — msgs WILL move), claim **C362** MEASURED BYTES ONLY BEFORE
+COVERAGE `IO.PUT_EDIT` rewrite (EXACT = 25+new; cite lesson), coverage_check+prose rc=0,
+RESULTS §P3-4 + PLAN §5 row, explicit-path commits, finalize/renew.
+Constraints: no push; goldens NEVER re-derived; operator handoff.config.json NEVER
+staged; all rc DIRECT (masked-pipeline trap fired AGAIN this hop — `dune build | tail`
+reports tail's rc); pli80c POSITIONAL; never hardcode LOAN2; renewals autonomous.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-4 PRE-REGISTERED at `3ac7f41`; CAMPAIGN e52p3d OWED NOW (2026-11-05; fresh chain — operator reset renewal state; read `LEARNINGS.md` § "E2E-52/P3-4 recovery + evidence decode + PRE-REGISTRATION LANDED" FIRST)
 
 DONE this hop (all rc DIRECT): g310 guard block committed VERBATIM `6d83a36`; prose-hash
 verify measured CURRENT (documented checkpointSources algorithm; `/handoff` slash command
@@ -2483,17 +2516,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 313
-checkpoint-id: g313-06baafd937af
-checkpoint-kind: manual
+checkpoint-generation: 315
+checkpoint-id: g315-f49e512428de
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-04T23:06:39.751Z
+checkpointed: 2026-11-04T23:33:47.905Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 604d68fc768b914398b412a844f50b8254ae0791929e90c7537d64a90b54054b
+source-progress: 3a44819e8f85b22ff1fc5915706ef3c1c50440be20161678c6df38a09a30c413
 source-handoff: 2713b00840e4ead565cbc6c48b316940191ccacc86073936ba2d85f8d0d9b747
-source-learnings: dd98885e6b7e337d07ac70990e38782e8cee36f00fe8830f88fb2361e0bdf866
+source-learnings: 365d1780c5524b20b015fd6ccdbb998ec642fc1a442e2b4790fbd0817f7694b3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (1)-(6): baseline build+PA re-measure; ONE
   grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PP..E52PZ
@@ -2905,9 +2938,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a8bc-9e19-753f-82d0-3140faffa677
-readiness-at: 2026-11-04T23:06:39.765Z
-readiness-checkpoint: g313-06baafd937af
 <!-- guard:end checkpoint -->
 
 ## Blockers

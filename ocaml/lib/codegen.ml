@@ -2828,9 +2828,19 @@ let match_put_list_lit (s : Ast.stmt) =
        page    -> 0F FF     [R1007]
        p'pic'  -> 02 b1 b2 len UPPER(text)   [E2E-52/P3-3: 25 measured records,
                    claim C361; operand rules and guards in fmt_spec below]
+       x(w)    -> 0B w       [E2E-52/P3-4: 0B 01 / 0B 05 (E52PT), 0B 03 (E52PQ),
+                   widths {02,03,05,06,08,09,0A,0B,0E,0F,10,13} in the LOAN2 and
+                   DEPREC pools; claim C362; BARE x is dr-refuses -- E52PU
+                   `SYNTAX ?', no .REL; x(255) is dr-refuses `BAD VAL' (E52PV)]
+       n(group)-> 80 n <records...> 81, RECURSIVE, source order [E2E-52/P3-4:
+                   E52PP/E52PQ; LOAN2 pool 0017 = stmt 149 2(2(p,a),p,a); DEPREC
+                   0033/007B/009E counts 02 AND 04]; COUNT 1 FLATTENS to the bare
+                   inner records (E52PS `1(a)' -> `80 00 03 FF 81', no wrapper)
    UNPINNED and therefore not modelled: the header's second byte (0x00 in all
-   11 samples), counted skip/page (skip(n) is unsampled), and every other edit
-   operator (x/b/e/v/i/n/m/c/p/remote/rep-group).  Those refuse.
+   11 samples), counted skip/page (skip(n) is unsampled), the UNCOUNTED group
+   (Pi_group, never sampled), column(n) (`0D w` decoded from the DEPREC indent
+   %replace macro but OUT of the P3-4 brief, NOT armed), and every other edit
+   operator (b/e/v/i/n/m/c/p/remote).  Those refuse.
 *)
 let fmt_w (e : Ast.expr) =
   match e.Ast.e with
@@ -2842,7 +2852,7 @@ let fmt_w (e : Ast.expr) =
   | _ -> failwith "codegen: PUT EDIT non-constant width [TBD] \
                    (only literal widths are sampled)"
 
-let fmt_spec (it : Ast.put_item) : int list =
+let rec fmt_spec (it : Ast.put_item) : int list =
   match it with
   | Ast.Pi_ctl (k, None) when k = "SKIP" -> [ 0x0c; 0xff ]
   | Ast.Pi_ctl (k, None) when k = "PAGE" -> [ 0x0f; 0xff ]
@@ -2855,10 +2865,51 @@ let fmt_spec (it : Ast.put_item) : int list =
       [ 0x00; fmt_w w; fmt_w d ]
   | Ast.Pi_fmt { fkey = "A"; fargs = []; fcount = None } -> [ 0x03; 0xff ]
   | Ast.Pi_fmt { fkey = "A"; fargs = [ w ]; fcount = None } -> [ 0x03; fmt_w w ]
+  | Ast.Pi_fmt { fkey = "X"; fargs = []; fcount = None } ->
+      failwith "codegen: PUT EDIT BARE x (no width) is dr-refuses [TBD] \
+                (E52PU, campaign e52p3d: DR reports `SYNTAX ?' in pass 1 and \
+                 emits NO .REL -- hypothesis H5c CONFIRMED; only x(width) \
+                 carries object bytes)"
+  | Ast.Pi_fmt { fkey = "X"; fargs = [ w ]; fcount = None } ->
+      (* [E2E-52/P3-4] x(w) -> ONE record `0B w' (claim C362).  Byte-witnessed
+         widths: 01 and 05 (E52PT golden), 03 (E52PQ golden), and 02,03,05,06,
+         08,09,0A,0B,0E,0F,10,13 in the existing LOAN2/DEPREC pools.  E52PV
+         measured x(0) and x(128) COMPILE and x(255) `BAD VAL' (the statement
+         dies with the whole object, so NO .REL exists -- those widths' bytes
+         stay UNMEASURED); 0..128 is the DR-accepted envelope and the encoder
+         implements the byte law measured across 1..13 inside it.  Widths above
+         128 refuse BY NAME. *)
+      let v = fmt_w w in
+      if v > 128 then
+        failwith "codegen: PUT EDIT x(width) above 128 is unmeasured [TBD] \
+                  (E52PV: DR accepts x(128) and refuses x(255) `BAD VAL'; \
+                  129..254 unmeasured and the byte law is only object-witnessed \
+                  across 01..13)";
+      [ 0x0b; v ]
+  | Ast.Pi_repgrp (c, is) ->
+      (* [E2E-52/P3-4] counted rep-group `n(items)' -> `80 n <records...> 81',
+         RECURSIVE, source order, NO flattening (claim C362; E52PP, E52PQ
+         nested+sibling+x-in-group on the FILE route; E52PR the CONSOLE route
+         with skip `0C FF' and a picture INSIDE the group; LOAN2 pool 0017 =
+         stmt 149 `2(2(p,a),p,a)'; DEPREC pools 0033/007B/009E counts 02, 04).
+         COUNT 1 FLATTENS: E52PS `1(a)' measured `80 00 03 FF 81' -- the inner
+         records splice into the enclosing table with NO `80 01' wrapper (H2a
+         as-is and H2b refusal both FALSIFIED).  Counts beyond the measured
+         {1,2,4} are the same immediate byte, an interpolation recorded in
+         RESULTS; count 0 is unmeasured and refuses.  The parser node is
+         Ast.Pi_repgrp (parser.ml 939) -- NOT Pi_rep, which is the DATA-item
+         `(x do ...)' form; the brief's wording was FALSIFIED pre-arm. *)
+      let n = fmt_w c in
+      let inner = List.concat_map fmt_spec is in
+      if n = 0 then
+        failwith "codegen: PUT EDIT rep-group count 0 is unmeasured [TBD] \
+                  (the measured counts are 1 -- FLATTENED -- 2 and 4)"
+      else if n = 1 then inner
+      else [ 0x80; n ] @ inner @ [ 0x81 ]
   | Ast.Pi_fmt { fkey = k; _ } ->
       failwith (Printf.sprintf
                   "codegen: PUT EDIT operator %s is unsampled [TBD] \
-                   (only F and A formats are decoded from DR tables)" k)
+                   (only F, A and x(width) formats are decoded from DR tables)" k)
   | Ast.Pi_pic s ->
       (* [E2E-52/P3-3] Picture record, MEASURED on 13 accepted new goldens
          (golden/e52p3 E52PA..E52PO) plus 12 records in the existing goldens
@@ -2926,8 +2977,7 @@ let fmt_spec (it : Ast.put_item) : int list =
       0x02 :: b1 :: b2 :: n :: List.init n (fun i -> Char.code up.[i])
   | _ ->
       failwith "codegen: PUT EDIT format item form unsampled [TBD] \
-                (counted, grouped, picture, remote and rep-group formats \
-                 are not decoded)"
+                (counted, grouped and remote formats are not decoded)"
 
 let fmt_table_bytes (specs : Ast.put_item list) =
   if specs = [] then failwith "codegen: PUT EDIT with an empty format list [TBD]";
@@ -11812,11 +11862,65 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
      (LHLD/LXI D,0064/?IM22N/XCHG/LHLD/DAD/MVI A,09/?QICOP/?EDTOV at 0544-0558) but
      the statement carrying it also carries the picture record and refuses earlier,
      so no panel-testable statement isolates the class [PLAN §4];
+   [E2E-52/P3-4 CORRECTION] the EXPRESSION clause above is SUPERSEDED as written:
+   campaign e52p3d IS that witness set (E52PW `m+y', E52PX `100*m', E52PY `m-y',
+   E52PZ `m/3', E52PA `100*m+y' == LOAN2 0544-0558 reloc-verified), and the class
+   is now ADMITTED per the tree authority below; every OTHER expression shape and
+   every refusal this comment still names keeps refusing BY NAME.
    * a numeric LITERAL item (the existing is_edit refusal below already names it;
      authorising here would contradict it);
    * every other bound class: fixed/varying/binary/members/bits/floats -- no EDIT
      object of ours carries them, and the console EDIT bank (E46K4 refuses the
      member) says nothing about the file route. *)
+(* [E2E-52/P3-4 arm (c)] the ONE shape authority for FILE-route EDIT EXPRESSION
+   items -- exactly the trees this campaign's goldens measure (each dump in
+   build/e52p3d/), and NOTHING else:
+     E52PW  m+y     2A @m / EB / 2A @y / 19 (DAD D) / 3E 09 / ?QICOP / ?EDTOV
+     E52PX  100*m   2A @m / 11 64 00 / ?IM22N / 3E 09 / ...  -- NO XCHG: H6b
+                    CONFIRMED, ?IM22N returns the product IN HL; the XCHG seen
+                    inside LOAN2 0544-0558 PARKS a product while the SUM's next
+                    operand is loaded (H6a falsified)
+     E52PY  m-y     2A @m / EB / 2A @y / ?IS22N / 3E 09 / ...
+     E52PZ  m/3     2A @m / 3E 03 / E5 / 6F / 87 / 9F / 67 / D1 / ?ID22N / ...
+                    (literal division ACCEPTED by DR -- unmeasured on any EDIT
+                    golden before this campaign)
+     E52PA  100*m+y == LOAN2 0544-0558 exactly
+   Admitted: `+`/`-` between fixed-bin cells and admitted nested trees (the PA
+   shape); `*` ONLY literal-LEFT times cell-right (the measured spelling); `/`
+   ONLY cell-over-literal; parenthesised operands ([N304] Econd).  Refused BY
+   NAME: DEC/float/member/based/pointer/formal operands, calls, subscripts,
+   unary signs, `**`, concatenation, cell*literal and literal/cell division --
+   no DR object carries any of them behind an EDIT attach.  Lowering is the
+   EXISTING route-independent numeric path (console E52PI is byte-exact on the
+   same tree), so this gate adds NO encoder. *)
+let rec edit_num_tree st x =
+  match (unwrap_e x).Ast.e with
+  | Ast.Ebinary (op, l, r) ->
+      (match op with
+       | Ast.Add | Ast.Sub -> edit_num_operand st l && edit_num_operand st r
+       | Ast.Mul -> edit_num_lit l && edit_num_cell st r
+       | Ast.Div -> edit_num_cell st l && edit_num_lit r
+       | _ -> false)
+  | _ -> false
+and edit_num_cell st x =
+  match (unwrap_e x).Ast.e with
+  | Ast.Eident n ->
+      let nm = String.lowercase_ascii n.Ast.orig in
+      not (List.mem nm st.deref)
+      &&
+      match vk_of st nm with
+      | Vint -> true (* fixed-bin cell -- the PW/PX/PY/PZ declaration kind *)
+      | _ -> false
+  | _ -> false
+and edit_num_lit x =
+  match (unwrap_e x).Ast.e with
+  | Ast.Enumber t ->
+      (match int_of_string_opt (String.concat "" (String.split_on_char '_' t)) with
+       | Some v -> v >= 0
+       | None -> false)
+  | _ -> false
+and edit_num_operand st x = edit_num_cell st x || edit_num_tree st x
+
 let authorize_file_edit_item st (fu : string) (ln : int) (it : pitem) =
   let no_witness what why =
     failwith
@@ -11848,13 +11952,17 @@ let authorize_file_edit_item st (fu : string) (ln : int) (it : pitem) =
       no_witness "a NUMERIC LITERAL item"
         "the existing is_edit refusal in the item loop says the same thing: the format-table \
          goldens (11 console + P086K/P086J + LOAN2's seven) print no numeric literal"
-  | PInum _ ->
-      no_witness "an EXPRESSION or SUBSCRIPTED item"
-        ("LOAN2's own golden 0544-0558 pins `100*m+y' between ?SLCTS/?EDTOV chains \
-          (LHLD/LXI D,0064/?IM22N/XCHG/LHLD/DAD/MVI A,09/?QICOP/?EDTOV), so DR compiles it \
-          on THIS route -- but no panel-isolable statement carries the class without also \
-          carrying a picture record, so it earns its own witness in a later subround \
-          [PLAN §P3-2 §4]")
+  | PInum x ->
+      if edit_num_tree st x then ()
+      else
+        no_witness "an EXPRESSION or SUBSCRIPTED item"
+          ("fixed-bin arithmetic of the MEASURED shapes (+, - over cells and admitted "
+           ^ "trees, literal*cell, cell/literal) IS armed (E2E-52/P3-4 goldens E52PW "
+           ^ "m+y, E52PX 100*m with NO XCHG after ?IM22N, E52PY m-y, E52PZ m/3, E52PA "
+           ^ "100*m+y == LOAN2 0544-0558); DEC/float/member/based/pointer/formal "
+           ^ "operands, calls, subscripts, unary signs, **, concatenation and the "
+           ^ "other operand orders carry no DR EDIT object and keep refusing "
+           ^ "[PLAN \194\167P3-4 \194\1674(c)]")
 
 let lower_put_items_gen st ?(file : string option = None)
     (edit_tbl : int option) (skipn : put_skip) (items : pitem list) =

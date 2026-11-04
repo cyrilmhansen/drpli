@@ -7,6 +7,19 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-septies. **E2E-52/P3-4 CAMPAIGN MEASURED + ARM LANDED; PA BLOCKER OWED (2026-11-05,
+fresh chain hop 1/12).** Campaign e52p3d rc=0 9 ok/11 (PU bare-x and PV x(255) are
+dr-refuses, no .REL); arm (codegen.ml, fmt_spec let rec repgrp `80 n…81`/count-1-FLATTENS
++ X(w)→`0B w` ≤128 + file PInum shape-authority admission) gives **9/9 accepted-probe
+whole-file cmp rc=0** on binary `898b191c…`; **PA crashes: Match_failure codegen.ml:11906
+(edit_num_cell, exhaustive — debug suspect stale line map / PIlit interaction); PA cmp vs
+EXISTING golden/e52p3/E52PA is the HEADLINE, unmet.** Full state and owed steps (1)-(4)
+( fix PA → sweep+markers → LOAN2 VERBATIM → registration + C362 measured-bytes-only BEFORE
+COVERAGE rewrite, gate rc=0 build/gate-e52p3d-reg.log) in `PROGRESS.md` → `## Next action`
+and `LEARNINGS.md` § "P3-4 campaign e52p3d MEASURED + arm LANDED". Ledger ENDS C361;
+goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT;
+no push; campaign continues.
+
 0a-sexties. **E2E-52/P3-4 PRE-REGISTERED, CAMPAIGN OWED (2026-11-05, fresh chain;
   operator reset renewal state; pre-reg `3ac7f41`, g310 block `6d83a36`).** Execute
   `PROGRESS.md` → `## Next action` steps (1)-(6): baseline build+PA re-measure; ONE
@@ -1415,25 +1428,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 313
-checkpoint-id: g313-06baafd937af
-checkpoint-kind: manual
+checkpoint-generation: 315
+checkpoint-id: g315-f49e512428de
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~1279, session 01a1a8bc-9e19-753f-82d0-3140faffa677)
-checkpointed: 2026-11-04T23:06:39.751Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4846, session 01a1a8d0-ecd6-753f-82d0-3145d66bcffd)
+checkpointed: 2026-11-04T23:33:47.905Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 604d68fc768b914398b412a844f50b8254ae0791929e90c7537d64a90b54054b
+source-progress: 3a44819e8f85b22ff1fc5915706ef3c1c50440be20161678c6df38a09a30c413
 source-handoff: 2713b00840e4ead565cbc6c48b316940191ccacc86073936ba2d85f8d0d9b747
-source-learnings: dd98885e6b7e337d07ac70990e38782e8cee36f00fe8830f88fb2361e0bdf866
+source-learnings: 365d1780c5524b20b015fd6ccdbb998ec642fc1a442e2b4790fbd0817f7694b3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a8bc-9e19-753f-82d0-3140faffa677
-readiness-at: 2026-11-04T23:06:39.765Z
-readiness-checkpoint: g313-06baafd937af
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
