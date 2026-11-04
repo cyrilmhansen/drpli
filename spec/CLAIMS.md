@@ -8253,3 +8253,139 @@ classified `unmeasured` rather than `dr-refuses`.
   `PUT FILE` streams, about SKIP counts greater than 1 at exit, or about PAGE boundaries; no
   `spec/RUNTIME.txt` row and no SPECIMENS registration came from this round (registration
   candidates noted for a later gate hop).
+
+## C353 — A FIXED BINARY DIV WITH A VARIABLE DIVISOR IS ACCEPTED AND PARKS THE DIVIDEND ACROSS THE DIVISOR (`E5 / <divisor to HL> / D1 / CD ?ID22N / 22 <z>`), AND THE PARKED DIVIDEND SLOT TAKES ANY LOWERING THAT LEAVES HL — A LITERAL INCLUDED, VIA `LXI H` (E2E-51/P1 §2.1; falsifies H-B-de, H-C-temp, H-D-temp, H-E-store, H-J-fuse, H-K-lhld, H-K-conv and every H-*-refuse; [C089]'s MOD parking transfers to the quotient helper)
+
+* **Measured — the parking law.**  `z = <dividend> / <divisor>` lowers as EVALUATE <dividend>
+  INTO HL; `E5` (PUSH H); EVALUATE <divisor> INTO HL; `D1` (POP D); `CD ?ID22N`; then
+  `22 <z reloc>` (SHLD z) — exactly [C089]'s variable-divisor MOD parking shape with the
+  quotient helper in place of `?IMDOP`.  The helper ABI `id22n DE,HL -> HL`
+  (`spec/notes/plilib-entrypoints.txt:6`) matches the object: the dividend ends in DE, the
+  divisor in HL, the quotient returns in HL.  E51A (`z = a / b`) reproduces the previously
+  UNCLAIMED DR object `golden/f6probe/F005/F005.REL`: its full DATA/RELOC/CHAIN-EXT record
+  stream matches line-for-line and only the z reloc (r4 -> r6, the extra bank cell `c`) and
+  `LINK-DEF-DATA-SIZE` (0006 -> 0008) differ; CODE 0017 (§1, H-A-park HIT — F005's provenance
+  CONFIRMED by reproduction, not re-derivation).
+* **The dividend slot is "anything that leaves HL" — H-B-de FALSIFIED.**  E51B (`z = 1200 / b`)
+  measures `21 B0 04 / E5 / 2A r2 / D1 / CD ?ID22N / 22 r6`: the LITERAL dividend takes the
+  PARKED slot via `LXI H,const` then PUSH/POP, exactly the variable form's parking; `LXI D`
+  direct is NOT used and literals are NOT loaded into DE for DIV (the pre-registered primary
+  `2A r2 / 11 B0 04 / CD ?ID22N / 22`, and H-B-conv/H-B-refuse, are kept as written and are
+  falsified; the competitor H-B-stack is the HIT, §1).  A compound sum built first in HL is
+  accepted the same way — E51C (`z = (a + b) / c`) is `2A r0 / EB / 2A r2 / 19 / E5 / 2A r4 /
+  D1 / CD ?ID22N / 22 r6`: the P071A add law, then the park, with exactly ONE `22` store for
+  the whole expression (H-C-temp's materialised temp falsified).  A unary-minus result is
+  accepted — E51J (`z = -a / b`) is `2A r0 / CD ?IN20N / E5 / 2A r2 / D1 / CD ?ID22N / 22 r6`
+  with the `?IN20N` CHAIN-EXT at 000A PRECEDING `?ID22N` at 0012: NEGATE-THEN-PARK, no fusion
+  with the divide (H-J-fuse falsified by offset order).
+* **A compound DIVISOR is evaluated INSIDE the parked region.**  E51D (`z = a / (b + c)`) is
+  `2A r0 / E5 (at 0009) / 2A r2 / EB / 2A r4 / 19 / D1 / CD ?ID22N / 22 r6` — the `E5` precedes
+  the divisor sum's own `EB/2A/19`, and the sum lands in HL immediately before `D1`; ONE store,
+  no divisor temp (H-D-temp, H-D-refuse falsified).
+* **Chaining parks the QUOTIENT itself.**  E51E (`z = a / b / c`, left-associative) is
+  `<a/b div> / E5 / 2A r4 / D1 / CD ?ID22N / 22 r6` — TWO `?ID22N` calls and exactly ONE SHLD:
+  the first quotient, returned in HL, is PUSH-parked as the second dividend (H-E-store's
+  store/reload falsified).  Binary chaining needs no DEC-style store; the `[NG17]` DEC witness
+  cited in §1 does NOT transfer, yet the chained binary form is accepted (H-E-refuse falsified).
+* **The 1-byte binary divisor interleave transfers verbatim from MUL.**  E51K (`z = a / d`,
+  `d fixed bin(7)`) measures `2A r0 / 3A r8 / E5 / 6F / 87 / 9F / 67 / D1 / CD ?ID22N / 22 r6`
+  — [C079]/[N303]'s `raw LDA + PUSH H + sign-extend ladder + POP D` — with
+  `LINK-DEF-DATA-SIZE abs 0009` and the d-at-offset-8 INLINE data reloc (H-K-lhld would read
+  `c` too and is falsified by the reloc count; H-K-conv, H-K-refuse falsified).
+* **Frame and sizes (all twelve objects).**  `01 00 02` (LXI B,0200) `/ CD ?START` at 0000 and
+  `CD ?STOPX` at the tail in every row; DATA AREA `0008` for A..J and L, `0009` for K (the
+  added 1-byte `d`); CODE SIZE 0017 (A,B), 001C (C,D,F,G), 001F (E), 0028 (H), 0027 (I),
+  001A (J,L), 001B (K) — every `.PRN` size header matched its pre-registered prediction (§0).
+* **Classification (PROTOCOL #3).**  ELEVEN `my-gap` rows (E51A..E51K): DR emitted an object and
+  `spec/lab-evidence/e2e51-p1/BASELINE-MINE.txt` shows my compiler refusing each one
+  (`codegen: DIV by non-constant [TBD]`).  NO `dr-refuses` row exists in this bank: DR accepted
+  12/12 and every `.PRN` prints `NO ERROR(S) IN PASS 1` and `NO ERROR(S) IN PASS 2` (§0).
+* **What this does NOT say** (RESULTS §3): NOTHING about `?ID22N` RUNTIME semantics — truncation
+  direction and zero-divisor behaviour are unmeasured, no `.COM` link or console evidence came
+  from this round and NO `spec/RUNTIME.txt` row may cite it; `z = a / -b` (a unary-minus
+  DIVISOR), DIV nested inside MOD, and a mixed 1-byte DIVIDEND are unmeasured and no claim word
+  covers them; the DEC and FLOAT division laws ([C084]-[C086], the `[NG16]/[NG17]/[NG19]` DEC
+  notes) do not transfer to BINARY and nothing here transfers them.
+* **Lowered.**  Arm 1 at `4ff1ea5` (`ocaml/lib/codegen.ml`, the Div arm): the refusal
+  `DIV by non-constant [TBD]` is replaced by the measured parking `lower_hl l / PUSH H /
+  lower_hl r / POP D / CD ?ID22N` with the store following, and `last_imm` cleared after the
+  helper call mirroring MOD/Eprefix; E51J's negate-then-park and E51K's interleave came for
+  free from `lower_hl st l` plus the pre-existing [N303]-keyed `Vint && size = 1` divisor
+  match.  GUARDS keep the UNMEASURED classes refused BY NAME — an `Esuffix` (call or array
+  element) divisor, and deref/based/qualified on EITHER side (keyed on `hl_operand_deref ||
+  writes_de`) — because MUL's deref-left `LXI D` route has NO DIV witness.  Whole-file `cmp`
+  at this arm ALONE: E51A,B,C,D,E,F,H,J,K,L byte-exact (10/12); the two remaining rows are
+  CONSUMER shapes, [C354].
+
+## C354 — THE ?ID22N QUOTIENT IS CONSUMED BY THE SAME ROUTES A VARIABLE IS — XCHG'D INTO AN ADD IN EITHER WRITTEN ORIENTATION, PUT THROUGH THE [C079] TAIL, AND COMPARED WITH `?IS22N` PLUS A `7C B5` ZERO TEST WHOSE SKIP BYTE IS `C2` (JNZ), NOT THE [C072] `CA` I PREDICTED (E2E-51/P1 §2.2; falsifies H-G-leftfirst, H-F-push, H-F-store, H-H-refuse, H-I-refuse, and the `CA` reading of [C072] for this shape)
+
+* **Measured — ADD is orientation-free over a quotient.**  E51F (`z = a / b + c`) is
+  `<div> / EB / 2A r4 / 19 / 22 r6`: the quotient in HL is XCHG'd to DE, `c` is loaded and
+  `DAD D` — [C141]'s P7 isomorphism (call-left `EB / 2A / 19`), H-F-push (the P5 form) and
+  H-F-store falsified.  E51G (`z = c + a / b`) is THE SAME OBJECT: whole-file `cmp -l` of the
+  two goldens shows ONLY bytes 5, 17 and 25 differing — the three packed name records
+  (PROG-NAME, EXTDEF, DEF-PUBLIC; one bit each, `F` 0x46 vs `G` 0x47) — while the
+  DATA/RELOC/CHAIN-EXT/SET-LC record streams are IDENTICAL.  Right-first evaluation therefore
+  holds for DIV operands regardless of the written side (H-G-leftfirst falsified, §1).
+* **PUT item (E51H).**  The div lowering simply PRECEDES the standard [C079] numeric tail:
+  preamble `11 52 02 / 01 00 00 / CD ?SYSPR`, then the F005-shape div, then
+  `3E 09 / CD ?QICOP / CD ?PNVOP / CD ?QIOOP`, then the cont triple as
+  `LINK-SET-LC code 000A / RELOC code 0x25 / LINK-SET-LC code 0025 / CD ?STOPX`; CODE 0028.
+  The width byte `09` is [C079]'s `min(9, digits(32767)+4)` law holding over a HELPER RESULT
+  exactly as over a variable (H-H-refuse falsified).
+* **Equality TEST (E51I).**  After `<div>`, the RESULT is parked (`E5`) across the RIGHT
+  operand (`2A r4` = LHLD c), `D1`, `CD ?IS22N`, then the HL-zero test `7C / B5` and
+  **`C2` (JNZ)** over the THEN-part, patched by the standard forward-fixup triple
+  (`LINK-SET-LC code 001C / RELOC code 0x24 / LINK-SET-LC code 0024`, then `21 01 00 / 22 r6`,
+  `CD ?STOPX`); CODE 0027.  `= <var>` against a quotient therefore shares [C089]'s zero-test
+  polarity (skip the THEN-part when HL != 0), NOT the [C072] `CA` reading.
+* **MISS kept verbatim (PROTOCOL #2).**  §1 E51I: "MISS on the jump byte: predicted `CA`,
+  measured `C2` (JNZ)" — my [C072]-based prediction is FALSIFIED and stands as written; the
+  acceptance itself is the HIT that falsifies H-I-refuse (my baseline's
+  `condition form not in E2E-3b subset [TBD]: (= (/ a b) c)` is a `my-gap`, not a DR boundary).
+  H-I-alt was PARTIALLY right: a compare keyed on the helper RESULT needs the same park the
+  store uses.
+* **What this does NOT say** (RESULTS §3): NO runtime claim — nothing here says which way
+  `?ID22N` truncates or what a zero divisor does, and the branch OUTCOME is unwitnessed (byte
+  tier only).  `^=` against a DIV, a DIV on the RIGHT of a relation, a CONSTANT-divisor DIV in
+  TEST position, ordered relations (`<`, `>`, `<=`, `>=`) against a DIV, and literal or member
+  right operands have NO DR object in this bank; they stay unmeasured and this compiler keeps
+  refusing them BY NAME at the E2E-3b site.  Nothing here widens [C072]'s `CA` family beyond
+  noting that it does not cover this shape.
+* **Lowered.**  TWO arms, each keyed ONLY on the measured shape via the shared predicate
+  `is_var_divisor_div` (unwrapped `Div`, non-constant divisor, every operand in arm 1's
+  accepted classes) so the arms cannot disagree about what is measured.  Arm 2 `7d17b63` — the
+  ADD consumer: right-first evaluation with `EB / 2A / 19` when the RIGHT operand is a
+  measured-class DIV and the LEFT is plain and non-ladder; [C150]'s left-first PARK is
+  untouched for every other compound right, and constant-divisor rights keep their existing
+  route.  Arm 3 `ee589cc` — the TEST consumer, placed directly after the [E2E-34/P5]
+  `v = <expression>` arm, admitting ONLY relation `Eq` with an UNWRAPPED `is_var_divisor_div`
+  LEFT and a plain fixed-binary automatic (`is_plain_num_auto`) RIGHT, emitting the golden tail
+  verbatim through the existing park / `?IS22N` / zero-test / `emit_triple` forward-fixup
+  machinery.  E51H needed NO arm at all: arm 1's lowering already feeds the existing PUT-item
+  route, which matched the golden whole-file (the predicted "H consumer" EVAPORATED
+  empirically — implementing it blind would have widened an unmeasured route).  After arm 3,
+  all twelve `golden/e51p1/E51*/` objects are whole-file BYTE-EXACT.
+
+## C355 — THE CONSTANT-DIVISOR DIV PATH IS UNCHANGED BY THE PARKING LAW: `z = a / 3` STAYS ON THE P080A IN-LINE LADDER AND MY BASELINE OBJECT IS BYTE-IDENTICAL TO DR'S — THE CONTROL ROW OF E2E-51/P1 (E2E-51/P1 §2.3; NO ARM; harness validity witness)
+
+* **Measured.**  E51L (`z = a / 3`) is accepted by DR and lowers on the pre-existing P080A
+  in-line ladder `3E k / E5 / 6F 87 9F 67 / D1 / CD ?ID22N` (then `22 <z>`); whole-file `cmp`
+  of my BASELINE `.REL` against `golden/e51p1/E51L/E51L.REL` shows ZERO differing bytes (both
+  128 B, sha256 `bc2fd12e3c429201e7f3d4e4a6edf74bdfa58912610f8f1991e69e00d8cf6544`); CODE 001A,
+  DATA 0008 (§1 H-L-known HIT, §2.3).
+* **The boundary law.**  Both forms COEXIST: a constant divisor keeps the in-line sign-extend
+  ladder that loads the immediate with `3E k` BEFORE the push, a variable divisor takes the
+  [C089]-shaped parking of [C353]; both reach the same `?ID22N` helper and NOTHING in this
+  round changes the constant path (§2.3).
+* **Control-row function.**  E51L was pre-registered (HYPOTHESES, `9bac977`) as the bank
+  harness control: a MISS there would have invalidated the batch or my constant path and
+  forced every other row to be re-read with suspicion.  It passed, so the batch harness is
+  validated before any other verdict is read; the falsifier branch was NOT triggered (§0).
+* **What this does NOT say** (RESULTS §3): no NEW claim about the constant path beyond
+  [C089]/P080A — only the divisor `3` is sampled in this bank, constants outside 0..255 are
+  unmeasured here, and no runtime semantics are asserted.
+* **Lowered.**  NO arm: my existing constant-divisor encoder produced the object and the round
+  MEASURED the equality against a fresh DR golden (classification: 1 already-byte-exact row).
+  Verification re-run whole-file at `ee589cc` (and again on the rebuilt binary `f172d8eae2a7…`
+  at hop 5): E51L BYTE-EXACT.
