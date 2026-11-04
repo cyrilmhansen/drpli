@@ -5310,3 +5310,45 @@ VARYING-vs-DEC or array-vs-scalar homonyms (stay `[TBD]`, must keep refusing); n
 about LOAN2 beyond its blocker — its rerun after the fix RECORDS the next blocker, never
 fixes it. Ledger still ends **C355**; claims start at **C356** and may be derived ONLY
 from RESULTS §2.
+
+## E2E-52/P1 hop 4 (2026-11-04; ARM landed `6a4c554`; G ADVANCED not fitted; LOAN2 next blocker recorded; registration OWED; renewals 3/12 used)
+
+MEASURED / ACCEPTED (my-compiler verification vs committed goldens `golden/e52p1`,
+never re-derived; binary `2785a1b6…`, dune rc=0): the ONE small scope-aware prescan
+change (pdec_ctx.pd_own + pd_vars=TOP-rows-only + Sproc arm `pd_vars = own @
+cx.pd_vars`, conflicting-kinds refusal kept verbatim for a clash WITHIN one block's
+own rows; pd_img/pd_str/pd_fl/pd_procs/pd_fl_procs/const_cells/pool base INTACT;
+bind untouched) made E52B,C,D,H,I whole-file BYTE-EXACT (all five pre-registered H1
+discriminators now reproduced: B DATA 0x10, C inner binary-immediate CODE, D DATA
+0x0A, H binds THROUGH mid, I prescan_cond DATA 0x15); controls A/E/F/J byte-IDENTICAL
+to BASELINE-MINE shas 8217250a/4fe89c7d/8c09f2e7/0a3f6b6a; E51A..L sweep 12/12;
+FULL pre-registration gate REAL rc=0 captured DIRECTLY (build/gate-e52p1-pre-reg.log:
+1186/0 of 1186, 181/181, 9/9, 136 rows 0/0, census 15/0/26/0, prose 5). LESSON:
+`dune build | head` SIGPIPEs dune — the old binary silently survived; ALWAYS capture
+rc DIRECTLY (same class as the E51 pipeline-artifact lesson).
+MEASURED (accepted): E52G ADVANCED — blocker gone, compiles; POOL half byte-identical
+to DR (00 03 00 @0000 + 00 03 00 00 00 @0003, formal-typed); whole file NOT exact:
+DATA 000F vs DR 0014, CODE 58 vs 0x4A. The residual delta is EXACTLY the §2.3 formal
+cell map: DR block@0x0B→word 0x000D (a 5-byte MAIN-SIDE COPY-IN TEMP @0x0D, filled
+load-actual-precision 3E 04 DLDOP + store-formal-precision 3E 09 DSTOP in main),
+callee pointer cell @0x12; MINE block@0x0B→word 0x0008 (the OUTER cell directly),
+NO temp, pointer cell @0x0D, callee store 2A r0D instead of 2A r12. H1 NOT contradicted
+(lexical typing/pool demand confirmed; the delta is a DIFFERENT lowering component
+outside pre-registered PLAN §4 scope). HYPOTHESES condition-4 literal text ("any E52
+object not whole-file byte-exact") fires for row G: the round STOPS AT EVIDENCE for G —
+NOT fitted, NOT implemented. PROPOSED (never adopted): (a) a copy-in-temp arm at a
+future authorized hop (its runtime hazard — DSTOP width 09 through a pointer to a
+3-byte cell — is BYTE-TIER-observed structure only, UNRUN); (b) whether G joins
+spec/DIVERGENT.txt; (c) registration therefore covers the NINE byte-exact rows only.
+MEASURED (accepted): LOAN2 rerun UNMODIFIED ADVANCED past the conflicting-kinds blocker
+to next blocker verbatim: `codegen: PUT FILE with a bare PAGE control item [TBD]
+(line 99) -- PAGE has DR's bytes (E46N10...) but no specimen of MINE...` — RECORDED,
+NOT fixed (no-expansion constraint). Census re-snapshotted via its OWN write path
+(`corpus_census.py --check spec/census/corpus-census.json` rc=0): counts UNCHANGED
+15/0/26/0, metadata + LOAN2 msg only (the first gate run correctly FAILED rc=1 on this
+drift — a gate that cannot fail is not a gate).
+OWED: the exact hop-5 contract in PROGRESS.md → Next action (RESULTS §5 append; register
+9 specimens + --update-inventory 1186→1195 + gate AGAIN; claims from C356 ONLY from
+RESULTS §2; COVERAGE rows after inventory; census via own write path if moved; ALL
+harness self-tests — stale dashboard **26** check PRE-EXISTING, record never fix;
+close prose; STOP after P1). Ledger still ends C355.

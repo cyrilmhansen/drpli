@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — **E2E-52/P1 IN FLIGHT** (operator-authorized 2026-11-04; scope-aware DEC pool prescan, LOAN2 class; pre-registration `d1fbc16`; oracle 10/10 + goldens + RESULTS `e14d180`; IMPLEMENTATION OWED — see ## Next action). Prior: E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
+## Current phase — **E2E-52/P1 IN FLIGHT** (operator-authorized 2026-11-04; scope-aware DEC pool prescan, LOAN2 class; pre-registration `d1fbc16`; oracle 10/10 + goldens + RESULTS `e14d180`; ARM LANDED `6a4c554` — 5 my-gap rows byte-exact, controls+E51 intact, G ADVANCED to the §2.3 cell-map gap (never fitted), LOAN2 advanced to its NEXT verbatim blocker; pre-reg gate rc=0; RESULTS §5 + REGISTRATION + CLOSE OWED — see ## Next action). Prior: E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
 
 E2E-51/P2 executed the P1 hop-6 "rev2 DERIVATION fix" proposal under an explicit
 operator brief. `reference.py:_Hamm00Port.run()`: the `fed0:` entry `self.skip()` moved
@@ -279,7 +279,48 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P1 IN FLIGHT — ORACLE 10/10 ACCEPTED + goldens/RESULTS committed `e14d180`; SCOPE-AWARE PRESCAN IMPLEMENTATION OWED (2026-11-04; hop 3 closed at context pressure; renewals 2/12 used)
+### E2E-52/P1 hop 4 PARTIAL — ARM LANDED `6a4c554` (B,C,D,H,I byte-exact; A/E/F/J unchanged; E51 12/12; LOAN2 ADVANCED; census re-snapshotted; PRE-REG GATE rc=0); RESULTS §5 + REGISTRATION + CLOSE OWED (2026-11-04; renewals 3/12 used)
+
+MEASURED this hop (accepted): scope-aware prescan arm (`pd_own` field +
+`pd_vars`=TOP-only + `Sproc` arm `pd_vars = own @ cx.pd_vars`, ONE file,
+codegen.ml) makes E52B,C,D,H,I whole-file BYTE-EXACT vs `golden/e52p1`; controls
+A/E/F/J byte-IDENTICAL to BASELINE shas `8217250a`/`4fe89c7d`/`8c09f2e7`/`0a3f6b6a`;
+E51A..L sweep 12/12. E52G: blocker GONE, pool bytes byte-identical to DR
+(`00 03 00`@0000+`00 03 00 00 00`@0003) but NOT whole-file exact: DATA 000F vs 0014
+— residual is EXACTLY the §2.3 formal cell map (DR: block@0x0B→temp@0x0D,
+5-byte main-side copy-in temp, pointer cell @0x12; mine: block→actual cell 0x08,
+NO temp, pointer @0x0D). H1 is NOT contradicted (typing/pool lexical = confirmed);
+condition 4 read literally fires ONLY for row G → stop at evidence for G,
+NEVER fit, NEVER implement the copy-in arm this round (out of pre-registered
+PLAN §4 scope; "do not expand"). LOAN2 rerun UNMODIFIED ADVANCED: next blocker
+verbatim `codegen: PUT FILE with a bare PAGE control item [TBD] (line 99)` —
+RECORDED, NOT fixed (census REFUSED 26 unchanged). Census re-snapshotted via its
+OWN write path (`corpus_census.py --check`, rc=0, counts UNCHANGED 15/0/26/0,
+metadata + LOAN2 msg only) — UNCOMMITTED. FULL pre-registration gate REAL rc=0
+(captured DIRECTLY): byte panel 1186/0 of 1186, negative 181/181, divergence 9/9,
+coverage 136 rows 0/0, census 15/0/26/0, prose 5 — `build/gate-e52p1-pre-reg.log`.
+
+OWED EXACTLY (hop 5, in order): (1) append RESULTS.md §5 "post-fix verification"
+(10-row verdict table + the E52G delta verbatim incl. reldump lines; §1-§4 and
+predictions UNTOUCHED); commit `spec/census/*` + RESULTS + LEARNINGS § "hop 4"
+together. (2) Register the NINE byte-exact specimens (E52A,B,C,D,E,F,H,I,J —
+NOT G) in `tools/e2e_gate.py` SPECIMENS + sanctioned `--update-inventory`
+(expect 1186→1195) + gate AGAIN (byte-panel ACTUAL post-update; capture rc
+DIRECTLY). (3) claims from **C356** ONLY from RESULTS §2 (§2.1/§2.2/§2.3 —
+§2.3 claimable as measured DR law although my object differs). (4) COVERAGE rows
+AFTER the inventory update (cite only registered probes/claims; schema
+`spec/COVERAGE-SCHEMA.md`, validator `tools/coverage_check.py:203-247`; no row
+cites G as byte-exact). (5) census via own write path again if head/binary moved.
+(6) ALL harness self-tests (test_functional_dashboard.py rc=1 stale `**26**` check
+PRE-EXISTING — record verbatim, NEVER silently fix). (7) close prose
+(E2E-52/P1 CLOSED with G an OPEN my-gap + PROPOSAL: copy-in-temp arm at a future
+authorized hop; also PROPOSED, not adopted: whether G joins spec/DIVERGENT.txt) +
+`/handoff` + attest. STOP after P1; no push; goldens never re-derived/overwritten;
+NEVER re-run the retry-DFS; operator handoff.config.json never staged.
+
+SUPERSEDED-BY-ABOVE (kept as written): E2E-52/P1 IN FLIGHT — ORACLE 10/10 ACCEPTED + goldens/RESULTS committed `e14d180`; SCOPE-AWARE PRESCAN IMPLEMENTATION OWED — hop-3 contract (steps 1-2 of which are DONE — arm landed `6a4c554`, LOAN2 rerun done, pre-reg gate rc=0 done; step 3 registration OWED as re-stated above):
+
+### E2E-52/P1 hop 3 contract (as written by hop 3; kept verbatim) (2026-11-04; hop 3 closed at context pressure; renewals 2/12 used)
 
 Hop 3 LANDED (steps 1+2 of the contract below, `e14d180` — goldens + RESULTS committed
 TOGETHER BEFORE any compiler change; `ocaml/` UNTOUCHED, `dune build` rc=0 at session
@@ -1785,13 +1826,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 264
-checkpoint-id: g264-9d1e975182f5
+checkpoint-generation: 267
+checkpoint-id: g267-5caaed35ac6e
 checkpoint-kind: auto
 content-delta: none
 readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-04T13:18:27.768Z
+guard-level: 4
+checkpointed: 2026-11-04T13:39:25.103Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 3d913ee2df56fd0aa785815c71336e6f761d68503d537982061434bfb99ffc73
 source-handoff: 35205ea0fa0c8f1b52c67ecdef03e9536bd00809aab2dc2c9b30fe140019a10d

@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "a28a95e69bbd196f41a20dc497f998bf",
+ "binary_md5": "1cc2b674c941558b8d3655c1e243ea21",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,13 +15,13 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-04T01:37:59",
+ "generated": "2026-11-04T14:37:54",
  "git_dirty_paths": [
   "M HANDOFF.md",
   " M PROGRESS.md",
   " M handoff.config.json"
  ],
- "git_head": "5ae44ca7713b2cfa01600812aadb0f3faa2b9e17",
+ "git_head": "6a4c554c1d490edc53c3cc3cfd02158efbed0dd3",
  "rows": [
   {
    "dir_present": true,
@@ -399,7 +399,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: variable i declared with conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]\")",
+   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE with a bare PAGE control item [TBD] (line 99) -- PAGE has DR's bytes (E46N10, 0023-0034, CALL ?PAGOP after the",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
