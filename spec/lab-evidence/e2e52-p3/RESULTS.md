@@ -100,3 +100,51 @@ CONSOLE `put page` (N3_PAGE/my-gap, no object), and `LINE` (dr-refuses, E46N21 p
 BYTE TIER ONLY: the `?PAGOP` chain has never been executed under cpmsim; there is no
 `spec/RUNTIME.txt` row and no `OUTPUT_CHECK` entry for this round. COPYLPT's next
 refusal (counted SKIP item at line 6) is itself an unmeasured boundary, not fixed here.
+
+---
+
+# E2E-52/P3-2 RESULTS — subround PUT/GET FILE EDIT: arm, record-order fix, registration
+
+Records subround **P3-2** (LOAN2:115 `PUT EDIT`, armed subset = file PUT+GET EDIT with
+bare-skip, literal `f`/`a` formats, string and DEC-variable data items). All predictions
+pre-registered in `PLAN.md` §P3-2 BEFORE any `ocaml/` byte; all rc captured DIRECTLY.
+
+## 1. Predictions vs measured
+
+| PLAN ref | Prediction | Measured | Verdict |
+|---|---|---|---|
+| P1 | P086K whole-file `cmp` rc=0 FIRST TRY, 512 B | rc=1 at octet 32 at arm `a51fb93`; after the record-ORDER fix `2686bcc`, `cmp` rc=0 (512 B, CODE `0065`=101, DATA `0012`=18, sha `c79f196b…` == golden) | **FALSIFIED (first try) then HIT**; the "+3 code bytes" diagnosis itself FALSIFIED — `0x62`=98 is the last code record's ADDRESS; every CODE/pool byte already agreed; the divergence was purely DATA/COMMON record ORDER |
+| P2 | P086J `cmp` rc=0 FIRST TRY, 256 B | rc=0 (sha `76524d50…` == golden) at arm, FIRST TRY | HIT — zero fitted |
+| P3 | zero drift | sweep **75/75 byte-exact** (E46N 19/19, E52 10/10, E51 12/12, R10 bank 34/34); markers E46K4/E46K15/E46N21 intact rc=2; warning histogram IDENTICAL; binary `748c434fafd8c01579…` (CLEAN rebuild — incremental of the same source hashes `a353f6fc…`; LESSON: always say which build) | HIT |
+| P4 | focused refusals name the class; LOAN2 STILL refuses via the fmt_spec catch, message VERBATIM, no line number | rc=2 BY NAME for picture/x(5)/counted-SKIP-at-option-position/PAGE-at-option-position/numeric literal/DEC formal/fixed-bin expression; LOAN2 UNMODIFIED rc=2 `codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group formats are not decoded)` — exactly the predicted catch shape, recorded never fitted | HIT; probe-design FALSIFICATION kept: my first counted-SKIP/PAGE probes put the controls INSIDE the data list — the parser collects EDIT controls ONLY from the statement-option position (re-probes p32r9/p32r10 named the class with the correct line 4 on CRLF) |
+| P5 | E41X8 compiles rc=0 (no golden — bytes never claimed); retire REJECTS+NEG_META, negatives 180→179 | rc=0 384 B code=93 data=3; retired at `ff1c8f2` with written-history notes; `--update-inventory` diff EXACTLY ONE line `432d431`, refusals 180→**179** | HIT |
+| P6 | registration: SPECIMENS P086K+P086J; inventory 1197→1199 EXACTLY TWO lines; gate rc=0 1199/0; census own write path (moved msgs verbatim); COVERAGE after the IFACT/LOAN1 verification; C360 from measured bytes only | `60ed349`: gate REAL **rc=0 1199/0** (`build/gate-e52p3b-reg.log`), negatives 179/179, divergence 9/9, coverage 139 0/0, census 15/0/26/0 IDENTICAL, prose 5; LOAN2 blocker MOVED verbatim (P3-1 deferred-EDIT text gone), COPYLPT UNCHANGED; discrepancy verified (LOAN1 has NO edit stmt; IFACT's edit has NO picture — the row's clause FALSIFIED); COVERAGE row `9e897e8` SUPPORTED+EXACT:12+MEASURED, coverage_check rc=0 139 rows 0/0; claim **C360** `19ce1f4` from PLAN §2 + re-verified reldump bytes ONLY; `file_prose_check.py` rc=0 | HIT |
+
+## 2. The mechanism (arms `a51fb93` + `2686bcc`, `ocaml/lib/codegen.ml` ONLY)
+
+Contract (a)-(g): `edit_match` + file arm of `match_put_edit` (leading bare SKIP →
+`Sk_lit "1"`; counted/other controls raise BY NAME); `match_get_edit` over the FLAT parser
+list; `edit_stmts`/`prealloc_fmt_tables` FIFO in SOURCE order; new `prescan_stmt` `Sget`
+arm for the GET table's pool bytes; `authorize_file_edit_item` admits ONLY PIlit +
+PIvar-Vdec; the `is_edit && file <> None` guard and the Vdec `is_edit` refusal DELETED
+(premises falsified by P086K/P086J); `lower_get_file_edit` with `?EDTIV` as a `call_ext`
+name only. The fix `2686bcc` is the POOL-PARTITION reorder: `prealloc_fmt_tables` returns
+its block count, the module assembly partitions statics/tables/lowering and reorders ONLY
+the measured shape (tables + COMMON group + no static cells + tables at data 0000); every
+other combination RAISES BY NAME as unmeasured. Zero new encoders.
+
+## 3. LOAN2 rerun UNMODIFIED
+
+rc=2, blocker advanced PAST `PUT EDIT deferred [TBD] (line 115 …)` to the fmt_spec catch
+above — NOTHING at 115 fixed beyond the armed subset; the picture `p'99/99'` at 115 is the
+**P3-3 target** (record `02 A B len text`, operands UNDECODED). LOAN2 is NEVER claimed
+exact. Campaign continues: picture `02` decode, `x(w)` `0B` records, rep-groups,
+DEC-formal (deref) items, fixed-bin EXPRESSION items, then the PRINT/PAGESIZE OPENs 54/56.
+
+## 4. NOT-say / remaining unmeasured forms
+
+Byte tier only: no P086K/P086J object executed under cpmsim; no `spec/RUNTIME.txt` row.
+E41X8's composite open+EDIT bytes are claimed by NOTHING — no golden exists. Counted
+SKIP+EDIT, PAGE+EDIT, picture, x(w), rep-groups, remote/counted/grouped formats,
+numeric-literal and DEC-formal and fixed-bin-expression EDIT items, FLOAT/member/struct
+items and expression format counts all stay refused BY NAME ([C360] "does NOT say").
