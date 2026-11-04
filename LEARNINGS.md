@@ -5,6 +5,87 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT (2026-11-04; session 01a1a7bd; continuation of chain 01a1a795)
+
+- **ACCEPTED (P3-1 CLOSED and registered).** Full landing chain, every rc DIRECT:
+  guard g281 block `8dbebff`; sanctioned `--update-inventory` rc=0 INVENTORY
+  **1196->1197** (diff EXACTLY ONE line: E46N10 refusal->specimen,
+  probes/E46N10.PLI + golden/e42p2c/E46N10/E46N10.REL) `e728175`; POST-REG FULL gate
+  REAL **rc=0** `build/gate-e52p3-reg.log` -- byte panel **1197/0 of 1197** incl.
+  `BYTE-EXACT E46N10 (384 bytes)`, divergence 9/9, coverage 139 rows 0/0, census
+  15/0/26/0, prose 5; claim **C359** (18-byte file PAGE law, measured bytes only)
+  `c410d18`, ledger ENDS **C359** (182 claims), prose rc=0; COVERAGE `FILE.PUT_PAGE`
+  -> SUPPORTED + EXACT:1, coverage_check rc=0 139 0/0, stats own write path
+  (REFUSED 23->22, SUPPORTED 86->87, no_parity 30->29) `d3b8859`; RESULTS.md + PLAN
+  §5 row `3e74d83`, prose rc=0. **FALSIFIED (kept):** the brief's `negatives 181/181`
+  -- MEASURED **180/180**: retiring E46N10 from REJECTS removes exactly one negative
+  row; the honest actual is recorded in RESULTS §3/§4 and the commit message.
+- **ACCEPTED (P3-2 target, verbatim).** `artefacts/LOAN2.PLI` rc=2 blocker:
+  `codegen: PUT EDIT deferred [TBD] (line 115; only PUT LIST is implemented;
+  format/picture editing needs the ?EDITF/?EDTOV/?QDDSL route family)` -- statement
+  115-116: `put file(output) skip\n    edit('|',100*m+y) (a,p'99/99');` (`output` is
+  `declare ... output file;` at ~line 39; m, y are `fixed binary`). Refusal site:
+  `prescan_stmt`'s `Sput` arm (codegen.ml ~3223+) tries `match_put_edit` (accepts ONLY
+  `stream=None, on_opts=[], kind=Edit`) then falls to `match_put_list_lit`, whose
+  Edit-kind catch at codegen.ml:2646-2649 raises. LOAN2:85 `put edit(<4 strings>)(skip,a)`
+  passes the prescan via `match_put_edit` -- console EDIT machinery EXISTS ([C090]).
+- **ACCEPTED (file-EDIT DR witnesses ALREADY IN HAND -- no new oracle needed for the
+  shapes below).** (a) `golden/probe55/P086K/P086K.REL` re-dumped THIS session (512 B;
+  NOT a panel specimen; the E41X8 NEG_META calls it `an object this panel does not
+  hold`): `put file(f) edit(d)(f(5,1))` with NO open anywhere -- attach 0016-0021
+  (LXI H,*C / LXI D,0652 / LXI B,*CODE cont 003D) `?SIOOP`@0020, table *S(0000) =
+  `80 00 00 05 01 81` (f(5,1) = `00 05 01` -- the FILE route uses the SAME table
+  encoding as console [C090]; BOTH put+get tables precede all literals: pool law
+  holds on the file route), `?EDITF`@0026, then d-preparation `LXI H,*S(000F) / MVI
+  A,05 / ?DLDOP`, `MVI A,08 / MVI B,06 / ?QDCOP`, `?EDTOV`@0038, `?QIOOP`@003B; the
+  1.5 literal is a 3-byte cell *S(000C)=`50 01 00`; get side runs `?EDITF ?EDTIV
+  ?QCDOP` at 0046+. (b) `golden/first/LOAN2/LOAN2.REL` statement-115 span
+  0522-055C (reldump saved to ignored `build/e52p3/loan2-golden-reldump.txt`):
+  attach 0522-052B (`?SIOOP`, cont backpatch `SET-LC code 0529` + `RELOC code 0x55d`),
+  bare skip = `MVI A,01 / ?SKPOP` (same count-byte law as E46N1), `LXI H,*S(table) /
+  ?EDITF`@0537, item1 `LXI H,r / MVI A,01 / ?SLCTS`@053F / `?EDTOV`@0542, format
+  expression `100*m+y` lowered `LHLD m / LXI D,0064 / ?IM22N / XCHG / LHLD y / DAD D /
+  MVI A,09 / ?QICOP`@0555 / `?EDTOV`@0558, close `?QIOOP`@055B; continuation 055D is
+  the `call display(...)` argument code. SIOMODES.txt LOAN2 rows: SIX `?SKPOP ?EDITF`
+  attaches (052B,0796,0830,086E,08F1,0951) + one `?EDITF ?SLCTS` WITHOUT skip (068A);
+  source file-skip-edits at 115,191,195,199,212 (header/line procs: string literals IN
+  format, `x(19)`/`x(6)`, REPEAT `2(...)`, DEC data items yi/ir, picture data
+  `p'b99v.99`, rep-group `('---------------' do i = 1 to 4)`).
+- **PROPOSED (unverified, successor must measure before adopting):** the two `?EDTOV`
+  tails correspond to the two DATA items (`a` and `p'99/99'`), the `100*m+y`
+  computation feeds a VARIABLE-format slot, `?QICOP MVI A,09` and `?SLCTS MVI A,01`
+  operand meanings, and the type/declaration of `a` (not found by the first grep --
+  find its `declare` before ANY arm). Nothing here is a law yet.
+- **ACCEPTED (context facts).** Census: LOAN1 EXACT 1536 B; DEPREC REFUSED at a
+  PRE-EDIT blocker (array of 0-byte elements [C159]); COPYLPT REFUSED at counted-SKIP
+  item 2 line 6 (PRE-EDIT). Negative row **E41X8** (marker `PUT EDIT deferred`, kind
+  my-gap) pins EXACTLY the P086K shape `put file(f) edit(d)(f(5,1));` behind a stream
+  output title open -- retires when file EDIT lowers (E46K1/K3 + E46N10 symmetry: move
+  out of REJECTS AND NEG_META, keep prose as history). Console `fmt_spec`
+  (codegen.ml ~2838-2870) decodes ONLY f(w)/f(w,d)/a/a(w) with LITERAL widths + bare
+  skip/page; string-in-format / expression / picture / rep-group refuse
+  `PUT EDIT format item form unsampled [TBD]` (C090 PERIMETER). COVERAGE row
+  `IO.PUT_EDIT` (line 65) says the picture item is `measured on the IFACT/LOAN1
+  shapes` -- MEASURED DISCREPANCY this session: LOAN1.PLI has NO edit statement;
+  verify what N12_EMPTYFIX/IFACT actually measure before touching that wording
+  (record, never silently fix).
+- **OWED (P3-2 groundwork, in order; NOTHING compiler-edited yet, PLAN must be
+  committed BEFORE any ocaml/ byte):** (1) find `a`'s and `clear`'s declarations in
+  LOAN2.PLI; (2) decode ALL format tables from LOAN2.REL DATA pool + the other five
+  file-skip-edit spans (068A,0796,0830,086E,08F1,0951) -- string-in-format record
+  encoding, V-expression records, picture data, x(w), 2(...), do-rep; (3) check
+  probes/E46N6.REL-era + e2e8/e2e11 goldens for anything closer; (4) decide the
+  SMALLEST first subround (candidate P3-2a: file EDIT with bare skip + f/a literal
+  formats = P086K shape, E41X8 retirement, panel specimen vs golden/probe55/P086K --
+  its bytes are FULLY pinned; string/V/picture = later subrounds with their own
+  evidence + oracle probes if corpus objects cannot isolate them); (5) write PLAN
+  §P3-2 with pre-registered predictions + open progress row; commit; (6) arm, sweep,
+  refusals, LOAN2 re-run verbatim, register, claim C360+ from measured bytes only;
+  (7) renew ONLY at safe boundaries (renewal 3/12 consumed at THIS checkpoint; cap 12;
+  handoff.config.json is the authority). Constraints unchanged: no push; goldens never
+  re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode
+  LOAN2 in the compiler; campaign continues past every single blocker.
+
 ## E2E-52/P3-1 ARM LANDED + registration IN FLIGHT (2026-11-04; session 01a1a7a8; arm `adb749c`; boundary checks and LOAN2 advance MEASURED; inventory/gate/COVERAGE/C359 OWED)
 
 - **ACCEPTED (arm, measured).** `ocaml/lib/codegen.ml` edit list B1-B7 executed exactly; one

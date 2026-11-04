@@ -7,7 +7,33 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-0. **E2E-52/P3 CAMPAIGN IN FLIGHT (2026-11-04; operator brief: LOAN2 progressive closure;
+0. **E2E-52/P3 CAMPAIGN IN FLIGHT (2026-11-04; renewals autonomous; do NOT stop after
+ one blocker).** **P3-1 CLOSED + REGISTERED** (chain `8dbebff` guard block, `e728175`
+ INVENTORY 1196->1197 ONE-line diff + post-reg FULL gate REAL **rc=0 1197/0**
+ `build/gate-e52p3-reg.log` — negatives MEASURED **180/180**, the brief's 181/181
+ FALSIFIED by the retire; claim **C359** `c410d18` ledger ENDS C359/182; COVERAGE
+ FILE.PUT_PAGE SUPPORTED+EXACT:1 rc=0 `d3b8859`; RESULTS+PLAN §5 `3e74d83`; prose rc=0;
+ tree clean except operator config). E46N10 is a panel-EXACT specimen (384 B).
+ **SUCCESSOR: subround P3-2 = PUT EDIT (LOAN2:115 verbatim `codegen: PUT EDIT deferred
+ [TBD] (line 115; ... ?EDITF/?EDTOV/?QDDSL route family)`).** READ FIRST `LEARNINGS.md`
+ § "E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT" — it
+ carries the refusal site (codegen.ml:2646 in match_put_list_lit), the console EDIT
+ state ([C090]; fmt_spec admits ONLY literal-width f/a + bare skip/page), and the
+ ALREADY-MEASURED DR file-EDIT witnesses: `golden/probe55/P086K/P086K.REL` re-dumped
+ this session (attach 0652/?SIOOP, table `80 00 00 05 01 81` at *S(0000), ?EDITF,
+ ?DLDOP/?QDCOP/?EDTOV/?QIOOP, no OPEN needed, pool law holds) and `golden/first/LOAN2/
+ LOAN2.REL` span 0522-055C (skip=MVI A,01/?SKPOP; 100*m+y=LHLD/LXI D,0064/?IM22N/XCHG/
+ LHLD/DAD/MVI A,09/?QICOP/?EDTOV; full reldump in ignored `build/e52p3/`). E41X8
+ negative pins the P086K shape (retirement candidate). Execute the § owed steps (1)-(7):
+ finish evidence (decls of `a`/`clear`; decode ALL LOAN2 tables + spans 068A,0796,0830,
+ 086E,08F1,0951; string-in-format/V/picture/rep encodings), PROPOSED first arm = file
+ EDIT bare-skip + literal f/w formats (P086K bytes fully pinned; later subrounds own
+ string/V/picture), **PLAN §P3-2 committed BEFORE any ocaml/ byte**, then arm/sweep/
+ refusals/LOAN2-rerun-verbatim/register/C360 from measured bytes only. Constraints:
+ no push; goldens never re-derived; operator handoff.config.json never staged; all rc
+ DIRECT; never hardcode LOAN2; renew at safe boundaries (3/12 used); [C359] does NOT
+ license counted PAGE/PAGE+items/console PAGE/non-leading (all still refuse BY NAME).
+ SUPERSEDED-BY-ABOVE (kept as written):
  renewals autonomous at safe boundaries; do NOT stop after PAGE).** P3-1 **ARM LANDED
  `adb749c`** (codegen.ml only; B1-B7 executed; binary `34e8321a…`; warning profile IDENTICAL
 to baseline). MEASURED: E46N10 whole-file cmp rc=0 FIRST TRY (384 B, sha `75557545…` ==
@@ -1254,25 +1280,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 281
-checkpoint-id: g281-1edb131088b2
-checkpoint-kind: manual
+checkpoint-generation: 282
+checkpoint-id: g282-86d7889034ac
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-500, session 01a1a7a8-c699-7427-a642-9c3e44e4aad8)
-checkpointed: 2026-11-04T18:06:03.007Z
+readiness: unattested
+status: checkpoint (guard level 3, remaining ~6891, session 01a1a7bd-89fb-7427-a642-9c42b324e60d)
+checkpointed: 2026-11-04T18:27:30.447Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 30433a9e4950468fb08d25fb41986b9cc0f1bf400d12ab31c1d012d0ab55ddc7
+source-progress: 511d202065a7ef26d8e3befd2564228f9e2f1298d45371412260501bfd578386
 source-handoff: 149120e007bca9a85e0d703c14416baa4ea25a76544789a91382e9fcb40e9927
-source-learnings: 8f6ae9bbe94acb21a1fee5fe235425d8210a6f20986ca142fdb72ef7490b9e6f
+source-learnings: 2da33dce3d886e8632f21efbd2cb5ea51a3e6790297a41574fc007c7c10a31c9
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a7a8-c699-7427-a642-9c3e44e4aad8
-readiness-at: 2026-11-04T18:06:03.024Z
-readiness-checkpoint: g281-1edb131088b2
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)

@@ -443,7 +443,13 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-1 registration OWED (2026-11-04; arm LANDED `adb749c`, census re-snapshot LANDED; gate/inventory/COVERAGE/C359/RESULTS OWED; then P3-2 = PUT EDIT)
+### E2E-52/P3-2 (PUT EDIT) groundwork OWED — P3-1 CLOSED+REGISTERED (2026-11-04; renewal 3/12; read `LEARNINGS.md` § "E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT" FIRST — it carries every measured fact and the exact owed steps (1)-(7))
+
+P3-1 DELIVERED IN FULL: INVENTORY 1196->1197 one-line diff `e728175`; post-reg FULL gate REAL rc=0 **1197/0** (`build/gate-e52p3-reg.log`; negatives MEASURED 180/180 — the brief's 181/181 FALSIFIED, retire removes one row); claim **C359** `c410d18` (ledger ENDS C359, 182); COVERAGE FILE.PUT_PAGE SUPPORTED/EXACT:1 + stats own write path rc=0 `d3b8859`; RESULTS.md + PLAN §5 row `3e74d83`; prose rc=0 x2. Tree clean except operator `handoff.config.json`.
+P3-2 survey DONE so far (all in that LEARNINGS §): LOAN2:115 verbatim `put file(output) skip edit('|',100*m+y) (a,p'99/99');`; refusal site `match_put_list_lit` codegen.ml:2646; console EDIT EXISTS ([C090], fmt_spec = literal-width f/a only); **DR file-EDIT witnesses already in hand**: `golden/probe55/P086K/P086K.REL` re-dumped (attach 0652 + ?SIOOP/?EDITF table `80 00 00 05 01 81`/?DLDOP/?QDCOP/?EDTOV/?QIOOP, pool law holds, NO open needed) and `golden/first/LOAN2/LOAN2.REL` span 0522-055C (skip = MVI A,01/?SKPOP; `100*m+y` = LHLD/LXI D,0064/?IM22N/XCHG/LHLD/DAD/MVI A,09/?QICOP/?EDTOV); reldump at `build/e52p3/loan2-golden-reldump.txt` (ignored). E41X8 negative row pins the P086K shape — retirement candidate.
+SUCCESSOR: execute LEARNINGS owed steps (1)-(7) EXACTLY — finish evidence (declarations of `a`/`clear`; decode ALL LOAN2 tables + spans 068A,0796,0830,086E,08F1,0951), then pick the smallest first arm (PROPOSED P3-2a = file EDIT, bare skip + literal f/a formats = the fully-pinned P086K bytes; string/V/picture = later subrounds), write **PLAN §P3-2 + predictions, COMMIT BEFORE any ocaml/ byte**, then arm/sweep/refusals/LOAN2-verbatim-rerun/registration/claim from measured bytes only. Constraints unchanged: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries; campaign continues past every blocker.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-1 registration OWED (2026-11-04; arm LANDED `adb749c`, census re-snapshot LANDED; gate/inventory/COVERAGE/C359/RESULTS OWED; then P3-2 = PUT EDIT)
 
 READ FIRST: `LEARNINGS.md` § "E2E-52/P3-1 ARM LANDED + registration IN FLIGHT" — it carries
 the full measured record (arm, boundaries, falsifications, LOAN2 advance) AND the exact owed
@@ -2199,17 +2205,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 281
-checkpoint-id: g281-1edb131088b2
-checkpoint-kind: manual
+checkpoint-generation: 282
+checkpoint-id: g282-86d7889034ac
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-04T18:06:03.007Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-04T18:27:30.447Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 30433a9e4950468fb08d25fb41986b9cc0f1bf400d12ab31c1d012d0ab55ddc7
+source-progress: 511d202065a7ef26d8e3befd2564228f9e2f1298d45371412260501bfd578386
 source-handoff: 149120e007bca9a85e0d703c14416baa4ea25a76544789a91382e9fcb40e9927
-source-learnings: 8f6ae9bbe94acb21a1fee5fe235425d8210a6f20986ca142fdb72ef7490b9e6f
+source-learnings: 2da33dce3d886e8632f21efbd2cb5ea51a3e6790297a41574fc007c7c10a31c9
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` -> "HOP 5 IN-FLIGHT ADDENDUM"
 steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
@@ -2271,9 +2277,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a7a8-c699-7427-a642-9c3e44e4aad8
-readiness-at: 2026-11-04T18:06:03.024Z
-readiness-checkpoint: g281-1edb131088b2
 <!-- guard:end checkpoint -->
 
 ## Blockers
