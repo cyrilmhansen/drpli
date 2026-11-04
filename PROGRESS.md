@@ -443,7 +443,32 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-2 evidence DECODED + CORRECTED; PLAN §P3-2 owed BEFORE any ocaml/ byte (2026-11-04; renewal 3/12; read `LEARNINGS.md` § "E2E-52/P3-2 evidence decode LANDED" FIRST — it supersedes the predecessor survey bullets below and carries the exact owed steps (1)-(5))
+### E2E-52/P3-2 PLAN §P3-2 LANDED (commit below); ARM A1-A5 OWED (2026-11-04; renewal 5/12; read `LEARNINGS.md` § "E2E-52/P3-2 evidence COMPLETE + PLAN §P3-2 LANDED" + `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 FIRST)
+
+Exact next steps, all rc DIRECT:
+(1) `git rev-parse HEAD; git status --porcelain=v1` (only operator handoff.config.json may be
+ dirty); `cd ocaml && eval "$(opam env)" && dune build` rc=0, binary `34e8321a…`.
+(2) Implement PLAN §3 arms **A1-A5 in `ocaml/lib/codegen.ml` ONLY** (match_put_edit file branch
+ + prescan/FIFO; match_get_edit + get-file-EDIT lowering with `?EDTIV` via call_ext; delete the
+ `is_edit && file <> None` guard ~11558 and BOTH Vdec is_edit refusals (~11797); file EDIT
+ attaches without open [C282]; keep every boundary refusal of PLAN §4 BY NAME). dune build rc=0,
+ warning profile IDENTICAL.
+(3) Predictions (pre-registered): `pli80c.exe probes/P086K.PLI` whole-file cmp rc=0 FIRST TRY vs
+ `golden/probe55/P086K/P086K.REL` (512 B); SAME for P086J vs `golden/probe55/P086J/P086J.REL`
+ (256 B). Zero-drift sweep E46N 18/18, R10xx, E46K4/K15, E52A..J, E51A..L. Focused refusals
+ picture/x/rep/numeric-literal/DEC-formal; **LOAN2 rerun must STILL refuse at 115 naming the
+ picture** — verbatim record. E41X8 compiles rc=0 -> retire from REJECTS+NEG_META (negatives
+ 180→179).
+(4) Registration per PLAN §5 P6: SPECIMENS P086K+P086J, `--update-inventory` 1197→1199 EXACTLY
+ TWO lines, gate rc=0 1199/0 to build/gate-e52p3b-reg.log; census own write path; COVERAGE
+ IO.PUT_EDIT row ONLY after verifying the IFACT/LOAN1 discrepancy (LOAN1 has NO edit stmt);
+ claim **C360** from PLAN §2 measured bytes only; prose rc=0; explicit-path commits, no push.
+(5) Campaign CONTINUES past every blocker: next LOAN2 classes = picture 02-record decode,
+ x-records, rep-groups, DEC-formal (deref) items, then the PRINT/PAGESIZE OPENs 54/56.
+Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc
+ DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (cap 12).
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-2 evidence DECODED + CORRECTED; PLAN §P3-2 owed BEFORE any ocaml/ byte (2026-11-04; renewal 3/12; read `LEARNINGS.md` § "E2E-52/P3-2 evidence decode LANDED" FIRST — it supersedes the predecessor survey bullets below and carries the exact owed steps (1)-(5))
 
 DECED THIS SESSION (all rc/measured from existing goldens; NOTHING compiler-edited):
 `clear` = `%replace` macro (LOAN2:12), `a` = FORMAT item (the data/format order REVERSAL —
@@ -2227,17 +2252,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 287
-checkpoint-id: g287-2feaea6b4999
-checkpoint-kind: manual
+checkpoint-generation: 289
+checkpoint-id: g289-5ac2d7f1cb1d
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-04T18:51:15.238Z
+checkpointed: 2026-11-04T19:13:58.189Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b37e80d1291e101843fa2789ba5949cc6ed8fb0a7c0b77a82baadaebe88777bc
 source-handoff: f1bb2218ea3ee06fd21bd4b43731c07cb636c8a6b4a56acd210606acecaec523
-source-learnings: 83e4aa08a12307c6767312632559518c8ef9820e34cd3a985b9685d06f24825c
+source-learnings: 0f4479447b023e8b28bf29f18f3fbd26869a5ed0c9b001b26edac18f244d2d7d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` -> "HOP 5 IN-FLIGHT ADDENDUM"
 steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
@@ -2299,9 +2324,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a7d2-1de8-7427-a642-9c47059ed586
-readiness-at: 2026-11-04T18:51:15.253Z
-readiness-checkpoint: g287-2feaea6b4999
 <!-- guard:end checkpoint -->
 
 ## Blockers

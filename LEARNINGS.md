@@ -108,6 +108,40 @@ The guard never writes this file.
   handoff.config.json is authority). Constraints unchanged: no push; goldens never re-derived;
   operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2.
 
+## E2E-52/P3-2 evidence COMPLETE + PLAN §P3-2 LANDED (session 01a1a7e6, renewal 4/12); ARM OWED, no ocaml/ byte yet
+
+- **ACCEPTED (recovery).** HEAD `72bf98d`; build rc=0 binary `34e8321a…`; checkpoint g287
+  verified CURRENT+ATTESTED by recomputing the guard's own hash recipe in Python (lean
+  alternative to `/handoff verify`, read-only). g287 managed block committed verbatim
+  `d895b25` (never handoff.config.json).
+- **ACCEPTED ( owed step 1 DONE — byte lists in PLAN §P3-2 §2).** Stmt-199 span 08F1-0942
+  fully listed (attach ?SIOOP, `MVI A,01/?SKPOP`, `LXI H,*S(0098=80 00 03 FF 81)/?EDITF`,
+  6×`LXI H,*S(lit)/MVI A,len/?SLCTS/?EDTOV` at 024C(7) 0253(15) 0262(15) 0271(12) 027D(15)
+  028C(15), ?QIOOP); 6 items vs 1 format record = RUNTIME cycle in ?EDITF, no codegen bytes.
+  All 7 LOAN2 EDIT tables reconcile record-for-record with their source format lists.
+  Kinds decoded, NOT armed: x(w)=`0B w` (5 sites widths verified), picture=`02 A B len text`
+  (A/B undecoded), rep-group=`80 n … 81` nested; stmt-212 DATA rep-group = inline DO loop
+  (counter *D 0358) — distinct class.
+- **ACCEPTED (NEW witness, owed step 2) — `golden/probe55/P086J/P086J.REL` (256 B, CODE 0x3D,
+  DATA 0x10)** console `put edit(d)(f(9,2),a(4))`, `d fixed dec(7,2)`: DEC item prep
+  `LXI H,*S(000C)/MVI A,07/?DLDOP/MVI A,0A/MVI B,02/?QDCOP/?EDTOV` — IDENTICAL law to P086K,
+  console route has NO ?SIOOP attach; table pins **a(w)=`03 w`**, a=`03 FF`, f(w,d)=`00 w d`.
+  **FALSIFIED: my Vdec `is_edit` refusal premise "no DR sample passes a DEC item through an
+  edit list" (codegen.ml ~11797 + match_put_edit comment)** — P086J (console) and P086K (file)
+  are both samples. Removing that refusal makes the EXISTING emitted bytes the golden law.
+- **ACCEPTED (parser/arm mechanics).** Parser puts `put file(f) edit` in Sput `on_opts=[FILE e]`,
+  kind=Edit, leading skip as `Pi_ctl("SKIP",None)`; P086K GET has NO GNVOP/JP — file GET EDIT =
+  attach 0690 + EDITF + **?EDTIV (new call_ext name)** + `MVI B,s/?QCDOP/LXI H,var/MVI A,p/?DSTOP`
+  + one QIOOP. Plan A1-A5 + boundaries + predictions P1-P6 in `spec/lab-evidence/e2e52-p3/PLAN.md`
+  §P3-2 (committed BEFORE any ocaml/ byte ✓ prose rc=0).
+- **PROPOSED (arm successor, exact):** execute PLAN §3 edits A1-A5 in codegen.ml ONLY; expect
+  P086K + P086J cmp rc=0 FIRST TRY (predictions P1/P2); E41X8 retires (negatives 180→179);
+  LOAN2 STILL refuses 115 naming the picture (P4); registration P6: inventory 1197→1199 TWO
+  lines, COVERAGE IO.PUT_EDIT row fix ONLY after verifying the IFACT/LOAN1 discrepancy (LOAN1
+  has no edit stmt — measured discrepancy kept), claim C360 from PLAN §2 bytes only.
+- Rebuild note: `dune build` rc=0 at session start; NO compiler run was part of this hop's
+  evidence (all bytes from existing goldens via reldump).
+
 ## E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT (2026-11-04; session 01a1a7bd; continuation of chain 01a1a795)
 
 - **ACCEPTED (P3-1 CLOSED and registered).** Full landing chain, every rc DIRECT:

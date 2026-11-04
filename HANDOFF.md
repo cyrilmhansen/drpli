@@ -7,6 +7,13 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a. **P3-2 STATUS THIS SESSION (2026-11-04, successor of g287):** evidence steps (1)-(2) DONE,
+**PLAN §P3-2 COMMITTED BEFORE any ocaml/ byte**; ZERO compiler edits. New witness P086J.REL
+(console DEC edit) FALSIFIES both "no DR sample passes a DEC item through an edit list" refusals;
+a(w)=`03 w`/a=`03 FF`/f(w,d)=`00 w d`/x=`0B w`/picture=`02 A B len`/rep=`80 n…81` decoded.
+SUCCESSOR: execute `PROGRESS.md` → `## Next action` → "PLAN §P3-2 LANDED; ARM A1-A5 OWED"
+steps (1)-(5) exactly; read that LEARNINGS § + PLAN §P3-2 first. Renewal 5/12 after this.
+
 0. **E2E-52/P3 CAMPAIGN IN FLIGHT (2026-11-04; renewals autonomous; do NOT stop after
  one blocker).** **P3-1 CLOSED + REGISTERED** (chain `8dbebff` guard block, `e728175`
  INVENTORY 1196->1197 ONE-line diff + post-reg FULL gate REAL **rc=0 1197/0**
@@ -1294,25 +1301,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 287
-checkpoint-id: g287-2feaea6b4999
-checkpoint-kind: manual
+checkpoint-generation: 289
+checkpoint-id: g289-5ac2d7f1cb1d
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~2144, session 01a1a7d2-1de8-7427-a642-9c47059ed586)
-checkpointed: 2026-11-04T18:51:15.238Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4902, session 01a1a7e6-adbb-7427-a642-9c4bbaddb389)
+checkpointed: 2026-11-04T19:13:58.189Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: b37e80d1291e101843fa2789ba5949cc6ed8fb0a7c0b77a82baadaebe88777bc
 source-handoff: f1bb2218ea3ee06fd21bd4b43731c07cb636c8a6b4a56acd210606acecaec523
-source-learnings: 83e4aa08a12307c6767312632559518c8ef9820e34cd3a985b9685d06f24825c
+source-learnings: 0f4479447b023e8b28bf29f18f3fbd26869a5ed0c9b001b26edac18f244d2d7d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a7d2-1de8-7427-a642-9c47059ed586
-readiness-at: 2026-11-04T18:51:15.253Z
-readiness-checkpoint: g287-2feaea6b4999
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
