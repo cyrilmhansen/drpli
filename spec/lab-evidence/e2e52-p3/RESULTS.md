@@ -225,3 +225,27 @@ BY NAME: chars outside {9,Z,$,V,.,B,comma,slash}; `$` after the first digit spec
   listing "picture" — recorded message-quality my-gap, NEVER fitted.
 - Zero-drift sweep **75/75 byte-exact / 0 FAIL** (E46N 19/19 incl E46N10, E52A..J 10/10,
   E51A..L 12/12, R10 34/34); P086J/P086K cmp rc=0; markers E46K4/E46K15/E46N21 rc=2 intact.
+
+## 5. Registration + effects (hop 12/12, 2026-11-05)
+
+- SPECIMENS: the 13 cmp-rc=0 probes E52PB..E52PE,PG..PL,PM,PN,PO registered with per-probe
+  measured comments (tools/e2e_gate.py, commit 7294d09). E52PA stays UNREGISTERED (my-gap
+  file-route EXPRESSION item; golden exists, bytes NOT claimed — P3-4 owns the class).
+  E52PF registered on the REFUSAL panel as **dr-refuses** (REJECTS + NEG_META, marker
+  `picture $ after a digit specifier is dr-refuses` RE-MEASURED rc=2 on the arm binary;
+  E46K14/E46N21 precedent — both sides refuse, stages differ).
+- Sanctioned `--update-inventory`: EXACTLY +13 specimen lines (1199→1212) + 1 refusal line
+  (179→180), diff inspected line-for-line. FULL gate REAL rc=0 DIRECT
+  `build/gate-e52p3c-reg.log`: byte panel **1212/0 of 1212** (all 13 BYTE-EXACT lines
+  printed), negatives **180/180**, divergence 9/9, coverage 139 rows 0/0, census 15/0/26/0,
+  prose 5.
+- Census re-snapshotted via its OWN write path (`--check`, rc=0
+  `build/e52p3/census-resnap-c.log`): counts IDENTICAL, metadata-only diff; LOAN2 blocker
+  VERBATIM UNCHANGED (same fmt_spec catch text), COPYLPT UNCHANGED.
+- Claim **C361** committed from MEASURED BYTES ONLY BEFORE the COVERAGE rewrite (ledger ENDS
+  C361, `64e464b`); COVERAGE `IO.PUT_EDIT` → EXACT:25, probes +13 panel keys, corpus
+  +ANNUITY,DEPREC, picture-refusal clause kept verbatim as HISTORICAL (`4f5d509`);
+  coverage_check rc=0 DIRECT 139/0/0 (`build/coverage-check-e52p3c-row.log`); stats NOT
+  drifted (own write path). prose rc=0 (`build/prose-check-e52p3c-claims.log`).
+- LOAN2 UNMODIFIED: blocker unchanged; P3-4 = rep-groups `2(...)`/`80 n … 81`, `x(w)` `0B`,
+  and the file-route EXPRESSION item (PA bytes pinned at LOAN2 0544-0558).
