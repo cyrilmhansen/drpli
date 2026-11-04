@@ -1957,8 +1957,69 @@ SPECIMENS.update({
     # Boundaries UNCHANGED: picture `02 …', x(w) `0B …' and rep-group `80 n … 81' are
     # decoded from LOAN2's goldens but NOT armed -- they refuse BY NAME, and LOAN2 still
     # stops at `PUT EDIT format item form unsampled [TBD]'.
+    # [E2E-52/P3-3] The picture sentence above is superseded for `02 …' ONLY: the P3-3 arm
+    # (d088cdb, clean-rebuild binary c2c6282f5662cb19a3ce) emits `02 b1 b2 len UPPER(text)'
+    # under the measured rules (b1 = count{9,Z,$} minus 1 if any $; b2 = count{9,Z} after the
+    # LAST V -- rule HE, HC and HD FALSIFIED by E52PJ `9.9'->00; len = text length) and the
+    # bank below registers the 13 accepted probes byte-exact.  x(w) `0B …' and rep-group
+    # `80 n … 81' still refuse BY NAME (P3-4 owns them), and LOAN2 still stops at the SAME
+    # verbatim catch text -- it now fires on the grouped/rep-group formats at 147/149 while
+    # the message still lists "picture" (message-quality my-gap, recorded, never fitted).
     "P086K": ("probes/P086K.PLI", "golden/probe55/P086K/P086K.REL"),
     "P086J": ("probes/P086J.PLI", "golden/probe55/P086J/P086J.REL"),
+})
+
+# [E2E-52/P3-3] THE PICTURE `02` BANK -- 13 probes of campaign tag e52p3 (oracle 14 ok/15 at
+# 8edea80; E52PF is dr-refuses and lives on the NEGATIVES panel, not here; E52PA is a my-gap
+# refusal -- the file-route EXPRESSION item -- and stays unregistered, evidence for P3-4).
+# Pre-registered at eef371b (PLAN §P3-3 + probes BEFORE any ocaml/ byte); goldens
+# golden/e52p3/<N>/<N>.REL landed fresh at aae0f37.  Law (claim [C361], derived ONLY from
+# these measured bytes + the 12 existing-golden records): a picture format item emits ONE
+# record `02 b1 b2 len UPPER(text)` into the *S table, with b1 = count{9,Z,$} - (1 if any $),
+# b2 = count{9,Z} after the LAST V (0 with no V), len = text character count; source
+# lowercase is stored UPPERCASED; picture chars outside {9,Z,$,V,.,B,comma,slash}, a $ after
+# the first {9,Z} specifier, and V without an adjacent `.' refuse BY NAME.  DR enforces NO
+# picture-vs-item scale agreement at compile time (PJ/PK/PL vs fixed dec(4,2), measured 3x).
+# Item preparation is FORMAT-INDEPENDENT -- the picture adds NO item bytes (PLAN §P3-3).  All
+# whole-file `cmp' rc=0 RE-MEASURED this hop on the clean-rebuild binary c2c6282f5662cb19a3ce:
+#   E52PB 256 B; code 003C=60, DATA 000F=15.  Console `put edit('|',100*m+y)(a,p'9')': the
+#             scale-0 framing mirror -- table `80 00 / 03 FF / 02 01 00 01 39 / 81'.
+#   E52PC 256 B; code 003C, DATA 0011=17.  p'999' -> `02 03 00 03'.
+#   E52PD 256 B; code 003C, DATA 0011.  Source p'zz9' STORED UPPERCASED `02 03 00 03 5A 5A 39'
+#             (6th uppercase witness).
+#   E52PE 256 B; code 003C, DATA 0011.  p'$$9' -> `02 02 00 03': b1 counts $ and subtracts 1;
+#             the digits-only b1 rule FALSIFIED (would give 01).
+#   E52PG 256 B; code 003C, DATA 0015=21.  TWO pictures p'9',p'99' -> PLAIN CONCATENATION of
+#             two `02' records, no padding.
+#   E52PH 256 B; code 003C, DATA 001D=29.  p'$$$,$$$,$$9V.99' -> `02 0A 02 0F': reproduces the
+#             LOAN2-179 record IN ISOLATION.
+#   E52PI 256 B; code 002D=45, DATA 0010=16.  `put edit(d)(p'99V.99')' with `d fixed decimal
+#             (4,2)': the `02' record flush against the `80 00' header -- DEC prep unchanged.
+#   E52PJ 256 B; code 002D, DATA 000D=13.  p'9.9' -> b2=00: THE designator surprise -- HC
+#             (digits after last {. ,V}) and HD (count{V,.}) BOTH FALSIFIED; a bare `.' is not
+#             a b2 designator.  The predicted b2=01 miss is kept verbatim in RESULTS §3.
+#   E52PK 256 B; code 002D, DATA 000E=14.  p'9V.9' -> `02 02 01 04' (discriminator).
+#   E52PL 256 B; code 002D, DATA 0011.  p'99V.999' -> `02 05 03 07' (discriminator; kills HD).
+#   E52PM 256 B; code 002D, DATA 000F=15.  p'9V.99' -> `02 03 02 05'.
+#   E52PN 256 B; code 0030=48, DATA 000F.  FILE route `put file(f) edit(d)(p'9V.99')' -- the
+#             IDENTICAL table on the named-file attach route (P086K's [C282] no-OPEN shape).
+#   E52PO 384 B; code 0050=80, DATA 0015=21.  `put file(f) skip edit('|',d)(a,p'9V.99')': the
+#             armable mirror of LOAN2's stmt-115 (literal + DEC + a + picture) minus the
+#             EXPRESSION item; carries the DEC literal cell `50 01 00' and the `|' cell.
+SPECIMENS.update({
+    "E52PB": ("probes/E52PB.PLI", "golden/e52p3/E52PB/E52PB.REL"),
+    "E52PC": ("probes/E52PC.PLI", "golden/e52p3/E52PC/E52PC.REL"),
+    "E52PD": ("probes/E52PD.PLI", "golden/e52p3/E52PD/E52PD.REL"),
+    "E52PE": ("probes/E52PE.PLI", "golden/e52p3/E52PE/E52PE.REL"),
+    "E52PG": ("probes/E52PG.PLI", "golden/e52p3/E52PG/E52PG.REL"),
+    "E52PH": ("probes/E52PH.PLI", "golden/e52p3/E52PH/E52PH.REL"),
+    "E52PI": ("probes/E52PI.PLI", "golden/e52p3/E52PI/E52PI.REL"),
+    "E52PJ": ("probes/E52PJ.PLI", "golden/e52p3/E52PJ/E52PJ.REL"),
+    "E52PK": ("probes/E52PK.PLI", "golden/e52p3/E52PK/E52PK.REL"),
+    "E52PL": ("probes/E52PL.PLI", "golden/e52p3/E52PL/E52PL.REL"),
+    "E52PM": ("probes/E52PM.PLI", "golden/e52p3/E52PM/E52PM.REL"),
+    "E52PN": ("probes/E52PN.PLI", "golden/e52p3/E52PN/E52PN.REL"),
+    "E52PO": ("probes/E52PO.PLI", "golden/e52p3/E52PO/E52PO.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research
@@ -4691,6 +4752,30 @@ for _k, _w in (("E46H1", "0x058C"), ("E46H3", "0x0590"), ("E46H4", "0x0590")):
         "DR COMPILES it and measures w1 = " + _w + " (golden/e42p0c/" + _k + "), which is an "
         "attribute word this compiler has no lowering for; the refusal is MY gap and the name "
         "is deliberately not a DR vocabulary claim -- DR accepts every one of these spellings.")
+
+# [E2E-52/P3-3] E52PF, THE `$`-AFTER-DIGIT PICTURE -- MEASURED dr-refuses, BOTH SIDES STOP.
+# Pre-registered at eef371b as the HA2-vs-HB8 b1 discriminator; the ORACLE answered at
+# 8edea80: `1 ERROR(S) IN PASS 1', diagnostic `PICTURE                                    ?'
+# under `put edit('|',100*m+y)(a,p'9$9');', and NO .REL was emitted (golden/e52p3/E52PF/ holds
+# E52PF.PRN + dir.txt only -- NO golden object, PF bytes claimed by NOTHING).  Mine refuses too,
+# at codegen's fmt_spec guard, with a message naming the class -- the E46K14/E46N21 discipline:
+# both sides refuse, the stages differ (DR dies on the PICTURE diagnostic in pass 1, I die at
+# the character-positional guard), and the row pins MY marker so a future arm of non-leading $
+# cannot land silently.  The refusal is dr-refuses-CONSISTENT: HA2 and HB8 agree on every
+# ACCEPTED record ($ runs are always leading there), so no accepted witness separates them and
+# this shape earns NO bytes from either.
+REJECTS.update({
+    "E52PF": (open("probes/E52PF.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "picture $ after a digit specifier is dr-refuses"),
+})
+NEG_META["E52PF"] = ("dr-refuses",
+    "DR REFUSES it in PASS 1 -- `PICTURE ?' under the statement, `1 ERROR(S) IN PASS 1', NO .REL "
+    "(golden/e52p3/E52PF/E52PF.PRN, campaign e52p3 14 ok/15 at 8edea80) -- so this row is DR law, "
+    "not my gap.  Mine refuses at codegen fmt_spec with a named [TBD] guard (`picture $ after a "
+    "digit specifier is dr-refuses'), a POSITIONAL guard measured from the same campaign: $ after the first "
+    "{9,Z} specifier refused (PF); $ after B and leading multi-$ runs accepted (PH, DEPREC 232, "
+    "the 12 existing-golden records).  The marker was RE-MEASURED rc=2 on the P3-3 arm binary "
+    "c2c6282f5662cb19a3ce, never assumed.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
