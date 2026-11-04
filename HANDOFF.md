@@ -1340,28 +1340,44 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 300
-checkpoint-id: g300-ec7d5af03534
-checkpoint-kind: auto
+checkpoint-generation: 301
+checkpoint-id: g301-e20d4d595bf0
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~1464, session 01a1a836-0cfb-7427-a642-9c5a307e346a)
-checkpointed: 2026-11-04T20:37:51.574Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-1264, session 01a1a836-0cfb-7427-a642-9c5a307e346a)
+checkpointed: 2026-11-04T20:38:54.254Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2648d6e6cb3c551f8904663da69513e0907c9630e9445d296dbb17fa3bfb55ab
-source-handoff: 414f1402c921b00e546786d8a97ff512117a64b3852690673a17ef5d9c1e5c4b
+source-progress: dc1b6e63ed87c77941b7e4f375c2a98cf70f0fc9ff479649378700f83e507ab8
+source-handoff: 0fb392c0ea563e140cd6e34f1e444d0bf0be564bef7cb433d8b60086b37d9dd9
 source-learnings: f91864c23803850f6da37543821b21362fd8a5ec0d1268da737a799b5e967a11
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a836-0cfb-7427-a642-9c5a307e346a
+readiness-at: 2026-11-04T20:38:54.274Z
+readiness-checkpoint: g301-e20d4d595bf0
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` step (2) (E41X8 retirement — it compiles rc=0 now, no golden, never claim its
+`
+  steps (1)-(6): COVERAGE rewrite + coverage_check rc=0, C360 from MEASURED bytes only, prose,
+  RESULTS+PLAN §5, durables, then P3-3 (picture `02` decode, PLAN BEFORE bytes). HEAD `60ed349`;
+  commit pending guard block first.
+
+0a-ter-2. **P086K FIXED — RECORD ORDER, NOT BYTES (2026-11-04, successor of g294, renewal 7/12
+  consumed).** The reldump diff proved every CODE and DATA byte of P086K already agreed with the
+  golden (the predecessor's "+3 code bytes" reading FALSIFIED: `0x62`=98 is the last code record's
+  ADDRESS, DEF-CODE-SIZE is `0065`=101 in both); the difference was that DR emits the prealloc'd
+  FORMAT TABLES before the FILE COMMON group and the lowering-allocated pool after it. Arm fixed,
+  `dune build` rc=0, P086K cmp **rc=0** (512 B), P086J **rc=0** (256 B), sweep **75/75 byte-exact**,
+  boundary markers intact, warning histogram identical, LOAN2 advanced VERBATIM to the fmt_spec
+  catch. SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-2 P086K FIXED" and execute `PROGRESS.md` →
+  `## Next action` step (2) (E41X8 retirement — it compiles rc=0 now, no golden, never claim its
   bytes; negatives 180→179) THEN step (3) registration. HEAD `2686bcc` (fix + durables); commit the
   pending guard block verbatim first.
 
@@ -1681,5 +1697,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-2: P086K NOW cmp rc=0 (512 B) and P086J rc=0 (256 B) — root cause was .REL RECORD ORDER (DR emits prealloc'd EDIT format tables BEFORE the FILE COMMON group, lowering-allocated pool bytes AFTER it), NOT the +3 code bytes the previous note claimed (0x62=98 was the last code record's address; DEF-CODE-SIZE is 0065=101 in both). Fix committed 2686bcc (ocaml/lib/codegen.ml + durables); tree clean except operator handoff.config.json (NEVER stage). Sweep GREEN: 75 specimens byte-exact / 0 FAIL via scratch build/e52p3/sweep.py (E46N 19, E52 10, E51 12, R10 34); boundary markers E46K4/E46K15/E46N21 intact rc=2; codegen.ml warning histogram identical to build/e52p3/arm-build-warnings.log (70). Clean-rebuild binary sha 748c434fafd8c01579 (incremental builds hash differently — always say which build). LOAN2 UNMODIFIED rc=2 DIRECT, next blocker verbatim "codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group formats are not decoded)" (no line number), log build/e52p3/loan2-postfix-stderr.log. FIRST NEXT ACT: retire E41X8 (now compiles rc=0, inline source, NO golden — never claim its bytes) from REJECTS tools/e2e_gate.py ~2568 + NEG_META ~4021 (negatives 180->179), then registration: SPECIMENS P086K+P086J keeping golden paths, sanctioned --update-inventory 1197->1199 EXACTLY TWO lines, FULL gate rc=0 1199/0 to build/gate-e52p3b-reg.log, census via its OWN write path (record moved LOAN2/COPYLPT msgs verbatim), COVERAGE IO.PUT_EDIT row (line 65) ONLY after verifying the IFACT/LOAN1 discrepancy (LOAN1 has NO edit stmt) + coverage_check rc=0, claim C360 from MEASURED bytes only, prose rc=0, RESULTS.md + PLAN §5 row, explicit-path commits. Read LEARNINGS § "E2E-52/P3-2 P086K FIXED" + PROGRESS ## Next action. Lessons: pli80c POSITIONAL args only; never read rc through a trailing pipeline (cmd | tee | head returns tee's status); parser collects EDIT control items ONLY from the statement-option position (skip(3)/page inside the data list are DATA items — my first probes were falsified designs). Constraints: no push; goldens never re-derived; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (8/12 cap 12); campaign continues past every blocker.
+E2E-52/P3-2 registration LANDED: HEAD a952f4d (durables) over 60ed349 (gate+INVENTORY 1197->1199 TWO lines, census own write path rc=0, FULL gate REAL rc=0 1199/0 build/gate-e52p3b-reg.log), ff1c8f2 (E41X8 retired MEASURED rc=0, NO golden, bytes never claimed, negatives 179/179). VERIFIED: LOAN1 has NO edit stmt, IFACT's edit has NO picture -> IO.PUT_EDIT row clause FALSIFIED. NEXT ACT: rewrite spec/COVERAGE.tsv IO.PUT_EDIT (line 65) citing P086K/P086J with the LOAN2 verbatim unsampled-formats boundary, coverage_check.py rc=0; then claim C360 from MEASURED bytes ONLY (ledger ends C359; never claim E41X8 bytes); file_prose_check rc=0; RESULTS.md §P3-2 + PLAN.md §5 row; durables; then P3-3 picture 02-record decode with PLAN committed BEFORE any ocaml/ byte. Lessons: --update-inventory exits before byte/negative panels; all rc DIRECT; pli80c POSITIONAL args; EDIT controls only from statement-option position; clean-vs-incremental build hashes differ. Constraints: no push; goldens never re-derived; handoff.config.json never staged; renewals autonomous at safe boundaries (10/12 consumed, cap 12); campaign continues past every blocker.
 <!-- guard:end checkpoint -->

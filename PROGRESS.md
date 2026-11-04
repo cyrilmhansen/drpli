@@ -2362,19 +2362,32 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 300
-checkpoint-id: g300-ec7d5af03534
-checkpoint-kind: auto
+checkpoint-generation: 301
+checkpoint-id: g301-e20d4d595bf0
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-04T20:37:51.574Z
+checkpointed: 2026-11-04T20:38:54.254Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2648d6e6cb3c551f8904663da69513e0907c9630e9445d296dbb17fa3bfb55ab
-source-handoff: 414f1402c921b00e546786d8a97ff512117a64b3852690673a17ef5d9c1e5c4b
+source-progress: dc1b6e63ed87c77941b7e4f375c2a98cf70f0fc9ff479649378700f83e507ab8
+source-handoff: 0fb392c0ea563e140cd6e34f1e444d0bf0be564bef7cb433d8b60086b37d9dd9
 source-learnings: f91864c23803850f6da37543821b21362fd8a5ec0d1268da737a799b5e967a11
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` step (2) (E41X8 retirement — it compiles rc=0 now, no golden, never claim its
+next-action: `
+  steps (1)-(6): COVERAGE rewrite + coverage_check rc=0, C360 from MEASURED bytes only, prose,
+  RESULTS+PLAN §5, durables, then P3-3 (picture `02` decode, PLAN BEFORE bytes). HEAD `60ed349`;
+  commit pending guard block first.
+
+0a-ter-2. **P086K FIXED — RECORD ORDER, NOT BYTES (2026-11-04, successor of g294, renewal 7/12
+  consumed).** The reldump diff proved every CODE and DATA byte of P086K already agreed with the
+  golden (the predecessor's "+3 code bytes" reading FALSIFIED: `0x62`=98 is the last code record's
+  ADDRESS, DEF-CODE-SIZE is `0065`=101 in both); the difference was that DR emits the prealloc'd
+  FORMAT TABLES before the FILE COMMON group and the lowering-allocated pool after it. Arm fixed,
+  `dune build` rc=0, P086K cmp **rc=0** (512 B), P086J **rc=0** (256 B), sweep **75/75 byte-exact**,
+  boundary markers intact, warning histogram identical, LOAN2 advanced VERBATIM to the fmt_spec
+  catch. SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-2 P086K FIXED" and execute `PROGRESS.md` →
+  `## Next action` step (2) (E41X8 retirement — it compiles rc=0 now, no golden, never claim its
   bytes; negatives 180→179) THEN step (3) registration. HEAD `2686bcc` (fix + durables); commit the
   pending guard block verbatim first.
 
@@ -2692,6 +2705,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1a836-0cfb-7427-a642-9c5a307e346a
+readiness-at: 2026-11-04T20:38:54.274Z
+readiness-checkpoint: g301-e20d4d595bf0
 <!-- guard:end checkpoint -->
 
 ## Blockers
