@@ -52,6 +52,14 @@ BY NAME), 2 `7d17b63` (E51G ADD right-first+XCHG), 3 `ee589cc` (E51I TEST consum
 prediction FALSIFIED; admits ONLY `Eq` + measured-class DIV left + plain-variable right).
 **Sweep 12/12 whole-file BYTE-EXACT; FULL gate rc=0 at every arm alone** (`build/gate-e51p1-arm{1,2,3}.log`:
 1174/0, 181/181, 9/9, 133 rows 0/0, census 15/0/26/0, prose 5).
+**HOP 5 PRE-FLIGHT LANDED `68de0bd` (renewed 4/12; HEAD `05d7ff0` at start):** build rc=0,
+sweep RE-VERIFIED 12/12 byte-exact on rebuilt binary `f172d8eae2a7…` (`ocaml/` identical
+`ee589cc`..HEAD — the predecessor's `2cd1de5cdf22…` sha delta is build noise, not drift);
+registration MECHANISM facts measured (census write path `--check`; COVERAGE rows must
+postdate `--update-inventory`; rel_parity is format-checked only); `spec/CLAIMS.md` STILL ENDS
+**C352** — a first 3-edit append failed ATOMICALLY on an em-dash anchor, NOTHING was written.
+Claim decomposition and row proposals are PROPOSED (not yet law) in `LEARNINGS.md` § "E2E-51/P1
+hop 5 (partial)" — the successor executes steps 1-6 sequenced there.
 **EXACT NEXT (successor): registration ONLY** — claims from **C353** (RESULTS §2 ONLY); SPECIMENS
 for the 12 e51p1 probes in `tools/e2e_gate.py` + sanctioned `--update-inventory` (panel 1174 ->
 1186, then gate AGAIN for the post-update ACTUAL); census re-snapshot; COVERAGE rows; INVENTORY;
@@ -1017,22 +1025,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 244
-checkpoint-id: g244-a45be7beb25b
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4072, session 01a1a3cb-e3c5-7402-832b-2af335702e09)
-checkpointed: 2026-11-04T00:07:13.526Z
+checkpoint-generation: 246
+checkpoint-id: g246-b6378b595913
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 1, remaining ~13088, session 01a1a3e3-666b-7402-832b-2af600e8c496)
+checkpointed: 2026-11-04T00:24:08.625Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c07fe415816cdd63cc7f2e147b86a4c706c0e6ca75d6711ef6ff55be85f3ebbc
-source-handoff: 1c52b59924549de4fddb6f9a758c0487c45713bdbbc198fa7314379d7f59079b
-source-learnings: 1a45f8d845f1bf1aabfce3e2dbb37fcc33378c784542c351f540d3ed0ef2f331
+source-progress: 40ee0adb19c8733eb78b5f2857ee53b47a432243b1b228ea60d4738160b1276c
+source-handoff: 5d28a3607d30390d6cbd4a55b756eb51ec9736eed2c64f3f9d4b89285c7c0869
+source-learnings: 1dc26c9009f024cebcf79860e87439dec798f485c34b61ae2c74039f1e427102
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a3e3-666b-7402-832b-2af600e8c496
+readiness-at: 2026-11-04T00:24:08.635Z
+readiness-checkpoint: g246-b6378b595913
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 1; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1062,5 +1073,5 @@ guard level 4; checkpoint requested (auto at level 4)
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-E2E-51/P1 hop 3: arms 1+2 LANDED and individually gated (4ff1ea5 Div parking = 10/12 whole-file byte-exact; 7d17b63 E51G ADD right-first+XCHG = 11/12; FULL gate rc=0 at each arm alone, logs build/gate-e51p1-arm{1,2}.log; docs e787595). NEXT: arm 3 E51I TEST consumer EXACTLY as written in PROGRESS.md ## Next action and LEARNINGS.md § "E2E-51/P1 hop 3" — refusal site grep "condition form not in E2E-3b subset"; golden tail E5/2A r4/D1/CD ?IS22N/7C/B5/C2 fwd/21 01 00/22 r6 + fixup triple SET-LC 001C/RELOC code 0x24/SET-LC 0024 (CODE 0027, [C089] JNZ polarity — CA FALSIFIED); admit ONLY Eq with measured-class var-divisor-DIV left + plain-variable right; build, sweep all 12 probes (12/12 expected), FULL gate rc=0, commit ALONE. Then registration: claims from C353 (RESULTS §2 ONLY), SPECIMENS + sanctioned --update-inventory (run gate AGAIN after; panel 1174->1186), census re-snapshot, COVERAGE rows, INVENTORY; then HAMM-00 rev1 rerun UNEDITED (A-class store blocker now byte-covered), record lane verdict. STOP after P1 — no P2/LOAN2/CREATE without an operator brief. Never touch operator handoff.config.json; no push; goldens never laundered.
+E2E-51/P1 registration ONLY, steps 1-6 exactly as sequenced in LEARNINGS.md § "E2E-51/P1 hop 5 (partial)" and PROGRESS.md ## Next action -> hop-5 status: (1) append claims C353..C355 to spec/CLAIMS.md (decomposition proposed there; law text derived ONLY from spec/lab-evidence/e2e51-p1/RESULTS.md §2, §3 = NOT-say bullets; anchor edits on verified file-tail bytes — the ledger still ends C352, nothing was written last session), commit explicit path; (2) register 12 e51p1 SPECIMENS in tools/e2e_gate.py (comment block modeled on e49p4) + sanctioned --update-inventory (panel 1174->1186) then gate AGAIN post-update into build/gate-e51p1-reg.log, commit tools/e2e_gate.py + spec/INVENTORY.txt; (3) census re-snapshot via tools/corpus_census.py --check spec/census/corpus-census.json, record ACTUAL counts (expect 15/0/26/0 metadata-only, measure); (4) COVERAGE rows EXPR.DIV_VAR_PARK / EXPR.DIV_RESULT_ADD / COND.DIV_EQ_TEST + E51H added to IO.PUT_LIST_FIXED probes (rows MUST postdate inventory; coverage_check rc=0; gate again); (5) HAMM-00 rev1 rerun UNEDITED (build/fc01/hamm-rerun, records.json; functional verdict, NOT a DR claim, never launder a FAIL); docs/functional-results.md rerun record; (6) close prose + attest, then STOP after P1 — no P2/LOAN2/CREATE without an operator brief. Sweep re-verified 12/12 byte-exact this session on rebuilt binary f172d8eae2a7 (ocaml/ unchanged ee589cc..HEAD). Never touch/stage/revert operator handoff.config.json (dirty, standing edit); no push; goldens never laundered.
 <!-- guard:end checkpoint -->
