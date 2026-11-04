@@ -1685,6 +1685,17 @@ let mbf_encode (text : string) : bytes =
 
 type pdec_ctx =
   { pd_vars : (string * vkind) list
+  ; pd_own : (string * (string * vkind) list) list
+      (* [E2E-52/P1] per-procedure OWN rows (proc name -> rows, built with the
+         SAME `rt_to_vk' as `pd_vars').  The prescan `Sproc' arm prepends the
+         procedures own rows onto `pd_vars', so `List.assoc_opt` first-match
+         resolves every reference to its INNERMOST enclosing declaration -- the
+         same lexical shadowing `lower_proc` already performs
+         (`st.vars <- Vinfo.attach proc_rows ... @ saved`, codegen.ml:12135).
+         DR types the DEC pool lexically: E52B/C/D/G/H/I (golden/e52p1) each
+         carry a cross-scope homonym and DR emits an object; only a clash
+         WITHIN ONE BLOCKS own rows stays a real ambiguity (the refusal below
+         is kept for that case verbatim). *)
   ; pd_procs : (string * (int * int) option) list
   ; pd_ret : (int * int) option
   ; pd_dec : (int * int * int) list ref
@@ -3308,13 +3319,21 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
       let ret =
         match List.assoc_opt pn cx.pd_procs with Some r -> r | None -> None
       in
+      (* [E2E-52/P1] prepend this procedures OWN rows onto the lexical
+         accumulation, so assoc first-match inside the body sees innermost-first
+         exactly like `lower_proc`s `st.vars <- attach proc_rows ... @ saved`
+         (12135).  `@ cx.pd_vars` keeps outer rows reachable (E52E). *)
+      let own =
+        match List.assoc_opt pn cx.pd_own with Some r -> r | None -> []
+      in
       List.fold_left
         (* pd_procs carries DEC return types only, so floatness comes from
            the kind map (a float-returning procedure appears there as Vflt) *)
         (fun a x ->
           a + prescan_stmt { cx with pd_ret = ret
                                    ; pd_fl_ret =
-                                       (List.mem pn cx.pd_fl_procs) } x) 0
+                                       (List.mem pn cx.pd_fl_procs)
+                                   ; pd_vars = own @ cx.pd_vars } x) 0
         b.Ast.blk.Ast.bstmts
   (* [E2E-11 step 2] an ON handler is inline CODE, so any literal it uses takes a
      pool cell in DR's allocation order.  Missing this made E11A's prescan count
@@ -13416,11 +13435,11 @@ let emit_program (progname : string) (auto_bytes : int)
                      dropped every call site but the last [R406/R421 parity] *)
       ) 0 layout.pl_calls
   in
-  (* [E2E-6] prescan context for decimal literal cells: every block's
-     variable kinds plus each procedure's decimal return type.  A name
-     declared with two different types anywhere in the program would make
-     a single global map ambiguous (and could mis-size the pool), so it is
-     refused rather than guessed. *)
+  (* [E2E-6] prescan context for decimal literal cells: variable kinds plus
+     each procedure's decimal return type.  [E2E-52/P1] the kind map is now
+     SCOPE-AWARE (see vk_rows/pd_own below): a name re-declared by a nested
+     procedure is a lexical shadow typed at the innermost declaration, exactly
+     as lowering resolves it, and only a kind clash WITHIN ONE BLOCK refuses. *)
   let rt_to_vk (rt : Bind.rt) =
     match rt with
     | Bind.RTdec (p, s) -> Vdec (p, s)
@@ -13429,14 +13448,21 @@ let emit_program (progname : string) (auto_bytes : int)
     | Bind.RTfloat 24 -> Vflt
     | _ -> Vint
   in
-  let proc_vk_rows =
-    List.concat_map
-      (fun (p : Bind.proc_layout) ->
-        List.map (fun (n, rt, _o) -> (n, rt_to_vk rt)) p.Bind.pl_rows)
-      layout.pl_procs
-  in
-  let pd_vars =
-    let acc = ref ([] : (string * vkind) list) in
+  (* [E2E-52/P1] SCOPE-AWARE TYPE MAP.  The OLD model folded EVERY
+     procedures pl_rows together with the top rows into ONE global `pd_vars`
+     and refused any kind clash anywhere, so the LOAN2 class (a nested
+     procedure re-declaring an outer name with a different kind) refused even
+     though DR compiles it -- E52B/C/D/G/H/I are six accepted DR objects of
+     exactly that shape (golden/e52p1, RESULTS §2.1).  The map is now built
+     per block: `pd_vars` starts as the TOP rows only, `pd_own` carries each
+     procedures OWN rows, and the prescan `Sproc` arm prepends own rows while
+     descending, mirroring the lowering accumulation (E52H resolves THROUGH the
+     mid scope; E52E keeps the non-shadowed outer rows reachable, so this is
+     an accumulation, never an own-rows-only replacement).  A duplicate name
+     with DIFFERENT kinds inside ONE blocks own rows stays refused verbatim --
+     that is a real ambiguity, not shadowing. *)
+  let vk_rows (rs : (string * vkind) list) : (string * vkind) list =
+    let acc = ref [] in
     List.iter
       (fun (n, vk) ->
         match List.assoc_opt n !acc with
@@ -13447,9 +13473,18 @@ let emit_program (progname : string) (auto_bytes : int)
                   decimal pool prescan needs one unambiguous type map [TBD]"
                  n)
         | _ -> acc := (n, vk) :: !acc)
-      (proc_vk_rows @ List.map (fun (n, vi) -> (n, vi.vk)) rows);
+      rs;
     !acc
   in
+  let pd_own =
+    List.map
+      (fun (p : Bind.proc_layout) ->
+        ( p.Bind.pl_name,
+          vk_rows (List.map (fun (n, rt, _o) -> (n, rt_to_vk rt)) p.Bind.pl_rows)
+        ))
+      layout.pl_procs
+  in
+  let pd_vars = vk_rows (List.map (fun (n, vi) -> (n, vi.vk)) rows) in
   let pd_procs =
     List.map
       (fun (p : Bind.proc_layout) ->
@@ -13496,7 +13531,7 @@ let emit_program (progname : string) (auto_bytes : int)
     | None -> None
   in
   let pool_total =
-    prescan_pool { pd_vars; pd_procs; pd_ret = top_dec_ret
+    prescan_pool { pd_vars; pd_own; pd_procs; pd_ret = top_dec_ret
                     ; pd_dec = ref []; pd_img = ref []; pd_str = ref []; pd_fl = ref []; pd_fl_ret = top_fl_ret
                     ; pd_fl_procs
                     ; pd_callee_rt =
