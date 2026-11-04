@@ -148,3 +148,61 @@ E41X8's composite open+EDIT bytes are claimed by NOTHING — no golden exists. C
 SKIP+EDIT, PAGE+EDIT, picture, x(w), rep-groups, remote/counted/grouped formats,
 numeric-literal and DEC-formal and fixed-bin-expression EDIT items, FLOAT/member/struct
 items and expression format counts all stay refused BY NAME ([C360] "does NOT say").
+
+# E2E-52/P3-3 RESULTS — subround picture `02` decode: oracle campaign + verdicts
+
+Evidence hop (oracle + classification only; ZERO `ocaml/` byte at this point). Baseline HEAD
+`eef371b` (PLAN §P3-3 + probes committed BEFORE any compiler byte); ONE grouped campaign
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PA..E52PO --tag e52p3 --switches '$L$D'`
+rc=0, **14 ok / 15**; goldens + PRNs at `golden/e52p3/<NAME>/`; reldumps (scratch, ignored)
+`build/e52p3/E52P*-golden-reldump.txt`.
+
+## 1. Classification of every difference
+
+- **E52PF (`p'9$9'`) is `dr-refuses`** — MEASURED: `1 ERROR(S) IN PASS 1`; the verbatim
+  diagnostic points at the statement (`PICTURE                                    ?` under
+  `put edit('|',100*m+y)(a,p'9$9');`); NO `.REL` was emitted (dir has PRN/dir.txt only).
+  PF has NO golden and its bytes are claimed by NOTHING. The remaining 14 probes are `ok`
+  (every `.PRN` NO ERROR(S) both passes).
+- Scale-mismatch expectation FALSIFIED (kept as written): E52PJ `9.9` (scale 1), E52PK
+  `9V.9` and E52PL `99V.999` (scale 3) vs `d fixed decimal(4,2)` were all **ACCEPTED** —
+  DR enforces NO picture-vs-item scale agreement at compile time (measured 3x). The
+  pre-registered SECOND bounded batch was therefore NOT needed.
+
+## 2. Measured format tables (whole DATA blobs, from the goldens)
+
+| probe | measured table (record-decoded) |
+|---|---|
+| E52PA | `80 00 / 03 FF / 02 04 00 05 [99/99] / 81` (14 B) — PREDICTED EXACTLY; EVIDENCE ONLY |
+| E52PB | `80 00 / 03 FF / 02 01 00 01 [9] / 81` |
+| E52PC | `80 00 / 03 FF / 02 03 00 03 [999] / 81` |
+| E52PD | `80 00 / 03 FF / 02 03 00 03 [ZZ9] / 81` — lowercase source stored UPPERCASED (6th witness) |
+| E52PE | `80 00 / 03 FF / 02 02 00 03 [$$9] / 81` — digits-only b1 rule (01) FALSIFIED (again) |
+| E52PF | NO golden (dr-refuses) |
+| E52PG | `80 00 / 03 FF / 02 01 00 01 [9] / 02 02 00 02 [99] / 81` — plain concatenation, NO padding |
+| E52PH | `80 00 / 03 FF / 02 0A 02 0F [$$$,$$$,$$9V.99] / 81` — reproduces the LOAN2-179 record IN ISOLATION |
+| E52PI | `80 00 / 02 04 02 06 [99V.99] / 81` — `02` flush against the header |
+| E52PJ | `80 00 / 02 02 **00** 03 [9.9] / 81` — b2=00, THE designator surprise |
+| E52PK | `80 00 / 02 02 **01** 04 [9V.9] / 81` |
+| E52PL | `80 00 / 02 05 **03** 07 [99V.999] / 81` |
+| E52PM | `80 00 / 02 03 02 05 [9V.99] / 81` |
+| E52PN | `80 00 / 02 03 02 05 [9V.99] / 81` — file route, identical table |
+| E52PO | `80 00 / 03 FF / 02 03 02 05 [9V.99] / 81` (+ DEC literal cell `50 01 00`, `\|` cell) |
+
+## 3. Hypothesis verdicts (25 records total: 12 existing-golden + 13 new accepted)
+
+- **b1**: E52PF's dr-refuse removes the HA2-vs-HB8 discriminator; the two rules AGREE on
+  every ACCEPTED record ($-runs always leading). **digits-only FALSIFIED** (PE: 02; and the
+  three multi-$ records). Measured positional law: a `$` AFTER the first {9,Z} digit
+  specifier is refused by DR (`9$9`); `$` after `B` and multi-$ leading runs are accepted;
+  commas anywhere.
+- **b2**: **HC FALSIFIED** by E52PJ (`9.9`: HC predicted 01, measured **00**). **HD
+  FALSIFIED** by E52PJ/PK/PL (predicted 01/02/02, measured 00/01/**03**). NEW surviving
+  rule **HE: b2 = count of {9,Z} digit characters AFTER the LAST `V`** (0 if no V) — fits
+  ALL 25 records; a bare `.` is NOT a b2 designator. V-without-`.` adjacency (e.g. `9V9`)
+  stays UNMEASURED — arm refuses it BY NAME.
+- **len**: text character count, 13/13 accepted new probes.
+- PREDICTIONS-vs-MEASURED: PA/PB/PC/PD/PE/PG/PH/PI/PM/PN/PO table bytes EXACTLY as PLAN §3
+  predicted (11 unambiguous predictions, 11 HIT); PJ's unambiguous b2=01 prediction was
+  FALSIFIED (measured 00 — the surprise kept verbatim, never fitted); PK/PL carried
+  pre-registered dual branches and one branch hit each (HC/HD both dead, HE born).
