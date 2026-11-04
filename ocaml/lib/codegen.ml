@@ -2254,7 +2254,12 @@ let emit_skip_count st e =
    quantity the immediate form carries, so the count is a byte even when the expression is a
    16-bit FIXED.  This one shape is all that stood between the compiler and the two PLI-2000
    integration programs (ARRAY, PASSARAY), both of which write `put skip(one) list(...)'. *)
-type put_skip = Sk_none | Sk_lit of string | Sk_expr of Ast.expr
+(* [E2E-52/P3-1] Sk_page is a CONTROL KIND, not an encoded skip: DR's file PAGE carries
+   no MVI count and calls ?PAGOP where SKIP calls ?SKPOP (E46N1 is 20 statement bytes,
+   E46N10 is 18; the difference is exactly those two facts).  It is produced ONLY by
+   `file_skip_of' and admitted by ONLY the Pfile route; every other occurrence of it is
+   a loud refusal. *)
+type put_skip = Sk_none | Sk_lit of string | Sk_expr of Ast.expr | Sk_page
 type put_shape = Pnone | Plit of put_skip * string
                | Pvar of string option * Ast.expr
                | Pcat of put_skip * chain
@@ -2404,14 +2409,26 @@ let file_skip_of (it : Ast.put_item) =
      in DR's own shipped program.  DR reads the count's LOW byte (E46N18's `MOV A,L'), which
      is the same 8-bit quantity `MVI A,n' carries, so a count is a byte on this route exactly
      as it is on the console one [E2E-22/P4].
-     NOT admitted: PAGE and LINE.  E46N10 measures DR accepting `put file(f) page;' at
-     0023-0034 -- 12 + CALL ?PAGOP + 3 = 18 -- and E46N21 shows DR REFUSING `line(2)', but
-     ?PAGOP is not emitted anywhere by this compiler and no specimen of MINE carries it, so
-     PAGE stays a refusal of MINE on an object that says DR accepts it. *)
+     NOT admitted at [E2E-42/P2c] (kept as written): PAGE and LINE.  E46N10 measures DR
+     accepting `put file(f) page;' at 0023-0034 -- 12 + CALL ?PAGOP + 3 = 18 -- and E46N21
+     shows DR REFUSING `line(2)', but ?PAGOP is not emitted anywhere by this compiler and
+     no specimen of MINE carries it, so PAGE stays a refusal of MINE on an object that
+     says DR accepts it.
+     [E2E-52/P3-1] THAT LAST SENTENCE IS NOW HISTORY: ?PAGOP is emitted by this compiler,
+     on E46N10's own bytes, admitted as the DISTINCT CONTROL KIND `Sk_page' -- never
+     modelled as a SKIP, because PAGE has no count operand and calls a different routine.
+     STILL NOT admitted: LINE (DR itself refuses, E46N21) and PAGE WITH A COUNT (the manual
+     syntax permits PAGE[(p)] but no DR object carries a count -- ?PAGOP at E46N10 002F
+     takes no operand), which is why a counted PAGE falls through to the named refusals in
+     `file_items' (LIST kind) and `bare_ctl_put' (ITEM kind). *)
   match it with
   | Ast.Pi_ctl ("SKIP", None) -> Some (Sk_lit "1")
   | Ast.Pi_ctl ("SKIP", Some { Ast.e = Ast.Enumber c; _ }) -> Some (Sk_lit c)
   | Ast.Pi_ctl ("SKIP", Some e) -> Some (Sk_expr e)
+  (* [E2E-52/P3-1] BARE PAGE ONLY -- E46N10 0023-0034.  A count is unmeasured and must NOT
+     be claimed here; POSITION is answered by `file_items', which refuses PAGE followed by
+     items BY NAME. *)
+  | Ast.Pi_ctl ("PAGE", None) -> Some Sk_page
   | _ -> None
 
 let file_items (ln : int) (fe : Ast.expr_kind) (items : Ast.put_item list) =
@@ -2452,6 +2469,19 @@ let file_items (ln : int) (fe : Ast.expr_kind) (items : Ast.put_item list) =
   in
   match bad with
   | [] ->
+      (* [E2E-52/P3-1] PAGE + ITEMS IS UNMEASURED.  E46N10's 18 bytes have NOTHING between
+         ?PAGOP and ?QIOOP, and the only skip-then-item witness is the SKIP form (E46N2,
+         E46N13); [C304]'s positional law gives no licence to guess where a PAGE chain
+         would end, so `page' followed by any item refuses BY NAME here -- a bare `page'
+         with an empty rest is the ONE admitted PAGE shape. *)
+      (if skipn = Sk_page && rest <> [] then
+         failwith (Printf.sprintf
+                     "codegen: PUT FILE(%s) PAGE followed by items [TBD] (line %d) -- \
+                      E46N10 measures ONLY the bare 18-byte statement `LXI H,*C / LXI D,0652 \
+                      / LXI B,*CODE / CALL ?SIOOP / CALL ?PAGOP / CALL ?QIOOP' with nothing \
+                      between ?PAGOP and the close; `skip list(...)' has objects (E46N2, \
+                      E46N13) but PAGE+item has none, so this is bytes nothing measures."
+                     fname ln));
       Some (skipn,
             List.filter_map
               (function
@@ -2499,13 +2529,17 @@ let file_items (ln : int) (fe : Ast.expr_kind) (items : Ast.put_item list) =
                     puts a control item after an operand, so a skip that follows an item is \
                     words nothing measures.  "
                  else
-                   "PAGE or LINE, which the named-file route does not lower.  E46N10 shows DR \
-                    ACCEPTING `put file(f) page;' at 0023-0034 -- attach, CALL ?PAGOP, CALL \
-                    ?QIOOP, 18 bytes -- so PAGE is a MEASURED gap of MINE and not a DR limit, \
-                    but ?PAGOP is emitted nowhere in this compiler and no specimen of mine \
-                    carries it; E46N21 shows DR REFUSING `line(2)' with SYNTAX ? in pass 2 and \
-                    no object, so LINE is a DR-side refusal.  CREATE:41/44/45 and E46N1/E46N2 \
-                    pin the SKIP forms that ARE lowered.")))
+                   (* [E2E-52/P3-1] the BARE PAGE no longer reaches this message -- it is
+                      lowered on E46N10's bytes since P3-1.  What still reaches this None arm
+                      is a control item in a position or of a class the route does not claim:
+                      the counted PAGE above all.  The E46N21 sentence stands as measured. *)
+                   "a control item the route does not claim as its option: PAGE WITH A COUNT \
+                    (the manual syntax permits PAGE[(p)] but no DR object carries a count -- \
+                    ?PAGOP at E46N10 002F takes no operand) or LINE, which DR itself REFUSES \
+                    with SYNTAX ? in pass 2 and no object (E46N21).  The bare PAGE statement \
+                    is lowered since [E2E-52/P3-1] -- E46N10's 18 bytes, CALL ?PAGOP between \
+                    attach and close -- and never reaches this refusal.  CREATE:41/44/45 and \
+                    E46N1/E46N2 pin the SKIP forms that ARE lowered.")))
 
   (* [E2E-29/P4] BARE `put skip;' (the Item parse form with a lone SKIP control item) is
      sampled by REVERSE's line 49 at 00FE: LXI D,0252 / LXI B,0000 / CALL ?SYSPR / MVI A,01 /
@@ -2541,16 +2575,40 @@ let bare_ctl_put (ln : int) (nm : string) (cnt : Ast.expr option)
          ?SIOOP.  The invariant is the whole point of the arm: a statement that NAMES a file
          must never fall through to the console helper. *)
       (match String.uppercase_ascii nm, cnt with
-       | "SKIP", _ ->
+       | "SKIP", _ | "PAGE", None ->
+           (* [E2E-52/P3-1] THE BARE PAGE SHARES THE SKIP ROUTE'S MATCHER: `file_items'
+              claims the leading control item (`file_skip_of' admits Pi_ctl("PAGE",None) as
+              Sk_page), the Pfile arm emits DR's 18 bytes, and any OTHER position or node
+              still refuses by the same per-item message -- the E46N21-pinned substring
+              lives inside `file_items' and is untouched here. *)
            (match file_items ln fe.Ast.e its with
             | Some (sk, its') -> Pfile (fe, sk, its')
             | None -> Pnone)
+       | "PAGE", Some _ ->
+           (* [E2E-52/P3-1] counted PAGE on an ITEM-kind statement never reaches
+              `file_items' (there is no item list to filter), so it is refused BY NAME
+              here: unmeasured, and no DR object carries a ?PAGOP count. *)
+           let pfname =
+             match fe.Ast.e with
+             | Ast.Eident n -> String.uppercase_ascii n.Ast.orig
+             | _ -> "?"
+           in
+           failwith (Printf.sprintf
+                       "codegen: PUT FILE(%s) control item PAGE with a count [TBD] (line %d) \
+                        -- the manual syntax permits PAGE[(p)] but no DR object carries a \
+                        count: ?PAGOP at E46N10 002F is a bare CALL with no MVI operand, \
+                        where SKIP's counted forms ARE measured (E46N9, E46N18).  A counted \
+                        PAGE is bytes nothing measures." pfname ln)
        | n, _ ->
+           (* [E2E-52/P3-1] this catch-all USED to name PAGE as the DR-accepted shape MINE
+              refused (the message the E46N10 REJECTS row pinned); PAGE lowers now, so it
+              says what actually reaches here -- measured reality per E46N1/N10/N21/N22/N23. *)
            failwith (Printf.sprintf
                        "codegen: PUT FILE with a bare %s control item [TBD] (line %d) -- \
-                        PAGE has DR's bytes (E46N10, 0023-0034, CALL ?PAGOP after the attach) \
-                        but no specimen of MINE, and LINE is refused by DR itself (E46N21); \
-                        SKIP is lowered" n ln))
+                        SKIP and bare PAGE are lowered (E46N1 0023-0036, E46N10 0023-0034); \
+                        LINE is refused by DR itself (E46N21); AFTER and BEFORE never parse \
+                        (E46N22/N23); anything else is a control item no object of MINE \
+                        measures behind a FILE attach" n ln))
   | _ :: _, _ ->
       failwith (Printf.sprintf
                   "codegen: PUT with a control item and an ON option this route does not claim \
@@ -2665,8 +2723,10 @@ let match_put_list_lit (s : Ast.stmt) =
               refused by DR itself.  A bare `skip' with no LIST does NOT come through here; it
               parses to kind = Item and is claimed by `bare_ctl_put'. *)
            if sk <> Sk_none && its = [] then
+             (* [E2E-52/P3-1] "SKIP or PAGE": PAGE can now be the claimed option too. *)
              failwith (Printf.sprintf
-                         "codegen: PUT FILE(%s) SKIP with an EMPTY list [TBD] (line %d) -- no \
+                         "codegen: PUT FILE(%s) SKIP or PAGE with an EMPTY list [TBD] \
+                          (line %d) -- no \
                           object on either route carries a PUT whose list has no items: E46M34 \
                           (`put file(f) list()') is refused by DR itself with SYNTAX ? and no \
                           .REL, and every measured FILE SKIP has either no LIST at all (E46N1, \
@@ -3392,6 +3452,12 @@ let lower_put_lit st (skipn : put_skip) (v : string) =
          failwith "codegen: skip count out of MVI range [TBD]";
        d st op_mvi_a; d st n; call_ext st "?SKPOP"
    | Sk_expr e -> emit_skip_count st e   (* [SK3 SK4] LHLD / MOV A,L / CALL ?SKPOP *)
+   (* [E2E-52/P3-1] UNREACHABLE BY CONSTRUCTION: this is the console LITERAL route and
+      `file_skip_of' is the only producer of Sk_page.  Loud, never silent. *)
+   | Sk_page ->
+       failwith "codegen: PAGE reached the console literal PUT lowering [TBD] -- invariant: \
+                 Sk_page is produced only by the file matcher; console `put page' refuses \
+                 earlier (N3_PAGE)"
    | Sk_none -> ());
   let bytes =
     Array.init (String.length v) (fun i -> Char.code (String.get v i))
@@ -10926,6 +10992,12 @@ let lower_cat st (skipn : put_skip) (ch : chain) =
          failwith "codegen: skip count out of MVI range [TBD]";
        d st op_mvi_a; d st n; call_ext st "?SKPOP"
    | Sk_expr e -> emit_skip_count st e   (* [SK3 SK4] LHLD / MOV A,L / CALL ?SKPOP *)
+   (* [E2E-52/P3-1] UNREACHABLE BY CONSTRUCTION: this is the console CONCAT route and
+      `file_skip_of' is the only producer of Sk_page.  Loud, never silent. *)
+   | Sk_page ->
+       failwith "codegen: PAGE reached the console concat PUT lowering [TBD] -- invariant: \
+                 Sk_page is produced only by the file matcher; console `put page' refuses \
+                 earlier (N3_PAGE)"
    | Sk_none -> ());
   let vk_guard nm =
     match vk_of st nm with
@@ -11639,6 +11711,23 @@ let lower_put_items_gen st ?(file : string option = None)
          failwith "codegen: skip count out of MVI range [TBD]";
        d st op_mvi_a; d st n; call_ext st "?SKPOP"
    | Sk_expr e -> emit_skip_count st e   (* [SK3 SK4] LHLD / MOV A,L / CALL ?SKPOP *)
+   (* [E2E-52/P3-1] DR's FILE PAGE, E46N10 002F-0031: a bare `CALL ?PAGOP' -- NO MVI count,
+      NO operand (contrast ?SKPOP, whose counted forms are measured).  It sits between the
+      attach and the items/close exactly where the SKIP sits; the close ?QIOOP and the
+      continuation triple follow unchanged, which is what makes the statement 12 + 3 + 3 =
+      18 bytes.  THE CONSOLE ROUTE KEEPS REFUSING: N3_PAGE is an unregistered my-gap
+      (golden/negpanel1/NG25 carries DR's console bytes, mine has none for PAGE), and
+      `file_skip_of' is the ONLY producer of Sk_page -- reaching the None arm below is an
+      invariant break, not a shape. *)
+   | Sk_page ->
+       (match file with
+        | Some _ -> call_ext st "?PAGOP"
+        | None ->
+            failwith
+              "codegen: PAGE reached the CONSOLE PUT lowering [TBD] -- invariant: Sk_page is \
+               produced only by the file matcher, and console `put page' refuses earlier \
+               (N3_PAGE: DR emits golden/negpanel1/NG25, this compiler has no console PAGE \
+               bytes)")
    | Sk_none -> ());
   (match edit_tbl with
    | Some addr ->
