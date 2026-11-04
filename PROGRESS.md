@@ -443,7 +443,26 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-2 ARM CONTRACT VERIFIED against the code (this session, renewal 5/12); IMPLEMENT A1-A5 NOW, then sweep/registrations (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" FIRST — it carries the exact golden byte lists, the parser-representation facts and the seven-point implementation contract (a)-(g); then `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 §3/§4/§5)
+### E2E-52/P3-2 ARM LANDED (uncommitted); P086J cmp rc=0 FIRST TRY; P086K MISSES AT BYTE 32 — DEBUG, SWEEP, REFUSALS, REGISTRATION OWED (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 ARM IMPLEMENTED" FIRST — it carries the full arm record, the falsified P1, the two mechanics lessons, and owed steps (1)-(7) exactly)
+
+Headline ACTUALS this session (all rc DIRECT): `dune build` rc=0 binary `a353f6fc7a48d185…`,
+warning histogram IDENTICAL to `build/e52p3/arm-build-warnings.log`; arm = contract (a)-(g)
+executed in `ocaml/lib/codegen.ml` ONLY, UNCOMMITTED in tree; HEAD `1a1ceb6` + operator
+config dirty. P2 HIT: P086J whole-file cmp rc=0 first try (256 B). P1 FALSIFIED kept
+verbatim: P086K cmp rc=1 at octet 32; mine 512 B code=101 (golden 98, +3 bytes), divergence
+starts at the DEF-COMMON/SEL-COMMON/FCB record area — suspect a spurious second SEL-COMMON
+on the GET (st.cur_common reset between statements) or a prescan table-count miss. NEXT ACT:
+reldump /tmp/p086k.rel with the tool that wrote build/e52p3/p086k-reldump.txt, diff
+record-for-record, fix, cmp AGAIN. Then sweep (E46N 18/18, R10xx, E46K4/K15 markers, E52,
+E51), focused refusals BY NAME, LOAN2 rerun verbatim (predicted: fmt_spec catch, no line
+number), E41X8 retirement (negatives 180->179), registration 1197->1199 (gate rc=0 1199/0,
+census own write path, IO.PUT_EDIT row after IFACT/LOAN1 verification, C360 from MEASURED
+bytes only), prose rc=0, explicit-path commits. Campaign continues past every blocker.
+Constraints: no push; goldens never re-derived; operator handoff.config.json never staged;
+all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (6/12 consumed,
+cap 12).
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-2 ARM CONTRACT VERIFIED against the code (this session, renewal 5/12); IMPLEMENT A1-A5 NOW, then sweep/registrations (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" FIRST — it carries the exact golden byte lists, the parser-representation facts and the seven-point implementation contract (a)-(g); then `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 §3/§4/§5)
 
 Steps, all rc DIRECT (never a trailing pipeline):
 (1) `git rev-parse HEAD && git status --porcelain=v1` (only operator handoff.config.json may be
@@ -2288,19 +2307,26 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 291
-checkpoint-id: g291-5bff80a6e7a4
+checkpoint-generation: 294
+checkpoint-id: g294-a3b2c5aea20e
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 2
-checkpointed: 2026-11-04T19:30:44.109Z
+guard-level: 4
+checkpointed: 2026-11-04T19:55:39.051Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c780e2ab0be8b6ed97a087128bf8329bc17e709bf573f6a7f2b14a0b045ecc7f
-source-handoff: 3a219e5b410c4cc6c028e402466baac31e162c4ce3bf902f0cdaff01da5d1d3c
-source-learnings: c562d3f212d0023c156deeefba2ebb60d1c55f7c318d95f0306fc039f20a50eb
+source-progress: 17b2d32f43e44a8cd2d13cdea213c8edaa581c1ed104201b5eb6b94fda37a79c
+source-handoff: a8881203d81b82c1cec4cf1ac710f79978d19245492c2ba31a5b4cbde3cc9d6c
+source-learnings: 78076b4a0cc959605f536e6d8a6f8ed06136bfca48fb65a4e072605f21dc4e49
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` steps (1)-(5); read
+next-action: `; first action = reldump-diff P086K, fix, cmp AGAIN.
+
+0a-bis. **P3-2 ARM CONTRACT READY (2026-11-04, successor of g290, renewal 5/12 consumed at
+ this hop).** Zero `ocaml/` byte written; the arm is now specified to the instruction level in
+ `LEARNINGS.md` § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" (exact golden byte lists
+ re-read from `build/e52p3/p086{j,k}-reldump.txt`, the parser's flat GET-EDIT item list, the
+ seven codegen-only edits (a)-(g), the two panel rows E41X8/E46K15 verified, and the predicted
+ LOAN2 message shape). SUCCESSOR: execute `PROGRESS.md` → `## Next action` steps (1)-(5); read
  that LEARNINGS § then PLAN §P3-2 §3/§4/§5.
 
 0a. **P3-2 STATUS THIS SESSION (2026-11-04, successor of g287):** evidence steps (1)-(2) DONE,
@@ -2601,9 +2627,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a7fc-fb26-7427-a642-9c4f0e862d3a
-readiness-at: 2026-11-04T19:30:44.128Z
-readiness-checkpoint: g291-5bff80a6e7a4
+readiness-by: session:01a1a80b-43bb-7427-a642-9c52b5654518
+readiness-at: 2026-11-04T19:55:39.064Z
+readiness-checkpoint: g294-a3b2c5aea20e
 <!-- guard:end checkpoint -->
 
 ## Blockers

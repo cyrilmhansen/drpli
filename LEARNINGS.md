@@ -142,6 +142,65 @@ The guard never writes this file.
 - Rebuild note: `dune build` rc=0 at session start; NO compiler run was part of this hop's
   evidence (all bytes from existing goldens via reldump).
 
+## E2E-52/P3-2 ARM IMPLEMENTED; P086J BYTE-EXACT FIRST TRY; P086K MISSES AT .REL BYTE 32 — DEBUG OWED (2026-11-04, session 01a1a80b, renewal 6/12; ocaml/lib/codegen.ml UNCOMMITTED in tree)
+
+- **ACCEPTED (arm landed, contract (a)-(g) executed in `ocaml/lib/codegen.ml` ONLY).**
+  `edit_match` record; `match_put_edit` FILE arm (leading bare SKIP -> `Sk_lit "1"`;
+  counted SKIP and other controls RAISE BY NAME at the matcher; an un-splittable file
+  shape also RAISES naming the split failure); `match_get_edit` on the FLAT parser list
+  (prefix bare-ident `Pi_data`, non-empty `Pi_fmt` suffix; anything else None -> the
+  E2E-3e catch); `edit_stmts` + Sget, `prealloc_fmt_tables` FIFO SOURCE order; NEW
+  `prescan_stmt` `Ast.Sget _` arm counting the GET table; `authorize_file_edit_item`
+  admitting ONLY PIlit + non-deref PIvar-Vdec (all else BY NAME incl. PInum with the
+  LOAN2-golden citation); `is_edit && file <> None` guard DELETED (falsified premise
+  kept as written); Vdec mid-arm `is_edit` refusal DELETED (falsified by P086J, kept
+  as written); `lower_get_file_edit` emits attach/EDITF/?EDTIV/QCDOP+DSTOP/QIOOP —
+  ?EDTIV a call_ext NAME only, no new encoder. Two implementation MECHANICS lessons:
+  an inner `match` in a branch position ABSORBS the outer match's later `|` cases
+  regardless of indentation (fixed the `authorize_file_edit_item` vk match with parens;
+  build error `no constructor PIlit_dec within type vkind`); `pli80c` CLI is POSITIONAL
+  `pli80c [-d] IN.PLI OUT.REL` — a `-o` call exits rc=2 usage, NOT a compile result.
+- **MEASURED: `dune build` rc=0, binary `a353f6fc7a48d185…`, warning histogram
+  IDENTICAL to the P3-1 baseline `build/e52p3/arm-build-warnings.log` (normalized
+  `Warning NN [name]` diff empty). HEAD was `1a1ceb6`; tree carried only the operator
+  config plus this WIP edit.**
+- **ACCEPTED (prediction P2 HIT): P086J whole-file `cmp` rc=0 FIRST TRY** vs
+  `golden/probe55/P086J/P086J.REL` (256 B; console DEC edit via the deleted Vdec
+  refusal — zero other bytes moved on that object).
+- **MISS KEPT VERBATIM (PROTOCOL #2; prediction P1 FALSIFIED): P086K cmp rc=1 at
+  `octet 32`**. My object: 512 B (right length!), `code=101` vs golden CODE `0x62`=98
+  (+3 bytes), `data=3` reported. Diff begins in the DATA-record stream: golden 0x1e
+  `92 e5 c0 00 08 00 / 00 00 0a 01 40 cb / 81 80 10 00 00 00…` vs mine `92 e2 84 60
+  05 1a / 09 46 97 80 00 00 / 00×rest` — i.e. divergence around the DEF-COMMON-SIZE
+  F abs `0023` + SEL-COMMON/COMMON-FCB area (golden `01 46` name tail visible inside
+  my bytes at 0x24 as `…97 80`? NOT confirmed). The +3 code bytes smell like ONE extra
+  3-byte CALL or SEL-COMMON record — prime suspects: (i) st.cur_common RESET between the
+  PUT and the GET (P086K GET must carry RELOC common 0 with NO second SEL-COMMON — check
+  whether some statement-boundary code clears cur_common, e.g. the `st.last_imm <- None`
+  neighbourhood or lower_stmt's Sget arm); (ii) the pool/prescan count for the GET table.
+  **NEXT ACT: run the reldump tool on /tmp/p086k.rel (same tool that produced
+  build/e52p3/p086k-reldump.txt — find via `grep -rn reldump tools/ | head`) and diff
+  record-for-record against the golden dump; fix; NEVER edit the golden.**
+- **UNCOMMITTED: the codegen.ml arm.** Commit ONLY after the K fix + sweep + refusals +
+  LOAN2 verbatim + E41X8 retirement, explicit paths, never handoff.config.json.
+- **OWED (successor, exact order — all rc DIRECT):** (1) P086K reldump diff and fix,
+  cmp rc=0 expected 512 B CODE 0x62 DATA 0x12; (2) zero-drift sweep E46N 18/18, R10xx,
+  E46K4/K15 markers intact (K15 = CONSOLE get-edit, K4 = imem-EDIT), E52A..J, E51A..L;
+  (3) focused refusals rc=2 BY NAME: picture/x(w)/rep/counted-SKIP+EDIT/PAGE+EDIT/
+  numeric-literal/DEC-formal/fixed-bin-expression-on-file-EDIT; (4) LOAN2 rerun UNMODIFIED
+  — LEARNINGS g291-era § predicts the fmt_spec catch `codegen: PUT EDIT format item form
+  unsampled [TBD] (counted, grouped, picture, remote and rep-group formats are not
+  decoded)` (NO line number); record ACTUAL verbatim, never fit; (5) E41X8 must now
+  compile rc=0 (no golden — never claim its bytes) -> retire REJECTS tools/e2e_gate.py
+  ~2568 + NEG_META ~4021, negatives 180->179; (6) registration: SPECIMENS P086K+P086J
+  (keep golden paths), `--update-inventory` 1197->1199 EXACTLY TWO lines, FULL gate rc=0
+  1199/0 to build/gate-e52p3b-reg.log; census via OWN write path (record moved LOAN2/
+  COPYLPT msgs); COVERAGE IO.PUT_EDIT row (line 65) ONLY after verifying the IFACT/LOAN1
+  discrepancy (LOAN1 has NO edit stmt); claim **C360** from measured bytes ONLY (the K
+  fix makes those bytes real; J alone already pins the console DEC-edit law); prose
+  rc=0; explicit-path commits; (7) renewals autonomous at safe boundaries (6/12 consumed;
+  cap 12).
+
 ## E2E-52/P3-2 arm DESIGN VERIFIED against the code (session 01a1a7fc, renewal 5/12); ZERO ocaml/ byte written — implementation mechanics MEASURED from sources + reldumps, OWED
 
 - **ACCEPTED (recovery).** HEAD `7fd9c61` (g290 managed block; evidence+PLAN at `10c2a9f`);

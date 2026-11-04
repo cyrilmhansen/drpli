@@ -7,6 +7,14 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-ter. **P3-2 ARM IMPLEMENTED, P086K DEBUG OWED (2026-11-04, successor of g291, renewal
+ 6/12 consumed).** Arm (a)-(g) landed in `ocaml/lib/codegen.ml` ONLY, UNCOMMITTED; build
+ rc=0 binary `a353f6fc7a48d185…`, warning profile IDENTICAL. P086J cmp **rc=0 FIRST TRY**
+ (256 B); P086K cmp **rc=1 at octet 32** (512 B, code=101 vs 98 — divergence in the
+ DEF-COMMON/SEL-COMMON records; suspect spurious second SEL-COMMON on the GET). SUCCESSOR:
+ read `LEARNINGS.md` § "E2E-52/P3-2 ARM IMPLEMENTED" (full record + owed steps (1)-(7)),
+ execute `PROGRESS.md` → `## Next action`; first action = reldump-diff P086K, fix, cmp AGAIN.
+
 0a-bis. **P3-2 ARM CONTRACT READY (2026-11-04, successor of g290, renewal 5/12 consumed at
  this hop).** Zero `ocaml/` byte written; the arm is now specified to the instruction level in
  `LEARNINGS.md` § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" (exact golden byte lists
@@ -1309,31 +1317,38 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 291
-checkpoint-id: g291-5bff80a6e7a4
+checkpoint-generation: 294
+checkpoint-id: g294-a3b2c5aea20e
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 2, remaining ~10071, session 01a1a7fc-fb26-7427-a642-9c4f0e862d3a)
-checkpointed: 2026-11-04T19:30:44.109Z
+status: checkpoint (guard level 4, remaining ~842, session 01a1a80b-43bb-7427-a642-9c52b5654518)
+checkpointed: 2026-11-04T19:55:39.051Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c780e2ab0be8b6ed97a087128bf8329bc17e709bf573f6a7f2b14a0b045ecc7f
-source-handoff: 3a219e5b410c4cc6c028e402466baac31e162c4ce3bf902f0cdaff01da5d1d3c
-source-learnings: c562d3f212d0023c156deeefba2ebb60d1c55f7c318d95f0306fc039f20a50eb
+source-progress: 17b2d32f43e44a8cd2d13cdea213c8edaa581c1ed104201b5eb6b94fda37a79c
+source-handoff: a8881203d81b82c1cec4cf1ac710f79978d19245492c2ba31a5b4cbde3cc9d6c
+source-learnings: 78076b4a0cc959605f536e6d8a6f8ed06136bfca48fb65a4e072605f21dc4e49
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a7fc-fb26-7427-a642-9c4f0e862d3a
-readiness-at: 2026-11-04T19:30:44.128Z
-readiness-checkpoint: g291-5bff80a6e7a4
+readiness-by: session:01a1a80b-43bb-7427-a642-9c52b5654518
+readiness-at: 2026-11-04T19:55:39.064Z
+readiness-checkpoint: g294-a3b2c5aea20e
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` steps (1)-(5); read
+`; first action = reldump-diff P086K, fix, cmp AGAIN.
+
+0a-bis. **P3-2 ARM CONTRACT READY (2026-11-04, successor of g290, renewal 5/12 consumed at
+ this hop).** Zero `ocaml/` byte written; the arm is now specified to the instruction level in
+ `LEARNINGS.md` § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" (exact golden byte lists
+ re-read from `build/e52p3/p086{j,k}-reldump.txt`, the parser's flat GET-EDIT item list, the
+ seven codegen-only edits (a)-(g), the two panel rows E41X8/E46K15 verified, and the predicted
+ LOAN2 message shape). SUCCESSOR: execute `PROGRESS.md` → `## Next action` steps (1)-(5); read
  that LEARNINGS § then PLAN §P3-2 §3/§4/§5.
 
 0a. **P3-2 STATUS THIS SESSION (2026-11-04, successor of g287):** evidence steps (1)-(2) DONE,
@@ -1636,5 +1651,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-2 ARM CONTRACT LANDED (commit 39dfa13; zero ocaml/ byte; HEAD 39dfa13; tree clean except operator handoff.config.json; build binary 34e8321a9d0e04c9 rc=0; prose rc=0 build/prose-check-e52p3b-armdesign.log; panel 1197/0; ledger ENDS C359). READ FIRST: LEARNINGS.md § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" — it carries the exact P086K/P086J golden byte lists, the parser fact (PUT EDIT formats are Pi_fmtlist, GET EDIT items are FLAT ctl@data@fmts; Editsk never produced), and the seven-point codegen-only implementation contract (a)-(g); then PROGRESS.md -> Next action steps (1)-(5); then spec/lab-evidence/e2e52-p3/PLAN.md §P3-2 §3 (arms) §4 (boundaries BY NAME) §5 (predictions P1-P6). Key numbers: DELETE lower_put_items_gen is_edit&&file guard (~11557) + the PIvar/Vdec is_edit refusal (~11797); add match_put_edit file arm (leading bare Pi_ctl SKIP -> Sk_lit "1"; counted/other control must RAISE by name — fmt_spec never sees statement-option controls), match_get_edit on the flat list, edit_stmts+prealloc_fmt_tables FIFO in SOURCE order (P086K pins put table @0000 then get table @0006), NEW prescan_stmt Ast.Sget arm for the GET table's pool bytes, authorize_file_edit_item admitting ONLY PIlit + PIvar-Vdec (fixed-bin EXPRESSION stays refused per PLAN §4), lower_get_file_edit with ?EDTIV as a call_ext name only (NO new encoder, NO GNVOP/JP). Expectations: P086K cmp rc=0 first try (512B CODE 0x62 DATA 0x12), P086J rc=0 (256B CODE 0x3D DATA 0x10), zero-drift sweep (E46N 18/18, R10xx, E46K4/K15 markers intact, E52A..J, E51A..L), LOAN2 STILL refuses with fmt_spec's catch-all text (record VERBATIM, it has no line number), E41X8 retires (REJECTS tools/e2e_gate.py:2568 + NEG_META 4021; negatives 180->179), registration 1197->1199 EXACTLY TWO lines + reg gate rc=0 1199/0 to build/gate-e52p3b-reg.log, census via own write path, COVERAGE IO.PUT_EDIT ONLY after verifying the IFACT/LOAN1 discrepancy (LOAN1 has no edit stmt), claim C360 from measured bytes only. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (6/12 after this hop); campaign continues past every blocker.
+E2E-52/P3-2 ARM LANDED UNCOMMITTED in ocaml/lib/codegen.ml (contract (a)-(g) executed; build rc=0 binary a353f6fc7a48d185; warning histogram IDENTICAL to build/e52p3/arm-build-warnings.log). P086J cmp rc=0 FIRST TRY 256B (P2 HIT). P086K cmp rc=1 at octet 32 (P1 FALSIFIED, kept verbatim): mine 512B code=101 vs golden 98 (+3 bytes), divergence starts at DEF-COMMON-SIZE/SEL-COMMON record area — prime suspect a spurious SECOND SEL-COMMON emitted by the GET (st.cur_common reset between statements?) or prescan GET-table count. FIRST NEXT ACT: reldump /tmp/p086k.rel with the tool that wrote build/e52p3/p086k-reldump.txt (grep -rn reldump tools/), diff record-for-record vs build/e52p3/p086k-reldump.txt, fix, cmp AGAIN (expect rc=0 512B CODE 0x62 DATA 0x12). Then owed (2)-(7) in LEARNINGS § "E2E-52/P3-2 ARM IMPLEMENTED": zero-drift sweep E46N 18/18/R10xx/E46K4-K15 markers/E52/E51; focused refusals BY NAME picture/x/rep/counted-SKIP+EDIT/PAGE+EDIT/numeric-literal/DEC-formal/fixed-bin-expr; LOAN2 rerun verbatim (predicted fmt_spec catch NO line number); E41X8 retires (tools/e2e_gate.py ~2568 REJECTS + ~4021 NEG_META, negatives 180->179); registration SPECIMENS K+J, --update-inventory 1197->1199 TWO lines, gate rc=0 1199/0 to build/gate-e52p3b-reg.log, census own write path, COVERAGE IO.PUT_EDIT after IFACT/LOAN1 discrepancy check, C360 from measured bytes only, prose rc=0, explicit-path commits (arm uncommitted — commit only after sweep green). HEAD 1a1ceb6; tree = codegen.ml WIP + durables + operator handoff.config.json (NEVER stage). CLI lesson: pli80c POSITIONAL args, never -o. OCaml lesson: inner match in branch position absorbs outer | cases — parens used. Renewal 6/12 consumed; this hop = 7/12. Constraints: no push; goldens never re-derived; all rc DIRECT; never hardcode LOAN2; campaign continues past every blocker.
 <!-- guard:end checkpoint -->

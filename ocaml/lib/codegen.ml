@@ -2866,33 +2866,132 @@ let fmt_table_bytes (specs : Ast.put_item list) =
   if specs = [] then failwith "codegen: PUT EDIT with an empty format list [TBD]";
   Array.of_list (([ 0x80; 0x00 ] @ List.concat_map fmt_spec specs) @ [ 0x81 ])
 
-(* `put edit(items)(specs);' -- default stream, no ON options, no leading
-   SKIP/PAGE control item (that combination is unsampled: in every EDIT probe
-   the skip lives INSIDE the format list).  Items accept exactly what PUT LIST
-   prepares -- char literal, fixed-bin variable/expression, char varying --
-   because [R1001/R1003/R1010/IFACT] show DR reusing the same value preparation
-   with ?EDTOV in place of ?PNCOP/?PNVOP.  FIXED DECIMAL items are refused at
-   lowering: no DR sample puts a DEC item through an edit list. *)
+(* [E2E-52/P3-2 arm (a)] ONE matched EDIT statement, from either route.  The
+   console route (E2E-8/E2E-11, [C090]) and the FILE route (P086K/P086J,
+   golden/probe55) share the format-table encoding, the per-item value
+   preparation and the ?EDTOV tail; they differ in the attach (?SYSPR/0x0252
+   versus ?SIOOP/0x0652 [C280]), in the optional leading statement-option SKIP
+   (measured on the FILE route by LOAN2 115/199: MVI A,01/?SKPOP between the
+   attach and ?EDITF, golden 0522-0537 and 08F1-08FD), and in WHICH ITEMS the
+   route authorises (asked at lowering, never here -- this is syntax). *)
+type edit_match =
+  { ed_file : Ast.expr option      (* Some = the statement's FILE(name) option *)
+  ; ed_skip : put_skip
+  ; ed_items : pitem list
+  ; ed_specs : Ast.put_item list }
+
+(* `put [file(f)] [skip] edit(items)(specs);'.  The CONSOLE shape is byte-frozen
+   since [E2E-8]: default stream, no ON options, NO leading SKIP/PAGE control
+   item (that combination is unsampled on the console: in every console EDIT
+   probe the skip lives INSIDE the format list).  Items accept exactly what PUT
+   LIST prepares -- char literal, fixed-bin variable/expression, char varying,
+   DEC variable -- because [R1001/R1003/R1010/IFACT] show DR reusing the same
+   value preparation with ?EDTOV in place of ?PNCOP/?PNVOP.
+   SUPERSEDED premise of the DEC refusal this arm removes, kept as written per
+   PROTOCOL #2: "FIXED DECIMAL items are refused at lowering: no DR sample puts
+   a DEC item through an edit list" -- FALSIFIED by golden/probe55/P086J (console
+   `put edit(d)(f(9,2),a(4))', the [C358] p/p+3/s prep byte-for-byte between
+   ?EDITF and ?EDTOV) and by P086K on the FILE route.  WHICH classes the FILE
+   route lowers is decided per item at lowering by `authorize_file_edit_item';
+   what refuses HERE is shape the matcher sees: the counted and non-SKIP
+   statement-option controls, whose fall-through text (match_put_list_lit's
+   "only PUT LIST is implemented") would name the wrong class -- the fmt_spec
+   catch never sees a STATEMENT-OPTION control item. *)
 let match_put_edit (s : Ast.stmt) =
+  let ln = s.Ast.spos.Source.line in
+  let rec data acc = function
+    | [] -> None                     (* no format list: not an EDIT shape *)
+    | Ast.Pi_fmtlist specs :: tl ->
+        if tl <> [] || acc = [] then None
+        else Some (List.rev acc, specs)
+    | Ast.Pi_data x :: tl -> data (x :: acc) tl
+    (* a control/rep/picture/remote item in the DATA half of an EDIT list
+       is unsampled: refuse rather than guess where it belongs *)
+    | _ -> None
+  in
+  let split items =
+    match data [] items with
+    | Some (ds, specs) ->
+        let its = List.map classify_item ds in
+        if List.for_all (fun o -> o <> None) its then
+          Some (List.map (function Some i -> i | None -> assert false) its,
+                specs)
+        else None
+    | None -> None
+  in
   match s.Ast.st with
   | Ast.Sput { stream = None; on_opts = []; kind = Ast.Edit; items } ->
-      let rec data acc = function
-        | [] -> None                     (* no format list: not an EDIT shape *)
-        | Ast.Pi_fmtlist specs :: tl ->
-            if tl <> [] || acc = [] then None
-            else Some (List.rev acc, specs)
-        | Ast.Pi_data x :: tl -> data (x :: acc) tl
-        (* a control/rep/picture/remote item in the DATA half of an EDIT list
-           is unsampled: refuse rather than guess where it belongs *)
-        | _ -> None
+      (match split items with
+       | Some (its, specs) ->
+           Some { ed_file = None; ed_skip = Sk_none; ed_items = its; ed_specs = specs }
+       | None -> None)
+  (* [E2E-52/P3-2 arm (a)] the FILE route: exactly one plain `FILE(name)'
+     statement option, LIST of data items, wrapped format list -- the parser's
+     PUT EDIT shape (lib/parser.ml 1077-1093) with the optional leading SKIP
+     control item the option loop collects.  P086K carries NO leading skip; LOAN2
+     115/191/195/199/212 carry the bare one. *)
+  | Ast.Sput { stream = None; kind = Ast.Edit; items;
+               on_opts = [ { Ast.io_key = "FILE";
+                             Ast.io_val = Some ({ Ast.e = Ast.Eident n; _ } as fe) } ] } ->
+      let fname = String.uppercase_ascii n.Ast.orig in
+      let (skipn, rest) =
+        match items with
+        | Ast.Pi_ctl ("SKIP", None) :: tl -> (Sk_lit "1", tl)
+            (* the bare form: `MVI A,01 / CALL ?SKPOP' -- the match_skip_ctl law
+               [N302], witnessed between attach and ?EDITF in LOAN2's OWN golden
+               at 0529-0532 and 08F4-08F7 *)
+        | Ast.Pi_ctl ("SKIP", Some _) :: _ ->
+            failwith (Printf.sprintf
+                        "codegen: PUT FILE(%s) EDIT with a COUNTED SKIP control item [TBD] \
+                         (line %d) -- the bare skip is measured ahead of a format table (LOAN2 \
+                         golden 0529 MVI A,01/?SKPOP), but counted SKIP+EDIT has no DR object: \
+                         E46N9/E46N18 pin counts on the LIST route only" fname ln)
+        | Ast.Pi_ctl (k, _) :: _ ->
+            failwith (Printf.sprintf
+                        "codegen: PUT FILE(%s) EDIT with the control item %s [TBD] (line %d) -- \
+                         only the bare SKIP option is measured ahead of a format table; PAGE+EDIT \
+                         has no witness anywhere (E46N10 pins bare PAGE on the LIST route alone)" fname k ln)
+        | _ -> (Sk_none, items)
       in
-      (match data [] items with
-       | Some (ds, specs) ->
-           let its = List.map classify_item ds in
-           if List.for_all (fun o -> o <> None) its then
-             Some (List.map (function Some i -> i | None -> assert false) its,
-                   specs)
-           else None
+      (match split rest with
+       | Some (its, specs) ->
+           Some { ed_file = Some fe; ed_skip = skipn; ed_items = its; ed_specs = specs }
+       | None ->
+           failwith (Printf.sprintf
+                       "codegen: PUT FILE(%s) EDIT shape [TBD] (line %d) -- an EDIT list the \
+                        matcher cannot split into data items plus a final wrapped format list: \
+                        empty data, a trailing item after the format list, or an item class \
+                        classify_item does not name" fname ln))
+  | _ -> None
+
+(* [E2E-52/P3-2 arm (b)] `get file(f) edit(names)(formats);'.  THE PARSER PUTS THE
+   GET EDIT ITEMS IN A FLAT LIST (lib/parser.ml 1141-1143: ctl_items @ d @ f --
+   no Pi_fmtlist wrapper, unlike PUT), so the split happens HERE: a prefix of
+   bare-identifier data items followed by a NON-EMPTY suffix of format items.
+   Anything else -- a control item, a picture, a group, a rep-group, a
+   Pi_fmtlist, an empty data or format side, or a data item after a format item
+   -- returns None and falls to the existing `GET form not in E2E-3e subset'
+   catch at lower_stmt and the prescan 0 at prescan_stmt: refuse rather than
+   guess.  Exactly one plain FILE(name) option, no stream, EDIT kind -- the
+   P086K shape; a console GET EDIT (E46K15: `get edit (line) (a);') has NO FILE
+   option and cannot be stolen by this arm. *)
+let match_get_edit (s : Ast.stmt) =
+  match s.Ast.st with
+  | Ast.Sget { stream = None; kind = Ast.Edit; items;
+               on_opts = [ { Ast.io_key = "FILE";
+                             Ast.io_val = Some ({ Ast.e = Ast.Eident _; _ } as fe) } ] } ->
+      let rec split data fmts = function
+        | [] ->
+            if data <> [] && fmts <> [] then Some (List.rev data, List.rev fmts)
+            else None
+        | Ast.Pi_data { Ast.e = Ast.Eident n; _ } :: tl ->
+            if fmts <> [] then None   (* data AFTER format: not the measured order *)
+            else split (n :: data) fmts tl
+        | Ast.Pi_fmt _ as x :: tl -> split data (x :: fmts) tl
+        | _ :: _ -> None              (* Pi_ctl/Pi_pic/Pi_group/Pi_repgrp/Pi_fmtlist/Pi_data-expr *)
+      in
+      (match split [] [] items with
+       | Some (names, specs) -> Some (fe, names, specs)
        | None -> None)
   | _ -> None
 
@@ -2905,6 +3004,12 @@ let rec edit_stmts (ss : Ast.stmt list) : Ast.stmt list =
       match s.Ast.st with
       | Ast.Sput _ ->
           if match_put_edit s <> None then [ s ] else []
+      (* [E2E-52/P3-2 arm (c)] a GET EDIT allocates its OWN format table and must
+         enter the FIFO at its SOURCE position: P086K pins put-table *S(0000)
+         BEFORE get-table *S(0006).  Missing the Sget would leave the GET's
+         take_fmt_addr popping the wrong queue entry (or an assert at prealloc). *)
+      | Ast.Sget _ ->
+          if match_get_edit s <> None then [ s ] else []
       | Ast.Sdobegin body -> edit_stmts body
       | Ast.Sif { then_; els; _ } ->
           then_ :: (match els with Some e -> [ e ] | None -> [])
@@ -2924,9 +3029,13 @@ let prealloc_fmt_tables st (ss : Ast.stmt list) =
     <- List.map
          (fun s ->
            match match_put_edit s with
-           | Some (_, specs) -> pool_alloc st (fmt_table_bytes specs)
-           | None -> assert false)
+           | Some em -> pool_alloc st (fmt_table_bytes em.ed_specs)
+           | None ->
+               (match match_get_edit s with
+                | Some (_, _, specs) -> pool_alloc st (fmt_table_bytes specs)
+                | None -> assert false))
          (edit_stmts ss)
+
 
 (* GET LIST (varying);) — single varying data item, default stream,
    no ON opts, no edit. Shapes beyond this raise [TBD] at lowering
@@ -3322,14 +3431,14 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
          shift every later data address silently -- the exact failure mode of
          the slice-3 ROUND prescan bug. *)
       (match match_put_edit s with
-       | Some (its, specs) ->
-           Array.length (fmt_table_bytes specs)
+       | Some em ->
+           Array.length (fmt_table_bytes em.ed_specs)
            + List.fold_left
                (fun a it -> match it with
                 | PIlit v -> a + pdec_str_cell cx v
                 | PInum x -> a + prescan_expr cx x
                 | PIvar _ -> a
-                | PIlit_dec t -> a + pdec_put_dec_cell cx t) 0 its
+                | PIlit_dec t -> a + pdec_put_dec_cell cx t) 0 em.ed_items
        | None ->
       (match match_put_list_lit s with
        | Plit (_, v) -> pdec_str_cell cx v
@@ -3401,6 +3510,17 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
      two relocations of variable `a' (DR: A(000E)) came out as data 0x7 -- right
      code shape, wrong addresses, and byte-identical DATA bytes that hid it. *)
   | Ast.Son { handler; _ } -> prescan_stmt cx handler
+  (* [E2E-52/P3-2 arm (d)] a GET EDIT consumes pool space for its OWN compiled
+     FORMAT TABLE, allocated ahead of everything by prealloc_fmt_tables in SOURCE
+     order -- P086K pins get-table *S(0006) right after put-table *S(0000) and the
+     DEC literal at 000C.  There was NO Sget arm before this: GET LIST items take
+     no pool [R903/R904], but a GET EDIT table DOES, and missing it would shift
+     every variable address silently -- the exact failure mode of the slice-3
+     ROUND prescan bug this function's header comment exists to prevent. *)
+  | Ast.Sget _ ->
+      (match match_get_edit s with
+       | Some (_, _, specs) -> Array.length (fmt_table_bytes specs)
+       | None -> 0)
   (* [E2E-41/P2b] a literal-string TITLE on an OPEN demands a pool cell exactly like
      the PUT side: DR allocates pool blocks in SOURCE order, so in E17B/E16C/E18A the
      title occupies data 0x0000 and the later PUT strings sit above it
@@ -10429,6 +10549,68 @@ let lower_get_file st (fu : string) (items : Ast.name list) =
   d st op_lxi_d; d st 0x90; d st 0x06;    (* LXI D,0690 input mode word *)
   lower_get_body st "?SIOOP" items
 
+(* [E2E-52/P3-2 arm (g)] `get file(f) edit(d)(f(5,1));' -- P086K GET, golden
+  /probe55/P086K/P086K.REL 003D-0061, byte for byte:
+     LXI H,<CB>            21 + RELOC common 0  (NO second SEL-COMMON: the PUT's
+                           load_file_cb already left st.cur_common = F [C202])
+     LXI D,0690            11 90 06             (the input mode word, [C274] family)
+     LXI B,<continuation>  01 00 00  (patched at 0044 by emit_triple)
+     CALL ?SIOOP           CD 00 00 @0046
+     LXI H,*S(table)       21 + RELOC data 0006
+     CALL ?EDITF           CD 00 00 @004D
+     CALL ?EDTIV           CD 00 00 @0050   <- the ONE new routine NAME; no new
+                           encoder anywhere (call_ext only)
+     per DEC item:         06 <s> / CALL ?QCDOP / 21+RELOC data <var> /
+                           3E <p> / CALL ?DSTOP
+     CALL ?QIOOP           CD 00 00 @0060   (ONE close per statement [C296])
+   WHAT THIS IS NOT: the LIST GET body. ?GNVOP and its JP skip-link appear
+   NOWHERE on the EDIT item chain -- the format table, not a scanner call,
+   tells DR where each value ends -- so this is its own lowering, sharing only
+   the attach skeleton and the DEC store instructions (?QCDOP/?DSTOP are the
+   very same call_ext names lower_get_body uses for its Vdec arm [R905/R906]).
+   Targets: the DEC variable is P086K's only item class; a deref (formal) name
+   or any other bound class refuses BY NAME before a byte. *)
+let lower_get_file_edit st (fu : string) (tbl : int) (names : Ast.name list) =
+  List.iter
+    (fun n ->
+      let nm = String.lowercase_ascii n.Ast.orig in
+      if List.mem nm st.deref then
+        failwith
+          (Printf.sprintf
+             "codegen: GET FILE(%s) EDIT into the FORMAL %s [TBD] -- no object puts an EDIT \
+              target through its pointer cell (the deref GET route is measured only for LIST)" fu nm);
+      match List.assoc_opt nm st.vars with
+      | Some { vk = Vdec _; _ } -> ()
+      | Some { vk; _ } ->
+          failwith
+            (Printf.sprintf
+               "codegen: GET FILE(%s) EDIT target %s bound as %s has no byte-exact DR witness \
+                [TBD] -- P086K measures the FIXED DECIMAL target only" fu n.Ast.orig (vk_name vk))
+      | None ->
+          failwith
+            (Printf.sprintf
+               "codegen: GET FILE(%s) EDIT of unknown variable %s [TBD]" fu n.Ast.orig))
+    names;
+  load_file_cb st fu;
+  d st op_lxi_d; d st 0x90; d st 0x06;    (* LXI D,0690 input mode word *)
+  d st op_lxi_b;
+  let bslot = st.lc in
+  d st 0; d st 0;
+  call_ext st "?SIOOP";
+  d st op_lxi_h; reloc st Data tbl; call_ext st "?EDITF";
+  call_ext st "?EDTIV";
+  List.iter
+    (fun n ->
+      match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
+      | Some { vk = Vdec (p, s); _ } ->
+          d st op_mvi_b; d st s; call_ext st "?QCDOP";
+          d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
+          d st op_mvi_a; d st p; call_ext st "?DSTOP"
+      | _ -> assert false)   (* the authorization pass above admits ONLY Vdec *)
+    names;
+  call_ext st "?QIOOP";
+  emit_triple st bslot st.lc           (* continuation = next stmt [P086K 0044->0062] *)
+
 (* ---------- [E2E-41/P1b, P2b, P3b + E2E-42/P0, P1a, P1b] OPEN and CLOSE of a named STREAM file ----------
 
    P0 read 34 OPEN blocks out of 24 distinct DR-compiled objects
@@ -11541,6 +11723,69 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
          unknown one -- but P2a's perimeter is one VARIABLE, and an expression has to earn its \
          own witness")
 
+(* [E2E-52/P3-2 arm (e)] WHICH ITEMS THE FILE EDIT ROUTE AUTHORISE -- the exact
+   mirror of `authorize_file_item's discipline: syntax is decided by the matcher,
+   the BOUND STORAGE CLASS is asked HERE, at lowering, over the whole list BEFORE
+   a single byte is emitted, and a list with one unauthorised item emits nothing.
+   Two classes carry whole-object DR bytes on THIS route:
+     DEC variable     P086K (golden/probe55/P086K.REL PUT 0028-0039: LXI H,*S(d) /
+                      MVI A,05/?DLDOP/MVI A,08/MVI B,02/?QDCOP/?EDTOV -- the [C358]
+                      p/p+3/s prep identical to the console route's)
+     string literal   LOAN2 statement 115 (MVI A,01/?SLCTS/?EDTOV at golden 053F-0542)
+                      and statement 199 (six literal chains 08FF-0941 against ONE
+                      format record `a')
+   What REFUSES, BY NAME (PLAN §P3-2 §4 boundaries):
+   * a DEC FORMAL -- the console reads a formal through its pointer cell; no object
+     puts a formal between an EDIT attach and ?EDTOV (LOAN2 147's deref items are a
+     later subround);
+   * a fixed-bin EXPRESSION -- `100*m+y' IS pinned inside LOAN2's own golden
+     (LHLD/LXI D,0064/?IM22N/XCHG/LHLD/DAD/MVI A,09/?QICOP/?EDTOV at 0544-0558) but
+     the statement carrying it also carries the picture record and refuses earlier,
+     so no panel-testable statement isolates the class [PLAN §4];
+   * a numeric LITERAL item (the existing is_edit refusal below already names it;
+     authorising here would contradict it);
+   * every other bound class: fixed/varying/binary/members/bits/floats -- no EDIT
+     object of ours carries them, and the console EDIT bank (E46K4 refuses the
+     member) says nothing about the file route. *)
+let authorize_file_edit_item st (fu : string) (ln : int) (it : pitem) =
+  let no_witness what why =
+    failwith
+      (Printf.sprintf
+         "codegen: PUT FILE(%s) EDIT of %s has no byte-exact DR witness [TBD] (line %d) -- the \
+          file EDIT route is lowered for the item classes its objects pin: the DEC variable of \
+          golden/probe55/P086K and the string literal of LOAN2's own golden (115: MVI A,01/\
+          ?SLCTS/?EDTOV at 053F-0542; 199: six literal chains against one format record).  \
+          A list is refused as a WHOLE, item by item, before the attach is emitted.  %s"
+         fu what ln why)
+  in
+  match it with
+  | PIlit _ -> ()     (* LOAN2 golden 115/199 chains [C090 prep, EDTOV tail] *)
+  | PIvar n ->
+      let nm = String.lowercase_ascii n.Ast.orig in
+      if List.mem nm st.deref then
+        no_witness
+          (Printf.sprintf "the FORMAL %s" (String.uppercase_ascii n.Ast.orig))
+          "a procedure formal is read through its pointer cell on the console route, and no \
+           object puts a formal between a file EDIT attach and ?EDTOV"
+      else (
+        match vk_of st n.Ast.orig with
+        | Vdec _ -> ()    (* P086K 0028-0039, P086J 0025-0036 -- the SAME prep both routes *)
+        | vk ->
+            no_witness ("a variable bound as " ^ vk_name vk)
+              "P086K/P086J measure the DEC variable and LOAN2 measures the string literal; \
+               every other class is carried by no EDIT object of ours on either route" )
+  | PIlit_dec _ ->
+      no_witness "a NUMERIC LITERAL item"
+        "the existing is_edit refusal in the item loop says the same thing: the format-table \
+         goldens (11 console + P086K/P086J + LOAN2's seven) print no numeric literal"
+  | PInum _ ->
+      no_witness "an EXPRESSION or SUBSCRIPTED item"
+        ("LOAN2's own golden 0544-0558 pins `100*m+y' between ?SLCTS/?EDTOV chains \
+          (LHLD/LXI D,0064/?IM22N/XCHG/LHLD/DAD/MVI A,09/?QICOP/?EDTOV), so DR compiles it \
+          on THIS route -- but no panel-isolable statement carries the class without also \
+          carrying a picture record, so it earns its own witness in a later subround \
+          [PLAN §P3-2 §4]")
+
 let lower_put_items_gen st ?(file : string option = None)
     (edit_tbl : int option) (skipn : put_skip) (items : pitem list) =
   (match file with
@@ -11554,10 +11799,17 @@ let lower_put_items_gen st ?(file : string option = None)
      item's output tail becomes ?EDTOV instead of ?PNCOP/?PNVOP [IFACT,
      R1001-R1020].  PUT LIST keeps the byte-frozen path (edit_tbl = None). *)
   let is_edit = edit_tbl <> None in
-  if is_edit && file <> None then
-    failwith
-      "codegen: PUT FILE ... EDIT has no DR witness [TBD] -- the format table's bytes are \
-       measured on the CONSOLE route only (11 golden objects, none of them a file PUT)";
+  (* [E2E-52/P3-2 arm (f)] the is_edit && file <> None REFUSAL that stood here, kept
+     as written per PROTOCOL #2 -- its premise is FALSIFIED:
+       "codegen: PUT FILE ... EDIT has no DR witness [TBD] -- the format table's
+        bytes are measured on the CONSOLE route only (11 golden objects, none of
+        them a file PUT)"
+     P086K is a whole FILE PUT+GET EDIT object, P086J a console DEC-edit object, and
+     LOAN2's golden carries SEVEN file EDIT statements; the file tables use the SAME
+     record encoding as the console ([C090]; `80 00`/f(w,d)=`00 w d`/a=`03 FF`/`81`
+     verified byte-for-byte against all three).  Item CLASSES on the file route are
+     still gated -- by `authorize_file_edit_item' in the caller, before this function
+     is reached, exactly as the LIST route gates them with `authorize_file_item'. *)
   (* `tail keep_going ()': keep_going = true selects ?PNCOP (character item,
      cursor continues), false selects ?PNVOP (numeric); for PUT EDIT every
      tail is ?EDTOV regardless [R1001-R1020]. *)
@@ -11796,13 +12048,18 @@ let lower_put_items_gen st ?(file : string option = None)
                     ^ "pointer cell)");
                (* [R501/R502/R503/R508/R510/R511] DEC variable item = DLDOP
                   then QDCOP(width=p+3, scale=s); R506 proves a DEC var in a
-                  MULTI-item list next to an INT var *)
+                  MULTI-item list next to an INT var.
+                  [E2E-52/P3-2 arm (f)] the mid-arm `is_edit' refusal that used to sit
+                  between ?DLDOP and ?QDCOP is DELETED; kept as written per PROTOCOL #2:
+                    "codegen: PUT EDIT of a FIXED DECIMAL item is unsampled [TBD]
+                     (no DR sample passes a DEC item through an edit list)"
+                  -- FALSIFIED by golden/probe55/P086J (console 0025-0036) and P086K
+                  (file 0028-0039): the existing `MVI A,p / ?DLDOP / MVI A,p+3 / MVI B,s /
+                  ?QDCOP' + the is_edit tail ?EDTOV is EXACTLY the golden bytes, and the
+                  p/p+3/s law is [C358]'s own.  The deref (formal) refusal ABOVE this arm
+                  stays: no object edits a DEC through its pointer cell. *)
                d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                d st op_mvi_a; d st p; call_ext st "?DLDOP";
-               if is_edit then
-                 failwith "codegen: PUT EDIT of a FIXED DECIMAL item is \
-                           unsampled [TBD] (no DR sample passes a DEC item \
-                           through an edit list)";
                d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st s;
                call_ext st "?QDCOP"; tail false ()
            | Vint | Vbased _ | Vbfix _ ->
@@ -12589,11 +12846,24 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
   | Ast.Sput _ ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (match match_put_edit s with
-       | Some (its, specs) ->
+       | Some em ->
            (* [E2E-8] PUT EDIT: the PUT LIST machinery plus the compiled format
-              table (?EDITF) and ?EDTOV after every item [IFACT, R1001-R1020]. *)
-           ignore specs;
-           lower_put_items_gen st (Some (take_fmt_addr st)) Sk_none its
+              table (?EDITF) and ?EDTOV after every item [IFACT, R1001-R1020].
+              [E2E-52/P3-2] the FILE arm adds the attach (?SIOOP/0x0652 [C280]),
+              the optional leading SKIP (LOAN2 115/199 golden chains) and the
+              item gate `authorize_file_edit_item' -- and deliberately NOT the
+              Pfile route's `st.file_out' open guard: P086K attaches 0652 with NO
+              OPEN anywhere in the object ([C282] NO-open attach), and the whole
+              EDIT statement is byte-exact against it, so the completeness
+              argument that gates the LIST route does not gate this one. *)
+           (match em.ed_file with
+            | None ->
+                lower_put_items_gen st (Some (take_fmt_addr st)) em.ed_skip em.ed_items
+            | Some fe ->
+                let fu = file_group st s (Some fe) in
+                List.iter (authorize_file_edit_item st fu s.Ast.spos.Source.line) em.ed_items;
+                lower_put_items_gen st ~file:(Some fu) (Some (take_fmt_addr st))
+                  em.ed_skip em.ed_items)
        | None ->
       (match match_put_list_lit s with
        | Plit (skipn, v) -> lower_put_lit st skipn v
@@ -12643,10 +12913,19 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                 LXI B,<continuation> ; CALL ?SIOOP, then the one item chain the
                 console form uses [P081Q, P072H]. *)
              lower_get_file st (file_group st s (Some fe)) nm
-         | None -> failwith
-             (Printf.sprintf
-                "codegen: GET form not in E2E-3e subset [TBD] \
-                 (line %d)" s.Ast.spos.Source.line))
+         | None ->
+           (* [E2E-52/P3-2 arm (b)+(g)] FILE GET EDIT, after the two LIST matchers
+              so no LIST shape changes meaning; everything else keeps the E2E-3e
+              catch, including the console `get edit (line) (a);' of E46K15 (no
+              FILE option -- match_get_edit cannot steal it). *)
+           match match_get_edit s with
+           | Some (fe, names, _specs) ->
+               lower_get_file_edit st (file_group st s (Some fe))
+                 (take_fmt_addr st) names
+           | None -> failwith
+               (Printf.sprintf
+                  "codegen: GET form not in E2E-3e subset [TBD] \
+                   (line %d)" s.Ast.spos.Source.line))
   | Ast.Sdowhile { cond; body } ->
       st.lowered <- st.lowered + 1; st.last_imm <- None;
       (* while(...) conditions arrive Econd-wrapped (IF conds don't) *)
