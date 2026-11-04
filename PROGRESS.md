@@ -2534,17 +2534,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 316
-checkpoint-id: g316-516bb891965e
+checkpoint-generation: 317
+checkpoint-id: g317-d1d9c078240e
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-04T23:34:36.862Z
+guard-level: 2
+checkpointed: 2026-11-04T23:56:13.917Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3a44819e8f85b22ff1fc5915706ef3c1c50440be20161678c6df38a09a30c413
-source-handoff: 07f02e10d34a7cc2cec7c396d2465d95f1b414c44493f43a6282691a19214c85
-source-learnings: 365d1780c5524b20b015fd6ccdbb998ec642fc1a442e2b4790fbd0817f7694b3
+source-progress: 1a9ecf99f5f741eab0a2f8e5134fc20772878408f8431bd2e31f40c777e68148
+source-handoff: ca1d587151443832843d483fae1dc187de04149d4c6d6773e44067f21f35aafe
+source-learnings: 7eb4292c114e6b13eff6bc5ebf1a5cfe6819fb5fde216923dabdf11509241744
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `
 and `LEARNINGS.md` § "P3-4 campaign e52p3d MEASURED + arm LANDED". Ledger ENDS C361;
@@ -2963,9 +2963,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a8d0-ecd6-753f-82d0-3145d66bcffd
-readiness-at: 2026-11-04T23:34:36.884Z
-readiness-checkpoint: g316-516bb891965e
+readiness-by: session:01a1a8ea-618f-753f-82d0-3148993c00bc
+readiness-at: 2026-11-04T23:56:13.932Z
+readiness-checkpoint: g317-d1d9c078240e
 <!-- guard:end checkpoint -->
 
 ## Blockers
