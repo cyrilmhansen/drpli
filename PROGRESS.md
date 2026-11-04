@@ -2013,17 +2013,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 272
-checkpoint-id: g272-6b059e276b81
-checkpoint-kind: manual
+checkpoint-generation: 273
+checkpoint-id: g273-75c60fb0d9da
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-11-04T14:42:21.306Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-04T16:42:33.643Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5d19baffeaad49c4a71757e74172d5088e1b045a04e0de51f5789743569dfb0d
+source-progress: 30c24846a00e55e84ae3bb28a2a2da379b2ee50db45b2215e702564b4dc4f86b
 source-handoff: 5453ba79fac60ff007a84b57b93e38587c1df8a3ec7b377b7e3c501f58ab5b0a
-source-learnings: 10f7952604ae2bb23591e54602e9de71fd98e8aae7a2a1197ea4cf4829ae269e
+source-learnings: c65867e9f3a2e486151bfcb7892eea0baa20b9f4b578a9aa8f6bc0e30985e052
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` -> "HOP 5 IN-FLIGHT ADDENDUM"
 steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
@@ -2085,9 +2085,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a6e1-8cba-7250-8e94-7a4821b5fd5f
-readiness-at: 2026-11-04T14:42:21.316Z
-readiness-checkpoint: g272-6b059e276b81
 <!-- guard:end checkpoint -->
 
 ## Blockers
