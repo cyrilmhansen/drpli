@@ -8635,3 +8635,83 @@ classified `unmeasured` rather than `dr-refuses`.
   remains UNSAMPLED (the legacy clause of the COVERAGE row, still true). BYTE TIER ONLY:
   no P086K/P086J object has been executed under cpmsim; there is no `spec/RUNTIME.txt` row
   for this claim.
+
+## C361 — A PICTURE FORMAT ITEM `p'text'` EMITS EXACTLY ONE RECORD `02 b1 b2 len UPPER(text)` INTO THE `*S` EDIT TABLE, WITH b1 = count{9,Z,$} MINUS 1 IF THE PICTURE CONTAINS ANY `$`, b2 = count{9,Z} AFTER THE LAST `V` (0 IF THERE IS NO `V`), AND len = THE CHARACTER COUNT OF THE TEXT; SOURCE LOWERCASE IS STORED UPPERCASED; MULTIPLE PICTURES ARE PLAIN CONCATENATED RECORDS; A `$` AFTER THE FIRST DIGIT SPECIFIER `{9,Z}` IS DR-REFUSED (`PICTURE ?`, PASS 1, NO .REL), AND DR ENFORCES NO PICTURE-vs-ITEM SCALE AGREEMENT AT COMPILE TIME (E2E-52/P3-3; MEASURED — every `02` record of the 12 existing-golden texts and of the 13 newly registered goldens fits, 13/13 whole-file `cmp` rc=0, never fitted)
+
+* **Measured — the record shape, both routes.** A picture contributes ONE table record
+  `02 b1 b2 len t1..tlen` and NOTHING ELSE: item preparation is format-independent and the
+  picture adds NO item bytes (DEC items keep the [C360] `MVI A,p / ?DLDOP / MVI A,p+3 /
+  MVI B,s / ?QDCOP` prep verbatim under a picture list). `golden/e52p3/E52PI/E52PI.REL`
+  (256 B sha256 `002b4ff84f32…`, probe `probes/E52PI.PLI`: `d fixed decimal(4,2);
+  d = 1.5; put edit(d)(p'99V.99');`) carries the table `80 00 / 02 04 02 06 [99V.99] / 81`
+  — the `02` record sits FLUSH against the `80 00` header, no framing record is required.
+  `golden/e52p3/E52PN/E52PN.REL` (256 B sha256 `5884c2a25b2b…`, `put file(f) edit(d)(p'9V.99');`
+  with NO open, [C282]) carries the IDENTICAL table `80 00 / 02 03 02 05 [9V.99] / 81` on
+  the FILE route as `golden/e52p3/E52PM/E52PM.REL` (sha256 `fd3c2a02ce30…`) carries on the
+  console — the record law is ROUTE-INDEPENDENT. LOAN2's own golden tables (`99/99` at
+  116, `b99v.99`, `$zzz,zz9.v99`, `$zz,zzz,zz9v.99`, `$$$,$$$,$$9V.99`, `99`) and the
+  ANNUITY/DEPREC records (`$$$,$$$,$$$V.99`, `$$,$$$,$$$V.99`, `ZZZ9`, `B$$,$$$,$$9.V99`,
+  `B99`, `$Z,ZZZ,ZZ9V.99` twice) are the 12 existing witnesses the same law fits.
+* **Measured — b1 counts digit AND edit characters, minus a leading-$ correction.**
+  `golden/e52p3/E52PE/E52PE.REL` (256 B sha256 `e9300543629f…`, `p'$$9'`) stores b1=`02`:
+  count{9,Z,$}=3 minus 1 — a DIGITS-ONLY rule predicting 01 is FALSIFIED (again; it also
+  dies on `$$$,$$$,$$9V.99` = 0A with digits 3). `golden/e52p3/E52PH/E52PH.REL` (256 B
+  sha256 `6b8e7f0ecf39…`, `p'$$$,$$$,$$9V.99'`) reproduces the LOAN2-179 record `02 0A 02
+  0F` IN ISOLATION. The two surviving candidate rules (count{9,Z,$} minus 1 if any `$`;
+  count{9,Z} plus the `$` NOT at index 0) AGREE on every ACCEPTED witness; their only
+  discriminator, `p'9$9'`, is DR-REFUSED (see the refuse bullet), so the distinction is
+  UNMEASURED and this claim states the first form — the one armed and byte-exact.
+* **Measured — b2 counts digits after the LAST `V`; a bare `.` is NOT a b2 designator.**
+  `golden/e52p3/E52PJ/E52PJ.REL` (256 B sha256 `5d6d3a63e3ab…`, `p'9.9'`) stores b2=`00`.
+  This FALSIFIES BOTH pre-registered rules "digits after the last {. ,V}" (predicted 01)
+  and "count of {V,.}" (predicted 01/02): the pre-registered prediction of 01 for PJ was
+  kept verbatim as the miss in `spec/lab-evidence/e2e52-p3/RESULTS.md` §3. `E52PK`
+  (sha256 `45e7dd17ac02…`, `p'9V.9'` -> `02 02 01 04`) and `E52PL` (sha256 `d11fd661fb1b…`,
+  `p'99V.999'` -> `02 05 03 07`) fix the rule: **b2 = count{9,Z} after the LAST `V`**, 0
+  when there is no `V` — the only candidate that fits every measured record.
+* **Measured — len, uppercase storage, concatenation.** len = the text's character count
+  on all 13 new goldens (`p'9'` -> `01`, `p'999'`/`p'zz9'`/`p'$$9'` -> `03`, `p'9.9'` ->
+  `03`, `p'9V.9'` -> `04`, `p'9V.99'` -> `05`, `p'99V.99'` -> `06`, `p'99V.999'` -> `07`,
+  `p'$$$,$$$,$$9V.99'` -> `0F`). LOWERCASE SOURCE IS STORED UPPERCASED:
+  `golden/e52p3/E52PD/E52PD.REL` (256 B sha256 `7c582edaace3…`) turns source `p'zz9'` into
+  `02 03 00 03 5A 5A 39` — the 6th such witness (existing records b99v.99, $zzz,zz9.v99,
+  $zz,zzz,zz9v.99, $Z,ZZZ,ZZ9V.99 came from lowercase sources too). TWO pictures
+  concatenate with NO padding: `golden/e52p3/E52PG/E52PG.REL` (256 B sha256 `c76e8247ce67…`,
+  `(a,p'9',p'99')`) holds `80 00 / 03 FF / 02 01 00 01 39 / 02 02 00 02 39 39 / 81`.
+* **Measured — DR's refusals and non-checks on pictures.** `$` AFTER the first digit
+  specifier is DR-refused: probe `probes/E52PF.PLI` (`p'9$9'`) printed `1 ERROR(S) IN PASS
+  1` with `PICTURE                                    ?` under the statement and emitted
+  NO `.REL` (`golden/e52p3/E52PF/` holds the PRN only — PF's bytes are claimed by NOTHING);
+  registered on the refusal panel as `E52PF` (dr-refuses). ACCEPTED positional forms from
+  the same corpus: `$` after `B` (`B$$,$$$,$$9.V99`, DEPREC 232) and leading multi-`$` runs
+  with commas (PH; LOAN2 149/150/179; ANNUITY 56/66), commas ANYWHERE, `/` inside the text
+  (`99/99`). Scale MISMATCH is NOT a compile-time check: `p'9.9'` (E52PJ), `p'9V.9'`
+  (E52PK) and `p'99V.999'` (E52PL) under `d fixed decimal(4,2)` all compiled `NO ERROR(S)`
+  in both passes and emitted goldens — measured THREE times.
+* **Measured — parity of MY lowering.** At arm `d088cdb` (ONE `Ast.Pi_pic` branch in
+  `fmt_spec`, ocaml/lib/codegen.ml) on the clean-rebuild binary sha256
+  `c2c6282f5662cb19a3ce…`: whole-file `cmp` rc=0 against the new goldens for ALL 13
+  accepted probes — `E52PB E52PC E52PD E52PE E52PG E52PH E52PI E52PJ E52PK E52PL E52PM
+  E52PN E52PO` (twelve at 256 B, `E52PO` 384 B, DEF-CODE-SIZE 003C/002D/0030/0050 with
+  DATA 000F..001D as recorded in the SPECIMENS block of `tools/e2e_gate.py`); the
+  arm-time prediction of a 4-probe armable subset was an UNDERCLAIM, falsified (the
+  console fixed-bin-expression item was already armed). Registered via sanctioned
+  `--update-inventory` 1199→1212 (EXACTLY +13 specimen lines, +1 `E52PF` refusal line);
+  post-registration FULL gate REAL rc=0 **1212 byte-exact / 0 of 1212**
+  (`build/gate-e52p3c-reg.log`), negatives 180/180 with the `E52PF` marker alive, zero-drift
+  sweep 75/75 including P086K/P086J `cmp` rc=0.
+* **What this does NOT say.** The RUNTIME MEANING of `b1`/`b2` (total width? scale?) is
+  UNMEASURED — this claim states byte-level operands of the emitted record only; no
+  picture object has been executed under cpmsim and there is no `spec/RUNTIME.txt` row (BYTE
+  TIER ONLY). `V` WITHOUT an adjacent `.` (e.g. `p'9V9'`) is unmeasured and my arm refuses
+  it BY NAME, as do pictures using characters outside {9,Z,$,V,.,B,comma,slash} — DR's
+  verdict on those alphabets is UNKNOWN, not refused. The `P('..')` bracket spelling is
+  parsed but has NO byte-level witness. The `x(w)` record `0B w`, rep-groups `80 n … 81`,
+  counted/grouped/remote formats, DEC-formal (deref) and numeric-literal EDIT data items,
+  and the FILE-route fixed-bin EXPRESSION item all STILL REFUSE BY NAME: probe E52PA (the
+  exact LOAN2-115 mirror) was DR-ACCEPTED and its `.REL` golden exists, but its bytes —
+  including its `02 04 00 05 [99/99]` record — are NOT claimed here; subround P3-4 owns
+  that class. LOAN2 remains UNREGISTERED and blocked at the verbatim catch `codegen: PUT
+  EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group
+  formats are not decoded)` — the catch text STILL LISTS "picture" although pictures are now
+  armed (message-quality my-gap, recorded, never fitted).
