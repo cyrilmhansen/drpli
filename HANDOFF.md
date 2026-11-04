@@ -1309,31 +1309,38 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 290
-checkpoint-id: g290-d38316a0caed
+checkpoint-generation: 291
+checkpoint-id: g291-5bff80a6e7a4
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~944, session 01a1a7e6-adbb-7427-a642-9c4bbaddb389)
-checkpointed: 2026-11-04T19:15:13.721Z
+status: checkpoint (guard level 2, remaining ~10071, session 01a1a7fc-fb26-7427-a642-9c4f0e862d3a)
+checkpointed: 2026-11-04T19:30:44.109Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9cff28c87eb604590a63656d7cc228473e57550a9f1578f0bb1fca41763ca533
-source-handoff: 456150056e081f43b8a589cc9be70379a2a0bfa5dcfc5e507cbf2db0d20e89d4
-source-learnings: 0f4479447b023e8b28bf29f18f3fbd26869a5ed0c9b001b26edac18f244d2d7d
+source-progress: c780e2ab0be8b6ed97a087128bf8329bc17e709bf573f6a7f2b14a0b045ecc7f
+source-handoff: 3a219e5b410c4cc6c028e402466baac31e162c4ce3bf902f0cdaff01da5d1d3c
+source-learnings: c562d3f212d0023c156deeefba2ebb60d1c55f7c318d95f0306fc039f20a50eb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a7e6-adbb-7427-a642-9c4bbaddb389
-readiness-at: 2026-11-04T19:15:13.737Z
-readiness-checkpoint: g290-d38316a0caed
+readiness-by: session:01a1a7fc-fb26-7427-a642-9c4f0e862d3a
+readiness-at: 2026-11-04T19:30:44.128Z
+readiness-checkpoint: g291-5bff80a6e7a4
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` → "PLAN §P3-2 LANDED; ARM A1-A5 OWED"
+` steps (1)-(5); read
+ that LEARNINGS § then PLAN §P3-2 §3/§4/§5.
+
+0a. **P3-2 STATUS THIS SESSION (2026-11-04, successor of g287):** evidence steps (1)-(2) DONE,
+**PLAN §P3-2 COMMITTED BEFORE any ocaml/ byte**; ZERO compiler edits. New witness P086J.REL
+(console DEC edit) FALSIFIES both "no DR sample passes a DEC item through an edit list" refusals;
+a(w)=`03 w`/a=`03 FF`/f(w,d)=`00 w d`/x=`0B w`/picture=`02 A B len`/rep=`80 n…81` decoded.
+SUCCESSOR: execute `PROGRESS.md` → `## Next action` → "PLAN §P3-2 LANDED; ARM A1-A5 OWED"
 steps (1)-(5) exactly; read that LEARNINGS § + PLAN §P3-2 first. Renewal 5/12 after this.
 
 0. **E2E-52/P3 CAMPAIGN IN FLIGHT (2026-11-04; renewals autonomous; do NOT stop after
@@ -1629,5 +1636,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-2 evidence+PLAN LANDED (commit 10c2a9f; no ocaml/ byte; prose rc=0; build binary 34e8321a; HEAD 10c2a9f; panel 1197/0; ledger ENDS C359). READ FIRST: PROGRESS.md -> Next action "PLAN §P3-2 LANDED; ARM A1-A5 OWED" steps (1)-(5), then LEARNINGS.md § "E2E-52/P3-2 evidence COMPLETE + PLAN §P3-2 LANDED" and spec/lab-evidence/e2e52-p3/PLAN.md §P3-2 (§2 measured bytes, §3 arms A1-A5 codegen.ml ONLY, §4 boundaries BY NAME, §5 predictions P1-P6). Key: P086J.REL console DEC-edit witness FALSIFIES both Vdec is_edit refusal premises -- deleting them yields the golden bytes; file EDIT attach needs NO open (C282); ?EDTIV new call_ext name only; fmtq FIFO must take put+get tables in source order (P086K pins 0000 then 0006). Expectations pre-registered: P086K cmp rc=0 first try (512B CODE 0x62 DATA 0x12), P086J rc=0 (256B CODE 0x3D DATA 0x10), sweep zero-drift, LOAN2 STILL refuses 115 naming picture, E41X8 retires (negatives 180->179), registration 1197->1199 EXACTLY TWO lines, reg gate rc=0 1199/0, COVERAGE IO.PUT_EDIT row ONLY after verifying IFACT/LOAN1 discrepancy (LOAN1 has no edit stmt), claim C360 from PLAN §2 bytes only. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (5/12 after this hop); campaign continues past every blocker (then picture 02-record, x, rep, DEC-formal, PRINT opens 54/56).
+E2E-52/P3-2 ARM CONTRACT LANDED (commit 39dfa13; zero ocaml/ byte; HEAD 39dfa13; tree clean except operator handoff.config.json; build binary 34e8321a9d0e04c9 rc=0; prose rc=0 build/prose-check-e52p3b-armdesign.log; panel 1197/0; ledger ENDS C359). READ FIRST: LEARNINGS.md § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" — it carries the exact P086K/P086J golden byte lists, the parser fact (PUT EDIT formats are Pi_fmtlist, GET EDIT items are FLAT ctl@data@fmts; Editsk never produced), and the seven-point codegen-only implementation contract (a)-(g); then PROGRESS.md -> Next action steps (1)-(5); then spec/lab-evidence/e2e52-p3/PLAN.md §P3-2 §3 (arms) §4 (boundaries BY NAME) §5 (predictions P1-P6). Key numbers: DELETE lower_put_items_gen is_edit&&file guard (~11557) + the PIvar/Vdec is_edit refusal (~11797); add match_put_edit file arm (leading bare Pi_ctl SKIP -> Sk_lit "1"; counted/other control must RAISE by name — fmt_spec never sees statement-option controls), match_get_edit on the flat list, edit_stmts+prealloc_fmt_tables FIFO in SOURCE order (P086K pins put table @0000 then get table @0006), NEW prescan_stmt Ast.Sget arm for the GET table's pool bytes, authorize_file_edit_item admitting ONLY PIlit + PIvar-Vdec (fixed-bin EXPRESSION stays refused per PLAN §4), lower_get_file_edit with ?EDTIV as a call_ext name only (NO new encoder, NO GNVOP/JP). Expectations: P086K cmp rc=0 first try (512B CODE 0x62 DATA 0x12), P086J rc=0 (256B CODE 0x3D DATA 0x10), zero-drift sweep (E46N 18/18, R10xx, E46K4/K15 markers intact, E52A..J, E51A..L), LOAN2 STILL refuses with fmt_spec's catch-all text (record VERBATIM, it has no line number), E41X8 retires (REJECTS tools/e2e_gate.py:2568 + NEG_META 4021; negatives 180->179), registration 1197->1199 EXACTLY TWO lines + reg gate rc=0 1199/0 to build/gate-e52p3b-reg.log, census via own write path, COVERAGE IO.PUT_EDIT ONLY after verifying the IFACT/LOAN1 discrepancy (LOAN1 has no edit stmt), claim C360 from measured bytes only. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (6/12 after this hop); campaign continues past every blocker.
 <!-- guard:end checkpoint -->

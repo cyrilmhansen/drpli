@@ -2288,19 +2288,26 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 290
-checkpoint-id: g290-d38316a0caed
+checkpoint-generation: 291
+checkpoint-id: g291-5bff80a6e7a4
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-04T19:15:13.721Z
+guard-level: 2
+checkpointed: 2026-11-04T19:30:44.109Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9cff28c87eb604590a63656d7cc228473e57550a9f1578f0bb1fca41763ca533
-source-handoff: 456150056e081f43b8a589cc9be70379a2a0bfa5dcfc5e507cbf2db0d20e89d4
-source-learnings: 0f4479447b023e8b28bf29f18f3fbd26869a5ed0c9b001b26edac18f244d2d7d
+source-progress: c780e2ab0be8b6ed97a087128bf8329bc17e709bf573f6a7f2b14a0b045ecc7f
+source-handoff: 3a219e5b410c4cc6c028e402466baac31e162c4ce3bf902f0cdaff01da5d1d3c
+source-learnings: c562d3f212d0023c156deeefba2ebb60d1c55f7c318d95f0306fc039f20a50eb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` → "PLAN §P3-2 LANDED; ARM A1-A5 OWED"
+next-action: ` steps (1)-(5); read
+ that LEARNINGS § then PLAN §P3-2 §3/§4/§5.
+
+0a. **P3-2 STATUS THIS SESSION (2026-11-04, successor of g287):** evidence steps (1)-(2) DONE,
+**PLAN §P3-2 COMMITTED BEFORE any ocaml/ byte**; ZERO compiler edits. New witness P086J.REL
+(console DEC edit) FALSIFIES both "no DR sample passes a DEC item through an edit list" refusals;
+a(w)=`03 w`/a=`03 FF`/f(w,d)=`00 w d`/x=`0B w`/picture=`02 A B len`/rep=`80 n…81` decoded.
+SUCCESSOR: execute `PROGRESS.md` → `## Next action` → "PLAN §P3-2 LANDED; ARM A1-A5 OWED"
 steps (1)-(5) exactly; read that LEARNINGS § + PLAN §P3-2 first. Renewal 5/12 after this.
 
 0. **E2E-52/P3 CAMPAIGN IN FLIGHT (2026-11-04; renewals autonomous; do NOT stop after
@@ -2594,9 +2601,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a7e6-adbb-7427-a642-9c4bbaddb389
-readiness-at: 2026-11-04T19:15:13.737Z
-readiness-checkpoint: g290-d38316a0caed
+readiness-by: session:01a1a7fc-fb26-7427-a642-9c4f0e862d3a
+readiness-at: 2026-11-04T19:30:44.128Z
+readiness-checkpoint: g291-5bff80a6e7a4
 <!-- guard:end checkpoint -->
 
 ## Blockers
