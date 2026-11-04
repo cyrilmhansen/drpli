@@ -1,0 +1,35 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52PS
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52PS
+
+   1 a 0000 E52PS: procedure options(main);
+   2 a 0006 
+   3 a 0006    /* E52PS (P3-4 rep-group COUNT-1 boundary: H2a predicts */
+   4 a 0006    /* 80 01 03 FF 81 as-is; H2b DR REFUSES count 1; H2c the group */
+   5 a 0006    /* folds to a bare 03 FF record) */
+   6 a 0006 
+   7 c 0006    dcl f file;
+   8 c 0006 
+   9 c 0006    put file(f) edit('|')(1(a));
+  10 c 0026 
+  11 a 0026 end E52PS;
+
+CODE SIZE = 0029
+DATA AREA = 0006
+FREE SYMS = 38BE
+END  COMPILATION
+

@@ -1,0 +1,37 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52PV
+
+D: Disk Print
+L: List Source Program
+
+   8 b         put edit('|')(x(255),a);
+BAD VAL                         ?
+    1 ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52PV
+
+   1 a 0000 E52PV: procedure options(main);
+   2 a 0006 
+   3 a 0006    /* E52PV (P3-4 x width boundaries, console, three tables: */
+   4 a 0006    /* x(128), x(255), x(0); H4a plain 0B w for all three; H4b a */
+   5 a 0006    /* REFUSAL above the measured max 19 -- which width first) */
+   6 a 0006 
+   7 c 0006    put edit('|')(x(128),a);
+   8 c 0023    put edit('|')(x(255),a);
+   9 c 0040    put edit('|')(x(0),a);
+  10 c 005D 
+  11 a 005D end E52PV;
+
+CODE SIZE = 0060
+DATA AREA = 0016
+FREE SYMS = 38B9
+END  COMPILATION
+
