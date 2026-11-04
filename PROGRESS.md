@@ -2411,17 +2411,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 303
-checkpoint-id: g303-4ffb83048f22
-checkpoint-kind: auto
+checkpoint-generation: 304
+checkpoint-id: g304-851693d2ba8f
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-04T21:00:27.557Z
+guard-level: 2
+checkpointed: 2026-11-04T21:23:39.977Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2123d1f56d264f4ba14b79e7d6a38d160cd6dbb02bbfb33a1840d1eb87da88a1
+source-progress: 7836439d309b7056f727c9741113ff2a8adce701dce7e3cab7d74b6f418b1932
 source-handoff: 3006ece2854d0a054d2cbee9a0ae3776ea9a938c375f88abbb2e69ee7bbcf5e9
-source-learnings: 1fa6334bda86c46bc27616baaad6f18be16c23cb25f769cc24bba93026d9cbf6
+source-learnings: 5608db98e6e0239d4445d5bd22df4182e09c442e1358cdca9833f1caa4086b96
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` = subround
   **P3-3 = picture `02` decode**: PLAN §P3-3 COMMITTED BEFORE any ocaml/ byte; one-operand
@@ -2768,9 +2768,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a849-8d78-7427-a642-9c5f1ac3f5eb
-readiness-at: 2026-11-04T21:00:51.009Z
-readiness-checkpoint: g303-4ffb83048f22
+readiness-by: session:01a1a85d-d85c-7427-a642-9c626c6b9e89
+readiness-at: 2026-11-04T21:23:39.990Z
+readiness-checkpoint: g304-851693d2ba8f
 <!-- guard:end checkpoint -->
 
 ## Blockers

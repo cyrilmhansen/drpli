@@ -1359,25 +1359,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 303
-checkpoint-id: g303-4ffb83048f22
-checkpoint-kind: auto
+checkpoint-generation: 304
+checkpoint-id: g304-851693d2ba8f
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4758, session 01a1a849-8d78-7427-a642-9c5f1ac3f5eb)
-checkpointed: 2026-11-04T21:00:27.557Z
+status: checkpoint (guard level 2, remaining ~8346, session 01a1a85d-d85c-7427-a642-9c626c6b9e89)
+checkpointed: 2026-11-04T21:23:39.977Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2123d1f56d264f4ba14b79e7d6a38d160cd6dbb02bbfb33a1840d1eb87da88a1
+source-progress: 7836439d309b7056f727c9741113ff2a8adce701dce7e3cab7d74b6f418b1932
 source-handoff: 3006ece2854d0a054d2cbee9a0ae3776ea9a938c375f88abbb2e69ee7bbcf5e9
-source-learnings: 1fa6334bda86c46bc27616baaad6f18be16c23cb25f769cc24bba93026d9cbf6
+source-learnings: 5608db98e6e0239d4445d5bd22df4182e09c442e1358cdca9833f1caa4086b96
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a849-8d78-7427-a642-9c5f1ac3f5eb
-readiness-at: 2026-11-04T21:00:51.009Z
-readiness-checkpoint: g303-4ffb83048f22
+readiness-by: session:01a1a85d-d85c-7427-a642-9c626c6b9e89
+readiness-at: 2026-11-04T21:23:39.990Z
+readiness-checkpoint: g304-851693d2ba8f
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1730,5 +1730,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-2 registration LANDED: HEAD a952f4d (durables) over 60ed349 (gate+INVENTORY 1197->1199 TWO lines, census own write path rc=0, FULL gate REAL rc=0 1199/0 build/gate-e52p3b-reg.log), ff1c8f2 (E41X8 retired MEASURED rc=0, NO golden, bytes never claimed, negatives 179/179). VERIFIED: LOAN1 has NO edit stmt, IFACT's edit has NO picture -> IO.PUT_EDIT row clause FALSIFIED. NEXT ACT: rewrite spec/COVERAGE.tsv IO.PUT_EDIT (line 65) citing P086K/P086J with the LOAN2 verbatim unsampled-formats boundary, coverage_check.py rc=0; then claim C360 from MEASURED bytes ONLY (ledger ends C359; never claim E41X8 bytes); file_prose_check rc=0; RESULTS.md §P3-2 + PLAN.md §5 row; durables; then P3-3 picture 02-record decode with PLAN committed BEFORE any ocaml/ byte. Lessons: --update-inventory exits before byte/negative panels; all rc DIRECT; pli80c POSITIONAL args; EDIT controls only from statement-option position; clean-vs-incremental build hashes differ. Constraints: no push; goldens never re-derived; handoff.config.json never staged; renewals autonomous at safe boundaries (10/12 consumed, cap 12); campaign continues past every blocker.
+P3-3 pre-plan analysis LANDED at d9b0a2c (ZERO ocaml/ byte, ZERO oracle call). Measured ALL 02 picture records in existing goldens (12 distinct texts across LOAN2/ANNUITY/DEPREC; fresh reldumps build/e52p3/{ANNUITY,DEPREC}-golden-reldump.txt). Shape 02 b1 b2 len UPPER(text); b1=count{9,Z} FALSIFIED; surviving HA2 (count{9,Z,$}−1-if-$) vs HB8 ($ not at index 0) — probe p'9$9' settles; b2 HC (digits after last {.V}) vs HD (count{V,.}) — discriminators p'9V.9', p'99V.999'; len=text length; item prep FORMAT-INDEPENDENT; refusal site fmt_spec catch-all (Pi_pic flows there from prescan+lowering). NEXT per PROGRESS ## Next action: (1) write spec/lab-evidence/e2e52-p3/PLAN.md §P3-3 + probes E52PA..E52PO (CRLF+bare ^Z, ≤71 cols, collision-grep E52P* first; PA=LOAN2-115 mirror EVIDENCE-ONLY (PInum file refusal), PM/PN/PO armable subset with d fixed dec(4,2)) and COMMIT BEFORE any ocaml/ byte; (2) ONE grouped campaign PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PA..E52PO --tag e52p3 --switches '$L$D' (tag verified unused); (3) RESULTS §P3-3 verdicts; (4) arm ONE Pi_pic branch in fmt_spec + sweep + PM/PN/PO cmp + LOAN2 rerun VERBATIM (expect same fmt_spec catch text at rep-group 147/149); (5) registration: claim C361 from MEASURED bytes only BEFORE COVERAGE rewrite, gate rc=0, census own write path, prose rc=0. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; pli80c POSITIONAL args; renewals 10/12 consumed cap 12; campaign continues past every blocker.
 <!-- guard:end checkpoint -->
