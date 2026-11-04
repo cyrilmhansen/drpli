@@ -1,0 +1,20 @@
+E52J:
+  procedure options(main);
+  /* [E2E-52/P1] REGRESSION CONTROL, NO SHADOWING: proc-local d
+     fixed dec(9,2); d = 3; a do-while testing d > 0 with the R608
+     partner-aligned store d = d - 1 inside. Compiles on MINE today
+     (hop-1 scratch S4 rc=0, 384 B): three distinct 5-byte pool
+     cells plus the d cell. This row pins the EXISTING single-scope
+     prescan against regression -- after the scope-aware change my
+     object must stay byte-identical, and it ties the new bank to
+     settled pool laws. */
+  call q;
+  q: procedure;
+     dcl d fixed dec(9,2);
+     d = 3;
+     do while (d > 0);
+        d = d - 1;
+     end;
+     end q;
+end E52J;
+

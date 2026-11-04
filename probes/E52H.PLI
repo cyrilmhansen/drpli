@@ -1,0 +1,26 @@
+E52H:
+  procedure options(main);
+  /* [E2E-52/P1] THREE SCOPES, INNER WRITE RESOLVES THROUGH MID:
+     main x fixed dec(4,2) stores 3; mid m declares x fixed
+     dec(9,2) and stores 3; innermost n declares NO x and stores x
+     = 3. Lexical scoping binds ns x to Ms dec(9,2) cell -- the
+     store image is 5 B and dedups onto Ms EXISTING cell (pool 3 +
+     5 = 8, DATA 16 including the two variable cells). An
+     own-plus-main-only environment binds it to MAINs dec(4,2) --
+     image 3 B, dedups onto main s cell, same DATA 16. The
+     DISCRIMINATOR IS CODE: which *S operand ns LXI H loads (3-byte
+     vs 5-byte cell) and the DLDOP width byte. MINE refuses today
+     (main vs mid clash). */
+  dcl x fixed dec(4,2);
+  x = 3;
+  call m;
+  m: procedure;
+     dcl x fixed dec(9,2);
+     x = 3;
+     call n;
+     n: procedure;
+        x = 3;
+        end n;
+     end m;
+end E52H;
+

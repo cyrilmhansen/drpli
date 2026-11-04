@@ -1,0 +1,20 @@
+E52G:
+  procedure options(main);
+  /* [E2E-52/P1] FORMAL SHADOW -- THE LOAN2 CURRENT_YEAR SHAPE:
+     outer i fixed dec(4,2) with i = 3; q takes formal i declared
+     fixed dec(9,2) and stores the LITERAL 3 into it; main calls
+     q(i). The literal-to-formal DEC store itself compiles on MINE
+     today without shadowing (hop-1 scratch S2 rc=0); this row adds
+     the shadow, which my flat map refuses. Lexical typing predicts
+     the inner cell 3 B and the formal store cell 5 B (pool 8); the
+     copy-in of a dec(4,2) actual into a dec(9,2) formal is the
+     [C131] route. */
+  dcl i fixed dec(4,2);
+  i = 3;
+  call q(i);
+  q: procedure(i);
+     dcl i fixed dec(9,2);
+     i = 3;
+     end q;
+end E52G;
+

@@ -1,0 +1,18 @@
+E52D:
+  procedure options(main);
+  /* [E2E-52/P1] BINARY OUTER / DEC INNER (homonym i): outer i
+     fixed bin, inner i fixed dec(7,2), both i = 3. Lexical
+     resolution: the OUTER store is an immediate (no cell), the
+     INNER store takes a 4-byte target-precision cell -- pool 4,
+     DATA 4 + 2 + 4 = 10. A global outer-wins map types the inner
+     store BINARY: NO pool cell at all -- pool 0, DATA 6. DATA-SIZE
+     discriminates. MINE refuses today (Vint vs Vdec clash). */
+  dcl i fixed bin;
+  i = 3;
+  call q;
+  q: procedure;
+     dcl i fixed dec(7,2);
+     i = 3;
+     end q;
+end E52D;
+

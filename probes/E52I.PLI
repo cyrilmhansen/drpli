@@ -1,0 +1,22 @@
+E52I:
+  procedure options(main);
+  /* [E2E-52/P1] THREE SCOPES, INNER TEST THROUGH MID (prescan_cond
+     consumer): main x dec(4,2) stores 3; mid m declares x dec(9,2)
+     and stores NOTHING; innermost n tests x > 0 and stores x = 1.
+     Lexical typing sizes BOTH condition and store literals at
+     dec(9,2): pool 3 + 5 + 5 = 13, DATA 21 with the two variable
+     cells. A main-only environment sizes them at dec(4,2): pool 9,
+     DATA 17. DATA-SIZE discriminates the prescan_cond consumer
+     path directly. MINE refuses today (main vs mid clash). */
+  dcl x fixed dec(4,2);
+  x = 3;
+  call m;
+  m: procedure;
+     dcl x fixed dec(9,2);
+     call n;
+     n: procedure;
+        if x > 0 then x = 1;
+        end n;
+     end m;
+end E52I;
+

@@ -1,0 +1,19 @@
+E52A:
+  procedure options(main);
+  /* [E2E-52/P1] CONTROL, SAME-TYPE HOMONYM: outer and inner i both
+     fixed dec(4,2), both store the literal 3. Compiles on MINE
+     today (no kind clash). DR must accept by [C187] N6 (distinct
+     cells). The open question is POOL DEDUP ACROSS SCOPES: both
+     stores have the SAME 3-byte packed image, so an image-keyed
+     pool shared program-wide gives ONE 3-byte cell (predicted DATA
+     3 pool + 3 + 3 vars = 9); a per-scope or name-keyed pool gives
+     two cells (12). H4-vs-H1. */
+  dcl i fixed dec(4,2);
+  i = 3;
+  call q;
+  q: procedure;
+     dcl i fixed dec(4,2);
+     i = 3;
+     end q;
+end E52A;
+

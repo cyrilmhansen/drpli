@@ -1,0 +1,20 @@
+E52C:
+  procedure options(main);
+  /* [E2E-52/P1] DEC OUTER / BINARY INNER (homonym i): outer i
+     fixed dec(4,2), inner i fixed bin, both i = 3. The inner store
+     is the discriminator: lexical resolution types it BINARY --
+     LXI H,immediate 0003 / SHLD, NO pool cell (pool stays 3 for
+     the outer store); a global outer-typed map wrongly routes it
+     through the DEC path LXI H,*S + DLDOP + ?DSTOP and would also
+     need the pool. Same DATA either way (predicted 3 pool + 3 + 2
+     vars), CODE BYTES distinguish. MINE refuses today (Vdec vs
+     Vint clash). */
+  dcl i fixed dec(4,2);
+  i = 3;
+  call q;
+  q: procedure;
+     dcl i fixed bin;
+     i = 3;
+     end q;
+end E52C;
+

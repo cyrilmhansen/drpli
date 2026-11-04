@@ -1,0 +1,16 @@
+E52E:
+  procedure options(main);
+  /* [E2E-52/P1] NON-SHADOWED OUTER WRITE: only main declares o
+     fixed dec(9,2); the nested procedure q stores o = 3. Compiles
+     on MINE today (flat map contains o). The row tests the
+     ACCUMULATION half of the fix: a prescan carrying only each
+     procedures OWN rows would see no o inside q, miss the 5-byte
+     target-precision cell, and shift every later DATA address.
+     Predicted DR pool 5 + o cell 5, DATA 10. */
+  dcl o fixed dec(9,2);
+  call q;
+  q: procedure;
+     o = 3;
+     end q;
+end E52E;
+

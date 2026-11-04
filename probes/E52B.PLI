@@ -1,0 +1,19 @@
+E52B:
+  procedure options(main);
+  /* [E2E-52/P1] CONFLICTING-KINDS CLASS IN MINIATURE (LOAN2):
+     outer i fixed dec(4,2), inner i fixed dec(9,2), both store 3.
+     MINE refuses TODAY at the prescan map. A scope-aware (lexical,
+     innermost-wins) type map predicts TWO pool cells -- 3 B for
+     the outer target-precision image and 5 B for the inner -- pool
+     8, plus cells 3 + 5, DATA 16. A global outer-wins type map
+     would type BOTH stores at dec(4,2): ONE 3-byte cell, pool 3,
+     DATA 11. DATA-SIZE discriminates. */
+  dcl i fixed dec(4,2);
+  i = 3;
+  call q;
+  q: procedure;
+     dcl i fixed dec(9,2);
+     i = 3;
+     end q;
+end E52B;
+

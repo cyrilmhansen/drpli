@@ -1,0 +1,52 @@
+# BASELINE-MINE — E2E-52/P1, measured 2026-11-04T12:53:05Z at HEAD 99845ae, compiler ocaml/_build/default/bin/pli80c.exe sha256 f172d8eae2a76f66c787d4a93f18a7703f41895abb3da001374ce5d4484b587c (dune build rc=0; ocaml/ identical e15e325..HEAD — the sha delta vs hop-1 271b9fc6 is build noise, measured at E2E-51/P1 hop 5)
+== E52A rc=0
+  wrote /tmp/e52scratch/E52A.REL (256 bytes, code=48 data=3)
+  ACCEPTED: 256 bytes sha256 8217250ad3cd2fcf
+== E52B rc=2
+  Fatal error: exception Failure("codegen: variable i declared with conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]")
+== E52C rc=2
+  Fatal error: exception Failure("codegen: variable i declared with conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]")
+== E52D rc=2
+  Fatal error: exception Failure("codegen: variable i declared with conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]")
+== E52E rc=0
+  wrote /tmp/e52scratch/E52E.REL (256 bytes, code=32 data=5)
+  ACCEPTED: 256 bytes sha256 4fe89c7ddb0bb622
+== E52F rc=0
+  wrote /tmp/e52scratch/E52F.REL (256 bytes, code=48 data=3)
+  ACCEPTED: 256 bytes sha256 8c09f2e7e66f6b81
+== E52G rc=2
+  Fatal error: exception Failure("codegen: variable i declared with conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]")
+== E52H rc=2
+  Fatal error: exception Failure("codegen: variable x declared with conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]")
+== E52I rc=2
+  Fatal error: exception Failure("codegen: variable x declared with conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]")
+== E52J rc=0
+  wrote /tmp/e52scratch/E52J.REL (384 bytes, code=84 data=0)
+  ACCEPTED: 384 bytes sha256 0a3f6b6a33ce5630
+
+# SUPPLEMENTARY DESIGN CHECKS (my compiler only, NOT panel probes, NOT DR claims).
+# E52G requires knowing the LITERAL-to-DEC-FORMAL store path works BEFORE its
+# shadow is admitted; the E52G probe itself refuses today on the shadow clash, so
+# the path was measured with the same shape minus the homonym (scratch S2, LF-free
+# CRLF+^Z frame, same hygiene):
+#
+#   S2:
+#     procedure options(main);
+#     dcl v fixed dec(4,2);
+#     v = 3;
+#     call q(v);
+#     q: procedure(k);
+#        dcl k fixed dec(9,2);
+#        k = 3;
+#        end q;
+#     end S2;
+#
+# MEASURED rc=0, 256 bytes sha256 956166cd1e4b45f3 -- the formal store k = 3 compiles (DATA total
+# 0x000F by reldump); LOAN1 (panel, byte-exact) independently pins the [C131] DEC
+# formal copy mechanism.  So E52G refusal today is attributable to the shadowed
+# NAME CLASH alone, not to any missing literal-to-formal route.
+#
+# Also measured today (scratch, same frame): S6 (bin store + proc-local dec(7,2)
+# store, no shadow) rc=0 256 B; S7 (if y > 0 then y = 1 two levels down, no shadow)
+# rc=0 384 B -- both shapes lower through EXISTING arms; the E52C/D/I refusals are
+# the pd_vars clash alone.

@@ -1,0 +1,18 @@
+E52F:
+  procedure options(main);
+  /* [E2E-52/P1] DIFFERENT NAMES, SAME IMAGE ACROSS SCOPES: outer a
+     fixed dec(4,2) stores 3, inner b fixed dec(4,2) stores 3. No
+     homonym, compiles today. The image-keyed dedup [C178] is
+     name-blind, so a program-wide pool predicts ONE 3-byte cell
+     (DATA 3 pool + 3 + 3 = 9); per-scope pools give two (12).
+     Together with A this separates scope-keyed from image-keyed
+     dedup independent of shadowing. */
+  dcl a fixed dec(4,2);
+  a = 3;
+  call q;
+  q: procedure;
+     dcl b fixed dec(4,2);
+     b = 3;
+     end q;
+end E52F;
+
