@@ -443,7 +443,49 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-3 CLOSED (registration chain `7294d09`→`a4eddd6`→`64e464b`→`4f5d509`→`794cfb2`, gate rc=0 1212/0, ledger ENDS C361); RENEWAL CAP 12/12 REACHED — CHAIN CLOSES (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-3 REGISTRATION LANDED — SUBROUND CLOSED at the 12/12 renewal cap" FIRST)
+### E2E-52/P3-4 PRE-REGISTERED at `3ac7f41`; CAMPAIGN e52p3d OWED NOW (2026-11-05; fresh chain — operator reset renewal state; read `LEARNINGS.md` § "E2E-52/P3-4 recovery + evidence decode + PRE-REGISTRATION LANDED" FIRST)
+
+DONE this hop (all rc DIRECT): g310 guard block committed VERBATIM `6d83a36`; prose-hash
+verify measured CURRENT (documented checkpointSources algorithm; `/handoff` slash command
+UNAVAILABLE in model context — limitation reported); P3-3 closure verified (ledger ENDS
+C361, tag e52p3d unused, E52PA..PO collision-grepped). EVIDENCE DECODED from EXISTING
+goldens: rep-group `80 n records 81` RECURSIVE (LOAN2 pools 0017/007F, DEPREC
+0033/007B/009E; counts 02/04, nested+sibling, NO flattening); `x(w)=0B w` widths
+{02..0F,10,13} measured, bare-x and w>19 UNMEASURED; PA relocations verified code
+0032-0047 == LOAN2 0544-0558 (`2A RELOC data 0F / 11 64 00 / ?IM22N / EB / 2A RELOC
+data 11 / 19 / 3E 09 / ?QICOP / ?EDTOV / ?QIOOP`); console PInum path
+(`lower_put_items_gen`) is route-independent — file arm needs ONLY
+`authorize_file_edit_item`; LOAN2 177 pins PIvar bin-vars on file route (07BA-07D9)
+but that class stays REFUSED (P3-5); parser emits `Ast.Pi_repgrp` (NOT Pi_rep).
+PRE-REGISTRATION LANDED `3ac7f41`: PLAN §P3-4 + probes E52PP..E52PZ (11, CRLF+^Z
+≤71 cols verified by script).
+**NEXT steps (successor):** (1) `cd ocaml && eval "$(opam env)" && dune build` rc=0,
+record binary sha (clean rebuild), confirm PA still rc=2 by NAME at
+authorize_file_edit_item — baseline re-measure. (2) ONE grouped campaign:
+`cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3
+oracle/batch.py E52PP E52PQ E52PR E52PS E52PT E52PU E52PV E52PW E52PX E52PY E52PZ
+--tag e52p3d --switches '$L$D'` — rc DIRECT; read each .PRN accept/refuse; reldump
+new goldens to build/e52p3d/; verdicts H2a/b/c (PS), H4a/b (PV widths), H5a/b/c
+(bare x PU), H6a/b (PX result reg), PW/PY/PZ ops; keep every MISS verbatim.
+(3) arm PLAN §P3-4 §4 (codegen.ml ONLY): (a) fmt_spec Pi_repgrp -> `80 n…81`
+recursive via fmt_w count; (b) Pi_fmt X one literal arg -> `0B w` (arm ONLY widths
+measured; bare-x only if PU accepts); (c) authorize_file_edit_item PInum admit ONLY
+the ops PW/PX/PY/PZ measure on fixed-bin cells (float/DEC/call/subscript/member keep
+refusing BY NAME). (4) build; cmp PP..PZ accepted probes whole-file vs NEW goldens;
+**cmp E52PA vs EXISTING golden/e52p3/E52PA/E52PA.REL — E52PA must go byte-exact**;(
+5) sweep controls (E52PB..PO, P086J/K, E46N, E52A..J, E51A..L, R10xx — expect 75+13
+baseline intact + new; markers E46K4/K15/N21/E52PF rc=2); LOAN2 rerun UNMODIFIED
+positional, record blocker VERBATIM (expected NEXT: DEC FORMAL at 147 via
+authorize_file_edit_item — classify, do NOT fix). (6) registration: SPECIMENS for
+byte-exact new probes + PA, --update-inventory, FULL gate rc=0 to
+build/gate-e52p3d-reg.log, census own write path, claim **C362** from MEASURED bytes
+ONLY BEFORE the COVERAGE rewrite (IO.PUT_EDIT cites), coverage_check + prose rc=0,
+RESULTS §P3-4 + PLAN §5 rows, durables, finalize.
+Constraints: no push; existing goldens NEVER re-derived; operator handoff.config.json
+NEVER staged; all rc DIRECT (never trailing pipes); pli80c POSITIONAL; never hardcode
+LOAN2; renewals autonomous at safe boundaries (fresh chain, cap 12).
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-3 CLOSED (registration chain `7294d09`→`a4eddd6`→`64e464b`→`4f5d509`→`794cfb2`, gate rc=0 1212/0, ledger ENDS C361); RENEWAL CAP 12/12 REACHED — CHAIN CLOSES (2026-11-05; read `LEARNINGS.md` § "E2E-52/P3-3 REGISTRATION LANDED — SUBROUND CLOSED at the 12/12 renewal cap" FIRST)
 
 Registration executed in full THIS hop, every rc DIRECT: 13 SPECIMENS rows + E52PF
 dr-refuses REJECTS/NEG_META row (marker `picture $ after a digit specifier is dr-refuses`
@@ -2441,15 +2483,15 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 310
-checkpoint-id: g310-9eaf12429542
+checkpoint-generation: 312
+checkpoint-id: g312-a1bba303478f
 checkpoint-kind: auto
-content-delta: none
+content-delta: new
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-04T22:09:01.877Z
+checkpointed: 2026-11-04T23:05:35.592Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c7df058229b5618201100a630f109dca6a3aa4fce980f9f72a223701c47f687f
+source-progress: 604d68fc768b914398b412a844f50b8254ae0791929e90c7537d64a90b54054b
 source-handoff: ef274962f854137cfb9923482334ba9e6bc326da7f80a2a4dd235da73cd35320
 source-learnings: 91958a6ffd545b84422a0b5ec03fe82879e44a07c7ef1b903653e27f6530b53e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8

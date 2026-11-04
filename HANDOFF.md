@@ -7,6 +7,21 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-sexties. **E2E-52/P3-4 PRE-REGISTERED, CAMPAIGN OWED (2026-11-05, fresh chain;
+  operator reset renewal state; pre-reg `3ac7f41`, g310 block `6d83a36`).** Execute
+  `PROGRESS.md` → `## Next action` steps (1)-(6): baseline build+PA re-measure; ONE
+  grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PP..E52PZ
+  --tag e52p3d --switches '$L$D'`; classify H2/H4/H5/H6 verdicts, keep MISSes;
+  arm PLAN §P3-4 §4 (codegen ONLY: fmt_spec Pi_repgrp `80 n…81` recursive — the
+  parser node is Pi_repgrp NOT the brief's Pi_rep — X `0B w`, file-route fixed-bin
+  arithmetic BY MEASURED OPS); cmp PP..PZ + **PA vs EXISTING golden = headline
+  (byte-exact)**; sweep + LOAN2 VERBATIM (expect DEC-FORMAL blocker at 147); register
+  (SPECIMENS/--update-inventory/gate rc=0 build/gate-e52p3d-reg.log/census own path/
+  C362 measured-bytes-only BEFORE COVERAGE rewrite/prose+coverage_check rc=0/RESULTS
+  +PLAN §5/durables). Ledger ENDS C361. Constraints unchanged: no push; goldens never
+  re-derived; operator handoff.config.json never staged; all rc DIRECT; pli80c
+  POSITIONAL; renewals autonomous (fresh chain, cap 12); campaign continues.
+
 0a-quinquies. **P3-3 FULLY CLOSED; RENEWAL CAP 12/12 REACHED — THIS IS THE FINAL HOP OF
   CHAIN 01a1a795 (2026-11-05, successor of g307, renewal 12/12 consumed).** Registration
   landed in full: `7294d09` (13 SPECIMENS E52PB..PE,PG..PL,PM,PN,PO + E52PF dr-refuses
@@ -1400,15 +1415,15 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 310
-checkpoint-id: g310-9eaf12429542
+checkpoint-generation: 312
+checkpoint-id: g312-a1bba303478f
 checkpoint-kind: auto
-content-delta: none
+content-delta: new
 readiness: unattested
-status: checkpoint (guard level 4, remaining ~4423, session 01a1a88a-1b6b-7427-a642-9c6abb033d74)
-checkpointed: 2026-11-04T22:09:01.877Z
+status: checkpoint (guard level 4, remaining ~4759, session 01a1a8bc-9e19-753f-82d0-3140faffa677)
+checkpointed: 2026-11-04T23:05:35.592Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c7df058229b5618201100a630f109dca6a3aa4fce980f9f72a223701c47f687f
+source-progress: 604d68fc768b914398b412a844f50b8254ae0791929e90c7537d64a90b54054b
 source-handoff: ef274962f854137cfb9923482334ba9e6bc326da7f80a2a4dd235da73cd35320
 source-learnings: 91958a6ffd545b84422a0b5ec03fe82879e44a07c7ef1b903653e27f6530b53e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8

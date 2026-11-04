@@ -5,6 +5,40 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-4 recovery + evidence decode + PRE-REGISTRATION LANDED (2026-11-05, fresh chain after operator reset; commit `3ac7f41`)
+- **ACCEPTED (recovery).** HEAD 0b78ead verified, ledger ENDS C361, gate-era counts
+  recorded; g310 pending guard block committed VERBATIM `6d83a36`; freshness verified via
+  the documented `checkpointSources` prose-hash algorithm (strip managed blocks, trim
+  trailing WS): MATCH/CURRENT. `/handoff` slash commands are NOT callable in model
+  context — limitation reported, never pretended. renewal-state.json absent = fresh chain.
+- **ACCEPTED (evidence, EXISTING goldens, zero oracle call).** Rep-group law read
+  fresh from LOAN2 *S pools (0017: `80 00 03 FF 80 02 80 02 02… 03 FF 81 02… 03 FF 81
+  81` = LOAN2 149 `2(2(p,a),p,a)`) and DEPREC 0033/007B/009E (counts 02 AND 04, sibling
+  groups, skip/pic/x/a inside groups): ONE group = `80 n <records> 81`, RECURSIVE,
+  source order, no flattening. `x(w)` = `0B w`, widths {02,03,05,06,08,09,0A,0B,0E,0F,
+  10,13} measured; bare `x`, w>13(0D?) and w=0/01 UNMEASURED. PA golden code 0032-0047
+  RELOCS verified == LOAN2 0544-0558 (LHLD *D(0F)/LXI D,0064/?IM22N/XCHG/LHLD *D(11)/
+  DAD D/MVI A,09/?QICOP/?EDTOV/?QIOOP; table 80 00 03 FF 02 04 00 05 "99/99" 81).
+  `DEPREC indent` is a %replace macro → `0D 0F` = column(15) decoded but OUT of brief
+  scope, NOT armed. LOAN2 177 pins PIvar bin-var prep on the FILE route (07BA-07D9) —
+  recorded, stays refused (P3-5 candidate); after P3-4 arms, LOAN2's EXPECTED next
+  blocker is the DEC FORMAL a..e at 147 (propose only — record VERBATIM when measured).
+- **FALSIFIED (brief wording).** The P3-4 brief's `Ast.Pi_rep` is NOT the parser's
+  rep-group node: `2(...)` parses to `Ast.Pi_repgrp (count, items)` (parser.ml 939);
+  `Pi_rep` is the DATA-item `(x do …)`. Encoder must target Pi_repgrp.
+- **PROPOSED (arm, codegen-only).** fmt_spec Pi_repgrp -> `[0x80; fmt_w c] @
+  concat_map fmt_spec is @ [0x81]`; Pi_fmt X [w] -> `[0x0B; fmt_w w]` (arm widths/ops
+  ONLY as PP..PZ measure); authorize_file_edit_item admits fixed-bin arithmetic PInum
+  trees over Vint/Vbfix idents + integer literals, ops limited to MEASURED ones;
+  float/DEC/call/subscript/member refuse BY NAME. Console PInum lowering is
+  route-independent already — no lowering changes expected.
+- **LANDED `3ac7f41`:** PLAN §P3-4 (blocker verbatim, byte evidence, H2a/b/c PS
+  count-1, H4a/b PV widths, H5a/b/c bare-x, H6a/b PX result-reg, PW/PY/PZ ops,
+  boundaries KEPT) + probes E52PP..E52PZ (script-verified CRLF/bare-^Z/≤71 cols).
+  Campaign tag e52p3d verified unused. NEXT = PROGRESS ## Next action steps (1)-(6):
+  campaign, arm, cmp (PA byte-exact is the headline), sweep+LOAN2 verbatim,
+  registration + C362 measured-bytes-only BEFORE COVERAGE rewrite, finalize.
+
 ## E2E-52/P3-3 REGISTRATION LANDED — SUBROUND CLOSED at the 12/12 renewal cap (2026-11-05, session 01a1a88a, LAST auto-renewal of chain 01a1a795; chain `7294d09` reg → `a4eddd6` census → `64e464b` C361 → `4f5d509` COVERAGE → `794cfb2` evidence)
 
 - **ACCEPTED (recovery).** HEAD `3d4c230` (g307 block attested); tree clean except operator config; `dune build` rc=0, clean-rebuild binary `c2c6282f5662cb19a3ce…` == the recorded arm hash; P086J/P086K/E52PM cmp rc=0 and ALL 13 accepted probes re-measured cmp rc=0 BEFORE any harness edit; PA rc=2, PF rc=2 verbatim markers alive.
