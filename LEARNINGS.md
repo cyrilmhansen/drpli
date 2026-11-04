@@ -5,6 +5,57 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-51/P1 hop 5 (partial) — registration PRE-FLIGHT VERIFIED; mechanism facts MEASURED; claims NOT YET WRITTEN (2026-11-04; renewed 4/12 from g245; HEAD `05d7ff0`; NOTHING tracked authored this session yet)
+
+MEASURED (accepted):
+- `dune build` rc=0; rebuilt binary sha256 `f172d8eae2a76f66…`. Sweep RE-RUN: ALL 12 probes
+  E51A..E51L whole-file BYTE-EXACT vs `golden/e51p1/` (128 B except E51H/E51I 256 B). The
+  predecessor's quoted `2cd1de5cdf22…` differs — MEASURED `git diff ee589cc HEAD -- ocaml/` is
+  EMPTY, so this is build-environment noise, NOT semantic drift; record the ACTUAL sha in any
+  evidence written from this binary.
+- Census write path read off `tools/corpus_census.py --help`: `--check PREV.json` REWRITES the
+  snapshot then compares counts (the sanctioned write path); `--verify` is the gate's read-only
+  arm. Census rows carry VERDICTS only (no blocker messages); the committed JSON contains NO
+  'div' match — no historical corpus program is DIV-blocked, so counts should stay 15/0/26/0
+  (metadata-only refresh expected; measure, don't assume).
+- `tools/coverage_check.py` (lines ~146-247): `rel_parity` is FORMAT-checked only (`EXACT:<n>`
+  regex) — NOT cross-validated against the probes column; every probes key must be on the panel
+  (spec/INVENTORY.txt) or the census or an existing path — so COVERAGE rows citing E51* MUST
+  land AFTER `--update-inventory`; provenance `[Cnnn]` must exist in CLAIMS.md; a MEASURED row
+  needs >=1 probe token mentionable in cited claims (C353/C354 enumerate E51A..L, so citation
+  passes). Gate circularity guard: adding SPECIMENS + `--update-inventory` in ONE gate run is
+  the sanctioned cycle (coverage errors non-fatal ONLY under the flag).
+
+CLAIM DECOMPOSITION PROPOSED (successor executes; derived ONLY from RESULTS §2): C353 = §2.1
+parking law (E51A,B,C,D,E,J,K; H-B-de falsified, negate-then-park, compound divisor inside the
+park, chaining one-SHLD, N303 interleave); C354 = §2.2 quotient consumption (E51F,G,H,I; F==G
+orientation-free, [C079] width over RESULT, `C2`/JNZ [C089] polarity, [C072] CA FALSIFIED);
+C355 = §2.3 constant-divisor control (E51L, zero-differing-bytes, no arm). COVERAGE rows
+proposed: EXPR.DIV_VAR_PARK, EXPR.DIV_RESULT_ADD, COND.DIV_EQ_TEST, + E51H added to
+IO.PUT_LIST_FIXED probes (its EXACT:70 count is hand-maintained, validator will not recompute).
+Corpus column NONE for the DIV rows.
+
+METHOD (accepted, one real slip): a 3-edit CLAIMS.md append FAILED ATOMICALLY because one
+oldText anchor paraphrased wrapped/em-dash bytes — nothing was applied. LESSON: anchor on the
+VERIFIED file tail (last lines of C352, confirmed by `cat -A`) or use separate calls; copy exact
+bytes, never retypes, into oldText.
+
+EXACT NEXT (successor, unchanged contract from hop 4, now sequenced): (1) append C353..C355 to
+`spec/CLAIMS.md` per the decomposition above, deriving law text ONLY from
+`spec/lab-evidence/e2e51-p1/RESULTS.md` §2 (§3 = the NOT-say bullets; classification rows and
+both MISSes kept as written; cite probes/goldens/arms `4ff1ea5`/`7d17b63`/`ee589cc`); commit
+explicit path. (2) register the 12 SPECIMENS in `tools/e2e_gate.py` (comment block modeled on
+the e49p4 block; CRLF+^Z ≤71 col probes, `golden/e51p1/<n>/<n>.REL`) +
+`python3 tools/e2e_gate.py --update-inventory` (panel 1174->1186), then gate AGAIN post-update
+(`build/gate-e51p1-reg.log`), commit `tools/e2e_gate.py` + `spec/INVENTORY.txt`. (3) census via
+`--check spec/census/corpus-census.json`, record ACTUAL counts, commit snapshot. (4) COVERAGE
+rows (after inventory!) + `python3 tools/coverage_check.py` rc=0, gate again, commit.
+(5) HAMM-00 rev1 rerun UNEDITED via `tools/functional_runner.py --tests HAMM-00 --evidence
+build/fc01/hamm-rerun --json-out …/records.json`, record verdict (functional, NOT a DR claim;
+FAIL for a different reason = record, never launder); docs `functional-results.md` rerun record.
+(6) close prose + `/handoff` + attest; STOP after P1 — no P2/LOAN2/CREATE without an operator
+brief. Never touch/stage/revert operator `handoff.config.json`; no push; goldens never laundered.
+
 ## E2E-51/P1 hop 4 — ARM 3 LANDED: ALL 12 GOLDENS BYTE-EXACT; REGISTRATION OWED (2026-11-04; renewed 3/12 from g242; HEAD `ee589cc`)
 
 MEASURED (accepted; `ocaml/` judged only by whole-file `cmp` vs `golden/e51p1/`):

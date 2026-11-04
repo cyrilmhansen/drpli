@@ -213,6 +213,16 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+### Hop-5 status (2026-11-04, renewed 4/12; HEAD `05d7ff0`) — pre-flight DONE, registration steps 1-6 OWED EXACTLY as sequenced in `LEARNINGS.md` § "E2E-51/P1 hop 5 (partial)"
+
+Verified this session: `dune build` rc=0 (rebuilt binary `f172d8eae2a7…`; `ocaml/` identical
+`ee589cc`..HEAD so any sha delta vs the predecessor's `2cd1de5cdf22…` is build noise); sweep
+RE-RUN **12/12 whole-file BYTE-EXACT** vs `golden/e51p1/`; census write path is
+`corpus_census.py --check`; coverage rows MUST postdate `--update-inventory` (panel-key rule);
+my first CLAIMS.md 3-edit append failed atomically on a whitespace/em-dash anchor — NOTHING was
+written to `spec/CLAIMS.md` yet (ledger still ends C352). The contract below (hop 4) stands
+unchanged; the claim decomposition and row proposals are in that LEARNINGS §.
+
 ## E2E-51/P1 ALL THREE ARMS LANDED — 12/12 GOLDENS BYTE-EXACT; REGISTRATION OWED, THEN STOP (2026-11-04; HEAD `ee589cc`; compiler sha `2cd1de5cdf22…` + arm 3)
 
 ARM 3 `ee589cc` (E51I TEST consumer) landed ALONE, keyed ONLY on the measured shape
@@ -1604,17 +1614,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 244
-checkpoint-id: g244-a45be7beb25b
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 245
+checkpoint-id: g245-6e3faee59adb
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-04T00:07:13.526Z
+checkpointed: 2026-11-04T00:08:54.918Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c07fe415816cdd63cc7f2e147b86a4c706c0e6ca75d6711ef6ff55be85f3ebbc
-source-handoff: 1c52b59924549de4fddb6f9a758c0487c45713bdbbc198fa7314379d7f59079b
-source-learnings: 1a45f8d845f1bf1aabfce3e2dbb37fcc33378c784542c351f540d3ed0ef2f331
+source-progress: dd4e237c96f5df1ac3fde5b44e59f45b28e17141ff1effafeef5c39f1ee90a0d
+source-handoff: 5d28a3607d30390d6cbd4a55b756eb51ec9736eed2c64f3f9d4b89285c7c0869
+source-learnings: 37ccaa7a02efc5998057e6ede8382943db63ae1060327193849dfe5262738b5c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` below. TABLE-00 and
   TABLE-01 executed to **PASS** on Lane B after (a) the harness F1 anchor fix in `tools/functional_runner.py`
@@ -1638,6 +1648,9 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
+readiness-by: session:01a1a3cb-e3c5-7402-832b-2af335702e09
+readiness-at: 2026-11-04T00:08:54.928Z
+readiness-checkpoint: g245-6e3faee59adb
 <!-- guard:end checkpoint -->
 
 ## Blockers
