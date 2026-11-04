@@ -3508,6 +3508,14 @@ let vk_is_dec st (n : Ast.name) =
   | Some vi -> (match vi.vk with Vdec _ -> true | _ -> false)
   | None -> false
 
+(* [E2E-52/P2] the CALL arm needs the DEC (precision, scale) pair BEFORE the
+   canonical vk_dec/vk_dec_opt definitions further down this file; this alias is
+   structurally identical to them (Vdec (p,s) -> Some (p,s)). *)
+let vk_dec_at st (n : Ast.name) =
+  match List.assoc_opt (String.lowercase_ascii n.Ast.orig) st.vars with
+  | Some vi -> (match vi.vk with Vdec (p, s) -> Some (p, s) | _ -> None)
+  | None -> None
+
 
 (* [E2E-34/P5] THE one encoder for "leave the VALUE of a based FIXED BINARY member
    in HL": load the qualifier's pointer cell, step to the member, then read the two
@@ -4212,13 +4220,25 @@ let rec lower_hl st (e : Ast.expr) =
                   emit one push per argument [R2001 two, R2034 three, R2035
                   four, DECPOLY three decimals]. *)
                let slot = cs.Bind.cs_slot + st.base in
+               (* this stdlib has no List.combine3 -- zip by nesting pairs *)
+               let zip3 l1 l2 l3 =
+                 List.map2
+                   (fun (x, y) z -> (x, y, z))
+                   (List.combine l1 l2) l3
+               in
                let pairs =
-                 List.combine cs.Bind.cs_args cs.Bind.cs_temps
+                 zip3 cs.Bind.cs_args cs.Bind.cs_temps cs.Bind.cs_copies
                in
                (* set per argument when the actual is a pointer formal of the
                   CALLING scope, i.e. the descriptor word needs DR's dynamic
                   forwarding store [E27B] instead of a static address operand *)
                let fwd = ref (None : string option) in
+               (* [E2E-52/P2] set per argument when a caller-declared DEC actual
+                  is WIDENED into a DEC formal of the same scale: Some (temp,
+                  actual-precision, formal-precision), the temp offset being the
+                  cell BIND allocated in cs_copies [C358] -- codegen never
+                  allocates it, only reads the recorded address. *)
+               let copyin = ref (None : (int * int * int) option) in
                (* the callee's formal type at each position, so an argument
                   can be MODE-CHECKED [E2E-9]: DR's only pinned decimal
                   argument route is by-reference from an AUTOMATIC decimal
@@ -4282,7 +4302,8 @@ let rec lower_hl st (e : Ast.expr) =
                       | None -> false)
                in
                List.iteri
-                 (fun i (arg, tmp) ->
+                 (fun i (arg, tmp, copy) ->
+                   copyin := None; (* per argument, exactly like fwd *)
                    (* [E2E-11 step 4, E29C] width-mismatched argument: an actual
                       whose cell is NARROWER than the formal's declared FIXED type
                       cannot be passed by reference -- the callee would read past
@@ -4388,7 +4409,49 @@ let rec lower_hl st (e : Ast.expr) =
                    let () =
                      if formal_is_dec i then
                        begin match (unwrap_e arg).Ast.e with
-                       | Ast.Eident v when vk_is_dec st v -> ()
+                       | Ast.Eident v when vk_is_dec st v ->
+                           (* [E2E-52/P2, C358] precision check at the point where
+                              DR's cell map depends on it. Equal precision AND equal
+                              scale is the DECPOLY route: pass the actual's own cell
+                              by reference [R2037/R2038/R725], unchanged. A WIDENING
+                              at equal scale is E52G's measured shape: bind has
+                              already allocated the formal-precision temp in
+                              cs_copies; record it and the descriptor will point at
+                              the TEMP. Everything else (narrowing, differing scales,
+                              a forwarded pointer-formal actual -- bind never
+                              allocates for those) refuses BY NAME: unmeasured. *)
+                           (match vk_dec_at st v, formal_rt_at i with
+                            | Some (ap, sa), Some (Bind.RTdec (pf, sf))
+                              when ap = pf && sa = sf -> ()
+                            | Some (ap, sa), Some (Bind.RTdec (pf, sf)) ->
+                                if
+                                  sa = sf && ap < pf && copy <> None
+                                  && not
+                                       (List.mem
+                                          (String.lowercase_ascii
+                                             v.Ast.orig) st.deref)
+                                then
+                                  copyin :=
+                                    Some
+                                      (match copy with
+                                       | Some t -> (t, ap, pf)
+                                       | None -> assert false)
+                                else
+                                  failwith
+                                    ("codegen: [TBD] FIXED DECIMAL("
+                                     ^ string_of_int ap ^ ","
+                                     ^ string_of_int sa ^ ") actual against FIXED "
+                                     ^ "DECIMAL(" ^ string_of_int pf ^ ","
+                                     ^ string_of_int sf
+                                     ^ ") formal: DR's caller-side copy-in temp is "
+                                     ^ "measured ONLY for a caller-declared actual "
+                                     ^ "WIDENED at equal scale (dec(4,2) into "
+                                     ^ "dec(9,2), E52G [C358]); narrowing, differing "
+                                     ^ "scales, forwarded pointer-formals, outer-scope "
+                                     ^ "actuals and EXTERNAL entries are UNMEASURED "
+                                     ^ "(line "
+                                     ^ string_of_int arg.Ast.epos.Source.line ^ ")")
+                            | _ -> assert false)
                        | _ ->
                          failwith
                            ("codegen: non-variable argument against a FIXED "
@@ -4489,8 +4552,28 @@ let rec lower_hl st (e : Ast.expr) =
                          dyn_addr st r;
                          d st op_shld; reloc st Data (slot + 2 * i)
                      | _ ->
+                       (* [E2E-52/P2, C358] the measured copy-in pair precedes the
+                          descriptor word it feeds: load the ACTUAL cell at ACTUAL
+                          precision (?DLDOP), store into the bind-allocated temp at
+                          FORMAL precision (?DSTOP), then let the static route below
+                          point the block word at the TEMP, not the actual. Golden
+                          record order (e52p1/E52G): pair code, THEN
+                          `LINK-SET-LC data 000B / RELOC data 0xd / SET-LC code'. *)
+                       (match !copyin with
+                        | None -> ()
+                        | Some (t, ap, pf) ->
+                            st.last_imm <- None;
+                            d st op_lxi_h; reloc st Data target;
+                            d st op_mvi_a; d st ap; call_ext st "?DLDOP";
+                            d st op_lxi_h; reloc st Data (t + st.base);
+                            d st op_mvi_a; d st pf; call_ext st "?DSTOP");
+                       let tgt =
+                         match !copyin with
+                         | Some (t, _, _) -> t + st.base
+                         | None -> target
+                       in
                        link st t_set_lc (Some (Data, slot + 2 * i)) None;
-                       push st (Reloc (Data, target));
+                       push st (Reloc (Data, tgt));
                        link st t_set_lc (Some (Code, st.lc)) None))
                  pairs;
                (* [E2E-11/CALL, E24A/E24J] a zero-argument call has NO

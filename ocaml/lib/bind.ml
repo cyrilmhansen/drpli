@@ -1598,7 +1598,16 @@ let top_is_proc (b : Ast.block) : bool =
 
 type call_site =
   { cs_proc : string; cs_slot : int; cs_args : Ast.expr list
-  ; cs_temps : int option list }  (* Some addr iff that arg is an expression *)
+  ; cs_temps : int option list  (* Some addr iff that arg is an expression *)
+  ; cs_copies : int option list
+    (* [E2E-52/P2] Some addr iff that arg is a caller-declared FIXED DECIMAL
+       variable passed to a WIDER FIXED DECIMAL formal at the SAME scale: DR
+       copies it into a caller-side temp sized at the FORMAL's precision and
+       points the descriptor word at the TEMP, not at the actual's own cell
+       [C358, golden/e52p1/E52G/E52G.REL: block @000B RELOC -> temp @000D].
+       The temp is allocated HERE (layout owns every DATA cell; codegen only
+       reads these offsets -- the same single-authority rule as cs_temps and
+       the [E2E-20/C167] span). Offset is POOL-EXCLUSIVE like cs_slot. *) }
 
 (* ---------- [E2E-34/P1, E2E-36/P2] label ownership, references and recovery-pad demand ----------
    ONE scan, exported, used by bind (which allocates the hidden saved-SP cell) and by
@@ -2255,7 +2264,77 @@ let bind_program (blk : Ast.block) : prog_layout =
                       | _ -> let t = !cur in cur := !cur + 2; Some t)
                     args
                 in
-                { cs_proc = p; cs_slot = slot; cs_args = args; cs_temps = temps })
+                (* [E2E-52/P2] DEC copy-in temps, allocated per the cell map of
+                   [C358]: caller-declared DEC variable actual, internal
+                   NON-recursive callee, DEC formal WIDER at the SAME scale.
+                   Size is `bytes_of` of the FORMAL row -- the same sizing
+                   authority as every declared DEC cell ([R507] via bytes_of).
+                   Deliberately NOT allocated (codegen then refuses by name if
+                   it still sees a mismatch): a caller FORMAL name (the E27B
+                   forwarding route), a STATIC row, an array head, a callee
+                   RECURSIVE/recursive block, an EXTERNAL entry, and every
+                   shape outside the measured widening family. This is the
+                   ONLY place the temp is allocated; codegen consumes the
+                   offset and never grows `cur'. *)
+                let callee =
+                  match List.find_opt (fun (n, _, _, _, _) -> n = p) !reg with
+                  | Some (_, pb, recf, attrf, fm) when not recf && not attrf ->
+                      Some (pb, fm)
+                  | _ -> None
+                in
+                let callee_arrs =
+                  match callee with
+                  | Some (pb, _) -> (try bind_arrays pb with _ -> [])
+                  | None -> []
+                in
+                let copies =
+                  List.mapi
+                    (fun i arg ->
+                      match callee with
+                      | None -> None
+                      | Some (pb, fm) ->
+                          (match arg.Ast.e, List.nth_opt fm i with
+                           | Ast.Eident h, Some fn ->
+                               let x = String.lowercase_ascii h.Ast.orig in
+                               if
+                                 List.mem x formals (* caller formal: E27B route *)
+                                 || List.mem x static_rows
+                                 || List.exists
+                                      (fun (n, _l, _u, _e) -> String.equal n x)
+                                      arrs
+                               then None
+                               else
+                                 let ar =
+                                   List.find_map
+                                     (fun (n, rt, _) ->
+                                       if n = x then Some rt else None)
+                                     nr
+                                 in
+                                 let fr =
+                                   if
+                                     List.exists
+                                       (fun (n, _l, _u, _e) ->
+                                         String.equal n fn)
+                                       callee_arrs
+                                   then None
+                                   else
+                                     List.find_map
+                                       (fun (n, rt, _) ->
+                                         if n = fn then Some rt else None)
+                                       (named_of pb)
+                                 in
+                                 (match ar, fr with
+                                  | Some (RTdec (pa, sa)), Some (RTdec (pf, sf))
+                                    when sa = sf && pa < pf ->
+                                      let t = !cur in
+                                      cur := !cur + bytes_of (RTdec (pf, sf));
+                                      Some t
+                                  | _ -> None)
+                           | _ -> None))
+                    args
+                in
+                { cs_proc = p; cs_slot = slot; cs_args = args
+                ; cs_temps = temps; cs_copies = copies })
               sites0
     in
     calls := !calls @ sites;
