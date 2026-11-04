@@ -7,7 +7,37 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-0. **E2E-52/P2 IN FLIGHT (2026-11-04; operator brief: DEC formal copy-in, E52G
+0. **E2E-52/P2 CLOSED (2026-11-04; operator brief: DEC formal copy-in, E52G
+byte-exact closure; hop 2 registration session; chain `a365686` plan / `d67a263` arm /
+`c34c690`+`546c70a` hop-1 durables / `01bf2df` renewal / `dca9219` registration /
+`90582a5` COVERAGE / `755bf1c` RESULTS + this close prose).** **E52G is REGISTERED and
+panel-EXACT**: sanctioned `--update-inventory` 1195→**1196** (diff exactly ONE line),
+post-registration FULL gate REAL **rc=0** DIRECT `build/gate-e52p2-reg.log` (**1196
+byte-exact / 0 of 1196**, `BYTE-EXACT E52G`, 181/181, 9/9, 139 rows 0/0, census
+15/0/26/0, prose 5); COVERAGE row `PROC.DEC_FORMAL_COPYIN_CELLMAP` `mine_status=
+SUPPORTED` (the validator's byte-exact value; `EXACT` exists ONLY in `rel_parity` — P1
+vocabulary lesson applied to the brief's "->EXACT" wording) + `rel_parity=EXACT:1`,
+probes cite panel key E52G AND keep the golden path, cites unchanged [C358] [C131]
+[C187], NO new rows, coverage_check rc=0 **139 rows 0/0** + stats via its own write
+path; LOAN2 rerun UNMODIFIED — blocker UNCHANGED verbatim (`codegen: PUT FILE with a
+bare PAGE control item [TBD] (line 99)`), NOTHING advanced or fixed, never claimed
+exact; E52A..J 10/10 + E51A..L 12/12 re-measured byte-exact on binary `85bf7a26…`.
+NO new claim (C358 states the law; the optional C358 NOTE was declined — default); the
+ledger ENDS **C358**. Evidence `spec/lab-evidence/e2e52-p2/{PLAN.md,RESULTS.md}`.
+**SUCCESSOR: NO active round and NO pending instruction.** Confirm HEAD/tree (only the
+operator's `handoff.config.json` edit may be dirty), `/handoff verify`, record state
+and **STOP** — await an operator brief. Standing PROPOSALS (shortlist, NEVER
+authorizations): dashboard `**26**` refresh + mapping P1's three unmapped DIV rows
+(`EXPR.DIV_VAR_PARK`, `EXPR.DIV_RESULT_ADD`, `COND.DIV_EQ_TEST`); FCPS1..3 SPECIMENS
+registration at a gate hop; README § 5.1 rights review for the eight corpus sources
+(due); E2E-50/P3 shortlist (`spec/lab-evidence/e2e50-p2/REPORT.md` § 5);
+fc01-fileio/ONUNIT-00 stay CANCELLED; the P1-era "E52G joins `spec/DIVERGENT.txt`"
+proposal is OBSOLETE — G is byte-exact and registered. Constraints unchanged: no push;
+goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2
+blockers (PAGE/PUT FILE/ON-unit/EDIT stay untouched); operator `handoff.config.json`
+never staged; all rc captured DIRECTLY.
+SUPERSEDED-BY-ABOVE (kept as written; the hop-2 contract named below was EXECUTED in
+full): 0. **E2E-52/P2 IN FLIGHT (2026-11-04; operator brief: DEC formal copy-in, E52G
 byte-exact closure).** Hop 1 LANDED: plan pre-committed `a365686`; arm `d67a263`
 (Bind `cs_copies` owns the caller-side formal-precision copy-in temp; codegen emits the
 [C358] `?DLDOP/@actual + ?DSTOP/@temp` pair before the descriptor-word record and
@@ -58,13 +88,41 @@ recorded, never fixed.
      `spec/COVERAGE-SCHEMA.md`; validator rules at `tools/coverage_check.py:203-247`).
    - `spec/INVENTORY.txt`: `grep` the specimen/refusal name only. `spec/RUNTIME.txt` and
      `spec/DIVERGENT.txt`: only rows named by the task.
-   - Latest round evidence: `spec/lab-evidence/e2e52-p1/{RESULTS.md,HYPOTHESES.md,
-     BASELINE-MINE.txt,PLAN.md,mkprobes.py}` (round CLOSED); prior rounds under
-     `spec/lab-evidence/e2e48-*/`, `spec/lab-evidence/e2e49-p{1,2,3,4}/` and
-     `spec/lab-evidence/e2e51-p1/`.
+   - Latest round evidence: `spec/lab-evidence/e2e52-p2/{PLAN.md,RESULTS.md}` (round
+     CLOSED); prior rounds under `spec/lab-evidence/e2e52-p1/` (RESULTS/HYPOTHESES/
+     BASELINE-MINE/PLAN/mkprobes), `spec/lab-evidence/e2e48-*/`,
+     `spec/lab-evidence/e2e49-p{1,2,3,4}/` and `spec/lab-evidence/e2e51-p1/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
-6. **E2E-52/P1 CLOSED (2026-11-04; operator brief: scope-aware DEC pool prescan, LOAN2
+6. **E2E-52/P2 CLOSED (2026-11-04; operator brief: DEC formal copy-in, E52G
+byte-exact closure; hop 2 registration session; ledger ENDS **C358**, NO new claim).**
+FULL CHAIN: PLAN pre-committed `a365686` (predictions derived from [C358] + the golden
+reldump BEFORE any compiler byte); ARM `d67a263` — Bind `cs_copies` is the single
+layout authority for the caller-side copy-in temp (allocated in section2's phase-2
+pass, size `bytes_of (RTdec(pf,sf))`, [R507] authority; trigger: internal
+non-recursive callee, caller-own-row bare `Eident`, `RTdec` vs `RTdec` with `sa=sf &&
+pa<pf`); codegen consumes the offset, emits the [C358] `?DLDOP/@actual +
+?DSTOP/@temp` pair BEFORE the descriptor-word record and retargets the block word to
+the temp; DECPOLY equal-precision route UNCHANGED; every other DEC mismatch shape
+refuses BY NAME. MEASURED: E52G whole-file `cmp` rc=0 FIRST TRY (mine sha `39b3d7cf…`
+== golden; code `004A`, DATA `0014`, exactly PLAN §4, never fitted — **ZERO MISS this
+round**); E52A..J 10/10 and E51A..L 12/12 (re-measured hop 2 on `85bf7a26…`); pre-reg
+gate rc=0 DIRECT 1195/0 `build/gate-e52p2-prereg.log`; hop 2: SPECIMENS registration +
+`--update-inventory` 1195→1196 (exactly ONE line) + post-registration gate REAL rc=0
+DIRECT `build/gate-e52p2-reg.log` **1196/0 of 1196**, 181/181, 9/9, 139 rows 0/0,
+census 15/0/26/0 (REFUSED 26 unchanged), prose 5 — `dca9219`; COVERAGE row →
+SUPPORTED + `EXACT:1`, coverage_check rc=0 139 rows 0/0, no new rows — `90582a5`;
+LOAN2 UNMODIFIED, blocker verbatim UNCHANGED (line 99 bare PAGE) — recorded, NOTHING
+fixed — and RESULTS.md `755bf1c` + this close prose. BYTE TIER ONLY: no
+`spec/RUNTIME.txt` row, no `OUTPUT_CHECK` entry; the copy-in pair is UNRUN. Remaining
+unsupported copy forms (loud refusals, named in RESULTS §8): narrowing, differing
+scale, forwarded pointer-formals (the E27B route — now LOUD where it passed silently
+before), outer-scope actuals, deref/array heads, recursive/RECURSIVE callees, EXTERNAL
+entries. **SUCCESSOR: NO active round and NO pending instruction** — see item 0 above;
+standing PROPOSALS and constraints kept there; P1 record below kept as written.
+
+SUPERSEDED-BY-ABOVE (kept as written): 6. **E2E-52/P1 CLOSED (2026-11-04; operator
+brief: scope-aware DEC pool prescan, LOAN2
 defect; hop 6 closing session at HEAD `22b9c0c` + this close commit; ledger ENDS
 **C358**).** FULL CHAIN LANDED: pre-registration `d1fbc16`; ORACLE 10 ok/10 + goldens +
 RESULTS `e14d180` (zero `dr-refuses`; H1-lexical CONFIRMED on B,C,D,H,I; H3 falsified 5x;
@@ -1172,25 +1230,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 274
-checkpoint-id: g274-e92e6f97d322
-checkpoint-kind: auto
+checkpoint-generation: 275
+checkpoint-id: g275-8ab72d3fbad2
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4948, session 01a1a759-ab86-7057-855c-dfa9fdc758ac)
-checkpointed: 2026-11-04T16:43:10.773Z
+status: checkpoint (guard level 4, remaining ~2791, session 01a1a759-ab86-7057-855c-dfa9fdc758ac)
+checkpointed: 2026-11-04T16:43:53.826Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 30c24846a00e55e84ae3bb28a2a2da379b2ee50db45b2215e702564b4dc4f86b
+source-progress: b1e643d14b0ef5a5222ac7448d99c0b5528092af87cb91749b4c73edeb6f609c
 source-handoff: 12e17ea74d2ca6c49d69640a0fb31383fe267525e3ff1a14c866807a82bac80b
 source-learnings: c65867e9f3a2e486151bfcb7892eea0baa20b9f4b578a9aa8f6bc0e30985e052
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1a759-ab86-7057-855c-dfa9fdc758ac
-readiness-at: 2026-11-04T16:43:21.922Z
-readiness-checkpoint: g274-e92e6f97d322
+readiness-at: 2026-11-04T16:43:53.836Z
+readiness-checkpoint: g275-8ab72d3fbad2
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: E2E-52/P2 hop 2 contract unchanged: PROGRESS ## Next action steps (a)-(e): register E52G + inventory 1195->1196 + gate AGAIN (expect 1196/0); COVERAGE row -> EXACT:1 (139 rows, no new); LOAN2 UNMODIFIED blocker verbatim, fix nothing; RESULTS.md + close prose; STOP after P2. All rc DIRECT.)
 
 ### Unfinished operations
 - (none recorded)
@@ -1258,5 +1316,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P1 CLOSED (hop 6 closing session). Landed: dashboard mapping fa0596c (3 E52 rows -> DECL.SCALAR_TYPES/ARITH.DECIMAL/PROC.CALL; status doc refreshed via own write path; unmapped 32->29), close 68a263f (PROGRESS Current-phase+Next action, HANDOFF item 6, LEARNINGS hop-6 section, census metadata-only). FULL gate REAL rc=0 DIRECT build/gate-e52p1-reg2.log: 1195/0 of 1195, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5; prose check rc=0 standalone; hostile suite rc=0 211/211; coverage_check rc=0; census --check rc=0. Known PRE-EXISTING recorded, NEVER fixed: test_functional_dashboard.py rc=1 sole verbatim FAIL 'integration: unmapped COVERAGE rows are listed, not dropped' (stale hardcoded **26** vs rendered **29**; refresh + mapping P1's 3 DIV rows stays PROPOSED). Ledger ENDS C358. E52G OPEN my-gap: never registered, never fitted; copy-in-temp arm and spec/DIVERGENT.txt membership PROPOSED, never adopted. Successor WITHOUT an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state, STOP. No push; goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2 blockers.
+E2E-52/P2 hop 2 contract unchanged: PROGRESS ## Next action steps (a)-(e): register E52G + inventory 1195->1196 + gate AGAIN (expect 1196/0); COVERAGE row -> EXACT:1 (139 rows, no new); LOAN2 UNMODIFIED blocker verbatim, fix nothing; RESULTS.md + close prose; STOP after P2. All rc DIRECT.
 <!-- guard:end checkpoint -->

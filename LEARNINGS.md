@@ -5,6 +5,57 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P2 hop 2 (closure) (2026-11-04; E52G REGISTERED panel-EXACT 1196/0; COVERAGE SUPPORTED/EXACT:1; LOAN2 UNCHANGED; ROUND CLOSED)
+
+ACCEPTED (measured this hop, every rc captured DIRECTLY — no pipeline used anywhere):
+registration chain `dca9219` (SPECIMENS entry + comments), `90582a5` (COVERAGE row +
+stats), `755bf1c` (RESULTS.md), close prose + finalize this commit. Independently
+re-measured BEFORE registering: binary `85bf7a26…` (identical rebuild, `dune build`
+rc=0), E52G positional compile rc=0, whole-file `cmp` vs golden rc=0, sha `39b3d7cf…`
+== golden. `python3 tools/e2e_gate.py --update-inventory` rc=0: INVENTORY **1195→1196**,
+`git diff` EXACTLY ONE line (`+E52G specimen ...`). FULL gate `timeout 3600
+python3 tools/e2e_gate.py` REAL **rc=0** → `build/gate-e52p2-reg.log`: **1196
+byte-exact / 0 fail of 1196** incl. `BYTE-EXACT E52G: .REL == DR oracle (256 bytes)`,
+negative 181/181, divergence 9/9, coverage 139 rows 0/0, census 15/0/26/0, prose 5.
+Sweeps re-run outside the gate: E52A..J 10/10 exact vs `golden/e52p1`, E51A..L 12/12
+vs `golden/e51p1`. LOAN2 UNMODIFIED rc=2, blocker VERBATIM UNCHANGED from P1 hop 4
+(`codegen: PUT FILE with a bare PAGE control item [TBD] (line 99) ...`, stderr kept at
+`build/e52p2/loan2-stderr.log`): the DEC copy-in was NOT the next LOAN2 blocker;
+nothing advanced, nothing fixed, census REFUSED 26 unchanged.
+
+ACCEPTED (method — validator vocabulary governs a brief's shorthand): the contract
+wording "mine_status DIVERGENT->EXACT" is NOT a legal value — the `mine_status` enum
+is {SUPPORTED, DIVERGENT, REFUSED, PARTIAL, NOT_ATTEMPTED} (`tools/coverage_check.py`
+ENUMS) and `EXACT:<n>` exists ONLY in `rel_parity`; "compiles and every specimen is
+byte-exact" is `SUPPORTED`, so the row shipped `mine_status=SUPPORTED` +
+`rel_parity=EXACT:1` (P1's `DIFFERS`-malformed lesson applied in the same spirit). The
+decision is recorded in the commit message, the COVERAGE boundary sentence and RESULTS
+§4 — the brief text was NOT rewritten to match. Honest counts moved exactly as
+expected: `mine.DIVERGENT` 4→3, `mine.SUPPORTED` 85→86, row keeps `SINGLE_SAMPLE`
+(ONE specimen), 139 rows, no new row.
+
+ACCEPTED (method — gate-file comment honesty at a registration hop): the P1 paragraph
+`E52G is DELIBERATELY NOT REGISTERED` was converted to past tense AS HISTORY (why it
+was withheld at P1) and followed by a `[E2E-52/P2]` paragraph naming the authorization
+chain, the mechanism, the first-try cmp and the registration commit; the per-specimen
+description list gained its E52G entry (every other bank specimen has one). Registration
+then touched ONLY `tools/e2e_gate.py` + `spec/INVENTORY.txt`.
+
+ACCEPTED (scope honesty): the optional implementation-landed NOTE to [C358] was
+DECLINED — the brief's default is "no" and nothing scientific changed (C358 states
+DR's law; MY side is carried by the COVERAGE row, RESULTS §4 and the panel).
+`spec/CLAIMS.md` byte-identical; ledger ENDS **C358**. The P1 PROPOSAL "whether E52G
+joins `spec/DIVERGENT.txt`" is OBSOLETE as a consequence of registration (G is
+byte-exact), recorded in the close prose as a fact of this round, not a new law.
+
+FALSIFIED: NOTHING this hop — ZERO MISS: every PLAN §4 prediction had held byte-for-
+byte on the first try at the arm hop, and the registration moved every panel count
+exactly as predicted (ONE inventory line, ONE coverage row, counts 85→86/4→3).
+
+PROPOSED (never adopted): nothing new beyond the standing shortlist (dashboard
+`**26**` refresh + P1 DIV-row mapping; FCPS1..3 registration; README § 5.1 rights
+review; E2E-50/P3 shortlist).
+
 ## E2E-52/P2 hop 1 (2026-11-04; DEC formal copy-in ARM LANDED, E52G BYTE-EXACT first try; registration OWED)
 
 ACCEPTED (measured this hop): operator brief opened P2 at HEAD `6de72c5` (checkpoint

@@ -3,7 +3,60 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — **E2E-52/P2 IN FLIGHT** (2026-11-04; operator brief: DEC formal copy-in, E52G closure; hop 1 LANDED arm `d67a263`; E52G BYTE-EXACT; registration + LOAN2 + RESULTS OWED)
+## Current phase — **E2E-52/P2 CLOSED** (2026-11-04; operator brief: DEC formal copy-in,
+E52G byte-exact closure; hop 2 registration session; E52G REGISTERED and panel-EXACT;
+ledger ENDS **C358**, NO new claim; **NO ACTIVE ROUND**)
+
+The round delivered in full, every step measured and committed (evidence
+`spec/lab-evidence/e2e52-p2/{PLAN.md,RESULTS.md}`, mechanism record `LEARNINGS.md`
+§§ "E2E-52/P2 hop 1"/"E2E-52/P2 hop 2 (closure)"): PLAN pre-committed `a365686`
+(predictions derived from [C358] + the golden reldump BEFORE any compiler byte); ARM
+`d67a263` — Bind `cs_copies` is the SINGLE layout authority for the caller-side
+formal-precision copy-in temp (section2 phase-2 allocation, size
+`bytes_of (RTdec(pf,sf))` = [R507] authority; trigger: internal non-recursive callee,
+caller-own-row bare `Eident`, `RTdec` vs `RTdec` with `sa=sf && pa<pf`); codegen
+consumes the offset (never allocates), emits the [C358] `?DLDOP/@actual +
+?DSTOP/@temp` pair BEFORE the descriptor-word record and retargets the block word to
+the temp; DECPOLY equal-precision/equal-scale route UNCHANGED; every other DEC
+mismatch shape refuses BY NAME. MEASURED: E52G whole-file `cmp` rc=0 FIRST TRY (mine
+sha `39b3d7cf…` == golden `golden/e52p1/E52G/E52G.REL`, code `004A`, DATA `0014`,
+exactly the PLAN §4 prediction, never fitted — **ZERO MISS this round**); E52A..J
+10/10 and E51A..L 12/12; pre-reg FULL gate REAL rc=0 DIRECT
+`build/gate-e52p2-prereg.log` (1195/0). HOP 2 (this session): E52G registered in
+SPECIMENS + sanctioned `--update-inventory` 1195→**1196** (diff EXACTLY ONE line) +
+FULL gate AGAIN REAL **rc=0** DIRECT `build/gate-e52p2-reg.log` (**1196 byte-exact /
+0 of 1196**, `BYTE-EXACT E52G: .REL == DR oracle (256 bytes)`, negative 181/181,
+divergence 9/9, coverage 139 rows 0/0, census 15/0/26/0 — REFUSED 26 UNCHANGED, prose
+5) `dca9219`; COVERAGE row `PROC.DEC_FORMAL_COPYIN_CELLMAP` `mine_status=SUPPORTED`
+(the validator's vocabulary for "every specimen byte-exact" — the brief's "->EXACT"
+applied via SUPPORTED, since `EXACT` exists ONLY in `rel_parity`; P1 lesson honoured)
++ `rel_parity=EXACT:1`, probes cite the panel key `E52G` AND keep the golden path,
+boundary rewritten to measured reality, cites unchanged [C358] [C131] [C187], NO new
+rows, coverage_check rc=0 DIRECT **139 rows 0/0**, stats via its own write path
+`90582a5`; E52/E51 sweeps RE-MEASURED independently at registration binary
+`85bf7a26…` (10/10 + 12/12); LOAN2 rerun UNMODIFIED — blocker VERBATIM UNCHANGED
+(`codegen: PUT FILE with a bare PAGE control item [TBD] (line 99)`; the DEC copy-in
+was NOT the next LOAN2 blocker), NOTHING advanced or fixed, never claimed exact;
+RESULTS.md §1-§8 `755bf1c` + this close prose. NO new claim (C358 states the law; the
+optional C358 implementation NOTE was DECLINED — the brief's default). BYTE TIER ONLY:
+no `spec/RUNTIME.txt` row, no `OUTPUT_CHECK` entry; the copy-in pair's runtime
+behaviour is UNRUN.
+**SUCCESSOR: NO active round and NO pending instruction.** Confirm HEAD/tree (only the
+operator's `handoff.config.json` edit may be dirty), `/handoff verify`, record state
+and **STOP** — await an operator brief. Standing PROPOSALS (shortlist, NEVER
+authorizations): dashboard `**26**` refresh + mapping P1's three unmapped DIV rows
+(`EXPR.DIV_VAR_PARK`, `EXPR.DIV_RESULT_ADD`, `COND.DIV_EQ_TEST`); FCPS1..3 SPECIMENS
+registration at a gate hop; README § 5.1 rights review for the eight corpus sources
+(due); E2E-50/P3 shortlist (`spec/lab-evidence/e2e50-p2/REPORT.md` § 5);
+fc01-fileio/ONUNIT-00 stay CANCELLED; the P1-era "E52G joins `spec/DIVERGENT.txt`"
+proposal is OBSOLETE (G is whole-file byte-exact and a registered panel specimen).
+Constraints unchanged: no push; goldens never re-derived; NEVER re-run the retry-DFS;
+no expansion to other LOAN2 blockers (no PAGE/PUT FILE/ON-unit/EDIT work); operator
+`handoff.config.json` never staged; all rc captured DIRECTLY.
+
+SUPERSEDED-BY-ABOVE (kept as written): ## Current phase — **E2E-52/P2 IN FLIGHT**
+(2026-11-04; operator brief: DEC formal copy-in, E52G closure; hop 1 LANDED arm
+`d67a263`; E52G BYTE-EXACT; registration + LOAN2 + RESULTS OWED)
 
 Hop 1 ACTUALS (see `LEARNINGS.md` § "E2E-52/P2 hop 1" for the full record): plan
 committed PRE-edit `a365686`; arm `d67a263` (Bind `cs_copies` allocation + codegen
@@ -349,7 +402,9 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P2 hop 2 OWED (2026-11-04; renewed 1/12 from checkpoint g274; arm `d67a263` landed+gated, durable commits `a365686`/`d67a263`/`c34c690`/`546c70a`+this; at HEAD only operator `handoff.config.json` may be dirty)
+### E2E-52/P2 CLOSED — NO ACTIVE ROUND (2026-11-04; hop 2 registration session at HEAD `755bf1c` + this close-prose commit; E52G REGISTERED, panel 1196 byte-exact / 0 of 1196; ledger ENDS **C358**): successor confirms HEAD/tree (only the operator's `handoff.config.json` edit may be dirty), runs `/handoff verify`, records state and **STOPS** — await an operator brief. Standing PROPOSALS and constraints live in `HANDOFF.md` item 0 and the Current-phase record above (shortlist, NEVER authorizations); the P1-era "E52G joins `spec/DIVERGENT.txt`" proposal is OBSOLETE (G is byte-exact and registered). No push; goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2 blockers; operator `handoff.config.json` never staged; all rc captured DIRECTLY.
+
+SUPERSEDED-BY-ABOVE (kept as written; its steps (a)-(e) were EXECUTED IN FULL this hop — registration `dca9219`, COVERAGE `90582a5`, LOAN2 blocker recorded UNCHANGED, RESULTS `755bf1c`, close prose + finalize this): ### E2E-52/P2 hop 2 OWED (2026-11-04; renewed 1/12 from checkpoint g274; arm `d67a263` landed+gated, durable commits `a365686`/`d67a263`/`c34c690`/`546c70a`+this; at HEAD only operator `handoff.config.json` may be dirty)
 
 Execute IN ORDER, all rc captured DIRECTLY (never trailing pipelines):
 (a) register E52G: add `"E52G": ("probes/E52G.PLI", "golden/e52p1/E52G/E52G.REL")` to
@@ -2013,15 +2068,15 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 274
-checkpoint-id: g274-e92e6f97d322
-checkpoint-kind: auto
+checkpoint-generation: 275
+checkpoint-id: g275-8ab72d3fbad2
+checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-04T16:43:10.773Z
+checkpointed: 2026-11-04T16:43:53.826Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 30c24846a00e55e84ae3bb28a2a2da379b2ee50db45b2215e702564b4dc4f86b
+source-progress: b1e643d14b0ef5a5222ac7448d99c0b5528092af87cb91749b4c73edeb6f609c
 source-handoff: 12e17ea74d2ca6c49d69640a0fb31383fe267525e3ff1a14c866807a82bac80b
 source-learnings: c65867e9f3a2e486151bfcb7892eea0baa20b9f4b578a9aa8f6bc0e30985e052
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
@@ -2086,8 +2141,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1a759-ab86-7057-855c-dfa9fdc758ac
-readiness-at: 2026-11-04T16:43:21.922Z
-readiness-checkpoint: g274-e92e6f97d322
+readiness-at: 2026-11-04T16:43:53.836Z
+readiness-checkpoint: g275-8ab72d3fbad2
 <!-- guard:end checkpoint -->
 
 ## Blockers
