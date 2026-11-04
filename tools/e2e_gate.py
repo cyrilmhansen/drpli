@@ -2565,11 +2565,19 @@ REJECTS.update({
     # [E2E-42/P2b] E41X7 RETIRED: `put file(f) list('A','B')' COMPILES, and E46M1 holds the
     # byte-exact DR witness for exactly this shape (512/512 against golden/e42p2b).  A retired
     # negative is not deleted silently -- see the retirement note above E41X4 for the convention.
-    "E41X8": (
-        "t:\n  procedure options(main);\n  dcl f file;\n  dcl d fixed dec(5,2);\n"
-        "  open file(f) stream output title('X Y');\n"
-        "  d = 1.5;\n  put file(f) edit(d)(f(5,1));\nend t;\n",
-        "PUT EDIT deferred"),    # [E2E-42/P2b] A NEW ROW FOR A DEFECT FOUND, NOT FOR A SHAPE EXPLORED.  Before P2b this shape
+    # [E2E-52/P3-2] E41X8 RETIRED, its NEG_META stamp moved WITH IT (the symmetry audit,
+    # registration_audit/E2E-16 -- leaving either alone trips the panel).  The source
+    #   t: ... open file(f) stream output title('X Y'); d = 1.5;
+    #      put file(f) edit(d)(f(5,1)); end t;
+    # now COMPILES rc=0 -- re-measured this hop on the clean-rebuild binary
+    # 748c434fafd8c01579: 384 B, code=93 data=3.  The P3-2 arm lowered the FILE PUT EDIT
+    # and GET EDIT routes (match_put_edit file arm, DEC item + f(w,d) format, fmt-table
+    # FIFO and the measured record-order law), so the marker `PUT EDIT deferred' is gone.
+    # HONESTY BOUNDARY: this row's source is INLINE and NO DR object measures this exact
+    # COMPOSITE (title'd stream-output OPEN + EDIT on the same file), so its BYTES are NOT
+    # claimed and it does NOT become a specimen; the byte-exact witnesses are the P3-2
+    # registrations P086K (PUT+GET file EDIT, no OPEN [C282]) and P086J (console DEC edit).
+    # [E2E-42/P2b] A NEW ROW FOR A DEFECT FOUND, NOT FOR A SHAPE EXPLORED.  Before P2b this shape
     # COMPILED: the bare-`put skip;' arm of match_put_list_lit tested the item list and IGNORED the
     # ON options, so corpus CREATE's `put file(output) skip;' at line 41 was lowered as the CONSOLE
     # bare skip and its bytes went to SYSOUT while the named file was never touched.  That is a
@@ -4018,16 +4026,19 @@ NEG_META["E41X5"] = ("my-gap",
 # pinned until [E2E-42/P2c] LOWERED it, so neither row survives -- and KEYFILE's OPEN options
 # (KEYED, LINESIZE, variable TITLE).
 
-NEG_META["E41X8"] = ("my-gap",
-    "DR compiles PUT EDIT on a named file, and does so WITHOUT an open: P086K:4 "
-    "`put file(f) edit(d)(f(5,1))' attaches HL=the file's control block with DE=0x0652 at 001F "
-    "and runs `?EDITF ?DLDOP', and its `get file(f) edit(d)(f(5,1))' attaches 0x0690 at 0046 with "
-    "`?EDITF ?EDTIV ?QCDOP' (spec/lab-evidence/e2e41-p0/SIOMODES.txt, from "
-    "golden/probe55/P086K/P086K.REL -- an object this panel does not hold, and the directory contains no .COM and no transcript, so nothing here shows it ever executed).  "
-    "So P086K is the witness that an attach does NOT require an OPEN [C282], and it is also the "
-    "reason this probe refuses on the EDIT route rather than the file route: PUT EDIT is deferred "
-    "for its own reasons ([C245]->[C250], the R(S)/SKIP-EDIT defect), which the open lowering of "
-    "P3b neither advances nor changes.")
+# [E2E-52/P3-2] NEG_META["E41X8"] IS GONE WITH ITS ROW (symmetry), and what replaced it is
+# a retirement note above the E41X4 block, not a specimen.  The stamp stands here as
+# written history: it named DR's bytes correctly (P086K 001F `?EDITF ?DLDOP', 0046
+# `?EDITF ?EDTIV ?QCDOP', the no-OPEN attach witness [C282]) and named MY missing route
+# correctly (`PUT EDIT is deferred for its own reasons ([C245]->[C250], the R(S)/SKIP-EDIT
+# defect)' -- no longer true: the E2E-52/P3-2 arm lowers the DEC-item + f(w,d)-format EDIT
+# route on both PUT and GET, P086K and P086J are byte-exact SPECIMENS, and LOAN2 has
+# advanced PAST `PUT EDIT deferred [TBD] (line 115)' to its next verbatim blocker
+# `codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote
+# and rep-group formats are not decoded)').  The my-gap it recorded is CLOSED for the shape
+# this panel can prove with goldens; what still refuses BY NAME -- picture, x(w), rep-groups,
+# counted/grouped/remote formats, DEC-formal (deref) items, fixed-bin EXPRESSION items --
+# is named in spec/lab-evidence/e2e52-p3/ (PLAN §P3-2 §4, refusals measured this campaign).
 
 # [E2E-42/P2b] E41X9 -- the misroute row, in full, because a row that pins a FIXED bug must say
 # what the bug was or a reader will think it pins a language rule.
