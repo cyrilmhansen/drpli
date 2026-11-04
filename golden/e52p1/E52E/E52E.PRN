@@ -1,0 +1,39 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52E
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52E
+
+   1 a 0000 E52E:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-52/P1] NON-SHADOWED OUTER WRITE: only main declares o
+   4 a 0006      fixed dec(9,2); the nested procedure q stores o = 3. Compiles
+   5 a 0006      on MINE today (flat map contains o). The row tests the
+   6 a 0006      ACCUMULATION half of the fix: a prescan carrying only each
+   7 a 0006      procedures OWN rows would see no o inside q, miss the 5-byte
+   8 a 0006      target-precision cell, and shift every later DATA address.
+   9 a 0006      Predicted DR pool 5 + o cell 5, DATA 10. */
+  10 c 0006   dcl o fixed dec(9,2);
+  11 c 0006   call q;
+  12 c 0009   q: procedure;
+  13 e 0009      o = 3;
+  14 c 001D      end q;
+  15 a 001D end E52E;
+
+CODE SIZE = 0020
+DATA AREA = 000A
+FREE SYMS = 38B2
+END  COMPILATION
+

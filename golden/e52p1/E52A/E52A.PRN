@@ -1,0 +1,42 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52A
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52A
+
+   1 a 0000 E52A:
+   2 a 0006   procedure options(main);
+   3 a 0006   /* [E2E-52/P1] CONTROL, SAME-TYPE HOMONYM: outer and inner i both
+   4 a 0006      fixed dec(4,2), both store the literal 3. Compiles on MINE
+   5 a 0006      today (no kind clash). DR must accept by [C187] N6 (distinct
+   6 a 0006      cells). The open question is POOL DEDUP ACROSS SCOPES: both
+   7 a 0006      stores have the SAME 3-byte packed image, so an image-keyed
+   8 a 0006      pool shared program-wide gives ONE 3-byte cell (predicted DATA
+   9 a 0006      3 pool + 3 + 3 vars = 9); a per-scope or name-keyed pool gives
+  10 a 0006      two cells (12). H4-vs-H1. */
+  11 c 0006   dcl i fixed dec(4,2);
+  12 c 0006   i = 3;
+  13 c 0016   call q;
+  14 c 0019   q: procedure;
+  15 e 0019      dcl i fixed dec(4,2);
+  16 e 001C      i = 3;
+  17 c 002D      end q;
+  18 a 002D end E52A;
+
+CODE SIZE = 0030
+DATA AREA = 0009
+FREE SYMS = 38A9
+END  COMPILATION
+
