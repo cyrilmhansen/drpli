@@ -178,3 +178,117 @@ messages move — record verbatim); COVERAGE `IO.PUT_EDIT` row (line 65) updated
 DISCREPANCY is verified (it cites IFACT/LOAN1 as picture witnesses — LOAN1 has NO edit
 statement; check what N12_EMPTYFIX/IFACT actually hold before touching the row); claim C360
 derived ONLY from the §2 bytes.
+
+## Subround P3-3 — picture `02` record decode (operands b1/b2; LOAN2 fmt_spec catch)
+
+### 1. Measured blocker (verbatim, at HEAD after P3-2; census/`## Blockers` record)
+
+`codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture,
+remote and rep-group formats are not decoded)` — the `fmt_spec` catch-all
+(`ocaml/lib/codegen.ml:2861`), NO line number; reached for LOAN2 stmt 115's
+`p'99/99'` from BOTH the prescan and lowering (they share `fmt_table_bytes`).
+CLASSIFICATION **my-gap**: DR compiles LOAN2 and every picture shape below.
+
+### 2. The DR bytes (ALL from EXISTING goldens; measured at d9b0a2c; `tools/reldump.py`; re-dumps in ignored build/e52p3/{ANNUITY,DEPREC}-golden-reldump.txt; goldens untouched)
+
+Record shape `02 b1 b2 len UPPER(text)` — 13 instances / 12 distinct texts:
+
+| text | len | b1 | b2 |
+|---|---|---|---|
+| `99/99` (LOAN2 116) | 05 | 04 | 00 |
+| `99` (LOAN2 179) | 02 | 02 | 00 |
+| `b99v.99` (195) | 07 | 04 | 02 |
+| `$zzz,zz9.v99` (150) | 0C | 08 | 02 |
+| `$zz,zzz,zz9v.99` (149) | 0F | 0A | 02 |
+| `$$$,$$$,$$9V.99` (179) | 0F | 0A | 02 |
+| `$$$,$$$,$$$V.99` (ANNUITY 56) | 0F | 0A | 02 |
+| `$$,$$$,$$$V.99` (ANNUITY 66) | 0E | 09 | 02 |
+| `ZZZ9` (ANNUITY 78) | 04 | 04 | 00 |
+| `B$$,$$$,$$9.V99` (DEPREC 232) | 0F | 09 | 02 |
+| `B99` (DEPREC 233) | 03 | 02 | 00 |
+| `$Z,ZZZ,ZZ9V.99` (DEPREC 253/282, TWO tables) | 0E | 09 | 02 |
+
+- **len** = text character count (12/12); lowercase sources stored UPPERCASED (5x).
+- **b1 FALSIFIED as count{9,Z}** by the three multi-`$` rows (e.g. `$$$,$$$,$$$V.99`:
+  digits=2, measured 0A). Surviving rules, both fitting 12/12:
+  **HA2** = count{9,Z,$} − (1 if any `$`); **HB8** = count{9,Z} + count of `$` NOT at
+  index 0. They AGREE on all existing data and DISAGREE only on non-leading `$` —
+  E52PF (`p'9$9'`: HA2→02, HB8→03) SETTLES.
+- **b2** candidates indistinguishable on existing data: **HC** = digits {9,Z} after the
+  LAST designator {.,V}; **HD** = count{V,.}. Discriminators E52PK (`p'9V.9'`: HC→01,
+  HD→02) and E52PL (`p'99V.999'`: HC→03, HD→02). E52PJ (`p'9.9'`: HC=HD=01; b2=00 would
+  prove the COMMA is also a designator — third falsifier).
+- **Item preparation is FORMAT-INDEPENDENT** (LOAN2 195 span 0895-08CE): a DEC var under
+  a picture-carrying list carries the SAME `MVI A,p / ?DLDOP / MVI A,p+3 / MVI B,s /
+  ?QDCOP / ?EDTOV` law (p=4 for dec(4,2)); literals `MVI A,len/?SLCTS/?EDTOV`; the arm
+  adds RECORD BYTES ONLY, no item-code change.
+
+### 3. Probes (E52PA..E52PO; CRLF + bare ^Z, ≤71 cols; generator kept at ignored build/e52p3/mkprobes.py; ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PA..E52PO --tag e52p3 --switches '$L$D'`; tag VERIFIED unused; names collision-grepped clean in probes/ and spec/INVENTORY.txt)
+
+Per-probe PREDICTED format-table bytes (hex; `a`=`03 FF` per P086J; predictions state the
+MEASURED-law options explicitly where a hypothesis is unsettled):
+
+| Probe | Route / data / format | Predicted table |
+|---|---|---|
+| E52PA | file skip; `'\|',100*m+y`; `a,p'99/99'` (EXACT 115 mirror) | `80 00 03 FF 02 04 00 05 39 39 2F 39 39 81` (14 B) — EVIDENCE ONLY: PInum item NOT armed at P3-3; PA bytes NEVER claimed (P3-4) |
+| E52PB | console; same items; `a,p'9'` | `80 00 03 FF 02 01 00 01 39 81` (10 B) |
+| E52PC | `a,p'999'` | `80 00 03 FF 02 03 00 03 39 39 39 81` (12 B) |
+| E52PD | `a,p'zz9'` | `80 00 03 FF 02 03 00 03 5A 5A 39 81` (12 B; uppercase storage re-check) |
+| E52PE | `a,p'$$9'` | `80 00 03 FF 02 02 00 03 24 24 39 81` (12 B; HA2=HB8=02; digits-only rule would give 01) |
+| E52PF | `a,p'9$9'` | HA2: `80 00 03 FF 02 02 00 03 39 24 39 81`; HB8 variant: b1=03 — SETTLES b1 |
+| E52PG | `a,p'9',p'99'` (two pictures) | `80 00 03 FF 02 01 00 01 39 02 02 00 02 39 39 81` (16 B; consecutive 02 packing) |
+| E52PH | `a,p'$$$,$$$,$$9V.99'` (control) | `80 00 03 FF 02 0A 02 0F 24 24 24 2C 24 24 24 2C 24 24 39 56 2E 39 39 81` (24 B; reproduces LOAN2-179 record isolated) |
+| E52PI | console; `d` alone; `p'99V.99'` (scale match) | `80 00 02 04 02 06 39 39 56 2E 39 39 81` (12 B) — ARMABLE |
+| E52PJ | `p'9.9'` (scale-mismatch risk) | `80 00 02 02 01 03 39 2E 39 81` (10 B); b2=00 falsifier = comma-as-designator; dr-refuse on scale is ACCEPTABLE data |
+| E52PK | `p'9V.9'` (HC/HD decider) | `80 00 02 02 [01 HC \| 02 HD] 04 39 56 2E 39 81` (11 B) |
+| E52PL | `p'99V.999'` (HC/HD decider) | `80 00 02 05 [03 HC \| 02 HD] 07 39 39 56 2E 39 39 39 81` (14 B) |
+| E52PM | console picture-ONLY first record `p'9V.99'` | `80 00 02 03 02 05 39 56 2E 39 39 81` (12 B; 02 flush against header) — ARMABLE |
+| E52PN | FILE picture-only `edit(d)(p'9V.99')` | same 12 B table; attach 0652/?SIOOP, NO skip — ARMABLE |
+| E52PO | FILE skip mirror of 115 with `d` for the expression: `('\|',d)(a,p'9V.99')` | `80 00 03 FF 02 03 02 05 39 56 2E 39 39 81` (14 B) — ARMABLE |
+
+DEC item law predicted in code for PI..PO items: `LXI H,*S(table) / ?EDITF /
+LXI H,d / MVI A,04 / ?DLDOP / MVI A,07 / MVI B,02 / ?QDCOP / ?EDTOV / ?QIOOP`
+(p=4, p+3=7, s=2 — [C360] law); file probes attach `LXI D,0652/?SIOOP`, PO additionally
+`MVI A,01/?SKPOP` (E46N1 bare-skip law); console probes have NO attach.
+
+### 4. Arm (after measurement; `ocaml/lib/codegen.ml` ONLY)
+
+ONE new `fmt_spec` branch `Ast.Pi_pic s -> 0x02 :: b1 :: b2 :: len :: UPPER(text)`, with:
+- b1/b2 computed by the rules MEASURED at PF/PK/PL (pre-registered intent: HA2/HB8 → use
+  the settling value; HC/HD → use the settling value);
+- GUARD: any picture char outside {9,Z,$,V,.,B,comma,slash} RAISES BY NAME (unsampled
+  picture character); non-leading `$` armed ONLY if E52PF measures it accepted;
+- the existing catch-alls (counted SKIP/PAGE, other operators, grouped/rep/remote) stay.
+
+### 5. Boundaries KEPT (refuse BY NAME; NOT licensed by any P3-3 measurement)
+
+rep-groups `80 n … 81` and grouped `2(...)`; `x(w)` `0B` (decoded, not armed); remote
+formats; counted SKIP/PAGE; DATA rep-groups; DEC FORMAL (deref) items; fixed-bin
+EXPRESSION items on the FILE EDIT route (PA stays evidence); FLOAT/bit/member items;
+picture characters outside the measured set; every E46N21/E46N10/P086* law untouched.
+
+### 6. Predictions (pre-registered BEFORE any ocaml/ byte)
+
+P1. Oracle campaign: all 15 probes classified; expected ACCEPTED (`.PRN NO ERROR(S)` both
+    passes) EXCEPT possibly E52PJ/PK/PL scale-mismatch `dr-refuses` — classified as
+    measured DR scale law; a SECOND bounded batch is allowed iff PH/PL die on scale AND
+    HC-vs-HD stays undecided (pre-registered exception).
+P2. E52PF settles b1 (HA2 → 02; HB8 → 03); E52PK/PL settle b2 (HC vs HD); E52PD re-proves
+    uppercase storage; E52PG proves plain record concatenation with no inter-record padding.
+P3. Arm: `dune build` rc=0, warning profile IDENTICAL to `build/e52p3/arm-build-warnings.log`
+    histogram method; every predicted table byte in §3 realized for the ACCEPTED probes.
+P4. Zero-drift sweep: E46N 19/19, E52A..J 10/10, E51A..L 12/12, R10 bank 34/34, P086J/P086K
+    cmp rc=0; boundary markers E46K4/E46K15/E46N21 intact rc=2.
+P5. Whole-file cmp rc=0 vs NEW goldens for every armable ACCEPTED probe (candidates PI,
+    PM, PN, PO; PJ/PK/PL join iff accepted AND items armed); PA/PB..PH NOT cmp-predicted
+    (bin-expression item class stays refused → rc=2 BY NAME, message names the class).
+P6. LOAN2 rerun VERBATIM: the SAME fmt_spec catch-all text must fire EARLIER-or-the-same;
+    predicted next stop = the rep-group at stmts 147/149 (`2(2(...))` in the P086K-era
+    decode) reached via the prescan order — i.e. the message stays VERBATIM identical
+    (static string, still listing "picture" even though pictures arm now — a message-quality
+    my-gap, recorded, never fitted); NEVER claimed exact.
+P7. Registration: SPECIMENS += every new probe whose whole-file cmp is rc=0 (measured set);
+    `--update-inventory` +N lines EXACTLY; FULL gate rc=0 to build/gate-e52p3c-reg.log;
+    census via own write path; claim **C361** from MEASURED bytes ONLY, committed BEFORE
+    the COVERAGE rewrite of `IO.PUT_EDIT` (cite-resolution lesson); coverage_check rc=0;
+    prose rc=0.

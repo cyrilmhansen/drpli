@@ -1,0 +1,9 @@
+E52PA: procedure options(main);
+   /* E52PA (EXACT LOAN2 stmt 115 mirror; EVIDENCE ONLY: the
+      fixed-bin expression item stays refused on MINE at P3-3;
+      PA bytes are NEVER claimed this subround (P3-4 owns it)) */
+   dcl f file, m fixed binary, y fixed binary;
+   m = 1; y = 2;
+   put file(f) skip edit('|',100*m+y)(a,p'99/99');
+end E52PA;
+

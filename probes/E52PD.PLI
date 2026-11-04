@@ -1,0 +1,10 @@
+E52PD: procedure options(main);
+   /* E52PD (picture operand p'zz9': lowercase source; expect
+      02 03 00 03 5A 5A 39 (uppercase storage re-check)) */
+   /* P3-3 scale-0 family: console EDIT, data = literal + fixed-bin
+      expression (P086K/LOAN2-115 law), format = a + picture; the
+      picture operand under test is the ONE varying element. */
+   dcl m fixed binary, y fixed binary;
+   put edit('|',100*m+y)(a,p'zz9');
+end E52PD;
+

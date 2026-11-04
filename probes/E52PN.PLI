@@ -1,0 +1,9 @@
+E52PN: procedure options(main);
+   /* E52PN (FILE route, picture-only format table; expect the same
+      12-byte table as E52PM) */
+   /* P3-3 file-route probes: f declared file, NO open (P086K
+      attaches without one, [C282]). */
+   dcl f file, d fixed decimal(4,2);
+   put file(f) edit(d)(p'9V.99');
+end E52PN;
+

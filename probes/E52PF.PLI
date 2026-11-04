@@ -1,0 +1,10 @@
+E52PF: procedure options(main);
+   /* E52PF (picture operand p'9$9': NON-LEADING $ discriminator;
+      HA2 predicts 02, HB8 predicts 03 -- settles b1) */
+   /* P3-3 scale-0 family: console EDIT, data = literal + fixed-bin
+      expression (P086K/LOAN2-115 law), format = a + picture; the
+      picture operand under test is the ONE varying element. */
+   dcl m fixed binary, y fixed binary;
+   put edit('|',100*m+y)(a,p'9$9');
+end E52PF;
+

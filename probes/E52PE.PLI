@@ -1,0 +1,10 @@
+E52PE: procedure options(main);
+   /* E52PE (picture operand p'$$9': leading-$ family; HA2=HB8=02;
+      falsifies the digits-only rule (would give 01)) */
+   /* P3-3 scale-0 family: console EDIT, data = literal + fixed-bin
+      expression (P086K/LOAN2-115 law), format = a + picture; the
+      picture operand under test is the ONE varying element. */
+   dcl m fixed binary, y fixed binary;
+   put edit('|',100*m+y)(a,p'$$9');
+end E52PE;
+

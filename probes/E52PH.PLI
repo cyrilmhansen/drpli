@@ -1,0 +1,10 @@
+E52PH: procedure options(main);
+   /* E52PH (control p'$$$,$$$,$$9V.99': reproduce the LOAN2-179
+      record 02 0A 02 0F in isolation) */
+   /* P3-3 scale-0 family: console EDIT, data = literal + fixed-bin
+      expression (P086K/LOAN2-115 law), format = a + picture; the
+      picture operand under test is the ONE varying element. */
+   dcl m fixed binary, y fixed binary;
+   put edit('|',100*m+y)(a,p'$$$,$$$,$$9V.99');
+end E52PH;
+

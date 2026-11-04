@@ -1,0 +1,9 @@
+E52PB: procedure options(main);
+   /* E52PB (picture operand p'9': expect 02 01 00 01 39) */
+   /* P3-3 scale-0 family: console EDIT, data = literal + fixed-bin
+      expression (P086K/LOAN2-115 law), format = a + picture; the
+      picture operand under test is the ONE varying element. */
+   dcl m fixed binary, y fixed binary;
+   put edit('|',100*m+y)(a,p'9');
+end E52PB;
+

@@ -1,0 +1,9 @@
+E52PM: procedure options(main);
+   /* E52PM (picture record FLUSH against the 80 00 header (no a
+      record); expect 80 00 02 03 02 05 ... 81) */
+   /* P3-3 decimal family: d fixed decimal(4,2) mirrors LOAN2's yi;
+      the picture operand under test is the ONE varying element. */
+   dcl d fixed decimal(4,2);
+   put edit(d)(p'9V.99');
+end E52PM;
+

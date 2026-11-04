@@ -1,0 +1,11 @@
+E52PO: procedure options(main);
+   /* E52PO (FILE route armable mirror of 115 with the DEC VAR in
+      place of the expression; expect 80 00 03 FF 02 03 02 05
+      39 56 2E 39 39 81) */
+   /* P3-3 file-route probes: f declared file, NO open (P086K
+      attaches without one, [C282]). */
+   dcl f file, d fixed decimal(4,2);
+   d = 1.5;
+   put file(f) skip edit('|',d)(a,p'9V.99');
+end E52PO;
+

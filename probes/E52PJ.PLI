@@ -1,0 +1,10 @@
+E52PJ: procedure options(main);
+   /* E52PJ (picture operand p'9.9': b2 discriminator vs comma;
+      HC=HD=01; IF b2=00 the COMMA is a designator; scale
+      mismatch vs d(4,2) may refuse (classified either way)) */
+   /* P3-3 decimal family: d fixed decimal(4,2) mirrors LOAN2's yi;
+      the picture operand under test is the ONE varying element. */
+   dcl d fixed decimal(4,2);
+   put edit(d)(p'9.9');
+end E52PJ;
+

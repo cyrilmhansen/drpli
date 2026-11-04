@@ -1,0 +1,9 @@
+E52PI: procedure options(main);
+   /* E52PI (picture-only console table with scale-matched d:
+      expect 80 00 02 04 02 06 39 39 56 2E 39 39 81) */
+   /* P3-3 decimal family: d fixed decimal(4,2) mirrors LOAN2's yi;
+      the picture operand under test is the ONE varying element. */
+   dcl d fixed decimal(4,2);
+   put edit(d)(p'99V.99');
+end E52PI;
+

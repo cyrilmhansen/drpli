@@ -1,0 +1,9 @@
+E52PK: procedure options(main);
+   /* E52PK (picture operand p'9V.9': HC-vs-HD discriminator;
+      HC predicts b2=01, HD predicts b2=02) */
+   /* P3-3 decimal family: d fixed decimal(4,2) mirrors LOAN2's yi;
+      the picture operand under test is the ONE varying element. */
+   dcl d fixed decimal(4,2);
+   put edit(d)(p'9V.9');
+end E52PK;
+

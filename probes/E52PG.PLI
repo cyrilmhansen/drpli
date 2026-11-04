@@ -1,0 +1,10 @@
+E52PG: procedure options(main);
+   /* E52PG (two pictures beside a: packing of consecutive 02
+      records (expect 80 00 03 FF 02..01..39 02..02..39 39 81)) */
+   /* P3-3 scale-0 family: console EDIT, data = literal + fixed-bin
+      expression (P086K/LOAN2-115 law), format = a + picture; the
+      picture operand under test is the ONE varying element. */
+   dcl m fixed binary, y fixed binary;
+   put edit('|',100*m+y)(a,p'9',p'99');
+end E52PG;
+
