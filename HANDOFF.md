@@ -1085,33 +1085,36 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 261
-checkpoint-id: g261-773f8d9d4d81
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4318, session 01a1a68d-ab16-7250-8e94-7a385782d860)
-checkpointed: 2026-11-04T12:59:38.989Z
+checkpoint-generation: 262
+checkpoint-id: g262-711bbe743acb
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~2590, session 01a1a68d-ab16-7250-8e94-7a385782d860)
+checkpointed: 2026-11-04T13:00:12.233Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: d844d3ff1b0b7160d9f5c9d5e621e10ad2f7f3a568cfe6f435c9f294beedb469
-source-handoff: c8d79016af8a0ed77d5d68432e828f899ce5bb8aba346e2a48a2472d81474faa
+source-handoff: b57c7b383a42ea5a6a84964521625f52b0d8fb6f748383c4bb58ec7f268f40a7
 source-learnings: 44c2d79973dbc257e914f67bb95abfc543eb5deeb57c566cce92da0b70bcfd7d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a68d-ab16-7250-8e94-7a385782d860
+readiness-at: 2026-11-04T13:00:12.244Z
+readiness-checkpoint: g262-711bbe743acb
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: E2E-52/P1 hop 3: execute PROGRESS.md → Next action → "E2E-52/P1 IN FLIGHT" exactly. Pre-registration committed d1fbc16 BEFORE any DR call (probes/E52A..J + PLAN/HYPOTHESES/mkprobes/BASELINE-MINE; golden/e52p1 absent). Run the ONE grouped oracle campaign --tag e52p1 (never --reuse), inspect .PRNs/.RELs, write RESULTS.md, commit goldens+RESULTS together; then the evidence-gated scope-aware Sproc pd_vars accumulation per PLAN §4 (keep A/E/F/J byte-identical, [C179] invariant); LOAN2 rerun UNMODIFIED; gate (expect 1186/0,181,9,136); registration C356+ (claims ONLY from RESULTS §2; inventory before coverage; run all harness self-tests). STOP after P1; no push; preserve operator handoff.config.json.)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` → "E2E-52/P1 IN FLIGHT"** (author
-`spec/lab-evidence/e2e52-p1/` pre-registration + `probes/E52*.PLI` + BASELINE-MINE, COMMIT
-BEFORE the one grouped `--tag e52p1` oracle campaign; then RESULTS.md, scope-aware prescan per
-the measured evidence, LOAN2 rerun UNMODIFIED, gate, registration; STOP after P1). Constraints:
-no push; preserve operator `handoff.config.json`; goldens/ignored evidence never overwritten;
-ledger ends **C355**; do not expand to other LOAN2 blockers.
+` → "E2E-52/P1 IN FLIGHT"** (ONE grouped
+`--tag e52p1` oracle campaign; RESULTS.md + goldens committed TOGETHER; then the
+evidence-gated scope-aware prescan per PLAN §4; LOAN2 rerun UNMODIFIED; gate;
+registration from **C356**; STOP after P1). Constraints: no push; preserve operator
+`handoff.config.json`; goldens/ignored evidence never overwritten; ledger ends **C355**;
+do not expand to other LOAN2 blockers.
 
 **E2E-51/P2 CLOSED — operator-authorized functional follow-up (HAMM-00 rev2).** The P1
 hop-6 PROPOSED **DERIVATION fix** was executed under its own brief: in
@@ -1149,5 +1152,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P1 hop 2: execute PROGRESS.md → Next action → "E2E-52/P1 IN FLIGHT" exactly. Baseline measured at hop 1 (HEAD e15e325, LOAN2 rc=2 conflicting-kinds reproduced, DR LOAN2 golden exists). Author spec/lab-evidence/e2e52-p1 pre-registration (PLAN/HYPOTHESES/mkprobes + probes/E52*.PLI + BASELINE-MINE), commit BEFORE the single grouped oracle campaign (--tag e52p1, never --reuse), then RESULTS.md, then the scope-aware prescan (mirror lower_proc's inner-first st.vars accumulation in the prescan walk; consumers at codegen.ml:13438/3300), byte-exact E52 specimens, LOAN2 UNMODIFIED rerun, gate (expect 1186/0,181,9,136), registration C356+. Stop after P1; no push; preserve operator handoff.config.json.
+E2E-52/P1 hop 3: execute PROGRESS.md → Next action → "E2E-52/P1 IN FLIGHT" exactly. Pre-registration committed d1fbc16 BEFORE any DR call (probes/E52A..J + PLAN/HYPOTHESES/mkprobes/BASELINE-MINE; golden/e52p1 absent). Run the ONE grouped oracle campaign --tag e52p1 (never --reuse), inspect .PRNs/.RELs, write RESULTS.md, commit goldens+RESULTS together; then the evidence-gated scope-aware Sproc pd_vars accumulation per PLAN §4 (keep A/E/F/J byte-identical, [C179] invariant); LOAN2 rerun UNMODIFIED; gate (expect 1186/0,181,9,136); registration C356+ (claims ONLY from RESULTS §2; inventory before coverage; run all harness self-tests). STOP after P1; no push; preserve operator handoff.config.json.
 <!-- guard:end checkpoint -->
