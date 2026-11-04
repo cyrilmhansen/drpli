@@ -443,7 +443,43 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-2 PLAN §P3-2 LANDED (commit below); ARM A1-A5 OWED (2026-11-04; renewal 5/12; read `LEARNINGS.md` § "E2E-52/P3-2 evidence COMPLETE + PLAN §P3-2 LANDED" + `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 FIRST)
+### E2E-52/P3-2 ARM CONTRACT VERIFIED against the code (this session, renewal 5/12); IMPLEMENT A1-A5 NOW, then sweep/registrations (2026-11-04; read `LEARNINGS.md` § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" FIRST — it carries the exact golden byte lists, the parser-representation facts and the seven-point implementation contract (a)-(g); then `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 §3/§4/§5)
+
+Steps, all rc DIRECT (never a trailing pipeline):
+(1) `git rev-parse HEAD && git status --porcelain=v1` (only operator handoff.config.json may be
+ dirty); `cd ocaml && eval "$(opam env)" && dune build` rc=0, binary `34e8321a…`.
+(2) Implement LEARNINGS (a)-(g) in `ocaml/lib/codegen.ml` ONLY: `edit_match` record +
+ `match_put_edit` file arm (leading bare SKIP → `Sk_lit "1"`; counted/other control → raise BY
+ NAME); `match_get_edit` on the FLAT parser list; `edit_stmts`/`prealloc_fmt_tables` FIFO in
+ SOURCE order (put-table@0000 then get-table@0006); new `prescan_stmt` `Ast.Sget _` arm for the
+ GET table's pool bytes; `authorize_file_edit_item` (admit ONLY PIlit + PIvar-Vdec); DELETE the
+ `is_edit && file <> None` guard (11557) and the PIvar/Vdec `is_edit` refusal (~11797); NEW
+ `lower_get_file_edit` with `?EDTIV` as a name only. Build rc=0, warning profile IDENTICAL
+ (`build/e52p3/arm-build-warnings.log` is the P3-1 baseline).
+(3) Predictions (PLAN §5, pre-registered): `pli80c.exe probes/P086K.PLI` whole-file `cmp` rc=0
+ FIRST TRY vs `golden/probe55/P086K/P086K.REL` (512 B, CODE 0x62, DATA 0x12); SAME for P086J vs
+ `golden/probe55/P086J/P086J.REL` (256 B, CODE 0x3D, DATA 0x10). Zero-drift sweep: E46N 18/18,
+ R10xx console EDIT bank, E46K4/K15 boundary rows, E52A..J, E51A..L. Focused refusals rc=2
+ naming the class: picture / x(w) / rep-group / counted-SKIP+EDIT / PAGE+EDIT / numeric-literal
+ / DEC-formal / fixed-bin-expression-on-file-EDIT. **LOAN2 rerun must STILL refuse and its
+ ACTUAL message recorded VERBATIM** (LEARNINGS last bullet predicts the fmt_spec catch, which
+ carries no line number — record what the compiler actually prints, do not fit it).
+ E41X8 compiles rc=0 → retire REJECTS row (`tools/e2e_gate.py:2568`) + delete NEG_META (4021):
+ negatives 180→179.
+(4) Registration per PLAN §5 P6: SPECIMENS P086K+P086J (keep the golden paths), sanctioned
+ `--update-inventory` 1197→1199 EXACTLY TWO lines, FULL gate rc=0 1199/0 to
+ `build/gate-e52p3b-reg.log`; census re-snapshot via its OWN write path (record moved
+ LOAN2/COPYLPT messages verbatim); COVERAGE `IO.PUT_EDIT` row (line 65) updated ONLY after
+ verifying the MEASURED IFACT/LOAN1 discrepancy (LOAN1 has NO edit statement) +
+ `coverage_check.py` rc=0; claim **C360** derived ONLY from PLAN §2 / LEARNINGS measured bytes;
+ `file_prose_check.py` rc=0; explicit-path commits, no push.
+(5) Campaign CONTINUES past every blocker: next LOAN2 classes = picture `02`-record decode,
+ `x(w)` `0B` records, rep-groups, DEC-formal (deref) items, fixed-bin EXPRESSION items, then the
+ PRINT/PAGESIZE OPENs at 54/56 — each with its own PLAN section committed BEFORE its byte.
+Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc
+ DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (cap 12, 5/12 used).
+
+SUPERSEDED-BY-ABOVE (kept as written): ### E2E-52/P3-2 PLAN §P3-2 LANDED (commit below); ARM A1-A5 OWED (2026-11-04; renewal 5/12; read `LEARNINGS.md` § "E2E-52/P3-2 evidence COMPLETE + PLAN §P3-2 LANDED" + `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 FIRST)
 
 Exact next steps, all rc DIRECT:
 (1) `git rev-parse HEAD; git status --porcelain=v1` (only operator handoff.config.json may be

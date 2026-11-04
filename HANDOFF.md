@@ -7,6 +7,14 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-bis. **P3-2 ARM CONTRACT READY (2026-11-04, successor of g290, renewal 5/12 consumed at
+ this hop).** Zero `ocaml/` byte written; the arm is now specified to the instruction level in
+ `LEARNINGS.md` § "E2E-52/P3-2 arm DESIGN VERIFIED against the code" (exact golden byte lists
+ re-read from `build/e52p3/p086{j,k}-reldump.txt`, the parser's flat GET-EDIT item list, the
+ seven codegen-only edits (a)-(g), the two panel rows E41X8/E46K15 verified, and the predicted
+ LOAN2 message shape). SUCCESSOR: execute `PROGRESS.md` → `## Next action` steps (1)-(5); read
+ that LEARNINGS § then PLAN §P3-2 §3/§4/§5.
+
 0a. **P3-2 STATUS THIS SESSION (2026-11-04, successor of g287):** evidence steps (1)-(2) DONE,
 **PLAN §P3-2 COMMITTED BEFORE any ocaml/ byte**; ZERO compiler edits. New witness P086J.REL
 (console DEC edit) FALSIFIES both "no DR sample passes a DEC item through an edit list" refusals;

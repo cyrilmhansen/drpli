@@ -142,6 +142,86 @@ The guard never writes this file.
 - Rebuild note: `dune build` rc=0 at session start; NO compiler run was part of this hop's
   evidence (all bytes from existing goldens via reldump).
 
+## E2E-52/P3-2 arm DESIGN VERIFIED against the code (session 01a1a7fc, renewal 5/12); ZERO ocaml/ byte written — implementation mechanics MEASURED from sources + reldumps, OWED
+
+- **ACCEPTED (recovery).** HEAD `7fd9c61` (g290 managed block; evidence+PLAN at `10c2a9f`);
+  tree clean except operator `handoff.config.json`; `dune build` rc=0, binary
+  `34e8321a9d0e04c9…` (identical to P3-1 arm / PLAN-era). Goldens `golden/probe55/P086J/
+P086J.REL` (256 B) and `golden/probe55/P086K/P086K.REL` (512 B) exist and are untouched
+  (added by `e7d2028`, battery-2); `probes/P086J.PLI` + `probes/P086K.PLI` exist verbatim as
+  PLAN §2 quotes them.
+- **ACCEPTED (exact golden byte lists, read from `build/e52p3/p086{k,j}-reldump.txt` this
+  session — they CONFIRM PLAN §2 and add the record-level detail the arm must hit).**
+  P086K PUT 0016-003C: `21`+SEL-COMMON F+RELOC common 0 / `11 52 06` / `01 00 00`(patched
+  003D) / CD ?SIOOP / `21`+RELOC data 0000 / CD ?EDITF / `21`+RELOC data 000F / `3E 05` /
+  CD ?DLDOP / `3E 08` / `06 02` / CD ?QDCOP / CD ?EDTOV / CD ?QIOOP. P086K GET 003D-0061:
+  `21`+RELOC common 0 **with NO second SEL-COMMON** (st.cur_common law already holds) /
+  `11 90 06` / `01 00 00`(patched 0062) / CD ?SIOOP / `21`+RELOC data 0006 / CD ?EDITF /
+  **CD ?EDTIV** / `06 02` / CD ?QCDOP / `21`+RELOC data 000F / `3E 05` / CD ?DSTOP /
+  CD ?QIOOP — NO ?GNVOP, NO JP anywhere on the GET EDIT item chain. Pool: tables @0000/@0006
+  (6 B each), DEC literal `50 01 00`@000C, d cell 000F, DATA 0012, COMMON F size 0023 with
+  trailing `01 46` (name length + `F`) — COMMON/FCB emission runs off `statics.sy_files`
+  (codegen.ml 13965) for a DECLARED file with **NO open**, so A5 needs no new machinery.
+  P086J 0016-0038: console prologue `11 52 02`+LXI B+?SYSPR, `21`+RELOC data 0000/?EDITF,
+  item `21`+RELOC data 000C (d's own cell) / `3E 07` / ?DLDOP / `3E 0A` / `06 02` / ?QDCOP /
+  ?EDTOV / ?QIOOP — i.e. deleting the Vdec `is_edit` refusal makes the EXISTING arm emit the
+  golden bytes; table `80 00 00 09 02 03 04 81` = f(w,d)=`00 w d`, a(w)=`03 w` (fmt_spec ✓).
+- **ACCEPTED (parser representation — decides the matcher shapes).** `parser.ml` 1077-1093:
+  PUT EDIT = `Sput {stream=None; on_opts; kind=Edit; items = ctl_items @ data @
+  [Pi_fmtlist f]}` (the format half IS wrapped). GET EDIT (1141-1143) = `Sget {...; kind=
+  Edit; items = ctl_items @ d @ f}` — **FLAT, no Pi_fmtlist**, so `match_get_edit` must split
+  the flat list itself: prefix of `Pi_data (Eident)` = items, non-empty suffix of `Pi_fmt` =
+  formats, any `Pi_ctl`/`Pi_pic`/`Pi_group`/`Pi_repgrp` or a `Pi_data` after a `Pi_fmt` ⇒
+  refuse (fall to the existing "GET form not in E2E-3e subset" catch). `Editsk` is NEVER
+  produced by the parser (dead constructor).
+- **PROPOSED (implementation contract, all `ocaml/lib/codegen.ml` only — nothing measured
+  here is a DR claim; every byte above is).**
+  (a) New `type edit_match = { ed_file : Ast.expr option; ed_skip : put_skip; ed_items :
+      pitem list; ed_specs : Ast.put_item list }`; `match_put_edit` returns `edit_match
+      option` (4 call sites: `edit_stmts` 2907, `prealloc_fmt_tables` 2926, `prescan_stmt`
+      3324, `lower_stmt` 12591). Console arm keeps `stream=None; on_opts=[]; kind=Edit`
+      → `ed_file=None, ed_skip=Sk_none`. NEW file arm `on_opts=[{io_key="FILE";
+      io_val=Some {e=Eident _;_}}]`: strip a leading `Pi_ctl ("SKIP",None)` → `Sk_lit "1"`
+      (the `match_skip_ctl` law); a leading `Pi_ctl ("SKIP",Some _)` → **raise BY NAME**
+      (counted SKIP+EDIT unmeasured — note the fmt_spec catch does NOT see control items in
+      the *statement-option* position, so a generic fall-through there would print the stale
+      "only PUT LIST is implemented" text); a leading `Pi_ctl (k,_)` else → raise naming k;
+      then the same `data`/`Pi_fmtlist` split.
+  (b) `match_get_edit` per the parser fact above; returns `(fe, names, specs)` option.
+  (c) `edit_stmts` must collect BOTH kinds (`Sget` when `match_get_edit <> None`) and
+      `prealloc_fmt_tables` must take specs from whichever matched — the fmtq FIFO is
+      SOURCE ORDER and P086K pins put-table@0000 BEFORE get-table@0006.
+  (d) `prescan_stmt`: add an `Ast.Sget _` arm returning `Array.length (fmt_table_bytes specs)`
+      for a matched GET EDIT (there is NO Sget arm today; GET items take no pool, but a GET
+      EDIT table does — missing it shifts every variable address, the known prescan failure
+      mode).
+  (e) NEW `authorize_file_edit_item st ln it`, called from the Sput file arm BEFORE any byte
+      (mirror of `authorize_file_item`'s discipline): admit ONLY `PIlit _` (LOAN2 115 item 1 +
+      stmt 199: `LXI H,*S(lit)/MVI A,len/?SLCTS/?EDTOV`) and `PIvar` whose `vk_of` is `Vdec`
+      (P086K/P086J); refuse everything else BY NAME — including `PInum` fixed-bin EXPRESSION
+      (pinned inside LOAN2's own golden 0544-0558 but not panel-isolable, PLAN §4),
+      `PIlit_dec`, members, bits, floats, char vars.
+  (f) `lower_put_items_gen`: DELETE the `is_edit && file <> None` guard (11557, premise
+      falsified) and DELETE the `PIvar`→`Vdec` `is_edit` refusal (~11797, premise falsified by
+      P086J); keep the PIlit_dec/Vflt/Vimem/Vbit1/PInum-dec-expr `is_edit` refusals untouched.
+  (g) NEW `lower_get_file_edit st fu tbl names`: `load_file_cb; LXI D,0690; LXI B,<cont>;
+      ?SIOOP; LXI H,*S(tbl); ?EDITF; call_ext "?EDTIV"; per name Vdec(p,s) → MVI B,s/?QCDOP/
+      LXI H,var/MVI A,p/?DSTOP`; ONE ?QIOOP; `emit_triple bslot`. Non-Vdec target or a deref
+      (formal) name → refuse BY NAME. `?EDTIV` is a name only — NO new encoder anywhere.
+- **ACCEPTED (panel facts the arm touches).** E41X8 REJECTS row is `tools/e2e_gate.py:2568`
+  (inline source, marker `"PUT EDIT deferred"`) + `NEG_META["E41X8"]` at 4021 (my-gap, quotes
+  P086K) → retire both on the E46K1/K3 convention (P5: negatives 180→179). Boundary rows that
+  MUST stay intact: `E46K4` marker "PUT EDIT of the internal CHARACTER member REC.LINE" (the
+  `imem_refuse` under `is_edit`) and `E46K15` marker "GET form not in E2E-3e subset" —
+  VERIFIED E46K15 is a **console** `get edit (line) (a);`, and `match_get_edit` requires a
+  FILE option, so it cannot be stolen by the new arm.
+- **ACCEPTED (LOAN2 post-arm refusal site prediction, sharper than P4's wording).** With the
+  file arm in `match_put_edit`, LOAN2:115 matches structurally and the picture is reached by
+  `fmt_spec`'s catch-all — raised **inside `prescan_stmt`** (which calls `fmt_table_bytes`),
+  so the ACTUAL message will be `codegen: PUT EDIT format item form unsampled [TBD] (counted,
+  grouped, picture, remote and rep-group formats are not decoded)` — this text carries NO line
+  number (unlike today's `(line 115)` blocker). Record VERBATIM; do not "fix" the message.
+
 ## E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT (2026-11-04; session 01a1a7bd; continuation of chain 01a1a795)
 
 - **ACCEPTED (P3-1 CLOSED and registered).** Full landing chain, every rc DIRECT:
