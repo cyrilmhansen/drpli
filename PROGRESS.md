@@ -349,7 +349,7 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P2 hop 2 OWED (2026-11-04; arm `d67a263` landed+gated; at HEAD after hop 1's durable commit; only operator `handoff.config.json` may be dirty)
+### E2E-52/P2 hop 2 OWED (2026-11-04; renewed 1/12 from checkpoint g274; arm `d67a263` landed+gated, durable commits `a365686`/`d67a263`/`c34c690`/`546c70a`+this; at HEAD only operator `handoff.config.json` may be dirty)
 
 Execute IN ORDER, all rc captured DIRECTLY (never trailing pipelines):
 (a) register E52G: add `"E52G": ("probes/E52G.PLI", "golden/e52p1/E52G/E52G.REL")` to
@@ -2013,16 +2013,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 273
-checkpoint-id: g273-75c60fb0d9da
+checkpoint-generation: 274
+checkpoint-id: g274-e92e6f97d322
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-04T16:42:33.643Z
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-04T16:43:10.773Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 30c24846a00e55e84ae3bb28a2a2da379b2ee50db45b2215e702564b4dc4f86b
-source-handoff: 5453ba79fac60ff007a84b57b93e38587c1df8a3ec7b377b7e3c501f58ab5b0a
+source-handoff: 12e17ea74d2ca6c49d69640a0fb31383fe267525e3ff1a14c866807a82bac80b
 source-learnings: c65867e9f3a2e486151bfcb7892eea0baa20b9f4b578a9aa8f6bc0e30985e052
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` -> "HOP 5 IN-FLIGHT ADDENDUM"
@@ -2085,6 +2085,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1a759-ab86-7057-855c-dfa9fdc758ac
+readiness-at: 2026-11-04T16:43:21.922Z
+readiness-checkpoint: g274-e92e6f97d322
 <!-- guard:end checkpoint -->
 
 ## Blockers
