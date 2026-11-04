@@ -1249,22 +1249,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 277
-checkpoint-id: g277-84b3a9bd8bce
-checkpoint-kind: auto
+checkpoint-generation: 278
+checkpoint-id: g278-92adb7e30f5f
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4842, session 01a1a795-8c87-7427-a642-9c3a8f208628)
-checkpointed: 2026-11-04T17:41:13.763Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-1254, session 01a1a795-8c87-7427-a642-9c3a8f208628)
+checkpointed: 2026-11-04T17:43:09.703Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 91626a731e670087841c6c622fabbd3d0ccdf17b6da9c2fcf95c049eb46a949b
-source-handoff: d0d98c782d0f8c7397f67cb24b204b3d900818302b697fcc6892236f26cdd1f3
+source-progress: 7f16a150626ca512bad13679f40f955257f771386041682e2ff03d1fccb505d8
+source-handoff: be93fc2c716e6956dc37701edc7376efaf0190cfc348433b08e84e7e27482bb6
 source-learnings: b2ad069e498ccbe5b9178a7f250f94cbf18278781bc1f514e75ea9aedc29edd0
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a795-8c87-7427-a642-9c3a8f208628
+readiness-at: 2026-11-04T17:43:09.715Z
+readiness-checkpoint: g278-92adb7e30f5f
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1332,5 +1335,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P2 CLOSED at hop 2. Landed: E52G registration dca9219 (SPECIMENS + INVENTORY 1195->1196 exactly ONE line + post-registration FULL gate REAL rc=0 DIRECT build/gate-e52p2-reg.log: 1196 byte-exact / 0 of 1196, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5); COVERAGE row PROC.DEC_FORMAL_COPYIN_CELLMAP -> SUPPORTED + EXACT:1 (validator vocabulary; brief's ->EXACT applied via SUPPORTED), coverage_check rc=0 139 rows 0/0, stats own write path, 90582a5; LOAN2 UNMODIFIED blocker VERBATIM UNCHANGED (bare PAGE line 99), nothing fixed; RESULTS 755bf1c; close prose bc7b420; prose standalone rc=0; ledger ENDS C358, no new claim. Successor WITHOUT an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state, STOP. Standing proposals shortlist in HANDOFF item 0; E52G-in-DIVERGENT proposal OBSOLETE. No push; goldens never re-derived; NEVER re-run the retry-DFS; all rc DIRECT.
+E2E-52/P3 campaign, subround P3-1. PLAN.md pre-registered and committed (b4deba0); durables 5c21f87/3848a6c at HEAD. Execute PROGRESS.md -> ## Next action -> "P3-1 IN FLIGHT" steps (b)-(f) exactly (edit list B1-B7 there; evidence in LEARNINGS.md section "E2E-52/P3 hop 1" and spec/lab-evidence/e2e52-p3/PLAN.md). Rebuild first (dune build rc=0), implement only ocaml/lib/codegen.ml, verify E46N10 cmp rc=0 vs golden, focused refusals, prereg gate 1196/0, register (SPECIMENS + retire REJECTS/NEG_META rows, --update-inventory 1196->1197, gate 1197/0, census re-snapshot via corpus_census.py --check write path, COVERAGE FILE.PUT_PAGE -> SUPPORTED/EXACT:1, claim C359 from measured bytes only), then CONTINUE the campaign: recompile LOAN2, capture next verbatim blocker (expected OPEN option PRINT lines 54/56), plan subround P3-2. No push; operator handoff.config.json never staged; all rc captured DIRECTLY; goldens never re-derived; renewals autonomous at safe boundaries; do not stop after PAGE.
 <!-- guard:end checkpoint -->
