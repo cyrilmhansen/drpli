@@ -1259,8 +1259,14 @@ SPECIMENS.update({
     "E46M32": ("probes/E46M32.PLI", "golden/e42p2b/E46M32/E46M32.REL"),
     # [E2E-42/P2c] THE NAMED-FILE SKIP.  Seventeen whole objects byte-identical to
     # golden/e42p2c/, each PREDICTED in spec/lab-evidence/e2e42-p2c/HYPOTHESES.md before DR was
-    # invoked, and every CODE/DATA size hit except E46N10's DATA -- which is a PAGE row, and PAGE
-    # stays REFUSED, so it is not registered here.
+    # invoked, and every CODE/DATA size hit except E46N10's DATA -- which was a PAGE row, and PAGE
+    # stayed REFUSED there, so it was not registered then.  [E2E-52/P3-1] the bare PAGE now
+    # LOWERS on E46N10's own bytes: Sk_page emitted between attach and close as a bare
+    # CALL ?PAGOP with NO count operand (E46N1's SKIP is 2 bytes LONGER: MVI A,01 + ?SKPOP);
+    # whole-file cmp rc=0 FIRST TRY, 384 B, CODE 0x3E=62, DATA 0x0A=10, sha 75557545 == golden.
+    # E46N10 is retired from REJECTS (with its NEG_META stamp, per the E46K1/K3 symmetry
+    # lesson) and registered below; the boundary refusals (counted PAGE, PAGE+items, non-leading
+    # PAGE, console PAGE, LINE) all still refuse BY NAME -- see spec/lab-evidence/e2e52-p3/.
     #
     #   E46N1  64/9   bare `put file(f) skip;' -- what E41X9 refused, and CREATE:41/45
     #   E46N2  75/10  `skip list('A')': the skip is BETWEEN attach and first chain; CREATE:44
@@ -1274,6 +1280,9 @@ SPECIMENS.update({
     #                 misroute is closed -- byte-exactness on E46N1 alone could not, because a
     #                 misrouted skip still has ?SKPOP in it.
     #   E46N9  64/9   `skip(2)' behind a stream-output attach: MVI A,02, same 20 bytes
+    #   E46N10 62/10  THE FILE PAGE, registered at [E2E-52/P3-1]: the 18-byte statement
+    #                 `LXI H,*C / LXI D,0652 / LXI B,*CODE / CALL ?SIOOP / CALL ?PAGOP /
+    #                 CALL ?QIOOP' -- ?PAGOP carries NO count operand (contrast ?SKPOP).
     #   E46N18 72/12  `skip(n)' with an EXPRESSION count: LHLD *D / MOV A,L / ?SKPOP = 22
     #   E46N11..E46N16  the six that EXECUTE (spec/RUNTIME.txt rows)
     #   E46N17 193/124  CREATE:39-45 spelled with a literal title -- the integration witness
@@ -1286,6 +1295,7 @@ SPECIMENS.update({
     "E46N7":  ("probes/E46N7.PLI",  "golden/e42p2c/E46N7/E46N7.REL"),
     "E46N8":  ("probes/E46N8.PLI",  "golden/e42p2c/E46N8/E46N8.REL"),
     "E46N9":  ("probes/E46N9.PLI",  "golden/e42p2c/E46N9/E46N9.REL"),
+    "E46N10": ("probes/E46N10.PLI", "golden/e42p2c/E46N10/E46N10.REL"),
     "E46N11": ("probes/E46N11.PLI", "golden/e42p2c/E46N11/E46N11.REL"),
     "E46N12": ("probes/E46N12.PLI", "golden/e42p2c/E46N12/E46N12.REL"),
     "E46N13": ("probes/E46N13.PLI", "golden/e42p2c/E46N13/E46N13.REL"),
@@ -4051,17 +4061,13 @@ NEG_META["E41X8"] = ("my-gap",
 #   (2) The four split across TWO compiler stages.  PAGE and LINE parse and die in codegen;
 #       AFTER and BEFORE never parse -- `PUT: expected LIST/EDIT/ITEM/FROM'.  A row that did not
 #       say which would send a reader looking for a missing lowering that cannot fix it.
-NEG_META["E46N10"] = ("my-gap",
-    "DR ACCEPTS it and the object is in golden/e42p2c/E46N10/: 62 code, 10 data, and the statement "
-    "is 18 bytes -- `LXI H,*C / LXI D,0652 / LXI B,*CODE / CALL ?SIOOP / CALL ?PAGOP / CALL ?QIOOP' "
-    "at 0023-0034.  It agrees with the model I pre-registered, so the SHAPE is not in question; "
-    "what is missing is a specimen of MINE, because `?PAGOP' is emitted nowhere in this compiler "
-    "and no DR object in golden/ carries it except this probe and COPYLPT:53.  This is the only "
-    "P2c shape that is a my-gap rather than a DR-side refusal, and it is why the bare-control arm "
-    "refuses PAGE with its own message instead of falling through to the item message: PAGE never "
-    "reaches item authorization at all, so an item-level text would describe a stage the "
-    "statement never got to.  COPYLPT's census line moved from the generic control-item refusal to "
-    "this one, which is the same blocker named correctly.")
+# [E2E-52/P3-1] RETIRED WITH THE REJECTS ROW (symmetry).  The stamp above it stands as
+# written history: it named DR's bytes correctly and named MY missing emission correctly
+# (`?PAGOP' is emitted nowhere in this compiler' -- no longer true; the Sk_page arm of
+# lower_put_items_gen emits it on the file route, and E46N10 is a byte-exact SPECIMEN).
+# The my-gap it recorded is CLOSED; the refusals it does NOT cover -- counted PAGE,
+# PAGE+items, non-leading PAGE, console PAGE (N3_PAGE), LINE (E46N21) -- all still refuse
+# BY NAME exactly as pre-registered in spec/lab-evidence/e2e52-p3/PLAN.md S3.
 
 NEG_META["E46N21"] = ("dr-refuses",
     "DR REFUSES it in pass 2 -- `12 c put file(outf) line(2) list('A');' / `SYNTAX ?' / "
@@ -4473,9 +4479,13 @@ REJECTS.update({
     # E46N22 and E46N23 never parse at all.  A reader who conflates them will look for a lowering
     # gap where there is a grammar gap, and vice versa.
     #
-    # E46N10 is DR-ACCEPTED and MINE-refuses -- a my-gap, the only one P2c leaves open.
-    "E46N10": (open("probes/E46N10.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
-               "bare PAGE control item [TBD] (line 11)"),
+    # [E2E-52/P3-1] E46N10 IS NO LONGER A REFUSAL ROW.  It was, as the note kept as written
+    # above says: "DR-ACCEPTED and MINE-refuses -- a my-gap, the only one P2c leaves open",
+    # pinning the marker `bare PAGE control item [TBD] (line 11)'.  The P3-1 arm retired it:
+    # probes/E46N10.PLI now compiles whole-file BYTE-IDENTICAL to golden/e42p2c/E46N10/
+    # E46N10.REL (cmp rc=0 first try, 384 B), and the row above the SPECIMENS block carries
+    # it.  REJECTS and NEG_META were moved TOGETHER -- leaving either alone trips the
+    # panel's own symmetry audit (registration_audit, E2E-16).
     # E46N21 is DR-REFUSED (`SYNTAX ?' in pass 2, no object) AND mine-refuses, at the codegen stage.
     # Its marker names position 1 although SKIP-style consumption happens first: LINE is not a
     # leading-skip candidate, so it stays item 1 of the ORIGINAL list.

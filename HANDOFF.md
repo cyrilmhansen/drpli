@@ -7,25 +7,30 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
-0. **E2E-52/P3 IN FLIGHT (2026-11-04; operator brief: LOAN2 progressive closure — extended
-multi-subround campaign; do NOT stop after one fix; renewals autonomous at safe
-boundaries).** Hop 1 LANDED: baseline verified (HEAD `6c44d8d`, compiler `85bf7a26…`,
-LOAN2 blocker verbatim `PUT FILE bare PAGE [TBD] (line 99)`, root cause = the E52/P1
-PRESCAN raises matcher refusals before lowering, masking the OPEN-PRINT stops at 54/56);
-durables `5c21f87`; **P3-1 step (a) DONE: `spec/lab-evidence/e2e52-p3/PLAN.md`
-pre-registered and committed `b4deba0` BEFORE any compiler byte — predictions: E46N10
-whole-file cmp rc=0 first try (CODE 62/DATA 10, bytes 0023-0034 with `?PAGOP`
-LINK-CHAIN-EXT at 0030, continuation `0035`), 1196/0 pre-reg gate, boundaries kept
-(counted PAGE, PAGE+items, non-leading, console PAGE, LINE all still refuse; E46N21 and
-N3_PAGE markers byte-pinned), census COPYLPT/LOAN2 lines predicted to MOVE (record
-ACTUAL), `--update-inventory` 1196→1197.** **SUCCESSOR: execute `PROGRESS.md` → `## Next
-action` → "P3-1 IN FLIGHT" steps (b)-(f) EXACTLY (edit list B1-B7 is there and in
-`LEARNINGS.md` § "E2E-52/P3 hop 1"), then CONTINUE the campaign: recompile LOAN2, next
-verbatim blocker expected OPEN option PRINT (lines 54/56) → subround P3-2. Constraints:
-no push; goldens never re-derived; operator `handoff.config.json` never staged; all rc
-DIRECT; ledger ends C358 (new claim C359 only AT registration, from measured bytes
-only); never hardcode LOAN2.** Item 0 below (P2 CLOSED, successor STOPs) kept as
-written but SUPERSEDED by this brief.
+0. **E2E-52/P3 CAMPAIGN IN FLIGHT (2026-11-04; operator brief: LOAN2 progressive closure;
+ renewals autonomous at safe boundaries; do NOT stop after PAGE).** P3-1 **ARM LANDED
+ `adb749c`** (codegen.ml only; B1-B7 executed; binary `34e8321a…`; warning profile IDENTICAL
+to baseline). MEASURED: E46N10 whole-file cmp rc=0 FIRST TRY (384 B, sha `75557545…` ==
+golden; ?PAGOP@0030 no count, continuation 0035 — exactly PLAN §2); E46N sweep 18/18;
+ALL boundaries still refuse (counted PAGE, PAGE+items BY NAME, console PAGE/N3_PAGE, E46N21
+marker intact; non-leading PAGE refuses at the PARSER — stage falsified, boundary kept).
+**LOAN2 ADVANCED past 99: ACTUAL verbatim `codegen: PUT EDIT deferred [TBD] (line 115; only
+PUT LIST is implemented; format/picture editing needs the ?EDITF/?EDTOV/?QDDSL route family)`
+rc=2** — OPEN PRINT 54/56 stays queued BEHIND it (prescan order; the specific OPEN-PRINT
+expectation was FALSIFIED by stage, direction prediction held). Census re-snapshotted via its
+own write path rc=0, counts UNCHANGED 15/0/26/0. UNCOMMITTED IN TREE: `tools/e2e_gate.py`
+(E46N10 retired from REJECTS+NEG_META as written history, added to SPECIMENS) and
+`spec/census/*` — commit explicit paths FIRST. **SUCCESSOR: execute `LEARNINGS.md` § "P3-1
+ARM LANDED + registration IN FLIGHT" owed steps (1)-(7) EXACTLY** (--update-inventory
+1196→1197 diff ONE line; reg gate rc=0 1197/0 to build/gate-e52p3-reg.log; COVERAGE
+FILE.PUT_PAGE→SUPPORTED/EXACT:1 + coverage_check rc=0; claim C359 from MEASURED bytes only;
+RESULTS.md + PLAN §5 table row; commits) then CONTINUE: subround **P3-2 = PUT EDIT
+(LOAN2:115)** — start `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 (extract LOAN2:115 verbatim,
+read `match_put_edit` + E2E-8 `put_kind_str` refusal, search golden/e2e11 evidence) BEFORE
+any compiler byte. Prereg-gate rc=0 expectation itself FALSIFIED/measured (gate at arm =
+rc=1, `build/gate-e52p3-prereg.log`). Constraints: no push; goldens never re-derived;
+operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renew at
+safe boundaries; item 1 below kept as written but SUPERSEDED by this brief.
 1. **(Was item 0; kept as written)** **E2E-52/P2 CLOSED (2026-11-04; operator brief: DEC formal copy-in, E52G
 byte-exact closure; hop 2 registration session; chain `a365686` plan / `d67a263` arm /
 `c34c690`+`546c70a` hop-1 durables / `01bf2df` renewal / `dca9219` registration /
@@ -1249,25 +1254,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 278
-checkpoint-id: g278-92adb7e30f5f
-checkpoint-kind: manual
+checkpoint-generation: 280
+checkpoint-id: g280-da12fd08cb80
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~-1254, session 01a1a795-8c87-7427-a642-9c3a8f208628)
-checkpointed: 2026-11-04T17:43:09.703Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3732, session 01a1a7a8-c699-7427-a642-9c3e44e4aad8)
+checkpointed: 2026-11-04T18:04:36.415Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7f16a150626ca512bad13679f40f955257f771386041682e2ff03d1fccb505d8
 source-handoff: be93fc2c716e6956dc37701edc7376efaf0190cfc348433b08e84e7e27482bb6
-source-learnings: b2ad069e498ccbe5b9178a7f250f94cbf18278781bc1f514e75ea9aedc29edd0
+source-learnings: 8f6ae9bbe94acb21a1fee5fe235425d8210a6f20986ca142fdb72ef7490b9e6f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a795-8c87-7427-a642-9c3a8f208628
-readiness-at: 2026-11-04T17:43:09.715Z
-readiness-checkpoint: g278-92adb7e30f5f
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

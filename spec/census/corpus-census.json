@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "1cc2b674c941558b8d3655c1e243ea21",
+ "binary_md5": "b177f1104df7709988549a4c7696899c",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,15 +15,11 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-04T15:31:14",
+ "generated": "2026-11-04T19:02:19",
  "git_dirty_paths": [
-  "M HANDOFF.md",
-  " M PROGRESS.md",
-  " M docs/functional-status.md",
-  " M handoff.config.json",
-  " M spec/functional/capabilities.tsv"
+  "M handoff.config.json"
  ],
- "git_head": "22b9c0cc9d783d8efcf04c918641d2ddb6620f4a",
+ "git_head": "adb749c3d9e7797d83dc7ac8b98db84ba3ec7eee",
  "rows": [
   {
    "dir_present": true,
@@ -119,7 +115,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE with a bare PAGE control item [TBD] (line 53) -- PAGE has DR's bytes (E46N10, 0023-0034, CALL ?PAGOP after the",
+   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE(PRINTFILE) LIST item 2 is the control item SKIP with a count, unmeasured on the named-file route [TBD] (line 6",
    "name": "COPYLPT",
    "prn_present": true,
    "rel_bytes": 3072,
@@ -401,7 +397,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE with a bare PAGE control item [TBD] (line 99) -- PAGE has DR's bytes (E46N10, 0023-0034, CALL ?PAGOP after the",
+   "msg": "Fatal error: exception Failure(\"codegen: PUT EDIT deferred [TBD] (line 115; only PUT LIST is implemented; format/picture editing needs the ?EDITF/?EDTOV/?QDDSL ",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,

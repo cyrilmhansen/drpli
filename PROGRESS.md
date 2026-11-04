@@ -443,7 +443,30 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3 subround P3-1 IN FLIGHT — implementation steps (b)-(f) OWED, PLAN PRE-COMMITTED (2026-11-04; step (a) DONE: `spec/lab-evidence/e2e52-p3/PLAN.md` committed `b4deba0` BEFORE any compiler byte, on top of durables `5c21f87`; baseline was `6c44d8d`; compiler still `85bf7a26…` UNEDITED)
+### E2E-52/P3-1 registration OWED (2026-11-04; arm LANDED `adb749c`, census re-snapshot LANDED; gate/inventory/COVERAGE/C359/RESULTS OWED; then P3-2 = PUT EDIT)
+
+READ FIRST: `LEARNINGS.md` § "E2E-52/P3-1 ARM LANDED + registration IN FLIGHT" — it carries
+the full measured record (arm, boundaries, falsifications, LOAN2 advance) AND the exact owed
+registration steps (1)-(7) in order. Headlines, all MEASURED this session:
+- E46N10 whole-file `cmp` rc=0 FIRST TRY vs `golden/e42p2c/E46N10/E46N10.REL` (384 B, sha
+  `75557545…`); E46N sweep 18/18 byte-exact; warning profile IDENTICAL to baseline.
+- All boundaries hold (counted PAGE, PAGE+items, console PAGE/N3_PAGE, E46N21 marker intact);
+  non-leading PAGE refuses at the PARSER (falsifies the PLAN §3 stage, keeps the boundary).
+- LOAN2 blocker MOVED PAST 99 — ACTUAL verbatim `codegen: PUT EDIT deferred [TBD] (line 115;
+  only PUT LIST is implemented; ...)` rc=2. OPEN PRINT 54/56 stays queued BEHIND it (prescan
+  order). P3-2 target = PUT EDIT at 115, its own PLAN pre-registered BEFORE any compiler byte.
+- `tools/e2e_gate.py` UNCOMMITTED EDIT IN TREE: E46N10 retired from REJECTS + NEG_META (kept
+  as written history) and ADDED to SPECIMENS — commit explicit paths BEFORE --update-inventory.
+- Prereg-gate rc=0 expectation FALSIFIED and measured: gate at arm = REAL rc=1
+  (`build/gate-e52p3-prereg.log`, census drift); run_negatives fails a retired-but-still-
+  stamped row. Census re-snapshotted via its own write path rc=0, counts UNCHANGED 15/0/26/0
+  (COPYLPT msg now names counted-SKIP item 2 line 6; LOAN2 names PUT EDIT 115) — COMMIT
+  spec/census/*. 
+Constraints unchanged: no push; goldens never re-derived; operator handoff.config.json never
+staged; all rc DIRECT (never trailing pipelines); never hardcode LOAN2; renewals autonomous
+at safe boundaries; campaign CONTINUES past PAGE.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3 subround P3-1 IN FLIGHT — implementation steps (b)-(f) OWED, PLAN PRE-COMMITTED (2026-11-04; step (a) DONE: `spec/lab-evidence/e2e52-p3/PLAN.md` committed `b4deba0` BEFORE any compiler byte, on top of durables `5c21f87`; baseline was `6c44d8d`; compiler still `85bf7a26…` UNEDITED)
 
 SUCCESSOR: re-verify HEAD/tree, rebuild (`cd ocaml && eval "$(opam env)" && dune build`
 rc=0), then execute steps (b)-(f) below EXACTLY — all site numbers, pinned markers and
@@ -2176,17 +2199,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 278
-checkpoint-id: g278-92adb7e30f5f
-checkpoint-kind: manual
+checkpoint-generation: 280
+checkpoint-id: g280-da12fd08cb80
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-04T17:43:09.703Z
+checkpointed: 2026-11-04T18:04:36.415Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7f16a150626ca512bad13679f40f955257f771386041682e2ff03d1fccb505d8
 source-handoff: be93fc2c716e6956dc37701edc7376efaf0190cfc348433b08e84e7e27482bb6
-source-learnings: b2ad069e498ccbe5b9178a7f250f94cbf18278781bc1f514e75ea9aedc29edd0
+source-learnings: 8f6ae9bbe94acb21a1fee5fe235425d8210a6f20986ca142fdb72ef7490b9e6f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` -> "HOP 5 IN-FLIGHT ADDENDUM"
 steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
@@ -2248,9 +2271,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a795-8c87-7427-a642-9c3a8f208628
-readiness-at: 2026-11-04T17:43:09.715Z
-readiness-checkpoint: g278-92adb7e30f5f
 <!-- guard:end checkpoint -->
 
 ## Blockers

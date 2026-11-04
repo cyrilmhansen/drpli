@@ -5,6 +5,66 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-1 ARM LANDED + registration IN FLIGHT (2026-11-04; session 01a1a7a8; arm `adb749c`; boundary checks and LOAN2 advance MEASURED; inventory/gate/COVERAGE/C359 OWED)
+
+- **ACCEPTED (arm, measured).** `ocaml/lib/codegen.ml` edit list B1-B7 executed exactly; one
+  extra local fix (`pfname` let inside the counted-PAGE arm — `fname` is not in scope in
+  `bare_ctl_put`). `dune build` rc=0, binary `34e8321a…`; **warning profile IDENTICAL to the
+  pristine-HEAD baseline** (baseline rebuilt in /tmp from `git show HEAD:...`, normalized
+  `Warning NN [name]` histograms diffed equal). E46N10 whole-file `cmp` rc=0 FIRST TRY:
+  384 B, sha `75557545…` == golden; my reldump shows `LINK-CHAIN-EXT code 0030 ?PAGOP`,
+  `?SIOOP@002D`, `?QIOOP@0033`, continuation `SET-LC code 0035` — exactly PLAN §2. Design:
+  `Sk_page` is a CONTROL KIND (never an encoded skip); produced ONLY by `file_skip_of` for
+  bare `Pi_ctl("PAGE",None)`; emitted as bare `call_ext st "?PAGOP"` between attach and
+  items/close in `lower_put_items_gen` (file route ONLY — console/console-literal/console-
+  concat routes get LOUD failwith arms); `file_items` refuses PAGE+items BY NAME;
+  `bare_ctl_put` FILE arm refuses counted PAGE BY NAME and its catch-all was rewritten to
+  measured reality; LIST-arm empty-list message now says "SKIP or PAGE".
+- **ACCEPTED (boundaries).** rc=2 refusals measured: console `put page;` (`PUT ITEM (PAGE)
+  deferred [TBD]` — the `[],None` console arm, untouched, still accurate); N3_PAGE spelling
+  `put page list('X');` → marker `PUT form` intact; `put file(outf) page(2);` → named
+  counted refusal; `put file(outf) page list('A');` → named PAGE+items refusal; E46N21
+  pinned marker `control item LINE with a count, unmeasured on the named-file route [TBD]
+  (line 12)` survives (grep count 1). E46N1..N9,N11..N19 sweep: 18/18 whole-file cmp rc=0.
+- **ACCEPTED (falsification, measured not assumed).** Step (e) as written (prereg gate
+  rc=0 1196/0 with E46N10 still a REJECTS row) is IMPOSSIBLE: `run_negatives` prints
+  `NEG-FAIL ... compiled silently` for a retired refusal, and the census `--verify` fails
+  FIRST on moved messages. FULL gate run at the arm (before retire) REAL **rc=1**,
+  `build/gate-e52p3-prereg.log` — the honest measured prereg state.
+- **ACCEPTED (LOAN2 advanced; prediction direction held, class FALSIFIED).** LOAN2 UNMODIFIED
+  (sha `7be23ba3…`) rc=2, blocker MOVED PAST 99 — ACTUAL verbatim: `codegen: PUT EDIT
+  deferred [TBD] (line 115; only PUT LIST is implemented; format/picture editing needs the
+  ?EDITF/?EDTOV/?QDDSL route family)`. The expected OPEN-PRINT-at-54/56 did NOT surface
+  because OPEN refusals fire during LOWERING while the lexical prescan dies at 115 first
+  (54/56 are Sfilestmt, prescan-invisible). Next campaign blocker = **PUT EDIT line 115**;
+  OPEN PRINT/PAGESIZE stays queued BEHIND it. COPYLPT census msg moved to: `PUT
+  FILE(PRINTFILE) LIST item 2 is the control item SKIP with a count, unmeasured on the
+  named-file route [TBD] (line 6...` (its PAGE at 53 lowered; a counted SKIP item is next).
+  Census re-snapshotted via its OWN write path `corpus_census.py --check
+  spec/census/corpus-census.json` rc=0, counts IDENTICAL 15/0/26/0 (both programs stay
+  REFUSED-class). NON-LEADING PAGE falsified as a file_items path: `put file(outf)
+  list('A') page;` dies in the PARSER (`trailing PAGE control item before ';' is not
+  supported [TBD]`) — boundary kept, different stage than PLAN §3 implied.
+- **OWED (exact, in order; all rc DIRECT):** (1) `python3 tools/e2e_gate.py
+  --update-inventory` — expect INVENTORY 1196→1197, diff EXACTLY ONE line (E46N10 refusal→
+  specimen); (2) FULL gate `timeout 3600 python3 tools/e2e_gate.py >
+  build/gate-e52p3-reg.log` expect REAL rc=0 **1197/0**, negatives 181/181, coverage 139
+  0/0, census 15/0/26/0, prose 5; (3) COVERAGE `spec/COVERAGE.tsv` row FILE.PUT_PAGE (line
+  60, grep first) `mine_status REFUSED→SUPPORTED`, `rel_parity NONE→EXACT:1`, cites
+  E46N10+COPYLPT, boundary = measured refusals above, NO new rows; `python3
+  tools/coverage_check.py` rc=0 139 0/0; stats via its own write path if it moves; (4)
+  claim **C359** appended to `spec/CLAIMS.md` from MEASURED BYTES ONLY (E46N10 golden + my
+  cmp + COPYLPT:53 span): DR's bare `put file(f) page;` = 18 bytes attach+?PAGOP+?QIOOP,
+  ?PAGOP takes NO count operand; (5) `spec/lab-evidence/e2e52-p3/RESULTS.md` + PLAN §5
+  progress-table row filled (LOAN2 outcome: moved to PUT EDIT 115); (6) commit explicit
+  paths: tools/e2e_gate.py + spec/INVENTORY.txt together, then census tsv/json, coverage,
+  claims, evidence; NEVER handoff.config.json; (7) durables refresh + attest + renew at the
+  boundary, then campaign CONTINUES to subround **P3-2 = PUT EDIT (LOAN2:115)** — its own
+  pre-registered PLAN.md BEFORE any compiler byte (evidence starting point: existing PUT
+  EDIT machinery `match_put_edit` + E2E-8 goldens golden/e2e11 R1001-R1020/IFACT; first
+  action there: extract LOAN2:115's exact statement, classify why `match_put_edit` refuses
+  it, search goldens, pre-register, then arm).
+
 ## E2E-52/P3 hop 1 (2026-11-04; campaign STARTED — LOAN2 progressive closure; subround P3-1 bare PAGE; baseline + root cause MEASURED, implementation owed)
 
 - **ACCEPTED (verified this session).** HEAD `6c44d8d` + guard g276 attested finalize; tree
