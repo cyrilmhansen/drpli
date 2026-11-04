@@ -3,7 +3,66 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — **E2E-52/P1 IN FLIGHT** (operator-authorized 2026-11-04; scope-aware DEC pool prescan, LOAN2 class; pre-registration `d1fbc16`; oracle 10/10 + goldens + RESULTS `e14d180`; ARM LANDED `6a4c554` — 5 my-gap rows byte-exact, controls+E51 intact, G ADVANCED to the §2.3 cell-map gap (never fitted), LOAN2 advanced to its NEXT verbatim blocker; pre-reg gate rc=0; RESULTS §5 + REGISTRATION + CLOSE OWED — see ## Next action). Prior: E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
+## Current phase — **E2E-52/P1 CLOSED** (2026-11-04; operator-authorized scope-aware DEC pool prescan round, LOAN2 class; hop 6 closing session; ledger ENDS **C358**; **NO ACTIVE ROUND**)
+
+Round delivered in full, every step measured and committed: pre-registration
+`d1fbc16` (probes E52A..J + PLAN/HYPOTHESES/mkprobes + BASELINE-MINE BEFORE any DR
+call); ONE grouped oracle campaign **10 ok/10**, every `.PRN` `NO ERROR(S)` both passes,
+**zero `dr-refuses`** — goldens + RESULTS `e14d180`; the scope-aware prescan ARM
+(`pd_own` + `pd_vars`=TOP-only + `Sproc` recursion, ONE file `ocaml/lib/codegen.ml`)
+`6a4c554` — E52B,C,D,H,I whole-file BYTE-EXACT vs `golden/e52p1`, controls A/E/F/J
+byte-identical to BASELINE shas, E51A..L 12/12, LOAN2 ADVANCED to its next verbatim
+blocker (`codegen: PUT FILE with a bare PAGE control item [TBD] (line 99)` — recorded,
+NOT fixed); RESULTS §5 `e2a9866`; 9 SPECIMENS registered (E52A..F,H,I,J — **NOT G**) +
+sanctioned `--update-inventory` 1186→**1195** + post-update gate rc=0 `edf4a25`; claims
+**C356..C358** derived ONLY from RESULTS §2 `7176ff8` (ledger ENDS **C358**); 3 COVERAGE
+rows `ab14933` (coverage_check rc=0 **139 rows 0/0**; validator-vocabulary lesson kept:
+`rel_parity` accepts `EXACT:n|DIVERGENT:n|MIXED:e/d|NONE` — the drafted `DIFFERS:1` was
+MALFORMED, the G row shipped `DIVERGENT:1`); coverage-stats via its OWN write path
+`22b9c0c`. Models: **H1-lexical CONFIRMED** (B,C,D,H,I); **H4 per-scope pool FALSIFIED**
+(A,F) — the DEC pool is ONE program-wide IMAGE-keyed table, dedup scope- and name-blind,
+source-order cells ahead of variables across scope boundaries; H3 global-outer falsified
+5x; H2 falsified for DR by E52E and kept as the invariant the fix must not introduce;
+the ONE MISS (E52G predicted ~16, measured DATA 20 = the §2.3 copy-in cell map) kept
+verbatim per PROTOCOL #2, NEVER fitted.
+HOP 6 CLOSURE (this session at HEAD `22b9c0c`): step (a) INSPECTED the failing check
+(`tools/test_functional_dashboard.py:132` asserts the rendered string `cited by NO
+capability: **26**` against the LIVE unmapped-row count — rendering **32**: 26 + P1's
+three unmapped DIV rows from `216ea7a` + E52's three new rows); MAPPED the three E52
+rows in `spec/functional/capabilities.tsv` (`DECL.DEC_POOL_LEXICAL_SHADOW` →
+DECL.SCALAR_TYPES + ARITH.DECIMAL; `DECL.DEC_POOL_IMAGE_DEDUP_PROGRAMWIDE` →
+ARITH.DECIMAL; `PROC.DEC_FORMAL_COPYIN_CELLMAP` → PROC.CALL) with two boundary notes
+updated to measured reality; refreshed `docs/functional-status.md` via its OWN write
+path (`--write` rc=0 — the committed copy was the FC-01-era **26** doc, already stale
+before this hop; `--check` rc=0; unmapped back to **29**, no E52 row listed).
+Self-tests rc DIRECT: `test_functional_dashboard.py` **rc=1**, the ONLY failure verbatim
+`FAIL  integration: unmapped COVERAGE rows are listed, not dropped` — the PRE-EXISTING
+stale hardcoded `**26**` constant (rendering **29** since P1; the E52 mapping removed
+this hop's three); RECORDED, NEVER silently fixed — the refresh stays a standing
+PROPOSAL. `test_functional_runner.py` rc=0 **211/211**; `coverage_check.py` rc=0 **139
+rows 0/0** (stats NOT drifted); `corpus_census.py --check` rc=0 counts identical
+15/0/26/0. FULL compile-tier gate `timeout 3600 python3 tools/e2e_gate.py` **REAL rc=0**
+captured DIRECTLY to `build/gate-e52p1-reg2.log`: byte panel **1195 byte-exact / 0 fail
+of 1195**, negative **181/181**, divergence **9/9**, coverage **139 rows 0/0**, census
+**15/0/26/0**, prose **5 active files clean**.
+**E52G STAYS AN OPEN `my-gap`** ([C358], RESULTS §2.3): never registered in the panel,
+never fitted; `golden/e52p1/E52G/E52G.REL` stays registered evidence; PROPOSED, NEVER
+ADOPTED: the copy-in-temp arm at a future authorized hop; whether G joins
+`spec/DIVERGENT.txt`.
+**SUCCESSOR: NO active round and NO pending instruction.** Confirm HEAD/tree (only the
+operator's `handoff.config.json` edit may be dirty), `/handoff verify`, record state and
+**STOP** — await an operator brief. No E52/P2, no copy-in-temp arm, no other LOAN2
+blocker, no FCPS registration without one; no push; goldens never re-derived or
+laundered; NEVER re-run the retry-DFS; operator `handoff.config.json` never staged; all
+rc captured DIRECTLY. Standing PROPOSALS (shortlist, NEVER authorizations): **E52/P2
+copy-in-temp arm** (closes the G cell-map gap); dashboard `**26**` refresh + mapping
+P1's three unmapped DIV rows (`EXPR.DIV_VAR_PARK`, `EXPR.DIV_RESULT_ADD`,
+`COND.DIV_EQ_TEST`); FCPS1..3 SPECIMENS registration at a gate hop; README § 5.1 rights
+review for the eight corpus sources (due); E2E-50/P3 shortlist
+(`spec/lab-evidence/e2e50-p2/REPORT.md` § 5); fc01-fileio/ONUNIT-00 stay CANCELLED.
+
+SUPERSEDED-BY-ABOVE (kept as written per PROTOCOL #2 — the IN-FLIGHT heading and the
+E2E-51/P2 record body below it stand verbatim): ## Previous phase — **E2E-52/P1 IN FLIGHT** (operator-authorized 2026-11-04; scope-aware DEC pool prescan, LOAN2 class; pre-registration `d1fbc16`; oracle 10/10 + goldens + RESULTS `e14d180`; ARM LANDED `6a4c554` — 5 my-gap rows byte-exact, controls+E51 intact, G ADVANCED to the §2.3 cell-map gap (never fitted), LOAN2 advanced to its NEXT verbatim blocker; pre-reg gate rc=0; RESULTS §5 + REGISTRATION + CLOSE OWED — see ## Next action). Prior: E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
 
 E2E-51/P2 executed the P1 hop-6 "rev2 DERIVATION fix" proposal under an explicit
 operator brief. `reference.py:_Hamm00Port.run()`: the `fed0:` entry `self.skip()` moved
@@ -279,7 +338,26 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P1 hop 5 PARTIAL — steps 1-3 LANDED (`e2a9866` RESULTS §5; `68bba2d` g268 blocks; `edf4a25` 9 SPECIMENS + INVENTORY 1186→1195 + post-update gate **REAL rc=0** 1195/0; `7176ff8` claims **C356..C358**, ledger ENDS **C358**, prose rc=0); COVERAGE rows (4), census/stats (5), ALL harness self-tests (6), CLOSE prose + attest (7) OWED (2026-11-04; renewals 4/12 used)
+### E2E-52/P1 CLOSED — NO ACTIVE ROUND (2026-11-04; hop 6 closing session at HEAD `22b9c0c` + this close commit; ledger ENDS **C358**): successor confirms HEAD/tree (only the operator's `handoff.config.json` edit may be dirty), runs `/handoff verify`, records state and **STOPS** — await an operator brief
+
+The hop-6 contract below (steps a-d) is DONE in full: (a) the three E52 COVERAGE rows
+are MAPPED in `spec/functional/capabilities.tsv` (inspect-first honored: the failing
+check is the stale hardcoded `**26**` string at `tools/test_functional_dashboard.py:132`
+compared against the live unmapped count — mapping the rows is the legitimate fix; no
+spec prose was touched to paper over anything) and the rendered doc refreshed via
+`--write` (rc=0, `--check` rc=0); the still-remaining rc=1 is the PRE-EXISTING stale
+constant alone, recorded verbatim and NEVER fixed — its refresh is a standing PROPOSAL,
+not an authorization for this round; (b) census `--check` rc=0 counts identical,
+coverage stats not drifted, FULL gate **REAL rc=0** DIRECT →
+`build/gate-e52p1-reg2.log` (1195/0 of 1195, 181/181, 9/9, 139 rows 0/0, census
+15/0/26/0, prose 5); (c) close prose: this section + Current phase + HANDOFF item 6 →
+**E2E-52/P1 CLOSED** with E52G an OPEN `my-gap` + PROPOSAL (copy-in-temp arm at a
+future authorized hop; whether G joins `spec/DIVERGENT.txt` stays PROPOSED, never
+adopted); (d) attest + explicit-path commit of durable files (never
+`handoff.config.json`). **STOP after P1.**
+
+SUPERSEDED-BY-ABOVE (kept as written; its remaining steps 4-7 and the hop-6 addendum's
+steps a-d were EXECUTED by hops 5 and 6 as recorded above): ### E2E-52/P1 hop 5 PARTIAL — steps 1-3 LANDED (`e2a9866` RESULTS §5; `68bba2d` g268 blocks; `edf4a25` 9 SPECIMENS + INVENTORY 1186→1195 + post-update gate **REAL rc=0** 1195/0; `7176ff8` claims **C356..C358**, ledger ENDS **C358**, prose rc=0); COVERAGE rows (4), census/stats (5), ALL harness self-tests (6), CLOSE prose + attest (7) OWED (2026-11-04; renewals 4/12 used)
 
 RE-VERIFIED this session at `ceb302c` (binary `2785a1b6…`, identical rebuild of arm
 `6a4c554`, dune rc=0): NINE specimens whole-file BYTE-EXACT vs `golden/e52p1`
@@ -1894,20 +1972,32 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 270
-checkpoint-id: g270-78fe0bad2023
+checkpoint-generation: 271
+checkpoint-id: g271-bd81e586b525
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-04T14:05:15.032Z
+checkpointed: 2026-11-04T14:06:01.899Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a727d17283e559d2e1aff06fb4018426107c9329ae99efce0fe917391294473e
-source-handoff: 35205ea0fa0c8f1b52c67ecdef03e9536bd00809aab2dc2c9b30fe140019a10d
+source-handoff: 341c4145b80ca5ed89d0fc1789b2a90f78537914cab16a9c91648689cd186cab
 source-learnings: cc3c575e5cf7367be50f7dae25820063f27b45efdcd8399cee1728b5a96aa2f3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` ->
-"SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
+next-action: ` -> "HOP 5 IN-FLIGHT ADDENDUM"
+steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
+NO G) + INVENTORY 1186→1195 + post-update gate REAL rc=0 1195/0,181/181,9/9,136 0/0,
+15/0/26/0,prose 5 `edf4a25`; claims C356..C358 from RESULTS §2 only, ledger ENDS C358
+`7176ff8`; 3 COVERAGE rows, coverage_check rc=0 139 0/0 (rel_parity vocabulary:
+DIVERGENT:1, DIFFERS is malformed); checkpoints `564442e`/this. MEASURED open: dashboard
+rc=1, sole verbatim FAIL `integration: unmapped COVERAGE rows are listed, not dropped` —
+map the 3 rows in the dashboard capability map, NEVER paper over in prose; the stale
+`**26**` check did not reappear this run. E52G stays evidence-only (copy-in-temp
+PROPOSAL, never fitted). STOP after P1; no push; goldens never re-derived; NEVER re-run
+the retry-DFS; operator handoff.config.json never staged; all rc DIRECT.**
+
+SUPERSEDED-BY-ABOVE (kept as written): **SUCCESSOR: execute the exact hop-4 contract in
+`PROGRESS.md` -> `## Next action` -> "SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
 per PLAN §4 — `pd_vars` = top rows only, per-proc own rows via the SAME `rt_to_vk`, the
 `Sproc` arm recurses with `pd_vars = own @ cx.pd_vars`, all dedup refs INTACT; build; E52
 sweep byte-exact with A/E/F/J UNCHANGED to their BASELINE shas; E51A..L 12/12; LOAN2 rerun
@@ -1955,8 +2045,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1a6cb-68ea-7250-8e94-7a45e6054bdb
-readiness-at: 2026-11-04T14:05:15.047Z
-readiness-checkpoint: g270-78fe0bad2023
+readiness-at: 2026-11-04T14:06:01.909Z
+readiness-checkpoint: g271-bd81e586b525
 <!-- guard:end checkpoint -->
 
 ## Blockers

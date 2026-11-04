@@ -5400,3 +5400,48 @@ FALSIFIED shorthand: `rel_parity=DIFFERS:1` is MALFORMED per the validator (use
 COVERAGE rows are listed, not dropped` — new rows need dashboard capability mapping;
 the stale `**26**` line did NOT appear this run (kept as written; the hop-6 contract in
 PROGRESS carries the exact remaining steps a-d).
+
+## E2E-52/P1 hop 6 (2026-11-04; CLOSURE — dashboard mapping LANDED, FULL gate rc=0, round CLOSED; renewals 5/12 used)
+
+MEASURED / ACCEPTED (all rc captured DIRECTLY, never through pipes; session started at
+HEAD `22b9c0c`, g271 attested): the hop-5 dashboard FAIL was INSPECTED before acting —
+`tools/test_functional_dashboard.py:132` asserts the rendered string
+`cited by NO capability: **26**`, a HARDCODED constant compared against the LIVE
+unmapped-row count that `functional_dashboard.py:365-368` derives as
+`sorted(set(coverage) - cited_rows)` from the `coverage_rows` column of
+`spec/functional/capabilities.tsv`. The render measured **32** at session start = 26
+(last written era, FC-01) + P1's THREE unmapped DIV rows (`216ea7a`:
+`EXPR.DIV_VAR_PARK`, `EXPR.DIV_RESULT_ADD`, `COND.DIV_EQ_TEST` — the pre-existing 26->29
+drift) + E52's three new rows. So hop 5's "only failure" WAS this stale check; the
+"**26** line did not reappear" phrasing was about the log tail, not a different check.
+MAPPING LANDED (the legitimate mechanism — never a prose paper-over): `DECL.DEC_POOL_
+LEXICAL_SHADOW` cited by DECL.SCALAR_TYPES + ARITH.DECIMAL; `DECL.DEC_POOL_IMAGE_
+DEDUP_PROGRAMWIDE` by ARITH.DECIMAL; `PROC.DEC_FORMAL_COPYIN_CELLMAP` by PROC.CALL
+(already the home of `PROC.CALL_COPYIN`). Two stale boundary notes corrected to measured
+reality (ARITH.DECIMAL's "decimal pool prescan is the LOAN2 blocker" is OBSOLETE since
+arm `6a4c554`; PROC.CALL now states the open copy-in cell-map my-gap). Derived rows are
+honest: DECL.SCALAR_TYPES MIXED(ACCEPTS:6,REJECTS:1); ARITH.DECIMAL 20 evidence names,
+SUPPORTED/ACCEPTS; PROC.CALL 31 evidence names, my-gap 3 (the DIVERGENT G row drives
+that count — divergence is LISTED, never hidden).
+`docs/functional-status.md` was STALE (committed copy showed **26**, i.e. last written
+before P1's rows) — refreshed via its OWN write path `--write` rc=0, `--check` rc=0
+after; unmapped back to **29** with no E52 row listed.
+HARNESS SELF-TESTS at this registration hop: `test_functional_dashboard.py` **rc=1**,
+sole verbatim failure `FAIL  integration: unmapped COVERAGE rows are listed, not
+dropped` — PRE-EXISTING (fails identically at `22b9c0c` and every commit since P1's
+`216ea7a` rendered 29; the mapping of the 3 DIV rows + refreshing the constant is ONE
+proposed tools hop, NEVER adopted here); `test_functional_runner.py` rc=0 211/211;
+`coverage_check.py` rc=0 139 rows 0/0; `corpus_census.py --check` rc=0 counts identical
+15/0/26/0; coverage-stats.json NOT drifted since `22b9c0c` (git clean).
+FULL compile-tier gate `timeout 3600 python3 tools/e2e_gate.py` on this tree: **REAL
+rc=0**, ACTUALS as printed: byte panel **1195 byte-exact / 0 fail of 1195**, negative
+**181/181**, divergence **9/9**, coverage **139 rows 0 errors 0 warnings**, census
+**15/0/26/0** (EXACT 15, DIFFERS 0, REFUSED 26, UNEXPECTED 0), prose **5 active files
+clean** — log `build/gate-e52p1-reg2.log`.
+ROUND CLOSED: E2E-52/P1 delivered end to end (pre-reg `d1fbc16`, oracle+goldens+RESULTS
+`e14d180`, arm `6a4c554`, RESULTS §5 `e2a9866`, registration `edf4a25`, claims
+**C356..C358** `7176ff8`, rows `ab14933`, stats `22b9c0c`, mapping + gate + close prose
+this hop). **E52G stays an OPEN `my-gap`** — never registered, never fitted, golden is
+registered evidence only; the copy-in-temp arm and the question whether G joins
+`spec/DIVERGENT.txt` remain PROPOSALS, never adopted. STOP after P1; successor without
+an operator brief records state and STOPS.

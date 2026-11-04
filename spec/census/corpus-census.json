@@ -15,13 +15,15 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-04T14:37:54",
+ "generated": "2026-11-04T15:31:14",
  "git_dirty_paths": [
   "M HANDOFF.md",
   " M PROGRESS.md",
-  " M handoff.config.json"
+  " M docs/functional-status.md",
+  " M handoff.config.json",
+  " M spec/functional/capabilities.tsv"
  ],
- "git_head": "6a4c554c1d490edc53c3cc3cfd02158efbed0dd3",
+ "git_head": "22b9c0cc9d783d8efcf04c918641d2ddb6620f4a",
  "rows": [
   {
    "dir_present": true,

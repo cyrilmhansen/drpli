@@ -23,8 +23,9 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
    - `spec/CLAIMS.md`: read ONLY cited claim ids — `grep -n '^## C352' spec/CLAIMS.md` etc.;
      the E2E-49/P4 block starts at `grep -n '^## C348'`; the E2E-48 family is C309..C332,
      E2E-49/P1 is C333..C336, E2E-49/P2 is C337..C341, E2E-49/P3 is C342..C347, E2E-49/P4 is
-     C348..C351. The ledger CURRENTLY ENDS at **C352** (fc01-framing console-framing law,
-     commit `1e9fad6`) — no claim ids are owed; [C352] is the RUNTIME law cited by every
+     C348..C351; E2E-51/P1 is C353..C355; E2E-52/P1 is C356..C358. The ledger CURRENTLY
+     ENDS at **C358** (E2E-52/P1 DEC-pool claims, commit `7176ff8`) — no claim ids are
+     owed; [C352] remains the RUNTIME console-framing law cited by every
      functional expectation containing blank lines. The E2E-49/P4 block starts at
      `grep -n '^## C348'`. [C330] carries
      the labelled E2E-49/P1 CORRECTION append (positional length law); [C335]–[C338] carry
@@ -37,12 +38,48 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
      `spec/COVERAGE-SCHEMA.md`; validator rules at `tools/coverage_check.py:203-247`).
    - `spec/INVENTORY.txt`: `grep` the specimen/refusal name only. `spec/RUNTIME.txt` and
      `spec/DIVERGENT.txt`: only rows named by the task.
-   - Latest round evidence: `spec/lab-evidence/e2e49-p4/{RESULTS.md,HYPOTHESES.md,
+   - Latest round evidence: `spec/lab-evidence/e2e52-p1/{RESULTS.md,HYPOTHESES.md,
      BASELINE-MINE.txt,PLAN.md,mkprobes.py}` (round CLOSED); prior rounds under
-     `spec/lab-evidence/e2e48-*/` and `spec/lab-evidence/e2e49-p{1,2,3}/`.
+     `spec/lab-evidence/e2e48-*/`, `spec/lab-evidence/e2e49-p{1,2,3,4}/` and
+     `spec/lab-evidence/e2e51-p1/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
-6. **E2E-52/P1 IN FLIGHT (2026-11-04; operator brief: scope-aware DEC pool prescan,
+6. **E2E-52/P1 CLOSED (2026-11-04; operator brief: scope-aware DEC pool prescan, LOAN2
+defect; hop 6 closing session at HEAD `22b9c0c` + this close commit; ledger ENDS
+**C358**).** FULL CHAIN LANDED: pre-registration `d1fbc16`; ORACLE 10 ok/10 + goldens +
+RESULTS `e14d180` (zero `dr-refuses`; H1-lexical CONFIRMED on B,C,D,H,I; H3 falsified 5x;
+H4 falsified by A/F — the DEC pool is ONE program-wide IMAGE-keyed table, scope- and
+name-blind; H2 falsified for DR by E52E; the ONE MISS E52G kept verbatim: predicted ~16,
+measured DATA 20); prescan ARM `6a4c554` (B,C,D,H,I byte-exact, controls A/E/F/J at
+BASELINE shas, E51 12/12, LOAN2 ADVANCED to its next verbatim blocker `PUT FILE bare
+PAGE [TBD] (line 99)` — recorded, NOT fixed); RESULTS §5 `e2a9866`; 9 SPECIMENS (NO G) +
+INVENTORY 1186->1195 + post-update gate rc=0 `edf4a25`; claims **C356..C358** from
+RESULTS §2 ONLY `7176ff8`; 3 COVERAGE rows, coverage_check rc=0 **139 rows 0/0**
+`ab14933`; coverage-stats via its own write path `22b9c0c`. HOP 6 (this session): the
+three rows MAPPED in `spec/functional/capabilities.tsv` (DECL.SCALAR_TYPES +
+ARITH.DECIMAL + PROC.CALL), rendered status doc refreshed via `--write` rc=0 (unmapped
+32->29), `--check` rc=0; hostile suite rc=0 211/211; census `--check` rc=0 counts
+identical 15/0/26/0; stats NOT drifted; FULL gate REAL **rc=0** captured DIRECTLY to
+`build/gate-e52p1-reg2.log` (byte panel **1195/0 of 1195**, 181/181, 9/9, 139 rows 0/0,
+census 15/0/26/0, prose 5). MEASURED PRE-EXISTING, recorded NEVER fixed:
+`tools/test_functional_dashboard.py` **rc=1**, sole verbatim FAIL `integration: unmapped
+COVERAGE rows are listed, not dropped` — the stale HARDCODED `**26**` check vs rendered
+**29** (drift from P1's `216ea7a` DIV rows; the E52 mapping did NOT introduce it).
+**E52G STAYS AN OPEN `my-gap`**: never registered, never fitted; its golden is
+registered evidence only. PROPOSED, NEVER ADOPTED: the copy-in-temp arm at a future
+authorized hop; whether G joins `spec/DIVERGENT.txt`.
+**SUCCESSOR: NO active round and NO pending instruction.** Confirm HEAD/tree (only the
+operator's `handoff.config.json` edit may be dirty), `/handoff verify`, record state and
+**STOP** — await an operator brief. Standing PROPOSALS (shortlist, NEVER
+authorizations): E52/P2 copy-in-temp arm (E52G); dashboard `**26**` refresh + mapping
+P1's three unmapped DIV rows; FCPS1..3 SPECIMENS registration at a gate hop; README
+§ 5.1 rights review for the eight corpus sources (due); E2E-50/P3 shortlist
+(`spec/lab-evidence/e2e50-p2/REPORT.md` § 5); fc01-fileio/ONUNIT-00 stay CANCELLED.
+Constraints unchanged: no push; goldens never re-derived; NEVER re-run the retry-DFS; no
+expansion to other LOAN2 blockers; operator `handoff.config.json` never staged; all rc
+captured DIRECTLY.
+
+SUPERSEDED-BY-ABOVE (kept as written): 6. **E2E-52/P1 IN FLIGHT (2026-11-04; operator brief: scope-aware DEC pool prescan,
 LOAN2 defect).** Hop 2 LANDED the PRE-REGISTRATION at `d1fbc16` (probes/E52A..J + PLAN/
 HYPOTHESES/mkprobes + BASELINE-MINE, committed BEFORE any DR call). Hop 3 LANDED ORACLE +
 EVIDENCE at **`e14d180`**: ONE grouped `--tag e52p1` campaign **10 ok/10**, every `.PRN`
@@ -1115,32 +1152,44 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 270
-checkpoint-id: g270-78fe0bad2023
+checkpoint-generation: 271
+checkpoint-id: g271-bd81e586b525
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~410, session 01a1a6cb-68ea-7250-8e94-7a45e6054bdb)
-checkpointed: 2026-11-04T14:05:15.032Z
+status: checkpoint (guard level 4, remaining ~-1950, session 01a1a6cb-68ea-7250-8e94-7a45e6054bdb)
+checkpointed: 2026-11-04T14:06:01.899Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: a727d17283e559d2e1aff06fb4018426107c9329ae99efce0fe917391294473e
-source-handoff: 35205ea0fa0c8f1b52c67ecdef03e9536bd00809aab2dc2c9b30fe140019a10d
+source-handoff: 341c4145b80ca5ed89d0fc1789b2a90f78537914cab16a9c91648689cd186cab
 source-learnings: cc3c575e5cf7367be50f7dae25820063f27b45efdcd8399cee1728b5a96aa2f3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1a6cb-68ea-7250-8e94-7a45e6054bdb
-readiness-at: 2026-11-04T14:05:15.047Z
-readiness-checkpoint: g270-78fe0bad2023
+readiness-at: 2026-11-04T14:06:01.909Z
+readiness-checkpoint: g271-bd81e586b525
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` ->
-"SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
+` -> "HOP 5 IN-FLIGHT ADDENDUM"
+steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
+NO G) + INVENTORY 1186→1195 + post-update gate REAL rc=0 1195/0,181/181,9/9,136 0/0,
+15/0/26/0,prose 5 `edf4a25`; claims C356..C358 from RESULTS §2 only, ledger ENDS C358
+`7176ff8`; 3 COVERAGE rows, coverage_check rc=0 139 0/0 (rel_parity vocabulary:
+DIVERGENT:1, DIFFERS is malformed); checkpoints `564442e`/this. MEASURED open: dashboard
+rc=1, sole verbatim FAIL `integration: unmapped COVERAGE rows are listed, not dropped` —
+map the 3 rows in the dashboard capability map, NEVER paper over in prose; the stale
+`**26**` check did not reappear this run. E52G stays evidence-only (copy-in-temp
+PROPOSAL, never fitted). STOP after P1; no push; goldens never re-derived; NEVER re-run
+the retry-DFS; operator handoff.config.json never staged; all rc DIRECT.**
+
+SUPERSEDED-BY-ABOVE (kept as written): **SUCCESSOR: execute the exact hop-4 contract in
+`PROGRESS.md` -> `## Next action` -> "SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
 per PLAN §4 — `pd_vars` = top rows only, per-proc own rows via the SAME `rt_to_vk`, the
 `Sproc` arm recurses with `pd_vars = own @ cx.pd_vars`, all dedup refs INTACT; build; E52
 sweep byte-exact with A/E/F/J UNCHANGED to their BASELINE shas; E51A..L 12/12; LOAN2 rerun
