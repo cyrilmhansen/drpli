@@ -1931,6 +1931,34 @@ SPECIMENS.update({
     "E52H":  ("probes/E52H.PLI",  "golden/e52p1/E52H/E52H.REL"),
     "E52I":  ("probes/E52I.PLI",  "golden/e52p1/E52I/E52I.REL"),
     "E52J":  ("probes/E52J.PLI",  "golden/e52p1/E52J/E52J.REL"),
+    # ---------------------------------------------------------------------------
+    # [E2E-52/P3-2] THE PUT/GET EDIT BANK.  Two DR probe55 objects, both decoded in
+    # spec/lab-evidence/e2e52-p3/PLAN.md §P3-2 §2 and byte-exact at arm 2686bcc (clean
+    # rebuild 748c434fafd8c01579; sweep 75/75; claim [C360]); whole-file `cmp' rc=0
+    # RE-MEASURED this hop:
+    #   P086K   512 B; DEF-CODE-SIZE 0065=101, DEF-DATA-SIZE 0012=18 (0x62=98 is the
+    #             ADDRESS of the last code record, NOT a size -- the +3-bytes diagnosis
+    #             was FALSIFIED by the record-for-record reldump diff).  `d fixed
+    #             dec(5,2)'; PUT and GET `edit(d)(f(5,1))' on a file with NO OPEN
+    #             ([C282]): attach DE=0652/?SIOOP (PUT) and 0690/?SIOOP (GET), then
+    #             *S(0000)/?EDITF and DEC prep `MVI A,05/?DLDOP + MVI A,08/MVI B,02/
+    #             ?QDCOP' + ?EDTOV + ?QIOOP; the GET runs ?EDITF/?EDTIV (NEW routine
+    #             name on this panel)/?QCDOP/?DSTOP.  Format table `80 00 00 05 01 81'
+    #             pins f(w,d)=`00 w d'.  RECORD ORDER is the measured law: BOTH
+    #             prealloc'd tables (SET-LC 0000, 0006) come BEFORE DEF-COMMON-SIZE/F/
+    #             SEL-COMMON/common bytes and the LOWERING-allocated DEC literal `50 01
+    #             00'@000C AFTER the COMMON group ([C360]).
+    #   P086J   256 B; CODE 003D=61, DATA 0010=16.  CONSOLE `put edit(d)(f(9,2), a(4))'
+    #             with `d fixed dec(7,2)' -- NO attach; the DEC prep is the SAME p/p+3/s
+    #             law; table `80 00 00 09 02 03 04 81' pins a(w)=`03 w', a=`03 FF'.
+    #             This is the shape that retired negative row E41X8 ff1c8f2 -- whose own
+    #             composite (titled stream-output OPEN + EDIT) has NO golden, so its
+    #             bytes stay unclaimed.
+    # Boundaries UNCHANGED: picture `02 …', x(w) `0B …' and rep-group `80 n … 81' are
+    # decoded from LOAN2's goldens but NOT armed -- they refuse BY NAME, and LOAN2 still
+    # stops at `PUT EDIT format item form unsampled [TBD]'.
+    "P086K": ("probes/P086K.PLI", "golden/probe55/P086K/P086K.REL"),
+    "P086J": ("probes/P086J.PLI", "golden/probe55/P086J/P086J.REL"),
 })
 
 # NOT registered (fail-loud / no golden) -- kept visible as research

@@ -966,6 +966,8 @@ P071D	specimen	probes/P071D.PLI	golden/probe38/P071D/P071D.REL
 P071K	specimen	probes/P071K.PLI	golden/e2e310d/P071K/P071K.REL
 P072H	specimen	probes/P072H.PLI	golden/e41p1/P072H/P072H.REL
 P081Q	specimen	probes/P081Q.PLI	golden/e41p1/P081Q/P081Q.REL
+P086J	specimen	probes/P086J.PLI	golden/probe55/P086J/P086J.REL
+P086K	specimen	probes/P086K.PLI	golden/probe55/P086K/P086K.REL
 P086M	specimen	probes/P086M.PLI	golden/e2e310d/P086M/P086M.REL
 P1	specimen	e16src/P1.PLI	golden/e2e174/P1/P1.REL
 P10	specimen	e16src/P10.PLI	golden/e2e174/P10/P10.REL
