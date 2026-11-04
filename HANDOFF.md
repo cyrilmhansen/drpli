@@ -1076,25 +1076,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 255
-checkpoint-id: g255-7fe79465091d
+checkpoint-generation: 256
+checkpoint-id: g256-cfffeeb012d8
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 0, remaining ~55945, session 01a1a5e7-032d-7688-9802-a5432349e841)
-checkpointed: 2026-11-04T09:40:31.484Z
+status: checkpoint (guard level 0, remaining ~24884, session 01a1a62a-fffd-7322-9bba-088fb541d5dc)
+checkpointed: 2026-11-04T11:12:51.616Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d5b97ababab707c43937411bd3986c891982c8a56352285b40c0158b4ef8d198
-source-handoff: 34fdffa468b6664208451cb0a240e92f482d6cd54fa7de335d6e9aa4ac1bcfc3
-source-learnings: 50809a74bffef9e7494c932abfb39f699f9cf02f6a1e71e12f570c06a0f3222e
+source-progress: 3348084bf4057d3647bee01340796596d1b532c368d2bee685cf90874e9a0a38
+source-handoff: 86f3de367ab87e30abb5f8d049c4d19b2c975139502500be507ba55998e74ffd
+source-learnings: 35b8ee2a8d82e8b36e1a76a6d8393e41d8aacc94588c3afdf524cd092adf4d5b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a5e7-032d-7688-9802-a5432349e841
-readiness-at: 2026-11-04T09:40:31.499Z
-readiness-checkpoint: g255-7fe79465091d
+readiness-by: session:01a1a62a-fffd-7322-9bba-088fb541d5dc
+readiness-at: 2026-11-04T11:12:51.632Z
+readiness-checkpoint: g256-cfffeeb012d8
 ### Last verified state
-guard level 0; checkpoint requested (finalize: E2E-51/P1 CLOSED at 4468a9c (close prose + standalone prose-check rc=0 measured directly, build/prose-check-e51p1-close.log). FIXED BINARY variable-division compiler gap RESOLVED (12/12 goldens byte-exact, gate 1186/0, ledger ends C355). HAMM-00 rev1 ASSERT FAIL preserved with accepted suspected reference-model discrepancy (fed0 loop-entry skip vs prompt-first _Hamm00Port); rev2 subtraction-loop division is OBSOLETE — the live proposal is the rev2 derivation fix. NO ACTIVE ROUND: successor confirms HEAD/tree, /handoff verify, records state and STOPS; await operator brief. No push; operator handoff.config.json never staged.)
+guard level 0; checkpoint requested (finalize: E2E-51/P2 CLOSED: HAMM-00 rev2 reference-model fed0 correction landed a21a586, docs record 52f9a54, close prose 03cbeb3. Six-stage lane-B PASS (rc=0 direct), double-run byte-equal, hostile 211/211, FULL compile-tier gate rc=0 (1186/0 intact). No DR claim promoted; ledger ends C355. Successor without an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state and STOP. Standing proposals: refresh stale test_functional_dashboard.py 26-vs-29 check (pre-existing P1 drift), FCPS1..3 registration, README s5.1 rights review, E2E-50/P3 shortlist. No push.)
 
 ### Unfinished operations
 - (none recorded)
@@ -1124,5 +1124,5 @@ guard level 0; checkpoint requested (finalize: E2E-51/P1 CLOSED at 4468a9c (clos
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
 
 ### Guard notes
-E2E-51/P1 CLOSED at 4468a9c (close prose + standalone prose-check rc=0 measured directly, build/prose-check-e51p1-close.log). FIXED BINARY variable-division compiler gap RESOLVED (12/12 goldens byte-exact, gate 1186/0, ledger ends C355). HAMM-00 rev1 ASSERT FAIL preserved with accepted suspected reference-model discrepancy (fed0 loop-entry skip vs prompt-first _Hamm00Port); rev2 subtraction-loop division is OBSOLETE — the live proposal is the rev2 derivation fix. NO ACTIVE ROUND: successor confirms HEAD/tree, /handoff verify, records state and STOPS; await operator brief. No push; operator handoff.config.json never staged.
+E2E-51/P2 CLOSED: HAMM-00 rev2 reference-model fed0 correction landed a21a586, docs record 52f9a54, close prose 03cbeb3. Six-stage lane-B PASS (rc=0 direct), double-run byte-equal, hostile 211/211, FULL compile-tier gate rc=0 (1186/0 intact). No DR claim promoted; ledger ends C355. Successor without an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state and STOP. Standing proposals: refresh stale test_functional_dashboard.py 26-vs-29 check (pre-existing P1 drift), FCPS1..3 registration, README s5.1 rights review, E2E-50/P3 shortlist. No push.
 <!-- guard:end checkpoint -->
