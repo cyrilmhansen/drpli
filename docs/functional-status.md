@@ -17,14 +17,14 @@ and the boundary column says where.  A generic refusal licenses no stage.
 | Capability | Area | Rows verdict (mine) | DR side | Derived stage ladder | Evidence |
 |---|---|---|---|---|---|
 | DECL.PROG_STRUCTURE | Program structure | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 17 cited evidence names, 4 COVERAGE rows |
-| DECL.SCALAR_TYPES | Declarations and scope | PARTIAL | MIXED(ACCEPTS:5,REJECTS:1) | SYNTAX BIND OBJGEN BYTE LINK RUN | 27 cited evidence names, 6 COVERAGE rows |
+| DECL.SCALAR_TYPES | Declarations and scope | PARTIAL | MIXED(ACCEPTS:6,REJECTS:1) | SYNTAX BIND OBJGEN BYTE LINK RUN | 34 cited evidence names, 7 COVERAGE rows |
 | DECL.SCOPE_QUALIFY | Declarations and scope | PARTIAL | MIXED(ACCEPTS:2,REJECTS:1) | SYNTAX BIND OBJGEN BYTE LINK RUN | 55 cited evidence names, 3 COVERAGE rows |
 | DECL.STORAGE_STATIC | Declarations and scope | PARTIAL | MIXED(ACCEPTS:3,REJECTS:1) | SYNTAX BIND OBJGEN BYTE | 20 cited evidence names, 4 COVERAGE rows |
 | DECL.FILE_DECL | Declarations and scope | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE | 11 cited evidence names, 1 COVERAGE rows |
 | TYPE.CONVERT_EXPR | Type conversion and expressions | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE | 20 cited evidence names, 3 COVERAGE rows |
 | TYPE.STRING_CONCAT | Type conversion and expressions | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 5 cited evidence names, 2 COVERAGE rows |
 | ARITH.FIXED_INT | Integer arithmetic | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 23 cited evidence names, 4 COVERAGE rows |
-| ARITH.DECIMAL | Fixed-decimal arithmetic | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE | 11 cited evidence names, 2 COVERAGE rows |
+| ARITH.DECIMAL | Fixed-decimal arithmetic | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE | 20 cited evidence names, 4 COVERAGE rows |
 | ARITH.FLOAT | Floating-point arithmetic | PARTIAL | MIXED(ACCEPTS:1,REJECTS:1) | SYNTAX BIND OBJGEN BYTE | 9 cited evidence names, 2 COVERAGE rows |
 | COND.EQUALITY | Conditions and branching | PARTIAL | MIXED(ACCEPTS:2,UNTESTED:1) | SYNTAX BIND OBJGEN BYTE LINK RUN | 11 cited evidence names, 3 COVERAGE rows |
 | COND.ORDERED | Conditions and branching | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE | 24 cited evidence names, 6 COVERAGE rows |
@@ -33,7 +33,7 @@ and the boundary column says where.  A generic refusal licenses no stage.
 | COND.COMPOSE | Conditions and branching | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE | 1 cited evidence names, 1 COVERAGE rows |
 | COND.BIT1 | Conditions and branching | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE | 38 cited evidence names, 7 COVERAGE rows |
 | FLOW.BRANCH_LOOP | Branching and loops | PARTIAL | MIXED(ACCEPTS:6,REJECTS:1,UNTESTED:1) | SYNTAX BIND OBJGEN BYTE LINK RUN | 29 cited evidence names, 8 COVERAGE rows |
-| PROC.CALL | Procedures and external calls | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 30 cited evidence names, 6 COVERAGE rows |
+| PROC.CALL | Procedures and external calls | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 31 cited evidence names, 7 COVERAGE rows |
 | PROC.EXTERNAL_LINK | Procedures and external calls | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE | 9 cited evidence names, 3 COVERAGE rows |
 | AGG.ARRAY_1D | Arrays and records | SUPPORTED | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 17 cited evidence names, 3 COVERAGE rows |
 | AGG.MULTIDIM | Arrays and records | REFUSED | ACCEPTS | SYNTAX BIND | 2 cited evidence names, 1 COVERAGE rows |
@@ -41,7 +41,7 @@ and the boundary column says where.  A generic refusal licenses no stage.
 | STOR.POINTER | POINTERS and BASED | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 33 cited evidence names, 9 COVERAGE rows |
 | STOR.LINKED_STRUCTURE | POINTERS and BASED | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 4 cited evidence names, 3 COVERAGE rows |
 | BUILTIN.USE | Built-in functions | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 5 cited evidence names, 1 COVERAGE rows |
-| IO.CONSOLE | Sequential file I/O | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 16 cited evidence names, 4 COVERAGE rows |
+| IO.CONSOLE | Sequential file I/O | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 17 cited evidence names, 4 COVERAGE rows |
 | IO.FILE_SEQUENTIAL | Sequential file I/O | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 106 cited evidence names, 10 COVERAGE rows |
 | IO.DIRECT_KEYED | Direct and keyed files | REFUSED | ACCEPTS | SYNTAX BIND | 4 cited evidence names, 1 COVERAGE rows |
 | COND.ON_UNIT | Error handling and ON-units | PARTIAL | ACCEPTS | SYNTAX BIND OBJGEN BYTE LINK RUN | 15 cited evidence names, 3 COVERAGE rows |
@@ -52,7 +52,8 @@ and the boundary column says where.  A generic refusal licenses no stage.
 - capability rows: **30** (validated: every cited COVERAGE id exists, every cited census name is one of the 44)
 - citation misses: **none**
 - duplicate capability ids: **none**
-- COVERAGE rows cited by NO capability: **26** -- listed for the operator, never silently dropped:
+- COVERAGE rows cited by NO capability: **29** -- listed for the operator, never silently dropped:
+  - `COND.DIV_EQ_TEST` (COND: `if a / b = c then z = 1' — a variable-divisor DIV RESULT on the LEFT of `=' in TEST position)
   - `COND.FIXED_CMP_COLLAPSE_BOTH_TEMPLATES` (COND: `if rec.na = 'ABC' then` and `if 'ABC' = rec.na then`, both with `^=` too, against `2 na char(3)` -- a fixed compare whose literal length EQUALS the declared extent, in BOTH literal templates, TEST position)
   - `COND.FIXED_CMP_EQUAL_EXTENT_COLLAPSE` (COND: `if rec.na = rec.nb then` against `2 na char(3)` / `2 nb char(3)` -- a fixed compare whose two EXTENTS are equal)
   - `COND.FIXED_CMP_OVER_EXTENT` (COND: `if rec.name = 'ABCD' then` against `2 name char(3)` -- a literal LONGER than the FIXED member's declared extent, member-LEFT)
@@ -64,6 +65,8 @@ and the boundary column says where.  A generic refusal licenses no stage.
   - `DECL.RECURSIVE` (DECL: RECURSIVE on a procedure)
   - `DECL.RETURN_VARYING` (DECL: returns(char(n) varying) on an external)
   - `EXPR.ADD_PRESERVE_ROUTE` (EXPR: a+b and a+b+c on FIXED BINARY: which instruction preserves the left operand of an ADD; and which operand is evaluated first when the right one is parenthesized)
+  - `EXPR.DIV_RESULT_ADD` (EXPR: `z = a / b + c' and `z = c + a / b' — the ?ID22N quotient consumed by an ADD in either written orientation)
+  - `EXPR.DIV_VAR_PARK` (EXPR: `z = a / b' — FIXED BINARY division by a VARIABLE divisor, incl. a literal dividend, a compound dividend, a compound divisor, a chained division, a negated dividend and a 1-byte bin(7) divisor)
   - `EXPR.ELIDE_ZERO_CLASS` (EXPR: x = x + 0)
   - `EXPR.K_PLUS_X` (EXPR: k + x as a store value)
   - `FILE.PUT_LINE` (FILE: put file(f) line(n);)
@@ -169,10 +172,10 @@ Counts are NEVER summed across origin classes (`spec/functional/README.md`).
 
 ## View D -- canonical-ledger snapshot (committed; not re-measured here)
 
-- byte panel: **1174** specimens (all whole-file `.REL` identity); negative panel: **181**; NEG_META classes: my-gap 123, dr-refuses 47, unmeasured 11.
-- INVENTORY.txt rows: **1355** (1174 specimen / 181 refusal).
+- byte panel: **1195** specimens (all whole-file `.REL` identity); negative panel: **181**; NEG_META classes: my-gap 123, dr-refuses 47, unmeasured 11.
+- INVENTORY.txt rows: **1376** (1195 specimen / 181 refusal).
 - historical census (44 programs): EXACT 15 / DIFFERS 0 / REFUSED 26 / NO_ORACLE 3; DR verdicts ok 41 / diag 3 (counts from `spec/census/corpus-census.json`).
-- COVERAGE: 133 rows -- mine DIVERGENT 3, NOT_ATTEMPTED 3, PARTIAL 22, REFUSED 23, SUPPORTED 82; DR ACCEPTS 119, ACCEPTS_DEFECT 1, REJECTS 9, UNTESTED 4 (from `spec/census/coverage-stats.json`).
+- COVERAGE: 139 rows -- mine DIVERGENT 4, NOT_ATTEMPTED 3, PARTIAL 24, REFUSED 23, SUPPORTED 85; DR ACCEPTS 125, ACCEPTS_DEFECT 1, REJECTS 9, UNTESTED 4 (from `spec/census/coverage-stats.json`).
 - RUNTIME.txt: **71** rows / **71** distinct names (one row per name), exit=ok on every row; kinds: dr_oracle 23, independent 46, non-circular 2.  Historical-census programs with a runtime row: NETWORK.  Panel-unregistered runtime names: E32B3, E36R1.
 - DIVERGENT.txt (pinned divergences, via panel_keys): 9 -- E28N7, E30G1, E30L2, E30L3, E30L4, E32B3, E32C6, E33MC, E40Q4.
 
@@ -193,10 +196,10 @@ without a pre-registered round (PROTOCOL).
 | 4 | AGG.STRUCTURE | PARTIAL | ACCEPTS | COPY, CREATE, E46K14, E46M16, E46M20, KEYFILE | my-gap 6, dr-refuses 2 | member uses outside the licensed classes refuse by name |
 | 5 | IO.DIRECT_KEYED | REFUSED | ACCEPTS | DIOCALLS, KEYFILE, REPORT, RETRIEVE | my-gap 4 | largest untouched surface: no DR lowering of GET KEY or UPDATE has ever been observed |
 | 6 | STOR.POINTER | PARTIAL | ACCEPTS | ALLTST, AV1, DIOCOPY, DIORAND, E27S11, E27S4 | my-gap 7, dr-refuses 1 | BASED of BIT/CHAR VARYING types is unimplemented; traversal reload divergence open |
-| 7 | COND.ON_UNIT | PARTIAL | ACCEPTS | EXPR1, EXPR2, REVERT | my-gap 3 | only ENDFILE(<file>) is lowered; ON ERROR refuses — measured census blockers on EXPR1/EXPR2 (the only census programs with ON ERROR; UPDATE/OPTIMIST use no ON-unit and refuse for other reasons) |
-| 8 | COND.BIT1 | PARTIAL | ACCEPTS | CREATE, LOAN2 | my-gap 2 | nested & beyond E48A14 unmeasured |
-| 9 | PROC.CALL | PARTIAL | ACCEPTS | MPMCALLA, MPMCALLB | my-gap 2 | value-returning and float-returning calls have measured refusals |
-| 10 | FLOW.BRANCH_LOOP | PARTIAL | MIXED(ACCEPTS:6,REJECTS:1,UNTESTED:1) | E36T10, E36T15, E36T16, E36T17, E36T9, LABELS | my-gap 1, dr-refuses 5 | computed GOTO and subscripted labels unmeasured; GOTO to a procedure entry is DR's own rejection |
-| 11 | OBJ.REL_OUTPUT | PARTIAL | MIXED(ACCEPTS:3,REJECTS:1) | AV1, E36T9, MPMCALLA | my-gap 2, dr-refuses 1 | slow link/run tiers are delegated to the external rune-ci builders |
-| 12 | DECL.SCALAR_TYPES | PARTIAL | MIXED(ACCEPTS:5,REJECTS:1) | COPY | my-gap 1 | precision/extent combinations outside the cited rows are unmeasured |
+| 7 | PROC.CALL | PARTIAL | ACCEPTS | LOAN2, MPMCALLA, MPMCALLB | my-gap 3 | value-returning and float-returning calls have measured refusals; a DEC formal gets a copy-in temp cell map DR measures but my object does not yet emit |
+| 8 | COND.ON_UNIT | PARTIAL | ACCEPTS | EXPR1, EXPR2, REVERT | my-gap 3 | only ENDFILE(<file>) is lowered; ON ERROR refuses — measured census blockers on EXPR1/EXPR2 (the only census programs with ON ERROR; UPDATE/OPTIMIST use no ON-unit and refuse for other reasons) |
+| 9 | COND.BIT1 | PARTIAL | ACCEPTS | CREATE, LOAN2 | my-gap 2 | nested & beyond E48A14 unmeasured |
+| 10 | DECL.SCALAR_TYPES | PARTIAL | MIXED(ACCEPTS:6,REJECTS:1) | COPY, LOAN2 | my-gap 2 | precision/extent combinations outside the cited rows are unmeasured |
+| 11 | FLOW.BRANCH_LOOP | PARTIAL | MIXED(ACCEPTS:6,REJECTS:1,UNTESTED:1) | E36T10, E36T15, E36T16, E36T17, E36T9, LABELS | my-gap 1, dr-refuses 5 | computed GOTO and subscripted labels unmeasured; GOTO to a procedure entry is DR's own rejection |
+| 12 | OBJ.REL_OUTPUT | PARTIAL | MIXED(ACCEPTS:3,REJECTS:1) | AV1, E36T9, MPMCALLA | my-gap 2, dr-refuses 1 | slow link/run tiers are delegated to the external rune-ci builders |
 
