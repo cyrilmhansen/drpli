@@ -1415,28 +1415,56 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 312
-checkpoint-id: g312-a1bba303478f
-checkpoint-kind: auto
+checkpoint-generation: 313
+checkpoint-id: g313-06baafd937af
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4759, session 01a1a8bc-9e19-753f-82d0-3140faffa677)
-checkpointed: 2026-11-04T23:05:35.592Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1279, session 01a1a8bc-9e19-753f-82d0-3140faffa677)
+checkpointed: 2026-11-04T23:06:39.751Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 604d68fc768b914398b412a844f50b8254ae0791929e90c7537d64a90b54054b
-source-handoff: ef274962f854137cfb9923482334ba9e6bc326da7f80a2a4dd235da73cd35320
-source-learnings: 91958a6ffd545b84422a0b5ec03fe82879e44a07c7ef1b903653e27f6530b53e
+source-handoff: 2713b00840e4ead565cbc6c48b316940191ccacc86073936ba2d85f8d0d9b747
+source-learnings: dd98885e6b7e337d07ac70990e38782e8cee36f00fe8830f88fb2361e0bdf866
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a8bc-9e19-753f-82d0-3140faffa677
+readiness-at: 2026-11-04T23:06:39.765Z
+readiness-checkpoint: g313-06baafd937af
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-= subround **P3-4** (rep-groups 80 n…81, x(w) 0B,
+` steps (1)-(6): baseline build+PA re-measure; ONE
+  grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PP..E52PZ
+  --tag e52p3d --switches '$L$D'`; classify H2/H4/H5/H6 verdicts, keep MISSes;
+  arm PLAN §P3-4 §4 (codegen ONLY: fmt_spec Pi_repgrp `80 n…81` recursive — the
+  parser node is Pi_repgrp NOT the brief's Pi_rep — X `0B w`, file-route fixed-bin
+  arithmetic BY MEASURED OPS); cmp PP..PZ + **PA vs EXISTING golden = headline
+  (byte-exact)**; sweep + LOAN2 VERBATIM (expect DEC-FORMAL blocker at 147); register
+  (SPECIMENS/--update-inventory/gate rc=0 build/gate-e52p3d-reg.log/census own path/
+  C362 measured-bytes-only BEFORE COVERAGE rewrite/prose+coverage_check rc=0/RESULTS
+  +PLAN §5/durables). Ledger ENDS C361. Constraints unchanged: no push; goldens never
+  re-derived; operator handoff.config.json never staged; all rc DIRECT; pli80c
+  POSITIONAL; renewals autonomous (fresh chain, cap 12); campaign continues.
+
+0a-quinquies. **P3-3 FULLY CLOSED; RENEWAL CAP 12/12 REACHED — THIS IS THE FINAL HOP OF
+  CHAIN 01a1a795 (2026-11-05, successor of g307, renewal 12/12 consumed).** Registration
+  landed in full: `7294d09` (13 SPECIMENS E52PB..PE,PG..PL,PM,PN,PO + E52PF dr-refuses
+  REJECTS/NEG_META row, marker re-measured rc=2; sanctioned --update-inventory 1199->1212
+  EXACTLY +13+1; FULL gate REAL rc=0 DIRECT build/gate-e52p3c-reg.log 1212/0, 180/180, 9/9,
+  139/0/0, 15/0/26/0, prose 5) -> `a4eddd6` (census own write path rc=0, metadata-only, LOAN2
+  blocker VERBATIM UNCHANGED) -> `64e464b` (claim **C361** from MEASURED BYTES ONLY, BEFORE
+  the COVERAGE rewrite; ledger ENDS **C361**) -> `4f5d509` (IO.PUT_EDIT EXACT:25, falsified
+  clauses verbatim as HISTORICAL, coverage_check rc=0 139/0/0, stats not drifted) ->
+  `794cfb2` (RESULTS §5 + PLAN §5 P3-3 row; prose rc=0 twice). SUCCESSOR (only after the
+  OPERATOR archives/resets the ignored .pi-guard renewal-state.json or raises the cap): read
+  LEARNINGS.md § "E2E-52/P3-3 REGISTRATION LANDED — SUBROUND CLOSED at the 12/12 renewal cap"
+  and execute PROGRESS.md -> ## Next action = subround **P3-4** (rep-groups 80 n…81, x(w) 0B,
   file-route EXPRESSION item; PA bytes pinned LOAN2 0544-0558): PLAN+probes COMMITTED BEFORE
   any ocaml/ byte, one grouped campaign tag e52p3d (verify unused), arm+sweep+LOAN2 verbatim,
   registration + claim C362 measured-bytes-only BEFORE the COVERAGE rewrite. Constraints
@@ -1823,5 +1851,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-3 FULLY CLOSED: registration chain 7294d09 (SPECIMENS 13 + PF dr-refuses row, inventory 1199->1212+1, FULL gate rc=0 1212/0 build/gate-e52p3c-reg.log) -> a4eddd6 (census own write path rc=0, LOAN2 VERBATIM unchanged) -> 64e464b (claim C361 measured-bytes-only BEFORE coverage) -> 4f5d509 (IO.PUT_EDIT EXACT:25, coverage_check 139/0/0, stats not drifted) -> 794cfb2 (RESULTS §5 + PLAN §5) -> 2bee971 (durables). Ledger ENDS C361. Renewal cap 12/12 REACHED: chain closes here; operator must reset .pi-guard renewal-state.json before the next hop. NEXT = P3-4 per PROGRESS ## Next action: rep-groups 80 n...81 + x(w) 0B + file-route fixed-bin EXPRESSION item (PA bytes pinned LOAN2 0544-0558); PLAN+probes committed BEFORE any ocaml/ byte; campaign tag e52p3d (verify unused). Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; pli80c POSITIONAL.
+E2E-52/P3-4 campaign continues. Pre-registration LANDED at 3ac7f41 (PLAN §P3-4 + probes E52PP..E52PZ), durables at dd30c19, ledger ENDS C361, tree clean except operator handoff.config.json. Execute PROGRESS.md -> ## Next action steps (1)-(6): baseline build + PA rc=2 re-measure; ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PP E52PQ E52PR E52PS E52PT E52PU E52PV E52PW E52PX E52PY E52PZ --tag e52p3d --switches '$L$D'`; arm PLAN §4 (codegen only; parser node is Ast.Pi_repgrp NOT Pi_rep); headline = E52PA whole-file byte-exact vs EXISTING golden; sweep + LOAN2 blocker VERBATIM; registration + C362 measured-bytes-only BEFORE COVERAGE rewrite; gate rc=0 to build/gate-e52p3d-reg.log. Fresh renewal chain (operator reset), cap 12; no push; goldens never re-derived; all rc DIRECT; do not repeat P3-3 experiments.
 <!-- guard:end checkpoint -->
