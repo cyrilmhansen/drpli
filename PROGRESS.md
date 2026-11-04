@@ -314,6 +314,39 @@ explicit-path commit of durable files. **STOP after P1**; no push; goldens never
 re-derived/overwritten; NEVER re-run the retry-DFS; do not expand to other LOAN2
 blockers; operator `handoff.config.json` never staged; all rc captured DIRECTLY.
 
+SUPERSEDED-BY-ABOVE (kept as written): ### E2E-52/P1 hop 4 PARTIAL
+
+### HOP 5 IN-FLIGHT ADDENDUM (2026-11-04; step 4 LANDED, dashboard finding MEASURED)
+
+ACCEPTED: step 4 committed — 3 COVERAGE rows, `coverage_check.py` **rc=0 DIRECT, 139
+rows 0/0**; the validator REJECTED `rel_parity DIFFERS:1` as MALFORMED — accepted
+vocabulary is `EXACT:n|DIVERGENT:n|MIXED:e/d|NONE`; the G row shipped as
+`DIVERGENT:1` (lesson kept). MEASURED (accepted, unresolved): step 6 first run —
+`python3 tools/test_functional_dashboard.py` **rc=1**, the ONLY failure verbatim:
+`FAIL  integration: unmapped COVERAGE rows are listed, not dropped` (the log tail does
+NOT show the known stale `**26**` check this time) — the three NEW E52 rows are
+unmapped in the dashboard capability mapping; the known-pre-existing `**26**` drift
+finding is superseded IN PART by this measurement, kept as written.
+NEXT ACTION (successor, hop 6, exact order): (a) map the three rows
+(`DECL.DEC_POOL_LEXICAL_SHADOW`, `DECL.DEC_POOL_IMAGE_DEDUP_PROGRAMWIDE`,
+`PROC.DEC_FORMAL_COPYIN_CELLMAP`) where `tools/functional_dashboard.py`/its capability
+map expects (inspect the failing check first; do NOT touch spec prose to paper over
+it), rerun dashboard to rc=0 (or record a still-pre-existing rc=1 verbatim incl. the
+`**26**` check if it reappears); (b) census + coverage stats via their OWN write paths
+if drifted (`corpus_census.py --check spec/census/corpus-census.json`; stats per the
+E2E-49/P4 part-2a precedent) then FULL gate `timeout 3600 python3 tools/e2e_gate.py`
+with rc DIRECT (expect 1195/0, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5),
+log to `build/gate-e52p1-reg2.log`; (c) step 7 close prose: PROGRESS Current-phase +
+this section + HANDOFF item-6 -> **E2E-52/P1 CLOSED** with E52G an OPEN `my-gap` +
+PROPOSAL (copy-in-temp arm at a future authorized hop; PROPOSED, never adopted:
+whether G joins `spec/DIVERGENT.txt`); ledger ENDS **C358**; standing PROPOSALS kept
+(FCPS1..3 registration, README § 5.1 rights review, E2E-50/P3 shortlist, dashboard
+refresh); successor without an operator brief records state and STOPS; (d) refresh +
+attest (handoff_renew at a safe boundary if permitted, else handoff_finalize),
+explicit-path commit of durable files. STOP after P1; no push; goldens never
+re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2 blockers; operator
+`handoff.config.json` never staged; all rc captured DIRECTLY, never through pipes.
+
 SUPERSEDED-BY-ABOVE (kept as written): ### E2E-52/P1 hop 4 PARTIAL — ARM LANDED `6a4c554` (B,C,D,H,I byte-exact; A/E/F/J unchanged; E51 12/12; LOAN2 ADVANCED; census re-snapshotted; PRE-REG GATE rc=0); RESULTS §5 + REGISTRATION + CLOSE OWED (2026-11-04; renewals 3/12 used)
 
 MEASURED this hop (accepted): scope-aware prescan arm (`pd_own` field +
@@ -1861,17 +1894,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 268
-checkpoint-id: g268-dc95c397fab7
-checkpoint-kind: manual
+checkpoint-generation: 269
+checkpoint-id: g269-4067c7e11407
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-04T13:41:34.856Z
+checkpointed: 2026-11-04T14:03:40.745Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4ba6878f9a3d7af1faaba71498be3991b580efda36bd68f3ab2189a31657ea10
+source-progress: e537f1101468315dd819a79a80ab882819c412c74f56885eac1c6efe4a88dca4
 source-handoff: 35205ea0fa0c8f1b52c67ecdef03e9536bd00809aab2dc2c9b30fe140019a10d
-source-learnings: b7d322929ad006b55a48ad56e7df722f65e2cdd1d7ee5292041e209003647a01
+source-learnings: 15d74093795dc58089ec43705c6021e63ab582a9f846f0dad34b6f183538e091
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` ->
 "SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
@@ -1921,9 +1954,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a6b6-58aa-7250-8e94-7a41c50f0483
-readiness-at: 2026-11-04T13:41:34.872Z
-readiness-checkpoint: g268-dc95c397fab7
 <!-- guard:end checkpoint -->
 
 ## Blockers

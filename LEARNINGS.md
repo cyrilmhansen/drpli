@@ -5394,3 +5394,9 @@ moved; ALL harness self-tests at this registration hop (stale dashboard `**26**`
 is PRE-EXISTING — record rc=1 verbatim, NEVER fix); then close prose (E2E-52/P1 CLOSED
 with G an OPEN my-gap + PROPOSAL; ALSO PROPOSED, never adopted: whether G joins
 spec/DIVERGENT.txt) + refresh/attest + commit; STOP after P1.
+LATER THIS HOP (accepted): step 4 LANDED — 3 rows, coverage_check rc=0, 139 rows 0/0;
+FALSIFIED shorthand: `rel_parity=DIFFERS:1` is MALFORMED per the validator (use
+`DIVERGENT:1`). Step 6 first run: dashboard rc=1, ONLY failure `integration: unmapped
+COVERAGE rows are listed, not dropped` — new rows need dashboard capability mapping;
+the stale `**26**` line did NOT appear this run (kept as written; the hop-6 contract in
+PROGRESS carries the exact remaining steps a-d).
