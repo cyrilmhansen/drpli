@@ -43,38 +43,22 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
    unless the session's actual task is compiler development or gate verification.
 6. **ACTIVE ROUND: E2E-51/P1** (operator brief 2026-11-04) — oracle DONE (12/12 accepted,
-   goldens+RESULTS `b404b7e`); implementation arms OWED. See `## ACTIVE ROUND` below.
-   (Historical: FS-01 and E2E-50/P2 CLOSED 2026-11-02.) The E2E-50/P3 shortlist is `spec/lab-evidence/e2e50-p2/REPORT.md` §5 — a
-   shortlist, NEVER an authorisation (FS-01 already executed P3-a and a variant of P3-b's
-   isolation aim; P3-b's law declaration, P3-c and P3-d remain proposals). Standing boundary:
-   `/home/john/pli/*` (Runes lab `/home/john/pli/lab`, `/home/john/pli/cpm`,
-   `/home/john/pli/runes-full-runs`) is READ-ONLY for this project
-   unless an operator brief authorizes otherwise.
-## ACTIVE ROUND — E2E-51/P1 ARMS 1+2 LANDED (11/12 goldens byte-exact), ARM 3 (E51I TEST) + REGISTRATION OWED (2026-11-04; HEAD `7d17b63`; ledger ends C352)
+   goldens+RESULTS `b404b7e`); implementation arms OWED. See `## ACTIVE ROUND — E2E-51/P1: ALL 3 ARMS LANDED, 12/12 GOLDENS BYTE-EXACT; REGISTRATION OWED (2026-11-04; HEAD `ee589cc`; ledger ends C352)
 
-Operator-authorized round: FIXED BINARY variable-divisor DIVISION. PRE-REGISTRATION `9bac977`;
-ONE grouped batch -> **12 ok / 12, NO `dr-refuses` row**; goldens + `RESULTS.md` at `b404b7e`;
-E51A..E51K = 11 `my-gap`, E51L control byte-exact. Two MISSes kept verbatim (RESULTS §1):
-E51B literal dividend takes the PARKED slot (H-B-de FALSIFIED); E51I skip byte is `C2`
-(JNZ, [C089] polarity — predicted `CA` FALSIFIED). **DONE:** arm 1 `4ff1ea5` (Div parking
-`lower_hl l / PUSH H / lower_hl r / POP D / CD ?ID22N` + E51K N303 interleave; unmeasured
-classes — Esuffix divisor, deref/based/qualified — refused BY NAME) = **10/12 byte-exact
-ALONE** (E51H needed NO consumer arm — empirical); arm 2 `7d17b63` (E51G ADD right-first+XCHG
-via `is_var_divisor_div`, keyed exactly on the measured shape) = **11/12**. FULL gate rc=0 at
-each arm alone (`build/gate-e51p1-arm1.log`, `build/gate-e51p1-arm2.log`: 1174/0, 181/181,
-9/9, 133 rows 0/0, census 15/0/26/0, prose 5). **EXACT NEXT ACTION (successor):** arm 3 =
-E51I TEST consumer per `PROGRESS.md` -> Next action + `LEARNINGS.md` § "E2E-51/P1 hop 3"
-(golden tail `E5 / 2A r4 / D1 / CD ?IS22N / 7C / B5 / C2 <fwd> / 21 01 00 / 22 r6` + fixup
-triple `SET-LC 001C / RELOC code 0x24 / SET-LC 0024`, CODE 0027; admit ONLY `Eq` with a
-measured-class variable-divisor-DIV left and plain-variable right; everything else keeps
-refusing); build, sweep 12 probes (12/12 expected), FULL gate rc=0, commit ALONE; then
-claims from **C353** (RESULTS §2 ONLY); SPECIMENS registration + sanctioned
-`--update-inventory` (gate AGAIN after: panel 1174 -> 1186); census re-snapshot; COVERAGE
-rows; INVENTORY; then rerun HAMM-00 rev1 UNEDITED (its A-class store blocker is now
-byte-covered) and record the lane verdict. **After P1 STOP — no P2/LOAN2/CREATE without an
-operator brief.** Never stage/clean/revert the operator's dirty `handoff.config.json`; no
-push; no destructive cleanup; goldens/ignored evidence never laundered. Full state:
-`PROGRESS.md` -> Next action + `LEARNINGS.md` § "E2E-51/P1 hop 3".
+Operator-authorized round (FIXED BINARY variable-divisor DIVISION). Oracle `b404b7e` (12 ok/12,
+no `dr-refuses`); arms: 1 `4ff1ea5` (Div parking + [N303] interleave, unmeasured classes refused
+BY NAME), 2 `7d17b63` (E51G ADD right-first+XCHG), 3 `ee589cc` (E51I TEST consumer: `<div> / E5 /
+2A r(c) / D1 / CD ?IS22N / 7C / B5 / C2 <fwd>` + fixup triple, skip byte `C2` — the `CA`
+prediction FALSIFIED; admits ONLY `Eq` + measured-class DIV left + plain-variable right).
+**Sweep 12/12 whole-file BYTE-EXACT; FULL gate rc=0 at every arm alone** (`build/gate-e51p1-arm{1,2,3}.log`:
+1174/0, 181/181, 9/9, 133 rows 0/0, census 15/0/26/0, prose 5).
+**EXACT NEXT (successor): registration ONLY** — claims from **C353** (RESULTS §2 ONLY); SPECIMENS
+for the 12 e51p1 probes in `tools/e2e_gate.py` + sanctioned `--update-inventory` (panel 1174 ->
+1186, then gate AGAIN for the post-update ACTUAL); census re-snapshot; COVERAGE rows; INVENTORY;
+then **HAMM-00 rev1 rerun UNEDITED** (its A-class store blocker is now byte-covered), record the
+lane verdict. **After P1 STOP — no P2/LOAN2/CREATE without an operator brief.** Never
+stage/clean/revert the operator's dirty `handoff.config.json`; no push; goldens never laundered.
+Full state: `PROGRESS.md` -> Next action + `LEARNINGS.md` § "E2E-51/P1 hop 4".
 ## Last verified state — FC-01 OPERATOR OVERRIDE (2026-11-02; HEAD `6a35b9c`; ledger ENDS C352; hop 5 CANCELLED before it began; new priority = eight adapted historical programs; no OCaml byte changed)
 
 - **OPERATOR OVERRIDE (FC-01, 2026-11-02).** The planned HOP 5 work is CANCELLED: do NOT
@@ -1033,13 +1017,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 240
-checkpoint-id: g240-bdb34d649d10
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 2, remaining ~7608, session 01a1a3b5-415f-7402-832b-2aeefdb3b240)
-checkpointed: 2026-11-03T23:42:38.804Z
+checkpoint-generation: 244
+checkpoint-id: g244-a45be7beb25b
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4072, session 01a1a3cb-e3c5-7402-832b-2af335702e09)
+checkpointed: 2026-11-04T00:07:13.526Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c07fe415816cdd63cc7f2e147b86a4c706c0e6ca75d6711ef6ff55be85f3ebbc
 source-handoff: 1c52b59924549de4fddb6f9a758c0487c45713bdbbc198fa7314379d7f59079b
@@ -1047,11 +1031,8 @@ source-learnings: 1a45f8d845f1bf1aabfce3e2dbb37fcc33378c784542c351f540d3ed0ef2f3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a3b5-415f-7402-832b-2aeefdb3b240
-readiness-at: 2026-11-03T23:42:38.816Z
-readiness-checkpoint: g240-bdb34d649d10
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

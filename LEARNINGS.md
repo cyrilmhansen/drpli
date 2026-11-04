@@ -5,6 +5,43 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-51/P1 hop 4 — ARM 3 LANDED: ALL 12 GOLDENS BYTE-EXACT; REGISTRATION OWED (2026-11-04; renewed 3/12 from g242; HEAD `ee589cc`)
+
+MEASURED (accepted; `ocaml/` judged only by whole-file `cmp` vs `golden/e51p1/`):
+- **Arm 3 `ee589cc` (E51I TEST consumer)** makes `golden/e51p1/E51I/E51I.REL` whole-file
+  BYTE-EXACT, i.e. **12/12 of the bank**. The new arm sits directly after the [E2E-34/P5]
+  `v = <expression>` arm and admits ONLY the measured shape: relation `Eq`, LEFT an UNWRAPPED
+  variable-divisor DIV accepted by `is_var_divisor_div`, RIGHT a plain fixed-binary automatic
+  (`is_plain_num_auto`). It emits `<div parking> / E5 / 2A r(c) / D1 / CD ?IS22N / 7C / B5 /
+  C2 <fwd>` + the standard forward-fixup triple (`SET-LC 001C / RELOC code 0x24 / SET-LC 0024`,
+  CODE 0027) — the golden record stream read with `tools/reldump.py`, never guessed.
+- **FALSIFIED (kept as written)**: my `CA` skip-byte reading from [C072] for an equality on a
+  helper RESULT — the measured byte is `C2` (JNZ), the [C089] zero-test polarity, matching the
+  `mod(x,y) = 0` arm. `^=` against a DIV, a DIV on the RIGHT, a constant-divisor DIV in TEST,
+  ordered relations against a DIV and literal/member right operands have NO DR object (RESULTS
+  §3) and all keep refusing at the E2E-3b site.
+- FULL compile-tier gate rc=0 at the arm alone (`build/gate-e51p1-arm3.log`): byte panel
+  **1174/0 of 1174**, negative **181/181** (no row pinned the retired `DIV by non-constant`
+  message), divergence **9/9**, coverage **133 rows 0/0**, census **15/0/26/0**, prose **5**.
+  `dune build` rc=0 (only the four pre-existing warnings). Compiler sha moved to
+  `2cd1de5cdf22…` with arms 1+2 and again with arm 3 — record the ACTUAL built binary in any
+  functional evidence written from it.
+
+METHOD (accepted): the sweep loop (`for n in E51A..E51L: compile probes/$n.PLI, cmp whole file
+vs the golden`) is the cheapest complete consumer-arm verification there is — it answers BOTH
+"is the new line exact" and "did I regress the eleven others" in one pass and costs seconds;
+run it before the gate every time. Reusing an existing predicate (`is_var_divisor_div`) as the
+admission key instead of re-deriving the shape in the arm kept arm 3's guard identical to arm
+2's, so the two arms cannot disagree about what is measured.
+
+OWED NEXT — registration ONLY (exact contract in `PROGRESS.md` → Next action): claims from
+**C353** derived ONLY from RESULTS §2; SPECIMENS registration of the 12 e51p1 probes +
+sanctioned `--update-inventory` (panel 1174 -> 1186, then gate AGAIN for the post-update
+ACTUAL); census re-snapshot via the tool's own write path; COVERAGE rows; INVENTORY; then the
+**HAMM-00 rev1 rerun UNEDITED** (its A-class `z = x / y` store blocker is now byte-covered) and
+the lane verdict recorded (functional, NOT a DR claim). Then STOP: no P2/LOAN2/CREATE without an
+operator brief.
+
 ## E2E-51/P1 hop 3 — ARMS 1+2 LANDED and gated (11/12 goldens byte-exact); arm 3 E51I TEST consumer OWED (2026-11-04; renewed 2/12 from g239; build rc=0 compiler was `edce9e0e…`, now rebuilt with the two arms)
 
 MEASURED (accepted; `ocaml/` changes judged only by whole-file `cmp` vs `golden/e51p1/`):

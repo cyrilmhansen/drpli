@@ -213,6 +213,38 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
+## E2E-51/P1 ALL THREE ARMS LANDED — 12/12 GOLDENS BYTE-EXACT; REGISTRATION OWED, THEN STOP (2026-11-04; HEAD `ee589cc`; compiler sha `2cd1de5cdf22…` + arm 3)
+
+ARM 3 `ee589cc` (E51I TEST consumer) landed ALONE, keyed ONLY on the measured shape
+(`Eq`; left an unwrapped `is_var_divisor_div`; right `is_plain_num_auto`) and emitting the golden
+head verbatim: `<div parking> / E5 / 2A r(c) / D1 / CD ?IS22N / 7C / B5 / C2 <fwd>` + the
+forward-fixup triple `SET-LC 001C / RELOC code 0x24 / SET-LC 0024` (CODE 0027). Sweep ALL 12
+probes E51A..E51L: **12/12 whole-file BYTE-EXACT** (skipped the `cmp` only, each .REL vs
+`golden/e51p1/<n>/<n>.REL`). FULL compile-tier gate **rc=0** `build/gate-e51p1-arm3.log`: byte
+panel **1174/0 of 1174**, negative **181/181**, divergence **9/9**, coverage **133 rows 0/0**,
+census **15/0/26/0**, prose **5 active clean**; `dune build` rc=0. FALSIFIED prediction kept as
+written: skip byte `CA` ([C072] reading) — measured `C2`/JNZ, the [C089] zero-test polarity.
+
+EXACT NEXT (registration; nothing else is authorized):
+(1) claims from **C353** derived ONLY from `spec/lab-evidence/e2e51-p1/RESULTS.md` §2 (§2.1
+parking law incl. literal/compound/chained/negate-then-park dividend slots + the [N303] 1-byte
+divisor interleave; §2.2 quotient consumption — ADD orientation-free right-first, PUT [C079]
+width over a helper RESULT, TEST `C2` polarity + fixup triple; §2.3 constant-divisor boundary;
+§3 stays unmeasured) — cite goldens `golden/e51p1/*` + probes `probes/E51*.PLI`; 11 `my-gap`
+rows A..K closed, E51L control byte-exact.
+(2) SPECIMENS: register the 12 `e51p1` specimens in `tools/e2e_gate.py`, then sanctioned
+`python3 tools/e2e_gate.py --update-inventory` (expect panel **1174 -> 1186**), then run the gate
+AGAIN so the byte-panel ACTUAL is post-update (the P4 `cc43963` cycle).
+(3) census re-snapshot via the tool's own write path; (4) COVERAGE rows for the new classes
+(schema `spec/COVERAGE-SCHEMA.md`, validator `tools/coverage_check.py:203-247`); (5) INVENTORY.
+(6) **HAMM-00 rev1 rerun UNEDITED** — its A-class blocker (`z = x / y` store) is now
+byte-covered by arm 1; record the lane ACTUAL verdict (functional, NOT a DR claim); if it FAILs
+for a DIFFERENT reason, record it, never launder.
+(7) close prose + `/handoff` + attest, then **STOP after P1**. NO P2/LOAN2/CREATE without an
+operator brief.
+
+SUPERSEDED-BY-ABOVE (kept as written):
+
 ## E2E-51/P1 ARMS 1+2 LANDED AND GATED (11/12 goldens byte-exact); ARM 3 (E51I TEST) + REGISTRATION OWED (2026-11-04; HEAD `7d17b63`; compiler rebuilt with both arms)
 
 DONE this session: **arm 1 `4ff1ea5`** (Div parking in `ocaml/lib/codegen.ml`:
@@ -1572,13 +1604,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 240
-checkpoint-id: g240-bdb34d649d10
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-03T23:42:38.804Z
+checkpoint-generation: 244
+checkpoint-id: g244-a45be7beb25b
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-04T00:07:13.526Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: c07fe415816cdd63cc7f2e147b86a4c706c0e6ca75d6711ef6ff55be85f3ebbc
 source-handoff: 1c52b59924549de4fddb6f9a758c0487c45713bdbbc198fa7314379d7f59079b
@@ -1606,9 +1638,6 @@ next-action: ` below. TABLE-00 and
   Compiler binary used as-built: `pli80c.exe` sha256 `edce9e0e…` (recorded in every PASS record).
 - Prior round: E2E-50/P2 CLOSED `876ed9e` (gate ACTUALS 1174/0, 181/181, 9/9, 133/0/0, census
   15/0/26/0, prose 5 clean recorded `d648bcd`; close archive `docs/history/2026-11-02-e50p2-closed.md`).
-readiness-by: session:01a1a3b5-415f-7402-832b-2aeefdb3b240
-readiness-at: 2026-11-03T23:42:38.816Z
-readiness-checkpoint: g240-bdb34d649d10
 <!-- guard:end checkpoint -->
 
 ## Blockers
