@@ -3,7 +3,7 @@
 Manual prose wins over the managed block below it. Do not hand-edit the managed block.
 This file tracks *working state*; compiler behaviour itself belongs to `spec/CLAIMS.md`.
 
-## Current phase — E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
+## Current phase — **E2E-52/P1 IN FLIGHT** (operator-authorized 2026-11-04; scope-aware DEC pool prescan, LOAN2 class; pre-registration `d1fbc16`; oracle campaign OWED — see ## Next action). Prior: E2E-51/P2 **CLOSED** (2026-11-04; operator-authorized HAMM-00 rev2 functional derivation correction; LANDED `a21a586` + record `52f9a54`; ledger ENDS **C355**; **NO ACTIVE ROUND**)
 
 E2E-51/P2 executed the P1 hop-6 "rev2 DERIVATION fix" proposal under an explicit
 operator brief. `reference.py:_Hamm00Port.run()`: the `fed0:` entry `self.skip()` moved
@@ -279,75 +279,27 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P1 IN FLIGHT — scope-aware DECIMAL pool prescan (operator-authorized 2026-11-04; session hop 1 ended at context exhaustion with NOTHING tracked authored; renewals 0/12 used)
+### E2E-52/P1 IN FLIGHT — PRE-REGISTRATION COMMITTED `d1fbc16`; ORACLE CAMPAIGN OWED (2026-11-04; hop 2 closed at context exhaustion; renewals 1/12 used)
 
-Mission (operator brief, verbatim scope): fix the LOAN2 name-to-type ambiguity in the DEC-pool
-prescan by MEASURING DR's scoping, then implementing scope-aware prescan if the oracle supports
-it. Stop after P1; no push; preserve operator `handoff.config.json` edit; never overwrite
-goldens; stale dashboard fixture stays out.
+Hop 2 LANDED (committed `d1fbc16` BEFORE any DR call; `git log --format=%h --
+probes/E52A.PLI` proves order): `spec/lab-evidence/e2e52-p1/{PLAN.md,HYPOTHESES.md,
+mkprobes.py,BASELINE-MINE.txt}` + generated `probes/E52A..J.PLI` (CRLF+^Z, <=71 cols,
+apostrophe-free, keys collision-checked [C193c]). BASELINE-MINE MEASURED at HEAD
+`99845ae`, binary `f172d8ea...`: A rc=0 256B sha8217250a / E rc=0 sha4fe89c7d / F rc=0
+sha8c09f2e7 / J rc=0 384B sha0a3f6b6a (same-kind or no homonym — compile today); B/C/D/
+G/H/I rc=2 `declared with conflicting kinds ... [TBD]` (LOAN2 class). Scratch design
+checks (BASELINE-MINE appendix, NOT panel probes): S2 LITERAL-store-to-DEC-FORMAL rc=0 —
+E52G is blocked ONLY by the name clash, the route exists; S6 (bin store + proc-local
+dec(7,2) store) rc=0; S7 (two-level `if y > 0 then y = 1`) rc=0. `ocaml/` IDENTICAL
+`e15e325`..HEAD; `golden/e52p1` VERIFIED ABSENT; no DR call made yet.
 
-DONE at hop 1 (all MEASURED, accepted): HEAD `e15e325` main, tree clean except operator config;
-checkpoint g256 verified current by replaying the guard strip+rstrip prose law; `dune build` rc=0
-(binary sha `271b9fc6…`); LOAN2 refusal REPRODUCED rc=2 `codegen: variable i declared with
-conflicting kinds; decimal pool prescan needs one unambiguous type map [TBD]`; LOAN2 goldens
-exist (`golden/first/LOAN2/LOAN2.REL` = `first8080u`, 7680 B, sha `712cfcb2…`, DATA 0x035A,
-CODE 0x09A0) — DR ACCEPTS; no SPECIMENS/DIVERGENT row for LOAN2 (it never compiled, so no row
-to remove); NO existing probe/golden has cross-scope homonyms (script-surveyed `probes/*.PLI`);
-[C228] proves LABELS shadow block-scope (precedent, not a variable law).
+NEXT (hop 3, exact):
+1. ONE grouped campaign: `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py E52A E52B E52C E52D E52E E52F E52G E52H E52I E52J --tag e52p1 --switches '$L$D'` (NEVER --reuse; timeout preserved/classified, never retried).
+2. Inspect every .PRN + complete .REL (`tools/reldump.py`, whole-file cmp); classify each row `dr-refuses`/`my-gap`/`unmeasured` against the HYPOTHESES.md per-row table (models H1-lexical / H2-own-only / H3-global-outer / H4-per-scope-pool; DATA and CODE discriminators THERE). Write RESULTS.md (verdicts + every MISS verbatim PROTOCOL #2; laws ONLY from measured §2; §3 NOT-say); commit goldens + RESULTS TOGETHER BEFORE any compiler change.
+3. Implementation ONLY after evidence, one small structured change (direction pre-registered in PLAN §4): `pd_vars` (codegen.ml:13438) starts as TOP rows ONLY; per-proc own-rows table via the SAME `rt_to_vk`; the prescan `Sproc` arm (~3300) recurses with `{ cx with pd_vars = own @ cx.pd_vars }` — assoc first-match = lexical shadow, mirroring `lower_proc` (~12210) `st.vars <- attach proc_rows pl_rows @ saved`. Keep pd_img/pd_str/pd_fl dedup refs, pd_procs, pd_fl_procs, const_cells, pool base INTACT; keep a clash check WITHIN one accumulation; do NOT touch bind (outer_rows dead). Invariants: A/E/F/J objects byte-IDENTICAL to BASELINE-MINE shas; [C179] demand==allocation; unsupported constructs still refused BY NAME. If a DR object contradicts H1, STOP at evidence + PROPOSAL — never fit blindly.
+4. Verify: `cd ocaml && eval "$(opam env)" && dune build`; new accepted specimens whole-file byte-exact vs `golden/e52p1/<n>/<n>.REL`; regression sweep E51A..L (expect 12/12) + panel intact; LOAN2 rerun UNMODIFIED — record the exact next blocker if it advances, do NOT fix it.
+5. FULL gate `timeout 3600 python3 tools/e2e_gate.py` BEFORE registration (expect 1186/0, 181/181, 9/9, 136 rows 0/0, census 15/0/26/0, prose 5); then register: SPECIMENS block + sanctioned `--update-inventory`, gate AGAIN post-update (byte-panel ACTUAL from the post-update run); claims from **C356** derived ONLY from RESULTS §2; COVERAGE rows AFTER inventory; census via the tools own write path; run ALL harness self-tests at this registration hop (stale dashboard `**26**` check is PRE-EXISTING — record, never silently fix). Close prose + `/handoff` + attest; **STOP after P1**; no push; operator `handoff.config.json` never staged; goldens never overwritten/laundered; NEVER re-run the retry-DFS.
 
-NEXT (hop 2, exact):
-1. Author `spec/lab-evidence/e2e52-p1/{PLAN.md,HYPOTHESES.md,mkprobes.py}` + generated
-   `probes/E52*.PLI` + `BASELINE-MINE.txt` (run each probe through
-   `ocaml/_build/default/bin/pli80c.exe <probe> /tmp/x.REL`, record rc + message). Probe bank
-   design (10 rows, proposed, refine from hop-1 survey only; frame = lowercase main
-   `options(main)`, statements first then nested procs, `call q;` accepted spelling, CRLF+^Z,
-   ≤71 cols, no apostrophes in comments — [C193],[C118]):
-   E52A same name SAME type both scopes, both `i = 3` (control + cross-scope dedup: one 3-byte
-   cell predicted); E52B outer `i fixed dec(4,2)` / inner `i fixed dec(9,2)`, both `i = 3` (H1:
-   pool 3+5=8; H3-global: one 3-byte shared cell); E52C DEC outer / `i fixed bin` inner (H1:
-   inner store IMMEDIATE `LXI H,0003/SHLD`, pool 3; H3: pool 3 but `LXI H,*S`+DLDOP route —
-   CODE discriminator); E52D `i fixed bin` outer / `i fixed dec(7,2)` inner (H1 pool 4, H3 0);
-   E52E inner stores to NON-shadowed outer `o fixed dec(9,2)` (H2 local-only would miss the
-   5-byte cell; H1 sees outer); E52F different names same type same value across scopes (H4
-   dedup scope-breadth); E52G formal shadow: `q: procedure(i); dcl i fixed dec(9,2); i = 3;` vs
-   outer `i fixed dec(4,2); i = 3;` (LOAN2 current_year shape; note DEC-formal writes ARE
-   measured via [C131] `?DSTOP` route for a var source — check the LITERAL-to-formal path in
-   BASELINE-MINE before predicting acceptance); E52H nested-nested: main `x dec(4,2)`, mid proc
-   `x dec(9,2)` + store, inner proc no own x + same-value store (H1: dedup into mid's 5-byte
-   cell; own+main-only env: second 3-byte cell — pool 8 vs 6... MEASURE); E52I 3-level chain
-   where the MID declares and innermost reads shadowed name in a condition (prescan_cond
-   consumer) — only if E52G/H don't already separate H1/H2; E52J regression control NO shadowing,
-   equivalent pool demand (`do while` DEC-literal compare inside a proc — guards the existing
-   single-scope path). DEC cell bytes = ceil((p+1)/2) (dec(4,2)=3, (5,2)=3, (7,2)=4, (9,2)=5,
-   (10,2)=6, (11,2)=6 [R507,LOAN1]).
-2. Commit pre-registration (probes + evidence dir, explicit paths) BEFORE any DR call
-   (`git log --format=%h -- probes/E52A.PLI` proves ordering).
-3. ONE grouped campaign: `cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900
-   python3 oracle/batch.py E52A E52B ... --tag e52p1 --switches '$L$D'` (golden/e52p1 must NOT
-   exist; no --reuse). Inspect .PRNs + complete .RELs (`tools/reldump.py`, whole-file cmp);
-   classify every row dr-refuses/my-gap/unmeasured; RESULTS.md keeps every MISS verbatim
-   (PROTOCOL #2). Commit goldens+RESULTS BEFORE any compiler change.
-4. Implementation (ONLY after evidence; prefer small structured change): the LOWERING is already
-   lexical — `lower_proc` (codegen.ml:11964) sets `st.vars <- Vinfo.attach proc_rows (mapped
-   pl_rows) @ saved` (~12210), inner-first assoc = shadow; arrays/members/deref similar.
-   The prescan outlier: `pd_vars` built global at codegen.ml:13438 from `proc_vk_rows` (all
-   procs' pl_rows via `rt_to_vk`) @ top rows and REFUSES homonym kind clashes; ~15 consumers
-   `List.assoc_opt ... cx.pd_vars` (1865,1905,2914,2933,2965-2974,3112-3121,3162,3179,3198);
-   `Sproc` arm (3300) already swaps pd_ret/pd_fl_ret. Direction: start `pd_vars` = top rows
-   ONLY; carry a per-proc-own-rows table (name -> rows-vk via the SAME `rt_to_vk`); in `Sproc`
-   recurse with `{ cx with pd_vars = own @ cx.pd_vars }` — assoc-first-match gives the same
-   lexical shadowing as lowering; keep dedup refs (pd_img/pd_str/pd_fl/pd_dec), pd_procs,
-   pd_fl_procs, const_cells, pool base INTACT. Do NOT modify bind (its `outer_rows` param is
-   dead — bind.ml:614/508 — do not resurrect without need). Invariants: single-scope path
-   unchanged; pool demand == lowering allocation; DATA offsets/relocs byte-exact; unsupported
-   constructs still refused by name.
-5. Verify: new accepted E52 specimens whole-file byte-exact vs golden/e52p1; rerun original
-   `artefacts/LOAN2.PLI` UNMODIFIED — record the exact next blocker if it advances (do NOT fix
-   it); FULL compile-tier gate `timeout 3600 python3 tools/e2e_gate.py` rc expected 0 with
-   baseline 1186/0, 181/181, 9/9, 136 rows, census 15/0/26/0, prose 5; register genuinely
-   verified specimens/claims (C356+) per PROTOCOL, sanctioned `--update-inventory`, coverage
-   rows; Rune CI only for runtime/link-run of a committed revision. Close prose + renew/finalize;
-   **STOP after E2E-52/P1**.
 
 ### SUPERSEDED (kept as written): E2E-51/P2 CLOSED — NO ACTIVE ROUND (2026-11-04; HAMM-00 rev2 LANDED `a21a586`, record `52f9a54`): successor confirms HEAD/tree, runs `/handoff verify`, records state and **STOPS** — await an operator brief
 

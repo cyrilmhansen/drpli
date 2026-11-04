@@ -5213,3 +5213,28 @@ historical evidence/goldens UNTOUCHED; § 16 rev1 FAIL evidence kept as written.
 - Classification: rev2 is a corrected DERIVATION + measured functional PASS; NO DR
   oracle claim promoted; ledger still ends **C355**. Record:
   `docs/functional-results.md` § 17 + § 1 row (commit `52f9a54`); § 16 kept intact.
+
+## E2E-52/P1 hop 2 (2026-11-04; pre-registration LANDED `d1fbc16`; oracle campaign OWED)
+
+MEASURED/accepted (my compiler, BASELINE-MINE at HEAD `99845ae`, binary `f172d8ea...`;
+`ocaml/` identical `e15e325`..HEAD so hop-1 sha `271b9fc6...` delta is build noise):
+LOAN2-class refusal reproduces on every conflicting-kind probe — B/C/D/G/H/I all rc=2
+`declared with conflicting kinds; decimal pool prescan needs one unambiguous type map
+[TBD]`; SAME-kind homonyms and no-shadow shapes compile today (A/E/F/J rc=0, shas
+8217250a/4fe89c7d/8c09f2e7/0a3f6b6a). The flat `pd_vars` map (codegen.ml:13438) prepends
+rows during fold so TOP (outer) rows sit first — assoc-first-match gives outer-wins TODAY,
+but the clash refusal fires before any lookup matters; the fix is per-scope accumulation in
+the prescan `Sproc` arm (~3300), mirroring `lower_proc` (~12210). Pool cells: dedup is on
+the ENCODER BYTE IMAGE (`pdec_dec_cell`/`cx.pd_img`, one shared ref — program-wide already,
+hop-1 note confirmed in source); DEC target-precision cell = ceil((p+1)/2); literal-to-DEC-
+FORMAL store path EXISTS and compiles (scratch S2 rc=0, DATA 0x0F) — E52G is blocked only
+by the name clash. Frame law reconfirmed: statements-first placement + bare `call q;` +
+nested defs compile rc=0. Accepted controls reused: [C187] N6 (distinct cells, DR accepts
+homonyms), [C178]/E2E-24 (image dedup), [C131], R507 pool-first DATA layout.
+PROPOSED (pre-registered in HYPOTHESES.md, NEVER adopted): models H1-lexical (fix
+direction), H2-own-only (invariant trap for my own fix, tested by E52E), H3-global-outer
+(DATA/CODE discriminators C/D/G/B), H4-per-scope-pool (A/F). Discriminators: E52H separates
+mid-vs-main resolution only via CODE/reloc (both models dedup onto an existing cell —
+hop-1 "pool 8 vs 6" phrasing FALSIFIED by design analysis, recorded here); E52I separates
+them via DATA size (21 vs 17). Next hop: ONE grouped `--tag e52p1` campaign, RESULTS.md +
+goldens committed together, then implementation strictly per evidence; STOP after P1.
