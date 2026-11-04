@@ -1152,25 +1152,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 271
-checkpoint-id: g271-bd81e586b525
+checkpoint-generation: 272
+checkpoint-id: g272-6b059e276b81
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-1950, session 01a1a6cb-68ea-7250-8e94-7a45e6054bdb)
-checkpointed: 2026-11-04T14:06:01.899Z
+status: checkpoint (guard level 0, remaining ~26075, session 01a1a6e1-8cba-7250-8e94-7a4821b5fd5f)
+checkpointed: 2026-11-04T14:42:21.306Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a727d17283e559d2e1aff06fb4018426107c9329ae99efce0fe917391294473e
-source-handoff: 341c4145b80ca5ed89d0fc1789b2a90f78537914cab16a9c91648689cd186cab
-source-learnings: cc3c575e5cf7367be50f7dae25820063f27b45efdcd8399cee1728b5a96aa2f3
+source-progress: 5d19baffeaad49c4a71757e74172d5088e1b045a04e0de51f5789743569dfb0d
+source-handoff: 5453ba79fac60ff007a84b57b93e38587c1df8a3ec7b377b7e3c501f58ab5b0a
+source-learnings: 10f7952604ae2bb23591e54602e9de71fd98e8aae7a2a1197ea4cf4829ae269e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a6cb-68ea-7250-8e94-7a45e6054bdb
-readiness-at: 2026-11-04T14:06:01.909Z
-readiness-checkpoint: g271-bd81e586b525
+readiness-by: session:01a1a6e1-8cba-7250-8e94-7a4821b5fd5f
+readiness-at: 2026-11-04T14:42:21.316Z
+readiness-checkpoint: g272-6b059e276b81
 ### Last verified state
-guard level 4; checkpoint requested (renewal refresh (model))
+guard level 0; checkpoint requested (finalize: E2E-52/P1 CLOSED (hop 6 closing session). Landed: dashboard mapping fa0596c (3 E52 rows -> DECL.SCALAR_TYPES/ARITH.DECIMAL/PROC.CALL; status doc refreshed via own write path; unmapped 32->29), close 68a263f (PROGRESS Current-phase+Next action, HANDOFF item 6, LEARNINGS hop-6 section, census metadata-only). FULL gate REAL rc=0 DIRECT build/gate-e52p1-reg2.log: 1195/0 of 1195, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5; prose check rc=0 standalone; hostile suite rc=0 211/211; coverage_check rc=0; census --check rc=0. Known PRE-EXISTING recorded, NEVER fixed: test_functional_dashboard.py rc=1 sole verbatim FAIL 'integration: unmapped COVERAGE rows are listed, not dropped' (stale hardcoded **26** vs rendered **29**; refresh + mapping P1's 3 DIV rows stays PROPOSED). Ledger ENDS C358. E52G OPEN my-gap: never registered, never fitted; copy-in-temp arm and spec/DIVERGENT.txt membership PROPOSED, never adopted. Successor WITHOUT an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state, STOP. No push; goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2 blockers.)
 
 ### Unfinished operations
 - (none recorded)
@@ -1238,5 +1238,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P1 hop 6: execute PROGRESS.md -> "Next action" -> "HOP 5 IN-FLIGHT ADDENDUM" steps a-d exactly. Verified committed: step1 e2a9866 (RESULTS §5), step2 edf4a25 (9 SPECIMENS no G, INVENTORY 1195, gate rc=0 1195/0), step3 7176ff8 (claims C356..C358, ledger ENDS C358, prose rc=0), step4 rows (coverage 139 0/0 rc=0; DIVERGENT:1 vocabulary lesson), checkpoint 564442e. Dashboard rc=1 verbatim: only failure "integration: unmapped COVERAGE rows are listed, not dropped" — map the 3 new rows in tools/functional_dashboard.py capability map (inspect failing check first; never paper over in prose). Then census/stats own write paths if drifted, FULL gate rc DIRECT to build/gate-e52p1-reg2.log (expect 1195/0,181/181,9/9,139 0/0,15/0/26/0,prose 5), step-7 close prose E2E-52/P1 CLOSED (G OPEN my-gap + copy-in-temp PROPOSAL; PROPOSED never adopted: whether G joins spec/DIVERGENT.txt), attest, STOP after P1. No push; goldens never re-derived; NEVER re-run retry-DFS; no LOAN2 expansion; operator handoff.config.json never staged; rc always DIRECT.
+E2E-52/P1 CLOSED (hop 6 closing session). Landed: dashboard mapping fa0596c (3 E52 rows -> DECL.SCALAR_TYPES/ARITH.DECIMAL/PROC.CALL; status doc refreshed via own write path; unmapped 32->29), close 68a263f (PROGRESS Current-phase+Next action, HANDOFF item 6, LEARNINGS hop-6 section, census metadata-only). FULL gate REAL rc=0 DIRECT build/gate-e52p1-reg2.log: 1195/0 of 1195, 181/181, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5; prose check rc=0 standalone; hostile suite rc=0 211/211; coverage_check rc=0; census --check rc=0. Known PRE-EXISTING recorded, NEVER fixed: test_functional_dashboard.py rc=1 sole verbatim FAIL 'integration: unmapped COVERAGE rows are listed, not dropped' (stale hardcoded **26** vs rendered **29**; refresh + mapping P1's 3 DIV rows stays PROPOSED). Ledger ENDS C358. E52G OPEN my-gap: never registered, never fitted; copy-in-temp arm and spec/DIVERGENT.txt membership PROPOSED, never adopted. Successor WITHOUT an operator brief: confirm HEAD/tree (only operator handoff.config.json may be dirty), /handoff verify, record state, STOP. No push; goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2 blockers.
 <!-- guard:end checkpoint -->
