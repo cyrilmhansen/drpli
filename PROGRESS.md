@@ -1826,17 +1826,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 267
-checkpoint-id: g267-5caaed35ac6e
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 268
+checkpoint-id: g268-dc95c397fab7
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-04T13:39:25.103Z
+checkpointed: 2026-11-04T13:41:34.856Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3d913ee2df56fd0aa785815c71336e6f761d68503d537982061434bfb99ffc73
+source-progress: 4ba6878f9a3d7af1faaba71498be3991b580efda36bd68f3ab2189a31657ea10
 source-handoff: 35205ea0fa0c8f1b52c67ecdef03e9536bd00809aab2dc2c9b30fe140019a10d
-source-learnings: 456d9ba261a98f6412c17a759577672c55b5e34d72effdc8065f029831160528
+source-learnings: b7d322929ad006b55a48ad56e7df722f65e2cdd1d7ee5292041e209003647a01
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` ->
 "SCOPE-AWARE PRESCAN IMPLEMENTATION OWED"** (ONE small `pd_own`/`pd_vars` prescan change
@@ -1886,6 +1886,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1a6b6-58aa-7250-8e94-7a41c50f0483
+readiness-at: 2026-11-04T13:41:34.872Z
+readiness-checkpoint: g268-dc95c397fab7
 <!-- guard:end checkpoint -->
 
 ## Blockers

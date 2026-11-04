@@ -1103,22 +1103,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 267
-checkpoint-id: g267-5caaed35ac6e
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~-5659, session 01a1a6b6-58aa-7250-8e94-7a41c50f0483)
-checkpointed: 2026-11-04T13:39:25.103Z
+checkpoint-generation: 268
+checkpoint-id: g268-dc95c397fab7
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-11565, session 01a1a6b6-58aa-7250-8e94-7a41c50f0483)
+checkpointed: 2026-11-04T13:41:34.856Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3d913ee2df56fd0aa785815c71336e6f761d68503d537982061434bfb99ffc73
+source-progress: 4ba6878f9a3d7af1faaba71498be3991b580efda36bd68f3ab2189a31657ea10
 source-handoff: 35205ea0fa0c8f1b52c67ecdef03e9536bd00809aab2dc2c9b30fe140019a10d
-source-learnings: 456d9ba261a98f6412c17a759577672c55b5e34d72effdc8065f029831160528
+source-learnings: b7d322929ad006b55a48ad56e7df722f65e2cdd1d7ee5292041e209003647a01
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a6b6-58aa-7250-8e94-7a41c50f0483
+readiness-at: 2026-11-04T13:41:34.872Z
+readiness-checkpoint: g268-dc95c397fab7
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1174,5 +1177,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P1 hop 4: execute PROGRESS.md -> "Next action" -> "SCOPE-AWARE PRESCAN IMPLEMENTATION OWED" exactly (3 numbered steps). Evidence is committed: oracle 10 ok/10 at e14d180, goldens golden/e52p1 (never re-derive/overwrite), spec/lab-evidence/e2e52-p1/RESULTS.md §1-§4 (H1-lexical CONFIRMED; H3 falsified 5x; H4 falsified 2x; H2 falsified for DR by E = fix invariant; E52G MISS DATA 20 kept verbatim, never fitted). Implementation = ONE small change in ocaml/lib/codegen.ml per PLAN §4: add pd_own to pdec_ctx (:1687, single construction site :13499); pd_vars = TOP rows only (replace proc_vk_rows fold at :13432-13452, keep the conflicting-kinds refusal for a clash WITHIN one procedure's OWN rows); prescan Sproc arm (:3300-3320) recurses with pd_vars = own @ cx.pd_vars using the SAME rt_to_vk; keep pd_img/pd_str/pd_fl/pd_procs/pd_fl_procs/const_cells/pool base INTACT; do not touch bind. Then dune build; compile probes/E52*.PLI to build/e52p1-mine/ and cmp whole-file vs golden/e52p1: expect B,C,D,G,H,I byte-exact and A/E/F/J UNCHANGED (8217250a/4fe89c7d/8c09f2e7/0a3f6b6a); sweep E51A..L (12/12 vs golden/e51p1); commit the arm ALONE. If any object contradicts H1, STOP at evidence + PROPOSAL — never fit. LOAN2 rerun UNMODIFIED: record the next blocker verbatim, do NOT fix. FULL gate BEFORE registration (expect 1186/0,181/181,9/9,136 rows 0/0,census 15/0/26/0,prose 5), then SPECIMENS + sanctioned --update-inventory + gate AGAIN, claims from C356 ONLY from RESULTS §2, COVERAGE rows AFTER inventory, census own write path, ALL harness self-tests (stale dashboard **26** check PRE-EXISTING — record, never silently fix). STOP after P1; no push; preserve operator handoff.config.json; NEVER re-run the retry-DFS.
+E2E-52/P1 hop 5: execute PROGRESS.md -> "Next action" -> "hop 4 PARTIAL ... REGISTRATION + CLOSE OWED" exactly (7 numbered steps). Verified committed: arm 6a4c554 (pd_own scope-aware prescan; B,C,D,H,I byte-exact, A/E/F/J unchanged 8217250a/4fe89c7d/8c09f2e7/0a3f6b6a, E51 12/12, LOAN2 next blocker verbatim PUT FILE bare PAGE line 99 RECORDED NOT fixed, census re-snapshotted counts 15/0/26/0, pre-reg gate REAL rc=0 build/gate-e52p1-pre-reg.log). E52G = condition-4 evidence stop: residual is §2.3 formal cell map (copy-in temp) — NEVER fit, NEVER implement this round; register ONLY the 9 byte-exact specimens; claims from C356 ONLY from RESULTS §2; stale dashboard **26** check PRE-EXISTING — record, never fix; all rc captured DIRECTLY never through pipes; dune|head SIGPIPE lesson in LEARNINGS § hop 4. STOP after P1; no push; goldens never re-derived; NEVER re-run the retry-DFS; operator handoff.config.json never staged.
 <!-- guard:end checkpoint -->
