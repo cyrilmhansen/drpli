@@ -1301,28 +1301,265 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 289
-checkpoint-id: g289-5ac2d7f1cb1d
-checkpoint-kind: auto
+checkpoint-generation: 290
+checkpoint-id: g290-d38316a0caed
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4902, session 01a1a7e6-adbb-7427-a642-9c4bbaddb389)
-checkpointed: 2026-11-04T19:13:58.189Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~944, session 01a1a7e6-adbb-7427-a642-9c4bbaddb389)
+checkpointed: 2026-11-04T19:15:13.721Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b37e80d1291e101843fa2789ba5949cc6ed8fb0a7c0b77a82baadaebe88777bc
-source-handoff: f1bb2218ea3ee06fd21bd4b43731c07cb636c8a6b4a56acd210606acecaec523
+source-progress: 9cff28c87eb604590a63656d7cc228473e57550a9f1578f0bb1fca41763ca533
+source-handoff: 456150056e081f43b8a589cc9be70379a2a0bfa5dcfc5e507cbf2db0d20e89d4
 source-learnings: 0f4479447b023e8b28bf29f18f3fbd26869a5ed0c9b001b26edac18f244d2d7d
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a7e6-adbb-7427-a642-9c4bbaddb389
+readiness-at: 2026-11-04T19:15:13.737Z
+readiness-checkpoint: g290-d38316a0caed
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` -> "HOP 5 IN-FLIGHT ADDENDUM"
+` → "PLAN §P3-2 LANDED; ARM A1-A5 OWED"
+steps (1)-(5) exactly; read that LEARNINGS § + PLAN §P3-2 first. Renewal 5/12 after this.
+
+0. **E2E-52/P3 CAMPAIGN IN FLIGHT (2026-11-04; renewals autonomous; do NOT stop after
+ one blocker).** **P3-1 CLOSED + REGISTERED** (chain `8dbebff` guard block, `e728175`
+ INVENTORY 1196->1197 ONE-line diff + post-reg FULL gate REAL **rc=0 1197/0**
+ `build/gate-e52p3-reg.log` — negatives MEASURED **180/180**, the brief's 181/181
+ FALSIFIED by the retire; claim **C359** `c410d18` ledger ENDS C359/182; COVERAGE
+ FILE.PUT_PAGE SUPPORTED+EXACT:1 rc=0 `d3b8859`; RESULTS+PLAN §5 `3e74d83`; prose rc=0;
+ tree clean except operator config). E46N10 is a panel-EXACT specimen (384 B).
+ **SUCCESSOR: subround P3-2 = PUT EDIT (LOAN2:115 verbatim `codegen: PUT EDIT deferred
+ [TBD] (line 115; ... ?EDITF/?EDTOV/?QDDSL route family)`).** READ FIRST `LEARNINGS.md`
+ § "E2E-52/P3-2 evidence decode LANDED" (commit `59f9afa`) — it SUPERSEDES the survey
+ bullets below: LAW REVERSAL (`edit(L1)(L2)` = DATA then FORMAT; 115 DATA is `'|'` +
+ `100*m+y`, FORMATS are `a` + picture `p'99/99'`; predecessor data-item bullet FALSIFIED);
+ `clear` = `%replace` macro; P086K fully decoded (file tables = console law; DEC prep
+ `MVI A,05/?DLDOP/MVI A,08/MVI B,02/?QDCOP/?EDTOV` = existing p/p+3/s law — `MVI B,06`
+ FALSIFIED; `?EDTIV` one new routine; NO-open attach C282); barrier =
+ `lower_put_items_gen` `is_edit && file` guard (premise FALSIFIED) + `match_put_edit`
+ file-blindness + fmtq FIFO + `st.file_out` guard. Execute that § owed steps (1)-(5): byte-
+ list stmt-199 span 08F1-0950 + tables, check golden/e2e8/e2e11, **PLAN §P3-2 committed
+ BEFORE any ocaml/ byte**, then arm (PROPOSED P3-2a: file PUT+GET EDIT bare skip + literal
+ f/a + string/DEC items; picture-02/x/rep/V refuse BY NAME; specimen probes/P086K.PLI vs
+ golden/probe55/P086K 1197→1198; E41X8 retirement; LOAN2 STILL refuses 115 naming the
+ `02` record), sweep/refusals/registration/C360 measured-bytes-only. Prior section, kept
+ as written:
+ § "E2E-52/P3-1 REGISTRATION LANDED; P3-2 (PUT EDIT) evidence survey IN FLIGHT" — it
+ carries the refusal site (codegen.ml:2646 in match_put_list_lit), the console EDIT
+ state ([C090]; fmt_spec admits ONLY literal-width f/a + bare skip/page), and the
+ ALREADY-MEASURED DR file-EDIT witnesses: `golden/probe55/P086K/P086K.REL` re-dumped
+ this session (attach 0652/?SIOOP, table `80 00 00 05 01 81` at *S(0000), ?EDITF,
+ ?DLDOP/?QDCOP/?EDTOV/?QIOOP, no OPEN needed, pool law holds) and `golden/first/LOAN2/
+ LOAN2.REL` span 0522-055C (skip=MVI A,01/?SKPOP; 100*m+y=LHLD/LXI D,0064/?IM22N/XCHG/
+ LHLD/DAD/MVI A,09/?QICOP/?EDTOV; full reldump in ignored `build/e52p3/`). E41X8
+ negative pins the P086K shape (retirement candidate). Execute the § owed steps (1)-(7):
+ finish evidence (decls of `a`/`clear`; decode ALL LOAN2 tables + spans 068A,0796,0830,
+ 086E,08F1,0951; string-in-format/V/picture/rep encodings), PROPOSED first arm = file
+ EDIT bare-skip + literal f/w formats (P086K bytes fully pinned; later subrounds own
+ string/V/picture), **PLAN §P3-2 committed BEFORE any ocaml/ byte**, then arm/sweep/
+ refusals/LOAN2-rerun-verbatim/register/C360 from measured bytes only. Constraints:
+ no push; goldens never re-derived; operator handoff.config.json never staged; all rc
+ DIRECT; never hardcode LOAN2; renew at safe boundaries (3/12 used); [C359] does NOT
+ license counted PAGE/PAGE+items/console PAGE/non-leading (all still refuse BY NAME).
+ SUPERSEDED-BY-ABOVE (kept as written):
+ renewals autonomous at safe boundaries; do NOT stop after PAGE).** P3-1 **ARM LANDED
+ `adb749c`** (codegen.ml only; B1-B7 executed; binary `34e8321a…`; warning profile IDENTICAL
+to baseline). MEASURED: E46N10 whole-file cmp rc=0 FIRST TRY (384 B, sha `75557545…` ==
+golden; ?PAGOP@0030 no count, continuation 0035 — exactly PLAN §2); E46N sweep 18/18;
+ALL boundaries still refuse (counted PAGE, PAGE+items BY NAME, console PAGE/N3_PAGE, E46N21
+marker intact; non-leading PAGE refuses at the PARSER — stage falsified, boundary kept).
+**LOAN2 ADVANCED past 99: ACTUAL verbatim `codegen: PUT EDIT deferred [TBD] (line 115; only
+PUT LIST is implemented; format/picture editing needs the ?EDITF/?EDTOV/?QDDSL route family)`
+rc=2** — OPEN PRINT 54/56 stays queued BEHIND it (prescan order; the specific OPEN-PRINT
+expectation was FALSIFIED by stage, direction prediction held). Census re-snapshotted via its
+own write path rc=0, counts UNCHANGED 15/0/26/0. UNCOMMITTED IN TREE: `tools/e2e_gate.py`
+(E46N10 retired from REJECTS+NEG_META as written history, added to SPECIMENS) and
+`spec/census/*` — commit explicit paths FIRST. **SUCCESSOR: execute `LEARNINGS.md` § "P3-1
+ARM LANDED + registration IN FLIGHT" owed steps (1)-(7) EXACTLY** (--update-inventory
+1196→1197 diff ONE line; reg gate rc=0 1197/0 to build/gate-e52p3-reg.log; COVERAGE
+FILE.PUT_PAGE→SUPPORTED/EXACT:1 + coverage_check rc=0; claim C359 from MEASURED bytes only;
+RESULTS.md + PLAN §5 table row; commits) then CONTINUE: subround **P3-2 = PUT EDIT
+(LOAN2:115)** — start `spec/lab-evidence/e2e52-p3/PLAN.md` §P3-2 (extract LOAN2:115 verbatim,
+read `match_put_edit` + E2E-8 `put_kind_str` refusal, search golden/e2e11 evidence) BEFORE
+any compiler byte. Prereg-gate rc=0 expectation itself FALSIFIED/measured (gate at arm =
+rc=1, `build/gate-e52p3-prereg.log`). Constraints: no push; goldens never re-derived;
+operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renew at
+safe boundaries; item 1 below kept as written but SUPERSEDED by this brief.
+1. **(Was item 0; kept as written)** **E2E-52/P2 CLOSED (2026-11-04; operator brief: DEC formal copy-in, E52G
+byte-exact closure; hop 2 registration session; chain `a365686` plan / `d67a263` arm /
+`c34c690`+`546c70a` hop-1 durables / `01bf2df` renewal / `dca9219` registration /
+`90582a5` COVERAGE / `755bf1c` RESULTS + this close prose).** **E52G is REGISTERED and
+panel-EXACT**: sanctioned `--update-inventory` 1195→**1196** (diff exactly ONE line),
+post-registration FULL gate REAL **rc=0** DIRECT `build/gate-e52p2-reg.log` (**1196
+byte-exact / 0 of 1196**, `BYTE-EXACT E52G`, 181/181, 9/9, 139 rows 0/0, census
+15/0/26/0, prose 5); COVERAGE row `PROC.DEC_FORMAL_COPYIN_CELLMAP` `mine_status=
+SUPPORTED` (the validator's byte-exact value; `EXACT` exists ONLY in `rel_parity` — P1
+vocabulary lesson applied to the brief's "->EXACT" wording) + `rel_parity=EXACT:1`,
+probes cite panel key E52G AND keep the golden path, cites unchanged [C358] [C131]
+[C187], NO new rows, coverage_check rc=0 **139 rows 0/0** + stats via its own write
+path; LOAN2 rerun UNMODIFIED — blocker UNCHANGED verbatim (`codegen: PUT FILE with a
+bare PAGE control item [TBD] (line 99)`), NOTHING advanced or fixed, never claimed
+exact; E52A..J 10/10 + E51A..L 12/12 re-measured byte-exact on binary `85bf7a26…`.
+NO new claim (C358 states the law; the optional C358 NOTE was declined — default); the
+ledger ENDS **C358**. Evidence `spec/lab-evidence/e2e52-p2/{PLAN.md,RESULTS.md}`.
+**SUCCESSOR: NO active round and NO pending instruction.** Confirm HEAD/tree (only the
+operator's `handoff.config.json` edit may be dirty), `/handoff verify`, record state
+and **STOP** — await an operator brief. Standing PROPOSALS (shortlist, NEVER
+authorizations): dashboard `**26**` refresh + mapping P1's three unmapped DIV rows
+(`EXPR.DIV_VAR_PARK`, `EXPR.DIV_RESULT_ADD`, `COND.DIV_EQ_TEST`); FCPS1..3 SPECIMENS
+registration at a gate hop; README § 5.1 rights review for the eight corpus sources
+(due); E2E-50/P3 shortlist (`spec/lab-evidence/e2e50-p2/REPORT.md` § 5);
+fc01-fileio/ONUNIT-00 stay CANCELLED; the P1-era "E52G joins `spec/DIVERGENT.txt`"
+proposal is OBSOLETE — G is byte-exact and registered. Constraints unchanged: no push;
+goldens never re-derived; NEVER re-run the retry-DFS; no expansion to other LOAN2
+blockers (PAGE/PUT FILE/ON-unit/EDIT stay untouched); operator `handoff.config.json`
+never staged; all rc captured DIRECTLY.
+SUPERSEDED-BY-ABOVE (kept as written; the hop-2 contract named below was EXECUTED in
+full): 0. **E2E-52/P2 IN FLIGHT (2026-11-04; operator brief: DEC formal copy-in, E52G
+byte-exact closure).** Hop 1 LANDED: plan pre-committed `a365686`; arm `d67a263`
+(Bind `cs_copies` owns the caller-side formal-precision copy-in temp; codegen emits the
+[C358] `?DLDOP/@actual + ?DSTOP/@temp` pair before the descriptor-word record and
+retargets the block word to the temp; every other DEC mismatch shape refuses BY NAME);
+durable record `c34c690`. MEASURED: E52G whole-file `cmp` rc=0 FIRST TRY (sha
+`39b3d7cf…` == golden `golden/e52p1/E52G/E52G.REL`, exactly the PLAN §4 prediction, never
+fitted); E52A..J 10/10 EXACT; E51A..L 12/12 EXACT; pre-registration FULL gate REAL rc=0
+DIRECT `build/gate-e52p2-prereg.log` (1195/0 of 1195, 181/181, 9/9, 139 rows 0/0, census
+15/0/26/0, prose 5). Binary `85bf7a26…`. **The successor executes `PROGRESS.md` -> `##
+Next action` -> "E2E-52/P2 hop 2 OWED" steps (a)-(e) exactly: register E52G
+(SPECIMENS + --update-inventory 1195->1196 + gate AGAIN, expect 1196), COVERAGE row
+`PROC.DEC_FORMAL_COPYIN_CELLMAP` -> EXACT:1 (no new rows), LOAN2 UNMODIFIED blocker
+record (fix NOTHING), RESULTS.md + close prose, STOP after P2.** Constraints unchanged:
+no push; goldens never re-derived; NEVER re-run the retry-DFS; operator
+`handoff.config.json` never staged; all rc DIRECT (a `dune build | tail` pipeline masked
+rc=1 TWICE this hop -- the rule is real); no PAGE/PUT FILE/ON-unit/EDIT work; no new
+claims (C358 states the law; ledger ENDS **C358**); dashboard `**26**` staleness
+recorded, never fixed.
+
+1. Confirm the repository and revision:
+   `cd /home/john/projects/sushiworks/pli80 && git rev-parse --abbrev-ref HEAD && git rev-parse HEAD && git status --porcelain=v1`
+   A dirty `handoff.config.json` is the OPERATOR's standing edit — investigate, never clean,
+   never stage, never commit, never revert it. `AGENTS.md` → Protected.
+2. Lean recovery: Pi auto-loads `AGENTS.md`; read this file and `PROGRESS.md` NOW.
+   `PROTOCOL.md` governs all scientific procedure and is consulted before any unclear
+   scientific/policy action; `GOAL.md` and `LEARNINGS.md` remain authoritative and are read
+   selectively by pointer. A deferred read never weakens the protocol.
+3. Check checkpoint freshness with `/handoff verify`. `stale` or `missing` means: re-derive
+   state from commits and lab evidence, then refresh and attest with `/handoff finalize`.
+   Do not trust this file's managed block over its prose.
+4. Load evidence SELECTIVELY — the ledgers are far larger than the working window; a
+   complete read of any of them is prohibited for recovery:
+   - `spec/CLAIMS.md`: read ONLY cited claim ids — `grep -n '^## C352' spec/CLAIMS.md` etc.;
+     the E2E-49/P4 block starts at `grep -n '^## C348'`; the E2E-48 family is C309..C332,
+     E2E-49/P1 is C333..C336, E2E-49/P2 is C337..C341, E2E-49/P3 is C342..C347, E2E-49/P4 is
+     C348..C351; E2E-51/P1 is C353..C355; E2E-52/P1 is C356..C358. The ledger CURRENTLY
+     ENDS at **C358** (E2E-52/P1 DEC-pool claims, commit `7176ff8`) — no claim ids are
+     owed; [C352] remains the RUNTIME console-framing law cited by every
+     functional expectation containing blank lines. The E2E-49/P4 block starts at
+     `grep -n '^## C348'`. [C330] carries
+     the labelled E2E-49/P1 CORRECTION append (positional length law); [C335]–[C338] carry
+     labelled P3 CORRECTION appends and [C346] a labelled CITATION CORRECTION (the numeric
+     ORDER law is [C104], never cite legacy [C027]/[C072] in provenance); [C335]/[C337]/
+     [C344]/[C346] additionally carry labelled [E2E-49/P4 CORRECTION(S)] blocks (`9c42f3b`)
+     and [C348] a labelled [E2E-49/P4 WORDING CORRECTION] (`5b0ccde`); falsified text is kept
+     as written (PROTOCOL #2).
+   - `spec/COVERAGE.tsv`: header + `grep` the row KEY being edited (15 columns; schema
+     `spec/COVERAGE-SCHEMA.md`; validator rules at `tools/coverage_check.py:203-247`).
+   - `spec/INVENTORY.txt`: `grep` the specimen/refusal name only. `spec/RUNTIME.txt` and
+     `spec/DIVERGENT.txt`: only rows named by the task.
+   - Latest round evidence: `spec/lab-evidence/e2e52-p2/{PLAN.md,RESULTS.md}` (round
+     CLOSED); prior rounds under `spec/lab-evidence/e2e52-p1/` (RESULTS/HYPOTHESES/
+     BASELINE-MINE/PLAN/mkprobes), `spec/lab-evidence/e2e48-*/`,
+     `spec/lab-evidence/e2e49-p{1,2,3,4}/` and `spec/lab-evidence/e2e51-p1/`.
+5. Do **not** run the compiler, the oracle, LINK-80, cpmsim, Rune CI or `tools/e2e_gate.py`
+   unless the session's actual task is compiler development or gate verification.
+6. **E2E-52/P2 CLOSED (2026-11-04; operator brief: DEC formal copy-in, E52G
+byte-exact closure; hop 2 registration session; ledger ENDS **C358**, NO new claim).**
+FULL CHAIN: PLAN pre-committed `a365686` (predictions derived from [C358] + the golden
+reldump BEFORE any compiler byte); ARM `d67a263` — Bind `cs_copies` is the single
+layout authority for the caller-side copy-in temp (allocated in section2's phase-2
+pass, size `bytes_of (RTdec(pf,sf))`, [R507] authority; trigger: internal
+non-recursive callee, caller-own-row bare `Eident`, `RTdec` vs `RTdec` with `sa=sf &&
+pa<pf`); codegen consumes the offset, emits the [C358] `?DLDOP/@actual +
+?DSTOP/@temp` pair BEFORE the descriptor-word record and retargets the block word to
+the temp; DECPOLY equal-precision route UNCHANGED; every other DEC mismatch shape
+refuses BY NAME. MEASURED: E52G whole-file `cmp` rc=0 FIRST TRY (mine sha `39b3d7cf…`
+== golden; code `004A`, DATA `0014`, exactly PLAN §4, never fitted — **ZERO MISS this
+round**); E52A..J 10/10 and E51A..L 12/12 (re-measured hop 2 on `85bf7a26…`); pre-reg
+gate rc=0 DIRECT 1195/0 `build/gate-e52p2-prereg.log`; hop 2: SPECIMENS registration +
+`--update-inventory` 1195→1196 (exactly ONE line) + post-registration gate REAL rc=0
+DIRECT `build/gate-e52p2-reg.log` **1196/0 of 1196**, 181/181, 9/9, 139 rows 0/0,
+census 15/0/26/0 (REFUSED 26 unchanged), prose 5 — `dca9219`; COVERAGE row →
+SUPPORTED + `EXACT:1`, coverage_check rc=0 139 rows 0/0, no new rows — `90582a5`;
+LOAN2 UNMODIFIED, blocker verbatim UNCHANGED (line 99 bare PAGE) — recorded, NOTHING
+fixed — and RESULTS.md `755bf1c` + this close prose. BYTE TIER ONLY: no
+`spec/RUNTIME.txt` row, no `OUTPUT_CHECK` entry; the copy-in pair is UNRUN. Remaining
+unsupported copy forms (loud refusals, named in RESULTS §8): narrowing, differing
+scale, forwarded pointer-formals (the E27B route — now LOUD where it passed silently
+before), outer-scope actuals, deref/array heads, recursive/RECURSIVE callees, EXTERNAL
+entries. **SUCCESSOR: NO active round and NO pending instruction** — see item 0 above;
+standing PROPOSALS and constraints kept there; P1 record below kept as written.
+
+SUPERSEDED-BY-ABOVE (kept as written): 6. **E2E-52/P1 CLOSED (2026-11-04; operator
+brief: scope-aware DEC pool prescan, LOAN2
+defect; hop 6 closing session at HEAD `22b9c0c` + this close commit; ledger ENDS
+**C358**).** FULL CHAIN LANDED: pre-registration `d1fbc16`; ORACLE 10 ok/10 + goldens +
+RESULTS `e14d180` (zero `dr-refuses`; H1-lexical CONFIRMED on B,C,D,H,I; H3 falsified 5x;
+H4 falsified by A/F — the DEC pool is ONE program-wide IMAGE-keyed table, scope- and
+name-blind; H2 falsified for DR by E52E; the ONE MISS E52G kept verbatim: predicted ~16,
+measured DATA 20); prescan ARM `6a4c554` (B,C,D,H,I byte-exact, controls A/E/F/J at
+BASELINE shas, E51 12/12, LOAN2 ADVANCED to its next verbatim blocker `PUT FILE bare
+PAGE [TBD] (line 99)` — recorded, NOT fixed); RESULTS §5 `e2a9866`; 9 SPECIMENS (NO G) +
+INVENTORY 1186->1195 + post-update gate rc=0 `edf4a25`; claims **C356..C358** from
+RESULTS §2 ONLY `7176ff8`; 3 COVERAGE rows, coverage_check rc=0 **139 rows 0/0**
+`ab14933`; coverage-stats via its own write path `22b9c0c`. HOP 6 (this session): the
+three rows MAPPED in `spec/functional/capabilities.tsv` (DECL.SCALAR_TYPES +
+ARITH.DECIMAL + PROC.CALL), rendered status doc refreshed via `--write` rc=0 (unmapped
+32->29), `--check` rc=0; hostile suite rc=0 211/211; census `--check` rc=0 counts
+identical 15/0/26/0; stats NOT drifted; FULL gate REAL **rc=0** captured DIRECTLY to
+`build/gate-e52p1-reg2.log` (byte panel **1195/0 of 1195**, 181/181, 9/9, 139 rows 0/0,
+census 15/0/26/0, prose 5). MEASURED PRE-EXISTING, recorded NEVER fixed:
+`tools/test_functional_dashboard.py` **rc=1**, sole verbatim FAIL `integration: unmapped
+COVERAGE rows are listed, not dropped` — the stale HARDCODED `**26**` check vs rendered
+**29** (drift from P1's `216ea7a` DIV rows; the E52 mapping did NOT introduce it).
+**E52G STAYS AN OPEN `my-gap`**: never registered, never fitted; its golden is
+registered evidence only. PROPOSED, NEVER ADOPTED: the copy-in-temp arm at a future
+authorized hop; whether G joins `spec/DIVERGENT.txt`.
+**SUCCESSOR: NO active round and NO pending instruction.** Confirm HEAD/tree (only the
+operator's `handoff.config.json` edit may be dirty), `/handoff verify`, record state and
+**STOP** — await an operator brief. Standing PROPOSALS (shortlist, NEVER
+authorizations): E52/P2 copy-in-temp arm (E52G); dashboard `**26**` refresh + mapping
+P1's three unmapped DIV rows; FCPS1..3 SPECIMENS registration at a gate hop; README
+§ 5.1 rights review for the eight corpus sources (due); E2E-50/P3 shortlist
+(`spec/lab-evidence/e2e50-p2/REPORT.md` § 5); fc01-fileio/ONUNIT-00 stay CANCELLED.
+Constraints unchanged: no push; goldens never re-derived; NEVER re-run the retry-DFS; no
+expansion to other LOAN2 blockers; operator `handoff.config.json` never staged; all rc
+captured DIRECTLY.
+
+SUPERSEDED-BY-ABOVE (kept as written): 6. **E2E-52/P1 IN FLIGHT (2026-11-04; operator brief: scope-aware DEC pool prescan,
+LOAN2 defect).** Hop 2 LANDED the PRE-REGISTRATION at `d1fbc16` (probes/E52A..J + PLAN/
+HYPOTHESES/mkprobes + BASELINE-MINE, committed BEFORE any DR call). Hop 3 LANDED ORACLE +
+EVIDENCE at **`e14d180`**: ONE grouped `--tag e52p1` campaign **10 ok/10**, every `.PRN`
+`NO ERROR(S)` in both passes -> **zero `dr-refuses`**; six `my-gap` rows (B,C,D,G,H,I) and
+four rows already whole-file cmp-BYTE-EXACT vs mine (A/E/F/J — falsification condition 3
+NOT triggered). **H1-lexical CONFIRMED** on all five pre-registered discriminators (B DATA
+0x10, C CODE inner-binary-immediate, D DATA 0x0A, H CODE/reloc binds THROUGH mid, I DATA
+0x15 = lexical prescan_cond); **H3-global-outer falsified** five times; **H4-per-scope-pool
+falsified** twice (A,F — the DEC pool is ONE program-wide IMAGE-keyed table, dedup scope-
+and name-blind, source-order cells ahead of the variables across scope boundaries); **H2
+falsified for DR by E** and kept as the invariant my fix must not introduce. ONE MISS kept
+verbatim (PROTOCOL #2): E52G predicted "approx 16", measured **DATA 20 (0x14)** — a DEC
+formal gets NO value cell (2-byte caller arg-pointer block @0x0B -> main-side 5-byte
+copy-in temp @0x0D; callee 2-byte POINTER cell @0012; literal store through `2A r12` +
+`?DSTOP`); reported, never fitted. `ocaml/` UNTOUCHED this hop. Evidence:
+`spec/lab-evidence/e2e52-p1/RESULTS.md` §1-§4 + `LEARNINGS.md` § "E2E-52/P1 hop 3".
+**SUCCESSOR: execute `PROGRESS.md` -> `## Next action` -> "HOP 5 IN-FLIGHT ADDENDUM"
 steps a-d exactly. LANDED+verified: RESULTS §5 `e2a9866`; 9 SPECIMENS (E52A..F,H,I,J,
 NO G) + INVENTORY 1186→1195 + post-update gate REAL rc=0 1195/0,181/181,9/9,136 0/0,
 15/0/26/0,prose 5 `edf4a25`; claims C356..C358 from RESULTS §2 only, ledger ENDS C358
@@ -1384,5 +1621,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-2 evidence decode LANDED+COMMITTED (59f9afa; no ocaml/ byte; build rc=0 binary 34e8321a; HEAD 59f9afa; ledger ENDS C359; panel 1197/0). READ FIRST LEARNINGS.md § "E2E-52/P3-2 evidence decode LANDED" — it supersedes the parent brief's PROPOSED bullets: LAW REVERSAL (edit(DATAS)(FORMATS)), clear=%replace macro, a=FORMAT item no decl, P086K 512B fully decoded (file tables = console law; DEC prep = p/p+3/s existing law, MVI B,02 not 06; ?EDTIV new routine name; NO-open attach C282), 7 EDITF sites mapped, barrier = lower_put_items_gen is_edit&&file guard (premise FALSIFIED) + match_put_edit file-blindness + fmtq FIFO + st.file_out guard. OWED steps (1)-(5) in that §: byte-list stmt-199 span 08F1-0950 + remaining tables, check golden/e2e8/e2e11 for closer witnesses, write spec/lab-evidence/e2e52-p3/PLAN.md §P3-2 with pre-registered predictions and COMMIT BEFORE any ocaml/ byte, then arm P3-2a (file PUT+GET EDIT: bare skip + literal f/a formats + string/DEC items; picture-02/x/rep/V refuse BY NAME; panel specimen probes/P086K.PLI vs golden/probe55/P086K 1197->1198; E41X8 retirement candidate; LOAN2 rerun must still refuse 115 naming the 02-record), sweep, refusals, registration, C360 from measured bytes only. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (4/12 after this); campaign continues past every blocker.
+E2E-52/P3-2 evidence+PLAN LANDED (commit 10c2a9f; no ocaml/ byte; prose rc=0; build binary 34e8321a; HEAD 10c2a9f; panel 1197/0; ledger ENDS C359). READ FIRST: PROGRESS.md -> Next action "PLAN §P3-2 LANDED; ARM A1-A5 OWED" steps (1)-(5), then LEARNINGS.md § "E2E-52/P3-2 evidence COMPLETE + PLAN §P3-2 LANDED" and spec/lab-evidence/e2e52-p3/PLAN.md §P3-2 (§2 measured bytes, §3 arms A1-A5 codegen.ml ONLY, §4 boundaries BY NAME, §5 predictions P1-P6). Key: P086J.REL console DEC-edit witness FALSIFIES both Vdec is_edit refusal premises -- deleting them yields the golden bytes; file EDIT attach needs NO open (C282); ?EDTIV new call_ext name only; fmtq FIFO must take put+get tables in source order (P086K pins 0000 then 0006). Expectations pre-registered: P086K cmp rc=0 first try (512B CODE 0x62 DATA 0x12), P086J rc=0 (256B CODE 0x3D DATA 0x10), sweep zero-drift, LOAN2 STILL refuses 115 naming picture, E41X8 retires (negatives 180->179), registration 1197->1199 EXACTLY TWO lines, reg gate rc=0 1199/0, COVERAGE IO.PUT_EDIT row ONLY after verifying IFACT/LOAN1 discrepancy (LOAN1 has no edit stmt), claim C360 from PLAN §2 bytes only. Constraints: no push; goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT; never hardcode LOAN2; renewals autonomous at safe boundaries (5/12 after this hop); campaign continues past every blocker (then picture 02-record, x, rep, DEC-formal, PRINT opens 54/56).
 <!-- guard:end checkpoint -->
