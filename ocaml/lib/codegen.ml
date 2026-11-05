@@ -3582,7 +3582,12 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
                      | PIlit v -> a + pdec_str_cell cx v
                      | PInum x -> a + prescan_expr cx x
                      | PIvar _ -> a
-                     | PIlit_dec t -> a + pdec_put_dec_cell cx t)) 0 em.ed_items
+                     | PIlit_dec t -> a + pdec_put_dec_cell cx t
+                     (* [E2E-52/P3-5 hop 9] UNREACHABLE defensively: `classify_rep_spec'
+                        refuses a nested PIrep inner as UNMEASURED before this fold can
+                        see one, and classify_item can never return PIrep.  Closing the
+                        Warning 8 (PA Match_failure class) the same way as Pitems below. *)
+                     | PIrep _ -> a)) 0 em.ed_items
        | None ->
       (match match_put_list_lit s with
        | Plit (_, v) -> pdec_str_cell cx v
