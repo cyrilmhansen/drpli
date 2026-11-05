@@ -56,6 +56,45 @@ The guard never writes this file.
   unchanged: no push; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all
   rc DIRECT; pli80c POSITIONAL; ledger ENDS C362; campaign continues.
 
+## E2E-52/P3-5 PRE-REGISTRATION LANDED (67e5414); ORACLE CAMPAIGN e52p5 OWED (2026-11-05, fresh chain hop 5/12; binary `345644822818326f…`; ZERO ocaml/ byte this hop)
+
+- **ACCEPTED (Pi_rep law decoded from the EXISTING LOAN2 golden, zero oracle run).**
+  Procedure `line` (LOAN2:211-212) span 0944-099F: the DATA-item `('lit' do i = 1 to 4)`
+  lowers to a pre-tested inline loop — `LXI H,from / SHLD ind / TOP: LHLD ind / LXI B,
+  -(to+1) / DAD B / MOV A,H / ORA A / JP P exit / <ONE body literal chain LXI H,*lit /
+  MVI A,len / ?SLCTS / ?EDTOV> / LHLD / INX H / SHLD / JMP TOP / exit: ?QIOOP`; the index
+  variable's OWN cell (data 0358) is the counter; the literal is stored ONCE (02AE);
+  the format table is `80 00 03 FF 81` — the rep contributes **0 format bytes**,
+  CONFIRMING the `bind.ml:1155` `[verify]` annotation (was UNVERIFIED, now golden-
+  corroborated on the sole `Pi_rep` witness). Full byte list in PLAN §P3-5 §2.
+- **FALSIFIED (pre-arm, by code reading): the predecessor brief's "arm (codegen.ml ONLY)".**
+  `parse_rep_spec` (parser.ml 984-998) `ignore`s the INDEX name AND `by_`; the golden
+  SHLDs/LHLDs the index cell, which codegen CANNOT name from `REPSPEC [from;to]`.
+  The arm needs parser.ml (carry `ind` as REPSPEC child 0; BY → parse-stage refusal BY
+  NAME; REVERSE never parsed today — my E52RE baseline FAILED at `expected )`, i.e. at
+  MY parser, stage recorded) + codegen.ml (matcher `data` walker, NEW `PIrep` pitem,
+  prescan ONE-cell rule, authorize, loop lowering via existing LINK-SET-LC/JMP reloc
+  helpers). bind.ml walk sites (585/1477/1914) tolerated-or-not — build measures.
+- **ACCEPTED (pre-registration hygiene).** PLAN §P3-5 + 10 probes E52RA..E52RJ
+  (CRLF+^Z, ≤71 cols, script-verified) + BASELINE-MINE-p35.txt committed `67e5414`
+  BEFORE any ocaml/ byte; tag `e52p5` verified unused; E52R* collision grep EMPTY.
+  BASELINE: all 10 probes rc=2 on the unarmed binary (8 matcher-split, RH console
+  `PUT EDIT deferred`, RE parser) — the class is a true `my-gap` (LOAN2 golden proves
+  DR compiles it).
+- **PROPOSED (next hop contract — execute PLAN §P3-5 §5 order).** (1) ONE grouped
+  campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52RA E52RB E52RC E52RD
+  E52RE E52RF E52RG E52RH E52RI E52RJ --tag e52p5 --switches '$L$D'`, rc DIRECT; read
+  every .PRN; reldump goldens to build/e52p5/; classify dr-refuses/my-gap/unmeasured;
+  keep MISSes verbatim (predicted bytes for RA/RD/RI in PLAN §3; BY/REVERSE/variable-
+  bound/variable-item/expr-item/expression-in-rep acceptance ALL unmeasured). (2) Arm
+  per PLAN §2a/§4 (parser.ml + codegen.ml), cmp every ACCEPTED probe whole-file rc=0,
+  sweep 89, markers E46K4/K15/N21/E52PF/PU/PV rc=2, LOAN2 rerun UNMODIFIED POSITIONAL —
+  predicted blocker `line 177 PIvar yp` (NEVER fit; record VERBATIM). (3) Registration:
+  SPECIMENS +N, --update-inventory 1222→1222+N, census OWN write path FIRST (the 212
+  blocker line REPLACED), FULL gate rc=0 build/gate-e52p5-reg.log, claim **C363** from
+  MEASURED BYTES ONLY BEFORE the COVERAGE IO.PUT_EDIT rewrite, coverage_check+prose
+  rc=0, RESULTS §P3-5 + PLAN §5 row, durables.
+
 ## E2E-52/P3-4 CLOSED (RESULTS §P3-4 + PLAN §5 row LANDED); LOAN2:212 NEXT-BLOCKER EVIDENCE DECODED; P3-5 PRE-REGISTRATION OWED (2026-11-05, fresh chain hop 4/12; binary `345644822818326f…`; ZERO ocaml/ byte this hop)
 
 - **ACCEPTED (P3-4 close).** `spec/lab-evidence/e2e52-p3/RESULTS.md` §P3-4 (new top-level

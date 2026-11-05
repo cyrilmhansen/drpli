@@ -443,7 +443,35 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-4 **CLOSED** (RESULTS §P3-4 + PLAN §5 row at `b76cd2f`; headline re-held a 3rd time); SUBROUND **P3-5 PRE-REGISTRATION OWED** (2026-11-05; fresh chain hop 4/12; read `LEARNINGS.md` § "E2E-52/P3-4 CLOSED … LOAN2:212 NEXT-BLOCKER EVIDENCE DECODED; P3-5 PRE-REGISTRATION OWED" FIRST)
+### E2E-52/P3-5 **PRE-REGISTERED** at `67e5414`; ORACLE CAMPAIGN `e52p5` OWED NOW (2026-11-05; fresh chain hop 5/12; read `LEARNINGS.md` § "E2E-52/P3-5 PRE-REGISTRATION LANDED" + PLAN §P3-5 FIRST)
+
+LANDED this hop (all rc DIRECT, ZERO `ocaml/` byte, ZERO oracle call): g320 block committed
+VERBATIM `8f1f7ce`; build rc=0 binary `345644822818326f…`; LOAN2 golden `line` span
+0944-099F decoded — the **`Pi_rep` DATA-item loop law**: init `LXI H,from/SHLD ind`; test
+`LHLD/LXI B,-(to+1)/DAD B/MOV A,H/ORA A/JP P exit`; ONE literal body chain
+`?SLCTS/?EDTOV`; step `LHLD/INX H/SHLD/JMP`; exit `?QIOOP`; table `80 00 03 FF 81` —
+rep = **0 format bytes** (bind.ml:1155 `[verify]` now golden-corroborated).
+**FALSIFIED by code reading: "codegen.ml ONLY"** — `parse_rep_spec` drops index name and
+BY; arm = parser.ml (REPSPEC child 0 = index `Eident`; BY parse-refusal; REVERSE
+unparseable today) + codegen.ml. Pre-registration `67e5414`: PLAN §P3-5 (per-probe
+predictions, H1-H6, LOAN2 next-blocker prediction line-177 `PIvar yp`, NEVER fit) + probes
+E52RA..E52RJ (CRLF+^Z ≤71 verified) + BASELINE-MINE-p35 (all 10 rc=2 unarmed: 8
+matcher-split, RH console deferred, RE parser-stage). Tag `e52p5` unused; E52R* EMPTY.
+**NEXT — execute PLAN §P3-5 §5:** (1) ONE campaign `PLI_SRC=probes timeout 900 python3
+oracle/batch.py E52RA E52RB E52RC E52RD E52RE E52RF E52RG E52RH E52RI E52RJ --tag e52p5
+--switches '$L$D'` rc DIRECT; read .PRNs; reldump to build/e52p5/; classify
+`dr-refuses`/`my-gap`/`unmeasured`; keep MISSes verbatim. (2) arm per §2a/§4; cmp every
+ACCEPTED probe whole-file rc=0; sweep 89; markers E46K4/K15/N21/E52PF/PU/PV rc=2; LOAN2
+rerun UNMODIFIED POSITIONAL, blocker VERBATIM (predicted `line 177` — record, do NOT fit).
+(3) registration: SPECIMENS +N; sanctioned `--update-inventory` 1222→1222+N; census OWN
+write path FIRST (212 line REPLACED; drift aborts gate); FULL gate rc=0 DIRECT
+`build/gate-e52p5-reg.log`; claim **C363** MEASURED BYTES ONLY BEFORE the COVERAGE
+`IO.PUT_EDIT` rewrite; coverage_check+prose rc=0; RESULTS §P3-5 + PLAN §5 row; durables.
+Constraints: no push; goldens NEVER re-derived; operator `handoff.config.json` NEVER
+staged; all rc DIRECT (pipeline trap fired THREE hops); `pli80c` POSITIONAL; ledger ENDS
+**C362**; renewals autonomous (5/12 consumed, cap 12); campaign continues.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-4 **CLOSED** (RESULTS §P3-4 + PLAN §5 row at `b76cd2f`; headline re-held a 3rd time); SUBROUND **P3-5 PRE-REGISTRATION OWED** (2026-11-05; fresh chain hop 4/12; read `LEARNINGS.md` § "E2E-52/P3-4 CLOSED … LOAN2:212 NEXT-BLOCKER EVIDENCE DECODED; P3-5 PRE-REGISTRATION OWED" FIRST)
 
 LANDED this hop (all rc DIRECT, ZERO `ocaml/` byte, ZERO oracle call): `dune build` rc=0 clean
 binary sha256 `345644822818326f442a…` (== the headline hash); **10/10 accepted-probe whole-file
@@ -2601,17 +2629,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 320
-checkpoint-id: g320-2775f6cde050
+checkpoint-generation: 322
+checkpoint-id: g322-9e4a25a7d4a0
 checkpoint-kind: auto
 content-delta: none
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T00:40:05.368Z
+checkpointed: 2026-11-05T01:07:18.277Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 33327acfc83f6e90370967bc11ac14bb6fe31e0ef01e228e8d1960a543641412
 source-handoff: 99dd9356a2bd08fea495d9d92fcb67d2986a8894983347225361b2db62bc24c2
-source-learnings: f5499d52eee26882f71318bddd62371047829d51012decdb176a8a9f25201fd2
+source-learnings: 68b70baeeb9386ffa2808ae25f356b36e1677b4145aa78c2a5fef6674c025416
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (1)-(4): **PLAN §P3-5 + probes E52RA.. COMMITTED BEFORE
   any ocaml/ byte** (collision-grep probes/+INVENTORY, verify tag `e52p5` unused), ONE grouped
@@ -3077,9 +3105,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a911-90fd-753f-82d0-3151b1e5fc39
-readiness-at: 2026-11-05T00:40:41.926Z
-readiness-checkpoint: g320-2775f6cde050
 <!-- guard:end checkpoint -->
 
 ## Blockers
