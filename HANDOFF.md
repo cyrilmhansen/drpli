@@ -1566,28 +1566,43 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 335
-checkpoint-id: g335-50d96a6c8d08
-checkpoint-kind: auto
+checkpoint-generation: 336
+checkpoint-id: g336-ef9150ef8350
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3873, session 01a1a988-c79f-753f-82d0-31692774f86a)
-checkpointed: 2026-11-05T02:52:17.688Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~469, session 01a1a988-c79f-753f-82d0-31692774f86a)
+checkpointed: 2026-11-05T02:53:18.845Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 877ee3070831e9072301a97f7a9b6599190e8b8e9c0799fb09254b0aed23cca8
-source-handoff: 32c807b0db755f3844435a1fac3465c098a7c68d5947d895aae2e32dd930d357
+source-handoff: f276361caa111057e09e556cd40ff410b53043528c7d3235aa4ac41fe4b5d312
 source-learnings: 5ed0f62477c9413c72eaf9639754aa29342b001dbc557ecbff4d18ca6bc2adce
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a988-c79f-753f-82d0-31692774f86a
+readiness-at: 2026-11-05T02:53:18.859Z
+readiness-checkpoint: g336-ef9150ef8350
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-`:
+` hop-11 contract: ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52SA E52SB E52SC E52SD E52SE E52SF E52SG --tag e52p6 --switches '$L$D'` rc DIRECT, classify honestly (SF dr-refuses row from MY re-measured stderr marker; SE/SG my-gap boundaries KEPT, never fitted), arm bind.ml+codegen.ml, cmp accepted rc=0 vs `golden/e52p6/`, sweep 101, markers rc=2, LOAN2 POSITIONAL VERBATIM, commit; registration at hop 12 = **CAP 12/12**: inventory/census-own-path/gate rc=0 `build/gate-e52p6-reg.log`/**C364 measured-bytes-only BEFORE** COVERAGE/coverage_check+prose/RESULTS+PLAN rows, then `handoff_finalize` — NEVER `handoff_renew` past the cap. Ledger ENDS **C363**; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc DIRECT; no push; campaign continues.
+
+0a-novies-new5. **E2E-52/P3-5 hop 9: SUBROUND CLOSED — registration + C363 + COVERAGE 42 all
+  LANDED; LOAN2 now at ON UNDEFINEDFILE (line 44) (2026-11-05, hop 9/12).** Defensive PIrep
+  prescan-fold arm `a008840` (codegen histogram 70→68, EXACTLY −2 W8 at the fixed site, replay
+  method honest); named REVERSE refusal `3a494c3` (`expected )` marker prediction FALSIFIED —
+  panel requires [TBD]); SPECIMENS +7 + RE row, inventory 1222→1229 + 182→183 EXACTLY `4dbdaa0`;
+  census own path rc=0 counts 15/0/26/0, LOAN2 blocker VERBATIM line-44 (line-177 PIvar
+  prediction FALSIFIED at stage level, NEVER fitted); FULL gate REAL rc=0 1229/0, 183/183, 9/9,
+  139 0/0, prose 5 `build/gate-e52p5-reg.log`; claim **C363** measured-bytes-only `c940426`
+  BEFORE COVERAGE IO.PUT_EDIT EXACT 35→42 `2be56f0` (coverage_check rc=0); RESULTS §P3-5 + PLAN
+  §5 row `a1a82d4`; binary `e55e892c346741b2…`, sweep 101/0. SUCCESSOR: read `LEARNINGS.md` §
+  "hop 9: DEFENSIVE ARMS + REGISTRATION LANDED" and execute `PROGRESS.md` → `## Next action`:
   PROPOSED P3-6 = ON UNDEFINEDFILE (LOAN2 44) NEW ground — PLAN §P3-6 + probes collision-grepped
   and COMMITTED BEFORE any ocaml/ byte, ONE grouped campaign rc DIRECT, classify honestly.
   Ledger ENDS **C363**; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged;
@@ -2140,5 +2155,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-Hop 9 CLOSED: subround E2E-52/P3-5 FULLY REGISTERED — defensive PIrep prescan-fold arm a008840 (histogram 70→68 via honest replay method), named REVERSE parse refusal 3a494c3 (expected-) prediction FALSIFIED: panel requires [TBD]), SPECIMENS +7 + RE row, inventory 1222→1229 + 182→183 EXACTLY (4dbdaa0), census own write path FIRST rc=0 counts 15/0/26/0 with LOAN2 blocker VERBATIM ON UNDEFINEDFILE (line 44) — line-177 PIvar prediction FALSIFIED at stage level, NEVER fitted; FULL gate REAL rc=0 build/gate-e52p5-reg.log 1229/0, 183/183, 9/9, 139 0/0, prose 5; claim C363 measured-bytes-only c940426 BEFORE COVERAGE IO.PUT_EDIT EXACT 35→42 2be56f0 (coverage_check rc=0); prose rc=0; RESULTS §P3-5 + PLAN §5 row a1a82d4; final clean binary e55e892c346741b2, 7 cmps rc=0 + sweep 101/0. NEXT (hop 10/12): PROPOSED subround P3-6 = ON UNDEFINEDFILE (LOAN2 44) — NEW ground: read LEARNINGS § "hop 9: DEFENSIVE ARMS + REGISTRATION LANDED" + PROGRESS ## Next action; write PLAN §P3-6 + probes (collision-grep probes/+INVENTORY, verify tag e52p6 unused), COMMIT BEFORE any ocaml/ byte, ONE grouped campaign rc DIRECT (never a pipeline), classify honestly (if DR refuses ON UNDEFINEDFILE the class stays a refusal, not an arm); boundaries KEPT; goldens NEVER re-derived; operator handoff.config.json NEVER staged; pli80c POSITIONAL; no push; ledger ENDS C363; campaign continues.
+Hop 10 CLOSED: P3-6 PRE-REGISTERED (probes E52SA..SG + PLAN §P3-6 committed BEFORE any ocaml/ byte at c946839; durables 4788858; prose rc=0). Evidence decoded from EXISTING goldens: LOAN2.REL pins ON UNDEFINEDFILE registration MVI A,06/?ONCOP (06 UNCLAIMED = C364 candidate), goto-terminated handler = inline C3 NO C9, pad LHLD *D(0318)/SPHL/?RECOV + main-entry DAD SP/SHLD save; FALSIFIED verbatim: 'no DR sample' comment (LOAN2 IS the sample) and 'codegen-only arm' (bind.ml refs_stmt must charge trailing-goto Rk_on). P088I/P089I: verdicts only, NO CODE (bare on undefinedfile = PASS-2 SYNTAX ? dr-refuses; (f) form parses). NEXT (hop 11): ONE grouped campaign PLI_SRC=probes timeout 900 python3 oracle/batch.py E52SA E52SB E52SC E52SD E52SE E52SF E52SG --tag e52p6 --switches '$L$D' rc DIRECT; classify honestly (SE/SG [TBD], SF dr-refuses; predictions NEVER fit); arm bind.ml+codegen.ml per PLAN §P3-6 §4; cmp accepted rc=0 vs golden/e52p6/; sweep 101; markers rc=2; LOAN2 POSITIONAL VERBATIM (predicted past 44: SKIP 50 or OPEN PRINT 54); commit. HOP 12 = CAP 12/12: registration (SPECIMENS, inventory 1229→1229+N, census OWN path FIRST, gate rc=0 build/gate-e52p6-reg.log, C364 measured-bytes-only BEFORE COVERAGE, coverage_check+prose rc=0, RESULTS §P3-6 + PLAN §5 row) then handoff_finalize — NEVER handoff_renew past cap. Ledger ENDS C363; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all rc DIRECT (no pipelines); pli80c POSITIONAL; no push; campaign continues.
 <!-- guard:end checkpoint -->
