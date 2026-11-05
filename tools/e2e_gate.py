@@ -2190,6 +2190,78 @@ SPECIMENS.update({
     "E52SD": ("probes/E52SD.PLI", "golden/e52p6/E52SD/E52SD.REL"),
 })
 
+# E2E-52/P3-7 (OPEN PRINT / PAGESIZE / LINESIZE): ten NEW whole-file specimens, every one
+# byte-exact.  Campaign e52p7 rc=0 DIRECT, 10 ok/10, EVERY .PRN NO ERROR(S) in both passes
+# -- ZERO dr-refuses, so NO refusal row joins the NEGATIVES panel from this campaign.
+# Pre-registered at 2bca084 (PLAN §P3-7 + probes E52TA..TJ committed BEFORE any ocaml/ byte);
+# goldens committed VERBATIM 272a996 (evidence, NEVER re-derived); arm ccf0036 (codegen.ml
+# ONLY): open_subset_keys admits the three option WORDS, open_mode_word adds the PRINT mode
+# branch behind print+INPUT / print+OUTPUT guards, open_attr_plan enforces the measured
+# combination matrix and refuses everything outside it BY NAME, and ONE open_emit_words
+# walks the measured register-reuse ladder in all three title branches.
+# Law (claim [C365], derived ONLY from these measured bytes plus the pre-existing e2e41-p0
+# OPEN-BLOCKS/OPEN-MATRIX/W1-BITFIT rows): a PRINT open is w1 = 0x0652 titleless and 0x0E52
+# titled -- bit 0x0002 sits on the OUTPUT-side base 0x0650 and the 0x0200 bit is KEPT (TA), and
+# the STREAM keyword is BYTE-INVISIBLE on this route (TD stream-print prologue and word equal
+# to TI/TJ bare print; TB equals DEPREC:51 byte for byte).  PAGESIZE/LINESIZE set attribute
+# bits 0x2000/0x1000 by PRESENCE, independently of the parameter word they emit -- so
+# pagesize(0) costs a bit plus a plain ZERO word and NO extra byte (TB/LOAN2:54).  The six
+# pushed words follow a LADDER on the HL register state: after LXI H,w1 / PUSH H the pair is
+# DIRTY; the FIRST zero re-materialises HL as 21 00 00 when a title is present (B holds the
+# title length) and as 60 68 (MOV H,B / MOV L,B) when it is not (the XRA A / MOV B,A prologue
+# left B = 0); further zeros are bare E5 PUSH H.  A literal <=0xFF is 2E vv (MVI L -- legal
+# only because H is already 0) and leaves L dirty, so the next zero costs ONE byte: 68 MOV L,B
+# titleless (TD) or 6C MOV L,H titled (TG, where H stayed 0).  A literal >0xFF (21 vv vv, TJ)
+# or a variable (2A r(cell) + DATA reloc, TI/TF) clobbers both halves, and the following zero
+# re-materialises from B (60 68, TI) -- the TITLED form of that transition is UNMEASURED and
+# refuses by name.  MEASURED falsifier kept VERBATIM: TI was pre-registered predicting w6 =
+# 21 00 00; DR wrote 60 68, so the prediction was FALSIFIED by the oracle and the ladder above
+# is DR s law, not my fit.
+# All ten whole-file cmp rc=0 RE-MEASURED this hop on binary 8b374e623bc9e280 (clean dune
+# build rc=0 DIRECT; codegen warning histogram 68 == baseline):
+#   E52TA 256 B; code 0035=53, DATA 0002.  open file(pf) print -- block 21 B, w1 0652,
+#             shape A verbatim (P019B:3); H1 CONFIRMED.
+#   E52TB 384 B; code 003D=61, DATA 0006.  title($con) print pagesize(0) -- 29 B, w1
+#             2E52, w2..w6 ALL zero: PAGESIZE(0) is a bit + a zero word, NO byte added (H3).
+#   E52TC 384 B; code 003B=59, DATA 0011.  title(name) print -- 27 B, w1 0E52, ?SLVTS
+#             variable-title route; the PRINT bit composes with the TITLE bit (H2).
+#   E52TD 256 B; code 0038=56, DATA 0002.  stream print pagesize(60) -- 24 B, w1 2652,
+#             w5 2E 3C + w6 68 (H4 CONFIRMED, P021:6 shape).
+#   E52TE 384 B; code 003F=63, DATA 0008.  stream output linesize(60) title($1.key) --
+#             31 B, w1 1E50, the LINESIZE literal in w6 (KEYFILE:19 shape).
+#   E52TF 384 B; code 0041=65, DATA 0015.  BOTH attributes VARIABLE with a title -- 33 B, w1
+#             3E52, w5/w6 LHLD + DATA relocs (H5, COPYLPT:38).
+#   E52TG 384 B; code 0040=64, DATA 0006.  titled pagesize(60) -- byte-enc prediction HIT
+#             exactly (2E 3C / E5, then 6C/E5); the pre-registered 30-B TOTAL was FALSIFIED
+#             (measured block 32 B) and is kept verbatim as an arithmetic slip.
+#   E52TH 384 B; code 0041=65, DATA 0006.  titled BOTH literals -- 2E 3C E5 / 2E 50 E5,
+#             no LXI H, written order kept; same TOTAL falsification (33 B measured).
+#   E52TI 256 B; code 003A=58, DATA 0004.  titleless variable PAGESIZE alone -- w1 2652, w5
+#             LHLD + reloc, w6 60 68; THE PRE-REGISTERED FALSIFIER TRIGGERED.
+#   E52TJ 256 B; code 003A=58, DATA 0002.  pagesize(300) > 0xFF -- DR ACCEPTED via w5
+#             21 2C 01 (LXI H full literal) + w6 60 68; the accept branch of the UNKNOWN
+#             verdict realised verbatim.
+# Boundaries KEPT (refuse BY NAME with [TBD], never promoted to a rule, no object): PRINT with
+# INPUT or with the spelled OUTPUT option; any PAGESIZE/LINESIZE on INPUT, modeless, ENVIRONMENT,
+# KEYED or DIRECT opens; attributes without operands; EXPRESSION operands; variables that are not
+# plain automatic FIXED BIN 2-byte cells; titled ZERO-restoration after a clobbering w5; linesize
+# alone on a titled PRINT open; a 16-bit LINESIZE; titleless PAGESIZE(0); mixed literal/variable
+# pairs.  LOAN2 rerun UNMODIFIED POSITIONAL ADVANCED VERBATIM past 54/56 to `codegen: ON ERROR is
+# not implemented [TBD] (... line 58) -- the §3 prediction HIT, recorded NOT fixed (later
+# subround).
+SPECIMENS.update({
+    "E52TA": ("probes/E52TA.PLI", "golden/e52p7/E52TA/E52TA.REL"),
+    "E52TB": ("probes/E52TB.PLI", "golden/e52p7/E52TB/E52TB.REL"),
+    "E52TC": ("probes/E52TC.PLI", "golden/e52p7/E52TC/E52TC.REL"),
+    "E52TD": ("probes/E52TD.PLI", "golden/e52p7/E52TD/E52TD.REL"),
+    "E52TE": ("probes/E52TE.PLI", "golden/e52p7/E52TE/E52TE.REL"),
+    "E52TF": ("probes/E52TF.PLI", "golden/e52p7/E52TF/E52TF.REL"),
+    "E52TG": ("probes/E52TG.PLI", "golden/e52p7/E52TG/E52TG.REL"),
+    "E52TH": ("probes/E52TH.PLI", "golden/e52p7/E52TH/E52TH.REL"),
+    "E52TI": ("probes/E52TI.PLI", "golden/e52p7/E52TI/E52TI.REL"),
+    "E52TJ": ("probes/E52TJ.PLI", "golden/e52p7/E52TJ/E52TJ.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
