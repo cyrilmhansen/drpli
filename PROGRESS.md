@@ -44,7 +44,52 @@ C359 derived ONLY from the existing measured evidence.
 
 **Next: see `## Next action
 
-### E2E-52/P3-5 hop 9 DONE — DEFENSIVE ARMS + FULL REGISTRATION LANDED; SUBROUND P3-5 CLOSED; LOAN2 AT ON UNDEFINEDFILE (2026-11-05, hop 9/12; read `LEARNINGS.md` § "hop 9: DEFENSIVE ARMS + REGISTRATION LANDED" FIRST)
+### E2E-52/P3-6 hop 10 DONE — ON-UNDEFINEDFILE EVIDENCE DECODED from EXISTING goldens; PRE-REGISTRATION LANDED (probes + PLAN §P3-6); CAMPAIGN e52p6 OWED (2026-11-05, hop 10/12; read `LEARNINGS.md` § "hop 10: ON-UNDEFINEDFILE EVIDENCE DECODED" FIRST + PLAN §P3-6)
+
+LANDED (all rc DIRECT, ZERO `ocaml/` byte, ZERO oracle call): clean build binary
+`e55e892c346741b2…` (== hop-9 final). LOAN2 line-44 class decoded from the EXISTING
+`golden/first/LOAN2/LOAN2.REL`: registration `LXI H,*OUTPUT / MVI A,06 / CALL ?ONCOP /
+JMP slot` (condition byte **06** — no claim names it; candidate **C364**), handler ending in
+a GOTO emits the inline chain then an inline `C3` and **NO C9 RET**; recovery pad
+`LHLD *D(0318) / SPHL / CALL ?RECOV` at the target label; main-entry `DAD SP/SHLD` SP-save
+present. FALSIFICATIONS kept verbatim: the codegen refusal comment's "no DR sample" claim
+(LOAN2 golden IS the sample for a BEGIN…END ending in a bare goto) and "arm = codegen.ml
+ONLY" (bind.ml `refs_stmt` classifies the Sdobegin handler's trailing goto `Rk_plain`
+same-block → demands NO cell/pad — contradicts the golden; the arm is **bind.ml +
+codegen.ml**). P088I/P089I preserved transcripts: bare `on undefinedfile x = 1;` = PASS-2
+`SYNTAX ?` dr-refuses; the `(f)` form parses clean; BOTH .RELs have NO CODE (pass-2 error
+killed the object) — verdicts only, never bytes. 7 probes `probes/E52SA..E52SG.PLI`
+(CRLF+bare ^Z, ≤71 cols verified; collision greps probes/+INVENTORY EMPTY; tag `e52p6`
+verified UNUSED) + `PLAN.md` §P3-6 (predictions: SA code-06 + RET no-pad; SB SP-save + pad +
+no-RET + JMP-over→pad; SC pad/continuation targets INDEPENDENT; SD [C201] direct pair with
+06; SE/SG [TBD]; SF dr-refuses; LOAN2 next blocker predicted past 44 = counted console SKIP
+50 or `OPEN option PRINT … (line 54)`; NEVER fit) COMMITTED BEFORE any ocaml/ byte.
+
+NEXT (hop 11): (1) ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py
+E52SA E52SB E52SC E52SD E52SE E52SF E52SG --tag e52p6 --switches '$L$D'` rc DIRECT; read
+every .PRN; reldump goldens to `build/e52p6/`; classify honestly (SF dr-refuses row marker =
+MY re-measured stderr WITH [TBD]; SE/SG if DR-accepted stay my-gap boundaries, refuse BY
+NAME, never fitted); keep MISSes verbatim. (2) Arm PLAN §P3-6 §4: bind `refs_stmt` Rk_on for
+`Sdobegin` ending in bare `Sgoto`; codegen `on_reg_prefix` condition-code parameter
+(endfile 05 [C109] / undefinedfile 06 measured); handler-tail-goto inline lowering, NO RET;
+every other goto-containing handler keeps refusing BY NAME with the text corrected to name
+the measured samples. Build rc=0 DIRECT; cmp accepted probes whole-file rc=0 vs
+`golden/e52p6/`; sweep 101; markers E46K4/K15/N21/E52PF/PU/PV/RE rc=2; LOAN2 UNMODIFIED
+POSITIONAL blocker VERBATIM; commit. (3) Registration at hop 11 if budget allows, else
+**hop 12 = CAP 12/12**: SPECIMENS +accepted + honest refusal rows, sanctioned
+`--update-inventory` 1229→1229+N (+refusals), census OWN write path FIRST (line-44 census
+line REPLACED; drift aborts the gate before the byte panel), FULL gate rc=0 DIRECT
+`build/gate-e52p6-reg.log`, claim **C364** measured-bytes-only committed **BEFORE** the
+COVERAGE rewrite, coverage_check + prose rc=0, RESULTS §P3-6 + PLAN §5 row, durables — then
+`handoff_finalize`; NEVER `handoff_renew` past the cap; the operator archives/resets renewal
+state before any further hop.
+
+Constraints: no push; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged
+(dirty standing edit); all rc DIRECT (pipeline-masking trap fired 3 hops running); `pli80c`
+POSITIONAL; ledger ENDS **C363**; renewals autonomous (10/12 consumed, cap 12); campaign
+continues.
+
+SUPERSEDED-BY-ABOVE (kept as written): ### E2E-52/P3-5 hop 9 DONE — DEFENSIVE ARMS + FULL REGISTRATION LANDED; SUBROUND P3-5 CLOSED; LOAN2 AT ON UNDEFINEDFILE (2026-11-05, hop 9/12; read `LEARNINGS.md` § "hop 9: DEFENSIVE ARMS + REGISTRATION LANDED" FIRST)
 
 LANDED (all rc DIRECT, evidence build/e52p5-hop9/ + build/gate-e52p5-reg.log): defensive `| PIrep _ -> a`
 prescan-fold arm `a008840` (histogram codegen 70→68, diff EXACTLY −2 W8 at the fixed site — honest
@@ -2324,17 +2369,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 334
-checkpoint-id: g334-55020a776022
-checkpoint-kind: manual
+checkpoint-generation: 335
+checkpoint-id: g335-50d96a6c8d08
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T02:27:28.398Z
+checkpointed: 2026-11-05T02:52:17.688Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: afad39cc696cd899e5ce13d9b78db6bbc3ceb0990eab86cfb09c15af76457d20
+source-progress: 877ee3070831e9072301a97f7a9b6599190e8b8e9c0799fb09254b0aed23cca8
 source-handoff: 32c807b0db755f3844435a1fac3465c098a7c68d5947d895aae2e32dd930d357
-source-learnings: 47e6f6728b414ecc3ca19da919d64e9e1fb62b20e818d0a39e72775a84edaaeb
+source-learnings: 5ed0f62477c9413c72eaf9639754aa29342b001dbc557ecbff4d18ca6bc2adce
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `:
   PROPOSED P3-6 = ON UNDEFINEDFILE (LOAN2 44) NEW ground — PLAN §P3-6 + probes collision-grepped
@@ -2887,9 +2932,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a973-24de-753f-82d0-316482d86ac2
-readiness-at: 2026-11-05T02:27:28.411Z
-readiness-checkpoint: g334-55020a776022
 <!-- guard:end checkpoint -->
 
 ## Blockers

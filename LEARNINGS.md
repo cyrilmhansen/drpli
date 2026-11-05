@@ -6833,3 +6833,51 @@ an operator brief records state and STOPS.
   any DR object for ON UNDEFINEDFILE exists (campaign probe; if dr-refuses it stays a refusal).
   Other live refusals unchanged: PIvar bin-var file route (177), DEC formal (147), PRINT/
   PAGESIZE OPENs 54/56 queued behind lowering order.
+
+## E2E-52/P3-6 hop 10: ON-UNDEFINEDFILE EVIDENCE DECODED from EXISTING goldens; PRE-REGISTRATION LANDED; CAMPAIGN e52p6 OWED (2026-11-05, hop 10/12)
+
+- **ACCEPTED (measured, ZERO oracle call, all rc DIRECT).** Build rc=0 DIRECT, clean binary
+  sha256 `e55e892c346741b2…` (== hop-9 final). LOAN2 line 44 is
+  `on undefinedfile(output) begin; put skip list('^i^icannot write to',name); goto
+  open_output; end;` and the EXISTING `golden/first/LOAN2/LOAN2.REL` measures the WHOLE
+  class (re-read via `build/e52p3/loan2-golden-reldump.txt`; fresh copies in ignored
+  `build/e52p6/`): registration `LXI H,*OUTPUT(common 0)` behind `LINK-SEL-COMMON OUTPUT` /
+  `MVI A,06` / `CALL ?ONCOP` / `JMP slot 0038` (002F-0039); handler inline 003A-005E (console
+  put-skip-list chain, existing law) then `JMP` 005F operand-slot 0060 (the goto), **NO RET**;
+  `SET-LC 0038 / RELOC code 0x62` patches the JMP-over to 0062 = the label `open_output` PAD
+  `LHLD *D(0318) / SPHL(F9) / CALL ?RECOV`; main ENTRY carries the [C206] SP-save
+  `LXI H,0000 / DAD SP(39) / SHLD *D(0318)` at 0006-000B; a SECOND pad `?RECOV@0116` exists at
+  label `retry` (the ON ERROR 58 target). UNDEFINEDFILE condition byte = **06** — NO claim
+  names it (grep CLAIMS: only the blocker-message mention); candidate **C364**.
+- **FALSIFIED (kept verbatim).** (1) The codegen refusal comment "a GOTO nested in a DO or IF
+  handler has no DR sample" overreached: LOAN2 golden IS a sample of a handler `BEGIN…END`
+  whose LAST statement is a GOTO — the refusal class must shrink to that measured shape.
+  (2) "The P3-6 arm can be codegen.ml ONLY" — `bind.ml refs_stmt` (1687) charges `Rk_on` ONLY
+  for a DIRECT Sgoto handler; an `Sdobegin`-ending-in-goto is classified `Rk_plain` same-block
+  and by [E36T11] demands NO cell/pad — contradicting the golden (cell d0318 + pad exist). The
+  arm is bind.ml + codegen.ml. (3) hop-5-era hope that P089I pins undefinedfile bytes: P089I
+  (and P088I) have NO CODE segment at all — a pass-2 `SYNTAX ?` killed the whole object; only
+  the ACCEPTANCE verdicts decode (`on undefinedfile(f)` parses clean; bare `on undefinedfile`
+  is SYNTAX ? = dr-refuses; `on conversion(f)` SYNTAX ?).
+- **ACCEPTED (pre-registration committed BEFORE any ocaml/ byte):** probes
+  `probes/E52SA..E52SG.PLI` (7; CRLF + bare ^Z, ≤71 cols verified by the writing script;
+  collision greps EMPTY; tag `e52p6` verified UNUSED) + `spec/lab-evidence/e2e52-p3/PLAN.md`
+  §P3-6 §1-§4: predictions SA=registration-06+handler+C9-no-pad; SB=SP-save+pad-at-label+no-RET
+  +JMP-over-to-pad; SC=pad-and-continuation-patch-targets-INDEPENDENT; SD=[C201] direct pair
+  with 06; SE/SG [TBD] UNMEASURED; SF predicted dr-refuses (PASS-2 SYNTAX ?). LOAN2 next-blocker
+  prediction (NEVER fit): past 44, first lowering refusal expected at line 50 counted console
+  SKIP or the line-54 OPEN — verbatim candidate `codegen: OPEN option PRINT is outside what
+  this compiler lowers [TBD] (line 54) -- P0 measured 34 OPEN blocks…`.
+- **PROPOSED (never authorization).** Hop 11: ONE grouped campaign
+  `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52SA E52SB E52SC E52SD E52SE E52SF E52SG
+  --tag e52p6 --switches '$L$D'` rc DIRECT; read every .PRN; reldump goldens to build/e52p6/;
+  classify honestly (SF dr-refuses → REJECTS/NEG_META row from MY re-measured stderr marker
+  WITH [TBD]; SE/SG if DR-accepted stay my-gap boundaries, refuse BY NAME, never fitted); arm
+  §4 (bind.ml + codegen.ml); cmp SA SB SC SD accepted rc=0; sweep 101; markers E46K4/K15/N21/
+  E52PF/PU/PV/RE rc=2; LOAN2 POSITIONAL VERBATIM; commit. Hop 12 = cap 12/12: registration
+  (SPECIMENS +accepted, --update-inventory 1229→1229+N, census OWN path FIRST, gate rc=0
+  build/gate-e52p6-reg.log, **C364 measured-bytes-only BEFORE** the COVERAGE rewrite,
+  coverage_check+prose rc=0, RESULTS §P3-6 + PLAN §5 row), durables, then
+  `handoff_finalize` — NEVER `handoff_renew` past the cap; operator resets renewal state to
+  continue. Boundaries KEPT; goldens NEVER re-derived; operator handoff.config.json NEVER
+  staged; all rc DIRECT (pipeline trap); pli80c POSITIONAL; ledger ENDS C363; campaign continues.
