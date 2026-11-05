@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "9ecff9dbc3bc0c426a886b01f4f75c0c",
+ "binary_md5": "89db70c3e8af959bec638c944e0f728a",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,13 +15,21 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-05T05:55:52",
+ "generated": "2026-11-05T09:06:49",
  "git_dirty_paths": [
-  "M handoff.config.json",
+  "M HANDOFF.md",
+  " M LEARNINGS.md",
+  " M PROGRESS.md",
+  " M handoff.config.json",
+  " M spec/census/corpus-census.json",
+  " M spec/census/corpus-census.tsv",
+  "?? ocaml/build-e52p7-arm.log",
+  "?? ocaml/build-e52p7-arm2.log",
+  "?? ocaml/build-h12verify.log",
   "?? ocaml/build-p37.log",
   "?? ocaml/build-warn-e52p6.log"
  ],
- "git_head": "91592c0210844e0f34b399e42af1e31aa7d6cfff",
+ "git_head": "6b8d851e3079f4ca8fbce06bd84d7bec226c8e14",
  "rows": [
   {
    "dir_present": true,
@@ -399,7 +407,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: OPEN option PRINT is outside what this compiler lowers [TBD] (line 54) -- P0 measured 34 OPEN blocks in 24 DR objects (",
+   "msg": "Fatal error: exception Failure(\"codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) and UNDEFINEDFILE(<file>) have a DR lowering; line 58)\")",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
@@ -489,7 +497,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: OPEN option PRINT is outside what this compiler lowers [TBD] (line 19) -- P0 measured 34 OPEN blocks in 24 DR objects (",
+   "msg": "Fatal error: exception Failure(\"codegen: OPEN option ENVIRONMENT is outside what this compiler lowers [TBD] (line 31) -- P0 measured 34 OPEN blocks in 24 DR obj",
    "name": "RETRIEVE",
    "prn_present": true,
    "rel_bytes": 2048,
