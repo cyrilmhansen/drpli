@@ -1582,22 +1582,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 357
-checkpoint-id: g357-02931ffaf0c2
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4895, session 01a1ab05-c85a-71c1-a110-293de8a4e55c)
-checkpointed: 2026-11-05T09:49:08.202Z
+checkpoint-generation: 358
+checkpoint-id: g358-6dab7079e9f2
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1719, session 01a1ab05-c85a-71c1-a110-293de8a4e55c)
+checkpointed: 2026-11-05T09:50:20.514Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: da2c791ef5bd0c6af1091d72909b0cf33fb9295b1ef122cdb7f36f8cabdea56b
-source-handoff: 67f28e9085013fbfcd2b6fa3d38b7736da05f43735fe7d8235c7835761779569
+source-progress: 902c5c414c334210efa292eca548d42cc28ebd7c1318e3abd2399bdcd5f20663
+source-handoff: 20a39872bcbb9bdf6cbd4f4e041f31b849389fec5a833c386b5ced430f76e713
 source-learnings: 9c6a4dcb8a6a2ede407ce08e1735a8e5924738610959d5d37f7c7f0950679042
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1ab05-c85a-71c1-a110-293de8a4e55c
+readiness-at: 2026-11-05T09:50:20.530Z
+readiness-checkpoint: g358-6dab7079e9f2
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2182,5 +2185,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-7 hop 5 CLOSED at 75a6d18 (PERIMETER correction + RESULTS/PLAN kept + LEARNINGS + durables; full gate rc=0 1243/0, 140 rows 0/0, census 15/0/26/0). Next authorized: E2E-52/P3-8 ON ERROR (LOAN2:58) pre-registration per PROGRESS ## Next action.
+P3-8 hop 1 LANDED at 6f835c2 (ON ERROR decoded on 5 goldens; laws in LEARNINGS § P3-8 hop 1 + HANDOFF 0a-novies-new14). Exact next: PROGRESS ## Next action P3-8 hop-2 contract — clean ANNUITY disassembly, then PLAN §P3-8 + probes E52UA..UF COMMITTED BEFORE any ocaml/ byte, ONE campaign --tag e52p8 --switches '$L$D' rc DIRECT, then arm measured shapes only. Ledger ENDS C365; gate rc=0 1243/0/186/186/9/9/140 0/0/census 15-0-26-0; binary untouched 8b374e623bc9e280…; LOAN2 blocker line 58; no push; operator handoff.config.json NEVER staged; all rc DIRECT; byte-tier only.
 <!-- guard:end checkpoint -->
