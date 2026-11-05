@@ -2135,6 +2135,61 @@ SPECIMENS.update({
     "E52RJ": ("probes/E52RJ.PLI", "golden/e52p5/E52RJ/E52RJ.REL"),
 })
 
+# [E2E-52/P3-6] THE ON UNDEFINEDFILE(<file>) BANK -- 4 probes of campaign tag e52p6
+# (oracle 5 ok/7 at golden/e52p6/ commit 5ab8639, campaign measured at 8fc0a3b: E52SF and
+# E52SG are dr-refuses -- PASS 1 clean, PASS 2 `SYNTAX ?', 1 ERROR(S), NO .REL -- and live on
+# the NEGATIVES panel; E52SE `revert undefinedfile(f)' is ACCEPTED BY DR with a whole golden
+# whose bytes this compiler does NOT claim -- it keeps refusing BY NAME, the boundary KEPT
+# per PLAN §P3-6 §3, and lives on the NEGATIVES panel as my-gap).  Pre-registered at c946839
+# (PLAN §P3-6 + probes E52SA..SG BEFORE any ocaml/ byte); arm 8fc0a3b (bind.ml refs_stmt
+# charges Rk_on for a block handler's trailing bare goto -- BOTH the Sdobegin and the
+# nameless Sproc/Bbegin writing parse_stmt actually gives `BEGIN;...END;' -- so the owner
+# cell + the label pad are demanded; codegen.ml on_reg_prefix takes the MEASURED condition
+# code, endfile=05 [C109] / undefinedfile=06, the Son dispatch admits both names with one
+# Eident argument, and a BEGIN...END handler whose LAST statement is a bare GOTO is emitted
+# inline through the ordinary label-resolution path with NO extra C9 RET).
+# Law (claim [C364], derived ONLY from these measured bytes plus the pre-existing LOAN2
+# object): `on undefinedfile(f)' registers through the condition-INDEPENDENT [C109] prefix
+# `LXI H,<FILE COMMON base> / MVI A,06 / CALL ?ONCOP / JMP <slot>'; a goto-terminated
+# handler contributes NO RET and the JMP-over / handler-tail-goto patch targets are
+# INDEPENDENT (SC: slot 0016 -> 0021 fall-through while the goto slot 001F chains to the pad
+# at 0027); the pad `LHLD *A / SPHL / CALL ?RECOV' plus the entry SP-save `LXI H,0 / DAD SP /
+# SHLD *A' follow the ON-unit reference/layout rules ([C201]/[C208]); and the statement after
+# an ON unit is reached by FALL-THROUGH from registration -- the handler's HL constant must
+# NOT cross the RET (decoded from SA's first-try MISS at octet 142: golden `21 02 00 22'
+# reload vs mine `23 22' bump; armed for BOTH condition names, mechanism condition-blind
+# [C202], sweep 110/0 corroborating).
+# All four whole-file `cmp' rc=0 RE-MEASURED this hop on the clean-rebuild binary
+# 0efc35e6d4ff81bd (hop-11 binary, identical hash after `dune clean && dune build'):
+#   E52SA 256 B; code 0021=33, DATA 0002.  `on undefinedfile(f) x = 1;' -- MVI A,06 at 0009,
+#             statement handler + C9 RET, NO pad, NO entry SP-save ([C206] shape).
+#   E52SB 384 B; code 0047=71, DATA 0008.  LOAN2 shape: handler `begin; put skip list(..);
+#             goto openf; end;' with the label IMMEDIATELY after -- inline chain 0018-0036,
+#             C3 goto, NO C9; JMP-over operand = pad address 0037 because the next statement
+#             IS the label ([C208]).
+#   E52SC 256 B; code 0037=55, DATA 0004.  THE DISCRIMINATOR: label NOT adjacent (`x = 2'
+#             between `end;' and `lbl:') -- pad 0027 vs continuation 0021: the two patch
+#             targets are INDEPENDENT.
+#   E52SD 256 B; code 0031=49, DATA 0004.  Direct form `on undefinedfile(f) goto fin;' --
+#             the [C201] `C3 cont' stub + `C3 <chain fin>' pair with condition 06; NO inline
+#             handler, NO RET.
+# NOT registered: E52SE (DR-accepted golden golden/e52p6/E52SE/E52SE.REL, 256 B, code
+# 0029=41, DATA 0002 -- prefix + 06 at 000A + `?REVOP', no JMP/handler -- my REVERT route is
+# UNARMED by pre-registration; it keeps refusing BY NAME and its bytes are claimed by nothing).
+# Boundaries KEPT (refuse BY NAME, never promote): argumentless ON UNDEFINEDFILE (SF, DR
+# refuses -- row below), identifier-list argument (SG, [TBD] pre-registered, now MEASURED
+# dr-refuses -- row below), REVERT UNDEFINEDFILE (SE, my-gap row below), goto inside IF/DO of
+# a handler, cross-block handler-goto, every other condition name (ON ERROR, LOAN2:58, next
+# candidate).  LOAN2 ADVANCED VERBATIM past line 44 to `codegen: OPEN option PRINT is outside
+# what this compiler lowers [TBD] (line 54) ...' at LOWERING -- the pre-registered §3
+# prediction HIT, never fitted; my-gap recorded, NOT fixed.
+SPECIMENS.update({
+    "E52SA": ("probes/E52SA.PLI", "golden/e52p6/E52SA/E52SA.REL"),
+    "E52SB": ("probes/E52SB.PLI", "golden/e52p6/E52SB/E52SB.REL"),
+    "E52SC": ("probes/E52SC.PLI", "golden/e52p6/E52SC/E52SC.REL"),
+    "E52SD": ("probes/E52SD.PLI", "golden/e52p6/E52SD/E52SD.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -4947,6 +5002,54 @@ NEG_META["E52RE"] = ("dr-refuses",
     "was the generic `expected )' which the pre-registration predicted as this row's marker "
     "-- FALSIFIED at registration (the panel requires [TBD]) and replaced by the named "
     "parse-stage refusal.  Marker RE-MEASURED rc=2 on binary e55e892c346741b2, never assumed.")
+
+# [E2E-52/P3-6] E52SF/E52SG -- MEASURED dr-refuses, E52SE -- MEASURED my-gap, UNARMED.
+# Pre-registered at c946839 (PLAN §P3-6 §3): SF's dr-refusal was PREDICTED from the P088I
+# transcript law and the ORACLE CONFIRMED it (campaign e52p6 5 ok/7 at 8fc0a3b: PASS 1 clean,
+# PASS 2 `SYNTAX ?', 1 ERROR(S), NO .REL -- golden/e52p6/E52SF/E52SF.PRN).  SG was [TBD]
+# (the manual permits an identifier list; no golden carried one) and is now MEASURED with the
+# SAME verdict (golden/e52p6/E52SG/E52SG.PRN).  SE `revert undefinedfile(f)' was [TBD] and is
+# MEASURED ACCEPTED -- NO ERROR(S) both passes, whole 256 B .REL (prefix + 06 at 000A +
+# `?REVOP', no JMP/handler) -- but PLAN §P3-6 §3 kept the REVERT arm OUTSIDE this subround as
+# a PROPOSAL, so SE is a `my-gap' row: DR accepts, mine refuses BY NAME, nothing is fitted
+# and no byte of SE's golden is claimed.  All three markers are MY re-measured refusals on
+# binary 0efc35e6d4ff81bd (rc=2 each, DIRECT, this hop), never invented.
+REJECTS.update({
+    "E52SF": (open("probes/E52SF.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "ON undefinedfile with 0 argument(s)"),
+    "E52SG": (open("probes/E52SG.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "ON undefinedfile with 2 argument(s)"),
+    "E52SE": (open("probes/E52SE.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "REVERT UNDEFINEDFILE(<file>) is a measured my-gap"),
+})
+NEG_META["E52SF"] = ("dr-refuses",
+    "DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the ON statement, 1 ERROR(S), "
+    "NO .REL (golden/e52p6/E52SF/E52SF.PRN, campaign e52p6 5 ok/7 measured at 8fc0a3b; the "
+    "pre-registered §3 prediction CONFIRMED; the same verdict was already measured on the "
+    "argumentless ENDFILE spelling in golden/probe57/P088I).  The bare `undefinedfile' name with "
+    "NO file argument is not a registrable ON unit in DR.  Mine refuses the 0-argument (and any "
+    "non-identifier-argument) form BY NAME with the §4 arm's guard; the refusal text names DR's "
+    "own measured verdict.  Marker RE-MEASURED rc=2 on binary 0efc35e6d4ff81bd this hop, never "
+    "assumed.")
+NEG_META["E52SG"] = ("dr-refuses",
+    "DR REFUSES it -- `on undefinedfile(f,g)' is PASS 1 clean, PASS 2 `SYNTAX ?', 1 ERROR(S), "
+    "NO .REL (golden/e52p6/E52SG/E52SG.PRN, campaign e52p6 5 ok/7 measured at 8fc0a3b).  This "
+    "was pre-registered §3 as [TBD] UNMEASURED (the manual's syntax diagram permits an identifier "
+    "LIST; no golden had ever carried one) -- the campaign MEASURED it as a refusal, so nothing "
+    "here is claimable and the multi-file registration shape stays outside the arm periphery.  "
+    "Mine refuses the 2-argument (and any non-identifier-argument) form BY NAME at the Son "
+    "dispatch guard.  Marker RE-MEASURED rc=2 on binary 0efc35e6d4ff81bd this hop, never assumed.")
+NEG_META["E52SE"] = ("my-gap",
+    "DR COMPILES IT (golden/e52p6/E52SE/E52SE.REL, 256 B whole-file: `NO ERROR(S)' in BOTH passes; "
+    "campaign e52p6 5 ok/7 measured at 8fc0a3b) and lowers `revert undefinedfile(f)' to the "
+    "[C109]-shaped registration prefix with condition byte 06 followed by CALL ?REVOP -- code "
+    "0029=41, DATA 0002, NO JMP slot and NO handler bytes.  Mine refuses BY NAME: PLAN §P3-6 §3 "
+    "pre-registered the REVERT arm as a PROPOSAL outside this subround's perimeter (the ENDFILE "
+    "REVERT route exists [C211]; the UNDEFINEDFILE condition code on it is object-witnessed but "
+    "was deliberately NOT fitted), so this is a `my-gap' row, never a dr-refuses row -- the "
+    "refusal text itself says `measured my-gap'.  The SE golden's bytes are claimed by NOTHING "
+    "until the arm lands.  Marker RE-MEASURED rc=2 on binary 0efc35e6d4ff81bd this hop, never "
+    "assumed.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
