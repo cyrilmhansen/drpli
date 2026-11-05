@@ -1592,25 +1592,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 375
-checkpoint-id: g375-0319aa547acf
+checkpoint-generation: 377
+checkpoint-id: g377-4f6dd6103040
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 2, remaining ~7935, session 01a1ad11-e21b-7739-b9fe-1a15e88f5aec)
-checkpointed: 2026-11-05T19:21:31.051Z
+status: checkpoint (guard level 4, remaining ~-3517, session 01a1ad29-0460-7739-b9fe-1a19ab544963)
+checkpointed: 2026-11-05T19:57:46.970Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7a5e531840b049fd60e19ae189d5464ab40c0e3fef72264e629c20f742cb8ce6
+source-progress: c1a86e78ac46b0b6de1fd3bb421b52120847bae17f7eb743d5b4a0c11b9f42df
 source-handoff: 4b973a74698093079dfdd887bb35aaa1cfba34213364499dac9006eeaf69915f
-source-learnings: ce313ee3fa929dcca20583b055ed7e1cc732afc4eb62fc90d97d3a085196107e
+source-learnings: bc8eacc7e0c29e80977aa6450bbb694a2576c34bb6c342f14a3d307dd305f4be
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1ad11-e21b-7739-b9fe-1a15e88f5aec
-readiness-at: 2026-11-05T19:21:31.069Z
-readiness-checkpoint: g375-0319aa547acf
+readiness-by: session:01a1ad29-0460-7739-b9fe-1a19ab544963
+readiness-at: 2026-11-05T19:57:46.986Z
+readiness-checkpoint: g377-4f6dd6103040
 ### Last verified state
-guard level 2; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (finalize: P3-9 hop 3 DONE (campaign 11/11, goldens 9bb3f99, durables 5f4f577). Hop 4 = pin fold-order rule from raw reldumps, then arm-only-measured; full contract in PROGRESS Next action + LEARNINGS hop-3 section.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2203,5 +2203,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-9 hop 3 (operator-authorized campaign): Phase A is FULLY CLOSED and committed (LEARNINGS.md § "E2E-52/P3-9 hop 2" + PROGRESS.md → ## Next action — read both FIRST; every measured byte and the exact hop-3 contract are there). NEXT: write PLAN §P3-9 (H1-H10, byte-exact predictions + falsifiers: OR = materialise-bit7-byte + F5/C1/B0 value-level fold + ONE JP; fold-ORDER discriminator VB vs VC; DEC push-order VG vs VI; standalone <0 leaf VA) + probes E52VA..VK (CRLF + bare ^Z + ≤71 cols, E52UA skeleton; re-grep collisions: E52V*/e52p9 were FREE at HEAD f8089e2), COMMIT BOTH BY EXPLICIT PATH BEFORE ANY ORACLE CALL AND BEFORE ANY ocaml/ BYTE; then ONE campaign PLI_SRC=probes timeout 900 python3 oracle/batch.py E52VA..E52VK --tag e52p9 --switches '$L$D' rc DIRECT; goldens VERBATIM; arm only measured (Or arm in lower_test_skip0 + Or fold beside And in lower_bool; NEVER touch And; <0 leaf only if VA measures it); LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM never fix next blocker (?SIGOP out of scope); C367 measured-bytes-only BEFORE COVERAGE (explicit spec/COVERAGE-IDS.txt edit; NEVER coverage_gen.py); gate build/gate-e52p9-reg.log; STOP at P3-9 closure. Constraints: no push; handoff.config.json NEVER staged; goldens NEVER re-derived; rc DIRECT; pli80c POSITIONAL; byte-tier only; ledger ENDS C366; gate baseline 1249/186/9/140-0-0 census 15/0/26/0; binary 9ecea27aa4f2d80f49ad…; first action after recovery: commit the refreshed guard managed blocks VERBATIM if uncommitted.
+P3-9 hop 3 DONE (campaign 11/11, goldens 9bb3f99, durables 5f4f577). Hop 4 = pin fold-order rule from raw reldumps, then arm-only-measured; full contract in PROGRESS Next action + LEARNINGS hop-3 section.
 <!-- guard:end checkpoint -->
