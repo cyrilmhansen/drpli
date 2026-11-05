@@ -1,0 +1,39 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52SB
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52SB
+
+   1 a 0000 E52SB: procedure options(main);
+   2 a 0006 
+   3 c 0006    dcl f file;
+   4 c 000D    dcl x fixed bin;
+   5 c 000D 
+   6 c 000D    on undefinedfile(f)
+   7 d 0015       begin;
+   8 e 0018          put skip list('oops');
+   9 e 0034          goto openf;
+  10 d 0037       end;
+  11 d 0037 
+  12 c 0037 openf:
+  13 c 003E    x = 1;
+  14 c 0044 
+  15 a 0044 end E52SB;
+
+CODE SIZE = 0047
+DATA AREA = 0008
+FREE SYMS = 3885
+END  COMPILATION
+

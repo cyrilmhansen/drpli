@@ -1,0 +1,7 @@
+E52SA	ok	PRN=True REL=True
+E52SB	ok	PRN=True REL=True
+E52SC	ok	PRN=True REL=True
+E52SD	ok	PRN=True REL=True
+E52SE	ok	PRN=True REL=True
+E52SF	diag	PRN=True REL=False
+E52SG	diag	PRN=True REL=False

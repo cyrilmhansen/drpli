@@ -1,0 +1,35 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52SD
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52SD
+
+   1 a 0000 E52SD: procedure options(main);
+   2 a 0006 
+   3 c 0006    dcl f file;
+   4 c 000D    dcl x fixed bin;
+   5 c 000D 
+   6 c 000D    on undefinedfile(f) goto fin;
+   7 c 001B    x = 1;
+   8 c 0028 fin:
+   9 c 0028    x = 2;
+  10 c 002E 
+  11 a 002E end E52SD;
+
+CODE SIZE = 0031
+DATA AREA = 0004
+FREE SYMS = 389E
+END  COMPILATION
+
