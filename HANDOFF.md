@@ -1586,25 +1586,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 364
-checkpoint-id: g364-913b7cc02922
+checkpoint-generation: 365
+checkpoint-id: g365-8266ea535079
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~-887, session 01a1ab4c-bb15-71c1-a110-29486b9b9ed2)
-checkpointed: 2026-11-05T11:10:19.326Z
+status: checkpoint (guard level 4, remaining ~-17033, session 01a1ab4c-bb15-71c1-a110-29486b9b9ed2)
+checkpointed: 2026-11-05T11:58:07.926Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e70109836768421dedbf067a5bb50725b1062000412ccd570a2d6d319dc558b5
+source-progress: 024d21cbfeea16c2bee9ca453600f573b92b1d90a2392b27ab3728d6e7cba12e
 source-handoff: 2366bcc250372b46021d4c0493894a6826a0248c038c12e4e8bea46386c7c86f
-source-learnings: d5896353dee17961c2ea8659e6a08ce9efb419ce9fe86bd7a29b3d989c36f640
+source-learnings: c1f55def7db90c0e70625bdb75c4e69dd7eebda61342a68c0aaff89d242c1b37
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1ab4c-bb15-71c1-a110-29486b9b9ed2
-readiness-at: 2026-11-05T11:10:19.342Z
-readiness-checkpoint: g364-913b7cc02922
+readiness-at: 2026-11-05T11:58:07.944Z
+readiness-checkpoint: g365-8266ea535079
 ### Last verified state
-guard level 4; checkpoint requested (finalize: P3-8 hop 3 IN FLIGHT: codegen.ml ARM landed UNCOMMITTED (on_error_reg_prefix + ERROR arm, measured shapes only; body-dependent STOP tail on ENDFILE route; nested/undefinedfile STOP refuse BY NAME); build rc=0 DIRECT binary f9abf6b6d07f1d3db500… (supersedes baseline 8b374e623bc9e280fa14…). EXACT NEXT per PROGRESS.md → ## Next action and LEARNINGS.md § "hop 3 PART DONE": warning histogram vs 68, cmp UA..UF rc=0 vs golden/e52p8/, sweep 114, markers rc=2, LOAN2 POSITIONAL VERBATIM (line-58 now armed — record advance, never fix), commit explicit paths, registration (SPECIMENS +6, --update-inventory from 1243, census own path, gate build/gate-e52p8-reg.log, C366 measured-bytes-only BEFORE COVERAGE, coverage+prose rc=0, RESULTS/PLAN rows, durables). Ledger ENDS C365; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all rc DIRECT; pli80c POSITIONAL; byte-tier only; no push; chain 01a1ab34 renewal 3/12 used, cap 12.)
+guard level 4; checkpoint requested (finalize: P3-8 hop 3: ARM COMMITTED a7ab5a4 (codegen.ml only) — ON ERROR armed on measured bytes; 6/6 cmp rc=0 vs golden/e52p8/ + sweep rc=0 FAILS:0 on binary 9ecea27aa4f2d80f49ad… (build rc=0 DIRECT). First-draft UF falsifier (stop branch skipped the shared registration prologue) recorded in LEARNINGS. EXACT NEXT per PROGRESS.md → ## Next action: per-File warning histogram vs 68; markers E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG rc=2; LOAN2 POSITIONAL VERBATIM (line-58 ON ERROR now armed — record the advance, NEVER fix/hardcode); registration SPECIMENS +6, sanctioned --update-inventory from 1243, census OWN write path FIRST (EXPR1/EXPR2 may advance — verbatim), FULL gate rc=0 → build/gate-e52p8-reg.log, C366 from MEASURED BYTES ONLY BEFORE the COVERAGE ON-unit rewrite, coverage_check+prose rc=0, RESULTS §P3-8 + PLAN §5 row, durables. Ledger ENDS C365; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all rc DIRECT (never a pipeline tail); pli80c POSITIONAL; byte-tier only, no runtime claims; no push; chain 01a1ab34 renewal 3/12 used, cap 12.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2195,5 +2195,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-8 hop 3 IN FLIGHT: codegen.ml ARM landed UNCOMMITTED (on_error_reg_prefix + ERROR arm, measured shapes only; body-dependent STOP tail on ENDFILE route; nested/undefinedfile STOP refuse BY NAME); build rc=0 DIRECT binary f9abf6b6d07f1d3db500… (supersedes baseline 8b374e623bc9e280fa14…). EXACT NEXT per PROGRESS.md → ## Next action and LEARNINGS.md § "hop 3 PART DONE": warning histogram vs 68, cmp UA..UF rc=0 vs golden/e52p8/, sweep 114, markers rc=2, LOAN2 POSITIONAL VERBATIM (line-58 now armed — record advance, never fix), commit explicit paths, registration (SPECIMENS +6, --update-inventory from 1243, census own path, gate build/gate-e52p8-reg.log, C366 measured-bytes-only BEFORE COVERAGE, coverage+prose rc=0, RESULTS/PLAN rows, durables). Ledger ENDS C365; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all rc DIRECT; pli80c POSITIONAL; byte-tier only; no push; chain 01a1ab34 renewal 3/12 used, cap 12.
+P3-8 hop 3: ARM COMMITTED a7ab5a4 (codegen.ml only) — ON ERROR armed on measured bytes; 6/6 cmp rc=0 vs golden/e52p8/ + sweep rc=0 FAILS:0 on binary 9ecea27aa4f2d80f49ad… (build rc=0 DIRECT). First-draft UF falsifier (stop branch skipped the shared registration prologue) recorded in LEARNINGS. EXACT NEXT per PROGRESS.md → ## Next action: per-File warning histogram vs 68; markers E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG rc=2; LOAN2 POSITIONAL VERBATIM (line-58 ON ERROR now armed — record the advance, NEVER fix/hardcode); registration SPECIMENS +6, sanctioned --update-inventory from 1243, census OWN write path FIRST (EXPR1/EXPR2 may advance — verbatim), FULL gate rc=0 → build/gate-e52p8-reg.log, C366 from MEASURED BYTES ONLY BEFORE the COVERAGE ON-unit rewrite, coverage_check+prose rc=0, RESULTS §P3-8 + PLAN §5 row, durables. Ledger ENDS C365; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all rc DIRECT (never a pipeline tail); pli80c POSITIONAL; byte-tier only, no runtime claims; no push; chain 01a1ab34 renewal 3/12 used, cap 12.
 <!-- guard:end checkpoint -->

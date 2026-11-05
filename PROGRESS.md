@@ -2666,17 +2666,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 364
-checkpoint-id: g364-913b7cc02922
+checkpoint-generation: 365
+checkpoint-id: g365-8266ea535079
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-05T11:10:19.326Z
+checkpointed: 2026-11-05T11:58:07.926Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: e70109836768421dedbf067a5bb50725b1062000412ccd570a2d6d319dc558b5
+source-progress: 024d21cbfeea16c2bee9ca453600f573b92b1d90a2392b27ab3728d6e7cba12e
 source-handoff: 2366bcc250372b46021d4c0493894a6826a0248c038c12e4e8bea46386c7c86f
-source-learnings: d5896353dee17961c2ea8659e6a08ce9efb419ce9fe86bd7a29b3d989c36f640
+source-learnings: c1f55def7db90c0e70625bdb75c4e69dd7eebda61342a68c0aaff89d242c1b37
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `: a SECOND prefix encoder beside `on_reg_prefix` (never mutate the file one), admit `error` bare + ONE integer literal only (every other shape refuses BY NAME [TBD]), body-dependent `C9` suppression ONLY where measured, then build rc=0 DIRECT + per-File warning histogram vs **68**, cmp 6/6 whole-file vs `golden/e52p8/`, sweep **114**, markers E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG rc=2, LOAN2 POSITIONAL VERBATIM (record the new blocker, NEVER fix), SPECIMENS +6 + sanctioned `--update-inventory` from **1243**, census OWN write path FIRST, FULL gate rc=0 `build/gate-e52p8-reg.log`, **C366 from MEASURED BYTES ONLY BEFORE the COVERAGE rewrite**, coverage_check + prose rc=0, RESULTS §P3-8 + PLAN §5 row, durables. Ledger ENDS **C365**; binary `8b374e623bc9e280fa14…` == baseline (untouched); goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc DIRECT (never a pipeline tail); `pli80c` POSITIONAL; no push; byte-tier only — no runtime claims.
 
@@ -3262,8 +3262,8 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 readiness-by: session:01a1ab4c-bb15-71c1-a110-29486b9b9ed2
-readiness-at: 2026-11-05T11:10:19.342Z
-readiness-checkpoint: g364-913b7cc02922
+readiness-at: 2026-11-05T11:58:07.944Z
+readiness-checkpoint: g365-8266ea535079
 <!-- guard:end checkpoint -->
 
 ## Blockers
