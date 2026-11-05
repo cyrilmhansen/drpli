@@ -1590,22 +1590,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 370
-checkpoint-id: g370-d108ee5b93aa
-checkpoint-kind: auto
+checkpoint-generation: 371
+checkpoint-id: g371-6352f300011d
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~3807, session 01a1abba-1184-74db-85e1-879c2b4e07b2)
-checkpointed: 2026-11-05T12:59:33.082Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1411, session 01a1abba-1184-74db-85e1-879c2b4e07b2)
+checkpointed: 2026-11-05T13:00:28.678Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 71e889b90155d1de67f4a24f10286dd9f1078cca58f7554d97ab686a11ad9166
+source-progress: 569f6895d29b8425a823ec1e7832bb7ea766846e6b22ec35f70da0220d5cfbda
 source-handoff: 1eb12766cbec42cff5bfe969d899276f7d1bcec2132b1155f2b7ca361f877923
 source-learnings: 4d779059d8dafa568a941df9747ef89b00bc85e53c00e7835246d502622d753f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1abba-1184-74db-85e1-879c2b4e07b2
+readiness-at: 2026-11-05T13:00:28.702Z
+readiness-checkpoint: g371-6352f300011d
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: P3-8 subround CLOSED: RESULTS §P3-8 + PLAN §5 row + §P3-8 CLOSED landed (86db760), LEARNINGS repair section (87ebe5f), durables (aeefab9). COVERAGE ledger clobber by tools/coverage_gen.py at 0cf0688 FOUND and REPAIRED (restored from 17c9963 + re-applied COND.ON_ERROR SUPPORTED/EXACT:6); coverage_check rc=0 140 rows 0/0 SUPPORTED 90 == committed stats, prose rc=0; build rc=0 binary 9ecea27aa4f2d80f49ad…; ledger ENDS C366; LOAN2 blocker VERBATIM at line 91 NOT fixed. Next: commit refreshed managed blocks and STOP — P3-9 and the full-gate re-confirm are PROPOSED, not authorized.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2198,5 +2201,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-8 hop 3 remainder is CLOSED and committed through `eae0ff2` (registration 244f6e1, C366 17c9963 BEFORE COVERAGE 0cf0688, durables). Ledger ENDS C366; gate rc=0 1249/0, 186/186, 9/9, 140 rows 0/0, census 15/0/26/0; histogram 68 == baseline; cmp UA..UF 6/6; markers MARKER_FAILS: 0; LOAN2 VERBATIM new first blocker `codegen: condition form not in E2E-3b subset [TBD]: (| (< dl 0) (> dl 2))` = LOAN2:91, rc=2 no .REL, NOT fixed. ONLY remaining brief items (docs-only, NO oracle, NO compiler byte): append RESULTS §P3-8 + PLAN §5 row + mark PLAN §P3-8 CLOSED in spec/lab-evidence/e2e52-p3/, prose rc=0, then commit HANDOFF/PROGRESS managed blocks VERBATIM and STOP. See PROGRESS.md -> ## Next action.
+P3-8 subround CLOSED: RESULTS §P3-8 + PLAN §5 row + §P3-8 CLOSED landed (86db760), LEARNINGS repair section (87ebe5f), durables (aeefab9). COVERAGE ledger clobber by tools/coverage_gen.py at 0cf0688 FOUND and REPAIRED (restored from 17c9963 + re-applied COND.ON_ERROR SUPPORTED/EXACT:6); coverage_check rc=0 140 rows 0/0 SUPPORTED 90 == committed stats, prose rc=0; build rc=0 binary 9ecea27aa4f2d80f49ad…; ledger ENDS C366; LOAN2 blocker VERBATIM at line 91 NOT fixed. Next: commit refreshed managed blocks and STOP — P3-9 and the full-gate re-confirm are PROPOSED, not authorized.
 <!-- guard:end checkpoint -->
