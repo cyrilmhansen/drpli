@@ -6753,3 +6753,44 @@ this hop). **E52G stays an OPEN `my-gap`** — never registered, never fitted, g
 registered evidence only; the copy-in-temp arm and the question whether G joins
 `spec/DIVERGENT.txt` remain PROPOSALS, never adopted. STOP after P1; successor without
 an operator brief records state and STOPS.
+
+## E2E-52/P3-5 hop 8: ARM LANDED — ALL 7 ACCEPTED PROBES BYTE-EXACT (HEADLINE CLASS MET); registration OWED (2026-11-05, hop 8/12)
+
+- **ACCEPTED (arm ACTUALS).** parser.ml `parse_rep_spec` now builds `Ebuilt("REPSPEC",[index
+  Eident; from; to?])` and refuses a BY step BY NAME at the parse stage (`err p` → rc=2);
+  codegen.ml gained `PIrep of pitem * Ast.expr`, the `match_put_edit` `data` walker now
+  accumulates pitems directly and admits `Ast.Pi_rep` on BOTH routes (classify_item refusal
+  semantics unchanged: console defers, FILE names the line), both prescan folds carry PIrep,
+  `authorize_file_edit_item` admits `PIrep` iff the INNER is `PIlit` or `PInum` via
+  `edit_num_tree`, `authorize_file_item` carries the defensive unreachable arm, the item loop
+  in `lower_put_items_gen` is now `let rec emit_item` with ONE pending `repl_exit` slot, and
+  `classify_rep_spec` + `emit_rep_loop` emit the §2 loop.
+  Build rc=0 DIRECT (`dune build`, NEVER a pipeline); binary moved
+  `345644822818326f…` → `a55ef4eb7c7e51fb…` (arm present, as required).
+  **cmp vs `golden/e52p5/` whole-file rc=0 for ALL SEVEN accepted probes: RA RB RD RF RH RI RJ**
+  (first try 6/7; RB alone differed at octet 275 — the FORWARD-JP PATCH LAW: a non-final
+  repetition's JP must be patched to the START OF THE NEXT ITEM's chain (E52RB slot 0038 →
+  0x4F), NOT to the trailing ?QIOOP; fixed by calling `repl_exit_flush ()` at the top of
+  `emit_item`, which leaves a final repetition patched to the close (RA 0028 → 0x3F)).
+  Refusals measured rc=2 with pre-registered markers: **RC** parser
+  `DO-repetition BY step is unmeasured [TBD] …`; **RG** `PUT FILE(F) EDIT of a DO-repetition of a
+  variable bound as char(2) has no byte-exact DR witness [TBD] …` (§4(e) boundary KEPT);
+  **RE** parser `expected )` (REVERSE never parsed; the NEG_META marker = MY actual).
+- **FALSIFIED (mine, this hop):** the hop-7 note that the prescan inner fold needs only the 4
+  plain arms — the `PIrep (inner,_)` inner match at codegen.ml ~3581 is NON-EXHAUSTIVE
+  (Warning 8, example `PIrep (_, _)`), unreachable (classify_item can never return PIrep) but
+  it is EXACTLY the PA trap class; owed: add `| PIrep _ -> a` defensive arm, rebuild rc=0,
+  re-run the 7 cmps (expect unchanged), and use the per-File warning histogram vs baseline 70.
+- **OWED NEXT (hop 9 — do NOT re-arm):** (1) defensive fold arm + rebuild + 7 cmps again;
+  (2) sweep 89 (E52PB..PO, P086J/K, E46N 19, E52A..J, E51A..L, R10), markers E46K4/K15/N21/
+  E52PF/PU/PV rc=2, LOAN2 UNMODIFIED POSITIONAL (`pli80c IN.PLI OUT.REL`) — predicted blocker
+  line-177 `PIvar yp` bin-var file route, record VERBATIM, NEVER fit; (3) commit the arm
+  (explicit paths ocaml/lib/parser.ml ocaml/lib/codegen.ml); (4) registration: SPECIMENS +7
+  (RA RB RD RF RH RI RJ) + RE REJECTS/NEG_META row with MY re-measured `expected )` marker,
+  sanctioned `--update-inventory` 1222→1229 + negatives 182→183, census OWN write path FIRST
+  (the line-212 blocker line is REPLACED; drift aborts the gate before the byte panel), FULL
+  gate rc=0 DIRECT `build/gate-e52p5-reg.log`, **C363 from MEASURED BYTES ONLY committed
+  BEFORE** the COVERAGE `IO.PUT_EDIT` rewrite (EXACT 35→42), coverage_check+prose rc=0,
+  RESULTS §P3-5 + PLAN §5 row, durables, renew 9/12. Evidence: `build/e52p5-arm/`.
+  UNMEASURED shapes still refusing BY NAME (never promote): to<=2, from=0, 1-byte index,
+  variable FROM, deref index/bound, nested rep, BY, REVERSE, char-var/DEC-inner reps.

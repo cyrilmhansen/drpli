@@ -982,7 +982,14 @@ and next_fmt_word p =
   | _ -> false
 
 and parse_rep_spec p =
-  (* DO <ind> = <from> [TO <b>] [BY <s>] -> REPSPEC expr [PROBE: order] *)
+  (* DO <ind> = <from> [TO <b>] [BY <s>] -> REPSPEC [index; from; to?] expr.
+     [E2E-52/P3-5 arm (a)] the INDEX is child 0: DR's data-item repetition loop
+     initialises, tests, steps and re-stores the index variable's OWN cell
+     (`LXI H,from / SHLD i / TOP: LHLD i / ... / LHLD i / INX H / SHLD i` —
+     golden/e52p5/E52RA 0018-003C and the LOAN2 golden span 0975-0999), so a
+     REPSPEC of [from;to] cannot be lowered at all.  The previous shape
+     `ignore`d the index name AND the BY step — FALSIFIED by code reading at
+     PLAN §P3-5 §2a; the pre-arm objects died at the matcher instead. *)
   if Sys.getenv_opt "PLI80_TR" <> None then
     Format.eprintf "rep_spec at idx %d tok %a@." p.i Token.pp_tok (peek p);
   let ind = name_any p in
@@ -992,9 +999,22 @@ and parse_rep_spec p =
   let from_ = expr0 p in
   let to_ = if eat_key p "TO" then Some (expr0 p) else None in
   let by_ = if eat_key p "BY" then Some (expr0 p) else None in
-  ignore ind; ignore by_;
+  (* [E2E-52/P3-5 arm (a)] a BY STEP is REFUSED BY NAME at the parse stage.  DR
+     ACCEPTS it — E52RC is a whole golden object (campaign e52p5) whose test bytes
+     are unchanged and whose step is `INX H` repeated `by` times (code 0038 =
+     `23 23') — but no object of ours claims that encoding and PLAN §P3-5 §4(a)
+     pre-registered keeping the boundary, so this compiler refuses rather than
+     guessing.  Recorded as a `my-gap`, NEVER fitted. *)
+  (match by_ with
+   | Some _ ->
+       err p
+         "DO-repetition BY step is unmeasured [TBD] -- DR accepts it (E52RC: INX H \
+          repeated by times, test unchanged) but this compiler has no byte-exact \
+          object for a stepped repetition"
+   | None -> ());
   { e = Ebuilt ("REPSPEC",
-                [ from_ ] @ (match to_ with Some x -> [ x ] | None -> []))
+                { e = Eident ind; epos = ind.pos }
+                :: (from_ :: (match to_ with Some x -> [ x ] | None -> [])))
   ; epos = curpos p }
 
 and data_items p =

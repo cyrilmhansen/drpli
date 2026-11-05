@@ -2225,6 +2225,14 @@ type pitem =
        ?QDCOP at width digits+3 and scale 0 (E16D/E17D `put file(outf) list(42)').  Produced
        ONLY by the named-file PUT matcher, so it cannot reach the console chain -- where a
        numeric literal item is still unmeasured and keeps refusing. *)
+  | PIrep of pitem * Ast.expr
+    (* [E2E-52/P3-5 arm (b)] a DATA-item DO-repetition `(x do i = from to to)': the INNER
+       item is one of the classes the plain route already lowers, and the parser's
+       `Ebuilt("REPSPEC", [index; from; to?])' rides along.  DR wraps the item's ONE chain
+       in an inline pre-tested loop that steps the INDEX VARIABLE'S OWN cell —
+       golden/e52p5/E52RA 0018-003C, LOAN2 golden 0975-0999 — and the repetition contributes
+       ZERO bytes to the format table (bind.ml:1155, golden-corroborated twice).  Produced by
+       BOTH EDIT routes (E52RH measures the console loop == the file loop). *)
 (* [E2E-22/P4] DR's runtime SKIP count, measured on SK3/SK4 (`put skip(one) list(...)'):
      LHLD v ; MOV A,L ; CALL ?SKPOP
    Only the LOW byte of the value is used -- the same 8-bit quantity the `MVI A,n' immediate
@@ -3016,24 +3024,31 @@ type edit_match =
    catch never sees a STATEMENT-OPTION control item. *)
 let match_put_edit (s : Ast.stmt) =
   let ln = s.Ast.spos.Source.line in
+  (* [E2E-52/P3-5 arm (b)] the DATA half now accumulates pitems DIRECTLY: the rep item
+     `Ast.Pi_rep (x, spec)` has no `Ast.expr` to accumulate — its payload is a (item,spec)
+     pair — so the classification moved INTO the walker and both routes gain the class in
+     one place.  A `classify_item` refusal keeps the EXACT old semantics (None -> the
+     console route defers to the generic PUT catch, the FILE route names this line). *)
   let rec data acc = function
     | [] -> None                     (* no format list: not an EDIT shape *)
     | Ast.Pi_fmtlist specs :: tl ->
         if tl <> [] || acc = [] then None
         else Some (List.rev acc, specs)
-    | Ast.Pi_data x :: tl -> data (x :: acc) tl
-    (* a control/rep/picture/remote item in the DATA half of an EDIT list
+    | Ast.Pi_data x :: tl ->
+        (match classify_item x with
+         | Some it -> data (it :: acc) tl
+         | None -> None)
+    | Ast.Pi_rep (x, spec) :: tl ->
+        (match classify_item x with
+         | Some it -> data (PIrep (it, spec) :: acc) tl
+         | None -> None)
+    (* a control/picture/remote item in the DATA half of an EDIT list
        is unsampled: refuse rather than guess where it belongs *)
     | _ -> None
   in
   let split items =
     match data [] items with
-    | Some (ds, specs) ->
-        let its = List.map classify_item ds in
-        if List.for_all (fun o -> o <> None) its then
-          Some (List.map (function Some i -> i | None -> assert false) its,
-                specs)
-        else None
+    | Some (its, specs) -> Some (its, specs)
     | None -> None
   in
   match s.Ast.st with
@@ -3558,7 +3573,16 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
                 | PIlit v -> a + pdec_str_cell cx v
                 | PInum x -> a + prescan_expr cx x
                 | PIvar _ -> a
-                | PIlit_dec t -> a + pdec_put_dec_cell cx t) 0 em.ed_items
+                | PIlit_dec t -> a + pdec_put_dec_cell cx t
+                (* [E2E-52/P3-5 arm (d)] the rep body is emitted ONCE inside the loop
+                   (RA/RD/RH/RI: ONE literal cell for the whole statement), so the inner
+                   item's cells are counted EXACTLY ONCE — never per repetition. *)
+                | PIrep (inner, _) ->
+                    (match inner with
+                     | PIlit v -> a + pdec_str_cell cx v
+                     | PInum x -> a + prescan_expr cx x
+                     | PIvar _ -> a
+                     | PIlit_dec t -> a + pdec_put_dec_cell cx t)) 0 em.ed_items
        | None ->
       (match match_put_list_lit s with
        | Plit (_, v) -> pdec_str_cell cx v
@@ -3570,7 +3594,12 @@ let rec prescan_stmt (cx : pdec_ctx) (s : Ast.stmt) =
               | PIlit v -> a + pdec_str_cell cx v
               | PInum x -> a + prescan_expr cx x
               | PIvar _ -> a
-              | PIlit_dec t -> a + pdec_put_dec_cell cx t) 0 its
+              | PIlit_dec t -> a + pdec_put_dec_cell cx t
+              (* [E2E-52/P3-5] UNREACHABLE: the LIST matcher (`all_data'/`file_items')
+                 refuses `Pi_rep' before any pitem exists.  Defensive arm — adding PIrep
+                 to `pitem' leaves this match non-exhaustive and lib/dune does NOT treat
+                 warnings as errors (the PA Match_failure of e946242 is the lesson). *)
+              | PIrep _ -> a) 0 its
        (* [E2E-41/P3b] a named-file PUT takes its pool cells in SOURCE order like every other
           item: E17D's DATA 0x11 is the title's 5, then 'HELLO''s 5, then the 2-byte packed cell
           for 42, then 'WROTE''s 5 -- so a file PUT of a numeric literal DOES grow the pool, and
@@ -11838,10 +11867,19 @@ let authorize_file_item st (fu : string) (ln : int) (it : pitem) =
       end
   | PInum x ->
       no_witness "an EXPRESSION or SUBSCRIPTED item"
-        ("DR COMPILES both shapes on this route (E46L9 `list(k + 1)' and E46L10 `list(a(1))'), \
+        ("DR COMPILES both shapes on this route (E46L9 `list(k + 1)' and E46L10 `list(a(1))'), \\
          each ending in the numeric tail the console uses, so this is a measured gap and not an \
          unknown one -- but P2a's perimeter is one VARIABLE, and an expression has to earn its \
          own witness")
+  | PIrep _ ->
+      (* [E2E-52/P3-5] UNREACHABLE by construction: `file_items' (the LIST-route item
+         checker) refuses `Pi_rep' with its generic bad-item catch BEFORE any pitem is
+         built, so a PUT FILE LIST never reaches an authorizer holding a repetition.
+         Defensive arm for the same reason as the prescan fold above — the pitem match
+         must stay exhaustive. *)
+      no_witness "a DO-repetition item"
+        "no PUT LIST object — file or console — carries a data-item repetition; the \
+         repetition is measured only inside an EDIT list (golden/e52p5/, LOAN2 0975-0999)"
 
 (* [E2E-52/P3-2 arm (e)] WHICH ITEMS THE FILE EDIT ROUTE AUTHORISE -- the exact
    mirror of `authorize_file_item's discipline: syntax is decided by the matcher,
@@ -11968,6 +12006,177 @@ let authorize_file_edit_item st (fu : string) (ln : int) (it : pitem) =
            ^ "operands, calls, subscripts, unary signs, **, concatenation and the "
            ^ "other operand orders carry no DR EDIT object and keep refusing "
            ^ "[PLAN \194\167P3-4 \194\1674(c)]")
+  | PIrep (inner, _spec) ->
+      (* [E2E-52/P3-5 arm (e)] the FILE EDIT route admits a data-item repetition whose
+         INNER item the plain EDIT route already admits and NOTHING more: E52RA/RD/RH/RI
+         pin a string literal, E52RJ pins `100*m' — the edit_num_tree shape — INSIDE the
+         loop.  RG's `v char(2)` is accepted by DR inside a repetition, but the plain
+         route refuses a CHARACTER variable on the EDIT list, so the boundary stands
+         (§4(e) KEPT): this is a recorded `my-gap`, never fitted. *)
+      (match inner with
+       | PIlit _ -> ()     (* E52RA 002A-0034, LOAN2 0987-098F [C090 prep, EDTOV tail] *)
+       | PInum x when edit_num_tree st x ->
+           ()                (* E52RJ 002A-003A: `100*m' == LHLD/LXI D,64/?IM22N/MVI A,9 \
+                                 /?QICOP/?EDTOV, the P3-4 numeric chain verbatim in the loop *)
+       | _ ->
+           no_witness
+             (Printf.sprintf "a DO-repetition of %s"
+                (match inner with
+                 | PIlit_dec _ -> "a NUMERIC LITERAL"
+                 | PIvar n ->
+                     "a variable bound as "
+                     ^ vk_name (vk_of st (String.lowercase_ascii n.Ast.orig))
+                 | PInum _ -> "an EXPRESSION or SUBSCRIPTED item"
+                 | PIlit _ -> assert false
+                 | PIrep _ -> "a NESTED DO-repetition"))
+             "the file EDIT repetition is measured around a string literal (E52RA/RD/RH/RI, \
+              LOAN2 0975-0999) and around a fixed-bin expression of the admitted shapes \
+              (E52RJ); a numeric literal, a character variable (RG: DR accepts, no witness \
+              of ours), a DEC formal, a based/pointer/bit class or a nested repetition carry \
+              no DR object on this route [PLAN \194\167P3-5 \194\1674(e)]")
+
+(* [E2E-52/P3-5 arm (b)/(f)] the ONE classification of a data-item DO-repetition spec. The
+   parser's shape law is `REPSPEC [index; from; to?]'; anything else refuses BY NAME. Every
+   refusal here keeps an UNMEASURED shape refusing -- it is NOT a DR rejection. Campaign
+   e52p5 measured literal bounds with cc >= 4 (RA `to 3', RD `2 to 4'), a fixed-bin VARIABLE
+   TO (RF) and a fixed-bin index. `to <= 2' (the peeled DCX-rung test), from = 0, a 1-byte
+   index cell, a variable FROM, a deref (formal) bound and a missing TO have NO DR object on
+   the repetition route: the statement-DO ladder in `lower_doto' is a DIFFERENT witness and
+   gives this compiler no licence for the EDIT item loop (PROTOCOL #5). *)
+let classify_rep_spec st (spec : Ast.expr) =
+  let ln = spec.Ast.epos.Source.line in
+  match spec.Ast.e with
+  | Ast.Ebuilt ("REPSPEC", [ { Ast.e = Ast.Eident ind; _ }; from; to_ ]) ->
+      if List.mem (String.lowercase_ascii ind.Ast.orig) st.deref then
+        failwith
+          (Printf.sprintf
+             "codegen: DO-repetition index `%s' is a procedure formal [TBD] (line %d) -- every \n              measured repetition loop steps a LOCAL fixed-bin cell (E52RA/RF/RH/RI/RJ, LOAN2 \n              0975-0999); a pointer-formal index has no DR object"
+             (String.uppercase_ascii ind.Ast.orig) ln);
+      (match vk_of st ind.Ast.orig with
+       | Vint -> ()
+       | vk ->
+           failwith
+             (Printf.sprintf
+                "codegen: DO-repetition index `%s' bound as %s is unmeasured [TBD] (line %d) -- \n                the loop LHLDs/INX Hs/SHLDs a 2-byte FIXED BINARY cell in every witness"
+                (String.uppercase_ascii ind.Ast.orig) (vk_name vk) ln));
+      if is_small_int st ind then
+        failwith
+          (Printf.sprintf
+             "codegen: DO-repetition with a 1-byte index cell `%s' is unmeasured [TBD] (line %d) \n              -- the DTEST ladder (XRA A/STA, INR M) is measured for STATEMENT DO loops only"
+             (String.uppercase_ascii ind.Ast.orig) ln);
+      let iaddr = addr_of st ind.Ast.orig in
+      let fromv =
+        match from.Ast.e with
+        | Ast.Enumber c -> int_lit_checked "a DO-repetition FROM bound" c
+        | _ ->
+            failwith
+              (Printf.sprintf
+                 "codegen: DO-repetition with a VARIABLE FROM bound is unmeasured [TBD] (line %d) \n                  -- the init is `LXI H,from / SHLD i' in every witness (RA 0018, RF 0018)"
+                 ln)
+      in
+      let bound =
+        match to_.Ast.e with
+        | Ast.Enumber c ->
+            let b = int_lit_checked "a DO-repetition TO bound" c in
+            if b < 1 then
+              failwith
+                (Printf.sprintf
+                   "codegen: DO-repetition TO bound below 1 is unmeasured [TBD] (line %d)" ln);
+            let cc = b + 1 in
+            if cc <= 3 then
+              failwith
+                (Printf.sprintf
+                   "codegen: DO-repetition with TO <= 2 (test constant %d) is UNMEASURED [TBD] \n                    (line %d) -- the peeled DCX-H test is measured for STATEMENT DO loops \n                    (R1023/R1024); no repetition witness exists below `to 3'"
+                   cc ln);
+            `imm cc
+        | Ast.Eident bn ->
+            if List.mem (String.lowercase_ascii bn.Ast.orig) st.deref then
+              failwith
+                (Printf.sprintf
+                   "codegen: DO-repetition with a FORMAL TO bound `%s' is unmeasured [TBD] (line \n                    %d) -- the deref tail after a bound load is measured for statement DO loops \n                    (DO1/DO2), never inside an EDIT item loop"
+                   (String.uppercase_ascii bn.Ast.orig) ln);
+            (match vk_of st bn.Ast.orig with
+             | Vint -> `var (addr_of st bn.Ast.orig)
+             | vk ->
+                 failwith
+                   (Printf.sprintf
+                      "codegen: DO-repetition TO bound `%s' bound as %s is unmeasured [TBD] (line %d)"
+                      (String.uppercase_ascii bn.Ast.orig) (vk_name vk) ln))
+        | _ ->
+            failwith
+              (Printf.sprintf
+                 "codegen: DO-repetition with a COMPLEX TO bound is unmeasured [TBD] (line %d) -- \n                  the witnesses show a literal (RA) or a bare fixed-bin variable (RF)"
+                 ln)
+      in
+      Some (iaddr, fromv, bound)
+  | _ ->
+      failwith
+        (Printf.sprintf
+           "codegen: DO-repetition spec shape unmeasured [TBD] (line %d) -- expected `DO <index> \n            = <from> TO <to>'; a degenerate repetition without a TO bound has no DR object"
+           ln)
+
+(* [E2E-52/P3-5 arm (f)] the repetition loop: init, test, ONE body, step, back-edge.
+   `emit_body` runs EXACTLY ONCE -- DR emits the body chain once inside the loop and does NOT
+   unroll (RA holds ONE 2-byte `AB' cell; LOAN2 ONE 15-byte literal at 02AE). `patch` gets
+   the forward-JP operand slot: E52RB proves the target is the START OF THE NEXT ITEM (slot
+   0038 -> 0x4F) and only a FINAL repetition patches it to the statement's `?QIOOP' (RA slot
+   0028 -> 0x3F). *)
+let emit_rep_loop st (iaddr : int) (fromv : int)
+    (bound : [ `imm of int | `var of int ]) (emit_body : unit -> unit)
+    (patch : int -> unit) =
+  (* init: the UNCONDITIONAL `LXI H,from / SHLD i' -- NOT lower_doto's last_imm ladder (HL is
+     dead after the preceding CALL in every witness) and not the 1-byte XRA A/STA form. *)
+  d st op_lxi_h; d st (fromv land 0xff); d st ((fromv lsr 8) land 0xff);
+  d st op_shld; reloc st Data iaddr;
+  let head, slot =
+    match bound with
+    | `imm cc ->
+        let head = st.lc in
+        kill_de st;                    (* back-JMP target: DR forgets DE [E2E-35/P2] *)
+        d st op_lhld; reloc st Data iaddr;
+        (* the 4-byte LXI B/DAD B test ONLY (cc >= 4 enforced above). *)
+        let neg = -cc in
+        d st op_lxi_b; d st (neg land 0xff); d st ((neg lsr 8) land 0xff);
+        d st op_dad_b;
+        d st op_mov_a_h; d st op_ora_a;
+        d st op_jp;
+        let slot = st.lc in             (* OPERAND position [Y301] *)
+        d st 0; d st 0;
+        (head, slot)
+    | `var baddr ->
+        (* E52RF 001E-0030 -- BYTE-IDENTICAL to `lower_doto's fixed-bin variable-bound arm
+           (LHLD bound / SHLD temp / head: LHLD temp / XCHG / LHLD i / ?IS22N / JM exit).
+           The temp is the binder-style automatic above the pool (RF data 000B, DEF-DATA-SIZE
+           000D = table 5 + literal 2 + i 2 + n 2 + temp 2). NO do_bound_deref: a plain bound
+           needs none and a formal bound refuses in classify_rep_spec. *)
+        let auto_end =
+          List.fold_left
+            (fun a (_nm, (vi : var_info)) -> max a (vi.off + vi.size))
+            0 st.vars
+        in
+        let temp = st.base + max auto_end st.floor + 2 * st.temps in
+        st.temps <- st.temps + 1;
+        d st op_lhld; reloc st Data baddr;
+        d st op_shld; reloc st Data temp;
+        let head = st.lc in
+        kill_de st;
+        d st op_lhld; reloc st Data temp;
+        d st op_xchg;
+        d st op_lhld; reloc st Data iaddr;
+        call_ext st "?IS22N";
+        d st op_jm;
+        let slot = st.lc in             (* OPERAND position [Y302] *)
+        d st 0; d st 0;
+        (head, slot)
+  in
+  st.last_imm <- None;                  (* branch target: HL unknown at body entry [E2E-8] *)
+  emit_body ();
+  d st op_lhld; reloc st Data iaddr;
+  d st op_inx_h;                        (* step 1 ONLY -- a BY step refuses in the parser *)
+  d st op_shld; reloc st Data iaddr;
+  (d st op_jmp; st.last_imm <- None);    (* [R723] branch boundary *)
+  reloc st Code head;                    (* E52RA 003C: RELOC code 0x1E (TOP) *)
+  patch slot
 
 let lower_put_items_gen st ?(file : string option = None)
     (edit_tbl : int option) (skipn : put_skip) (items : pitem list) =
@@ -12170,10 +12379,31 @@ let lower_put_items_gen st ?(file : string option = None)
           non-table pool item [R1003/R1021/R1022] *)
        d st op_lxi_h; reloc st Data addr; call_ext st "?EDITF"
    | None -> ());
-  List.iter
-    (fun it ->
-      match it with
-      | PIlit v ->
+  (* [E2E-52/P3-5 arm (f)] the item emitter becomes a NAMED recursive function so a
+     repetition can call it EXACTLY ONCE for its body, with ONE pending exit-patch slot
+     (E52RB: a non-final repetition's JP goes to the NEXT item's chain; the close ?QIOOP is
+     patched only by a final one). A nested repetition is UNREACHABLE: classify_item works on
+     an Ast.expr and Pi_rep is a put_item, so a rep body can never itself be a rep. *)
+  let repl_exit : int option ref = ref None in
+  let repl_exit_flush () =
+    (match !repl_exit with
+     | Some slot -> emit_triple st slot st.lc; repl_exit := None
+     | None -> ());
+  in
+  let rec emit_item it =
+    (* [E2E-52/P3-5] E52RB law: a repetition that is NOT the last item has its forward JP
+       patched to the START OF THE NEXT ITEM's chain (slot 0038 -> 0x4F), so the pending
+       patch is emitted here, before any following chain byte. *)
+    repl_exit_flush ();
+    match it with
+    | PIrep (inner, spec) ->
+        (match classify_rep_spec st spec with
+         | None -> assert false
+         | Some (iaddr, fromv, bound) ->
+             emit_rep_loop st iaddr fromv bound
+               (fun () -> emit_item inner)
+               (fun slot -> repl_exit := Some slot))
+    | PIlit v ->
           let len = String.length v in
           if len > 255 then failwith "codegen: literal > 255 [TBD]";
           (* [E2E-15/C152] the PUT-LIST literal path -- the one MB40 actually exercises. *)
@@ -12411,8 +12641,11 @@ let lower_put_items_gen st ?(file : string option = None)
             lower_hl st x;
             d st op_mvi_a; d st (num_width st x);
             call_ext st "?QICOP"; tail false ()
-          end)
-    items;
+          end
+  in
+  List.iter emit_item items;
+  (* [E2E-52/P3-5] a trailing repetition's forward JP lands on THIS statement's close. *)
+  repl_exit_flush ();
   call_ext st "?QIOOP";
   emit_triple st bslot st.lc
 
