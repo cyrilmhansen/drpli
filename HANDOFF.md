@@ -1515,28 +1515,42 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 325
-checkpoint-id: g325-fb3a2ca6eb05
+checkpoint-generation: 326
+checkpoint-id: g326-3b9bd2793a68
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 3, remaining ~6083, session 01a1a940-9b5d-753f-82d0-3158f4dff084)
-checkpointed: 2026-11-05T01:29:12.136Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~4617, session 01a1a940-9b5d-753f-82d0-3158f4dff084)
+checkpointed: 2026-11-05T01:29:41.850Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 3a08c749673bcd8e40d4317d96e02a69593a6406778571b0687d188782b23dd7
-source-handoff: 9b6654c8341dfae91be1527af37256ad4ae2e826eb59ca19324e12bb9f449535
+source-handoff: 3c8b8fc820cc2a9ccfb710b01115c94cee700505d1a0eb56d179f42a645f2a0c
 source-learnings: 47bcea3548bbfb17c5ec2535dc1c8696ed1fdd02d43f6da93321a16ec70563dd
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a940-9b5d-753f-82d0-3158f4dff084
+readiness-at: 2026-11-05T01:30:07.366Z
+readiness-checkpoint: g326-3b9bd2793a68
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-`
+`: arm parser.ml(`REPSPEC` child 0 = index `Eident`,
+  BY parse-refusal) + codegen.ml (`PIrep`, shared `data` walker, prescan ONE-cell, authorize
+  inner-admitted, §2/RF loop lowering; to<=2/from=0/var-FROM/nested refuse UNMEASURED);
+  cmp **RA RB RD RF RH RI RJ rc=0**, RC/RG/RE rc=2, sweep 89, markers rc=2, LOAN2 POSITIONAL
+  VERBATIM (predicted line-177 `PIvar yp`, NEVER fit); registration SPECIMENS +7, inventory
+  1222→1229, refusal row 182→183, census OWN path FIRST, gate rc=0 `build/gate-e52p5-reg.log`,
+  **C363 measured-bytes-only BEFORE** COVERAGE `IO.PUT_EDIT` (EXACT 35→42), coverage_check+
+  prose rc=0, RESULTS §P3-5 + PLAN §5 row. Ledger ENDS C362; goldens never re-derived; operator
+  config never staged; all rc DIRECT; renewals autonomous (6/12, cap 12); no push.
+
+0a-novies-new. **E2E-52/P3-5 PRE-REGISTERED (`67e5414`, durables `b6539af`); CAMPAIGN
+  `e52p5` OWED (2026-11-05, hop 5/12 consumed).** Execute `PROGRESS.md` → `## Next action`
   steps (1)-(3): ONE grouped oracle campaign (E52RA..E52RJ, tag `e52p5`, `'$L$D'`, rc
   DIRECT), arm parser.ml+codegen.ml per PLAN §P3-5 §2a/§4 (the "codegen ONLY" brief was
   FALSIFIED by code reading: `parse_rep_spec` drops the index name and BY), sweep/markers/
