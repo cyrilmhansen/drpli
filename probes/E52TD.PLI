@@ -1,0 +1,6 @@
+E52TD: procedure options(main);
+   dcl pf file;
+   open file(pf) stream print pagesize(60);
+   put list('td');
+end E52TD;
+

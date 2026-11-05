@@ -1,0 +1,6 @@
+E52TG: procedure options(main);
+   dcl pf file;
+   open file(pf) print pagesize(60) title('$con');
+   put list('tg');
+end E52TG;
+

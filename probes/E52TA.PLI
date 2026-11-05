@@ -1,0 +1,6 @@
+E52TA: procedure options(main);
+   dcl pf file;
+   open file(pf) print;
+   put list('ta');
+end E52TA;
+

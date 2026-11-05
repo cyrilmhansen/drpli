@@ -1,0 +1,7 @@
+E52TI: procedure options(main);
+   dcl pf file;
+   dcl ps fixed bin;
+   open file(pf) print pagesize(ps);
+   put list('ti');
+end E52TI;
+

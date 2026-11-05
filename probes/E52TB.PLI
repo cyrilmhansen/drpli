@@ -1,0 +1,6 @@
+E52TB: procedure options(main);
+   dcl outf file;
+   open file(outf) title('$con') print pagesize(0);
+   put list('tb');
+end E52TB;
+

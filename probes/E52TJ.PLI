@@ -1,0 +1,6 @@
+E52TJ: procedure options(main);
+   dcl pf file;
+   open file(pf) print pagesize(300);
+   put list('tj');
+end E52TJ;
+

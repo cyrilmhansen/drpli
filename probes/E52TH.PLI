@@ -1,0 +1,7 @@
+E52TH: procedure options(main);
+   dcl pf file;
+   open file(pf) print pagesize(60) linesize(80)
+        title('$con');
+   put list('th');
+end E52TH;
+

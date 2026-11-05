@@ -1,0 +1,9 @@
+E52TF: procedure options(main);
+   dcl printfile file;
+   dcl ps fixed bin, lw fixed bin;
+   dcl line char(14) varying;
+   open file(printfile) print pagesize(ps)
+        linesize(lw) title(line);
+   put list('tf');
+end E52TF;
+

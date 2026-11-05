@@ -1,0 +1,6 @@
+E52TE: procedure options(main);
+   dcl keys file;
+   open file(keys) stream output linesize(60) title('$1.key');
+   put list('te');
+end E52TE;
+

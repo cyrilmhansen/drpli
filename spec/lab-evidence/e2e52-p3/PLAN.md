@@ -542,3 +542,46 @@ VERBATIM (prediction §3); commit; then registration: SPECIMENS +accepted, inven
 1229→1229+N (+refusals), census OWN path FIRST (line-44 line REPLACED), FULL gate rc=0
 `build/gate-e52p6-reg.log`, claim **C364** measured-bytes-only BEFORE the COVERAGE row
 rewrite (`ON`-unit rows), coverage_check+prose rc=0, RESULTS §P3-6 + PLAN §5 row.
+
+## Subround P3-7 — OPEN PRINT / PAGESIZE / LINESIZE (LOAN2:54 blocker) — PRE-REGISTERED 2026-11-05, ZERO ocaml/ byte, ZERO oracle call
+
+### 1. Measured blocker (VERBATIM, re-measured this session at HEAD `c0ce1a1`, binary sha256 `0efc35e6d4ff81bd…`, rc=2 DIRECT)
+`codegen: OPEN option PRINT is outside what this compiler lowers [TBD] (line 54) -- P0 measured 34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv)…`
+LOAN2 54/56 VERBATIM: `open file(output) title('$con') print pagesize(0);` / `open file(output) title(name) print;`.
+Related re-measured rc=2 blockers: P019B line 3 (same PRINT message); P021 line 4 (`OPEN option KEYED`);
+RETRIEVE line 19 (PRINT); KEYFILE line 16 (KEYED); COPYLPT (PUT SKIP-with-count, prescan); DEPREC (array-of-0-byte-elements).
+
+### 2. EXISTING DR evidence (re-read fresh this hop from `spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt` + `OPEN-MATRIX.tsv`; goldens untouched)
+Every OPEN is: title prologue, SIX pushed words w1..w6, `LXI H,<CB@0>`, `CALL ?OIOOP`. Words: w1 option word,
+w2 organisation (ENVIRONMENT only), w3 B(n), w4 F(n), w5 PAGESIZE, w6 LINESIZE.
+w1 bits (P0 §7 `W1-BITFIT.txt`): 0x0002 PRINT · 0x0010 STREAM/KEYED · 0x0040 OUTPUT **and** PRINT · 0x0080 INPUT ·
+0x0200 stream organisation (set by PRINT alone too) · 0x0400 file (all 34) · 0x0800 TITLE present · 0x1000 LINESIZE ·
+0x2000 PAGESIZE · 0x4000 ENVIRONMENT.
+MEASURED blocks (bytes verbatim from OPEN-BLOCKS.txt):
+- **A** P019B:3 `print` titleless — 21 B, w1=`21 52 06`, then `AF / 47(MOV B,A) / C5 / 33 / 21 52 06 / E5 / 60(MOV H,B) / 68(MOV L,B) / E5×5 / 21 r(CB) / CD ?OIOOP`. B=0 ⇒ zeros from B.
+- **B** P021:6 `stream print pagesize(60)` titleless — 24 B: A's prologue, w1=2652, `60 68`, `E5×3` (w2,w3,w4), **`2E 3C` MVI L,3C / E5** (w5), **`68` MOV L,B / E5** (w6=0 — legal only because B=0).
+- **C** LOAN2:54 `title('$con') print pagesize(0)` — 29 B, w1=`21 52 2E`; literal-title prologue `21 r(data+00FD) / 3E 04 / CD ?SLCTS / 47 / C5 / 33`; then `21 00 00 / E5×5`. **PAGESIZE(0) is a BIT (0x2000) plus a ZERO word — it adds NO byte.** Same word at DEPREC:51 (`stream print pagesize(0) title`).
+- **D** LOAN2:56 `title(name) print` — 27 B, w1=`21 52 0E`, `?SLVTS` prologue, `21 00 00 / E5×5`. Same word RETRIEVE:19 (literal title, 29 B) and DEPREC:78 (29 B).
+- **E** KEYFILE:19 `stream output linesize(60) title('$1.key')` — 31 B, w1=`21 50 1E`: literal-title prologue, `21 50 1E / E5`, `21 00 00 / E5×4` (w2..w5), **`2E 3C / E5`** (w6).
+- **F** COPYLPT:38 `print pagesize(pagesize) linesize(pagewidth) title(line)` — 33 B, w1=`21 52 3E`, `?SLVTS` prologue, `21 00 00 / E5×3` (w2..w4), **`2A r(data+00FE) / E5`** (w5) and **`2A r(data+0100) / E5`** (w6): VARIABLE attributes are `LHLD <cell>` with a DATA relocation.
+- Zero-restoration after a nonzero `MVI L,v` when B≠0 is **`6C` MOV L,H** (H is 0), witnessed at KEYFILE:16 `21 80 00 / E5 / 6C / E5×2` and COPYLPT:49 — NOT in a PRINT/PAGESIZE block.
+
+### 3. Probes E52TA..TJ (10; CRLF + bare ^Z, ≤71 cols) — PREDICTIONS (pre-registered, NEVER fit)
+All bodies use only already-lowered statements (console `put list`, `put skip list`, `x = n`), so the OPEN block is the only variable.
+- **TA** `open file(pf) print;` → A verbatim, w1 0x0652, 21 B, DR ACCEPTS.
+- **TB** `open file(outf) title('$con') print pagesize(0);` → C, w1 0x2E52, 29 B, w5 zero, ACCEPTS (LOAN2:54 class in isolation).
+- **TC** `open file(outf) title(name) print;` name char(14) varying → D, w1 0x0E52, 27 B `?SLVTS`, ACCEPTS (LOAN2:56 class).
+- **TD** `open file(pf) stream print pagesize(60);` → B, w1 0x2652, 24 B, ACCEPTS.
+- **TE** `open file(keys) stream output linesize(60) title('$1.key');` → E, w1 0x1E50, 31 B, ACCEPTS.
+- **TF** `open file(printfile) print pagesize(ps) linesize(lw) title(line);` all vars → F, w1 0x3E52, 33 B, ACCEPTS (COPYLPT:38 class with a plain varying title operand).
+- **TG** **UND ECIDABLE**: `open file(pf) print pagesize(60) title('$con');` — titled + w5 literal nonzero + w6 zero. H-enc: `21 52 2E/E5, 21 00 00, E5×3, 2E 3C/E5, 6C/E5` → 30 B. falsifier: any other zero-restoration (e.g. `21 00 00`) or a different order.
+- **TH** **UNDECIDABLE** (P0 §10 probe E46A): `print pagesize(60) linesize(80) title('$con')` → w1 0x3E52; H-enc w5 `2E 3C`, w6 `2E 50`, 30 B; falsifier: `LXI H` forms or a different word order.
+- **TI** **UNDECIDABLE**: `open file(pf) print pagesize(x);` VARIABLE pagesize, no linesize → is w6 restored by `21 00 00` after the `LHLD`? predicted `… E5×3, 2A r(x), E5, 21 00 00, E5` (31 B); falsifier: any other materialisation.
+- **TJ** **UNDECIDABLE**: `open file(pf) print pagesize(300);` — value > 0xFF. Predicted DR verdict UNKNOWN (BAD VAL refusal or `21 2C 01`); whichever it is is recorded verbatim; NO fitting.
+Hypotheses: **H1** PRINT sets 0x0002|0x0040 and leaves 0x0200 set (A: 0x0652 = 0x0650|0x0002); **H2** the PRINT bits compose with a title bit exactly as D/C show; **H3** PAGESIZE(0) = bit only, word zero, no extra byte; **H4** a literal attribute ≤ 0xFF uses `MVI L,v`; **H5** a variable attribute uses `LHLD <cell>` + DATA reloc; **H6** OUTPUT+PRINT never co-occurs in the corpus ⇒ refused.
+### 4. Boundaries KEPT (refuse BY NAME, [TBD])
+INPUT+PRINT (no witness); PRINT with ENVIRONMENT/KEYED/DIRECT/RECORD/SEQUENTIAL/UPDATE/APPEND; literal attribute > 0xFF unless TI/TJ measures it; variable PAGESIZE without LINESIZE unless TI answers; PAGESIZE/LINESIZE as an EXPRESSION; TITLE operand shapes unchanged from [C288].
+### 5. Implementation plan (AFTER measurement; `open_mode_word` + the w2..w6 emitter only)
+Separate the ATTRIBUTE-FLAG encoding from PARAMETER emission: keep one record `{ w1; w5; w6 }`; extend `open_subset_keys` with PRINT/PAGESIZE/LINESIZE; keep the existing three title prologues; emit w2..w6 by the measured register-reuse ladder (titleless ⇒ `60 68` start, `68` restore; titled ⇒ `21 00 00` start, `6C` restore); refuse every unmeasured shape by name. Parser already accepts the vocabulary (`ioopt_keys`); binder untouched.
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+TA–TC land ⇒ both line-54 and line-56 OPENs lower; LOAN2's blocker MOVES PAST 56. Next candidate in lowering order = **`ON ERROR` at LOAN2:58** (unmeasured condition name, refused today) — expected verbatim `codegen: ON ERROR is not implemented [TBD] …(line 58)`. Record VERBATIM; do NOT fix in P3-7.

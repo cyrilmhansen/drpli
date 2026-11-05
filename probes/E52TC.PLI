@@ -1,0 +1,7 @@
+E52TC: procedure options(main);
+   dcl outf file;
+   dcl name char(14) varying;
+   open file(outf) title(name) print;
+   put list('tc');
+end E52TC;
+
