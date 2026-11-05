@@ -443,7 +443,31 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-5 **PRE-REGISTERED** at `67e5414`; ORACLE CAMPAIGN `e52p5` OWED NOW (2026-11-05; fresh chain hop 5/12; read `LEARNINGS.md` § "E2E-52/P3-5 PRE-REGISTRATION LANDED" + PLAN §P3-5 FIRST)
+### E2E-52/P3-5 campaign e52p5 MEASURED (9 ok/10, goldens `676fb9d`); ARM parser.ml+codegen.ml OWED NOW (2026-11-05; fresh chain hop 6/12; read `LEARNINGS.md` § "E2E-52/P3-5 CAMPAIGN e52p5 MEASURED + ALL BYTES DECODED; ARM OWED" + PLAN §P3-5 FIRST)
+
+ZERO `ocaml/` byte this hop. Executed step (1): ONE grouped campaign rc=0 DIRECT; E52RE
+**dr-refuses** (`SYNTAX ?`, no .REL — register REJECTS+NEG_META row, marker from MY actual
+`expected )`); 9 accepted NO ERROR(S) both passes; ALL reldumps decoded (every byte list in
+the LEARNINGS §): RA/RD == PLAN §2 loop law (H1 CONFIRMED); RF variable-bound == EXISTING
+`lower_doto` var-bound shape byte-identical (H3 CONFIRMED accept); RH console loop == file
+loop (H2 CONFIRMED); RI table `80 00 80 02 03 FF 81 81` (H6 CONFIRMED); RJ body = P3-4
+numeric chain in loop; RC BY **ACCEPTED by DR** (INX H × n, test unchanged) — boundary KEPT,
+parse-refuse; RG char-var inner — `authorize_file_edit_item` plain route refuses PIvar-char,
+boundary KEPT (§4e). cmp targets = **RA RB RD RF RH RI RJ (7)**. NEXT: (2) arm per
+LEARNINGS § PROPOSED (i)-(ii): parser `parse_rep_spec` REPSPEC child 0 = index `Eident` + BY
+parse-refusal; codegen `PIrep of pitem * Ast.expr`, shared `data` walker admits Pi_rep, prescan
+fold inner-cells-ONCE, authorize admits PIrep(inner-admitted) else BY NAME, lower_put_items_gen
+emits §2 immediate loop (cc>=4 only; to<=2/from=0/var-FROM/nested refuse UNMEASURED) or RF
+var-bound loop around ONE inner chain via emit_triple/reloc; build rc=0 DIRECT; cmp 7 rc=0;
+RC/RG/RE rc=2; sweep 89; markers E46K4/K15/N21/E52PF/PU/PV rc=2; LOAN2 UNMODIFIED POSITIONAL,
+blocker VERBATIM (predicted line-177 `PIvar yp`; NEVER fit). (3) registration: SPECIMENS +7,
+--update-inventory 1222→1229 +1 refusal 182→183, census OWN write path FIRST, FULL gate rc=0
+DIRECT build/gate-e52p5-reg.log, **C363 MEASURED BYTES ONLY BEFORE** COVERAGE IO.PUT_EDIT
+rewrite (EXACT 35→42), coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables.
+Constraints: no push; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all
+rc DIRECT; pli80c POSITIONAL; ledger ENDS C362; renewals autonomous (6/12 consumed, cap 12).
+
+SUPERSEDED-BY-ABOVE (kept as written): ### E2E-52/P3-5 **PRE-REGISTERED** at `67e5414`; ORACLE CAMPAIGN `e52p5` OWED NOW (2026-11-05; fresh chain hop 5/12; read `LEARNINGS.md` § "E2E-52/P3-5 PRE-REGISTRATION LANDED" + PLAN §P3-5 FIRST)
 
 LANDED this hop (all rc DIRECT, ZERO `ocaml/` byte, ZERO oracle call): g320 block committed
 VERBATIM `8f1f7ce`; build rc=0 binary `345644822818326f…`; LOAN2 golden `line` span
@@ -2629,17 +2653,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 324
-checkpoint-id: g324-af9a8e8c770f
-checkpoint-kind: manual
+checkpoint-generation: 325
+checkpoint-id: g325-fb3a2ca6eb05
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 4
-checkpointed: 2026-11-05T01:09:05.982Z
+readiness: unattested
+guard-level: 3
+checkpointed: 2026-11-05T01:29:12.136Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 73ec39c16cb80097fc7c25f8460ea2072424e1a9f1277531a6007936dba93265
+source-progress: 3a08c749673bcd8e40d4317d96e02a69593a6406778571b0687d188782b23dd7
 source-handoff: 9b6654c8341dfae91be1527af37256ad4ae2e826eb59ca19324e12bb9f449535
-source-learnings: 68b70baeeb9386ffa2808ae25f356b36e1677b4145aa78c2a5fef6674c025416
+source-learnings: 47bcea3548bbfb17c5ec2535dc1c8696ed1fdd02d43f6da93321a16ec70563dd
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `
   steps (1)-(3): ONE grouped oracle campaign (E52RA..E52RJ, tag `e52p5`, `'$L$D'`, rc
@@ -3135,9 +3159,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a926-9ad1-753f-82d0-31553e408045
-readiness-at: 2026-11-05T01:09:06.002Z
-readiness-checkpoint: g324-af9a8e8c770f
 <!-- guard:end checkpoint -->
 
 ## Blockers

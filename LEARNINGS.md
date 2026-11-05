@@ -5,6 +5,89 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-5 CAMPAIGN e52p5 MEASURED + ALL BYTES DECODED; ARM OWED (2026-11-05, fresh chain hop 6/12; ZERO ocaml/ byte this hop)
+
+- **ACCEPTED (campaign ACTUALS).** ONE grouped `PLI_SRC=probes timeout 900 python3
+  oracle/batch.py E52RA..E52RJ --tag e52p5 --switches '$L$D'` rc=0 DIRECT (log
+  `build/e52p5-campaign.log`): **9 ok / 10**. **E52RE dr-refuses** —
+  `BALANCE ?` / `SYNTAX ?` / `UNEXPECTED EOF`, NO .REL (VERBATIM in
+  `golden/e52p5/E52RE/E52RE.PRN`); all 9 others NO ERROR(S) IN PASS 1 + PASS 2.
+  Goldens committed `676fb9d` (RA/RB/RC/RD/RF/RG/RH/RI/RJ); reldumps
+  `build/e52p5/E52*-reldump.txt` (rc=0 DIRECT each). Baseline build rc=0, binary
+  `345644822818326f…` == pre-registration hash.
+- **ACCEPTED (per-probe laws, MEASURED BYTES ONLY).**
+  * RA = **PLAN §2/§3 CONFIRMED verbatim**: table `80 00 03 FF 81` @data0000, lit
+    `AB` @05-06, `i` cell @07-08, DEF-DATA-SIZE 0009; code: P3-2 attach preamble
+    (`LXI H,F-common / LXI D,0652 / LXI B,<cont> / ?SIOOP / LXI H,*S / ?EDITF`) then
+    `21 01 00 LXI H,1 / 22 r(i) SHLD / TOP 2A r(i) LHLD / 01 FC FF LXI B,FFFC=-(to+1)
+    / 09 DAD B / 7C MOV A,H / B7 ORA A / F2 <slot 0028> JP` (triple SET-LC 0028/RELOC
+    0x3F/SET-LC 003F) / body `21 r(lit) / 3E 02 / ?SLCTS / ?EDTOV` / `2A r(i) / 23 INX
+    H / 22 r(i) / C3 r(code 0x1e) JMP TOP` / exit `CD ?QIOOP`; DEF-CODE-SIZE 0045.
+    ONE literal cell — body emitted ONCE, no unrolling.
+  * RD **H1 CONFIRMED**: `21 02 00` (from=2) and `01 FB FF` = -(4+1); rest == RA.
+  * RB: source order kept — lit `X`@05, loop (lit `AB`@06-07), lit `Y`@08, `i`@09-A,
+    DEF-DATA-SIZE 000B; bare skip `MVI A,01/?SKPOP` between attach and ?EDITF
+    (existing law); one `?QIOOP` after the LAST item.
+  * RC **H4 MEASURED — BY is ACCEPTED by DR**: test bytes == RA unchanged
+    (`LXI H,1/LXI B,FFFC`), the STEP is **INX H repeated by times** (`0038: 23 23`),
+    DEF-CODE-SIZE 0046. My arm KEEPS the pre-registered parse-refusal of BY (§4a,
+    boundary KEPT): RC = recorded `my-gap`, NOT registered, NOT fitted.
+  * RF **H3 MEASURED — variable-bound TO accepted, NEW test shape**: TOP:
+    `2A r(n) LHLD n / 22 r(scratch 000B) SHLD / (head) 2A r(scratch) / EB XCHG /
+    2A r(i) LHLD / CD ?IS22N / FA <slot> JM exit`; scratch = 2-byte anon cell AFTER
+    vars (DEF-DATA-SIZE 000D = table5+lit2+i+n+scratch). **These are BYTE-IDENTICAL
+    to the existing `lower_doto` variable-bound arm** (LHLD bound / SHLD temp /
+    head: LHLD temp / XCHG / LHLD i / ?IS22N / JM; temp via
+    `st.base + max auto_end st.floor + 2*st.temps`). Rep variable-FROM UNMEASURED → refuse.
+  * RG: rep of `v char(2)` accepted; body = plain `LXI H,v@07 / MVI A,02 / ?SLCTS /
+    ?EDTOV`; i@05-06, NO literal cells. **§4(e) boundary KEPT**: the plain file route
+    does NOT admit PIvar-char (authorize only Vdec), so RG keeps refusing BY NAME =
+    recorded `my-gap`, evidence only.
+  * RH **H2 CONFIRMED — route-independence of the CODE loop**: console preamble
+    (`LXI D,0252 / LXI B,<cont> / ?SYSPR / LXI H,*S / ?EDITF`) then the §2 loop and
+    body byte-for-byte RA's law; exit also `?QIOOP`.
+  * RI **H6 CONFIRMED (table-law only)**: table == predicted `80 00 80 02 03 FF 81
+    81` (P3-4 fmt_spec repgrp law), lit@08-09, i@0A-B, DEF-DATA-SIZE 000C; code loop
+    == RA. bind.ml:1155 rep=0 format bytes re-corroborated a 2nd time.
+  * RJ: rep of numeric EXPRESSION accepted; body inside the loop = the EXISTING
+    P3-4 numeric chain verbatim `2A r(m) LHLD / 11 64 00 LXI D,100 / CD ?IM22N /
+    3E 09 MVI A,9 / CD ?QICOP / CD ?EDTOV`, NO XCHG after ?IM22N (H6a-class
+    re-confirmed); i@05-06, m@07-08, DEF-DATA-SIZE 0009.
+- **Classification**: RA,RB,RD,RF,RH,RI,RJ = `my-gap` CLOSABLE by the §4 arm (7 cmp
+  targets). RC,RG = `my-gap` KEPT REFUSED (pre-registered boundaries BY / plain-route
+  char-var); RE = `dr-refuses` → register REJECTS + NEG_META row (marker from MY ACTUAL
+  parser stderr `expected )`, re-measure at arm), negatives 182→183. UNMEASURED (keep
+  refusing, no probe): BY 3+, negative BY, from=0, literal to<=2 on the rep route
+  (my statement loop peels DCX rungs at cc<=3 — NOT witnessed for rep; the arm emits
+  the §2 LXI B form only and refuses cc<=3 BY NAME), variable FROM, nested rep,
+  rep of DEC/formal/bit.
+- **PROPOSED (arm contract for successor — §2a/§4 + this measurement):**
+  (i) `parser.ml parse_rep_spec` (984-998): REPSPEC child 0 = the index `Eident` (name
+  via the same Eident shape lower_doto consumes; `i` is ALWAYS a declared fixed bin in
+  every measured witness); `by_ = Some _` → failwith parse-stage refusal BY NAME; keep
+  [from;to] after the index. bind.ml walk sites 585/1477/1914 are generic recursions —
+  build measures; REPSPEC stays excluded from the decimal-pool key walk (bind.ml:1460).
+  (ii) `codegen.ml`: `type pitem` +`PIrep of pitem * Ast.expr`; the shared `data`
+  walker in `match_put_edit` admits `Ast.Pi_rep (x,spec)` → classify_item x → PIrep
+  (BOTH routes — RH measures console); prescan folds (~3553/3570) add
+  `PIrep(inner,_) -> inner cells EXACTLY ONCE`; `authorize_file_edit_item` admits PIrep
+  whose INNER it already admits (PIlit; PInum via edit_num_tree), else refuses BY NAME
+  (PIvar-char refuses = RG boundary); `lower_put_items_gen` item loop: PIrep emits the
+  §2 immediate loop (literal from>=1, cc>=4) or the RF variable-bound loop around ONE
+  copy of the inner item's chain; forward JP via `emit_triple st slot st.lc` after the
+  exit call is placed... pattern: `d st op_jp; slot=st.lc; d 0; d 0` then at exit
+  `emit_triple st slot st.lc`; JMP TOP via `(d st op_jmp; reloc st Code head)`; the
+  index must resolve Vint (all measured witnesses declare it).
+  (iii) cmp rc=0: RA RB RD RF RH RI RJ; RC RG RE rc=2 with markers; sweep 89; markers
+  E46K4/K15/N21/E52PF/PU/PV rc=2; LOAN2 UNMODIFIED POSITIONAL — predicted next blocker
+  line-177 `PIvar yp` bin-var file route (NEVER fit; record VERBATIM); registration
+  SPECIMENS +7, inventory 1222→1229 (+1 refusal row 182→183), census OWN write path
+  FIRST, gate rc=0 `build/gate-e52p5-reg.log`, **C363 MEASURED BYTES ONLY BEFORE** the
+  COVERAGE `IO.PUT_EDIT` rewrite (EXACT 35→42), coverage_check+prose rc=0,
+  RESULTS §P3-5 + PLAN §5 row.
+- Commit chain this hop: `f831759` guard g324 VERBATIM → `676fb9d` goldens → durables
+  (this § + PROGRESS Next action + HANDOFF item) → renew 6/12 consumed, cap 12.
+
 ## E2E-52/P3-4 REGISTRATION LANDED (steps 1-5 minus RESULTS/PLAN); P3-4 CLOSE OWED (2026-11-05, fresh chain hop 3/12; binary `345644822818326f…`)
 
 - **ACCEPTED (this hop's ACTUALS, all rc DIRECT).** Guard g317 block committed VERBATIM
