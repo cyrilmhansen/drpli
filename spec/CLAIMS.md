@@ -8949,3 +8949,66 @@ classified `unmeasured` rather than `dr-refuses`.
   `pagesize(0)`, mixed literal/variable pairs — has NO object from this round and refuses BY NAME
   with `[TBD]`; that is my perimeter, not a DR rule. ENVIRONMENT/KEYED/DIRECT words remain
   unlowered (REPORT:29's 36-byte `4E52` block is still unpursued).
+
+## C366 — `ON ERROR` REGISTERS THROUGH AN **ABSOLUTE-OPERAND** PREFIX — `LXI H,<argument 16-bit little-endian>` with **NO relocation and NO `LINK-SEL-COMMON` record**, then `XRA A` (`AF`, ONE byte where the file route spends `MVI A,nn`) and `CALL ?ONCOP` and the `C3` jump-over slot = **10 bytes**, versus the file-scoped [C109]/[C364] prefix's `SEL-COMMON` + relocated `LXI H,<common base>` + `MVI A,05|06` = 11 — and THE ARGUMENT ITSELF IS THAT LXI OPERAND VERBATIM (bare `error` = `21 00 00`, `error(1)` = `21 01 00`, `error(2)` = `21 02 00`, `error(0)` indistinguishable from bare), the condition NEVER reaching `A`; THE HANDLER TAIL IS **BODY-DEPENDENT**, PROVEN INSIDE ONE OBJECT — a handler whose last statement transfers unconditionally (`goto` [C364], `stop` on the ENDFILE route) carries **NO `C9`** while a handler whose body RETURNS (bare statement, or a `BEGIN…END` block whose last statement is an assignment) carries `C9 RET` — and a **returning** handler demands **NEITHER** the block SP-save cell (`LXI H,0 / DAD SP / SHLD <cell>`) **NOR** the `LHLD <cell> / SPHL / CALL ?RECOV` pad, which belong to the GOTO form only [C206]; the jump-over slot patches to the fall-through continuation and an ADJACENT label MERGES the continuation and pad targets into one address while a REMOTE label keeps TWO INDEPENDENT patch triples [C208] (E2E-52/P3-8; MEASURED — 6 whole-file `cmp` rc=0 against `golden/e52p8/`, RE-MEASURED at registration on the clean-rebuild binary sha256 `9ecea27aa4f2d80f49ad…`, never fitted)
+
+* **Measured — ERROR versus file-condition encoding, in ONE comparison.** `golden/e52p8/E52UF/
+  E52UF.REL` (384 B sha256 `4caeceedd52a…`) carries BOTH routes in one object: the ENDFILE unit at
+  0006 is `21 r(common F 0) / 3E 05 / CD ?ONCOP / C3 slot@000F` with a `RELOC common` on the LXI
+  operand and `LINK-DEF-COMMON-SIZE abs 0023 F` + `LINK-SEL-COMMON F` records, while every
+  file-less object of this campaign — `golden/e52p8/E52UA/E52UA.REL` (128 B sha `6baf855210d3…`),
+  E52UB (256 B sha `b68d334de66f…`), E52UC (256 B sha `16b09236bf30…`), E52UD (128 B sha
+  `cfeed90ca4c5…`), E52UE (256 B sha `23b01969fb1a…`) — has **NO COMMON group, NO SEL-COMMON
+  record and NO relocation of any kind in its registration**: `21 00 00 / AF / CD lo hi(?ONCOP) /
+  C3 lo hi(slot)`, the operand an ABSOLUTE 16-bit little-endian constant. This is the first
+  time the two encodings are pinned side by side in one registered claim; the five pre-existing
+  witnesses (LOAN2 00E8 d0318, ANNUITY 004B d0136, COPYLPT 00A6 d0214, EXPR1/EXPR2 001B d0040/
+  d00AD — `build/e52p8/onregions.txt`) all agree with the new six.
+* **Measured — the argument is the operand, not a code byte.** E52UE registers `on error(2)` as
+  `21 02 00` at 0006 and `on error(0)` as `21 00 00` at 0017, each followed by `AF` + `?ONCOP` +
+  `C3`; both PRNs read `NO ERROR(S)` in BOTH passes, so DR accepts literals beyond the corpus's
+  0 and 1. Bare `on error` (UA, UB, UC, UD) is `21 00 00` — the same encoding as `error(0)`.
+  Nothing in any of these objects writes the argument through `MVI A`.
+* **Measured — the four handler shapes this compiler now lowers.** (1) BARE-STATEMENT handler
+  (UA 0010 `21 01 00 / 22 r(x)` then **`C9`** @0016; same shape in UE); (2) RETURNING `BEGIN…END`
+  block handler (UD — the shape NO pre-existing golden carries — body `21 01 00 / 22 r(x) / C9`
+  @0016, and with it UA/UD/UE all sit at `DEF-DATA-SIZE 0002`, i.e. **no SP-cell, no pad, no
+  `DAD SP`** [H4]); (3) DIRECT `on error goto <lbl>` (UB: entry SP-save `21 00 00 / 39 / 22
+  r(data 2)` @0006, cell at DATA 2, `DEF-DATA-SIZE 0004`, pad `2A r(data 2) / F9 / CD ?RECOV`
+  @0020); (4) `BEGIN…END` handler TAIL-ENDED BY A GOTO (UC, the LOAN2/ANNUITY mirror: inline
+  put-skip-list chain @0017, `C3` @0033 with `CHAIN-ADDR`, **no `C9`**, pad @0036, entry SP-save
+  @0006, `DEF-DATA-SIZE 0008`).
+* **Measured — body-dependent termination (the falsification of my own earlier law).** UF is one
+  object with two ON units under the SAME condition family and DIFFERENT bodies: `on endfile(f)
+  stop;` emits the handler as inline `CD lo hi(?STOPX)` @0011 and **NO `C9`** (its jump-over slot
+  @000F patches straight to 0x14, the next unit's registration), while `on endfile(g) x = 1;` in
+  the same program emits `21 01 00 / 22 r(x) / C9` @0025. So the `RET` of [C109] is NOT a property
+  of the ON unit; it is a property of the handler's LAST statement. My `codegen.ml` had emitted
+  `C9` unconditionally after every non-goto handler — recorded as a `my-gap` at hop 2
+  (`LEARNINGS.md` § "P3-8 hop 2 CLOSED") and corrected here on UF's bytes, not on inference.
+* **Measured — adjacent versus non-adjacent GOTO targets.** UB's remote label keeps TWO
+  INDEPENDENT patch triples — `SET-LC code 0015 / RELOC code 0x1A` (jump-over → continuation) and
+  `SET-LC code 0018 / CHAIN-ADDR 0018` → pad at 0x20. UC's adjacent `retry:` MERGES them:
+  `SET-LC code 001B / RELOC code 0x33`, then `SET-LC code 0015 / RELOC code 0x36` and
+  `CHAIN-ADDR code 0034` — one address (0x36) carries the pad and is both targets [C208].
+* **FALSIFIED, kept as written.** (a) My FIRST implementation draft armed the measured STOP tail
+  but omitted the shared registration prologue in that branch — it reproduced 5/6 goldens
+  (E52UF `cmp` MISS at octet 150) before the fix; the falsification and the lesson (registration
+  is condition- and body-blind [C120]/[C202]; only the handler tail partitions, so EVERY branch of
+  a restructured match must carry the shared prefix) are recorded in `LEARNINGS.md` § "P3-8 hop 3".
+  (b) Hop 1's reading that ANNUITY's pad/jump-over geometry was non-adjacent was FALSIFIED in hop
+  2 — a column-shifted hex artifact of the first dump tool; ANNUITY is the ordinary adjacent case.
+  (c) The pre-registered predictions H1–H6 were all CONFIRMED by the oracle (6 ok/6, every
+  prediction HIT); NO falsifier of this round's pre-registration triggered.
+* **Explicit limits — what this does NOT say.** BYTE TIER ONLY: no `golden/e52p8` object was
+  linked or run under cpmsim, so nothing here asserts any ERROR-recovery BEHAVIOUR (whether
+  ?ONCOP/?RECOV actually re-establish a handler at runtime is UNMEASURED by this claim), and no
+  `spec/RUNTIME.txt` row exists. This claim covers `ON ERROR` with NO argument or with ONE
+  integer literal 0..65535, lowered ONLY for the four handler shapes above; `ON ERROR` with an
+  EXPRESSION/variable/string argument, out-of-range literals, multiple arguments, `ON ERROR`
+  combined with `STOP`/`RETURN`/`NULL`/a `DCL` handler, a nested `STOP` in a block handler, and a
+  `STOP`-bodied handler on the UNDEFINEDFILE route are UNMEASURED — no object from any round
+  carries them, this compiler refuses every one BY NAME with `[TBD]`, and none of that refusal is
+  a DR rule. `REVERT ERROR` has NO object at all (only `REVERT UNDEFINEDFILE` is measured, and
+  unarmed, in [C364]). Arming any combination beyond this perimeter needs NEW, separately
+  pre-registered measurements.
