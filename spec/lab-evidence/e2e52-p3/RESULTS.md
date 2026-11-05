@@ -535,3 +535,188 @@ write path). `spec/PERIMETER.md` line 38 carries the campaign-wide correction la
   claims — the census counts never moved.
 - LOAN2 is NEVER claimed exact; it still refuses at ON ERROR line 58 (recorded, NOT fixed).
   E52SE stays a measured `my-gap`, SF/SG stay `dr-refuses`; goldens are evidence, NEVER re-derived.
+
+## P3-8 — ON ERROR: the ABSOLUTE-operand registration prefix + the BODY-DEPENDENT handler tail (campaign e52p8) — CLOSED (2026-11-05, hop 3)
+
+Pre-registered `e6d16ff` (PLAN §P3-8 H1–H6 + probes E52UA..UF, committed BEFORE any `ocaml/` byte;
+the shape class decoded FIRST from the FIVE pre-existing witnesses LOAN2/ANNUITY/COPYLPT/EXPR1/EXPR2
+with ZERO oracle calls in hops 1–2); oracle campaign 6 ok/6; goldens committed VERBATIM `9f36504`;
+arm `a7ab5a4` (`ocaml/lib/codegen.ml` ONLY); claim **C366** `17c9963` written from MEASURED BYTES ONLY
+and committed BEFORE the COVERAGE rewrite `0cf0688`. All rc captured DIRECTLY (never through a
+trailing pipeline); goldens NEVER re-derived; `pli80c` invoked POSITIONALLY; no push.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52UA E52UB E52UC E52UD E52UE E52UF --tag e52p8
+--switches '$L$D'` rc=0 → **6 ok / 6**; every `.PRN` reads `NO ERROR(S) IN PASS 1` AND `NO ERROR(S)
+IN PASS 2` — **ZERO dr-refuses**, so NO refusal row joined the NEGATIVES panel from this campaign and
+the negative count stayed 186. Goldens `golden/e52p8/` (all six names new to the `NoOverwriteDict`
+`SPECIMENS` wrapper — accepted, no SUBSTITUTION); reldumps scratch `build/e52p8/`, registration dumps
+`build/e52p8-reg/e52U*-golden-reldump.txt` + `*-mine-reldump.txt`.
+
+## 2. Measured table (whole-file cmp rc=0 on clean binary `9ecea27aa4f2d80f49ad…`)
+
+| probe | ON unit | object | CODE/DATA | registration | handler tail | measured fact |
+|---|---|---|---|---|---|---|
+| E52UA | `on error x = 1;` | 128 B sha `6baf855210d3…` | `0020`=32 / `0002` | @0006 `21 00 00`(ABS) `AF` `CD ?ONCOP` `C3 slot@000E`→0x17 | `21 01 00 / 22 r(x)` @0010 then **`C9`** @0016 | bare `error` = argument 0 as the LXI operand; a FILE-LESS object carries **NO COMMON group and NO `LINK-DEF-COMMON`/`LINK-SEL-COMMON` record at all**, and the argument operand `0007-0008` has **NO relocation record** — the only patches in the 10 registration bytes are the `?ONCOP` external chain (000B) and the jump-over slot itself (`SET-LC 000E / RELOC code 0x17`) |
+| E52UB | `on error goto lbl;` (REMOTE label) | 256 B sha `b68d334de66f…` | `0030`=48 / `0004` | @000D, same 10-byte prefix | entry SP-save `21 00 00 / 39 / 22 r(data 2)` @0006; `C3` @0017 (slot 0018 `CHAIN-ADDR`) → pad @0020 `2A r(data 2) / F9 / CD ?RECOV`, **NO `C9`** | **TWO INDEPENDENT patch triples** — `SET-LC 0015 / RELOC code 0x1A` (jump-over → continuation) and `SET-LC 0018` region `CHAIN-ADDR 0018` (handler → pad) [C208]; the goto form is what demands the cell and the pad [C206] |
+| E52UC | `on error begin; put skip list('oops'); goto retry; end;` + ADJACENT `retry:` | 256 B sha `16b09236bf30…` | `0046`=70 / `0008` | @000D, same prefix; SP-save @0006 | inline put-skip-list chain @0017 (`11 52 02`/`01 r(str)`/`?SYSPR`/`3E 01`/`?SKPOP`/`21 r(data 0)`/`3E 04`/`?SLCTS`/`?PNCOP`/`?QIOOP`), `C3` @0033 with `CHAIN-ADDR`, **NO `C9`** | the LOAN2/ANNUITY mirror in isolation: an ADJACENT label MERGES the jump-over and pad targets into ONE address — `SET-LC 001B / RELOC code 0x33`, `SET-LC 0015 / RELOC code 0x36`, pad @0036 [C208] |
+| E52UD | `on error begin; x = 1; end;` (plain RETURNING block) | 128 B sha `cfeed90ca4c5…` | `0020`=32 / `0002` | @0006, same prefix | body `21 01 00 / 22 r(x) / C9` @0010–0016 | the shape NO pre-existing golden carries; **H3 as pre-registered**: a returning handler emits `C9`, and — with it — **NO SP-cell, NO pad, NO `DAD SP`** (DATA is `0002` in UA/UD/UE) [H4] |
+| E52UE | `on error(2) x = 1;` + `on error(0) x = 2;` | 256 B sha `23b01969fb1a…` | `002B`=43 / `0002` | units @0006 `21 02 00` and @0017 `21 00 00`, each `AF / CD ?ONCOP / C3 slot` | `21 01 00 / 22 r(x) / C9` @0010–0016; `21 02 00 / 22 r(x)` + `C9` @0021–0027 | the ARGUMENT IS the LXI operand VERBATIM, and it never reaches `A`: `error(2)` = `21 02 00`, `error(0)` = `21 00 00` = the bare spelling; DR accepts literals beyond the corpus's 0 and 1 [H2] |
+| E52UF | `on endfile(f) stop;` + `on endfile(g) x = 1;` | 384 B sha `4caeceedd52a…` | `002F`=47 / `0002`, COMMON `F`/`G` each `0023` | file units @0006 and @0014 — `21 r(common X 0)` **with `RELOC common`** + `3E 05` + `CD ?ONCOP` + `C3 slot` (11 B, [C109]/[C364]) | first: inline `CD ?STOPX` @0011 and **NO `C9`** (slot @000F → 0x14, straight into the next unit); second: `21 01 00 / 22 r(x)` **with `C9`** @0025 | **THE BODY CONTRAST INSIDE ONE OBJECT** — the two ON units share the condition FAMILY and differ only in the handler's last statement, which pins termination as a property of the BODY, not of the ON unit [H3] |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §P3-8 §3, kept verbatim)
+
+- **H1** ERROR registers as ABSOLUTE `LXI H,<arg 16-bit LE>` + `XRA A` (`AF`) + `CALL ?ONCOP` + `C3
+  <over>` = 10 bytes, with NO `LINK-DEF-COMMON`/`LINK-SEL-COMMON` record in a file-less object and NO
+  relocation ON THE ARGUMENT OPERAND — **CONFIRMED** (UA/UB/UC/UD/UE; `AF` is ONE byte where the file
+  route spends `MVI A,nn` on two). NO competitor falsifier fired: no object had an 11-byte ERROR
+  registration, an `MVI` condition byte or a relocated LXI operand.
+- **PRECISION NOTE on [C366]'s wording (mine, this hop, recorded not fitted).** The claim says the
+  file-less objects carry "NO relocation of any kind in its registration". Read strictly that is too
+  broad: the two things MEASURED and intended are (i) NO COMMON group and NO `SEL-COMMON`/`RELOC
+  common` record anywhere in the object, and (ii) NO relocation record attaching to the LXI ARGUMENT
+  operand (it is an absolute 16-bit constant). The registration region does legitimately contain two
+  other link patches — the `?ONCOP` `CHAIN-EXT` and the `RELOC code` that fills the jump-over slot with
+  the continuation address — exactly as the file-scoped prefix does. The claim text is kept as committed
+  (`17c9963`); a future metadata-only ledger touch may tighten the phrase. Nothing about the BYTES
+  changes: the encoding law H1 states is what the goldens measure.
+- **H2** the conditional-name ARGUMENT is that LXI operand verbatim — **CONFIRMED** (UE `error(2)` =
+  `21 02 00`, `error(0)` = `21 00 00`; the corpus's `error(1)` = `21 01 00` at COPYLPT/EXPR1/EXPR2).
+- **H3 the tail is BODY-DEPENDENT — CONFIRMED, and PROVEN INSIDE ONE OBJECT** by UF: `on endfile(f)
+  stop;` = inline `CD ?STOPX` and NO `C9`, while `on endfile(g) x = 1;` in the same program carries
+  `C9` @0025; UA/UD (returning bodies) carry `C9`, UC (tail goto) carries `C3` and no `C9`. My
+  `codegen.ml` emitted the `C9` UNCONDITIONALLY after every non-goto handler on [C109]'s authority —
+  the hop-2 `my-gap` is CORRECTED on UF's measured bytes, not on inference.
+- **H4** a handler whose body RETURNS demands NEITHER the block SP-cell NOR the pad — **CONFIRMED**
+  (UA/UD/UE DATA `0002`, no `DAD SP`); UB/UC (goto handlers) carry the save + cell + pad.
+- **H5** the jump-over operand is the fall-through CONTINUATION and an adjacent label MERGES the two
+  patch targets while a remote label keeps them INDEPENDENT — **CONFIRMED** (UB 0015→0x1A vs
+  0018→0x20; UC merged at 0x36).
+- **H6** DR ACCEPTS all six, including the direct `on error goto lbl;` spelling — **CONFIRMED**
+  (6 ok/6, `NO ERROR(S)` in both passes). Every pre-registered prediction hit; this round's own
+  falsifiers NEVER triggered.
+
+Pre-campaign falsifications kept VERBATIM as written history (hops 1–2, in `LEARNINGS.md` and PLAN
+§P3-8): hop 1's reading that ANNUITY's pad/jump-over geometry was NON-adjacent was FALSIFIED — a
+column-shifted hex artifact of the first dump tool (`dis80.py`'s reldump-TEXT mode prints reloc
+operands as `.` and produced FALSE gaps; the bitstream decoder `build/e52p8/ondump2.py` is the honest
+tool), ANNUITY is the ordinary adjacent case; hop 1's fixed slot-7 walk-back was also FALSIFIED.
+
+## 4. The arm, and my first-draft falsifier
+
+Arm `a7ab5a4` (`ocaml/lib/codegen.ml` ONLY): a SECOND prefix encoder `on_error_reg_prefix` beside
+`on_reg_prefix` (the file encoder is NOT mutated) emitting ABSOLUTE `LXI H,<arg LE>` / `XRA A` /
+`CALL ?ONCOP` / `C3 <slot>`; the ERROR arm admits bare `error` or ONE integer literal 0..65535 verbatim
+and ONLY the four measured handler shapes (statement + `C9`; returning `BEGIN…END` block, lowered
+per-statement, + `C9`; DIRECT `goto`; block TAIL-goto, no `C9` per [C364]); every other argument or
+handler shape refuses BY NAME with `[TBD]`; the body-dependent tail was also corrected on the ENDFILE
+route (bare `stop` handler = registration + `C3` slot + inline `CD ?STOPX`, NO `C9`, emitted DIRECTLY so
+`stop_seen`/`after_forever` never leak into the caller's epilogue), with UNDEFINEDFILE+STOP and nested
+STOP now refusing BY NAME because NOTHING measures them. Helpers `has_goto`/`block_tail_goto`/
+`handler_body` hoisted to the `Son` arm top plus a NEW `has_stop` (one rule, two routes [C202]).
+
+**FALSIFIED IN-HOUSE (my own first draft, kept verbatim):** the first STOP branch armed the measured
+no-`C9` tail but OMITTED the shared registration `+C3+triple` sequence, so E52UF `cmp` MISSED at octet
+150 — 5/6 before the fix. LESSON (recorded in `LEARNINGS.md`): registration is condition- and
+body-blind [C120]/[C202]; only the handler TAIL partitions, so EVERY branch of a restructured match must
+carry the shared prefix. After the fix: `dune build` rc=0 DIRECT, binary `9ecea27aa4f2d80f49ad…`
+(supersedes draft `f9abf6b6d07f1d3db500…`), per-File codegen warning histogram **68 == BASELINE**
+(kinds 27/9/11/8/26/39/57/32 — no drift from the arm; the per-File count of a FULL clean-build log is
+the honest method, totals of partial logs are not), cmp UA..UF whole-file **6/6 rc=0**, sweep
+`build/e52p8-reg/sweep-arm.log` 124 specimens **FAILS: 0** + 21 expected named refusals, and the
+boundary-marker harness `build/e52p8-reg/markers.py` (which replicates the gate's `REJECTS` loop)
+E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG all rc=2 with **MARKER_FAILS: 0**.
+
+**PROCEDURE (new, accepted):** that harness first FALSIFIED ITS OWN METHOD — writing LF-only sources
+made E46N21 report `line 6` and MISS its registered `(line 12)` marker. A marker harness MUST
+materialise the source exactly as `run_negatives` does, `src.replace("\n","\r\n").encode() + b"\x1a"`,
+because the refusal's reported LINE NUMBER depends on it.
+
+## 5. LOAN2 rerun UNMODIFIED + registration
+
+`artefacts/LOAN2.PLI` sha `7be23ba390926c20…` (UNCHANGED, last touched Phase 0), invoked POSITIONALLY
+at `1dc53f4` on binary `9ecea27aa4f2d80f49ad…`: **rc=2 DIRECT, NO `.REL` produced** (stdout 0 bytes;
+stderr `build/e52p8-reg/LOAN2-stderr.log`), first diagnostic VERBATIM
+
+`codegen: condition form not in E2E-3b subset [TBD]: (| (< dl 0) (> dl 2))`
+
+— LOAN2 **ADVANCED past ON ERROR line 58**, the subround's target blocker CLOSED; the new first
+blocker is the OR-of-relations condition at LOAN2:91 `if dl < 0 | dl > 2 then` (`dl` is FIXED BINARY),
+raised at `codegen.ml:9154`, whose message prints the IR and carries NO line number. It is RECORDED,
+**NOT fixed** and NOTHING was hardcoded to LOAN2 (PLAN §6 "record whatever actually happens, never fit"
+— no candidate was predicted for this blocker, and none was fitted after the fact). Census advances
+recorded VERBATIM with it: EXPR1 → `GET form not in E2E-3e subset [TBD] (line 21)`, EXPR2 → `FLOAT
+expression shape builtin is unsampled [TBD] (line 35)`.
+
+Registration: SPECIMENS +6 with the measured-law comment `244f6e1`; sanctioned `--update-inventory`
+diff EXACTLY **+6**, 1243 → **1249**, ZERO removals, refusals unchanged 186; census OWN write path
+(`corpus_census.py --check`) rc=0 with counts UNCHANGED **15/0/26/0**; FULL gate REAL rc=0 DIRECT
+`build/gate-e52p8-reg.log` — **1249/0 byte-exact, 186/186 negatives, 9/9 divergence, coverage 140 rows
+0/0, census 15/0/26/0, prose 5**. Claim **C366** `17c9963` from MEASURED BYTES ONLY (the six goldens +
+fresh reldumps) committed **BEFORE** the COVERAGE rewrite `0cf0688`: row `COND.ON_ERROR` REFUSED/NONE →
+**SUPPORTED / EXACT:6**, id KEPT as the stable key, the pre-campaign contract sentence ("ON ERROR is
+accepted by DR and not implemented here; the condition-table operand and the handler-chain entry for a
+non-ENDFILE condition are unprobed") preserved VERBATIM as HISTORICAL, perimeter spelled as MY
+refusals BY NAME, corpus column naming the ON ERROR users AND the three census-verified advances;
+`coverage_check.py` rc=0 **140 rows 0/0** (SUPPORTED 90) with stats regenerated by their OWN write
+path; `file_prose_check.py` rc=0. Ledger ENDS **C366**.
+
+## 6. What P3-8 does NOT say (byte tier only)
+
+- **Byte tier only**: NO `golden/e52p8` object was linked or run under cpmsim; nothing here asserts any
+  ERROR-RECOVERY behaviour — whether `?ONCOP`/`?RECOV` actually establish or restore a handler at
+  runtime is UNMEASURED by this claim, and no `spec/RUNTIME.txt` row exists.
+- The arm covers `ON ERROR` with NO argument or ONE integer literal 0..65535, lowered ONLY for the four
+  handler shapes in §2. Every unmeasured shape is MY refusal BY NAME with `[TBD]` and is NOT a DR rule:
+  expression/variable/string arguments, out-of-range or multiple arguments, `ON ERROR` with a `STOP`,
+  `RETURN`, `NULL` or `DCL` handler, a nested `STOP` in a block handler, a `STOP`-bodied handler on the
+  UNDEFINEDFILE route (only ENDFILE carries UF's bytes), and `REVERT ERROR` (NO object at all; only
+  `REVERT UNDEFINEDFILE` is measured, and E52SE stays an UNARMED `my-gap`).
+- Corpus users (LOAN2, ANNUITY, COPYLPT, EXPR1, EXPR2) are users of the CONSTRUCT, not parity claims; the
+  five pre-existing witnesses AGREE with the new six but no whole-program byte-exactness is claimed for
+  them — LOAN2 still refuses, now at line 91.
+- GOLDENS ARE EVIDENCE, NEVER RE-DERIVED; the ENDFILE/UNDEFINEDFILE regressions (E52SA..SD, [C109],
+  [C364]) stayed byte-exact through the tail correction; SF/SG stay `dr-refuses`; the operator's
+  `handoff.config.json` was NEVER staged; no push.
+- This SUPERSEDES the final sentence of §P3-7 above ("it still refuses at ON ERROR line 58"), kept
+  VERBATIM as the record of that hop: at HEAD after P3-8 LOAN2's first blocker is the §5 condition form.
+
+## 7. DEFECT REPAIRED BY THE SUCCESSOR (2026-11-05, docs hop) — [C366] COVERAGE commit `0cf0688` CLOBBERED THE LEDGER
+
+**ACCEPTED (measured, this hop).** §5 as written above was TRUE OF THE INTENT but NOT of the tree: commit
+`0cf0688` replaced `spec/COVERAGE.tsv` with a **72-line stale snapshot** (141 → 72 lines, 133 deletions /
+69 insertions) whose header was the E2E-36-era banner ("gate 933 byte-exact / 124 negatives", git 4247a61)
+and whose `COND.ON_ERROR` row was still `REFUSED / NONE` with `probes=N80_ON_HANDLER_BEGIN`,
+`corpus=UPDATE,OPTIMIST`. The COVERAGE rewrite therefore NEVER LANDED, although the same commit's
+`spec/census/coverage-stats.json` carries the correct POST-rewrite numbers (rows 140, SUPPORTED 90,
+REFUSED 21, no_parity 28, MEASURED 114, SINGLE_SAMPLE 18) — proving the intended rewrite was computed
+against the good file and the wrong content was written afterwards. The full gate rc=0 1249/0 was run
+BEFORE that commit (`244f6e1`), so nothing panel-verified had yet caught it.
+**ROOT CAUSE (accepted):** `tools/coverage_gen.py` is an OBSOLETE one-shot generator that carries a
+hard-coded ~1970s-era row list and ENDS with `open('spec/COVERAGE.tsv.new','w')` +
+`os.replace(... , 'spec/COVERAGE.tsv')`. Running it — which this round's brief called "the stats' OWN
+write path" — silently overwrites the hand-authored ledger. The stats' actual own write path is
+`tools/coverage_check.py`, which writes only `spec/census/coverage-stats.json`. Nothing else calls
+`coverage_gen.py` (grepped).
+**FALSIFIED:** the hop-3 note "coverage_gen + prose rc=0" as evidence of a landed coverage rewrite;
+and the earlier assumption in this file that the row rewrite was in the tree.
+**REPAIR (no oracle call, no `ocaml/` byte, goldens untouched):** restored `spec/COVERAGE.tsv` from
+`git show 17c9963:spec/COVERAGE.tsv` (the last good 140-row state, one commit BEFORE the clobber), then
+re-applied the COND.ON_ERROR rewrite the commit message describes — id KEPT, the pre-campaign contract
+sentence preserved VERBATIM as HISTORICAL, `SUPPORTED / EXACT:6`, probes E52UA..UF, corpus the five
+ON-ERROR census users (ANNUITY, COPYLPT, EXPR1, EXPR2, LOAN2 — `UPDATE`/`OPTIMIST` were FALSIFIED:
+`grep -il "on error" artefacts/*.PLI` names exactly those five), boundary = my refusals BY NAME plus the
+byte-tier-only NOT-say plus the three census-verified advances VERBATIM, confidence MEASURED, provenance
+[C366] + [C109] [C364] [C206] [C208] [C120] [C202]. NEW sub-falsification found while re-authoring: the
+row's old "the BEGIN-body handler is a second refusal" two-part-gap claim is FALSIFIED by E52UD (a plain
+returning `BEGIN…END` handler is lowered), while `N80_ON_HANDLER_BEGIN` still refuses on a
+`procedure without name` diagnosis of its BIT(1) STATIC INITIAL body — an unrelated parser my-gap, not
+the ON unit; both are recorded in the row's boundary cell. Verification rc DIRECT: `coverage_check.py`
+rc=0 → **140 rows, 0 errors, 0 warnings, SUPPORTED 90** — byte-for-byte the numbers of
+`build/e52p8-reg/coverage-after-c366.log` and of the committed `coverage-stats.json` (which therefore did
+NOT move); `file_prose_check.py` rc=0. Evidence `build/e52p8-reg/coverage-repair.log`,
+`build/e52p8-reg/prose-repair.log`.
+**PROPOSED (never authorization, never done here):** delete or neuter `tools/coverage_gen.py` (or gate it
+behind an explicit `--i-know-this-is-the-1970-snapshot` flag plus a row-count-shrink abort), and add a
+gate assertion that `COVERAGE.tsv` row count never decreases without a labelled correction commit.
