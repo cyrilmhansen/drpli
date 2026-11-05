@@ -2428,17 +2428,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 342
-checkpoint-id: g342-129b58d6609f
+checkpoint-generation: 343
+checkpoint-id: g343-d0a7d6c5c4d1
 checkpoint-kind: auto
 content-delta: new
-readiness: unattested
-guard-level: 3
-checkpointed: 2026-11-05T07:18:36.631Z
+readiness: attested
+guard-level: 4
+checkpointed: 2026-11-05T07:19:49.167Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 5eb10525fe49c06a47d22a6b10b3f6bee126002971694346089c4a84843ed602
+source-progress: 1862415a2a7cedcfa795c4bcb12e0d5ea7397e258fe8bb1a0b2823085e4b5da0
 source-handoff: e06f196bb0394bb0a9976f2c20e346c57094ccec4ad47c76cdca05d107cea3f1
-source-learnings: b272ebd09f879f4aa7db2e834db230c63b33ccf587b6218b7f94dea0f35efe59
+source-learnings: 833d282a246aeb8b3c756cf978f48b674ba84410f83e229ab1113e675b266a8b
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `: ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52TA E52TB E52TC E52TD E52TE E52TF E52TG E52TH E52TI E52TJ --tag e52p7 --switches '$L$D'` rc DIRECT, classify honestly (TJ verdict verbatim, NO fitting), then arm `open_mode_word` + the w2..w6 emitter ONLY, cmp accepted probes whole-file rc=0 vs `golden/e52p7/`, LOAN2 POSITIONAL VERBATIM (predicted blocker past 56 = `ON ERROR` line 58 — a LATER subround, do NOT fix), sweep, markers, registration, claim **C365** measured-bytes-only, COVERAGE rows, gate, close. Ledger ENDS **C364**; goldens NEVER re-derived; SE stays my-gap, SF/SG stay dr-refuses; no runtime assertions; operator `handoff.config.json` NEVER staged (dirty standing edit); renewal chain FRESH (operator archived `.pi-guard/renewal-state.json`; no state file present, 0/12 used, cap 12, autoRenew true); all rc DIRECT (the pipe-masked-rc trap fired again this hop); no push.
 
@@ -3009,6 +3009,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1aa7d-ff2e-7312-8813-8d246be570f1
+readiness-at: 2026-11-05T07:20:04.507Z
+readiness-checkpoint: g343-d0a7d6c5c4d1
 <!-- guard:end checkpoint -->
 
 ## Blockers
