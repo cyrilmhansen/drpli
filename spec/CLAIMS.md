@@ -8715,3 +8715,73 @@ classified `unmeasured` rather than `dr-refuses`.
   EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group
   formats are not decoded)` — the catch text STILL LISTS "picture" although pictures are now
   armed (message-quality my-gap, recorded, never fitted).
+
+## C362 — A REP-GROUP FORMAT ITEM `n(items)` EMITS ONE RECORD `80 n <subrecords> 81` INTO THE `*S` EDIT TABLE — RECURSIVE, IN SOURCE ORDER, NO FLATTENING — EXCEPT COUNT 1, WHICH FLATTENS: THE INNER RECORDS ARE SPLICED WITH NO WRAPPER; AN `x(w)` FORMAT ITEM EMITS `0B w` (OBJECT-WITNESSED ONLY AT LITERAL WIDTHS 01..13; BARE `x` IS DR-REFUSED `SYNTAX ?` NO .REL AND `x(255)` IS DR-REFUSED `BAD VAL` NO .REL, while the SAME LISTING proves x(0) and x(128) COMPILE with their BYTES UNMEASURED); AND A FILE-ROUTE PUT EDIT EXPRESSION DATA ITEM OVER FIXED-BINARY CELLS LOWERS WITH THE SAME OPERAND OPS AS THE CONSOLE ROUTE — `+`/`-` OVER CELLS OR NESTED ADMITTED TREES (`EB`, then `19` DAD-D after the second load), LITERAL-`*`-CELL AS `2A r / 11 lo hi / CALL ?IM22N` WITH **NO XCHG** WHEN THE PRODUCT IS THE WHOLE ITEM, AND CELL/`/`-LITERAL AS `2A r / 3E w` + the 6-byte preamble `E5 6F 87 9F 67 D1` + `CALL ?ID22N` — THE EXACT LOAN2:115 MIRROR E52PA REPRODUCING LOAN2.REL SPAN 0544-0558 BYTE-FOR-BYTE IN ITS CODE SPAN 0032-0047 (E2E-52/P3-4; MEASURED — 10 whole-file `cmp` rc=0 on the clean-rebuild binary sha256 `345644822818326f442a…`, never fitted)
+* **Measured — rep-groups nest recursively, source order.** `golden/e52p3d/E52PP/E52PP.REL`
+  (256 B sha256 `5b2d194cd2ef…`, `put file(f) edit('|')(2(a))`) carries the table `80 00 /
+  80 02 / 03 FF / 81 / 81`: outer header `80 00`, group record `80 02`, the group's own
+  terminator `81`, then the table terminator `81`. `golden/e52p3d/E52PQ/E52PQ.REL` (256 B
+  sha256 `88df84be261b…`, `(a,2(2(a,a),a),2(x(3),a))`) is the 24-byte table `80 00 03 FF 80
+  02 80 02 03 FF 03 FF 81 03 FF 81 80 02 0B 03 03 FF 81 81` — DOUBLE nesting (`2(2(a,a),a)`)
+  and sibling groups in source order with `x(3)` (`0B 03`) INSIDE a group; nothing is
+  flattened or reordered.
+* **Measured — count 1 FLATTENS.** `golden/e52p3d/E52PS/E52PS.REL` (256 B sha256
+  `6c870471a004…`, `put file(f) edit('|')(1(a))`) stores `80 00 03 FF 81` — the inner `03 FF`
+  record WITHOUT any `80 01 … 81` wrapper. Both pre-registered alternatives FALSIFIED: H2a
+  ("emit `80 01 … 81` as-is") and H2b ("REFUSE"); H2c (flatten) CONFIRMED.
+* **Measured — the rep-group law is ROUTE-INDEPENDENT.** `golden/e52p3d/E52PR/E52PR.REL`
+  (256 B sha256 `c4505cd55ee2…`, CONSOLE `put edit('|',100*m+y)(2(skip,a),p'99')`) carries
+  `80 00 80 02 0C FF 03 FF 81 02 02 00 02 39 39 81`: the same `80 n … 81` nesting with the
+  bare-skip record `0C FF` inside the group and the [C361] `02` picture record after it.
+* **Measured — `x(w)` = `0B w`.** `golden/e52p3d/E52PT/E52PT.REL` (256 B sha256
+  `3bb15a6b928c…`, `x(1),a,x(5)`) is `80 00 0B 01 03 FF 0B 05 81` exactly; `0B 03` also inside
+  a group (PQ). Object witnesses exist ONLY for widths 01, 03 and 05.
+* **Measured — DR's refusals and non-measurements on `x`.** Probe `probes/E52PU.PLI` (bare
+  `x`) printed `SYNTAX ?` in pass 1 (cascade `UNEXPECTED EOF`) and emitted NO `.REL`
+  (`golden/e52p3d/E52PU/` holds the PRN only — PU's bytes are claimed by NOTHING): H5c
+  CONFIRMED, H5a (`0B 00`) and H5b (`0B 01`) MOOT. Probe `probes/E52PV.PLI` (`x(128)`,
+  `x(255)`, `x(0)` in three statements) died `BAD VAL ?` at the x(255) statement, `1 ERROR(S)
+  IN PASS 1`, NO .REL — but the SAME listing carries compile `c` rows for x(128) and x(0):
+  their acceptance is MEASURED, their BYTES unmeasured. The pre-registered hypothesis H4b
+  ("a REFUSAL above the then-measured max width 19") is FALSIFIED IN DETAIL — DR accepts at
+  least through 128 and refuses at 255; widths 129..254 stay UNMEASURED.
+* **Measured — file-route EXPRESSION items, operand ops identical to the console route.**
+  `golden/e52p3d/E52PW/E52PW.REL` (256 B sha256 `3c2590b16d66…`, `edit(m+y)(a)`): `2A r(cell)
+  / EB / 2A r(cell) / 19 / 3E 09 / CALL ?QICOP / CALL ?EDTOV`. `golden/e52p3d/E52PX/E52PX.REL`
+  (256 B sha256 `27b7eeea98b3…`, `edit(100*m)(a)`): `2A r(cell) / 11 64 00 / CALL ?IM22N / 3E
+  09 …` with NO XCHG — `?IM22N` returns the product in HL (H6b CONFIRMED; H6a, which predicted
+  an XCHG, FALSIFIED); LOAN2's XCHG after ?IM22N parks a product for a FOLLOWING sum operand.
+  `golden/e52p3d/E52PY/E52PY.REL` (256 B sha256 `7a1fa309ddc2…`, `edit(m-y)(a)`): `2A / EB /
+  2A / CALL ?IS22N`. `golden/e52p3d/E52PZ/E52PZ.REL` (256 B sha256 `31c401116107…`,
+  `edit(m/3)(a)`): `2A r(cell) / 3E 03 / E5 6F 87 9F 67 D1 / CALL ?ID22N` — literal division
+  is ACCEPTED on the file route (the preamble's semantics are NOT decoded; byte tier only).
+  The nested sum-of-product shape `100*m+y` is the LOAN2:115 item: `golden/e52p3/E52PA/E52PA.REL`
+  (384 B sha256 `d7b4e7f32b9c…`, code 004E=78, DATA 0013=19) holds span 0032-0047 = `2A RELOC
+  data 0F / 11 64 00 / CALL ?IM22N(code 0039) / EB / 2A RELOC data 11 / 19 / 3E 09 / CALL
+  ?QICOP / CALL ?EDTOV` — BYTE-FOR-BYTE LOAN2.REL 0544-0558, plus the `(a,p'99/99')` table
+  `80 00 03 FF 02 04 00 05 39 39 2F 39 39 81`.
+* **Measured — parity of MY lowering.** At arm `e946242` (fmt_spec `let rec` `Pi_repgrp` and
+  `X` arms; `authorize_file_edit_item` admitting `PInum` through the `edit_num_tree` shape
+  authority; ocaml/lib/codegen.ml ONLY) plus the PA fix `9b2d781`, on the clean-rebuild binary
+  sha256 `345644822818326f442a…`: whole-file `cmp` rc=0 for `E52PP E52PQ E52PR E52PS E52PT
+  E52PW E52PX E52PY E52PZ` against the new goldens (campaign e52p3d, oracle 9 ok/11 at
+  `d73171b`) AND for `E52PA` against the EXISTING `golden/e52p3/E52PA/E52PA.REL` — the
+  subround headline. Registered via sanctioned `--update-inventory` 1212→1222 (EXACTLY +10
+  specimen lines) plus the E52PU/E52PV refusal rows (+2, 180→182); post-registration FULL
+  gate REAL rc=0 **1222 byte-exact / 0 of 1222** (`build/gate-e52p3d-reg.log`), negatives
+  182/182 with BOTH new markers alive, divergence 9/9, coverage 139 rows 0/0, census counts
+  unchanged 15/0/26/0 (three refusal MESSAGES moved via its own write path).
+* **What this does NOT say.** The RUNTIME MEANING of the `80 n`/`0B w` records, of the XCHG
+  parking, and of the PZ divisor preamble `3E 03 / E5 6F 87 9F 67 D1` is UNMEASURED — BYTE
+  TIER ONLY, no object executed under cpmsim, no `spec/RUNTIME.txt` row. Widths 14..128 are
+  compile-accepted (PV listing) but carry NO object witness; 129..254 are UNMEASURED; a
+  width-less bare `x` has NO object (PU refused). DEC, FLOAT, member/struct, call and
+  subscript EXPRESSION items on the file route STILL REFUSE BY NAME at the shape authority
+  (`codegen: PUT numeric item form unproven [TBD]` — ACKTST's moved census message) and are
+  NOT claimed. Group count 0 is unmeasured and my arm refuses it. LOAN2 remains UNREGISTERED
+  and blocked at the verbatim catch `codegen: PUT FILE(OUTPUT) EDIT shape [TBD] (line 212)
+  -- an EDIT list the matcher cannot split into data items plus a final wrapped format list:
+  empty data, a trailing item after the format list, or an item class classify_item does not
+  name` (prescan matcher-split; `my-gap`, recorded, NOT fixed, never claimed exact — the
+  P3-3-era prediction that the next blocker would be the DEC FORMAL at line 147 is FALSIFIED
+  at stage level: the prescan never reaches 147).
