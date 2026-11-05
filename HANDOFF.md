@@ -1570,22 +1570,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 340
-checkpoint-id: g340-d834ffd850ff
-checkpoint-kind: auto
+checkpoint-generation: 341
+checkpoint-id: g341-6c8d927fdd83
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4103, session 01a1aa02-a89f-7386-8eaa-b7931a87dac0)
-checkpointed: 2026-11-05T05:03:22.795Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-890, session 01a1aa02-a89f-7386-8eaa-b7931a87dac0)
+checkpointed: 2026-11-05T05:04:36.975Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7f0db2d9935aabc3451bb1af091349d45300c1389f7544be72c3017a9c3d55d1
-source-handoff: 0baef20f01fd31a11b9c8177c4132d46c0aff41cbb943e91bf3ed282625eb1a8
+source-progress: 5eb10525fe49c06a47d22a6b10b3f6bee126002971694346089c4a84843ed602
+source-handoff: 86226f9b06cb9748895b9f0e9065dc15a637d1098e2f4dce58ded45fef3f2521
 source-learnings: b272ebd09f879f4aa7db2e834db230c63b33ccf587b6218b7f94dea0f35efe59
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1aa02-a89f-7386-8eaa-b7931a87dac0
+readiness-at: 2026-11-05T05:04:36.990Z
+readiness-checkpoint: g341-6c8d927fdd83
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: Hop 12/12 (CAP) close: E2E-52/P3-6 fully registered and CLOSED — goldens 5ab8639, registration 91592c0 (1233 specimens/186 negatives), census 9febae8 (LOAN2 blocker line-54 OPEN PRINT verbatim), FULL gate rc=0 build/gate-e52p6-reg.log, claim C364 73b9c53 BEFORE COVERAGE EXACT:18 6e6ed37, prose rc=0, durables 0973fab+da9f7e8. Successor: fresh authorized chain only (operator resets .pi-guard renewal-state.json); PROPOSED P3-7 OPEN PRINT/PAGESIZE/LINESIZE from LOAN2:54 — PLAN+probes committed before any ocaml/ byte; NEVER handoff_renew past this cap.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2158,5 +2161,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-Hop 11 closed: campaign e52p6 measured (5 ok/7, golden/e52p6), arm landed 8fc0a3b (bind.ml+codegen.ml), 4/4 accepted probes cmp rc=0 on binary 0efc35e6d4ff81bd, sweep 110/0, markers rc=2, LOAN2 VERBATIM at line 54 OPEN PRINT. Durables 54dda0c. Hop 12 = CAP 12/12: registration ONLY (SPECIMENS SA SB SC SD + refusal rows SF/SG dr-refuses and SE my-gap; --update-inventory measured delta from 1229; census OWN write path FIRST; gate rc=0 build/gate-e52p6-reg.log; C364 measured-bytes-only BEFORE the COVERAGE ON-unit rewrite; coverage_check+prose rc=0; RESULTS §P3-6 + PLAN §5 row), then handoff_finalize — NEVER handoff_renew past the cap. Read LEARNINGS.md § "hop 11: campaign e52p6 MEASURED + ARM LANDED" and PROGRESS.md ## Next action.
+Hop 12/12 (CAP) close: E2E-52/P3-6 fully registered and CLOSED — goldens 5ab8639, registration 91592c0 (1233 specimens/186 negatives), census 9febae8 (LOAN2 blocker line-54 OPEN PRINT verbatim), FULL gate rc=0 build/gate-e52p6-reg.log, claim C364 73b9c53 BEFORE COVERAGE EXACT:18 6e6ed37, prose rc=0, durables 0973fab+da9f7e8. Successor: fresh authorized chain only (operator resets .pi-guard renewal-state.json); PROPOSED P3-7 OPEN PRINT/PAGESIZE/LINESIZE from LOAN2:54 — PLAN+probes committed before any ocaml/ byte; NEVER handoff_renew past this cap.
 <!-- guard:end checkpoint -->

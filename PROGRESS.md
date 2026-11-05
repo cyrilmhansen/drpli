@@ -2400,16 +2400,16 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 340
-checkpoint-id: g340-d834ffd850ff
-checkpoint-kind: auto
+checkpoint-generation: 341
+checkpoint-id: g341-6c8d927fdd83
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-05T05:03:22.795Z
+checkpointed: 2026-11-05T05:04:36.975Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 7f0db2d9935aabc3451bb1af091349d45300c1389f7544be72c3017a9c3d55d1
-source-handoff: 0baef20f01fd31a11b9c8177c4132d46c0aff41cbb943e91bf3ed282625eb1a8
+source-progress: 5eb10525fe49c06a47d22a6b10b3f6bee126002971694346089c4a84843ed602
+source-handoff: 86226f9b06cb9748895b9f0e9065dc15a637d1098e2f4dce58ded45fef3f2521
 source-learnings: b272ebd09f879f4aa7db2e834db230c63b33ccf587b6218b7f94dea0f35efe59
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `, then hop-12 CAP contract: registration (SPECIMENS + refusals SF/SG/SE, `--update-inventory` measured delta from 1229, census OWN path FIRST, gate rc=0 `build/gate-e52p6-reg.log`, **C364 measured-bytes-only BEFORE** the COVERAGE `ON`-unit rewrite, coverage_check+prose rc=0, RESULTS §P3-6 + PLAN §5 row), durables, then **`handoff_finalize` — NEVER `handoff_renew` past the cap**. Ledger ENDS **C363**; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc DIRECT; no push.
@@ -2977,6 +2977,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1aa02-a89f-7386-8eaa-b7931a87dac0
+readiness-at: 2026-11-05T05:04:36.990Z
+readiness-checkpoint: g341-6c8d927fdd83
 <!-- guard:end checkpoint -->
 
 ## Blockers
