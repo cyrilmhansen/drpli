@@ -7,6 +7,21 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-novies-new4. **E2E-52/P3-5 hop 8: ARM LANDED — the `Pi_rep`/`PIrep` DATA-item repetition is
+  BYTE-EXACT on all 7 accepted e52p5 probes (commit `aeda739`; 2026-11-05, hop 8/12).** Build rc=0
+  DIRECT, binary `a55ef4eb7c7e51fb…`; **cmp RA RB RD RF RH RI RJ whole-file rc=0 vs
+  `golden/e52p5/`**; RB decoded the patch law (non-final rep JP → NEXT item start; final → the
+  close `?QIOOP`). RC BY / RG char-var / RE REVERSE refuse rc=2 BY NAME (boundaries KEPT).
+  SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-5 hop 8: ARM LANDED" and execute `PROGRESS.md` →
+  `## Next action`: (1) defensive `| PIrep _ -> a` prescan-fold arm (PA-class Warning 8) + rebuild
+  + re-verify 7 cmps + warning histogram vs 70; (2) sweep 89, markers rc=2, LOAN2 POSITIONAL
+  VERBATIM (predicted line-177 `PIvar yp`, NEVER fit); (3) registration +7 SPECIMENS + RE row,
+  `--update-inventory` 1222→1229 / negatives 182→183, census OWN path FIRST, gate rc=0
+  `build/gate-e52p5-reg.log`, **C363 measured-bytes-only BEFORE** COVERAGE `IO.PUT_EDIT`
+  EXACT 35→42, coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables, renew 9/12.
+  Ledger ENDS C362; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc
+  DIRECT; no push; campaign continues.
+
 0a-novies-new3. **E2E-52/P3-5 hop 7: ARM SITES ALL VERIFIED by code reading; ARM OWED
   (2026-11-05, hop 7/12).** ZERO `ocaml/` byte. Baseline re-held: build rc=0 DIRECT binary
   `345644822818326f…`; RA/RB/RF reldumps re-read — the rep loop is `lower_doto`'s TO-arm shape
@@ -1533,13 +1548,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 328
-checkpoint-id: g328-5630cae3bad4
+checkpoint-generation: 330
+checkpoint-id: g330-390c87110680
 checkpoint-kind: auto
 content-delta: none
-readiness: attested
-status: checkpoint (guard level 3, remaining ~6475, session 01a1a954-4f62-753f-82d0-315d9ae6b68c)
-checkpointed: 2026-11-05T01:46:26.141Z
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~-1349, session 01a1a962-ca01-753f-82d0-3160c474cb35)
+checkpointed: 2026-11-05T02:02:03.307Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 674103e675697005c43443dd8da9e7c472777cc34c6d5c1ac0a034d37f68aa96
 source-handoff: b66d29b57898818cb2f345a7a4952b856336a058c57caaf57b7aaedf5b9d1d21
@@ -1547,11 +1562,8 @@ source-learnings: 6ba90002fd2e2e7d80041eae82525ad5c88333997d4bb5ff81e77ca08ec085
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a954-4f62-753f-82d0-315d9ae6b68c
-readiness-at: 2026-11-05T01:46:26.166Z
-readiness-checkpoint: g328-5630cae3bad4
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
