@@ -766,6 +766,12 @@ E52TG	specimen	probes/E52TG.PLI	golden/e52p7/E52TG/E52TG.REL
 E52TH	specimen	probes/E52TH.PLI	golden/e52p7/E52TH/E52TH.REL
 E52TI	specimen	probes/E52TI.PLI	golden/e52p7/E52TI/E52TI.REL
 E52TJ	specimen	probes/E52TJ.PLI	golden/e52p7/E52TJ/E52TJ.REL
+E52UA	specimen	probes/E52UA.PLI	golden/e52p8/E52UA/E52UA.REL
+E52UB	specimen	probes/E52UB.PLI	golden/e52p8/E52UB/E52UB.REL
+E52UC	specimen	probes/E52UC.PLI	golden/e52p8/E52UC/E52UC.REL
+E52UD	specimen	probes/E52UD.PLI	golden/e52p8/E52UD/E52UD.REL
+E52UE	specimen	probes/E52UE.PLI	golden/e52p8/E52UE/E52UE.REL
+E52UF	specimen	probes/E52UF.PLI	golden/e52p8/E52UF/E52UF.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

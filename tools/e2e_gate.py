@@ -2262,6 +2262,40 @@ SPECIMENS.update({
     "E52TJ": ("probes/E52TJ.PLI", "golden/e52p7/E52TJ/E52TJ.REL"),
 })
 
+# [E2E-52/P3-8] ON ERROR -- THE ABSOLUTE-OPERAND REGISTRATION PREFIX AND THE BODY-DEPENDENT
+# HANDLER TAIL.  Pre-registered at e6d16ff (PLAN §P3-8 H1..H6 + these six probes, committed
+# BEFORE any ocaml/ byte); the ORACLE answered at 9f36504 (campaign e52p8, 6 ok/6, EVERY
+# pre-registered prediction HIT, all six goldens VERBATIM and NEVER re-derived); the ARM is
+# a7ab5a4 (codegen.ml only).  Measured bytes registered here, whole-file cmp rc=0 six-for-six
+# on binary 9ecea27aa4f2d80f49ad (build/e52p8-reg/*-reldump.txt are the dumps):
+#   E52UA 128 B; code 0020, DATA 0002.  bare `on error x = 1;' -- prefix 21 00 00 (ABS,
+#             NO SEL-COMMON/RELOC in a file-less object) / AF / CD ?ONCOP / C3 slot@000E;
+#             returning statement handler, C9 RET @0016 [H3].
+#   E52UB 256 B; code 0030, DATA 0004.  DIRECT `on error goto lbl;' to a REMOTE label -- entry
+#             SP-save + cell, TWO independent patch triples (0015->0x1A continuation,
+#             0018->0x20 pad `2A r(cell) / F9 / CD ?RECOV') [H5].
+#   E52UC 256 B; code 0046, DATA 0008.  LOAN2/ANNUITY mirror: BEGIN handler ending in GOTO,
+#             ADJACENT label -- jump-over and goto targets MERGE at 0x36; inline handler +
+#             C3, NO C9 [H3/C364].
+#   E52UD 128 B; code 0020, DATA 0002.  plain RETURNING BEGIN handler (a shape NO pre-existing
+#             golden carries): body emits C9, NO SP-cell, NO pad, NO DAD SP [H4].
+#   E52UE 256 B; code 002B, DATA 0002.  `error(2)' = 21 02 00 and `error(0)' = 21 00 00 -- the
+#             argument IS the LXI operand verbatim [H2].
+#   E52UF 384 B; code 002F, DATA 0002, COMMON F/G each 0023.  THE BODY CONTRAST INSIDE ONE
+#             OBJECT: `on endfile(f) stop;' = inline CD ?STOPX with NO C9, while
+#             `on endfile(g) x = 1;' in the same program carries C9 @0025 [H3 CONFIRMED].
+# Outside the registered perimeter (refuse BY NAME with [TBD], nothing fitted): ERROR with any
+# non-integer or out-of-range argument; ERROR + STOP/RETURN/NULL/DCL handlers; nested STOP; STOP
+# handlers on the UNDEFINEDFILE route (UNMEASURED -- only ENDFILE carries UF's bytes).
+SPECIMENS.update({
+    "E52UA": ("probes/E52UA.PLI", "golden/e52p8/E52UA/E52UA.REL"),
+    "E52UB": ("probes/E52UB.PLI", "golden/e52p8/E52UB/E52UB.REL"),
+    "E52UC": ("probes/E52UC.PLI", "golden/e52p8/E52UC/E52UC.REL"),
+    "E52UD": ("probes/E52UD.PLI", "golden/e52p8/E52UD/E52UD.REL"),
+    "E52UE": ("probes/E52UE.PLI", "golden/e52p8/E52UE/E52UE.REL"),
+    "E52UF": ("probes/E52UF.PLI", "golden/e52p8/E52UF/E52UF.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
