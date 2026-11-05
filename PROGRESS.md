@@ -2627,19 +2627,23 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 358
-checkpoint-id: g358-6dab7079e9f2
-checkpoint-kind: manual
+checkpoint-generation: 360
+checkpoint-id: g360-0c58c2268266
+checkpoint-kind: auto
 content-delta: new
 readiness: attested
 guard-level: 4
-checkpointed: 2026-11-05T09:50:20.514Z
+checkpointed: 2026-11-05T10:13:34.084Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 902c5c414c334210efa292eca548d42cc28ebd7c1318e3abd2399bdcd5f20663
-source-handoff: 20a39872bcbb9bdf6cbd4f4e041f31b849389fec5a833c386b5ced430f76e713
-source-learnings: 9c6a4dcb8a6a2ede407ce08e1735a8e5924738610959d5d37f7c7f0950679042
+source-progress: b700181bcb13584fd80a51fc1fde6bec5616b69cc1641ecab64ba41c39d9b88b
+source-handoff: b5ef687be32bf62449e34b30e0adc5012fa33afccc2cffb5305edf7331d84bd7
+source-learnings: 4ae6bf6c727d7af9f9b4cda8d713dfd40bef547d84e9dda699aa9cab7df652b3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: `: P3-8 DECODES existing LOAN2/E52p6 evidence FIRST, then preregisters PLAN §P3-8 + discriminating probes COMMITTED before any `ocaml/` byte; campaign `e52p8` only if goldens leave the ON ERROR questions open; ON ERROR is NOT presumed a file event — condition code + registration operand MEASURED independently. No push; all rc DIRECT; `pli80c` POSITIONAL.
+next-action: `:** write PLAN §P3-8 (H1 abs-LXI+XRA prefix; H2 argument verbatim; H3 body-DEPENDENT RET; H4 returning handlers demand NO SP-cell/pad [C206]; H5 jump-over = continuation, adjacency merges [C208]) + probes **E52UA** bare error+assignment, **UB** bare error + DIRECT goto to a REMOTE label, **UC** LOAN2-mirror begin…goto adjacent, **UD** plain RETURNING begin handler (RET? pad? UNMEASURED), **UE** `error(0)`/`error(2)` literals, **UF** `on endfile(f) stop;` + `on endfile(f) x = 1;` contrasts — CRLF + bare ^Z + ≤71 cols, E52SA skeleton — **COMMITTED BY EXPLICIT PATH BEFORE ANY `ocaml/` BYTE**, then ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52UA E52UB E52UC E52UD E52UE E52UF --tag e52p8 --switches '$L$D'` rc DIRECT, goldens VERBATIM, arm ONLY measured shapes (SECOND prefix encoder beside `on_reg_prefix`, never mutate the file one; body-dependent RET; unmeasured shapes refuse BY NAME; ENDFILE/UNDEFINEDFILE regressions intact), cmp/sweep 114/markers/LOAN2 POSITIONAL VERBATIM, registration, gate rc=0 `build/gate-e52p8-reg.log`, **C366 measured-bytes-only BEFORE COVERAGE**, RESULTS §P3-8 + PLAN §5 row, durables. Constraints KEPT: no push; operator `handoff.config.json` NEVER staged; goldens NEVER re-derived; all rc DIRECT (never a pipeline tail); `pli80c` POSITIONAL; byte-tier only — no runtime claims; never hardcode LOAN2.
+
+0a-novies-new14. **E2E-52/P3-8 hop 1 LANDED — ON ERROR DECODED & CONFIRMED on 5 original goldens; hop 2 = PLAN §P3-8 + probes E52UA..UF PRE-REGISTRATION, then ONE e52p8 campaign (2026-11-05, session 01a1ab05, ZERO ocaml/, ZERO oracle).** ACCEPTED: bare `on error` = `LXI H,0000 / XRA A / CALL ?ONCOP / JMP <over>` (absolute constant operand, condition byte 00 via AF — NOT a file event, NOT MVI A,nn; LOAN2 00E8, ANNUITY 004B); `error(1)` = `LXI H,0001` (COPYLPT 00A6, EXPR1/EXPR2 001B); goto-terminated BEGIN handlers inline + `C3`, NO RET ([C364] holds); pad at goto label, block-shared SP cell (LOAN2 d0318/COPYLPT d0214/ANNUITY d0136); `revert error(1)` measured UNARMED; `on endfile(sysin) stop;` has NO RET tail — C109 RET law is body-dependent, re-read before arming. AMBIGUOUS (clean disassembly owed): ANNUITY pad/jump-over geometry 0070-0078. UNMEASURED → probes: plain returning BEGIN handler, simple-statement handler, non-adjacent goto pad geometry, error literals beyond 0/1. FALSIFIED: slot-7 walk-back in my first-pass tool. SUCCESSOR: read `LEARNINGS.md` § P3-8 + `PROGRESS.md` → P3-8 hop-1 LANDED section; execute hop-2 contract: PLAN §P3-8 + probes COMMITTED BEFORE any ocaml/ byte, campaign `--tag e52p8 --switches '$L$D'` rc DIRECT, arm only measured shapes reusing on_reg_prefix where bytes agree, registration → gate → **C366 measured-bytes-only BEFORE COVERAGE** → RESULTS/PLAN rows → durables. HEAD after this closure: see git log; ledger ENDS **C365**; gate 1243/0 186/186 9/9 140 0/0 census 15/0/26/0; binary `8b374e623bc9e280…`; LOAN2 blocker line 58 re-verified; SE my-gap/SF-SG dr-refuses kept; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; byte-tier only.
+
+0a-novies-new13. **E2E-52/P3-7 hop 5: SUBROUND P3-7 CLOSED — PERIMETER line-38 correction LANDED; FULL COMBINED-STATE GATE rc=0; SUCCESSOR = E2E-52/P3-8 ON ERROR PRE-REGISTRATION (operator-authorized) (2026-11-05).** Docs+ledger-boundary hop: ZERO oracle calls, ZERO `ocaml/` bytes. Idempotent recovery found the killed session's RESULTS §P3-7 + PLAN §5 row UNCOMMITTED and KEPT them verbatim (all cited hashes verified); only the PERIMETER correction was missing and was appended INSIDE the FILE-attribute-cluster row's final cell — falsified `Still refusing by name:` sentence kept VERBATIM HISTORICAL; PRINT/PAGESIZE/LINESIZE now implemented for MEASURED combinations [C365]; PAGE [C359]; file PUT/GET EDIT C360–C363, E41X8 refusal OBSOLETE; KEYED/DIRECT/RECORD/SEQUENTIAL/UPDATE/APPEND/ENVIRONMENT still unsupported on OPEN routes; titleless OUTPUT 0x0650 outside the measured implementation; unmeasured PRINT/attribute combos refuse BY NAME; NO all-combinations claim. Verification FINAL STATE, all rc DIRECT: prose rc=0, coverage rc=0 **140 rows 0/0**, FULL gate rc=0 `build/gate-e52p7-hop5.log` (**1243/1243, 186/186, 9/9, 140 0/0, census 15/0/26/0, prose 5**). Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap / SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged. GUARD STATE: prior chain 01a1aa7d consumed g352 (renewal 4/12); THIS session auto-checkpointed g354 UNATTESTED at level 4 — successor must `/handoff verify` then follow `PROGRESS.md` → `## Next action`: P3-8 DECODES existing LOAN2/E52p6 evidence FIRST, then preregisters PLAN §P3-8 + discriminating probes COMMITTED before any `ocaml/` byte; campaign `e52p8` only if goldens leave the ON ERROR questions open; ON ERROR is NOT presumed a file event — condition code + registration operand MEASURED independently. No push; all rc DIRECT; `pli80c` POSITIONAL.
 
 0a-novies-new12. **E2E-52/P3-7 hop 4 PART DONE: COVERAGE LANDED `d9ebb30` (140 rows 0/0 + stats own path); RESULTS/PLAN/PERIMETER/prose/durables OWED at hop 5 (2026-11-05, renewal 4/12).** ZERO oracle. Landed: row `FILE.OPEN_STREAM` falsified `Still refused by name: PRINT/…` kept VERBATIM HISTORICAL + [C365], id KEPT; NEW `FILE.OPEN_PRINT_ATTRS` SUPPORTED EXACT:10 — corpus column validator FALSIFIED hop-3's list (P019B/P021 NOT census names → sit as golden evidence paths; corpus COPYLPT,DEPREC,KEYFILE,LOAN2,RETRIEVE); labelled CORRECTIONs on rows `FILE.OPEN_STREAM_OUTPUT` (KEYFILE:19 0x1E50 lowered as E52TE), `FILE.PUT_LIST`, `FILE.OPEN_TITLE_STATIC` (LOAN2 quote obsolete → ON ERROR 58). Recovery: build rc=0 binary `8b374e623bc9e280…`, gate 1243/0 (next gate expect coverage **140 rows 0/0**). SUCCESSOR: execute `PROGRESS.md` → `## Next action` hop-5 contract — RESULTS §P3-7 (measured table, H1–H5 CONFIRMED, TI falsifier + TG/TH totals falsifications VERBATIM, TJ accept, LOAN2/RETRIEVE advances, §6 byte-tier-only), PLAN §5 row, PERIMETER.md line-38 campaign-wide correction (kept verbatim; PAGE/PUT-EDIT clauses stale since E2E-42), prose rc=0 standalone, durables, renew 5/12 cap 12. NO new oracle campaign; ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; chain 01a1aa7d.
 
@@ -3216,9 +3220,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ab05-c85a-71c1-a110-293de8a4e55c
-readiness-at: 2026-11-05T09:50:20.530Z
-readiness-checkpoint: g358-6dab7079e9f2
+readiness-by: session:01a1ab1e-413f-71c1-a110-294170a77923
+readiness-at: 2026-11-05T10:14:15.784Z
+readiness-checkpoint: g360-0c58c2268266
 <!-- guard:end checkpoint -->
 
 ## Blockers
