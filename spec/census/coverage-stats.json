@@ -6,7 +6,7 @@
   "COND": 28,
   "DECL": 23,
   "EXPR": 15,
-  "FILE": 12,
+  "FILE": 13,
   "IO": 9,
   "LEX": 3,
   "LOOP": 4,
@@ -19,12 +19,12 @@
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 112,
+  "MEASURED": 113,
   "SINGLE_SAMPLE": 19,
   "UNREVIEWED": 5
  },
  "dr": {
-  "ACCEPTS": 125,
+  "ACCEPTS": 126,
   "ACCEPTS_DEFECT": 1,
   "REJECTS": 9,
   "UNTESTED": 4
@@ -36,18 +36,18 @@
   "NOT_ATTEMPTED": 3,
   "PARTIAL": 23,
   "REFUSED": 22,
-  "SUPPORTED": 88
+  "SUPPORTED": 89
  },
  "no_parity": 29,
- "no_runtime": 109,
+ "no_runtime": 110,
  "perimeter": {
   "C": 2,
   "M": 17,
   "OPEN": 1,
-  "S": 119
+  "S": 120
  },
- "rows": 139,
+ "rows": 140,
  "single_sample": 19,
  "unreviewed": 5,
- "with_boundary": 139
+ "with_boundary": 140
 }
