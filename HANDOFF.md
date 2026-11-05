@@ -1498,31 +1498,61 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 323
-checkpoint-id: g323-f15c8fa2d3c9
+checkpoint-generation: 324
+checkpoint-id: g324-af9a8e8c770f
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~174, session 01a1a926-9ad1-753f-82d0-31553e408045)
-checkpointed: 2026-11-05T01:08:23.889Z
+status: checkpoint (guard level 4, remaining ~-2581, session 01a1a926-9ad1-753f-82d0-31553e408045)
+checkpointed: 2026-11-05T01:09:05.982Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 73ec39c16cb80097fc7c25f8460ea2072424e1a9f1277531a6007936dba93265
-source-handoff: 99dd9356a2bd08fea495d9d92fcb67d2986a8894983347225361b2db62bc24c2
+source-handoff: 9b6654c8341dfae91be1527af37256ad4ae2e826eb59ca19324e12bb9f449535
 source-learnings: 68b70baeeb9386ffa2808ae25f356b36e1677b4145aa78c2a5fef6674c025416
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
 readiness-by: session:01a1a926-9ad1-753f-82d0-31553e408045
-readiness-at: 2026-11-05T01:08:23.902Z
-readiness-checkpoint: g323-f15c8fa2d3c9
+readiness-at: 2026-11-05T01:09:06.002Z
+readiness-checkpoint: g324-af9a8e8c770f
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` steps (1)-(4): **PLAN §P3-5 + probes E52RA.. COMMITTED BEFORE
+`
+  steps (1)-(3): ONE grouped oracle campaign (E52RA..E52RJ, tag `e52p5`, `'$L$D'`, rc
+  DIRECT), arm parser.ml+codegen.ml per PLAN §P3-5 §2a/§4 (the "codegen ONLY" brief was
+  FALSIFIED by code reading: `parse_rep_spec` drops the index name and BY), sweep/markers/
+  LOAN2 VERBATIM (predicted next blocker line-177 `PIvar yp`, NEVER fit), registration
+  (census OWN write path FIRST, gate rc=0 `build/gate-e52p5-reg.log`, **C363
+  measured-bytes-only BEFORE** the COVERAGE `IO.PUT_EDIT` rewrite, coverage_check+prose
+  rc=0, RESULTS §P3-5 + PLAN §5 row). The `Pi_rep` loop law is ALREADY decoded from the
+  EXISTING LOAN2 golden (LEARNINGS § "P3-5 PRE-REGISTRATION LANDED"). Ledger ENDS C362;
+  goldens never re-derived; operator `handoff.config.json` never staged; all rc DIRECT;
+  `pli80c` POSITIONAL; renewals autonomous (6/12 cap 12); no push; campaign continues.
+
+0a-decies. **E2E-52/P3-4 CLOSED (evidence rows LANDED `b76cd2f`); SUBROUND P3-5
+  PRE-REGISTRATION OWED (2026-11-05, fresh chain hop 4/12).** Docs-only hop, ZERO `ocaml/`
+  byte, ZERO oracle call: `RESULTS.md` §P3-4 (campaign 9 ok/11 table with reldump-derived
+  code/DATA sizes; verdicts VERBATIM — H2a/H2b FALSIFIED + H2c CONFIRMED (count-1 SPLICE); H4a
+  FALSIFIED + H4b FALSIFIED-IN-DETAIL (boundary **255**, not 19; widths 14..128 accepted,
+  bytes UNMEASURED; 129..254 unmeasured); H5a/H5b MOOT + H5c CONFIRMED; H6a FALSIFIED + H6b
+  CONFIRMED (no-XCHG); `Pi_rep` ≠ `Pi_repgrp` brief wording falsified; PA root cause +
+  HEADLINE; LOAN2 line-212 VERBATIM, the DEC-147 prediction FALSIFIED AT STAGE LEVEL; gate
+  1222/0 + 182/182, C362, COVERAGE EXACT:35; §6 NOT-say) + `PLAN.md` §5 P3-4 row.
+  Independent re-verification THIS session: clean build `345644822818326f442a…`, **10/10 cmps
+  rc=0** (PA headline re-held a 3rd time), PU/PV/PF rc=2 markers, LOAN2 rc=2 VERBATIM,
+  prose rc=0 — `build/e52p3e/`. DECODED the NEXT blocker with no oracle run: LOAN2 212 is
+  `put file(output) skip edit ('-------','------------',('---------------' do i = 1 to 4)) (a);`
+  — the failing class is the **`Ast.Pi_rep` DATA-item DO-repetition in the DATA half** (parser.ml
+  1018; the `data` walker admits only `Pi_data`/`Pi_fmtlist`, so `classify_item` is never
+  reached). `bind.ml:1155` calls `Pi_rep` 0 format bytes with a **"[verify]"** annotation; NO
+  golden holds a `Pi_rep` in a file EDIT list → its lowering is **UNMEASURED**.
+  SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-4 CLOSED … P3-5 PRE-REGISTRATION OWED" and execute
+  `PROGRESS.md` → `## Next action` steps (1)-(4): **PLAN §P3-5 + probes E52RA.. COMMITTED BEFORE
   any ocaml/ byte** (collision-grep probes/+INVENTORY, verify tag `e52p5` unused), ONE grouped
   campaign, arm (codegen only), sweep+markers+LOAN2 VERBATIM, registration (census OWN write path
   FIRST, gate rc=0 `build/gate-e52p5-reg.log`, **C363 measured-bytes-only BEFORE** the COVERAGE
