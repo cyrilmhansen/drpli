@@ -6794,3 +6794,42 @@ an operator brief records state and STOPS.
   RESULTS §P3-5 + PLAN §5 row, durables, renew 9/12. Evidence: `build/e52p5-arm/`.
   UNMEASURED shapes still refusing BY NAME (never promote): to<=2, from=0, 1-byte index,
   variable FROM, deref index/bound, nested rep, BY, REVERSE, char-var/DEC-inner reps.
+
+## E2E-52/P3-5 hop 9: DEFENSIVE ARMS + REGISTRATION LANDED — SUBROUND P3-5 CLOSED; LOAN2 AT ON UNDEFINEDFILE (line 44) (2026-11-05, hop 9/12)
+
+- **ACCEPTED (measured, all rc DIRECT).** Clean rebuild `dune clean && dune build` rc=0, final
+  binary sha256 `e55e892c346741b2…` (incremental build of the same source hashed IDENTICALLY
+  this hop). Defensive `| PIrep _ -> a` on the prescan EDIT-fold inner match (codegen.ml ~3581)
+  committed `a008840`: honest histogram = replay-build the `aeda739` source (git show to file,
+  clean build, restore) → codegen.ml **70 == baseline 70**; hop-9 → **68**; diff EXACTLY −2 W8
+  lines at the single fixed site, all other sites identical modulo +5 shift. Line-number or
+  total-based comparison across arms is the falsified method; replay-vs-current is the honest one.
+  7 cmps RA RB RD RF RH RI RJ whole-file rc=0 on BOTH binaries and byte-identical to hop-8
+  output (unreachable arm ⇒ zero semantic change); sweep 101 specimens/0 FAIL (superset of the
+  contract 89; R10 prefix + E52 + E46N + P086 + E51 + markers); markers E46K4/K15/N21/E52PF/PU/PV
+  rc=2 intact; RC BY / RG char-var refuse rc=2 unchanged.
+- **ACCEPTED (named boundary added for registration).** The pre-registered RE marker `expected )`
+  could NOT carry an honest negative row: the gate panel REQUIRES `[TBD]` in stderr. Added a
+  NAMED parse-stage refusal `DO-repetition REVERSE is dr-refuses [TBD]…` in parse_rep_spec
+  (parser.ml `3a494c3`), mirroring the BY arm and DR's own measured verdict (E52RE PRN: PASS 1
+  clean, `BALANCE ?` on stmt 6, `SYNTAX ?`, `UNEXPECTED EOF`, NO .REL). Verified no collision:
+  specimen REVERSE uses `reverse` only as label/proc name.
+- **FALSIFIED (kept verbatim, PROTOCOL #2).** (1) The hop-5/8 prediction that the post-212 LOAN2
+  blocker is line-177 `PIvar yp`: ACTUAL = `codegen: ON UNDEFINEDFILE is not implemented [TBD]
+  (only ENDFILE(<file>) has a DR lowering; line 44)` rc=2, NO .REL — the prescan now clears ALL
+  statements and LOWERING dies at 44 before reaching 177 (stage-level falsification; direction
+  "advances past 212" HELD). (2) The RE `expected )` marker prediction (above). LOAN2 recorded,
+  NEVER fitted.
+- **LANDED (registration chain).** Gate edit + `--update-inventory` rc=0 EXACTLY 1222→1229 +
+  182→183 (`4dbdaa0`; my FIRST gate edit omitted the SPECIMENS.update dict — caught by the
+  1222-still message; the tool rewrites the whole file deterministically, re-running sufficed);
+  census OWN write path FIRST rc=0 counts UNCHANGED 15/0/26/0 with the LOAN2 msg REPLACED
+  verbatim; FULL gate REAL rc=0 `build/gate-e52p5-reg.log` **1229/0, 183/183, 9/9, 139 0/0,
+  15/0/26/0, prose 5**; claim **C363** measured-bytes-only `c940426` BEFORE COVERAGE
+  IO.PUT_EDIT EXACT 35→42 `2be56f0` (coverage_check rc=0 139 rows 0/0, boundary clauses NAMED);
+  prose rc=0; RESULTS §P3-5 + PLAN §5 row `a1a82d4`. **Ledger ENDS C363. Subround P3-5 CLOSED.**
+- **PROPOSED (never authorization).** Next subround P3-6 = the LOAN2 line-44 ON UNDEFINEDFILE
+  class — NEW ground: PLAN §P3-6 + probes COMMITTED BEFORE any ocaml/ byte; verify first that
+  any DR object for ON UNDEFINEDFILE exists (campaign probe; if dr-refuses it stays a refusal).
+  Other live refusals unchanged: PIvar bin-var file route (177), DEC formal (147), PRINT/
+  PAGESIZE OPENs 54/56 queued behind lowering order.
