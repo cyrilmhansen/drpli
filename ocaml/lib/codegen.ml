@@ -1165,6 +1165,8 @@ let emit_triple st slot value =
 let op_xra_a   = 0xaf
 let op_push_b  = 0xc5
 let op_inx_sp  = 0x33
+let op_mvi_l   = 0x2e   (* [E2E-52/P3-7] MVI L,<v>: the w5/w6 literal-attribute form, TD/TG/TH/TE *)
+let op_mov_l_h = 0x6c   (* [E2E-52/P3-7] MOV L,H: zero restore after MVI L when B holds a title length (TG) *)
 let op_mov_h_b = 0x60
 (* 0x68 = 01 101 000 = MOV L,B.  NOT MOV L,H, which is 0x6C -- and not 0x65, which is
    MOV H,L, nor 0x6a, MOV L,D, both already recorded on the same trap above [C072].
@@ -10810,7 +10812,12 @@ let lower_get_file_edit st (fu : string) (tbl : int) (names : Ast.name list) =
    parser accepts the whole documented vocabulary (E2E-41/P1a) so that the option list is
    visible, and codegen refuses what it cannot emit byte-exactly.  The list is about
    OPTION WORDS only -- a TITLE OPERAND shape is checked separately, in open_title. *)
-let open_subset_keys = [ "FILE"; "INPUT"; "STREAM"; "OUTPUT"; "TITLE" ]
+(* [E2E-52/P3-7] PRINT, PAGESIZE and LINESIZE joined the list on the strength of TEN
+   whole-file goldens (golden/e52p7/) plus the historical rows of OPEN-MATRIX.tsv; the
+   OPTION WORD is admitted but every COMBINATION outside the measured matrix below is
+   still refused by name in `open_attr_plan'. *)
+let open_subset_keys =
+  [ "FILE"; "INPUT"; "STREAM"; "OUTPUT"; "TITLE"; "PRINT"; "PAGESIZE"; "LINESIZE" ]
 
 (* The pinned negative-panel markers are the PREFIXES `OPEN option KEYED is outside',
    `OPEN option RECORD is outside', `OPEN option SEQUENTIAL is outside' and `OPEN option
@@ -10856,13 +10863,17 @@ let refuse_file_opt (what : string) (o : Ast.io_opt) (s : Ast.stmt) =
           on either side -- ?SLVTS for a CHARACTER(n) VARYING operand, ?SLCTS with MVI A, \
           <declared length> for a CHARACTER(n) FIXED one (E46F1-F4 [C288]).  So nothing in \
           this message is a TITLE gap or a name-length gap: %s refuses as an OPTION WORD. \
-          ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words, PAGESIZE/LINESIZE their \
-          attribute words, and PRINT/KEYED/DIRECT/RECORD/SEQUENTIAL their own bits; DR \
+          PRINT, PAGESIZE and LINESIZE are lowered since E2E-52/P3-7 exactly where the ten \
+          golden/e52p7 objects and the historical OPEN-MATRIX rows measure them (see \
+          open_attr_plan); every combination beyond that matrix still refuses by name. \
+          ENVIRONMENT needs its ORGANIZATION and RECORD SIZE words (REPORT:29 carries a \
+          36-byte 0x4E52 block with w2=08/w3=07D0/w4=0080) and KEYED/DIRECT/RECORD/ \
+          SEQUENTIAL/UPDATE/APPEND/COPY/ENTER their own bits and attribute words; DR \
           compiles every one of those (E46H1 `keyed direct' = 0x058C, E46H3/E46H4 \
           `record'/'sequential' = 0x0590, and the recount of [C287] measures 11 ENVIRONMENT, \
           4 PAGESIZE, 2 LINESIZE, 4 KEYED and 1 DIRECT site) and this compiler has no \
-          byte-exact witness of any of them, so it refuses rather than compose a word from \
-          bits it has not measured"
+          byte-exact witness of any of those routes, so it refuses rather than compose a \
+          word from bits it has not measured"
          what o.Ast.io_key s.Ast.spos.Source.line o.Ast.io_key)
 
 (* The TITLE clause, if any.  [E2E-42/P1b] DR has TWO routes, and which one a site takes
@@ -11034,6 +11045,7 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
      row with neither is UPDATE:31's `update direct' (0x4D2C).  17+16+1 = 34: the partition is
      complete, so "no measured open writes and reads" is a fact about every row, not a sample. *)
   let n_in, n_out, n_stream = has "INPUT", has "OUTPUT", has "STREAM" in
+  let n_print = has "PRINT" in
   (* The census, stated once and CORRECTED by [E2E-42/P0] [C287].  An earlier version of
      this block, of [C280] and of OPEN-MATRIX.tsv's own option columns said 34 OPENs with
      NINE spelling `output' and FIVE spelling `input'.  That was wrong, and the cause was
@@ -11072,6 +11084,30 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
        unreadable from this corpus on the strength of no measured open carrying both bits -- \
        the mode group is mutually exclusive in DR, so refusing is now byte-exact behaviour \
        rather than an absence in our sample, and this is a DR rejection, not my gap"
+  else if n_print && n_in then
+    refuse_combination
+      "naming BOTH PRINT and INPUT"
+      "no measured object carries the pair: every PRINT row of OPEN-MATRIX.tsv (P019B, P021:6, \
+       LOAN2:54/56, DEPREC:51/78, COPYLPT:38, RETRIEVE:19, REPORT:29) carries the OUTPUT bit \
+       0x0040 and NONE the input bit 0x0080, and E2E-52/P3-7 never put the combination to DR -- \
+       UNMEASURED, so it refuses by name rather than guess a word"
+  else if n_print && n_out then
+    refuse_combination
+      "naming BOTH PRINT and OUTPUT"
+      "the census spells them on SEPARATE rows: the nine print rows never spell the OUTPUT \
+       option -- the word `output' in LOAN2 names the FILE OPERAND, not the option, after the \
+       [C287] FILE-operand masking correction -- and `output print' was never put to DR by \
+       E2E-52/P3-7.  PRINT already carries bit 0x0040 on its own measurement (E52TA w1 = \
+       0x0652), so the spelled pair is UNMEASURED and refuses by name"
+  else if n_print then
+    (* [E2E-52/P3-7] PRINT is MEASURED.  Titleless `open file(pf) print' is w1 = 0x0652
+       (P019B:3 and golden/e52p7/E52TA, 21 bytes); a title adds 0x0800 exactly as elsewhere
+       (LOAN2:56, RETRIEVE:19, DEPREC:78, E52TC = 0x0E52).  Bit 0x0002 sits atop the output-
+       side base 0x0650; the STREAM keyword is BYTE-INVISIBLE on this route -- TD spells
+       `stream print' and TI/TJ spell bare `print', identical 4-byte prologues and identical
+       0x2652 words, and TB (no stream) equals DEPREC:51 (stream) byte for byte at 0x2E52. *)
+    let base = 0x0400 lor 0x0200 lor 0x0010 lor 0x0040 lor 0x0002 in
+    if title then base lor 0x0800 else base
   else if n_out && not n_stream then
     refuse_combination
       "OUTPUT without the STREAM keyword"
@@ -11102,6 +11138,143 @@ let open_mode_word (s : Ast.stmt) (opts : Ast.io_opt list) (title : bool) =
     let base = 0x0400 lor 0x0200 lor 0x0010 lor (if n_out then 0x0040 else 0x0080) in
     if title then base lor 0x0800 else base
 
+(* [E2E-52/P3-7] THE measured PAGESIZE/LINESIZE attribute set.  One record separates the
+   w1 ATTRIBUTE BIT from the w5/w6 PARAMETER emission: the bit is set by the OPTION's
+   presence (TB proves `pagesize(0)' sets 0x2000 yet pushes a plain ZERO word, adding NO
+   byte), while the WORD shape is what the ladder emitter below selects.  Values are exactly
+   what the ten golden/e52p7 objects plus OPEN-MATRIX.tsv measure; everything else refuses
+   BY NAME with [TBD]. *)
+type open_attr =
+    A_absent                      (* option not written *)
+  | A_zero                        (* literal 0: bit set, zero word (TB/LOAN2:54, DEPREC:51) *)
+  | A_lit8 of int                 (* literal 1..0xFF: `MVI L,v' (TD/TG/TH/TE) *)
+  | A_lit16 of int                (* literal 0x100..0xFFFF: `LXI H,v' (TJ pagesize(300)) *)
+  | A_var of Ast.name             (* declared fixed-bin cell: `LHLD <cell>' + DATA reloc (TI/TF) *)
+
+let refuse_attr_shape s what why =
+  failwith
+    (Printf.sprintf
+       "codegen: OPEN %s [TBD] (line %d) -- E2E-52/P3-7 lowers PAGESIZE/LINESIZE ONLY as \
+        measured by golden/e52p7 and OPEN-MATRIX.tsv: a titleless PRINT open with PAGESIZE \
+        literal <=0xFF (E52TD/P021:6), 16-bit literal (E52TJ pagesize(300)) or a plain \
+        fixed-bin VARIABLE (E52TI); a titled PRINT open with PAGESIZE(0) as bit+zero word \
+        (E52TB/LOAN2:54), literals <=0xFF in w5 and/or w6 (E52TG/E52TH) or BOTH attributes \
+        VARIABLE (E52TF/COPYLPT:38); a titled `stream output' open with a LINESIZE literal \
+        <=0xFF (E52TE/KEYFILE:19).  %s" what s.Ast.spos.Source.line why)
+
+let classify_open_attr st s key (v : Ast.expr option) : open_attr =
+  match v with
+  | None ->
+      refuse_attr_shape s (Printf.sprintf "%s with no operand" key)
+        "every measured attribute carries a parenthesised value; the bare spelling has no object"
+  | Some { Ast.e = Ast.Enumber txt; _ } ->
+      (match int_of_string_opt txt with
+       | None ->
+           refuse_attr_shape s (Printf.sprintf "%s(%s) non-decimal literal" key txt)
+             "only plain decimal literals are measured"
+       | Some n ->
+           if n < 0 || n > 0xffff then
+             refuse_attr_shape s (Printf.sprintf "%s(%d) outside 16 bits" key n)
+               "no attribute beyond 0xFFFF has ever been put to DR"
+           else if n = 0 then A_zero
+           else if n <= 0xff then A_lit8 n
+           else A_lit16 n)
+  | Some { Ast.e = Ast.Eident nm; _ } ->
+      (match (try Some (List.assoc (String.lowercase_ascii nm.Ast.orig) st.vars)
+              with Not_found -> None)
+       with
+       | Some vi when vi.vk = Vint && vi.size = 2 -> A_var nm
+       | _ ->
+           refuse_attr_shape s (Printf.sprintf "%s(%s) on a non-default-FIXED-BINARY operand" key nm.Ast.orig)
+             "the only VARIABLE attributes measured (E52TI/E52TF, COPYLPT:38) are plain automatic \
+              fixed bin 2-byte DATA cells; STATIC storage class, DEC/FLOAT/CHARACTER operands and \
+              qualified or subscripted references are UNMEASURED on this route")
+  | Some _ ->
+      refuse_attr_shape s (Printf.sprintf "%s of an EXPRESSION" key)
+        "no measured attribute operand is an expression; PLAN §P3-7 §4 keeps it refused"
+
+(* the measured combination matrix (LEARNINGS § hop-2 decode); everything outside refuses. *)
+let open_attr_plan st s opts (title : bool) : open_attr * open_attr =
+  let has k = List.exists (fun (o : Ast.io_opt) -> o.Ast.io_key = k) opts in
+  let find k =
+    match List.filter (fun (o : Ast.io_opt) -> o.Ast.io_key = k) opts with
+    | [] -> A_absent
+    | [ o ] -> classify_open_attr st s k o.Ast.io_val
+    | _ -> assert false   (* check_open_options refuses a repeated keyword first [C285] *)
+  in
+  let ps, ls = find "PAGESIZE", find "LINESIZE" in
+  if ps = A_absent && ls = A_absent then (ps, ls)
+  else if has "PRINT" then
+    (match title, ps, ls with
+     (* titled PRINT: TA/TC class (handled above), TB zero, TG/TH literals, TF both-variable *)
+     | true,  (A_absent | A_zero | A_lit8 _), A_absent
+     | true,  A_lit8 _, A_lit8 _
+     | true,  A_var _, A_var _
+     (* titleless PRINT: TA plain, TD literal <=0xFF, TJ 16-bit literal, TI variable *)
+     | false, (A_absent | A_lit8 _ | A_lit16 _ | A_var _), A_absent -> (ps, ls)
+     | _ ->
+         refuse_attr_shape s
+           (Printf.sprintf "PRINT titled=%b with the attribute shapes given" title)
+           "the titled ZERO-restoration after a clobbering w5 (LHLD/LXI H) is UNMEASURED — \
+            B holds the title length there, so `MOV H,B' is not zero and no measured titled — \
+            object writes a zero word after one; linesize-alone on a titled PRINT open, a \
+            16-bit LINESIZE, pagesize(0) titleless and mixed literal/variable pairs likewise \
+            have no DR object")
+  else if has "OUTPUT" && has "STREAM" && title then
+    (match ps, ls with
+     | A_absent, A_lit8 _ -> (ps, ls)          (* TE / KEYFILE:19 *)
+     | _ ->
+         refuse_attr_shape s "stream OUTPUT attribute"
+           "the only attribute measured on an OUTPUT open is a LINESIZE literal <=0xFF with a \
+            TITLE (E52TE, KEYFILE:19); PAGESIZE never appears on an output row of the census")
+  else
+    refuse_attr_shape s
+      (Printf.sprintf "%s attribute without PRINT or titled stream OUTPUT"
+         (if ps <> A_absent then "PAGESIZE" else "LINESIZE"))
+      "INPUT, modeless, ENVIRONMENT, KEYED and DIRECT opens carry NO measured PAGESIZE/ \
+       LINESIZE object (E46G6/E46H6 measured only the duplicate-keyword CONFLICT diagnosis)"
+
+(* [E2E-52/P3-7] THE register-reuse ladder, reproducing all ten golden/e52p7 blocks byte for
+   byte.  State after the w1 `LXI H,w1 / PUSH H': HL is DIRTY (nonzero).  The FIRST zero word
+   re-materialises HL: titled => `LXI H,0000' (B holds the title length, so MOV-from-B is not
+   zero — TB/TE/TF/TG/TH); titleless => `MOV H,B / MOV L,B' (the XRA A/MOV B,A prologue left
+   B = 0 — TA/TD/TI/TJ).  Further zeros are BARE `PUSH H' (HL already 0000).  A <=0xFF
+   literal is `MVI L,v' — legal because H is already 0 — leaving L DIRTY; the next zero then
+   costs ONE byte: `MOV L,B' titleless (TD) or `MOV L,H' titled (TG, H is 0 because MVI L never
+   touched it).  A 16-bit literal or a VARIABLE (`LHLD <cell>' + DATA reloc) clobbers BOTH halves;
+   the next zero re-materialises from B (`MOV H,B / MOV L,B' — TI/TJ); the titled version of
+   that transition is UNMEASURED and open_attr_plan never routes to it. *)
+let open_emit_words st ~titled (w1 : int) (ps : open_attr) (ls : open_attr) =
+  d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8); d st op_push_h;   (* w1 *)
+  if titled then (d st op_lxi_h; d st 0x00; d st 0x00)
+  else (d st op_mov_h_b; d st op_mov_l_b);
+  d st op_push_h;                              (* w2 ORGANIZATION: zero *)
+  d st op_push_h; d st op_push_h;              (* w3 BLOCK, w4 FILE: zero *)
+  (match ps with
+   | A_absent | A_zero -> d st op_push_h
+   | A_lit8 v -> d st op_mvi_l; d st (v land 0xff); d st op_push_h
+   | A_lit16 v -> d st op_lxi_h; d st (v land 0xff); d st (v lsr 8); d st op_push_h
+   | A_var n -> d st op_lhld; reloc st Data (addr_of st n.Ast.orig); d st op_push_h);
+  (match ls with
+   | A_absent | A_zero ->
+       (match ps with
+        | A_absent | A_zero -> d st op_push_h
+        | A_lit8 _ ->
+            if titled then d st op_mov_l_h else d st op_mov_l_b;
+            d st op_push_h
+        | _ ->
+            (* zero after a CLOBBERING w5: measured titleless only (TI/TJ `MOV H,B/MOV L,B'). *)
+            if titled then
+              failwith
+                "codegen: OPEN titled PAGESIZE-attribute followed by a zero LINESIZE word \
+                 [TBD] -- the re-materialisation route after LHLD/LXI H with B holding a title \
+                 length is UNMEASURED (E2E-52/P3-7); open_attr_plan refuses this shape before \
+                 any byte is emitted, so this arm is defence in depth only"
+            else (d st op_mov_h_b; d st op_mov_l_b; d st op_push_h))
+   | A_lit8 v -> d st op_mvi_l; d st (v land 0xff); d st op_push_h
+   | A_var n -> d st op_lhld; reloc st Data (addr_of st n.Ast.orig); d st op_push_h
+   | A_lit16 _ -> assert false)       (* refused by open_attr_plan: no such w6 measured (A_zero handled above) *)
+
 let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
   check_open_options s opts;
   let fu =
@@ -11113,7 +11286,15 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
                 (List.length opts) s.Ast.spos.Source.line)
   in
   let title = open_title s opts in
-  let w1 = open_mode_word s opts (title <> None) in
+  let w1_pre = open_mode_word s opts (title <> None) in
+  (* [E2E-52/P3-7] the attribute plan runs AFTER the mode guards (a refused mode claims
+     nothing anyway) and BEFORE any byte is emitted; its bits compose with w1 (TB: pagesize(0)
+     sets 0x2000 while pushing the zero word; TE: linesize sets 0x1000; TF/TH: both). *)
+  let attrs = open_attr_plan st s opts (title <> None) in
+  let (ps, ls) = attrs in
+  let w1 = w1_pre
+           lor (if ps <> A_absent then 0x2000 else 0)
+           lor (if ls <> A_absent then 0x1000 else 0) in
   (* [E2E-41/P3b] remember that THIS group was opened for output by a lowered open: the named-file
      PUT takes its attach word (0x0652) from that fact and nothing else [C280].  Recorded only
      after open_mode_word has accepted the combination, so a refused open claims nothing. *)
@@ -11200,11 +11381,7 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
                        STRUCTURE title operand refuses by name rather than borrow a route"
                       n.Ast.orig (vk_name k) s.Ast.spos.Source.line)))
    ; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
-         d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
-         d st op_push_h;
-         d st op_lxi_h; d st 0x00; d st 0x00;
-         d st op_push_h;
-         for _ = 1 to 4 do d st op_push_h done
+         open_emit_words st ~titled:true w1 ps ls
    | None ->
        (* DR's zero-length title: XRA A / MOV B,A / PUSH B / INX SP, leaving one zero byte
           on the stack above the six words (P0 section 2).  Not invented -- the IDENTICAL
@@ -11215,8 +11392,7 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
           byte and not a word: DR's parameterless-CALL convention leaves SP one past the
           data [C205]. *)
        d st op_xra_a; d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
-       d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
-       d st op_push_h;
+       open_emit_words st ~titled:false w1 ps ls;
        (* The remaining five words are zero for this form -- and they are zero for
           DIFFERENT documented reasons, which is why no loop of five `LXI H,0000' is used:
             w2 ORGANIZATION  : an ENVIRONMENT datum (P0 section 3: it appears ONLY with
@@ -11239,9 +11415,10 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
                                LINESIZE) and no measured combination of the two.
           DR writes all five with MOV H,B / MOV L,B -- B is still the 0 of the title byte,
           so both halves come from it and HL stays 0000 -- rather than five more LXI H,PUSH H:
-          the register-reuse peephole is part of the byte-exact target [P0 section 2]. *)
-       d st op_mov_h_b; d st op_mov_l_b;
-       for _ = 1 to 5 do d st op_push_h done
+          the register-reuse peephole is part of the byte-exact target [P0 section 2].
+          [E2E-52/P3-7] w5/w6 are no longer hardcoded zeros: open_emit_words walks the
+          measured ladder (TD/TI/TJ spell this shape with nonzero w5 words). *)
+       ()
    | Some (T_lit v) ->
        (* DR's literal-title prologue, 29 bytes total, witnessed at code 0x0006 in
           E17B/E16C/E18A (golden/e2e11i/E17B, golden/e2e11h/E16C, golden/e2e11j/E18A --
@@ -11278,11 +11455,7 @@ let lower_open st (s : Ast.stmt) (opts : Ast.io_opt list) =
        d st op_mvi_a; d st (String.length v land 0xff);
        call_ext st "?SLCTS";
        d st op_mov_b_a; d st op_push_b; d st op_inx_sp;
-       d st op_lxi_h; d st (w1 land 0xff); d st (w1 lsr 8);
-       d st op_push_h;
-       d st op_lxi_h; d st 0x00; d st 0x00;
-       d st op_push_h;
-       for _ = 1 to 4 do d st op_push_h done);
+       open_emit_words st ~titled:true w1 ps ls);
   load_file_cb st fu;
   call_ext st "?OIOOP"
 
