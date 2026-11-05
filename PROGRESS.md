@@ -2324,19 +2324,31 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 333
-checkpoint-id: g333-6ad86fe064de
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 334
+checkpoint-id: g334-55020a776022
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-05T02:26:09.402Z
+checkpointed: 2026-11-05T02:27:28.398Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 2402bc792ea630b4af06d1297086177229654b814a5f6308e2793b0b65ae26ec
-source-handoff: 48e538c2314733e406be0dd3bb55beef0422ccf01f4df61b6220f5af4d406746
-source-learnings: 4ad583141515c33fcfda40f22e861d3db9249180b2eaa87a2016e84385758906
+source-progress: afad39cc696cd899e5ce13d9b78db6bbc3ceb0990eab86cfb09c15af76457d20
+source-handoff: 32c807b0db755f3844435a1fac3465c098a7c68d5947d895aae2e32dd930d357
+source-learnings: 47e6f6728b414ecc3ca19da919d64e9e1fb62b20e818d0a39e72775a84edaaeb
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: `: (1) defensive `| PIrep _ -> a` prescan-fold arm (PA-class Warning 8) + rebuild
+next-action: `:
+  PROPOSED P3-6 = ON UNDEFINEDFILE (LOAN2 44) NEW ground — PLAN §P3-6 + probes collision-grepped
+  and COMMITTED BEFORE any ocaml/ byte, ONE grouped campaign rc DIRECT, classify honestly.
+  Ledger ENDS **C363**; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged;
+  all rc DIRECT; no push; campaign continues.
+
+0a-novies-new4. **E2E-52/P3-5 hop 8: ARM LANDED — the `Pi_rep`/`PIrep` DATA-item repetition is
+  BYTE-EXACT on all 7 accepted e52p5 probes (commit `aeda739`; 2026-11-05, hop 8/12).** Build rc=0
+  DIRECT, binary `a55ef4eb7c7e51fb…`; **cmp RA RB RD RF RH RI RJ whole-file rc=0 vs
+  `golden/e52p5/`**; RB decoded the patch law (non-final rep JP → NEXT item start; final → the
+  close `?QIOOP`). RC BY / RG char-var / RE REVERSE refuse rc=2 BY NAME (boundaries KEPT).
+  SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-5 hop 8: ARM LANDED" and execute `PROGRESS.md` →
+  `## Next action`: (1) defensive `| PIrep _ -> a` prescan-fold arm (PA-class Warning 8) + rebuild
   + re-verify 7 cmps + warning histogram vs 70; (2) sweep 89, markers rc=2, LOAN2 POSITIONAL
   VERBATIM (predicted line-177 `PIvar yp`, NEVER fit); (3) registration +7 SPECIMENS + RE row,
   `--update-inventory` 1222→1229 / negatives 182→183, census OWN path FIRST, gate rc=0
@@ -2875,6 +2887,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1a973-24de-753f-82d0-316482d86ac2
+readiness-at: 2026-11-05T02:27:28.411Z
+readiness-checkpoint: g334-55020a776022
 <!-- guard:end checkpoint -->
 
 ## Blockers
