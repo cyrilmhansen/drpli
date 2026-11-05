@@ -1,0 +1,38 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52VB
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52VB
+
+   1 a 0000 E52VB: procedure options(main);
+   2 a 0006 
+   3 a 0006    /* E2E-52/P3-9 probe VB (PLAN sec P3-9 H1/H2): exact LOAN2
+   4 a 0006       line-91 OR shape. Predicted fold = LOAN2 bytes verbatim
+   5 a 0006       (SN and RB agree here): 2A r(dl) / 2B x3 / 7C / 2F / F5 /
+   6 a 0006       3A r(dl+1) / C1 / B0 / F2 skip = 17 bytes. */
+   7 a 0006 
+   8 c 0006    dcl dl fixed binary;
+   9 c 0006    dcl x fixed bin;
+  10 c 0006 
+  11 c 0006    if dl < 0 | dl > 2 then x = 1;
+  12 c 001D    x = 2;
+  13 c 0023 
+  14 a 0023 end E52VB;
+
+CODE SIZE = 0026
+DATA AREA = 0004
+FREE SYMS = 38AF
+END  COMPILATION
+

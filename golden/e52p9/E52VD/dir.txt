@@ -1,0 +1,20 @@
+0:
+-rw-rw-rw-     128 Jan 01 1970  dio80.dcl
+-rw-rw-rw-    1664 Jan 01 1970  diomod.dcl
+-rw-rw-rw-     431 Jan 01 1970  e52va.pli
+-rw-rw-rw-    1152 Jan 01 1970  e52va.prn
+-rw-rw-rw-     128 Jan 01 1970  e52va.rel
+-rw-rw-rw-     390 Jan 01 1970  e52vb.pli
+-rw-rw-rw-    1152 Jan 01 1970  e52vb.prn
+-rw-rw-rw-     128 Jan 01 1970  e52vb.rel
+-rw-rw-rw-     387 Jan 01 1970  e52vc.pli
+-rw-rw-rw-    1152 Jan 01 1970  e52vc.prn
+-rw-rw-rw-     128 Jan 01 1970  e52vc.rel
+-rw-rw-rw-     352 Jan 01 1970  e52vd.pli
+-rw-rw-rw-    1024 Jan 01 1970  e52vd.prn
+-rw-rw-rw-     128 Jan 01 1970  e52vd.rel
+-rw-rw-rw-     640 Jan 01 1970  fcb.dcl
+-rw-rw-rw-     128 Jan 01 1970  matsize.lib
+-rw-rw-rw-    1152 Jan 01 1970  mpmdio.dcl
+-rw-rw-rw-     384 Jan 01 1970  record.dcl
+-rw-rw-rw-    6016 Jan 01 1970  z80.lib
