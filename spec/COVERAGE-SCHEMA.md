@@ -48,6 +48,24 @@ Maintenance: add a row when a contract is *established or falsified*, not when a
 A specimen belongs to an existing row unless it changes what is known.  Run
 `python3 tools/coverage_check.py` after any edit; it must exit 0 before commit.
 
+## Contract-identity invariant (E2E-52/P3-8 close)
+
+`spec/COVERAGE-IDS.txt` is the tracked manifest of registered contract IDs — one canonical ID
+per line, in ledger order, plus `#` comment lines.  `tools/coverage_check.py` compares the
+ledger's ID set against it by **exact set equality**: a removed, renamed or substituted
+contract fails validation even when every surviving row is internally valid.  This exists
+because commit `0cf0688` replaced the ledger with an obsolete 71-row snapshot and a
+row-content-only validator reported rc=0 — internal validity proves nothing about identity.
+
+* Legitimate addition: edit the ledger row **and** the manifest line in the same reviewed
+  change; inspect both diffs.  Nothing regenerates the manifest automatically, and a new ID
+  without a manifest update is an error, not a warning.
+* An existing contract corrected or superseded keeps its stable ID (see column 1).
+* Removal or rename is an explicit, reviewable scientific correction — never a side effect
+  of a tool.  `tools/coverage_gen.py` is a neutralized fail-closed stub; the only writer of
+  the derived statistics `spec/census/coverage-stats.json` is `tools/coverage_check.py`, and
+  it publishes them only after a fully clean validation.
+
 ## Categories
 
 `LEX DECL AGG STOR EXPR COND LOOP TRAN PROC IO FILE OBJ ABI RTME NEG BUILTIN`.
