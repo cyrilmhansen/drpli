@@ -43,6 +43,20 @@ LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, 
 C359 derived ONLY from the existing measured evidence.
 
 **Next: see `## Next action
+### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
+
+NEXT ACTION: **NO active round on this chain — it is CAPPED at hop 12/12.** This session:
+refresh+attest via `handoff_finalize`, commit the managed blocks VERBATIM, reverify freshness,
+**STOP — NEVER `handoff_renew` past the cap.** SUCCESSOR (only after the operator archives/resets
+`.pi-guard/renewal-state.json`): PROPOSED **E2E-52/P3-7 = OPEN PRINT / PAGESIZE / LINESIZE** from
+LOAN2 line-54 — read HANDOFF item 0a-novies-new8 + LEARNINGS § "hop 12 = CAP"; inspect existing
+`spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv` + LOAN2/COPYLPT goldens; PROPOSED probes + PLAN
+§P3-7 COMMITTED BEFORE any `ocaml/` byte; NO oracle campaign without a new operator brief.
+Constraints: no push; goldens NEVER re-derived; SE stays my-gap, SF/SG stay dr-refuses; LOAN2
+refuses at line 54 UNFIXED; no runtime assertions; operator `handoff.config.json` NEVER staged;
+all rc DIRECT; `pli80c` POSITIONAL; ledger ENDS **C364**.
+
+SUPERSEDED-BY-ABOVE:
 ### E2E-52/P3-6 hop 11 DONE — campaign e52p6 MEASURED (5 ok/7) + ARM LANDED `8fc0a3b` (4/4 accepted cmp rc=0); REGISTRATION OWED at hop 12 = CAP 12/12 (read `LEARNINGS.md` § "hop 11: campaign e52p6 MEASURED + ARM LANDED" FIRST)
 
 HEAD `8fc0a3b`; binary `0efc35e6d4ff81bd…`; codegen warnings 68 == baseline; sweep **110/0**;
@@ -2386,17 +2400,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 338
-checkpoint-id: g338-ab850764b4e7
-checkpoint-kind: manual
+checkpoint-generation: 340
+checkpoint-id: g340-d834ffd850ff
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T03:17:41.853Z
+checkpointed: 2026-11-05T05:03:22.795Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d64863701b6d6525459c4b53a434004622c8d570f3349b2d0f125ae710d8dafb
+source-progress: 7f0db2d9935aabc3451bb1af091349d45300c1389f7544be72c3017a9c3d55d1
 source-handoff: 0baef20f01fd31a11b9c8177c4132d46c0aff41cbb943e91bf3ed282625eb1a8
-source-learnings: 4bf587a96a248cda5000da9bf5edeffa3620ed514ded7eebe49618b30de0bc8d
+source-learnings: b272ebd09f879f4aa7db2e834db230c63b33ccf587b6218b7f94dea0f35efe59
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `, then hop-12 CAP contract: registration (SPECIMENS + refusals SF/SG/SE, `--update-inventory` measured delta from 1229, census OWN path FIRST, gate rc=0 `build/gate-e52p6-reg.log`, **C364 measured-bytes-only BEFORE** the COVERAGE `ON`-unit rewrite, coverage_check+prose rc=0, RESULTS §P3-6 + PLAN §5 row), durables, then **`handoff_finalize` — NEVER `handoff_renew` past the cap**. Ledger ENDS **C363**; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc DIRECT; no push.
 
@@ -2963,9 +2977,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a9a0-6536-753f-82d0-316c9ba56ab2
-readiness-at: 2026-11-05T03:17:41.876Z
-readiness-checkpoint: g338-ab850764b4e7
 <!-- guard:end checkpoint -->
 
 ## Blockers
