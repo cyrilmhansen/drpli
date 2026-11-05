@@ -7366,3 +7366,39 @@ ACCEPTED decode (every block = prologue, PUSH words w1..w6, `LXI H,*CB`, `CALL ?
   then `/handoff` + commit durables VERBATIM. NO new oracle campaign, NO next-blocker work: PROPOSED
   next subround P3-9 = the OR/compound-condition class (LOAN2:91) — decode EXPR1/E37/E38 goldens
   FIRST, pre-register PLAN §P3-9 + probes BEFORE any `ocaml/` byte.
+
+## E2E-52/P3-8 hop 3 DOCS CLOSE + A LEDGER-CLOBBER REPAIR (2026-11-05, session 01a1abba, renewal 1/12)
+
+- **FALSIFIED (my predecessor's closure claim, accepted by measurement):** the hop-3 statement "COVERAGE
+  rewrite `0cf0688` … coverage_check rc=0 140 rows 0/0" did NOT describe the tree. `0cf0688` replaced
+  `spec/COVERAGE.tsv` with a 72-line stale snapshot (141→72 lines) whose `COND.ON_ERROR` row was still
+  REFUSED/NONE; the rewrite never landed. The commit's own `coverage-stats.json` delta (rows 140,
+  SUPPORTED 90, REFUSED 21, MEASURED 114, SINGLE_SAMPLE 18) matches the INTENDED good file, so the file
+  content was overwritten AFTER the correct stats were computed.
+- **ROOT CAUSE (accepted):** `tools/coverage_gen.py` is an obsolete generator holding a hard-coded
+  E2E-36-era row list and ends in `open('spec/COVERAGE.tsv.new','w')` + `os.replace(...)` — running it
+  "as the stats' own write path" silently destroys the hand-authored ledger. **LAW: the stats' own write
+  path is `tools/coverage_check.py` (it alone writes `spec/census/coverage-stats.json`);
+  `coverage_gen.py` must NEVER be run on this tree.** Nothing else references it (grepped).
+- **PROCEDURE (accepted):** a rewrite of a machine-maintained ledger must be verified by CONTENT, not by
+  the validator's exit code — `git diff --stat` (expect ~1 line changed for one row) and re-reading the
+  target row. A validator rc=0 on a shrunken file proves only internal consistency. A gate run placed
+  BEFORE a docs commit cannot catch damage done by that commit.
+- **REPAIR (accepted, verified):** restore from `git show 17c9963:spec/COVERAGE.tsv` (last good state) +
+  re-apply the intended row via a csv column-edit; verification `coverage_check.py` rc=0 140 rows 0/0
+  SUPPORTED 90 == the committed stats (stats did NOT move, which is the consistency proof), prose rc=0;
+  evidence `build/e52p8-reg/coverage-repair.log`, `prose-repair.log`. Commit `86db760`.
+- **ACCEPTED (two sub-falsifications found while re-authoring):** (1) `COND.ON_ERROR`'s old
+  "the BEGIN-body handler is a second refusal" is FALSIFIED by E52UD (a plain returning `BEGIN…END`
+  handler is lowered); `N80_ON_HANDLER_BEGIN` still refuses, but on a `procedure without name` diagnosis
+  of its `BIT(1) STATIC initial` body — an unrelated parser `my-gap`, NOT the ON unit. (2) The row's
+  corpus demand claim (`UPDATE,OPTIMIST`) is FALSIFIED: `grep -il "on error" artefacts/*.PLI` names
+  exactly ANNUITY, COPYLPT, EXPR1, EXPR2, LOAN2.
+- **PRECISION (accepted from reldumps):** [C366]'s phrase "NO relocation of any kind in its
+  registration" is too broad read literally — the registration region does carry the `?ONCOP` CHAIN-EXT
+  and the jump-over slot's `RELOC code`; what is true (and what the bytes measure) is NO COMMON group /
+  NO SEL-COMMON record and NO relocation ON THE ARGUMENT OPERAND. Recorded in RESULTS §P3-8 §3; the
+  ledger wording itself was NOT touched (a metadata-only ledger correction is PROPOSED, not done).
+- **PROPOSED (never authorization):** neuter or delete `tools/coverage_gen.py`; add a gate assertion that
+  `COVERAGE.tsv`'s row count never decreases without a labelled correction commit; re-run the FULL gate
+  (`python3 tools/e2e_gate.py`) once to confirm the combined state after this restore.
