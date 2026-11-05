@@ -45,6 +45,59 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
+## Next action (hop 3 IN FLIGHT, 2026-11-05, renewal 3/12)
+
+**E2E-52/P3-7 hop 3: BUILD + CMPs + LOAN2 + SWEEP + MARKERS + ARM COMMIT + REGISTRATION (1/3 SPECIMENS+inventory, 2/3 census) + GATE + CLAIM C365 ALL LANDED; COVERAGE + RESULTS/PLAN ROWS + DURABLES OWED (hop 4).**
+
+ACCEPTED (measured this hop, all rc DIRECT): `dune build` rc=0 after ONE defect fix — the hop-2
+draft had written literal `\u00a7`/`\u2014` escapes in four message/comment strings (4 NEW Warning 14
+illegal-backslash AND mojibake `u00a7` inside refusal text); replaced with the real characters this
+file already uses (89 times). A second draft defect `| A_zero | A_lit16 _ -> assert false` had a
+redundant sub-pattern (1 NEW Warning 12) — removed, behaviour unchanged (A_zero is handled by the
+preceding case). Final: binary sha256 `8b374e623bc9e280fa148ac1f9382ddecaf160a0315d21bd31223a66fbc924cd`,
+codegen warning histogram **68 == baseline** (per-File count of the full clean log; the log double-prints
+each warning, so 68 lines = 34 unique). **cmp E52TA..E52TJ whole-file rc=0 = 10/10** vs `golden/e52p7/`
+(goldens `272a996`, NEVER re-derived). LOAN2 UNMODIFIED POSITIONAL rc=2, blocker ADVANCED VERBATIM past
+54/56 to `codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) and UNDEFINEDFILE(<file>) have
+a DR lowering; line 58)` — §P3-7 §3 prediction HIT, **NOT fixed** (later subround). Sweep
+`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` = **114 specimens byte-exact / 0 FAIL**
+(`build/e52p7-verify/sweep-e52p7.log`) — NOT 110: the bank grew by the four E52SA..SD rows registered in
+`91592c0` AFTER hop 12 counted 110. Markers rc=2 intact: E46K4, E46K15, E46N21, E52PF, E52PU, E52PV,
+E52RE + SE/SF/SG. Commits: arm `ccf0036` (ocaml/lib/codegen.ml only); SPECIMENS +10 rows and sanctioned
+`--update-inventory` 1233→**1243** diff EXACTLY +10 specimen lines, 0 removals, refusals stay 186
+(`6b8d851`); census OWN write path `corpus_census.py --check spec/census/corpus-census.json` rc=0 counts
+UNCHANGED 15/0/26/0 (`f6fd2b9`) — TWO rows moved VERBATIM: LOAN2 (line 54→58, see above) and **RETRIEVE
+advanced past its line-19 `title(name) print` open to `OPEN option ENVIRONMENT … (line 31)`** — a real
+advance, no claim; every other OPEN row unchanged because the census truncates the message where the
+pinned `OPEN option <KEY> is outside` PREFIX still stands. FULL gate REAL **rc=0** DIRECT
+`build/gate-e52p7-reg.log` (1243/0 of 1243, negatives 186/186, divergence 9/9, coverage 139 rows 0/0,
+census 15/0/26/0, prose 5). Claim **C365** from MEASURED BYTES ONLY committed BEFORE COVERAGE `a6e814f`.
+
+FALSIFIED THIS HOP (procedure, mine): a global `\'`→`'` text replace in `tools/e2e_gate.py` to clean
+three apostrophes in my NEW COMMENT destroyed 30 legitimate escapes inside single-quoted Python strings
+→ SyntaxError at line 3647. Recovered by rewriting the file from `git show HEAD:tools/e2e_gate.py`
+(verified clean in `git status` BEFORE my edit, so only my own work was lost) and re-applying the block
+without backslashes; `python3 -m py_compile` rc=0 and `git diff` = 72 insertions / 0 deletions before
+commit. LESSON: never bulk-replace quote escapes across a Python file; scope replacements to the block
+you added, and run py_compile after ANY tools/ edit.
+
+OWED at hop 4 (small, docs-only + one ledger row; NO new oracle campaign):
+(1) COVERAGE: row 52 `FILE.OPEN_STREAM` perimeter/boundary text still says `Still refused by name: PRINT/…`
+    — FALSIFIED by the arm; rewrite it VERBATIM-preserving history (falsified clauses kept as HISTORICAL,
+    id KEPT) citing [C365] + the 10 goldens, and PROPOSED new row `FILE.OPEN_PRINT_ATTRS`
+    (mine_status=SUPPORTED, rel_parity EXACT:10, probes E52TA..TJ, corpus COPYLPT/DEPREC/KEYFILE/LOAN2/
+    P019B/P021/RETRIEVE, boundary naming every KEPT refusal). Then `python3 tools/coverage_check.py` rc=0
+    (expect 140 rows 0/0) and refresh coverage stats via its OWN write path.
+(2) `spec/lab-evidence/e2e52-p3/RESULTS.md` §P3-7 (10-probe table with the measured sizes/code/DATA from
+    tools/e2e_gate.py's SPECIMENS comment, hypothesis verdicts H1-H5 CONFIRMED, TI falsifier + TG/TH total
+    falsifications VERBATIM, TJ accept branch, LOAN2/RETRIEVE advances, §6 NOT-say byte-tier-only) +
+    `PLAN.md` §5 P3-7 progress row; `python3 tools/file_prose_check.py` rc=0 standalone.
+(3) Durables + explicit-path commits; renewal chain 01a1aa7d — check `handoff.config.json` cap before
+    renewing. Ledger ENDS **C365**. Constraints: no push; goldens NEVER re-derived; SE my-gap + SF/SG
+    dr-refuses KEPT; operator `handoff.config.json` NEVER staged; all rc DIRECT (never a pipeline tail);
+    `pli80c` POSITIONAL. Standing PROPOSALS (never authorization): ON ERROR (LOAN2:58) as P3-8;
+    SE `?REVOP` arm; ENVIRONMENT (RETRIEVE:31 / REPORT:29 36-B `4E52` block).
+
 ### E2E-52/P3-7 hop 1 DONE — PRE-REGISTRATION LANDED `2bca084` (ZERO ocaml/, ZERO oracle); campaign `e52p7` OWED (2026-11-05, fresh chain)
 
 Verified this hop: HEAD `c0ce1a1` at start, checkpoint **g341-6c8d927fdd83 CURRENT + attested** by five-source
@@ -57,18 +110,22 @@ A–F (bytes + w1 bits + the register-reuse ladder incl. `PAGESIZE(0)` = bit 0x2
 Probes **E52TA..TJ** committed BEFORE any compiler byte; four UNDECIDABLE boundaries (TG/TH/TI/TJ) carry
 byte-exact predictions and falsifiers.
 
-NEXT ACTION (hop 2, ONE grouped oracle campaign — these probes create whole-file witnesses for forms that
-exist today ONLY inside multi-blocker historical programs, they do not re-derive existing evidence):
-`cd /home/john/projects/sushiworks/pli80 && PLI_SRC=probes timeout 900 python3 oracle/batch.py E52TA E52TB E52TC E52TD E52TE E52TF E52TG E52TH E52TI E52TJ --tag e52p7 --switches '$L$D'`
-rc DIRECT; classify per PLAN §3 (a dr-refuses verdict — TJ especially — is recorded verbatim and NEVER fitted);
-commit `golden/e52p7/` by explicit path. THEN arm `ocaml/lib/codegen.ml` only: extend `open_subset_keys` with
-PRINT/PAGESIZE/LINESIZE, separate the attribute-flag encoding from parameter emission (`{ w1; w5; w6 }`), reuse
-the three title prologues, emit w2..w6 by the measured ladder, keep every unmeasured shape refusing BY NAME with
-[TBD]. Then cmp accepted probes whole-file rc=0 vs `golden/e52p7/`, compile LOAN2 UNMODIFIED and record its NEW
-blocker VERBATIM (predicted: past 56, `ON ERROR` line 58 — belongs to a LATER subround, do NOT fix), run the
-relevant sweep + full compile-tier gate rc=0 DIRECT, register SPECIMENS + `--update-inventory`, census via its
-OWN write path, claim **C365** measured-bytes-only BEFORE the COVERAGE rows, coverage_check + prose rc=0,
-RESULTS §P3-7 + PLAN §5 row, durables.
+NEXT ACTION (hop 2 CLOSED mid-arm, hop 3 OWED): campaign e52p7 MEASURED 10 ok/10 rc DIRECT, ZERO
+dr-refuses, goldens committed VERBATIM `272a996`; decode/ladder/matrix in `LEARNINGS.md` § "hop 2:
+campaign e52p7 MEASURED". ARM codegen.ml ONLY, UNCOMMITTED in tree: open_subset_keys +PRINT/
+PAGESIZE/LINESIZE; refuse_file_opt OPEN narrative rewritten (pinned KEYED/RECORD/SEQUENTIAL/
+UPDATE prefixes kept — census msgs WILL move); open_mode_word n_print guards (print+INPUT/print+
+OUTPUT refuse) + print base 0x0652/0x0E52 branch before modeless; open_attr/A_var classifier
+open_attr_plan enforcing the measured matrix; open_emit_words ladder replaces all three hardcoded
+w2..w6 tails; op_mvi_l/op_mov_l_h added. ONE compile error was FIXED (Unbound value s in the
+defensive titled refusal → plain failwith) but the build was NOT re-run since — FIRST ACTION hop 3:
+`cd ocaml && eval "$(opam env)" && dune build` rc DIRECT (rc=0 NOT yet verified; the tail-pipe
+masked rc=1 AGAIN this hop). Then warnings histogram vs 68; cmp TA..TJ whole-file rc=0 vs
+golden/e52p7; LOAN2 UNMODIFIED POSITIONAL blocker VERBATIM (predicted `ON ERROR … line 58`, do NOT
+fix); sweep 110; markers E46K4/K15/N21/E52PF/PU/PV/RE rc=2; COMMIT arm explicit paths; then
+registration: SPECIMENS +10, --update-inventory delta from 1233 (NO refusal rows — zero dr-refuses),
+census OWN write path FIRST, gate rc=0 DIRECT build/gate-e52p7-reg.log, C365 measured-bytes-only
+BEFORE COVERAGE, coverage_check+prose rc=0, RESULTS §P3-7 + PLAN §5 row, durables.
 Constraints: no push; goldens NEVER re-derived; P3-6 `ON UNDEFINEDFILE` intact; SE my-gap / SF/SG dr-refuses kept;
 operator `handoff.config.json` NEVER staged; all rc DIRECT (never a pipeline's); `pli80c` POSITIONAL; renewal
 chain FRESH (no `.pi-guard/renewal-state.json`, 0/12 used); ledger ENDS **C364** until C365 is measured.
@@ -2428,19 +2485,21 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 343
-checkpoint-id: g343-d0a7d6c5c4d1
+checkpoint-generation: 348
+checkpoint-id: g348-9543a8b23aee
 checkpoint-kind: auto
-content-delta: new
-readiness: attested
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T07:19:49.167Z
+checkpointed: 2026-11-05T08:10:50.712Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1862415a2a7cedcfa795c4bcb12e0d5ea7397e258fe8bb1a0b2823085e4b5da0
-source-handoff: e06f196bb0394bb0a9976f2c20e346c57094ccec4ad47c76cdca05d107cea3f1
-source-learnings: 833d282a246aeb8b3c756cf978f48b674ba84410f83e229ab1113e675b266a8b
+source-progress: 0cc9923b5b7f4c2aa10575ee305d3e91430c8078b48e0008fee4696122851e07
+source-handoff: 026d4e6c9deb3555b7fe18ba936232aa230196a6de4434e191a5659face8f927
+source-learnings: 1bd057491c80c2dbfa65dca70d936acec50b209b83ac4b90fbc5d3b108147a9c
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: `: ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52TA E52TB E52TC E52TD E52TE E52TF E52TG E52TH E52TI E52TJ --tag e52p7 --switches '$L$D'` rc DIRECT, classify honestly (TJ verdict verbatim, NO fitting), then arm `open_mode_word` + the w2..w6 emitter ONLY, cmp accepted probes whole-file rc=0 vs `golden/e52p7/`, LOAN2 POSITIONAL VERBATIM (predicted blocker past 56 = `ON ERROR` line 58 — a LATER subround, do NOT fix), sweep, markers, registration, claim **C365** measured-bytes-only, COVERAGE rows, gate, close. Ledger ENDS **C364**; goldens NEVER re-derived; SE stays my-gap, SF/SG stay dr-refuses; no runtime assertions; operator `handoff.config.json` NEVER staged (dirty standing edit); renewal chain FRESH (operator archived `.pi-guard/renewal-state.json`; no state file present, 0/12 used, cap 12, autoRenew true); all rc DIRECT (the pipe-masked-rc trap fired again this hop); no push.
+next-action: ` hop-3 contract exactly; full decode in `LEARNINGS.md` § hop 2. Ledger ENDS C364; goldens NEVER re-derived; LOAN2 NEW blocker (predicted ON ERROR 58) recorded VERBATIM, NOT fixed; SE my-gap/SF/SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT (pipe trap fired again); pli80c POSITIONAL; no push; renewal 2/12 cap 12.
+
+0a-novies-new9. **E2E-52/P3-7 hop 1: PRE-REGISTRATION LANDED — OPEN PRINT/PAGESIZE/LINESIZE (`2bca084`); ORACLE CAMPAIGN `e52p7` OWED (2026-11-05, fresh chain hop 1).** Recovery VERIFIED first: HEAD `c0ce1a1`, checkpoint **g341-6c8d927fdd83 current + attested** (all five source hashes replayed by hand — the supported `/handoff verify` has no CLI path, `LEARNINGS.md` § E2E-49/P4 records the replay), ledger ENDS **C364**, binary `0efc35e6d4ff81bd…` build rc=0, LOAN2 blocker re-measured VERBATIM at line 54 (`OPEN option PRINT … [TBD]`), P019B line 3 / P021 line 4 KEYED / RETRIEVE line 19 / KEYFILE line 16 / COPYLPT SKIP-count / DEPREC array all re-read. NO P3-6 work repeated. ZERO `ocaml/` byte, ZERO oracle call this hop: the whole PRINT/PAGESIZE/LINESIZE class was decoded from EXISTING evidence (`spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt`, `OPEN-MATRIX.tsv`, `W1-BITFIT.txt`) into SIX measured block shapes A–F (P019B 0x0652/21 B; P021:6 0x2652/24 B with `2E 3C` MVI L + `68` MOV L,B; LOAN2:54 0x2E52/29 B — **PAGESIZE(0) is bit 0x2000 plus a ZERO word, it adds NO byte**; LOAN2:56 0x0E52/27 B `?SLVTS`; KEYFILE:19 0x1E50/31 B w6 `MVI L,3C`; COPYLPT:38 0x3E52/33 B variable attrs as `LHLD` + DATA reloc; zero-restoration when B≠0 is `6C MOV L,H`). Probes **E52TA..TJ** (10, all parse+bind, all refuse ONLY at the named OPEN option, rc=2) + PLAN §P3-7 predictions committed BEFORE any compiler byte; four genuinely UNDECIDABLE boundaries (TG titled w5-literal/w6-zero, TH both literals = P0 §10 E46A, TI variable pagesize alone, TJ `pagesize(300)` > 0xFF) carry byte-exact predictions and falsifiers, never fit. SUCCESSOR executes `PROGRESS.md` → `## Next action`: ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52TA E52TB E52TC E52TD E52TE E52TF E52TG E52TH E52TI E52TJ --tag e52p7 --switches '$L$D'` rc DIRECT, classify honestly (TJ verdict verbatim, NO fitting), then arm `open_mode_word` + the w2..w6 emitter ONLY, cmp accepted probes whole-file rc=0 vs `golden/e52p7/`, LOAN2 POSITIONAL VERBATIM (predicted blocker past 56 = `ON ERROR` line 58 — a LATER subround, do NOT fix), sweep, markers, registration, claim **C365** measured-bytes-only, COVERAGE rows, gate, close. Ledger ENDS **C364**; goldens NEVER re-derived; SE stays my-gap, SF/SG stay dr-refuses; no runtime assertions; operator `handoff.config.json` NEVER staged (dirty standing edit); renewal chain FRESH (operator archived `.pi-guard/renewal-state.json`; no state file present, 0/12 used, cap 12, autoRenew true); all rc DIRECT (the pipe-masked-rc trap fired again this hop); no push.
 
 0a-novies-new8. **E2E-52/P3-6 hop 12 = CAP 12/12: SUBROUND CLOSED — REGISTRATION + C364 + FULL GATE rc=0 + FINAL ATTESTATION LANDED (2026-11-05, hop 12/12; this chain ENDS here).** ALL rc DIRECT, ZERO new oracle campaign, ZERO `ocaml/` byte. Chain: goldens committed VERBATIM `5ab8639` (SA 256 SB 384 SC 256 SD 256 SE 256 B + SF/SG refusal PRNs; NEVER re-derived); clean rebuild binary `0efc35e6d4ff81bd…` == hop 11, **4/4 cmp rc=0**, sweep **110/0**, codegen warnings **68 == baseline** (per-File histogram of the full clean log is the honest method — old partial ocaml/build-warn-e52p6.log NOT comparable), SE/SF/SG refuse rc=2 with [TBD]; SPECIMENS +4 + NEGATIVES SF/SG `dr-refuses` + SE `my-gap` (UNARMED, bytes claimed by NOTHING) via sanctioned `--update-inventory` diff EXACTLY +7: 1229→**1233**, 183→**186** `91592c0`; census OWN write path rc=0 counts UNCHANGED 15/0/26/0, LOAN2 blocker VERBATIM line-44→**line-54 `OPEN option PRINT … [TBD]`** (§3 prediction HIT, NOT fitted), EXPR1/EXPR2 catch-all moved `9febae8`; FULL gate REAL rc=0 `build/gate-e52p6-reg.log` (**1233/0, 186/186, 9/9, 139 rows 0/0, census 15/0/26/0, prose 5**); claim **C364** measured-bytes-only `73b9c53` committed BEFORE the COVERAGE `COND.ON_ENDFILE_ONLY` rewrite `6e6ed37` (EXACT:14→**18**, probes +SA SB SC SD, falsified clauses kept VERBATIM as HISTORICAL, id KEPT — stable key; coverage_check rc=0); RESULTS §P3-6 + PLAN §5 row + LEARNINGS hop-12 § + prose rc=0 standalone. **SUCCESSOR (fresh chain ONLY after the OPERATOR archives/resets ignored `.pi-guard/renewal-state.json` — this chain is CAPPED, NEVER `handoff_renew` past 12/12): PROPOSED, never authorization, E2E-52/P3-7 = OPEN PRINT / PAGESIZE / LINESIZE starting at LOAN2 line-54** — inspect existing `spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv` + existing LOAN2/COPYLPT DR goldens (NO new oracle before pre-registration); distinguish `OPEN PRINT` from ordinary `STREAM OUTPUT`; investigate PAGESIZE/LINESIZE independently incl. dynamic values where measured; PROPOSED probes + PLAN §P3-7 COMMITTED BEFORE any `ocaml/` byte; preserve FILE/COMMON layout + attach laws. Standing PROPOSALS: SE `?REVOP` arm (bytes measured, my-gap KEPT); ON ERROR (LOAN2:58). Ledger ENDS **C364**; goldens NEVER re-derived; E52SE stays a measured `my-gap`, SF/SG stay DR refusals, LOAN2 still refuses at line 54, NO runtime assertions; operator `handoff.config.json` NEVER staged (dirty standing edit); all rc DIRECT; no push.
 
@@ -3009,9 +3068,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1aa7d-ff2e-7312-8813-8d246be570f1
-readiness-at: 2026-11-05T07:20:04.507Z
-readiness-checkpoint: g343-d0a7d6c5c4d1
 <!-- guard:end checkpoint -->
 
 ## Blockers

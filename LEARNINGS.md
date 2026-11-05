@@ -6978,3 +6978,65 @@ an operator brief records state and STOPS.
   (P0 §10's E46A question, both literals) uses two `2E vv` pushes; TI variable PAGESIZE alone re-materialises w6
   with `21 00 00`; TJ `pagesize(300)` is undecided (refusal or `21 2c 01`). All four are pre-registered with
   falsifiers in PLAN §P3-7 §3 and will be recorded exactly as measured.
+
+## E2E-52/P3-7 hop 2: campaign e52p7 MEASURED 10 ok/10, goldens `272a996`; ARM IN FLIGHT (2026-11-05, fresh chain hop 2/12)
+
+Campaign rc=0 DIRECT (10 ok/10), EVERY .PRN `NO ERROR(S)` both passes ⇒ **ZERO dr-refuses**. Reldumps
+`build/e52p7/e52t*-reldump.txt`. Goldens committed VERBATIM by explicit path `272a996` (never re-derived).
+ACCEPTED decode (every block = prologue, PUSH words w1..w6, `LXI H,*CB`, `CALL ?OIOOP` @0006..):
+- TA `print` = A verbatim 21B w1 0652 (**H1 CONFIRMED**: print = 0x0002 on base 0x0650, 0x0200 kept).
+- TB `title('$con') print pagesize(0)` = C 29B 2E52, w2..w6 ALL ZERO (**H3 CONFIRMED**: pagesize(0) = bit + zero word).
+- TC `title(name) print` = D 27B 0E52 ?SLVTS (**H2 CONFIRMED**: print bit composes with title bit).
+- TD `stream print pagesize(60)` = B 24B 2652: `AF 47 C5 33 /21 52 26 E5 /60 68 /E5×3 /2E 3C E5 /68 E5` (**H4 CONFIRMED**).
+- TE `stream output linesize(60) title('$1.key')` = E 31B 1E50: `21 00 00 /E5×4 /2E 3C E5`.
+- TF `print pagesize(ps) linesize(lw) title(line)` = F 33B 3E52: w2 `LXI H,0`, PUSH×2, **`2A r(data+2) E5 / 2A r(data+4) E5`** (**H5 CONFIRMED** LHLD+DATA reloc on both vars).
+- TG titled `pagesize(60)` = **byte-enc prediction HIT exactly** (`2E 3C/E5, 6C/E5` MOV L,H after MVI L), block 32B; **FALSIFIED: my pre-reg "30 B" total** (arithmetic slip, kept verbatim).
+- TH titled both literals = **enc HIT** (`2E 3C E5 / 2E 50 E5`, no LXI H, order kept), block 33B; **"30 B" total FALSIFIED** likewise.
+- TI `print pagesize(ps)` **FALSIFIER TRIGGERED**: predicted w6 zero = `21 00 00`; MEASURED `60 68 / E5` (re-materialise HL from B=0). Block 26B, w1 2652. Prediction kept VERBATIM, never fitted.
+- TJ `pagesize(300)` **ACCEPTED** via `21 2C 01` (LXI H full literal) then w6 `60 68 E5`, 26B, w1 2652 — accept branch of the UNKNOWN verdict realised verbatim.
+- KEY LAW (measured ladder, all 10 reproduced): after w1 PUSH state=HLdirty; FIRST zero word: titled ⇒ `21 00 00`, titleless ⇒ `60 68`; further zeros ⇒ bare `E5`; attr literal ≤0xFF ⇒ `2E v` (H already 0) ⇒ state Ldirty; literal >0xFF ⇒ `21 vv vv`; variable ⇒ `2A r(cell)`; both clobber ⇒ HLdirty. Zero after Ldirty ⇒ `68` titleless / `6C` titled; zero after HLdirty ⇒ `60 68` titleless; **titled + zero-after-HLdirty-attr = UNMEASURED → must refuse**. STREAM keyword is BYTE-INVISIBLE on print opens (TD vs TI/TJ identical prologue; TB vs DEPREC:51 identical 2E52/29B).
+- MEASURED combination matrix (allowed spellings ONLY): print|stream+print, titleless ⇒ attrs {none=TA, pagesize lit60 with STREAM=TD, pagesize>FF lit=TJ, pagesize var=TI} (w6 zero restored); titled ⇒ {none=TC/RETRIEVE:19, pagesize(0)=TB/DEPREC:51, pagesize lit≤FF=TG, pagesize+linesize literals=TH, pagesize var+linesize var=TF}; stream OUTPUT titled (no print) ⇒ linesize lit≤FF=TE/KEYFILE:19. Everything else REFUSES BY NAME (print+INPUT, print+OUTPUT spelled, output+pagesize, linesize-alone titleless, any attr modeless/input, titled+var-alone, titled+lit>FF, linesize>FF, linesize var-alone, pagesize(0) titleless, literal EXPRESSIONS, non-Vint var).
+- ARM (ocaml/lib/codegen.ml ONLY, IN FLIGHT UNCOMMITTED): DONE so far — `open_subset_keys` += PRINT/PAGESIZE/LINESIZE (comment cites the ten goldens); `refuse_file_opt` OPEN narrative body rewritten (pinned `OPEN option KEYED/RECORD/SEQUENTIAL/UPDATE is outside` PREFIXES preserved; census messages WILL move → census own write path at registration). OWED: (1) opcode names `op_mvi_l = 0x2e`, `op_mov_l_h = 0x6c` near op_mov_l_b (line ~1174); (2) `open_mode_word`: `n_print = has "PRINT"`; guards `print && n_in` / `print && n_out` → refuse_combination naming e52p7; print branch BEFORE the modeless branch ⇒ base `0x0400 lor 0x0200 lor 0x0010 lor 0x0040 lor 0x0002`, `lor 0x0800` if title; (3) new type `open_attr = A_absent | A_zero | A_lit8 of int | A_lit16 of int | A_var of Ast.name`, classifier `open_attr_plan st s opts title` — Enumber txt → int: 0⇒A_zero (titled ONLY), ≤0xFF⇒A_lit8, 16-bit⇒A_lit16 (titleless PAGESIZE only), else refuse; Eident n → st.vars vk=Vint && size=2 ⇒ A_var, else refuse; any other expr → refuse `attribute EXPRESSION [TBD]`; enforce the matrix above, refuse all else BY NAME with [TBD] + probe cites; bits: pagesize present ⇒ 0x2000, linesize present ⇒ 0x1000; (4) in `lower_open` compute plan AFTER w1, `w1 lor bits`; replace the three hardcoded word-emission tails (T_var `d op_lxi_h;w1;PUSH; LXI H,0;PUSH;PUSH×4`; None `…60 68; PUSH×5`; T_lit `…LXI H,0;PUSH;PUSH×4`) with ONE `open_emit_words st ~titled w1 (ps,ls)` implementing the ladder law; (5) `st.file_out` records ONLY the spelled OUTPUT keyword (unchanged) — print-open groups NOT recorded.
+- VERIFY vs goldens by hand before building: ladder reproduces TA 21, TB 29, TC 27, TD 24, TE 31, TF 33, TG 32, TH 33, TI 26, TJ 26 byte-lists EXACTLY.
+- Then (contract): build rc=0 DIRECT; warnings per-File histogram vs baseline 68; cmp TA..TJ whole-file rc=0 vs golden/e52p7; LOAN2 UNMODIFIED POSITIONAL → NEW blocker VERBATIM (predicted `ON ERROR … line 58`, LATER subround, do NOT fix); sweep 110/0; markers E46K4/K15/N21/E52PF/PU/PV/RE rc=2; commit arm; registration: SPECIMENS +accepted + `--update-inventory` (measure delta from 1233, refusal rows NONE — zero dr-refuses this campaign), census OWN write path FIRST (OPEN-option narrative msgs moved), FULL gate rc=0 DIRECT build/gate-e52p7-reg.log, claim **C365 measured-bytes-only BEFORE** COVERAGE rows (FILE.OPEN_* per ledger which ends C364), coverage_check+prose rc=0, RESULTS §P3-7 + PLAN §5 row, durables.
+- Ledger ENDS **C364** until C365 measured; goldens never re-derived; SE my-gap/SF/SG dr-refuses kept; operator handoff.config.json NEVER staged (dirty standing edit); all rc DIRECT; pli80c POSITIONAL; no push; renewal 2/12 chain 01a1aa7d.
+- STATUS at hop-2 close: ALL arm edits APPLIED to codegen.ml (constants, guards, open_attr_plan,
+  open_emit_words, lower_open wiring, narratives) UNCOMMITTED; one compile error found (`Unbound
+  value s' in the defensive titled refusal) REPLACED by a plain failwith; `dune build` NOT re-run
+  after that fix — rc=0 UNVERIFIED. pipe-masked-rc trap fired AGAIN (build|tail reported 0 on rc=1).
+  Hop 3: build DIRECT first, then cmps/LOAN2/sweep/commit/registration per PROGRESS ## Next action.
+
+## E2E-52/P3-7 hop 3: ARM VERIFIED 10/10 BYTE-EXACT + REGISTRATION 1-2/3 + GATE rc=0 + C365 LANDED; COVERAGE + RESULTS/PLAN OWED (2026-11-05, renewal 3/12)
+
+- ACCEPTED (measured): the PRINT/PAGESIZE/LINESIZE arm reproduces all ten `golden/e52p7` objects
+  whole-file (`cmp` rc=0) on binary `8b374e623bc9e280…`; codegen per-File warning histogram back to
+  **68 == baseline**. Two draft defects fixed here (see PROGRESS for the byte-level detail): literal
+  `\u00a7`/`\u2014` text escapes in strings (4 new Warning 14 + mojibake in refusal text — the file
+  convention is the REAL characters, 89 uses) and a redundant `A_zero` sub-pattern (1 new Warning 12).
+  LESSON (accepted): a warning-histogram delta of +2 lines = +1 unique warning; the log double-prints,
+  so compare kinds AND locations against a full clean log, never a partial one.
+- ACCEPTED (law, claimed as [C365] from measured bytes only): see `spec/CLAIMS.md` C365 — PRINT word
+  0x0652/0x0E52 (0x0002 on base 0x0650, 0x0200 KEPT ⇒ PRINT is NOT the spelled OUTPUT: falsified);
+  attribute bits 0x2000/0x1000 set by PRESENCE independently of the parameter word (pagesize(0) = bit +
+  zero word, NO byte, TB == DEPREC:51); the HL register-reuse ladder (first zero `21 00 00` titled /
+  `60 68` titleless; further zeros bare `E5`; `2E vv` leaves L dirty ⇒ next zero one byte `68`/`6C`;
+  `21 vv vv`/`2A r(cell)` clobber ⇒ next zero `60 68`, TITLED form UNMEASURED and refused by name).
+- FALSIFIED (kept verbatim): TI pre-reg w6 = `21 00 00` — DR wrote `60 68` (falsifier TRIGGERED);
+  TG/TH pre-reg 30-B totals — measured 32/33 (their byte-ENCODING predictions HIT). `pagesize(300)`
+  UNKNOWN measured DR-ACCEPTED. COVERAGE row 52's `Still refused by name: PRINT/…` clause is now
+  FALSIFIED by the arm and must be rewritten keeping the falsified text as HISTORICAL.
+- ACCEPTED (procedure): sweep bank `E46N E46K E51 E52 P086 R10` is **114** specimens now (hop 12's
+  "110" predates the SA..SD registration rows `91592c0`) — recompute the bank from `spec/INVENTORY.txt`
+  instead of quoting an old count. Census truncates messages at ~110 chars, which is exactly why the
+  `refuse_file_opt` body rewrite moved ONLY LOAN2 (→ ON ERROR 58) and **RETRIEVE** (→ ENVIRONMENT 31,
+  a genuine advance past its PRINT open); pinned prefixes survive truncation.
+- FALSIFIED (self-inflicted, procedure): a global `\'`→`'` replace in `tools/e2e_gate.py` broke 30 valid
+  escapes (SyntaxError). Recovery that worked and is safe here: confirm the file had NO other
+  uncommitted change, rewrite it from `git show HEAD:<path>`, re-apply the intended block, then
+  `python3 -m py_compile` rc=0 + `git diff --stat` = insertions-only. Never bulk-replace quote escapes.
+- NEXT (hop 4, docs + one ledger row, NO oracle): (1) COVERAGE rewrite + PROPOSED new row
+  `FILE.OPEN_PRINT_ATTRS` (SUPPORTED, EXACT:10, cites [C365], probes E52TA..TJ) + coverage_check rc=0
+  (expect 140 rows) + stats own write path; (2) RESULTS §P3-7 + PLAN §5 row + prose rc=0; (3) durables,
+  explicit paths. Ledger ENDS C365. Unresolved/proposed (NEVER adopted): ON ERROR (LOAN2:58) as P3-8;
+  SE `?REVOP` arm (my-gap, bytes measured, unclaimed); ENVIRONMENT route (RETRIEVE:31, REPORT:29 36-B
+  `4E52` block); titled zero-after-clobber restoration (UNMEASURED, refused).
