@@ -8785,3 +8785,63 @@ classified `unmeasured` rather than `dr-refuses`.
   name` (prescan matcher-split; `my-gap`, recorded, NOT fixed, never claimed exact — the
   P3-3-era prediction that the next blocker would be the DEC FORMAL at line 147 is FALSIFIED
   at stage level: the prescan never reaches 147).
+
+## C363 — A DATA-ITEM DO-REPETITION `item DO <i> = <from> TO <to>` ON THE PUT EDIT ROUTE LOWERS TO THE lower_doto TO-ARM SHAPE WITH A ONE-ITEM BODY — UNCONDITIONAL INIT `LXI H,from / SHLD i`, IMMEDIATE TEST `LHLD i / LXI B,-(to+1) / DAD B / MOV A,H / ORA A / JP exit`, ONE BODY COPY, STEP `LHLD i / INX H / SHLD i / JMP TOP`, EXIT LABEL AT THE STATEMENT CLOSE — CONTRIBUTES ZERO FORMAT BYTES, AND ITS FORWARD JP PATCHES TO THE START OF THE NEXT ITEM WHEN NON-FINAL AND TO THE CLOSE `CALL ?QIOOP` WHEN FINAL; A VARIABLE UPPER BOUND REUSES THE EXISTING EIDENT VAR-BOUND TEST BYTE-IDENTICALLY (`LHLD n / SHLD temp / … CALL ?IS22N / JM`); THE LOOP LAW IS ROUTE-INDEPENDENT (CONSOLE == FILE); A COUNT-`n` FORMAT REP-GROUP WRAPPING THE `(a)` LIST COMPOSES UNCHANGED (`80 00 80 02 03 FF 81 81`); `BY <step>` IS DR-ACCEPTED WITH UNCHANGED TEST BYTES AND `INX H` REPEATED `step` TIMES (E52RC OBJECT) BUT THIS COMPILER REFUSES IT BY NAME (my-gap boundary KEPT); `REVERSE` IS DR-REFUSED — PASS 1 CLEAN, THEN `BALANCE ?` ON THE STATEMENT, `SYNTAX ?`, `UNEXPECTED EOF`, NO .REL (E2E-52/P3-5; MEASURED — 7 whole-file `cmp` rc=0, never fitted)
+* **Measured — the loop law.** `golden/e52p5/E52RA/E52RA.REL` (384 B sha256 `e0fad12c98b3…`,
+  `put file(f) edit(('AB' do i = 1 to 3))(a)`) is the PLAN §P3-5 §2 byte list, identical in
+  shape to the LOAN2 golden span 0975-0999 (the pre-existing witness): init `21 01 00 / 22
+  r(i)`, top `2A r(i) / 01 FC FF / 09 / 7C / B7 / F2 exit`, ONE body copy `21 r(lit) / 3E 02 /
+  CALL ?SLCTS / CALL ?EDTOV`, step `2A r(i) / 23 / 22 r(i) / C3 r(top)`, exit `CALL ?QIOOP /
+  RET`; ONE literal cell in DATA (0009). `golden/e52p5/E52RD/E52RD.REL` (384 B sha256
+  `4e732b9be025…`, FROM=2 TO=4) proves the immediates follow the bounds: `21 02 00` + `01 FD
+  FF` = -(to+1).
+* **Measured — the PATCH law (decoded from MY first-try MISS, kept verbatim then fixed).**
+  `golden/e52p5/E52RB/E52RB.REL` (384 B sha256 `b974d7d23d6b…`, `skip edit('X',('AB' do i = 1
+  to 3),'Y')(a)`) patches the repetition's forward JP to 0x4F = the START OF THE NEXT ITEM's
+  chain, NOT the trailing close; a FINAL repetition patches to the close `?QIOOP` (RA slot
+  0028 → 0x3F). Items run in source order; the rep body is NOT unrolled.
+* **Measured — variable upper bound.** `golden/e52p5/E52RF/E52RF.REL` (384 B sha256
+  `1eef124e2c5f…`, `do i = 1 to n` with `dcl n fixed bin`) uses the EXISTING var-bound test
+  byte-identically to the `lower_doto` Eident arm (`LHLD n / SHLD temp / head: LHLD temp /
+  XCHG / LHLD i / CALL ?IS22N / JM exit`; DATA 000D = the extra temp cell).
+* **Measured — route independence.** `golden/e52p5/E52RH/E52RH.REL` (256 B sha256
+  `e864b2dbfe5c…`, CONSOLE `put edit(('AB' do i = 1 to 3))(a)`) carries the SAME loop bytes as
+  RA (code 0042=66 vs RA 0045=69 — the file route's attach/skip difference only).
+* **Measured — composition with a FORMAT rep-group.** `golden/e52p5/E52RI/E52RI.REL` (384 B
+  sha256 `c0c4bfbadc66…`, `edit(('AB' do i = 1 to 3))(2(a))`) holds table `80 00 80 02 03 FF
+  81 81` — the [C362] group law — with the §2 loop; the repetition itself contributes 0
+  format bytes, CONFIRMING the previously `[verify]`-annotated bind.ml:1155 law.
+* **Measured — repetition of a numeric EXPRESSION.** `golden/e52p5/E52RJ/E52RJ.REL` (384 B
+  sha256 `ab73232dcd32…`, `edit((100*m do i = 1 to 3))(a)`) places the [C362] `2A r(cell) / 11
+  64 00 / CALL ?IM22N / 3E 09 / CALL ?QICOP / CALL ?EDTOV` chain INSIDE the loop body, ONE
+  copy (DATA 0009).
+* **Measured — DR accepts BY and REVERSE-adjacent boundaries differently.**
+  `golden/e52p5/E52RC/E52RC.REL` (whole object, oracle campaign e52p5 9 ok/10 at `676fb9d`)
+  shows `do … by 2` ACCEPTED: test bytes unchanged, step `INX H` repeated `by` times — this
+  compiler refuses BY at the PARSE stage BY NAME (`my-gap`, KEPT unfitted).
+  `golden/e52p5/E52RE/E52RE.PRN` (NO .REL) shows DR REFUSING `reverse` (`BALANCE ?`, `SYNTAX
+  ?`, `UNEXPECTED EOF`) — dr-refuses, registered on the negative panel; the pre-arm generic
+  `expected )` catch was replaced by a NAMED parse refusal mirroring this verdict.
+* **Measured — parity of MY lowering.** At arm `aeda739` (parser.ml REPSPEC child 0 = index
+  Eident + BY refusal; codegen.ml `PIrep of pitem * Ast.expr`, `data` walker admitting
+  `Ast.Pi_rep` on both routes, prescan inner-cells-ONCE, `authorize_file_edit_item` admitting
+  PIrep iff inner `PIlit`/`PInum`-via-`edit_num_tree`, named `emit_item` loop) plus hop-9
+  defensive arms `a008840` (prescan-fold `| PIrep _ -> a`, closing the sole PA-class Warning
+  8: histogram 70→68, diff EXACTLY the fixed site) and `3a494c3` (named REVERSE refusal):
+  whole-file `cmp` rc=0 for RA RB RD RF RH RI RJ vs the new goldens on clean-rebuild binary
+  sha256 `e55e892c346741b2…` (hop-8 binary `a55ef4eb7c7e51fb…` produced BYTE-IDENTICAL
+  objects); sweep 101 specimens byte-exact/0 FAIL; RC/RG/RE refuse rc=2 BY NAME. Registered
+  via sanctioned `--update-inventory` 1222→1229 (+7 EXACTLY) plus the E52RE refusal row
+  (182→183); post-registration FULL gate REAL rc=0 **1229 byte-exact / 0 of 1229**
+  (`build/gate-e52p5-reg.log`), negatives 183/183, divergence 9/9, coverage 139 rows 0/0,
+  census counts UNCHANGED 15/0/26/0 with the LOAN2 blocker MOVED VERBATIM past the line-212
+  matcher-split to `codegen: ON UNDEFINEDFILE is not implemented [TBD] (only ENDFILE(<file>)
+  has a DR lowering; line 44)` at LOWERING — the predicted line-177 `PIvar yp` blocker is
+  FALSIFIED at stage level (lowering dies at 44 first), `my-gap`, recorded, NOT fixed.
+* **What this does NOT say.** No object was executed under cpmsim — BYTE TIER ONLY, no
+  `spec/RUNTIME.txt` row. RC's BY bytes and RG's rep-of-char-var bytes are DR-accepted
+  objects this compiler does NOT claim; their encodings are UNMEASURED by any arm of mine.
+  `to <= 2`, `from = 0`, a 1-byte index, a variable FROM, deref index/bounds, nested
+  repetition, numeric-LITERAL and DEC-inner repetitions carry NO object witness and keep
+  refusing BY NAME. The runtime semantics of the index cell's fixed-bin width and of the
+  temp-parking in RF are undecoded.
