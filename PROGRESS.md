@@ -2557,19 +2557,46 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 317
-checkpoint-id: g317-d1d9c078240e
+checkpoint-generation: 318
+checkpoint-id: g318-b6dc11c5de70
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
 guard-level: 2
-checkpointed: 2026-11-04T23:56:13.917Z
+checkpointed: 2026-11-05T00:17:08.441Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 1a9ecf99f5f741eab0a2f8e5134fc20772878408f8431bd2e31f40c777e68148
-source-handoff: ca1d587151443832843d483fae1dc187de04149d4c6d6773e44067f21f35aafe
-source-learnings: 7eb4292c114e6b13eff6bc5ebf1a5cfe6819fb5fde216923dabdf11509241744
+source-progress: 460a67f9e45226fab8b9c52792ca62860bdf4792fa356864170fb15a0fafb08e
+source-handoff: 76b4e6e9c0a7f4dbb1fe14e70a1b6886f68de7cdce9a24996780b51a3476cce8
+source-learnings: 2b4ab8d5f3cb5dc888cf3a1cdbfdb92d10ccbeea57678a5c2c3122cb56226058
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: `
+next-action: `: RESULTS §P3-4 + PLAN §5
+  row, then subround P3-5 (PLAN BEFORE any ocaml/ byte). Ledger ENDS **C362**; goldens never
+  re-derived; operator handoff.config.json never staged; all rc DIRECT; no push; campaign
+  continues.
+
+0a-octies. **E2E-52/P3-4 PA FIXED — HEADLINE MET; REGISTRATION OWED (2026-11-05, fresh
+  chain hop 2/12).** Root cause of the PA crash: unparenthesised trailing inner match in
+  `edit_num_cell` swallowed the outer `| _ -> false` (non-exhaustive outer match; `-warn-error
+  -a` = warnings never fatal) — proven via `-dlambda`; stale-map and PIlit suspects FALSIFIED.
+  Fix `9b2d781` (codegen.ml only); binary `345644822818326f442a…`: **E52PA cmp rc=0 vs EXISTING
+  golden/e52p3/E52PA (sha `d7b4e7f3…`) = HEADLINE MET**; 9/9 cmps re-verified; sweep 89/89;
+  markers rc=2 intact; warnings 70 == baseline. LOAN2 ADVANCED VERBATIM to line-212 matcher-split
+  (DEC-147 prediction falsified; NOT fixed). Owed = registration steps (1)-(5) in `LEARNINGS.md`
+  § "PA FIX + SWEEP 89/89 + MARKERS + LOAN2 ADVANCED LANDED": SPECIMENS 10 + PU/PV dr-refuses
+  rows, --update-inventory 1212→1222, FULL gate rc=0 `build/gate-e52p3d-reg.log`, census own write
+  path, **C362 measured-bytes-only BEFORE** COVERAGE `IO.PUT_EDIT` (EXACT:25→35), coverage_check +
+  prose rc=0, RESULTS+PLAN rows. Ledger ENDS C361; goldens never re-derived; operator
+  handoff.config.json never staged; all rc DIRECT; no push; campaign continues.
+
+0a-septies. **E2E-52/P3-4 CAMPAIGN MEASURED + ARM LANDED; PA BLOCKER OWED (2026-11-05,
+fresh chain hop 1/12).** Campaign e52p3d rc=0 9 ok/11 (PU bare-x and PV x(255) are
+dr-refuses, no .REL); arm (codegen.ml, fmt_spec let rec repgrp `80 n…81`/count-1-FLATTENS
++ X(w)→`0B w` ≤128 + file PInum shape-authority admission) gives **9/9 accepted-probe
+whole-file cmp rc=0** on binary `898b191c…`; **PA crashes: Match_failure codegen.ml:11906
+(edit_num_cell, exhaustive — debug suspect stale line map / PIlit interaction); PA cmp vs
+EXISTING golden/e52p3/E52PA is the HEADLINE, unmet.** Full state and owed steps (1)-(4)
+( fix PA → sweep+markers → LOAN2 VERBATIM → registration + C362 measured-bytes-only BEFORE
+COVERAGE rewrite, gate rc=0 build/gate-e52p3d-reg.log) in `PROGRESS.md` → `## Next action`
 and `LEARNINGS.md` § "P3-4 campaign e52p3d MEASURED + arm LANDED". Ledger ENDS C361;
 goldens never re-derived; operator handoff.config.json never staged; all rc DIRECT;
 no push; campaign continues.
@@ -2986,9 +3013,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a8ea-618f-753f-82d0-3148993c00bc
-readiness-at: 2026-11-04T23:56:13.932Z
-readiness-checkpoint: g317-d1d9c078240e
+readiness-by: session:01a1a8fe-39a2-753f-82d0-314d9e66c2c1
+readiness-at: 2026-11-05T00:17:08.455Z
+readiness-checkpoint: g318-b6dc11c5de70
 <!-- guard:end checkpoint -->
 
 ## Blockers
