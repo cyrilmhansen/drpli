@@ -45,13 +45,13 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
-## Next action (E2E-52/P3-9 hop 2 DONE — PHASE A FULLY CLOSED: 2F=CMA pinned by R812 $C↔object, polarity puzzle RESOLVED (F5/C1 carries the accumulator BYTE — [C312] law), LOAN2:91/113/120 + ANNUITY controls raw-verified, my LEA2 ladder == DR; PLAN §P3-9 + probes E52VA..VK OWED, COMMITTED BEFORE any oracle call or `ocaml/` byte; 2026-11-05, session 01a1ad11 renewal 1/12; read `LEARNINGS.md` § "E2E-52/P3-9 hop 2" FIRST — it holds every measured byte and the exact hop-3 contract)
+## Next action (E2E-52/P3-9 hop 3 DONE — PRE-REG `4495604` + CAMPAIGN e52p9 **11 ok/11** + goldens `9bb3f99`; fold law H1 + standalone `<0` leaf + VH/VJ measured; fold-ORDER partly pinned (`<0` LAST confirmed; VE/VF same-var FIXBIN reorder vs VI source-order — UNRESOLVED rule); PAR push rule FALSIFIED, ADD survives; VK all 3 boundaries DR-ACCEPTED; hop 4 = fix decode bug, PIN order law from RAW hex, then ARM — read `LEARNINGS.md` section "E2E-52/P3-9 hop 3" FIRST)
 
-**DONE THIS HOP (all rc DIRECT; ZERO `ocaml/` byte, ZERO oracle call, goldens untouched):** guard g374 blocks committed VERBATIM `4adc485`; build re-held rc=0 binary `9ecea27aa4f2d80f49ad…` == baseline. Phase A remainder executed: dis80 table lacks 2F BUT **0x2F=CMA pinned by DR's own evidence** (R812.PRN $C 002A `CMA` ↔ R812.REL byte `2F` @002A, addresses align exactly); ANNUITY 01B6/022F single-DEC controls = bare compare + `C2 JNZ` (no flag trick); LOAN2:120 AND region located at 0603 and decoded == [C105] verbatim incl. the `AF/BE/23/9E` 0−dl memory-compare materialisation of `dl > 0`; my LEA2 ladder byte-identical to DR's `> c` head law (claims line 1998). **Puzzle CLOSED: the hop-1 "inverted polarity" trace FALSIFIED — DCX/CMA set NO flags; PUSH PSW/POP B moves the accumulator byte into B, flags ride in C unread; `JP` reads the fresh `ORA B` sign.** NEW measured asymmetry (probe-decided): LOAN2:91 pushes the RIGHT operand (ladder) first, LOAN2:113 LEFT-folds; ANNUITY:46 pushes the DEC ZERO-LITERAL first, LOAN2:113 pushes the VAR first — both are genuine open questions, NEVER fit.
+**DONE THIS HOP (all rc DIRECT; ZERO `ocaml/` byte):** guard g375 blocks VERBATIM `0f78452`; PLAN sec P3-9 H1-H10 + probes E52VA..VK committed BY EXPLICIT PATH `4495604` BEFORE any oracle call/ocaml byte (tail DEVIATION documented: unmeasured `put edit(x)(a)` dropped, UA skeleton proven); ONE campaign e52p9 rc=0 **11 ok/11, ZERO dr-refuses**; goldens VERBATIM + raw dumps `9bb3f99`; every measurement and my decoder misparse artifact (`DB D6` 1-byte line desyncs following `01 xx 9F` triples) are in `LEARNINGS.md` section hop 3.
 
-**EXECUTE NEXT (hop 3 = Phase B PRE-REGISTER, then ONE campaign):** (1) Write **PLAN §P3-9** in `spec/lab-evidence/e2e52-p3/PLAN.md` — hypotheses H1 value-level OR fold (materialise bit7-truth byte per operand, `F5 PUSH PSW`, compute next into A, `C1 POP B / B0 ORA B`, ONE `F2 JP skip`; 3+ operands chain folds, ONE branch); H2 fold-ORDER discriminator: E52VB `dl < 0 | dl > 2` predicted == LOAN2:91 bytes (`2A/2B×3/7C/2F/F5/3A/C1/B0/F2`), E52VC `dl > 2 | dl < 0` — left-fold ⇒ SAME ladder-push head, right-fold ⇒ `3A C902` FIRST; H3 standalone `< 0` (VA: accepted form UNMEASURED — JM on `LDA hi`? compare? refusal dr-refuses?); H4 separate vars (VD); H5 fixed-bin `= 0 | > c` mix (VE); H6 FOUR-operand chain (VF); H7 DEC push order — VG ANNUITY-replica (`dcl pv fixed dec(9,2); dcl pmt fixed dec(7,2);` = 0 |= 0) vs VI LOAN2-replica (`P fixed dec(5,2)` + dl + m/fm); H8 OR-with-ELSE (VH skip operand = else label); H9 `dl > 0 | …` memory-compare in OR (predicted `AF BE 23 9E`, measured ONLY in AND); H10 grouping/value-position boundaries (VK e.g. mixed `&`/`|` — AND arms NEVER touched, unmeasured shapes refuse BY NAME) — per-probe byte predictions + explicit falsifiers, VERBATIM. (2) Probes **E52VA..VK** (collision re-grepped: `E52V*` + tag `e52p9` FREE — re-verify), CRLF + bare `^Z` + ≤71 cols, skeleton `dcl dl fixed binary; dcl x fixed bin; … put edit(x)(a);`. (3) **COMMIT PLAN + PROBES BY EXPLICIT PATH BEFORE ANY ORACLE CALL AND BEFORE ANY `ocaml/` BYTE.** (4) ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52VA E52VB E52VC E52VD E52VE E52VF E52VG E52VH E52VI E52VJ E52VK --tag e52p9 --switches '$L$D'` rc DIRECT; read every .PRN; goldens VERBATIM; classify honestly. Then hop 4+: arm-only-measured (`Ast.Or` arm in `lower_test_skip0` + Or fold beside the And fold in `lower_bool` + `< 0` leaf ONLY if measured; `prescan_cond` demand parity [C152]; NEVER alter And; refuse unmeasured BY NAME [TBD]), build rc=0 DIRECT + histogram vs **68**, cmp probes whole-file, sweep (`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10`) FAILS 0, markers (`build/e52p8-reg/markers.py` copy — MUST materialise CRLF+^Z), LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (NEVER fix the next blocker; `?SIGOP`/`signal error` may appear — OUT OF SCOPE), registration from **1249** (`--update-inventory`, census OWN path, gate rc=0 `build/gate-e52p9-reg.log`), **C367 measured-bytes-only BEFORE COVERAGE** (explicit `spec/COVERAGE-IDS.txt` edit for a new COND.OR row; NEVER coverage_gen.py), coverage_check + prose rc=0, RESULTS §P3-9 + PLAN §5 row + §P3-9 CLOSED, durables, renew near cap. STOP at P3-9 closure — do NOT start P3-10.
+**EXECUTE NEXT (hop 4 = ARM):** (1) read `build/e52p9/reldumps.txt` RAW hex (authoritative; reldump line-wrap of reloc list is sloppy — recompute VI literal-vs-var addresses from raw relocs to confirm ADD), pin the operand-EMISSION-order rule (same-variable FIXBIN `>` before `=`? class priority?) across VB/VC/VE/VF/VG/VI + LOAN2 91/113, record falsifications VERBATIM; (2) arm ONLY measured shapes: `Ast.Or` arm in `lower_test_skip0` (~9154, my parse is LEFT-assoc) + Or fold beside And in `lower_bool` (NEVER alter And); `<0` leaf `3A r(cell+1) / B7 / F2 slot`; `> 0` mem-compare `21/AF/BE/23/9E`; DEC `= 0` push per the PINNED rule; ladder/`7C 2F` reuse; ELSE geometry per VH; every other shape refuses BY NAME [TBD]; prescan_cond pool-demand parity; (3) build rc=0 DIRECT + histogram vs 68 + cmp 11 probes WHOLE-FILE vs golden/e52p9 + sweep (`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0) + markers (CRLF+bare ^Z copy) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM, NEVER fix next blocker (?SIGOP out of scope); commit; (4) registration from **1249** (--update-inventory, census OWN path, gate rc=0 `build/gate-e52p9-reg.log`), **C367 measured-bytes-only BEFORE COVERAGE** (explicit spec/COVERAGE-IDS.txt edit, new COND.OR row, NEVER coverage_gen.py), coverage_check+prose rc=0, RESULTS sec P3-9 + PLAN sec 5 row + sec P3-9 CLOSED, durables, renew near cap. STOP at P3-9 closure — do NOT start P3-10.
 
-**STATE:** ledger ENDS **C366**; gate baseline 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…`; tree clean except operator `handoff.config.json` (NEVER staged) + ignored scratch (`build/e52p9/` incl. NEW `phaseA-complete.txt`, `build/e52p9/leaves/`, ocaml/*.log); no push; renewal chain 01a1acf2 hop 1/12 consumed (cap 12).
+**STATE:** ledger ENDS **C366**; gate baseline 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; tree clean except operator `handoff.config.json` (NEVER staged) + ignored scratch (build/e52p9/*, ocaml/*.log); no push; renewal chain 01a1acf2 2/12 consumed (cap 12).
 
 SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-9 hop 1 PART DONE — Phase A evidence audit: OR witnesses DECODED from ANNUITY/LOAN2 goldens, leaves isolated; PLAN §P3-9 + probes E52VA.. OWED BEFORE any oracle call or `ocaml/` byte; 2026-11-05, session 01a1acf2, fresh chain 0/12; read `LEARNINGS.md` § "E2E-52/P3-9 hop 1 IN FLIGHT" FIRST — it holds every measured byte and the full owed contract)
 
@@ -2708,13 +2708,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 375
-checkpoint-id: g375-0319aa547acf
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-05T19:21:31.051Z
+checkpoint-generation: 376
+checkpoint-id: g376-cb9dc94d3da3
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-05T19:55:34.500Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 7a5e531840b049fd60e19ae189d5464ab40c0e3fef72264e629c20f742cb8ce6
 source-handoff: 4b973a74698093079dfdd887bb35aaa1cfba34213364499dac9006eeaf69915f
@@ -3305,9 +3305,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ad11-e21b-7739-b9fe-1a15e88f5aec
-readiness-at: 2026-11-05T19:21:31.069Z
-readiness-checkpoint: g375-0319aa547acf
 <!-- guard:end checkpoint -->
 
 ## Blockers
