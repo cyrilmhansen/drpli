@@ -5,6 +5,54 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-8 hop 1 IN FLIGHT: ON ERROR DECODED FROM EXISTING ORIGINAL GOLDENS (ZERO ocaml/, ZERO oracle so far) (2026-11-05)
+
+- **ACCEPTED (measured directly, annotated disassembly of `golden/first/*/{LOAN2,COPYLPT,ANNUITY}.REL`).**
+  Bare `ON ERROR` (LOAN2:58 @code 00E8; ANNUITY:28, ONCOP operand-slot 0050) registers as
+  `LXI H,0000` — an ABSOLUTE immediate, NO relocation, NOT a file control block — then
+  `XRA A` (AF, condition byte 00 materialized by clearing A, not by `MVI A,00`) then
+  `CALL ?ONCOP` then `JMP <jump-over>`; registration prefix is 7 bytes
+  (`21 00 00 AF CD xx xx C3 yy yy`), one byte SHORTER than the file-scoped prefix
+  (`21 xx xx` + reloc `3E nn CD … C3 …`) of [C109]/[C364].
+  `ON ERROR(1)` (COPYLPT:25 @code 00A6) is the SAME form with the argument as an absolute
+  literal: `LXI H,0001 / XRA A / CALL ?ONCOP / JMP <over>`.
+- **ACCEPTED (handler shapes, byte tier).** LOAN2 ON ERROR `begin; put skip list('…'); goto
+  retry; end;` → jump-over lands EXACTLY on the `retry:` label at 0111, the handler is emitted
+  INLINE (plain console PUT chain `?SYSPR/?SKPOP/?SLCTS/?PNCOP/?QIOOP`) and ends with the
+  ordinary `C3` goto chain slot at 010E with **NO `C9 RET`** — identical to the [C364]
+  file-scoped BEGIN…GOTO law. COPYLPT error(1) mirrors it: jump-over == `getnumber:` @00CA ==
+  goto target; handler inline `?SYSPR … ?QIOOP` (NO skip: the handler is a bare `put list`),
+  `C3` at 00C7, no RET. In BOTH goldens the recovery pad `LHLD <block SP cell> / SPHL / CALL
+  ?RECOV` sits AT THE LABEL (LOAN2 cell data@0318 — the SAME cell its undefinedfile pads use;
+  COPYLPT cell data@0214 — the SAME cell its endfile(sysin) pad uses at 0032): one cell per
+  block [C206], shared across condition names.
+- **ACCEPTED (REVERT, measured but KEPT UNARMED).** COPYLPT:33 `revert error(1)` = `LXI H,0001 /
+  XRA A / CALL ?REVOP` at 010A — the [C364] REVERT shape with a CONSTANT operand + XRA A
+  instead of file CB + MVI A,nn. Stays a recorded my-gap (SE family), NOT lowered, NOT fitted.
+- **PROPOSED (NOT yet direct-verified — successor must re-disassemble before relying on them):**
+  EXPR1/EXPR2 each carry ONCOP operand-slots at code 0x13 and 0x20 (`on endfile(sysin) stop;`
+  then `on error(1)`); a buggy first-pass summarizer (registration start = slot-6 for the MVI
+  form, slot-5 for the XRA-A form — I walked back a fixed slot-7) printed them garbled, so the
+  EXPR sites are recorded as slot ADDRESSES only; the handler-tail (STOP vs goto) of EXPR1/EXPR2
+  and ANNUITY:28's exact bytes are DIRECT-DUMP PENDING. `on endfile(sysin) go to typeover;`
+  (COPYLPT:15, a bare GOTO STATEMENT handler for a FILE condition) registers normally (MVI A,05,
+  slot 002A) then `JMP code@0032` jump-over, `JMP <chain-addr>` stub-slot at 002F, pad at 0032.
+- **OPEN QUESTIONS the goldens do NOT answer (→ probes to preregister):** plain BEGIN handler
+  that RETURNS (no goto) for error — RET tail or not, pad or not; simple-statement handler
+  `on error x = 1;` (C109 said RET for file conditions — is error the same?); a goto target
+  NOT adjacent to the ON unit (jump-over vs pad separation, cf. SC); `error(<literal>)` beyond
+  0x0001/0xFFFF, variable/expression argument — all UNMEASURED, refuse BY NAME until measured.
+- **FALSIFIED (my own tool use, procedure):** the summarizer's fixed `call-6` walk-back and
+  `a+1` reloc lookup at the wrong operand address — reuse the WORKING annotated disassembler
+  pattern (LC-replay interleaving RELOC words; registration start = slot-6 MVI form / slot-5
+  XRA form) instead of hand arithmetic.
+- **STATE at this checkpoint:** HEAD `d7fe6b4` (g355 ATTESTED, fresh chain 01a1ab05 renewals
+  0/12, cap 12); P3-7 CLOSED `75a6d18`; gate rc=0 1243/0, 186/186, 9/9, coverage 140 0/0,
+  census 15/0/26/0; ledger ENDS C365; binary `8b374e623bc9e280…` UNTOUCHED this session so far;
+  sweep 114/0; LOAN2 blocker re-verified line 58. NEXT: direct-dump EXPR1/EXPR2/ANNUITY ON
+  sites; then PLAN §P3-8 + probes E52UA..UF COMMITTED BEFORE any ocaml/ byte; campaign e52p8
+  ONLY for what goldens leave open (plain-BEGIN and simple-statement handlers).
+
 ## E2E-52/P3-7 hop 5 CLOSED: PERIMETER CORRECTION LANDED; FULL COMBINED-STATE GATE rc=0 (2026-11-05)
 
 - **ACCEPTED (idempotent recovery).** The killed hop-4/5 session had ALREADY written RESULTS

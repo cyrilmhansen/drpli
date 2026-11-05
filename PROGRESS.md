@@ -51,7 +51,38 @@ C359 derived ONLY from the existing measured evidence.
 
 **AUTHORIZED NEXT (operator brief 2026-11-05): E2E-52/P3-8 = ON ERROR (LOAN2:58, `codegen: ON ERROR is not implemented [TBD] … line 58`).** Contract, in order: (1) DECODE EXISTING evidence FIRST — `golden/first/LOAN2/LOAN2.REL` ON-unit region, claims C109/C120/C201/C202/C364, E52SA..SD specimens + `golden/e52p6/`, ON ENDFILE/UNDEFINEDFILE witnesses, `artefacts/COPYLPT.PLI` (`on error(1)`), `ocaml/lib/codegen.ml` Son dispatch + `on_reg_prefix`, bind.ml ON references/recovery-pad/saved-SP; do NOT modify LOAN2 source. (2) Preregister PLAN §P3-8 + a small DISCRIMINATING probe bank (bare ON ERROR with assignment handler / direct GOTO / BEGIN…END ending in GOTO / plain returning BEGIN handler; ON ERROR(1) if DR accepts the spelling; ENDFILE/UNDEFINEDFILE contrasts under identical handler shapes; saved-SP/continuation discriminator) with competing condition-code hypotheses, acceptance/refusal predictions, byte predictions and explicit falsifiers — COMMITTED BEFORE any `ocaml/` byte. ON ERROR is NOT presumed a file event; its condition code and registration operand must be MEASURED. (3) ONE grouped `e52p8` campaign (`PLI_SRC=probes timeout 900 python3 oracle/batch.py <probes> --tag e52p8 --switches '$L$D'`) rc DIRECT, ONLY if existing goldens leave the questions open. (4) Arm measured forms reusing existing handler/control-flow machinery ONLY where bytes genuinely agree; preserve ENDFILE/UNDEFINEDFILE regressions; no hardcoded LOAN2, no invented codes; unmeasured shapes refuse BY NAME. (5) cmp whole-file, focused ON bank + sweep 114, markers, LOAN2 POSITIONAL VERBATIM (record the new first blocker, do not chase it), registration via sanctioned `--update-inventory` + census OWN path, FULL gate rc=0 logged, claim C366 from MEASURED BYTES ONLY BEFORE the COVERAGE rewrite, RESULTS §P3-8 + PLAN §5 row, prose rc=0, durables, renew per cap. Standing boundaries KEPT: byte-tier only — no runtime claims; no push; operator `handoff.config.json` NEVER staged; goldens NEVER re-derived; all rc DIRECT (never a pipeline tail); `pli80c` POSITIONAL. Standing PROPOSALS (never authorization): SE `?REVOP` arm; ENVIRONMENT route (RETRIEVE:31 / REPORT:29 36-B `4E52`).
 
-SUPERSEDED-BY-ABOVE (hop-5 contract — DELIVERED by the paragraph above): ## Next action (hop 4 PART DONE, 2026-11-05; renew into hop 5)
+### P3-8 hop 1 IN FLIGHT (2026-11-05, session 01a1ab05): ON ERROR DECODED from LOAN2+COPYLPT+ANNUITY goldens; EXPR direct-dump + PLAN §P3-8 PRE-REGISTRATION OWED
+
+DONE this hop (ZERO ocaml/, ZERO oracle): full decode in `LEARNINGS.md` § "P3-8 hop 1 IN
+FLIGHT" — bare ERROR registers `LXI H,0000 / XRA A / CALL ?ONCOP / JMP over` (ABSOLUTE
+constant, condition byte 0 via XRA A, 7-byte prefix); `ERROR(1)` = `LXI H,0001`; inline
+no-RET goto-terminated handlers reuse the [C364] machinery verbatim; pad `LHLD <SP cell>/
+SPHL/?RECOV` AT the goto label, cell shared per BLOCK with file-scoped pads (LOAN2 0318,
+COPYLPT 0214); `revert error(1)` measured UNARMED.
+
+OWED (exact next actions, in order): (1) direct-dump EXPR1/EXPR2/ANNUITY ON-unit regions with
+the WORKING annotated disassembler (registration start = slot-6 MVI form / slot-5 XRA-A form;
+the fixed slot-7 walk-back was FALSIFIED) to confirm/extend the decode before preregistering.
+(2) Write PLAN §P3-8 (hypotheses: H1 prefix LXI H,const+XRA A; H2 handler-tail law for
+plain-BEGIN vs simple-statement handlers — UNMEASURED by goldens; H3 pad placement when the
+goto-target label is NOT adjacent; competing encodings, acceptance predictions, byte
+predictions, falsifiers VERBATIM) + probes E52UA..UF: UA bare ON ERROR + assignment handler;
+UB bare ON ERROR + direct goto to a REMOTE label; UC begin…goto handler (LOAN2 mirror); UD
+plain begin;…;end; returning handler; UE on error(1)+error(2) literals; UF ENDFILE/
+UNDEFINEDFILE contrasts under identical shapes. Collision-grep probe ids; COMMIT PLAN+probes
+BEFORE any `ocaml/` byte. (3) ONE grouped campaign `PLI_SRC=probes timeout 900 python3
+oracle/batch.py <probes> --tag e52p8 --switches '$L$D'` rc DIRECT; goldens VERBATIM.
+(4) Arm Son dispatch in codegen.ml (+bind.ml if Rk_on demands it for ERROR label refs):
+ERROR → const-operand prefix + XRA A; reuse on_reg_prefix machinery ONLY where bytes agree;
+unmeasured argument shapes refuse BY NAME; keep ENDFILE/UNDEFINEDFILE regressions intact.
+(5) cmp whole-file; focused ON bank + sweep 114; markers; LOAN2 POSITIONAL new blocker
+VERBATIM; registration; FULL gate logged rc; claim C366 measured-bytes-only BEFORE COVERAGE;
+RESULTS §P3-8 + PLAN §5 row; durables; renew only near exhaustion (chain 01a1ab05, 0/12 used).
+Constraints: no push; operator handoff.config.json NEVER staged; goldens NEVER re-derived;
+all rc DIRECT (never a pipeline tail); `pli80c` POSITIONAL; byte-tier only — no runtime claims;
+ON ERROR never presumed a file event; no hardcoding LOAN2.
+
+SUPERSEDED-BY-ABOVE (hop-5 contract — DELIVERED by the paragraphs above): ## Next action (hop 4 PART DONE, 2026-11-05; renew into hop 5)
 
 **LANDED hop 4 (commit `d9ebb30`, all rc DIRECT): COVERAGE.tsv — FILE.OPEN_STREAM boundary rewrite (falsified PRINT clause kept VERBATIM HISTORICAL, id KEPT, +[C365]); NEW row FILE.OPEN_PRINT_ATTRS SUPPORTED EXACT:10; labelled CORRECTIONs on FILE.OPEN_STREAM_OUTPUT (KEYFILE:19 lowered as E52TE), FILE.PUT_LIST, FILE.OPEN_TITLE_STATIC; coverage_check rc=0 140 rows 0/0 + coverage-stats.json via own write path — both committed.** Recovery facts (hop 5, verify): HEAD `d9ebb30`, binary `8b374e623bc9e280…` build rc=0, ledger ENDS **C365**, sweep 114/0, gate-e52p7-reg.log 1243/0 (its coverage panel predates the new row: next gate expect **140 rows 0/0**).
 
