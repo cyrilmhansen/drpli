@@ -586,3 +586,117 @@ INPUT+PRINT (no witness); PRINT with ENVIRONMENT/KEYED/DIRECT/RECORD/SEQUENTIAL/
 Separate the ATTRIBUTE-FLAG encoding from PARAMETER emission: keep one record `{ w1; w5; w6 }`; extend `open_subset_keys` with PRINT/PAGESIZE/LINESIZE; keep the existing three title prologues; emit w2..w6 by the measured register-reuse ladder (titleless ⇒ `60 68` start, `68` restore; titled ⇒ `21 00 00` start, `6C` restore); refuse every unmeasured shape by name. Parser already accepts the vocabulary (`ioopt_keys`); binder untouched.
 ### 6. LOAN2 direction (pre-registered, NEVER fit)
 TA–TC land ⇒ both line-54 and line-56 OPENs lower; LOAN2's blocker MOVES PAST 56. Next candidate in lowering order = **`ON ERROR` at LOAN2:58** (unmeasured condition name, refused today) — expected verbatim `codegen: ON ERROR is not implemented [TBD] …(line 58)`. Record VERBATIM; do NOT fix in P3-7.
+
+## Subround P3-8 — ON ERROR: the ABSOLUTE-operand registration prefix + the BODY-DEPENDENT handler tail (LOAN2:58 blocker)
+
+PRE-REGISTERED 2026-11-05 (session 01a1ab34, renewal 2/12). ZERO `ocaml/` byte and ZERO oracle call
+in this hop; this section and `probes/E52UA..E52UF.PLI` are committed BEFORE any compiler byte.
+
+### 1. Measured blocker (VERBATIM, re-measured at HEAD `d9995b7`, binary sha256 `8b374e623bc9e280fa14…`, rc=2 DIRECT)
+`codegen: ON ERROR is not implemented [TBD] (only ENDFILE(<file>) and UNDEFINEDFILE(<file>) have a DR lowering; line 58)`.
+LOAN2 58-62 VERBATIM: `on error` / `begin;` / `put skip list('^i^iBad Input Data, Retry');` / `goto retry;` / `end;`.
+Ledger ENDS **C365**. Probe ids `E52U*` collision-grepped EMPTY in `probes/` and `spec/INVENTORY.txt`;
+tag `e52p8` UNUSED (only my own scratch `build/e52p8/` exists).
+
+### 2. EXISTING DR evidence (five independent ON ERROR witnesses, re-read fresh; `build/e52p8/onregions.txt`)
+The **bitstream** disassembly (`build/e52p8/ondump2.py` — `dis80.py`'s reldump-TEXT mode prints reloc operands as `.` and therefore showed FALSE gaps) settles the shape. All five agree:
+
+| program | reg. addr | prefix | handler | tail | pad (= goto label) | SP cell |
+|---|---|---|---|---|---|---|
+| LOAN2 | 00E8 | `21 00 00`(ABS) `AF` `CD ?ONCOP` `C3 ->0111` | inline put-skip-list chain 00F2-010D | `C3` @010E, **no C9** | 0111 `2A r(*A)/F9/CD ?RECOV` | data 0318 |
+| ANNUITY | 004B | `21 00 00`(ABS) `AF` `CD ?ONCOP` `C3 ->0074` | inline 0055-0070 | `C3` @0071, **no C9** | 0074 | data 0136 |
+| COPYLPT | 00A6 | `21 01 00`(ABS) `AF` `CD ?ONCOP` `C3 ->00CA` | inline put-list (no ?SKPOP) | `C3` @00C7, **no C9** | 00CA | data 0214 |
+| EXPR1 | 001B | `21 01 00`(ABS) `AF` `CD ?ONCOP` `C3 ->005E` | inline (put + `get skip`) | `C3` @005B, **no C9** | 005E | data 0040 |
+| EXPR2 | 001B | same | inline (+ two `MVI M,00` string clears) | `C3` @0054, **no C9** | 0057 | data 00AD |
+
+Contrast with the **file-scoped** prefix of [C109]/[C364] (`E52SA` 0006, `E52SD` 000D, LOAN2 002F, COPYLPT 0024, EXPR1 000D):
+`<SEL-COMMON x>` + `21 r(common x 0)` **with a COMMON relocation** + `3E nn` (`MVI A,<code>`, ENDFILE 05 / UNDEFINEDFILE 06)
++ `CD ?ONCOP` + `C3 slot` = **8 payload bytes after LXI is 3+2+3**; the ERROR prefix is **7 bytes** (3+1+3) because
+`XRA A` is ONE byte where `MVI A,nn` is two, and it carries **NO SEL-COMMON record and NO relocation** — the operand is
+an ABSOLUTE 16-bit constant. EXPR1 0018 additionally measures a **STOP-bodied** handler (`on endfile(sysin) stop;`) =
+inline `CD ?STOPX` and **NO C9 RET** — i.e. [C109]'s RET is **body-dependent**, and my `codegen.ml` (~14010-14050, both
+non-goto arms) emits the `C9` UNCONDITIONALLY. That is a recorded my-gap, NOT yet fixed; the panel cannot see it because
+no registered specimen has a STOP-bodied handler.
+
+### 3. Hypotheses and falsifiers (pre-registered VERBATIM, NEVER fit)
+- **H1 — prefix.** `ON ERROR[<arg>]` registers as `21 lo hi` (LXI H, the 16-bit argument, LITTLE-ENDIAN, ABSOLUTE — no
+  `RELOC common`, no `LINK-SEL-COMMON` record anywhere in the object unless a FILE is declared) + `AF` (XRA A) +
+  `CD <CHAIN-EXT ?ONCOP>` + `C3 <slot>` = **10 bytes total**. *Competing encoding:* `3E nn` (`MVI A,<code>`) as on the
+  file route, or a COMMON/absolute relocation on the LXI operand. *Falsifier:* any object whose registration is 11 bytes,
+  whose condition byte is written with `MVI`, or whose LXI operand carries a RELOC record. Every one of the five
+  existing witnesses already refutes those competitors; UA..UE re-test the point in minimal isolation.
+- **H2 — the argument is the LXI operand verbatim.** Bare `on error` = `21 00 00`; `error(1)` = `21 01 00`;
+  `error(2)` must be `21 02 00` and `error(0)` must be `21 00 00` (indistinguishable from bare). *Falsifier:* a refusal
+  (`SYNTAX ?`/`BAD VAL`), a clamped operand, an operand that is not the literal, or the value reaching `MVI A`.
+- **H3 — the handler tail is BODY-DEPENDENT.** A handler whose last statement transfers unconditionally (GOTO [C364],
+  STOP [EXPR1/EXPR2]) emits **NO `C9`**; a handler that RETURNS emits `C9`. *Competing encoding:* the unconditional `C9`
+  my code emits today after every non-goto handler. *Falsifier:* UA/UD showing no `C9` after a returning body, or UF's
+  `stop;` body carrying a `C9` — each falsifies exactly the arm that copies the blind RET.
+- **H4 — a returning handler demands NO block SP-cell and NO pad** ([C206]: the `LXI H,0 / DAD SP / SHLD *A` save and
+  the 9-byte pad belong to the GOTO form, not to the ON-unit). *Falsifier:* a `39 DAD SP` entry save, an extra DATA cell,
+  or an `LHLD/SPHL/?RECOV` pad in an object whose only ON unit has a returning handler (UA, UD, UE, and the second UF unit).
+- **H5 — the jump-over slot is the fall-through continuation and an adjacent label merges the two patch targets**
+  ([C208]/[C364]: the pad IS the label's entry; UC merges at one address, UB keeps two independent patch triples).
+  *Falsifier:* UB's two `SET-LC/RELOC/SET-LC` triples landing on one address, or UC's landing on two.
+- **H6 — verdicts.** All six probes are predicted **DR-ACCEPTED** (both passes clean, an object produced). A refusal on
+  any one of them is recorded verbatim as `dr-refuses` and its shape stays unlowered here; no shape is fitted to my
+  implementation.
+
+### 4. Probes E52UA..UF (6; CRLF, bare `^Z` at EOF, ≤71 columns, `dcl x fixed bin;` skeleton)
+Each predicted CODE byte list is written from the existing witnesses + the established PUT/assignment laws; the arm hop
+cmp-checks the WHOLE file byte-for-byte against the golden, so every wrong prediction becomes a visible MISS.
+
+- **E52UA** `on error x = 1;` + `x = 2;` — bare ERROR with a SIMPLE-STATEMENT (returning) handler. Predicted code:
+  `01 00 02 CD lo hi(?START)` @0000 · **H1 prefix** `21 00 00 / AF / CD lo hi(?ONCOP) / C3 lo hi(slot 000E)` @0006 ·
+  handler `21 01 00 / 22 r(data x)` @0010 · **`C9` RET** @0016 [H3] · continuation `21 02 00 / 22 r(data x)` @0017 ·
+  epilogue `CD lo hi(?STOPX)` @001D · `DEF-CODE-SIZE 0020`, `DEF-DATA-SIZE 0002` (x only), **NO COMMON group, NO SP-cell,
+  NO pad, NO `DAD SP`** [H4]; slot 000E patched to 0x17.
+- **E52UB** `on error goto lbl;` with `x = 1;` BETWEEN the ON and `lbl:` — the DIRECT form, REMOTE label. Predicted:
+  entry SP-save `21 00 00 / 39 / 22 r(data 2)` @0006 (cell at data 2, x at data 0, `DEF-DATA-SIZE 0004`) · prefix
+  `21 00 00 / AF / CD ?ONCOP / C3 slot 0015` @000D · stub `C3 slot 0018` @0017 · `x = 1` @001A · `CHAIN-ADDR 0018` ·
+  **pad @0020** `2A r(data 2) / F9 / CD lo hi(?RECOV)` · `x = 2` @0027 · `CD ?STOPX` @002D · `DEF-CODE-SIZE 0030`.
+  Patch triples: slot 0015 → 0x1A (continuation) and slot 0018 → 0x20 (pad) — **two independent targets** [H5].
+  *Falsifier:* the two targets coinciding, a pad at the fall-through instead of the label, or DR refusing the direct
+  ERROR form (`go to` after a file-less condition name is unpinned by the five witnesses, which all use BEGIN…GOTO).
+- **E52UC** LOAN2/ANNUITY mirror: `begin; put skip list('oops'); goto retry; end;` with `retry:` IMMEDIATELY adjacent.
+  Predicted: entry SP-save @0006 (`DEF-DATA-SIZE 0008`: 'oops'@0, x@4, cell@6) · prefix `21 00 00 / AF / CD ?ONCOP /
+  C3 slot 0015` @000D · inline put-skip-list chain @0017 (`11 52 02` LXI D,*S / `01 lo hi`(slot→0x33) LXI B / `CD ?SYSPR` /
+  `3E 01` / `CD ?SKPOP` / `21 r(data 0)` / `3E 04` / `CD ?SLCTS` / `CD ?PNCOP` / `CD ?QIOOP`) · `C3 slot` @0033 with
+  `CHAIN-ADDR` and **NO `C9`** [H3] · pad @0036 `2A r(data 6) / F9 / CD ?RECOV` = the merged jump-over+goto target [H5] ·
+  `x = 1` @003D · `CD ?STOPX` · `DEF-CODE-SIZE 0046`.
+- **E52UD** `on error begin; x = 1; end;` + `x = 2;` — plain **RETURNING** block handler; the shape NO golden contains
+  (all five BEGIN handlers end in a GOTO). Prediction as H3+H4: `C9` RET after the block body, NO pad, NO cell, NO `DAD SP`;
+  code `… AF / CD ?ONCOP / C3 slot / 21 01 00 / 22 r(x) / C9 / 21 02 00 / 22 r(x) / CD ?STOPX`.
+  *Falsifier:* DR emitting no `C9` for a block handler (then [C109]'s RET is block-vs-statement-dependent, not
+  body-dependent), or DR refusing the writing outright — either way my current unconditional `C9` for this shape is
+  recorded and the shape stays UNARMED.
+- **E52UE** `on error(2) x = 1;` + `on error(0) x = 2;` — H2's two NEW literals (only 0 and 1 are witnessed in the
+  corpus). Predicted prefixes `21 02 00` and `21 00 00` respectively, everything else as UA. *Falsifier:* a refusal, or
+  any operand other than the literal.
+- **E52UF** the FILE-condition contrasts under one shape: `on endfile(f) stop;` then `on endfile(g) x = 1;` then `x = 2;`
+  (`dcl f file; dcl g file;`). Predicted: first unit = file prefix `21 r(common F 0) / 3E 05 / CD ?ONCOP / C3 slot`,
+  handler inline `CD lo hi(?STOPX)` and **NO `C9`** (H3 on the ENDFILE route — EXPR1's reading in isolation);
+  second unit = the [C109] witness under the identical shape, handler `21 01 00 / 22 r(x)` **with `C9`** — the pair is
+  the direct byte-for-byte contrast with UA. `DEF-COMMON-SIZE 0023 F` and `0023 G` (34 + name length, [C120]), NO
+  SP-cell/pad [H4]. *Falsifier:* a `C9` after the STOP body, or none after the assignment body — H3 is then wrong in
+  that direction and the RET rule must be re-derived.
+
+### 5. Campaign + arm contract (hop 3)
+ONE grouped run `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52UA E52UB E52UC E52UD E52UE E52UF --tag e52p8
+--switches '$L$D'`, rc read DIRECT (never a pipeline tail); every `.PRN` read; goldens reldumped to `build/e52p8/`;
+classify honestly (`dr-refuses` / `my-gap` / `unmeasured`), keep every MISS verbatim, commit goldens VERBATIM.
+Arm ONLY measured shapes: (a) a SECOND prefix encoder beside `on_reg_prefix` (never mutate the file one) emitting
+`LXI H,<abs>` + `XRA A` + `CALL ?ONCOP` + `C3`; (b) the BODY-DEPENDENT tail — suppress the `C9` when the handler's last
+statement transfers unconditionally (GOTO already measured; STOP only if UF measures it), and correct the existing
+ENDFILE/UNDEFINEDFILE arms only if the measurement demands it (their regressions stay byte-exact either way);
+(c) reuse the [C364] inline-goto + pad/cell machinery wherever the bytes genuinely agree; (d) every unmeasured argument
+or handler shape refuses BY NAME with `[TBD]`. Then build rc=0 DIRECT, cmp accepted probes whole-file rc=0,
+sweep **114**, markers E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG rc=2, LOAN2 UNMODIFIED POSITIONAL with its new first
+blocker recorded VERBATIM (**do NOT chase it**), registration via sanctioned `--update-inventory` + census OWN write
+path FIRST, FULL gate rc=0 → `build/gate-e52p8-reg.log`, claim **C366 from MEASURED BYTES ONLY committed BEFORE the
+COVERAGE rewrite**, coverage_check + prose rc=0, RESULTS §P3-8 + PLAN §5 row, durables.
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+If ON ERROR lands, LOAN2's blocker MOVES past line 58 to the first unlowered statement after it. No candidate is
+predicted with confidence — LOAN2 63+ mixes GET/PUT/DO/file statements whose first refusal depends on prescan order.
+**Record whatever actually happens VERBATIM and do NOT fit, and do NOT fix it in P3-8.**

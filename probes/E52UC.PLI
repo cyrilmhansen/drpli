@@ -1,0 +1,15 @@
+E52UC: procedure options(main);
+
+   dcl x fixed bin;
+
+   on error
+      begin;
+         put skip list('oops');
+         goto retry;
+      end;
+
+retry:
+   x = 1;
+
+end E52UC;
+

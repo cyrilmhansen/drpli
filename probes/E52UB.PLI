@@ -1,0 +1,11 @@
+E52UB: procedure options(main);
+
+   dcl x fixed bin;
+
+   on error goto lbl;
+   x = 1;
+lbl:
+   x = 2;
+
+end E52UB;
+

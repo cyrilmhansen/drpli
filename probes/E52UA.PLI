@@ -1,0 +1,9 @@
+E52UA: procedure options(main);
+
+   dcl x fixed bin;
+
+   on error x = 1;
+   x = 2;
+
+end E52UA;
+

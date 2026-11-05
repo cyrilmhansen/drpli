@@ -1,0 +1,9 @@
+E52UE: procedure options(main);
+
+   dcl x fixed bin;
+
+   on error(2) x = 1;
+   on error(0) x = 2;
+
+end E52UE;
+

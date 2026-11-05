@@ -1,0 +1,13 @@
+E52UD: procedure options(main);
+
+   dcl x fixed bin;
+
+   on error
+      begin;
+         x = 1;
+      end;
+
+   x = 2;
+
+end E52UD;
+
