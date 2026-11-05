@@ -48,6 +48,8 @@ C359 derived ONLY from the existing measured evidence.
 HEAD `8fc0a3b`; binary `0efc35e6d4ff81bd…`; codegen warnings 68 == baseline; sweep **110/0**;
 markers E46K4/K15/N21/E52PF/PU/PV/RE rc=2; LOAN2 rc=2 VERBATIM at **line 54 OPEN PRINT**
 (§3 prediction HIT, never fitted); SF+SG dr-refuses; SE measured-accepted, KEPT unarmed.
+NORTH (hop 12 FIRST): the 5 campaign goldens are UNTRACKED (`golden/e52p6/`) — commit them by explicit path (evidence, never re-derived); ocaml/build-warn-e52p6.log is scratch, never stage.
+
 NEXT (hop 12 = CAP, docs+panel only, ZERO new oracle campaigns): execute the PROPOSED hop-12
 contract in that LEARNINGS § — SPECIMENS SA SB SC SD + honest refusal rows SF/SG (dr-refuses,
 markers from MY stderr WITH [TBD]) and SE (my-gap); sanctioned `--update-inventory` (measure the
