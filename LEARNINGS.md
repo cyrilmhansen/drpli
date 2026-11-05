@@ -6951,3 +6951,30 @@ an operator brief records state and STOPS.
   PRINT from STREAM OUTPUT; PAGESIZE/LINESIZE independently incl. dynamic; prereg probes BEFORE
   any ocaml/ byte; preserve FILE/COMMON layout + attach laws). SE ?REVOP arm. ON ERROR (LOAN2:58).
   Chain CAPPED 12/12 — next session needs operator archive/reset of .pi-guard renewal-state.json.
+
+## E2E-52/P3-7 hop 1 — OPEN PRINT/PAGESIZE/LINESIZE pre-registered (2026-11-05, fresh chain hop 1; ZERO ocaml/, ZERO oracle)
+- ACCEPTED (verified by reading the committed P0 decoder output in full): the OPEN block is title prologue + SIX
+  pushed words + `LXI H,<CB@0>` + `CALL ?OIOOP`, w5=PAGESIZE w6=LINESIZE, and the ZERO words are register-reused,
+  never re-loaded: titleless ⇒ `60 68` (MOV H,B/MOV L,B, B=0 from `XRA A`) then plain `E5` pushes; a literal ≤0xFF
+  ⇒ `2E vv` (MVI L,v) since H is already 0; back to zero ⇒ `68` (MOV L,B) while B=0, or `6C` (MOV L,H) once the
+  title has made B≠0 (witnessed only in the ENVIRONMENT blocks KEYFILE:16 / COPYLPT:49). So block LENGTH is a
+  function of (title kind) × (which of w5/w6 is nonzero and how) — a table, not a formula.
+- ACCEPTED: **PAGESIZE(0) is a bit, not a word** — LOAN2:54/DEPREC:51 carry w1 bit 0x2000 with w5 pushed as a
+  member of the zero run (29 bytes, identical bytes to a plain literal-title block). Zero must never be treated as
+  "absent"; absent is bit-clear.
+- ACCEPTED: PRINT sets 0x0002 AND 0x0040 and keeps the stream bit 0x0200 (P019B `print` alone = 0x0652, 21 B), so
+  PRINT is output-like in w1 while being its own bit — collapsing OUTPUT and PRINT is falsified by the pair
+  0x0650 (write attach) vs 0x0652 (print).
+- ACCEPTED (procedural, re-learned): `cmd 2>&1 | head` masks rc — my probe sweep reported `rc=0` on refusal text.
+  Always capture rc DIRECTLY (`pli80c …; rc=$?`) before any pipe.
+- ACCEPTED (procedural): the supported `/handoff verify` is a TUI command with no CLI entry point; the documented
+  stand-in (strip the managed block, rstrip, sha256 prose; hash GOAL/LEARNINGS/config whole; compare to the
+  checkpoint's five `source-*` fields) reproduces it exactly — five/five MATCHED for g341 at session start and the
+  per-session `.pi-guard/sessions/<id>.json` `checkpointFreshness` field agrees independently.
+- FALSIFIED (session-start assumption): "P019B is a reachable whole-file witness for `print`". Its body needs
+  lbound/hbound/lineno/pageno, none of which is lowered (`expression form not in int subset [TBD]`) — so NO
+  existing golden gives a whole-file PRINT witness and a new campaign is genuinely required, not redundant.
+- PROPOSED (hop 2, unverified until DR answers): TG titled + literal w5 + zero w6 restores zero with `6C`; TH
+  (P0 §10's E46A question, both literals) uses two `2E vv` pushes; TI variable PAGESIZE alone re-materialises w6
+  with `21 00 00`; TJ `pagesize(300)` is undecided (refusal or `21 2c 01`). All four are pre-registered with
+  falsifiers in PLAN §P3-7 §3 and will be recorded exactly as measured.
