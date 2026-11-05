@@ -8905,3 +8905,47 @@ classified `unmeasured` rather than `dr-refuses`.
   identifier-list spelling (SG) carry NO accepted object and keep refusing BY NAME; every
   other condition name (ON ERROR next — LOAN2:58) is unmeasured by this round. Condition byte
   06 is measured for UNDEFINEDFILE only; no other condition's byte is implied.
+
+## C365 — A `PRINT' OPEN IS w1 = **0x0652** TITLELESS / **0x0E52** TITLED (BIT 0x0002 ON THE OUTPUT-SIDE BASE 0x0650, THE 0x0200 BIT KEPT) AND THE `STREAM' KEYWORD IS **BYTE-INVISIBLE** ON THAT ROUTE; `PAGESIZE'/`LINESIZE' SET THE ATTRIBUTE BITS **0x2000/0x1000 BY PRESENCE**, INDEPENDENTLY OF THE PARAMETER WORD THEY EMIT — SO `PAGESIZE(0)' COSTS A BIT PLUS A PLAIN ZERO WORD AND **NO BYTE**; AND THE SIX PUSHED OPTION WORDS FOLLOW A REGISTER-REUSE LADDER ON HL — FIRST ZERO `21 00 00' WITH A TITLE / `60 68' (MOV H,B / MOV L,B) WITHOUT, FURTHER ZEROS BARE `E5', A LITERAL <=0xFF `2E vv' LEAVING L DIRTY so the NEXT ZERO IS ONE BYTE (`68' titleless, `6C' titled), a LITERAL >0xFF `21 vv vv' or a VARIABLE `2A r(cell)' + DATA reloc CLOBBERING BOTH HALVES so the NEXT ZERO RE-MATERIALISES FROM B (`60 68', measured titleless ONLY) (E2E-52/P3-7; MEASURED — 10 whole-file `cmp' rc=0 against `golden/e52p7/', RE-MEASURED at registration on the clean-rebuild binary sha256 `8b374e623bc9e280…', never fitted)
+
+* **Measured — the PRINT word.** `golden/e52p7/E52TA/E52TA.REL` (256 B sha256 `c68e1b9f20f1…`,
+  `open file(pf) print;`) carries `21 52 06` at its w1 slot; E52TC (384 B sha `d9b354745bef…`,
+  `title(name) print`) carries `21 52 0E` + the `?SLVTS` variable-title route. Bit 0x0002 sits on
+  the 0x0650 output-side base and 0x0200 is KEPT — so a PRINT open is NOT the spelled OUTPUT open;
+  the title adds 0x0800 exactly as on every other measured route. The historical rows agree:
+  P019B:3 and LOAN2:56/RETRIEVE:19/DEPREC:78 (`spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt`).
+* **Measured — attribute bit vs parameter word are SEPARATE.** E52TB (384 B sha `93b507cd08de…`,
+  `title('$con') print pagesize(0)`) is w1 `21 52 2E` (0x2000 set) with w2..w6 ALL plain zeros —
+  29 bytes of block, byte-identical to DEPREC:51. The option's PRESENCE sets the bit; `pagesize(0)`
+  adds NO byte. Likewise E52TE (384 B sha `33645c3cd5b7…`, `stream output linesize(60)
+  title('$1.key')`) = w1 `21 50 1E` (0x1000) with the literal only in w6 (KEYFILE:19 shape).
+* **Measured — the ladder.** E52TD (256 B sha `6c76370dc65b…`) is `AF 47 C5 33 / 21 52 26 / E5(w2
+  via 60 68) / … / 2E 3C E5 / 68 E5`: w5 `MVI L,3C` is legal only because H is already 0, and the
+  following zero costs ONE byte `68` MOV L,B. E52TG (384 B sha `e63a0da68b80…`, titled
+  `pagesize(60)`) writes the same `2E 3C` then `6C` MOV L,H — the TITLED one-byte restore, because
+  B holds the title length there (H stayed 0). E52TH (384 B sha `7444dc5053ea…`, titled both
+  literals) is `2E 3C E5 / 2E 50 E5` — two literals, no LXI H, written order kept. E52TF (384 B
+  sha `cf7a33efcb94…`) proves the VARIABLE route with a title: `21 00 00` (first zero) then
+  `2A r(data+2) E5 / 2A r(data+4) E5`, both DATA relocations (COPYLPT:38 shape).
+* **Measured — the clobbering-then-zero transition, titleless only.** E52TI (256 B sha
+  `1132c62b5654…`, `print pagesize(ps)`) is w5 `2A r(cell)` + reloc and w6 `60 68 E5`; E52TJ
+  (256 B sha `3bf1a8ba03f0…`, `pagesize(300)`) is w5 `21 2C 01` and w6 `60 68 E5`. The TITLED
+  form of this transition has NO object and this compiler refuses it by name.
+* **FALSIFIED, kept as written.** (a) TI's pre-registered prediction said w6 zero = `21 00 00`;
+  DR wrote `60 68` — the §P3-7 §3 falsifier TRIGGERED and the ladder above is what the oracle
+  measured, not my fit. (b) The pre-registered 30-byte block TOTALS for TG and TH were wrong
+  (measured 32 B and 33 B) — an arithmetic slip in my own prediction, recorded verbatim; the
+  byte-ENCODING predictions for both HIT exactly and their falsifiers did NOT trigger. (c) The
+  hop-1 idea that a PRINT open is the OUTPUT open with a different spelling is dead: the 0x0200
+  bit is kept in the measured word. (d) `pagesize(300)` > 0xFF was pre-registered as an UNKNOWN
+  verdict; DR ACCEPTED it (PRN `NO ERROR(S)` both passes) and the accept branch realised verbatim.
+* **What this does NOT say.** BYTE TIER ONLY — no `golden/e52p7` object was linked or run under
+  cpmsim; nothing here asserts that DR's runtime honours PAGESIZE/LINESIZE, that PRINT opens a
+  list device, or any console/file behaviour, and no `spec/RUNTIME.txt` row exists. The bit
+  meanings are the measured WORDS, not a decoded enum. Everything outside the measured matrix —
+  PRINT with INPUT or with the spelled OUTPUT option, attributes on INPUT/modeless/ENVIRONMENT/
+  KEYED/DIRECT opens, bare (unparenthesised) attributes, EXPRESSION operands, non-`FIXED BIN`
+  2-byte variables, linesize alone on a titled PRINT open, a 16-bit LINESIZE, titleless
+  `pagesize(0)`, mixed literal/variable pairs — has NO object from this round and refuses BY NAME
+  with `[TBD]`; that is my perimeter, not a DR rule. ENVIRONMENT/KEYED/DIRECT words remain
+  unlowered (REPORT:29's 36-byte `4E52` block is still unpursued).
