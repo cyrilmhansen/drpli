@@ -2307,19 +2307,36 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 330
-checkpoint-id: g330-390c87110680
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 331
+checkpoint-id: g331-d8725e983fee
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-05T02:02:03.307Z
+checkpointed: 2026-11-05T02:03:56.950Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 674103e675697005c43443dd8da9e7c472777cc34c6d5c1ac0a034d37f68aa96
-source-handoff: b66d29b57898818cb2f345a7a4952b856336a058c57caaf57b7aaedf5b9d1d21
-source-learnings: 6ba90002fd2e2e7d80041eae82525ad5c88333997d4bb5ff81e77ca08ec08570
+source-progress: 2402bc792ea630b4af06d1297086177229654b814a5f6308e2793b0b65ae26ec
+source-handoff: 48e538c2314733e406be0dd3bb55beef0422ccf01f4df61b6220f5af4d406746
+source-learnings: 4ad583141515c33fcfda40f22e861d3db9249180b2eaa87a2016e84385758906
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: `. Execute: arm → build rc=0
+next-action: `: (1) defensive `| PIrep _ -> a` prescan-fold arm (PA-class Warning 8) + rebuild
+  + re-verify 7 cmps + warning histogram vs 70; (2) sweep 89, markers rc=2, LOAN2 POSITIONAL
+  VERBATIM (predicted line-177 `PIvar yp`, NEVER fit); (3) registration +7 SPECIMENS + RE row,
+  `--update-inventory` 1222→1229 / negatives 182→183, census OWN path FIRST, gate rc=0
+  `build/gate-e52p5-reg.log`, **C363 measured-bytes-only BEFORE** COVERAGE `IO.PUT_EDIT`
+  EXACT 35→42, coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables, renew 9/12.
+  Ledger ENDS C362; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc
+  DIRECT; no push; campaign continues.
+
+0a-novies-new3. **E2E-52/P3-5 hop 7: ARM SITES ALL VERIFIED by code reading; ARM OWED
+  (2026-11-05, hop 7/12).** ZERO `ocaml/` byte. Baseline re-held: build rc=0 DIRECT binary
+  `345644822818326f…`; RA/RB/RF reldumps re-read — the rep loop is `lower_doto`'s TO-arm shape
+  with a ONE-item body, unconditional `LXI H,from/SHLD i` init, RB proves JP patched by
+  `emit_triple` to the NEXT item (one `?QIOOP` after the LAST item). Every edit site and the
+  FIVE non-exhaustive pitem matches (the PA trap: parser `parse_rep_spec`; codegen `pitem`,
+  `match_put_edit` data-walker, prescan folds ~3558/~3570, both authorizers, item loop ~12176
+  via named `emit_item`) + the hop-8 execution contract are in `LEARNINGS.md` § "E2E-52/P3-5
+  hop 7: ARM SITES ALL VERIFIED" and `PROGRESS.md` → `## Next action`. Execute: arm → build rc=0
   DIRECT (never a pipeline) → warnings histogram vs 70 → cmp RA RB RD RF RH RI RJ rc=0 vs
   `golden/e52p5/` → RC/RG/RE rc=2 → sweep 89 → markers rc=2 → LOAN2 POSITIONAL VERBATIM
   (predicted line-177 `PIvar yp`, NEVER fit) → commit → registration (SPECIMENS +7, inventory
@@ -2841,6 +2858,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1a962-ca01-753f-82d0-3160c474cb35
+readiness-at: 2026-11-05T02:03:56.962Z
+readiness-checkpoint: g331-d8725e983fee
 <!-- guard:end checkpoint -->
 
 ## Blockers
