@@ -392,3 +392,30 @@ float/DEC/member/call/subscript shapes keep refusing BY NAME. Zero new encoders 
   drift is **FATAL** in a normal gate (it aborts BEFORE the byte panel) — run the census own-write
   path first; cite reldump `DEF-DATA-SIZE`, never the compiler's own stat shorthand, in evidence.
 
+
+## §P3-5 — DATA-item DO-repetition on the EDIT route (campaign e52p5) — CLOSED
+
+Pre-registered `67e5414` (PLAN §P3-5 + probes E52RA..E52RJ BEFORE any ocaml/ byte). Oracle
+ONE grouped campaign rc=0 **9 ok/10** at `676fb9d`: E52RE dr-refuses (`BALANCE ?`+`SYNTAX ?`+
+`UNEXPECTED EOF`, NO .REL); RC BY and RG rep-of-char-var **DR-ACCEPTED whole goldens** —
+boundaries KEPT refused BY NAME (my-gap, never fitted). Arm `aeda739` (parser REPSPEC child 0 =
+index Eident + BY parse refusal; codegen `PIrep`, both-route `data` walker admission, prescan
+inner-cells-ONCE, authorizer admits PIlit/PInum-inner, named `emit_item` §2 loop). RB's
+first-try MISS at octet 275 decoded the PATCH law (non-final JP → NEXT item start; final →
+close `?QIOOP`). Hop-9 arms: defensive `| PIrep _ -> a` prescan-fold (`a008840`; histogram
+70 replay-of-`aeda739` → 68, diff EXACTLY −2 W8 at the fixed site) + named REVERSE parse
+refusal mirroring DR's verdict (`3a494c3` — the pre-registered `expected )` marker prediction
+FALSIFIED at registration: the panel requires [TBD]). MEASURED: **RA RB RD RF RH RI RJ whole-file
+cmp rc=0** (clean binary `e55e892c346741b2`, hop-8 binary produced byte-identical objects); H1
+(loop law) H2 (route-independence, RH) H3 (var-bound byte-identical, RF) H6 (RI table
+`80 00 80 02 03 FF 81 81`) CONFIRMED; H4: BY dr-accepted (RC object) / REVERSE dr-refuses; H5:
+RG DR-accepted, RG/RJ — RJ accepted-and-byte-exact, RG refused-by-name boundary KEPT.
+Registration: SPECIMENS +7 + RE row; `--update-inventory` 1222→1229 + 182→183 EXACTLY; census
+own write path rc=0 counts UNCHANGED 15/0/26/0, LOAN2 blocker MOVED VERBATIM to
+`codegen: ON UNDEFINEDFILE is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering;
+line 44)` at LOWERING — the line-177 `PIvar yp` prediction FALSIFIED at stage level, recorded,
+NOT fixed; FULL gate REAL rc=0 **1229/0**, 183/183, 9/9, 139 rows 0/0, prose 5
+(`build/gate-e52p5-reg.log`); claim **C363** (`c940426`, measured bytes only) BEFORE the
+COVERAGE rewrite EXACT 35→42 (`2be56f0`, coverage_check rc=0). Byte tier only — no runtime row.
+UNMEASURED (never promote): to<=2, from=0, 1-byte index, variable FROM, deref index/bound,
+nested rep, BY bytes, RG char-var bytes, numeric-LITERAL/DEC-inner reps.
