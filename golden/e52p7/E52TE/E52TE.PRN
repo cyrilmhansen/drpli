@@ -1,0 +1,29 @@
+
+--------------------------------------------------
+PL/I-80 Compiler                       Version 1.4
+Serial No. 3032-0000-001130    All Rights Reserved
+Copyright (c) 1980-1982     Digital Research, Inc.
+--------------------------------------------------
+
+COMPILATION OF: E52TE
+
+D: Disk Print
+L: List Source Program
+
+   NO ERROR(S) IN PASS 1
+
+   NO ERROR(S) IN PASS 2
+
+PL/I-80 V1.4 COMPILATION OF: E52TE
+
+   1 a 0000 E52TE: procedure options(main);
+   2 c 0006    dcl keys file;
+   3 c 0006    open file(keys) stream output linesize(60) title('$1.key');
+   4 c 0025    put list('te');
+   5 a 003C end E52TE;
+
+CODE SIZE = 003F
+DATA AREA = 0008
+FREE SYMS = 3895
+END  COMPILATION
+
