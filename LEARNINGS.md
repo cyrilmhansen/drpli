@@ -80,6 +80,73 @@ The guard never writes this file.
   probes E52UA..UF COMMITTED BEFORE any ocaml/ byte → ONE e52p8 campaign → arm → cmp/sweep/
   gate/registration → C366 measured-bytes-only → COVERAGE → RESULTS/PLAN rows → durables.
 
+## E2E-52/P3-8 hop 2 IN FLIGHT: ANNUITY GEOMETRY CLEAN-DISASSEMBLED (AMBIGUITY CLOSED); A RET-TAIL DEFECT IN MY EXISTING ARM DISCOVERED; PLAN §P3-8 + PROBES OWED (2026-11-05, session 01a1ab1e, renewal 1/12; ZERO ocaml/, ZERO oracle)
+
+- **ACCEPTED (clean linear disassembly — `build/e52p8/ondump2.py`, a bitstream decoder that
+  resolves EVERY operand (reldump-TEXT mode leaves reloc operands as `.`; dis80.py's
+  reldump-text mode therefore showed false gaps at LOAN2 00E0-011F) + dis80.py's DR-LEARNED
+  opcode table, chain/symbol tags walked from CHAIN-EXT/CHAIN-ADDR heads; output preserved at
+  `build/e52p8/onregions.txt`). The five ON ERROR witnesses, byte for byte:
+  - **LOAN2** 00E8 `21 00 00`(ABS) / AF / CD ?ONCOP / C3 ->code@0111; handler inline 00F2-010D
+    (console put skip list: LXI D,0252 / LXI B,code@010E / ?SYSPR / MVI A,01 / ?SKPOP /
+    LXI H,data@0101 / MVI A,17 / ?SLCTS / ?PNCOP / ?QIOOP), then `C3` at 010E (operand slot 010F,
+    CHAIN-ADDR) and **NO C9**; pad AT 0111 = `retry:` = `2A r(data@0318) / F9 SPHL / CD ?RECOV`,
+    body resumes 0118. Entry SP-save present (the block has ON...GOTO units).
+  - **ANNUITY** 004B `21 00 00`/AF/CD ?ONCOP/C3 ->code@0074; handler 0055-0070 (put skip list,
+    LXI B -> code@0071 = its own goto slot), `C3` at 0071 (slot 0072 CHAIN-ADDR), **no C9**;
+    pad at 0074 `2A r(data@0136) / F9 / CD ?RECOV`; body 007B. **The hop-1 "0074 is MID-DUMP
+    AMBIGUOUS / retry not adjacent" reading is FALSIFIED**: the earlier confusion was the
+    column-shifted hex of `build/e52p8/ondump.py`, not the object. ANNUITY is the ORDINARY
+    adjacent-label case: jump-over target == pad == label == 0074, exactly LOAN2/COPYLPT.
+  - **COPYLPT** 00A6 `21 01 00`(ABS) / AF / CD ?ONCOP / C3 ->code@00CA; handler put list (NO
+    skip: no ?SKPOP), `C3` at 00C7 no RET; pad 00CA `2A r(data@0214)/F9/CD ?RECOV` = label
+    `getnumber:`. Also re-read 0024-0038: `on endfile(sysin) go to typeover;` = file prefix
+    (`21 r(common@0) / 3E 05 / CD ?ONCOP / C3 ->0032`) + DIRECT-form stub `C3` at 002F + pad at
+    0032 — the [C201]/[C208] pair, third witness.
+  - **EXPR1** 001B `21 01 00`/AF/CD ?ONCOP/C3 ->code@005E; inline handler (put skip list with
+    TWO items, then `get skip` chain LXI D,0290/...?QIOOP) ends `C3` at 005B, **no C9**; pad
+    005E `2A r(data@0040)/F9/CD ?RECOV` = label `restart:`. Its `on endfile(sysin) stop;` at
+    000D is `21 r(common@0000)/3E 05/CD ?ONCOP/C3 ->code@001B` + handler `CD ?STOPX` inline at
+    0018 with **NO C9 RET**, continuation = the NEXT registration at 001B.
+  - **EXPR2** same at 001B (jump-over ->code@0057, pad 0057 `2A r(data@00AD)/F9/CD ?RECOV`);
+    its handler body additionally carries the two `MVI M,00` string clears at 004A-0053.
+  **So the registration law is CONFIRMED on five independent witnesses and the ANNUITY
+  ambiguity is CLOSED.**
+- **ACCEPTED (a real defect in MY EXISTING lowering — my-gap, discovered by code reading
+  against EXPR1/EXPR2, NOT yet fixed).** `ocaml/lib/codegen.ml` ~14010-14050 emits `C9 RET`
+  unconditionally after every NON-goto handler (statement and plain-`Sdobegin`), on the
+  authority of [C109] "the ON-unit IS a subroutine". The EXPR1/EXPR2 goldens measure a
+  `stop;`-bodied handler with **NO RET** — the tail is BODY-DEPENDENT, and any handler whose
+  last statement transfers unconditionally (STOP, or a GOTO) emits none. No registered
+  specimen currently has a STOP-bodied ON handler (E11A/E11C/E17A/FLTPOLY2/E32E1/E52SA..SD all
+  end in a returning statement), so the byte panel does NOT catch it: this is a latent
+  my-gap that ON ERROR arming must not copy. Probe **UF** measures the `endfile(f) stop;`
+  contrast in isolation; probe **UD** measures whether a RETURNING `begin;...;end;` handler
+  emits the C9.
+- **OPEN for the arm (design fact, code reading):** `on_reg_prefix st fu code` currently
+  ALWAYS does `load_file_cb st fu` (SEL-COMMON + COMMON reloc) + `MVI A,code`. The ERROR route
+  needs a DIFFERENT prefix: absolute `LXI H,nnnn` (NO reloc, NO SEL-COMMON) + `XRA A` (single
+  byte, not `MVI A,00`) + `CALL ?ONCOP`. So the arm is a SECOND prefix encoder (or a variant),
+  never a mutation of the file one — and `st.last_imm` must be set to Some nnnn after it? NO:
+  the five goldens show the handler's first statement reloads its own operands (LOAN2 handler
+  starts `LXI D,0252`); keep the existing branch-boundary discipline.
+- **STATE at this checkpoint:** HEAD `2790c96` (g358 attested, committed VERBATIM); tree clean
+  except the operator's `handoff.config.json` (never staged) + ignored scratch logs; build rc=0
+  DIRECT this session, binary sha256 `8b374e623bc9e280fa14…` == registration baseline; ledger
+  ENDS **C365**; gate 1243/0 186/186 9/9 140 0/0 census 15/0/26/0; LOAN2 blocker re-measured
+  VERBATIM line 58 rc=2 DIRECT; probe ids **E52U\* collision-grepped EMPTY** in probes/ and
+  spec/INVENTORY.txt; tag **e52p8 UNUSED** (only my own scratch docstring mentions it).
+- **EXACT NEXT ACTION (hop 2 remainder, unchanged in substance):** write PLAN §P3-8 (H1 abs-LXI
+  + XRA-A prefix; H2 argument = the LXI operand; H3 body-DEPENDENT RET tail — GOTO/STOP bodies
+  emit none, returning bodies emit C9; H4 returning handlers demand NO SP-cell/pad; H5
+  jump-over = fall-through continuation, adjacent label merges per [C208]) + probes E52UA..UF
+  (CRLF + bare ^Z, <=71 cols, E52SA skeleton): UA bare ON ERROR + assignment handler; UB bare ON
+  ERROR + DIRECT goto to a REMOTE label; UC LOAN2-mirror begin…goto adjacent; UD plain returning
+  begin handler (RET? pad?); UE error(0)/(2) literals vs bare; UF endfile(f) stop; + endfile
+  returning-BEGIN contrast. **COMMIT PLAN+probes BEFORE any ocaml/ byte**, then ONE campaign
+  `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52UA E52UB E52UC E52UD E52UE E52UF
+  --tag e52p8 --switches '$L$D'` rc DIRECT.
+
 ## E2E-52/P3-7 hop 5 CLOSED: PERIMETER CORRECTION LANDED; FULL COMBINED-STATE GATE rc=0 (2026-11-05)
 
 - **ACCEPTED (idempotent recovery).** The killed hop-4/5 session had ALREADY written RESULTS

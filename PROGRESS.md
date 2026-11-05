@@ -45,7 +45,76 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
-## Next action (P3-7 CLOSED at hop 5, 2026-11-05; successor action = E2E-52/P3-8 ON ERROR pre-registration)
+## Next action (P3-8 hop 2 IN FLIGHT, 2026-11-05, session 01a1ab1e, renewal 1/12 of cap 12)
+
+** hop 2 progress so far (all rc DIRECT, ZERO `ocaml/` byte, ZERO oracle call):** recovery
+VERIFIED (HEAD `2790c96` = g358 attested block committed; tree clean except operator
+`handoff.config.json` NEVER staged + ignored scratch logs; `dune build` rc=0 binary
+`8b374e623bc9e280fa14…` == registration baseline; LOAN2 blocker re-measured VERBATIM line 58
+rc=2). **ANNUITY 0070-0078 CLEANLY DISASSEMBLED — the hop-1 ambiguity is CLOSED and its
+"retry not adjacent / 0074 mid-dump" reading is FALSIFIED:** `build/e52p8/ondump2.py` (NEW
+scratch tool: the bitstream decoder of `ondump.py` + `dis80.py`'s DR-learned opcode table +
+CHAIN-EXT/CHAIN-ADDR symbol walking; dis80's reldump-TEXT mode prints reloc operands as `.` and
+showed FALSE gaps) proves ANNUITY is the ordinary adjacent-label case: registration 004B
+`21 00 00 / AF / CD ?ONCOP / C3 ->code@0074`, handler inline 0055-0070, `C3` at 0071 (slot 0072
+CHAIN-ADDR) NO C9, pad AT 0074 = label `retry:` `2A r(data@0136) / F9 / CD ?RECOV`, body 007B —
+identical geometry to LOAN2 (00E8/010E/0111), COPYLPT error(1) (00A6/00C7/00CA), EXPR1
+(001B/005B/005E), EXPR2 (001B/0054/0057). Full byte lists in `LEARNINGS.md` § "P3-8 hop 2 IN
+FLIGHT"; output preserved `build/e52p8/onregions.txt`.
+
+**NEW DISCOVERY — a latent my-gap in MY EXISTING ON lowering (recorded, NOT fixed):** the
+`C9 RET` at codegen.ml (~14010-14050, both non-goto arms) is emitted UNCONDITIONALLY per
+[C109], but the EXPR1/EXPR2 goldens measure `on endfile(sysin) stop;` = inline `CD ?STOPX` with
+**NO C9 RET**. The RET tail is BODY-DEPENDENT (a handler whose last statement transfers
+unconditionally — GOTO or STOP — emits none). No registered specimen has a STOP-bodied handler,
+so the byte panel CANNOT catch this. ON ERROR arming must never copy the blind RET.
+
+**EXACT NEXT ACTION (hop 2 remainder → hop 3):** (1) WRITE `spec/lab-evidence/e2e52-p3/PLAN.md`
+§Subround P3-8 — hypotheses H1 the ERROR prefix is ABSOLUTE `LXI H,<arg 16-bit LE>` + `XRA A`
+(`AF`, ONE byte, NOT `MVI A,nn`) + `CALL ?ONCOP` + `C3 <over>` (7 bytes, one SHORTER than the
+file-scoped [C109]/[C364] prefix, no SEL-COMMON, no reloc); H2 the conditional-name ARGUMENT is
+that LXI operand verbatim (bare = 0000, `error(1)` = 0001); H3 the handler tail is
+BODY-DEPENDENT — goto-terminated inline + `C3` + NO RET [C364], STOP-bodied NO RET (EXPR1/2), a
+RETURNING handler emits `C9` (UNMEASURED for ERROR → probe UD); H4 a handler with NO goto demands
+NO block SP-cell and NO pad ([C206]); H5 jump-over operand = the fall-through continuation,
+adjacent label merges them ([C208]); plus per-probe byte-exact predictions and explicit
+FALSIFIERS, VERBATIM, and the LOAN2 next-blocker prediction (line 58 must clear; the NEXT
+blocker candidate is the first unlowered statement after it — record whatever actually happens,
+NEVER fit). (2) WRITE probes `probes/E52UA..E52UF.PLI` in the E52SA style (CRLF line endings,
+bare `^Z` at EOF, ≤71 columns, `dcl f file; dcl x fixed bin;` skeleton): **UA** bare `on error` +
+assignment handler `x = 1;` (H1 + H3 returning-tail); **UB** bare `on error` + DIRECT `goto lbl;`
+to a NON-adjacent label (H5 independent patch targets on the ERROR route, cf. SC); **UC**
+LOAN2-mirror `begin; put skip list('oops'); goto retry; end;` with adjacent `retry:` (H1+H3
+no-RET law in isolation); **UD** plain RETURNING `begin; x = 1; end;` (is there a C9? a pad? a
+cell? UNMEASURED); **UE** `on error(0);` and `on error(2)` (H2 argument verbatim); **UF** the
+FILE-condition contrasts under identical shapes: `on endfile(f) stop;` (does the no-RET law
+transfer to ENDFILE? — the EXPR1 reading in isolation) and/or `on endfile(f) x = 1;` (the [C109]
+RET witness to compare byte-for-byte against UA). Collision-grepped ALREADY: `E52U*` EMPTY in
+`probes/` and `spec/INVENTORY.txt`; tag **e52p8 UNUSED** (verify once more: `grep -rn e52p8
+spec/ golden/ build/ oracle/ tools/ --include='*' | grep -v e52p8/ondump`). (3) **COMMIT PLAN +
+probes by EXPLICIT PATH BEFORE any `ocaml/` byte** (if a guard block landed uncommitted, commit
+it VERBATIM first). (4) ONE grouped campaign `PLI_SRC=probes timeout 900 python3
+oracle/batch.py E52UA E52UB E52UC E52UD E52UE E52UF --tag e52p8 --switches '$L$D'` rc DIRECT
+(NEVER a pipeline tail), read every .PRN, reldump goldens to `build/e52p8/`, classify honestly
+(dr-refuses / my-gap / unmeasured; keep MISSes verbatim), commit goldens VERBATIM.
+(5) Arm ONLY measured shapes: a SECOND prefix encoder next to `on_reg_prefix` (never mutate the
+file one), body-dependent RET tail (fix the STOP/GOTO case), reuse the [C364] inline-goto +
+pad/cell machinery where bytes agree, unmeasured argument/handler shapes refuse BY NAME with
+[TBD]; keep ENDFILE/UNDEFINEDFILE regressions byte-exact. Then build rc=0 DIRECT, cmp accepted
+probes whole-file rc=0 vs `golden/e52p8/`, sweep 114, markers E46K4/K15/N21/E52PF/PU/PV/RE +
+SE/SF/SG rc=2, LOAN2 POSITIONAL VERBATIM new blocker, registration via sanctioned
+`--update-inventory` + census OWN write path FIRST, FULL gate rc=0 logged
+`build/gate-e52p8-reg.log`, claim **C366 from MEASURED BYTES ONLY committed BEFORE the COVERAGE
+rewrite**, coverage_check + prose rc=0, RESULTS §P3-8 + PLAN §5 row, durables, renew near
+exhaustion.
+Standing boundaries KEPT: byte-tier only — NO runtime claims; no push; goldens NEVER re-derived;
+operator `handoff.config.json` NEVER staged; all rc DIRECT (never a pipeline tail); `pli80c`
+POSITIONAL (`pli80c IN.PLI OUT.REL`); never hardcode LOAN2; ON ERROR never presumed a file event
+— its operand is ABSOLUTE and its condition byte is AF/XRA A, measured. Standing PROPOSALS (never
+authorization): SE `?REVOP` arm; ENVIRONMENT route (RETRIEVE:31 / REPORT:29 36-B `4E52`); the
+STOP-bodied-handler RET correction.
+
+### P3-8 hop 1 LANDED (2026-11-05, session 01a1ab05): ON ERROR DECODED + CONFIRMED on 5 original goldens; PLAN §P3-8 PRE-REGISTRATION IS THE EXACT NEXT ACTION
 
 **P3-7 CLOSED — every hop-5 deliverable LANDED at this boundary commit (all rc DIRECT, ZERO oracle calls, ZERO `ocaml/` bytes this hop).** `spec/PERIMETER.md` line-38 correction appended INSIDE the FILE-attribute-cluster final cell, labelled [E2E-52/P3-7 CORRECTION]: falsified `Still refusing by name:` sentence kept VERBATIM as HISTORICAL; PRINT/PAGESIZE/LINESIZE implemented for the MEASURED combinations [C365], PAGE already [C359], file PUT/GET EDIT C360-C363 (E41X8 refusal OBSOLETE); KEYED/DIRECT/RECORD/SEQUENTIAL/UPDATE/APPEND/ENVIRONMENT remain unsupported on the OPEN routes; titleless OUTPUT 0x0650 stays OUTSIDE the measured OPEN implementation; unmeasured PRINT/attribute combinations still refuse BY NAME; NO claim that all combinations of individually supported attributes are supported. RESULTS §P3-7 + PLAN §5 row KEPT as the killed session authored them (idempotent recovery — only PERIMETER was missing; every cited hash verified to exist). Verification of the FINAL COMBINED state: `file_prose_check.py` rc=0; `coverage_check.py` rc=0 140 rows 0/0; FULL compilation-tier gate rc=0 DIRECT `build/gate-e52p7-hop5.log` — 1243/1243 byte-exact, 186/186 negatives, 9/9 divergence, coverage 140 rows 0/0, census 15/0/26/0, prose 5. Ledger ENDS **C365**; goldens NEVER re-derived; SE my-gap / SF-SG dr-refuses kept.
 
