@@ -1592,25 +1592,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 372
-checkpoint-id: g372-beb3088d8a3a
+checkpoint-generation: 373
+checkpoint-id: g373-a74c444119b0
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-status: checkpoint (guard level 0, remaining ~22235, session 01a1ac5b-a239-7528-bc25-100f3ae1e75f)
-checkpointed: 2026-11-05T16:00:41.216Z
+status: checkpoint (guard level 2, remaining ~8217, session 01a1acf2-5ab6-7739-b9fe-1a117f7bf59f)
+checkpointed: 2026-11-05T18:55:53.252Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 6a0b479a3743b51cc8f9ca215c22ab59ba3c83371ba14454406ec37dfb77818c
+source-progress: c92f242f9f3048adbf7dc4cff37fa05968bd7b31c22a6f185d62ce19be2da9d6
 source-handoff: 4b973a74698093079dfdd887bb35aaa1cfba34213364499dac9006eeaf69915f
-source-learnings: 3d9924a2632a352625b3a50e6510ed67bb67b47d7b9568e930b29a86517b2437
+source-learnings: 0353bbd11467114990ab14af237d78897ccc94ebe02044fc26cddb9051f88bba
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1ac5b-a239-7528-bc25-100f3ae1e75f
-readiness-at: 2026-11-05T16:00:41.238Z
-readiness-checkpoint: g372-beb3088d8a3a
+readiness-by: session:01a1acf2-5ab6-7739-b9fe-1a117f7bf59f
+readiness-at: 2026-11-05T18:55:53.276Z
+readiness-checkpoint: g373-a74c444119b0
 ### Last verified state
-guard level 0; checkpoint requested (finalize: Coverage ledger integrity hardening COMPLETE: coverage_gen.py neutralized (fail-closed stub rc=2); contract-identity invariant in coverage_check.py vs tracked spec/COVERAGE-IDS.txt (exact set comparison, fail-closed, never regenerated); canonical stats gated on clean validation; tools/test_coverage_integrity.py 36 checks rc=0 incl. live sandbox gate-abort test; C366 wording narrowed (NO relocation ON THE ARGUMENT OPERAND). FULL compile-tier gate rc=0 build/gate-coverage-integrity.log (1249/0, 186/186, 9/9, 140 rows 0/0 SUPPORTED 90, census 15/0/26/0, prose 5). Ledger ENDS C366; COVERAGE.tsv sha ba1ca9b11e2934a4… and stats sha 39e096d5fcfc9fcf… byte-identical to the repaired P3-8 state; goldens untouched; no ocaml/ byte; no new oracle call; no push; operator handoff.config.json NEVER staged. Next: commit refreshed managed blocks VERBATIM and STOP — P3-9 (LOAN2:91 compound OR-condition `(| (< dl 0) (> dl 2))`, VERBATIM blocker, NOT fixed) remains an operator decision, NOT authorized.)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2203,5 +2203,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-Coverage ledger integrity hardening COMPLETE: coverage_gen.py neutralized (fail-closed stub rc=2); contract-identity invariant in coverage_check.py vs tracked spec/COVERAGE-IDS.txt (exact set comparison, fail-closed, never regenerated); canonical stats gated on clean validation; tools/test_coverage_integrity.py 36 checks rc=0 incl. live sandbox gate-abort test; C366 wording narrowed (NO relocation ON THE ARGUMENT OPERAND). FULL compile-tier gate rc=0 build/gate-coverage-integrity.log (1249/0, 186/186, 9/9, 140 rows 0/0 SUPPORTED 90, census 15/0/26/0, prose 5). Ledger ENDS C366; COVERAGE.tsv sha ba1ca9b11e2934a4… and stats sha 39e096d5fcfc9fcf… byte-identical to the repaired P3-8 state; goldens untouched; no ocaml/ byte; no new oracle call; no push; operator handoff.config.json NEVER staged. Next: commit refreshed managed blocks VERBATIM and STOP — P3-9 (LOAN2:91 compound OR-condition `(| (< dl 0) (> dl 2))`, VERBATIM blocker, NOT fixed) remains an operator decision, NOT authorized.
+E2E-52/P3-9 (operator-authorized) hop 2. Read LEARNINGS.md § "E2E-52/P3-9 hop 1 IN FLIGHT" (all measured golden bytes + full owed contract) and PROGRESS.md → ## Next action. Key facts: dl<0 leaf = my-gap refusal; dl>2 supported; ANNUITY:46 OR = value-level FF/00 + POP B/ORA B/ONE JP (C312 mirror); LOAN2:91/113 FIXED-BIN ORs use DCX-ladder/CMA/PUSH PSW but my static flag trace predicts inverted polarity — UNRESOLVED, must be measured by probes, NEVER guessed. NEXT: finish Phase A checks (dis80 table 2F, ANNUITY 01B6/022F controls), then write PLAN §P3-9 + probes E52VA.. (collision-free verified) and COMMIT BOTH BEFORE any oracle call or ocaml/ byte; then ONE campaign --tag e52p9 --switches '$L$D' rc DIRECT; goldens VERBATIM; arm only measured; C367 BEFORE COVERAGE; gate build/gate-e52p9-reg.log. Fresh renewal chain 0/12 (cap 12). Constraints: no push; handoff.config.json NEVER staged; goldens NEVER re-derived; rc DIRECT; pli80c POSITIONAL; byte-tier only; do not fix the next LOAN2 blocker after line 91; stop at P3-9 closure.
 <!-- guard:end checkpoint -->
