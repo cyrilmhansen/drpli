@@ -45,7 +45,42 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
-## Next action (P3-8 hop 2 IN FLIGHT, 2026-11-05, session 01a1ab1e, renewal 1/12 of cap 12)
+## Next action (P3-8 hop 3 = ARM + REGISTRATION OWED, 2026-11-05; read `LEARNINGS.md` § "P3-8 hop 2 CLOSED" FIRST — it holds every measured byte)
+
+**STATE (hop 2 CLOSED, all rc DIRECT):** pre-registration `e6d16ff` (PLAN §P3-8 H1–H6 + probes
+E52UA..UF, CRLF/bare-^Z/≤71 cols, collision-grepped, committed BEFORE any `ocaml/` byte) → campaign
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52UA..E52UF --tag e52p8 --switches '$L$D'` rc=0
+DIRECT **6 ok/6**, every .PRN `NO ERROR(S) IN PASS 1` + `PASS 2` → goldens committed VERBATIM `9f36504`.
+**ALL SIX PREDICTIONS HIT**: H1 abs prefix `21 <arg LE> / AF / CD ?ONCOP / C3 over` (10 B, no
+COMMON/SEL-COMMON/RELOC in a file-less object); H2 `error(2)`=`21 02 00`, `error(0)`=`21 00 00`; **H3
+BODY-DEPENDENT tail** — UA/UD returning bodies emit `C9` @0016, **UF: `on endfile(f) stop;` = inline
+`CD ?STOPX` NO `C9` while `on endfile(g) x = 1;` carries `C9` @0025**; H4 no cell/pad for returning
+bodies (DATA 0002, no `DAD SP`) vs UB cell@2 (0004) / UC cell@6 (0008); H5 UB two independent targets
+(0015→0x1A, 0018→pad 0x20), UC adjacent merge (0x36); H6 all accepted incl. `on error goto lbl;`.
+Sizes UA 128/0020 UB 256/0030 UC 256/0046 UD 128/0020 UE 256/002B UF 384/002F.
+
+**EXECUTE hop 3 (the ARM, then registration):** (1) `ocaml/lib/codegen.ml` — add a SECOND prefix encoder
+beside `on_reg_prefix` (NEVER mutate the file one): `LXI H,<arg>` absolute (no reloc) / `AF` /
+`CALL ?ONCOP` / `C3 <slot>`; admit `Ast.Son` `cond = "error"` with `cargs = []` (arg 0) or ONE integer
+literal (that value); EVERY other ERROR argument or handler shape refuses BY NAME with `[TBD]`. (2) Make
+the tail BODY-DEPENDENT: suppress the trailing `C9` iff the handler's LAST statement transfers
+unconditionally — GOTO (existing [C364] arm) and STOP (MEASURED by UF on the ENDFILE route; ERROR+STOP is
+UNMEASURED, so keep that combination refused/unchanged until a specimen pins it); returning bodies keep
+`C9` (UA/UD). Keep bind.ml `Rk_on` + pad/cell machinery as is (bytes agree).
+(3) Verify: `cd ocaml && eval "$(opam env)" && dune build` rc=0 DIRECT; per-File warning histogram vs
+baseline **68**; cmp **UA UB UC UD UE UF** whole-file rc=0 vs `golden/e52p8/`; sweep
+`python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` = **114/0**; markers E46K4/K15/N21/E52PF/PU/PV/RE
++ SE/SF/SG rc=2; LOAN2 UNMODIFIED POSITIONAL — record its new first blocker VERBATIM, NEVER fix or
+hardcode it; commit explicit paths.
+(4) Register: SPECIMENS +6, sanctioned `--update-inventory` (real delta from **1243**), census OWN write
+path FIRST, FULL gate rc=0 DIRECT → `build/gate-e52p8-reg.log`, claim **C366 from MEASURED BYTES ONLY
+committed BEFORE the COVERAGE `ON`-unit rewrite**, `coverage_check.py` + `file_prose_check.py` rc=0,
+RESULTS §P3-8 + PLAN §5 row, durables, renew near exhaustion (chain 01a1ab34, cap 12).
+Boundaries KEPT: byte-tier only — NO runtime claims; no push; goldens NEVER re-derived; operator
+`handoff.config.json` NEVER staged; all rc DIRECT (never a pipeline tail); `pli80c` POSITIONAL;
+standing PROPOSALS (never authorization): SE `?REVOP` arm; ENVIRONMENT route (RETRIEVE:31 / REPORT:29).
+
+SUPERSEDED-BY-ABOVE: ## Next action (P3-8 hop 2 IN FLIGHT, 2026-11-05, session 01a1ab1e, renewal 1/12 of cap 12)
 
 ** hop 2 progress so far (all rc DIRECT, ZERO `ocaml/` byte, ZERO oracle call):** recovery
 VERIFIED (HEAD `2790c96` = g358 attested block committed; tree clean except operator
