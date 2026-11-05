@@ -2601,19 +2601,39 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 318
-checkpoint-id: g318-b6dc11c5de70
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-05T00:17:08.441Z
+checkpoint-generation: 320
+checkpoint-id: g320-2775f6cde050
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-05T00:40:05.368Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 460a67f9e45226fab8b9c52792ca62860bdf4792fa356864170fb15a0fafb08e
-source-handoff: 76b4e6e9c0a7f4dbb1fe14e70a1b6886f68de7cdce9a24996780b51a3476cce8
-source-learnings: 2b4ab8d5f3cb5dc888cf3a1cdbfdb92d10ccbeea57678a5c2c3122cb56226058
+source-progress: 33327acfc83f6e90370967bc11ac14bb6fe31e0ef01e228e8d1960a543641412
+source-handoff: 99dd9356a2bd08fea495d9d92fcb67d2986a8894983347225361b2db62bc24c2
+source-learnings: f5499d52eee26882f71318bddd62371047829d51012decdb176a8a9f25201fd2
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: `: RESULTS §P3-4 + PLAN §5
+next-action: ` steps (1)-(4): **PLAN §P3-5 + probes E52RA.. COMMITTED BEFORE
+  any ocaml/ byte** (collision-grep probes/+INVENTORY, verify tag `e52p5` unused), ONE grouped
+  campaign, arm (codegen only), sweep+markers+LOAN2 VERBATIM, registration (census OWN write path
+  FIRST, gate rc=0 `build/gate-e52p5-reg.log`, **C363 measured-bytes-only BEFORE** the COVERAGE
+  rewrite, coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row). Ledger ENDS **C362**; other
+  live refusals (NOT P3-5 targets unless measured): DEC formal/deref, numeric-literal, PIvar
+  bin-var file route (LOAN2 177), counted SKIP/PAGE+EDIT, format-COUNT expression, group count 0,
+  x 14..128 gap. Constraints: no push; goldens NEVER re-derived; operator `handoff.config.json`
+  NEVER staged (dirty standing edit); all rc DIRECT (pipeline-masking trap fired 3 hops running);
+  `pli80c` POSITIONAL; renewals autonomous (4/12 consumed, cap 12); campaign continues.
+
+0a-novies. **E2E-52/P3-4 REGISTRATION LANDED — gate rc=0 1222/0, ledger ENDS C362;
+  RESULTS/PLAN rows + P3-5 OWED (2026-11-05, fresh chain hop 3/12).** All owed registration
+  steps executed DIRECT: 10 SPECIMENS + PU/PV dr-refuses rows `e397ed9`; inventory
+  1212→1222 + 180→182 exactly; census own write path rc=0 counts unchanged, 3 predicted msg
+  moves (LOAN2 VERBATIM line-212); FULL gate rc=0 `build/gate-e52p3d-reg.log` (1222/0, 182/182,
+  9/9, 139 0/0, 15/0/26/0, prose 5); **C362** from MEASURED BYTES ONLY `1de3e28` BEFORE the
+  COVERAGE `IO.PUT_EDIT` rewrite `8c3b0b4` (EXACT:25→35; falsified clauses kept VERBATIM as
+  HISTORICAL); coverage_check rc=0 + prose rc=0 standalone; 10/10 cmps incl. PA headline
+  re-held on binary `345644822818326f…`. SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-4
+  REGISTRATION LANDED" and execute `PROGRESS.md` → `## Next action`: RESULTS §P3-4 + PLAN §5
   row, then subround P3-5 (PLAN BEFORE any ocaml/ byte). Ledger ENDS **C362**; goldens never
   re-derived; operator handoff.config.json never staged; all rc DIRECT; no push; campaign
   continues.
@@ -3057,9 +3077,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a8fe-39a2-753f-82d0-314d9e66c2c1
-readiness-at: 2026-11-05T00:17:08.455Z
-readiness-checkpoint: g318-b6dc11c5de70
 <!-- guard:end checkpoint -->
 
 ## Blockers
