@@ -56,6 +56,58 @@ The guard never writes this file.
   unchanged: no push; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all
   rc DIRECT; pli80c POSITIONAL; ledger ENDS C362; campaign continues.
 
+## E2E-52/P3-4 CLOSED (RESULTS §P3-4 + PLAN §5 row LANDED); LOAN2:212 NEXT-BLOCKER EVIDENCE DECODED; P3-5 PRE-REGISTRATION OWED (2026-11-05, fresh chain hop 4/12; binary `345644822818326f…`; ZERO ocaml/ byte this hop)
+
+- **ACCEPTED (P3-4 close).** `spec/lab-evidence/e2e52-p3/RESULTS.md` §P3-4 (new top-level
+  section: campaign 9 ok/11 table with per-probe size/code/DATA read from the **reldumps**,
+  every hypothesis verdict verbatim — H2a/H2b FALSIFIED + H2c CONFIRMED (count-1 splice); H4a
+  FALSIFIED + H4b FALSIFIED-IN-DETAIL (boundary 255, not 19; widths 14..128 accepted with NO
+  object witness, 129..254 unmeasured); H5a/H5b MOOT + H5c CONFIRMED; H6a FALSIFIED + H6b
+  CONFIRMED (no-XCHG); the `Pi_rep`-not-`Pi_repgrp` brief-wording falsification; PA root cause
+  + HEADLINE; sweep 89/89; LOAN2 line-212 VERBATIM with the 147-prediction FALSIFIED AT STAGE
+  LEVEL; registration chain, gate 1222/0 + 182/182, C362 ledger ENDS C362, COVERAGE EXACT:35;
+  §6 NOT-say/P3-5 perimeter) and the `PLAN.md` §5 cumulative P3-4 progress row, committed
+  `b76cd2f` (explicit paths, docs only). `file_prose_check.py` rc=0 DIRECT
+  `build/prose-check-e52p3e-results.log` (5 active files clean).
+- **ACCEPTED (independent re-verification on THIS session's build).** `dune build` rc=0,
+  binary sha256 `345644822818326f442a91d01dc3f52be6af47b3308bb9058ac30b73ef720d96` == the
+  headline hash; ALL 10 accepted-probe whole-file cmps **rc=0** re-measured THIS hop
+  (E52PA 384 B vs the EXISTING golden sha `d7b4e7f3…` = headline re-held a 3rd time; PP/PQ/PR/
+  PS/PT/PW/PX/PY/PZ 256 B each) and E52PU/E52PV/E52PF refusals rc=2 with the pinned marker
+  texts, LOAN2 rc=2 `PUT FILE(OUTPUT) EDIT shape [TBD] (line 212)` VERBATIM — evidence
+  `build/e52p3e/*` (ignored working state). A `pli80c` invocation with `-o` FAILS usage rc=2:
+  the CLI is POSITIONAL `pli80c [-d] INPUT.PLI OUTPUT.REL` (my first attempt this hop produced
+  10 fake rc=2s that way — the lesson was ALREADY in the durables; re-learned by measurement).
+- **ACCEPTED (LOAN2:212 next-blocker evidence, read from EXISTING goldens — zero oracle run,
+  zero compiler byte).** LOAN2 line 212 verbatim:
+  `put file(output) skip edit ('-------','------------', ('---------------' do i = 1 to 4)) (a);`
+  — the DATA half carries an **`Ast.Pi_rep` DATA-item repetition** (`'literal' do i = 1 to 4`,
+  parser.ml 1018: `if eat_key p "DO" then Pi_rep (e, parse_rep_spec p) else Pi_data e`). The
+  line-212 matcher-split raise (`match_put_edit` file arm → `split` → `data` walker accepts only
+  `Pi_data`/`Pi_fmtlist`, everything else → `None` → the catch) is therefore the **DATA-item rep
+  class**, NOT a format class; `classify_item` is never reached for it. The AST distinction is
+  now pinned in two places: `Pi_rep of expr * expr` = data-item DO-rep [EX ACK], `Pi_repgrp of
+  expr * put_item list` = counted FORMAT group (armed in P3-4). `bind.ml:1155` already treats
+  `Pi_rep` as **0 format bytes** ("rep of data item: no format bytes [verify]" — a VERIFIED-BY-
+  NOTHING annotation: an oracle witness for the shape would confirm it). No DR object for a
+  `Pi_rep` in a file EDIT list exists in ANY golden I have re-dumped so far, so its lowering is
+  **UNMEASURED**; the LOAN2 golden itself is the witness (its CODE spans must be decoded —
+  procedure `line` region), and a one-operand probe family is the clean measurement.
+- **PROPOSED (subround P3-5 perimeter — PLAN + probes COMMITTED BEFORE any ocaml/ byte).**
+  Target = the **file-route DATA-item DO-repetition** item class (LOAN2:212, the live blocker):
+  probes E52RA.. isolate (1) `2(a)`-style literal rep with a constant bound, (2) a
+  `do i = 1 to n` variable bound, (3) a rep of a VARIABLE data item, (4) a rep INSIDE a
+  rep-group format (Pi_repgrp containing Pi_rep), (5) console-route identical shape
+  (route-independence law), (6) `BY` step and `REVERSE` (expect dr-refuses/unmeasured — record
+  only). Claim target **C363** from measured bytes ONLY, committed BEFORE the COVERAGE rewrite
+  (cite lesson). Other live refusals to keep naming (NOT P3-5 targets unless a probe measures
+  them): DEC formal/deref items, numeric-LITERAL items, PIvar bin-var items on the file route
+  (LOAN2 177 pins the bytes), counted SKIP/PAGE+EDIT, format-COUNT expressions, group count 0,
+  x-widths 14..128 object gap.
+- **LESSON (gate-ordering, re-proved).** Before ANY registration gate: run the census through its
+  OWN write path — `--verify` drift aborts the gate BEFORE the byte panel. And `pli80c` is
+  POSITIONAL; never `cmd | tail` for an rc.
+
 ## E2E-52/P3-4 PA FIX + SWEEP 89/89 + MARKERS + LOAN2 ADVANCED LANDED; REGISTRATION OWED (2026-11-05, fresh chain hop 2/12; binary `345644822818326f442a…`)
 
 - **ACCEPTED (root cause of the PA Match_failure).** `edit_num_cell`'s Eident arm ended in an

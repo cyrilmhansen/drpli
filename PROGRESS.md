@@ -443,7 +443,51 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-4 REGISTRATION LANDED (gate rc=0 1222/0, ledger ENDS C362, COVERAGE EXACT:35); RESULTS/PLAN ROWS + P3-5 OWED (2026-11-05; fresh chain hop 3/12; read `LEARNINGS.md` § "E2E-52/P3-4 REGISTRATION LANDED (steps 1-5 minus RESULTS/PLAN); P3-4 CLOSE OWED" FIRST)
+### E2E-52/P3-4 **CLOSED** (RESULTS §P3-4 + PLAN §5 row at `b76cd2f`; headline re-held a 3rd time); SUBROUND **P3-5 PRE-REGISTRATION OWED** (2026-11-05; fresh chain hop 4/12; read `LEARNINGS.md` § "E2E-52/P3-4 CLOSED … LOAN2:212 NEXT-BLOCKER EVIDENCE DECODED; P3-5 PRE-REGISTRATION OWED" FIRST)
+
+LANDED this hop (all rc DIRECT, ZERO `ocaml/` byte, ZERO oracle call): `dune build` rc=0 clean
+binary sha256 `345644822818326f442a…` (== the headline hash); **10/10 accepted-probe whole-file
+cmps re-measured rc=0 THIS session** (E52PA 384 B vs the EXISTING golden sha `d7b4e7f3…` = the
+headline re-held; PP..PZ 256 B vs `golden/e52p3d/`); refusals E52PU/E52PV/E52PF rc=2 with pinned
+markers; LOAN2 rc=2 VERBATIM `(line 212)`; `RESULTS.md` §P3-4 (campaign table, every hypothesis
+verdict verbatim, root cause, registration, §6 NOT-say) + `PLAN.md` §5 P3-4 progress row committed
+`b76cd2f`; prose rc=0 `build/prose-check-e52p3e-results.log`. Evidence in ignored `build/e52p3e/`.
+
+**DECODING DONE (no oracle run needed for the NEXT blocker):** LOAN2 212 is
+`put file(output) skip edit ('-------','------------',('---------------' do i = 1 to 4)) (a);` —
+the failing class is the **`Ast.Pi_rep` DATA-item DO-repetition in the DATA half** (parser.ml 1018);
+`match_put_edit`'s `data` walker admits only `Pi_data`/`Pi_fmtlist` so `classify_item` is never
+reached, hence the line-212 catch. `Pi_rep` ≠ the P3-4 `Pi_repgrp` format group. `bind.ml:1155`
+annotates `Pi_rep` as 0 format bytes **"[verify]"** — UNVERIFIED, and NO golden contains a
+`Pi_rep` in a file EDIT list, so its lowering is **UNMEASURED**.
+
+**NEXT (successor) — subround P3-5, PRE-REGISTER FIRST:**
+(1) `PLAN.md` §P3-5 (measured blocker VERBATIM + the 212 source line + the Pi_rep/Pi_repgrp
+distinction + hypotheses H1 file-route data-rep encoding, H2 console-route independence, H3
+variable-bound, H4 `BY`/`REVERSE` refusal, H5 rep-inside-rep-group; per-probe PREDICTED bytes;
+arm sketch; boundaries KEPT: DEC formal/deref, numeric-literal, PIvar bin-var file route, counted
+SKIP/PAGE+EDIT, format-COUNT expression, group count 0, x 14..128 gap; predictions incl. the LOAN2
+next-blocker prediction — expected to ADVANCE past 212 to the NEXT unsampled class, never fit)
+AND the probes `probes/E52RA..E52R*.PLI` (CRLF + bare ^Z, ≤71 cols, skeletons from probes/E52PP
+style) — grep `probes/` + `spec/INVENTORY.txt` for name collisions and VERIFY the tag `e52p5`
+is UNUSED; **COMMIT PLAN + probes BEFORE any ocaml/ byte** (explicit paths; if a guard-block
+refresh landed uncommitted, commit it VERBATIM first).
+(2) ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py <names> --tag e52p5
+--switches '$L$D'` rc DIRECT; read every .PRN; reldump new goldens to `build/e52p5/`; classify
+all differences (`dr-refuses`/`my-gap`/`unmeasured`); keep MISSes verbatim; also decode the
+procedure-`line` CODE span from the EXISTING LOAN2 golden as corroboration.
+(3) arm (codegen.ml ONLY, after measurement) + full sweep + markers rc=2 + LOAN2 rerun UNMODIFIED
+positional, blocker VERBATIM.
+(4) registration: SPECIMENS + sanctioned `--update-inventory` (expect 1222 → 1222+N), census via
+its OWN write path FIRST (messages WILL move), FULL gate rc=0 DIRECT `build/gate-e52p5-reg.log`,
+claim **C363** from MEASURED BYTES ONLY committed **BEFORE** the COVERAGE `IO.PUT_EDIT` rewrite,
+coverage_check + prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables.
+Constraints: no push; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged
+(dirty standing edit); all rc DIRECT (the pipeline-masking trap has fired THREE hops running);
+`pli80c` POSITIONAL (`pli80c [-d] IN.PLI OUT.REL`); renewals autonomous (4/12 consumed, cap 12);
+campaign continues past every blocker; ledger ENDS **C362**.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-4 REGISTRATION LANDED (gate rc=0 1222/0, ledger ENDS C362, COVERAGE EXACT:35); RESULTS/PLAN ROWS + P3-5 OWED (2026-11-05; fresh chain hop 3/12; read `LEARNINGS.md` § "E2E-52/P3-4 REGISTRATION LANDED (steps 1-5 minus RESULTS/PLAN); P3-4 CLOSE OWED" FIRST)
 
 LANDED this hop (all rc DIRECT): guard block `2c51941`; build rc=0 binary
 `345644822818326f…`; 10/10 cmps re-verified incl. E52PA vs EXISTING golden sha `d7b4e7f32b9c…`

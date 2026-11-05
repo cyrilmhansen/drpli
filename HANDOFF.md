@@ -7,6 +7,35 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-decies. **E2E-52/P3-4 CLOSED (evidence rows LANDED `b76cd2f`); SUBROUND P3-5
+  PRE-REGISTRATION OWED (2026-11-05, fresh chain hop 4/12).** Docs-only hop, ZERO `ocaml/`
+  byte, ZERO oracle call: `RESULTS.md` §P3-4 (campaign 9 ok/11 table with reldump-derived
+  code/DATA sizes; verdicts VERBATIM — H2a/H2b FALSIFIED + H2c CONFIRMED (count-1 SPLICE); H4a
+  FALSIFIED + H4b FALSIFIED-IN-DETAIL (boundary **255**, not 19; widths 14..128 accepted,
+  bytes UNMEASURED; 129..254 unmeasured); H5a/H5b MOOT + H5c CONFIRMED; H6a FALSIFIED + H6b
+  CONFIRMED (no-XCHG); `Pi_rep` ≠ `Pi_repgrp` brief wording falsified; PA root cause +
+  HEADLINE; LOAN2 line-212 VERBATIM, the DEC-147 prediction FALSIFIED AT STAGE LEVEL; gate
+  1222/0 + 182/182, C362, COVERAGE EXACT:35; §6 NOT-say) + `PLAN.md` §5 P3-4 row.
+  Independent re-verification THIS session: clean build `345644822818326f442a…`, **10/10 cmps
+  rc=0** (PA headline re-held a 3rd time), PU/PV/PF rc=2 markers, LOAN2 rc=2 VERBATIM,
+  prose rc=0 — `build/e52p3e/`. DECODED the NEXT blocker with no oracle run: LOAN2 212 is
+  `put file(output) skip edit ('-------','------------',('---------------' do i = 1 to 4)) (a);`
+  — the failing class is the **`Ast.Pi_rep` DATA-item DO-repetition in the DATA half** (parser.ml
+  1018; the `data` walker admits only `Pi_data`/`Pi_fmtlist`, so `classify_item` is never
+  reached). `bind.ml:1155` calls `Pi_rep` 0 format bytes with a **"[verify]"** annotation; NO
+  golden holds a `Pi_rep` in a file EDIT list → its lowering is **UNMEASURED**.
+  SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-4 CLOSED … P3-5 PRE-REGISTRATION OWED" and execute
+  `PROGRESS.md` → `## Next action` steps (1)-(4): **PLAN §P3-5 + probes E52RA.. COMMITTED BEFORE
+  any ocaml/ byte** (collision-grep probes/+INVENTORY, verify tag `e52p5` unused), ONE grouped
+  campaign, arm (codegen only), sweep+markers+LOAN2 VERBATIM, registration (census OWN write path
+  FIRST, gate rc=0 `build/gate-e52p5-reg.log`, **C363 measured-bytes-only BEFORE** the COVERAGE
+  rewrite, coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row). Ledger ENDS **C362**; other
+  live refusals (NOT P3-5 targets unless measured): DEC formal/deref, numeric-literal, PIvar
+  bin-var file route (LOAN2 177), counted SKIP/PAGE+EDIT, format-COUNT expression, group count 0,
+  x 14..128 gap. Constraints: no push; goldens NEVER re-derived; operator `handoff.config.json`
+  NEVER staged (dirty standing edit); all rc DIRECT (pipeline-masking trap fired 3 hops running);
+  `pli80c` POSITIONAL; renewals autonomous (4/12 consumed, cap 12); campaign continues.
+
 0a-novies. **E2E-52/P3-4 REGISTRATION LANDED — gate rc=0 1222/0, ledger ENDS C362;
   RESULTS/PLAN rows + P3-5 OWED (2026-11-05, fresh chain hop 3/12).** All owed registration
   steps executed DIRECT: 10 SPECIMENS + PU/PV dr-refuses rows `e397ed9`; inventory
