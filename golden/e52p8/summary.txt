@@ -1,0 +1,6 @@
+E52UA	ok	PRN=True REL=True
+E52UB	ok	PRN=True REL=True
+E52UC	ok	PRN=True REL=True
+E52UD	ok	PRN=True REL=True
+E52UE	ok	PRN=True REL=True
+E52UF	ok	PRN=True REL=True

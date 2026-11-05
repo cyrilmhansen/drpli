@@ -7266,3 +7266,54 @@ ACCEPTED decode (every block = prologue, PUSH words w1..w6, `LXI H,*CB`, `CALL ?
   explicit paths. Ledger ENDS C365. Unresolved/proposed (NEVER adopted): ON ERROR (LOAN2:58) as P3-8;
   SE `?REVOP` arm (my-gap, bytes measured, unclaimed); ENVIRONMENT route (RETRIEVE:31, REPORT:29 36-B
   `4E52` block); titled zero-after-clobber restoration (UNMEASURED, refused).
+
+## E2E-52/P3-8 hop 2 CLOSED: PRE-REGISTRATION LANDED `e6d16ff` BEFORE any ocaml/ byte; CAMPAIGN e52p8 MEASURED 6 ok/6, EVERY PREDICTION HIT (2026-11-05, session 01a1ab34, renewal 2/12)
+
+- **ACCEPTED (H1/H2 — the ERROR prefix, measured in minimal isolation).** All five probes with no FILE
+  declaration carry **NO `LINK-DEF-COMMON`, NO `LINK-SEL-COMMON` and NO `RELOC common` record at all**:
+  registration = `21 <lo> <hi>` (ABSOLUTE 16-bit LE) / `AF` (XRA A) / `CD <CHAIN-EXT ?ONCOP>` /
+  `C3 <slot>` = 10 bytes. `on error` → `21 00 00` (UA @0006, UC, UD); **`on error(2)` → `21 02 00`**
+  (UE @0006) and **`on error(0)` → `21 00 00`** (UE @0017) — the argument is the LXI operand VERBATIM,
+  so bare and `error(0)` are indistinguishable in the object.
+- **ACCEPTED (H3 — the tail is BODY-DEPENDENT; my current unconditional `C9` is a CONFIRMED my-gap on
+  BOTH routes).** UA (statement handler `x = 1;`) and UD (`begin; x = 1; end;`) both emit
+  `21 01 00 / 22 r(data 0) / **C9**` — a RETURNING body gets the RET in either writing.
+  **UF measures the contrast in ONE object**: `on endfile(f) stop;` = file prefix `21 r(common F 0) /
+  3E 05 / CD ?ONCOP / C3 slot` + inline `CD <CHAIN-EXT ?STOPX>` at 0011 and **NO C9** (jump-over slot
+  000F → 0014, the next registration); `on endfile(g) x = 1;` in the SAME object DOES carry `C9` at
+  0025. So EXPR1/EXPR2's reading is now proven on a small specimen: RET iff the handler body returns.
+  UC/UB re-confirm the goto-terminated no-RET law on the ERROR route (`C3` @0033 in UC, stub in UB).
+- **ACCEPTED (H4).** No handler with a returning body demanded a block SP-cell or a pad:
+  UA/UD/UE `DEF-DATA-SIZE 0002` (x only, NO cell), no `39 DAD SP`; UC (`DEF-DATA-SIZE 0008`:
+  'oops'@0, x@4, **cell@6**) and UB (0004: x@0, cell@2) DO carry the entry save
+  `21 00 00 / 39 / 22 r(cell)`.
+- **ACCEPTED (H5 — independent vs merged patch targets on the ERROR route).** UB (REMOTE label): two
+  separate triples — slot 0015 → 0x1A (fall-through continuation) and slot 0018 → 0x20 (pad
+  `2A r(cell) / F9 / CD ?RECOV` before the label body at 0027). UC (ADJACENT label): ONE merged target —
+  both the LXI-B put-chain patch (001B→0x33), the `C3` goto slot and the jump-over 0015 resolve to
+  0x33/0x36 with the pad AT 0036 = `retry:` [C208].
+- **ACCEPTED (H6).** All six DR-ACCEPTED: every .PRN carries `NO ERROR(S) IN PASS 1` + `PASS 2`;
+  the direct form `on error goto lbl;` is legal (no file argument needed). Sizes: UA 128 B / CODE 0020,
+  UB 256 / 0030, UC 256 / 0046, UD 128 / 0020, UE 256 / 002B, UF 384 / 002F (COMMON F and G each 0023).
+- **PROCEDURE LESSON (accepted).** Pre-registering the FULL predicted byte list per probe paid off:
+  every predicted address/operand matched first try, so the arm contract is now a transcription, not a
+  guess. Keep it.
+- **STATE:** goldens `golden/e52p8/E52U{A..F}/` committed VERBATIM (never re-derived); HEAD = that commit
+  + the durables commit; ledger STILL ENDS **C365** (C366 owed from MEASURED BYTES ONLY, committed BEFORE
+  the COVERAGE rewrite); gate last known 1243/0 186/186 9/9 140-0-0 census 15/0/26/0; binary
+  `8b374e623bc9e280fa14…` (ZERO `ocaml/` byte written; sweep/markers/LOAN2 NOT re-run this hop).
+- **EXACT NEXT ACTION (hop 3) — ARM, then register.** In `ocaml/lib/codegen.ml`: (1) add a SECOND prefix
+  encoder beside `on_reg_prefix` (never mutate the file one): `d op_lxi_h; d lo; d hi; d 0xaf;
+  call_ext "?ONCOP"; d 0xc3; slot`; admit `(cond, cargs)` = `("error", [])` → arg 0 and
+  `("error", [literal integer])` → that value, refusing every other ERROR argument shape BY NAME [TBD];
+  (2) make the tail BODY-DEPENDENT — suppress the `C9` when the handler's LAST statement transfers
+  unconditionally (GOTO already handled; STOP now measured on ENDFILE by UF and on ERROR by nothing —
+  so arm the STOP suppression where measured and keep the rest refused); (3) keep the [C364] inline
+  goto/pad/cell machinery + bind.ml `Rk_on` charge unchanged (bytes agree); (4) `dune build` rc=0 DIRECT,
+  warnings histogram per-File vs baseline **68**, cmp UA UB UC UD UE UF whole-file rc=0 vs `golden/e52p8/`,
+  sweep **114**, markers E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG rc=2, LOAN2 POSITIONAL VERBATIM (record
+  its new first blocker, NEVER fix it); (5) registration: SPECIMENS +6, sanctioned `--update-inventory`
+  from 1243, census OWN write path FIRST, FULL gate rc=0 → `build/gate-e52p8-reg.log`, **C366
+  measured-bytes-only BEFORE the COVERAGE rewrite**, coverage_check + prose rc=0, RESULTS §P3-8 + PLAN §5
+  row, durables. Standing PROPOSALS (never authorization): SE `?REVOP` arm; ENVIRONMENT (RETRIEVE:31 /
+  REPORT:29 36-B `4E52`); the STOP-bodied-handler RET correction is now MEASURED (UF), arm it.
