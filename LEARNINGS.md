@@ -7326,3 +7326,43 @@ ACCEPTED decode (every block = prologue, PUSH words w1..w6, `LXI H,*CB`, `CALL ?
 - **STATE:** UNCOMMITTED = ocaml/lib/codegen.ml. Goldens untouched; ledger ENDS C365; renewals 3/12 cap 12.
 - **EXACT NEXT (hop 3 remainder):** (1) per-File warning histogram vs baseline 68 (must be equal — `dune build 2>&1` full log, count per-File W8/W11 etc. at prior sites; the manual ?STOPX arm adds NO new W8 risk but VERIFY); (2) cmp UA UB UC UD UE UF whole-file rc=0 vs golden/e52p8/ (`ocaml/_build/default/bin/pli80c.exe probes/E52Ux.PLI build/e52p8-reg/E52Ux.REL`, POSITIONAL); any MISS: reldump mine vs golden, fix codegen, rebuild, re-cmp — do NOT touch goldens; (3) sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` = 114/0; markers E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG rc=2; LOAN2 POSITIONAL VERBATIM new first blocker (ON ERROR 58 now armed — expect advance; record, NEVER fix); commit explicit paths; (4) registration: SPECIMENS +6, sanctioned `--update-inventory` from 1243, census OWN write path FIRST (EXPR1/EXPR2 may advance — verbatim), FULL gate rc=0 → build/gate-e52p8-reg.log, C366 from MEASURED BYTES ONLY BEFORE COVERAGE rewrite (ON-unit rows), coverage_check+prose rc=0, RESULTS §P3-8 + PLAN §5 row, durables. All rc DIRECT; no push; operator config NEVER staged.
 - **UPDATE (same session, operator "commit everything" — ACCEPTED):** the first draft was FALSIFIED in-house by UF cmp (octet 150, 5/6): my measured-STOP branch emitted only inline `CD ?STOPX` and SKIPPED the registration + C3-slot + emit_triple — the fix hoists the shared `on_reg_prefix / ?ONCOP / C3 slot` sequence ABOVE the shape match (registration is condition- and body-blind [C120][C202]; only the handler tail partitions). Rebuild rc=0 binary `9ecea27aa4f2d80f49ad…`; **cmp 6/6 rc=0**, sweep rc=0 FAILS: 0 (21 expected refusals incl SE/SF/SG), log `build/e52p8-reg/sweep-arm.log`. Arm COMMITTED `a7ab5a4` (explicit path; operator `handoff.config.json` NOT staged per standing policy; scratch ocaml/build-*.log left untracked by convention). Lesson (accepted): when a catch-all is restructured into an inner match, EVERY branch must carry the shared prologue — diff each branch's byte list against the golden BEFORE building.
+
+## E2E-52/P3-8 hop 3 REMAINDER CLOSED: VALIDATION + REGISTRATION + C366 + COVERAGE LANDED (2026-11-05, session 01a1ab9a, renewal chain fresh 0/12)
+
+- **ACCEPTED (validation, all rc DIRECT):** clean rebuild (`rm -rf _build`) build rc=0, binary
+  `9ecea27aa4f2d80f49ad…` == the recorded arm hash; per-File codegen warning histogram **68 == BASELINE**
+  (kinds 27/9/11/8/26/39/57/32, no drift from the arm); cmp UA UB UC UD UE UF whole-file **6/6 rc=0** vs
+  `golden/e52p8/`; sweep `build/e52p8-reg/sweep-arm.log` 124 specimens **FAILS: 0** + 21 named refusals;
+  MARKER HARNESS `build/e52p8-reg/markers.py` (replicates the gate's REJECTS loop) E46K4/K15/N21/E52PF/PU/
+  PV/RE + SE/SF/SG all rc=2, **MARKER_FAILS: 0**, log `markers.log`.
+- **PROCEDURE (accepted, new):** a marker harness MUST materialise the gate's source EXACTLY as
+  `run_negatives` does — `src.replace("\n","\r\n").encode() + b"\x1a"` — because the refusal's reported
+  LINE NUMBER depends on it: writing LF-only made E46N21 say `line 6` and MISS its registered
+  `(line 12)` marker. My first harness run therefore FALSIFIED its own method, not the compiler.
+- **ACCEPTED (LOAN2 measurement — the handoff to the next campaign):** `artefacts/LOAN2.PLI` sha
+  `7be23ba390926c20…` VERBATIM, HEAD `1dc53f4`, binary `9ecea27aa4f2d80f49ad…`, POSITIONAL invocation
+  `ocaml/_build/default/bin/pli80c.exe artefacts/LOAN2.PLI build/e52p8-reg/LOAN2-mine.REL`,
+  **rc=2 DIRECT, NO .REL produced** (stdout 0 bytes, stderr in `build/e52p8-reg/LOAN2-stderr.log`):
+  first diagnostic VERBATIM `codegen: condition form not in E2E-3b subset [TBD]: (| (< dl 0) (> dl 2))`.
+  LOAN2 **ADVANCED past ON ERROR line 58** — the ON-ERROR blocker is CLOSED; the message carries NO line
+  number (the condition-lowering site at codegen.ml:9154 prints the IR, not a position) and the first
+  unlowered construct is the OR-of-relations condition at LOAN2:91 `if dl < 0 | dl > 2 then` (`dl` is
+  FIXED BINARY). Census advances recorded VERBATIM, NOTHING fixed: EXPR1 -> `GET form not in E2E-3e
+  subset [TBD] (line 21)`, EXPR2 -> `FLOAT expression shape builtin is unsampled [TBD] (line 35)`.
+- **ACCEPTED (registration):** SPECIMENS +6 via `SPECIMENS.update` after the e52p7 block — the dict is
+  `NoOverwriteDict`-wrapped only from ~2834, so an `update` at 2263 is still collision-guarded; all six
+  names accepted, no SUBSTITUTION. `--update-inventory` diff EXACTLY +6, 1243 -> **1249**, refusals
+  unchanged 186. Census OWN write path (`corpus_census.py --check /tmp/census-prev-e52p8.json`) rc=0,
+  counts UNCHANGED **15/0/26/0**, binary_md5 moved to `3757ecfb…` (MD5, not sha256). FULL gate rc=0
+  DIRECT `build/gate-e52p8-reg.log`: **1249/0, 186/186, 9/9, 140 rows 0/0, census 15/0/26/0, prose 5**.
+- **ACCEPTED (ordering):** **C366** `17c9963` (measured bytes only — goldens UA `6baf855210d3`, UB
+  `b68d334de66f`, UC `16b09236bf30`, UD `cfeed90ca4c5`, UE `23b01969fb1a`, UF `4caeceedd52a`; fresh
+  reldumps `build/e52p8-reg/e52*-golden-reldump.txt`) committed BEFORE the COVERAGE rewrite `0cf0688`
+  (validator resolves cites); coverage_check rc=0, coverage_gen stats own path rc=0; prose rc=0.
+  Ledger now ENDS **C366**.
+- **OWED BY THE SUCCESSOR (the ONLY remaining task items, docs-only):** RESULTS §P3-8 table + PLAN §5
+  row in `spec/lab-evidence/e2e52-p3/` (campaign 6 ok/6, H1–H6 all HIT, first-draft UF falsifier kept
+  verbatim, 6/6 cmp, sweep, markers, LOAN2/EXPR1/EXPR2 advances, gate 1249, C366, COVERAGE EXACT:6),
+  then `/handoff` + commit durables VERBATIM. NO new oracle campaign, NO next-blocker work: PROPOSED
+  next subround P3-9 = the OR/compound-condition class (LOAN2:91) — decode EXPR1/E37/E38 goldens
+  FIRST, pre-register PLAN §P3-9 + probes BEFORE any `ocaml/` byte.

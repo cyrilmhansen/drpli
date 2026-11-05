@@ -45,7 +45,15 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
-## Next action (P3-8 hop 3 IN FLIGHT — ARM COMMITTED `a7ab5a4` 6/6 CMP + SWEEP CLEAN; HISTOGRAM/markers/LOAN2 + REGISTRATION OWED, 2026-11-05; read `LEARNINGS.md` § "hop 3 PART DONE" FIRST — it is the exact remaining contract)
+## Next action (P3-8 hop 3 REMAINDER CLOSED — VALIDATION + REGISTRATION + C366 + COVERAGE ALL LANDED; RESULTS §P3-8 + PLAN §5 ROW + DURABLE COMMIT OWED, 2026-11-05; read `LEARNINGS.md` § "hop 3 REMAINDER CLOSED" FIRST)
+
+**CLOSED THIS HOP (all rc DIRECT, goldens NEVER touched, no new oracle call, no push, operator `handoff.config.json` NEVER staged):** clean rebuild rc=0 binary `9ecea27aa4f2d80f49ad…`; codegen warning histogram **68 == baseline**; cmp UA..UF **6/6 whole-file rc=0**; sweep **FAILS: 0** (124 specimens + 21 named refusals); marker harness `build/e52p8-reg/markers.py` **MARKER_FAILS: 0** (E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG all rc=2) — LESSON: the harness MUST materialise CRLF + bare `^Z` like `run_negatives`, else the reported line number moves and the marker misses. **LOAN2 VERBATIM** (sha `7be23ba390926c20…`, HEAD `1dc53f4`, POSITIONAL) **rc=2, NO .REL**, first diagnostic VERBATIM `codegen: condition form not in E2E-3b subset [TBD]: (| (< dl 0) (> dl 2))` = LOAN2:91 `if dl < 0 | dl > 2 then` — ON ERROR 58 CLOSED, blocker RECORDED, NOT fixed. SPECIMENS +6 (`244f6e1`), inventory 1243->**1249** (+6 exactly, 186 refusals), census OWN path rc=0 counts **15/0/26/0** with EXPR1->GET 21 / EXPR2->FLOAT builtin 35 / LOAN2->condition form, FULL gate rc=0 `build/gate-e52p8-reg.log` (**1249/0, 186/186, 9/9, 140 0/0, prose 5**), **C366** `17c9963` measured-bytes-only BEFORE COVERAGE `0cf0688` (COND.ON_ERROR SUPPORTED/EXACT:6, falsified clause kept VERBATIM as HISTORICAL), coverage_check + coverage_gen + prose rc=0. Ledger ENDS **C366**.
+
+**EXECUTE NEXT (docs-only, finish the brief):** (1) `spec/lab-evidence/e2e52-p3/RESULTS.md` — append `§P3-8` table: campaign e52p8 **6 ok/6**, H1..H6 EVERY prediction HIT (abs prefix 10 B no COMMON/reloc; argument verbatim incl. error(2)/error(0); BODY-DEPENDENT tail proven inside UF; no cell/pad for returning handlers; UB two independent triples vs UC adjacent merge 0x36; all DR-ACCEPTED), sizes UA 128/0020/0002 UB 256/0030/0004 UC 256/0046/0008 UD 128/0020/0002 UE 256/002B/0002 UF 384/002F/0002+COMMON F,G 0023, the first-draft prologue-omission falsifier (UF MISS octet 150, 5/6) KEPT VERBATIM, implementation arm `a7ab5a4` 6/6 cmp + sweep + markers, LOAN2/EXPR1/EXPR2 advances VERBATIM, registration 1249 + C366 + COVERAGE EXACT:6, §6 BYTE-TIER-ONLY NOT-say. (2) `PLAN.md` §5 table: one P3-8 row (pre-reg `e6d16ff`, goldens `9f36504`, claim C366, arm `a7ab5a4`, verification, next blocker) + mark §P3-8 CLOSED. (3) prose rc=0 standalone; (4) `/handoff` then commit HANDOFF.md + PROGRESS.md VERBATIM (managed blocks unedited). Then STOP — do NOT start P3-9, no oracle, no PLILIB/MIR.
+
+**PROPOSED (never authorization) next scientific choice:** the compound-condition class — LOAN2:91 `dl < 0 | dl > 2` refuses at `codegen.ml:9154` `condition form not in E2E-3b subset`; `my-gap` for OR-of-relations (existing `COND.*` rows + E37/E38 goldens are the evidence to re-read), `dr-refuses` rows unchanged (E46N21 LINE-with-count, EXPR2's FLOAT builtin is a separate `my-gap`). Smallest investigation: decode existing goldens for the `|` condition shape, then pre-register PLAN §P3-9 + E52VA.. probes BEFORE any `ocaml/` byte. DO NOT execute this hop.
+
+SUPERSEDED-BY-ABOVE:  — ARM COMMITTED `a7ab5a4` 6/6 CMP + SWEEP CLEAN; HISTOGRAM/markers/LOAN2 + REGISTRATION OWED, 2026-11-05; read `LEARNINGS.md` § "hop 3 PART DONE" FIRST — it is the exact remaining contract)
 
 **HOP-3 STATUS (session 01a1ab4c, renewal 3/12):** guard g362 blocks committed VERBATIM `5946467`; baseline re-held (build rc=0, binary `8b374e623bc9e280fa14…`). `ocaml/lib/codegen.ml` arm LANDED AND COMMITTED `a7ab5a4`: `on_error_reg_prefix` (abs LXI H,arg / XRA A; file encoder untouched), helpers hoisted (has_goto/block_tail_goto/handler_body + NEW has_stop), ERROR arm admitting ONLY bare/one-int-arg + the four measured handler shapes (statement-C9, returning block-C9 per-stmt lowering, direct goto, block tail-goto; STOP/RETURN/NULL/DCL handlers and all other args refuse BY NAME [TBD]), body-dependent STOP tail on the ENDFILE route (manual `call_ext ?STOPX`, NO C9, no stop_seen leak — UF 0011-0013/epilogue @002C) with UNDEFINEDFILE+STOP and nested STOP now refusing BY NAME. FIRST DRAFT FALSIFIED in-house: the stop branch omitted the registration+C3+triple sequence — UF CMP_RC=1 at octet 150 (5/6); fixed, build rc=0 DIRECT binary `9ecea27aa4f2d80f49ad…` (supersedes draft `f9abf6b6d07f1d3db500…`), **cmp 6/6 rc=0 (UA UB UC UD UE UF)** whole-file vs golden/e52p8/, sweep rc=0 **FAILS: 0** with 21 expected named refusals (`build/e52p8-reg/sweep-arm.log`). OWED NOW: warning histogram vs 68, markers E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG rc=2, LOAN2 POSITIONAL VERBATIM (58 now armed — record the advance, never fix), commit explicit paths, then the hop-2 registration contract (SPECIMENS +6, --update-inventory from 1243, census OWN path FIRST, gate rc=0 build/gate-e52p8-reg.log, C366 measured-bytes-only BEFORE COVERAGE, coverage_check+prose rc=0, RESULTS §P3-8 + PLAN §5 row, durables).
 
@@ -2666,13 +2674,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 365
-checkpoint-id: g365-8266ea535079
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 366
+checkpoint-id: g366-0e72bcd93bb4
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T11:58:07.926Z
+checkpointed: 2026-11-05T12:37:45.841Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 024d21cbfeea16c2bee9ca453600f573b92b1d90a2392b27ab3728d6e7cba12e
 source-handoff: 2366bcc250372b46021d4c0493894a6826a0248c038c12e4e8bea46386c7c86f
@@ -3261,9 +3269,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ab4c-bb15-71c1-a110-29486b9b9ed2
-readiness-at: 2026-11-05T11:58:07.944Z
-readiness-checkpoint: g365-8266ea535079
 <!-- guard:end checkpoint -->
 
 ## Blockers
