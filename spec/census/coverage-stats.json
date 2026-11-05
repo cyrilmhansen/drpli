@@ -19,8 +19,8 @@
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 113,
-  "SINGLE_SAMPLE": 19,
+  "MEASURED": 114,
+  "SINGLE_SAMPLE": 18,
   "UNREVIEWED": 5
  },
  "dr": {
@@ -35,10 +35,10 @@
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 3,
   "PARTIAL": 23,
-  "REFUSED": 22,
-  "SUPPORTED": 89
+  "REFUSED": 21,
+  "SUPPORTED": 90
  },
- "no_parity": 29,
+ "no_parity": 28,
  "no_runtime": 110,
  "perimeter": {
   "C": 2,
@@ -47,7 +47,7 @@
   "S": 120
  },
  "rows": 140,
- "single_sample": 19,
+ "single_sample": 18,
  "unreviewed": 5,
  "with_boundary": 140
 }
