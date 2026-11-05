@@ -45,7 +45,17 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
-## Next action (P3-8 hop 3 REMAINDER CLOSED — VALIDATION + REGISTRATION + C366 + COVERAGE ALL LANDED; RESULTS §P3-8 + PLAN §5 ROW + DURABLE COMMIT OWED, 2026-11-05; read `LEARNINGS.md` § "hop 3 REMAINDER CLOSED" FIRST)
+## Next action (P3-8 SUBROUND CLOSED + COVERAGE LEDGER REPAIRED — the brief's STOP is REACHED; only a full-gate re-confirm is PROPOSED, 2026-11-05; read `LEARNINGS.md` § "DOCS CLOSE + A LEDGER-CLOBBER REPAIR" FIRST)
+
+**DONE THIS SESSION (docs-only; ZERO `ocaml/` byte, ZERO oracle call, goldens NEVER touched, no push, operator `handoff.config.json` NEVER staged; all rc DIRECT):** guard g368 blocks committed VERBATIM `9adf3fc`; `RESULTS.md` §P3-8 (measured table, H1–H6 ALL CONFIRMED, first-draft falsifier VERBATIM, marker CRLF+`^Z` procedure, LOAN2→condition-form / EXPR1→GET-21 / EXPR2→FLOAT-35 advances VERBATIM, registration 1249 + **C366** BEFORE COVERAGE, §6 byte-tier-only NOT-say, **§7 the defect record**), `PLAN.md` §5 P3-8 row + §P3-8 **CLOSED** marker — `86db760`; `LEARNINGS.md` repair section `87ebe5f`.
+
+**ACCEPTED DEFECT + REPAIR (the reason this hop was NOT a plain close):** commit `0cf0688` never landed the COVERAGE rewrite — the obsolete `tools/coverage_gen.py` (hard-coded E2E-36 row list, ends `os.replace('spec/COVERAGE.tsv')`) was run as "the stats' own write path" and clobbered the ledger 141→72 lines, leaving `COND.ON_ERROR` REFUSED/NONE. Repaired: restored `git show 17c9963:spec/COVERAGE.tsv`, re-applied the row by csv column-edit (id KEPT, historical sentence VERBATIM, SUPPORTED/**EXACT:6**, probes E52UA..UF, corpus ANNUITY,COPYLPT,EXPR1,EXPR2,LOAN2, boundary = BY-NAME refusals + byte-tier-only + the three census advances). Verified `coverage_check.py` rc=0 **140 rows 0/0 SUPPORTED 90 == the committed `coverage-stats.json` (stats did NOT move = the consistency proof)** and `file_prose_check.py` rc=0; evidence `build/e52p8-reg/coverage-repair.log`, `prose-repair.log`. **LAW: `coverage_check.py` is the stats' ONLY write path; NEVER run `coverage_gen.py` on this tree; verify ledger rewrites by CONTENT (`git diff --stat` ≈ one line + re-read the row), never by a validator exit code.**
+
+**STATE:** ledger ENDS **C366**; build rc=0 binary `9ecea27aa4f2d80f49ad…`; gate last ran rc=0 **1249/0, 186/186, 9/9, 140 rows 0/0, census 15/0/26/0, prose 5** (`build/gate-e52p8-reg.log`, BEFORE the clobber — the restore re-establishes exactly that panel state, coverage-panel-verified standalone); LOAN2 UNMODIFIED rc=2, NO .REL, first diagnostic VERBATIM `codegen: condition form not in E2E-3b subset [TBD]: (| (< dl 0) (> dl 2))` = LOAN2:91, NOT fixed.
+
+**EXACT NEXT (nothing is authorized):** `/handoff` + commit the refreshed managed blocks VERBATIM, then **STOP**. PROPOSED (never authorization, do NOT start without an operator brief): (1) ONE full `python3 tools/e2e_gate.py` re-run to confirm the combined state after the restore; (2) neuter/delete `tools/coverage_gen.py` + add a gate assertion that the COVERAGE row count never shrinks without a labelled correction; (3) metadata-only tightening of [C366]'s "NO relocation of any kind in its registration" phrase (precise meaning: NO COMMON group, NO SEL-COMMON record, NO relocation ON THE ARGUMENT operand; the `?ONCOP` CHAIN-EXT and the jump-over `RELOC code` DO exist); (4) subround P3-9 = the compound/OR-condition class at LOAN2:91 (`my-gap`), decoding EXISTING E37/E38 `COND.*` goldens FIRST, then PLAN §P3-9 + probes BEFORE any `ocaml/` byte.
+
+SUPERSEDED-BY-ABOVE: ## Next action (P3-8 hop 3 REMAINDER CLOSED — VALIDATION + REGISTRATION + C366 + COVERAGE ALL LANDED; RESULTS §P3-8 + PLAN §5 ROW + DURABLE COMMIT OWED, 2026-11-05; read `LEARNINGS.md` § "hop 3 REMAINDER CLOSED" FIRST)
 
 **CLOSED THIS HOP (all rc DIRECT, goldens NEVER touched, no new oracle call, no push, operator `handoff.config.json` NEVER staged):** clean rebuild rc=0 binary `9ecea27aa4f2d80f49ad…`; codegen warning histogram **68 == baseline**; cmp UA..UF **6/6 whole-file rc=0**; sweep **FAILS: 0** (124 specimens + 21 named refusals); marker harness `build/e52p8-reg/markers.py` **MARKER_FAILS: 0** (E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG all rc=2) — LESSON: the harness MUST materialise CRLF + bare `^Z` like `run_negatives`, else the reported line number moves and the marker misses. **LOAN2 VERBATIM** (sha `7be23ba390926c20…`, HEAD `1dc53f4`, POSITIONAL) **rc=2, NO .REL**, first diagnostic VERBATIM `codegen: condition form not in E2E-3b subset [TBD]: (| (< dl 0) (> dl 2))` = LOAN2:91 `if dl < 0 | dl > 2 then` — ON ERROR 58 CLOSED, blocker RECORDED, NOT fixed. SPECIMENS +6 (`244f6e1`), inventory 1243->**1249** (+6 exactly, 186 refusals), census OWN path rc=0 counts **15/0/26/0** with EXPR1->GET 21 / EXPR2->FLOAT builtin 35 / LOAN2->condition form, FULL gate rc=0 `build/gate-e52p8-reg.log` (**1249/0, 186/186, 9/9, 140 0/0, prose 5**), **C366** `17c9963` measured-bytes-only BEFORE COVERAGE `0cf0688` (COND.ON_ERROR SUPPORTED/EXACT:6, falsified clause kept VERBATIM as HISTORICAL), coverage_check + coverage_gen + prose rc=0. Ledger ENDS **C366**.
 
@@ -2674,17 +2684,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 368
-checkpoint-id: g368-d402923d2036
-checkpoint-kind: manual
+checkpoint-generation: 370
+checkpoint-id: g370-d108ee5b93aa
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T12:41:00.525Z
+checkpointed: 2026-11-05T12:59:33.082Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 71e889b90155d1de67f4a24f10286dd9f1078cca58f7554d97ab686a11ad9166
-source-handoff: c3e6be6fc2c7c94869cca73abe7257692ea42c721e525ca052d65d5601a8c905
-source-learnings: 5a5fcf0ca24453951c755229a1602fc19ce7fe4403a5a06a84627fc888cf5d1c
+source-handoff: 1eb12766cbec42cff5bfe969d899276f7d1bcec2132b1155f2b7ca361f877923
+source-learnings: 4d779059d8dafa568a941df9747ef89b00bc85e53c00e7835246d502622d753f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` — RESULTS §P3-8 table + PLAN §5 row + PLAN §P3-8 CLOSED marker, prose rc=0 standalone, `/handoff` + commit HANDOFF/PROGRESS managed blocks VERBATIM. PROPOSED next subround (NOT authorized, NOT to be started this hop): the compound-condition class at LOAN2:91 (`my-gap`, OR-of-relations) — decode EXISTING E37/E38 `COND.*` goldens first, then pre-register PLAN §P3-9 + probes BEFORE any `ocaml/` byte.
 
@@ -3271,9 +3281,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ab9a-02ee-74db-85e1-879803cb7a25
-readiness-at: 2026-11-05T12:41:00.539Z
-readiness-checkpoint: g368-d402923d2036
 <!-- guard:end checkpoint -->
 
 ## Blockers
