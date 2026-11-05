@@ -1533,31 +1533,48 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 326
-checkpoint-id: g326-3b9bd2793a68
+checkpoint-generation: 328
+checkpoint-id: g328-5630cae3bad4
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4617, session 01a1a940-9b5d-753f-82d0-3158f4dff084)
-checkpointed: 2026-11-05T01:29:41.850Z
+status: checkpoint (guard level 3, remaining ~6475, session 01a1a954-4f62-753f-82d0-315d9ae6b68c)
+checkpointed: 2026-11-05T01:46:26.141Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3a08c749673bcd8e40d4317d96e02a69593a6406778571b0687d188782b23dd7
-source-handoff: 3c8b8fc820cc2a9ccfb710b01115c94cee700505d1a0eb56d179f42a645f2a0c
-source-learnings: 47bcea3548bbfb17c5ec2535dc1c8696ed1fdd02d43f6da93321a16ec70563dd
+source-progress: 674103e675697005c43443dd8da9e7c472777cc34c6d5c1ac0a034d37f68aa96
+source-handoff: b66d29b57898818cb2f345a7a4952b856336a058c57caaf57b7aaedf5b9d1d21
+source-learnings: 6ba90002fd2e2e7d80041eae82525ad5c88333997d4bb5ff81e77ca08ec08570
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a940-9b5d-753f-82d0-3158f4dff084
-readiness-at: 2026-11-05T01:30:07.366Z
-readiness-checkpoint: g326-3b9bd2793a68
+readiness-by: session:01a1a954-4f62-753f-82d0-315d9ae6b68c
+readiness-at: 2026-11-05T01:46:26.166Z
+readiness-checkpoint: g328-5630cae3bad4
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 3; checkpoint requested (auto at level 3)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-`: arm parser.ml(`REPSPEC` child 0 = index `Eident`,
+`. Execute: arm → build rc=0
+  DIRECT (never a pipeline) → warnings histogram vs 70 → cmp RA RB RD RF RH RI RJ rc=0 vs
+  `golden/e52p5/` → RC/RG/RE rc=2 → sweep 89 → markers rc=2 → LOAN2 POSITIONAL VERBATIM
+  (predicted line-177 `PIvar yp`, NEVER fit) → commit → registration (SPECIMENS +7, inventory
+  1222→1229, negatives 182→183 with MY re-measured `expected )` marker, census OWN path FIRST,
+  gate rc=0 `build/gate-e52p5-reg.log`, **C363 measured-bytes-only BEFORE** COVERAGE
+  `IO.PUT_EDIT` EXACT 35→42, coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables,
+  renew 8/12). Ledger ENDS C362; goldens NEVER re-derived; operator `handoff.config.json` NEVER
+  staged; all rc DIRECT; no push; campaign continues.
+
+0a-novies-new2. **E2E-52/P3-5 campaign e52p5 MEASURED + DECODED; ARM OWED (2026-11-05, hop
+  6/12).** ZERO `ocaml/` byte this hop. Campaign rc=0 DIRECT **9 ok/10**; **E52RE dr-refuses**
+  (`SYNTAX ?`, no .REL); goldens `676fb9d`; every law decoded in `LEARNINGS.md` § "P3-5 CAMPAIGN
+  e52p5 MEASURED": RA/RD == PLAN §2 loop (H1 CONFIRMED); RF var-bound == existing `lower_doto`
+  shape byte-identical (H3); RH console == file loop (H2); RI table predicted-exact (H6); RJ
+  = P3-4 numeric chain in loop; **BY ACCEPTED by DR (RC: INX H × n, test unchanged)** and
+  **RG char-var accepted** — BOTH boundaries KEPT per §4a/§4e (record my-gaps, never fit).
+  Execute `PROGRESS.md` → `## Next action`: arm parser.ml(`REPSPEC` child 0 = index `Eident`,
   BY parse-refusal) + codegen.ml (`PIrep`, shared `data` walker, prescan ONE-cell, authorize
   inner-admitted, §2/RF loop lowering; to<=2/from=0/var-FROM/nested refuse UNMEASURED);
   cmp **RA RB RD RF RH RI RJ rc=0**, RC/RG/RE rc=2, sweep 89, markers rc=2, LOAN2 POSITIONAL
@@ -2064,5 +2081,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3 campaign, subround P3-5 PRE-REGISTERED at 67e5414 (HEAD now b6539af durables; if guard blocks landed uncommitted, commit HANDOFF.md+PROGRESS.md VERBATIM FIRST — never handoff.config.json, operator dirty standing edit). This hop (5/12): ZERO ocaml/ byte, ZERO oracle call. Decoded the Pi_rep DATA-item loop law from the EXISTING LOAN2 golden line span 0944-099F (LXI H,from/SHLD ind; LHLD/LXI B,-(to+1)/DAD B/MOV A,H/ORA A/JP P exit; ONE literal ?SLCTS/?EDTOV body; LHLD/INX H/SHLD/JMP; exit ?QIOOP; table 80 00 03 FF 81 = rep contributes 0 format bytes, confirming bind.ml:1155 [verify]); FALSIFIED by code reading the brief's codegen.ml-ONLY arm: parse_rep_spec drops the index name and BY, so arm = parser.ml (REPSPEC child 0 = index Eident, BY parse-refusal, REVERSE unparseable) + codegen.ml. PLAN §P3-5 + probes E52RA..E52RJ (CRLF+^Z <=71 verified) + BASELINE-MINE-p35 (all 10 rc=2 unarmed) committed BEFORE any ocaml/ byte. OWED NEXT = execute PROGRESS.md ## Next action: (1) ONE grouped campaign PLI_SRC=probes timeout 900 python3 oracle/batch.py E52RA E52RB E52RC E52RD E52RE E52RF E52RG E52RH E52RI E52RJ --tag e52p5 --switches '$L$D', rc DIRECT, reldump goldens to build/e52p5/, classify dr-refuses/my-gap/unmeasured, keep MISSes verbatim; (2) arm per PLAN §2a/§4, cmp every ACCEPTED probe whole-file rc=0, sweep 89, markers E46K4/K15/N21/E52PF/PU/PV rc=2, LOAN2 rerun UNMODIFIED POSITIONAL (pli80c [-d] IN.PLI OUT.REL) blocker VERBATIM — predicted next blocker line-177 PIvar yp, record NEVER fit; (3) registration: SPECIMENS +N, sanctioned --update-inventory 1222->1222+N, census OWN write path FIRST (drift aborts gate before byte panel), FULL gate rc=0 DIRECT build/gate-e52p5-reg.log, claim C363 from MEASURED BYTES ONLY committed BEFORE the COVERAGE IO.PUT_EDIT rewrite (EXACT 35->35+accepted), coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables. Ledger ENDS C362; goldens NEVER re-derived; all rc DIRECT (dune build|tail pipeline-masking trap fired THREE hops running); reldump regex must accept unpadded 0x0; cite reldump DEF-CODE-SIZE/DEF-DATA-SIZE; renewals autonomous (hop 6/12 of cap 12); no push; campaign continues.
+Hop 7 CLOSED (durables 31bb978; ZERO ocaml/ byte). Baseline re-held: HEAD chain 391d809 (guard g326) -> 31bb978; dune build rc=0 DIRECT binary 345644822818326f… (== headline hash); goldens golden/e52p5/ intact. NEXT (hop 8/12): EXECUTE THE ARM — read `LEARNINGS.md` § "E2E-52/P3-5 hop 7: ARM SITES ALL VERIFIED" (complete site map + every measured byte + the five non-exhaustive pitem matches = the PA trap) + PLAN §P3-5 §4; edits: parser.ml parse_rep_spec (REPSPEC child 0 = Eident ind; by_ Some -> err p parse refusal BY NAME; RE stays expected-)) ), codegen.ml (pitem +PIrep of pitem * Ast.expr; match_put_edit data walker accumulates pitem and admits Ast.Pi_rep -> PIrep(classify_item inner, spec) BOTH routes; prescan folds ~3558/~3570 fold PIrep inner ONCE; authorize_file_item ~11776 defensive arm (PIrep unreachable — file_items refuses); authorize_file_edit_item ~11941 admits PIrep iff inner PIlit or PInum-via-edit_num_tree else BY NAME (RG boundary KEPT); lower_put_items_gen item loop ~12176 refactored to named emit_item, PIrep = unconditional LXI H,from / SHLD i init, immediate test (from>=1, cc=to+1>=4 else refuse UNMEASURED; to<=2/from=0/negative/var-FROM/nested refuse BY NAME) OR RF var-bound shape byte-identical to lower_doto Eident arm (LHLD n/SHLD temp/head LHLD temp/XCHG/LHLD i/?IS22N/JM slot; temp = st.base+max auto_end st.floor+2*st.temps; kill_de at head), ONE inner emit, step LHLD/INX H/SHLD, JMP reloc Code head, emit_triple st jpslot st.lc at end). Index must be vk Vint. Then: dune build rc=0 DIRECT (NEVER pipe — trap fired 3 hops); warnings histogram per-File vs baseline 70; binary != 345644822818326f…; cmp RA RB RD RF RH RI RJ whole-file rc=0 vs golden/e52p5/; RC RG RE rc=2; sweep 89; markers E46K4/K15/N21/E52PF/PU/PV rc=2; LOAN2 UNMODIFIED POSITIONAL predicted line-177 PIvar yp VERBATIM NEVER fit; commit arm; registration: SPECIMENS +7, sanctioned --update-inventory 1222->1229 + negatives 182->183 (RE row marker = MY actual re-measured stderr), census OWN write path FIRST (212 line REPLACED; drift aborts gate before byte panel), FULL gate rc=0 DIRECT build/gate-e52p5-reg.log, C363 from MEASURED BYTES ONLY committed BEFORE COVERAGE IO.PUT_EDIT rewrite (EXACT 35->42), coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables, renew (8/12). Ledger ENDS C362; goldens NEVER re-derived; operator handoff.config.json NEVER staged (dirty standing edit); no push; campaign continues.
 <!-- guard:end checkpoint -->

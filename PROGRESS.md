@@ -2683,19 +2683,36 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 326
-checkpoint-id: g326-3b9bd2793a68
+checkpoint-generation: 328
+checkpoint-id: g328-5630cae3bad4
 checkpoint-kind: auto
-content-delta: new
+content-delta: none
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-05T01:29:41.850Z
+guard-level: 3
+checkpointed: 2026-11-05T01:46:26.141Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 3a08c749673bcd8e40d4317d96e02a69593a6406778571b0687d188782b23dd7
-source-handoff: 3c8b8fc820cc2a9ccfb710b01115c94cee700505d1a0eb56d179f42a645f2a0c
-source-learnings: 47bcea3548bbfb17c5ec2535dc1c8696ed1fdd02d43f6da93321a16ec70563dd
+source-progress: 674103e675697005c43443dd8da9e7c472777cc34c6d5c1ac0a034d37f68aa96
+source-handoff: b66d29b57898818cb2f345a7a4952b856336a058c57caaf57b7aaedf5b9d1d21
+source-learnings: 6ba90002fd2e2e7d80041eae82525ad5c88333997d4bb5ff81e77ca08ec08570
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: `: arm parser.ml(`REPSPEC` child 0 = index `Eident`,
+next-action: `. Execute: arm → build rc=0
+  DIRECT (never a pipeline) → warnings histogram vs 70 → cmp RA RB RD RF RH RI RJ rc=0 vs
+  `golden/e52p5/` → RC/RG/RE rc=2 → sweep 89 → markers rc=2 → LOAN2 POSITIONAL VERBATIM
+  (predicted line-177 `PIvar yp`, NEVER fit) → commit → registration (SPECIMENS +7, inventory
+  1222→1229, negatives 182→183 with MY re-measured `expected )` marker, census OWN path FIRST,
+  gate rc=0 `build/gate-e52p5-reg.log`, **C363 measured-bytes-only BEFORE** COVERAGE
+  `IO.PUT_EDIT` EXACT 35→42, coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables,
+  renew 8/12). Ledger ENDS C362; goldens NEVER re-derived; operator `handoff.config.json` NEVER
+  staged; all rc DIRECT; no push; campaign continues.
+
+0a-novies-new2. **E2E-52/P3-5 campaign e52p5 MEASURED + DECODED; ARM OWED (2026-11-05, hop
+  6/12).** ZERO `ocaml/` byte this hop. Campaign rc=0 DIRECT **9 ok/10**; **E52RE dr-refuses**
+  (`SYNTAX ?`, no .REL); goldens `676fb9d`; every law decoded in `LEARNINGS.md` § "P3-5 CAMPAIGN
+  e52p5 MEASURED": RA/RD == PLAN §2 loop (H1 CONFIRMED); RF var-bound == existing `lower_doto`
+  shape byte-identical (H3); RH console == file loop (H2); RI table predicted-exact (H6); RJ
+  = P3-4 numeric chain in loop; **BY ACCEPTED by DR (RC: INX H × n, test unchanged)** and
+  **RG char-var accepted** — BOTH boundaries KEPT per §4a/§4e (record my-gaps, never fit).
+  Execute `PROGRESS.md` → `## Next action`: arm parser.ml(`REPSPEC` child 0 = index `Eident`,
   BY parse-refusal) + codegen.ml (`PIrep`, shared `data` walker, prescan ONE-cell, authorize
   inner-admitted, §2/RF loop lowering; to<=2/from=0/var-FROM/nested refuse UNMEASURED);
   cmp **RA RB RD RF RH RI RJ rc=0**, RC/RG/RE rc=2, sweep 89, markers rc=2, LOAN2 POSITIONAL
@@ -3200,9 +3217,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a940-9b5d-753f-82d0-3158f4dff084
-readiness-at: 2026-11-05T01:30:07.366Z
-readiness-checkpoint: g326-3b9bd2793a68
+readiness-by: session:01a1a954-4f62-753f-82d0-315d9ae6b68c
+readiness-at: 2026-11-05T01:46:26.166Z
+readiness-checkpoint: g328-5630cae3bad4
 <!-- guard:end checkpoint -->
 
 ## Blockers
