@@ -1,0 +1,15 @@
+E52VD: procedure options(main);
+
+   /* E2E-52/P3-9 probe VD (PLAN sec P3-9 H4): the fold over
+      TWO SEPARATE cells. Ladder reads b@data 2; the < 0
+      operand reads a_hi = reloc data 1 (one past the cell). */
+
+   dcl a fixed binary;
+   dcl b fixed binary;
+   dcl x fixed bin;
+
+   if a < 0 | b > 2 then x = 1;
+   x = 2;
+
+end E52VD;
+

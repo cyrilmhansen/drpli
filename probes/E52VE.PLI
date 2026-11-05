@@ -1,0 +1,15 @@
+E52VE: procedure options(main);
+
+   /* E2E-52/P3-9 probe VE (PLAN sec P3-9 H2/H5): FIXBIN = 0
+      ([C310] 21/7E/23/B6/D6 01/9F) ORed with the > 2 ladder.
+      No < 0 operand: SN predicts the = 0 head (21); RB
+      predicts the ladder head (2A). */
+
+   dcl dl fixed binary;
+   dcl x fixed bin;
+
+   if dl = 0 | dl > 2 then x = 1;
+   x = 2;
+
+end E52VE;
+

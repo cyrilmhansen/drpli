@@ -1,0 +1,21 @@
+E52VI: procedure options(main);
+
+   /* E2E-52/P3-9 probe VI (PLAN sec P3-9 H7 DISCRIMINATOR):
+      ONE object, widths 10 AND 9. PAR predicts a MIXED push
+      order (p even => var first; q odd => literal first); ADD
+      predicts literal-first for both pool cells; a per-program
+      rule predicts uniform order. Zero cells pooled ONCE per
+      width ([C155]). */
+
+   dcl p fixed dec(10,2);
+   dcl q fixed dec(9,2);
+   dcl dl fixed binary;
+   dcl x fixed bin;
+
+   if p = 0 | dl > 1 then x = 1;
+   x = 2;
+   if q = 0 | p = 0 then x = 3;
+   x = 4;
+
+end E52VI;
+

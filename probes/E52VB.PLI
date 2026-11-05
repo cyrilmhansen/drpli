@@ -1,0 +1,15 @@
+E52VB: procedure options(main);
+
+   /* E2E-52/P3-9 probe VB (PLAN sec P3-9 H1/H2): exact LOAN2
+      line-91 OR shape. Predicted fold = LOAN2 bytes verbatim
+      (SN and RB agree here): 2A r(dl) / 2B x3 / 7C / 2F / F5 /
+      3A r(dl+1) / C1 / B0 / F2 skip = 17 bytes. */
+
+   dcl dl fixed binary;
+   dcl x fixed bin;
+
+   if dl < 0 | dl > 2 then x = 1;
+   x = 2;
+
+end E52VB;
+

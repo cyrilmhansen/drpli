@@ -1,0 +1,23 @@
+E52VK: procedure options(main);
+
+   /* E2E-52/P3-9 probe VK (PLAN sec P3-9 H10): UNMEASURED
+      boundaries, verdicts recorded VERBATIM, NO byte
+      prediction: precedence a | (b & c); a parenthesised OR
+      group inside AND; the OR in VALUE position stored to
+      bit(1). */
+
+   dcl dl fixed binary;
+   dcl m fixed binary;
+   dcl fm fixed binary;
+   dcl b bit(1);
+   dcl x fixed bin;
+
+   if dl < 0 | m = fm & dl > 2 then x = 1;
+   x = 2;
+   if (dl < 0 | dl > 2) & m = fm then x = 3;
+   x = 4;
+   b = (dl < 0 | dl > 2);
+   x = 5;
+
+end E52VK;
+

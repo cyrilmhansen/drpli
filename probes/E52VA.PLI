@@ -1,0 +1,16 @@
+E52VA: procedure options(main);
+
+   /* E2E-52/P3-9 probe VA (PLAN sec P3-9 H3): the STANDALONE
+      `dl < 0' test. DR accepts it inside LOAN2:91's fold; the
+      standalone encoding is UNMEASURED (mine refuses the leaf).
+      Prediction: 3A <dl_hi> / B7 / F2 skip; competitor: bias-0
+      ladder 2A / 7C / B7 / F2. */
+
+   dcl dl fixed binary;
+   dcl x fixed bin;
+
+   if dl < 0 then x = 1;
+   x = 2;
+
+end E52VA;
+

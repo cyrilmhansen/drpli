@@ -1,0 +1,16 @@
+E52VF: procedure options(main);
+
+   /* E2E-52/P3-9 probe VF (PLAN sec P3-9 H6): FOUR operands
+      -- the chain law past 3 is unmeasured. SN predicts three
+      F5/C1-B0 pairs, ONE terminal F2, `dl < 0' LAST,
+      materialisers per registered law. */
+
+   dcl dl fixed binary;
+   dcl m fixed binary;
+   dcl x fixed bin;
+
+   if dl = 0 | dl > 2 | m > 1 | dl < 0 then x = 1;
+   x = 2;
+
+end E52VF;
+

@@ -1,0 +1,16 @@
+E52VH: procedure options(main);
+
+   /* E2E-52/P3-9 probe VH (PLAN sec P3-9 H8): OR with ELSE.
+      The F2 slot must patch to the ELSE body; the THEN body
+      ends with the C3 over-else chain: two independent
+      targets, mirroring [C312]'s AND-with-else. */
+
+   dcl dl fixed binary;
+   dcl x fixed bin;
+
+   if dl < 0 | dl > 2 then x = 1;
+   else x = 2;
+   x = 3;
+
+end E52VH;
+

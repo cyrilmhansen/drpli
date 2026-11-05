@@ -1,0 +1,15 @@
+E52VC: procedure options(main);
+
+   /* E2E-52/P3-9 probe VC (PLAN sec P3-9 H2 DISCRIMINATOR):
+      the 91 operands SWAPPED. SN => head 2A, region identical
+      to VB; RB (right-first) => head 3A (LDA emitted first).
+      The head byte decides the fold-order law. */
+
+   dcl dl fixed binary;
+   dcl x fixed bin;
+
+   if dl > 2 | dl < 0 then x = 1;
+   x = 2;
+
+end E52VC;
+

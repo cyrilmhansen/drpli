@@ -1,0 +1,15 @@
+E52VJ: procedure options(main);
+
+   /* E2E-52/P3-9 probe VJ (PLAN sec P3-9 H9): the 0-dl memory
+      compare (AF/BE/23/9E, measured ONLY inside AND at
+      LOAN2:120) as an OR operand. SN predicts the 21 head
+      here; RB the 3A head. */
+
+   dcl dl fixed binary;
+   dcl x fixed bin;
+
+   if dl > 0 | dl < 0 then x = 1;
+   x = 2;
+
+end E52VJ;
+

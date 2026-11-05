@@ -1,0 +1,15 @@
+E52VG: procedure options(main);
+
+   /* E2E-52/P3-9 probe VG (PLAN sec P3-9 H7): ANNUITY line-46
+      replica (dec(9,2), dec(7,2)) -- both candidate push-order
+      laws predict LITERAL-first; pure witness re-check. */
+
+   dcl pv fixed dec(9,2);
+   dcl pmt fixed dec(7,2);
+   dcl x fixed bin;
+
+   if pv = 0 | pmt = 0 then x = 1;
+   x = 2;
+
+end E52VG;
+

@@ -709,3 +709,155 @@ COVERAGE rewrite**, coverage_check + prose rc=0, RESULTS §P3-8 + PLAN §5 row, 
 If ON ERROR lands, LOAN2's blocker MOVES past line 58 to the first unlowered statement after it. No candidate is
 predicted with confidence — LOAN2 63+ mixes GET/PUT/DO/file statements whose first refusal depends on prescan order.
 **Record whatever actually happens VERBATIM and do NOT fit, and do NOT fix it in P3-8.**
+
+## Subround P3-9 — OR (`|`) CONDITIONS: the value-level truth-byte fold, the fold-ORDER law, the standalone `< 0` leaf and the DEC zero-literal PUSH-ORDER rule (LOAN2:91 blocker) — PRE-REGISTERED 2026-11-05 (session 01a1ad29, renewal 2/12; hop 3)
+
+ZERO `ocaml/` byte and ZERO oracle call in this hop; this section and `probes/E52VA..E52VK.PLI`
+are committed BY EXPLICIT PATH BEFORE any compiler byte and BEFORE any oracle call.
+Ledger ENDS **C366**; gate baseline **1249/186/9/140-0-0 (SUPPORTED 90), census 15/0/26/0**;
+binary `9ecea27aa4f2d80f49ad…`. Probe ids `E52V*` and tag `e52p9` collision-grepped EMPTY this
+hop in `probes/`, `golden/`, `spec/INVENTORY.txt` and `tools/e2e_gate.py` (all greps rc=1 DIRECT).
+
+### 1. The measured blocker (VERBATIM, re-verified hop 1 at HEAD `4dae78a`, rc=2 DIRECT, NO .REL)
+`codegen: condition form not in E2E-3b subset [TBD]: (| (< dl 0) (> dl 2))` — LOAN2:91 `if dl < 0 | dl > 2 then`.
+Two confirmed `my-gap`s: the OR composition itself, and the `< 0` leaf (`codegen: < 0 / negative const form
+unproven [TBD]`; DR accepts `dl < 0` inside LOAN2's fold — its STANDALONE test form has never been measured).
+
+### 2. EXISTING DR evidence (all re-verified raw at hop 2; scratch `build/e52p9/phaseA-complete.txt`)
+- **The fold is VALUE-LEVEL and SINGLE-BRANCHED.** Every OR truth operand ends as a byte whose **bit 7 is
+  truth**; operands combine `F5 PUSH PSW` … `C1 POP B / B0 ORA B`; ONE terminal `F2 JP <skip>` reads the fresh
+  sign of `ORA B` (jump iff bit 7 CLEAR = condition false). Mirror of [C312]'s ANA shape; flags ride in C unread;
+  `DCX H`/`CMA` touch no flags (the hop-1 "inverted polarity" ghost is FALSIFIED — see `LEARNINGS.md` § P3-9 hop 2).
+- **LOAN2:91** (`dl < 0 | dl > 2`, FIXBIN): `2A C802 LHLD dl / 2B×3 / 7C MOV A,H / 2F CMA / F5 / 3A C902 LDA dl_hi /
+  C1 / B0 / F2→0360` — **17 bytes**; the RIGHT operand (bias ladder, truth bit = ¬bit7(H(dl−3))) is computed and
+  PUSHED FIRST; the LEFT operand (`LDA` of the high byte) arrives LAST into A. Body at 0359 (`signal error` —
+  recorded OUT OF SCOPE: DR lowers it `21 00 00 / AF / CD ?SIGOP`).
+- **LOAN2:113** (`P = 0 | dl > 1 | m = fm`, 3 operands): operand bools arrive in SOURCE order (DEC `P=0` materialiser
+  first, ladder second, `?IS22N` third), each later operand's first ADDRESS LOAD hoisted above the `F5` ([C105] law
+  verbatim), TWO chained `F5/C1/B0` folds, ONE `F2→0603`.
+- **LOAN2:120** (`m = fm & dl > 0`, AND region at 0603 = 113's JP target): `dl > 0` materialises as the 0−value
+  MEMORY compare `AF / BE / 23 / 9E` (bit 7 of 0−dl = truth), `LXI H,dl` hoisted above `F5` — identical to [C105]/
+  [C128]/[C310] (`k > 0` row). AND needs NOTHING new.
+- **ANNUITY:46** (`PV = 0 | PMT = 0`, DEC dec(9,2)/dec(7,2)): op1 `21 1F01 / 3E 09 / CD ?DLDOP / 21 E300 / 3E 09 /
+  CD ?DLDOP / CD ?DCMOP / D6 01 / 9F` — **ZERO LITERAL pushed FIRST, variable second**; op2 `21 1B01 / F5 / 3E 07 /
+  CD ?DLDOP / 21 E800 / 3E 07 / CD ?DLDOP / CD ?DCMOP / D6 01 / 9F` (LXI hoisted, MVI after the push); `C1 / B0 /
+  F2→01B6`. Single-condition controls 01B6/022F = bare compare + `C2 JNZ skip`, NO materialiser ([C085] holds).
+- **THE CONTRADICTION (probe-decided, NEVER fit):** LOAN2:113 op1 pushes **VAR FIRST** (`21 CA02` then literal `21 E601`).
+  Same relation, same `var = 0` shape, opposite push order. Two candidate laws fit BOTH witnesses exactly:
+  **ADD** "push the operand with the HIGHER 16-bit address first" (LOAN2 P@02CA > pool@01E6 ⇒ var first ✓;
+  ANNUITY PV@00E3 < pool@011F ⇒ literal first ✓); **PAR** "width-parity: odd decimal digit count pushes the literal
+  first, even pushes the variable first" (9,7 ⇒ literal first ✓; 10 ⇒ var first ✓). A third candidate (per-program
+  constant) predicts uniform order inside every one object.
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+- **H1 — the fold.** `a | b` = truth bytes per operand (operand-specific materialisers unchanged), `F5` between,
+  `C1 / B0` fold, ONE terminal `F2 JP skip→continuation`. 3+ operands chain `F5/C1/B0` pairs, still ONE branch
+  (113's law). *Falsifier:* two branches, or a condition-cell/branch-per-operand short-circuit shape.
+- **H2 — fold ORDER.** Candidates: **SN** "source order EXCEPT an `LDA`-style `< 0` operand is computed LAST"
+  (fits 91 AND 113); **RB** "binary right-first fold, right-assoc chain" (fits 91 alone); **LB** pure source order
+  (falsified by 91 in advance — VB must reproduce 91 by determinism). *Discriminators:* **VC** head byte —
+  SN ⇒ `2A` ladder head (VC region == VB region verbatim); RB ⇒ `3A C9..` first. **VE** (`dl = 0 | dl > 2`, no
+  `< 0`): SN/LB ⇒ head `21 C8..` (=0 first); RB ⇒ head `2A C8..` (ladder first). **VF** (4 operands): SN ⇒ head
+  `21` (=0), three `F5`s, `dl < 0` LAST (chain law survives 3); RB ⇒ reversed operand emission.
+- **H3 — standalone `< 0` (VA).** UNMEASURED form; DR must accept (LOAN2 proves parse+type). PRIMARY:
+  `3A <r data dl_hi> / B7 ORA A / F2 <slot→continuation>` (LDA sets no flags ⇒ the ORA is required; skip iff
+  bit 7 clear = false). COMPETING: bias-0 ladder `2A <r dl> / 7C MOV A,H / B7 / F2 <slot>`. *Falsifiers:* any
+  refusal (form becomes `dr-refuses` and the leaf stays un-armed), `E4 JM` polarity, a materialiser (`D6 01/9F`),
+  or a `DB nn` mystery (then the hop-2 `2F` pinning itself is in doubt).
+- **H4 — separate cells (VD).** Same 17-byte fold with independent relocs: ladder reads `r(data b)`, the `< 0`
+  operand reads `r(data a + 1)` (reloc EXACTLY one past the declared cell, as LOAN2's `C9 = dl+1`).
+- **H5 — FIXBIN `= 0` as an OR operand (VE).** Materialiser VERBATIM [C310] `k = 0` row `21 <r dl> / 7E / 23 / B6 /
+  D6 01 / 9F` (FF/00 — bit 7 = truth), then the ladder operand with its `LHLD`+`DCX×3` hoisted above `F5`,
+  `7C / 2F / C1 / B0 / F2`.
+- **H6 — 4-operand chain (VF).** 3×(`F5 … C1 B0`), ONE `F2`; per-operand materialisers unchanged (`= 0` [C310],
+  `> c` ladder `7C/2F`, `< 0` `3A hi`). Fold region 38 bytes (addressed layout below); a 4-operand short-circuit
+  or a branch per operand FALSIFIES the single-branch law past 3.
+- **H7 — DEC push order (VG/VI).** VG replicates ANNUITY (widths 9,7) — BOTH rules predict literal-first there,
+  so VG is pure witness re-verification. **VI** puts dec(10,2) and dec(9,2) in ONE object: **PAR** predicts
+  statement 1 `p = 0` VAR-first (even 10) and statement 2's `q = 0` LITERAL-first (odd 9) — MIXED inside one
+  object; **ADD** predicts literal-first for BOTH operands whose literal pool cell outs addresses the variable
+  cells; **program-constant** predicts uniform. Also re-measured: the dec(10,2) zero cell must appear ONCE for
+  both statements ([C155] content dedup; *falsifier:* two identical cells).
+- **H8 — OR with ELSE (VH).** Identical fold bytes; terminal `F2` slot patches to the ELSE body; THEN body ends
+  with the `C3 <slot>` over-else chain (two independent patch targets) — mirrors [C312]'s measured AND-with-else.
+  *Falsifier:* `F2` → continuation (else via a different dispatch) or one merged slot.
+- **H9 — `dl > 0` inside an OR (VJ).** Memory-compare materialiser `21 <r dl> / AF / BE / 23 / 9E` (bit 7 of
+  0−dl = truth), `LXI` hoisted above `F5` when the operand is not first ([C128]/[C105] law) — measured today
+  ONLY inside AND; OR placement predicted under SN as operand 1 here, so `21 r(dl) / AF / BE / 23 / 9E / F5 /
+  3A <r dl_hi> / C1 / B0 / F2`; RB predicts the `3A` emission first.
+- **H10 — grouping / value position (VK).** Three UNMEASURED shapes recorded VERBATIM, NO byte prediction
+  (precedent E52SE/SG `[TBD]`): `dl < 0 | m = fm & dl > 2` (precedence `&`> `|`), `(dl < 0 | dl > 2) & m = fm`
+  (parenthesised group inside AND), and `b = (dl < 0 | dl > 2);` (OR in VALUE position, [C310] family — store
+  tail `32 <b>`). Whatever DR does is evidence; my compiler continues to refuse every unmeasured shape BY NAME.
+
+### 4. Probes E52VA..VK (11; `dcl dl fixed binary; dcl x fixed bin;` skeleton of E52UA/E52SA — CRLF, bare `^Z`
+last byte, ≤71 columns)
+**DEVIATION, recorded honestly (AGENTS.md: repository/evidence wins over a document's quotation):** the hop-2
+brief wording specified a trailing `put edit(x)(a);`. That exact tail appears ONLY in MY leaf probes
+(`build/e52p9/leaves/`, compiled by MY binary, rc=0) — an `A` edit on an arithmetic item has NO DR-accepted
+golden anywhere (`a`-on-string and picture-on-number are the measured console EDIT shapes; `put list` numeric
+is measured). A refusal on the tail would kill ALL eleven goldens, so the probes carry NO put: the continuation
+is `x = 2;` (E52UA-proven). Byte predictions below cover the CONDITION regions, which are the science; whole-file
+cmp at arm time verifies the rest. Entry `01 00 02 / CD <r ?START>` @0000 and epilogue `CD <r ?STOPX>` and the
+`x = k` form `21 kk 00 / 22 <r data x>` are the established laws. `dl`@data 0 ⇒ `LHLD/LXI r(data 0)`, `dl_hi`
+= reloc `data 1`; `x`@data 2.
+- **E52VA** `if dl < 0 then x = 1;` `x = 2;` — PRIMARY fold region 6 B `3A r1 / B7 / F2 <slot→0011>` @0006-000B ·
+  body `x = 1` @000C-0010 · `CD ?STOPX` @0011 → **DEF-CODE-SIZE 0014**, DATA 0004. Ladder competitor: 7 B,
+  CODE 0015.
+- **E52VB** `if dl < 0 | dl > 2 then x = 1;` `x = 2;` — 17-byte fold @0006-0016 `2A r0 / 2B 2B 2B / 7C / 2F / F5 /
+  3A r1 / C1 / B0 / F2 <slot→001C>` · body @0017-001B · epilogue @001C → **CODE 001F**, DATA 0004. Prediction =
+  LOAN2:91 region verbatim (all surviving hypotheses agree).
+- **E52VC** `if dl > 2 | dl < 0 then x = 1;` `x = 2;` — SN ⇒ region BYTE-IDENTICAL to VB; RB ⇒ `3A r1 / F5 /
+  2A r0 / 2B×3 / 7C / 2F / C1 / B0 / F2` (same 17 B, head `3A`). **CODE 001F** either way; DATA 0004.
+- **E52VD** `dcl a fixed binary; dcl b fixed binary;` `if a < 0 | b > 2 then x = 1;` `x = 2;` — predicted fold
+  `2A r(data 2) / 2B×3 / 7C / 2F / F5 / 3A r(data 1) / C1 / B0 / F2`; **CODE 001F**, **DATA 0006** (a@0,b@2,x@4).
+- **E52VE** `if dl = 0 | dl > 2 then x = 1;` `x = 2;` — SN: `21 r0 / 7E / 23 / B6 / D6 01 / 9F` (8) then hoisted
+  `2A r0 / 2B×3` (6) `F5` `7C / 2F` `C1 / B0` `F2` = **22-byte fold** @0006-001B · body · epilogue → **CODE 0024**;
+  RB competitor: ladder head, same length. DATA 0004.
+- **E52VF** `dcl m fixed binary;` `if dl = 0 | dl > 2 | m > 1 | dl < 0 then x = 1;` `x = 2;` — SN chain: op1 8 B
+  (=0) · op2 11 (ladder `2B×3`) · op3 10 (ladder `2B×2` on m) · op4 6 (`F5 / 3A r(dl+1) / C1 / B0`) · `F2` 3 =
+  **38-byte fold** @0006-002B → **CODE 0034**; DATA 0006 (dl@0,m@2,x@4). Three `F5`, three `C1/B0`, ONE `F2`.
+- **E52VG** `dcl pv fixed dec(9,2); dcl pmt fixed dec(7,2);` `if pv = 0 | pmt = 0 then x = 1;` `x = 2;` — ANNUITY
+  replica: op1 17 B `21 <r zero9> / 3E 09 / CD ?DLDOP / 21 <r pv> / 3E 09 / CD ?DLDOP / CD ?DCMOP / D6 01 / 9F`;
+  op2 20 B `21 <r zero7> / F5 / 3E 07 / CD ?DLDOP / 21 <r pmt> / 3E 07 / CD ?DLDOP / CD ?DCMOP / D6 01 / 9F`;
+  `C1 / B0 / F2` → **42-byte fold**, **CODE 0038**; DATA = pv 5 + pmt 4 + x 2 + two pooled zero cells (5+4) —
+  exact DEF-DATA-SIZE follows the established cell/pool law, NOT guessed here (cmp verifies).
+- **E52VH** `if dl < 0 | dl > 2 then x = 1;` `else x = 2;` `x = 3;` — fold 16 B + `F2 <slot1→else>` · then body
+  `21 01 00 / 22 r2 / C3 <slot2→cont>` · else body 5 · continuation 5 · epilogue 3 → **CODE 002C**, DATA 0004;
+  TWO patch targets independent (slot1 = else start 001F, slot2 = continuation 0024).
+- **E52VI** `dcl p fixed dec(10,2); dcl q fixed dec(9,2); dcl dl fixed binary;` stmt1 `if p = 0 | dl > 1 then
+  x = 1;` stmt2 `if q = 0 | p = 0 then x = 2;` each followed by `x = k;` — H7's decisive object: **PAR** ⇒ stmt1
+  op1 VAR-first (`21 r(p) / 3E 0A / … / 21 r(zero10) / …`), stmt2 op1 `q = 0` LITERAL-first (odd 9), stmt2 op2
+  `p = 0` VAR-first; **ADD** ⇒ literal-first wherever the pool cell outs addresses the variable. ONE shared
+  dec(10,2) zero cell and ONE dec(9,2) zero cell ([C155]).
+- **E52VJ** `if dl > 0 | dl < 0 then x = 1;` `x = 2;` — SN: `21 r0 / AF / BE / 23 / 9E` (6) `F5` `3A r1` `C1 B0`
+  `F2` = **16-byte fold** @0006-0015 → **CODE 001E**, DATA 0004; RB competitor emits the `3A` operand first
+  (same length). Head byte `21` vs `3A` discriminates.
+- **E52VK** three boundary statements (`m`,`fm` fixed bin; `b` bit(1)): `if dl < 0 | m = fm & dl > 2 then x = 1;`,
+  `if (dl < 0 | dl > 2) & m = fm then x = 3;`, `b = (dl < 0 | dl > 2);` each followed by `x = k;` — NO byte
+  prediction (`[TBD]`); DR verdicts recorded VERBATIM.
+
+### 5. Campaign + arm contract (hops 4+)
+ONE grouped run `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52VA E52VB E52VC E52VD E52VE E52VF E52VG
+E52VH E52VI E52VJ E52VK --tag e52p9 --switches '$L$D'`, rc read DIRECT (never a pipeline tail); EVERY `.PRN`
+read; goldens committed VERBATIM; classify honestly (`dr-refuses` / `my-gap` / `unmeasured`); every MISS kept
+verbatim. Arm ONLY measured shapes: an `Ast.Or` arm in `lower_test_skip0` + the Or fold BESIDE the And fold in
+`lower_bool` (NEVER alter And), a `< 0` leaf arm ONLY if VA measures one, the DEC push-order rule ONLY if VI/VG
+pin it (else DEC operands inside OR refuse BY NAME), `= 0`/`> c`/`> 0` operand materialisers reused from their
+registered laws verbatim; anything beyond the measured operand classes refuses BY NAME `[TBD]`. `prescan_cond`
+already descends `Ebinary` GENERALLY (line ~3410) — audit pool-demand parity (one predicate per cell; [C155])
+at arm time. Then build rc=0 DIRECT + per-File codegen warning histogram vs **68**; cmp accepted probes
+WHOLE-FILE vs `golden/e52p9/`; sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0; markers
+(copy of `build/e52p8-reg/markers.py` — MUST materialise CRLF + bare `^Z`) rc=2 MARKER_FAILS 0; LOAN2/EXPR1/EXPR2
+POSITIONAL VERBATIM — record whatever new blocker appears, NEVER fix it (`?SIGOP`/`signal error` and anything
+past the OR are OUT OF SCOPE). Registration from **1249**: SPECIMENS +N, sanctioned `--update-inventory`,
+census OWN write path FIRST, FULL gate rc=0 → `build/gate-e52p9-reg.log`, claim **C367 from MEASURED BYTES ONLY
+committed BEFORE the COVERAGE rewrite** (a new `COND.OR` row needs an EXPLICIT `spec/COVERAGE-IDS.txt` edit;
+NEVER `coverage_gen.py`), coverage_check + prose rc=0; RESULTS §P3-9 + PLAN §5 row + §P3-9 CLOSED; durables.
+**STOP at P3-9 closure — do NOT start P3-10.**
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+If the OR fold + `< 0` leaf land, LOAN2's blocker moves PAST line 91. LOAN2 113 needs the 3-operand fold and the
+DEC-push-order law (H7) to be pinned by VI/VG; 120's AND is already armed; `signal error` (91's body) will hit the
+UNARMED `?SIGOP` lowering — the first refusal may well be a new shape entirely. **Record whatever actually happens
+VERBATIM; do NOT fix, do NOT fit.**
