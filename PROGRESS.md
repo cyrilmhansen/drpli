@@ -45,7 +45,15 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
-## Next action (E2E-52/P3-9 hop 4 PART DONE — order-law CANDIDATE PINNED from raw bytes (left-assoc chain, push-left/compute-right, `<0`-LAST, same-var `=0|>c` ladder-first swap, else source order); DEC literal-first CONFIRMED, PAR dead; dis80 D6/2F fix identified; ARM OWED at hop 5 — read `LEARNINGS.md` section "E2E-52/P3-9 hop 4 PART" FIRST, it holds every measured byte and the exact arm contract)
+## Next action (E2E-52/P3-9 hop 5 PART — dis80 FIXED+VERIFIED (UNCOMMITTED), ALL 11 golden folds RAW-DERIVED, exact arm design in `LEARNINGS.md` § "E2E-52/P3-9 hop 5 PART" — read it FIRST; then commit dis80, ARM, verify, register, close P3-9, STOP)
+
+**DONE THIS HOP (session 01a1ae0d, chain 01a1adf0 renewal 1/12; ZERO `ocaml/` byte, ZERO oracle):** build rc=0 binary `9ecea27aa4f2d80f49ad…` == baseline re-held; `tools/dis80.py` minimally fixed (`0xD6 SUI` len2, `0x2F CMA` len1) and VERIFIED linear on E52VE/VG/VI; every VA–VK fold region re-derived byte-for-byte from raw reldump records into `build/e52p9-arm/goldens-dump.txt`; all 11 probe sources re-read; prescan parity audited (`prescan_cond` descends `Or` generally, DEC zero-cell demand fires); full arm design (operand encoders, rules 1–3 node-local, `ORA B 0xB0` fold, VK precedence/value-position, refuse-BY-NAME perimeter) recorded ACCEPTED/PROPOSED in the LEARNINGS hop-5 section.
+
+**EXECUTE NEXT (hop 5 remainder):** (1) commit `tools/dis80.py`; (2) arm `ocaml/lib/codegen.ml` ONLY per that design (Or test-arm beside And in `lower_test_skip0` @8526 + Or fold beside And in `lower_bool`; NEVER alter And bytes); (3) build rc=0 DIRECT + histogram vs 68 + cmp VA–VK whole-file vs `golden/e52p9/` + sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0 + markers harness (CRLF+bare ^Z) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (LOAN2 predicted next blocker `signal error` body at 91 — ?SIGOP out of scope, NEVER fix); (4) registration from 1249 (--update-inventory, census OWN path, **C367 measured-bytes-only BEFORE COVERAGE**, explicit `spec/COVERAGE-IDS.txt` edit, NEVER coverage_gen.py), gate rc=0 `build/gate-e52p9-reg.log`; (5) RESULTS §P3-9 + PLAN §5 row + §P3-9 CLOSED, durables. STOP at P3-9 closure — do NOT start P3-10.
+
+**STATE:** HEAD `8c099a0`; ledger ENDS C366; gate 1249/186/9/140-0-0 census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…`; UNCOMMITTED: `tools/dis80.py` + this hop's LEARNINGS/PROGRESS prose; goldens untouched; no push; `handoff.config.json` NEVER staged; all rc DIRECT.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-9 hop 4 PART DONE — order-law CANDIDATE PINNED from raw bytes (left-assoc chain, push-left/compute-right, `<0`-LAST, same-var `=0|>c` ladder-first swap, else source order); DEC literal-first CONFIRMED, PAR dead; dis80 D6/2F fix identified; ARM OWED at hop 5 — read `LEARNINGS.md` section "E2E-52/P3-9 hop 4 PART" FIRST, it holds every measured byte and the exact arm contract)
 
 **DONE THIS HOP (session 01a1adf0; ZERO `ocaml/` byte, ZERO oracle, goldens untouched; all rc DIRECT):** recovery verified (HEAD `42d91094` == brief, g377 attested, hashes replayed — GOAL/LEARNINGS/config match, PROGRESS/HANDOFF differ only by the guard's own block rendering; no renewal-state file — fresh chain, operator-launched session). RAW-hex evidence table built from `build/e52p9/vdumps.txt`+`reldumps.txt` + fresh `tools/reldump.py` record dumps for VB–VK + LOAN2 91/113/120 + ANNUITY 46: **the hop-3 UNRESOLVED fold-ORDER question is now candidate-pinned** — left-assoc post-order fold, LEFT truth byte `F5`-pushed, RIGHT computed after push then `C1 POP B / B0 ORA B`, ONE terminal `F2 JP`; rule 1: `<0` LDA operand computed LAST in its node (VB==VC byte-identical, VD separate-var, VJ, VF node3, LOAN2:91); rule 2: same-variable FIXBIN `=0` immediately followed by `>c` ladder → ladder produced+pushed FIRST, zero-test materialises AFTER the F5 (VE, VF node1; other-var pair = NO witness → must refuse BY NAME [TBD]); rule 3: everything else source order (VI both stmts, VG, 113). DEC zero-operand LITERAL-FIRST CONFIRMED from fresh relocs (VG cells data@9/14 pushed before vars @0/5; VI zero10@11/zero9@17 pushed before p@0/q@6; ANNUITY verbatim) — **PAR FALSIFIED; ADD vs literal-first indistinguishable on pool-above-data layouts — record ambiguity in C367**. `reldumps.txt` DATA-size lines are WRONG (VG=0014, VI=001B from DEF-DATA records; read raw records). `0xD6` SUI is 2 bytes — hop-3 `vdumps` desync confirmed artifact; fix `tools/dis80.py` minimally (`0xD6:'SUI' len2`, `0x2F:'CMA' len1`) and verify on E52VE/VG/VI before arm time. `<0` leaf forms measured: standalone TEST = `3A r(cell+1) / B7 / F2 slot`; in-fold = bare `3A r(cell+1)` (bit7 IS truth, no B7). VH ELSE: two independent patch targets CONFIRMED. VK raw head decoded (precedence AND-fold first; value-position OR = fold then BARE `32 <bitcell>`, NO D6/9F normalization) — re-derive every VK byte from the golden before arming.
 
@@ -2716,17 +2724,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 379
-checkpoint-id: g379-d6402b82926e
+checkpoint-generation: 381
+checkpoint-id: g381-f053da61bd01
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T23:30:35.256Z
+checkpointed: 2026-11-05T23:48:55.754Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: f56da7ec04d03dfcdc8d65943593b3e8ac63b79d8474fa003dc107ef7e9a8c1b
 source-handoff: 39bbc32b9f63eef5045a70e0c702cc49a5328c720457ec36cf18001bef5d7b9b
-source-learnings: 41555ec3a5775b38166c0263ba7d3a0c88c4a6eba1542dfc6e517fdfddbdd3c2
+source-learnings: f61878d8aa5fdafd8f9eb9c3efdd5422417b5d366f9fe6774fa36ed7118d748a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop-5 contract EXACTLY: arm ONLY measured shapes (`lower_test_skip0` Or arm + `lower_bool` Or fold; NEVER alter And), build rc=0 + histogram 68, cmp VA–VK whole-file, sweep FAILS 0, markers (CRLF+bare ^Z), LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (record new blocker, NEVER fix; ?SIGOP out of scope), register exact subset, **C367 BEFORE COVERAGE** (explicit COVERAGE-IDS.txt edit, NEVER coverage_gen.py), gate `build/gate-e52p9-reg.log`, RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9; do NOT start P3-10. Ledger ENDS **C366**; gate baseline **1249/186/9/140-0-0**, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL.
 
@@ -3319,9 +3327,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1adf0-3ad6-7091-837d-1dce226d12dd
-readiness-at: 2026-11-05T23:30:47.653Z
-readiness-checkpoint: g379-d6402b82926e
 <!-- guard:end checkpoint -->
 
 ## Blockers

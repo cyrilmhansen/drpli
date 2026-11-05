@@ -57,6 +57,11 @@ DR80 = {
     0x22: ('SHLD', 3), 0x2A: ('LHLD', 3), 0x32: ('STA', 3), 0x3A: ('LDA', 3),
     0x87: ('ADD  A', 1), 0x80: ('ADD  B', 1), 0x86: ('ADD  M', 1),
     0x9F: ('SBB  A', 1), 0x97: ('SBB  M', 1), 0x9E: ('SBB  M', 1),
+    # E2E-52/P3-9 (hop 5): 0xD6 SUI imm was MISSING -- as DB it consumed 1 byte and
+    # desynced every following `01 xx 9F' triple (false LXI B lines in build/e52p9
+    # listings).  0x2F CMA pinned by DR's own R812 $C <-> byte pair + [C312] ladder
+    # evidence (E52VE/VG/VI verified at arm time).  Both lengths measured, not guessed.
+    0xD6: ('SUI  ', 2), 0x2F: ('CMA  ', 1),
     0xA0: ('ANA  B', 1), 0xAF: ('XRA  A', 1), 0xB6: ('ORA  M', 1), 0xB7: ('ORA  A', 1),
     0xBE: ('CMP  M', 1), 0xBF: ('CMP  A', 1),
     0xC1: ('POP  B', 1), 0xD1: ('POP  D', 1), 0xF1: ('POP  PSW', 1),
