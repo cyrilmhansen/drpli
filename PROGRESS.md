@@ -51,6 +51,32 @@ C359 derived ONLY from the existing measured evidence.
 
 **AUTHORIZED NEXT (operator brief 2026-11-05): E2E-52/P3-8 = ON ERROR (LOAN2:58, `codegen: ON ERROR is not implemented [TBD] … line 58`).** Contract, in order: (1) DECODE EXISTING evidence FIRST — `golden/first/LOAN2/LOAN2.REL` ON-unit region, claims C109/C120/C201/C202/C364, E52SA..SD specimens + `golden/e52p6/`, ON ENDFILE/UNDEFINEDFILE witnesses, `artefacts/COPYLPT.PLI` (`on error(1)`), `ocaml/lib/codegen.ml` Son dispatch + `on_reg_prefix`, bind.ml ON references/recovery-pad/saved-SP; do NOT modify LOAN2 source. (2) Preregister PLAN §P3-8 + a small DISCRIMINATING probe bank (bare ON ERROR with assignment handler / direct GOTO / BEGIN…END ending in GOTO / plain returning BEGIN handler; ON ERROR(1) if DR accepts the spelling; ENDFILE/UNDEFINEDFILE contrasts under identical handler shapes; saved-SP/continuation discriminator) with competing condition-code hypotheses, acceptance/refusal predictions, byte predictions and explicit falsifiers — COMMITTED BEFORE any `ocaml/` byte. ON ERROR is NOT presumed a file event; its condition code and registration operand must be MEASURED. (3) ONE grouped `e52p8` campaign (`PLI_SRC=probes timeout 900 python3 oracle/batch.py <probes> --tag e52p8 --switches '$L$D'`) rc DIRECT, ONLY if existing goldens leave the questions open. (4) Arm measured forms reusing existing handler/control-flow machinery ONLY where bytes genuinely agree; preserve ENDFILE/UNDEFINEDFILE regressions; no hardcoded LOAN2, no invented codes; unmeasured shapes refuse BY NAME. (5) cmp whole-file, focused ON bank + sweep 114, markers, LOAN2 POSITIONAL VERBATIM (record the new first blocker, do not chase it), registration via sanctioned `--update-inventory` + census OWN path, FULL gate rc=0 logged, claim C366 from MEASURED BYTES ONLY BEFORE the COVERAGE rewrite, RESULTS §P3-8 + PLAN §5 row, prose rc=0, durables, renew per cap. Standing boundaries KEPT: byte-tier only — no runtime claims; no push; operator `handoff.config.json` NEVER staged; goldens NEVER re-derived; all rc DIRECT (never a pipeline tail); `pli80c` POSITIONAL. Standing PROPOSALS (never authorization): SE `?REVOP` arm; ENVIRONMENT route (RETRIEVE:31 / REPORT:29 36-B `4E52`).
 
+### P3-8 hop 1 LANDED (2026-11-05, session 01a1ab05): ON ERROR DECODED + CONFIRMED on 5 original goldens; PLAN §P3-8 PRE-REGISTRATION IS THE EXACT NEXT ACTION
+
+ACCEPTED (bytes, LEARNINGS § "P3-8 hop 1"): bare `on error` = `LXI H,0000 / XRA A / CALL
+?ONCOP / JMP <over>` (ABSOLUTE operand, condition 00 via AF, 7-byte prefix — LOAN2 00E8,
+ANNUITY 004B); `on error(1)` = `LXI H,0001 / XRA A / ?ONCOP / JMP <over>` (COPYLPT 00A6,
+EXPR1/EXPR2 001B); goto-terminated BEGIN handlers inline, `C3` chain, NO RET (C364 law
+holds); pad `LHLD <block SP cell>/SPHL/?RECOV` at the goto label, cell SHARED with
+file-scoped pads (LOAN2 d0318, COPYLPT d0214, ANNUITY d0136); `revert error(1)` = LXI H,
+0001/XRA A/?REVOP measured UNARMED; `on endfile(sysin) stop;` body = inline CALL ?STOPX
+**NO RET** — C109's RET tail is body-DEPENDENT, re-read before arming. ANNUITY pad/jump-over
+geometry AMBIGUOUS mid-dump — clean disassembly owed. PROPOSED probes: E52UA simple-
+statement error handler; UB remote non-adjacent goto target pad geometry; UC LOAN2-mirror
+begin…goto; UD plain returning begin handler (RET? UNMEASURED); UE error literals 0/1/2
+plus refusal boundary; UF ENDFILE/UNDEFINEDFILE contrasts. FALSIFIED: slot-7 fixed walk-back.
+
+EXACT NEXT ACTION (hop 2): re-disassemble ANNUITY 0070-0078; then write PLAN §P3-8
+(hypotheses/byte predictions/falsifiers VERBATIM) + probes E52UA..UF (CRLF/bare ^Z/
+column conventions; collision-grep ids); COMMIT PLAN+probes BEFORE any ocaml/ byte; ONE
+grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52UA..UF --tag e52p8
+--switches '$L$D'` rc DIRECT; then arm (ERROR const-operand prefix + AF inside existing
+on_reg_prefix/Son machinery, only where bytes agree; unmeasured shapes refuse BY NAME;
+ENDFILE/UNDEFINEDFILE regressions preserved), cmp/sweep 114/markers/LOAN2 POSITIONAL
+VERBATIM, registration, gate, C366 measured-bytes-only BEFORE COVERAGE, RESULTS §P3-8 +
+PLAN §5 row, durables. Constraints: no push; operator handoff.config.json NEVER staged;
+goldens NEVER re-derived; all rc DIRECT; pli80c POSITIONAL; byte-tier only.
+
 ### P3-8 hop 1 IN FLIGHT (2026-11-05, session 01a1ab05): ON ERROR DECODED from LOAN2+COPYLPT+ANNUITY goldens; EXPR direct-dump + PLAN §P3-8 PRE-REGISTRATION OWED
 
 DONE this hop (ZERO ocaml/, ZERO oracle): full decode in `LEARNINGS.md` § "P3-8 hop 1 IN
@@ -2532,17 +2558,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 355
-checkpoint-id: g355-a4a4e096cc6f
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-guard-level: 0
-checkpointed: 2026-11-05T09:33:27.671Z
+checkpoint-generation: 357
+checkpoint-id: g357-02931ffaf0c2
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-05T09:49:08.202Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4b8775bac2838f6a6eb7d5da2f3c520680114c0ef5389a0ad4d5fd26d5bb53f4
+source-progress: da2c791ef5bd0c6af1091d72909b0cf33fb9295b1ef122cdb7f36f8cabdea56b
 source-handoff: 67f28e9085013fbfcd2b6fa3d38b7736da05f43735fe7d8235c7835761779569
-source-learnings: 4740324e0147e0e23d293e60f802480d4522d4cfacaf1fdd4d69f11bb9cf20f5
+source-learnings: 9c6a4dcb8a6a2ede407ce08e1735a8e5924738610959d5d37f7c7f0950679042
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: `: P3-8 DECODES existing LOAN2/E52p6 evidence FIRST, then preregisters PLAN §P3-8 + discriminating probes COMMITTED before any `ocaml/` byte; campaign `e52p8` only if goldens leave the ON ERROR questions open; ON ERROR is NOT presumed a file event — condition code + registration operand MEASURED independently. No push; all rc DIRECT; `pli80c` POSITIONAL.
 
@@ -3121,9 +3147,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1ab05-c85a-71c1-a110-293de8a4e55c
-readiness-at: 2026-11-05T09:33:27.687Z
-readiness-checkpoint: g355-a4a4e096cc6f
 <!-- guard:end checkpoint -->
 
 ## Blockers

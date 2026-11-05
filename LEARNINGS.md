@@ -53,6 +53,33 @@ The guard never writes this file.
   sites; then PLAN §P3-8 + probes E52UA..UF COMMITTED BEFORE any ocaml/ byte; campaign e52p8
   ONLY for what goldens leave open (plain-BEGIN and simple-statement handlers).
 
+- **ACCEPTED (EXPR1/EXPR2/ANNUITY direct-dumped, `build/e52p8/ondump.py` output preserved in
+  git-ignored build/, re-runnable):** EXPR1 & EXPR2 `on error(1)` registration at code 001B:
+  `21 01 00 AF CD ?ONCOP C3 <code@005E/0057>` — CONFIRMS the LXI H,0001 + XRA A law on TWO
+  more witnesses. ANNUITY bare `on error` at 004B: `21 00 00 AF CD ?ONCOP C3 <code@0074>`,
+  inline handler (console put skip list) ends `C3 <CHAIN-ADDR slot 006E>` **no RET**, pad at
+  0070 `LHLD data@0136 / SPHL / CALL ?RECOV` sits between handler-end and the jump-over
+  target 0074 — the goto target `retry:` is NOT adjacent here and the pad still stands AT the
+  label while the jump-over lands one instruction past the pad call... (006D C3 slot 006E-6F
+  chained to 0070 pad+label; jump-over operand code@0074 = the first statement of the retry
+  body AFTER the pad — wait: re-read before claiming: the jump-over target 0074 is `01`??
+  bytes 0070:2A 0076:01 F9 CD — operand data@0136 at 0071-0072, F9 SPHL 0075, CD ?RECOV
+  0076-0078 — so 0074-0075 hold the HIGH byte of the LHLD operand and SPHL; the recorded
+  target 0074 is MID-DUMP AMBIGUOUS and MUST be re-disassembled before use). KEEP the three
+  goldens as witnesses of the REGISTRATION law only; ANNUITY's pad/continuation geometry
+  stays PROPOSED pending a clean disassembly.
+- **ACCEPTED (statement-handler nuance, byte tier):** EXPR1/EXPR2 line 14/20
+  `on endfile(sysin) stop;` registers `LXI H,<common@0000> / MVI A,05 / CALL ?ONCOP /
+  JMP code@001B` and the body is `CALL ?STOPX` INLINE at 0018 with **NO C9 RET** before the
+  NEXT registration at 001B — so a STOP-bodied statement handler does NOT end in RET.
+  C109's "inline handler terminated by RET" is therefore handler-body-DEPENDENT (E11A's put
+  statement DID end with RET per its own witness); the plain-BEGIN-returns-for-ERROR case
+  remains UNMEASURED and probe-owed (UD), and C109's scope should be re-read before any
+  arm copies a RET tail blindly.
+- **PROPOSED successor sequence (unchanged):** clean ANNUITY disassembly → PLAN §P3-8 +
+  probes E52UA..UF COMMITTED BEFORE any ocaml/ byte → ONE e52p8 campaign → arm → cmp/sweep/
+  gate/registration → C366 measured-bytes-only → COVERAGE → RESULTS/PLAN rows → durables.
+
 ## E2E-52/P3-7 hop 5 CLOSED: PERIMETER CORRECTION LANDED; FULL COMBINED-STATE GATE rc=0 (2026-11-05)
 
 - **ACCEPTED (idempotent recovery).** The killed hop-4/5 session had ALREADY written RESULTS

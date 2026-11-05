@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-novies-new14. **E2E-52/P3-8 hop 1 LANDED — ON ERROR DECODED & CONFIRMED on 5 original goldens; hop 2 = PLAN §P3-8 + probes E52UA..UF PRE-REGISTRATION, then ONE e52p8 campaign (2026-11-05, session 01a1ab05, ZERO ocaml/, ZERO oracle).** ACCEPTED: bare `on error` = `LXI H,0000 / XRA A / CALL ?ONCOP / JMP <over>` (absolute constant operand, condition byte 00 via AF — NOT a file event, NOT MVI A,nn; LOAN2 00E8, ANNUITY 004B); `error(1)` = `LXI H,0001` (COPYLPT 00A6, EXPR1/EXPR2 001B); goto-terminated BEGIN handlers inline + `C3`, NO RET ([C364] holds); pad at goto label, block-shared SP cell (LOAN2 d0318/COPYLPT d0214/ANNUITY d0136); `revert error(1)` measured UNARMED; `on endfile(sysin) stop;` has NO RET tail — C109 RET law is body-dependent, re-read before arming. AMBIGUOUS (clean disassembly owed): ANNUITY pad/jump-over geometry 0070-0078. UNMEASURED → probes: plain returning BEGIN handler, simple-statement handler, non-adjacent goto pad geometry, error literals beyond 0/1. FALSIFIED: slot-7 walk-back in my first-pass tool. SUCCESSOR: read `LEARNINGS.md` § P3-8 + `PROGRESS.md` → P3-8 hop-1 LANDED section; execute hop-2 contract: PLAN §P3-8 + probes COMMITTED BEFORE any ocaml/ byte, campaign `--tag e52p8 --switches '$L$D'` rc DIRECT, arm only measured shapes reusing on_reg_prefix where bytes agree, registration → gate → **C366 measured-bytes-only BEFORE COVERAGE** → RESULTS/PLAN rows → durables. HEAD after this closure: see git log; ledger ENDS **C365**; gate 1243/0 186/186 9/9 140 0/0 census 15/0/26/0; binary `8b374e623bc9e280…`; LOAN2 blocker line 58 re-verified; SE my-gap/SF-SG dr-refuses kept; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; byte-tier only.
+
 0a-novies-new13. **E2E-52/P3-7 hop 5: SUBROUND P3-7 CLOSED — PERIMETER line-38 correction LANDED; FULL COMBINED-STATE GATE rc=0; SUCCESSOR = E2E-52/P3-8 ON ERROR PRE-REGISTRATION (operator-authorized) (2026-11-05).** Docs+ledger-boundary hop: ZERO oracle calls, ZERO `ocaml/` bytes. Idempotent recovery found the killed session's RESULTS §P3-7 + PLAN §5 row UNCOMMITTED and KEPT them verbatim (all cited hashes verified); only the PERIMETER correction was missing and was appended INSIDE the FILE-attribute-cluster row's final cell — falsified `Still refusing by name:` sentence kept VERBATIM HISTORICAL; PRINT/PAGESIZE/LINESIZE now implemented for MEASURED combinations [C365]; PAGE [C359]; file PUT/GET EDIT C360–C363, E41X8 refusal OBSOLETE; KEYED/DIRECT/RECORD/SEQUENTIAL/UPDATE/APPEND/ENVIRONMENT still unsupported on OPEN routes; titleless OUTPUT 0x0650 outside the measured implementation; unmeasured PRINT/attribute combos refuse BY NAME; NO all-combinations claim. Verification FINAL STATE, all rc DIRECT: prose rc=0, coverage rc=0 **140 rows 0/0**, FULL gate rc=0 `build/gate-e52p7-hop5.log` (**1243/1243, 186/186, 9/9, 140 0/0, census 15/0/26/0, prose 5**). Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap / SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged. GUARD STATE: prior chain 01a1aa7d consumed g352 (renewal 4/12); THIS session auto-checkpointed g354 UNATTESTED at level 4 — successor must `/handoff verify` then follow `PROGRESS.md` → `## Next action`: P3-8 DECODES existing LOAN2/E52p6 evidence FIRST, then preregisters PLAN §P3-8 + discriminating probes COMMITTED before any `ocaml/` byte; campaign `e52p8` only if goldens leave the ON ERROR questions open; ON ERROR is NOT presumed a file event — condition code + registration operand MEASURED independently. No push; all rc DIRECT; `pli80c` POSITIONAL.
 
 0a-novies-new12. **E2E-52/P3-7 hop 4 PART DONE: COVERAGE LANDED `d9ebb30` (140 rows 0/0 + stats own path); RESULTS/PLAN/PERIMETER/prose/durables OWED at hop 5 (2026-11-05, renewal 4/12).** ZERO oracle. Landed: row `FILE.OPEN_STREAM` falsified `Still refused by name: PRINT/…` kept VERBATIM HISTORICAL + [C365], id KEPT; NEW `FILE.OPEN_PRINT_ATTRS` SUPPORTED EXACT:10 — corpus column validator FALSIFIED hop-3's list (P019B/P021 NOT census names → sit as golden evidence paths; corpus COPYLPT,DEPREC,KEYFILE,LOAN2,RETRIEVE); labelled CORRECTIONs on rows `FILE.OPEN_STREAM_OUTPUT` (KEYFILE:19 0x1E50 lowered as E52TE), `FILE.PUT_LIST`, `FILE.OPEN_TITLE_STATIC` (LOAN2 quote obsolete → ON ERROR 58). Recovery: build rc=0 binary `8b374e623bc9e280…`, gate 1243/0 (next gate expect coverage **140 rows 0/0**). SUCCESSOR: execute `PROGRESS.md` → `## Next action` hop-5 contract — RESULTS §P3-7 (measured table, H1–H5 CONFIRMED, TI falsifier + TG/TH totals falsifications VERBATIM, TJ accept, LOAN2/RETRIEVE advances, §6 byte-tier-only), PLAN §5 row, PERIMETER.md line-38 campaign-wide correction (kept verbatim; PAGE/PUT-EDIT clauses stale since E2E-42), prose rc=0 standalone, durables, renew 5/12 cap 12. NO new oracle campaign; ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; chain 01a1aa7d.
@@ -1580,25 +1582,22 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 355
-checkpoint-id: g355-a4a4e096cc6f
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 0, remaining ~63718, session 01a1ab05-c85a-71c1-a110-293de8a4e55c)
-checkpointed: 2026-11-05T09:33:27.671Z
+checkpoint-generation: 357
+checkpoint-id: g357-02931ffaf0c2
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4895, session 01a1ab05-c85a-71c1-a110-293de8a4e55c)
+checkpointed: 2026-11-05T09:49:08.202Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 4b8775bac2838f6a6eb7d5da2f3c520680114c0ef5389a0ad4d5fd26d5bb53f4
+source-progress: da2c791ef5bd0c6af1091d72909b0cf33fb9295b1ef122cdb7f36f8cabdea56b
 source-handoff: 67f28e9085013fbfcd2b6fa3d38b7736da05f43735fe7d8235c7835761779569
-source-learnings: 4740324e0147e0e23d293e60f802480d4522d4cfacaf1fdd4d69f11bb9cf20f5
+source-learnings: 9c6a4dcb8a6a2ede407ce08e1735a8e5924738610959d5d37f7c7f0950679042
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1ab05-c85a-71c1-a110-293de8a4e55c
-readiness-at: 2026-11-05T09:33:27.687Z
-readiness-checkpoint: g355-a4a4e096cc6f
 ### Last verified state
-guard level 0; checkpoint requested (finalize: P3-7 hop 5 CLOSED at 75a6d18 (PERIMETER correction + RESULTS/PLAN kept + LEARNINGS + durables; full gate rc=0 1243/0, 140 rows 0/0, census 15/0/26/0). Next authorized: E2E-52/P3-8 ON ERROR (LOAN2:58) pre-registration per PROGRESS ## Next action.)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)
