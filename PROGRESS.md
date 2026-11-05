@@ -45,9 +45,19 @@ C359 derived ONLY from the existing measured evidence.
 **Next: see `## Next action
 ### E2E-52/P3-6 hop 12 = CAP DONE — SUBROUND P3-6 CLOSED: goldens `5ab8639`, registration `91592c0` (1233/186), census `9febae8` (counts 15/0/26/0, LOAN2 line-54 OPEN PRINT VERBATIM), FULL gate rc=0 `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, prose 5), claim **C364** `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0), RESULTS+PLAN+LEARNINGS+prose rc=0 (2026-11-05; binary 0efc35e6d4ff81bd, sweep 110/0, warnings 68 == baseline, SE my-gap UNARMED, SF/SG dr-refuses)
 
-## Next action (hop 3 IN FLIGHT, 2026-11-05, renewal 3/12)
+## Next action (hop 4 PART DONE, 2026-11-05; renew into hop 5)
 
-**E2E-52/P3-7 hop 3: BUILD + CMPs + LOAN2 + SWEEP + MARKERS + ARM COMMIT + REGISTRATION (1/3 SPECIMENS+inventory, 2/3 census) + GATE + CLAIM C365 ALL LANDED; COVERAGE + RESULTS/PLAN ROWS + DURABLES OWED (hop 4).**
+**LANDED hop 4 (commit `d9ebb30`, all rc DIRECT): COVERAGE.tsv — FILE.OPEN_STREAM boundary rewrite (falsified PRINT clause kept VERBATIM HISTORICAL, id KEPT, +[C365]); NEW row FILE.OPEN_PRINT_ATTRS SUPPORTED EXACT:10; labelled CORRECTIONs on FILE.OPEN_STREAM_OUTPUT (KEYFILE:19 lowered as E52TE), FILE.PUT_LIST, FILE.OPEN_TITLE_STATIC; coverage_check rc=0 140 rows 0/0 + coverage-stats.json via own write path — both committed.** Recovery facts (hop 5, verify): HEAD `d9ebb30`, binary `8b374e623bc9e280…` build rc=0, ledger ENDS **C365**, sweep 114/0, gate-e52p7-reg.log 1243/0 (its coverage panel predates the new row: next gate expect **140 rows 0/0**).
+
+**OWED to close P3-7 (hop 5, docs-only, NO oracle):** (1) RESULTS.md §P3-7 — 10-probe table (TA 256B code 0035/DATA 0002 blk 21B w1 0652; TB 384/003D/0006 29B 2E52; TC 384/003B/0011 27B 0E52; TD 256/0038/0002 24B 2652; TE 384/003F/0008 31B 1E50; TF 384/0041/0015 33B 3E52; TG 384/0040/0006 32B; TH 384/0041/0006 33B; TI 256/003A/0004 26B; TJ 256/003A/0002 26B), H1–H5 CONFIRMED, H6 refused-as-designed; TI falsifier VERBATIM (predicted w6 `21 00 00`, DR `60 68`); TG/TH 30-B totals FALSIFIED VERBATIM (32/33, encodings HIT); TJ DR-ACCEPTED `21 2C 01`; LOAN2 → `ON ERROR … line 58` + RETRIEVE → `OPEN option ENVIRONMENT … (line 31)`; campaign 10 ok/10 ZERO dr-refuses; §6 byte-tier-only NOT-say. (2) PLAN.md §5 progress table P3-7 row (same facts). (3) spec/PERIMETER.md line 38: append ONE labelled [E2E-52/P3-7 CORRECTION] paragraph — falsified `Still refusing by name: PRINT…` sentence kept verbatim; also note PAGE (C359) and file PUT EDIT (C360–C363) clauses stale since E2E-42; still refusing: KEYED/DIRECT/RECORD/SEQUENTIAL/UPDATE/APPEND/ENVIRONMENT, titleless OUTPUT 0x0650, every PRINT/attribute combo outside the matrix. (4) `python3 tools/file_prose_check.py` rc=0 DIRECT standalone. (5) Durables close + explicit-path commits; renew (5/12 used of cap 12; NEVER stage handoff.config.json).
+Standing PROPOSALS (never authorization): P3-8 ON ERROR (LOAN2:58); SE `?REVOP` arm; ENVIRONMENT route (RETRIEVE:31/REPORT:29 36-B `4E52`). Constraints: no push; goldens NEVER re-derived; ON ERROR NOT fixed; SE my-gap/SF-SG dr-refuses kept; all rc DIRECT (never pipeline tail); `pli80c` POSITIONAL; chain 01a1aa7d.
+
+SUPERSEDED-BY-ABOVE (hop-4 full contract, items 1 done):
+
+**E2E-52/P3-7 hop 4 CONTRACT IN FORCE (unchanged, docs-only; read LEARNINGS.md § "hop 4 IN FLIGHT" FIRST, it adds the validator facts and the three extra stale rows).** Recovery DONE this hop: HEAD `5d4fe25`, build rc=0 binary `8b374e623bc9e280…` (== registration), coverage baseline 139 rows 0/0 rc=0, prose rc=0. Execute: (1) COVERAGE.tsv via python column-edit (rows are huge; NEVER hand-match them): rewrite row `FILE.OPEN_STREAM` boundary — falsified `Still refused by name: PRINT/…` sentence kept VERBATIM as HISTORICAL, cite [C365] + golden/e52p7, pointer to the new row, id KEPT, provenance +[C365]; labelled [E2E-52/P3-7 CORRECTION] appends to rows `FILE.OPEN_STREAM_OUTPUT` (KEYFILE:19 0x1E50 NOW lowered as E52TE), `FILE.PUT_LIST` (PRINT/LINESIZE no longer open-refusal blockers; EXACT:4 unchanged), `FILE.OPEN_TITLE_STATIC` (LOAN2 blocker quote obsolete — now ON ERROR 58); NEW row `FILE.OPEN_PRINT_ATTRS` inserted after FILE.OPEN_STREAM_OUTPUT: perimeter S, manual_ref `p60:9.5=OPEN FILE(fname) [file-attributes];`, dr ACCEPTS, mine SUPPORTED, EXACT:10, runtime NONE, probes E52TA..TJ + `golden/probes11/P019B/P019B.REL` + `golden/probes10/P021/P021.REL`, corpus COPYLPT,DEPREC,KEYFILE,LOAN2,RETRIEVE (P019B/P021 NOT census names), boundary = the full refused-by-name list in the LEARNINGS § + corpus-users-are-not-parity-claims + byte-tier-only; confidence MEASURED; provenance `[C365]` + OPEN-MATRIX/OPEN-BLOCKS/PLAN/RESULTS paths (no duplicate leading cites). `python3 tools/coverage_check.py` rc=0 expect **140 rows 0/0** (its run also refreshes coverage-stats.json — commit that diff if moved). (2) PERIMETER.md line 38: one PROPOSED campaign-wide correction paragraph, falsified sentence kept verbatim (PRINT/PAGESIZE/LINESIZE C365; PAGE C359; PUT EDIT C360–C363). (3) RESULTS.md §P3-7: 10-probe measured table (TA 256B code 0035/0002 blk21B 0652; TB 384/003D/0006 29B 2E52; TC 384/003B/0011 27B 0E52; TD 256/0038/0002 24B 2652; TE 384/003F/0008 31B 1E50; TF 384/0041/0015 33B 3E52; TG 384/0040/0006 32B; TH 384/0041/0006 33B; TI 256/003A/0004 26B; TJ 256/003A/0002 26B — from tools/e2e_gate.py SPECIMENS comment), H1–H5 CONFIRMED + H6 refused-as-designed, TI falsifier VERBATIM (predicted w6 21 00 00, DR wrote 60 68), TG/TH 30-B totals FALSIFIED VERBATIM (32/33; encodings HIT, no falsifier fired), TJ DR-ACCEPTED via 21 2C 01, campaign 10 ok/10 ZERO dr-refuses, LOAN2 ADVANCED VERBATIM to `ON ERROR … line 58` + RETRIEVE to `OPEN option ENVIRONMENT … (line 31)`, registration chain ccf0036/6b8d851/f6fd2b9/gate 1243/0/a6e814f, sweep 114/0, §6 NOT-say byte-tier-only. (4) PLAN.md §5 progress table P3-7 row. (5) `python3 tools/file_prose_check.py` rc=0 standalone. (6) Durables (HANDOFF new item 0a-novies-new12 + PROGRESS close or hop-5 P3-8-PRE-REG contract), explicit-path commits, then renew (4/12 used of cap 12 — check handoff.config.json, NEVER stage it).
+Constraints: NO new oracle campaign; no push; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF-SG dr-refuses kept; ledger ENDS C365; all rc DIRECT (never a pipeline tail); `pli80c` POSITIONAL.
+
+SUPERSEDED-BY-ABOVE: **E2E-52/P3-7 hop 3: BUILD + CMPs + LOAN2 + SWEEP + MARKERS + ARM COMMIT + REGISTRATION (1/3 SPECIMENS+inventory, 2/3 census) + GATE + CLAIM C365 ALL LANDED; COVERAGE + RESULTS/PLAN ROWS + DURABLES OWED (hop 4).**
 
 ACCEPTED (measured this hop, all rc DIRECT): `dune build` rc=0 after ONE defect fix — the hop-2
 draft had written literal `\u00a7`/`\u2014` escapes in four message/comment strings (4 NEW Warning 14
@@ -2485,17 +2495,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 349
-checkpoint-id: g349-ffe38417e0aa
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 351
+checkpoint-id: g351-62b03e15e0dd
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T08:13:01.768Z
+checkpointed: 2026-11-05T08:34:07.139Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c8d59c2b7c85d1bf063fa67d6efe75f4b848590fe067256c9c3333619883a2e5
+source-progress: 0b6567171697a3795bc34befc85e91225c9fb1af861945ab7e485649d5882c0d
 source-handoff: f871944c0942b0d2cf93a7526e8b65f6900339199e0fc527fd80bdb5e1fc447e
-source-learnings: d2ee7e9dae910591c8bbd34723edde31d5246fcade52d0d43ddce797ea002228
+source-learnings: d64e2a9544a01ce786c29a1db4c1914ba11572800eef8e79127f5a7671626f71
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop-4 contract — COVERAGE row 52 rewrite (its `Still refused by name: PRINT/…` clause FALSIFIED, keep as HISTORICAL) + PROPOSED `FILE.OPEN_PRINT_ATTRS` row + coverage_check rc=0 (expect 140 rows) + stats own path, RESULTS §P3-7 + PLAN §5 row + prose rc=0, durables. FALSIFIED this hop and kept verbatim: TI predicted w6 `21 00 00`, DR wrote `60 68`; TG/TH 30-B totals measured 32/33 (encodings HIT); PRINT-is-spelled-OUTPUT falsified (0x0200 kept); global `\'` replace corrupted tools/e2e_gate.py — restored from `git show HEAD:` (only my own edit lost), py_compile rc=0. Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF/SG dr-refuses kept; byte-tier only, no runtime assertions; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; renewal chain 01a1aa7d hop 3/12, cap 12.
 
@@ -3070,9 +3080,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1aab2-af88-7312-8813-8d2d73493b83
-readiness-at: 2026-11-05T08:13:01.783Z
-readiness-checkpoint: g349-ffe38417e0aa
 <!-- guard:end checkpoint -->
 
 ## Blockers

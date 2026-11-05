@@ -5,6 +5,46 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-7 hop 4 IN FLIGHT: COVERAGE MATERIALS VERIFIED; THREE MORE STALE ACTIVE ROWS FOUND (2026-11-05)
+
+- **ACCEPTED (recovery).** Build rc=0 DIRECT, binary sha256 `8b374e623bc9e280…` == the hop-3
+  registration binary. Baseline `coverage_check.py` rc=0 **139 rows 0/0**; `file_prose_check.py`
+  rc=0 standalone (5 active files). Head is `5d4fe25` (g349 blocks), tree clean except operator
+  `handoff.config.json` + untracked scratch build logs (never staged).
+- **ACCEPTED (validator facts).** The `corpus` column is restricted to the 44 names in
+  `spec/census/corpus-census.tsv`: **P019B and P021 are NOT census programs** (historical goldens
+  `golden/probes11/P019B/P019B.REL`, `golden/probes10/P021/P021.REL` — both paths exist), so the
+  hop-3 contract's corpus list is executed as corpus `COPYLPT,DEPREC,KEYFILE,LOAN2,RETRIEVE` +
+  those two paths in `probes`. `coverage_check.py` writes `spec/census/coverage-stats.json` on
+  EVERY run — that run IS the stats own write path; commit the diff when it moves.
+  MEASURED traceability: a probe token hit if named in ANY cited claim — C365 names E52TA..TJ.
+  Prose-check rules: FORBIDDEN patterns are CASE-SENSITIVE (`variable title … refus` lowercase);
+  pinned markers `OPEN option KEYED/RECORD/SEQUENTIAL/UPDATE is outside` etc. must survive in
+  codegen.ml/e2e_gate.py; never cite the same claim twice in a row's LEADING provenance cluster.
+- **FALSIFIED/STALE ACTIVE PROSE beyond row 52 (found by grepping COVERAGE + PERIMETER for
+  PRINT/PAGESIZE/LINESIZE, each clause kept verbatim inside a labelled [E2E-52/P3-7 CORRECTION]):**
+  (a) row 55 `FILE.OPEN_STREAM_OUTPUT` boundary says KEYFILE:19 (0x1E50 LINESIZE) "stays refused"
+  — E52TE lowered that exact word, [C365]; ENVIRONMENT 0x4E50 and KEYED 0x4D54 still unlowered.
+  (b) row 56 `FILE.PUT_LIST` names "(PRINT, keyed, ENVIRONMENT, LINESIZE -- E41X5's family)" as
+  open-refusal blockers of PUT — PRINT/LINESIZE opens now lower; keyed/ENVIRONMENT/DIRECT/RECORD/
+  SEQUENTIAL/UPDATE still refuse; no object yet pairs a file PUT with a newly lowered open, so
+  EXACT:4 is unchanged. (c) row 118 `FILE.OPEN_TITLE_STATIC` quotes LOAN2 stopping "in the
+  decimal-pool prescan (`variable i declared with conflicting kinds [TBD]`)" — obsolete since
+  P3-1/P3-5; LOAN2 stops at ON ERROR line 58; the conclusion (corpus user, not parity claim)
+  stands. (d) `spec/PERIMETER.md` line 38 "**Still refusing by name:** PRINT opens … PAGESIZE,
+  LINESIZE …" is stale — and its PAGE (E46N10 lowered, C359) and file-PUT-EDIT (E41X8 retired,
+  C360–C363) clauses have been stale since E2E-42: PERIMETER.md has not been touched since
+  `1e5fe03`; PROPOSED one campaign-wide correction paragraph covering all three classes, the
+  falsified sentence kept as written.
+- **ACCEPTED (matrix, re-read from armed codegen.ml for the boundary text):** `open_subset_keys` =
+  FILE/INPUT/STREAM/OUTPUT/TITLE/PRINT/PAGESIZE/LINESIZE; guards refuse PRINT+INPUT and
+  PRINT+OUTPUT (UNMEASURED, never put to DR); OUTPUT-without-STREAM and titleless OUTPUT refuse
+  (census reasons); `open_attr_plan` admits titled PRINT {none,zero,lit8 | lit8+lit8 | var+var}
+  and titleless PRINT {none,lit8,lit16,var}, titled `stream output` LINESIZE-lit8 alone; refuses
+  bare attrs, non-decimal/>0xFFFF literals, EXPRESSIONs, non-plain-automatic-fixed-bin-2 vars,
+  linesize-alone titled-PRINT, 16-bit linesize, titleless pagesize(0), mixed lit/var pairs, the
+  titled clobber→zero transition (defence-in-depth failwith in open_emit_words).
+
 ## E2E-52/P3-5 CAMPAIGN e52p5 MEASURED + ALL BYTES DECODED; ARM OWED (2026-11-05, fresh chain hop 6/12; ZERO ocaml/ byte this hop)
 
 - **ACCEPTED (campaign ACTUALS).** ONE grouped `PLI_SRC=probes timeout 900 python3
