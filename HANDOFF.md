@@ -7,6 +7,20 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-novies. **E2E-52/P3-4 REGISTRATION LANDED — gate rc=0 1222/0, ledger ENDS C362;
+  RESULTS/PLAN rows + P3-5 OWED (2026-11-05, fresh chain hop 3/12).** All owed registration
+  steps executed DIRECT: 10 SPECIMENS + PU/PV dr-refuses rows `e397ed9`; inventory
+  1212→1222 + 180→182 exactly; census own write path rc=0 counts unchanged, 3 predicted msg
+  moves (LOAN2 VERBATIM line-212); FULL gate rc=0 `build/gate-e52p3d-reg.log` (1222/0, 182/182,
+  9/9, 139 0/0, 15/0/26/0, prose 5); **C362** from MEASURED BYTES ONLY `1de3e28` BEFORE the
+  COVERAGE `IO.PUT_EDIT` rewrite `8c3b0b4` (EXACT:25→35; falsified clauses kept VERBATIM as
+  HISTORICAL); coverage_check rc=0 + prose rc=0 standalone; 10/10 cmps incl. PA headline
+  re-held on binary `345644822818326f…`. SUCCESSOR: read `LEARNINGS.md` § "E2E-52/P3-4
+  REGISTRATION LANDED" and execute `PROGRESS.md` → `## Next action`: RESULTS §P3-4 + PLAN §5
+  row, then subround P3-5 (PLAN BEFORE any ocaml/ byte). Ledger ENDS **C362**; goldens never
+  re-derived; operator handoff.config.json never staged; all rc DIRECT; no push; campaign
+  continues.
+
 0a-octies. **E2E-52/P3-4 PA FIXED — HEADLINE MET; REGISTRATION OWED (2026-11-05, fresh
   chain hop 2/12).** Root cause of the PA crash: unparenthesised trailing inner match in
   `edit_num_cell` swallowed the outer `| _ -> false` (non-exhaustive outer match; `-warn-error

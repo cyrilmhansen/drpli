@@ -5,6 +5,57 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-4 REGISTRATION LANDED (steps 1-5 minus RESULTS/PLAN); P3-4 CLOSE OWED (2026-11-05, fresh chain hop 3/12; binary `345644822818326f…`)
+
+- **ACCEPTED (this hop's ACTUALS, all rc DIRECT).** Guard g317 block committed VERBATIM
+  `2c51941`; clean `dune build` rc=0, binary sha256 `345644822818326f442a…` == the headline
+  binary. All **10 cmps RE-VERIFIED rc=0 this session** (E52PA 384B vs EXISTING
+  golden/e52p3/E52PA sha `d7b4e7f32b9c…` = headline re-held; PP/PQ/PR/PS/PT/PW/PX/PY/PZ 256B
+  vs golden/e52p3d). PU/PV **post-fix stderr RE-MEASURED rc=2 BY NAME** (the
+  build/e52p3d/*-mine-stderr.txt files are PRE-ARM baselines, kept): PU `BARE x (no width) is
+  dr-refuses [TBD]`, PV `x(width) above 128 is unmeasured [TBD]`. Gate registration
+  `e397ed9`: 10 SPECIMENS rows with measured comments (sizes/code/DATA from reldumps: PA
+  code 004E=78 DATA 0013=19 compiler prints `code=78 data=4` — data=4 is MY compiler's own
+  stat, the golden reldump DEF-DATA-SIZE is `abs 0013`=19; use reldump values in evidence) +
+  honest dr-refuses REJECTS/NEG_META rows for PU/PV; sanctioned `--update-inventory` rc=0
+  EXACTLY 1212→1222 specimens + 180→182 refusals, diff 12 insertion lines line-for-line.
+  FULL gate **REAL rc=0 DIRECT** `build/gate-e52p3d-reg.log`: **1222 byte-exact / 0 of 1222**,
+  negative **182/182** (NEG-OK E52PU + E52PV markers alive, E52PF intact), divergence 9/9,
+  coverage 139 rows 0/0, census 15/0/26/0, prose 5.
+- **ACCEPTED (census own write path).** First gate run ABORTED rc=1 at the census `--verify`
+  (drift is FATAL in a normal gate; non-fatal only under `--update-inventory`) — the
+  predicted msg moves: ACKTST `PUT EDIT format item form unsampled…` → `codegen: PUT numeric
+  item form unproven [TBD]`; FSCAN `PUT EDIT operator X is unsampled…` → `codegen: char store
+  from non-literal [TBD]`; LOAN2 → `PUT FILE(OUTPUT) EDIT shape [TBD] (line 212)` VERBATIM.
+  Re-snapshotted via `corpus_census.py --check /tmp/census-prev-p34.json` **rc=0, counts
+  IDENTICAL 15/0/26/0** (metadata `head 2c51941 binary c4c5b44f dirty 3` — the census binary
+  hash is its OWN hash scheme, NOT the exe sha256 prefix). Method kept: after any arm that
+  changes refusal texts, run census --check BEFORE the full gate.
+- **ACCEPTED (claim + coverage ordering).** **C362** (ledger ENDS **C362**, 183 claims) written
+  from MEASURED BYTES ONLY — every quoted byte re-extracted THIS session from
+  build/e52p3d/*-golden-reldump.txt (op ranges via python regex `0x([0-9a-f]{1,2})`: DR dumps
+  print `0x0` unpadded — a 2-digit-only regex SILENTLY DROPS 0x00 bytes, falsified my first
+  extraction) and build/e52p3/E52PA-golden-reldump.txt. Committed `1de3e28` BEFORE the
+  COVERAGE `IO.PUT_EDIT` rewrite `8c3b0b4` (cite-resolution lesson honoured); coverage_check
+  rc=0 DIRECT 139 rows 0/0 (`build/coverage-check-e52p3d-coverage.log`), stats NOT drifted;
+  prose rc=0 standalone (`build/prose-check-e52p3d-reg.log`).
+- **FALSIFIED (kept verbatim in the row).** The P3-3 row's live clauses "x(w) (`0B w`, decoded,
+  not armed), rep-groups (`80 n ... 81`) … still refusing" and "Live LOAN2 blocker verbatim
+  UNCHANGED: `codegen: PUT EDIT format item form unsampled…`" — both superseded by [C362],
+  kept as HISTORICAL in the rewritten boundary column.
+- **OWED NEXT (P3-4 close, exact):** (1) `spec/lab-evidence/e2e52-p3/RESULTS.md` §P3-4 (campaign
+  table: 9 ok/11, PU/PV verdicts, hypothesis verdicts H2a/H2b FALSIFIED + H2c CONFIRMED, H4b
+  FALSIFIED-in-detail, H5a/H5b moot H5c CONFIRMED, H6a FALSIFIED H6b CONFIRMED, PA fix root
+  cause + headline, the 147-prediction stage-level falsification) and `PLAN.md` §5 P3-4 row,
+  committed with explicit paths; (2) re-run the FULL gate once AFTER those doc commits is NOT
+  required (docs are not panel-checked by the gate; prose check IS run by the gate and passed);
+  (3) subround P3-5 next per PLAN (remaining live refusals: DEC FORMAL/deref items,
+  numeric-LITERAL items, counted SKIP+EDIT/PAGE+EDIT, format-COUNT-expression, group count 0,
+  x widths 14..128 object-witness gap — PROPOSED discriminator probe set must be planned and
+  committed BEFORE any ocaml/ byte); (4) durables + finalize/renew at hop end. Constraints
+  unchanged: no push; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all
+  rc DIRECT; pli80c POSITIONAL; ledger ENDS C362; campaign continues.
+
 ## E2E-52/P3-4 PA FIX + SWEEP 89/89 + MARKERS + LOAN2 ADVANCED LANDED; REGISTRATION OWED (2026-11-05, fresh chain hop 2/12; binary `345644822818326f442a…`)
 
 - **ACCEPTED (root cause of the PA Match_failure).** `edit_num_cell`'s Eident arm ended in an

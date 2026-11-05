@@ -443,7 +443,30 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-4 PA FIXED — HEADLINE MET (PA cmp rc=0 vs existing golden, sha `d7b4e7f3…`); REGISTRATION OWED (2026-11-05; fresh chain hop 2/12; read `LEARNINGS.md` § "E2E-52/P3-4 PA FIX + SWEEP 89/89 + MARKERS + LOAN2 ADVANCED LANDED; REGISTRATION OWED" FIRST — it carries the root cause, every measured ACTUAL and the exact owed steps (1)-(5))
+### E2E-52/P3-4 REGISTRATION LANDED (gate rc=0 1222/0, ledger ENDS C362, COVERAGE EXACT:35); RESULTS/PLAN ROWS + P3-5 OWED (2026-11-05; fresh chain hop 3/12; read `LEARNINGS.md` § "E2E-52/P3-4 REGISTRATION LANDED (steps 1-5 minus RESULTS/PLAN); P3-4 CLOSE OWED" FIRST)
+
+LANDED this hop (all rc DIRECT): guard block `2c51941`; build rc=0 binary
+`345644822818326f…`; 10/10 cmps re-verified incl. E52PA vs EXISTING golden sha `d7b4e7f32b9c…`
+= headline re-held; PU/PV post-fix stderr re-measured rc=2 BY NAME; SPECIMENS 10 +
+dr-refuses REJECTS/NEG_META rows + `--update-inventory` rc=0 EXACTLY 1212→1222 & 180→182
+(`e397ed9`); census own write path rc=0 counts IDENTICAL 15/0/26/0, the 3 predicted msg moves
+(ACKTST numeric-item-unproven, FSCAN char-store-non-literal, LOAN2 line-212 VERBATIM);
+FULL gate **REAL rc=0 DIRECT** `build/gate-e52p3d-reg.log` (1222/0, 182/182, 9/9, 139 0/0,
+15/0/26/0, prose 5); **C362** measured-bytes-only committed `1de3e28` BEFORE the COVERAGE
+`IO.PUT_EDIT` rewrite `8c3b0b4` (EXACT:25→35, falsified clauses VERBATIM as HISTORICAL);
+coverage_check rc=0 139 rows 0/0, prose rc=0 standalone. LESSONS: reldump regexes must accept
+unpadded `0x0`; census drift aborts the gate before the byte panel — run census --check first.
+**NEXT (successor):** (1) `spec/lab-evidence/e2e52-p3/RESULTS.md` §P3-4 + `PLAN.md` §5 P3-4
+row (campaign 9 ok/11, PU/PV verdicts, H2a/H2b+H4b-detail+H5a/H5b+H6a FALSIFIED,
+H2c/H5c/H6b CONFIRMED, PA root cause + headline, 147-prediction falsified at stage level),
+explicit-path commit. (2) Then subround **P3-5** per PLAN §P3-5 (live refusals: DEC
+FORMAL/deref, numeric-LITERAL items, counted SKIP/PAGE+EDIT, format-COUNT-expression, group
+count 0, x-widths-14..128 object gap): PLAN + probes COMMITTED BEFORE any ocaml/ byte.
+Constraints: no push; goldens NEVER re-derived; operator handoff.config.json NEVER staged;
+all rc DIRECT (pipeline-masking trap fired twice running); pli80c POSITIONAL; renewals
+autonomous (3/12 consumed, cap 12); campaign continues.
+
+SUPERSEDED-BY-ABOVE: ### E2E-52/P3-4 PA FIXED — HEADLINE MET (PA cmp rc=0 vs existing golden, sha `d7b4e7f3…`); REGISTRATION OWED (2026-11-05; fresh chain hop 2/12; read `LEARNINGS.md` § "E2E-52/P3-4 PA FIX + SWEEP 89/89 + MARKERS + LOAN2 ADVANCED LANDED; REGISTRATION OWED" FIRST — it carries the root cause, every measured ACTUAL and the exact owed steps (1)-(5))
 
 LANDED this hop (all rc DIRECT): root cause = unparenthesised trailing inner match in
 `edit_num_cell` swallowed the outer `| _ -> false` (outer match non-exhaustive;
