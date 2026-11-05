@@ -439,3 +439,99 @@ FULL gate rc=0 DIRECT `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0,
 prose 5); claim **C364** measured-bytes-only `73b9c53` BEFORE COVERAGE EXACT:14->18 `6e6ed37`
 (coverage_check rc=0); binary 0efc35e6d4ff81bd, codegen warnings 68 == baseline. NEXT blocker
 (NOT touched): LOAN2:54 OPEN PRINT — candidate P3-7. No runtime assertions; goldens immutable.
+
+## P3-7 — OPEN PRINT / PAGESIZE / LINESIZE (campaign e52p7) — CLOSED (2026-11-05, hop 5)
+
+Pre-registered `2bca084` (PLAN §P3-7 + probes E52TA..TJ COMMITTED BEFORE any `ocaml/` byte; the
+whole class decoded from EXISTING `spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt` + `OPEN-MATRIX.tsv`
++ `W1-BITFIT.txt`, shapes A–F); goldens committed VERBATIM `272a996`; arm `ccf0036`. All rc
+captured DIRECTLY (never through a trailing pipeline); no oracle call after the hop-2 campaign.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52TA E52TB E52TC E52TD E52TE E52TF E52TG
+E52TH E52TI E52TJ --tag e52p7 --switches '$L$D'` rc=0 → **10 ok / 10**; EVERY `.PRN` NO ERROR(S)
+in both passes — **ZERO dr-refuses**, so NO refusal row joined the NEGATIVES panel from this
+campaign. Goldens `golden/e52p7/`, reldumps (scratch, ignored) `build/e52p7/`.
+
+## 2. Measured table (whole-file cmp rc=0 on clean binary `8b374e623bc9e280…`)
+
+| probe | OPEN statement | object | CODE/DATA | OPEN block | w1 | measured fact |
+|---|---|---|---|---|---|---|
+| E52TA | `open file(pf) print;` | 256 B | `0035`=53 / `0002` | 21 B | 0652 | shape A verbatim (P019B:3): bit 0x0002 on the OUTPUT-side base 0x0650, 0x0200 KEPT |
+| E52TB | `open file(outf) title('$con') print pagesize(0);` | 384 B | `003D`=61 / `0006` | 29 B | 2E52 | PAGESIZE(0) = a BIT plus a plain zero word, NO extra byte; byte-identical to DEPREC:51 |
+| E52TC | `open file(outf) title(name) print;` (char(14) varying) | 384 B | `003B`=59 / `0011` | 27 B | 0E52 | the PRINT bit composes with the TITLE bit; `?SLVTS` route (LOAN2:56 class) |
+| E52TD | `open file(pf) stream print pagesize(60);` | 256 B | `0038`=56 / `0002` | 24 B | 2652 | `STREAM` is BYTE-INVISIBLE on this route (prologue + word equal the bare-print forms); w5 `2E 3C` MVI L,3C, w6 `68` MOV L,B — legal only because B=0 |
+| E52TE | `open file(keys) stream output linesize(60) title('$1.key');` | 384 B | `003F`=63 / `0008` | 31 B | 1E50 | LINESIZE literal in w6 (KEYFILE:19 class) |
+| E52TF | `open file(printfile) print pagesize(ps) linesize(lw) title(line);` both vars | 384 B | `0041`=65 / `0015` | 33 B | 3E52 | VARIABLE attributes are `2A r(cell)` LHLD + DATA relocation (COPYLPT:38 class) |
+| E52TG | titled `print pagesize(60)` (w6 zero) | 384 B | `0040`=64 / `0006` | **32 B** | 2E52-class | byte-ENCODING prediction HIT (`2E 3C`/E5 then `6C`/E5); pre-registered 30-B TOTAL FALSIFIED (§4) |
+| E52TH | titled BOTH literals | 384 B | `0041`=65 / `0006` | **33 B** | 3E52-class | w5 `2E 3C`, w6 `2E 50`, NO `LXI H`, written order kept; same TOTAL falsification (§4) |
+| E52TI | titleless VARIABLE PAGESIZE alone | 256 B | `003A`=58 / `0004` | 26 B | 2652 | w5 LHLD + reloc, then w6 `60 68` — THE PRE-REGISTERED FALSIFIER TRIGGERED (§4) |
+| E52TJ | titleless `pagesize(300)` (> 0xFF) | 256 B | `003A`=58 / `0002` | 26 B | 2652 | DR ACCEPTED via w5 `21 2C 01` (LXI H full literal) + w6 `60 68`; accept branch realised verbatim (§4) |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §P3-7 §3, kept verbatim)
+
+- **H1** "PRINT sets 0x0002|0x0040 and leaves 0x0200 set (A: 0x0652 = 0x0650|0x0002)" — **CONFIRMED** (TA).
+- **H2** "the PRINT bits compose with a title bit exactly as D/C show" — **CONFIRMED** (TC 0x0E52; TB 0x2E52).
+- **H3** "PAGESIZE(0) = bit only, word zero, no extra byte" — **CONFIRMED** (TB == DEPREC:51 byte for byte).
+- **H4** "a literal attribute ≤ 0xFF uses `MVI L,v`" — **CONFIRMED** (TD w5 `2E 3C`; TE w6 `2E 3C`).
+- **H5** "a variable attribute uses `LHLD <cell>` + DATA reloc" — **CONFIRMED** (TF both words; TI w5).
+- **H6** "OUTPUT+PRINT never co-occurs in the corpus ⇒ refused" — **REFUSED-AS-DESIGNED**: the arm guards
+  print+INPUT and print+OUTPUT BY NAME as UNMEASURED and never put either to DR. Separately FALSIFIED
+  this campaign: the idea that PRINT is merely a spelling of OUTPUT — the 0x0200 bit is KEPT in the
+  PRINT word, so 0x0652 ≠ the titleless-OUTPUT candidate 0x0650.
+
+## 4. The four UNDECIDABLE boundaries (predictions VERBATIM, NEVER fit)
+
+- **TG** predicted "H-enc: `21 52 2E/E5, 21 00 00, E5×3, 2E 3C/E5, 6C/E5` → 30 B. falsifier: any other
+  zero-restoration (e.g. `21 00 00`) or a different order." — the ENCodings HIT exactly (the titled
+  zero-after-literal restoration IS `6C` MOV L,H); the **30-B TOTAL was FALSIFIED — measured block
+  32 B** — an arithmetic slip in the pre-registration sum, kept as written.
+- **TH** predicted "H-enc w5 `2E 3C`, w6 `2E 50`, 30 B; falsifier: `LXI H` forms or a different word
+  order." — ENCodings HIT (no `LXI H`, order preserved); **TOTAL FALSIFIED — measured 33 B**, kept verbatim.
+- **TI** predicted "`… E5×3, 2A r(x), E5, 21 00 00, E5` (31 B); falsifier: any other materialisation."
+  — **THE FALSIFIER TRIGGERED**: DR wrote `60 68` (re-materialise HL from B after the `LHLD` clobbered
+  both halves), NOT `21 00 00`; measured block 26 B. The prediction is kept as written; the ladder in
+  **[C365]** is DR's measured law, not my fit.
+- **TJ** predicted "DR verdict UNKNOWN (BAD VAL refusal or `21 2C 01`); whichever it is is recorded
+  verbatim; NO fitting." — DR **ACCEPTED** `pagesize(300)`; the `21 2C 01` accept branch realised verbatim.
+
+## 5. Arm + registration chain
+
+Arm `ccf0036` (`ocaml/lib/codegen.ml` ONLY): `open_subset_keys` += PRINT/PAGESIZE/LINESIZE; the
+`open_mode_word` PRINT branch (0x0652 titleless / 0x0E52 titled) behind the print+INPUT and
+print+OUTPUT guards; `open_attr_plan` enforces the MEASURED combination matrix and refuses
+everything outside it BY NAME with [TBD]; ONE `open_emit_words` walks the measured register-reuse
+ladder in all three title branches. `dune build` rc=0 DIRECT after two draft fixes (literal
+`\u00a7`/`\u2014` escapes → the real characters; a redundant `A_zero` sub-pattern); per-File codegen
+warning histogram **68 == baseline**. SPECIMENS +10 with the measured-law comment and sanctioned
+`--update-inventory` **1233→1243** (diff EXACTLY +10 specimen lines, ZERO removals, refusals stay
+186) `6b8d851`; census OWN write path rc=0, counts UNCHANGED **15/0/26/0** `f6fd2b9` — TWO rows
+moved VERBATIM: LOAN2 ADVANCED past 54/56 to `codegen: ON ERROR is not implemented [TBD] (only
+ENDFILE(<file>) and UNDEFINEDFILE(<file>) have a DR lowering; line 58)` (the §6 prediction HIT,
+**NOT fixed** — a later subround owns ON ERROR) and RETRIEVE ADVANCED past its line-19
+`title(name) print` open to `OPEN option ENVIRONMENT is outside what this compiler lowers [TBD]
+(line 31)` — a real advance, NO claim. Sweep **114/0** (the bank grew past hop-12's 110 via the
+E52SA..SD rows); boundary markers rc=2 intact (E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG). FULL gate
+REAL rc=0 DIRECT `build/gate-e52p7-reg.log` (1243/0, 186/186, 9/9, 139 rows 0/0, census 15/0/26/0,
+prose 5). Claim **C365** from MEASURED BYTES ONLY `a6e814f` committed **BEFORE** the COVERAGE
+rewrite `d9ebb30`: row `FILE.OPEN_STREAM` falsified PRINT clause kept VERBATIM as HISTORICAL (id
+KEPT); NEW row `FILE.OPEN_PRINT_ATTRS` SUPPORTED + EXACT:10; labelled [E2E-52/P3-7 CORRECTION]
+appends to `FILE.OPEN_STREAM_OUTPUT`, `FILE.PUT_LIST`, `FILE.OPEN_TITLE_STATIC`;
+`coverage_check.py` rc=0 **140 rows 0/0** with stats refreshed by its own run (the stats' own
+write path). `spec/PERIMETER.md` line 38 carries the campaign-wide correction landed in this hop.
+
+## 6. What P3-7 does NOT say (byte tier only)
+
+- **Byte tier only**: no LINK, no cpmsim run, no `spec/RUNTIME.txt` row, no `OUTPUT_CHECK` entry;
+  NO runtime meaning is asserted for any of the six pushed words or the attribute bits.
+- KEPT boundaries refuse BY NAME as MY perimeter, never promoted to a DR rule: PRINT with INPUT or
+  with the spelled OUTPUT; attributes on INPUT, modeless, ENVIRONMENT, KEYED or DIRECT opens; an
+  attribute without an operand; EXPRESSION operands; literals above 0xFF beyond the measured TJ form
+  on the titleless route; variables that are not plain automatic FIXED BIN 2-byte cells; the TITLED
+  zero-restoration after a clobbering parameter word (UNMEASURED); LINESIZE alone on a titled PRINT
+  open; a 16-bit LINESIZE; titleless `pagesize(0)`; mixed literal/variable attribute pairs.
+- Corpus users (COPYLPT, DEPREC, KEYFILE, LOAN2, RETRIEVE) are users of the CONSTRUCT, not parity
+  claims — the census counts never moved.
+- LOAN2 is NEVER claimed exact; it still refuses at ON ERROR line 58 (recorded, NOT fixed).
+  E52SE stays a measured `my-gap`, SF/SG stay `dr-refuses`; goldens are evidence, NEVER re-derived.

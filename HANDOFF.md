@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-novies-new13. **E2E-52/P3-7 hop 5: SUBROUND P3-7 CLOSED — PERIMETER line-38 correction LANDED; FULL COMBINED-STATE GATE rc=0; SUCCESSOR = E2E-52/P3-8 ON ERROR PRE-REGISTRATION (operator-authorized) (2026-11-05).** Docs+ledger-boundary hop: ZERO oracle calls, ZERO `ocaml/` bytes. Idempotent recovery found the killed session's RESULTS §P3-7 + PLAN §5 row UNCOMMITTED and KEPT them verbatim (all cited hashes verified); only the PERIMETER correction was missing and was appended INSIDE the FILE-attribute-cluster row's final cell — falsified `Still refusing by name:` sentence kept VERBATIM HISTORICAL; PRINT/PAGESIZE/LINESIZE now implemented for MEASURED combinations [C365]; PAGE [C359]; file PUT/GET EDIT C360–C363, E41X8 refusal OBSOLETE; KEYED/DIRECT/RECORD/SEQUENTIAL/UPDATE/APPEND/ENVIRONMENT still unsupported on OPEN routes; titleless OUTPUT 0x0650 outside the measured implementation; unmeasured PRINT/attribute combos refuse BY NAME; NO all-combinations claim. Verification FINAL STATE, all rc DIRECT: prose rc=0, coverage rc=0 **140 rows 0/0**, FULL gate rc=0 `build/gate-e52p7-hop5.log` (**1243/1243, 186/186, 9/9, 140 0/0, census 15/0/26/0, prose 5**). Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap / SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged. GUARD STATE: prior chain 01a1aa7d consumed g352 (renewal 4/12); THIS session auto-checkpointed g354 UNATTESTED at level 4 — successor must `/handoff verify` then follow `PROGRESS.md` → `## Next action`: P3-8 DECODES existing LOAN2/E52p6 evidence FIRST, then preregisters PLAN §P3-8 + discriminating probes COMMITTED before any `ocaml/` byte; campaign `e52p8` only if goldens leave the ON ERROR questions open; ON ERROR is NOT presumed a file event — condition code + registration operand MEASURED independently. No push; all rc DIRECT; `pli80c` POSITIONAL.
+
 0a-novies-new12. **E2E-52/P3-7 hop 4 PART DONE: COVERAGE LANDED `d9ebb30` (140 rows 0/0 + stats own path); RESULTS/PLAN/PERIMETER/prose/durables OWED at hop 5 (2026-11-05, renewal 4/12).** ZERO oracle. Landed: row `FILE.OPEN_STREAM` falsified `Still refused by name: PRINT/…` kept VERBATIM HISTORICAL + [C365], id KEPT; NEW `FILE.OPEN_PRINT_ATTRS` SUPPORTED EXACT:10 — corpus column validator FALSIFIED hop-3's list (P019B/P021 NOT census names → sit as golden evidence paths; corpus COPYLPT,DEPREC,KEYFILE,LOAN2,RETRIEVE); labelled CORRECTIONs on rows `FILE.OPEN_STREAM_OUTPUT` (KEYFILE:19 0x1E50 lowered as E52TE), `FILE.PUT_LIST`, `FILE.OPEN_TITLE_STATIC` (LOAN2 quote obsolete → ON ERROR 58). Recovery: build rc=0 binary `8b374e623bc9e280…`, gate 1243/0 (next gate expect coverage **140 rows 0/0**). SUCCESSOR: execute `PROGRESS.md` → `## Next action` hop-5 contract — RESULTS §P3-7 (measured table, H1–H5 CONFIRMED, TI falsifier + TG/TH totals falsifications VERBATIM, TJ accept, LOAN2/RETRIEVE advances, §6 byte-tier-only), PLAN §5 row, PERIMETER.md line-38 campaign-wide correction (kept verbatim; PAGE/PUT-EDIT clauses stale since E2E-42), prose rc=0 standalone, durables, renew 5/12 cap 12. NO new oracle campaign; ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; chain 01a1aa7d.
 
 0a-novies-new11. **E2E-52/P3-7 hop 3: ARM BYTE-EXACT 10/10 + REGISTRATION 1-2/3 + GATE rc=0 1243/0 + CLAIM C365 LANDED; COVERAGE + RESULTS/PLAN + DURABLES OWED (2026-11-05, renewal 3/12).** Commits: arm `ccf0036` (codegen.ml ONLY), SPECIMENS +10 & inventory 1233→**1243** (+10 exactly, refusals 186) `6b8d851`, census OWN path rc=0 counts 15/0/26/0 with LOAN2→ON ERROR **58** and **RETRIEVE→ENVIRONMENT 31** VERBATIM (both predictions/advances, NOTHING fixed) `f6fd2b9`, **C365** measured-bytes-only BEFORE COVERAGE `a6e814f`, FULL gate REAL rc=0 DIRECT `build/gate-e52p7-reg.log`. Build rc=0 binary `8b374e623bc9e280…`, codegen histogram 68 == baseline after two draft fixes (`\u00a7`/`\u2014` text escapes → real chars; redundant `A_zero` subpat). **cmp TA..TJ 10/10 whole-file rc=0**, sweep **114/0** (bank grew past hop-12's 110 via SA..SD rows), markers rc=2 (E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG). SUCCESSOR: execute `PROGRESS.md` → `## Next action` hop-4 contract — COVERAGE row 52 rewrite (its `Still refused by name: PRINT/…` clause FALSIFIED, keep as HISTORICAL) + PROPOSED `FILE.OPEN_PRINT_ATTRS` row + coverage_check rc=0 (expect 140 rows) + stats own path, RESULTS §P3-7 + PLAN §5 row + prose rc=0, durables. FALSIFIED this hop and kept verbatim: TI predicted w6 `21 00 00`, DR wrote `60 68`; TG/TH 30-B totals measured 32/33 (encodings HIT); PRINT-is-spelled-OUTPUT falsified (0x0200 kept); global `\'` replace corrupted tools/e2e_gate.py — restored from `git show HEAD:` (only my own edit lost), py_compile rc=0. Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF/SG dr-refuses kept; byte-tier only, no runtime assertions; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; renewal chain 01a1aa7d hop 3/12, cap 12.
@@ -1578,13 +1580,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 352
-checkpoint-id: g352-341a0233384f
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~1166, session 01a1aac5-7e3d-7312-8813-8d30c7fb78d4)
-checkpointed: 2026-11-05T08:35:25.333Z
+checkpoint-generation: 354
+checkpoint-id: g354-90061d4f9f66
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~4762, session 01a1aad9-87ac-7312-8813-8d34f978f670)
+checkpointed: 2026-11-05T08:52:58.967Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 944c7be611d5114e0cacbfb2041695d698d7017be0d6459c1f13dfe75964f590
 source-handoff: e8e2364976ba1c4bc2ec4d895963e11c4260dca165ea5873e7973086a03803df
@@ -1592,11 +1594,8 @@ source-learnings: d64e2a9544a01ce786c29a1db4c1914ba11572800eef8e79127f5a7671626f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1aac5-7e3d-7312-8813-8d30c7fb78d4
-readiness-at: 2026-11-05T08:35:25.350Z
-readiness-checkpoint: g352-341a0233384f
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

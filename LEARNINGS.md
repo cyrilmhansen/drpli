@@ -5,6 +5,50 @@ lessons. It is **not** the evidence ledger: anything about compiler behaviour be
 `spec/CLAIMS.md` with its specimen and golden paths, and is referenced here, never copied.
 The guard never writes this file.
 
+## E2E-52/P3-7 hop 5 CLOSED: PERIMETER CORRECTION LANDED; FULL COMBINED-STATE GATE rc=0 (2026-11-05)
+
+- **ACCEPTED (idempotent recovery).** The killed hop-4/5 session had ALREADY written RESULTS
+  §P3-7 (measured table, H1–H5 verdicts, the four falsifiers VERBATIM, §6 not-say) and the
+  PLAN §5 progress row as UNCOMMITTED edits; both were reviewed against the committed chain
+  (`2bca084 272a996 ccf0036 6b8d851 f6fd2b9 a6e814f d9ebb30` — every cited hash verified to
+  exist) and KEPT, never rewritten or duplicated. What was genuinely MISSING was only the
+  `spec/PERIMETER.md` line-38 correction — the RESULTS text referenced it proleptically.
+  Lesson: `git status` FIRST; per-deliverable triage (committed / present-uncommitted /
+  missing) beats re-authoring from the brief.
+- **ACCEPTED (PERIMETER correction).** One labelled **[E2E-52/P3-7 CORRECTION]** paragraph
+  appended INSIDE the FILE-attribute-cluster row's last cell: the `Still refusing by name:`
+  sentence kept VERBATIM as HISTORICAL and declared FALSIFIED in part — PRINT opens and
+  PAGESIZE/LINESIZE now implemented for the MEASURED combinations [C365]; FILE PAGE was
+  already implemented [C359]; file PUT/GET EDIT implemented C360–C363 so the E41X8 refusal
+  is OBSOLETE (row retired [E2E-52/P3-2]); KEYED/DIRECT/RECORD/SEQUENTIAL/UPDATE/ENVIRONMENT
+  remain unsupported on the OPEN routes; titleless OUTPUT 0x0650 stays OUTSIDE the measured
+  OPEN implementation; unmeasured PRINT/attribute combinations still refuse BY NAME; the
+  correction explicitly does NOT claim all combinations of individually supported attributes
+  are supported. Structure note: line 38 has NO trailing pipe (5 structural + 2 internal
+  `stream|input` pipes = 7, unchanged after the append — the row's identity preserved).
+- **ACCEPTED (verification, all rc DIRECT).** `file_prose_check.py` rc=0 (5 active files,
+  `build/prose-check-e52p7-hop5.log`); `coverage_check.py` rc=0 **140 rows 0/0**
+  (`build/coverage-check-e52p7-hop5.log`, stats own-write-path no-op — already current);
+  FULL compilation-tier gate rc=0 (`build/gate-e52p7-hop5.log`): **1243/1243 byte-exact,
+  186/186 negatives, 9/9 divergence, coverage 140 rows 0/0, census EXACT 15 / DIFFERS 0 /
+  REFUSED 26 / UNEXPECTED 0, prose clean** — the final COMBINED state re-measured, not just
+  the components. No oracle campaign was rerun; NO compiler source touched this hop.
+- **ACCEPTED (boundaries KEPT — what P3-7 does not say).** Byte tier only: no LINK, no
+  cpmsim, no runtime claim; the refused-by-name matrix (PRINT+INPUT, PRINT+OUTPUT spelling,
+  attributes on INPUT/modeless/ENVIRONMENT/KEYED/DIRECT opens, titled zero-after-clobber,
+  LINESIZE-alone titled-PRINT, 16-bit LINESIZE, titleless `pagesize(0)`, mixed lit/var pairs)
+  stays MY perimeter; LOAN2 NOT claimed exact — still refuses at ON ERROR line 58; E52SE
+  stays measured `my-gap`; SF/SG stay `dr-refuses`; goldens NEVER re-derived.
+- **OPERATIONAL (renewal guard).** The previous session hit guard level 4 and its AUTO
+  checkpoint (g354, `content-delta: none`, readiness UNATTESTED) overwrote the parent's
+  attested MANUAL g352 block in the working HANDOFF/PROGRESS before the hop-5 commit existed;
+  the g352 checkpoint had already been consumed by a successor spawn, so `handoff_renew`
+  correctly refused on idempotency. NEVER hand-edit a managed block; after the Phase-A
+  commit the supported path is `/handoff verify` → `handoff_finalize` (synchronous
+  refresh+attest, never increments the renewal counter) → `handoff_renew` ONLY if the guard
+  reports the generation eligible (chain 01a1aad9, renewals so far 4/12 per the prior chain;
+  current authoritative numbers live ONLY in `handoff.config.json`).
+
 ## E2E-52/P3-7 hop 4 IN FLIGHT: COVERAGE MATERIALS VERIFIED; THREE MORE STALE ACTIVE ROWS FOUND (2026-11-05)
 
 - **ACCEPTED (recovery).** Build rc=0 DIRECT, binary sha256 `8b374e623bc9e280…` == the hop-3
