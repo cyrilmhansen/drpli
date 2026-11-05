@@ -741,6 +741,14 @@ E52PW	specimen	probes/E52PW.PLI	golden/e52p3d/E52PW/E52PW.REL
 E52PX	specimen	probes/E52PX.PLI	golden/e52p3d/E52PX/E52PX.REL
 E52PY	specimen	probes/E52PY.PLI	golden/e52p3d/E52PY/E52PY.REL
 E52PZ	specimen	probes/E52PZ.PLI	golden/e52p3d/E52PZ/E52PZ.REL
+E52RA	specimen	probes/E52RA.PLI	golden/e52p5/E52RA/E52RA.REL
+E52RB	specimen	probes/E52RB.PLI	golden/e52p5/E52RB/E52RB.REL
+E52RD	specimen	probes/E52RD.PLI	golden/e52p5/E52RD/E52RD.REL
+E52RE	refusal	E52RE: procedure options(main);\n\n   dcl f file;\n   dcl i fixed bin;\n\n   put file(f) edit(('AB' do i = 1 to 4 reverse))(a);\n\nend E52RE;\n	DR REFUSES it -- PASS 1 is clean, then `BALANCE ?' under the rep statement, `SYNTAX ?' at line 8, `UNEXPECTED EOF' cascade, NO .REL (golden/e52p5/E52RE/E52RE.PRN, campaign e52p5 9 ok/10 at 676fb9d) -- DR law, not my gap; no object carries a reversed data-item repetition.  Mine refuses BY NAME at the PARSER (`DO-repetition REVERSE is dr-refuses'): PLAN §P3-5 §4 kept REVERSE outside the arm perimeter; the pre-arm catch was the generic `expected )' which the pre-registration predicted as this row's marker -- FALSIFIED at registration (the panel requires [TBD]) and replaced by the named parse-stage refusal.  Marker RE-MEASURED rc=2 on binary e55e892c346741b2, never assumed.
+E52RF	specimen	probes/E52RF.PLI	golden/e52p5/E52RF/E52RF.REL
+E52RH	specimen	probes/E52RH.PLI	golden/e52p5/E52RH/E52RH.REL
+E52RI	specimen	probes/E52RI.PLI	golden/e52p5/E52RI/E52RI.REL
+E52RJ	specimen	probes/E52RJ.PLI	golden/e52p5/E52RJ/E52RJ.REL
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

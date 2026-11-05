@@ -2082,6 +2082,59 @@ SPECIMENS.update({
     "E52PZ": ("probes/E52PZ.PLI", "golden/e52p3d/E52PZ/E52PZ.REL"),
 })
 
+# [E2E-52/P3-5] THE DATA-ITEM DO-REPETITION BANK -- 7 probes of campaign tag e52p5
+# (oracle 9 ok/10 at 676fb9d: E52RE `reverse' is dr-refuses -- PASS 1 clean, then BALANCE ?
+# on the statement, SYNTAX ?, UNEXPECTED EOF cascade, NO .REL -- and lives on the NEGATIVES
+# panel; E52RC `by 2' and E52RG rep-of-char-var are ACCEPTED BY DR with whole goldens whose
+# bytes this compiler does NOT claim -- both keep refusing BY NAME, boundaries KEPT per
+# PLAN §P3-5 §4).  Pre-registered at 67e5414 (PLAN §P3-5 + probes BEFORE any ocaml/ byte);
+# arm aeda739 (parser.ml REPSPEC child 0 = index Eident + BY parse refusal; codegen.ml
+# PIrep of pitem * Ast.expr, the `data' walker admits Ast.Pi_rep on BOTH routes, prescan
+# counts the inner cells ONCE, authorize_file_edit_item admits PIrep iff the inner is
+# PIlit or PInum via edit_num_tree, lower_put_items_gen item loop = named emit_item with
+# ONE pending repl_exit); hop-9 defensive arms a008840 (| PIrep _ -> a on the prescan EDIT
+# fold inner match -- closes the sole PA-class Warning 8: histogram 70 (hop-8 replay) -> 68,
+# diff EXACTLY -2 W8 at the fixed site) and 3a494c3 (named REVERSE parse refusal mirroring
+# DR's measured verdict, so the negative row classifies honestly).
+# Law (claim [C363], derived ONLY from these measured bytes): a DATA-item repetition
+# `item DO <i> = <from> TO <to>' lowers to the lower_doto TO-arm shape with a ONE-item body
+# -- init `LXI H,from / SHLD i' UNCONDITIONAL, immediate test `LHLD i / LXI B,-(to+1) /
+# DAD B / MOV A,H / ORA A / JP exit', ONE body copy, step `LHLD i / INX H / SHLD i /
+# JMP TOP', exit label at the statement's close; the rep contributes ZERO format bytes
+# (bind.ml:1155 `[verify]' annotation now golden-corroborated); variable bounds reuse the
+# EXISTING Eident var-bound shape byte-identically (RF, ?IS22N/JM, temp via base+max auto_end
+# floor+2*temps); the FORWARD-JP PATCH LAW (RB, decoded from a first-try MISS at octet 275):
+# a NON-FINAL repetition's JP patches to the START OF THE NEXT ITEM's chain, a FINAL one to
+# the close `?QIOOP'.  Console route == file route (RH: the SAME loop bytes, 256 B object).
+# All seven whole-file `cmp' rc=0 RE-MEASURED this hop on the clean-rebuild binary
+# e55e892c346741b2 (hop-8 binary a55ef4eb7c7e51fb produced BYTE-IDENTICAL objects):
+#   E52RA 384 B; code 0045=69, DATA 0009.  `edit(('AB' do i = 1 to 3))(a)'.
+#   E52RB 384 B; code 0060=96, DATA 000B=11.  `skip edit('X',('AB' do i = 1 to 3),'Y')(a)'
+#             -- the patch law witness: slot 0038 JP -> 0x4F (next item), NOT the close.
+#   E52RD 384 B; code 0045=69, DATA 0009.  FROM=2: `21 02 00' + `01 FD FF' = -(4+1).
+#   E52RF 384 B; code 004C=76, DATA 000D=13.  TO = variable n -- the EXISTING var-bound test.
+#   E52RH 256 B; code 0042=66, DATA 0009.  CONSOLE `put edit(...)' -- H2 CONFIRMED.
+#   E52RI 384 B; code 0045=69, DATA 000C=12.  Table `80 00 80 02 03 FF 81 81' -- data rep +
+#             count-2 FORMAT rep-group together, P3-4 table law + §2 loop.
+#   E52RJ 384 B; code 004B=75, DATA 0009.  Rep of the numeric EXPRESSION `100*m' -- the P3-4
+#             ?IM22N chain INSIDE the loop body, ONE literal-free cell set.
+# Boundaries KEPT (refuse BY NAME, never promote): BY (RC, DR-accepted no object of ours),
+# REVERSE (RE, DR-refuses row below), rep of a char-var (RG, DR-accepted no witness),
+# to<=2, from=0, 1-byte index, variable FROM, deref index/bound, nested rep, numeric-LITERAL
+# inner, DEC-inner, PIvar bin-var file route (LOAN2 177 class).  LOAN2 ADVANCED VERBATIM past
+# the line-212 matcher-split to `ON UNDEFINEDFILE ... (line 44)' at LOWERING -- the prescan now
+# clears every statement; the predicted line-177 PIvar blocker is FALSIFIED at stage level
+# (lowering dies at 44 first), my-gap recorded, NOT fixed.
+SPECIMENS.update({
+    "E52RA": ("probes/E52RA.PLI", "golden/e52p5/E52RA/E52RA.REL"),
+    "E52RB": ("probes/E52RB.PLI", "golden/e52p5/E52RB/E52RB.REL"),
+    "E52RD": ("probes/E52RD.PLI", "golden/e52p5/E52RD/E52RD.REL"),
+    "E52RF": ("probes/E52RF.PLI", "golden/e52p5/E52RF/E52RF.REL"),
+    "E52RH": ("probes/E52RH.PLI", "golden/e52p5/E52RH/E52RH.REL"),
+    "E52RI": ("probes/E52RI.PLI", "golden/e52p5/E52RI/E52RI.REL"),
+    "E52RJ": ("probes/E52RJ.PLI", "golden/e52p5/E52RJ/E52RJ.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -4870,6 +4923,30 @@ NEG_META["E52PV"] = ("dr-refuses",
     "only across 01..13 (PT/PQ) and the 129..254 range stays unmeasured, so arming past 128 "
     "would claim bytes no object carries.  Marker RE-MEASURED rc=2 on binary "
     "345644822818326f, never assumed.")
+
+# [E2E-52/P3-5] E52RE, THE REVERSE STEP -- MEASURED dr-refuses, BOTH SIDES STOP.
+# Pre-registered at 67e5414 as the H4 discriminator alongside RC's BY; the ORACLE answered
+# at 676fb9d (campaign e52p5, 9 ok/10): `NO ERROR(S) IN PASS 1' then `BALANCE ?' pointing at
+# the rep statement, `SYNTAX ?' at the end line, the `UNEXPECTED EOF' cascade and NO .REL --
+# DR REFUSES a reversed DATA-item repetition outright, so unlike BY (RC: whole golden, kept
+# as my-gap boundary, NOT registered here) this row is DR law.
+# The PRE-ARM mine died on the generic `expected )' -- the pre-registration predicted exactly
+# that as the marker; at registration it is FALSIFIED: the gate's negative panel requires
+# `[TBD]' in the message, so the boundary was NAMED (3a494c3) mirroring the BY mechanism and
+# DR's own verdict.  Marker re-measured rc=2 on the clean-rebuild binary e55e892c346741b2.
+REJECTS.update({
+    "E52RE": (open("probes/E52RE.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "DO-repetition REVERSE is dr-refuses"),
+})
+NEG_META["E52RE"] = ("dr-refuses",
+    "DR REFUSES it -- PASS 1 is clean, then `BALANCE ?' under the rep statement, `SYNTAX ?' "
+    "at line 8, `UNEXPECTED EOF' cascade, NO .REL (golden/e52p5/E52RE/E52RE.PRN, campaign "
+    "e52p5 9 ok/10 at 676fb9d) -- DR law, not my gap; no object carries a reversed "
+    "data-item repetition.  Mine refuses BY NAME at the PARSER (`DO-repetition REVERSE is "
+    "dr-refuses'): PLAN §P3-5 §4 kept REVERSE outside the arm perimeter; the pre-arm catch "
+    "was the generic `expected )' which the pre-registration predicted as this row's marker "
+    "-- FALSIFIED at registration (the panel requires [TBD]) and replaced by the named "
+    "parse-stage refusal.  Marker RE-MEASURED rc=2 on binary e55e892c346741b2, never assumed.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
