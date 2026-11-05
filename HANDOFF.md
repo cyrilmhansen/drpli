@@ -1578,28 +1578,33 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 351
-checkpoint-id: g351-62b03e15e0dd
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4837, session 01a1aac5-7e3d-7312-8813-8d30c7fb78d4)
-checkpointed: 2026-11-05T08:34:07.139Z
+checkpoint-generation: 352
+checkpoint-id: g352-341a0233384f
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1166, session 01a1aac5-7e3d-7312-8813-8d30c7fb78d4)
+checkpointed: 2026-11-05T08:35:25.333Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0b6567171697a3795bc34befc85e91225c9fb1af861945ab7e485649d5882c0d
-source-handoff: f871944c0942b0d2cf93a7526e8b65f6900339199e0fc527fd80bdb5e1fc447e
+source-progress: 944c7be611d5114e0cacbfb2041695d698d7017be0d6459c1f13dfe75964f590
+source-handoff: e8e2364976ba1c4bc2ec4d895963e11c4260dca165ea5873e7973086a03803df
 source-learnings: d64e2a9544a01ce786c29a1db4c1914ba11572800eef8e79127f5a7671626f71
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1aac5-7e3d-7312-8813-8d30c7fb78d4
+readiness-at: 2026-11-05T08:35:25.350Z
+readiness-checkpoint: g352-341a0233384f
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` hop-4 contract — COVERAGE row 52 rewrite (its `Still refused by name: PRINT/…` clause FALSIFIED, keep as HISTORICAL) + PROPOSED `FILE.OPEN_PRINT_ATTRS` row + coverage_check rc=0 (expect 140 rows) + stats own path, RESULTS §P3-7 + PLAN §5 row + prose rc=0, durables. FALSIFIED this hop and kept verbatim: TI predicted w6 `21 00 00`, DR wrote `60 68`; TG/TH 30-B totals measured 32/33 (encodings HIT); PRINT-is-spelled-OUTPUT falsified (0x0200 kept); global `\'` replace corrupted tools/e2e_gate.py — restored from `git show HEAD:` (only my own edit lost), py_compile rc=0. Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF/SG dr-refuses kept; byte-tier only, no runtime assertions; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; renewal chain 01a1aa7d hop 3/12, cap 12.
+` hop-5 contract — RESULTS §P3-7 (measured table, H1–H5 CONFIRMED, TI falsifier + TG/TH totals falsifications VERBATIM, TJ accept, LOAN2/RETRIEVE advances, §6 byte-tier-only), PLAN §5 row, PERIMETER.md line-38 campaign-wide correction (kept verbatim; PAGE/PUT-EDIT clauses stale since E2E-42), prose rc=0 standalone, durables, renew 5/12 cap 12. NO new oracle campaign; ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; chain 01a1aa7d.
+
+0a-novies-new11. **E2E-52/P3-7 hop 3: ARM BYTE-EXACT 10/10 + REGISTRATION 1-2/3 + GATE rc=0 1243/0 + CLAIM C365 LANDED; COVERAGE + RESULTS/PLAN + DURABLES OWED (2026-11-05, renewal 3/12).** Commits: arm `ccf0036` (codegen.ml ONLY), SPECIMENS +10 & inventory 1233→**1243** (+10 exactly, refusals 186) `6b8d851`, census OWN path rc=0 counts 15/0/26/0 with LOAN2→ON ERROR **58** and **RETRIEVE→ENVIRONMENT 31** VERBATIM (both predictions/advances, NOTHING fixed) `f6fd2b9`, **C365** measured-bytes-only BEFORE COVERAGE `a6e814f`, FULL gate REAL rc=0 DIRECT `build/gate-e52p7-reg.log`. Build rc=0 binary `8b374e623bc9e280…`, codegen histogram 68 == baseline after two draft fixes (`\u00a7`/`\u2014` text escapes → real chars; redundant `A_zero` subpat). **cmp TA..TJ 10/10 whole-file rc=0**, sweep **114/0** (bank grew past hop-12's 110 via SA..SD rows), markers rc=2 (E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG). SUCCESSOR: execute `PROGRESS.md` → `## Next action` hop-4 contract — COVERAGE row 52 rewrite (its `Still refused by name: PRINT/…` clause FALSIFIED, keep as HISTORICAL) + PROPOSED `FILE.OPEN_PRINT_ATTRS` row + coverage_check rc=0 (expect 140 rows) + stats own path, RESULTS §P3-7 + PLAN §5 row + prose rc=0, durables. FALSIFIED this hop and kept verbatim: TI predicted w6 `21 00 00`, DR wrote `60 68`; TG/TH 30-B totals measured 32/33 (encodings HIT); PRINT-is-spelled-OUTPUT falsified (0x0200 kept); global `\'` replace corrupted tools/e2e_gate.py — restored from `git show HEAD:` (only my own edit lost), py_compile rc=0. Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF/SG dr-refuses kept; byte-tier only, no runtime assertions; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; renewal chain 01a1aa7d hop 3/12, cap 12.
 
 0a-novies-new10. **E2E-52/P3-7 hop 2: CAMPAIGN e52p7 MEASURED (10 ok/10, ZERO dr-refuses) + ARM APPLIED; BUILD RE-VERIFY + CMPs + LOAN2 + SWEEP + COMMIT + REGISTRATION OWED (hop 3) (2026-11-05, renewal 2/12).** Goldens `golden/e52p7/` committed VERBATIM `272a996`. TG/TH byte-enc predictions HIT (pre-reg 30B totals FALSIFIED, kept verbatim); TI falsifier TRIGGERED (w6 zero = `60 68`, not `21 00 00`); TJ pagesize(300) DR-ACCEPTED via `21 2C 01`. `ocaml/lib/codegen.ml` arm (open_subset_keys+PRINT/PAGESIZE/LINESIZE, n_print guards + 0x0652 base, `open_attr_plan` measured matrix, `open_emit_words` ladder in all three title branches) UNCOMMITTED; ONE compile fix applied, `dune build` rc=0 UNVERIFIED since. Execute `PROGRESS.md` → `## Next action` hop-3 contract exactly; full decode in `LEARNINGS.md` § hop 2. Ledger ENDS C364; goldens NEVER re-derived; LOAN2 NEW blocker (predicted ON ERROR 58) recorded VERBATIM, NOT fixed; SE my-gap/SF/SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT (pipe trap fired again); pli80c POSITIONAL; no push; renewal 2/12 cap 12.
 
@@ -2174,5 +2179,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-7 hop 3 DONE: arm ccf0036 byte-exact 10/10 (binary 8b374e623bc9e280…, codegen histogram 68), registration 1-2/3 (6b8d851 SPECIMENS+inventory 1233→1243; f6fd2b9 census 15/0/26/0 with LOAN2→ON ERROR 58 and RETRIEVE→ENVIRONMENT 31 VERBATIM), FULL gate rc=0 build/gate-e52p7-reg.log (1243/0, 186/186, 9/9, 139 0/0, prose 5), claim C365 measured-bytes-only a6e814f BEFORE COVERAGE, durables 2f0d996. Hop 4 OWED (docs + one ledger row, NO oracle): COVERAGE row 52 rewrite (falsified PRINT clause kept HISTORICAL) + PROPOSED FILE.OPEN_PRINT_ATTRS EXACT:10 citing [C365], coverage_check rc=0 (expect 140 rows) + stats own path, RESULTS §P3-7 + PLAN §5 row, prose rc=0, durables. Sweep bank = 114/0 (not stale 110). Ledger ENDS C365; goldens never re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF/SG kept; operator handoff.config.json NEVER staged; all rc DIRECT; no push.
+Hop 5 contract is in PROGRESS.md ## Next action: RESULTS §P3-7 (10-probe measured table, H1-H5 CONFIRMED, TI falsifier + TG/TH total falsifications VERBATIM, TJ accept, LOAN2/RETRIEVE advances, §6 byte-tier-only) + PLAN §5 P3-7 row + PERIMETER.md line-38 campaign-wide correction (falsified sentence kept verbatim) + file_prose_check rc=0 standalone + durables + explicit-path commits. COVERAGE already landed d9ebb30 (140 rows 0/0, stats own path; NEW row FILE.OPEN_PRINT_ATTRS EXACT:10). NO new oracle campaign. Ledger ENDS C365; binary 8b374e623bc9e280…; gate log says 139 rows — next gate expect 140; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF-SG dr-refuses kept; operator handoff.config.json NEVER staged; all rc DIRECT; pli80c POSITIONAL; no push; chain 01a1aa7d cap 12 (4/12 used).
 <!-- guard:end checkpoint -->
