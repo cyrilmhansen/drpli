@@ -1592,25 +1592,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 374
-checkpoint-id: g374-d5d5b372e62e
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 375
+checkpoint-id: g375-0319aa547acf
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 3, remaining ~6391, session 01a1acf2-5ab6-7739-b9fe-1a117f7bf59f)
-checkpointed: 2026-11-05T18:56:32.759Z
+status: checkpoint (guard level 2, remaining ~7935, session 01a1ad11-e21b-7739-b9fe-1a15e88f5aec)
+checkpointed: 2026-11-05T19:21:31.051Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c92f242f9f3048adbf7dc4cff37fa05968bd7b31c22a6f185d62ce19be2da9d6
+source-progress: 7a5e531840b049fd60e19ae189d5464ab40c0e3fef72264e629c20f742cb8ce6
 source-handoff: 4b973a74698093079dfdd887bb35aaa1cfba34213364499dac9006eeaf69915f
-source-learnings: 0353bbd11467114990ab14af237d78897ccc94ebe02044fc26cddb9051f88bba
+source-learnings: ce313ee3fa929dcca20583b055ed7e1cc732afc4eb62fc90d97d3a085196107e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1acf2-5ab6-7739-b9fe-1a117f7bf59f
-readiness-at: 2026-11-05T18:56:32.785Z
-readiness-checkpoint: g374-d5d5b372e62e
+readiness-by: session:01a1ad11-e21b-7739-b9fe-1a15e88f5aec
+readiness-at: 2026-11-05T19:21:31.069Z
+readiness-checkpoint: g375-0319aa547acf
 ### Last verified state
-guard level 3; checkpoint requested (auto at level 3)
+guard level 2; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -2203,5 +2203,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-9 (operator-authorized) hop 2. Read LEARNINGS.md § "E2E-52/P3-9 hop 1 IN FLIGHT" (all measured golden bytes + full owed contract) and PROGRESS.md → ## Next action. Key facts: dl<0 leaf = my-gap refusal; dl>2 supported; ANNUITY:46 OR = value-level FF/00 + POP B/ORA B/ONE JP (C312 mirror); LOAN2:91/113 FIXED-BIN ORs use DCX-ladder/CMA/PUSH PSW but my static flag trace predicts inverted polarity — UNRESOLVED, must be measured by probes, NEVER guessed. NEXT: finish Phase A checks (dis80 table 2F, ANNUITY 01B6/022F controls), then write PLAN §P3-9 + probes E52VA.. (collision-free verified) and COMMIT BOTH BEFORE any oracle call or ocaml/ byte; then ONE campaign --tag e52p9 --switches '$L$D' rc DIRECT; goldens VERBATIM; arm only measured; C367 BEFORE COVERAGE; gate build/gate-e52p9-reg.log. Fresh renewal chain 0/12 (cap 12). Constraints: no push; handoff.config.json NEVER staged; goldens NEVER re-derived; rc DIRECT; pli80c POSITIONAL; byte-tier only; do not fix the next LOAN2 blocker after line 91; stop at P3-9 closure.
+E2E-52/P3-9 hop 3 (operator-authorized campaign): Phase A is FULLY CLOSED and committed (LEARNINGS.md § "E2E-52/P3-9 hop 2" + PROGRESS.md → ## Next action — read both FIRST; every measured byte and the exact hop-3 contract are there). NEXT: write PLAN §P3-9 (H1-H10, byte-exact predictions + falsifiers: OR = materialise-bit7-byte + F5/C1/B0 value-level fold + ONE JP; fold-ORDER discriminator VB vs VC; DEC push-order VG vs VI; standalone <0 leaf VA) + probes E52VA..VK (CRLF + bare ^Z + ≤71 cols, E52UA skeleton; re-grep collisions: E52V*/e52p9 were FREE at HEAD f8089e2), COMMIT BOTH BY EXPLICIT PATH BEFORE ANY ORACLE CALL AND BEFORE ANY ocaml/ BYTE; then ONE campaign PLI_SRC=probes timeout 900 python3 oracle/batch.py E52VA..E52VK --tag e52p9 --switches '$L$D' rc DIRECT; goldens VERBATIM; arm only measured (Or arm in lower_test_skip0 + Or fold beside And in lower_bool; NEVER touch And; <0 leaf only if VA measures it); LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM never fix next blocker (?SIGOP out of scope); C367 measured-bytes-only BEFORE COVERAGE (explicit spec/COVERAGE-IDS.txt edit; NEVER coverage_gen.py); gate build/gate-e52p9-reg.log; STOP at P3-9 closure. Constraints: no push; handoff.config.json NEVER staged; goldens NEVER re-derived; rc DIRECT; pli80c POSITIONAL; byte-tier only; ledger ENDS C366; gate baseline 1249/186/9/140-0-0 census 15/0/26/0; binary 9ecea27aa4f2d80f49ad…; first action after recovery: commit the refreshed guard managed blocks VERBATIM if uncommitted.
 <!-- guard:end checkpoint -->

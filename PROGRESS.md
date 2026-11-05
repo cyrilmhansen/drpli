@@ -2708,17 +2708,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 374
-checkpoint-id: g374-d5d5b372e62e
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 375
+checkpoint-id: g375-0319aa547acf
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-guard-level: 3
-checkpointed: 2026-11-05T18:56:32.759Z
+guard-level: 2
+checkpointed: 2026-11-05T19:21:31.051Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: c92f242f9f3048adbf7dc4cff37fa05968bd7b31c22a6f185d62ce19be2da9d6
+source-progress: 7a5e531840b049fd60e19ae189d5464ab40c0e3fef72264e629c20f742cb8ce6
 source-handoff: 4b973a74698093079dfdd887bb35aaa1cfba34213364499dac9006eeaf69915f
-source-learnings: 0353bbd11467114990ab14af237d78897ccc94ebe02044fc26cddb9051f88bba
+source-learnings: ce313ee3fa929dcca20583b055ed7e1cc732afc4eb62fc90d97d3a085196107e
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` — RESULTS §P3-8 table + PLAN §5 row + PLAN §P3-8 CLOSED marker, prose rc=0 standalone, `/handoff` + commit HANDOFF/PROGRESS managed blocks VERBATIM. PROPOSED next subround (NOT authorized, NOT to be started this hop): the compound-condition class at LOAN2:91 (`my-gap`, OR-of-relations) — decode EXISTING E37/E38 `COND.*` goldens first, then pre-register PLAN §P3-9 + probes BEFORE any `ocaml/` byte.
 
@@ -3305,9 +3305,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1acf2-5ab6-7739-b9fe-1a117f7bf59f
-readiness-at: 2026-11-05T18:56:32.785Z
-readiness-checkpoint: g374-d5d5b372e62e
+readiness-by: session:01a1ad11-e21b-7739-b9fe-1a15e88f5aec
+readiness-at: 2026-11-05T19:21:31.069Z
+readiness-checkpoint: g375-0319aa547acf
 <!-- guard:end checkpoint -->
 
 ## Blockers
