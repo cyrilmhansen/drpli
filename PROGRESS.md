@@ -2692,17 +2692,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 371
-checkpoint-id: g371-6352f300011d
+checkpoint-generation: 372
+checkpoint-id: g372-beb3088d8a3a
 checkpoint-kind: manual
 content-delta: new
 readiness: attested
-guard-level: 4
-checkpointed: 2026-11-05T13:00:28.678Z
+guard-level: 0
+checkpointed: 2026-11-05T16:00:41.216Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 569f6895d29b8425a823ec1e7832bb7ea766846e6b22ec35f70da0220d5cfbda
-source-handoff: 1eb12766cbec42cff5bfe969d899276f7d1bcec2132b1155f2b7ca361f877923
-source-learnings: 4d779059d8dafa568a941df9747ef89b00bc85e53c00e7835246d502622d753f
+source-progress: 6a0b479a3743b51cc8f9ca215c22ab59ba3c83371ba14454406ec37dfb77818c
+source-handoff: 4b973a74698093079dfdd887bb35aaa1cfba34213364499dac9006eeaf69915f
+source-learnings: 3d9924a2632a352625b3a50e6510ed67bb67b47d7b9568e930b29a86517b2437
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` — RESULTS §P3-8 table + PLAN §5 row + PLAN §P3-8 CLOSED marker, prose rc=0 standalone, `/handoff` + commit HANDOFF/PROGRESS managed blocks VERBATIM. PROPOSED next subround (NOT authorized, NOT to be started this hop): the compound-condition class at LOAN2:91 (`my-gap`, OR-of-relations) — decode EXISTING E37/E38 `COND.*` goldens first, then pre-register PLAN §P3-9 + probes BEFORE any `ocaml/` byte.
 
@@ -3289,9 +3289,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1abba-1184-74db-85e1-879c2b4e07b2
-readiness-at: 2026-11-05T13:00:28.702Z
-readiness-checkpoint: g371-6352f300011d
+readiness-by: session:01a1ac5b-a239-7528-bc25-100f3ae1e75f
+readiness-at: 2026-11-05T16:00:41.238Z
+readiness-checkpoint: g372-beb3088d8a3a
 <!-- guard:end checkpoint -->
 
 ## Blockers
