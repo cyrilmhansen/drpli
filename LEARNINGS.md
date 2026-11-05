@@ -6929,3 +6929,25 @@ an operator brief records state and STOPS.
   ignored `.pi-guard/renewal-state.json` before any hop 13. Standing PROPOSALS: the SE `?REVOP` arm
   (bytes measured); ON ERROR (LOAN2:58) as a later subround. No push; goldens NEVER re-derived;
   operator handoff.config.json NEVER staged; all rc DIRECT; pli80c POSITIONAL; ledger ENDS **C363**.
+
+## E2E-52/P3-6 hop 12 = CAP 12/12: REGISTRATION + C364 + FINAL ATTESTATION LANDED — SUBROUND P3-6 CLOSED (2026-11-05)
+
+- ACCEPTED (all rc DIRECT, ZERO new oracle campaign, ZERO ocaml/ byte): goldens golden/e52p6/
+  committed verbatim `5ab8639` (5 REL + 7 PRN + dir/summary/transcripts; sizes as briefed).
+  Clean rebuild binary `0efc35e6d4ff81bd` == hop-11; SA SB SC SD cmp rc=0 4/4; sweep 110/0
+  (build/e52p6-verify/sweep-e52p6-reg.log); codegen histogram 68 == baseline, no new W8; SE/SF/SG
+  rc=2 with [TBD] markers. SPECIMENS +4 + NEGATIVES +3 (`--update-inventory` diff EXACTLY +7,
+  1229->1233, 183->186) `91592c0`; census OWN path rc=0 counts UNCHANGED (LOAN2 line-44 -> line-54
+  OPEN PRINT VERBATIM; EXPR1/EXPR2 catch-all names both conditions now) `9febae8`; FULL gate
+  REAL rc=0 `build/gate-e52p6-reg.log` 1233/0, 186/186, 9/9, 139 0/0, prose 5; **C364** measured-
+  bytes-only `73b9c53` BEFORE COVERAGE EXACT:18 `6e6ed37` (coverage_check rc=0); prose standalone
+  rc=0; RESULTS §P3-6 + PLAN §5 row in the durables commit.
+- LESSON (procedure): `grep -c 'File "lib/codegen.ml"'` on the FULL clean-build log is the honest
+  warning histogram; per-kind greps of the old partial ocaml/build-warn-e52p6.log are not
+  comparable (36 unique pairs vs 34 — different capture modes). Census "binary" field is an MD5
+  (9ecff9db), not the sha256 (0efc35e6…).
+- PROPOSED (never authorization): P3-7 OPEN PRINT/PAGESIZE/LINESIZE from LOAN2:54 (brief §8
+  pointer: read spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv + LOAN2/COPYLPT goldens; distinguish
+  PRINT from STREAM OUTPUT; PAGESIZE/LINESIZE independently incl. dynamic; prereg probes BEFORE
+  any ocaml/ byte; preserve FILE/COMMON layout + attach laws). SE ?REVOP arm. ON ERROR (LOAN2:58).
+  Chain CAPPED 12/12 — next session needs operator archive/reset of .pi-guard renewal-state.json.

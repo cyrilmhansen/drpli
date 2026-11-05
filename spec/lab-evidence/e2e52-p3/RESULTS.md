@@ -419,3 +419,23 @@ NOT fixed; FULL gate REAL rc=0 **1229/0**, 183/183, 9/9, 139 rows 0/0, prose 5
 COVERAGE rewrite EXACT 35→42 (`2be56f0`, coverage_check rc=0). Byte tier only — no runtime row.
 UNMEASURED (never promote): to<=2, from=0, 1-byte index, variable FROM, deref index/bound,
 nested rep, BY bytes, RG char-var bytes, numeric-LITERAL/DEC-inner reps.
+
+## P3-6 — ON UNDEFINEDFILE(<file>) + the GOTO-terminated handler (CLOSED 2026-11-05, hop 12 = CAP)
+
+Campaign e52p6 (measured hop 11, rc=0 5 ok/7): SA SB SC SD SE ACCEPTED by DR (NO ERROR(S)
+both passes; goldens golden/e52p6/ committed 5ab8639, sizes 256/384/256/256/256 B); SF and SG
+dr-refuses (PASS 1 clean, PASS 2 `SYNTAX ?', NO .REL). Arm `8fc0a3b` (bind.ml + codegen.ml):
+registration prefix condition-blind with byte 06 (H1/H2 CONFIRMED); goto-terminated BEGIN...END
+handler inline + C3, NO C9 (H3); pad LHLD/SPHL/?RECOV + entry DAD SP/SHLD (H4); SC proves pad
+vs continuation targets INDEPENDENT; SD = [C201] pair. SA octet-142 first-try MISS decoded the
+ON-unit branch-boundary reload law (golden `21 02 00 22` vs mine `23 22`), fixed for both names,
+sweep 110/0 corroborating. FALSIFIED: `BEGIN;..;end;` = nameless Sproc/Bbegin not Sdobegin;
+briefed sweep-101 undercount (110); hop-10 "no DR sample"/"codegen-only" re-confirmed.
+SE REVERT UNDEFINEDFILE DR-ACCEPTED (06+`?REVOP`) KEPT UNARMED — measured my-gap, negative-panel
+row. Registered hop 12: SPECIMENS +4 (1229->1233), negatives +3 (183->186) `91592c0`; census own
+path rc=0 counts UNCHANGED 15/0/26/0, LOAN2 blocker VERBATIM ADVANCED past 44 to
+`OPEN option PRINT ... (line 54)` (§3 prediction HIT), EXPR1/EXPR2 catch-all text moved `9febae8`;
+FULL gate rc=0 DIRECT `build/gate-e52p6-reg.log` (1233/0, 186/186, 9/9, 139 0/0, census 15/0/26/0,
+prose 5); claim **C364** measured-bytes-only `73b9c53` BEFORE COVERAGE EXACT:14->18 `6e6ed37`
+(coverage_check rc=0); binary 0efc35e6d4ff81bd, codegen warnings 68 == baseline. NEXT blocker
+(NOT touched): LOAN2:54 OPEN PRINT — candidate P3-7. No runtime assertions; goldens immutable.
