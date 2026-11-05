@@ -1012,6 +1012,18 @@ and parse_rep_spec p =
           repeated by times, test unchanged) but this compiler has no byte-exact \
           object for a stepped repetition"
    | None -> ());
+  (* [E2E-52/P3-5 registration] REVERSE is REFUSED BY NAME at the parse stage.  DR
+     itself refuses it — E52RE (campaign e52p5, golden/e52p5/E52RE/E52RE.PRN) is clean
+     `NO ERROR(S) IN PASS 1', then dies on the statement with `BALANCE ?' + `SYNTAX ?'
+     and the `UNEXPECTED EOF' cascade, NO .REL — so the refusal MIRRORS DR's own verdict
+     (dr-refuses) and no object carries a reversed repetition.  Before this arm the same
+     probe died on the generic `expected )'; the named message replaces it so the negative
+     row classifies the boundary honestly (the gate's negative panel requires [TBD]). *)
+  if eat_key p "REVERSE" then
+    err p
+      "DO-repetition REVERSE is dr-refuses [TBD] -- E52RE measures DR refusing `reverse' \
+       (BALANCE ? on the statement, SYNTAX ?, NO .REL); no DR object has ever carried a \
+       reversed data-item repetition";
   { e = Ebuilt ("REPSPEC",
                 { e = Eident ind; epos = ind.pos }
                 :: (from_ :: (match to_ with Some x -> [ x ] | None -> [])))
