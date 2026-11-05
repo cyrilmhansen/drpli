@@ -249,3 +249,146 @@ BY NAME: chars outside {9,Z,$,V,.,B,comma,slash}; `$` after the first digit spec
   drifted (own write path). prose rc=0 (`build/prose-check-e52p3c-claims.log`).
 - LOAN2 UNMODIFIED: blocker unchanged; P3-4 = rep-groups `2(...)`/`80 n … 81`, `x(w)` `0B`,
   and the file-route EXPRESSION item (PA bytes pinned at LOAN2 0544-0558).
+
+# E2E-52/P3-4 RESULTS — rep-groups, `x(w)`, file-route EXPRESSION item: campaign, PA fix, registration
+
+Records subround **P3-4** (format rep-groups `n(items)` → `80 n … 81`; `x(w)` → `0B w`;
+file-route `PUT … EDIT` EXPRESSION data items). Plan + probes (`PLAN.md` §P3-4, `probes/E52PP..E52PZ`)
+committed at `3ac7f41`, BEFORE any `ocaml/` byte. All rc captured DIRECTLY (never through a
+trailing pipeline); all quoted bytes re-extracted with `tools/reldump.py` from the goldens.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52PP..E52PZ --tag e52p3d --switches '$L$D'`
+rc=0 → **9 ok / 11**; goldens + PRNs at `golden/e52p3d/<NAME>/`, reldumps (scratch, ignored)
+`build/e52p3d/<NAME>-golden-reldump.txt`; existing goldens never re-derived.
+
+| probe | DR | classification | measured shape |
+|---|---|---|---|
+| E52PP | ok | accepted | file `edit('|')(2(a))` → table `80 00 / 80 02 / 03 FF / 81 / 81` (256 B sha `5b2d194c…`; code `0029`=41, DATA `0009`=9) |
+| E52PQ | ok | accepted | `a,2(2(a,a),a),2(x(3),a)` → 24 B table `80 00 03 FF 80 02 80 02 03 FF 03 FF 81 03 FF 81 80 02 0B 03 03 FF 81 81` (256 B sha `88df84be…`; code `0029`, DATA `0019`=25) — double nesting, siblings, source order, NO flattening |
+| E52PR | ok | accepted | CONSOLE `2(skip,a),p'99'` + expression item → `80 00 80 02 0C FF 03 FF 81 02 02 00 02 39 39 81` (256 B sha `c4505cd5…`; code `003C`=60, DATA `0015`=21) — the rep-group law is ROUTE-INDEPENDENT |
+| E52PS | ok | accepted | `1(a)` → `80 00 03 FF 81` (256 B sha `6c870471…`; code `0029`, DATA `0006`=6) — **count 1 SPLICES, no `80 01 … 81` wrapper** |
+| E52PT | ok | accepted | `x(1),a,x(5)` → `80 00 0B 01 03 FF 0B 05 81` (256 B sha `3bb15a6b…`; code `0029`, DATA `000A`=10) — `x(w)` = `0B w` exactly |
+| E52PU | **no `.REL`** | **dr-refuses** | bare `x`: `SYNTAX ?` in pass 1 (+ `UNEXPECTED EOF` cascade); PRN only |
+| E52PV | **no `.REL`** | **dr-refuses** (partially informative) | `x(255)`: `BAD VAL ?`, `1 ERROR(S) IN PASS 1`; the SAME listing carries compile `c` rows for **x(128) and x(0)** — acceptance measured, BYTES unmeasured |
+| E52PW | ok | accepted | file `edit(m+y)(a)` → `2A r(cell) / EB / 2A r(cell) / 19 / 3E 09 / ?QICOP / ?EDTOV` (256 B sha `3c2590b1…`; code `002E`=46, DATA `0009`) |
+| E52PX | ok | accepted | `edit(100*m)(a)` → `2A r / 11 64 00 / ?IM22N / 3E 09 …` **NO XCHG** (256 B sha `27b7eeea…`; code `002F`=47, DATA `0007`=7) |
+| E52PY | ok | accepted | `edit(m-y)(a)` → `2A / EB / 2A / ?IS22N / 3E 09 …` (256 B sha `7a1fa309…`; code `0030`=48, DATA `0009`) |
+| E52PZ | ok | accepted | `edit(m/3)(a)` → `2A r / 3E 03 / E5 6F 87 9F 67 D1 / ?ID22N / 3E 09 …` — literal DIVISION ACCEPTED on the file route (256 B sha `31c40111…`; code `0034`=52, DATA `0007`) — preamble semantics NOT decoded, byte tier only |
+
+PU and PV have NO golden and their bytes are claimed by NOTHING; both are registered on the
+REFUSAL panel as `dr-refuses` (REJECTS + NEG_META, markers taken from MY re-measured stderr, see §5).
+
+## 2. Hypothesis verdicts (pre-registered in PLAN §P3-4 §3, kept verbatim)
+
+- **H2a** — "`1(a)` emits `80 01 03 FF 81`" — **FALSIFIED** (PS measured `80 00 03 FF 81`).
+- **H2b** — "`1(a)` is REFUSED" — **FALSIFIED** (PS accepted, `NO ERROR(S)` both passes).
+- **H2c** — "count 1 flattens: inner records are spliced with no wrapper" — **CONFIRMED**.
+  Group law overall: `80 n <subrecords in source order> 81`, recursive, NO flattening for `n ≥ 2`.
+- **H4a** — "`x(128)`, `x(255)`, `x(0)` all accept and emit plain `0B w`" — **FALSIFIED**
+  (x(255) `BAD VAL`, no object).
+- **H4b** — "a REFUSAL above the then-measured max width 19 — WHICH width first is the measurement"
+  — **FALSIFIED IN DETAIL**: DR compiles x(128) and x(0) (listing `c` rows) and refuses only x(255);
+  the refusal boundary is **255, not 20**. Kept as the live gap: widths **14..128 are compile-accepted
+  with NO object witness**, 129..254 UNMEASURED; my arm therefore arms `0B w` only for literal
+  `w ≤ 128` and refuses above BY NAME as unmeasured.
+- **H5a** (`0B 00`) and **H5b** (`0B 01`) — **MOOT**, PU carries no object.
+- **H5c** — "bare `x` is REFUSED" — **CONFIRMED** (`SYNTAX ?`, no `.REL`).
+- **H6a** — "PX keeps LOAN2's `XCHG` after `?IM22N`" — **FALSIFIED** (PX has no XCHG).
+- **H6b** — "`?IM22N` returns the product in HL; no XCHG when the product IS the whole item" —
+  **CONFIRMED** (LOAN2's `EB` parks a product for the FOLLOWING sum operand — E52PA reproduces it).
+- P3-4 brief wording "fmt_spec `Pi_rep`" — **FALSIFIED**: the parser node is `Ast.Pi_repgrp`
+  (`parser.ml` 939); the arm matches that.
+
+## 3. The subround HEADLINE — E52PA byte-exact, and the crash that preceded it
+
+Pre-registered requirement: `E52PA` whole-file `cmp` rc=0 vs the **EXISTING**
+`golden/e52p3/E52PA/E52PA.REL` (sha `d7b4e7f32b9c…`, 384 B, code `004E`=78, DATA `0013`=19 —
+reldump values; my compiler's own `data=4` stat line is NOT the golden's DATA size and is never
+cited as such).
+
+At the campaign hop the arm made the other nine probes exact but PA CRASHED: `Fatal error: exception
+File "lib/codegen.ml", line 11906 … Pattern matching failed` at the syntactically exhaustive match
+inside `edit_num_cell`. Root cause (`9b2d781`, `ocaml/lib/codegen.ml` ONLY): the `Eident` arm ended
+in an UNPARENTHESISED inner `match vk_of st nm with … | _ -> false`, so OCaml swallowed the OUTER
+`| _ -> false` as a third INNER arm, leaving the outer match non-exhaustive; proven with `-dlambda`
+(`raise (Match_failure ["lib/codegen.ml" 11921 2])`) after `Obj` instrumentation showed a valid
+`Ebinary` scrutinee. The two earlier suspects — stale line map, PIlit `'|'` interaction — are BOTH
+**FALSIFIED**; PA is simply the first probe feeding a NON-`Eident` node to `edit_num_cell` (which is
+why PW/PX/PY/PZ passed with the bug in). `lib/dune`'s `-warn-error -a` **disables** warnings-as-
+errors, so `dune build` rc=0 shipped it; the +4 codegen warning delta (74 vs the 70 baseline =
+Warning 8 + Warning 11, doubled byte+native) was the fingerprint and is back to **70** after the fix.
+
+**MET:** on the clean-rebuild binary sha256 `345644822818326f442a…`, E52PA compiles rc=0 (384 B) and
+`cmp` rc=0 against the existing golden — never fitted. Its code span 0032-0047 is BYTE-FOR-BYTE
+LOAN2.REL 0544-0558 (the LOAN2:115 mirror: `2A RELOC data 0F / 11 64 00 / ?IM22N / EB / 2A RELOC
+data 11 / 19 / 3E 09 / ?QICOP / ?EDTOV`). Re-verified a THIRD time at the close hop on the same
+binary (all 10 cmps rc=0, `build/e52p3e/`).
+
+## 4. The arm + zero-drift measurements
+
+Arm (`codegen.ml` ONLY): `fmt_spec` became `let rec`; `Pi_repgrp` → `80 n … 81` recursive with the
+count-1 SPLICE and a refusal at count 0 (unmeasured); `Pi_fmt X [w]` with `fcount=None` → `0B w` for
+literal `w ≤ 128`; `authorize_file_edit_item` admits `PInum` through the new shape authority
+`edit_num_tree/edit_num_cell/edit_num_lit/edit_num_operand` (`+`/`-` over cells and admitted trees,
+`*` ONLY literal-left × cell, `/` ONLY cell/literal, parens unwrapped, Vint non-deref cells only);
+float/DEC/member/call/subscript shapes keep refusing BY NAME. Zero new encoders elsewhere.
+
+- **10/10** accepted-probe whole-file `cmp` rc=0 (PP,PQ,PR,PS,PT,PW,PX,PY,PZ vs the NEW goldens;
+  PA vs the EXISTING golden) — measured at `898b191c…` (campaign hop), re-verified at `3456448228…`
+  (fix hop) and again at the close hop (`build/e52p3e/`).
+- Zero-drift sweep **89/89 byte-exact / 0 FAIL** on the final binary: E52PB..PO 13, E46N1..N19 19,
+  E52A..J 10, E51A..L 12, R10xx **33** (the earlier "34" record was a count slip — falsified by
+  re-extraction), P086J/K 2.
+- Boundary markers all rc=2 with pinned texts: E46K4 (member), E46K15 (GET form), E46N21
+  (LINE-with-count), E52PF (picture `$`-after-digit dr-refuses mirror), plus the two NEW rows §5.
+
+## 5. LOAN2 rerun UNMODIFIED + registration
+
+- LOAN2 (`artefacts/LOAN2.PLI`, sha `7be23ba3…`, UNMODIFIED, positional args) rc=2, blocker
+  **ADVANCED past** the fmt_spec format catch (rep-groups and pictures now lower) VERBATIM to:
+  `codegen: PUT FILE(OUTPUT) EDIT shape [TBD] (line 212) -- an EDIT list the matcher cannot split
+  into data items plus a final wrapped format list: empty data, a trailing item after the format
+  list, or an item class classify_item does not name`. It fires in the PRESCAN walk, so line 147's
+  DEC formals are never reached: the pre-registered prediction "next blocker = DEC FORMAL at 147 via
+  `authorize_file_edit_item`" is **FALSIFIED AT STAGE LEVEL**; the direction (the blocker moves) held.
+  Classification `my-gap` (DR compiles LOAN2 whole); recorded, NOT fixed, never claimed exact
+  (`build/e52p3d/LOAN2-mine-stderr.txt`, re-measured at close in `build/e52p3e/`).
+- SPECIMENS +10 (`e397ed9`) with measured comments; NEW honest `dr-refuses` REJECTS/NEG_META rows for
+  **E52PU** (marker `BARE x (no width) is dr-refuses`) and **E52PV** (marker `x(width) above 128 is
+  unmeasured`) — markers taken from MY ACTUAL re-measured rc=2 stderr, never assumed.
+- Sanctioned `--update-inventory` rc=0: EXACTLY 1212→**1222** specimens and 180→**182** refusals,
+  diff line-for-line (12 insertion lines).
+- Census re-snapshotted via its OWN write path (`corpus_census.py --check /tmp/census-prev-p34.json`)
+  rc=0, counts **IDENTICAL 15/0/26/0**, with EXACTLY the three predicted message moves — ACKTST →
+  `PUT numeric item form unproven [TBD]`, FSCAN → `char store from non-literal [TBD]`, LOAN2 → the
+  line-212 text ABOVE VERBATIM (metadata `head 2c51941 binary c4c5b44f dirty 3`).
+- FULL gate REAL **rc=0 DIRECT** `build/gate-e52p3d-reg.log`: byte panel **1222 byte-exact / 0 of
+  1222** (all 10 new BYTE-EXACT lines printed), negatives **182/182** (NEG-OK E52PU, E52PV, E52PF
+  all alive), divergence 9/9, coverage 139 rows 0/0, census 15/0/26/0, prose 5.
+- Claim **C362** committed `1de3e28` from MEASURED BYTES ONLY, BEFORE the COVERAGE `IO.PUT_EDIT`
+  rewrite `8c3b0b4` (cite-resolution lesson; ledger ENDS **C362**, 183 claims). `IO.PUT_EDIT` →
+  `rel_parity=EXACT:35` (25 prior + 10 new), probes +E52PA,E52PP..E52PZ; the two falsified P3-3-era
+  clauses ("x(w) … not armed", "rep-groups … still refusing") and the stale LOAN2 blocker text are
+  kept VERBATIM as HISTORICAL per PROTOCOL #2. coverage_check rc=0 DIRECT **139 rows 0/0**
+  (`build/coverage-check-e52p3d-coverage.log`), stats NOT drifted; prose rc=0 standalone
+  (`build/prose-check-e52p3d-reg.log`).
+
+## 6. What P3-4 does NOT say / live refusals (P3-5 perimeter)
+
+- **Byte tier only**: no `80 n`/`0B w`/XCHG-parking/?ID22N-preamble RUNTIME meaning is claimed; no
+  object was executed under cpmsim; no `spec/RUNTIME.txt` row, no `OUTPUT_CHECK` entry.
+- x-widths **14..128** have NO object witness (compile-accepted by PV's listing only); 129..254
+  UNMEASURED; bare `x` has no object (PU).
+- Group **count 0** UNMEASURED, refused BY NAME; `Pi_group` (no count) never sampled; `column(n)`
+  `0D w` decoded but NOT armed.
+- File-route **DEC formal/deref** items (LOAN2 147), **numeric-LITERAL** items, **PIvar bin-var**
+  items (LOAN2 177 pins them), counted **SKIP**/**PAGE** beside EDIT, format **COUNT expressions**,
+  and remote/counted/grouped formats ALL still refuse BY NAME — the line-212 matcher-split blocker
+  stands. LOAN2 is NEVER claimed exact.
+- Harness lessons adopted: a reldump byte regex must accept DR's UNPADDED `0x0` (a `{1,2}`-free
+  2-digit regex silently drops 0x00 bytes and falsified my first extraction); census `--verify`
+  drift is **FATAL** in a normal gate (it aborts BEFORE the byte panel) — run the census own-write
+  path first; cite reldump `DEF-DATA-SIZE`, never the compiler's own stat shorthand, in evidence.
+
