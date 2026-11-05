@@ -8950,7 +8950,7 @@ classified `unmeasured` rather than `dr-refuses`.
   with `[TBD]`; that is my perimeter, not a DR rule. ENVIRONMENT/KEYED/DIRECT words remain
   unlowered (REPORT:29's 36-byte `4E52` block is still unpursued).
 
-## C366 — `ON ERROR` REGISTERS THROUGH AN **ABSOLUTE-OPERAND** PREFIX — `LXI H,<argument 16-bit little-endian>` with **NO relocation and NO `LINK-SEL-COMMON` record**, then `XRA A` (`AF`, ONE byte where the file route spends `MVI A,nn`) and `CALL ?ONCOP` and the `C3` jump-over slot = **10 bytes**, versus the file-scoped [C109]/[C364] prefix's `SEL-COMMON` + relocated `LXI H,<common base>` + `MVI A,05|06` = 11 — and THE ARGUMENT ITSELF IS THAT LXI OPERAND VERBATIM (bare `error` = `21 00 00`, `error(1)` = `21 01 00`, `error(2)` = `21 02 00`, `error(0)` indistinguishable from bare), the condition NEVER reaching `A`; THE HANDLER TAIL IS **BODY-DEPENDENT**, PROVEN INSIDE ONE OBJECT — a handler whose last statement transfers unconditionally (`goto` [C364], `stop` on the ENDFILE route) carries **NO `C9`** while a handler whose body RETURNS (bare statement, or a `BEGIN…END` block whose last statement is an assignment) carries `C9 RET` — and a **returning** handler demands **NEITHER** the block SP-save cell (`LXI H,0 / DAD SP / SHLD <cell>`) **NOR** the `LHLD <cell> / SPHL / CALL ?RECOV` pad, which belong to the GOTO form only [C206]; the jump-over slot patches to the fall-through continuation and an ADJACENT label MERGES the continuation and pad targets into one address while a REMOTE label keeps TWO INDEPENDENT patch triples [C208] (E2E-52/P3-8; MEASURED — 6 whole-file `cmp` rc=0 against `golden/e52p8/`, RE-MEASURED at registration on the clean-rebuild binary sha256 `9ecea27aa4f2d80f49ad…`, never fitted)
+## C366 — `ON ERROR` REGISTERS THROUGH AN **ABSOLUTE-OPERAND** PREFIX — `LXI H,<argument 16-bit little-endian>` with **NO relocation on that operand and NO `LINK-SEL-COMMON` record**, then `XRA A` (`AF`, ONE byte where the file route spends `MVI A,nn`) and `CALL ?ONCOP` and the `C3` jump-over slot = **10 bytes**, versus the file-scoped [C109]/[C364] prefix's `SEL-COMMON` + relocated `LXI H,<common base>` + `MVI A,05|06` = 11 — and THE ARGUMENT ITSELF IS THAT LXI OPERAND VERBATIM (bare `error` = `21 00 00`, `error(1)` = `21 01 00`, `error(2)` = `21 02 00`, `error(0)` indistinguishable from bare), the condition NEVER reaching `A`; THE HANDLER TAIL IS **BODY-DEPENDENT**, PROVEN INSIDE ONE OBJECT — a handler whose last statement transfers unconditionally (`goto` [C364], `stop` on the ENDFILE route) carries **NO `C9`** while a handler whose body RETURNS (bare statement, or a `BEGIN…END` block whose last statement is an assignment) carries `C9 RET` — and a **returning** handler demands **NEITHER** the block SP-save cell (`LXI H,0 / DAD SP / SHLD <cell>`) **NOR** the `LHLD <cell> / SPHL / CALL ?RECOV` pad, which belong to the GOTO form only [C206]; the jump-over slot patches to the fall-through continuation and an ADJACENT label MERGES the continuation and pad targets into one address while a REMOTE label keeps TWO INDEPENDENT patch triples [C208] (E2E-52/P3-8; MEASURED — 6 whole-file `cmp` rc=0 against `golden/e52p8/`, RE-MEASURED at registration on the clean-rebuild binary sha256 `9ecea27aa4f2d80f49ad…`, never fitted)
 
 * **Measured — ERROR versus file-condition encoding, in ONE comparison.** `golden/e52p8/E52UF/
   E52UF.REL` (384 B sha256 `4caeceedd52a…`) carries BOTH routes in one object: the ENDFILE unit at
@@ -8959,8 +8959,14 @@ classified `unmeasured` rather than `dr-refuses`.
   file-less object of this campaign — `golden/e52p8/E52UA/E52UA.REL` (128 B sha `6baf855210d3…`),
   E52UB (256 B sha `b68d334de66f…`), E52UC (256 B sha `16b09236bf30…`), E52UD (128 B sha
   `cfeed90ca4c5…`), E52UE (256 B sha `23b01969fb1a…`) — has **NO COMMON group, NO SEL-COMMON
-  record and NO relocation of any kind in its registration**: `21 00 00 / AF / CD lo hi(?ONCOP) /
-  C3 lo hi(slot)`, the operand an ABSOLUTE 16-bit little-endian constant. This is the first
+  record and NO relocation ON THE ARGUMENT OPERAND**: `21 00 00 / AF / CD lo hi(?ONCOP) /
+  C3 lo hi(slot)`, the operand an ABSOLUTE 16-bit little-endian constant. Wording correction
+  at the P3-8 close (metadata-only, from these same measured bytes, no new experiment): an
+  earlier draft of this claim said "NO relocation of any kind in its registration", which is
+  too broad read literally — the registration sequence DOES carry the `?ONCOP` external
+  reference (CHAIN-EXT) and the jump-over slot's own code relocation/patching (see the
+  adjacent-versus-remote bullet below); what is absent, and what the bytes measure, is
+  relocation OF THE ARGUMENT OPERAND and any COMMON-group/SEL-COMMON machinery around it. This is the first
   time the two encodings are pinned side by side in one registered claim; the five pre-existing
   witnesses (LOAN2 00E8 d0318, ANNUITY 004B d0136, COPYLPT 00A6 d0214, EXPR1/EXPR2 001B d0040/
   d00AD — `build/e52p8/onregions.txt`) all agree with the new six.
