@@ -1,0 +1,11 @@
+E52SG: procedure options(main);
+
+   dcl f file;
+   dcl g file;
+   dcl x fixed bin;
+
+   on undefinedfile(f,g) x = 1;
+   x = 2;
+
+end E52SG;
+

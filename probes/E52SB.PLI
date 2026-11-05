@@ -1,0 +1,16 @@
+E52SB: procedure options(main);
+
+   dcl f file;
+   dcl x fixed bin;
+
+   on undefinedfile(f)
+      begin;
+         put skip list('oops');
+         goto openf;
+      end;
+
+openf:
+   x = 1;
+
+end E52SB;
+

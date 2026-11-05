@@ -458,3 +458,86 @@ census OWN write path FIRST (the 212 blocker line is REPLACED); FULL gate rc=0 D
 `build/gate-e52p5-reg.log`; claim **C363** from MEASURED BYTES ONLY **BEFORE** the COVERAGE
 `IO.PUT_EDIT` rewrite (EXACT 35 → 35+accepted); coverage_check + prose rc=0; RESULTS §P3-5
 + PLAN §5 row.
+
+## Subround P3-6 — ON UNDEFINEDFILE(<file>) registration + the GOTO-terminated handler (LOAN2:44 blocker)
+
+### 1. Measured blocker (VERBATIM, hop-9 census record; binary `e55e892c346741b2…`)
+`codegen: ON UNDEFINEDFILE is not implemented [TBD] (only ENDFILE(<file>) has a DR
+lowering; line 44)` rc=2 — raised at LOWERING (the prescan clears all statements since
+P3-5). LOAN2 44-49 VERBATIM: `on undefinedfile(output)` / `begin;` / `put skip
+list('^i^icannot write to',name);` / `goto open_output;` / `end;`. Ledger ENDS **C363**;
+tag `e52p6` verified UNUSED (grep spec/ tools/, ls golden/ build/); E52SA..SG
+collision-grepped EMPTY in probes/ and spec/INVENTORY.txt.
+
+### 2. EXISTING DR evidence (re-read fresh this hop, ZERO oracle call)
+`golden/first/LOAN2/LOAN2.REL` (`build/e52p3/loan2-golden-reldump.txt`) ALREADY measures
+the whole line-44 class — the hop-10 codegen refusal comment's claim that a goto-in-handler
+has "no DR sample" is **FALSIFIED by this golden**:
+- Registration at 002F: `21 r(common OUTPUT 0)` after `LINK-SEL-COMMON OUTPUT` /
+  `3E 06` MVI A,06 / `CD ?ONCOP` / `C3 <slot 0038>` — the [C109] shape with condition
+  byte **06** (ENDFILE=05). No claim names 06; candidate **C364**.
+- Handler 003A-005E: console `put skip list` chain (existing law), then `C3` at 005F
+  (the goto, operand slot 0060, `LINK-CHAIN-ADDR code 0060`) — and **NO C9 RET** after a
+  goto-terminated handler; emission resumes at 0062.
+- Patch: `SET-LC 0038 / RELOC code 0x62 / SET-LC 0062` — JMP-over operand = 0062 = the
+  pad/label entry (the label `open_output:` is the very next statement).
+- `open_output` pad at 0062: `2A r(data 0318) LHLD *A / F9 SPHL / CD ?RECOV` — plus main's
+  entry SP-save at 0006: `21 00 00 LXI H,0000 / 39 DAD SP / 22 r(0318) SHLD *A`. A SECOND
+  pad at `?RECOV code 0116` (label `retry`, ON-ERROR handler target) — pad demand is real.
+- **Bind survey trap:** `refs_stmt` (bind.ml 1687) charges `Rk_on` ONLY for a DIRECT
+  `Sgoto` handler; an `Sdobegin`-ending-in-goto falls into `refs_stmt handler` → the goto
+  is `Rk_plain` SAME-BLOCK → per [E36T11] NO pad/cell demanded — contradicts this golden.
+  The arm must touch **bind.ml AND codegen.ml** ("codegen-only" is falsified by code reading).
+`golden/probe57/P088I` (preserved transcript, `$C` diag): `on endfile x = 1;` and
+`on undefinedfile x = 3;` → PASS 1 CLEAN, then PASS 2 `SYNTAX ?` (2 ERROR(S)) and a
+CODE-LESS .REL — argumentless UNDEFINEDFILE is **dr-refuses**; `endpage`/`name` bare
+carried NO error marker (separate unmeasured classes, NOT P3-6 targets).
+`golden/probe58/P089I`: only `on conversion(f)` was flagged; `on undefinedfile(f) x = 3;`
+carried NO error → the file-argument form parses cleanly (its CODE was killed by the
+conversion pass-2 error, so NO bytes are decodable from P089I).
+
+### 3. Probes E52SA..SG (7; CRLF+^Z ≤71 cols) — PREDICTIONS (pre-registered, NEVER fit)
+- SA `on undefinedfile(f) x = 1;` minimal: SEL-COMMON F + `21 r(common F 0) / 3E 06 / CD
+  ?ONCOP / C3 slot` + inline assignment + **C9 RET** + slot patched to continuation; NO
+  DAD SP save, NO pad (statement handler [C206]).
+- SB LOAN2 shape (begin; put skip list('oops'); goto openf; end; with `openf:` IMMEDIATELY
+  after): entry SP-save `21 00 00 39 22 r(*A)`; pad at openf `2A r(*A) / F9 / CD ?RECOV`;
+  handler put chain then `C3` goto; **no C9**; JMP-over operand = pad address.
+- SC label NOT adjacent (x=2 between `end;` and `lbl:`): pad at lbl ≠ continuation address;
+  JMP-over operand = the `x = 2` statement address; goto operand chains to the PAD — the two
+  patch targets are INDEPENDENT.
+- SD direct form `on undefinedfile(f) goto fin;`: [C201]/E32E2 pair — `C3 cont` stub then
+  `C3 <chain fin>`; pad + SP save; NO inline handler, NO RET.
+- SE `revert undefinedfile(f);`: **[TBD] UNMEASURED** — DR verdict unknown (my REVERT
+  refuses non-endfile BY NAME; a refusal keeps the boundary; acceptance is a my-gap whose
+  arm (same prefix + `?REVOP`) stays PROPOSED, not this subround's headline).
+- SF bare `on undefinedfile x = 1;`: predicted **dr-refuses** — PASS 1 clean, PASS 2
+  `SYNTAX ?` on the statement (P088I transcript law).
+- SG `on undefinedfile(f,g) x = 1;`: **[TBD] UNMEASURED** (manual permits an identifier
+  list; no golden carries one; acceptance keeps my refusal, UNMEASURED boundary).
+Hypotheses: **H1** condition byte 06 (from LOAN2 golden, predicted SA-SD); **H2** the
+[C109] registration prefix is condition-blind; **H3** handler-tail GOTO omits the RET and
+jumps INLINE via the ordinary label-resolution path; **H4** a handler-tail goto DEMANDS the
+owner block's cell + the label's pad (bind survey fix); **H5** argumentless refuses (SF);
+**H6** SE/SG undecided. Boundaries KEPT: goto inside IF/DO of a handler (unmeasured),
+cross-block handler-goto, REVERT-undefinedfile, arg-list, every other condition name
+(ON ERROR line 58 next), counted SKIP and PRINT/PAGESIZE OPENs 50/54/56 stay queued.
+LOAN2 prediction (arm hop): blocker MOVES PAST 44; FIRST candidate in lowering order = the
+counted-skip console put at line 50 `put skip(2) list(...)` or the OPEN at 54 — expected
+verbatim `codegen: OPEN option PRINT is outside what this compiler lowers [TBD] (line 54)
+-- P0 measured 34 OPEN blocks…` (refuse_file_opt; iteration order: TITLE passes, PRINT
+refuses); record VERBATIM, NEVER fit.
+
+### 4. Arm (hop 11; AFTER measurement; bind.ml + codegen.ml)
+(a) codegen: generalize `on_reg_prefix` with the measured condition-code pair
+endfile=05 [C109] / undefinedfile=06; Son dispatch admits `("endfile"|"undefinedfile",
+[Eident f])`; (b) handler shape: `Sdobegin ss` with LAST stmt a bare `Sgoto` → lower all
+stmts inline, goto via the existing resolve/fwd_ref path, **omit the C9**, `emit_triple` the
+JMP-over; every other goto-containing handler keeps refusing BY NAME with the refusal text
+corrected to name the MEASURED samples; (c) bind `refs_stmt`: Son handler `Sdobegin` whose
+last stmt is a bare `Sgoto` → `[(lbl t, Rk_on)]` (cell + pad demand). cmp SA SB SC SD whole-file
+rc=0 vs `golden/e52p6/`; SE SF SG per verdicts; sweep 101; markers rc=2; LOAN2 POSITIONAL
+VERBATIM (prediction §3); commit; then registration: SPECIMENS +accepted, inventory
+1229→1229+N (+refusals), census OWN path FIRST (line-44 line REPLACED), FULL gate rc=0
+`build/gate-e52p6-reg.log`, claim **C364** measured-bytes-only BEFORE the COVERAGE row
+rewrite (`ON`-unit rows), coverage_check+prose rc=0, RESULTS §P3-6 + PLAN §5 row.
