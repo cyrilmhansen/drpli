@@ -443,7 +443,37 @@ authorisation). Operator `handoff.config.json` edit stays unstaged; no push.
 
 ## Next action
 
-### E2E-52/P3-5 campaign e52p5 MEASURED (9 ok/10, goldens `676fb9d`); ARM parser.ml+codegen.ml OWED NOW (2026-11-05; fresh chain hop 6/12; read `LEARNINGS.md` § "E2E-52/P3-5 CAMPAIGN e52p5 MEASURED + ALL BYTES DECODED; ARM OWED" + PLAN §P3-5 FIRST)
+### E2E-52/P3-5 hop 7 DONE (arm sites ALL verified by code reading, ZERO ocaml/ byte); ARM OWED — execute `LEARNINGS.md` § "hop 7: ARM SITES ALL VERIFIED" PROPOSED contract (2026-11-05; fresh chain hop 7/12; read that § + PLAN §P3-5 §4 FIRST)
+
+Verified THIS hop: HEAD `391d809` clean (operator config excepted); build rc=0 DIRECT binary
+`345644822818326f…` (== headline hash); RA/RB/RF reldumps re-read — the rep loop IS
+lower_doto's TO-arm shape with a ONE-item body: init UNCONDITIONAL `LXI H,from / SHLD i`
+(no ladder, no 1-byte-cell route), immediate test `LHLD i / LXI B,-(to+1) / DAD B / MOV A,H /
+ORA A / JP slot` (cc<=3 refuse UNMEASURED), RF var-bound `LHLD n / SHLD temp / head: LHLD temp /
+XCHG / LHLD i / ?IS22N / JM slot` byte-identical to the existing Eident arm (temp via
+`st.base + max auto_end st.floor + 2*st.temps`, kill_de at head), step `LHLD/INX H/SHLD/JMP
+reloc Code head`, exit patched by `emit_triple st jpslot st.lc` AT THE END OF THE LOOP (RB:
+JP goes to the NEXT item's chain; ONE ?QIOOP after the LAST item). Exact edit sites and the
+five non-exhaustive pitem matches (the PA trap) are in that §: parser.ml `parse_rep_spec`
+(REPSPEC child 0 = Eident; BY -> `err p` parse refusal; RE stays `expected )`), codegen.ml
+`type pitem` +PIrep, `match_put_edit` data-walker -> pitem accumulation (BOTH routes), prescan
+folds ~3558/~3570 (inner cells ONCE), `authorize_file_edit_item` ~11941 (admit PIrep iff inner
+PIlit or PInum-via-edit_num_tree; RG keeps refusing = boundary KEPT), defensive arm at
+`authorize_file_item` ~11776 (file_items already refuses Pi_rep on the LIST route), item loop
+~12176 refactor to named `emit_item` + PIrep lowering. bind.ml walk sites tolerate the new
+child (code-read; build measures). NEXT hop 8: write the arm, `dune build` rc=0 DIRECT
+(NEVER `dune build | tail` — trap fired 3 hops), warnings histogram per-File vs 70, binary
+!= `345644822818326f…`, cmp **RA RB RD RF RH RI RJ rc=0** vs `golden/e52p5/`, RC/RG/RE rc=2,
+sweep 89, markers E46K4/K15/N21/E52PF/PU/PV rc=2, LOAN2 UNMODIFIED POSITIONAL — predicted
+line-177 `PIvar yp`, RECORD VERBATIM NEVER fit; commit arm; then registration: SPECIMENS +7,
+sanctioned `--update-inventory` 1222->1229 + negatives 182->183 (RE row, marker = MY actual
+re-measured `expected )`), census OWN write path FIRST, FULL gate rc=0 DIRECT
+`build/gate-e52p5-reg.log`, **C363 MEASURED BYTES ONLY BEFORE** COVERAGE `IO.PUT_EDIT`
+rewrite (EXACT 35->42), coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables,
+renew (8/12). Constraints: no push; goldens NEVER re-derived; operator handoff.config.json
+NEVER staged; all rc DIRECT; pli80c POSITIONAL; ledger ENDS C362; renewals autonomous, cap 12.
+
+SUPERSEDED-BY-ABOVE (kept as written): ### E2E-52/P3-5 campaign e52p5 MEASURED (9 ok/10, goldens `676fb9d`); ARM parser.ml+codegen.ml OWED NOW (2026-11-05; fresh chain hop 6/12; read `LEARNINGS.md` § "E2E-52/P3-5 CAMPAIGN e52p5 MEASURED + ALL BYTES DECODED; ARM OWED" + PLAN §P3-5 FIRST)
 
 ZERO `ocaml/` byte this hop. Executed step (1): ONE grouped campaign rc=0 DIRECT; E52RE
 **dr-refuses** (`SYNTAX ?`, no .REL — register REJECTS+NEG_META row, marker from MY actual

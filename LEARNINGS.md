@@ -88,6 +88,87 @@ The guard never writes this file.
 - Commit chain this hop: `f831759` guard g324 VERBATIM → `676fb9d` goldens → durables
   (this § + PROGRESS Next action + HANDOFF item) → renew 6/12 consumed, cap 12.
 
+## E2E-52/P3-5 hop 7: ARM SITES ALL VERIFIED BY CODE READING + RELOADD RE-RUNS; ARM STILL OWED (ZERO ocaml/ byte this hop)
+
+- **ACCEPTED (baseline re-verification).** HEAD `391d809` (guard g326 VERBATIM); tree clean
+  except the operator's standing `handoff.config.json` edit; `dune build` rc=0 DIRECT,
+  binary sha256 prefix `345644822818326f…` == the pre-registration/headline hash — the
+  campaign goldens (`golden/e52p5/`, `676fb9d`) and reldumps (`build/e52p5/E52{RA,RB,RC,RD,
+  RF,RG,RH,RI,RJ}-reldump.txt`) are intact; ledger ENDS C362.
+- **ACCEPTED (loop-exit law, re-read from the RA/RB/RF reldumps this hop).** RA: after the
+  back-edge `C3 / RELOC code 0x1e` the dump shows `LINK-SET-LC code 0028 / RELOC code 0x3F /
+  LINK-SET-LC code 003F` then `CD ?QIOOP` at 003F — EXACTLY `emit_triple st jpslot st.lc`
+  (codegen.ml:1149 = link SET-LC(slot) / push Reloc(Code,value) / link SET-LC(value)),
+  emitted at the END of the loop structure. RB PROVES the general rule: the JP slot (operand
+  at code 0038) is patched to **0x4F = the start of the NEXT item's chain** (lit `Y`), and
+  the ONE `?QIOOP` (005A) follows the LAST item — the rep loop emits init/test/body/step/
+  back-JMP + `emit_triple`, then the item loop continues normally. The loop is therefore
+  lower_doto's TO-arms with the body being ONE item chain instead of a stmt.
+- **ACCEPTED (init and RF shape re-pinned from reldumps).** Init is the UNCONDITIONAL
+  `21 lo hi / 22 r(i)` — RA/RB/RF all show plain `LXI H,1 / SHLD i` (every preceding byte
+  is a CALL, HL dead; do NOT reuse lower_doto's last_imm ladder, and the DTEST 1-byte-cell
+  XRA-A/STA form is UNMEASURED for rep — refuse). RF (variable TO): `2A r(n) / 22 r(temp) /
+  head(0024): 2A r(temp) / EB / 2A r(i) / CD ?IS22N / FA slot`, step `2A r(i) / 23 / 22 r(i)`,
+  back-JMP RELOC target = head AFTER the SHLD temp; triple patches slot 002F to 0046 (?QIOOP
+  exit); temp = data 000B == `st.base + max auto_end st.floor + 2*st.temps` (DEF-DATA-SIZE
+  000D = table5+lit2+i2+n2+temp2) — byte-identical to the existing lower_doto Eident arm
+  (codegen.ml ~11595-11618), INCLUDING `kill_de` at the head and no `do_bound_deref` on a
+  plain (non-deref) bound; a deref bound keeps refusing (unmeasured for rep).
+- **ACCEPTED (complete arm-site map, code-read; the PA non-exhaustiveness trap enumerated).**
+  `type pitem` (codegen.ml:2218, 4 ctors) — adding `PIrep of pitem * Ast.expr` leaves these
+  pitem matches NON-EXHAUSTIVE (Warning 8, NOT fatal under lib/dune `-warn-error -a` = the
+  exact PA trap) and each MUST get an arm: prescan fold over `em.ed_items` (~3558: add
+  `PIrep(inner,_) -> fold inner ONCE`, same 4 arms), prescan fold over `Pitems` (~3570 —
+  PIrep UNREACHABLE here, defensive arm), `authorize_file_item` (~11776 — PIrep UNREACHABLE:
+  `file_items` 2434-2472 refuses `Pi_rep` on the LIST route via its generic `Some (i, None,
+  "a PUT item form...")` bad-item catch BEFORE any pitem is built — defensive BY-NAME arm),
+  `authorize_file_edit_item` (~11941 — ADMIT `PIrep` iff INNER is `PIlit` or `PInum x &&
+  edit_num_tree st x`, else `no_witness` naming a DO-repetition of the inner class; RG's
+  char-var inner keeps refusing = §4(e) boundary KEPT), and the item loop in
+  `lower_put_items_gen` (~12176: PIlit 12176 / PIlit_dec 12184 / PIvar 12211 / PInum 12326 —
+  refactor `List.iter (fun it -> ...)` body into a named `emit_item` so PIrep's loop calls it
+  ONCE for the inner item; `tail`/`is_edit`/`file` closures unchanged). The Pfile prescan fold
+  (~3581) HAS `| _ -> a` — no change. `char_var_ok` classifier (~12034) and the fold at 12089
+  both have catch-alls — no change.
+- **ACCEPTED (matcher arm).** `match_put_edit`'s `data` walker (codegen.ml:3020-3031) currently
+  accumulates `Ast.expr` and `split` maps `classify_item` afterwards; to admit `Ast.Pi_rep (x,
+  spec)` change `data` to accumulate `pitem` directly (`Pi_data x -> classify_item x (None ->
+  refuse semantics identical to today: console arm returns None -> generic deferred refusal,
+  FILE arm -> the line-212 matcher-split failwith)`; add the `Pi_rep` arm producing
+  `PIrep(classify_item x, spec)` (classify None -> None) so BOTH routes gain the class in one
+  place (RH measures the console loop == file loop; the console Sput arm needs NO other
+  change). The `spec` is the parser's `Ebuilt("REPSPEC",…)` expr.
+- **ACCEPTED (parser arm shape).** `parse_rep_spec` (parser.ml:984-998): build
+  `Ebuilt("REPSPEC", [{e=Eident ind; epos=ind.pos}] @ from :: to-list)`; `by_ = Some _ ->
+  err p "...BY step...unmeasured [TBD]..."` (parse-stage refusal BY NAME; `err` raises
+  Parse_error rc=2 — the same stage where RE already dies with `expected )` since REVERSE is
+  not parsed at all — RE's NEG_META marker stays MY actual `expected )`, RE-MEASURE at arm
+  time). Only data_items calls parse_rep_spec (1012, 1018); statement DO uses Sdoto — BY
+  refusals here touch NOTHING else. REPSPEC arity law for codegen: child 0 index, child 1
+  from, optional child 2 to; anything else refuses BY NAME at lowering.
+- **ACCEPTED (bind.ml tolerates the new REPSPEC child — code-read, build still measures).**
+  585 `Pi_rep -> ex a; ex b2` = ownership-uses collector via generic `pl_kids` (Eident child
+  adds an `i`-use at the spec line — same name the probe declares); 1460 excludes `REPSPEC`
+  from builtin-name collection and its `e` only records builtins; 1914 `pl_stmt_calls` recurses
+  `w a @ w b` harmlessly (no Esuffix inside). Cell layout of `i`/`n`/`m` is binder-declared
+  storage, exactly what RA/RB/RF/RI/RJ goldens show (i@05-06/07-08/09-A/0A-B per probe).
+- **PROPOSED (hop 8 execution contract — the ONLY open work before registration):** (1) write
+  the four edits above (parser.ml ONE function; codegen.ml pitem+data-walker+2 prescan folds+
+  2 authorizers+emit_item refactor+PIrep lowering emitting §2 immediate loop [from literal >=1,
+  to literal, cc=to+1>=4 else refuse UNMEASURED; LXI B,-cc/DAD/MOV A,H/ORA A/JP slot] or RF
+  var-bound loop [to=Eident Vint; deref/other refuse]; index vk_of = Vint else refuse; body =
+  ONE inner-item emit; back-JMP `d op_jmp; st.last_imm <- None; reloc st Code head`; then
+  `emit_triple st jpslot st.lc; st.last_imm <- None`); (2) `dune build` rc=0 DIRECT (NEVER a
+  pipeline), warning histogram per-File vs baseline 70; binary MUST differ from
+  `345644822818326f…`; (3) cmp RA RB RD RF RH RI RJ whole-file rc=0 vs `golden/e52p5/`;
+  RC (BY, parser), RG (char-var inner, authorizer), RE (`expected )`, parser) rc=2; sweep 89;
+  markers E46K4/K15/N21/E52PF/PU/PV rc=2; LOAN2 UNMODIFIED POSITIONAL (`pli80c [-d] IN.PLI
+  OUT.REL`) — predicted blocker line-177 `PIvar yp` (RECORD VERBATIM, NEVER fit); (4) commit
+  arm; then registration per PLAN §P3-5 §5 (SPECIMENS +7, inventory 1222->1229 + refusals
+  182->183 via sanctioned --update-inventory, census OWN write path FIRST, gate rc=0 DIRECT
+  build/gate-e52p5-reg.log, C363 measured-bytes-only BEFORE COVERAGE IO.PUT_EDIT EXACT 35->42,
+  coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables, renew 8/12).
+
 ## E2E-52/P3-4 REGISTRATION LANDED (steps 1-5 minus RESULTS/PLAN); P3-4 CLOSE OWED (2026-11-05, fresh chain hop 3/12; binary `345644822818326f…`)
 
 - **ACCEPTED (this hop's ACTUALS, all rc DIRECT).** Guard g317 block committed VERBATIM

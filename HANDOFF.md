@@ -7,6 +7,24 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-novies-new3. **E2E-52/P3-5 hop 7: ARM SITES ALL VERIFIED by code reading; ARM OWED
+  (2026-11-05, hop 7/12).** ZERO `ocaml/` byte. Baseline re-held: build rc=0 DIRECT binary
+  `345644822818326f…`; RA/RB/RF reldumps re-read — the rep loop is `lower_doto`'s TO-arm shape
+  with a ONE-item body, unconditional `LXI H,from/SHLD i` init, RB proves JP patched by
+  `emit_triple` to the NEXT item (one `?QIOOP` after the LAST item). Every edit site and the
+  FIVE non-exhaustive pitem matches (the PA trap: parser `parse_rep_spec`; codegen `pitem`,
+  `match_put_edit` data-walker, prescan folds ~3558/~3570, both authorizers, item loop ~12176
+  via named `emit_item`) + the hop-8 execution contract are in `LEARNINGS.md` § "E2E-52/P3-5
+  hop 7: ARM SITES ALL VERIFIED" and `PROGRESS.md` → `## Next action`. Execute: arm → build rc=0
+  DIRECT (never a pipeline) → warnings histogram vs 70 → cmp RA RB RD RF RH RI RJ rc=0 vs
+  `golden/e52p5/` → RC/RG/RE rc=2 → sweep 89 → markers rc=2 → LOAN2 POSITIONAL VERBATIM
+  (predicted line-177 `PIvar yp`, NEVER fit) → commit → registration (SPECIMENS +7, inventory
+  1222→1229, negatives 182→183 with MY re-measured `expected )` marker, census OWN path FIRST,
+  gate rc=0 `build/gate-e52p5-reg.log`, **C363 measured-bytes-only BEFORE** COVERAGE
+  `IO.PUT_EDIT` EXACT 35→42, coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables,
+  renew 8/12). Ledger ENDS C362; goldens NEVER re-derived; operator `handoff.config.json` NEVER
+  staged; all rc DIRECT; no push; campaign continues.
+
 0a-novies-new2. **E2E-52/P3-5 campaign e52p5 MEASURED + DECODED; ARM OWED (2026-11-05, hop
   6/12).** ZERO `ocaml/` byte this hop. Campaign rc=0 DIRECT **9 ok/10**; **E52RE dr-refuses**
   (`SYNTAX ?`, no .REL); goldens `676fb9d`; every law decoded in `LEARNINGS.md` § "P3-5 CAMPAIGN
