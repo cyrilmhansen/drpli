@@ -2501,19 +2501,21 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 354
-checkpoint-id: g354-90061d4f9f66
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-guard-level: 4
-checkpointed: 2026-11-05T08:52:58.967Z
+checkpoint-generation: 355
+checkpoint-id: g355-a4a4e096cc6f
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+guard-level: 0
+checkpointed: 2026-11-05T09:33:27.671Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 944c7be611d5114e0cacbfb2041695d698d7017be0d6459c1f13dfe75964f590
-source-handoff: e8e2364976ba1c4bc2ec4d895963e11c4260dca165ea5873e7973086a03803df
-source-learnings: d64e2a9544a01ce786c29a1db4c1914ba11572800eef8e79127f5a7671626f71
+source-progress: 4b8775bac2838f6a6eb7d5da2f3c520680114c0ef5389a0ad4d5fd26d5bb53f4
+source-handoff: 67f28e9085013fbfcd2b6fa3d38b7736da05f43735fe7d8235c7835761779569
+source-learnings: 4740324e0147e0e23d293e60f802480d4522d4cfacaf1fdd4d69f11bb9cf20f5
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` hop-5 contract — RESULTS §P3-7 (measured table, H1–H5 CONFIRMED, TI falsifier + TG/TH totals falsifications VERBATIM, TJ accept, LOAN2/RETRIEVE advances, §6 byte-tier-only), PLAN §5 row, PERIMETER.md line-38 campaign-wide correction (kept verbatim; PAGE/PUT-EDIT clauses stale since E2E-42), prose rc=0 standalone, durables, renew 5/12 cap 12. NO new oracle campaign; ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; chain 01a1aa7d.
+next-action: `: P3-8 DECODES existing LOAN2/E52p6 evidence FIRST, then preregisters PLAN §P3-8 + discriminating probes COMMITTED before any `ocaml/` byte; campaign `e52p8` only if goldens leave the ON ERROR questions open; ON ERROR is NOT presumed a file event — condition code + registration operand MEASURED independently. No push; all rc DIRECT; `pli80c` POSITIONAL.
+
+0a-novies-new12. **E2E-52/P3-7 hop 4 PART DONE: COVERAGE LANDED `d9ebb30` (140 rows 0/0 + stats own path); RESULTS/PLAN/PERIMETER/prose/durables OWED at hop 5 (2026-11-05, renewal 4/12).** ZERO oracle. Landed: row `FILE.OPEN_STREAM` falsified `Still refused by name: PRINT/…` kept VERBATIM HISTORICAL + [C365], id KEPT; NEW `FILE.OPEN_PRINT_ATTRS` SUPPORTED EXACT:10 — corpus column validator FALSIFIED hop-3's list (P019B/P021 NOT census names → sit as golden evidence paths; corpus COPYLPT,DEPREC,KEYFILE,LOAN2,RETRIEVE); labelled CORRECTIONs on rows `FILE.OPEN_STREAM_OUTPUT` (KEYFILE:19 0x1E50 lowered as E52TE), `FILE.PUT_LIST`, `FILE.OPEN_TITLE_STATIC` (LOAN2 quote obsolete → ON ERROR 58). Recovery: build rc=0 binary `8b374e623bc9e280…`, gate 1243/0 (next gate expect coverage **140 rows 0/0**). SUCCESSOR: execute `PROGRESS.md` → `## Next action` hop-5 contract — RESULTS §P3-7 (measured table, H1–H5 CONFIRMED, TI falsifier + TG/TH totals falsifications VERBATIM, TJ accept, LOAN2/RETRIEVE advances, §6 byte-tier-only), PLAN §5 row, PERIMETER.md line-38 campaign-wide correction (kept verbatim; PAGE/PUT-EDIT clauses stale since E2E-42), prose rc=0 standalone, durables, renew 5/12 cap 12. NO new oracle campaign; ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF-SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; chain 01a1aa7d.
 
 0a-novies-new11. **E2E-52/P3-7 hop 3: ARM BYTE-EXACT 10/10 + REGISTRATION 1-2/3 + GATE rc=0 1243/0 + CLAIM C365 LANDED; COVERAGE + RESULTS/PLAN + DURABLES OWED (2026-11-05, renewal 3/12).** Commits: arm `ccf0036` (codegen.ml ONLY), SPECIMENS +10 & inventory 1233→**1243** (+10 exactly, refusals 186) `6b8d851`, census OWN path rc=0 counts 15/0/26/0 with LOAN2→ON ERROR **58** and **RETRIEVE→ENVIRONMENT 31** VERBATIM (both predictions/advances, NOTHING fixed) `f6fd2b9`, **C365** measured-bytes-only BEFORE COVERAGE `a6e814f`, FULL gate REAL rc=0 DIRECT `build/gate-e52p7-reg.log`. Build rc=0 binary `8b374e623bc9e280…`, codegen histogram 68 == baseline after two draft fixes (`\u00a7`/`\u2014` text escapes → real chars; redundant `A_zero` subpat). **cmp TA..TJ 10/10 whole-file rc=0**, sweep **114/0** (bank grew past hop-12's 110 via SA..SD rows), markers rc=2 (E46K4/K15/N21/E52PF/PU/PV/RE + SE/SF/SG). SUCCESSOR: execute `PROGRESS.md` → `## Next action` hop-4 contract — COVERAGE row 52 rewrite (its `Still refused by name: PRINT/…` clause FALSIFIED, keep as HISTORICAL) + PROPOSED `FILE.OPEN_PRINT_ATTRS` row + coverage_check rc=0 (expect 140 rows) + stats own path, RESULTS §P3-7 + PLAN §5 row + prose rc=0, durables. FALSIFIED this hop and kept verbatim: TI predicted w6 `21 00 00`, DR wrote `60 68`; TG/TH 30-B totals measured 32/33 (encodings HIT); PRINT-is-spelled-OUTPUT falsified (0x0200 kept); global `\'` replace corrupted tools/e2e_gate.py — restored from `git show HEAD:` (only my own edit lost), py_compile rc=0. Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF/SG dr-refuses kept; byte-tier only, no runtime assertions; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; renewal chain 01a1aa7d hop 3/12, cap 12.
 
@@ -3088,6 +3090,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1ab05-c85a-71c1-a110-293de8a4e55c
+readiness-at: 2026-11-05T09:33:27.687Z
+readiness-checkpoint: g355-a4a4e096cc6f
 <!-- guard:end checkpoint -->
 
 ## Blockers
