@@ -7,6 +7,19 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-novies-new. **E2E-52/P3-5 PRE-REGISTERED (`67e5414`, durables `b6539af`); CAMPAIGN
+  `e52p5` OWED (2026-11-05, hop 5/12 consumed).** Execute `PROGRESS.md` → `## Next action`
+  steps (1)-(3): ONE grouped oracle campaign (E52RA..E52RJ, tag `e52p5`, `'$L$D'`, rc
+  DIRECT), arm parser.ml+codegen.ml per PLAN §P3-5 §2a/§4 (the "codegen ONLY" brief was
+  FALSIFIED by code reading: `parse_rep_spec` drops the index name and BY), sweep/markers/
+  LOAN2 VERBATIM (predicted next blocker line-177 `PIvar yp`, NEVER fit), registration
+  (census OWN write path FIRST, gate rc=0 `build/gate-e52p5-reg.log`, **C363
+  measured-bytes-only BEFORE** the COVERAGE `IO.PUT_EDIT` rewrite, coverage_check+prose
+  rc=0, RESULTS §P3-5 + PLAN §5 row). The `Pi_rep` loop law is ALREADY decoded from the
+  EXISTING LOAN2 golden (LEARNINGS § "P3-5 PRE-REGISTRATION LANDED"). Ledger ENDS C362;
+  goldens never re-derived; operator `handoff.config.json` never staged; all rc DIRECT;
+  `pli80c` POSITIONAL; renewals autonomous (6/12 cap 12); no push; campaign continues.
+
 0a-decies. **E2E-52/P3-4 CLOSED (evidence rows LANDED `b76cd2f`); SUBROUND P3-5
   PRE-REGISTRATION OWED (2026-11-05, fresh chain hop 4/12).** Docs-only hop, ZERO `ocaml/`
   byte, ZERO oracle call: `RESULTS.md` §P3-4 (campaign 9 ok/11 table with reldump-derived
@@ -1485,25 +1498,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 320
-checkpoint-id: g320-2775f6cde050
-checkpoint-kind: auto
-content-delta: none
+checkpoint-generation: 323
+checkpoint-id: g323-f15c8fa2d3c9
+checkpoint-kind: manual
+content-delta: new
 readiness: attested
-status: checkpoint (guard level 4, remaining ~4059, session 01a1a911-90fd-753f-82d0-3151b1e5fc39)
-checkpointed: 2026-11-05T00:40:05.368Z
+status: checkpoint (guard level 4, remaining ~174, session 01a1a926-9ad1-753f-82d0-31553e408045)
+checkpointed: 2026-11-05T01:08:23.889Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 33327acfc83f6e90370967bc11ac14bb6fe31e0ef01e228e8d1960a543641412
+source-progress: 73ec39c16cb80097fc7c25f8460ea2072424e1a9f1277531a6007936dba93265
 source-handoff: 99dd9356a2bd08fea495d9d92fcb67d2986a8894983347225361b2db62bc24c2
-source-learnings: f5499d52eee26882f71318bddd62371047829d51012decdb176a8a9f25201fd2
+source-learnings: 68b70baeeb9386ffa2808ae25f356b36e1677b4145aa78c2a5fef6674c025416
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a911-90fd-753f-82d0-3151b1e5fc39
-readiness-at: 2026-11-05T00:40:41.926Z
-readiness-checkpoint: g320-2775f6cde050
+readiness-by: session:01a1a926-9ad1-753f-82d0-31553e408045
+readiness-at: 2026-11-05T01:08:23.902Z
+readiness-checkpoint: g323-f15c8fa2d3c9
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal tool refresh)
 
 ### Unfinished operations
 - (none recorded)
@@ -1975,5 +1988,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-E2E-52/P3-4 continues (this hop 3/12). REGISTRATION LANDED: chain 2c51941(guard)->e397ed9(SPECIMENS 10 + PU/PV dr-refuses rows + inventory 1212->1222/180->182 + census own write path rc=0 counts 15/0/26/0, 3 msg moves incl LOAN2 line-212 VERBATIM)->1de3e28(claim C362, ledger ENDS C362, MEASURED BYTES ONLY, BEFORE coverage rewrite)->8c3b0b4(IO.PUT_EDIT EXACT:25->35, falsified clauses VERBATIM HISTORICAL, coverage_check rc=0 139/0/0)->e7ee68d(durables). FULL gate REAL rc=0 DIRECT build/gate-e52p3d-reg.log: 1222/0, negatives 182/182 (E52PU/E52PV/E52PF markers alive), 9/9, prose 5. PA headline re-held this hop (cmp rc=0 vs golden/e52p3/E52PA sha d7b4e7f3..., binary 345644822818326f...). OWED NEXT (execute LEARNINGS.md sec 'E2E-52/P3-4 REGISTRATION LANDED' owed steps): (1) spec/lab-evidence/e2e52-p3/RESULTS.md §P3-4 + PLAN.md §5 P3-4 row with hypothesis verdicts verbatim (H2a/H2b, H4b-detail, H5a/H5b, H6a, 147-prediction falsified; H2c/H5c/H6b confirmed), commit explicit paths; (2) subround P3-5 per PLAN (PLAN+probes committed BEFORE any ocaml/ byte; live refusals: DEC FORMAL/deref, numeric-LITERAL, counted SKIP/PAGE+EDIT, format-COUNT-expression, group count 0, x-widths 14..128 object gap). LESSONS: reldump byte regex must accept unpadded 0x0; census drift aborts gate before byte panel - run census --check BEFORE reg gate; cite reldump DEF-DATA-SIZE (0013=19) not compiler's 'data=4' shorthand in evidence. Constraints: no push; goldens NEVER re-derived; operator handoff.config.json NEVER staged; all rc DIRECT (pipeline-masking trap fired twice running); pli80c POSITIONAL; campaign continues.
+E2E-52/P3 campaign, subround P3-5 PRE-REGISTERED at 67e5414 (HEAD now b6539af durables; if guard blocks landed uncommitted, commit HANDOFF.md+PROGRESS.md VERBATIM FIRST — never handoff.config.json, operator dirty standing edit). This hop (5/12): ZERO ocaml/ byte, ZERO oracle call. Decoded the Pi_rep DATA-item loop law from the EXISTING LOAN2 golden line span 0944-099F (LXI H,from/SHLD ind; LHLD/LXI B,-(to+1)/DAD B/MOV A,H/ORA A/JP P exit; ONE literal ?SLCTS/?EDTOV body; LHLD/INX H/SHLD/JMP; exit ?QIOOP; table 80 00 03 FF 81 = rep contributes 0 format bytes, confirming bind.ml:1155 [verify]); FALSIFIED by code reading the brief's codegen.ml-ONLY arm: parse_rep_spec drops the index name and BY, so arm = parser.ml (REPSPEC child 0 = index Eident, BY parse-refusal, REVERSE unparseable) + codegen.ml. PLAN §P3-5 + probes E52RA..E52RJ (CRLF+^Z <=71 verified) + BASELINE-MINE-p35 (all 10 rc=2 unarmed) committed BEFORE any ocaml/ byte. OWED NEXT = execute PROGRESS.md ## Next action: (1) ONE grouped campaign PLI_SRC=probes timeout 900 python3 oracle/batch.py E52RA E52RB E52RC E52RD E52RE E52RF E52RG E52RH E52RI E52RJ --tag e52p5 --switches '$L$D', rc DIRECT, reldump goldens to build/e52p5/, classify dr-refuses/my-gap/unmeasured, keep MISSes verbatim; (2) arm per PLAN §2a/§4, cmp every ACCEPTED probe whole-file rc=0, sweep 89, markers E46K4/K15/N21/E52PF/PU/PV rc=2, LOAN2 rerun UNMODIFIED POSITIONAL (pli80c [-d] IN.PLI OUT.REL) blocker VERBATIM — predicted next blocker line-177 PIvar yp, record NEVER fit; (3) registration: SPECIMENS +N, sanctioned --update-inventory 1222->1222+N, census OWN write path FIRST (drift aborts gate before byte panel), FULL gate rc=0 DIRECT build/gate-e52p5-reg.log, claim C363 from MEASURED BYTES ONLY committed BEFORE the COVERAGE IO.PUT_EDIT rewrite (EXACT 35->35+accepted), coverage_check+prose rc=0, RESULTS §P3-5 + PLAN §5 row, durables. Ledger ENDS C362; goldens NEVER re-derived; all rc DIRECT (dune build|tail pipeline-masking trap fired THREE hops running); reldump regex must accept unpadded 0x0; cite reldump DEF-CODE-SIZE/DEF-DATA-SIZE; renewals autonomous (hop 6/12 of cap 12); no push; campaign continues.
 <!-- guard:end checkpoint -->
