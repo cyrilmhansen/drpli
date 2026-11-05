@@ -1489,7 +1489,7 @@ checkpoint-generation: 320
 checkpoint-id: g320-2775f6cde050
 checkpoint-kind: auto
 content-delta: none
-readiness: unattested
+readiness: attested
 status: checkpoint (guard level 4, remaining ~4059, session 01a1a911-90fd-753f-82d0-3151b1e5fc39)
 checkpointed: 2026-11-05T00:40:05.368Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
@@ -1499,6 +1499,9 @@ source-learnings: f5499d52eee26882f71318bddd62371047829d51012decdb176a8a9f25201f
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1a911-90fd-753f-82d0-3151b1e5fc39
+readiness-at: 2026-11-05T00:40:41.926Z
+readiness-checkpoint: g320-2775f6cde050
 ### Last verified state
 guard level 4; checkpoint requested (auto at level 4)
 
