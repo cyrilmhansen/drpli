@@ -8845,3 +8845,63 @@ classified `unmeasured` rather than `dr-refuses`.
   repetition, numeric-LITERAL and DEC-inner repetitions carry NO object witness and keep
   refusing BY NAME. The runtime semantics of the index cell's fixed-bin width and of the
   temp-parking in RF are undecoded.
+
+## C364 — `ON UNDEFINEDFILE(<file>)` REGISTERS THROUGH THE CONDITION-BLIND [C109] PREFIX WITH CONDITION BYTE **06** (ENDFILE CARRIES 05); A `BEGIN; …; goto <lbl>; end;` HANDLER IS EMITTED INLINE AND ENDS WITH THE ORDINARY `C3` LABEL CHAIN AND **NO EXTRA `C9 RET`**; THE REGISTRATION'S JMP-OVER SLOT AND THE HANDLER-GOTO'S CHAIN ARE PATCHED **INDEPENDENTLY** (an adjacent label merges them — [C208]); THE RECOVERY PAD IS `LHLD <SP-cell> / SPHL / CALL ?RECOV` PAIRED WITH THE OWNER BLOCK'S ENTRY SP-SAVE `LXI H,0 / DAD SP / SHLD <SP-cell>` FOLLOWING THE [C201] ON-UNIT REFERENCE AND LAYOUT RULES; THE STATEMENT AFTER AN ON UNIT IS REACHED BY **FALL-THROUGH FROM THE REGISTRATION**, NOT BY RUNNING THE HANDLER, SO THE HANDLER'S HL VALUE DOES NOT CROSS THE BRANCH BOUNDARY AND THE STATEMENT RELOADS ITS OWN OPERANDS; AND `REVERT UNDEFINEDFILE(<file>)` IS DR-ACCEPTED AS `LXI H,<file-common base> / MVI A,06 / CALL ?REVOP` WITH NO JMP SLOT AND NO HANDLER BYTES — A FORM THIS COMPILER DOES **NOT** LOWER (measured my-gap, unarmed, never fitted) (E2E-52/P3-6; MEASURED — 4 whole-file `cmp` rc=0 against `golden/e52p6/`, RE-MEASURED at registration on the clean-rebuild binary sha256 `0efc35e6d4ff81bd…`, never fitted)
+
+* **Measured — the condition byte.** `golden/e52p6/E52SA/E52SA.REL` (256 B sha256
+  `9e86007c4530…`, `on undefinedfile(f) x = 1;`) carries at code 0006-0010 `21 r(COMMON F 0)`
+  (SEL-COMMON F relocation) / `3E 06` / `CD ?ONCOP` / `C3 <slot 000F>`; SB/SC/SD carry the
+  identical shape at 000D-0017 (MVI A,06 at 0010-0011), SE at 0006-0010 (06 at 000A). The
+  pre-existing `golden/first/LOAN2/LOAN2.REL` registration at 002F agrees. [C109] measured the
+  SAME prefix with `MVI A,05` for ENDFILE: the prefix is condition-independent and ONLY the
+  MVI immediate distinguishes the two conditions.
+* **Measured — the GOTO-terminated handler omits the RET.** SB (384 B sha256
+  `b5c51016f085…`, handler `begin; put skip list('^oops'); goto openf; end;`) emits the put
+  chain INLINE at 0018-0033 (`?SYSPR / ?SKPOP / ?SLCTS / ?PNCOP / ?QIOOP`), then `C3` at 0034
+  with operand slot 0035 filled by `LINK-CHAIN-ADDR code 0035` at the pad — and NO `C9`
+  anywhere between the chain's end and the pad. SC (256 B sha256 `41243076e261…`) proves the
+  same for the assignment handler: inline `21 01 00 / 22 r(x)` + `C3` at 001E, no RET.
+* **Measured — INDEPENDENT patch targets (SC is the discriminator).** SC's label is NOT
+  adjacent (`x = 2` sits between `end;` and `lbl:`): the registration slot 0016 is patched
+  (`SET-LC 0016`) to **0021** — the continuation statement — while the handler-goto slot 001F
+  chains to the **pad at 0027**. SB's label IS adjacent, so slot 0016 → 0037 and the goto
+  chain target the SAME pad address — the [C208] adjacency law, not a coincidence.
+* **Measured — pad and entry SP-save follow the ON-unit layout rules.** SB: entry 0006
+  `21 00 00 / 39 DAD SP / 22 r(data 0006)`, pad at 0037 `2A r(data 0006) / F9 SPHL / CD
+  ?RECOV`; SC/SD carry the cell at data 0002. SD (256 B sha256 `0dd0b5b9f1af…`, direct form
+  `on undefinedfile(f) goto fin;`) is the [C201] pair — registration slot 0016 → continuation
+  001B, then stub `C3` at 0018 with slot 0019 `LINK-CHAIN-ADDR`ed to the label, pad at 0021 —
+  NO inline handler and NO RET at all.
+* **Measured — the branch-boundary law (decoded from MY first-try MISS, kept verbatim then
+  fixed).** E52SA missed at raw octet **142** on the first arm: golden `21 02 00 / 22`
+  (`LXI H,2 / SHLD x` — a RELOAD) vs mine `23 22` (`INX H / SHLD` — a BUMP reusing the
+  handler's HL=1). The continuation is reached by fall-through from the registration JMP-slot
+  patch, never by executing the handler, so no handler HL value may cross the RET; arm
+  `8fc0a3b` reloads at the same branch boundary the existing fwd_ref machinery already pays,
+  for BOTH condition names (mechanism condition-blind [C202]); the sweep 110 specimens
+  byte-exact / 0 FAILS then PROVED no existing golden relies on a bump — corroborated, not
+  assumed.
+* **Measured — SE acceptance, UNIMPLEMENTED here.** `golden/e52p6/E52SE/E52SE.REL` (256 B
+  sha256 `531fa5bcabb7…`, `revert undefinedfile(f);` after an ON unit) shows the revert as
+  `21 r(COMMON F 0) / 3E 06 / CD ?REVOP` at 0018-0020 — no JMP slot, no handler bytes. DR
+  ACCEPTS the form (PRN `NO ERROR(S)` in both passes); this compiler refuses it BY NAME and
+  the row is registered on the NEGATIVES panel as `my-gap` (PLAN §P3-6 §3 kept the arm a
+  PROPOSAL). **This claim states DR's bytes and asserts NO support by this compiler.**
+* **FALSIFIED, kept as written.** (a) The hop-10 refusal comment's "no DR sample exists for a
+  goto-in-handler" — LOAN2.REL IS a sample. (b) "The arm is codegen.ml ONLY" — bind.ml
+  `refs_stmt` charged the block handler's trailing goto `Rk_plain` (no cell/pad demanded),
+  contradicting the goldens; the arm is bind.ml + codegen.ml (`8fc0a3b`). (c) A
+  `BEGIN;…;end;` handler is NOT `Ast.Sdobegin`: `parse_stmt` gives a NAMELESS `Ast.Sproc`
+  block with `bkind = Bbegin` (parser.ml 859-878), which `lower_proc` refused as `procedure
+  without name`; the arm matches both writings. (d) The briefed "sweep 101" was an
+  UNDERCOUNT — the actual bank (E46N E46K E51 E52 P086 R10) measures 110/0. (e) SG's
+  pre-registered `[TBD]` verdict measured **dr-refuses** (PASS 2 `SYNTAX ?`, no .REL) and
+  SF's predicted dr-refusal was CONFIRMED.
+* **What this does NOT say.** BYTE TIER ONLY — no `golden/e52p6` object was linked or executed
+  under cpmsim; nothing here asserts runtime firing of UNDEFINEDFILE, SP restoration, or
+  `?RECOV` behaviour, and no `spec/RUNTIME.txt` row exists. REVERT UNDEFINEDFILE is NOT
+  supported by this compiler (SE's bytes are claimed by no arm). Goto NESTED inside an IF/DO
+  of a handler, a cross-block handler goto, the argumentless spelling (SF) and the
+  identifier-list spelling (SG) carry NO accepted object and keep refusing BY NAME; every
+  other condition name (ON ERROR next — LOAN2:58) is unmeasured by this round. Condition byte
+  06 is measured for UNDEFINEDFILE only; no other condition's byte is implied.
