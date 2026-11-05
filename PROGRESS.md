@@ -2485,19 +2485,21 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 348
-checkpoint-id: g348-9543a8b23aee
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 349
+checkpoint-id: g349-ffe38417e0aa
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-05T08:10:50.712Z
+checkpointed: 2026-11-05T08:13:01.768Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 0cc9923b5b7f4c2aa10575ee305d3e91430c8078b48e0008fee4696122851e07
-source-handoff: 026d4e6c9deb3555b7fe18ba936232aa230196a6de4434e191a5659face8f927
-source-learnings: 1bd057491c80c2dbfa65dca70d936acec50b209b83ac4b90fbc5d3b108147a9c
+source-progress: c8d59c2b7c85d1bf063fa67d6efe75f4b848590fe067256c9c3333619883a2e5
+source-handoff: f871944c0942b0d2cf93a7526e8b65f6900339199e0fc527fd80bdb5e1fc447e
+source-learnings: d2ee7e9dae910591c8bbd34723edde31d5246fcade52d0d43ddce797ea002228
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
-next-action: ` hop-3 contract exactly; full decode in `LEARNINGS.md` § hop 2. Ledger ENDS C364; goldens NEVER re-derived; LOAN2 NEW blocker (predicted ON ERROR 58) recorded VERBATIM, NOT fixed; SE my-gap/SF/SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT (pipe trap fired again); pli80c POSITIONAL; no push; renewal 2/12 cap 12.
+next-action: ` hop-4 contract — COVERAGE row 52 rewrite (its `Still refused by name: PRINT/…` clause FALSIFIED, keep as HISTORICAL) + PROPOSED `FILE.OPEN_PRINT_ATTRS` row + coverage_check rc=0 (expect 140 rows) + stats own path, RESULTS §P3-7 + PLAN §5 row + prose rc=0, durables. FALSIFIED this hop and kept verbatim: TI predicted w6 `21 00 00`, DR wrote `60 68`; TG/TH 30-B totals measured 32/33 (encodings HIT); PRINT-is-spelled-OUTPUT falsified (0x0200 kept); global `\'` replace corrupted tools/e2e_gate.py — restored from `git show HEAD:` (only my own edit lost), py_compile rc=0. Ledger ENDS **C365**; goldens NEVER re-derived; ON ERROR 58 NOT fixed; SE my-gap/SF/SG dr-refuses kept; byte-tier only, no runtime assertions; operator `handoff.config.json` NEVER staged; all rc DIRECT; `pli80c` POSITIONAL; no push; renewal chain 01a1aa7d hop 3/12, cap 12.
+
+0a-novies-new10. **E2E-52/P3-7 hop 2: CAMPAIGN e52p7 MEASURED (10 ok/10, ZERO dr-refuses) + ARM APPLIED; BUILD RE-VERIFY + CMPs + LOAN2 + SWEEP + COMMIT + REGISTRATION OWED (hop 3) (2026-11-05, renewal 2/12).** Goldens `golden/e52p7/` committed VERBATIM `272a996`. TG/TH byte-enc predictions HIT (pre-reg 30B totals FALSIFIED, kept verbatim); TI falsifier TRIGGERED (w6 zero = `60 68`, not `21 00 00`); TJ pagesize(300) DR-ACCEPTED via `21 2C 01`. `ocaml/lib/codegen.ml` arm (open_subset_keys+PRINT/PAGESIZE/LINESIZE, n_print guards + 0x0652 base, `open_attr_plan` measured matrix, `open_emit_words` ladder in all three title branches) UNCOMMITTED; ONE compile fix applied, `dune build` rc=0 UNVERIFIED since. Execute `PROGRESS.md` → `## Next action` hop-3 contract exactly; full decode in `LEARNINGS.md` § hop 2. Ledger ENDS C364; goldens NEVER re-derived; LOAN2 NEW blocker (predicted ON ERROR 58) recorded VERBATIM, NOT fixed; SE my-gap/SF/SG dr-refuses kept; operator `handoff.config.json` NEVER staged; all rc DIRECT (pipe trap fired again); pli80c POSITIONAL; no push; renewal 2/12 cap 12.
 
 0a-novies-new9. **E2E-52/P3-7 hop 1: PRE-REGISTRATION LANDED — OPEN PRINT/PAGESIZE/LINESIZE (`2bca084`); ORACLE CAMPAIGN `e52p7` OWED (2026-11-05, fresh chain hop 1).** Recovery VERIFIED first: HEAD `c0ce1a1`, checkpoint **g341-6c8d927fdd83 current + attested** (all five source hashes replayed by hand — the supported `/handoff verify` has no CLI path, `LEARNINGS.md` § E2E-49/P4 records the replay), ledger ENDS **C364**, binary `0efc35e6d4ff81bd…` build rc=0, LOAN2 blocker re-measured VERBATIM at line 54 (`OPEN option PRINT … [TBD]`), P019B line 3 / P021 line 4 KEYED / RETRIEVE line 19 / KEYFILE line 16 / COPYLPT SKIP-count / DEPREC array all re-read. NO P3-6 work repeated. ZERO `ocaml/` byte, ZERO oracle call this hop: the whole PRINT/PAGESIZE/LINESIZE class was decoded from EXISTING evidence (`spec/lab-evidence/e2e41-p0/OPEN-BLOCKS.txt`, `OPEN-MATRIX.tsv`, `W1-BITFIT.txt`) into SIX measured block shapes A–F (P019B 0x0652/21 B; P021:6 0x2652/24 B with `2E 3C` MVI L + `68` MOV L,B; LOAN2:54 0x2E52/29 B — **PAGESIZE(0) is bit 0x2000 plus a ZERO word, it adds NO byte**; LOAN2:56 0x0E52/27 B `?SLVTS`; KEYFILE:19 0x1E50/31 B w6 `MVI L,3C`; COPYLPT:38 0x3E52/33 B variable attrs as `LHLD` + DATA reloc; zero-restoration when B≠0 is `6C MOV L,H`). Probes **E52TA..TJ** (10, all parse+bind, all refuse ONLY at the named OPEN option, rc=2) + PLAN §P3-7 predictions committed BEFORE any compiler byte; four genuinely UNDECIDABLE boundaries (TG titled w5-literal/w6-zero, TH both literals = P0 §10 E46A, TI variable pagesize alone, TJ `pagesize(300)` > 0xFF) carry byte-exact predictions and falsifiers, never fit. SUCCESSOR executes `PROGRESS.md` → `## Next action`: ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52TA E52TB E52TC E52TD E52TE E52TF E52TG E52TH E52TI E52TJ --tag e52p7 --switches '$L$D'` rc DIRECT, classify honestly (TJ verdict verbatim, NO fitting), then arm `open_mode_word` + the w2..w6 emitter ONLY, cmp accepted probes whole-file rc=0 vs `golden/e52p7/`, LOAN2 POSITIONAL VERBATIM (predicted blocker past 56 = `ON ERROR` line 58 — a LATER subround, do NOT fix), sweep, markers, registration, claim **C365** measured-bytes-only, COVERAGE rows, gate, close. Ledger ENDS **C364**; goldens NEVER re-derived; SE stays my-gap, SF/SG stay dr-refuses; no runtime assertions; operator `handoff.config.json` NEVER staged (dirty standing edit); renewal chain FRESH (operator archived `.pi-guard/renewal-state.json`; no state file present, 0/12 used, cap 12, autoRenew true); all rc DIRECT (the pipe-masked-rc trap fired again this hop); no push.
 
@@ -3068,6 +3070,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1aab2-af88-7312-8813-8d2d73493b83
+readiness-at: 2026-11-05T08:13:01.783Z
+readiness-checkpoint: g349-ffe38417e0aa
 <!-- guard:end checkpoint -->
 
 ## Blockers
