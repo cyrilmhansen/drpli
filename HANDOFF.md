@@ -7,6 +7,8 @@ authoritative only in `spec/CLAIMS.md` and `spec/lab-evidence/`.
 
 ## Recovery instructions
 
+0a-novies-new7. **E2E-52/P3-6 hop 11: CAMPAIGN `e52p6` MEASURED + ARM LANDED (`8fc0a3b`) — 4/4 accepted probes byte-exact; REGISTRATION OWED at hop 12 = CAP 12/12 (2026-11-05, hop 11/12).** ONE grouped batch rc=0 5 ok/7 (`golden/e52p6/`, evidence `build/e52p6/`); **SA SB SC SD cmp rc=0 whole-file** on binary `0efc35e6d4ff81bd…`; condition byte **06** measured (C364 candidate); goto-terminated BEGIN…END handler = inline + `C3`, **NO C9**; pad `LHLD *A/SPHL/?RECOV` + entry SP-save; SC proves pad vs continuation patch targets are INDEPENDENT; SA octet-142 MISS decoded the ON-unit FALL-THROUGH HL branch-boundary law (reload, not bump) — fixed for both condition names, sweep **110/0** corroborates. **FALSIFIED:** a `BEGIN;…;end;` handler is a NAMELESS `Sproc` block with `bkind = Bbegin`, not `Sdobegin`; briefed "sweep 101" undercounted (actual 110). **SF dr-refuses** (prediction HIT) and **SG [TBD]→MEASURED dr-refuses**; **SE `revert undefinedfile(f)` DR-ACCEPTED and decoded (`06` + `?REVOP`) but KEPT UNARMED** per pre-registration §3. LOAN2 POSITIONAL ADVANCED VERBATIM past 44 → `OPEN option PRINT … (line 54)` (predicted, NOT fitted). SUCCESSOR: read `LEARNINGS.md` § "hop 11: campaign e52p6 MEASURED + ARM LANDED" + `PROGRESS.md` → `## Next action`, then hop-12 CAP contract: registration (SPECIMENS + refusals SF/SG/SE, `--update-inventory` measured delta from 1229, census OWN path FIRST, gate rc=0 `build/gate-e52p6-reg.log`, **C364 measured-bytes-only BEFORE** the COVERAGE `ON`-unit rewrite, coverage_check+prose rc=0, RESULTS §P3-6 + PLAN §5 row), durables, then **`handoff_finalize` — NEVER `handoff_renew` past the cap**. Ledger ENDS **C363**; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc DIRECT; no push.
+
 0a-novies-new6. **E2E-52/P3-6 hop 10: PRE-REGISTRATION of the ON-UNDEFINEDFILE campaign LANDED; CAMPAIGN `e52p6` OWED (2026-11-05, hop 10/12).** ZERO `ocaml/` byte, ZERO oracle call. Evidence decoded from EXISTING goldens: LOAN2.REL pins the whole line-44 class — registration `LXI H,*OUTPUT / MVI A,06 / ?ONCOP / JMP slot`, goto-terminated handler = inline chain + `C3` + **NO C9**, pad `LHLD *D(0318)/SPHL/?RECOV` at target label, main-entry `DAD SP/SHLD` save; condition byte **06 unclaimed → candidate C364**. FALSIFIED verbatim: refusal comment "no DR sample" (LOAN2 IS one); "codegen-only arm" (bind.ml `refs_stmt` charges the Sdobegin trailing goto Rk_plain → no pad/cell — must become Rk_on). P088I/P089I transcripts: bare `on undefinedfile` PASS-2 `SYNTAX ?` = dr-refuses; `(f)` form parses; both .REL have NO CODE (verdicts only). Probes E52SA..SG + PLAN §P3-6 predictions (SA 06+RET-no-pad; SB SP-save+pad+no-RET; SC independent patch targets; SD [C201] pair w/ 06; SE/SG [TBD]; SF dr-refuses; LOAN2 predicted blocker past 44 = SKIP-count 50 or `OPEN option PRINT … (line 54)`, NEVER fit) COMMITTED BEFORE any ocaml/ byte. SUCCESSOR: read `LEARNINGS.md` § "hop 10: ON-UNDEFINEDFILE EVIDENCE DECODED" + `PROGRESS.md` → `## Next action` hop-11 contract: ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52SA E52SB E52SC E52SD E52SE E52SF E52SG --tag e52p6 --switches '$L$D'` rc DIRECT, classify honestly (SF dr-refuses row from MY re-measured stderr marker; SE/SG my-gap boundaries KEPT, never fitted), arm bind.ml+codegen.ml, cmp accepted rc=0 vs `golden/e52p6/`, sweep 101, markers rc=2, LOAN2 POSITIONAL VERBATIM, commit; registration at hop 12 = **CAP 12/12**: inventory/census-own-path/gate rc=0 `build/gate-e52p6-reg.log`/**C364 measured-bytes-only BEFORE** COVERAGE/coverage_check+prose/RESULTS+PLAN rows, then `handoff_finalize` — NEVER `handoff_renew` past the cap. Ledger ENDS **C363**; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc DIRECT; no push; campaign continues.
 
 0a-novies-new5. **E2E-52/P3-5 hop 9: SUBROUND CLOSED — registration + C363 + COVERAGE 42 all
@@ -1566,13 +1568,13 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 336
-checkpoint-id: g336-ef9150ef8350
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
-status: checkpoint (guard level 4, remaining ~469, session 01a1a988-c79f-753f-82d0-31692774f86a)
-checkpointed: 2026-11-05T02:53:18.845Z
+checkpoint-generation: 337
+checkpoint-id: g337-59e06f9b13c8
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
+status: checkpoint (guard level 4, remaining ~3828, session 01a1a9a0-6536-753f-82d0-316c9ba56ab2)
+checkpointed: 2026-11-05T03:15:45.394Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 877ee3070831e9072301a97f7a9b6599190e8b8e9c0799fb09254b0aed23cca8
 source-handoff: f276361caa111057e09e556cd40ff410b53043528c7d3235aa4ac41fe4b5d312
@@ -1580,11 +1582,8 @@ source-learnings: 5ed0f62477c9413c72eaf9639754aa29342b001dbc557ecbff4d18ca6bc2ad
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
-readiness-by: session:01a1a988-c79f-753f-82d0-31692774f86a
-readiness-at: 2026-11-05T02:53:18.859Z
-readiness-checkpoint: g336-ef9150ef8350
 ### Last verified state
-guard level 4; checkpoint requested (renewal tool refresh)
+guard level 4; checkpoint requested (auto at level 4)
 
 ### Unfinished operations
 - (none recorded)

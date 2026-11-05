@@ -43,7 +43,22 @@ LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, 
 C359 derived ONLY from the existing measured evidence.
 
 **Next: see `## Next action
+### E2E-52/P3-6 hop 11 DONE — campaign e52p6 MEASURED (5 ok/7) + ARM LANDED `8fc0a3b` (4/4 accepted cmp rc=0); REGISTRATION OWED at hop 12 = CAP 12/12 (read `LEARNINGS.md` § "hop 11: campaign e52p6 MEASURED + ARM LANDED" FIRST)
 
+HEAD `8fc0a3b`; binary `0efc35e6d4ff81bd…`; codegen warnings 68 == baseline; sweep **110/0**;
+markers E46K4/K15/N21/E52PF/PU/PV/RE rc=2; LOAN2 rc=2 VERBATIM at **line 54 OPEN PRINT**
+(§3 prediction HIT, never fitted); SF+SG dr-refuses; SE measured-accepted, KEPT unarmed.
+NEXT (hop 12 = CAP, docs+panel only, ZERO new oracle campaigns): execute the PROPOSED hop-12
+contract in that LEARNINGS § — SPECIMENS SA SB SC SD + honest refusal rows SF/SG (dr-refuses,
+markers from MY stderr WITH [TBD]) and SE (my-gap); sanctioned `--update-inventory` (measure the
+real delta from 1229); census OWN write path FIRST (line-44 line REPLACED by line-54, EXPR1/EXPR2
+catch-all moved); FULL gate rc=0 DIRECT `build/gate-e52p6-reg.log`; **C364 measured-bytes-only
+BEFORE** the COVERAGE `ON`-unit rewrite; coverage_check + prose rc=0; RESULTS §P3-6 + PLAN §5 row;
+durables; then **`handoff_finalize` — NEVER `handoff_renew` past the cap**.
+Constraints: no push; goldens NEVER re-derived; operator `handoff.config.json` NEVER staged; all rc
+DIRECT (the masked-rc trap fired again this hop); pli80c POSITIONAL; ledger ENDS **C363**.
+
+SUPERSEDED-BY-ABOVE: 
 ### E2E-52/P3-6 hop 10 DONE — ON-UNDEFINEDFILE EVIDENCE DECODED from EXISTING goldens; PRE-REGISTRATION LANDED (probes + PLAN §P3-6); CAMPAIGN e52p6 OWED (2026-11-05, hop 10/12; read `LEARNINGS.md` § "hop 10: ON-UNDEFINEDFILE EVIDENCE DECODED" FIRST + PLAN §P3-6)
 
 LANDED (all rc DIRECT, ZERO `ocaml/` byte, ZERO oracle call): clean build binary
@@ -2369,13 +2384,13 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 336
-checkpoint-id: g336-ef9150ef8350
-checkpoint-kind: manual
-content-delta: new
-readiness: attested
+checkpoint-generation: 337
+checkpoint-id: g337-59e06f9b13c8
+checkpoint-kind: auto
+content-delta: none
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-05T02:53:18.845Z
+checkpointed: 2026-11-05T03:15:45.394Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 877ee3070831e9072301a97f7a9b6599190e8b8e9c0799fb09254b0aed23cca8
 source-handoff: f276361caa111057e09e556cd40ff410b53043528c7d3235aa4ac41fe4b5d312
@@ -2944,9 +2959,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1a988-c79f-753f-82d0-31692774f86a
-readiness-at: 2026-11-05T02:53:18.859Z
-readiness-checkpoint: g336-ef9150ef8350
 <!-- guard:end checkpoint -->
 
 ## Blockers

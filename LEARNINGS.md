@@ -6881,3 +6881,51 @@ an operator brief records state and STOPS.
   `handoff_finalize` — NEVER `handoff_renew` past the cap; operator resets renewal state to
   continue. Boundaries KEPT; goldens NEVER re-derived; operator handoff.config.json NEVER
   staged; all rc DIRECT (pipeline trap); pli80c POSITIONAL; ledger ENDS C363; campaign continues.
+
+## E2E-52/P3-6 hop 11: campaign e52p6 MEASURED + ARM LANDED — 4/4 accepted cmp rc=0; REGISTRATION OWED at hop 12 = CAP (2026-11-05, hop 11/12)
+
+- ACCEPTED (campaign, rc DIRECT): one grouped batch rc=0 **5 ok/7**; goldens `golden/e52p6/`
+  SA 256 SB 384 SC 256 SD 256 SE 256 B; reldumps/.PRN/BASELINE-MINE-p36.txt in `build/e52p6/`.
+  SA-SB-SC-SD-SE NO ERROR(S) both passes. **SF dr-refuses** (PASS 1 clean, PASS 2 `SYNTAX ?`,
+  1 ERROR, no .REL — pre-registered prediction HIT). **SG `undefinedfile(f,g)` was [TBD], now
+  MEASURED dr-refuses** (same SYNTAX ?, no .REL) — nothing claimable.
+- ACCEPTED (laws, from new goldens only): condition byte **06** = UNDEFINEDFILE behind the
+  condition-blind prefix (SA 0009, SB/SC/SD 0010, SE 000A; existing LOAN2 002F agrees) → C364;
+  a BEGIN…END handler ending in a bare GOTO = registration + `C3` JMP-over + handler INLINE + the
+  goto via the ordinary label path + **NO C9** (SB 0018-0036, SC 0018-0020); patch targets
+  INDEPENDENT (SC slot 0016→0021 fall-through while goto slot 001F chains to pad 0027; SB slot
+  0016→0037 because the next stmt IS the label → pad address [C208]); pad `LHLD *A/SPHL/CALL
+  ?RECOV` + entry `LXI H,0/DAD SP/SHLD *A` demanded for this shape (SB *A=data 6, SC/SD=data 2);
+  SD = [C201] pair with 06. **SE `revert undefinedfile(f)` DR-ACCEPTED = prefix + 06 + `?REVOP`,
+  no JMP/handler (code 0018-0020)** — KEPT UNARMED per PLAN §3 (PROPOSAL), my refusal names it a
+  measured my-gap; bytes claimed by NOTHING.
+- ACCEPTED (MISS→law, verbatim first): SA missed first try at **octet 142** — golden `21 02 00 22`
+  (LXI H,2/SHLD reload) vs mine `23 22` (INX H bump). LAW: the statement after an ON unit is
+  reached by FALL-THROUGH from the registration, never by running the handler, so the handler's HL
+  constant must not cross the RET (same branch boundary fwd_ref already pays). Applied to BOTH
+  names (mechanism condition-blind [C202]); sweep **110/0** then proved no existing golden relies on
+  a bump — corroborated, not assumed.
+- FALSIFIED (verbatim): a `BEGIN;…;end;` handler is **NOT** `Ast.Sdobegin` — `parse_stmt` gives a
+  bare `DO;…END;' Sdobegin but `BEGIN;…END;' a NAMELESS `Ast.Sproc` block with `bkind = Bbegin`
+  (parser.ml 859-878), which `lower_proc` refuses (`procedure without name [TBD]`); first SB/SC run
+  died there, arm now matches both writings (`handler_body` codegen, `block_handler_refs` bind).
+  Briefed "sweep 101" is an UNDERCOUNT: actual bank (E46N E46K E51 E52 P086 R10) = **110/0**.
+  Hop-10 falsifications ("no DR sample", "codegen-only arm") re-confirmed operationally.
+- ACCEPTED (LOAN2 POSITIONAL, UNMODIFIED): rc=2, blocker **ADVANCED VERBATIM past 44** to
+  `codegen: OPEN option PRINT is outside what this compiler lowers [TBD] (line 54) -- P0 measured
+  34 OPEN blocks in 24 DR objects (spec/lab-evidence/e2e41-p0/OPEN-MATRIX.tsv). …` = §3 prediction
+  HIT (counted SKIP at 50 now passes); NOT fixed, NEVER fitted. `build/e52p6/loan2-post-arm-stderr.log`.
+- LANDED: arm **`8fc0a3b`** (codegen.ml + bind.ml only); build rc=0 DIRECT, clean binary
+  `0efc35e6d4ff81bd…`, codegen warnings **68 == baseline**, no new Warning 8. Markers rc=2 BY NAME:
+  E46K4/K15/N21/E52PF/PU/PV/RE. TRAP FIRED AGAIN: `echo "$(basename P) rc=$?"` reports basename's
+  rc — capture rc on its own line right after the run.
+- PROPOSED (never authorization) — hop 12 = CAP 12/12: (1) SPECIMENS SA SB SC SD + refusal rows
+  SF, SG (dr-refuses, marker = MY re-measured stderr, must carry [TBD]) and SE (my-gap); sanctioned
+  `--update-inventory` from 1229 — MEASURE the delta, never hardcode. (2) census via its OWN write
+  path FIRST (LOAN2 line-44 → line-54 message; EXPR1/EXPR2 catch-all text moved too). (3) FULL gate
+  rc=0 DIRECT `build/gate-e52p6-reg.log`. (4) **C364 from MEASURED BYTES ONLY committed BEFORE** the
+  COVERAGE `ON`-unit rewrite; coverage_check + file_prose_check rc=0. (5) RESULTS §P3-6 + PLAN §5 row.
+  (6) durables then **`handoff_finalize` — NEVER `handoff_renew` past the cap**; operator resets the
+  ignored `.pi-guard/renewal-state.json` before any hop 13. Standing PROPOSALS: the SE `?REVOP` arm
+  (bytes measured); ON ERROR (LOAN2:58) as a later subround. No push; goldens NEVER re-derived;
+  operator handoff.config.json NEVER staged; all rc DIRECT; pli80c POSITIONAL; ledger ENDS **C363**.
