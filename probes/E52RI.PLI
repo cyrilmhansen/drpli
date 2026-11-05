@@ -1,0 +1,9 @@
+E52RI: procedure options(main);
+
+   dcl f file;
+   dcl i fixed bin;
+
+   put file(f) edit(('AB' do i = 1 to 3))(2(a));
+
+end E52RI;
+

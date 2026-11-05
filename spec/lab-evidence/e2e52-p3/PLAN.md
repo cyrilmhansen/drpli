@@ -356,3 +356,104 @@ what PV measures; Pi_group (no count) never sampled; column(n) `0D w` decoded
 here but NOT armed (out of P3-4 brief); PIvar bin var on file route (LOAN2 177
 pins, P3-5 candidate); DEC formal a..e — LOAN2 147's expected NEXT blocker,
 record VERBATIM, never fit.
+
+## Subround P3-5 — DATA-item DO-repetition (`Ast.Pi_rep`) on the EDIT route (LOAN2:212 blocker)
+
+### 1. Measured blocker (VERBATIM, re-measured this hop at HEAD 8f1f7ce, binary sha256 `345644822818326f…`)
+`codegen: PUT FILE(OUTPUT) EDIT shape [TBD] (line 212) -- an EDIT list the matcher
+cannot split into data items plus a final wrapped format list: empty data, a
+trailing item after the format list, or an item class classify_item does not name`
+— rc=2, raised in the PRESCAN walk (`edit_stmts` → `match_put_edit` → the file arm
+whose `split` returns None on a non-`Pi_data`/`Pi_fmtlist` item). LOAN2 line 212
+VERBATIM: `       ('---------------' do i = 1 to 4)) (a);` (statement starts at 211
+`   put file(output) skip edit`) — the class is the **`Ast.Pi_rep` DATA item**
+(`'literal' DO <ind> = <from> TO <to> [BY <step>]`, parser.ml 1018 → `Pi_rep (e,
+REPSPEC)`). The P3-4 `Pi_repgrp` (FORMAT group) is a DIFFERENT node and is closed.
+Ledger ENDS C362; tag `e52p5` verified UNUSED (grep spec/ tools/, ls golden/ build/,
+probes/); names E52RA..E52RJ collision-grepped EMPTY in probes/ and spec/INVENTORY.txt.
+
+### 2. The DR bytes (ALL from the EXISTING LOAN2 golden, re-read fresh this hop — ZERO oracle call)
+`build/e52p3e/LOAN2-golden-reldump.txt`, procedure `line` span 0944-099F (DEF-CODE-SIZE 09A0):
+- Attach + bare skip + EDITF (the P3-2 law, unchanged): `21 r(data 028C file-common) /
+  11 52 06 LXI D,0652 / 01 <chain 094F continuation> / CD ?SIOOP(0952) / 3E 01 / CD
+  ?SKPOP(0957) / 21 r(data 009D *S table) / CD ?EDITF(095D)`.
+- Non-rep items are the EXISTING literal chains: `21 r(029B) / 3E 07 / CD ?SLCTS(0965) /
+  CD ?EDTOV(0968)` and `21 r(02A2) / 3E 0C / CD ?SLCTS(0970) / CD ?EDTOV(0973)`.
+- **The `Pi_rep` item (H1 witness)** — a pre-tested inline loop around ONE literal copy:
+  `0975: 21 01 00 LXI H,0001 ; 0978: 22 r(data 0358) SHLD i ;
+   097B: 2A r(0358) LHLD i (TOP) ; 097E: 01 FB FF LXI B,FFFB = -(to+1) ;
+   0981: 09 DAD B ; 0982: 7C MOV A,H ; 0983: B7 ORA A ; 0984: F2 <chain 0985→099C> JP exit ;
+   0987: 21 r(02AE) / 3E 0F / 098C: CD ?SLCTS / 098F: CD ?EDTOV (ONE body copy) ;
+   0992: 2A r(0358) LHLD i / 0995: 23 INX H / 0996: 22 r(0358) SHLD i /
+   0999: C3 r(code 097B) JMP TOP ; 099C: CD ?QIOOP / 099F: C9 RET (exit label)`
+- The format table `*S 009D` = `80 00 | 03 FF | 81` — the `(a)` list wrapped as usual;
+  the rep item contributes **0 format bytes**. This CONFIRMS the UNVERIFIED `bind.ml:1155`
+  "rep of data item: no format bytes [verify]" annotation against the LOAN2 golden — the
+  ONLY `Pi_rep` in ANY re-dumped golden; lowering of OTHER rep shapes (variable item, BY,
+  REVERSE, FROM≠1, variable bounds) stays UNMEASURED.
+- Literal cells 029B(7)/02A2(12)/02AE(15) are ONE copy each: the rep body is emitted ONCE
+  inside the loop (no unrolling).
+
+### 2a. Pre-arm code-reading falsification (the successor brief's "codegen.ml ONLY")
+**FALSIFIED by code reading BEFORE any oracle call.** `parse_rep_spec` (parser.ml 984-998)
+drops the INDEX VARIABLE (`let ind = name_any p in … ignore ind`) and drops `BY`
+(`ignore by_`); it never parses `REVERSE`. But the golden loop SHLDs/LHLDs the INDEX cell —
+codegen CANNOT name it from an `REPSPEC` of `[from;to]`. So the arm MUST touch
+`ocaml/lib/parser.ml` (carry `ind` as child 0 of `Ebuilt("REPSPEC",…)`; `by_` present →
+parse-stage refusal BY NAME) plus `ocaml/lib/codegen.ml` (matcher, pitem, prescan,
+authorize, lowering); `bind.ml` ONLY if the REPSPEC walk sites (585/1477/1914) break on the
+new shape — the build measures that. The REPSPEC NAME exclusion at bind.ml:1460 protects
+the decimal-pool walk regardless.
+
+### 3. Probes E52RA..E52RJ (10; CRLF+^Z ≤71 cols, E52PP skeleton) — predictions
+- RA file `edit(('AB' do i = 1 to 3))(a);` — HEADLINE: table `80 00 03 FF 81`; loop
+  `21 01 00 / 22 r(i) / 2A r(i) / 01 FC FF / 09 / 7C / B7 / F2 exit / 21 r(lit) / 3E 02 /
+  ?SLCTS / ?EDTOV / 2A r(i) / 23 / 22 r(i) / C3 top / exit: ?QIOOP`; ONE literal cell.
+- RB `skip edit('X',('AB' do i = 1 to 3),'Y')(a);` — literal, loop, literal, source order.
+- RC file `edit(('AB' do i = 1 to 3 by 2))(a);` — BY step; my parser refuses BY at PARSE
+  stage after the arm — recorded, not codegen.
+- RD `edit(('AB' do i = 2 to 4))(a);` — FROM≠1: predicts `21 02 00`, `01 FD FF` (-(4+1)).
+- RE `edit(('AB' do i = 1 to 4 reverse))(a);` — expect dr-refuses (no object anywhere).
+- RF `dcl n fixed bin; … edit(('AB' do i = 1 to n))(a);` — variable bound; either a new
+  test shape or refusal — the measurement.
+- RG `dcl v char(2); … edit((v do i = 1 to 3))(a);` — rep of a VARIABLE item.
+- RH console `put edit(('AB' do i = 1 to 3))(a);` — H2 route-independence of the CODE loop
+  (E52PR proved the TABLE law route-independent; CODE independence is NEW ground).
+- RI `edit(('AB' do i = 1 to 3))(2(a));` — data rep + count-2 FORMAT rep-group together;
+  table `80 00 80 02 03 FF 81 81` (P3-4 law) with the §2 loop.
+- RJ `dcl m fixed bin; … edit((100*m do i = 1 to 3))(a);` — rep of a numeric EXPRESSION
+  (P3-4 `?IM22N` shape) inside the loop body.
+
+Hypotheses: **H1** the §2 loop law generalises to RA/RD (immediates per bounds); **H2**
+route-independence (RH); **H3** variable bound (RF) accept-with-new-shape vs refusal,
+UNMEASURED; **H4** BY/REVERSE (RC/RE) accept-vs-refuse UNMEASURED, both OUTSIDE the arm;
+**H5** rep-of-variable / rep-of-expression (RG/RJ) — measurement; if accepted the arm may
+DEFER the class and keep refusing BY NAME (record); **H6** RI is table-law only (P3-4 closed).
+LOAN2 prediction: blocker ADVANCES past 212 to the NEXT unsampled class; expected first
+refusal in lowering order — the line-177 `PIvar` bin-var file-route item (`yp`,
+`authorize_file_edit_item` "a variable bound as …"); DEC formal 147 stays queued behind it.
+Record VERBATIM, NEVER fit.
+
+### 4. Arm (parser.ml + codegen.ml; AFTER measurement, §2a governs)
+(a) parser: REPSPEC child 0 = index `Eident`; `[from]`/`[from;to]` arity law otherwise
+unchanged; `by_` present → PARSE refusal BY NAME. (b) codegen `data` walker admits
+`Ast.Pi_rep (x, spec)` → NEW `PIrep of pitem * Ast.expr` (inner classified by classify_item
+— only shapes the plain route ALREADY lowers). (c) fmt table encoding UNCHANGED (rep = 0
+format bytes, §2 CONFIRMED). (d) prescan: PIrep allocates the inner item's cells EXACTLY
+ONCE (the golden's ONE copy). (e) `authorize_file_edit_item`: admit PIrep whose INNER item
+the plain route already admits; else refuse BY NAME. (f) lowering emits the §2 loop around
+ONE body copy using the program's existing chain/reloc helpers (forward JP via LINK-SET-LC,
+JMP relocs the TOP address exactly as the golden at 0999).
+Boundaries KEPT: BY, REVERSE, rep of DEC formal/deref, numeric-LITERAL items, PIvar bin-var
+file route (LOAN2 177), counted SKIP/PAGE+EDIT, format-COUNT expressions, group count 0,
+x-widths 14..128 object gap, nested rep (no golden, no probe).
+
+### 5. Registration (P3-4 pattern)
+ONE grouped campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52RA..E52RJ
+--tag e52p5 --switches '$L$D'` rc DIRECT; reldumps to build/e52p5/; arm; cmp every accepted
+probe whole-file + full sweep (89) + markers rc=2 + LOAN2 rerun UNMODIFIED POSITIONAL,
+blocker VERBATIM; SPECIMENS +N; sanctioned `--update-inventory` (expect 1222 → 1222+N);
+census OWN write path FIRST (the 212 blocker line is REPLACED); FULL gate rc=0 DIRECT
+`build/gate-e52p5-reg.log`; claim **C363** from MEASURED BYTES ONLY **BEFORE** the COVERAGE
+`IO.PUT_EDIT` rewrite (EXACT 35 → 35+accepted); coverage_check + prose rc=0; RESULTS §P3-5
++ PLAN §5 row.

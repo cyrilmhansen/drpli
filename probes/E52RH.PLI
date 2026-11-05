@@ -1,0 +1,8 @@
+E52RH: procedure options(main);
+
+   dcl i fixed bin;
+
+   put edit(('AB' do i = 1 to 3))(a);
+
+end E52RH;
+

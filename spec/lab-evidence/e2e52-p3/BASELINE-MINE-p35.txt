@@ -1,0 +1,21 @@
+# BASELINE-MINE — E2E-52/P3-5 pre-registration, measured 2026-11-05 at HEAD 8f1f7ce, compiler ocaml/_build/default/bin/pli80c.exe sha256 345644822818326f442a91d01dc3f52be6af47b3308bb9058ac30b73ef720d96 (clean dune build rc=0); positional CLI; evidence build/e52p5-pre/
+== E52RA rc=2
+Fatal error: exception Failure("codegen: PUT FILE(F) EDIT shape [TBD] (line 6) -- an EDIT list the matcher cannot split into data items plus a final wrapped format list: empty data, a trailing item after the format list, or an item class cl
+== E52RB rc=2
+Fatal error: exception Failure("codegen: PUT FILE(F) EDIT shape [TBD] (line 6) -- an EDIT list the matcher cannot split into data items plus a final wrapped format list: empty data, a trailing item after the format list, or an item class cl
+== E52RC rc=2
+Fatal error: exception Failure("codegen: PUT FILE(F) EDIT shape [TBD] (line 6) -- an EDIT list the matcher cannot split into data items plus a final wrapped format list: empty data, a trailing item after the format list, or an item class cl
+== E52RD rc=2
+Fatal error: exception Failure("codegen: PUT FILE(F) EDIT shape [TBD] (line 6) -- an EDIT list the matcher cannot split into data items plus a final wrapped format list: empty data, a trailing item after the format list, or an item class cl
+== E52RE rc=2
+Fatal error: exception Pli80.Parser.Parse_error(_, "expected )") 
+== E52RF rc=2
+Fatal error: exception Failure("codegen: PUT FILE(F) EDIT shape [TBD] (line 7) -- an EDIT list the matcher cannot split into data items plus a final wrapped format list: empty data, a trailing item after the format list, or an item class cl
+== E52RG rc=2
+Fatal error: exception Failure("codegen: PUT FILE(F) EDIT shape [TBD] (line 7) -- an EDIT list the matcher cannot split into data items plus a final wrapped format list: empty data, a trailing item after the format list, or an item class cl
+== E52RH rc=2
+Fatal error: exception Failure("codegen: PUT EDIT deferred [TBD] (line 5; only PUT LIST is implemented; format/picture editing needs the ?EDITF/?EDTOV/?QDDSL route family)") 
+== E52RI rc=2
+Fatal error: exception Failure("codegen: PUT FILE(F) EDIT shape [TBD] (line 6) -- an EDIT list the matcher cannot split into data items plus a final wrapped format list: empty data, a trailing item after the format list, or an item class cl
+== E52RJ rc=2
+Fatal error: exception Failure("codegen: PUT FILE(F) EDIT shape [TBD] (line 7) -- an EDIT list the matcher cannot split into data items plus a final wrapped format list: empty data, a trailing item after the format list, or an item class cl
