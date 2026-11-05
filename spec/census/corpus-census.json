@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "bce753678a1ce668083345d1896d783e",
+ "binary_md5": "c4c5b44f527532dd31f7aebcc17070f4",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,11 +15,13 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-04T22:58:54",
+ "generated": "2026-11-05T01:07:57",
  "git_dirty_paths": [
-  "M handoff.config.json"
+  "M handoff.config.json",
+  " M spec/INVENTORY.txt",
+  " M tools/e2e_gate.py"
  ],
- "git_head": "7294d099da3023c51dcc0f10207a00e39c0e1341",
+ "git_head": "2c519413b80035d510d0728119520cc864a4f3a6",
  "rows": [
   {
    "dir_present": true,
@@ -49,7 +51,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group formats are not decoded)\")",
+   "msg": "Fatal error: exception Failure(\"codegen: PUT numeric item form unproven [TBD]\")",
    "name": "ACKTST",
    "prn_present": true,
    "rel_bytes": 1408,
@@ -319,7 +321,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: PUT EDIT operator X is unsampled [TBD] (only F and A formats are decoded from DR tables)\")",
+   "msg": "Fatal error: exception Failure(\"codegen: char store from non-literal [TBD]\")",
    "name": "FSCAN",
    "prn_present": true,
    "rel_bytes": 1024,
@@ -397,7 +399,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group formats are not decoded)\")",
+   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE(OUTPUT) EDIT shape [TBD] (line 212) -- an EDIT list the matcher cannot split into data items plus a final wrap",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,

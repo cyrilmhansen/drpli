@@ -1,7 +1,7 @@
 name	dr_verdict	rel_present	sha_ok	mine	mine_bytes	dr_bytes	differing_bytes	msg
 A	ok	True	True	EXACT	128			
 ACK	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT form not in E2E-3a subset [TBD] (line 12)")
-ACKTST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group formats are not decoded)")
+ACKTST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT numeric item form unproven [TBD]")
 ALLTST	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: BASED(MEMPTR) of type BIT(16) is not implemented [TBD] (E2E-26/P2 covers only a based FIXED BINARY(15). DR accepts char
 ANNUITY	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: declaration ftc returns(CHAR(17) VARYING) deferred [TBD] (line 21; return types emitted today are FIXED [26 specimens],
 CALL	diag	False	None	NO_ORACLE				Fatal error: exception Pli80.Parser.Parse_error(_, "expected statement")
@@ -23,13 +23,13 @@ FDTEST	ok	True	True	EXACT	384
 FFACT	ok	True	True	EXACT	512			
 FLTPOLY	ok	True	True	EXACT	1024			
 FLTPOLY2	ok	True	True	EXACT	1024			
-FSCAN	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT EDIT operator X is unsampled [TBD] (only F and A formats are decoded from DR tables)")
+FSCAN	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: char store from non-literal [TBD]")
 IFACT	ok	True	True	EXACT	384			
 INVERT	diag	False	None	NO_ORACLE				Fatal error: exception Failure("codegen: [TBD] multi-dimensional or assumed-size array [C159] (DR's 2-D is row-major, la
 KEYFILE	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: OPEN option KEYED is outside what this compiler lowers [TBD] (line 16) -- P0 measured 34 OPEN blocks in 24 DR objects (
 LABELS	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
 LOAN1	ok	True	True	EXACT	1536			
-LOAN2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT EDIT format item form unsampled [TBD] (counted, grouped, picture, remote and rep-group formats are not decoded)")
+LOAN2	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: PUT FILE(OUTPUT) EDIT shape [TBD] (line 212) -- an EDIT list the matcher cannot split into data items plus a final wrap
 MAININVT	diag	False	None	NO_ORACLE				Fatal error: exception Failure("codegen: [TBD] multi-dimensional or assumed-size array [C159] (DR's 2-D is row-major, la
 MPMCALLA	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: [TBD] array of 0-byte elements [C159] (only FIXED BINARY(15) / typeless FIXED, i.e. 2-byte elements, are measured; DECI
 MPMCALLB	ok	True	True	REFUSED				Fatal error: exception Failure("codegen: STATIC on FIXED BINARY(15,0) MEMBER OF STRINGQCB@82 is unsampled [TBD] (C114 places static cells below the pool; E48B6 

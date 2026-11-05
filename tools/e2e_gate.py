@@ -2022,6 +2022,66 @@ SPECIMENS.update({
     "E52PO": ("probes/E52PO.PLI", "golden/e52p3/E52PO/E52PO.REL"),
 })
 
+# [E2E-52/P3-4] THE REP-GROUP / x(w) / FILE-EXPRESSION BANK -- 9 probes of campaign tag
+# e52p3d (oracle 9 ok/11 at d73171b: E52PU bare `x' and E52PV `x(255)' are dr-refuses and
+# live on the NEGATIVES panel, NO .REL exists; E52PA joins from the EXISTING P3-3 golden,
+# campaign e52p3 14 ok/15 at 8edea80 -- its file-route EXPRESSION item was P3-4's headline).
+# Pre-registered at 3ac7f41 (PLAN §P3-4 + probes BEFORE any ocaml/ byte); arm e946242
+# (codegen.ml only: fmt_spec let rec Pi_repgrp + X arms, authorize_file_edit_item PInum via
+# the edit_num_* shape authority); PA crash fix 9b2d781 (unparenthesised trailing inner
+# match in edit_num_cell swallowed the OUTER `| _ -> false' -- non-exhaustive outer match;
+# the +4 warning delta was the bug's fingerprint, 70 == baseline after the fix).
+# Law (claim [C362], derived ONLY from these measured bytes): rep-group `n(items)' emits ONE
+# record `80 n <subrecords> 81' RECURSIVE in source order, NO flattening -- EXCEPT count 1,
+# which FLATTENS: inner records spliced, NO wrapper (E52PS; H2a "as-is 80 01" AND H2b
+# "refuse" BOTH FALSIFIED, H2c CONFIRMED).  `x(w)' emits `0B w' (byte law object-witnessed
+# only across widths 01..13; the PV listing measures x(0)/x(128) COMPILE-accepted, their
+# bytes UNMEASURED; DR REFUSES x(255) `BAD VAL' -- H4b's "refusal above 19" FALSIFIED in
+# detail).  File-route EXPRESSION items lower with the SAME fixed-bin operand ops as the
+# console route: sum EB, literal-times `11 lo hi' + ?IM22N with NO XCHG when the product is
+# the whole item (H6b CONFIRMED, H6a FALSIFIED -- LOAN2's XCHG parks the product for a
+# following operand), difference ?IS22N, cell/literal division ACCEPTED via `3E w' + 6-byte
+# divisor preamble + ?ID22N (preamble semantics NOT decoded -- byte tier only).  All ten
+# whole-file `cmp' rc=0 RE-MEASURED this hop on the clean-rebuild binary 345644822818326f:
+#   E52PA 384 B; code 004E=78, DATA 0013=19.  `put file(f) skip edit('|',100*m+y)(a,p'99/99')'
+#             -- THE HEADLINE: the first probe feeding a NON-Eident (Mul) operand through the
+#             file-route shape authority.  Table `80 00 / 03 FF / 02 04 00 05 39 39 2F 39 39 /
+#             81'; EXPRESSION span 0032-0047 == LOAN2 0544-0558 byte-for-byte (`2A r @m / 11 64
+#             00 / ?IM22N / EB / 2A r @y / 19 / 3E 09 / ?QICOP / ?EDTOV').
+#   E52PP 256 B; code 0029=41, DATA 0009=9.  `put file(f) edit('|')(2(a))': NESTED rep-group,
+#             table `80 00 80 02 03 FF 81 81'.
+#   E52PQ 256 B; code 0029, DATA 0019=25.  `(a,2(2(a,a),a),2(x(3),a))': sibling nesting + x(3)
+#             INSIDE a group -- 24-byte table `80 00 03 FF 80 02 80 02 03 FF 03 FF 81 03 FF 81
+#             80 02 0B 03 03 FF 81 81' (source order, no flattening).
+#   E52PR 256 B; code 003C=60, DATA 0015=21.  CONSOLE `put edit('|',100*m+y)(2(skip,a),p'99')':
+#             the rep-group law is ROUTE-INDEPENDENT -- skip `0C FF' + picture `02 02 00 02
+#             39 39' inside/after the group.
+#   E52PS 256 B; code 0029, DATA 0006=6.  `1(a)' -> `80 00 03 FF 81': COUNT-1 FLATTENS.
+#   E52PT 256 B; code 0029, DATA 000A=10.  `x(1),a,x(5)' -> `80 00 0B 01 03 FF 0B 05 81' exactly.
+#   E52PW 256 B; code 002E=46, DATA 0009=9.  `edit(m+y)(a)': `2A r @m / EB / 2A r @y / 19 /
+#             3E 09 / ?QICOP / ?EDTOV' -- file-route ADD.
+#   E52PX 256 B; code 002F=47, DATA 0007=7.  `edit(100*m)(a)': `2A r @m / 11 64 00 / ?IM22N /
+#             3E 09...' NO XCHG -- H6b.
+#   E52PY 256 B; code 0030=48, DATA 0009.  `edit(m-y)(a)': `2A / EB / 2A / ?IS22N / 3E 09...'.
+#   E52PZ 256 B; code 0034=52, DATA 0007.  `edit(m/3)(a)': `2A r @m / 3E 03 / E5 6F 87 9F 67
+#             D1 / ?ID22N / 3E 09...' -- literal division ACCEPTED.
+# Boundaries KEPT: bare x and x(w>128) refuse BY NAME (the PU/PV negative rows below); float/
+# DEC/call/subscript/member EXPRESSION items still refuse BY NAME at the shape authority; LOAN2
+# advanced VERBATIM to `PUT FILE(OUTPUT) EDIT shape [TBD] (line 212)' (prescan matcher-split --
+# my-gap, recorded, NOT fixed).
+SPECIMENS.update({
+    "E52PA": ("probes/E52PA.PLI", "golden/e52p3/E52PA/E52PA.REL"),
+    "E52PP": ("probes/E52PP.PLI", "golden/e52p3d/E52PP/E52PP.REL"),
+    "E52PQ": ("probes/E52PQ.PLI", "golden/e52p3d/E52PQ/E52PQ.REL"),
+    "E52PR": ("probes/E52PR.PLI", "golden/e52p3d/E52PR/E52PR.REL"),
+    "E52PS": ("probes/E52PS.PLI", "golden/e52p3d/E52PS/E52PS.REL"),
+    "E52PT": ("probes/E52PT.PLI", "golden/e52p3d/E52PT/E52PT.REL"),
+    "E52PW": ("probes/E52PW.PLI", "golden/e52p3d/E52PW/E52PW.REL"),
+    "E52PX": ("probes/E52PX.PLI", "golden/e52p3d/E52PX/E52PX.REL"),
+    "E52PY": ("probes/E52PY.PLI", "golden/e52p3d/E52PY/E52PY.REL"),
+    "E52PZ": ("probes/E52PZ.PLI", "golden/e52p3d/E52PZ/E52PZ.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -4776,6 +4836,40 @@ NEG_META["E52PF"] = ("dr-refuses",
     "{9,Z} specifier refused (PF); $ after B and leading multi-$ runs accepted (PH, DEPREC 232, "
     "the 12 existing-golden records).  The marker was RE-MEASURED rc=2 on the P3-3 arm binary "
     "c2c6282f5662cb19a3ce, never assumed.")
+
+# [E2E-52/P3-4] E52PU + E52PV, THE x(w) ENVELOPE -- MEASURED dr-refuses, BOTH SIDES STOP.
+# Pre-registered at 3ac7f41 as the H5 (bare x) and H4 (width boundary) discriminators; the
+# ORACLE answered at d73171b (campaign e52p3d, 9 ok/11):  E52PU's bare `x' gave `SYNTAX ?' in
+# pass 1 (plus the `UNEXPECTED EOF' cascade) and NO .REL -- H5c CONFIRMED, H5a (`0B 00') and
+# H5b (`0B 01') MOOT.  E52PV's `x(255)' gave `BAD VAL ?' in pass 1, `1 ERROR(S) IN PASS 1',
+# NO .REL -- but the SAME listing carries `c' rows proving x(128) and x(0) COMPILE: compile-
+# acceptance measured, their BYTES UNMEASURED (no object exists for a refused probe).
+# Mine refuses both BY NAME at codegen's fmt_spec X arm with named [TBD] guards; the markers
+# below come from the ACTUAL stderr texts re-measured rc=2 on the final binary
+# 345644822818326f (build/e52p3d/E52*-mine-stderr.txt are the PRE-ARM baselines, kept).
+REJECTS.update({
+    "E52PU": (open("probes/E52PU.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "BARE x (no width) is dr-refuses"),
+    "E52PV": (open("probes/E52PV.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "x(width) above 128 is unmeasured"),
+})
+NEG_META["E52PU"] = ("dr-refuses",
+    "DR REFUSES it in PASS 1 -- `SYNTAX ?' under the bare-x statement, cascade `UNEXPECTED "
+    "EOF', NO .REL (golden/e52p3d/E52PU/E52PU.PRN, campaign e52p3d 9 ok/11 at d73171b) -- so "
+    "this row is DR law, not my gap.  Mine refuses at codegen fmt_spec naming the refusal "
+    "(`BARE x (no width) is dr-refuses'): the object-witnessed x(w) law is `0B w' and only "
+    "x(width) forms carry bytes; a width-less x has NO measured record.  Marker RE-MEASURED "
+    "rc=2 on binary 345644822818326f, never assumed.")
+NEG_META["E52PV"] = ("dr-refuses",
+    "DR REFUSES it in PASS 1 -- `BAD VAL ?' at the x(255) statement, `1 ERROR(S) IN PASS 1', "
+    "NO .REL (golden/e52p3d/E52PV/E52PV.PRN, campaign e52p3d 9 ok/11 at d73171b) -- DR law. "
+    "The probe's THREE tables pre-registered H4a (plain `0B w' all widths) vs H4b (refusal "
+    "above the then-measured max 19); the listing MEASURES x(128) and x(0) COMPILE and x(255) "
+    "die, so H4b is FALSIFIED IN DETAIL -- DR's refusal boundary is at 255, not 20.  Mine "
+    "refuses (`x(width) above 128 is unmeasured'): the `0B w' byte law is object-witnessed "
+    "only across 01..13 (PT/PQ) and the 129..254 range stays unmeasured, so arming past 128 "
+    "would claim bytes no object carries.  Marker RE-MEASURED rc=2 on binary "
+    "345644822818326f, never assumed.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:
