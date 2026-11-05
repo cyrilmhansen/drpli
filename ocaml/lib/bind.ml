@@ -1685,7 +1685,15 @@ let proc_entries (ss : Ast.stmt list) =
 (* label REFERENCES written at this block level.  A GOTO in a handler that is itself a plain
    GOTO is the ON-unit demand; anything deeper inside a handler is a plain reference, which
    matches [E2E-34/P5]'s finding that a statement-form handler in a nested procedure demands
-   nothing for the block it is written in. *)
+   nothing for the block it is written in.
+
+   [E2E-52/P3-6] ONE nested shape is now measured and charges too: a BEGIN...END handler whose
+   LAST statement is a bare GOTO.  E52SB, E52SC and the existing LOAN2 golden 003A-0062 all carry
+   the saved-SP cell (`SHLD *A' at block entry) AND the recovery pad (`LHLD *A / SPHL / CALL
+   ?RECOV' at the target label) for exactly that shape, so the trailing GOTO is an ON-unit demand,
+   not a same-block plain reference ([E36T11] would otherwise demand nothing and shift DATA).
+   The handler's OTHER statements are still surveyed normally; a GOTO anywhere but last stays
+   unmeasured and codegen refuses it BY NAME. *)
 let rec refs_stmts (ss : Ast.stmt list) = List.concat_map refs_stmt ss
 and refs_stmt (s : Ast.stmt) =
   match s.Ast.st with
@@ -1693,6 +1701,9 @@ and refs_stmt (s : Ast.stmt) =
       (match handler.Ast.st with
        | Ast.Sgoto { tgt = t; subscript = [] } -> [(lbl t, Rk_on)]
        | Ast.Sgoto _ -> []
+       | Ast.Sdobegin ss -> block_handler_refs ss
+       | Ast.Sproc { blk = { Ast.bkind = Ast.Bbegin; bstmts = ss; _ }; _ } ->
+           block_handler_refs ss
        | _ -> refs_stmt handler)
   | Ast.Sgoto { tgt = t; subscript = [] } -> [(lbl t, Rk_plain)]
   | Ast.Sgoto _ -> []
@@ -1705,6 +1716,21 @@ and refs_stmt (s : Ast.stmt) =
   | Ast.Sdoto { body; _ } -> refs_stmt body
   | Ast.Sdoforever body -> refs_stmt body
   | _ -> []
+
+(* [E2E-52/P3-6] the ON-unit demand of a BLOCK handler: a trailing bare GOTO charges Rk_on
+   (saved-SP cell + recovery pad), the statements before it are surveyed as ordinary references.
+   `BEGIN; ... END;' reaches Bind as a nameless Sproc block (bkind = Bbegin) while a bare
+   `DO; ... END;' is an Sdobegin; both mean the same inline handler, and both are measured on
+   E52SB / E52SC / LOAN2.REL 003A-0062. *)
+and block_handler_refs (ss : Ast.stmt list) =
+  match ss with
+  | [] -> []
+  | _ ->
+      let n = List.length ss in
+      match (List.nth ss (n - 1)).Ast.st with
+      | Ast.Sgoto { tgt = t; subscript = [] } ->
+          refs_stmts (List.take (n - 1) ss) @ [(lbl t, Rk_on)]
+      | _ -> refs_stmts ss
 
 (* the ON-unit presence test, unchanged in meaning from [E2E-34]: any ON-unit written at this
    block level, of any condition, with any handler shape, turns on ?OFCOP for a procedure tail *)

@@ -12671,16 +12671,21 @@ let take_fmt_addr st =
      LXI H,<FILE>   <- SEL-COMMON when the selected COMMON group CHANGES, then an
                        inline COMMON reloc at 0 (see st.cur_common for the rule and
                        the DR-golden measurements behind it)
-     MVI A,05       <- the conditional-name code; ENDFILE = 5 [C120]
+     MVI A,<code>   <- the conditional-name code; ENDFILE = 5 [C120]
      then CALL ?ONCOP (ON) or CALL ?REVOP (REVERT).  Measured on E32E1, E32E2, E30E1,
      E30E2, E34A1-A7 and NETWORK.  THE ONE AUTHORITY for this prefix [C202]: ON's copy
      used to be written out twice, and the SEL-COMMON used to be unconditional, which is
      not DR's rule -- it would have put 9 bytes of record stream into every second file
-     statement, including NETWORK's, where it is measurable. *)
-let on_reg_prefix st (fu : string) =
+     statement, including NETWORK's, where it is measurable.
+
+   [E2E-52/P3-6] the code is now a PARAMETER because the prefix is CONDITION-BLIND: the
+     only two codes DR has measured for me are ENDFILE = 05 [C120] and UNDEFINEDFILE = 06,
+     the latter on E52SA..E52SD (golden/e52p6) and in the EXISTING LOAN2 golden at 002F.
+     Every other conditional name keeps refusing before this function is ever reached. *)
+let on_reg_prefix st (fu : string) (code : int) =
   load_file_cb st fu;
   d st op_mvi_a;
-  d st 0x05
+  d st code
 
 (* The block-entry stack save, emitted ONLY by a block containing an ON ... GOTO unit:
      LXI H,0000 / DAD SP / SHLD * A(<cell>)
@@ -13658,13 +13663,58 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
       st.lowered <- st.lowered + 1;
       st.last_imm <- None;
       (match String.lowercase_ascii cond, cargs with
-       | "endfile", [ { Ast.e = Ast.Eident f; _ } ] ->
+       | (("endfile" | "undefinedfile") as cname), [ { Ast.e = Ast.Eident f; _ } ] ->
+           (* [E2E-52/P3-6] UNDEFINEDFILE joins the admitted set on MEASURED bytes: E52SA..SD
+              (golden/e52p6, this campaign) and the EXISTING LOAN2 golden 002F all register with
+              MVI A,06 behind the SAME condition-blind prefix as ENDFILE's 05 [C120].  Bare
+              `on undefinedfile x = 1;' (E52SF) and the identifier-list form `on undefinedfile(f,g)'
+              (E52SG) are BOTH dr-refuses -- PASS 1 clean, PASS 2 `SYNTAX ?', no .REL -- so they
+              stay refused here, and `revert undefinedfile(f)' (E52SE) is DR-ACCEPTED and decoded
+              but deliberately NOT armed this subround (pre-registered PROPOSAL, PLAN P3-6 §3). *)
            let fu = String.uppercase_ascii f.Ast.orig in
+           let ccode = if cname = "endfile" then 0x05 else 0x06 in
            if not (List.mem fu st.files) then
              failwith
                (Printf.sprintf
-                  "codegen: ON ENDFILE(%s) names something that is not a declared FILE [TBD] (line %d)"
-                  f.Ast.orig s.Ast.spos.Source.line);
+                  "codegen: ON %s(%s) names something that is not a declared FILE [TBD] (line %d)"
+                  cname f.Ast.orig s.Ast.spos.Source.line);
+           (* [E2E-34/P1][E2E-52/P3-6] the two handler shapes that MEASURED bytes pin, and the
+              one rule that keeps every other GOTO-containing handler refused BY NAME. *)
+           let rec has_goto (x : Ast.stmt) =
+             match x.Ast.st with
+             | Ast.Sgoto _ -> true
+             | Ast.Sdobegin ss -> List.exists has_goto ss
+             | Ast.Sif { then_; els; _ } ->
+                 has_goto then_
+                 || (match els with Some e -> has_goto e | None -> false)
+             | Ast.Sdowhile { body; _ } | Ast.Sdoto { body; _ }
+             | Ast.Sdoforever body -> has_goto body
+             | Ast.Sproc b -> List.exists has_goto b.Ast.blk.Ast.bstmts
+             | Ast.Son { handler; _ } -> has_goto handler
+             | _ -> false
+           in
+           let block_tail_goto (ss : Ast.stmt list) : Ast.stmt option =
+             match ss with
+             | [] -> None
+             | _ ->
+                 let last = List.nth ss (List.length ss - 1) in
+                 (match last.Ast.st with
+                  | Ast.Sgoto { subscript = []; _ } ->
+                      let rest = List.take (List.length ss - 1) ss in
+                      if List.exists has_goto rest then None else Some last
+                  | _ -> None)
+           in
+           (* [E2E-52/P3-6] THE TWO WRITINGS OF ONE BLOCK HANDLER.  A bare `DO; ... END;' parses to
+              Sdobegin, but `BEGIN; ... END;' -- what LOAN2:44, E52SB and E52SC write, and what DR's
+              syntax calls a compound statement -- arrives as a NAMELESS `Sproc' block with
+              bkind = Bbegin, which the ordinary statement path cannot lower at all (`lower_proc'
+              demands a procedure name).  Both writings mean the same inline handler. *)
+           let handler_body (h : Ast.stmt) : Ast.stmt list option =
+             match h.Ast.st with
+             | Ast.Sdobegin ss -> Some ss
+             | Ast.Sproc { blk = { Ast.bkind = Ast.Bbegin; bstmts = ss; _ }; _ } -> Some ss
+             | _ -> None
+           in
            (* [E2E-11 step 2 / E2E-34/P1] An ON-unit is TWO mechanisms, not one.
 
               STATEMENT handler  [C109: E11A/E11C/E17A/FLTPOLY2/E32E1, byte-exact]:
@@ -13682,10 +13732,18 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                 operand first, then the continuation's LINK-SET-LC triple (E34A4,
                 0028-002E).  E11F's 335 divergent bytes were this shape, unimplemented.
 
-              A handler that merely CONTAINS a GOTO (inside a DO or IF), or a computed
-              GOTO, has no DR sample and refuses: the pad restores the SP saved at block
-              ENTRY, and what a handler-local transfer means for the runtime's saved
-              state has not been measured.
+              A handler that merely CONTAINS a GOTO (inside a DO or IF, or one that is not
+              the LAST statement), or a computed GOTO, has no DR sample and refuses: the pad
+              restores the stack saved at block ENTRY, and what a handler-local transfer means
+              for the runtime's saved state has not been measured.
+
+              BLOCK HANDLER ENDING IN A GOTO  [E52SB, E52SC goldens; LOAN2.REL 003A-0062]:
+                registration, JMP over, <every handler statement inline INCLUDING the final
+                GOTO>, and NO RET -- the handler leaves by jumping, so the runtime never needs
+                to unwind it.  The JMP-over patches to the statement after the ON [E52SC: slot
+                0016 -> 0021] which is the label's PAD when that label comes next [E52SB: slot
+                0016 -> 0037, [C208]: a label's address IS its pad].  The two patch targets are
+                INDEPENDENT: the goto operand chains to the pad, the JMP-over to the fall-through.
 
               Both the ON and its handler are counted (see count_required). *)
            (match handler.Ast.st with
@@ -13696,7 +13754,7 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                    statement form pays that with lower_stmt; the GOTO form pays it here
                    or the DISCARD INVARIANT reads 16 required / 14 lowered. *)
                 st.lowered <- st.lowered + 1;
-                on_reg_prefix st fu;
+                on_reg_prefix st fu ccode;
                 call_ext st "?ONCOP";
                 d st op_jmp;
                 let cont = st.lc in
@@ -13720,42 +13778,81 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                      refuse_not_label tgt.Ast.pos.Source.line o isp);
                 st.last_imm <- None;
                 emit_triple st cont st.lc
-            | _ ->
-                let rec has_goto (x : Ast.stmt) =
-                  match x.Ast.st with
-                  | Ast.Sgoto _ -> true
-                  | Ast.Sdobegin ss -> List.exists has_goto ss
-                  | Ast.Sif { then_; els; _ } ->
-                      has_goto then_
-                      || (match els with Some e -> has_goto e | None -> false)
-                  | Ast.Sdowhile { body; _ } | Ast.Sdoto { body; _ }
-                  | Ast.Sdoforever body -> has_goto body
-                  | Ast.Sproc b -> List.exists has_goto b.Ast.blk.Ast.bstmts
-                  | Ast.Son { handler; _ } -> has_goto handler
-                  | _ -> false
+            | Ast.Sdobegin _
+            | Ast.Sproc { blk = { Ast.bkind = Ast.Bbegin; _ }; _ } ->
+                (* [E2E-52/P3-6] the measured BLOCK handler whose last statement is a bare GOTO
+                   (E52SB, E52SC, LOAN2:44): inline body, no RET, JMP-over to the fall-through.
+                   Both block writings take this arm; anything else -- a GOTO that is not last, a
+                   GOTO nested in a DO or IF, several GOTOs, or no GOTO in a BEGIN...END (unsampled
+                   in this writing) -- refuses BY NAME below. *)
+                let hbody =
+                  match handler_body handler with Some b -> b | None -> []
                 in
+                (match block_tail_goto hbody with
+                 | Some last ->
+                     st.lowered <- st.lowered + 1 (* the BEGIN...END wrapper, cf. Ast.Sdobegin *);
+                     on_reg_prefix st fu ccode;
+                     call_ext st "?ONCOP";
+                     d st 0xc3 (* JMP over the handler *);
+                     let jmp_slot = st.lc in
+                     d st 0; d st 0;
+                     let rest = List.take (List.length hbody - 1) hbody in
+                     List.iter (fun x -> lower_stmt st ls x) rest;
+                     lower_stmt st ls last (* the trailing GOTO, the ordinary resolve/fwd path *);
+                     (* The statement AFTER the ON is reachable by FALL-THROUGH out of the
+                        registration, not by following this jump, so the HL constant model must
+                        not carry the handler's last load across it -- the same branch boundary the
+                        direct form pays (and SD measures: continuation `x = 1' reloads LXI H). *)
+                     st.last_imm <- None;
+                     emit_triple st jmp_slot st.lc (* NO C9: a goto-terminated handler does not RET *)
+                 | None ->
+                     if has_goto handler then
+                       failwith
+                         (Printf.sprintf
+                            "codegen: an ON handler whose GOTO is neither the whole handler nor the LAST statement of a BEGIN...END handler is unsampled [TBD] (line %d; measured shapes: the direct form ON <cond>(<file>) GOTO <label> is byte-exact on E32E2 / E30E2 / E34A2-A7 / NETWORK, and a BEGIN...END handler ending in a bare GOTO is byte-exact on E52SB / E52SC and in the LOAN2 golden 003A-0062; a GOTO nested in a DO or IF, or one followed by another statement, has no DR sample: the recovery pad restores the stack saved at block entry, so the meaning of a handler-local transfer is unmeasured)"
+                            s.Ast.spos.Source.line);
+                     on_reg_prefix st fu ccode;
+                     call_ext st "?ONCOP";
+                     d st 0xc3 (* JMP over the handler *);
+                     let jmp_slot = st.lc in
+                     d st 0; d st 0;
+                     lower_stmt st ls handler;
+                     d st 0xc9 (* RET: terminates the inline handler unit [C109] *);
+                     emit_triple st jmp_slot st.lc;
+                     (* [E2E-52/P3-6] E52SA measures the continuation AFTER an ON unit: DR
+                        reloads (`LXI H,2 / SHLD') where the handler's own last load would have
+                        allowed a bump (`INX H').  The continuation is reached by fall-through out
+                        of the registration, never by running the handler, so the handler's HL
+                        constant must not cross this branch boundary. *)
+                     st.last_imm <- None)
+            | _ ->
                 if has_goto handler then
                   failwith
                     (Printf.sprintf
-                       "codegen: an ON handler that CONTAINS a GOTO instead of being one is unsampled [TBD] (line %d; the direct form ON ENDFILE(<file>) GOTO <label> is byte-exact on E32E2 / E30E2 / E34A2-A7 / NETWORK, and a GOTO nested in a DO or IF handler has no DR sample: the recovery pad restores the stack saved at block entry, so the meaning of a handler-local transfer is unmeasured)"
+                       "codegen: an ON handler whose GOTO is neither the whole handler nor the LAST statement of a BEGIN...END handler is unsampled [TBD] (line %d; measured shapes: the direct form ON <cond>(<file>) GOTO <label> is byte-exact on E32E2 / E30E2 / E34A2-A7 / NETWORK, and a BEGIN...END handler ending in a bare GOTO is byte-exact on E52SB / E52SC and in the LOAN2 golden 003A-0062; a GOTO nested in a DO or IF, or one followed by another statement, has no DR sample: the recovery pad restores the stack saved at block entry, so the meaning of a handler-local transfer is unmeasured)"
                        s.Ast.spos.Source.line);
-                on_reg_prefix st fu;
+                on_reg_prefix st fu ccode;
                 call_ext st "?ONCOP";
                 d st 0xc3 (* JMP over the handler *);
                 let jmp_slot = st.lc in
                 d st 0; d st 0;
                 lower_stmt st ls handler;
                 d st 0xc9 (* RET: terminates the inline handler unit [C109] *);
-                emit_triple st jmp_slot st.lc)
-       | ("endfile", _) ->
+                emit_triple st jmp_slot st.lc;
+                (* [E2E-52/P3-6] E52SA measures the continuation AFTER an ON unit: DR reloads
+                   (`LXI H,2 / SHLD') where the handler's last load would have allowed a bump; the
+                   continuation is reached by FALL-THROUGH from the registration, not by running the
+                   handler, so this is a branch boundary for the HL constant model [C202]. *)
+                st.last_imm <- None)
+       | (("endfile" | "undefinedfile") as cn), _ ->
            failwith
              (Printf.sprintf
-                "codegen: ON ENDFILE with %d argument(s) or a non-identifier argument is unsampled [TBD] (line %d)"
-                (List.length cargs) s.Ast.spos.Source.line)
+                "codegen: ON %s with %d argument(s) or a non-identifier argument is unsampled [TBD] (line %d; DR itself refuses both the argumentless form and the identifier-list form -- E52SF `on undefinedfile x = 1;' and E52SG `on undefinedfile(f,g) x = 1;' are PASS 1 clean then PASS 2 `SYNTAX ?', 1 ERROR(S), no .REL -- so nothing here is measured to lower)"
+                cn (List.length cargs) s.Ast.spos.Source.line)
        | _ ->
            failwith
              (Printf.sprintf
-                "codegen: ON %s is not implemented [TBD] (only ENDFILE(<file>) has a DR lowering; line %d)"
+                "codegen: ON %s is not implemented [TBD] (only ENDFILE(<file>) and UNDEFINEDFILE(<file>) have a DR lowering; line %d)"
                 cond s.Ast.spos.Source.line))
   | Ast.Srevert { cond; cargs } ->
       (* [E2E-34/P2] REVERT <conditional-name>(<file>): the same prefix as the ON
@@ -13776,8 +13873,21 @@ and lower_stmt st (ls : lblstate) (s : Ast.stmt) =
                (Printf.sprintf
                   "codegen: REVERT ENDFILE(%s) names something that is not a declared FILE [TBD] (line %d)"
                   f.Ast.orig s.Ast.spos.Source.line);
-           on_reg_prefix st fu;
+           on_reg_prefix st fu 0x05;
            call_ext st "?REVOP"
+       | ("undefinedfile", [ { Ast.e = Ast.Eident f; _ } ]) ->
+           (* [E2E-52/P3-6] MEASURED but deliberately UNARMED.  E52SE (`revert
+              undefinedfile(f);') is DR-ACCEPTED -- NO ERROR(S) in both passes -- and its golden
+              lowers to the ON registration prefix with the same 06 and CALL ?REVOP in place of
+              ?ONCOP, no JMP and no handler (build/e52p6/e52se-reldump.txt, code 0018-0020:
+              `LXI H,*F / MVI A,06 / CD ?REVOP').  Per the pre-registered PLAN P3-6 §3 this arm
+              is a PROPOSAL, not this subround's headline, so the boundary is KEPT and this
+              refusal is an honest my-gap, never fitted to those bytes. *)
+           ignore f;
+           failwith
+             (Printf.sprintf
+                "codegen: REVERT UNDEFINEDFILE(<file>) is a measured my-gap, unarmed this subround [TBD] (line %d; DR accepts it -- E52SE golden is LXI H,<FILE> / MVI A,06 / CALL ?REVOP -- the arm is pre-registered as a PROPOSAL in PLAN P3-6 §3)"
+                s.Ast.spos.Source.line)
        | _ ->
            failwith
              (Printf.sprintf
