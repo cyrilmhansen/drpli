@@ -9274,3 +9274,95 @@ classified `unmeasured` rather than `dr-refuses`.
   samples)` — a message that carries NO `(line N)` clause — recorded, NOT fixed (the line-99
   `PUT FILE(OUTPUT)` blocker is CLOSED); EXPR1 (GET line 21) and EXPR2 (FLOAT line 35) are
   UNCHANGED. Provenance: [C280] [C282] [C288] [C120] [C365] [C367] [C368].
+
+## C370 — A DIRECT FIXED-DECIMAL STORE ACROSS SCALES emits `MVI A,|Δs| / CALL ?QDDSL` (scale UP, s_tgt > s_src) or `MVI A,|Δs| / CALL ?QDDSR` (scale DOWN) BETWEEN the source `?DLDOP` and the destination `LXI H,*x`, with the `MVI A` before `?DSTOP` the TARGET precision; equal scales emit NO shift; the amount NEVER involves a precision (Δp = 9 present, d still 11), is NOT capped (d = 14 accepted), and `decimal(i,p)` into a scaled variable rides the SAME law from scale 0 after `?QI15D`; the computed-quotient route keeps its [C086] bytes untouched; DR ACCEPTS the gate's retired negative N35 shape, which now lives as POSITIVE specimen NG20 (E2E-52/P3-12; MEASURED — 9 whole-file `cmp` rc=0 of `E52YA..E52YI` against `golden/e52p12/` PLUS `NG20` `cmp` rc=0 against the KEPT golden `golden/negpanel1/NG20/NG20.REL`, goldens VERBATIM at 0c43932 from campaign e52p12 `9 ok/9` with every `.PRN` `NO ERROR(S)` both passes, RE-MEASURED at registration on binary sha256 `6a4c6c1154a0acd8403b…`, never fitted)
+
+* **Measured — the shift law in both directions.** `E52YB` (256 B, CODE `0041`, DATA
+  `000A`): `a = b` dec(9,2) <- dec(9,0) — `LXI H,*b(data@0005) / MVI A,09 / ?DLDOP@000C`,
+  then `MVI A,02 / ?QDDSL@0011`, then `LXI H,*a(data@0000) / MVI A,09 / ?DSTOP@0019`.
+  `E52YE` (CODE `0041`, DATA `000A`) is the second UP witness (`a = c`), its store block
+  byte-identical to YB. `E52YC` (CODE `0041`, DATA `000C`): `b = a` dec(15,13) <- dec(6,2)
+  — `MVI A,0B / ?QDDSL@0011`, UP d = 13-2 = 11 WITH Δp = 9 present; this is the mirrored
+  LOAN2 direction, so the law is direction-symmetric, not a one-off (H-5 HIT). `E52YD`
+  (CODE `0041`, DATA `000B`) is the LOAN2:111 VERBATIM shape `inf = ci` dec(4,3) <-
+  dec(15,14): `MVI A,0F / ?DLDOP@000C / MVI A,0B / ?QDDSR@0011 / LXI H,*inf(data@0008) /
+  MVI A,04 / ?DSTOP@0019` — d = 14-3 = 11 DOWN. `E52YF` (CODE `0041`, DATA `0010`):
+  `b = a` dec(15,0) <- dec(15,14) — `MVI A,0E / ?QDDSR@0011`, d = 14, ACCEPTED (H-3's cap
+  competitor FALSIFIED). `E52YG` (CODE `0041`, DATA `0010`): `a = b` dec(15,1) <-
+  dec(15,14) — `MVI A,0D / ?QDDSR@0011`, d = 13 DOWN (MEASURED down; §4's `?QDDSL` label
+  for this row was MY direction slip, kept verbatim). In EVERY store the shift sits
+  BETWEEN the source push and the destination load and the `MVI A` at `?DSTOP` is the
+  TARGET precision (09, 0B, 0F, 04, 09, 0F, 0F, 09 across YB..YI + NG20).
+
+* **Measured — equal scales emit NO shift (`E52YA`, 256 B, CODE `003C`, DATA `0009`).**
+  `a = b` dec(9,2) <- dec(6,2): `LXI H,*b(data@0005) / MVI A,06 / ?DLDOP@000C` straight to
+  `LXI H,*a(data@0000) / MVI A,09 / ?DSTOP@0014` — NO `QDD*` chain exists in the object.
+  Cross-PRECISION alone shifts nothing; the equal-scale cross-precision control LOAN1:35
+  `PMT = P` dec(11,2) -> dec(6,2) was re-measured whole-file `cmp` rc=0 in Phase A and its
+  regression row re-held in the P3-12 suite (64/0). Decimal cell widths reconfirmed on the
+  YD pair against the [C084] law: `ci(15)` 8 bytes at `data@0000`, `inf(4)` 3 bytes at
+  `data@0008`, DATA `000B` total.
+
+* **Measured — the `decimal()` doorway stores through the SAME law (`E52YI`, 256 B, CODE
+  `003F`, DATA `0007`).** `d = decimal(i,7)` into dec(9,2), `i` fixed bin: `LHLD *i
+  (data@0000) / ?QI15D@000A / MVI A,02 / ?QDDSL@000F / LXI H,*d(data@0002) / MVI A,09 /
+  ?DSTOP@0017` — `?QI15D` pushes the converted integer at scale 0 and the STORE CONSUMER
+  then shifts up by the target scale, exactly the direct-variable law. The precision
+  argument `7` produces NO byte of its own here. My pre-registration model predicted NO
+  shift (the [C084] "precision argument ignored" target-context reading, H-6 candidate
+  `shift-free`): the pre-arm `cmp` of YI FAILED at byte 68 — an honest `my-gap` kept
+  VERBATIM, closed by the arm's `sc = 0` rule for `decimal(plain non-DEC ident)` under the
+  direct-store context; the third H-6 candidate (DR refusal) is FALSIFIED — DR accepted.
+
+* **Measured — the computed control is UNTOUCHED (`E52YH`, 384 B, CODE `0051`, DATA
+  `000F`).** `c = a / b` with all three dec(9,2) rides the already-armed [C086] L3/L5
+  route verbatim: `?DLDOP@000C / MVI A,06 / ?QDDSL@0011 / ?DLDOP@0019 / ?DDVOP@001C /
+  MVI A,04 / ?QDDSR@0021 / MVI A,09 / ?DSTOP@0029`. H-7 HIT: this slice changed no byte of
+  the arithmetic path; LOAN2:112's divide (same route, Phase A table) stays OUTSIDE the
+  perimeter. H-8 held on every accepted store: exactly one `?DLDOP` push and one `?DSTOP`
+  pop per assignment with the helper call between them (counted from the CHAIN-EXT
+  records).
+
+* **Original-golden corroboration (kept as corroboration; the binding authority is the
+  ten registered whole-file `cmp` rc=0s).** Authentic `golden/first/LOAN2/LOAN2.REL`
+  04B7-04CB carries the SAME DOWN geometry for `INF = ci`: `LXI H,ci(0309) / MVI A,0F /
+  CD ?DLDOP@04BC / MVI A,0B / CD ?QDDSR@04C1 / LXI H,INF(0306) / MVI A,04 / CD
+  ?DSTOP@04C9` — decoded first-hand in Phase A (ondump2 buffers + `tools/dis80.py` table +
+  CHAIN-EXT names at anchor = opcode+1). `E52YD` is that statement's panel-verified
+  minimal mirror.
+
+* **Retirement record — N35_DEC_STORE_SCALE_DRIFT became POSITIVE specimen `NG20` (256 B,
+  CODE `004C`, DATA `000F`).** The gate's own NEG_META verdict said, VERBATIM: `DR
+  COMPILES IT: no errors in either pass, .REL emitted (golden/negpanel1/NG20/NG20.REL)`;
+  the shape is `c = a` dec(9,4) <- dec(9,2) — UP d = 2 — and the armed law reproduces the
+  KEPT golden byte-exact (`cmp` rc=0 twice: harness path and fresh `build/p3-12/reg-out/`;
+  `?DLDOP@001C / MVI A,02 / ?QDDSL@0021 / MVI A,09 / ?DSTOP@0029` after the literal store
+  `a = 6`, whose equal-scale no-shift block `?DLDOP@000C / ?DSTOP@0014` matches the YA
+  pattern in the same object). Precedent: N26_DECDIV retired to a positive specimen by
+  [C086]. The golden was NEVER re-derived and its path UNCHANGED; the source is the
+  retired inline REJECTS text materialized VERBATIM (CRLF + bare `^Z`) as
+  `probes/NG20.PLI`; refusals moved 189 -> 188. NO replacement negative was invented for
+  the still-refused suffix/pointer-store routes: their DR behaviour is UNMEASURED, so the
+  coverage loss is ACCEPTED and recorded rather than papered over with an unfounded
+  verdict.
+
+* **Implementation perimeter — what stays refused BY NAME (my gaps, never DR rules).** The
+  shift is armed ONLY on the ordinary Eident DEC store route (`c_direct` context) and ONLY
+  for the two operand shapes this panel pins: a plain DEC variable and `decimal(x,p)` whose
+  `x` is a plain NON-decimal identifier. Every other scale-changing shape keeps its
+  explicit `[TBD]` refusal: suffix DEC stores, stores through a DEC pointer formal,
+  `decimal()` of a binary expression, and literal/expression actuals against a FIXED
+  DECIMAL formal (the Line-117 blocker family, next slice's evidence target). No
+  name-based special-casing; `NG21` was FALSIFIED as evidence in Phase A — a pass-2
+  `SYNTAX` listing is not a witness and is cited by NO rule here.
+
+* **Obligations and limits — what this does NOT say.** BYTE TIER ONLY: no `e52p12` object
+  was linked or run under cpmsim; NOTHING here asserts what `?QDDSL`/`?QDDSR` DO at
+  runtime, and no `spec/RUNTIME.txt` row comes from this claim. LOAN2 itself still refuses
+  (rc=2, NO `.REL`): its blocker MOVED VERBATIM past 111/112 to `codegen: non-variable
+  argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an automatic decimal
+  BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or expression decimal
+  argument has no sample [DECPOLY, R2037/R2038/R725]. Line 117)` — recorded, NOT fixed by
+  this slice; `artefacts/LOAN2.PLI` is UNMODIFIED (sha `7be23ba3…`) and LOAN2 is NOT
+  claimed exact. EXPR1 (GET line 21) and EXPR2 (FLOAT line 35) are UNCHANGED. Provenance:
+  [C084] [C086] [C360] [C369].

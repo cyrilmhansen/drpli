@@ -2494,7 +2494,8 @@ SPECIMENS.update({
 #   E52YH 384 B; CODE 0051, DATA 000F.  COMPUTED control `c = a / b' all dec(9,2) -- the
 #             armed [C086] L3/L5 route UNTOUCHED: `?DLDOP@000C / MVI A,06 / ?QDDSL@0011 /
 #             ?DLDOP@0019 / ?DDVOP@001C / MVI A,04 / ?QDDSR@0021 / MVI A,09 / ?DSTOP@0029'
-#             (H-5 CONFIRMED; division stays OUTSIDE the P3-12 perimeter).
+#             (PLAN §3 H-7 CONFIRMED — computed route UNCHANGED; division stays OUTSIDE
+#             the P3-12 perimeter; H-5 is YC's direction-symmetry witness).
 #   E52YI 256 B; CODE 003F, DATA 0007.  `d = decimal(i,7)' into dec(9,2): `LHLD *i(data@0000)
 #             / ?QI15D@000A / MVI A,02 / ?QDDSL@000F / LXI H,*d(data@0002) / MVI A,09 /
 #             ?DSTOP@0017' -- the decimal() doorway stores through the SAME shift law from
