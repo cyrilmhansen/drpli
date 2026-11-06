@@ -1,0 +1,16 @@
+E52WC: procedure options(main);
+
+   /* E2E-52/P3-10 probe WC (PLAN sec P3-10 panel B):
+      SIGNAL ERROR(2). error(1) is witnessed 4x in
+      EXPR1/EXPR2 (21 01 00 / AF / CD ?SIGOP).
+      Predict H-B2: 21 02 00 / AF / CD ?SIGOP, 7 bytes,
+      argument verbatim as the 16-bit absolute LXI operand.
+      Falsifier: any other placement of the value 2. */
+
+   dcl x fixed bin;
+
+   signal error(2);
+   x = 2;
+
+end E52WC;
+

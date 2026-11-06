@@ -1,0 +1,16 @@
+E52WD: procedure options(main);
+
+   /* E2E-52/P3-10 probe WD (PLAN sec P3-10 panel C):
+      boundary subcode ERROR(255), top of the documented
+      0-255 ERROR subcode range. C366 measures ON ERROR
+      0..255-adjacent values 0/1/2 only; SIGNAL's range
+      is UNMEASURED. Predict: accept, 21 FF 00 / AF / CD
+      ?SIGOP. Competitor: refusal. */
+
+   dcl x fixed bin;
+
+   signal error(255);
+   x = 2;
+
+end E52WD;
+

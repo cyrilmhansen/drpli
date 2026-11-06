@@ -862,3 +862,189 @@ If the OR fold + `< 0` leaf land, LOAN2's blocker moves PAST line 91. LOAN2 113 
 DEC-push-order law (H7) to be pinned by VI/VG; 120's AND is already armed; `signal error` (91's body) will hit the
 UNARMED `?SIGOP` lowering — the first refusal may well be a new shape entirely. **Record whatever actually happens
 VERBATIM; do NOT fix, do NOT fit.**
+
+## Subround P3-10 — SIGNAL condition lowering + the `?SIGOP` ABI + the lost-argument frontend repair (LOAN2:92 blocker) — PRE-REGISTERED 2026-11-07 (operator brief E2E-52/P3-10; baseline HEAD `ec3ff7b`, ledger ENDS C367, inventory 1260/186, coverage 141/91)
+
+### 1. Measured blocker (VERBATIM, census record at HEAD `ec3ff7b`, gate `build/gate-e52p9-reg.log`)
+
+`codegen: statement kind not in supported subset [TBD] (line 92)` rc=2, NO .REL —
+LOAN2 line 92 `signal error;` (the THEN body of the line-91 OR condition). CLASSIFICATION
+`my-gap`: DR ACCEPTS the statement; its object carries the lowering (decoded below).
+
+### 2. EXISTING DR evidence (Phase A audit this session, ZERO oracle, goldens untouched;
+raw bitstream reldumps + annotated disassembly in ignored `build/e52p10/`)
+
+SIGNAL witnesses exist in EXACTLY FOUR original objects (full-corpus scan of every
+`golden/first/*/[A-Z]*.REL` for a decoded `?SIGOP` chain record; `?SIGNA` appears in
+`spec/notes/plilib-routines.txt` but in NO object):
+
+| Witness | Condition | Argument form | Operand bytes | Condition-code bytes | Helper | Relocation family | CODE offset |
+|---|---|---|---|---|---|---|---|
+| LOAN2:92 | error | bare | `21 00 00` ABS (DATA, no RELOC) | `AF` (XRA A, A=00) | `?SIGOP` | CALL slot 035E LINK-CHAIN-EXT; nothing else | 0359-035F (7 B) |
+| EXPR1:58 | error | `(1)` | `21 01 00` ABS | `AF` | `?SIGOP` | slot 017A CHAIN-EXT | 0175-017B (7 B) |
+| EXPR1:61 | error | `(1)` | `21 01 00` ABS | `AF` | `?SIGOP` | slot 0192 CHAIN-EXT | 018D-0193 (7 B) |
+| EXPR2:87 | error | `(1)` | `21 01 00` ABS | `AF` | `?SIGOP` | slot 0242 CHAIN-EXT | 023D-0243 (7 B) |
+| EXPR2:90 | error | `(1)` | `21 01 00` ABS | `AF` | `?SIGOP` | slot 025A CHAIN-EXT | 0255-025B (7 B) |
+| COPYLPT:70 | endpage | `(printfile)` | `21` + RELOC **common@0000** (group PRINTF, size 002B, selected earlier by SEL-COMMON) | `3E 08` (**MVI A,08**) | `?SIGOP` | slot 02B0 CHAIN-EXT | 02AA-02B4 (11 B) |
+
+Control witness (ON route, same object): `on endpage(printfile)` registration at COPYLPT
+0254 = `LXI H,*C(PRINTF) / MVI A,08 / CALL ?ONCOP / C3 02AA` — the ENDPAGE discriminator
+**08** is IDENTICAL on both helpers; the file-operand prefix is byte-for-byte the [C109]/
+[C202] file prefix. ENDFILE carries 05 [C120], UNDEFINEDFILE 06 [C364] on the ON route.
+
+Structural facts read directly from the records (original DR evidence, PANEL-UNVERIFIED
+until this campaign's probes land):
+- SIGNAL is a PURE statement: NO jump-over slot, NO inline handler, NO recovery pad, NO
+  SP-save cell, NO ON-stack registration at any of the six sites. Bytes = LXI (3) +
+  A-byte (1 via `AF`, or 2 via `3E nn`) + CALL (3).
+- The ERROR argument is the 16-bit LITTLE-ENDIAN LXI operand VERBATIM (bare/0 = 0000,
+  1 = 0001) with NO relocation — the C366 ON-ERROR law mirrored; the four error(1)
+  sites are mutually identical.
+- The FILE form relocates the LXI operand into the file's named COMMON group exactly as
+  `on_reg_prefix`/`load_file_cb` do (the group-selection record is emitted only when the
+  selected group CHANGES, [C202]).
+- Jump patching is unaffected: LOAN2's enclosing IF `F2` (0356) patches to 0360 = the
+  statement AFTER the 7-byte signal; EXPR1's `C3` (0172) skips to 017C likewise.
+- The CALL operand slot bytes are `00 00` DATA plus a `LINK-CHAIN-EXT` record naming
+  `?SIGOP` (external name resolved by LINK-80, never by the compiler).
+
+Manual (extracted language manual sec 8.6 / B.27) documents only `SIGNAL condition;` and
+lists the recognized conditions (ERROR, FIXEDOVERFLOW, OVERFLOW, UNDERFLOW, ZERODIVIDE,
+ENDFILE, ENDPAGE, UNDEFINEDFILE, KEY); the distribution's own programs prove argument
+forms EXIST and compile. Manual prose is documentation, NEVER a claim.
+
+EXISTING CLAIMS BORROWED AS ANALOGY (NOT evidence about SIGNAL): C366 (ON ERROR
+argument = LXI operand, abs, bare=0000), C109/C120/C202/C364 (file ON prefix, SEL-COMMON
+change-rule, condition codes 05/06), C367 (the OR fold reused by probe WK), C206/C208/C109
+(pad/SP-cell/adjacency geometry for WJ).
+
+HYPOTHESES AWAITING DIRECT TEST (nothing below is inferred from the six witnesses alone):
+acceptance of subcodes 0/2/255/256 in SIGNAL; expression and variable arguments; a bare
+file condition WITHOUT argument; the ENDFILE discriminator through SIGNAL; interaction
+with a registered handler; SIGNAL under IF.
+
+### 3. Hypotheses (byte-exact; NEVER fit; every MISS recorded VERBATIM)
+
+- **H-A** (WA): standalone `signal error;` = EXACTLY `21 00 00 / AF / CD <slot>` (7 B),
+  LXI operand ABSOLUTE (no RELOC record), slot chained `?SIGOP`; the `x = 2` statement
+  begins at the very next byte; nothing else in the object changes. Falsifiers: `3E 00`
+  for `AF`; any extra CALL/JMP; a RELOC on the operand; any pad/registration bytes.
+- **H-B0** (WB): `signal error(0);` accepted, byte-identical to H-A (`21 00 00`).
+  Falsifier: DR refusal (record VERBATIM, no golden).
+- **H-B2** (WC): `signal error(2);` = `21 02 00 / AF / CD ?SIGOP` (argument verbatim).
+- **H-C255** (WD): `signal error(255);` accepted with operand `FF 00` (16-bit verbatim).
+- **H-C256** (WE): UNKNOWN verdict — accept with operand `21 00 01` vs `dr-refuses`
+  (documented subcode range 0-255; the COMPILER's acceptance rule is unmeasured). Either
+  outcome is kept; NO invented golden if refused.
+- **H-D1** (WF): `signal error(1+1);` — UNKNOWN. If accepted: competing emission
+  hypotheses (folded absolute `21 02 00`; or runtime evaluation sequence). Refusal is a
+  legitimate `dr-refuses` outcome.
+- **H-D2** (WG): `signal error(n);` dynamic — UNKNOWN; if accepted, decode, do NOT
+  generalize to arbitrary expressions from one witness.
+- **H-E1** (WH): `signal endpage(pf);` accepted, 11 B = `21` + RELOC common@0 (PF group)
+  `/ 3E 08 / CD ?SIGOP`; SEL-COMMON record only when the selected group changes [C202];
+  COMMON PF group size per the established plain-file mechanism (E52UF measured 0023).
+  Falsifiers: `AF` instead of `3E 08`; a DATA/code relocation on the operand; a different
+  discriminator byte; a jump-over slot.
+- **H-E2** (WI): `signal endfile(f);` — does SIGNAL's A byte track the ON condition codes
+  (ENDFILE 05 [C120])? Predict accept + `3E 05`; competitors: a different byte, refusal.
+- **H-F** (WJ): with `on error(1) x = 1;` present, the registration stays EXACTLY the
+  C366 bytes, the SIGNAL adds its 7 bytes after the jump-over target, DATA stays 0002
+  (returning handler: NO SP cell, NO pad — C366/H4), no new prescan demand. Falsifier:
+  any byte/size change outside the added 7-B region.
+- **H-G** (WK): the line-91 fold region byte-for-byte from the E52VB golden (17 B, C367)
+  with the terminal `F2` patched to the continuation address = signal start + 7, and
+  `x = 2` immediately after; the OR encoder is NOT modified to fit SIGNAL.
+- **H-X** (WL): bare `signal endfile;` — UNKNOWN verdict and UNKNOWN operand (0000? a
+  default FCB? refusal). Manual-example form with NO object witness.
+
+Deliberately NOT probed (no discriminating question within budget; kept UNMEASURED and
+refused BY NAME in my compiler): `SIGNAL ... FROM(expr)` (parser's FROM field — no
+historical witness anywhere); multiple arguments `error(1,2)`; other condition names
+(CONVERT/OVERFLOW/ZERODIVIDE/KEY/FIXEDOVERFLOW) through SIGNAL; `signal undefinedfile(f)`
+(duplicates WI's question).
+
+### 4. Probes E52WA..WL (12; CRLF, bare `^Z`, <=71 cols, E52UA/E52UF skeletons)
+
+Sources in `probes/E52W{A..L}.PLI` committed with this PLAN BEFORE any oracle call and
+BEFORE any `ocaml/` byte (blobs, not mtimes, prove the ordering).
+
+| Probe | Statement(s) under test | Panel | Prediction |
+|---|---|---|---|
+| E52WA | `signal error;` + `x = 2;` | A | H-A, 7 B abs-LXI/XRA/CHAIN-EXT |
+| E52WB | `signal error(0);` | B | H-B0 = H-A bytes |
+| E52WC | `signal error(2);` | B | H-B2 `21 02 00` |
+| E52WD | `signal error(255);` | C | H-C255 `21 FF 00` |
+| E52WE | `signal error(256);` | C | H-C256 UNKNOWN verdict |
+| E52WF | `signal error(1+1);` | D | H-D1 UNKNOWN |
+| E52WG | `n = 1; signal error(n);` | D | H-D2 UNKNOWN |
+| E52WH | `dcl pf file; signal endpage(pf);` | E | H-E1 11 B, A=08 |
+| E52WI | `dcl f file; signal endfile(f);` | E | H-E2 A=05? |
+| E52WJ | `on error(1) x = 1; signal error(1); x = 2;` | F | H-F |
+| E52WK | `if dl < 0 \| dl > 2 then signal error; x = 2;` | G | H-G |
+| E52WL | `signal endfile;` (no argument) | extra | H-X UNKNOWN |
+
+error(1) is NOT re-probed: four original witnesses already decide it (merged per the
+brief). Every probe carries a following statement so the continuation is measurable.
+
+### 5. Campaign + frontend + arm contract (hops 2+)
+
+ONE grouped run: `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52WA E52WB E52WC
+E52WD E52WE E52WF E52WG E52WH E52WI E52WJ E52WK E52WL --tag e52p10 --switches '$L$D'`,
+rc DIRECT; read EVERY `.PRN`; classify accepted/refused honestly; goldens committed
+VERBATIM before any emitter code.
+
+FRONTEND REPAIR (after the campaign, evidence-first): `Ast.Ssignal` gains
+`cargs : expr list` (parser stops discarding `opt_paren_exprs`; `FROM` KEPT as-is);
+bind.ml use-walkers (574/1518 sites) traverse `cargs`. This representation change is an
+engineering correction, NOT a DR hypothesis; it must not widen what the codegen admits.
+Test AST preservation explicitly even for forms the emitter still refuses.
+
+ARM (codegen, measured shapes ONLY): a `Ssignal` statement arm — bare/integer-literal
+ERROR within the range DR measured on WD/WE (emit `on_error_reg_prefix`-style ABS
+LXI + `AF` + `call_ext "?SIGOP"`; NO jump-over, NO handler machinery — SIGNAL is not an
+ON registration); file form ONLY for conditions whose discriminator byte this campaign
+measures (endpage 08 from the original + WH; endfile 05 ONLY if WI accepts and shows
+05), via `load_file_cb` + `MVI A,<measured>` + `?SIGOP`. `st.lowered` incremented like
+any emitted statement; `st.last_imm <- None` at the call (HL is clobbered — audit the
+branch-boundary law [C202] against the accepted goldens, do not assume). Every
+unmeasured shape (other conditions, expression/variable args unless a probe pins the
+bytes, FROM, multiple args, out-of-range literals) refuses BY NAME `[TBD]`. No
+redundant-LXI optimization (no DR witness).
+
+Validation: build rc=0 DIRECT; per-File histogram vs baseline codegen 68 / total 124;
+cmp accepted probes WHOLE-FILE vs `golden/e52p10/` (fresh output paths, positional
+`pli80c`); sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0;
+markers harness (CRLF+bare `^Z`) rc=2 MARKER_FAILS 0; regressions: E52UA..UF/C366,
+E52VA..VK/C367, ENDFILE/UNDEFINEDFILE ON, REVERT, IF/ELSE patching, FILE COMMON,
+STOP/CALL/RETURN, all pinned negatives; full negative panel 186 + divergences 9/9.
+LOAN2/EXPR1/EXPR2 recompiled POSITIONAL VERBATIM — LOAN2 should move past line 92;
+record the ACTUAL new first blocker, do NOT predict it, NEVER fix it. EXPR1/EXPR2 stay
+census controls (their own blockers are out of scope).
+
+Registration: SPECIMENS +N for DR-accepted AND byte-exact probes only (baseline 1260),
+sanctioned `--update-inventory`, ALWAYS `git diff --cached --stat` before commit (the
+operator's `handoff.config.json` NEVER staged); census OWN write path; claim **C368**
+written from MEASURED BYTES ONLY, committed BEFORE any `spec/COVERAGE.tsv` touch; new
+`COND.SIGNAL` row (EXPLICIT `spec/COVERAGE-IDS.txt` line, NEVER `coverage_gen.py`,
+column count from the FIRST NON-COMMENT row); `coverage_check` + `file_prose_check`
+rc=0 (141 rows survive + the new one); FULL gate rc=0 -> `build/gate-e52p10-reg.log`.
+STOP at P3-10 closure: do NOT implement the next LOAN2 blocker, do NOT start P3-11.
+
+### 6. LOAN2 direction (pre-registered, NEVER fit)
+
+If the measured SIGNAL subset lands, LOAN2 moves PAST line 92. The next refusal is NOT
+predicted: later SIGNAL-free statements, REVERT ERROR, GET/PUT shapes or the DEC formal
+surface may stop it first. Record the ACTUAL verbatim diagnostic + line and STOP. If
+LOAN2 unexpectedly emits a complete .REL, compare byte-for-byte against
+`golden/first/LOAN2/LOAN2.REL` and report — do NOT chase the next gap.
+
+### 7. Frontend defect record (accepted, PRE-REGISTERED here, fixed only after the campaign)
+
+`parser.ml` SIGNAL branch consumes `(args)` into `_sargs` and DISCARDS them;
+`ast.ml Ssignal` carries only `cond`/`target`. Post-parse the compiler cannot
+distinguish `signal error;`, `error(0)`, `error(1)`, `error(2)` or
+`endpage(printfile)` — a loss of source semantics, not merely an unimplemented emitter.
+Remedy: `cargs : expr list` in the AST (analogous to `Son`/`Srevert`), parser passes the
+parsed list, bind use-walkers traverse it; codegen continues to refuse every unmeasured
+shape BY NAME. No lowering is ever assigned to `FROM` without a witness.

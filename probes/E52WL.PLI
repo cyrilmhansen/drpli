@@ -1,0 +1,16 @@
+E52WL: procedure options(main);
+
+   /* E52WL probe (PLAN sec P3-10 extra boundary): the
+      manual's own example form SIGNAL ENDFILE with NO
+      file argument (manual 8.6 / B.27). No object
+      witnesses it. VERDICT UNKNOWN: accept (operand
+      0000? a default FCB?) or refuse. Record the actual
+      diagnostic or bytes VERBATIM; no fitting. */
+
+   dcl x fixed bin;
+
+   signal endfile;
+   x = 2;
+
+end E52WL;
+

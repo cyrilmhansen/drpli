@@ -1,0 +1,17 @@
+E52WF: procedure options(main);
+
+   /* E52WF probe (PLAN sec P3-10 panel D): SIGNAL
+      ERROR(1+1) -- an integer EXPRESSION argument, not a
+      literal. No historical witness decides acceptance.
+      VERDICT UNKNOWN; if accepted, competing hypotheses:
+      folded to absolute 21 02 00; or a runtime evaluation
+      sequence before the CALL; or a refusal. Record the
+      actual bytes/diagnostic VERBATIM. */
+
+   dcl x fixed bin;
+
+   signal error(1+1);
+   x = 2;
+
+end E52WF;
+

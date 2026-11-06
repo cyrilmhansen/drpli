@@ -1,0 +1,20 @@
+E52WH: procedure options(main);
+
+   /* E52WH probe (PLAN sec P3-10 panel E): file-scoped
+      SIGNAL. Historical witness COPYLPT line 70 signal
+      endpage(printfile) at code 02AA = 21 <r common PRINTF
+      base> / 3E 08 / CD ?SIGOP (CHAIN-EXT slot 02B0), 11
+      bytes, no jump-over. Predict H-E1: DR accepts; here
+      SEL-COMMON PF + RELOC common@0 on the LXI operand +
+      MVI A,08 + CALL ?SIGOP, group size per the plain-file
+      mechanism. Falsifiers: XRA A instead of MVI A,08; no
+      common relocation; a different discriminator byte. */
+
+   dcl pf file;
+   dcl x fixed bin;
+
+   signal endpage(pf);
+   x = 2;
+
+end E52WH;
+

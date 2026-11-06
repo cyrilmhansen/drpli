@@ -1,0 +1,19 @@
+E52WJ: procedure options(main);
+
+   /* E52WJ probe (PLAN sec P3-10 panel F): SIGNAL under a
+      measured ON ERROR handler. E52UE measured the
+      registration on_error_reg_prefix (C366): 21 01 00 /
+      AF / CD ?ONCOP / C3 over. Predict H-F: adding the
+      signal does NOT change the registration bytes, adds
+      exactly the 7-byte SIGNAL region after the jump-over
+      target, keeps the returning handler SP-cell-free
+      (DATA 0002), and introduces no new prescan demand. */
+
+   dcl x fixed bin;
+
+   on error(1) x = 1;
+   signal error(1);
+   x = 2;
+
+end E52WJ;
+

@@ -1,0 +1,15 @@
+E52WE: procedure options(main);
+
+   /* E2E-52/P3-10 probe WE (PLAN sec P3-10 panel C):
+      out-of-range control ERROR(256), one above the
+      documented 0-255 subcode range. Both verdicts are
+      scientific: accept => 21 00 01 (16-bit operand);
+      refuse => dialect boundary kept VERBATIM, no golden. */
+
+   dcl x fixed bin;
+
+   signal error(256);
+   x = 2;
+
+end E52WE;
+

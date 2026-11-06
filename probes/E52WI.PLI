@@ -1,0 +1,17 @@
+E52WI: procedure options(main);
+
+   /* E52WI probe (PLAN sec P3-10 panel E): ENDFILE through
+      SIGNAL -- a SECOND file condition to test whether the
+      A byte tracks the ON condition code (ENDFILE = 05,
+      [C120]) or a SIGNAL-specific numbering. Predict:
+      accept, 21 <r common F base> / 3E 05 / CD ?SIGOP.
+      Competitors: a different byte; refusal. */
+
+   dcl f file;
+   dcl x fixed bin;
+
+   signal endfile(f);
+   x = 2;
+
+end E52WI;
+

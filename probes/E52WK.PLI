@@ -1,0 +1,21 @@
+E52WK: procedure options(main);
+
+   /* E52WK probe (PLAN sec P3-10 panel G): the exact
+      LOAN2 91-92 shape, OR condition + SIGNAL in the THEN
+      body. E52VB measured the 17-byte fold 2A r(dl) /
+      2B 2B 2B / 7C / 2F / F5 / 3A r(dl+1) / C1 / B0 / F2
+      slot (C367). LOAN2: JP patches to the statement
+      AFTER the 7-byte signal (0356 F2 -> 0360). Predict
+      H-G: fold bytes verbatim from the VB golden, signal
+      region 21 00 00 / AF / CD ?SIGOP, F2 target = the
+      x = 2 continuation immediately after the 7 bytes. */
+
+   dcl dl fixed binary;
+   dcl x fixed bin;
+
+   if dl < 0 | dl > 2 then
+      signal error;
+   x = 2;
+
+end E52WK;
+

@@ -1,0 +1,18 @@
+E52WG: procedure options(main);
+
+   /* E52WG probe (PLAN sec P3-10 panel D): SIGNAL
+      ERROR(n) with n a declared FIXED BINARY variable --
+      a dynamic operand. No historical witness decides
+      acceptance. VERDICT UNKNOWN; if accepted, decode the
+      evaluation order, operand register and storage
+      interaction from the object. Do not generalize. */
+
+   dcl n fixed binary;
+   dcl x fixed bin;
+
+   n = 1;
+   signal error(n);
+   x = 2;
+
+end E52WG;
+

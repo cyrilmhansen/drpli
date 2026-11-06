@@ -1,0 +1,16 @@
+E52WB: procedure options(main);
+
+   /* E2E-52/P3-10 probe WB (PLAN sec P3-10 panel B):
+      SIGNAL ERROR(0). ON ERROR measures error(0) = the
+      same bytes as bare (C366, E52UE). Predict H-B0: DR
+      accepts; 21 00 00 / AF / CD ?SIGOP, 7 bytes.
+      Competitors: DR refuses; a 1-byte subcode route;
+      argument placed in A. */
+
+   dcl x fixed bin;
+
+   signal error(0);
+   x = 2;
+
+end E52WB;
+

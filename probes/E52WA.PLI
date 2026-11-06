@@ -1,0 +1,18 @@
+E52WA: procedure options(main);
+
+   /* E2E-52/P3-10 probe WA (PLAN sec P3-10 panel A): bare
+      SIGNAL ERROR as a standalone statement. Historical
+      witness: LOAN2 code 0359-035F = 21 00 00 / AF / CD
+      ?SIGOP (CHAIN-EXT slot 035E), 7 bytes, no jump-over,
+      no SP cell, next statement follows directly. Predict
+      H-A: same 7 bytes here; the x = 2 assignment shows
+      the continuation. Falsifiers: MVI A,00 for AF; any
+      extra helper or jump; a relocation on the LXI operand. */
+
+   dcl x fixed bin;
+
+   signal error;
+   x = 2;
+
+end E52WA;
+
