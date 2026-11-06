@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "6d59b9fca5cf295b7b0323b3569499d4",
+ "binary_md5": "f32dcbab57240ad0a1057aa85fa9baa3",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,18 +15,15 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-06T18:02:28",
+ "generated": "2026-11-06T20:30:25",
  "git_dirty_paths": [
   "M handoff.config.json",
-  " M spec/INVENTORY.txt",
-  " M tools/e2e_gate.py",
-  "?? golden/e52p12/summary.txt",
-  "?? golden/e52p12/transcript-batch0.txt",
-  "?? golden/e52p12/transcript-batch1.txt",
-  "?? golden/e52p12/transcript-batch2.txt",
   "?? ocaml/_build-e52p10/",
   "?? ocaml/_build-e52p11/",
   "?? ocaml/_build-p312hist/",
+  "?? ocaml/_build-p313arm/",
+  "?? ocaml/_build-p313arm2/",
+  "?? ocaml/_build-p313arm3/",
   "?? ocaml/build-e52p10-ast-build.log",
   "?? ocaml/build-e52p10-ast-run.log",
   "?? ocaml/build-e52p10-hop3rem-build.log",
@@ -40,10 +37,9 @@
   "?? ocaml/build-e52p9-arm7.log",
   "?? ocaml/build-h12verify.log",
   "?? ocaml/build-p37.log",
-  "?? ocaml/build-warn-e52p6.log",
-  "?? probes/NG20.PLI"
+  "?? ocaml/build-warn-e52p6.log"
  ],
- "git_head": "c186723df64dcb93efb58fed8b93b431cf2bd6d5",
+ "git_head": "39bb9a0107deb36ab17b968aba36098750d6266f",
  "rows": [
   {
    "dir_present": true,
@@ -421,7 +417,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an automatic decimal BY REFERENCE -- ",
+   "msg": "Fatal error: exception Failure(\"codegen: CALL target is not a simple procedure name [TBD] (only `CALL id` / `CALL id(args)` / bare `id;` have a DR lowering samp",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
