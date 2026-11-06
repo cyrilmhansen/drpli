@@ -2781,17 +2781,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 408
-checkpoint-id: g408-d8ba15e6f3ed
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
+checkpoint-generation: 409
+checkpoint-id: g409-fed28b4c9d44
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
 guard-level: 4
-checkpointed: 2026-11-06T06:56:40.512Z
+checkpointed: 2026-11-06T06:58:40.190Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: 9e5f025b781c76b4194ddfab48d88af354dcc03b40cad5ae6f3a5f4fb20bcba1
+source-progress: 5efdc93a94fde5b9309c7265f233cf0f113cb6139f80b17834211feff267c7e3
 source-handoff: 1f82121b6c111e4fcf3602d85e378f7e7dec26e69cf46bdcc3baafb4b71be322
-source-learnings: 5c83a647a876c9499a0e309c271cb4ea59707e1550d0fb1afd3a70f41a0c8772
+source-learnings: 99137d081c89d95b8fa9ed59322bdcbe86af53ec479af1ec15a995abd7843e8a
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` steps (2)–(6): **C367 measured-bytes-only committed to `spec/CLAIMS.md` BEFORE ANY `spec/COVERAGE.tsv` touch** (bullet contract = LEARNINGS § "hop 6 CLOSE PART 1" STILL OWED (i)) → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; verify diff ≈ 2 lines by content) + coverage_check/prose rc=0 → FULL gate rc=0 DIRECT `build/gate-e52p9-reg.log` (expect 1260/0, 186/186, 9/9, rows 0/0, census 15/0/26/0, prose 5) → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); inventory 1260/186; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat` before commit; chain 01a1af4f cap 12; no push.
 
@@ -3396,6 +3396,9 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
+readiness-by: session:01a1af94-1330-7191-8d53-511070848452
+readiness-at: 2026-11-06T06:58:40.213Z
+readiness-checkpoint: g409-fed28b4c9d44
 <!-- guard:end checkpoint -->
 
 ## Blockers
