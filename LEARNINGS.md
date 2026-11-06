@@ -7882,3 +7882,63 @@ STOP reached**.
 **STILL OWED (successor, EXACT order — PROTOCOL #1):** (1) write PLAN §P3-11 (template §P3-10: §1 blocker VERBATIM from census `0198fe5`; §2 Phase-A evidence table incl. THIS section's first-hand records; §3 H-A..H-K + falsifiers; §4 probe table; §5 campaign+arm contract — candidate A iff XG/XH/XI accepted+byte-exact via the ONE shared emitter with NO new statement bytes, else candidate C PAGE-only, message-body prose may move but PU1 substring must survive; §6 LOAN2 never-predict; §7 guard-semantics = source-structure evidence NOT runtime typestate) + the 11 probe files; OPTIONAL zero-oracle local sanity compiles of the probe sources with the CURRENT `pli80c` (positional, FRESH out path) to pin MY-side predictions; commit PLAN+probes+LEARNINGS/PROGRESS durables by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte. (2) ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52XA E52XB E52XC E52XD E52XE E52XF E52XG E52XH E52XI E52XJ E52XK --tag e52p11 --switches '$L$D'` rc DIRECT; read EVERY .PRN; reldump accepted regions into `build/e52p11/`; goldens VERBATIM committed BEFORE any emitter change; XJ/XK classified honestly (dr-refuses → REJECTS + VERBATIM verdict, WL precedent; accepted-and-mine-refuses → golden KEPT + my-gap REJECTS, SE precedent); NEVER invent goldens. (3) arm candidate per verdicts — ONE-line `lower_open` change (also record `PRINT` opens into `st.file_out`), NO open-encoder byte change, NO emitter change, BY-NAME refusals kept (PAGE+items, LINE, counted PAGE, INPUT-open, no-open, KEYED etc.). (4) build rc=0 DIRECT; histogram codegen 68/total 124; whole-file cmp accepted probes (FRESH paths); sweep `python3 build/e52p3/sweep.py E46N E46K E51 E52 P086 R10` FAILS 0; markers harness CRLF+bare ^Z (copy `build/e52p8-reg/markers.py`) incl PU1 + E41X5 + E46K10 + N3_PAGE + E46N21; regressions E46N*/E52TA..TJ/UA..UF/VA..VK/WA..WK + negative panel 187 + divergences 9/9. (5) LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM — record ACTUAL next blocker past 99, NEVER fix; if LOAN2 unexpectedly emits .REL, cmp vs `golden/first/LOAN2/LOAN2.REL`, report, STOP. (6) registration from **1269** (accepted+byte-exact only; `--update-inventory`; `git diff --cached --stat` — `handoff.config.json` NEVER staged; census OWN path; **C369 measured-bytes-only BEFORE ANY `spec/COVERAGE.tsv` touch** per the Phase A bullet contract; EXTEND existing rows `FILE.PUT_PAGE`/`FILE.PUT_LIST`/`FILE.PUT_SKIP` probe lists rather than new rows where the contract fits — new rows ship their COVERAGE-IDS line in the SAME change, NEVER `coverage_gen.py`, 15 cols from FIRST NON-COMMENT row, `delimiter='\t'`); coverage_check+prose rc=0; FULL gate rc=0 DIRECT → `build/gate-e52p11-reg.log`; RESULTS §P3-11 + PLAN §5 progress-table row + §P3-11 CLOSED + durables. **STOP at P3-11 — do NOT fix the next LOAN2 blocker, no P3-12, no runtime claims.**
 
 **STATE:** HEAD = this commit (atop guard `f58f64f`); recovery verified HEAD `b0c5dbd`; build rc=0 binary md5 `cbede3b5…` == `a4c0e235ed4bb81fe284…`-baseline fingerprint re-held; ledger C368; inventory 1269/187; coverage 142/92; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; session 01a1b0c9 chain renewal 1/12 — SUCCESSOR VIA RENEWAL OWNS steps (1)-(6).
+
+## E2E-52/P3-11 hop 2 LANDED — PLAN §P3-11 + probes E52XA..XK PRE-REGISTERED BEFORE any oracle call; campaign e52p11 OWED (session 01a1b127, chain 01a1b0c9 renewal 2/12, 2026-11-07; ZERO oracle, ZERO `ocaml/` byte)
+
+**ACCEPTED (first-hand this session; dumps `build/e52p11/xplan/`):**
+- Recovery verified HEAD `57e7f62`+guard `f58f64f`; build rc=0, binary `a4c0e235ed4bb81fe284…`
+  (md5 `cbede3b5…`) == baseline; g427 blocks committed VERBATIM `093ba87`.
+- LOAN2 03AA-03BB 18-B PAGE re-verified from `xplan/LOAN2-full.txt` INCLUDING the DOUBLE
+  back-patch (SET-LC @30135→30179 for LXI-B slot 03B1 and @30204→30248 for the CA skip-slot
+  03A8, both → 03BC = `call header()`); `RELOC common 0x0` at 03AA confirmed on its own record
+  line; attach `11 52 06`; chains `?SIOOP`@03B4/`?PAGOP`@03B7/`?QIOOP`@03BA.
+- E46N1 BARE SKIP re-dumped FIRST-HAND (`xplan/E46N1.txt`): 0023-0036 = 20 B = attach 12 +
+  `3E 01` + CD `?SKPOP` + CD `?QIOOP`, NO `?PNCOP` (bare skip carries no item chain);
+  slot 002A → RELOC code 0x37 (close `?CIOOP`). E46N2 (`xplan/E46N2.txt`): 0023-0041 = 31 B,
+  skip BETWEEN attach and chain, chain `21`+RELOC data 0x9/`3E 01`/`?SLCTS` then `?PNCOP`+`?QIOOP`.
+- E46L8 (golden/e42p2a, my compiler REFUSES — PU1's program): NO-open geometry measured —
+  entry, `x = 2` store 0006-000B, attach at 000C = `21` + **LINK-SEL-COMMON F emitted at FIRST
+  USE** + RELOC common 0x0, `11 52 06`, `01`+slot 0013, `?SIOOP`; slot → 0x26 `?STOPX`.
+- **CORRECTION (mine, first-hand):** the immediate store `x = 2` is **6** code bytes
+  (`21 nn nn` + `22` + 2 RELOC-embedded operand bytes), NOT the "7-B" of the hop-1 note:
+  E52VA CODE 001C = 6(entry)+7(leaf)+6+6+3(STOPX) arithmetically closes ONLY with 6;
+  E46L8 0006-000B independently measures it. All §4 CODE-size predictions use 6.
+- E52TB/TC prove the titled-route `21 00 00`+`E5` word and the four trailing `E5` pushes are
+  ROUTE furniture, not pagesize(0) furniture (TC spells NO pagesize yet carries them) — the
+  basis of XB's 29-B prediction with w1 `0E52`.
+- Zero-oracle sanity (`xplan/sanity.txt`): ALL 11 probes rc=2 at the eligibility guard on
+  their PUT line (`PUT FILE(PF) has no byte-exact DR witness [TBD] (line 8/9/10/15)`) —
+  every OPEN (XB's unmeasured literal-title+print combo included, XK's titleless input open
+  via the E46E4 route) lowers TODAY; the gap is purely `st.file_out` recording.
+
+**LANDED (pre-registration commit, BEFORE any oracle call or `ocaml/` byte):** PLAN §P3-11
+(§1 blocker VERBATIM from census `0198fe5`; §2 evidence table incl. the rows above; §3 H-A..H-K
+with falsifiers incl. H-E DOUBLE-vs-SINGLE patch and H-K attach-direction competitor; §4 probe
+table with CODE-size predictions XA 0036 XB 003E XC 003E XD 003C XE 003D XF 0063 XG 003E XH 0038
+XI 0043 XJ 0021-if-accepted XK 0036-if-accepted; §5 campaign+arm contract — candidate A iff
+XA..XI accepted+byte-exact, else candidate C PAGE-only, PU1 substring MUST survive, BY-NAME
+refusals listed; §6 LOAN2 never-predict; §7 guard = source-structure NOT runtime typestate)
++ the 11 `probes/E52X*.PLI` sources (CRLF, bare `^Z`, ≤71 cols, first-line label, statement
+after every PUT) + this section + durables.
+
+**SUCCESSOR (this session continues if context allows; else the chain does):** execute PLAN
+§P3-11 §5 EXACTLY: (2) ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py
+E52XA..E52XK --tag e52p11 --switches '$L$D'` rc DIRECT; read EVERY .PRN; reldump accepted
+regions into `build/e52p11/`; goldens VERBATIM BEFORE any emitter change; XJ/XK honest
+classification (WL/SE precedents), NEVER invent goldens; (3) candidate A iff XG/XH/XI
+accepted+byte-exact via the ONE route-independent emitter (one-line `lower_open` PRINT
+recording), else candidate C PAGE-only; (4) build rc=0 + histogram 68/124 + whole-file cmp
+(FRESH paths, POSITIONAL) + sweep FAILS 0 + markers (CRLF+bare ^Z) incl PU1/E41X5/E46K10/
+N3_PAGE/E46N21 + regressions + negatives 187 + divergences 9/9; (5) LOAN2/EXPR1/EXPR2
+POSITIONAL VERBATIM — ACTUAL blocker past 99 recorded, NEVER fix; unexpected LOAN2 .REL →
+cmp vs `golden/first/LOAN2/LOAN2.REL` and STOP; (6) registration from 1269, **C369
+measured-bytes-only BEFORE ANY COVERAGE touch**, prefer EXTENDING `FILE.PUT_PAGE`/
+`FILE.PUT_LIST`/`FILE.PUT_SKIP` rows (new rows ship their IDS line in the SAME change;
+NEVER `coverage_gen.py`; 15 cols from FIRST NON-COMMENT row; `delimiter='\t'`); gate rc=0 →
+`build/gate-e52p11-reg.log`; RESULTS §P3-11 + PLAN §5 row + §P3-11 CLOSED + durables.
+**STOP at P3-11 closure.**
+
+**STATE:** HEAD = this durables commit; ledger ENDS C368; inventory 1269/187; coverage 142/92
+0/0; binary `a4c0e235ed4bb81fe284…` == tree; goldens NEVER re-derived; LOAN2 blocker VERBATIM
+`(line 99)` NEVER fix; `handoff.config.json` NEVER staged; no push; rc DIRECT; byte-tier only;
+`pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat`; chain 01a1b0c9 2/12.
