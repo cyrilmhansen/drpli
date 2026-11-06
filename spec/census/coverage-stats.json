@@ -14,40 +14,40 @@
   "OBJ": 3,
   "PROC": 9,
   "RTME": 1,
-  "STOR": 14,
+  "STOR": 15,
   "TRAN": 6
  },
  "confidence": {
   "INFERRED": 3,
-  "MEASURED": 116,
+  "MEASURED": 117,
   "SINGLE_SAMPLE": 18,
   "UNREVIEWED": 5
  },
  "dr": {
-  "ACCEPTS": 128,
+  "ACCEPTS": 129,
   "ACCEPTS_DEFECT": 1,
   "REJECTS": 9,
   "UNTESTED": 4
  },
- "manual_none": 118,
+ "manual_none": 119,
  "manual_unverified": 0,
  "mine": {
   "DIVERGENT": 3,
   "NOT_ATTEMPTED": 3,
   "PARTIAL": 23,
   "REFUSED": 21,
-  "SUPPORTED": 92
+  "SUPPORTED": 93
  },
  "no_parity": 28,
- "no_runtime": 112,
+ "no_runtime": 113,
  "perimeter": {
   "C": 2,
   "M": 17,
   "OPEN": 1,
-  "S": 122
+  "S": 123
  },
- "rows": 142,
+ "rows": 143,
  "single_sample": 18,
  "unreviewed": 5,
- "with_boundary": 142
+ "with_boundary": 143
 }
