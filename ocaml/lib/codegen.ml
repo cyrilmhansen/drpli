@@ -6347,7 +6347,7 @@ let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
              (Printf.sprintf
                 "codegen: decimal operation on non-decimal operand %s [TBD]"
                 n.Ast.orig))
-  | Ast.Ebuilt ("DECIMAL", args) ->
+  | Ast.Ebuilt ("DECIMAL", _) ->
       (* decimal(x,p): the precision ARGUMENT is ignored [R506], so the
          result descriptor comes from context, exactly as in C084.
          [E2E-52/P3-12 E52YI] on the DIRECT-STORE route a plain-integer
