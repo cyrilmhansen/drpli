@@ -9018,3 +9018,98 @@ classified `unmeasured` rather than `dr-refuses`.
   a DR rule. `REVERT ERROR` has NO object at all (only `REVERT UNDEFINEDFILE` is measured, and
   unarmed, in [C364]). Arming any combination beyond this perimeter needs NEW, separately
   pre-registered measurements.
+
+## C367 — A TEST-POSITION OR (`c1 | c2`) CONDITION LOWERS AS A **VALUE-LEVEL BOOLEAN FOLD**, NOT A CHAIN OF CONDITIONAL JUMPS: left operand truth materialized in `A`, `F5 PUSH PSW`, right operand materialized, `C1 POP B / B0 ORA B`, and **EXACTLY ONE terminal `F2 <slot>` per OR node**; a left-associative `n`-operand chain is `n-1` pairwise `C1/B0` folds with still ONE `F2`; THE OPERATOR-EMISSION ORDER INSIDE A NODE IS CLASS-DRIVEN AND **NODE-LOCAL** — a `< 0` fixed-binary leaf is computed **LAST** in its node as the ATOMIC bare `3A r(cell+1)` (bit7 of the high byte IS the truth byte, no `B7` inside a fold), a same-variable FIXBIN `= 0` immediately followed by a `> k` ladder has the LADDER produced and pushed **FIRST** with the zero-test materialized after the `F5`, and everything else keeps source order; a standalone `< 0` TEST leaf is `3A r(cell+1) / B7 / F2 slot` with the relocation landing **EXACTLY ONE PAST the declared cell**; a FIXED-DECIMAL `= 0` fold operand pushes the **VARIABLE cell FIRST and the pooled zero literal SECOND** (VAR-FIRST), the zero cell being shared per (precision,scale) [C155] and demanded by the existing prescan with **NO prescan change**; and a BIT(1) value position stores the fold result with a **BARE `32 <bitcell>`** (no `D6 01 / 9F` normalization) (E2E-52/P3-9; MEASURED — 11 whole-file `cmp` rc=0 of `E52VA..E52VK` against `golden/e52p9/`, RE-MEASURED at registration on the clean-rebuild binary sha256 `11c6283e75b60fe3…`, never fitted)
+
+* **Measured — the fold itself, byte-for-byte (`golden/e52p9/E52VB/E52VB.REL`, 128 B, CODE
+  `DEF-CODE-SIZE 0026`, DATA `0004`).** `if dl < 0 | dl > 2 then x = 1;` lowers the condition at
+  code 0006 as `2A r(dl@0) / 2B 2B 2B / 7C / 2F` (the `dl > 2` ladder: `LHLD`, `DCX H` ×(k+1),
+  `MOV A,H`, `CMA`) then `F5 PUSH PSW` (000E) then `3A r(dl@0 + 1)` (000F, RELOC `data 0x1`) —
+  the `< 0` leaf computed AFTER the push, bare, no `B7` — then `C1 POP B` / `B0 ORA B` (0012/0013)
+  and ONE `F2` with a `LINK-SET-LC code 0015 / RELOC code 0x1d` patch to the continuation
+  (0014). There is **no second conditional jump** anywhere in the node: the two truths are
+  combined as VALUES in `A`/`B`, not as control flow. `E52VC` (`dl > 2 | dl < 0`, the operands
+  SWAPPED in the source) is **BYTE-IDENTICAL to `E52VB`** — head `2A`, `3A` after the `F5` — so
+  emission order is a property of the operand CLASSES, not of the spelling order.
+* **Measured — chain length does not add branches (`E52VF`, 256 B, CODE `003C`, DATA `0006`).**
+  `if dl = 0 | dl > 2 | m > 1 | dl < 0 then x = 1;` is the left-associative fold of three OR
+  nodes: node1 (same variable, `= 0` then `> 2`) emits the LADDER `2A r(dl@0) / 2B 2B 2B / 7C 2F`
+  then `21 r(dl@0)` HOISTED ABOVE the `F5` at 0011 and the zero-test tail `7E 23 B6 D6 01 9F`
+  AFTER the push, folding with `C1 B0`; node2 (`m > 1`) emits `2A r(m@2) / 2B 2B / F5 / 7C 2F /
+  C1 B0`; node3 pushes `F5` and computes `3A r(dl@0+1)` last, then `C1 B0` and the node-3 `F2`
+  only — **four operands, THREE `C1/B0` folds, ONE terminal `F2`** patching to the continuation.
+  The `m > 1` ladder did NOT move ahead of node1's zero-test: the class rules are **NODE-LOCAL**.
+* **FALSIFIED, kept as written — the two order hypotheses this round pre-registered.** (a)
+  **RB (right-operand-first fold)** is disproved by `E52VC`: right-first predicts a `3A`-headed
+  node for `dl > 2 | dl < 0`; the golden heads with `2A` and is identical to `E52VB`. (b) **SN/LB
+  (strict source order)** is disproved by `E52VE` (`dl = 0 | dl > 2`) and by `E52VF` node1 — both
+  begin with the LADDER head `2A`, never with the zero-test head `21`. The surviving law is the
+  class-driven, node-local rule set stated in the heading (the third rule, "everything else keeps
+  source order", is witnessed by `E52VI` statements 1 and 2 and `E52VG`). (c) **PAR
+  (width-parity push order for the DEC pair)** was falsified at hop 3 by `E52VI` and the
+  literal-first reading of the DEC pair, which hop 4/hop 5 carried forward, is FALSIFIED here:
+  `E52VG` (`pv fixed dec(9,2)`, `pmt fixed dec(7,2)`, DATA `0014`) relocates `21 → data 0x9` (the
+  VARIABLE `pv`) FIRST and `21 → data 0x0` (the pooled zero) SECOND in node1, and `21 → data 0xE`
+  (`pmt`, hoisted above the `F5`) before `21 → data 0x5` (zero) in node2; `E52VI` (DATA `001A`)
+  relocates `0xB`(p) before `0x0`(zero10) in statement 1 and `0x11`(q) before `0x6`(zero9), then
+  `0xB`(p) before `0x0`(zero10) again, in statement 2. **VAR-FIRST is the measured law.** The
+  original-golden citations agree: LOAN2:113's DEC pair is `21 r(P@02CA) / 3E 0A / ?DLDOP / 21
+  r(zero@01E6) / 3E 0A / ?DLDOP / ?DCMOP / D6 01 / 9F` — var first, literal second. The
+  hop-4/hop-5 literal-first *reading* came from assuming the decimal pool sits ABOVE the
+  automatics; this tree's layout (pool BELOW, proven across the registered goldens) makes the two
+  readings produce DIFFERENT relocation numbers, and the goldens say var-first. The hop-3 sentence
+  "`ADD` (higher-address-first) survives" rested on the same misread of the pool side and is
+  superseded for VG/VI; `ANNUITY`:46 pushes its zero literal first because in THAT object the
+  literal cell (011F/011B) does sit above the variables (00E3/00E8) — DR's internal layout choice
+  is not observable from a zero-content cell, so this claim states the pair order per object as
+  measured and does not re-litigate the [C155]-family allocator question.
+* **Measured — the operand materializers, verbatim, and the `< 0` reloc (`E52VA`, CODE `001C`).**
+  Standalone TEST leaf `if dl < 0 then x = 1;`: `3A r(dl@0 + 1) / B7 / F2 slot` — the `B7`
+  normalization appears ONLY in the standalone test, never inside a fold; the operand relocation
+  lands EXACTLY one past the declared cell (the high byte of the two-byte fixed binary).
+  Zero-test (FIXBIN `= 0`): `21 r(v) / F5 / 7E 23 B6 D6 01 9F`. `> 0`: `21 r(v) / AF BE 23 9E`
+  (`E52VJ` `dl > 0 | dl < 0`, CODE `0025`, `21` hoisted above the `F5`, `3A` last). Ladder `> k`
+  for k in {1,2}: `2A r(v) / 2B ×(k+1) / [F5] / 7C 2F`. Ident-vs-ident `=`: `2A r(l) / [F5] / E5 /
+  2A r(r) / D1 / CD ?IS22N / 7C B5 / D6 01 / 9F` (`E52VK` statement 1 opens with the FULL
+  `m = fm` materializer before any push, CODE `0080`, DATA `0009`). The `E52VI` second statement
+  reuses the SAME dec(10,2) zero cell as its first (`0x0` twice, plus `0xB` twice) — [C155]
+  content-deduplicated pooling, no duplicate literal cell is emitted.
+* **Measured — pool demand parity (no prescan change was needed).** `E52VG` carries `DEF-DATA-
+  SIZE abs 0014` and its DATA initialization records are EXACTLY the two zero cells the prescan
+  demands (0000..0004 = dec(9,2) zero, 0005..0008 = dec(7,2) zero) plus the two automatics and `x`;
+  `E52VI` carries `abs 001A` with zero10 at 0000..0005 and zero9 at 0006..000A. The sizes are read
+  from the `LINK-DEF-DATA-SIZE` records themselves; the compiler console's `data=` line is a
+  cosmetic display and differs from the record — it is never cited as authority (it is what made
+  hop 4 print VI as `001B`, one byte off — FALSIFIED here).
+* **Measured — geometry beyond the fold (`E52VH`, CODE `002F`).** `if dl < 0 | dl > 2 then x = 1;
+  else x = 2; x = 3;` keeps the fold bytes of `E52VB` verbatim through `C1 B0`, then the `F2` slot
+  patches to the ELSE body (code 0x20) and the `C3` unconditional skip at 001D patches to the
+  statement AFTER the else (code 0x26): **two INDEPENDENT patch targets**, no merged address.
+  `E52VK` additionally shows precedence handling — statement 2 `(dl < 0 | dl > 2) & m = fm` emits
+  the OR fold first (`2A r0 / 2B 2B 2B / F5 / 3A r1 / C1 B0`), then the AND sandwich `… / F5 /
+  E5 / 2A r(r) / D1 / ?IS22N / 7C B5 / D6 01 9F / C1 A0`, then the `F2`; and statement 3
+  `b = (dl < 0 | dl > 2);` (BIT(1) value position) ends in a **BARE `32 r(bitcell)`** with the
+  fold's `C1 B0` immediately before it and NO `D6 01 / 9F` in the store path.
+* **Implementation perimeter — what this compiler REFUSES BY NAME (my gaps, never DR rules).**
+  Only the operand classes and geometries above are armed. A `< 0` leaf FIRST in a chain of three
+  or more operands, a rule-2 swap across DIFFERENT variables, a fold ladder with k >= 3, a DEC
+  operand in the BIT(1) value position, and every other operand class (based/external/array
+  members, `<>`, string or call operands, nested `|:` forms) return no classification and take the
+  existing `condition form not in E2E-3b subset [TBD]` refusal. The AND route is untouched: no And
+  byte changed in this round (the `C1 A0` sandwich above is the pre-existing [C105] conjunction
+  law, quoted as measured). LOAN2 itself still refuses with `codegen: statement kind not in
+  supported subset [TBD] (line 92)` — the `signal error` statement, whose DR lowering `21 00 00 /
+  AF / CD ?SIGOP` is recorded as an ORIGINAL-GOLDEN byproduct and is UNARMED and out of scope.
+* **Obligations and limits — what this does NOT say.** (i) **O-1 panel status:** the LOAN2:91/113/
+  120 and ANNUITY:46 fold bytes cited above are an ORIGINAL-GOLDEN DECODE
+  (`build/e52p9-arm/loan2-decode.txt`, re-derived from `golden/first/LOAN2/LOAN2.REL` with the
+  fixed `tools/reldump.py`/`dis80.py` bitstream walk after the `D6`-length misparse of hop 3 was
+  corrected), **PANEL-UNVERIFIED for LOAN2** — LOAN2 does not compile on this compiler past line
+  91/92, so no `cmp` can adjudicate those citations; the BINDING panel authority is the eleven
+  `E52VA..VK` whole-file `cmp` rc=0 (campaign `e52p9`, goldens committed VERBATIM; re-verified
+  from the committed tree this hop). (ii) **BYTE TIER ONLY**: no `e52p9` object was linked or run
+  under cpmsim, so nothing here asserts what DR *decides* at runtime for any condition — only that
+  these bytes are what the compiler emits and this compiler now emits them identically; no
+  `spec/RUNTIME.txt` row comes from this claim. (iii) `dr-refuses`/`my-gap` classification of the
+  BY-NAME perimeter above is `my-gap` (DR accepts forms this compiler refuses) and is NOT
+  represented as a DR restriction; whether DR accepts every refused shape is UNMEASURED.
