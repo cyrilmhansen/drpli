@@ -13018,11 +13018,22 @@ let lower_put_items_gen st ?(file : string option = None)
                d st op_mvi_a; d st 14; call_ext st "?QFCMS"; tail false ()
            | Vdec (p, s) ->
                if List.mem (String.lowercase_ascii n.Ast.orig) st.deref then
-                 failwith
-                   ("codegen: PUT LIST of a FIXED DECIMAL formal is unsampled "
-                    ^ "[TBD] (no DR sample outputs a decimal through its "
-                    ^ "pointer cell)");
-               (* [R501/R502/R503/R508/R510/R511] DEC variable item = DLDOP
+                 (* [E2E-52/P3-13, C371] MEASURED formal route: golden/e52p13/E52ZF
+                    00ED-00F2 prints its `fixed dec(10,2)' POINTER formal with
+                      LHLD <formal cell> / MVI A,p / CALL ?DLDOP
+                    -- the pointer cell holds the actual's address and a by-reference
+                    DEC actual's descriptor IS its value cell (LOAN2 display reads the
+                    same cells with LHLD/MVI A,0A/?DLDOP [C094]).  The width/scale edit
+                    pair and the tail are the R5xx law below, UNCHANGED.  Everything
+                    this arm does NOT pin (float formals above, EDIT-of-formal variants
+                    beyond the measured console skip-list shape) stays refused. *)
+                 (d st op_lhld; reloc st Data (addr_of st n.Ast.orig);
+                  d st op_mvi_a; d st p; call_ext st "?DLDOP";
+                  d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st s;
+                  call_ext st "?QDCOP";
+                  tail false ())
+               else begin
+                 (* [R501/R502/R503/R508/R510/R511] DEC variable item = DLDOP
                   then QDCOP(width=p+3, scale=s); R506 proves a DEC var in a
                   MULTI-item list next to an INT var.
                   [E2E-52/P3-2 arm (f)] the mid-arm `is_edit' refusal that used to sit
@@ -13032,12 +13043,14 @@ let lower_put_items_gen st ?(file : string option = None)
                   -- FALSIFIED by golden/probe55/P086J (console 0025-0036) and P086K
                   (file 0028-0039): the existing `MVI A,p / ?DLDOP / MVI A,p+3 / MVI B,s /
                   ?QDCOP' + the is_edit tail ?EDTOV is EXACTLY the golden bytes, and the
-                  p/p+3/s law is [C358]'s own.  The deref (formal) refusal ABOVE this arm
-                  stays: no object edits a DEC through its pointer cell. *)
+                  p/p+3/s law is [C358]'s own.  The deref (formal) route ABOVE this arm
+                  was refused until E52ZF measured it; the refusal text is kept in
+                  LEARNINGS/RESULTS verbatim per PROTOCOL #2. *)
                d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
                d st op_mvi_a; d st p; call_ext st "?DLDOP";
                d st op_mvi_a; d st (p + 3); d st op_mvi_b; d st s;
                call_ext st "?QDCOP"; tail false ()
+               end
            | Vint | Vbased _ | Vbfix _ ->
                (* [E2E-26/P2] a based variable prints through the SAME numeric item tail as a plain
                   fixed variable -- P063B is `LHLD <p> / MOV E,M / INX H / MOV D,M / XCHG' (which is
@@ -15264,6 +15277,20 @@ let emit_program (progname : string) (auto_bytes : int)
     | Some (Bind.RTfloat 24) -> true
     | _ -> false
   in
+  (* [E2E-52/P3-13/C371] a DEC formal takes a FORMAL-WIDTH pre-scaled pool cell,
+     NOT the 2-byte integer cell: E52ZC `1.5' and E52ZD/NG18 `1' against
+     dec(9,2) each measure a 5-byte DATA cell (`50 01 00 00 00' / `00 01 00 00 00')
+     with the descriptor reloc pointing at it and ZERO caller code.  The width is
+     the SAME law the lowering's dec_pool applies (bcd_pack_scaled at prec=pf,
+     i.e. dec_pool_bytes pf); counting 2 bytes here is what made ZC/ZD/ZE die on
+     the C152 demand invariant ("demanded 2, allocated 5").  Repeated-literal
+     DEDUP across an actual and a store of the same image is UNMEASURED; if it
+     ever over-demands, the C152 invariant refuses loudly -- never a silent shift. *)
+  let formal_dec_prec_at pn i =
+    match callee_formal_rt_l layout pn i with
+    | Some (Bind.RTdec (pf, _)) -> Some pf
+    | _ -> None
+  in
   let const_cells =
     List.fold_left
       (fun a (c : Bind.call_site) ->
@@ -15273,7 +15300,10 @@ let emit_program (progname : string) (auto_bytes : int)
             List.fold_left
               (fun acc (i, arg) ->
                 match arg.Ast.e with
-                | Ast.Enumber _ when not (formal_float_at c.cs_proc i) -> acc + 2
+                | Ast.Enumber _ when not (formal_float_at c.cs_proc i) ->
+                    (match formal_dec_prec_at c.cs_proc i with
+                     | Some pf -> acc + dec_pool_bytes pf
+                     | None -> acc + 2)
                 | _ -> acc)
               a (List.mapi (fun i x -> (i, x)) args)
                   (* ACCUMULATE from the outer total: starting at 0 silently
