@@ -783,6 +783,16 @@ E52VH	specimen	probes/E52VH.PLI	golden/e52p9/E52VH/E52VH.REL
 E52VI	specimen	probes/E52VI.PLI	golden/e52p9/E52VI/E52VI.REL
 E52VJ	specimen	probes/E52VJ.PLI	golden/e52p9/E52VJ/E52VJ.REL
 E52VK	specimen	probes/E52VK.PLI	golden/e52p9/E52VK/E52VK.REL
+E52WA	specimen	probes/E52WA.PLI	golden/e52p10/E52WA/E52WA.REL
+E52WB	specimen	probes/E52WB.PLI	golden/e52p10/E52WB/E52WB.REL
+E52WC	specimen	probes/E52WC.PLI	golden/e52p10/E52WC/E52WC.REL
+E52WD	specimen	probes/E52WD.PLI	golden/e52p10/E52WD/E52WD.REL
+E52WE	specimen	probes/E52WE.PLI	golden/e52p10/E52WE/E52WE.REL
+E52WH	specimen	probes/E52WH.PLI	golden/e52p10/E52WH/E52WH.REL
+E52WI	specimen	probes/E52WI.PLI	golden/e52p10/E52WI/E52WI.REL
+E52WJ	specimen	probes/E52WJ.PLI	golden/e52p10/E52WJ/E52WJ.REL
+E52WK	specimen	probes/E52WK.PLI	golden/e52p10/E52WK/E52WK.REL
+E52WL	refusal	E52WL: procedure options(main);\n\n   /* E52WL probe (PLAN sec P3-10 extra boundary): the\n      manual's own example form SIGNAL ENDFILE with NO\n      file argument (manual 8.6 / B.27). No object\n      witnesses it. VERDICT UNKNOWN: accept (operand\n      0000? a default FCB?) or refuse. Record the actual\n      diagnostic or bytes VERBATIM; no fitting. */\n\n   dcl x fixed bin;\n\n   signal endfile;\n   x = 2;\n\nend E52WL;\n	DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the SIGNAL statement (line 12), `1 ERROR(S) IN PASS 2', NO .REL (golden/e52p10/E52WL/E52WL.PRN kept VERBATIM; campaign e52p10 11 ok/12 measured at d46b6c2; [C368]).  The manual's own example form `signal endfile;' with NO file argument has no object witness; the hop-1 §3 pre-registration left the verdict UNKNOWN (accept-or-refuse) and the campaign MEASURED a refusal, so nothing was fitted and NO golden was invented.  Mine refuses the 0-argument (and any non-single-declared-file-identifier) file-condition form BY NAME at the Ssignal dispatch guard; the refusal text names DR's own measured verdict.  Marker RE-MEASURED rc=2 on binary a4c0e235ed4bb81fe284... this hop under the gate's CRLF+bare-^Z materialization (an LF-only compile shifts the reported line 12 -> 6 -- the hop-2 marker lesson re-confirmed), never assumed.
 EA1	specimen	e24src/EA1.PLI	golden/e2e234/EA1/EA1.REL
 EA2	specimen	e24src/EA2.PLI	golden/e2e235/EA2/EA2.REL
 FDTEST	specimen	artefacts/FDTEST.PLI	golden/e2e141/FDTEST/FDTEST.REL

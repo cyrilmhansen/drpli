@@ -2353,6 +2353,55 @@ SPECIMENS.update({
     "E52VK": ("probes/E52VK.PLI", "golden/e52p9/E52VK/E52VK.REL"),
 })
 
+# [E2E-52/P3-10] SIGNAL-statement campaign e52p10 (oracle rc=0, 11 ok/12; goldens VERBATIM
+# at d46b6c2, committed BEFORE any ocaml/ byte; pre-registered PLAN §P3-10 at c6c4460; arm
+# d84665c).  All NINE registered probes compile whole-file BYTE-EXACT on binary
+# a4c0e235ed4bb81fe284... (9/9 cmp rc=0, FRESH output paths, positional pli80c).  The law is
+# [C368]: SIGNAL con(args) is a PURE statement -- `LXI H,<16-bit operand> / XRA A / CALL
+# ?SIGOP' (CHAIN-EXT slot at the operand address, operand UN-relocated) or the FILE-condition
+# shape `LXI H,<FILE COMMON> / MVI A,<cond-code> / CALL ?SIGOP'; NO jump-over, NO handler,
+# NO pad, NO SP cell; the next statement simply follows.  E52WL is NOT here -- it is a
+# measured dr-refuse and lives on the NEG panel.
+#   E52WA 128 B; CODE 0016, DATA 0002.  `signal error;' BARE = 21 00 00 / AF / CD ?SIGOP
+#             slot 000B; x = 2 continuation at 000D (H-A HIT; LOAN2 0359 witness).
+#   E52WB 128 B; CODE 0016, DATA 0002.  `signal error(0);' BYTE-IDENTICAL to WA (H-B0 HIT).
+#   E52WC 128 B; CODE 0016, DATA 0002.  `signal error(2);' = 21 02 00 (H-B2 HIT).
+#   E52WD 128 B; CODE 0016, DATA 0002.  `signal error(255);' = 21 FF 00 (H-C255 HIT).
+#   E52WE 128 B; CODE 0016, DATA 0002.  `signal error(256);' = 21 00 01 -- FALSIFIED the
+#             pre-registered 0..255 range-check competitor: the LXI operand is the FULL
+#             16-bit literal verbatim, no compiler range check (H-C256 verdict).
+#   E52WH 256 B; CODE 0017, DATA 0002, COMMON PF 0024.  `signal endpage(pf);' = 21 +
+#             SEL-COMMON PF + RELOC common@0 / 3E 08 / CD ?SIGOP slot 000C (H-E1 HIT;
+#             COPYLPT 02AA witness).
+#   E52WI 256 B; CODE 0017, DATA 0002, COMMON F 0023.  `signal endfile(f);' same shape with
+#             3E 05 -- SIGNAL's A byte TRACKS the ON condition code [C120] (H-E2 HIT).
+#   E52WJ 256 B; CODE 0027, DATA 0002.  SIGNAL UNDER an ON ERROR unit: registration
+#             0006-000F C366-verbatim, inline handler 0010-0016, the JUMP-OVER target IS the
+#             7-byte signal region 0017-001D (slot 001C), x = 2 at 001E; NO SP cell added
+#             (H-F HIT -- signal changes no registration byte).
+#   E52WK 128 B; CODE 0027, DATA 0004.  LOAN2:91-92 shape: the E52VB 17-byte OR fold
+#             VERBATIM 0006-0016, F2 slot 0015 patches to 001E = signal region 0017 + 7;
+#             the OR encoder needed NO change (H-G HIT).
+# Outside the registered perimeter (refuse BY NAME with [TBD], nothing fitted): FROM(expr)
+# -- parser/bind PRESERVE cargs+target (proto test ocaml/proto/ssignal_ast.ml, 12/12 PASS)
+# but no DR object witnesses SIGNAL...FROM; multi-arg error(1,2) UNMEASURED; E52WF
+# `error(1+1)' (runtime stack route: 21 r(lit@0)/3E 01/?DLDOP twice + ?DADOP + ?QDI15 then
+# AF + CALL, CODE 0029 DATA 0003) and E52WG `error(n)' (LHLD route, CODE 001C) are DR-ACCEPTED
+# SINGLE witnesses -- armed NEITHER per the pre-registered H-D2 do-not-generalise clause, kept
+# as my-gap [TBD]; non-integer/variable-expression args; any other condition name.  Byte-tier
+# only -- NO runtime signal-delivery or handler-invocation claim.
+SPECIMENS.update({
+    "E52WA": ("probes/E52WA.PLI", "golden/e52p10/E52WA/E52WA.REL"),
+    "E52WB": ("probes/E52WB.PLI", "golden/e52p10/E52WB/E52WB.REL"),
+    "E52WC": ("probes/E52WC.PLI", "golden/e52p10/E52WC/E52WC.REL"),
+    "E52WD": ("probes/E52WD.PLI", "golden/e52p10/E52WD/E52WD.REL"),
+    "E52WE": ("probes/E52WE.PLI", "golden/e52p10/E52WE/E52WE.REL"),
+    "E52WH": ("probes/E52WH.PLI", "golden/e52p10/E52WH/E52WH.REL"),
+    "E52WI": ("probes/E52WI.PLI", "golden/e52p10/E52WI/E52WI.REL"),
+    "E52WJ": ("probes/E52WJ.PLI", "golden/e52p10/E52WJ/E52WJ.REL"),
+    "E52WK": ("probes/E52WK.PLI", "golden/e52p10/E52WK/E52WK.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -5184,6 +5233,14 @@ REJECTS.update({
                "ON undefinedfile with 2 argument(s)"),
     "E52SE": (open("probes/E52SE.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "REVERT UNDEFINEDFILE(<file>) is a measured my-gap"),
+    # [E2E-52/P3-10] E52WL `signal endfile;' -- MEASURED dr-refuse (campaign e52p10 11 ok/12
+    # at d46b6c2): PASS 1 clean, PASS 2 `SYNTAX ?' at line 12, 1 ERROR(S), NO .REL
+    # (golden/e52p10/E52WL/E52WL.PRN VERBATIM).  Precedent SF/SG: a genuine DR verdict of
+    # refusal, registered with MY re-measured BY-NAME marker on binary a4c0e235ed4bb81fe284...
+    # (rc=2 DIRECT under run_negatives' CRLF+bare-^Z materialization; the LF-only compile
+    # reports line 6 instead of 12 -- the hop-2 materialization lesson re-confirmed).
+    "E52WL": (open("probes/E52WL.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "SIGNAL endfile with 0 argument(s)"),
 })
 NEG_META["E52SF"] = ("dr-refuses",
     "DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the ON statement, 1 ERROR(S), "
@@ -5212,6 +5269,20 @@ NEG_META["E52SE"] = ("my-gap",
     "was deliberately NOT fitted), so this is a `my-gap' row, never a dr-refuses row -- the "
     "refusal text itself says `measured my-gap'.  The SE golden's bytes are claimed by NOTHING "
     "until the arm lands.  Marker RE-MEASURED rc=2 on binary 0efc35e6d4ff81bd this hop, never "
+    "assumed.")
+
+# [E2E-52/P3-10] E52WL -- MEASURED dr-refuse on the SIGNAL route (precedent SF/SG above).
+NEG_META["E52WL"] = ("dr-refuses",
+    "DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the SIGNAL statement (line "
+    "12), `1 ERROR(S) IN PASS 2', NO .REL (golden/e52p10/E52WL/E52WL.PRN kept VERBATIM; campaign "
+    "e52p10 11 ok/12 measured at d46b6c2; [C368]).  The manual's own example form `signal "
+    "endfile;' with NO file argument has no object witness; the hop-1 §3 pre-registration left "
+    "the verdict UNKNOWN (accept-or-refuse) and the campaign MEASURED a refusal, so nothing was "
+    "fitted and NO golden was invented.  Mine refuses the 0-argument (and any non-single-"
+    "declared-file-identifier) file-condition form BY NAME at the Ssignal dispatch guard; the "
+    "refusal text names DR's own measured verdict.  Marker RE-MEASURED rc=2 on binary "
+    "a4c0e235ed4bb81fe284... this hop under the gate's CRLF+bare-^Z materialization (an LF-only "
+    "compile shifts the reported line 12 -> 6 -- the hop-2 marker lesson re-confirmed), never "
     "assumed.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
