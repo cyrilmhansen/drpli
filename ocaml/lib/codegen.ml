@@ -7293,7 +7293,7 @@ type or_cls =
   | OGtC of Ast.name * int           (* plain auto v > k, k PINNED {1,2}: head LHLD + DCX*(k+1), tail MOV A,H / CMA [VB,VC,VD,VF,VK] *)
   | OGt0 of Ast.name                 (* plain auto v > 0: head address load, tail XRA A / CMP M / INX H / SBB M [VJ full; And-right per the LOAN2:120 decode, O-1] *)
   | OEqVV of Ast.name * Ast.name     (* plain l = r: head LHLD &l, tail PUSH H / LHLD &r / POP D / ?IS22N / MOV A,H / ORA L / SUI 01 / SBB A [VK stmt1/2; LOAN2:113, O-1] *)
-  | ODecEq0 of Ast.name * int * int  (* plain DEC auto v = 0, literal-RIGHT textual "0" ONLY: head LXI H,*zero-cell LITERAL-FIRST [VG, VI -- NEVER routed through dec_eq_bool_parts, whose AND route hoists the VAR], tail MVI A,p / ?DLDOP / LXI H,&v / MVI A,p / ?DLDOP / ?DCMOP / SUI 01 / SBB A *)
+  | ODecEq0 of Ast.name * int * int  (* plain DEC auto v = 0, literal-RIGHT textual "0" ONLY: head LXI H,&v VAR-FIRST [VG, VI measured; the hop-4/5 LITERAL-FIRST reading is FALSIFIED at hop 6], tail MVI A,p / ?DLDOP / LXI H,*zero-cell LITERAL-LAST / ?DLDOP / ?DCMOP / SUI 01 / SBB A; NEVER routed through dec_eq_bool_parts (the fold dispatches directly) *)
   | OAnd of Ast.expr                 (* an & group: lowered WHOLE by lower_bool (ends C1 POP B / A0 ANA B, truth in A) [VK stmt1] *)
   | OGroup of Ast.expr               (* a nested OR group: lowered WHOLE by the recursive fold *)
 
