@@ -6192,10 +6192,28 @@ type dctx =
   { c_tgt : (int * int) option   (* store/RETURN target: fixes the scale *)
   ; c_lit : (int * int) option   (* DEC partner of an additive/compare literal *)
   ; c_mult : bool                (* multiplicative operand position *)
-  ; c_round : bool }             (* [slice 3] argument of a ROUND [R811] *)
+  ; c_round : bool               (* [slice 3] argument of a ROUND [R811] *)
+  ; c_direct : bool }            (* [E2E-52/P3-12] the ORDINARY Eident DEC store
+                                    route only — the one the E52Y panel pins.
+                                    Every other consumer keeps the legacy
+                                    descriptor so no armed byte drifts. *)
 
 let dsl st n = d st op_mvi_a; d st n; call_ext st "?QDDSL"
 let dsr st n = d st op_mvi_a; d st n; call_ext st "?QDDSR"
+
+(* [E2E-52/P3-12] the operand shapes the direct-store shift law is MEASURED on:
+   a plain DEC variable (E52YB..YG, NG20, LOAN2 04B7) and decimal(i,p) whose
+   argument is a plain NON-decimal identifier (E52YI: ?QI15D pushes scale 0,
+   the store consumer shifts up by the target scale).  Anything else — suffix
+   stores, decimal(bin-expr), DEC arguments — stays refused BY NAME. *)
+let dec_direct_shape st (e : Ast.expr) =
+  match (unwrap_e e).Ast.e with
+  | Ast.Eident _ -> true
+  | Ast.Ebuilt ("DECIMAL", ([ x ] | [ x; _ ])) ->
+      (match (unwrap_e x).Ast.e with
+       | Ast.Eident n -> vk_dec_opt st n = None
+       | _ -> false)
+  | _ -> false
 
 (* an operand that costs more than one decimal-stack emission.  [E2E-7A
    slice 3] ROUND joins it: LOAN1 and R807 both push `X + round(a/b,n)` with
@@ -6219,8 +6237,11 @@ let dpartner st (e : Ast.expr) : (int * int) option =
   | Ast.Esuffix _ -> Some (dec_edit_pt st e)
   | _ -> None
 
-let nop_cx = { c_tgt = None; c_lit = None; c_mult = false; c_round = false }
-let round_arg_cx = { c_tgt = None; c_lit = None; c_mult = false; c_round = true }
+let nop_cx =
+  { c_tgt = None; c_lit = None; c_mult = false; c_round = false
+  ; c_direct = false }
+let round_arg_cx =
+  { c_tgt = None; c_lit = None; c_mult = false; c_round = true; c_direct = false }
 
 (* ------------------------------------------------------------------ *
  * ROUND(expr, n)  ->  MVI A, k ; CALL ?DROUN        [E2E-7A slice 3]  *
@@ -6307,11 +6328,13 @@ let round_shape st args =
 let dchild_cx _st op partner x =
   match op with
   | Ast.Mul | Ast.Div ->
-      { c_tgt = None; c_lit = None; c_mult = true; c_round = false }
+      { c_tgt = None; c_lit = None; c_mult = true; c_round = false
+      ; c_direct = false }
   | _ ->
       (match (unwrap_e x).Ast.e with
        | Ast.Enumber _ ->
-           { c_tgt = None; c_lit = partner; c_mult = false; c_round = false }
+           { c_tgt = None; c_lit = partner; c_mult = false; c_round = false
+           ; c_direct = false }
        | _ -> nop_cx)
 
 let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
@@ -6324,11 +6347,24 @@ let rec dv_of st (cx : dctx) (e : Ast.expr) : dv =
              (Printf.sprintf
                 "codegen: decimal operation on non-decimal operand %s [TBD]"
                 n.Ast.orig))
-  | Ast.Ebuilt ("DECIMAL", _) ->
+  | Ast.Ebuilt ("DECIMAL", args) ->
       (* decimal(x,p): the precision ARGUMENT is ignored [R506], so the
-         result descriptor comes from context, exactly as in C084 *)
+         result descriptor comes from context, exactly as in C084.
+         [E2E-52/P3-12 E52YI] on the DIRECT-STORE route a plain-integer
+         argument is what ?QI15D actually pushes: scale 0, shifted up by
+         the consumer like every other direct store.  Only this measured
+         shape deviates from the legacy context descriptor. *)
       (match cx.c_tgt with
-       | Some (p, s) -> { pv = Some p; sc = s }
+       | Some (p, s) ->
+           if cx.c_direct && dec_direct_shape st e
+              && (match (unwrap_e e).Ast.e with
+                  | Ast.Ebuilt ("DECIMAL", ([ x ] | [ x; _ ])) ->
+                      (match (unwrap_e x).Ast.e with
+                       | Ast.Eident n -> vk_dec_opt st n = None
+                       | _ -> false)
+                  | _ -> false)
+           then { pv = Some p; sc = 0 }
+           else { pv = Some p; sc = s }
        | None -> { pv = Some 15; sc = 0 })
   | Ast.Ebuilt ("ROUND", args) ->
       let (x, n) = round_shape st args in
@@ -6428,17 +6464,26 @@ let rec dpush st (cx : dctx) (e : Ast.expr) : dv =
   | Ast.Eident _ | Ast.Ebuilt ("DECIMAL", _) | Ast.Esuffix _ | Ast.Enumber _ ->
       dpush_simple st cx e vd;
       (match cx.c_tgt with
-       (* A simple operand whose own scale differs from the store target is
-          UNPROVEN: every sample that needed a scale fix had a computed
-          value [R711, R713, R716], and LOAN1's `PMT = P` crosses
-          PRECISIONS but not scales, which ?DSTOP's A argument already
-          covers.  Refuse rather than assume DSTOP rescales. *)
+       (* [E2E-52/P3-12] the measured direct-store law (E52YB..YI, NG20,
+          LOAN2 04B7-04CB): a scale-changing direct store shifts the pushed
+          entry BETWEEN the source push and the destination load —
+          `MVI A,|Δscale| / ?QDDSL` (scale up) or `?QDDSR` (scale down);
+          the amount NEVER involves a precision and the DSTOP A argument
+          stays the TARGET precision.  Armed ONLY on the ordinary Eident
+          DEC store route and ONLY for the shapes the panel pins; suffix
+          stores, pointer/DEC-formal stores and decimal(bin-expr) keep the
+          refusal. *)
        | Some (_, ts) when ts <> vd.sc ->
-           failwith
-             "codegen: DECIMAL assignment between differing scales is \
-              unproven [TBD] (only computed results are pinned as needing a \
-              QDDSL/QDDSR fix; a direct DEC operand store always had equal \
-              scales in the samples)"
+           if cx.c_direct && dec_direct_shape st e then
+             (if ts > vd.sc then dsl st (ts - vd.sc)
+             else dsr st (vd.sc - ts))
+           else
+             failwith
+               "codegen: DECIMAL assignment between differing scales is \
+                unproven [TBD] (the direct variable / decimal(plain-integer) \
+                store is now armed by E52Y evidence; a suffix DEC store, a \
+                store through a DEC pointer formal and every other shape \
+                remain unpinned)"
        | _ -> ());
       vd
   | Ast.Ebinary (op, l, r) ->
@@ -6572,9 +6617,11 @@ and dpush_simple st (_cx : dctx) (e : Ast.expr) (vd : dv) =
            (expr_kind_name (unwrap_e e).Ast.e))
 
 (* compatibility wrapper used by the store/PUT/compare paths *)
-let dec_push st (tgt : (int * int) option) (e : Ast.expr) : int * int =
+let dec_push ?(direct = false) st (tgt : (int * int) option) (e : Ast.expr) : int * int =
   let d =
-    dpush st { c_tgt = tgt; c_lit = None; c_mult = false; c_round = false } e
+    dpush st { c_tgt = tgt; c_lit = None; c_mult = false; c_round = false
+             ; c_direct = direct }
+      e
   in
   (match d.pv with Some p -> (p, d.sc) | None -> (0, d.sc))
 
@@ -10145,7 +10192,7 @@ statement form IS implemented; this expression form is not.)")
          cell [R501/R502/R503/R505/R508/R510/R511] *)
       st.last_imm <- None;
       let (p, _s) = Option.get (vk_dec_opt st n) in
-      ignore (dec_push st (Some (p, _s)) rhs);
+      ignore (dec_push ~direct:true st (Some (p, _s)) rhs);
       d st op_lxi_h; reloc st Data (addr_of st n.Ast.orig);
       d st op_mvi_a; d st p; call_ext st "?DSTOP"
   | Ast.Eident n
