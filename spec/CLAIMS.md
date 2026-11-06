@@ -9497,3 +9497,26 @@ classified `unmeasured` rather than `dr-refuses`.
   `7be23ba3…`) and LOAN2 is NOT claimed exact. EXPR1 (GET line 21) and EXPR2 (FLOAT line
   35) are UNCHANGED. Provenance: [C084] [C086] [C093] (corrected above) [C094] [C152]
   [C358] [C360] [C370].
+
+* **DATED ADDENDUM added 2026-11-06 after the full-gate run (P3-13 hop 12) — the N52 →
+  NG39 retirement and its witness.** The FULL gate at hop 11 failed `NEG-FAIL
+  N52_DEC_FORMAL_PUT: compiled silently (must [TBD])` — a fact my sweep, markers and DEC
+  regression suites do NOT surface (they never run the complete negative panel; only the
+  gate does).  The shape — `put skip list(q);` inside a function whose formal `q` is
+  `fixed dec(9,2)` — is DR-ACCEPTED: the original oracle listing
+  `golden/negpanel1/NG39/NG39.PRN` reads `NO ERROR(S) IN PASS 1` and `NO ERROR(S) IN PASS
+  2` and the object is `golden/negpanel1/NG39/NG39.REL` (384 B, CODE `005C`, DATA max
+  `0018`).  Re-measured FIRST-HAND this session, POSITIONAL FRESH: the retired gate source
+  materialized CRLF + bare `^Z` (sha256 `de1e56e8…`) compiles rc=0 to a 384 B object
+  (`code=92 data=15`) with `cmp` rc=0 against the KEPT golden (sha256 `3197de7a…`, NEVER
+  re-derived).  The route is exactly the deref-DEC PUT arm admitted above on the `E52ZF`
+  and `NG18` witnesses (`9b81ed0`): callee body `LHLD q A(0016) / MVI A,09 / ?DLDOP` at
+  0049-004F, then `MVI A,0C / MVI B,02 / ?QDCOP`; caller `x = 1.5` is the SAME pre-scaled
+  5 B formal-width pool cell `50 01 00 00 00` at data@0000 with the inline DATA-RELOC
+  descriptor at 000A -> 0000, and the `r = g(x)` return store uses descriptor 0014 -> 000A.
+  N52 therefore retires to the POSITIVE specimen `NG39` (N26_DECDIV/N35→NG20/N33→NG18
+  precedent), refusals 187 -> 186 honestly; the gate row and its NEG_META entry were
+  deleted WITH retirement comments and NO replacement negative was invented for the
+  still-refused DEC-formal routes (N53 conjunction etc.) — their DR behaviour remains
+  UNMEASURED.  This addendum moves NOTHING else: the product/literal laws above stand
+  verbatim and byte-tier-only still holds (no runtime claim is made from these bytes).
