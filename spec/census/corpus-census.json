@@ -15,9 +15,10 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-06T20:30:25",
+ "generated": "2026-11-06T21:06:41",
  "git_dirty_paths": [
   "M handoff.config.json",
+  " M spec/census/corpus-census.json",
   "?? ocaml/_build-e52p10/",
   "?? ocaml/_build-e52p11/",
   "?? ocaml/_build-p312hist/",
@@ -39,7 +40,7 @@
   "?? ocaml/build-p37.log",
   "?? ocaml/build-warn-e52p6.log"
  ],
- "git_head": "39bb9a0107deb36ab17b968aba36098750d6266f",
+ "git_head": "601e20e108e8fcaaefdd98693c98d76398dd8f40",
  "rows": [
   {
    "dir_present": true,
