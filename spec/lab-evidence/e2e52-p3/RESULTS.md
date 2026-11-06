@@ -1175,3 +1175,163 @@ line 35) UNCHANGED. Nothing further is authorized from this text.
 - LOAN2 is NEVER claimed exact; **the DEC-scales blocker is NOT a diagnosis and NOT authorization**
   — it is the ACTUAL recorded refusal text, unfixed; **P3-12 is NOT authorized** and no next-blocker
   work may be opened from this section.
+
+# E2E-52/P3-12 RESULTS — the cross-scale DIRECT fixed-decimal store shifts by |Δscale| only,
+between the source push and the destination load; `?DSTOP` carries the TARGET precision
+(campaign e52p12) — CLOSED (2026-11-07, hop 4)
+
+Pre-registered in PLAN §P3-12 (hop 1: Phase A with ZERO oracle — authentic LOAN2.REL
+`04B7–04CB` DOWN witness + registered-negative NG20 UP witness + LOAN1 equal-scale control
+re-measured `cmp` rc=0 + NG21 FALSIFIED as evidence; then PLAN §P3-12 H-1..H-8 + probes
+`probes/E52Y{A..I}.PLI` committed by EXPLICIT paths BEFORE the first oracle call and BEFORE any
+`ocaml/` byte); campaign e52p12 rc=0 **9 ok / 9**, every `.PRN` `NO ERROR(S)` in BOTH passes —
+ZERO `dr-refuses`; goldens VERBATIM `0c43932` committed BEFORE any emitter byte; arm `1111d5e`
+plus the warning-profile fix `60b9c79` (armed binary sha256 `6a4c6c1154a0acd8403b…`,
+deterministic); registration `5bf5c88` (inventory 1278→**1288**, refusals 189→**188** by the
+honest NG20 retirement); census OWN path in the same commit (counts UNCHANGED 15/0/26/0, LOAN2
+message MOVED VERBATIM to the Line-117 blocker, NOTHING fixed); claim **C370** `172a642` written
+from MEASURED BYTES ONLY and committed BEFORE any `spec/COVERAGE.tsv` touch; NEW row
+`STOR.DEC_SCALE_ASSIGN` + SAME-change `spec/COVERAGE-IDS.txt` line `bf135a9` (NEVER
+`coverage_gen.py`; 15 cols from the FIRST NON-COMMENT row; textual tab edit; `manual_ref`
+corrected to the `NONE:` form after `coverage_check` adjudicated the free-prose variant live) +
+machine stats companion `d283623` → `coverage_check` rc=0 **143 rows, 0 errors, 0 warnings,
+SUPPORTED 93**; FULL gate rc=0 DIRECT `build/gate-e52p12-reg.log` — **1288/0, 188/188, 9/9,
+143 rows 0/0, census 15/0/26/0, prose 5** — every pre-registered number HIT. HONEST TOOL NOTE:
+the gate was first launched in the BACKGROUND and its exit status was therefore NOT captured
+directly; the canonical `build/gate-e52p12-reg.log` is the SYNCHRONOUS re-run whose rc=0 was
+read DIRECT (`$?` immediately after the redirected process); both logs are byte-identical in
+content. All other rc captured DIRECTLY (never through a trailing pipeline); goldens NEVER
+re-derived; `pli80c` POSITIONAL into FRESH paths; `handoff.config.json` NEVER staged; no push.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52YA E52YB E52YC E52YD E52YE E52YF E52YG
+E52YH E52YI --tag e52p12 --switches '$L$D'` rc=0 → **9 ok / 9** (`golden/e52p12/summary.txt`:
+every row `PRN=True REL=True`; 8 × 256 B, YH 384 B). Every accepted `.REL` preserved VERBATIM
+into `golden/e52p12/` and decoded into `build/p3-12/E52Y*-reldump.txt` + `E52Y*-disasm.txt`
+(ondump2 buffers + dis80 opcode table + `LINK-CHAIN-EXT` names at anchor = opcode+1).
+
+## 2. Measured table (9/9 whole-file cmp rc=0 on armed binary sha256 `6a4c6c11…`, re-verified
+POSITIONAL into FRESH `build/p3-12/fix-out/` AFTER the warning fix; sizes from the
+DEF-CODE-SIZE / DEF-DATA-SIZE records; every region below re-read FIRST-HAND this close)
+
+| Probe | Store | Verdict | Size | CODE | DATA | Measured store region (CALL names from CHAIN-EXT anchors) | golden sha12 |
+|---|---|---|---|---|---|---|---|
+| E52YA | `a(9,2) = b(6,2)` equal-scale control | EXACT | 256 B | `003C` | `0009` | `LXI H,b(data@0005) / MVI A,06 / ?DLDOP@000B / LXI H,a(data@0000) / MVI A,09 / ?DSTOP@0013` — **NO helper**, §4 prediction HIT | `c26a3af19e8b` |
+| E52YB | `a(9,2) = b(9,0)` UP d=2 (Δp=3) | EXACT, §4 LABEL MISS | 256 B | `0041` | `000A` | `LXI H,b(0005) / MVI A,09 / ?DLDOP@000B / MVI A,02 / ?QDDSL@0010 / LXI H,a(0000) / MVI A,09 / ?DSTOP@0018` — §4 said `?QDDSR` | `7af4556b587f` |
+| E52YC | `b(15,13) = a(6,2)` UP d=11, Δp=9 | EXACT | 256 B | `0041` | `000C` | same geometry, `MVI A,0B / ?QDDSL@0010`, dst `MVI A,0F` — precision NOT in the amount (H-2 falsifier) | `0c709ca1df74` |
+| E52YD | `inf(4,3) = ci(15,14)` = LOAN2:111 verbatim geometry | EXACT | 256 B | `0041` | `000B` | `LXI H,ci(0000) / MVI A,0F / ?DLDOP@000B / MVI A,0B / ?QDDSR@0010 / LXI H,inf(0008) / MVI A,04 / ?DSTOP@0018` — cell widths 8+3 match [C084] | `35e834ac73f1` |
+| E52YE | `a(9,2) = c(9,0)` UP d=2, Δp=0 | EXACT, §4 LABEL MISS | 256 B | `0041` | `000A` | `MVI A,02 / ?QDDSL` — §4 said `?QDDSR` ("as YB") | `1066a4e92cdf` |
+| E52YF | `b(15,0) = a(15,14)` DOWN d=14 | EXACT | 256 B | `0041` | `0010` | `LXI H,a(0000) / MVI A,0F / ?DLDOP / MVI A,0E / ?QDDSR@0010 / LXI H,b(0008) / MVI A,0F / ?DSTOP` — no d cap (H-3 falsifier) | `2f7ed5a93d1e` |
+| E52YG | `a(15,1) = b(15,14)` | EXACT, §4 DIRECTION MISS | 256 B | `0041` | `0010` | `LXI H,b(0008) / MVI A,0F / ?DLDOP / MVI A,0D / ?QDDSR@0010 / LXI H,a(0000) / MVI A,0F / ?DSTOP` — §4 predicted UP/`?QDDSL`, measured DOWN | `265f1c9ce4af` |
+| E52YH | `c = a / b` computed control (all dec(9,2)) | EXACT | 384 B | `0051` | `000F` | [C086] divide geometry VERBATIM, UNTOUCHED by this slice: `DLDOP(a) / MVI A,06 ?QDDSL / DLDOP(b) / ?DDVOP / MVI A,04 ?QDDSR / LXI H,c(000A) / MVI A,09 / ?DSTOP` | `88a5688cf031` |
+| E52YI | `d(9,2) = decimal(i,7)`, `i` fixed bin | EXACT after arm (pre-arm honest `my-gap`, cmp FAIL byte 68) | 256 B | `003F` | `0007` | `LHLD i(data@0000) / ?QI15D@0009 / MVI A,02 / ?QDDSL@000E / LXI H,d(0002) / MVI A,09 / ?DSTOP@0016` — shift PRESENT; my context model predicted none | `cb7dc30f33f0` |
+| NG20 (retired `N35_DEC_STORE_SCALE_DRIFT`) | `c(9,4) = a(9,2)` UP d=2 | EXACT — now a POSITIVE specimen | 256 B | `004C` | `000F` | store at 0016–0028: `LXI H,A / MVI A,09 / ?DLDOP / MVI A,02 / ?QDDSL / LXI H,C / MVI A,09 / ?DSTOP` — golden KEPT, NEVER re-derived; cmp rc=0 re-measured twice on the armed binary | `8317ccb59f82` |
+
+The uniform `+5` code bytes of YB..YG over YA (`3E dd CD 00 00`) are exactly the shift; the
+`?DSTOP` `MVI A,<p>` is the TARGET precision in every row; every accepted store is ONE source
+push (`?DLDOP`, or `?QI15D` on the conversion route) and ONE `?DSTOP` (H-8).
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §3; every MISS kept verbatim)
+
+- **H-1 CONFIRMED 7/7 cross-scale** — the shift `MVI A,|Δs| / CALL ?QDDSL` (s increases) or
+  `?QDDSR` (s decreases) sits BETWEEN the source `?DLDOP` and `LXI H,dst`; the amount NEVER
+  involves a precision; equal scale emits NO helper (YA; LOAN1 `PMT = P` control).
+- **H-2 FALSIFIED (precision in the amount).** YC Δp = 6→15 (=9) and YD Δp = 15→4 (=11) both
+  emit d = |Δscale| = `0B` exactly.
+- **H-3 FALSIFIED (a cap).** YF d = 14 and YG d = 13 are DR-ACCEPTED with the same geometry; no
+  refusal, no different encoding.
+- **H-4 FALSIFIED in BOTH directions.** YB/YE (up) and YD/YF/YG (down) carry the explicit helper;
+  `?DSTOP` alone does NOT rescale. NG20's pre-existing object had already falsified it for the up
+  direction.
+- **H-5 CONFIRMED — direction symmetry.** YC mirrors LOAN2:111's own down-shift by 11 as an UP
+  `?QDDSL` with the identical amount. Adjudication recorded: PLAN §3 pins **H-5 = YC** and
+  **H-7 = YH**; an inherited hop-2 shorthand mislabelled the YH row "H-5" — the gate Y-block
+  comment was corrected (line-preserving) in the C370 commit.
+- **H-6 — the shift-free context model FALSIFIED; DR ACCEPTS `decimal()` into a scaled target
+  WITH a shift.** My pre-arm compiler emitted NO shift (descriptor `{sc=ts}` from the target
+  context, [C084] reading) → whole-file cmp FAILED at byte 68 = honest `my-gap`. The arm closes
+  it by reporting the TRUE pushed descriptor `{sc=0}` for a plain non-DEC integer argument on the
+  direct-store route ONLY; `decimal(<bin expr>)` remains UNMEASURED and refuses BY NAME.
+- **H-7 CONFIRMED (YH control).** The computed-quotient consumer fix stays on the already-armed
+  [C086] bytes — this slice changed ZERO bytes on that route.
+- **H-8 CONFIRMED — no stack imbalance.** One push, one pop per accepted store; the helper
+  neither pushes nor pops.
+
+## 4. Arm, validation, registration, coverage
+
+Arm `1111d5e` (`ocaml/lib/codegen.ml` ONLY): `dctx.c_direct` TRUE ONLY at the ordinary `Eident`
+DEC-store epilogue (dec_push `~direct:true`); `dec_direct_shape` = `Eident` or
+`DECIMAL(<plain non-DEC ident>)`; the guard replaces the blanket `ts <> vd.sc` refusal with
+`op_mvi_a / |Δs| / call_ext (?QDDSL or ?QDDSR)` between the source push and the destination
+load; `dv_of` `Ebuilt("DECIMAL")` reports `sc=0` ONLY when `c_direct` + plain integer ident;
+every other route (suffix stores, pointer-formal stores, `decimal(<bin expr>)`, DEC-formal
+actuals) keeps the EXISTING [TBD] refusal VERBATIM — the message bodies were edited to stay
+marker-substring-safe, and the [TBD] literal count in codegen.ml stayed EXACTLY 68.
+Validation (hop 3 + hop 4 sessions): baseline replay via `git archive` re-proved the histogram
+method (Warning 27 `ptr` IS baseline); the arm's ONE new W27 (unused `args` in `dv_of`) fixed to
+the wildcard `60b9c79` → histogram codegen 68 / total 124 == baseline EXACTLY; sweep
+`E46N E46K E51 E52 P086 R10` **159 byte-exact / FAILS 0**; DEC regressions
+`R5xx R6xx R7xx R8xx LOAN1` **64 / FAILS 0**; markers **15/16** — the ONLY failing row is
+`N35_DEC_STORE_SCALE_DRIFT` BY DESIGN (see retirement below); divergences **9/9 DIV-OK** via
+standalone `build/p3-12/divcheck.py` — TOOL LESSON: the gate's `--only-divergent` flag is the
+WRITE/re-measure arm (`divergence_remeasure` rewrites `spec/DIVERGENT.txt` and aborts on
+promotion) and is blocked mid-registration by the stale-census preflight, so a standalone driver
+calling `divergence_load()` + `divergence_check()` is the CHECK arm.
+
+**NG20 retirement-to-positive (honest).** The gate's `NEG_META` for `N35` already recorded "DR
+COMPILES IT"; NG20's `.PRN` shows `NO ERROR(S)` both passes and its `.REL` is a genuine UP-shift
+witness. By the N26_DECDIV precedent ([C086]) the row LEAVES REJECTS + NEG_META (both deleted
+with retirement comments) and `probes/NG20.PLI` — the harness-re-materialized CRLF + bare-`^Z`
+source of the retired inline specimen, sha `acf8e951…` — registers as a POSITIVE specimen with
+the golden path UNCHANGED (`golden/negpanel1/NG20/NG20.REL`, NEVER re-derived). Refusals
+189→**188**. NO replacement negative was invented for the still-refused suffix/pointer store
+routes: their DR behaviour is UNMEASURED and a NEG_META row would be invented evidence — the
+panel coverage loss is ACCEPTED and recorded in C370 and the COVERAGE row.
+
+Registration `5bf5c88`: SPECIMENS +9 `E52YA..YI` (comments from FIRST-HAND reldump re-reading) +
+NG20; `--update-inventory` 1278→**1288** specimens / 188 refusals (+10/−1 exactly, every line
+inspected, staged set verified clean of config); census OWN path rc=0, counts 15/0/26/0
+UNCHANGED. Claim **C370** `172a642` measured-bytes-only BEFORE any COVERAGE touch (ledger ENDS
+C370, 193 headers). COVERAGE `bf135a9`: NEW row `STOR.DEC_SCALE_ASSIGN` SUPPORTED, **EXACT:10**
+(9 Y probes + NG20 — EXACT counts byte-exact panel members, the P3-11 adjudication), probes
+`E52YA..YI,NG20`, corpus LOAN2,LOAN1, law from [C370] ONLY, BY-NAME perimeter + falsifiers kept
+VERBATIM, byte-tier NOT-say; `spec/COVERAGE-IDS.txt` line in the SAME change (IDENTITY invariant);
+`coverage_check` rc=0 **143 rows 0/0 SUPPORTED 93**; `file_prose_check` rc=0.
+
+## 5. LOAN2 — ADVANCED and recorded, NEVER fixed
+
+With the armed direct-store law, `artefacts/LOAN2.PLI` UNMODIFIED (sha `7be23ba3…` re-verified)
+lowers PAST line 111 (`INF = ci;`) and 112 (the [C086] divide) and dies at the ACTUAL next
+blocker — rc=2, NO `.REL`, VERBATIM:
+
+`codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an
+automatic decimal BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or expression
+decimal argument has no sample [DECPOLY, R2037/R2038/R725]. Line 117)`
+
+Line 117 = `call display(PL * INF, INT * INF, PMT * INF, PP * INF, IP * INF);` — computed
+DECIMAL actuals against FIXED DECIMAL formals (same guard family as the retained
+`N33_DEC_FORMAL` negative). This blocker is RECORDED, NOT diagnosed further and NOT fixed in
+this subround; it is P3-13's evidence target under the standing marathon brief. EXPR1 (GET 21)
+and EXPR2 (FLOAT 35) UNCHANGED. (Operational honesty: the hop-3 first attempt at this
+positional run died on `Sys_error artefacts/LOAN2.PLI` after an accidental `rm` — repaired the
+same session by single-path `git restore`, sha re-verified twice; `Sys_error` was recorded NOWHERE
+as science; the VERBATIM text above comes from the repaired, re-run positional compile.)
+
+## 6. What P3-12 does NOT say (byte tier only)
+
+- **Byte tier only**: nothing linked or run; NO numerical/rounding/truncation claim about what
+  `?QDDSL`/`?QDDSR` DO inside PLILIB — only WHERE the calls sit and what A holds at the call is
+  claimed; the helper internals were NEVER examined; no `spec/RUNTIME.txt` row comes from this
+  subround. Byte parity is not a semantics claim.
+- **Perimeter KEPT, all refusals BY NAME**: suffix/qualified DEC stores, pointer-formal DEC
+  stores across scales, `decimal(<binary EXPRESSION>)`, and non-variable actuals against FIXED
+  DECIMAL formals all keep explicit [TBD] refusals; C370 claims NONE of them.
+- **The NG20 retirement is a panel-classification fact, not a new law** — the UP-shift bytes
+  predated this round (authentic-object Phase A witness); what changed is that MY compiler now
+  reproduces them byte-exactly. The removed negative is documented in the REJECTS/NEG_META
+  retirement comments, not silently dropped.
+- LOAN2 is NEVER claimed exact; the Line-117 blocker is the ACTUAL recorded refusal text, not a
+  diagnosis and not authorization beyond the marathon brief's standing next-slice clause;
+  **P3-13 proceeds ONLY on evidence-first pre-registration**. GOLDENS ARE EVIDENCE, NEVER
+  RE-DERIVED; the operator's `handoff.config.json` was NEVER staged; no push.
