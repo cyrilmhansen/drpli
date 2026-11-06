@@ -888,3 +888,160 @@ rows 0/0, census 15/0/26/0, prose 5**.
   authorization).
 - Corpus users (LOAN2, ANNUITY) are users of the CONSTRUCT, not parity claims; GOLDENS ARE
   EVIDENCE, NEVER RE-DERIVED; the operator's `handoff.config.json` was NEVER staged; no push.
+
+# E2E-52/P3-10 RESULTS — SIGNAL condition lowering + the `?SIGOP` ABI + the lost-argument
+frontend repair (campaign e52p10) — CLOSED (2026-11-07, hop 3)
+
+Pre-registered `c6c4460` (PLAN §P3-10 H-A..H-X + probes E52WA..WL, committed BEFORE any oracle
+call and any `ocaml/` byte, after a Phase-A audit with ZERO oracle that pinned SIX SIGNAL sites
+in EXACTLY FOUR original objects — `build/e52p10/` raw records, PLAN §2 table); oracle campaign
+**11 ok / 12**; the one `dr-refuses` (E52WL) kept VERBATIM with NO invented golden; goldens
+committed VERBATIM `d46b6c2` BEFORE any emitter byte; frontend repair + arm `d84665c`;
+AST-preservation proto test `91060ea`; registration `21d4db6` (inventory 1260→**1269**, refusals
+186→**187**); census OWN path `0198fe5`; claim **C368** `7153716` written from MEASURED BYTES
+ONLY and committed BEFORE any `spec/COVERAGE.tsv` touch; row `COND.SIGNAL` + explicit
+`spec/COVERAGE-IDS.txt` line `65b005e` (NEVER `coverage_gen.py`). All rc captured DIRECTLY (never
+through a trailing pipeline); goldens NEVER re-derived; `pli80c` invoked POSITIONALLY into FRESH
+paths; the operator's `handoff.config.json` NEVER staged; no push.
+
+## 1. Campaign (oracle, ONE grouped batch)
+
+`PLI_SRC=probes timeout 900 python3 oracle/batch.py E52WA E52WB E52WC E52WD E52WE E52WF E52WG
+E52WH E52WI E52WJ E52WK E52WL --tag e52p10 --switches '$L$D'` rc=0 → **11 ok / 12**; every `.PRN`
+read: the eleven accepted probes show `NO ERROR(S)` in BOTH passes; **E52WL is a genuine
+`dr-refuses`** — PASS 1 clean (`NO ERROR(S) IN PASS 1`), then PASS 2 at line 12: `SYNTAX ?`,
+`1 ERROR(S) IN PASS 2`, NO .REL. `E52WL.PRN` preserved VERBATIM at `golden/e52p10/E52WL/`; the
+probe joins the NEGATIVES panel (refusals 186→187). Goldens `golden/e52p10/` committed VERBATIM.
+
+## 2. Measured table (whole-file cmp rc=0 on binary sha256 `a4c0e235ed4bb81fe284…`; every region
+re-read FIRST-HAND from `build/e52p10/E52W*-reldump.txt` at registration AND again before C368)
+
+| Probe | Shape | Size | CODE | DATA | SIGNAL region (measured bytes) | golden sha12 |
+|---|---|---|---|---|---|---|
+| E52WA | `signal error;` | 128 B | `0016` | `0002` | 0006 `21 00 00 / AF / CD` slot 000B `?SIGOP`; only RELOC is `data 0x0` (the `x = 2` SHLD at 000D); `?STOPX` slot 0014 | `5e38a2bcfec7` |
+| E52WB | `signal error(0);` | 128 B | `0016` | `0002` | BYTE-IDENTICAL to WA — `error(0)` indistinguishable from bare | `56cea6201f78` |
+| E52WC | `signal error(2);` | 128 B | `0016` | `0002` | operand `21 02 00` — argument verbatim in the LXI, ABSOLUTE, no RELOC | `e429edbe557a` |
+| E52WD | `signal error(255);` | 128 B | `0016` | `0002` | operand `21 FF 00` | `eda07465e7c4` |
+| E52WE | `signal error(256);` | 128 B | `0016` | `0002` | **DR-ACCEPTED** with operand `21 00 01` — full 16-bit little-endian | `620816c8830b` |
+| E52WF | `signal error(1+1);` | 256 B | `0029` | `0003` | FIXBIN STACK route, NOT folded: pushes via `?DLDOP` (slots 000C, 0014) + `?DADOP` (0017) + `?QDI15` (001A), then `AF / CD` slot 001E `?SIGOP`; literal cell shared at data 0 | `23d7cd1533bb` |
+| E52WG | `n = 1; signal error(n);` | 128 B | `001C` | `0004` | `n = 1` at 0006-000B, then HL route `2A r(n@0) / AF / CD` slot 0011 `?SIGOP` — no stack | `cd2070908104` |
+| E52WH | `signal endpage(pf);` | 256 B | `0017` | `0002` | 0006 `21` + `LINK-SEL-COMMON PF` + `RELOC common 0x0` / `3E 08` / `CD` slot 000C `?SIGOP`; COMMON PF `0024` = 34+len(`pf`) [C120] | `42eec0e0e51e` |
+| E52WI | `signal endfile(f);` | 256 B | `0017` | `0002` | same shape with `3E 05`; COMMON F `0023` = 34+len(`f`) [C120] | `193ee79323aa` |
+| E52WJ | `on error(1) x = 1; signal error(1);` | 256 B | `0027` | `0002` | ON registration [C366]-verbatim 0006-000F (`?ONCOP` slot 000B, jump-over `C3` slot 000E); inline handler `21 01 00 / 22 r(x) / C9` 0010-0016; jump-over patches to 0017 which IS the signal region `21 01 00 / AF / CD` slot 001C `?SIGOP`; NO SP cell | `3bf5f3e16f91` |
+| E52WK | `if dl < 0 \| dl > 2 then signal error;` | 128 B | `0027` | `0004` | [C367] `E52VB` fold VERBATIM 0006-0016; `F2` slot 0015 (`LINK-SET-LC code 0015`) carries `RELOC code 0x1e` = signal 0017 + 7 — the jump patches PAST the whole 7-byte statement; `x = 2` at 001E | `37bae1d7df4f` |
+| E52WL | `signal endfile;` (bare file condition) | — | — | — | NO .REL — `SYNTAX ?` PASS 2 line 12 (see §1) | .PRN only |
+
+## 3. Hypothesis verdicts (pre-registered in PLAN §3; every MISS kept verbatim)
+
+- **H-A CONFIRMED** (WA): exactly `21 00 00 / AF / CD <slot>` = 7 bytes, LXI operand ABSOLUTE
+  (no RELOC), slot CHAIN-EXTed `?SIGOP`, next statement at the very next byte. No falsifier
+  fired: no `3E 00`, no extra CALL/JMP, no operand RELOC, no pad/registration bytes. SIGNAL is
+  a PURE statement.
+- **H-B0 CONFIRMED** (WB): `error(0)` accepted, byte-identical to H-A.
+- **H-B2 CONFIRMED** (WC): `21 02 00` — the argument IS the LXI operand verbatim ([C366] law
+  mirrored onto `?SIGOP`).
+- **H-C255 CONFIRMED** (WD): `21 FF 00`, 16-bit verbatim.
+- **H-C256 — ACCEPTED; the refusal competitor FALSIFIED** (WE): DR accepts `error(256)` and
+  emits `21 00 01`. The documented 0..255 subcode range is NOT a compiler acceptance rule on
+  this route; no 0..255 range check exists in the SIGNAL error path. Kept VERBATIM.
+- **H-D1 UNKNOWN-RESOLVED, UNARMED** (WF): `error(1+1)` is DR-ACCEPTED through the runtime
+  FIXBIN stack route (`?DLDOP` ×2, `?DADOP`, `?QDI15`), NOT folded to `21 02 00`. The "folded
+  absolute" competitor is dead; the stack-route competitor is the MEASURED shape — but it is a
+  SINGLE witness, so per the pre-registered clause NOTHING was generalised and NOTHING armed:
+  open `my-gap` [TBD], bytes panel-unverified by my compiler.
+- **H-D2 UNKNOWN-RESOLVED, UNARMED** (WG): `error(n)` is DR-ACCEPTED via `LHLD n / XRA A /
+  CALL ?SIGOP` (CODE `001C`) — the HL route, no stack. Single witness; armed NEITHER (see WF).
+- **H-E1 CONFIRMED** (WH): 11 bytes `21 + RELOC common 0x0 / 3E 08 / CD ?SIGOP`; the SEL-COMMON
+  record fires because the selected group changes; the plain-file COMMON group obeys the [C120]
+  34+len(name) law on this route (PF `0024` — PLAN §3's `0023` guess applied to the 1-char name
+  `f`; len(`pf`) = 2 gives `0024`, exactly as the [C120] law predicts).
+- **H-E2 CONFIRMED** (WI): SIGNAL's A byte TRACKS the ON condition codes — ENDFILE `05`
+  ([C120] family; ENDPAGE `08` mirrors COPYLPT 0254's ON-route control byte), UNDEFINEDFILE
+  through SIGNAL UNMEASURED.
+- **H-F CONFIRMED** (WJ): the ON registration is byte-for-byte [C366]; the signal lands AT the
+  jump-over target with ZERO added bytes to the registration; DATA stays `0002` — a returning
+  handler still demands NO SP cell and NO pad [C206].
+- **H-G CONFIRMED** (WK): the [C367] fold region is emitted UNCHANGED (the OR encoder was never
+  modified to fit SIGNAL) and its single terminal `F2` patches past the 7-byte statement.
+- **H-X RESOLVED — `dr-refuses`** (WL): the manual's own bare `signal endfile;` form is a
+  PASS-2 `SYNTAX ?` refusal with NO .REL. Recorded VERBATIM; registered on the NEG panel; no
+  golden invented; refused BY NAME in my compiler with the honest marker (see §5).
+
+Deliberately NOT probed (PLAN §3, kept UNMEASURED and refused BY NAME): `SIGNAL … FROM(expr)`
+(no DR object witness anywhere), multiple arguments `error(1,2)`, other condition names through
+SIGNAL, `signal undefinedfile(f)`.
+
+## 4. Frontend defect record (PLAN §7) — repaired AFTER evidence
+
+`parser.ml`'s SIGNAL branch consumed `(args)` into `_sargs` and DISCARDED them; `ast.ml`
+`Ssignal` carried only `cond`/`target` — post-parse the compiler could not distinguish
+`signal error;`, `error(0)`, `error(1)`, `error(256)` or `endpage(printfile)`: a loss of source
+semantics, not merely an unimplemented emitter. Repaired at `d84665c` (evidence-first, after the
+campaign): `Ssignal` gains `cargs : expr list` (analogous to `Son`/`Srevert`), the parser passes
+the parsed list, `bind.ml` (574/1518) and the `pli80deps` walker traverse it; `FROM` is KEPT in
+the AST and NEVER lowered. The representation change did NOT widen what codegen admits. AST
+preservation is PROVEN — including on still-refused shapes (WG `error(n)`, WF `error(1+1)`,
+multi-arg `error(1,2)`, FROM bare+args, WL bare-file) — by `ocaml/proto/ssignal_ast.ml`
+(`91060ea`, arch1 precedent): **12/12 PASS**, build+run rc=0 DIRECT.
+
+## 5. Arm, verification, registration
+
+Arm `d84665c` (frontend files + `ocaml/lib/codegen.ml`): `signal_error_prefix` is its OWN
+encoder ([C202] one-primitive doctrine — the ON-role [C366] encoder is never reused for the
+SIGNAL role); the FILE form reuses `on_reg_prefix` because the measured bytes agree. The arm
+admits ONLY measured shapes: ERROR bare or ONE integer literal (full 16-bit operand — WE proved
+no range check) as ABS LXI + `AF` + `call_ext "?SIGOP"`; `endpage(f)` `3E 08` / `endfile(f)`
+`3E 05` with a single declared file identifier. PURE statement: no `C3` slot, no handler, no pad,
+no SP cell; `st.lowered` incremented, `st.last_imm <- None` at the call (HL clobbered). Every
+other shape refuses BY NAME [TBD].
+
+Verification (all rc DIRECT): build rc=0, binary sha256 `a4c0e235ed4bb81fe284…` (md5
+`cbede3b5…`); per-File warning histogram codegen 68 / total 124 == baseline; **9/9 accepted probes
+(WA-WE, WH-WK) whole-file cmp rc=0** against `golden/e52p10/` via POSITIONAL `pli80c` into FRESH
+paths; sweep FAILS 0; markers harness (CRLF + bare `^Z`) 10/10 MARKER_FAILS 0; regressions 17/17
+(E52UA..UF + E52VA..VK); EXPR1/EXPR2 POSITIONAL VERBATIM unchanged (GET 21 / FLOAT 35).
+**LESSON (accepted):** a pipeline-tail `| head` hid the FIRST build rc; a STALE
+`_build/default` binary then FALSE-REFUSED WK; re-verify at least one cmp on the binary you
+trust — the cmp, not a recorded hash, is the authority.
+
+LOAN2 ADVANCED VERBATIM past line 92 to `codegen: PUT FILE(OUTPUT) has no byte-exact DR witness
+[TBD] (line 99)` — ACTUAL text recorded, NOT predicted (PLAN §6 forbade a prediction), UNARMED,
+NEVER fixed; the census (`0198fe5`, OWN path, counts UNCHANGED 15/0/26/0) carries the MOVED
+message. If the marker question matters: an LF-only compile of WL reports line 6; the gate's
+CRLF + bare-`^Z` materialization reports line 12 — the DR-agreeing line — and the registered
+marker `SIGNAL endfile with 0 argument(s)` was RE-MEASURED under the gate materialization
+(hop-2 lesson re-confirmed).
+
+Registration `21d4db6`: SPECIMENS +9 (WA-WE, WH-WK ONLY — WF/WG are my-gap refusals, not
+panel specimens), `E52WL` enters REJECTS as a genuine `dr-refuses` (decision recorded honestly;
+precedent SF/SG); `--update-inventory` → **1269 specimens (+9 exactly) / 187 refusals (+1)**,
+every added line inspected, `git diff --cached --stat` clean of config; py_compile rc=0.
+**C368 `7153716`** written from MEASURED BYTES ONLY (all cited regions re-read FIRST-HAND from
+the raw records before appending) and committed BEFORE any `spec/COVERAGE.tsv` touch; row
+`COND.SIGNAL` SUPPORTED / **EXACT:9** + EXPLICIT `spec/COVERAGE-IDS.txt` line `65b005e` (NEVER
+`coverage_gen.py`; 15 columns from the FIRST NON-COMMENT row; csv `delimiter='\t'`; diff verified
+≈ two lines BY CONTENT); `coverage_check.py` rc=0 **142 rows, 0 errors, 0 warnings, SUPPORTED
+92** with stats refreshed by their OWN write path; FULL gate rc=0 DIRECT
+`build/gate-e52p10-reg.log` — **1269/0 byte-exact, 187/187 negatives, 9/9 divergence, coverage
+142 rows 0/0, census 15/0/26/0, prose 5** — every pre-registered number HIT.
+
+## 6. What P3-10 does NOT say (byte tier only)
+
+- **Byte tier only**: no `golden/e52p10` object was linked or run under cpmsim. NOTHING here
+  asserts runtime signal DELIVERY, handler activation, or any `?SIGOP`/PLILIB behaviour — the
+  library's action is UNEXAMINED and no `spec/RUNTIME.txt` row comes from this subround. Byte
+  parity is not a semantics claim.
+- **WF/WG are accepted-but-UNARMED**: their emission routes (stack `?DLDOP/?DADOP/?QDI15`,
+  `LHLD`) are measured from DR goldens but are SINGLE witnesses; my compiler refuses both BY
+  NAME (`my-gap` [TBD]) and its bytes for these shapes are PANEL-UNVERIFIED. Generalising from
+  one witness was pre-registered as forbidden and was not done.
+- **O-1**: the LOAN2 0359, EXPR1 0175+018D, EXPR2 023D+0255 and COPYLPT 02AA/0254 citations are
+  ORIGINAL-GOLDEN DECODES (`build/e52p10/*-reldump.txt`, `e52p10-signals-disasm.txt`), not cmps;
+  the BINDING panel authority is the nine `E52WA..WK` whole-file cmp rc=0.
+- **The BY-NAME perimeter is MY gap, never a DR rule**: FROM, multi-argument `error(1,2)`,
+  other condition names through SIGNAL, and `signal undefinedfile(f)` are UNMEASURED on both
+  sides; a bare file condition is `dr-refuses` ONLY for `endfile` (WL) — other bare spellings
+  UNMEASURED.
+- LOAN2 is NEVER claimed exact; it still refuses (NO .REL) at the line-99 `PUT FILE(OUTPUT)`
+  blocker, recorded and NOT fixed; **P3-11 is NOT authorized**. GOLDENS ARE EVIDENCE, NEVER
+  RE-DERIVED; the operator's `handoff.config.json` was NEVER staged; no push.
