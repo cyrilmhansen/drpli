@@ -7809,3 +7809,38 @@ DRAFTED C368 TEXT (successor: verify cited bytes first-hand vs `build/e52p10/*`,
 - Bullets: (i) measured pure-statement law WA/WB (identical 128B CODE 0016 DATA 0002, region 0006-000C, slot 000B, only reloc data@0, ?STOPX slot 0014); (ii) measured literal-argument law WC/WD/WE incl. the WE FALSIFICATION of the 0..255 competitor, and the ORIGINAL witnesses LOAN2 0359 bare 7B + EXPR1 0175/018D + EXPR2 023D/0255 `error(1)` 21 01 00 four byte-identical sites (hop-1 audit, original-golden decode); (iii) measured FILE form WH/WI (256B CODE 0017, PF 0024/F 0023 [C120], COPYLPT 02AA original witness, A-byte tracks [C120]-family codes); (iv) measured geometry WJ (ON registration C366-verbatim, jump-over target IS signal region, zero added bytes to registration, no SP cell [C206]) + WK ([C367] VB fold verbatim, F2 RELOC code 0x1e = signal+7, OR encoder unchanged); (v) MEASURED dr-refuse WL (`signal endfile;` PASS 1 clean, PASS 2 line 12 `SYNTAX ?`, 1 ERROR(S), NO .REL, E52WL.PRN VERBATIM; registered on NEG panel; no golden invented); (vi) perimeter — refused BY NAME, my-gaps never DR rules: FROM(expr) kept in AST never lowered (frontend cargs defect repaired d84665c + proto test 12/12; no DR object witnesses SIGNAL...FROM), multi-arg error(1,2) UNMEASURED, **WG variable arg DR-ACCEPTED `LHLD` route CODE 001C and WF expression arg DR-ACCEPTED stack route CODE 0029/DATA 0003 — SINGLE witnesses, armed NEITHER per pre-registered do-not-generalise clause, open my-gap [TBD]**, other condition names, non-integer args; arm admits ERROR bare/ONE integer literal + endpage/endfile single-declared-file-ident (08/05); (vii) NOT-say — byte-tier only, nothing linked/run, NO runtime signal-delivery claim, ?SIGOP/PLILIB behavior UNEXAMINED; WF/WG bytes panel-unverified by my compiler; LOAN2 citations original-golden decode, LOAN2 still refuses at line 99 (blocker MOVED VERBATIM from 92, recorded NOT fixed); provenance [C366] [C120] [C109] [C202] [C206] [C208] [C367].
 
 STATE: HEAD after durables of this checkpoint; ledger ENDS **C367** (C368 OWED, text drafted above); inventory **1269/187**; coverage 141/91 (COND.SIGNAL row owed -> 142/92); binary `a4c0e235ed4bb81fe284…` (md5 `cbede3b5…`) == tree, build rc=0 re-held this session; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; tree clean except guard blocks + operator config (NEVER stage) + ignored build/e52p10*/, ocaml/_build-e52p10/, ocaml/*.log; chain 01a1b069 renewal 2/12 cap 12; no push; all rc DIRECT (no pipeline tails).
+
+## E2E-52/P3-10 hop 3 REMAINDER + SUBROUND CLOSED (2026-11-07; session 01a1b0af, chain 01a1b069 renewal 3/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT)
+
+ACCEPTED (all landed): steps (3)-(6) executed EXACTLY. (3) Every C368-cited byte re-verified
+FIRST-HAND (WA/WB identical `21 00 00/AF/CD` slot 000B; WE `21 00 01`; WH `3E 08` PF `0024`;
+WI `3E 05` F `0023`; WJ jump-over landing 0017 IS the signal region; WK `F2` `RELOC code 0x1e`
+= 0017+7; WF stack slots 000C/0014/0017/001A→001E; WG `2A r(n@0)/AF/CD` slot 0011 following the
+`n=1` statement at 0006-000B — the region is NOT at 0006, checked before quoting); WL .PRN
+verdict VERBATIM. **C368 committed `7153716` measured-bytes-only BEFORE any COVERAGE touch**
+(ledger ENDS C368, 191 `## C` headers; prose rc=0). (4) `COND.SIGNAL` NEW row (no prior row —
+grep SIGNAL was empty) SUPPORTED/EXACT:9, probes the 9 accepted only (precedent: COND.ON_ERROR
+lists only accepted probes; WL lives in boundary + NEG panel), corpus LOAN2,EXPR1,EXPR2,COPYLPT
+(all census names), perimeter S, runtime NONE, confidence MEASURED, provenance [C368][C366]
+[C367][C120][C109][C202][C206][C208] + census/RESULTS/golden artefacts; EXPLICIT IDS line;
+diff verified 2 lines BY CONTENT; coverage_check rc=0 **142 rows 0/0 SUPPORTED 92** (141/91→
+142/92 exactly pre-registered); commit `65b005e` (stats own write path included). (5) FULL gate
+rc=0 DIRECT `build/gate-e52p10-reg.log` — **1269/0, 187/187, 9/9, 142 rows 0/0, census
+15/0/26/0, prose 5** — EVERY pre-registered number HIT. (6) RESULTS §P3-10 + PLAN §5 P3-10 row +
+PLAN §P3-10 CLOSED marker — commit `fbca4fe`, prose rc=0.
+
+TECHNICAL INSIGHTS (accepted): (a) `coverage_check.py` claim-body window is `pos+4000` for the
+LAST claim — probe traceability needs only ONE probe token mentioned (`hit = any(...)`), and the
+heading `E52WA..E52WE,E52WH..E52WK` satisfies it, but I named each probe individually anyway;
+(b) the validator enforces the contract-identity invariant by EXACT SET EQUALITY ledger-vs-
+COVERAGE-IDS.txt — a new row MUST come with its manifest line in the same change (fail-closed);
+(c) corpus column entries must all be census names — LOAN2/EXPR1/EXPR2/COPYLPT qualify as
+ORIGINAL users of SIGNAL; (d) H-E1's `0023` in PLAN §3 was a name-length slip (len(`pf`)=2 →
+`0024`); the [C120] law 34+len(name) predicted it correctly once applied — recorded as an
+application note, not a falsification of the law.
+
+STATE AT CLOSE: HEAD `fbca4fe` (+durables); ledger ENDS **C368**; inventory **1269/187**;
+coverage **142 rows, SUPPORTED 92, 0/0**; binary `a4c0e235ed4bb81fe284…` (md5 `cbede3b5…`) ==
+tree, build rc=0 re-held this session; goldens NEVER re-derived; LOAN2 rc=2 NO .REL at the
+VERBATIM line-99 `PUT FILE(OUTPUT)` blocker — NEVER fixed; **P3-11 NOT authorized; subround
+STOP reached**.
