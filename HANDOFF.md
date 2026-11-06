@@ -1626,22 +1626,25 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 433
-checkpoint-id: g433-72851af70e26
-checkpoint-kind: auto
+checkpoint-generation: 435
+checkpoint-id: g435-048913a20cd7
+checkpoint-kind: manual
 content-delta: new
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4072, session 01a1b14e-787f-71e9-bce7-9191cafae4a0)
-checkpointed: 2026-11-06T14:59:53.068Z
+readiness: attested
+status: checkpoint (guard level 4, remaining ~-3822, session 01a1b160-06f7-71e9-bce7-91944aa494dc)
+checkpointed: 2026-11-06T15:20:02.428Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: f0274b5aea28ca18b43038c75f84d891ffee60daea98aac9ee5ae5baeed9f664
+source-progress: ca6b99597c1e132a55f00be5931a4181037481d090bd1ad68da7a273c2e3e7f7
 source-handoff: dcef6d55c46e7d3435c5f01c2a1d8f4407c65a8801c0b98f287f9b96a21afc93
-source-learnings: 7df45f512770c248bd63c6bbe80bfe85f47f99629aceb8855dcadb5518f6031b
+source-learnings: 05c7dfd38576d47206ad8096247eb983ec6418826fac5d8bfb786e7d21b690a3
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1b160-06f7-71e9-bce7-91944aa494dc
+readiness-at: 2026-11-06T15:20:02.447Z
+readiness-checkpoint: g435-048913a20cd7
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (finalize: E2E-52/P3-11 CLOSED at 9c1d9c6 (6c b9645fa, 6d gate rc=0 build/gate-e52p11-reg.log 1278/0,189/189,9/9,142/0/0 SUPPORTED 92,census 15/0/26/0,prose 5, 6e RESULTS+PLAN+CLOSED). STOP REACHED: commit guard blocks VERBATIM then close; nothing authorized (no DEC-scales work, no P3-12, no oracle, no runtime claims); new operator brief required.)
 
 ### Unfinished operations
 - (none recorded)
@@ -2262,5 +2265,5 @@ OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 re
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
 
 ### Guard notes
-P3-11 hop 4: (6a) 69dd508 + (6b) C369 a00fc13 LANDED (ledger ENDS C369, inventory 1278/189, prose rc=0). Successor: execute LEARNINGS § "P3-11 hop 4 IN FLIGHT" (6c) verbatim — EXTEND ONLY rows FILE.PUT_LIST(+E52XG)/FILE.PUT_SKIP(+E52XH,E52XI)/FILE.PUT_PAGE(+E52XA..XF) in spec/COVERAGE.tsv; NEVER new rows, NEVER coverage_gen.py; 15 cols from FIRST NON-COMMENT row; delimiter='\t'; IDS diff EMPTY; labelled correction for the LIST row's now-false "No object yet pairs..." clause; EXACT bumps PAGE 1->7 SKIP 18->20 LIST 10->11 (let coverage_check adjudicate); coverage_check rc=0 142/0/0 SUPPORTED 92 + prose rc=0; commit explicit paths. Then (6d) FULL gate rc=0 DIRECT -> build/gate-e52p11-reg.log expect 1278/0,189/189,9/9,142,census 15/0/26/0,prose 5. Then (6e) RESULTS §P3-11 + PLAN §5 row + §P3-11 CLOSED + durables + commit guard blocks VERBATIM. STOP at P3-11 — NEVER the DEC-scales blocker, no P3-12, no runtime claims; rc DIRECT; pli80c POSITIONAL FRESH paths; binary 25c57e27696421e929b8==tree; goldens NEVER re-derived; config NEVER staged; chain 01a1b0c9 5/12 cap 12; no push.
+E2E-52/P3-11 CLOSED at 9c1d9c6 (6c b9645fa, 6d gate rc=0 build/gate-e52p11-reg.log 1278/0,189/189,9/9,142/0/0 SUPPORTED 92,census 15/0/26/0,prose 5, 6e RESULTS+PLAN+CLOSED). STOP REACHED: commit guard blocks VERBATIM then close; nothing authorized (no DEC-scales work, no P3-12, no oracle, no runtime claims); new operator brief required.
 <!-- guard:end checkpoint -->
