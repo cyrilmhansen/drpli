@@ -8036,3 +8036,45 @@ STILL OWED: the arm edit + full validation (build rc=0, histogram 68/124, cmp YB
 - **(d) DEC REGRESSIONS LANDED:** `sweep.py R5 R6 R7 R8 LOAN1` -> **64 specimens byte-exact, FAILS 0** (`build/p3-12/dec-regressions.log`).
 - **(e) LANDED (after incident repair): LOAN2 ADVANCED VERBATIM past 111** — with the armed direct-store law `INF = ci;` (111) and the divide (112) now lower; UNMODIFIED `artefacts/LOAN2.PLI` (sha verified again `7be23ba3…`) POSITIONAL into FRESH `build/p3-12/pos/` → rc=2, NO .REL, ACTUAL new blocker VERBATIM: `codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an automatic decimal BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or expression decimal argument has no sample [DECPOLY, R2037/R2038/R725]. Line 117)` — line 117 = `call display(PL * INF, INT * INF, PMT * INF, PP * INF, IP * INF);` (computed DECIMAL actuals vs DEC formal; same guard family as N33_DEC_FORMAL; note the message spells `Line 117` INSIDE the parens). NEVER fix this slice; P3-13's evidence target. EXPR1 GET-21 / EXPR2 FLOAT-35 UNCHANGED (positional logs re-taken).
 - STILL OWED THIS HOP: (e) LOAN2 UNMODIFIED POSITIONAL (RE-RUN AFTER THE RESTORE — the first attempt failed on the accident, NOT on a compiler blocker: `Sys_error artefacts/LOAN2.PLI` is NOT a codegen message and was recorded nowhere as science) + EXPR1 21/EXPR2 35 re-check; (g) divergences 9/9; (i) registration from 1278 (+9 E52Y + NG20 positive, `--update-inventory`, `git diff --cached --stat`, census OWN path); (j) C370 measured-bytes-only BEFORE any COVERAGE touch; (k) NEW row `STOR.DEC_SCALE_ASSIGN` + SAME-change COVERAGE-IDS line; (l) FULL gate rc-0 -> `build/gate-e52p12-reg.log`, RESULTS §P3-12 + PLAN §5 row + CLOSED; (m) P3-13.
+
+## P3-12 hop 4 CONTINUED (successor session 01a1b1c5, chain 01a1b1b4 renewal 3/12) — (g)(i)(j) LANDED; (k)(l)(m) OWED (2026-11-07; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT; byte-tier only)
+- **ACCEPTED — (g) divergences 9/9.** The gate's `--only-divergent` flag is the RE-MEASURE arm
+  (`divergence_remeasure`, which WRITES spec/DIVERGENT.txt and ABORTS rc=2 on promotion/broken
+  rows), and the pre-flight census `--verify` FAILS (rc=1 exit) whenever the committed snapshot
+  is stale — so a standalone divergence check CANNOT use that flag mid-registration. Tool
+  lesson: drive the gate's own `divergence_check` directly — `build/p3-12/divcheck.py` imports
+  `e2e_gate`, calls `divergence_load()` + `divergence_check(dv, exe)` on the armed binary;
+  9/9 DIV-OK rc=0 (`build/p3-12/divergences.log`). Add this driver to the marker-harness
+  family in future hops.
+- **ACCEPTED — (i) registration `5bf5c88`.** SPECIMENS +9 `E52YA..YI` (all comments from
+  FIRST-HAND reldump/disasm re-verification, not from inherited prose: sizes YA 003C/0009,
+  YB 0041/000A, YC 0041/000C, YD 0041/000B, YE 0041/000A, YF 0041/0010, YG 0041/0010, YH
+  0051/000F 384B, YI 003F/0007) + **NG20 retired to POSITIVE**: REJECTS row + NEG_META row
+  DELETED with honest retirement comments; `probes/NG20.PLI` = byte-copy of the harness-
+  re-materialized CRLF+bare-^Z source (sha `acf8e951…`), FRESH positional compile `cmp` rc=0
+  vs the KEPT golden (console `data=10` is COSMETIC — reldump says DATA `000F`, the cmp is the
+  authority); `--update-inventory` 1278->**1288/188** exactly (+10/−1 lines, every line
+  inspected); census OWN path rc=0 counts **15/0/26/0 UNCHANGED**, LOAN2 msg MOVED VERBATIM to
+  the Line-117 blocker, NOTHING fixed; staged-set verified clean of `handoff.config.json`
+  BEFORE commit (`git diff --cached --stat`).
+- **ACCEPTED — (j) C370 `172a642` measured-bytes-only BEFORE any COVERAGE touch** (ledger ENDS
+  C370, 193 headers). Law + falsifiers + NG20 retirement provenance + BY-NAME perimeter +
+  byte-tier NOT-say per PROGRESS contract; provenance [C084][C086][C360][C369]. Cell-width
+  re-confirmed on YD: ci(15) 8 B at data@0000, inf(4) 3 B at data@0008 (floor((p+2)/2)).
+- **ACCEPTED — small adjudication:** PLAN §3 pins **H-5 = YC direction-symmetry** and **H-7 =
+  YH computed control**; the inherited hop-2 shorthand said "H-5 CONFIRMED" for YH — the gate
+  Y-block comment was corrected (line-preserving edit) in the C370 commit. Claims/golden text
+  NEVER edited.
+- **STILL OWED (successor, EXACT order):** (k) NEW row `STOR.DEC_SCALE_ASSIGN` in
+  `spec/COVERAGE.tsv` + SAME-change `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`;
+  **15 cols from FIRST NON-COMMENT row**; textual tab edit; probes E52YA..YI,NG20 all NOW on
+  the panel; corpus LOAN2,LOAN1; law text ONLY from [C370]; BY-NAME perimeter + falsifiers
+  VERBATIM; byte-tier NOT-say) -> `coverage_check` rc=0 expect **143 rows / SUPPORTED 93** +
+  prose rc=0; commit explicit paths. (l) FULL gate rc=0 DIRECT (redirect, NEVER pipeline-tail)
+  -> `build/gate-e52p12-reg.log` expect **1288/0, 188/188, 9/9, 143 rows, census 15/0/26/0,
+  prose 5**; RESULTS §P3-12 (parity table; EVERY §4 miss VERBATIM incl. YB/YE QDDSL-vs-predicted-QDDSR,
+  YG down-not-up, YI byte-68 my-gap; NG20 retirement; LOAN2 advance 111->117 NEVER fix) + PLAN
+  §5 row + §P3-12 **CLOSED**; durables + guard blocks. (m) BEGIN P3-13 on the ACTUAL Line-117
+  blocker (DEC-expression actuals vs FIXED DECIMAL formals): audit DECPOLY/R2037/R2038/R725
+  witnesses FIRST (ZERO oracle), pre-register probes BEFORE any oracle call/`ocaml/` byte,
+  marathon budget through P3-19.

@@ -42,7 +42,13 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-12 hop 4 — VALIDATION (a)-(e) LANDED (incl. arm-warning fix + accidental-rm repaired); DIVERGENCES → REGISTER (+N35 retire) → C370 → COVERAGE → GATE → CLOSE → P3-13 OWED; read `LEARNINGS.md` § "P3-12 validation hop" FIRST — it is the current contract)
+## Next action (E2E-52/P3-12 hop 4 CONTINUED — (g)(i)(j) LANDED by successor session 01a1b1c5; (k)(l)(m) OWED — COVERAGE ROW → GATE → CLOSE → P3-13; read `LEARNINGS.md` § "P3-12 hop 4 CONTINUED" FIRST — it is the current contract)
+
+**DONE hop 4-successor (session 01a1b1c5, chain 01a1b1b4 renewal 3/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT; byte-tier only):** recovery verified HEAD `c186723`, build rc=0, armed binary sha256 `6a4c6c1154a0acd8403b…` == tree. **(g)** divergences **9/9** via standalone `build/p3-12/divcheck.py` (the `--only-divergent` flag is the WRITE/re-measure arm and is blocked by the stale-census preflight — tool lesson recorded). **(i)** registration `5bf5c88`: SPECIMENS **+9 E52YA..YI** with first-hand reldump comments + **N35 retired HONESTLY to POSITIVE NG20** (REJECTS+NEG_META rows deleted with retirement comments; `probes/NG20.PLI` = CRLF+bare-^Z harness materialization sha `acf8e951…`; FRESH positional `cmp` rc=0 vs the KEPT golden, NEVER re-derived); `--update-inventory` → **1288/188** (+10/−1, every line inspected, staged-set verified clean of config); census OWN path rc=0 counts **15/0/26/0 UNCHANGED**, LOAN2 msg MOVED VERBATIM to the Line-117 blocker, NOTHING fixed. **(j)** claim **C370** `172a642` measured-bytes-only BEFORE ANY COVERAGE touch (ledger ENDS **C370**, 193 headers; H-2/H-3/H-4/H-6 falsifiers VERBATIM; NG20 retirement provenance; BY-NAME perimeter; byte-tier NOT-say) + gate YH comment label corrected H-5→H-7 per PLAN §3. **(k)** NEW row **`STOR.DEC_SCALE_ASSIGN`** `bf135a9` + SAME-change `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; 15 cols from FIRST NON-COMMENT row; textual tab edit) — `coverage_check` rc=0 **143 rows 0/0 SUPPORTED 93**, prose rc=0; TOOL LESSON: the manual_ref column must match `pNN[:§X.Y][=phrase]` or start `NONE:` — free prose there is an ERROR, adjudicated live.
+
+**EXECUTE NOW (successor, exact order — full detail `LEARNINGS.md` § "P3-12 hop 4 CONTINUED"):** (l) FULL gate rc=0 DIRECT (redirect, NEVER pipeline-tail the rc) → `build/gate-e52p12-reg.log` expect **1288/0, 188/188, 9/9, 143 rows 0/0, census 15/0/26/0, prose 5**; then RESULTS §P3-12 in `spec/lab-evidence/e2e52-p3/RESULTS.md` (per-probe parity table YA..YI+NG20; EVERY §4 miss VERBATIM — YB/YE predicted `?QDDSR` measured `?QDDSL`, YG predicted up measured down, YI pre-arm byte-68 my-gap closed by the sc=0 rule; H-2/H-3/H-4/H-6 falsifiers; NG20 retirement honest; LOAN2 advance 111→112→117 recorded NEVER fix; byte-tier-only) + PLAN §5 progress-table row + PLAN §P3-12 heading **CLOSED**; prose rc=0; commit explicit paths; durables + guard blocks VERBATIM. (m) **BEGIN P3-13** on the ACTUAL Line-117 blocker (`call display(PL * INF, …)` DEC-expression actuals vs FIXED DECIMAL formals): evidence FIRST with ZERO oracle — audit `DECPOLY`/`R2037`/`R2038`/`R725` witnesses + the N33_DEC_FORMAL family reldumps, write PLAN §P3-13 (template §P3-12: §1 blocker VERBATIM; §2 witness table; §3 hypotheses + falsifiers; §4 per-probe byte predictions NEVER fit; §5 campaign+arm contract; §6 LOAN2 never-predict; §7 framing) + probes `E52ZA..` (CRLF + bare `^Z` + ≤71 cols + ONE dcl per line), commit by EXPLICIT paths BEFORE any oracle call/`ocaml/` byte; marathon authorization live (budget through P3-19).
+
+**STATE:** HEAD = durables commit after this; ledger ENDS **C370**; inventory **1288/188**; coverage **143/93** 0/0; last full gate rc=0 `build/gate-e52p11-reg.log` (gate re-run owed at (l)); ARMED binary **`6a4c6c1154a0acd8403b…`** == tree; goldens NEVER re-derived; LOAN2 UNMODIFIED sha `7be23ba3…` rc=2 NO .REL Line-117 blocker VERBATIM NEVER fix; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat`; config NEVER staged; no push; rc DIRECT (incident law: never glue commands to `rm` operands); byte-tier only; chain 01a1b1b4 renewal 3/12 cap 12.
 
 **DONE hop 4 (successor session 01a1b1b4, chain renewal 2/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT; byte-tier only):** recovery verified HEAD `61a32d6`, armed binary re-built deterministic. **(a)** per-File histogram re-proved vs replayed baseline (`git archive 3b64336` → binary `25c57e27…`): Warning 27 `ptr` IS BASELINE (codegen.ml RTbmem); the arm had introduced ONE new W27 unused `args` in `dv_of` — FIXED to wildcard (commit `60b9c79`, zero behavior change); histogram codegen 68/total 124 == baseline EXACTLY; corrected binary sha256 **`6a4c6c1154a0acd8403b973acc8a66a297785cdd1e6f23cc119af2255dc0d1d0`** (supersedes `f561426…`); 9/9 E52YA..YI whole-file cmp rc=0 re-held on FRESH paths. **(b)** sweep E46N E46K E51 E52 P086 R10 → 159 byte-exact, FAILS 0. **(c)** markers 15/16 — ONLY `N35_DEC_STORE_SCALE_DRIFT` now compiles rc=0 with cmp rc=0 vs `golden/negpanel1/NG20/NG20.REL` (harness + fresh re-materialization); RETIREMENT DECIDED honestly (N26 precedent + NEG_META "DR COMPILES IT"): N35 leaves REJECTS+NEG_META, NG20 source registers as POSITIVE specimen `probes/NG20.PLI` (golden path UNCHANGED, NEVER re-derived); refusals 189→188; NO invented replacement negative for the still-refused suffix/pointer DEC-store routes (their DR behaviour UNMEASURED — loss accepted, recorded). **(d)** DEC regressions R5xx–R8xx + LOAN1 → 64 byte-exact, FAILS 0. **INCIDENT repaired:** accidental `rm` of `artefacts/LOAN2.PLI` (missing `;` in my command); restored via single-path `git restore --source=HEAD`, sha `7be23ba3…` verified twice, zero scientific loss; law recorded in LEARNINGS. **(e)** LOAN2 UNMODIFIED POSITIONAL → rc=2, NO .REL, ACTUAL new blocker VERBATIM `codegen: non-variable argument against a FIXED DECIMAL formal is unproven [TBD] (DR passes an automatic decimal BY REFERENCE -- the descriptor holds LXI H,*A(cell); a literal or expression decimal argument has no sample [DECPOLY, R2037/R2038/R725]. Line 117)` — advanced PAST 111/112; NEVER fix this slice; = P3-13 target (`call display(PL * INF, …)` DEC-expression actuals). EXPR1 21/EXPR2 35 unchanged.
 
@@ -2873,17 +2879,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 441
-checkpoint-id: g441-ce71bb397323
-checkpoint-kind: manual
+checkpoint-generation: 443
+checkpoint-id: g443-8bc17e84f05c
+checkpoint-kind: auto
 content-delta: new
-readiness: attested
-guard-level: 2
-checkpointed: 2026-11-06T16:50:24.139Z
+readiness: unattested
+guard-level: 4
+checkpointed: 2026-11-06T17:11:26.662Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: d7b9bcfa1b901df0c8bb393aa9748f292e516b9b22498d3c9dba19e90a1b35a7
+source-progress: 1eccc196ec5edca28fa8828d8c6827c293aacc926185c81bd9a2b58172060ae7
 source-handoff: ed65d29a6f6dd45fcee9541dce280b2c144ec818fccc50dc9121128053178d0e
-source-learnings: f1f2ad52fd8bb8193c028fc795d95ba36362062c796a8b7b397cb80aa0304a73
+source-learnings: f151ab81839d400fc9d161ff1c38e75e2cd2485da0e64009c71cedb8b5993521
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop 4 steps (g),(i),(j),(k),(l),(m) EXACTLY** — divergences 9/9; register +9 Y-specimens + NG20 retirement (new `probes/NG20.PLI` committed; NEVER re-derive `golden/negpanel1/NG20/NG20.REL`), inventory 1278→1288/188, census OWN path (LOAN2 msg moves VERBATIM, NOTHING fixed); **C370 measured-bytes-only BEFORE any COVERAGE touch**; NEW row `STOR.DEC_SCALE_ASSIGN` + SAME-change COVERAGE-IDS line (NEVER coverage_gen.py; 15 cols FIRST NON-COMMENT row); FULL gate rc=0 → `build/gate-e52p12-reg.log`; RESULTS §P3-12 + PLAN §5 row + CLOSED; then BEGIN P3-13 on the Line-117 blocker (evidence-first, pre-register before oracle) under marathon authorization. Ledger ENDS **C369**; armed binary `6a4c6c11…`==tree; all inherited constraints in force (goldens VERBATIM, POSITIONAL FRESH paths, `git diff --cached --stat`, config never staged, no push, rc DIRECT, N35 retirement honest, no pipeline-tail rc).
 
@@ -3512,9 +3518,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b1b4-abfa-71fa-8218-82122d0bd0d1
-readiness-at: 2026-11-06T16:50:24.162Z
-readiness-checkpoint: g441-ce71bb397323
 <!-- guard:end checkpoint -->
 
 ## Blockers
