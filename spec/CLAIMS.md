@@ -9113,3 +9113,73 @@ classified `unmeasured` rather than `dr-refuses`.
   `spec/RUNTIME.txt` row comes from this claim. (iii) `dr-refuses`/`my-gap` classification of the
   BY-NAME perimeter above is `my-gap` (DR accepts forms this compiler refuses) and is NOT
   represented as a DR restriction; whether DR accepts every refused shape is UNMEASURED.
+
+## C368 — `SIGNAL <conditional>[(args)]` LOWERS AS A PURE STATEMENT — the two-role registration-prefix family of `ON <conditional>` ([C366]/[C109]) CHAIN-EXTed to `?SIGOP` instead of `?ONCOP`, with NO jump-over slot, NO handler, NO recovery pad and NO block SP-save cell anywhere: the ERROR form is `LXI H,<argument 16-bit little-endian>` (ABSOLUTE operand, NO relocation, NO `LINK-SEL-COMMON`; the argument IS that LXI operand verbatim — bare = `21 00 00`, `error(0)` indistinguishable, `error(2)` = `21 02 00`, `error(255)` = `21 FF 00`, **`error(256)` = `21 00 01`: NO 0..255 range check exists**) `/ XRA A / CALL ?SIGOP` (7 bytes), the FILE form is `LXI H,<FILE COMMON base>` (SEL-COMMON + RELOC `common 0x0`, group size 34+len(name) [C120] — PF `0024`, F `0023`) `/ MVI A,<condition code>` (`endpage` = 08, `endfile` = 05 — SIGNAL's A byte TRACKS the ON condition codes) `/ CALL ?SIGOP` (11 bytes); the next statement simply follows, and a conditional jump whose THEN-body is a SIGNAL patches PAST the whole 7 bytes (E2E-52/P3-10; MEASURED — 9 whole-file `cmp` rc=0 of `E52WA..E52WE,E52WH..E52WK` against `golden/e52p10/`, goldens VERBATIM at d46b6c2, RE-MEASURED at registration on binary sha256 `a4c0e235ed4bb81fe284…`, never fitted)
+
+* **Measured — the pure-statement law (`E52WA`/`E52WB`).** Both objects are byte-IDENTICAL
+  128 B files with CODE `DEF-CODE-SIZE 0016`, DATA `0002`: the signal sits at code 0006 as
+  `21 00 00 / AF / CD 00 00` with `LINK-CHAIN-EXT code 000B ?SIGOP`; the LXI operand is NOT
+  relocated; the only RELOC in each file is `data 0x0` for the following `x = 2`
+  (`21 02 00 / 22 r(x)` at 000D) and `?STOPX` chains at slot 0014. There is NO jump-over
+  `C3`, no handler, no pad, no SP-save cell anywhere — SIGNAL is a statement and control
+  falls through to the next statement.
+* **Measured — the literal-argument law (`E52WC`/`E52WD`/`E52WE`).** `error(2)` emits
+  `21 02 00`, `error(255)` emits `21 FF 00`, and `error(256)` is DR-ACCEPTED and emits
+  **`21 00 01`** — the full 16-bit little-endian operand — FALSIFYING the drafted 0..255
+  range-check competitor (kept verbatim). ORIGINAL witnesses from the hop-1 audit: LOAN2
+  0359 is the bare 7-byte form; EXPR1 0175/018D and EXPR2 023D/0255 are FOUR byte-identical
+  `21 01 00 / AF / CD` sites for `error(1)` (original-golden decode — see the NOT-say
+  bullet).
+* **Measured — the FILE form (`E52WH`/`E52WI`, 256 B, CODE `0017`, DATA `0002`).**
+  `signal endpage(printfile)` lowers at 0006 as `21` + `LINK-SEL-COMMON PF` +
+  `RELOC common 0x0`, then `3E 08`, then `CD 00 00` with `LINK-CHAIN-EXT code 000C ?SIGOP`;
+  `signal endfile(f)` is the same shape with `3E 05`. The COMMON group sizes obey the
+  [C120] 34+len(name) law on this route too (PF `0024`, F `0023`), and SIGNAL's `MVI A`
+  immediate TRACKS the ON condition codes ([C120] family: ENDFILE 05, ENDPAGE 08).
+  ORIGINAL witness: COPYLPT 02AA-02B4 is the identical 11-byte `endpage` shape against the
+  PRINTF group, and the ON-route control site COPYLPT 0254 carries the same `3E 08` byte
+  via `?ONCOP`.
+* **Measured — geometry around a SIGNAL (`E52WJ`/`E52WK`).** `E52WJ` (256 B, CODE `0027`,
+  DATA `0002`) shows a SIGNAL placed AT the ON jump-over landing site adds NOTHING to the
+  registration: the `on error(1)` prefix is [C366]-verbatim at 0006-000F (`?ONCOP` slot
+  000B, jump-over `C3` slot 000E), the inline handler `21 01 00 / 22 r(x) / C9` occupies
+  0010-0016, and the jump-over slot patches (`LINK-SET-LC code 000E / RELOC code 0x17`) to
+  code 0017 — which IS the signal region `21 01 00 / AF / CD ?SIGOP` (slot 001C); `x = 2`
+  follows at 001E; no SP cell, per [C206]. `E52WK` (128 B, CODE `0027`, DATA `0004`) shows
+  a conditional jump patching PAST a SIGNAL: the [C367] `E52VB` fold is emitted verbatim at
+  0006-0016 and its `F2` operand slot 0015 (`LINK-SET-LC code 0015`) carries
+  `RELOC code 0x1e` — the continuation is 0017 + 7 = 001E, the statement after the signal;
+  the OR encoder is unchanged.
+* **Measured — `dr-refuses` (`E52WL`).** Bare `signal endfile;` (the manual's own
+  argument-less example form, manual 8.6/B.27) compiles CLEAN in PASS 1 (`NO ERROR(S) IN
+  PASS 1`) and is REFUSED in PASS 2 AT LINE 12: `SYNTAX ?`, `1 ERROR(S) IN PASS 2`, with NO
+  .REL produced; `E52WL.PRN` is preserved VERBATIM at `golden/e52p10/E52WL/`, the probe is
+  registered on the negative panel with marker `SIGNAL endfile with 0 argument(s)`
+  RE-MEASURED under the gate's CRLF + bare-`^Z` materialization (an LF-only compile reports
+  line 6; the DR-agreeing line is 12), and NO golden was invented for it.
+* **Implementation perimeter — what this compiler REFUSES BY NAME (my gaps, never DR
+  rules).** Only the shapes above are armed: bare ERROR or ERROR with ONE integer literal
+  (full 16-bit operand range), and `endpage`/`endfile` with a single declared file
+  identifier emitting 08/05. `FROM` is kept in the AST and NEVER lowered (no DR object
+  witnesses `SIGNAL … FROM`; the frontend argument-preservation defect was repaired at
+  `d84665c` and AST preservation is proven by the 12/12 proto test
+  `ocaml/proto/ssignal_ast.ml`, commit `91060ea`); multi-argument `error(1,2)` is
+  UNMEASURED; other condition names and variable/expression arguments are unmeasured or
+  refused. **Two forms DR ACCEPTED and this compiler armed NEITHER, per the
+  pre-registered do-not-generalise clause (single witnesses each):** `signal error(n)` on a
+  variable lowers as `LHLD n / XRA A / CALL ?SIGOP` (`E52WG`, CODE `001C` — the HL route,
+  no stack) and `signal error(1+1)` lowers through the FIXBIN stack route — pushes via
+  `?DLDOP` twice, `?DADOP`, `?QDI15`, then `AF / CD ?SIGOP` (`E52WF`, CODE `0029`, DATA
+  `0003`, literal cell shared, NOT folded) — both open `my-gap` [TBD]. The ERROR encoder
+  `signal_error_prefix` is its OWN primitive ([C202] one-primitive doctrine — the ON-role
+  [C366] encoder is never reused for it), while the FILE form reuses `on_reg_prefix`
+  because the measured bytes agree.
+* **Obligations and limits — what this does NOT say.** BYTE TIER ONLY: no `e52p10` object
+  was linked or run under cpmsim, so NOTHING here asserts runtime signal delivery, handler
+  activation, or any `?SIGOP`/PLILIB behaviour — the library's action is UNEXAMINED and no
+  `spec/RUNTIME.txt` row comes from this claim. The WF/WG bytes are measured from DR
+  goldens and are PANEL-UNVERIFIED by this compiler (armed neither). The LOAN2/EXPR1/
+  EXPR2/COPYLPT citations are ORIGINAL-GOLDEN DECODES (`build/e52p10/*-reldump.txt`);
+  LOAN2 itself still refuses and its first blocker MOVED VERBATIM from line 92 to
+  `codegen: PUT FILE(OUTPUT) has no byte-exact DR witness [TBD] (line 99)` — recorded,
+  NOT fixed. Provenance: [C366] [C120] [C109] [C202] [C206] [C208] [C367].
