@@ -42,7 +42,15 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-10 hop 1 LANDED — PRE-REGISTRATION `c6c4460` committed BEFORE any oracle call and any `ocaml/` byte; ORACLE CAMPAIGN `e52p10` OWED; read `LEARNINGS.md` § "P3-10 hop 1" FIRST; STOP at P3-10 closure)
+## Next action (E2E-52/P3-10 hop 2 LANDED — CAMPAIGN MEASURED 11 ok/12 + ARM BYTE-EXACT 9/9; AST TEST + REGISTRATION + C368 + GATE + CLOSE OWED; read `LEARNINGS.md` § "P3-10 hop 2" FIRST; STOP at P3-10 closure)
+
+**DONE this hop (session 01a1b085, fresh chain renewal 1/12; ZERO ocaml byte BEFORE goldens; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT):** campaign `e52p10` rc=0 **11 ok/12**; every .PRN read (11× `NO ERROR(S)` both passes; **WL dr-refuses**: PASS 2 line 12 `SYNTAX`, NO .REL, kept VERBATIM, no invented golden). Raw-record decode of all 11 goldens: H-A/H-B0/H-B2/H-C255 HIT; **WE falsifies the 0..255 compiler-range competitor** (error(256) = `21 00 01`, full 16-bit verbatim); WF accepted UNFOLDED via stack `?DLDOP×2/?DADOP/?QDI15` + `AF`+CALL and WG accepted via `LHLD`+`AF`+CALL — both SINGLE witnesses, armed NEITHER (open my-gap [TBD]); H-E1 HIT (PF 0024), **H-E2 HIT `3E 05` — SIGNAL A byte tracks ON codes [C120]**; H-F/H-G HIT. Goldens VERBATIM `d46b6c2` BEFORE any ocaml byte. Frontend repair + arm `d84665c`: `Ssignal` gains `cargs` (parser stops discarding; bind 574/1518 + pli80deps traverse; FROM kept never lowered); `signal_error_prefix` OWN encoder; arm admits ONLY measured shapes (ERROR bare/literal 0..65535; endpage(f) 08, endfile(f) 05 via `on_reg_prefix` + `?SIGOP`; pure statement, no C3/pad/SP-cell). VERIFIED binary `a4c0e235ed4bb81fe284…`: build rc=0 DIRECT, histogram codegen 68/total 124, 9/9 cmp whole-file (WA-WE,WH-WK), sweep FAILS 0, markers 10/10, regressions 17/17, **LOAN2 ADVANCED VERBATIM to `codegen: PUT FILE(OUTPUT) has no byte-exact DR witness [TBD] (line 99)` NEVER fix**; EXPR1 21/EXPR2 35 unchanged. LESSON: a pipeline-tail `| head` hid the first build rc → STALE `_build/default` binary FALSE-REFUSED WK; re-verify one cmp on the binary you trust.
+
+**EXECUTE (successor hop 3, in order):** (1) AST-preservation test (owed from brief step 2): `ocaml/proto/ssignal_ast.ml` + dune stanza (arch1.ml precedent) asserting `cargs` PRESERVED on `signal error;`, `error(1)`, `endpage(pf)`, `error(1,2)` and FROM forms — including still-REFUSED shapes; build rc=0; commit explicit paths. (2) registration from **1260**: SPECIMENS +9 (WA-WE,WH-WK ONLY — WF/WG are my-gap refusals, NOT dr-refuses; DECIDE honestly + record whether WL enters REJECTS as a genuine dr-refuse citing its VERBATIM `SYNTAX` verdict, precedent SF/SG — refusals 186→187 ONLY if registered), `--update-inventory`, ALWAYS `git diff --cached --stat` (config NEVER staged); census OWN path (expect 15/0/26/0, LOAN2 message MOVED VERBATIM to PUT FILE(OUTPUT) line 99, NOTHING fixed). (3) **C368 measured-bytes-only committed to `spec/CLAIMS.md` BEFORE ANY `spec/COVERAGE.tsv` touch** (LEARNINGS § hop 2 table; BY-NAME perimeter incl the WF/WG single-witness clause; byte-tier-only NOT-say; provenance [C366][C120][C202][C206][C208][C367]). (4) `COND.SIGNAL` row SUPPORTED/EXACT:9 + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; 15 cols from FIRST NON-COMMENT row; csv `delimiter='\t'`); `coverage_check` rc=0 expect **142 rows 0/0 SUPPORTED 92** + prose rc=0. (5) FULL gate rc=0 DIRECT → `build/gate-e52p10-reg.log`. (6) RESULTS §P3-10 + PLAN §5 row + §P3-10 **CLOSED** + durables. **STOP at P3-10 — do NOT implement the line-99 PUT FILE(OUTPUT) blocker, no P3-11, no runtime claims.**
+
+**STATE:** HEAD `d84665c` (+ this durables commit); ledger ENDS **C367** (C368 owed); inventory **1260/186**; coverage 141/SUPPORTED 91; binary `a4c0e235ed4bb81fe284…` == tree (intentionally != pre-arm `11c6283e…`); goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; tree clean except guard blocks + operator `handoff.config.json` (NEVER stage) + ignored `build/e52p10/`, `ocaml/_build-e52p10/`, `ocaml/*.log`; chain 01a1b069 renewal 1/12 cap 12; no push; rc DIRECT.
+
+SUPERSEDED-BY-ABOVE: ## Next action (E2E-52/P3-10 hop 1 LANDED — PRE-REGISTRATION `c6c4460` committed BEFORE any oracle call and any `ocaml/` byte; ORACLE CAMPAIGN `e52p10` OWED; read `LEARNINGS.md` § "P3-10 hop 1" FIRST; STOP at P3-10 closure)
 
 **DONE this hop (session 01a1b069, operator brief E2E-52/P3-10; ZERO oracle, ZERO `ocaml/` byte; goldens NEVER touched; config NEVER staged; all rc DIRECT; no push):** recovery verified HEAD `ec3ff7b` == brief; P3-9 close re-held. **Phase A audit COMPLETE** (PLAN sec 2 evidence table + `build/e52p10/` raw dumps): SIX SIGNAL sites in EXACTLY FOUR original objects — LOAN2 0359-035F (`signal error;` = `21 00 00` ABS / `AF` / CD slot 035E CHAIN-EXT `?SIGOP`, 7 B), EXPR1 0175+018D and EXPR2 023D+0255 (`error(1)` = `21 01 00` ABS, four BYTE-IDENTICAL 7-B sites), COPYLPT 02AA-02B4 (`endpage(printfile)` = `21`+RELOC common@0 group PRINTF / `3E 08` / CD slot 02B0, 11 B) + ON-route control COPYLPT 0254 same `3E 08` via ?ONCOP. SIGNAL is a PURE statement (no jump-over/handler/pad/SP-cell anywhere); jumps patch past it. TOOL LESSON: `build/e52p8/ondump2.py` IGNORES CLI args (hard-coded TARGETS) — driver is `build/e52p10/sigdump.py`. **Phase B LANDED `c6c4460`:** PLAN §P3-10 (H-A..H-X + falsifiers + arm contract + frontend defect record) + probes E52WA..WL (12; CRLF+bare ^Z, ≤71 cols; error(1) merged — 4 witnesses; FROM/multi-arg/other conditions NOT probed, kept unmeasured BY-NAME).
 
@@ -2797,17 +2805,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 414
-checkpoint-id: g414-ea7be3296b96
+checkpoint-generation: 416
+checkpoint-id: g416-ea4ef22ffd82
 checkpoint-kind: auto
 content-delta: new
 readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T11:00:45.066Z
+checkpointed: 2026-11-06T11:23:03.975Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: a8f8bf65cc484a87cab73d4dfc64d57e48ba11f77a165745c82b1a3638cf6414
+source-progress: b512cdb3db89b661482189f538f31e3d5210085281f74e7c5fed15edb21c8bd4
 source-handoff: 0a12102b6197bca3d3b7ad64d84c3f8e04fefbf903ff50b4b3b416ece08bff28
-source-learnings: 57791434b56c5365bb52050806cb86e8acb4e58b33396c083ec24f622189e573
+source-learnings: e1d02ede6dcce09906dc19be437f93cd4ad8524e149b5ac28935f417ce4e6e13
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` hop 2 EXACTLY: ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52WA..E52WL --tag e52p10 --switches '$L$D'` rc DIRECT → goldens VERBATIM BEFORE any emitter → frontend `Ssignal.cargs` repair AFTER evidence → arm measured shapes ONLY → cmp/sweep/markers/regressions → LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (record ACTUAL new blocker, NEVER fix) → registration from 1260, **C368 measured-bytes-only BEFORE COVERAGE** (`COND.SIGNAL`, NEVER `coverage_gen.py`, 15 cols from FIRST NON-COMMENT row) → FULL gate rc=0 `build/gate-e52p10-reg.log` → RESULTS §P3-10 + PLAN §5 + CLOSED + durables. **STOP at P3-10.** Ledger ENDS **C367**; inventory 1260/186; coverage 141 SUPPORTED 91; binary `11c6283e75b60fe3…` == tree; census 15/0/26/0 (LOAN2 `(line 92)` NEVER fix); goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat` before commit; byte-tier only — NO runtime claims; no push; chain cap 12 (1/12 used).
 
