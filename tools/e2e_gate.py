@@ -2402,6 +2402,66 @@ SPECIMENS.update({
     "E52WK": ("probes/E52WK.PLI", "golden/e52p10/E52WK/E52WK.REL"),
 })
 
+# [E2E-52/P3-11] PRINT-opened FILE-PUT campaign e52p11 (oracle rc=0, 11 ok/11; goldens
+# VERBATIM at 060289e, committed BEFORE any ocaml/ byte; pre-registered PLAN §P3-11 at
+# eda2235; arm 3e0a3c1).  The arm is candidate A: ONE condition line in lower_open records
+# PRINT-bearing opens into st.file_out beside the OUTPUT spelling -- the guard, the item
+# authorizers, the attach emitter and the PAGE emitter are UNCHANGED and add ZERO statement
+# bytes.  All NINE registered probes compile whole-file BYTE-EXACT on binary
+# 25c57e27696421e929b8... (9/9 cmp rc=0, FRESH output paths, positional pli80c).  The law is
+# [C369]: behind a lowered PRINT open the bare file PAGE is the VERBATIM 18-byte LOAN2:99
+# block -- `LXI H,*<FILE COMMON> / LXI D,0x0652 / LXI B,<continuation slot> / CALL ?SIOOP /
+# CALL ?PAGOP / CALL ?QIOOP' -- the attach word is the statement-direction word 0x0652
+# whatever the open word, ?PAGOP carries NO `3E nn' count, and the LXI B slot patches to the
+# next statement; LIST/SKIP ride the ONE route-independent item emitter (P019B 26 B, E46N1
+# 20 B, E46N2 31 B -- verbatim).  E52XJ and E52XK are NOT here -- DR ACCEPTED both, this
+# compiler keeps refusing both classes BY NAME per PLAN §5, and they live on the NEG panel
+# as measured my-gap rows with their goldens KEPT (SE/E46L8 precedent).
+#   E52XA 256 B; CODE 0036, DATA 0002, COMMON PF 0024.  Titleless `open file(pf) print;'
+#             (E52TA 17-B block, w1 `21 52 06' = 0x0652, ?OIOOP chain at 0019) + the 18-B
+#             PAGE at 001B: attach `11 52 06', LXI H operand RELOC common 0x0,
+#             ?SIOOP@0025 ?PAGOP@0028 ?QIOOP@002B (NO count); LXI B slot 0022 -> 002D =
+#             start of x = 2 (H-A HIT; the §4 guess `slot -> 0030' was MY arithmetic slip,
+#             measured 002D = 001B + 18; LOAN2 03AA witness).
+#   E52XB 256 B; CODE 003E, DATA 0006.  LITERAL title + print with NO pagesize/linesize --
+#             DR ACCEPTS: E52TB-shaped ?SLCTS block (?SLCTS@000C, ?OIOOP@0021, w1 0E52) and
+#             the PAGE rides verbatim at 0023 (?SIOOP@002D ?PAGOP@0030 ?QIOOP@0033, LXI B
+#             slot 002A -> 0035) -- the pagesize-required competitor is FALSIFIED (H-B HIT).
+#   E52XC 256 B; CODE 003E, DATA 0006.  LOAN2:54+99 mirror -- title('$con') print
+#             pagesize(0), w1 2E52; block geometry byte-identical in shape to XB
+#             (?SLCTS@000C, ?OIOOP@0021, PAGE at 0023, slot 002A -> 0035) (H-C HIT).
+#   E52XD 256 B; CODE 003C, DATA 0011.  VARIABLE varying title + print -- E52TC ?SLVTS
+#             27-B block (?SLVTS@000A, ?OIOOP@001F, w1 0E52); PAGE verbatim
+#             (?SIOOP@002B ?PAGOP@002E ?QIOOP@0031, slot 0028 -> 0033) (H-D HIT).
+#   E52XE 256 B; CODE 003D, DATA 0004.  PAGE under IF -- LOAN2 98-99 geometry: DOUBLE
+#             back-patch CONFIRMED, SET-LC code 0029 (PAGE LXI B) AND code 0020 (F2 skip
+#             slot) BOTH patch to code 0034 = start of x = 2; the SINGLE-patch competitor is
+#             FALSIFIED (H-E HIT).
+#   E52XF 384 B; CODE 0063, DATA 0017.  TB-shape open in the THEN, TC-shape open in the
+#             ELSE, then ONE PAGE: F2 slot 000B -> 002D, C3 slot 002B -> 0048 (the PAGE),
+#             ONE 18-B PAGE after the merge, NO pad, NO branch-local eligibility (H-F HIT).
+#   E52XG 256 B; CODE 003E, DATA 0003.  PRINT open + LIST literal = P019B 26-B verbatim --
+#             attach + LXI H,*D(data cell, RELOC data 0x0) / MVI A,01 / ?SLCTS@002D /
+#             ?PNCOP@0030 / ?QIOOP@0033; LXI B slot 0022 -> 0035 (H-G HIT -- the ONE shared
+#             route-independent emitter reproduces the OUTPUT-route object behind PRINT).
+#   E52XH 256 B; CODE 0038, DATA 0002.  PRINT open + BARE skip = E46N1 20-B verbatim --
+#             `3E 01' + ?SKPOP@002A + ?QIOOP@002D, NO ?PNCOP (none without an item chain);
+#             slot 0022 -> 002F (H-H HIT).
+#   E52XI 384 B; CODE 0043, DATA 0003.  PRINT open + skip list('A') = E46N2 31-B verbatim
+#             -- skip BETWEEN attach and chain (?SKPOP@002A), then ?SLCTS@0032, ?PNCOP@0035
+#             (only because a chain follows), ?QIOOP@0038; slot 0022 -> 003A (H-I HIT).
+SPECIMENS.update({
+    "E52XA": ("probes/E52XA.PLI", "golden/e52p11/E52XA/E52XA.REL"),
+    "E52XB": ("probes/E52XB.PLI", "golden/e52p11/E52XB/E52XB.REL"),
+    "E52XC": ("probes/E52XC.PLI", "golden/e52p11/E52XC/E52XC.REL"),
+    "E52XD": ("probes/E52XD.PLI", "golden/e52p11/E52XD/E52XD.REL"),
+    "E52XE": ("probes/E52XE.PLI", "golden/e52p11/E52XE/E52XE.REL"),
+    "E52XF": ("probes/E52XF.PLI", "golden/e52p11/E52XF/E52XF.REL"),
+    "E52XG": ("probes/E52XG.PLI", "golden/e52p11/E52XG/E52XG.REL"),
+    "E52XH": ("probes/E52XH.PLI", "golden/e52p11/E52XH/E52XH.REL"),
+    "E52XI": ("probes/E52XI.PLI", "golden/e52p11/E52XI/E52XI.REL"),
+})
+
 # NOT registered (fail-loud / no golden) -- kept visible as research
 # evidence, never as accepted parity:
 #   P402  codegen: 'IF n > 0' with a POINTER FORMAL -> [TBD] unproven form
@@ -5241,6 +5301,16 @@ REJECTS.update({
     # reports line 6 instead of 12 -- the hop-2 materialization lesson re-confirmed).
     "E52WL": (open("probes/E52WL.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
                "SIGNAL endfile with 0 argument(s)"),
+    # [E2E-52/P3-11] E52XJ/E52XK -- MEASURED my-gap rows, goldens KEPT (SE/E46L8 precedent,
+    # NOT dr-refuses, NOT WL): campaign e52p11 (11 ok/11 at 060289e) measured DR ACCEPTING
+    # both, and PLAN §5 kept both classes OUTSIDE the arm -- the eligibility list records
+    # lowered OUTPUT/PRINT OPENs only.  Markers are MY refusal substrings RE-MEASURED rc=2 on
+    # binary 25c57e27696421e929b8... under the gate's CRLF+bare-^Z materialization (XJ names
+    # line 8, XK line 9), never invented.
+    "E52XJ": (open("probes/E52XJ.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT FILE(PF) has no byte-exact DR witness [TBD] (line 8)"),
+    "E52XK": (open("probes/E52XK.PLI", "rb").read().replace(b"\r\n", b"\n").rstrip(b"\x1a").decode(),
+               "PUT FILE(PF) has no byte-exact DR witness [TBD] (line 9)"),
 })
 NEG_META["E52SF"] = ("dr-refuses",
     "DR REFUSES it -- PASS 1 is clean, PASS 2 prints `SYNTAX ?' at the ON statement, 1 ERROR(S), "
@@ -5284,6 +5354,37 @@ NEG_META["E52WL"] = ("dr-refuses",
     "a4c0e235ed4bb81fe284... this hop under the gate's CRLF+bare-^Z materialization (an LF-only "
     "compile shifts the reported line 12 -> 6 -- the hop-2 marker lesson re-confirmed), never "
     "assumed.")
+
+# [E2E-52/P3-11] E52XJ -- MEASURED my-gap on the FILE-PUT route (precedent E52SE above).
+NEG_META["E52XJ"] = ("my-gap",
+    "DR COMPILES IT (golden/e52p11/E52XJ/E52XJ.REL, 256 B whole-file: `NO ERROR(S)' in BOTH "
+    "passes; campaign e52p11 11 ok/11 measured at 060289e; [C369] H-J) -- `put file(pf) page;' "
+    "with NO open anywhere: LINK-SEL-COMMON PF at FIRST USE (record @834 of the raw bit "
+    "stream) then the SAME 18-B PAGE block -- attach `11 52 06' 0x0652, ?SIOOP@0010, "
+    "?PAGOP@0013, ?QIOOP@0016, LXI B slot 000D -> 0018 = start of x = 2; CODE 0021, DATA 0002. "
+    "That is E46L8's no-open LIST geometry asked of ?PAGOP.  Mine refuses BY NAME: the "
+    "eligibility guard claims a whole statement only where this compiler lowered the OPEN "
+    "(PU1/E41X5/E46K10 keep their refusals), so this is a `my-gap' row on a verdict DR has "
+    "now told us, and the XJ golden is claimed by NO rule here until the no-open attach "
+    "lands with an object of ours behind it.  Marker RE-MEASURED rc=2 on binary "
+    "25c57e27696421e929b8... this hop under the gate's CRLF+bare-^Z materialization (line 8), "
+    "never assumed.")
+
+# [E2E-52/P3-11] E52XK -- MEASURED my-gap: the [C280] direction law reconfirmed, the
+# input-mirroring-attach competitor FALSIFIED.
+NEG_META["E52XK"] = ("my-gap",
+    "DR COMPILES IT (golden/e52p11/E52XK/E52XK.REL, 256 B whole-file: `NO ERROR(S)' in BOTH "
+    "passes; campaign e52p11 11 ok/11 measured at 060289e; [C369] H-K) -- `open file(pf) "
+    "stream input;' lowers the E52TA-shaped 17-B open with w1 `21 90 06' (0x0690, ?OIOOP@0019) "
+    "and the following PAGE rides the VERBATIM 18-B block with the attach word STILL "
+    "`11 52 06' 0x0652 (?SIOOP@0025, ?PAGOP@0028, ?QIOOP@002B, LXI B slot 0022 -> 002D; CODE "
+    "0036, DATA 0002) -- identical geometry to XA behind the PRINT open.  The attach word is "
+    "the PUT statement's DIRECTION, not the open's mode ([C280] again); the pre-registered "
+    "competitors `refusal' and `mirroring attach' are FALSIFIED.  Mine lowers the stream-input "
+    "OPEN but records no file_out group for it (only OUTPUT/PRINT spellings record, 3e0a3c1), "
+    "so the named PUT on it refuses BY NAME -- INPUT-direction named PUTs stayed outside the "
+    "arm per PLAN §5; `my-gap' row, golden KEPT, claimed by NOTHING here.  Marker RE-MEASURED "
+    "rc=2 on binary 25c57e27696421e929b8... this hop (line 9), never assumed.")
 
 # [E2E-28] NESTED PROCEDURE PLACEMENT.  Nine probes that DR accepts and that are byte-exact here.
 # Before this milestone, codegen carried two refusals that were presented as DR layout laws:

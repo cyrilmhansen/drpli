@@ -1,7 +1,7 @@
 {
  "argv": "<BIN> artefacts/<NAME>.PLI /tmp/census-<NAME>.REL",
  "batch": "golden/first8080u",
- "binary_md5": "cbede3b54d156fca9c90f2bc9999cfdb",
+ "binary_md5": "11563c136023ada6a5a6c075473d0e8a",
  "counts": {
   "AUTHENTIC": 41,
   "DIFFERS": 0,
@@ -15,14 +15,16 @@
   "dirs_present": 44,
   "sha_unverified": 0
  },
- "generated": "2026-11-06T12:38:30",
+ "generated": "2026-11-06T15:52:10",
  "git_dirty_paths": [
-  "M HANDOFF.md",
-  " M PROGRESS.md",
-  " M handoff.config.json",
+  "M handoff.config.json",
+  " M spec/INVENTORY.txt",
+  " M tools/e2e_gate.py",
   "?? ocaml/_build-e52p10/",
+  "?? ocaml/_build-e52p11/",
   "?? ocaml/build-e52p10-ast-build.log",
   "?? ocaml/build-e52p10-ast-run.log",
+  "?? ocaml/build-e52p10-hop3rem-build.log",
   "?? ocaml/build-e52p7-arm.log",
   "?? ocaml/build-e52p7-arm2.log",
   "?? ocaml/build-e52p8-arm.log",
@@ -35,7 +37,7 @@
   "?? ocaml/build-p37.log",
   "?? ocaml/build-warn-e52p6.log"
  ],
- "git_head": "21d4db6e37f24e865d3c68ebaee58a097e970e64",
+ "git_head": "df5b2696fe06c939574b711d41f4942018f9f30f",
  "rows": [
   {
    "dir_present": true,
@@ -413,7 +415,7 @@
    "dir_present": true,
    "dr_verdict": "ok",
    "mine": "REFUSED",
-   "msg": "Fatal error: exception Failure(\"codegen: PUT FILE(OUTPUT) has no byte-exact DR witness [TBD] (line 99) -- this route claims the complete statement only where a ",
+   "msg": "Fatal error: exception Failure(\"codegen: DECIMAL assignment between differing scales is unproven [TBD] (only computed results are pinned as needing a QDDSL/QDDS",
    "name": "LOAN2",
    "prn_present": true,
    "rel_bytes": 7680,
