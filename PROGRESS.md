@@ -42,7 +42,10 @@ NEG_META (4054) into SPECIMENS (e42p2c block ~line 1280), `--update-inventory`
 LOAN2 census msgs WILL move), COVERAGE `FILE.PUT_PAGE` → SUPPORTED + EXACT:1, new claim
 C359 derived ONLY from the existing measured evidence.
 
-## Next action (E2E-52/P3-13 — DEC-EXPRESSION actuals vs FIXED DECIMAL formals (LOAN2:117) — Phase A steps (1)-(4) LANDED this session; PLAN §P3-13 + probes E52ZA.. then campaign OWED; read `LEARNINGS.md` § "P3-13 Phase A PART LANDED" FIRST — it is the successor contract)
+## Next action (E2E-52/P3-13 — step (0) LANDED `ed8f1a8` + hop-5 evidence re-verification LANDED; PLAN §P3-13 + probes E52ZA..F then campaign e52p13 OWED; read `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT" FIRST — it is the current successor contract)
+
+**DONE hop 6 (this session, renewal 6/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; rc DIRECT; byte-tier):** step (0) COMPLETE — g450 blocks already at `f281500`; e52p12 `summary.txt`+`transcript-batch0/1/2.txt` committed VERBATIM additive `ed8f1a8` (staged-set = 4 files only). First-hand re-verification ACCEPTED (raw DATA/code reloc records): **NG18 DEC-literal pool cell is 5 B formal-width `00 01 00 00 00`** (pre-scaled per [C084] R505; predecessor "2-byte" FALSIFIED — C371 correction must fix BOTH C093 errors: DECPOLY `*A(005A)=5.67` false citation AND the 2-byte width); LOAN2 product block = **32 B** at 055D/057D/059D/05BD/05DD; vector 031A-0323 static LE address constants → 6 B temps; existing [C358] copyin emission ALREADY equals the LOAN2 temp-materialiser shape (`LXI H,*A(src)/MVI A,ap/?DLDOP; LXI H,*A(t)/MVI A,pf/?DSTOP`); put-skip tail + QDCOP width=p+3/scale B pinned from YD reldump; `E52Z*` names + tag `e52p13` UNUSED; N33 marker substring `FIXED DECIMAL formal is unproven`; retirement iff armed cmp rc=0 vs KEPT golden.
+**EXECUTE NOW (successor — FULL contract incl. the pre-registered 6-probe panel E52ZA..ZF with per-probe byte predictions and falsifiers = `LEARNINGS.md` § "P3-13 hop 5 IN FLIGHT", read it FIRST):** (5) write `probes/E52Z{A..F}.PLI` per the panel (CRLF + bare `^Z` + ≤71 cols + ONE dcl per line + `E52Zx:` first-line label + continuation stmt) + PLAN §P3-13 (template §P3-12; §1 blocker VERBATIM; §2 witness table LOAN2-site + NG18 **5 B cell**; §3 hypotheses + falsifiers; §4 predictions copied from the LEARNINGS panel — NEVER fit; §5 arm contract: arm ONLY inside `formal_is_dec` — expression actuals → dpush/product materialisation into a FORMAL-width temp + C370-window shift to FORMAL scale + `?DSTOP A=pf`, descriptor→temp; DEC/INT literal → pre-scaled formal-width pool cell + descriptor→cell + ZERO arg code; ALL else BY-NAME [TBD], marker substrings survive, histogram 68; §6 LOAN2 never-predict; §7 framing binding C371); optional ZERO-oracle local `pli80c` sanity (FRESH positional paths; expect rc=2 at the Line guard today); commit PLAN+probes+durables by EXPLICIT paths BEFORE any oracle call or `ocaml/` byte. (6) ONE campaign `PLI_SRC=probes timeout 900 python3 oracle/batch.py E52ZA E52ZB E52ZC E52ZD E52ZE E52ZF --tag e52p13 --switches '$L$D'` rc DIRECT; every .PRN read; decode into `build/p3-13/`; goldens+summary+transcripts VERBATIM FIRST; arm; validation (histogram 68/124, cmp FRESH POSITIONAL, sweep 159/0, markers incl. the honest N33→NG18 decision golden KEPT, DEC regressions 64/0, divcheck 9/9); register from **1288/188**; **C371 measured-bytes-only BEFORE COVERAGE + dated correction of BOTH C093 errors**; row/extension + SAME-change IDS line (NEVER coverage_gen.py; 15 cols; manual_ref `pNN[:§X.Y][=phrase]` or `NONE:`); FULL gate rc=0 DIRECT → `build/gate-e52p13-reg.log`; RESULTS §P3-13 + PLAN §5 row + CLOSED; next ACTUAL blocker (marathon through P3-19).
 
 **DONE hop 4-successor (session 01a1b1d9, chain 01a1b1b4 renewal 4/12; ZERO oracle; goldens NEVER touched; config NEVER staged; no push; all rc DIRECT; byte-tier only):** **(l) LANDED — FULL gate rc=0 DIRECT `build/gate-e52p12-reg.log`: 1288/0, 188/188, 9/9, 143 rows 0/0 SUPPORTED 93, census 15/0/26/0, prose 5 — EVERY pre-registered number HIT.** Honest tool note recorded in RESULTS: the FIRST launch was backgrounded and its rc was NOT captured; the canonical log is the synchronous rc-captured re-run (identical content). RESULTS §P3-12 (parity table YA..YI+NG20 with sizes/sha12 re-read FIRST-HAND from `build/p3-12/*-reldump.txt` at close; every §4 miss VERBATIM — YB/YE predicted `?QDDSR` measured `?QDDSL`, YG predicted up measured DOWN, YI pre-arm byte-68 my-gap closed by the sc=0 rule; H-1 CONFIRMED 7/7, H-2/H-3/H-4 FALSIFIED, H-5 symmetry + H-5/H-7 label adjudication, H-6 shift-free model FALSIFIED, H-7/H-8 held; NG20 retirement provenance + ACCEPTED unmeasured-route coverage loss; LOAN2 111→117 VERBATIM NEVER fix; byte-tier-only) + PLAN §5 P3-12 row + §P3-12 **CLOSED** — commit `c6f587a`, prose rc=0. **P3-12 IS CLOSED.**
 
@@ -2887,17 +2890,17 @@ step7/RESULTS.md,REPORT.md}`, `spec/functional/tests/`, ignored evidence roots u
 records: `docs/history/`.
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 450
-checkpoint-id: g450-396fb340c6ba
+checkpoint-generation: 452
+checkpoint-id: g452-4f27b7d7b1a9
 checkpoint-kind: auto
 content-delta: new
-readiness: attested
+readiness: unattested
 guard-level: 4
-checkpointed: 2026-11-06T17:56:01.774Z
+checkpointed: 2026-11-06T18:17:35.425Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
-source-progress: b098d6dc376b85e62dcdf9b44b1e685860ffacccdb2e2c8ca0b276fc87be9806
+source-progress: 501405f262bf81f96a85ef69d4b8e82d1dc8a4cefa5a81bb104a99f41e82e76d
 source-handoff: f96b4fca296f20d7c5825841ec4e232e9a6adbb52429989d1526cf81251ab9cb
-source-learnings: 074781600e5baa2d5efc076d3bce20e9a083473224d2413b8849620736cec8e8
+source-learnings: b6ca1db1dd77ce96bd0a6e2667bbacf6dd23fa26dfb38f6bf3580e0fb067d5a6
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 next-action: ` rewritten for P3-13) + guard blocks effbb66/15fdc9a. SUCCESSOR: execute PROGRESS.md `## Next action` P3-13 Phase A steps (1)–(6) EXACTLY, ZERO oracle FIRST: decode authentic LOAN2.REL display-call (five `dec(10,2)*dec(4,3)` products vs five `fixed dec(10,2)` formals @142-151) + NG18.REL (N33 retirement route, golden KEPT) into fresh `build/p3-13/`; re-verify the C093 `5.67`-vs-DECPOLY-source discrepancy traceably; PLAN §P3-13 + probes E52ZA.. committed BEFORE any oracle call/`ocaml/` byte; contract in LEARNINGS § "P3-13 Phase A IN FLIGHT"; marathon through P3-19. All inherited constraints in force (goldens VERBATIM never re-derived, POSITIONAL FRESH paths, config NEVER staged, `git diff --cached --stat`, no push, rc DIRECT, never glue `rm`, byte-tier only); armed binary `6a4c6c1154a0acd8403b…` == tree; commit guard g447+ blocks VERBATIM on recovery.**
 
@@ -3530,9 +3533,6 @@ review for the eight corpus sources (due); E2E-50/P3 shortlist
 OBSOLETE "rev2 subtraction-loop division" workaround stays de-listed. Full P2 record:
 `LEARNINGS.md` § "E2E-51/P2 (2026-11-04)"; evidence `build/fc01/hamm-rev2*/` (ignored
 working state). Round record below (E2E-51/P1) kept as written per PROTOCOL #2.
-readiness-by: session:01a1b1ec-8106-71fa-8218-821f89300fcc
-readiness-at: 2026-11-06T17:56:40.498Z
-readiness-checkpoint: g450-396fb340c6ba
 <!-- guard:end checkpoint -->
 
 ## Blockers
