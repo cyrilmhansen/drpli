@@ -1606,28 +1606,33 @@ no push; renew at safe boundaries per handoff.config.json cap; `/home/john/pli/*
 
 <!-- guard:begin checkpoint -->
 checkpoint-schema: 3
-checkpoint-generation: 405
-checkpoint-id: g405-545a9964ee36
-checkpoint-kind: auto
-content-delta: none
-readiness: unattested
-status: checkpoint (guard level 4, remaining ~4953, session 01a1af80-64a1-7191-8d53-510dd9fe4d05)
-checkpointed: 2026-11-06T06:37:11.811Z
+checkpoint-generation: 406
+checkpoint-id: g406-9df6289fa727
+checkpoint-kind: manual
+content-delta: new
+readiness: attested
+status: checkpoint (guard level 4, remaining ~1964, session 01a1af80-64a1-7191-8d53-510dd9fe4d05)
+checkpointed: 2026-11-06T06:37:59.428Z
 source-goal: 730790b648a1e1d14b76243cfe8bc17eea2ba9cd8527f204f9c8d4dbcc527c9d
 source-progress: 9e5f025b781c76b4194ddfab48d88af354dcc03b40cad5ae6f3a5f4fb20bcba1
-source-handoff: ec74c028db9367d2da6f397b248326a0b6f136172f7f6cbefd79e25a92a8732b
+source-handoff: 1f82121b6c111e4fcf3602d85e378f7e7dec26e69cf46bdcc3baafb4b71be322
 source-learnings: 5c83a647a876c9499a0e309c271cb4ea59707e1550d0fb1afd3a70f41a0c8772
 source-config: 43186947fdaf3f3b9f425f8ce1b144a8227ce1d7bec2b7aeafb32e9f0572dea8
 
 
+readiness-by: session:01a1af80-64a1-7191-8d53-510dd9fe4d05
+readiness-at: 2026-11-06T06:37:59.455Z
+readiness-checkpoint: g406-9df6289fa727
 ### Last verified state
-guard level 4; checkpoint requested (auto at level 4)
+guard level 4; checkpoint requested (renewal refresh (model))
 
 ### Unfinished operations
 - (none recorded)
 
 ### Next action
-` (hop 6 REMAINDER) steps (1)–(6): census `--check` OWN path → **C367 measured-bytes-only BEFORE ANY COVERAGE touch** → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`) + coverage_check/prose rc=0 → FULL gate rc=0 `build/gate-e52p9-reg.log` → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); gate inventory now 1260/186 (last full gate ran at 1249 — successor re-runs); goldens NEVER re-derived; chain 01a1adf0 cap 12.
+` steps (2)–(6): **C367 measured-bytes-only committed to `spec/CLAIMS.md` BEFORE ANY `spec/COVERAGE.tsv` touch** (bullet contract = LEARNINGS § "hop 6 CLOSE PART 1" STILL OWED (i)) → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`; verify diff ≈ 2 lines by content) + coverage_check/prose rc=0 → FULL gate rc=0 DIRECT `build/gate-e52p9-reg.log` (expect 1260/0, 186/186, 9/9, rows 0/0, census 15/0/26/0, prose 5) → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); inventory 1260/186; goldens NEVER re-derived; `pli80c` POSITIONAL into FRESH paths; ALWAYS `git diff --cached --stat` before commit; chain 01a1af4f cap 12; no push.
+
+0a-novies-new24. **E2E-52/P3-9 hop 6 REMAINDER PART CLOSED — O-1/MARKERS/SWEEP/EXPR/SPECIMENS+INVENTORY LANDED; RENEWAL PENDING (2026-11-06, session 01a1af69, chain 01a1adf0; ZERO `ocaml/` byte except line-preserving comment fix `1356b8b`; ZERO oracle; goldens NEVER touched; `handoff.config.json` NEVER staged; no push; all rc DIRECT).** Commits: `1356b8b` (ODecEq0 stale-comment VAR-FIRST correction, parity re-held), `bdbc28a` (SPECIMENS +11 measured-bytes block + `--update-inventory` 1249→**1260 EXACTLY +11**, refusals 186), `c059c56` (durables), this + guard **g400-7658c0d8563c refreshed+attested — renewal scheduled, successor receives ONLY the durable files**. ACCEPTED this hop: recovery verified; FULL fresh `--build-dir` rebuild deterministic; histogram **68/124 == baseline**; **11/11 E52VA..VK whole-file cmp rc=0 re-verified from the COMMITTED tree** (golden cmp, NOT the recorded hash, is the authority — `c621ea8c…` unreproducible, current `11c6283e75b60fe3…`); O-1 `build/e52p9-arm/loan2-decode.txt` raw-reldump: :91 ladder-first/`<0`-last/one-F2 + `?SIGOP@035E` unarmed; :113 DEC pair **VAR-FIRST verbatim** (LXI &P@02CA then *zero@01E6; ADD==VAR-first here), EqVV-LATER hoist, one F2→0603; :120 Gt0-And-right `21`-hoist + `AF BE 23 9E`, C1 A0, NEW: then-body ONLY `call summary();`, `m=m+1` OUTSIDE the if, slot 0601 = `call display(...)`; VG DATA **0014** / VI **001A** from DEF-DATA records (hop-4 VI 001B FALSIFIED, off-by-one; console `data=` COSMETIC). EXPR1/EXPR2/LOAN2 POSITIONAL VERBATIM (LOAN2 `(line 92)`, NEVER fix); markers 10/10 rc=0; sweep FAILS 0. LESSONS: `--update-inventory` STAGES its file — ALWAYS `git diff --cached --stat` before commit (config rode into `57fc210`, soft-reset repaired, NEVER pushed); `pli80c` POSITIONAL into FRESH paths — stale .REL FALSE-PASSes cmp. **SUCCESSOR:** execute `PROGRESS.md` → `## Next action` (hop 6 REMAINDER) steps (1)–(6): census `--check` OWN path → **C367 measured-bytes-only BEFORE ANY COVERAGE touch** → `COND.OR` row + EXPLICIT `spec/COVERAGE-IDS.txt` line (NEVER `coverage_gen.py`) + coverage_check/prose rc=0 → FULL gate rc=0 `build/gate-e52p9-reg.log` → RESULTS §P3-9 + PLAN §5 + §P3-9 CLOSED → durables. **STOP at P3-9 — do NOT start P3-10/SIGNAL ERROR.** Ledger ENDS **C366** (C367 owed); gate inventory now 1260/186 (last full gate ran at 1249 — successor re-runs); goldens NEVER re-derived; chain 01a1adf0 cap 12.
 
 0a-novies-new23. **E2E-52/P3-9 hop 5 PART 6 — FINAL ARM PLAN LANDED; ARM EXECUTION OWED; session RENEWING (2026-11-06, session 01a1ae6a, chain 01a1adf0 renewal 6/12; ZERO `ocaml/` byte, ZERO oracle; build rc=0 binary `9ecea27aa4f2d80f49ad…` == baseline; all rc DIRECT; `handoff.config.json` NEVER staged; no push).** Commit `8a7cc32`. New accepted facts: every VA–VK emission list re-confirmed byte-for-byte against `build/e52p9-arm/goldens-dump.txt`; `dec_eq_bool_parts` is VAR-first and matches only var-vs-var — fold DEC `=0` operands emit via the NEW literal-first materialiser in `lower_or` DIRECTLY, never through lower_bool's DEC arms; LOAN2 declares `P fixed decimal(10,2)` (lines 16–22) ⇒ LOAN2:113 witnesses **EqVV in a LATER fold slot** and :120 **Gt0 as And-right** — original-golden decode, panel-unverified = obligation O-1 (re-derive via reldump to `build/e52p9-arm/loan2-decode.txt`, record in C367). The complete plan (placement as `let rec lower_bool … and lower_or …` between @7274/@7276, class head/tail byte lists, node1 rules with BY-NAME refusals, the 7 edit sites, obligations O-1/O-2/O-3) is `LEARNINGS.md` § "hop 5 PART 6" — read it FIRST, then § PART 4 + § PART 3 + § PART 2. **SUCCESSOR:** `PROGRESS.md` → `## Next action` steps (2)–(5): arm codegen.ml ONLY; build rc=0 + histogram vs 68 + cmp VA–VK whole-file vs `golden/e52p9/` + sweep FAILS 0 + markers (CRLF+bare ^Z) + LOAN2/EXPR1/EXPR2 POSITIONAL VERBATIM (predicted `signal error` 92, NEVER fix); registration 1249→1260 (census OWN path, C367 measured-bytes-only BEFORE COVERAGE, COND.OR row + explicit spec/COVERAGE-IDS.txt line, NEVER coverage_gen.py), gate rc=0 build/gate-e52p9-reg.log; RESULTS §P3-9 + PLAN §5 + CLOSED, durables. STOP at P3-9 — do NOT start P3-10. Ledger ENDS C366; gate 1249/186/9/140-0-0 SUPPORTED 90, census 15/0/26/0; binary `9ecea27aa4f2d80f49ad…` == baseline; goldens NEVER re-derived; no push; rc DIRECT; pli80c POSITIONAL; chain 01a1adf0 6/12, cap 12.
 
